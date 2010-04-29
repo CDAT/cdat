@@ -1,0 +1,3 @@
+[submodule "Packages/cmor"]
+	path = Packages/cmor
+	url = git@esg-repo.llnl.gov:cmor.git
