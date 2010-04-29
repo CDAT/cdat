@@ -1,0 +1,2 @@
+/bin/rm -fr build
+find . -name 'config.cache' -print -exec rm {} \; 

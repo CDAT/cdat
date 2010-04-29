@@ -1,0 +1,69 @@
+python module compall
+  interface
+subroutine mksubset (icall,icalndr,idoclim,lenreg,lentim,inptfreq,mosea1,testmsk,testdata,refmsk,refdata,a1,awt1,a2,awt2,lentim2,nmx)
+	integer icall,  inptfreq, icalndr, idoclim
+	integer lentim
+	integer, intent(out) ::  lentim2
+	integer lenreg
+	integer, intent(inout):: mosea1
+	real, intent(in) ::  testmsk(lenreg,lentim), testdata(lenreg,lentim)
+	real, intent(in) ::  refmsk(lenreg,lentim), refdata(lenreg,lentim)
+	real, intent(out):: awt1(lenreg,nmx), a1(lenreg,nmx)
+	real, intent(out):: awt2(lenreg,nmx), a2(lenreg,nmx)
+		    
+end
+
+subroutine mkmask ( icalndr, lenreg, lentim, itimpyr, mosea1, minyr, fracmin, amask, bmask)
+
+      integer lenreg, lentim, itimpyr, mosea1, icalndr, minyr
+      real fracmin
+      real,intent(inout):: amask(lenreg,lentim)
+      real  bmask(lenreg,lentim)
+end
+
+subroutine resolve( nlon, nlat, mpy, maxyr, lentim, idoclim,adata, bdata, wt, wts, avga, avgb, vara, varb, correl, rms,a2, a3, a4, a5, a6, b2, b3, b4, b5, b6, wt2, wt3, wt4, wt5, wt6,ai1, ai2, ai3, ai4, ai5, bi1, bi2, bi3, bi4, bi5, wi1, wi2, wi3, wi4, wi5, siwyr, siayr, sibyr)
+
+      integer nlon, nlat, mpy, maxyr, lentim, idoclim
+      real adata(nlon,nlat,lentim), bdata(nlon,nlat,lentim)
+
+      real, intent(inout):: wt(nlon,nlat,lentim)
+      real, intent(out):: wts(28), avga(28), avgb(28), vara(28), varb(28), correl(28), rms(28)
+      real, intent(temporary) :: wt6(nlon,nlat,mpy), a2(mpy), a3(nlat), a4(nlat,mpy)
+      real, intent(temporary) :: a5(nlon,nlat), a6(nlon,nlat,mpy), b2(mpy), b3(nlat)
+      real, intent(temporary) :: b4(nlat,mpy), b5(nlon,nlat), b6(nlon,nlat,mpy)
+      real, intent(temporary) :: wt2(mpy), wt3(nlat), wt4(nlat,mpy), wt5(nlon,nlat)
+      real, intent(temporary) :: ai1(maxyr), ai2(lentim), ai3(nlat,maxyr), ai4(nlat,lentim)
+      real, intent(temporary) :: ai5(nlon,nlat,maxyr)
+      real, intent(temporary) :: bi1(maxyr), bi2(lentim), bi3(nlat,maxyr)
+      real, intent(temporary) :: bi4(nlat,lentim), bi5(nlon,nlat,maxyr)
+      real, intent(temporary) :: wi1(maxyr), wi2(lentim)
+      real, intent(temporary) :: wi3(nlat,maxyr), wi4(nlat,lentim), wi5(nlon,nlat,maxyr)
+      real, intent(temporary) :: siwyr(maxyr*2), siayr(maxyr*2), sibyr(maxyr*2)
+end
+
+subroutine wrtstats( nn, icall, vars1, modl1, pthd1, pthmask1, vars2, modl2, pthd2, pthmask2, region, minyr, fracmin, months, years, alon0, alon1, alat0,  alat1, ncomps, mons10, mons11, mons20,  mons21, l1i, l2i, l1f, l2f, itarg, tmodl, tpth, tvar, tpthmask, alon, mlon, dellon, alat,mlat, dellat, mvar, mmodl, mpth, mpthmask, mmons0, mmons1, wts, avga, avgb, vara, varb, correl, rms, template, retrlev1, retrlev2, retrlevm, units1, sloptst, offsett, mskvar1, l1o, units2, slopref, offsetr, mskvar2, l2o, mmskvar, mi, mo, tmskvar, levunits1, levunits2, levunits3, idoclim, ifulla, imona, iseasa, ianna, rundate, runtime, alev0, alev10, alev20, reset_n)
+
+      integer nn, l1i(5), l1f(5), l2i(5), l2f(5), mlon, mlat
+      integer   ncomps, mons10, mons11, mons20, mons21, mmons0, mmons1
+      integer   itarg,icall, minyr, months(2,3), years(2,3), l1o(5)
+      integer   l2o(5), mi(5), mo(5), idoclim, ifulla, imona
+      integer  iseasa, ianna, reset_n
+
+      real alon0, alon1, alat0, alat1, dellon, dellat, retrlev1,alon,alat
+      real    retrlev2, retrlevm, fracmin, slopref, offsetr, sloptst
+      real    offsett, alev0, alev10, alev20
+
+
+      real wts(28), avga(28), avgb(28), vara(28), varb(28), correl(28)
+      real     rms(28)
+
+      character*(*) vars1, modl1, pthd1, vars2, modl2, pthd2, region
+      character*(*) template, pthmask1, pthmask2, tmodl, tpth, tpthmask
+      character*(*) mvar, mmodl, mpth, mpthmask, units1, mskvar1
+      character*(*) units2, mskvar2, mmskvar, mgrd
+      character*(*) tmskvar, levunits1, levunits2, levunits3, tvar
+      character*(*) rundate, runtime
+
+end
+  end interface
+end module compall

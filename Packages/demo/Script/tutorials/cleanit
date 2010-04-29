@@ -1,0 +1,43 @@
+#!/usr/bin/env python
+
+keepers = ['animate.py',
+           'boxfill_file.py',
+           'CDMS_Basics_1.py',
+           'CDMS_Basics_2.py',
+           'CDMS_Basics_3.py',
+           'cleanit',
+           'compare_datasets.py',
+           'continents_file.py',
+           'extract_and_plot.py',
+           'Files_1.py',
+           'Files_2.py',
+           'Files_3.py',
+           'Files_5.py',
+           'global_anomalies.py',
+           'isofill_file.py',
+           'isoline_file.py',
+           'Loops_1.py',
+           'Loops_2.py',
+           'Loops_3.py',
+           'open_and_plot.py',
+           'orientation_and_output.py',
+           'output_file.py',
+           'overlay_file.py',
+           'plot_keyword_arguments.py',
+           'primitive_file.py',
+           'regrid_mask_anomaly.py',
+           'scatter_file.py',
+           'show_continents.py',
+           'simple_x_y_line_plot.py',
+           'td.py',
+           'template_file.py',
+           'Variables_and_Axes_1.py',
+           'Variables_and_Axes_2.py',
+           'vector_file.py'
+           ]
+
+import os
+files = os.listdir('.')
+for entry in files:
+    if entry not in keepers:
+        os.remove (entry)

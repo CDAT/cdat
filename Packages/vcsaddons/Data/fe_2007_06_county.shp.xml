@@ -1,0 +1,475 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<metadata>
+	<idinfo>
+		<citation>
+			<citeinfo>
+				<origin>U.S. Department of Commerce, U.S. Census Bureau, Geography Division</origin>
+				<pubdate>2007</pubdate>
+				<title>TIGER/Line Shapefile, 2007,  state, California, County and Equivalent</title>
+				<edition>2007</edition>
+				<geoform>vector digital data</geoform>
+				<onlink>http://www.census.gov/geo/www/tiger</onlink>
+			</citeinfo>
+		</citation>
+		<descript>
+			<abstract>The TIGER/Line Shapefiles are an extract of selected geographic and cartographic information from the Census MAF/TIGER database.  The Census MAF/TIGER database represents a seamless national file with no overlaps or gaps between parts.  However, each TIGER/Line Shapefile is designed to stand alone as an independent data set or the shapefiles can be combined to cover the whole nation.</abstract>
+			<purpose>In order for others to use the information in the Census MAF/TIGER database in a geographic information system (GIS) or for other geographic applications, the Census Bureau releases to the public extracts of the database in the form of TIGER/Line Shapefiles.</purpose>
+			<Subject_Entity>California, CA, 06</Subject_Entity>
+		</descript>
+		<timeperd>
+			<timeinfo>
+				<rngdates>
+					<begdate>200701</begdate>
+					<enddate>200707</enddate>
+				</rngdates>
+			</timeinfo>
+			<current>Publication Date</current>
+		</timeperd>
+		<status>
+			<progress>Complete</progress>
+			<update>TIGER/Line Shapefiles are extracted from the Census MAF/TIGER database.  No changes or updates will be made to this version of the TIGER/Line Shapefiles.  Future releases of TIGER/Line Shapefiles will reflect updates made to the Census MAF/TIGER database.</update>
+		</status>
+		<spdom>
+			<bounding>
+				<westbc>-124.482003</westbc>
+				<eastbc>-114.131211</eastbc>
+				<northbc>42.009517</northbc>
+				<southbc>32.528832</southbc>
+			</bounding>
+		</spdom>
+		<keywords>
+			<theme>
+				<themekt>ISO 19115 Topic Categories</themekt>
+				<themekey>boundaries</themekey>
+			</theme>
+			<theme>
+				<themekt>None</themekt>
+				
+				<themekey>County or equivalent entity</themekey>
+				<themekey>Polygon</themekey>
+			</theme>
+			<place>
+				<placekt>FIPS Publication 5-2, FIPS Publication 6-4, FIPS Publication 8-6, FIPS Publication 9-1</placekt>
+				<placekey>United States</placekey>
+				<placekey>U.S.</placekey>
+				<placekey>State or Equivalent Entity</placekey>
+				<placekey>California</placekey>
+				<placekey>CA</placekey>
+				<placekey>06</placekey>	
+			</place>
+		</keywords>
+		<accconst>None</accconst>
+		<useconst>The TIGER/Line Shapefile products are not copyrighted however TIGER/Line and Census TIGER are registered trademarks of the U.S. Census Bureau.  These products are free to use in a product or publication, however acknowledgement must be given to the U.S. Census Bureau as the source.
+The boundary information in the TIGER/Line Shapefiles are for statistical data collection and tabulation purposes only; their depiction and designation for statistical purposes does not constitute a determination of jurisdictional authority or rights of ownership or entitlement and they are not legal land descriptions.</useconst>
+		<Title_13_Restrictions>Yes, the data are free from Title 13 restrictions</Title_13_Restrictions>
+		<ptcontac>
+			<cntinfo>
+				<cntorgp>
+					<cntorg>U.S. Department of Commerce, U.S. Census Bureau, Geography Division, Geographic Products Management Branch</cntorg>
+				</cntorgp>
+				<cntaddr>
+					<addrtype>Mailing address</addrtype>
+					<address>4600 Silver Hill Road, Stop 7400</address>
+					<city>Washington</city>
+					<state>DC</state>
+					<postal>20233-7400</postal>
+					<country>United States</country>
+				</cntaddr>
+				<cntvoice>301-763-1128</cntvoice>
+				<cntfax>301-763-4710</cntfax>
+				<cntemail>tiger@census.gov</cntemail>
+			</cntinfo>
+		</ptcontac>
+	</idinfo>
+	<Data_Set_Character_Set>8859part1</Data_Set_Character_Set>
+	<Data_Set_Language>eng</Data_Set_Language>
+	<dataqual>
+		<attracc>
+			<attraccr>Accurate against Federal Information Processing Standards (FIPS), FIPS Publication 6-4, and FIPS-55 at the 100% level for the codes and base names.  The remaining attribute information has been examined but has not been fully tested for accuracy.</attraccr>
+		</attracc>
+		<logic>The Census Bureau performed automated tests to ensure logical consistency and limits of shapefiles.  Segments making up the outer and inner boundaries of a polygon tie end-to-end to completely enclose the area.  All polygons are tested for closure.
+The Census Bureau uses its internally developed geographic update system to enhance and modify spatial and attribute data in the Census MAF/TIGER database.  Standard geographic codes, such as FIPS codes for states, counties, municipalities, county subdivisions, places, American Indian/Alaska Native/Native Hawaiian areas, and congressional districts are used when encoding spatial entities.  The Census Bureau performed spatial data tests for logical consistency of the codes during the compilation of the original Census MAF/TIGER database files.  Most of the codes for geographic entities except states, counties, urban areas, Core Based Statistical Areas (CBSAs), American Indian Areas (AIAs), and congressional districts were provided to the Census Bureau by the USGS, the agency responsible for maintaining FIPS 55.  Feature attribute information has been examined but has not been fully tested for consistency.
+For the TIGER/Line Shapefiles, the Point and Vector Object Count for the G-polygon SDTS Point and Vector Object Type reflects the number of records in the shapefile attribute table.  For multi-polygon features, only one attribute record exists for each multi-polygon rather than one attribute record per individual G-polygon component of the multi-polygon feature.  TIGER/Line Shapefile multi-polygons are an exception to the G-polygon object type classification.  Therefore, when multi-polygons exist in a shapefile, the object count will be less than the actual number of G-polygons.</logic>
+		<complete>Data completeness of the TIGER/Line Shapefiles reflects the contents of the Census MAF/TIGER database at the time the TIGER/Line Shapefiles were created.</complete>
+		<lineage>
+			<srcinfo>
+				<srccite>
+					<citeinfo>
+						<origin>U.S. Department of Commerce, U.S. Census Bureau, Geography Division</origin>
+						<pubdate>Unpublished material</pubdate>
+						<title>Census MAF/TIGER database</title>
+					</citeinfo>
+				</srccite>
+				<typesrc>online</typesrc>
+				<srctime>
+					<timeinfo>
+						<rngdates>
+							<begdate>200701</begdate>
+							<enddate>200707</enddate>
+						</rngdates>
+					</timeinfo>
+					<srccurr>Publication Date</srccurr>
+				</srctime>
+				<srccitea>MAF/TIGER</srccitea>
+				<srccontr>The selected geographic and cartographic information (line segments) are derived from the U.S. Census Bureau&apos;s Master Address File Topologically Integrated Geographic Encoding and Referencing (MAF/TIGER) database.</srccontr>
+			</srcinfo>
+			<procstep>
+				<procdesc>TIGER/Line Shapefiles are extracted from the Census MAF/TIGER database by nation, state, county, and entity.  Census MAF/TIGER data for the nation, state, county, and entity are then distributed among 58 shapefiles each containing attributes for line, polygon, or landmark geographic data. </procdesc>
+				<srcused>Census MAF/TIGER</srcused>
+				<procdate>2007</procdate>
+			</procstep>
+		</lineage>
+	</dataqual>
+	<spdoinfo>
+		<indspref>Federal Information Processing Standards (FIPS), ANSI, and feature names.</indspref>
+		<direct>Vector</direct>
+		<ptvctinf>
+			<sdtsterm>
+				<sdtstype>G-polygon</sdtstype>
+				<ptvctcnt>58</ptvctcnt>
+			</sdtsterm>
+		</ptvctinf>
+	</spdoinfo>
+	<spref>
+		<horizsys>
+			<geograph>
+				<latres>0.000458</latres>
+				<longres>0.000458</longres>
+				<geogunit>Decimal degrees</geogunit>
+			</geograph>
+			<geodetic>
+				<horizdn>North American Datum of 1983 in the 48 contiguous states, the District of Columbia, Alaska, Hawaii (only Oahu Island within Honolulu County, HI (15003)), Puerto Rico, and the U.S. Virgin Islands.  
+Regional datums are used in the Pacific Island Areas (American Samoa, Guam, and the Commonwealth of the Northern Mariana Islands) and most of Hawaii.  
+The datums used in the remainder of Hawaii are as follows:  Hawaii County, HI (15001), Old Hawaiian Datum; Honolulu County, HI (15003), local astronomic datums for all islands northwest of 161 degrees west longitude; Kalawao County, HI (15005), Old Hawaiian Datum; Kauai County, HI (15007), Old Hawaiian Datum for Kauai Island and local astronomic datum for Kaula Rock; Maui County, HI (15009), Old Hawaiian Datum.  
+The datums used in American Samoa are as follows:  Eastern District, AS (60010), American Samoa Datum of 1962; Manu'a District, AS (60020), American Samoa Datum of 1962; Rose Island, AS (60030), local astronomic datum; Swains Island, AS (60040), local astronomic datum 1939; Western District, AS (60050), American Samoa Datum of 1962.  
+The Guam Datum of 1963 is used in Guam (66010).  The datums used in the Commonwealth of the Northern Mariana Islands are as follows:  Northern Islands Municipality (69085), Guam Datum of 1963 (Agrihan, Alamagan, Anatahan, Gugan, Medinilla, Pagan, and Sarigan Islands) and local astronomic datums (Asuncion, Maug, and Farallon De Pajaros Islands); Rota Municipality (69100), Guam Datum of 1963; Saipan Municipality (69110), Guam Datum of 1963; Tinian Municipality (69120), Guam Datum of 1963.
+</horizdn>
+				<ellips>Geodetic Reference System 80 where the datum is the North American Datum of 1983.</ellips>
+				<semiaxis>6378137</semiaxis>
+				<denflat>298257</denflat>
+			</geodetic>
+		</horizsys>
+	</spref>
+	<eainfo>
+			<detailed>
+			<enttyp>
+				<enttypl>COUNTY.shp</enttypl>
+				<enttypd>Current county and equivalent entities</enttypd>
+				<enttypds>U.S. Census Bureau</enttypds>
+			</enttyp>
+			<attr>
+				<attrlabl>STATEFP</attrlabl>
+				<attrdef>Current state FIPS code</attrdef>
+				<attrdefs>U.S. Census Bureau</attrdefs>
+				<attrdomv>
+					<codesetd>
+						<codesetn>FIPS PUB 5-2, Codes for the Identification of the States, the District of Columbia and the Outlying Areas of the United States, and Associated Areas</codesetn>
+						<codesets>U.S. Census Bureau</codesets>
+					</codesetd>
+				</attrdomv>
+			</attr>
+			<attr>
+				<attrlabl>COUNTYFP</attrlabl>
+				<attrdef>Current county FIPS code</attrdef>
+				<attrdefs>U.S. Census Bureau</attrdefs>
+				<attrdomv>
+					<codesetd>
+						<codesetn>FIPS PUB 6-4, Counties and Equivalent Entities of the United States, Its Possessions, and Associated Areas</codesetn>
+						<codesets>U.S. Census Bureau</codesets>
+					</codesetd>
+				</attrdomv>
+			</attr>
+			<attr>
+				<attrlabl>COUNTYNS</attrlabl>
+				<attrdef>Current county ANSI code</attrdef>
+				<attrdefs>U.S. Census Bureau</attrdefs>
+				<attrdomv>
+					<codesetd>
+						<codesetn>data are unavailable</codesetn>
+						<codesets>data are unavailable</codesets>
+					</codesetd>
+				</attrdomv>
+			</attr>
+			<attr>
+				<attrlabl>CNTYIDFP</attrlabl>
+				<attrdef>Current county identifier; a concatenation of current state FIPS code and county FIPS code</attrdef>
+				<attrdefs>U.S. Census Bureau</attrdefs>
+				<attrdomv>
+					<codesetd>
+						<codesetn>FIPS PUB 5-2, Codes for the Identification of the States, the District of Columbia and the Outlying Areas of the United States, and Associated Areas, FIPS PUB 6-4, Counties and Equivalent Entities of the United States, Its Possessions, and Associated Areas</codesetn>
+						<codesets>U.S. Census Bureau</codesets>
+					</codesetd>
+				</attrdomv>
+			</attr>
+			<attr>
+				<attrlabl>NAME</attrlabl>
+				<attrdef>Current county name</attrdef>
+				<attrdefs>U.S. Census Bureau</attrdefs>
+				<attrdomv>
+					<codesetd>
+						<codesetn>FIPS PUB 6-4, Counties and Equivalent Entities of the United States, Its Possessions, and Associated Areas</codesetn>
+						<codesets>U.S. Census Bureau</codesets>
+					</codesetd>
+				</attrdomv>
+			</attr>
+			<attr>
+				<attrlabl>NAMELSAD</attrlabl>
+				<attrdef>Current name and the translated legal/statistical area description code for county</attrdef>
+				<attrdefs>U.S. Census Bureau</attrdefs>
+				<attrdomv>
+					<codesetd>
+						<codesetn>FIPS PUB 6-4, Counties and Equivalent Entities of the United States, Its Possessions, and Associated Areas and the translated legal/statistical area description code for county that appears in LSAD00</codesetn>
+						<codesets>U.S. Census Bureau</codesets>
+					</codesetd>
+				</attrdomv>
+			</attr>
+			<attr>
+				<attrlabl>LSAD</attrlabl>
+				<attrdef>Current legal/statistical area description code for county</attrdef>
+				<attrdefs>U.S. Census Bureau</attrdefs>
+				<attrdomv>
+					<edom>
+						<edomv>00</edomv>
+						<edomvd>Blank</edomvd>
+						<edomvds>U.S. Census Bureau</edomvds>
+					</edom>
+					<edom>
+						<edomv>03</edomv>
+						<edomvd>City and Borough</edomvd>
+						<edomvds>U.S. Census Bureau</edomvds>
+					</edom>
+					<edom>
+						<edomv>04</edomv>
+						<edomvd>Borough</edomvd>
+						<edomvds>U.S. Census Bureau</edomvds>
+					</edom>
+					<edom>
+						<edomv>05</edomv>
+						<edomvd>Census Area</edomvd>
+						<edomvds>U.S. Census Bureau</edomvds>
+					</edom>
+					<edom>
+						<edomv>06</edomv>
+						<edomvd>County</edomvd>
+						<edomvds>U.S. Census Bureau</edomvds>
+					</edom>
+					<edom>
+						<edomv>07</edomv>
+						<edomvd>District</edomvd>
+						<edomvds>U.S. Census Bureau</edomvds>
+					</edom>
+					<edom>
+						<edomv>10</edomv>
+						<edomvd>Island</edomvd>
+						<edomvds>U.S. Census Bureau</edomvds>
+					</edom>
+					<edom>
+						<edomv>12</edomv>
+						<edomvd>Municipality</edomvd>
+						<edomvds>U.S. Census Bureau</edomvds>
+					</edom>
+					<edom>
+						<edomv>13</edomv>
+						<edomvd>Municipio</edomvd>
+						<edomvds>U.S. Census Bureau</edomvds>
+					</edom>
+					<edom>
+						<edomv>15</edomv>
+						<edomvd>Parish</edomvd>
+						<edomvds>U.S. Census Bureau</edomvds>
+					</edom>
+					<edom>
+						<edomv>25</edomv>
+						<edomvd>city</edomvd>
+						<edomvds>U.S. Census Bureau</edomvds>
+					</edom>
+				</attrdomv>
+			</attr>
+			<attr>
+				<attrlabl>CLASSFP</attrlabl>
+				<attrdef>Current FIPS 55 class code</attrdef>
+				<attrdefs>U.S. Census Bureau</attrdefs>
+				<attrdomv>
+					<edom>
+						<edomv>C7</edomv>
+						<edomvd>An incorporated place that is independent of any county</edomvd>
+						<edomvds>U.S. Census Bureau</edomvds>
+					</edom>
+					<edom>
+						<edomv>H1</edomv>
+						<edomvd>An active county or equivalent feature</edomvd>
+						<edomvds>U.S. Census Bureau</edomvds>
+					</edom>
+					<edom>
+						<edomv>H4</edomv>
+						<edomvd>An inactive county or equivalent feature</edomvd>
+						<edomvds>U.S. Census Bureau</edomvds>
+					</edom>
+					<edom>
+						<edomv>H5</edomv>
+						<edomvd>A statistical county equivalent feature</edomvd>
+						<edomvds>U.S. Census Bureau</edomvds>
+					</edom>
+					<edom>
+						<edomv>H6</edomv>
+						<edomvd>A county that is coextensive with an incorporated place, part of an incorporated place, or a consolidated city and the governmental functions of the county are part of the municipal govenment</edomvd>
+						<edomvds>U.S. Census Bureau</edomvds>
+					</edom>
+				</attrdomv>
+			</attr>
+			<attr>
+				<attrlabl>MTFCC</attrlabl>
+				<attrdef>MAF/TIGER feature class code</attrdef>
+				<attrdefs>U.S. Census Bureau</attrdefs>
+				<attrdomv>
+					<edom>
+						<edomv>G4020</edomv>
+						<edomvd>County or Equivalent Feature</edomvd>
+						<edomvds>U.S. Census Bureau</edomvds>
+					</edom>
+				</attrdomv>
+			</attr>
+			<attr>
+				<attrlabl>UR</attrlabl>
+				<attrdef>Current urban/rural indicator</attrdef>
+				<attrdefs>U.S. Census Bureau</attrdefs>
+				<attrdomv>
+					<edom>
+						<edomv>M</edomv>
+						<edomvd>Mixed - part of the land area is classified as urban and part is classified as rural</edomvd>
+						<edomvds>U.S. Census Bureau</edomvds>
+					</edom>
+					<edom>
+						<edomv>N</edomv>
+						<edomvd>Not Applicable (water-only and international areas)</edomvd>
+						<edomvds>U.S. Census Bureau</edomvds>
+					</edom>
+					<edom>
+						<edomv>R</edomv>
+						<edomvd>Area is classified as rural</edomvd>
+						<edomvds>U.S. Census Bureau</edomvds>
+					</edom>
+					<edom>
+						<edomv>U</edomv>
+						<edomvd>Area is classified as urban</edomvd>
+						<edomvds>U.S. Census Bureau</edomvds>
+					</edom>
+				</attrdomv>
+			</attr>
+			<attr>
+				<attrlabl>FUNCSTAT</attrlabl>
+				<attrdef>Current functional status</attrdef>
+				<attrdefs>U.S. Census Bureau</attrdefs>
+				<attrdomv>
+					<edom>
+						<edomv>A</edomv>
+						<edomvd>Active government providing primary general-purpose functions</edomvd>
+						<edomvds>U.S. Census Bureau</edomvds>
+					</edom>
+					<edom>
+						<edomv>B</edomv>
+						<edomvd>Active government that is partially consolidated with another government but with separate officials providing primary general-purpose functions</edomvd>
+						<edomvds>U.S. Census Bureau</edomvds>
+					</edom>
+					<edom>
+						<edomv>C</edomv>
+						<edomvd>Active government consolidated with another government with a single set of officials</edomvd>
+						<edomvds>U.S. Census Bureau</edomvds>
+					</edom>
+					<edom>
+						<edomv>F</edomv>
+						<edomvd>Fictitious Entity created to fill the Census Bureau geographic hierarchy</edomvd>
+						<edomvds>U.S. Census Bureau</edomvds>
+					</edom>
+					<edom>
+						<edomv>G</edomv>
+						<edomvd>Active government that is subordinate to another unit of government</edomvd>
+						<edomvds>U.S. Census Bureau</edomvds>
+					</edom>
+					<edom>
+						<edomv>N</edomv>
+						<edomvd>Nonfunctioning legal entity</edomvd>
+						<edomvds>U.S. Census Bureau</edomvds>
+					</edom>
+					<edom>
+						<edomv>S</edomv>
+						<edomvd>Statistical Entity</edomvd>
+						<edomvds>U.S. Census Burea</edomvds>
+					</edom>
+				</attrdomv>
+			</attr>
+		</detailed>
+	</eainfo>
+
+	<distinfo>
+		<distrib>
+			<cntinfo>
+				<cntorgp>
+					<cntorg>U.S. Department of Commerce, U.S. Census Bureau, Geography Division, Geographic Products Management Branch</cntorg>
+				</cntorgp>
+				<cntaddr>
+					<addrtype>Mailing address</addrtype>
+					<address>4600 Silver Hill Road, Stop 7400</address>
+					<city>Washington</city>
+					<state>DC</state>
+					<postal>20233-7400</postal>
+					<country>United States</country>
+				</cntaddr>
+				<cntvoice>301-763-1128</cntvoice>
+				<cntfax>301-763-4710</cntfax>
+				<cntemail>tiger@census.gov</cntemail>
+			</cntinfo>
+		</distrib>
+		<distliab>No warranty, expressed or implied is made with regard to the accuracy of these data, and no liability is assumed by the U.S. Government in general or the U.S. Census Bureau in specific as to the spatial or attribute accuracy of the data.  The act of distribution shall not constitute any such warranty and no responsibility is assumed by the U.S. government in the use of these files.  The boundary information in the TIGER/Line Shapefiles is for statistical data collection and tabulation purposes only; their depiction and designation for statistical purposes do not constitute a determination of jurisdictional authority or rights of ownership or entitlement and they are not legal land descriptions.</distliab>
+		<stdorder>
+			<digform>
+				<digtinfo>
+					<formname>TGRSHP (compressed)</formname>
+					<filedec>PK-ZIP, version 1.93 A or higher</filedec>
+				</digtinfo>
+				<digtopt>
+					<onlinopt>
+						<computer>
+							<networka>
+								<networkr>http://www.census.gov/geo/www/tiger</networkr>
+							</networka>
+						</computer>
+					</onlinopt>
+					<offoptn>
+						<offmedia>DVD-ROM (Only if offered offline)</offmedia>
+						<recfmt>ISO 9660</recfmt>
+					</offoptn>
+				</digtopt>
+			</digform>
+			<fees>The online copy of the TIGER/Line files may be accessed without charge.</fees>
+			<ordering>To obtain more information about ordering TIGER/Line shapefiles visit http://www.census.gov/geo/www/tiger </ordering>
+		</stdorder>
+		<techpreq>The TIGER/Line shapefiles contain geographic data only and do not include display mapping software or statistical data.  For information on how to use the TIGER/Line shapefile data with specific software package users shall contact the company that produced the software.</techpreq>
+	</distinfo>
+	<metainfo>
+		<metd>2007</metd>
+		<metc>
+			<cntinfo>
+				<cntorgp>
+					<cntorg>U.S. Department of Commerce, U.S. Census Bureau, Geography Division, Geographic Products Management Branch</cntorg>
+				</cntorgp>
+				<cntaddr>
+					<addrtype>Mailing address</addrtype>
+					<address>4600 Silver Hill Road, Stop 7400</address>
+					<city>Washington</city>
+					<state>DC</state>
+					<postal>20233-7400</postal>
+					<country>United States</country>
+				</cntaddr>
+				<cntvoice>301-763-1128</cntvoice>
+				<cntfax>301-763-4710</cntfax>
+				<cntemail>tiger@census.gov</cntemail>
+			</cntinfo>
+		</metc>
+		<metstdn>FGDC Content Standards for Digital Geospatial Metadata</metstdn>
+		<metstdv>FGDC-STD-001-1998</metstdv>
+		<Metadata_Character_Set>8859part1</Metadata_Character_Set>
+		<Metadata_File_Identifier>fe_2007_06_county.shp.xml</Metadata_File_Identifier>
+		<Metadata_Language>eng</Metadata_Language>
+	</metainfo>
+</metadata>

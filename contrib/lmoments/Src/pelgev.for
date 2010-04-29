@@ -1,0 +1,111 @@
+      SUBROUTINE PELGEV(XMOM,PARA)
+C***********************************************************************
+C*                                                                     *
+C*  FORTRAN CODE WRITTEN FOR INCLUSION IN IBM RESEARCH REPORT RC20525, *
+C*  'FORTRAN ROUTINES FOR USE WITH THE METHOD OF L-MOMENTS, VERSION 3' *
+C*                                                                     *
+C*  J. R. M. HOSKING                                                   *
+C*  IBM RESEARCH DIVISION                                              *
+C*  T. J. WATSON RESEARCH CENTER                                       *
+C*  YORKTOWN HEIGHTS                                                   *
+C*  NEW YORK 10598, U.S.A.                                             *
+C*                                                                     *
+C*  VERSION 3     AUGUST 1996                                          *
+C*                                                                     *
+C***********************************************************************
+C
+C  PARAMETER ESTIMATION VIA L-MOMENTS FOR THE GENERALIZED EXTREME-VALUE
+C  DISTRIBUTION
+C
+C  PARAMETERS OF ROUTINE:
+C  XMOM   * INPUT* ARRAY OF LENGTH 3. CONTAINS THE L-MOMENTS LAMBDA-1,
+C                  LAMBDA-2, TAU-3.
+C  PARA   *OUTPUT* ARRAY OF LENGTH 3. ON EXIT, CONTAINS THE PARAMETERS
+C                  IN THE ORDER XI, ALPHA, K (LOCATION, SCALE, SHAPE).
+C
+C  OTHER ROUTINES USED: DLGAMA
+C
+C  METHOD: FOR  -0.8 LE TAU3 LT 1,  K IS APPROXIMATED BY RATIONAL
+C  FUNCTIONS AS IN DONALDSON (1996, COMMUN. STATIST. SIMUL. COMPUT.).
+C  IF TAU3 IS OUTSIDE THIS RANGE, NEWTON-RAPHSON ITERATION IS USED.
+C
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      DOUBLE PRECISION XMOM(3),PARA(3)
+      DATA ZERO/0D0/,HALF/0.5D0/,ONE/1D0/,TWO/2D0/,THREE/3D0/
+      DATA P8/0.8D0/,P97/0.97D0/
+C
+C         SMALL IS USED TO TEST WHETHER K IS EFFECTIVELY ZERO
+C         EPS,MAXIT CONTROL THE TEST FOR CONVERGENCE OF N-R ITERATION
+C
+      DATA SMALL/1D-5/,EPS/1D-6/,MAXIT/20/
+C
+C         EU IS EULER'S CONSTANT
+C         DL2 IS LOG(2), DL3 IS LOG(3)
+C
+      DATA EU/0.57721566D0/,DL2/0.69314718D0/,DL3/1.0986123D0/
+C
+C         COEFFICIENTS OF RATIONAL-FUNCTION APPROXIMATIONS FOR K
+C
+      DATA A0,A1,A2/ 0.28377530D0,-1.21096399D0,-2.50728214D0/
+      DATA A3,A4   /-1.13455566D0,-0.07138022D0/
+      DATA B1,B2,B3/ 2.06189696D0, 1.31912239D0, 0.25077104D0/
+      DATA C1,C2,C3/ 1.59921491D0,-0.48832213D0, 0.01573152D0/
+      DATA D1,D2   /-0.64363929D0, 0.08985247D0/
+C
+      T3=XMOM(3)
+      IF(XMOM(2).LE.ZERO)GOTO 1000
+      IF(DABS(T3).GE.ONE)GOTO 1000
+      IF(T3.LE.ZERO)GOTO 10
+C
+C         RATIONAL-FUNCTION APPROXIMATION FOR TAU3 BETWEEN 0 AND 1
+C
+      Z=ONE-T3
+      G=(-ONE+Z*(C1+Z*(C2+Z*C3)))/(ONE+Z*(D1+Z*D2))
+      IF(DABS(G).LT.SMALL)GOTO 50
+      GOTO 40
+C
+C         RATIONAL-FUNCTION APPROXIMATION FOR TAU3 BETWEEN -0.8 AND 0
+C
+   10 G=(A0+T3*(A1+T3*(A2+T3*(A3+T3*A4))))/(ONE+T3*(B1+T3*(B2+T3*B3)))
+      IF(T3.GE.-P8)GOTO 40
+C
+C         NEWTON-RAPHSON ITERATION FOR TAU3 LESS THAN -0.8
+C
+      IF(T3.LE.-P97)G=ONE-DLOG(ONE+T3)/DL2
+      T0=(T3+THREE)*HALF
+      DO 20 IT=1,MAXIT
+      X2=TWO**(-G)
+      X3=THREE**(-G)
+      XX2=ONE-X2
+      XX3=ONE-X3
+      T=XX3/XX2
+      DERIV=(XX2*X3*DL3-XX3*X2*DL2)/(XX2*XX2)
+      GOLD=G
+      G=G-(T-T0)/DERIV
+      IF(DABS(G-GOLD).LE.EPS*G)GOTO 30
+   20 CONTINUE
+      WRITE(6,7010)
+   30 CONTINUE
+C
+C         ESTIMATE ALPHA,XI
+C
+   40 PARA(3)=G
+      GAM=DEXP(DLGAMA(ONE+G))
+      PARA(2)=XMOM(2)*G/(GAM*(ONE-TWO**(-G)))
+      PARA(1)=XMOM(1)-PARA(2)*(ONE-GAM)/G
+      RETURN
+C
+C         ESTIMATED K EFFECTIVELY ZERO
+C
+   50 PARA(3)=ZERO
+      PARA(2)=XMOM(2)/DL2
+      PARA(1)=XMOM(1)-EU*PARA(2)
+      RETURN
+C
+ 1000 WRITE(6,7000)
+      RETURN
+C
+ 7000 FORMAT(' *** ERROR *** ROUTINE PELGEV : L-MOMENTS INVALID')
+ 7010 FORMAT(' ** WARNING ** ROUTINE PELGEV :',
+     *  ' ITERATION HAS NOT CONVERGED. RESULTS MAY BE UNRELIABLE.')
+      END

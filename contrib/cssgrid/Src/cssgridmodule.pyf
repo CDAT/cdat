@@ -1,0 +1,1178 @@
+python module cssgridmodule
+  interface
+! **********************************************************************************************
+! **********************************************************************************************
+!
+!        CSSGRID -- a cubic spline interpolation package for random data on a sphere.
+!
+!                   It is a fitted-function algorithm using tension splines. Tension splines are
+!                   an extension of cubic splines whereby a user-specified tension factor controls
+!                   the fitting function from essentially linear interpolation to to pure cubic
+!                   spline interpoltaion. It contains the the single precision procedures:
+!
+!                      cssgrid -- interpolation on a sphere
+!                      cssgtri -- calculates a Delaunay triangulation
+!                      csvoro  -- calculates Voronoi polygons
+!
+!                   It also contains the the double precision procedures:
+!
+!                      cssgridd -- interpolation on a sphere
+!                      cssgtrid -- calculates a Delaunay triangulation
+!                      csvorod -- calculates Voronoi polygons
+!
+!                   In addition it contains:
+
+!                      css2c -- converts lat/lon to Cartesian coordinates
+!                      csc2s -- converts Cartesian to lat/lon coordinates
+!                      csseti -- sets integer parameter values 
+!                      csgeti -- retrieves values for integer parameter values 
+!                      cssetr -- sets real parameter values 
+!                      csgetr -- retrieves values for real parameter values 
+!                      cssetd -- sets double precision parameter values 
+!                      csgetd -- retrieves values for double precision parameter values 
+!
+!        ICFELL routine called as an error handler in csgetd.f, csgetr.f, csgeti.f, cssetd.f, cssetr.f and csseti.f
+!        was not found. The lines calling ICFELL were commented out.
+!
+!        ROUTINES csvoror and csvorod return nca with the wrong value because of a radians to degrees transformation
+!        which occurs in the wrong place. It was not fixed because nca was not required in the Python interface.
+!
+! **********************************************************************************************
+! **********************************************************************************************
+!
+     subroutine cssgrid(n,rlati,rloni,f,ni,nj,rlato,rlono,ff,iwk,wk,ier)
+! **************************************************************************
+         !
+         !                               Simplified entry to SSRFPACK
+         !                                                 Fred Clare
+         !                                                  NCAR, SCD
+         !                                                   12/10/99
+         !
+         !  This subroutine provides a simple interface to SSRFPACK.
+         !  This is a single precision version that is nothing more
+         !  than an interface to the double precision version.
+         !  It triangulates the input data and does interpolation at
+         !  the specified grid points.  Certain internal parameters are
+         !  assigned default values.
+         !
+         ! purpose
+         !
+         !    cssgrid is called to interpolate data randomly spaced on a sphere. 
+         !
+         ! method
+         !
+         !    cssgrid uses tension splines to construct an interpolatory surface. As a first step,
+         !    cssgrid creates a Delaunary triangulation of the input data points; the companion
+         !    entry csstri is provided only for those times when you want to calculate the triangulation
+         !    for independent inspection.
+         !
+         !    Various aspects of the interpolation algorithm can be changed by using the parameter access 
+         !    routines csseti and cssetr to change the ccsgrid control parameters.
+         !
+         ! **************************************************************
+         !
+         ! input arguments
+         !
+         !... n
+         !        The number input data points (n > 2).
+         !
+         !... rlati
+         !... rloni
+         !        Arrays containing latitude and longitude coordinates, expressed in degrees, of the
+         !        input data. The first three points must not be collinear (lie on a common great circle).
+         !        
+         !... f
+         !        Array containing data values.  f(i) is a functional value at (rlati(i),rloni(i)) for 
+         !        for i = 1 to n.
+         !
+         !... ni
+         !        The number of rows in the uniform output grid. ni can be 1.
+         !
+         !... nj 
+         !        The number of columns in the uniform output grid. nj can be 1.
+         !
+         !... rlato,rlono 
+         !        Arrays of length ni and nj, respectively, containing the latitudes and longitudes of
+         !        the grid lines, in degrees.
+         !
+         !... iwk 
+         !        An integer workspace of length 27*n.
+         !
+         !... wk 
+         !        A double precision workspace of length 13*n. A common source of error in using cssgrid
+         !        is failing to type wk as double precision.
+         !
+         ! **************************************************************
+         !
+         ! output arguments
+         !
+         !... ff   
+         !        An ni by nj array containing the desired interpolated values. ff(i,j) is the interpolated
+         !        values at the coordinate specified by rlato(i) and rlono(j) for i = 1,..,ni and j = 1,..,nj.
+         !
+         !... ier 
+         !        Error indicator:
+         !
+         !        ier = 0 - No error.
+         ! 
+         !        ier = 1 - Invalid number of input points (must be greater than 3).
+         !
+         !        ier = 2 - Invalid dimension for latitudes in the output grid.
+         !
+         !        ier = 3 - Invalid dimension for longitudes in the output grid.
+         !
+         !        ier = 4 - First three nodes of the input array are collinear.
+         !
+         !        ier = 5 - Extrapolation failed due to the uniform grid extending too far beyond the triangulation
+         !                  boundary.
+         !
+         !        ier = 6 - Internal algorithm error - please report this.
+         !
+         !        ier = 7 - Vertex of a triangle containing an interpolation point is outside the valid range.
+         !
+         !        ier = 8 - The angular distance between an interpolated point and the nearest point of the
+         !                  triangulation is at least 90 degrees.
+         !
+         !        ier = 9 - Not enough points to calculate a gradient.
+         !
+         !        ier = 10 - Insufficient space for the triangulation (must be >= number of boundary nodes minus 2).
+         !
+         !        ier = 11 - Degenerate triangle (two vertices lie on same geodesic).
+         !
+         !        ier = -L - Coordinates L and M coincide for some M > L >= 1 (coordinate numbering starting at 1).
+         !
+         ! **************************************************************
+         !
+         ! calling sequence 
+         !
+         !        ff, ier = cssgrid(n, rlati, rloni, f, ni, nj, rlato, rlono)
+         !
+! *************************************************************************
+         !
+         integer n
+         real rlati(n)
+         real rloni(n)
+         real f(n)
+         integer ni
+         integer nj
+         real rlato(ni)
+         real rlono(nj)
+         real, intent(out)::ff(ni,nj)
+         integer, intent(temporary):: iwk(27*n)
+         doubleprecision, intent(temporary):: wk(13*n)
+         integer, intent(out):: ier
+         !
+     end
+
+     subroutine csstri(n,rlati,rloni,nt,ntri,iwk,wk,ier)
+! **************************************************************************
+         !
+         !                              Simplified STRIPACK interface
+         !                                                 Fred Clare
+         !                                                       NCAR
+         !                                                   12/10/99
+         !
+         ! This subroutine provides a simplified interface to
+         ! STRIPACK triangulation, at the expense of requiring a
+         ! little extra storage.
+         !
+         !
+         ! Modules required by csstri:  cstrmesh, cstrlist
+
+         ! purpose
+         !
+         !    csstri is called to find a Delaunay triangulation of data randomly
+         !    positioned on the surface of a sphere.
+         !
+         ! **************************************************************
+         !
+         ! input arguments
+         !
+         !... n
+         !        The number input data points (n > 2).
+         !
+         !... rlati
+         !... rloni
+         !        Arrays containing latitude and longitude coordinates, expressed in degrees, of the
+         !        input data. The first three points must not be collinear (lie on a common great circle).
+         !        
+         !... iwk 
+         !        An integer workspace of length 27*n.
+         !
+         !... wk 
+         !        A double precision workspace of length 13*n. A common source of error in using csstri
+         !        is failing to type wk as double precision.
+         !
+         ! **************************************************************
+         !
+         ! output arguments
+         !
+         !... nt   
+         !        The number of triangles in the triangulation, unless ier is not 0, in which case nt = 0.
+         !        Let nb be the number of boundary points on the convex hull of the data. If nb >= 3, then
+         !        nt = 2n - nb - 2, otherwise nt = 2n - 4.
+         !
+         !... ntri 
+         !        A two-dimensional integer array dimensioned for 3 x nt where nt is the number of triangles
+         !        in the triangulation (nt is at most 2*n). ntri contains the nodes for the triangles in the
+         !        triangulation. The nodes for the jth triangle are in the triple composed of ntri(1,j), ntri(2,j)
+         !        and ntri(3,j). These indices reference the sequence in the input coordinate grid. For example, if
+         !        the triple (5,1,2) were in the list of triples, it would describe the triangle having vertices
+         !        at ( rlati(5), rloni(5) ), ( rlati(1), rloni(1) ) and( rlati(2), rloni(2) ).
+         !
+         !... ier 
+         !        Error indicator:
+         !
+         !        ier = 0 - No error.
+         ! 
+         !        ier = 1 - Invalid number of input points (must be greater than 3).
+         !
+         !        ier = 2 - Invalid dimension for latitudes in the output grid.
+         !
+         !        ier = 3 - Invalid dimension for longitudes in the output grid.
+         !
+         !        ier = 4 - First three nodes of the input array are collinear.
+         !
+         !        ier = 5 - Extrapolation failed due to the uniform grid extending too far beyond the triangulation
+         !                  boundary.
+         !
+         !        ier = 6 - Internal algorithm error - please report this.
+         !
+         !        ier = 7 - Vertex of a triangle containing an interpolation point is outside the valid range.
+         !
+         !        ier = 8 - The angular distance between an interpolated point and the nearest point of the
+         !                  triangulation is at least 90 degrees.
+         !
+         !        ier = 9 - Not enough points to calculate a gradient.
+         !
+         !        ier = 10 - Insufficient space for the triangulation (must be >= number of boundary nodes minus 2).
+         !
+         !        ier = 11 - Degenerate triangle (two vertices lie on same geodesic).
+         !
+         !        ier = -L - Coordinates L and M coincide for some M > L >= 1 (coordinate numbering starting at 1).
+         !
+         ! **************************************************************
+         !
+         ! calling sequence 
+         !
+         !        nt, ntri, ier = csstri(n, rlati, rloni)
+         !
+! *************************************************************************
+         !
+         integer n
+         real rlati(n)
+         real rloni(n)
+         integer, intent(out):: nt
+         integer, intent(out):: ntri(3, 2*n)
+         integer, intent(temporary):: iwk(27*n)
+         doubleprecision, intent(temporary):: wk(13*n)
+         integer, intent(out):: ier
+         !
+     end
+
+     subroutine css2c (n,rlat,rlon, x,y,z)
+! **************************************************************************
+         !
+         ! purpose
+         !
+         !    css2c is called to find equivalent Cartesian coordinates on the unit sphere
+         !    to specified latitude and longitude coordinates. The coordinate of 0. latitude
+         !    and 0. longitude is converted to Cartesian coordinates (1.,0.,0.). Latitudes
+         !    and longitudes are assumed to be in degrees.
+         !
+         !
+         ! Modules required by css2c:  None
+         !
+         ! Intrinsic functions called by css2c:  sin, cos
+         ! **************************************************************
+         !
+         ! input arguments
+         !
+         !... n
+         !        The number of lat/lon coordinates.
+         !
+         !... rlat
+         !        An array containing the latitudes of the input coordinates, expressed in degrees.
+         !
+         !... rlon
+         !        An array containing the longitudes of the input coordinates, expressed in degrees.
+         !
+         ! **************************************************************
+         !
+         ! output arguments
+         !
+         !... x,y,z 
+         !        Arrays containing the Cartesian coordinates of the output points. (x(i),y(i),z(i))
+         !        is the Cartesian coordinate corresponding to the lat/lon coordindate (rlat(i),rlon(i)) 
+         !        for i = 1 to n. x(i)**2 + y(i)**2 + z(i)**2 = 1 for i = 1 to n.
+         !
+         ! **************************************************************
+         !
+         ! calling sequence 
+         !
+         !        x, y, z = css2c(n, rlat, rlon)
+         !
+! *************************************************************************
+         !
+         integer n
+         real rlat(n)
+         real rlon(n)
+         real, intent(out)::x(n)
+         real, intent(out)::y(n)
+         real, intent(out)::z(n)
+         !
+     end
+
+     subroutine csc2s (n,x,y,z,rlat,rlon)
+! **************************************************************************
+         !
+         ! purpose
+         !
+         !    csc2s is called to find equivalent latitude and longitude coordinates on
+         !    a sphere to a specified Cartesian coordinates on the unit sphere. The coordinate
+         !    (1.,0.,0) is mapped to the latitude/longitude coordinate (0.,0.). The latitude/longitude
+         !    coordinates are returned in degrees, latitudes between -90. and 90. (inclusive) and
+         !    longitudes between -180. and 180. (inclusive). 
+         !
+         ! Modules required by csc2s:  csscoord
+         !
+         ! Intrinsic functions called by csc2s:  None
+         !
+         ! **************************************************************
+         !
+         ! input arguments
+         !
+         !... n
+         !        The number of input (x,y,z) coordinates.
+         !
+         !... x,y,z 
+         !        The Cartesian coordinates of the input points, x(i)**2 + y(i)**2 + z(i)**2 = 1
+         !        for i = 1 to n. 
+         !
+         ! **************************************************************
+         !
+         ! output arguments
+         !
+         !... rlat
+         !        The latitudes of the input coordinates in degrees.
+         !
+         !... rlon
+         !        The longitudes of the input coordinates in degrees.
+         !
+         ! **************************************************************
+         !
+         ! calling sequence 
+         !
+         !        rlat, rlon = csc2s(n, x, y, z)
+         !
+! *************************************************************************
+         !
+         integer n
+         real x(n)
+         real y(n)
+         real z(n)
+         real, intent(out)::rlat(n)
+         real, intent(out)::rlon(n)
+         !
+     end
+
+     subroutine csvoro(npts,rlati,rloni,ni,nf,iwk,rwk,nc,rlato,rlono,rc,nca,numv,nv,ier)
+! **************************************************************************
+         !
+         ! purpose
+         !
+         !    csvoro is called if you want to determine the Voronoi polygons for data randomly
+         !    positioned on the sphere. Each call to csvoro calculates the vertices for the
+         !    Voronoi polygon surrounding a specified input point.
+         !
+         ! **************************************************************
+         !
+         ! input arguments
+         !
+         !... npts
+         !        The number of input data points (npts > 3)
+         !
+         !... rlati
+         !        An array, dimensioned for npts, containing the latitudes of the input coordinates,
+         !        in degrees.
+         !
+         !... rloni
+         !        An array, dimensioned for npts, containing the longitudes of the input coordinates,
+         !        in degrees.
+         !
+         !... nc
+         !      The maximum size of the output arrays rlato, rlono, and rc. nc should be 2*npts.
+         !
+         !... ni 
+         !        The index of the input coordinate for which you want to determine the Voronoi polygon 
+         !        (0 < ni <= npts).
+         !
+         !... nf 
+         !        Flag indicating if this is the first call to csvoro to retrieve Voronoi polygons for
+         !        this dataset (1 = yes, 0 = no).  Calls subsequent to the first call for a given dataset 
+         !        are much faster than the first call.
+         !
+         !... iwk
+         !      Integer work space dimensioned for 27*npts.
+         !
+         !... rwk 
+         !      Double precision work space dimensioned for 9*npts.
+         !
+         ! **************************************************************
+         !
+         ! output arguments
+         !
+         !... rlato 
+         !      An array of latitude values for the Voronoi indices. These are circumcenters of circles
+         !      passing through the Delaunay triangles. If a coordinate is a boundary point, then the 
+         !      circle may pass through certain "pseudo points" that have been added to the original dataset
+         !      in order to complete the Voronoi polygon. rlato is returned in degrees.
+         !
+         !... rlono
+         !      An array of longitude values for the Voronoi indices.  These are circumcenters of circles
+         !      passing through the Delaunay triangles.  If a coordinate is a boundary point, then the circle
+         !      may pass through certain "pseudo points" that have been added to the original dataset in order
+         !      to complete the Voronoi polygon. rlono is returned in degrees.
+         !
+         !... rc
+         !      Array containing the arc length (in degrees) of the angle between a circumcenter and its 
+         !      associated triangle vertices.
+         !
+         !... nca
+         !      The actual number of circumcenters returned in rlato and rlono. This number may be larger than
+         !      npts if the input dataset has boundary points, since certain "pseudo points" may have been
+         !      added to the original dataset in order to complete the Voronoi polygon set.
+         !
+         !... numv
+         !      The number of vertices in the Voronoi polygon enclosing the coordinate (rlati(ni),rloni(ni)).
+         !
+         !... nv
+         !      An array (dimensioned for npts) containing numv indices for the Voronoi polygon enclosing the
+         !      coordinate (rlati(ni),rloni(ni)). The indices returned in this array refer to the coordinates
+         !      returned in rlato and rlono.  For example, if the integer "j" is an element of the nv array, 
+         !      then (rlato(j),rlono(j)) is a vertex of the Voronoi polygon enclosing (rlati(ni),rloni(ni)).
+         !      The indices in nv list out the vertices of the Voronoi in counter-clockwise order.
+         !
+         !... ier 
+         !        Error indicator:
+         !
+         !        ier = 0 - No error.
+         ! 
+         !        ier = 1 - Invalid number of input points (must be greater than 3).
+         !
+         !        ier = 2 - Invalid dimension for latitudes in the output grid.
+         !
+         !        ier = 3 - Invalid dimension for longitudes in the output grid.
+         !
+         !        ier = 4 - First three nodes of the input array are collinear.
+         !
+         !        ier = 5 - Extrapolation failed due to the uniform grid extending too far beyond the triangulation
+         !                  boundary.
+         !
+         !        ier = 6 - Internal algorithm error - please report this.
+         !
+         !        ier = 7 - Vertex of a triangle containing an interpolation point is outside the valid range.
+         !
+         !        ier = 8 - The angular distance between an interpolated point and the nearest point of the
+         !                  triangulation is at least 90 degrees.
+         !
+         !        ier = 9 - Not enough points to calculate a gradient.
+         !
+         !        ier = 10 - Insufficient space for the triangulation (must be >= number of boundary nodes minus 2).
+         !
+         !        ier = 11 - Degenerate triangle (two vertices lie on same geodesic).
+         !
+         !        ier = -L - Coordinates L and M coincide for some M > L >= 1 (coordinate numbering starting at 1).
+         !
+         ! **************************************************************
+         !
+         ! calling sequence 
+         !
+         !        rlato, rlono, rc, nca, numv, nv, ier = csvoro(npts, rlati, rloni, ni, nf, nc)
+         !
+! *************************************************************************
+         !
+         integer npts
+         real rlati(npts)
+         real rloni(npts)
+         integer nc
+         integer ni
+         integer nf
+         integer, intent(temporary):: iwk(27*npts)
+         doubleprecision, intent(temporary):: rwk(9*npts)
+         real, intent(out):: rlato(nc)
+         real, intent(out):: rlono(nc)
+         real, intent(out):: rc(nc)
+         integer, intent(out):: nca
+         integer, intent(out):: numv
+         integer, intent(out):: nv(npts)
+         integer, intent(out):: ier
+         !
+     end
+
+     subroutine csseti (cnp,ivp)
+! **************************************************************************
+         !
+         ! purpose
+         !
+         !    csseti is used to set values for any of the cssgrid control parameters that
+         !    take integer values. The values set by csseti remain in effect until changed
+         !    by subsequent calls to csseti.
+         !
+         ! **************************************************************
+         !
+         ! input arguments
+         !
+         !... cnp
+         !      The name of the control parameter whose value is to be set.
+         !
+         !... ivp 
+         !      The value to be assigned to the parameter.
+         !
+         ! **************************************************************
+         !
+         ! calling sequence 
+         !
+         !        csseti(cnp, ivp)
+         !
+! *************************************************************************
+         !
+         character*(*) cnp
+         integer ivp
+     end
+
+     subroutine csgeti (cnp,ivp)
+! **************************************************************************
+         !
+         ! purpose
+         !
+         !    csgeti is called to obtain current values for any of the integer valued
+         !    cssgrid control parameters.
+         !
+         ! **************************************************************
+         !
+         ! input arguments
+         !
+         !... cnp
+         !      The name of the control parameter whose value is to be retrieved.
+         !
+         ! **************************************************************
+         !
+         ! output arguments
+         !
+         !... ivp 
+         !      The current value assigned to the control parameter.
+         !
+         ! **************************************************************
+         !
+         ! calling sequence 
+         !
+         !        ivp = csgeti(cnp)
+         !
+! *************************************************************************
+         !
+         character*(*) cnp
+         integer, intent(out):: ivp
+     end
+
+     subroutine cssetr (cnp,rvp)
+! **************************************************************************
+         !
+         ! purpose
+         !
+         !    cssetr is used to set values for any of the cssgrid control parameters that
+         !    take real values. The values set by cssetr remain in effect until changed
+         !    by subsequent calls to cssetr.
+         !
+         ! **************************************************************
+         !
+         ! input arguments
+         !
+         !... cnp
+         !      The name of the control parameter whose value is to be set.
+         !
+         !... rvp 
+         !      The value to be assigned to the parameter.
+         !
+         ! **************************************************************
+         !
+         ! calling sequence 
+         !
+         !        cssetr(cnp, rvp)
+         !
+! *************************************************************************
+         !
+         character*(*) cnp
+         real rvp
+     end
+
+     subroutine csgetr (cnp,rvp)
+! **************************************************************************
+         !
+         ! purpose
+         !
+         !    csgetr is called to obtain current values for any of the real valued
+         !    cssgrid control parameters.
+         !
+         ! **************************************************************
+         !
+         ! input arguments
+         !
+         !... cnp
+         !      The name of the control parameter whose value is to be retrieved.
+         !
+         ! **************************************************************
+         !
+         ! output arguments
+         !
+         !... rvp 
+         !      The current value assigned to the control parameter.
+         !
+         ! **************************************************************
+         !
+         ! calling sequence 
+         !
+         !        rvp = csgetr(cnp)
+         !
+! *************************************************************************
+         !
+         character*(*) cnp
+         real, intent(out):: rvp
+     end
+
+     subroutine cssetd (cnp,dvp)
+! **************************************************************************
+         !
+         ! purpose
+         !
+         !    cssetd is used to set values for any of the cssgrid control parameters that
+         !    take double precision values. The values set by cssetd remain in effect until
+         !    changed by subsequent calls to cssetd.
+         !
+         ! **************************************************************
+         !
+         ! input arguments
+         !
+         !... cnp
+         !      The name of the control parameter whose value is to be set.
+         !
+         !... dvp 
+         !      The value to be assigned to the parameter.
+         !
+         ! **************************************************************
+         !
+         ! calling sequence 
+         !
+         !        cssetd(cnp, dvp)
+         !
+! *************************************************************************
+         !
+         character*(*) cnp
+         doubleprecision dvp
+     end
+
+     subroutine csgetd (cnp,dvp)
+! **************************************************************************
+         !
+         ! purpose
+         !
+         !    csgetd is called to obtain current values for any of the double
+         !    precision valued cssgrid control parameters.
+         !
+         ! **************************************************************
+         !
+         ! input arguments
+         !
+         !... cnp
+         !      The name of the control parameter whose value is to be retrieved.
+         !
+         ! **************************************************************
+         !
+         ! output arguments
+         !
+         !... dvP 
+         !      The current value assigned to the control parameter.
+         !
+         ! **************************************************************
+         !
+         ! calling sequence 
+         !
+         !        dvp = csgetd(cnp)
+         !
+! *************************************************************************
+         !
+         character*(*) cnp
+         doubleprecision, intent(out):: dvp
+     end
+
+     subroutine cssgridd(n,rlati,rloni,f,ni,nj,rlato,rlono,ff,iwk,wk,ier)
+! **************************************************************************
+         !
+         !                               Simplified entry to SSRFPACK
+         !                                                 Fred Clare
+         !                                                  NCAR, SCD
+         !                                                   12/10/99
+         !
+         !  This subroutine provides a simple interface to SSRFPACK.
+         !  It triangulates the input data and does interpolation at
+         !  the specified grid points.  Certain internal parameters are
+         !  assigned default values.
+         !
+         ! purpose
+         !
+         !    cssgridd is called to interpolate data randomly spaced on a sphere. cssgridd is a
+         !    double precision version of cssgrid.
+         !
+         ! method
+         !
+         !    cssgridd uses tension splines to construct an interpolatory surface. As a first step,
+         !    cssgriadd creates a Delaunary triangulation of the input data points; the companion
+         !    entry csstrid is provided only for those times when you want to calculate the triangulation
+         !    for independent inspection.
+         !
+         !    Various aspects of the interpolation algorithm can be changed by using the parameter access 
+         !    routines csseti and cssetd to change the ccsgridd control parameters.
+         !
+         ! **************************************************************
+         !
+         ! input arguments
+         !
+         !... n
+         !        The number input data points (n > 2).
+         !
+         !... rlati
+         !... rloni
+         !        Arrays containing latitude and longitude coordinates, expressed in degrees, of the
+         !        input data. The first three points must not be collinear (lie on a common great circle).
+         !        
+         !... f
+         !        Array containing data values.  f(i) is a functional value at (rlati(i),rloni(i)) for 
+         !        for i = 1 to n.
+         !
+         !... ni
+         !        The number of rows in the uniform output grid. ni can be 1.
+         !
+         !... nj 
+         !        The number of columns in the uniform output grid. nj can be 1.
+         !
+         !... rlato,rlono 
+         !        Arrays of length ni and nj, respectively, containing the latitudes and longitudes of
+         !        the grid lines, in degrees.
+         !
+         !... iwk 
+         !        An integer workspace of length 27*n.
+         !
+         !... wk 
+         !        A double precision workspace of length 13*n. 
+         !
+         ! **************************************************************
+         !
+         ! output arguments
+         !
+         !... ff   
+         !        An ni by nj array containing the desired interpolated values. ff(i,j) is the interpolated
+         !        values at the coordinate specified by rlato(i) and rlono(j) for i = 1,..,ni and j = 1,..,nj.
+         !
+         !... ier 
+         !        Error indicator:
+         !
+         !        ier = 0 - No error.
+         ! 
+         !        ier = 1 - Invalid number of input points (must be greater than 3).
+         !
+         !        ier = 2 - Invalid dimension for latitudes in the output grid.
+         !
+         !        ier = 3 - Invalid dimension for longitudes in the output grid.
+         !
+         !        ier = 4 - First three nodes of the input array are collinear.
+         !
+         !        ier = 5 - Extrapolation failed due to the uniform grid extending too far beyond the triangulation
+         !                  boundary.
+         !
+         !        ier = 6 - Internal algorithm error - please report this.
+         !
+         !        ier = 7 - Vertex of a triangle containing an interpolation point is outside the valid range.
+         !
+         !        ier = 8 - The angular distance between an interpolated point and the nearest point of the
+         !                  triangulation is at least 90 degrees.
+         !
+         !        ier = 9 - Not enough points to calculate a gradient.
+         !
+         !        ier = 10 - Insufficient space for the triangulation (must be >= number of boundary nodes minus 2).
+         !
+         !        ier = 11 - Degenerate triangle (two vertices lie on same geodesic).
+         !
+         !        ier = -L - Coordinates L and M coincide for some M > L >= 1 (coordinate numbering starting at 1).
+         !
+         ! **************************************************************
+         !
+         ! calling sequence 
+         !
+         !        ff, ier = cssgridd(n, rlati, rloni, f, ni, nj, rlato, rlono)
+         !
+! *************************************************************************
+         !
+         integer n
+         doubleprecision rlati(n)
+         doubleprecision rloni(n)
+         doubleprecision f(n)
+         integer ni
+         integer nj
+         doubleprecision rlato(ni)
+         doubleprecision rlono(nj)
+         doubleprecision, intent(out)::ff(ni,nj)
+         integer, intent(temporary):: iwk(27*n)
+         doubleprecision, intent(temporary):: wk(13*n)
+         integer, intent(out):: ier
+         !
+     end
+
+     subroutine csstrid(n,rlati,rloni,nt,ntri,iwk,wk,ier)
+! **************************************************************************
+         !
+         !                              Simplified STRIPACK interface
+         !                                                 Fred Clare
+         !                                                       NCAR
+         !                                                   12/10/99
+         !
+         ! This subroutine provides a simplified interface to
+         ! STRIPACK triangulation, at the expense of requiring a
+         ! little extra storage.
+         !
+         !
+         ! Modules required by csstrid:  cstrmesh, cstrlist
+
+         ! purpose
+         !
+         !    csstrid is called to find a Delaunay triangulation of data randomly
+         !    positioned on the surface of a sphere. csstrid is a double precision
+         !    version of csstri.
+         !
+         ! **************************************************************
+         !
+         ! input arguments
+         !
+         !... n
+         !        The number input data points (n > 2).
+         !
+         !... rlati
+         !... rloni
+         !        Arrays containing latitude and longitude coordinates, expressed in degrees, of the
+         !        input data. The first three points must not be collinear (lie on a common great circle).
+         !        
+         !... iwk 
+         !        An integer workspace of length 27*n.
+         !
+         !... wk 
+         !        A double precision workspace of length 13*n. 
+         !
+         ! **************************************************************
+         !
+         ! output arguments
+         !
+         !... nt   
+         !        The number of triangles in the triangulation, unless ier is not 0, in which case nt = 0.
+         !        Let nb be the number of boundary points on the cnonvex hull of the data. If nb >= 3, then
+         !        nt = 2n - nb - 2, otherwise nt = 2n - 4.
+         !
+         !... ntri 
+         !        A two-dimensional integer array dimensioned for 3 x nt where nt is the number of triangles
+         !        in the triangulation (nt is at most 2*n). ntri contains the nodes for the triangles in the
+         !        triangulation. The nodes for the jth triangle are in the triple composed of ntri(1,j), ntri(2,j)
+         !        and ntri(3,j). These indices reference the sequence in the input coordinate grid. For example, if
+         !        the triple (5,1,2) were in the list of triples, it would describe the triangle having vertices
+         !        at ( rlati(5), rloni(5) ), ( rlati(1), rloni(1) ) and( rlati(2), rloni(2) ).
+         !
+         !... ier 
+         !        Error indicator:
+         !
+         !        ier = 0 - No error.
+         ! 
+         !        ier = 1 - Invalid number of input points (must be greater than 3).
+         !
+         !        ier = 2 - Invalid dimension for latitudes in the output grid.
+         !
+         !        ier = 3 - Invalid dimension for longitudes in the output grid.
+         !
+         !        ier = 4 - First three nodes of the input array are collinear.
+         !
+         !        ier = 5 - Extrapolation failed due to the uniform grid extending too far beyond the triangulation
+         !                  boundary.
+         !
+         !        ier = 6 - Internal algorithm error - please report this.
+         !
+         !        ier = 7 - Vertex of a triangle containing an interpolation point is outside the valid range.
+         !
+         !        ier = 8 - The angular distance between an interpolated point and the nearest point of the
+         !                  triangulation is at least 90 degrees.
+         !
+         !        ier = 9 - Not enough points to calculate a gradient.
+         !
+         !        ier = 10 - Insufficient space for the triangulation (must be >= number of boundary nodes minus 2).
+         !
+         !        ier = 11 - Degenerate triangle (two vertices lie on same geodesic).
+         !
+         !        ier = -L - Coordinates L and M coincide for some M > L >= 1 (coordinate numbering starting at 1).
+         !
+         ! **************************************************************
+         !
+         ! calling sequence 
+         !
+         !        nt, ntri, ier = csstrid(n, rlati, rloni)
+         !
+! *************************************************************************
+         !
+         integer n
+         doubleprecision rlati(n)
+         doubleprecision rloni(n)
+         integer, intent(out):: nt
+         integer, intent(out):: ntri(3, 2*n)
+         integer, intent(temporary):: iwk(27*n)
+         doubleprecision, intent(temporary):: wk(13*n)
+         integer, intent(out):: ier
+         !
+     end
+
+
+     subroutine css2cd (n,rlat,rlon, x,y,z)
+! **************************************************************************
+         !
+         ! purpose
+         !
+         !    css2cd is called to find equivalent Cartesian coordinates on the unit sphere
+         !    to specified latitude and longitude coordinates. The coordinate of 0. latitude
+         !    and 0. longitude is converted to Cartesian coordinates (1.,0.,0.). Latitudes
+         !    and longitudes are assumed to be in degrees. css2cd is a double precision
+         !    version of css2c.
+         !
+         !
+         ! Modules required by css2cd:  None
+         !
+         ! Intrinsic functions called by css2c:  sin, cos
+         ! **************************************************************
+         !
+         ! input arguments
+         !
+         !... n
+         !        The number of lat/lon coordinates.
+         !
+         !... rlat
+         !        An array containing the latitudes of the input coordinates, expressed in degrees.
+         !
+         !... rlon
+         !        An array containing the longitudes of the input coordinates, expressed in degrees.
+         !
+         ! **************************************************************
+         !
+         ! output arguments
+         !
+         !... x,y,z 
+         !        Arrays containing the Cartesian coordinates of the output points. (x(i),y(i),z(i))
+         !        is the Cartesian coordinate corresponding to the lat/lon coordindate (rlat(i),rlon(i)) 
+         !        for i = 1 to n. x(i)**2 + y(i)**2 + z(i)**2 = 1 for i = 1 to n.
+         !
+         ! **************************************************************
+         !
+         ! calling sequence 
+         !        x, y, z = css2cd(n, rlat, rlon)
+         !
+! *************************************************************************
+         !
+         integer n
+         doubleprecision rlat(n)
+         doubleprecision rlon(n)
+         doubleprecision, intent(out)::x(n)
+         doubleprecision, intent(out)::y(n)
+         doubleprecision, intent(out)::z(n)
+         !
+     end
+
+     subroutine csc2sd (n,x,y,z,rlat,rlon)
+! **************************************************************************
+         !
+         ! purpose
+         !
+         !    csc2sd is called to find equivalent latitude and longitude coordinates on
+         !    a sphere to a specified Cartesian coordinates on the unit sphere. The coordinate
+         !    (1.,0.,0) is mapped to the latitude/longitude coordinate (0.,0.). The latitude/longitude
+         !    coordinates are returned in degrees, latitudes between -90. and 90. (inclusive) and
+         !    longitudes between -180. and 180. (inclusive). csc2sd is a double precision version of csc2s.
+         !
+         ! Modules required by csc2sd:  csscoord
+         !
+         ! Intrinsic functions called by csc2sd:  None
+         !
+         ! **************************************************************
+         !
+         ! input arguments
+         !
+         !... n
+         !        The number of input (x,y,z) coordinates.
+         !
+         !... x,y,z 
+         !        The Cartesian coordinates of the input points, x(i)**2 + y(i)**2 + z(i)**2 = 1
+         !        for i = 1 to n. 
+         !
+         ! **************************************************************
+         !
+         ! output arguments
+         !
+         !... rlat
+         !        The latitudes of the input coordinates in degrees.
+         !
+         !... rlon
+         !        The longitudes of the input coordinates in degrees.
+         !
+         ! **************************************************************
+         !
+         ! calling sequence 
+         !
+         !        rlat, rlon = csc2sd(n, x, y, z)
+         !
+! *************************************************************************
+         !
+         integer n
+         double precision x(n)
+         double precision y(n)
+         double precision z(n)
+         double precision, intent(out)::rlat(n)
+         double precision, intent(out)::rlon(n)
+         !
+     end
+
+     subroutine csvorod(npts,rlati,rloni,ni,nf,iwk,rwk,nc,rlato,rlono,rc,nca,numv,nv,ier)
+! **************************************************************************
+         !
+         ! purpose
+         !
+         !    csvorod is called if you want to determine the Voronoi polygons for data randomly
+         !    positioned on the sphere. Each call to csvoro calculates the vertices for the
+         !    Voronoi polygon surrounding a specified input point. csvorod is a double precision
+         !    version of csvorod.
+         !
+         ! **************************************************************
+         !
+         ! input arguments
+         !
+         !... npts
+         !        The number of input data points (npts > 3)
+         !
+         !... rlati
+         !        An array, dimensioned for npts, containing the latitudes of the input coordinates,
+         !        in degrees.
+         !
+         !... rloni
+         !        An array, dimensioned for npts, containing the longitudes of the input coordinates,
+         !        in degrees.
+         !
+         !... nc
+         !      The maximum size of the output arrays rlato, rlono, and rc. nc should be 2*npts.
+         !
+         !... ni 
+         !        The index of the input coordinate for which you want to determine the Voronoi polygon 
+         !        (0 < ni <= npts).
+         !
+         !... nf 
+         !        Flag indicating if this is the first call to csvoro to retrieve Voronoi polygons for
+         !        this dataset (1=yes, 0=no).  Calls subsequent to the first call for a given dataset 
+         !        are much faster than the first call.
+         !
+         !... iwk
+         !      Integer work space dimensioned for 27*npts.
+         !
+         !... rwk 
+         !      Double precision work space dimensioned for 9*npts.
+         !
+         ! **************************************************************
+         !
+         ! output arguments
+         !
+         !... rlato 
+         !      An array of latitude values for the Voronoi indices. These are circumcenters of circles
+         !      passing through the Delaunay triangles. If a coordinate is a boundary point, then the 
+         !      circle may pass through certain "pseudo points" that have been added to the original dataset
+         !      in order to complete the Voronoi polygon. rlato is returned in degrees.
+         !
+         !... rlono
+         !      An array of longitude values for the Voronoi indices. These are circumcenters of circles passing
+         !      through the Delaunay triangles. If a coordinate is a boundary point, then the circle may pass 
+         !      through certain "pseudo points" that have been added to the original dataset in order to complete
+         !      the Voronoi polygon. rlono is returned in degrees.
+         !
+         !... rc
+         !      Array containing the arc length (in degrees) of the angle between a circumcenter and its associated
+         !      triangle vertices.
+         !
+         !... nca
+         !      The actual number of circumcenters returned in rlato and rlono. This number may be larger than npts
+         !      if the input dataset has boundary points, since certain "pseudo points" may have been added to the
+         !      original dataset in order to complete the Voronoi polygon set.
+         !
+         !... numv
+         !      The number of vertices in the Voronoi polygon enclosing the coordinate (rlati(ni),rloni(ni)).
+         !
+         !... nv
+         !      An array (dimensioned for npts) containing numv indices for the Voronoi polygon enclosing the coordinate
+         !      (rlati(ni),rloni(ni)). The indices returned in this array refer to the coordinates returned in rlato and 
+         !      rlono.  For example, if the integer "j" is an element of the nv array, then (rlato(j),rlono(j)) is a
+         !      vertex of the Voronoi polygon enclosing (rlati(ni),rloni(ni)). The indices in nv list out the vertices of
+         !      the Voronoi in counter-clockwise order.
+         !
+         !... ier 
+         !        Error indicator:
+         !
+         !        ier = 0 - No error.
+         ! 
+         !        ier = 1 - Invalid number of input points (must be greater than 3).
+         !
+         !        ier = 2 - Invalid dimension for latitudes in the output grid.
+         !
+         !        ier = 3 - Invalid dimension for longitudes in the output grid.
+         !
+         !        ier = 4 - First three nodes of the input array are collinear.
+         !
+         !        ier = 5 - Extrapolation failed due to the uniform grid extending too far beyond the triangulation
+         !                  boundary.
+         !
+         !        ier = 6 - Internal algorithm error - please report this.
+         !
+         !        ier = 7 - Vertex of a triangle containing an interpolation point is outside the valid range.
+         !
+         !        ier = 8 - The angular distance between an interpolated point and the nearest point of the
+         !                  triangulation is at least 90 degrees.
+         !
+         !        ier = 9 - Not enough points to calculate a gradient.
+         !
+         !        ier = 10 - Insufficient space for the triangulation (must be >= number of boundary nodes minus 2).
+         !
+         !        ier = 11 - Degenerate triangle (two vertices lie on same geodesic).
+         !
+         !        ier = -L - Coordinates L and M coincide for some M > L >= 1 (coordinate numbering starting at 1).
+         !
+         ! **************************************************************
+         !
+         ! calling sequence 
+         !
+         !        rlato, rlono, rc, nca, numv, nv, ier = csvorod(npts, rlati, rloni, ni, nf, nc)
+         !
+! *************************************************************************
+         !
+         integer npts
+         doubleprecision rlati(npts)
+         doubleprecision rloni(npts)
+         integer nc
+         integer ni
+         integer nf
+         integer, intent(temporary):: iwk(27*npts)
+         doubleprecision, intent(temporary):: rwk(9*npts)
+         doubleprecision, intent(out):: rlato(nc)
+         doubleprecision, intent(out):: rlono(nc)
+         doubleprecision, intent(out)::rc(nc)
+         integer, intent(out):: nca
+         integer, intent(out):: numv
+         integer, intent(out):: nv(npts)
+         integer, intent(out):: ier
+         !
+     end
+  end interface
+end module cssgridmodule

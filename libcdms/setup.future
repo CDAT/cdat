@@ -1,0 +1,107 @@
+#  Usage:
+#
+#    python setup.py install 
+#
+#
+from distutils.core import setup, Extension
+import distutils.util
+import shutil
+import os, sys, string, time, shutil, glob
+import cdat_info
+
+here = os.getcwd()
+py = sys.prefix
+major, minor = sys.version_info[0:2]
+t = os.popen('uname')
+uname = t.read()[:-1]
+t.close()
+include_dirs = cdat_info.cdunif_include_directories
+enable_drs = (cdat_info.CDMS_INCLUDE_DRS.lower() == "yes")
+enable_hdf = (cdat_info.CDMS_INCLUDE_HDF.lower() == "yes")
+enable_ql = (cdat_info.CDMS_INCLUDE_QL.lower() == "yes")
+
+if enable_hdf:
+    if sys.platform == "OSF1":
+        hdf_header_option = 'hdfi.h'
+    else:
+        hdf_header_option = 'hdf.h'
+    print "Enabling HDF is not supported at this time."
+    raise SystemExit, 1
+#
+# netCDF, HDF require libnsl on Solaris
+#
+if sys.platform == "sunos5":
+        # what was the mfhdf listed with the libraries?
+    hdf_libraries =["mfhdf", "df", "jpeg", "z","netcdf", "nsl"]
+    netcdf_libraries = ["netcdf", "nsl", "m"]
+elif sys.platform[0:4] == "irix":
+    hdf_libraries =["mfhdf", "df", "jpeg", "netcdf"]
+    netcdf_libraries = ["netcdf"] # needs an -n32
+else:
+    hdf_libraries =["mfhdf", "df", "jpeg", "z"]
+    netcdf_libraries = ["netcdf", "m"]
+library_dirs = netcdf_libraries + hdf_libraries
+#Set flags for CDMS compilation and linking
+macros = [ ('netcdf', None),
+           ('grads', None),
+           ('BYTEORDER', '0'),
+           ('OS_MAJOR', '5'),  # a leftover from an old Solaris
+           ('GRADS_CRAY', '0'),
+           ('GRADS_BYTEORDER', '0'),
+           ('STDALN', '1'),
+         ]
+if enable_drs:
+    macros.append(('DRS', None))
+if enable_hdf:
+    macros.append(('HDF', None))
+if enable_ql:
+    macros.append(('HAVE_QL', None))
+compile_options_list = []
+if sys.platform[0:3] == "aix":
+    macros.append(('extname', None)) # Was just for Fortran interface?
+elif sys.platform[0:3] == "OSF":
+    compile_options_list.append("-Olimit 1000")
+    compile_options_list.append("-std")
+else:
+    macros.append(('BYTESWAP', None))
+    if os.environ.has_key('PGI'):
+        macros.append(('pgiFortran', None))
+
+sourcelist=glob.glob(os.path.join('src','cdunif', '*.c')) + \
+           glob.glob(os.path.join('src','db_util', '*.c')) + \
+           glob.glob(os.path.join('src','cddrs', '*.c')) 
+
+#
+target = os.path.join(sys.prefix, 'include', 'cdms')
+print "Installing header files at", target
+if os.path.isdir(target):
+    shutil.rmtree(target)
+shutil.copytree('include', target)
+scripts = [os.path.join('src','python','cdscan'),
+           os.path.join('src','python','cdimport'),
+           os.path.join('src','python','cddump'),
+          ]
+setup (name = "libcmds",
+       version='0.0',
+       description = "CDMS Library",
+       url = "http://www-pcmdi.llnl.gov/software",
+       libraries = [
+                      ('cdms',                               
+                          {'sources': sourcelist,
+                           'macros': macros,
+                           'include_dirs': include_dirs,
+                           'library_dirs': library_dirs,
+                          }
+                      ),
+                  ],
+       scripts = scripts
+       )
+
+target = os.path.join(sys.exec_prefix, 'lib', 'libcdms.a')
+source = os.path.join('build','temp.%s-%s'% (distutils.util.get_platform(), 
+                   sys.version[0:3]), 'libcdms.a')
+print "Installing at", target
+if os.path.isfile(target):
+    os.unlink(target)
+shutil.copyfile(source, target)
+

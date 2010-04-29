@@ -1,0 +1,176 @@
+#!/usr/bin/env python
+
+import ldap, sys, getopt, os, string
+from cdms import cdurlparse
+
+usage = """Usage: cdupdate [-a attr:value,attr:value,...] [-D binddn] [-e attr[:value],attr[:value],...] [-h host] [-p port] [-r attr:value,attr:value,...] [-v] [-w password] objectDN
+
+Update a CDMS object.
+
+Arguments:
+
+    'objectDN' is the distinguished name of the object to be updated
+
+Options:
+
+    -a: add the attribute-value pairs
+    -D: 'binddn', the distinguished name of a user with privilege to modify the database. See -w.
+        The default value is environment variable CDMSUSER, if specified, otherwise the bind is anonymous.
+    -e: delete the attributes. If no value is specified, all values of the attribute are deleted.
+    -h: host (default: host name in CDMSROOT)
+    -p: server port (default: 389)
+    -r: replace the attribute-value pairs.
+    -v: verbose
+    -w: password (see -D)
+
+Examples:
+
+    cdupdate -v -a owner:user 'database=newdb,ou=PCMDI,o=LLNL,c=US'
+    cdupdate -v -r 'url:file:/pcmdi/cdms/exp,attr:status=experimental' 'database=newdb,ou=PCMDI,o=LLNL,c=US'
+    cdupdate -v -e attr 'database=testdb,ou=PCMDI,o=LLNL,c=US'
+    
+"""
+
+InvalidAttribute = "Attribute must have the form type:value"
+dbspecialattrs = ['objectclass','url','description','attr','database']
+dsetspecialattrs = ['appendices', 'attr', 'calendar', 'category', 'cdml', 'conventions', 'comment', 'datapath', 'directory', 'frequency', 'history', 'id', 'institution', 'objectclass', 'production', 'project', 'template','dataset']
+attrdict = {'database':dbspecialattrs, 'dataset':dsetspecialattrs}
+
+def prompt(pr):
+    print pr+': ',
+    return string.strip(sys.stdin.readline())
+
+def main(argv):
+
+    binddn = os.environ.get('CDMSUSER',"")
+    password = None
+
+    cdmsroot = os.environ.get('CDMSROOT')
+    if cdmsroot is None:
+        host = None
+        port = ldap.PORT
+    else:
+        (scheme,fullhost,path,parameters,query,fragment)=cdurlparse.urlparse(cdmsroot)
+        hostport = string.split(fullhost,':')
+        if len(hostport)==1:
+            host = hostport[0]
+            port = ldap.PORT
+        else:
+            host, strport = hostport
+            port = string.atoi(strport)
+
+    try:
+        args, lastargs = getopt.getopt(argv[1:],"a:D:e:h:p:r:vw:")
+    except getopt.error:
+        print sys.exc_value
+        print usage
+        sys.exit(0)
+
+    verbose = 0
+    somedeletes = 0
+    addattrs = []
+    deleteattrs = []
+    replaceattrs = []
+    for flag,arg in args:
+        if flag=='-a': addattrs = string.split(arg,',')
+        elif flag=='-D': binddn = arg
+        elif flag=='-e':
+            deleteattrs = string.split(arg,',')
+            somedeletes = 1
+        elif flag=='-h': host = arg
+        elif flag=='-p': port = arg
+        elif flag=='-r': replaceattrs = string.split(arg,',')
+        elif flag=='-v': verbose = 1
+        elif flag=='-w': password = arg
+
+    if len(lastargs)!=1:
+        print 'objectDN argument is missing'
+        print usage
+        sys.exit(0)
+
+    objectid = lastargs[0]
+
+    # Determine the object type
+    rdns = ldap.explode_dn(objectid)
+    cindex = string.index(rdns[0],'=')
+    tag = string.lower(rdns[0][:cindex])
+    specialattrs = attrdict[tag]
+
+    if verbose:
+        print 'Bind DN: ', binddn
+        print 'Host: %s:%s'%(host,port)
+        print 'Object ID: ',objectid
+
+    if verbose: print 'Connecting to',host,'...',
+    try:
+        ldapobj = ldap.open(host, port)
+    except:
+        print 'Error connecting to host: ',sys.exc_value
+        sys.exit(1)
+    if verbose: print 'Connected'
+
+    if verbose: print 'Binding user',binddn
+    if password is None:
+        import getpass
+        password = getpass.getpass()
+
+    try:
+        ldapobj.simple_bind_s(binddn, password)
+    except:
+        print 'Authentication error: ',sys.exc_value
+        sys.exit(1)
+
+    modlist = []
+    for addattr in addattrs:
+        try:
+            cindex = string.index(addattr,':')
+        except:
+            raise InvalidAttribute,addattr
+        attr = addattr[:cindex]
+        if string.lower(attr) in specialattrs:
+            modlist.append((ldap.MOD_ADD, attr, addattr[cindex+1:]))
+        else:
+            modlist.append((ldap.MOD_ADD, 'attr', string.replace(addattr,':','=',1)))
+
+    for replaceattr in replaceattrs:
+        try:
+            cindex = string.index(replaceattr,':')
+        except:
+            raise InvalidAttribute,replaceattr
+        attr = replaceattr[:cindex]
+        if string.lower(attr) in specialattrs:
+            modlist.append((ldap.MOD_REPLACE, attr, replaceattr[cindex+1:]))
+        else:
+            modlist.append((ldap.MOD_REPLACE, 'attr', string.replace(replaceattr,':','=',1)))
+
+    for deleteattr in deleteattrs:
+        try:
+            cindex = string.index(deleteattr, ':')
+        except:
+            attr = deleteattr
+            value = None
+        else:
+            attr = deleteattr[:cindex]
+            value = deleteattr[cindex+1:]
+        if string.lower(attr) in specialattrs:
+            modlist.append((ldap.MOD_DELETE, attr, value))
+        else:
+            modlist.append((ldap.MOD_DELETE, 'attr', string.replace(deleteattr,':','=',1)))
+
+    if verbose:
+        print 'Updating entry',objectid
+        print 'Modifications: ',modlist
+
+    if verbose: print 'Updating ...',
+    try:
+        ldapobj.modify_s(objectid, modlist)
+        if verbose: print 'Done'
+    except:
+        print 'Error updating entry: ',sys.exc_value
+        sys.exit(1)
+
+    ldapobj.unbind()
+
+#------------------------------------------------------------------------------------------------------------------------------
+if __name__ == '__main__':
+    main(sys.argv)

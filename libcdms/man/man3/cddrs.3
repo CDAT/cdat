@@ -1,0 +1,406 @@
+.\" $id$
+.TH cddrs 3 "22 June 1995" "LLNL" "CDMS C DRS wrapper functions"
+.SH NAME
+cddrs \- CDMS C DRS wrapper functions for accessing DRS, GrADS (GRIB), and
+netCDF datafiles. 
+.SH SYNOPSIS (C ROUTINES)
+.ft B
+.na
+.nh
+.HP
+#include "cddrs.h"
+.HP 6
+int cw_aslun(int\ lu, char*\ dictfil, int\ lud, char*\ datfil, int\ istat)
+.HP
+int cw_cllun(int\ lu)
+.HP
+int cw_cluvdb(void)
+.HP
+int cw_drstest(int\ ierr)
+.HP
+int cw_get_fileid(int\ lu)
+.HP
+int cw_getdat(int\ lu, void*\ a, int\ isize)
+.HP
+int cw_getcdim(int\ idim, char*\ source, char*\ name, char*\ title, char*\ units, int*\ dtype, int\ reqlen, float*\ var, int*\ retlen)
+.HP
+int cw_getedim(int\ idim, char*\ dsrc, char*\ dna, char*\ dti, char*\ dun, int*\ dtype, int*\ dlen, float*\ df, float*\ dl)
+.HP
+int cw_getelemd(int*\ type, int*\ bpe)
+.HP
+int cw_getname(char*\ source, char*\ name, char*\ title, char*\ units, char*\ date, char*\ time, char*\ typed, int*\ nd)
+.HP
+int cw_getnd(int*\ nd)
+.HP
+int cw_getrge2(int\ lu, int\ idim, double\ elem1, double\ elem2, int*\ ind1, int*\ ind2, float*\ dlow, float*\ dhigh)
+.HP
+int cw_getslab(int\ lu, int\ rank, int*\ order, float*\ fe, float*\ le, float*\ cycle, void*\ data, int*\ datadim)
+.HP
+int cw_inqdict(int\ lu, int\ oper)
+.HP
+int cw_inqlun(int\ lu, char*\ datafile, int*\ nvar, float*\ version)
+.HP
+int cw_majority(CwMajority\ majority)
+.HP
+int cw_set_dimension_option(CwExtensionOption\ option)
+.HP
+int cw_set_string_option(CwExtensionOption\ option)
+.HP
+int cw_setdim(int\ n, char*\ dna, char*\ dun, int\ idim, double\ df, double\ dl)
+.HP
+int cw_seterr(int\ ierrlun, int\ reportlevel)
+.HP
+int cw_setname(char*\ source, char*\ name, char*\ title, char*\ units, char*\ typed)
+.HP
+int cw_setvdim(int\ n, char*\ dso, char*\ dna, char*\ dti, char*\ dun, double\ df, double\ dl)
+.ad
+.hy
+.SH "DESCRIPTION"
+These routines provide read-only access to data in DRS,
+netCDF, and GrADS (GRIB) format. For backward compatibility, the routines are identical to
+the read and inquiry routines in the DRS library, prefixed with \fBcw_\fP. The routines
+\fBcw_majority\fP, \fBcw_set_dimension_option\fP,
+\fBcw_set_string_option\fP, and \fBcw_get_fileid\fP have no DRS counterparts.
+
+In general, any return argument may be set to NULL (0), in which case no
+value is returned. Additionally, the following values are treated as null values for input arguments:
+.LP
+.PD 0
+.TP 20
+.B CW_STRING_NULL
+null string
+.TP
+.B CW_FLOAT_NULL
+null float
+.TP
+.B CW_NULL_INT
+null integer argument
+.PD
+.SH "FUNCTION DESCRIPTIONS"
+.LP
+.HP 4
+\fBint cw_aslun(int \fIlu\fB, char* \fIdictfil\fB, int \fIlud\fB, char* \fIdatfil\fB, int \fIistat\fB)\fR
+.sp
+Open a DRS, netCDF, GrADS, or GRIB file. \fIlu\fP and \fIlud\fP are the
+FORTRAN logical units to be associated with the dictionary file and data
+file respectively. For subsequent calls, the dictionary file \fIlu\fP is
+used to identify the file. \fIdictfil\fP and \fIdatfil\fP are the pathnames of the
+dictionary and data file, respectively. 
+
+For netCDF files, only the dictionary file \fIlu\fP and \fIdictfil\fP 
+are specified; \fIlud\fP and \fIdatfil\fP are ignored. Similarly, for GrADS files, \fIlu\fP is specified, and
+\fIdictfil\fP is the pathname of the GrADS control file; the \fIlud\fP and
+\fIdatfil\fP parameters are ignored.
+
+\fIistat\fP is either IDRS_READ or IDRS_EXTEND.
+
+The function returns 0 on success, a non-zero status on failure.
+.HP
+\fBint cw_cllun(int \fIlu\fB)\fR
+.sp
+Close a file. \fIlu\fP is the logical unit of the dictionary file.
+.HP
+\fBint cw_cluvdb(void)\fR
+.sp
+Reset the VDB to null values.
+.HP
+\fBint cw_drstest(int \fIierr\fB)\fR
+.sp
+Test for a fatal error. The function returns true if the error number \fIierr\fP is fatal, false otherwise.
+.HP
+\fBint cw_get_fileid(int \fIlu\fB)\fR
+.sp
+Get the \fBcdunif\fR fileid. This allows calls to be made directly to the
+\fBcdunif\fR interface, on which the \fBcddrs\fR functions are based.
+.HP
+\fBint cw_getdat(int \fIlu\fB, void* \fIvar\fB, int \fIisize\fB)\fR
+.sp
+Read data for a variable. \fIlu\fP is the dictionary logical unit. Data is returned
+in \fIvar\fP. \fIisize\fP is size of \fIvar\fP in bytes.
+
+The name of the variable to read is specified with \fBcw_setname\fP. The
+range and ordering of the data to be read are specified by one or more calls to
+\fBcw_setdim\fP and \fBcw_setvdim\fP.
+.HP
+\fBint cw_getcdim(int \fIidim\fB, char* \fIsource\fB, char* \fIname\fB,
+char* \fItitle\fB, char* \fIunits\fB, int* \fIdtype\fB, int \fIreqlen\fB,
+float* \fIvar\fB, int* \fIretlen\fB)\fR
+.sp
+Get dimension values and name strings for a dimension. \fIidim\fP is the
+1-origin dimension number. The function returns the \fIsource\fP (comment) string,
+variable \fIname\fP, long \fItitle\fP, and variable
+\fIunits\fP. The dimension type \fIdtype\fP is returned as
+IDRS_EQUALLY_SPACED or IDRS_VECTOR. (Note: this may be modified via
+function cw_set_dimension_option.) \fIreqlen\fP is the maximum
+number of elements to be retrieved. Dimension values are returned in
+\fIvar\fP, provided that reqlen is sufficiently large. \fIretlen\fP is set
+to the actual number of elements returned.
+.HP
+\fBint cw_getedim(int \fIidim\fB, char* \fIsource\fB, char* \fIname\fB, char* \fItitle\fB, char* \fIunits\fB, int* \fIdtype\fB, int* \fIdlen\fB, float* \fIdf\fB, float* \fIdl\fB)\fR
+.sp
+Get dimension limits and name strings for a dimension. \fIidim\fP is the
+1-origin dimension number. The function returns the \fIsource\fP (comment)
+string, variable \fIname\fP, long \fItitle\fP, and variable
+\fIunits\fP. The dimension type \fIdtype\fP is returned as
+IDRS_EQUALLY_SPACED or IDRS_VECTOR. (Note: this may be modified via
+function cw_set_dimension_option.)
+\fIdlen\fP is the length of the
+dimension. \fIdf\fP and \fIdl\fP are returned as the first and last values,
+respectively, of dimension \fIidim\fP of the variable just read or
+inquired.
+.HP
+\fBint cw_getelemd(int* \fItype\fB, int* \fIbpe\fB)\fR
+.sp
+Retrieve the variable datatype description. 
+\fIbpe\fP is the number of bytes per element as defined on the current host.
+\fItype\fP is returned as one
+of the following:
+.sp
+.RS
+.PD 0
+.TP 20
+.B IDRS_ASCII
+ASCII characters
+.TP
+.B IDRS_CRAY_R16
+Cray 16-byte floating-point
+.TP
+.B IDRS_CRAY_R8
+Cray 8-byte floating-point
+.TP
+.B IDRS_I1
+one-byte integer
+.TP
+.B IDRS_I2
+two-byte integer
+.TP
+.B IDRS_I4
+four-byte integer
+.TP
+.B IDRS_I8
+eight-byte integer
+.TP
+.B IDRS_IEEE_R16
+IEEE 16-byte floating-point
+.TP
+.B IDRS_IEEE_R4
+IEEE four-byte floating-point
+.TP
+.B IDRS_IEEE_R8
+IEEE eight-byte floating-point
+.TP
+.B IDRS_USER
+user-defined
+.PD
+.RE
+.HP
+\fBint cw_getname(char* \fIsource\fB, char* \fIname\fB, char* \fItitle\fB, char* \fIunits\fB, char* \fIdate\fB, char* \fItime\fB, char* \fItyped\fB, int* \fInd\fB)\fR
+.sp
+Get the \fIsource\fP, \fIname\fP, \fItitle\fP, and \fIunits\fP of the
+variable just read or inquired. \fIdate\fP and \fItime\fP are the date and
+time at which the variable was written. \fItyped\fP is the datatype of the
+variable, as it will (by default) be retrieved. \fInd\fP is the number of
+dimensions of the variable. 
+.HP
+\fBint cw_getnd(int* \fInd\fB)\fR
+.sp
+Get the number of dimensions, \fInd\fP, of the current variable.
+.HP
+\fBint cw_getrge2(int \fIlu\fB, int \fIidim\fB, double \fIelem1\fB, double \fIelem2\fB, int* \fIind1\fB, int* \fIind2\fB, float* \fIdlow\fB, float* \fIdhigh\fB)\fR
+.sp
+Map a range of coordinates to a range of indices. \fIlu\fP is the logical
+unit for the current variable. \fIidim\fP is the 1-origin dimension number.
+\fIelem1\fP and \fIelem2\fP are the endpoints of the range of coordinates
+to be mapped. \fIind1\fP and \fIind2\fP are set to corresponding first and last indices
+for the specified coordinate range. The actual
+coordinate range that DRS would retrieve is [\fIdlow\fP,\fIdhigh\fP].
+.HP
+\fBint cw_getslab(int \fIlu\fB, int \fIrank\fB, int* \fIorder\fB, float* \fIfe\fB, float* \fIle\fB, float* \fIcycle\fB, void* \fIdata\fB, int* \fIdatadim\fB)\fR
+.sp
+Read data for a variable, with optional wraparound. \fIlu\fP is the
+dictionary logical unit. \fIorder\fP is an array, of length \fIrank\fP,
+specifying how the dimensions are to be transposed on data
+retrieval. Dimension numbers are 1-origin; \fIorder[i]\fP specifies the
+i-th file 
+dimension to be retrieved. If \fIorder\fP = [1,2,...,rank], then the data
+will be read with the same dimension order as in the file.
+
+\fIfe\fP is an array, of length \fIrank\fP, of the first coordinate of
+each dimension range; \fIf[i]\fP corresponds to file dimension
+\fIorder[i]\fP. Similarly, \fIle\fP is the array, of length \fIrank\fP, of
+coordinates of the last elements of the dimension range, for each
+dimension. 
+
+\fIcycle\fP is the array of cycle lengths for each dimension.
+If \fIcycle[i]\fP is nonzero, the ith (user) dimension is treated as
+circular, with length \fIcycle[i]\fP. For example, a longitude dimension
+which is written in the file with range 0.0 to 359.0 can be retrieved with
+a range \fIfe[i]\fP=-180.0, \fIle[i]\fP=180.0, and cycle[i]=360.0. Note that wraparound
+and retrieval of duplicate data at the endpoints are handled
+correctly. Set \fIcycle[i]\fP to 0.0 to specify no wraparound in the i-th
+(user) dimension.
+Data is returned
+in \fIvar\fP.
+
+\fIdatadim\fP is an array of length \fIrank\fP, whose i-th element is the
+length of the i-th user dimension of \fIvar\fP. \fIdatadim[i]\fP can be
+larger than the number of elements actually retrieved into the i-th dimension.
+This permits a multi-dimensional \fIvar\fP array to be statically
+allocated, if desired.
+.HP
+\fBint cw_inqdict(int \fIlu\fB, int \fIoper\fB)\fR
+.sp
+Inquire a variable. If \fIoper\fP is IDRS_GETFIRSTVAR, the VDB is set for
+the first variable that matches the naming information specified in the
+most recent \fBcw_setname\fP call. If \fIoper\fP is IDRS_GETNEXTVAR, the
+VDB is set for the next matching variable.
+
+The function returns 0 on success, IDRS_NOMOREVARS if no matching variable
+was found, or a non-zero status on failure.
+.HP
+\fBint cw_inqlun(int \fIlu\fB, char* \fIdatafile\fB, int* \fInvar\fB, float* \fIversion\fB)\fR
+.sp
+Inquire a file. \fIdatafile\fP is the name of the associated datafile (DRS,
+GrADS, GRIB). \fInvar\fP is the number of variables in the file.
+\fIversion\fP is the version number of the file format.
+.HP
+\fBint cw_majority(CwMajority \fImajority\fB)\fR
+.sp
+Set the data majority. By default, \fBcddrs\fP follows the FORTRAN majority
+convention : the first dimension varies most rapidly. Consequently, in C
+programs, dimension numbers are reversed with respect to the actual
+dimensions of a multi-dimensional variable. Calling \fBcw_majority\fP with
+\fImajority\fP CW_C_MAJORITY cause \fBcddrs\fP to follow the C majority
+convention - the first dimension varies least rapidly. \fImajority\fP is
+either CW_C_MAJORITY or CW_FORTRAN_MAJORITY (default).
+.HP
+\fBint cw_set_dimension_option(CwExtensionOption \fIoption\fB)\fR
+.sp
+Set the dimension option portability flag. \fIoption\fR may be
+\fBCW_STANDARD\fR (the default) or \fBCW_EXTENDED\fR. By default, a call to
+\fBcw_getcdim\fR or \fBcw_getedim\fR returns a dimension type of
+\fBIDRS_EQUALLY_SPACED\fR or \fBIDRS_VECTOR\fR. If this function is called
+with \fIoption\fR \fBCW_EXTENDED\fR, the following dimension types will instead be
+returned: CW_SHARED, indicating that there is a coordinate variable in the
+file representing the values of this dimension, CW_IMPLICIT_SHARED,
+indicating that there is no such variable, but the dimension is shared
+(global) nonetheless, and IDRS_LOCAL, indicating that the dimension is not
+shared.  This model better supports formats such as GrADS, which can have
+implicitly defined, shared dimensions. The values of such a dimension may
+be retrieved using \fBcw_getcdim\fR, but NOT using \fBcw_getdat\fR or
+\fBcw_getslab\fR. The extension option stays in effect until the next call
+to \fBcw_set_dimension_option\fR, if any, The function returns IDRS_SUCCESS
+on success, -1 on error.
+.HP
+\fBint cw_set_string_option(CwExtensionOption \fIoption\fB)\fR
+.sp
+Set the string option portability flag. \fIoption\fR may be
+\fBCW_STANDARD\fR (the default) or \fBCW_EXTENDED\fR. By default,
+\fIname\fR arguments have length IDRS_NAMELEN, as defined in
+drscdf.h. Similarly, \fIsource\fR, \fItitle\fR, \fIunits\fR, \fIdate\fR,
+\fItime\fR, and \fItyped\fR arguments have length IDRS_SOURCELEN,
+IDRS_TITLELEN, IDRS_UNITSLEN, IDRS_DATELEN, IDRS_TIMELEN, and IDRS_TYPELEN,
+respectively.  If this function is called with \fIoption\fR
+\fBCW_EXTENDED\fR, these function arguments can have length up to
+CW_MAX_NAME characters, including the null terminator, and memory should be allocated accordingly. This
+applies to the following arguments: \fIsource\fR, \fIname\fR, \fItitle\fR,
+\fIunits\fR, \fIdate\fR, \fItime\fR, and \fItyped\fR, in functions
+\fBcw_getcdim\fR, \fBcw_getedim\fR, \fBcw_getname\fR, \fBcw_setdim\fR, \fBcw_setname\fR, and
+\fBcw_setvdim\fR. The extension option stays in effect until the next call
+to \fBcw_set_string_option\fR, if any, The function returns IDRS_SUCCESS on
+success, -1 on error.
+.HP
+\fBint cw_setdim(int \fIn\fB, char* \fIdna\fB, char* \fIdun\fB, int \fIidim\fB, double \fIdf\fB, double \fIdl\fB)\fR
+.sp
+Specify the range of values to be read for a dimension. \fIn\fP is the
+1-origin dimension number. \fIdna\fP is the (optional) name of the dimension.
+\fIdun\fP is the (optional) units field. If both \fIdna\fP and \fIdun\fP
+are set to null (0), then the range is set for the i-th dimension as
+defined in the file, respective of the data majority.
+\fIidim\fP is for backward
+compatibility only, and should be set to 0.
+\fIdf\fP and \fIdl\fP are the first and last values of the range of values
+to be read.
+
+.HP
+\fBint cw_seterr(int \fIierrlun\fB, int \fIreportlevel\fB)\fR
+.sp
+Set the error reporting level. \fIreportlevel\fP may be set to IDRS_NOREPORT to
+suppress error reporting, or IDRS_\fIWARNING\fP to report errors.
+\fIierrlun\fP is provided for backward compatibility only; all errors are
+written to stderr.
+.HP
+\fBint cw_setname(char* \fIsource\fB, char* \fIname\fB, char* \fItitle\fB, char* \fIunits\fB, char* \fItyped\fB)\fR
+.sp
+Specify the name and (optionally) the other name fields of the variable to
+be read. \fIname\fP is the name of the variable to be read. \fIsource\fP,
+\fItitle\fP, and \fIunits\fP may be specified, but must match the
+corresponding field of the variable if specified. \fItyped\fP is the
+requested datatype of the variable. An error occurs if the data cannot be
+returned as the requested type.
+.HP
+\fBint cw_setvdim(int \fIn\fB, char* \fIdso\fB, char* \fIdna\fB, char* \fIdti\fB, char* \fIdun\fB, double \fIdf\fB, double \fIdl\fB)\fR
+.sp
+Specify the range of values to be read for a dimension. \fIn\fP is the
+1-origin dimension number. \fIdna\fP is the (optional) name of the dimension.
+\fIdso\fP, \fIdti\fP, and \fIdun\fP are optional source, title, and units
+fields. If specified, they must match exactly the corresponding
+variable fields. If \fIdso\fP, \fIdna\fP, \fIdti\fP, and \fIdun\fP, are all
+set to null (0), then the range is set for the i-th dimension as
+defined in the file, respective of the data majority. 
+\fIdf\fP and \fIdl\fP are the first and last values of the range of values
+to be read.
+.SH "PORTING FROM DRS"
+Since the template of each \fBcddrs\fP call is identical to its DRS counterpart,
+porting a code with DRS calls to \fBcddrs\fP consists of prefixing all DRS
+read and inquiry routines with "\fBcw_\fP"; the arguments need not be
+modified. This can be accomplished most readily, \fBif there are no
+write routines in the source file\fP, by compiling with the option
+\fB-DCDCOMPAT\fP. This causes all DRS C routines to be redefined, by the 
+preprocessor, to their \fBcddrs\fP equivalent.
+
+If any of the following routines appear within the source file, the above
+option should not be used: \fBPutdat\fP, \fBPutdic\fP, \fBPutvdim\fP,
+\fBSetdate\fP, or \fBSetrep\fP.
+.SH FILES
+.PD 0
+.TP 30
+.B $PCMDI/include/cddrs.h
+cddrs include file
+.TP
+.B $PCMDI/lib/libcdms.a
+CDMS library
+.TP
+.B $PCMDI/lib/libdrs.a
+DRS library
+.PD
+.SH COMPILATION
+The following illustrates the basic compilation and link command:
+.LP
+.RS
+.nf
+.ft B
+acc -I$PCMDI/include -o prog prog.c -L$PCMDI/lib -lcdms -ldrs \\
+    -L/usr/local/netcdf-2.3.2/libsrc -lnetcdf -lF77 -lc -lm
+.ft
+.RE
+.fi
+.LP
+This illustrates use of the compatibility flag:
+.LP
+.RS
+.nf
+.ft B
+acc -DCDCOMPAT -I$PCMDI/include -o prog prog.c -L$PCMDI/lib \\
+    -lcdms -ldrs -L/usr/local/netcdf-2.3.2/libsrc -lnetcdf -lF77 -lc -lm
+.ft
+.RE
+.fi
+.SH "SEE ALSO"
+.BR cdunif (3),
+.BR fcddrs (3).
+.SH "BUGS"
+C*n datatypes for n greater than 1 are not properly handled.
+
+DRS output routines should be incorporated, to make porting easier.
+

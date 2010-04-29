@@ -1,0 +1,34 @@
+<!DOCTYPE webproject>
+<webproject>
+  <project usePreviewPrefix="0" previewPrefix="" type="Local" usePersistentBookmarks="0" name="spanlib" encoding="utf8" enableEvents="true" >
+    <upload/>
+    <defaultDTD>docbook-5.05b</defaultDTD>
+    <item url="sample.xml" uploadstatus="1" />
+    <item url="template.xml" uploadstatus="1" />
+    <item url="" uploadstatus="1" />
+    <templates>templates/</templates>
+    <toolbars>toolbars/</toolbars>
+    <author>Stephane Raynaud</author>
+    <email>stephane.raynaud@gmail.com</email>
+    <debuggerclient>Aucun débogueur</debuggerclient>
+    <exclude cvsignore="false" >*~;</exclude>
+    <teamdata>
+      <taskleaders/>
+      <subprojectleaders/>
+      <mailinglist address="" />
+    </teamdata>
+    <events/>
+    <item url="fortran_main.html" uploadstatus="1" />
+    <item url="mystyle.xsl" uploadstatus="1" />
+    <item url="spanlib.css" uploadstatus="1" />
+    <item url="xml/" uploadstatus="1" />
+    <item url="xml/spanlib.xsl" uploadstatus="1" />
+    <item url="xml/spanlib.xml" uploadstatus="1" />
+    <item url="html/" uploadstatus="1" />
+    <item url="html/spanlib.css" uploadstatus="1" />
+    <treestatus>
+      <openfolder url="html" />
+      <openfolder url="xml" />
+    </treestatus>
+  </project>
+</webproject>

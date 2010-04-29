@@ -1,0 +1,14 @@
+#!/bin/sh -f
+echo $0
+echo "This script shows you the environment variables relevant to running python."
+echo PYTHONPATH=${PYTHONPATH:-'not set'}
+echo PYTHONSTARTUP=${PYTHONSTARTUP:-'not set'}
+echo PYTHONHOME=${PYTHONHOME:-'not set'}
+echo LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-'not set'}
+echo "You should not have PYTHONHOME set."
+echo "It is ok to have PYTHONPATH set to a directory of your own scripts."
+echo "It is ok to have PYTHONSTARTUP set to a script you want run"; \
+echo "when starting up Python interactively."
+    
+   
+

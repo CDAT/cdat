@@ -1,0 +1,17 @@
+python module eqmsu
+  interface
+      subroutine loop_thru_dims(nmsu,nlev,nic,nextra, critw, arrayin,weights,arrayout,heightp,heightm,temp,tempout,tempw)
+
+      integer i,j,k,nmsu,nextra,nic
+      integer nlev
+      real arrayin(nlev,nextra)
+      real, intent(out) :: arrayout(nic,nextra)
+      real heightp(nlev),heightm(nmsu)
+      real weights(nmsu,nic)
+      real, intent(temporary) :: temp(nlev),tempw(nmsu),tempout(nlev)
+      real critw
+
+      end
+  end interface
+end module eqmsu
+

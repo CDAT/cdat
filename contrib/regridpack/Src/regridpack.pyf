@@ -1,0 +1,1169 @@
+python module regridpack
+  interface
+     subroutine rgrd1(nx,x,p,mx,xx,q,intpol,w,lw,iw,liw,ier)
+! **************************************************************************
+         !
+         ! purpose
+         !
+         !    subroutine rgrd1 interpolates the values p(i) on the grid x(i)
+         !    for i=1,...,nx onto q(ii) on the grid xx(ii),ii=1,...,mx.
+         !
+         ! method
+         !
+         !    Linear interpolation (intpol=1)
+         !
+         !      Given ii in the integer interval [1,mx], let i be the
+         !      largest integer in the integer interval [1,nx-1] such
+         !      that x(i) is less than or equal to xx(ii).  Then q(ii)
+         !      at xx(ii) is linearly interpolated from p(i),p(i+1) at
+         !      x(i),x(i+1).
+         !
+         !    Cubic interpolation (intpol=3)
+         !
+         !      Given ii in the integer interval [1,mx], let i be the
+         !      largest integer in the integer interval [2,nx-2] such
+         !      that x(i) is less than or equal to xx(ii).  Then q(ii)
+         !      at xx(ii) is cubically interpolated from p(i-1),p(i),
+         !      p(i+1),p(i+2) at x(i-1),x(i),x(i+1),x(i+2).
+         !
+         !    x must be a strictly increasing grid and xx must be an increasing
+         !    grid (see ier = 4).  in addition the interval
+         !
+         !         [xx(1),xx(mx)]
+         !
+         !    must lie within the interval
+         !
+         !         [x(1),x(nx)].
+         !
+         !    extrapolation is not allowed (see ier=3).  if these intervals
+         !    are identical and the x and xx grids are UNIFORM then subroutine
+         !    rgrd1u (see file rgrd1u.f) should be used in place of rgrd1.
+         !
+         ! **************************************************************
+         !
+         ! input arguments
+         !
+         !... nx
+         !    the integer dimension of the grid vector x and the dimension of p.
+         !    nx > 1 if intpol = 1 or nx > 3 if intpol = 3 is required.
+         !
+         !... x
+         !    a real nx vector of strictly increasing values which defines the x
+         !    grid on which p is given.
+         !
+         !... p
+         !    a real nx vector of values given on the x grid
+         !
+         !... mx
+         !    the integer dimension of the grid vector xx and the dimension of q.
+         !    mx > 0 is required.
+         !
+         !... xx
+         !    a real mx vector of increasing values which defines the
+         !    grid on which q is defined.  xx(1) < x(1) or xx(mx) > x(nx)
+         !    is not allowed (see ier = 3)
+         !
+         !... intpol
+         !    an integer which sets linear or cubic interpolation. 
+         !
+         !... w
+         !    a real work space of length at least lw which must be provided in the
+         !    routine calling rgrd1
+         !
+         !
+         !... lw
+         !    the integer length of the real work space w. 
+         !
+         !... iw
+         !    an integer work space of length at least liw which must be provided in the
+         !    routine calling rgrd1
+         !
+         !... liw
+         !    tne length of the integer work space iw. liw must be greater than or equal to mx.
+         !
+         ! **************************************************************
+         !
+         ! output arguments
+         !
+         !... q
+         !    a real mx vector of values on the xx grid which are
+         !    interpolated from p on the x grid
+         !
+         !... ier
+         !    an integer error flag set as follows:
+         !
+         !    ier = 0 if no errors in input arguments are detected
+         !
+         !    ier = 1 if  mx < 1
+         !
+         !    ier = 2 if nx < 2 when intpol=1 or nx < 4 when intpol=3
+         !
+         !    ier = 3 if xx(1) < x(1) or x(nx) < xx(mx)
+         !
+         !*** to avoid this flag when end points are intended to be the
+         !    same but may differ slightly due to roundoff error, they
+         !    should be set exactly in the calling routine (e.g., if both
+         !    grids have the same x boundaries then xx(1)=x(1) and xx(mx)=x(nx)
+         !    should be set before calling rgrd1)
+         !
+         !    ier = 4 if the x grid is not strictly monotonically increasing
+         !            or if the xx grid is not montonically increasing.  more
+         !            precisely if:
+         !
+         !            x(i+1) <= x(i) for some i such that 1 <= i < nx (or)
+         !
+         !            xx(ii+1) < xx(ii) for some ii such that 1 <= ii < mx
+         !
+         !    ier = 5 if lw or liw is too small (insufficient work space)
+         !
+         !    ier = 6 if intpol is not equal to 1 or 3
+         !
+! *************************************************************************
+         !
+         integer nx
+         integer mx
+         integer lw
+         integer liw
+         integer intpol
+         integer, intent(out)::ier
+         real, intent(out)::q(mx)
+         real, intent(temporary):: w(lw)
+         integer, intent(temporary):: iw(liw)
+         real x(nx)
+         real p(nx)
+         real xx(mx)
+         !
+     end
+
+     subroutine rgrd1u(nx,p,mx,q,intpol,w,lw,iw,liw,ier)
+! **************************************************************************
+         !
+         ! purpose
+         !
+         !    subroutine rgrd1u interpolates the nx vector p onto
+         !    the mx vector q. it is assumed that p and q are
+         !    values on uniform nx and mx grids which subdivide
+         !    the same interval (INCLUDING END POINTS).  if p and
+         !    q are values on nonuniform grids and/or if q is defined
+         !    on a grid which lies within the p grid then subroutine
+         !    rgrd1 (see file rgrd1.f) should be used.
+         !
+         ! method
+         !
+         !    linear or cubic interpolation (see intpol) is used when the
+         !    mx uniform grid is not a subgrid of the nx uniform grid (i.e.,
+         !    whenever mx-1 does not divide nx-1).  q is set directly from
+         !    p in the subgrid case.
+         !
+         ! **************************************************************
+         !
+         ! input arguments
+         !
+         !... nx
+         !    the integer dimension of p.  nx > 1 if intpol = 1 or
+         !    nx > 3 if intpol = 3 is required (see ier = 2).
+         !
+         !... p
+         !    a real nx dimensioned vector of given values
+         !
+         !... mx
+         !    the integer dimension of q.  mx > 1 is required (see ier = 1)
+         !
+         !... intpol
+         !    an integer which sets linear or cubic interpolation.
+         !
+         !... w
+         !    a real work space of length lw.
+         !
+         !... lw
+         !    the integer length of the work space w in the routine calling rgrd1u.
+         !
+         !... iw
+         !    an integer work space of length liw
+         !
+         !... liw
+         !    the integer length of the integer work space iw in the routine calling rgrd1u.
+         !
+         ! **************************************************************
+         !
+         ! output arguments
+         !
+         !... q
+         !    a real mx dimensioned vector of values which are interpolated from p.
+         !
+         !... ier
+         !    an integer error flag set as follows:
+         !
+         !    ier = 0 if no errors in input arguments are detected
+         !
+         !    ier = 1 if  mx < 2
+         !
+         !    ier = 2 if nx < 2 when intpol=1 or nx < 4 when intpol=3.
+         !
+         !    ier = 3 if intpol is not equal to 1 or 3
+         !
+         !    ier = 4 if lw or liw is too small (insufficient work space)
+         !
+! *************************************************************************
+         !
+         integer nx
+         integer mx
+         integer lw
+         integer liw
+         integer intpol
+         integer, intent(out)::ier
+         real, intent(out)::q(mx)
+         real, intent(temporary):: w(lw)
+         integer, intent(temporary):: iw(liw)
+         real p(nx)
+         !
+     end
+
+
+     subroutine rgrd2(nx,ny,x,y,p,mx,my,xx,yy,q,intpol,w,lw,iw,liw,ier)
+! **************************************************************************
+         !
+         ! purpose
+         !
+         !    subroutine rgrd2 interpolates the values p(i,j) on the orthogonal
+         !    grid (x(i),y(j)) for i=1,...,nx and j=1,...,ny onto q(ii,jj) on the
+         !    orthogonal grid (xx(ii),yy(jj)) for ii=1,...,mx and jj=1,...,my.
+         !
+         !
+         ! method
+         !
+         !
+         !    linear or cubic interpolation is used (independently) in
+         !    each direction (see argument intpol).
+         !
+         !    each of the x,y grids must be strictly montonically increasing
+         !    and each of the xx,yy grids must be montonically increasing (see
+         !    ier = 4).  in addition the (X,Y) region
+         !
+         !         [xx(1),xx(mx)] X [yy(1),yy(my)]
+         !
+         !    must lie within the (X,Y) region
+         !
+         !         [x(1),x(nx)] X [y(1),y(ny)].
+         !
+         !    extrapolation is not allowed (see ier=3).  if these (X,Y)
+         !    regions are identical and the orthogonal grids are UNIFORM
+         !    in each direction then subroutine rgrd2u (see file rgrd2u.f)
+         !    should be used instead of rgrd2.
+         !
+         ! **************************************************************
+         !
+         ! input arguments
+         !
+         !... nx
+         !    the integer dimension of the grid vector x and the first dimension
+         !    of p.  nx > 1 if intpol(1) = 1 or nx > 3 if intpol(1) = 3 is required.
+         !
+         !... ny
+         !    the integer dimension of the grid vector y and the second dimension
+         !    of p.  ny > 1 if intpol(2) = 1 or ny > 3 if intpol(2) = 3 is required.
+         !
+         !... x
+         !    a real nx vector of strictly increasing values which defines the x
+         !    portion of the orthogonal grid on which p is given
+         !
+         !... y
+         !    a real ny vector of strictly increasing values which defines the y
+         !    portion of the orthogonal grid on which p is given
+         !
+         !... p
+         !    a real nx by ny array of values given on the orthogonal (x,y) grid
+         !
+         !... mx
+         !    the integer dimension of the grid vector xx and the first dimension
+         !    of q.  mx > 0 is required.
+         !
+         !... my
+         !    the integer dimension of the grid vector yy and the second dimension
+         !    of q.  my > 0 is required.
+         !
+         !... xx
+         !    a real mx vector of increasing values which defines the x portion of the
+         !    orthogonal grid on which q is defined.  xx(1) < x(1) or xx(mx) > x(nx)
+         !    is not allowed (see ier = 3)
+         !
+         !... yy
+         !    a real my vector of increasing values which defines the y portion of the
+         !    orthogonal grid on which q is defined.  yy(1) < y(1) or yy(my) > y(ny)
+         !    is not allowed (see ier = 3)
+         !
+         !... intpol
+         !    an integer vector of dimension 2 which sets linear or cubic
+         !    interpolation in the x,y directions. 
+         !
+         !... w
+         !    a real work space of length at least lw which must be provided in the
+         !    routine calling rgrd2
+         !
+         !... lw
+         !    the integer length of the real work space w.
+         !
+         !... iw
+         !    an integer work space of length at least liw which must be provided in the
+         !    routine calling rgrd2
+         !
+         !... liw
+         !    the integer length of the integer work space iw. 
+         !
+         ! **************************************************************
+         !
+         ! output arguments
+         !
+         !... q
+         !    a real mx by my array of values on the (xx,yy) grid which are
+         !    interpolated from p on the (x,y) grid
+         !
+         !... ier
+         !    an integer error flag set as follows:
+         !
+         !    ier = 0 if no errors in input arguments are detected
+         !
+         !    ier = 1 if  min0(mx,my) < 1
+         !
+         !    ier = 2 if nx < 2 when intpol(1)=1 or nx < 4 when intpol(1)=3 (or)
+         !               ny < 2 when intpol(2)=1 or ny < 4 when intpol(2)=3
+         !
+         !    ier = 3 if xx(1) < x(1) or x(nx) < xx(mx) (or)
+         !               yy(1) < y(1) or y(ny) < yy(my) (or)
+         !
+         !*** to avoid this flag when end points are intended to be the
+         !    same but may differ slightly due to roundoff error, they
+         !    should be set exactly in the calling routine (e.g., if both
+         !    grids have the same y boundaries then yy(1)=y(1) and yy(my)=y(ny)
+         !    should be set before calling rgrd2)
+         !
+         !    ier = 4 if one of the grids x,y is not strictly monotonically
+         !            increasing or if one of the grids xx,yy is not
+         !            montonically increasing.  more precisely if:
+         !
+         !            x(i+1) <= x(i) for some i such that 1 <= i < nx (or)
+         !
+         !            y(j+1) <= y(j) for some j such that 1 <= j < ny (or)
+         !
+         !            xx(ii+1) < xx(ii) for some ii such that 1 <= ii < mx (or)
+         !
+         !            yy(jj+1) < yy(jj) for some jj such that 1 <= jj < my
+         !
+         !    ier = 5 if lw or liw is to small (insufficient work space)
+         !
+         !    ier = 6 if intpol(1) or intpol(2) is not equal to 1 or 3
+         !
+! *************************************************************************
+         !
+         integer nx
+         integer ny
+         integer mx
+         integer my
+         integer lw
+         integer liw
+         integer, intent(out)::ier
+         real, intent(out)::q(mx,my)
+         real, intent(temporary):: w(lw)
+         integer, intent(temporary):: iw(liw)
+         real x(nx)
+         real y(ny)
+         real p(nx,ny)
+         real xx(mx)
+         real yy(my)
+         integer intpol(2)
+         !
+     end
+
+
+     subroutine rgrd2u(nx,ny,p,mx,my,q,intpol,w,lw,iw,liw,ier)
+! **************************************************************************
+         !
+         ! purpose
+         !
+         !    subroutine rgrd2u interpolates the nx by ny array p onto
+         !    the mx by my array q.  linear or cubic interpolation is
+         !    used in each direction (see aargumentintpol).  it is assumed
+         !    that p and q are values on uniform nx by ny and mx by my grids
+         !    superimposed on the same rectangle (INCLUDING BOUNDARIES).
+         !    if p and q are values on nonuniform orthogonal grids and/or
+         !    if the grid on which q is defined lies within the p grid
+         !    then subroutine rgrd2 (see file rgrd2.f) should be used.
+         !
+         !
+         ! method
+         !
+         !    linear or cubic interpolation (see intpol) is used in each
+         !    direction for which the q grid is not a subgrid of the p grid.
+         !    [the mx (my) uniform grid is a subgrid of the nx (ny) uniform
+         !    grid if and only if mx-1 (my-1) divides nx-1 (ny-1)].
+         !    values are set directly without (the need for) interpolation
+         !    in subgrid directions.
+         !
+         ! **************************************************************
+         !
+         ! input arguments
+         !
+         !... nx
+         !    the integer first dimension of p.  nx > 1 if intpol(1) = 1 or
+         !    nx > 3 if intpol(1) = 3 is required (see ier = 2).
+         !
+         !... ny
+         !    the integer second dimension of p.  ny > 1 if intpol(2) = 1 or
+         !    ny > 3 if intpol(2) = 3 is required (see ier = 2).
+         !
+         !... p
+         !    a real nx by ny array of given values
+         !
+         !... mx
+         !    the integer first dimension of q.  mx > 1 is required (see ier = 1)
+         !
+         !... my
+         !    the integer second dimension of q. my > 1 is required (see ier = 1)
+         !
+         !... intpol
+         !    an integer vector of dimension 2 which sets linear or cubic
+         !    interpolation in each of the x,y directions.
+         !
+         !... w
+         !    a real work space of length at least lw which must be provided in the
+         !    routine calling rgrd2u
+         !
+         !... lw
+         !    the integer length of the work space w.
+         !
+         !... iw
+         !    an integer work space of length at least liw which must be provided in the
+         !    routine calling rgrd2u
+         !
+         !... liw
+         !    the integer length of the integer work space iw.  liw must be greater than
+         !    or equal to mx+my.
+         !
+         ! **************************************************************
+         !
+         ! output arguments
+         !
+         !... q
+         !    a real mx by my array of values which are interpolated from p.
+         !
+         !... ier
+         !    an integer error flag set as follows:
+         !
+         !    ier = 0 if no errors in input arguments are detected
+         !
+         !    ier = 1 if  min0(mx,my) < 2
+         !
+         !    ier = 2 if nx < 2 when intpol(1)=1 or nx < 4 when intpol(1)=3 (or)
+         !               ny < 2 when intpol(2)=1 or ny < 4 when intpol(2)=3.
+         !
+         !    ier = 3 if intpol(1) or intpol(2) is not equal to 1 or 3
+         !
+         !    ier = 4 if lw or liw is to small (insufficient work space)
+         !
+! *************************************************************************
+         !
+         integer nx
+         integer ny
+         integer mx
+         integer my
+         integer lw
+         integer liw
+         integer, intent(out)::ier
+         real, intent(out)::q(mx,my)
+         real, intent(temporary):: w(lw)
+         integer, intent(temporary):: iw(liw)
+         real p(nx,ny)
+         integer intpol(2)
+         !
+     end
+
+
+     subroutine rgrd3(nx,ny,nz,x,y,z,p,mx,my,mz,xx,yy,zz,q,intpol,w,lw,iw,liw,ier)
+! *************************************************************************
+         !
+         ! purpose
+         !
+         !    subroutine rgrd3 interpolates the values p(i,j,k) on the orthogonal
+         !    grid (x(i),y(j),z(k)) for i=1,...,nx; j=1,...,ny; k=1,...,nz
+         !    onto q(ii,jj,kk) on the orthogonal grid (xx(ii),yy(jj),zz(kk)) for
+         !    ii=1,...,mx; jj=1,...,my; kk=1,...,mz.
+         !
+         ! method
+         !
+         !    linear or cubic interpolation is used (independently) in
+         !    each direction (see argument intpol).
+         !
+         ! requirements
+         !
+         !    each of the x,y,z grids must be strictly montonically increasing
+         !    and each of the xx,yy,zz grids must be montonically increasing
+         !    (see ier = 4).  in addition the (X,Y,Z) region
+         !
+         !         [xx(1),xx(mx)] X [yy(1),yy(my)] X [zz(1),zz(mz)]
+         !
+         !    must lie within the (X,Y,Z) region
+         !
+         !         [x(1),x(nx)] X [y(1),y(ny)] X [z(1),z(nz)].
+         !
+         !    extrapolation is not allowed (see ier=3).  if these (X,Y,Z)
+         !    regions are identical and the orthogonal grids are UNIFORM
+         !    in each direction then subroutine rgrd3u (see file rgrd3u.f)
+         !    should be used instead of rgrd3.
+         !
+         ! **************************************************************
+         !
+         ! input arguments
+         !
+         !... nx
+         !    the integer dimension of the grid vector x and the first dimension of p.
+         !    nx > 1 if intpol(1) = 1 or nx > 3 if intpol(1) = 3 is required.
+         !
+         !... ny
+         !    the integer dimension of the grid vector y and the second dimension of p.
+         !    ny > 1 if intpol(2) = 1 or ny > 3 if intpol(2) = 3 is required.
+         !
+         !... nz
+         !    the integer dimension of the grid vector z and the third dimension of p.
+         !    nz > 1 if intpol(3) = 1 or nz > 3 if intpol(3) = 3 is required.
+         !
+         !... x
+         !    a real nx vector of strictly increasing values which defines the x
+         !    portion of the orthogonal grid on which p is given
+         !
+         !... y
+         !    a real ny vector of strictly increasing values which defines the y
+         !    portion of the orthogonal grid on which p is given
+         !
+         !... z
+         !    a real nz vector of strictly increasing values which defines the z
+         !    portion of the orthogonal grid on which p is given
+         !
+         !... p
+         !    a real nx by ny by nz array of values given on the (x,y,z) grid
+         !
+         !... mx
+         !    the integer dimension of the grid vector xx and the first dimension of q.
+         !    mx > 0 is required.
+         !
+         !... my
+         !    the integer dimension of the grid vector yy and the second dimension of q.
+         !    my > 0 is required.
+         !
+         !... mz
+         !    the integer dimension of the grid vector zz and the third dimension of q.
+         !    mz > 0 is required.
+         !
+         !... xx
+         !    a real mx vector of increasing values which defines the x portion of the
+         !    orthogonal grid on which q is defined.  xx(1) < x(1) or xx(mx) > x(nx)
+         !    is not allowed (see ier = 3)
+         !
+         !... yy
+         !    a real my vector of increasing values which defines the y portion of the
+         !    orthogonal grid on which q is defined.  yy(1) < y(1) or yy(my) > y(ny)
+         !    is not allowed (see ier = 3)
+         !
+         !... zz
+         !    a real mz vector of increasing values which defines the z portion of the
+         !    orthogonal grid on which q is defined.  zz(1) < z(1) or zz(mz) > z(nz)
+         !    is not allowed (see ier = 3)
+         !
+         !... intpol
+         !    an integer vector of dimension 3 which sets linear or cubic
+         !    interpolation in each of the x,y,z directions.
+         !
+         !... w
+         !    a real work space of length at least lw which must be provided in the
+         !    routine calling rgrd3
+         !
+         !... lw
+         !    the integer length of the real work space w.
+         !
+         !... iw
+         !    an integer work space of length at least liw which must be provided in the
+         !    routine calling rgrd3
+         !
+         !... liw
+         !    the integer length of the integer work space iw.  liw must be at least mx+my+mz
+         !
+         ! **************************************************************
+         !
+         ! output arguments
+         !
+         !... q
+         !    a real mx by my by mz array of values on the (xx,yy,zz) grid which are
+         !    interpolated from p on the (x,y,z) grid
+         !
+         !... ier
+         !    an integer error flag set as follows:
+         !
+         !    ier = 0 if no errors in input arguments are detected
+         !
+         !    ier = 1 if  min0(mx,my,mz) < 1
+         !
+         !    ier = 2 if nx < 2 when intpol(1)=1 or nx < 4 when intpol(1)=3 (or)
+         !               ny < 2 when intpol(2)=1 or ny < 4 when intpol(2)=3 (or)
+         !               nz < 2 when intpol(3)=1 or nz < 4 when intpol(3)=3.
+         !
+         !    ier = 3 if xx(1) < x(1) or x(nx) < xx(mx) (or)
+         !               yy(1) < y(1) or y(ny) < yy(my) (or)
+         !               zz(1) < z(1) or z(nz) < zz(mz)
+         !
+         !*** to avoid this flag when end points are intended to be the
+         !    same but may differ slightly due to roundoff error, they
+         !    should be set exactly in the calling routine (e.g., if both
+         !    grids have the same y boundaries then yy(1)=y(1) and yy(my)=y(ny)
+         !    should be set before calling rgrd3)
+         !
+         !    ier = 4 if one of the grids x,y,z is not strictly monotonically
+         !            increasing or if one of the grids xx,yy,zz is not
+         !            montonically increasing.  more precisely if:
+         !
+         !            x(i+1) <= x(i) for some i such that 1 <= i < nx (or)
+         !
+         !            y(j+1) <= y(j) for some j such that 1 <= j < ny (or)
+         !
+         !            z(k+1) <= z(k) for some k such that 1 <= k < nz (or)
+         !
+         !            xx(ii+1) < xx(ii) for some ii such that 1 <= ii < mx (or)
+         !
+         !            yy(jj+1) < yy(jj) for some jj such that 1 <= jj < my (or)
+         !
+         !            zz(kk+1) < zz(k)  for some kk such that 1 <= kk < mz
+         !
+         !    ier = 5 if lw or liw is too small (insufficient work space)
+         !
+         !    ier = 6 if any of intpol(1),intpol(2),intpol(3) is not equal to 1 or 3
+         !
+! *************************************************************************
+         !
+         integer nx
+         integer ny
+         integer nz
+         integer mx
+         integer my
+         integer mz
+         integer lw
+         integer liw
+         integer, intent(out)::ier
+         real, intent(out)::q(mx,my,mz)
+         real, intent(temporary):: w(lw)
+         integer, intent(temporary):: iw(liw)
+         real x(nx)
+         real y(ny)
+         real z(nz)
+         real p(nx,ny,nz)
+         real xx(mx)
+         real yy(my)
+         real zz(mz)
+         integer intpol(3)
+         !
+     end
+
+         
+     subroutine rgrd3u(nx,ny,nz,p,mx,my,mz,q,intpol,w,lw,iw,liw,ier)
+! **************************************************************************
+         !
+         !
+         ! purpose
+         !
+         !    subroutine rgrd3u interpolates the nx by ny by nz array p onto
+         !    the mx by my by mz array q.  it is assumed that p and q are
+         !    values on uniform nx by ny by nz and mx by my by mz grids which
+         !    are superimposed on the same box region (INCLUDING BOUNDARIES).
+         !    if p and q are values on nonuniform orthogonal grids and/or
+         !    if the grid on which q is defined lies within the p grid then
+         !    subroutine rgrd3 (see file rgrd3.f) should be used.
+         !
+         !
+         ! method
+         !
+         !    linear or cubic interpolation (see intpol) is used in each
+         !    direction for which the q grid is not a subgrid of the p grid.
+         !    [the mx (my,mz) uniform grid is a subgrid of the nx (ny,nz) uniform
+         !    grid if and only if mx-1 (my-1,nz-1) divides nx-1 (ny-1,nz-1)].
+         !    Values are set directly without (the need for) interpolation
+         !    in subgrid directions.
+         ! 
+         ! **************************************************************
+         !
+         ! input arguments
+         !
+         !... nx
+         !    the integer first dimension of p.  nx > 1 if intpol(1) = 1 or
+         !    nx > 3 if intpol(1) = 3 is required (see ier = 2).
+         !
+         !... ny
+         !    the integer second dimension of p.  ny > 1 if intpol(2) = 1 or
+         !    ny > 3 if intpol(2) = 3 is required (see ier = 2).
+         !
+         !... nz
+         !    the integer third dimension of p.  nz > 1 if intpol(3) = 1 or
+         !    nz > 3 if intpol(3) = 3 is required (see ier = 2)
+         !
+         !... p
+         !    a real nx by ny by nz array of given values
+         !
+         !... mx
+         !    the integer first dimension of q.  mx > 1 is required (see ier = 1)
+         !
+         !... my
+         !    the integer second dimension of q. my > 1 is required (see ier = 1)
+         !
+         !... mz
+         !    the integer third dimension of q. mz > 1 is required (see ier = 1)
+         !
+         !... intpol
+         !    an integer vector of dimension 3 which sets linear or cubic
+         !    interpolation in each of the x,y,z directions.
+         !
+         !... w
+         !    a real work space of length at least lw which must be provided in the
+         !    routine calling rgrd3u
+         !
+         !... lw
+         !    the integer length of the real work space w.
+         !
+         !... iw
+         !    an integer work space of length at least liw which must be provided in the
+         !    routine calling rgrd3u
+         !
+         !... liw
+         !    the integer length of the integer work space iw.  liw must be greater than
+         !    or equal to mx+my+mz
+         !
+         ! **************************************************************
+         !
+         ! output arguments
+         !
+         !... q
+         !    a real mx by my by mz array of values which are interpolated from p.
+         !
+         !... ier
+         !    an integer error flag set as follows:
+         !
+         !    ier = 0 if no errors in input arguments are detected
+         !
+         !    ier = 1 if  min0(mx,my,mz) < 2
+         !
+         !    ier = 2 if nx < 2 when intpol(1)=1 or nx < 4 when intpol(1)=3 (or)
+         !               ny < 2 when intpol(2)=1 or ny < 4 when intpol(2)=3 (or)
+         !               nz < 2 when intpol(3)=1 or nz < 4 when intpol(3)=3.
+         !
+         !    ier = 3 if any of intpol(1),intpol(2),intpol(3) is not equal to 1 or 3
+         !
+         !    ier = 4 if lw or liw is too small (insufficient work space)
+         !
+
+! *************************************************************************
+         !
+         integer nx
+         integer ny
+         integer nz
+         integer mx
+         integer my
+         integer mz
+         integer lw
+         integer liw
+         integer, intent(out)::ier
+         real, intent(out)::q(mx,my,mz)
+         real, intent(temporary):: w(lw)
+         integer, intent(temporary):: iw(liw)
+         real p(nx,ny,nz)
+         integer intpol(3)
+         !
+     end
+
+ 
+     subroutine rgrd4(nx,ny,nz,nt,x,y,z,t,p,mx,my,mz,mt,xx,yy,zz,tt,q,intpol,w,lw,iw,liw,ier)
+! **************************************************************************
+         !
+         ! purpose
+         !
+         !    subroutine rgrd4 interpolates the values p(i,j,k,l) on the orthogonal
+         !    grid
+         !
+         !      (x(i),y(j),z(k),t(l))
+         !
+         !      for i=1,...,nx;j=1,...,ny;k=1,...,nz;l=1,...,nt
+         !
+         !
+         !    onto q(ii,jj,kk,ll) on the orthogonal grid
+         !
+         !
+         !      (xx(ii),yy(jj),zz(kk),tt(ll))
+         !
+         !      for ii=1,...,mx;jj=1,...,my;kk=1,...,mz;ll=1,...,mt
+         !
+         !
+         ! method
+         !
+         !    linear or cubic interpolation is used (independently) in
+         !    each direction (see argument intpol).
+         !
+         ! requirements
+         !
+         !    each of the x,y,z,t grids must be strictly montonically increasing
+         !    and each of the xx,yy,zz,tt grids must be montonically increasing
+         !    (see ier = 4).  in addition the (X,Y,Z,T) region of the q grid
+         !
+         !     [xx(1),xx(mx)] X [yy(1),yy(my)] X [zz(1),zz(mz)] X [tt(1),tt(my)]
+         !
+         !    must lie within the (X,Y,Z,T) region of the p grid
+         !
+         !     [x(1),x(nx)] X [y(1),y(ny)] X [z(1),z(nz)] X [t(1),t(nt)].
+         !
+         !    extrapolation is not allowed (see ier=3).  if these (X,Y,Z,T)
+         !    regions are identical and the orthogonal grids are UNIFORM
+         !    in each direction then subroutine rgrd4u (see file rgrd4u.f)
+         !    should be used instead of rgrd4.
+         !
+         ! **************************************************************
+         !
+         ! input arguments
+         !
+         !... nx
+         !    the integer dimension of the grid vector x and the first dimension of p.
+         !    nx > 1 if intpol(1) = 1 or nx > 3 if intpol(1) = 3 is required.
+         !
+         !... ny
+         !    the integer dimension of the grid vector y and the second dimension of p.
+         !    ny > 1 if intpol(2) = 1 or ny > 3 if intpol(2) = 3 is required.
+         !
+         !... nz
+         !    the integer dimension of the grid vector z and the third dimension of p.
+         !    nz > 1 if intpol(3) = 1 or nz > 3 if intpol(3) = 3 is required.
+         !
+         !... nt
+         !    the integer dimension of the grid vector t and the fourth dimension of p.
+         !    nt > 1 if intpol(4) = 1 or nt > 3 if intpol(4) = 3 is required.
+         !
+         !... x
+         !    a real nx vector of strictly increasing values which defines the x
+         !    portion of the orthogonal grid on which p is given
+         !
+         !... y
+         !    a real ny vector of strictly increasing values which defines the y
+         !    portion of the orthogonal grid on which p is given
+         !
+         !... z
+         !    a real nz vector of strictly increasing values which defines the z
+         !    portion of the orthogonal grid on which p is given
+         !
+         !... t
+         !    a real nt vector of strictly increasing values which defines the t
+         !    portion of the orthogonal grid on which p is given
+         !
+         !... p
+         !    a real nx by ny by nz by nt array of values given on the (x,y,z,t) grid
+         !
+         !... mx
+         !    the integer dimension of the grid vector xx and the first dimension
+         !    of q.  mx > 0 is required.
+         !
+         !... my
+         !    the integer dimension of the grid vector yy and the second dimension
+         !    of q.  my > 0 is required.
+         !
+         !... mz
+         !    the integer dimension of the grid vector zz and the third dimension
+         !    of q.  mz > 0 is required.
+         !
+         !... mt
+         !    the integer dimension of the grid vector tt and the fourth dimension
+         !    of q.  mt > 0 is required.
+         !
+         !... xx
+         !    a real mx vector of increasing values which defines the x portion of the
+         !    orthogonal grid on which q is defined.  xx(1) < x(1) or xx(mx) > x(nx)
+         !    is not allowed (see ier = 3)
+         !
+         !... yy
+         !    a real my vector of increasing values which defines the y portion of the
+         !    orthogonal grid on which q is defined.  yy(1) < y(1) or yy(my) > y(ny)
+         !    is not allowed (see ier = 3)
+         !
+         !... zz
+         !    a real mz vector of increasing values which defines the z portion of the
+         !    orthogonal grid on which q is defined.  zz(1) < z(1) or zz(mz) > z(nz)
+         !    is not allowed (see ier = 3)
+         !
+         !... tt
+         !    a real mt vector of increasing values which defines the t portion of the
+         !    orthogonal grid on which q is defined.  tt(1) < t(1) or tt(mt) > t(nt)
+         !    is not allowed (see ier = 3)
+         !
+         !... intpol
+         !    an integer vector of dimension 4 which sets linear or cubic
+         !    interpolation in each of the x,y,z,t directions.
+         !
+         !... w
+         !    a real work space of length at least lw which must be provided in the
+         !    routine calling rgrd4
+         !
+         !... lw
+         !    the integer length of the real work space w. 
+         !
+         !... iw
+         !    an integer work space of length at least liw which must be provided in the
+         !    routine calling rgrd4
+         !
+         !... liw
+         !    the integer length of the integer work space iw.
+         !
+         ! **************************************************************
+         !
+         ! output arguments
+         !
+         !... q
+         !    a real mx by my by mz by mt array of values on the (xx,yy,zz,tt) grid
+         !    which are interpolated from p on the (x,y,z,t) grid
+         !
+         !... ier
+         !    an integer error flag set as follows:
+         !
+         !    ier = 0 if no errors in input arguments are detected
+         !
+         !    ier = 1 if  min0(mx,my,mz,mt) < 1
+         !
+         !    ier = 2 if nx < 2 when intpol(1)=1 or nx < 4 when intpol(1)=3 (or)
+         !               ny < 2 when intpol(2)=1 or ny < 4 when intpol(2)=3 (or)
+         !               nz < 2 when intpol(3)=1 or nz < 4 when intpol(3)=3 (or)
+         !               nt < 2 when intpol(4)=1 or nt < 4 when intpol(4)=3
+         !
+         !    ier = 3 if xx(1) < x(1) or x(nx) < xx(mx) (or)
+         !               yy(1) < y(1) or y(ny) < yy(my) (or)
+         !               zz(1) < z(1) or z(nz) < zz(mz) (or)
+         !               tt(1) < t(1) or t(nt) < tt(mt)
+         !
+         !*** to avoid this flag when end points are intended to be the
+         !    same but may differ slightly due to roundoff error, they
+         !    should be set exactly in the calling routine (e.g., if both
+         !    grids have the same y boundaries then yy(1)=y(1) and yy(my)=y(ny)
+         !    should be set before calling rgrd4)
+         !
+         !    ier = 4 if one of the grids x,y,z,t is not strictly monotonically
+         !            increasing or if one of the grids xx,yy,zz,tt is not
+         !            montonically increasing.  more precisely if:
+         !
+         !            x(i+1) <= x(i) for some i such that 1 <= i < nx (or)
+         !
+         !            y(j+1) <= y(j) for some j such that 1 <= j < ny (or)
+         !
+         !            z(k+1) <= z(k) for some k such that 1 <= k < nz (or)
+         !
+         !            t(l+1) <= t(l) for some l such that 1 <= l < nt (or)
+         !
+         !            xx(ii+1) < xx(ii) for some ii such that 1 <= ii < mx (or)
+         !
+         !            yy(jj+1) < yy(jj) for some jj such that 1 <= jj < my (or)
+         !
+         !            zz(kk+1) < zz(k)  for some kk such that 1 <= kk < mz (or)
+         !
+         !            tt(ll+1) < tt(l)  for some ll such that 1 <= ll < mt
+         !
+         !    ier = 5 if lw or liw is too small (insufficient work space)
+         !
+         !    ier = 6 if any of intpol(1),intpol(2),intpol(3),intpol(4)
+         !            is not equal to 1 or 3
+         !
+! *************************************************************************
+         !
+         integer nx
+         integer ny
+         integer nz
+         integer nt
+         integer mx
+         integer my
+         integer mz
+         integer mt
+         integer lw
+         integer liw
+         integer, intent(out)::ier
+         real, intent(out)::q(mx,my,mz,mt)
+         real, intent(temporary):: w(lw)
+         integer, intent(temporary):: iw(liw)
+         real x(nx)
+         real y(ny)
+         real z(nz)
+         real t(nt)
+         real p(nx,ny,nz,nt)
+         real xx(mx)
+         real yy(my)
+         real zz(mz)
+         real tt(mt)
+         integer intpol(4)
+         !
+     end
+
+     subroutine rgrd4u(nx,ny,nz,nt,p,mx,my,mz,mt,q,intpol,w,lw,iw,liw,ier)
+! **************************************************************************
+         !
+         ! purpose
+         !
+         !    subroutine rgrd4u interpolates the nx by ny by nz by nt array p onto
+         !    the mx by my by mz by mt array q.  it is assumed that p and q are
+         !    values on uniform nx by ny by nz by nt and mx by my by mz by mt grids
+         !    which are superimposed on the same box region (INCLUDING BOUNDARIES).
+         !    if p and q are values on nonuniform orthogonal grids and/or if the grid
+         !    on which q is defined lies within the p grid then subroutine rgrd4
+         !    (see file rgrd4.f) should be used.
+         !
+         ! method
+         !
+         !    linear or cubic interpolation (see intpol) is used in each
+         !    direction for which the q grid is not a subgrid of the p grid.
+         !    [the mx (my,mz,mt) uniform grid is a subgrid of the nx (ny,nz,nt)
+         !    uniform grid if and only if mx-1 (my-1,nz-1,nt-1) divides nx-1
+         !    (ny-1,nz-1,nt-1)].  Values are set directly without (the need for)
+         !    interpolation in subgrid directions.
+         !
+         ! **************************************************************
+         !
+         ! input arguments
+         !
+         !... nx
+         !    the integer first dimension of p.  nx > 1 if intpol(1) = 1 or
+         !    nx > 3 if intpol(1) = 3 is required (see ier = 2).
+         !
+         !... ny
+         !    the integer second dimension of p.  ny > 1 if intpol(2) = 1 or
+         !    ny > 3 if intpol(2) = 3 is required (see ier = 2).
+         !
+         !... nz
+         !    the integer third dimension of p.  nz > 1 if intpol(3) = 1 or
+         !    nz > 3 if intpol(3) = 3 is required (see ier = 2)
+         !
+         !... nt
+         !    the integer fourth dimension of p.  nt > 1 if intpol(4) = 1 or
+         !    nt > 3 if intpol(4) = 3 is required (see ier=2)
+         !
+         !... p
+         !    a real nx by ny by nz by nt array of given values
+         !
+         !... mx
+         !    the integer first dimension of q.  mx > 1 is required (see ier = 1)
+         !
+         !... my
+         !    the integer second dimension of q. my > 1 is required (see ier = 1)
+         !
+         !... mz
+         !    the integer third dimension of q. mz > 1 is required (see ier = 1)
+         !
+         !... mt
+         !    the integer fourth dimension of q. mt > 1 is required (see ier = 1)
+         !
+         !... intpol
+         !    an integer vector of dimension 4 which sets linear or cubic
+         !    interpolation in each of the x,y,z,t directions. 
+         !
+         !... w
+         !    a real work space of length at least lw which must be provided in the
+         !    routine calling rgrd4u
+         !
+         !... lw
+         !    the integer length of the work space w.
+         !
+         !... iw
+         !    an integer work space of length at least liw which must be provided in the
+         !    routine calling rgrd4u
+         !
+         !... liw
+         !    the integer length of the integer work space iw. 
+         !
+         ! **************************************************************
+         !
+         ! output arguments
+         !
+         !... q
+         !    a real mx by my by mz by mt array of values which are interpolated
+         !    from p.
+         !
+         !... ier
+         !    an integer error flag set as follows:
+         !
+         !    ier = 0 if no errors in input arguments are detected
+         !
+         !    ier = 1 if  min0(mx,my,mz,mt) < 2
+         !
+         !    ier = 2 if nx < 2 when intpol(1)=1 or nx < 4 when intpol(1)=3 (or)
+         !               ny < 2 when intpol(2)=1 or ny < 4 when intpol(2)=3 (or)
+         !               nz < 2 when intpol(3)=1 or nz < 4 when intpol(3)=3 (or)
+         !               nt < 2 when intpol(4)=1 or nt < 4 when intpol(4)=3.
+         !
+         !    ier = 3 if any of intpol(1),intpol(2),intpol(3),intpol(4)  is not
+         !            equal to 1 or 3.
+         !
+         !    ier = 4 if lw or liw is too small (insufficient work space)
+         !
+! *************************************************************************
+         !
+
+! *************************************************************************
+         !
+         integer nx
+         integer ny
+         integer nz
+         integer nt
+         integer mx
+         integer my
+         integer mz
+         integer mt
+         integer lw
+         integer liw
+         integer, intent(out)::ier
+         real, intent(out)::q(mx,my,mz,mt)
+         real, intent(temporary):: w(lw)
+         integer, intent(temporary):: iw(liw)
+         real p(nx,ny,nz,nt)
+         integer intpol(4)
+         !
+     end
+
+     subroutine gaqd(nlat,theta,wts,dwork,ldwork,ierror)
+! *************************************************************************
+         !
+         !   subroutine gaqd computes the nlat gaussian colatitudes and weights
+         !   in doubleprecision. the colatitudes are in radians and lie in the
+         !   in the interval (0,pi).
+         !
+         ! **************************************************************
+         !
+         !   input parameters
+         !
+         !   nlat    the number of gaussian colatitudes in the interval (0,pi)
+         !
+         !   dwork   a temporary work space
+         !
+         !   ldwork  the length of the work space  in the routine calling gaqd
+         !           ldwork must be at least nlat*(nlat+2).
+         !
+         ! **************************************************************
+         !
+         !   output parameters
+         !
+         !   theta   a doubleprecision vector of length nlat containing the
+         !           nlat gaussian colatitudes on the sphere in increasing radians
+         !           in the interval (o,pi).
+         !
+         !   wts     a doubleprecision vector of length nlat containing the
+         !           nlat gaussian weights.
+         !
+         !   ierror = 0 no errors
+         !          = 1 if ldwork.lt.nlat*(nlat+2)
+         !          = 2 if nlat.le.0
+         !          = 3 if unable to compute gaussian points
+         !              (failure in in eigenvalue routine)
+! *************************************************************************
+         !
+           integer nlat
+           integer ldwork
+           integer, intent(out)::ierror
+           doubleprecision, intent(out)::theta(nlat)
+           doubleprecision, intent(out)::wts(nlat)
+           doubleprecision, intent(temporary):: dwork(ldwork)
+         !
+     end
+  end interface
+end module regridpack
+

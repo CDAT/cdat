@@ -1,0 +1,56 @@
+//
+// reqm.idl
+//
+// Authors: Alex Sim <ASim@lbl.gov> Lawrence Berkeley National Laboratory
+// 	    Bob Drach <drach@llnl.gov> Lawrence Livermore National Laboratory
+//
+// Copyright 1999, 2000 the Regents of the University of California
+//
+// Purpose: Definition of the CORBA interface between the 
+// 	    Client and Request Manager
+//
+// Limitations: subject to change
+//
+// Created: Wed Jul 28 11:14:27 PDT 1999
+// Last modified: Thu Feb 17 14:52:14 PST 2000
+//
+// 
+
+#ifndef REQM_IDL
+#define REQM_IDL
+
+#include <esgdefs.idl> 
+
+interface RequestManager {
+	// from clients
+	boolean request(in USER_ID_T uid, in REQUESTS_T requests, 
+			out REQ_TOKEN_T token) raises (reqException);  
+		// only sets the request with file information
+		// if no activities for the request, 
+		// it'll be removed in, say, 5 min by default.
+	double estimate(in REQ_TOKEN_T token)
+			raises (reqException);
+		// estimating time for the request (both initial and dynamic)
+	boolean execute(in REQ_TOKEN_T token)
+			raises (reqException);
+		// executing the request
+		// if no execute is done for the request, 
+		// it'll be removed in, 5 min, by default.
+	FILES_STATUS_T status(in REQ_TOKEN_T token)
+			raises (reqException);
+		// status of transfer of any files in percentage
+	boolean cancel(in REQ_TOKEN_T token)
+			raises (reqException);
+		// cancel the request
+
+		// to be used with HRM
+	boolean staged(in string token, in string filename) 
+		raises (reqException);
+	boolean stageFailed(in string token, in string filename) 
+		raises (reqException);
+
+};
+
+#endif // REQM_IDL
+
+

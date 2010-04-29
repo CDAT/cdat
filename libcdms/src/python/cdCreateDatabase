@@ -1,0 +1,165 @@
+#!/usr/bin/env python
+
+import ldap, sys, getopt, os, string
+from cdms import cdurlparse
+
+usage = """Usage: cdCreateDatabase [-b basedn] [-c description] [-D binddn] [-h host] [-p port] [-u URLs] [-v] [-w password] databaseID ["attr:value" "attr:value" ...]
+
+Create a CDMS database.
+
+Arguments:
+
+    'databaseID' is the name of the database to create. It must be unique with respect to all databases directly under the base node, as specified by 'basedn'.
+
+    'attr:value ...' is an optional list of extra attribute-value pairs.
+
+Options:
+
+    -b: base distinguished name. The database will be created subordinate to the node with the base DN.
+        By default, the database has the same base DN as CDMSROOT.
+    -c: description of the database
+    -D: 'binddn', the distinguished name of a user with privilege to create the database. See -w.
+        The default value is environment variable CDMSUSER, if specified, otherwise the bind is anonymous.
+    -h: host (default: host name in CDMSROOT)
+    -p: server port (default: 389)
+    -u: set the URLs where the database is located. 'URLs' is a comma-separated list of one or more URLs specifying the location of the database. Default: 'ftp://localhost'
+    -v: verbose
+    -w: password (see -D)
+
+Example:
+
+    cdCreateDatabase -v -c 'Test database' -u ftp://sprite.llnl.gov/pub/ngi,file:/pcmdi/test newdb status:experimental 
+
+"""
+
+InvalidAttribute = "Attribute must have the form type:value"
+
+def prompt(pr):
+    print pr+': ',
+    return string.strip(sys.stdin.readline())
+
+dbspecialattrs = ['objectclass','url','description','attr','database']
+
+def main(argv):
+
+    defaultBasedn = {'idoru.llnl.gov' : "ou=PCMDI, o=LLNL, c=US",
+                     'ldap2.mcs.anl.gov' : 'ou=Mathematics and Computer Science Division, o=Argonne National Laboratory, o=Globus, c=US'}
+
+    binddn = os.environ.get('CDMSUSER',"")
+    password = None
+    urls = ["ftp://localhost"]
+
+    cdmsroot = os.environ.get('CDMSROOT')
+    if cdmsroot is None:
+        basedn = None
+        host = None
+        port = ldap.PORT
+    else:
+        (scheme,fullhost,path,parameters,query,fragment)=cdurlparse.urlparse(cdmsroot)
+        hostport = string.split(fullhost,':')
+        if len(hostport)==1:
+            host = hostport[0]
+            port = ldap.PORT
+        else:
+            host, strport = hostport
+            port = string.atoi(strport)
+        basedn = string.join(ldap.explode_dn(path)[1:],',')
+
+    try:
+        args, lastargs = getopt.getopt(argv[1:],"b:c:D:h:p:u:vw:")
+    except getopt.error:
+        print sys.exc_value
+        print usage
+        sys.exit(0)
+
+    basednFromArgs = 0
+    verbose = 0
+    description = None
+    for flag,arg in args:
+        if flag=='-b':
+            basedn = arg
+            basednFromArgs = 1          # Don't reset basedn if host is specified
+        elif flag=='-c': description = arg
+        elif flag=='-D': binddn = arg
+        elif flag=='-h':
+            host = arg
+            if basednFromArgs==0: basedn = defaultBasedn.get(host)
+        elif flag=='-p': port = arg
+        elif flag=='-u': urls = string.split(arg,',')
+        elif flag=='-v': verbose = 1
+        elif flag=='-w': password = arg
+
+    if len(lastargs)<1:
+        print 'Not enough arguments'
+        print usage
+        sys.exit(0)
+
+    dbid = lastargs[0]
+    if len(lastargs)>1:
+        extraattrs = lastargs[1:]
+    else:
+        extraattrs = []
+    extraattrs.append('database:%s'%dbid)
+
+    if basedn is None:
+        basedn = prompt('Base distinguished name')
+    if host is None:
+        host = prompt('Hostname')
+
+    if verbose:
+        print 'Base DN: ', basedn
+        print 'Bind DN: ', binddn
+        print 'Host: %s:%s'%(host,port)
+        print 'Database ID: ', dbid
+        print 'Data URLs: ', urls
+        if extraattrs!=[]: print 'Extra attributes: ', extraattrs
+
+    if verbose: print 'Connecting to',host,'...',
+    try:
+        ldapobj = ldap.open(host, port)
+    except:
+        print 'Error connecting to host: ',sys.exc_value
+        sys.exit(1)
+    if verbose: print 'Connected'
+
+    if verbose: print 'Binding user',binddn
+    if password is None:
+        import getpass
+        password = getpass.getpass()
+
+    try:
+        ldapobj.simple_bind_s(binddn, password)
+    except:
+        print 'Authentication error: ',sys.exc_value
+        sys.exit(1)
+
+    databasedn = 'database=%s,%s'%(dbid,basedn)
+    modlist = [('objectclass',['top','database']), ('URL',urls)]
+    if description is not None:
+        modlist.append(('description',description))
+    for attr in extraattrs:
+        try:
+            cindex = string.index(attr,':')
+        except:
+            raise InvalidAttribute,attr
+        attname = attr[:cindex]
+        attval = attr[cindex+1:]
+        if attname in dbspecialattrs:
+            modlist.append((attname,attval))
+        else:
+            modlist.append(('attr', string.replace(attr,':','=',1)))
+    if verbose:
+        print 'Adding entry',databasedn
+        print 'Attributes: ',modlist
+
+    try:
+        ldapobj.add_s(databasedn, modlist)
+    except:
+        print 'Error adding database entry: ',sys.exc_value
+        sys.exit(1)
+
+    ldapobj.unbind()
+
+#------------------------------------------------------------------------------------------------------------------------------
+if __name__ == '__main__':
+    main(sys.argv)

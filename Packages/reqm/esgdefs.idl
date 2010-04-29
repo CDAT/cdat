@@ -1,0 +1,135 @@
+//
+// esgdefs.idl
+//
+// Authors: Alex Sim <ASim@lbl.gov> Lawrence Berkeley National Laboratory
+// 	    Bob Drach <drach@llnl.gov> Lawrence Livermore National Laboratory
+//
+// Copyright 1999, 2000 the Regents of the University of California
+//
+// Purpose: Definition of the CORBA interface 
+//
+// Limitations: subject to change
+//
+// Created: Wed Jul 28 11:14:27 PDT 1999
+// Last modified: Mon Apr 17 13:39:09 PDT 2000
+//
+// 
+
+#ifndef ESGDEFS_IDL
+#define ESGDEFS_IDL
+
+exception reqException { 
+        string why; 
+};
+
+// exception for all possible reasons
+
+enum REQ_STATE_T {
+	REQ_INVALD,
+	REQ_ACCEPTED,
+	REQ_COMPLETED
+};
+
+// request states: error codes and status codes
+typedef sequence<string> STRSEQ_T;  // error list for a query
+
+//-------------------------------------------------------------------------------
+// multiple dimension ranges
+//
+// <dimension_range> is a tuple of integers, where <lower_bound> is the
+//		zero-origin index of the of the first element of the range, and 
+// <upper_bound> is ONE MORE THAN the index of the last index. 
+//		This is the Python convention. Example: (0 100) is the index 
+//		range 0 through 99 inclusive.
+//
+
+struct TUPLE {
+	long lower;
+	long upper;
+	long stride;  // 1, by default
+};
+typedef TUPLE TUPLE_T;
+typedef sequence<TUPLE_T> TUPLES_T;
+
+//-------------------------------------------------------------------------------
+// <dataset_name> is an LDAP distinguished name of a dataset, for
+// 		example: "dataset=NCEP reanalysis, ou=PCMDI, o=LLNL, c=US"
+// <relative_path> is the relative pathname of the file, 
+//		e.g., "psl/rnl_ncep/psl.rnl_ncep.1978.ctl"
+//		The combination of <dataset_name> and <relative_path> form a unique,
+//		global key into the location catalog.
+//
+// in case this source file is NULL or not provided,
+// Request Manager will get the source information from Replica Catalog
+// Otherwise, this source information will be used, assuming it's correct.
+//
+struct FILE_LOCATION {
+	string dataset_name;
+	string relative_path;
+};
+typedef FILE_LOCATION FILE_LOCATION_T;
+
+//-------------------------------------------------------------------------------
+//
+// <variable> is the string name of the variable as it exists in the
+//		file. The variable may have a different name in the metadata catalog.
+// <data_type> is the type of the variable, and implies the byte length.
+//		(Note: this is only needed if the filtering is done on the server
+//		side. More on this later.)
+//
+struct SLABSPEC {
+	string variable;
+	string data_type;
+	TUPLES_T selection_spec;
+};
+typedef SLABSPEC SLABSPEC_T;
+typedef sequence<SLABSPEC_T> SLABSPECS_T;
+
+//-------------------------------------------------------------------------------
+struct REQUEST {
+	FILE_LOCATION_T source;
+	FILE_LOCATION_T target;
+	SLABSPECS_T slabspecs;
+	boolean search_replicas;
+};
+typedef REQUEST REQUEST_T;
+typedef sequence<REQUEST_T> REQUESTS_T;
+
+//-------------------------------------------------------------------------------
+//
+// target is the destination path for the source file
+// assuming the location structure are the same for both source and target
+// For target destination path, it'll be something like;
+//		UNIX path, /home/pcmdi/psl/rnl_ncep/psl.rnl_ncep.1978.ctl.file
+//		saved on relative_path, and dataset_name will be the same as
+//		the source.
+//
+struct FILE_STATUS {
+	FILE_LOCATION_T target;
+	double size;  // in percentage
+};
+typedef FILE_STATUS FILE_STATUS_T;
+typedef sequence<FILE_STATUS_T> FILES_STATUS_T;
+//
+// dynamic status of each file per request, in percentage
+//
+
+//-------------------------------------------------------------------------------
+//
+// REQUEST TOKEN: key to the asynchronous response to the request
+//		assigned by the Request Manager
+//
+typedef string<16> REQ_TOKEN_T;
+
+//-------------------------------------------------------------------------------
+//
+// User ID: in case we include security and more in our model
+// 		subject to change in the near future
+// Meanwhile, we'll use email address of the client
+//
+typedef string USER_ID_T;
+
+#endif // ESGDEFS_IDL
+
+
+

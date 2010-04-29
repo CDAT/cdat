@@ -1,0 +1,290 @@
+FORTRAN ROUTINES FOR USE WITH THE METHOD OF L-MOMENTS --- VERSION 3.03
+----------------------------------------------------------------------
+Wrapped for Python by Michael Wehner, LLNL.
+Some Fortran sources for executables are in Misc. The rest are in Src.
+ 
+This library contains 56 routines for statistical analysis using L-moments,
+and some auxiliary routines used by the L-moment routines.  L-moments are
+measures of location, scale and shape of probability distributions, similar
+to the ordinary moments but estimable from linear combinations of order
+statistics.  For further information refer to the following publications.
+IBM Research Reports are available in the IBM Research Cyberjournal at the
+Internet address http://www.research.ibm.com:8080, or from the author at:
+IBM Research Division, T.J. Watson Research Center, P.O. Box 218, Yorktown
+Heights, N.Y. 10598, U.S.A.
+ 
+J. R. M. HOSKING (1990).  L-moments: analysis and estimation of distributions
+using linear combinations of order statistics. Journal of the Royal Statistical
+Society, Series B, 52, 105-124.  (Theory and applications of L-moments.)
+ 
+J. R. M. HOSKING (1996). Fortran routines for use with the method of L-moments,
+Version 3.  IBM Research Report RC20525.  (Description of the routines in
+this library.)
+ 
+J. R. M. HOSKING and J. R. WALLIS (1997).  Regional frequency analysis: an
+approach based on L-moments.  Cambridge, England: Cambridge University Press.
+(Theory of L-moments, and their application to regional frequency analysis,
+including details of the statistics calculated by routines REGLMR and REGTST.)
+ 
+ 
+ 
+ROUTINES FOR SPECIFIC DISTRIBUTIONS
+-----------------------------------
+ 
+The following routines are provided for each of eleven distributions.
+ 
+FUNCTION CDFxxx     The cumulative distribution function of the distribution.
+ 
+FUNCTION QUAxxx     The quantile function (inverse cumulative distribution
+                    function) of the distribution.
+ 
+SUBROUTINE LMRxxx   Calculates the L-moment ratios of the distribution given
+                    its parameters.
+ 
+SUBROUTINE PELxxx   Calculates the parameters of the distribution given its
+                    L-moments.  When the L-moments are the sample L-moments of
+                    a set of data, then the resulting parameters are of course
+                    the "method of L-moments" estimates of the parameters.
+ 
+Here xxx is a 3-letter code that identifies the distribution, as follows:
+ 
+  EXP     Exponential distribution
+  GAM     Gamma distribution
+  GEV     Generalized extreme-value distribution
+  GLO     Generalized logistic distribution
+  GNO     Generalized Normal (lognormal) distribution
+  GPA     Generalized Pareto distribution
+  GUM     Gumbel distribution
+  KAP     Kappa distribution
+  NOR     Normal distribution
+  PE3     Pearson type III distribution
+  WAK     Wakeby distribution
+ 
+For example, the cumulative distribution function of the Gumbel distribution is
+FUNCTION CDFGUM.
+ 
+ 
+ 
+ROUTINES FOR COMPUTING SAMPLE L-MOMENTS
+---------------------------------------
+ 
+SUBROUTINE SAMLMR   Calculates the sample L-moment ratios of a data set,
+                    via the probability weighted moments.
+ 
+SUBROUTINE SAMLMU   Calculates the "unbiased" sample L-moment ratios of a data
+                    set, by a more direct method.
+ 
+SUBROUTINE SAMPWM   Calculates the sample probability weighted moments of a
+                    data set.
+ 
+ 
+ 
+ROUTINES FOR REGIONAL FREQUENCY ANALYSIS
+----------------------------------------
+ 
+SUBROUTINE CLUAGG   Performs cluster analysis by one of several agglomerative
+                    hierarchical methods: single-link, complete-link, and
+                    Ward's procedure.
+ 
+SUBROUTINE CLUINF   Obtains information about clusters arising from
+                    agglomerative hierarchical clustering.
+ 
+SUBROUTINE CLUKM    Performs cluster analysis by the K-means algorithm.
+ 
+SUBROUTINE REGLMR   Calculates regional weighted averages of L-moment ratios.
+ 
+SUBROUTINE REGTST   Calculates statistics useful in regional frequency
+                    analysis: discordancy measures, heterogeneity measures
+                    and goodness-of-fit measures, described in more detail
+                    by Hosking and Wallis (1997).
+ 
+PROGRAM XCLUST      Program to illustrate the use of the cluster analysis
+                    routines.
+ 
+PROGRAM XFIT        Program to illustrate the use of routine REGLMR.  The
+                    program performs frequency analysis of a regional data set
+                    using an index-flood procedure and the method of L-moments.
+ 
+PROGRAM XTEST       Program to illustrate the use of routine REGTST.  The
+                    program uses REGTST to calculate test statistics for a
+                    regional data set.
+ 
+PROGRAM XSIM        Program to illustrate the use of Monte Carlo simulation to
+                    derive the properties of estimated quantiles in regional
+                    frequency analysis.
+ 
+ 
+ 
+AUXILIARY ROUTINES  (used by the foregoing routines)
+------------------
+ 
+FUNCTION DERF       Error function.
+ 
+FUNCTION DLGAMA     Natural logarithm of the gamma function.
+ 
+FUNCTION DIGAMD     Digamma function.
+ 
+SUBROUTINE DURAND   Random number generator.
+ 
+FUNCTION GAMIND     Incomplete gamma function.
+ 
+FUNCTION QUASTN     Quantile function of the standard Normal distribution.
+ 
+SUBROUTINE SORT     Sorts an array into ascending order.
+ 
+ 
+ 
+DATA FILES
+----------
+ 
+APPALACH.DAT        Example data set for PROGRAM XCLUST: site characteristics
+                    for 104 streamflow gaging stations in central Appalachia.
+ 
+APPALACH.OUT        The output when PROGRAM XCLUST is applied to the data in
+                    APPALACH.DAT.
+ 
+MAXWIND.DAT         Example data set for PROGRAM XFIT: annual maximum windspeed
+                    at 12 sites in the southeast U.S.
+ 
+MAXWIND.OUT         The output when PROGRAM XFIT is applied to the data in
+                    MAXWIND.DAT.
+ 
+CASCADES.DAT        Example data set for PROGRAM XCLUST: L-moments of annual
+                    precipitation data for 19 sites in the northwest U.S.
+ 
+CASCADES.OUT        The output when PROGRAM XTEST is applied to the data in
+                    CASCADES.DAT.
+ 
+XSIM.OUT            The output from PROGRAM XSIM.
+ 
+XSIMH.OUT           The output from a modified version of PROGRAM XSIM
+                    (parameters DSEED=619145091D0, NREP=100, NSIM=500, KPRINT=1;
+                    omit the section near the end between the dashed lines).
+ 
+ 
+LINKS BETWEEN ROUTINES
+----------------------
+ 
+CDFGAM calls DERF, DLGAMA, GAMIND.
+CDFGNO calls DERF.
+CDFNOR calls DERF.
+CDFPE3 calls DERF, DLGAMA, GAMIND.
+CDFWAK calls QUAWAK.
+LMRGAM calls DLGAMA.
+LMRGEV calls DLGAMA.
+LMRGNO calls DERF.
+LMRKAP calls DLGAMA, DIGAMD.
+LMRPE3 calls DLGAMA.
+PELGAM calls DLGAMA.
+PELGEV calls DLGAMA.
+PELGNO calls DERF.
+PELKAP calls DLGAMA, DIGAMD.
+PELPE3 calls DLGAMA.
+QUAGAM calls DERF, DLGAMA, GAMIND, QUASTN.
+QUAGNO calls QUASTN.
+QUANOR calls QUASTN.
+QUAPE3 calls DERF, DLGAMA, GAMIND, QUAGAM, QUASTN.
+CLUKM  calls Applied Statistics Algorithm AS136 (see below).
+REGTST calls most of the PELxxx, QUAxxx and auxiliary routines.
+GAMIND calls DERF.
+ 
+Algorithm AS136 is not included here.  It is available from StatLib
+(http://lib.stat.cmu.edu/apstat/136).
+ 
+ 
+ 
+CHANGES BETWEEN VERSIONS 2 AND 3
+--------------------------------
+ 
+The following routines were added.
+ 
+CDFEXP
+LMREXP
+PELEXP
+QUAEXP
+SAMLMU
+CLUAGG
+CLUINF
+CLUKM
+XCLUST
+XSIM
+ 
+The following routines were modified.
+ 
+CDFGUM   Removed initialization of an unused variable.
+ 
+CDFWAK   Iterative procedure modified to reduce the (already small) chance that
+         it will fail to converge.  Minor bug fixes.
+ 
+LMRKAP   Removed initialization of an unused variable.
+ 
+PELGEV   More accurate numerical approximation.
+ 
+PELGNO   Simpler and more accurate numerical approximation.  Routine QUASTN
+         no longer required.  Now returns PARA(2)=-1 if given XMOM(3) too large.
+ 
+PELKAP   Modified to reduce the chance of numeric overflow.  In consequence,
+         two new values of the IFAIL parameter are possible.
+ 
+REGTST   Changed critical values for discordancy measure.  Order in which output
+         is printed was changed: table of parameters now printed before table
+         of quantiles.  Placement of IMPLICIT statement corrected: this can
+         cause minor changes in the simulation results returned by the routine.
+         Minor bugs and inconsistencies removed.  Minor changes to comments.
+ 
+XFIT     Minor bug fix.  Minor changes to comments.
+ 
+XTEST    Minor bug fixes.  Minor changes to comments.
+ 
+DLGAMA   Minor bug fix.
+ 
+DURAND   Speed increased.
+ 
+DERF     Corrected error when argument of function was exactly zero.
+         Removed initialization of an unused variable.
+ 
+ 
+CHANGES AT VERSION 3.01 (DECEMBER 1996)
+---------------------------------------
+ 
+The following routines were modified.
+ 
+XSIM     Replaced call to nonexistent function CDFSTN by call to DERF.
+ 
+ 
+CHANGES AT VERSION 3.02 (MARCH 1997)
+------------------------------------
+ 
+The following routines were modified.
+ 
+CLUAGG   Implemented single-link and complete-link clustering.
+ 
+CLUINF   Added validity check for parameters.  Minor changes to comments.
+ 
+XCLUST   Minor change to FORMAT statement 6080.
+ 
+XSIM     Changed random number seed.
+ 
+Data file XSIM.OUT was also changed, as a consequence of the change to 
+PROGRAM XSIM.  
+ 
+ 
+CHANGES AT VERSION 3.03 (JUNE 2000)
+-----------------------------------
+
+The following routines were modified.
+
+REGTST    CHARACTER variable declarations changed to conform with Fortran-77
+          standard.
+
+XTEST     CHARACTER variable declarations changed to conform with Fortran-77
+          standard.
+
+XSIM      RETURN statements replaced by STOP.
+
+QUASTN    Fixed: WRITE(6,7000) and FORMAT statement 7000 incompatible.
+ 
+Data file APPALACH.OUT was changed, as a consequence of the change to 
+PROGRAM XCLUST made at version 3.02.
+
+

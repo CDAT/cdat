@@ -1,0 +1,87 @@
+#!/usr/bin/env sh
+version=`more ../../version`
+
+SCIPY_MAJOR=0
+SCIPY_MINOR=7
+SCIPY_PATCH=1
+
+if (test "$1" = "--debug") then
+    D="--debug";
+    OPT=-g; 
+    shift
+else
+    D="";
+    OPT=${OPT:=-O}
+fi
+export OPT
+
+if (test ! -d $1) then
+    echo -n "$1 is not a directory; create it? (y/[n])";
+    y='n'
+    read y;
+    if (test ${y} = 'y') then
+        mkdir $1; mkdir $1/bin; mkdir $1/lib; mkdir $1/include
+        if (test ! -d $1) then
+            echo "Could not create $1, installation aborted.";
+            exit 1
+        fi
+    else
+        echo 'Installation aborted.';
+        exit 1
+    fi
+fi
+prefix=`(cd $1;pwd)`
+if (test "$2" = "" ) then
+  pyprefix=${prefix}
+else
+  pyprefix=`(cd $2;pwd)`
+fi
+
+if (test ! -d build) then
+    # Unpack everything into build
+    mkdir build
+    /bin/cp *.gz build
+    cd build
+    chmod +w *.gz 
+    for x in *.gz; 
+    do 
+        echo "$x"; 
+        gunzip -f $x;
+        tar xf `basename $x .gz`;
+        /bin/rm -f `basename $x .gz`
+    done
+    cd ..
+fi
+cd build
+echo "Installation to ${prefix}"
+# Make sure /usr/bin/env etc. finds 'ourselves'
+PATH="${prefix}/bin:${PATH}"; export PATH
+if test `${pyprefix}/bin/python -c "cmd = 'try:\n  import scipy\n  print 0\nexcept:\n  print 1'; exec(cmd)"` = "1" ; then
+  echo "could not import module we need to build"
+else
+  if test `${pyprefix}/bin/python -c "import scipy ; print scipy.version.version.split('.')[0]"` -gt ${SCIPY_MAJOR}  ; then
+    echo "no need to build"
+    exit;
+  else
+    if test `${pyprefix}/bin/python -c "import scipy ; print scipy.version.version.split('.')[1]"` -gt ${SCIPY_MINOR}  ; then
+      echo "no need to build"
+      exit;
+    else
+      if test `${pyprefix}/bin/python -c "import scipy ; print scipy.version.version.split('.')[2]"` -ge ${SCIPY_PATCH}  ; then
+	echo "no need to build"
+	exit;
+      fi
+    fi
+  fi
+echo "building"
+fi
+
+(tar xzf  ../../../exsrc/src/lapack-lite-3.1.1.tar.gz;\
+export LAPACK_SRC='../lapack-lite-3.1.1/SRC' ; \
+tar xzf  ../../../exsrc/src/blas.tar.gz ; \
+export BLAS_SRC='../blas' ; \
+cd scipy-*; \
+#cp ../../../../site.cfg . ; \
+${pyprefix}/bin/python setup.py build ${D} install --prefix=${prefix} ;\
+#rm -rf ../../lapack-lite-3.1.1 ;\
+)

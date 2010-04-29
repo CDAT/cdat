@@ -1,0 +1,8 @@
+setup.py
+MANIFEST
+README
+Legal.htm
+Lib/__init__.py
+Lib/kinds.py
+Lib/kinds_version.py
+Src/_kindsmodule.c

@@ -1,0 +1,1154 @@
+#!/bin/sh
+
+if [ -n "$PYTHONPATH" ]; then
+    echo "PYTHONPATH environment variable should not be set!"
+    exit 1
+fi
+
+if [ -n "$PYTHONHOME" ]; then
+   echo "PYTHONHOME environment variable should not be set!"
+   exit 1
+fi
+
+cdmsonly=no
+
+OS=`uname`
+NetCDF=yes
+dap=no
+hdf=no 
+freetype=yes
+numpy=yes
+scipy=yes
+ipython=yes
+cairo=yes
+ffmpeg=yes
+blas=yes
+lapack=yes
+lapack95=yes
+
+echo $OS
+if [ "$OS" = "Linux" ]; then
+    pbmplus=no
+    netpbm=no
+elif [ "$OS" = "Darwin" ]; then
+    pbmplus=no
+    netpbm=yes  
+elif [ "$OS" = "CYGWIN_NT-5.1" ]; then
+    pbmplus=no
+    netpbm=yes  
+elif [ "$OS" = "CYGWIN_NT-6.0" ]; then
+    pbmplus=no
+    netpbm=yes  
+else
+    netpbm=no
+    pbmplus=yes
+fi
+
+s=$1; shift;
+Pyfort=yes
+Numeric=no
+XGKS=yes
+Pmw=yes
+gplot=no
+gifsicle=yes
+R=no
+VTK=no
+ghostscript=no
+ioapi=no
+ncfortran=no
+
+while [ "$#" -ne 0 ]
+do
+  # Translate $1 to lowercase
+  MYOPT=`echo $1 | tr 'A-Z' 'a-z'`
+    if [ "$MYOPT" = "--help" ]; then
+        echo "  Builds external software required by CDAT."
+        echo "  Packages builds are:"
+	echo "          numpy 1.3.0.1 (on)"
+	echo "          scipy 0.5.2.1 (on)"
+	echo "          ipython 0.8 (off) (includes ipython1 and Twisted 2.5.0)"
+        echo "          freetype 2.3.4 (on)"
+        echo "          cairo 1.4.12 (on)"
+        echo "          ffmpeg (11/4/2007) (on)"
+        echo "          Pyfort 8.5.5 (on)"
+	echo "          jpeg 6b (on)"
+	echo "          libpng 1.2.8 (on)"
+	echo "          Ghostscript 8.50 with jpeg 6b and libpng 1.2.8 (on)"
+        echo "          NetCDF 3.6.1"
+        echo "          NetCDF-Fortran 3.6.1 (off) to build NetCDF with Fortran"
+        echo "          XGKS (on) with plug to freetype fonts"
+        echo "          Numeric 23.1 (on)"
+        echo "          Pmw 1.3 (on)"
+        echo "          gplot (off)"
+        echo "          gifsicle 1.35 (on)"
+        echo "          netpbm 10.27 (on Linux/Mac, off otherwise)"
+        echo "          pbmplus (off Linux/Mac, on otherwise)"
+        echo "          gifmerge (on)"
+        echo "          opendap 3.5: libdap 3.5.3 libnc-dap 3.5.2"
+        echo "          HDF 4.2.r1 (off)"
+        echo "          R 2.5.0 (off)"
+        echo "          ioapi 3.0 (off) will turn off opendap and on NetCDF-Fortran"
+        echo "		gdal 1.4.3 (off) turned on by ioapi"
+	echo "		proj 4.4.9 (off) turned on by ioapi"
+        echo "  Packages can be turned on/off using --enable-PACKAGE --disable-PACKAGE"
+        echo "  You can build a single Package by passing --PACKAGE-only"
+        echo "  If you already built externals before, or do not wish to build them because you think you already have them"
+        echo "  pass: --disable-externals-build"
+        echo "        This will only build python-based externals"
+        echo "  Notes:"
+        echo "          opendap is very unlikely to build on any non standard platform"
+                                                                                                                             
+
+	exit 1
+    fi
+    if [ "$MYOPT" = "--cdms-only" ]; then
+	Pyfort=no
+	XGKS=no
+	Pmw=no
+	gplot=no
+	gifsicle=no
+	pbmplus=no
+	netpbm=no
+	gifmerge=no
+	ghostscript=no
+        freetype=no
+	scipy=no
+	ipython=no
+	cairo=no
+	ffmpeg=no
+	blas=no
+	lapack=no
+	lapack95=no
+    fi
+    if [ "$MYOPT" = "--ioapi-only" ]; then
+	Pyfort=no
+	XGKS=no
+	Pmw=no
+	gplot=no
+	gifsicle=no
+	pbmplus=no
+	netpbm=no
+	gifmerge=no
+	ghostscript=no
+	ioapi=yes
+	ncfortran=yes
+	NetCDF=no
+	dap=no
+	Numeric=no
+	hdf=no
+        freetype=no
+	numpy=no
+	scipy=no
+	ipython=no
+	cairo=no
+	ffmpeg=no
+	blas=no
+	lapack=no
+	lapack95=no
+    fi
+    if [ "$MYOPT" = "--numeric-only" ]; then
+	Numeric=yes
+	dap=no
+	NetCDF=no
+	Pyfort=no
+	XGKS=no
+	Pmw=no
+	gplot=no
+	gifsicle=no
+	pbmplus=no
+	netpbm=no
+	gifmerge=no
+        ghostscript=no
+	ioapi=no
+	hdf=no
+        freetype=no
+	numpy=no
+	scipy=no
+	ipython=no
+	cairo=no
+	ffmpeg=no
+	blas=no
+	lapack=no
+	lapack95=no
+    fi
+    if [ "$MYOPT" = "--opendap-only" ]; then
+	Numeric=no
+	dap=yes
+	hdf=no
+	NetCDF=no
+	Pyfort=no
+	XGKS=no
+	Pmw=no
+	gplot=no
+	gifsicle=no
+	pbmplus=no
+        netpbm=no
+	gifmerge=no
+        ghostscript=no
+        freetype=no
+	numpy=no
+	scipy=no
+	ipython=no
+	cairo=no
+ 	ffmpeg=no
+	blas=no
+	lapack=no
+	lapack95=no
+   fi
+    if [ "$MYOPT" = "--hdf4-only" ]; then
+	Numeric=no
+	dap=no
+	hdf=yes
+	NetCDF=no
+	Pyfort=no
+	XGKS=no
+	Pmw=no
+	gplot=no
+	gifsicle=no
+	pbmplus=no
+        netpbm=no
+	gifmerge=no
+        ghostscript=no
+        freetype=no
+	numpy=no
+	scipy=no
+	ipython=no
+	cairo=no
+ 	ffmpeg=no
+	blas=no
+	lapack=no
+	lapack95=no
+   fi
+    if [ "$MYOPT" = "--netcdf-only" ]; then
+	Numeric=no
+	dap=no
+	hdf=no
+	NetCDF=yes
+	Pyfort=no
+	XGKS=no
+	Pmw=no
+	gplot=no
+	gifsicle=no
+        netpbm=no
+	pbmplus=no
+	gifmerge=no
+        ghostscript=no
+        freetype=no
+	numpy=no
+	scipy=no
+	ipython=no
+	cairo=no
+ 	ffmpeg=no
+ 	blas=no
+	lapack=no
+	lapack95=no
+  fi
+    if [ "$MYOPT" = "--netcdf-fortran-only" ]; then
+	Numeric=no
+	hdf=no
+	dap=no
+	NetCDF=no
+	ncfortran=yes
+	Pyfort=no
+	XGKS=no
+	Pmw=no
+	gplot=no
+	gifsicle=no
+        netpbm=no
+	pbmplus=no
+	gifmerge=no
+        ghostscript=no
+        freetype=no
+	numpy=no
+	scipy=no
+	ipython=no
+	cairo=no
+	ffmpeg=no
+ 	blas=no
+	lapack=no
+	lapack95=no
+   fi
+    if [ "$MYOPT" = "--pyfort-only" ]; then
+	Numeric=no
+	dap=no
+	hdf=no
+	NetCDF=no
+	Pyfort=yes
+	XGKS=no
+	Pmw=no
+	gplot=no
+	gifsicle=no
+	pbmplus=no
+        netpbm=no
+	gifmerge=no
+        ghostscript=no
+        freetype=no
+	numpy=no
+	scipy=no
+	ipython=no
+	cairo=no
+	ffmpeg=no
+	blas=no
+	lapack=no
+	lapack95=no
+    fi
+    if [ "$MYOPT" = "--xgks-only" ]; then
+	Numeric=no
+	dap=no
+	hdf=no
+	NetCDF=no
+	Pyfort=no
+	XGKS=yes
+	Pmw=no
+	gplot=no
+	gifsicle=no
+	pbmplus=no
+        netpbm=no
+	gifmerge=no
+        ghostscript=no
+        freetype=no
+	numpy=no
+	scipy=no
+	ipython=no
+	cairo=no
+	ffmpeg=no
+	blas=no
+	lapack=no
+	lapack95=no
+    fi
+    if [ "$MYOPT" = "--pmw-only" ]; then
+	Numeric=no
+	dap=no
+	NetCDF=no
+	Pyfort=no
+	XGKS=no
+	Pmw=yes
+	gplot=no
+	gifsicle=no
+	pbmplus=no
+        netpbm=no
+	gifmerge=no
+        ghostscript=no
+        freetype=no
+	numpy=no
+	scipy=no
+	ipython=no
+	cairo=no
+	ffmpeg=no
+	blas=no
+	lapack=no
+	lapack95=no
+    fi
+    if [ "$MYOPT" = "--gplot-only" ]; then
+	Numeric=no
+	dap=no
+	hdf=no
+	NetCDF=no
+	Pyfort=no
+	XGKS=no
+	Pmw=no
+	gplot=yes
+	gifsicle=no
+        netpbm=no
+	pbmplus=no
+	gifmerge=no
+        ghostscript=no
+        freetype=no
+	numpy=no
+	scipy=no
+	ipython=no
+	cairo=no
+	ffmpeg=no
+	blas=no
+	lapack=no
+	lapack95=no
+   fi
+    if [ "$MYOPT" = "--gifsicle-only" ]; then
+	Numeric=no
+	dap=no
+	hdf=no
+	NetCDF=no
+	Pyfort=no
+	XGKS=no
+	Pmw=no
+	gplot=no
+	gifsicle=yes
+        netpbm=no
+	pbmplus=no
+	gifmerge=no
+        ghostscript=no
+        freetype=no
+	numpy=no
+	scipy=no
+	ipython=no
+	cairo=no
+	ffmpeg=no
+	blas=no
+	lapack=no
+	lapack95=no
+    fi
+    if [ "$MYOPT" = "--netpbm-only" ]; then
+        Numeric=no
+        dap=no
+	hdf=no
+        NetCDF=no
+        Pyfort=no
+        XGKS=no
+        Pmw=no
+        gplot=no
+        gifsicle=no
+        netpbm=yes
+        pbmplus=no
+        gifmerge=no
+        ghostscript=no
+        freetype=no
+	numpy=no
+	scipy=no
+	ipython=no
+	cairo=no
+	ffmpeg=no
+	blas=no
+	lapack=no
+	lapack95=no
+    fi
+    if [ "$MYOPT" = "--pbmplus-only"  ]; then
+	Numeric=no
+	dap=no
+	hdf=no
+	NetCDF=no
+	Pyfort=no
+	XGKS=no
+	Pmw=no
+	gplot=no
+	gifsicle=no
+        netpbm=no
+	pbmplus=yes
+	gifmerge=no
+        ghostscript=no
+        freetype=no
+	numpy=no
+	scipy=no
+	ipython=no
+	cairo=no
+	ffmpeg=no
+ 	blas=no
+	lapack=no
+	lapack95=no
+   fi
+    if [ "$MYOPT" = "--gifmerge-only"  ]; then
+	Numeric=no
+	dap=no
+	hdf=no
+	NetCDF=no
+	Pyfort=no
+	XGKS=no
+	Pmw=no
+	gplot=no
+	gifsicle=no
+        netpbm=no
+	pbmplus=no
+	gifmerge=yes
+        ghostscript=no
+        freetype=no
+	numpy=no
+	scipy=no
+	ipython=no
+	cairo=no
+	ffmpeg=no
+ 	blas=no
+	lapack=no
+	lapack95=no
+   fi
+    if [ "$MYOPT" = "--r-only" ]; then
+	Numeric=no
+	dap=no
+	hdf=no
+	NetCDF=no
+	Pyfort=no
+	XGKS=no
+	Pmw=no
+	gplot=no
+	gifsicle=no
+        netpbm=no
+	pbmplus=no
+	gifmerge=no
+	R=yes
+        ghostscript=no
+        freetype=no
+	numpy=no
+	scipy=no
+	ipython=no
+	cairo=no
+	ffmpeg=no
+	blas=no
+	lapack=no
+	lapack95=no
+    fi
+#    if [ "$MYOPT" = "--vtk-only" ]; then
+#	Numeric=no
+#	dap=no
+#	hdf=no
+#	NetCDF=no
+#	Pyfort=no
+#	XGKS=no
+#	Pmw=no
+#	gplot=no
+#	gifsicle=no
+#        netpbm=no
+#	pbmplus=no
+#	gifmerge=no
+#	VTK=yes
+#        ghostscript=no
+#        freetype=no
+#	numpy=no
+#	scipy=no
+#	ipython=no
+#    fi
+    if [ "$MYOPT" = "--ghostscript-only" ]; then
+        Numeric=no
+        dap=no
+	hdf=no
+        NetCDF=no
+        Pyfort=no
+        XGKS=no
+        Pmw=no
+        gplot=no
+        gifsicle=no
+        netpbm=no
+        pbmplus=no
+        gifmerge=no
+        ghostscript=yes
+        freetype=no
+	numpy=no
+	scipy=no
+	ipython=no
+	cairo=no
+	ffmpeg=no
+	blas=no
+	lapack=no
+	lapack95=no
+    fi
+    if [ "$MYOPT" = "--freetype-only" ]; then
+        Numeric=no
+        dap=no
+	hdf=no
+        NetCDF=no
+        Pyfort=no
+        XGKS=no
+        Pmw=no
+        gplot=no
+        gifsicle=no
+        netpbm=no
+        pbmplus=no
+        gifmerge=no
+        ghostscript=no
+        freetype=yes
+	cairo=no
+	ffmpeg=no
+	numpy=no
+	scipy=no
+	ipython=no
+	cairo=no
+	ffmpeg=no
+	blas=no
+	lapack=no
+	lapack95=no
+    fi
+    if [ "$MYOPT" = "--numpy-only" ]; then
+        Numeric=no
+        dap=no
+	hdf=no
+        NetCDF=no
+        Pyfort=no
+        XGKS=no
+        Pmw=no
+        gplot=no
+        gifsicle=no
+        netpbm=no
+        pbmplus=no
+        gifmerge=no
+        ghostscript=no
+        freetype=no
+	numpy=yes
+	scipy=no
+	ipython=no
+	cairo=no
+	ffmpeg=no
+	blas=no
+	lapack=no
+	lapack95=no
+    fi
+    if [ "$MYOPT" = "--scipy-only" ]; then
+        Numeric=no
+        dap=no
+	hdf=no
+        NetCDF=no
+        Pyfort=no
+        XGKS=no
+        Pmw=no
+        gplot=no
+        gifsicle=no
+        netpbm=no
+        pbmplus=no
+        gifmerge=no
+        ghostscript=no
+        freetype=no
+	numpy=no
+	scipy=yes
+	ipython=no
+	cairo=no
+	ffmpeg=no
+ 	blas=no
+	lapack=no
+	lapack95=no
+   fi
+    if [ "$MYOPT" = "--ipython-only" ]; then
+        Numeric=no
+        dap=no
+	hdf=no
+        NetCDF=no
+        Pyfort=no
+        XGKS=no
+        Pmw=no
+        gplot=no
+        gifsicle=no
+        netpbm=no
+        pbmplus=no
+        gifmerge=no
+        ghostscript=no
+        freetype=no
+	numpy=no
+	scipy=no
+	ipython=yes
+	cairo=no
+	ffmpeg=no
+	blas=no
+	lapack=no
+	lapack95=no
+    fi
+    if [ "$MYOPT" = "--cairo-only" ]; then
+        Numeric=no
+        dap=no
+	hdf=no
+        NetCDF=no
+        Pyfort=no
+        XGKS=no
+        Pmw=no
+        gplot=no
+        gifsicle=no
+        netpbm=no
+        pbmplus=no
+        gifmerge=no
+        ghostscript=no
+        freetype=no
+        numpy=no
+        scipy=no
+        ipython=no
+	cairo=yes
+	ffmpeg=no
+	blas=no
+	lapack=no
+	lapack95=no
+    fi
+    if [ "$MYOPT" = "--ffmpeg-only" ]; then
+        Numeric=no
+        dap=no
+	hdf=no
+        NetCDF=no
+        Pyfort=no
+        XGKS=no
+        Pmw=no
+        gplot=no
+        gifsicle=no
+        netpbm=no
+        pbmplus=no
+        gifmerge=no
+        ghostscript=no
+        freetype=no
+	cairo=no
+	ffmpeg=yes
+        numpy=no
+        scipy=no
+        ipython=no
+	blas=no
+	lapack=no
+	lapack95=no
+    fi
+    if [ "$MYOPT" = "--blas-only" ]; then
+        Numeric=no
+        dap=no
+	hdf=no
+        NetCDF=no
+        Pyfort=no
+        XGKS=no
+        Pmw=no
+        gplot=no
+        gifsicle=no
+        netpbm=no
+        pbmplus=no
+        gifmerge=no
+        ghostscript=no
+        freetype=no
+	cairo=no
+	ffmpeg=no
+        numpy=no
+        scipy=no
+        ipython=no
+	blas=yes
+	lapack=no
+	lapack95=no
+    fi
+    if [ "$MYOPT" = "--lapack-only" ]; then
+        Numeric=no
+        dap=no
+	hdf=no
+        NetCDF=no
+        Pyfort=no
+        XGKS=no
+        Pmw=no
+        gplot=no
+        gifsicle=no
+        netpbm=no
+        pbmplus=no
+        gifmerge=no
+        ghostscript=no
+        freetype=no
+	cairo=no
+	ffmpeg=no
+        numpy=no
+        scipy=no
+        ipython=no
+	blas=no
+	lapack=yes
+	lapack95=no
+    fi
+    if [ "$MYOPT" = "--lapack95-only" ]; then
+        Numeric=no
+        dap=no
+	hdf=no
+        NetCDF=no
+        Pyfort=no
+        XGKS=no
+        Pmw=no
+        gplot=no
+        gifsicle=no
+        netpbm=no
+        pbmplus=no
+        gifmerge=no
+        ghostscript=no
+        freetype=no
+	cairo=no
+	ffmpeg=no
+        numpy=no
+        scipy=no
+        ipython=no
+	blas=no
+	lapack=no
+	lapack95=yes
+    fi
+# Turn Off Options.....
+    if [ "$MYOPT" = "--disable-opendap" ]; then
+	dap=no
+        if [ $ioapi = no ]; then
+	   NetCDF=yes
+	fi
+	echo "Turning opendap Off"
+    fi
+    if [ "$MYOPT" = "--disable-hdf4" ]; then
+	hdf=no
+	echo "Turning hdf4 Off"
+    fi
+    if [ "$MYOPT" = "--disable-ioapi" ]; then
+	ioapi=no
+	echo "Turning ioapi Off"
+    fi
+    if [ "$MYOPT" = "--disable-ghostscript" ]; then
+	ghostscript=no
+	echo "Turning ghostscript Off"
+    fi
+    if [ "$MYOPT" = "--disable-pyfort" ]; then
+        Pyfort=no
+        echo "Turning Pyfort Off"
+    fi
+    if [ "$MYOPT" = "--disable-numeric" ]; then
+	Numeric=no
+	echo "Turning Numeric Off"
+    fi
+    if [ "$MYOPT" = "--disable-xgks" ]; then
+	XGKS=no
+	echo "Turning XGKS Off"
+    fi
+    if [ "$MYOPT" = "--disable-pmw" ]; then
+	Pmw=no
+	echo "Turning Pmw Off"
+    fi
+    if [ "$MYOPT" = "--disable-gplot" ]; then
+	gplot=no
+	echo "Turning gplot Off"
+    fi
+    if [ "$MYOPT" = "--disable-gifsicle" ]; then
+	gifsicle=no
+	echo "Turning gifsicle Off"
+    fi
+    if [ "$MYOPT" = "--disable-netpbm" ]; then
+	netpbm=no
+	echo "Turning netpbm Off"
+    fi
+    if [ "$MYOPT" = "--disable-pbmplus" ]; then
+	pbmplus=no
+	echo "Turning pbmplus Off"
+    fi
+    if [ "$MYOPT" = "--disable-gifmerge" ]; then
+	gifmerge=no
+	echo "Turning gifmerge Off"
+    fi
+    if [ "$MYOPT" = "--disable-netcdf" ]; then
+	NetCDF=no
+	echo "Turning NetCDF Off"
+    fi
+    if [ "$MYOPT" = "--disable-r"  ]; then
+	R=no
+	echo "Turning R Off"
+    fi
+#    if [ "$MYOPT" = "--disable-vtk"  ]; then
+#	VTK=no
+#	echo "Turning VTK Off"
+#    fi
+    if [ "$MYOPT" = "--disable-freetype" ]; then
+	freetype=no
+	echo "Turning freetype Off"
+    fi
+    if [ "$MYOPT" = "--disable-numpy" ]; then
+	numpy=no
+	echo "Turning numpy Off"
+    fi
+    if [ "$MYOPT" = "--disable-scipy" ]; then
+	scipy=no
+	echo "Turning scipy Off"
+    fi
+    if [ "$MYOPT" = "--disable-ipython" ]; then
+	ipython=no
+	echo "Turning ipython Off"
+    fi
+    if [ "$MYOPT" = "--disable-cairo" ]; then
+	cairo=no
+	echo "Turning cairo Off"
+    fi
+    if [ "$MYOPT" = "--disable-ffmpeg" ]; then
+	ffmpeg=no
+	echo "Turning ffmpeg Off"
+    fi
+    if [ "$MYOPT" = "--disable-blas" ]; then
+	blas=no
+	echo "Turning blas Off"
+    fi
+    if [ "$MYOPT" = "--disable-lapack" ]; then
+	lapack=no
+	lapack95=no
+	echo "Turning lapack and lapack95 Off"
+    fi
+    if [ "$MYOPT" = "--disable-lapack95" ]; then
+	lapack95=no
+	echo "Turning lapack95 Off"
+    fi
+# Turn On Options.....
+    if [ "$MYOPT" = "--enable-ioapi" ]; then
+	ioapi=yes
+	NetCDF=no
+	ncfortran=yes
+	echo "Turning ioapi On"
+    fi
+    if [ "$MYOPT" = "--enable-opendap" ]; then
+	dap=yes
+	echo "Turning opendap On"
+    fi
+    if [ "$MYOPT" = "--enable-pyfort" ]; then
+	Pyfort=yes
+	echo "Turning Pyfort On"
+    fi
+    if [ "$MYOPT" = "--enable-ghostscript" ]; then
+        ghostscript=yes
+        echo "Turning Ghostscript On"
+    fi
+    if [ "$MYOPT" = "--enable-numeric" ]; then
+	Numeric=yes
+	echo "Turning Numeric On"
+    fi
+    if [ "$MYOPT" = "--enable-xgks" ]; then
+	XGKS=yes
+	echo "Turning XGKS On"
+    fi
+    if [ "$MYOPT" = "--enable-pmw" ]; then
+	Pmw=yes
+	echo "Turning Pmw On"
+    fi
+    if [ "$MYOPT" = "--enable-gplot" ]; then
+	gplot=yes
+	echo "Turning gplot On"
+    fi
+    if [ "$MYOPT" = "--enable-gifsicle" ]; then
+	gifsicle=yes
+	echo "Turning gifsicle On"
+    fi
+    if [ "$MYOPT" = "--enable-netpbm" ]; then
+	netpbm=yes
+	echo "Turning netpbm On"
+    fi
+    if [ "$MYOPT" = "--enable-pbmplus" ]; then
+	pbmplus=yes
+	echo "Turning pbmplus On"
+    fi
+    if [ "$MYOPT" = "--enable-gifmerge" ]; then
+	gifmerge=yes
+	echo "Turning gifmerge On"
+    fi
+    if [ "$MYOPT" = "--enable-netcdf" ]; then
+	NetCDF=yes
+	echo "Turning NetCDF On"
+    fi
+    if [ "$MYOPT" = "--enable-r" ]; then
+	R=yes
+	echo "Turning R On"
+    fi
+    if [ "$MYOPT" = "--enable-hdf4" ]; then
+	hdf=yes
+	echo "Turning hdf4 On"
+    fi
+#    if [ "$MYOPT" = "--enable-vtk" ]; then
+#	VTK=yes
+#	echo "Turning VTK On"
+#    fi
+    if [ "$MYOPT" = "--enable-freetype" ]; then
+	freetype=yes
+	echo "Turning freetype On"
+    fi
+    if [ "$MYOPT" = "--enable-numpy" ]; then
+	numpy=yes
+	echo "Turning numpy On"
+    fi
+    if [ "$MYOPT" = "--enable-scipy" ]; then
+	scipy=yes
+	echo "Turning scipy On, do not turn off blas and lapack if they're not on your system"
+    fi
+    if [ "$MYOPT" = "--enable-ipython" ]; then
+	ipython=yes
+	echo "Turning ipython On"
+    fi
+    if [ "$MYOPT" = "--enable-cairo" ]; then
+	cairo=yes
+	echo "Turning cairo On"
+    fi
+    if [ "$MYOPT" = "--enable-ffmpeg" ]; then
+	ffmpeg=yes
+	echo "Turning ffmpeg On"
+    fi
+    if [ "$MYOPT" = "--enable-blas" ]; then
+	blas=yes
+	echo "Turning blas On"
+    fi
+    if [ "$MYOPT" = "--enable-lapack" ]; then
+	lapack=yes
+	echo "Turning lapack On"
+    fi
+    if [ "$MYOPT" = "--enable-ffmpeg" ]; then
+	lapack=yes
+	lapack95=yes
+	echo "Turning lapack and lapack95 On"
+    fi
+    if [ "$MYOPT" = "--disable-externals-build" ]; then
+	gplot=no
+	gifsicle=no
+        netpbm=no
+	pbmplus=no
+	gifmerge=no
+        ghostscript=no
+        freetype=no
+	cairo=no
+	ffmpeg=no
+	XGKS=no
+        dap=no
+	hdf=no
+        NetCDF=no
+	blas=no
+	lapack=no
+	lapack95=no
+    fi
+    shift
+done
+
+## Make sure we don't build NetCDF if opendap is there...
+if [ "$dap" = "yes" ]; then
+    NetCDF=no
+fi
+
+d=`pwd`
+echo "Building external software that CDAT requires."
+echo "See $d/build for logs of the build."
+echo "Any Package can be NOT build by passing --disable-Package"
+echo "If you wish to build 1 Package only, pass --Package-only"
+echo "Packages are: netcdf, netcdf-fortran, opendap, pyfort, numeric, xgks, pmw, gplot, gifsicle,"
+echo "              netpbm, pbmplus, gifmerge, r, ghostscript, ioapi, hdf4, freetype, cairo"
+echo "Note R is not built by default: Pass --enable-r to build R library (Linux only)."
+#echo "Note VTK is not built by default: Pass --enable-vtk to build (linux only)."
+echo "opendap MIGHT work on solaris but probably won't, try to build separately"
+echo "Warning errors in these builds are expected."
+
+
+#(./prolog.sh $s) || (echo "Unpack of tar files failed."; exit 1)
+mkdir -p build
+if [ "$Pyfort" = "yes" ]; then
+    echo "Building Pyfort (Fortran/C interface)"
+    (./pyfort.sh $s 2>&1 | tee build/pyfort.LOG > ../logs/pyfort.LOG) ||  (echo "Build of Pyfort failed."; exit 1)
+fi
+if [ "$ghostscript" = "yes" ]; then
+    echo "Building Ghostscript"
+    (./ghostscript.sh $s 2>&1 | tee build/ghostscript.LOG > ../logs/ghostscript.LOG) ||  (echo "Build of ghostscript failed."; exit 1)
+fi
+if [ "$ffmpeg" = "yes" ]; then
+    echo "Building ffmpeg"
+    (./ffmpeg.sh $s 2>&1 | tee build/ffmpeg.LOG > ../logs/ffmpeg.LOG) ||  (echo "Build of ffmpeg failed."; exit 1)
+fi
+if [ "$freetype" = "yes" ]; then
+    echo "Building Freetype"
+    (./freetype.sh $s 2>&1 | tee build/freetype.LOG > ../logs/freetype.LOG) ||  (echo "Build of freetype failed."; exit 1)
+fi
+if [ "$cairo" = "yes" ]; then
+    echo "Building necessary libs for cairo"
+    echo "  Building xml"
+    (./libxml.sh $s 2>&1 | tee build/libxml.LOG > ../logs/libxml.LOG) ||  (echo "Build of libxml failed."; exit 1)
+    echo "  Building libpixman"
+    (./libpixman.sh $s 2>&1 | tee build/libpixman.LOG > ../logs/libpixman.LOG) ||  (echo "Build of libpixman failed."; exit 1)
+    echo "  Building libpng"
+    (./libpng.sh $s 2>&1 | tee build/libpng.LOG > ../logs/libpng.LOG) ||  (echo "Build of libpng failed."; exit 1)
+    echo "  Building pkgconfig"
+    (./pkgconfig.sh $s 2>&1 | tee build/pkgconfig.LOG > ../logs/pkgconfig.LOG) ||  (echo "Build of pkgconfig failed."; exit 1)
+    echo "  Building fontconfig"
+    (./fontconfig.sh $s 2>&1 | tee build/fontconfig.LOG > ../logs/fontconfig.LOG) ||  (echo "Build of fontconfig failed."; exit 1)
+    echo "Building Cairo"
+    (./cairo.sh $s 2>&1 | tee build/cairo.LOG > ../logs/cairo.LOG) ||  (echo "Build of cairo failed."; exit 1)
+fi
+if [ "$NetCDF" = "yes" ]; then
+    echo "Building netcdf without Fortran support"
+    (./netcdf.sh $s 2>&1 | tee build/netcdf.LOG > ../logs/netcdf.LOG ) || (echo "Build of netcdf without fortran failed."; exit 1)
+fi
+if [ "$hdf" = "yes" ]; then
+    echo "Building HDF"
+    echo "... Building JPEG library required by HDF"
+    (./jpeg.sh $s 2>&1 | tee build/jpeg.LOG > ../logs/jpeg.LOG ) || (echo "Build of jpeg."; exit 1)
+    echo "... Building HDF4 library"
+    (./hdf.sh $s 2>&1 | tee build/hdf.LOG > ../logs/hdf.LOG ) || (echo "Build of hdf."; exit 1)
+fi
+if [ "$ncfortran" = "yes" ]; then
+    echo "Building netcdf with Fortran support"
+    (./netcdf_fortran.sh $s 2>&1 | tee build/netcdf.LOG > ../logs/netcdf.LOG ) || (echo "Build of netcdf with fortran failed."; exit 1)
+fi
+if [ "$blas" = "yes" ]; then
+    echo "Building blas"
+    (./blas.sh $s 2>&1 | tee build/blas.LOG > ../logs/blas.LOG ) || (echo "Build of blas failed."; exit 1)
+fi
+if [ "$lapack" = "yes" ]; then
+    echo "Building lapack"
+    (./lapack.sh $s 2>&1 | tee build/lapack.LOG > ../logs/lapack.LOG ) || (echo "Build of lapack failed."; exit 1)
+fi
+if [ "$lapack95" = "yes" ]; then
+    echo "Building lapack95"
+    (./lapack95.sh $s 2>&1 | tee build/lapack95.LOG > ../logs/lapack95.LOG ) || (echo "Build of lapack95 failed."; exit 1)
+fi
+if [ "$numpy" = "yes" ]; then
+    if [ "$BLAS" = "" ]; then
+      BLAS=SETBLAS
+      export BLAS
+    fi
+    if [ "$LAPACK" = "" ]; then
+      LAPACK=SETLAPACK
+      export LAPACK
+    fi
+    echo "Building numpy" ${BLAS} ${LAPACK}
+    (./numpy.sh $s 2>&1 | tee build/numpy.LOG > ../logs/numpy.LOG ) || (echo "Build of numpy failed."; exit 1)
+fi
+if [ "$scipy" = "yes" ]; then
+    if [ "$BLAS" = "" ]; then
+      BLAS=SETBLAS
+      export BLAS
+    fi
+    if [ "$LAPACK" = "" ]; then
+      LAPACK=SETLAPACK
+      export LAPACK
+    fi
+    echo "Building scipy"
+    (./scipy.sh $s 2>&1 | tee build/scipy.LOG > ../logs/scipy.LOG ) || (echo "Build of scipy failed."; exit 1)
+fi
+if [ "$ipython" = "yes" ]; then
+    echo "Building ipython and its dependencies"
+    echo "... Building setuptools (with zope interface)"
+    (./setuptools.sh $s 2>&1 | tee build/setuptools.LOG > ../logs/setuptools.LOG ) || (echo "Build of setuptools failed."; exit 1)
+    echo "... Building Twisted (with zope interface)"
+    (./twisted.sh $s 2>&1 | tee build/twisted.LOG > ../logs/twisted.LOG ) || (echo "Build of Twisted failed."; exit 1)
+    echo "... Building ipython1"
+    (./ipython1.sh $s 2>&1 | tee build/ipython1.LOG > ../logs/ipython1.LOG ) || (echo "Build of ipython1 failed."; exit 1)
+    echo "... Building ipython"
+    (./ipython.sh $s 2>&1 | tee build/ipython.LOG > ../logs/ipython.LOG ) || (echo "Build of ipython failed."; exit 1)
+fi
+if [ "$ioapi" = "yes" ]; then
+    echo "Building IOAPI and its dependencies"
+    echo "... Building ioapi"
+    (./ioapi.sh $s 2>&1 | tee build/ioapi.LOG > ../logs/ioapi.LOG ) || (echo "Build of ioapi failed."; exit 1)
+    echo "... Building proj"
+    (./proj.sh $s 2>&1 | tee build/proj.LOG > ../logs/proj.LOG ) || (echo "Build of proj failed."; exit 1)
+    echo "... Building gdal"
+    (./gdal.sh $s 2>&1 | tee build/gdal.LOG > ../logs/gdal.LOG ) || (echo "Build of gdal failed."; exit 1)
+fi
+if [ "$XGKS" = "yes" ]; then
+    echo "Building xgks header files and fonts. (graphics display)"
+    (./xgks.sh $s 2>&1 | tee build/xgks.LOG > ../logs/xgks.LOG ) || (echo "Build of xgks failed."; exit 1)
+fi
+if [ "$Numeric" = "yes" ]; then
+    echo "Building Numeric (numerical operations, masked arrays, etc...)"
+    (./Numeric.sh $s 2>&1 | tee build/Numeric.LOG > ../logs/Numeric.LOG) || (echo "Build of Numeric failed."; exit 1)
+fi
+if [ "$dap" = "yes" ]; then
+    echo "Building opendap (client side only)"
+    echo "... Building curl required by opendap"
+    (./curl.sh $s 2>&1 | tee build/curl.LOG > ../logs/curl.LOG) || (echo "Build of curl failed";exit 1)
+    echo "... Building libxml required by opendap"
+    (./libxml.sh $s 2>&1 | tee build/libxml.LOG > ../logs/libxml.LOG) || (echo "Build of libxml failed";exit 1)
+    echo "... Building libdap required by opendap"
+    (./libdap.sh $s 2>&1 | tee build/libdap.LOG > ../logs/libdap.LOG) || (echo "Build of libdap failed";exit 1)
+    echo "... Building ncdap required by opendap, replaces standard netCDF libraries"
+    (./libnc-dap.sh $s 2>&1 | tee build/libnc-dap.LOG > ../logs/libnc-dap.LOG) || (echo "Build of libncdap failed";exit 1)
+fi
+if [ "$Pmw" = "yes" ]; then
+    echo "Building Pmw (Python Mega Widget, to design GUIs)"
+    (./Pmw.sh $s 2>&1 | tee build/Pmw.LOG > ../logs/Pmw.LOG) || (echo "Build of Pmw failed."; exit 1)
+fi
+if [ "$gplot" = "yes" ]; then
+    echo "Building gplot (postscript output)"
+    (./gplot.sh $s 2>&1 | tee build/gplot.LOG > ../logs/gplot.LOG) || (echo "Build of gplot failed, try manualy."; exit 1)
+fi
+if [ "$gifsicle" = "yes" ]; then
+    echo "Building gifsicle (for animated GIF output)"
+    (./gifsicle.sh $s 2>&1 | tee build/gifsicle.LOG > ../logs/gifsicle.LOG) || (echo "Build of gifsicle failed."; exit 1)
+fi
+if [ "$netpbm" = "yes" ]; then
+    echo "Building netpbm (for GIF output)"
+    (./netpbm.sh $s 2>&1 | tee build/netpbm.LOG > ../logs/netpbm.LOG) || (echo "Build of netpbm failed."; exit 1)
+fi
+if [ "$pbmplus" = "yes" ]; then
+    echo "Building pbmplus (for GIF output)"
+    (./pbmplus.sh $s 2>&1 | tee build/pbmplus.LOG > ../logs/pbmplus.LOG) || (echo "Build of pbmplus failed."; exit 1)
+fi
+if [ "$gifmerge" = "yes" ]; then
+    echo "Building gifmerge (for GIF output)"
+    (./gifmerge.sh $s 2>&1 | tee build/gifmerge.LOG > ../logs/gifmerge.LOG) || (echo "Build of gifmerge failed."; exit 1)
+fi
+if [ "$R" = "yes" ]; then
+    echo "Building R statistical library"
+    (./R.sh $s 2>&1 | tee build/R.LOG > ../logs/R.LOG) || (echo "Build of R failed";exit 1)
+fi
+#if [ "$VTK" = "yes" ]; then
+#    echo "Building cmake (required by VTK)"
+#    (./cmake.sh $s 2>&1 | tee build/cmake.LOG > ../logs/cmake.LOG) || (echo "Build of cmake failed";exit 1)
+#    echo "Building VTK"
+#    (./vtk.sh $s 2>&1 | tee build/VTK.LOG > ../logs/VTK.LOG) || (echo "Build of VTK failed";exit 1)
+#fi
+echo "Done with building the external software."

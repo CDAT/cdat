@@ -1,0 +1,99 @@
+      SUBROUTINE CLUINF(NCLUST,N,MERGE,IASSGN,LIST,NUM)
+C***********************************************************************
+C*                                                                     *
+C*  FORTRAN CODE WRITTEN FOR INCLUSION IN IBM RESEARCH REPORT RC20525, *
+C*  'FORTRAN ROUTINES FOR USE WITH THE METHOD OF L-MOMENTS, VERSION 3' *
+C*                                                                     *
+C*  J. R. M. HOSKING                                                   *
+C*  IBM RESEARCH DIVISION                                              *
+C*  T. J. WATSON RESEARCH CENTER                                       *
+C*  YORKTOWN HEIGHTS                                                   *
+C*  NEW YORK 10598, U.S.A.                                             *
+C*                                                                     *
+C*  VERSION 3     AUGUST 1996                                          *
+C*                                                                     *
+C*  VERSION 3.02  MARCH 1997                                           *
+C*  * Check for N.LT.NCLUST                                            *
+C*  * Minor changes to comments                                        *
+C*                                                                     *
+C***********************************************************************
+C
+C  OBTAINS INFORMATION ABOUT CLUSTERS ARISING FROM AGGLOMERATIVE
+C  HIERARCHICAL CLUSTERING
+C
+C  AGGLOMERATIVE HIERARCHICAL CLUSTERING PROCEDURES TYPICALLY PRODUCE A
+C  LIST OF THE CLUSTERS MERGED AT EACH STAGE OF THE CLUSTERING.  THIS
+C  ROUTINE USES THIS LIST TO CONSTRUCT ARRAYS THAT EXPLICITLY SHOW
+C  WHICH CLUSTER A GIVEN DATA POINT BELONGS TO, AND WHICH DATA POINTS
+C  BELONG TO A GIVEN CLUSTER.
+C
+C  PARAMETERS OF ROUTINE:
+C  NCLUST * INPUT* NUMBER OF CLUSTERS
+C  N      * INPUT* NUMBER OF DATA POINTS
+C  MERGE  * INPUT* ARRAY OF DIMENSION (2,N). MERGE(1,I) AND MERGE(2,I)
+C                  IDENTIFY THE CLUSTERS MERGED AT THE I'TH STEP.
+C                  THIS IS THE ARRAY MERGE RETURNED BY ROUTINE CLUAGG,
+C                  AND SHOULD BE LEFT UNCHANGED AFTER EXIT FROM THAT
+C                  ROUTINE.
+C  IASSGN *OUTPUT* ARRAY OF LENGTH N. ITS I'TH ELEMENT IS THE NUMBER
+C                  OF THE CLUSTER TO WHICH THE I'TH DATA POINT BELONGS.
+C  LIST   *OUTPUT* ARRAY OF LENGTH N. CONTAINS THE DATA POINTS IN
+C                  CLUSTER 1, FOLLOWED BY THE DATA POINTS IN CLUSTER 2,
+C                  ETC.  DATA POINTS IN EACH CLUSTER ARE LISTED IN
+C                  INCREASING ORDER.  THE LAST DATA POINT IN EACH
+C                  CLUSTER IS INDICATED BY A NEGATIVE NUMBER.
+C                  SEE THE EXAMPLE BELOW.
+C  NUM    *OUTPUT* ARRAY OF LENGTH NCLUST.  NUMBER OF DATA POINTS IN
+C                  EACH CLUSTER.
+C
+C  CLUSTER NUMBERS USED IN ARRAYS IASSGN, LIST AND NUM RANGE FROM 1 TO
+C  NCLUST.  THEY ARE ARBITRARY, BUT ARE UNIQUELY DEFINED: CLUSTER 1
+C  CONTAINS DATA POINT 1, CLUSTER M (M.GE.2) CONTAINS DATA POINT J,
+C  WHERE J=MERGE(2,N-M).
+C
+C  EXAMPLE OF THE LIST ARRAY.  SUPPOSE THAT THERE ARE 8 DATA POINTS
+C  AND 3 CLUSTERS, AND THAT THE ELEMENTS OF THE LIST ARRAY ARE
+C  1, -4, 3, 6, -8, 2, 5, -7.  THEN THE CLUSTERS ARE AS FOLLOWS:
+C  CLUSTER 1 CONTAINS POINTS 1 AND 4; CLUSTER 2 CONTAINS POINTS
+C  3, 6 AND 8; CLUSTER 3 CONTAINS POINTS 2, 5 AND 7.
+C
+      INTEGER MERGE(2,N),IASSGN(N),LIST(N),NUM(NCLUST)
+      IF(N.LT.NCLUST)GOTO 1000
+C
+C       CONSTRUCT THE IASSGN ARRAY
+C
+      IASSGN(1)=1
+      DO 10 I=1,NCLUST-1
+      ITEMP=MERGE(2,N-I)
+      IASSGN(ITEMP)=I+1
+   10 CONTINUE
+      DO 20 I=NCLUST,N-1
+      ICL=N-I
+      II=MERGE(1,ICL)
+      JJ=MERGE(2,ICL)
+      IASSGN(JJ)=IASSGN(II)
+   20 CONTINUE
+C
+C       CONSTRUCT THE LIST AND NUM ARRAYS
+C
+      LASTI=0
+      I=0
+      DO 70 ICL=1,NCLUST
+      DO 60 K=1,N
+      IF(IASSGN(K).NE.ICL)GOTO 60
+      I=I+1
+      LIST(I)=K
+   60 CONTINUE
+      LIST(I)=-LIST(I)
+      NUM(ICL)=I-LASTI
+      LASTI=I
+   70 CONTINUE
+      RETURN
+C
+ 1000 WRITE(6,7000)
+      RETURN
+C
+ 7000 FORMAT(' *** ERROR *** ROUTINE CLUINF :',
+     *  ' NUMBER OF CLUSTERS EXCEEDS NUMBER OF DATA POINTS')
+C
+      END

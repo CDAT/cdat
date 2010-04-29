@@ -1,0 +1,18 @@
+Name, Telephone number, Address, Silly number
+    
+Eliot, 01823 448112, Taunton, 03  
+Steve,01823 771238     , "nr. Taunton, Somerset", -10092332
+Kerran, 01242 343125, "  Cheltenham  ", 3.452456
+
+# A comment which isn't real data
+
+Nathan,   0117 5974321, Bristol, 91203123
+
+Pohtoht,
+
+wibble \", 
+""
+
+
+""
+Someone, "I want to""put some\" marks\' in", woo, woo2

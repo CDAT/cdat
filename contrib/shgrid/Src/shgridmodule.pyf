@@ -1,0 +1,294 @@
+python module  shgridmodule   
+  interface
+! **********************************************************************************************
+! **********************************************************************************************
+!
+!        SHGRID --  implements a modified Shepard's algorithm for interpolating random data in 3-space
+!
+!                   It is a fitted-function algorithm which constructs a once-continuously differentiable
+!                   function that interpolates the original data. This function is constructed as follows.
+!                   First, for each input point a bivariate quadratic is computed that interpolates the 
+!                   functional value at the input data point and is a least squares fit to neighboring
+!                   data value. The calculated bivariate quadratic will fit functional values at nearby
+!                   points better than at farther points. After the bivariate quadratics are calculated,
+!                   the interpolating function is calculated as a weigthed average of the bivariate quadratics.
+!                   The procedures are :
+!
+!                      shgrid  -- interpolates 2D random data
+!                      shgetnp -- finds nearest points to a given point in 3-space
+!                      shseti  -- sets values for the integer control parameters
+!                      shgeti  -- retrieves values for the integer control parameters
+!
+! **********************************************************************************************
+! **********************************************************************************************
+!
+     subroutine shgrid (n,x,y,z,f,nxo,nyo,nzo,xo,yo,zo,ff,iwk,rwk,ier)
+! **************************************************************************
+         !
+         ! purpose
+         !
+         !    shgrid interpolates random data in 3-space using a modified Shepard's algorithm.
+         !
+         ! **************************************************************
+         !
+         ! input arguments
+         !
+         !... n
+         !        The number input data points (n > 9).
+         !
+         !...x,y,z 
+         !        Arrays containing Cartesian coodinates of the input data. An error results if the
+         !        input data are collinear.
+         !
+         !...f 
+         !        Array containing values. f(i) is a functional value at (x(i),y(i),z(i)) for i = 1 to n.
+         !
+         !... nxo
+         !        The dimension of the array xo containing the x coordinate values for the output grid.
+         !
+         !... nyo
+         !        The dimension of the array yo containing the y coordinate values for the output grid.
+         !
+         !... nzo
+         !        The dimension of the array zo containing the z coordinate values for the output grid.
+         !
+         !... xo
+         !        The array containing the x coordinate values for the output grid (must be monotone increasing,
+         !        but need not be equally spaced).
+         !
+         !... yo
+         !        The array containing the y coordinate values for the output grid (must be monotone increasing,
+         !        but need not be equally spaced).
+         !
+         !... zo
+         !        The array containing the z coordinate values for the output grid (must be monotone increasing,
+         !        but need not be equally spaced).
+         !
+         !...iwk 
+         !        An integer workspace dimensioned for at least 2*n.
+         !
+         !...rwk 
+         !        A real workspace dimensioned for at least 11*n + 6.
+         !
+         ! **************************************************************
+         !
+         ! output arguments
+         !
+         !... ff 
+         !        Interpolated values at the grid points if ier = 0. ff(i,j,k) = f(xo(i), yo(j), zo(k)) for i = 1, nxo,
+         !        j = 1, nyo and k = 1, nzo.
+         !
+         !... ier 
+         !        Error indicator:
+         !
+         !        ier = 0 - No error.
+         ! 
+         !        ier = 1 - Number of input data points must be > 9.
+         !
+         !        ier = 2 - Number of points used to calculate weights must be > 9.
+         !
+         !        ier = 3 - Number of data points used in the least squares fit must be > 9.
+         !
+         !        ier = 4 - Number of points used to calculate weights must be at least 1.
+         !
+         !        ier = 5 - Number of data points used in the least squares fit too large. Should
+         !                  be greater than n but less than 41.
+         !
+         !        ier = 6 - Number of points used to calculate weights too large. Should
+         !                  be greater than n but less than 41.
+         !
+         !        ier = 7 - Cell grid dimensions must be positive.
+         !
+         !        ier = 8 - Duplicate input points encountered.
+         !
+         !        ier = 9 - Collinear input, no unique solution..
+         !
+         !        ier = 10 - At least two points must have different x coordinates.
+         !
+         !        ier = 11 - At least two points must have different y coordinates.
+         !
+         !        ier = 12 - At least two points must have different z coordinates.
+         !
+         !        ier = 13 - No cells contain a point within the radius of influence of the input point.
+         !
+         !        ier = 14 - Negative search radius in calculating least squares fit.
+         !
+! *************************************************************************
+         !
+         integer n
+         real x(n)
+         real y(n)
+         real z(n)
+         real f(n)
+         integer nxo
+         integer nyo
+         integer nzo
+         real xo(nxo)
+         real yo(nyo)
+         real zo(nzo)
+         real, intent(out):: ff(nxo,nyo,nzo)
+         integer, intent(temporary):: iwk(2*n)
+         real, intent(temporary):: rwk(11*n + 6)
+         integer, intent(out):: ier
+         !
+     end
+!
+     subroutine shgetnp(px,py,pz,n,x,y,z,iflag,iwk,rwk,np,ier)
+! **************************************************************************
+         !
+         ! purpose
+         !
+         !    shgrid interpolates random data in 3-space using a modified Shepard's algorithm.
+         !
+         ! **************************************************************
+         !
+         ! input arguments
+         !
+         !... px
+         !        The x coordinate of the point P whose nearest neighbor is to be found.
+         !
+         !... py
+         !        The y coordinate of the point P whose nearest neighbor is to be found.
+         !
+         !... pz
+         !        The z coordinate of the point P whose nearest neighbor is to be found.
+         !
+         !... n
+         !        The number of input points, n > 1.
+         !
+         !... x
+         !        An array of length n containing the x coordinate values for the input data points.
+         !
+         !... y
+         !        An array of length n containing the y coordinate values for the input data points.
+         !
+         !... z
+         !        An array of length n containing the z coordinate values for the input data points.
+         !
+         !... iflag
+         !        A flag that equals 0 if this is the first call to this subroutine for the given 
+         !        dataset and equals 1 otherwise. 
+         !
+         !...iwk 
+         !        An integer workspace dimensioned for at least 2*n.
+         !
+         !...rwk 
+         !        A real workspace dimensioned for at least 11*n + 6.
+         !
+         ! **************************************************************
+         !
+         ! output arguments
+         !
+         !... np 
+         !        An index such that (x(np),y(np),z(np)) is the nearest input data point to P. 
+         !        np = 0 if ier is not equal to 0.  On successive calls to this subroutine after 
+         !        the first (that is when iflag = 1) you can find the Mth closest point to (px,py,pz)
+         !        with the Mth call. iwk and rwk should not be modified between calss to shgetnp if 
+         !        you are wanting to find successive neighbors.
+         !... ier 
+         !        Error indicator:
+         !
+         !        ier = 0 - No error.
+         ! 
+         !        ier = 1 - Number of input data points must be > 9.
+         !
+         !        ier = 2 - Number of points used to calculate weights must be > 9.
+         !
+         !        ier = 3 - Number of data points used in the least squares fit must be > 9.
+         !
+         !        ier = 4 - Number of points used to calculate weights must be at least 1.
+         !
+         !        ier = 5 - Number of data points used in the least squares fit too large. Should
+         !                  be greater than n but less than 41.
+         !
+         !        ier = 6 - Number of points used to calculate weights too large. Should
+         !                  be greater than n but less than 41.
+         !
+         !        ier = 7 - Cell grid dimensions must be positive.
+         !
+         !        ier = 8 - Duplicate input points encountered.
+         !
+         !        ier = 9 - Collinear input, no unique solution..
+         !
+         !        ier = 10 - At least two points must have different x coordinates.
+         !
+         !        ier = 11 - At least two points must have different y coordinates.
+         !
+         !        ier = 12 - At least two points must have different z coordinates.
+         !
+         !        ier = 13 - No cells contain a point within the radius of influence of the input point.
+         !
+         !        ier = 14 - Negative search radius in calculating least squares fit.
+         !
+! *************************************************************************
+         !
+         real px
+         real py
+         real pz
+         integer n
+         real x(n)
+         real y(n)
+         real z(n)
+         integer iflag
+         integer, intent(inout):: iwk(2*n)
+         real, intent(inout):: rwk(11*n + 6)
+         integer, intent(out):: np
+         integer, intent(out):: ier
+         !
+     end
+!
+     subroutine shseti (pnam,ival)
+! **************************************************************************
+         !
+         ! purpose
+         !
+         !    shseti is used to set values for any of the shgrid control parameters that
+         !    take integer values. The values set by shseti remain in effect until changed
+         !    by subsequent calls to shseti.
+         !
+         ! **************************************************************
+         !
+         ! input arguments
+         !
+         !... pnam
+         !      The name of the control parameter whose value is to be set.
+         !
+         !... ival 
+         !      The value to be assigned to the parameter.
+         !
+! *************************************************************************
+         !
+         character*(*) pnam
+         integer ival
+     end
+!
+     subroutine shgeti (pnam,ival)
+! **************************************************************************
+         !
+         ! purpose
+         !
+         !    shgeti is called to obtain current values for any of the integer valued
+         !    shgrid control parameters.
+         !
+         ! **************************************************************
+         !
+         ! input arguments
+         !
+         !... pnam
+         !      The name of the control parameter whose value is to be retrieved.
+         !
+         ! **************************************************************
+         !
+         ! output arguments
+         !
+         !... ival 
+         !      The current value assigned to the control parameter.
+         !
+! *************************************************************************
+         !
+         character*(*) pnam
+         integer, intent(out):: ival
+     end
+  end interface
+end module shgridmodule
+

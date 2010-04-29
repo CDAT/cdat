@@ -1,0 +1,39 @@
+#!/bin/sh
+FNORBTAR=fnorb-1.1.tar
+FNORBDIR=Fnorb-1.1
+LDAPDIR=ldapmodule
+LDAPTAR=ldapmodule-1.5.tar
+if (test "$#" -ne 2) then
+    echo "Usage: install_script INSTALL_DIR LDAP_DIR"
+    exit 1
+fi
+if (test ! -d build) then
+    mkdir build
+fi
+if (test ! -d build/${FNORBDIR}) then
+    echo "Unpacking ${FNORBTAR}.gz"
+    /bin/cp ${FNORBTAR}.gz build
+    cd build
+    gunzip ${FNORBTAR}.gz
+    chmod +w ${FNORBTAR}
+    tar xf ${FNORBTAR}
+    /bin/rm ${FNORBTAR}
+    cd ..
+fi
+if (test ! -d build/${LDAPDIR}) then
+    echo "Unpacking ${LDAPTAR}.gz"
+    /bin/cp ${LDAPTAR}.gz build
+    cd build
+    gunzip ${LDAPTAR}.gz
+    chmod +w ${LDAPTAR}
+    tar xf ${LDAPTAR}
+    /bin/rm ${LDAPTAR}
+    cd ..
+fi
+
+(./prolog.sh $*) || exit 1
+echo "See subdirectory build for logs of the build."
+echo "Building Fnorb"
+(./fnorb.sh $* >build/LOG.Fnorb) || exit 1
+echo "Building ldap"
+(./ldap.sh $* >build/LOG.ldap) || exit 1

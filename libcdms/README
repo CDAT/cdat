@@ -1,0 +1,160 @@
+The CDMS library
+
+Bob Drach
+PCMDI/Lawrence Livermore National Laboratory
+drach@llnl.gov
+
+Introduction
+------------
+
+This directory contains the source and documentation for the Climate
+Data Management System library. There are two installation methods. This
+file describes a traditional stand-alone method using autoconf and Makefiles.
+When built as a part of a CDAT build, this method is not used. Instead
+the script cdms.sh runs the python script buildlib.py and then installs the
+library into the cdat lib directory.
+
+Documentation
+-------------
+
+Man pages:
+
+        cddrs.3:	DRS emulator library (C interface)
+        fcddrs.3	DRS emulator library (FORTRAN interface)
+        cdtime.3	CDMS time functions
+        cdunif.3	cdunif Uniform I/O layer
+
+Platforms
+---------
+
+This release has been compiled under SunOS 4.1.3, SUN Solaris 5.4, 5.5,
+SGI/Irix 5.3, 6.2, HP/HPUX 9.0, Cray/Unicos 8.0, DEC Alpha/Digital Unix V3.2,
+Redhat LINUX 5.2, and IBM RS6000/AIX V3.2.
+
+Installing CDMS
+---------------
+
+To install the CDMS library:
+
+   (1) Make sure that the netCDF library is installed. If necessary, 
+       netCDF can be retrieved via URL
+       http://www.unidata.ucar.edu/packages/netcdf/
+
+       Make sure that the HDF library is installed. If necessary,
+       HDF can be retrieved via ftp
+       ftp.ncsa.uiuc.edu/HDF/HDF_Current
+
+       Make sure that the DRS library is installed. DRS can be
+       obtained via URL http://www-pcmdi.llnl.gov/drach/DRS.html
+
+   (2) Choose a root installation directory, <CDMS>. The default is
+       /usr/local. Type "make prefix=<CDMS> distinstall". This installs:
+
+		   libcdms.a in <CDMS>/lib
+		   include files in <CDMS>/include
+		   binaries in <CDMS>/bin
+		   man pages in <CDMS>/man/man3
+
+       Make sure that these directories exist and are writeable.
+
+Building executables (C)
+------------------------
+
+One of the dependent libraries, libdrs.a, uses FORTRAN I/O. This means
+that, when linking a C program with libcdms.a, the FORTRAN libraries must
+be mentioned on the link line. Here are sample link lines for various
+platforms:
+
+	SunOS 4.1.3
+	-----------
+	
+	acc -I/usr/local/include -o cdprog cdprog.c -L/usr/local/lib \
+	  -lcdms -lnetcdf -lmfhdf -ldf -ljpeg -lz -ldrs -lF77
+
+	SGI/Irix 5.3
+	------------
+	
+	cc -I/usr/local/include -o cdprog cdprog.c -L/usr/local/lib \
+	  -lcdms -lnetcdf -lmfhdf -ldf -ljpeg -lz -ldrs -lF77 -lm \
+	  -lU77 -lI77 -lisam
+
+	Sun Solaris 5.4
+	---------------
+	
+	acc -I/usr/local/include -o cdprog cdprog.c -L/usr/local/lib \
+	  -lcdms -lnetcdf -lmfhdf -ldf -ljpeg -lz -ldrs -lF77 -lm \
+	  -lsunmath -lucb
+
+	
+	Cray/Unicos 8.0
+	---------------
+	
+	c89 -I/usr/local/include -o cdprog cdprog.c -L/usr/local/lib \
+	  -lcdms -lnetcdf -lmfhdf -ldf -ljpeg -lz -ldrs
+
+	HP/HPUX 9.0
+	-----------
+	
+	c89 -I/usr/local/include -o cdprog cdprog.c -L/usr/local/lib \
+	  -lcdms -lnetcdf -lmfhdf -ldf -ljpeg -lz -ldrs -lU77 -lcl -lm
+
+	IBM RS6000/AIX V3.2
+	-------------------
+	
+	c89 -I/usr/local/include -c cdprog.c -o cdprog.o
+	f77 -qextname -I/usr/local/include cdprog.o -o cdprog \
+	  -L/usr/local/lib -lcdms -lnetcdf -lmfhdf -ldf -ljpeg -lz -ldrs
+
+	DEC Alpha/Digital Unix V3.2
+	---------------------------
+	
+	cc -I/usr/local/include -c cdprog.c -o cdprog.o
+	f77 -nofor_main cdprog.o -o cdprog -L/usr/local/lib \
+	  -lcdms -lnetcdf -lmfhdf -ldf -ljpeg -lz -ldrs
+
+	
+	PC/LINUX 3.0.3
+	--------------
+	
+	gcc -I/usr/local/include -o cdprog cdprog.c -L/usr/local/lib \
+	  -lcdms -lnetcdf -lmfhdf -ldf -ljpeg -lz -ldrs -lF77 -lm -lU77\
+	  -lI77 -lisam
+
+	PC/Redhat Linux 5.2 (Portland Group FORTRAN)
+	
+	cc -I/usr/local/include -o cdprog cdprog.c -L/usr/local/lib \
+	  -lcdms -lnetcdf -lmfhdf -ldf -ljpeg -lz -ldrs \
+	  -L/usr/pgi/linux86/lib -lpgftnrtl -lpgc -lm
+
+Building executables (FORTRAN)
+------------------------------
+
+	On most platforms, linking FORTRAN executables is straightforward:
+	reference '-lcdms -lnetcdf -lmfhdf -ldf -ljpeg -lz -ldrs' on the 
+	link line. The exceptions are:
+
+	Sun Solaris 5.4
+	---------------
+
+	  Reference libucb.a:
+
+	f77 -I/usr/local/include -o cdprog cdprog.F -L/usr/local/lib \
+	  -lcdms -lnetcdf -lmfhdf -ldf -ljpeg -lz -ldrs -lucb
+
+	HP/HPUX 9.0
+	-----------
+
+	  Use the +U77 flag:
+	  
+	fort77 +U77 -I/usr/local/include -o cdprog cdprog.F \
+	  -L/usr/local/lib -lcdms -lnetcdf -lmfhdf -ldf -ljpeg -lz -ldrs -lm
+
+	IBM RS6000/AIX V3.2
+	-------------------
+
+	  Use the -qextname flag:
+	  
+	/usr/ccs/lib/cpp -P -I/usr/local/include cdprog.F cdprog.f
+	f77 -qextname cdprog.f -o cdprog \
+	  -L/usr/local/lib -lcdms -lnetcdf -lmfhdf -ldf -ljpeg -lz -ldrs 
+

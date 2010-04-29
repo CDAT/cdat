@@ -1,0 +1,14 @@
+See file Legal.htm for licensing information.
+
+PropertiedClasses is a mixin class that can be used to emulate properties in 
+a Python class. A property is an attribute whose read, write, or deleting
+requires special handling. It is also possible to use this facility to
+prevent the writing or deleting of a property.
+
+General documentation: pydoc PropertiedClasses
+
+For further details:
+    pydoc PropertiedClasses.Properties 
+
+Using -w as an option to pydoc writes out a web page.
+You can also browse with pydoc -g.

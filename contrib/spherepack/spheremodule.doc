@@ -1,0 +1,575 @@
+**********************************************************************************************
+
+****************** Overview of the CDAT interface to the NCAR SPHEREPACK 3.0 *****************
+
+**********************************************************************************************
+
+None
+
+
+    ************************************************************************************
+
+    ************************** Sphere class documentation ******************************
+
+    ************************************************************************************
+
+    --------------------------------------------------------------------------------------
+                                           
+      To make an instance x of the Sphere class type
+     
+          x = sphere.Sphere(lonArray , latArray, numberLevels = nlev, numberTimes = ntime,
+                                                                     computed_stored = 'computed') 
+         
+          where nlev and ntime are the actual number of levels and times respectively and the
+          keywords are
+         
+          lonArray = longitude vector (required)
+          latArray = latitude vector (required)
+          numberLevels = number of levels (optional)
+          numberTimes = number of times (optional)
+          computed_stored (optional) : 'computed' -- computed Legendre polynomials 
+                                         'stored' -- stored Legendre polynomials
+                                          This choice involves a 30% storage/speed tradeoff
+     
+      As an  example, for a 2D field using 'computed Legendre polynomials' type
+     
+          x = sphere.Sphere(lonArray , latArray)
+     
+      As an  example, for a 4D field  with  3 levels, 120 times using 'stored Legendre polynomials' type
+     
+          x = sphere.Sphere(lonArray , latArray, 3, 120, 'stored')
+     
+          or using the keywords explicitly
+     
+          x = sphere.Sphere(lonArray , latArray, numberLevels = 3, numberTimes = 120,
+                                                                         computed_stored = 'stored') 
+          where the order of the keyword entries is immaterial.
+                                           
+    -----------------------------------------------------------------------------------
+
+    **************************** Sphere class functions ********************************
+
+    --------------------------------------------------------------------------------------------------------
+         routine:   div 
+         
+         purpose:   computes the divergence of a vector function 
+         
+         usage:     div = x.div( u, v, missingValue)  where x is an instance of Sphere
+         
+         passed:    u -- zonal vector function on a global grid 
+                    v -- meridional vector function on a global grid 
+                    missingValue -- an optional number requesting a check for missing data
+         
+         returned:  div --  the divergence of the vector function 
+         
+         definition: div(self, u, v, missingValue = None):
+    --------------------------------------------------------------------------------------------------------
+
+    --------------------------------------------------------------------------------------------------------
+         routine:   idiv 
+                                               
+         purpose:   computes an irrotational vector function with given divergence 
+         
+         usage:     u, v = x.idiv(div, missingValue)
+         
+         passed:    div -- divergence function on a global grid 
+                    missingValue -- an optional number requesting a check for missing data
+         
+         returned:  u -- zonal vector function 
+                    v -- meridional vector function 
+         
+         definition: idiv(self, div, missingValue = None):
+         
+    --------------------------------------------------------------------------------------------------------
+
+    --------------------------------------------------------------------------------------------------------
+         routine:   vrt 
+                                               
+         purpose:   computes the scalar vorticity of a vector function 
+         
+         usage:     vort = x.vrt(u, v, missingValue) 
+         
+         passed:    u -- zonal vector function on a global grid 
+                    v -- meridional vector function on a global grid 
+                    missingValue -- an optional number requesting a check for missing data
+         
+         returned:  vort --  the vorticity of the vector function 
+         
+        definition: vrt(self, u, v, missingValue = None):
+         
+    --------------------------------------------------------------------------------------------------------
+
+    --------------------------------------------------------------------------------------------------------
+         routine:   ivrt 
+                                               
+         purpose:   computes a divergence-free vector function whose vorticity is
+                    given 
+         
+         usage:     u, v = x.ivrt(vort, missingValue)
+                    missingValue -- an optional number requesting a check for missing data
+         
+         passed:    vort -- vorticity on a global grid 
+         
+         returned:  u -- zonal vector function 
+                    v -- meridional vector function 
+         
+         definition: ivrt(self, vort, missingValue = None):
+         
+    --------------------------------------------------------------------------------------------------------
+
+    --------------------------------------------------------------------------------------------------------
+         routine:   idvt 
+                                               
+         purpose:   computes a vector function with given divergence and vorticity
+         
+         usage:     u, v = x.idvt(div, vort, missingValue)
+         
+         passed:    div -- divergence function on a global grid 
+                    vort -- vorticity function on a global grid 
+                    missingValue -- an optional number requesting a check for missing data
+         
+         returned:  u -- zonal vector function  
+                    v -- meridional vector function 
+         
+         definition: idvt(self, div, vort, missingValue = None):
+         
+    --------------------------------------------------------------------------------------------------------
+
+    --------------------------------------------------------------------------------------------------------
+         routine:   vts 
+                                               
+         purpose:   computes the derivative of the vector function with respect
+                    to latitude 
+         
+         usage:     ud, vd = x.vrt(u, v, missingValue) 
+         
+         passed:    u -- zonal vector function on a global grid 
+                    v -- meridional vector function on a global grid 
+                    missingValue -- an optional number requesting a check for missing data
+         
+         returned:  ud -- zonal vector function 
+                    vd -- meridional vector function 
+         
+         definition: vts(self, u, v, missingValue = None):
+         
+    --------------------------------------------------------------------------------------------------------
+
+    --------------------------------------------------------------------------------------------------------
+         routine:   grad 
+                                               
+         purpose:   computes the gradient of a scalar function 
+         
+         usage:     u, v = x.grad(sf, missingValue)
+         
+         passed:    sf -- scalar function on a global grid 
+         
+         returned:  u -- zonal vector function 
+                    v -- meridional vector function 
+                    missingValue -- an optional number requesting a check for missing data
+         
+         definition: grad(self, sf, missingValue = None):
+         
+    --------------------------------------------------------------------------------------------------------
+
+    --------------------------------------------------------------------------------------------------------
+         routine:   igrad 
+                                               
+         purpose:   computes a scalar function whose gradient is a given vector
+                    function 
+         
+         usage:     sf = x.igrad(u, v, missingValue)
+         
+         passed:    u -- zonal vector function
+                    v -- meridional vector function 
+                    missingValue -- an optional number requesting a check for missing data
+         
+         returned:  sf --  a scalar function 
+         
+         definition: igrad(self, u, v, missingValue = None):
+         
+    --------------------------------------------------------------------------------------------------------
+
+    --------------------------------------------------------------------------------------------------------
+             routine:   slap 
+                                               
+             purpose:   computes a scalar Laplacian of a scalar function 
+         
+             usage:     slap = x.slap(self, sf, missingValue)
+                        missingValue -- an optional number requesting a check for missing data
+         
+             passed:    sf -- scalar function on a global grid 
+         
+             returned:  slap -- scalar function 
+         
+             definition: slap(self, sf, missingValue = None):
+         
+    --------------------------------------------------------------------------------------------------------
+
+    --------------------------------------------------------------------------------------------------------
+         routine:   islap 
+                                               
+         purpose:   computes a scalar function whose scalar Laplacian is given 
+         
+         usage:     sf, ierror = x.islap(slap, missingValue):
+         
+         passed:    slap -- scalar Laplacian on a global grid 
+                    missingValue -- an optional number requesting a check for missing data
+         
+         returned:  sf --  a scalar function 
+         
+        definition: islap(self, slap, missingValue = None):
+         
+    --------------------------------------------------------------------------------------------------------
+
+    --------------------------------------------------------------------------------------------------------
+         routine: vlap 
+                                              
+         purpose: computes the vector Laplacian of a given vector function
+         
+         usage:   ulap, vlap = x.vlap(u, v, missingValue)
+         
+         passed:    u -- zonal vector function on a global grid 
+                    v -- meridional vector function on a global grid 
+                    missingValue -- an optional number requesting a check for missing data
+         
+         returned:  ulap -- zonal vector Laplacian function 
+                    vlap -- meridional vector Laplacian function 
+         
+         definition: vlap(self, u, v, missingValue = None):
+         
+    --------------------------------------------------------------------------------------------------------
+
+    --------------------------------------------------------------------------------------------------------
+         routine:   ivlap 
+                                               
+         purpose:   computes a vector function whose Laplacian is a given vector
+                    vector function 
+         
+         usage:     u, v = x.ivlap(ulap, vlap, missingValue)
+                    missingValue -- an optional number requesting a check for missing data
+         
+         passed:    ulap -- zonal Laplacian vector function on a global grid 
+                    vlap -- meridional Laplacian vector function on a global grid 
+         
+         returned:  u -- zonal vector function 
+                    v -- meridional vector function 
+         
+         definition: ivlap(self, ulap, vlap, missingValue = None):
+         
+    --------------------------------------------------------------------------------------------------------
+
+    --------------------------------------------------------------------------------------------------------
+         routine:   sfvp 
+                                               
+         purpose:   computes the stream function and the velocity potential of a 
+                    vector function 
+         
+         usage:     sf, vp = x.sfvp(u, v, missingValue)
+         
+         passed:    u -- zonal vector function on a global grid 
+                    v -- meridional vector function on a global grid 
+                    missingValue -- an optional number requesting a check for missing data
+        
+         returned:  sf -- stream function  
+                    vp -- velocity potential  
+         
+        definition: sfvp(self, u, v, missingValue = None):
+         
+    --------------------------------------------------------------------------------------------------------
+
+    --------------------------------------------------------------------------------------------------------
+         routine:   isfvp 
+                                               
+         purpose:   computes a vector function with a given stream function and
+                    velocity potential 
+         
+         usage:     u, v = x.isfvp(sf, vp, missingValue):
+         
+         passed:    sf -- stream function on a global grid 
+                    vp -- velocity potential on a global grid 
+                    missingValue -- an optional number requesting a check for missing data
+         
+         returned:  u -- zonal vector function 
+                    v -- meridional vector function 
+         
+         definition: isfvp(self, sf, vp, missingValue = None):
+         
+    --------------------------------------------------------------------------------------------------------
+
+    --------------------------------------------------------------------------------------------------------
+         routine:  truncation 
+         
+         purpose:  performs a triangular truncation of a scalar or a vector function with 
+                   or without tapering. For example, a request for T42 entails eliminating all
+                   values for the total wavenumber above 42. The remaining values are tapered
+                   by default.
+         
+         usage:    u, v = truncation(42, u, v)
+                   u, v = truncation(wave, u, v)
+                   u, v = truncation(wave, u, v, 'no', missingValue):
+                            or
+                   sf = truncation(42, sf):
+                   sf = truncation(wave, sf):
+                   sf = truncation(wave, sf, v, 'no', missingValue):
+         
+         passed:    wave - the truncation wave number. For example, a request for T42 is wave set
+                               to 42 whick entails eliminating all values for the total wavenumber above 42. 
+                        u -- zonal vector function on a global grid 
+                        v -- meridional vector function on a global grid 
+                            or
+                        sf   -- a scalar with v = None  instead of u, v
+                        taper - (optional) the values remaining after truncation are tapered if the default 'yes'
+                                is not changed to 'no'.
+                        missingValue -- an optional number requesting a check for missing data
+                        
+         returned:  u, v or sf
+         
+         definition: truncation(self, wave, u, v = None, taper = 'yes', missingValue = None):
+         
+    --------------------------------------------------------------------------------------------------------
+
+    --------------------------------------------------------------------------------------------------------
+         routine:   sha 
+                                               
+         purpose:   computes analysis coefficients for a scalar function
+         
+         usage:     a, b = x.sha(sf, missingValue)
+                    missingValue -- an optional number requesting a check for missing data
+         
+         passed:    sf -- scalar function on global grid 
+         
+         returned:  a -- coefficients 
+                    b -- coefficients 
+         
+         definition: sha(self, sf, missingValue = None):
+         
+   --------------------------------------------------------------------------------------------------------
+
+    --------------------------------------------------------------------------------------------------------
+         routine:   shs 
+                                               
+         purpose:   computes a scalar function from the coefficients
+         
+         usage:     sf = x.shs(a, b)
+         
+         passed:    a -- coefficients 
+                    b -- coefficients 
+         
+         returned:  sf -- scalar function  
+         
+         definition: shs(self, a, b):
+         
+    --------------------------------------------------------------------------------------------------------
+
+   --------------------------------------------------------------------------------------------------------
+         routine:   vha 
+                                               
+         purpose: computes the vector harmonic analysis
+         
+         usage:   br, bi, cr, ci = x.vha(u, v, missingValue)
+         
+         passed:    u -- zonal vector function on a global grid 
+                    v -- meridional vector function on a global grid 
+                    missingValue -- an optional number requesting a check for missing data
+         
+         returned:  br -- coefficients 
+                    bi -- coefficients 
+                    cr -- coefficients 
+                    ci -- coefficients 
+         
+         definition: vha(self, u, v, missingValue = None):
+         
+    --------------------------------------------------------------------------------------------------------
+
+    --------------------------------------------------------------------------------------------------------
+         routine:   vhs 
+                                               
+         purpose: computes the vector harmonic synthesis 
+         
+         usage:   u, v = x.vhs(br, bi, cr, ci)
+         
+         passed:    br -- coefficients 
+                    bi -- coefficients 
+                    cr -- coefficients 
+                    ci -- coefficients 
+         
+         returned:  u -- zonal vector function 
+                    v -- meridional vector function 
+         
+         definition: vhs(self, br, bi, cr, ci):
+         
+    --------------------------------------------------------------------------------------------------------
+
+    ************************************************************************************
+
+    **************************** Regrid class documentation ****************************
+
+    ************************************************************************************
+
+    --------------------------------------------------------------------------------------
+                                 
+      To make an instance x of the Regrid class type
+         
+          x = sphere.Regrid(lonArrayOut, latArrayOut, lonArrayIn, latArrayIn, numberLevels = nlev, 
+                                                                                    numberTimes = ntime) 
+         
+          where nlev and ntime are the actual number of levels and times respectively and the keywords are
+         
+          lonArrayOut = output grid longitude vector (required)
+          latArrayOut = output grid latitude vector (required)
+          lonArrayIn  = input grid longitude vector (required)
+          latArrayIn  = input grid latitude vector (required)
+          numberLevels  = input grid number of levels (optional)
+          numberTimes = input grid number of times (optional)
+         
+    -----------------------------------------------------------------------------------
+
+    ****************************** Regrid class functions ******************************
+
+    --------------------------------------------------------------------------------------------------------
+         routine:   regridScalar
+                                               
+         purpose:   transfers scalar data from one global spherical grid to 
+                    another. The grids may be gaussian or equally spaced.
+         
+         usage:     sfregrid= x.regridScalar(sf) 
+         
+         passed:    sf -- scalar function on a global grid 
+         
+         returned:  sfregrid -- regridded scalar function 
+         
+         definition: regridScalar(self, sf, missingValue = None):
+    --------------------------------------------------------------------------------------------------------
+
+    --------------------------------------------------------------------------------------------------------
+         routine:   regridVector
+                                               
+         purpose:   transfers vector data from one global spherical grid to another. 
+                    The grids can be gaussian or equally spaced.
+         
+         usage:   uregrid, vregrid = x.regridVector(u, v) 
+         
+         passed:    u -- zonal vector function on a global grid 
+                    v -- meridional vector function on a global grid 
+         
+         returned:  uregrid -- zonal regridded vector function 
+                    vregrid -- meridional regridded vector function 
+         
+         definition: regridVector(self, u, v, missingValue = None):
+    --------------------------------------------------------------------------------------------------------
+
+    ************************************************************************************
+
+    *************************** Shiftgrid class documentation **************************
+
+    ************************************************************************************
+
+    --------------------------------------------------------------------------------------
+                                           
+                                 
+      To make an instance x of the Shiftgrid class type
+         
+          x = sphere.Shiftgrid(lonArray, latArray, numberLevels = nlev, numberTimes = ntime) 
+         
+          where nlev and ntime are the actual number of levels and times respectively and the keywords are
+         
+          lonArray = longitude vector (required)
+          latArray = latitude vector (required)
+          numberLevels = number of levels (optional)
+          numberTimes = number of times (optional)
+         
+    -----------------------------------------------------------------------------------
+
+    ***************************** Shiftgrid class functions ****************************
+
+    --------------------------------------------------------------------------------------------------------
+         routine:   shiftScalar
+         
+         purpose:   transfers scalar data on the sphere between an equally spaced
+                    grid that includes the poles and a grid which is offset by a 
+                    half grid increment in both longitude and latitude (which 
+                    excludes the poles) 
+         
+        usage:     sfshift = x.shiftScalar(sf)
+         
+        passed:    sf -- an evenly spaced scalar function on a global grid 
+         
+        returned:  sfshift --  the shifted evenly spaced scalar function 
+         
+       definition: shiftScalar(self, sf, missingValue = None):
+    --------------------------------------------------------------------------------------------------------
+
+    --------------------------------------------------------------------------------------------------------
+         routine:   shiftVector
+         
+         purpose:   transfers vector data on the sphere between an equally spaced
+                    grid that includes the poles and a grid which is offset by a 
+                    half grid increment in both longitude and latitude (which 
+                    excludes the poles) 
+         
+         usage:     ushift, vshift = x.shiftVector(u,v)
+         
+         passed:    u -- zonal evenly spaced vector function on a global grid 
+                    v -- meridional evenly spaced vector function on a global grid 
+         
+         returned:  ushift -- zonal evenly spaced vector function 
+                    vshift -- meridional evenly spaced vector function 
+         
+         definition: shiftVector(self, u, v, missingValue = None):
+    --------------------------------------------------------------------------------------------------------
+
+    ************************************************************************************
+
+    **************************** Utility documentation *********************************
+
+    ************************************************************************************
+
+    -----------------------------------------------------------------------------
+                                           
+          routine: gridGenerator 
+                                           
+          purpose: generate the grid vectors
+     
+          usage:   lonvals, latvals = sphere.gridGenerator(nlon, nlat, firstLongitude,
+                                                      typeLatitudes, directionLatitudes)
+     
+          passed:  nlon - size of longitude vector
+                   nlat - size of latitude vector
+                   firstLongitude -- first vector element
+                   typeLatitudes -- 'even' or 'gaussian'
+                   directionLatitudes -- 'north_to_south' or 'south_to_north'
+     
+          return:  lonvals, latvals -  the double precision grid vectors
+     
+          definition: gridGenerator(nlon, nlat, firstLongitude, typeLatitudes, directionLatitudes):
+     
+    -----------------------------------------------------------------------------------
+
+    -------------------------------------------------------------------------------------------
+                                           
+          routine: truncate 
+     
+          purpose: perform a triangular truncation of the coefficients in the arrays a and b with
+                   or without tapering. For example, a request for T42 entails eliminating all
+                   values for the total wavenumber above 42. If taper is not None, the remaining
+                   values are tapered.
+      
+          usage:    a,b = truncate(wave, a, b)                     -- use tapering
+                    a,b = truncate(wave, a, b, taper = 'no')       -- turn off tapering
+     
+          passed:  a, b - the arrays
+                   wave - the truncation wavenumber
+                   taper - request for tapering the coefficient values
+                  
+          returned: a, b - the truncated coefficient arrays 
+     
+          definition: truncate(wave, a, b, taper = 'yes'):
+                  
+          note: a, b have indices (nt, n, m)  
+                  
+          note:  the formula for the exponential tapering was taken from John C. Adams. It is described 
+                 in Sardeshmukh P. D. and Hoskins B. J., 1984, Spatial Smoothing on the Sphere. Mon. Wea. 
+                 Rev., 112, 2524-2529.
+     
+    -------------------------------------------------------------------------------------------
+

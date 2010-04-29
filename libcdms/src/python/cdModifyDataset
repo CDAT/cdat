@@ -1,0 +1,274 @@
+#!/usr/bin/env python
+
+import ldap, sys, getopt, os, string, tempfile, cdms
+from cdms import cdurlparse
+
+usage = """Usage: cdModifyDataset [-a] [-c category] [-D binddn] [-h host] [-j project] [-k variable_id_list] [-p port] [-r variable_rename_list] [-s] [-v] [-w password] [-x dataset.xml] datasetDN ["attr:value" "attr:value" ...]
+
+Modify or add (-a) a dataset in a CDMS database. The dataset is specified in XML format. For new datasets, input is read from standard input, otherwise it is read from the 'cdml' attribute of the dataset. If -x is specified, input is read from an XML file instead.
+
+Arguments:
+
+    'datasetDN' is the distinguished name of the dataset, Example: 'dataset=test,database=testdb,ou=PCMDI,o=LLNL,c=US'
+
+    'attr:value ...' is an optional list of extra attribute-value pairs.
+
+Options:
+
+    -a: add a new dataset. Implies -s.
+    -c: add a category (observed, experimental, etc.) to all objects
+    -D: 'binddn', the distinguished name of a user with privilege to modify the database. See -w.
+        The default value is environment variable CDMSUSER, if specified, otherwise the bind is anonymous.
+    -h: host (default: host name in CDMSROOT)
+    -j: add a project attribute to all objects
+    -k: remove variable(s) from the dataset. variable_id_list is a comma-separated list of variable IDs in the dataset,
+        e.g., '-k psl,u,v'
+    -p: server port (default: 389)
+    -r: rename variable(s). The arguments is a comma-separated list of the form oldname:newname,
+        e.g., '-r psl:sea_level_pressure,t:temperature'
+    -s: read the XML description of the dataset from standard input. Use -x to read from a file.
+    -v: verbose
+    -w: password (see -D)
+    -x: dataset XML file. Overrides -s.
+
+Example:
+
+    cdModifyDataset 'dataset=sample,database=testdb,ou=PCMDI,o=LLNL,c=US' 'institution:PCMDI'
+
+"""
+
+InvalidAttribute = "Attribute must have the form type:value"
+InvalidDatasetName = 'Invalid dataset name:'
+InvalidVariableRename = 'Invalid variable rename list:'
+
+def main(argv):
+
+    binddn = os.environ.get('CDMSUSER',"")
+    password = None
+
+    cdmsroot = os.environ.get('CDMSROOT')
+    if cdmsroot is None:
+        host = None
+        port = ldap.PORT
+    else:
+        (scheme,fullhost,path,parameters,query,fragment)=cdurlparse.urlparse(cdmsroot)
+        hostport = string.split(fullhost,':')
+        if len(hostport)==1:
+            host = hostport[0]
+            port = ldap.PORT
+        else:
+            host, strport = hostport
+            port = string.atoi(strport)
+
+    try:
+        args, lastargs = getopt.getopt(argv[1:],"ac:D:h:j:k:p:r:svw:x:")
+    except getopt.error:
+        print sys.exc_value
+        print usage
+        sys.exit(0)
+
+    category = None
+    project = None
+    replace = 1
+    stdin = 0
+    varids = None
+    varrenames = None
+    verbose = 0
+    xmlfile = None
+    for flag,arg in args:
+        if flag=='-a':
+            replace = 0
+            stdin = 1
+        elif flag=='-c': category = arg
+        elif flag=='-D': binddn = arg
+        elif flag=='-h': host = arg
+        elif flag=='-j': project = arg
+        elif flag=='-k': varids = arg
+        elif flag=='-p': port = arg
+        elif flag=='-r': varrenames = arg
+        elif flag=='-s': stdin = 1
+        elif flag=='-v': verbose = 1
+        elif flag=='-w': password = arg
+        elif flag=='-x': xmlfile = arg
+
+    if xmlfile is not None: stdin=0
+
+    if len(lastargs)<1:
+        print 'databaseDN argument is missing'
+        print usage
+        sys.exit(1)
+
+    if stdin and (password is None):
+        print 'Must set password with -w, if -s is specified'
+        sys.exit(1)
+
+    datasetid = lastargs[0]
+    if len(lastargs)>1:
+        extraattrs = lastargs[1:]
+    else:
+        extraattrs = []
+
+    # Open the dataset, either from the database, XML file or standard input
+    rdns = ldap.explode_dn(datasetid)
+    rdn0 = rdns[0]
+    databaseid = string.join(rdns[1:],',')
+    try:
+        cindex = string.index(rdn0,'=')
+    except ValueError:
+        raise InvalidDatasetName,datasetid
+    try:
+        dindex = string.index(string.lower(rdn0),'dataset=')
+    except ValueError:
+        raise InvalidDatasetName,datasetid
+    else:
+        if dindex!=0:
+            raise InvalidDatasetName,datasetid
+    dsetname = rdn0[cindex+1:]
+    rdns[0] = 'dataset='+dsetname
+    datasetid = string.join(rdns,',')
+    if xmlfile is not None:
+        f = open(xmlfile)
+        text = f.read()
+        f.close()
+        dset = cdms.database.loadString(text,xmlfile)
+    elif stdin==1:
+        text = sys.stdin.read()
+        dset = cdms.database.loadString(text,'<stdin>')
+    else:
+        dbname = 'ldap://%s:%d/%s'%(host,port,databaseid)
+        db = cdms.connect(dbname)
+        dset = db.openDataset(dsetname)
+        db.close()
+
+    node = dset._node_
+    validAttrs = ['category']
+    if node.dtd:
+        validAttrs = validAttrs+node.dtd.keys()
+        
+    # Set new attributes of the dataset
+    dset.id = dsetname
+    node.setExternalAttr('id',dsetname)
+    if category:
+        dset.category = category
+        node.setExternalAttr('category',category)
+    if project:
+        dset.project = project
+        node.setExternalAttr('project',project)
+    for extraattr in extraattrs:
+        try:
+            cindex = string.index(extraattr,':')
+        except:
+            raise InvalidAttribute,extraattr
+        attname = extraattr[:cindex]
+        attval = extraattr[cindex+1:]
+        dset.attributes[attname] = attval
+        node.setExternalAttr(attname,attval)
+
+    # Translate the attributes to a modlist
+    modlist = []
+    extras = []
+    for attname in dset.attributes.keys():
+        attval = string.strip(str(dset.attributes[attname]))
+        if (validAttrs and (attname in validAttrs)) or (not validAttrs):
+            if replace==1:
+                modlist.append((ldap.MOD_REPLACE,attname,[attval]))
+            else:
+                modlist.append((attname,[attval]))
+        elif validAttrs and (attname not in validAttrs):
+            extras.append('%s=%s'%(attname,attval))
+
+    if extras!=[]:
+        if replace==1:
+            modlist.append((ldap.MOD_REPLACE,'attr',extras))
+        else:
+            modlist.append(('attr',extras))
+
+    if replace==0:
+        modlist.append(('objectclass', ['top', node.tag]))
+
+    # Rename variables
+    if varrenames is not None:
+        for varrename in string.split(varrenames,','):
+            try:
+                cindex = string.index(varrename,':')
+            except ValueError:
+                raise InvalidVariableRename,varrenames
+            oldname = varrename[:cindex]
+            newname = varrename[cindex+1:]
+            var = dset.variables[oldname]
+            varnode = var._node_
+            if not var.attributes.has_key('name_in_file'):
+                varnode.setExternalAttr('name_in_file',oldname)
+            varnode.setExternalAttr('id',newname)
+
+    # Delete any variables
+    if varids is not None:
+        varlist = string.split(varids,',')
+        for varid in varlist:
+            varid = string.strip(varid)
+            varnode = dset.variables[varid]._node_
+            ind = node.getIndex(varnode)
+            if ind==-1:
+                raise VariableNotFound,varid
+            node.removeChildAt(ind)
+
+    # Dump the CDML
+    fd = tempfile.TemporaryFile()
+    fd.write('<?xml version="1.0"?>')
+    fd.write('<!DOCTYPE dataset SYSTEM "http://www-pcmdi.llnl.gov/software/cdms/cdml.dtd">')
+    node.write(fd,0,0)
+    fd.seek(0)
+    cdml = fd.read()
+    fd.close()
+
+    if verbose:
+        print 'Bind DN: ', binddn
+        print 'Host: %s:%s'%(host,port)
+        print 'Dataset ID: ',datasetid
+
+    if verbose: print 'Connecting to',host,'...',
+    try:
+        ldapobj = ldap.open(host, port)
+    except:
+        print 'Error connecting to host: ',sys.exc_value
+        sys.exit(1)
+    if verbose: print 'Connected'
+
+    if verbose: print 'Binding user',binddn
+    if password is None:
+        import getpass
+        try:
+            password = getpass.getpass()
+        except:
+            print 'Use -w option for password'
+            ldapobj.unbind()
+            raise
+
+    try:
+        ldapobj.simple_bind_s(binddn, password)
+    except:
+        print 'Authentication error: ',sys.exc_value
+        sys.exit(1)
+
+    if verbose:
+        print 'Adding:', datasetid
+        print 'Modifications: ',modlist
+
+    if replace==1:
+        modlist.append((ldap.MOD_REPLACE,'cdml',cdml))
+    else:
+        modlist.append(('cdml',cdml))
+    try:
+        if replace==1:
+            ldapobj.modify_s(datasetid, modlist)
+        else:
+            ldapobj.add_s(datasetid, modlist)
+    except:
+        print 'Error adding dataset entry:', sys.exc_value
+        sys.exit(1)
+
+    ldapobj.unbind()
+
+#------------------------------------------------------------------------------------------------------------------------------
+if __name__ == '__main__':
+    main(sys.argv)

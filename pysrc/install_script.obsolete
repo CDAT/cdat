@@ -1,0 +1,117 @@
+#!/bin/sh
+d=`pwd`
+if [ -n "$PYTHONPATH" ]; then
+    echo "PYTHONPATH environment variable should not be set!"
+    exit 1
+fi
+
+if [ -n "$PYTHONHOME" ]; then
+   echo "PYTHONHOME environment variable should not be set!"
+   exit 1
+fi
+
+echo "Building Zlib, Readline, Tcl, Tk, and Python."
+echo "Logs are in $d/build"
+ 
+
+OS=`uname`
+AQUA=no
+TK=yes
+all=$*
+READLINE=yes
+ZLIB=yes
+OSver=`uname -r`
+OSMajor=`uname -r | cut -d. -f1`
+
+s=$1; shift;
+while [ "$#" -ne 0 ]
+do
+  # Translate $1 to lowercase
+  MYOPT=`echo $1 | tr 'A-Z' 'a-z'`
+  if [ "$MYOPT" = "--enable-aqua" ]; then
+      if ( test "${OS}" == "Darwin" ) then
+	  AQUA=yes
+      else
+	  echo "--enable-aqua is for Darwin systems only! Use --disable-tkbuild"
+	  exit 1
+      fi
+      if ( test "${OSMajor}" == "9" ) then
+	  echo "Detected Leopard 10.5, doing the posix thing";
+	  CPPFLAGS="-DSETPGRP_HAVE_ARG "${CFLAGS}
+      fi
+  fi
+  if [ "$MYOPT" = "--disable-tkbuild" ]; then
+      TK=no
+  fi
+  if [ "$MYOPT" = "--disable-externals-build" ]; then
+      TK=no
+      READLINE=no
+      ZLIB=no
+  fi
+  shift
+done
+./prolog.sh ${all}
+if [ $? -ne 0 ]; then
+    echo "Unpacking of tar files failed."
+    exit 1
+fi
+
+
+if [ "${ZLIB}" = "no" ]; then
+    echo "skipping build of zlib"
+else
+    echo "Building zlib"
+    ./zlib.sh $s  >build/zlib.LOG 2>&1
+    if [ $? -ne 0 ]; then
+	echo "Build of zlib failed"
+	exit 1
+    fi
+fi
+
+if [ "${READLINE}" = "no" ]; then
+    echo "skipping build of readline"
+else
+    echo "Building readline"
+    ./readline.sh $s >build/readline.LOG 2>&1
+    if [ $? -ne 0 ]; then
+	echo "Build of readline failed"
+	exit 1
+    fi
+fi
+if [ "${OS}" = "CYGWIN_NT-5.1" ]; then
+   echo "Tcl - Using the pre-built tcl library that is part of the standard Cygwin distribution"
+   echo "Tk - Using the pre-built tk library that is part of the standard Cygwin distribution"
+elif [ "${OS}" = "CYGWIN_NT-6.0" ]; then
+   echo "Tcl - Using the pre-built tcl library that is part of the standard Cygwin distribution"
+   echo "Tk - Using the pre-built tk library that is part of the standard Cygwin distribution"
+elif [ "${AQUA}" = "yes" ]; then
+    echo "Tcl - Using the pre-built tcl library that is part of the standard Darwin distribution (with Aqua support)"
+    echo "Tk - Using the pre-built tk library that is part of the standard Darwin distributioni (with Aqua support)"
+elif [ "${TK}" = "no" ]; then
+    echo "Tcl - Using the pre-built tcl library that is part of your system"
+    echo "Tk - Using the pre-built tk library that is part of your system"
+else
+   echo "Building tcl"
+   ./tcl.sh $s >build/tcl.LOG 2>&1
+   if [ $? -ne 0 ]; then
+       echo "Build of tcl failed."
+       exit 1
+   fi
+   
+   echo "Building tk"
+   ./tk.sh $s >build/tk.LOG 2>&1
+   if [ $? -ne 0 ]; then
+       echo "Build of tk failed."
+       exit 1
+   fi
+fi
+
+echo "Building python"
+./python.sh $s >build/python.LOG 2>&1
+if [ $? -ne 0 ]; then
+    echo "Build of Python failed."
+    exit 1
+fi
+
+echo "Python built successfully."
+

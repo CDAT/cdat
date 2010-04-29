@@ -1,0 +1,309 @@
+.\" $id$
+.TH cdtime 3 "6 July 1998" "LLNL" "CDMS time functions"
+.SH NAME
+CDMS C and FORTRAN time conversion and arithmetic functions.
+.SH SYNOPSIS (C ROUTINES)
+.ft B
+.na
+.nh
+.HP
+#include "cdms.h"
+.HP 6
+int cdAbs2Comp(char*\ absunits, void*\ abstime, cdType\ abstimetype, cdCompTime*\ comptime, double*\ frac)
+.HP 6
+void cdChar2Comp(cdCalenType\ timetype, char*\ chartime, cdCompTime*\ comptime)
+.HP 6
+void cdChar2Rel(cdCalenType\ timetype, char*\ chartime, char*\ relunits,
+double* reltime)
+.HP 6
+int cdComp2Abs(cdCompTime\ comptime, char*\ absunits, cdType\ abstimetype, double\ frac, void*\ abstime)
+.HP 6
+void cdComp2Char(cdCalenType\ timetype, cdCompTime\ comptime, char*\ chartime)
+.HP 6
+void cdComp2Rel(cdCalenType\ timetype, cdCompTime\ comptime,
+char*\ relunits, double*\ reltime)
+.HP 6
+void cdRel2Char(cdCalenType\ timetype, char*\ relunits, double\ reltime, char*\ chartime)
+.HP 6
+void cdRel2Comp(cdCalenType\ timetype, char*\ relunits, double\ reltime, cdCompTime*\ comptime)
+.HP 6
+void cdRel2Rel(cdCalenType\ timetype, char*\ inunits, double\ intime,
+char*\ newunits, double*\ outtime)
+.ad
+.hy
+.SH SYNOPSIS (FORTRAN ROUTINES)
+.ft B
+.na
+.nh
+.HP
+include 'cdms.inc'
+.HP 6
+subroutine fcdchar2comp(integer\ timetype, character*(*)\ chartime, integer\ year, integer\ month, integer\ day, double\ precision\ hour)
+.HP 6
+subroutine fcdchar2rel(integer\ timetype, character*(*)\ chartime, character*(*)\ relunits, double\ precision\ reltime)
+.HP 6
+subroutine fcdcomp2char(integer\ timetype, integer\ year, integer\ month, integer\ day, double\ precision\ hour, character*(*)\ chartime)
+.HP 6
+subroutine fcdcomp2rel(integer\ timetype, integer\ year, integer\ month, integer\ day, double\ precision\ hour, character*(*)\ relunits, double\ precision\ reltime)
+.HP 6
+subroutine fcdrel2char(integer\ timetype, character*(*)\ relunits, double\ precision\ reltime, character*(*)\ chartime)
+.HP 6
+subroutine fcdrel2comp(integer\ timetype, character*(*)\ relunits, double\ precision\ reltime, integer\ year, integer\ month, integer\ day, double\ precision\ hour)
+.HP 6
+subroutine fcdrel2rel(integer\ timetype, character*(*)\ inunits, double\ precision\ intime, character*(*)\ newunits, double\ precision\ outtime)
+.ad
+.hy
+.SH "DESCRIPTION"
+.LP
+These functions convert between representations of time values.
+.LP
+CDMS supports the following calendar types: 
+.sp
+.RS
+.PD 0
+.TP 20
+.B cdStandard
+Standard Gregorian calendar
+.TP
+.B cdJulian
+Julian calendar, only years divisible by four are leap years
+.TP
+.B cdMixed
+Mixed Julian/Gregorian calendar
+.TP
+.B cdNoLeap
+365 days/year, no leap years
+.TP
+.B cd360
+Each year is 12 30-day months
+.TP
+.B cdClim
+Climatological time (no associated year), 365 days
+.TP
+.B cdClimLeap
+Climatological time, 366 days
+.PD
+.RE
+.LP
+For any calendar, CDMS supports four representations of time values:
+character time (chartime),
+relative time (reltime), component time (comptime), and absolute time (abstime).
+.LP
+Character time values have the form "\fIyyyy[-mm[-dd[ hh[:mi[:ss]]]]]\fR", where \fIyyyy\fR is
+the four-digit year, \fImm\fR is the month number (1 .. 12), \fIdd\fR is the day
+number (1 .. 31), \fIhh\fR is the hour, \fImi\fR is the minute, and \fIss\fR is the
+floating-point seconds. For climatological time, the year is omitted.
+Any trailing portion is optional. If omitted, \fImm\fR and \fIdd\fR default to 1, \fIhh\fR,
+\fImi\fR and \fIss\fR default to 0.
+.LP
+Relative time values have two parts: \fIvalue\fR and \fIunits\fR. The
+\fIvalue\fR is of datatype double. The relative \fIunits\fR are a character
+string of the form "\fIn\fR \fIunit\fR(s)[ since \fIchartime\fR]", where
+\fIn\fR is the number of units, \fIunit\fR is one of: \fBsecond\fR,
+\fBminute\fR, \fBhour\fR, \fBday\fR, \fBweek\fR, \fBmonth\fR, \fBseason\fR,
+\fByear\fR, or one of the abbreviations: \fBs\fR, \fBmn\fR, \fBhr\fR,
+\fBdy\fR, \fBwk\fR, \fBmo\fR, \fBor \fByr\fR, and \fIchartime\fR is the
+basetime. The since clause is optional. If omitted, the basetime defaults
+to "1979-01-01". If the units are in months, seasons, or years, the
+fractional part of the time value is ignored.
+.LP
+Component time values consist of the four components year, month, day, and
+hour. Hour is floating-point, the other components are integers. Predefined
+values are: (for year) \fBCD_NULL_YEAR\fR, (for month) \fBCD_NULL_MONTH\fR,
+\fBcdJan\fR, \fBcdFeb\fR, \fBcdMar\fR, \fBcdApr\fR, \fBcdMay\fR,
+\fBcdJun\fR, \fBcdJul\fR, \fBcdAug\fR, \fBcdSep\fR, \fBcdOct\fR,
+\fBcdNov\fR, \fBcdDec\fR, 
+(for day) \fBCD_NULL_DAY\fR, \fBCD_LAST_DAY\fR (of
+month), and (for hour) \fBCD_NULL_HOUR\fR are recognized.
+.LP
+Absolute time consists of two parts, \fIvalue\fR and \fIunits\fR. The value is of type
+float, double, int, or long. The \fIunits\fR are a character string of the form
+"\fIunit\fR as \fIformat\fR", where \fIunit\fR is one of \fBsecond\fR, \fBminute\fR, \fBhour\fR, \fBday\fR,
+\fBcalendar\fR_month, or \fBcalendar\fR_year. \fIformat\fR is a string of the form
+"\fI%x\fR[\fI%x\fR[...]][.\fB%f\fR]", where \fIx\fR is one of the format letters \fB'Y'\fR (year,
+including century), \fB'm'\fR (two digit month, 01=January), \fB'd'\fR (two-digit day
+within month), \fB'H'\fR (hours since midnight), \fB'M'\fR (minutes since
+midnight), or \fB'S'\fR (seconds since midnight). The optional '.\fB%f\fR' denotes a floating-point
+fraction of the \fIunit\fR. If the fraction is present, the corresponding \fIvalue\fR has type float or
+double, otherwise it is long or int. For more information on the absolute
+time representation, see http://www-pcmdi.llnl.gov/drach/GDT_convention.html.
+.SH "FUNCTION ARGUMENTS"
+\fItimetype\fR arguments are of value \fBcdStandard\fR, \fBcdJulian\fR, \fBcdNoLeap\fR, \fBcd360\fR,
+\fBcdClim\fR, or \fBcdClimLeap\fR.
+.sp
+\fIchartime\fR arguments are null-terminated character strings of maximum
+length \fBCD_MAX_CHARTIME\fR.
+.sp
+Relative units arguments (\fIrelunits\fR) are null-terminated character
+strings of maximum length \fBCD_MAX_RELUNITS\fR.
+.sp
+Absolute units arguments (\fIabsunits\fR) are null-terminated character
+strings of maximum length \fBCD_MAX_ABSUNITS\fR.
+.sp
+A \fBcdCompTime\fR argument is a structure with members:
+.LP
+.RS
+.nf
+.ft B
+.ta 1i 1.7i 2.5i
+long	year;	/* year */
+short	month;	/* numerical month, 1..12 */
+short	day;	/* day of month, 1..31 */
+double	hour;	/* hour and fractional hour */
+.ft R
+.fi
+.DT
+.RE
+.LP
+.sp
+For FORTRAN subroutines, the \fIcomptime\fR argument is replaced with four arguments: \fIyear\fR, \fImonth\fR, \fIday\fR, and \fIhour\fR. \fIhour\fR is double precision, while \fIyear\fR, \fImonth\fR, and \fIday\fR are integers.
+.SH "FUNCTION DESCRIPTIONS"
+.LP
+.HP 4
+\fB(C) int cdAbs2Comp(char* \fIabsunits\fB, void* \fIabstime\fB, cdType
+\fIabstimetype\fB, cdCompTime* \fIcomptime\fB, double* \fIfrac\fB)\fR
+.sp
+Convert from absolute time to component time
+\fIcomptime\fR. \fIabstimetype\fR is the datatype of \fIabstime\fR, one of
+\fBcdDouble\fR, \fBcdFloat\fR, \fBcdLong\fR, or \fBcdInt\fR. \fIfrac\fR is
+the fractional part, or 0.0 if \fIabstimetype\fR equals \fBcdInt\fR or \fBcdLong\fR. If the
+unit is one of day, hour, minute, or second, the fractional part is also
+incorporated into \fIcomptime\fR->hour. The function returns 0 on success, 1 on
+failure.
+.HP
+\fB(C) void cdChar2Comp(cdCalenType \fItimetype\fB, char* \fIchartime\fB, cdCompTime* \fIcomptime\fB)\fR
+.HP
+\fB(FORTRAN) subroutine fcdchar2comp(integer \fItimetype\fB, character*(*) \fIchartime\fB, integer \fIyear\fB, integer \fImonth\fB, integer \fIday\fB, double precision \fIhour\fB)\fR
+.sp
+Convert from character time \fIchartime\fR to component time \fIcomptime\fR.
+.HP
+\fB(C) void cdChar2Rel(cdCalenType \fItimetype\fB, char* \fIchartime\fB, char* \fIrelunits\fB,
+double* reltime)\fR
+.HP
+\fB(FORTRAN) subroutine fcdchar2rel(integer \fItimetype\fB, character*(*) \fIchartime\fB, character*(*) \fIrelunits\fB, double precision \fIreltime\fB)\fR
+.sp
+Convert from character time to relative time. Given character time
+\fIchartime\fR and relative units \fIrelunits\fR, return relative time value \fIreltime\fR.
+.HP
+\fB(C) int cdComp2Abs(cdCompTime \fIcomptime\fB, char* \fIabsunits\fB,
+cdType \fIabstimetype\fB, double \fIfrac\fB, void* \fIabstime\fB)\fR
+.sp
+Convert from component time to absolute time. Given \fIcomptime\fR and absolute
+time units \fIabsunits\fR, the desired datatype \fIabstimetype\fR (one of \fBcdDouble\fR,
+\fBcdFloat\fR, \fBcdInt\fR, or \fBcdLong\fR) and the fractional part \fIfrac\fR (0.0 if none), the
+absolute time is returned in \fIabstime\fR. \fIfrac\fR is only used if the unit is
+\fBcalendar_month\fR or \fBcalendar_year\fR, and the type is \fBcdDouble\fR or
+\fBcdFloat\fR. Otherwise, the fractional part is derived from \fIcomptime\fR.hour. The
+function returns 0 on success, 1 on failure.
+.HP
+\fB(C) void cdComp2Char(cdCalenType \fItimetype\fB, cdCompTime \fIcomptime\fB, char* \fItime\fB)\fR
+.HP
+\fB(FORTRAN) subroutine fcdcomp2char(integer \fItimetype\fB, integer \fIyear\fB, integer \fImonth\fB, integer \fIday\fB, double precision \fIhour\fB, character*(*) \fIchartime\fB)\fR
+.sp
+Convert from component time \fIcomptime\fR to character time \fIchartime\fR.
+.HP
+\fB(C) void cdComp2Rel(cdCalenType \fItimetype\fB, cdCompTime \fIcomptime\fB,
+char* \fIrelunits\fB, double* \fIreltime\fB)\fR
+.HP
+\fB(FORTRAN) subroutine fcdcomp2rel(integer \fItimetype\fB, integer \fIyear\fB, integer \fImonth\fB, integer \fIday\fB, double precision \fIhour\fB, character*(*) \fIrelunits\fB, double precision \fIreltime\fB)\fR
+.sp
+Convert from component time to relative time. Given \fIcomptime\fR and relative
+time units \fIrelunits\fR, return relative time value \fIreltime\fR.
+.HP
+\fB(C) void cdRel2Char(cdCalenType \fItimetype\fB, char* \fIrelunits\fB, double \fIreltime\fB, char* \fIchartime\fB)\fR
+.HP
+\fB(FORTRAN) subroutine fcdrel2char(integer \fItimetype\fB, character*(*) \fIrelunits\fB, double precision \fIreltime\fB, character*(*) \fIchartime\fB)\fR
+.sp
+Convert from relative time (\fIreltime\fR, \fIrelunits\fR) to character
+time \fIchartime\fR. If \fIrelunits\fR is in months, seasons, or years, the
+fractional portion of \fIreltime\fR is ignored.
+.HP
+\fB(C) void cdRel2Comp(cdCalenType \fItimetype\fB, char* \fIrelunits\fB, double \fIreltime\fB, cdCompTime* \fIcomptime\fB)\fR
+.HP
+\fB(FORTRAN) subroutine fcdrel2comp(integer \fItimetype\fB, character*(*) \fIrelunits\fB, double precision \fIreltime\fB, integer \fIyear\fB, integer \fImonth\fB, integer \fIday\fB, double precision \fIhour\fB)\fR
+.sp
+Convert from relative time (\fIreltime\fR, \fIrelunits\fR) to component
+time \fIcomptime\fR. If \fIrelunits\fR is in months, seasons, or years, the
+fractional portion of \fIreltime\fR is ignored.
+.HP
+\fB(C) void cdRel2Rel(cdCalenType \fItimetype\fB, char* \fIinunits\fB, double \fIintime\fB,
+char* \fInewunits\fB, double* \fIouttime\fB)\fR
+.HP
+\fB(FORTRAN) subroutine fcdrel2rel(integer \fItimetype\fB, character*(*) \fIinunits\fB, double precision \fIintime\fB, character*(*) \fInewunits\fB, double precision \fIouttime\fB)\fR
+.sp
+Convert from relative time to relative time. Given input time
+(\fIintime\fR, \fIinunits\fR), and output units \fInewunits\fR, return
+output relative time value \fIouttime\fR. If \fIinunits\fR is in months,
+seasons, or years, the fractional portion of \fIintime\fR is ignored.
+Similarly, if the \fInewunits\fR is in months, seasons, or years, the day and
+hour component of the input time, after conversion to component time, is
+ignored.
+.SH "EXAMPLES"
+.LP
+Example (FORTRAN): Convert 89088 "hours since 1970" to "months since 1979":
+.LP
+.RS
+.nf
+ include 'cdms.inc'
+ double precision months
+
+ fcdrel2rel(CD_STANDARD, "hours since 1970", 89088.0, 
+$           "months since 1979", months)
+.fi
+.RE
+.LP
+Example (C): Find the number of hours from January 1, 1900 0:0, to July 4, 1994, 10:37,
+using a standard calendar type:
+.LP
+.RS
+.nf
+#include "cdms.h"
+double hours;
+
+cdChar2Rel( cdStandard, "1994-7-4 10:37",
+            "hours since 1900", &hours);
+.fi
+.RE
+.LP
+Example (C): Break the character time "1994-7-4 10:37" into components:
+.LP
+.RS
+.nf
+#include "cdms.h"
+cdCompTime time;
+
+cdChar2Comp(cdStandard, "1994-7-4 10:37", &time);
+.fi
+.RE
+.LP
+Example (C): Convert year=1994, month=July, to "months since 1900:
+.LP
+.RS
+.nf
+#include "cdms.h"
+cdCompTime time;
+double months;
+
+time.year = 1994;
+time.month = cdJul;
+time.day = cdNullDay;
+time.hour = cdNullHour;
+cdComp2Rel(cdStandard, time, "months since 1900", &months);
+.fi
+.RE
+.LP
+Example (C): In climatological time, find the day which is 300 days past March 31:
+.LP
+.RS
+.nf
+#include "cdms.h"
+double doy, result;
+
+cdChar2Rel( cdClim, "3-31", "days", &doy);
+cdRel2Rel( cdClim, "days", doy+300, "days", &result);
+.fi
+.RE
+.LP
+.SH "SEE ALSO"
+.BR cdunif (3)
+.SH "BUGS"

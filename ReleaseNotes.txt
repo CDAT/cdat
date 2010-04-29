@@ -1,0 +1,226 @@
+********************* Changes in the next release  ****
+********************* Release 4.3 *************************************
+New build system, CDAT is now installed under CDAT/VERSION/bin 
+New Fonts system: most ttf fonts work now!
+New direct postscript output
+Hatch/pattern output working (see known bug though)
+Improved VCDAT
+New Package: Thermo
+EZTemplate
+genutil.filters
+going away from pyfort, using f2py instead
+pydebug included
+mpeg output
+generalized grid support
+improved web documentation
+
+!!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!!
+There is a known bug in cairo (the postscript rendering library) that will
+cause the output to be wrong if you are using both
+pattern/hatches and dashed lines
+
+
+********************* Release 4.0 *************************************
+
+----------------------------
+MAJOR CHANGES TO THE RELEASE
+----------------------------
+
+*- Support for Generalized Grids, regridding possible using the SCRIP regridder
+(source code provided but not installed)
+
+*- Template Editor, let you resize, drag, drop object on your VCS Canvas
+
+*- Major Overhaull of the VCDAT GUI, with template and graphic methods
+editors. Various mode of use (variable browsing, computation mode, graphics
+mode). 
+
+*- Page Layout Editor available in VCDAT
+
+*- More projection available (GCTP package), total of 28 new types of
+projection, each with full parameters control
+
+*- Improved install process
+
+*- New packages: filter, vertical interpolation, IaGraph, f2py, R/Rpy, VTK
+(Linux only, and not supported), thermo (thermodynamic diagrams)
+
+*- Full list of Changes available in files Changes_3.3_to_4.* (Open Office, csv and
+pdf formats)
+
+-------------------------
+KNOWN BUGS
+-------------------------
+
+*- There is apparently a bug on the Mac X server, this forces the user to move
+the VCS canvas window in order for the threads to start. If not the 
+application might hang.
+
+*- Beta version does not have support for inline scripting from VCDAT, final
+version and some future beta wiull have full support.
+
+
+********************* Release 3.3 *************************************
+01. vcs plotting now as at-plotting-time overwritting capabilities, i.e, you can change a graphic method or template attribute as you plot by passing it to the plot command
+02. vcs text function let you know draw string on the fly, also accepts colors argument passed a colornames
+03 vcs canvas object have a new function "match_color" which allows the user to get the color in the colormap (in use or passed) that is closest from its desirted color
+04. rank function now available in genutil.statstics
+
+********************* Release 3.3 (10/01/2002)  ************************
+01. Meshfill support is now complete (for graphical output)
+       all is done at the C level, projection are authorized as well as
+       axes transformations. MUCH faster than the old python based support
+02. CompasrisonsStatistics contrib package added (PCMDI's compall)
+03. VariablesMatcher, VariableConditioner objects added, allows easy regrid/masking 
+       of datasets for comparison, module: cdutil
+04. Build changes have removed the need for users to set LD_LIBRARY_PATH.
+05. Now available on AIX.
+06. genutil.statistics now has percentiles and median functions
+07. genutil now has grower function (add dimensions to MV so they have matching shapes)
+08. genutil.statistics: fixed a bug when input datasets had different masks 
+       (now uses the union of both masks)
+09. pyclimate package added to the contrib, which is a Python package designed
+       to accomplish some usual tasks during the analysis of climate variability
+       using Python. It provides functions to perform some simple IO operations,
+       operations with COARDS-compliant netCDF files, EOF analysis, SVD and CCA
+       analysis of coupled data sets, some linear digital filters, kernel based
+       probabilitydensity function estimation and access to DCDFLIB.C library from
+       Python.
+10. Fixed the Read Script File file browser dialog "File of type". The
+       text said "Search for netCDF" and "Search for GrADS". This has
+       been replaced with "Search fo VCS file" and "Search for Python files".
+11. Sync'ed the continents to work with the Page Editor. In the process,
+       I fixed the canvas update to work with threads
+12. Ran Insure++ on code to clean up memory leaks in XGKS and VCS.
+13. Fixed "open" bug. That is, fixed bug for when x.open() called. It no
+       longer exists out of python from the command line.
+14. Can now print a VCS Canvas plot, produced in background mode,
+       to an output file (i.e., postscript, cgm, gif, or eps.).
+15. Reordered the include files to find the VCS include files first.
+       This solves the problem of VCS not compiling on Solaris 2.8
+       platforms. Solaris 2.8 platforms have a project.h file located in
+       the /usr/lib directory. project.h is also an include file for VCS.
+       In any case, forcing the VCS include files to be seen first, solves
+       this problem and should have no effect on other platforms.
+16. Bug fixes for the DEC platform. The low-level primative attribute settings
+       now work for the DEC platform.
+17. Fixed the legend label to be positioned at the bottom right corner of
+       the plot. It will also move with the legend when the legend is
+       altered by the user.
+18. Now the user does not have to specify the DISPLAY variable in order to run
+       VCS or VCDAT. That is the user can now run the VCS module from the
+       command-line, script, background mode, or from VCDAT without specifying
+       the environment variable DISPLAY. That is, XOpenDisplay is now set
+       to ":0.0" or "localhost:0.0" for VCS and for Tkinter.
+19. This function displays graphics segments, which are currently stored in
+       the frame buffer, on the VCS Canvas. That is, if the plot function
+       was called with the option bg = 1 (i.e., background mode), then the
+       plot is produced in the frame buffer and not visible to the user.
+       In order to view  the graphics segments, this function will copy
+       the contents of the frame buffer to the VCS Canvas, where the
+       graphics can be viewed by the user.
+20. Added outfill and outline to the browser interface. They are now part of the
+       graphics method pulldown selection. Also add a graphics method attribute
+       settings interface for the two graphics method so the user can
+       change their attributes.
+21. Added the capability for low-level primatives to accept Numeric arrays for
+       their list of x and y axis point values.
+22. Bug fix for generating more than 140 plots. That is, commented out
+        Py_DECREF(dict);
+---
+       This DECREF causes memory problems for Python if the
+       user chooses to generate more than 140 plots in a Python loop.
+       That is, needed memory is removed then overwritten, which causes
+       Python to give the undefined global name error for "range", "len",
+       or some other globally defined Python key word.
+23. vcdat_teaching_script_file.py now work with appropriate graphics methods.
+       That is, you can now run "python vcdat_teaching_script_file.py" to replay
+       what was done in the VCDAT session.
+
+       Note: vcdat_recording_script_file.py worked because it did not rely on the
+               ASD.scr file.
+24. Show the index values for 1D axis variables
+25. Updated the "Alter Plot" GUI to reflect the minor ticks settings and the
+       axis type (i.e., Linear or Log10). Currently, the user can only view the
+       axis representation. Later when time permits, I will change the "View"
+       text input window to an "Edit" text input window. This will let the user
+       specify (via a Python dictionary) the location of the axis label and the
+       label text string. For example, { -90: "south pole", 0: "equator",
+       90: "north pole"}.
+26. Modified the VCDAT module to track user directory, file, and variable requests.
+       It also logs the user's wall clock and cpu time. Examples: "vcdat -u",
+       "vcdat -h".
+27. Updated the VCS initial.attributes file to Mike Wehner's initial.attibutes file.
+28. The Boxfill legend labels can be set with a list or a dictionary. For
+       example: [0, 10, 20, 30, 40] or {40:'some text', 50:'some more text'}.
+29. boxfill.legend={.5:'hi'} will now work if the legend is vertical
+       or horizontal.
+30. Colormap bug fix. The default colormap can now be changed,
+       then saved as a new colormap.
+31. VCDAT option menu: -h, print out help menu; -n, turn splash screen off, -u, turn
+       user tracking mode on. See item 17.
+32. Corrected the legend when plotting log based boxfill plots.
+33. Updated the X and Y axes, so that the user can modify and
+       change the axes values.
+34. The graphics method's data world coordinates (i.e., datawc_x1, datawc_x2,
+       datawc_y1, and datawc_y2) will override the incoming variable's coordinates.
+35. VCDAT has a new icon to bookmark files, works just like the directories
+36. Beta DODS support on Linux, build using --dods=/path/to/DODS/directory
+37. gplot now builds automatically
+38. various utilies necessary to produce GIF output are also now provided as part
+       of the install process.
+39. VCS template object now have scale, reset, move and moveto associated function
+40. added cddump utility (ncdump like utility that works on any type of file that
+       cdms can open) 
+41. VCDAT has new icon functions: grower, mask, getmask, less, greater, equal, not, standard deviation
+
+********************* Release 3.2 (4/15/2002)  ************************
+1. Revised build system allows for installation into an existing Python.
+   Please see README.txt to learn the new installation system.
+   (Paul Dubois). DRS and QL support are not built by default, unless you
+   use the --PCMDI option.
+2. In genutil.statistics, the linearegression now can return std error
+   and probabilities for regression constant (in addition of the regression coef).
+   Power users that used this capability should be aware that the syntax slightly
+   changed, see the doc string. (Charles Doutriaux)
+3. Contributed package shgrid, cssgrid, dsgrid  added (Clyde Dease)
+   See "INTRODUCTION TO NGMATH" below for descriptions.
+   After installation, go to the Test subdirectory of each and run python shgridtest.py;
+   a documentation file will be produced as a byproduct.
+4. Updated averager so it now takes integer for single axis operation.
+   Updated averager so the weights options are now "unweighted" and "weighted" instead of 
+   "equal" and "generate"; old options still work.
+   Updated averager so the weights keyword now works.
+   Updated the doc strings of averager so they reflect the previous 2 changes.
+   Updated genutil.statistics so weights options are now compatible with cdutil.averager.
+
+5. Solution to the high CPU usage problem when displaying a VCS Canvas. 
+   Modification to the VCS Canvas event mainloop was done to avoid high CPU 
+   usage while the VCS Canvas sat idle. This modification has no other 
+   effects on the graphics or the VCS Canvas behavior.
+
+6. Extensive improvements to the VCDAT browser. These are detailed at:
+   http://esg.llnl.gov/cdat/GUI_Modifications.html
+
+   INTRODUCTION TO NGMATH
+
+        The ngmath library is a collection of interpolators and approximators
+for one-dimensional, two-dimensional and three-dimensional data. The packages, 
+which were obtained from NCAR, are:
+
+  natgrid -- a two-dimensional random data interpolation package based on 
+              Dave Watson's nngridr. NOT built by default in CDAT due to 
+             compile problems on some platforms. Works on linux.
+
+  dsgrid --  a three-dimensional random data interpolator based on a
+             simple inverse distance weighting algorithm.
+
+  fitgrid -- an interpolation package for one-dimensional and two-dimensional 
+             gridded data based on Alan Cline's Fitpack. Fitpack uses splines 
+             under tension to interpolate in one and two dimensions.  
+             NOT IN CDAT.
+
+  csagrid -- an approximation package for one-dimensional, two-dimensional and 
+             three-dimensional random data based on David Fulker's Splpack. 
+             csagrid uses cubic splines to calculate its approximation function.
+

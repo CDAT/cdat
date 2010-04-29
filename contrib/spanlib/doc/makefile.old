@@ -1,0 +1,76 @@
+################################
+## MAKEFILE FOR DOCUMENTATION ##
+################################
+TOPDIR=..
+SRCDIR=$(TOPDIR)/src
+DOCDIR=$(TOPDIR)/doc
+EXADIR=$(TOPDIR)/example
+SCRIPTDIR=$(TOPDIR)/scripts
+HTMLDIR=$(DOCDIR)/html
+XMLDIR=$(DOCDIR)/xml
+GENDOC=$(SCRIPTDIR)/gendoc.pl
+SRC_F90_LIB=$(SRCDIR)/spanlib.f90
+SRC_F90_EXA=$(EXADIR)/example.f90
+SRC_PYT_MOD=$(TOPDIR)/lib/spanlib_python.py
+XML_F90_LIB=$(XMLDIR)/src_f90_lib.xml
+XML_F90_EXA=$(XMLDIR)/src_f90_exa.xml
+XML_PYT_MOD=$(XMLDIR)/src_pyt_mod.xml
+XML_F90_SUB_INC=$(XMLDIR)/doc_f90_sub_inc.xml
+XML_PYT_SUB_INC=$(XMLDIR)/doc_pyt_sub_inc.xml
+XML_F90_LIB_INC=$(XML_F90_LIB:.xml,_inc.xml)
+XML_F90_EXA_INC=$(XML_F90_EXA:.xml,_inc.xml)
+XML_PYT_MOD_INC=$(XML_PYT_MOD:.xml,_inc.xml)
+HTML_F90_LIB=$(XML_F90_LIB:.xml,.html)
+HTML_PYT_MOD=$(XML_PYT_MOD:.xml,.html)
+HTML_F90_EXA=$(XML_F90_EXA:.xml,.html)
+HTML=$(HTMLDIR)/index.html
+CSS=$(HTMLDIR)/spanlib.css
+XSL=$(XMLDIR)/spanlib.xsl
+XSLSRC=$(XMLDIR)/src.xsl
+XML=$(XMLDIR)/spanlib.xml
+XSLTARGS=--xinclude
+DIRS=$(XMLDIR) $(HTMLDIR)
+PARSE=$(GENDOC) $(XMLDIR) $(SRC_F90_LIB) $(SRC_F90_EXA) $(SRC_PYT_MOD)
+
+######################################################################
+
+.SUFFIXES: .html .xml .xsl .css
+
+.PHONY: html
+
+%_inc.xml: $(PARSE)
+	$^
+
+src_%.html: src_%.xml src_%_inc.xml $(XSLSRC)
+	xsltproc $(XSLTARGS) -o $@ $(XSLSRC) $<
+
+
+$(HTML): $(XML) $(XSL) $(XML_F90_SUB_INC)  $(XML_F90_EXA_INC) $(XML_PYT_SUB_INC)
+	xsltproc $(XSLTARGS) -o $@ $(XSL) $<
+
+##	xsltproc $(XSLTARGS) --stringparam  html.stylesheet "'$(CSS)'" -o $(HTML_EXAMPLE) $(XSL) $(XML_EXAMPLE)
+
+doc: $(HTML)
+
+all: doc
+
+clear:
+	rm -f $(XML) $(DOC_CODE)
+
+
+
+######################################################################
+##	xsltproc --docbook -o index.html --stringparam  html.stylesheet "$(DOC_CSS)" spanlib.xsl template.xml
+
+##install: install-doc
+
+##install-doc: $(DOC_MAIN) $(DOC_CODE) $(DOC_CSS)
+##	install -d --mode=755 $(INSTALLDOCDIR)
+##	install --mode=644 $(DOC_MAIN) $(DOC_CODE) $(DOC_CSS) $(INSTALLDOCDIR)
+
+
+
+
+
+
+

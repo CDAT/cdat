@@ -1,0 +1,94 @@
+#!/usr/bin/env python
+
+#####################################################################
+#                                                                   #
+#  File:  cdat_demo                                                 #
+#  Date:  16-Mar-2006                                               #
+#  Desc:  The top level CDAT demo application script.               #
+#                                                                   #
+#####################################################################
+
+# First initialize Tkinter. The root window will contain
+# the main demo application.
+import Tkinter
+root = Tkinter.Tk()
+root.withdraw()
+
+# Create the splash screen. We want to display it as quickly
+# as possible, before importing modules and initializing Pmw.
+import demo
+splash = demo.DemoSplash ()
+
+# Hide the window before it's properly positioned.
+splash.withdraw()    
+
+# Force the display to update because we need true position.
+splash.update_idletasks()  
+
+# Position the splash screen in the middle of the screen.
+splash_w = splash.winfo_reqwidth()
+splash_h = splash.winfo_reqheight()
+screen_w = splash.winfo_screenwidth()
+screen_h = splash.winfo_screenheight()
+x = (screen_w - splash_w) / 2
+y = (screen_h - splash_h) / 2
+geo = '%dx%d+%d+%d' % (splash_w, splash_h, x, y)
+splash.geometry(geo)
+
+# Disable resize of splash screen.
+splash.resizable (width=0, height=0)
+
+# Update the display with changed position and show the splash screen.
+splash.update_idletasks()
+splash.deiconify()
+
+import sys
+import Pmw
+
+commandLineArgSpecs = (
+    ('fontscheme', 0, 'scheme',  'fonts to use [eg pmw2] (Tk defaults)'),
+    ('fontsize',   0, 'num',     'size of fonts to use with fontscheme', 12),
+    ('stdout',     0, demo.Bool, 'print messages rather than display in label'),
+    ('hide_vcdat', 0, demo.Bool, 'hide VCDAT run options'))
+
+program = sys.argv[0]
+msg = demo.parseArgs(program, sys.argv, commandLineArgSpecs, 0)
+if msg is not None:
+    print msg 
+    sys.exit()
+
+fsize   = demo.get ('fontsize')
+fscheme = demo.get ('fontscheme')
+
+Pmw.initialise (root,
+                size = fsize,
+                fontScheme = fscheme,
+                useTkOptionDb = 1)
+
+menu = demo.MainMenu(root, hide_vcdat=demo.get('hide_vcdat'), stdout=demo.get('stdout'))
+
+menu.pack()
+menu.update_idletasks()
+
+# Kill the splash screen after a timeout.
+def kill_splash ():
+    splash.destroy()
+from threading import Timer
+tt = Timer (4.0, kill_splash)
+tt.start()
+
+root.update()
+
+# Force a minimal pause before showing the main demo app window.
+import time
+time.sleep(2)
+
+# Display the root application window. 
+root.deiconify()
+
+root.resizable (width=0, height=0)
+root.mainloop()
+
+
+
+

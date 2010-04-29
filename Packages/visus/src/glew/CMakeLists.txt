@@ -1,0 +1,63 @@
+
+SET(GLEW_SRC
+        glew.c
+)
+
+SET(GLEW_HEADERS
+        glew.h.h
+        glxew.h
+        wglew.h
+)
+
+
+ADD_DEFINITIONS(
+        -DGLEW_STATIC=1
+)
+
+INCLUDE_DIRECTORIES(
+
+        ${VISUS_SRC}/glew
+
+        ${OPENGL_INCLUDE_DIR}
+)
+
+ADD_LIBRARY(glew-static STATIC ${GLEW_SRC})
+
+SET(VISUS_GLEW_TARGETS glew-static)
+
+IF (VISUS_ENABLE_DYNAMIC)
+   ADD_LIBRARY(glew-shared SHARED ${GLEW_SRC})
+ENDIF (VISUS_ENABLE_DYNAMIC)
+
+
+SET_TARGET_PROPERTIES(glew-static 
+         PROPERTIES
+         OUTPUT_NAME glew
+         CLEAN_DIRECT_OUTPUT 1
+)
+
+IF (VISUS_ENABLE_DYNAMIC)
+   SET_TARGET_PROPERTIES(glew-shared
+         PROPERTIES
+         OUTPUT_NAME glew${SO_EXT}
+         CLEAN_DIRECT_OUTPUT 1
+   )
+
+   TARGET_LINK_LIBRARIES(glew-shared
+
+        ${OPENGL_LIBRARIES}                
+   )
+
+   SET(VISUS_GLEW_TARGETS 
+      ${VISUS_GLEW_TARGETS}
+      glew-static
+   )
+
+ENDIF (VISUS_ENABLE_DYNAMIC)
+
+
+INSTALL(TARGETS ${VISUS_GLEW_TARGETS}
+        LIBRARY DESTINATION ${VISUS_LIBRARIES}
+        ARCHIVE DESTINATION ${VISUS_LIBRARIES}
+)
+

@@ -1,0 +1,143 @@
+      DOUBLE PRECISION FUNCTION GAMIND(X,ALPHA,G)
+C***********************************************************************
+C*                                                                     *
+C*  FORTRAN CODE WRITTEN FOR INCLUSION IN IBM RESEARCH REPORT RC20525, *
+C*  'FORTRAN ROUTINES FOR USE WITH THE METHOD OF L-MOMENTS, VERSION 3' *
+C*                                                                     *
+C*  J. R. M. HOSKING                                                   *
+C*  IBM RESEARCH DIVISION                                              *
+C*  T. J. WATSON RESEARCH CENTER                                       *
+C*  YORKTOWN HEIGHTS                                                   *
+C*  NEW YORK 10598, U.S.A.                                             *
+C*                                                                     *
+C*  VERSION 3     AUGUST 1996                                          *
+C*                                                                     *
+C***********************************************************************
+C
+C  THE INCOMPLETE GAMMA INTEGRAL
+C
+C  BASED ON ALGORITHM AS239, APPL. STATIST. (1988) VOL.37 NO.3
+C
+C  PARAMETERS OF ROUTINE:
+C  X      * INPUT* ARGUMENT OF FUNCTION (UPPER LIMIT OF INTEGRATION)
+C  ALPHA  * INPUT* SHAPE PARAMETER
+C  G      * INPUT* LOG(GAMMA(ALPHA)). MUST BE SUPPLIED BY THE PROGRAM,
+C                  E.G. AS DLGAMA(ALPHA).
+C
+C  OTHER ROUTINES USED: DERF
+C
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      DATA ZERO/0D0/,HALF/0.5D0/,ONE/1D0/,TWO/2D0/,THREE/3D0/,X13/13D0/,
+     *  X36/36D0/,X42/42D0/,X119/119D0/,X1620/1620D0/,X38880/38880D0/,
+     *  RTHALF/0.70710 67811 86547 524D0/
+C
+C         EPS,MAXIT CONTROL THE TEST FOR CONVERGENCE OF THE SERIES AND
+C           CONTINUED-FRACTION EXPANSIONS.
+C         OFL IS A LARGE NUMBER, USED TO RESCALE THE CONTINUED FRACTION.
+C         UFL IS SUCH THAT EXP(UFL) IS JUST .GT. ZERO.
+C         AHILL CONTROLS THE SWITCH TO HILL'S APPROXIMATION.
+C
+      DATA EPS/1D-12/,MAXIT/100000/,OFL/1D30/,UFL/-180D0/,AHILL/1D4/
+      GAMIND=ZERO
+      IF(ALPHA.LE.ZERO)GOTO 1000
+      IF(X.LT.ZERO)GOTO 1010
+      IF(X.EQ.ZERO)RETURN
+C
+      IF(ALPHA.GT.AHILL)GOTO 100
+      IF(X.GT.ONE.AND.X.GE.ALPHA)GOTO 50
+C
+C         SERIES EXPANSION
+C
+      SUM=ONE
+      TERM=ONE
+      A=ALPHA
+      DO 10 IT=1,MAXIT
+      A=A+ONE
+      TERM=TERM*X/A
+      SUM=SUM+TERM
+      IF(TERM.LE.EPS)GOTO 20
+   10 CONTINUE
+      WRITE(6,7020)
+   20 ARG=ALPHA*DLOG(X)-X-G+DLOG(SUM/ALPHA)
+      GAMIND=ZERO
+      IF(ARG.GE.UFL)GAMIND=DEXP(ARG)
+      RETURN
+C
+C         CONTINUED-FRACTION EXPANSION
+C
+   50 CONTINUE
+      A=ONE-ALPHA
+      B=A+X+ONE
+      TERM=ZERO
+      PN1=ONE
+      PN2=X
+      PN3=X+ONE
+      PN4=X*B
+      RATIO=PN3/PN4
+      DO 70 IT=1,MAXIT
+      A=A+ONE
+      B=B+TWO
+      TERM=TERM+ONE
+      AN=A*TERM
+      PN5=B*PN3-AN*PN1
+      PN6=B*PN4-AN*PN2
+      IF(PN6.EQ.ZERO)GOTO 60
+      RN=PN5/PN6
+      DIFF=DABS(RATIO-RN)
+      IF(DIFF.LE.EPS.AND.DIFF.LE.EPS*RN)GOTO 80
+      RATIO=RN
+   60 PN1=PN3
+      PN2=PN4
+      PN3=PN5
+      PN4=PN6
+      IF(DABS(PN5).LT.OFL)GOTO 70
+      PN1=PN1/OFL
+      PN2=PN2/OFL
+      PN3=PN3/OFL
+      PN4=PN4/OFL
+   70 CONTINUE
+      WRITE(6,7020)
+   80 ARG=ALPHA*DLOG(X)-X-G+DLOG(RATIO)
+      GAMIND=ONE
+      IF(ARG.GE.UFL)GAMIND=ONE-DEXP(ARG)
+      RETURN
+C
+C         ALPHA IS LARGE: USE HILL'S APPROXIMATION (N.L. JOHNSON AND
+C         S. KOTZ, 1970, 'CONTINUOUS UNIVARIATE DISTRIBUTIONS 1', P.180)
+C
+C         THE 'DO 110' LOOP CALCULATES 2*(X-ALPHA-ALPHA*DLOG(X/ALPHA)),
+C         USING POWER-SERIES EXPANSION TO AVOID ROUNDING ERROR
+C
+  100 CONTINUE
+      R=ONE/DSQRT(ALPHA)
+      Z=(X-ALPHA)*R
+      TERM=Z*Z
+      SUM=HALF*TERM
+      DO 110 I=1,12
+      TERM=-TERM*Z*R
+      SUM=SUM+TERM/(I+TWO)
+      IF(DABS(TERM).LT.EPS)GOTO 120
+  110 CONTINUE
+  120 WW=TWO*SUM
+      W=DSQRT(WW)
+      IF(X.LT.ALPHA)W=-W
+      H1=ONE/THREE
+      H2=-W/X36
+      H3=(-WW+X13)/X1620
+      H4=(X42*WW+X119)*W/X38880
+      Z=(((H4*R+H3)*R+H2)*R+H1)*R+W
+      GAMIND=HALF+HALF*DERF(Z*RTHALF)
+      RETURN
+C
+ 1000 WRITE(6,7000)ALPHA
+      RETURN
+ 1010 WRITE(6,7010)X
+      RETURN
+C
+ 7000 FORMAT(' *** ERROR *** ROUTINE GAMIND :',
+     *  ' SHAPE PARAMETER OUT OF RANGE :',D16.8)
+ 7010 FORMAT(' *** ERROR *** ROUTINE GAMIND :',
+     *  ' ARGUMENT OF FUNCTION OUT OF RANGE :',D16.8)
+ 7020 FORMAT(' ** WARNING ** ROUTINE GAMIND :',
+     *  ' ITERATION HAS NOT CONVERGED. RESULT MAY BE UNRELIABLE.')
+      END

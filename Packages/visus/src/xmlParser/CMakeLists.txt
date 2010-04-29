@@ -1,0 +1,53 @@
+
+SET(XML_SRC
+  xmlParser.cpp
+)
+
+SET(XML_HEADERS
+  xmlParser.h
+)
+
+INCLUDE_DIRECTORIES(
+  ${VISUS_SRC}/xmlParser
+  ${VISUS_SRC}/visusscene
+)
+
+ADD_LIBRARY(xmlParser-static STATIC ${XML_SRC})
+
+SET(VISUS_XMLPARSER_TARGETS xmlParser-static)
+
+IF (VISUS_ENABLE_DYNAMIC)
+   ADD_LIBRARY(xmlParser-shared SHARED ${XML_SRC})
+ENDIF (VISUS_ENABLE_DYNAMIC)
+
+
+SET_TARGET_PROPERTIES(xmlParser-static 
+         PROPERTIES
+         OUTPUT_NAME xmlParser
+         CLEAN_DIRECT_OUTPUT 1
+)
+
+IF (VISUS_ENABLE_DYNAMIC)
+   SET_TARGET_PROPERTIES(xmlParser-shared
+         PROPERTIES
+         OUTPUT_NAME xmlParser${SO_EXT}
+         CLEAN_DIRECT_OUTPUT 1
+   )
+
+   TARGET_LINK_LIBRARIES(xmlParser-shared
+        ${OPENGL_LIBRARIES}                
+   )
+
+   SET(VISUS_XMLPARSER_TARGETS 
+      ${VISUS_XMLPARSER_TARGETS}
+      xmlParser-static
+   )
+
+ENDIF (VISUS_ENABLE_DYNAMIC)
+
+
+INSTALL(TARGETS ${VISUS_XMLPARSER_TARGETS}
+        LIBRARY DESTINATION ${VISUS_LIBRARIES}
+        ARCHIVE DESTINATION ${VISUS_LIBRARIES}
+)
+

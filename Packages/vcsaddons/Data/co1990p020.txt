@@ -1,0 +1,755 @@
+Identification_Information:
+  Citation:
+    Citation_Information:
+      Originator: National Atlas of the United States
+      Publication_Date: 200506
+      Title: 1990 County Boundaries of the United States
+      Publication_Information:
+        Publication_Place: Reston, VA
+        Publisher: National Atlas of the United States
+      Online_Linkage: <http://nationalatlas.gov/atlasftp.html>
+
+  Description:
+    Abstract:
+      This map layer portrays the 1990 State and county boundaries of the United 
+      States, Puerto Rico, and the U.S. Virgin Islands.  The map layer was 
+      created by extracting county polygon features from the individual 
+      1:2,000,000-scale State boundary Digital Line Graph (DLG) files produced 
+      by the U.S. Geological Survey.  These files were then merged into a single 
+      file and the boundaries were modified to what they were in 1990.  This 
+      is a revised version of the November 2004 map layer.      
+    Purpose: 
+      These data are intended for geographic display and analysis at the 
+      national level, and for large regional areas.  The data should be 
+      displayed and analyzed at scales appropriate for 1:2,000,000-scale data.  
+      No responsibility is assumed by the National Atlas of the United States 
+      in the use of these data.   
+  Time_Period_of_Content:
+    Time_Period_Information:
+      Range_of_Dates/Times:
+        Beginning_Date: 1972
+        Ending_Date: 1990
+    Currentness_Reference: Ground condition
+  Status:
+    Progress: Complete
+    Maintenance_and_Update_Frequency: Irregular
+  Spatial_Domain:
+    Bounding_Coordinates:
+      West_Bounding_Coordinate: 170
+      East_Bounding_Coordinate: -64
+      North_Bounding_Coordinate: 72
+      South_Bounding_Coordinate: 17
+
+  Keywords:
+    Theme:
+      Theme_Keyword_Thesaurus: ISO 19115 Topic Category
+      Theme_Keyword: Boundaries
+
+    Theme: 
+      Theme_Keyword_Thesaurus: None
+      Theme_Keyword: Boundaries
+      Theme_Keyword: States
+      Theme_Keyword: State boundaries
+      Theme_Keyword: Counties
+      Theme_Keyword: County boundaries
+      Theme_Keyword: 1990 County boundaries
+    Place:
+      Place_Keyword_Thesaurus:  
+        U.S. Department of Commerce, 1995, Countries, Dependencies, Areas of 
+        Special Sovereignty, and Their Principal Administrative Divisions
+        (Federal Information Processing Standard (FIPS) 10-4): Washington, DC,
+        National Institute of Standards and Technology.
+      Place_Keyword: United States
+    Place:
+      Place_Keyword_Thesaurus: None
+      Place_Keyword: USA
+    Place:
+      Place_Keyword_Thesaurus:  
+        U.S. Department of Commerce, 1987, Codes for the Identification of the 
+        States, the District of Columbia and the Outlying Areas of The United 
+        States, and Associated Areas (Federal Information Processing Standard 
+        5-2):  Washington, DC, National Institute of Standards and Technology.
+      Place_Keyword: Alabama
+      Place_Keyword: Alaska
+      Place_Keyword: Arizona
+      Place_Keyword: Arkansas
+      Place_Keyword: California
+      Place_Keyword: Colorado
+      Place_Keyword: Connecticut
+      Place_Keyword: Delaware
+      Place_Keyword: District of Columbia
+      Place_Keyword: Florida
+
+      Place_Keyword: Georgia
+      Place_Keyword: Hawaii
+      Place_Keyword: Idaho
+      Place_Keyword: Illinois
+      Place_Keyword: Indiana
+      Place_Keyword: Iowa
+      Place_Keyword: Kansas
+      Place_Keyword: Kentucky
+      Place_Keyword: Louisiana
+      Place_Keyword: Maine
+      Place_Keyword: Maryland
+      Place_Keyword: Massachusetts
+      Place_Keyword: Michigan
+      Place_Keyword: Minnesota
+      Place_Keyword: Mississippi
+      Place_Keyword: Missouri
+      Place_Keyword: Montana
+      Place_Keyword: Nebraska
+      Place_Keyword: Nevada
+      Place_Keyword: New Hampshire
+      Place_Keyword: New Jersey
+      Place_Keyword: New Mexico
+      Place_Keyword: New York
+      Place_Keyword: North Carolina
+      Place_Keyword: North Dakota
+      Place_Keyword: Ohio
+      Place_Keyword: Oklahoma
+      Place_Keyword: Oregon
+      Place_Keyword: Pennsylvania
+      Place_Keyword: Rhode Island
+      Place_Keyword: South Carolina
+      Place_Keyword: South Dakota
+      Place_Keyword: Tennessee
+      Place_Keyword: Texas
+      Place_Keyword: Utah
+      Place_Keyword: Vermont
+      Place_Keyword: Virginia
+      Place_Keyword: Washington
+      Place_Keyword: West Virginia
+      Place_Keyword: Wisconsin 
+      Place_Keyword: Wyoming
+      Place_Keyword: Puerto Rico
+      Place_Keyword: Virgin Islands
+      Place_Keyword: U.S. Virgin Islands
+  Access_Constraints:  None
+  Use_Constraints:  
+    None.  Acknowledgment of the National Atlas of the United States of America 
+    would be appreciated in products derived from these data. 
+
+  Point_of_Contact:
+    Contact_Information:
+      Contact_Person_Primary:
+        Contact_Person: Woodley Chu
+        Contact_Organization: National Atlas of the United States
+      Contact_Address:
+        Address_Type: Mailing address
+        Address: 12201 Sunrise Valley Dr
+        Address: MS 561
+        City: Reston
+        State_or_Province: VA
+        Postal_Code: 20192
+      Contact_Voice_Telephone: 703-648-6375
+      Contact_Electronic_Mail_Address: atlasmail@usgs.gov
+
+Data_Quality_Information:
+  Logical_Consistency_Report: 
+    The map layer was checked for topological consistency using the Arc/INFO 
+    command BUILD.  No other checks for logical consistency were performed on 
+    this map layer.
+  Completeness_Report:
+    This map layer includes county boundaries for all 50 States, Puerto Rico, 
+    and the U.S. Virgin Islands.  Data completeness generally reflects the 
+    content of the original DLG files. 
+  Lineage:
+    Source_Information: 
+      Source_Citation: 
+        Citation_Information: 
+          Originator: National Atlas of the United States 
+          Publication_Date: 1998 
+          Title: County Boundaries of the United States 
+          Publication_Information: 
+            Publication_Place: Reston, VA 
+            Publisher: National Atlas of the United States 
+      Source_Scale_Denominator: 2000000
+      Type_of_Source_Media: Online 
+      Source_Time_Period_of_Content: 
+        Time_Period_Information:
+          Single_Date/Time:
+            Calendar_Date: 1998
+        Source_Currentness_Reference: Publication date 
+      Source_Citation_Abbreviation: COUNTYBD 
+      Source_Contribution: Spatial and attribute information
+ 
+    Source_Information:
+      Source_Citation:
+        Citation_Information:
+          Originator: National Atlas of the United States
+          Publication_Date: 1998
+          Title: 1990 County Boundaries of the United States
+          Publication_Information:
+            Publication_Place: Reston, VA
+            Publisher: National Atlas of the United States
+      Source_Scale_Denominator: 2000000
+      Type_of_Source_Media: Online
+      Source_Time_Period_of_Content:
+        Time_Period_Information:
+          Single_Date/Time:
+            Calendar_Date: 1998
+        Source_Currentness_Reference: Publication date
+      Source_Citation_Abbreviation: ATLAS-1990CNTY
+      Source_Contribution: Spatial and attribute information 
+ 
+    Source_Information:
+      Source_Citation:
+        Citation_Information:
+          Originator: National Atlas of the United States
+          Publication_Date: 199911
+          Title: County Boundaries of the United States
+          Publication_Information:
+            Publication_Place: Reston, VA
+            Publisher: National Atlas of the United States
+      Source_Scale_Denominator: 2000000
+      Type_of_Source_Media: Online
+      Source_Time_Period_of_Content:
+        Time_Period_Information:
+          Single_Date/Time:
+            Calendar_Date: 1999
+        Source_Currentness_Reference: Publication date
+      Source_Citation_Abbreviation: ATLAS-CNTY
+      Source_Contribution: Spatial information 
+
+    Source_Information:
+      Source_Citation:
+        Citation_Information:
+          Originator: National Atlas of the United States
+          Publication_Date: 1999
+          Title: 1990 County Boundaries of the United States
+          Publication_Information:
+            Publication_Place: Reston, VA
+            Publisher: National Atlas of the United States
+      Source_Scale_Denominator: 2000000
+      Type_of_Source_Media: Online
+      Source_Time_Period_of_Content:
+        Time_Period_Information:
+          Single_Date/Time:
+            Calendar_Date: 1999
+        Source_Currentness_Reference: Publication date
+      Source_Citation_Abbreviation: ATLAS-1990CNTY-1999
+      Source_Contribution: Spatial and attribute information
+
+    Source_Information:
+      Source_Citation:
+        Citation_Information:
+          Originator: National Atlas of the United States
+          Publication_Date: 200003
+          Title: 1990 County Boundaries of the United States
+          Publication_Information:
+            Publication_Place: Reston, VA
+            Publisher: National Atlas of the United States
+      Source_Scale_Denominator: 2000000
+      Type_of_Source_Media: Online
+      Source_Time_Period_of_Content:
+        Time_Period_Information:
+          Single_Date/Time:
+            Calendar_Date: 2000
+        Source_Currentness_Reference: Publication date
+      Source_Citation_Abbreviation: ATLAS-1990CNTY-2000
+      Source_Contribution: Spatial and attribute information 
+
+    Source_Information:
+      Source_Citation:
+        Citation_Information:
+          Originator: National Atlas of the United States
+          Publication_Date: 200102
+          Title: 1990 County Boundaries of the United States
+          Publication_Information:
+            Publication_Place: Reston, VA
+            Publisher: National Atlas of the United States
+      Source_Scale_Denominator: 2000000
+      Type_of_Source_Media: Online
+      Source_Time_Period_of_Content:
+        Time_Period_Information:
+          Single_Date/Time:
+            Calendar_Date: 2001
+        Source_Currentness_Reference: Publication date
+      Source_Citation_Abbreviation: ATLAS-1990CNTY-2001
+      Source_Contribution: Spatial and attribute information 
+
+    Source_Information: 
+      Source_Citation: 
+        Citation_Information: 
+          Originator: U.S. Geological Survey 
+          Publication_Date: 1981 
+          Title: Denver East, CO
+          Publication_Information: 
+            Publication_Place: Reston, VA 
+            Publisher: U.S. Geological Survey 
+      Source_Scale_Denominator: 100000 
+      Type_of_Source_Media: Paper map
+      Source_Time_Period_of_Content: 
+        Time_Period_Information: 
+          Single_Date/Time: 
+            Calendar_Date: 1981 
+        Source_Currentness_Reference: Publication date 
+      Source_Citation_Abbreviation: Denver East 
+      Source_Contribution: Spatial information 
+
+    Source_Information:
+      Source_Citation:
+        Citation_Information:
+          Originator: National Atlas of the United States
+          Publication_Date: 200202
+          Title: 1990 County Boundaries of the United States
+          Publication_Information:
+            Publication_Place: Reston, VA
+            Publisher: National Atlas of the United States
+      Source_Scale_Denominator: 2000000
+      Type_of_Source_Media: Online
+      Source_Time_Period_of_Content:
+        Time_Period_Information:
+          Single_Date/Time:
+            Calendar_Date: 200202
+        Source_Currentness_Reference: Publication date
+      Source_Citation_Abbreviation: ATLAS-1990CNTY-0202
+      Source_Contribution: Spatial and attribute information 
+
+    Source_Information:  
+      Source_Citation:  
+        Citation_Information:  
+          Originator: National Atlas of the United States  
+          Publication_Date: 200206 
+          Title: County Boundaries of the United States 
+          Publication_Information: 
+            Publication_Place: Reston, VA
+            Publisher: National Atlas of the United States 
+      Source_Scale_Denominator: 2000000 
+      Type_of_Source_Media: Online 
+      Source_Time_Period_of_Content: 
+        Time_Period_Information: 
+          Single_Date/Time: 
+            Calendar_Date: 200206
+        Source_Currentness_Reference: Publication date 
+      Source_Citation_Abbreviation: ATLAS-CNTY0206
+      Source_Contribution: Spatial and attribute information 
+
+    Source_Information:  
+      Source_Citation:  
+        Citation_Information:  
+          Originator: National Atlas of the United States  
+          Publication_Date: 200207
+          Title: 1990 County Boundaries of the United States 
+          Publication_Information: 
+            Publication_Place: Reston, VA
+            Publisher: National Atlas of the United States 
+      Source_Scale_Denominator: 2000000 
+      Type_of_Source_Media: Online 
+      Source_Time_Period_of_Content: 
+        Time_Period_Information: 
+          Single_Date/Time: 
+            Calendar_Date: 200202
+        Source_Currentness_Reference: Publication date 
+      Source_Citation_Abbreviation: ATLAS-1990CNTY-0207
+      Source_Contribution: Spatial and attribute information 
+
+    Source_Information:
+      Source_Citation:
+        Citation_Information:
+          Originator: U.S. Geological Survey
+          Publication_Date: 2004
+          Title: Geographic Names Information System
+          Publication_Information:
+            Publication_Place: Reston, VA
+            Publisher: U.S. Geological Survey
+      Type_of_Source_Media: Online
+      Source_Time_Period_of_Content:
+        Time_Period_Information: 
+          Single_Date/Time:
+            Calendar_Date: 2004
+        Source_Currentness_Reference: Publication date
+      Source_Citation_Abbreviation: GNIS04
+      Source_Contribution: Attribute information
+
+    Source_Information:  
+      Source_Citation:  
+        Citation_Information:  
+          Originator: National Atlas of the United States  
+          Publication_Date: 200411 
+          Title: 1990 County Boundaries of the United States 
+          Publication_Information: 
+            Publication_Place: Reston, VA
+            Publisher: National Atlas of the United States 
+      Source_Scale_Denominator: 2000000 
+      Type_of_Source_Media: Online 
+      Source_Time_Period_of_Content: 
+        Time_Period_Information: 
+          Single_Date/Time: 
+            Calendar_Date: 200411
+        Source_Currentness_Reference: Publication date 
+      Source_Citation_Abbreviation: ATLAS-1990CNTY-0411
+      Source_Contribution: Spatial and attribute information 
+
+    Source_Information:
+      Source_Citation:
+        Citation_Information:
+          Originator: U.S. Geological Survey
+          Publication_Date: 2005
+          Title: Geographic Names Information System
+          Publication_Information:
+            Publication_Place: Reston, VA
+            Publisher: U.S. Geological Survey
+      Type_of_Source_Media: Online
+      Source_Time_Period_of_Content:
+        Time_Period_Information: 
+          Single_Date/Time:
+            Calendar_Date: 2005
+        Source_Currentness_Reference: Publication date
+      Source_Citation_Abbreviation: GNIS05
+      Source_Contribution: Attribute information
+
+    Source_Information:  
+      Source_Citation:  
+        Citation_Information:  
+          Originator: National Atlas of the United States  
+          Publication_Date: 200301
+          Title: Streams and Waterbodies of the United States 
+          Publication_Information: 
+            Publication_Place: Reston, VA
+            Publisher: National Atlas of the United States 
+      Source_Scale_Denominator: 2000000 
+      Type_of_Source_Media: Online 
+      Source_Time_Period_of_Content: 
+        Time_Period_Information: 
+          Single_Date/Time: 
+            Calendar_Date: 200301
+        Source_Currentness_Reference: Publication date 
+      Source_Citation_Abbreviation: ATLAS-hydro
+      Source_Contribution: Spatial and attribute information 
+
+    Process_Step:
+      Process_Description: 
+        The COUNTYBD file was modified to reflect the 1990 county boundaries for 
+        the United States.  The following changes were made: In Alaska, the 
+        Skagway-Hoonah-Angoon Census Area and Yakutat Borough were combined to 
+        create the Skagway-Yakutat-Angoon Census Area.  Also, Denali Borough was
+        combined with the Yukon-Koyukuk Census Area.  In Virginia, the polygon 
+        for South Boston was added.
+      Source_Used_Citation_Abbreviation: COUNTYBD
+      Process_Date: 1998
+      Source_Produced_Citation_Abbreviation: ATLAS-1990CNTY 
+
+    Process_Step:
+      Process_Description: 
+        ATLAS-CNTY is an updated county boundary map layer.  Shoreline features 
+        in ATLAS-1990CNTY were modified to match the shorelines features in 
+        ATLAS-CNTY.  This included adding Puerto Rico and U.S. Virgin Islands 
+        and making adjustments in Alaska, Nebraska, Oklahoma, Texas, and 
+        Virginia.  In addition, State names were changed from abbreviations to 
+        the full State name.
+      Source_Used_Citation_Abbreviation: ATLAS-CNTY
+      Source_Used_Citation_Abbreviation: ATLAS-1990CNTY
+      Process_Date: 1999
+      Source_Produced_Citation_Abbreviation: ATLAS-1990CNTY-1999 
+
+    Process_Step:
+      Process_Description: 
+        The State name attributes in ATLAS-1990CNTY-1999 were changed to the 
+        two-character State code, and the State FIPS code was added.
+      Source_Used_Citation_Abbreviation: ATLAS-1990CNTY-1999
+      Process_Date: 20000315
+      Source_Produced_Citation_Abbreviation: ATLAS-1990CNTY-2000 
+
+    Process_Step: 
+      Process_Description: 
+        The county name was corrected for the Grass Cay and Mingo Cay polygons
+        in the U.S. Virgin Islands.
+      Source_Used_Citation_Abbreviation: ATLAS-1990CNTY-2000 
+      Process_Date: 2001 
+      Source_Produced_Citation_Abbreviation: ATLAS-1990CNTY-2001 
+
+    Process_Step: 
+      Process_Description: 
+        Minor corrections were made to the boundaries of Denver County and Adams 
+        County in Colorado.  The 1:100,000 scale USGS topographic map of Denver 
+        East, Colorado was used to make these corrections.  In addition, county 
+        attribution was removed from the Niagara River between Lake Ontario and 
+        Lake Erie. 
+      Source_Used_Citation_Abbreviation: ATLAS-1990CNTY-2001
+      Source_Used_Citation_Abbreviation: Denver East 
+      Process_Date: 2002
+      Source_Produced_Citation_Abbreviation: ATLAS-1990CNTY-0202 
+
+    Process_Step
+      Process_Description
+        Boundary adjustments were made using the National Atlas 
+        counties coverage, ATLAS-CNTY0206. The corrections include:
+        >1) Navajo and Coconino in Arizona
+        >2) Tuolumne and  Mono in California
+        >3) Lake and Chaffee in Colorado
+        >4) Gulf and Franklin in Florida
+        >5) Plaquemines Parish and Jefferson Parish in Louisiana
+        >6) Mora and Taos in New Mexico
+        >7) Otero and Chaves in New Mexico
+        >8) Canovanas Municipio and Loiza Municipio in Puerto Rico
+        >9) Tipton and Shelby in Tennesee
+        >10) Loving and Winkler in Texas
+        >11) Pecos and Terrell in Texas
+        >12) Kerr and Bandera in Texas
+        >13) Real and Bandera in Texas
+        >14) San Patricio and Nueces in Texas
+        >15) Sanpete and Jab in Utah
+        >16) Harrisonburg City and Rockingham County in Virginia
+        >17) Staunton City and Augusta County in Virginia
+        >18) Lynchburg City and Campbell County in Virginia
+        >19) Danville City and Pittsylvania County in Virginia 
+        >
+        Numerous additional minor boundary adjustments were made throughout 
+        the country.  In Puerto Rico, Florida Municipio was added and an 
+        offshore island was added to Ponce Municipio.  A extra polygon within 
+        Vega Baja Municipio was merged with the rest of the municipio. 
+
+        An attribute containing the area in square miles for the county was
+        added.  It was calculated by summing values in the area field for each
+        county, which is in square meters, and multiplying the results by 
+        0.0000003681.
+      Source_Used_Citation_Abbreviation: ATLAS-1990CNTY-0202
+      Source_Used_Citation_Abbreviation: ATLAS-CNTY0206
+      Process_Date: 200207
+      Source_Produced_Citation_Abbreviation: ATLAS-1990CNTY-0207
+
+    Process_Step:
+      Process_Description:
+        The following county names were edited based on the GNIS database: 
+        DeBaca NM, DeKalb AL, DeKalb GA, DeKalb IL, DeKalb MO, DeKalb TN, 
+        DeSoto FL, DeSoto MS, DeWitt TX, DuPage IL, LaMoure ND, Saint Mary's MD     
+      Source_Used_Citation_Abbreviation: ATLAS-1990CNTY-0207
+      Source_Used_Citation_Abbreviation: GNIS04
+      Process_date: 200411
+      Source_Produced_Citation_Abbreviation: ATLAS-1990CNTY-0411
+
+    Process_Step:
+      Process_Description:
+        Maryland's Queen Anne's County had the apostrophe added where missing. 
+        Two line segments along the Texas/Mexico border were modified to align 
+        to ATLAS-hydro.
+      Source_Used_Citation_Abbreviation: ATLAS-1990CNTY-0411
+      Source_Used_Citation_Abbreviation: GNIS05
+      Source_Used_Citation_Abbreviation: ATLAS-hydro
+      Process_date: 200505
+
+Spatial_Data_Organization_Information:
+  Indirect_Spatial_Reference:
+    U.S. Department of Commerce, 1987, Codes for the Identification of the 
+    States, the District of Columbia and the Outlying areas of the United 
+    States, and Associated Areas; (FIPS 5-2): Washington, DC, National
+    Institute of Standards and Technology.
+
+    U.S. Department of Commerce, 1990, Counties and Equivalent Entities of the 
+    United States, Its Possessions, and Associated Areas; (FIPS 6-4): 
+    Washington, DC, National Institute of Standards and Technology.
+
+  Direct_Spatial_Reference_Method:  Vector
+  Point_and_Vector_Object_Information:
+    SDTS_Terms_Description:
+      SDTS_Point_and_Vector_Object_Type: 
+        GT-polygon composed of chains
+      Point_and_Vector_Object_Count: 6136
+
+Spatial_Reference_Information:
+  Horizontal_Coordinate_System_Definition:
+    Geographic:
+      Latitude_Resolution: 0.000278
+      Longitude_Resolution: 0.000278
+      Geographic_Coordinate_Units: Decimal degrees
+    Geodetic_Model:
+      Horizontal_Datum_Name: North American Datum of 1983
+      Ellipsoid_Name: GRS1980
+      Semi-major_Axis: 6378137  
+      Denominator_of_Flattening_Ratio: 298.257222
+
+Entity_and_Attribute_Information:
+  Detailed_Description:
+    Entity_Type:
+      Entity_Type_Label: 1990 County (described by Co1990p020.dbf)
+      Entity_Type_Definition: 
+        The second order division of a nation, such as a parish, borough, 
+        municipio, judicial division, and independent cities in Maryland, 
+        Missouri, Nevada, and Virginia.  The boundaries are valid as of 1990.
+      Entity_Type_Definition_Source: National Atlas of the United States
+    Attribute:
+      Attribute_Label: Shape
+      Attribute_Definition: 
+        The representation of the entity in the data.
+      Attribute_Definition_Source: National Atlas of the United States
+      Attribute_Domain_Values:
+        Enumerated_Domain:
+          Enumerated_Domain_Value: Polygon
+          Enumerated_Domain_Value_Definition: 2-dimensional element.
+          Enumerated_Domain_Value_Definition_Source: ESRI GIS software
+    Attribute:
+      Attribute_Label: Area
+      Attribute_Definition: 
+        The size of the shape in coverage units.  In the distributed 
+        file, coverage units represent square decimal degrees.
+      Attribute_Definition_Source: National Atlas of the United States
+      Attribute_Domain_Values:
+        Range_Domain:
+          Range_Domain_Minimum: 0.000
+          Range_Domain_Maximum: 79.415
+    Attribute:
+      Attribute_Label: Perimeter
+      Attribute_Definition: 
+        The perimeter of the shape in coverage units.  In the distributed file, 
+        coverage units represent decimal degrees.
+      Attribute_Definition_Source: National Atlas of the United States
+      Attribute_Domain_Values:
+        Range_Domain:
+          Range_Domain_Minimum: 0.010
+          Range_Domain_Maximum: 87.571
+    Attribute:
+      Attribute_Label: Co1990p020
+      Attribute_Definition: Internal feature number.
+      Attribute_Definition_Source: National Atlas of the United States
+      Attribute_Domain_Values:
+        Range_Domain:
+          Range_Domain_Minimum: 2
+          Range_Domain_Maximum: 6137
+    Attribute: 
+      Attribute_Label: State 
+      Attribute_Definition: 
+
+        The two-character abbreviation for the name of the State or State 
+        equivalent in which the county is located. 
+      Attribute_Definition_Source: National Atlas of the United States 
+      Attribute_Domain_Values: 
+        Codeset_Domain: 
+          Codeset_Name: 
+            Codes for the Identification of the States, the District of Columbia 
+            and the Outlying Areas of the United States, and Associated Areas;
+            (Federal Information Processing  Standard (FIPS) 5-2): Washington, 
+            DC,  National Institute of Standards and Technology.
+          Codeset_Source: U.S. Department of Commerce 
+    Attribute:
+      Attribute_Label: County
+      Attribute_Definition: The name of the county or county equivalent.
+      Attribute_Definition_Source: National Atlas of the United States
+      Attribute_Domain_Values:
+        Codeset_Domain:
+          Codeset_Name: 
+            Counties and Equivalent Entities of the United States, Its 
+            Possessions, and Associated Areas; (Federal Information Processing 
+            Standard (FIPS) 6-4): Washington, DC, National Institute of 
+            Standards and Technology.
+          Codeset_Source: U.S. Department of Commerce 
+      Attribute_Domain_Values:
+        Enumerated_Domain:
+          Enumerated_Domain_Value: <blank>
+          Enumerated_Domain_Value_Definition: 
+            Water areas of the United States for which a county designation is 
+            not reported.
+          Enumerated_Domain_Value_Definition_Source: 
+            National Atlas of the United States
+    Attribute:
+      Attribute_Label: Fips
+      Attribute_Definition: 
+        The 5-digit FIPS code of the county or county equivalent.  Codes ending 
+        in 000 indicate water areas for which a county designation is not 
+        reported.
+      Attribute_Definition_Source: National Atlas of the United States
+      Attribute_Domain_Values:
+        Codeset_Domain:
+          Codeset_Name: 
+            Counties and Equivalent Entities of the United States, Its 
+            Possessions, and Associated Areas; (Federal Information Processing 
+            Standard (FIPS) 6-4): Washington, DC, National Institute of 
+            Standards and Technology.
+          Codeset_Source: U.S. Department of Commerce  
+    Attribute:
+      Attribute_Label: State_fips
+      Attribute_Definition: 
+        The 2-digit FIPS code of the State or State equivalent.
+      Attribute_Definition_Source: National Atlas of the United States
+      Attribute_Domain_Values:
+        Codeset_Domain:
+          Codeset_Name: 
+            Codes for the Identification of the States, the District of Columbia 
+            and the Outlying Areas of the United States, and Associated Areas;
+            (Federal Information Processing Standard (FIPS) 5-2): Washington, 
+            DC, National Institute of Standards and Technology.
+          Codeset_Source: U.S. Department of Commerce 
+    Attribute:
+      Attribute_Label: Square_mil
+      Attribute_Definition: 
+        The size of the county or county equivalent in square miles.  It was 
+        calculated by summing values in the area field for each county, which
+        is in square meters, and multiplying the results by 0.0000003681.  These
+        values may not match those reported by State or county governments, 
+        especially in coastal areas.
+      Attribute_Definition_Source: National Atlas of the United States
+      Attribute_Domain_Values:
+        Range_Domain:
+          Range_Domain_Minimum: 1.976
+          Range_Domain_Maximum: 157915.957
+
+Distribution_Information:
+  Distributor:
+    Contact_Information:
+      Contact_Organization_Primary:
+        Contact_Organization: 
+          Earth Science Information Center, U.S. Geological Survey
+      Contact_Address:
+        Address_Type: Mailing address
+        Address: 507 National Center
+        City: Reston
+        State_or_Province: VA
+        Postal_Code: 20192
+      Contact_Voice_Telephone: 1-888-ASK-USGS (1-888-275-8747)
+      Contact_Voice_Telephone: 703-648-5920
+      Contact_Instructions: 
+        In addition to the address above there are other ESIC offices throughout 
+        the country.  A full list of these offices is at
+        <http://geography.usgs.gov/esic/esic_index.html>.
+
+  Distribution_Liability: 
+    Although these data have been processed successfully on a computer system at 
+    the U.S. Geological Survey, no warranty expressed or implied is made by the 
+    U.S. Geological Survey regarding the utility of the data on any other  
+    system, nor shall the act of distribution constitute any such warranty.  No 
+    responsibility is assumed by the U.S. Geological Survey in the use of these 
+    data.  
+
+  Standard_Order_Process:
+    Digital_Form:
+      Digital_Transfer_Information:
+        Format_Name: ESRI Shapefile
+      Digital_Transfer_Option:
+        Online_Option:
+          Computer_Contact_Information:
+            Network_Address:
+              Network_Resource_Name: <http://nationalatlas.gov/atlasftp.html>
+    Digital_Form: 
+      Digital_Transfer_Information: 
+        Format_Name: SDTS 
+      Digital_Transfer_Option: 
+        Online_Option: 
+          Computer_Contact_Information:
+            Network_Address: 
+              Network_Resource_Name: <http://nationalatlas.gov/atlasftp.html>
+
+    Fees: There is no charge for the map layer.
+
+Metadata_Reference_Information:
+  Metadata_Date: 20050602
+  Metadata_Contact:
+    Contact_Information:
+      Contact_Person_Primary:
+        Contact_Person: Peg Rawson
+        Contact_Organization: National Atlas of the United States
+      Contact_Address:
+        Address_Type: Mailing address
+        Address: 12201 Sunrise Valley Dr
+        Address: MS 561
+        City: Reston
+        State_or_Province: VA
+        Postal_Code: 20192
+      Contact_Voice_Telephone: 703-648-4183
+      Contact_Electronic_Mail_Address: atlasmail@usgs.gov
+  Metadata_Standard_Name:
+    FGDC Content Standards for Digital Geospatial Metadata 
+  Metadata_Standard_Version: FGDC-STD-001-1998
+  Metadata_Security_Information: 
+    Metadata_Security_Classification_System: None
+    Metadata_Security_Classification: Unclassified
+    Metadata_Security_Handling_Description: None

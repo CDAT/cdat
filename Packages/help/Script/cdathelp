@@ -1,0 +1,34 @@
+#!/usr/bin/env python
+
+#####################################################################
+#                                                                   #
+#  File:  cdathelp                                                  #
+#  Date:  31-Oct-2007                                               #
+#  Desc:  The top level CDAT help application script.               #
+#                                                                   #
+#####################################################################
+
+# First initialize Tkinter. The root window will contain
+# the main help application.
+import Tkinter
+import help
+import sys
+import Pmw
+
+root = Tkinter.Tk()
+root.withdraw()
+
+Pmw.initialise (root, useTkOptionDb = 1)
+
+main = help.MainFrame(root)
+main.pack()
+main.update_idletasks()
+
+root.geometry('800x600')
+root.update()
+root.deiconify()
+root.mainloop()
+
+
+
+

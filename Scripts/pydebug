@@ -1,0 +1,14 @@
+#!/bin/csh -f
+unsetenv PYTHONPATH
+unsetenv PYTHONHOME
+set bindir = `dirname $0`
+set pyver=`${bindir}/python -c "import sys;print 'python'+sys.version[0:3],"`
+set libdirdir = `dirname ${bindir}`
+set libdir = ${libdirdir}/lib
+# setenv PYTHONPATH "${libdir}/${pyver}/site-packages/apps:${libdir}/${pyver}/site-packages/vtk"
+# setenv LD_LIBRARY_PATH "${libdir}:${libdir}/${pyver}/site-packages/vtk:/usr/local/lib:/usr/local/X11R6/lib:/usr/lib"
+if "$1" == "" then
+   echo "Usage: pydebug python_file"
+else
+   exec $bindir/python ${libdir}/${pyver}/site-packages/pydebug/pydebug.py $*
+endif

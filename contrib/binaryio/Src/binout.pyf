@@ -1,0 +1,80 @@
+! Functions to read and write Fortran sequential binary files.
+! Sample usage:
+! from Numeric import *
+! from binout import *
+! x = arange(12) * 0.5
+! x.shape = (3, 4)
+! iunit = bincreate('testout.bin')
+! binout2(iunit, x, 3, 4)
+! binclose(iunit)
+! iunit = binopen('testout.bin')
+! print binin2(iunit, 3, 4)
+! binclose(iunit)
+python module binout
+  interface 
+      function bincreate (f)
+      ! create sequential output file f for write, return unit number
+      integer bincreate
+      character*(*) f
+      end
+
+      function binopen (f)
+      ! open sequential output file f for read, return unit number
+      integer binopen
+      character*(*) f
+      end
+
+      subroutine binclose (iunit)
+      ! close iunit opened by bincreate or binopen
+      integer iunit
+      end
+
+      subroutine binout1 (iunit, x, n)
+      ! write x(n) to unit iunit
+      integer iunit, n
+      real x(n)
+      end
+
+      subroutine binout2 (iunit, x, n, m)
+      ! write x(n, m) to unit iunit
+      integer iunit, n, m
+      real x(n,m)
+      end
+
+      subroutine binout3 (iunit, x, n1, n2, n3)
+      ! write x(n1, n2, n3) to unit iunit
+      integer iunit, n1, n2, n3
+      real x(n1,n2,n3)
+      end
+
+      subroutine binout4 (iunit, x, n1, n2, n3, n4)
+      ! write x(n) to unit iunit
+      integer iunit, n1, n2, n3, n4
+      real x(n1,n2,n3,n4)
+      end
+
+      subroutine binin1 (iunit, x, n)
+      ! read x(n) from unit iunit
+      integer iunit, n
+      real,intent(out):: x(n)
+      end
+
+      subroutine binin2 (iunit, x, n, m)
+      ! read x(n, m) from unit iunit
+      integer iunit, n, m
+      real, intent(out):: x(n, m)
+      end
+
+      subroutine binin3 (iunit, x, n1, n2, n3)
+      ! read x(n1, n2, n3) from unit iunit
+      integer iunit, n1, n2, n3
+      real, intent(out):: x(n1,n2,n3)
+      end
+
+      subroutine binin4 (iunit, x, n1, n2, n3, n4)
+      ! read x(n) from unit iunit
+      integer iunit, n1, n2, n3, n4
+      real, intent(out):: x(n1,n2,n3,n4)
+      end
+  end interface
+end python module binout

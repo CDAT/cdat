@@ -1,0 +1,6 @@
+#!/bin/sh
+if (test -f Makefile) then
+    make distclean; /bin/rm -fr Makefile 
+fi
+/bin/rm -fr *.LOG *.log build
+

@@ -1,0 +1,174 @@
+#!/usr/bin/env python
+
+import ldap, sys, getopt, os, string, cdms
+from cdms import cdurlparse
+
+usage = """Usage: cdlist [-a] [-c] [-f filter] 
+       [-h host] [-p port] [-s base|one|sub] [-t object_type] [-v] [-x] [objectDN] [attrs]
+
+List CDMS objects.
+
+objectDN: distinguished name of the object. If objectDN is set to '.' or omitted,
+          the database specified by environment variable CDMSROOT is listed
+
+attrs: a blank-separated list of attributes to display. By
+       default, all attributes are listed.
+
+Options:
+
+-a: retrieve attribute names only, no values
+-c: include CDML description of datasets, if any
+-f: add an additional filter to the search criterion
+    filter is the search criterion. Do not enclose the filter 
+    in parentheses. Type 'man ldapsearch' for sample filters, 'man
+    ldap_search' for a formal definition.
+-h: host (default: host name in CDMSROOT)
+-p: port (default: 389)
+-s: search scope, either the base entry, one level (default), or subtree (recursive)
+-t: limit the search to objects of the given type (e.g. database, dataset)
+-v: verbose
+-x: dump as XML (datasets only). Implies '-s base'
+
+"""
+
+InvalidScope = "Invalid search scope, must be base, one, or sub: "
+HostnameMissing = "A hostname must be supplied, either by -h host or the CDMSROOT environment variable"
+
+def main(argv):
+
+    attrs = None
+    attrsonly = 0
+    basefilter = 'objectclass=*'
+    extrafilter = None
+    host = None
+    includecdml = 0
+    listdsets = 0
+    port = ldap.PORT
+    scope = "one"
+    searchbase = None
+    tag = None
+    verbose = 0
+    xmlout = 0
+
+    try:
+        args, lastargs = getopt.getopt(argv[1:],"acf:h:p:s:t:vx")
+    except getopt.error:
+        print sys.exc_value
+        print usage
+        sys.exit(0)
+
+    for flag,arg in args:
+        if flag=='-a': attrsonly = 1
+        elif flag=='-c': includecdml = 1
+        elif flag=='-f': extrafilter = arg
+        elif flag=='-h': host = arg
+        elif flag=='-p': port = string.atoi(arg)
+        elif flag=='-s': scope = arg
+        elif flag=='-t': basefilter = 'objectclass=%s'%arg
+        elif flag=='-v': verbose = 1
+        elif flag=='-x':
+            xmlout = 1
+            scope = "base"
+
+    if len(lastargs)>0:
+        searchbase = lastargs[0]
+
+    attrs = []
+    if len(lastargs)>1:
+        attrs = lastargs[1:]
+
+    if host==None:
+        cdmsroot = os.environ.get('CDMSROOT')
+        if cdmsroot == None: raise HostnameMissing
+        (scheme,host,path,parameters,query,fragment)=cdurlparse.urlparse(cdmsroot)
+    if searchbase==None or searchbase=='.':
+        searchbase = path[1:]
+
+    if extrafilter==None:
+        filter = basefilter
+    else:
+        filter = '(&(%s)(%s))'%(basefilter, extrafilter)
+
+    if scope=="sub":
+        searchscope = ldap.SCOPE_SUBTREE
+    elif scope=="base":
+        searchscope = ldap.SCOPE_BASE
+    elif scope=="one":
+        searchscope = ldap.SCOPE_ONELEVEL
+    else:
+        raise InvalidScope, scope
+
+    try:
+        l = ldap.open(host, port)
+    except:
+        print 'Error connecting to host: ',sys.exc_value
+        sys.exit(1)
+
+    try:
+        l.simple_bind_s("","")
+    except:
+        print 'Authentication error: ',sys.exc_value
+        sys.exit(1)
+
+    # List to standard output
+    if xmlout==0:
+        try:
+            if verbose==1:
+                print 'Base:',searchbase
+                print 'Scope:',searchscope
+                print 'Filter:',filter
+                print 'Attributes:',attrs
+                if attrsonly: print 'Attributes only'
+            res = l.search_s(searchbase, searchscope, filter, attrs, attrsonly)
+        except:
+            print 'Error on search:',sys.exc_value
+            sys.exit(1)
+
+        res.sort()
+        for dn,attrs in res:
+            attnames = attrs.keys()
+            attnames.sort()
+            print "dn: %s"%dn
+            for attname in attnames:
+                if attrsonly==0:
+                    if attname=="cdml" and includecdml==0: continue
+                    attlist = attrs[attname]
+                    attlist.sort()
+                    for attentry in attlist:
+                        print '%s: %s'%(attname,attentry)
+                else:
+                    print attname
+            print
+    # List to XML
+    else:
+        try:
+            attrs = ['cdml']
+            if verbose==1:
+                print 'Base:',searchbase
+                print 'Scope:',searchscope
+                print 'Filter:',filter
+                print 'Attributes:',attrs
+                if attrsonly: print 'Attributes only'
+            res = l.search_s(searchbase, searchscope, filter, attrs, attrsonly)
+        except:
+            print 'Error on search:',sys.exc_value
+            sys.exit(1)
+
+        if len(res)!=1:
+            print 'Only datasets can be output in XML format'
+            sys.exit(1)
+        dn,attrs = res[0]
+        try:
+            cdml = attrs['cdml'][0]
+        except KeyError:
+            print 'Only datasets can be output in XML format'
+            sys.exit(1)
+            
+        dset = cdms.database.loadString(cdml,'<db>')
+        dset._node_.dump()
+
+    l.unbind()
+
+#------------------------------------------------------------------------------------------------------------------------------
+if __name__ == '__main__':
+    main(sys.argv)

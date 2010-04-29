@@ -1,0 +1,2 @@
+#!/bin/sh
+/usr/bin/env P4PORT=stargate.llnl.gov:1666 P4USER=p4review p4 changes -l | more

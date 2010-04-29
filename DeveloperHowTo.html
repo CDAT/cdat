@@ -1,0 +1,156 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Language" content="en-us">
+<meta name="GENERATOR" content="Microsoft FrontPage 5.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<title>Direct Access to the Source Repository</title>
+</head>
+
+<body>
+
+<h1>CDAT Developer How-To</h1>
+<h2>Table of Contents</h2>
+<p><a href="#Repository">Direct Access to the Repository</a></p>
+<p><a href="#Website">Working on the Web Site</a></p>
+<p><a href="#Making Tarballs">Making Tarballs</a></p>
+<p><a href="#Making Releases">Making Releases</a></p>
+<p><a href="#Perforce Procedures">Perforce Procedures</a></p>
+<h2><a name="Repository"></a>Direct Access to the Source Repository</h2>
+<p>CDAT is an open-source project. So how do you see the source? </p>
+<p>Our normal release cycle releases a set of sources at a stable point. 
+However, you might want to get an update between releases because someone has 
+made an improvement you would like to use. You can now do this yourself. Be 
+aware that while we make every attempt to only commit source that is correct and 
+working, and that we develop in separate &quot;branches&quot; to help ensure this, this 
+direct access is inherently less stable than using our official releases.</p>
+<p>Here is how to do it. In what follows, replace yourname with a name that 
+reflects your name and machine, such as e.g. pcmdi-dubois-ldorritt. The name 
+needs to be different for each different location where you work.</p>
+<menu>
+  <li>a. Go to <a href="http://perforce.com">http://perforce.com</a> and 
+  download the &quot;p4&quot; client for your machine and install it in your path. This 
+  download is free of charge. You'll need to chmod +x p4 after download, of 
+  course. </li>
+  <li>
+  <pre>b. Set environment variable P4CONFIG to &quot;p4env&quot;.</pre>
+  </li>
+  <li>c. Create a directory and change to it. Create a file named p4env that 
+  contains:<br>
+  P4PORT=esg.llnl.gov:1666<br>
+  P4USER=pcmdi<br>
+  P4CLIENT=yourname<br>
+&nbsp;</li>
+  <li>d. Execute: p4 info<br>
+  &nbsp;&nbsp; If it prints out intelligent-looking stuff like what follows, your access 
+  is set up correctly. Note the &quot;Client unknown&quot;. If it does not say this, 
+  you'll need to pick a different user name because the one you chose is in use. 
+  Use a different user name on </li>
+</menu>
+<pre>[dubois@ldorritt ~/foo]$ p4 info
+User name: pcmdi
+Client name: pcmdi-junk
+Client host: ldorritt
+Client unknown.
+Current directory: /pcmdi/dubois/foo
+Client address: 192.12.134.251:33720
+Server address: esg.llnl.gov:1666
+Server root: /p4root
+Server date: 2002/03/25 09:29:23 PST
+Server version: P4D/LINUX52X86/2001.1/26850 (2001/10/15)
+Server license: Lawrence Livermore National Laboratory (LLNL) 10 users (support ends 2003/03/01) </pre>
+<menu>
+  <li>e. Execute: p4 client<br>
+  &nbsp;&nbsp; Your editor will open on a client specification form. The last lines will 
+  be something like:<br>
+  &nbsp;&nbsp; //depot/...&nbsp; //yourname/...</li>
+</menu>
+<blockquote>
+  <p>Edit this to add &quot;main/&quot; right before the two sets of ...'s, so it reads:<br>
+  &nbsp;&nbsp; //depot/main/...&nbsp; //yourname/main/...<br>
+  Save and close your editor. </p>
+</blockquote>
+<menu>
+  <li>
+  <pre>f. Type p4 sync now and any time you wish to update your sources.</pre>
+  </li>
+  <li>g. To get an official release, change &quot;main&quot; to release/3.2 or whatever 
+  the release number is.</li>
+</menu>
+<p>You won't need to download from our website. And you'll find that p4 is VERY 
+fast.</p>
+<p>Perforce permits us to do this under our license; the read-only access for 
+everyone only &quot;uses up&quot; one license. Write access for heavy contributors can be 
+arranged by mutual agreement with PCMDI and payment of the Perforce license and 
+annual support fee for an extra user (the license is about $750). You can always 
+use the SourceForge patch facility to submit bug fixes if you do not have write 
+access.</p>
+<h2><a name="Website"></a>Web Site</h2>
+<p>cdat.sf.net is a redirect page. Currently it redirects to esg.llnl.gov/cdat. 
+The web site is on esg in /var/www/html/cdat. 
+</p>
+<h2><a name="Making Tarballs">Making Tarballs</a></h2>
+<p>To make the tarballs, set up a Perforce client in a new directory, say 
+pcmdi-tarball-dubois, using a map like this:</p>
+<pre>//depot/main/... //pcmdi-tarball-dubois/cdat-X.x/...
+
+Next create this shell script, call it tarballit.sh, and make it executable:</pre>
+<pre>#!/usr/bin/env sh
+p4 sync
+tar czvf $1-everything.tar.gz $1
+tar czvf $1-cdat.tar.gz --exclude $1/pysrc* --exclude $1/exsrc* $1
+tar czvf $1-pysrc.tar.gz $1/pysrc
+tar czvf $1-exsrc.tar.gz $1/exsrc
+</pre>
+<pre>Finally, execute it giving as an argument a release name:</pre>
+<pre>./tarballit cdat-X.x</pre>
+<pre>This will create 3 tarballs.
+cdat-X.x-cdat.tar.gz
+cdat-X.x-everything.tar.gz
+cdat-X.x-exsrc.tar.gz</pre>
+<h2><a name="Making Releases">Making Releases</a></h2>
+<p>Using anonymous FTP, upload your tarballs to: upload.sf.net, directory 
+incoming, using binary transfer.</p>
+<p>Log on to SourceForge using Netscape (or Internet Explorer but not in SSL 
+mode). Go to the CDAT Project Page (sf.net/projects/cdat) and click &quot;Admin&quot;. 
+Click &quot;Edit/Release Files&quot;. Proceed to either create a new release or edit one 
+under project &quot;CDAT&quot;. (The 3.0 release was a mistake that we somehow don't have 
+a way of destroying; note it is &quot;Hidden&quot;.)</p>
+<p>When you get to the page for your release you will find the files you 
+uploaded listed in one of the sections. Select them and click to transfer them 
+to CDAT. Then you will have to select &quot;Platform Independent&quot; and &quot;Source .gz&quot; 
+for each of them in turn and click update. In the upper sections you can paste 
+in notes and the latest version of ReleaseNotes. </p>
+<p>Notify users 3 ways: click &quot;I'm sure&quot; in the bottom of the release page and 
+&quot;Send Email&quot;. Go to the project page again and select News and then Add News. 
+Finally, send mail to <a href="mailto:cdat-discussion@lists.sf.net">
+cdat-discussion@lists.sf.net</a>.</p>
+<h2> <a name="Perforce Procedures"> Perforce Procedures</h2>
+<p> This section is of interest to PCMDI only. </p>
+<p> The server root is on esg.llnl.gov in /p4root. The files at the top level
+are the files needed by Perforce; the directory depot contains the RCS files.
+Some very old files come from a link to an old CVS tree.
+</p>
+<p> The server can be started using the script start_server. It can be stopped
+using the script stop_server. Periodically it can be backed up by stopping the
+server, running the script make_checkpoint, and tarring up the subdirectory 
+depot. Perforce has some documentation. A more heavily used repository could be
+backed up more carefully but since the file system is backed up this seems adequate.
+</p>
+<p>However, you should definitely do this procedure before upgrading the
+daemon p4d. Periodically check Perforce.com for upgrades to servers and clients.
+</p>
+<p>The Perforce repository keeper should use crontab on their account on 
+esg to execute start_server and review_cron.sh every ten minutes or so.
+Do crontab -e and add two lines like:
+<pre>
+2,12,22,32,42,52 * * * * /p4root/start_server
+1,11,21,31,41,51 * * * * /p4root/review_cron.sh
+</pre>
+For this to work you must be sure you can execute those two scripts manually.
+</p>
+<p> Note that none of the scripts take any arguments. </p>
+</body>
+
+</html>

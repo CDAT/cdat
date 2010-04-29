@@ -1,0 +1,55 @@
+Documentation for the install. Please read README.txt first.
+
+In the following step you must execute the Python into which you intend to
+install CDAT. Either use a full path name or make sure that the desired 
+python is the one being chosen by your path. To emphasize this we'll show
+the command as a full pathname below.
+
+Usage: 
+
+[CDAT_INSTALL_DIRECTORY]/bin/python install.py [options] [debug][contrib][controlfile, ...]
+          options:
+              -d or --debug: use debug options where appropriate
+              -h or --help: print this message and stop
+              -f or --force: force recompilation of everything
+	      --prefix=/some/path : Allows to build in some directory other than the python directory
+                                    Usefull if you cannot write to your python directory.
+	      --disable-contrib: turn off build of contributed Packages
+              --enable-opendap or --with-opendap=opendap_dir:
+	         builds CDMS with OpenDAP client support
+		 opendap_dir is the directorie underneath which the OpenDAP
+		 include files and libraries are (in opendap_dir/include and opendap_dir/lib)
+		 e.g: python install.py --with-opendap=dods_dir
+	      --disable-opendap
+	         turns off DODS
+	      --enable-hdf, --with-hdf=hdf_dir:
+	         builds CDMS with HDF support
+		 hdf_dir is the directorie underneath which the HDF
+		 include files and libraries are (in hdf_dir/include and hdf_dir/lib)
+		 e.g: python install.py --with-hdf=hdf_dir
+	      --cdms-only: builds cdms only
+              -e or --echo: echo installation commands
+              -n or --norun: Calculates the configuration if appropriate and
+                             writes installation/cdat_info.py; but it is not
+                             installed and processing in other areas is not
+                             actually done. Often combined with --echo to 
+                             see what would have happened.
+              -c or --configuration=configuration_file: use configuration file
+	         For example:
+
+	      --enable-pp builds in support for
+		 the Met Office PP format. (Default on Linux/Darwin systems)
+	      --disable-pp: 
+	         Turn Off PP support
+
+        Additional arguments are control files containing Python statements. 
+        These statements are executed at the beginning of the install, 
+        after executing installation/control.py. 
+
+If you stop without seeing a Success! message, the build has failed and
+you should examine the log for the piece it was working on when it failed.
+For comparison the subdirectory "logs/samples" contains the log files for 
+a build on Linux.  
+
+Also check Notes in file README.txt.
+This help message is in file HELP.txt.

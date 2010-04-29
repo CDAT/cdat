@@ -1,0 +1,30 @@
+python module trends
+  interface
+! Adjust this to match the Fortran routine exactly.
+! Then with /usr/local/cdat/experimental/bin at the front of path, do:
+! pgf77 -c trend.f
+! ld -r -o libtrends.a trend.o
+!
+! pyfort -i -L. -ltrends trends.pyf
+! This will make a module potter.trends containing reg_ar1, so you might do
+! from potter.trends import reg_ar1  (note the last character is the number 1)
+!
+! Remove directory build and trendsmodule.* if you change trend.f and
+! repeat above.
+      subroutine reg_ar1(nmax, n1, lag, rneff, x, y,  result, res, cxx, rxx)
+!     ** INPUT **
+      integer nmax =size(x)         !Max. length of x and y 
+      integer n1 = size(x)          !Actual length of x and y 
+      integer lag           !Max. lag for autocorrelations
+      real x(n1)            !Independent variable
+      real y(n1)          !Dependent variable
+!
+!     ** OUTPUT **
+      real, intent(out):: rneff          !Effective sample size
+      real, intent(out):: result(31)     !Array of linear regression results
+      real, intent(out):: res(n1)      !Residuals from linear regression
+      real, intent(out):: cxx(1 + lag)   !Autocovariance function        
+      real, intent(out):: rxx(1 + lag)   !Autocorrelation function        
+      end
+  end interface
+end module trends

@@ -1,0 +1,321 @@
+########################################################################
+#
+# Copyright (c) 2008, Lawrence Livermore National Security, LLC.  
+# Produced at the Lawrence Livermore National Laboratory  
+# Written by bremer5@llnl.gov,pascucci@sci.utah.edu.  
+# LLNL-CODE-406031.  
+# All rights reserved.  
+#   
+# This file is part of "Simple and Flexible Scene Graph Version 2.0."
+# Please also read BSD_ADDITIONAL.txt.
+#   
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#   
+# @ Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the disclaimer below.
+# @ Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the disclaimer (as noted below) in
+#   the documentation and/or other materials provided with the
+#   distribution.
+# @ Neither the name of the LLNS/LLNL nor the names of its contributors
+#   may be used to endorse or promote products derived from this software
+#   without specific prior written permission.
+#   
+#  
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL LAWRENCE
+# LIVERMORE NATIONAL SECURITY, LLC, THE U.S. DEPARTMENT OF ENERGY OR
+# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+# EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+# PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+# LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+# NEGLIGENCE OR OTHERWISE) ARISING
+#
+########################################################################
+
+
+#
+# VISUS CMake main
+#
+PROJECT(VISUS)
+
+CMAKE_MINIMUM_REQUIRED(VERSION 2.2)
+
+
+SET(VISUS_INCLUDE ${VISUS_BINARY_DIR}/include)
+SET(VISUS_LIBRARIES ${VISUS_BINARY_DIR}/lib)
+SET(VISUS_EXTLIBS ${VISUS_BINARY_DIR}/ext-libs)
+SET(VISUS_BINARIES ${VISUS_BINARY_DIR}/bin)
+SET(VISUS_PYTHON ${VISUS_BINARY_DIR}/pyvisus)
+SET(VISUS_SRC ${VISUS_SOURCE_DIR}/src)
+
+IF (NOT VISUS_EXT_PREFIX)
+    SET(VISUS_EXT_PREFIX ${VISUS_BINARY_DIR})
+ENDIF (NOT VISUS_EXT_PREFIX)
+
+
+INCLUDE(${VISUS_SOURCE_DIR}/config/VisusConfig.cmake)
+
+#
+# Process the preprocessor flags
+#
+SET (ADDITIONAL_COMPILE_FLAGS "")
+
+IF (NOT VISUS_ENABLE_IDX)
+    SET (ADDITIONAL_COMPILE_FLAGS "${ADDITIONAL_COMPILE_FLAGS} -DVISUS_DISABLE_IDX=1")
+ENDIF (NOT VISUS_ENABLE_IDX)
+
+IF (NOT VISUS_ENABLE_PTHREADS)
+    SET (ADDITIONAL_COMPILE_FLAGS "${ADDITIONAL_COMPILE_FLAGS} -DVISUS_DISABLE_PTHREADS=1")
+ENDIF (NOT VISUS_ENABLE_PTHREADS)
+
+IF (NOT VISUS_ENABLE_FTGL)
+    SET (ADDITIONAL_COMPILE_FLAGS "${ADDITIONAL_COMPILE_FLAGS} -DVISUS_DISABLE_FTGL=1")
+ELSE (NOT VISUS_ENABLE_FTGL)
+    SET (ADDITIONAL_COMPILE_FLAGS "${ADDITIONAL_COMPILE_FLAGS} -DFTGL_LIBRARY_STATIC=1")     
+    SET (ADDITIONAL_COMPILE_FLAGS "${ADDITIONAL_COMPILE_FLAGS} -DVISUS_FONT_FILE=\\\"${VISUS_INCLUDE}/Fonts/Vera.ttf\\\"")
+    SET (ADDITIONAL_COMPILE_FLAGS "${ADDITIONAL_COMPILE_FLAGS} -DVISUS_FONTDIR=\\\"${VISUS_INCLUDE}/Fonts/\\\"")
+    # Add Define Macro So Source Knows Version 
+    IF (EXISTS ${FTGL_INCLUDE_DIR}/FTGL/FTBuffer.h)
+       SET (ADDITIONAL_COMPILE_FLAGS "${ADDITIONAL_COMPILE_FLAGS} -DVISUS_FTGL_HEADER=1")
+    ENDIF (EXISTS ${FTGL_INCLUDE_DIR}/FTGL/FTBuffer.h)
+ENDIF (NOT VISUS_ENABLE_FTGL)
+
+IF (NOT VISUS_ENABLE_FLTK)
+   SET (ADDITIONAL_COMPILE_FLAGS "${ADDITIONAL_COMPILE_FLAGS} -DVISUS_DISABLE_FLTK=1")
+ENDIF (NOT VISUS_ENABLE_FLTK)
+
+IF (NOT VISUS_ENABLE_HARDWARE_COUNTER)
+   SET (ADDITIONAL_COMPILE_FLAGS "${ADDITIONAL_COMPILE_FLAGS} -DVISUS_DISABLE_HARDWARE_COUNTER=1")
+ENDIF (NOT VISUS_ENABLE_HARDWARE_COUNTER)
+
+IF (VISUS_ENABLE_NODE_COUNT)
+   SET (ADDITIONAL_COMPILE_FLAGS "${ADDITIONAL_COMPILE_FLAGS} -DVISUS_NODE_COUNT=1")
+ENDIF (VISUS_ENABLE_NODE_COUNT)
+   
+IF (VISUS_ENABLE_VERBOSE)
+   SET (ADDITIONAL_COMPILE_FLAGS "${ADDITIONAL_COMPILE_FLAGS} -DVISUS_VERBOSE=1 -DVISUS_VERBOSE_LEVEL=${VISUS_VERBOSE_LEVEL}")
+ENDIF (VISUS_ENABLE_VERBOSE)
+
+IF (NOT VISUS_USE_DYNAMIC_CAST)
+   SET (ADDITIONAL_COMPILE_FLAGS "${ADDITIONAL_COMPILE_FLAGS} -DVISUS_NO_DYNAMIC_CAST=1")
+ENDIF (NOT VISUS_USE_DYNAMIC_CAST)
+
+#-----------------------------------------------------
+#  Set Off-Screen Rendering Compile Flags
+#-----------------------------------------------------
+IF (VISUS_OFFSCREEN_RENDERING STREQUAL "GLX")
+   SET (ADDITIONAL_COMPILE_FLAGS "${ADDITIONAL_COMPILE_FLAGS} -DVISUS_RENDER_GLX=1")
+ENDIF (VISUS_OFFSCREEN_RENDERING STREQUAL "GLX")
+
+IF (VISUS_OFFSCREEN_RENDERING STREQUAL "GLX_PBUFFER")
+   SET (ADDITIONAL_COMPILE_FLAGS "${ADDITIONAL_COMPILE_FLAGS} -DVISUS_RENDER_GLX=1 -DVISUS_RENDER_GLX_PBUFFER=1")
+ENDIF (VISUS_OFFSCREEN_RENDERING STREQUAL "GLX_PBUFFER")
+
+IF (VISUS_OFFSCREEN_RENDERING STREQUAL "WGL")
+   SET (ADDITIONAL_COMPILE_FLAGS "${ADDITIONAL_COMPILE_FLAGS} -DVISUS_RENDER_WGL=1")
+ENDIF (VISUS_OFFSCREEN_RENDERING STREQUAL "WGL")
+
+IF (VISUS_OFFSCREEN_RENDERING STREQUAL "OSMESA")
+   SET (ADDITIONAL_COMPILE_FLAGS "${ADDITIONAL_COMPILE_FLAGS} -DVISUS_RENDER_OSMESA=1")
+ENDIF (VISUS_OFFSCREEN_RENDERING STREQUAL "OSMESA")
+
+
+IF(APPLE AND NOT VISUS_USE_APPLE_X)
+   SET(APPLE_NATIVE_GL "YES")
+ENDIF(APPLE AND NOT VISUS_USE_APPLE_X)
+
+IF(CMAKE_COMPILER_IS_GNUCC)
+  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fmessage-length=0")
+ENDIF(CMAKE_COMPILER_IS_GNUCC)
+IF(CMAKE_COMPILER_IS_GNUCXX)
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmessage-length=0")
+ENDIF(CMAKE_COMPILER_IS_GNUCXX)
+
+
+IF (UNIX AND CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DLINUX_64")
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DLINUX_64")
+ENDIF (UNIX AND CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+
+FILE(MAKE_DIRECTORY ${VISUS_INCLUDE})
+FILE(MAKE_DIRECTORY ${VISUS_LIBRARIES})
+FILE(MAKE_DIRECTORY ${VISUS_EXTLIBS})
+FILE(MAKE_DIRECTORY ${VISUS_BINARIES})
+FILE(MAKE_DIRECTORY ${VISUS_PYTHON})
+
+#--------------------------------------------
+#  Default Build To Debug If Not Set By User
+#--------------------------------------------
+#STRING(STRIP "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE)
+IF ( CMAKE_BUILD_TYPE STREQUAL "")
+  SET(CMAKE_BUILD_TYPE "Debug")
+ENDIF (CMAKE_BUILD_TYPE STREQUAL "")
+
+MESSAGE("Configuration = (" ${CMAKE_BUILD_TYPE} ")")
+IF(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  IF (UNIX OR APPLE)
+    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+  ENDIF(UNIX OR APPLE)
+
+  IF (NOT WIN32)
+    SET(CMAKE_VERBOSE_MAKEFILE ON)
+  ENDIF (NOT WIN32)
+ENDIF(CMAKE_BUILD_TYPE STREQUAL "Debug")
+
+IF (CMAKE_VERBOSE_MAKEFILE)
+   MESSAGE("VISUS_INCLUDE = " ${VISUS_INCLUDE})
+   MESSAGE("VISUS_LIBRARIES = " ${VISUS_LIBRARIES})
+   MESSAGE("VISUS_EXTLIBS = " ${VISUS_EXTLIBS})
+   MESSAGE("VISUS_BINARIES = " ${VISUS_BINARIES})
+   MESSAGE("VISUS_PYTHON = " ${VISUS_PYTHON})
+ENDIF (CMAKE_VERBOSE_MAKEFILE)
+
+
+# ************************************************
+# Readin some system specific config files mainly
+# to fix windows builds of project members
+# ************************************************
+
+IF (WIN32)
+   INCLUDE(${VISUS_SOURCE_DIR}/config/windows.cmake)
+ENDIF (WIN32)
+
+#--------------------------------------------------------------
+#  Additional Library Dependencies on Windows
+#--------------------------------------------------------------
+IF (WIN32)
+   SET(VISUS_EXTRA_LINK_FLAGS /NODEFAULTLIB:LIBCMT )
+   SET(VISUS_EXTRA_LIBS 
+       glew32.lib
+       Ws2_32.lib
+   ) 
+   SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DNOMINMAX")
+   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DNOMINMAX")
+   SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} glew32.lib Ws2_32.lib ${VISUS_EXTRA_LINK_FLAGS}")
+   SET(SO_EXT "")
+ELSE (WIN32)
+   #SET(VISUS_EXTRA_LIBS " ")
+   SET(VISUS_EXTRA_LINK_FLAGS " ")
+   SET(SO_EXT ".so")
+ENDIF (WIN32)
+
+# ********************************************
+#  For each library we need we try to find 
+#  it on the system and otherwise build it
+# *******************************************
+
+
+#
+# Find the OpenGL include files and libraries. Note, that the code
+# includes GL/gl.h so we must find not the GL directory but its
+# parent
+#
+
+INCLUDE(${VISUS_SOURCE_DIR}/config/FindGL.cmake)
+IF (NOT OPENGL_FOUND)
+   MESSAGE("Build error: OpenGL libraries not found")
+ENDIF (NOT OPENGL_FOUND)
+
+
+INCLUDE(${VISUS_SOURCE_DIR}/config/FindGlut.cmake)
+IF (NOT GLUT_FOUND)
+   MESSAGE("Build error: GLUT libraries not found")
+ENDIF (NOT GLUT_FOUND)
+
+#
+# Find the FLTK include files and libraries.
+#
+IF (VISUS_ENABLE_FLTK)
+   INCLUDE(${VISUS_SOURCE_DIR}/config/FindFLTK.cmake)
+   IF (NOT FLTK2_FOUND)
+      MESSAGE("Build error: FLTK2 libraries not found")
+   ENDIF (NOT FLTK2_FOUND)
+ENDIF (VISUS_ENABLE_FLTK)
+
+
+# 
+# Try to find zlib.
+#
+INCLUDE(${VISUS_SOURCE_DIR}/config/FindLibZ.cmake)
+IF (NOT ZLIB_FOUND)
+   MESSAGE("Build error: zlib libraries not found")
+ENDIF (NOT ZLIB_FOUND)
+
+#
+# Try to find pthread
+# 
+IF (VISUS_ENABLE_PTHREADS)
+   INCLUDE(${VISUS_SOURCE_DIR}/config/FindPThread.cmake)
+   IF (NOT PTHREAD_FOUND)
+      MESSAGE("Build error: pthread libraries not found")
+   ENDIF (NOT PTHREAD_FOUND)
+ENDIF (VISUS_ENABLE_PTHREADS)
+   
+
+#
+# Try to find freetype2
+#
+
+IF (VISUS_ENABLE_FTGL)
+   INCLUDE(${VISUS_SOURCE_DIR}/config/FindFreetype2.cmake)
+   IF (NOT FREETYPE2_FOUND)
+      MESSAGE("Build error: Freetype2 libraries not found")
+   ENDIF (NOT FREETYPE2_FOUND)
+ENDIF (VISUS_ENABLE_FTGL)
+
+#
+# Try to find FTGL
+#
+IF (VISUS_ENABLE_FTGL)
+   INCLUDE(${VISUS_SOURCE_DIR}/config/FindFTGL.cmake)
+   IF (NOT FTGL_FOUND)
+      MESSAGE("Build error: FTGL libraries not found")
+   ENDIF (NOT FTGL_FOUND)
+ENDIF (VISUS_ENABLE_FTGL)
+
+#
+#  Try To Find OSMesa
+#
+IF (VISUS_OFFSCREEN_RENDERING STREQUAL "OSMESA")
+   INCLUDE(${VISUS_SOURCE_DIR}/config/FindOSMesa.cmake)
+ENDIF (VISUS_OFFSCREEN_RENDERING STREQUAL "OSMESA")
+
+
+#
+# Check whether fox is installed
+#
+IF (VISUS_ENABLE_LEGACY)
+   INCLUDE(${VISUS_SOURCE_DIR}/config/FindFox.cmake)
+   IF (NOT FOX_FOUND)
+      MESSAGE("Build error: Fox libraries not found")
+   ENDIF (NOT FOX_FOUND)
+ENDIF (VISUS_ENABLE_LEGACY)
+
+
+# 
+# Try to find xml2. 
+#
+
+IF (VISUS_ENABLE_LEGACY)
+   INCLUDE(${VISUS_SOURCE_DIR}/config/FindXML2.cmake)
+   IF (NOT LIBXML2_FOUND)
+      MESSAGE("Build error: Xml2 libraries not found")
+   ENDIF (NOT LIBXML2_FOUND)
+ENDIF (VISUS_ENABLE_LEGACY)
+
+
+INCLUDE(${VISUS_SOURCE_DIR}/config/VisusVariables.cmake)
+
+
+SUBDIRS(src)
+
+        
+INCLUDE (${VISUS_SOURCE_DIR}/config/VisusCPackConfig.cmake)
+include(CPack)

@@ -1,0 +1,214 @@
+#!/usr/bin/env python
+
+import ldap, sys, getopt, os, string, tempfile, cdms
+from cdms import cdurlparse
+
+usage = """Usage: cdAddDataset [-c category] [-D binddn] [-h host] [-j project] [-p port] [-r] [-t datapath] [-v] [-w password] [-x dataset.xml] databaseDN ["attr:value" "attr:value" ...]
+
+Add or replace a dataset in a CDMS database. If no XML file is specified [-x], standard input is read.
+
+Arguments:
+
+    'databaseDN' is the distinguished name of the database.
+
+    'attr:value ...' is an optional list of extra attribute-value pairs.
+
+Options:
+
+    -c: add a category (observed, experimental, etc.) to all objects
+    -D: 'binddn', the distinguished name of a user with privilege to modify the database. See -w.
+        The default value is environment variable CDMSUSER, if specified, otherwise the bind is anonymous.
+    -h: host (default: host name in CDMSROOT)
+    -j: add a project attribute to all objects
+    -p: server port (default: 389)
+    -r: replace an existing dataset
+    -t: path of dataset directory relative to the database URL. For example, if the database URL is
+        ftp://host/a/b, and the dataset files are at ftp://host/a/b/c/d, specify '-t c/d'.
+    -v: verbose
+    -w: password (see -D)
+    -x: dataset XML file. If not specified, standard input is read for the dataset description.
+
+Example:
+
+    cdAddDataset -x /data/ngi/uvcloud_csm/sample.xml -t uvcloud_csm 'database=testdb,ou=PCMDI,o=LLNL,c=US'
+
+"""
+
+InvalidAttribute = "Attribute must have the form type:value"
+
+def main(argv):
+
+    binddn = os.environ.get('CDMSUSER',"")
+    password = None
+
+    cdmsroot = os.environ.get('CDMSROOT')
+    if cdmsroot is None:
+        host = None
+        port = ldap.PORT
+    else:
+        (scheme,fullhost,path,parameters,query,fragment)=cdurlparse.urlparse(cdmsroot)
+        hostport = string.split(fullhost,':')
+        if len(hostport)==1:
+            host = hostport[0]
+            port = ldap.PORT
+        else:
+            host, strport = hostport
+            port = string.atoi(strport)
+
+    try:
+        args, lastargs = getopt.getopt(argv[1:],"c:D:h:j:p:rt:vw:x:")
+    except getopt.error:
+        print sys.exc_value
+        print usage
+        sys.exit(0)
+
+    category = None
+    datapath = None
+    project = None
+    replace = 0
+    verbose = 0
+    xmlfile = None
+    for flag,arg in args:
+        if flag=='-c': category = arg
+        elif flag=='-D': binddn = arg
+        elif flag=='-h': host = arg
+        elif flag=='-j': project = arg
+        elif flag=='-p': port = arg
+        elif flag=='-r': replace = 1
+        elif flag=='-t': datapath = arg
+        elif flag=='-v': verbose = 1
+        elif flag=='-w': password = arg
+        elif flag=='-x': xmlfile = arg
+
+    if len(lastargs)<1:
+        print 'databaseDN argument is missing'
+        print usage
+        sys.exit(0)
+
+    databaseid = lastargs[0]
+    if len(lastargs)>1:
+        extraattrs = lastargs[1:]
+    else:
+        extraattrs = []
+
+    # Open the dataset, either from the XML file or standard input
+    if xmlfile is not None:
+        f = open(xmlfile)
+        text = f.read()
+        f.close()
+        dset = cdms.database.loadString(text,xmlfile)
+    else:
+        text = sys.stdin.read()
+        dset = cdms.database.loadString(text,'<stdin>')
+    node = dset._node_
+    validAttrs = ['category','datapath'] # Treat as valid even though not in CDML DTD
+    if node.dtd:
+        validAttrs = validAttrs+node.dtd.keys()
+        
+    # Set new attributes of the dataset
+    if category:
+        dset.category = category
+        node.setExternalAttr('category',category)
+    if project:
+        dset.project = project
+        node.setExternalAttr('project',project)
+    if datapath:
+        dset.attributes['datapath'] = datapath # datapath is an internal attribute of datasets
+        node.setExternalAttr('datapath',datapath)
+    for extraattr in extraattrs:
+        try:
+            cindex = string.index(extraattr,':')
+        except:
+            raise InvalidAttribute,extraattr
+        attname = extraattr[:cindex]
+        attval = extraattr[cindex+1:]
+        dset.attributes[attname] = attval
+        node.setExternalAttr(attname,attval)
+
+    # Translate the attributes to a modlist
+    modlist = []
+    extras = []
+    skipAttrs = ['cdms_filemap']        # Skip these
+    for attname in dset.attributes.keys():
+        if attname in skipAttrs: continue
+        attval = string.strip(str(dset.attributes[attname]))
+        if (validAttrs and (attname in validAttrs)) or (not validAttrs):
+            if replace==1:
+                modlist.append((ldap.MOD_REPLACE,attname,[attval]))
+            else:
+                if attval=='': attval=' ' # Null string messes up LDAP
+                modlist.append((attname,[attval]))
+        elif validAttrs and (attname not in validAttrs):
+            extras.append('%s=%s'%(attname,attval))
+
+    if extras!=[]:
+        if replace==1:
+            modlist.append((ldap.MOD_REPLACE,'attr',extras))
+        else:
+            modlist.append(('attr',extras))
+
+    if replace==0:
+        modlist.append(('objectclass', ['top', node.tag]))
+        modlist.append(('dataset', [dset.id]))
+    datasetid = 'dataset=%s,%s'%(dset.id,databaseid)
+
+    # Dump the CDML
+    fd = tempfile.TemporaryFile()
+    fd.write('<?xml version="1.0"?>')
+    fd.write('<!DOCTYPE dataset SYSTEM "http://www-pcmdi.llnl.gov/software/cdms/cdml.dtd">')
+    node.write(fd,0,0)
+    fd.seek(0)
+    cdml = fd.read()
+    fd.close()
+
+    if verbose:
+        print 'Bind DN: ', binddn
+        print 'Host: %s:%s'%(host,port)
+        print 'Database ID: ',databaseid
+
+    if verbose: print 'Connecting to',host,'...',
+    try:
+        ldapobj = ldap.open(host, port)
+    except:
+        print 'Error connecting to host: ',sys.exc_value
+        sys.exit(1)
+    if verbose: print 'Connected'
+
+    if verbose: print 'Binding user',binddn
+    if password is None:
+        import getpass
+        try:
+            password = getpass.getpass()
+        except:
+            print 'Use -w option for password'
+            ldapobj.unbind()
+            raise
+
+    try:
+        ldapobj.simple_bind_s(binddn, password)
+    except:
+        print 'Authentication error: ',sys.exc_value
+        sys.exit(1)
+
+    if verbose:
+        print 'Adding:', datasetid
+        print 'Modifications: ',modlist
+
+    if replace==1:
+        modlist.append((ldap.MOD_REPLACE,'cdml',cdml))
+    else:
+        modlist.append(('cdml',cdml))
+    try:
+        if replace==1:
+            ldapobj.modify_s(datasetid, modlist)
+        else:
+            ldapobj.add_s(datasetid, modlist)
+    except:
+        print 'Error adding dataset entry:', sys.exc_value
+        sys.exit(1)
+
+    ldapobj.unbind()
+
+#------------------------------------------------------------------------------------------------------------------------------
+if __name__ == '__main__':
+    main(sys.argv)

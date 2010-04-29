@@ -1,0 +1,73 @@
+These user-contributed packages are not installed by default when building from source.
+To install them, execute:
+./install_script /yourpython all or package1 package2 ...
+
+NOTE: Some machines, notably Solaris, will not compile natgrid.
+      Therefore, it is not compiled by default. 
+
+How to add a contribution.
+
+
+To start:
+   1. Make a directory, say 'mystuff'
+   2. Add the name of the directory to ./install_script and ./clean_script
+      (Three places in install_script)
+   3. In the directory mystuff put any Python scripts in a Lib subdirectory.
+   Put any C, Fortran sources and Pyfort input files in a Src
+   subdirectory. Header files go in an Include subdirectory.
+
+Then:
+A. Fortran extensions
+   Copy the Makefile from one of the other packages into yours. 
+   (eof/Makefile, for example).
+   Modify the Makefile as appropriate to build your Fortran library.
+   Here is a sample where I want the package called 'eof' and it uses 
+   both Python from a Lib subdirectory and a Fortran library 'rs'.
+
+PYFORT=$(PREFIX)/bin/pyfort
+FORT=`$(PYFORT) -X`
+install: librs.a
+	$(PYFORT) -i -L. -lrs -p eof -d Lib Src/rs.pyf
+
+test: librs.a
+	$(PYFORT) -b -L. -lrs -p eof -d Lib Src/rs.pyf
+
+clean:
+	/bin/rm -rf build librs.a rs.o rs.txt
+
+librs.a: Src/rs.f
+	$(FORT) -c Src/rs.f 
+	ld -r -o librs.a rs.o
+
+B. Pure Python or Python/C
+
+   Make a file like the one that follows and call it setup.py
+   (Start with a copy of asciidata/setup.py if you have a pure Python
+    extension.)
+   Change xxx to the name of your package.
+   Modify the Include line or delete it if no C.
+   Modify the ext_modules lines or delete them if no C.
+      -- replace yyy by the name of your C module.
+   The library names should be as you would say them for a C compiler, e.g.,
+   'm' for libm.a. All names should be quoted strings.
+
+from distutils.core import setup, Extension
+import os, sys, time
+
+setup (name = "xxx",
+       version='1.0',
+       packages = ['xxx'],
+       package_dir = {'xxx': 'Lib'},
+       include_dirs = ['Include'],
+       ext_modules = [Extension('xxx.yyy',
+				['Src/myc.c'],
+				library_dirs = [list of library directories],
+				libraries = [list of library names],
+				),
+		     ]
+      )
+
+Finally, test it. In your directory
+python setup.py install
+
+This procedure will overwrite a package named xxx in that Python's site packages.

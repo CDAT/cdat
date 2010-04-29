@@ -1,0 +1,5 @@
+pyf('Src/eqmsu.pyf',
+    python_directory='Lib',
+    libraries='pyfort_eqmsu',
+    library_directories='Src')
+

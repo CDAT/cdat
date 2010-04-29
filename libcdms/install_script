@@ -1,0 +1,6 @@
+#!/bin/sh
+echo 'A message about /dev/null not being a regular file can be ignored here.'
+echo 'Detailed log in libcdms/libcdms.LOG'
+echo "CFLAGS:"$CFLAGS
+(./cdms.sh $* > libcdms.LOG) || exit 1
+

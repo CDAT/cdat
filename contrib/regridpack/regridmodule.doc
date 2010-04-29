@@ -1,0 +1,329 @@
+     ******************************************************************************************
+
+     ****************** Overview of the CDAT interface to the NCAR REGRIDPACK *****************
+
+     ******************************************************************************************
+
+
+  
+  INTRODUCTION
+  
+    This module provides access through Python to the collection of Fortran programs in
+    REGRIDPACK, which is a collection of programs produced at the National Center for 
+    Atmospheric Research by John C. Adams for linear or cubic interpolation in one, two,
+    three or four dimensions. 
+  
+  RESTRICTIONS
+  
+    This module provides regridding by interpolation only. In other words, the output coordinate
+    vector can not extend beyond the limits of the input coordinate vector.
+ 
+    Each coordinate vector must be monotonically increasing or decreasing.
+ 
+    Missing data is not allowed in the input data.  
+  
+  
+  CAPABLITIES 
+  
+    This module allows linear or cubic interpolation in one, two, three or four dimensions. The
+    computation can use the grid vectors assocated with the input and the output data or just
+    thier sizes if the input and output vectors are uniformly spaced. However, the selection of
+    of the uniform option must apply to all the dimensions in the requested interpolation. In
+    addition, the computation in the nonuniform case can use the log of the grid vectors choosen
+    dimension by dimension. It is possible to regrid a subset of the dimensions in the input data.
+    A utility function is provide to generate a gaussian or a uniform grids to use as a output
+    coordinate vector.
+ 
+  
+  ORGANIZATION 
+ 
+    This module is object oriented for simplicity. It is organized as a single class called Regrid,
+    which begins with a capital letter. Python is case sensitive. It contains the single function,
+    rgrd, which performs the computation in one, two, three or four dimensions.
+ 
+    Access to the function rgrd is provided through a simple two step process. The first step is making
+    an instance of the class passing the coordinate vectors and associated information.  The second step
+    is calling the regridding function with the data in the argument list and an optional missing data value
+    to request a check for the presence of a missing data.
+  
+  HELP 
+ 
+    To obtain a prescription for making an instance,  type
+
+                adamsregrid.help('Regrid')
+ 
+    To acquire instructions on the use of the rgrd function, type
+ 
+                adamsregrid.help('rgrd')
+ 
+    To look at a general one dimensional example, type
+ 
+                adamsregrid.help('OneDexample')
+ 
+    To look at a general four dimensional example, type
+ 
+                adamsregrid.help('FourDexample')
+ 
+   DOCUMENTATION
+  
+        Documentation written to the file regridmodule.doc can be produced after importing the adamsregrid module
+        by typing 
+  
+               adamsregrid.document() 
+  
+        As an alternate to using the help package, online documentation is available from three individual doctrings
+        by using
+  
+               print adamsregrid.Regrid.__doc__           -- documentation for the module. 
+               print adamsregrid.Regrid.__init__.__doc__  -- documentation for making an instance. 
+               print adamsregrid.Regrid.rgrd.__doc__      -- documentation for the rgrd method. 
+         
+   TESTING 
+ 
+        After importing adamstest, typing 
+         
+            cdat adamstest.py
+         
+        generates some testing of the adamsregridmodule using analytical functions as fields. It also
+        writes a hard copy of the documentation to the file regridmodule.doc and a copy of the information
+        displayed on the screen to screen.asc. 
+         
+
+     ************** Regrid class intructions for making an instance *********************
+
+    --------------------------------------------------------------------------------------------------------
+      
+         PREPARATION 
+      
+                The user selects the dimensions to regrid by interpolation. The remaining dimensions,
+                if any, are unaffected. In addition, each selected dimension may have a linear or
+                cubic treatment independently of the others. 
+      
+                For each dimension, the user must assemble four pieces of information (the
+                coordinateVectorIn, the coordinateVectorOut, the interpolationChoice and the
+                dataDimensionPosition) which have the following meanings: 
+     
+                    coordinateVectorIn -  the coordinate vector associated with the input data requiring
+                                          interpolation or the number of points for uniform case.
+     
+                    coordinateVectorOut -  the coordinate vector associated with the output data after
+                                           interpolation or the number of points for uniform case.
+     
+                    interpolationChoice -  the interpolation scheme as linear ('linear'), linear in the log
+                                           ('linearLog') , cubic ('cubic') or cubic in the log ('cubicLog')
+                                           interpolation.
+     
+                    dataDimensionPosition - an integer in the range 0 to 3 identifying the location of the 
+                                            dimension in the input data array in Python's order.
+     
+                However, if any dimension is treated as uniform by passing the size rather than the dimension
+                vector, all dimensions interpolated must be uniform. 
+     
+                     
+         USAGE -- MAKING AN INSTANCE:                      
+                     
+                    1D interpolation
+           
+                             r=adamsregrid.Regrid(xcoordinateVectorIn, xcoordinateVectorOut,
+                                             xinterpolationChoice, xdataDimensionPosition)
+                    2D interpolation
+     
+                             r=adamsregrid.Regrid(xcoordinateVectorIn, xcoordinateVectorOut,
+                                             xinterpolationChoice, xdataDimensionPosition,
+     
+                                             ycoordinateVectorIn, ycoordinateVectorOut,
+                                             yinterpolationChoice, ydataDimensionPosition)
+     
+                    3D interpolation
+     
+                             r=adamsregrid.Regrid(xcoordinateVectorIn, xcoordinateVectorOut,
+                                             xinterpolationChoice, xdataDimensionPosition,
+     
+                                             ycoordinateVectorIn, ycoordinateVectorOut,
+                                             yinterpolationChoice, ydataDimensionPosition,
+     
+                                             zcoordinateVectorIn, zcoordinateVectorOut,
+                                             zinterpolationChoice, zdataDimensionPosition)
+     
+     
+                    4D interpolation
+     
+                             r=adamsregrid.Regrid(xcoordinateVectorIn, xcoordinateVectorOut,
+                                             xinterpolationChoice, xdataDimensionPosition,
+     
+                                             ycoordinateVectorIn, ycoordinateVectorOut,
+                                             yinterpolationChoice, ydataDimensionPosition,
+     
+                                             zcoordinateVectorIn, zcoordinateVectorOut,
+                                             zinterpolationChoice, zdataDimensionPosition,
+     
+                                             tcoordinateVectorIn, tcoordinateVectorOut,
+                                             tinterpolationChoice, tdataDimensionPosition)
+     
+                    where the prefixes x, y, z and t distinguish the four dimensions. The association of x,
+                    y, z and t with physical dimensions is at the discretion of the user.
+                     
+         EFFICIENCY NOTE:                     
+                     
+                The choice for the order used in selecting the interpolations determines the need for
+                transposing the data. The data is transposed so that x is on the right with y, z antd t
+                following. This order is the one that is given by python's shape function. The need for
+                a transpose can be avoided by using the order already in the data set.
+     
+         DEFINITION: __init__(self, x = None, xp = None, xtype = None, xdim = None,
+                                        y = None, yp = None, ytype = None, ydim = None, 
+                                        z = None, zp = None, ztype = None, zdim = None,
+                                        t = None, tp = None, ttype = None, tdim = None): 
+         
+                where as notation the required input is
+         
+                        x = input grid description - the x vector or number of x points for uniform case
+                        xp = output grid description - the x vector or number of x points for uniform case
+                        xtype = regrid using linear, linear_log, cubic, or cubic_log interpolation
+                        xdim = location of x dimension in the data
+         
+                and as optional input the same information as required for x but for y, z and t depending
+                on the number of dimensions requiring interpolation.
+    --------------------------------------------------------------------------------------------------------
+
+     ********************* Regrid method function documentation *************************
+
+    --------------------------------------------------------------------------------------------------------
+
+         ROUTINE:   rgrd 
+    
+         PURPOSE:   rgrd method regrids by linear or cubic interpolation in 1, 2, 3 or 4 dimensions 
+    
+         USAGE:     
+                   q = r.rgrd( p, missingValue)  where 
+    
+                   r -- an instance of Regrid 
+                   p -- the  given data 
+                   q --  the data interpolated to another grid 
+                   missingValue -- the optional value to use in checking for the presence of missing data, an error
+    
+         DEFINITION: rgrd(self, p, missingValue = None):
+    
+    --------------------------------------------------------------------------------------------------------
+
+     ********************* One Dimensional Example *************************
+
+     ------------------------------------------------------------------------------------------------------
+     
+      EXAMPLE OF ONE DIMENSIONAL INTERPOLATION  
+         
+        Step A.  At the python prompt type
+         
+                   import adamsregrid
+         
+        Step B. Choose the dimension requiring interpolation.
+     
+                Get a copy of the input coordinate vector or its size to select the uniform option.
+     
+                Get a copy of the output coordinate vector or its size to select the uniform option.
+     
+                Select the interpolation scheme as a string from the choices: 'linear', 'linearLog', 'cubic', or
+                'cubicLog'.
+     
+                Associate a number with the position of the dimension in the input data. As a concrete example, if
+                the shape of the data is (12,2,46,72), then  0 regrids the dimension having size 12 or alernately 
+                3 regrids the dimension having the size 72. Clearly, this value  and the identification of the
+                 input grid vectors must be consistent.
+     
+        Step C. As the first step in the two step process, use the information assembled in Step C to make the
+                instance, r, by typing
+     
+                   r = adamsregrid.Regrid( coordinateVectorIn, coordinateVectorOut,
+                                      interpolationChoice, dataDimensionPosition )
+     
+                where
+     
+                coordinateVectorIn - the coordinate vector associated with the input data requiring interpolation
+                                     or number of points for uniform case.
+     
+                coordinateVectorOut - the coordinate vector associated with the output data after interpolation or
+                                      number of points for uniform case.
+     
+                interpolationChoice -  the interpolation scheme as linear ('linear'), linear in the log
+                                       ('linearLog') , cubic ('cubic') or cubic in the log ('cubicLog')
+                                       interpolation.
+     
+                dataDimensionPosition - an integer in the range 0 to 3 identifying the location of the 
+                                        dimension in the input data array in Python's order.
+         
+        Step D. As the second step in the two step process, perform the computation by typing 
+     
+                outputData = r.rgrd( inputData) 
+     
+                This process can continue with another data as
+     
+                anotherOutputData = r.rgrd( anotherInputData) 
+     
+     -----------------------------------------------------------------------------------------------------------
+
+     ********************* Four Dimensional Example *************************
+
+     ------------------------------------------------------------------------------------------------------
+     
+         
+      EXAMPLE OF FOUR DIMENSIONAL INTERPOLATION  
+         
+        Step A.  At the python prompt type
+         
+                     import adamsregrid
+         
+        Step B. Get a copy of the input coordinate vectors or thier sizes if the uniform option is requested.
+     
+                Get a copy of the output coordinate vectors or thier sizes if the uniform option is requested.
+     
+                For each of the dimensions, select the interpolation scheme as a string from the choices: 'linear',
+                'linearLog', 'cubic', or 'cubicLog'.
+     
+                Associate a number with the position of each of the dimension in the input data. As a concrete 
+                example, if the shape of the data is (12,2,46,72), then 1 for the first dimension, 3 for the first
+                dimension, 2 for the third dimension and 0 for the fourth dimension regrids the dimension having
+                sizes 2, 72, 46 and 12 using the corresponding other information. Clearly, this value and the 
+                identification of the input grid vectors must be consistent.
+         
+     
+        Step C. As the first step in the two step process, make the  instance, r, by typing
+     
+                r=adamsregrid.Regrid( xcoordinateVectorIn, xcoordinateVectorOut,
+                                 xinterpolationChoice, xdataDimensionPosition,
+     
+                                 ycoordinateVectorIn, ycoordinateVectorOut,
+                                 yinterpolationChoice, ydataDimensionPosition,
+     
+                                 zcoordinateVectorIn, zcoordinateVectorOut,
+                                 zinterpolationChoice, zdataDimensionPosition,
+     
+                                 tcoordinateVectorIn, tcoordinateVectorOut,
+                                 tinterpolationChoice, tdataDimensionPosition )
+     
+                where the prefixes x, y, z and t distinguish the four choices. The association of x, y, z and with
+                phsical dimensions is at the discretion of the user. For each dimension, neglecting the prefixes x,
+                y, z and t, the meaning is as follows:
+     
+                coordinateVectorIn - the coordinate vector associated with the input data requiring interpolation
+                                     or number of points for uniform case.
+     
+                coordinateVectorOut - the coordinate vector associated with the output data after interpolation or
+                                      number of points for uniform case.
+     
+                interpolationChoice -  the interpolation scheme as linear ('linear'), linear in the log
+                                       ('linearLog') , cubic ('cubic') or cubic in the log ('cubicLog')
+                                       interpolation.
+     
+                dataDimensionPosition - an integer in the range 0 to 3 identifying the location of the 
+                                        dimension in the input data array in Python's order.
+     
+         
+        Step D. As the second step in the two step process, perform the computation by typing 
+     
+                outputData = r.rgrd( inputData) 
+     
+                This process can continue with another data as
+     
+                anotherOutputData = r.rgrd( anotherInputData) 
+     
+     -------------------------------------------------------------------------------------------------

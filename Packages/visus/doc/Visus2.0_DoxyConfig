@@ -1,0 +1,448 @@
+# Doxyfile 1.5.4
+
+#---------------------------------------------------------------------------
+# Project related configuration options
+#---------------------------------------------------------------------------
+DOXYFILE_ENCODING      = UTF-8
+PROJECT_NAME           = visus2.0
+PROJECT_NUMBER         = 
+OUTPUT_DIRECTORY       = 
+CREATE_SUBDIRS         = NO
+OUTPUT_LANGUAGE        = English
+BRIEF_MEMBER_DESC      = YES
+REPEAT_BRIEF           = YES
+ABBREVIATE_BRIEF       = "The $name class   " \
+                         "The $name widget   " \
+                         "The $name file   " \
+                         is \
+                         provides \
+                         specifies \
+                         contains \
+                         represents \
+                         a \
+                         an \
+                         the
+ALWAYS_DETAILED_SEC    = NO
+INLINE_INHERITED_MEMB  = NO
+FULL_PATH_NAMES        = YES
+STRIP_FROM_PATH        = /Applications/
+STRIP_FROM_INC_PATH    = 
+SHORT_NAMES            = NO
+JAVADOC_AUTOBRIEF      = NO
+QT_AUTOBRIEF           = NO
+MULTILINE_CPP_IS_BRIEF = NO
+DETAILS_AT_TOP         = NO
+INHERIT_DOCS           = YES
+SEPARATE_MEMBER_PAGES  = NO
+TAB_SIZE               = 8
+ALIASES                = 
+OPTIMIZE_OUTPUT_FOR_C  = NO
+OPTIMIZE_OUTPUT_JAVA   = NO
+BUILTIN_STL_SUPPORT    = NO
+CPP_CLI_SUPPORT        = NO
+SIP_SUPPORT            = NO
+DISTRIBUTE_GROUP_DOC   = NO
+SUBGROUPING            = YES
+TYPEDEF_HIDES_STRUCT   = NO
+#---------------------------------------------------------------------------
+# Build related configuration options
+#---------------------------------------------------------------------------
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = YES
+EXTRACT_STATIC         = YES
+EXTRACT_LOCAL_CLASSES  = YES
+EXTRACT_LOCAL_METHODS  = NO
+EXTRACT_ANON_NSPACES   = NO
+HIDE_UNDOC_MEMBERS     = NO
+HIDE_UNDOC_CLASSES     = NO
+HIDE_FRIEND_COMPOUNDS  = NO
+HIDE_IN_BODY_DOCS      = NO
+INTERNAL_DOCS          = NO
+CASE_SENSE_NAMES       = NO
+HIDE_SCOPE_NAMES       = NO
+SHOW_INCLUDE_FILES     = YES
+INLINE_INFO            = YES
+SORT_MEMBER_DOCS       = YES
+SORT_BRIEF_DOCS        = NO
+SORT_BY_SCOPE_NAME     = NO
+GENERATE_TODOLIST      = YES
+GENERATE_TESTLIST      = YES
+GENERATE_BUGLIST       = YES
+GENERATE_DEPRECATEDLIST= YES
+ENABLED_SECTIONS       = 
+MAX_INITIALIZER_LINES  = 30
+SHOW_USED_FILES        = YES
+SHOW_DIRECTORIES       = NO
+FILE_VERSION_FILTER    = 
+#---------------------------------------------------------------------------
+# configuration options related to warning and progress messages
+#---------------------------------------------------------------------------
+QUIET                  = NO
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = YES
+WARN_IF_DOC_ERROR      = YES
+WARN_NO_PARAMDOC       = NO
+WARN_FORMAT            = "$file:$line: $text   "
+WARN_LOGFILE           = 
+#---------------------------------------------------------------------------
+# configuration options related to the input files
+#---------------------------------------------------------------------------
+INPUT                  = Visus2.0Documentation.dox \
+                         ../src/visusscene/visus_test_isosurface.cpp \
+                         ../src/visusscene/PvTimeState.h \
+                         ../src/visusscene/PvTimeState.cpp \
+                         ../src/visusscene/PvDataType.h \
+                         ../src/visusscene/VisusEarthRadius.h \
+                         ../src/visusscene/VisusEarthNode.h \
+                         ../src/visusscene/VisusEarthNode.cpp \
+                         ../src/visusscene/VisusDefinitions.h \
+                         ../src/visusscene/VisusDefaultColorMaps.h \
+                         ../src/visusscene/VisusDefaultColorMaps.cpp \
+                         ../src/visusscene/VisusDataSourceFactory.h \
+                         ../src/visusscene/VisusDataSourceFactory.cpp \
+                         ../src/visusscene/VisusDataSource.h \
+                         ../src/visusscene/VisusDataSource.cpp \
+                         ../src/visusscene/VisusDataRequest.h \
+                         ../src/visusscene/VisusDataRequest.cpp \
+                         ../src/visusscene/VisusDataProbe.h \
+                         ../src/visusscene/VisusDataProbe.cpp \
+                         ../src/visusscene/VisusDataPipe.h \
+                         ../src/visusscene/VisusDataPipe.cpp \
+                         ../src/visusscene/VisusDataDescription.h \
+                         ../src/visusscene/VisusData.h \
+                         ../src/visusscene/VisusData.cpp \
+                         ../src/visusscene/VisusConsumer.h \
+                         ../src/visusscene/VisusConsumer.cpp \
+                         ../src/visusscene/VisusColorMap.h \
+                         ../src/visusscene/VisusColorMap.cpp \
+                         ../src/visusscene/VisusColorBar.h \
+                         ../src/visusscene/VisusColorBar.cpp \
+                         ../src/visusscene/VisusColor.h \
+                         ../src/visusscene/VisusColor.cpp \
+                         ../src/visusscene/VisusCamera.h \
+                         ../src/visusscene/VisusCamera.cpp \
+                         ../src/visusscene/VisusBoundingBox.h \
+                         ../src/visusscene/VisusBoundingBox.cpp \
+                         ../src/visusscene/VisusBorderBox2D.h \
+                         ../src/visusscene/VisusBorderBox2D.cpp \
+                         ../src/visusscene/VisusBorderAxis.h \
+                         ../src/visusscene/VisusBorderAxis.cpp \
+                         ../src/visusscene/VisusBlockSampleExtractor.h \
+                         ../src/visusscene/VisusBlockSampleExtractor.cpp \
+                         ../src/visusscene/VisusBlockData.h \
+                         ../src/visusscene/VisusBlockData.cpp \
+                         ../src/visusscene/VisusAxisAlignedExtractor.h \
+                         ../src/visusscene/VisusAxisAlignedExtractor.cpp \
+                         ../src/visusscene/VisusAtomicCounter.h \
+                         ../src/visusscene/VisusAtomicCounter.cpp \
+                         ../src/visusscene/VisusAssert.h \
+                         ../src/visusscene/VisusAssert.cpp \
+                         ../src/visusscene/VisusActiveLabel.h \
+                         ../src/visusscene/visus_test_tick_marks.cpp \
+                         ../src/visusscene/visus_test_texture_viewer.cpp \
+                         ../src/visusscene/visus_test_indexed_display.cpp \
+                         ../src/visusscene/visus_test_fltk.cpp \
+                         ../src/visusscene/visus_test_line_graph.cpp \
+                         ../src/visusscene/visus_test_ssa.cpp \
+                         ../src/visusscene/visus_test_sphere_slice.cpp \
+                         ../src/visusscene/visus_test_sphere.cpp \
+                         ../src/visusscene/visus_test_slice_viewer.cpp \
+                         ../src/visusscene/visus_test_renderer.cpp \
+                         ../src/visusscene/visus_test_color_bar.cpp \
+                         ../src/visusscene/visus_test_camera.cpp \
+                         ../src/visusscene/VisusMutex.cpp \
+                         ../src/visusscene/VisusMetricData.h \
+                         ../src/visusscene/VisusMetricData.cpp \
+                         ../src/visusscene/VisusMeshDisplay.h \
+                         ../src/visusscene/VisusMeshDisplay.cpp \
+                         ../src/visusscene/VisusMeshData.h \
+                         ../src/visusscene/VisusMeshData.cpp \
+                         ../src/visusscene/VisusMath.h \
+                         ../src/visusscene/VisusManagedObject.h \
+                         ../src/visusscene/VisusManagedObject.cpp \
+                         ../src/visusscene/VisusLineGraph.h \
+                         ../src/visusscene/VisusLineGraph.cpp \
+                         ../src/visusscene/VisusLabelNode.h \
+                         ../src/visusscene/VisusLabelNode.cpp \
+                         ../src/visusscene/VisusIsoValue.h \
+                         ../src/visusscene/VisusIsoSurface.h \
+                         ../src/visusscene/VisusIsoSurface.cpp \
+                         ../src/visusscene/VisusIndexedDisplay.h \
+                         ../src/visusscene/VisusIndexedDisplay.cpp \
+                         ../src/visusscene/VisusIndexedData.h \
+                         ../src/visusscene/VisusIndexedData.cpp \
+                         ../src/visusscene/VisusIncoreDataSource.h \
+                         ../src/visusscene/VisusIncoreDataSource.cpp \
+                         ../src/visusscene/VisusGuiBase.h \
+                         ../src/visusscene/VisusGuiBase.cpp \
+                         ../src/visusscene/VisusGroup.h \
+                         ../src/visusscene/VisusGroup.cpp \
+                         ../src/visusscene/VisusGenericValue.h \
+                         ../src/visusscene/VisusFont.h \
+                         ../src/visusscene/VisusFont.cpp \
+                         ../src/visusscene/VisusFLTKWindow.h \
+                         ../src/visusscene/VisusFLTKWindow.cpp \
+                         ../src/visusscene/VisusFLTKGui.h \
+                         ../src/visusscene/VisusFLTKGui.cpp \
+                         ../src/visusscene/VisusFieldIndex.h \
+                         ../src/visusscene/VisusFastLoopDataSource.h \
+                         ../src/visusscene/VisusFastLoopDataSource.cpp \
+                         ../src/visusscene/VisusFactory.h \
+                         ../src/visusscene/VisusFactory.cpp \
+                         ../src/visusscene/VisusParameter.cpp \
+                         ../src/visusscene/VisusOrthogonalSlice.h \
+                         ../src/visusscene/VisusOrthogonalSlice.cpp \
+                         ../src/visusscene/VisusNullDataSource.h \
+                         ../src/visusscene/VisusMutex.h \
+                         ../src/visusscene/visus_test_earth_node.cpp \
+                         ../src/visusscene/VisusTransformation3D.cpp \
+                         ../src/visusscene/VisusTransformation2D.h \
+                         ../src/visusscene/VisusTransformation2D.cpp \
+                         ../src/visusscene/VisusTransformation.h \
+                         ../src/visusscene/VisusTransformation.cpp \
+                         ../src/visusscene/VisusTickMarks.h \
+                         ../src/visusscene/VisusTextNode.h \
+                         ../src/visusscene/VisusTextNode.cpp \
+                         ../src/visusscene/VisusText.h \
+                         ../src/visusscene/VisusText.cpp \
+                         ../src/visusscene/VisusString.h \
+                         ../src/visusscene/VisusStdInt.h \
+                         ../src/visusscene/VisusSharedColor.h \
+                         ../src/visusscene/VisusSharedColor.cpp \
+                         ../src/visusscene/VisusSharedCamera.h \
+                         ../src/visusscene/VisusSharedCamera.cpp \
+                         ../src/visusscene/VisusSharedBoundingBox.h \
+                         ../src/visusscene/VisusSharedBoundingBox.cpp \
+                         ../src/visusscene/VisusScreenShot.h \
+                         ../src/visusscene/VisusScreenShot.cpp \
+                         ../src/visusscene/VisusSceneNode.h \
+                         ../src/visusscene/VisusSceneNode.cpp \
+                         ../src/visusscene/VisusSampleExtractor.h \
+                         ../src/visusscene/VisusUnits.h \
+                         ../src/visusscene/VisusTypeInfo.h \
+                         ../src/visusscene/VisusTransformation3D.h \
+                         ../src/visusscene/VisusTickMarks.cpp \
+                         ../src/visusscene/VisusThread.h \
+                         ../src/visusscene/VisusThread.cpp \
+                         ../src/visusscene/VisusTextureViewer.h \
+                         ../src/visusscene/VisusTextureViewer.cpp \
+                         ../src/visusscene/VisusTexture.h \
+                         ../src/visusscene/VisusTexture.cpp \
+                         ../src/visusscene/VisusSmartPointer.h \
+                         ../src/visusscene/VisusSmartPointer.cpp \
+                         ../src/visusscene/VisusSharedValue.h \
+                         ../src/visusscene/VisusSharedValue.cpp \
+                         ../src/visusscene/VisusSharedTransformation3D.h \
+                         ../src/visusscene/VisusSharedTransformation3D.cpp \
+                         ../src/visusscene/VisusSharedTransformation2D.h \
+                         ../src/visusscene/VisusSharedTransformation2D.cpp \
+                         ../src/visusscene/VisusSharedIsoValue.h \
+                         ../src/visusscene/VisusSharedIsoValue.cpp \
+                         ../src/visusscene/VisusSharedFont.h \
+                         ../src/visusscene/VisusSharedFont.cpp \
+                         ../src/visusscene/VisusSharedFieldIndex.h \
+                         ../src/visusscene/VisusSharedFieldIndex.cpp \
+                         ../src/visusscene/VisusSharedEarthRadius.h \
+                         ../src/visusscene/VisusSharedEarthRadius.cpp \
+                         ../src/visusscene/VisusSharedDataRequest.h \
+                         ../src/visusscene/VisusSharedDataRequest.cpp \
+                         ../src/visusscene/VisusSharedDataDescription.h \
+                         ../src/visusscene/VisusSharedDataDescription.cpp \
+                         ../src/visusscene/VisusSharedColorMap.h \
+                         ../src/visusscene/VisusSharedColorMap.cpp \
+                         ../src/visusscene/VisusSampleExtractor.cpp \
+                         ../src/visusscene/VisusRendererWGL.cpp \
+                         ../src/visusscene/VisusRendererOSMESA.cpp \
+                         ../src/visusscene/VisusRendererNONE.cpp \
+                         ../src/visusscene/VisusRendererGLXPBuffer.cpp \
+                         ../src/visusscene/VisusRendererGLX.cpp \
+                         ../src/visusscene/VisusRenderer.h \
+                         ../src/visusscene/VisusRenderer.cpp \
+                         ../src/visusscene/VisusReadWriteLock.h \
+                         ../src/visusscene/VisusReadWriteLock.cpp \
+                         ../src/visusscene/VisusQuaternion.h \
+                         ../src/visusscene/VisusQuaternion.cpp \
+                         ../src/visusscene/VisusProducer.h \
+                         ../src/visusscene/VisusProducer.cpp \
+                         ../src/visusscene/VisusParameterList.h \
+                         ../src/visusscene/VisusParameterList.cpp
+INPUT_ENCODING         = UTF-8
+FILE_PATTERNS          = *.c \
+                         *.cc \
+                         *.cxx \
+                         *.cpp \
+                         *.c++ \
+                         *.d \
+                         *.java \
+                         *.ii \
+                         *.ixx \
+                         *.ipp \
+                         *.i++ \
+                         *.inl \
+                         *.h \
+                         *.hh \
+                         *.hxx \
+                         *.hpp \
+                         *.h++ \
+                         *.idl \
+                         *.odl \
+                         *.cs \
+                         *.php \
+                         *.php3 \
+                         *.inc \
+                         *.m \
+                         *.mm \
+                         *.dox \
+                         *.py \
+                         *.f90
+RECURSIVE              = NO
+EXCLUDE                = 
+EXCLUDE_SYMLINKS       = NO
+EXCLUDE_PATTERNS       = 
+EXCLUDE_SYMBOLS        = 
+EXAMPLE_PATH           = ./
+EXAMPLE_PATTERNS       = *
+EXAMPLE_RECURSIVE      = NO
+IMAGE_PATH             = 
+INPUT_FILTER           = 
+FILTER_PATTERNS        = 
+FILTER_SOURCE_FILES    = NO
+#---------------------------------------------------------------------------
+# configuration options related to source browsing
+#---------------------------------------------------------------------------
+SOURCE_BROWSER         = NO
+INLINE_SOURCES         = NO
+STRIP_CODE_COMMENTS    = YES
+REFERENCED_BY_RELATION = NO
+REFERENCES_RELATION    = NO
+REFERENCES_LINK_SOURCE = YES
+USE_HTAGS              = NO
+VERBATIM_HEADERS       = NO
+#---------------------------------------------------------------------------
+# configuration options related to the alphabetical class index
+#---------------------------------------------------------------------------
+ALPHABETICAL_INDEX     = NO
+COLS_IN_ALPHA_INDEX    = 5
+IGNORE_PREFIX          = 
+#---------------------------------------------------------------------------
+# configuration options related to the HTML output
+#---------------------------------------------------------------------------
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+HTML_FILE_EXTENSION    = .html
+HTML_HEADER            = 
+HTML_FOOTER            = 
+HTML_STYLESHEET        = 
+HTML_ALIGN_MEMBERS     = YES
+GENERATE_HTMLHELP      = NO
+HTML_DYNAMIC_SECTIONS  = NO
+CHM_FILE               = 
+HHC_LOCATION           = 
+GENERATE_CHI           = NO
+BINARY_TOC             = NO
+TOC_EXPAND             = NO
+DISABLE_INDEX          = NO
+ENUM_VALUES_PER_LINE   = 4
+GENERATE_TREEVIEW      = YES
+TREEVIEW_WIDTH         = 250
+#---------------------------------------------------------------------------
+# configuration options related to the LaTeX output
+#---------------------------------------------------------------------------
+GENERATE_LATEX         = YES
+LATEX_OUTPUT           = latex
+LATEX_CMD_NAME         = latex
+MAKEINDEX_CMD_NAME     = makeindex
+COMPACT_LATEX          = YES
+PAPER_TYPE             = letter
+EXTRA_PACKAGES         = 
+LATEX_HEADER           = 
+PDF_HYPERLINKS         = YES
+USE_PDFLATEX           = NO
+LATEX_BATCHMODE        = NO
+LATEX_HIDE_INDICES     = NO
+#---------------------------------------------------------------------------
+# configuration options related to the RTF output
+#---------------------------------------------------------------------------
+GENERATE_RTF           = NO
+RTF_OUTPUT             = rtf
+COMPACT_RTF            = NO
+RTF_HYPERLINKS         = NO
+RTF_STYLESHEET_FILE    = 
+RTF_EXTENSIONS_FILE    = 
+#---------------------------------------------------------------------------
+# configuration options related to the man page output
+#---------------------------------------------------------------------------
+GENERATE_MAN           = NO
+MAN_OUTPUT             = man
+MAN_EXTENSION          = .3
+MAN_LINKS              = NO
+#---------------------------------------------------------------------------
+# configuration options related to the XML output
+#---------------------------------------------------------------------------
+GENERATE_XML           = NO
+XML_OUTPUT             = xml
+XML_SCHEMA             = 
+XML_DTD                = 
+XML_PROGRAMLISTING     = YES
+#---------------------------------------------------------------------------
+# configuration options for the AutoGen Definitions output
+#---------------------------------------------------------------------------
+GENERATE_AUTOGEN_DEF   = NO
+#---------------------------------------------------------------------------
+# configuration options related to the Perl module output
+#---------------------------------------------------------------------------
+GENERATE_PERLMOD       = NO
+PERLMOD_LATEX          = NO
+PERLMOD_PRETTY         = YES
+PERLMOD_MAKEVAR_PREFIX = 
+#---------------------------------------------------------------------------
+# Configuration options related to the preprocessor   
+#---------------------------------------------------------------------------
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = NO
+EXPAND_ONLY_PREDEF     = NO
+SEARCH_INCLUDES        = YES
+INCLUDE_PATH           = 
+INCLUDE_FILE_PATTERNS  = 
+PREDEFINED             = 
+EXPAND_AS_DEFINED      = 
+SKIP_FUNCTION_MACROS   = YES
+#---------------------------------------------------------------------------
+# Configuration::additions related to external references   
+#---------------------------------------------------------------------------
+TAGFILES               = 
+GENERATE_TAGFILE       = 
+ALLEXTERNALS           = NO
+EXTERNAL_GROUPS        = YES
+PERL_PATH              = /usr/bin/perl
+#---------------------------------------------------------------------------
+# Configuration options related to the dot tool   
+#---------------------------------------------------------------------------
+CLASS_DIAGRAMS         = NO
+MSCGEN_PATH            = /Applications/Doxygen.app/Contents/Resources/
+HIDE_UNDOC_RELATIONS   = YES
+HAVE_DOT               = YES
+CLASS_GRAPH            = YES
+COLLABORATION_GRAPH    = YES
+GROUP_GRAPHS           = YES
+UML_LOOK               = NO
+TEMPLATE_RELATIONS     = NO
+INCLUDE_GRAPH          = YES
+INCLUDED_BY_GRAPH      = YES
+CALL_GRAPH             = NO
+CALLER_GRAPH           = NO
+GRAPHICAL_HIERARCHY    = YES
+DIRECTORY_GRAPH        = YES
+DOT_IMAGE_FORMAT       = png
+DOT_PATH               = /Applications/Doxygen.app/Contents/Resources/
+DOTFILE_DIRS           = 
+DOT_GRAPH_MAX_NODES    = 50
+MAX_DOT_GRAPH_DEPTH    = 1000
+DOT_TRANSPARENT        = YES
+DOT_MULTI_TARGETS      = NO
+GENERATE_LEGEND        = YES
+DOT_CLEANUP            = YES
+#---------------------------------------------------------------------------
+# Configuration::additions related to the search engine   
+#---------------------------------------------------------------------------
+SEARCHENGINE           = NO

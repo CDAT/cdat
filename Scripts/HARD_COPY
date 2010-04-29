@@ -1,0 +1,76 @@
+#######################################################################
+########################## H A R D   C O P Y ##########################
+#######################################################################
+#                                                                     #
+# This file contains the user specified printer names located on      #
+# their network!  See the "/etc/printcap" file for a list of          #
+# active printers. It is important to read this entire file for       #
+# instructions!!!!                                                    #
+#                                                                     #
+# The '#' at the start of a line indicates a comment or statement by  #
+# the user.                                                           #
+#                                                                     #
+# I M P O R T A N T    N O T I C E ! ! ! !                            #
+# - - - - - - - - -    - - - - - - - - - -                            #
+# VCS has no way of knowing which print manager your system is using. #
+# That is, 'lpr' (the BSD print spooler) or 'lp'. If the set          #
+# environment variable 'PRINTER' is unset, then VCS will use 'lp'.    #
+# If the set environment variable 'PRINTER' is set to 'printer',      #
+# then VCS will use 'lpr'.                                            #
+#                                                                     #
+#                                                                     #
+# If sending a CGM file to the printer from VCS results in an error   #
+# message (e.g., 'Error - In sending CGM file to printer.'), then     #
+# set or unset the 'PRINTER' environment variable.                    #
+#                                                                     #
+#######################################################################
+#######################################################################
+#######################################################################
+
+#######################################################################
+#######################################################################
+#######################################################################
+#             I M P O R T A N T    N O T I C E ! ! ! !                #
+#             - - - - - - - - -    - - - - - - - - - -                #
+# The lines below are used for GPLOT.  GPLOT is a graphics utility    #
+# program designed for the processing of CGM metafiles.  We use       #
+# GPLOT to convert the cgm file(s) to postscript output and send it   #
+# directly to a postscript printer. The absolute gplot path must be   #
+# set properly (below). That is:                                      #
+# landscape = /absolute_path/gplot -dPSC -r90 ...                     #
+# portrait  = /absolute_path/gplot -dPSC -D ...                       #
+#                                                                     #
+#######################################################################
+#######################################################################
+#######################################################################
+
+############################################################################
+# PRINTER ORIENTATION: Landscape                                           #
+# OUTPUT TYPE: Postscript       COLOR: YES                                 #
+# NOTE: THIS IS FOR SENDING TO THE PRINTER                                 #
+#                                                                          #
+# .cshrc file:                                                             #
+# In your .cshrc file you can set up an alias for converting your          #
+# landscape .cgm files. That is,                                           #
+# alias landscape '/absolute_path/gplot -dPSC -r90 -x-1.75 -D -X12.5 -Y10' #
+#                                                                          #
+############################################################################
+#landscape = /usr/local/bin/gplot -dPSC -r90 -x-1.75 -D -X12.5 -Y10
+
+#######################################################################
+# PRINTER ORIENTATION: Portrait                                       #
+# OUTPUT TYPE: Postscript       COLOR: YES                            #
+# NOTE: THIS IS FOR SENDING TO THE PRINTER                            #
+#                                                                     #
+# .cshrc file:                                                        #
+# In your .cshrc file you can set up an alias for converting your     #
+# portscript .cgm files. That is,                                     #
+# alias portrait '/absolute_path/gplot -dPSC -D -X10 -Y12.5'          #
+#                                                                     #
+#######################################################################
+#portrait = /usr/local/bin/gplot -dPSC -D -X10 -Y12.5
+
+#######################################################################
+###################  P R I N T E R   N A M E S  #######################
+#######################################################################
+

@@ -1,0 +1,976 @@
+L_PCM_p_levels(1000,"1000",900,"900",800,"800",700,"700",600,"600",
+   500,"500",400,"400",300,"300",200,"200",100,"100",50,"50",
+   10,"10")
+
+L_PCM_height(1000,"0",795,"2",616.6,"4",472.2,"6",356.5,"8",
+   265,"10",121.1,"15",55.3,"20",12,"30")
+
+Tf_PCM16(
+   1, fais(1),
+   1, fasi(1),
+   1, faci(16),
+   0,0,0.1,0.1,1,
+   vp(0,1,0,1),
+   wc(0,1,0,1)
+  )
+Tf_PCM17(
+   1, fais(1),
+   1, fasi(1),
+   1, faci(17),
+   0,0,0.1,0.1,1,
+   vp(0,1,0,1),
+   wc(0,1,0,1)
+  )
+Tf_PCM18(
+   1, fais(1),
+   1, fasi(1),
+   1, faci(18),
+   0,0,0.1,0.1,1,
+   vp(0,1,0,1),
+   wc(0,1,0,1)
+  )
+Tf_PCM19(
+   1, fais(1),
+   1, fasi(1),
+   1, faci(19),
+   0,0,0.1,0.1,1,
+   vp(0,1,0,1),
+   wc(0,1,0,1)
+  )
+Tf_PCM20(
+   1, fais(1),
+   1, fasi(1),
+   1, faci(20),
+   0,0,0.1,0.1,1,
+   vp(0,1,0,1),
+   wc(0,1,0,1)
+  )
+Tf_PCM21(
+   1, fais(1),
+   1, fasi(1),
+   1, faci(21),
+   0,0,0.1,0.1,1,
+   vp(0,1,0,1),
+   wc(0,1,0,1)
+  )
+Tf_PCM22(
+   1, fais(1),
+   1, fasi(1),
+   1, faci(22),
+   0,0,0.1,0.1,1,
+   vp(0,1,0,1),
+   wc(0,1,0,1)
+  )
+Tf_PCM23(
+   1, fais(1),
+   1, fasi(1),
+   1, faci(23),
+   0,0,0.1,0.1,1,
+   vp(0,1,0,1),
+   wc(0,1,0,1)
+  )
+Tf_PCM24(
+   1, fais(1),
+   1, fasi(1),
+   1, faci(24),
+   0,0,0.1,0.1,1,
+   vp(0,1,0,1),
+   wc(0,1,0,1)
+  )
+Tf_PCM25(
+   1, fais(1),
+   1, fasi(1),
+   1, faci(25),
+   0,0,0.1,0.1,1,
+   vp(0,1,0,1),
+   wc(0,1,0,1)
+  )
+Tf_PCM26(
+   1, fais(1),
+   1, fasi(1),
+   1, faci(26),
+   0,0,0.1,0.1,1,
+   vp(0,1,0,1),
+   wc(0,1,0,1)
+  )
+Tf_PCM27(
+   1, fais(1),
+   1, fasi(1),
+   1, faci(27),
+   0,0,0.1,0.1,1,
+   vp(0,1,0,1),
+   wc(0,1,0,1)
+  )
+Tf_PCM28(
+   1, fais(1),
+   1, fasi(1),
+   1, faci(28),
+   0,0,0.1,0.1,1,
+   vp(0,1,0,1),
+   wc(0,1,0,1)
+  )
+Tf_PCM29(
+   1, fais(1),
+   1, fasi(1),
+   1, faci(29),
+   0,0,0.1,0.1,1,
+   vp(0,1,0,1),
+   wc(0,1,0,1)
+  )
+Tf_PCM30(
+   1, fais(1),
+   1, fasi(1),
+   1, faci(30),
+   0,0,0.1,0.1,1,
+   vp(0,1,0,1),
+   wc(0,1,0,1)
+  )
+Tf_PCM31(
+   1, fais(1),
+   1, fasi(1),
+   1, faci(31),
+   0,0,0.1,0.1,1,
+   vp(0,1,0,1),
+   wc(0,1,0,1)
+  )
+Tf_PCM32(
+   1, fais(1),
+   1, fasi(1),
+   1, faci(32),
+   0,0,0.1,0.1,1,
+   vp(0,1,0,1),
+   wc(0,1,0,1)
+  )
+Tf_PCM33(
+   1, fais(1),
+   1, fasi(1),
+   1, faci(33),
+   0,0,0.1,0.1,1,
+   vp(0,1,0,1),
+   wc(0,1,0,1)
+  )
+Tf_PCM34(
+   1, fais(1),
+   1, fasi(1),
+   1, faci(34),
+   0,0,0.1,0.1,1,
+   vp(0,1,0,1),
+   wc(0,1,0,1)
+  )
+Tf_PCM35(
+   1, fais(1),
+   1, fasi(1),
+   1, faci(35),
+   0,0,0.1,0.1,1,
+   vp(0,1,0,1),
+   wc(0,1,0,1)
+  )
+Tf_PCM36(
+   1, fais(1),
+   1, fasi(1),
+   1, faci(36),
+   0,0,0.1,0.1,1,
+   vp(0,1,0,1),
+   wc(0,1,0,1)
+  )
+Tf_PCM241(
+   1, fais(1),
+   1, fasi(1),
+   1, faci(241),
+   0,0,0.1,0.1,1,
+   vp(0,1,0,1),
+   wc(0,1,0,1)
+  )
+
+
+Gfi_PCM_clt(
+projection=linear,xticlabels#1=lon30,xticlabels#2=lon30,xmtics#1=lon5,
+xmtics#2=lon5,yticlabels#1=lat20,yticlabels#2=lat20,ymtics#1=lat5,
+ymtics#2=lat5,
+datawc(-180,-90,180,90),
+missing=1e+20,
+range
+(id=1,level1=0.,level2=.10,Tf=PCM16)
+(id=2,level1=.10,level2=.20,Tf=PCM22)
+(id=3,level1=.20,level2=.30,Tf=PCM23)
+(id=4,level1=.30,level2=.40,Tf=PCM32)
+(id=5,level1=.40,level2=.50,Tf=PCM33)
+(id=6,level1=.50,level2=.60,Tf=PCM34)
+(id=7,level1=.60,level2=.70,Tf=PCM27)
+(id=8,level1=.70,level2=.80,Tf=PCM28)
+(id=9,level1=.80,level2=.90,Tf=PCM29)
+(id=10,level1=.90,level2=1.00,Tf=PCM30) )
+
+Gfi_PCM_hfls(
+projection=linear,xticlabels#1=lon30,xticlabels#2=lon30,xmtics#1=lon5,
+xmtics#2=lon5,yticlabels#1=lat20,yticlabels#2=lat20,ymtics#1=lat5,
+ymtics#2=lat5,
+datawc(-180,-90,180,90),
+missing=1e+20,
+range
+(id=1,level1=-1e+20,level2=0,Tf=PCM16)
+(id=2,level1=0,level2=25,Tf=PCM18)
+(id=3,level1=25,level2=50,Tf=PCM19)
+(id=4,level1=50,level2=75,Tf=PCM20)
+(id=5,level1=75,level2=100,Tf=PCM21)
+(id=6,level1=100,level2=125,Tf=PCM22)
+(id=7,level1=125,level2=150,Tf=PCM23)
+(id=8,level1=150,level2=175,Tf=PCM24)
+(id=9,level1=175,level2=200,Tf=PCM25)
+(id=10,level1=200,level2=225,Tf=PCM26)
+(id=11,level1=225,level2=250,Tf=PCM27)
+(id=12,level1=250,level2=275,Tf=PCM28)
+(id=13,level1=275,level2=300,Tf=PCM29)
+(id=14,level1=300,level2=1e+20,Tf=PCM30) )
+
+Gfi_PCM_hfss(
+projection=linear,xticlabels#1=lon30,xticlabels#2=lon30,xmtics#1=lon5,
+xmtics#2=lon5,yticlabels#1=lat20,yticlabels#2=lat20,ymtics#1=lat5,
+ymtics#2=lat5,
+datawc(-180,-90,180,90),
+missing=1e+20,
+range
+(id=1,level1=-1e+20,level2=-100,Tf=PCM16)
+(id=2,level1=-100,level2=-50,Tf=PCM18)
+(id=3,level1=-50,level2=-25,Tf=PCM19)
+(id=4,level1=-25,level2=-15,Tf=PCM20)
+(id=5,level1=-15,level2=-10,Tf=PCM21)
+(id=6,level1=-10,level2=-5,Tf=PCM22)
+(id=7,level1=-5,level2=0,Tf=PCM23)
+(id=8,level1=0,level2=5,Tf=PCM24)
+(id=9,level1=5,level2=10,Tf=PCM25)
+(id=10,level1=10,level2=15,Tf=PCM26)
+(id=11,level1=15,level2=25,Tf=PCM27)
+(id=12,level1=25,level2=50,Tf=PCM28)
+(id=13,level1=50,level2=100,Tf=PCM29)
+(id=14,level1=100,level2=1e+20,Tf=PCM30) )
+
+Gfi_PCM_hus(
+projection=linear,xticlabels#1=lat20,xticlabels#2=lat20,yticlabels#1=PCM_p_levels,
+yticlabels#2=PCM_height,
+datawc(90,1000,-90,10),
+missing=1e+20,
+range
+(id=1,level1=0,level2=0.0005,Tf=PCM20)
+(id=2,level1=0.0005,level2=0.001,Tf=PCM21)
+(id=3,level1=0.001,level2=0.002,Tf=PCM22)
+(id=4,level1=0.002,level2=0.004,Tf=PCM23)
+(id=5,level1=0.004,level2=0.006,Tf=PCM24)
+(id=6,level1=0.006,level2=0.008,Tf=PCM25)
+(id=7,level1=0.008,level2=0.01,Tf=PCM26)
+(id=8,level1=0.01,level2=0.012,Tf=PCM27)
+(id=9,level1=0.012,level2=0.014,Tf=PCM28)
+(id=10,level1=0.014,level2=0.016,Tf=PCM29)
+(id=11,level1=0.016,level2=0.018,Tf=PCM30)
+(id=12,level1=0.018,level2=0.02,Tf=PCM31) )
+
+
+Gfi_PCM_hur(
+projection=linear,xticlabels#1=lat20,xticlabels#2=lat20,yticlabels#1=PCM_p_levels,
+yticlabels#2=PCM_height,
+datawc(90,1000,-90,10),
+missing=1e+20,
+range
+(id=1,level1=0,level2=10,Tf=PCM20)
+(id=2,level1=10,level2=20,Tf=PCM21)
+(id=3,level1=20,level2=30,Tf=PCM22)
+(id=4,level1=30,level2=40,Tf=PCM23)
+(id=5,level1=40,level2=50,Tf=PCM24)
+(id=6,level1=50,level2=60,Tf=PCM25)
+(id=7,level1=60,level2=70,Tf=PCM26)
+(id=8,level1=70,level2=80,Tf=PCM27)
+(id=9,level1=80,level2=90,Tf=PCM28)
+(id=10,level1=90,level2=100,Tf=PCM29)
+(id=11,level1=1e+20,level2=1e+20,Tf=PCM241) )
+
+Gfi_PCM_pr(
+projection=linear,xticlabels#1=lon30,xticlabels#2=lon30,xmtics#1=lon5,
+xmtics#2=lon5,yticlabels#1=lat20,yticlabels#2=lat20,ymtics#1=lat5,
+ymtics#2=lat5,
+datawc(-180,-90,180,90),
+missing=1e+20,
+range
+(id=1,level1=0,level2=1e-09,Tf=PCM16)
+(id=2,level1=1e-09,level2=2e-09,Tf=PCM18)
+(id=3,level1=2e-09,level2=5e-09,Tf=PCM19)
+(id=4,level1=5e-09,level2=1e-08,Tf=PCM20)
+(id=5,level1=1e-08,level2=1.5e-08,Tf=PCM21)
+(id=6,level1=1.5e-08,level2=2e-08,Tf=PCM22)
+(id=7,level1=2e-08,level2=3e-08,Tf=PCM23)
+(id=8,level1=3e-08,level2=5e-08,Tf=PCM24)
+(id=9,level1=5e-08,level2=7.5e-08,Tf=PCM25)
+(id=10,level1=7.5e-08,level2=1e-07,Tf=PCM26)
+(id=11,level1=1e-07,level2=1.5e-07,Tf=PCM27)
+(id=12,level1=1.5e-07,level2=2e-07,Tf=PCM28)
+(id=13,level1=2e-07,level2=3e-07,Tf=PCM29)
+(id=14,level1=3e-07,level2=1e+20,Tf=PCM30)
+(id=15,level1=1e+20,level2=1e+20,Tf=PCM241) )
+
+
+Gfi_PCM_prc(
+projection=linear,xticlabels#1=lon30,xticlabels#2=lon30,xmtics#1=lon5,
+xmtics#2=lon5,yticlabels#1=lat20,yticlabels#2=lat20,ymtics#1=lat5,
+ymtics#2=lat5,
+datawc(-180,-90,180,90),
+missing=1e+20,
+range
+(id=1,level1=0,level2=1e-09,Tf=PCM16)
+(id=2,level1=1e-09,level2=2e-09,Tf=PCM18)
+(id=3,level1=2e-09,level2=5e-09,Tf=PCM19)
+(id=4,level1=5e-09,level2=1e-08,Tf=PCM20)
+(id=5,level1=1e-08,level2=1.5e-08,Tf=PCM21)
+(id=6,level1=1.5e-08,level2=2e-08,Tf=PCM22)
+(id=7,level1=2e-08,level2=3e-08,Tf=PCM23)
+(id=8,level1=3e-08,level2=5e-08,Tf=PCM24)
+(id=9,level1=5e-08,level2=7.5e-08,Tf=PCM25)
+(id=10,level1=7.5e-08,level2=1e-07,Tf=PCM26)
+(id=11,level1=1e-07,level2=1.5e-07,Tf=PCM27)
+(id=12,level1=1.5e-07,level2=2e-07,Tf=PCM28)
+(id=13,level1=2e-07,level2=3e-07,Tf=PCM29)
+(id=14,level1=3e-07,level2=1e+20,Tf=PCM30)
+(id=15,level1=1e+20,level2=1e+20,Tf=PCM241) )
+
+
+Gfi_PCM_prsnc(
+projection=linear,xticlabels#1=lon30,xticlabels#2=lon30,xmtics#1=lon5,
+xmtics#2=lon5,yticlabels#1=lat20,yticlabels#2=lat20,ymtics#1=lat5,
+ymtics#2=lat5,
+datawc(-180,-90,180,90),
+missing=1e+20,
+range
+(id=1,level1=0,level2=1e-09,Tf=PCM16)
+(id=2,level1=1e-09,level2=2e-09,Tf=PCM18)
+(id=3,level1=2e-09,level2=5e-09,Tf=PCM19)
+(id=4,level1=5e-09,level2=1e-08,Tf=PCM20)
+(id=5,level1=1e-08,level2=1.5e-08,Tf=PCM21)
+(id=6,level1=1.5e-08,level2=2e-08,Tf=PCM22)
+(id=7,level1=2e-08,level2=3e-08,Tf=PCM23)
+(id=8,level1=3e-08,level2=5e-08,Tf=PCM24)
+(id=9,level1=5e-08,level2=7.5e-08,Tf=PCM25)
+(id=10,level1=7.5e-08,level2=1e-07,Tf=PCM26)
+(id=11,level1=1e-07,level2=1.5e-07,Tf=PCM27)
+(id=12,level1=1.5e-07,level2=2e-07,Tf=PCM28)
+(id=13,level1=2e-07,level2=3e-07,Tf=PCM29)
+(id=14,level1=3e-07,level2=1e+20,Tf=PCM30)
+(id=15,level1=1e+20,level2=1e+20,Tf=PCM241) )
+
+
+Gfi_PCM_prsnl(
+projection=linear,xticlabels#1=lon30,xticlabels#2=lon30,xmtics#1=lon5,
+xmtics#2=lon5,yticlabels#1=lat20,yticlabels#2=lat20,ymtics#1=lat5,
+ymtics#2=lat5,
+datawc(-180,-90,180,90),
+missing=1e+20,
+range
+(id=1,level1=0,level2=1e-09,Tf=PCM16)
+(id=2,level1=1e-09,level2=2e-09,Tf=PCM18)
+(id=3,level1=2e-09,level2=5e-09,Tf=PCM19)
+(id=4,level1=5e-09,level2=1e-08,Tf=PCM20)
+(id=5,level1=1e-08,level2=1.5e-08,Tf=PCM21)
+(id=6,level1=1.5e-08,level2=2e-08,Tf=PCM22)
+(id=7,level1=2e-08,level2=3e-08,Tf=PCM23)
+(id=8,level1=3e-08,level2=5e-08,Tf=PCM24)
+(id=9,level1=5e-08,level2=7.5e-08,Tf=PCM25)
+(id=10,level1=7.5e-08,level2=1e-07,Tf=PCM26)
+(id=11,level1=1e-07,level2=1.5e-07,Tf=PCM27)
+(id=12,level1=1.5e-07,level2=2e-07,Tf=PCM28)
+(id=13,level1=2e-07,level2=3e-07,Tf=PCM29)
+(id=14,level1=3e-07,level2=1e+20,Tf=PCM30)
+(id=15,level1=1e+20,level2=1e+20,Tf=PCM241) )
+
+
+Gfi_PCM_ps(
+projection=linear,xticlabels#1=lon30,xticlabels#2=lon30,xmtics#1=lon5,
+xmtics#2=lon5,yticlabels#1=lat20,yticlabels#2=lat20,ymtics#1=lat5,
+ymtics#2=lat5,
+datawc(-180,-90,180,90),
+missing=1e+20,
+range
+(id=1,level1=-1e+20,level2=97000,Tf=PCM30)
+(id=2,level1=97000,level2=97500,Tf=PCM29)
+(id=3,level1=97500,level2=98000,Tf=PCM28)
+(id=4,level1=98000,level2=98500,Tf=PCM27)
+(id=5,level1=98500,level2=99000,Tf=PCM26)
+(id=6,level1=99000,level2=99500,Tf=PCM25)
+(id=7,level1=99500,level2=100000,Tf=PCM24)
+(id=8,level1=100000,level2=100500,Tf=PCM23)
+(id=9,level1=100500,level2=101000,Tf=PCM22)
+(id=10,level1=101000,level2=101500,Tf=PCM21)
+(id=11,level1=101500,level2=102000,Tf=PCM20)
+(id=12,level1=102000,level2=102500,Tf=PCM19)
+(id=13,level1=102500,level2=103000,Tf=PCM18)
+(id=14,level1=103000,level2=103500,Tf=PCM17)
+(id=15,level1=103500,level2=104000,Tf=PCM35)
+(id=16,level1=104000,level2=1e+20,Tf=PCM36) )
+
+
+Gfi_PCM_psl(
+projection=linear,xticlabels#1=lon30,xticlabels#2=lon30,xmtics#1=lon5,
+xmtics#2=lon5,yticlabels#1=lat20,yticlabels#2=lat20,ymtics#1=lat5,
+ymtics#2=lat5,
+datawc(-180,-90,180,90),
+missing=1e+20,
+range
+(id=1,level1=-1e+20,level2=97000,Tf=PCM30)
+(id=2,level1=97000,level2=97500,Tf=PCM29)
+(id=3,level1=97500,level2=98000,Tf=PCM28)
+(id=4,level1=98000,level2=98500,Tf=PCM27)
+(id=5,level1=98500,level2=99000,Tf=PCM26)
+(id=6,level1=99000,level2=99500,Tf=PCM25)
+(id=7,level1=99500,level2=100000,Tf=PCM24)
+(id=8,level1=100000,level2=100500,Tf=PCM23)
+(id=9,level1=100500,level2=101000,Tf=PCM22)
+(id=10,level1=101000,level2=101500,Tf=PCM21)
+(id=11,level1=101500,level2=102000,Tf=PCM20)
+(id=12,level1=102000,level2=102500,Tf=PCM19)
+(id=13,level1=102500,level2=103000,Tf=PCM18)
+(id=14,level1=103000,level2=103500,Tf=PCM17)
+(id=15,level1=103500,level2=104000,Tf=PCM35)
+(id=16,level1=104000,level2=1e+20,Tf=PCM36) )
+
+Gfi_PCM_rlut(
+projection=linear,xticlabels#1=lon30,xticlabels#2=lon30,xmtics#1=lon5,
+xmtics#2=lon5,yticlabels#1=lat20,yticlabels#2=lat20,ymtics#1=lat5,
+ymtics#2=lat5,
+datawc(-180,-90,180,90),
+missing=1e+20,
+range
+(id=1,level1=-1e+20,level2=100,Tf=PCM16)
+(id=2,level1=100,level2=120,Tf=PCM30)
+(id=3,level1=120,level2=140,Tf=PCM29)
+(id=4,level1=140,level2=160,Tf=PCM28)
+(id=5,level1=160,level2=180,Tf=PCM27)
+(id=6,level1=180,level2=200,Tf=PCM26)
+(id=7,level1=200,level2=220,Tf=PCM25)
+(id=8,level1=220,level2=240,Tf=PCM24)
+(id=9,level1=240,level2=260,Tf=PCM23)
+(id=10,level1=260,level2=280,Tf=PCM22)
+(id=11,level1=280,level2=300,Tf=PCM21)
+(id=12,level1=300,level2=320,Tf=PCM20)
+(id=13,level1=320,level2=340,Tf=PCM19)
+(id=14,level1=340,level2=1e+20,Tf=PCM18) )
+
+Gfi_PCM_rlutcs(
+projection=linear,xticlabels#1=lon30,xticlabels#2=lon30,xmtics#1=lon5,
+xmtics#2=lon5,yticlabels#1=lat20,yticlabels#2=lat20,ymtics#1=lat5,
+ymtics#2=lat5,
+datawc(-180,-90,180,90),
+missing=1e+20,
+range
+(id=1,level1=-1e+20,level2=100,Tf=PCM16)
+(id=2,level1=100,level2=120,Tf=PCM30)
+(id=3,level1=120,level2=140,Tf=PCM29)
+(id=4,level1=140,level2=160,Tf=PCM28)
+(id=5,level1=160,level2=180,Tf=PCM27)
+(id=6,level1=180,level2=200,Tf=PCM26)
+(id=7,level1=200,level2=220,Tf=PCM25)
+(id=8,level1=220,level2=240,Tf=PCM24)
+(id=9,level1=240,level2=260,Tf=PCM23)
+(id=10,level1=260,level2=280,Tf=PCM22)
+(id=11,level1=280,level2=300,Tf=PCM21)
+(id=12,level1=300,level2=320,Tf=PCM20)
+(id=13,level1=320,level2=340,Tf=PCM19)
+(id=14,level1=340,level2=1e+20,Tf=PCM18) )
+
+Gfi_PCM_rsds(
+projection=linear,xticlabels#1=lon30,xticlabels#2=lon30,xmtics#1=lon5,
+xmtics#2=lon5,yticlabels#1=lat20,yticlabels#2=lat20,ymtics#1=lat5,
+ymtics#2=lat5,
+datawc(-180,-90,180,90),
+missing=1e+20,
+range
+(id=1,level1=0,level2=25,Tf=PCM16)
+(id=2,level1=25,level2=50,Tf=PCM30)
+(id=3,level1=50,level2=75,Tf=PCM29)
+(id=4,level1=75,level2=100,Tf=PCM28)
+(id=5,level1=100,level2=125,Tf=PCM27)
+(id=6,level1=125,level2=150,Tf=PCM34)
+(id=7,level1=150,level2=175,Tf=PCM33)
+(id=8,level1=175,level2=200,Tf=PCM32)
+(id=9,level1=200,level2=225,Tf=PCM23)
+(id=10,level1=225,level2=250,Tf=PCM22)
+(id=11,level1=250,level2=275,Tf=PCM21)
+(id=12,level1=275,level2=300,Tf=PCM20)
+(id=13,level1=300,level2=325,Tf=PCM19)
+(id=14,level1=325,level2=350,Tf=PCM18)
+(id=15,level1=350,level2=1e+20,Tf=PCM17) )
+
+Gfi_PCM_rsdscs(
+projection=linear,xticlabels#1=lon30,xticlabels#2=lon30,xmtics#1=lon5,
+xmtics#2=lon5,yticlabels#1=lat20,yticlabels#2=lat20,ymtics#1=lat5,
+ymtics#2=lat5,
+datawc(-180,-90,180,90),
+missing=1e+20,
+range
+(id=1,level1=0,level2=25,Tf=PCM16)
+(id=2,level1=25,level2=50,Tf=PCM30)
+(id=3,level1=50,level2=75,Tf=PCM29)
+(id=4,level1=75,level2=100,Tf=PCM28)
+(id=5,level1=100,level2=125,Tf=PCM27)
+(id=6,level1=125,level2=150,Tf=PCM34)
+(id=7,level1=150,level2=175,Tf=PCM33)
+(id=8,level1=175,level2=200,Tf=PCM32)
+(id=9,level1=200,level2=225,Tf=PCM23)
+(id=10,level1=225,level2=250,Tf=PCM22)
+(id=11,level1=250,level2=275,Tf=PCM21)
+(id=12,level1=275,level2=300,Tf=PCM20)
+(id=13,level1=300,level2=325,Tf=PCM19)
+(id=14,level1=325,level2=350,Tf=PCM18)
+(id=15,level1=350,level2=1e+20,Tf=PCM17) )
+
+Gfi_PCM_rsus(
+projection=linear,xticlabels#1=lon30,xticlabels#2=lon30,xmtics#1=lon5,
+xmtics#2=lon5,yticlabels#1=lat20,yticlabels#2=lat20,ymtics#1=lat5,
+ymtics#2=lat5,
+datawc(-180,-90,180,90),
+missing=1e+20,
+range
+(id=1,level1=0,level2=-25,Tf=PCM16)
+(id=2,level1=-25,level2=-50,Tf=PCM30)
+(id=3,level1=-50,level2=-75,Tf=PCM29)
+(id=4,level1=-75,level2=-100,Tf=PCM28)
+(id=5,level1=-100,level2=-125,Tf=PCM27)
+(id=6,level1=-125,level2=-150,Tf=PCM34)
+(id=7,level1=-150,level2=-175,Tf=PCM33)
+(id=8,level1=-175,level2=-200,Tf=PCM32)
+(id=9,level1=-200,level2=-225,Tf=PCM23)
+(id=10,level1=-225,level2=-250,Tf=PCM22)
+(id=11,level1=-250,level2=-275,Tf=PCM21)
+(id=12,level1=-275,level2=-300,Tf=PCM20)
+(id=13,level1=-300,level2=-325,Tf=PCM19)
+(id=14,level1=-325,level2=-350,Tf=PCM18)
+(id=15,level1=-350,level2=-400,Tf=PCM17)
+(id=16,level1=-400,level2=-1e+20,Tf=PCM35) )
+
+Gfi_PCM_rsut(
+projection=linear,xticlabels#1=lon30,xticlabels#2=lon30,xmtics#1=lon5,
+xmtics#2=lon5,yticlabels#1=lat20,yticlabels#2=lat20,ymtics#1=lat5,
+ymtics#2=lat5,
+datawc(-180,-90,180,90),
+missing=1e+20,
+range
+(id=1,level1=0,level2=-25,Tf=PCM16)
+(id=2,level1=-25,level2=-50,Tf=PCM30)
+(id=3,level1=-50,level2=-75,Tf=PCM29)
+(id=4,level1=-75,level2=-100,Tf=PCM28)
+(id=5,level1=-100,level2=-125,Tf=PCM27)
+(id=6,level1=-125,level2=-150,Tf=PCM34)
+(id=7,level1=-150,level2=-175,Tf=PCM33)
+(id=8,level1=-175,level2=-200,Tf=PCM32)
+(id=9,level1=-200,level2=-225,Tf=PCM23)
+(id=10,level1=-225,level2=-250,Tf=PCM22)
+(id=11,level1=-250,level2=-275,Tf=PCM21)
+(id=12,level1=-275,level2=-300,Tf=PCM20)
+(id=13,level1=-300,level2=-325,Tf=PCM19)
+(id=14,level1=-325,level2=-350,Tf=PCM18)
+(id=15,level1=-350,level2=-400,Tf=PCM17)
+(id=16,level1=-400,level2=-1e+20,Tf=PCM35) )
+
+
+Gfi_PCM_rsutcs(
+projection=linear,xticlabels#1=lon30,xticlabels#2=lon30,xmtics#1=lon5,
+xmtics#2=lon5,yticlabels#1=lat20,yticlabels#2=lat20,ymtics#1=lat5,
+ymtics#2=lat5,
+datawc(-180,-90,180,90),
+missing=1e+20,
+range
+(id=1,level1=0,level2=-25,Tf=PCM16)
+(id=2,level1=-25,level2=-50,Tf=PCM30)
+(id=3,level1=-50,level2=-75,Tf=PCM29)
+(id=4,level1=-75,level2=-100,Tf=PCM28)
+(id=5,level1=-100,level2=-125,Tf=PCM27)
+(id=6,level1=-125,level2=-150,Tf=PCM34)
+(id=7,level1=-150,level2=-175,Tf=PCM33)
+(id=8,level1=-175,level2=-200,Tf=PCM32)
+(id=9,level1=-200,level2=-225,Tf=PCM23)
+(id=10,level1=-225,level2=-250,Tf=PCM22)
+(id=11,level1=-250,level2=-275,Tf=PCM21)
+(id=12,level1=-275,level2=-300,Tf=PCM20)
+(id=13,level1=-300,level2=-325,Tf=PCM19)
+(id=14,level1=-325,level2=-350,Tf=PCM18)
+(id=15,level1=-350,level2=-400,Tf=PCM17)
+(id=16,level1=-400,level2=-1e+20,Tf=PCM35) )
+
+
+Gfi_PCM_ta(
+projection=linear,xticlabels#1=lat20,xticlabels#2=lat20,yticlabels#1=PCM_p_levels,
+yticlabels#2=PCM_height,
+datawc(90,1000,-90,1),
+yaxisconvert=linear,
+missing=1e+20,
+range(id=1,level1=-1e+20,level2=203,Tf=PCM16)
+(id=2,level1=203,level2=213,Tf=PCM30)
+(id=3,level1=213,level2=223,Tf=PCM29)
+(id=4,level1=223,level2=233,Tf=PCM28)
+(id=5,level1=233,level2=243,Tf=PCM27)
+(id=6,level1=243,level2=253,Tf=PCM34)
+(id=7,level1=253,level2=263,Tf=PCM33)
+(id=8,level1=263,level2=273,Tf=PCM32)
+(id=9,level1=273,level2=278,Tf=PCM23)
+(id=10,level1=278,level2=283,Tf=PCM22)
+(id=11,level1=283,level2=288,Tf=PCM21)
+(id=12,level1=288,level2=293,Tf=PCM20)
+(id=13,level1=293,level2=298,Tf=PCM19)
+(id=14,level1=298,level2=303,Tf=PCM18)
+(id=15,level1=303,level2=308,Tf=PCM17)
+(id=16,level1=308,level2=1e+20,Tf=PCM35) )
+
+Gfi_PCM_tas(
+projection=linear,xticlabels#1=lon30,xticlabels#2=lon30,xmtics#1=lon5,
+xmtics#2=lon5,yticlabels#1=lat20,yticlabels#2=lat20,ymtics#1=lat5,
+ymtics#2=lat5,
+datawc(-180,-90,180,90),
+missing=1e+20,
+range
+(id=1,level1=-1e+20,level2=238,Tf=PCM16)
+(id=2,level1=238,level2=243,Tf=PCM30)
+(id=3,level1=243,level2=248,Tf=PCM29)
+(id=4,level1=248,level2=253,Tf=PCM28)
+(id=5,level1=253,level2=258,Tf=PCM27)
+(id=6,level1=258,level2=263,Tf=PCM34)
+(id=7,level1=263,level2=268,Tf=PCM33)
+(id=8,level1=268,level2=273,Tf=PCM32)
+(id=9,level1=273,level2=278,Tf=PCM23)
+(id=10,level1=278,level2=283,Tf=PCM22)
+(id=11,level1=283,level2=288,Tf=PCM21)
+(id=12,level1=288,level2=293,Tf=PCM20)
+(id=13,level1=293,level2=298,Tf=PCM19)
+(id=14,level1=298,level2=303,Tf=PCM18)
+(id=15,level1=303,level2=308,Tf=PCM17)
+(id=16,level1=308,level2=1e+20,Tf=PCM35) )
+
+Gfi_PCM_tasmax(
+projection=linear,xticlabels#1=lon30,xticlabels#2=lon30,xmtics#1=lon5,
+xmtics#2=lon5,yticlabels#1=lat20,yticlabels#2=lat20,ymtics#1=lat5,
+ymtics#2=lat5,
+datawc(-180,-90,180,90),
+missing=1e+20,
+range
+(id=1,level1=-1e+20,level2=238,Tf=PCM16)
+(id=2,level1=238,level2=243,Tf=PCM30)
+(id=3,level1=243,level2=248,Tf=PCM29)
+(id=4,level1=248,level2=253,Tf=PCM28)
+(id=5,level1=253,level2=258,Tf=PCM27)
+(id=6,level1=258,level2=263,Tf=PCM34)
+(id=7,level1=263,level2=268,Tf=PCM33)
+(id=8,level1=268,level2=273,Tf=PCM32)
+(id=9,level1=273,level2=278,Tf=PCM23)
+(id=10,level1=278,level2=283,Tf=PCM22)
+(id=11,level1=283,level2=288,Tf=PCM21)
+(id=12,level1=288,level2=293,Tf=PCM20)
+(id=13,level1=293,level2=298,Tf=PCM19)
+(id=14,level1=298,level2=303,Tf=PCM18)
+(id=15,level1=303,level2=308,Tf=PCM17)
+(id=16,level1=308,level2=1e+20,Tf=PCM35) )
+
+Gfi_PCM_tasmin(
+projection=linear,xticlabels#1=lon30,xticlabels#2=lon30,xmtics#1=lon5,
+xmtics#2=lon5,yticlabels#1=lat20,yticlabels#2=lat20,ymtics#1=lat5,
+ymtics#2=lat5,
+datawc(-180,-90,180,90),
+missing=1e+20,
+range
+(id=1,level1=-1e+20,level2=238,Tf=PCM16)
+(id=2,level1=238,level2=243,Tf=PCM30)
+(id=3,level1=243,level2=248,Tf=PCM29)
+(id=4,level1=248,level2=253,Tf=PCM28)
+(id=5,level1=253,level2=258,Tf=PCM27)
+(id=6,level1=258,level2=263,Tf=PCM34)
+(id=7,level1=263,level2=268,Tf=PCM33)
+(id=8,level1=268,level2=273,Tf=PCM32)
+(id=9,level1=273,level2=278,Tf=PCM23)
+(id=10,level1=278,level2=283,Tf=PCM22)
+(id=11,level1=283,level2=288,Tf=PCM21)
+(id=12,level1=288,level2=293,Tf=PCM20)
+(id=13,level1=293,level2=298,Tf=PCM19)
+(id=14,level1=298,level2=303,Tf=PCM18)
+(id=15,level1=303,level2=308,Tf=PCM17)
+(id=16,level1=308,level2=1e+20,Tf=PCM35) )
+
+Gfi_PCM_ts(
+projection=linear,xticlabels#1=lon30,xticlabels#2=lon30,xmtics#1=lon5,
+xmtics#2=lon5,yticlabels#1=lat20,yticlabels#2=lat20,ymtics#1=lat5,
+ymtics#2=lat5,
+datawc(-180,-90,180,90),
+missing=1e+20,
+range
+(id=1,level1=-1e+20,level2=238,Tf=PCM16)
+(id=2,level1=238,level2=243,Tf=PCM30)
+(id=3,level1=243,level2=248,Tf=PCM29)
+(id=4,level1=248,level2=253,Tf=PCM28)
+(id=5,level1=253,level2=258,Tf=PCM27)
+(id=6,level1=258,level2=263,Tf=PCM34)
+(id=7,level1=263,level2=268,Tf=PCM33)
+(id=8,level1=268,level2=273,Tf=PCM32)
+(id=9,level1=273,level2=278,Tf=PCM23)
+(id=10,level1=278,level2=283,Tf=PCM22)
+(id=11,level1=283,level2=288,Tf=PCM21)
+(id=12,level1=288,level2=293,Tf=PCM20)
+(id=13,level1=293,level2=298,Tf=PCM19)
+(id=14,level1=298,level2=303,Tf=PCM18)
+(id=15,level1=303,level2=308,Tf=PCM17)
+(id=16,level1=308,level2=1e+20,Tf=PCM35) )
+
+Gfi_PCM_tauu(
+projection=linear,xticlabels#1=lon30,xticlabels#2=lon30,xmtics#1=lon5,
+xmtics#2=lon5,yticlabels#1=lat20,yticlabels#2=lat20,ymtics#1=lat5,
+ymtics#2=lat5,
+datawc(-180,-90,180,90),
+missing=1e+20,
+range
+(id=1,level1=-1e+20,level2=-1,Tf=PCM29)
+(id=2,level1=-1,level2=-0.5,Tf=PCM28)
+(id=3,level1=-0.5,level2=-0.1,Tf=PCM27)
+(id=4,level1=-0.1,level2=-0.05,Tf=PCM26)
+(id=5,level1=-0.05,level2=-0.01,Tf=PCM25)
+(id=6,level1=-0.01,level2=0,Tf=PCM24)
+(id=7,level1=0,level2=0.01,Tf=PCM23)
+(id=8,level1=0.01,level2=0.05,Tf=PCM22)
+(id=9,level1=0.05,level2=0.1,Tf=PCM21)
+(id=10,level1=0.1,level2=0.5,Tf=PCM20)
+(id=11,level1=0.5,level2=1,Tf=PCM19)
+(id=12,level1=1,level2=1e+20,Tf=PCM18) )
+
+Gfi_PCM_tauugwd(
+projection=linear,xticlabels#1=lon30,xticlabels#2=lon30,xmtics#1=lon5,
+xmtics#2=lon5,yticlabels#1=lat20,yticlabels#2=lat20,ymtics#1=lat5,
+ymtics#2=lat5,
+datawc(-180,-90,180,90),
+missing=1e+20,
+range
+(id=1,level1=-1e+20,level2=-1,Tf=PCM29)
+(id=2,level1=-1,level2=-0.5,Tf=PCM28)
+(id=3,level1=-0.5,level2=-0.1,Tf=PCM27)
+(id=4,level1=-0.1,level2=-0.05,Tf=PCM26)
+(id=5,level1=-0.05,level2=-0.01,Tf=PCM25)
+(id=6,level1=-0.01,level2=0,Tf=PCM24)
+(id=7,level1=0,level2=0.01,Tf=PCM23)
+(id=8,level1=0.01,level2=0.05,Tf=PCM22)
+(id=9,level1=0.05,level2=0.1,Tf=PCM21)
+(id=10,level1=0.1,level2=0.5,Tf=PCM20)
+(id=11,level1=0.5,level2=1,Tf=PCM19)
+(id=12,level1=1,level2=1e+20,Tf=PCM18) )
+
+Gfi_PCM_tauv(
+projection=linear,xticlabels#1=lon30,xticlabels#2=lon30,xmtics#1=lon5,
+xmtics#2=lon5,yticlabels#1=lat20,yticlabels#2=lat20,ymtics#1=lat5,
+ymtics#2=lat5,
+datawc(-180,-90,180,90),
+missing=1e+20,
+range
+(id=1,level1=-1e+20,level2=-1,Tf=PCM29)
+(id=2,level1=-1,level2=-0.5,Tf=PCM28)
+(id=3,level1=-0.5,level2=-0.1,Tf=PCM27)
+(id=4,level1=-0.1,level2=-0.05,Tf=PCM26)
+(id=5,level1=-0.05,level2=-0.01,Tf=PCM25)
+(id=6,level1=-0.01,level2=0,Tf=PCM24)
+(id=7,level1=0,level2=0.01,Tf=PCM23)
+(id=8,level1=0.01,level2=0.05,Tf=PCM22)
+(id=9,level1=0.05,level2=0.1,Tf=PCM21)
+(id=10,level1=0.1,level2=0.5,Tf=PCM20)
+(id=11,level1=0.5,level2=1,Tf=PCM19)
+(id=12,level1=1,level2=1e+20,Tf=PCM18) )
+
+Gfi_PCM_tauvgwd(
+projection=linear,xticlabels#1=lon30,xticlabels#2=lon30,xmtics#1=lon5,
+xmtics#2=lon5,yticlabels#1=lat20,yticlabels#2=lat20,ymtics#1=lat5,
+ymtics#2=lat5,
+datawc(-180,-90,180,90),
+missing=1e+20,
+range
+(id=1,level1=-1e+20,level2=-1,Tf=PCM29)
+(id=2,level1=-1,level2=-0.5,Tf=PCM28)
+(id=3,level1=-0.5,level2=-0.1,Tf=PCM27)
+(id=4,level1=-0.1,level2=-0.05,Tf=PCM26)
+(id=5,level1=-0.05,level2=-0.01,Tf=PCM25)
+(id=6,level1=-0.01,level2=0,Tf=PCM24)
+(id=7,level1=0,level2=0.01,Tf=PCM23)
+(id=8,level1=0.01,level2=0.05,Tf=PCM22)
+(id=9,level1=0.05,level2=0.1,Tf=PCM21)
+(id=10,level1=0.1,level2=0.5,Tf=PCM20)
+(id=11,level1=0.5,level2=1,Tf=PCM19)
+(id=12,level1=1,level2=1e+20,Tf=PCM18) )
+
+Gfi_PCM_ua(
+projection=linear,xticlabels#1=lat20,xticlabels#2=lat20,yticlabels#1=PCM_p_levels,
+yticlabels#2=PCM_height,
+datawc(90,1000,-90,1),
+missing=1e+20,
+range
+(id=1,level1=-1e+20,level2=-25,Tf=PCM29)
+(id=2,level1=-25,level2=-20,Tf=PCM28)
+(id=3,level1=-20,level2=-15,Tf=PCM27)
+(id=4,level1=-15,level2=-10,Tf=PCM26)
+(id=5,level1=-10,level2=-5,Tf=PCM25)
+(id=6,level1=-5,level2=0,Tf=PCM24)
+(id=7,level1=0,level2=5,Tf=PCM23)
+(id=8,level1=5,level2=10,Tf=PCM22)
+(id=9,level1=10,level2=15,Tf=PCM21)
+(id=10,level1=15,level2=20,Tf=PCM20)
+(id=11,level1=20,level2=25,Tf=PCM19)
+(id=12,level1=25,level2=30,Tf=PCM17)
+(id=13,level1=30,level2=35,Tf=PCM35)
+(id=14,level1=35,level2=1e+20,Tf=PCM36) )
+
+
+Gfi_PCM_uas(
+projection=linear,xticlabels#1=lon30,xticlabels#2=lon30,xmtics#1=lon5,
+xmtics#2=lon5,yticlabels#1=lat20,yticlabels#2=lat20,ymtics#1=lat5,
+ymtics#2=lat5,
+datawc(-180,-90,180,90),
+missing=1e+20,
+range
+(id=1,level1=-1e+20,level2=-21,Tf=PCM16)
+(id=2,level1=-21,level2=-18,Tf=PCM30)
+(id=3,level1=-18,level2=-15,Tf=PCM29)
+(id=4,level1=-15,level2=-12,Tf=PCM28)
+(id=5,level1=-12,level2=-9,Tf=PCM27)
+(id=6,level1=-9,level2=-6,Tf=PCM34)
+(id=7,level1=-6,level2=-3,Tf=PCM33)
+(id=8,level1=-3,level2=0,Tf=PCM32)
+(id=9,level1=0,level2=3,Tf=PCM23)
+(id=10,level1=3,level2=6,Tf=PCM22)
+(id=11,level1=6,level2=9,Tf=PCM21)
+(id=12,level1=9,level2=12,Tf=PCM20)
+(id=13,level1=12,level2=15,Tf=PCM19)
+(id=14,level1=15,level2=18,Tf=PCM18)
+(id=15,level1=18,level2=21,Tf=PCM17)
+(id=16,level1=21,level2=1e+20,Tf=PCM35)
+(id=17,level1=1e+20,level2=1e+20,Tf=PCM241) )
+
+Gfi_PCM_vas(
+projection=linear,xticlabels#1=lon30,xticlabels#2=lon30,xmtics#1=lon5,
+xmtics#2=lon5,yticlabels#1=lat20,yticlabels#2=lat20,ymtics#1=lat5,
+ymtics#2=lat5,
+datawc(-180,-90,180,90),
+missing=1e+20,
+range
+(id=1,level1=-1e+20,level2=-10,Tf=PCM29)
+(id=2,level1=-10,level2=-8,Tf=PCM28)
+(id=3,level1=-8,level2=-6,Tf=PCM27)
+(id=4,level1=-6,level2=-4,Tf=PCM26)
+(id=5,level1=-4,level2=-2,Tf=PCM25)
+(id=6,level1=-2,level2=0,Tf=PCM24)
+(id=7,level1=0,level2=2,Tf=PCM23)
+(id=8,level1=2,level2=4,Tf=PCM22)
+(id=9,level1=4,level2=6,Tf=PCM21)
+(id=10,level1=6,level2=8,Tf=PCM20)
+(id=11,level1=8,level2=10,Tf=PCM19)
+(id=12,level1=10,level2=12,Tf=PCM18)
+(id=13,level1=12,level2=14,Tf=PCM17)
+(id=14,level1=14,level2=1e+20,Tf=PCM35)
+(id=17,level1=1e+20,level2=1e+20,Tf=PCM241) )
+
+Gfi_PCM_va(
+projection=linear,xticlabels#1=lat20,xticlabels#2=lat20,yticlabels#1=PCM_p_levels,
+yticlabels#2=PCM_height,
+datawc(90,1000,-90,1),
+xaxisconvert=linear,
+yaxisconvert=linear,
+missing=1e+20,
+range
+(id=1,level1=-1e+20,level2=-3,Tf=PCM29)
+(id=2,level1=-3,level2=-2.5,Tf=PCM28)
+(id=3,level1=-2.5,level2=-2,Tf=PCM27)
+(id=4,level1=-2,level2=-1.5,Tf=PCM26)
+(id=5,level1=-1.5,level2=-1,Tf=PCM25)
+(id=6,level1=-1,level2=-0.5,Tf=PCM24)
+(id=7,level1=-0.5,level2=0,Tf=PCM23)
+(id=8,level1=0,level2=0.5,Tf=PCM22)
+(id=9,level1=0.5,level2=1,Tf=PCM21)
+(id=10,level1=1,level2=1.5,Tf=PCM20)
+(id=11,level1=1.5,level2=2,Tf=PCM19)
+(id=12,level1=2,level2=2.5,Tf=PCM17)
+(id=13,level1=2.5,level2=3,Tf=PCM35)
+(id=14,level1=3,level2=1e+20,Tf=PCM36) )
+
+Gfi_PCM_wap(
+projection=linear,xticlabels#1=lat20,xticlabels#2=lat20,yticlabels#1=PCM_p_levels,
+yticlabels#2=PCM_height,
+datawc(90,1000,-90,1),
+xaxisconvert=linear,
+yaxisconvert=linear,
+missing=1e+20,
+range
+(id=1,level1=-1e+20,level2=-0.03,Tf=PCM29)
+(id=2,level1=-0.03,level2=-0.025,Tf=PCM28)
+(id=3,level1=-0.025,level2=-0.02,Tf=PCM27)
+(id=4,level1=-0.02,level2=-0.015,Tf=PCM26)
+(id=5,level1=-0.015,level2=-0.01,Tf=PCM25)
+(id=6,level1=-0.01,level2=-0.005,Tf=PCM24)
+(id=7,level1=-0.005,level2=0,Tf=PCM23)
+(id=8,level1=0,level2=0.005,Tf=PCM22)
+(id=9,level1=0.005,level2=0.01,Tf=PCM21)
+(id=10,level1=0.01,level2=0.015,Tf=PCM20)
+(id=11,level1=0.015,level2=0.02,Tf=PCM19)
+(id=12,level1=0.02,level2=0.025,Tf=PCM17)
+(id=13,level1=0.025,level2=0.03,Tf=PCM35)
+(id=14,level1=0.03,level2=1e+20,Tf=PCM36) )
+
+
+
+Gfi_PCM_zg(
+projection=linear,xticlabels#1=lat20,xticlabels#2=lat20,yticlabels#1=PCM_p_levels,
+yticlabels#2=PCM_height,
+datawc(90,1000,-90,1),
+xaxisconvert=linear,
+yaxisconvert=linear,
+missing=1e+20,
+range
+(id=0,level1=-1e+20,level2=0,Tf=PCM241)
+(id=1,level1=0,level2=3000,Tf=PCM29)
+(id=2,level1=3000,level2=6000,Tf=PCM28)
+(id=3,level1=6000,level2=9000,Tf=PCM27)
+(id=4,level1=9000,level2=12000,Tf=PCM26)
+(id=5,level1=12000,level2=15000,Tf=PCM25)
+(id=6,level1=15000,level2=18000,Tf=PCM24)
+(id=7,level1=18000,level2=21000,Tf=PCM23)
+(id=8,level1=21000,level2=24000,Tf=PCM22)
+(id=9,level1=24000,level2=27000,Tf=PCM21)
+(id=10,level1=27000,level2=30000,Tf=PCM20)
+(id=11,level1=30000,level2=33000,Tf=PCM19)
+(id=12,level1=33000,level2=36000,Tf=PCM17)
+(id=13,level1=36000,level2=39000,Tf=PCM35)
+(id=14,level1=39000,level2=1e+20,Tf=PCM36) )
+
+C_PCM(
+   100,100,100,   0,0,0,   44.7,62.4,100,   29.8,44.3,62,   76.9,84.3,100,   100,100,0,
+   100,55.6863,16.4706,   0,0,0,   100,100,100,   0,0,0,   100,0,0,   0,100,0,
+   0,0,100,   100,100,0,   0,100,100,   100,0,100,   98.4314,98.4314,100,   78.4314,12.549,3.1373,
+   88.6274,20,5.4902,   94.5098,33.3333,12.549,   100,55.6863,16.4706,   99.6078,80,24.7059,   97.6471,87.8431,24.7059,   95.6863,100,24.3137,
+   79.2157,100,83.5294,   52.549,100,94.5098,   36.4706,100,94.5098,   7.0588,78.4314,100,   23.5294,52.9412,100,   57.6471,20.7843,99.6078,
+   84.7059,6.6667,99.6078,   100,0,100,   80.7843,100,15.6863,   44.3137,100,14.1176,   23.1373,85.098,56.8627,   65.8824,0,0,
+   47.451,8.2353,11.3725,   0,50,100,   0,40,100,   0,30,100,   0,20,100,   0,10,100,
+   0,0,100,   10,0,100,   20,0,100,   30,0,100,   40,0,100,   50,0,100,
+   60,0,100,   70,0,100,   80,0,100,   90,0,100,   100,0,100,   100,0,90,
+   100,0,80,   100,0,70,   100,0,60,   100,0,50,   100,0,40,   100,0,30,
+   100,0,20,   100,0,10,   100,0,0,   95,10,10,   90,20,20,   85,30,30,
+   80,40,40,   75,50,50,   70,60,60,   65,70,70,   60,80,80,   55,90,90,
+   50,100,100,   45,100,90,   40,100,80,   35,100,70,   30,100,60,   25,100,50,
+   20,100,40,   15,100,30,   10,100,20,   5,100,10,   0,100,0,   10,95,10,
+   20,90,20,   30,85,30,   40,80,40,   50,75,50,   60,70,60,   70,65,70,
+   80,60,80,   90,55,90,   100,50,100,   90,45,100,   80,40,100,   70,35,100,
+   60,30,100,   50,25,100,   40,20,100,   30,15,100,   20,10,100,   10,5,100,
+   0,0,100,   10,10,95,   20,20,90,   30,30,85,   40,40,80,   50,50,75,
+   60,60,70,   70,70,65,   80,80,60,   90,90,55,   100,100,50,   100,90,45,
+   100,80,40,   100,70,35,   100,60,30,   100,50,25,   100,40,20,   100,30,15,
+   100,20,10,   100,10,5,   100,0,0,   95,0,0,   90,0,0,   85,0,0,
+   80,0,0,   75,0,0,   70,0,0,   65,0,0,   60,0,0,   55,0,0,
+   50,0,0,   45,0,0,   40,0,0,   35,0,0,   30,0,0,   25,0,0,
+   20,0,0,   15,0,0,   10,0,0,   5,0,0,   0,0,0,   0,5,0,
+   0,10,0,   0,15,0,   0,20,0,   0,25,0,   0,30,0,   0,35,0,
+   0,40,0,   0,45,0,   0,50,0,   0,55,0,   0,60,0,   0,65,0,
+   0,70,0,   0,75,0,   0,80,0,   0,85,0,   0,90,0,   0,95,0,
+   0,100,0,   0,95,5,   0,90,10,   0,85,15,   0,80,20,   0,75,25,
+   0,70,30,   0,65,35,   0,60,40,   0,55,45,   0,50,50,   0,45,55,
+   0,40,60,   0,35,65,   0,30,70,   0,25,75,   0,20,80,   0,15,85,
+   0,10,90,   0,5,95,   0,0,100,   0,0,95,   0,0,90,   0,0,85,
+   0,0,80,   0,0,75,   0,0,70,   0,0,65,   0,0,60,   0,0,55,
+   0,0,50,   0,0,45,   0,0,40,   0,0,35,   0,0,30,   0,0,25,
+   0,0,20,   0,0,15,   0,0,10,   0,0,5,   0,0,0,   5,5,5,
+   10,10,10,   15,15,15,   20,20,20,   25,25,25,   30,30,30,   35,35,35,
+   40,40,40,   45,45,45,   50,50,50,   55,55,55,   60,60,60,   65,65,65,
+   70,70,70,   75,75,75,   80,80,80,   85,85,85,   90,90,90,   95,95,95,
+   100,100,100,   100,95,95,   100,90,90,   100,85,85,   100,80,80,   100,75,75,
+   100,70,70,   100,65,65,   100,60,60,   100,55,55,   100,50,50,   100,45,45,
+   100,40,40,   100,35,35,   100,30,30,   100,25,25,   100,20,20,   100,15,15)

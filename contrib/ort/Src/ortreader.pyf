@@ -1,0 +1,16 @@
+python module ort
+  interface
+      subroutine read1f(filename, maxsta, nvarbs, nlevels, lon, lat, data, nr)
+      character*(*) filename	! name of the file to be read
+      integer maxsta 		! max number of stations (soundings) possible
+      integer nvarbs, nlevels   ! number of variables and P-levels in each sounding
+!
+!  Output variables:
+!
+      real, intent(out)::  lon(maxsta), lat(maxsta)	  ! longitudes / latitudes of the stations
+      real , intent(out):: data(nvarbs, nlevels, maxsta)  ! sounding data
+      integer , intent(out):: nr			  ! actual number of stations with data
+!
+    end subroutine read1f
+  end interface
+end module ort

@@ -1,0 +1,34 @@
+#!/usr/bin/env python
+
+keepers = ['about.gif',
+           'about.xcf',
+           'air_pollution.gif',
+           'air_pollution_ss.gif',
+           'application_development.gif',
+           'cdat_overview.gif',
+           'cdat_overview_ss.gif',
+           'cleanit',
+           'data_access.gif',
+           'data_access_ss.gif',
+           'data_analysis.gif',
+           'diagnostics.gif',
+           'diagnostics_ss.gif',
+           'earth_sciences.gif',
+           'engineering.gif',
+           'engineering_ss.gif',
+           'globe.xcf',
+           'live_tools.gif',
+           'live_tools_ss.gif',
+           'main_background.gif',
+           'pcmdi.gif',
+           'space_physics.gif',
+           'splash_screen.gif',
+           'splash_screen.xcf',
+           'visualization.gif'
+           ]
+
+import os
+files = os.listdir('.')
+for entry in files:
+    if entry not in keepers:
+        os.remove (entry)

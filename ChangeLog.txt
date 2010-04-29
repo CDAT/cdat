@@ -1,0 +1,11 @@
+2010-04-08 : build system fetches sources, no more gz in repository!
+2010-04-08 : preliminary merge with Qt branch. You should be able to build against Qt (which needs to be pre-installed independently for now)
+2010-02-11 : added netcdf 4.1
+2010-02-02 : added correct link calls for icc under linux
+2010-01-28 : fixed tiny-tiny leak in cdms2 and cdtime (setting dictionary item
+w/o decref tmp pyobject for int/string)
+2010-01-28 : latest netcdf4 daily from Ed, fixes a LOT of memory leaks.
+2010-01-13 : change default cdms2 compress value to no shuffle/deflate 1/defalteLevel 1
+2010-01-13 : newer NetCDF4, daily snapshot that has better chunking parameter, etc..
+2010-01-13 : latest Scientific Python  (SP)
+2010-01-13 : got vtk to build in framework mode under Mac

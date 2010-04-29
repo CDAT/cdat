@@ -1,0 +1,10 @@
+README
+MANIFEST
+Legal.htm
+setup.py
+Lib/Properties.py
+Lib/Properties_version.py
+Lib/__init__.py
+Lib/InternalAttributes.py
+Test/test.py
+Test/testintern.py

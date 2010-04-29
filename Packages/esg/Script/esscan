@@ -1,0 +1,356 @@
+#!/usr/bin/env python
+# Adapted for numpy/ma/cdms2 by convertcdms.py
+
+import sys
+import getopt
+import esg
+from esg import ESGError
+import cdms2 as cdms
+from cdms2.axis import tagToCalendar
+import ncml
+import string
+import os.path
+
+usage = """Usage:
+    esscan [options] <files>
+      -or-
+    esscan [options] --files filelist
+
+    Scan a list of files, producing a description of the dataset in ESG markup language.
+
+Arguments:
+
+    <files> is a list of file paths to scan. The files can be listed in any order, and may
+    be in multiple directories.  Files may be in any of the following formats, as determined
+    by the file extension:
+
+    Format                         Extension
+    ------                         ---------
+    NcML (NetCDF markup language)  .ncml (note: may have coordinate variable extensions)
+    CDML (CDML markup language)    .cdml
+    netCDF                         (any, typically .nc)
+    GrADS control file.            (any, typically .ctl)
+    HDF4 (if linked with CDMS)     (any, typically .hdf)
+
+Options:
+
+    --activity activityID
+    -a
+                   Activity ID to associate with the result dataset.
+
+    --calendar calendar
+    -c
+		   Specify the calendar associated with the dataset,
+		   either "gregorian", "proleptic_gregorian", "julian",
+		   "noleap", or "360_day". Default is to determine the
+                   calendar from the file metadata.
+
+    --dataset datasetid
+    -d
+                   Dataset ID. If an initial ESG markup file is specified
+		   with the --initial option, this option sets the ID of
+		   the dataset to merge the scan results into. Otherwise
+		   this option sets the ID of the result dataset.
+
+    --dataname dataset_name
+    		   Set the dataset name. The name is a readable
+                   description of the dataset.  If the dataset exists
+                   (see --initial) the name will be modified.  This
+                   parameter is optional.
+
+    --exclude var,var,...
+    -e
+                   Exclude specified variables. The argument
+                   is a comma-separated list of variables containing no blanks.
+                   Also see --include. var has the form paramlistOwner.param.varid.
+
+    --execarg arg
+                   Pass an argument to the --execfile script.
+
+    --execfile pythonScript
+                   Execute a Python script on the result Metadata object.
+                   pythonScript is the name of a Python file. Also see --execarg.
+
+    --files filelist
+    -f
+		   List input files in text file filelist, containing a
+		   list of absolute data file names, one per line. <files>
+		   arguments are ignored.
+
+    --filesxml filelist
+                   List input files in XML format:
+
+                   <list>
+                     <file path="/a/b01.nc" size="12345"/>
+                     <file path="/a/b02.nc" size="12345"/>
+                   </list>
+
+    --help
+    -h
+                   Print a help message.
+
+    --include var,var,...
+    -i
+                   Only include specified variables in the output. The argument
+                   is a comma-separated list of variables containing no blanks.
+                   Also see --exclude. var has the form paramlistOwner.param.varid.
+
+    --initial esg_markup_file
+    -m
+                   Append the results to an existing file in ESG markup
+		   language. If the file contains multiple datasets, use
+		   the --dataset option to indicate the target dataset ID.
+
+    --logical-files prefix
+                   Include logical filenames in the output. Prepend prefix
+                   to filenames to generate logical file IDs. By default the
+                   prefix is the parent dataset ID. See --nofiles.
+
+    --must-resolve
+                   Raise an exception whenever a parameter or
+		   parameter list IDREF cannot be resolved to the
+		   corresponding element. If the initial ESG markup
+		   file (--initial) contains references to parameters
+		   or parameter lists external to the file, use the
+		   --plists option to specify a location. Default is
+		   to silently ignore the issue.
+
+    --newpl ID
+    -n
+                   ID of the new parameter list created (if necessary).
+                   Defaults to dataset.parameters.
+
+    --nofiles
+                   Don't include logical file IDs in the output. See --logical-files.
+
+    --output path
+    -o
+		   Write output to a file. By default, output is written to
+                   standard output.
+
+    --plists path,path,...
+    -l
+		   Files that contain parameters and parameter lists. The argument is
+		   comma-separated with no blanks.
+
+    --plowner ID
+    -p
+                   Owner of the parameter list. Defaults to the ID of the activity
+                   that owns the dataset.
+
+    --tname timename
+    -t
+		   Name of the time variable.
+
+    --verbose
+    -v
+		   Verbose mode. Off by default
+
+    --xname name
+    -x
+		   Name of the X variable.		   
+
+    --yname name
+    -y
+		   Name of the Y variable.		   
+
+    --zname name
+    -z
+		   Name of the Z variable.
+
+Examples:
+
+    (1) Scan input files 'foo.nc', 'bar.cdml', and 'boz.ncml'. Specify the parent simulation as 'ucar.cgd.pcm', and the dataset ID as 'ucar.cgd.pcm.foo'. Write output to file 'sample.esg':
+
+        esscan --activity ucar.cgd.pcm --dataset ucar.cgd.pcm.foo --output sample.esg foo.nc bar.cdml boz.ncml
+
+    (2) Scan input files 'foo.nc' and 'bar.nc'. Merge results into dataset 'ucar.cgd.pcm.foo' in file 'sample.esg'. Get parameters and parameter lists from files 'pcm.lists.esg' and 'pcm.params.esg'. Raise an exception if a parameter or parameter list in the initial dataset cannot be found:
+
+        esscan --dataset ucar.cgd.pcm.foo --initial sample.esg --must-resolve --plists pcm.lists.esg,pcm.params.esg,foo.nc bar.nc
+
+"""
+
+def getCdmlNode(path):
+    "Open a CDML, NcML, or cdunif file, return a CDML node."
+    root, ext = os.path.splitext(path)
+    if ext==".cdml":
+        dset = cdms.open(path)
+        dsetnode = dset._node_
+    elif ext==".ncml":
+        csnode = ncml.csParse.load(path)
+        dsetnode = csnode.toCDML()
+    else:
+        # Get a node for a cdunif file.
+        # Note: There's a subtle reason for using forcedata here. Without it,
+        # the subsequent toEsg() call crashes, because for some files the virtual axis 'bounds'
+        # (of length 2) has no associated data node. Since cs.scan adds values
+        # to coordinate axes, the time and spatial coordinate axes should be correct.
+        csnode = ncml.cs.scan(path)
+        dsetnode = csnode.toCDML(forcedata=1)
+    return dsetnode
+
+def logicalFileID(path, optarg=None):
+    "Generate a logical file ID and name from a path"
+    filename = os.path.basename(path)
+    result = "%s.%s"%(optarg,filename)
+    return result, filename
+
+#--------------------------------------------------------------------------------------------------------------------------
+
+verbose = 0
+
+def main(argv):
+
+    global verbose
+    try:
+        args, lastargs = getopt.getopt(argv[1:],"a:c:d:e:f:hi:l:m:n:o:p:t:vx:y:z:",["activity=","calendar=","dataname=","dataset=","exclude=","execarg=","execfile=","files=","filesxml=","help","include=","initial=","logical-files=","must-resolve","newpl=","nofiles","output=","plists=","plowner=","tname=","verbose","xname=","yname=","zname="])
+    except getopt.error:
+        print sys.exc_value
+        print usage
+        sys.exit(0)
+
+    activity = 'None'
+    activityOption = 0
+    calendar = None
+    dataname = None
+    dataset = 'None'
+    datasetOption = 0
+    exclude = None
+    execarg = None
+    executeFile = None
+    filelist = None
+    filemapper = logicalFileID
+    include = None
+    initial = None
+    logicalFiles = None
+    mustResolve = "no"
+    newpl = None
+    output = sys.stdout
+    plistpaths = []
+    plowner = None
+    taxis = None
+    xaxis = None
+    yaxis = None
+    zaxis = None
+    for flag, arg in args:
+        if flag in ["-a","--activity"]:
+            activity=arg
+            activityOption = 1
+        elif flag in ["-c","--calendar"]:
+            calenkey = string.lower(arg)
+            if not tagToCalendar.has_key(calenkey):
+                raise ESGError, "Invalid calendar: %s"%calenkey
+            calendar = tagToCalendar[calenkey]
+        elif flag in ["-d","--dataset"]:
+            dataset = arg
+            datasetOption = 1
+	elif flag in ["--dataname"]:
+            dataname = arg
+        elif flag in ["-e","--exclude"]:
+            exclude = string.split(arg,',')
+        elif flag in ["--execarg"]:
+            execarg = arg
+        elif flag in ["--execfile"]:
+            executeFile = arg
+        elif flag in ["-f","--files"]:
+            filelist = open(arg)
+            lastargs = map(string.strip, filelist.readlines())
+            filelist.close()
+        elif flag in ["--filesxml"]:
+            fileobjs = esg.loadls(arg)
+            lastargs = map(lambda x: x.name, fileobjs)
+        elif flag in ["-h","--help"]:
+            print usage
+            sys.exit(0)
+        elif flag in ["-i","--include"]:
+            include = string.split(arg,',')
+        elif flag in ["--logical-files"]:
+            logicalFiles = arg
+            filemapper = logicalFileID
+        elif flag in ["-m","--initial"]:
+            initial = arg
+	elif flag in ["--must-resolve"]:
+            mustResolve = "yes"
+        elif flag in ["-n","--newpl"]:
+            newpl = arg
+        elif flag in ["--nofiles"]:
+            filemapper = None
+        elif flag in ["-o","--output"]:
+            output = open(arg,'w')
+        elif flag in ["-p","--plowner"]:
+            plowner = arg
+        elif flag in ["-l","--plists"]:
+            plistpaths = string.split(arg,',')
+        elif flag in ["-t","--tname"]:
+            taxis = arg
+        elif flag in ["-v","--verbose"]:
+            verbose = 1
+        elif flag in ["-x","--xname"]:
+            xaxis = arg
+        elif flag in ["-y","--yname"]:
+            yaxis = arg
+        elif flag in ["-z","--zname"]:
+            zaxis = arg
+
+    # Generate an initial ESGML node for the result
+    if initial is None:
+        fesg = esg.Metadata()
+    else:
+        fesg = esg.load(initial)
+        if not datasetOption:
+            if len(fesg.datasets.keys())>1:
+                dsets = map(lambda x: x.encode(), fesg.datasets.keys())
+                raise ESGError, "Use --dataset to set the target dataset ID in %s, one of %s"%(initial,`dsets`)
+            elif len(fesg.datasets.keys())==1:
+                dataset = fesg.datasets.keys()[0]
+
+    # If ID not found, create a new dataset in fesg as the target.
+    if not fesg.datasets.has_key(dataset):
+        fdset = esg.Dataset(dataset, name=dataname)
+        fesg.setDataset(fdset)
+    elif dataname is not None:
+        fesg.datasets[dataset].name = dataname
+
+    # Derive defaults
+    if newpl is None:
+        newpl = "%s.parameters"%dataset
+    if not activityOption:
+        fdset = fesg.datasets[dataset]
+        if fdset.generatedBy is not None:
+            activity = fdset.generatedBy.idref
+    if plowner is None:
+        plowner = activity
+    if logicalFiles is None:
+        logicalFiles = dataset
+
+    # Get extra parameters and parameter lists if specified
+    plists = []
+    targetParams = []
+    for path in plistpaths:
+        md = esg.load(path)
+        for plist in md.parameterLists.values():
+            plists.append(plist)
+        for param in md.parameters.values():
+            targetParams.append(param)
+
+    # For each file, get an ESGML node and merge into the result.
+    for path in lastargs:
+        if verbose:
+            print 'Processing: %s'%path
+        dnode2 = getCdmlNode(path)
+        gesg = esg.toEsg(dnode2, dataset, plowner, activity, calendar=calendar, taxis=taxis, xaxis=xaxis, yaxis=yaxis, zaxis=zaxis, fileMapper=filemapper, mapperArg=logicalFiles)
+        fesg.merge(dataset, gesg, dataset, newpl, include=include, exclude=exclude, extralists=plists, targetParams=targetParams, mustResolve=mustResolve)
+
+    # Execute a script on the result if specified
+    if executeFile is not None:
+        execfile(executeFile)
+
+    # Write result node to an ESGML file
+    print >>output, '<?xml version="1.0" encoding="ISO-8859-1"?>'
+    print >>output, '<!-- Generated with esscan -->'
+    fesg.write(output)
+
+#--------------------------------------------------------------------------------------------------------------------------
+if __name__ == '__main__':
+    main(sys.argv)
+

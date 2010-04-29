@@ -1,0 +1,31 @@
+#!/bin/sh
+# usage: ./test_script [-v] [targetdir]
+# -v prevents run of vcdat
+#
+unset PYTHONPATH
+unset PYTHONHOME
+unset PYTHONSTARTUP
+if (test "$1" = "-v") then
+    vopt=0; shift;
+else
+    vopt=1
+fi
+if (test $# -eq 0) then 
+    p=`which python`; v=`which vcdat`
+else
+    here=`pwd`;
+    cd $1/bin;
+    pdir=`pwd`;
+    p=$pdir/python; v=$pdir/vcdat;
+    cd $here
+fi
+prefix=`${p} -c "import sys; print sys.exec_prefix"`
+echo "Testing $p"
+(cd Packages/cdms/Test; $p cdtest.py) 
+if (test $vopt -eq 1) then
+    echo "Testing $v";
+    $v
+fi
+echo "-------------------------------------------------------------------"
+echo "Tests completed."
+

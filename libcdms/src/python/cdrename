@@ -1,0 +1,123 @@
+#!/usr/bin/env python
+
+import ldap, sys, getopt, os, string
+from cdms import cdurlparse
+usage = """Usage: cdrename [-D binddn] [-h host] [-p port] [-v] [-w password] oldDN newRDN
+
+Rename the relative distinguished name of a CDMS object. 
+
+Arguments:
+
+    'oldDN' is the entry to be changed
+    'newRDN' is the new relative distinguished name of the entry
+
+Options:
+
+    -D: 'binddn', the distinguished name of a user with privilege to modify the database. See -w.
+        The default value is environment variable CDMSUSER, if specified, otherwise the bind is anonymous.
+    -h: host (default: host name in CDMSROOT)
+    -p: server port (default: 389)
+    -v: verbose
+    -w: password (see -D)
+
+Example:
+
+    cdrename -v 'database=newdb,ou=PCMDI,o=LLNL,c=US' database=testdb
+
+Notes:
+
+    For version 2 LDAP, only leaf nodes can be renamed.
+
+"""
+
+NonleafError = "Only leaf nodes can be renamed for V2 LDAP"
+
+def main(argv):
+
+    binddn = os.environ.get('CDMSUSER',"")
+    password = None
+
+    cdmsroot = os.environ.get('CDMSROOT')
+    if cdmsroot is None:
+        host = None
+        port = ldap.PORT
+    else:
+        (scheme,fullhost,path,parameters,query,fragment)=cdurlparse.urlparse(cdmsroot)
+        hostport = string.split(fullhost,':')
+        if len(hostport)==1:
+            host = hostport[0]
+            port = ldap.PORT
+        else:
+            host, strport = hostport
+            port = string.atoi(strport)
+
+    try:
+        args, lastargs = getopt.getopt(argv[1:],"cD:h:p:vw:")
+    except getopt.error:
+        print sys.exc_value
+        print usage
+        sys.exit(0)
+
+    verbose = 0
+    for flag,arg in args:
+        if flag=='-D': binddn = arg
+        elif flag=='-h': host = arg
+        elif flag=='-p': port = arg
+        elif flag=='-v': verbose = 1
+        elif flag=='-w': password = arg
+
+    if len(lastargs)!=2:
+        print 'Two arguments required'
+        print usage
+        sys.exit(0)
+
+    olddn = lastargs[0]
+    newrdn = lastargs[1]
+
+    if verbose: print 'Connecting to',host,'...',
+    try:
+        ldapobj = ldap.open(host, port)
+    except:
+        print 'Error connecting to host: ',sys.exc_value
+        sys.exit(1)
+    if verbose: print 'Connected'
+
+    if verbose: print 'Binding user',binddn
+    if password is None:
+        import getpass
+        password = getpass.getpass()
+
+    try:
+        ldapobj.simple_bind_s(binddn, password)
+    except:
+        print 'Authentication error: ',sys.exc_value
+        sys.exit(1)
+
+    if verbose:
+        print 'Renaming entry %s to %s'%(olddn,newrdn)
+
+    # Search for child nodes
+    if verbose: print 'Searching for child nodes ...,',
+    try:
+	childresult = ldapobj.search_s(olddn, ldap.SCOPE_ONELEVEL, '(objectclass=*)',['dn'])
+	if verbose: print 'Done'
+    except:
+	print 'Error searching for child nodes: ',sys.exc_value
+	sys.exit()
+
+    if len(childresult)>0:
+	raise NonleafError
+
+    if verbose: print 'Renaming parent ...',
+    try:
+        ldapobj.modrdn_s(olddn,newrdn)
+        if verbose: print 'Done'
+    except:
+        print 'Error renaming parent entry: ',sys.exc_value
+        sys.exit(1)
+
+    ldapobj.unbind()
+
+#------------------------------------------------------------------------------------------------------------------------------
+if __name__ == '__main__':
+    main(sys.argv)

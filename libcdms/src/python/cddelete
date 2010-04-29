@@ -1,0 +1,133 @@
+#!/usr/bin/env python
+
+import ldap, sys, getopt, os, string
+from cdms import cdurlparse
+
+usage = """Usage: cddelete [-D binddn] [-h host] [-p port] [-v] [-w password] objectDN
+
+Delete a CDMS object.
+
+Arguments:
+
+    'objectDN' is the distinguished name of the object to be deleted.
+
+Options:
+
+    -D: 'binddn', the distinguished name of a user with privilege to modify the database. See -w.
+        The default value is environment variable CDMSUSER, if specified, otherwise the bind is anonymous.
+    -h: host (default: host name in CDMSROOT)
+    -p: server port (default: 389)
+    -v: verbose
+    -w: password (see -D)
+
+Example:
+
+    cddelete -v 'database=testdb,ou=PCMDI,o=LLNL,c=US'
+
+"""
+
+def main(argv):
+
+    binddn = os.environ.get('CDMSUSER',"")
+    password = None
+
+    cdmsroot = os.environ.get('CDMSROOT')
+    if cdmsroot is None:
+        host = None
+        port = ldap.PORT
+    else:
+        (scheme,fullhost,path,parameters,query,fragment)=cdurlparse.urlparse(cdmsroot)
+        hostport = string.split(fullhost,':')
+        if len(hostport)==1:
+            host = hostport[0]
+            port = ldap.PORT
+        else:
+            host, strport = hostport
+            port = string.atoi(strport)
+
+    try:
+        args, lastargs = getopt.getopt(argv[1:],"D:h:p:vw:")
+    except getopt.error:
+        print sys.exc_value
+        print usage
+        sys.exit(0)
+
+    verbose = 0
+    for flag,arg in args:
+        if flag=='-D': binddn = arg
+        elif flag=='-h': host = arg
+        elif flag=='-p': port = arg
+        elif flag=='-v': verbose = 1
+        elif flag=='-w': password = arg
+
+    if len(lastargs)!=1:
+        print 'objectDN argument is missing'
+        print usage
+        sys.exit(0)
+
+    objectid = lastargs[0]
+
+    if verbose:
+        print 'Bind DN: ', binddn
+        print 'Host: %s:%s'%(host,port)
+        print 'Object ID: ',objectid
+
+    if verbose: print 'Connecting to',host,'...',
+    try:
+        ldapobj = ldap.open(host, port)
+    except:
+        print 'Error connecting to host: ',sys.exc_value
+        sys.exit(1)
+    if verbose: print 'Connected'
+
+    if verbose: print 'Binding user',binddn
+    if password is None:
+        import getpass
+        password = getpass.getpass()
+
+    try:
+        ldapobj.simple_bind_s(binddn, password)
+    except:
+        print 'Authentication error: ',sys.exc_value
+        sys.exit(1)
+
+    if verbose: print 'Searching for child nodes ...,',
+    try:
+        result = ldapobj.search_s(objectid, ldap.SCOPE_ONELEVEL, '(objectclass=*)',['dn'])
+        if verbose: print 'Done'
+    except:
+        print 'Error searching for child nodes: ',sys.exc_value
+        sys.exit()
+
+    print 'Are you sure you want to delete %s and %d child nodes? [y/n]: '%(objectid,len(result)),
+    answer = string.strip(sys.stdin.readline())
+    if string.lower(answer)!='y':
+        print 'Cancelled'
+        ldapobj.unbind()
+        sys.exit(0)
+        
+    if verbose:
+        print 'Deleting entry', objectid
+        print 'Deleting ...',
+
+    try:
+        for dn, attrs in result:
+            ldapobj.delete_s(dn)
+            sys.stdout.write('.'); sys.stdout.flush()
+        if verbose: print 'Done'
+    except:
+        print 'Error deleting entry: ',sys.exc_value
+        sys.exit(1)
+
+    try:
+        ldapobj.delete_s(objectid)
+        if verbose: print 'Done'
+    except:
+        print 'Error deleting entry: ',sys.exc_value
+        sys.exit(1)
+
+    ldapobj.unbind()
+
+#------------------------------------------------------------------------------------------------------------------------------
+if __name__ == '__main__':
+    main(sys.argv)

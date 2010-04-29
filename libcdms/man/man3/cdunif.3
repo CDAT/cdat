@@ -1,0 +1,271 @@
+.\" $id$
+.TH cdunif 3 "9 June 1994" "LLNL" "CDMS Uniform I/O functions"
+.SH NAME
+cdunif \- CDMS uniform I/O functions for accessing DRS, GrADS (GRIB), HDF, and
+netCDF datafiles.
+.SH SYNOPSIS
+.ft B
+.na
+.nh
+.HP
+#include "cdunif.h"
+.HP 6
+int cuopenread(const\ char*\ controlpath, const\ char*\ datapath) 
+.HP
+int cuclose(int fileid)
+.HP
+int cuinquire(int fileid, int* ngdims, int* nvars, int*\ natts, int*\ recdim)
+.HP
+int cudimid(int fileid, int varid, const char* name)
+.HP
+int cudiminq(int fileid, int dimid, char* dimname, char*\ dimunits,
+CuType*\ dataType, CuDimType*\ dimtype, int*\ varid, long*\ length)
+.HP
+int cudimget(int fileid, int dimid, void* values)
+.HP
+int cuvarid(int fileid, const char* name)
+.HP
+int cuvarinq(int fileid, int varid, char* name, CuType*\ datatype, int*\ ndims, int\ dimids[], int*\ natts)
+.HP
+int cuvarget(int fileid, int varid, const long start[], const\ long\ count[], void*\ value)
+.HP
+int cuvargets(int fileid, int varid, const long order[], 
+const\ long\ start[], const\ long\ count[], const\ long\ stride[], CuType\ cast,
+void*\ values)
+.HP
+int cuattinq(int fileid, int varid, const char* name, CuType*\ datatype, int*\ len)
+.HP
+int cuattget(int fileid, int varid, const char* name, void*\ value)
+.HP
+int cuattname(int fileid, int varid, int attnum, char*\ name)
+.HP
+int cutypelen(CuType datatype)
+.HP
+int cusetlu(int lu1, int lu2)
+.HP
+void cuseterropts(int erropts)
+.HP
+int cugeterr(void)
+.ad
+.hy
+.SH "DESCRIPTION"
+.LP
+These routines implement a uniform, read-only interface to data and
+metadata contained in CDMS data files. Via this interface, CDMS supports
+access to DRS, GrADS (GRIB), HDF scientific datasets, and netCDF
+files. GRIB files can be read only if a GrADS control file is also
+supplied.
+.LP
+The \fBcdunif\fP interface is modeled very
+closely on the UCAR netCDF interface; in many cases there are functions in
+netCDF whose prototype is identical except for name. The exceptions are the
+\fIcuopenread\fP, \fIcudimid\fP, and \fIcudiminq\fP functions. Also, there
+are several functions with no counterpart in the netCDF API:
+\fIcudimget\fP, \fIcusetlu\fP, \fIcuvargets\fP,
+\fIcuseterropts\fP, and \fIcugeterr\fP.
+.LP
+The logical model for metadata in \fBcdunif\fP is very similar to that of netCDF. A file
+contains a set of variables, dimensions, and attributes. Variables are
+identified by integer ID or name; variable IDs range from 0 to (number of
+variables)-1. Attributes are also identified by number or name, and can be
+global or related to a variable. 
+.LP
+Dimensions are treated somewhat differently than in netCDF. Some of the
+file formats supported by \fBcdunif\fP, notably DRS, support dimensions
+which are \fBlocal\fP to a given variable - they are not shared by
+different variables and do not have unique names relative to other
+dimensions.  Consequently, the distinction is made between local and global
+dimensions, which can be shared (DRS vector dimensions are global).  
+.LP
+Also,
+every dimension has an associated \fIcoordinate vector\fP, which can be
+retrieved with \fIcudimget\fP. Like
+netCDF, dimensions are identified by name or numeric ID; both local and
+global dimensions have unique numeric IDs, which are sequential integers
+starting at 0.
+.SH "DATATYPES"
+The \fBcdunif\fP interface supports the following datatypes:
+\fBbyte\fP, \fBchar\fP, \fBshort\fP, \fBint\fP, \fBlong\fP, 
+\fBfloat\fP, \fBdouble\fP, and \fBlong double\fP. These datatypes
+correspond to the C datatypes.
+.LP
+\fBbyte\fP and \fBchar\fP are both 8-bit datatypes; the difference is that
+arrays of \fBchar\fPs are assumed to be null-terminated.
+.LP
+Note that the datatype of a variable in \fBcdunif\fP describes the data as
+it will be retrieved from the datafile, as opposed to the internal physical
+format of the data. This convention allows use of the \fIcutypelen\fP
+function to allocate memory for data retrieval.
+.LP
+The include file \fBcdunif.h\fP defines an enumeration type \fBCuType\fP,
+which can have the values \fBCuByte\fP, \fBCuChar\fP, \fBCuShort\fP, \fBCuInt\fP,
+\fBCuLong\fP, \fBCuFloat\fP, \fBCuDouble\fP, or \fBCuLongDouble\fP.
+.SH "FUNCTION DESCRIPTIONS"
+.LP
+.HP 4
+\fBint cuopenread(const char* \fIcontrolpath\fB, const char* \fIdatapath\fB)\fR
+.sp
+Opens an existing CDMS file for read or inquiry. 
+.sp
+For DRS files, the
+\fIcontrolpath\fP is the full pathname of the DRS dictionary file, and the
+\fIdatapath\fP is the pathname of the data file. If the \fIdatapath\fP is
+\fBNULL\fP (char* 0), then the data file is assumed to have the same name as the
+\fIcontrolpath\fP, with a '.dat' extension instead.
+.sp
+For GrADS files, the \fIcontrolpath\fP is the GrADS data descriptor file, and the
+\fIdatapath\fP is ignored.
+.sp
+For netCDF and HDF files, the \fIcontrolpath\fP is the full pathname of the file,
+and the \fIdatapath\fP is ignored.
+.sp
+The function returns the CDMS \fIfileid\fP
+on success, -1 on error.
+.HP
+\fBint cuclose(int fileid)\fR
+.sp
+Closes an open CDMS file. The function returns 0 on success, -1 on failure.
+.HP
+\fBint cuinquire(int \fIfileid\fB, int* \fIndims\fB, int* \fInvars\fB, int* \fInatts\fB, int* \fIrecdim\fB)\fR
+.sp
+Returns information about an open CDMS file. \fIngdims\fP is the total number of
+dimensions, both global and local, in the file. \fInvars\fP is the number of variables in the file,
+\fInatts\fP is the number of global attributes in the file. For netCDF
+files, \fIrecdim\fP is the dimension number of the unlimited dimension; for
+other file types, \fIrecdim\fP will return with a value of -1. To suppress
+return of a specific value, set the argument to \fBNULL\fP (int* 0). The function returns 0
+on success, -1 on error.
+.HP
+\fBint cudimid(int \fIfileid\fB, int \fIvarid\fB, const char* \fIname\fB)\fR
+.sp
+Returns the ID of a dimension of a variable, or -1 if an error occurs. If
+\fIvarid\fP is \fBCU_GLOBAL\fP, then only global (shared) dimensions are searched.
+.HP
+\fBint cudiminq(int \fIfileid\fB, int \fIdimid\fB, char* \fIdimname\fB, char*
+\fIdimunits\fB, CuType* \fIdatatype\fB, CuDimType* \fIdimtype\fB, int* \fIvarid\fB, long* \fIlength\fB)\fR
+.sp
+Returns the name, units (or an empty string if none), datatype, dimension type (\fBCuGlobalDim\fP or
+\fBCuLocalDim\fP), associated variable for local dimensions (or
+\fBCU_GLOBAL\fP if global), and length (number of elements) of a dimension. \fIdatatype\fP is
+the datatype of the coordinate vector for this dimension, or \fBCuFloat\fP
+if no such vector exists. Set any return arguments to \fBNULL\fP to
+suppress a return value. Character arrays may be dimensioned
+\fBCU_MAX_NAME\fP to guarantee enough memory for the return argument. The
+function returns 0 on success, -1 on error.
+.HP
+\fBint cudimget(int \fIfileid\fB, int \fIdimid\fB, void* \fIvalues\fB)\fR
+.sp
+Returns the values of the associated coordinate vector, if any, or the \fBfloat\fP
+array <0.0, 1.0, ..., (\fBfloat\fP)(\fIdimlen\fP-1)>, where \fIdimlen\fP is the
+length of the dimension. Function value is 0 on success, -1 on failure.
+.HP
+\fBint cuvarid(int \fIfileid\fB, const char* \fIname\fB)\fR
+.sp
+Returns the ID of a variable with name \fIname\fP. The function returns 0
+on success, -1 on error.
+.HP
+\fBint cuvarinq(int \fIfileid\fB, int \fIvarid\fB, char* \fIname\fB, CuType* \fIdatatype\fB, int* \fIndims\fB, int \fIdimids\fB[], int* \fInatts\fB)\fR
+.sp
+Returns the name, datatype, number of dimensions, dimension IDs, and number
+of attributes associated with a variable. \fIdimids\fP[] should be
+dimensioned \fBCU_MAX_VAR_DIMS\fP. It is returned as an array of length
+\fIndims\fP, of dimension IDs for the variable. If a parameter is set to
+\fBNULL\fP, no value is returned for that parameter. The function returns 0
+on success, -1 on error.
+.HP
+\fBint cuvarget(int \fIfileid\fB, int \fIvarid\fB, const long \fIstart\fB[], const long \fIcount\fB[], void* \fIvalue\fB)\fR
+.sp
+Reads a hyperslab of data. The region of the hyperslab is specified by the
+arrays \fIstart\fP and \fIcount\fP. \fIstart\fP is an array of 0-origin starting
+indices for each dimension of the variable. \fIcount\fP is the
+number of values to read in that dimension, starting at \fIstart\fP. The function returns 0
+on success, -1 on error.
+.HP
+\fBint cuvargets(int \fIfileid\fB, int \fIvarid\fB, const long \fIorder\fB[], 
+const\ long\ \fIstart\fB[], const\ long\ \fIcount\fB[], const\ long\ \fIstride\fB[], CuType\ \fIcast\fB,
+void*\ \fIvalues\fB)\fR
+.sp
+Reads a generalized hyperslab of data. The region of the hyperslab is specified by the
+arrays \fIstart\fP and \fIcount\fP. \fIstart\fP is an array of 0-origin starting
+indices for each dimension of the variable. \fIcount\fP is the
+number of values to read in that dimension, starting at \fIstart\fP. If
+\fIstart\fP[i]+\fIcount\fP[i] is greater than the length of the i-th dimension, the
+data returned will be wrapped modulo the length of the dimension. \fIstart\fP and
+\fIcount\fP have dimension ordering as specified by the order argument.
+.sp
+The data is returned with dimensions ordered <\fIorder\fP[0], \fIorder\fP[1], ...,
+\fIorder\fP[ndims-1]>, relative to the order of dimensions as defined in the
+file. Dimension indices start at 0. If \fIorder\fP is NULL, it defaults to <0, 1,
+..., ndims-1>, indicating no transposition.
+.sp
+\fIstride\fP is an array of strides for each dimension. For example, if \fIstride\fP[i]
+is 2, every other value along the i-th dimension is returned. Similarly, if
+\fIstride\fP[i] is -1, the direction of data retrieved along that dimension is
+reversed. A NULL \fIstride\fP argument defaults to <1, 1, ..., 1>, that is, all
+data values in the region are returned.
+.sp
+The \fIcast\fP argument specifies the datatype to which data should be cast on
+return. It is one of the CuType values (see \fBDATATYPES\fP above). If \fIcast\fP is
+NULL, no casting is performed.
+.sp
+The data is returned in the array \fIvalues\fP. The function returns 0
+on success, -1 on error.
+.HP
+\fBint cuattinq(int \fIfileid\fB, int \fIvarid\fB, const char* \fIname\fB, CuType* \fIdatatype\fB,
+int* \fIlen\fB)\fR
+.sp
+Returns the datatype, and number of elements (\fInot\fP byte length) of an attribute of a
+variable. \fIdatatype\fP is one of \fBCuByte\fP, \fBCuChar\fP,
+\fBCuShort\fP, \fBCuInt\fP, \fBCuLong\fP,
+\fBCuFloat\fP, \fBCuDouble\fP, or \fBCuLongDouble\fP. Note: if the
+\fIdatatype\fP is \fBCuChar\fP, the element count \fIlen\fP is the number
+of characters in the character string, which may or may not
+include a null-terminating character, depending on the underlying file format.
+If a return
+parameter is set to \fBNULL\fP, no value is returned for that parameter. The function returns 0
+on success, -1 on error.
+.HP
+\fBint cuattget(int \fIfileid\fB, int \fIvarid\fB, const char* \fIname\fB, void* \fIvalue\fB)\fR
+.sp
+Returns the value of an attribute of a variable, in \fIvalue\fP. The function returns 0
+on success, -1 on error.
+.HP
+\fBint cuattname(int \fIfileid\fB, int \fIvarid\fB, int \fIattnum\fB, char* \fIname\fB)\fR
+.sp
+Returns the name of attribute \fIattnum\fP of a variable. If \fIvarid\fP
+is \fBCU_GLOBAL\fP, then a global attribute is retrieved. The function returns 0
+on success, -1 on error. 
+.HP
+\fBint cutypelen(CuType \fIdatatype\fB)\fR
+.sp
+Returns the byte length of a \fIdatatype\fP, or -1 if an error occurred.
+.HP
+\fBint cusetlu(int \fIlu1\fB, int \fIlu2\fB)\fR
+.sp
+Sets the logical unit numbers to be used if the file is in DRS
+format. This function should be used if other Fortran logical unit numbers
+are in use, to avoid conflicts when accessing DRS files. If this function
+is not used, cdunif will by default choose two free logical unit numbers
+between 51 and 98. If either \fIlu1\fP or \fIlu2\fP is already in use for
+Fortran I/O, an error will occur on the call to \fIcuopenread\fP for a DRS file. Logical
+units are ignored for non-DRS files. Use of unit numbers 0, 5, and 6,
+should be avoided, as they may conflict with system defaults. The function returns 0 on success, -1 on
+error.
+.HP
+\fBvoid cuseterropts(int \fIerropts\fB)\fR
+.sp
+Set the error processing options. The \fBCU_VERBOSE\fP option causes errors
+to be reported; the \fBCU_FATAL\fP option causes an immediate exit after
+a fatal error has occurred. Default is \fBCU_VERBOSE\fP.
+.HP
+\fBint cugeterr(void)\fR
+.sp
+Returns the value of the most recent error.
+.SH "SEE ALSO"
+.BR netcdf (3),
+.BR hdf (1),
+.BR cdms (3).
+.SH "BUGS"
+.LP
+The \fBcdunif\fP interface implements hyperslab access to data only; no
+record-oriented access is currently provided.

@@ -1,0 +1,135 @@
+.\" $id$
+.TH cdms 3 "11 March 1996" "LLNL" "CDMS C functions"
+.SH NAME
+CDMS \- Climate Data Management System C application programming interface
+.SH SYNOPSIS
+.ft B
+.na
+.nh
+.HP
+#include "cdms.h"
+.HP 6
+long cdDimGetDouble(long\ dsetid, long\ dimid, long\ start, long\ count,
+long\ stride, double\ modulus, double\ *values)
+.HP
+long cdNdimIntersect(long\ dsetid, long\ varid, const\ long\ order[], 
+const\ double first[], const\ double\ last[], const\ double\ modulus[], 
+cdIntersectPolicy\ policy, long\ start[], long\ count[], long\ stride[])
+.HP
+long cdSlabRead(long dsetid, long varid, const long order[], 
+const\ double\ first[], const\ double\ last[], const\ double\ modulus[],
+cdIntersectPolicy\ policy, cdType\ cast, void\ *values)
+.ad
+.hy
+.SH "DESCRIPTION"
+.LP
+These routines implement a read-write interface to data and
+metadata contained in the Climate Data Management System.
+.SH "DATATYPES"
+The \fBCDMS\fP interface supports the following datatypes:
+\fBbyte\fP, \fBchar\fP, \fBshort\fP, \fBint\fP, \fBlong\fP, 
+\fBfloat\fP, \fBdouble\fP, and \fBlong double\fP. These datatypes
+correspond to the C datatypes.
+.LP
+\fBbyte\fP and \fBchar\fP are both 8-bit datatypes; the difference is that
+arrays of \fBchar\fPs are assumed to be null-terminated.
+.LP
+Note that the datatype of a variable in \fBCDMS\fP describes the data as
+it will be retrieved from the datafile, as opposed to the internal physical
+format of the data. This convention allows use of the \fIcutypelen\fP
+function to allocate memory for data retrieval.
+.LP
+The include file \fBcdms.h\fP defines an enumeration type \fBcdType\fP,
+which can have the values \fBcdByte\fP, \fBcdChar\fP, \fBcdShort\fP, \fBcdInt\fP,
+\fBcdLong\fP, \fBcdFloat\fP, \fBcdDouble\fP, \fBcdLongDouble\fP, or \fBcdCharTime\fP.
+.SH "FUNCTION DESCRIPTIONS"
+.LP
+.HP 4
+\fBlong cdDimGetDouble(long\ \fIdsetid\fB, long\ \fIdimid\fB, long\ \fIstart\fB, long\ \fIcount\fB,
+long\ \fIstride\fB, double\ \fImodulus\fB, double\ \fIvalues\fB[])\fR
+.sp
+Retrieves a dimension, as an array of doubles.
+.sp
+\fIdsetid\fP is the dataset ID, and \fIdimid\fP is the dimension ID.
+.sp
+\fIstart\fP is the 0-origin index of the first value of the dimension to be
+retrieved. \fIcount\fP values are retrieved, with \fIstride\fP as the
+increment between successive indices.
+.sp
+If \fIstart\fP + \fIcount\fP is outside the range of dimension indices,
+then values are returned wrapped modulo the length of the dimension. In
+this case, if \fImodulus\fP is a positive value, it is added to the values
+returned when wraparound occurs.
+.sp
+The dimension values are returned in \fIvalues\fP. The function returns 1
+on success, 0 on failure.
+.sp
+.HP
+\fBlong cdNdimIntersect(long\ \fIdsetid\fB, long\ \fIvarid\fB, const\ long\ \fIorder\fB[], 
+const\ double\ \fIfirst\fB[], const\ double\ \fIlast\fB[], const\ double\ \fImodulus\fB[], 
+cdIntersectPolicy\ \fIpolicy\fB, long\ \fIstart\fB[], long\ \fIcount\fB[], long\ \fIstride\fB[])\fR
+.sp
+Maps a generalized hyperslab to indices. \fIdsetid\fP is the dataset ID, and
+\fIvarid\fP is the variable ID.
+.sp
+The region of the hyperslab is
+specified by the arrays \fIfirst\fP and \fIlast\fP. \fIfirst\fP is an array of doubles
+specifying the first value of the interval in coordinate space; \fIlast\fP is the
+array of last values of the interval, for each dimension of the
+variable. \fIfirst\fP and \fIlast\fP have dimension ordering as specified by the \fIorder\fP
+argument.
+.sp
+The indices corresponding to the hyperslab are returned in arrays
+\fIstart\fP, \fIcount\fP, and \fIstride\fP. These arrays can be used to
+calculate memory requirements, and to read the data via \fBcuvargets\fP.
+.sp
+The remaining arguments are defined as in \fBcdSlabRead\fP.
+.sp
+The function returns 1 on success, 0 on error.
+.HP
+\fBlong cdSlabRead(long \fIdsetid\fB, long \fIvarid\fB, const long \fIorder\fB[], 
+const\ double\ \fIfirst\fB[], const\ double\ \fIlast\fB[], const\ double\ \fImodulus\fB[],
+cdIntersectPolicy\ \fIpolicy\fB, cdType\ \fIcast\fB, void\ *\fIvalues\fB)\fR
+.sp
+Reads a generalized hyperslab of data. \fIdsetid\fP is the dataset ID, 
+and \fIvarid\fP is the variable ID.
+.sp
+The region of the hyperslab is
+specified by the arrays \fIfirst\fP and \fIlast\fP. \fIfirst\fP is an array of doubles
+specifying the first value of the interval in coordinate space; \fIlast\fP is the
+array of last values of the interval, for each dimension of the
+variable. \fIfirst\fP and \fIlast\fP have dimension ordering as specified by the \fIorder\fP
+argument.
+.sp
+The data is returned with dimensions ordered <\fIorder\fP[0], \fIorder\fP[1], ...,
+\fIorder\fP[ndims-1]>, relative to the order of dimensions as defined in the
+file. Dimension indices start at 0. If \fIorder\fP is NULL, it defaults to
+<0, 1, ..., ndims-1>, indicating no transposition.
+.sp
+\fImodulus\fP is an array which specifies how the data is to be wrapped. If the
+value of \fImodulus\fP[i] is strictly positive, the i-th dimension
+topology is treated as circular, and the interval wraps around modulo the
+value of \fImodulus\fP[i]. Otherwise if \fImodulus\fP[i] is 0.0, the dimension
+topology is assumed to be linear, and the data corresponds to the
+intersection of the interval [\fIfirst\fP[i], \fIlast\fP[i]] with the
+dimension in coordinate space. If \fImodulus\fP is NULL, it defaults to
+<0.0, 0.0, ..., 0.0>, that is, no wraparound is performed. The dimension
+order of \fImodulus\fP corresponds to that of the \fIorder\fP argument.
+.sp
+\fIpolicy\fP indicates how the interval and dimension are
+intersected. If \fIpolicy\fP has the value \fBcdRange\fP, the values in the
+intersection of the closed interval [\fIfirst\fP[i], \fIlast\fP[i]] are
+returned. \fIpolicy\fP may also have the value \fBcdRoundNearest\fP, in which case the
+first and last values are rounded to the nearest dimension points, which
+may lie outside the closed interval [\fIfirst\fP[i], \fIlast\fP[i]].
+.sp
+The \fIcast\fP argument specifies the datatype to which data should be cast on
+return. It is one of the CuType values (see \fBDATATYPES\fP above). If \fIcast\fP is
+NULL, no casting is performed.
+.sp
+The data is returned in the array \fIvalues\fP. The function returns 1 on
+success, 0 on error.
+.SH "SEE ALSO"
+.BR cdunif (3).
+.SH "BUGS"
+.LP

@@ -1,0 +1,6 @@
+#!/bin/csh -f
+unsetenv PYTHONHOME
+#set bindir = `dirname $0`
+#set path=(${bindir} $path);rehash #in case of respawns, get our python
+exec @PYTHON@ -O -c 'import browser;browser.tk_cdat.main()' $argv[*]
+

@@ -1,0 +1,10 @@
+#!/bin/sh -f
+unset PYTHONHOME
+opt=$1
+bindir=`dirname $0`
+if (test "--help" = "$1") then
+   echo 'Usage: templator [template_name]'; exit 0
+fi
+set path="${bindir}:$path" #in case of respawns, get our python
+exec ${bindir}/python -O -c "import vcs, gui_support;vcs.templateeditorgui.create(template_name='${opt}');gui_support.root().mainloop()"
+
