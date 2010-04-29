@@ -1,0 +1,33 @@
+# 
+# Makefile for the Computer Graphics Metafile (GKSM) backend to XGKS
+#
+# Author: Dean N. Williams 10/6/94                           
+
+LIBNAME		= xgks
+REMOTE_LIBRARY	= ../lib$(LIBNAME).a
+LIBOBJS         = gksm.o
+
+all::		$(REMOTE_LIBRARY)
+
+############################################################################
+# General Macros:
+############################################################################
+prefix		= ../
+AR		= ar
+OS		= Solaris
+SHELL		= /bin/sh
+
+
+############################################################################
+# Libraries:
+############################################################################
+RANLIB		= ranlib
+$(REMOTE_LIBRARY):  $(LIBOBJS)
+	$(AR) rcuv $@ $?
+	$(RANLIB) $@
+
+############################################################################
+# Cleanup:
+############################################################################
+clean::
+	rm -f core *.o
