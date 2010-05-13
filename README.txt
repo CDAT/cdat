@@ -119,7 +119,6 @@ CDAT will look for and install if necessary (minimum version required/version di
 	  python 2.6.0 / 2.6.5
 	  setuptools 0.6 / 0.6c11
 	  numpy 1.2.1 / 1.4.1rc2
-	  PyOpenGL 3.@PyOpenGL_MINOR@ / 3.0.1
 	  tcl/tk : 8.5.4 / 8.5.8
           readline : 5.2 / 6.1
 	  zlib: any / 1.2.3
@@ -137,20 +136,12 @@ CDAT will look for and install if necessary (minimum version required/version di
 	  libuuid /1.6.2
 	  Udunits 2 /2.1.14
           HDF5 any / 1.8.4-patch1
-          NetCDF4 4.0 / 4.1.1
+          NetCDF4 4.1.0/ 4.1.1
           XGKS
           Pmw 1.3 / 1.3
-          gifsicle any / 1.58
+          gifsicle any any/ 1.58
           pbmplus 
-          R 2.5.0 
-          ioapi 3.0 
-	  gdal 1.4.3 : turned on by ioapi
-          proj 4.4.9 : turned on by ioapi
           cmake 2.4 / 2.8.0
-
-	Also provided but need to be installed by user because not ditributed officially any longer:
-          Numeric 23.1 (on)
-	  Pyfort 8.5.5
 
 
 ----------------------------------------------------------------------------------------
