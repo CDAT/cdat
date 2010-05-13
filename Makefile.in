@@ -86,7 +86,7 @@ nocleaninstall:
 	mkdir -p @EXTERNALS@/lib
 	mkdir -p @EXTERNALS@/bin
 	mkdir -p @EXTERNALS@/include
-	mkdir -p logs
+	mkdir -p logs 
 	mkdir -p build
 	mkdir -p sources
 ifeq (@DOWGET@,yes)
