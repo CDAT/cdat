@@ -118,7 +118,7 @@ CDAT will look for and install if necessary (minimum version required/version di
 
 	  python 2.6.0 / 2.6.5
 	  setuptools 0.6 / 0.6c11
-	  numpy 1.2.1 / 1.4.1rc2
+	  numpy 1.2.1 / 1.4.1
 	  PyOpenGL 3.@PyOpenGL_MINOR@ / 3.0.1
 	  tcl/tk : 8.5.4 / 8.5.8
           readline : 5.2 / 6.1

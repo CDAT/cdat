@@ -1,0 +1,78 @@
+#****************************************************************
+#Copyright (c) 2009  Larence Livermore National Security (LLNS)
+#All rights reserved.
+#****************************************************************
+#
+# Organization: Lawrence Livermore National Lab (LLNL)
+#  Directorate: Computation
+#   Department: Computing Applications and Research
+#     Division: S&T Global Security
+#       Matrix: Atmospheric, Earth and Energy Division
+#      Program: PCMDI
+#      Project: Earth Systems Grid
+# First Author: Gavin M. Bell (gavin@llnl.gov)
+#
+#  Description:
+#
+#     Files that git should ignore...
+#****************************************************************
+
+TAGS
+.ant-targets-build.xml
+*~
+*.cache
+*.DS_Store
+*.a
+*.o
+*.class
+*.pyc
+*.egg
+*#*
+*.md5
+semantic.cache*
+generated/
+/build
+/dist
+/test-results
+Packages/*
+Makefile
+Scripts/cdat
+Scripts/vcdat
+checked_get.sh
+config.log
+config.status
+exsrc/CMakeCache.txt
+exsrc/CMakeCache.txt.in
+installation/cdat_info.py
+libcdms/Makefile
+libcdms/a.out.dSYM/
+libcdms/config.log
+libcdms/config.status
+libcdms/libcdms.LOG
+libcdms/rebuild.py
+libcdms/src/api/Makefile
+libcdms/src/api/test/Makefile
+libcdms/src/cddrs/Makefile
+libcdms/src/cddrs/test/Makefile
+libcdms/src/cdunif/Makefile
+libcdms/src/cdunif/cdunifpp/Makefile
+libcdms/src/cdunif/test/Makefile
+libcdms/src/cdunif/test/cdfile
+libcdms/src/cdunif/test/cdfile.dSYM/
+libcdms/src/cdunif/test/cudump
+libcdms/src/cdunif/test/cudump.dSYM/
+libcdms/src/cdunif/test/cuget
+libcdms/src/cdunif/test/cuget.dSYM/
+libcdms/src/cdunif/test/testdrs
+libcdms/src/cdunif/test/testdrs.dSYM/
+libcdms/src/cdunif/test/testgrib
+libcdms/src/cdunif/test/testgrib.dSYM/
+libcdms/src/cdunif/test/testnc
+libcdms/src/cdunif/test/testnc.dSYM/
+libcdms/src/cdunif/test/testpp
+libcdms/src/cdunif/test/testpp.dSYM/
+libcdms/src/db_util/Makefile
+logs/
+site.cfg
+sources/
+version
