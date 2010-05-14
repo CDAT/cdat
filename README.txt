@@ -125,7 +125,7 @@ CDAT will look for and install if necessary (minimum version required/version di
 	  termcap: any / 1.3.1
           freetype 9.7.3 / 2.3.9
           fontconfig 2.4.2 / 2.8.0
-          pkg-config 0.9.0 / 0.23.0
+          pkg-co nfig 0.9.0 / 0.23.0
           cairo 1.8.8 / 1.8.10
           ffmpeg
           jpeg any/6b

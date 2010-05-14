@@ -119,14 +119,13 @@ CDAT will look for and install if necessary (minimum version required/version di
 	  python @PYTHON_MAJOR@.@PYTHON_MINOR@.@PYTHON_PATCH@ / @PYTHON_MAJOR_SRC@.@PYTHON_MINOR_SRC@.@PYTHON_PATCH_SRC@
 	  setuptools @SETUPTOOLS_MAJOR@.@SETUPTOOLS_MINOR@ / @SETUPTOOLS_MAJOR_SRC@.@SETUPTOOLS_MINOR_SRC@
 	  numpy @NUMPY_MAJOR@.@NUMPY_MINOR@.@NUMPY_PATCH@ / @NUMPY_MAJOR_SRC@.@NUMPY_MINOR_SRC@.@NUMPY_PATCH_SRC@
-	  PyOpenGL @PyOpenGL_MAJOR@.@PyOpenGL_MINOR@ / @PyOpenGL_MAJOR_SRC@.@PyOpenGL_MINOR_SRC@.@PyOpenGL_PATCH_SRC@
 	  tcl/tk : @TCLTK_MAJOR@.@TCLTK_MINOR@.@TCLTK_PATCH@ / @TCLTK_MAJOR_SRC@.@TCLTK_MINOR_SRC@.@TCLTK_PATCH_SRC@
           readline : @RL_MAJOR@.@RL_MINOR@ / @RL_MAJOR_SRC@.@RL_MINOR_SRC@
 	  zlib: any / @ZLIB_MAJOR_SRC@.@ZLIB_MINOR_SRC@.@ZLIB_PATCH_SRC@
 	  termcap: any / @TCAP_MAJOR_SRC@.@TCAP_MINOR_SRC@.@TCAP_PATCH_SRC@
           freetype @FT_MAJOR@.@FT_MINOR@.@FT_PATCH@ / @FT_MAJOR_SRC@.@FT_MINOR_SRC@.@FT_PATCH_SRC@
           fontconfig @FTCFG_MAJOR@.@FTCFG_MINOR@.@FTCFG_PATCH@ / @FTCFG_MAJOR_SRC@.@FTCFG_MINOR_SRC@.@FTCFG_PATCH_SRC@
-          pkg-config @PKG_MAJOR@.@PKG_MINOR@.@PKG_PATCH@ / @PKG_MAJOR_SRC@.@PKG_MINOR_SRC@.@PKG_PATCH_SRC@
+          pkg-co nfig @PKG_MAJOR@.@PKG_MINOR@.@PKG_PATCH@ / @PKG_MAJOR_SRC@.@PKG_MINOR_SRC@.@PKG_PATCH_SRC@
           cairo @CAIRO_MAJOR@.@CAIRO_MINOR@.@CAIRO_PATCH@ / @CAIRO_MAJOR_SRC@.@CAIRO_MINOR_SRC@.@CAIRO_PATCH_SRC@
           ffmpeg
           jpeg any/6b
@@ -137,20 +136,12 @@ CDAT will look for and install if necessary (minimum version required/version di
 	  libuuid /@UUID_MAJOR_SRC@.@UUID_MINOR_SRC@.@UUID_PATCH_SRC@
 	  Udunits 2 /@UDUNITS2_MAJOR_SRC@.@UDUNITS2_MINOR_SRC@.@UDUNITS2_PATCH_SRC@
           HDF5 any / @HDF5_MAJOR_SRC@.@HDF5_MINOR_SRC@.@HDF5_PATCH_SRC@
-          NetCDF4 4.0 / @NC4_MAJOR_SRC@.@NC4_MINOR_SRC@.@NC4_PATCH_SRC@
+          NetCDF4 @NC4_MAJOR@.@NC4_MINOR@.@NC4_PATCH@/ @NC4_MAJOR_SRC@.@NC4_MINOR_SRC@.@NC4_PATCH_SRC@
           XGKS
           Pmw @PMW_MAJOR@.@PMW_MINOR@ / @PMW_MAJOR_SRC@.@PMW_MINOR_SRC@
-          gifsicle any / @GIFSICLE_MAJOR_SRC@.@GIFSICLE_MINOR_SRC@
+          gifsicle any any/ @GIFSICLE_MAJOR_SRC@.@GIFSICLE_MINOR_SRC@
           pbmplus 
-          R 2.5.0 
-          ioapi 3.0 
-	  gdal 1.4.3 : turned on by ioapi
-          proj 4.4.9 : turned on by ioapi
           cmake @CMAKE_MAJOR@.@CMAKE_MINOR@ / @CMAKE_MAJOR_SRC@.@CMAKE_MINOR_SRC@.@CMAKE_PATCH_SRC@
-
-	Also provided but need to be installed by user because not ditributed officially any longer:
-          Numeric 23.1 (on)
-	  Pyfort 8.5.5
 
 
 ----------------------------------------------------------------------------------------
