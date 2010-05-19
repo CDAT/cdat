@@ -115,7 +115,7 @@ ifeq (@COMPILE_XML2@,yes)
 endif
 ifeq (@COMPILE_CURL@,yes)
 	@echo "Building curl"
-	$(call dobuild,@CURL_URL@,@CURL_GZ@,@EXTERNALS@,, --disable-shared)
+	$(call dobuild,@CURL_URL@,@CURL_GZ@,@EXTERNALS@)
 endif
 ifeq (@COMPILE_XSLT@,yes)
 	@echo "Building libxslt"
@@ -200,15 +200,15 @@ ifeq (@COMPILE_HDF@,yes)
 endif
 ifeq (@COMPILE_HDF5@,yes)
 	@echo "Building hdf5"
-	$(call dobuild,@HDF5_URL@,@HDF5_GZ@,@EXTERNALS@/HDF5,, --disable-shared)
+	$(call dobuild,@HDF5_URL@,@HDF5_GZ@,@EXTERNALS@/HDF5)
 endif
 ifeq (@COMPILE_UDUNITS2@,yes)
 	@echo "Building udunits2"
-	$(call dobuild,@UDUNITS2_URL@,@UDUNITS2_GZ@,@EXTERNALS@,, --disable-shared)
+	$(call dobuild,@UDUNITS2_URL@,@UDUNITS2_GZ@,@EXTERNALS@)
 endif
 ifeq (@COMPILE_NC@,yes)
 	@echo "Building netcdf"
-	$(call dobuild,@NC4_URL@,@NC4_GZ@,@EXTERNALS@/NetCDF,@NC_FORTRAN@,  --enable-netcdf-4 --disable-shared --with-hdf5=@HDF5LOC@)
+	$(call dobuild,@NC4_URL@,@NC4_GZ@,@EXTERNALS@/NetCDF,@NC_FORTRAN@,  --enable-netcdf-4 --with-hdf5=@HDF5LOC@)
 endif
 ifeq (@COMPILE_CMAKE@,yes)
 	@echo "Couldn't find a valid cmake, building it"
@@ -236,7 +236,7 @@ ifeq (@Pmw@,yes)
 endif
 ifeq (@COMPILE_UUID@,yes)
 	@echo "Building UUID"
-	$(call dobuild,@UUID_URL@,@UUID_GZ@,@EXTERNALS@,, --disable-shared)
+	$(call dobuild,@UUID_URL@,@UUID_GZ@,@EXTERNALS@)
 endif
 	@echo "Configuring CMOR2"
 	@(cd Packages/cmor ; ./configure --prefix=@EXTERNALS@ --with-netcdf=@NC4LOC@ --with-udunits2=@UDUNITS2LOC@ --with-uuid=@UUIDLOC@ --with-zlib=@EXTERNALS@ --enable-fortran=no; cd ../..) >> @MAINDIR@/logs/cmor_config.LOG 
