@@ -68,11 +68,11 @@ dobuild = @$(call doprolog,$(1),$(2))  \
 	env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH=@EXTERNALS@/lib:${LD_LIBRARY_PATH} make install  @KEEPLOGa@; \
 	echo "cd ../..;"  @KEEPLOGa@ ; \
 	cd ../.. ;
-dobuildpynotar = $(3) @KEEPLOGa@  \
+dobuildpynotar = @$(3) @KEEPLOGa@  \
 	echo "$(3);" @KEEPLOGa@ ; \
 	echo "env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS=@CFLAGS@ CPPFLAGS=@CPPFLAGS@ LDFLAGS=@LDFLAGS@ @PYTHON@ setup.py build $(4) --force install --prefix=$(1);"  @KEEPLOGa@ ;\
 	env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" @PYTHON@ setup.py build $(4) --force install --prefix=$(1)  @KEEPLOGa@ ;
-dobuildpy = $(call doprolog,$(2),$(3)) \
+dobuildpy = @$(call doprolog,$(2),$(3)) \
         $(1) ; \
 	echo "cp "@MAINDIR@/site.cfg" . ;" @KEEPLOGa@; \
 	cp "@MAINDIR@/site.cfg" . ; \

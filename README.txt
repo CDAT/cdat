@@ -129,7 +129,7 @@ CDAT will look for and install if necessary (minimum version required/version di
           cairo 1.8.8 / 1.8.10
           ffmpeg
           jpeg any/6b
-          libpng 1.2.7 / 1.4.1
+          libpng 1.4.1 / 1.4.2
           libxml 2.6.27 / 2.7.6
           libxslt 1.1.22 / 1.1.26
           Ghostscript

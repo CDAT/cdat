@@ -1786,70 +1786,70 @@ fi
 AC_MSG_NOTICE([........................................................................])
 AC_MSG_NOTICE([])
 if test ${COMPILE_CURL} == "yes" ; then
-  AC_MSG_NOTICE([curl >= ${CURL_MAJOR}.${CURL_MINOR}.${CURL_PATCH} not found... building ${CURL_MAJOR_SRC}.${CURL_MINOR_SRC}.${CURL_PATCH_SRC}])
+  AC_MSG_NOTICE([curl >= ${CURL_MAJOR}.${CURL_MINOR}.${CURL_PATCH} not found... building library ${CURL_MAJOR_SRC}.${CURL_MINOR_SRC}.${CURL_PATCH_SRC}])
 else
   AC_MSG_NOTICE([curl >= ${CURL_MAJOR}.${CURL_MINOR}.${CURL_PATCH} found or not necessary for this configuration])
 fi
 if test ${COMPILE_XML2} == "yes" ; then
-  AC_MSG_NOTICE([libxml2 >= ${XML_MAJOR}.${XML_MINOR}.${XML_PATCH} not found... building ${XML_MAJOR_SRC}.${XML_MINOR_SRC}.${XML_PATCH_SRC}])
+  AC_MSG_NOTICE([libxml2 >= ${XML_MAJOR}.${XML_MINOR}.${XML_PATCH} not found... building library ${XML_MAJOR_SRC}.${XML_MINOR_SRC}.${XML_PATCH_SRC}])
 else
   AC_MSG_NOTICE([libxml2 >= ${XML_MAJOR}.${XML_MINOR}.${XML_PATCH} found])
 fi
 if test ${enable_esg} == "-yes" ; then
  if test ${COMPILE_XSLT} == "yes" ; then
-  AC_MSG_NOTICE([libxslt >= ${XSLT_MAJOR}.${XSLT_MINOR}.${XSLT_PATCH} not found... building ${XSLT_MAJOR_SRC}.${XSLT_MINOR_SRC}.${XSLT_PATCH_SRC}])
+  AC_MSG_NOTICE([libxslt >= ${XSLT_MAJOR}.${XSLT_MINOR}.${XSLT_PATCH} not found... building library ${XSLT_MAJOR_SRC}.${XSLT_MINOR_SRC}.${XSLT_PATCH_SRC}])
  else
   AC_MSG_NOTICE([libxslt >= ${XSLT_MAJOR}.${XSLT_MINOR}.${XSLT_PATCH} found])
  fi
 fi
 if test ${enable_cdms_only} != "-yes" ; then
  if test ${COMPILE_CMAKE} == "yes" ; then
-  AC_MSG_NOTICE([cmake >= ${CMAKE_MAJOR}.${CMAKE_MINOR} not found... building ${CMAKE_MAJOR_SRC}.${CMAKE_MINOR_SRC}.${CMAKE_PATCH_SRC}])
+  AC_MSG_NOTICE([cmake >= ${CMAKE_MAJOR}.${CMAKE_MINOR} not found... building software ${CMAKE_MAJOR_SRC}.${CMAKE_MINOR_SRC}.${CMAKE_PATCH_SRC}])
  else
   AC_MSG_NOTICE([cmake >= ${CMAKE_MAJOR}.${CMAKE_MINOR} found])
  fi
  if test ${COMPILE_XGKS} == "yes" ; then
-   AC_MSG_NOTICE([xgks not found ... building it])
+   AC_MSG_NOTICE([xgks not found ... building library])
  else
    AC_MSG_NOTICE([xgks found])
  fi
  if test ${DOPBMPLUS} == "yes" ; then
-   AC_MSG_NOTICE([pbmplus not found ... building it])
+   AC_MSG_NOTICE([pbmplus not found ... building library])
  else
    AC_MSG_NOTICE([pbmplus found])
  fi
  if test ${FFMPEG} == "no" ; then
-   AC_MSG_NOTICE([ffmpeg not found ... building it])
+   AC_MSG_NOTICE([ffmpeg not found ... building software])
  else
    AC_MSG_NOTICE([ffmpeg found])
  fi
  if test ${GIFSICLE} == "no" ; then
-   AC_MSG_NOTICE([gifsicle not found ... building ${GIFSICLE_MAJOR_SRC}.${GIFSICLE_MINOR_SRC}])
+   AC_MSG_NOTICE([gifsicle not found ... building software ${GIFSICLE_MAJOR_SRC}.${GIFSICLE_MINOR_SRC}])
  else
    AC_MSG_NOTICE([gifsicle found])
  fi
  if test ${DOGS} == "yes" ; then
-   AC_MSG_NOTICE([gs not found ... building it])
+   AC_MSG_NOTICE([gs not found ... building software])
  else
    AC_MSG_NOTICE([gs found])
  fi
  if test ${COMPILE_LIBJPEG} == "yes" ; then
-   AC_MSG_NOTICE([libjpeg not found ... building it])
+   AC_MSG_NOTICE([libjpeg not found ... building library])
  else
    AC_MSG_NOTICE([libjpeg found or not necessary for this configuration])
  fi
  if test ${HAVE_LIBBLAS} == "no" ; then
-   AC_MSG_NOTICE([libblas not found ... building it])
+   AC_MSG_NOTICE([libblas not found ... building library])
  else
    AC_MSG_NOTICE([libblas found or not necessary for this configuration])
  fi
  if test ${HAVE_LIBLAPACK} == "no" ; then
-   AC_MSG_NOTICE([liblapack not found ... building it])
+   AC_MSG_NOTICE([liblapack not found ... building library])
  else
    AC_MSG_NOTICE([liblapack found or not necessary for this configuration])
  fi
  if test ${HAVE_LIBLAPACK95} == "no" ; then
-   AC_MSG_NOTICE([liblapack95 not found ... building it])
+   AC_MSG_NOTICE([liblapack95 not found ... building library])
  else
    AC_MSG_NOTICE([liblapack95 found or not necessary for this configuration])
  fi
@@ -1859,53 +1859,53 @@ dnl  else
 dnl   AC_MSG_NOTICE([ioapi not enabled])
 dnl  fi
  if test ${COMPILE_LIBPNG} == "yes" ; then
-  AC_MSG_NOTICE([libpng >= ${PNG_MAJOR}.${PNG_MINOR}.${PNG_PATCH} not found... building ${PNG_MAJOR_SRC}.${PNG_MINOR_SRC}.${PNG_PATCH_SRC}])
+  AC_MSG_NOTICE([libpng >= ${PNG_MAJOR}.${PNG_MINOR}.${PNG_PATCH} not found... building library ${PNG_MAJOR_SRC}.${PNG_MINOR_SRC}.${PNG_PATCH_SRC}])
  else
   AC_MSG_NOTICE([libpng >= ${PNG_MAJOR}.${PNG_MINOR}.${PNG_PATCH} found])
  fi
  if test ${COMPILE_PKGCONFIG} == "yes" ; then
-  AC_MSG_NOTICE([pkg-config >= ${PKG_MAJOR}.${PKG_MINOR}.${PKG_PATCH} not found... building ${PKG_MAJOR_SRC}.${PKG_MINOR_SRC}.${PKG_PATCH_SRC}])
+  AC_MSG_NOTICE([pkg-config >= ${PKG_MAJOR}.${PKG_MINOR}.${PKG_PATCH} not found... building software ${PKG_MAJOR_SRC}.${PKG_MINOR_SRC}.${PKG_PATCH_SRC}])
  else
   AC_MSG_NOTICE([pkg-config >= ${PKG_MAJOR}.${PKG_MINOR}.${PKG_PATCH} found])
  fi
  if test ${COMPILE_FREETYPE} == "yes" ; then
-  AC_MSG_NOTICE([libfreetype >= ${FT_MAJOR}.${FT_MINOR}.${FT_PATCH} not found... building ${FT_MAJOR_SRC}.${FT_MINOR_SRC}.${FT_PATCH_SRC} ])
+  AC_MSG_NOTICE([libfreetype >= ${FT_MAJOR}.${FT_MINOR}.${FT_PATCH} not found... building library ${FT_MAJOR_SRC}.${FT_MINOR_SRC}.${FT_PATCH_SRC} ])
  else
   AC_MSG_NOTICE([libfreetype >= ${FT_MAJOR}.${FT_MINOR}.${FT_PATCH} found])
  fi
  if test ${COMPILE_PIXMAN} == "yes" ; then
-  AC_MSG_NOTICE([libpixman >= ${PIX_MAJOR}.${PIX_MINOR}.${PIX_PATCH} not found... building  ${PIX_MAJOR_SRC}.${PIX_MINOR_SRC}.${PIX_PATCH_SRC}])
+  AC_MSG_NOTICE([libpixman >= ${PIX_MAJOR}.${PIX_MINOR}.${PIX_PATCH} not found... building  library ${PIX_MAJOR_SRC}.${PIX_MINOR_SRC}.${PIX_PATCH_SRC}])
  else
   AC_MSG_NOTICE([libpixman >= ${PIX_MAJOR}.${PIX_MINOR}.${PIX_PATCH} found])
  fi
  if test ${COMPILE_FONTCONFIG} == "yes" ; then
-  AC_MSG_NOTICE([fontconfig >= ${FTCFG_MAJOR}.${FTCFG_MINOR}.${FTCFG_PATCH} not found... building  ${FTCFG_MAJOR_SRC}.${FTCFG_MINOR_SRC}.${FTCFG_PATCH_SRC}])
+  AC_MSG_NOTICE([fontconfig >= ${FTCFG_MAJOR}.${FTCFG_MINOR}.${FTCFG_PATCH} not found... building library ${FTCFG_MAJOR_SRC}.${FTCFG_MINOR_SRC}.${FTCFG_PATCH_SRC}])
  else
   AC_MSG_NOTICE([fontconfig >= ${FTCFG_MAJOR}.${FTCFG_MINOR}.${FTCFG_PATCH} found])
  fi
  if test ${COMPILE_CAIRO} == "yes" ; then
-  AC_MSG_NOTICE([libcairo >= ${CAIRO_MAJOR}.${CAIRO_MINOR}.${CAIRO_PATCH} not found... building  ${CAIRO_MAJOR_SRC}.${CAIRO_MINOR_SRC}.${CAIRO_PATCH_SRC}])
+  AC_MSG_NOTICE([libcairo >= ${CAIRO_MAJOR}.${CAIRO_MINOR}.${CAIRO_PATCH} not found... building library ${CAIRO_MAJOR_SRC}.${CAIRO_MINOR_SRC}.${CAIRO_PATCH_SRC}])
  else
   AC_MSG_NOTICE([libcairo >= ${CAIRO_MAJOR}.${CAIRO_MINOR}.${CAIRO_PATCH} found])
  fi
 fi
 if test ${COMPILE_UUID} == "yes" ; then
-    AC_MSG_NOTICE([libuuid not found... building ${UUID_MAJOR_SRC}.${UUID_MINOR_SRC}.${UUID_PATCH_SRC}])
+    AC_MSG_NOTICE([libuuid not found... building library ${UUID_MAJOR_SRC}.${UUID_MINOR_SRC}.${UUID_PATCH_SRC}])
 else
     AC_MSG_NOTICE([libuuid found])
 fi
 if test ${COMPILE_UDUNITS2} == "yes" ; then
-    AC_MSG_NOTICE([libudunits2 not found... building ${UDUNITS2_MAJOR_SRC}.${UDUNITS2_MINOR_SRC}.${UDUNITS2_PATCH_SRC}])
+    AC_MSG_NOTICE([libudunits2 not found... building library ${UDUNITS2_MAJOR_SRC}.${UDUNITS2_MINOR_SRC}.${UDUNITS2_PATCH_SRC}])
 else
     AC_MSG_NOTICE([libudunits2 found])
 fi
 if test ${COMPILE_HDF5} == "yes" ; then
-    AC_MSG_NOTICE([libhdf5 not found... building ${HDF5_MAJOR_SRC}.${HDF5_MINOR_SRC}.${HDF5_PATCH_SRC}])
+    AC_MSG_NOTICE([libhdf5 not found... building library ${HDF5_MAJOR_SRC}.${HDF5_MINOR_SRC}.${HDF5_PATCH_SRC}])
 else
     AC_MSG_NOTICE([libhdf5 found])
 fi
 if test ${COMPILE_NC} == "yes" ; then
-    AC_MSG_NOTICE([libnetcdf >=4 not found... building  ${NC4_MAJOR_SRC}.${NC4_MINOR_SRC}.${NC4_PATCH_SRC}])
+    AC_MSG_NOTICE([libnetcdf >=4 not found... building library ${NC4_MAJOR_SRC}.${NC4_MINOR_SRC}.${NC4_PATCH_SRC}])
 else
     AC_MSG_NOTICE([libnetcdf >=4 found at ${NC4LOC}])
 fi
@@ -1915,24 +1915,24 @@ AC_MSG_NOTICE([...                               PYTHON                         
 AC_MSG_NOTICE([........................................................................])
 AC_MSG_NOTICE([])
 if test ${COMPILE_PYTHON} == "yes" ; then
-  AC_MSG_NOTICE([python >= ${PYTHON_MAJOR}.${PYTHON_MINOR} with tcl/tk support not found... building ${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.${PYTHON_PATCH_SRC}])
+  AC_MSG_NOTICE([python >= ${PYTHON_MAJOR}.${PYTHON_MINOR} with tcl/tk support not found... building software ${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.${PYTHON_PATCH_SRC}])
   if test ${COMPILE_Z} == "yes" ; then
-     AC_MSG_NOTICE([zlib not found ... building ${ZLIB_MAJOR_SRC}.${ZLIB_MINOR_SRC}.${ZLIB_PATCH_SRC}])
+     AC_MSG_NOTICE([zlib not found ... building library ${ZLIB_MAJOR_SRC}.${ZLIB_MINOR_SRC}.${ZLIB_PATCH_SRC}])
   else
      AC_MSG_NOTICE([zlib found])
   fi
   if test ${COMPILE_TERMCAP} == "yes" ; then
-     AC_MSG_NOTICE([termcap not found ... building ${TCAP_MAJOR_SRC}.${TCAP_MINOR_SRC}.${TCAP_PATCH_SRC}])
+     AC_MSG_NOTICE([termcap not found ... building library ${TCAP_MAJOR_SRC}.${TCAP_MINOR_SRC}.${TCAP_PATCH_SRC}])
   else
      AC_MSG_NOTICE([termcap found])
   fi
   if test ${COMPILE_READLINE} == "yes" ; then
-    AC_MSG_NOTICE([libreadline >= ${RL_MAJOR}.${RL_MINOR} not found... building  ${RL_MAJOR_SRC}.${RL_MINOR_SRC}])
+    AC_MSG_NOTICE([libreadline >= ${RL_MAJOR}.${RL_MINOR} not found... building library ${RL_MAJOR_SRC}.${RL_MINOR_SRC}])
   else
     AC_MSG_NOTICE([libreadline >= ${RL_MAJOR}.${RL_MINOR} found])
   fi
   if test ${COMPILE_TCLTK} == "yes" ; then
-    AC_MSG_NOTICE([tcl/tk >= ${TCLTK_MAJOR}.${TCLTK_MINOR}.${TCLTK_PATCH} not found... building  ${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC}.${TCLTK_PATCH_SRC}])
+    AC_MSG_NOTICE([tcl/tk >= ${TCLTK_MAJOR}.${TCLTK_MINOR}.${TCLTK_PATCH} not found... building library ${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC}.${TCLTK_PATCH_SRC}])
   else
     AC_MSG_NOTICE([tcl/tk >= ${TCLTK_MAJOR}.${TCLTK_MINOR}.${TCLTK_PATCH} found])
   fi
@@ -1940,22 +1940,22 @@ else
   AC_MSG_NOTICE([python >= ${PYTHON_MAJOR}.${PYTHON_MINOR}.${PYTHON_PATCH} with tcl/tk support found])
 fi
 if test ${SETUPTOOLS} == "yes" ; then
-  AC_MSG_NOTICE([setuptools >= ${SETUPTOOLS_MAJOR}.${SETUPTOOLS_MINOR} not found... building  ${SETUPTOOLS_MAJOR_SRC}.${SETUPTOOLS_MINOR_SRC}])
+  AC_MSG_NOTICE([setuptools >= ${SETUPTOOLS_MAJOR}.${SETUPTOOLS_MINOR} not found... building package ${SETUPTOOLS_MAJOR_SRC}.${SETUPTOOLS_MINOR_SRC}])
 else
   AC_MSG_NOTICE([setuptools >= ${SETUPTOOLS_MAJOR}.${SETUPTOOLS_MINOR} found])
 fi
 if test ${PyOpenGL} == "yes" ; then
-  AC_MSG_NOTICE([PyOpenGL >= ${PyOpenGL_MAJOR}.${PyOpenGL_MINOR} not found... building  ${PyOpenGL_MAJOR_SRC}.${PyOpenGL_MINOR_SRC}.${PyOpenGL_PATCH_SRC}])
+  AC_MSG_NOTICE([PyOpenGL >= ${PyOpenGL_MAJOR}.${PyOpenGL_MINOR} not found... building package ${PyOpenGL_MAJOR_SRC}.${PyOpenGL_MINOR_SRC}.${PyOpenGL_PATCH_SRC}])
 else
   AC_MSG_NOTICE([PyOpenGL >= ${PyOpenGL_MAJOR}.${PyOpenGL_MINOR} found or not necessary in this configuration])
 fi
 if test ${NUMPY} == "yes" ; then
-  AC_MSG_NOTICE([numpy >= ${NUMPY_MAJOR}.${NUMPY_MINOR}.${NUMPY_PATCH} not found... building  ${NUMPY_MAJOR_SRC}.${NUMPY_MINOR_SRC}.${NUMPY_PATCH_SRC}])
+  AC_MSG_NOTICE([numpy >= ${NUMPY_MAJOR}.${NUMPY_MINOR}.${NUMPY_PATCH} not found... building package ${NUMPY_MAJOR_SRC}.${NUMPY_MINOR_SRC}.${NUMPY_PATCH_SRC}])
 else
   AC_MSG_NOTICE([numpy >= ${NUMPY_MAJOR}.${NUMPY_MINOR}.${NUMPY_PATCH} found])
 fi
 if test ${Pmw} == "yes" ; then
-  AC_MSG_NOTICE([Pmw >= ${PMW_MAJOR}.${PMW_MINOR} not found... building ${PMW_MAJOR_SRC}.${PMW_MINOR_SRC}])
+  AC_MSG_NOTICE([Pmw >= ${PMW_MAJOR}.${PMW_MINOR} not found... building package ${PMW_MAJOR_SRC}.${PMW_MINOR_SRC}])
 else
   AC_MSG_NOTICE([Pmw >= ${PMW_MAJOR}.${PMW_MINOR} found])
 fi
