@@ -872,6 +872,7 @@ PyOpenGL
 NCPUS
 MD5PRG
 MD5CNT
+DOCMOR
 MAINDIR
 BUILD_DIR
 AQUA_PYTHON
@@ -1619,11 +1620,11 @@ Optional Packages:
   --with-x                use the X Window System
   --with-pg_config        specify where to find pg_config program (esg only)
   --with-python           use your own python
+  --with-udunits2         enable location of udunits2
+  --with-uuid             enable support for uuid in none standard location
   --with-netcdf           enable support for NetCDF in some none standard
                           location
-  --with-uuid             enable support for uuid in none standard location
   --with-hdf5             enable location of hdf5 libs
-  --with-udunits2         enable location of udunits2
   --with-hdf4             enable support for HDF4
   --with-qt               specify where to find qt default:
                           /usr/local/Trolltech/Qt-4.5.2
@@ -2532,6 +2533,8 @@ MD5CNT=1
 
 
 
+DOCMOR="yes"
+
 PYTHON_INSTALL_OPTIONS=""
 
 PREFIX_PATH=${prefix}
@@ -2742,6 +2745,8 @@ COMPILE_FREETYPE=no
 COMPILE_FONTCONFIG=no
 COMPILE_CMAKE=no
 COMPILE_XGKS=no
+COMPILE_UDUNITS2=no
+COMPILE_UUID=no
 DOPBMPLUS=no
 FFMPEG=yes
 GIFSICLE=yes
@@ -7462,6 +7467,7 @@ fi
 if test ${enable_esg} == "-yes" ; then
   enable_cdms_only="yes"
   ESG=yes
+  DOCMOR="no"
   # Extract the first word of "pg_config", so it can be a program name with args.
 set dummy pg_config; ac_word=$2
 { echo "$as_me:$LINENO: checking for $ac_word" >&5
@@ -10659,6 +10665,182 @@ echo "${ECHO_T}yes" >&6; }
     { echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6; }
   fi
+        COMPILE_UDUNITS2=no
+
+# Check whether --with-udunits2 was given.
+if test "${with_udunits2+set}" = set; then
+  withval=$with_udunits2;
+else
+  with_udunits2=yes
+fi
+
+  if test ${with_udunits2} == "yes" ; then
+       UDUNITS2LOC="${EXTERNALS}"
+  else
+      if test ${with_udunits2} != "no" ; then
+        UDUNITS2LOC=${with_udunits2}
+      fi
+  fi
+  if test ${with_udunits2} != "no" ; then
+                        { echo "$as_me:$LINENO: checking for ut_parse in -ludunits2" >&5
+echo $ECHO_N "checking for ut_parse in -ludunits2... $ECHO_C" >&6; }
+if test "${ac_cv_lib_udunits2_ut_parse+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-ludunits2 "" $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char ut_parse ();
+int
+main ()
+{
+return ut_parse ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext &&
+       $as_test_x conftest$ac_exeext; then
+  ac_cv_lib_udunits2_ut_parse=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_cv_lib_udunits2_ut_parse=no
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_lib_udunits2_ut_parse" >&5
+echo "${ECHO_T}$ac_cv_lib_udunits2_ut_parse" >&6; }
+if test $ac_cv_lib_udunits2_ut_parse = yes; then
+  COMPILE_UDUNITS2=no
+else
+  COMPILE_UDUNITS2=yes
+fi
+
+  fi
+
+# Check whether --with-uuid was given.
+if test "${with_uuid+set}" = set; then
+  withval=$with_uuid;
+else
+  with_uuid="no"
+fi
+
+  with_uuidb="-"${with_uuid}
+  if  test ${with_uuidb} != "-yes"  ; then
+   if  test ${with_uuidb} != "-no"  ; then
+    UUIDFLAGS=" -I${with_uuid}/include"
+    UUIDLDFLAGS=" -L${with_uuid}/lib -luuid"
+    UUIDLOC=${with_uuid}
+   else
+     UUIDFLAGS="-luuid"
+     UUIDLDFLAGS=""
+     UUIDLOC="${EXTERNALS}"
+   fi
+  else
+   UUIDFLAGS="-luuid"
+   UUIDLDFLAGS=""
+   UUIDLOC="${EXTERNALS}"
+  fi
+  { echo "$as_me:$LINENO: checking for uuid_create in -luuid" >&5
+echo $ECHO_N "checking for uuid_create in -luuid... $ECHO_C" >&6; }
+if test "${ac_cv_lib_uuid_uuid_create+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-luuid   $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char uuid_create ();
+int
+main ()
+{
+return uuid_create ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext &&
+       $as_test_x conftest$ac_exeext; then
+  ac_cv_lib_uuid_uuid_create=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_cv_lib_uuid_uuid_create=no
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_lib_uuid_uuid_create" >&5
+echo "${ECHO_T}$ac_cv_lib_uuid_uuid_create" >&6; }
+if test $ac_cv_lib_uuid_uuid_create = yes; then
+  COMPILE_UUID=no
+else
+  COMPILE_UUID=yes
+fi
+
 fi
 
 COMPILE_NC=no
@@ -10831,100 +11013,6 @@ else
   { echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6; }
 fi
-
-
-
-# Check whether --with-uuid was given.
-if test "${with_uuid+set}" = set; then
-  withval=$with_uuid;
-else
-  with_uuid="no"
-fi
-
-with_uuidb="-"${with_uuid}
-if  test ${with_uuidb} != "-yes"  ; then
-  if  test ${with_uuidb} != "-no"  ; then
-   UUIDFLAGS=" -I${with_uuid}/include"
-   UUIDLDFLAGS=" -L${with_uuid}/lib -luuid"
-   UUIDLOC=${with_uuid}
-  else
-    UUIDFLAGS="-luuid"
-    UUIDLDFLAGS=""
-    UUIDLOC="${EXTERNALS}"
-  fi
-else
-  UUIDFLAGS="-luuid"
-  UUIDLDFLAGS=""
-  UUIDLOC="${EXTERNALS}"
-fi
-{ echo "$as_me:$LINENO: checking for uuid_create in -luuid" >&5
-echo $ECHO_N "checking for uuid_create in -luuid... $ECHO_C" >&6; }
-if test "${ac_cv_lib_uuid_uuid_create+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-luuid   $LIBS"
-cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char uuid_create ();
-int
-main ()
-{
-return uuid_create ();
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (ac_try="$ac_link"
-case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
-  (eval "$ac_link") 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } && {
-	 test -z "$ac_c_werror_flag" ||
-	 test ! -s conftest.err
-       } && test -s conftest$ac_exeext &&
-       $as_test_x conftest$ac_exeext; then
-  ac_cv_lib_uuid_uuid_create=yes
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-	ac_cv_lib_uuid_uuid_create=no
-fi
-
-rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
-      conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_lib_uuid_uuid_create" >&5
-echo "${ECHO_T}$ac_cv_lib_uuid_uuid_create" >&6; }
-if test $ac_cv_lib_uuid_uuid_create = yes; then
-  COMPILE_UUID=no
-else
-  COMPILE_UUID=yes
-fi
-
-
 
 COMPILE_HDF5=no
 
@@ -11354,92 +11442,6 @@ echo "${ECHO_T}no" >&6; }
     fi
     fi
 
-
-COMPILE_UDUNITS2=no
-
-# Check whether --with-udunits2 was given.
-if test "${with_udunits2+set}" = set; then
-  withval=$with_udunits2;
-else
-  with_udunits2=yes
-fi
-
-if test ${with_udunits2} == "yes" ; then
-    UDUNITS2LOC="${EXTERNALS}"
-else
-    if test ${with_udunits2} != "no" ; then
-      UDUNITS2LOC=${with_udunits2}
-    fi
-fi
-if test ${with_udunits2} != "no" ; then
-                { echo "$as_me:$LINENO: checking for ut_parse in -ludunits2" >&5
-echo $ECHO_N "checking for ut_parse in -ludunits2... $ECHO_C" >&6; }
-if test "${ac_cv_lib_udunits2_ut_parse+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-ludunits2 "" $LIBS"
-cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char ut_parse ();
-int
-main ()
-{
-return ut_parse ();
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (ac_try="$ac_link"
-case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
-  (eval "$ac_link") 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } && {
-	 test -z "$ac_c_werror_flag" ||
-	 test ! -s conftest.err
-       } && test -s conftest$ac_exeext &&
-       $as_test_x conftest$ac_exeext; then
-  ac_cv_lib_udunits2_ut_parse=yes
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-	ac_cv_lib_udunits2_ut_parse=no
-fi
-
-rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
-      conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_lib_udunits2_ut_parse" >&5
-echo "${ECHO_T}$ac_cv_lib_udunits2_ut_parse" >&6; }
-if test $ac_cv_lib_udunits2_ut_parse = yes; then
-  COMPILE_UDUNITS2=no
-else
-  COMPILE_UDUNITS2=yes
-fi
-
-fi
 
 COMPILE_HDF=no
 
@@ -12562,6 +12564,7 @@ PyOpenGL!$PyOpenGL$ac_delim
 NCPUS!$NCPUS$ac_delim
 MD5PRG!$MD5PRG$ac_delim
 MD5CNT!$MD5CNT$ac_delim
+DOCMOR!$DOCMOR$ac_delim
 MAINDIR!$MAINDIR$ac_delim
 BUILD_DIR!$BUILD_DIR$ac_delim
 AQUA_PYTHON!$AQUA_PYTHON$ac_delim
@@ -12595,7 +12598,6 @@ COMPILE_TCLTK!$COMPILE_TCLTK$ac_delim
 PYOPT!$PYOPT$ac_delim
 PYADD!$PYADD$ac_delim
 COMPILE_PYTHON!$COMPILE_PYTHON$ac_delim
-PYTHON!$PYTHON$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -12637,6 +12639,7 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+PYTHON!$PYTHON$ac_delim
 DOGS!$DOGS$ac_delim
 DOPBMPLUS!$DOPBMPLUS$ac_delim
 HAVE_LIBBLAS!$HAVE_LIBBLAS$ac_delim
@@ -12720,7 +12723,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 81; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 82; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
@@ -13226,19 +13229,21 @@ echo "$as_me: libcairo >= ${CAIRO_MAJOR}.${CAIRO_MINOR}.${CAIRO_PATCH} not found
 echo "$as_me: libcairo >= ${CAIRO_MAJOR}.${CAIRO_MINOR}.${CAIRO_PATCH} found" >&6;}
  fi
 fi
-if test ${COMPILE_UUID} == "yes" ; then
+if test ${enable_esg} != "-yes" ; then
+  if test ${COMPILE_UUID} == "yes" ; then
     { echo "$as_me:$LINENO: libuuid not found... building library ${UUID_MAJOR_SRC}.${UUID_MINOR_SRC}.${UUID_PATCH_SRC}" >&5
 echo "$as_me: libuuid not found... building library ${UUID_MAJOR_SRC}.${UUID_MINOR_SRC}.${UUID_PATCH_SRC}" >&6;}
-else
+  else
     { echo "$as_me:$LINENO: libuuid found" >&5
 echo "$as_me: libuuid found" >&6;}
-fi
-if test ${COMPILE_UDUNITS2} == "yes" ; then
+  fi
+  if test ${COMPILE_UDUNITS2} == "yes" ; then
     { echo "$as_me:$LINENO: libudunits2 not found... building library ${UDUNITS2_MAJOR_SRC}.${UDUNITS2_MINOR_SRC}.${UDUNITS2_PATCH_SRC}" >&5
 echo "$as_me: libudunits2 not found... building library ${UDUNITS2_MAJOR_SRC}.${UDUNITS2_MINOR_SRC}.${UDUNITS2_PATCH_SRC}" >&6;}
-else
+  else
     { echo "$as_me:$LINENO: libudunits2 found" >&5
 echo "$as_me: libudunits2 found" >&6;}
+  fi
 fi
 if test ${COMPILE_HDF5} == "yes" ; then
     { echo "$as_me:$LINENO: libhdf5 not found... building library ${HDF5_MAJOR_SRC}.${HDF5_MINOR_SRC}.${HDF5_PATCH_SRC}" >&5

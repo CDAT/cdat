@@ -459,6 +459,8 @@ MD5CNT=1
 AC_SUBST(MD5PRG)
 AC_SUBST(MD5CNT)
 
+AC_SUBST(DOCMOR)
+DOCMOR="yes"
 
 PYTHON_INSTALL_OPTIONS=""
 
@@ -582,6 +584,8 @@ COMPILE_FREETYPE=no
 COMPILE_FONTCONFIG=no
 COMPILE_CMAKE=no
 COMPILE_XGKS=no
+COMPILE_UDUNITS2=no
+COMPILE_UUID=no
 DOPBMPLUS=no
 FFMPEG=yes
 GIFSICLE=yes
@@ -834,6 +838,7 @@ fi
 if test ${enable_esg} == "-yes" ; then
   enable_cdms_only="yes"
   ESG=yes
+  DOCMOR="no"
   AC_PATH_PROG(PGCONFIG,pg_config,no)
   if test ${PGCONFIG} == "no" ; then
     AC_ARG_WITH([pg_config],
@@ -1455,6 +1460,48 @@ if test  ${enable_cdms_only} != "-yes" ; then
     COMPILE_CAIRO=yes  
     AC_MSG_RESULT([no])
   fi
+  dnl ###########################################################
+  dnl  UDUNITS2
+  dnl ###########################################################
+  COMPILE_UDUNITS2=no
+  AC_ARG_WITH([udunits2],[AS_HELP_STRING([--with-udunits2],[enable location of udunits2])],[],[with_udunits2=yes])
+  if test ${with_udunits2} == "yes" ; then
+       UDUNITS2LOC="${EXTERNALS}"
+  else 
+      if test ${with_udunits2} != "no" ; then
+        UDUNITS2LOC=${with_udunits2}
+dnl      CPPFLAGS="-I${with_udunits2}/include "${CPPFLAGS}
+dnl      LDFLAGS="-L${with_udunits2}/lib "${LDFLAGS}
+dnl      CFLAGS="-I${with_udunits2}/include -L${with_udunits2}/lib "${CFLAGS}
+      fi
+  fi
+  if test ${with_udunits2} != "no" ; then
+      dnl ###########################################################
+      dnl  LIBUDUNITS2
+      dnl ###########################################################
+      AC_CHECK_LIB([udunits2],[ut_parse],[COMPILE_UDUNITS2=no],[COMPILE_UDUNITS2=yes],[""])
+  fi
+  dnl ###########################################################
+  dnl  UUID
+  dnl ###########################################################
+  AC_ARG_WITH([uuid],[AS_HELP_STRING([--with-uuid],[enable support for uuid in none standard location])],[],[with_uuid="no"])
+  with_uuidb="-"${with_uuid}
+  if [ test ${with_uuidb} != "-yes" ] ; then
+   if [ test ${with_uuidb} != "-no" ] ; then
+    UUIDFLAGS=" -I${with_uuid}/include"
+    UUIDLDFLAGS=" -L${with_uuid}/lib -luuid"
+    UUIDLOC=${with_uuid}
+   else
+     UUIDFLAGS="-luuid"
+     UUIDLDFLAGS=""
+     UUIDLOC="${EXTERNALS}"
+   fi
+  else
+   UUIDFLAGS="-luuid"
+   UUIDLDFLAGS=""
+   UUIDLOC="${EXTERNALS}"
+  fi
+  AC_CHECK_LIB([uuid],[uuid_create],[COMPILE_UUID=no],[COMPILE_UUID=yes],[] )
 fi
 
 COMPILE_NC=no
@@ -1495,27 +1542,6 @@ if test ${COMPILE_CURL} == "no" ; then
 else
   AC_MSG_RESULT([no])
 fi
-
-
-AC_ARG_WITH([uuid],[AS_HELP_STRING([--with-uuid],[enable support for uuid in none standard location])],[],[with_uuid="no"])
-with_uuidb="-"${with_uuid}
-if [ test ${with_uuidb} != "-yes" ] ; then
-  if [ test ${with_uuidb} != "-no" ] ; then
-   UUIDFLAGS=" -I${with_uuid}/include"
-   UUIDLDFLAGS=" -L${with_uuid}/lib -luuid"
-   UUIDLOC=${with_uuid}
-  else
-    UUIDFLAGS="-luuid"
-    UUIDLDFLAGS=""
-    UUIDLOC="${EXTERNALS}"
-  fi
-else
-  UUIDFLAGS="-luuid"
-  UUIDLDFLAGS=""
-  UUIDLOC="${EXTERNALS}"
-fi
-AC_CHECK_LIB([uuid],[uuid_create],[COMPILE_UUID=no],[COMPILE_UUID=yes],[] )
-
 
 dnl ###########################################################
 dnl  HDF 5
@@ -1616,28 +1642,6 @@ if test ${COMPILE_NC} == "no" ; then
     dnl LDFLAGS=${LDFLAGS_OLD}
 fi  
 
-
-dnl ###########################################################
-dnl  UDUNITS2
-dnl ###########################################################
-COMPILE_UDUNITS2=no
-AC_ARG_WITH([udunits2],[AS_HELP_STRING([--with-udunits2],[enable location of udunits2])],[],[with_udunits2=yes])
-if test ${with_udunits2} == "yes" ; then
-    UDUNITS2LOC="${EXTERNALS}"
-else 
-    if test ${with_udunits2} != "no" ; then
-      UDUNITS2LOC=${with_udunits2}
-dnl      CPPFLAGS="-I${with_udunits2}/include "${CPPFLAGS}
-dnl      LDFLAGS="-L${with_udunits2}/lib "${LDFLAGS}
-dnl      CFLAGS="-I${with_udunits2}/include -L${with_udunits2}/lib "${CFLAGS}
-    fi
-fi
-if test ${with_udunits2} != "no" ; then
-    dnl ###########################################################
-    dnl  LIBUDUNITS2
-    dnl ###########################################################
-    AC_CHECK_LIB([udunits2],[ut_parse],[COMPILE_UDUNITS2=no],[COMPILE_UDUNITS2=yes],[""])
-fi
 
 dnl ###########################################################
 dnl  HDF 4
@@ -1889,15 +1893,17 @@ dnl  fi
   AC_MSG_NOTICE([libcairo >= ${CAIRO_MAJOR}.${CAIRO_MINOR}.${CAIRO_PATCH} found])
  fi
 fi
-if test ${COMPILE_UUID} == "yes" ; then
+if test ${enable_esg} != "-yes" ; then
+  if test ${COMPILE_UUID} == "yes" ; then
     AC_MSG_NOTICE([libuuid not found... building library ${UUID_MAJOR_SRC}.${UUID_MINOR_SRC}.${UUID_PATCH_SRC}])
-else
+  else
     AC_MSG_NOTICE([libuuid found])
-fi
-if test ${COMPILE_UDUNITS2} == "yes" ; then
+  fi
+  if test ${COMPILE_UDUNITS2} == "yes" ; then
     AC_MSG_NOTICE([libudunits2 not found... building library ${UDUNITS2_MAJOR_SRC}.${UDUNITS2_MINOR_SRC}.${UDUNITS2_PATCH_SRC}])
-else
+  else
     AC_MSG_NOTICE([libudunits2 found])
+  fi
 fi
 if test ${COMPILE_HDF5} == "yes" ; then
     AC_MSG_NOTICE([libhdf5 not found... building library ${HDF5_MAJOR_SRC}.${HDF5_MINOR_SRC}.${HDF5_PATCH_SRC}])
