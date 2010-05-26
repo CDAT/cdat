@@ -1,7 +1,7 @@
 Climate Data Analysis Tools (CDAT)
 
 
-VERSION: @PACKAGE_VERSION@
+ VERSION: @PACKAGE_VERSION@
 
 Don't forget to check http://cdat.sf.net for the latest news and tips
 
