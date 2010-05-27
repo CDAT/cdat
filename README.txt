@@ -1,6 +1,7 @@
 Climate Data Analysis Tools (CDAT)
 
-VERSION: 6.0.alpha
+
+ VERSION: 6.0.alpha
 
 Don't forget to check http://cdat.sf.net for the latest news and tips
 
