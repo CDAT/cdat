@@ -387,6 +387,10 @@ f=open("Info/__init__.py","w")
 print >> f, "macros = \"",vcs_macros,"EM:",EM,"WM:",WM,"\""
 print >> f, "EM = \"",EM,"\""
 print >> f, "WM = \"",WM,"\""
+print >> f, "QT_PATH_LIB = \"",QT_PATH_LIB,"\""
+print >> f, "QT_PATH_INC = \"",QT_PATH_INC,"\""
+print >> f, "QT_PATH_BIN = \"",QT_PATH_BIN,"\""
+print >> f, "USE_FRAMEWORK = ",USE_FRAMEWORK
 f.close()
 print 'vcs_include_dirs',vcs_include_dirs,vcs_extra_compile_args,vcs_extra_link_args
 setup (name = "vcs",
