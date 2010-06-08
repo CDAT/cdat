@@ -64,7 +64,7 @@ from xmldocs import plot_keywords_doc,graphics_method_core,axesconvert,xaxisconv
 called_initial_attributes_flg = 0
 gui_canvas_closed = 0
 canvas_closed = 0
-import Pmw
+#import Pmw
 import vcsaddons
 
 

@@ -14,4 +14,4 @@ import ASCII
 from unidata import udunits
 from Filler import Filler,StringConstructor
 from averager import averager, AveragerError, area_weights, getAxisWeight, getAxisWeightByName,__check_weightoptions
-from Statusbar_Pmw import Statusbar
+#from Statusbar_Pmw import Statusbar
