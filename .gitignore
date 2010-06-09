@@ -34,7 +34,13 @@ generated/
 /build
 /dist
 /test-results
-Packages/*
+Packages/*/build
+Packages/*/rebuild.py
+Packages/vcs/Info/__init__.py
+Packages/vcs/Src/Qt/moc_mainwindow.cpp
+Packages/vcs/result.pdf
+contrib/*/build
+contrib/*/rebuild.py
 Makefile
 Scripts/cdat
 Scripts/vcdat
