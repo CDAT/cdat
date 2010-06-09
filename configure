@@ -2514,8 +2514,8 @@ FFMPEG_GZ=ffmpeg-${FFMPEG_MAJOR_SRC}.${FFMPEG_MINOR_SRC}.${FFMPEG_PATCH_SRC}.tar
 
 
 VTK_MAJOR_SRC=5
-VTK_MINOR_SRC=4
-VTK_PATCH_SRC=2
+VTK_MINOR_SRC=6
+VTK_PATCH_SRC=0
 VTK_URL=http://www.vtk.org/files/release/${VTK_MAJOR_SRC}.${VTK_MINOR_SRC}
 VTK_GZ=vtk-${VTK_MAJOR_SRC}.${VTK_MINOR_SRC}.${VTK_PATCH_SRC}.tar.gz
 
@@ -7416,7 +7416,15 @@ fi
     darwin10*)
     EXTRAENV="MACOSX_DEPLOYMENT_TARGET=10.6"
 
-    PYOPT=${PYOPT}" --disable-toolbox-glue --disable-framework "
+    if test ${enable_fw} == "-yes" ; then
+      PYOPT=" --enable-framework  --enable-shared "
+    else
+      if test ${enable_fw} != "-" ; then
+         PYOPT=" --enable-framework=${enable_framework}"
+      else
+         PYOPT=${PYOPT}" --disable-toolbox-glue --disable-framework "
+      fi
+    fi
     CFLAGS=${CFLAGS}" -fPIC -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.5 "
     LDFLAGS=${LDFLAGS}" -fPIC  -bind_at_load  -mmacosx-version-min=10.5 "
     CXXFLAGS=${CXXFLAGS}" -fPIC -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.5 ";;

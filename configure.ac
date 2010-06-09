@@ -439,8 +439,8 @@ AC_SUBST(FFMPEG_PATCH_SRC)
 AC_SUBST(FFMPEG_URL)
 AC_SUBST(FFMPEG_GZ)
 VTK_MAJOR_SRC=5
-VTK_MINOR_SRC=4
-VTK_PATCH_SRC=2
+VTK_MINOR_SRC=6
+VTK_PATCH_SRC=0
 VTK_URL=http://www.vtk.org/files/release/${VTK_MAJOR_SRC}.${VTK_MINOR_SRC}
 VTK_GZ=vtk-${VTK_MAJOR_SRC}.${VTK_MINOR_SRC}.${VTK_PATCH_SRC}.tar.gz
 AC_SUBST(VTK_URL)
@@ -780,7 +780,15 @@ dnl    AC_MSG_NOTICE([Darwin 10.6 or higher need to remove -Wno-long-double when
 dnl    PYADD=${PYADD}" cp -f ../../pysrc/src/Python-2.5.2-configure-mac10.6-replacement configure ; cp ../../pysrc/src/Python-2.5.2-pyconfig.in-replacement pyconfig.h.in ; " 
     EXTRAENV="MACOSX_DEPLOYMENT_TARGET=10.6"
     AC_SUBST(EXTRAENV)
-    PYOPT=${PYOPT}" --disable-toolbox-glue --disable-framework " 
+    if test ${enable_fw} == "-yes" ; then
+      PYOPT=" --enable-framework  --enable-shared "
+    else
+      if test ${enable_fw} != "-" ; then
+         PYOPT=" --enable-framework=${enable_framework}"
+      else
+         PYOPT=${PYOPT}" --disable-toolbox-glue --disable-framework " 
+      fi
+    fi
     CFLAGS=${CFLAGS}" -fPIC -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.5 "
     LDFLAGS=${LDFLAGS}" -fPIC  -bind_at_load  -mmacosx-version-min=10.5 "
     CXXFLAGS=${CXXFLAGS}" -fPIC -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.5 ";;
