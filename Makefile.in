@@ -55,7 +55,7 @@ doprolog = rm -rf logs/$(2).LOG ; \
 	../checked_get.sh $(2) http://rainbow.llnl.gov/dist/cdat/resources/$(2)  @KEEPLOGa@ ; \
 	mycd=`echo $(2)` ; mycd2=`echo $${mycd:0:5}` ; mycd2=`echo $${mycd2%%.*}` ; echo "cd "$${mycd2}* @KEEPLOGa@; cd $${mycd2}*  @KEEPLOGa@;\
 	$(call dosetenv) @KEEPLOGa@
-dobuild = @$(call doprolog,$(1),$(2))  \
+dobuild_keyed = @$(call doprolog,$(1),$(2))  \
 	echo "CFLAGS=\"@CFLAGS@\";" @KEEPLOGa@; \
 	echo "export CFLAGS;" @KEEPLOGa@ ; \
 	CFLAGS="@CFLAGS@"; \
@@ -67,9 +67,10 @@ dobuild = @$(call doprolog,$(1),$(2))  \
 	echo "env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH=@EXTERNALS@/lib:${LD_LIBRARY_PATH} make -j @NCPUS@;"  @KEEPLOGa@; \
 	env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH=@EXTERNALS@/lib:${LD_LIBRARY_PATH} make -j @NCPUS@ @KEEPLOGa@; \
 	echo "env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH=@EXTERNALS@/lib:${LD_LIBRARY_PATH} make install;"  @KEEPLOGa@; \
-	env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH=@EXTERNALS@/lib:${LD_LIBRARY_PATH} make install  @KEEPLOGa@; \
+	env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH=@EXTERNALS@/lib:${LD_LIBRARY_PATH} make $(6)  @KEEPLOGa@; \
 	echo "cd ../..;"  @KEEPLOGa@ ; \
 	cd ../.. ;
+dobuild = @$(call dobuild_keyed,$(1),$(2),$(3),$(4),$(5),install) 
 dobuildpynotar = @$(3) @KEEPLOGa@  \
 	echo "$(3);" @KEEPLOGa@ ; \
 	echo "env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS=@CFLAGS@ CPPFLAGS=@CPPFLAGS@ LDFLAGS=@LDFLAGS@ @PYTHON@ setup.py build $(4) --force install --prefix=$(1);"  @KEEPLOGa@ ;\
@@ -83,6 +84,8 @@ dobuildpy = @$(call doprolog,$(2),$(3)) \
 	cd ../.. ;
 install: clean nocleaninstall
 nocleaninstall:
+	git submodule init
+	git submodule update
 	mkdir -p @prefix@
 	mkdir -p @EXTERNALS@
 	mkdir -p @EXTERNALS@/lib
@@ -147,7 +150,7 @@ ifeq (@COMPILE_TCLTK@,yes)
 endif
 ifeq (@COMPILE_PYTHON@,yes)
 	@echo "Couldn't find a working python, building it"
-	$(call dobuild,@PYTHON_URL@,@PYTHON_GZ@,@prefix@,@PYADD@ @AQUA_PYTHON@,@PYOPT@)
+	$(call dobuild_keyed,@PYTHON_URL@,@PYTHON_GZ@,@prefix@,@PYADD@ @AQUA_PYTHON@,@PYOPT@,@PYINSTALLKEY@)
 endif
 ifeq (@COMPILE_XGKS@,yes)
 	@echo "Building xgks"
@@ -218,7 +221,7 @@ ifeq (@COMPILE_CMAKE@,yes)
 endif
 ifeq (@COMPILE_VTK@,yes)
 	@echo "Building VTK (long)"
-	mkdir build/VTK;mkdir build/VTK-build;cd build;tar xzf ../exsrc/src/vtk-* ; cd VTK-build;cp ../../exsrc/CMakeCache.txt .;env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH="@EXTERNALS@/lib:${LD_LIBRARY_PATH}" PATH="@EXTERNALS@/bin:${PATH}" cmake CMakeCache.txt;make;make install
+	mkdir build/VTK;mkdir build/VTK-build;cd build;../checked_get.sh @VTK_GZ@ @VTK_URL@/@VTK_GZ@ ; tar xzf ../sources/vtk-* ; cd VTK-build;cp ../../exsrc/CMakeCache.txt .;env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH="@EXTERNALS@/lib:${LD_LIBRARY_PATH}" PATH="@EXTERNALS@/bin:${PATH}" cmake CMakeCache.txt;make;make install
 endif
 ifeq (@SETUPTOOLS@,yes)
 	@echo "Building setuptools"

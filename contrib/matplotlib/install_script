@@ -77,5 +77,4 @@ echo "building"
 fi
 
 cd matplotlib-*; \
-cp -f ../../setup.pcmdi.py setup.py ; \
 ${pyprefix}/bin/python setup.py build ${D} install --prefix=${prefix} ;

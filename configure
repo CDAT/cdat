@@ -932,6 +932,7 @@ HASWGET
 WGET_URL
 WGET_GZ
 HASCURL
+PYINSTALLKEY
 CXX
 CXXFLAGS
 LDFLAGS
@@ -2641,6 +2642,7 @@ TERMCAP_GZ=termcap-1.3.1.tar.gz
 
 
 
+
 WGET_URL=http://ftp.gnu.org/gnu/wget
 WGET_GZ=wget-latest.tar.gz
 DOWGET="no"
@@ -2759,6 +2761,8 @@ COMPILE_PKGCONFIG=no
 COMPILE_XSLT=no
 
 PYOPT="--enable-shared "
+PYINSTALLKEY="install"
+
 # Check whether --enable-fortran was given.
 if test "${enable_fortran+set}" = set; then
   enableval=$enable_fortran;
@@ -7397,10 +7401,18 @@ fi
   if test ${enable_fw} == "-yes" ; then
     PYOPT=" --enable-framework"
     cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
+    PYINSTALLKEY="frameworkinstall"
   else
      if test ${enable_fw} != "-" ; then
          PYOPT=" --enable-framework=${enable_framework}"
          cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
+         PYINSTALLKEY="frameworkinstall"
+     else
+       if test ${enable_vtk} == "-yes" ; then
+           PYOPT=" --enable-framework=${prefix} "
+           cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
+           PYINSTALLKEY="frameworkinstall"
+       fi
      fi
   fi
         # Check whether --enable-toolbox-glue was given.
@@ -7417,17 +7429,25 @@ fi
     EXTRAENV="MACOSX_DEPLOYMENT_TARGET=10.6"
 
     if test ${enable_fw} == "-yes" ; then
-      PYOPT=" --enable-framework  --enable-shared "
+      PYOPT=" --enable-framework"
+      PYINSTALLKEY="frameworkinstall"
     else
       if test ${enable_fw} != "-" ; then
          PYOPT=" --enable-framework=${enable_framework}"
+         PYINSTALLKEY="frameworkinstall"
       else
-         PYOPT=${PYOPT}" --disable-toolbox-glue --disable-framework "
+         if test ${enable_vtk} == "-yes" ; then
+           PYOPT=" --enable-framework=${prefix} "
+           cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
+           PYINSTALLKEY="frameworkinstall"
+         else
+           PYOPT=${PYOPT}" --disable-toolbox-glue --disable-framework "
+	 fi
       fi
     fi
     CFLAGS=${CFLAGS}" -fPIC -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.5 "
-    LDFLAGS=${LDFLAGS}" -fPIC  -bind_at_load  -mmacosx-version-min=10.5 "
-    CXXFLAGS=${CXXFLAGS}" -fPIC -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.5 ";;
+    LDFLAGS=${LDFLAGS}" -fPIC  -bind_at_load  -mmacosx-version-min=10.6 -L${prefix}/lib/vtk-5.6"
+    CXXFLAGS=${CXXFLAGS}" -fPIC -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.6 ";;
   esac ;;
  cygwin*)
       FFMPEG=yes
@@ -12673,6 +12693,7 @@ HASWGET!$HASWGET$ac_delim
 WGET_URL!$WGET_URL$ac_delim
 WGET_GZ!$WGET_GZ$ac_delim
 HASCURL!$HASCURL$ac_delim
+PYINSTALLKEY!$PYINSTALLKEY$ac_delim
 CXX!$CXX$ac_delim
 CXXFLAGS!$CXXFLAGS$ac_delim
 LDFLAGS!$LDFLAGS$ac_delim
@@ -12731,7 +12752,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 82; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 83; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5

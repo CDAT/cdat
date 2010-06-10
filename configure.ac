@@ -558,6 +558,7 @@ AC_SUBST(HASWGET)
 AC_SUBST(WGET_URL)
 AC_SUBST(WGET_GZ)
 AC_SUBST(HASCURL)
+AC_SUBST(PYINSTALLKEY)
 
 WGET_URL=http://ftp.gnu.org/gnu/wget
 WGET_GZ=wget-latest.tar.gz
@@ -599,6 +600,8 @@ COMPILE_PKGCONFIG=no
 COMPILE_XSLT=no
 
 PYOPT="--enable-shared "
+PYINSTALLKEY="install"
+
 dnl ##########################################################
 dnl  Turn off fortran
 dnl ##########################################################
@@ -760,10 +763,18 @@ case ${target_os} in
   if test ${enable_fw} == "-yes" ; then
     PYOPT=" --enable-framework"
     cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
+    PYINSTALLKEY="frameworkinstall"
   else
      if test ${enable_fw} != "-" ; then
          PYOPT=" --enable-framework=${enable_framework}"
          cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
+         PYINSTALLKEY="frameworkinstall"
+     else
+       if test ${enable_vtk} == "-yes" ; then
+           PYOPT=" --enable-framework=${prefix} "
+           cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
+           PYINSTALLKEY="frameworkinstall"
+       fi
      fi
   fi
   dnl ##########################################################
@@ -781,17 +792,25 @@ dnl    PYADD=${PYADD}" cp -f ../../pysrc/src/Python-2.5.2-configure-mac10.6-repl
     EXTRAENV="MACOSX_DEPLOYMENT_TARGET=10.6"
     AC_SUBST(EXTRAENV)
     if test ${enable_fw} == "-yes" ; then
-      PYOPT=" --enable-framework  --enable-shared "
+      PYOPT=" --enable-framework"
+      PYINSTALLKEY="frameworkinstall"
     else
       if test ${enable_fw} != "-" ; then
          PYOPT=" --enable-framework=${enable_framework}"
+         PYINSTALLKEY="frameworkinstall"
       else
-         PYOPT=${PYOPT}" --disable-toolbox-glue --disable-framework " 
+         if test ${enable_vtk} == "-yes" ; then
+           PYOPT=" --enable-framework=${prefix} "
+           cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
+           PYINSTALLKEY="frameworkinstall"
+         else
+           PYOPT=${PYOPT}" --disable-toolbox-glue --disable-framework " 
+	 fi
       fi
     fi
     CFLAGS=${CFLAGS}" -fPIC -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.5 "
-    LDFLAGS=${LDFLAGS}" -fPIC  -bind_at_load  -mmacosx-version-min=10.5 "
-    CXXFLAGS=${CXXFLAGS}" -fPIC -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.5 ";;
+    LDFLAGS=${LDFLAGS}" -fPIC  -bind_at_load  -mmacosx-version-min=10.6 -L${prefix}/lib/vtk-5.6"
+    CXXFLAGS=${CXXFLAGS}" -fPIC -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.6 ";;
   esac ;;
  cygwin*)
    dnl  the following do not work under cygwin... no need to detext and build
