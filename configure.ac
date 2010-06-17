@@ -10,7 +10,7 @@ if test ${SVN_TAG} == "rev" ; then
 fi
 CDAT_VERSION=${PACKAGE_VERSION}${SVN_TAG}
 AC_PREFIX_DEFAULT([/opt/cdat])
-AC_CONFIG_FILES([Makefile site.cfg README.txt Scripts/cdat Scripts/vcdat exsrc/CMakeCache.txt checked_get.sh],[chmod +x Scripts/cdat Scripts/vcdat checked_get.sh])
+AC_CONFIG_FILES([Makefile site.cfg README.txt Scripts/cdat Scripts/vcdat exsrc/CMakeCache.txt checked_get.sh exsrc/src/pbmplus/Makefile],[chmod +x Scripts/cdat Scripts/vcdat checked_get.sh])
 
 
 dnl  Lib VERSION NUMBERS TO CHECK AGAINST
@@ -421,9 +421,9 @@ PBMPLUS_GZ=pbmplus_10dec1991.tar.gz
 AC_SUBST(PBMPLUS_URL)
 AC_SUBST(PBMPLUS_GZ)
 GS_MAJOR_SRC=8
-GS_MINOR_SRC=64
+GS_MINOR_SRC=71
 GS_URL=http://ghostscript.com/releases
-GS_GZ=ghostscript-8.64.tar.gz
+GS_GZ=ghostscript-${GS_MAJOR_SRC}.${GS_MINOR_SRC}.tar.gz
 AC_SUBST(GS_URL)
 AC_SUBST(GS_GZ)
 AC_SUBST(GS_MAJOR_SRC)
@@ -451,8 +451,41 @@ AC_SUBST(PGCONFIG)
 AC_SUBST(SETUPTOOLS)
 AC_SUBST(PyOpenGL)
 AC_SUBST(NCPUS)
+AC_SUBST(BUILDVIS)
+AC_SUBST(SIP_MAJOR)
+AC_SUBST(SIP_MINOR)
+AC_SUBST(SIP_PATCH)
+AC_SUBST(SIP_MAJOR_SRC)
+AC_SUBST(SIP_MINOR_SRC)
+AC_SUBST(SIP_PATCH_SRC)
+SIP_MAJOR=4
+SIP_MINOR=10
+SIP_PATCH=2
+SIP_MAJOR_SRC=4
+SIP_MINOR_SRC=10
+SIP_PATCH_SRC=2
+SIP_URL=http://www.riverbankcomputing.com/static/Downloads/sip${SIP_MAJOR_SRC}
+SIP_GZ=sip-${SIP_MAJOR_SRC}.${SIP_MINOR_SRC}.${SIP_PATCH_SRC}.tar.gz
+AC_SUBST(SIP_GZ)
+AC_SUBST(SIP_URL)
 
 
+AC_SUBST(PyQt_GZ)
+AC_SUBST(PyQt_URL)
+AC_SUBST(PyQt_PLATFORM)
+AC_SUBST(PyQt_MAJOR)
+AC_SUBST(PyQt_MINOR)
+AC_SUBST(PyQt_PATCH)
+AC_SUBST(PyQt_MAJOR_SRC)
+AC_SUBST(PyQt_MINOR_SRC)
+AC_SUBST(PyQt_PATCH_SRC)
+PyQt_MAJOR=4
+PyQt_MINOR=7
+PyQt_PATCH=3
+PyQt_MAJOR_SRC=4
+PyQt_MINOR_SRC=7
+PyQt_PATCH_SRC=3
+PyQt_URL=http://www.riverbankcomputing.com/static/Downloads/PyQt${PyQt_MAJOR_SRC}
 dnl md5 checker program
 MD5PRG="md5sum"
 MD5CNT=1
@@ -712,6 +745,7 @@ CFLAGS="-I${EXTERNALS}/include  -L${EXTERNALS}/lib  "${CFLAGS}
 COMPILE_TCLTK=no
 case ${target_os} in
  linux-*) 
+  PyQT_PLATFORM="x11"
   cp exsrc/src/CMakeCache.txt.linux.in exsrc/CMakeCache.txt.in
   AC_MSG_NOTICE([Linux: adding -Wl,--rpath,${prefix}/lib -Wl,--rpath,${EXTERNALS}/lib  -Wl,--rpath,${EXTERNALS}/NetCDF/lib  -Wl,--rpath,${EXTERNALS}/HDF5/lib to LDFLAGS])
   LDFLAGS=${LDFLAGS}" -Wl,--rpath,${prefix}/lib -Wl,--rpath,${EXTERNALS}/lib  -Wl,--rpath,${EXTERNALS}/NetCDF/lib  -Wl,--rpath,${EXTERNALS}/HDF5/lib" 
@@ -731,6 +765,7 @@ case ${target_os} in
     AC_MSG_RESULT([no])
   fi ;;
  darwin*)
+  PyQT_PLATFORM="mac"
   MD5PRG="md5"
   MD5CNT=4
   LDFLAGS=${LDFLAGS}" -R${prefix}/lib -R${EXTERNALS}/lib  -R${EXTERNALS}/NetCDF/lib  -R${EXTERNALS}/HDF5/lib " 
@@ -787,8 +822,6 @@ case ${target_os} in
   fi
   case ${target_os} in
     darwin10*)
-dnl    AC_MSG_NOTICE([Darwin 10.6 or higher need to remove -Wno-long-double when building Python. Replacing configure])
-dnl    PYADD=${PYADD}" cp -f ../../pysrc/src/Python-2.5.2-configure-mac10.6-replacement configure ; cp ../../pysrc/src/Python-2.5.2-pyconfig.in-replacement pyconfig.h.in ; " 
     EXTRAENV="MACOSX_DEPLOYMENT_TARGET=10.6"
     AC_SUBST(EXTRAENV)
     if test ${enable_fw} == "-yes" ; then
@@ -808,11 +841,12 @@ dnl    PYADD=${PYADD}" cp -f ../../pysrc/src/Python-2.5.2-configure-mac10.6-repl
 	 fi
       fi
     fi
-    CFLAGS=${CFLAGS}" -fPIC -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.5 "
-    LDFLAGS=${LDFLAGS}" -fPIC  -bind_at_load  -mmacosx-version-min=10.6 -L${prefix}/lib/vtk-5.6"
-    CXXFLAGS=${CXXFLAGS}" -fPIC -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.6 ";;
+    CFLAGS=${CFLAGS}" -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.5 "
+    LDFLAGS=${LDFLAGS}"  -bind_at_load  -mmacosx-version-min=10.6 -L${prefix}/lib/vtk-5.6"
+    CXXFLAGS=${CXXFLAGS}"  -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.6 ";;
   esac ;;
  cygwin*)
+   PyQt_PLATFORM="x11"
    dnl  the following do not work under cygwin... no need to detext and build
    FFMPEG=yes
    HAVE_LIBLAPACK=yes
@@ -821,10 +855,17 @@ esac
 
 AC_MSG_CHECKING([for 64bit machine])
 if test ${target_cpu} == "x86_64" -o ${target_cpu} == "ia64" ; then
+  case ${target_os} in 
+  darwin10*)
+    AC_MSG_RESULT([yes])
+    AC_MSG_NOTICE([not adding -fPIC to C and CXX FLAGS on snowleopard])
+    ;;
+  *)
   AC_MSG_RESULT([yes])
   AC_MSG_NOTICE([adding -fPIC to C and CXX FLAGS])
   CFLAGS=${CFLAGS}" -fPIC"
   CXXFLAGS=${CXXFLAGS}" -fPIC"
+ esac
 else
       AC_MSG_RESULT([no])
 fi
@@ -1744,6 +1785,10 @@ fi
 dnl ###########################################################
 dnl QT
 dnl ###########################################################
+AC_SUBST(QMAKE)
+AC_SUBST(QT_INC)
+AC_SUBST(QT_LIB)
+AC_SUBST(QT_BIN)
 
 AC_ARG_WITH([qt],
 	    [AS_HELP_STRING([--with-qt],[specify where to find qt default: /usr/local/Trolltech/Qt-4.5.2])],
@@ -1751,27 +1796,28 @@ AC_ARG_WITH([qt],
 	    [with_qt='no'])
 if test ${with_qt} != "no" ; then
    PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --with-qt="${with_qt}
-fi;
-AC_ARG_WITH([qt-lib],
-	    [AS_HELP_STRING([--with-qt-lib],[specify where to find qt libraries],)],
-	    [],
-	    [with_qt_lib='no'])
-if test ${with_qt} != "no" ; then
+else
+  AC_ARG_WITH([qt-lib],
+  	    [AS_HELP_STRING([--with-qt-lib],[specify where to find qt libraries],)],
+  	    [],
+  	    [with_qt_lib='no'])
+  if test ${with_qt} != "no" ; then
    PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --with-qt-lib="${with_qt_lib}
-fi;
-AC_ARG_WITH([qt-inc],
+  fi;
+  AC_ARG_WITH([qt-inc],
 	    [AS_HELP_STRING([--with-qt-inc],[specify where to find qt includes],)],
 	    [],
 	    [with_qt_inc='no'])
-if test ${with_qt-inc} != "no" ; then
+  if test ${with_qt-inc} != "no" ; then
    PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --with-qt-inc="${with_qt_inc}
-fi;
-AC_ARG_WITH([qt-bin],
-	    [AS_HELP_STRING([--with-qt-bin],[specify where to find qt binary (namely the moc bin)],)],
+  fi;
+  AC_ARG_WITH([qt-bin],
+  	    [AS_HELP_STRING([--with-qt-bin],[specify where to find qt binary (namely the moc bin)],)],
 	    [],
 	    [with_qt_bin='no'])
-if test ${with_qt_bin} != "no" ; then
-   PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --with-qt-bin="${with_qt_bin}
+  if test ${with_qt_bin} != "no" ; then
+     PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --with-qt-bin="${with_qt_bin}
+  fi;
 fi;
 AC_ARG_ENABLE([qt-debug],
 	    [AS_HELP_STRING([--enable-qt-debug],[adds _debug to Qt libs])],
@@ -1793,14 +1839,38 @@ if test ${enble_qt} == "-yes" ; then
      PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --enable-qt"
    fi;
 fi;
-AC_ARG_ENABLE([qtframework],
+AC_ARG_ENABLE([qt-framework],
 	    [AS_HELP_STRING([--enable-qtframework],[use qt framework instead of tcl/tk],)],
 	    [],
-	    [enable_qtframework='no'])
-enble_qtfw="-"${enable_qtframework}
+	    [enable_qt_framework='no'])
+enble_qtfw="-"${enable_qt_framework}
 if test ${enble_qtfw} == "-yes" ; then
      PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --enable-qt-framework"
 fi;
+
+
+dnl ###########################################################
+dnl QT
+dnl ###########################################################
+
+AC_ARG_ENABLE([vistrails],[AS_HELP_STRING([--enable-vistrails],[Build extra dependencies that are needed by vistrails])])
+
+BUILDVIS="no"
+vistr="_"+${enable_vistrails}
+if test ${vistr} == "-yes" ; then
+  BUILDVIS="yes"
+  if test ${enable_fw} == "-" -o test ${enable_vtk} == "-" ; then
+     AC_MSG_ERROR("[You need to enable framework for vistrails]")
+  fi
+  if test "-"${with_qt} == "-" -o test ${enable_vtk} == "-" ; then
+     AC_MSG_ERROR("[You need to enable framework for vistrails]")
+  fi
+  PyQt_GZ=PyQt-${PyQt_PLATFORM}-gpl-${PyQt_MAJOR_SRC}.${PyQt_MINOR_SRC}.${PyQt_PATCH_SRC}.tar.gz
+fi
+
+
+
+
 AC_OUTPUT
 
 AC_MSG_NOTICE([])

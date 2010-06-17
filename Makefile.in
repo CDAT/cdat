@@ -159,7 +159,7 @@ ifeq (@COMPILE_XGKS@,yes)
 endif
 ifeq (@COMPILE_LIBJPEG@,yes)
 	@echo "Building libjpeg"
-	$(call dobuild,@JPEG_URL@,@JPEG_GZ@,@EXTERNALS@)
+	$(call dobuild,@JPEG_URL@,@JPEG_GZ@,@EXTERNALS@,cd jpeg*;)
 	cp build/jpeg*/lib* @EXTERNALS@/lib
 	cp build/jpeg*/*.h @EXTERNALS@/include
 endif
@@ -181,7 +181,7 @@ ifeq (@HAVE_LIBLAPACK95@,no)
 endif
 ifeq (@DOPBMPLUS@,yes)
 	@echo "Building pbmplus"
-	$(call doprolog,@PBMPLUS_URL@,@PBMPLUS_GZ@) rm -rf libtiff ; cp ../../exsrc/src/pbmplus/pbmplus.h . ; cp ../../exsrc/src/pbmplus/libpbm1.c pbm  ; make -j @NCPUS@ > ../../logs/pbmplus_10dec1991.tar.gz.LOG ; mkdir tmp ; cp -p pbm/* pgm/* ppm/* pnm/* tmp ; rm tmp/*.1 tmp/*.c tmp/*.5 ; cp -p tmp/* @EXTERNALS@/bin
+	$(call dobuild,@PBMPLUS_URL@,@PBMPLUS_GZ@,@EXTERNALS@, cp ../../exsrc/src/pbmplus/pbmplus.h . ; cp ../../exsrc/src/pbmplus/libpbm1.c pbm  ;cp ../../exsrc/src/pbmplus/Makefile . ;)
 endif
 ifeq (@GIFSICLE@,no)
 	@echo "Building gifsicle"
@@ -189,7 +189,7 @@ ifeq (@GIFSICLE@,no)
 endif
 ifeq (@DOGS@,yes)
 	@echo "Building gs (long)"
-	$(call dobuild,@GS_URL@,@GS_GZ@,@EXTERNALS@)
+	$(call dobuild,@GS_URL@,@GS_GZ@,@EXTERNALS@,, --with-drivers=PS,BMP )
 endif
 ifeq (@FFMPEG@,no)
 	@echo "Building ffmpeg (long)"
@@ -223,6 +223,12 @@ ifeq (@COMPILE_VTK@,yes)
 	@echo "Building VTK (long)"
 	mkdir build/VTK;mkdir build/VTK-build;cd build;../checked_get.sh @VTK_GZ@ @VTK_URL@/@VTK_GZ@ ; tar xzf ../sources/vtk-* ; cd VTK-build;cp ../../exsrc/CMakeCache.txt .;env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH="@EXTERNALS@/lib:${LD_LIBRARY_PATH}" PATH="@EXTERNALS@/bin:${PATH}" cmake CMakeCache.txt;make;make install
 endif
+ifeq (@BUILDVIS@,yes)
+	@echo "Building SIP"
+	cd build;../checked_get.sh @SIP_GZ@ @SIP_URL@/@SIP_GZ@ ; tar xzf ../sources/sip-* ; cd sip-* ; env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH="@EXTERNALS@/lib:${LD_LIBRARY_PATH}" PATH="@EXTERNALS@/bin:${PATH}" @PYTHON@ configure.py -b @prefix@/bin -d @prefix@/lib/python@PYVER@/site-packages -e @prefix@/include -v @prefix@/share ; env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH="@EXTERNALS@/lib:${LD_LIBRARY_PATH}" PATH="@EXTERNALS@/bin:${PATH}" make ; env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH="@EXTERNALS@/lib:${LD_LIBRARY_PATH}" PATH="@EXTERNALS@/bin:${PATH}" make install
+	@echo "Building PyQt"
+	cd build;../checked_get.sh @PyQt_GZ@ @PyQt_URL@/@PyQt_GZ@ ; tar xzf ../sources/PyQt-* ; cd PyQt-* ; env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH="@EXTERNALS@/lib:${LD_LIBRARY_PATH}" PATH="@EXTERNALS@/bin:${PATH}" @PYTHON@ configure.py -b @prefix@/bin -d @prefix@/lib/python@PYVER@/site-packages -v @prefix@/include -v @prefix@/share -q @QMAKE@ ; env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH="@EXTERNALS@/lib:${LD_LIBRARY_PATH}" PATH="@EXTERNALS@/bin:${PATH}" make ; env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH="@EXTERNALS@/lib:${LD_LIBRARY_PATH}" PATH="@EXTERNALS@/bin:${PATH}" make install
+endif
 ifeq (@SETUPTOOLS@,yes)
 	@echo "Building setuptools"
 	$(call dobuildpy,,@SETUPTOOLS_URL@,@SETUPTOOLS_GZ@,@prefix@,)
@@ -248,7 +254,7 @@ ifeq (@DOCMOR@,yes)
 	@(cd Packages/cmor ; ./configure --prefix=@EXTERNALS@ --with-netcdf=@NC4LOC@ --with-udunits2=@UDUNITS2LOC@ --with-uuid=@UUIDLOC@ --with-zlib=@EXTERNALS@ --enable-fortran=no; cd ../..) >> @MAINDIR@/logs/cmor_config.LOG 
 endif
 	@echo "Building CDAT"
-	@EXTERNALS=@EXTERNALS@;export EXTERNALS ; HDF5LOC=@HDF5LOC@; export HDF5LOC; PYTHONPATH=@prefix@/lib/python@PYTHON_MAJOR@.@PYTHON_MINOR@/site-packages:${PYTHONPATH} ; export PYTHONPATH ; LD_LIBRARY_PATH=@EXTERNALS@/lib:@prefix@/lib; export LD_LIBRARY_PATH ; env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH="@EXTERNALS@/lib:${LD_LIBRARY_PATH}" @PYTHON@ install.py --prefix=@prefix@ @PYTHON_INSTALL_OPTIONS@
+	@EXTERNALS=@EXTERNALS@;export EXTERNALS ; HDF5LOC=@HDF5LOC@; export HDF5LOC; PYTHONPATH=@prefix@/lib/python@PYTHON_MAJOR@.@PYTHON_MINOR@/site-packages:${PYTHONPATH} ; export PYTHONPATH ; LD_LIBRARY_PATH=@EXTERNALS@/lib:@prefix@/lib; export LD_LIBRARY_PATH ; env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="-undefined dynamic_lookup @LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH="@EXTERNALS@/lib:${LD_LIBRARY_PATH}" @PYTHON@ install.py --prefix=@prefix@ @PYTHON_INSTALL_OPTIONS@
 	@echo "Done building CDAT"
 ifeq (@ESG@,yes)
 	@echo "Building ESG dependencies"

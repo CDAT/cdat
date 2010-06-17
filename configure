@@ -870,6 +870,24 @@ PGCONFIG
 SETUPTOOLS
 PyOpenGL
 NCPUS
+BUILDVIS
+SIP_MAJOR
+SIP_MINOR
+SIP_PATCH
+SIP_MAJOR_SRC
+SIP_MINOR_SRC
+SIP_PATCH_SRC
+SIP_GZ
+SIP_URL
+PyQt_GZ
+PyQt_URL
+PyQt_PLATFORM
+PyQt_MAJOR
+PyQt_MINOR
+PyQt_PATCH
+PyQt_MAJOR_SRC
+PyQt_MINOR_SRC
+PyQt_PATCH_SRC
 MD5PRG
 MD5CNT
 DOCMOR
@@ -987,6 +1005,10 @@ PPMTOGIF
 FLTK2_CONF
 PKG_CONFIG
 LOCNCCONFIG
+QMAKE
+QT_INC
+QT_LIB
+QT_BIN
 LIBOBJS
 LTLIBOBJS'
 ac_subst_files=''
@@ -1611,6 +1633,8 @@ Optional Features:
                           --with-qt/--with-qt-inc/--with-qt-lib/--with-qt-bin
                           instead
   --enable-qtframework    use qt framework instead of tcl/tk
+  --enable-vistrails      Build extra dependencies that are needed by
+                          vistrails
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -2087,7 +2111,7 @@ if test ${SVN_TAG} == "rev" ; then
 fi
 CDAT_VERSION=${PACKAGE_VERSION}${SVN_TAG}
 
-ac_config_files="$ac_config_files Makefile site.cfg README.txt Scripts/cdat Scripts/vcdat exsrc/CMakeCache.txt checked_get.sh"
+ac_config_files="$ac_config_files Makefile site.cfg README.txt Scripts/cdat Scripts/vcdat exsrc/CMakeCache.txt checked_get.sh exsrc/src/pbmplus/Makefile"
 
 
 
@@ -2497,9 +2521,9 @@ PBMPLUS_GZ=pbmplus_10dec1991.tar.gz
 
 
 GS_MAJOR_SRC=8
-GS_MINOR_SRC=64
+GS_MINOR_SRC=71
 GS_URL=http://ghostscript.com/releases
-GS_GZ=ghostscript-8.64.tar.gz
+GS_GZ=ghostscript-${GS_MAJOR_SRC}.${GS_MINOR_SRC}.tar.gz
 
 
 
@@ -2528,6 +2552,39 @@ VTK_GZ=vtk-${VTK_MAJOR_SRC}.${VTK_MINOR_SRC}.${VTK_PATCH_SRC}.tar.gz
 
 
 
+
+
+
+
+
+SIP_MAJOR=4
+SIP_MINOR=10
+SIP_PATCH=2
+SIP_MAJOR_SRC=4
+SIP_MINOR_SRC=10
+SIP_PATCH_SRC=2
+SIP_URL=http://www.riverbankcomputing.com/static/Downloads/sip${SIP_MAJOR_SRC}
+SIP_GZ=sip-${SIP_MAJOR_SRC}.${SIP_MINOR_SRC}.${SIP_PATCH_SRC}.tar.gz
+
+
+
+
+
+
+
+
+
+
+
+
+
+PyQt_MAJOR=4
+PyQt_MINOR=7
+PyQt_PATCH=3
+PyQt_MAJOR_SRC=4
+PyQt_MINOR_SRC=7
+PyQt_PATCH_SRC=3
+PyQt_URL=http://www.riverbankcomputing.com/static/Downloads/PyQt${PyQt_MAJOR_SRC}
 MD5PRG="md5sum"
 MD5CNT=1
 
@@ -7321,6 +7378,7 @@ CFLAGS="-I${EXTERNALS}/include  -L${EXTERNALS}/lib  "${CFLAGS}
 COMPILE_TCLTK=no
 case ${target_os} in
  linux-*)
+  PyQT_PLATFORM="x11"
   cp exsrc/src/CMakeCache.txt.linux.in exsrc/CMakeCache.txt.in
   { echo "$as_me:$LINENO: Linux: adding -Wl,--rpath,${prefix}/lib -Wl,--rpath,${EXTERNALS}/lib  -Wl,--rpath,${EXTERNALS}/NetCDF/lib  -Wl,--rpath,${EXTERNALS}/HDF5/lib to LDFLAGS" >&5
 echo "$as_me: Linux: adding -Wl,--rpath,${prefix}/lib -Wl,--rpath,${EXTERNALS}/lib  -Wl,--rpath,${EXTERNALS}/NetCDF/lib  -Wl,--rpath,${EXTERNALS}/HDF5/lib to LDFLAGS" >&6;}
@@ -7350,6 +7408,7 @@ echo "$as_me: adding -L${IC}/lib -Wl,--rpath,${IC}/lib -limf -lirc to LDFLAGS" >
 echo "${ECHO_T}no" >&6; }
   fi ;;
  darwin*)
+  PyQT_PLATFORM="mac"
   MD5PRG="md5"
   MD5CNT=4
   LDFLAGS=${LDFLAGS}" -R${prefix}/lib -R${EXTERNALS}/lib  -R${EXTERNALS}/NetCDF/lib  -R${EXTERNALS}/HDF5/lib "
@@ -7445,11 +7504,12 @@ fi
 	 fi
       fi
     fi
-    CFLAGS=${CFLAGS}" -fPIC -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.5 "
-    LDFLAGS=${LDFLAGS}" -fPIC  -bind_at_load  -mmacosx-version-min=10.6 -L${prefix}/lib/vtk-5.6"
-    CXXFLAGS=${CXXFLAGS}" -fPIC -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.6 ";;
+    CFLAGS=${CFLAGS}" -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.5 "
+    LDFLAGS=${LDFLAGS}"  -bind_at_load  -mmacosx-version-min=10.6 -L${prefix}/lib/vtk-5.6"
+    CXXFLAGS=${CXXFLAGS}"  -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.6 ";;
   esac ;;
  cygwin*)
+   PyQt_PLATFORM="x11"
       FFMPEG=yes
    HAVE_LIBLAPACK=yes
    HAVE_LIBLAPACK95=yes ;;
@@ -7458,12 +7518,21 @@ esac
 { echo "$as_me:$LINENO: checking for 64bit machine" >&5
 echo $ECHO_N "checking for 64bit machine... $ECHO_C" >&6; }
 if test ${target_cpu} == "x86_64" -o ${target_cpu} == "ia64" ; then
+  case ${target_os} in
+  darwin10*)
+    { echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; }
+    { echo "$as_me:$LINENO: not adding -fPIC to C and CXX FLAGS on snowleopard" >&5
+echo "$as_me: not adding -fPIC to C and CXX FLAGS on snowleopard" >&6;}
+    ;;
+  *)
   { echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6; }
   { echo "$as_me:$LINENO: adding -fPIC to C and CXX FLAGS" >&5
 echo "$as_me: adding -fPIC to C and CXX FLAGS" >&6;}
   CFLAGS=${CFLAGS}" -fPIC"
   CXXFLAGS=${CXXFLAGS}" -fPIC"
+ esac
 else
       { echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6; }
@@ -11538,6 +11607,10 @@ fi
 
 
 
+
+
+
+
 # Check whether --with-qt was given.
 if test "${with_qt+set}" = set; then
   withval=$with_qt;
@@ -11547,7 +11620,7 @@ fi
 
 if test ${with_qt} != "no" ; then
    PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --with-qt="${with_qt}
-fi;
+else
 
 # Check whether --with-qt-lib was given.
 if test "${with_qt_lib+set}" = set; then
@@ -11556,9 +11629,9 @@ else
   with_qt_lib='no'
 fi
 
-if test ${with_qt} != "no" ; then
+  if test ${with_qt} != "no" ; then
    PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --with-qt-lib="${with_qt_lib}
-fi;
+  fi;
 
 # Check whether --with-qt-inc was given.
 if test "${with_qt_inc+set}" = set; then
@@ -11567,9 +11640,9 @@ else
   with_qt_inc='no'
 fi
 
-if test ${with_qt-inc} != "no" ; then
+  if test ${with_qt-inc} != "no" ; then
    PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --with-qt-inc="${with_qt_inc}
-fi;
+  fi;
 
 # Check whether --with-qt-bin was given.
 if test "${with_qt_bin+set}" = set; then
@@ -11578,8 +11651,9 @@ else
   with_qt_bin='no'
 fi
 
-if test ${with_qt_bin} != "no" ; then
-   PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --with-qt-bin="${with_qt_bin}
+  if test ${with_qt_bin} != "no" ; then
+     PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --with-qt-bin="${with_qt_bin}
+  fi;
 fi;
 # Check whether --enable-qt-debug was given.
 if test "${enable_qt_debug+set}" = set; then
@@ -11607,17 +11681,46 @@ if test ${enble_qt} == "-yes" ; then
      PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --enable-qt"
    fi;
 fi;
-# Check whether --enable-qtframework was given.
-if test "${enable_qtframework+set}" = set; then
-  enableval=$enable_qtframework;
+# Check whether --enable-qt-framework was given.
+if test "${enable_qt_framework+set}" = set; then
+  enableval=$enable_qt_framework;
 else
-  enable_qtframework='no'
+  enable_qt_framework='no'
 fi
 
-enble_qtfw="-"${enable_qtframework}
+enble_qtfw="-"${enable_qt_framework}
 if test ${enble_qtfw} == "-yes" ; then
      PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --enable-qt-framework"
 fi;
+
+
+
+# Check whether --enable-vistrails was given.
+if test "${enable_vistrails+set}" = set; then
+  enableval=$enable_vistrails;
+fi
+
+
+BUILDVIS="no"
+vistr="_"+${enable_vistrails}
+if test ${vistr} == "-yes" ; then
+  BUILDVIS="yes"
+  if test ${enable_fw} == "-" -o test ${enable_vtk} == "-" ; then
+     { { echo "$as_me:$LINENO: error: \"You need to enable framework for vistrails\"" >&5
+echo "$as_me: error: \"You need to enable framework for vistrails\"" >&2;}
+   { (exit 1); exit 1; }; }
+  fi
+  if test "-"${with_qt} == "-" -o test ${enable_vtk} == "-" ; then
+     { { echo "$as_me:$LINENO: error: \"You need to enable framework for vistrails\"" >&5
+echo "$as_me: error: \"You need to enable framework for vistrails\"" >&2;}
+   { (exit 1); exit 1; }; }
+  fi
+  PyQt_GZ=PyQt-${PyQt_PLATFORM}-gpl-${PyQt_MAJOR_SRC}.${PyQt_MINOR_SRC}.${PyQt_PATCH_SRC}.tar.gz
+fi
+
+
+
+
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -12193,6 +12296,7 @@ do
     "Scripts/vcdat") CONFIG_FILES="$CONFIG_FILES Scripts/vcdat" ;;
     "exsrc/CMakeCache.txt") CONFIG_FILES="$CONFIG_FILES exsrc/CMakeCache.txt" ;;
     "checked_get.sh") CONFIG_FILES="$CONFIG_FILES checked_get.sh" ;;
+    "exsrc/src/pbmplus/Makefile") CONFIG_FILES="$CONFIG_FILES exsrc/src/pbmplus/Makefile" ;;
 
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
@@ -12590,6 +12694,24 @@ PGCONFIG!$PGCONFIG$ac_delim
 SETUPTOOLS!$SETUPTOOLS$ac_delim
 PyOpenGL!$PyOpenGL$ac_delim
 NCPUS!$NCPUS$ac_delim
+BUILDVIS!$BUILDVIS$ac_delim
+SIP_MAJOR!$SIP_MAJOR$ac_delim
+SIP_MINOR!$SIP_MINOR$ac_delim
+SIP_PATCH!$SIP_PATCH$ac_delim
+SIP_MAJOR_SRC!$SIP_MAJOR_SRC$ac_delim
+SIP_MINOR_SRC!$SIP_MINOR_SRC$ac_delim
+SIP_PATCH_SRC!$SIP_PATCH_SRC$ac_delim
+SIP_GZ!$SIP_GZ$ac_delim
+SIP_URL!$SIP_URL$ac_delim
+PyQt_GZ!$PyQt_GZ$ac_delim
+PyQt_URL!$PyQt_URL$ac_delim
+PyQt_PLATFORM!$PyQt_PLATFORM$ac_delim
+PyQt_MAJOR!$PyQt_MAJOR$ac_delim
+PyQt_MINOR!$PyQt_MINOR$ac_delim
+PyQt_PATCH!$PyQt_PATCH$ac_delim
+PyQt_MAJOR_SRC!$PyQt_MAJOR_SRC$ac_delim
+PyQt_MINOR_SRC!$PyQt_MINOR_SRC$ac_delim
+PyQt_PATCH_SRC!$PyQt_PATCH_SRC$ac_delim
 MD5PRG!$MD5PRG$ac_delim
 MD5CNT!$MD5CNT$ac_delim
 DOCMOR!$DOCMOR$ac_delim
@@ -12608,24 +12730,6 @@ COMPILE_CURL!$COMPILE_CURL$ac_delim
 NC_FORTRAN!$NC_FORTRAN$ac_delim
 COMPILE_CAIRO!$COMPILE_CAIRO$ac_delim
 COMPILE_FREETYPE!$COMPILE_FREETYPE$ac_delim
-COMPILE_PIXMAN!$COMPILE_PIXMAN$ac_delim
-COMPILE_FONTCONFIG!$COMPILE_FONTCONFIG$ac_delim
-COMPILE_XML2!$COMPILE_XML2$ac_delim
-COMPILE_XSLT!$COMPILE_XSLT$ac_delim
-COMPILE_PKGCONFIG!$COMPILE_PKGCONFIG$ac_delim
-COMPILE_LIBPNG!$COMPILE_LIBPNG$ac_delim
-COMPILE_FTGL!$COMPILE_FTGL$ac_delim
-COMPILE_FLTK2!$COMPILE_FLTK2$ac_delim
-Pmw!$Pmw$ac_delim
-NUMPY!$NUMPY$ac_delim
-COMPILE_XGKS!$COMPILE_XGKS$ac_delim
-COMPILE_LIBJPEG!$COMPILE_LIBJPEG$ac_delim
-COMPILE_READLINE!$COMPILE_READLINE$ac_delim
-COMPILE_Z!$COMPILE_Z$ac_delim
-COMPILE_TCLTK!$COMPILE_TCLTK$ac_delim
-PYOPT!$PYOPT$ac_delim
-PYADD!$PYADD$ac_delim
-COMPILE_PYTHON!$COMPILE_PYTHON$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -12667,6 +12771,24 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+COMPILE_PIXMAN!$COMPILE_PIXMAN$ac_delim
+COMPILE_FONTCONFIG!$COMPILE_FONTCONFIG$ac_delim
+COMPILE_XML2!$COMPILE_XML2$ac_delim
+COMPILE_XSLT!$COMPILE_XSLT$ac_delim
+COMPILE_PKGCONFIG!$COMPILE_PKGCONFIG$ac_delim
+COMPILE_LIBPNG!$COMPILE_LIBPNG$ac_delim
+COMPILE_FTGL!$COMPILE_FTGL$ac_delim
+COMPILE_FLTK2!$COMPILE_FLTK2$ac_delim
+Pmw!$Pmw$ac_delim
+NUMPY!$NUMPY$ac_delim
+COMPILE_XGKS!$COMPILE_XGKS$ac_delim
+COMPILE_LIBJPEG!$COMPILE_LIBJPEG$ac_delim
+COMPILE_READLINE!$COMPILE_READLINE$ac_delim
+COMPILE_Z!$COMPILE_Z$ac_delim
+COMPILE_TCLTK!$COMPILE_TCLTK$ac_delim
+PYOPT!$PYOPT$ac_delim
+PYADD!$PYADD$ac_delim
+COMPILE_PYTHON!$COMPILE_PYTHON$ac_delim
 PYTHON!$PYTHON$ac_delim
 DOGS!$DOGS$ac_delim
 DOPBMPLUS!$DOPBMPLUS$ac_delim
@@ -12746,13 +12868,9 @@ PNMFLIP!$PNMFLIP$ac_delim
 PNMCROP!$PNMCROP$ac_delim
 PPMTOGIF!$PPMTOGIF$ac_delim
 FLTK2_CONF!$FLTK2_CONF$ac_delim
-PKG_CONFIG!$PKG_CONFIG$ac_delim
-LOCNCCONFIG!$LOCNCCONFIG$ac_delim
-LIBOBJS!$LIBOBJS$ac_delim
-LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 83; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
@@ -12771,6 +12889,55 @@ fi
 
 cat >>$CONFIG_STATUS <<_ACEOF
 cat >"\$tmp/subs-4.sed" <<\CEOF$ac_eof
+/@[a-zA-Z_][a-zA-Z_0-9]*@/!b
+_ACEOF
+sed '
+s/[,\\&]/\\&/g; s/@/@|#_!!_#|/g
+s/^/s,@/; s/!/@,|#_!!_#|/
+:n
+t n
+s/'"$ac_delim"'$/,g/; t
+s/$/\\/; p
+N; s/^.*\n//; s/[,\\&]/\\&/g; s/@/@|#_!!_#|/g; b n
+' >>$CONFIG_STATUS <conf$$subs.sed
+rm -f conf$$subs.sed
+cat >>$CONFIG_STATUS <<_ACEOF
+CEOF$ac_eof
+_ACEOF
+
+
+ac_delim='%!_!# '
+for ac_last_try in false false false false false :; do
+  cat >conf$$subs.sed <<_ACEOF
+PKG_CONFIG!$PKG_CONFIG$ac_delim
+LOCNCCONFIG!$LOCNCCONFIG$ac_delim
+QMAKE!$QMAKE$ac_delim
+QT_INC!$QT_INC$ac_delim
+QT_LIB!$QT_LIB$ac_delim
+QT_BIN!$QT_BIN$ac_delim
+LIBOBJS!$LIBOBJS$ac_delim
+LTLIBOBJS!$LTLIBOBJS$ac_delim
+_ACEOF
+
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 8; then
+    break
+  elif $ac_last_try; then
+    { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
+echo "$as_me: error: could not make $CONFIG_STATUS" >&2;}
+   { (exit 1); exit 1; }; }
+  else
+    ac_delim="$ac_delim!$ac_delim _$ac_delim!! "
+  fi
+done
+
+ac_eof=`sed -n '/^CEOF[0-9]*$/s/CEOF/0/p' conf$$subs.sed`
+if test -n "$ac_eof"; then
+  ac_eof=`echo "$ac_eof" | sort -nru | sed 1q`
+  ac_eof=`expr $ac_eof + 1`
+fi
+
+cat >>$CONFIG_STATUS <<_ACEOF
+cat >"\$tmp/subs-5.sed" <<\CEOF$ac_eof
 /@[a-zA-Z_][a-zA-Z_0-9]*@/!b end
 _ACEOF
 sed '
@@ -13034,7 +13201,7 @@ s&@abs_builddir@&$ac_abs_builddir&;t t
 s&@abs_top_builddir@&$ac_abs_top_builddir&;t t
 s&@MKDIR_P@&$ac_MKDIR_P&;t t
 $ac_datarootdir_hack
-" $ac_file_inputs | sed -f "$tmp/subs-1.sed" | sed -f "$tmp/subs-2.sed" | sed -f "$tmp/subs-3.sed" | sed -f "$tmp/subs-4.sed" >$tmp/out
+" $ac_file_inputs | sed -f "$tmp/subs-1.sed" | sed -f "$tmp/subs-2.sed" | sed -f "$tmp/subs-3.sed" | sed -f "$tmp/subs-4.sed" | sed -f "$tmp/subs-5.sed" >$tmp/out
 
 test -z "$ac_datarootdir_hack$ac_datarootdir_seen" &&
   { ac_out=`sed -n '/\${datarootdir}/p' "$tmp/out"`; test -n "$ac_out"; } &&
@@ -13064,6 +13231,7 @@ which seems to be undefined.  Please make sure it is defined." >&2;}
     "Scripts/vcdat":F) chmod +x Scripts/cdat Scripts/vcdat checked_get.sh ;;
     "exsrc/CMakeCache.txt":F) chmod +x Scripts/cdat Scripts/vcdat checked_get.sh ;;
     "checked_get.sh":F) chmod +x Scripts/cdat Scripts/vcdat checked_get.sh ;;
+    "exsrc/src/pbmplus/Makefile":F) chmod +x Scripts/cdat Scripts/vcdat checked_get.sh ;;
 
   esac
 done # for ac_tag

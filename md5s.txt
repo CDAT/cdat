@@ -11,8 +11,10 @@ ce04744b4ac753f851d34a6e5835410a  sources/curl-7.20.0.tar.gz
 9c2744f1aa72fe755adda33663aa3fad  sources/freetype-2.3.9.tar.gz
 6fc690d9b34154b51a919ff466cea90c  sources/freetype-2.3.12.tar.gz
 dd927ecf7e4db38b62be3dc17b1b04d2  sources/ghostscript-8.64.tar.gz
+51a522a5b4818bd3dc7c1c0e9dd22bad  sources/ghostscript-8.71.tar.gz
 aa3878d2fcc5fe92a1482d79cf2eee58  sources/hdf5-1.8.4-patch1.tar.gz
 5146e68be3633c597b0d14d3ed8fa2ea  sources/jpegsrc.v8a.tar.gz
+e022acbc5b36cd2cb70785f5b575661e  sources/jpegsrc.v8b.tar.gz
 a3202a4f9e2f15ffd05d15dab4ac7857  sources/lapack.tgz
 a49ac8f061d7cd429e5279e69bbe334d  sources/lapack95.tgz
 fa0b2a84733463f90d3ac9f43ccafabc  sources/libpng-1.4.1.tar.gz
