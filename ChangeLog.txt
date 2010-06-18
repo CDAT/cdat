@@ -1,4 +1,6 @@
-2010-06-15 : got the right LDFLAGS going to compile python extensions under mac
+2010-06-17 : got Qt to build automatically, (or use the binaries) 
+2010-06-17 : got --enable-vistrails to work and build SIP and PyQt
+2010-06-15 : got the right LDFLAGS going to compile Fortran extensions under mac
 2010-04-08 : build system fetches sources, no more gz in repository!
 2010-04-08 : preliminary merge with Qt branch. You should be able to build against Qt (which needs to be pre-installed independently for now)
 2010-02-11 : added netcdf 4.1

@@ -401,7 +401,7 @@ XGKS_GZ=xgks.tar.gz
 AC_SUBST(XGKS_URL)
 AC_SUBST(XGKS_GZ)
 JPEG_URL=http://www.ijg.org/files
-JPEG_GZ=jpegsrc.v8a.tar.gz
+JPEG_GZ=jpegsrc.v8b.tar.gz
 AC_SUBST(JPEG_URL)
 AC_SUBST(JPEG_GZ)
 BLAS_URL=http://www.netlib.org/blas
@@ -592,6 +592,24 @@ AC_SUBST(WGET_URL)
 AC_SUBST(WGET_GZ)
 AC_SUBST(HASCURL)
 AC_SUBST(PYINSTALLKEY)
+PYTHON_INSTALL_PREFIX=""
+AC_SUBST(PYTHON_INSTALL_PREFIX)
+QT_MAJOR_SRC=4
+QT_MINOR_SRC=6
+QT_PATCH_SRC=3
+QT_MAJOR=4
+QT_MINOR=6
+QT_PATCH=2
+AC_SUBST(QT_MAJOR)
+AC_SUBST(QT_MINOR)
+AC_SUBST(QT_PATCH)
+AC_SUBST(QT_MAJOR_SRC)
+AC_SUBST(QT_MINOR_SRC)
+AC_SUBST(QT_PATCH_SRC)
+QT_URL=ftp://ftp.qt.nokia.com/qt/source
+QT_GZ=qt-everywhere-opensource-src-${QT_MAJOR_SRC}.${QT_MINOR_SRC}.${QT_PATCH_SRC}.tar.gz
+AC_SUBST(QT_URL)
+AC_SUBST(QT_GZ)
 
 WGET_URL=http://ftp.gnu.org/gnu/wget
 WGET_GZ=wget-latest.tar.gz
@@ -737,6 +755,8 @@ fi
 AC_SUBST(COMPILE_VTK)
 EXTRAENV=""
 
+
+AC_SUBST(QTCONFIGOPT)
 dnl #General compilation flags
 AC_MSG_NOTICE([add ${EXTERNALS} to LD and CPP FLAGS])
 LDFLAGS="-L${EXTERNALS}/lib  -L${prefix}/lib -L${EXTERNALS}/NetCDF/lib  -L${EXTERNALS}/HDF5/lib "$LDFLAGS
@@ -765,7 +785,9 @@ case ${target_os} in
     AC_MSG_RESULT([no])
   fi ;;
  darwin*)
-  PyQT_PLATFORM="mac"
+  PyQt_PLATFORM="mac"
+  PYOPTXTRAQT=" --enable-qt-framework "
+  QTCONFIGOPT=" -cocoa "
   MD5PRG="md5"
   MD5CNT=4
   LDFLAGS=${LDFLAGS}" -R${prefix}/lib -R${EXTERNALS}/lib  -R${EXTERNALS}/NetCDF/lib  -R${EXTERNALS}/HDF5/lib " 
@@ -804,6 +826,9 @@ case ${target_os} in
          PYOPT=" --enable-framework=${enable_framework}"
          cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
          PYINSTALLKEY="frameworkinstall"
+	 if test ${enable_fw} != "-"${prefix} ; then
+	    PYTHON_INSTALL_PREFIX=" --prefix=${enable_framework} "
+	 fi
      else
        if test ${enable_vtk} == "-yes" ; then
            PYOPT=" --enable-framework=${prefix} "
@@ -941,7 +966,8 @@ AC_ARG_WITH([python],
 		[],
 		[with_python=no])
 if test ${with_python} != "no" ; then
-  AC_CHECK_FILE([${with_python}],[PYTHON=${with_python}],[AC_MSG_ERROR([your python is not here])])
+  AC_CHECK_FILE([${with_python}],[PYTHON=${with_python}],[AC_MSG_ERROR([Could not find python executable ${with_python}])])
+  PYTHON_INSTALL_PREFIX=" --prefix=${with_python} "
 else
   AC_PATH_PROG(PYTHON,python,"no")
   if test ${PYTHON} != "${prefix}/bin/python" ; then
@@ -1794,8 +1820,30 @@ AC_ARG_WITH([qt],
 	    [AS_HELP_STRING([--with-qt],[specify where to find qt default: /usr/local/Trolltech/Qt-4.5.2])],
 	    [],
 	    [with_qt='no'])
+
+BUILDQT="no"
+AC_SUBST(BUILDQT)
+
 if test ${with_qt} != "no" ; then
-   PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --with-qt="${with_qt}
+ AC_MSG_NOTICE([WITH QT IS: ${with_qt}])
+ if test ${with_qt} == "yes" ; then
+   QMAKE=${EXTERNALS}/bin/qmake
+ else
+   QMAKE=${with_qt}/bin/qmake
+ fi
+ AC_CHECK_FILE(${QMAKE},[HAS_QMAKE=yes],[HAS_QMAKE=no])
+ if test ${HAS_QMAKE} == "no" ; then 
+   AC_MSG_WARN([Could not find qmake at ${QMAKE} will build Qt for you])
+   BUILDQT="yes"
+   PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}${PYOPTXTRAQT}" --with-qt="${EXTERNALS}
+   QMAKE=${EXTERNALS}/bin/qmake
+ else
+  if test ${with_qt} == "yes" ; then
+   PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}${PYOPTXTRAQT}" --with-qt="${EXTERNALS}
+  else
+   PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}${PYOPTXTRAQT}" --with-qt="${with_qt}
+  fi
+ fi
 else
   AC_ARG_WITH([qt-lib],
   	    [AS_HELP_STRING([--with-qt-lib],[specify where to find qt libraries],)],
@@ -1816,9 +1864,18 @@ else
 	    [],
 	    [with_qt_bin='no'])
   if test ${with_qt_bin} != "no" ; then
-     PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --with-qt-bin="${with_qt_bin}
-  fi;
-fi;
+     QMAKE=${with_qt_bin}/qmake
+     AC_CHECK_FILE(${QMAKE},[HAS_QMAKE=yes],[HAS_QMAKE=no])
+     if test ${HAS_QMAKE} == "no" ; then 
+       AC_MSG_WARN([Could not find qmake at ${QMAKE} will build Qt for you])
+       BUILDQT="yes"
+       PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}${PYOPTXTRAQT}" --with-qt="${EXTERNALS}
+       QMAKE=${EXTERNALS}/bin/qmake
+     else
+       PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}${PYOPTXTRAQT}" --with-qt-bin="${with_qt_bin}
+     fi
+  fi
+fi
 AC_ARG_ENABLE([qt-debug],
 	    [AS_HELP_STRING([--enable-qt-debug],[adds _debug to Qt libs])],
 	    [],
@@ -1827,27 +1884,6 @@ enble_qtdbg="-"${enable_qt_debug}
 if test ${enble_qtdbg} == "-yes" ; then
      PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --qt-debug"
 fi;
-AC_ARG_ENABLE([qt],
-	    [AS_HELP_STRING([--enable-qt],[use qt instead of tcl/tk default: /usr/local/Trolltech/Qt-4.5.2/ to change these use --with-qt/--with-qt-inc/--with-qt-lib/--with-qt-bin instead])],
-	    [],
-	    [enable_qt='no'])
-enble_qt="-"${enable_qt}
-if test ${enble_qt} == "-yes" ; then
-   if test ${enable_fw} == "-yes" ; then
-     PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --enable-qt-framework"
-   else
-     PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --enable-qt"
-   fi;
-fi;
-AC_ARG_ENABLE([qt-framework],
-	    [AS_HELP_STRING([--enable-qtframework],[use qt framework instead of tcl/tk],)],
-	    [],
-	    [enable_qt_framework='no'])
-enble_qtfw="-"${enable_qt_framework}
-if test ${enble_qtfw} == "-yes" ; then
-     PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --enable-qt-framework"
-fi;
-
 
 dnl ###########################################################
 dnl QT
@@ -1856,13 +1892,13 @@ dnl ###########################################################
 AC_ARG_ENABLE([vistrails],[AS_HELP_STRING([--enable-vistrails],[Build extra dependencies that are needed by vistrails])])
 
 BUILDVIS="no"
-vistr="_"+${enable_vistrails}
+vistr="-"${enable_vistrails}
 if test ${vistr} == "-yes" ; then
   BUILDVIS="yes"
-  if test ${enable_fw} == "-" -o test ${enable_vtk} == "-" ; then
+  if test ${enable_fw} == "-" -a ${enable_vtk} == "-" ; then
      AC_MSG_ERROR("[You need to enable framework for vistrails]")
   fi
-  if test "-"${with_qt} == "-" -o test ${enable_vtk} == "-" ; then
+  if test "-"${with_qt} == "-" -a ${enable_vtk} == "-" ; then
      AC_MSG_ERROR("[You need to enable framework for vistrails]")
   fi
   PyQt_GZ=PyQt-${PyQt_PLATFORM}-gpl-${PyQt_MAJOR_SRC}.${PyQt_MINOR_SRC}.${PyQt_PATCH_SRC}.tar.gz
@@ -2012,6 +2048,11 @@ if test ${COMPILE_NC} == "yes" ; then
 else
     AC_MSG_NOTICE([libnetcdf >=4 found at ${NC4LOC}])
 fi
+if test ${BUILDQT} == "yes" ; then
+    AC_MSG_NOTICE([Qt libraries not found... building library ${QT_MAJOR_SRC}.${QT_MINOR_SRC}.${QT_PATCH_SRC}])
+else
+    AC_MSG_NOTICE([Qt > ${QT_MAJOR}.${QT_MINOR}.${QT_PATCH} found or not needed in this configuration])
+fi
 AC_MSG_NOTICE([])
 AC_MSG_NOTICE([........................................................................])
 AC_MSG_NOTICE([...                               PYTHON                             ...])
@@ -2063,21 +2104,11 @@ else
   AC_MSG_NOTICE([Pmw >= ${PMW_MAJOR}.${PMW_MINOR} found])
 fi
 if test ${with_qt} != "no" ; then
-  AC_MSG_NOTICE([Will build with QT support])
-fi
-if test ${with_qt_lib} != "no" ; then
-  AC_MSG_NOTICE([Will build with QT support])
-fi
-if test ${enble_qt} == "-yes" ; then
-   if test ${enable_fw} == "-yes" ; then
-     AC_MSG_NOTICE([Will build with Framework QT support])
-   else
-     AC_MSG_NOTICE([Will build with QT support])
-   fi
+  AC_MSG_NOTICE([Will build with Qt support])
 else
-  if test ${enble_qtfw} == "-yes" ; then
-     AC_MSG_NOTICE([Will build with Framework QT support])
-  fi
+ if test ${with_qt_bin} != "no"; then
+  AC_MSG_NOTICE([Will build with Qt support])
+ fi
 fi
 AC_MSG_NOTICE([])
 AC_MSG_NOTICE([Now type "make" to install CDAT-${CDAT_VERSION} to: ${prefix} and its dependencies to: ${EXTERNALS}])

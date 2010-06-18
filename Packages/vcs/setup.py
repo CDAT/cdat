@@ -179,7 +179,8 @@ if WM=="QT" or EM=="QT":
     qt_include_dirs=[os.path.join(here, 'Include','Qt'),]
 ## Generic non framework thing
     MOC = os.path.join(QT_PATH_BIN,"moc")
-    qt_vcs_extra_compile_args = ' -pipe -g -gdwarf-2 -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -I. -I%s -I%s/QtCore -I%s/QtGui '%(QT_PATH_INC,QT_PATH_INC,QT_PATH_INC)
+##    qt_vcs_extra_compile_args = ' -pipe -g -gdwarf-2 -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -I. -I%s -I%s/QtCore -I%s/QtGui '%(QT_PATH_INC,QT_PATH_INC,QT_PATH_INC)
+    qt_vcs_extra_compile_args = ' -pipe -g -gdwarf-2 -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -I.'
 #     MOC = os.path.join(QT_PATH_BIN,"moc")
 #     qt_include_dirs = [ '%s' % QT_PATH_INC,
 #                             '%s/Qt' % QT_PATH_INC,
@@ -190,10 +191,11 @@ if WM=="QT" or EM=="QT":
     if USE_FRAMEWORK:
         #MOC = "/usr/bin/moc"
 ### Framework stuff
-        qt_vcs_extra_compile_args += ' -pipe -g -gdwarf-2 -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -I.'
+        qt_vcs_extra_compile_args += ' -pipe -g -gdwarf-2 -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -I%s ' % (QT_PATH_INC)
 #        vcs_extra_compile_args = ' -c -pipe -g -gdwarf-2 -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -F/Library/Frameworks  -I. -I%s -I%s/QtCore -I%s/QtGui '%(QT_PATH_INC,QT_PATH_INC,QT_PATH_INC)
         qt_vcs_extra_link_args = ' -F%s -framework QtCore -framework QtGui -lz -lm ' % (QT_PATH_LIB)
     else:
+        qt_vcs_extra_compile_args += ' -I%s -I%s/QtCore -I%s/QtGui '%(QT_PATH_INC,QT_PATH_INC,QT_PATH_INC)
         qt_vcs_extra_link_args = ' -L%s -lQtCore%s -lQtGui%s'% (QT_PATH_LIB,QT_LIBS_SFX,QT_LIBS_SFX)
 
     ## Ok here we generate the moc file

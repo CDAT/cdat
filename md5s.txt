@@ -1,5 +1,6 @@
 7f30886fe9885ab3cf85dac6ce1fbda5  sources/Pmw.1.3.2.tar.gz
 cdf03284f24279b8d9914bb680a37b5e  sources/PyOpenGL-3.0.1.tar.gz
+55ecd293b4a0e337b9c7e10479c53d96  sources/PyQt-mac-gpl-4.7.3.tar.gz
 17dcac33e4f3adb69a57c2607b6de246  sources/Python-2.6.4.tgz
 cd04b5b9383b6c1fccdaa991af762cf4  sources/Python-2.6.5.tgz
 7e6af7022440d8688d16be86d55fb358  sources/blas.tgz
@@ -28,8 +29,10 @@ e61d0364a30146aaa3001296f853b2b9  sources/libxslt-1.1.26.tar.gz
 ed8298f8173bee510129eb32ef872db5  sources/pbmplus_10dec1991.tar.gz
 6041fe8982cc4d1323adc47e629c7d13  sources/pixman-0.17.10.tar.gz
 d922a88782b64441d06547632fd85744  sources/pkg-config-0.23.tar.gz
+5c69f16d452b0bb3d44bc3c10556c072  sources/qt-everywhere-opensource-src-4.6.3.tar.gz
 fc2f7e714fe792db1ce6ddc4c9fb4ef3  sources/readline-6.1.tar.gz
 7df2a529a074f613b509fb44feefe74e  sources/setuptools-0.6c11.tar.gz
+52d11ca9c1a0d0cddc9b89268bff5929  sources/sip-4.10.2.tar.gz
 15032a6a43f3bfbe9223b95186849472  sources/tcl8.5.4-src.tar.gz
 ffe6f86e63a3a29fa53ac645faaabdfa  sources/termcap-1.3.1.tar.gz
 a6aee7653566ec0b7c4b0f4c24a96f20  sources/tk8.5.4-src.tar.gz
