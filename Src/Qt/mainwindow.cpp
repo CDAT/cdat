@@ -10,7 +10,7 @@
 #include <QtGui/QToolTip>
 #include "vcs_events_Qt_mapping.h"
 #include "vcs_canvas.h"
-#include <QString>
+#include <QTCore/QString>
 
 #include <stdio.h>
 
