@@ -372,13 +372,20 @@ if cdat_info.CDMS_INCLUDE_HDF == "yes":
 ###############################################################################
 try:
    from distutils import sysconfig
+   vcs_so = '%s/vcs/_vcs.so' % sysconfig.get_python_lib()
+   os.remove(vcs_so)
    sysconfig.get_config_vars('OPT')
    cflg= sysconfig._config_vars['OPT'].split()
    cflg2=[]
    for x in cflg:
        if x not in ['-Wall', '-Wstrict-prototypes']:
           cflg2.append(x)
-   sysconfig._config_vars['OPT']=' '.join(cflg2)
+   sysconfig._config_vars['OPT']=' '.join(cflg2)   
+except:
+   pass
+try:
+    sysconfig._config_vars['LDSHARED'] = sysconfig._config_vars['LDSHARED'].replace("-bundle","-dynamiclib")
+    sysconfig._config_vars['BLDSHARED'] = sysconfig._config_vars['BLDSHARED'].replace("-bundle","-dynamiclib")
 except:
    pass
 #
@@ -395,6 +402,10 @@ print >> f, "QT_PATH_BIN = \"",QT_PATH_BIN,"\""
 print >> f, "USE_FRAMEWORK = ",USE_FRAMEWORK
 f.close()
 print 'vcs_include_dirs',vcs_include_dirs,vcs_extra_compile_args,vcs_extra_link_args
+
+## Testing extra args for Vistrails
+
+
 setup (name = "vcs",
        version=cdat_info.Version,
        description = "Visualization and Control System",
@@ -427,6 +438,11 @@ setup (name = "vcs",
                       ]
        )
 
+# Vistrails will need these includes later, let's copy them.
+import shutil
+shutil.rmtree("%s/vcs/Include" % sysconfig.get_python_lib(),ignore_errors=True)
+shutil.copytree("Include", "%s/vcs/Include" % sysconfig.get_python_lib())
+
 if (WM=="QT" or EM=="QT"):# and sys.platform in ['darwin']:
     pref = sys.prefix
     ver = '.'.join(sys.version.split('.')[:2])
@@ -443,4 +459,11 @@ if (WM=="QT" or EM=="QT"):# and sys.platform in ['darwin']:
     if 'install' in sys.argv:
         print 'renaming to :',target_prefix
         os.rename("build/qpython", "%s/bin/cdat" % (target_prefix))
-    
+print 'vcs_extra_link_args = ', repr(vcs_extra_link_args)
+print 'vcs_include_dirs = ' , repr(vcs_include_dirs)
+print 'vcs_libraries = ',repr(vcs_libraries)
+files = os.popen("find build/temp* -name '*.o'").readlines()
+ofiles=' '.join(files).replace('\n',' ')
+#print ofiles
+ldCmd = 'g++ -o libvcs.dylib %s %s ' % (vcs_extra_link_args,ofiles)
+os.system(ldCmd)

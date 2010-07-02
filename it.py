@@ -83,7 +83,7 @@ if drawtext:
 if drawdata:
     import cdms2,sys
     #print sys.prefix+'/sample_data/clt.nc'
-    f=cdms2.open(sys.prefix+'/sample_data/clt.nc')
+    f=cdms2.open('/lgm/cdat/trunk/sample_data/clt.nc')
     s=f("clt",slice(0,12))
     t=x.createtemplate("noX")
     print "back from template"
