@@ -46,7 +46,6 @@ for i in range(len(sys.argv)):
 
         
     if a[:10] == '--with-qt=':
-        print 'OK WE should gear toward QT now'
         WM='QT'
         EM='QT'
         removes.append(a)
@@ -203,8 +202,7 @@ if WM=="QT" or EM=="QT":
        os.remove("Src/Qt/moc_mainwindow.cpp")
     ln = os.popen("%s Include/Qt/mainwindow.h > Src/Qt/moc_mainwindow.cpp" % MOC).readlines()
     if not os.path.exists("Src/Qt/moc_mainwindow.cpp"):
-        for l in ln:
-            print l.strip()
+        print "".join(ln)
         raise "Error could not generate the moc file"
     vcs_extra_compile_args = ['-c',]+qt_vcs_extra_compile_args.split()
     vcs_extra_link_args = [qt_vcs_extra_link_args,]
@@ -259,7 +257,7 @@ else:
 
     #print >>sys.stderr, "vcs using these X11 directories: %s %s" %(x11include, x11libdir) 
 
-print 'QT_INCLUDE_DIRS', qt_include_dirs 
+## print 'QT_INCLUDE_DIRS', qt_include_dirs 
 vcs_include_dirs = ['Include'] + \
 			[os.path.join(externals,'include'),] + \
                      cairoincdir +\
@@ -384,12 +382,15 @@ try:
 except:
    pass
 try:
-    sysconfig._config_vars['LDSHARED'] = sysconfig._config_vars['LDSHARED'].replace("-bundle","-dynamiclib")
-    sysconfig._config_vars['BLDSHARED'] = sysconfig._config_vars['BLDSHARED'].replace("-bundle","-dynamiclib")
+    for dflt,rpl in [["-bundle","-dynamiclib -install_name %s/vcs/_vcs.so" % sysconfig.get_python_lib()],]:
+## rpl = "-dynamiclib -Wl,-rpath,/lgm/cdat/VT/Python.framework/Versions/2.6/lib/python2.6/site-packages/vcs "
+## rpl = "-bundle"
+        sysconfig._config_vars['LDSHARED'] = sysconfig._config_vars['LDSHARED'].replace(dflt,rpl)
+        sysconfig._config_vars['BLDSHARED'] = sysconfig._config_vars['BLDSHARED'].replace(dflt,rpl)
 except:
    pass
 #
-print "macros:",vcs_macros,"EM:",EM,"WM:",WM
+## print "macros:",vcs_macros,"EM:",EM,"WM:",WM
 
 
 f=open("Info/__init__.py","w")
@@ -401,7 +402,6 @@ print >> f, "QT_PATH_INC = \"",QT_PATH_INC,"\""
 print >> f, "QT_PATH_BIN = \"",QT_PATH_BIN,"\""
 print >> f, "USE_FRAMEWORK = ",USE_FRAMEWORK
 f.close()
-print 'vcs_include_dirs',vcs_include_dirs,vcs_extra_compile_args,vcs_extra_link_args
 
 ## Testing extra args for Vistrails
 
@@ -447,21 +447,18 @@ if (WM=="QT" or EM=="QT"):# and sys.platform in ['darwin']:
     pref = sys.prefix
     ver = '.'.join(sys.version.split('.')[:2])
     ccCmd = 'g++ -O3 -c %s -IInclude/Qt -IInclude -I/%s/include -o build/qpython.o Src/Qt/qpython.cpp' % (qt_vcs_extra_compile_args,pref)
-    print 'Running: ', ccCmd
+    ## print 'Running: ', ccCmd
     os.system(ccCmd)
     qt_vcs_extra_link_args = '%s/lib/python%s/config/libpython%s.a ' % (pref, ver, ver) + qt_vcs_extra_link_args
     if sys.platform in ['darwin']:
         ldCmd = 'g++ -o build/qpython build/qpython.o %s -lutil' % (qt_vcs_extra_link_args)
     else:
         ldCmd = 'g++ -o build/qpython build/qpython.o %s -lutil -Wl,-E -Wl,-rpath -Wl,%s/Externals/lib' % (qt_vcs_extra_link_args,pref)
-    print 'Running: ', ldCmd
+    ## print 'Running: ', ldCmd
     os.system(ldCmd)
     if 'install' in sys.argv:
         print 'renaming to :',target_prefix
         os.rename("build/qpython", "%s/bin/cdat" % (target_prefix))
-print 'vcs_extra_link_args = ', repr(vcs_extra_link_args)
-print 'vcs_include_dirs = ' , repr(vcs_include_dirs)
-print 'vcs_libraries = ',repr(vcs_libraries)
 files = os.popen("find build/temp* -name '*.o'").readlines()
 ofiles=' '.join(files).replace('\n',' ')
 #print ofiles
