@@ -381,6 +381,34 @@ try:
    sysconfig._config_vars['OPT']=' '.join(cflg2)   
 except:
    pass
+#
+## print "macros:",vcs_macros,"EM:",EM,"WM:",WM
+
+
+
+## Testing extra args for Vistrails
+
+
+setup (name = "vcs",
+       version=cdat_info.Version,
+       description = "Visualization and Control System",
+       url = "http://www-pcmdi.llnl.gov/software",
+       packages = ['vcs', 'vcs.test',],
+       package_dir = {'vcs': 'Lib',
+                      'vcs.test': 'Test',
+                     },
+       ext_modules = [
+                      Extension('vcs.slabapi',
+                               ['Src/slabapimodule.c',
+                                'Src/slabapi.c',
+                               ],
+                               include_dirs = ['Include']
+                      ),
+    
+                      ]
+       )
+#raw_input("ok first one done")
+print 'slabapi done'
 try:
     for dflt,rpl in [["-bundle","-dynamiclib -install_name %s/vcs/_vcs.so" % sysconfig.get_python_lib()],]:
 ## rpl = "-dynamiclib -Wl,-rpath,/lgm/cdat/VT/Python.framework/Versions/2.6/lib/python2.6/site-packages/vcs "
@@ -416,12 +444,6 @@ setup (name = "vcs",
                       'vcs.info' : 'Info',
                      },
        ext_modules = [
-                      Extension('vcs.slabapi',
-                               ['Src/slabapimodule.c',
-                                'Src/slabapi.c',
-                               ],
-                               include_dirs = ['Include']
-                      ),
     
                       Extension('vcs._vcs',
                                 ['Src/vcsmodule.c',

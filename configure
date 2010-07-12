@@ -7491,18 +7491,14 @@ fi
     PYINSTALLKEY="frameworkinstall"
   else
      if test ${enable_fw} != "-" ; then
-         PYOPT=" --enable-framework=${enable_framework}/Library/Framework"
+         PYOPT=" --enable-framework=${enable_framework}"
          cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
-         PYINSTALLKEY="frameworkinstall"
-	 if test ${enable_fw} != "-"${prefix} ; then
-	    PYTHON_INSTALL_PREFIX=" --prefix=${enable_framework} "
-	 fi
+         PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall "
      else
        if test ${enable_vtk} == "-yes" ; then
-           PYOPT=" --enable-framework=${prefix}/Library/Framework "
+           PYOPT=" --enable-framework=${prefix} "
            cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
-           PYINSTALLKEY="frameworkinstall"
-	   PYTHON_INSTALL_PREFIX=" --prefix="${prefix}
+           PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall"
        fi
      fi
   fi
@@ -7521,16 +7517,16 @@ fi
 
     if test ${enable_fw} == "-yes" ; then
       PYOPT=" --enable-framework"
-      PYINSTALLKEY="frameworkinstall"
+      PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall"
     else
       if test ${enable_fw} != "-" ; then
-         PYOPT=" --enable-framework=${enable_framework}/Library/Framework"
-         PYINSTALLKEY="frameworkinstall"
+         PYOPT=" --enable-framework=${enable_framework}"
+         PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall"
       else
          if test ${enable_vtk} == "-yes" ; then
-           PYOPT=" --enable-framework=${prefix}/Library/Framework "
+           PYOPT=" --enable-framework=${prefix} "
            cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
-           PYINSTALLKEY="frameworkinstall"
+           PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall"
 	   PYTHON_INSTALL_PREFIX=" --prefix="${prefix}
          else
            PYOPT=${PYOPT}" --disable-toolbox-glue --disable-framework "
@@ -10512,6 +10508,36 @@ else
   fi
 fi
 
+# Ok now do we need to change the prefix ?
+if  test ${COMPILE_PYTHON} == "no"  ; then
+ if  test "-"${PYTHON_INSTALL_PREFIX} == "-"  ; then
+  as_ac_File=`echo "ac_cv_file_${prefix}/bin/python" | $as_tr_sh`
+{ echo "$as_me:$LINENO: checking for ${prefix}/bin/python" >&5
+echo $ECHO_N "checking for ${prefix}/bin/python... $ECHO_C" >&6; }
+if { as_var=$as_ac_File; eval "test \"\${$as_var+set}\" = set"; }; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  test "$cross_compiling" = yes &&
+  { { echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
+echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
+   { (exit 1); exit 1; }; }
+if test -r "${prefix}/bin/python"; then
+  eval "$as_ac_File=yes"
+else
+  eval "$as_ac_File=no"
+fi
+fi
+ac_res=`eval echo '${'$as_ac_File'}'`
+	       { echo "$as_me:$LINENO: result: $ac_res" >&5
+echo "${ECHO_T}$ac_res" >&6; }
+if test `eval echo '${'$as_ac_File'}'` = yes; then
+  :
+else
+  PYTHON_INSTALL_PREFIX=" --prefix="${prefix}
+fi
+
+ fi
+fi
 COMPILE_FLTK2=yes
 # Extract the first word of "fltk2-config", so it can be a program name with args.
 set dummy fltk2-config; ac_word=$2

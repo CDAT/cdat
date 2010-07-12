@@ -823,18 +823,14 @@ case ${target_os} in
     PYINSTALLKEY="frameworkinstall"
   else
      if test ${enable_fw} != "-" ; then
-         PYOPT=" --enable-framework=${enable_framework}/Library/Framework"
+         PYOPT=" --enable-framework=${enable_framework}"
          cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
-         PYINSTALLKEY="frameworkinstall"
-	 if test ${enable_fw} != "-"${prefix} ; then
-	    PYTHON_INSTALL_PREFIX=" --prefix=${enable_framework} "
-	 fi
+         PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall "
      else
        if test ${enable_vtk} == "-yes" ; then
-           PYOPT=" --enable-framework=${prefix}/Library/Framework "
+           PYOPT=" --enable-framework=${prefix} "
            cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
-           PYINSTALLKEY="frameworkinstall"
-	   PYTHON_INSTALL_PREFIX=" --prefix="${prefix}
+           PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall"
        fi
      fi
   fi
@@ -852,16 +848,16 @@ case ${target_os} in
     AC_SUBST(EXTRAENV)
     if test ${enable_fw} == "-yes" ; then
       PYOPT=" --enable-framework"
-      PYINSTALLKEY="frameworkinstall"
+      PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall"
     else
       if test ${enable_fw} != "-" ; then
-         PYOPT=" --enable-framework=${enable_framework}/Library/Framework"
-         PYINSTALLKEY="frameworkinstall"
+         PYOPT=" --enable-framework=${enable_framework}"
+         PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall"
       else
          if test ${enable_vtk} == "-yes" ; then
-           PYOPT=" --enable-framework=${prefix}/Library/Framework "
+           PYOPT=" --enable-framework=${prefix} "
            cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
-           PYINSTALLKEY="frameworkinstall"
+           PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall"
 	   PYTHON_INSTALL_PREFIX=" --prefix="${prefix}
          else
            PYOPT=${PYOPT}" --disable-toolbox-glue --disable-framework " 
@@ -1451,6 +1447,12 @@ dnl   SCIPY=yes
   fi
 fi
 
+# Ok now do we need to change the prefix ? 
+if [ test ${COMPILE_PYTHON} == "no" ] ; then
+ if [ test "-"${PYTHON_INSTALL_PREFIX} == "-" ] ; then
+  AC_CHECK_FILE([${prefix}/bin/python],[],[PYTHON_INSTALL_PREFIX=" --prefix="${prefix}])
+ fi
+fi
 dnl ###########################################################
 dnl  FLTK2
 dnl ###########################################################
