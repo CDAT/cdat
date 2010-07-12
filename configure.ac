@@ -855,13 +855,14 @@ case ${target_os} in
       PYINSTALLKEY="frameworkinstall"
     else
       if test ${enable_fw} != "-" ; then
-         PYOPT=" --enable-framework=${enable_framework}"
+         PYOPT=" --enable-framework=${enable_framework}/Library/Framework"
          PYINSTALLKEY="frameworkinstall"
       else
          if test ${enable_vtk} == "-yes" ; then
-           PYOPT=" --enable-framework=${prefix} "
+           PYOPT=" --enable-framework=${prefix}/Library/Framework "
            cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
            PYINSTALLKEY="frameworkinstall"
+	   PYTHON_INSTALL_PREFIX=" --prefix="${prefix}
          else
            PYOPT=${PYOPT}" --disable-toolbox-glue --disable-framework " 
 	 fi
