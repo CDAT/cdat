@@ -553,7 +553,7 @@ def main(arglist):
         target = os.path.join(target_prefix, 'sample_data')
         wget = os.popen('grep wget ../../checked_get.sh | tr -s " " | cut -d " " -f 2').readlines()[0].strip()
         data_source_url = "https://www2-pcmdi.llnl.gov/trac/export/8563/cdat/tags/5.2/Packages/dat"
-        data_source_url = "http://www.rainbow.llnl.gov/cdat/sample_data"
+        data_source_url = "http://rainbow.llnl.gov/dist/cdat/sample_data"
         dfiles=open("files.txt")
         data_files=dfiles.readlines()
         dfiles.close()
