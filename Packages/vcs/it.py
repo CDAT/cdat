@@ -84,10 +84,6 @@ if drawdata:
     import cdms2,sys
     #print sys.prefix+'/sample_data/clt.nc'
     pth=sys.prefix.split(os.path.sep)
-    if "Versions" in pth:
-       pth=pth[:-3]
-    else:
-       pth=pth[:-1]
     f=cdms2.open("%s/sample_data/clt.nc" % os.path.sep.join(pth))
     s=f("clt",slice(0,12))
     t=x.createtemplate("noX")

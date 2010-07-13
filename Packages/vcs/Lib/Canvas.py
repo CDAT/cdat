@@ -911,14 +911,14 @@ class Canvas(object,AutoAPI.AutoAPI):
 #  purposes....                                                                           #
 ###########################################################################################
         if called_initial_attributes_flg == 0:
-           print 'path:',vcs.__path__[0]
            pth = vcs.__path__[0].split(os.path.sep)
-           if "Versions" in pth:
-               pth=pth[:-7]
-           else:
-               pth=pth[:-4] # Maybe need to make sure on none framework config
+           pth=pth[:-4] # Maybe need to make sure on none framework config
            pth=['/']+pth+['bin', 'initial.attributes']
-           self._scriptrun( os.path.join(*pth))
+           try:
+               self._scriptrun( os.path.join(*pth))
+           except:
+               print 'crap'
+               pass
            self._scriptrun( os.path.join(os.environ['HOME'], 'PCMDI_GRAPHICS', 'initial.attributes'))
 	called_initial_attributes_flg = 1
         self.animate_info=[]
