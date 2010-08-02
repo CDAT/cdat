@@ -19,10 +19,12 @@ PYTHON_MINOR=6
 PYTHON_PATCH=0
 dnl  Lib VERSION NUMBERS WE PROVIDE
 PYTHON_MAJOR_SRC=2
-PYTHON_MINOR_SRC=6
-PYTHON_PATCH_SRC=5
-PYTHON_URL=http://python.org/ftp/python/${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.${PYTHON_PATCH_SRC}
-PYTHON_GZ=Python-${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.${PYTHON_PATCH_SRC}.tgz
+PYTHON_MINOR_SRC=7
+PYTHON_PATCH_SRC=0
+PYTHON_URL=http://python.org/ftp/python/${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}
+dnl .${PYTHON_PATCH_SRC}
+dnl PYTHON_GZ=Python-${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.${PYTHON_PATCH_SRC}.tgz
+PYTHON_GZ=Python-${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.tgz
 AC_SUBST(PREFIX_PATH)
 AC_SUBST(PYTHON_MAJOR)
 AC_SUBST(PYTHON_MINOR)
@@ -33,6 +35,7 @@ AC_SUBST(PYTHON_PATCH_SRC)
 AC_SUBST(PYTHON_URL)
 AC_SUBST(PYTHON_GZ)
 PYVER=${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}
+echo "PYVER IS : " ${PYVER}
 AC_SUBST(PYVER)
 XML_MAJOR=2
 XML_MINOR=6
@@ -1020,7 +1023,7 @@ if test ${COMPILE_PYTHON} == "no" ; then
 fi
 if test ${COMPILE_PYTHON} == "no"; then
   dnl figures out which version of python we have
-  PYVER=`${PYTHON} -c "import sys;print '.'.join(sys.version.split('.').__getslice__(0,2))"`
+  PYVER=`${PYTHON} -c "import sys;print '.'.join(sys.version.split('.').__getslice__(0,1))"`
   dnl figures out which version of tcl/tk we have
   TCLTK_VERSION=`${PYTHON} -c "import Tkinter;print Tkinter.TkVersion"`
   dnl  since we will not build python no need to build these

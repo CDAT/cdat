@@ -2125,10 +2125,10 @@ PYTHON_MAJOR=2
 PYTHON_MINOR=6
 PYTHON_PATCH=0
 PYTHON_MAJOR_SRC=2
-PYTHON_MINOR_SRC=6
-PYTHON_PATCH_SRC=5
-PYTHON_URL=http://python.org/ftp/python/${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.${PYTHON_PATCH_SRC}
-PYTHON_GZ=Python-${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.${PYTHON_PATCH_SRC}.tgz
+PYTHON_MINOR_SRC=7
+PYTHON_PATCH_SRC=0
+PYTHON_URL=http://python.org/ftp/python/${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}
+PYTHON_GZ=Python-${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.tgz
 
 
 
@@ -2139,6 +2139,7 @@ PYTHON_GZ=Python-${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.${PYTHON_PATCH_SRC}.tgz
 
 
 PYVER=${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}
+echo "PYVER IS : " ${PYVER}
 
 XML_MAJOR=2
 XML_MINOR=6
@@ -7859,7 +7860,7 @@ echo "${ECHO_T}yes" >&6; }
  fi
 fi
 if test ${COMPILE_PYTHON} == "no"; then
-    PYVER=`${PYTHON} -c "import sys;print '.'.join(sys.version.split('.').__getslice__(0,2))"`
+    PYVER=`${PYTHON} -c "import sys;print '.'.join(sys.version.split('.').__getslice__(0,1))"`
     TCLTK_VERSION=`${PYTHON} -c "import Tkinter;print Tkinter.TkVersion"`
     COMPILE_READLINE=no
   COMPILE_Z=no
