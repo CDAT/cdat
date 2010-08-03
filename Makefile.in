@@ -220,7 +220,7 @@ ifeq (@COMPILE_CMAKE@,yes)
 	$(call dobuild,@CMAKE_URL@,@CMAKE_GZ@,@EXTERNALS@, cd Utilities/cmcurl  ; cp ../../../../exsrc/src/cmake/multi.c . ; cd ../..  ,  --parallel=@NCPUS@ )
 endif
 ifeq (@BUILDQT@,yes)
-	@echo "Building Qt (extremely long, severla hours, we recommend downloading the binaries from @QT_URL@ !)"
+	@echo "Building Qt (extremely long, several hours, we recommend downloading the binaries from @QT_URL@ !)"
 	$(call dobuild,@QT_URL@,@QT_GZ@,@EXTERNALS@,, @QTCONFIGOPT@ < ../../exsrc/src/o.txt )
 endif
 ifeq (@COMPILE_VTK@,yes)
