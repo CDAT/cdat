@@ -42,13 +42,14 @@ NumericToCdType = {numpy.sctype2char(numpy.float32):CdFloat,
                    numpy.sctype2char(numpy.int16):CdShort,
                    numpy.sctype2char(numpy.int32):CdInt,
                    numpy.sctype2char(numpy.int):CdLong,
+                   numpy.sctype2char(numpy.int64):CdLong,
                    numpy.sctype2char(numpy.intc):CdLong,
                    numpy.sctype2char(numpy.int8):CdByte,
                    'c':CdChar,
                    'B':'B',
                    'H':'H',
                    'L':'L',
-                   'q':'q',
+                   'q':CdLong,
                    'Q':'Q',
                    'S':'S'
                    }
@@ -57,7 +58,7 @@ CdToNumericType = {CdChar:'c',
                    CdByte:numpy.int8,
                    CdShort:numpy.int16,
                    CdInt:numpy.int32,
-                   CdLong:numpy.int,
+                   CdLong:numpy.int64,  # <<< This was int, any problems with int64??
                    CdFloat:numpy.float32,
                    CdDouble:numpy.float}
 

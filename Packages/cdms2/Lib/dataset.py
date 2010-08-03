@@ -54,7 +54,10 @@ _ListSepPat = r'\s*,\s*'
 _ListSep = re.compile(_ListSepPat)
 _IndexPat = r'(\d+|-)'
 _FilePath = r"([^\s\]\',]+)"
-_IndexList = re.compile(_ListStartPat+_IndexPat+_ListSepPat+_IndexPat+_ListSepPat+_IndexPat+_ListSepPat+_IndexPat+_ListSepPat+_FilePath+_ListEndPat)
+# Two file map patterns, _IndexList4 is the original one, _IndexList5 supports
+# forecast data too...
+_IndexList4 = re.compile(_ListStartPat+_IndexPat+_ListSepPat+_IndexPat+_ListSepPat+_IndexPat+_ListSepPat+_IndexPat+_ListSepPat+_FilePath+_ListEndPat)
+_IndexList5 = re.compile(_ListStartPat+_IndexPat+_ListSepPat+_IndexPat+_ListSepPat+_IndexPat+_ListSepPat+_IndexPat+_ListSepPat+_IndexPat+_ListSepPat+_FilePath+_ListEndPat)
 
 _NPRINT = 20
 _showCompressWarnings = True
@@ -240,19 +243,23 @@ def parselist(text, f):
     return result, n
 
 def parseIndexList(text):
-    """Parse a string of the form [i,j,k,l,path] where
-    i,j,k,l are indices or '-', and path is a filename.
+    """Parse a string of the form [i,j,k,l,...,path] where
+    i,j,k,l,... are indices or '-', and path is a filename.
     Coerce the indices to integers, return (result, nconsumed).
     """
-    m = _IndexList.match(text)
+    m = _IndexList4.match(text)
+    nindices = 4
+    if m is None:
+        m = _IndexList5.match(text)
+        nindices = 5
     if m is None:
         raise CDMSError, "Parsing cdms_filemap near "+text[0:_NPRINT]
-    result = [None]*5
-    for i in range(4):
+    result = [None]*(nindices+1)
+    for i in range(nindices):
         s = m.group(i+1)
         if s!='-':
             result[i] = string.atoi(s)
-    result[4] = m.group(5)
+    result[nindices] = m.group(nindices+1)
     return result, m.end()
 
 def parseName(text):
@@ -479,7 +486,12 @@ class Dataset(CdmsObj, cuDataset):
                 for varname in varlist:
                     timemap = {}
                     levmap = {}
-                    for tstart, tend, levstart, levend, path in varmap:
+                    # The for loop was:
+                    # for tstart, tend, levstart, levend, path in varmap:
+                    # but now there _may_ be an additional item before path...
+                    for varm1 in varmap:
+                        tstart, tend, levstart, levend = varm1[0:4]
+                        path = varm1[-1]
                         self._filemap_[(varname, tstart, levstart)] = path
                         if tstart is not None:
                             timemap[(tstart, tend)] = 1 # Collect unique (tstart, tend) tuples
