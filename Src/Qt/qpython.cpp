@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <python2.6/Python.h>
 #include "qti.h"
 
 int main(int argc, char **argv) {
