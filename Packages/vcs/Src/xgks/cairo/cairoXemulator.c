@@ -1,7 +1,8 @@
 #include <cairo.h>
 #include "xgks.h"
+#ifdef X11WM
 #include <X.h>
-#ifdef QTWM
+#elif defined QTWM
 #include "Qt/Qt_X_emul.h"
 #endif
 

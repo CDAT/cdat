@@ -15,7 +15,7 @@ AC_CONFIG_FILES([Makefile site.cfg README.txt Scripts/cdat Scripts/vcdat exsrc/C
 
 dnl  Lib VERSION NUMBERS TO CHECK AGAINST
 PYTHON_MAJOR=2
-PYTHON_MINOR=6
+PYTHON_MINOR=7
 PYTHON_PATCH=0
 dnl  Lib VERSION NUMBERS WE PROVIDE
 PYTHON_MAJOR_SRC=2
@@ -1023,7 +1023,8 @@ if test ${COMPILE_PYTHON} == "no" ; then
 fi
 if test ${COMPILE_PYTHON} == "no"; then
   dnl figures out which version of python we have
-  PYVER=`${PYTHON} -c "import sys;print '.'.join(sys.version.split('.').__getslice__(0,1))"`
+  PYVER=`${PYTHON} -c "import sys;print sys.version.split(' ').pop(0)"`
+  echo "********************************"${PYVER}
   dnl figures out which version of tcl/tk we have
   TCLTK_VERSION=`${PYTHON} -c "import Tkinter;print Tkinter.TkVersion"`
   dnl  since we will not build python no need to build these
