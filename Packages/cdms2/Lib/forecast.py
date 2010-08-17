@@ -48,15 +48,15 @@ class forecast():
         dataset_list is used to get the forecast file from the forecast time.
         Each list item should look like this example:
         [None, None, None, None, 2006022200000L, 'file2006-02-22-00000.nc']
-        Typically dataset_list = fm[i][1] where fm is the output of
+        Normally dataset_list = fm[i][1] where fm is the output of
         cdms2.dataset.parseFileMap and fm[i][0] matches the variables of interest.
 
         N.B.  This is like a CdmsFile.  Creating a forecast means opening a file,
-        so you should call forecast.close() to close it.
+        so later on you should call forecast.close() to close it.
         """
-        self.fctl,self.fct = two_times_from_one( tau0time )
+        self.fctl, self.fct = two_times_from_one( tau0time )
 
-        filenames = [l[5] for l in dataset_list if l[4]==self.fctl]
+        filenames = [ l[5] for l in dataset_list if l[4]==self.fctl ]
         if len(filenames)>0:
             filename = filenames[0]
         else:
@@ -83,6 +83,11 @@ class forecast():
 class forecasts():
     """represents a set of forecasts"""
 
+# >>> There should be a way to determine what forecast_times are available
+# >>> Also, we _could_ have a default forecast_times to be "all times",
+# >>> but I'm inclined to require the times so as to open no more files than
+# >>> needed.  Is that really an issue?
+
     def __init__( self, dataset_file, forecast_times, path="" ):
         """Creates a set of forecasts.  Normally you do it by something like
         f = forecasts( 'file.xml', (min_time, max_time) )
@@ -106,17 +111,12 @@ class forecasts():
         are finished with the forecats, you should close the files by calling
         forecasts.close() .
         """
+   # >>>> maybe it's ok, or better, to close files in here, think & try <<<<<
 
-        # dataset_list is used to get a forecast file from a forecast time.
-        # Each list item should look like this example:
-        # [None, None, None, None, 2006022200000L, 'file2006-02-22-00000.nc']
-        # Typically dataset_list = fm[i][1] where fm is the output of
-        # cdms2.dataset.parseFileMap and fm[i][0] matches the variables of interest.
-        self.dataset=cdms2.openDataset( dataset_file )
+        # Create dataset_list to get a forecast file from each forecast time.
+        self.dataset=cdms2.openDataset( dataset_file, dpath=path )
         fm=cdms2.dataset.parseFileMap(self.dataset.cdms_filemap)
-
         self.alltimesl =[ f[4] for f in fm[0][1] ]  # 64-bit (long) integers
-
         dataset_list = fm[0][1]
         for f in fm[1:]:
             dataset_list.extend(f[1])
@@ -137,11 +137,12 @@ class forecasts():
             raise CDMSError, "bad argument to forecasts.__init__"
 
     def reduce_inplace( self, min_time, max_time ):
-        """ For a forecasts object f, f( min_time, max_time ) will reduce the scope
-        of f, to forecasts whose start time t has min_time<=t<max_time.  This is done
-        in place, i.e. any other forecasts in f will be discarded.
-        If slice notation were possible for forecasts (it's not because times take too
-        many bits), this function would do the same as  f = f[min_time : max_time ]
+        """ For a forecasts object f, f( min_time, max_time ) will reduce the
+        scope of f, to forecasts whose start time t has min_time<=t<max_time.
+        This is done in place, i.e. any other forecasts in f will be discarded.
+        If slice notation were possible for forecasts (it's not because we need
+        too many bits to represent time), this function would do the same as
+        f = f[min_time : max_time ]
         If you don't want to change the original "forecasts" object, just do
         copy.copy(forecasts) first.
         Times can be the usual long integers or cdtime component times.
@@ -163,8 +164,11 @@ class forecasts():
         # Assumptions include: For two forecasts, f1('var') and f2('var') are
         # the same variable in all but values - same names, same domain,
         # same units, same mask, etc.
-        # Note: unlike in __getitem__, there's too much data to start with something
-        # like self.dataset(varname), which would have made things easier...
+        # Note: Why can't we start out by doing self.dataset(varname) as in
+        # __getitem__?  That's simpler to code, but in this case it would require
+        # reading large amounts of data from files, only to throw it away.
+
+        # Create the variable from the data, with mask:
         vars = [ fc(varname) for fc in self.fcs ]
         v0 = vars[0]
         a = numpy.asarray([ v.data for v in vars ])
@@ -174,14 +178,16 @@ class forecasts():
         else:
             m = numpy.asarray([ v._mask for v in vars])
             v = cdms2.tvariable.TransientVariable( a, mask=m, fill_value=v0._fill_value )
+
+        # Domain-related attributes:
         ltvd = len(v0._TransientVariable__domain)
         v._TransientVariable__domain[1:ltvd+1] = v0._TransientVariable__domain[0:ltvd]
-        # v._TransientVariable__domain[0]=( cdms2.axis.TransientVirtualAxis('ifc',len(self.fcs)),)
         v._TransientVariable__domain[0] = self.forecast_axis( varname )
         if hasattr( v0, 'coordinates' ):
             v.coordinates = 'iforecast ' + v0.coordinates
-        # Copy attributes for which I've seen nontrivial values in a real example
-        # (btw, the _isfield one was wrong!) :
+
+        # Other attributes, all those for which I've seen nontrivial values in a
+        # real example (btw, the _isfield one was wrong!) :
         if hasattr( v0, 'id' ):
             v.id = v0.id
         if hasattr( v0, 'long_name' ):
@@ -206,31 +212,30 @@ class forecasts():
         # ...this 'domain' attribute has an element with an axis, etc.
         # representing all forecasts; so we want to cut it down to match
         # those forecasts in self.fcs.
-        for i in range(len(dom)):
+        for domitem in dom:
             # The domain will have several directions, e.g. forecast, level, latitude.
             # There should be only one forecast case, named fctau0.
-            # domdir is a tuple (axis,start,length,true_length) where
+            # domitem is a tuple (axis,start,length,true_length) where
             # axis is a axis.Axis and the rest of the tuple is int's.
             # I don't know what true_length is, but it doesn't seem to get used
             # anywhere, and is normally the same as length.
-            domdir = dom[i]
-            if getattr(domdir[0],'id',None)=='fctau0':
+            if getattr(domitem[0],'id',None)=='fctau0':
                 # Force the axis to match self.fcs :
                 # More precisely the long int times self.fcs[i].fctl should match
                 # the axis data. The axis partition and .length need changing too.
-                domdir1 = 0
-                domdir2 = len(self.fcs)
-                domdir3 = len(self.fcs)
-                axis = copy.copy(domdir[0])
+                domitem1 = 0
+                domitem2 = len(self.fcs)
+                domitem3 = len(self.fcs)
+                axis = copy.copy(domitem[0])
                 axis._data_ = [ f.fctl for f in self.fcs ]
                 axis.length = len(axis._data_)
                 axis.partition = axis.partition[0:axis.length]
-        return ( axis, domdir1, domdir2, domdir3 )
+        return ( axis, domitem1, domitem2, domitem3 )
 
 
     def __getitem__( self, varname ):
         """returns whatever the forecast set has that matches the given
-        attribute, typically a DatasetVariable.
+        attribute, normally a DatasetVariable.
         """
         if type(varname) is not str :
             raise CDMSError, "bad argument to forecasts[]"
@@ -243,8 +248,8 @@ class forecasts():
         # want to cut it down to match those forecasts in self.fcs.
         dom = copy.deepcopy(getattr(var,'domain',[]))
         for i in range(len(dom)):
-            domdir = dom[i]
-            if getattr(domdir[0],'id',None)=='fctau0':
+            domitem = dom[i]
+            if getattr(domitem[0],'id',None)=='fctau0':
                 dom[i] = self.forecast_axis(varname)
         setattr(var,'domain',dom)
                 
