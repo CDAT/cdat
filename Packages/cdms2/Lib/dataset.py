@@ -157,7 +157,7 @@ def createDataset(path,template=None):
 # 'uri' is a Uniform Resource Identifier, referring to a cdunif file, XML file,
 #   or LDAP URL of a catalog dataset entry.
 # 'mode' is 'r', 'r+', 'a', or 'w'
-def openDataset(uri,mode='r',template=None,dods=1):
+def openDataset(uri,mode='r',template=None,dods=1,dpath=None):
     uri = string.strip(uri)
     (scheme,netloc,path,parameters,query,fragment)=urlparse.urlparse(uri)
     if scheme in ('','file'):
@@ -200,14 +200,15 @@ def openDataset(uri,mode='r',template=None,dods=1):
     # Note: In general, dset.datapath is relative to the URL of the
     #   enclosing database, but here the database is null, so the
     #   datapath should be absolute.
-    direc = datanode.getExternalAttr('directory')
-    head = os.path.dirname(path)
-    if direc and os.path.isabs(direc):
-        dpath = direc
-    elif direc:
-        dpath = os.path.join(head,direc)
-    else:
-        dpath = head
+    if dpath==None:
+        direc = datanode.getExternalAttr('directory')
+        head = os.path.dirname(path)
+        if direc and os.path.isabs(direc):
+            dpath = direc
+        elif direc:
+            dpath = os.path.join(head,direc)
+        else:
+            dpath = head
 
     dataset = Dataset(uri, mode, datanode, None, dpath)
     return dataset
@@ -486,17 +487,24 @@ class Dataset(CdmsObj, cuDataset):
                 for varname in varlist:
                     timemap = {}
                     levmap = {}
+                    fcmap = {}
                     # The for loop was:
                     # for tstart, tend, levstart, levend, path in varmap:
                     # but now there _may_ be an additional item before path...
                     for varm1 in varmap:
                         tstart, tend, levstart, levend = varm1[0:4]
+                        if (len(varmap)>=6):
+                            forecast = varm1[4]
+                        else:
+                            forecast = None
                         path = varm1[-1]
-                        self._filemap_[(varname, tstart, levstart)] = path
+                        self._filemap_[(varname, tstart, levstart, forecast)] = path
                         if tstart is not None:
                             timemap[(tstart, tend)] = 1 # Collect unique (tstart, tend) tuples
                         if levstart is not None:
                             levmap[(levstart, levend)] = 1
+                        if forecast is not None:
+                            fcmap[(forecast,forecast)] = 1
                     tkeys = timemap.keys()
                     if len(tkeys)>0:
                         tkeys.sort()
@@ -509,6 +517,9 @@ class Dataset(CdmsObj, cuDataset):
                         levpart = map(lambda x: list(x), levkeys)
                     else:
                         levpart = None
+                    fckeys = fcmap.keys()
+                    if len(fckeys)>0:
+                        fckeys.sort()
                     if self.variables.has_key(varname):
                         self.variables[varname]._varpart_ = [tpart, levpart]
 
