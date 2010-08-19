@@ -111,7 +111,6 @@ class forecasts():
         are finished with the forecats, you should close the files by calling
         forecasts.close() .
         """
-   # >>>> maybe it's ok, or better, to close files in here, think & try <<<<<
 
         # Create dataset_list to get a forecast file from each forecast time.
         self.dataset=cdms2.openDataset( dataset_file, dpath=path )
