@@ -74,6 +74,12 @@ Options:
     -f file_list:  file containing a list of absolute data file names, one per
                    line. <files> arguments are ignored.
 
+    --forecast     generate a description of a forecast dataset.
+                   This is not compatible with the -i, -r, -t, or -l options.
+                   A file can contain data for exactly one forecast; its generating time
+                   (aka run time, analysis time, starting time, tau=0 time)
+                   is specified by the nbdate,nbsec attributes.
+
     -h:            print a help message.
 
     -i time_delta: scan time as a 'linear' dimension. This is useful if the time dimension
@@ -100,7 +106,7 @@ Options:
 
     -j:		   scan time as a vector dimension. Time values are listed
 		   individually. Turns off the -i option.
-
+<<
     -l levels:     list of levels, comma-separated. Only specify if files are partitioned by
                    levels.
 
@@ -521,7 +527,7 @@ def setNodeDict(node, dict):
         node.attribute[key]=(value,datatype)
 
 def initialize_filemap( filemap, timedict, levdict, timeid ):
-    # ...could instead declare filemap,timedict,levdict,timeid to be nonlocal
+    # This function was formerly part of the body of "main".
         # Initialize filemap : varid => (tc0, tc1, lc0, lc1, path, timeid, levid)
         # where tc0 is the first time index relative to the reference time, tc1 the last,
         # lc0 is the first level, lc1 the last, path is the filename, timeid is the id
@@ -592,69 +598,6 @@ def initialize_filemap( filemap, timedict, levdict, timeid ):
             else:
                 filemap[name] = varmaplist
 
-def initialize_forecast_filemap( filemap, timedict, timeid ):
-    # ...could instead declare filemap,timedict,timeid to be nonlocal
-        # Initialize filemap in forecast mode : varid => (tc0, path, timeid, levid)
-        # where tc0, identifies a forecast; it is the forecast's beginning time, relative to the
-        # main reference time.  path is for the forecast file corresponding to tc0.
-        # timeid is the id of the tau time dimension of the variable (tau is the time which is
-        # zero at the beginning of the forecast)
-        # timedict : (path, timeid) => (timearray, timeunits, calendar)
-        #
-    initfilemap = cdms2.dataset.parseFileMap(extendDset.cdms_filemap)
-#    <<<<<<< already this is wrong for forecast files, that is, cdms_filemap <<<<<
-    dsetdirec = extendDset.directory
-    for namelist, slicelist in initfilemap:
-        for name in namelist:
-            var  = extendDset[name]
-            timeaxis = var.getTime()
-            if timeaxis is not None and not overrideCalendar:
-                calendar = timeaxis.getCalendar()
-            if splitOnTime and timeaxis is not None:
-                if hasattr(timeaxis, 'name_in_file'):
-                    timeid = timeaxis.name_in_file
-                else:
-                    timeid = timeaxis.id
-                if referenceTime is None:
-                    referenceTime = timeaxis.units
-                if timeIsLinear in [None,1]:
-                    timeIsLinear = timeaxis.isLinear()
-                    if timeIsLinear:
-                        if len(timeaxis)>1:
-                            referenceDelta = timeaxis[1]-timeaxis[0]
-                        else:
-                            referenceDelta = 1.0
-                    else:
-                        referenceDelta = None
-            else:
-                timeid = None
-
-            varmaplist = []
-            for t0, t1, lev0, lev1, path in slicelist:
-                fullpath = os.path.join(dsetdirec,path)
-                basepath = fullpath[dirlen:]
-                if t0 is not None:
-                    tc0 = timeindex(timeaxis[t0], timeaxis.units, referenceTime, referenceDelta, calendar)
-                    tc1 = timeindex(timeaxis[t1-1], timeaxis.units, referenceTime, referenceDelta, calendar)
-                    if not timedict.has_key((basepath, timeid, calendar)):
-                        values = timeaxis[t0:t1]
-                        timedict[(basepath, timeid)] = (values, timeaxis.units, calendar)
-                else:
-                    tc0 = tc1 = None
-                if lev0 is not None:
-                    lc0 = levelaxis[lev0]
-                    lc1 = levelaxis[lev1-1]
-                    if not levdict.has_key((basepath, levid, None)):
-                        values = levelaxis[lev0:lev1]
-                        levdict[(basepath, levid)] = (values, levelaxis.units, None)
-                else:
-                    lc0 = lc1 = None
-                varmaplist.append((tc0, tc1, lc0, lc1, basepath, timeid, levid, calendar))
-            if filemap.has_key(name):
-                filemap[name].extend(varmaplist)
-            else:
-                filemap[name] = varmaplist
-
 #---------------------------------------------------------------------------------------------
 
 verbose = 1
@@ -665,7 +608,10 @@ def main(argv):
     global notrimlat
 
     try:
-        args, lastargs = getopt.getopt(argv[1:],"a:c:d:e:f:hi:jl:m:p:qr:s:t:x:",["include=","include-file=","exclude=","exclude-file=","forecast","time-linear=","notrim-lat","var-locate=","ignore-open-error"])
+        args, lastargs = getopt.getopt( \
+            argv[1:], "a:c:d:e:f:hi:jl:m:p:qr:s:t:x:", \
+            ["include=","include-file=","exclude=","exclude-file=","forecast","time-linear=", \
+             "notrim-lat","var-locate=","ignore-open-error" ] )
     except getopt.error:
         print sys.exc_value
         print usage
@@ -731,8 +677,8 @@ def main(argv):
             filelistpath = arg
         elif flag=='--forecast':  # experimental forecast mode
             forecast = True
-            splitOnTime = 0   # <<< check whether another reasonable argument overrides this
-            splitOnLevel = 0  # <<< check whether another reasonable argument overrides this
+            splitOnTime = 0
+            splitOnLevel = 0
         elif flag=='-h':
             print usage
             sys.exit(0)
@@ -866,11 +812,10 @@ def main(argv):
 
     axisdict = {}
     vardict = {}
-    filemap={}
+    filemap = {}
     timedict = {}
     levdict = {}
     fcdict = {}
-    fcfiledict = {}
     global_attrs = None
     fctau0 = None
 
@@ -934,7 +879,6 @@ def main(argv):
         #
         initialize_filemap( filemap, timedict, levdict, timeid, extendDset, splitOnTime, \
                             referenceTime, timeIsLinear, referenceDelta, splitOnLevel )
-        # <<<< initialize_forecast_filemap will be needed here, and more changes below, for forecasts >>>>
 
         # axisdict : id => transient_axis
         #   for non-partitioned axes only
@@ -1056,11 +1000,6 @@ def main(argv):
             nbdate = numpy.int( f('nbdate') )  # f('nbdate') is numpy.int32 which gets truncated
             nbsec = f('nbsec')
             fctau0 = nbdate*100000 + nbsec  # hopefully nbsec<(seconds per day)=86400<100000
-            fcfiledict[fctau0] = f
-            # >>> If it turns out that I don't need fcfiledict, just construct fcaxis_data directly
-            # >>> OTOH I may not need fcaxis, just have file write out fcfiledict to the XML file.
-#        fcaxis_data = fcfiledict.keys().sort()
-#        fcaxis = axis.createAxis( fcaxis_data )
 
         varnames = f.variables.keys()
         varnames.sort()
