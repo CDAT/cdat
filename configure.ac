@@ -489,6 +489,21 @@ PyQt_MAJOR_SRC=4
 PyQt_MINOR_SRC=7
 PyQt_PATCH_SRC=4
 PyQt_URL=http://www.riverbankcomputing.com/static/Downloads/PyQt${PyQt_MAJOR_SRC}
+
+R_MAJOR_SRC=2
+R_MINOR_SRC=11
+R_PATCH_SRC=1
+R_URL=http://cran.cnr.berkeley.edu
+R_GZ=R-${R_MAJOR_SRC}.${R_MINOR_SRC}.${R_PATCH_SRC}.tar.gz
+AC_SUBST(R_MAJOR_SRC)
+AC_SUBST(R_MINOR_SRC)
+AC_SUBST(R_PATCH_SRC)
+AC_SUBST(R_GZ)
+AC_SUBST(R_URL)
+
+
+
+
 dnl md5 checker program
 MD5PRG="md5sum"
 MD5CNT=1

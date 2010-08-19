@@ -215,6 +215,10 @@ ifeq (@COMPILE_NC@,yes)
 	@echo "Building netcdf"
 	$(call dobuild,@NC4_URL@,@NC4_GZ@,@EXTERNALS@/NetCDF,@NC_FORTRAN@,  --enable-netcdf-4 --with-hdf5=@HDF5LOC@)
 endif
+ifeq (@COMPILE_R@,yes)
+	@echo "Building R"
+	$(call dobuild,@R_URL@,@R_GZ@,@EXTERNALS@)
+endif
 ifeq (@COMPILE_CMAKE@,yes)
 	@echo "Couldn't find a valid cmake, building it"
 	$(call dobuild,@CMAKE_URL@,@CMAKE_GZ@,@EXTERNALS@, cd Utilities/cmcurl  ; cp ../../../../exsrc/src/cmake/multi.c . ; cd ../..  ,  --parallel=@NCPUS@ )
