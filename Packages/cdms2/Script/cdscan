@@ -5,7 +5,7 @@ import getopt
 import cdms2
 from cdms2.grid import lookupArray
 from cdms2.axis import calendarToTag, tagToCalendar
-from cdms2.cdmsobj import CdFromObject,CdString,CdScalar,CdFloat,CdDouble,CdShort,CdInt,CdLong
+from cdms2.cdmsobj import CdFromObject,CdString,CdScalar,CdFloat,CdDouble,CdShort,CdInt,CdLong,CdInt64
 import numpy
 import string
 import cdtime
@@ -1157,8 +1157,7 @@ def main(argv):
                         levdict[(basepath,varlev.id)] = (values, varlev.units, None)
 
             if forecast:
-                if not (basepath, 'fctau0') in fcdict:
-                    # ... "k in m" is the Python 3 equivalent of "m.has_key(k)"
+                if not fcdict.has_key((basepath, 'fctau0')):
                     fcdict[(basepath, 'fctau0')] = ( [fctau0], None, None )
 
             if filemap.has_key(varname):
