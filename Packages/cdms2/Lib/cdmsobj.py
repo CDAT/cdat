@@ -19,6 +19,7 @@ CdByte = cdmsNode.CdByte
 CdShort = cdmsNode.CdShort
 CdInt = cdmsNode.CdInt
 CdLong = cdmsNode.CdLong
+CdInt64 = cdmsNode.CdInt64
 CdFloat = cdmsNode.CdFloat
 CdDouble = cdmsNode.CdDouble
 CdString = cdmsNode.CdString

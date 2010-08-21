@@ -27,12 +27,13 @@ CdByte = CDML.CdByte
 CdShort = CDML.CdShort
 CdInt = CDML.CdInt
 CdLong = CDML.CdLong
+CdInt64 = CDML.CdInt64
 CdFloat = CDML.CdFloat
 CdDouble = CDML.CdDouble
 CdString = CDML.CdString
 CdFromObject = CDML.CdFromObject
 CdAny = CDML.CdAny
-CdDatatypes = [CdChar,CdByte,CdShort,CdInt,CdLong,CdFloat,CdDouble,CdString]
+CdDatatypes = [CdChar,CdByte,CdShort,CdInt,CdLong,CdInt64,CdFloat,CdDouble,CdString]
 
 CdScalar = CDML.CdScalar
 CdArray = CDML.CdArray
@@ -42,14 +43,14 @@ NumericToCdType = {numpy.sctype2char(numpy.float32):CdFloat,
                    numpy.sctype2char(numpy.int16):CdShort,
                    numpy.sctype2char(numpy.int32):CdInt,
                    numpy.sctype2char(numpy.int):CdLong,
-                   numpy.sctype2char(numpy.int64):CdLong,
+                   numpy.sctype2char(numpy.int64):CdInt64,
                    numpy.sctype2char(numpy.intc):CdLong,
                    numpy.sctype2char(numpy.int8):CdByte,
                    'c':CdChar,
                    'B':'B',
                    'H':'H',
                    'L':'L',
-                   'q':CdLong,
+                   'q':CdInt64,
                    'Q':'Q',
                    'S':'S'
                    }
@@ -58,7 +59,8 @@ CdToNumericType = {CdChar:'c',
                    CdByte:numpy.int8,
                    CdShort:numpy.int16,
                    CdInt:numpy.int32,
-                   CdLong:numpy.int64,  # <<< This was int, any problems with int64??
+                   CdLong:numpy.int,
+                   CdInt64:numpy.int64,
                    CdFloat:numpy.float32,
                    CdDouble:numpy.float}
 
