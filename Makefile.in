@@ -53,7 +53,7 @@ doprolog = rm -rf logs/$(2).LOG ; \
 	../checked_get.sh $(2) $(1)/$(2)  @KEEPLOGa@ ; \
 	echo "../checked_get.sh $(2) http://rainbow.llnl.gov/dist/cdat/resources/$(2)"  @KEEPLOGa@ ; \
 	../checked_get.sh $(2) http://rainbow.llnl.gov/dist/cdat/resources/$(2)  @KEEPLOGa@ ; \
-	mycd=`echo $(2)` ; mycd2=`echo $${mycd:0:5}` ; mycd2=`echo $${mycd2%%.*}` ; echo "cd "$${mycd2}* @KEEPLOGa@; cd $${mycd2}*  @KEEPLOGa@;\
+	mycd=`echo $(2)` ; mycd2=`echo ${mycd:0:5}` ; mycd2=`echo ${mycd2%%.*}` ; echo "cd "${mycd2}* @KEEPLOGa@; cd ${mycd2}*  @KEEPLOGa@;\
 	$(call dosetenv) @KEEPLOGa@
 dobuild_keyed = @$(call doprolog,$(1),$(2))  \
 	echo "CFLAGS=\"@CFLAGS@\";" @KEEPLOGa@; \
