@@ -257,7 +257,7 @@ class DatasetVariable(AbstractVariable):
         or template is present.
         """
         if hasattr(self.parent,'cdms_filemap'):
-            id, tstart, tend, levstart, levend, fcstart, fcent = matchnames
+            id, tstart, tend, levstart, levend, fcstart, fcend = matchnames
             filename = self.parent._filemap_[(self.id, tstart, levstart, fcstart)]
             # ... filemap uses dataset IDs
         else:
