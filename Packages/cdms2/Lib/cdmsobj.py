@@ -322,7 +322,8 @@ def getTimeAsString(spec,time):
 
 # Generate a file path, given a template and matchname list.
 # matchnames is a list [varname,time,etime,level,elevel], where
-# any or all elems may be None
+# any or all elems may be None.  If matchnames be a longer list,
+# it is not an error but the additional elements are ignored.
 def getPathFromTemplate(template,matchnames):
 
     # Map spec to value string
@@ -330,7 +331,7 @@ def getPathFromTemplate(template,matchnames):
     def retpath(matchobj, matchnames=matchnames):
         spec = matchobj.group(0)
         pat,name,dimtype,pos = _specifierMap[spec]
-        var,time,etime,level,elevel = matchnames
+        var,time,etime,level,elevel = matchnames[0:5]
 
         if dimtype=='var':
             if var is None:
@@ -488,7 +489,7 @@ class CdmsObj (object):
                                 attval = string.atof(attval)
                             except:
                                 raise RuntimeError,"%s=%s must be a float"%(attname,attval)
-                        elif reqtype in (CdShort,CdInt,CdLong):
+                        elif reqtype in (CdShort,CdInt,CdLong,CdInt64):
                             try:
                                 attval = string.atoi(attval)
                             except:
