@@ -235,7 +235,7 @@ class DatasetVariable(AbstractVariable):
                     end = cdtime.reltime(time1,axis.units).tocomp(cal)
             matchnames[1] = start
             matchnames[2] = end
-        elif axis.id=='fctau0':    # forecast axis
+        elif axis.isForecast():
             start = axis.getValue()[interval[0]]
             end   = axis.getValue()[interval[1]-1]
             matchnames[5] = start
@@ -273,7 +273,7 @@ class DatasetVariable(AbstractVariable):
         if hasattr(self.parent,'cdms_filemap'):
             if axis.isTime():
                 partition = self._varpart_[0]
-            elif axis.id=='fctau0':  # forecast
+            elif axis.isForecast():
                 partition = axis.partition
             else:                  # level
                 partition = self._varpart_[1]
@@ -492,7 +492,7 @@ class DatasetVariable(AbstractVariable):
         # as this slice's corresponding index in that direction.
         fci = None
         for i in range(len(self.domain)):
-            if self.domain[i][0].id == 'fctau0':
+            if self.domain[i][0].isForecast():
                 fci = i
                 fcv = initslist[i].start
                 break
