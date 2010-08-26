@@ -43,6 +43,14 @@ def two_times_from_one( t ):
         tl += tc.second.__int__()
     return tl,tc
 
+def comptime( t ):
+    """Input is a time representation, either as the long int used in the cdscan
+    script, or a string in the format "2010-08-25 15:26:00", or as a cdtime comptime
+    (component time) object.
+    Output is the same time a cdtime.comptime (component time)."""
+    tl,tc = two_times_from_one( t )
+    return tc
+
 class forecast():
     """represents a forecast starting at a single time"""
 
@@ -268,7 +276,8 @@ class forecasts():
         if fcss==None:
             fcss = self.fcs
         # TO DO: see whether I can get an axis without starting with a variable name.
-        # Most variables will have a suitable domain.
+        # Most variables will have a suitable domain.  The variable is used here
+        # to get a domain, i.e. a set of axes.
 
         var = self.dataset[varname]
         # ... var is a DatasetVariable, used here just for its domain
@@ -278,7 +287,7 @@ class forecasts():
         # those forecasts in fcss.
         for domitem in dom:
             # The domain will have several directions, e.g. forecast, level, latitude.
-            # There should be only one forecast case, named fctau0.
+            # There should be only one forecast case, whose default id is 'fctau0'.
             # domitem is a tuple (axis,start,length,true_length) where
             # axis is a axis.Axis and the rest of the tuple is int's.
             # I don't know what true_length is, but it doesn't seem to get used
@@ -294,6 +303,11 @@ class forecasts():
                 axis._data_ = [ f.fctl for f in fcss ]
                 axis.length = len(axis._data_)
                 axis.partition = axis.partition[0:axis.length]
+                axis.axis = 'F'
+                timeaxis = var.getTime()
+                if not hasattr(axis,'calendar') and timeaxis:
+                    axis.calendar = timeaxis.calendar
+                
         return ( axis, domitem1, domitem2, domitem3 )
 
 
