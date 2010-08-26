@@ -91,13 +91,22 @@ class forecast():
     __str__ = __repr__
 
 
+def available_forecasts( dataset_file, path="" ):
+    """Returns a list of forecasts (as their generating times) which are
+    available through the specified cdscan-generated dataset xml file.
+    The forecasts are given in 64-bit integer format, but can be converted
+    to component times with the function two_times_from_one.
+    This function may help in choosing the right arguments for initializing
+    a "forecasts" (forecast set) object.
+    """
+    dataset=cdms2.openDataset( dataset_file, dpath=path )
+    fm=cdms2.dataset.parseFileMap(dataset.cdms_filemap)
+    alltimesl =[ f[4] for f in fm[0][1] ]  # 64-bit (long) integers
+    dataset.close()
+    return alltimesl
+
 class forecasts():
     """represents a set of forecasts"""
-
-# >>> There should be a way to determine what forecast_times are available
-# >>> Also, we _could_ have a default forecast_times to be "all times",
-# >>> but I'm inclined to require the times so as to open no more files than
-# >>> needed.  Is that really an issue?
 
     def __init__( self, dataset_file, forecast_times, path="" ):
         """Creates a set of forecasts.  Normally you do it by something like
@@ -116,7 +125,8 @@ class forecasts():
         t between the min and max times, e.g. min_time <= t < max_time .
         (ii) If you use a list, it will be the exact start (tau=0) times for the
         forecasts to be included.
-        (iii) If you use a 3-item tuple, the third component of the tuple is the
+        (iii) If you use a 3-item tuple, the first items are (min_time,max_time)
+        as in a 2-item tuple.  The third component of the tuple is the
         open-closed string.  This determines whether endpoints are included
         The first character should be 'o' or 'c' depending on whether you want t with
         min_time<t or min_time<=t.  Similarly the second character should be 'o' or c'
@@ -275,12 +285,9 @@ class forecasts():
         be limited to them."""
         if fcss==None:
             fcss = self.fcs
-        # TO DO: see whether I can get an axis without starting with a variable name.
-        # Most variables will have a suitable domain.  The variable is used here
-        # to get a domain, i.e. a set of axes.
 
         var = self.dataset[varname]
-        # ... var is a DatasetVariable, used here just for its domain
+        # ... var is a DatasetVariable, used here just for two of its domain's axes
         dom = copy.deepcopy(getattr(var,'domain',[]))
         # ...this 'domain' attribute has an element with an axis, etc.
         # representing all forecasts; so we want to cut it down to match
