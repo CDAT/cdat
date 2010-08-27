@@ -644,6 +644,7 @@ def main(argv):
     ignoreOpenError = False
     excludePattern = None
     includePattern = None
+    forecast = False
     for flag, arg in args:
         if flag=='-a':
             aliasMapFile = arg
