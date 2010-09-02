@@ -78,7 +78,7 @@ Options:
                    This is not compatible with the -i, -r, -t, or -l options.
                    A file can contain data for exactly one forecast; its generating time
                    (aka run time, analysis time, starting time, tau=0 time)
-                   is specified by the nbdate,nbsec attributes.
+                   is specified by the nbdate,nbsec variables.
 
     -h:            print a help message.
 
