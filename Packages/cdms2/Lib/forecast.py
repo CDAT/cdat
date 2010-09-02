@@ -54,7 +54,7 @@ def comptime( t ):
 class forecast():
     """represents a forecast starting at a single time"""
 
-    def __init__( self, tau0time, dataset_list, path="" ):
+    def __init__( self, tau0time, dataset_list, path="." ):
         """tau0time is the first time of the forecast, i.e. the time at which tau=0.
         dataset_list is used to get the forecast file from the forecast time.
         Each list item should look like this example:
@@ -91,7 +91,7 @@ class forecast():
     __str__ = __repr__
 
 
-def available_forecasts( dataset_file, path="" ):
+def available_forecasts( dataset_file, path="." ):
     """Returns a list of forecasts (as their generating times) which are
     available through the specified cdscan-generated dataset xml file.
     The forecasts are given in 64-bit integer format, but can be converted
@@ -108,7 +108,7 @@ def available_forecasts( dataset_file, path="" ):
 class forecasts():
     """represents a set of forecasts"""
 
-    def __init__( self, dataset_file, forecast_times, path="" ):
+    def __init__( self, dataset_file, forecast_times, path="." ):
         """Creates a set of forecasts.  Normally you do it by something like
         f = forecasts( 'file.xml', (min_time, max_time) )
         or
@@ -143,7 +143,7 @@ class forecasts():
         contains filenames without complete paths.
          
         As for the forecast class, this opens files when initiated, so when you
-        are finished with the forecats, you should close the files by calling
+        are finished with the forecasts, you should close the files by calling
         forecasts.close() .
         """
 
