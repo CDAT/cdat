@@ -17569,12 +17569,10 @@ PyVCS_cgm(PyVCScanvas_Object *self, PyObject *args)
 */
 #ifdef X11WM
         if (self->connect_id.display == 0) {
-#else
-	  if (self->connect_id.cr == NULL) {
-#endif
            PyErr_SetString(PyExc_TypeError, "VCS Canvas is not displayed.");
 	   return NULL;
         }
+#endif
 
 	if (!PyArg_ParseTuple(args, "s|s", &cgm_name, &mode)) {
 	   PyErr_SetString(PyExc_TypeError, "Must provide an output cgm name.");
@@ -17635,12 +17633,10 @@ PyVCS_svg(PyVCScanvas_Object *self, PyObject *args)
 */
 #ifdef X11WM
         if (self->connect_id.display == 0) {
-#else
-	  if (self->connect_id.cr == NULL) {
-#endif
            PyErr_SetString(PyExc_TypeError, "VCS Canvas is not displayed.");
 	   return NULL;
         }
+#endif
 
 	if (!PyArg_ParseTuple(args, "sii", &ps_name, &W, &H)) {
 	   PyErr_SetString(PyExc_TypeError, "Must provide an output ps name.");
@@ -17701,12 +17697,10 @@ PyVCS_png(PyVCScanvas_Object *self, PyObject *args)
          */
 #ifdef X11WM
         if (self->connect_id.drawable == 0) {
-#else
-	  if (self->connect_id.cr == NULL) {
-#endif
-           PyErr_SetString(PyExc_TypeError, "VCS Canvas is not displayed.");
+	    PyErr_SetString(PyExc_TypeError, "VCS Canvas is not displayed.");
 	   return NULL;
         }
+#endif
 
 	if (!PyArg_ParseTuple(args, "sii", &ps_name, &W, &H)) {
 	   PyErr_SetString(PyExc_TypeError, "Must provide an output png name and width/height");
@@ -17767,12 +17761,10 @@ PyVCS_pdf(PyVCScanvas_Object *self, PyObject *args)
          */
 #ifdef X11WM
         if (self->connect_id.drawable == 0) {
-#else
-	  if (self->connect_id.cr == NULL) {
-#endif
            PyErr_SetString(PyExc_TypeError, "VCS Canvas is not displayed.");
 	   return NULL;
         }
+#endif
 
 	if (!PyArg_ParseTuple(args, "sii", &ps_name, &W, &H)) {
 	   PyErr_SetString(PyExc_TypeError, "Must provide an output pdf name and width/height");
