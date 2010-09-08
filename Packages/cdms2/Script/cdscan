@@ -526,7 +526,8 @@ def setNodeDict(node, dict):
             datatype = CdString
         node.attribute[key]=(value,datatype)
 
-def initialize_filemap( filemap, timedict, levdict, timeid ):
+def initialize_filemap( filemap, timedict, levdict, timeid, extendDset, splitOnTime, \
+                            referenceTime, timeIsLinear, referenceDelta, splitOnLevel ):
     # This function was formerly part of the body of "main".
         # Initialize filemap : varid => (tc0, tc1, lc0, lc1, path, timeid, levid)
         # where tc0 is the first time index relative to the reference time, tc1 the last,
