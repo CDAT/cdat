@@ -527,7 +527,8 @@ def setNodeDict(node, dict):
         node.attribute[key]=(value,datatype)
 
 def initialize_filemap( filemap, timedict, levdict, timeid, extendDset, splitOnTime, \
-                            referenceTime, timeIsLinear, referenceDelta, splitOnLevel ):
+                        referenceTime, timeIsLinear, referenceDelta, splitOnLevel \
+                        dirlen, overrideCalendar ):
     # This function was formerly part of the body of "main".
         # Initialize filemap : varid => (tc0, tc1, lc0, lc1, path, timeid, levid)
         # where tc0 is the first time index relative to the reference time, tc1 the last,
@@ -880,7 +881,8 @@ def main(argv):
         # levdict : (path, levelid) => (levelarray, levelunits, None)
         #
         initialize_filemap( filemap, timedict, levdict, timeid, extendDset, splitOnTime, \
-                            referenceTime, timeIsLinear, referenceDelta, splitOnLevel )
+                            referenceTime, timeIsLinear, referenceDelta, splitOnLevel \
+                            dirlen, overrideCalendar )
 
         # axisdict : id => transient_axis
         #   for non-partitioned axes only
