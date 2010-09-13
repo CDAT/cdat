@@ -78,7 +78,7 @@ Options:
                    This is not compatible with the -i, -r, -t, or -l options.
                    A file can contain data for exactly one forecast; its generating time
                    (aka run time, analysis time, starting time, tau=0 time)
-                   is specified by the nbdate,nbsec attributes.
+                   is specified by the nbdate,nbsec variables.
 
     -h:            print a help message.
 
@@ -526,7 +526,8 @@ def setNodeDict(node, dict):
             datatype = CdString
         node.attribute[key]=(value,datatype)
 
-def initialize_filemap( filemap, timedict, levdict, timeid ):
+def initialize_filemap( filemap, timedict, levdict, timeid, extendDset, splitOnTime, \
+                            referenceTime, timeIsLinear, referenceDelta, splitOnLevel ):
     # This function was formerly part of the body of "main".
         # Initialize filemap : varid => (tc0, tc1, lc0, lc1, path, timeid, levid)
         # where tc0 is the first time index relative to the reference time, tc1 the last,
@@ -644,6 +645,7 @@ def main(argv):
     ignoreOpenError = False
     excludePattern = None
     includePattern = None
+    forecast = False
     for flag, arg in args:
         if flag=='-a':
             aliasMapFile = arg
