@@ -3,7 +3,7 @@
 	url = http://esg-repo.llnl.gov/git/cmor.git
 [submodule "contrib/eof2"]
 	path = contrib/eof2
-	url = git@esg-repo.llnl.gov:eof2.git
+	url = http://esg-repo.llnl.gov/git/eof2.git
 [submodule "contrib/windfield"]
 	path = contrib/windfield
-	url = git@esg-repo.llnl.gov:windfield.git
+	url = http://esg-repo.llnl.gov/git/windfield.git
