@@ -210,15 +210,14 @@ class DatasetVariable(AbstractVariable):
 
     def genMatch(self, axis, interval, matchnames):
         """Helper function for expertPaths.
-        axis is a partitioned axis, either time or vertical level.
+        axis is a partitioned axis, either time or vertical level or forecast.
         interval is an index interval (istart, iend).
-        matchnames is a partially filled list [id, timestart, timeend, levstart, levend]
+        matchnames is a partially filled list [id, timestart, timeend, levstart, levend, fc]
           If a filemap is used, matchnames has indices, otherwise has coordinates.
 
         Function modifies matchnames based on axis and interval,
         returns the modified matchnames tuple.
         """
-
         if axis.isTime():
             if hasattr(self.parent,'cdms_filemap'):
                 start = interval[0]
@@ -236,6 +235,11 @@ class DatasetVariable(AbstractVariable):
                     end = cdtime.reltime(time1,axis.units).tocomp(cal)
             matchnames[1] = start
             matchnames[2] = end
+        elif axis.isForecast():
+            start = axis.getValue()[interval[0]]
+            end   = axis.getValue()[interval[1]-1]
+            matchnames[5] = start
+            matchnames[6] = end
         else:
             if hasattr(self.parent,'cdms_filemap'):
                 start = interval[0]
@@ -253,8 +257,9 @@ class DatasetVariable(AbstractVariable):
         or template is present.
         """
         if hasattr(self.parent,'cdms_filemap'):
-            id, tstart, tend, levstart, levend = matchnames
-            filename = self.parent._filemap_[(self.id, tstart, levstart)] # filemap uses dataset IDs
+            id, tstart, tend, levstart, levend, fcstart, fcend = matchnames
+            filename = self.parent._filemap_[(self.id, tstart, levstart, fcstart)]
+            # ... filemap uses dataset IDs
         else:
             filename = getPathFromTemplate(template,matchnames)
         return filename
@@ -268,7 +273,9 @@ class DatasetVariable(AbstractVariable):
         if hasattr(self.parent,'cdms_filemap'):
             if axis.isTime():
                 partition = self._varpart_[0]
-            else:
+            elif axis.isForecast():
+                partition = axis.partition
+            else:                  # level
                 partition = self._varpart_[1]
         else:                           # Template method
             partition = axis.partition
@@ -311,7 +318,7 @@ class DatasetVariable(AbstractVariable):
 
         # Handle rank-0 variables separately
         if self.rank() == 0:
-            matchnames = [realid,None,None,None,None]
+            matchnames = [realid,None,None,None,None,None,None]
             filename = self.getFilePath(matchnames, template)
 
             result = (0, (), (filename, []))
@@ -335,7 +342,7 @@ class DatasetVariable(AbstractVariable):
 
         # If no partitioned axes, just read the data
         if npart==0:
-            matchnames = [realid,None,None,None,None]
+            matchnames = [realid,None,None,None,None,None,None]
             filename = self.getFilePath(matchnames, template)
             result = (0, (), (filename, slicelist))
 
@@ -371,7 +378,7 @@ class DatasetVariable(AbstractVariable):
                 prevhigh = interval[1]
 
                 # generate the filename
-                matchnames = [realid, None, None, None, None]
+                matchnames = [realid, None, None, None, None,None,None]
                 matchnames = self.genMatch(axis, interval, matchnames)
                 filename = self.getFilePath(matchnames, template)
 
@@ -416,7 +423,7 @@ class DatasetVariable(AbstractVariable):
                 prevhigh1 = interval1[1]
 
                 # generate matchnames
-                matchnames = [realid, None, None, None, None]
+                matchnames = [realid, None, None, None, None,None,None]
                 matchnames = self.genMatch(axis1, interval1, matchnames)
 
                 # adjust the partslice for the interval offset
@@ -481,6 +488,15 @@ class DatasetVariable(AbstractVariable):
         # This does most of the work
         npart, idims, partitionSlices = self.expertPaths(slist)
 
+        # If the dataset includes a forecast axis, find it now, as well
+        # as this slice's corresponding index in that direction.
+        fci = None
+        for i in range(len(self.domain)):
+            if self.domain[i][0].isForecast():
+                fci = i
+                fcv = initslist[i].start
+                break
+
         # If no intersection, return an 'empty' array.
         if partitionSlices is None:
             return numpy.ma.zeros((0,),self._numericType_)
@@ -504,7 +520,18 @@ class DatasetVariable(AbstractVariable):
             f = self.parent.openFile(filename,'r')
             try:
                 var = f.variables[self.name_in_file]
-                result = self._returnArray(apply(var.getitem,tuple(slicelist)),0)
+                if fci==None:
+                    result = self._returnArray(apply(var.getitem,tuple(slicelist)),0)
+                else:
+                    # If there's a forecast axis, the file doesn't know about it so
+                    # don't use it in slicing data out of the file.
+                    result = self._returnArray( apply( var.getitem, \
+                                   tuple( slicelist[0:fci]+slicelist[fci+1:] ) ), \
+                                                0 )
+                    # But the result still needs an index in the forecast direction,
+                    # which is simple to do because there is only one forecast per file:
+                    result.resize( map(lenSlice,slicelist) )
+
             finally:
                 f.close()
             sh = result.shape
@@ -529,7 +556,17 @@ class DatasetVariable(AbstractVariable):
                     f = self.parent.openFile(filename,'r')
                     try:
                         var = f.variables[self.name_in_file]
-                        chunk = apply(var.getitem,tuple(slicelist))
+                        if fci==None:
+                            chunk = apply(var.getitem,tuple(slicelist))
+                        else:
+                            # If there's a forecast axis, the file doesn't know about it so
+                            # don't use it in slicing data out of the file.
+                            chunk = apply( var.getitem, \
+                                           tuple( slicelist[0:fci]+slicelist[fci+1:] ) )
+                            # But the chunk still needs an index in the forecast direction,
+                            # which is simple to do because there is only one forecast per file:
+                            chunk.resize( map(lenSlice,slicelist) )
+
                     finally:
                         f.close()
                     sh = chunk.shape
@@ -567,7 +604,17 @@ class DatasetVariable(AbstractVariable):
                         f = self.parent.openFile(filename,'r')
                         try:
                             var = f.variables[self.name_in_file]
-                            chunk = apply(var.getitem,tuple(slicelist))
+                            if fci==None:
+                                chunk = apply(var.getitem,tuple(slicelist))
+                            else:
+                                # If there's a forecast axis, the file doesn't know about it so
+                                # don't use it in slicing data out of the file.
+                                chunk = apply( var.getitem, \
+                                               tuple( slicelist[0:fci]+slicelist[fci+1:] ) )
+                                # But the chunk still needs an index in the forecast direction,
+                                # which is simple to do because there is only one forecast per file:
+                                chunk.resize( map(lenSlice,slicelist) )
+
                         finally:
                             f.close()
                         sh = chunk.shape
