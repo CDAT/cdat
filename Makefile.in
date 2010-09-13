@@ -53,7 +53,7 @@ doprolog = rm -rf logs/$(2).LOG ; \
 	../checked_get.sh $(2) $(1)/$(2)  @KEEPLOGa@ ; \
 	echo "../checked_get.sh $(2) http://rainbow.llnl.gov/dist/cdat/resources/$(2)"  @KEEPLOGa@ ; \
 	../checked_get.sh $(2) http://rainbow.llnl.gov/dist/cdat/resources/$(2)  @KEEPLOGa@ ; \
-	mycd=`echo $(2)` ; mycd2=`echo ${mycd:0:5}` ; mycd2=`echo ${mycd2%%.*}` ; echo "cd "${mycd2}* @KEEPLOGa@; cd ${mycd2}*  @KEEPLOGa@;\
+	mycd=`echo $(2)` ; mycd2=`echo $${mycd:0:5}` ; mycd2=`echo $${mycd2%%.*}` ; echo "cd "$${mycd2}* @KEEPLOGa@; cd $${mycd2}*  @KEEPLOGa@;\
 	$(call dosetenv) @KEEPLOGa@
 dobuild_keyed = @$(call doprolog,$(1),$(2))  \
 	echo "CFLAGS=\"@CFLAGS@\";" @KEEPLOGa@; \
@@ -227,15 +227,15 @@ ifeq (@BUILDQT@,yes)
 	@echo "Building Qt (extremely long, several hours, we recommend downloading the binaries from @QT_URL@ !)"
 	$(call dobuild,@QT_URL@,@QT_GZ@,@EXTERNALS@,, @QTCONFIGOPT@ < ../../exsrc/src/o.txt )
 endif
-ifeq (@COMPILE_VTK@,yes)
-	@echo "Building VTK (long)"
-	mkdir build/VTK;mkdir build/VTK-build;cd build;../checked_get.sh @VTK_GZ@ @VTK_URL@/@VTK_GZ@ ; tar xzf ../sources/vtk-* ; cd VTK-build;cp ../../exsrc/CMakeCache.txt .;env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH="@EXTERNALS@/lib:${LD_LIBRARY_PATH}" PATH="@EXTERNALS@/bin:${PATH}" cmake CMakeCache.txt;make;make install
-endif
 ifeq (@BUILDVIS@,yes)
 	@echo "Building SIP, "${PYVER}
 	$(call dobuild,@SIP_URL@,@SIP_GZ@,@EXTERNALS@, @PYTHON@ configure.py -b @prefix@/bin -d @prefix@/lib/python@PYVER@/site-packages -e @prefix@/include -v @prefix@/share ;  )
 	@echo "Building PyQt"
 	$(call dobuild,@PyQt_URL@,@PyQt_GZ@,@EXTERNALS@, @PYTHON@ configure.py -b @prefix@/bin -d @prefix@/lib/python@PYVER@/site-packages -v @prefix@/include -v @prefix@/share -q @QMAKE@ < ../../exsrc/src/yes.txt ;  )
+endif
+ifeq (@COMPILE_VTK@,yes)
+	@echo "Building VTK (long)"
+	mkdir build/VTK;mkdir build/VTK-build;cd build;../checked_get.sh @VTK_GZ@ @VTK_URL@/@VTK_GZ@ ; tar xzf ../sources/vtk-* ; cd VTK-build;cp ../../exsrc/CMakeCache.txt .;env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH="@EXTERNALS@/lib:${LD_LIBRARY_PATH}" PATH="@EXTERNALS@/bin:${PATH}" cmake CMakeCache.txt;make;make install
 endif
 ifeq (@SETUPTOOLS@,yes)
 	@echo "Building setuptools"
