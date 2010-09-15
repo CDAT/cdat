@@ -1,6 +1,6 @@
 import numpy
 import cdms2
-from markError import clearError,markError
+from markError import clearError,markError,reportError
 clearError()
 
 print 'Test 18: numpy types with NetCDF4 ...',
@@ -28,4 +28,5 @@ try:
 except:
     pass
 f.close()
-print 'OK'
+reportError()
+

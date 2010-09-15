@@ -1,9 +1,9 @@
 [submodule "Packages/cmor"]
 	path = Packages/cmor
-	url = http://esg-repo.llnl.gov/git/cmor.git
+	url = http://esgf.org/git/cmor.git
 [submodule "contrib/eof2"]
 	path = contrib/eof2
-	url = git@esg-repo.llnl.gov:eof2.git
+	url = http://esgf.org/git/eof2.git
 [submodule "contrib/windfield"]
 	path = contrib/windfield
-	url = git@esg-repo.llnl.gov:windfield.git
+	url = http://esgf.org/git/windfield.git
