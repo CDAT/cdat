@@ -1,6 +1,6 @@
 #include <cairo.h>
 #include "xgks.h"
-#include <X.h>
+/* #include <X.h> */
 #ifdef QTWM
 #include "Qt/Qt_X_emul.h"
 #endif

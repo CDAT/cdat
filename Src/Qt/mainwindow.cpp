@@ -320,7 +320,7 @@ void MainWindow::actionTriggered(QAction *a) {
 
 bool MainWindow::event(QEvent *event)
 {
-  bool res;
+  bool res = true;
   QEvent::Type etype;
   extern void event_handler(PyVCScanvas_Object *self,  QEvent *event);
   //fprintf(stderr,"in event received event: %i\n",event->type());
@@ -346,8 +346,9 @@ bool MainWindow::event(QEvent *event)
   }
   else if (event->type() == VCS_MENU_EVENT) {
     QMenu *menu = new QMenu();
+    QList<QString> strList;
     PyObject *canvas, *user_act_nms, *user_action_name;
-    char *astring;
+    //char *astring;
     int i,nactions;
 
     connect(menu, SIGNAL(triggered(QAction*)), this, SLOT(actionTriggered(QAction*)));
@@ -355,28 +356,22 @@ bool MainWindow::event(QEvent *event)
       PY_GRAB_THREAD
       canvas  = getPyCanvas( this->vcs_obj );
     user_action_name = PyString_FromString("user_actions_names");
-    user_act_nms = PyObject_GetAttr(canvas,user_action_name);
+    user_act_nms = PyObject_GetAttr(canvas, user_action_name);
     Py_XDECREF(user_action_name);
     if PyList_Check(user_act_nms)
       {
         nactions=PyList_Size(user_act_nms);
         for (i=0;i<nactions;i+=1)
           {
-	    
             user_action_name = PyList_GetItem(user_act_nms,i);
             if PyString_Check(user_action_name) 
               {
-                astring = PyString_AsString(user_action_name);
+                strList << QString(PyString_AsString(user_action_name));
               }
             else
               {
-                astring = (char *)malloc(sizeof(char)*1024);
-                sprintf(astring,"Action %d",i);
+                strList << QString("Action %1").arg(i);
               }
-            menu->addAction(astring);
-            if PyString_Check(user_action_name) {}
-            else free(astring);
-			       
           }
       }
     else
@@ -387,11 +382,14 @@ bool MainWindow::event(QEvent *event)
     Py_XDECREF(user_act_nms);
     PY_RELEASE_THREAD
       PY_LEAVE_THREADS
-     
-      menupos.setX(((QVCSEvent *)event)->point.x);
+
+      for (int i=0; i<strList.size(); ++i)
+        menu->addAction(strList[i]);
+    menupos.setX(((QVCSEvent *)event)->point.x);
     menupos.setY(((QVCSEvent *)event)->point.y);
     menu->popup(QCursor::pos());
     menu->exec();
+    disconnect(menu, SIGNAL(triggered(QAction*)), this, SLOT(actionTriggered(QAction*)));
     delete menu;
   }
   else if (event->type() == VCS_PROP_EVENT) {
@@ -433,21 +431,21 @@ bool MainWindow::event(QEvent *event)
     QToolTip::hideText();
   }
 
-  int button_is_pressed = 0;
-  /* Events that are vcs mainloop */
+  // int button_is_pressed = 0;
+  // /* Events that are vcs mainloop */
+  // switch (etype) {
+  // case VCS_ButtonPress:
+  //   button_is_pressed = 1;
+  //   break;
+  // case VCS_ButtonRelease:    
+  //   button_is_pressed = 0;
+  //   break;
+  // default:
+  //   break;
+  // }
   switch (etype) {
   case VCS_ButtonPress:
-    button_is_pressed = 1;
-    break;
-  case VCS_ButtonRelease:    
-    button_is_pressed = 0;
-    break;
-  default:
-    break;
-  }
-  switch (etype) {
-  case VCS_ButtonPress:
-  case VCS_ButtonRelease:    
+  case VCS_ButtonRelease:
   case VCS_CirculateNotify:
   case VCS_ConfigureNotify:
   case VCS_CreateNotify:
@@ -487,7 +485,10 @@ bool MainWindow::event(QEvent *event)
     break;
   }
   //   vcsthreaddone.wakeAll();
-  res = QMainWindow::event(event);
+  if (etype==VCS_ButtonPress || etype==VCS_ButtonRelease)
+    res = true;
+  else
+    res = QMainWindow::event(event);
 
   //   if ( (etype==VCS_SHOW_EVENT) || (etype==VCS_DIM_EVENT) || (etype==VCS_DESKDIM_EVENT) || (etype==VCS_RESIZE_EVENT)|| (etype==VCS_PROP_EVENT) || (etype==VCS_INFO_EVENT) || (etype==VCS_HIDE_EVENT) || (etype==VCS_REPAINT_EVENT)) {
   //     ((MyThread *)((QVCSEvent *)event)->mythread)->done=true;

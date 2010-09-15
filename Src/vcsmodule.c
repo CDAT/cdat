@@ -869,33 +869,27 @@ update_end_of_animation( PyVCScanvas_Object *self)
 PyObject * 
 getPyCanvas( PyVCScanvas_Object *self)
 {
-  PyObject *mdict = NULL, *main = NULL, *dkeys=NULL,*dvalues=NULL, *canvas=NULL;
-  PyObject *dlist=NULL, *dvalue=NULL, *dnum=NULL;
+  PyObject *main = NULL, *dvalues=NULL, *canvas=NULL;
+  PyObject *dvalue=NULL, *dnum=NULL;
   int i, dsize;
   int canvas_num=0;
       
-    main = PyImport_ImportModule("__main__");
-  mdict = PyModule_GetDict( main ); /* borrowed ref */
-  dsize = PyDict_Size( mdict );
-  dkeys = PyDict_Keys( mdict);
-  dvalues = PyDict_Values( mdict );
+  main = PyImport_ImportModule("vcs");
+  dvalues = PyObject_GetAttrString(main, "canvaslist");
+  dsize = PyList_Size( dvalues );
   
   for (i = 0; i < dsize; i++) {
-    dlist = PyList_GetItem(dkeys, i); /* borrowed ref */
     dvalue=PyList_GetItem(dvalues, i); /* borrowed ref */
-    if (PyString_Check(dlist)) {      /* get the canvas object */
-      dnum = PyObject_CallMethod(dvalue, "canvasid", (char*)0);
-      canvas_num = (int) PyInt_AsLong (dnum);
-      if (canvas_num == self->canvas_id) {
-	canvas = PyList_GetItem(dvalues, i); /* borrowed ref */
-      }
+    dnum = PyObject_CallMethod(dvalue, "canvasid", (char*)0);
+    canvas_num = (int) PyInt_AsLong (dnum);
+    if (canvas_num == self->canvas_id) {
+      canvas = PyList_GetItem(dvalues, i); /* borrowed ref */
     }
+    Py_XDECREF( dnum );
   }
   
   Py_XDECREF( main );
-  Py_XDECREF( dkeys );
   Py_XDECREF( dvalues );
-  Py_XDECREF( dnum );
   return canvas;
   
 }

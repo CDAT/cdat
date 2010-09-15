@@ -8,7 +8,7 @@
  ************************************************************************/
 #include <X11/Intrinsic.h>
 #endif
-#include <cairo.h>
+#include <cairo/cairo.h>
 
 /*		A structure for Workstation descriptions is defined.	*/
 /*		Values are initialized in main.				*/
