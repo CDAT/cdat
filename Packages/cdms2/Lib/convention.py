@@ -20,6 +20,7 @@ level_aliases = AliasList(['plev'])
 longitude_aliases = AliasList([])
 latitude_aliases = AliasList([])
 time_aliases = AliasList([])
+forecast_aliases = AliasList([])
 
 class AbstractConvention:
 

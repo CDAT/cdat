@@ -367,6 +367,18 @@ class AbstractVariable(CdmsObj, Slab):
         else:
             return None
 
+    def getForecastTime(self):
+        "Get the first forecast time dimension, or None if not found"
+        for k in range(self.rank()):
+            axis = self.getAxis(k)
+            if axis.isForecast():
+                return axis
+                break
+        else:
+            return None
+    def getForecast(self):
+        return self.getForecastTime()
+
     def getLevel(self):
         """Get the first vertical level dimension in the domain, 
            or None if not found.

@@ -14,7 +14,8 @@ import string
 from cdmsobj import CdmsObj
 from axis import createAxis, TransientVirtualAxis
 from error import CDMSError
-from convention import AliasList, level_aliases, longitude_aliases, latitude_aliases, time_aliases
+from convention import AliasList, level_aliases, longitude_aliases, latitude_aliases, time_aliases,\
+     forecast_aliases
 from fvariable import FileVariable
 from variable import DatasetVariable
 from tvariable import TransientVariable
@@ -159,6 +160,12 @@ class AbstractCoordinateAxis(CdmsObj):
         id = string.lower(self.id)
         if (hasattr(self,'axis') and self.axis=='T'): return 1
         return (id[0:4] == 'time') or (id in time_aliases)
+
+    # Return true iff the axis is a forecast axis
+    def isForecast(self):
+        id = string.lower(self.id)
+        if (hasattr(self,'axis') and self.axis=='F'): return 1
+        return (id[0:6] == 'fctau0') or (id in forecast_aliases)
 
     def listall (self, all=None):
         "Get list of info about this axis."

@@ -24,6 +24,7 @@ CdByte = "Byte"
 CdShort = "Short"
 CdInt = "Int"
 CdLong = "Long"
+CdInt64 = "Int64"
 CdFloat = "Float"
 CdDouble = "Double"
 CdString = "String"
@@ -54,7 +55,7 @@ class CDML:
         dtd = {}
         dtd['attr'] = {
             'name': (Cdata,Required),
-            'datatype': (("Char","Byte","Short","Int","Long","Float","Double","String"),Required),
+            'datatype': (("Char","Byte","Short","Int","Long","Int64","Float","Double","String"),Required),
             }
         dtd['axis'] = {
             'id': (Id,Required),
@@ -65,7 +66,7 @@ class CDML:
             'comment': (Cdata,Implied),
             'component': (Cdata,Implied),
             'compress': (Cdata,Implied),
-            'datatype': (("Char","Byte","Short","Int","Long","Float","Double","String"),Required),
+            'datatype': (("Char","Byte","Short","Int","Long","Int64","Float","Double","String"),Required),
             'expand': (Idref,Implied),
             'interval': (Cdata,Implied),
             'isvar': ( ("true","false"),"true"),
@@ -138,7 +139,7 @@ class CDML:
             'associate': (Cdata,Implied),
             'axis': (Cdata,Implied),
             'comments': (Cdata,Implied),
-            'datatype': (("Char","Byte","Short","Int","Long","Float","Double","String"),Required),
+            'datatype': (("Char","Byte","Short","Int","Long","Int64","Float","Double","String"),Required),
             'grid_name': (Cdata,Implied),
             'grid_type': (Cdata,Implied),
             'long_name': (Cdata,Implied),

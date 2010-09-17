@@ -15,6 +15,7 @@ import cdmsobj
 from cdmsobj import CdmsObj, Max32int
 from sliceut import reverseSlice, splitSlice, splitSliceExt
 from error import CDMSError
+import forecast
 #import internattr
 from UserList import UserList
 class AliasList (UserList):
@@ -33,6 +34,7 @@ level_aliases = AliasList(['plev'])
 longitude_aliases = AliasList([])
 latitude_aliases = AliasList([])
 time_aliases = AliasList([])
+forecast_aliases = AliasList([])
 
 FileWasClosed = "File was closed for object: "
 InvalidBoundsArray = "Invalid boundary array: "
@@ -714,15 +716,26 @@ class AbstractAxis(CdmsObj):
         if (hasattr(self,'axis') and self.axis=='T'): return 1
         return (id[0:4] == 'time') or (id in time_aliases)
 
+    # Return true iff the axis is a forecast axis
+    def isForecast(self):
+        id = string.lower(self.id)
+        if (hasattr(self,'axis') and self.axis=='F'): return 1
+        return (id[0:6] == 'fctau0') or (id in forecast_aliases)
+    def isForecastTime(self):
+        return self.isForecast()
+
     def asComponentTime(self, calendar=None):
         "Array version of cdtime tocomp. Returns a list of component times."
         if not hasattr(self, 'units'):
             raise CDMSError, "No time units defined"
-        result = []
         if calendar is None:
             calendar = self.getCalendar()
-        for val in self[:]:
-            result.append(cdtime.reltime(val, self.units).tocomp(calendar))
+        if self.isForecast():
+            result = [ forecast.comptime(t) for t in self[:] ]
+        else:
+            result = []
+            for val in self[:]:
+                result.append(cdtime.reltime(val, self.units).tocomp(calendar))
         return result
     
     #
@@ -752,13 +765,18 @@ class AbstractAxis(CdmsObj):
 
         return result
 
-    def asRelativeTime(self):
+    def asRelativeTime( self, units=None ):
         "Array version of cdtime torel. Returns a list of component times."
-        if not hasattr(self, 'units'):
-            raise CDMSError, "No time units defined"
-        result = []
-        for val in self[:]:
-            result.append(cdtime.reltime(val, self.units))
+        if units==None or units=='None':
+            units = getattr(self,'units',None)
+            if units==None or units=='None':
+                raise CDMSError, "No time units defined"
+        if self.isForecast():
+            result = [ forecast.comptime(t).torel(units) for t in self[:] ]
+        else:
+            result = []
+            for val in self[:]:
+                result.append( cdtime.reltime( val, units ) )
         return result
 
     def toRelativeTime(self, units, calendar=None):
@@ -2136,7 +2154,7 @@ def axisMatches(axis, specification):
     """Return 1 or 0 depending on whether axis matches the specification.
        Specification must be one of:
        1. a string representing an axis id or one of 
-          the keywords time, latitude or lat, longitude or lon, or 
+          the keywords time, fctau0, latitude or lat, longitude or lon, or 
           lev or level. 
 
           axis may be surrounded with parentheses or spaces.
@@ -2161,6 +2179,8 @@ def axisMatches(axis, specification):
             return 1
         elif (s == 'time') or (s in time_aliases):
             return axis.isTime() 
+        elif (s == 'fctau0') or (s in forecast_aliases):
+            return axis.isForecast() 
         elif (s[0:3] == 'lat') or (s in latitude_aliases):
             return axis.isLatitude()
         elif (s[0:3] == 'lon') or (s in longitude_aliases):
