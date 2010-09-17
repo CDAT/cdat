@@ -888,6 +888,11 @@ PyQt_PATCH
 PyQt_MAJOR_SRC
 PyQt_MINOR_SRC
 PyQt_PATCH_SRC
+R_MAJOR_SRC
+R_MINOR_SRC
+R_PATCH_SRC
+R_GZ
+R_URL
 MD5PRG
 MD5CNT
 DOCMOR
@@ -1001,6 +1006,7 @@ X_LIBS
 X_EXTRA_LIBS
 COMPILE_VTK
 QTCONFIGOPT
+SECOND_DOLLAR
 EXTRAENV
 GREP
 EGREP
@@ -2299,11 +2305,11 @@ PMW_GZ=Pmw.${PMW_MAJOR_SRC}.${PMW_MINOR_SRC}.${PMW_PATCH_SRC}.tar.gz
 
 
 NUMPY_MAJOR=1
-NUMPY_MINOR=2
+NUMPY_MINOR=4
 NUMPY_PATCH=1
 NUMPY_MAJOR_SRC=1
-NUMPY_MINOR_SRC=4
-NUMPY_PATCH_SRC=1
+NUMPY_MINOR_SRC=5
+NUMPY_PATCH_SRC=0
 NUMPY_URL=http://downloads.sourceforge.net/project/numpy/NumPy/${NUMPY_MAJOR_SRC}.${NUMPY_MINOR_SRC}.${NUMPY_PATCH_SRC}
 NUMPY_GZ=numpy-${NUMPY_MAJOR_SRC}.${NUMPY_MINOR_SRC}.${NUMPY_PATCH_SRC}.tar.gz
 
@@ -2565,11 +2571,11 @@ VTK_GZ=vtk-${VTK_MAJOR_SRC}.${VTK_MINOR_SRC}.${VTK_PATCH_SRC}.tar.gz
 
 
 SIP_MAJOR=4
-SIP_MINOR=10
-SIP_PATCH=2
+SIP_MINOR=11
+SIP_PATCH=1
 SIP_MAJOR_SRC=4
-SIP_MINOR_SRC=10
-SIP_PATCH_SRC=5
+SIP_MINOR_SRC=11
+SIP_PATCH_SRC=1
 SIP_URL=http://www.riverbankcomputing.com/static/Downloads/sip${SIP_MAJOR_SRC}
 SIP_GZ=sip-${SIP_MAJOR_SRC}.${SIP_MINOR_SRC}.${SIP_PATCH_SRC}.tar.gz
 
@@ -2587,11 +2593,26 @@ SIP_GZ=sip-${SIP_MAJOR_SRC}.${SIP_MINOR_SRC}.${SIP_PATCH_SRC}.tar.gz
 
 PyQt_MAJOR=4
 PyQt_MINOR=7
-PyQt_PATCH=3
+PyQt_PATCH=6
 PyQt_MAJOR_SRC=4
 PyQt_MINOR_SRC=7
-PyQt_PATCH_SRC=4
+PyQt_PATCH_SRC=6
 PyQt_URL=http://www.riverbankcomputing.com/static/Downloads/PyQt${PyQt_MAJOR_SRC}
+
+R_MAJOR_SRC=2
+R_MINOR_SRC=11
+R_PATCH_SRC=1
+R_URL=http://cran.cnr.berkeley.edu
+R_GZ=R-${R_MAJOR_SRC}.${R_MINOR_SRC}.${R_PATCH_SRC}.tar.gz
+
+
+
+
+
+
+
+
+
 MD5PRG="md5sum"
 MD5CNT=1
 
@@ -5224,7 +5245,7 @@ ac_fc_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_fc_v_output" >&5
 FCFLAGS=$ac_save_FFLAGS
 
-rm -f conftest*
+rm -f -r conftest*
 
 # On HP/UX there is a line like: "LPATH is: /foo:/bar:/baz" where
 # /foo, /bar, and /baz are search directories for the Fortran linker.
@@ -5315,7 +5336,7 @@ ac_fc_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_fc_v_output" >&5
 FCFLAGS=$ac_save_FFLAGS
 
-rm -f conftest*
+rm -f -r conftest*
 
 # On HP/UX there is a line like: "LPATH is: /foo:/bar:/baz" where
 # /foo, /bar, and /baz are search directories for the Fortran linker.
@@ -5549,7 +5570,7 @@ ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
 
-rm -f conftest*
+rm -f -r conftest*
 
 # On HP/UX there is a line like: "LPATH is: /foo:/bar:/baz" where
 # /foo, /bar, and /baz are search directories for the Fortran linker.
@@ -5640,7 +5661,7 @@ ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
 
-rm -f conftest*
+rm -f -r conftest*
 
 # On HP/UX there is a line like: "LPATH is: /foo:/bar:/baz" where
 # /foo, /bar, and /baz are search directories for the Fortran linker.
@@ -6005,7 +6026,7 @@ _ACEOF
       eval "ac_im_$ac_var=\`\${MAKE-make} $ac_var 2>/dev/null | sed -n 's/^$ac_var=//p'\`"
     done
     # Open Windows xmkmf reportedly sets LIBDIR instead of USRLIBDIR.
-    for ac_extension in a so sl; do
+    for ac_extension in a so sl dylib la dll; do
       if test ! -f "$ac_im_usrlibdir/libX11.$ac_extension" &&
 	 test -f "$ac_im_libdir/libX11.$ac_extension"; then
 	ac_im_usrlibdir=$ac_im_libdir; break
@@ -6158,7 +6179,7 @@ sed 's/^/| /' conftest.$ac_ext >&5
 for ac_dir in `echo "$ac_x_includes $ac_x_header_dirs" | sed s/include/lib/g`
 do
   # Don't even attempt the hair of trying to link an X program!
-  for ac_extension in a so sl; do
+  for ac_extension in a so sl dylib la dll; do
     if test -r "$ac_dir/libX11.$ac_extension"; then
       ac_x_libraries=$ac_dir
       break 2
@@ -7403,6 +7424,8 @@ LDFLAGS="-L${EXTERNALS}/lib  -L${prefix}/lib -L${EXTERNALS}/NetCDF/lib  -L${EXTE
 CPPFLAGS="-I${EXTERNALS}/include  "$CPPFLAGS
 CFLAGS="-I${EXTERNALS}/include  -L${EXTERNALS}/lib  "${CFLAGS}
 COMPILE_TCLTK=no
+SECOND_DOLLAR=""
+
 case ${target_os} in
  linux-*)
   PyQT_PLATFORM="x11"
@@ -7435,6 +7458,7 @@ echo "$as_me: adding -L${IC}/lib -Wl,--rpath,${IC}/lib -limf -lirc to LDFLAGS" >
 echo "${ECHO_T}no" >&6; }
   fi ;;
  darwin*)
+  SECOND_DOLLAR="$"
   PyQt_PLATFORM="mac"
   PYOPTXTRAQT=" --enable-qt-framework "
   QTCONFIGOPT=" -cocoa "
@@ -8197,7 +8221,7 @@ if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
 else
   ac_cv_header_stdc=no
 fi
-rm -f conftest*
+rm -f -r conftest*
 
 fi
 
@@ -8218,7 +8242,7 @@ if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
 else
   ac_cv_header_stdc=no
 fi
-rm -f conftest*
+rm -f -r conftest*
 
 fi
 
@@ -12829,6 +12853,11 @@ PyQt_PATCH!$PyQt_PATCH$ac_delim
 PyQt_MAJOR_SRC!$PyQt_MAJOR_SRC$ac_delim
 PyQt_MINOR_SRC!$PyQt_MINOR_SRC$ac_delim
 PyQt_PATCH_SRC!$PyQt_PATCH_SRC$ac_delim
+R_MAJOR_SRC!$R_MAJOR_SRC$ac_delim
+R_MINOR_SRC!$R_MINOR_SRC$ac_delim
+R_PATCH_SRC!$R_PATCH_SRC$ac_delim
+R_GZ!$R_GZ$ac_delim
+R_URL!$R_URL$ac_delim
 MD5PRG!$MD5PRG$ac_delim
 MD5CNT!$MD5CNT$ac_delim
 DOCMOR!$DOCMOR$ac_delim
@@ -12842,11 +12871,6 @@ NC4LOC!$NC4LOC$ac_delim
 COMPILE_HDF5!$COMPILE_HDF5$ac_delim
 HDF5LOC!$HDF5LOC$ac_delim
 COMPILE_UDUNITS2!$COMPILE_UDUNITS2$ac_delim
-UDUNITS2LOC!$UDUNITS2LOC$ac_delim
-COMPILE_CURL!$COMPILE_CURL$ac_delim
-NC_FORTRAN!$NC_FORTRAN$ac_delim
-COMPILE_CAIRO!$COMPILE_CAIRO$ac_delim
-COMPILE_FREETYPE!$COMPILE_FREETYPE$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -12888,6 +12912,11 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+UDUNITS2LOC!$UDUNITS2LOC$ac_delim
+COMPILE_CURL!$COMPILE_CURL$ac_delim
+NC_FORTRAN!$NC_FORTRAN$ac_delim
+COMPILE_CAIRO!$COMPILE_CAIRO$ac_delim
+COMPILE_FREETYPE!$COMPILE_FREETYPE$ac_delim
 COMPILE_PIXMAN!$COMPILE_PIXMAN$ac_delim
 COMPILE_FONTCONFIG!$COMPILE_FONTCONFIG$ac_delim
 COMPILE_XML2!$COMPILE_XML2$ac_delim
@@ -12980,11 +13009,6 @@ XMKMF!$XMKMF$ac_delim
 X_CFLAGS!$X_CFLAGS$ac_delim
 X_PRE_LIBS!$X_PRE_LIBS$ac_delim
 X_LIBS!$X_LIBS$ac_delim
-X_EXTRA_LIBS!$X_EXTRA_LIBS$ac_delim
-COMPILE_VTK!$COMPILE_VTK$ac_delim
-QTCONFIGOPT!$QTCONFIGOPT$ac_delim
-EXTRAENV!$EXTRAENV$ac_delim
-GREP!$GREP$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -13026,6 +13050,12 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+X_EXTRA_LIBS!$X_EXTRA_LIBS$ac_delim
+COMPILE_VTK!$COMPILE_VTK$ac_delim
+QTCONFIGOPT!$QTCONFIGOPT$ac_delim
+SECOND_DOLLAR!$SECOND_DOLLAR$ac_delim
+EXTRAENV!$EXTRAENV$ac_delim
+GREP!$GREP$ac_delim
 EGREP!$EGREP$ac_delim
 HAVE_CMAKE!$HAVE_CMAKE$ac_delim
 FFMPEG!$FFMPEG$ac_delim
@@ -13047,7 +13077,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 19; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 25; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
