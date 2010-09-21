@@ -20,7 +20,17 @@ class cuDataset:
 # note defined here because this is the class all the dataset-type classes inherit
         v = self.variables.get(id)
         if v is None:
-            raise CDMSError, "No such variable, " + id
+            try:
+                if ( self.is_gridspec_grid_file() and
+                     ( id=='' or id=='grid' or id=='gridspec' ) and
+                     len(args)==0 and
+                     len(kwargs)==0
+                     ):
+                    return self.readg()
+                else:
+                    raise CDMSError, "No such variable or grid, " + id
+            except ( AttributeError, TypeError ):
+                raise CDMSError, "No such variable, " + id
         return v(*args, **kwargs)
 
     def __getitem__(self, key):
