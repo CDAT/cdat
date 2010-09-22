@@ -9751,7 +9751,214 @@ PyVCS_setGXymember(self, args)
                  marker_index = 17;
               else if (cmpncs("hurricane", PyString_AsString(marker_obj))==0)
                  marker_index = 18;
-              else {
+	      /* Arulalan Weather Markers */
+ 	      else if (cmpncs("w00", PyString_AsString(marker_obj))==0)
+                 marker_index = 100;
+              else if (cmpncs("w01", PyString_AsString(marker_obj))==0)
+                 marker_index = 101;
+              else if (cmpncs("w02", PyString_AsString(marker_obj))==0)
+                 marker_index = 102;
+              else if (cmpncs("w03", PyString_AsString(marker_obj))==0)
+                 marker_index = 103;
+ 	      else if (cmpncs("w04", PyString_AsString(marker_obj))==0)
+                 marker_index = 104;
+              else if (cmpncs("w05", PyString_AsString(marker_obj))==0)
+                 marker_index = 105;
+              else if (cmpncs("w06", PyString_AsString(marker_obj))==0)
+                 marker_index = 106;
+              else if (cmpncs("w07", PyString_AsString(marker_obj))==0)
+                 marker_index = 107;
+              else if (cmpncs("w08", PyString_AsString(marker_obj))==0)
+                 marker_index = 108;
+              else if (cmpncs("w09", PyString_AsString(marker_obj))==0)
+                 marker_index = 109;
+              else if (cmpncs("w10", PyString_AsString(marker_obj))==0)
+                 marker_index = 110;
+              else if (cmpncs("w11", PyString_AsString(marker_obj))==0)
+                 marker_index = 111;
+              else if (cmpncs("w12", PyString_AsString(marker_obj))==0)
+                 marker_index = 112;
+              else if (cmpncs("w13", PyString_AsString(marker_obj))==0)
+                 marker_index = 113;
+	      else if (cmpncs("w14", PyString_AsString(marker_obj))==0)
+                 marker_index = 114;
+              else if (cmpncs("w15", PyString_AsString(marker_obj))==0)
+                 marker_index = 115;
+              else if (cmpncs("w16", PyString_AsString(marker_obj))==0)
+                 marker_index = 116;
+              else if (cmpncs("w17", PyString_AsString(marker_obj))==0)
+                 marker_index = 117;
+              else if (cmpncs("w18", PyString_AsString(marker_obj))==0)
+                 marker_index = 118;
+              else if (cmpncs("w19", PyString_AsString(marker_obj))==0)
+                 marker_index = 119;
+	      else if (cmpncs("w20", PyString_AsString(marker_obj))==0)
+                 marker_index = 120;
+              else if (cmpncs("w21", PyString_AsString(marker_obj))==0)
+                 marker_index = 121;
+              else if (cmpncs("w22", PyString_AsString(marker_obj))==0)
+                 marker_index = 122;
+              else if (cmpncs("w23", PyString_AsString(marker_obj))==0)
+                 marker_index = 123;
+ 	      else if (cmpncs("w24", PyString_AsString(marker_obj))==0)
+                 marker_index = 124;
+              else if (cmpncs("w25", PyString_AsString(marker_obj))==0)
+                 marker_index = 125;
+              else if (cmpncs("w26", PyString_AsString(marker_obj))==0)
+                 marker_index = 126;
+              else if (cmpncs("w27", PyString_AsString(marker_obj))==0)
+                 marker_index = 127;
+              else if (cmpncs("w28", PyString_AsString(marker_obj))==0)
+                 marker_index = 128;
+              else if (cmpncs("w29", PyString_AsString(marker_obj))==0)
+                 marker_index = 129;
+              else if (cmpncs("w30", PyString_AsString(marker_obj))==0)
+                 marker_index = 130;
+              else if (cmpncs("w31", PyString_AsString(marker_obj))==0)
+                 marker_index = 131;
+              else if (cmpncs("w32", PyString_AsString(marker_obj))==0)
+                 marker_index = 132;
+              else if (cmpncs("w33", PyString_AsString(marker_obj))==0)
+                 marker_index = 133;
+	      else if (cmpncs("w34", PyString_AsString(marker_obj))==0)
+                 marker_index = 134;
+              else if (cmpncs("w35", PyString_AsString(marker_obj))==0)
+                 marker_index = 135;
+              else if (cmpncs("w36", PyString_AsString(marker_obj))==0)
+                 marker_index = 136;
+              else if (cmpncs("w37", PyString_AsString(marker_obj))==0)
+                 marker_index = 137;
+              else if (cmpncs("w38", PyString_AsString(marker_obj))==0)
+                 marker_index = 138;
+              else if (cmpncs("w39", PyString_AsString(marker_obj))==0)
+                 marker_index = 139;
+	      else if (cmpncs("w40", PyString_AsString(marker_obj))==0)
+                 marker_index = 140;
+              else if (cmpncs("w41", PyString_AsString(marker_obj))==0)
+                 marker_index = 141;
+              else if (cmpncs("w42", PyString_AsString(marker_obj))==0)
+                 marker_index = 142;
+              else if (cmpncs("w43", PyString_AsString(marker_obj))==0)
+                 marker_index = 143;
+ 	      else if (cmpncs("w44", PyString_AsString(marker_obj))==0)
+                 marker_index = 144;
+              else if (cmpncs("w45", PyString_AsString(marker_obj))==0)
+                 marker_index = 145;
+              else if (cmpncs("w46", PyString_AsString(marker_obj))==0)
+                 marker_index = 146;
+              else if (cmpncs("w47", PyString_AsString(marker_obj))==0)
+                 marker_index = 147;
+              else if (cmpncs("w48", PyString_AsString(marker_obj))==0)
+                 marker_index = 148;
+              else if (cmpncs("w49", PyString_AsString(marker_obj))==0)
+                 marker_index = 149;
+              else if (cmpncs("w50", PyString_AsString(marker_obj))==0)
+                 marker_index = 150;
+              else if (cmpncs("w51", PyString_AsString(marker_obj))==0)
+                 marker_index = 151;
+              else if (cmpncs("w52", PyString_AsString(marker_obj))==0)
+                 marker_index = 152;
+              else if (cmpncs("w53", PyString_AsString(marker_obj))==0)
+                 marker_index = 153;
+	      else if (cmpncs("w54", PyString_AsString(marker_obj))==0)
+                 marker_index = 154;
+              else if (cmpncs("w55", PyString_AsString(marker_obj))==0)
+                 marker_index = 155;
+              else if (cmpncs("w56", PyString_AsString(marker_obj))==0)
+                 marker_index = 156;
+              else if (cmpncs("w57", PyString_AsString(marker_obj))==0)
+                 marker_index = 157;
+              else if (cmpncs("w58", PyString_AsString(marker_obj))==0)
+                 marker_index = 158;
+              else if (cmpncs("w59", PyString_AsString(marker_obj))==0)
+                 marker_index = 159;
+	      else if (cmpncs("w60", PyString_AsString(marker_obj))==0)
+                 marker_index = 160;
+              else if (cmpncs("w61", PyString_AsString(marker_obj))==0)
+                 marker_index = 161;
+              else if (cmpncs("w62", PyString_AsString(marker_obj))==0)
+                 marker_index = 162;
+              else if (cmpncs("w63", PyString_AsString(marker_obj))==0)
+                 marker_index = 163;
+ 	      else if (cmpncs("w64", PyString_AsString(marker_obj))==0)
+                 marker_index = 164;
+              else if (cmpncs("w65", PyString_AsString(marker_obj))==0)
+                 marker_index = 165;
+              else if (cmpncs("w66", PyString_AsString(marker_obj))==0)
+                 marker_index = 166;
+              else if (cmpncs("w67", PyString_AsString(marker_obj))==0)
+                 marker_index = 167;
+              else if (cmpncs("w68", PyString_AsString(marker_obj))==0)
+                 marker_index = 168;
+              else if (cmpncs("w69", PyString_AsString(marker_obj))==0)
+                 marker_index = 169;
+              else if (cmpncs("w70", PyString_AsString(marker_obj))==0)
+                 marker_index = 170;
+              else if (cmpncs("w71", PyString_AsString(marker_obj))==0)
+                 marker_index = 171;
+              else if (cmpncs("w72", PyString_AsString(marker_obj))==0)
+                 marker_index = 172;
+              else if (cmpncs("w73", PyString_AsString(marker_obj))==0)
+                 marker_index = 173;
+	      else if (cmpncs("w74", PyString_AsString(marker_obj))==0)
+                 marker_index = 174;
+              else if (cmpncs("w75", PyString_AsString(marker_obj))==0)
+                 marker_index = 175;
+              else if (cmpncs("w76", PyString_AsString(marker_obj))==0)
+                 marker_index = 176;
+              else if (cmpncs("w77", PyString_AsString(marker_obj))==0)
+                 marker_index = 177;
+              else if (cmpncs("w78", PyString_AsString(marker_obj))==0)
+                 marker_index = 178;
+              else if (cmpncs("w79", PyString_AsString(marker_obj))==0)
+                 marker_index = 179;
+	      else if (cmpncs("w80", PyString_AsString(marker_obj))==0)
+                 marker_index = 180;
+              else if (cmpncs("w81", PyString_AsString(marker_obj))==0)
+                 marker_index = 181;
+              else if (cmpncs("w82", PyString_AsString(marker_obj))==0)
+                 marker_index = 182;
+              else if (cmpncs("w83", PyString_AsString(marker_obj))==0)
+                 marker_index = 183;
+ 	      else if (cmpncs("w84", PyString_AsString(marker_obj))==0)
+                 marker_index = 184;
+              else if (cmpncs("w85", PyString_AsString(marker_obj))==0)
+                 marker_index = 185;
+              else if (cmpncs("w86", PyString_AsString(marker_obj))==0)
+                 marker_index = 186;
+              else if (cmpncs("w87", PyString_AsString(marker_obj))==0)
+                 marker_index = 187;
+              else if (cmpncs("w88", PyString_AsString(marker_obj))==0)
+                 marker_index = 188;
+              else if (cmpncs("w89", PyString_AsString(marker_obj))==0)
+                 marker_index = 189;
+              else if (cmpncs("w90", PyString_AsString(marker_obj))==0)
+                 marker_index = 190;
+              else if (cmpncs("w91", PyString_AsString(marker_obj))==0)
+                 marker_index = 191;
+              else if (cmpncs("w92", PyString_AsString(marker_obj))==0)
+                 marker_index = 192;
+              else if (cmpncs("w93", PyString_AsString(marker_obj))==0)
+                 marker_index = 193;
+	      else if (cmpncs("w94", PyString_AsString(marker_obj))==0)
+                 marker_index = 194;
+              else if (cmpncs("w95", PyString_AsString(marker_obj))==0)
+                 marker_index = 195;
+              else if (cmpncs("w96", PyString_AsString(marker_obj))==0)
+                 marker_index = 196;
+              else if (cmpncs("w97", PyString_AsString(marker_obj))==0)
+                 marker_index = 197;
+              else if (cmpncs("w98", PyString_AsString(marker_obj))==0)
+                 marker_index = 198;
+              else if (cmpncs("w99", PyString_AsString(marker_obj))==0)
+                 marker_index = 199;
+	      else if (cmpncs("w200", PyString_AsString(marker_obj))==0)
+                 marker_index = 200;
+              else if (cmpncs("w201", PyString_AsString(marker_obj))==0)
+                 marker_index = 201;
+              else if (cmpncs("w202", PyString_AsString(marker_obj))==0)
+                 marker_index = 202;
+             else {
                  Tm_name = PyString_AsString(marker_obj);
                  marker_index = 999;
               }
@@ -10255,6 +10462,213 @@ PyVCS_setGYxmember(self, args)
                  marker_index = 17;
               else if (cmpncs("hurricane", PyString_AsString(marker_obj))==0)
                  marker_index = 18;
+	      /* Arulalan Weather Markers */
+	      else if (cmpncs("w00", PyString_AsString(marker_obj))==0)
+                 marker_index = 100;
+              else if (cmpncs("w01", PyString_AsString(marker_obj))==0)
+                 marker_index = 101;
+              else if (cmpncs("w02", PyString_AsString(marker_obj))==0)
+                 marker_index = 102;
+              else if (cmpncs("w03", PyString_AsString(marker_obj))==0)
+                 marker_index = 103;
+ 	      else if (cmpncs("w04", PyString_AsString(marker_obj))==0)
+                 marker_index = 104;
+              else if (cmpncs("w05", PyString_AsString(marker_obj))==0)
+                 marker_index = 105;
+              else if (cmpncs("w06", PyString_AsString(marker_obj))==0)
+                 marker_index = 106;
+              else if (cmpncs("w07", PyString_AsString(marker_obj))==0)
+                 marker_index = 107;
+              else if (cmpncs("w08", PyString_AsString(marker_obj))==0)
+                 marker_index = 108;
+              else if (cmpncs("w09", PyString_AsString(marker_obj))==0)
+                 marker_index = 109;
+              else if (cmpncs("w10", PyString_AsString(marker_obj))==0)
+                 marker_index = 110;
+              else if (cmpncs("w11", PyString_AsString(marker_obj))==0)
+                 marker_index = 111;
+              else if (cmpncs("w12", PyString_AsString(marker_obj))==0)
+                 marker_index = 112;
+              else if (cmpncs("w13", PyString_AsString(marker_obj))==0)
+                 marker_index = 113;
+	      else if (cmpncs("w14", PyString_AsString(marker_obj))==0)
+                 marker_index = 114;
+              else if (cmpncs("w15", PyString_AsString(marker_obj))==0)
+                 marker_index = 115;
+              else if (cmpncs("w16", PyString_AsString(marker_obj))==0)
+                 marker_index = 116;
+              else if (cmpncs("w17", PyString_AsString(marker_obj))==0)
+                 marker_index = 117;
+              else if (cmpncs("w18", PyString_AsString(marker_obj))==0)
+                 marker_index = 118;
+              else if (cmpncs("w19", PyString_AsString(marker_obj))==0)
+                 marker_index = 119;
+	      else if (cmpncs("w20", PyString_AsString(marker_obj))==0)
+                 marker_index = 120;
+              else if (cmpncs("w21", PyString_AsString(marker_obj))==0)
+                 marker_index = 121;
+              else if (cmpncs("w22", PyString_AsString(marker_obj))==0)
+                 marker_index = 122;
+              else if (cmpncs("w23", PyString_AsString(marker_obj))==0)
+                 marker_index = 123;
+ 	      else if (cmpncs("w24", PyString_AsString(marker_obj))==0)
+                 marker_index = 124;
+              else if (cmpncs("w25", PyString_AsString(marker_obj))==0)
+                 marker_index = 125;
+              else if (cmpncs("w26", PyString_AsString(marker_obj))==0)
+                 marker_index = 126;
+              else if (cmpncs("w27", PyString_AsString(marker_obj))==0)
+                 marker_index = 127;
+              else if (cmpncs("w28", PyString_AsString(marker_obj))==0)
+                 marker_index = 128;
+              else if (cmpncs("w29", PyString_AsString(marker_obj))==0)
+                 marker_index = 129;
+              else if (cmpncs("w30", PyString_AsString(marker_obj))==0)
+                 marker_index = 130;
+              else if (cmpncs("w31", PyString_AsString(marker_obj))==0)
+                 marker_index = 131;
+              else if (cmpncs("w32", PyString_AsString(marker_obj))==0)
+                 marker_index = 132;
+              else if (cmpncs("w33", PyString_AsString(marker_obj))==0)
+                 marker_index = 133;
+	      else if (cmpncs("w34", PyString_AsString(marker_obj))==0)
+                 marker_index = 134;
+              else if (cmpncs("w35", PyString_AsString(marker_obj))==0)
+                 marker_index = 135;
+              else if (cmpncs("w36", PyString_AsString(marker_obj))==0)
+                 marker_index = 136;
+              else if (cmpncs("w37", PyString_AsString(marker_obj))==0)
+                 marker_index = 137;
+              else if (cmpncs("w38", PyString_AsString(marker_obj))==0)
+                 marker_index = 138;
+              else if (cmpncs("w39", PyString_AsString(marker_obj))==0)
+                 marker_index = 139;
+	      else if (cmpncs("w40", PyString_AsString(marker_obj))==0)
+                 marker_index = 140;
+              else if (cmpncs("w41", PyString_AsString(marker_obj))==0)
+                 marker_index = 141;
+              else if (cmpncs("w42", PyString_AsString(marker_obj))==0)
+                 marker_index = 142;
+              else if (cmpncs("w43", PyString_AsString(marker_obj))==0)
+                 marker_index = 143;
+ 	      else if (cmpncs("w44", PyString_AsString(marker_obj))==0)
+                 marker_index = 144;
+              else if (cmpncs("w45", PyString_AsString(marker_obj))==0)
+                 marker_index = 145;
+              else if (cmpncs("w46", PyString_AsString(marker_obj))==0)
+                 marker_index = 146;
+              else if (cmpncs("w47", PyString_AsString(marker_obj))==0)
+                 marker_index = 147;
+              else if (cmpncs("w48", PyString_AsString(marker_obj))==0)
+                 marker_index = 148;
+              else if (cmpncs("w49", PyString_AsString(marker_obj))==0)
+                 marker_index = 149;
+              else if (cmpncs("w50", PyString_AsString(marker_obj))==0)
+                 marker_index = 150;
+              else if (cmpncs("w51", PyString_AsString(marker_obj))==0)
+                 marker_index = 151;
+              else if (cmpncs("w52", PyString_AsString(marker_obj))==0)
+                 marker_index = 152;
+              else if (cmpncs("w53", PyString_AsString(marker_obj))==0)
+                 marker_index = 153;
+	      else if (cmpncs("w54", PyString_AsString(marker_obj))==0)
+                 marker_index = 154;
+              else if (cmpncs("w55", PyString_AsString(marker_obj))==0)
+                 marker_index = 155;
+              else if (cmpncs("w56", PyString_AsString(marker_obj))==0)
+                 marker_index = 156;
+              else if (cmpncs("w57", PyString_AsString(marker_obj))==0)
+                 marker_index = 157;
+              else if (cmpncs("w58", PyString_AsString(marker_obj))==0)
+                 marker_index = 158;
+              else if (cmpncs("w59", PyString_AsString(marker_obj))==0)
+                 marker_index = 159;
+	      else if (cmpncs("w60", PyString_AsString(marker_obj))==0)
+                 marker_index = 160;
+              else if (cmpncs("w61", PyString_AsString(marker_obj))==0)
+                 marker_index = 161;
+              else if (cmpncs("w62", PyString_AsString(marker_obj))==0)
+                 marker_index = 162;
+              else if (cmpncs("w63", PyString_AsString(marker_obj))==0)
+                 marker_index = 163;
+ 	      else if (cmpncs("w64", PyString_AsString(marker_obj))==0)
+                 marker_index = 164;
+              else if (cmpncs("w65", PyString_AsString(marker_obj))==0)
+                 marker_index = 165;
+              else if (cmpncs("w66", PyString_AsString(marker_obj))==0)
+                 marker_index = 166;
+              else if (cmpncs("w67", PyString_AsString(marker_obj))==0)
+                 marker_index = 167;
+              else if (cmpncs("w68", PyString_AsString(marker_obj))==0)
+                 marker_index = 168;
+              else if (cmpncs("w69", PyString_AsString(marker_obj))==0)
+                 marker_index = 169;
+              else if (cmpncs("w70", PyString_AsString(marker_obj))==0)
+                 marker_index = 170;
+              else if (cmpncs("w71", PyString_AsString(marker_obj))==0)
+                 marker_index = 171;
+              else if (cmpncs("w72", PyString_AsString(marker_obj))==0)
+                 marker_index = 172;
+              else if (cmpncs("w73", PyString_AsString(marker_obj))==0)
+                 marker_index = 173;
+	      else if (cmpncs("w74", PyString_AsString(marker_obj))==0)
+                 marker_index = 174;
+              else if (cmpncs("w75", PyString_AsString(marker_obj))==0)
+                 marker_index = 175;
+              else if (cmpncs("w76", PyString_AsString(marker_obj))==0)
+                 marker_index = 176;
+              else if (cmpncs("w77", PyString_AsString(marker_obj))==0)
+                 marker_index = 177;
+              else if (cmpncs("w78", PyString_AsString(marker_obj))==0)
+                 marker_index = 178;
+              else if (cmpncs("w79", PyString_AsString(marker_obj))==0)
+                 marker_index = 179;
+	      else if (cmpncs("w80", PyString_AsString(marker_obj))==0)
+                 marker_index = 180;
+              else if (cmpncs("w81", PyString_AsString(marker_obj))==0)
+                 marker_index = 181;
+              else if (cmpncs("w82", PyString_AsString(marker_obj))==0)
+                 marker_index = 182;
+              else if (cmpncs("w83", PyString_AsString(marker_obj))==0)
+                 marker_index = 183;
+ 	      else if (cmpncs("w84", PyString_AsString(marker_obj))==0)
+                 marker_index = 184;
+              else if (cmpncs("w85", PyString_AsString(marker_obj))==0)
+                 marker_index = 185;
+              else if (cmpncs("w86", PyString_AsString(marker_obj))==0)
+                 marker_index = 186;
+              else if (cmpncs("w87", PyString_AsString(marker_obj))==0)
+                 marker_index = 187;
+              else if (cmpncs("w88", PyString_AsString(marker_obj))==0)
+                 marker_index = 188;
+              else if (cmpncs("w89", PyString_AsString(marker_obj))==0)
+                 marker_index = 189;
+              else if (cmpncs("w90", PyString_AsString(marker_obj))==0)
+                 marker_index = 190;
+              else if (cmpncs("w91", PyString_AsString(marker_obj))==0)
+                 marker_index = 191;
+              else if (cmpncs("w92", PyString_AsString(marker_obj))==0)
+                 marker_index = 192;
+              else if (cmpncs("w93", PyString_AsString(marker_obj))==0)
+                 marker_index = 193;
+	      else if (cmpncs("w94", PyString_AsString(marker_obj))==0)
+                 marker_index = 194;
+              else if (cmpncs("w95", PyString_AsString(marker_obj))==0)
+                 marker_index = 195;
+              else if (cmpncs("w96", PyString_AsString(marker_obj))==0)
+                 marker_index = 196;
+              else if (cmpncs("w97", PyString_AsString(marker_obj))==0)
+                 marker_index = 197;
+              else if (cmpncs("w98", PyString_AsString(marker_obj))==0)
+                 marker_index = 198;
+              else if (cmpncs("w99", PyString_AsString(marker_obj))==0)
+                 marker_index = 199;
+	      else if (cmpncs("w200", PyString_AsString(marker_obj))==0)
+                 marker_index = 200;
+              else if (cmpncs("w201", PyString_AsString(marker_obj))==0)
+                 marker_index = 201;
+              else if (cmpncs("w202", PyString_AsString(marker_obj))==0)
+                 marker_index = 202;
               else {
                  Tm_name = PyString_AsString(marker_obj);
                  marker_index = 999;
@@ -10759,6 +11173,213 @@ PyVCS_setGXYmember(self, args)
                  marker_index = 17;
               else if (cmpncs("hurricane", PyString_AsString(marker_obj))==0)
                  marker_index = 18;
+	      /* Arulalan Weather Markers */
+	      else if (cmpncs("w00", PyString_AsString(marker_obj))==0)
+                 marker_index = 100;
+              else if (cmpncs("w01", PyString_AsString(marker_obj))==0)
+                 marker_index = 101;
+              else if (cmpncs("w02", PyString_AsString(marker_obj))==0)
+                 marker_index = 102;
+              else if (cmpncs("w03", PyString_AsString(marker_obj))==0)
+                 marker_index = 103;
+ 	      else if (cmpncs("w04", PyString_AsString(marker_obj))==0)
+                 marker_index = 104;
+              else if (cmpncs("w05", PyString_AsString(marker_obj))==0)
+                 marker_index = 105;
+              else if (cmpncs("w06", PyString_AsString(marker_obj))==0)
+                 marker_index = 106;
+              else if (cmpncs("w07", PyString_AsString(marker_obj))==0)
+                 marker_index = 107;
+              else if (cmpncs("w08", PyString_AsString(marker_obj))==0)
+                 marker_index = 108;
+              else if (cmpncs("w09", PyString_AsString(marker_obj))==0)
+                 marker_index = 109;
+              else if (cmpncs("w10", PyString_AsString(marker_obj))==0)
+                 marker_index = 110;
+              else if (cmpncs("w11", PyString_AsString(marker_obj))==0)
+                 marker_index = 111;
+              else if (cmpncs("w12", PyString_AsString(marker_obj))==0)
+                 marker_index = 112;
+              else if (cmpncs("w13", PyString_AsString(marker_obj))==0)
+                 marker_index = 113;
+	      else if (cmpncs("w14", PyString_AsString(marker_obj))==0)
+                 marker_index = 114;
+              else if (cmpncs("w15", PyString_AsString(marker_obj))==0)
+                 marker_index = 115;
+              else if (cmpncs("w16", PyString_AsString(marker_obj))==0)
+                 marker_index = 116;
+              else if (cmpncs("w17", PyString_AsString(marker_obj))==0)
+                 marker_index = 117;
+              else if (cmpncs("w18", PyString_AsString(marker_obj))==0)
+                 marker_index = 118;
+              else if (cmpncs("w19", PyString_AsString(marker_obj))==0)
+                 marker_index = 119;
+	      else if (cmpncs("w20", PyString_AsString(marker_obj))==0)
+                 marker_index = 120;
+              else if (cmpncs("w21", PyString_AsString(marker_obj))==0)
+                 marker_index = 121;
+              else if (cmpncs("w22", PyString_AsString(marker_obj))==0)
+                 marker_index = 122;
+              else if (cmpncs("w23", PyString_AsString(marker_obj))==0)
+                 marker_index = 123;
+ 	      else if (cmpncs("w24", PyString_AsString(marker_obj))==0)
+                 marker_index = 124;
+              else if (cmpncs("w25", PyString_AsString(marker_obj))==0)
+                 marker_index = 125;
+              else if (cmpncs("w26", PyString_AsString(marker_obj))==0)
+                 marker_index = 126;
+              else if (cmpncs("w27", PyString_AsString(marker_obj))==0)
+                 marker_index = 127;
+              else if (cmpncs("w28", PyString_AsString(marker_obj))==0)
+                 marker_index = 128;
+              else if (cmpncs("w29", PyString_AsString(marker_obj))==0)
+                 marker_index = 129;
+              else if (cmpncs("w30", PyString_AsString(marker_obj))==0)
+                 marker_index = 130;
+              else if (cmpncs("w31", PyString_AsString(marker_obj))==0)
+                 marker_index = 131;
+              else if (cmpncs("w32", PyString_AsString(marker_obj))==0)
+                 marker_index = 132;
+              else if (cmpncs("w33", PyString_AsString(marker_obj))==0)
+                 marker_index = 133;
+	      else if (cmpncs("w34", PyString_AsString(marker_obj))==0)
+                 marker_index = 134;
+              else if (cmpncs("w35", PyString_AsString(marker_obj))==0)
+                 marker_index = 135;
+              else if (cmpncs("w36", PyString_AsString(marker_obj))==0)
+                 marker_index = 136;
+              else if (cmpncs("w37", PyString_AsString(marker_obj))==0)
+                 marker_index = 137;
+              else if (cmpncs("w38", PyString_AsString(marker_obj))==0)
+                 marker_index = 138;
+              else if (cmpncs("w39", PyString_AsString(marker_obj))==0)
+                 marker_index = 139;
+	      else if (cmpncs("w40", PyString_AsString(marker_obj))==0)
+                 marker_index = 140;
+              else if (cmpncs("w41", PyString_AsString(marker_obj))==0)
+                 marker_index = 141;
+              else if (cmpncs("w42", PyString_AsString(marker_obj))==0)
+                 marker_index = 142;
+              else if (cmpncs("w43", PyString_AsString(marker_obj))==0)
+                 marker_index = 143;
+ 	      else if (cmpncs("w44", PyString_AsString(marker_obj))==0)
+                 marker_index = 144;
+              else if (cmpncs("w45", PyString_AsString(marker_obj))==0)
+                 marker_index = 145;
+              else if (cmpncs("w46", PyString_AsString(marker_obj))==0)
+                 marker_index = 146;
+              else if (cmpncs("w47", PyString_AsString(marker_obj))==0)
+                 marker_index = 147;
+              else if (cmpncs("w48", PyString_AsString(marker_obj))==0)
+                 marker_index = 148;
+              else if (cmpncs("w49", PyString_AsString(marker_obj))==0)
+                 marker_index = 149;
+              else if (cmpncs("w50", PyString_AsString(marker_obj))==0)
+                 marker_index = 150;
+              else if (cmpncs("w51", PyString_AsString(marker_obj))==0)
+                 marker_index = 151;
+              else if (cmpncs("w52", PyString_AsString(marker_obj))==0)
+                 marker_index = 152;
+              else if (cmpncs("w53", PyString_AsString(marker_obj))==0)
+                 marker_index = 153;
+	      else if (cmpncs("w54", PyString_AsString(marker_obj))==0)
+                 marker_index = 154;
+              else if (cmpncs("w55", PyString_AsString(marker_obj))==0)
+                 marker_index = 155;
+              else if (cmpncs("w56", PyString_AsString(marker_obj))==0)
+                 marker_index = 156;
+              else if (cmpncs("w57", PyString_AsString(marker_obj))==0)
+                 marker_index = 157;
+              else if (cmpncs("w58", PyString_AsString(marker_obj))==0)
+                 marker_index = 158;
+              else if (cmpncs("w59", PyString_AsString(marker_obj))==0)
+                 marker_index = 159;
+	      else if (cmpncs("w60", PyString_AsString(marker_obj))==0)
+                 marker_index = 160;
+              else if (cmpncs("w61", PyString_AsString(marker_obj))==0)
+                 marker_index = 161;
+              else if (cmpncs("w62", PyString_AsString(marker_obj))==0)
+                 marker_index = 162;
+              else if (cmpncs("w63", PyString_AsString(marker_obj))==0)
+                 marker_index = 163;
+ 	      else if (cmpncs("w64", PyString_AsString(marker_obj))==0)
+                 marker_index = 164;
+              else if (cmpncs("w65", PyString_AsString(marker_obj))==0)
+                 marker_index = 165;
+              else if (cmpncs("w66", PyString_AsString(marker_obj))==0)
+                 marker_index = 166;
+              else if (cmpncs("w67", PyString_AsString(marker_obj))==0)
+                 marker_index = 167;
+              else if (cmpncs("w68", PyString_AsString(marker_obj))==0)
+                 marker_index = 168;
+              else if (cmpncs("w69", PyString_AsString(marker_obj))==0)
+                 marker_index = 169;
+              else if (cmpncs("w70", PyString_AsString(marker_obj))==0)
+                 marker_index = 170;
+              else if (cmpncs("w71", PyString_AsString(marker_obj))==0)
+                 marker_index = 171;
+              else if (cmpncs("w72", PyString_AsString(marker_obj))==0)
+                 marker_index = 172;
+              else if (cmpncs("w73", PyString_AsString(marker_obj))==0)
+                 marker_index = 173;
+	      else if (cmpncs("w74", PyString_AsString(marker_obj))==0)
+                 marker_index = 174;
+              else if (cmpncs("w75", PyString_AsString(marker_obj))==0)
+                 marker_index = 175;
+              else if (cmpncs("w76", PyString_AsString(marker_obj))==0)
+                 marker_index = 176;
+              else if (cmpncs("w77", PyString_AsString(marker_obj))==0)
+                 marker_index = 177;
+              else if (cmpncs("w78", PyString_AsString(marker_obj))==0)
+                 marker_index = 178;
+              else if (cmpncs("w79", PyString_AsString(marker_obj))==0)
+                 marker_index = 179;
+	      else if (cmpncs("w80", PyString_AsString(marker_obj))==0)
+                 marker_index = 180;
+              else if (cmpncs("w81", PyString_AsString(marker_obj))==0)
+                 marker_index = 181;
+              else if (cmpncs("w82", PyString_AsString(marker_obj))==0)
+                 marker_index = 182;
+              else if (cmpncs("w83", PyString_AsString(marker_obj))==0)
+                 marker_index = 183;
+ 	      else if (cmpncs("w84", PyString_AsString(marker_obj))==0)
+                 marker_index = 184;
+              else if (cmpncs("w85", PyString_AsString(marker_obj))==0)
+                 marker_index = 185;
+              else if (cmpncs("w86", PyString_AsString(marker_obj))==0)
+                 marker_index = 186;
+              else if (cmpncs("w87", PyString_AsString(marker_obj))==0)
+                 marker_index = 187;
+              else if (cmpncs("w88", PyString_AsString(marker_obj))==0)
+                 marker_index = 188;
+              else if (cmpncs("w89", PyString_AsString(marker_obj))==0)
+                 marker_index = 189;
+              else if (cmpncs("w90", PyString_AsString(marker_obj))==0)
+                 marker_index = 190;
+              else if (cmpncs("w91", PyString_AsString(marker_obj))==0)
+                 marker_index = 191;
+              else if (cmpncs("w92", PyString_AsString(marker_obj))==0)
+                 marker_index = 192;
+              else if (cmpncs("w93", PyString_AsString(marker_obj))==0)
+                 marker_index = 193;
+	      else if (cmpncs("w94", PyString_AsString(marker_obj))==0)
+                 marker_index = 194;
+              else if (cmpncs("w95", PyString_AsString(marker_obj))==0)
+                 marker_index = 195;
+              else if (cmpncs("w96", PyString_AsString(marker_obj))==0)
+                 marker_index = 196;
+              else if (cmpncs("w97", PyString_AsString(marker_obj))==0)
+                 marker_index = 197;
+              else if (cmpncs("w98", PyString_AsString(marker_obj))==0)
+                 marker_index = 198;
+              else if (cmpncs("w99", PyString_AsString(marker_obj))==0)
+                 marker_index = 199;
+	      else if (cmpncs("w200", PyString_AsString(marker_obj))==0)
+                 marker_index = 200;
+              else if (cmpncs("w201", PyString_AsString(marker_obj))==0)
+                 marker_index = 201;
+              else if (cmpncs("w202", PyString_AsString(marker_obj))==0)
+                 marker_index = 202;
               else {
                  Tm_name = PyString_AsString(marker_obj);
                  marker_index = 999;
@@ -11684,6 +12305,213 @@ PyVCS_setGSpmember(self, args)
                  marker_index = 17;
               else if (cmpncs("hurricane", PyString_AsString(marker_obj))==0)
                  marker_index = 18;
+	      /*Arulalan Weather Markers */
+	      else if (cmpncs("w00", PyString_AsString(marker_obj))==0)
+                 marker_index = 100;
+              else if (cmpncs("w01", PyString_AsString(marker_obj))==0)
+                 marker_index = 101;
+              else if (cmpncs("w02", PyString_AsString(marker_obj))==0)
+                 marker_index = 102;
+              else if (cmpncs("w03", PyString_AsString(marker_obj))==0)
+                 marker_index = 103;
+ 	      else if (cmpncs("w04", PyString_AsString(marker_obj))==0)
+                 marker_index = 104;
+              else if (cmpncs("w05", PyString_AsString(marker_obj))==0)
+                 marker_index = 105;
+              else if (cmpncs("w06", PyString_AsString(marker_obj))==0)
+                 marker_index = 106;
+              else if (cmpncs("w07", PyString_AsString(marker_obj))==0)
+                 marker_index = 107;
+              else if (cmpncs("w08", PyString_AsString(marker_obj))==0)
+                 marker_index = 108;
+              else if (cmpncs("w09", PyString_AsString(marker_obj))==0)
+                 marker_index = 109;
+              else if (cmpncs("w10", PyString_AsString(marker_obj))==0)
+                 marker_index = 110;
+              else if (cmpncs("w11", PyString_AsString(marker_obj))==0)
+                 marker_index = 111;
+              else if (cmpncs("w12", PyString_AsString(marker_obj))==0)
+                 marker_index = 112;
+              else if (cmpncs("w13", PyString_AsString(marker_obj))==0)
+                 marker_index = 113;
+	      else if (cmpncs("w14", PyString_AsString(marker_obj))==0)
+                 marker_index = 114;
+              else if (cmpncs("w15", PyString_AsString(marker_obj))==0)
+                 marker_index = 115;
+              else if (cmpncs("w16", PyString_AsString(marker_obj))==0)
+                 marker_index = 116;
+              else if (cmpncs("w17", PyString_AsString(marker_obj))==0)
+                 marker_index = 117;
+              else if (cmpncs("w18", PyString_AsString(marker_obj))==0)
+                 marker_index = 118;
+              else if (cmpncs("w19", PyString_AsString(marker_obj))==0)
+                 marker_index = 119;
+	      else if (cmpncs("w20", PyString_AsString(marker_obj))==0)
+                 marker_index = 120;
+              else if (cmpncs("w21", PyString_AsString(marker_obj))==0)
+                 marker_index = 121;
+              else if (cmpncs("w22", PyString_AsString(marker_obj))==0)
+                 marker_index = 122;
+              else if (cmpncs("w23", PyString_AsString(marker_obj))==0)
+                 marker_index = 123;
+ 	      else if (cmpncs("w24", PyString_AsString(marker_obj))==0)
+                 marker_index = 124;
+              else if (cmpncs("w25", PyString_AsString(marker_obj))==0)
+                 marker_index = 125;
+              else if (cmpncs("w26", PyString_AsString(marker_obj))==0)
+                 marker_index = 126;
+              else if (cmpncs("w27", PyString_AsString(marker_obj))==0)
+                 marker_index = 127;
+              else if (cmpncs("w28", PyString_AsString(marker_obj))==0)
+                 marker_index = 128;
+              else if (cmpncs("w29", PyString_AsString(marker_obj))==0)
+                 marker_index = 129;
+              else if (cmpncs("w30", PyString_AsString(marker_obj))==0)
+                 marker_index = 130;
+              else if (cmpncs("w31", PyString_AsString(marker_obj))==0)
+                 marker_index = 131;
+              else if (cmpncs("w32", PyString_AsString(marker_obj))==0)
+                 marker_index = 132;
+              else if (cmpncs("w33", PyString_AsString(marker_obj))==0)
+                 marker_index = 133;
+	      else if (cmpncs("w34", PyString_AsString(marker_obj))==0)
+                 marker_index = 134;
+              else if (cmpncs("w35", PyString_AsString(marker_obj))==0)
+                 marker_index = 135;
+              else if (cmpncs("w36", PyString_AsString(marker_obj))==0)
+                 marker_index = 136;
+              else if (cmpncs("w37", PyString_AsString(marker_obj))==0)
+                 marker_index = 137;
+              else if (cmpncs("w38", PyString_AsString(marker_obj))==0)
+                 marker_index = 138;
+              else if (cmpncs("w39", PyString_AsString(marker_obj))==0)
+                 marker_index = 139;
+	      else if (cmpncs("w40", PyString_AsString(marker_obj))==0)
+                 marker_index = 140;
+              else if (cmpncs("w41", PyString_AsString(marker_obj))==0)
+                 marker_index = 141;
+              else if (cmpncs("w42", PyString_AsString(marker_obj))==0)
+                 marker_index = 142;
+              else if (cmpncs("w43", PyString_AsString(marker_obj))==0)
+                 marker_index = 143;
+ 	      else if (cmpncs("w44", PyString_AsString(marker_obj))==0)
+                 marker_index = 144;
+              else if (cmpncs("w45", PyString_AsString(marker_obj))==0)
+                 marker_index = 145;
+              else if (cmpncs("w46", PyString_AsString(marker_obj))==0)
+                 marker_index = 146;
+              else if (cmpncs("w47", PyString_AsString(marker_obj))==0)
+                 marker_index = 147;
+              else if (cmpncs("w48", PyString_AsString(marker_obj))==0)
+                 marker_index = 148;
+              else if (cmpncs("w49", PyString_AsString(marker_obj))==0)
+                 marker_index = 149;
+              else if (cmpncs("w50", PyString_AsString(marker_obj))==0)
+                 marker_index = 150;
+              else if (cmpncs("w51", PyString_AsString(marker_obj))==0)
+                 marker_index = 151;
+              else if (cmpncs("w52", PyString_AsString(marker_obj))==0)
+                 marker_index = 152;
+              else if (cmpncs("w53", PyString_AsString(marker_obj))==0)
+                 marker_index = 153;
+	      else if (cmpncs("w54", PyString_AsString(marker_obj))==0)
+                 marker_index = 154;
+              else if (cmpncs("w55", PyString_AsString(marker_obj))==0)
+                 marker_index = 155;
+              else if (cmpncs("w56", PyString_AsString(marker_obj))==0)
+                 marker_index = 156;
+              else if (cmpncs("w57", PyString_AsString(marker_obj))==0)
+                 marker_index = 157;
+              else if (cmpncs("w58", PyString_AsString(marker_obj))==0)
+                 marker_index = 158;
+              else if (cmpncs("w59", PyString_AsString(marker_obj))==0)
+                 marker_index = 159;
+	      else if (cmpncs("w60", PyString_AsString(marker_obj))==0)
+                 marker_index = 160;
+              else if (cmpncs("w61", PyString_AsString(marker_obj))==0)
+                 marker_index = 161;
+              else if (cmpncs("w62", PyString_AsString(marker_obj))==0)
+                 marker_index = 162;
+              else if (cmpncs("w63", PyString_AsString(marker_obj))==0)
+                 marker_index = 163;
+ 	      else if (cmpncs("w64", PyString_AsString(marker_obj))==0)
+                 marker_index = 164;
+              else if (cmpncs("w65", PyString_AsString(marker_obj))==0)
+                 marker_index = 165;
+              else if (cmpncs("w66", PyString_AsString(marker_obj))==0)
+                 marker_index = 166;
+              else if (cmpncs("w67", PyString_AsString(marker_obj))==0)
+                 marker_index = 167;
+              else if (cmpncs("w68", PyString_AsString(marker_obj))==0)
+                 marker_index = 168;
+              else if (cmpncs("w69", PyString_AsString(marker_obj))==0)
+                 marker_index = 169;
+              else if (cmpncs("w70", PyString_AsString(marker_obj))==0)
+                 marker_index = 170;
+              else if (cmpncs("w71", PyString_AsString(marker_obj))==0)
+                 marker_index = 171;
+              else if (cmpncs("w72", PyString_AsString(marker_obj))==0)
+                 marker_index = 172;
+              else if (cmpncs("w73", PyString_AsString(marker_obj))==0)
+                 marker_index = 173;
+	      else if (cmpncs("w74", PyString_AsString(marker_obj))==0)
+                 marker_index = 174;
+              else if (cmpncs("w75", PyString_AsString(marker_obj))==0)
+                 marker_index = 175;
+              else if (cmpncs("w76", PyString_AsString(marker_obj))==0)
+                 marker_index = 176;
+              else if (cmpncs("w77", PyString_AsString(marker_obj))==0)
+                 marker_index = 177;
+              else if (cmpncs("w78", PyString_AsString(marker_obj))==0)
+                 marker_index = 178;
+              else if (cmpncs("w79", PyString_AsString(marker_obj))==0)
+                 marker_index = 179;
+	      else if (cmpncs("w80", PyString_AsString(marker_obj))==0)
+                 marker_index = 180;
+              else if (cmpncs("w81", PyString_AsString(marker_obj))==0)
+                 marker_index = 181;
+              else if (cmpncs("w82", PyString_AsString(marker_obj))==0)
+                 marker_index = 182;
+              else if (cmpncs("w83", PyString_AsString(marker_obj))==0)
+                 marker_index = 183;
+ 	      else if (cmpncs("w84", PyString_AsString(marker_obj))==0)
+                 marker_index = 184;
+              else if (cmpncs("w85", PyString_AsString(marker_obj))==0)
+                 marker_index = 185;
+              else if (cmpncs("w86", PyString_AsString(marker_obj))==0)
+                 marker_index = 186;
+              else if (cmpncs("w87", PyString_AsString(marker_obj))==0)
+                 marker_index = 187;
+              else if (cmpncs("w88", PyString_AsString(marker_obj))==0)
+                 marker_index = 188;
+              else if (cmpncs("w89", PyString_AsString(marker_obj))==0)
+                 marker_index = 189;
+              else if (cmpncs("w90", PyString_AsString(marker_obj))==0)
+                 marker_index = 190;
+              else if (cmpncs("w91", PyString_AsString(marker_obj))==0)
+                 marker_index = 191;
+              else if (cmpncs("w92", PyString_AsString(marker_obj))==0)
+                 marker_index = 192;
+              else if (cmpncs("w93", PyString_AsString(marker_obj))==0)
+                 marker_index = 193;
+	      else if (cmpncs("w94", PyString_AsString(marker_obj))==0)
+                 marker_index = 194;
+              else if (cmpncs("w95", PyString_AsString(marker_obj))==0)
+                 marker_index = 195;
+              else if (cmpncs("w96", PyString_AsString(marker_obj))==0)
+                 marker_index = 196;
+              else if (cmpncs("w97", PyString_AsString(marker_obj))==0)
+                 marker_index = 197;
+              else if (cmpncs("w98", PyString_AsString(marker_obj))==0)
+                 marker_index = 198;
+              else if (cmpncs("w99", PyString_AsString(marker_obj))==0)
+                 marker_index = 199;
+	      else if (cmpncs("w200", PyString_AsString(marker_obj))==0)
+                 marker_index = 200;
+              else if (cmpncs("w201", PyString_AsString(marker_obj))==0)
+                 marker_index = 201;
+              else if (cmpncs("w202", PyString_AsString(marker_obj))==0)
+                 marker_index = 202;
               else {
                  Tm_name = PyString_AsString(marker_obj);
                  marker_index = 999;
@@ -13329,6 +14157,213 @@ PyVCS_getTmmember(PyVCScanvas_Object *self, PyObject *args)
                  PyList_SetItem(v, i, Py_BuildValue("s", "square_fill"));
               else if (Tmtab->mtyp[i] == 18)
                  PyList_SetItem(v, i, Py_BuildValue("s", "hurricane"));
+	      /* Arulalan Weather Markers */
+	      else if (Tmtab->mtyp[i] == 100)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w00"));
+              else if (Tmtab->mtyp[i] == 101)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w01"));
+              else if (Tmtab->mtyp[i] == 102)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w02"));
+              else if (Tmtab->mtyp[i] == 103)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w03"));
+ 	      else if (Tmtab->mtyp[i] == 104)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w04"));
+              else if (Tmtab->mtyp[i] == 105)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w05"));
+              else if (Tmtab->mtyp[i] == 106)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w06"));
+              else if (Tmtab->mtyp[i] == 107)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w07"));
+              else if (Tmtab->mtyp[i] == 108)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w08"));
+              else if (Tmtab->mtyp[i] == 109)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w09"));
+              else if (Tmtab->mtyp[i] == 110)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w10"));
+              else if (Tmtab->mtyp[i] == 111)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w11"));
+              else if (Tmtab->mtyp[i] == 112)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w12"));
+              else if (Tmtab->mtyp[i] == 113)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w13"));
+	      else if (Tmtab->mtyp[i] == 114)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w14"));
+              else if (Tmtab->mtyp[i] == 115)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w15"));
+              else if (Tmtab->mtyp[i] == 116)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w16"));
+              else if (Tmtab->mtyp[i] == 117)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w17"));
+              else if (Tmtab->mtyp[i] == 118)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w18"));
+              else if (Tmtab->mtyp[i] == 119)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w19"));
+	      else if (Tmtab->mtyp[i] == 120)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w20"));
+              else if (Tmtab->mtyp[i] == 121)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w21"));
+              else if (Tmtab->mtyp[i] == 122)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w22"));
+              else if (Tmtab->mtyp[i] == 123)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w23"));
+	      else if (Tmtab->mtyp[i] == 124)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w24"));
+              else if (Tmtab->mtyp[i] == 125)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w25"));
+              else if (Tmtab->mtyp[i] == 126)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w26"));
+              else if (Tmtab->mtyp[i] == 127)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w27"));
+              else if (Tmtab->mtyp[i] == 128)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w28"));
+              else if (Tmtab->mtyp[i] == 129)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w29"));
+	      else if (Tmtab->mtyp[i] == 130)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w30"));
+              else if (Tmtab->mtyp[i] == 131)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w31"));
+              else if (Tmtab->mtyp[i] == 132)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w32"));
+              else if (Tmtab->mtyp[i] == 133)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w33"));
+	      else if (Tmtab->mtyp[i] == 134)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w34"));
+              else if (Tmtab->mtyp[i] == 135)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w35"));
+              else if (Tmtab->mtyp[i] == 136)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w36"));
+              else if (Tmtab->mtyp[i] == 137)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w37"));
+              else if (Tmtab->mtyp[i] == 138)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w38"));
+              else if (Tmtab->mtyp[i] == 139)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w39"));
+	      else if (Tmtab->mtyp[i] == 140)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w40"));
+              else if (Tmtab->mtyp[i] == 141)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w41"));
+              else if (Tmtab->mtyp[i] == 142)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w42"));
+              else if (Tmtab->mtyp[i] == 143)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w43"));
+	      else if (Tmtab->mtyp[i] == 144)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w44"));
+              else if (Tmtab->mtyp[i] == 145)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w45"));
+              else if (Tmtab->mtyp[i] == 146)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w46"));
+              else if (Tmtab->mtyp[i] == 147)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w47"));
+              else if (Tmtab->mtyp[i] == 148)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w48"));
+              else if (Tmtab->mtyp[i] == 149)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w49"));
+	      else if (Tmtab->mtyp[i] == 150)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w50"));
+              else if (Tmtab->mtyp[i] == 151)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w51"));
+              else if (Tmtab->mtyp[i] == 152)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w52"));
+              else if (Tmtab->mtyp[i] == 153)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w53"));
+	      else if (Tmtab->mtyp[i] == 154)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w54"));
+              else if (Tmtab->mtyp[i] == 155)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w55"));
+              else if (Tmtab->mtyp[i] == 156)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w56"));
+              else if (Tmtab->mtyp[i] == 157)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w57"));
+              else if (Tmtab->mtyp[i] == 158)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w58"));
+              else if (Tmtab->mtyp[i] == 159)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w59"));
+	      else if (Tmtab->mtyp[i] == 160)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w60"));
+              else if (Tmtab->mtyp[i] == 161)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w61"));
+              else if (Tmtab->mtyp[i] == 162)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w62"));
+              else if (Tmtab->mtyp[i] == 163)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w63"));
+	      else if (Tmtab->mtyp[i] == 164)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w64"));
+              else if (Tmtab->mtyp[i] == 165)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w65"));
+              else if (Tmtab->mtyp[i] == 166)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w66"));
+              else if (Tmtab->mtyp[i] == 167)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w67"));
+              else if (Tmtab->mtyp[i] == 168)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w68"));
+              else if (Tmtab->mtyp[i] == 169)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w69"));
+	      else if (Tmtab->mtyp[i] == 170)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w70"));
+              else if (Tmtab->mtyp[i] == 171)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w71"));
+              else if (Tmtab->mtyp[i] == 172)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w72"));
+              else if (Tmtab->mtyp[i] == 173)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w73"));
+	      else if (Tmtab->mtyp[i] == 174)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w74"));
+              else if (Tmtab->mtyp[i] == 175)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w75"));
+              else if (Tmtab->mtyp[i] == 176)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w76"));
+              else if (Tmtab->mtyp[i] == 177)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w77"));
+              else if (Tmtab->mtyp[i] == 178)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w78"));
+              else if (Tmtab->mtyp[i] == 179)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w79"));
+	      else if (Tmtab->mtyp[i] == 180)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w80"));
+              else if (Tmtab->mtyp[i] == 181)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w81"));
+              else if (Tmtab->mtyp[i] == 182)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w82"));
+              else if (Tmtab->mtyp[i] == 183)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w83"));
+	      else if (Tmtab->mtyp[i] == 184)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w84"));
+              else if (Tmtab->mtyp[i] == 185)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w85"));
+              else if (Tmtab->mtyp[i] == 186)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w86"));
+              else if (Tmtab->mtyp[i] == 187)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w87"));
+              else if (Tmtab->mtyp[i] == 188)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w88"));
+              else if (Tmtab->mtyp[i] == 189)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w89"));
+	      else if (Tmtab->mtyp[i] == 190)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w90"));
+              else if (Tmtab->mtyp[i] == 191)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w91"));
+              else if (Tmtab->mtyp[i] == 192)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w92"));
+              else if (Tmtab->mtyp[i] == 193)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w93"));
+	      else if (Tmtab->mtyp[i] == 194)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w94"));
+              else if (Tmtab->mtyp[i] == 195)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w95"));
+              else if (Tmtab->mtyp[i] == 196)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w96"));
+              else if (Tmtab->mtyp[i] == 197)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w97"));
+              else if (Tmtab->mtyp[i] == 198)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w98"));
+              else if (Tmtab->mtyp[i] == 199)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w99"));
+	      else if (Tmtab->mtyp[i] == 200)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w200"));
+              else if (Tmtab->mtyp[i] == 201)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w201"));
+              else if (Tmtab->mtyp[i] == 202)
+                 PyList_SetItem(v, i, Py_BuildValue("s", "w202"));
            }
            return v;
 	} else if (cmpncs(member, "size") == 0) {
@@ -13501,6 +14536,213 @@ PyVCS_setTmmember(self, args)
                  get_Tmtab->mtyp[i] = 17;
               else if (cmpncs("hurricane", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
                  get_Tmtab->mtyp[i] = 18;
+	      /* Arulalan Weather Markers */
+	      else if (cmpncs("w00", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 100;
+              else if (cmpncs("w01", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 101;
+              else if (cmpncs("w02", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 102;
+              else if (cmpncs("w03", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 103;
+ 	      else if (cmpncs("w04", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 104;
+              else if (cmpncs("w05", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 105;
+              else if (cmpncs("w06", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 106;
+              else if (cmpncs("w07", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 107;
+              else if (cmpncs("w08", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 108;
+              else if (cmpncs("w09", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 109;
+              else if (cmpncs("w10", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 110;
+              else if (cmpncs("w11", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 111;
+              else if (cmpncs("w12", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 112;
+              else if (cmpncs("w13", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 113;
+	      else if (cmpncs("w14", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 114;
+              else if (cmpncs("w15", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 115;
+              else if (cmpncs("w16", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 116;
+              else if (cmpncs("w17", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 117;
+              else if (cmpncs("w18", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 118;
+              else if (cmpncs("w19", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 119;
+	      else if (cmpncs("w20", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 120;
+              else if (cmpncs("w21", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 121;
+              else if (cmpncs("w22", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 122;
+              else if (cmpncs("w23", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 123;
+	      else if (cmpncs("w24", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 124;
+              else if (cmpncs("w25", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 125;
+              else if (cmpncs("w26", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 126;
+              else if (cmpncs("w27", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 127;
+              else if (cmpncs("w28", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 128;
+              else if (cmpncs("w29", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 129;
+	      else if (cmpncs("w30", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 130;
+              else if (cmpncs("w31", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 131;
+              else if (cmpncs("w32", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 132;
+              else if (cmpncs("w33", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 133;
+	      else if (cmpncs("w34", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 134;
+              else if (cmpncs("w35", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 135;
+              else if (cmpncs("w36", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 136;
+              else if (cmpncs("w37", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 137;
+              else if (cmpncs("w38", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 138;
+              else if (cmpncs("w39", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 139;
+	      else if (cmpncs("w40", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 140;
+              else if (cmpncs("w41", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 141;
+              else if (cmpncs("w42", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 142;
+              else if (cmpncs("w43", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 143;
+	      else if (cmpncs("w44", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 144;
+              else if (cmpncs("w45", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 145;
+              else if (cmpncs("w46", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 146;
+              else if (cmpncs("w47", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 147;
+              else if (cmpncs("w48", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 148;
+              else if (cmpncs("w49", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 149;
+	      else if (cmpncs("w50", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 150;
+              else if (cmpncs("w51", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 151;
+              else if (cmpncs("w52", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 152;
+              else if (cmpncs("w53", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 153;
+	      else if (cmpncs("w54", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 154;
+              else if (cmpncs("w55", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 155;
+              else if (cmpncs("w56", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 156;
+              else if (cmpncs("w57", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 157;
+              else if (cmpncs("w58", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 158;
+              else if (cmpncs("w59", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 159;
+	      else if (cmpncs("w60", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 160;
+              else if (cmpncs("w61", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 161;
+              else if (cmpncs("w62", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 162;
+              else if (cmpncs("w63", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 163;
+	      else if (cmpncs("w64", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 164;
+              else if (cmpncs("w65", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 165;
+              else if (cmpncs("w66", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 166;
+              else if (cmpncs("w67", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 167;
+              else if (cmpncs("w68", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 168;
+              else if (cmpncs("w69", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 169;
+	      else if (cmpncs("w70", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 170;
+              else if (cmpncs("w71", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 171;
+              else if (cmpncs("w72", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 172;
+              else if (cmpncs("w73", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 173;
+	      else if (cmpncs("w74", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 174;
+              else if (cmpncs("w75", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 175;
+              else if (cmpncs("w76", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 176;
+              else if (cmpncs("w77", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 177;
+              else if (cmpncs("w78", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 178;
+              else if (cmpncs("w79", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 179;
+	      else if (cmpncs("w80", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 180;
+              else if (cmpncs("w81", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 181;
+              else if (cmpncs("w82", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 182;
+              else if (cmpncs("w83", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 183;
+	      else if (cmpncs("w84", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 184;
+              else if (cmpncs("w85", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 185;
+              else if (cmpncs("w86", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 186;
+              else if (cmpncs("w87", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 187;
+              else if (cmpncs("w88", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 188;
+              else if (cmpncs("w89", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 189;
+	      else if (cmpncs("w90", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 190;
+              else if (cmpncs("w91", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 191;
+              else if (cmpncs("w92", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 192;
+              else if (cmpncs("w93", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 193;
+	      else if (cmpncs("w94", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 194;
+              else if (cmpncs("w95", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 195;
+              else if (cmpncs("w96", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 196;
+              else if (cmpncs("w97", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 197;
+              else if (cmpncs("w98", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 198;
+              else if (cmpncs("w99", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 199;
+	      else if (cmpncs("w200", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 200;
+              else if (cmpncs("w201", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 201;
+              else if (cmpncs("w202", PyString_AsString(PyList_GetItem(VALUE,i)))==0)
+                 get_Tmtab->mtyp[i] = 202;
              }
            }
         } else if (cmpncs(member, "color") == 0) {

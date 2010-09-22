@@ -129,11 +129,11 @@ CDAT will look for and install if necessary (minimum version required/version di
           freetype 9.7.3 / 2.3.12
           fontconfig 2.4.2 / 2.8.0
           pkg-co nfig 0.9.0 / 0.23.0
-          cairo 1.8.8 / 1.8.10
+          cairo 1.8.10 / 1.8.10
           ffmpeg
           jpeg any/6b
           libpng 1.4.1 / 1.4.2
-          libxml 2.6.27 / 2.7.6
+          libxml 2.6.27 / 2.7.7
           libxslt 1.1.22 / 1.1.26
           Ghostscript
 	  libuuid /1.6.2

@@ -42,7 +42,7 @@ XML_MINOR=6
 XML_PATCH=27
 XML_MAJOR_SRC=2
 XML_MINOR_SRC=7
-XML_PATCH_SRC=6
+XML_PATCH_SRC=7
 XML_URL=ftp://xmlsoft.org/libxml2
 XML_GZ=libxml2-${XML_MAJOR_SRC}.${XML_MINOR_SRC}.${XML_PATCH_SRC}.tar.gz
 AC_SUBST(XML_URL)
@@ -87,7 +87,7 @@ AC_SUBST(PKG_MINOR_SRC)
 AC_SUBST(PKG_PATCH_SRC)
 CAIRO_MAJOR=1
 CAIRO_MINOR=8
-CAIRO_PATCH=8
+CAIRO_PATCH=10
 CAIRO_MAJOR_SRC=1
 CAIRO_MINOR_SRC=8
 CAIRO_PATCH_SRC=10
@@ -134,11 +134,11 @@ AC_SUBST(FTCFG_MAJOR_SRC)
 AC_SUBST(FTCFG_MINOR_SRC)
 AC_SUBST(FTCFG_PATCH_SRC)
 PIX_MAJOR=0
-PIX_MINOR=16
+PIX_MINOR=19
 PIX_PATCH=2
 PIX_MAJOR_SRC=0
-PIX_MINOR_SRC=17
-PIX_PATCH_SRC=10
+PIX_MINOR_SRC=19
+PIX_PATCH_SRC=2
 PIX_URL=http://cairographics.org/releases
 PIX_GZ=pixman-${PIX_MAJOR_SRC}.${PIX_MINOR_SRC}.${PIX_PATCH_SRC}.tar.gz
 AC_SUBST(PIX_URL)
@@ -886,7 +886,7 @@ case ${target_os} in
       fi
     fi
     CFLAGS=${CFLAGS}" -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.5 "
-    LDFLAGS=${LDFLAGS}"  -bind_at_load  -mmacosx-version-min=10.6 -L${prefix}/lib/vtk-5.6"
+    LDFLAGS=${LDFLAGS}"  -bind_at_load  -mmacosx-version-min=10.6 "
     CXXFLAGS=${CXXFLAGS}"  -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.6 ";;
   esac ;;
  cygwin*)
