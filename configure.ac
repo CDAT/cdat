@@ -487,7 +487,7 @@ PyQt_MINOR=7
 PyQt_PATCH=6
 PyQt_MAJOR_SRC=4
 PyQt_MINOR_SRC=7
-PyQt_PATCH_SRC=6
+PyQt_PATCH_SRC=7
 PyQt_URL=http://www.riverbankcomputing.com/static/Downloads/PyQt${PyQt_MAJOR_SRC}
 
 R_MAJOR_SRC=2
