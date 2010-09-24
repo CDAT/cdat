@@ -785,7 +785,7 @@ SECOND_DOLLAR=""
 AC_SUBST(SECOND_DOLLAR)
 case ${target_os} in
  linux-*) 
-  PyQT_PLATFORM="x11"
+  PyQt_PLATFORM="x11"
   cp exsrc/src/CMakeCache.txt.linux.in exsrc/CMakeCache.txt.in
   AC_MSG_NOTICE([Linux: adding -Wl,--rpath,${prefix}/lib -Wl,--rpath,${EXTERNALS}/lib  -Wl,--rpath,${EXTERNALS}/NetCDF/lib  -Wl,--rpath,${EXTERNALS}/HDF5/lib to LDFLAGS])
   LDFLAGS=${LDFLAGS}" -Wl,--rpath,${prefix}/lib -Wl,--rpath,${EXTERNALS}/lib  -Wl,--rpath,${EXTERNALS}/NetCDF/lib  -Wl,--rpath,${EXTERNALS}/HDF5/lib" 
