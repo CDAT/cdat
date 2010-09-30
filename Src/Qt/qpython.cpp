@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "qti.h"
-
+#include "python2.7/Python.h"
 int main(int argc, char **argv) {
 #ifdef __APPLE__
   QPythonApp app(argc, argv);
