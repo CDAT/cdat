@@ -466,20 +466,21 @@ shutil.rmtree("%s/vcs/Include" % sysconfig.get_python_lib(),ignore_errors=True)
 shutil.copytree("Include", "%s/vcs/Include" % sysconfig.get_python_lib())
 print 'Copied the include files to: %s/vcs/Include' % sysconfig.get_python_lib()
 
-if (WM=="QT" or EM=="QT"):# and sys.platform in ['darwin']:
+if (WM=="QT" or EM=="QT") and sys.platform in ['darwin']:
     pref = sys.prefix
     ver = sys.version.split(' ')[0]
     ccCmd = 'g++ -O3 -c %s -IInclude/Qt -IInclude -I/%s/include -o build/qpython.o Src/Qt/qpython.cpp' % (qt_vcs_extra_compile_args,pref)
-    ## print 'Running: ', ccCmd
+    print 'Running: ', ccCmd
     os.system(ccCmd)
     qt_vcs_extra_link_args = '%s/lib/python%s/config/libpython%s.a ' % (pref, ver, ver) + qt_vcs_extra_link_args
     if sys.platform in ['darwin']:
         ldCmd = 'g++ -o build/qpython build/qpython.o %s -lutil' % (qt_vcs_extra_link_args)
-    else:
-        ldCmd = 'g++ -o build/qpython build/qpython.o %s -lutil -Wl,-E -Wl,-rpath -Wl,%s/Externals/lib' % (qt_vcs_extra_link_args,pref)
-    print 'Running: ', ldCmd
-    os.system(ldCmd)
-    if 'install' in sys.argv:
+    #else:
+    #    ldCmd = 'g++ -o build/qpython build/qpython.o %s -lutil -Wl,-E -Wl,-rpath -Wl,%s/Externals/lib' % (qt_vcs_extra_link_args,pref)
+    if sys.platform in ['darwin']:
+      print 'Running: ', ldCmd
+      os.system(ldCmd)
+      if 'install' in sys.argv:
         print 'renaming to :',target_prefix
         os.rename("build/qpython", "%s/bin/cdat" % (target_prefix))
         if target_prefix.find("Versions")>-1:
@@ -490,8 +491,8 @@ if (WM=="QT" or EM=="QT"):# and sys.platform in ['darwin']:
             except:
                 pass
             os.symlink("%s/bin/cdat" % (target_prefix),pth)
-files = os.popen("find build/temp* -name '*.o'").readlines()
-ofiles=' '.join(files).replace('\n',' ')
+#filedds = os.popen("find build/temp* -name '*.o'").readlines()
+#ofiles=' '.join(files).replace('\n',' ')
 #print ofiles
-ldCmd = 'g++ -o libvcs.dylib %s %s ' % (vcs_extra_link_args,ofiles)
-os.system(ldCmd)
+#ldCmd = 'g++ -o libvcs.dylib %s %s ' % (vcs_extra_link_args,ofiles)
+#os.system(ldCmd)
