@@ -118,9 +118,9 @@ CDAT will look for and install if necessary (minimum version required/version di
 
 	  python 2.7.0 / 2.7.0
 	  setuptools 0.6 / 0.6c11
-	  numpy 1.4.1 / 1.5.0
+	  numpy 1.4.1 / 1.4.1
 	  tcl/tk : 8.5.4 / 8.5.8
-	  QT : 4.6.2 / 4.6.3
+	  QT : 4.6.2 / 4.7.0
 	  sip : 4.11.1 / 4.11.1
 	  PyQt : 4.7.6 / 4.7.7
           readline : 5.2 / 6.1

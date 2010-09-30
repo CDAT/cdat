@@ -198,8 +198,8 @@ NUMPY_MAJOR=1
 NUMPY_MINOR=4
 NUMPY_PATCH=1
 NUMPY_MAJOR_SRC=1
-NUMPY_MINOR_SRC=5
-NUMPY_PATCH_SRC=0
+NUMPY_MINOR_SRC=4
+NUMPY_PATCH_SRC=1
 NUMPY_URL=http://downloads.sourceforge.net/project/numpy/NumPy/${NUMPY_MAJOR_SRC}.${NUMPY_MINOR_SRC}.${NUMPY_PATCH_SRC}
 NUMPY_GZ=numpy-${NUMPY_MAJOR_SRC}.${NUMPY_MINOR_SRC}.${NUMPY_PATCH_SRC}.tar.gz
 AC_SUBST(NUMPY_URL)
@@ -613,8 +613,8 @@ AC_SUBST(PYINSTALLKEY)
 PYTHON_INSTALL_PREFIX=""
 AC_SUBST(PYTHON_INSTALL_PREFIX)
 QT_MAJOR_SRC=4
-QT_MINOR_SRC=6
-QT_PATCH_SRC=3
+QT_MINOR_SRC=7
+QT_PATCH_SRC=0
 QT_MAJOR=4
 QT_MINOR=6
 QT_PATCH=2
@@ -781,8 +781,8 @@ LDFLAGS="-L${EXTERNALS}/lib  -L${prefix}/lib -L${EXTERNALS}/NetCDF/lib  -L${EXTE
 CPPFLAGS="-I${EXTERNALS}/include  "$CPPFLAGS
 CFLAGS="-I${EXTERNALS}/include  -L${EXTERNALS}/lib  "${CFLAGS}
 COMPILE_TCLTK=no
-SECOND_DOLLAR=""
-AC_SUBST(SECOND_DOLLAR)
+XTRA_LD_F2PY=""
+AC_SUBST(XTRA_LD_F2PY)
 case ${target_os} in
  linux-*) 
   PyQt_PLATFORM="x11"
@@ -805,7 +805,6 @@ case ${target_os} in
     AC_MSG_RESULT([no])
   fi ;;
  darwin*)
-  SECOND_DOLLAR="$"
   PyQt_PLATFORM="mac"
   PYOPTXTRAQT=" --enable-qt-framework "
   QTCONFIGOPT=" -cocoa "
@@ -886,8 +885,9 @@ case ${target_os} in
       fi
     fi
     CFLAGS=${CFLAGS}" -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.5 "
-    LDFLAGS=${LDFLAGS}"  -bind_at_load  -mmacosx-version-min=10.6 "
-    CXXFLAGS=${CXXFLAGS}"  -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.6 ";;
+    LDFLAGS=${LDFLAGS}" -bind_at_load  -mmacosx-version-min=10.6 "
+    CXXFLAGS=${CXXFLAGS}"  -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.6 "
+    XTRA_LD_F2PY=" -undefined dynamic_lookup " ;;
   esac ;;
  cygwin*)
    PyQt_PLATFORM="x11"
