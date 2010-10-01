@@ -22,7 +22,6 @@ class GuiController(QtCore.QObject):
         self.editorPid = 0
         self.recordCommands = True
 
-        self.workflows = [] # List of workflows
 
         # X coordinates of open, variable, and plot related modules
         self.openX = -300
@@ -39,6 +38,7 @@ class GuiController(QtCore.QObject):
         """ Connect / disconnect the necessary ports and exec workflow -> plot
         into the cell
         """
+        print 'plotting !',var1,var2
         return
     
 

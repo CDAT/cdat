@@ -8,13 +8,8 @@ def main():
 
     app = QtGui.QApplication(sys.argv)
 
-    widget = QtGui.QWidget()
-    widget.resize(250, 150)
-    widget.setWindowTitle('simple')
-    widget.show()
 
     cdat = cdat_window.QCDATWindow()
-    #cdat.resize(250, 150)
     cdat.show()
     
     sys.exit(app.exec_())

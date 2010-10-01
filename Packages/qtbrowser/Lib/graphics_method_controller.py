@@ -92,7 +92,7 @@ class QGraphicsMethodAttributeWindow(QtGui.QMainWindow):
         self.outlineEditor.initValues()
 
     def applyPressedEvent(self):
-        self.boxfillEditor.setVistrailsGraphicsMethod(self.parent.getParent())
+        #self.boxfillEditor.setVistrailsGraphicsMethod(self.parent.getParent())
         
         # TODO
         # self.continentsEditor.setVistrailsGraphicsMethod()
@@ -104,6 +104,7 @@ class QGraphicsMethodAttributeWindow(QtGui.QMainWindow):
         # self.contourEditor.setVistrailsGraphicsMethod()
         # self.oneDimEditor.setVistrailsGraphicsMethod()
         # self.outlineEditor.setVistrailsGraphicsMethod()
+        return #todo
 
     def previewPressedEvent(self):
         return # TODO
@@ -1351,20 +1352,6 @@ class QBoxfillEditor(QtGui.QScrollArea):
         self.expLineEdit.setToolTip("Smallest exponent for negative values")
         self.negDecadesLineEdit.setToolTip("Number of negative decades.")
 
-    def setVistrailsGraphicsMethod(self, varViewWidget):
-        """ Vistrails: Update the vistrails' Graphics Method modules' boxfill
-        input ports  """
-
-        # Generate a list of tuples where each tuple is: (Input Port Name, value)
-        # and update the vistrails' graphics method input ports
-        visInput = []
-        visInput.append(('color_1', self.getValue(self.color1LineEdit, int)))
-        visInput.append(('color_2', self.getValue(self.color2LineEdit, int)))
-        visInput.append(('level_1', self.getValue(self.level1LineEdit, float)))
-        visInput.append(('level_2', self.getValue(self.level2LineEdit, float)))
-
-        varViewWidget.emit(QtCore.SIGNAL('createModule'), gm_name)
-        varViewWidget.emit(QtCore.SIGNAL('updateModuleOps'), gm_name, visInput)
             
     def getValue(self, lineEdit, convertType, default=None):
         try:

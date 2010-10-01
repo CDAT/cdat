@@ -288,9 +288,6 @@ class QCDATFileWidget(QtGui.QWidget):
             self.fileDialog.setDirectory(fi.dir())
             self.cdmsFile = cdms2.open(fn)
             self.recordOpenFileTeachingCommand(fn)
-            # Create and update the open module
-            self.emit(QtCore.SIGNAL('createModule'), open_name)
-            self.emit(QtCore.SIGNAL('updateModule'), open_name, 'uri', fn)
         else:
             self.cdmsFile = None
         self.updateVariableList()
@@ -1717,20 +1714,6 @@ class QVariableView(QtGui.QWidget):
         self.updateVarInfo(axisList)
         self.tabWidget.createNewTab(axisList, tabName)
 
-        # Create the vistrails variable module if it doesn't exist, and update
-        # the modules input ports' values
-        if tabName == 'quickplot':
-            self.emit(QtCore.SIGNAL('createModule'), quickplot_name,
-                      quickplot_name.lower())
-        else:
-            self.emit(QtCore.SIGNAL('createModule'), variable_name, tabName)
-        self.emit(QtCore.SIGNAL('updateModule'), tabName, 'id',
-                  var.id)        
-        self.emit(QtCore.SIGNAL('updateModule'), tabName, 'axes',
-                  str(self.generateKwArgs()))
-        self.emit(QtCore.SIGNAL('updateModule'),
-                  tabName, 'axesOperations',
-                  str(axisList.getAxesOperations()))
 
     def defineVarAxis(self, var, teachingCommand):
         """ Create a new tab/axisList, store it in defined var list, and record
@@ -1786,10 +1769,8 @@ class QVariableView(QtGui.QWidget):
         # existing Graphics Method / CDATCell module.  This results in plots 
         # being plotted multiple times.
         axisList = self.tabWidget.currentWidget()
-        self.emit(QtCore.SIGNAL('createModule'), gm_name)
-        self.emit(QtCore.SIGNAL('createModule'), cdatcell_name)        
-        self.setVistrailsGraphicsMethod() 
-        self.setVistrailsCDATCell()
+        if qtbrowser.use_vistrails:
+            self.setVistrailsCDATCell()
 
         # Get the names of the 2 slabs so we can connect their modules in vistrails
         if self.requiresTwoSlabs(plotType):
