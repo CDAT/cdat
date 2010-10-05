@@ -262,7 +262,7 @@ ifeq (@DOCMOR@,yes)
 	@(cd Packages/cmor ; ./configure --prefix=@EXTERNALS@ --with-netcdf=@NC4LOC@ --with-udunits2=@UDUNITS2LOC@ --with-uuid=@UUIDLOC@ --with-zlib=@EXTERNALS@ --enable-fortran=no; cd ../..) >> @MAINDIR@/logs/cmor_config.LOG 
 endif
 	@echo "Building CDAT"
-	@EXTERNALS=@EXTERNALS@;export EXTERNALS ; HDF5LOC=@HDF5LOC@; export HDF5LOC; PYTHONPATH=@prefix@/lib/python@PYTHON_MAJOR@.@PYTHON_MINOR@/site-packages:${PYTHONPATH} ; export PYTHONPATH ; LD_LIBRARY_PATH=@EXTERNALS@/lib:@prefix@/lib; export LD_LIBRARY_PATH ; env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@XTRA_LD_F2PY@ @LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH="@EXTERNALS@/lib:${LD_LIBRARY_PATH}" @PYTHON@ install.py @PYTHON_INSTALL_OPTIONS@
+	@XTRA_LD_F2PY@ @PYTHON@ install.py @PYTHON_INSTALL_OPTIONS@
 	@echo "Done building CDAT"
 ifeq (@ESG@,yes)
 	@echo "Building ESG dependencies"

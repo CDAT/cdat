@@ -887,7 +887,7 @@ case ${target_os} in
     CFLAGS=${CFLAGS}" -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.5 "
     LDFLAGS=${LDFLAGS}" -bind_at_load  -mmacosx-version-min=10.6 "
     CXXFLAGS=${CXXFLAGS}"  -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.6 "
-    XTRA_LD_F2PY=" -undefined dynamic_lookup " ;;
+    XTRA_LD_F2PY="LDFLAGS=\${LDFLAGS} -undefined dynamic_lookup " ;;
   esac ;;
  cygwin*)
    PyQt_PLATFORM="x11"
@@ -1696,6 +1696,7 @@ dnl ###########################################################
 dnl  LIBNETCDF4
 dnl ###########################################################
 if test ${with_netcdf} != "yes" -a ${with_netcdf} != "no"; then
+    LOCNCCONFIG=${with_netcdf}/bin/nc-config
     AC_CHECK_FILE([${with_netcdf}/bin/nc-config],[HAS_NCCONFIG=yes],[HAS_NCCONFIG=no])
     if  test ${HAS_NCCONFIG} == "yes"  ; then 
       NCCFLAGS=`${with_netcdf}/bin/nc-config --cflags`
@@ -1728,10 +1729,10 @@ else
 fi
 AC_CHECK_LIB([netcdf],[nc_open],[COMPILE_NC=no],[COMPILE_NC=yes],[ ${NCCFLAGS} ${NCLDFLAGS} ])
 if test ${COMPILE_NC} == "no" ; then
-    AC_CHECK_FILE([${with_netcdf}/bin/nc-config],[HAS_NCCONFIG=yes],[HAS_NCCONFIG=no])
+    AC_CHECK_FILE([${LOCNCCONFIG}],[HAS_NCCONFIG=yes],[HAS_NCCONFIG=no])
     if  test ${HAS_NCCONFIG} == "yes"  ; then 
-      NCCFLAGS=`${with_netcdf}/bin/nc-config --cflags`
-      NCLDFLAGS=`${with_netcdf}/bin/nc-config --libs`
+      NCCFLAGS=`${LOCNCCONFIG} --cflags`
+      NCLDFLAGS=`${LOCNCCONFIG} --libs`
     else 
      NCCFLAGS=" -I${with_netcdf}/include"
      NCLDFLAGS=" -L${with_netcdf}/lib "
@@ -1843,14 +1844,15 @@ AC_SUBST(QT_LIB)
 AC_SUBST(QT_BIN)
 
 AC_ARG_WITH([qt],
-	    [AS_HELP_STRING([--with-qt],[specify where to find qt default: /usr/local/Trolltech/Qt-4.5.2])],
+	    [AS_HELP_STRING([--with-qt],[specify where to find qt])],
 	    [],
-	    [with_qt='no'])
+	    [with_qt='yes'])
 
 BUILDQT="no"
 AC_SUBST(BUILDQT)
 
 if test ${with_qt} != "no" ; then
+ COMPILE_XGKS=no
  AC_MSG_NOTICE([WITH QT IS: ${with_qt}])
  if test ${with_qt} == "yes" ; then
    QMAKE=${EXTERNALS}/bin/qmake
@@ -1875,14 +1877,16 @@ else
   	    [AS_HELP_STRING([--with-qt-lib],[specify where to find qt libraries],)],
   	    [],
   	    [with_qt_lib='no'])
-  if test ${with_qt} != "no" ; then
+  if test ${with_qt_lib} != "no" ; then
+   COMPILE_XGKS=no
    PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --with-qt-lib="${with_qt_lib}
   fi;
   AC_ARG_WITH([qt-inc],
 	    [AS_HELP_STRING([--with-qt-inc],[specify where to find qt includes],)],
 	    [],
 	    [with_qt_inc='no'])
-  if test ${with_qt-inc} != "no" ; then
+  if test ${with_qt_inc} != "no" ; then
+   COMPILE_XGKS=no
    PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --with-qt-inc="${with_qt_inc}
   fi;
   AC_ARG_WITH([qt-bin],
@@ -1890,6 +1894,7 @@ else
 	    [],
 	    [with_qt_bin='no'])
   if test ${with_qt_bin} != "no" ; then
+     COMPILE_XGKS=no
      QMAKE=${with_qt_bin}/qmake
      AC_CHECK_FILE(${QMAKE},[HAS_QMAKE=yes],[HAS_QMAKE=no])
      if test ${HAS_QMAKE} == "no" ; then 
@@ -1912,25 +1917,26 @@ if test ${enble_qtdbg} == "-yes" ; then
 fi;
 
 dnl ###########################################################
-dnl QT
+dnl PyQT
 dnl ###########################################################
 
-AC_ARG_ENABLE([vistrails],[AS_HELP_STRING([--enable-vistrails],[Build extra dependencies that are needed by vistrails])])
-
-BUILDVIS="no"
-vistr="-"${enable_vistrails}
-if test ${vistr} == "-yes" ; then
-  BUILDVIS="yes"
+BUILDVIS=yes
+AC_MSG_CHECKING([if python ${PYTHON} has PyQt4 support]) 
+if [test `${PYTHON} -c "cmd = 'try:\n  import PyQt4\n  print 0\nexcept:\n  print 1'; exec(cmd)"` == "0"] ; then
+  AC_MSG_RESULT([yes])
+  BUILDVIS=no
+else
+  AC_MSG_RESULT([no])
+  AC_MSG_NOTICE([your python does not have PyQt4, we will build it])
+  BUILDVIS=yes
   if test ${enable_fw} == "-" -a ${enable_vtk} == "-" ; then
-     AC_MSG_ERROR("[You need to enable framework for vistrails]")
+     AC_MSG_ERROR("[You need to enable framework]")
   fi
   if test "-"${with_qt} == "-" -a ${enable_vtk} == "-" ; then
      AC_MSG_ERROR("[You need to enable framework for vistrails]")
   fi
   PyQt_GZ=PyQt-${PyQt_PLATFORM}-gpl-${PyQt_MAJOR_SRC}.${PyQt_MINOR_SRC}.${PyQt_PATCH_SRC}.tar.gz
 fi
-
-
 
 
 AC_OUTPUT
