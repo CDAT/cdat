@@ -224,6 +224,7 @@ class forecasts():
             fc.close()
 
     def __call__( self, varname, forecast_times='All' ):
+        # TO DO: >>>> select lat,lon,lev subsets when reading a variable <<<<
         """Reads the specified variable for all the specified forecasts.
         Creates and returns a new variable which is dimensioned by forecast
         as well as the original variable's dimensions.

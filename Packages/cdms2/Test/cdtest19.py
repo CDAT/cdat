@@ -1,7 +1,4 @@
 # Forecast test
-# For comparison, see the existing dataset tests; they include 01, 07 which runs cdscan
-# and 10 which breaks data into pieces, writes them into multiple files, then reads
-# them back as a dataset, for comparison to the original.
 
 print 'Test 19: Forecast I/O ... ',
 
@@ -14,6 +11,7 @@ clearError()
 # Generate some test data, then write it out.  This section doesn't test anything.
 xaxis = cdms2.createAxis( [ 0.1, 0.2 ], id='x' )
 taxis = cdms2.createAxis( [ 10.0, 20.0 ], id='t' )
+taxis.units='seconds since 2006-01-02'    # required!
 taxis.designateTime()
 v1 = cdms2.tvariable.TransientVariable( [[1.1,1.2],[2.1,2.1]], axes=[taxis,xaxis], id='var' )
 v2 = cdms2.tvariable.TransientVariable( [[3.1,3.2],[4.1,4.1]], axes=[taxis,xaxis], id='var' )
@@ -70,5 +68,3 @@ if not fcaxis._data_ == [2010082500000L, 2010082600000L] : markError( "wrong for
 if not fcaxis.id == 'fctau0' : markError( "wrong forecast axis id" )
 
 reportError()
-
-
