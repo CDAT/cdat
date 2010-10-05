@@ -887,7 +887,7 @@ case ${target_os} in
     CFLAGS=${CFLAGS}" -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.5 "
     LDFLAGS=${LDFLAGS}" -bind_at_load  -mmacosx-version-min=10.6 "
     CXXFLAGS=${CXXFLAGS}"  -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.6 "
-    XTRA_LD_F2PY="LDFLAGS=\${LDFLAGS} -undefined dynamic_lookup " ;;
+    XTRA_LD_F2PY="env LDFLAGS="\${LDFLAGS} -undefined dynamic_lookup "" ;;
   esac ;;
  cygwin*)
    PyQt_PLATFORM="x11"
