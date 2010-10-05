@@ -8,6 +8,7 @@
 #include <QtGui/QApplication>
 #include <QtGui/QDesktopWidget>
 #include <QtGui/QResizeEvent>
+#include <QtGui/QToolTip>
 #include <stdio.h>
 
 QMutex canvasupdatemutex(QMutex::Recursive);
@@ -107,6 +108,7 @@ extern "C" void vcs_Qt_display_info(int id, Gpoint pointA, struct data_point inf
 
 extern "C" void vcs_Qt_display_menu(int id, float x, float y)
 {
+  QToolTip::showText(QCursor::pos(), "Hello World");
   QVCSEvent *event = new QVCSEvent(VCS_MENU_EVENT);
   event->point.x = x;
   event->point.y = y;

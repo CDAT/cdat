@@ -95,11 +95,14 @@ def init(gui = 0, mode=1, pause_time=0, call_from_gui=0, size=None):
     c.plot(isoline,slab,template)       # Plot slab using isoline and template objects
 '''
     initQt()
-    return Canvas.Canvas(gui=gui, mode=mode, pause_time=pause_time, call_from_gui=call_from_gui, size=size)
-
+    canvas = Canvas.Canvas(gui=gui, mode=mode, pause_time=pause_time, call_from_gui=call_from_gui, size=size)
+    global canvaslist
+    canvaslist.append(canvas)
+    return canvas
+    
 def initQt():
     _vcs.startQtApp()
 
 taylordiagrams=[taylor.Gtd()]
-
+canvaslist = []
 #meshfills=[meshfill.Gfm()]
