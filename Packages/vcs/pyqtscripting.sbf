@@ -1,3 +1,0 @@
-target = cdatguiwrap
-sources = sipcdatguiwrapcmodule.cpp sipcdatguiwrapVCSQtManager.cpp sipcdatguiwrapMainWindow.cpp
-headers = sipAPIcdatguiwrap.h
