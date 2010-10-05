@@ -1,7 +1,6 @@
 Climate Data Analysis Tools (CDAT)
 
-
- VERSION: @PACKAGE_VERSION@
+VERSION: @PACKAGE_VERSION@
 
 Don't forget to check http://cdat.sf.net for the latest news and tips
 
@@ -121,6 +120,9 @@ CDAT will look for and install if necessary (minimum version required/version di
 	  setuptools @SETUPTOOLS_MAJOR@.@SETUPTOOLS_MINOR@ / @SETUPTOOLS_MAJOR_SRC@.@SETUPTOOLS_MINOR_SRC@
 	  numpy @NUMPY_MAJOR@.@NUMPY_MINOR@.@NUMPY_PATCH@ / @NUMPY_MAJOR_SRC@.@NUMPY_MINOR_SRC@.@NUMPY_PATCH_SRC@
 	  tcl/tk : @TCLTK_MAJOR@.@TCLTK_MINOR@.@TCLTK_PATCH@ / @TCLTK_MAJOR_SRC@.@TCLTK_MINOR_SRC@.@TCLTK_PATCH_SRC@
+	  QT : @QT_MAJOR@.@QT_MINOR@.@QT_PATCH@ / @QT_MAJOR_SRC@.@QT_MINOR_SRC@.@QT_PATCH_SRC@
+	  sip : @SIP_MAJOR@.@SIP_MINOR@.@SIP_PATCH@ / @SIP_MAJOR_SRC@.@SIP_MINOR_SRC@.@SIP_PATCH_SRC@
+	  PyQt : @PyQt_MAJOR@.@PyQt_MINOR@.@PyQt_PATCH@ / @PyQt_MAJOR_SRC@.@PyQt_MINOR_SRC@.@PyQt_PATCH_SRC@
           readline : @RL_MAJOR@.@RL_MINOR@ / @RL_MAJOR_SRC@.@RL_MINOR_SRC@
 	  zlib: any / @ZLIB_MAJOR_SRC@.@ZLIB_MINOR_SRC@.@ZLIB_PATCH_SRC@
 	  termcap: any / @TCAP_MAJOR_SRC@.@TCAP_MINOR_SRC@.@TCAP_PATCH_SRC@

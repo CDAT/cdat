@@ -870,6 +870,29 @@ PGCONFIG
 SETUPTOOLS
 PyOpenGL
 NCPUS
+BUILDVIS
+SIP_MAJOR
+SIP_MINOR
+SIP_PATCH
+SIP_MAJOR_SRC
+SIP_MINOR_SRC
+SIP_PATCH_SRC
+SIP_GZ
+SIP_URL
+PyQt_GZ
+PyQt_URL
+PyQt_PLATFORM
+PyQt_MAJOR
+PyQt_MINOR
+PyQt_PATCH
+PyQt_MAJOR_SRC
+PyQt_MINOR_SRC
+PyQt_PATCH_SRC
+R_MAJOR_SRC
+R_MINOR_SRC
+R_PATCH_SRC
+R_GZ
+R_URL
 MD5PRG
 MD5CNT
 DOCMOR
@@ -932,6 +955,16 @@ HASWGET
 WGET_URL
 WGET_GZ
 HASCURL
+PYINSTALLKEY
+PYTHON_INSTALL_PREFIX
+QT_MAJOR
+QT_MINOR
+QT_PATCH
+QT_MAJOR_SRC
+QT_MINOR_SRC
+QT_PATCH_SRC
+QT_URL
+QT_GZ
 CXX
 CXXFLAGS
 LDFLAGS
@@ -972,6 +1005,8 @@ X_PRE_LIBS
 X_LIBS
 X_EXTRA_LIBS
 COMPILE_VTK
+QTCONFIGOPT
+XTRA_LD_F2PY
 EXTRAENV
 GREP
 EGREP
@@ -986,6 +1021,11 @@ PPMTOGIF
 FLTK2_CONF
 PKG_CONFIG
 LOCNCCONFIG
+QMAKE
+QT_INC
+QT_LIB
+QT_BIN
+BUILDQT
 LIBOBJS
 LTLIBOBJS'
 ac_subst_files=''
@@ -1605,11 +1645,6 @@ Optional Features:
   --enable-netcdf-fortran enables netcdf-fortran (default is no)
   --enable-all            build all externals
   --enable-qt-debug       adds _debug to Qt libs
-  --enable-qt             use qt instead of tcl/tk default:
-                          /usr/local/Trolltech/Qt-4.5.2/ to change these use
-                          --with-qt/--with-qt-inc/--with-qt-lib/--with-qt-bin
-                          instead
-  --enable-qtframework    use qt framework instead of tcl/tk
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -1626,8 +1661,7 @@ Optional Packages:
                           location
   --with-hdf5             enable location of hdf5 libs
   --with-hdf4             enable support for HDF4
-  --with-qt               specify where to find qt default:
-                          /usr/local/Trolltech/Qt-4.5.2
+  --with-qt               specify where to find qt
   --with-qt-lib           specify where to find qt libraries
   --with-qt-inc           specify where to find qt includes
   --with-qt-bin           specify where to find qt binary (namely the moc bin)
@@ -2086,18 +2120,18 @@ if test ${SVN_TAG} == "rev" ; then
 fi
 CDAT_VERSION=${PACKAGE_VERSION}${SVN_TAG}
 
-ac_config_files="$ac_config_files Makefile site.cfg README.txt Scripts/cdat Scripts/vcdat exsrc/CMakeCache.txt checked_get.sh"
+ac_config_files="$ac_config_files Makefile site.cfg README.txt Scripts/cdat Scripts/vcdat exsrc/CMakeCache.txt checked_get.sh exsrc/src/pbmplus/Makefile"
 
 
 
 PYTHON_MAJOR=2
-PYTHON_MINOR=6
+PYTHON_MINOR=7
 PYTHON_PATCH=0
 PYTHON_MAJOR_SRC=2
-PYTHON_MINOR_SRC=6
-PYTHON_PATCH_SRC=5
-PYTHON_URL=http://python.org/ftp/python/${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.${PYTHON_PATCH_SRC}
-PYTHON_GZ=Python-${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.${PYTHON_PATCH_SRC}.tgz
+PYTHON_MINOR_SRC=7
+PYTHON_PATCH_SRC=0
+PYTHON_URL=http://python.org/ftp/python/${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}
+PYTHON_GZ=Python-${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.tgz
 
 
 
@@ -2108,13 +2142,14 @@ PYTHON_GZ=Python-${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.${PYTHON_PATCH_SRC}.tgz
 
 
 PYVER=${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}
+echo "PYVER IS : " ${PYVER}
 
 XML_MAJOR=2
 XML_MINOR=6
 XML_PATCH=27
 XML_MAJOR_SRC=2
 XML_MINOR_SRC=7
-XML_PATCH_SRC=6
+XML_PATCH_SRC=7
 XML_URL=ftp://xmlsoft.org/libxml2
 XML_GZ=libxml2-${XML_MAJOR_SRC}.${XML_MINOR_SRC}.${XML_PATCH_SRC}.tar.gz
 
@@ -2159,7 +2194,7 @@ PKG_GZ=pkg-config-${PKG_MAJOR_SRC}.${PKG_MINOR_SRC}.tar.gz
 
 CAIRO_MAJOR=1
 CAIRO_MINOR=8
-CAIRO_PATCH=8
+CAIRO_PATCH=10
 CAIRO_MAJOR_SRC=1
 CAIRO_MINOR_SRC=8
 CAIRO_PATCH_SRC=10
@@ -2206,11 +2241,11 @@ FTCFG_GZ=fontconfig-${FTCFG_MAJOR_SRC}.${FTCFG_MINOR_SRC}.${FTCFG_PATCH_SRC}.tar
 
 
 PIX_MAJOR=0
-PIX_MINOR=16
+PIX_MINOR=19
 PIX_PATCH=2
 PIX_MAJOR_SRC=0
-PIX_MINOR_SRC=17
-PIX_PATCH_SRC=10
+PIX_MINOR_SRC=19
+PIX_PATCH_SRC=2
 PIX_URL=http://cairographics.org/releases
 PIX_GZ=pixman-${PIX_MAJOR_SRC}.${PIX_MINOR_SRC}.${PIX_PATCH_SRC}.tar.gz
 
@@ -2267,7 +2302,7 @@ PMW_GZ=Pmw.${PMW_MAJOR_SRC}.${PMW_MINOR_SRC}.${PMW_PATCH_SRC}.tar.gz
 
 
 NUMPY_MAJOR=1
-NUMPY_MINOR=2
+NUMPY_MINOR=4
 NUMPY_PATCH=1
 NUMPY_MAJOR_SRC=1
 NUMPY_MINOR_SRC=4
@@ -2476,7 +2511,7 @@ XGKS_GZ=xgks.tar.gz
 
 
 JPEG_URL=http://www.ijg.org/files
-JPEG_GZ=jpegsrc.v8a.tar.gz
+JPEG_GZ=jpegsrc.v8b.tar.gz
 
 
 BLAS_URL=http://www.netlib.org/blas
@@ -2496,9 +2531,9 @@ PBMPLUS_GZ=pbmplus_10dec1991.tar.gz
 
 
 GS_MAJOR_SRC=8
-GS_MINOR_SRC=64
+GS_MINOR_SRC=71
 GS_URL=http://ghostscript.com/releases
-GS_GZ=ghostscript-8.64.tar.gz
+GS_GZ=ghostscript-${GS_MAJOR_SRC}.${GS_MINOR_SRC}.tar.gz
 
 
 
@@ -2514,10 +2549,58 @@ FFMPEG_GZ=ffmpeg-${FFMPEG_MAJOR_SRC}.${FFMPEG_MINOR_SRC}.${FFMPEG_PATCH_SRC}.tar
 
 
 VTK_MAJOR_SRC=5
-VTK_MINOR_SRC=4
-VTK_PATCH_SRC=2
+VTK_MINOR_SRC=6
+VTK_PATCH_SRC=0
 VTK_URL=http://www.vtk.org/files/release/${VTK_MAJOR_SRC}.${VTK_MINOR_SRC}
 VTK_GZ=vtk-${VTK_MAJOR_SRC}.${VTK_MINOR_SRC}.${VTK_PATCH_SRC}.tar.gz
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SIP_MAJOR=4
+SIP_MINOR=11
+SIP_PATCH=1
+SIP_MAJOR_SRC=4
+SIP_MINOR_SRC=11
+SIP_PATCH_SRC=1
+SIP_URL=http://www.riverbankcomputing.com/static/Downloads/sip${SIP_MAJOR_SRC}
+SIP_GZ=sip-${SIP_MAJOR_SRC}.${SIP_MINOR_SRC}.${SIP_PATCH_SRC}.tar.gz
+
+
+
+
+
+
+
+
+
+
+
+
+
+PyQt_MAJOR=4
+PyQt_MINOR=7
+PyQt_PATCH=6
+PyQt_MAJOR_SRC=4
+PyQt_MINOR_SRC=7
+PyQt_PATCH_SRC=7
+PyQt_URL=http://www.riverbankcomputing.com/static/Downloads/PyQt${PyQt_MAJOR_SRC}
+
+R_MAJOR_SRC=2
+R_MINOR_SRC=11
+R_PATCH_SRC=1
+R_URL=http://cran.cnr.berkeley.edu
+R_GZ=R-${R_MAJOR_SRC}.${R_MINOR_SRC}.${R_PATCH_SRC}.tar.gz
 
 
 
@@ -2641,6 +2724,25 @@ TERMCAP_GZ=termcap-1.3.1.tar.gz
 
 
 
+PYTHON_INSTALL_PREFIX=""
+
+QT_MAJOR_SRC=4
+QT_MINOR_SRC=7
+QT_PATCH_SRC=0
+QT_MAJOR=4
+QT_MINOR=6
+QT_PATCH=2
+
+
+
+
+
+
+QT_URL=ftp://ftp.qt.nokia.com/qt/source
+QT_GZ=qt-everywhere-opensource-src-${QT_MAJOR_SRC}.${QT_MINOR_SRC}.${QT_PATCH_SRC}.tar.gz
+
+
+
 WGET_URL=http://ftp.gnu.org/gnu/wget
 WGET_GZ=wget-latest.tar.gz
 DOWGET="no"
@@ -2759,6 +2861,8 @@ COMPILE_PKGCONFIG=no
 COMPILE_XSLT=no
 
 PYOPT="--enable-shared "
+PYINSTALLKEY="install"
+
 # Check whether --enable-fortran was given.
 if test "${enable_fortran+set}" = set; then
   enableval=$enable_fortran;
@@ -7309,14 +7413,19 @@ fi
 
 EXTRAENV=""
 
+
+
 { echo "$as_me:$LINENO: add ${EXTERNALS} to LD and CPP FLAGS" >&5
 echo "$as_me: add ${EXTERNALS} to LD and CPP FLAGS" >&6;}
 LDFLAGS="-L${EXTERNALS}/lib  -L${prefix}/lib -L${EXTERNALS}/NetCDF/lib  -L${EXTERNALS}/HDF5/lib "$LDFLAGS
 CPPFLAGS="-I${EXTERNALS}/include  "$CPPFLAGS
 CFLAGS="-I${EXTERNALS}/include  -L${EXTERNALS}/lib  "${CFLAGS}
 COMPILE_TCLTK=no
+XTRA_LD_F2PY=""
+
 case ${target_os} in
  linux-*)
+  PyQt_PLATFORM="x11"
   cp exsrc/src/CMakeCache.txt.linux.in exsrc/CMakeCache.txt.in
   { echo "$as_me:$LINENO: Linux: adding -Wl,--rpath,${prefix}/lib -Wl,--rpath,${EXTERNALS}/lib  -Wl,--rpath,${EXTERNALS}/NetCDF/lib  -Wl,--rpath,${EXTERNALS}/HDF5/lib to LDFLAGS" >&5
 echo "$as_me: Linux: adding -Wl,--rpath,${prefix}/lib -Wl,--rpath,${EXTERNALS}/lib  -Wl,--rpath,${EXTERNALS}/NetCDF/lib  -Wl,--rpath,${EXTERNALS}/HDF5/lib to LDFLAGS" >&6;}
@@ -7346,6 +7455,9 @@ echo "$as_me: adding -L${IC}/lib -Wl,--rpath,${IC}/lib -limf -lirc to LDFLAGS" >
 echo "${ECHO_T}no" >&6; }
   fi ;;
  darwin*)
+  PyQt_PLATFORM="mac"
+  PYOPTXTRAQT=" --enable-qt-framework "
+  QTCONFIGOPT=" -cocoa "
   MD5PRG="md5"
   MD5CNT=4
   LDFLAGS=${LDFLAGS}" -R${prefix}/lib -R${EXTERNALS}/lib  -R${EXTERNALS}/NetCDF/lib  -R${EXTERNALS}/HDF5/lib "
@@ -7397,10 +7509,18 @@ fi
   if test ${enable_fw} == "-yes" ; then
     PYOPT=" --enable-framework"
     cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
+    PYINSTALLKEY="frameworkinstall"
   else
      if test ${enable_fw} != "-" ; then
          PYOPT=" --enable-framework=${enable_framework}"
          cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
+         PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall "
+     else
+       if test ${enable_vtk} == "-yes" ; then
+           PYOPT=" --enable-framework=${prefix} "
+           cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
+           PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall"
+       fi
      fi
   fi
         # Check whether --enable-toolbox-glue was given.
@@ -7416,12 +7536,31 @@ fi
     darwin10*)
     EXTRAENV="MACOSX_DEPLOYMENT_TARGET=10.6"
 
-    PYOPT=${PYOPT}" --disable-toolbox-glue --disable-framework "
-    CFLAGS=${CFLAGS}" -fPIC -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.5 "
-    LDFLAGS=${LDFLAGS}" -fPIC  -bind_at_load  -mmacosx-version-min=10.5 "
-    CXXFLAGS=${CXXFLAGS}" -fPIC -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.5 ";;
+    if test ${enable_fw} == "-yes" ; then
+      PYOPT=" --enable-framework"
+      PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall"
+    else
+      if test ${enable_fw} != "-" ; then
+         PYOPT=" --enable-framework=${enable_framework}"
+         PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall"
+      else
+         if test ${enable_vtk} == "-yes" ; then
+           PYOPT=" --enable-framework=${prefix} "
+           cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
+           PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall"
+	   PYTHON_INSTALL_PREFIX=" --prefix="${prefix}
+         else
+           PYOPT=${PYOPT}" --disable-toolbox-glue --disable-framework "
+	 fi
+      fi
+    fi
+    CFLAGS=${CFLAGS}" -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.5 "
+    LDFLAGS=${LDFLAGS}" -bind_at_load  -mmacosx-version-min=10.6 "
+    CXXFLAGS=${CXXFLAGS}"  -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.6 "
+    XTRA_LD_F2PY="env LDFLAGS="\${LDFLAGS} -undefined dynamic_lookup "" ;;
   esac ;;
  cygwin*)
+   PyQt_PLATFORM="x11"
       FFMPEG=yes
    HAVE_LIBLAPACK=yes
    HAVE_LIBLAPACK95=yes ;;
@@ -7430,12 +7569,21 @@ esac
 { echo "$as_me:$LINENO: checking for 64bit machine" >&5
 echo $ECHO_N "checking for 64bit machine... $ECHO_C" >&6; }
 if test ${target_cpu} == "x86_64" -o ${target_cpu} == "ia64" ; then
+  case ${target_os} in
+  darwin10*)
+    { echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; }
+    { echo "$as_me:$LINENO: not adding -fPIC to C and CXX FLAGS on snowleopard" >&5
+echo "$as_me: not adding -fPIC to C and CXX FLAGS on snowleopard" >&6;}
+    ;;
+  *)
   { echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6; }
   { echo "$as_me:$LINENO: adding -fPIC to C and CXX FLAGS" >&5
 echo "$as_me: adding -fPIC to C and CXX FLAGS" >&6;}
   CFLAGS=${CFLAGS}" -fPIC"
   CXXFLAGS=${CXXFLAGS}" -fPIC"
+ esac
 else
       { echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6; }
@@ -7601,11 +7749,12 @@ echo "${ECHO_T}$ac_res" >&6; }
 if test `eval echo '${'$as_ac_File'}'` = yes; then
   PYTHON=${with_python}
 else
-  { { echo "$as_me:$LINENO: error: your python is not here" >&5
-echo "$as_me: error: your python is not here" >&2;}
+  { { echo "$as_me:$LINENO: error: Could not find python executable ${with_python}" >&5
+echo "$as_me: error: Could not find python executable ${with_python}" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
+  PYTHON_INSTALL_PREFIX=" --prefix=${with_python} "
 else
   # Extract the first word of "python", so it can be a program name with args.
 set dummy python; ac_word=$2
@@ -7732,7 +7881,8 @@ echo "${ECHO_T}yes" >&6; }
  fi
 fi
 if test ${COMPILE_PYTHON} == "no"; then
-    PYVER=`${PYTHON} -c "import sys;print '.'.join(sys.version.split('.').__getslice__(0,2))"`
+    PYVER=`${PYTHON} -c "import sys;print sys.version.split(' ').pop(0)"`
+  echo "********************************"${PYVER}
     TCLTK_VERSION=`${PYTHON} -c "import Tkinter;print Tkinter.TkVersion"`
     COMPILE_READLINE=no
   COMPILE_Z=no
@@ -10381,6 +10531,36 @@ else
   fi
 fi
 
+# Ok now do we need to change the prefix ?
+if  test ${COMPILE_PYTHON} == "no"  ; then
+ if  test "-"${PYTHON_INSTALL_PREFIX} == "-"  ; then
+  as_ac_File=`echo "ac_cv_file_${prefix}/bin/python" | $as_tr_sh`
+{ echo "$as_me:$LINENO: checking for ${prefix}/bin/python" >&5
+echo $ECHO_N "checking for ${prefix}/bin/python... $ECHO_C" >&6; }
+if { as_var=$as_ac_File; eval "test \"\${$as_var+set}\" = set"; }; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  test "$cross_compiling" = yes &&
+  { { echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
+echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
+   { (exit 1); exit 1; }; }
+if test -r "${prefix}/bin/python"; then
+  eval "$as_ac_File=yes"
+else
+  eval "$as_ac_File=no"
+fi
+fi
+ac_res=`eval echo '${'$as_ac_File'}'`
+	       { echo "$as_me:$LINENO: result: $ac_res" >&5
+echo "${ECHO_T}$ac_res" >&6; }
+if test `eval echo '${'$as_ac_File'}'` = yes; then
+  :
+else
+  PYTHON_INSTALL_PREFIX=" --prefix="${prefix}
+fi
+
+ fi
+fi
 COMPILE_FLTK2=yes
 # Extract the first word of "fltk2-config", so it can be a program name with args.
 set dummy fltk2-config; ac_word=$2
@@ -11168,6 +11348,7 @@ fi
     fi
 
 if test ${with_netcdf} != "yes" -a ${with_netcdf} != "no"; then
+    LOCNCCONFIG=${with_netcdf}/bin/nc-config
     as_ac_File=`echo "ac_cv_file_${with_netcdf}/bin/nc-config" | $as_tr_sh`
 { echo "$as_me:$LINENO: checking for ${with_netcdf}/bin/nc-config" >&5
 echo $ECHO_N "checking for ${with_netcdf}/bin/nc-config... $ECHO_C" >&6; }
@@ -11330,9 +11511,9 @@ else
 fi
 
 if test ${COMPILE_NC} == "no" ; then
-    as_ac_File=`echo "ac_cv_file_${with_netcdf}/bin/nc-config" | $as_tr_sh`
-{ echo "$as_me:$LINENO: checking for ${with_netcdf}/bin/nc-config" >&5
-echo $ECHO_N "checking for ${with_netcdf}/bin/nc-config... $ECHO_C" >&6; }
+    as_ac_File=`echo "ac_cv_file_${LOCNCCONFIG}" | $as_tr_sh`
+{ echo "$as_me:$LINENO: checking for ${LOCNCCONFIG}" >&5
+echo $ECHO_N "checking for ${LOCNCCONFIG}... $ECHO_C" >&6; }
 if { as_var=$as_ac_File; eval "test \"\${$as_var+set}\" = set"; }; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
@@ -11340,7 +11521,7 @@ else
   { { echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
 echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
    { (exit 1); exit 1; }; }
-if test -r "${with_netcdf}/bin/nc-config"; then
+if test -r "${LOCNCCONFIG}"; then
   eval "$as_ac_File=yes"
 else
   eval "$as_ac_File=no"
@@ -11356,8 +11537,8 @@ else
 fi
 
     if  test ${HAS_NCCONFIG} == "yes"  ; then
-      NCCFLAGS=`${with_netcdf}/bin/nc-config --cflags`
-      NCLDFLAGS=`${with_netcdf}/bin/nc-config --libs`
+      NCCFLAGS=`${LOCNCCONFIG} --cflags`
+      NCLDFLAGS=`${LOCNCCONFIG} --libs`
     else
      NCCFLAGS=" -I${with_netcdf}/include"
      NCLDFLAGS=" -L${with_netcdf}/lib "
@@ -11510,16 +11691,69 @@ fi
 
 
 
+
+
+
+
 # Check whether --with-qt was given.
 if test "${with_qt+set}" = set; then
   withval=$with_qt;
 else
-  with_qt='no'
+  with_qt='yes'
 fi
 
+
+BUILDQT="no"
+
+
 if test ${with_qt} != "no" ; then
-   PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --with-qt="${with_qt}
-fi;
+ COMPILE_XGKS=no
+ { echo "$as_me:$LINENO: WITH QT IS: ${with_qt}" >&5
+echo "$as_me: WITH QT IS: ${with_qt}" >&6;}
+ if test ${with_qt} == "yes" ; then
+   QMAKE=${EXTERNALS}/bin/qmake
+ else
+   QMAKE=${with_qt}/bin/qmake
+ fi
+ as_ac_File=`echo "ac_cv_file_${QMAKE}" | $as_tr_sh`
+{ echo "$as_me:$LINENO: checking for ${QMAKE}" >&5
+echo $ECHO_N "checking for ${QMAKE}... $ECHO_C" >&6; }
+if { as_var=$as_ac_File; eval "test \"\${$as_var+set}\" = set"; }; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  test "$cross_compiling" = yes &&
+  { { echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
+echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
+   { (exit 1); exit 1; }; }
+if test -r "${QMAKE}"; then
+  eval "$as_ac_File=yes"
+else
+  eval "$as_ac_File=no"
+fi
+fi
+ac_res=`eval echo '${'$as_ac_File'}'`
+	       { echo "$as_me:$LINENO: result: $ac_res" >&5
+echo "${ECHO_T}$ac_res" >&6; }
+if test `eval echo '${'$as_ac_File'}'` = yes; then
+  HAS_QMAKE=yes
+else
+  HAS_QMAKE=no
+fi
+
+ if test ${HAS_QMAKE} == "no" ; then
+   { echo "$as_me:$LINENO: WARNING: Could not find qmake at ${QMAKE} will build Qt for you" >&5
+echo "$as_me: WARNING: Could not find qmake at ${QMAKE} will build Qt for you" >&2;}
+   BUILDQT="yes"
+   PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}${PYOPTXTRAQT}" --with-qt="${EXTERNALS}
+   QMAKE=${EXTERNALS}/bin/qmake
+ else
+  if test ${with_qt} == "yes" ; then
+   PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}${PYOPTXTRAQT}" --with-qt="${EXTERNALS}
+  else
+   PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}${PYOPTXTRAQT}" --with-qt="${with_qt}
+  fi
+ fi
+else
 
 # Check whether --with-qt-lib was given.
 if test "${with_qt_lib+set}" = set; then
@@ -11528,9 +11762,10 @@ else
   with_qt_lib='no'
 fi
 
-if test ${with_qt} != "no" ; then
+  if test ${with_qt_lib} != "no" ; then
+   COMPILE_XGKS=no
    PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --with-qt-lib="${with_qt_lib}
-fi;
+  fi;
 
 # Check whether --with-qt-inc was given.
 if test "${with_qt_inc+set}" = set; then
@@ -11539,9 +11774,10 @@ else
   with_qt_inc='no'
 fi
 
-if test ${with_qt-inc} != "no" ; then
+  if test ${with_qt_inc} != "no" ; then
+   COMPILE_XGKS=no
    PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --with-qt-inc="${with_qt_inc}
-fi;
+  fi;
 
 # Check whether --with-qt-bin was given.
 if test "${with_qt_bin+set}" = set; then
@@ -11550,9 +11786,45 @@ else
   with_qt_bin='no'
 fi
 
-if test ${with_qt_bin} != "no" ; then
-   PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --with-qt-bin="${with_qt_bin}
-fi;
+  if test ${with_qt_bin} != "no" ; then
+     COMPILE_XGKS=no
+     QMAKE=${with_qt_bin}/qmake
+     as_ac_File=`echo "ac_cv_file_${QMAKE}" | $as_tr_sh`
+{ echo "$as_me:$LINENO: checking for ${QMAKE}" >&5
+echo $ECHO_N "checking for ${QMAKE}... $ECHO_C" >&6; }
+if { as_var=$as_ac_File; eval "test \"\${$as_var+set}\" = set"; }; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  test "$cross_compiling" = yes &&
+  { { echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
+echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
+   { (exit 1); exit 1; }; }
+if test -r "${QMAKE}"; then
+  eval "$as_ac_File=yes"
+else
+  eval "$as_ac_File=no"
+fi
+fi
+ac_res=`eval echo '${'$as_ac_File'}'`
+	       { echo "$as_me:$LINENO: result: $ac_res" >&5
+echo "${ECHO_T}$ac_res" >&6; }
+if test `eval echo '${'$as_ac_File'}'` = yes; then
+  HAS_QMAKE=yes
+else
+  HAS_QMAKE=no
+fi
+
+     if test ${HAS_QMAKE} == "no" ; then
+       { echo "$as_me:$LINENO: WARNING: Could not find qmake at ${QMAKE} will build Qt for you" >&5
+echo "$as_me: WARNING: Could not find qmake at ${QMAKE} will build Qt for you" >&2;}
+       BUILDQT="yes"
+       PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}${PYOPTXTRAQT}" --with-qt="${EXTERNALS}
+       QMAKE=${EXTERNALS}/bin/qmake
+     else
+       PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}${PYOPTXTRAQT}" --with-qt-bin="${with_qt_bin}
+     fi
+  fi
+fi
 # Check whether --enable-qt-debug was given.
 if test "${enable_qt_debug+set}" = set; then
   enableval=$enable_qt_debug;
@@ -11564,32 +11836,35 @@ enble_qtdbg="-"${enable_qt_debug}
 if test ${enble_qtdbg} == "-yes" ; then
      PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --qt-debug"
 fi;
-# Check whether --enable-qt was given.
-if test "${enable_qt+set}" = set; then
-  enableval=$enable_qt;
+
+
+BUILDVIS=yes
+{ echo "$as_me:$LINENO: checking if python ${PYTHON} has PyQt4 support" >&5
+echo $ECHO_N "checking if python ${PYTHON} has PyQt4 support... $ECHO_C" >&6; }
+if test `${PYTHON} -c "cmd = 'try:\n  import PyQt4\n  print 0\nexcept:\n  print 1'; exec(cmd)"` == "0" ; then
+  { echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; }
+  BUILDVIS=no
 else
-  enable_qt='no'
+  { echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+  { echo "$as_me:$LINENO: your python does not have PyQt4, we will build it" >&5
+echo "$as_me: your python does not have PyQt4, we will build it" >&6;}
+  BUILDVIS=yes
+  if test ${enable_fw} == "-" -a ${enable_vtk} == "-" ; then
+     { { echo "$as_me:$LINENO: error: \"You need to enable framework\"" >&5
+echo "$as_me: error: \"You need to enable framework\"" >&2;}
+   { (exit 1); exit 1; }; }
+  fi
+  if test "-"${with_qt} == "-" -a ${enable_vtk} == "-" ; then
+     { { echo "$as_me:$LINENO: error: \"You need to enable framework for vistrails\"" >&5
+echo "$as_me: error: \"You need to enable framework for vistrails\"" >&2;}
+   { (exit 1); exit 1; }; }
+  fi
+  PyQt_GZ=PyQt-${PyQt_PLATFORM}-gpl-${PyQt_MAJOR_SRC}.${PyQt_MINOR_SRC}.${PyQt_PATCH_SRC}.tar.gz
 fi
 
-enble_qt="-"${enable_qt}
-if test ${enble_qt} == "-yes" ; then
-   if test ${enable_fw} == "-yes" ; then
-     PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --enable-qt-framework"
-   else
-     PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --enable-qt"
-   fi;
-fi;
-# Check whether --enable-qtframework was given.
-if test "${enable_qtframework+set}" = set; then
-  enableval=$enable_qtframework;
-else
-  enable_qtframework='no'
-fi
 
-enble_qtfw="-"${enable_qtframework}
-if test ${enble_qtfw} == "-yes" ; then
-     PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --enable-qt-framework"
-fi;
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -12165,6 +12440,7 @@ do
     "Scripts/vcdat") CONFIG_FILES="$CONFIG_FILES Scripts/vcdat" ;;
     "exsrc/CMakeCache.txt") CONFIG_FILES="$CONFIG_FILES exsrc/CMakeCache.txt" ;;
     "checked_get.sh") CONFIG_FILES="$CONFIG_FILES checked_get.sh" ;;
+    "exsrc/src/pbmplus/Makefile") CONFIG_FILES="$CONFIG_FILES exsrc/src/pbmplus/Makefile" ;;
 
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
@@ -12562,6 +12838,29 @@ PGCONFIG!$PGCONFIG$ac_delim
 SETUPTOOLS!$SETUPTOOLS$ac_delim
 PyOpenGL!$PyOpenGL$ac_delim
 NCPUS!$NCPUS$ac_delim
+BUILDVIS!$BUILDVIS$ac_delim
+SIP_MAJOR!$SIP_MAJOR$ac_delim
+SIP_MINOR!$SIP_MINOR$ac_delim
+SIP_PATCH!$SIP_PATCH$ac_delim
+SIP_MAJOR_SRC!$SIP_MAJOR_SRC$ac_delim
+SIP_MINOR_SRC!$SIP_MINOR_SRC$ac_delim
+SIP_PATCH_SRC!$SIP_PATCH_SRC$ac_delim
+SIP_GZ!$SIP_GZ$ac_delim
+SIP_URL!$SIP_URL$ac_delim
+PyQt_GZ!$PyQt_GZ$ac_delim
+PyQt_URL!$PyQt_URL$ac_delim
+PyQt_PLATFORM!$PyQt_PLATFORM$ac_delim
+PyQt_MAJOR!$PyQt_MAJOR$ac_delim
+PyQt_MINOR!$PyQt_MINOR$ac_delim
+PyQt_PATCH!$PyQt_PATCH$ac_delim
+PyQt_MAJOR_SRC!$PyQt_MAJOR_SRC$ac_delim
+PyQt_MINOR_SRC!$PyQt_MINOR_SRC$ac_delim
+PyQt_PATCH_SRC!$PyQt_PATCH_SRC$ac_delim
+R_MAJOR_SRC!$R_MAJOR_SRC$ac_delim
+R_MINOR_SRC!$R_MINOR_SRC$ac_delim
+R_PATCH_SRC!$R_PATCH_SRC$ac_delim
+R_GZ!$R_GZ$ac_delim
+R_URL!$R_URL$ac_delim
 MD5PRG!$MD5PRG$ac_delim
 MD5CNT!$MD5CNT$ac_delim
 DOCMOR!$DOCMOR$ac_delim
@@ -12575,29 +12874,6 @@ NC4LOC!$NC4LOC$ac_delim
 COMPILE_HDF5!$COMPILE_HDF5$ac_delim
 HDF5LOC!$HDF5LOC$ac_delim
 COMPILE_UDUNITS2!$COMPILE_UDUNITS2$ac_delim
-UDUNITS2LOC!$UDUNITS2LOC$ac_delim
-COMPILE_CURL!$COMPILE_CURL$ac_delim
-NC_FORTRAN!$NC_FORTRAN$ac_delim
-COMPILE_CAIRO!$COMPILE_CAIRO$ac_delim
-COMPILE_FREETYPE!$COMPILE_FREETYPE$ac_delim
-COMPILE_PIXMAN!$COMPILE_PIXMAN$ac_delim
-COMPILE_FONTCONFIG!$COMPILE_FONTCONFIG$ac_delim
-COMPILE_XML2!$COMPILE_XML2$ac_delim
-COMPILE_XSLT!$COMPILE_XSLT$ac_delim
-COMPILE_PKGCONFIG!$COMPILE_PKGCONFIG$ac_delim
-COMPILE_LIBPNG!$COMPILE_LIBPNG$ac_delim
-COMPILE_FTGL!$COMPILE_FTGL$ac_delim
-COMPILE_FLTK2!$COMPILE_FLTK2$ac_delim
-Pmw!$Pmw$ac_delim
-NUMPY!$NUMPY$ac_delim
-COMPILE_XGKS!$COMPILE_XGKS$ac_delim
-COMPILE_LIBJPEG!$COMPILE_LIBJPEG$ac_delim
-COMPILE_READLINE!$COMPILE_READLINE$ac_delim
-COMPILE_Z!$COMPILE_Z$ac_delim
-COMPILE_TCLTK!$COMPILE_TCLTK$ac_delim
-PYOPT!$PYOPT$ac_delim
-PYADD!$PYADD$ac_delim
-COMPILE_PYTHON!$COMPILE_PYTHON$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -12639,6 +12915,29 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+UDUNITS2LOC!$UDUNITS2LOC$ac_delim
+COMPILE_CURL!$COMPILE_CURL$ac_delim
+NC_FORTRAN!$NC_FORTRAN$ac_delim
+COMPILE_CAIRO!$COMPILE_CAIRO$ac_delim
+COMPILE_FREETYPE!$COMPILE_FREETYPE$ac_delim
+COMPILE_PIXMAN!$COMPILE_PIXMAN$ac_delim
+COMPILE_FONTCONFIG!$COMPILE_FONTCONFIG$ac_delim
+COMPILE_XML2!$COMPILE_XML2$ac_delim
+COMPILE_XSLT!$COMPILE_XSLT$ac_delim
+COMPILE_PKGCONFIG!$COMPILE_PKGCONFIG$ac_delim
+COMPILE_LIBPNG!$COMPILE_LIBPNG$ac_delim
+COMPILE_FTGL!$COMPILE_FTGL$ac_delim
+COMPILE_FLTK2!$COMPILE_FLTK2$ac_delim
+Pmw!$Pmw$ac_delim
+NUMPY!$NUMPY$ac_delim
+COMPILE_XGKS!$COMPILE_XGKS$ac_delim
+COMPILE_LIBJPEG!$COMPILE_LIBJPEG$ac_delim
+COMPILE_READLINE!$COMPILE_READLINE$ac_delim
+COMPILE_Z!$COMPILE_Z$ac_delim
+COMPILE_TCLTK!$COMPILE_TCLTK$ac_delim
+PYOPT!$PYOPT$ac_delim
+PYADD!$PYADD$ac_delim
+COMPILE_PYTHON!$COMPILE_PYTHON$ac_delim
 PYTHON!$PYTHON$ac_delim
 DOGS!$DOGS$ac_delim
 DOPBMPLUS!$DOPBMPLUS$ac_delim
@@ -12665,6 +12964,16 @@ HASWGET!$HASWGET$ac_delim
 WGET_URL!$WGET_URL$ac_delim
 WGET_GZ!$WGET_GZ$ac_delim
 HASCURL!$HASCURL$ac_delim
+PYINSTALLKEY!$PYINSTALLKEY$ac_delim
+PYTHON_INSTALL_PREFIX!$PYTHON_INSTALL_PREFIX$ac_delim
+QT_MAJOR!$QT_MAJOR$ac_delim
+QT_MINOR!$QT_MINOR$ac_delim
+QT_PATCH!$QT_PATCH$ac_delim
+QT_MAJOR_SRC!$QT_MAJOR_SRC$ac_delim
+QT_MINOR_SRC!$QT_MINOR_SRC$ac_delim
+QT_PATCH_SRC!$QT_PATCH_SRC$ac_delim
+QT_URL!$QT_URL$ac_delim
+QT_GZ!$QT_GZ$ac_delim
 CXX!$CXX$ac_delim
 CXXFLAGS!$CXXFLAGS$ac_delim
 LDFLAGS!$LDFLAGS$ac_delim
@@ -12703,27 +13012,9 @@ XMKMF!$XMKMF$ac_delim
 X_CFLAGS!$X_CFLAGS$ac_delim
 X_PRE_LIBS!$X_PRE_LIBS$ac_delim
 X_LIBS!$X_LIBS$ac_delim
-X_EXTRA_LIBS!$X_EXTRA_LIBS$ac_delim
-COMPILE_VTK!$COMPILE_VTK$ac_delim
-EXTRAENV!$EXTRAENV$ac_delim
-GREP!$GREP$ac_delim
-EGREP!$EGREP$ac_delim
-HAVE_CMAKE!$HAVE_CMAKE$ac_delim
-FFMPEG!$FFMPEG$ac_delim
-GS!$GS$ac_delim
-PS2EPSI!$PS2EPSI$ac_delim
-GIFSICLE!$GIFSICLE$ac_delim
-PNMFLIP!$PNMFLIP$ac_delim
-PNMCROP!$PNMCROP$ac_delim
-PPMTOGIF!$PPMTOGIF$ac_delim
-FLTK2_CONF!$FLTK2_CONF$ac_delim
-PKG_CONFIG!$PKG_CONFIG$ac_delim
-LOCNCCONFIG!$LOCNCCONFIG$ac_delim
-LIBOBJS!$LIBOBJS$ac_delim
-LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 82; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
@@ -12742,6 +13033,72 @@ fi
 
 cat >>$CONFIG_STATUS <<_ACEOF
 cat >"\$tmp/subs-4.sed" <<\CEOF$ac_eof
+/@[a-zA-Z_][a-zA-Z_0-9]*@/!b
+_ACEOF
+sed '
+s/[,\\&]/\\&/g; s/@/@|#_!!_#|/g
+s/^/s,@/; s/!/@,|#_!!_#|/
+:n
+t n
+s/'"$ac_delim"'$/,g/; t
+s/$/\\/; p
+N; s/^.*\n//; s/[,\\&]/\\&/g; s/@/@|#_!!_#|/g; b n
+' >>$CONFIG_STATUS <conf$$subs.sed
+rm -f conf$$subs.sed
+cat >>$CONFIG_STATUS <<_ACEOF
+CEOF$ac_eof
+_ACEOF
+
+
+ac_delim='%!_!# '
+for ac_last_try in false false false false false :; do
+  cat >conf$$subs.sed <<_ACEOF
+X_EXTRA_LIBS!$X_EXTRA_LIBS$ac_delim
+COMPILE_VTK!$COMPILE_VTK$ac_delim
+QTCONFIGOPT!$QTCONFIGOPT$ac_delim
+XTRA_LD_F2PY!$XTRA_LD_F2PY$ac_delim
+EXTRAENV!$EXTRAENV$ac_delim
+GREP!$GREP$ac_delim
+EGREP!$EGREP$ac_delim
+HAVE_CMAKE!$HAVE_CMAKE$ac_delim
+FFMPEG!$FFMPEG$ac_delim
+GS!$GS$ac_delim
+PS2EPSI!$PS2EPSI$ac_delim
+GIFSICLE!$GIFSICLE$ac_delim
+PNMFLIP!$PNMFLIP$ac_delim
+PNMCROP!$PNMCROP$ac_delim
+PPMTOGIF!$PPMTOGIF$ac_delim
+FLTK2_CONF!$FLTK2_CONF$ac_delim
+PKG_CONFIG!$PKG_CONFIG$ac_delim
+LOCNCCONFIG!$LOCNCCONFIG$ac_delim
+QMAKE!$QMAKE$ac_delim
+QT_INC!$QT_INC$ac_delim
+QT_LIB!$QT_LIB$ac_delim
+QT_BIN!$QT_BIN$ac_delim
+BUILDQT!$BUILDQT$ac_delim
+LIBOBJS!$LIBOBJS$ac_delim
+LTLIBOBJS!$LTLIBOBJS$ac_delim
+_ACEOF
+
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 25; then
+    break
+  elif $ac_last_try; then
+    { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
+echo "$as_me: error: could not make $CONFIG_STATUS" >&2;}
+   { (exit 1); exit 1; }; }
+  else
+    ac_delim="$ac_delim!$ac_delim _$ac_delim!! "
+  fi
+done
+
+ac_eof=`sed -n '/^CEOF[0-9]*$/s/CEOF/0/p' conf$$subs.sed`
+if test -n "$ac_eof"; then
+  ac_eof=`echo "$ac_eof" | sort -nru | sed 1q`
+  ac_eof=`expr $ac_eof + 1`
+fi
+
+cat >>$CONFIG_STATUS <<_ACEOF
+cat >"\$tmp/subs-5.sed" <<\CEOF$ac_eof
 /@[a-zA-Z_][a-zA-Z_0-9]*@/!b end
 _ACEOF
 sed '
@@ -13005,7 +13362,7 @@ s&@abs_builddir@&$ac_abs_builddir&;t t
 s&@abs_top_builddir@&$ac_abs_top_builddir&;t t
 s&@MKDIR_P@&$ac_MKDIR_P&;t t
 $ac_datarootdir_hack
-" $ac_file_inputs | sed -f "$tmp/subs-1.sed" | sed -f "$tmp/subs-2.sed" | sed -f "$tmp/subs-3.sed" | sed -f "$tmp/subs-4.sed" >$tmp/out
+" $ac_file_inputs | sed -f "$tmp/subs-1.sed" | sed -f "$tmp/subs-2.sed" | sed -f "$tmp/subs-3.sed" | sed -f "$tmp/subs-4.sed" | sed -f "$tmp/subs-5.sed" >$tmp/out
 
 test -z "$ac_datarootdir_hack$ac_datarootdir_seen" &&
   { ac_out=`sed -n '/\${datarootdir}/p' "$tmp/out"`; test -n "$ac_out"; } &&
@@ -13035,6 +13392,7 @@ which seems to be undefined.  Please make sure it is defined." >&2;}
     "Scripts/vcdat":F) chmod +x Scripts/cdat Scripts/vcdat checked_get.sh ;;
     "exsrc/CMakeCache.txt":F) chmod +x Scripts/cdat Scripts/vcdat checked_get.sh ;;
     "checked_get.sh":F) chmod +x Scripts/cdat Scripts/vcdat checked_get.sh ;;
+    "exsrc/src/pbmplus/Makefile":F) chmod +x Scripts/cdat Scripts/vcdat checked_get.sh ;;
 
   esac
 done # for ac_tag
@@ -13259,6 +13617,13 @@ else
     { echo "$as_me:$LINENO: libnetcdf >=4 found at ${NC4LOC}" >&5
 echo "$as_me: libnetcdf >=4 found at ${NC4LOC}" >&6;}
 fi
+if test ${BUILDQT} == "yes" ; then
+    { echo "$as_me:$LINENO: Qt libraries not found... building library ${QT_MAJOR_SRC}.${QT_MINOR_SRC}.${QT_PATCH_SRC}" >&5
+echo "$as_me: Qt libraries not found... building library ${QT_MAJOR_SRC}.${QT_MINOR_SRC}.${QT_PATCH_SRC}" >&6;}
+else
+    { echo "$as_me:$LINENO: Qt > ${QT_MAJOR}.${QT_MINOR}.${QT_PATCH} found or not needed in this configuration" >&5
+echo "$as_me: Qt > ${QT_MAJOR}.${QT_MINOR}.${QT_PATCH} found or not needed in this configuration" >&6;}
+fi
 { echo "$as_me:$LINENO: " >&5
 echo "$as_me: " >&6;}
 { echo "$as_me:$LINENO: ........................................................................" >&5
@@ -13333,26 +13698,13 @@ else
 echo "$as_me: Pmw >= ${PMW_MAJOR}.${PMW_MINOR} found" >&6;}
 fi
 if test ${with_qt} != "no" ; then
-  { echo "$as_me:$LINENO: Will build with QT support" >&5
-echo "$as_me: Will build with QT support" >&6;}
-fi
-if test ${with_qt_lib} != "no" ; then
-  { echo "$as_me:$LINENO: Will build with QT support" >&5
-echo "$as_me: Will build with QT support" >&6;}
-fi
-if test ${enble_qt} == "-yes" ; then
-   if test ${enable_fw} == "-yes" ; then
-     { echo "$as_me:$LINENO: Will build with Framework QT support" >&5
-echo "$as_me: Will build with Framework QT support" >&6;}
-   else
-     { echo "$as_me:$LINENO: Will build with QT support" >&5
-echo "$as_me: Will build with QT support" >&6;}
-   fi
+  { echo "$as_me:$LINENO: Will build with Qt support" >&5
+echo "$as_me: Will build with Qt support" >&6;}
 else
-  if test ${enble_qtfw} == "-yes" ; then
-     { echo "$as_me:$LINENO: Will build with Framework QT support" >&5
-echo "$as_me: Will build with Framework QT support" >&6;}
-  fi
+ if test ${with_qt_bin} != "no"; then
+  { echo "$as_me:$LINENO: Will build with Qt support" >&5
+echo "$as_me: Will build with Qt support" >&6;}
+ fi
 fi
 { echo "$as_me:$LINENO: " >&5
 echo "$as_me: " >&6;}

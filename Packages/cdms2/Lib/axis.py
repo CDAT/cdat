@@ -793,7 +793,7 @@ class AbstractAxis(CdmsObj):
         for i in range(n):
             tmp=cdtime.reltime(self[i], self.units).tocomp(scal)
             tmp2 = numpy.array(float(tmp.torel(units, calendar).value)).astype(self[:].dtype.char)
-            if i==1 : print self[:].dtype.char,'tmp2:',tmp2,tmp2.astype('f'),self[i],self[i].astype('f')
+            ## if i==1 : print self[:].dtype.char,'tmp2:',tmp2,tmp2.astype('f'),self[i],self[i].astype('f')
             self[i]=tmp2
             if b is not None:
                 tmp=cdtime.reltime(b[i,0], self.units).tocomp(scal)

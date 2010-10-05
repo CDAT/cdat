@@ -46,7 +46,6 @@ for i in range(len(sys.argv)):
 
         
     if a[:10] == '--with-qt=':
-        print 'OK WE should gear toward QT now'
         WM='QT'
         EM='QT'
         removes.append(a)
@@ -179,7 +178,8 @@ if WM=="QT" or EM=="QT":
     qt_include_dirs=[os.path.join(here, 'Include','Qt'),]
 ## Generic non framework thing
     MOC = os.path.join(QT_PATH_BIN,"moc")
-    qt_vcs_extra_compile_args = ' -pipe -g -gdwarf-2 -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -I. -I%s -I%s/QtCore -I%s/QtGui '%(QT_PATH_INC,QT_PATH_INC,QT_PATH_INC)
+##    qt_vcs_extra_compile_args = ' -pipe -g -gdwarf-2 -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -I. -I%s -I%s/QtCore -I%s/QtGui '%(QT_PATH_INC,QT_PATH_INC,QT_PATH_INC)
+    qt_vcs_extra_compile_args = ' -pipe -g -gdwarf-2 -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -I.'
 #     MOC = os.path.join(QT_PATH_BIN,"moc")
 #     qt_include_dirs = [ '%s' % QT_PATH_INC,
 #                             '%s/Qt' % QT_PATH_INC,
@@ -190,10 +190,11 @@ if WM=="QT" or EM=="QT":
     if USE_FRAMEWORK:
         #MOC = "/usr/bin/moc"
 ### Framework stuff
-        qt_vcs_extra_compile_args += ' -pipe -g -gdwarf-2 -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -I.'
+        qt_vcs_extra_compile_args += ' -pipe -g -gdwarf-2 -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -I%s ' % (QT_PATH_INC)
 #        vcs_extra_compile_args = ' -c -pipe -g -gdwarf-2 -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -F/Library/Frameworks  -I. -I%s -I%s/QtCore -I%s/QtGui '%(QT_PATH_INC,QT_PATH_INC,QT_PATH_INC)
         qt_vcs_extra_link_args = ' -F%s -framework QtCore -framework QtGui -lz -lm ' % (QT_PATH_LIB)
     else:
+        qt_vcs_extra_compile_args += ' -I%s -I%s/QtCore -I%s/QtGui '%(QT_PATH_INC,QT_PATH_INC,QT_PATH_INC)
         qt_vcs_extra_link_args = ' -L%s -lQtCore%s -lQtGui%s'% (QT_PATH_LIB,QT_LIBS_SFX,QT_LIBS_SFX)
 
     ## Ok here we generate the moc file
@@ -201,8 +202,7 @@ if WM=="QT" or EM=="QT":
        os.remove("Src/Qt/moc_mainwindow.cpp")
     ln = os.popen("%s Include/Qt/mainwindow.h > Src/Qt/moc_mainwindow.cpp" % MOC).readlines()
     if not os.path.exists("Src/Qt/moc_mainwindow.cpp"):
-        for l in ln:
-            print l.strip()
+        print "".join(ln)
         raise "Error could not generate the moc file"
     vcs_extra_compile_args = ['-c',]+qt_vcs_extra_compile_args.split()
     vcs_extra_link_args = [qt_vcs_extra_link_args,]
@@ -257,7 +257,7 @@ else:
 
     #print >>sys.stderr, "vcs using these X11 directories: %s %s" %(x11include, x11libdir) 
 
-print 'QT_INCLUDE_DIRS', qt_include_dirs 
+## print 'QT_INCLUDE_DIRS', qt_include_dirs 
 vcs_include_dirs = ['Include'] + \
 			[os.path.join(externals,'include'),] + \
                      cairoincdir +\
@@ -370,25 +370,70 @@ if cdat_info.CDMS_INCLUDE_HDF == "yes":
 ###############################################################################
 try:
    from distutils import sysconfig
+   vcs_so = '%s/vcs/_vcs.so' % sysconfig.get_python_lib()
+   os.remove(vcs_so)
    sysconfig.get_config_vars('OPT')
    cflg= sysconfig._config_vars['OPT'].split()
    cflg2=[]
    for x in cflg:
        if x not in ['-Wall', '-Wstrict-prototypes']:
           cflg2.append(x)
-   sysconfig._config_vars['OPT']=' '.join(cflg2)
+   sysconfig._config_vars['OPT']=' '.join(cflg2)   
 except:
    pass
 #
-print "macros:",vcs_macros,"EM:",EM,"WM:",WM
+## print "macros:",vcs_macros,"EM:",EM,"WM:",WM
+
+
+
+## Testing extra args for Vistrails
+
+
+setup (name = "vcs",
+       version=cdat_info.Version,
+       description = "Visualization and Control System",
+       url = "http://www-pcmdi.llnl.gov/software",
+       packages = ['vcs', 'vcs.test',],
+       package_dir = {'vcs': 'Lib',
+                      'vcs.test': 'Test',
+                     },
+       ext_modules = [
+                      Extension('vcs.slabapi',
+                               ['Src/slabapimodule.c',
+                                'Src/slabapi.c',
+                               ],
+                               include_dirs = ['Include']
+                      ),
+    
+                      ]
+       )
+#raw_input("ok first one done")
+print 'slabapi done'
+try:
+    for dflt,rpl in [["-bundle","-dynamiclib -install_name %s/vcs/_vcs.so" % sysconfig.get_python_lib()],]:
+## rpl = "-dynamiclib -Wl,-rpath,/lgm/cdat/VT/Python.framework/Versions/2.6/lib/python2.6/site-packages/vcs "
+## rpl = "-bundle"
+        sysconfig._config_vars['LDSHARED'] = sysconfig._config_vars['LDSHARED'].replace(dflt,rpl)
+        sysconfig._config_vars['BLDSHARED'] = sysconfig._config_vars['BLDSHARED'].replace(dflt,rpl)
+except:
+   pass
+#
+## print "macros:",vcs_macros,"EM:",EM,"WM:",WM
 
 
 f=open("Info/__init__.py","w")
 print >> f, "macros = \"",vcs_macros,"EM:",EM,"WM:",WM,"\""
 print >> f, "EM = \"",EM,"\""
 print >> f, "WM = \"",WM,"\""
+print >> f, "QT_PATH_LIB = \"",QT_PATH_LIB,"\""
+print >> f, "QT_PATH_INC = \"",QT_PATH_INC,"\""
+print >> f, "QT_PATH_BIN = \"",QT_PATH_BIN,"\""
+print >> f, "USE_FRAMEWORK = ",USE_FRAMEWORK
 f.close()
-print 'vcs_include_dirs',vcs_include_dirs,vcs_extra_compile_args,vcs_extra_link_args
+
+## Testing extra args for Vistrails
+
+
 setup (name = "vcs",
        version=cdat_info.Version,
        description = "Visualization and Control System",
@@ -399,12 +444,6 @@ setup (name = "vcs",
                       'vcs.info' : 'Info',
                      },
        ext_modules = [
-                      Extension('vcs.slabapi',
-                               ['Src/slabapimodule.c',
-                                'Src/slabapi.c',
-                               ],
-                               include_dirs = ['Include']
-                      ),
     
                       Extension('vcs._vcs',
                                 ['Src/vcsmodule.c',
@@ -421,20 +460,116 @@ setup (name = "vcs",
                       ]
        )
 
-if (WM=="QT" or EM=="QT"):# and sys.platform in ['darwin']:
+# Vistrails will need these includes later, let's copy them.
+import shutil
+shutil.rmtree("%s/vcs/Include" % sysconfig.get_python_lib(),ignore_errors=True)
+shutil.copytree("Include", "%s/vcs/Include" % sysconfig.get_python_lib())
+print 'Copied the include files to: %s/vcs/Include' % sysconfig.get_python_lib()
+
+if (WM=="QT" or EM=="QT") and sys.platform in ['darwin']:
     pref = sys.prefix
-    ver = '.'.join(sys.version.split('.')[:2])
+    ver = sys.version.split(' ')[0]
     ccCmd = 'g++ -O3 -c %s -IInclude/Qt -IInclude -I/%s/include -o build/qpython.o Src/Qt/qpython.cpp' % (qt_vcs_extra_compile_args,pref)
     print 'Running: ', ccCmd
     os.system(ccCmd)
     qt_vcs_extra_link_args = '%s/lib/python%s/config/libpython%s.a ' % (pref, ver, ver) + qt_vcs_extra_link_args
     if sys.platform in ['darwin']:
         ldCmd = 'g++ -o build/qpython build/qpython.o %s -lutil' % (qt_vcs_extra_link_args)
-    else:
-        ldCmd = 'g++ -o build/qpython build/qpython.o %s -lutil -Wl,-E -Wl,-rpath -Wl,%s/Externals/lib' % (qt_vcs_extra_link_args,pref)
-    print 'Running: ', ldCmd
-    os.system(ldCmd)
-    if 'install' in sys.argv:
+    #else:
+    #    ldCmd = 'g++ -o build/qpython build/qpython.o %s -lutil -Wl,-E -Wl,-rpath -Wl,%s/Externals/lib' % (qt_vcs_extra_link_args,pref)
+    if sys.platform in ['darwin']:
+      print 'Running: ', ldCmd
+      os.system(ldCmd)
+      if 'install' in sys.argv:
         print 'renaming to :',target_prefix
         os.rename("build/qpython", "%s/bin/cdat" % (target_prefix))
+        if target_prefix.find("Versions")>-1:
+            pth=os.path.sep+os.path.sep.join(target_prefix.split(os.path.sep)[:-3]+['bin','cdat'])
+            print 'symlinking to ',pth
+            try:
+                os.remove(pth)
+            except:
+                pass
+            os.symlink("%s/bin/cdat" % (target_prefix),pth)
+#filedds = os.popen("find build/temp* -name '*.o'").readlines()
+#ofiles=' '.join(files).replace('\n',' ')
+#print ofiles
+#ldCmd = 'g++ -o libvcs.dylib %s %s ' % (vcs_extra_link_args,ofiles)
+#os.system(ldCmd)
+
+if (WM=='QT' or EM=='QT'):
+    import sipconfig
+    from PyQt4 import pyqtconfig
+
+
+    from distutils import sysconfig
+
+    vcs_so = '%s/vcs/_vcs.so' % sysconfig.get_python_lib()
+    vcs_inc = '%s/vcs/Include' % sysconfig.get_python_lib()
+
+    ## vcs_so = '/Users/hvo/src/uvcdat/cdatBuild/lib/python2.7/site-packages/vcs/_vcs.so'
+    ## vcs_inc = '/Users/hvo/src/uvcdat/cdat/Packages/vcs/Include'
+
+
+    # The name of the SIP build file generated by SIP and used by the build
+    # system.
+    build_file = "pyqtscripting.sbf"
+
+    # Get the PyQt configuration information.
+    config = pyqtconfig.Configuration()
+
+    # Get the extra SIP flags needed by the imported qt module.  Note that
+    # this normally only includes those flags (-x and -t) that relate to SIP's
+    # versioning system.
+    qt_sip_flags = config.pyqt_sip_flags
+
+    os.system("rm -rf cdatwrap")
+    os.mkdir("cdatwrap")
+    os.system("touch cdatwrap/__init__.py")
+
+    # Run SIP to generate the code.  Note that we tell SIP where to find the qt
+    # module's specification files using the -I flag.
+    os.system(" ".join([ \
+        config.sip_bin, \
+        "-c", "cdatwrap", \
+        "-b", build_file, \
+        "-I", config.pyqt_sip_dir, \
+        qt_sip_flags, \
+        "cdat.sip" \
+    ]))
+
+    # Create the Makefile.  The QtModuleMakefile class provided by the
+    # pyqtconfig module takes care of all the extra preprocessor, compiler and
+    # linker flags needed by the Qt library.
+    makefile = pyqtconfig.QtGuiModuleMakefile(
+        dir="cdatwrap",
+        configuration=config,
+        build_file='../' + build_file
+    )
+
+    # Add the library we are wrapping.  The name doesn't include any platform
+    # specific prefixes or extensions (e.g. the "lib" prefix on UNIX, or the
+    # ".dll" extension on Windows).
+    #makefile.extra_libs = ["vcs"]
+    import cdat_info
+    makefile.CFLAGS.append("-I%s/include" % cdat_info.externals)
+    makefile.CFLAGS.append("-I%s" % vcs_inc)
+    makefile.CFLAGS.append("-I%s/.." % sysconfig.get_python_inc())
+
+    makefile.CXXFLAGS.append("-I%s/include" % cdat_info.externals)
+    makefile.CXXFLAGS.append("-I%s" % vcs_inc)
+    makefile.CXXFLAGS.append("-I%s/.." % sysconfig.get_python_inc())
+
+    cwd = os.getcwd()
+    makefile.LFLAGS.append("-Wl,-rpath,%s/cdatwrap" % cwd)
+
+    # Generate the Makefile itself.
+    makefile.generate()
+    os.chdir("cdatwrap")
+    os.system("make clean")
+    if sys.platform in ['darwin']:
+        os.system("MACOSX_DEPLOYMENT_TARGET=10.6 make")
+    else:
+        os.system("make")
+    os.system("make install")
     

@@ -6,7 +6,7 @@
 #include <QtCore/QWaitCondition>
 #include <QtGui/QApplication>
 #ifdef __APPLE__
-#include <python2.6/Python.h>
+#include <python2.7/Python.h>
 #endif
 #include <cstdio>
 #include <pthread.h>

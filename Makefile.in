@@ -55,7 +55,7 @@ doprolog = rm -rf logs/$(2).LOG ; \
 	../checked_get.sh $(2) http://rainbow.llnl.gov/dist/cdat/resources/$(2)  @KEEPLOGa@ ; \
 	mycd=`echo $(2)` ; mycd2=`echo $${mycd:0:5}` ; mycd2=`echo $${mycd2%%.*}` ; echo "cd "$${mycd2}* @KEEPLOGa@; cd $${mycd2}*  @KEEPLOGa@;\
 	$(call dosetenv) @KEEPLOGa@
-dobuild = @$(call doprolog,$(1),$(2))  \
+dobuild_keyed = @$(call doprolog,$(1),$(2))  \
 	echo "CFLAGS=\"@CFLAGS@\";" @KEEPLOGa@; \
 	echo "export CFLAGS;" @KEEPLOGa@ ; \
 	CFLAGS="@CFLAGS@"; \
@@ -66,14 +66,15 @@ dobuild = @$(call doprolog,$(1),$(2))  \
 	env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH="@EXTERNALS@/lib:${LD_LIBRARY_PATH}" ./configure --prefix=$(3) $(5) @KEEPLOGa@ ;\
 	echo "env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH=@EXTERNALS@/lib:${LD_LIBRARY_PATH} make -j @NCPUS@;"  @KEEPLOGa@; \
 	env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH=@EXTERNALS@/lib:${LD_LIBRARY_PATH} make -j @NCPUS@ @KEEPLOGa@; \
-	echo "env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH=@EXTERNALS@/lib:${LD_LIBRARY_PATH} make install;"  @KEEPLOGa@; \
-	env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH=@EXTERNALS@/lib:${LD_LIBRARY_PATH} make install  @KEEPLOGa@; \
+	echo "env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH=@EXTERNALS@/lib:${LD_LIBRARY_PATH} make $(6);"  @KEEPLOGa@; \
+	env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH=@EXTERNALS@/lib:${LD_LIBRARY_PATH} make $(6)  @KEEPLOGa@; \
 	echo "cd ../..;"  @KEEPLOGa@ ; \
 	cd ../.. ;
+dobuild = @$(call dobuild_keyed,$(1),$(2),$(3),$(4),$(5),install) 
 dobuildpynotar = @$(3) @KEEPLOGa@  \
 	echo "$(3);" @KEEPLOGa@ ; \
-	echo "env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS=@CFLAGS@ CPPFLAGS=@CPPFLAGS@ LDFLAGS=@LDFLAGS@ @PYTHON@ setup.py build $(4) --force install --prefix=$(1);"  @KEEPLOGa@ ;\
-	env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" @PYTHON@ setup.py build $(4) --force install --prefix=$(1)  @KEEPLOGa@ ;
+	echo "env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS=@CFLAGS@ CPPFLAGS=@CPPFLAGS@ LDFLAGS=@LDFLAGS@ @PYTHON@ setup.py build $(4) --force install @PYTHON_INSTALL_PREFIX@ ;"  @KEEPLOGa@ ;\
+	env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" @PYTHON@ setup.py build $(4) --force install @PYTHON_INSTALL_PREFIX@  @KEEPLOGa@ ;
 dobuildpy = @$(call doprolog,$(2),$(3)) \
         $(1) ; \
 	echo "cp "@MAINDIR@/site.cfg" . ;" @KEEPLOGa@; \
@@ -83,6 +84,8 @@ dobuildpy = @$(call doprolog,$(2),$(3)) \
 	cd ../.. ;
 install: clean nocleaninstall
 nocleaninstall:
+	git submodule init
+	git submodule update
 	mkdir -p @prefix@
 	mkdir -p @EXTERNALS@
 	mkdir -p @EXTERNALS@/lib
@@ -93,7 +96,7 @@ nocleaninstall:
 	mkdir -p sources
 ifeq (@DOWGET@,yes)
 	@echo "Couldn't find a working wget, building it"
-	@cd build ; @HASCURL@ @WGET_URL@/@WGET_GZ@ -o ../sources/@WGET_GZ@ ; tar xzvf ../sources/@WGET_GZ@ ; cd wget* ; ./configure --prefix=@EXTERNALS@ ; make -j @NCPUS@ ; make install
+	@cd build ; @HASCURL@ @WGET_URL@/@WGET_GZ@ -o ../sources/@WGET_GZ@ ; tar xzf ../sources/@WGET_GZ@ ; cd wget* ; ./configure --prefix=@EXTERNALS@ ; make -j @NCPUS@ ; make install
 endif
 ifeq (@COMPILE_TERMCAP@,yes)
 	@echo "Couldn't find a working termcap, building it"
@@ -147,7 +150,7 @@ ifeq (@COMPILE_TCLTK@,yes)
 endif
 ifeq (@COMPILE_PYTHON@,yes)
 	@echo "Couldn't find a working python, building it"
-	$(call dobuild,@PYTHON_URL@,@PYTHON_GZ@,@prefix@,@PYADD@ @AQUA_PYTHON@,@PYOPT@)
+	$(call dobuild_keyed,@PYTHON_URL@,@PYTHON_GZ@,@prefix@,@PYADD@ @AQUA_PYTHON@,@PYOPT@,@PYINSTALLKEY@)
 endif
 ifeq (@COMPILE_XGKS@,yes)
 	@echo "Building xgks"
@@ -156,7 +159,7 @@ ifeq (@COMPILE_XGKS@,yes)
 endif
 ifeq (@COMPILE_LIBJPEG@,yes)
 	@echo "Building libjpeg"
-	$(call dobuild,@JPEG_URL@,@JPEG_GZ@,@EXTERNALS@)
+	$(call dobuild,@JPEG_URL@,@JPEG_GZ@,@EXTERNALS@,cd jpeg*;)
 	cp build/jpeg*/lib* @EXTERNALS@/lib
 	cp build/jpeg*/*.h @EXTERNALS@/include
 endif
@@ -178,7 +181,7 @@ ifeq (@HAVE_LIBLAPACK95@,no)
 endif
 ifeq (@DOPBMPLUS@,yes)
 	@echo "Building pbmplus"
-	$(call doprolog,@PBMPLUS_URL@,@PBMPLUS_GZ@) rm -rf libtiff ; cp ../../exsrc/src/pbmplus/pbmplus.h . ; cp ../../exsrc/src/pbmplus/libpbm1.c pbm  ; make -j @NCPUS@ > ../../logs/pbmplus_10dec1991.tar.gz.LOG ; mkdir tmp ; cp -p pbm/* pgm/* ppm/* pnm/* tmp ; rm tmp/*.1 tmp/*.c tmp/*.5 ; cp -p tmp/* @EXTERNALS@/bin
+	$(call dobuild,@PBMPLUS_URL@,@PBMPLUS_GZ@,@EXTERNALS@, cp ../../exsrc/src/pbmplus/pbmplus.h . ; cp ../../exsrc/src/pbmplus/libpbm1.c pbm  ;cp ../../exsrc/src/pbmplus/Makefile . ;)
 endif
 ifeq (@GIFSICLE@,no)
 	@echo "Building gifsicle"
@@ -186,7 +189,7 @@ ifeq (@GIFSICLE@,no)
 endif
 ifeq (@DOGS@,yes)
 	@echo "Building gs (long)"
-	$(call dobuild,@GS_URL@,@GS_GZ@,@EXTERNALS@)
+	$(call dobuild,@GS_URL@,@GS_GZ@,@EXTERNALS@,, --with-drivers=PS,BMP )
 endif
 ifeq (@FFMPEG@,no)
 	@echo "Building ffmpeg (long)"
@@ -212,13 +215,27 @@ ifeq (@COMPILE_NC@,yes)
 	@echo "Building netcdf"
 	$(call dobuild,@NC4_URL@,@NC4_GZ@,@EXTERNALS@/NetCDF,@NC_FORTRAN@,  --enable-netcdf-4 --with-hdf5=@HDF5LOC@)
 endif
+ifeq (@COMPILE_R@,yes)
+	@echo "Building R"
+	$(call dobuild,@R_URL@,@R_GZ@,@EXTERNALS@)
+endif
 ifeq (@COMPILE_CMAKE@,yes)
 	@echo "Couldn't find a valid cmake, building it"
 	$(call dobuild,@CMAKE_URL@,@CMAKE_GZ@,@EXTERNALS@, cd Utilities/cmcurl  ; cp ../../../../exsrc/src/cmake/multi.c . ; cd ../..  ,  --parallel=@NCPUS@ )
 endif
+ifeq (@BUILDQT@,yes)
+	@echo "Building Qt (extremely long, several hours, we recommend downloading the binaries from @QT_URL@ !)"
+	$(call dobuild,@QT_URL@,@QT_GZ@,@EXTERNALS@,, @QTCONFIGOPT@ < ../../exsrc/src/o.txt )
+endif
+ifeq (@BUILDVIS@,yes)
+	@echo "Building SIP, "${PYVER}
+	$(call dobuild,@SIP_URL@,@SIP_GZ@,@EXTERNALS@, @PYTHON@ configure.py -b @prefix@/bin -d @prefix@/lib/python@PYVER@/site-packages -e @prefix@/include -v @prefix@/share ;  )
+	@echo "Building PyQt"
+	$(call dobuild,@PyQt_URL@,@PyQt_GZ@,@EXTERNALS@, @PYTHON@ configure.py -b @prefix@/bin -d @prefix@/lib/python@PYVER@/site-packages -v @prefix@/include -v @prefix@/share -q @QMAKE@ < ../../exsrc/src/yes.txt ;  )
+endif
 ifeq (@COMPILE_VTK@,yes)
 	@echo "Building VTK (long)"
-	mkdir build/VTK;mkdir build/VTK-build;cd build;tar xzf ../exsrc/src/vtk-* ; cd VTK-build;cp ../../exsrc/CMakeCache.txt .;env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH="@EXTERNALS@/lib:${LD_LIBRARY_PATH}" PATH="@EXTERNALS@/bin:${PATH}" cmake CMakeCache.txt;make;make install
+	mkdir build/VTK;mkdir build/VTK-build;cd build;../checked_get.sh @VTK_GZ@ @VTK_URL@/@VTK_GZ@ ; tar xzf ../sources/vtk-* ; cd VTK-build;cp ../../exsrc/CMakeCache.txt .;env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH="@EXTERNALS@/lib:${LD_LIBRARY_PATH}" PATH="@EXTERNALS@/bin:${PATH}" cmake CMakeCache.txt;make;make install
 endif
 ifeq (@SETUPTOOLS@,yes)
 	@echo "Building setuptools"
@@ -245,7 +262,7 @@ ifeq (@DOCMOR@,yes)
 	@(cd Packages/cmor ; ./configure --prefix=@EXTERNALS@ --with-netcdf=@NC4LOC@ --with-udunits2=@UDUNITS2LOC@ --with-uuid=@UUIDLOC@ --with-zlib=@EXTERNALS@ --enable-fortran=no; cd ../..) >> @MAINDIR@/logs/cmor_config.LOG 
 endif
 	@echo "Building CDAT"
-	@EXTERNALS=@EXTERNALS@;export EXTERNALS ; HDF5LOC=@HDF5LOC@; export HDF5LOC; PYTHONPATH=@prefix@/lib/python@PYTHON_MAJOR@.@PYTHON_MINOR@/site-packages:${PYTHONPATH} ; export PYTHONPATH ; LD_LIBRARY_PATH=@EXTERNALS@/lib:@prefix@/lib; export LD_LIBRARY_PATH ; env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH="@EXTERNALS@/lib:${LD_LIBRARY_PATH}" @PYTHON@ install.py --prefix=@prefix@ @PYTHON_INSTALL_OPTIONS@
+	@XTRA_LD_F2PY@ @PYTHON@ install.py @PYTHON_INSTALL_OPTIONS@
 	@echo "Done building CDAT"
 ifeq (@ESG@,yes)
 	@echo "Building ESG dependencies"
