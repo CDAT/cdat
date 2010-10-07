@@ -144,7 +144,7 @@ CDAT will look for and install if necessary (minimum version required/version di
           Pmw 1.3 / 1.3
           gifsicle any any/ 1.58
           pbmplus 
-          cmake 2.4 / 2.8.0
+          cmake 2.4 / 2.8.2
 
 
 ----------------------------------------------------------------------------------------

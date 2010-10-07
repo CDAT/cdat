@@ -7,4 +7,5 @@ setup (name = "qtbrowser",
        url = "http://cdat.sourceforge.net",
        packages = ['qtbrowser'],
        package_dir = {'qtbrowser': 'Lib'},
+       scripts=['Scripts/vcdat',]
       )

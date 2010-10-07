@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+SHELL=bash
 LDFLAGS="@LDFLAGS@"
 CFLAGS="@CFLAGS@"
 CPPFLAGS="@CPPFLAGS@"
