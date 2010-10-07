@@ -2,6 +2,7 @@ dnl                                                -*- Autoconf -*-
 dnl  Process this file with autoconf to produce a configure script.
 
 dnl AC_PREREQ(2.59)
+AC_SUBST(SHELL)
 
 AC_INIT(cdat, 6.0.alpha, doutriaux1@llnl.gov)
 SVN_TAG="rev"`./get_svn_version.sh`
@@ -246,7 +247,7 @@ CMAKE_MAJOR=2
 CMAKE_MINOR=4
 CMAKE_MAJOR_SRC=2
 CMAKE_MINOR_SRC=8
-CMAKE_PATCH_SRC=0
+CMAKE_PATCH_SRC=2
 CMAKE_URL=http://www.cmake.org/files/v${CMAKE_MAJOR_SRC}.${CMAKE_MINOR_SRC}
 CMAKE_GZ=cmake-${CMAKE_MAJOR_SRC}.${CMAKE_MINOR_SRC}.${CMAKE_PATCH_SRC}.tar.gz
 AC_SUBST(CMAKE_URL)
@@ -1042,7 +1043,6 @@ fi
 if test ${COMPILE_PYTHON} == "no"; then
   dnl figures out which version of python we have
   PYVER=`${PYTHON} -c "import sys;print sys.version.split(' ').pop(0)"`
-  echo "********************************"${PYVER}
   dnl figures out which version of tcl/tk we have
   TCLTK_VERSION=`${PYTHON} -c "import Tkinter;print Tkinter.TkVersion"`
   dnl  since we will not build python no need to build these
@@ -1205,7 +1205,11 @@ if test  ${enable_cdms_only} != "-yes" ; then
   dnl cmake tests
   dnl
   COMPILE_CMAKE=yes
-  AC_PATH_PROG(HAVE_CMAKE,cmake,no)
+  AC_PATH_PROG(HAVE_CMAKE,${CMAKE_PATH},no)
+  if test ${HAVE_CMAKE} == "no" ; then
+    AC_PATH_PROG(HAVE_CMAKEE,cmake,no)
+    HAVE_CMAKE=${HAVE_CMAKEE}
+  fi
   if test ${HAVE_CMAKE} != "no" ; then
     AC_MSG_CHECKING([for cmake version, must be at least ${CMAKE_MAJOR}.${CMAKE_MINOR}])
     AC_RUN_IFELSE(
@@ -1216,7 +1220,7 @@ if test  ${enable_cdms_only} != "-yes" ; then
       FILE *fp;
       char s1[250],s2[250],s3[250];
       int M,m;
-      fp = popen("cmake --version","r");
+      fp = popen("${HAVE_CMAKE} --version","r");
       fscanf(fp,"%s %s %i.%i%s",&s1,&s2,&M,&m,&s3);
       if (M<${CMAKE_MAJOR}) return 1; 
       if (M>${CMAKE_MAJOR}) return 0;
@@ -1229,6 +1233,7 @@ if test  ${enable_cdms_only} != "-yes" ; then
 	CMAKE_PATH=${EXTERNALS}/bin/cmake
      else
         AC_MSG_RESULT([yes])
+        CMAKE_PATH=${HAVE_CMAKE}
      fi
   else
     COMPILE_CMAKE=yes
@@ -1850,10 +1855,8 @@ AC_ARG_WITH([qt],
 
 BUILDQT="no"
 AC_SUBST(BUILDQT)
-
-if test ${with_qt} != "no" ; then
+if test ${with_qt} != "no" -a ${with_qt_bin} == "no" -a ${with_qt_lib} == "no" -a ${with_qt_inc} == "no" ; then
  COMPILE_XGKS=no
- AC_MSG_NOTICE([WITH QT IS: ${with_qt}])
  if test ${with_qt} == "yes" ; then
    QMAKE=${EXTERNALS}/bin/qmake
  else

@@ -11,6 +11,7 @@ cd04b5b9383b6c1fccdaa991af762cf4  sources/Python-2.6.5.tgz
 7e6af7022440d8688d16be86d55fb358  sources/blas.tgz
 b60a82f405f9400bbfdcf850b1728d25  sources/cairo-1.8.10.tar.gz
 3b3679b8a6afaedc38a8c15dd7ff4fcf  sources/cmake-2.8.0.tar.gz
+8c967d5264657a798f22ee23976ff0d9  sources/cmake-2.8.2.tar.gz
 ce04744b4ac753f851d34a6e5835410a  sources/curl-7.20.0.tar.gz
 11c660064f83ac74304849b731df79fc  sources/ffmpeg-0.5.1.tar.gz
 77e15a92006ddc2adbb06f840d591c0e  sources/fontconfig-2.8.0.tar.gz
