@@ -888,7 +888,7 @@ case ${target_os} in
     CFLAGS=${CFLAGS}" -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.5 "
     LDFLAGS=${LDFLAGS}" -bind_at_load  -mmacosx-version-min=10.6 "
     CXXFLAGS=${CXXFLAGS}"  -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.6 "
-    XTRA_LD_F2PY="env LDFLAGS="\${LDFLAGS} -undefined dynamic_lookup "" ;;
+    XTRA_LD_F2PY="env LDFLAGS=\"\${LDFLAGS/\"/} -undefined dynamic_lookup\" " ;;
   esac ;;
  cygwin*)
    PyQt_PLATFORM="x11"
@@ -1854,6 +1854,18 @@ AC_ARG_WITH([qt],
 	    [with_qt='yes'])
 
 BUILDQT="no"
+AC_ARG_WITH([qt-bin],
+  	    [AS_HELP_STRING([--with-qt-bin],[specify where to find qt binary (namely the moc bin)],)],
+	    [],
+	    [with_qt_bin='no'])
+AC_ARG_WITH([qt-lib],
+  	    [AS_HELP_STRING([--with-qt-lib],[specify where to find qt libraries],)],
+  	    [],
+  	    [with_qt_lib='no'])
+AC_ARG_WITH([qt-inc],
+	    [AS_HELP_STRING([--with-qt-inc],[specify where to find qt includes],)],
+	    [],
+	    [with_qt_inc='no'])
 AC_SUBST(BUILDQT)
 if test ${with_qt} != "no" -a ${with_qt_bin} == "no" -a ${with_qt_lib} == "no" -a ${with_qt_inc} == "no" ; then
  COMPILE_XGKS=no
@@ -1876,26 +1888,14 @@ if test ${with_qt} != "no" -a ${with_qt_bin} == "no" -a ${with_qt_lib} == "no" -
   fi
  fi
 else
-  AC_ARG_WITH([qt-lib],
-  	    [AS_HELP_STRING([--with-qt-lib],[specify where to find qt libraries],)],
-  	    [],
-  	    [with_qt_lib='no'])
   if test ${with_qt_lib} != "no" ; then
    COMPILE_XGKS=no
    PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --with-qt-lib="${with_qt_lib}
   fi;
-  AC_ARG_WITH([qt-inc],
-	    [AS_HELP_STRING([--with-qt-inc],[specify where to find qt includes],)],
-	    [],
-	    [with_qt_inc='no'])
   if test ${with_qt_inc} != "no" ; then
    COMPILE_XGKS=no
    PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --with-qt-inc="${with_qt_inc}
   fi;
-  AC_ARG_WITH([qt-bin],
-  	    [AS_HELP_STRING([--with-qt-bin],[specify where to find qt binary (namely the moc bin)],)],
-	    [],
-	    [with_qt_bin='no'])
   if test ${with_qt_bin} != "no" ; then
      COMPILE_XGKS=no
      QMAKE=${with_qt_bin}/qmake
@@ -1925,19 +1925,24 @@ dnl ###########################################################
 
 BUILDVIS=yes
 AC_MSG_CHECKING([if python ${PYTHON} has PyQt4 support]) 
-if [test `${PYTHON} -c "cmd = 'try:\n  import PyQt4\n  print 0\nexcept:\n  print 1'; exec(cmd)"` == "0"] ; then
+if [test `${PYTHON} -c "cmd = 'try:\n  import PyQt4\n  print 0\nexcept:\n  print 1'; exec(cmd)" 2>/dev/null` == "0"] ; then
   AC_MSG_RESULT([yes])
   BUILDVIS=no
 else
   AC_MSG_RESULT([no])
   AC_MSG_NOTICE([your python does not have PyQt4, we will build it])
   BUILDVIS=yes
-  if test ${enable_fw} == "-" -a ${enable_vtk} == "-" ; then
-     AC_MSG_ERROR("[You need to enable framework]")
-  fi
-  if test "-"${with_qt} == "-" -a ${enable_vtk} == "-" ; then
-     AC_MSG_ERROR("[You need to enable framework for vistrails]")
-  fi
+  case ${target_os} in
+   darwin*)
+    if test ${enable_fw} == "-" -a "-"${with_qt} != "-no"  ; then 
+       if test ${COMPILE_PYTHON} == "yes" ; then
+         PYOPT=" --enable-framework="${prefix}
+         AC_MSG_NOTICE([Your are under Mac you need to enable framework, we did this for you])
+       else
+         AC_MSG_ERROR("[You need a framework enabled python]")
+       fi
+    fi;;
+  esac
   PyQt_GZ=PyQt-${PyQt_PLATFORM}-gpl-${PyQt_MAJOR_SRC}.${PyQt_MINOR_SRC}.${PyQt_PATCH_SRC}.tar.gz
 fi
 
