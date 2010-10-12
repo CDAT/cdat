@@ -1,9 +1,9 @@
 [submodule "Packages/cmor"]
 	path = Packages/cmor
-	url = http://esgf.org/git/cmor.git
+	url = http://uv-cdat.llnl.gov/git/cmor.git
 [submodule "contrib/eof2"]
 	path = contrib/eof2
-	url = http://esgf.org/git/eof2.git
+	url = http://uv-cdat.llnl.gov/git/eof2.git
 [submodule "contrib/windfield"]
 	path = contrib/windfield
-	url = http://esgf.org/git/windfield.git
+	url = http://uv-cdat.llnl.gov/git/windfield.git
