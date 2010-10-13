@@ -2507,7 +2507,7 @@ GIFSICLE_GZ=gifsicle-${GIFSICLE_MAJOR_SRC}.${GIFSICLE_MINOR_SRC}.tar.gz
 
 
 
-XGKS_URL=http://rainbow.llnl.gov/dist/cdat
+XGKS_URL=http://uv-cdat.llnl.gov/cdat
 XGKS_GZ=xgks.tar.gz
 
 

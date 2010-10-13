@@ -400,7 +400,7 @@ AC_SUBST(GIFSICLE_GZ)
 AC_SUBST(GIFSICLE_MAJOR_SRC)
 AC_SUBST(GIFSICLE_MINOR_SRC)
 
-XGKS_URL=http://rainbow.llnl.gov/dist/cdat
+XGKS_URL=http://uv-cdat.llnl.gov/cdat
 XGKS_GZ=xgks.tar.gz
 AC_SUBST(XGKS_URL)
 AC_SUBST(XGKS_GZ)
