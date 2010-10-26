@@ -230,9 +230,10 @@ ifeq (@BUILDQT@,yes)
 endif
 ifeq (@BUILDVIS@,yes)
 	@echo "Building SIP, "${PYVER}
-	$(call dobuild,@SIP_URL@,@SIP_GZ@,@EXTERNALS@, @PYTHON@ configure.py -b @prefix@/bin -d @prefix@/lib/python@PYVER@/site-packages -e @prefix@/include -v @prefix@/share ;  )
+	@echo "Python site-packages are located at: "`@PYTHON@ -c "import numpy ; print '/'.join(numpy.__path__[0].split('/')[:-1])"`
+	$(call dobuild,@SIP_URL@,@SIP_GZ@,@EXTERNALS@, @PYTHON@ configure.py -b @prefix@/bin -d `@PYTHON@ -c "import numpy ; print '/'.join(numpy.__path__[0].split('/')[:-1])"` -e @prefix@/include -v @prefix@/share ;  )
 	@echo "Building PyQt"
-	$(call dobuild,@PyQt_URL@,@PyQt_GZ@,@EXTERNALS@, @PYTHON@ configure.py -b @prefix@/bin -d @prefix@/lib/python@PYVER@/site-packages -v @prefix@/include -v @prefix@/share -q @QMAKE@ < ../../exsrc/src/yes.txt ;  )
+	$(call dobuild,@PyQt_URL@,@PyQt_GZ@,@EXTERNALS@, @PYTHON@ configure.py -b @prefix@/bin -d `@PYTHON@ -c "import numpy ; print '/'.join(numpy.__path__[0].split('/')[:-1])"` -v @prefix@/include -v @prefix@/share -q @QMAKE@ < ../../exsrc/src/yes.txt ;  )
 endif
 ifeq (@COMPILE_VTK@,yes)
 	@echo "Building VTK (long)"

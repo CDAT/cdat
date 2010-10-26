@@ -138,7 +138,7 @@ CDAT will look for and install if necessary (minimum version required/version di
           Ghostscript
 	  libuuid /1.6.2
 	  Udunits 2 /2.1.14
-          HDF5 any / 1.8.4-patch1
+          HDF5 any / 1.8.5-patch1
           NetCDF4 4.1.0/ 4.1.1
           XGKS
           Pmw 1.3 / 1.3
