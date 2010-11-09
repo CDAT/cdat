@@ -1,278 +1,270 @@
-PYTHON_MAJOR=2
-PYTHON_MINOR=7
-PYTHON_PATCH=0
-PYTHON_MAJOR_SRC=2
-PYTHON_MINOR_SRC=7
-PYTHON_PATCH_SRC=0
-PYTHON_URL=http://python.org/ftp/python/${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}
-PYTHON_GZ=Python-${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.tgz
+set(PYTHON_MAJOR 2)
+set(PYTHON_MINOR 7)
+set(PYTHON_PATCH 0)
+set(PYTHON_MAJOR_SRC 2)
+set(PYTHON_MINOR_SRC 7)
+set(PYTHON_PATCH_SRC 0)
+set(PYTHON_URL http://python.org/ftp/python/${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC})
+set(PYTHON_GZ Python-${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.tgz)
 
-PYVER=${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}
-echo "PYVER IS : " ${PYVER}
+set(PYVER ${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC})
+#echo "PYVER IS : " ${PYVER}
 
-XML_MAJOR=2
-XML_MINOR=6
-XML_PATCH=27
-XML_MAJOR_SRC=2
-XML_MINOR_SRC=7
-XML_PATCH_SRC=7
-XML_URL=ftp://xmlsoft.org/libxml2
-XML_GZ=libxml2-${XML_MAJOR_SRC}.${XML_MINOR_SRC}.${XML_PATCH_SRC}.tar.gz
+set(XML_MAJOR 2)
+set(XML_MINOR 6)
+set(XML_PATCH 27)
+set(XML_MAJOR_SRC 2)
+set(XML_MINOR_SRC 7)
+set(XML_PATCH_SRC 7)
+set(XML_URL ftp://xmlsoft.org/libxml2)
+set(XML_GZ libxml2-${XML_MAJOR_SRC}.${XML_MINOR_SRC}.${XML_PATCH_SRC}.tar.gz)
 
-XSLT_MAJOR=1
-XSLT_MINOR=1
-XSLT_PATCH=22
-XSLT_MAJOR_SRC=1
-XSLT_MINOR_SRC=1
-XSLT_PATCH_SRC=26
-XSLT_URL=ftp://xmlsoft.org/libxml2
-XSLT_GZ=libxslt-${XSLT_MAJOR_SRC}.${XSLT_MINOR_SRC}.${XSLT_PATCH_SRC}.tar.gz
+set(XSLT_MAJOR 1)
+set(XSLT_MINOR 1)
+set(XSLT_PATCH 22)
+set(XSLT_MAJOR_SRC 1)
+set(XSLT_MINOR_SRC 1)
+set(XSLT_PATCH_SRC 26)
+set(XSLT_URL ftp://xmlsoft.org/libxml2)
+set(XSLT_GZ libxslt-${XSLT_MAJOR_SRC}.${XSLT_MINOR_SRC}.${XSLT_PATCH_SRC}.tar.gz)
 
-PKG_MAJOR=0
-PKG_MINOR=9
-PKG_PATCH=0
-PKG_MAJOR_SRC=0
-PKG_MINOR_SRC=23
-PKG_PATCH_SRC=0
-PKG_URL=http://pkgconfig.freedesktop.org/releases/
-PKG_GZ=pkg-config-${PKG_MAJOR_SRC}.${PKG_MINOR_SRC}.tar.gz
+set(PKG_MAJOR 0)
+set(PKG_MINOR 9)
+set(PKG_PATCH 0)
+set(PKG_MAJOR_SRC 0)
+set(PKG_MINOR_SRC 23)
+set(PKG_PATCH_SRC 0)
+set(PKG_URL http://pkgconfig.freedesktop.org/releases/)
+set(PKG_GZ pkg-config-${PKG_MAJOR_SRC}.${PKG_MINOR_SRC}.tar.gz)
 
-CAIRO_MAJOR=1
-CAIRO_MINOR=8
-CAIRO_PATCH=10
-CAIRO_MAJOR_SRC=1
-CAIRO_MINOR_SRC=8
-CAIRO_PATCH_SRC=10
-CAIRO_URL=http://cairographics.org/releases
-CAIRO_GZ=cairo-${CAIRO_MAJOR_SRC}.${CAIRO_MINOR_SRC}.${CAIRO_PATCH_SRC}.tar.gz
+set(CAIRO_MAJOR 1)
+set(CAIRO_MINOR 8)
+set(CAIRO_PATCH 10)
+set(CAIRO_MAJOR_SRC 1)
+set(CAIRO_MINOR_SRC 8)
+set(CAIRO_PATCH_SRC 10)
+set(CAIRO_URL http://cairographics.org/releases)
+set(CAIRO_GZ cairo-${CAIRO_MAJOR_SRC}.${CAIRO_MINOR_SRC}.${CAIRO_PATCH_SRC}.tar.gz)
 
-FT_MAJOR=9
-FT_MINOR=7
-FT_PATCH=3
-FT_MAJOR_SRC=2
-FT_MINOR_SRC=3
-FT_PATCH_SRC=12
-FT_URL=http://download.savannah.gnu.org/releases-noredirect/freetype
-FT_GZ=freetype-${FT_MAJOR_SRC}.${FT_MINOR_SRC}.${FT_PATCH_SRC}.tar.gz
+set(FT_MAJOR 9)
+set(FT_MINOR 7)
+set(FT_PATCH 3)
+set(FT_MAJOR_SRC 2)
+set(FT_MINOR_SRC 3)
+set(FT_PATCH_SRC 12)
+set(FT_URL http://download.savannah.gnu.org/releases-noredirect/freetype)
+set(FT_GZ freetype-${FT_MAJOR_SRC}.${FT_MINOR_SRC}.${FT_PATCH_SRC}.tar.gz)
 
-FTCFG_MAJOR=2
-FTCFG_MINOR=4
-FTCFG_PATCH=2
-FTCFG_MAJOR_SRC=2
-FTCFG_MINOR_SRC=8
-FTCFG_PATCH_SRC=0
-FTCFG_URL=http://fontconfig.org/release
-FTCFG_GZ=fontconfig-${FTCFG_MAJOR_SRC}.${FTCFG_MINOR_SRC}.${FTCFG_PATCH_SRC}.tar.gz
+set(FTCFG_MAJOR 2)
+set(FTCFG_MINOR 4)
+set(FTCFG_PATCH 2)
+set(FTCFG_MAJOR_SRC 2)
+set(FTCFG_MINOR_SRC 8)
+set(FTCFG_PATCH_SRC 0)
+set(FTCFG_URL http://fontconfig.org/release)
+set(FTCFG_GZ fontconfig-${FTCFG_MAJOR_SRC}.${FTCFG_MINOR_SRC}.${FTCFG_PATCH_SRC}.tar.gz)
 
-PIX_MAJOR=0
-PIX_MINOR=19
-PIX_PATCH=2
-PIX_MAJOR_SRC=0
-PIX_MINOR_SRC=19
-PIX_PATCH_SRC=2
-PIX_URL=http://cairographics.org/releases
-PIX_GZ=pixman-${PIX_MAJOR_SRC}.${PIX_MINOR_SRC}.${PIX_PATCH_SRC}.tar.gz
+set(PIX_MAJOR 0)
+set(PIX_MINOR 19)
+set(PIX_PATCH 2)
+set(PIX_MAJOR_SRC 0)
+set(PIX_MINOR_SRC 19)
+set(PIX_PATCH_SRC 2)
+set(PIX_URL http://cairographics.org/releases)
+set(PIX_GZ pixman-${PIX_MAJOR_SRC}.${PIX_MINOR_SRC}.${PIX_PATCH_SRC}.tar.gz)
 
-CURL_MAJOR=7
-CURL_MINOR=19
-CURL_PATCH=7
-CURL_MAJOR_SRC=7
-CURL_MINOR_SRC=20
-CURL_PATCH_SRC=0
-CURL_URL=http://curl.haxx.se/download
-CURL_GZ=curl-${CURL_MAJOR_SRC}.${CURL_MINOR_SRC}.${CURL_PATCH_SRC}.tar.gz
+set(CURL_MAJOR 7)
+set(CURL_MINOR 19)
+set(CURL_PATCH 7)
+set(CURL_MAJOR_SRC 7)
+set(CURL_MINOR_SRC 20)
+set(CURL_PATCH_SRC 0)
+set(CURL_URL http://curl.haxx.se/download)
+set(CURL_GZ curl-${CURL_MAJOR_SRC}.${CURL_MINOR_SRC}.${CURL_PATCH_SRC}.tar.gz)
 
-PNG_MAJOR=1
-PNG_MINOR=4
-PNG_PATCH=1
-PNG_MAJOR_SRC=1
-PNG_MINOR_SRC=4
-PNG_PATCH_SRC=2
-PNG_URL=ftp://ftp.simplesystems.org/pub/libpng/png/src
-PNG_GZ=libpng-${PNG_MAJOR_SRC}.${PNG_MINOR_SRC}.${PNG_PATCH_SRC}.tar.gz
+set(PNG_MAJOR 1)
+set(PNG_MINOR 4)
+set(PNG_PATCH 1)
+set(PNG_MAJOR_SRC 1)
+set(PNG_MINOR_SRC 4)
+set(PNG_PATCH_SRC 2)
+set(PNG_URL ftp://ftp.simplesystems.org/pub/libpng/png/src)
+set(PNG_GZ libpng-${PNG_MAJOR_SRC}.${PNG_MINOR_SRC}.${PNG_PATCH_SRC}.tar.gz)
 
-PMW_MAJOR=1
-PMW_MINOR=3
-PMW_MAJOR_SRC=1
-PMW_MINOR_SRC=3
-PMW_PATCH_SRC=2
-PMW_URL=http://downloads.sourceforge.net/project/pmw/Pmw/Pmw.${PMW_MAJOR_SRC}.${PMW_MINOR_SRC}.${PMW_PATCH_SRC}
-PMW_GZ=Pmw.${PMW_MAJOR_SRC}.${PMW_MINOR_SRC}.${PMW_PATCH_SRC}.tar.gz
+set(PMW_MAJOR 1)
+set(PMW_MINOR 3)
+set(PMW_MAJOR_SRC 1)
+set(PMW_MINOR_SRC 3)
+set(PMW_PATCH_SRC 2)
+set(PMW_URL http://downloads.sourceforge.net/project/pmw/Pmw/Pmw.${PMW_MAJOR_SRC}.${PMW_MINOR_SRC}.${PMW_PATCH_SRC})
+set(PMW_GZ Pmw.${PMW_MAJOR_SRC}.${PMW_MINOR_SRC}.${PMW_PATCH_SRC}.tar.gz)
 
-NUMPY_MAJOR=1
-NUMPY_MINOR=4
-NUMPY_PATCH=1
-NUMPY_MAJOR_SRC=1
-NUMPY_MINOR_SRC=4
-NUMPY_PATCH_SRC=1
-NUMPY_URL=http://downloads.sourceforge.net/project/numpy/NumPy/${NUMPY_MAJOR_SRC}.${NUMPY_MINOR_SRC}.${NUMPY_PATCH_SRC}
-NUMPY_GZ=numpy-${NUMPY_MAJOR_SRC}.${NUMPY_MINOR_SRC}.${NUMPY_PATCH_SRC}.tar.gz
+set(NUMPY_MAJOR 1)
+set(NUMPY_MINOR 4)
+set(NUMPY_PATCH 1)
+set(NUMPY_MAJOR_SRC 1)
+set(NUMPY_MINOR_SRC 4)
+set(NUMPY_PATCH_SRC 1)
+set(NUMPY_URL http://downloads.sourceforge.net/project/numpy/NumPy/${NUMPY_MAJOR_SRC}.${NUMPY_MINOR_SRC}.${NUMPY_PATCH_SRC})
+set(NUMPY_GZ numpy-${NUMPY_MAJOR_SRC}.${NUMPY_MINOR_SRC}.${NUMPY_PATCH_SRC}.tar.gz)
 
-TCLTK_MAJOR=8
-TCLTK_MINOR=5
-TCLTK_PATCH=4
-TCLTK_MAJOR_SRC=8
-TCLTK_MINOR_SRC=5
-TCLTK_PATCH_SRC=8
-TCLTK_VERSION=${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC}
-TCLTK_URL=http://prdownloads.sourceforge.net/tcl
-TCL_GZ=tcl${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC}.${TCLTK_PATCH}-src.tar.gz
-TK_GZ=tk${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC}.${TCLTK_PATCH}-src.tar.gz
+set(TCLTK_MAJOR 8)
+set(TCLTK_MINOR 5)
+set(TCLTK_PATCH 4)
+set(TCLTK_MAJOR_SRC 8)
+set(TCLTK_MINOR_SRC 5)
+set(TCLTK_PATCH_SRC 8)
+set(TCLTK_VERSION ${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC})
+set(TCLTK_URL http://prdownloads.sourceforge.net/tcl)
+set(TCL_GZ tcl${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC}.${TCLTK_PATCH}-src.tar.gz)
+set(TK_GZ tk${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC}.${TCLTK_PATCH}-src.tar.gz)
 
-RL_MAJOR=5
-RL_MINOR=2
-RL_MAJOR_SRC=6
-RL_MINOR_SRC=1
-READLINE_URL=ftp://ftp.gnu.org/gnu/readline
-READLINE_GZ=readline-${RL_MAJOR_SRC}.${RL_MINOR_SRC}.tar.gz
+set(RL_MAJOR 5)
+set(RL_MINOR 2)
+set(RL_MAJOR_SRC 6)
+set(RL_MINOR_SRC 1)
+set(READLINE_URL ftp://ftp.gnu.org/gnu/readline)
+set(READLINE_GZ readline-${RL_MAJOR_SRC}.${RL_MINOR_SRC}.tar.gz)
 
-CMAKE_MAJOR=2
-CMAKE_MINOR=4
-CMAKE_MAJOR_SRC=2
-CMAKE_MINOR_SRC=8
-CMAKE_PATCH_SRC=2
-CMAKE_URL=http://www.cmake.org/files/v${CMAKE_MAJOR_SRC}.${CMAKE_MINOR_SRC}
-CMAKE_GZ=cmake-${CMAKE_MAJOR_SRC}.${CMAKE_MINOR_SRC}.${CMAKE_PATCH_SRC}.tar.gz
+set(FLTK2_MAJOR 2)
+set(FLTK2_MINOR 0)
+set(FLTK2_PATCH 0)
+set(FLTK2_MAJOR_SRC 2)
+set(FLTK2_MINOR_SRC 0)
+set(FLTK2_PATCH_SRC 0)
 
-FLTK2_MAJOR=2
-FLTK2_MINOR=0
-FLTK2_PATCH=0
-FLTK2_MAJOR_SRC=2
-FLTK2_MINOR_SRC=0
-FLTK2_PATCH_SRC=0
+set(FTGL_MAJOR 2)
+set(FTGL_MINOR 1)
+set(FTGL_PATCH 2)
+set(FTGL_MAJOR_SRC 2)
+set(FTGL_MINOR_SRC 1)
+set(FTGL_PATCH_SRC 2)
 
-FTGL_MAJOR=2
-FTGL_MINOR=1
-FTGL_PATCH=2
-FTGL_MAJOR_SRC=2
-FTGL_MINOR_SRC=1
-FTGL_PATCH_SRC=2
+set(SETUPTOOLS_MAJOR 0)
+set(SETUPTOOLS_MINOR 6)
+set(SETUPTOOLS_MAJOR_SRC 0)
+set(SETUPTOOLS_MINOR_SRC 6c11)
+set(SETUPTOOLS_URL http://pypi.python.org/packages/source/s/setuptools)
+set(SETUPTOOLS_GZ setuptools-${SETUPTOOLS_MAJOR_SRC}.${SETUPTOOLS_MINOR_SRC}.tar.gz)
 
-SETUPTOOLS_MAJOR=0
-SETUPTOOLS_MINOR=6
-SETUPTOOLS_MAJOR_SRC=0
-SETUPTOOLS_MINOR_SRC=6c11
-SETUPTOOLS_URL=http://pypi.python.org/packages/source/s/setuptools
-SETUPTOOLS_GZ=setuptools-${SETUPTOOLS_MAJOR_SRC}.${SETUPTOOLS_MINOR_SRC}.tar.gz
+set(MATPLOTLIB_MAJOR 0)
+set(MATPLOTLIB_MINOR 98)
+set(MATPLOTLIB_MAJOR_SRC 0)
+set(MATPLOTLIB_MINOR_SRC 98)
+set(MATPLOTLIB_PATCH_SRC 3)
 
-MATPLOTLIB_MAJOR=0
-MATPLOTLIB_MINOR=98
-MATPLOTLIB_MAJOR_SRC=0
-MATPLOTLIB_MINOR_SRC=98
-MATPLOTLIB_PATCH_SRC=3
+set(PyOpenGL_MAJOR 3)
+set(PyOpenGL_MINOR 0)
+set(PyOpenGL_PATCH 0)
+set(PyOpenGL_MAJOR_SRC 3)
+set(PyOpenGL_MINOR_SRC 0)
+set(PyOpenGL_PATCH_SRC 1)
+set(PyOpenGL_URL http://pypi.python.org/packages/source/P/PyOpenGL)
+set(PyOpenGL_GZ PyOpenGL-${PyOpenGL_MAJOR_SRC}.${PyOpenGL_MINOR_SRC}.${PyOpenGL_PATCH_SRC}.tar.gz)
 
-PyOpenGL_MAJOR=3
-PyOpenGL_MINOR=0
-PyOpenGL_PATCH=0
-PyOpenGL_MAJOR_SRC=3
-PyOpenGL_MINOR_SRC=0
-PyOpenGL_PATCH_SRC=1
-PyOpenGL_URL=http://pypi.python.org/packages/source/P/PyOpenGL
-PyOpenGL_GZ=PyOpenGL-${PyOpenGL_MAJOR_SRC}.${PyOpenGL_MINOR_SRC}.${PyOpenGL_PATCH_SRC}.tar.gz
+set(HDF4_MAJOR_SRC 4)
+set(HDF4_MINOR_SRC 2)
+set(HDF4_PATCH_SRC 5)
+set(HDF4_URL http://www.hdfgroup.org/ftp/HDF/HDF_Current/src)
+set(HDF4_GZ hdf-${HDF4_MAJOR_SRC}.${HDF4_MINOR_SRC}.${HDF4_PATCH_SRC}.tar.gz)
 
-HDF4_MAJOR_SRC=4
-HDF4_MINOR_SRC=2
-HDF4_PATCH_SRC=5
-HDF4_URL=http://www.hdfgroup.org/ftp/HDF/HDF_Current/src
-HDF4_GZ=hdf-${HDF4_MAJOR_SRC}.${HDF4_MINOR_SRC}.${HDF4_PATCH_SRC}.tar.gz
+set(HDF5_MAJOR_SRC 1)
+set(HDF5_MINOR_SRC 8)
+set(HDF5_PATCH_SRC 5-patch1)
+set(HDF5_URL http://www.hdfgroup.org/ftp/HDF5/current/src)
+set(HDF5_GZ hdf5-${HDF5_MAJOR_SRC}.${HDF5_MINOR_SRC}.${HDF5_PATCH_SRC}.tar.gz)
 
-HDF5_MAJOR_SRC=1
-HDF5_MINOR_SRC=8
-HDF5_PATCH_SRC=5-patch1
-HDF5_URL=http://www.hdfgroup.org/ftp/HDF5/current/src
-HDF5_GZ=hdf5-${HDF5_MAJOR_SRC}.${HDF5_MINOR_SRC}.${HDF5_PATCH_SRC}.tar.gz
+set(UUID_MAJOR_SRC 1)
+set(UUID_MINOR_SRC 6)
+set(UUID_PATCH_SRC 2)
+set(UUID_URL ftp://ftp.ossp.org/pkg/lib/uuid)
+set(UUID_GZ uuid-${UUID_MAJOR_SRC}.${UUID_MINOR_SRC}.${UUID_PATCH_SRC}.tar.gz)
 
-UUID_MAJOR_SRC=1
-UUID_MINOR_SRC=6
-UUID_PATCH_SRC=2
-UUID_URL=ftp://ftp.ossp.org/pkg/lib/uuid
-UUID_GZ=uuid-${UUID_MAJOR_SRC}.${UUID_MINOR_SRC}.${UUID_PATCH_SRC}.tar.gz
+set(UDUNITS2_MAJOR_SRC 2)
+set(UDUNITS2_MINOR_SRC 1)
+set(UDUNITS2_PATCH_SRC 14)
+set(UDUNITS2_URL ftp://ftp.unidata.ucar.edu/pub/udunits)
+set(UDUNITS2_GZ udunits-${UDUNITS2_MAJOR_SRC}.${UDUNITS2_MINOR_SRC}.${UDUNITS2_PATCH_SRC}.tar.gz)
 
-UDUNITS2_MAJOR_SRC=2
-UDUNITS2_MINOR_SRC=1
-UDUNITS2_PATCH_SRC=14
-UDUNITS2_URL=ftp://ftp.unidata.ucar.edu/pub/udunits
-UDUNITS2_GZ=udunits-${UDUNITS2_MAJOR_SRC}.${UDUNITS2_MINOR_SRC}.${UDUNITS2_PATCH_SRC}.tar.gz
+set(NC4_MAJOR_SRC 4)
+set(NC4_MINOR_SRC 1)
+set(NC4_PATCH_SRC 1)
+set(NC4_URL ftp://ftp.unidata.ucar.edu/pub/netcdf)
+set(NC4_GZ netcdf-${NC4_MAJOR_SRC}.${NC4_MINOR_SRC}.${NC4_PATCH_SRC}.tar.gz)
 
-NC4_MAJOR_SRC=4
-NC4_MINOR_SRC=1
-NC4_PATCH_SRC=1
-NC4_URL=ftp://ftp.unidata.ucar.edu/pub/netcdf
-NC4_GZ=netcdf-${NC4_MAJOR_SRC}.${NC4_MINOR_SRC}.${NC4_PATCH_SRC}.tar.gz
+set(NC4_MAJOR 4)
+set(NC4_MINOR 1)
+set(NC4_PATCH 0)
 
-NC4_MAJOR=4
-NC4_MINOR=1
-NC4_PATCH=0
+set(ZLIB_MAJOR_SRC 1)
+set(ZLIB_MINOR_SRC 2)
+set(ZLIB_PATCH_SRC 5)
+set(ZLIB_URL http://zlib.net)
+set(ZLIB_GZ zlib-${ZLIB_MAJOR_SRC}.${ZLIB_MINOR_SRC}.${ZLIB_PATCH_SRC}.tar.gz)
 
-ZLIB_MAJOR_SRC=1
-ZLIB_MINOR_SRC=2
-ZLIB_PATCH_SRC=5
-ZLIB_URL=http://zlib.net
-ZLIB_GZ=zlib-${ZLIB_MAJOR_SRC}.${ZLIB_MINOR_SRC}.${ZLIB_PATCH_SRC}.tar.gz
+set(TCAP_MAJOR_SRC 1)
+set(TCAP_MINOR_SRC 3)
+set(TCAP_PATCH_SRC 1)
 
-TCAP_MAJOR_SRC=1
-TCAP_MINOR_SRC=3
-TCAP_PATCH_SRC=1
+set(GIFSICLE_MAJOR_SRC 1)
+set(GIFSICLE_MINOR_SRC 58)
+set(GIFSICLE_URL http://www.lcdf.org/gifsicle)
+set(GIFSICLE_GZ gifsicle-${GIFSICLE_MAJOR_SRC}.${GIFSICLE_MINOR_SRC}.tar.gz)
 
-GIFSICLE_MAJOR_SRC=1
-GIFSICLE_MINOR_SRC=58
-GIFSICLE_URL=http://www.lcdf.org/gifsicle
-GIFSICLE_GZ=gifsicle-${GIFSICLE_MAJOR_SRC}.${GIFSICLE_MINOR_SRC}.tar.gz
+set(XGKS_URL http://uv-cdat.llnl.gov/cdat)
+set(XGKS_GZ xgks.tar.gz)
 
-XGKS_URL=http://uv-cdat.llnl.gov/cdat
-XGKS_GZ=xgks.tar.gz
+set(JPEG_URL http://www.ijg.org/files)
+set(JPEG_GZ jpegsrc.v8b.tar.gz)
 
-JPEG_URL=http://www.ijg.org/files
-JPEG_GZ=jpegsrc.v8b.tar.gz
+set(BLAS_URL http://www.netlib.org/blas)
+set(BLAS_GZ blas.tgz)
 
-BLAS_URL=http://www.netlib.org/blas
-BLAS_GZ=blas.tgz
+set(LAPACK_URL http://www.netlib.org/lapack)
+set(LAPACK_GZ lapack.tgz)
 
-LAPACK_URL=http://www.netlib.org/lapack
-LAPACK_GZ=lapack.tgz
+set(LAPACK95_URL http://www.netlib.org/lapack95)
+set(LAPACK95_GZ lapack95.tgz)
 
-LAPACK95_URL=http://www.netlib.org/lapack95
-LAPACK95_GZ=lapack95.tgz
+set(PBMPLUS_URL http://acme.com/software/pbmplus)
+set(PBMPLUS_GZ pbmplus_10dec1991.tar.gz)
 
-PBMPLUS_URL=http://acme.com/software/pbmplus
-PBMPLUS_GZ=pbmplus_10dec1991.tar.gz
+set(GS_MAJOR_SRC 8)
+set(GS_MINOR_SRC 71)
+set(GS_URL http://ghostscript.com/releases)
+set(GS_GZ ghostscript-${GS_MAJOR_SRC}.${GS_MINOR_SRC}.tar.gz)
 
-GS_MAJOR_SRC=8
-GS_MINOR_SRC=71
-GS_URL=http://ghostscript.com/releases
-GS_GZ=ghostscript-${GS_MAJOR_SRC}.${GS_MINOR_SRC}.tar.gz
+set(FFMPEG_MAJOR_SRC 0)
+set(FFMPEG_MINOR_SRC 5)
+set(FFMPEG_PATCH_SRC 1)
+set(FFMPEG_URL http://ffmpeg.org/releases)
+set(FFMPEG_GZ ffmpeg-${FFMPEG_MAJOR_SRC}.${FFMPEG_MINOR_SRC}.${FFMPEG_PATCH_SRC}.tar.gz)
 
-FFMPEG_MAJOR_SRC=0
-FFMPEG_MINOR_SRC=5
-FFMPEG_PATCH_SRC=1
-FFMPEG_URL=http://ffmpeg.org/releases
-FFMPEG_GZ=ffmpeg-${FFMPEG_MAJOR_SRC}.${FFMPEG_MINOR_SRC}.${FFMPEG_PATCH_SRC}.tar.gz
+set(VTK_MAJOR_SRC 5)
+set(VTK_MINOR_SRC 6)
+set(VTK_PATCH_SRC 0)
+set(VTK_URL http://www.vtk.org/files/release/${VTK_MAJOR_SRC}.${VTK_MINOR_SRC})
+set(VTK_GZ vtk-${VTK_MAJOR_SRC}.${VTK_MINOR_SRC}.${VTK_PATCH_SRC}.tar.gz)
 
-VTK_MAJOR_SRC=5
-VTK_MINOR_SRC=6
-VTK_PATCH_SRC=0
-VTK_URL=http://www.vtk.org/files/release/${VTK_MAJOR_SRC}.${VTK_MINOR_SRC}
-VTK_GZ=vtk-${VTK_MAJOR_SRC}.${VTK_MINOR_SRC}.${VTK_PATCH_SRC}.tar.gz
+set(SIP_MAJOR 4)
+set(SIP_MINOR 11)
+set(SIP_PATCH 1)
+set(SIP_MAJOR_SRC 4)
+set(SIP_MINOR_SRC 11)
+set(SIP_PATCH_SRC 1)
+set(SIP_URL http://www.riverbankcomputing.com/static/Downloads/sip${SIP_MAJOR_SRC})
+set(SIP_GZ sip-${SIP_MAJOR_SRC}.${SIP_MINOR_SRC}.${SIP_PATCH_SRC}.tar.gz)
 
-SIP_MAJOR=4
-SIP_MINOR=11
-SIP_PATCH=1
-SIP_MAJOR_SRC=4
-SIP_MINOR_SRC=11
-SIP_PATCH_SRC=1
-SIP_URL=http://www.riverbankcomputing.com/static/Downloads/sip${SIP_MAJOR_SRC}
-SIP_GZ=sip-${SIP_MAJOR_SRC}.${SIP_MINOR_SRC}.${SIP_PATCH_SRC}.tar.gz
+set(PyQt_MAJOR 4)
+set(PyQt_MINOR 7)
+set(PyQt_PATCH 6)
+set(PyQt_MAJOR_SRC 4)
+set(PyQt_MINOR_SRC 7)
+set(PyQt_PATCH_SRC 7)
+set(PyQt_URL http://www.riverbankcomputing.com/static/Downloads/PyQt${PyQt_MAJOR_SRC})
 
-PyQt_MAJOR=4
-PyQt_MINOR=7
-PyQt_PATCH=6
-PyQt_MAJOR_SRC=4
-PyQt_MINOR_SRC=7
-PyQt_PATCH_SRC=7
-PyQt_URL=http://www.riverbankcomputing.com/static/Downloads/PyQt${PyQt_MAJOR_SRC}
-
-R_MAJOR_SRC=2
-R_MINOR_SRC=11
-R_PATCH_SRC=1
-R_URL=http://cran.cnr.berkeley.edu
-R_GZ=R-${R_MAJOR_SRC}.${R_MINOR_SRC}.${R_PATCH_SRC}.tar.gz
+set(R_MAJOR_SRC 2)
+set(R_MINOR_SRC 11)
+set(R_PATCH_SRC 1)
+set(R_URL http://cran.cnr.berkeley.edu)
+set(R_GZ R-${R_MAJOR_SRC}.${R_MINOR_SRC}.${R_PATCH_SRC}.tar.gz)
