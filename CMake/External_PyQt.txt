@@ -1,0 +1,57 @@
+set(name "pyqt")
+set(version "4.6.1")
+set(latest 1)
+set(release 1)
+set(prefix ${CSE_RELEASE_INSTALL_DIR}/${name}-${version})
+
+
+# PyQt
+#
+set(proj "${name}-${version}")
+set(tgz "${CMAKE_CURRENT_SOURCE_DIR}/PyQt-x11-gpl-${version}.tar.gz")
+set(cfg "${CMAKE_CURRENT_SOURCE_DIR}/configure.cmake")
+include("${CMAKE_CURRENT_SOURCE_DIR}/../../../../CMakeModules/cse_macros.cmake")
+
+ExternalProject_Add(${proj}
+  URL ${tgz}
+  BUILD_IN_SOURCE 1
+  CONFIGURE_COMMAND ${CMAKE_COMMAND}
+    -Dprefix=${prefix}
+    -DCSE_PYTHON_NAME=${CSE_PYTHON_NAME}
+    -DCSE_PYTHON_VERSIONXX=${CSE_PYTHON_VERSIONXX}
+    -Dpython=${CSE_PYTHON_HOME}
+    -Dsip=${CSE_SIP_HOME}
+    -Dqt=${CSE_QT_HOME}
+    -DCC=${CMAKE_C_COMPILER}
+    -DCXX=${CMAKE_CXX_COMPILER}
+    -P ${cfg}
+  BUILD_COMMAND ${build_cmd_smp}
+  DEPENDS ${CSE_SIP_PACKAGE}
+          ${CSE_QT_PACKAGE}
+  )
+
+ExternalProject_Add_Step(${proj} "check-configure"
+   COMMENT "Check ${cfg}"
+   DEPENDERS configure
+   DEPENDS ${cfg}
+) 
+
+cse_add_runtime_depends(${proj}
+  ${CSE_PYTHON_PACKAGE}
+  ${CSE_SIP_PACKAGE}
+  ${CSE_QT_PACKAGE}
+)
+
+split_version(${version} version_major version_minor version_patch)
+set(CSE_PYQT_HOME "${prefix}" PARENT_SCOPE)
+set(CSE_PYQT_PACKAGE "${name}-${version}" PARENT_SCOPE)
+set(CSE_PYQT_NAME "${name}" PARENT_SCOPE)
+set(CSE_PYQT_VERSIONXX "${version_major}.${version_minor}" PARENT_SCOPE)
+
+add_test(SmokeTest-${name}-${version}
+  "${prefix}/bin/pyuic4" "--version")
+
+set_property(TEST SmokeTest-${name}-${version} PROPERTY
+  ENVIRONMENT LD_LIBRARY_PATH=${CSE_PYTHON_HOME}/lib
+              PYTHONPATH=${prefix}/lib/${CSE_PYTHON_NAME}${CSE_PYTHON_VERSIONXX}/site-packages:${CSE_SIP_HOME}/lib/${CSE_PYTHON_NAME}${CSE_PYTHON_VERSIONXX}/site-packages
+  )
