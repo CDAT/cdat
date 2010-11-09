@@ -1,0 +1,26 @@
+# The HDF5 external project for Titan
+
+set(HDF5_source "${CMAKE_CURRENT_SOURCE_DIR}/HDF5")
+set(HDF5_binary "${CMAKE_CURRENT_BINARY_DIR}/HDF5")
+
+ExternalProject_Add(HDF5
+  DOWNLOAD_COMMAND ""
+  SOURCE_DIR "${HDF5_source}"
+  BINARY_DIR "${HDF5_binary}"
+  CMAKE_GENERATOR ${gen}
+  CMAKE_ARGS
+    -DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS}
+    -DCMAKE_C_FLAGS:STRING=${CMAKE_C_FLAGS}
+    -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+    -DBUILD_SHARED_LIBS:BOOL=ON
+    -DBUILD_TESTING:BOOL=OFF
+    -DHDF5_BUILD_HL_LIB:BOOL=ON
+    ${titan_compiler_args}
+    ${titan_binary_args}
+    ${HDF5_EXTRA_ARGS}
+    -DTRIGGER_REBUILD:STRING=0
+  INSTALL_COMMAND ""
+)
+
+set(Titan_HDF5_DIR "${HDF5_binary}" CACHE PATH
+  "HDF5 binary directory" FORCE)
