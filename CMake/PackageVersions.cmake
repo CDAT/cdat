@@ -201,6 +201,7 @@ set(ZLIB_MINOR_SRC 2)
 set(ZLIB_PATCH_SRC 5)
 set(ZLIB_URL http://zlib.net)
 set(ZLIB_GZ zlib-${ZLIB_MAJOR_SRC}.${ZLIB_MINOR_SRC}.${ZLIB_PATCH_SRC}.tar.gz)
+set(ZLIB_MD5 c735eab2d659a96e5a594c9e8541ad63)
 
 set(TCAP_MAJOR_SRC 1)
 set(TCAP_MINOR_SRC 3)
