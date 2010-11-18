@@ -36,6 +36,7 @@ e61d0364a30146aaa3001296f853b2b9  sources/libxslt-1.1.26.tar.gz
 5c7b5349dc3161763f7f366ceb96516b  sources/numpy-1.4.1.tar.gz
 ed8298f8173bee510129eb32ef872db5  sources/pbmplus_10dec1991.tar.gz
 6041fe8982cc4d1323adc47e629c7d13  sources/pixman-0.17.10.tar.gz
+dfb84c9f402fbba5047f0e0a69c17518  sources/pixman-0.19.2.tar.gz
 d922a88782b64441d06547632fd85744  sources/pkg-config-0.23.tar.gz
 5c69f16d452b0bb3d44bc3c10556c072  sources/qt-everywhere-opensource-src-4.6.3.tar.gz
 3a2f25b9b115037277f4fb759194a7a5  sources/qt-everywhere-opensource-src-4.7.0.tar.gz
