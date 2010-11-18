@@ -70,8 +70,6 @@ macro (add_cdat_package package)
     message("${package} not found.\n  ->Building ${UC_PACKAGE} ${${UC_PACKAGE}_MAJOR_SRC}.${${UC_PACKAGE}_MINOR_SRC}.${${UC_PACKAGE}_PATCH_SRC} from source.")
     include(External_${package})
     set(CDAT_USE_SYSTEM_${UC_PACKAGE} OFF CACHE BOOL "Use system installed ${LC_PACKAGE}" FORCE)
-  else()
-    set(CDAT_USE_SYSTEM_${UC_PACKAGE} ON CACHE BOOL "Use system installed ${LC_PACKAGE}" FORCE)
   endif()
 endmacro (add_cdat_package)
 
