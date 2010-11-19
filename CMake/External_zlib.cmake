@@ -19,3 +19,5 @@ ExternalProject_Add(${proj}
   )
 #set(ITK_DIR ${CMAKE_BINARY_DIR}/${proj}-build)
 
+set(ZLIB_INCLUDE_DIR)
+
