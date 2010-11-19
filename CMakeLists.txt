@@ -66,7 +66,7 @@ macro (add_cdat_package package)
   string(TOUPPER ${package} UC_PACKAGE)
   string(TOLOWER ${package} LC_PACKAGE)
   option(CDAT_USE_SYSTEM_${UC_PACKAGE} "Use system installed ${LC_PACKAGE}" ON)
-  if(NOT ${UC_PACKAGE}_FOUND AND CDAT_USE_SYSTEM_${UC_PACKAGE})
+  if(NOT ${UC_PACKAGE}_FOUND AND NOT CDAT_USE_SYSTEM_${UC_PACKAGE})
     message("${package} not found.\n  ->Building ${UC_PACKAGE} ${${UC_PACKAGE}_MAJOR_SRC}.${${UC_PACKAGE}_MINOR_SRC}.${${UC_PACKAGE}_PATCH_SRC} from source.")
     include(External_${package})
     set(CDAT_USE_SYSTEM_${UC_PACKAGE} OFF CACHE BOOL "Use system installed ${LC_PACKAGE}" FORCE)
@@ -110,6 +110,8 @@ find_package(TCL)
 
 
 
+
+
 #add_cdat_package(CURL)
 #add_cdat_package(LibXml2)
 #add_cdat_package(xgks)
@@ -122,7 +124,7 @@ find_package(TCL)
 #add_cdat_package(BLAS)
 #add_cdat_package(LAPACK)
 add_cdat_package(zlib)
-#add_cdat_package(png)
+add_cdat_package(png)
 #add_cdat_package(pkgconfig)
 #add_cdat_package(Freetype)
 #add_cdat_package(pixman)
@@ -143,3 +145,23 @@ add_cdat_package(zlib)
 #add_cdat_package(pyopengl)
 #add_cdat_package(numpy)
 #add_cdat_package(pmw)
+
+#------------------------------------------------------------------------------
+# Establish Target Dependencies based on Selected Options
+#------------------------------------------------------------------------------
+
+set(png_DEPENDENCIES zlib)
+set(tcl_DEPENDENCIES)
+set(tk_DEPENDENCIES tcl)
+set(python_DEPENDENCIES)
+  if(WIN32)
+    set(python_DEPENDENCIES tcl)
+  else()
+    set(python_DEPENDENCIES tk)
+  endif()
+set(CLAPACK_DEPENDENCIES)
+set(NUMPY_DEPENDENCIES CLAPACK python)
+
+set(VTK_DEPENDENCIES)
+set(cmcurl_DEPENDENCIES)
+set(cdat_DEPENDENCIES VTK Insight BatchMake OpenIGTLink teem cmcurl)
