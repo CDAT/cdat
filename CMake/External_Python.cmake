@@ -2,9 +2,6 @@
 set(proj python)
 set(python_base ${CMAKE_CURRENT_BINARY_DIR}/${proj})
 set(python_build ${CMAKE_CURRENT_BINARY_DIR}/${proj}-build)
-set(python_URL http://svn.slicer.org/Slicer3-lib-mirrors/trunk/Python-2.6.5.tgz)
-#set(python_SVN_REPOSITORY "http://svn.python.org/projects/python/branches/release26-maint")
-#set(python_SVN_REVISION -r 81659)
 
 if(WIN32)
 
@@ -29,8 +26,6 @@ if(WIN32)
   endif()
 
   ExternalProject_Add(${proj}
-    #SVN_REPOSITORY ${python_SVN_REPOSITORY}
-    #SVN_REVISION ${python_SVN_REVISION}
     URL ${python_URL}
     DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
     SOURCE_DIR python-build
@@ -146,10 +141,8 @@ elseif(UNIX)
   set(python_INSTALL_COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/python_install_step.cmake)
   
   ExternalProject_Add(${proj}
-    URL ${python_URL}
+    URL ${PYTHON_URL}/${PYTHON_GZ}
     DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
-    #SVN_REPOSITORY ${python_SVN_REPOSITORY}
-    #SVN_REVISION ${python_SVN_REVISION}
     SOURCE_DIR ${python_SOURCE_DIR}
     BUILD_IN_SOURCE ${python_BUILD_IN_SOURCE}
     PATCH_COMMAND ${python_PATCH_COMMAND}
@@ -167,22 +160,22 @@ endif()
 # Set slicer_PYTHON_INCLUDE and slicer_PYTHON_LIBRARY variables
 #
 
-set(slicer_PYTHON_INCLUDE)
-set(slicer_PYTHON_LIBRARY)
-set(slicer_PYTHON_EXECUTABLE)
+#set(slicer_PYTHON_INCLUDE)
+#set(slicer_PYTHON_LIBRARY)
+#set(slicer_PYTHON_EXECUTABLE)
 
-if(WIN32)
-  set(slicer_PYTHON_INCLUDE ${CMAKE_BINARY_DIR}/Python-build/Include)
-  set(slicer_PYTHON_LIBRARY ${CMAKE_BINARY_DIR}/Python-build/PCbuild/python26.lib)
-  set(slicer_PYTHON_EXECUTABLE ${CMAKE_BINARY_DIR}/Python-build/PCbuild/python.exe)
-elseif(APPLE)
-  set(slicer_PYTHON_INCLUDE ${CMAKE_BINARY_DIR}/python-build/include/python2.6)
-  set(slicer_PYTHON_LIBRARY ${CMAKE_BINARY_DIR}/python-build/lib/libpython2.6.dylib)
-  set(slicer_PYTHON_EXECUTABLE ${CMAKE_BINARY_DIR}/python-build/bin/python)
-else()
-  set(slicer_PYTHON_INCLUDE ${CMAKE_BINARY_DIR}/python-build/include/python2.6)
-  set(slicer_PYTHON_LIBRARY ${CMAKE_BINARY_DIR}/python-build/lib/libpython2.6.so)
-  set(slicer_PYTHON_EXECUTABLE ${CMAKE_BINARY_DIR}/python-build/bin/python)
-endif()
+#if(WIN32)
+#  set(slicer_PYTHON_INCLUDE ${CMAKE_BINARY_DIR}/Python-build/Include)
+#  set(slicer_PYTHON_LIBRARY ${CMAKE_BINARY_DIR}/Python-build/PCbuild/python26.lib)
+#  set(slicer_PYTHON_EXECUTABLE ${CMAKE_BINARY_DIR}/Python-build/PCbuild/python.exe)
+#elseif(APPLE)
+#  set(slicer_PYTHON_INCLUDE ${CMAKE_BINARY_DIR}/python-build/include/python2.6)
+#  set(slicer_PYTHON_LIBRARY ${CMAKE_BINARY_DIR}/python-build/lib/libpython2.6.dylib)
+#  set(slicer_PYTHON_EXECUTABLE ${CMAKE_BINARY_DIR}/python-build/bin/python)
+#else()
+#  set(slicer_PYTHON_INCLUDE ${CMAKE_BINARY_DIR}/python-build/include/python2.6)
+#  set(slicer_PYTHON_LIBRARY ${CMAKE_BINARY_DIR}/python-build/lib/libpython2.6.so)
+#  set(slicer_PYTHON_EXECUTABLE ${CMAKE_BINARY_DIR}/python-build/bin/python)
+#endif()
 
 
