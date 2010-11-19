@@ -5,6 +5,8 @@ cdf03284f24279b8d9914bb680a37b5e  sources/PyOpenGL-3.0.1.tar.gz
 abe74162df98e771d3770af77a1561d4  sources/PyQt-mac-gpl-4.7.6.tar.gz
 b7b30ab25ee976407b37052f2f724bce  sources/PyQt-x11-gpl-4.7.7.tar.gz
 18213126857b7c6e6da6f7a1720d4870  sources/PyQt-mac-gpl-4.7.7.tar.gz
+177fa10c6420d6f7fc745478fa64304a  sources/PyQt-mac-gpl-4.8.1.tar.gz
+1cac8f5d715c414f9cb2751b0e84cc07  sources/PyQt-x11-gpl-4.8.1.tar.gz
 17dcac33e4f3adb69a57c2607b6de246  sources/Python-2.6.4.tgz
 cd04b5b9383b6c1fccdaa991af762cf4  sources/Python-2.6.5.tgz
 35f56b092ecf39a6bd59d64f142aae0f  sources/Python-2.7.tgz
@@ -44,6 +46,7 @@ fc2f7e714fe792db1ce6ddc4c9fb4ef3  sources/readline-6.1.tar.gz
 52d11ca9c1a0d0cddc9b89268bff5929  sources/sip-4.10.2.tar.gz
 0a591ef6e59aa16e56822d3eb9fe21b8  sources/sip-4.10.5.tar.gz
 d32ae4dfea42ebf37419a0ec28b597de  sources/sip-4.11.1.tar.gz
+d799804ca0a88bd76c6c2cdf8935c3cb  sources/sip-4.11.2.tar.gz
 15032a6a43f3bfbe9223b95186849472  sources/tcl8.5.4-src.tar.gz
 ffe6f86e63a3a29fa53ac645faaabdfa  sources/termcap-1.3.1.tar.gz
 a6aee7653566ec0b7c4b0f4c24a96f20  sources/tk8.5.4-src.tar.gz

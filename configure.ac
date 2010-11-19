@@ -331,7 +331,7 @@ AC_SUBST(HDF4_MINOR_SRC)
 AC_SUBST(HDF4_PATCH_SRC)
 HDF5_MAJOR_SRC=1
 HDF5_MINOR_SRC=8
-HDF5_PATCH_SRC=4-patch1
+HDF5_PATCH_SRC=5-patch1
 HDF5_URL=http://www.hdfgroup.org/ftp/HDF5/current/src
 HDF5_GZ=hdf5-${HDF5_MAJOR_SRC}.${HDF5_MINOR_SRC}.${HDF5_PATCH_SRC}.tar.gz
 AC_SUBST(HDF5_URL)
@@ -467,7 +467,7 @@ SIP_MINOR=11
 SIP_PATCH=1
 SIP_MAJOR_SRC=4
 SIP_MINOR_SRC=11
-SIP_PATCH_SRC=1
+SIP_PATCH_SRC=2
 SIP_URL=http://www.riverbankcomputing.com/static/Downloads/sip${SIP_MAJOR_SRC}
 SIP_GZ=sip-${SIP_MAJOR_SRC}.${SIP_MINOR_SRC}.${SIP_PATCH_SRC}.tar.gz
 AC_SUBST(SIP_GZ)
@@ -487,8 +487,8 @@ PyQt_MAJOR=4
 PyQt_MINOR=7
 PyQt_PATCH=6
 PyQt_MAJOR_SRC=4
-PyQt_MINOR_SRC=7
-PyQt_PATCH_SRC=7
+PyQt_MINOR_SRC=8
+PyQt_PATCH_SRC=1
 PyQt_URL=http://www.riverbankcomputing.com/static/Downloads/PyQt${PyQt_MAJOR_SRC}
 
 R_MAJOR_SRC=2
@@ -774,6 +774,7 @@ fi
 AC_SUBST(COMPILE_VTK)
 EXTRAENV=""
 
+ISFRAMEWORK="no"
 
 AC_SUBST(QTCONFIGOPT)
 dnl #General compilation flags
@@ -782,7 +783,7 @@ LDFLAGS="-L${EXTERNALS}/lib  -L${prefix}/lib -L${EXTERNALS}/NetCDF/lib  -L${EXTE
 CPPFLAGS="-I${EXTERNALS}/include  "$CPPFLAGS
 CFLAGS="-I${EXTERNALS}/include  -L${EXTERNALS}/lib  "${CFLAGS}
 COMPILE_TCLTK=no
-XTRA_LD_F2PY=""
+XTRA_LD_F2PY="env EXTERNALS=${EXTERNALS} "
 AC_SUBST(XTRA_LD_F2PY)
 case ${target_os} in
  linux-*) 
@@ -840,6 +841,7 @@ case ${target_os} in
   enable_fw="-"${enable_framework}
   if test ${enable_fw} == "-yes" ; then
     PYOPT=" --enable-framework"
+    ISFRAMEWORK="yes"
     cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
     PYINSTALLKEY="frameworkinstall"
   else
@@ -847,11 +849,13 @@ case ${target_os} in
          PYOPT=" --enable-framework=${enable_framework}"
          cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
          PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall "
+         ISFRAMEWORK="yes"
      else
        if test ${enable_vtk} == "-yes" ; then
            PYOPT=" --enable-framework=${prefix} "
            cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
            PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall"
+           ISFRAMEWORK="yes"
        fi
      fi
   fi
@@ -870,16 +874,19 @@ case ${target_os} in
     if test ${enable_fw} == "-yes" ; then
       PYOPT=" --enable-framework"
       PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall"
+      ISFRAMEWORK="yes"
     else
       if test ${enable_fw} != "-" ; then
          PYOPT=" --enable-framework=${enable_framework}"
          PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall"
+         ISFRAMEWORK="yes"
       else
          if test ${enable_vtk} == "-yes" ; then
            PYOPT=" --enable-framework=${prefix} "
            cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
            PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall"
 	   PYTHON_INSTALL_PREFIX=" --prefix="${prefix}
+           ISFRAMEWORK="yes"
          else
            PYOPT=${PYOPT}" --disable-toolbox-glue --disable-framework " 
 	 fi
@@ -888,7 +895,7 @@ case ${target_os} in
     CFLAGS=${CFLAGS}" -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.5 "
     LDFLAGS=${LDFLAGS}" -bind_at_load  -mmacosx-version-min=10.6 "
     CXXFLAGS=${CXXFLAGS}"  -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.6 "
-    XTRA_LD_F2PY="env LDFLAGS=\"\${LDFLAGS/\"/} -undefined dynamic_lookup\" " ;;
+    XTRA_LD_F2PY=${XTRA_LD_F2PY}" LDFLAGS=\"\${LDFLAGS/\"/} -undefined dynamic_lookup\" " ;;
   esac ;;
  cygwin*)
    PyQt_PLATFORM="x11"
@@ -1934,7 +1941,7 @@ else
   BUILDVIS=yes
   case ${target_os} in
    darwin*)
-    if test ${enable_fw} == "-" -a "-"${with_qt} != "-no"  ; then 
+    if test ${enable_fw} == "-" -a "-"${with_qt} != "-no" -a ${ISFRAMEWORK} !="yes"  ; then 
        if test ${COMPILE_PYTHON} == "yes" ; then
          PYOPT=" --enable-framework="${prefix}
          AC_MSG_NOTICE([Your are under Mac you need to enable framework, we did this for you])
