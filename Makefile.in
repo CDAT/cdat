@@ -228,6 +228,10 @@ ifeq (@BUILDQT@,yes)
 	@echo "Building Qt (extremely long, several hours, we recommend downloading the binaries from @QT_URL@ !)"
 	$(call dobuild,@QT_URL@,@QT_GZ@,@EXTERNALS@,, @QTCONFIGOPT@ < ../../exsrc/src/o.txt )
 endif
+ifeq (@NUMPY@,yes)
+	@echo "Building numpy"
+	$(call dobuildpy,,@NUMPY_URL@,@NUMPY_GZ@,@prefix@,)
+endif
 ifeq (@BUILDVIS@,yes)
 	@echo "Building SIP, "${PYVER}
 	@echo "Python site-packages are located at: "`@PYTHON@ -c "import numpy ; print '/'.join(numpy.__path__[0].split('/')[:-1])"`
@@ -242,10 +246,6 @@ endif
 ifeq (@SETUPTOOLS@,yes)
 	@echo "Building setuptools"
 	$(call dobuildpy,,@SETUPTOOLS_URL@,@SETUPTOOLS_GZ@,@prefix@,)
-endif
-ifeq (@NUMPY@,yes)
-	@echo "Building numpy"
-	$(call dobuildpy,,@NUMPY_URL@,@NUMPY_GZ@,@prefix@,)
 endif
 ifeq (@PyOpenGL@,yes)
 	@echo "Building PyOpenGL"
