@@ -100,7 +100,7 @@ find_package(PythonLibs)
 # unix tools
 #find_package(termcap)
 #find_package(readline)
-find_package(TCL)
+##find_package(TCL)
 # python packages
 #find_package(setuptools)
 #find_package(PyOpenGL)
