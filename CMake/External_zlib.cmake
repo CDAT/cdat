@@ -4,7 +4,6 @@ set(proj zlib)
 ExternalProject_Add(${proj}
   URL ${ZLIB_URL}/${ZLIB_GZ}
   URL_MD5 ${ZLIB_MD5}
-  UPDATE_COMMAND ""
   PATCH_COMMAND ${CMAKE_COMMAND} -E remove <SOURCE_DIR>/zconf.h
   SOURCE_DIR ${proj}
   BINARY_DIR ${proj}-build
