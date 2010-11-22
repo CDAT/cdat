@@ -5,7 +5,6 @@ ExternalProject_Add(${proj}
   URL ${PNG_URL}/${PNG_GZ}
   URL_MD5 ${PNG_MD5}
   UPDATE_COMMAND ""
-#  PATCH_COMMAND ${CMAKE_COMMAND} -E remove <SOURCE_DIR>/zconf.h
   SOURCE_DIR ${proj}
   BINARY_DIR ${proj}-build
   CMAKE_GENERATOR ${gen}
@@ -19,5 +18,3 @@ ExternalProject_Add(${proj}
   INSTALL_COMMAND ""
   DEPENDS ${png_DEPENDENCIES}
   )
-#set(ITK_DIR ${CMAKE_BINARY_DIR}/${proj}-build)
-

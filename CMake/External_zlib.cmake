@@ -18,9 +18,7 @@ ExternalProject_Add(${proj}
   INSTALL_COMMAND make install
   DEPENDS
   )
-#set(ITK_DIR ${CMAKE_BINARY_DIR}/${proj}-build)
 
 set(ZLIB_INCLUDE_DIR ${proj}-install/include)
 set(ZLIB_LIBRARY_DIR ${proj}-install/lib)
 set(ZLIB_LIBRARY ${CMAKE_BINARY_DIR}/${proj}-install/lib/libz.so)
-
