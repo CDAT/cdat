@@ -119,19 +119,19 @@ elseif(UNIX)
   set(python_SOURCE_DIR python)
   set(python_BUILD_IN_SOURCE 1)
   
-  configure_file(SuperBuild/python_patch_step.cmake.in
+  configure_file(${cdat_CMAKE_SOURCE_DIR}/python_patch_step.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/python_patch_step.cmake
     @ONLY)
     
-  configure_file(SuperBuild/python_configure_step.cmake.in
+  configure_file(${cdat_CMAKE_SOURCE_DIR}/python_configure_step.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/python_configure_step.cmake
     @ONLY)
   
-  configure_file(SuperBuild/python_make_step.cmake.in
+  configure_file(${cdat_CMAKE_SOURCE_DIR}/python_make_step.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/python_make_step.cmake
     @ONLY)
     
-  configure_file(SuperBuild/python_install_step.cmake.in
+  configure_file(${cdat_CMAKE_SOURCE_DIR}/python_install_step.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/python_install_step.cmake
     @ONLY)
 
@@ -160,22 +160,22 @@ endif()
 # Set slicer_PYTHON_INCLUDE and slicer_PYTHON_LIBRARY variables
 #
 
-#set(slicer_PYTHON_INCLUDE)
-#set(slicer_PYTHON_LIBRARY)
-#set(slicer_PYTHON_EXECUTABLE)
+set(PYTHON_INCLUDE)
+set(PYTHON_LIBRARY)
+set(PYTHON_EXECUTABLE)
 
-#if(WIN32)
-#  set(slicer_PYTHON_INCLUDE ${CMAKE_BINARY_DIR}/Python-build/Include)
-#  set(slicer_PYTHON_LIBRARY ${CMAKE_BINARY_DIR}/Python-build/PCbuild/python26.lib)
-#  set(slicer_PYTHON_EXECUTABLE ${CMAKE_BINARY_DIR}/Python-build/PCbuild/python.exe)
-#elseif(APPLE)
-#  set(slicer_PYTHON_INCLUDE ${CMAKE_BINARY_DIR}/python-build/include/python2.6)
-#  set(slicer_PYTHON_LIBRARY ${CMAKE_BINARY_DIR}/python-build/lib/libpython2.6.dylib)
-#  set(slicer_PYTHON_EXECUTABLE ${CMAKE_BINARY_DIR}/python-build/bin/python)
-#else()
-#  set(slicer_PYTHON_INCLUDE ${CMAKE_BINARY_DIR}/python-build/include/python2.6)
-#  set(slicer_PYTHON_LIBRARY ${CMAKE_BINARY_DIR}/python-build/lib/libpython2.6.so)
-#  set(slicer_PYTHON_EXECUTABLE ${CMAKE_BINARY_DIR}/python-build/bin/python)
-#endif()
+if(WIN32)
+  set(PYTHON_INCLUDE ${CMAKE_BINARY_DIR}/Python-build/Include)
+  set(PYTHON_LIBRARY ${CMAKE_BINARY_DIR}/Python-build/PCbuild/python${PYTHON_MAJOR_SRC}${PYTHON_MINOR_SRC}.lib)
+  set(PYTHON_EXECUTABLE ${CMAKE_BINARY_DIR}/Python-build/PCbuild/python.exe)
+elseif(APPLE)
+  set(PYTHON_INCLUDE ${CMAKE_BINARY_DIR}/python-build/include/python${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC})
+  set(PYTHON_LIBRARY ${CMAKE_BINARY_DIR}/python-build/lib/libpython${PYTHON_MAJOR_SRC}$.{PYTHON_MINOR_SRC}.dylib)
+  set(PYTHON_EXECUTABLE ${CMAKE_BINARY_DIR}/python-build/bin/python)
+else()
+  set(PYTHON_INCLUDE ${CMAKE_BINARY_DIR}/python-build/include/python${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC})
+  set(PYTHON_LIBRARY ${CMAKE_BINARY_DIR}/python-build/lib/libpython${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.so)
+  set(PYTHON_EXECUTABLE ${CMAKE_BINARY_DIR}/python-build/bin/python)
+endif()
 
 
