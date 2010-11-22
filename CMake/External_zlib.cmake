@@ -20,5 +20,12 @@ ExternalProject_Add(${proj}
   )
 
 set(ZLIB_INCLUDE_DIR ${proj}-install/include)
-set(ZLIB_LIBRARY_DIR ${proj}-install/lib)
-set(ZLIB_LIBRARY ${CMAKE_BINARY_DIR}/${proj}-install/lib/libz.so)
+set(ZLIB_LIBRARY)
+
+if(WIN32)
+  set(ZLIB_LIBRARY ${CMAKE_BINARY_DIR}/${proj}-install/lib/libz.lib)
+elseif(APPLE)
+  set(ZLIB_LIBRARY ${CMAKE_BINARY_DIR}/${proj}-install/lib/libz.dylib)
+else()
+  set(ZLIB_LIBRARY ${CMAKE_BINARY_DIR}/${proj}-install/lib/libz.so)
+endif()
