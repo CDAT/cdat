@@ -142,6 +142,7 @@ elseif(UNIX)
   
   ExternalProject_Add(${proj}
     URL ${PYTHON_URL}/${PYTHON_GZ}
+    URL_MD5 ${PYTHON_MD5}
     DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
     SOURCE_DIR ${python_SOURCE_DIR}
     BUILD_IN_SOURCE ${python_BUILD_IN_SOURCE}
