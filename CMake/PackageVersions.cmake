@@ -36,6 +36,7 @@ set(PKG_MINOR_SRC 23)
 set(PKG_PATCH_SRC 0)
 set(PKG_URL http://pkgconfig.freedesktop.org/releases/)
 set(PKG_GZ pkg-config-${PKG_MAJOR_SRC}.${PKG_MINOR_SRC}.tar.gz)
+set(PKG_MD5 d922a88782b64441d06547632fd85744)
 
 set(CAIRO_MAJOR 1)
 set(CAIRO_MINOR 8)
