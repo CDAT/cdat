@@ -1,16 +1,7 @@
-set(name "pyqt")
-set(version "4.6.1")
-set(latest 1)
-set(release 1)
-set(prefix ${CSE_RELEASE_INSTALL_DIR}/${name}-${version})
-
 
 # PyQt
 #
-set(proj "${name}-${version}")
-set(tgz "${CMAKE_CURRENT_SOURCE_DIR}/PyQt-x11-gpl-${version}.tar.gz")
-set(cfg "${CMAKE_CURRENT_SOURCE_DIR}/configure.cmake")
-include("${CMAKE_CURRENT_SOURCE_DIR}/../../../../CMakeModules/cse_macros.cmake")
+set(proj "${pyqt}-${version}")
 
 ExternalProject_Add(${proj}
   URL ${tgz}
@@ -42,14 +33,11 @@ cse_add_runtime_depends(${proj}
   ${CSE_QT_PACKAGE}
 )
 
-split_version(${version} version_major version_minor version_patch)
-set(CSE_PYQT_HOME "${prefix}" PARENT_SCOPE)
-set(CSE_PYQT_PACKAGE "${name}-${version}" PARENT_SCOPE)
-set(CSE_PYQT_NAME "${name}" PARENT_SCOPE)
-set(CSE_PYQT_VERSIONXX "${version_major}.${version_minor}" PARENT_SCOPE)
-
-add_test(SmokeTest-${name}-${version}
-  "${prefix}/bin/pyuic4" "--version")
+#split_version(${version} version_major version_minor version_patch)
+#set(CSE_PYQT_HOME "${prefix}" PARENT_SCOPE)
+#set(CSE_PYQT_PACKAGE "${name}-${version}" PARENT_SCOPE)
+#set(CSE_PYQT_NAME "${name}" PARENT_SCOPE)
+#set(CSE_PYQT_VERSIONXX "${version_major}.${version_minor}" PARENT_SCOPE)
 
 set_property(TEST SmokeTest-${name}-${version} PROPERTY
   ENVIRONMENT LD_LIBRARY_PATH=${CSE_PYTHON_HOME}/lib
