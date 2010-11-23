@@ -92,6 +92,163 @@ class QAxisListTabWidget(QtGui.QTabWidget):
         currentTab = self.currentIndex()
         return str(self.tabText(currentTab))
 
+
+
+
+class QSliderCombo(QtGui.QWidget):
+    """ Widget containing min slider, max slider, min label, max label, and a
+    corresponding combo box.  The comboBox, labels, sliders must always be in
+    sync with each other """
+
+    def __init__(self, axis, parent=None):
+        QtGui.QWidget.__init__(self, parent)
+        self.isTime = axis.isTime()
+        self.indexMode = False
+        self.startIndex = 0
+
+        # Init Layout
+        hbox = QtGui.QHBoxLayout()
+        vbox = QtGui.QVBoxLayout()
+        vbox.setSpacing(0)
+        vbox.setMargin(0)        
+        self.setLayout(hbox)
+
+        # Init combo box
+        self.axisCombo = QAxisComboWidget()
+        hbox.addWidget(self.axisCombo)
+
+        # Init sliders
+        hbox.addLayout(vbox)
+        self.topSlider = QtGui.QSlider(QtCore.Qt.Horizontal)
+        self.bottomSlider = QtGui.QSlider(QtCore.Qt.Horizontal)        
+        vbox.addWidget(self.topSlider)
+        vbox.addWidget(self.bottomSlider)
+
+        # Init axis slider value labels
+        self.bottomLabel = QtGui.QLabel('To', self)
+        self.topLabel = QtGui.QLabel('From', self)
+        hbox = QtGui.QHBoxLayout()        
+        hbox.addWidget(self.topLabel)
+        hbox.addWidget(self.bottomLabel)
+        vbox.addLayout(hbox)
+
+        # Initialize the sliders' and comboBox's values
+        self.initAxisValues(axis)
+        self.setSlidersMinMax()
+        self.topSlider.setValue(self.minIndex)
+        self.bottomSlider.setValue(self.maxIndex)
+        self.axisCombo.initValues(self.axisValues)
+
+        # Connect Signals
+        self.connect(self.topSlider, QtCore.SIGNAL('valueChanged (int)'),
+                     self.updateMin)
+        self.connect(self.bottomSlider, QtCore.SIGNAL('valueChanged (int)'),
+                     self.updateMax)
+        self.connect(self.axisCombo,
+                     QtCore.SIGNAL('axisComboMinValueChanged (int)'),
+                     self.updateTopSlider)
+        self.connect(self.axisCombo,
+                     QtCore.SIGNAL('axisComboMaxValueChanged (int)'),
+                     self.updateBottomSlider)
+
+    def initAxisValues(self, axis):
+        """ Initialize list containing the axis values and set the top slider /
+        combobox value to be the min value and the bottom slider / combobox
+        value to be the max value"""
+        
+        if (axis != None):
+            if self.isTime:
+                self.axisValues = [repr(t.tocomponent())
+                                   for t in axis.asRelativeTime()]
+            else:
+                self.axisValues = axis.getValue()
+        else:
+            raise TypeError("Error: axis is not defined")
+
+        self.axisIndices = range(len(self.axisValues))
+        self.updateMin(0)
+        self.updateMax(len(self.axisValues) - 1)
+
+    def setStartIndex(self, index):
+        self.startIndex = index
+
+    def setIndexMode(self, mode):
+        """ Set the indexMode to True or False.  If indexMode is True the widget
+        will display indices.  If indexMode is False the widget will display
+        actual values """
+        self.indexMode = mode
+
+    def setSlidersMinMax(self):
+        self.topSlider.setMinimum(self.minIndex)
+        self.bottomSlider.setMinimum(self.minIndex)
+        self.topSlider.setMaximum(self.maxIndex)
+        self.bottomSlider.setMaximum(self.maxIndex)
+
+    def updateMin(self, minIndex=None):
+        """ Set min value, update the slider label and the comboBox line edit
+        to show the new min value"""
+        
+        if not minIndex is None:
+            self.minIndex = minIndex
+            
+        if (self.indexMode == True):
+            minValue = self.minIndex + self.startIndex
+        else:
+            minValue = self.axisValues[self.minIndex]
+            
+        self.topLabel.setText(str(minValue))
+        self.axisCombo.setMinValue(minValue)
+
+    def updateMax(self, maxIndex=None):
+        """ Set max value, update the slider label and the comboBox line edit
+        to show the new max value"""
+        
+        if not maxIndex is None:
+            self.maxIndex = maxIndex
+            
+        if (self.indexMode == True):
+            maxValue = self.maxIndex + self.startIndex
+        else:
+            maxValue = self.axisValues[self.maxIndex]
+
+        self.bottomLabel.setText(str(maxValue))
+        self.axisCombo.setMaxValue(maxValue)
+
+    def updateTopSlider(self, index):
+        self.minIndex = index
+        self.topSlider.setValue(index)
+
+    def updateBottomSlider(self, index):
+        self.maxIndex = index
+        self.bottomSlider.setValue(index)
+
+    def replaceComboBoxValues(self, values):
+        self.axisCombo.replaceComboBoxValues(values)
+
+    def getAxisIndices(self):
+        return self.axisIndices
+    
+    def getAxisValues(self):
+        return self.axisValues
+
+    def getCurrentValues(self):
+        return (self.axisValues[self.minIndex], self.axisValues[self.maxIndex])
+
+    def getCurrentValuesAsStr(self):
+        if self.isTime:
+            return "('%s', '%s')" % (self.axisValues[self.minIndex],
+                                     self.axisValues[self.maxIndex])
+        else:
+            return "(%s, %s)" % (self.axisValues[self.minIndex],
+                                 self.axisValues[self.maxIndex])
+
+    def numValues(self):
+        return len(self.axisValues)
+
+    def getIndex(self):
+        return (self.minIndex, self.maxIndex)
+
+
 class QAxis(QtGui.QWidget):
     """ Axis widget containing: a button + popup-menu for modifying an axis, combobox
     and sliders for setting axis values, and a function def button + popup-menu """
@@ -460,6 +617,8 @@ class QAxis(QtGui.QWidget):
 
     def getAlteredWeightsVar(self):
         return self.alteredWeightsVar
+
+
 class QAxisComboWidget(QtGui.QComboBox):
     """ Specialized ComboBox widget for Axis Values listing / selecting the
     axis' values. """
@@ -664,6 +823,12 @@ class QAxisList(QtGui.QWidget):
             # Create separator line between each axis widget
             vline = QtGui.QFrame()
             vline.setFrameStyle(QtGui.QFrame.HLine | QtGui.QFrame.Sunken)
+            vline.setMidLineWidth(37)
+            palette = vline.palette()
+            role = vline.backgroundRole()
+            palette.setColor(role, QtGui.QColor(220,213,226))
+            vline.setPalette(palette)
+            vline.setAutoFillBackground(True)
             self.gridLayout.addWidget(vline, row+1, 0, 1,
                                       self.gridLayout.columnCount())
 
@@ -816,156 +981,3 @@ class QAxisList(QtGui.QWidget):
 
         self.myParent.emit(QtCore.SIGNAL('updateModule'),
                          self.myParent.currentTabName(), 'axes', str(axesKwargs))
-
-class QSliderCombo(QtGui.QWidget):
-    """ Widget containing min slider, max slider, min label, max label, and a
-    corresponding combo box.  The comboBox, labels, sliders must always be in
-    sync with each other """
-
-    def __init__(self, axis, parent=None):
-        QtGui.QWidget.__init__(self, parent)
-        self.isTime = axis.isTime()
-        self.indexMode = False
-        self.startIndex = 0
-
-        # Init Layout
-        hbox = QtGui.QHBoxLayout()
-        vbox = QtGui.QVBoxLayout()
-        vbox.setSpacing(0)
-        vbox.setMargin(0)        
-        self.setLayout(hbox)
-
-        # Init combo box
-        self.axisCombo = QAxisComboWidget()
-        hbox.addWidget(self.axisCombo)
-
-        # Init sliders
-        hbox.addLayout(vbox)
-        self.topSlider = QtGui.QSlider(QtCore.Qt.Horizontal)
-        self.bottomSlider = QtGui.QSlider(QtCore.Qt.Horizontal)        
-        vbox.addWidget(self.topSlider)
-        vbox.addWidget(self.bottomSlider)
-
-        # Init axis slider value labels
-        self.bottomLabel = QtGui.QLabel('To', self)
-        self.topLabel = QtGui.QLabel('From', self)
-        hbox = QtGui.QHBoxLayout()        
-        hbox.addWidget(self.topLabel)
-        hbox.addWidget(self.bottomLabel)
-        vbox.addLayout(hbox)
-
-        # Initialize the sliders' and comboBox's values
-        self.initAxisValues(axis)
-        self.setSlidersMinMax()
-        self.topSlider.setValue(self.minIndex)
-        self.bottomSlider.setValue(self.maxIndex)
-        self.axisCombo.initValues(self.axisValues)
-
-        # Connect Signals
-        self.connect(self.topSlider, QtCore.SIGNAL('valueChanged (int)'),
-                     self.updateMin)
-        self.connect(self.bottomSlider, QtCore.SIGNAL('valueChanged (int)'),
-                     self.updateMax)
-        self.connect(self.axisCombo,
-                     QtCore.SIGNAL('axisComboMinValueChanged (int)'),
-                     self.updateTopSlider)
-        self.connect(self.axisCombo,
-                     QtCore.SIGNAL('axisComboMaxValueChanged (int)'),
-                     self.updateBottomSlider)
-
-    def initAxisValues(self, axis):
-        """ Initialize list containing the axis values and set the top slider /
-        combobox value to be the min value and the bottom slider / combobox
-        value to be the max value"""
-        
-        if (axis != None):
-            if self.isTime:
-                self.axisValues = [repr(t.tocomponent())
-                                   for t in axis.asRelativeTime()]
-            else:
-                self.axisValues = axis.getValue()
-        else:
-            raise TypeError("Error: axis is not defined")
-
-        self.axisIndices = range(len(self.axisValues))
-        self.updateMin(0)
-        self.updateMax(len(self.axisValues) - 1)
-
-    def setStartIndex(self, index):
-        self.startIndex = index
-
-    def setIndexMode(self, mode):
-        """ Set the indexMode to True or False.  If indexMode is True the widget
-        will display indices.  If indexMode is False the widget will display
-        actual values """
-        self.indexMode = mode
-
-    def setSlidersMinMax(self):
-        self.topSlider.setMinimum(self.minIndex)
-        self.bottomSlider.setMinimum(self.minIndex)
-        self.topSlider.setMaximum(self.maxIndex)
-        self.bottomSlider.setMaximum(self.maxIndex)
-
-    def updateMin(self, minIndex=None):
-        """ Set min value, update the slider label and the comboBox line edit
-        to show the new min value"""
-        
-        if not minIndex is None:
-            self.minIndex = minIndex
-            
-        if (self.indexMode == True):
-            minValue = self.minIndex + self.startIndex
-        else:
-            minValue = self.axisValues[self.minIndex]
-            
-        self.topLabel.setText(str(minValue))
-        self.axisCombo.setMinValue(minValue)
-
-    def updateMax(self, maxIndex=None):
-        """ Set max value, update the slider label and the comboBox line edit
-        to show the new max value"""
-        
-        if not maxIndex is None:
-            self.maxIndex = maxIndex
-            
-        if (self.indexMode == True):
-            maxValue = self.maxIndex + self.startIndex
-        else:
-            maxValue = self.axisValues[self.maxIndex]
-
-        self.bottomLabel.setText(str(maxValue))
-        self.axisCombo.setMaxValue(maxValue)
-
-    def updateTopSlider(self, index):
-        self.minIndex = index
-        self.topSlider.setValue(index)
-
-    def updateBottomSlider(self, index):
-        self.maxIndex = index
-        self.bottomSlider.setValue(index)
-
-    def replaceComboBoxValues(self, values):
-        self.axisCombo.replaceComboBoxValues(values)
-
-    def getAxisIndices(self):
-        return self.axisIndices
-    
-    def getAxisValues(self):
-        return self.axisValues
-
-    def getCurrentValues(self):
-        return (self.axisValues[self.minIndex], self.axisValues[self.maxIndex])
-
-    def getCurrentValuesAsStr(self):
-        if self.isTime:
-            return "('%s', '%s')" % (self.axisValues[self.minIndex],
-                                     self.axisValues[self.maxIndex])
-        else:
-            return "(%s, %s)" % (self.axisValues[self.minIndex],
-                                 self.axisValues[self.maxIndex])
-
-    def numValues(self):
-        return len(self.axisValues)
-
-    def getIndex(self):
-        return (self.minIndex, self.maxIndex)

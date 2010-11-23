@@ -2,6 +2,8 @@ from PyQt4 import QtGui, QtCore
 import os
 import cdms2
 
+
+
 class QDefinedVariable(QtGui.QWidget):
     """ QDefinedVariable contains a list of the user defined variables and allows the
     user to apply functions on defined variables """
@@ -20,6 +22,21 @@ class QDefinedVariable(QtGui.QWidget):
         # Create Toolbar and add it to the layout
         self.createToolbar()
         vbox.addWidget(self.toolBar)
+
+        # Create CommandLine for Simple Variable Operations
+        self.command_line = QtGui.QLineEdit()
+        self.command_line.setToolTip('Enter variable expression to generate a new variable (e.g., a = tas - ta + 10.0)')
+        self.command_line.setText("defined variable command line")
+        palette = self.command_line.palette()
+        role = self.command_line.backgroundRole()
+        #palette.setColor(role, QtGui.QColor(231,160,163))
+        #palette.setColor(role, QtGui.QColor(246,204,174))
+        palette.setColor(role, QtGui.QColor(184,212,240))
+        #palette.setColor(role, QtGui.QColor(186,212,116))
+        self.command_line.setPalette(palette)
+        self.command_line.setAutoFillBackground(True)
+
+        vbox.addWidget(self.command_line)
 
         # Create List for defined variables and add it to the layout
         self.varList = QtGui.QListWidget()
@@ -215,6 +232,61 @@ class QDefinedVariable(QtGui.QWidget):
         
         self.toolBar.addWidget(self.opButton)
 
+class QDefinedVariableItem(QtGui.QListWidgetItem):
+    """ Item to be stored by QDefinedVariable's list widget """
+    
+    def __init__(self, cdmsFile, variable, varName, parent=None):
+        QtGui.QListWidgetItem.__init__(self, parent)
+        self.varName = varName # This is also the tabname
+        self.cdmsFile = cdmsFile
+        self.variable = variable
+        
+        self.updateVariableString()
+
+    def getVariable(self):
+        return self.variable
+
+    def getVarName(self):
+        return self.varName
+
+    def getFile(self):
+        return self.cdmsFile
+
+    def getSelectNum(self):
+        return self.selectNum
+        
+    def isQuickplotItem(self):
+        return self.varName == 'quickplot'
+
+    def updateVariableString(self, num=None):
+        """ updateVariableString(num: int)
+
+        Update the variable string that is shown to the user in the list.
+        format =  '-- variableName (shape)', where num is the selection number
+        """
+        if num is None:
+            self.selectNum = -1
+            numString = '-- '
+        elif 0 < num < 10:
+            self.selectNum = num
+            numString = "-%s " % num
+        else:
+            self.selectNum = num
+            numString = "%s " % num
+
+        varString = numString + self.varName + ' ' + str(self.variable.shape)
+        self.setData(0, QtCore.QVariant(QtCore.QString(varString)))
+
+    def setFile(self, cdmsFile):
+        self.cdmsFile = cdmsFile
+        
+    def setVariable(self, variable):
+        """ Set the variable and update the variable string that is shown to the
+        user in the list
+        """
+        self.variable = variable
+        self.updateVariableString()
+
 class QDefVarWarningBox(QtGui.QDialog):
     """ Popup box to warn a user that a variable with same name is already
     defined. Contains a line edit to allow a user to enter a new variable
@@ -272,59 +344,3 @@ class QDefVarWarningBox(QtGui.QDialog):
         # Emit signal to QDefinedVar to indicate it's ok to add the variable to defined list
         self.emit(QtCore.SIGNAL('newVarID'),
                   self.varID, self.file, self.var, self.axesArgString)
-
-        
-class QDefinedVariableItem(QtGui.QListWidgetItem):
-    """ Item to be stored by QDefinedVariable's list widget """
-    
-    def __init__(self, cdmsFile, variable, varName, parent=None):
-        QtGui.QListWidgetItem.__init__(self, parent)
-        self.varName = varName # This is also the tabname
-        self.cdmsFile = cdmsFile
-        self.variable = variable
-        
-        self.updateVariableString()
-
-    def getVariable(self):
-        return self.variable
-
-    def getVarName(self):
-        return self.varName
-
-    def getFile(self):
-        return self.cdmsFile
-
-    def getSelectNum(self):
-        return self.selectNum
-        
-    def isQuickplotItem(self):
-        return self.varName == 'quickplot'
-
-    def updateVariableString(self, num=None):
-        """ updateVariableString(num: int)
-
-        Update the variable string that is shown to the user in the list.
-        format =  '-- variableName (shape)', where num is the selection number
-        """
-        if num is None:
-            self.selectNum = -1
-            numString = '-- '
-        elif 0 < num < 10:
-            self.selectNum = num
-            numString = "-%s " % num
-        else:
-            self.selectNum = num
-            numString = "%s " % num
-
-        varString = numString + self.varName + ' ' + str(self.variable.shape)
-        self.setData(0, QtCore.QVariant(QtCore.QString(varString)))
-
-    def setFile(self, cdmsFile):
-        self.cdmsFile = cdmsFile
-        
-    def setVariable(self, variable):
-        """ Set the variable and update the variable string that is shown to the
-        user in the list
-        """
-        self.variable = variable
-        self.updateVariableString()

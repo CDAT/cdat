@@ -4,303 +4,6 @@ import gui_graphicsmethods
 import gui_axes
 import qtbrowser
 
-class QVariableView(QtGui.QWidget):
-    """ Main widget containing plotting related information / options. Contains
-    a tab widget with a tab for each defined variable, plotting options widget,
-    and variable information widget """
-    
-    def __init__(self, parent=None):
-        QtGui.QWidget.__init__(self, parent)
-        self.selectedVars = []
-        
-        # Init layout
-        vbox = QtGui.QVBoxLayout()
-        vbox.setMargin(0)
-        self.setLayout(vbox)
-
-        self.plotOptions = QPlotOptionsWidget(self)
-        self.tabWidget = gui_axes.QAxisListTabWidget(self)
-
-        # Init variable information widget
-        self.varInfoWidget = QtGui.QTextEdit()
-        self.varInfoWidget.setText('')
-        self.varInfoWidget.setReadOnly(True)
-
-        # Create splitter for tabWidget and variable information text
-        vsplitter = QtGui.QSplitter(QtCore.Qt.Vertical)
-        vsplitter.addWidget(self.tabWidget)
-        vsplitter.addWidget(self.varInfoWidget)
-        vsplitter.setStretchFactor(1,1)
-        vsplitter.setSizes([300, 100])
-        
-        vbox.addWidget(self.plotOptions)
-        vbox.addWidget(vsplitter)
-
-    def getUpdatedVar(self):
-        """ Return a new tvariable object with the updated information from
-        evaluating the var with the current user selected args / options
-        """
-        axisList = self.tabWidget.currentWidget()
-        kwargs = self.generateKwArgs()
-        updatedVar = axisList.getVar()(**kwargs)
-
-        # Get the variable after carrying out the: def, sum, avg... operations
-        updatedVar = axisList.execAxesOperations(updatedVar)
-
-        return updatedVar
-
-    def generateKwArgs(self, axisList=None):
-        """ Generate and return the variable axes keyword arguments """
-        if axisList is None:
-            axisList = self.tabWidget.currentWidget()
-
-        kwargs = {}        
-        for axisWidget in axisList.getAxisWidgets():
-            kwargs[axisWidget.axis.id] = axisWidget.getCurrentValues()
-
-        # Generate additional args
-        kwargs['squeeze'] = 0
-        kwargs['order'] = axisList.getAxesOrderString()
-
-        return kwargs
-
-    def generateKwargsAsString(self):
-        """ Generate and return the variable axes keyword arguments as a string
-        that is formatted to be used in teaching commands
-        """
-        args = ""
-        axisList = self.tabWidget.currentWidget()
-
-        for axisWidget in axisList.getAxisWidgets():
-            args += "%s = %s, " % (axisWidget.axis.id,
-                                   axisWidget.getCurrentValuesAsStr())
-
-        # Generate additional args
-        args += 'squeeze = 0'
-        args += ", order = '%s' " % axisList.getAxesOrderString()
-        return args
-
-    def updateVarInfo(self, axisList):
-        """ Update the text box with the variable's information """
-        if axisList is None:
-            return
-        
-        var = axisList.getVar()
-        varInfo = ''
-        for line in var.listall():
-            varInfo += line + '\n'
-        self.varInfoWidget.setText(varInfo)
-
-    def setupDefinedVariableAxes(self, cdmsFile, var, tabName):
-        """ Create a new axis list and tab with the specified tab name and setup
-        the axis list.  Initialize the vistrails Variable module associated with
-        the tab and variable.
-        """
-        if var is None:
-            return
-
-        # Create and setup the axislist
-        axisList = gui_axes.QAxisList(cdmsFile, var, self)
-        axisList.setupVariableAxes()
-        self.updateVarInfo(axisList)
-        self.tabWidget.createNewTab(axisList, tabName)
-
-
-    def defineVarAxis(self, var, teachingCommand):
-        """ Create a new tab/axisList, store it in defined var list, and record
-        the associated teaching commands.  This method is called when the user
-        clicks on the axisButton -> 'Get Axis Values' """
-        
-        cdmsFile = self.tabWidget.currentWidget().getFile()
-        axisList = gui_axes.QAxisList(cdmsFile, var, self)
-        axisList.setupVariableAxes()
-        argString = self.generateKwargsAsString()
-
-        self.emit(QtCore.SIGNAL('recordTeachingCommand'), teachingCommand)
-        self.emit(QtCore.SIGNAL('defineVariable'), cdmsFile, var, argString)
-
-    def defineVariableEvent(self):
-        """ Get a copy of the updated var and file and pass it to the Defined
-        Variables widget """
-        if self.tabWidget.currentWidget() is None:
-            return
-
-        cdmsFile = self.tabWidget.currentWidget().getFile()        
-        var = self.getUpdatedVar()
-        argString = self.generateKwargsAsString()        
-
-        self.emit(QtCore.SIGNAL('defineVariable'), cdmsFile, var, argString)
-
-    def selectDefinedVariableEvent(self, tabName, cdmsFile, selectedVars):
-        """ Save the list of selected variables and show the selected variable,
-        variables are sorted in least recently selected to most recently selected
-        """
-        if selectedVars != []:
-            self.selectedVars = selectedVars        
-            self.tabWidget.selectAndUpdateDefinedVarTab(tabName, cdmsFile, selectedVars[-1])
-
-    def plot(self):
-        """ Create the graphics method and cdatcell modules. Update the input
-        port values and setup connections. Then plot.
-        """
-        if self.tabWidget.count() == 0:
-            return
-
-        # Error if not enough slabs
-        plotType = str(self.plotOptions.getPlotType())        
-        if len(self.selectedVars) < 2 and self.requiresTwoSlabs(plotType):
-            self.showError('Error Message to User', 'Vector, Scatter, Meshfill or XvsY plots \nmust have two data variables. The data \nvariables must be selected in the \n"Defined Variables" window.')
-            return
-
-        # Create & Update the graphics method / CDATCell vistrails modules
-        # *** IMPORTANT ***
-        # Everytime plot is pressed, this will create a new Graphics Method and
-        # CDATCell Module. Instead it should ONLY create a new graphics method
-        # and CDATCell module if the variable isn't already connected to an
-        # existing Graphics Method / CDATCell module.  This results in plots 
-        # being plotted multiple times.
-        axisList = self.tabWidget.currentWidget()
-        if qtbrowser.use_vistrails:
-            self.setVistrailsCDATCell()
-
-        # Get the names of the 2 slabs so we can connect their modules in vistrails
-        if self.requiresTwoSlabs(plotType):
-            var1 = self.selectedVars[-1].id
-            var2 = self.selectedVars[-2].id
-        else:
-            var1 = self.currentTabName()
-            var2 = None
-
-
-        # Record plot teaching commands
-        self.recordPlotTeachingCommand()
-
-    def recordPlotTeachingCommand(self):
-        axisList = self.tabWidget.currentWidget()
-        tabName = self.tabWidget.currentTabName()
-        argString = self.generateKwargsAsString()
-        var = axisList.getVar()
-        fileID = "fid2"
-
-        slabCommand = ''
-        if tabName == 'quickplot':
-            slabCommand += '\n# Get new slab\n'
-            slabCommand += "%s = %s('%s', %s)\n" %(tabName, fileID, var.id, argString)
-
-        slabCommand += '\n# Get new slab\n'
-        slabCommand += "%s = %s(%s)\n" %(tabName, tabName, argString)
-            
-        slabCommand += axisList.getAxesOperationsTeachingCommands(tabName)
-
-        canvasNum = 0 # Change the canvas # with respect to the cell?
-        clearCommand = '\n# Clear the VCS Canvas\n'        
-        clearCommand +=  "vcs_canvas_list[%d].clear()\n" % canvasNum
-
-        plotID = "vcs_display"
-        plotType = str(self.plotOptions.getPlotType())
-        template = self.getTemplateName(plotType)
-        gm = self.getGraphicsMethodName(plotType)                
-        plotArgs = "%s, '%s', '%s', '%s'" % (tabName, template, plotType, gm)
-
-        if self.plotOptions.getContinentType() is not None:
-            plotArgs += ", continents = %d" % self.plotOptions.getContinentType()
-        
-        plotCommand = '\n# Plot slab\n'        
-        plotCommand += "%s = vcs_canvas_list[%d].plot(%s)\n" %(plotID, canvasNum, plotArgs)
-
-        command = slabCommand + clearCommand + plotCommand
-        self.emit(QtCore.SIGNAL('recordTeachingCommand'), command)
-
-    def requiresTwoSlabs(self, plotType):
-        """ Returns true if the plot requires 2 slabs """
-        multiVarPlots = ['Vector', 'Scatter', 'XvsY']
-        return plotType in multiVarPlots
-
-    def getDefinedVars(self):
-        """ Get a list of all of the defined tabnames / variables """
-        numTabs = self.tabWidget.count()
-        varList = []
-        
-        for i in range(numTabs):
-            var = self.tabWidget.widget(i).getVar()
-            name = self.tabWidget.tabText(i)
-            varList.append([name, var])
-
-        return varList
-
-    def getAxisList(self, var):
-        for i in range(self.tabWidget.count()):
-            if self.tabWidget.widget(i).getVar() is var:
-                return self.tabWidget.widget(i)
-
-        return None
-
-    def getTemplateName(self, plotType):
-        """ Return the template given the plotType.  This is currently hardcoded
-        but should change based on the user? """
-
-        # TODO ?
-        return self.getGraphicsMethodName(plotType)
-
-    def getGraphicsMethodName(self, plotType):
-        """ Return the graphics method given the plotType.  This is currently
-        hardcoded but should change based on the user? """
-
-        # TODO ?
-        hasASD = ['Boxfill', 'Isofill', 'Isoline', 'Scatter', 'Taylordiagram']
-        hasquick = ['Vector']
-        hasASD1 = ['Xyvsy', 'Yxvsx']          
-
-        if plotType in hasASD:
-            return 'ASD'
-        if plotType in hasquick:
-            return 'quick'
-        if plotType in hasASD1:
-            return 'ASD1'
-        return 'default'        
-    
-    def setVistrailsCDATCell(self):
-        """ Vistrails: Update the vistrails' CDAT Cell modules' input ports: """
-        
-        visInput = []
-        plotType = str(self.plotOptions.getPlotType())
-
-        visInput.append(('plotType', plotType))
-        visInput.append(('row', str(self.plotOptions.getRow())))
-        visInput.append(('col', str(self.plotOptions.getCol())))
-        visInput.append(('gmName', self.getGraphicsMethodName(plotType)))
-        visInput.append(('template', self.getTemplateName(plotType)))
-
-        if self.plotOptions.getContinentType() is not None:
-            visInput.append(('continents', self.plotOptions.getContinentType())) # TODO
-
-        self.emit(QtCore.SIGNAL('updateModuleOps'), cdatcell_name, visInput)
-
-    def setVistrailsGraphicsMethod(self):
-        """ Vistrails: Update the vistrails' Graphics Method modules' boxfill
-        input ports.  Only set the plotType and graphics method (gm) name.
-        Setting the input for gm attributes should be handled by the gm
-        controller (graphics_method_controller.py)
-        """
-        visInput = [] # List of tuples where each tuple = (inputPortName, value)
-        plotType = str(self.plotOptions.getPlotType())
-        
-        visInput.append(('plotType', plotType))
-        visInput.append(('gmName', self.getGraphicsMethodName(plotType)))
-        self.emit(QtCore.SIGNAL('updateModuleOps'), gm_name, visInput)
-
-    def showError(self, title, text):
-        """ Show an error message in a simple popup message box. Currently there
-        is no error icon. """
-        
-        errorWidget = QtGui.QMessageBox(self)
-        errorWidget.setWindowTitle(title)
-        errorWidget.setText(text)
-        errorWidget.show()
-
-    def currentTabName(self):
-        return self.tabWidget.currentTabName()
-
 class QPlotOptionsWidget(QtGui.QWidget):
     """ Widget containing plot options: plot button, plot type combobox, cell
     col and row selection combo box, and an options button """
@@ -484,3 +187,309 @@ class QCheckMenu(QtGui.QMenu):
         elif isChecked == False and not self.defaultAction is None:
             self.handleCheckEvent = False
             self.defaultAction.setChecked(True)
+
+
+
+class QVariableView(QtGui.QWidget):
+    """ Main widget containing plotting related information / options. Contains
+    a tab widget with a tab for each defined variable, plotting options widget,
+    and variable information widget """
+    
+    def __init__(self, parent=None):
+        QtGui.QWidget.__init__(self, parent)
+        self.selectedVars = []
+        
+        # Init layout
+        vbox = QtGui.QVBoxLayout()
+        vbox.setMargin(0)
+        self.setLayout(vbox)
+
+        self.plotOptions = QPlotOptionsWidget(self)
+        self.tabWidget = gui_axes.QAxisListTabWidget(self)
+
+        # Init variable information widget
+        self.varInfoWidget = QtGui.QTextEdit()
+        self.varInfoWidget.setText('')
+        self.varInfoWidget.setReadOnly(True)
+
+        # Create splitter for tabWidget and variable information text
+        vsplitter = QtGui.QSplitter(QtCore.Qt.Vertical)
+        vsplitter.addWidget(self.tabWidget)
+        vsplitter.addWidget(self.varInfoWidget)
+        vsplitter.setStretchFactor(1,1)
+        vsplitter.setSizes([300, 200])
+        
+        vbox.addWidget(self.plotOptions)
+        vbox.addWidget(vsplitter)
+
+    def getUpdatedVar(self):
+        """ Return a new tvariable object with the updated information from
+        evaluating the var with the current user selected args / options
+        """
+        axisList = self.tabWidget.currentWidget()
+        kwargs = self.generateKwArgs()
+        updatedVar = axisList.getVar()(**kwargs)
+
+        # Get the variable after carrying out the: def, sum, avg... operations
+        updatedVar = axisList.execAxesOperations(updatedVar)
+
+        return updatedVar
+
+    def generateKwArgs(self, axisList=None):
+        """ Generate and return the variable axes keyword arguments """
+        if axisList is None:
+            axisList = self.tabWidget.currentWidget()
+
+        kwargs = {}        
+        for axisWidget in axisList.getAxisWidgets():
+            kwargs[axisWidget.axis.id] = axisWidget.getCurrentValues()
+
+        # Generate additional args
+        kwargs['squeeze'] = 0
+        kwargs['order'] = axisList.getAxesOrderString()
+
+        return kwargs
+
+    def generateKwargsAsString(self):
+        """ Generate and return the variable axes keyword arguments as a string
+        that is formatted to be used in teaching commands
+        """
+        args = ""
+        axisList = self.tabWidget.currentWidget()
+
+        for axisWidget in axisList.getAxisWidgets():
+            args += "%s = %s, " % (axisWidget.axis.id,
+                                   axisWidget.getCurrentValuesAsStr())
+
+        # Generate additional args
+        args += 'squeeze = 0'
+        args += ", order = '%s' " % axisList.getAxesOrderString()
+        return args
+
+    def updateVarInfo(self, axisList):
+        """ Update the text box with the variable's information """
+        if axisList is None:
+            return
+        
+        var = axisList.getVar()
+        varInfo = ''
+        for line in var.listall():
+            varInfo += line + '\n'
+        self.varInfoWidget.setText(varInfo)
+
+    def setupDefinedVariableAxes(self, cdmsFile, var, tabName):
+        """ Create a new axis list and tab with the specified tab name and setup
+        the axis list.  Initialize the vistrails Variable module associated with
+        the tab and variable.
+        """
+        if var is None:
+            return
+
+        # Create and setup the axislist
+        axisList = gui_axes.QAxisList(cdmsFile, var, self)
+        axisList.setupVariableAxes()
+        self.updateVarInfo(axisList)
+        self.tabWidget.createNewTab(axisList, tabName)
+
+
+    def defineVarAxis(self, var, teachingCommand):
+        """ Create a new tab/axisList, store it in defined var list, and record
+        the associated teaching commands.  This method is called when the user
+        clicks on the axisButton -> 'Get Axis Values' """
+        
+        cdmsFile = self.tabWidget.currentWidget().getFile()
+        axisList = gui_axes.QAxisList(cdmsFile, var, self)
+        axisList.setupVariableAxes()
+        argString = self.generateKwargsAsString()
+
+        self.emit(QtCore.SIGNAL('recordTeachingCommand'), teachingCommand)
+        self.emit(QtCore.SIGNAL('defineVariable'), cdmsFile, var, argString)
+
+    def defineVariableEvent(self):
+        """ Get a copy of the updated var and file and pass it to the Defined
+        Variables widget """
+        if self.tabWidget.currentWidget() is None:
+            return
+
+        cdmsFile = self.tabWidget.currentWidget().getFile()        
+        var = self.getUpdatedVar()
+        argString = self.generateKwargsAsString()        
+
+        self.emit(QtCore.SIGNAL('defineVariable'), cdmsFile, var, argString)
+
+    def selectDefinedVariableEvent(self, tabName, cdmsFile, selectedVars):
+        """ Save the list of selected variables and show the selected variable,
+        variables are sorted in least recently selected to most recently selected
+        """
+        if selectedVars != []:
+            self.selectedVars = selectedVars        
+            self.tabWidget.selectAndUpdateDefinedVarTab(tabName, cdmsFile, selectedVars[-1])
+
+    def plot(self):
+        """ Create the graphics method and cdatcell modules. Update the input
+        port values and setup connections. Then plot.
+        """
+        if self.tabWidget.count() == 0:
+            return
+
+        # Error if not enough slabs
+        plotType = str(self.plotOptions.getPlotType())        
+        if len(self.selectedVars) < 2 and self.requiresTwoSlabs(plotType):
+            self.showError('Error Message to User', 'Vector, Scatter, Meshfill or XvsY plots \nmust have two data variables. The data \nvariables must be selected in the \n"Defined Variables" window.')
+            return
+
+        # Create & Update the graphics method / CDATCell vistrails modules
+        # *** IMPORTANT ***
+        # Everytime plot is pressed, this will create a new Graphics Method and
+        # CDATCell Module. Instead it should ONLY create a new graphics method
+        # and CDATCell module if the variable isn't already connected to an
+        # existing Graphics Method / CDATCell module.  This results in plots 
+        # being plotted multiple times.
+        axisList = self.tabWidget.currentWidget()
+        if qtbrowser.use_vistrails:
+            self.setVistrailsCDATCell()
+
+        # Get the names of the 2 slabs so we can connect their modules in vistrails
+        if self.requiresTwoSlabs(plotType):
+            var1 = self.selectedVars[-1].id
+            var2 = self.selectedVars[-2].id
+        else:
+            var1 = self.currentTabName()
+            var2 = None
+
+        # Emit signal to GuiController to connect ports and plot
+        self.emit(QtCore.SIGNAL('plot'), var1, var2)
+
+        # If a quickplot is plotted, define current variable under 'quickplot'
+        if (self.currentTabName() == 'quickplot'):
+            var = self.getUpdatedVar()
+            self.emit(QtCore.SIGNAL('plotPressed'), axisList.getFile(), var)
+
+        # Record plot teaching commands
+        self.recordPlotTeachingCommand()
+
+    def recordPlotTeachingCommand(self):
+        axisList = self.tabWidget.currentWidget()
+        tabName = self.tabWidget.currentTabName()
+        argString = self.generateKwargsAsString()
+        var = axisList.getVar()
+        fileID = "fid2"
+
+        slabCommand = ''
+        if tabName == 'quickplot':
+            slabCommand += '\n# Get new slab\n'
+            slabCommand += "%s = %s('%s', %s)\n" %(tabName, fileID, var.id, argString)
+
+        slabCommand += '\n# Get new slab\n'
+        slabCommand += "%s = %s(%s)\n" %(tabName, tabName, argString)
+            
+        slabCommand += axisList.getAxesOperationsTeachingCommands(tabName)
+
+        canvasNum = 0 # Change the canvas # with respect to the cell?
+        clearCommand = '\n# Clear the VCS Canvas\n'        
+        clearCommand +=  "vcs_canvas_list[%d].clear()\n" % canvasNum
+
+        plotID = "vcs_display"
+        plotType = str(self.plotOptions.getPlotType())
+        template = self.getTemplateName(plotType)
+        gm = self.getGraphicsMethodName(plotType)                
+        plotArgs = "%s, '%s', '%s', '%s'" % (tabName, template, plotType, gm)
+
+        if self.plotOptions.getContinentType() is not None:
+            plotArgs += ", continents = %d" % self.plotOptions.getContinentType()
+        
+        plotCommand = '\n# Plot slab\n'        
+        plotCommand += "%s = vcs_canvas_list[%d].plot(%s)\n" %(plotID, canvasNum, plotArgs)
+
+        command = slabCommand + clearCommand + plotCommand
+        self.emit(QtCore.SIGNAL('recordTeachingCommand'), command)
+
+    def requiresTwoSlabs(self, plotType):
+        """ Returns true if the plot requires 2 slabs """
+        multiVarPlots = ['Vector', 'Scatter', 'XvsY']
+        return plotType in multiVarPlots
+
+    def getDefinedVars(self):
+        """ Get a list of all of the defined tabnames / variables """
+        numTabs = self.tabWidget.count()
+        varList = []
+        
+        for i in range(numTabs):
+            var = self.tabWidget.widget(i).getVar()
+            name = self.tabWidget.tabText(i)
+            varList.append([name, var])
+
+        return varList
+
+    def getAxisList(self, var):
+        for i in range(self.tabWidget.count()):
+            if self.tabWidget.widget(i).getVar() is var:
+                return self.tabWidget.widget(i)
+
+        return None
+
+    def getTemplateName(self, plotType):
+        """ Return the template given the plotType.  This is currently hardcoded
+        but should change based on the user? """
+
+        # TODO ?
+        return self.getGraphicsMethodName(plotType)
+
+    def getGraphicsMethodName(self, plotType):
+        """ Return the graphics method given the plotType.  This is currently
+        hardcoded but should change based on the user? """
+
+        # TODO ?
+        hasASD = ['Boxfill', 'Isofill', 'Isoline', 'Scatter', 'Taylordiagram']
+        hasquick = ['Vector']
+        hasASD1 = ['Xyvsy', 'Yxvsx']          
+
+        if plotType in hasASD:
+            return 'ASD'
+        if plotType in hasquick:
+            return 'quick'
+        if plotType in hasASD1:
+            return 'ASD1'
+        return 'default'        
+    
+    def setVistrailsCDATCell(self):
+        """ Vistrails: Update the vistrails' CDAT Cell modules' input ports: """
+        
+        visInput = []
+        plotType = str(self.plotOptions.getPlotType())
+
+        visInput.append(('plotType', plotType))
+        visInput.append(('row', str(self.plotOptions.getRow())))
+        visInput.append(('col', str(self.plotOptions.getCol())))
+        visInput.append(('gmName', self.getGraphicsMethodName(plotType)))
+        visInput.append(('template', self.getTemplateName(plotType)))
+
+        if self.plotOptions.getContinentType() is not None:
+            visInput.append(('continents', self.plotOptions.getContinentType())) # TODO
+
+        self.emit(QtCore.SIGNAL('updateModuleOps'), cdatcell_name, visInput)
+
+    def setVistrailsGraphicsMethod(self):
+        """ Vistrails: Update the vistrails' Graphics Method modules' boxfill
+        input ports.  Only set the plotType and graphics method (gm) name.
+        Setting the input for gm attributes should be handled by the gm
+        controller (graphics_method_controller.py)
+        """
+        visInput = [] # List of tuples where each tuple = (inputPortName, value)
+        plotType = str(self.plotOptions.getPlotType())
+        
+        visInput.append(('plotType', plotType))
+        visInput.append(('gmName', self.getGraphicsMethodName(plotType)))
+        self.emit(QtCore.SIGNAL('updateModuleOps'), gm_name, visInput)
+
+    def showError(self, title, text):
+        """ Show an error message in a simple popup message box. Currently there
+        is no error icon. """
+        
+        errorWidget = QtGui.QMessageBox(self)
+        errorWidget.setWindowTitle(title)
+        errorWidget.setText(text)
+        errorWidget.show()
+
+    def currentTabName(self):
+        return self.tabWidget.currentTabName()

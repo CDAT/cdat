@@ -1,6 +1,8 @@
 from PyQt4 import QtGui, QtCore
 import cdms2
 
+
+
 class QCDATFileWidget(QtGui.QWidget):
     """ QCDATFileWidget contains a line-edit to enter the file name and a file
     selection button.  It also has a combo box to choose variables once a file
