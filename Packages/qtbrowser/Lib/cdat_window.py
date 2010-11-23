@@ -22,12 +22,25 @@ class QCDATWindow(QtGui.QWidget):
         the overall layout """
         QtGui.QWidget.__init__(self, parent)
         
+        # Initialize Main Window's Title and Screen Placement
+        self.setGeometry(0,0, 1100,800)
         self.setWindowTitle('The Visual Climate Data Analysis Tools - (VCDAT)')
+        ICONPATH = os.path.join(cdms2.__path__[0], '..', '..', '..', '..', 'bin')
+        icon = QtGui.QIcon(os.path.join(ICONPATH, "UVCDATfull.gif"))
+        self.setWindowIcon(QtGui.QIcon(icon))
+        self.resize(1100,800)
+        self.setMinimumSize(1100,800)
+        self.main_window_placement()
+
         layout = QtGui.QVBoxLayout()
         self.setLayout(layout)
 
         # Init Menu Widget
         self.menuWidget = QMenuWidget(self)
+
+        # Init Main Window Icon Tool Bar at the top of the GUI
+        tool_bar = QMainToolBarContainer(QCDATFileWidget(), "")
+        layout.addWidget(tool_bar)
 
         # Init File Widget
         vsplitter  = QtGui.QSplitter(QtCore.Qt.Vertical)        
@@ -43,10 +56,10 @@ class QCDATWindow(QtGui.QWidget):
         hsplitter.addWidget(vsplitter)
 
         # Init Var Plotting Widget
-        varView = QLabeledWidgetContainer(QVariableView(),
+        varView = QTabWidgetContainer(QVariableView(),
                                           'PLOTTING')
         hsplitter.addWidget(varView)
-        hsplitter.setStretchFactor(1, 1)
+        hsplitter.setStretchFactor(2, 1)
         layout.addWidget(hsplitter)
 
         # Init guiController
@@ -89,8 +102,14 @@ class QCDATWindow(QtGui.QWidget):
         
         self.emit(QtCore.SIGNAL('closeTeachingCommands'))
 
-    def sizeHint(self):
-        return QtCore.QSize(1024, 600)
+#    def sizeHint(self):
+#        return QtCore.QSize(1100, 800)
+
+    def main_window_placement(self):
+        screen = QtGui.QDesktopWidget().screenGeometry()
+        size = self.geometry()
+        self.move((screen.width()-size.width())/2, (screen.height()-size.height())/2)
+
 
 class QFileDialogWidget(QtGui.QFileDialog):
     
@@ -375,6 +394,130 @@ class QCDATFileWidget(QtGui.QWidget):
                     return var
         return None
 
+class QMainToolBarContainer( QtGui.QWidget ):
+    """ Main icon tool bar widget that is located at the top of VCDAT's main
+    window. """
+
+    def __init__(self, widget, label='', parent=None):
+        QtGui.QWidget.__init__(self, parent)
+
+        vbox = QtGui.QVBoxLayout()
+        vbox.setMargin(0)
+
+        ICONPATH = os.path.join(cdms2.__path__[0], '..', '..', '..', '..', 'bin')
+        # Create options bar
+        self.toolBar = QtGui.QToolBar()
+        self.setFixedHeight(50)
+        #self.setFixedWidth(50)
+        self.toolBar.setIconSize(QtCore.QSize(48, 48))
+        actionInfo = [
+            ('UVCDATfull.gif', 'Edit (in memory) selected defined variable.'),
+            ('UVCDATfull.gif', 'Save selected defined variable to a netCDF file.'),
+            ('UVCDATfull.gif', 'Display selected defined variable information.'),
+            ('UVCDATfull.gif', 'Move selected defined variable(s) to trashcan for disposal.'),
+            ('UVCDATfull.gif', 'Move [ALL] defined variables to trashcan for disposal.'),
+            ('UVCDATfull.gif', 'Logged information about the defined variables.'),
+            ('UVCDATfull.gif', 'Defined variable items that can be disposed of permanetly or restored.'),
+            ]
+
+        for info in actionInfo:
+            icon = QtGui.QIcon(os.path.join(ICONPATH, info[0]))
+            action = self.toolBar.addAction(icon, '')
+            action.setStatusTip(info[1])
+            action.setToolTip(info[1])
+        self.toolBar.addSeparator()
+
+        self.opButton = QtGui.QToolButton()
+        self.opButton.setText('Ops')
+
+        vbox.addWidget(self.toolBar, 0)
+        self.setLayout(vbox)
+
+        '''
+        self.label = QtGui.QLabel("toolbar")
+        self.label.setAutoFillBackground(True)
+        self.label.setAlignment(QtCore.Qt.AlignCenter)
+        self.label.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Raised)
+        vbox.addWidget(self.label, 0)
+
+        if widget!=None:
+            self.widget = widget
+        else:
+            self.widget = QtGui.QWidget()
+        vbox.addWidget(self.widget, 5)
+        self.setLayout(vbox)
+'''
+
+class QTabWidgetContainer(QtGui.QWidget):
+    """ Container widget for the 3 main widgets: QVariableView, QCDATFileWidget,
+    and QDefinedVariable """
+
+    def __init__(self, widget, label='', parent=None):
+        QtGui.QWidget.__init__(self, parent)
+       
+        vbox = QtGui.QVBoxLayout()
+        vbox.setMargin(0)
+
+        tab_widget = QtGui.QTabWidget(self)
+        variable_tab = QtGui.QWidget()
+        plot_tab = QtGui.QWidget()
+        command_tab = QtGui.QWidget()
+
+        variable_grid_layout = QtGui.QGridLayout(variable_tab)
+        plot_grid_layout = QtGui.QGridLayout(plot_tab)
+        command_grid_layout = QtGui.QGridLayout(command_tab)
+
+        #Adding tabs to the main gui widget
+        #Here the SVGTab is a widget that is added as a tab to the "tab_widget"
+        tab_widget.addTab(variable_tab, "Variable")
+        tab_widget.addTab(plot_tab, "Plot")
+        tab_widget.addTab(command_tab, "Command Line")
+
+
+        if widget!=None:
+            self.widget = widget
+        else:
+            self.widget = QtGui.QWidget()
+        vbox.addWidget(self.widget, 1)
+
+        #self.setLayout(vbox)
+
+    def getWidget(self):
+        return self.widget
+
+        '''
+        self.label = QtGui.QLabel(tab_bar)
+        self.label.setAutoFillBackground(True)
+        self.label.setAlignment(QtCore.Qt.AlignCenter)
+        self.label.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Raised)
+        vbox.addWidget(self.label, 0)
+
+        # Set the background color of the label
+        palette = self.label.palette()
+        role = self.label.backgroundRole()
+        palette.setColor(role, QtGui.QColor(220,213,226))
+        self.label.setPalette(palette)
+        self.label.setAutoFillBackground(True)
+
+        if widget!=None:
+            self.widget = widget
+        else:
+            self.widget = QtGui.QWidget()
+        vbox.addWidget(self.widget, 1)
+
+        self.setLayout(vbox)
+
+    def getWidget(self):
+        return self.widget
+
+    def event(self, e):
+        if e.type()==76: #QtCore.QEvent.LayoutRequest:
+            self.setMaximumHeight(min(self.label.height()+self.layout().spacing()+
+                                      self.widget.maximumHeight(), 16777215))
+        return False
+'''
+
+
 class QLabeledWidgetContainer(QtGui.QWidget):
     """ Container widget for the 3 main widgets: QVariableView, QCDATFileWidget,
     and QDefinedVariable """
@@ -390,6 +533,13 @@ class QLabeledWidgetContainer(QtGui.QWidget):
         self.label.setAlignment(QtCore.Qt.AlignCenter)
         self.label.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Raised)
         vbox.addWidget(self.label, 0)
+
+        # Set the background color of the label
+        palette = self.label.palette()
+        role = self.label.backgroundRole()
+        palette.setColor(role, QtGui.QColor(220,213,226))
+        self.label.setPalette(palette)
+        self.label.setAutoFillBackground(True)
 
         if widget!=None:
             self.widget = widget
@@ -426,6 +576,21 @@ class QDefinedVariable(QtGui.QWidget):
         # Create Toolbar and add it to the layout
         self.createToolbar()
         vbox.addWidget(self.toolBar)
+
+        # Create CommandLine for Simple Variable Operations
+        self.command_line = QtGui.QLineEdit()
+        self.command_line.setToolTip('Enter variable expression to generate a new variable (e.g., a = tas - ta + 10.0)')
+        self.command_line.setText("defined variable command line")
+        palette = self.command_line.palette()
+        role = self.command_line.backgroundRole()
+        #palette.setColor(role, QtGui.QColor(231,160,163))
+        #palette.setColor(role, QtGui.QColor(246,204,174))
+        palette.setColor(role, QtGui.QColor(184,212,240))
+        #palette.setColor(role, QtGui.QColor(186,212,116))
+        self.command_line.setPalette(palette)
+        self.command_line.setAutoFillBackground(True)
+
+        vbox.addWidget(self.command_line)
 
         # Create List for defined variables and add it to the layout
         self.varList = QtGui.QListWidget()
@@ -1460,6 +1625,12 @@ class QAxisList(QtGui.QWidget):
             # Create separator line between each axis widget
             vline = QtGui.QFrame()
             vline.setFrameStyle(QtGui.QFrame.HLine | QtGui.QFrame.Sunken)
+            vline.setMidLineWidth(37)
+            palette = vline.palette()
+            role = vline.backgroundRole()
+            palette.setColor(role, QtGui.QColor(220,213,226))
+            vline.setPalette(palette)
+            vline.setAutoFillBackground(True)
             self.gridLayout.addWidget(vline, row+1, 0, 1,
                                       self.gridLayout.columnCount())
 
@@ -1640,7 +1811,7 @@ class QVariableView(QtGui.QWidget):
         vsplitter.addWidget(self.tabWidget)
         vsplitter.addWidget(self.varInfoWidget)
         vsplitter.setStretchFactor(1,1)
-        vsplitter.setSizes([300, 100])
+        vsplitter.setSizes([300, 200])
         
         vbox.addWidget(self.plotOptions)
         vbox.addWidget(vsplitter)
