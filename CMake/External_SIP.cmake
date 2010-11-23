@@ -9,13 +9,12 @@ ExternalProject_Add(${proj}
   BUILD_IN_SOURCE 1
   CONFIGURE_COMMAND ${LIBRARY_PATH}=${PYTHON_LIBRARY_DIR}
      ${PYTHON_EXECUTABLE} configure.py
-#    -b ${prefix}/bin
-#    -d ${PYTHON_SITE_PACKAGES}
-#    -e ${prefix}/include
-#    -v ${prefix}/share
+#    -b ${CMAKE_BINARY_DIR}/python-build/bin
+#    -d ${CMAKE_BINARY_DIR}/python-build/bin/python
+#    -e ${CMAKE_BINARY_DIR}/python-build/include
+#    -v ${CMAKE_BINARY_DIR}/python-build/share
     CC=${CMAKE_C_COMPILER}
     CXX=${CMAKE_CXX_COMPILER}
-  BUILD_COMMAND make
   DEPENDS python
   )
 

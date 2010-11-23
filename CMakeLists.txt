@@ -1,6 +1,6 @@
 
 #-----------------------------------------------------------------------------
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 2.8.2)
 #-----------------------------------------------------------------------------
 
 project(cdat)
@@ -142,7 +142,7 @@ add_cdat_package(pkgconfig)
 #add_cdat_package(uduinits2)
 #add_cdat_package(HDF5)
 #add_cdat_package(NetCDF)
-#add_cdat_package(Qt)
+add_cdat_package(Qt)
 add_cdat_package(Python)
 #add_cdat_package(termcap)
 #add_cdat_package(readline)
