@@ -164,6 +164,7 @@ endif()
 set(PYTHON_INCLUDE)
 set(PYTHON_LIBRARY)
 set(PYTHON_EXECUTABLE)
+set(PYTHON_SITE_PACKAGES ${CMAKE_BINARY_DIR}/python-build/lib/python${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}/site-packages)
 
 if(WIN32)
   set(PYTHON_INCLUDE ${CMAKE_BINARY_DIR}/Python-build/Include)
