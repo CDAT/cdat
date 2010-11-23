@@ -15,7 +15,6 @@ ExternalProject_Add(${proj}
 #    -v ${prefix}/share
     CC=${CMAKE_C_COMPILER}
     CXX=${CMAKE_CXX_COMPILER}
-    
   BUILD_COMMAND make
   DEPENDS python
   )
