@@ -7,9 +7,14 @@ if(UNIX)
   set(ENV{LDFLAGS} "-L@CMAKE_CURRENT_BINARY_DIR@/tcltk-install/lib")
   set(ENV{CPPFLAGS} "-I@CMAKE_CURRENT_BINARY_DIR@/tcltk-install/include")
   set(with_tcl_param "--with-tcl=@CMAKE_CURRENT_BINARY_DIR@/tcltk-install")
-  
+  set(library_param --enable-shared)
+
+  if(APPLE)
+    set(library_param --enable-framework=@CMAKE_CURRENT_BINARY_DIR@/python-build)
+  endif()
+
   EXECUTE_PROCESS( 
-    COMMAND sh configure --prefix=@CMAKE_CURRENT_BINARY_DIR@/python-build ${with_tcl_param} --enable-unicode=ucs2 --enable-shared
+    COMMAND sh configure --prefix=@CMAKE_CURRENT_BINARY_DIR@/python-build ${with_tcl_param} ${library_param} --enable-unicode=ucs2
     WORKING_DIRECTORY "@python_base@"
     RESULT_VARIABLE rv
     )
