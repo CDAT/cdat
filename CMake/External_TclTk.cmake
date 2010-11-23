@@ -8,7 +8,7 @@ ExternalProject_Add(${proj}
   URL_MD5 ${TCL_MD5}
   INSTALL_DIR tcltk-install
   CONFIGURE_COMMAND <SOURCE_DIR>/unix/configure --prefix=<INSTALL_DIR>
-  BUILD_COMMAND ${build_cmd_smp}
+  BUILD_COMMAND make
 )
 
 # tk
@@ -20,7 +20,7 @@ ExternalProject_Add(${proj}
   URL_MD5 ${TK_MD5}
   INSTALL_DIR tcltk-install
   CONFIGURE_COMMAND <SOURCE_DIR>/unix/configure --prefix=<INSTALL_DIR>  --with-tcl=<INSTALL_DIR>/lib
-  BUILD_COMMAND ${build_cmd_smp}
+  BUILD_COMMAND make
   DEPENDS tcl-${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC}
 )
 
@@ -33,7 +33,7 @@ ExternalProject_Add_Step(${proj} symlink
 
 # tcltk
 #
-set(proj ${name}-${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC})
+set(proj tcltk-${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC})
 
 ExternalProject_Add(${proj}
   DOWNLOAD_COMMAND ""
