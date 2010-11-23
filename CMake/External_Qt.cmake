@@ -1,6 +1,4 @@
-# The Qt external project for Titan
 
-message(STATUS "Building Qt as part of Titan.")
 set(qt_source "${CMAKE_CURRENT_BINARY_DIR}/Qt")
 if(WIN32)
   # if jom is in the path use it as it will be faster
@@ -52,9 +50,8 @@ endif()
 
 ExternalProject_Add(Qt
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
-  URL ${qt_file}
-  URL_MD5 ${qt_md5}
-  UPDATE_COMMAND ""
+  URL ${QT_URL}/${QT_GZ}
+  URL_MD5 ${QT_MD5}
   SOURCE_DIR ${qt_source}
   BUILD_IN_SOURCE 1
   CONFIGURE_COMMAND ${qt_configure}

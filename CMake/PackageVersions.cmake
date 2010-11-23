@@ -266,6 +266,14 @@ set(SIP_URL http://www.riverbankcomputing.com/static/Downloads/sip${SIP_MAJOR_SR
 set(SIP_GZ sip-${SIP_MAJOR_SRC}.${SIP_MINOR_SRC}.${SIP_PATCH_SRC}.tar.gz)
 set(SIP_MD5 d799804ca0a88bd76c6c2cdf8935c3cb)
 
+set(QT_MAJOR 4)
+set(QT_MINOR 7)
+set(QT_PATCH 1)
+set(QT_VERSION ${QT_MAJOR}.${QT_MINOR}.${QT_PATCH})
+set(QT_URL http://get.qt.nokia.com/qt/source)
+set(QT_GZ qt-everywhere-opensource-src-${QT_VERSION}.tar.gz)
+set(QT_MD5 6f88d96507c84e9fea5bf3a71ebeb6d7)
+
 set(PYQT_MAJOR 4)
 set(PYQT_MINOR 8)
 set(PYQT_PATCH 1)
