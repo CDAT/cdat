@@ -56,6 +56,14 @@ else()
   set(gen "${CMAKE_GENERATOR}")
 endif()
 
+if(WIN32)
+  set(LIBRARY_PATH PATH)
+elseif(APPLE)
+  set(LIBRARY_PATH DYLD_LIBRARY_PATH)
+else()
+  set(LIBRARY_PATH LD_LIBRARY_PATH)
+endif()
+
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
 

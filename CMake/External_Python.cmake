@@ -177,7 +177,9 @@ elseif(APPLE)
 else()
   set(PYTHON_INCLUDE ${CMAKE_BINARY_DIR}/python-build/include/python${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC})
   set(PYTHON_LIBRARY ${CMAKE_BINARY_DIR}/python-build/lib/libpython${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.so)
+  set(PYTHON_LIBRARY_DIR ${CMAKE_BINARY_DIR}/python-build/lib)
   set(PYTHON_EXECUTABLE ${CMAKE_BINARY_DIR}/python-build/bin/python)
 endif()
+
 
 
