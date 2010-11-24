@@ -2,10 +2,11 @@ from PyQt4 import QtGui, QtCore
 
 import gui_filewidget
 import gui_definedvariablewidget
-import gui_variableviewwidget
+import gui_variableview
 import gui_controller
 import gui_mainmenuwidget
 import gui_maintoolbar
+import gui_plotview
 import os
 import cdms2 # need to remove this!
 
@@ -54,41 +55,30 @@ class QCDATWindow(QtGui.QMainWindow):
         hsplitter.addWidget(vsplitter)
 
         # Init Var Plotting Widget
-        varView = QTabWidgetContainer(gui_variableviewwidget.QVariableView(),
-                                          'PLOTTING')
-        hsplitter.addWidget(varView)
+        self.tabView = QtGui.QTabWidget()
+
+        self.tabView.addTab(gui_variableview.QVariableView(),"Variable")
+        self.tabView.addTab(gui_plotview.QPlotView(), "Plot")
+        self.tabView.addTab(QtGui.QWidget(), "CommandLine")
+        hsplitter.addWidget(self.tabView)
         hsplitter.setStretchFactor(2, 1)
         layout.addWidget(hsplitter)
 
-        # Init guiController
-        self.guiController = gui_controller.GuiController(fileWidget.getWidget(),
-                                      definedVar.getWidget(),
-                                      varView.getWidget())
-        self.guiController.initTeachingCommands()
-
-        # Connect signals between self & GuiController
-        self.connect(self, QtCore.SIGNAL('setRecordCommands'),
-                     self.guiController.setRecordCommands)
-        self.connect(self, QtCore.SIGNAL('viewTeachingCommands'),
-                     self.guiController.viewTeachingCommands)
-        self.connect(self, QtCore.SIGNAL('closeTeachingCommands'),
-                     self.guiController.closeTeachingCommands)        
-
         ## Connect Signals between QVariableView & QDefinedVariable
-        varView.connect(definedVar.getWidget(), QtCore.SIGNAL('selectDefinedVariableEvent'),
-                        varView.getWidget().selectDefinedVariableEvent)
-        varView.connect(definedVar.getWidget(), QtCore.SIGNAL('setupDefinedVariableAxes'),
-                        varView.getWidget().setupDefinedVariableAxes)
-        definedVar.connect(varView.getWidget(), QtCore.SIGNAL('plotPressed'),
+        self.tabView.widget(0).connect(definedVar.getWidget(), QtCore.SIGNAL('selectDefinedVariableEvent'),
+                        self.tabView.widget(0).selectDefinedVariableEvent)
+        self.tabView.widget(0).connect(definedVar.getWidget(), QtCore.SIGNAL('setupDefinedVariableAxes'),
+                        self.tabView.widget(0).setupDefinedVariableAxes)
+        definedVar.connect(self.tabView.widget(0), QtCore.SIGNAL('plotPressed'),
                            definedVar.getWidget().defineQuickplot)
-        definedVar.connect(varView.getWidget(), QtCore.SIGNAL('defineVariable'),
+        definedVar.connect(self.tabView.widget(0), QtCore.SIGNAL('defineVariable'),
                            definedVar.getWidget().defineVariable)
 
         ## Connect Signals between QFileWidget & QVariableView
-        varView.connect(fileWidget.getWidget(), QtCore.SIGNAL('variableChanged'),
-                        varView.getWidget().setupDefinedVariableAxes)
-        varView.connect(fileWidget.getWidget(), QtCore.SIGNAL('defineVariableEvent'),
-                        varView.getWidget().defineVariableEvent)
+        self.tabView.widget(0).connect(fileWidget.getWidget(), QtCore.SIGNAL('variableChanged'),
+                        self.tabView.widget(0).setupDefinedVariableAxes)
+        self.tabView.widget(0).connect(fileWidget.getWidget(), QtCore.SIGNAL('defineVariableEvent'),
+                        self.tabView.widget(0).defineVariableEvent)
 
     def closeEvent(self, event):
         # TODO
@@ -140,77 +130,4 @@ class QLabeledWidgetContainer(QtGui.QWidget):
             self.setMaximumHeight(min(self.label.height()+self.layout().spacing()+
                                       self.widget.maximumHeight(), 16777215))
         return False
-
-
-
-
-class QTabWidgetContainer(QtGui.QWidget):
-    """ Container widget for the 3 main widgets: QVariableView, QCDATFileWidget,
-    and QDefinedVariable """
-
-    def __init__(self, widget, label='', parent=None):
-        QtGui.QWidget.__init__(self, parent)
-       
-        vbox = QtGui.QVBoxLayout()
-        vbox.setMargin(0)
-
-        tab_widget = QtGui.QTabWidget(self)
-        variable_tab = QtGui.QWidget()
-        plot_tab = QtGui.QWidget()
-        command_tab = QtGui.QWidget()
-
-        variable_grid_layout = QtGui.QGridLayout(variable_tab)
-        plot_grid_layout = QtGui.QGridLayout(plot_tab)
-        command_grid_layout = QtGui.QGridLayout(command_tab)
-
-        #Adding tabs to the main gui widget
-        #Here the SVGTab is a widget that is added as a tab to the "tab_widget"
-        tab_widget.addTab(variable_tab, "Variable")
-        tab_widget.addTab(plot_tab, "Plot")
-        tab_widget.addTab(command_tab, "Command Line")
-
-
-        if widget!=None:
-            self.widget = widget
-        else:
-            self.widget = QtGui.QWidget()
-        vbox.addWidget(self.widget, 1)
-
-        #self.setLayout(vbox)
-
-    def getWidget(self):
-        return self.widget
-
-        '''
-        self.label = QtGui.QLabel(tab_bar)
-        self.label.setAutoFillBackground(True)
-        self.label.setAlignment(QtCore.Qt.AlignCenter)
-        self.label.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Raised)
-        vbox.addWidget(self.label, 0)
-
-        # Set the background color of the label
-        palette = self.label.palette()
-        role = self.label.backgroundRole()
-        palette.setColor(role, QtGui.QColor(220,213,226))
-        self.label.setPalette(palette)
-        self.label.setAutoFillBackground(True)
-
-        if widget!=None:
-            self.widget = widget
-        else:
-            self.widget = QtGui.QWidget()
-        vbox.addWidget(self.widget, 1)
-
-        self.setLayout(vbox)
-
-    def getWidget(self):
-        return self.widget
-
-    def event(self, e):
-        if e.type()==76: #QtCore.QEvent.LayoutRequest:
-            self.setMaximumHeight(min(self.label.height()+self.layout().spacing()+
-                                      self.widget.maximumHeight(), 16777215))
-        return False
-'''
-
 
