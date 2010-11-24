@@ -1,10 +1,11 @@
 
 # PyQt
 #
-set(proj "${pyqt}-${version}")
+set(proj PyQt)
 
 ExternalProject_Add(${proj}
-  URL ${tgz}
+  URL ${PYQT_URL}
+  URL_MD5 ${PYQT_MD5}
   BUILD_IN_SOURCE 1
   CONFIGURE_COMMAND ${CMAKE_COMMAND}
     -Dprefix=${prefix}
@@ -16,21 +17,13 @@ ExternalProject_Add(${proj}
     -DCC=${CMAKE_C_COMPILER}
     -DCXX=${CMAKE_CXX_COMPILER}
     -P ${cfg}
-  BUILD_COMMAND ${build_cmd_smp}
-  DEPENDS ${CSE_SIP_PACKAGE}
-          ${CSE_QT_PACKAGE}
+  DEPENDS ${PyQt_DEPENDENCIES}
   )
 
 ExternalProject_Add_Step(${proj} "check-configure"
    COMMENT "Check ${cfg}"
    DEPENDERS configure
    DEPENDS ${cfg}
-) 
-
-cse_add_runtime_depends(${proj}
-  ${CSE_PYTHON_PACKAGE}
-  ${CSE_SIP_PACKAGE}
-  ${CSE_QT_PACKAGE}
 )
 
 #split_version(${version} version_major version_minor version_patch)
@@ -38,8 +31,3 @@ cse_add_runtime_depends(${proj}
 #set(CSE_PYQT_PACKAGE "${name}-${version}" PARENT_SCOPE)
 #set(CSE_PYQT_NAME "${name}" PARENT_SCOPE)
 #set(CSE_PYQT_VERSIONXX "${version_major}.${version_minor}" PARENT_SCOPE)
-
-set_property(TEST SmokeTest-${name}-${version} PROPERTY
-  ENVIRONMENT LD_LIBRARY_PATH=${CSE_PYTHON_HOME}/lib
-              PYTHONPATH=${prefix}/lib/${CSE_PYTHON_NAME}${CSE_PYTHON_VERSIONXX}/site-packages:${CSE_SIP_HOME}/lib/${CSE_PYTHON_NAME}${CSE_PYTHON_VERSIONXX}/site-packages
-  )
