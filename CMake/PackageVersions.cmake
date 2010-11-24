@@ -282,6 +282,8 @@ set(PYQT_MINOR_SRC 8)
 set(PYQT_PATCH_SRC 1)
 set(PYQT_VERSION ${PYQT_MAJOR_SRC}.${PYQT_MINOR_SRC}.${PYQT_PATCH_SRC})
 set(PYQT_URL http://www.riverbankcomputing.com/static/Downloads/PyQt${PYQT_MAJOR_SRC})
+set(PYQT_GZ_APPLE PyQt-mac-gpl-${PYQT_VERSION}.tar.gz)
+set(PYQT_GZ_UNIX PyQt-x11-gpl-${PYQT_VERSION}.tar.gz)
 set(PYQT_MD5)
 
 set(R_MAJOR_SRC 2)
