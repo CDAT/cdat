@@ -228,12 +228,15 @@ set(JPEG_GZ jpegsrc.v8b.tar.gz)
 
 set(BLAS_URL http://www.netlib.org/blas)
 set(BLAS_GZ blas.tgz)
+set(BLAS_MD5)
 
 set(LAPACK_URL http://www.netlib.org/lapack)
 set(LAPACK_GZ lapack.tgz)
+set(LAPACK_MD5)
 
 set(LAPACK95_URL http://www.netlib.org/lapack95)
 set(LAPACK95_GZ lapack95.tgz)
+set(LAPACK95_MD5)
 
 set(PBMPLUS_URL http://acme.com/software/pbmplus)
 set(PBMPLUS_GZ pbmplus_10dec1991.tar.gz)
