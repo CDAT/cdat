@@ -1,11 +1,9 @@
 from PyQt4 import QtGui, QtCore
 
-import gui_filewidget
-import gui_definedvariablewidget
-import gui_variableview
-import gui_mainmenuwidget
-import gui_maintoolbar
-import gui_plotview
+import fileWidget
+import definedVariableWidget
+import mainToolbarWidget
+import mainMenuWidget
 import os
 import cdms2 # need to remove this!
 
@@ -34,10 +32,10 @@ class QCDATWindow(QtGui.QMainWindow):
         centralWidget.setLayout(layout)
 
         # Init Menu Widget
-        self.setMenuWidget = gui_mainmenuwidget.QMenuWidget()
+        self.setMenuWidget = mainMenuWidget.QMenuWidget()
 
         # Init Main Window Icon Tool Bar at the top of the GUI
-        ## tool_bar = gui_maintoolbar.QMainToolBarContainer(gui_filewidget.QCDATFileWidget(), "")
+        ## tool_bar = mainToolbarWidget.QMainToolBarContainer(fileWidget.QCDATFileWidget(), "")
         ## layout.addWidget(tool_bar)
         
         # Init File Widget
@@ -45,7 +43,7 @@ class QCDATWindow(QtGui.QMainWindow):
         ## vsplitter.addWidget(fileWidget)
 
         # Init Defined Variables Widget
-        self.definedVar = QLabeledWidgetContainer(gui_definedvariablewidget.QDefinedVariable(),
+        self.definedVar = QLabeledWidgetContainer(definedVariableWidget.QDefinedVariable(),
                                              'DEFINED VARIABLES')
         vsplitter.addWidget(self.definedVar)
         hsplitter = QtGui.QSplitter(QtCore.Qt.Horizontal)

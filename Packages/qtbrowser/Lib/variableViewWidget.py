@@ -1,11 +1,7 @@
 from PyQt4 import QtGui, QtCore
-import vcs
-import gui_graphicsmethods
-import gui_axes
-import qtbrowser
+import axesWidgets
 import gui_core
-import gui_filewidget
-import __main__
+import fileWidget
 
 class QVariableView(QtGui.QWidget):
     """ Main widget containing plotting related information / options. Contains
@@ -15,7 +11,7 @@ class QVariableView(QtGui.QWidget):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.definedVariables = []
-        self.fileWidget = gui_core.QLabeledWidgetContainer(gui_filewidget.QCDATFileWidget(),
+        self.fileWidget = gui_core.QLabeledWidgetContainer(fileWidget.QCDATFileWidget(),
                                              'FILE VARIABLE')
        
         # Init layout
@@ -25,7 +21,7 @@ class QVariableView(QtGui.QWidget):
 
         vbox.addWidget(self.fileWidget)
         
-        self.tabWidget = gui_axes.QAxisListTabWidget(self)
+        self.tabWidget = axesWidgets.QAxisListTabWidget(self)
 
         # Init variable information widget
         self.varInfoWidget = QtGui.QTextEdit()
@@ -104,7 +100,7 @@ class QVariableView(QtGui.QWidget):
             return
 
         # Create and setup the axislist
-        axisList = gui_axes.QAxisList(cdmsFile, var, self)
+        axisList = axesWidgets.QAxisList(cdmsFile, var, self)
         axisList.setupVariableAxes()
         self.updateVarInfo(axisList)
         self.tabWidget.createNewTab(axisList, tabName)
@@ -118,7 +114,7 @@ class QVariableView(QtGui.QWidget):
             return
         tabName=var.id
         # Create and setup the axislist
-        axisList = gui_axes.QAxisList(None, var, self)
+        axisList = axesWidgets.QAxisList(None, var, self)
         axisList.setupVariableAxes()
         self.updateVarInfo(axisList)
         self.tabWidget.createNewTab(axisList, tabName)
@@ -130,7 +126,7 @@ class QVariableView(QtGui.QWidget):
         clicks on the axisButton -> 'Get Axis Values' """
         
         cdmsFile = self.tabWidget.currentWidget().getFile()
-        axisList = gui_axes.QAxisList(cdmsFile, var, self)
+        axisList = axesWidgets.QAxisList(cdmsFile, var, self)
         axisList.setupVariableAxes()
         argString = self.generateKwargsAsString()
 

@@ -1,4 +1,4 @@
-import gui_core
+import vcdatWindow
 
 def main():
     # simple.py
@@ -9,7 +9,7 @@ def main():
     app = QtGui.QApplication(sys.argv)
 
 
-    cdat = gui_core.QCDATWindow()
+    cdat = vcdatWindow.QCDATWindow()
     cdat.show()
     
     sys.exit(app.exec_())

@@ -1,7 +1,5 @@
 from PyQt4 import QtGui, QtCore
 import vcs
-import gui_graphicsmethods
-import gui_axes
 import qtbrowser
 
 class QPlotOptionsWidget(QtGui.QWidget):
