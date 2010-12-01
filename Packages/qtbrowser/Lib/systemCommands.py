@@ -19,7 +19,7 @@
 ###############################################################################
 
 import os, sys, string, types
-from PyQt4 import QtGui
+from PyQt4 import QtGui, QtCore
 
 #------------------------------------------------------------------------
 # Redirect the destination of sys.stderr to the UV-CDAT output window
@@ -37,56 +37,9 @@ class OutLog:
         self.color = color
 
     def write(self, m):
+        tex = QtCore.QString(m)
         if self.color:
-            tc = self.edit.textColor()
             self.edit.setTextColor(self.color)
-
-        self.edit.moveCursor(QtGui.QTextCursor.End)
-        self.edit.insertPlainText( m )
-
-        if self.color:
-            self.edit.setTextColor(tc)
-
-        if self.out:
-            self.out.write(m)
-
-
-class standard_err:
-   def __init__( self, master ):
-        self.parent = master
-
-   def write(self, txt):
-        print "********* se ********", txt
-        #self.parent.appendPlainText( str(txt) )
-
-#        self.parent.log_window.appendtext( s )
-#        self.parent.log_window.yview("moveto", 1)
-        # save to output file
-#        f = open(self.parent.log_dirname, "a+")
-#        f.write(s)
-#        f.close()
-
-#   def flush(self):
-#        err = open('/dev/null', 'a+', 0)
-#        os.dup2(err.fileno(), 2)
-
-#------------------------------------------------------------------------
-# Redirect the destination of sys.stdout to the UV-CDAT output window
-#------------------------------------------------------------------------
-class standard_out:
-   def __init__( self, master ):
-        self.parent = master
-
-   def write(self, txt):
-        print "********* se ********", txt
-        #self.parent.appendPlainText( str(txt) )
-
-#        self.parent.log_window.appendtext( s )
-#        self.parent.log_window.yview("moveto", 1)
-        # save to output file
-#        f = open(self.parent.log_dirname, "a+")
-#        f.write(s)
-#        f.close()
-        #self.parent.log_window.insert( 'end', s )
-        #self.parent.panelA.pan3.insert( 'end', s )
-
+        else:
+            self.edit.setTextColor( QtGui.QColor(0,0,0))
+        self.edit.insertPlainText( tex )

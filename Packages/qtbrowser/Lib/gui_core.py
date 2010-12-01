@@ -7,7 +7,7 @@ import gui_controller
 import gui_mainmenuwidget
 import gui_maintoolbar
 import gui_plotview
-import gui_commandLine
+import commandLineWidget
 import os
 import cdms2 # need to remove this!
 
@@ -60,7 +60,7 @@ class QCDATWindow(QtGui.QMainWindow):
 
         self.tabView.addTab(gui_variableview.QVariableView(),"Variable")
         self.tabView.addTab(gui_plotview.QPlotView(), "Plot")
-        self.tabView.addTab(gui_commandLine.QCommandLine(), "CommandLine")
+        self.tabView.addTab(commandLineWidget.QCommandLine(), "CommandLine")
         hsplitter.addWidget(self.tabView)
         hsplitter.setStretchFactor(2, 1)
         layout.addWidget(hsplitter)

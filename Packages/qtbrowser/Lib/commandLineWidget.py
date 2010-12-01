@@ -32,7 +32,7 @@
 from PyQt4 import QtGui, QtCore
 import vcs, os, sys, string
 import __main__
-import gui_systemCommands
+import systemCommands
 
 class QCommandLine(QtGui.QWidget):
     ''' Main widget containing the "Command Line Window", which executes the Python Integrated Development Environment (IDLE) tool developed by Guido van Rossum, the developer of Python. The Python Shell/Window gives the user access into Python's interactive mode. This tool has been slightly modified to allow VCDAT to register keystrokes for reproducibility-a feature necessary for underlying workflow and provenance procedures. '''
@@ -45,14 +45,13 @@ class QCommandLine(QtGui.QWidget):
         label = QtGui.QLabel(self.tr("Enter CDAT command and press Return"))
         self.le = QtGui.QLineEdit()
         self.te = QtGui.QTextEdit()
+        self.te.acceptRichText()
 
         #------------------------------------------------------------------------------
         # Redirect stderr and stdout to the ouput window.
         #------------------------------------------------------------------------------
-        #sys.stderr = gui_systemCommands.standard_err( self.te )
-        #sys.stdout = gui_systemCommands.standard_out( self.te )
-        sys.stdout = gui_systemCommands.OutLog( self.te, sys.stdout )
-        sys.stderr = gui_systemCommands.OutLog( self.te, sys.stderr, QtGui.QColor(240,0,0) )
+        sys.stdout = systemCommands.OutLog( self.te, sys.stdout )
+        sys.stderr = systemCommands.OutLog( self.te, sys.stderr, QtGui.QColor(240,0,0) )
 
 
         # layout
@@ -68,27 +67,8 @@ class QCommandLine(QtGui.QWidget):
 
     def run_command(self):
         command = str(self.le.text())
-        print "command = ", command, " type = ", type(command)
         command = string.strip(command)  # Strip leading and/or trailing whitespaces from the command
+        self.te.setTextColor( QtGui.QColor(0,0,0))
+        self.te.insertPlainText( ">>> " + command + "\n")
         exec( command, __main__.__dict__ )
-      #  self.te.setText(command)
-      # change backgound color to white
-#      self.command.configure( entry_background = gui_color.six )
-      # get the command statement or expression
-      # exec runs statements, so try the exec command with __main__ as the
-      # global name space.
-#      try:
-#           command = string.strip(command)  # Strip leading and/or trailing whitespaces from the command
-#           exec( command, __main__.__dict__ )
-#           self.command.setentry( "" )
-#           update_defined( )
-#           gui_control.record_command(parent, "\n# Recorded command from the Defined Variables\n# expression entry panel", 1 )
-#           gui_control.record_command(parent, "%s" % (command), 1 )
-#      except:
-#           pass
-#           gui_message.error("Bad statement or expression! Check the command and try again.")
-
-#        cmd = str(self.le.text())
-#        stdouterr = os.popen4(cmd)[1].read()
-#        self.te.setText(stdouterr)
-
+        self.le.clear()
