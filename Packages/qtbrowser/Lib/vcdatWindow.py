@@ -4,6 +4,7 @@ import fileWidget
 import definedVariableWidget
 import mainToolbarWidget
 import mainMenuWidget
+import commandLineWidget
 import os
 import cdms2 # need to remove this!
 
@@ -54,7 +55,7 @@ class QCDATWindow(QtGui.QMainWindow):
 
         self.tabView.addTab(gui_variableview.QVariableView(),"Variables")
         self.tabView.addTab(gui_plotview.QPlotView(), "Plot")
-        self.tabView.addTab(QtGui.QWidget(), "CommandLine")
+        self.tabView.addTab(commandLineWidget.QCommandLine(), "CommandLine")
         hsplitter.addWidget(self.tabView)
         hsplitter.setStretchFactor(2, 1)
         layout.addWidget(hsplitter)
