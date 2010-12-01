@@ -3,7 +3,9 @@ import vcs
 import gui_graphicsmethods
 import gui_axes
 import qtbrowser
-
+import gui_core
+import gui_filewidget
+import __main__
 
 class QVariableView(QtGui.QWidget):
     """ Main widget containing plotting related information / options. Contains
@@ -12,13 +14,17 @@ class QVariableView(QtGui.QWidget):
     
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
-        self.selectedVars = []
-        
+        self.definedVariables = []
+        self.fileWidget = gui_core.QLabeledWidgetContainer(gui_filewidget.QCDATFileWidget(),
+                                             'FILE VARIABLE')
+       
         # Init layout
         vbox = QtGui.QVBoxLayout()
         vbox.setMargin(0)
         self.setLayout(vbox)
 
+        vbox.addWidget(self.fileWidget)
+        
         self.tabWidget = gui_axes.QAxisListTabWidget(self)
 
         # Init variable information widget
@@ -63,21 +69,21 @@ class QVariableView(QtGui.QWidget):
 
         return kwargs
 
-    def generateKwargsAsString(self):
-        """ Generate and return the variable axes keyword arguments as a string
-        that is formatted to be used in teaching commands
-        """
-        args = ""
-        axisList = self.tabWidget.currentWidget()
+    ## def generateKwargsAsString(self):
+    ##     """ Generate and return the variable axes keyword arguments as a string
+    ##     that is formatted to be used in teaching commands
+    ##     """
+    ##     args = ""
+    ##     axisList = self.tabWidget.currentWidget()
 
-        for axisWidget in axisList.getAxisWidgets():
-            args += "%s = %s, " % (axisWidget.axis.id,
-                                   axisWidget.getCurrentValuesAsStr())
+    ##     for axisWidget in axisList.getAxisWidgets():
+    ##         args += "%s = %s, " % (axisWidget.axis.id,
+    ##                                axisWidget.getCurrentValuesAsStr())
 
-        # Generate additional args
-        args += 'squeeze = 0'
-        args += ", order = '%s' " % axisList.getAxesOrderString()
-        return args
+    ##     # Generate additional args
+    ##     args += 'squeeze = 0'
+    ##     args += ", order = '%s' " % axisList.getAxesOrderString()
+    ##     return args
 
     def updateVarInfo(self, axisList):
         """ Update the text box with the variable's information """
@@ -90,16 +96,29 @@ class QVariableView(QtGui.QWidget):
             varInfo += line + '\n'
         self.varInfoWidget.setText(varInfo)
 
-    def setupDefinedVariableAxes(self, cdmsFile, var, tabName):
+    def setupFileVariableAxes(self, cdmsFile, var, tabName):
         """ Create a new axis list and tab with the specified tab name and setup
-        the axis list.  Initialize the vistrails Variable module associated with
-        the tab and variable.
+        the axis list. 
         """
         if var is None:
             return
 
         # Create and setup the axislist
         axisList = gui_axes.QAxisList(cdmsFile, var, self)
+        axisList.setupVariableAxes()
+        self.updateVarInfo(axisList)
+        self.tabWidget.createNewTab(axisList, tabName)
+        
+    def setupDefinedVariableAxes(self, var):
+        """ Create a new axis list and tab with the specified tab name and setup
+        the axis list.
+        """
+        print 'in setupDefinedVariableAxes you need to update this one!'
+        if var is None:
+            return
+        tabName=var.id
+        # Create and setup the axislist
+        axisList = gui_axes.QAxisList(None, var, self)
         axisList.setupVariableAxes()
         self.updateVarInfo(axisList)
         self.tabWidget.createNewTab(axisList, tabName)
@@ -124,47 +143,44 @@ class QVariableView(QtGui.QWidget):
         if self.tabWidget.currentWidget() is None:
             return
 
-        cdmsFile = self.tabWidget.currentWidget().getFile()        
-        var = self.getUpdatedVar()
-        argString = self.generateKwargsAsString()        
 
-        self.emit(QtCore.SIGNAL('defineVariable'), cdmsFile, var, argString)
+#        self.definedVariables.append( ))
+        self.emit(QtCore.SIGNAL('definedVariableEvent'),self.getUpdatedVar())
 
-    def selectDefinedVariableEvent(self, tabName, cdmsFile, selectedVars):
+    def selectDefinedVariableEvent(self, tabName, var):#cdmsFile, selectedVars):
         """ Save the list of selected variables and show the selected variable,
         variables are sorted in least recently selected to most recently selected
         """
-        if selectedVars != []:
-            self.selectedVars = selectedVars        
-            self.tabWidget.selectAndUpdateDefinedVarTab(tabName, cdmsFile, selectedVars[-1])
+        print 'useless function need to repalced  directly with bellow one'
+        self.tabWidget.selectAndUpdateDefinedVarTab(tabName, None, var)
 
-    def getDefinedVars(self):
-        """ Get a list of all of the defined tabnames / variables """
-        numTabs = self.tabWidget.count()
-        varList = []
+    ## def getDefinedVars(self):
+    ##     """ Get a list of all of the defined tabnames / variables """
+    ##     numTabs = self.tabWidget.count()
+    ##     varList = []
         
-        for i in range(numTabs):
-            var = self.tabWidget.widget(i).getVar()
-            name = self.tabWidget.tabText(i)
-            varList.append([name, var])
+    ##     for i in range(numTabs):
+    ##         var = self.tabWidget.widget(i).getVar()
+    ##         name = self.tabWidget.tabText(i)
+    ##         varList.append([name, var])
 
-        return varList
+    ##     return varList
 
-    def getAxisList(self, var):
-        for i in range(self.tabWidget.count()):
-            if self.tabWidget.widget(i).getVar() is var:
-                return self.tabWidget.widget(i)
+    ## def getAxisList(self, var):
+    ##     for i in range(self.tabWidget.count()):
+    ##         if self.tabWidget.widget(i).getVar() is var:
+    ##             return self.tabWidget.widget(i)
 
-        return None
+    ##     return None
 
-    def showError(self, title, text):
-        """ Show an error message in a simple popup message box. Currently there
-        is no error icon. """
+    ## def showError(self, title, text):
+    ##     """ Show an error message in a simple popup message box. Currently there
+    ##     is no error icon. """
         
-        errorWidget = QtGui.QMessageBox(self)
-        errorWidget.setWindowTitle(title)
-        errorWidget.setText(text)
-        errorWidget.show()
+    ##     errorWidget = QtGui.QMessageBox(self)
+    ##     errorWidget.setWindowTitle(title)
+    ##     errorWidget.setText(text)
+    ##     errorWidget.show()
 
-    def currentTabName(self):
-        return self.tabWidget.currentTabName()
+    ## def currentTabName(self):
+    ##     return self.tabWidget.currentTabName()

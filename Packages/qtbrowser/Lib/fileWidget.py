@@ -103,7 +103,7 @@ class QCDATFileWidget(QtGui.QWidget):
         self.connect(self.fileSelectButton, QtCore.SIGNAL('clicked(bool)'),
                      self.openSelectFileDialog)
         self.connect(self.varCombo, QtCore.SIGNAL('currentIndexChanged(const QString&)'),
-                     self.variableChanged)
+                     self.variableSelected)
         self.connect(self.defineVarButton, QtCore.SIGNAL('clicked(bool)'),
                      self.defineVariablePressed)
 
@@ -128,7 +128,7 @@ class QCDATFileWidget(QtGui.QWidget):
 
     def showEvent(self, e):
         self.updateSizeConstraints()
-        self.variableChanged(self.varCombo.currentText())
+        self.variableSelected(self.varCombo.currentText())
 
     def setFileName(self, fn):
         self.fileNameEdit.setText(fn)
@@ -198,18 +198,18 @@ class QCDATFileWidget(QtGui.QWidget):
         if not file.isNull():
             self.setFileName(file)
 
-    def variableChanged(self, varName):
+    def variableSelected(self, varName):
         if varName == '':
             return
 
         self.defineVarButton.setEnabled(not varName.isNull()) # Enable define button
         
         # Send signal to setup axisList in 'quickplot' tab
-        self.emit(QtCore.SIGNAL('variableChanged'), self.getCDMSFile(),
-                  self.getCDMSVariable(), 'quickplot')
+        self.emit(QtCore.SIGNAL('variableSelectedEvent'), self.getCDMSFile(),
+                  self.getCDMSVariable(), '%s (in file)' % self.getCDMSVariable().id)
         
     def defineVariablePressed(self):
-        self.emit(QtCore.SIGNAL('defineVariableEvent'))
+        self.emit(QtCore.SIGNAL('defineVariableFromFileEvent'))
 
     def getCDMSFile(self):
         return self.cdmsFile

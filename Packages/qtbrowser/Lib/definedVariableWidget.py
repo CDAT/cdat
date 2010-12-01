@@ -4,7 +4,7 @@ import cdms2
 
 
 
-class QDefinedVariable(QtGui.QWidget):
+class QDefinedVariableWidget(QtGui.QWidget):
     """ QDefinedVariable contains a list of the user defined variables and allows the
     user to apply functions on defined variables """
 
@@ -24,19 +24,19 @@ class QDefinedVariable(QtGui.QWidget):
         vbox.addWidget(self.toolBar)
 
         # Create CommandLine for Simple Variable Operations
-        self.command_line = QtGui.QLineEdit()
-        self.command_line.setToolTip('Enter variable expression to generate a new variable (e.g., a = tas - ta + 10.0)')
-        self.command_line.setText("defined variable command line")
-        palette = self.command_line.palette()
-        role = self.command_line.backgroundRole()
-        #palette.setColor(role, QtGui.QColor(231,160,163))
-        #palette.setColor(role, QtGui.QColor(246,204,174))
-        palette.setColor(role, QtGui.QColor(184,212,240))
-        #palette.setColor(role, QtGui.QColor(186,212,116))
-        self.command_line.setPalette(palette)
-        self.command_line.setAutoFillBackground(True)
+        ## self.command_line = QtGui.QLineEdit()
+        ## self.command_line.setToolTip('Enter variable expression to generate a new variable (e.g., a = tas - ta + 10.0)')
+        ## self.command_line.setText("defined variable command line")
+        ## palette = self.command_line.palette()
+        ## role = self.command_line.backgroundRole()
+        ## #palette.setColor(role, QtGui.QColor(231,160,163))
+        ## #palette.setColor(role, QtGui.QColor(246,204,174))
+        ## palette.setColor(role, QtGui.QColor(184,212,240))
+        ## #palette.setColor(role, QtGui.QColor(186,212,116))
+        ## self.command_line.setPalette(palette)
+        ## self.command_line.setAutoFillBackground(True)
 
-        vbox.addWidget(self.command_line)
+        ## vbox.addWidget(self.command_line)
 
         # Create List for defined variables and add it to the layout
         self.varList = QtGui.QListWidget()
@@ -63,34 +63,19 @@ class QDefinedVariable(QtGui.QWidget):
             self.quickplotItem.setVariable(var)
             self.quickplotItem.setFile(file)            
 
-    def defineVariable(self, file, var, axesArgString):
-        """ Check if a variable with the same name has already been defined.
-        If so, warn user and prompt for a new variable name.  Otherwise,
-        add the variable to the ListWidget
-        """
-        if self.isVariableDefined(var.id):
-            self.warningWidget.showWarning(var.id, file, var, axesArgString)
-        else:
-            self.addVariable(var.id, file, var, axesArgString)
 
-    def addVariable(self, varName, file, var, axesArgString):
+    def addVariable(self, var):
         """ Add variable into dict / list & emit signal to create
         a tab for the variable
         """
-        # If the variable is defined, replace existing variable, else create a new variable
-        if self.isVariableDefined(varName):
-            item = self.getItem(varName)
-            item.setVariable(var)
-            item.setFile(file)
-        else:
-            item = QDefinedVariableItem(file, var, varName)
-            self.varList.addItem(item)
+        item = QDefinedVariableItem(var)
+        self.varList.addItem(item)
 
         # Recording define variable teaching command
-        self.recordDefineVariableTeachingCommand(varName, var.id, file, axesArgString)
+#        self.recordDefineVariableTeachingCommand(varName, var.id, file, axesArgString)
 
         # emit signal to QVariableView to create a new axisList / tab
-        self.emit(QtCore.SIGNAL('setupDefinedVariableAxes'), file, var, varName)
+        self.emit(QtCore.SIGNAL('setupDefinedVariableAxes'), var)
 
     def selectVariableFromListEvent(self, modelIndex):
         """ Update the number next to the selected defined variable and
@@ -119,16 +104,10 @@ class QDefinedVariable(QtGui.QWidget):
         # Send signal of all selected vars to qvariableview and bring up the
         # most recently selected variable's tab
         var = item.getVariable()
-        cdmsFile = item.getFile()
-        selectedVars = [item.getVariable() for item in selectedItems]
+        ## selectedVars = [item.getVariable() for item in selectedItems]
         tabName = item.getVarName()
         
-        if item.isQuickplotItem():
-            self.emit(QtCore.SIGNAL('selectDefinedVariableEvent'), 'quickplot',
-                      cdmsFile, selectedVars)
-        else:
-            self.emit(QtCore.SIGNAL('selectDefinedVariableEvent'), tabName,
-                      cdmsFile, selectedVars)
+        self.emit(QtCore.SIGNAL('selectDefinedVariableEvent'), tabName, var)
 
     def isVariableDefined(self, varID):
         """ Return true if a variable with the given id is defined (this does
@@ -235,10 +214,9 @@ class QDefinedVariable(QtGui.QWidget):
 class QDefinedVariableItem(QtGui.QListWidgetItem):
     """ Item to be stored by QDefinedVariable's list widget """
     
-    def __init__(self, cdmsFile, variable, varName, parent=None):
+    def __init__(self, variable, parent=None):
         QtGui.QListWidgetItem.__init__(self, parent)
-        self.varName = varName # This is also the tabname
-        self.cdmsFile = cdmsFile
+        self.varName = variable.id # This is also the tabname
         self.variable = variable
         
         self.updateVariableString()

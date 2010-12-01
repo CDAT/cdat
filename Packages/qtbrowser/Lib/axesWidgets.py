@@ -6,7 +6,7 @@ class QAxisListTabWidget(QtGui.QTabWidget):
     
     def __init__(self, parent=None):
         QtGui.QTabWidget.__init__(self, parent)
-        self.myParent = parent
+        self.parent = parent
 
         self.connect(self, QtCore.SIGNAL('currentChanged(int)'),
                      self.tabChangeEvent)        
@@ -51,7 +51,7 @@ class QAxisListTabWidget(QtGui.QTabWidget):
         text box.
         """
         axisList = self.widget(tabIndex)
-        self.myParent.updateVarInfo(axisList)
+        self.parent.updateVarInfo(axisList)
 
     def selectAndUpdateDefinedVarTab(self, tabName, cdmsFile, var):
         """ This function selects a tab given the tabName and then updates the
@@ -255,7 +255,7 @@ class QAxis(QtGui.QWidget):
 
     def __init__(self, axis, axisName, axisIndex, parent=None):
         QtGui.QWidget.__init__(self, parent)
-        self.myParent = parent
+        self.parent = parent
         self.axis = axis
         self.axisName = axisName # Axis name including the label
         self.axisIndex = axisIndex
@@ -275,12 +275,12 @@ class QAxis(QtGui.QWidget):
         # Connect signals such that when the value of the axis slider is changed,
         # a signal will be emitted to update the value in the corresponding
         # Vistrails 'Variable' or 'Quickplot' box.
-        self.connect(self.sliderCombo.topSlider,
-                     QtCore.SIGNAL('valueChanged (int)'),
-                     parent.setVistrailsVariableAxes)
-        self.connect(self.sliderCombo.bottomSlider,
-                     QtCore.SIGNAL('valueChanged (int)'),
-                     parent.setVistrailsVariableAxes)
+        ## self.connect(self.sliderCombo.topSlider,
+        ##              QtCore.SIGNAL('valueChanged (int)'),
+        ##              parent.setVistrailsVariableAxes)
+        ## self.connect(self.sliderCombo.bottomSlider,
+        ##              QtCore.SIGNAL('valueChanged (int)'),
+        ##              parent.setVistrailsVariableAxes)
 
     def createAxisOperationsButtonAndMenu(self):
         """ Initialize the button to the right of the axis sliders and it's menu
@@ -322,7 +322,7 @@ class QAxis(QtGui.QWidget):
 
         # If the operation is 'awt' ask the user for an alternate weight var
         if op == 'awt':
-            definedVars = self.myParent.getParent().getDefinedVars()
+            definedVars = self.parent.getParent().getDefinedVars()
             QReplaceAxisWeightsDialog(definedVars, self).show()
             return
 
@@ -330,10 +330,10 @@ class QAxis(QtGui.QWidget):
         self.axisOperationsButton.setText(" %s  " % op)
 
         # Update the vistrails 'Variable' module's axesOperations input
-        axesOperations = self.myParent.getAxesOperations()
-        varWidget = self.myParent.getParent()
+        axesOperations = self.parent.getAxesOperations()
+        varWidget = self.parent.getParent()
         varWidget.emit(QtCore.SIGNAL('updateModule'),
-                       self.myParent.currentTabName(), 'axesOperations',
+                       self.parent.currentTabName(), 'axesOperations',
                        str(axesOperations)) 
 
     def createAxisButtonAndMenu(self):
@@ -369,7 +369,7 @@ class QAxis(QtGui.QWidget):
         # Add 're-order dimensions' option to menu
         axisMenu.addSeparator()
         reorderAxesMenu = axisMenu.addMenu('Re-Order Dimensions')
-        axesNames = self.myParent.getAxesNames()                
+        axesNames = self.parent.getAxesNames()                
         for axisID in axesNames:
             reorderAction = reorderAxesMenu.addAction(axisID)
             self.connect(reorderAction, QtCore.SIGNAL('triggered()'),
@@ -409,15 +409,15 @@ class QAxis(QtGui.QWidget):
         and update the vistrails' Variable module's 'axes' input
         """
         axisB = self.sender().text()
-        self.myParent.swapAxes(self.axisName, axisB)
-        self.myParent.setVistrailsVariableAxes()
+        self.parent.swapAxes(self.axisName, axisB)
+        #self.parent.setVistrailsVariableAxes()
 
     def getReplacementAxisValuesEvent(self):
         """ getReplacementAxisValuesEvent is called when the user selects
         'Replace Axis Values' Show a dialog box which asks the user to select
         a defined variable for replacement axis values
         """
-        definedVars = self.myParent.getParent().getDefinedVars()
+        definedVars = self.parent.getParent().getDefinedVars()
         QReplaceAxisValuesDialog(definedVars, self).show()
         
     def replaceAxisValues(self, newValuesVar):
@@ -428,11 +428,11 @@ class QAxis(QtGui.QWidget):
         replaces the axis' values with 'newValuesVar'
         """
         # TODO doesn't work
-        var = self.myParent.getVar()
+        var = self.parent.getVar()
         axis = var.getAxis(self.axisIndex)
         axis[:] = newValuesVar.astype(axis[:].dtype.char).filled()
         axis.setBounds(None)
-        self.myParent.setVar(var)
+        self.parent.setVar(var)
 
         # Generate teaching command string
         # TODO
@@ -442,7 +442,7 @@ class QAxis(QtGui.QWidget):
         Weight Values' from the axis button menu.  This method will create and
         define a new variable / tab with the axis' weight values
         """
-        var = self.myParent.getVar()
+        var = self.parent.getVar()
         axisVar = genutil.getAxisWeightByName(var, self.axis.id)
         axisVar.id = var.id +'_' + self.axis.id + '_weight'
 
@@ -454,14 +454,14 @@ class QAxis(QtGui.QWidget):
 
         # Record teaching commands associate 'get axis weight values' and
         # define a new variable/tab with only the axis' weight values
-        self.myParent.defineVarAxis(axisVar, teachingCommand)
+        self.parent.defineVarAxis(axisVar, teachingCommand)
 
     def getAxisValuesEvent(self):
         """ getAxisValuesEvent is called when the user selects 'Get Axis
          Values' from the axis button menu.  This method will create and
         define a new variable / tab with the axis' values
         """        
-        varID = self.myParent.getVar().id
+        varID = self.parent.getVar().id
         axisVar = MV2.array(self.axis)
         axisVar.setAxis(0, self.axis)
         axisVar.id = varID +'_' + self.axis.id + '_axis'
@@ -475,7 +475,7 @@ class QAxis(QtGui.QWidget):
 
         # Record teaching commands associate 'get axis values' and
         # define a new variable/tab with only the axis' values        
-        self.myParent.defineVarAxis(axisVar, teachingCommand)
+        self.parent.defineVarAxis(axisVar, teachingCommand)
 
     def setIndexModeEvent(self, indexMode):
         """ setIndexModeEvent(indexMode: bool)
@@ -761,7 +761,7 @@ class QAxisList(QtGui.QWidget):
         self.file = file # cdms file associated with the variable
         self.var = var # variable associated with the axes
         self.axisList = None # list of axes from the variable
-        self.myParent = parent
+        self.parent = parent
 
         # Init & set the layout
         vbox = QtGui.QVBoxLayout()
@@ -837,7 +837,7 @@ class QAxisList(QtGui.QWidget):
         self.gridLayout.setRowStretch(self.gridLayout.rowCount(), 1)
 
     def defineVarAxis(self, var, teachingCommand):
-        self.myParent.defineVarAxis(var, teachingCommand)
+        self.parent.defineVarAxis(var, teachingCommand)
 
     def swapAxes(self, axisA, axisB):
         """ swapAxes(axisA: QAxis, axisB: QAxis)
@@ -936,7 +936,7 @@ class QAxisList(QtGui.QWidget):
         return self.var.id
 
     def getParent(self):
-        return self.myParent
+        return self.parent
 
     def getAxesOrderString(self):
         """ Return a string with the axes' order """
@@ -965,19 +965,19 @@ class QAxisList(QtGui.QWidget):
         self.var = var
 
     def currentTabName(self):
-        return self.myParent.currentTabName()
+        return self.parent.currentTabName()
 
-    def setVistrailsVariableAxes(self):
-        """ Vistrails: Update the vistrails Variable modules 'axes' input. This
-        method is called whenever the sliders values are changed.
-        """
-        axesKwargs = {}
-        # Add the each axes' args for example: latitude: (-90, 90)
-        for axisWidget in self.axisWidgets:
-            axesKwargs[axisWidget.axis.id] = axisWidget.getCurrentValues()
-        # Add other args
-        axesKwargs['squeeze'] = 0
-        axesKwargs['order'] = self.getAxesOrderString()
+    ## def setVistrailsVariableAxes(self):
+    ##     """ Vistrails: Update the vistrails Variable modules 'axes' input. This
+    ##     method is called whenever the sliders values are changed.
+    ##     """
+    ##     axesKwargs = {}
+    ##     # Add the each axes' args for example: latitude: (-90, 90)
+    ##     for axisWidget in self.axisWidgets:
+    ##         axesKwargs[axisWidget.axis.id] = axisWidget.getCurrentValues()
+    ##     # Add other args
+    ##     axesKwargs['squeeze'] = 0
+    ##     axesKwargs['order'] = self.getAxesOrderString()
 
-        self.myParent.emit(QtCore.SIGNAL('updateModule'),
-                         self.myParent.currentTabName(), 'axes', str(axesKwargs))
+    ##     self.parent.emit(QtCore.SIGNAL('updateModule'),
+    ##                      self.parent.currentTabName(), 'axes', str(axesKwargs))

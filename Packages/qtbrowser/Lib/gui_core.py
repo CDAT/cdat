@@ -3,7 +3,6 @@ from PyQt4 import QtGui, QtCore
 import gui_filewidget
 import gui_definedvariablewidget
 import gui_variableview
-import gui_controller
 import gui_mainmenuwidget
 import gui_maintoolbar
 import gui_plotview
@@ -38,26 +37,24 @@ class QCDATWindow(QtGui.QMainWindow):
         self.setMenuWidget = gui_mainmenuwidget.QMenuWidget()
 
         # Init Main Window Icon Tool Bar at the top of the GUI
-        tool_bar = gui_maintoolbar.QMainToolBarContainer(gui_filewidget.QCDATFileWidget(), "")
-        layout.addWidget(tool_bar)
+        ## tool_bar = gui_maintoolbar.QMainToolBarContainer(gui_filewidget.QCDATFileWidget(), "")
+        ## layout.addWidget(tool_bar)
         
         # Init File Widget
         vsplitter  = QtGui.QSplitter(QtCore.Qt.Vertical)        
-        fileWidget = QLabeledWidgetContainer(gui_filewidget.QCDATFileWidget(),
-                                             'FILE VARIABLES')
-        vsplitter.addWidget(fileWidget)
+        ## vsplitter.addWidget(fileWidget)
 
         # Init Defined Variables Widget
-        definedVar = QLabeledWidgetContainer(gui_definedvariablewidget.QDefinedVariable(),
+        self.definedVar = QLabeledWidgetContainer(gui_definedvariablewidget.QDefinedVariable(),
                                              'DEFINED VARIABLES')
-        vsplitter.addWidget(definedVar)
+        vsplitter.addWidget(self.definedVar)
         hsplitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
         hsplitter.addWidget(vsplitter)
 
         # Init Var Plotting Widget
         self.tabView = QtGui.QTabWidget()
 
-        self.tabView.addTab(gui_variableview.QVariableView(),"Variable")
+        self.tabView.addTab(gui_variableview.QVariableView(),"Variables")
         self.tabView.addTab(gui_plotview.QPlotView(), "Plot")
         self.tabView.addTab(QtGui.QWidget(), "CommandLine")
         hsplitter.addWidget(self.tabView)
@@ -65,19 +62,19 @@ class QCDATWindow(QtGui.QMainWindow):
         layout.addWidget(hsplitter)
 
         ## Connect Signals between QVariableView & QDefinedVariable
-        self.tabView.widget(0).connect(definedVar.getWidget(), QtCore.SIGNAL('selectDefinedVariableEvent'),
+        self.tabView.widget(0).connect(self.definedVar.getWidget(), QtCore.SIGNAL('selectDefinedVariableEvent'),
                         self.tabView.widget(0).selectDefinedVariableEvent)
-        self.tabView.widget(0).connect(definedVar.getWidget(), QtCore.SIGNAL('setupDefinedVariableAxes'),
+        self.tabView.widget(0).connect(self.definedVar.getWidget(), QtCore.SIGNAL('setupDefinedVariableAxes'),
                         self.tabView.widget(0).setupDefinedVariableAxes)
-        definedVar.connect(self.tabView.widget(0), QtCore.SIGNAL('plotPressed'),
-                           definedVar.getWidget().defineQuickplot)
-        definedVar.connect(self.tabView.widget(0), QtCore.SIGNAL('defineVariable'),
-                           definedVar.getWidget().defineVariable)
+        self.definedVar.connect(self.tabView.widget(0), QtCore.SIGNAL('plotPressed'),
+                           self.definedVar.getWidget().defineQuickplot)
+        self.definedVar.connect(self.tabView.widget(0), QtCore.SIGNAL('definedVariableEvent'),
+                           self.definedVar.getWidget().addVariable)
 
-        ## Connect Signals between QFileWidget & QVariableView
-        self.tabView.widget(0).connect(fileWidget.getWidget(), QtCore.SIGNAL('variableChanged'),
-                        self.tabView.widget(0).setupDefinedVariableAxes)
-        self.tabView.widget(0).connect(fileWidget.getWidget(), QtCore.SIGNAL('defineVariableEvent'),
+        ## ## Connect Signals between QFileWidget & QVariableView
+        self.tabView.widget(0).connect(self.tabView.widget(0).fileWidget.getWidget(), QtCore.SIGNAL('variableSelectedEvent'),
+                        self.tabView.widget(0).setupFileVariableAxes)
+        self.tabView.widget(0).connect(self.tabView.widget(0).fileWidget.getWidget(), QtCore.SIGNAL('defineVariableFromFileEvent'),
                         self.tabView.widget(0).defineVariableEvent)
 
     def closeEvent(self, event):
