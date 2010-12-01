@@ -1,7 +1,7 @@
 from PyQt4 import QtGui, QtCore
 import vcs
 import qtbrowser
-
+import graphicsMethodsWidgets
 class QPlotOptionsWidget(QtGui.QWidget):
     """ Widget containing plot options: plot button, plot type combobox, cell
     col and row selection combo box, and an options button """
@@ -87,7 +87,7 @@ class QPlotOptionsWidget(QtGui.QWidget):
 
         # Create graphic method attribute option / editor
         canvas = vcs.init()
-        self.graphicsMethodController = gui_graphicsmethods.QGraphicsMethodAttributeWindow(canvas, self)
+        self.graphicsMethodController = graphicsMethodsWidgets.QGraphicsMethodAttributeWindow(canvas, self)
         graphicMethodAction = optionsMenu.addAction('Se&t Graphics Method Attributes')
 
         # Create Colormap option / widget

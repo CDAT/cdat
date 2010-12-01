@@ -5,6 +5,8 @@ import definedVariableWidget
 import mainToolbarWidget
 import mainMenuWidget
 import commandLineWidget
+import plotViewWidget
+import variableViewWidget
 import os
 import cdms2 # need to remove this!
 
@@ -36,15 +38,15 @@ class QCDATWindow(QtGui.QMainWindow):
         self.setMenuWidget = mainMenuWidget.QMenuWidget()
 
         # Init Main Window Icon Tool Bar at the top of the GUI
-        ## tool_bar = mainToolbarWidget.QMainToolBarContainer(fileWidget.QCDATFileWidget(), "")
-        ## layout.addWidget(tool_bar)
+        tool_bar = mainToolbarWidget.QMainToolBarContainer(fileWidget.QCDATFileWidget(), "")
+        layout.addWidget(tool_bar)
         
         # Init File Widget
         vsplitter  = QtGui.QSplitter(QtCore.Qt.Vertical)        
         ## vsplitter.addWidget(fileWidget)
 
         # Init Defined Variables Widget
-        self.definedVar = QLabeledWidgetContainer(definedVariableWidget.QDefinedVariable(),
+        self.definedVar = QLabeledWidgetContainer(definedVariableWidget.QDefinedVariableWidget(),
                                              'DEFINED VARIABLES')
         vsplitter.addWidget(self.definedVar)
         hsplitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
@@ -53,8 +55,8 @@ class QCDATWindow(QtGui.QMainWindow):
         # Init Var Plotting Widget
         self.tabView = QtGui.QTabWidget()
 
-        self.tabView.addTab(gui_variableview.QVariableView(),"Variables")
-        self.tabView.addTab(gui_plotview.QPlotView(), "Plot")
+        self.tabView.addTab(variableViewWidget.QVariableView(),"Variables")
+        self.tabView.addTab(plotViewWidget.QPlotView(), "Plot")
         self.tabView.addTab(commandLineWidget.QCommandLine(), "CommandLine")
         hsplitter.addWidget(self.tabView)
         hsplitter.setStretchFactor(2, 1)
