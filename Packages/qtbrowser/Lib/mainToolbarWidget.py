@@ -12,25 +12,25 @@ class QMainToolBarContainer( QtGui.QWidget ):
         vbox = QtGui.QVBoxLayout()
         vbox.setMargin(0)
 
-        ICONPATH = os.path.join(cdms2.__path__[0], '..', '..', '..', '..', 'bin')
+        ICONPATH = os.path.join(cdms2.__path__[0], '..','..','..','..','share/icons')
+        print 'ICONS ARE AT:',ICONPATH
         # Create options bar
         self.toolBar = QtGui.QToolBar()
         self.setFixedHeight(50)
         #self.setFixedWidth(50)
-        self.toolBar.setIconSize(QtCore.QSize(48, 48))
+        self.toolBar.setIconSize(QtCore.QSize(28, 28))
         actionInfo = [
-            ('UVCDATfull.gif', 'Edit (in memory) selected defined variable.'),
-            ('UVCDATfull.gif', 'Save selected defined variable to a netCDF file.'),
-            ('UVCDATfull.gif', 'Display selected defined variable information.'),
-            ('UVCDATfull.gif', 'Move selected defined variable(s) to trashcan for disposal.'),
-            ('UVCDATfull.gif', 'Move [ALL] defined variables to trashcan for disposal.'),
-            ('UVCDATfull.gif', 'Logged information about the defined variables.'),
-            ('UVCDATfull.gif', 'Defined variable items that can be disposed of permanetly or restored.'),
+            ('Open_folder.gif', 'Open a script file.'),
+            ('Save.gif', 'Save selected defined variable to a netCDF file.'),
+            ('Print.gif', 'Print selected defined variable information or selected plot.'),
+            ('Script.gif', 'Script out the button clicks and commands to a file.'),
+            ('ESG_download.gif', 'Connection to the Earth System Grid Federation (ESGF) data archive.'),
+            ('Help.gif', 'Display assistant content for this application.'),
             ]
 
         for info in actionInfo:
             icon = QtGui.QIcon(os.path.join(ICONPATH, info[0]))
-            action = self.toolBar.addAction(icon, '')
+            action = self.toolBar.addAction(icon, 'help')
             action.setStatusTip(info[1])
             action.setToolTip(info[1])
         self.toolBar.addSeparator()
