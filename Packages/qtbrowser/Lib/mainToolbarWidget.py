@@ -13,7 +13,6 @@ class QMainToolBarContainer( QtGui.QWidget ):
         vbox.setMargin(0)
 
         ICONPATH = os.path.join(cdms2.__path__[0], '..','..','..','..','share/icons')
-        print 'ICONS ARE AT:',ICONPATH
         # Create options bar
         self.toolBar = QtGui.QToolBar()
         self.setFixedHeight(50)

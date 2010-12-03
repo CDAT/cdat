@@ -31,6 +31,7 @@ class QCDATWindow(QtGui.QMainWindow):
         self.setMinimumSize(1100,800)
         self.main_window_placement()
 
+        
         layout = QtGui.QVBoxLayout()
         centralWidget.setLayout(layout)
 
@@ -38,16 +39,16 @@ class QCDATWindow(QtGui.QMainWindow):
         self.setMenuWidget = mainMenuWidget.QMenuWidget()
 
         # Init Main Window Icon Tool Bar at the top of the GUI
-        tool_bar = mainToolbarWidget.QMainToolBarContainer(fileWidget.QCDATFileWidget(), "")
-        layout.addWidget(tool_bar)
+        self.tool_bar = mainToolbarWidget.QMainToolBarContainer(QtGui.QWidget(self), "")
+        layout.addWidget(self.tool_bar)
         
         # Init File Widget
         vsplitter  = QtGui.QSplitter(QtCore.Qt.Vertical)        
         ## vsplitter.addWidget(fileWidget)
 
         # Init Defined Variables Widget
-        self.definedVar = QLabeledWidgetContainer(definedVariableWidget.QDefinedVariableWidget(),
-                                             'DEFINED VARIABLES')
+        self.definedVar = QLabeledWidgetContainer(definedVariableWidget.QDefinedVariableWidget(self),
+                                             'DEFINED VARIABLES', self)
         vsplitter.addWidget(self.definedVar)
         hsplitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
         hsplitter.addWidget(vsplitter)
@@ -55,9 +56,9 @@ class QCDATWindow(QtGui.QMainWindow):
         # Init Var Plotting Widget
         self.tabView = QtGui.QTabWidget()
 
-        self.tabView.addTab(variableViewWidget.QVariableView(),"Variables")
-        self.tabView.addTab(plotViewWidget.QPlotView(), "Plot")
-        self.tabView.addTab(commandLineWidget.QCommandLine(), "CommandLine")
+        self.tabView.addTab(variableViewWidget.QVariableView(self),"Variables")
+        self.tabView.addTab(plotViewWidget.QPlotView(self), "Plot")
+        self.tabView.addTab(commandLineWidget.QCommandLine(self), "CommandLine")
         hsplitter.addWidget(self.tabView)
         hsplitter.setStretchFactor(2, 1)
         layout.addWidget(hsplitter)
@@ -77,6 +78,8 @@ class QCDATWindow(QtGui.QMainWindow):
                         self.tabView.widget(0).setupFileVariableAxes)
         self.tabView.widget(0).connect(self.tabView.widget(0).fileWidget.getWidget(), QtCore.SIGNAL('defineVariableFromFileEvent'),
                         self.tabView.widget(0).defineVariableEvent)
+        fw = self.tabView.widget(0).fileWidget.widget
+        fw.connect(fw.plotButton,QtCore.SIGNAL('clicked(bool)'),self.tabView.widget(1).plot)
 
     def closeEvent(self, event):
         # TODO
@@ -102,7 +105,7 @@ class QLabeledWidgetContainer(QtGui.QWidget):
 
     def __init__(self, widget, label='', parent=None):
         QtGui.QWidget.__init__(self, parent)
-        
+
         vbox = QtGui.QVBoxLayout()
         vbox.setMargin(0)
         

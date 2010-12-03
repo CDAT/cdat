@@ -3,7 +3,6 @@ from PyQt4 import QtGui, QtCore
 class QMenuWidget(QtGui.QMenuBar):
     def __init__(self, parent=None):
         QtGui.QMenuBar.__init__(self, parent)
-        self.myParent = parent
         
         self.file = self.addMenu('&File')
         self.pref = self.addMenu('&Preferences')
@@ -28,10 +27,10 @@ class QMenuWidget(QtGui.QMenuBar):
                      self.setRecordCommands)
 
     def setRecordCommands(self, checked):
-        self.myParent.emit(QtCore.SIGNAL('setRecordCommands'), checked)
+        self.parent().emit(QtCore.SIGNAL('setRecordCommands'), checked)
 
     def viewTeachingCommands(self):
-        self.myParent.emit(QtCore.SIGNAL('viewTeachingCommands'))
+        self.parent().emit(QtCore.SIGNAL('viewTeachingCommands'))
 
     def closeTeachingCommands(self):
-        self.myParent.emit(QtCore.SIGNAL('closeTeachingCommands'))
+        self.parent().emit(QtCore.SIGNAL('closeTeachingCommands'))

@@ -33,13 +33,13 @@ from PyQt4 import QtGui, QtCore
 import vcs, os, sys, string
 import __main__
 import systemCommands
+import qtbrowser
 
 class QCommandLine(QtGui.QWidget):
-    ''' Main widget containing the "Command Line Window", which executes the Python Integrated Development Environment (IDLE) tool developed by Guido van Rossum, the developer of Python. The Python Shell/Window gives the user access into Python's interactive mode. This tool has been slightly modified to allow VCDAT to register keystrokes for reproducibility-a feature necessary for underlying workflow and provenance procedures. '''
+    """ Main widget containing the "Command Line Window", which executes the Python Integrated Development Environment (IDLE) tool developed by Guido van Rossum, the developer of Python. The Python Shell/Window gives the user access into Python's interactive mode. This tool has been slightly modified to allow VCDAT to register keystrokes for reproducibility-a feature necessary for underlying workflow and provenance procedures. """
 
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
-        self.myParent = parent
 
         # create objects
         label = QtGui.QLabel(self.tr("Enter CDAT command and press Return"))
@@ -50,8 +50,12 @@ class QCommandLine(QtGui.QWidget):
         #------------------------------------------------------------------------------
         # Redirect stderr and stdout to the ouput window.
         #------------------------------------------------------------------------------
-        sys.stdout = systemCommands.OutLog( self.te, sys.stdout )
-        sys.stderr = systemCommands.OutLog( self.te, sys.stderr, QtGui.QColor(240,0,0) )
+        if qtbrowser.debug:
+            sys.stdout = systemCommands.OutLog( self.te, None, sys.stdout )
+            sys.stderr = systemCommands.OutLog( self.te, QtGui.QColor(240,0,0), sys.stderr )
+        else:
+            sys.stdout = systemCommands.OutLog( self.te)
+            sys.stderr = systemCommands.OutLog( self.te, QtGui.QColor(240,0,0))
 
 
         # layout

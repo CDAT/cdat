@@ -8,7 +8,7 @@ class QPlotOptionsWidget(QtGui.QWidget):
     
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
-        self.myParent = parent
+        self.parent = parent
         self.cellRow = -1 # if row/col = -1, then automatically plot in an open cell
         self.cellCol = -1
         hbox = QtGui.QHBoxLayout()
@@ -142,7 +142,7 @@ class QPlotOptionsWidget(QtGui.QWidget):
         return self.graphicsMethodController
 
     def getParent(self):
-        return self.myParent
+        return self.parent
 
 class QCheckMenu(QtGui.QMenu):
     """ Menu where only a single 'checkable' action can be checked at a time """
@@ -196,7 +196,7 @@ class QPlotView(QtGui.QWidget):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.selectedVars = []
-        
+        self.parent=parent
         # Init layout
         vbox = QtGui.QVBoxLayout()
         vbox.setMargin(0)
@@ -206,7 +206,9 @@ class QPlotView(QtGui.QWidget):
         self.plotOptions = QPlotOptionsWidget(self)
 
         vbox.addWidget(self.plotOptions)
-
+        self.canvas=[]
+        for i in range(4):
+            self.canvas.append(vcs.init())
 
 
     def plot(self):
@@ -217,30 +219,31 @@ class QPlotView(QtGui.QWidget):
         ##     return
 
         # Error if not enough slabs
-        plotType = str(self.plotOptions.getPlotType())        
-        if len(self.selectedVars) < 2 and self.requiresTwoSlabs(plotType):
+        plotType = str(self.plotOptions.getPlotType())
+
+        
+        selectedVars=self.parent.definedVar.widget.getSelectedDefinedVariables()
+
+        
+        if len(selectedVars) < 2 and self.requiresTwoSlabs(plotType):
             self.showError('Error Message to User', 'Vector, Scatter, Meshfill or XvsY plots \nmust have two data variables. The data \nvariables must be selected in the \n"Defined Variables" window.')
             return
 
-        # Create & Update the graphics method / CDATCell vistrails modules
-        # *** IMPORTANT ***
-        # Everytime plot is pressed, this will create a new Graphics Method and
-        # CDATCell Module. Instead it should ONLY create a new graphics method
-        # and CDATCell module if the variable isn't already connected to an
-        # existing Graphics Method / CDATCell module.  This results in plots 
-        # being plotted multiple times.
-        axisList = self.tabWidget.currentWidget()
-        if qtbrowser.use_vistrails:
-            self.setVistrailsCDATCell()
 
         # Get the names of the 2 slabs so we can connect their modules in vistrails
         if self.requiresTwoSlabs(plotType):
-            var1 = self.selectedVars[-1].id
-            var2 = self.selectedVars[-2].id
+            var = selectedVars[:2]
         else:
-            var1 = self.currentTabName()
-            var2 = None
+            var = selectedVars[:1]
 
+        var.append(plotType)
+        if qtbrowser.useVistrails:
+            print 'Not implemented yet'
+        else:
+            self.canvas[0].clear()
+            self.canvas[0].plot(*var)
+
+    def crap(self):
         # Emit signal to GuiController to connect ports and plot
         self.emit(QtCore.SIGNAL('plot'), var1, var2)
 

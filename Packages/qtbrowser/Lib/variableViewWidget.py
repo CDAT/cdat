@@ -1,6 +1,6 @@
 from PyQt4 import QtGui, QtCore
 import axesWidgets
-import gui_core
+import vcdatWindow
 import fileWidget
 
 class QVariableView(QtGui.QWidget):
@@ -10,8 +10,7 @@ class QVariableView(QtGui.QWidget):
     
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
-        self.definedVariables = []
-        self.fileWidget = gui_core.QLabeledWidgetContainer(fileWidget.QCDATFileWidget(),
+        self.fileWidget = vcdatWindow.QLabeledWidgetContainer(fileWidget.QCDATFileWidget(self),
                                              'FILE VARIABLE')
        
         # Init layout
@@ -150,17 +149,6 @@ class QVariableView(QtGui.QWidget):
         print 'useless function need to repalced  directly with bellow one'
         self.tabWidget.selectAndUpdateDefinedVarTab(tabName, None, var)
 
-    ## def getDefinedVars(self):
-    ##     """ Get a list of all of the defined tabnames / variables """
-    ##     numTabs = self.tabWidget.count()
-    ##     varList = []
-        
-    ##     for i in range(numTabs):
-    ##         var = self.tabWidget.widget(i).getVar()
-    ##         name = self.tabWidget.tabText(i)
-    ##         varList.append([name, var])
-
-    ##     return varList
 
     ## def getAxisList(self, var):
     ##     for i in range(self.tabWidget.count()):

@@ -1,2 +1,3 @@
-use_vistrails = False
+useVistrails = False
+debug = True
 import starter

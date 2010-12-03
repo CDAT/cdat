@@ -14,7 +14,7 @@ class QCDATFileWidget(QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
 
         self.cdmsFile = None
-
+        
         # Start the layout
         layout = QtGui.QVBoxLayout()
         self.setLayout(layout)
@@ -92,7 +92,10 @@ class QCDATFileWidget(QtGui.QWidget):
         self.defineVarButton = QtGui.QPushButton('&Define')
         self.defineVarButton.setToolTip('Define variable into memory')
         hbox.addWidget(self.defineVarButton)
-        
+        self.plotButton = QtGui.QPushButton('&Plot')
+        self.plotButton.setToolTip('Plot')
+        hbox.addWidget(self.plotButton)
+
         grid.addLayout(hbox, 1, 1)
 
         # Connect signals

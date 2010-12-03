@@ -13,7 +13,6 @@ class QDefinedVariableWidget(QtGui.QWidget):
         self.warningWidget = QDefVarWarningBox(self) # Popup box to warn var is already defined
         self.quickplotItem = None
         self.numVarsSelected = 0
-
         # Create Layout
         vbox = QtGui.QVBoxLayout()
         vbox.setMargin(0)
@@ -64,6 +63,14 @@ class QDefinedVariableWidget(QtGui.QWidget):
             self.quickplotItem.setFile(file)            
 
 
+    def getSelectedDefinedVariables(self):
+        """ Get a list of all of the defined tabnames / variables """
+        selectedItems = self.varList.selectedItems()
+        varList = []
+        for item in selectedItems:
+            varList.append(item.getVariable())
+        
+        return varList
     def addVariable(self, var):
         """ Add variable into dict / list & emit signal to create
         a tab for the variable
