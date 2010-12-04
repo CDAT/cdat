@@ -7,6 +7,7 @@ import mainMenuWidget
 import commandLineWidget
 import plotViewWidget
 import variableViewWidget
+import commandsRecorderWidget
 import os
 import cdms2 # need to remove this!
 
@@ -35,8 +36,10 @@ class QCDATWindow(QtGui.QMainWindow):
         layout = QtGui.QVBoxLayout()
         centralWidget.setLayout(layout)
 
+        # Create the command recorder widget
+        self.recorder = commandsRecorderWidget.QCommandsRecorderWidget(self)
         # Init Menu Widget
-        self.setMenuWidget = mainMenuWidget.QMenuWidget()
+        self.setMenuWidget = mainMenuWidget.QMenuWidget(self)
 
         # Init Main Window Icon Tool Bar at the top of the GUI
         self.tool_bar = mainToolbarWidget.QMainToolBarContainer(QtGui.QWidget(self), "")

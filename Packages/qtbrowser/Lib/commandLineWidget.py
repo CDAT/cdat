@@ -34,6 +34,7 @@ import vcs, os, sys, string
 import __main__
 import systemCommands
 import qtbrowser
+import customizeVCDAT
 
 class QCommandLine(QtGui.QWidget):
     """ Main widget containing the "Command Line Window", which executes the Python Integrated Development Environment (IDLE) tool developed by Guido van Rossum, the developer of Python. The Python Shell/Window gives the user access into Python's interactive mode. This tool has been slightly modified to allow VCDAT to register keystrokes for reproducibility-a feature necessary for underlying workflow and provenance procedures. """
@@ -45,17 +46,17 @@ class QCommandLine(QtGui.QWidget):
         label = QtGui.QLabel(self.tr("Enter CDAT command and press Return"))
         self.le = QtGui.QLineEdit()
         self.te = QtGui.QTextEdit()
-        self.te.acceptRichText()
+        self.te.setReadOnly(True)
 
         #------------------------------------------------------------------------------
         # Redirect stderr and stdout to the ouput window.
         #------------------------------------------------------------------------------
         if qtbrowser.debug:
             sys.stdout = systemCommands.OutLog( self.te, None, sys.stdout )
-            sys.stderr = systemCommands.OutLog( self.te, QtGui.QColor(240,0,0), sys.stderr )
+            sys.stderr = systemCommands.OutLog( self.te, customizeVCDAT.errorColor, sys.stderr )
         else:
             sys.stdout = systemCommands.OutLog( self.te)
-            sys.stderr = systemCommands.OutLog( self.te, QtGui.QColor(240,0,0))
+            sys.stderr = systemCommands.OutLog( self.te, customizeVCDAT.errorColor)
 
 
         # layout
@@ -72,7 +73,7 @@ class QCommandLine(QtGui.QWidget):
     def run_command(self):
         command = str(self.le.text())
         command = string.strip(command)  # Strip leading and/or trailing whitespaces from the command
-        self.te.setTextColor( QtGui.QColor(0,0,0))
+        self.te.setTextColor( customizeVCDAT.defaultTextColor )
         self.te.insertPlainText( ">>> " + command + "\n")
         exec( command, __main__.__dict__ )
         self.le.clear()
