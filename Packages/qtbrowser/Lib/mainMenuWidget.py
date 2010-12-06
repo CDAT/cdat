@@ -1,6 +1,7 @@
 from PyQt4 import QtGui, QtCore
 import os
 import commandsRecorderWidget
+import customizeVCDAT
 
 class QMenuWidget(QtGui.QMenuBar):
     def __init__(self, parent=None):
@@ -15,7 +16,7 @@ class QMenuWidget(QtGui.QMenuBar):
         
         recordTeachingAction = self.tools.addAction('Record Commands')
         recordTeachingAction.setCheckable(True)
-        recordTeachingAction.setChecked(True)
+        recordTeachingAction.setChecked(customizeVCDAT.recordCommands)
         
         viewTeachingAction = self.tools.addAction('View Teaching Commands')
 

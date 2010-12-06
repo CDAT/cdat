@@ -1,4 +1,6 @@
 from PyQt4 import QtGui, QtCore
+import qtbrowser
+
 import os
 import customizeVCDAT
 
@@ -76,3 +78,10 @@ for i in range(4):
         
 
     
+    def record(self,commands):
+        for a in self.parent.mainMenu.tools.actions():
+            if a.text() == 'Record Commands' and not a.isChecked():
+                return
+        self.addText(commands)
+        if qtbrowser.useVistrails:
+            print 'Add here signal to send to vistrails'

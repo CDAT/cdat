@@ -9,3 +9,4 @@ defaultTextColor = blackColor
 redColor = QtGui.QColor(255,0,0)
 errorColor = redColor
 commentsColor = redColor
+recordCommands = True

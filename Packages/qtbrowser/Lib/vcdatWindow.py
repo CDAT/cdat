@@ -38,8 +38,12 @@ class QCDATWindow(QtGui.QMainWindow):
 
         # Create the command recorder widget
         self.recorder = commandsRecorderWidget.QCommandsRecorderWidget(self)
+
+        #Adds a shortcut to the record function
+        self.record = self.recorder.record
+        
         # Init Menu Widget
-        self.setMenuWidget = mainMenuWidget.QMenuWidget(self)
+        self.mainMenu = mainMenuWidget.QMenuWidget(self)
 
         # Init Main Window Icon Tool Bar at the top of the GUI
         self.tool_bar = mainToolbarWidget.QMainToolBarContainer(QtGui.QWidget(self), "")
