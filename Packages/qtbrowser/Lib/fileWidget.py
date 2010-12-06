@@ -14,7 +14,7 @@ class QCDATFileWidget(QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
 
         self.cdmsFile = None
-        
+        self.root=parent.root
         # Start the layout
         layout = QtGui.QVBoxLayout()
         self.setLayout(layout)
@@ -143,18 +143,11 @@ class QCDATFileWidget(QtGui.QWidget):
         if fi.exists():
             self.fileDialog.setDirectory(fi.dir())
             self.cdmsFile = cdms2.open(fn)
-            self.recordOpenFileTeachingCommand(fn)
+            self.root.record("## Open file: %s" % fn)
+            self.root.record("cdmsFile = cdms2.open('%s')" % fn)
         else:
             self.cdmsFile = None
         self.updateVariableList()
-
-    def recordOpenFileTeachingCommand(self, file):
-        openFileComment = '\n# Open CDMS File\n'
-        varName = 'fid2'
-        command = "%s = cdms2.open('%s')\n" %(varName, file)
-
-        self.emit(QtCore.SIGNAL('recordTeachingCommand'), openFileComment)
-        self.emit(QtCore.SIGNAL('recordTeachingCommand'), command)
 
     def filesSelected(self, files):
         if files.count()>0:

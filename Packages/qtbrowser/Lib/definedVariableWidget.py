@@ -13,6 +13,7 @@ class QDefinedVariableWidget(QtGui.QWidget):
         self.warningWidget = QDefVarWarningBox(self) # Popup box to warn var is already defined
         self.quickplotItem = None
         self.numVarsSelected = 0
+        self.root=parent.root
         # Create Layout
         vbox = QtGui.QVBoxLayout()
         vbox.setMargin(0)
@@ -56,7 +57,7 @@ class QDefinedVariableWidget(QtGui.QWidget):
         already exists
         """
         if self.quickplotItem is None:
-            self.quickplotItem = QDefinedVariableItem(file, var, 'quickplot')
+            self.quickplotItem = QDefinedVariableItem(file, var)
             self.varList.addItem(self.quickplotItem)
         else:
             self.quickplotItem.setVariable(var)

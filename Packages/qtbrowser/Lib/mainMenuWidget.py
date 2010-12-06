@@ -12,7 +12,7 @@ class QMenuWidget(QtGui.QMenuBar):
         self.tools = self.addMenu('&Tools')
         self.pcmdiTools = self.addMenu('&PCMDITools')
         self.help = self.addMenu('&Help')
-        self.parent=parent
+        self.root=parent.root
         
         recordTeachingAction = self.tools.addAction('Record Commands')
         recordTeachingAction.setCheckable(True)
@@ -21,7 +21,7 @@ class QMenuWidget(QtGui.QMenuBar):
         viewTeachingAction = self.tools.addAction('View Teaching Commands')
 
         self.connect(viewTeachingAction, QtCore.SIGNAL('triggered ()'),
-                     self.parent.recorder.show)
+                     self.root.recorder.show)
         ## self.connect(closeTeachingAction, QtCore.SIGNAL('triggered ()'),
         ##              self.closeTeachingCommands)        
 

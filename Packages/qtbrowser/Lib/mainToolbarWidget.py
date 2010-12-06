@@ -6,9 +6,9 @@ class QMainToolBarContainer( QtGui.QWidget ):
     """ Main icon tool bar widget that is located at the top of VCDAT's main
     window. """
 
-    def __init__(self, widget, label='', parent=None):
+    def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
-
+        self.root=parent.root
         vbox = QtGui.QVBoxLayout()
         vbox.setMargin(0)
 
@@ -39,17 +39,17 @@ class QMainToolBarContainer( QtGui.QWidget ):
         vbox.addWidget(self.toolBar, 0)
         self.setLayout(vbox)
 
-        '''
-        self.label = QtGui.QLabel("toolbar")
-        self.label.setAutoFillBackground(True)
-        self.label.setAlignment(QtCore.Qt.AlignCenter)
-        self.label.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Raised)
-        vbox.addWidget(self.label, 0)
+##         '''
+##         self.label = QtGui.QLabel("toolbar")
+##         self.label.setAutoFillBackground(True)
+##         self.label.setAlignment(QtCore.Qt.AlignCenter)
+##         self.label.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Raised)
+##         vbox.addWidget(self.label, 0)
 
-        if widget!=None:
-            self.widget = widget
-        else:
-            self.widget = QtGui.QWidget()
-        vbox.addWidget(self.widget, 5)
-        self.setLayout(vbox)
-'''
+##         if widget!=None:
+##             self.widget = widget
+##         else:
+##             self.widget = QtGui.QWidget()
+##         vbox.addWidget(self.widget, 5)
+##         self.setLayout(vbox)
+## '''

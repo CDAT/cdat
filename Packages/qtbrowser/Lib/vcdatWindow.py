@@ -32,6 +32,7 @@ class QCDATWindow(QtGui.QMainWindow):
         self.setMinimumSize(1100,800)
         self.main_window_placement()
 
+        self.root = self
         
         layout = QtGui.QVBoxLayout()
         centralWidget.setLayout(layout)
@@ -46,7 +47,7 @@ class QCDATWindow(QtGui.QMainWindow):
         self.mainMenu = mainMenuWidget.QMenuWidget(self)
 
         # Init Main Window Icon Tool Bar at the top of the GUI
-        self.tool_bar = mainToolbarWidget.QMainToolBarContainer(QtGui.QWidget(self), "")
+        self.tool_bar = mainToolbarWidget.QMainToolBarContainer(self)
         layout.addWidget(self.tool_bar)
         
         # Init File Widget

@@ -7,7 +7,7 @@ import customizeVCDAT
 class QCommandsRecorderWidget(QtGui.QDialog):
     def __init__(self,parent=None):
         QtGui.QDialog.__init__(self,parent)
-        self.parent=parent
+        self.root=parent.root
         layout = QtGui.QVBoxLayout()
         layout.setMargin(2)
         self.setLayout(layout)
@@ -78,10 +78,10 @@ for i in range(4):
         
 
     
-    def record(self,commands):
-        for a in self.parent.mainMenu.tools.actions():
-            if a.text() == 'Record Commands' and not a.isChecked():
-                return
-        self.addText(commands)
+    def record(self,commands,*vistrails):
+        for a in self.root.mainMenu.tools.actions():
+            if a.text() == 'Record Commands' and a.isChecked():
+                self.addText(commands)
+                break
         if qtbrowser.useVistrails:
-            print 'Add here signal to send to vistrails'
+            print 'Add here signal to send to vistrails, we received:',vistrails
