@@ -19,7 +19,7 @@ class QAxisListTabWidget(QtGui.QTabWidget):
         if (self.tabExists(tabName)):
             self.removeTab(self.getTabIndexFromName(tabName))
 
-        if tabName.find("(in file)")>-1:
+        if str(tabName).find("(in file)")>-1:
             if str(self.tabText(0)).find("(in file)")>-1:
                 self.removeTab(0)
             self.insertTab(0, axisList, tabName) # file is always first tab

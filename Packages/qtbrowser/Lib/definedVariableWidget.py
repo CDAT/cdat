@@ -77,6 +77,9 @@ class QDefinedVariableWidget(QtGui.QWidget):
         a tab for the variable
         """
         item = QDefinedVariableItem(var)
+        for i in range(self.varList.count()-1,-1,-1):
+            if self.varList.item(i).getVarName() == var.id:
+                self.varList.takeItem(i)
         self.varList.addItem(item)
 
         # Recording define variable teaching command
