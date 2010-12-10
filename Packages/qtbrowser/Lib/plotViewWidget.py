@@ -12,7 +12,7 @@ class QPlotOptionsWidget(QtGui.QWidget):
         self.cellRow = -1 # if row/col = -1, then automatically plot in an open cell
         self.cellCol = -1
         hbox = QtGui.QHBoxLayout()
-
+        self.root = parent.root
         # Add plot button
         self.plotButton = QtGui.QPushButton('&Plot')
         hbox.addWidget(self.plotButton)
@@ -196,7 +196,7 @@ class QPlotView(QtGui.QWidget):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.selectedVars = []
-        self.parent=parent
+        self.root=parent.root
         # Init layout
         vbox = QtGui.QVBoxLayout()
         vbox.setMargin(0)
@@ -210,6 +210,9 @@ class QPlotView(QtGui.QWidget):
         for i in range(4):
             self.canvas.append(vcs.init())
 
+        if qtbrowser.useVistrails:
+            import cdat_cell
+            self.spreadSheet = cdat_cell.QCDATWidget(self)
 
     def plot(self):
         """ Create the graphics method and cdatcell modules. Update the input
@@ -219,10 +222,10 @@ class QPlotView(QtGui.QWidget):
         ##     return
 
         # Error if not enough slabs
-        plotType = str(self.plotOptions.getPlotType())
+        plotType = str(self.plotOptions.getPlotType()).lower()
 
         
-        selectedVars=self.parent.definedVar.widget.getSelectedDefinedVariables()
+        selectedVars=self.root.definedVar.widget.getSelectedDefinedVariables()
 
         
         if len(selectedVars) < 2 and self.requiresTwoSlabs(plotType):
@@ -233,15 +236,39 @@ class QPlotView(QtGui.QWidget):
         # Get the names of the 2 slabs so we can connect their modules in vistrails
         if self.requiresTwoSlabs(plotType):
             var = selectedVars[:2]
+            plot_args="%s, %s" % (var[0].id,var[1].id)
         else:
-            var = selectedVars[:1]
+            var = [selectedVars[0],]
+            plot_args="%s" % (var[0].id,)
 
+        # Template section
+        template = 'default'
+        var.append(template)
+        plot_args+=",'%s'" % template
+
+        # Plot type section
         var.append(plotType)
+        plot_args+=", '%s'" % plotType
+
+        # Graphic method
+        gm_name='default'
+        var.append(gm_name)
+        plot_args+=", '%s'" % gm_name
+
+        icanvas = 0
+        
         if qtbrowser.useVistrails:
             print 'Not implemented yet'
+            self.spreadSheet.canvas.plot(*var)
         else:
-            self.canvas[0].clear()
-            self.canvas[0].plot(*var)
+            self.root.record("## Clearing vcs canvas %i" % icanvas)
+            self.root.record("vcs_canvas[%i].clear()" % icanvas)
+            self.canvas[icanvas].clear()
+            #For now dirty plot_args
+            
+            self.root.record("## Plotting onto canvas %i" % icanvas)
+            self.root.record("vcs_canvas[%i].plot(%s)" % (icanvas,plot_args))
+            self.canvas[icanvas].plot(*var)
 
     ## def crap(self):
     ##     # Emit signal to GuiController to connect ports and plot

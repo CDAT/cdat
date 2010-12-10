@@ -41,7 +41,7 @@ class QCommandLine(QtGui.QWidget):
 
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
-
+        self.root=parent.root
         # create objects
         label = QtGui.QLabel(self.tr("Enter CDAT command and press Return"))
         self.le = QtGui.QLineEdit()
@@ -77,3 +77,5 @@ class QCommandLine(QtGui.QWidget):
         self.te.insertPlainText( ">>> " + command + "\n")
         exec( command, __main__.__dict__ )
         self.le.clear()
+        self.root.record("## Command sent from prompt by user")
+        self.root.record(command)
