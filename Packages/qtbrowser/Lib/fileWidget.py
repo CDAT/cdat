@@ -199,10 +199,12 @@ class QCDATFileWidget(QtGui.QWidget):
             return
 
         self.defineVarButton.setEnabled(not varName.isNull()) # Enable define button
-        
+        varName = str(varName).split()[0]
         # Send signal to setup axisList in 'quickplot' tab
+        self.root.record("## Open a variable in file")
+        self.root.record("cdmsFileVariable = cdmsFile['%s']" % varName)
         self.emit(QtCore.SIGNAL('variableSelectedEvent'), self.getCDMSFile(),
-                  self.getCDMSVariable(), '%s (in file)' % self.getCDMSVariable().id)
+                  varName, '%s (in file)' % varName)
         
     def defineVariablePressed(self):
         self.emit(QtCore.SIGNAL('defineVariableFromFileEvent'))
@@ -213,6 +215,7 @@ class QCDATFileWidget(QtGui.QWidget):
     def getCDMSVariable(self):
         if not self.cdmsFile is None:
             data = self.varCombo.itemData(self.varCombo.currentIndex()).toStringList()
+            print 'DATA is:',data
             if data.count() > 0:
                 if data[0] == 'variables':
                     return getattr(self.cdmsFile, str(data[0]))[str(data[1])]

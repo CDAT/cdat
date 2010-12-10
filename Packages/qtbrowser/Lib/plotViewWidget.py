@@ -243,53 +243,53 @@ class QPlotView(QtGui.QWidget):
             self.canvas[0].clear()
             self.canvas[0].plot(*var)
 
-    def crap(self):
-        # Emit signal to GuiController to connect ports and plot
-        self.emit(QtCore.SIGNAL('plot'), var1, var2)
+    ## def crap(self):
+    ##     # Emit signal to GuiController to connect ports and plot
+    ##     self.emit(QtCore.SIGNAL('plot'), var1, var2)
 
-        # If a quickplot is plotted, define current variable under 'quickplot'
-        if (self.currentTabName() == 'quickplot'):
-            var = self.getUpdatedVar()
-            self.emit(QtCore.SIGNAL('plotPressed'), axisList.getFile(), var)
+    ##     # If a quickplot is plotted, define current variable under 'quickplot'
+    ##     if (self.currentTabName() == 'quickplot'):
+    ##         var = self.getUpdatedVar()
+    ##         self.emit(QtCore.SIGNAL('plotPressed'), axisList.getFile(), var)
 
-        # Record plot teaching commands
-        self.recordPlotTeachingCommand()
+    ##     # Record plot teaching commands
+    ##     self.recordPlotTeachingCommand()
 
-    def recordPlotTeachingCommand(self):
-        axisList = self.tabWidget.currentWidget()
-        tabName = self.tabWidget.currentTabName()
-        argString = self.generateKwargsAsString()
-        var = axisList.getVar()
-        fileID = "fid2"
+    ## def recordPlotTeachingCommand(self):
+    ##     axisList = self.tabWidget.currentWidget()
+    ##     tabName = self.tabWidget.currentTabName()
+    ##     argString = self.generateKwargsAsString()
+    ##     var = axisList.getVar()
+    ##     fileID = "fid2"
 
-        slabCommand = ''
-        if tabName == 'quickplot':
-            slabCommand += '\n# Get new slab\n'
-            slabCommand += "%s = %s('%s', %s)\n" %(tabName, fileID, var.id, argString)
+    ##     slabCommand = ''
+    ##     if tabName == 'quickplot':
+    ##         slabCommand += '\n# Get new slab\n'
+    ##         slabCommand += "%s = %s('%s', %s)\n" %(tabName, fileID, var.id, argString)
 
-        slabCommand += '\n# Get new slab\n'
-        slabCommand += "%s = %s(%s)\n" %(tabName, tabName, argString)
+    ##     slabCommand += '\n# Get new slab\n'
+    ##     slabCommand += "%s = %s(%s)\n" %(tabName, tabName, argString)
             
-        slabCommand += axisList.getAxesOperationsTeachingCommands(tabName)
+    ##     slabCommand += axisList.getAxesOperationsTeachingCommands(tabName)
 
-        canvasNum = 0 # Change the canvas # with respect to the cell?
-        clearCommand = '\n# Clear the VCS Canvas\n'        
-        clearCommand +=  "vcs_canvas_list[%d].clear()\n" % canvasNum
+    ##     canvasNum = 0 # Change the canvas # with respect to the cell?
+    ##     clearCommand = '\n# Clear the VCS Canvas\n'        
+    ##     clearCommand +=  "vcs_canvas_list[%d].clear()\n" % canvasNum
 
-        plotID = "vcs_display"
-        plotType = str(self.plotOptions.getPlotType())
-        template = self.getTemplateName(plotType)
-        gm = self.getGraphicsMethodName(plotType)                
-        plotArgs = "%s, '%s', '%s', '%s'" % (tabName, template, plotType, gm)
+    ##     plotID = "vcs_display"
+    ##     plotType = str(self.plotOptions.getPlotType())
+    ##     template = self.getTemplateName(plotType)
+    ##     gm = self.getGraphicsMethodName(plotType)                
+    ##     plotArgs = "%s, '%s', '%s', '%s'" % (tabName, template, plotType, gm)
 
-        if self.plotOptions.getContinentType() is not None:
-            plotArgs += ", continents = %d" % self.plotOptions.getContinentType()
+    ##     if self.plotOptions.getContinentType() is not None:
+    ##         plotArgs += ", continents = %d" % self.plotOptions.getContinentType()
         
-        plotCommand = '\n# Plot slab\n'        
-        plotCommand += "%s = vcs_canvas_list[%d].plot(%s)\n" %(plotID, canvasNum, plotArgs)
+    ##     plotCommand = '\n# Plot slab\n'        
+    ##     plotCommand += "%s = vcs_canvas_list[%d].plot(%s)\n" %(plotID, canvasNum, plotArgs)
 
-        command = slabCommand + clearCommand + plotCommand
-        self.emit(QtCore.SIGNAL('recordTeachingCommand'), command)
+    ##     command = slabCommand + clearCommand + plotCommand
+    ##     self.emit(QtCore.SIGNAL('recordTeachingCommand'), command)
 
     def requiresTwoSlabs(self, plotType):
         """ Returns true if the plot requires 2 slabs """
@@ -332,35 +332,35 @@ class QPlotView(QtGui.QWidget):
             return 'ASD1'
         return 'default'        
     
-    def setVistrailsCDATCell(self):
-        """ Vistrails: Update the vistrails' CDAT Cell modules' input ports: """
+    ## def setVistrailsCDATCell(self):
+    ##     """ Vistrails: Update the vistrails' CDAT Cell modules' input ports: """
         
-        visInput = []
-        plotType = str(self.plotOptions.getPlotType())
+    ##     visInput = []
+    ##     plotType = str(self.plotOptions.getPlotType())
 
-        visInput.append(('plotType', plotType))
-        visInput.append(('row', str(self.plotOptions.getRow())))
-        visInput.append(('col', str(self.plotOptions.getCol())))
-        visInput.append(('gmName', self.getGraphicsMethodName(plotType)))
-        visInput.append(('template', self.getTemplateName(plotType)))
+    ##     visInput.append(('plotType', plotType))
+    ##     visInput.append(('row', str(self.plotOptions.getRow())))
+    ##     visInput.append(('col', str(self.plotOptions.getCol())))
+    ##     visInput.append(('gmName', self.getGraphicsMethodName(plotType)))
+    ##     visInput.append(('template', self.getTemplateName(plotType)))
 
-        if self.plotOptions.getContinentType() is not None:
-            visInput.append(('continents', self.plotOptions.getContinentType())) # TODO
+    ##     if self.plotOptions.getContinentType() is not None:
+    ##         visInput.append(('continents', self.plotOptions.getContinentType())) # TODO
 
-        self.emit(QtCore.SIGNAL('updateModuleOps'), cdatcell_name, visInput)
+    ##     self.emit(QtCore.SIGNAL('updateModuleOps'), cdatcell_name, visInput)
 
-    def setVistrailsGraphicsMethod(self):
-        """ Vistrails: Update the vistrails' Graphics Method modules' boxfill
-        input ports.  Only set the plotType and graphics method (gm) name.
-        Setting the input for gm attributes should be handled by the gm
-        controller (graphics_method_controller.py)
-        """
-        visInput = [] # List of tuples where each tuple = (inputPortName, value)
-        plotType = str(self.plotOptions.getPlotType())
+    ## def setVistrailsGraphicsMethod(self):
+    ##     """ Vistrails: Update the vistrails' Graphics Method modules' boxfill
+    ##     input ports.  Only set the plotType and graphics method (gm) name.
+    ##     Setting the input for gm attributes should be handled by the gm
+    ##     controller (graphics_method_controller.py)
+    ##     """
+    ##     visInput = [] # List of tuples where each tuple = (inputPortName, value)
+    ##     plotType = str(self.plotOptions.getPlotType())
         
-        visInput.append(('plotType', plotType))
-        visInput.append(('gmName', self.getGraphicsMethodName(plotType)))
-        self.emit(QtCore.SIGNAL('updateModuleOps'), gm_name, visInput)
+    ##     visInput.append(('plotType', plotType))
+    ##     visInput.append(('gmName', self.getGraphicsMethodName(plotType)))
+    ##     self.emit(QtCore.SIGNAL('updateModuleOps'), gm_name, visInput)
 
     def showError(self, title, text):
         """ Show an error message in a simple popup message box. Currently there

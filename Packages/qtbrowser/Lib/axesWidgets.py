@@ -6,7 +6,7 @@ class QAxisListTabWidget(QtGui.QTabWidget):
     
     def __init__(self, parent=None):
         QtGui.QTabWidget.__init__(self, parent)
-        self.parent = parent
+        self.root = parent.root
 
         self.connect(self, QtCore.SIGNAL('currentChanged(int)'),
                      self.tabChangeEvent)        
@@ -19,8 +19,10 @@ class QAxisListTabWidget(QtGui.QTabWidget):
         if (self.tabExists(tabName)):
             self.removeTab(self.getTabIndexFromName(tabName))
 
-        if tabName == 'quickplot':
-            self.insertTab(0, axisList, tabName) # quickplot is always first tab
+        if tabName.find("(in file)")>-1:
+            if str(self.tabText(0)).find("(in file)")>-1:
+                self.removeTab(0)
+            self.insertTab(0, axisList, tabName) # file is always first tab
         else:
             self.addTab(axisList, tabName)
             
@@ -51,7 +53,7 @@ class QAxisListTabWidget(QtGui.QTabWidget):
         text box.
         """
         axisList = self.widget(tabIndex)
-        self.parent.updateVarInfo(axisList)
+        self.parent().parent().updateVarInfo(axisList) # double parent here 'cause it's on a splitter
 
     def selectAndUpdateDefinedVarTab(self, tabName, cdmsFile, var):
         """ This function selects a tab given the tabName and then updates the
@@ -255,7 +257,7 @@ class QAxis(QtGui.QWidget):
 
     def __init__(self, axis, axisName, axisIndex, parent=None):
         QtGui.QWidget.__init__(self, parent)
-        self.parent = parent
+        self.root = parent.root
         self.axis = axis
         self.axisName = axisName # Axis name including the label
         self.axisIndex = axisIndex
@@ -369,7 +371,7 @@ class QAxis(QtGui.QWidget):
         # Add 're-order dimensions' option to menu
         axisMenu.addSeparator()
         reorderAxesMenu = axisMenu.addMenu('Re-Order Dimensions')
-        axesNames = self.parent.getAxesNames()                
+        axesNames = self.parent().getAxesNames()                
         for axisID in axesNames:
             reorderAction = reorderAxesMenu.addAction(axisID)
             self.connect(reorderAction, QtCore.SIGNAL('triggered()'),
@@ -753,15 +755,15 @@ class QAxisComboWidget(QtGui.QComboBox):
 class QAxisList(QtGui.QWidget):
     """ Widget containing a list of axis widgets for the selected variable """
 
-    def __init__(self, file=None, var=[], parent=None):
+    def __init__(self, cdmsFile=None, var=None, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.axisWidgets = [] # List of QAxis widgets
         self.axesNames = [] # List of axis names (including labels)
         self.axisOrder = [] # List of ints to specify axes ordering
-        self.file = file # cdms file associated with the variable
+        self.cdmsFile = cdmsFile # cdms file associated with the variable
         self.var = var # variable associated with the axes
         self.axisList = None # list of axes from the variable
-        self.parent = parent
+        self.root = parent.root
 
         # Init & set the layout
         vbox = QtGui.QVBoxLayout()
@@ -800,7 +802,10 @@ class QAxisList(QtGui.QWidget):
             return
         
         if (self.axisList is None):
-            self.axisList = self.var.getAxisList()
+            if self.cdmsFile is None:
+                self.axisList = self.var.getAxisList()
+            else:
+                self.axisList = self.cdmsFile[self.var].getAxisList()
             self.axisOrder = range(len(self.axisList))
 
         self.clear()            
@@ -924,13 +929,16 @@ class QAxisList(QtGui.QWidget):
         return self.axisWidgets
 
     def getFile(self):
-        return self.file
+        return self.cdmsFile
 
     def getFileID(self):
-        return self.file.id
+        return self.cdmsFile.id
 
     def getVar(self):
-        return self.var
+        if self.cdmsFile is None:
+            return self.var
+        else:
+            return self.cdmsFile[self.var]
 
     def getVarID(self):
         return self.var.id
@@ -959,7 +967,7 @@ class QAxisList(QtGui.QWidget):
             i += 1
             
     def setFile(self, cdmsFile):
-        self.file = cdmsFile
+        self.cdmsFile = cdmsFile
 
     def setVar(self, var):
         self.var = var
