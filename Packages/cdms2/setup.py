@@ -73,15 +73,15 @@ except:
            packages = ['regrid'],
            package_dir = {'regrid': 'deprecated_warns'},
            )
-try:
-    import Numeric
-except:
-    setup (name = "Numeric",
-           version = '1.0',
-           description = "Deprecation warning for Numeric",
-           packages = ['Numeric'],
-           package_dir = {'Numeric': 'deprecated_warns'},
-           )
+#try:
+#    import Numeric
+#except:
+#    setup (name = "Numeric",
+#           version = '1.0',
+#           description = "Deprecation warning for Numeric",
+#           packages = ['Numeric'],
+#           package_dir = {'Numeric': 'deprecated_warns'},
+#           )
 
 try:
     import MA

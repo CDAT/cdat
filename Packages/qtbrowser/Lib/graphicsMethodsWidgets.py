@@ -1,7 +1,7 @@
 import types
 import qtbrowser
 from PyQt4 import QtCore, QtGui
-if qtbrowser.use_vistrails:
+if qtbrowser.useVistrails:
     from gui_controller import gm_name
 
 indentSpacing = 10
