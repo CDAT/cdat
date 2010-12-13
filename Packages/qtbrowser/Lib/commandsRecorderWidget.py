@@ -84,4 +84,5 @@ for i in range(4):
                 self.addText(commands)
                 break
         if qtbrowser.useVistrails:
-            print 'Add here signal to send to vistrails, we received:',vistrails
+	    self.emit(QtCore.SIGNAL("recordCommands"),commands)
+

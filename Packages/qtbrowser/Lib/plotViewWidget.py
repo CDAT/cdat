@@ -210,9 +210,9 @@ class QPlotView(QtGui.QWidget):
         for i in range(4):
             self.canvas.append(vcs.init())
 
-        if qtbrowser.useVistrails:
-            import cdat_cell
-            self.spreadSheet = cdat_cell.QCDATWidget(self)
+     #   if qtbrowser.useVistrails:
+     #       import cdat_cell
+     #       self.spreadSheet = cdat_cell.QCDATWidget(self)
 
     def plot(self):
         """ Create the graphics method and cdatcell modules. Update the input
