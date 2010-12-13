@@ -1,0 +1,2 @@
+#!/usr/bin/env sh
+exec /lgm/cdat/Qt/bin/python -c "import cdat_info ; print cdat_info.Version"
