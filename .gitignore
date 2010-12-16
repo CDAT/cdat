@@ -34,8 +34,12 @@ generated/
 /build
 /dist
 /test-results
+Packages/cdms2/Test/test*fc*
+Packages/cdms2/Test/*.nc
 Packages/*/build
 Packages/*/rebuild.py
+Packages/vcs/pyqtscripting.sbf
+Packages/vcs/cdatwrap
 Packages/vcs/Info/__init__.py
 Packages/vcs/Src/Qt/moc_mainwindow.cpp
 Packages/vcs/result.pdf

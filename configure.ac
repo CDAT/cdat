@@ -11,7 +11,7 @@ if test ${SVN_TAG} == "rev" ; then
 fi
 CDAT_VERSION=${PACKAGE_VERSION}${SVN_TAG}
 AC_PREFIX_DEFAULT([/opt/cdat])
-AC_CONFIG_FILES([Makefile site.cfg README.txt Scripts/cdat Scripts/vcdat exsrc/CMakeCache.txt checked_get.sh exsrc/src/pbmplus/Makefile],[chmod +x Scripts/cdat Scripts/vcdat checked_get.sh])
+AC_CONFIG_FILES([Makefile site.cfg README.txt Scripts/cdat Scripts/vcdat Scripts/cdatversion exsrc/CMakeCache.txt checked_get.sh exsrc/src/pbmplus/Makefile],[chmod +x Scripts/cdat Scripts/vcdat checked_get.sh])
 
 
 dnl  Lib VERSION NUMBERS TO CHECK AGAINST
@@ -331,7 +331,7 @@ AC_SUBST(HDF4_MINOR_SRC)
 AC_SUBST(HDF4_PATCH_SRC)
 HDF5_MAJOR_SRC=1
 HDF5_MINOR_SRC=8
-HDF5_PATCH_SRC=4-patch1
+HDF5_PATCH_SRC=5-patch1
 HDF5_URL=http://www.hdfgroup.org/ftp/HDF5/current/src
 HDF5_GZ=hdf5-${HDF5_MAJOR_SRC}.${HDF5_MINOR_SRC}.${HDF5_PATCH_SRC}.tar.gz
 AC_SUBST(HDF5_URL)
@@ -400,7 +400,7 @@ AC_SUBST(GIFSICLE_GZ)
 AC_SUBST(GIFSICLE_MAJOR_SRC)
 AC_SUBST(GIFSICLE_MINOR_SRC)
 
-XGKS_URL=http://rainbow.llnl.gov/dist/cdat
+XGKS_URL=http://uv-cdat.llnl.gov/cdat
 XGKS_GZ=xgks.tar.gz
 AC_SUBST(XGKS_URL)
 AC_SUBST(XGKS_GZ)
@@ -774,6 +774,7 @@ fi
 AC_SUBST(COMPILE_VTK)
 EXTRAENV=""
 
+ISFRAMEWORK="no"
 
 AC_SUBST(QTCONFIGOPT)
 dnl #General compilation flags
@@ -782,7 +783,7 @@ LDFLAGS="-L${EXTERNALS}/lib  -L${prefix}/lib -L${EXTERNALS}/NetCDF/lib  -L${EXTE
 CPPFLAGS="-I${EXTERNALS}/include  "$CPPFLAGS
 CFLAGS="-I${EXTERNALS}/include  -L${EXTERNALS}/lib  "${CFLAGS}
 COMPILE_TCLTK=no
-XTRA_LD_F2PY=""
+XTRA_LD_F2PY="env EXTERNALS=${EXTERNALS} "
 AC_SUBST(XTRA_LD_F2PY)
 case ${target_os} in
  linux-*) 
@@ -840,6 +841,7 @@ case ${target_os} in
   enable_fw="-"${enable_framework}
   if test ${enable_fw} == "-yes" ; then
     PYOPT=" --enable-framework"
+    ISFRAMEWORK="yes"
     cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
     PYINSTALLKEY="frameworkinstall"
   else
@@ -847,11 +849,13 @@ case ${target_os} in
          PYOPT=" --enable-framework=${enable_framework}"
          cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
          PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall "
+         ISFRAMEWORK="yes"
      else
        if test ${enable_vtk} == "-yes" ; then
            PYOPT=" --enable-framework=${prefix} "
            cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
            PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall"
+           ISFRAMEWORK="yes"
        fi
      fi
   fi
@@ -870,16 +874,19 @@ case ${target_os} in
     if test ${enable_fw} == "-yes" ; then
       PYOPT=" --enable-framework"
       PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall"
+      ISFRAMEWORK="yes"
     else
       if test ${enable_fw} != "-" ; then
          PYOPT=" --enable-framework=${enable_framework}"
          PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall"
+         ISFRAMEWORK="yes"
       else
          if test ${enable_vtk} == "-yes" ; then
            PYOPT=" --enable-framework=${prefix} "
            cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
            PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall"
 	   PYTHON_INSTALL_PREFIX=" --prefix="${prefix}
+           ISFRAMEWORK="yes"
          else
            PYOPT=${PYOPT}" --disable-toolbox-glue --disable-framework " 
 	 fi
@@ -888,7 +895,7 @@ case ${target_os} in
     CFLAGS=${CFLAGS}" -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.5 "
     LDFLAGS=${LDFLAGS}" -bind_at_load  -mmacosx-version-min=10.6 "
     CXXFLAGS=${CXXFLAGS}"  -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.6 "
-    XTRA_LD_F2PY="env LDFLAGS=\"\${LDFLAGS/\"/} -undefined dynamic_lookup\" " ;;
+    XTRA_LD_F2PY=${XTRA_LD_F2PY}" LDFLAGS=\"\${LDFLAGS/\"/} -undefined dynamic_lookup\" " ;;
   esac ;;
  cygwin*)
    PyQt_PLATFORM="x11"
@@ -1934,7 +1941,7 @@ else
   BUILDVIS=yes
   case ${target_os} in
    darwin*)
-    if test ${enable_fw} == "-" -a "-"${with_qt} != "-no"  ; then 
+    if test ${enable_fw} == "-" -a "-"${with_qt} != "-no" -a ${ISFRAMEWORK} !="yes"  ; then 
        if test ${COMPILE_PYTHON} == "yes" ; then
          PYOPT=" --enable-framework="${prefix}
          AC_MSG_NOTICE([Your are under Mac you need to enable framework, we did this for you])

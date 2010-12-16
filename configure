@@ -2121,7 +2121,7 @@ if test ${SVN_TAG} == "rev" ; then
 fi
 CDAT_VERSION=${PACKAGE_VERSION}${SVN_TAG}
 
-ac_config_files="$ac_config_files Makefile site.cfg README.txt Scripts/cdat Scripts/vcdat exsrc/CMakeCache.txt checked_get.sh exsrc/src/pbmplus/Makefile"
+ac_config_files="$ac_config_files Makefile site.cfg README.txt Scripts/cdat Scripts/vcdat Scripts/cdatversion exsrc/CMakeCache.txt checked_get.sh exsrc/src/pbmplus/Makefile"
 
 
 
@@ -2438,7 +2438,7 @@ HDF4_GZ=hdf-${HDF4_MAJOR_SRC}.${HDF4_MINOR_SRC}.${HDF4_PATCH_SRC}.tar.gz
 
 HDF5_MAJOR_SRC=1
 HDF5_MINOR_SRC=8
-HDF5_PATCH_SRC=4-patch1
+HDF5_PATCH_SRC=5-patch1
 HDF5_URL=http://www.hdfgroup.org/ftp/HDF5/current/src
 HDF5_GZ=hdf5-${HDF5_MAJOR_SRC}.${HDF5_MINOR_SRC}.${HDF5_PATCH_SRC}.tar.gz
 
@@ -2507,7 +2507,7 @@ GIFSICLE_GZ=gifsicle-${GIFSICLE_MAJOR_SRC}.${GIFSICLE_MINOR_SRC}.tar.gz
 
 
 
-XGKS_URL=http://rainbow.llnl.gov/dist/cdat
+XGKS_URL=http://uv-cdat.llnl.gov/cdat
 XGKS_GZ=xgks.tar.gz
 
 
@@ -7414,6 +7414,7 @@ fi
 
 EXTRAENV=""
 
+ISFRAMEWORK="no"
 
 
 { echo "$as_me:$LINENO: add ${EXTERNALS} to LD and CPP FLAGS" >&5
@@ -7422,7 +7423,7 @@ LDFLAGS="-L${EXTERNALS}/lib  -L${prefix}/lib -L${EXTERNALS}/NetCDF/lib  -L${EXTE
 CPPFLAGS="-I${EXTERNALS}/include  "$CPPFLAGS
 CFLAGS="-I${EXTERNALS}/include  -L${EXTERNALS}/lib  "${CFLAGS}
 COMPILE_TCLTK=no
-XTRA_LD_F2PY=""
+XTRA_LD_F2PY="env EXTERNALS=${EXTERNALS} "
 
 case ${target_os} in
  linux-*)
@@ -7509,6 +7510,7 @@ fi
   enable_fw="-"${enable_framework}
   if test ${enable_fw} == "-yes" ; then
     PYOPT=" --enable-framework"
+    ISFRAMEWORK="yes"
     cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
     PYINSTALLKEY="frameworkinstall"
   else
@@ -7516,11 +7518,13 @@ fi
          PYOPT=" --enable-framework=${enable_framework}"
          cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
          PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall "
+         ISFRAMEWORK="yes"
      else
        if test ${enable_vtk} == "-yes" ; then
            PYOPT=" --enable-framework=${prefix} "
            cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
            PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall"
+           ISFRAMEWORK="yes"
        fi
      fi
   fi
@@ -7540,16 +7544,19 @@ fi
     if test ${enable_fw} == "-yes" ; then
       PYOPT=" --enable-framework"
       PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall"
+      ISFRAMEWORK="yes"
     else
       if test ${enable_fw} != "-" ; then
          PYOPT=" --enable-framework=${enable_framework}"
          PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall"
+         ISFRAMEWORK="yes"
       else
          if test ${enable_vtk} == "-yes" ; then
            PYOPT=" --enable-framework=${prefix} "
            cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
            PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall"
 	   PYTHON_INSTALL_PREFIX=" --prefix="${prefix}
+           ISFRAMEWORK="yes"
          else
            PYOPT=${PYOPT}" --disable-toolbox-glue --disable-framework "
 	 fi
@@ -7558,7 +7565,7 @@ fi
     CFLAGS=${CFLAGS}" -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.5 "
     LDFLAGS=${LDFLAGS}" -bind_at_load  -mmacosx-version-min=10.6 "
     CXXFLAGS=${CXXFLAGS}"  -arch x86_64 -pipe -Xarch_x86_64 -mmacosx-version-min=10.6 "
-    XTRA_LD_F2PY="env LDFLAGS=\"\${LDFLAGS/\"/} -undefined dynamic_lookup\" " ;;
+    XTRA_LD_F2PY=${XTRA_LD_F2PY}" LDFLAGS=\"\${LDFLAGS/\"/} -undefined dynamic_lookup\" " ;;
   esac ;;
  cygwin*)
    PyQt_PLATFORM="x11"
@@ -11895,7 +11902,7 @@ echo "$as_me: your python does not have PyQt4, we will build it" >&6;}
   BUILDVIS=yes
   case ${target_os} in
    darwin*)
-    if test ${enable_fw} == "-" -a "-"${with_qt} != "-no"  ; then
+    if test ${enable_fw} == "-" -a "-"${with_qt} != "-no" -a ${ISFRAMEWORK} !="yes"  ; then
        if test ${COMPILE_PYTHON} == "yes" ; then
          PYOPT=" --enable-framework="${prefix}
          { echo "$as_me:$LINENO: Your are under Mac you need to enable framework, we did this for you" >&5
@@ -12484,6 +12491,7 @@ do
     "README.txt") CONFIG_FILES="$CONFIG_FILES README.txt" ;;
     "Scripts/cdat") CONFIG_FILES="$CONFIG_FILES Scripts/cdat" ;;
     "Scripts/vcdat") CONFIG_FILES="$CONFIG_FILES Scripts/vcdat" ;;
+    "Scripts/cdatversion") CONFIG_FILES="$CONFIG_FILES Scripts/cdatversion" ;;
     "exsrc/CMakeCache.txt") CONFIG_FILES="$CONFIG_FILES exsrc/CMakeCache.txt" ;;
     "checked_get.sh") CONFIG_FILES="$CONFIG_FILES checked_get.sh" ;;
     "exsrc/src/pbmplus/Makefile") CONFIG_FILES="$CONFIG_FILES exsrc/src/pbmplus/Makefile" ;;
@@ -13437,6 +13445,7 @@ which seems to be undefined.  Please make sure it is defined." >&2;}
     "README.txt":F) chmod +x Scripts/cdat Scripts/vcdat checked_get.sh ;;
     "Scripts/cdat":F) chmod +x Scripts/cdat Scripts/vcdat checked_get.sh ;;
     "Scripts/vcdat":F) chmod +x Scripts/cdat Scripts/vcdat checked_get.sh ;;
+    "Scripts/cdatversion":F) chmod +x Scripts/cdat Scripts/vcdat checked_get.sh ;;
     "exsrc/CMakeCache.txt":F) chmod +x Scripts/cdat Scripts/vcdat checked_get.sh ;;
     "checked_get.sh":F) chmod +x Scripts/cdat Scripts/vcdat checked_get.sh ;;
     "exsrc/src/pbmplus/Makefile":F) chmod +x Scripts/cdat Scripts/vcdat checked_get.sh ;;

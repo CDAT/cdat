@@ -545,9 +545,15 @@ def concatenate (arrays, axis=0, axisid=None, axisattributes=None):
     if axes is not None:
         if axisid is None:
             axisid = tarrays[0].getAxis(axis).id
-        if axisattributes is None:
-            axisattributes = tarrays[0].getAxis(0).attributes
-        axes[axis] = axisConcatenate([t.getAxis(axis) for t in tarrays], axisid, axisattributes)
+        allunitsequal=True
+        allunits=tarrays[0].getAxis(axis).units
+        for t in tarrays[1:]:
+            if t.getAxis(axis).units!=allunits:
+                allunitsequal=False
+        if allunitsequal:
+            if axisattributes is None:
+                axisattributes = tarrays[0].getAxis(axis).attributes
+            axes[axis] = axisConcatenate([t.getAxis(axis) for t in tarrays], axisid, axisattributes)
 
     # If the grid doesn't match the axislist (e.g., catenation was on latitude) then omit it.
     if grid is not None:
