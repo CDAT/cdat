@@ -1,5 +1,0 @@
-#!/bin/sh -f
-unset PYTHONHOME
-bindir=`dirname $0`
-exec ${bindir}/python -c "print '4.0.0'"
-

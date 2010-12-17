@@ -14,7 +14,7 @@ class QCDATFileWidget(QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
 
         self.cdmsFile = None
-        
+        self.root=parent.root
         # Start the layout
         layout = QtGui.QVBoxLayout()
         self.setLayout(layout)
@@ -143,18 +143,11 @@ class QCDATFileWidget(QtGui.QWidget):
         if fi.exists():
             self.fileDialog.setDirectory(fi.dir())
             self.cdmsFile = cdms2.open(fn)
-            self.recordOpenFileTeachingCommand(fn)
+            self.root.record("## Open file: %s" % fn)
+            self.root.record("cdmsFile = cdms2.open('%s')" % fn)
         else:
             self.cdmsFile = None
         self.updateVariableList()
-
-    def recordOpenFileTeachingCommand(self, file):
-        openFileComment = '\n# Open CDMS File\n'
-        varName = 'fid2'
-        command = "%s = cdms2.open('%s')\n" %(varName, file)
-
-        self.emit(QtCore.SIGNAL('recordTeachingCommand'), openFileComment)
-        self.emit(QtCore.SIGNAL('recordTeachingCommand'), command)
 
     def filesSelected(self, files):
         if files.count()>0:
@@ -206,10 +199,12 @@ class QCDATFileWidget(QtGui.QWidget):
             return
 
         self.defineVarButton.setEnabled(not varName.isNull()) # Enable define button
-        
+        varName = str(varName).split()[0]
         # Send signal to setup axisList in 'quickplot' tab
+        self.root.record("## Open a variable in file")
+        self.root.record("cdmsFileVariable = cdmsFile['%s']" % varName)
         self.emit(QtCore.SIGNAL('variableSelectedEvent'), self.getCDMSFile(),
-                  self.getCDMSVariable(), '%s (in file)' % self.getCDMSVariable().id)
+                  varName, '%s (in file)' % varName)
         
     def defineVariablePressed(self):
         self.emit(QtCore.SIGNAL('defineVariableFromFileEvent'))
@@ -220,6 +215,7 @@ class QCDATFileWidget(QtGui.QWidget):
     def getCDMSVariable(self):
         if not self.cdmsFile is None:
             data = self.varCombo.itemData(self.varCombo.currentIndex()).toStringList()
+            print 'DATA is:',data
             if data.count() > 0:
                 if data[0] == 'variables':
                     return getattr(self.cdmsFile, str(data[0]))[str(data[1])]

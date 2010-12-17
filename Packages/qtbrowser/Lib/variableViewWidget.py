@@ -10,9 +10,11 @@ class QVariableView(QtGui.QWidget):
     
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
+        self.root=parent.root
         self.fileWidget = vcdatWindow.QLabeledWidgetContainer(fileWidget.QCDATFileWidget(self),
                                              'FILE VARIABLE')
-       
+        self.ask = QtGui.QInputDialog()
+        self.ask.setLabelText("This variable already exist!\nPlease change its name bellow or press ok to replace it\n")
         # Init layout
         vbox = QtGui.QVBoxLayout()
         vbox.setMargin(0)
@@ -36,17 +38,71 @@ class QVariableView(QtGui.QWidget):
         
         vbox.addWidget(vsplitter)
 
-    def getUpdatedVar(self):
+        self.connect(self.ask,QtCore.SIGNAL('accepted()'),self.checkTargetVarName)
+
+
+    def checkTargetVarName(self):
+        result = None
+        while result is None:
+            result = self.ask.result()
+            value = self.ask.textValue()
+        if result == 1: # make sure we pressed Ok and not Cancel
+            self.getUpdatedVar(str(value))
+        
+    def getUpdatedVarCheck(self):
         """ Return a new tvariable object with the updated information from
         evaluating the var with the current user selected args / options
         """
         axisList = self.tabWidget.currentWidget()
+
+
+        if axisList.cdmsFile is None:
+            tid = axisList.var.id
+        else:
+            tid = axisList.var
+
+        ## Ok at that point we need to figure out if 
+        if self.tabWidget.tabExists(tid):
+            self.ask.setTextValue(tid)
+            self.ask.show()
+        else:
+            self.getUpdatedVar(tid)
+
+    def getUpdatedVar(self,targetId):
+
+        axisList = self.tabWidget.currentWidget()
         kwargs = self.generateKwArgs()
+
+        # Here we try to remove useless keywords as we record them
+        cmds = ""
+        for k in kwargs:
+            if k=='squeeze':
+                if kwargs[k]==0:
+                    continue
+            elif k=='order':
+                o = kwargs[k]
+                skip = True
+                for i in range(len(o)):
+                    if int(o[i])!=i:
+                        skip = False
+                        break
+                if skip:
+                    continue
+            cmds += "%s=%s," % (k, repr(kwargs[k]))
+        cmds=cmds[:-1]
         updatedVar = axisList.getVar()(**kwargs)
 
         # Get the variable after carrying out the: def, sum, avg... operations
         updatedVar = axisList.execAxesOperations(updatedVar)
+        self.root.record("## Defining variable in memory")
 
+        if axisList.cdmsFile is None:
+            oid = updatedVar.id
+        else:
+            oid = "cdmsFileVariable"
+        updatedVar.id = targetId
+        self.root.record("%s = %s(%s)" % (targetId,oid,cmds))
+        self.emit(QtCore.SIGNAL('definedVariableEvent'),updatedVar)
         return updatedVar
 
     def generateKwArgs(self, axisList=None):
@@ -137,10 +193,8 @@ class QVariableView(QtGui.QWidget):
         Variables widget """
         if self.tabWidget.currentWidget() is None:
             return
-
-
+        self.getUpdatedVarCheck()
 #        self.definedVariables.append( ))
-        self.emit(QtCore.SIGNAL('definedVariableEvent'),self.getUpdatedVar())
 
     def selectDefinedVariableEvent(self, tabName, var):#cdmsFile, selectedVars):
         """ Save the list of selected variables and show the selected variable,

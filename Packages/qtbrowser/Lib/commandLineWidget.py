@@ -32,6 +32,7 @@ import vcs, os, sys, string
 import __main__
 import systemCommands
 import qtbrowser
+import customizeVCDAT
 
 class QCommandLineType(QtGui.QLineEdit):
     """ Command line events to trap the up, down, left, right arrow button events for the Qt Line Edit. """
@@ -63,10 +64,12 @@ class QCommandLine(QtGui.QWidget):
         #------------------------------------------------------------------------------
         # create objects instance for the Qt Command Line and Text Window
         #------------------------------------------------------------------------------
+        self.root=parent.root
+        # create objects
         label = QtGui.QLabel(self.tr("Enter CDAT command and press Return"))
         self.le = QCommandLineType()
         self.te = QtGui.QTextEdit()
-        self.te.acceptRichText()
+        self.te.setReadOnly(True)
 
         #------------------------------------------------------------------------------
         # redirect stderr and stdout to the ouput window
@@ -75,10 +78,10 @@ class QCommandLine(QtGui.QWidget):
         #------------------------------------------------------------------------------
         if qtbrowser.debug:
             sys.stdout = systemCommands.OutLog( self.te, None, sys.stdout )
-            sys.stderr = systemCommands.OutLog( self.te, QtGui.QColor(240,0,0), sys.stderr )
+            sys.stderr = systemCommands.OutLog( self.te, customizeVCDAT.errorColor, sys.stderr )
         else:
             sys.stdout = systemCommands.OutLog( self.te)
-            sys.stderr = systemCommands.OutLog( self.te, QtGui.QColor(240,0,0))
+            sys.stderr = systemCommands.OutLog( self.te, customizeVCDAT.errorColor)
 
         #------------------------------------------------------------------------------
         # layout
@@ -119,6 +122,7 @@ class QCommandLine(QtGui.QWidget):
         self.le.clear()
 
         #------------------------------------------------------------------------------
-        # if a good command occurs, then record the command for preproducibility
+        # record the command for preproducibility
         #------------------------------------------------------------------------------
-        ###### ADD COMMAND CALL HERE ######
+        self.root.record("## Command sent from prompt by user")
+        self.root.record(command)

@@ -11,7 +11,7 @@ if test ${SVN_TAG} == "rev" ; then
 fi
 CDAT_VERSION=${PACKAGE_VERSION}${SVN_TAG}
 AC_PREFIX_DEFAULT([/opt/cdat])
-AC_CONFIG_FILES([Makefile site.cfg README.txt Scripts/cdat Scripts/vcdat exsrc/CMakeCache.txt checked_get.sh exsrc/src/pbmplus/Makefile],[chmod +x Scripts/cdat Scripts/vcdat checked_get.sh])
+AC_CONFIG_FILES([Makefile site.cfg README.txt Scripts/cdat Scripts/vcdat Scripts/cdatversion exsrc/CMakeCache.txt checked_get.sh exsrc/src/pbmplus/Makefile],[chmod +x Scripts/cdat Scripts/vcdat checked_get.sh])
 
 
 dnl  Lib VERSION NUMBERS TO CHECK AGAINST
@@ -615,7 +615,7 @@ PYTHON_INSTALL_PREFIX=""
 AC_SUBST(PYTHON_INSTALL_PREFIX)
 QT_MAJOR_SRC=4
 QT_MINOR_SRC=7
-QT_PATCH_SRC=0
+QT_PATCH_SRC=1
 QT_MAJOR=4
 QT_MINOR=6
 QT_PATCH=2

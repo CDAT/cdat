@@ -8,6 +8,7 @@ import commandLineWidget
 import calculatorWidget
 import plotViewWidget
 import variableViewWidget
+import commandsRecorderWidget
 import os
 import cdms2 # need to remove this!
 
@@ -32,15 +33,22 @@ class QCDATWindow(QtGui.QMainWindow):
         self.setMinimumSize(1100,800)
         self.main_window_placement()
 
+        self.root = self
         
         layout = QtGui.QVBoxLayout()
         centralWidget.setLayout(layout)
 
+        # Create the command recorder widget
+        self.recorder = commandsRecorderWidget.QCommandsRecorderWidget(self)
+
+        #Adds a shortcut to the record function
+        self.record = self.recorder.record
+        
         # Init Menu Widget
-        self.setMenuWidget = mainMenuWidget.QMenuWidget()
+        self.mainMenu = mainMenuWidget.QMenuWidget(self)
 
         # Init Main Window Icon Tool Bar at the top of the GUI
-        self.tool_bar = mainToolbarWidget.QMainToolBarContainer(QtGui.QWidget(self), "")
+        self.tool_bar = mainToolbarWidget.QMainToolBarContainer(self)
         layout.addWidget(self.tool_bar)
         
         # Init File Widget
