@@ -5,6 +5,7 @@ import definedVariableWidget
 import mainToolbarWidget
 import mainMenuWidget
 import commandLineWidget
+import calculatorWidget
 import plotViewWidget
 import variableViewWidget
 import os
@@ -59,6 +60,7 @@ class QCDATWindow(QtGui.QMainWindow):
         self.tabView.addTab(variableViewWidget.QVariableView(self),"Variables")
         self.tabView.addTab(plotViewWidget.QPlotView(self), "Plot")
         self.tabView.addTab(commandLineWidget.QCommandLine(self), "CommandLine")
+        self.tabView.addTab(calculatorWidget.QCalculator(self), "Calculator")
         hsplitter.addWidget(self.tabView)
         hsplitter.setStretchFactor(2, 1)
         layout.addWidget(hsplitter)
