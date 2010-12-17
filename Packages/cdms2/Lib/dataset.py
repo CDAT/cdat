@@ -28,6 +28,7 @@ from tvariable import asVariable
 from cdmsNode import CdDatatypes
 import convention
 import typeconv
+import AutoAPI
 try:
     import cache
 except ImportError:
@@ -158,6 +159,20 @@ def createDataset(path,template=None):
 #   or LDAP URL of a catalog dataset entry.
 # 'mode' is 'r', 'r+', 'a', or 'w'
 def openDataset(uri,mode='r',template=None,dods=1,dpath=None):
+    """
+    Options:::
+mode :: (str) ('r') mode to open the file in read/write/append
+template :: (NoneType) (None) ???
+dods :: (int) (1) ???
+dpath :: (NoneType/str) (None) ???
+:::
+Input:::
+uri :: (str) (0) file to open
+:::
+Output:::
+file :: (cdms2.dataset.CdmsFile) (0) file to read from
+:::
+    """
     uri = string.strip(uri)
     (scheme,netloc,path,parameters,query,fragment)=urlparse.urlparse(uri)
     if scheme in ('','file'):
@@ -309,7 +324,7 @@ def parseFileMap(text):
 
 # A CDMS dataset consists of a CDML/XML file and one or more data files
 from cudsinterface import cuDataset
-class Dataset(CdmsObj, cuDataset):
+class Dataset(CdmsObj, cuDataset, AutoAPI.AutoAPI):
     def __init__(self, uri, mode, datasetNode=None, parent=None, datapath=None):
         if datasetNode is not None and datasetNode.tag !='dataset':
             raise CDMSError, 'Node is not a dataset node'
@@ -794,7 +809,7 @@ class Dataset(CdmsObj, cuDataset):
 ##                                             'uri',
 ##                                             'mode')
 
-class CdmsFile(CdmsObj, cuDataset):
+class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
     def __init__(self, path, mode):
         CdmsObj.__init__(self, None)
         cuDataset.__init__(self)

@@ -4286,6 +4286,7 @@ Options:::
 %s
 %s
 %s
+%s
 :::
  Input:::
 %s
@@ -4443,7 +4444,7 @@ Options:::
 #            self.canvas_gui.dialog.dialog.transient( self.canvas_gui.top_parent )
             self.canvas_gui.show_data_plot_info( self.canvas_gui.parent, self )
         return a
-    plot.__doc__ = plot.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert,plot_2_1D_input, plot_output)
+    plot.__doc__ = plot.__doc__ % (plot_2_1D_options, plot_keywords_doc,graphics_method_core,axesconvert,plot_2_1D_input, plot_output)
 
     def _create_random_template(self,name):
 ##         icont=1
