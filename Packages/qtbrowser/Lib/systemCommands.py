@@ -33,16 +33,32 @@ class OutLog:
         color = alternate color (i.e. color stderr a different color)
         """
         self.edit = edit
-        self.original_stream = original_stream
         self.color = color
+        self.original_stream = original_stream
         
 
-    def write(self, m):
-        tex = QtCore.QString(m)
+    def write(self, stdtext):
+        """ Write the text for standard out or error to the text editor window."""
+        tex = QtCore.QString(stdtext)
         if self.color is not None:
-            self.edit.setTextColor(self.color)
+            self.edit.setTextColor(self.color) # if color, then it must be "stderr"
         else:
-            self.edit.setTextColor( QtGui.QColor(0,0,0))
-        self.edit.insertPlainText( tex )
-        if self.original_stream is not None:
-            self.original_stream.write(m)
+            self.edit.setTextColor( QtGui.QColor(0,0,0)) # if no color, then it must be "stdout"
+        self.edit.insertPlainText( tex ) # show the text in the Qt Text Editor window
+
+#        if self.original_stream is not None:
+#            self.original_stream.write(stdtext)
+
+        #---------------------------------------------------------------------------------
+        # scroll to bottom of Qt Text Editor window (always show the newly entered text
+        #---------------------------------------------------------------------------------
+        cursor = self.edit.textCursor()
+        cursor.movePosition(cursor.End )
+        self.edit.setTextCursor(cursor)
+
+
+#------------------------------------------------------------------------
+# Command history list
+#------------------------------------------------------------------------
+commandHistory = []
+command_num = 0
