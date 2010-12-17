@@ -185,10 +185,13 @@ plot_2D_input = """
 """
 
 plot_2_1D_input = """
-       slab1 :: (cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list) (0) Data at least 1D, last dimension will be plotted
-       slab2 :: (cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list) (0) Data at least 1D, last dimension will be plotted
+       slab_or_primary_object :: (cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list/vcs.fillarea.Tf/vcs.line.Tl/vcs.marker.Tm/vcs.textcombined.Tc) (None) Data at least 1D, last dimension(s) will be plotted, or primary vcs object
 """
-
+plot_2_1D_options = """
+       slab2 :: (cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list) (None) Data at least 1D, last dimension(s) will be plotted
+       template :: (str/vcs.template.P) ('default') vcs template
+       gm :: (str/vcs.boxfill.Gfb/vcs.isofill.Gfi/vcs.isoline.Gi/vcs.meshfill.Gfm/vcs.vector.Gv/vcs.scatter.GSp/vcs.outline.Go/vcs.outline.Gfo/vcs.taylor.Gtd/vcs.xvsy.GXY/vcs.xyvsy.GXy/vcs.yxvsx.GYx/vcsaddons.core.VCSaddon/vcs.continents.Gcon) ('default') graphic method to use
+"""
 #############################################################################
 #                                                                           #
 # Graphics Methon output section.                                           #
