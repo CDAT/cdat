@@ -5,12 +5,48 @@ import definedVariableWidget
 import mainToolbarWidget
 import mainMenuWidget
 import commandLineWidget
-import calculatorWidget
+#import calculatorWidget
 import plotViewWidget
 import variableViewWidget
 import commandsRecorderWidget
 import os
 import cdms2 # need to remove this!
+
+
+class QLabeledWidgetContainer(QtGui.QWidget):
+    """ Container widget for the 3 main widgets: QVariableView, QCDATFileWidget,
+    and QDefinedVariable """
+
+    def __init__(self, widget, label='', parent=None):
+        QtGui.QWidget.__init__(self, parent)
+
+        vbox = QtGui.QVBoxLayout()
+        vbox.setMargin(0)
+        
+        self.label = QtGui.QLabel(label)
+        self.label.setAutoFillBackground(True)
+        self.label.setAlignment(QtCore.Qt.AlignCenter)
+        self.label.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Raised)
+        vbox.addWidget(self.label, 0)
+
+        if widget!=None:
+            self.widget = widget
+        else:
+            self.widget = QtGui.QWidget()
+        vbox.addWidget(self.widget, 1)
+        
+        self.setLayout(vbox)
+
+    def getWidget(self):
+        return self.widget
+
+    def event(self, e):
+        if e.type()==76: #QtCore.QEvent.LayoutRequest:
+            self.setMaximumHeight(min(self.label.height()+self.layout().spacing()+
+                                      self.widget.maximumHeight(), 16777215))
+        return False
+
+
 
 class QCDATWindow(QtGui.QMainWindow):
     """ Main class for VCDAT Window. Contains a menu widget, file widget,
@@ -68,7 +104,7 @@ class QCDATWindow(QtGui.QMainWindow):
         self.tabView.addTab(variableViewWidget.QVariableView(self),"Variables")
         self.tabView.addTab(plotViewWidget.QPlotView(self), "Plot")
         self.tabView.addTab(commandLineWidget.QCommandLine(self), "CommandLine")
-        self.tabView.addTab(calculatorWidget.QCalculator(self), "Calculator")
+        #self.tabView.addTab(calculatorWidget.QCalculator(self), "Calculator")
         hsplitter.addWidget(self.tabView)
         hsplitter.setStretchFactor(2, 1)
         layout.addWidget(hsplitter)
@@ -109,36 +145,3 @@ class QCDATWindow(QtGui.QMainWindow):
         self.move((screen.width()-size.width())/2, (screen.height()-size.height())/2)
 
     
-class QLabeledWidgetContainer(QtGui.QWidget):
-    """ Container widget for the 3 main widgets: QVariableView, QCDATFileWidget,
-    and QDefinedVariable """
-
-    def __init__(self, widget, label='', parent=None):
-        QtGui.QWidget.__init__(self, parent)
-
-        vbox = QtGui.QVBoxLayout()
-        vbox.setMargin(0)
-        
-        self.label = QtGui.QLabel(label)
-        self.label.setAutoFillBackground(True)
-        self.label.setAlignment(QtCore.Qt.AlignCenter)
-        self.label.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Raised)
-        vbox.addWidget(self.label, 0)
-
-        if widget!=None:
-            self.widget = widget
-        else:
-            self.widget = QtGui.QWidget()
-        vbox.addWidget(self.widget, 1)
-        
-        self.setLayout(vbox)
-
-    def getWidget(self):
-        return self.widget
-
-    def event(self, e):
-        if e.type()==76: #QtCore.QEvent.LayoutRequest:
-            self.setMaximumHeight(min(self.label.height()+self.layout().spacing()+
-                                      self.widget.maximumHeight(), 16777215))
-        return False
-

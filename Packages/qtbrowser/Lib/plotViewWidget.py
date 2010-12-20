@@ -2,6 +2,9 @@ from PyQt4 import QtGui, QtCore
 import vcs
 import qtbrowser
 import graphicsMethodsWidgets
+import graphicsMethodsWidget
+import templatesWidget
+
 class QPlotOptionsWidget(QtGui.QWidget):
     """ Widget containing plot options: plot button, plot type combobox, cell
     col and row selection combo box, and an options button """
@@ -11,7 +14,13 @@ class QPlotOptionsWidget(QtGui.QWidget):
         self.parent = parent
         self.cellRow = -1 # if row/col = -1, then automatically plot in an open cell
         self.cellCol = -1
+        layout = QtGui.QVBoxLayout()
+        self.setLayout(layout)
+        vsplitter = QtGui.QSplitter(QtCore.Qt.Vertical)
+        frame1 = QtGui.QFrame()
+        vsplitter.addWidget(frame1)
         hbox = QtGui.QHBoxLayout()
+        frame1.setLayout(hbox)
         self.root = parent.root
         # Add plot button
         self.plotButton = QtGui.QPushButton('&Plot')
@@ -103,8 +112,24 @@ class QPlotOptionsWidget(QtGui.QWidget):
         self.optionButton.setPopupMode(QtGui.QToolButton.InstantPopup)
 
         hbox.addWidget(self.optionButton)
-        hbox.addStretch()        
-        self.setLayout(hbox)
+        #hbox.addStretch()
+
+
+        #at this pint we need to add the hsplitter on witch we will ad template/gm/editor sections
+        hsplitter= QtGui.QSplitter(QtCore.Qt.Horizontal)
+        hsplitter.setStretchFactor(2, 1)
+
+        # Setup Frame for templates
+        templates=templatesWidget.QTemplatesWidget(parent)
+        # Setup Frame for graphics methods
+        gm=graphicsMethodsWidget.QGraphicsMethodsWidget(parent)
+        # Setup Frame for editor section
+
+        hsplitter.addWidget(templates)
+        hsplitter.addWidget(gm)
+        self.hsplitter = hsplitter
+        vsplitter.addWidget(hsplitter)
+        layout.addWidget(vsplitter)
 
         # Connect Signals
         self.connect(self.plotButton, QtCore.SIGNAL('clicked(bool)'),
