@@ -1,6 +1,9 @@
 /* Copyright (c) 1987-1993 by Brian Doty.  All Rights Reserved.
 
-   See file COPYRIGHT for liability information.   */
+   See file COPYRIGHT for liability information.  
+   
+   $Id: $
+*/
 
 #include <math.h>
 #include <stdio.h>
@@ -8,6 +11,7 @@
 #include <malloc.h>
 #endif
 #include "grads.h"
+#include <string.h>
 
 /*mf 971022 --- expose Mike Fiorino's global struct to these routines for warning level setting mf*/
 extern struct gamfcmn mfcmn;
