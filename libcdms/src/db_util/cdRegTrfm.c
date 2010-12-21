@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <cdmsint.h>
 #include <isdb.h>
+#include <string.h>
 					     /* copy CDMS geom to NEONS ngeom */
 void
 CdCopyGeom(CdRegGeom *geom, REG_GEOM *ngeom)
