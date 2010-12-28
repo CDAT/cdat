@@ -1,35 +1,52 @@
-/*  GrADS (Grid Analysis and Display System) Version 0.9.
+/*  Copyright (C) 1988-2010 by Brian Doty and the
+    Institute of Global Environment and Society (IGES).
+    See file COPYRIGHT for more information.   */
 
-    Copyright (c) 1988, 1989, 1990 by Brian Doty (Center for Ocean-
-    Land-Atmosphere Interactions, Department of Meteorology,
-    University of Maryland, College Park, MD  20742).  Permission is
-    granted to any individual or institution to use, copy, or
-    redistribute this software so long as it is not sold and all
-    copyright notices are retained.                              */
+/* Originally authored by B. Doty */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
-#ifndef __APPLE__
-#include <malloc.h>
-#endif
 #include <limits.h>
+#include <string.h>
+/*
+ * Include ./configure's header file
+ */
+#ifdef HAVE_CONFIG_H
 
-
-#include "grads.h"
-#include "gx.h"
+#include "config.h"
 #if READLINE == 1
 #include <sys/types.h>
 #include <sys/file.h>
 #include <sys/stat.h>
 #include <sys/errno.h>
-#include "readline.h"
-#include "history.h"
+#include "readline/readline.h"
+#include "readline/history.h"
 #endif
 
-/*mf 961205 --- expose Mike Fiorino's global struct to these routines for 365 day calandars mf*/
-/*-------- declare here vice grads.c because this is a common routine with LATS  ------*/
+/* If autoconfed, only include malloc.h when it's presen */
+#ifdef HAVE_MALLOC_H
+#include <malloc.h>
+#endif
+
+#else /* undef HAVE_CONFIG_H */
+#if READLINE == 1
+#include <sys/types.h>
+#include <sys/file.h>
+#include <sys/stat.h>
+#include <sys/errno.h>
+#include "readline/readline.h"
+#include "readline/history.h"
+#endif
+
+#include <malloc.h>
+
+#endif /* HAVE_CONFIG_H */
+
+#include "grads.h"
+#include "gx.h"
+
 struct gamfcmn mfcmn;
-/*mf 961205 --- expose Mike Fiorino's global struct to these routines for 365 day calandars mf*/
 
 static char pout[256];   /* Build Error msgs here */
 
@@ -37,9 +54,8 @@ static char pout[256];   /* Build Error msgs here */
    are stripped.  The number of characters entered before the
    CR is returned.                                                    */
 
-int nxtcmd (char *cmd, char *prompt) {
-int i,past,cnt;
-static char *ch;
+gaint nxtcmd (char *cmd, char *prompt) {
+gaint past,cnt;
 
   printf ("%s ",prompt);
   past = 0;
@@ -63,16 +79,18 @@ static char *ch;
    CR is returned.                                                    */
 
 #if READLINE == 1
-int nxrdln (char *cmd, char *prompt) {
-int i,past,cnt;
-static char *ch;
+gaint nxrdln (char *cmd, char *prompt) {
+char *ch, *ch2;
 
-ch=readline(prompt);
-for(i=0;i<strlen(ch);i++) *(cmd+i)=*(ch+i);
-*(cmd+strlen(ch))='\0';
-add_history(ch);
-free(ch);
-return(strlen(cmd)+1);
+  if ((ch=readline(prompt)) == NULL) {
+    return(-1);
+  } else {
+    ch2 = ch;
+    while (*ch == ' ') ch++;   /* Skip leading blanks */
+    strcpy(cmd, ch);
+    if (*ch) add_history(ch);   /* Skip blank lines */
+  }
+  return(strlen(cmd)+1);
 
 }
 #endif
@@ -81,22 +99,21 @@ return(strlen(cmd)+1);
    are not particularly efficient, thus Date/Time conversions
    should be kept to a minimum.                                      */
 
-static int mosiz[13] = {0,31,28,31,30,31,30,31,31,30,31,30,31};
-static int momn[13] = {0,44640,40320,44640,43200,44640,43200,
+static gaint mosiz[13] = {0,31,28,31,30,31,30,31,31,30,31,30,31};
+static gaint momn[13] = {0,44640,40320,44640,43200,44640,43200,
                         44640,44640,43200,44640,43200,44640};
-static int mnacum[13] = {0,0,44640,84960,129600,172800,217440,
+static gaint mnacum[13] = {0,0,44640,84960,129600,172800,217440,
                         260640,305280,349920,393120,437760,480960};
-static int mnacul[13] = {0,0,44640,86400,131040,174240,218880,
+static gaint mnacul[13] = {0,0,44640,86400,131040,174240,218880,
                         262080,306720,351360,394560,439200,482400};
 
 /* Add an offset to a time.  Output to dto.                          */
 
 void timadd (struct dt *dtim, struct dt *dto) {
-int i;
-int cont;
+gaint i;
+gaint cont;
 
   /* First add months and years.  Normalize as needed.               */
-
   dto->mo += dtim->mo;
   dto->yr += dtim->yr;
 
@@ -143,7 +160,7 @@ int cont;
    first so that we will exactly reverse the operation of timadd     */
 
 void timsub (struct dt *dtim, struct dt *dto) {
-int s1,s2;
+gaint s1,s2;
 
   /* Subtract minutes, hour, and days directly.  Then normalize
      to days, then normalize deficient days from months/years.       */
@@ -182,19 +199,18 @@ int s1,s2;
 /* Convert from Absolute time (year/month/day/etc.) to grid
    coordinate.                                                       */
 
-float t2gr (float *vals, struct dt *dtim) {
+gadouble t2gr (gadouble *vals, struct dt *dtim) {
 struct dt stim;
-int eyear,mins;
-float val,*moincr,*mnincr;
-float rdiff;
+gaint eyear,mins;
+gadouble val,*moincr,*mnincr,rdiff;
 
   /* Get constants associated with this conversion                   */
 
-  stim.yr = (int)(*vals+0.1);
-  stim.mo = (int)(*(vals+1)+0.1);
-  stim.dy = (int)(*(vals+2)+0.1);
-  stim.hr = (int)(*(vals+3)+0.1);
-  stim.mn = (int)(*(vals+4)+0.1);
+  stim.yr = (gaint)(*vals+0.1);
+  stim.mo = (gaint)(*(vals+1)+0.1);
+  stim.dy = (gaint)(*(vals+2)+0.1);
+  stim.hr = (gaint)(*(vals+3)+0.1);
+  stim.mn = (gaint)(*(vals+4)+0.1);
 
   moincr = vals+5;
   mnincr = vals+6;
@@ -205,7 +221,7 @@ float rdiff;
 
   if (*mnincr>0.1) {
     mins = timdif(&stim,dtim);
-    rdiff = (float)mins;
+    rdiff = (gadouble)mins;
     val = rdiff/(*mnincr);
     val += 1.0;
     return (val);
@@ -219,9 +235,9 @@ float rdiff;
     mins = timdif(&stim,dtim);
     if (mins>0) {
       if (dtim->mo==2 && qleap(dtim->yr) ) {
-        rdiff = rdiff + (((float)mins)/41760.0);
+        rdiff = rdiff + (((gadouble)mins)/41760.0);
       } else {
-        rdiff = rdiff + (((float)mins)/((float)momn[dtim->mo]));
+        rdiff = rdiff + (((gadouble)mins)/((gadouble)momn[dtim->mo]));
       }
     }
     val = rdiff/(*moincr);
@@ -232,40 +248,33 @@ float rdiff;
 
 /* Convert from a t grid coordinate to an absolute time.           */
 
-void gr2t (float *vals, float gr, struct dt *dtim) {
+void gr2t (gadouble *vals, gadouble gr, struct dt *dtim) {
 struct dt stim;
-float *moincr,*mnincr;
-float v;
+gadouble *moincr,*mnincr;
+gadouble v;
 
   /* Get constants associated with this conversion                   */
-
-  stim.yr = (int)(*vals+0.1);
-  stim.mo = (int)(*(vals+1)+0.1);
-  stim.dy = (int)(*(vals+2)+0.1);
-  stim.hr = (int)(*(vals+3)+0.1);
-  stim.mn = (int)(*(vals+4)+0.1);
-
+  stim.yr = (gaint)(*vals+0.1);
+  stim.mo = (gaint)(*(vals+1)+0.1);
+  stim.dy = (gaint)(*(vals+2)+0.1);
+  stim.hr = (gaint)(*(vals+3)+0.1);
+  stim.mn = (gaint)(*(vals+4)+0.1);
   moincr = vals+5;
   mnincr = vals+6;
 
   /* Initialize output time                                          */
-
   dtim->yr = 0;
   dtim->mo = 0;
   dtim->dy = 0;
   dtim->hr = 0;
   dtim->mn = 0;
 
-
-
-
   /* Do conversion if increment is in minutes.                       */
-
   if (*mnincr>0.1) {
     v = *mnincr * (gr-1.0);
     if (v>0.0) v = v + 0.5;   /* round */
     else v = v - 0.5;
-    dtim->mn = (int)v;
+    dtim->mn = (gaint)v;
     if (dtim->mn<0) {
       dtim->mn = -1 * dtim->mn;
       timsub (&stim,dtim);
@@ -275,13 +284,14 @@ float v;
     return;
 
   /* Do conversion if increment is in months.  Same as for minutes,
-     except special handling is required for partial months.         */
+     except special handling is required for partial months.
+     JMA There is a bug here, and some precision decisions that need attention */
 
   } else {
     v = *moincr * (gr-1.0);
-    if (v<0.0) dtim->mo = (int)(v-0.9999); /* round (sort of)       */
-    else dtim->mo = (int)(v+0.0001);
-    v = v - (float)dtim->mo;                /* Get fractional month  */
+    if (v<0.0) dtim->mo = (gaint)(v-0.9999); /* round (sort of)       */
+    else dtim->mo = (gaint)(v+0.0001);
+    v = v - (gadouble)dtim->mo;                /* Get fractional month  */
     if (dtim->mo<0) {
       dtim->mo = -1 * dtim->mo;
       timsub (&stim,dtim);
@@ -291,14 +301,14 @@ float v;
     if (dtim->mo==2 && qleap(dtim->yr) ) {
       v = v * 41760.0;
     } else {
-      v = v * (float)momn[dtim->mo];
+      v = v * (gadouble)momn[dtim->mo];
     }
     stim = *dtim;
     dtim->yr = 0;
     dtim->mo = 0;
     dtim->dy = 0;
     dtim->hr = 0;
-    dtim->mn = (int)(v+0.5);
+    dtim->mn = (gaint)(v+0.5);
     timadd (&stim,dtim);
     return;
   }
@@ -308,10 +318,10 @@ float v;
    difference in minutes.   The calculation is time2 - time1, so
    if time2 is earlier than time1, the result is negative.           */
 
-int timdif (struct dt *dtim1, struct dt *dtim2) {
-int min1,min2,yr;
+gaint timdif (struct dt *dtim1, struct dt *dtim2) {
+gaint min1,min2,yr;
 struct dt *temp;
-int swap,mo1,mo2;
+gaint swap,mo1,mo2;
 
   swap = 0;
   if (dtim1->yr > dtim2->yr) {
@@ -353,12 +363,12 @@ int swap,mo1,mo2;
       Divisible by 100, it is not a leap year, unless...
       Divisible by 400, it is a leap year.                           */
 
-int qleap (int year)  {
-int i,y;
+gaint qleap (gaint year)  {
+gaint i,y;
 
 /*mf - disable if 365 day calendar mf*/
 
- if(mfcmn.cal365) return(0);
+ if(mfcmn.cal365 == 1) return(0);
 
   y = year;
 
@@ -379,8 +389,8 @@ int i,y;
 
 }
 
-char *mons[12] = {"jan","feb","mar","apr","may","jun","jul","aug",
-                  "sep","oct","nov","dec"};
+static char *mons[12] = {"jan","feb","mar","apr","may","jun",
+			 "jul","aug","sep","oct","nov","dec"};
 
 /* Parse an absolute date/time value.  Format is:
 
@@ -391,7 +401,7 @@ char *mons[12] = {"jan","feb","mar","apr","may","jun","jul","aug",
    values are defaulted to be: dy = 1, hr = 0, mn = 0.              */
 
 char *adtprs (char *ch, struct dt *def, struct dt *dtim) {
-int val,flag,i;
+gaint val,flag,i;
 char *pos;
 char monam[5];
 
@@ -404,10 +414,10 @@ char monam[5];
   if (*ch>='0' && *ch<='9') {
   flag = 0;
     ch = intprs (ch,&val);
-    if (*ch == ':' || *ch == 'z') {
+    if (*ch == ':' || tolower(*ch) == 'z') {
       if (val>23) {
         gaprnt (0,"Syntax Error:  Invalid Date/Time value.\n");
-        sprintf (pout,"  Hour = %i -- greater than 23\n",val);
+        snprintf(pout,255,"  Hour = %i -- greater than 23\n",val);
         gaprnt (0,pout);
         return (NULL);
       }
@@ -418,11 +428,11 @@ char monam[5];
           ch = intprs (ch,&val);
           if (val>59) {
             gaprnt (0,"Syntax Error:  Invalid Date/Time value.\n");
-            sprintf (pout,"  Minute = %i -- greater than 59\n",val);
+            snprintf(pout,255,"  Minute = %i -- greater than 59\n",val);
             gaprnt (0,pout);
             return (NULL);
           }
-          if (*ch!='z') {
+          if (tolower(*ch)!='z') {
             gaprnt (0,"Syntax Error:  Invalid Date/Time value.\n");
             gaprnt (0,"  'z' delimiter is missing \n");
             return (NULL);
@@ -445,9 +455,9 @@ char monam[5];
     dtim->dy = val;
   } else flag = 1;
 
-  monam[0] = *ch;
-  monam[1] = *(ch+1);
-  monam[2] = *(ch+2);
+  monam[0] = tolower(*ch);
+  monam[1] = tolower(*(ch+1));
+  monam[2] = tolower(*(ch+2));
   monam[3] = '\0';
 
   i = 0;
@@ -470,28 +480,24 @@ char monam[5];
   } else {
     dtim->mo = i;
     ch+=3;
+    /* parse year */
     if (*ch>='0' && *ch<='9') {
-
-/*mf 971020 --- use fullyear only if year 1 = 0001 mf*/
-
-      if(*(ch+2)>='0' && *(ch+2)<='9' && mfcmn.fullyear < 0) {
+      /* use fullyear only if year 1 = 0001*/
+      if(*(ch+2)>='0' && *(ch+2)<='9') {
 	mfcmn.fullyear=1;
-      } else if(mfcmn.fullyear <0) {
+      } else {
 	mfcmn.fullyear=0;
       }
       ch = intprs (ch,&val);
-
     } else {
       val = def->yr;
     }
 
-/*mf ---  turn off setting of < 100 years to 1900 or 2000  ---mf*/
-
+    /* turn off setting of < 100 years to 1900 or 2000 */
     if(mfcmn.fullyear == 0) {
       if (val<50) val+=2000;
       else if (val<100) val+=1900;
     }
-
     dtim->yr = val;
   }
 
@@ -499,7 +505,7 @@ char monam[5];
   if (dtim->mo==2 && qleap(dtim->yr)) i = 29;
   if (dtim->dy > i) {
     gaprnt (0,"Syntax Error:  Invalid Date/Time value.\n");
-    sprintf (pout,"  Day = %i -- greater than %i \n",dtim->dy,i);
+    snprintf(pout,255,"  Day = %i -- greater than %i \n",dtim->dy,i);
     gaprnt (0,pout);
     return (NULL);
   }
@@ -517,7 +523,7 @@ char monam[5];
    Missing values are filled in with 0s.                             */
 
 char *rdtprs (char *ch, struct dt *dtim) {
-int flag,val;
+gaint flag,val;
 char *pos;
 char id[3];
 
@@ -542,7 +548,7 @@ char id[3];
     else if (cmpwrd("mn",id)) dtim->mn = val;
     else {
       gaprnt (0,"Syntax Error:  Invalid Date/Time offset.\n");
-      sprintf (pout,"  Expecting yr/mo/dy/hr/mn, found %s\n",id);
+      snprintf(pout,255,"  Expecting yr/mo/dy/hr/mn, found %s\n",id);
       gaprnt (0,pout);
       return (NULL);
     }
@@ -555,108 +561,62 @@ char id[3];
   }
   return (ch);
 }
-static char num[10]={'0','1','2','3','4','5','6','7','8','9'};
 
-int gaedit (float val, char *chars, int icode) {
-int i,j,k,sign;
-char ch[20], *cc;
-float vvv;
-int w1,w2;
-
-  vvv=icode;
-  vvv=pow(10.0,vvv);
-  vvv=vvv*val;
-
-  sign=0;
-  if (vvv<0.0) {sign=1; vvv=vvv*(-1.0);}
-
-  i = 1;
-  ch[19] = '\0';
-  cc = &ch[18];
-  w2 = vvv+0.5;
-  while (w2>0) {
-    w1 = w2/10;
-    w1 = w1*10;
-    w1 = w2-w1;
-    *cc = num[w1];
-    cc--; i++;
-    icode--;
-    k=0;
-    if (icode==0) {
-      *cc='.';
-      cc--;
-      i++;
-      k=1;
-    }
-    w2 = w2/10;
-  }
-  if (k) {i++; *cc='0'; cc--;}
-  if (i==1) {i++; *cc='0';}
-  else {
-    if (sign) {*cc='-'; i++;}
-    else *cc++;
-  }
-  for (j=0;j<i;j++) {
-    *chars = *cc;
-    cc++; chars++;
-  }
-  return (i-1);
-}
 
 /* Compares two strings.  A match occurs if the leading
    blank-delimited words in the two strings match.  CR and NULL also
    serve as delimiters.                                               */
 
-int cmpwrd (char *ch1, char *ch2) {
+gaint cmpwrd (char *ch1, char *ch2) {
 
   while (*ch1==' '||*ch1=='\t') ch1++;  /* Advance past leading blanks.     */
   while (*ch2==' '||*ch2=='\t') ch2++;
 
   while (*ch1 == *ch2) {
-    if (*ch1==' '||*ch1=='\t'||*ch1=='\0'||*ch1=='\n' ) return (1);
+    if (*ch1==' '||*ch1=='\t'||*ch1=='\0'||*ch1=='\n'||*ch1=='\r' ) return (1);
     ch1++; ch2++;
   }
 
-  if ( (*ch1==' '||*ch1=='\t'||*ch1=='\0'||*ch1=='\n') &&
-       (*ch2==' '||*ch2=='\t'||*ch2=='\0'||*ch2=='\n') ) return (1);
+  if ( (*ch1==' '||*ch1=='\t'||*ch1=='\0'||*ch1=='\n'||*ch1=='\r') &&
+       (*ch2==' '||*ch2=='\t'||*ch2=='\0'||*ch2=='\n'||*ch2=='\r') ) return (1);
+  return (0);
+}
+/* case insensitive version of cmpwrd  */
+
+gaint cmpwrdl (char *ch1, char *ch2) {
+  if(ch1 == NULL || ch2 == NULL) return(0);
+
+  while (*ch1==' '||*ch1=='\t') ch1++;  /* Advance past leading blanks.     */
+  while (*ch2==' '||*ch2=='\t') ch2++;
+
+  while (tolower(*ch1) == tolower(*ch2)) {
+    if (*ch1==' '||*ch1=='\t'||*ch1=='\0'||*ch1=='\n'||*ch1=='\r' ) return (1);
+    ch1++; ch2++;
+  }
+
+  if ( (*ch1==' '||*ch1=='\t'||*ch1=='\0'||*ch1=='\n'||*ch1=='\r' ) &&
+       (*ch2==' '||*ch2=='\t'||*ch2=='\0'||*ch2=='\n'||*ch2=='\r' ) ) return (1);
   return (0);
 }
 
 /* Moves a pointer to the start of the next blank-delimited word
-   in a string.  If not found, NULL is returned.                      */
+   in a string.  If not found, NULL is returned.                     */
 
 char * nxtwrd (char *ch) {
 
   while (*ch!=' '&&*ch!='\t') {                     /* Skip 1st word  */
-    if (*ch == '\0' || *ch == '\n') return (NULL);
+    if (*ch == '\0' || *ch == '\n' || *ch == '\r') return (NULL);
     ch++;
   }
   while (*ch==' '||*ch=='\t') ch++;                 /* Find next word */
-  if (*ch == '\0' || *ch == '\n') return (NULL);
+  if (*ch == '\0' || *ch == '\n' || *ch == '\r') return (NULL);
   return (ch);
 }
 
-/* Figures out how many digits are after the decimal point  */
-
-int gxdeci (float val) {
-int code,ival;
-
-  code = 0;
-  val = fabs(val);
-  ival = val;
-  val = val - (float)ival;
-  while (code<4&&val>0.01) {
-    val=val*10.0;
-    ival=val;
-    val=val-(float)ival;
-    code++;
-  }
-  return (code);
-}
 
 /* Linear conversion routine for dimension conversions.               */
 
-float liconv (float *vals, float v) {
+gadouble liconv (gadouble *vals, gadouble v) {
   return ( (*vals * v) + *(vals+1) );
 }
 
@@ -671,30 +631,29 @@ float liconv (float *vals, float v) {
    This operation needs to be efficient, since it gets done
    very often.  */
 
-float gr2lev (float *vals, float gr) {
-int i;
-float x;
+gadouble gr2lev (gadouble *vals, gadouble gr) {
+gaint i;
   if (gr<1.0) return ( *(vals+1) + (1.0-gr)*(*(vals+1)-*(vals+2)) );
   if (gr>*vals) {
-    i = (int)(*vals+0.1);
+    i = (gaint)(*vals+0.1);
     return ( *(vals+i) + (gr-*vals)*(*(vals+i)-*(vals+i-1)) );
   }
-  i = (int)gr;
-  return (*(vals+i)+((gr-(float)i)*(*(vals+i+1)-*(vals+i))));
+  i = (gaint)gr;
+  return (*(vals+i)+((gr-(gadouble)i)*(*(vals+i+1)-*(vals+i))));
 }
 
 /* Convert from world coordinate value to grid value.  This operation
    is not set up to be efficient, under the assumption that it won't
    get done all that often.  */
 
-float lev2gr (float *vals, float lev) {
-int i,num;
-float gr;
-  num = (int)(*vals+0.1);
+gadouble lev2gr (gadouble *vals, gadouble lev) {
+gaint i,num;
+gadouble gr;
+  num = (gaint)(*vals+0.1);
   for (i=1; i<num; i++) {
     if ( (lev >= *(vals+i) && lev <= *(vals+i+1)) ||
          (lev <= *(vals+i) && lev >= *(vals+i+1)) ) {
-      gr = (float)i + (lev - *(vals+i))/(*(vals+i+1) - *(vals+i));
+      gr = (gadouble)i + (lev - *(vals+i))/(*(vals+i+1) - *(vals+i));
       return (gr);
     }
   }
@@ -703,17 +662,30 @@ float gr;
       gr = 1.0 + ((lev-*(vals+1))/(*(vals+2)-*(vals+1)));
       return (gr);
     }
-    gr = (float)i + ((lev-*(vals+i))/(*(vals+i)-*(vals+i-1)));
+    gr = (gadouble)i + ((lev-*(vals+i))/(*(vals+i)-*(vals+i-1)));
     return (gr);
   } else {
     if (lev>*(vals+1)) {
       gr = 1.0 + ((lev-*(vals+1))/(*(vals+2)-*(vals+1)));
       return (gr);
     }
-    gr = (float)i + ((lev-*(vals+i))/(*(vals+i)-*(vals+i-1)));
+    gr = (gadouble)i + ((lev-*(vals+i))/(*(vals+i)-*(vals+i-1)));
     return (gr);
   }
 }
+
+/* Convert from ensemble number to ensemble name */
+char *e2ens (struct gafile *pfi, gadouble e) {
+
+  char *name;
+  if ((gaint)(e-0.99) < pfi->dnum[4]) {
+    name = pfi->ens1[(gaint)(e-0.99)].name;
+    return name;
+  }
+  else return NULL;
+}
+
+
 
 /* Parses a number in a character string.
    This routine will detect numbers of the form:
@@ -728,9 +700,9 @@ float gr;
                             invalid format.
              */
 
-char *intprs (char *ch, int *val) {
+char *intprs (char *ch, gaint *val) {
 
-int nflag,flag;
+gaint nflag,flag;
 
   nflag = 0;
   if (*ch=='-') { nflag = 1; ch++; }
@@ -740,7 +712,7 @@ int nflag,flag;
   flag = 1;
 
   while (*ch>='0' && *ch<='9') {
-    *val = *val*10 + (int)(*ch-'0');
+    *val = *val*10 + (gaint)(*ch-'0');
     flag = 0;
     ch++;
   }
@@ -751,89 +723,55 @@ int nflag,flag;
   return (ch);
 }
 
-/* Parses a number in a character string.
-   This routine will detect numbers of the form:
-       nnnn
-       nnnn.fff
-       nnnn.fffExxx
+char *longprs (char *ch, long *val) {
 
-   Args:    ch     - pointer to the number, in character form.
-            val    - floating point value returned
-            return value  - address of 1st character past the
-                            number parsed.  NULL if no number found
-                            at pointer ch or if the number is an
-                            invalid format.
-             */
+gaint nflag,flag;
 
-char *valprs (char *ch, float *val) {
+  nflag = 0;
+  if (*ch=='-') { nflag = 1; ch++; }
+  else if (*ch=='+') ch++;
 
-int nflag,dflag,eflag,enflag,flag,cont;
-int pflag,epflag,evflag;
-float exp,dfp;
-int zip;
+  *val = 0;
+  flag = 1;
 
-  flag=0;
-  nflag=0;dflag=0;eflag=0;enflag=0;
-  pflag=0;epflag=0;evflag=0;
-  *val=0.0;exp=0.0;dfp=0.1;
-  zip='0';
-
-  cont=1;
-  while (cont) {
-
-    if (*ch>='0' && *ch<='9') {
-      if (!flag) flag=1;
-      if (eflag) {evflag=1; exp=(exp*10)+(*ch-zip);}
-      else if (dflag) { *val = *val+((*ch-zip)*dfp); dfp=dfp/10.0; }
-      else *val = (*val*10.0)+(*ch-zip);
-
-    } else if (*ch=='-') {
-      if (eflag&&!evflag) {
-        if (enflag) {cont=0; flag=0;}
-        enflag=1;
-      }
-      else if (!flag) {
-        if (nflag) {cont=0; flag=0;}
-        nflag=1;
-      } else cont=0;
-
-    } else if (*ch=='+') {
-      if (eflag&&!evflag) {
-        if (epflag) {cont=0; flag=0;}
-        epflag=1;
-      }
-      else if (!flag) {
-        if (pflag) {cont=0; flag=0;}
-        pflag=1;
-      } else cont=0;
-
-    } else if (*ch=='.') {
-      if (dflag||eflag) {cont=0;}
-      else dflag=1;
-
-    } else if (*ch=='e') {
-      if (eflag) {
-        cont=0;
-        if (!evflag) flag=0;
-      }
-      else if (flag) {eflag=1; dflag=0;}
-      else cont=0;
-
-    } else cont=0;
-
-    if (cont) ch++;
+  while (*ch>='0' && *ch<='9') {
+    *val = *val*10 + (gaint)(*ch-'0');
+    flag = 0;
+    ch++;
   }
 
-  if (flag) {
-    if (nflag) *val = *val*(-1.0);
-    if (eflag) {
-      if (enflag) exp = exp*(-1.0);
-      *val = *val*(pow(10.0,exp));
-    }
-    return (ch);
-  } else return (NULL);
+  if (flag) return (NULL);
 
+  if (nflag) *val = -1 * *val;
+  return (ch);
 }
+
+
+/* Converts strings to double */
+char * getdbl(char *ch, gadouble *val) {
+  char * pos;
+  gadouble res;
+
+  res = strtod(ch, &pos);
+  if (pos==ch) {
+    return NULL;
+  } else {
+    *val = res;
+    return pos;
+  }
+}
+
+/* Converts strings to double */
+char * getflt(char *ch, gafloat *val) {
+char * pos;
+  *val = (gafloat)strtod(ch, &pos);
+  if (pos==ch) {
+    return NULL;
+  } else {
+    return pos;
+  }
+}
+
 
 
 /* dimprs parses a dimension 'expression', ie, where the user
@@ -842,7 +780,7 @@ int zip;
 
    dim op val
 
-   where:  dim = x,y,z,t,lat,lon,lev,time
+   where:  dim = x,y,z,t,e,lat,lon,lev,time,ens,offt
            op  = +, -, or =
            val = dimension value
 
@@ -858,21 +796,26 @@ int zip;
 
    In addition, r=radius is also supported.  The dimension value
    returned is the radius, and the dimension number returned
-   is 9.  This is only valid for stn type files.
+   is 10. This is only valid for stn type files.
 
-   wflag is set to zero if the dimension expression was
-   grid coordinates; 1 if it was world coordinates.
+   wflag is set to
+   0 if the dimension expression was grid coordinates;
+   1 if it was world coordinates;
+   2 if forecast time offsets are used
                                                                 */
 
 char *dimprs (char *ch, struct gastat *pst, struct gafile *pfi,
-              int *dim, float *d, int type, int *wflag) {
-char *pos, cc, cc2, cd, *frst;
-char name[5];
-int dval, flag,i,op;
+              gaint *dim, gadouble *d, gaint type, gaint *wflag) {
 struct dt dtim;
-float (*conv) (float *, float);
-float *cvals,v;
+struct gaens *ens;
+gadouble (*conv) (gadouble *, gadouble);
+gadouble *cvals,v;
+/* gadouble g1,g2; */
+gaint i,op,len,enum1;
+char *pos, *frst;
+char name[5],ename[16];
 
+  /* parse the dimension name */
   frst = ch;
   i = 0;
   while (*ch>='a' && *ch<='z' && i<6) {
@@ -882,36 +825,52 @@ float *cvals,v;
   name[i] = '\0';
   if (i>4) {
     gaprnt (0,"Syntax Error:  Invalid dimension expression\n");
-    sprintf (pout,"  Expecting X/Y/Z/T/LAT/LON/LEV/TIME, found %s\n",
-          name);
+    snprintf(pout,255,"  Expecting x/y/z/t/offt/e/lon/lat/lev/time/ens, found %s\n",name);
     gaprnt (0,pout);
     return (NULL);
   }
 
-  if (*ch == '=') op = 0;
+  /* parse the operator */
+  if      (*ch == '=') op = 0;
   else if (*ch == '+') op = 1;
   else if (*ch == '-') op = 2;
   else {
     gaprnt (0,"Syntax Error:  Invalid dimension expression\n");
-    sprintf (pout,"  Expecting +/-/= operator, found %c\n",*ch);
+    snprintf(pout,255,"  Expecting +/-/= operator, found %c\n",*ch);
     gaprnt (0,pout);
     return (NULL);
   }
 
+  /* dimension is TIME */
   ch++;
   if (cmpwrd("time",name)) {
     if (op==0) {
-      if ( (pos=adtprs(ch,&(pst->tmin),&dtim)) == NULL ) {
-        gaprnt (0,"  Invalid dimension expression\n");
+      if ((pos=adtprs(ch,&(pst->tmin),&dtim)) == NULL) {
+        gaprnt (0,"  Invalid absolute time in dimension expression\n");
         return (NULL);
       }
     } else {
-      if ( (pos=rdtprs(ch,&dtim)) == NULL ) {
-        return (NULL);
+      if ((pos=rdtprs(ch,&dtim)) == NULL) {
+        gaprnt (0,"  Invalid relative time in dimension expression\n");
+	return (NULL);
       }
     }
-  } else {
-    if ( (pos=valprs(ch,&v)) == NULL ) {
+  }
+  /* dimension is ENS */
+  else if (cmpwrd("ens",name)) {
+    /* parse the ensemble name */
+    pos = ch;
+    len=0;
+    while (len<16 && *pos!=')' ) {
+      ename[len] = *pos;
+      len++;
+      pos++;
+    }
+    ename[len] = '\0';
+  }
+  /* all other dimensions */
+  else {
+    if ((pos=getdbl(ch,&v)) == NULL) {
       gaprnt (0,"Syntax Error:  Invalid dimension expression\n");
       gaprnt (0,"  Dimension value missing or invalid\n");
       return (NULL);
@@ -919,90 +878,135 @@ float *cvals,v;
   }
   ch = pos;
 
-  /* We now have all the info we need about this dimension
-     expression.  We can now evaluate it.                          */
-
-  if (cmpwrd("x",name)) *dim = 0;
-  else if (cmpwrd("y",name)) *dim = 1;
-  else if (cmpwrd("z",name)) *dim = 2;
-  else if (cmpwrd("t",name)) *dim = 3;
-  else if (cmpwrd("lon",name)) *dim = 4;
-  else if (cmpwrd("lat",name)) *dim = 5;
-  else if (cmpwrd("lev",name)) *dim = 6;
-  else if (cmpwrd("time",name)) *dim = 7;
-  else if (type==0 && cmpwrd("r",name)) *dim = 9;
+  /* We now have all the info we need about this dimension expression to evaluate it.  */
+  if      (cmpwrd("x",name))    *dim = 0;
+  else if (cmpwrd("y",name))    *dim = 1;
+  else if (cmpwrd("z",name))    *dim = 2;
+  else if (cmpwrd("t",name))    *dim = 3;
+  else if (cmpwrd("offt",name)) *dim = 3;
+  else if (cmpwrd("e",name))    *dim = 4;
+  else if (cmpwrd("lon",name))     *dim = 5;
+  else if (cmpwrd("lat",name))     *dim = 6;
+  else if (cmpwrd("lev",name))     *dim = 7;
+  else if (cmpwrd("time",name))    *dim = 8;
+  else if (cmpwrd("ens",name))     *dim = 9;
+  else if (type==0 && cmpwrd("r",name)) *dim = 10;
   else {
     gaprnt (0,"Syntax Error:  Invalid dimension expression\n");
-    sprintf (pout,"  Expecting X/Y/Z/T/LAT/LON/LEV/TIME, found %s\n",
-          name);
+    snprintf(pout,255,"  Expecting x/y/z/t/offt/e/lat/lon/lev/time/ens, found %s\n",name);
     gaprnt (0,pout);
     return (NULL);
   }
 
-  *wflag = 0;
-  if (*dim == 9) {
+  /* for station expressions */
+  if (*dim==10) {
     *d = v;
     return (ch);
   }
 
-  if (*dim < 4) {
+  /* dimension expression is given in grid coordinates: x, y, z, t, offt, or e */
+  *wflag = 0;
+  if (*dim < 5) {
+    if (cmpwrd("offt",name)) *wflag=2;     /* trip the time offset flag */
     if (op==0) {
-      *d = v + pfi->dimoff[*dim];
+      *d = v + pfi->dimoff[*dim];          /* straight override of fixed dimension value */
       return (ch);
     } else {
+      /* make sure the dimension is not varying */
       if (*dim==pst->idim || *dim==pst->jdim) {
-        gaprnt (0,"Syntax Error:  Invalid dimension expression\n");
-        gaprnt (0,"  Cannot use an offset value with a varying ");
-        gaprnt (0,"dimension\n");
-        sprintf (pout,"  Varying dimension = %i \n",*dim);
-        gaprnt (0,pout);
-        return (NULL);
+	gaprnt (0,"Syntax Error:  Invalid dimension expression\n");
+	gaprnt (0,"  Cannot use an offset value with a varying dimension\n");
+	snprintf(pout,255,"  Varying dimension = %i \n",*dim);
+	gaprnt (0,pout);
+	return (NULL);
       }
-      if (*dim < 3) {
-        if (pfi->type==1) {
+      /* get current dimension value in grid coordinates from gastat structure */
+      if (*dim == 3) {
+        *d = t2gr(pfi->abvals[3],&(pst->tmin));
+      }
+      else {
+        if (pfi->type==1 || pfi->type==4) {
           conv = pfi->ab2gr[*dim];
           cvals = pfi->abvals[*dim];
           *d = conv(cvals,pst->dmin[*dim]);
         } else {
           *d = pst->dmin[*dim];
         }
-      } else {
-        *d = t2gr(pfi->abvals[3],&(pst->tmin));
       }
+      /* combine offset with current dimension value */
       if (op==1) *d = *d + v;
       if (op==2) *d = *d - v;
       return (ch);
     }
-  } else {
-    *dim = *dim - 4;
+  }
+  /* dimension expression is given in world coordinates: lon, lat, lev, time, or ens */
+  else {
+    *dim = *dim - 5;
     *wflag = 1;
+/*     if (cmpwrd("offtime",name)) { */
+/*       /\* determine the size of the time offset in grid units *\/ */
+/*       g1 = t2gr(pfi->abvals[3],&(pst->tmin)); */
+/*       timadd (&(pst->tmin),&dtim); */
+/*       g2 = t2gr(pfi->abvals[3],&dtim); */
+/*       v = g2 - g1; */
+/*       *wflag=2;      /\* trip the time offset flag *\/ */
+/*     } */
     if (op>0) {
+      /* check to make sure dimension isn't varying */
       if (*dim==pst->idim || *dim==pst->jdim) {
         gaprnt (0,"Syntax Error:  Invalid dimension expression\n");
-        gaprnt (0,"  Cannot use an offset value with a varying ");
-        gaprnt (0,"dimension\n");
-        sprintf (pout,"  Varying dimension = %i \n",*dim);
+        gaprnt (0,"  Cannot use an offset value with a varying dimension\n");
+        snprintf(pout,255,"  Varying dimension = %i \n",*dim);
         gaprnt (0,pout);
         return (NULL);
       }
+      /* check to make sure dimension isn't E */
+      if (*dim==4) {
+	gaprnt (0,"Syntax Error:  Invalid dimension expression\n");
+	gaprnt (0,"  Cannot use an offset value with an ensemble name\n");
+	return (NULL);
+      }
+      /* combine offset with current dimension value from gastat structure */
       if (*dim==3) {
         if (op==1) timadd (&(pst->tmin),&dtim);
         if (op==2) timsub (&(pst->tmin),&dtim);
-      } else {
+      }
+      else {
         if (op==1) v = pst->dmin[*dim] + v;
         if (op==2) v = pst->dmin[*dim] - v;
       }
     }
-    if (*dim < 3) {
-      if (pfi->type==1 || pfi->type==4) {
+
+    if (*dim == 4) {
+      /* loop over ensembles, looking for matching name */
+      ens = pfi->ens1;
+      i=0;
+      enum1=-1;
+      while (i<pfi->dnum[*dim]) {
+	if (strcmp(ename,ens->name) == 0) enum1=i;  /* grid coordinate of matching name */
+	i++; ens++;
+      }
+      if (enum1<0) {
+	gaprnt (0,"Syntax Error:  Invalid dimension expression\n");
+	snprintf(pout,255,"  Ensemble name \"%s\" not found\n",ename);
+	gaprnt (0,pout);
+	return (NULL);
+      }
+      /* straight override of ensemble grid coordinate */
+      *d = enum1 + 1 + pfi->dimoff[*dim];
+      return (ch);
+    }
+    /* get the grid coordinate for the new (combined) dimension value */
+    else if (*dim == 3) {
+      *d = t2gr(pfi->abvals[3],&dtim);
+    } else {
+      if (pfi->type==1 || pfi->type==4) {  /* grids  */
         conv = pfi->ab2gr[*dim];
         cvals = pfi->abvals[*dim];
         *d = conv(cvals,v);
       } else {
-        *d = v;
+        *d = v;                            /* station data */
       }
-    } else {
-      *d = t2gr(pfi->abvals[3],&dtim);
     }
     return (ch);
   }
@@ -1011,17 +1015,14 @@ float *cvals,v;
 /*mf version
   convert all upper case alphabetic characters to lower case.
   The GrADS system is case insensitive, and assumes lower case
-  internally in most cases.                                          */
-
+  internally in most cases. Does not turn to lower case if in "'s
+*/
 void lowcas (char *ch) {
-int i;
-int qflag=0;
+gaint i;
+gaint qflag=0;
 
   while (*ch!='\0' && *ch!='\n') {
     i = *ch;
-/*
-  mf - 940415 : do not turn to lower case if in "'s
-*/
     if(*ch == '\"' && qflag == 0 ) {
       qflag=1;
       } else if(*ch == '\"' && qflag == 1 ) {
@@ -1037,29 +1038,9 @@ int qflag=0;
   }
 }
 
-
-/* convert all upper case alphabetic characters to lower case.
-   The GrADS system is case insensitive, and assumes lower case
-   internally in most cases.                                          */
-/*----------original version
-void lowcas (char *ch) {
-int i;
-
-  while (*ch!='\0' && *ch!='\n') {
-    i = *ch;
-    if (i>64 && i<91) {
-      i+=32;
-      *ch = i;
-    }
-    ch++;
-  }
-}
-------------original version */
-
 /* convert to upper case */
-
 void uppcas (char *ch) {
-int i;
+gaint i;
 
   while (*ch!='\0' && *ch!='\n') {
     i = *ch;
@@ -1075,7 +1056,7 @@ int i;
    Trailing blanks are removed, and the output string is terminated
    with '\0'.                                                         */
 
-void getstr (char *ch1, char *ch2, int len) {
+void getstr (char *ch1, char *ch2, gaint len) {
 char *ch;
 
   ch = ch1;
@@ -1090,14 +1071,14 @@ char *ch;
   *ch1 = '\0';
 }
 
-/* Copies a word of a specified length, or when \0 or \n or ' ' is
-   encountered.  The word is terminated with '\0'.                    */
+/* Copies a word of a specified length, or when \0 or \n or \r or ' ' is
+   encountered.  The word is terminated with '\0'. ch2 is src, ch1 is dest */
 
-void getwrd (char *ch1, char *ch2, int len) {
+void getwrd (char *ch1, char *ch2, gaint len) {
 char *ch;
 
   ch = ch1;
-  while (len>0 && *ch2!='\n' && *ch2!='\0' && *ch2!=' ' ) {
+  while (len>0 && *ch2!='\n' && *ch2!='\0' && *ch2!='\r' && *ch2!=' ' ) {
     *ch1 = *ch2;
     len--;
     ch1++;  ch2++;
@@ -1105,73 +1086,100 @@ char *ch;
   *ch1 = '\0';
 }
 
+/* Determines word length up to next delimiter */
+
+gaint wrdlen (char *ch2) {
+gaint len;
+  len = 0;
+  while (*ch2!='\n' && *ch2!='\0' && *ch2!=' ' && *ch2!='\t') {
+    len++;
+    ch2++;
+  }
+  return(len);
+}
+
 /* Get minimum and maximum grid value.  Set rmin and rmax in the
    grid descriptor.                                                  */
 
 void gamnmx (struct gagrid *pgr) {
-int i,size;
-float *r;
-int cnt;
+gadouble *r;
+gaint i,size,cnt;
+char *rmask;
+
   size = pgr->isiz * pgr->jsiz;
   if (size==1) return;
-  pgr->rmin= 9.99E35;
+  pgr->rmin=  9.99E35;
   pgr->rmax= -9.99E35;
-  r = pgr->grid;
+  r     = pgr->grid;
+  rmask = pgr->umask;
   cnt=0;
   for (i=0;i<size;i++) {
-    if (*r != pgr->undef) {
+    if (*rmask == 1) {
       cnt++;
       if (pgr->rmin>*r) pgr->rmin = *r;
       if (pgr->rmax<*r) pgr->rmax = *r;
     }
-    r++;
+    r++; rmask++;
   }
   if (cnt==0 || pgr->rmin==9.99e35 || pgr->rmax==-9.99e35) {
     pgr->rmin = pgr->undef;
     pgr->rmax = pgr->undef;
+    pgr->umin = pgr->umax = 0;
+  }
+  else {
+    pgr->umin = pgr->umax = 1;
   }
 }
 
-/*mf version  Remove blanks from a string */
-int garemb (char *ch) {
-char *cc;
-int cnt;
-int qflag=0;
+/*  Determine min and max values of station data */
 
-  cc = ch;
-  cnt = 0;
+void gasmnmx (struct gastn *stn) {
+struct garpt *rpt;
 
-  while ( *ch!='\n' && *ch!='\0' ) {
-
-/*
-  mf - 940415 : do not remove blanks if string in "'s
-*/
-    if(*ch == '\"' && qflag == 0 ) {
-      qflag=1;
-      } else if(*ch == '\"' && qflag == 1 ) {
-	qflag=0;
+  stn->smin = stn->undef;
+  stn->smax = stn->undef;
+  rpt = stn->rpt;
+  while (rpt!=NULL) {
+    if (rpt->umask == 1) {
+      if (stn->smin == stn->undef) {
+	stn->smin = rpt->val;
       }
-
-    if ( ( (*ch!=' ') || qflag ) && (*ch!='\"') ) {
-      *cc = *ch;
-      cc++; cnt++;
+      else {
+	if (stn->smin > rpt->val) {
+	  stn->smin = rpt->val;
+	}
+      }
+      if (stn->smax == stn->undef) {
+	stn->smax = rpt->val;
+      }
+      else {
+	if (stn->smax < rpt->val) {
+	  stn->smax = rpt->val;
+	}
+      }
     }
-    ch++;
+    rpt = rpt->rpt;
   }
-  *cc = '\0';
-  return (cnt);
 }
 
-/*---- original ------
-
-int garemb (char *ch) {
+/* Remove blanks from a string */
+gaint garemb (char *ch) {
 char *cc;
-int cnt;
+gaint cnt;
+gaint qflag=0;
 
   cc = ch;
   cnt = 0;
-  while ( *ch!='\n' && *ch!='\0' ) {
-    if (*ch!=' ') {
+
+  while (*ch!='\n' && *ch!='\0') {
+    /* do not remove blanks if string in quotes */
+    if (*ch == '\"' && qflag == 0) {
+      qflag=1;
+    } else if (*ch == '\"' && qflag == 1) {
+      qflag=0;
+    }
+
+    if (((*ch!=' ') || qflag ) && (*ch!='\"')) {
       *cc = *ch;
       cc++; cnt++;
     }
@@ -1180,16 +1188,15 @@ int cnt;
   *cc = '\0';
   return (cnt);
 }
-*/
 
-static float glts15[40] = {
+static gadouble glts15[40] = {
        -86.60,-82.19,-77.76,-73.32,-68.88,-64.43,-59.99,
        -55.55,-51.11,-46.66,-42.22,-37.77,-33.33,-28.89,
        -24.44,-20.00,-15.55,-11.11, -6.67, -2.22,  2.22,
          6.67, 11.11, 15.55, 20.00, 24.44, 28.89, 33.33,
         37.77, 42.22, 46.66, 51.11, 55.55, 59.99, 64.43,
         68.88, 73.32, 77.76, 82.19, 86.60};
-static float glts20[52] = {
+static gadouble glts20[52] = {
        -87.38,-83.98,-80.56,-77.13,-73.71,-70.28,-66.85,
        -63.42,-59.99,-56.57,-53.14,-49.71,-46.28,-42.85,
        -39.43,-36.00,-32.57,-29.14,-25.71,-22.28,-18.86,
@@ -1198,7 +1205,7 @@ static float glts20[52] = {
         32.57, 36.00, 39.43, 42.85, 46.28, 49.71, 53.14,
         56.57, 59.99, 63.42, 66.85, 70.28, 73.71, 77.13,
         80.56, 83.98, 87.38};
-static float glts30[80] = {
+static gadouble glts30[80] = {
        -88.29, -86.07, -83.84, -81.61, -79.37, -77.14, -74.90,
        -72.67, -70.43, -68.20, -65.96, -63.72, -61.49, -59.25,
        -57.02, -54.78, -52.55, -50.31, -48.07, -45.84, -43.60,
@@ -1212,7 +1219,7 @@ static float glts30[80] = {
         68.20,  70.43,  72.67,  74.90,  77.14,  79.37,  81.61,
         83.84,  86.07,  88.29};
 
-static float glats[102] = {
+static gadouble glats[102] = {
  -88.66,-86.91,-85.16,-83.41,-81.65,-79.90,-78.14,-76.39,-74.63,
  -72.88,-71.12,-69.36,-67.61,-65.85,-64.10,-62.34,-60.58,-58.83,
  -57.07,-55.32,-53.56,-51.80,-50.05,-48.29,-46.54,-44.78,-43.02,
@@ -1226,17 +1233,36 @@ static float glats[102] = {
   69.36, 71.12, 72.88, 74.63, 76.39, 78.14, 79.90, 81.65, 83.41,
   85.16, 86.91, 88.66 };
 
-static float m32lts[32] = {-20.453, -18.01, -15.763, -13.738,
+static gadouble m32lts[32] = {-20.453, -18.01, -15.763, -13.738,
   -11.95, -10.405, -9.097, -8.010, -7.120, -6.392, -5.253, -4.25,
   -3.25, -2.25, -1.25, -0.25, 0.25, 1.25, 2.25, 3.25, 4.25, 5.253,
   6.392, 7.12, 8.01, 9.097, 10.405, 11.95, 13.738, 15.763, 18.01,
   20.453};
 
+/* From Mike Timlin */
+static gadouble gltst62[94] = {
+        -88.542, -86.6531, -84.7532, -82.8508, -80.9473, -79.0435,
+        -77.1394, -75.2351, -73.3307, -71.4262, -69.5217, -67.6171,
+        -65.7125, -63.8079, -61.9033, -59.9986, -58.0939, -56.1893,
+        -54.2846, -52.3799, -50.4752, -48.5705, -46.6658, -44.7611,
+        -42.8564, -40.9517, -39.047, -37.1422, -35.2375, -33.3328,
+        -31.4281, -29.5234, -27.6186, -25.7139, -23.8092, -21.9044,
+        -19.9997, -18.095, -16.1902, -14.2855, -12.3808, -10.47604,
+        -8.57131, -6.66657, -4.76184, -2.8571, -0.952368, 0.952368,
+        2.8571, 4.76184, 6.66657, 8.57131, 10.47604, 12.3808, 14.2855,
+        16.1902, 18.095, 19.9997, 21.9044, 23.8092, 25.7139, 27.6186,
+        29.5234, 31.4281, 33.3328, 35.2375, 37.1422, 39.047, 40.9517,
+        42.8564, 44.7611, 46.6658, 48.5705, 50.4752, 52.3799, 54.2846,
+        56.1893, 58.0939, 59.9986, 61.9033, 63.8079, 65.7125, 67.6171,
+        69.5217, 71.4262, 73.3307, 75.2351, 77.1394, 79.0435, 80.9473,
+        82.8508, 84.7532, 86.6531, 88.542 };
+
 /* Given the starting point and the length, return the MOM32 lats */
 
-float *gamo32 (int istrt, int num) {
-int size;
-float *vals;
+gadouble *gamo32 (gaint istrt, gaint num) {
+gaint size;
+gadouble *vals;
+size_t sz;
 
   istrt--;
   if (istrt+num > 32) {
@@ -1244,13 +1270,13 @@ float *vals;
     gaprnt (0,"  Maximum 32 latitudes exceeded \n");
     return (NULL);
   }
-  size = (num+3) * sizeof(float);
-  vals = (float *)malloc(size);
+  sz = (num+3) * sizeof(gadouble);
+  vals = (gadouble *)galloc(sz,"gamo32");
   if (vals==NULL) {
     gaprnt (0,"Memory Allocation Error: MOM32 Grid Scaling\n");
     return (NULL);
   }
-  *vals = (float)num;
+  *vals = (gadouble)num;
   for (size=0; size<num; size++) *(vals+size+1) = m32lts[size+istrt];
   *(vals+num+1) = -999.9;
   return (vals);
@@ -1259,9 +1285,10 @@ float *vals;
 
 /* Given the starting point and the length, return the gaussian lats */
 
-float *gagaus (int istrt, int num) {
-int size;
-float *vals;
+gadouble *gagaus (gaint istrt, gaint num) {
+gaint size;
+gadouble *vals;
+size_t sz;
 
   istrt--;
   if (istrt+num > 102) {
@@ -1269,13 +1296,13 @@ float *vals;
     gaprnt (0,"  Maximum 102 latitudes exceeded \n");
     return (NULL);
   }
-  size = (num+3) * sizeof(float);
-  vals = (float *)malloc(size);
+  sz = (num+3) * sizeof(gadouble);
+  vals = (gadouble *)galloc(sz,"gagaus");
   if (vals==NULL) {
     gaprnt (0,"Memory Allocation Error: Gaussian Grid Scaling\n");
     return (NULL);
   }
-  *vals = (float)num;
+  *vals = (gadouble)num;
   for (size=0; size<num; size++) *(vals+size+1) = glats[size+istrt];
   *(vals+num+1) = -999.9;
   return (vals);
@@ -1284,9 +1311,10 @@ float *vals;
 /* Given the starting point and the length, return the gaussian lats
   for R30 grids */
 
-float *gags30 (int istrt, int num) {
-int size;
-float *vals;
+gadouble *gags30 (gaint istrt, gaint num) {
+gaint size;
+gadouble *vals;
+size_t sz;
 
   istrt--;
   if (istrt+num > 80) {
@@ -1294,13 +1322,13 @@ float *vals;
     gaprnt (0,"  Maximum 80 latitudes exceeded \n");
     return (NULL);
   }
-  size = (num+3) * sizeof(float);
-  vals = (float *)malloc(size);
+  sz = (num+3) * sizeof(gadouble);
+  vals = (gadouble *)galloc(sz,"gags30");
   if (vals==NULL) {
     gaprnt (0,"Memory Allocation Error: Gaussian Grid Scaling\n");
     return (NULL);
   }
-  *vals = (float)num;
+  *vals = (gadouble)num;
   for (size=0; size<num; size++) *(vals+size+1) = glts30[size+istrt];
   *(vals+num+1) = -999.9;
   return (vals);
@@ -1309,9 +1337,10 @@ float *vals;
 /* Given the starting point and the length, return the gaussian lats
   for R20 grids */
 
-float *gags20 (int istrt, int num) {
-int size;
-float *vals;
+gadouble *gags20 (gaint istrt, gaint num) {
+gaint size;
+gadouble *vals;
+size_t sz;
 
   istrt--;
   if (istrt+num > 52) {
@@ -1319,13 +1348,13 @@ float *vals;
     gaprnt (0,"  Maximum 52 latitudes exceeded \n");
     return (NULL);
   }
-  size = (num+3) * sizeof(float);
-  vals = (float *)malloc(size);
+  sz = (num+3) * sizeof(gadouble);
+  vals = (gadouble *)galloc(sz,"gags20");
   if (vals==NULL) {
     gaprnt (0,"Memory Allocation Error: Gaussian Grid Scaling\n");
     return (NULL);
   }
-  *vals = (float)num;
+  *vals = (gadouble)num;
   for (size=0; size<num; size++) *(vals+size+1) = glts20[size+istrt];
   *(vals+num+1) = -999.9;
   return (vals);
@@ -1334,9 +1363,10 @@ float *vals;
 /* Given the starting point and the length, return the gaussian lats
   for R15 grids */
 
-float *gags15 (int istrt, int num) {
-int size;
-float *vals;
+gadouble *gags15 (gaint istrt, gaint num) {
+gaint size;
+gadouble *vals;
+size_t sz;
 
   istrt--;
   if (istrt+num > 40) {
@@ -1344,14 +1374,41 @@ float *vals;
     gaprnt (0,"  Maximum 40 latitudes exceeded \n");
     return (NULL);
   }
-  size = (num+3) * sizeof(float);
-  vals = (float *)malloc(size);
+  sz = (num+3) * sizeof(gadouble);
+  vals = (gadouble *)galloc(sz,"gags15");
   if (vals==NULL) {
     gaprnt (0,"Memory Allocation Error: Gaussian Grid Scaling\n");
     return (NULL);
   }
-  *vals = (float)num;
+  *vals = (gadouble)num;
   for (size=0; size<num; size++) *(vals+size+1) = glts15[size+istrt];
+  *(vals+num+1) = -999.9;
+  return (vals);
+}
+
+/* Given the starting point and the length, return the gaussian lats
+  for T62 grids */
+/* From Mike Timlin */
+
+gadouble *gagst62 (gaint istrt, gaint num) {
+gaint size;
+gadouble *vals;
+size_t sz;
+
+  istrt--;
+  if (istrt+num > 94) {
+    gaprnt (0,"Open Error: Invalid GAUST62 scaling.\n");
+    gaprnt (0,"  Maximum 94 latitudes exceeded \n");
+    return (NULL);
+  }
+  sz = (num+3) * sizeof(gadouble);
+  vals = (gadouble *)galloc(sz,"gagst62");
+  if (vals==NULL) {
+    gaprnt (0,"Memory Allocation Error: Gaussian Grid Scaling\n");
+    return (NULL);
+  }
+  *vals = (gadouble)num;
+  for (size=0; size<num; size++) *(vals+size+1) = gltst62[size+istrt];
   *(vals+num+1) = -999.9;
   return (vals);
 }
@@ -1359,8 +1416,8 @@ float *vals;
 char *monc[12] = {"JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG",
                   "SEP","OCT","NOV","DEC"};
 
-int gat2ch (struct dt *dtim, int tinc, char *ch) {
-int mn1,mn2,hr1,hr2,dy1,dy2,len,mnth;
+gaint gat2ch (struct dt *dtim, gaint tinc, char *ch, gaint chlen) {
+gaint mn1,mn2,hr1,hr2,dy1,dy2,len,mnth;
 
   mnth = dtim->mo - 1L;
   mn1 = dtim->mn/10L;
@@ -1370,27 +1427,25 @@ int mn1,mn2,hr1,hr2,dy1,dy2,len,mnth;
   dy1 = dtim->dy/10L;
   dy2 = dtim->dy - (dy1*10);
   if (tinc==1) {
-    sprintf(ch,"%li",dtim->yr);
+    snprintf(ch,chlen-1,"%04i",dtim->yr);
   }
   else if (tinc==2) {
     if (dtim->yr==9999L) {
-      sprintf(ch,"%s",monc[mnth]);
+      snprintf(ch,chlen-1,"%s",monc[mnth]);
     } else {
-      sprintf(ch,"%s%li",monc[mnth],dtim->yr);
+      snprintf(ch,chlen-1,"%s%04i",monc[mnth],dtim->yr);
     }
   }
   else if (tinc==3) {
-    sprintf(ch,"%i%i%s%li",dy1,dy2,monc[mnth],dtim->yr);
+    snprintf(ch,chlen-1,"%i%i%s%04i",dy1,dy2,monc[mnth],dtim->yr);
   }
   else if (tinc==4) {
-    sprintf(ch,"%i%iZ%i%i%s%li",hr1,hr2,dy1,dy2,
-          monc[mnth],dtim->yr);
+    snprintf(ch,chlen-1,"%i%iZ%i%i%s%04i",hr1,hr2,dy1,dy2,monc[mnth],dtim->yr);
   }
   else if (tinc==5) {
-    sprintf(ch,"%i%i:%i%iZ%i%i%s%li",hr1,hr2,mn1,mn2,dy1,dy2,
-          monc[mnth],dtim->yr);
+    snprintf(ch,chlen-1,"%i%i:%i%iZ%i%i%s%04i",hr1,hr2,mn1,mn2,dy1,dy2,monc[mnth],dtim->yr);
   }
-  else sprintf(ch,"???");
+  else snprintf(ch,chlen-1,"???");
   len=0;
   while (ch[len]) len++;
   return (len);
@@ -1399,7 +1454,7 @@ int mn1,mn2,hr1,hr2,dy1,dy2,len,mnth;
 /* Compare two strings given the length.  */
 /* Return 0 if the string match, otherwise 1.  */
 
-int cmpch (char *str1, char *str2, int len) {
+gaint cmpch (char *str1, char *str2, gaint len) {
 
   while (len>0) {
     len--;
@@ -1422,23 +1477,29 @@ void gafree (struct gastat *pst) {
 }
 
 void gagfre (struct gagrid *pgr) {
+
   if (pgr==NULL) return;
   if (pgr->alocf) {
-    free(pgr->ivals);
-    free(pgr->jvals);
+    if (pgr->ivals != NULL) gree(pgr->ivals,"f88");
+    if (pgr->jvals != NULL) gree(pgr->jvals,"f89");
   }
-  if (pgr->idim>-1 && (pgr->isiz*pgr->jsiz)>1) free (pgr->grid);
-  free (pgr);
+  if (pgr->idim>-1 && (pgr->isiz*pgr->jsiz)>1) {
+    gree(pgr->grid,"f90");
+    gree(pgr->umask,"f91");
+  }
+  gree(pgr,"f92");
 }
 
 void gasfre (struct gastn *stn) {
-int i;
+gaint i;
   if (stn==NULL) return;
-  for (i=0; i<BLKNUM; i++) {
-    if (stn->blks[i] != NULL) free (stn->blks[i]);
+  if (stn->tvals) gree(stn->tvals,"f237");
+  if (stn->rpt) {
+    for (i=0; i<BLKNUM; i++) {
+      if (stn->blks[i] != NULL) gree(stn->blks[i],"f238");
+    }
   }
-  free (stn->tvals);
-  free (stn);
+  gree(stn,"f239");
 }
 
 
@@ -1446,8 +1507,8 @@ int i;
    files */
 
 void fnmexp (char *out, char *in1, char *in2) {
-char *pos, *ch, envv[20], *envr;
-int i,j;
+char *pos, *ch, envv[20], *envr, CR=13;
+gaint i,j;
 
   if (*in1=='$') {
     in1++;
@@ -1464,10 +1525,12 @@ int i,j;
         *(out+i) = *(envr+j);
         i++; j++;
       }
-      while (*in1!='\0' && *in1!=' ' && *in1!='\n') {
+      /* handle CR for descriptor files created under MS Windows */
+      while (*in1!='\0' && *in1!=' ' && *in1!='\n' && *in1!=CR) {
         *(out+i) = *in1;
         i++; in1++;
       }
+      *(out+i) = '\0';
     }
     return;
   }
@@ -1483,46 +1546,62 @@ int i,j;
     out++; in2++;
   }
   in1++;
-  while (*in1!='\0' && *in1!=' ' && *in1!='\n') {
+  while (*in1!='\0' && *in1!=' ' && *in1!='\n' && *in1!=CR) {
     *out = *in1;
     out++; in1++;
   }
   *out = '\0';
 }
 
-/* Given a file name template and a dt structure, fill in to get the
-   file name */
+/* Given a file name template and a dt structure, fill in to get the file name */
 
-char *gafndt (char *fn, struct dt *dtim, struct dt *dtimi, float *vals) {
+char *gafndt (char *fn, struct dt *dtim, struct dt *dtimi, gadouble *vals,
+	      struct gachsub *pch1st, struct gaens *ens1st, gaint t, gaint e, gaint *flag) {
+struct gachsub *pchsub;
+struct gaens *ens;
 struct dt stim;
-int len,iv,tdif;
-char *fnout, *in, *out;
+gaint len,olen,iv,tdif,i,tused,eused,mo,doy;
+char *fnout, *in, *out, *work, *in2, *out2;
+size_t sz;
 
-  len = 0;
-  while (*(fn+len)) len++;
-  len+=3;
-  fnout = (char *)malloc(len);
+  tused = eused = 0;
+  olen = 0;
+  while (*(fn+olen)) olen++;
+  olen+=5;
+  sz = olen;
+  fnout = (char *)galloc(sz+1,"fnout");
   if (fnout==NULL) return (NULL);
 
   in = fn;
   out = fnout;
 
   while (*in) {
+    pchsub = pch1st;
+    ens = ens1st;
+    /* handle template strings for initial time */
     if (*in=='%' && *(in+1)=='i') {
-      if (*(in+2)=='y' && *(in+3)=='2') {
+      tused=1;
+      if (*(in+2)=='x' && *(in+3)=='1') {
+        snprintf(out,sz,"%i",dtimi->yr/10);
+        while (*out) out++;
+        in+=4;
+      } else if (*(in+2)=='x' && *(in+3)=='3') {
+        snprintf(out,sz,"%03i",dtimi->yr/10);
+        out+=3; in+=4;
+      } else if (*(in+2)=='y' && *(in+3)=='2') {
         iv = dtimi->yr/100;
         iv = dtimi->yr - iv*100;
-        sprintf (out,"%02i",iv);
+        snprintf(out,sz,"%02i",iv);
         out+=2;  in+=4;
       } else if (*(in+2)=='y' && *(in+3)=='4') {
-        sprintf (out,"%04i",dtimi->yr);
+        snprintf(out,sz,"%04i",dtimi->yr);
         out+=4;  in+=4;
       } else if (*(in+2)=='m' && *(in+3)=='1') {
-          sprintf (out,"%i",dtimi->mo);
+          snprintf(out,sz,"%i",dtimi->mo);
         while (*out) out++;
         in+=4;
       } else if (*(in+2)=='m' && *(in+3)=='2') {
-        sprintf (out,"%02i",dtimi->mo);
+        snprintf(out,sz,"%02i",dtimi->mo);
         out+=2;  in+=4;
       } else if (*(in+2)=='m' && *(in+3)=='h') {
         if (dtimi->dy < 16) *out='a';
@@ -1538,117 +1617,292 @@ char *fnout, *in, *out;
         *(out+2) = *(mons[dtimi->mo-1]+2);
         out+=3;  in+=4;
       } else if (*(in+2)=='d' && *(in+3)=='1') {
-        sprintf (out,"%i",dtimi->dy);
+        snprintf(out,sz,"%i",dtimi->dy);
         while (*out) out++;
         in+=4;
       } else if (*(in+2)=='d' && *(in+3)=='2') {
-        sprintf (out,"%02i",dtimi->dy);
+        snprintf(out,sz,"%02i",dtimi->dy);
         out+=2;  in+=4;
       } else if (*(in+2)=='h' && *(in+3)=='1') {
-        sprintf (out,"%i",dtimi->hr);
+        snprintf(out,sz,"%i",dtimi->hr);
         while (*out) out++;
         in+=4;
       } else if (*(in+2)=='h' && *(in+3)=='2') {
-        sprintf (out,"%02i",dtimi->hr);
+        snprintf(out,sz,"%02i",dtimi->hr);
         out+=2;  in+=4;
-/*mf added 95082800 mf*/
       } else if (*(in+2)=='h' && *(in+3)=='3') {
-        sprintf (out,"%03i",dtimi->hr);
+        snprintf(out,sz,"%03i",dtimi->hr);
         out+=3;  in+=4;
       } else if (*(in+2)=='n' && *(in+3)=='2') {
-        sprintf (out,"%02i",dtimi->mn);
+        snprintf(out,sz,"%02i",dtimi->mn);
         out+=2;  in+=4;
+      } else if (*(in+2)=='j' && *(in+3)=='3') {
+	doy = dtimi->dy;
+	mo = dtimi->mo-1;
+	while (mo>0) {
+	  doy += mosiz[mo];
+	  if (mo==2 && qleap(dtimi->yr)) doy+=1;
+	  mo--;
+	}
+	snprintf(out,sz,"%03i",doy);
+	out+=3;  in+=4;
       } else {
         *out = *in;
         in++; out++;
       }
-    } else if (*in=='%' && *(in+1)=='y' && *(in+2)=='2') {
+    }
+    /* handle template strings for any time */
+    else if (*in=='%' && *(in+1)=='x' && *(in+2)=='1') {   /* decade */
+      tused=1;
+      snprintf(out,sz,"%i",dtim->yr/10);
+      while (*out) out++;
+      in+=3;
+    } else if (*in=='%' && *(in+1)=='x' && *(in+2)=='3') {
+      tused=1;
+      snprintf(out,sz,"%03i",dtim->yr/10);
+      out+=3; in+=3;
+    } else if (*in=='%' && *(in+1)=='y' && *(in+2)=='2') {   /* year */
+      tused=1;
       iv = dtim->yr/100;
       iv = dtim->yr - iv*100;
-      sprintf (out,"%02i",iv);
+      snprintf(out,sz,"%02i",iv);
       out+=2;  in+=3;
     } else if (*in=='%' && *(in+1)=='y' && *(in+2)=='4') {
-      sprintf (out,"%04i",dtim->yr);
+      tused=1;
+      snprintf(out,sz,"%04i",dtim->yr);
       out+=4;  in+=3;
-    } else if (*in=='%' && *(in+1)=='m' && *(in+2)=='1') {
-      sprintf (out,"%i",dtim->mo);
+    } else if (*in=='%' && *(in+1)=='m' && *(in+2)=='1') {   /* month */
+      tused=1;
+      snprintf(out,sz,"%i",dtim->mo);
       while (*out) out++;
       in+=3;
     } else if (*in=='%' && *(in+1)=='m' && *(in+2)=='2') {
-      sprintf (out,"%02i",dtim->mo);
+      tused=1;
+      snprintf(out,sz,"%02i",dtim->mo);
       out+=2;  in+=3;
     } else if (*in=='%' && *(in+1)=='m' && *(in+2)=='h') {
+      tused=1;
       if (dtim->dy < 16) *out='a';
       else *out = 'b';
       out+=1;  in+=3;
     } else if (*in=='%' && *(in+1)=='m' && *(in+2)=='H') {
+      tused=1;
       if (dtim->dy < 16) *out='A';
       else *out = 'B';
       out+=1;  in+=3;
     } else if (*in=='%' && *(in+1)=='m' && *(in+2)=='c') {
+      tused=1;
       *out = *(mons[dtim->mo-1]);
       *(out+1) = *(mons[dtim->mo-1]+1);
       *(out+2) = *(mons[dtim->mo-1]+2);
       out+=3;  in+=3;
-    } else if (*in=='%' && *(in+1)=='d' && *(in+2)=='1') {
-      sprintf (out,"%i",dtim->dy);
+    } else if (*in=='%' && *(in+1)=='d' && *(in+2)=='1') {   /* day */
+      tused=1;
+      snprintf(out,sz,"%i",dtim->dy);
       while (*out) out++;
       in+=3;
     } else if (*in=='%' && *(in+1)=='d' && *(in+2)=='2') {
-      sprintf (out,"%02i",dtim->dy);
+      tused=1;
+      snprintf(out,sz,"%02i",dtim->dy);
       out+=2;  in+=3;
-    } else if (*in=='%' && *(in+1)=='h' && *(in+2)=='1') {
-      sprintf (out,"%i",dtim->hr);
+    } else if (*in=='%' && *(in+1)=='h' && *(in+2)=='1') {   /* hour */
+      tused=1;
+      snprintf(out,sz,"%i",dtim->hr);
       while (*out) out++;
       in+=3;
     } else if (*in=='%' && *(in+1)=='h' && *(in+2)=='2') {
-      sprintf (out,"%02i",dtim->hr);
+      tused=1;
+      snprintf(out,sz,"%02i",dtim->hr);
       out+=2;  in+=3;
-/*mf added 95082800 mf*/
     } else if (*in=='%' && *(in+1)=='h' && *(in+2)=='3') {
-      sprintf (out,"%03i",dtim->hr);
+      tused=1;
+      snprintf(out,sz,"%03i",dtim->hr);
       out+=3;  in+=3;
-    } else if (*in=='%' && *(in+1)=='n' && *(in+2)=='2') {
-      sprintf (out,"%02i",dtim->mn);
+    } else if (*in=='%' && *(in+1)=='n' && *(in+2)=='2') {   /* minute */
+      tused=1;
+      snprintf(out,sz,"%02i",dtim->mn);
       out+=2;  in+=3;
-    } else if (*in=='%' && *(in+1)=='f' && *(in+2)=='2') {
-      stim.yr = (int)(*vals+0.1);
-      stim.mo = (int)(*(vals+1)+0.1);
-      stim.dy = (int)(*(vals+2)+0.1);
-      stim.hr = (int)(*(vals+3)+0.1);
-      stim.mn = (int)(*(vals+4)+0.1);
-      tdif = timdif(&stim,dtim);
-      tdif = (tdif+30)/60;
-      if (tdif<99) sprintf (out,"%02i",tdif);
-      else sprintf (out,"%i",tdif);
+    } else if (*in=='%' && *(in+1)=='j' && *(in+2)=='3') {   /* julian day */
+      tused=1;
+      doy = dtim->dy;
+      mo = dtim->mo-1;
+      while (mo>0) {
+	doy += mosiz[mo];
+	if (mo==2 && qleap(dtim->yr)) doy+=1;
+	mo--;
+      }
+      snprintf(out,sz,"%03i",doy);
+      out+=3;  in+=3;
+    } else if (*in=='%' && *(in+1)=='t' && *(in+2)=='1') {   /* time index t, starting with 1 */
+      tused=1;
+      snprintf(out,sz,"%i",t);
       while (*out) out++;
       in+=3;
-/*mf added 95082800 mf*/
+    } else if (*in=='%' && *(in+1)=='t' && *(in+2)=='2') {
+      tused=1;
+      snprintf(out,sz,"%02i",t);
+      out+=2;  in+=3;
+    } else if (*in=='%' && *(in+1)=='t' && *(in+2)=='3') {
+      tused=1;
+      snprintf(out,sz,"%03i",t);
+      out+=3;  in+=3;
+    } else if (*in=='%' && *(in+1)=='t' && *(in+2)=='4') {
+      tused=1;
+      snprintf(out,sz,"%04i",t);
+      out+=4;  in+=3;
+    } else if (*in=='%' && *(in+1)=='t' && *(in+2)=='5') {
+      tused=1;
+      snprintf(out,sz,"%05i",t);
+      out+=5;  in+=3;
+    } else if (*in=='%' && *(in+1)=='t' && *(in+2)=='6') {
+      tused=1;
+      snprintf(out,sz,"%06i",t);
+      out+=6;  in+=3;
+    } else if (*in=='%' && *(in+1)=='t' && *(in+2)=='m' && *(in+3)=='1') {   /* time index t, starting with 0 */
+      tused=1;
+      snprintf(out,sz,"%i",t-1);
+      while (*out) out++;
+      in+=4;
+    } else if (*in=='%' && *(in+1)=='t' && *(in+2)=='m' && *(in+3)=='2') {
+      tused=1;
+      snprintf(out,sz,"%02i",t-1);
+      out+=2;  in+=4;
+    } else if (*in=='%' && *(in+1)=='t' && *(in+2)=='m' && *(in+3)=='3') {
+      tused=1;
+      snprintf(out,sz,"%03i",t-1);
+      out+=3;  in+=4;
+    } else if (*in=='%' && *(in+1)=='t' && *(in+2)=='m' && *(in+3)=='4') {
+      tused=1;
+      snprintf(out,sz,"%04i",t-1);
+      out+=4;  in+=4;
+    } else if (*in=='%' && *(in+1)=='t' && *(in+2)=='m' && *(in+3)=='5') {
+      tused=1;
+      snprintf(out,sz,"%05i",t-1);
+      out+=5;  in+=4;
+    } else if (*in=='%' && *(in+1)=='t' && *(in+2)=='m' && *(in+3)=='6') {
+      tused=1;
+      snprintf(out,sz,"%06i",t-1);
+      out+=6;  in+=4;
+    }
+    /* forecast times */
+    else if (*in=='%' && *(in+1)=='f' && *(in+2)=='2') {
+      tused=1;
+      stim.yr = (gaint)(*vals+0.1);
+      stim.mo = (gaint)(*(vals+1)+0.1);
+      stim.dy = (gaint)(*(vals+2)+0.1);
+      stim.hr = (gaint)(*(vals+3)+0.1);
+      stim.mn = (gaint)(*(vals+4)+0.1);
+      tdif = timdif(dtimi,dtim);
+      tdif = (tdif+30)/60;
+      if (tdif<99) snprintf(out,sz,"%02i",tdif);
+      else snprintf(out,sz,"%i",tdif);
+      while (*out) out++;
+      in+=3;
     } else if (*in=='%' && *(in+1)=='f' && *(in+2)=='3') {
-      stim.yr = (int)(*vals+0.1);
-      stim.mo = (int)(*(vals+1)+0.1);
-      stim.dy = (int)(*(vals+2)+0.1);
-      stim.hr = (int)(*(vals+3)+0.1);
-      stim.mn = (int)(*(vals+4)+0.1);
-      tdif = timdif(&stim,dtim);
+      tused=1;
+      stim.yr = (gaint)(*vals+0.1);
+      stim.mo = (gaint)(*(vals+1)+0.1);
+      stim.dy = (gaint)(*(vals+2)+0.1);
+      stim.hr = (gaint)(*(vals+3)+0.1);
+      stim.mn = (gaint)(*(vals+4)+0.1);
+      tdif = timdif(dtimi,dtim);
       tdif = (tdif+30)/60;
-      if (tdif<999) sprintf (out,"%03i",tdif);
-      else sprintf (out,"%i",tdif);
+      if (tdif<999) snprintf(out,sz,"%03i",tdif);
+      else snprintf(out,sz,"%i",tdif);
       while (*out) out++;
       in+=3;
-    } else {
+    }
+    /* string substitution */
+    else if (*in=='%' && *(in+1)=='c' && *(in+2)=='h') {
+      tused=1;
+      while (pchsub) {
+        if (t>=pchsub->t1 && (pchsub->t2 == -99 || t<=pchsub->t2) ) {
+          len = wrdlen(pchsub->ch);    /* Reallocate output string */
+          olen += len;
+	  sz = olen;
+          work = (char *)galloc(sz+1,"work");
+          if (work==NULL) {
+            gree(fnout,"f240");
+            return (NULL);
+          }
+          in2 = fnout;
+	  out2 = work;
+          while (in2!=out) {
+            *out2 = *in2;
+            in2++; out2++;
+          }
+          gree(fnout,"f241");
+          fnout = work;
+          out = out2;
+          getwrd(out,pchsub->ch,len);
+          out += len;
+          break;
+        }
+        pchsub = pchsub->forw;
+      }
+      in+=3;
+    }
+    /* ensemble name substitution */
+    else if  (*in=='%' && *(in+1)=='e') {
+      eused=1;
+      if (ens == NULL) {
+	gree(fnout,"f242");
+	return (NULL);
+      } else {
+	/* advance through array of ensemble structures, till we reach ensemble 'e' */
+	i=1;
+	while (i!=e) { i++; ens++; }
+	len = strlen(ens->name);
+	if (len < 1) {
+	  gree(fnout,"f243");
+	  return (NULL);
+	}
+	olen += len;
+	sz = olen;
+	work = (char *)galloc(sz+1,"work2");     /* Reallocate output string */
+	if (work==NULL) {
+	  gree(fnout,"f244");
+	  return (NULL);
+	}
+	in2 = fnout;            /* copy the string we've got so far */
+	out2 = work;
+	while (in2!=out) {
+	  *out2 = *in2;
+	  in2++; out2++;
+	}
+	gree(fnout,"f245");
+	fnout = work;
+	out = out2;
+	getwrd(out,ens->name,len);
+	out += len;
+      }
+      in+=2;
+    }
+    else {
       *out = *in;
       in++; out++;
     }
   }
   *out = '\0';
+  if (eused==1 && tused==1) {
+    *flag = 3;                       /* templating on E and T */
+  }
+  else if (eused==1 && tused==0) {
+    *flag = 2;                       /* templating only on E */
+  }
+  else if (eused==0 && tused==1) {
+    *flag = 1;                       /* templating only on T */
+  }
+  else {
+    *flag = 0;                       /* no templating */
+  }
   return (fnout);
 }
 
 /* Byte swap requested number of 4 byte elements */
 
-void gabswp (float *r, int cnt) {
-int i;
+void gabswp (void *r, gaint cnt) {
+gaint i;
 char *ch1,*ch2,*ch3,*ch4,cc1,cc2;
 
   ch1 = (char *)r;
@@ -1666,17 +1920,40 @@ char *ch1,*ch2,*ch3,*ch4,cc1,cc2;
   }
 }
 
+/* Byte swap requested number of 8 byte elements */
+
+void gabswp8 (void *r, gaint cnt) {
+gaint i;
+char *ch;
+
+  ch = (char *)r;
+  for (i=0; i<cnt; i++) {
+    ganbswp (ch+i*8, 8);
+  }
+}
+
+/* joew 071902 Byte swap a single element with the width given */
+void ganbswp(char *buf, gaint cnt) {
+  gaint i, j;
+  char tmp;
+  for (i=0, j=cnt-1; i<cnt/2; i++,j--) {
+    tmp = buf[i];
+    buf[i] = buf[j];
+    buf[j] = tmp;
+  }
+}
+
 /* Byte swap a report header from a station data file */
 
 void gahswp (struct rpthdr *hdr) {
-  gabswp((float *)(&(hdr->lat)),5);
+  gabswp((gafloat *)(&(hdr->lat)),5);
 }
 
 /* Return day of week for date/time  0=sunday, 6=saturday */
 
-int dayweek (struct dt *dtime) {
+gaint dayweek (struct dt *dtime) {
 struct dt anch;
-int i,j;
+gaint i,j;
   if (dtime->yr<1950 || dtime->yr>2020) return(7);
   anch.yr = 1950;
   anch.mo = 1;
@@ -1691,39 +1968,36 @@ int i,j;
 }
 
 /*
- * convert an IMB float to single precision number v1.0
+ * convert an IBM float to single precision number v1.0
  *
  *                      Wesley Ebisuzaki
  */
 
-float ibm2flt(unsigned char *ibm) {
+gafloat ibm2flt(unsigned char *ibm) {
+gaint positive, power;
+gauint abspower;
+galint mant;
+gadouble value, exp;
 
-	int positive, power;
-	unsigned int abspower;
-	long int mant;
-	double value, exp;
+ positive = (ibm[0] & 0x80) == 0;
+ mant = (ibm[1] << 16) + (ibm[2] << 8) + ibm[3];
+ power = (gaint) (ibm[0] & 0x7f) - 64;
+ abspower = power > 0 ? power : -power;
 
-	positive = (ibm[0] & 0x80) == 0;
-	mant = (ibm[1] << 16) + (ibm[2] << 8) + ibm[3];
-	power = (int) (ibm[0] & 0x7f) - 64;
-	abspower = power > 0 ? power : -power;
+ exp = 16.0;
+ value = 1.0;
+ while (abspower) {
+   if (abspower & 1) {
+     value *= exp;
+   }
+   exp = exp * exp;
+   abspower >>= 1;
+ }
 
-
-	/* calc exp */
-	exp = 16.0;
-	value = 1.0;
-	while (abspower) {
-		if (abspower & 1) {
-			value *= exp;
-		}
-		exp = exp * exp;
-		abspower >>= 1;
-	}
-
-	if (power < 0) value = 1.0 / value;
-	value = value * mant / 16777216.0;
-	if (positive == 0) value = -value;
-	return (float)value;
+ if (power < 0) value = 1.0 / value;
+ value = value * mant / 16777216.0;
+ if (positive == 0) value = -value;
+ return (gafloat)value;
 }
 
 /*
@@ -1734,68 +2008,64 @@ float ibm2flt(unsigned char *ibm) {
  * doesn't handle subnormal numbers
  */
 
-int flt2ibm(float x, unsigned char *ibm) {
+gaint flt2ibm(gafloat x, unsigned char *ibm) {
+gaint sign, exp, i;
+gadouble mant;
 
-	int sign, exp, i;
-	double mant;
+ if (x == 0.0) {
+   ibm[0] = ibm[1] = ibm[2] = ibm[3] = 0;
+   return 0;
+ }
 
-	if (x == 0.0) {
-		ibm[0] = ibm[1] = ibm[2] = ibm[3] = 0;
-		return 0;
-	}
+ /* sign bit */
+ if (x < 0.0) {
+   sign = 128;
+   x = -x;
+ }
+ else sign = 0;
 
-	/* sign bit */
-	if (x < 0.0) {
-		sign = 128;
-		x = -x;
-	}
-	else sign = 0;
+ mant = frexp((gadouble) x, &exp);
 
-	mant = frexp((double) x, &exp);
+ if (mant >= 1.0) {
+   mant = 0.5;
+   exp++;
+ }
+ while (exp & 3) {
+   mant *= 0.5;
+   exp++;
+ }
 
-	/* round up by adding 2**-24 */
-	/* mant = mant + 1.0/16777216.0; */
+ exp = exp/4 + 64;
 
-	if (mant >= 1.0) {
-		mant = 0.5;
-		exp++;
-	}
-	while (exp & 3) {
-		mant *= 0.5;
-		exp++;
-	}
-	
-	exp = exp/4 + 64;
+ if (exp < 0) {
+   fprintf(stderr,"underflow in flt2ibm\n");
+   ibm[0] = ibm[1] = ibm[2] = ibm[3] = 0;
+   return 0;
+ }
+ if (exp > 127) {
+   fprintf(stderr,"overflow in flt2ibm\n");
+   ibm[0] = sign | 127;
+   ibm[1] = ibm[2] = ibm[3] = 255;
+   return -1;
+ }
 
-	if (exp < 0) {
-		fprintf(stderr,"underflow in flt2ibm\n");
-		ibm[0] = ibm[1] = ibm[2] = ibm[3] = 0;
-		return 0;
-	}
-	if (exp > 127) {
-		fprintf(stderr,"overflow in flt2ibm\n");
-		ibm[0] = sign | 127;
-		ibm[1] = ibm[2] = ibm[3] = 255;
-		return -1;
-	}
+ /* normal number */
 
-	/* normal number */
+ ibm[0] = sign | exp;
 
-	ibm[0] = sign | exp;
+ mant = mant * 256.0;
+ i = floor(mant);
+ mant = mant - i;
+ ibm[1] = i;
 
-	mant = mant * 256.0;
-	i = floor(mant);
-	mant = mant - i;
-	ibm[1] = i;
+ mant = mant * 256.0;
+ i = floor(mant);
+ mant = mant - i;
+ ibm[2] = i;
 
-	mant = mant * 256.0;
-	i = floor(mant);
-	mant = mant - i;
-	ibm[2] = i;
+ ibm[3] = floor(mant*256.0);
 
-	ibm[3] = floor(mant*256.0);
-
-	return 0;
+ return 0;
 }
 
 /* wesley ebisuzaki v0.1
@@ -1808,18 +2078,32 @@ int flt2ibm(float x, unsigned char *ibm) {
  * ansi C
  */
 
-float ieee2flt(unsigned char *ieee) {
-	double fmant;
-	int exp;
+gafloat ieee2flt(unsigned char *ieee) {
+gadouble fmant;
+gaint exp;
 
-        if (ieee[0] == 0 && ieee[1] == 0 && ieee[2] == 0 && ieee[3] == 0)
-	   return (float) 0.0;
+ if (ieee[0] == 0 && ieee[1] == 0 && ieee[2] == 0 && ieee[3] == 0)
+   return (gafloat) 0.0;
 
-	exp = ((ieee[0] & 127) << 1) + (ieee[1] >> 7);
-	fmant = (double) ((int) ieee[3] + (int) (ieee[2] << 8) +
-              (int) ((ieee[1] | 128) << 16));
-	if (ieee[0] & 128) fmant = -fmant;
-	return (float) (ldexp(fmant, (int) (exp - 128 - 22)));
+ exp = ((ieee[0] & 127) << 1) + (ieee[1] >> 7);
+ fmant = (gadouble) ((gaint) ieee[3] + (gaint) (ieee[2] << 8) +
+		     (gaint) ((ieee[1] | 128) << 16));
+ if (ieee[0] & 128) fmant = -fmant;
+ return (gafloat) (ldexp(fmant, (gaint) (exp - 128 - 22)));
+}
+
+gadouble ieee2dbl(unsigned char *ieee) {
+gadouble fmant;
+gaint exp;
+
+ if (ieee[0] == 0 && ieee[1] == 0 && ieee[2] == 0 && ieee[3] == 0)
+   return (gadouble) 0.0;
+
+ exp = ((ieee[0] & 127) << 1) + (ieee[1] >> 7);
+ fmant = (gadouble) ((gaint) ieee[3] + (gaint) (ieee[2] << 8) +
+		     (gaint) ((ieee[1] | 128) << 16));
+ if (ieee[0] & 128) fmant = -fmant;
+ return (gadouble) (ldexp(fmant, (gaint) (exp - 128 - 22)));
 }
 
 
@@ -1832,81 +2116,201 @@ float ieee2flt(unsigned char *ieee) {
  * bugs: assumes length of integer >= 25 bits
  */
 
-int flt2ieee(float x, unsigned char *ieee) {
+gaint flt2ieee(gafloat x, unsigned char *ieee) {
+gaint sign, exp;
+gauint umant;
+gadouble mant;
 
-	int sign, exp;
-        unsigned int umant;
-	double mant;
-
-	if (x == 0.0) {
-		ieee[0] = ieee[1] = ieee[2] = ieee[3] = 0;
-		return 0;
-	}
-
-	/* sign bit */
-	if (x < 0.0) {
-		sign = 128;
-		x = -x;
-	}
-	else sign = 0;
-	mant = frexp((double) x, &exp);
-
-        /* 2^24 = 16777216 */
-
-	umant = mant * 16777216 + 0.5;
-	if (umant >= 16777216) {
-            umant = umant / 2;
-            exp++;
-        }
-        /* bit 24 should be a 1 .. not used in ieee format */
-
-	exp = exp - 1 + 127;
-
-	if (exp < 0) {
-		/* signed zero */
-		ieee[0] = sign;
-		ieee[1] = ieee[2] = ieee[3] = 0;
-		return 0;
-	}
-	if (exp > 255) {
-		/* signed infinity */
-		ieee[0] = sign + 127;
-		ieee[1] = 128;
-                ieee[2] = ieee[3] = 0;
-                return 0;
-	}
-	/* normal number */
-
-	ieee[0] = sign + (exp >> 1);
-
-        ieee[3] = umant & 255;
-        ieee[2] = (umant >> 8) & 255;
-        ieee[1] = ((exp & 1) << 7) + ((umant >> 16) & 127);
-	return 0;
+ if (x == 0.0) {
+   ieee[0] = ieee[1] = ieee[2] = ieee[3] = 0;
+   return 0;
+ }
+ /* sign bit */
+ if (x < 0.0) {
+   sign = 128;
+   x = -x;
+ }
+ else sign = 0;
+ mant = frexp((gadouble) x, &exp);
+ umant = mant * 16777216 + 0.5;
+ if (umant >= 16777216) {
+   umant = umant / 2;
+   exp++;
+ }
+ /* bit 24 should be a 1 .. not used in ieee format */
+ exp = exp - 1 + 127;
+ if (exp < 0) {
+   /* signed zero */
+   ieee[0] = sign;
+   ieee[1] = ieee[2] = ieee[3] = 0;
+   return 0;
+ }
+ if (exp > 255) {
+   /* signed infinity */
+   ieee[0] = sign + 127;
+   ieee[1] = 128;
+   ieee[2] = ieee[3] = 0;
+   return 0;
+ }
+ /* normal number */
+ ieee[0] = sign + (exp >> 1);
+ ieee[3] = umant & 255;
+ ieee[2] = (umant >> 8) & 255;
+ ieee[1] = ((exp & 1) << 7) + ((umant >> 16) & 127);
+ return 0;
 }
 
-int be_int2int(unsigned char *be_int) {
+/* Copies indicated scaling info into newly allocated
+   gadouble array.  args:
 
-	int sign;
-	unsigned long n;
+   vals -- input scaling array
+   lin  -- input is linear or levels
+   dir  -- direction of scaling info:
+              0 for gr to ab
+              1 for ab to gr
+   dim  -- dimension the scaling info is for
 
-	sign = (be_int[0] & 128);
-	n = (unsigned int) ((be_int[0] & 127) << 24) +
-	    (unsigned int)  (be_int[1] << 16) +
-	    (unsigned int)  (be_int[2] <<  8) +
-	    (unsigned int)   be_int[3];
+   lin, dir, and dim are provided solely to figure out how
+   many values are to be copied.  This assumes knowledge
+   of how the various scaling items are set up.  */
 
-	/* positive number */
 
-	if (sign == 0) {
-	    return (n <= INT_MAX) ? (int) n : (int) INT_MAX;
-	}
+gadouble *cpscal (gadouble *vals, gaint lin, gaint dir, gaint dim) {
+gaint i,num;
+gadouble *vvv;
+size_t sz;
 
-	/* negative number */
-	n = (n ^ 0x7fffffff);
-
-	if (n <= (unsigned) -(INT_MIN+1)) {
-	    return -1 - (int) n;
-	}
-	return INT_MIN;
+ if (dim<0) {
+   gaprnt (0,"cpscal error:  dim is not >= 0 \n");
+   return (NULL);
+ }
+ if (dim==3) {
+   num = 8;
+ }
+ else {
+   if (lin==1) num = 3;
+   else num = (gaint)(*vals+0.5) + 5;
+ }
+ sz = sizeof(gadouble)*num;
+ vvv = (gadouble *)galloc(sz,"cpscal");
+ if (vvv==NULL) {
+   snprintf(pout,255,"cpscal memory allocation error; dim=%d lin=%d num=%d\n",dim,lin,num);
+   gaprnt(0,pout);
+   return (NULL);
+ }
+ for (i=0; i<num; i++) {
+   *(vvv+i) = *(vals+i);
+ }
+ return (vvv);
 }
+
+
+
+/*  handle var name of the form longnm=>abbrv
+    or just the abbrv with no long name */
+
+gaint getvnm (struct gavar *pvar, char *mrec) {
+gaint ib,i,j,k,len,flag;
+
+  ib = 0;
+  while (*(mrec+ib)==' ') ib++;
+
+  if (*(mrec+ib)=='\0' || *(mrec+ib)=='\n') return(1);
+
+  /* Scan for the '=>' string */
+  len = 0;
+  i = ib;
+  flag = 0;
+
+  while (1) {
+    if (*(mrec+i)==' ' || *(mrec+i)=='\0' || *(mrec+i)=='\n') break;
+    if (*(mrec+i)=='=' && *(mrec+i+1)=='>') {
+      flag = 1;
+      break;
+    }
+    len++ ; i++;
+  }
+
+  if (flag) {
+    for (j=ib; j<i; j++) {
+      k = j-ib;
+      pvar->longnm[k] = *(mrec+j);
+      /* substitute ~ for spaces in longname */
+      if (pvar->longnm[k]=='~') pvar->longnm[k]=' ';
+    }
+    pvar->longnm[len] = '\0';
+    i+=2;
+  } else {
+    i = 0;
+    pvar->longnm[0] = '\0';
+  }
+
+  if (*(mrec+i)=='\n' || *(mrec+i)=='\0') return (1);
+
+  getwrd (pvar->abbrv, mrec+i, 15);
+  lowcas(pvar->abbrv);
+
+  /* Check if 1st character is lower-case alphabetic */
+  if (islower(*(pvar->abbrv))) return(0);
+  else return (1);
+}
+
+
+/*  Parse ensemble names in EDEF record */
+gaint getenm (struct gaens *ens, char *mrec) {
+gaint i;
+
+  i = 0;
+  if (*(mrec+i)=='\n' || *(mrec+i)=='\0') return (1);
+  getwrd (ens->name, mrec+i, 15);
+  lowcas(ens->name);
+  return(0);
+
+}
+
+/* Test if two doubles are equal; returns 1 if args are not equal */
+gaint dequal(gadouble op1, gadouble op2, gadouble tolerance) {
+  if (fabs(op1 - op2) <= tolerance) return(0) ;
+  else return(1) ;
+}
+
+
+/* Following two routines used in GRIB2 handling */
+
+/* applies the scale factor to scaled grib2 code values */
+gadouble scaled2dbl(gaint scale_factor, gaint scale_value) {
+   if (scale_factor == 0) return (gadouble) scale_value;
+   return scale_value * Int_Power(0.1, scale_factor);
+}
+/*  returns x**y  */
+gadouble Int_Power(gadouble x, gaint y) {
+  gadouble value;
+  if (y < 0) {
+    y = -y;
+    x = 1.0 / x;
+  }
+  value = 1.0;
+  while (y) {
+    if (y & 1) {
+      value *= x;
+    }
+    x = x * x;
+    y >>= 1;
+  }
+  return value;
+}
+
+
+#ifndef HAVE_FSEEKO
+
+gaint fseeko(FILE *stream, off_t offset, gaint whence) {
+  fseek(stream, (long)offset, whence);
+}
+
+off_t ftello(FILE *stream) {
+  return (off_t)ftell(stream);
+}
+#endif
+
+
+
