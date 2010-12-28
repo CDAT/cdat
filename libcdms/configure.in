@@ -52,6 +52,25 @@ else
 fi
 AC_SUBST(ENABLE_HDF)
 dnl ----------------------------------------------------------------------
+dnl Check if GRIB2 is enabled
+dnl
+
+AC_MSG_CHECKING(if GRIB2 is enabled)
+AC_ARG_ENABLE(grib2,
+   [  --enable-grib2            Compile GRIB-2 support [default=yes]],
+   ENABLE_GRIB2=$enableval,
+   ENABLE_GRIB2=yes)
+
+if test "X$ENABLE_GRIB2" = "Xyes"; then
+   AC_MSG_RESULT(yes)
+   GRIB2OPTS="-DGRIB2"
+else
+   AC_MSG_RESULT(no)
+   GRIB2OPTS=""
+fi
+AC_SUBST(ENABLE_GRIB2)
+AC_SUBST(GRIB2OPTS)
+dnl ----------------------------------------------------------------------
 dnl Check if OpenDAP is enabled
 dnl
 
@@ -134,6 +153,15 @@ if test "X$ENABLE_DRS" = "Xyes"; then
   PC_CHECK_C_HEADER(DRSINC,/usr/local/include,[drsinc],drscdf.h, dnl
   [--with-drsinc=DIR       drscdf.h is in DIR (default [DRSINC])])
 fi
+dnl ----------------------------------------------------------------------
+dnl Checks for GRIB-2 header file.
+dnl
+dnl get location of GRIB-2 C header from --with-grib2inc=value
+dnl
+
+PC_CHECK_C_HEADER(GRIB2INC,/usr/local/include,[grib2inc],grib2.h, dnl
+  [--with-grib2inc=DIR        grib2.h is in DIR (default [GRIB2INC])])
+
 
 dnl ----------------------------------------------------------------------
 dnl
@@ -196,7 +224,7 @@ dnl                DAP_LIB_OPTIONS="nc-dap -ldap -lstdc++ -lcurl -lz -lssl -lpth
 dnl                ;;
 dnl   esac
       AC_ARG_WITH([nclib], [--with-nclib=DIR        libnetcdf.a is in DIR (default [NCLIB])],[NCLIB=$withval])
-      NC_LIB_OPTIONS="netcdf "`${NCLIB}/../bin/nc-config --libs`
+      NC_LIB_OPTIONS="netcdf" `${NCLIB}/../bin/nc-config --libs`
 dnl   PC_CHECK_ARG_LIB(DAPLIB,/usr/local/lib,[daplib],$DAP_LIB_OPTIONS,SDstart,DAPOPTS,dap,libnc-dap.a, dnl
 dnl   [--with-dap=DIR       libnc-dap.a is in DIR (default [DAPLIB])])
 else
@@ -221,7 +249,7 @@ dnl ----------------------------------------------------------------------
 if test "X$ENABLE_DRS" = "Xyes"; then
    PC_CHECK_FORT_LIB(DRSLIB,/usr/local/lib,[drslib],drs,Aslun,DRSOPTS,drs,libdrs.a, dnl
   [--with-drslib=DIR       libdrs.a is in DIR (default [DRSLIB])])
-fi  
+fi
 
 dnl ----------------------------------------------------------------------
 dnl Checks for typedefs, structures, and compiler characteristics.

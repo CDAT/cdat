@@ -1,10 +1,8 @@
+/*  Copyright (C) 1988-2010 by Brian Doty and the 
+    Institute of Global Environment and Society (IGES).  
+    See file COPYRIGHT for more information.   */
 
-/* Copyright (c) 1988,1989,1990,1991 by Brian Doty
-   See file COPYRIGHT for complete rights and liability information. */
-
-void *galloc(int,char *);
-void gree();
-void glook();
+#include <stdlib.h>
 
 /* Installation options for the GX package. */
 
@@ -15,31 +13,15 @@ void glook();
    when BUFOPT is 1.  Otherwise multiple buffers of size HBUFSZ
    will be allocated as needed. */
 
-#define HBUFSZ 100000L
+#define HBUFSZ 10000000L 
 #define BUFOPT 0
-
-/*------------------------------------------------------------------------------
-  New projections:    Mollweide Projection (mollweide)
-                      Orthographic Projection (orthogr)
-
-  Changes in GrADS C source code files:
-                      gxwmap.c
-                      gagx.c
-                      gauser.c
-                      gx.h
-   DKRZ
-     10.08.95   Karin Meier (karin.meier@dkrz.de)
-
-------------------------------------------------------------------------------*/
-
 #define pi 3.14159265358979
-static float lomin, lomax, lamin, lamax;
-
 
 /* Default directory containing the stroke and map data sets.
    User can override this default via setenv GADDIR */
 
-static char *datad = "/usr/local/lib/grads";
+/* static char *datad = "/usr/local/lib/grads"; */
+
 
 /* Option flag.  If 0, map data set is only read once into a
    dynamically allocated memory area.  The memory is held onto
@@ -58,20 +40,20 @@ static char *datad = "/usr/local/lib/grads";
    map projection routines.                                          */
 
 struct mapprj {
-  float lnmn,lnmx,ltmn,ltmx;        /* Lat,lon limits for projections */
-  float lnref;                      /* Reference longitude            */
-  float ltref1,ltref2;              /* Reference latitudes            */
-  float xmn,xmx,ymn,ymx;            /* Put map in this page area      */
-  float axmn,axmx,aymn,aymx;        /* Actual page area used by proj. */
+  gadouble lnmn,lnmx,ltmn,ltmx;        /* Lat,lon limits for projections */
+  gadouble lnref;                      /* Reference longitude            */
+  gadouble ltref1,ltref2;              /* Reference latitudes            */
+  gadouble xmn,xmx,ymn,ymx;            /* Put map in this page area      */
+  gadouble axmn,axmx,aymn,aymx;        /* Actual page area used by proj. */
 };
 
 /* Structure for holding info on displayed widgets. */
 
 struct gobj {
-  int type;                 /* Basic type of object. -1 - end of list;
+  gaint type;                 /* Basic type of object. -1 - end of list;
                                 0 - none; 1 - btn; 2 - rbb; 3 = popm */
-  int i1,i2,j1,j2;          /* Extent of object */
-  int mb;                   /* Mouse button that invokes object */
+  gaint i1,i2,j1,j2;          /* Extent of object */
+  gaint mb;                   /* Mouse button that invokes object */
   union tobj {
     struct gbtn *btn;       /* Pointer to button struct */
     struct grbb *rbb;       /* Pointer to rubber-band struct */
@@ -84,39 +66,50 @@ struct gobj {
    as buttons */
 
 struct gbtn {
-  int num;                       /* Button number (-1, unset) */
-  float x,y,w,h;                 /* Button location, size   */
-  int ilo,ihi,jlo,jhi;
-  int fc,bc,oc1,oc2,ftc,btc,otc1,otc2;  /* Colors           */
-  int thk;                       /* Thickness of outline    */
-  int state;                     /* Toggled or not?         */
-  int len;                       /* Length of string        */
+  gadouble x,y,w,h;              /* Button location, size   */     
+  gaint num;                     /* Button number (-1, unset) */
+  gaint ilo,ihi,jlo,jhi;
+  gaint fc,bc,oc1,oc2,ftc,btc,otc1,otc2;  /* Colors           */
+  gaint thk;                     /* Thickness of outline    */
+  gaint state;                   /* Toggled or not?         */
+  gaint len;                     /* Length of string        */
   char *ch;                      /* String content of btn   */
 };
 
 /* Structure holds info on rubber-band regions */
 
 struct grbb {
-  int num;                       /* Region number (-1, unset) */
-  int mb;                        /* Mouse button specific   */
-  float xlo,xhi,ylo,yhi;         /* Rubber band region      */
-  int type;                      /* 0 for box, 1 for line   */
+  gadouble xlo,xhi,ylo,yhi;        /* Rubber band region      */  
+  gaint num;                       /* Region number (-1, unset) */
+  gaint mb;                        /* Mouse button specific   */
+  gaint type;                      /* 0 for box, 1 for line   */
 };
 
 /* Structure for info on drop menus */
 
 struct gdmu {
-  int num;                       /* Menu number             */
-  int casc;                      /* Anchored?               */
-  float x,y,w,h;                 /* Header button loc,size  */
-  int ilo,ihi,jlo,jhi;
-  int fc,bc,oc1,oc2;             /* Colors of base          */
-  int tfc,tbc,toc1,toc2;         /* Colors of selected base */
-  int bfc,bbc,boc1,boc2;         /* Colors of box           */
-  int soc1,soc2;                 /* Colors of selected item */
-  int thk;                       /* Thickness of outlines   */
-  int len;                       /* Length of string        */
-  char *ch;                      /* String content of menu  */
+  gadouble x,y,w,h;                /* Header button loc,size  */
+  gaint num;                       /* Menu number             */
+  gaint casc;                      /* Anchored?               */
+  gaint ilo,ihi,jlo,jhi;
+  gaint fc,bc,oc1,oc2;             /* Colors of base          */
+  gaint tfc,tbc,toc1,toc2;         /* Colors of selected base */
+  gaint bfc,bbc,boc1,boc2;         /* Colors of box           */
+  gaint soc1,soc2;                 /* Colors of selected item */
+  gaint thk;                       /* Thickness of outlines   */
+  gaint len;                       /* Length of string        */
+  char *ch;                        /* String content of menu  */
+};
+
+/* Structure holds info on dialog */
+
+struct gdlg {
+  gadouble x,y,w,h;                /* Button location, size   */
+  gaint pc,fc,bc,oc;  	  	   /* Colors           	    */
+  gaint th;                        /* Thickness of outline    */
+  gaint len;                       /* Length of string        */
+  gaint nu;                        /* Flag for numeric args   */
+  char *ch;                        /* String content of btn   */
 };
 
 
@@ -125,22 +118,46 @@ struct gdmu {
    are removed from the queue via the 'q pos' command.  */
 
 struct gevent {
-  struct gevent *forw;   /* Forward pointer */
-  float x, y;            /* X and Y position of cursor */
-  int mbtn;              /* Mouse button pressed */
-  int type;              /* Type of event */
-  int info[10];          /* Integer info about event */
-  float rinfo[4];        /* Floating point info about event */
+  struct gevent *forw;     /* Forward pointer */
+  gadouble x, y;           /* X and Y position of cursor */
+  gaint mbtn;              /* Mouse button pressed */
+  gaint type;              /* Type of event */
+  gaint info[10];          /* Integer info about event */
+  gadouble rinfo[4];       /* info about event */
 };
 
-/* Structure for passing information on map plotting
-   options */
+/* Structure for passing information on map plotting options */
 
 struct mapopt {
-  int dcol,dstl,dthk;    /* Default color, style, thickness */
-  int *mcol,*mstl,*mthk;  /* Arrays of map line attributes */
-  float lnmin,lnmax,ltmin,ltmax;  /* Plot bounds */
-  char *mpdset;          /* Map data set name */
+  gadouble lnmin,lnmax,ltmin,ltmax;  /* Plot bounds */
+  gaint dcol,dstl,dthk;              /* Default color, style, thickness */
+  gaint *mcol,*mstl,*mthk;           /* Arrays of map line attributes */
+  char *mpdset;                      /* Map data set name */
+};
+
+/* Structure for passing information on the currently open X Window */
+
+struct xinfo {
+  gaint winid;                 /* Window ID */
+  gaint winx;                  /* Window X position (upper left) */
+  gaint winy;                  /* Window Y position (upper left) */
+  gauint winw;                 /* Window width */ 
+  gauint winh;                 /* Window height */ 
+  gauint winb;                 /* Window border width */
+};
+
+/* Struct for passing contour options */
+
+struct gxcntr {
+  gadouble labsiz;             /* Size of contour label, plotting inches */
+  gaint spline;                /* Spline fit flag - 0 no, 1 yes */
+  gaint ltype;                 /* Label type (off, on, masked, forced */
+  gaint mask;                  /* Label masking flag - 0 no, 1 yes */
+  gaint labcol;                /* Override label color, -1 uses contour color */
+  gaint labwid;                /* Override label width, -1 uses contour width,
+                                         -999 does double plot */
+  gaint ccol;                  /* Contour color */
+  char *label;                 /* Contour label */
 };
 
 /* Function prototypes for GX library routines  */
@@ -165,52 +182,66 @@ struct mapopt {
    gxgrey: Set grey scale
    gxdbck: Set hardware background/foreground
    gxrswd: Reset Widget Structures
+   gxrs1wd: Reset one widget
    gxcpwd: Copy widgets on swap in double buffer mode
    gxevbn: Handle button press event
    gxevrb: Handle rubber-band event
    gxdptn: Set fill pattern
+   gxmaskrec: Set mask for a rectangle
+   gxmaskrq: query mask for a rectangular area
+   gxmaskclear: Clear (unset) mask array
                                                            */
 
-void gxdbgn (float, float);
+void gxdbgn (gadouble, gadouble);
+void gxdbat (void);
 void gxdend (void);
 void gxdfrm (int);
 void gxdcol (int);
-void gxdacl (int, int, int, int);
+gaint gxdacl (int, int, int, int);
 void gxdwid (int);
-void gxdmov (float, float);
-void gxddrw (float, float);
-void gxdrec (float, float, float, float);
+void gxdmov (gadouble, gadouble);
+void gxddrw (gadouble, gadouble);
+void gxdrec (gadouble, gadouble, gadouble, gadouble);
 void gxdsgl (void);
 void gxdbl (void);
 void gxdswp (void);
-int  gxqfil (void);
-void gxdfil (float *, int);
-void gxdfl2 (float *, int);
+gaint gxqfil (void);
+void gxdfil (gadouble *, gaint);
 void gxdxsz (int, int);
 void gxgrey (int);
 void gxdbck (int);
-int gxdeve (int);
-void gxdbtn (int, float *, float *, int *, int *, int *, float *);
+gaint gxdbkq (void);
+void gxdeve (int);
+void gxdbtn (gaint, gadouble *, gadouble *, gaint *, gaint *, gaint *, gadouble *);
 void gxdpbn (int, struct gbtn *, int, int, int);
 void gxdrmu (int, struct gdmu *, int, int);
 void gxdsfn (void);
-void gxdtxt (char *, float, float);
 void gxdcf (void);
-int gxdfsw (char *, int, int);
 void gxdrdw (void);
 void gxrdrw (int);
 void gxrswd (int);
+void gxrs1wd (int, int);
 void gxcpwd (void);
 void gxevbn (struct gevent *, int);
 void gxevrb (struct gevent *, int, int, int);
-int gxevdm (struct gevent *, int, int, int);
-int gxpopdm(struct gdmu *, int, int, int);
-void gxdrbb (int, int, float, float, float, float,int);
-char *gxdlg (char *);
+gaint gxevdm (struct gevent *, int, int, int);
+gaint gxpopdm(struct gdmu *, int, int, int, int);
+void gxdrbb (gaint, gaint, gadouble, gadouble, gadouble, gadouble, gaint);
+char *gxdlg (struct gdlg *);
 void gxdptn (int, int, int);
 void gxdssv (int);
 void gxdssh (int);
 void gxdsfr (int);
+gaint win_data (struct xinfo *);
+void gxmaskrec (gadouble, gadouble, gadouble, gadouble);
+gaint gxmaskrq (gadouble, gadouble, gadouble, gadouble);
+void gxmaskclear (void);
+void dump_back_buffer (char *);
+void dump_front_buffer (char *);
+void gxdgeo (char *);
+int gxheps(char*);
+void gxdimg(gaint *, gaint, gaint, gaint, gaint);
+void gxdgcoord(gadouble, gadouble, gaint *, gaint *);
 
 /* Routines in gxsubs:
    gxstrt: Initialize graphics output
@@ -223,6 +254,7 @@ void gxdsfr (int);
    gxwide: Set line width attribute
    gxmove: Move to X, Y
    gxdraw: Draw solid line to X, Y using current color and linewidth
+   gxsdrw: Draw, split into small segments to allow masking
    gxstyl: Set linestyle
    gxplot: Move or draw using linestyles
    gxclip: Set clipping region
@@ -241,6 +273,8 @@ void gxdsfr (int);
    gxrset: Reset projection or grid level scaling
    gxrecf: Draw filled rectangle
    gxqclr: Query current color value
+   gxqwid: Query current line width
+   gxqrgb: Query color rgb values
    gxqstl: Query current linestyle value
    gxmark: Draw marker
    gxfill: Polygon fill
@@ -250,43 +284,45 @@ void gxdsfr (int);
    gxptrn: Set fill pattern
                                                                 */
 
-void gxstrt (float, float,int);
+void gxstrt (gadouble, gadouble, int, int);
 void gxend (void);
 void gxfrme (int);
 void gxsfrm (void);
 void gxcolr (int);
-void gxacol (int, int, int, int);
+gaint gxacol (int, int, int, int);
 void gxbckg (int);
-int gxqbck (void);
+gaint gxqbck (void);
 void gxwide (int);
-void gxmove (float, float);
-void gxdraw (float, float);
+void gxmove (gadouble, gadouble);
+void gxdraw (gadouble, gadouble);
+void gxsdrw (gadouble, gadouble);
 void gxstyl (int);
-void gxplot (float, float, int);
-void gxclip (float, float, float, float);
-void gxtitl (char *, float, float, float, float, float);
-void gxvpag (float, float, float, float, float, float);
-void gxvcon (float, float, float *, float *);
-void gxppvp (float, float, float *, float *);
-void gxscal (float, float, float, float, float, float, float, float);
-void gxproj ( void (*) (float, float, float*, float*) );
-void gxgrid ( void (*) (float, float, float*, float*) );
-void gxback ( void (*) (float, float, float*, float*) );
-void gxconv (float, float, float *, float *, int);
-void gxxy2w (float, float, float *, float *);
-void gxgrmp (float, float, float *, float *);
-void gxcord (float *, int, int);
-void gxpoly (float *, int, int);
+void gxplot (gadouble, gadouble, int);
+void gxclip (gadouble, gadouble, gadouble, gadouble);
+void gxtitl (char *, gadouble, gadouble, gadouble, gadouble, gadouble);
+void gxvpag (gadouble, gadouble, gadouble, gadouble, gadouble, gadouble);
+void gxvcon (gadouble, gadouble, gadouble *, gadouble *);
+void gxppvp (gadouble, gadouble, gadouble *, gadouble *);
+void gxscal (gadouble, gadouble, gadouble, gadouble, gadouble, gadouble, gadouble, gadouble);
+void gxproj ( void (*) (gadouble, gadouble, gadouble*, gadouble*) );
+void gxgrid ( void (*) (gadouble, gadouble, gadouble*, gadouble*) );
+void gxback ( void (*) (gadouble, gadouble, gadouble*, gadouble*) );
+void gxconv (gadouble, gadouble, gadouble *, gadouble *, gaint);
+void gxxy2w (gadouble, gadouble, gadouble *, gadouble *); 
+void gxgrmp (gadouble, gadouble, gadouble *, gadouble *);
+void gxcord (gadouble *, gaint, gaint);
 void gxrset (int);
-void gxrecf (float, float, float, float);
-int gxqclr (void);
-int gxqstl (void);
-void gxmark (int, float, float, float);
-void gxfill (float *, int);
-void bdterp (float, float, float, float, float *, float *);
+void gxrecf (gadouble, gadouble, gadouble, gadouble);
+gaint gxqwid (void);
+gaint gxqclr (void);
+void gxqrgb (gaint, gaint *, gaint *, gaint *);
+gaint gxqstl (void);
+void gxmark (gaint, gadouble, gadouble, gadouble);
+void gxfill (gadouble *, gaint);
+void bdterp (gadouble, gadouble, gadouble, gadouble, gadouble *, gadouble *);
+void gxptrn (int, int, int);
 char *gxgsym(char *);
 char *gxgnam(char *);
-void gxptrn (int, int, int);
 
 /* Gxmeta routines handle graphics buffering and metafile output.
    Routines in gxmeta:
@@ -309,21 +345,22 @@ void gxptrn (int, int, int);
                                            */
 
 void gxhopt (int);
-void gxhnew (float, float);
-int gxhbgn (char *);
+void gxhnew (gadouble, gadouble, int);
+gaint gxhbgn (char *);
 void hout0 (int);
 void hout1 (int, int);
-void hout2 (int, float, float);
-void hout4 (int, float, float, float, float);
+void hout2 (int, gadouble, gadouble);
+void hout4 (int, gadouble, gadouble, gadouble, gadouble);
 void hout2i (int, int, int);
 void hout3i (int, int, int, int);
 void hout4i (int, int, int, int, int);
 void hfull (void);
-void gxhprt (void);
-int gxhwri (void *, int);
+void gxhprt (char *);
+gaint gxhwri (void *, int);
 void gxhend (void);
 void gxhfrm (int);
 void gxhdrw (int);
+void gxddbl (void);
 
 /* Routines in gxchpl:
    gxchii: Initialize character plotting
@@ -333,12 +370,12 @@ void gxhdrw (int);
    gxchgc: Get character info given character and font
    gxchrd: Read in a font
                             */
-void gxchii (void);
-void gxchdf (int);
-void gxchpl (char *, int, float, float, float, float, float);
-int gxchln (char *, int, float, float *);
-char *gxchgc (int, int, int *);
-int gxchrd (int);
+void  gxchii (void);
+void  gxchdf (gaint);
+void  gxchpl (char *, gaint, gadouble, gadouble, gadouble, gadouble, gadouble);
+gaint gxchln (char *, gaint, gadouble, gadouble *);
+char *gxchgc (gaint, gaint, gaint *);
+gaint gxchrd (gaint);
 
 /* Routine in gxcntr:
    gxclmn: Specify minimum distance between labels
@@ -346,17 +383,22 @@ int gxchrd (int);
    gxcflw: Follow a contour segment
    gxcspl: Spline fit a contour segment
    gxclab: Draw buffered contour labels.
+   gxpclab: Plot contour labels, buffered or masked
+   gxqclab: When masked labels, test for label overlap
    pathln: Find shortest col path through grid box
    gxcrel: Release storage used by the contouring system
                                                         */
-void gxclmn (float);
-void gxclev (float *, int, int, int, int, int, int,
-                                    float, float, char *, int, int);
-void gxcflw (int, int, int, int);
-void gxcspl (void);
-void gxclab (float,int,int);
-int pathln (float, float, float, float);
+void gxclmn (gadouble);
+void gxclev (gadouble *, gaint, gaint, gaint, gaint, gaint, gaint,
+                                    gadouble, char *, struct gxcntr *);
+void gxcflw (gaint, gaint, gaint, gaint);
+gaint gxcspl (gaint, struct gxcntr *);
+void gxclab (gadouble, gaint, gaint);
+void gxpclab (gadouble, gadouble, gadouble, gaint, struct gxcntr *);
+int gxqclab (gadouble, gadouble, gadouble);
+gaint pathln (gadouble, gadouble, gadouble, gadouble);
 void gxcrel (void);
+void gxpclin (void);
 
 /* Routines in gxshad -- color filled contour routine:
 
@@ -368,20 +410,20 @@ void gxcrel (void);
    shdcmp -- Compress contour line
    shdmax -- Determine max or min interior
                                                                   */
-void gxshad ( float *, int, int, float *, int *, int, float);
-int gxsflw (int, int, int);
-int spathl (float, float, float, float);
-int undcol (int, int);
-int putxy (float, float);
-void shdcmp (void);
-int shdmax (void);
+void  gxshad (gadouble *, gaint, gaint, gadouble *, gaint *, gaint, char *);
+gaint gxsflw (gaint, gaint, gaint);
+gaint spathl (gadouble, gadouble, gadouble, gadouble);
+gaint undcol (gaint, gaint);
+gaint putxy  (gadouble, gadouble);
+void  shdcmp (void);
+gaint shdmax (void);
 
 /* routines in gxstrm:  gxstrm (do streamlines) */
 
-void gxstrm (float *, float *, float *, int, int, float, float, float,
-   int, float *, int *, int, int);
-void strmar (float, float, float, float);
-int gxshdc (float *, int *, int, float);
+void gxstrm (gadouble *, gadouble *, gadouble *, gaint, gaint, char *, char *, char *,
+	     gaint, gadouble *, gaint *, gaint, gaint);
+void strmar (gadouble, gadouble, gadouble, gadouble);
+gaint gxshdc (gadouble *, gaint *, gaint, gadouble);
 
 /* Routines in gxwmap:
    gxwmap: Draw world map
@@ -392,51 +434,35 @@ int gxshdc (float *, int *, int, float);
    gxaarw: Direction adjustment for map projection
    gxgmap: Medium and hi res map drawer
    gxhqpt: Plot quadrant of medium or hi res map
+   gxmpoly: Interpolate polygon sides for drawing in non-linear map space
                                                                   */
 
 void gxdmap (struct mapopt *);
-void gxwmap (float, float, float, float);
-void gxnmap (float, float, float, float);
-void gxmout (int, float, float, float, float, float);
+void gxwmap (gadouble, gadouble, gadouble, gadouble);
+void gxnmap (gadouble, gadouble, gadouble, gadouble);
+void gxmout (int, gadouble, gadouble, gadouble, gadouble, gadouble);
 int  gxltln (struct mapprj *);
 int  gxscld (struct mapprj *, int, int);
 int  gxnste (struct mapprj *);
-void gxnpst (float, float, float *, float *);
-void gxnrev (float, float, float *, float *);
+void gxnpst (gadouble, gadouble, gadouble *, gadouble *);
+void gxnrev (gadouble, gadouble, gadouble *, gadouble *);
 int  gxsste (struct mapprj *);
-void gxspst (float, float, float *, float *);
-void gxsrev (float, float, float *, float *);
-float gxaarw (float, float);
-void gxgmap (int, int, float, float, float, float);
-void gxhqpt (int, int, int, float, float, float, float, float);
+void gxspst (gadouble, gadouble, gadouble *, gadouble *);
+void gxsrev (gadouble, gadouble, gadouble *, gadouble *);
+gadouble gxaarw (gadouble, gadouble);
+void gxgmap (int, int, gadouble, gadouble, gadouble, gadouble);
+void gxhqpt (int, int, int, gadouble, gadouble, gadouble, gadouble, gadouble);
 int  gxrobi (struct mapprj *);
-void gxrobp (float, float, float *, float *);
-void gxrobb (float, float, float *, float *);
-/*---- DKRZ: appending new projections ---  10.08.95 Karin Meier
-
-    gxmoll: Setup scaling Mollweide projection
-    gxortg: Setup scaling Orthographic projection
-
----- DKRZ: end of new projections ---  karin.meier@dkrz.de ----*/
-
-/*---- Mollweide Projection ----*/
-
+void gxrobp (gadouble, gadouble, gadouble *, gadouble *);
+void gxrobb (gadouble, gadouble, gadouble *, gadouble *);
 int  gxmoll (struct mapprj *);
-void gxmollp (float, float, float *, float *);
-void gxmollb (float, float, float *, float *);
-
-/*---- Orthographic Projection ----*/
-
+void gxmollp (gadouble, gadouble, gadouble *, gadouble *);
+void gxmollb (gadouble, gadouble, gadouble *, gadouble *);
 int  gxortg (struct mapprj *);
-void gxortgp (float, float, float *, float *);
-void gxortgb (float, float, float *, float *);
-
-/*------- DKRZ appendingd end ------*/
-
-/*---- Lambert Conformal Projection ----*/
-
+void gxortgp (gadouble, gadouble, gadouble *, gadouble *);
+void gxortgb (gadouble, gadouble, gadouble *, gadouble *);
 int  gxlamc (struct mapprj *);
-void gxlamcp (float, float, float *, float *);
-void gxlamcb (float, float, float *, float *);
-
-/*------- DKRZ appendingd end ------*/
+void gxlamcp (gadouble, gadouble, gadouble *, gadouble *);
+void gxlamcb (gadouble, gadouble, gadouble *, gadouble *);
+gadouble *gxmpoly(gadouble *xy, gaint cnt, gadouble llinc, gaint *newcnt); 
+void gree();

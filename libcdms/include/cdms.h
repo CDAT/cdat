@@ -204,12 +204,7 @@ extern void cdChar2Rel(cdCalenType timetype, char* chartime, char* relunits, dou
 extern void cdComp2Char(cdCalenType timetype, cdCompTime comptime, char* time);
 extern void cdComp2Rel(cdCalenType timetype, cdCompTime comptime, char* relunits, double* reltime);
 extern void cdRel2Char(cdCalenType timetype, char* relunits, double reltime, char* chartime);
-#ifdef __cplusplus
-extern "C"
-#else
-extern
-#endif
-void cdRel2Comp(cdCalenType timetype, char* relunits, double reltime, cdCompTime* comptime);
+extern void cdRel2Comp(cdCalenType timetype, char* relunits, double reltime, cdCompTime* comptime);
 extern void cdRel2Rel(cdCalenType timetype, char* relunits, double reltime, char* outunits, double* outtime);
 extern int cdAbs2Comp(char *absunits, void *abstime, cdType abstimetype, cdCompTime *comptime, double *frac);
 extern int cdComp2Abs(cdCompTime comptime, char *absunits, cdType abstimetype, double frac, void *abstime);
