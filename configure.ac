@@ -1723,7 +1723,7 @@ if test ${with_netcdf} != "yes" -a ${with_netcdf} != "no"; then
     CFLAGS=${NCCFLAGS}" "${CFLAGS}
 else
     AC_PATH_PROG(LOCNCCONFIG,nc-config,"no")
-    if  test ${LOCNCCONFIG} != "no" ; then 
+    if  test ${LOCNCCONFIG} != "no" -a `nc-config --has-nc4` = "yes"; then 
       NCCFLAGS=`nc-config --cflags`
       NCLDFLAGS=`nc-config --libs`
       NC4LOC=`nc-config --prefix`
