@@ -1,7 +1,7 @@
 #include "vcs_events.h"
 #include "display.h"
 #include "cdms.h"
-#include "project.h"
+#include "project.h"x
 #include "gksshort.h"
 
 typedef struct level_fill {int color; float l1,l2;} S_boxfill;
@@ -2021,8 +2021,6 @@ extern "C" void resize_or_move(PyVCScanvas_Object *self,
     struct points_struct		*xptr=NULL, *yptr=NULL;
     struct array_segments   	*xpts=NULL, *ypts=NULL;
     char                            proj[256];
-    extern "C" Gpoint proj_convert(Gpoint pxy);
-    extern "C" Gpoint invert_proj_convert(Gpoint pxy);
     Gpoint pxy;
     int found;
     Gextent myextent;
@@ -3223,7 +3221,6 @@ extern "C" struct item_list *select_item(PyVCScanvas_Object *self,
   struct pe_leg 	*peleg;
   struct pe_dsp 	*pedsp;
   char                            proj[256];
-  extern Gpoint proj_convert();
   struct item_list *items[51],*prim_items,*prim_item,*prim_item2;
   struct item_list *selected=NULL, *temp_selected=NULL;
   int counter=0,position=0, temp_position=0,gui_flg=0,j;
@@ -5018,7 +5015,6 @@ extern "C" int get_data_coords(PyVCScanvas_Object *self,Gpoint point,struct item
   int                              n1,n2,k1,j,iw,jw,ierr;
   int				   i,k,l, xindex, yindex, size=1;
   int                              nxwrap,nywrap,ncells;
-  int                              locator();
 
   S_boxfill                        regis[256],save_regis[256];
   float  save_lev_1, save_lev_2;
@@ -5031,7 +5027,6 @@ extern "C" int get_data_coords(PyVCScanvas_Object *self,Gpoint point,struct item
   float save_min, save_max, save_mean;
 
   struct pe_dsp pP_dsp;
-  extern int set_projection();
 
 /*   int nicedf(float a,float b,float *dr,int *pw10,float *center); */
 /*   float dr,dx,x1,x2,center; */
