@@ -2021,8 +2021,8 @@ extern "C" void resize_or_move(PyVCScanvas_Object *self,
     struct points_struct		*xptr=NULL, *yptr=NULL;
     struct array_segments   	*xpts=NULL, *ypts=NULL;
     char                            proj[256];
-    extern Gpoint proj_convert();
-    extern Gpoint invert_proj_convert();
+    extern "C" Gpoint proj_convert(Gpoint pxy);
+    extern "C" Gpoint invert_proj_convert(Gpoint pxy);
     Gpoint pxy;
     int found;
     Gextent myextent;
