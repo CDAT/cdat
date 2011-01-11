@@ -1,5 +1,6 @@
 dnl                                                -*- Autoconf -*-
 dnl  Process this file with autoconf to produce a configure script.
+dnl  $Id: $
 
 dnl AC_PREREQ(2.59)
 AC_SUBST(SHELL)
@@ -452,8 +453,8 @@ AC_SUBST(VTK_GZ)
 LIBCF_MAJOR_SRC=1
 LIBCF_MINOR_SRC=0
 LIBCF_PATCH_SRC=0
-LIBCF_URL=http://www.unidata.ucar.edu/software/libcf/
-LIBCF_GZ=ftp://ftp.unidata.ucar.edu/pub/libcf/libcf-daily.tar.gz
+LIBCF_URL=ftp://ftp.unidata.ucar.edu/pub/libcf
+LIBCF_GZ=libcf-daily.tar.gz
 AC_SUBST(LIBCF_MAJOR_SRC)
 AC_SUBST(LIBCF_MINOR_SRC)
 AC_SUBST(LIBCF_PATCH_SRC)
@@ -782,6 +783,18 @@ else
   COMPILE_VTK="no"
 fi
 AC_SUBST(COMPILE_VTK)
+
+dnl
+dnl LibCF
+dnl 
+AC_ARG_ENABLE([libcf],[AS_HELP_STRING([--enable-libcf],[enable/disable libcf build])]) 
+if test "x${enable_libcf}" == "xyes" ; then
+   COMPILE_LIBCF="yes"
+else
+  COMPILE_LIBCF="no"
+fi
+AC_SUBST(COMPILE_LIBCF)
+
 EXTRAENV=""
 
 ISFRAMEWORK="no"
@@ -2104,6 +2117,9 @@ if test ${COMPILE_NC} == "yes" ; then
     AC_MSG_NOTICE([libnetcdf >=4 not found... building library ${NC4_MAJOR_SRC}.${NC4_MINOR_SRC}.${NC4_PATCH_SRC}])
 else
     AC_MSG_NOTICE([libnetcdf >=4 found at ${NC4LOC}])
+fi
+if test ${COMPILE_LIBCF} == "yes" ; then
+    AC_MSG_NOTICE([libcf ..... building library ${LIBCF_MAJOR_SRC}.${LIBCF_MINOR_SRC}.${LIBCF_PATCH_SRC}])
 fi
 if test ${BUILDQT} == "yes" ; then
     AC_MSG_NOTICE([Qt libraries not found... building library ${QT_MAJOR_SRC}.${QT_MINOR_SRC}.${QT_PATCH_SRC}])

@@ -626,6 +626,7 @@ GREP
 EXTRAENV
 XTRA_LD_F2PY
 QTCONFIGOPT
+COMPILE_LIBCF
 COMPILE_VTK
 X_EXTRA_LIBS
 X_LIBS
@@ -1033,6 +1034,7 @@ enable_esg
 enable_X11
 with_x
 enable_vtk
+enable_libcf
 enable_aqua
 enable_framework
 enable_toolbox_glue
@@ -1700,6 +1702,7 @@ Optional Features:
   --enable-x              turn on/off build of things depending on X11
                           (default on)
   --enable-vtk            enable/disable vtk build
+  --enable-libcf          enable/disable libcf build
   --enable-aqua           enables aqua support for tk (if tk with aqua is on
                           your system)
   --enable-framework      Build (MacOSX|Darwin) framework
@@ -3094,8 +3097,8 @@ VTK_GZ=vtk-${VTK_MAJOR_SRC}.${VTK_MINOR_SRC}.${VTK_PATCH_SRC}.tar.gz
 LIBCF_MAJOR_SRC=1
 LIBCF_MINOR_SRC=0
 LIBCF_PATCH_SRC=0
-LIBCF_URL=http://www.unidata.ucar.edu/software/libcf/
-LIBCF_GZ=ftp://ftp.unidata.ucar.edu/pub/libcf/libcf-daily.tar.gz
+LIBCF_URL=ftp://ftp.unidata.ucar.edu/pub/libcf
+LIBCF_GZ=libcf-daily.tar.gz
 
 
 
@@ -6797,6 +6800,19 @@ if test ${enable_vtk} == "-yes" ; then
 else
   COMPILE_VTK="no"
 fi
+
+
+# Check whether --enable-libcf was given.
+if test "${enable_libcf+set}" = set; then :
+  enableval=$enable_libcf;
+fi
+
+if test "x${enable_libcf}" == "xyes" ; then
+   COMPILE_LIBCF="yes"
+else
+  COMPILE_LIBCF="no"
+fi
+
 
 EXTRAENV=""
 
@@ -11286,6 +11302,10 @@ $as_echo "$as_me: libnetcdf >=4 not found... building library ${NC4_MAJOR_SRC}.$
 else
     { $as_echo "$as_me:${as_lineno-$LINENO}: libnetcdf >=4 found at ${NC4LOC}" >&5
 $as_echo "$as_me: libnetcdf >=4 found at ${NC4LOC}" >&6;}
+fi
+if test ${COMPILE_LIBCF} == "yes" ; then
+    { $as_echo "$as_me:${as_lineno-$LINENO}: libcf ..... building library ${LIBCF_MAJOR_SRC}.${LIBCF_MINOR_SRC}.${LIBCF_PATCH_SRC}" >&5
+$as_echo "$as_me: libcf ..... building library ${LIBCF_MAJOR_SRC}.${LIBCF_MINOR_SRC}.${LIBCF_PATCH_SRC}" >&6;}
 fi
 if test ${BUILDQT} == "yes" ; then
     { $as_echo "$as_me:${as_lineno-$LINENO}: Qt libraries not found... building library ${QT_MAJOR_SRC}.${QT_MINOR_SRC}.${QT_PATCH_SRC}" >&5
