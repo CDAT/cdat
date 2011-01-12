@@ -56,4 +56,3 @@ a6aee7653566ec0b7c4b0f4c24a96f20  sources/tk8.5.4-src.tar.gz
 e0360b9557355b02ad789c0ab4f3a7cb  sources/xgks.tar.gz
 d41d8cd98f00b204e9800998ecf8427e  sources/zlib-1.2.3.tar.gz
 c735eab2d659a96e5a594c9e8541ad63  sources/zlib-1.2.5.tar.gz
-d41d8cd98f00b204e9800998ecf8427e  sources/libcf-daily.tar.gz
