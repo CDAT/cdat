@@ -216,6 +216,10 @@ ifeq (@COMPILE_NC@,yes)
 	@echo "Building netcdf"
 	$(call dobuild,@NC4_URL@,@NC4_GZ@,@EXTERNALS@/NetCDF,@NC_FORTRAN@,  --enable-netcdf-4 --with-hdf5=@HDF5LOC@)
 endif
+ifeq (@COMPILE_LIBCF@,yes)
+	@echo "Building libcf"
+	$(call dobuild,@LIBCF_URL@,@LIBCF_GZ@,@EXTERNALS@/libcf,,  --enable-shared --with-hdf5=@HDF5LOC@ --with-netcdf=@NC4LOC@)
+endif
 ifeq (@COMPILE_R@,yes)
 	@echo "Building R"
 	$(call dobuild,@R_URL@,@R_GZ@,@EXTERNALS@)

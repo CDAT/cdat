@@ -283,8 +283,12 @@ class QPlotView(QtGui.QWidget):
         icanvas = 0
         
         if qtbrowser.useVistrails:
-            print 'Not implemented yet'
-            self.spreadSheet.canvas.plot(*var)
+            row = self.plotOptions.getRow()
+            col = self.plotOptions.getCol()
+            self.root.record('## Plotting into the spreadsheet')
+            self.root.record('plot(%s,row=%s,col=%s)'% (plot_args,
+                                                        row,
+                                                        col))
         else:
             self.root.record("## Clearing vcs canvas %i" % icanvas)
             self.root.record("vcs_canvas[%i].clear()" % icanvas)
