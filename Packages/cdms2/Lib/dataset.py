@@ -822,6 +822,7 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
                                 'default_variable_name',
                                 'id',
                                 'parent',
+                                'info',
                                 'mode']
         self.___cdms_internals__ = value
         self.id = path
@@ -836,6 +837,8 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
         self.grids = {}
         self.xlinks = {}
         self._gridmap_ = {}
+        self.info = AutoAPI.Info()
+        self.info.expose=["sync","close"]
 
         # self.attributes returns the Cdunif file dictionary. 
 ##         self.replace_external_attributes(self._file_.__dict__)
@@ -1001,6 +1004,17 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
             del(self.attributes[name])
 
     def sync(self):
+        """
+        Options:::
+        nopt :: (str) () test opt
+:::
+  Input:::
+      self (str) (0) self
+  :::
+  Output:::
+   None :: (None) (0) yep
+   :::
+   """
         if self._status_=="closed":
             raise CDMSError, FileWasClosed + self.id
         self._file_.sync()

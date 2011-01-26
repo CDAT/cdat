@@ -7,14 +7,17 @@ b7b30ab25ee976407b37052f2f724bce  sources/PyQt-x11-gpl-4.7.7.tar.gz
 18213126857b7c6e6da6f7a1720d4870  sources/PyQt-mac-gpl-4.7.7.tar.gz
 177fa10c6420d6f7fc745478fa64304a  sources/PyQt-mac-gpl-4.8.1.tar.gz
 1cac8f5d715c414f9cb2751b0e84cc07  sources/PyQt-x11-gpl-4.8.1.tar.gz
+14bade8b251660177ccc1a0cbbe33aba  sources/PyQt-mac-gpl-4.8.3.tar.gz
+d54fd1c37a74864faf42709c8102f254  sources/PyQt-x11-gpl-4.8.3.tar.gz
 17dcac33e4f3adb69a57c2607b6de246  sources/Python-2.6.4.tgz
 cd04b5b9383b6c1fccdaa991af762cf4  sources/Python-2.6.5.tgz
 35f56b092ecf39a6bd59d64f142aae0f  sources/Python-2.7.tgz
 7e6af7022440d8688d16be86d55fb358  sources/blas.tgz
 b60a82f405f9400bbfdcf850b1728d25  sources/cairo-1.8.10.tar.gz
+f101a9e88b783337b20b2e26dfd26d5f  sources/cairo-1.10.2.tar.gz
+3c8c7b7500058e0c841b2f6db43f15a2  sources/cairo-1.11.2.tar.gz
 3b3679b8a6afaedc38a8c15dd7ff4fcf  sources/cmake-2.8.0.tar.gz
 8c967d5264657a798f22ee23976ff0d9  sources/cmake-2.8.2.tar.gz
-ce04744b4ac753f851d34a6e5835410a  sources/curl-7.20.0.tar.gz
 11c660064f83ac74304849b731df79fc  sources/ffmpeg-0.5.1.tar.gz
 77e15a92006ddc2adbb06f840d591c0e  sources/fontconfig-2.8.0.tar.gz
 9c2744f1aa72fe755adda33663aa3fad  sources/freetype-2.3.9.tar.gz
@@ -38,6 +41,7 @@ e61d0364a30146aaa3001296f853b2b9  sources/libxslt-1.1.26.tar.gz
 ed8298f8173bee510129eb32ef872db5  sources/pbmplus_10dec1991.tar.gz
 6041fe8982cc4d1323adc47e629c7d13  sources/pixman-0.17.10.tar.gz
 dfb84c9f402fbba5047f0e0a69c17518  sources/pixman-0.19.2.tar.gz
+a923c20af88e469ac29ba42cfedb88c2  sources/pixman-0.20.2.tar.gz
 d922a88782b64441d06547632fd85744  sources/pkg-config-0.23.tar.gz
 5c69f16d452b0bb3d44bc3c10556c072  sources/qt-everywhere-opensource-src-4.6.3.tar.gz
 3a2f25b9b115037277f4fb759194a7a5  sources/qt-everywhere-opensource-src-4.7.0.tar.gz
@@ -48,6 +52,7 @@ fc2f7e714fe792db1ce6ddc4c9fb4ef3  sources/readline-6.1.tar.gz
 0a591ef6e59aa16e56822d3eb9fe21b8  sources/sip-4.10.5.tar.gz
 d32ae4dfea42ebf37419a0ec28b597de  sources/sip-4.11.1.tar.gz
 d799804ca0a88bd76c6c2cdf8935c3cb  sources/sip-4.11.2.tar.gz
+0f8e8305b14c1812191de2e0ee22fea9  sources/sip-4.12.1.tar.gz
 15032a6a43f3bfbe9223b95186849472  sources/tcl8.5.4-src.tar.gz
 ffe6f86e63a3a29fa53ac645faaabdfa  sources/termcap-1.3.1.tar.gz
 a6aee7653566ec0b7c4b0f4c24a96f20  sources/tk8.5.4-src.tar.gz

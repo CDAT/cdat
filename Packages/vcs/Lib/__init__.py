@@ -19,7 +19,6 @@
 #################################################################################
 """
 import vcs.info
-print dir(vcs.info)
 
 import sys
 if sys.executable[-4:]!='cdat' and sys.platform in ['darwin'] and (vcs.info.WM=='QT' or vcs.info.EM=='QT'):

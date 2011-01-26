@@ -121,15 +121,15 @@ CDAT will look for and install if necessary (minimum version required/version di
 	  numpy 1.4.1 / 1.4.1
 	  tcl/tk : 8.5.4 / 8.5.8
 	  QT : 4.6.2 / 4.7.1
-	  sip : 4.11.1 / 4.11.2
-	  PyQt : 4.7.6 / 4.8.1
+	  sip : 4.12.1 / 4.12.1
+	  PyQt : 4.7.6 / 4.8.3
           readline : 5.2 / 6.1
 	  zlib: any / 1.2.5
 	  termcap: any / 1.3.1
           freetype 9.7.3 / 2.3.12
           fontconfig 2.4.2 / 2.8.0
           pkg-co nfig 0.9.0 / 0.23.0
-          cairo 1.8.10 / 1.8.10
+          cairo 1.8.10 / 1.10.2
           ffmpeg
           jpeg any/6b
           libpng 1.4.1 / 1.4.2
