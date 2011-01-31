@@ -324,7 +324,7 @@ def parseFileMap(text):
 
 # A CDMS dataset consists of a CDML/XML file and one or more data files
 from cudsinterface import cuDataset
-class Dataset(CdmsObj, cuDataset, AutoAPI.AutoAPI):
+class Dataset(CdmsObj, cuDataset):
     def __init__(self, uri, mode, datasetNode=None, parent=None, datapath=None):
         if datasetNode is not None and datasetNode.tag !='dataset':
             raise CDMSError, 'Node is not a dataset node'
@@ -837,8 +837,7 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
         self.grids = {}
         self.xlinks = {}
         self._gridmap_ = {}
-        self.info = AutoAPI.Info()
-        self.info.expose=["sync","close"]
+        self.info.expose+=["sync","close","createAxis","createVirtualAxis","copyAxis","createRectGrid",]
 
         # self.attributes returns the Cdunif file dictionary. 
 ##         self.replace_external_attributes(self._file_.__dict__)
@@ -1046,6 +1045,24 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
     # Set unlimited to true to designate the axis as unlimited
     # Return an axis object.
     def createAxis(self,name,ar,unlimited=0):
+        """
+        Create an axis
+        'name' is the string name of the Axis
+        'ar' is the 1-D data array, or None for an unlimited axis
+        Set unlimited to true to designate the axis as unlimited
+        Return an axis object.
+        :::
+        Options:::
+        unlimited :: (int/True/False) (0) unlimited dimension ?
+        :::
+        Input:::
+        name :: (str) (0) dimension name
+        ar :: (numpy.ndarray/None) (1) 1-D data array containing dimension values, or None for an unlimited axis
+        :::
+        Output:::
+        axis :: (cdms2.axis.FileAxis) (0) file axis whose id is name
+        :::
+        """
         if self._status_=="closed":
             raise CDMSError, FileWasClosed + self.id
         cufile = self._file_
@@ -1089,6 +1106,14 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
         the associated coordinate array. On reads the axis will look like
         an axis of type float with values [0.0, 1.0, ..., float(axislen-1)].
         On write attempts an exception is raised.
+        :::
+        Input:::
+        name :: (str) (0) dimension name
+        axislen :: (int) (1) 
+        :::
+        Output:::
+        axis :: (cdms2.axis.FileVirtualAxis) (0) file axis whose id is name
+        :::
         """
         if self._status_=="closed":
             raise CDMSError, FileWasClosed + self.id
@@ -1101,6 +1126,22 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
 
     # Copy axis description and data from another axis
     def copyAxis(self, axis, newname=None, unlimited=0, index=None, extbounds=None):
+        """
+        Copy axis description and data from another axis
+        :::
+        Options:::
+        newname :: (None/str) (None) new name for axis
+        unlimited :: (int/True/False) (0) unlimited dimension ?
+        index :: (int/None) (None) :: index
+        extbounds :: (None/numpy.ndarray) (None) :: new bounds to use bounds
+        :::
+        Input:::
+        axis :: (cdms2.axis.FileAxis/cdms2.axis.FileVirtualAxis) (0) axis to copy
+        :::
+        Output:::
+        axis :: (cdms2.axis.FileAxis/cdms2.axis.FileVirtualAxis) (0) copy of input axis
+        :::
+        """
         if newname is None: newname=axis.id
 
         # If the axis already exists and has the same values, return existing
@@ -1150,6 +1191,23 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
     # Create an implicit rectilinear grid. lat, lon, and mask are objects.
     # order and type are strings
     def createRectGrid(self, id, lat, lon, order, type="generic", mask=None):
+        """
+        Create an implicit rectilinear grid. lat, lon, and mask are objects. order and type are strings
+        :::
+        Options:::
+        type :: (str) ('generic') grid type
+        mask :: (None/numpy.ndarray) (None) mask
+        :::
+        Input:::
+        id :: (str) (0) grid name
+        lat :: (numpy.ndarray) (1) latitude array
+        lon :: (numpy.ndarray) (2) longitude array
+        order :: (str) (3) order
+        :::
+        Output:::
+        axis :: (cdms2.grid.FileRectGrid) (0) file grid
+        :::
+        """
         grid = FileRectGrid(self, id, lat, lon, order, type, mask)
         self.grids[grid.id] = grid
         gridkey = (lat.id, lon.id, order, None)

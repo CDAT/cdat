@@ -477,10 +477,6 @@ if __name__=='__main__':
 ##             print ' - ',getattr(self,option)
         self()
         return        
-        
-        
-
-import MV2 as MV
 
 ## if __name__=='__main__':
 ##     import sys
