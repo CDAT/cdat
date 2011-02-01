@@ -15,14 +15,14 @@ class cuDataset(AutoAPI.AutoAPI):
         if not hasattr(self,"info"):
             self.info=AutoAPI.Info()
         if not hasattr(self.info,"expose"):
-            self.info.expose=[]
-        self.info.expose+=[
+            self.info.expose=set()
+        self.info.expose.update([
             "listall","listattribute","listdimension","listglobal","listvariable",
             "showglobal","showvariable","showattribute","showdimension","showall",
             "dimensionobject","dimensionarray",
             "getdimensionunits","getglobal","getattribute","getslab",
             "readScripGrid",
-            ]
+            ])
         self.cleardefault()
 
     def __call__ (self, id, *args, **kwargs):

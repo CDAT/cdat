@@ -837,7 +837,7 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
         self.grids = {}
         self.xlinks = {}
         self._gridmap_ = {}
-        self.info.expose+=["sync","close","createAxis","createVirtualAxis","copyAxis","createRectGrid",]
+        self.info.expose.update(["sync","close","createAxis","createVirtualAxis","copyAxis","createRectGrid","copyGrid","createVariable","searchPattern"])
 
         # self.attributes returns the Cdunif file dictionary. 
 ##         self.replace_external_attributes(self._file_.__dict__)
@@ -1216,6 +1216,19 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
 
     # Copy grid
     def copyGrid(self, grid, newname=None):
+        """
+        Create an implicit rectilinear grid. lat, lon, and mask are objects. order and type are strings
+        :::
+        Options:::
+        newname :: (str/None) (None) new name for grid
+        :::
+        Input:::
+        grid :: (cdms2.grid.FileRectGrid/cdms2.hgrid.FileCurveGrid/cdms2.gengrid.FileGenericGrid) (0) file grid
+        :::
+        Output:::
+        axis :: (cdms2.grid.FileRectGrid/cdms2.hgrid.FileCurveGrid/cdms2.gengrid.FileGenericGrid) (0) file grid
+        :::
+        """
         if newname is None:
             if hasattr(grid,'id'):
                 newname = grid.id
@@ -1261,6 +1274,25 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
     #   generalized to allow subintervals of axes and/or grids)
     # Return a variable object.
     def createVariable(self,name,datatype,axesOrGrids,fill_value=None):
+        """
+        Create a variable
+        'name' is the string name of the Variable
+        'datatype' is a CDMS datatype or numpy typecode
+        'axesOrGrids' is a list of axes, grids. (Note: this should be generalized to allow subintervals of axes and/or grids)
+        Return a variable object.
+        :::
+        Options:::
+        fill_value :: (int/float/None) (None) fill_value
+        :::
+        Input:::
+        name :: (str) (0) file variable name
+        datatype :: (str/type) (1) file variable type
+        axesOrGrids :: (*FileAxis/*FileRectGrid) (2) list of FileAxis or FileRectGrid
+        :::
+        Output:::
+        axis :: (cdms2.fvariable.FileVariable) (0) file variable
+        :::
+        """
         if self._status_=="closed":
             raise CDMSError, FileWasClosed + self.id
         cufile = self._file_
@@ -1338,6 +1370,18 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
     # else check all nodes in the dataset of class type matching the tag. If tag
     # is None, search the dataset and all objects contained in it.
     def searchPattern(self,pattern,attribute,tag):
+        """
+        Search for a pattern in a string-valued attribute. If attribute is None, search all string attributes. If tag is not None, it must match the internal node tag.
+        :::
+        Input:::
+        pattern :: (str) (0) pattern
+        attribute :: (str/None) (1) attribute name
+        tag :: (str/None) (2) node tag
+        :::
+        Output:::
+        result :: (list) (0) 
+        :::
+        """
         resultlist = []
         if tag is not None:
             tag = string.lower(tag)
