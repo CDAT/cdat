@@ -569,7 +569,7 @@ class AbstractCurveGrid(AbstractHorizontalGrid):
                 inewaxis = newaxislist[k]
                 islice = slicelist[k]
                 i = k
-            elif d is jaxis:
+            if d is jaxis:
                 jnewaxis = newaxislist[k]
                 jslice = slicelist[k]
                 j = k

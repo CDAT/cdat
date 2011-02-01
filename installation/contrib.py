@@ -11,7 +11,7 @@ if not 'clist' in locals().keys():
 ## Format is [path,description,licence_file]
 Clist = [
     ['contrib/Sphinx','sphinx documentation builder','GNU'],
-    ['contrib/zope-interface','zope interface','GNU'],
+    ## ['contrib/zope-interface','zope interface','GNU'],
     ['contrib/Twisted','network computing tools','GNU'],
     ['contrib/Foolscap','RPC protocol for Python+Twisted','GNU'],
     ['contrib/ipython','an Enhanced Python Shell','GNU'],
