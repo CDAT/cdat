@@ -46,8 +46,8 @@ class OutLog:
             self.edit.setTextColor( QtGui.QColor(0,0,0)) # if no color, then it must be "stdout"
         self.edit.insertPlainText( tex ) # show the text in the Qt Text Editor window
 
-#        if self.original_stream is not None:
-#            self.original_stream.write(stdtext)
+        if self.original_stream is not None:
+            self.original_stream.write(stdtext)
 
         #---------------------------------------------------------------------------------
         # scroll to bottom of Qt Text Editor window (always show the newly entered text

@@ -588,7 +588,7 @@ class CdmsObj (object,AutoAPI.AutoAPI):
         :::
         Input:::
         pattern :: (str) (0) pattern
-        attname :: (str/None) (1) attribute name
+        attribute :: (str/None) (1) attribute name
         tag :: (str/None) (2) node tag
         :::
         Output:::

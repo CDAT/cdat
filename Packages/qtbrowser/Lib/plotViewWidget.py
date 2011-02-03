@@ -1,9 +1,7 @@
 from PyQt4 import QtGui, QtCore
 import vcs
 import qtbrowser
-import graphicsMethodsWidgets
-import graphicsMethodsWidget
-import templatesWidget
+import vcsPlotControllerWidget
 
 class QPlotOptionsWidget(QtGui.QWidget):
     """ Widget containing plot options: plot button, plot type combobox, cell
@@ -16,9 +14,10 @@ class QPlotOptionsWidget(QtGui.QWidget):
         self.cellCol = -1
         layout = QtGui.QVBoxLayout()
         self.setLayout(layout)
-        vsplitter = QtGui.QSplitter(QtCore.Qt.Vertical)
         frame1 = QtGui.QFrame()
-        vsplitter.addWidget(frame1)
+        layout.addWidget(frame1)
+        self.frame2 = QtGui.QFrame()
+        layout.addWidget(self.frame2)
         hbox = QtGui.QHBoxLayout()
         frame1.setLayout(hbox)
         self.root = parent.root
@@ -95,8 +94,8 @@ class QPlotOptionsWidget(QtGui.QWidget):
         self.continentTypesMenu.setDefaultAction('Auto Continents')
 
         # Create graphic method attribute option / editor
-        canvas = vcs.init()
-        self.graphicsMethodController = graphicsMethodsWidgets.QGraphicsMethodAttributeWindow(canvas, self)
+        #canvas = vcs.init()
+        #self.graphicsMethodController = graphicsMethodsWidgets.QGraphicsMethodAttributeWindow(canvas, self)
         graphicMethodAction = optionsMenu.addAction('Se&t Graphics Method Attributes')
 
         # Create Colormap option / widget
@@ -106,39 +105,40 @@ class QPlotOptionsWidget(QtGui.QWidget):
                      self.colorDialog.open)
 
         # Create the options button
-        self.optionButton = QtGui.QToolButton()
+        self.optionButton = QtGui.QPushButton()
         self.optionButton.setText(' Options  ')
         self.optionButton.setMenu(optionsMenu)
-        self.optionButton.setPopupMode(QtGui.QToolButton.InstantPopup)
+        #self.optionButton.setPopupMode(QtGui.QToolButton.InstantPopup)
 
         hbox.addWidget(self.optionButton)
         #hbox.addStretch()
 
 
-        #at this pint we need to add the hsplitter on witch we will ad template/gm/editor sections
-        hsplitter= QtGui.QSplitter(QtCore.Qt.Horizontal)
-        hsplitter.setStretchFactor(2, 1)
-
-        # Setup Frame for templates
-        templates=templatesWidget.QTemplatesWidget(parent)
-        # Setup Frame for graphics methods
-        gm=graphicsMethodsWidget.QGraphicsMethodsWidget(parent)
-        # Setup Frame for editor section
-
-        hsplitter.addWidget(templates)
-        hsplitter.addWidget(gm)
-        self.hsplitter = hsplitter
-        vsplitter.addWidget(hsplitter)
-        layout.addWidget(vsplitter)
 
         # Connect Signals
         self.connect(self.plotButton, QtCore.SIGNAL('clicked(bool)'),
                      parent.plot)
         self.connect(self.optionButton, QtCore.SIGNAL('clicked(bool)'),
                      self.optionButton.showMenu)
-        self.connect(graphicMethodAction, QtCore.SIGNAL('triggered ()'),
-                     self.graphicsMethodController.show)
+        self.connect(self.plotTypeCombo,QtCore.SIGNAL('currentIndexChanged(const QString&)'),
+                     self.selectedPlotType)
+        ## self.connect(graphicMethodAction, QtCore.SIGNAL('triggered ()'),
+        ##              self.graphicsMethodController.show)
 
+        self.layout=layout
+        
+    def selectedPlotType(self,*args):
+        ptype = self.getPlotType()
+        self.frame2.destroy()
+        self.layout.removeWidget(self.frame2)
+        if ptype in ['Boxfill', 'Isofill', 'Isoline', 'Meshfill', 'Outfill',
+                     'Outline', 'Scatter', 'Taylordiagram', 'Vector', 'XvsY',
+                     'Xyvsy', 'Yxvsx']:
+            self.frame2=vcsPlotControllerWidget.QVCSPlotController(self.parent)
+            self.layout.addWidget(self.frame2)
+        else:
+            print 'Cannot construct controller for graphic method type:',ptype
+        
     def getRow(self):
         if self.cellRowCombo.currentText() == 'Auto':
             return -1
@@ -222,6 +222,9 @@ class QPlotView(QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
         self.selectedVars = []
         self.root=parent.root
+        self.canvas=[]
+        for i in range(4):
+            self.canvas.append(vcs.init())
         # Init layout
         vbox = QtGui.QVBoxLayout()
         vbox.setMargin(0)
@@ -230,10 +233,8 @@ class QPlotView(QtGui.QWidget):
 
         self.plotOptions = QPlotOptionsWidget(self)
 
+        self.plotOptions.selectedPlotType("Boxfill")
         vbox.addWidget(self.plotOptions)
-        self.canvas=[]
-        for i in range(4):
-            self.canvas.append(vcs.init())
 
      #   if qtbrowser.useVistrails:
      #       import cdat_cell

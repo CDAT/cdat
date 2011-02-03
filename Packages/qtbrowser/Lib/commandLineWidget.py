@@ -120,7 +120,7 @@ class QCommandLine(QtGui.QWidget):
         #------------------------------------------------------------------------------
         exec( command, __main__.__dict__ )
         self.le.clear()
-
+        self.root.stick_main_dict_into_defvar()
         #------------------------------------------------------------------------------
         # record the command for preproducibility
         #------------------------------------------------------------------------------

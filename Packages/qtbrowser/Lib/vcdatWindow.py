@@ -11,7 +11,7 @@ import variableViewWidget
 import commandsRecorderWidget
 import os
 import cdms2 # need to remove this!
-
+import __main__
 
 class QLabeledWidgetContainer(QtGui.QWidget):
     """ Container widget for the 3 main widgets: QVariableView, QCDATFileWidget,
@@ -145,3 +145,11 @@ class QCDATWindow(QtGui.QMainWindow):
         self.move((screen.width()-size.width())/2, (screen.height()-size.height())/2)
 
     
+    def stick_defvar_into_main_dict(self,var):
+        __main__.__dict__[var.id]=var
+
+    def stick_main_dict_into_defvar(self):
+        for k in __main__.__dict__:
+            if isinstance(__main__.__dict__[k],cdms2.tvariable.TransientVariable):
+                __main__.__dict__[k].id=k
+                self.definedVar.getWidget().addVariable(__main__.__dict__[k])

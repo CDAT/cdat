@@ -101,6 +101,7 @@ class QVariableView(QtGui.QWidget):
         else:
             oid = "cdmsFileVariable"
         updatedVar.id = targetId
+        self.root.stick_defvar_into_main_dict(updatedVar)
         self.root.record("%s = %s(%s)" % (targetId,oid,cmds))
         self.emit(QtCore.SIGNAL('definedVariableEvent'),updatedVar)
         return updatedVar
