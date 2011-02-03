@@ -1,4 +1,5 @@
 import vcdatWindow
+from PyQt4 import QtCore
 
 def main():
     # simple.py
@@ -10,8 +11,22 @@ def main():
 
 
     cdat = vcdatWindow.QCDATWindow()
-    cdat.show()
-    
+
+    if len(sys.argv)>1:
+        fnm = sys.argv[1]
+        cdat.tabView.widget(0).fileWidget.widget.fileNameEdit.setText(fnm)
+        cdat.tabView.widget(0).fileWidget.widget.fileNameEdit.emit(QtCore.SIGNAL('returnPressed()'))
+        if len(sys.argv)>2:
+            var = sys.argv[2]
+            index=-1
+            for i in range(cdat.tabView.widget(0).fileWidget.widget.varCombo.count()):
+                t = cdat.tabView.widget(0).fileWidget.widget.varCombo.itemText(i)
+                if var == str(t).split()[0]:
+                    index = i
+                    break
+            if index!=-1:
+                cdat.tabView.widget(0).fileWidget.widget.varCombo.setCurrentIndex(index)
+
     sys.exit(app.exec_())
     
 

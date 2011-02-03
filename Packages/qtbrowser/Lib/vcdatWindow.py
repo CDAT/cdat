@@ -126,6 +126,9 @@ class QCDATWindow(QtGui.QMainWindow):
                         self.tabView.widget(0).defineVariableEvent)
         fw = self.tabView.widget(0).fileWidget.widget
         fw.connect(fw.plotButton,QtCore.SIGNAL('clicked(bool)'),self.tabView.widget(1).plot)
+        self.show()
+        self.tabView.widget(1).show()
+        self.tabView.widget(1).plotOptions.plotTypeCombo.setCurrentIndex(0)
 
     def closeEvent(self, event):
         # TODO

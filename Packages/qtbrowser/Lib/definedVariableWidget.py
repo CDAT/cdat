@@ -92,6 +92,7 @@ class QDefinedVariableWidget(QtGui.QWidget):
         """ Update the number next to the selected defined variable and
         send a signal to QVariableView to display the selected variable
         """
+        print 'Ok we are where we should be'
         item = self.varList.item(modelIndex.row())
         selectedItems = self.varList.selectedItems()
 

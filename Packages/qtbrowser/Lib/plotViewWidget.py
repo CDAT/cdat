@@ -114,6 +114,7 @@ class QPlotOptionsWidget(QtGui.QWidget):
         #hbox.addStretch()
 
 
+        self.plotTypeCombo.setCurrentIndex(1)
 
         # Connect Signals
         self.connect(self.plotButton, QtCore.SIGNAL('clicked(bool)'),
@@ -121,6 +122,8 @@ class QPlotOptionsWidget(QtGui.QWidget):
         self.connect(self.optionButton, QtCore.SIGNAL('clicked(bool)'),
                      self.optionButton.showMenu)
         self.connect(self.plotTypeCombo,QtCore.SIGNAL('currentIndexChanged(const QString&)'),
+                     self.selectedPlotType)
+        self.connect(self.plotTypeCombo,QtCore.SIGNAL('activated(int)'),
                      self.selectedPlotType)
         ## self.connect(graphicMethodAction, QtCore.SIGNAL('triggered ()'),
         ##              self.graphicsMethodController.show)
@@ -131,9 +134,7 @@ class QPlotOptionsWidget(QtGui.QWidget):
         ptype = self.getPlotType()
         self.frame2.destroy()
         self.layout.removeWidget(self.frame2)
-        if ptype in ['Boxfill', 'Isofill', 'Isoline', 'Meshfill', 'Outfill',
-                     'Outline', 'Scatter', 'Taylordiagram', 'Vector', 'XvsY',
-                     'Xyvsy', 'Yxvsx']:
+        if self.parent.isVCSPlot(ptype):
             self.frame2=vcsPlotControllerWidget.QVCSPlotController(self.parent)
             self.layout.addWidget(self.frame2)
         else:
@@ -233,13 +234,21 @@ class QPlotView(QtGui.QWidget):
 
         self.plotOptions = QPlotOptionsWidget(self)
 
-        self.plotOptions.selectedPlotType("Boxfill")
+        
         vbox.addWidget(self.plotOptions)
-
+        #self.plotOptions.plotTypeCombo.emit(QtCore.SIGNAL('currentIndexChanged(QString("Meshfill"))'))
      #   if qtbrowser.useVistrails:
      #       import cdat_cell
      #       self.spreadSheet = cdat_cell.QCDATWidget(self)
 
+    def isVCSPlot(self,plotType):
+        if str(plotType).lower() in ['boxfill', 'isofill', 'isoline', 'meshfill', 'outfill',
+                                'outline', 'scatter', 'taylordiagram', 'vector', 'xvsy',
+                                'xyvsy', 'yxvsx']:
+            return True
+        else:
+            return False
+         
     def plot(self):
         """ Create the graphics method and cdatcell modules. Update the input
         port values and setup connections. Then plot.
@@ -259,6 +268,18 @@ class QPlotView(QtGui.QWidget):
             return
 
 
+        if len(selectedVars) == 0:
+            # Nothing selected grabs what's in the file
+            self.root.tabView.widget(0).defineVariableEvent()
+            # now "select" it
+            vnm = str(self.root.tabView.widget(0).fileWidget.widget.varCombo.currentText()).split()[0]
+            for i in range(self.root.definedVar.widget.varList.count()):
+                if vnm == str(self.root.definedVar.widget.varList.item(i).text()).split()[1]:
+                    break
+                
+            self.root.definedVar.widget.varList.setCurrentItem(self.root.definedVar.widget.varList.item(i))
+            selectedVars=self.root.definedVar.widget.getSelectedDefinedVariables()
+            
         # Get the names of the 2 slabs so we can connect their modules in vistrails
         if self.requiresTwoSlabs(plotType):
             var = selectedVars[:2]
@@ -267,86 +288,43 @@ class QPlotView(QtGui.QWidget):
             var = [selectedVars[0],]
             plot_args="%s" % (var[0].id,)
 
-        # Template section
-        template = 'default'
-        var.append(template)
-        plot_args+=",'%s'" % template
 
-        # Plot type section
-        var.append(plotType)
-        plot_args+=", '%s'" % plotType
+        if self.isVCSPlot(plotType):
+            # Template section
+            template = self.getTemplateName()
+            var.append(template)
+            plot_args+=",'%s'" % template
 
-        # Graphic method
-        gm_name='default'
-        var.append(gm_name)
-        plot_args+=", '%s'" % gm_name
+            # Plot type section
+            var.append(plotType)
+            plot_args+=", '%s'" % plotType
 
-        icanvas = 0
-        
-        if qtbrowser.useVistrails:
-            row = self.plotOptions.getRow()
-            col = self.plotOptions.getCol()
-            self.root.record('## Plotting into the spreadsheet')
-            self.root.record('plot(%s,row=%s,col=%s)'% (plot_args,
-                                                        row,
-                                                        col))
+            # Graphic method
+            gm_name=self.getGraphicsMethodName()
+            var.append(gm_name)
+            plot_args+=", '%s'" % gm_name
+
+            icanvas = 0
+
+            if qtbrowser.useVistrails:
+                row = self.plotOptions.getRow()
+                col = self.plotOptions.getCol()
+                self.root.record('## Plotting into the spreadsheet')
+                self.root.record('plot(%s,row=%s,col=%s)'% (plot_args,
+                                                            row,
+                                                            col))
+            else:
+                self.root.record("## Clearing vcs canvas %i" % icanvas)
+                self.root.record("vcs_canvas[%i].clear()" % icanvas)
+                self.canvas[icanvas].clear()
+                #For now dirty plot_args
+
+                self.root.record("## Plotting onto canvas %i" % icanvas)
+                self.root.record("vcs_canvas[%i].plot(%s)" % (icanvas,plot_args))
+                self.canvas[icanvas].plot(*var)
         else:
-            self.root.record("## Clearing vcs canvas %i" % icanvas)
-            self.root.record("vcs_canvas[%i].clear()" % icanvas)
-            self.canvas[icanvas].clear()
-            #For now dirty plot_args
-            
-            self.root.record("## Plotting onto canvas %i" % icanvas)
-            self.root.record("vcs_canvas[%i].plot(%s)" % (icanvas,plot_args))
-            self.canvas[icanvas].plot(*var)
+            print "Don't Know how to plot this yet"
 
-    ## def crap(self):
-    ##     # Emit signal to GuiController to connect ports and plot
-    ##     self.emit(QtCore.SIGNAL('plot'), var1, var2)
-
-    ##     # If a quickplot is plotted, define current variable under 'quickplot'
-    ##     if (self.currentTabName() == 'quickplot'):
-    ##         var = self.getUpdatedVar()
-    ##         self.emit(QtCore.SIGNAL('plotPressed'), axisList.getFile(), var)
-
-    ##     # Record plot teaching commands
-    ##     self.recordPlotTeachingCommand()
-
-    ## def recordPlotTeachingCommand(self):
-    ##     axisList = self.tabWidget.currentWidget()
-    ##     tabName = self.tabWidget.currentTabName()
-    ##     argString = self.generateKwargsAsString()
-    ##     var = axisList.getVar()
-    ##     fileID = "fid2"
-
-    ##     slabCommand = ''
-    ##     if tabName == 'quickplot':
-    ##         slabCommand += '\n# Get new slab\n'
-    ##         slabCommand += "%s = %s('%s', %s)\n" %(tabName, fileID, var.id, argString)
-
-    ##     slabCommand += '\n# Get new slab\n'
-    ##     slabCommand += "%s = %s(%s)\n" %(tabName, tabName, argString)
-            
-    ##     slabCommand += axisList.getAxesOperationsTeachingCommands(tabName)
-
-    ##     canvasNum = 0 # Change the canvas # with respect to the cell?
-    ##     clearCommand = '\n# Clear the VCS Canvas\n'        
-    ##     clearCommand +=  "vcs_canvas_list[%d].clear()\n" % canvasNum
-
-    ##     plotID = "vcs_display"
-    ##     plotType = str(self.plotOptions.getPlotType())
-    ##     template = self.getTemplateName(plotType)
-    ##     gm = self.getGraphicsMethodName(plotType)                
-    ##     plotArgs = "%s, '%s', '%s', '%s'" % (tabName, template, plotType, gm)
-
-    ##     if self.plotOptions.getContinentType() is not None:
-    ##         plotArgs += ", continents = %d" % self.plotOptions.getContinentType()
-        
-    ##     plotCommand = '\n# Plot slab\n'        
-    ##     plotCommand += "%s = vcs_canvas_list[%d].plot(%s)\n" %(plotID, canvasNum, plotArgs)
-
-    ##     command = slabCommand + clearCommand + plotCommand
-    ##     self.emit(QtCore.SIGNAL('recordTeachingCommand'), command)
 
     def requiresTwoSlabs(self, plotType):
         """ Returns true if the plot requires 2 slabs """
@@ -365,29 +343,15 @@ class QPlotView(QtGui.QWidget):
 
         return varList
 
-    def getTemplateName(self, plotType):
-        """ Return the template given the plotType.  This is currently hardcoded
-        but should change based on the user? """
+    def getTemplateName(self):
+        """ Return the template given the plotType. """
+        return str(self.plotOptions.frame2.templates.templateList.currentItem().text())
 
-        # TODO ?
-        return self.getGraphicsMethodName(plotType)
-
-    def getGraphicsMethodName(self, plotType):
+    def getGraphicsMethodName(self):
         """ Return the graphics method given the plotType.  This is currently
         hardcoded but should change based on the user? """
 
-        # TODO ?
-        hasASD = ['Boxfill', 'Isofill', 'Isoline', 'Scatter', 'Taylordiagram']
-        hasquick = ['Vector']
-        hasASD1 = ['Xyvsy', 'Yxvsx']          
-
-        if plotType in hasASD:
-            return 'ASD'
-        if plotType in hasquick:
-            return 'quick'
-        if plotType in hasASD1:
-            return 'ASD1'
-        return 'default'        
+        return str(self.plotOptions.frame2.gms.gmList.currentItem().text())
     
     ## def setVistrailsCDATCell(self):
     ##     """ Vistrails: Update the vistrails' CDAT Cell modules' input ports: """
