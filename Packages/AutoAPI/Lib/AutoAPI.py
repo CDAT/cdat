@@ -7,13 +7,15 @@ import cdat_info
 
 class Info:
 ##     name='Template'
-    url='http://cdat.sf.net'
-    doc="""This diagnostic is not documented yet"""
-    type='class'
-    programminglanguage="Python"
-    author="PCMDI's software team"
-    version= '.'.join(map(str,cdat_info.version()))
-    hide=['go','fromXml','toXml','toDOM','printXml','scanDocString','stripSectionsFromDoc','hide']
+    def __init__(self,parent):
+        self.url='http://cdat.sf.net'
+        self.doc="""This diagnostic is not documented yet"""
+        self.type='class'
+        self.programminglanguage="Python"
+        self.author="PCMDI's software team"
+        self.version= '.'.join(map(str,cdat_info.version()))
+        self.codepath = str(type(parent)).split("'")[1]
+        self.hide=['go','fromXml','toXml','toDOM','printXml','scanDocString','stripSectionsFromDoc','hide']
 
 class Results:
     doc="""Results from Diagnostics are stored here"""
@@ -26,13 +28,13 @@ class Input:
     requirements=Requirements()
     
 class AutoAPI:
-    info=Info()
-    input=Input()
-    results=Results()
-    
+        
     ## Template for Diagnostic classes to be used for diagnostics
     ## Reusable, implemeted for automod
     def __init__(self,**kw):
+        self.info=Info(self)
+        self.input=Input()
+        self.results=Results()
         for k in kw.keys():
             setattr(self,k,kw[k])
 

@@ -38,32 +38,33 @@ class QPlotOptionsWidget(QtGui.QWidget):
         self.plotTypeCombo.addItems(plotTypes)
         hbox.addWidget(self.plotTypeCombo)
 
-        # Add cell row / col combo boxes
-        rowLabel = QtGui.QLabel('Row')
-        colLabel = QtGui.QLabel('Col')
-        self.cellRowCombo = QtGui.QComboBox()
-        self.cellColCombo = QtGui.QComboBox()
+        if qtbrowser.useVistrails:
+            # Add cell row / col combo boxes
+            rowLabel = QtGui.QLabel('Row')
+            colLabel = QtGui.QLabel('Col')
+            self.cellRowCombo = QtGui.QComboBox()
+            self.cellColCombo = QtGui.QComboBox()
 
-        comboPalette = self.cellRowCombo.view().palette()
-        comboPalette.setColor(QtGui.QPalette.HighlightedText, QtCore.Qt.white)
-        comboPalette.setColor(QtGui.QPalette.Highlight, QtCore.Qt.blue)                
-        self.cellRowCombo.view().setPalette(comboPalette)
+            comboPalette = self.cellRowCombo.view().palette()
+            comboPalette.setColor(QtGui.QPalette.HighlightedText, QtCore.Qt.white)
+            comboPalette.setColor(QtGui.QPalette.Highlight, QtCore.Qt.blue)                
+            self.cellRowCombo.view().setPalette(comboPalette)
 
-        comboPalette = self.cellColCombo.view().palette()
-        comboPalette.setColor(QtGui.QPalette.HighlightedText, QtCore.Qt.white)
-        self.cellColCombo.view().setPalette(comboPalette)        
+            comboPalette = self.cellColCombo.view().palette()
+            comboPalette.setColor(QtGui.QPalette.HighlightedText, QtCore.Qt.white)
+            self.cellColCombo.view().setPalette(comboPalette)        
 
-        self.cellRowCombo.addItem('Auto')
-        self.cellColCombo.addItem('Auto')
-        
-        for i in range(1, 9):
-            self.cellRowCombo.addItems(str(i))
-            self.cellColCombo.addItems(str(i))
+            self.cellRowCombo.addItem('Auto')
+            self.cellColCombo.addItem('Auto')
 
-        hbox.addWidget(rowLabel)
-        hbox.addWidget(self.cellRowCombo)
-        hbox.addWidget(colLabel)
-        hbox.addWidget(self.cellColCombo)
+            for i in range(1, 9):
+                self.cellRowCombo.addItems(str(i))
+                self.cellColCombo.addItems(str(i))
+
+            hbox.addWidget(rowLabel)
+            hbox.addWidget(self.cellRowCombo)
+            hbox.addWidget(colLabel)
+            hbox.addWidget(self.cellColCombo)
 
         # Create the options menu
         optionsMenu = QtGui.QMenu(self)

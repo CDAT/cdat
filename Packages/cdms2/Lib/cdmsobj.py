@@ -497,7 +497,7 @@ class CdmsObj (object,AutoAPI.AutoAPI):
                                 raise RuntimeError,"%s=%s must be an integer"%(attname,attval)
                 adict[attname] = attval
                 self.attributes[attname] = attval
-        self.info = AutoAPI.Info()
+        self.info = AutoAPI.Info(self)
         self.info.expose=set(["dump","searchone","matchone","searchPattern","matchPattern","searchPredicate"])
 
 
