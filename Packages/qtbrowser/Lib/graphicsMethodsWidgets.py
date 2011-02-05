@@ -6,10 +6,10 @@ if qtbrowser.useVistrails:
 
 indentSpacing = 10
 
-class QGraphicsMethodAttributeWindow(QtGui.QMainWindow):
+class QGraphicsMethodAttributeWindow(QtGui.QWidget):
 
     def __init__(self, canvas=None, parent=None):
-        QtGui.QMainWindow.__init__(self, parent)
+        QtGui.QWidget.__init__(self, parent)
         initialWidth = 480
         initialHeight = 640
         self.resize(initialWidth, initialHeight)        
@@ -1112,12 +1112,11 @@ class QBoxfillEditor(QtGui.QScrollArea):
     def __init__(self, parent=None, gm=None):
         QtGui.QScrollArea.__init__(self, parent)
         vbox = QtGui.QVBoxLayout()
+        self.parent=parent
+        self.root=parent.root
         
-        if type(gm) in [types.ListType, types.TupleType, types.NoneType]:
-            self.gm = gm
-        elif type(gm) is not None:
-            self.gm=[gm,]
-
+        self.gm = parent.root.tabView.widget(1).canvas[0].getboxfill(gm)
+        
         # 'define boxfill attributes + boxfill type radio buttons'
         hbox1 = QtGui.QHBoxLayout()
         hbox1.addWidget(QtGui.QLabel('Define boxfill attribute values'))
@@ -1201,13 +1200,13 @@ class QBoxfillEditor(QtGui.QScrollArea):
             return
 
         # Init Line Edit Text
-        self.missingLineEdit.setText(str(self.gm[0].missing))
+        self.missingLineEdit.setText(str(self.gm.missing))
         self.legendLineEdit.setText('None')
-        self.level1LineEdit.setText(str(self.gm[0].level_1))
-        self.level2LineEdit.setText(str(self.gm[0].level_2))
-        self.color1LineEdit.setText(str(self.gm[0].color_1))
-        self.color2LineEdit.setText(str(self.gm[0].color_2))
-        self.rangeLineEdit.setText(str(self.gm[0].levels))
+        self.level1LineEdit.setText(str(self.gm.level_1))
+        self.level2LineEdit.setText(str(self.gm.level_2))
+        self.color1LineEdit.setText(str(self.gm.color_1))
+        self.color2LineEdit.setText(str(self.gm.color_2))
+        self.rangeLineEdit.setText(str(self.gm.levels))
         self.colorsLineEdit.setText('None')
         self.minValLineEdit.setText('')
         self.maxValLineEdit.setText('')

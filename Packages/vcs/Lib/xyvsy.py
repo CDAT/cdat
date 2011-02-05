@@ -508,7 +508,7 @@ class GXy(object,AutoAPI.AutoAPI):
         self._markersize=None
         self._datawc_timeunits=getmember(self, 'datawc_timeunits')
         self._datawc_calendar=getmember(self, 'datawc_calendar')
-        self.info=AutoAPI.Info()
+        self.info=AutoAPI.Info(self)
         self.info.expose=['ALL']
         self.__doc__ = self.__doc__ % (xmldocs.graphics_method_core,xmldocs.yaxisconvert,xmldocs.linedoc,xmldocs.markerdoc)
         #                                                         #

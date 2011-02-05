@@ -1,7 +1,8 @@
 from PyQt4 import QtGui, QtCore
 import vcs
 import qtbrowser
-import graphicsMethodsWidgets
+import editorGraphicsMethodsWidget
+import editorTemplateWidget
 import graphicsMethodsWidget
 import templatesWidget
 
@@ -23,16 +24,33 @@ class QVCSPlotController(QtGui.QWidget):
 
         # Now lets prepare the top section (templates and gms)
         self.top = QtGui.QFrame()
-        hlayout = QtGui.QHBoxLayout()
-        self.top.setLayout(hlayout)
-        self.templates = templatesWidget.QTemplatesWidget(parent)
+        hlayout_top = QtGui.QHBoxLayout()
+        self.top.setLayout(hlayout_top)
 
-        hlayout.addWidget(self.templates)
+        self.choicesFrame =QtGui.QFrame()
+        hlayout_choices = QtGui.QHBoxLayout()
+        self.choicesFrame.setLayout(hlayout_choices)
+        
+        self.templates = templatesWidget.QTemplatesWidget(parent)
+        hlayout_choices.addWidget(self.templates)
 
         self.gms = graphicsMethodsWidget.QGraphicsMethodsWidget(ptype,parent)
 
-        hlayout.addWidget(self.gms)
+        hlayout_choices.addWidget(self.gms)
 
+        vsplitter2 = QtGui.QSplitter(QtCore.Qt.Vertical)
+
+        vsplitter2.addWidget(self.choicesFrame)
+
+        self.editorTab = QtGui.QTabWidget()
+        self.editorTab.addTab(editorTemplateWidget.QEditorTemplateWidget(self),"'%s' Template Properties" % self.templates.templateList.currentItem().text())
+        self.editorTab.addTab(editorGraphicsMethodsWidget.QEditorGraphicsMethodsWidget(ptype,self),"'%s' %s Graphics Method Properties" % (self.gms.gmList.currentItem().text(),ptype))
+        self.editorTab.setCurrentIndex(1)
+        
+        vsplitter2.addWidget(self.editorTab)
+
+        hlayout_top.addWidget(vsplitter2)
+        
         vsplitter.addWidget(self.top)
 
         # Now prepare the bottom section

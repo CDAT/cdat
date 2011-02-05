@@ -835,7 +835,7 @@ class Canvas(object,AutoAPI.AutoAPI):
         #                                                                           #
         #############################################################################
 
-        self.info = AutoAPI.Info()
+        self.info = AutoAPI.Info(self)
         self.info.expose=["plot", "boxfill", "isofill", "isoline", "outfill", "outline", "scatter", "xvsy", "xyvsy", "yxvsx", "createboxfill", "getboxfill", "createisofill", "getisofill", "createisoline", "getisoline", "createyxvsx", "getyxvsx", "createxyvsy", "getxyvsy", "createxvsy", "getxvsy", "createscatter", "getscatter", "createoutfill", "getoutfill", "createoutline", "getoutline"]
         ospath = os.environ["PATH"]
         found = False

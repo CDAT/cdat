@@ -20,7 +20,7 @@ class QGraphicsMethodsWidget(QtGui.QWidget):
         removeAction = gmsMenu.addAction('&Remove')
 
         self.gmButton = QtGui.QPushButton()
-        self.gmButton.setText('%s Graphic Methods' % ptype)
+        self.gmButton.setText('%s Methods' % ptype)
         self.gmButton.setMenu(gmsMenu)
 
         layout.addWidget(self.gmButton)
@@ -37,7 +37,7 @@ class QGraphicsMethodsWidget(QtGui.QWidget):
         for i in range(len(gms)):
             g = gms[i]
             self.gmList.addItem(g)
-            if g == "default":
+            if g == customizeVCDAT.defaultGraphicsMethodName:
                 default = i
         self.gmList.setCurrentItem(self.gmList.item(default))
         layout.addWidget(self.gmList)

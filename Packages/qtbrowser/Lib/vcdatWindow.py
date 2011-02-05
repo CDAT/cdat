@@ -106,7 +106,7 @@ class QCDATWindow(QtGui.QMainWindow):
         self.tabView.addTab(commandLineWidget.QCommandLine(self), "CommandLine")
         #self.tabView.addTab(calculatorWidget.QCalculator(self), "Calculator")
         hsplitter.addWidget(self.tabView)
-        hsplitter.setStretchFactor(2, 1)
+        hsplitter.setStretchFactor(1, 2)
         layout.addWidget(hsplitter)
 
         ## Connect Signals between QVariableView & QDefinedVariable

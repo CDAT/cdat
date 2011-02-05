@@ -37,7 +37,7 @@ class QTemplatesWidget(QtGui.QWidget):
         for i in range(len(tpl)):
             t = tpl[i]
             self.templateList.addItem(t)
-            if t == "default":
+            if t == customizeVCDAT.defaultTemplateName:
                 default = i
         self.templateList.setCurrentItem(self.templateList.item(default))
         layout.addWidget(self.templateList)

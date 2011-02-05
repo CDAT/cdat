@@ -13,3 +13,5 @@ gmsColor = QtGui.QColor(252,104,63)
 errorColor = redColor
 commentsColor = redColor
 recordCommands = True
+defaultTemplateName = "default"
+defaultGraphicsMethodName = "default"
