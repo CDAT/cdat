@@ -410,7 +410,7 @@ class Gcon(object,AutoAPI.AutoAPI):
         
         self.type=getmember(self, 'type')
         
-        self.info=AutoAPI.Info()
+        self.info=AutoAPI.Info(self)
         self.info.expose=['ALL']
         self.__doc__ = self.__doc__ % (xmldocs.graphics_method_core_notime,xmldocs.linedoc)
 ##         #                                                         #
