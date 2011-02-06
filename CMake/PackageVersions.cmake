@@ -105,7 +105,7 @@ set(PMW_URL http://downloads.sourceforge.net/project/pmw/Pmw/Pmw.${PMW_MAJOR_SRC
 set(PMW_GZ Pmw.${PMW_MAJOR_SRC}.${PMW_MINOR_SRC}.${PMW_PATCH_SRC}.tar.gz)
 
 set(NUMPY_MAJOR 1)
-set(NUMPY_MINOR 4)
+set(NUMPY_MINOR 5)
 set(NUMPY_PATCH 1)
 set(NUMPY_MAJOR_SRC 1)
 set(NUMPY_MINOR_SRC 4)
