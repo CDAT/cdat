@@ -1,6 +1,6 @@
 
 #-----------------------------------------------------------------------------
-cmake_minimum_required(VERSION 2.8.2)
+cmake_minimum_required(VERSION 2.8.3)
 #-----------------------------------------------------------------------------
 
 project(cdat)
@@ -8,7 +8,7 @@ project(cdat)
 set(cdat_CMAKE_SOURCE_DIR ${cdat_SOURCE_DIR}/CMake)
 set(cdat_CMAKE_BINARY_DIR ${cdat_BINARY_DIR}/CMake)
 
-#-----------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Update CMake module path
 #------------------------------------------------------------------------------
 
@@ -18,11 +18,26 @@ set(CMAKE_MODULE_PATH
   ${CMAKE_MODULE_PATH}
   )
 
-# cdat version
+#-----------------------------------------------------------------------------
+# CDat version
+#------------------------------------------------------------------------------
 set(cdat_VERSION_MAJOR 6)
 set(cdat_VERSION_MINOR 0)
 set(cdat_VERSION_PATCH "alpha")
 set(cdat_VERSION ${cdat_VERSION_MAJOR}.${cdat_VERSION_MINOR}.${cdat_VERSION_PATCH})
+
+
+#-----------------------------------------------------------------------------
+# Git protocole option
+#-----------------------------------------------------------------------------
+
+option(GIT_USE_GIT_PROTOCOL "If behind a firewall turn this off to use http instead." ON)
+
+set(git_protocol "git")
+if(NOT Slicer_USE_GIT_PROTOCOL)
+  set(git_protocol "http")
+endif()
+
 
 # Attempt to detect if we have a Fortran Compiler available.
 include(CheckFortran)
@@ -37,23 +52,62 @@ endif(CMAKE_Fortran_COMPILER)
 
 INCLUDE(ExternalProject)
 
-set(ep_base        "${CMAKE_BINARY_DIR}")
-#set(ep_install_dir "${ep_base}/Install")
-
-SET(ep_common_args
+#set(ep_common_args
   #-DCMAKE_INSTALL_PREFIX:PATH=${ep_install_dir}
-  -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-  -DBUILD_TESTING:BOOL=OFF
-  )
+#  -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+#  -DBUILD_TESTING:BOOL=OFF
+#  )
 
-SET(ep_common_c_flags "${CMAKE_C_FLAGS}")
-SET(ep_common_cxx_flags "${CMAKE_CXX_FLAGS}")
-  
-# Compute -G arg for configuring external projects with the same CMake generator:
-if(CMAKE_EXTRA_GENERATOR)
-  set(gen "${CMAKE_EXTRA_GENERATOR} - ${CMAKE_GENERATOR}")
+#set(ep_common_c_flags "${CMAKE_C_FLAGS}")
+#set(ep_common_cxx_flags "${CMAKE_CXX_FLAGS}")
+
+# ----------------------------------------------------------------------------
+# generic compiler args (compiler and cflags) to pass to subprojects
+#-----------------------------------------------------------------------------
+
+set(cdat_compiler_args
+  -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
+  -DCMAKE_C_COMPILER:FILEPATH=${CMAKE_C_COMPILER}
+  -DCMAKE_CXX_FLAGS_DEBUG:STRING=${CMAKE_CXX_FLAGS_DEBUG}
+  -DCMAKE_CXX_FLAGS_MINSIZEREL:STRING=${CMAKE_CXX_FLAGS_MINSIZEREL}
+  -DCMAKE_CXX_FLAGS_RELEASE:STRING=${CMAKE_CXX_FLAGS_RELEASE}
+  -DCMAKE_CXX_FLAGS_RELWITHDEBINFO:STRING=${CMAKE_CXX_FLAGS_RELWITHDEBINFO}
+  -DCMAKE_C_FLAGS_DEBUG:STRING=${CMAKE_C_FLAGS_DEBUG}
+  -DCMAKE_C_FLAGS_MINSIZEREL:STRING=${CMAKE_C_FLAGS_MINSIZEREL}
+  -DCMAKE_C_FLAGS_RELEASE:STRING=${CMAKE_C_FLAGS_RELEASE}
+  -DCMAKE_C_FLAGS_RELWITHDEBINFO:STRING=${CMAKE_C_FLAGS_RELWITHDEBINFO}
+  -DCMAKE_EXE_LINKER_FLAGS:STRING=${CMAKE_EXE_LINKER_FLAGS}
+  -DCMAKE_SHARED_LINKER_FLAGS:STRING=${CMAKE_SHARED_LINKER_FLAGS}
+)
+
+set(cdat_tpl_cxx_flags ${CMAKE_CXX_FLAGS})
+set(cdat_tpl_c_flags ${CMAKE_C_FLAGS})
+set(cdat_cxx_flags ${CMAKE_CXX_FLAGS})
+set(cdat_c_flags ${CMAKE_C_FLAGS})
+
+if(WIN32)
+  list(APPEND cdat_compiler_args -DCMAKE_BUILD_TYPE:STRING=${CMAKE_CFG_INTDIR})
 else()
-  set(gen "${CMAKE_GENERATOR}")
+  list(APPEND cdat_compiler_args -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE})
+endif()
+
+if(APPLE)
+  list(APPEND cdat_compiler_args ${pv_apple_compiler_args})
+endif()
+
+# We aren't interested in seeing third party compiler warnings.
+set(pv_tpl_compiler_args ${pv_compiler_args})
+string(REPLACE "/W3" "/W0" pv_tpl_cxx_flags "${pv_tpl_cxx_flags}")
+string(REPLACE "/W4" "/W0" pv_tpl_cxx_flags "${pv_tpl_cxx_flags}")
+string(REPLACE "/W3" "/W0" pv_tpl_c_flags "${pv_tpl_c_flags}")
+string(REPLACE "/W4" "/W0" pv_tpl_c_flags "${pv_tpl_c_flags}")
+
+if(WIN32)
+  set(_LINK_LIBRARY_SUFFIX .lib)
+elseif(APPLE)
+  set(_LINK_LIBRARY_SUFFIX .dylib)
+else()
+  set(_LINK_LIBRARY_SUFFIX .so)
 endif()
 
 if(WIN32)
@@ -127,13 +181,17 @@ find_package(PythonLibs)
 #add_cdat_package(LibXml2)
 #add_cdat_package(xgks)
 #add_cdat_package(pbmplus)
-#add_cdat_package(ffmpeg)
+add_cdat_package(ffmpeg)
 #add_cdat_package(gifsicle)
 #add_cdat_package(gs)
 
 #add_cdat_package(jpeg)
-add_cdat_package(BLAS)
-#add_cdat_package(LAPACK)
+
+# On OSX use vecLib framework
+if(NOT APPLE)
+  add_cdat_package(LAPACK)
+endif()
+
 add_cdat_package(zlib)
 add_cdat_package(png)
 add_cdat_package(pkgconfig)
@@ -154,7 +212,7 @@ add_cdat_package(TclTk)
 add_cdat_package(SIP)
 add_cdat_package(PyQt)
 #add_cdat_package(pyopengl)
-#add_cdat_package(numpy)
+add_cdat_package(numpy)
 #add_cdat_package(pmw)
 
 #------------------------------------------------------------------------------
@@ -172,7 +230,11 @@ set(PyQt_DEPENDENCIES Qt python)
   endif()
 
 set(CLAPACK_DEPENDENCIES)
-set(NUMPY_DEPENDENCIES CLAPACK python)
+
+set(NUMPY_DEPENDENCIES python)
+if(NOT APPLE)
+  list(APPEND NUMPY_DEPENDENCIES lapack)
+endif()
 
 set(VTK_DEPENDENCIES)
 set(cmcurl_DEPENDENCIES)
