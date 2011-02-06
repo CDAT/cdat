@@ -2,6 +2,7 @@
 set(proj python)
 set(python_base ${CMAKE_CURRENT_BINARY_DIR}/${proj})
 set(python_build ${CMAKE_CURRENT_BINARY_DIR}/${proj}-build)
+set(python_BUILD_IN_SOURCE 1)
 
 if(WIN32)
 
@@ -26,7 +27,8 @@ if(WIN32)
   endif()
 
   ExternalProject_Add(${proj}
-    URL ${python_URL}
+    URL ${PYTHON_URL}/${PYTHON_GZ}
+    URL_MD5 ${PYTHON_MD5}
     DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
     SOURCE_DIR python-build
     UPDATE_COMMAND ""
@@ -51,7 +53,7 @@ if(WIN32)
   # Convenient helper function
   function(build_python_target target depend)
     ExternalProject_Add_Step(${proj} Build_${target}
-      COMMAND ${CMAKE_BUILD_TOOL} ${python_sln} /build Release /project ${target}
+      COMMAND ${CMAKE_BUILD_TOOL} ${python_sln} /build ${python_configuration} /project ${target}
       DEPENDEES ${depend}
       )
   endfunction(build_python_target)
@@ -80,7 +82,7 @@ if(WIN32)
   build_python_target(_multiprocessing Build_pythonw)
   
   ExternalProject_Add_Step(${proj} Build_python
-    COMMAND ${CMAKE_BUILD_TOOL} ${python_sln} /build Release /project python
+    COMMAND ${CMAKE_BUILD_TOOL} ${python_sln} /build ${python_configuration} /project python
     DEPENDEES Build__multiprocessing
     DEPENDERS install
     )
@@ -158,7 +160,7 @@ elseif(UNIX)
 endif()
 
 #-----------------------------------------------------------------------------
-# Set slicer_PYTHON_INCLUDE and slicer_PYTHON_LIBRARY variables
+# Set PYTHON_INCLUDE and PYTHON_LIBRARY variables
 #
 
 set(PYTHON_INCLUDE)
