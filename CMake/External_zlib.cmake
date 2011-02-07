@@ -1,5 +1,4 @@
 
-# The Silo external project for ParaView
 set(zlib_source "${CMAKE_CURRENT_BINARY_DIR}/zlib")
 set(zlib_binary "${CMAKE_CURRENT_BINARY_DIR}/zlib-build")
 set(zlib_install "${CMAKE_CURRENT_BINARY_DIR}/zlib-install")
