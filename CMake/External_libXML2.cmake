@@ -1,38 +1,23 @@
-set(name "libxml2")
-set(version "2.7.4")
-set(latest 1)
-set(release 1)
-set(prefix ${CSE_RELEASE_INSTALL_DIR}/${name}-${version})
 
+#  CONFIGURE_COMMAND <SOURCE_DIR>/configure
+#                    --prefix=${prefix}
+#                    --with-python=${CSE_PYTHON_HOME}
 
-# libxml2
-#
-set(proj "${name}-${version}")
-set(tgz "${CMAKE_CURRENT_SOURCE_DIR}/${name}-${version}.tar.gz")
-include("${CMAKE_CURRENT_SOURCE_DIR}/../../../CMakeModules/cse_macros.cmake")
+set(libXML2_source "${CMAKE_CURRENT_BINARY_DIR}/libXML2")
+set(libXML2_binary "${CMAKE_CURRENT_BINARY_DIR}/libXML2-build")
+set(libXML2_install "${CMAKE_CURRENT_BINARY_DIR}/libXML2-install")
 
-ExternalProject_Add(${proj}
-  URL ${tgz}
-  CONFIGURE_COMMAND <SOURCE_DIR>/configure
-                    --prefix=${prefix}
-                    --with-python=${CSE_PYTHON_HOME}
-  BUILD_COMMAND ${build_cmd_smp}
-  DEPENDS ${CSE_PYTHON_PACKAGE} 
+ExternalProject_Add(libXML2
+  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  SOURCE_DIR ${libXML2_source}
+  BINARY_DIR ${libXML2_build}
+  INSTALL_DIR ${libXML2_install}
+  URL ${XML_URL}/${XML_GZ}
+  URL_MD5 ${XML_MD5}
+  BUILD_IN_SOURCE 1
+  PATCH_COMMAND ""
+  CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR>
 )
 
-
-cse_module_install(
-  "${name}" "${version}"
-  "${CSE_MODRELTOOLS_DIR}" ""
-  ${release} ${latest}
-)
-
-
-  split_version(${version} version_major version_minor version_patch)
-  set(CSE_LIBXML2_HOME "${prefix}" PARENT_SCOPE)
-  set(CSE_LIBXML2_PACKAGE "${name}-${version}" PARENT_SCOPE)
-  set(CSE_LIBXML2_NAME "${name}" PARENT_SCOPE)
-  set(CSE_LIBXML2_VERSIONXX "${version_major}.${version_minor}" PARENT_SCOPE)
-
-add_test(SmokeTest-${name}-${version}
-  "${prefix}/bin/xml2-config" "--version")
+set(libXML2_DIR "${libXML2_binary}" CACHE PATH "libXML2 binary directory" FORCE)
+mark_as_advanced(libXML2_DIR)
