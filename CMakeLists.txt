@@ -173,50 +173,8 @@ find_package(PythonLibs)
 # python mega widgets
 #find_package(PMW)
 
-
-
-
-
-#add_cdat_package(CURL)
-#add_cdat_package(LibXml2)
-#add_cdat_package(xgks)
-#add_cdat_package(pbmplus)
-add_cdat_package(ffmpeg)
-#add_cdat_package(gifsicle)
-#add_cdat_package(gs)
-
-#add_cdat_package(jpeg)
-
-# On OSX use vecLib framework
-if(NOT APPLE)
-  add_cdat_package(LAPACK)
-endif()
-
-add_cdat_package(zlib)
-add_cdat_package(png)
-add_cdat_package(pkgconfig)
-#add_cdat_package(Freetype)
-#add_cdat_package(pixman)
-#add_cdat_package(fontconfig)
-#add_cdat_package(Cairo)
-#add_cdat_package(uuid)
-#add_cdat_package(uduinits2)
-#add_cdat_package(HDF5)
-#add_cdat_package(NetCDF)
-add_cdat_package(Qt)
-add_cdat_package(Python)
-#add_cdat_package(termcap)
-#add_cdat_package(readline)
-add_cdat_package(TclTk)
-#add_cdat_package(setuptools)
-add_cdat_package(SIP)
-add_cdat_package(PyQt)
-#add_cdat_package(pyopengl)
-add_cdat_package(numpy)
-#add_cdat_package(pmw)
-
 #------------------------------------------------------------------------------
-# Establish Target Dependencies based on Selected Options
+# Establish Target Dependencies based on Selected Options and find results
 #------------------------------------------------------------------------------
 
 set(png_DEPENDENCIES zlib)
@@ -239,3 +197,44 @@ endif()
 set(VTK_DEPENDENCIES)
 set(cmcurl_DEPENDENCIES)
 set(cdat_DEPENDENCIES VTK Insight BatchMake OpenIGTLink teem cmcurl)
+
+#-----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
+
+#add_cdat_package(CURL)
+add_cdat_package(LibXml2)
+add_cdat_package(xgks)
+add_cdat_package(pbmplus)
+add_cdat_package(ffmpeg)
+add_cdat_package(gifsicle)
+add_cdat_package(ghostscript)
+
+add_cdat_package(jpeg)
+
+# On OSX use vecLib framework
+if(NOT APPLE)
+  add_cdat_package(LAPACK)
+endif()
+
+add_cdat_package(zlib)
+add_cdat_package(png)
+add_cdat_package(pkgconfig)
+add_cdat_package(freetype)
+add_cdat_package(pixman)
+add_cdat_package(fontconfig)
+add_cdat_package(Cairo)
+add_cdat_package(uuid)
+#add_cdat_package(uduinits2)
+add_cdat_package(HDF5)
+add_cdat_package(NetCDF)
+add_cdat_package(Qt)
+add_cdat_package(Python)
+#add_cdat_package(termcap)
+add_cdat_package(readline)
+add_cdat_package(TclTk)
+add_cdat_package(setuptools)
+add_cdat_package(SIP)
+add_cdat_package(PyQt)
+add_cdat_package(PyOpenGL)
+add_cdat_package(numpy)
+add_cdat_package(pmw)
