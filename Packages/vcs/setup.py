@@ -468,7 +468,7 @@ print 'Copied the include files to: %s/vcs/Include' % sysconfig.get_python_lib()
 
 if (WM=="QT" or EM=="QT") and sys.platform in ['darwin']:
     pref = sys.prefix
-    ver = sys.version.split(' ')[0]
+    ver = ".".join(sys.version.split(' ')[0].split(".")[:2])
     ccCmd = 'g++ -O3 -c %s -IInclude/Qt -IInclude -I/%s/include -o build/qpython.o Src/Qt/qpython.cpp' % (qt_vcs_extra_compile_args,pref)
     print 'Running: ', ccCmd
     os.system(ccCmd)

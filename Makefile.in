@@ -199,7 +199,7 @@ ifeq (@FFMPEG@,no)
 endif
 ifeq (@COMPILE_CAIRO@,yes)
 	@echo "Building cairo"
-	$(call dobuild,@CAIRO_URL@,@CAIRO_GZ@,@EXTERNALS@)
+	$(call dobuild,@CAIRO_URL@,@CAIRO_GZ@,@EXTERNALS@,, --disable-gtk )
 endif
 ifeq (@COMPILE_HDF@,yes)
 	@echo "Building hdf4"
