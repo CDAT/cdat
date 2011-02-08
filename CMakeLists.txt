@@ -115,8 +115,11 @@ else()
   set(_LINK_LIBRARY_SUFFIX .so)
 endif()
 
-set(cdat_configure_command "${LIBRARY_PATH}=")
-set(cdat_make_command "${LIBRARY_PATH}=")
+set(cdat_configure_command ${LIBRARY_PATH}=${cdat_CMAKE_BINARY_DIR}/Externals/lib:\$${LIBRARY_PATH})
+set(cdat_make_command ${LIBRARY_PATH}=${cdat_CMAKE_BINARY_DIR}/Externals/lib:\$${LIBRARY_PATH} ${CMAKE_COMMAND} --build)
+
+message("cdat_configure_command ${cdat_configure_command}")
+message("cdat_make_command ${cdat_make_command}")
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
