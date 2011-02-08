@@ -28,7 +28,7 @@ if(WIN32)
 
 else()
 
-  set(png_source "${CMAKE_CURRENT_BINARY_DIR}/build")
+  set(png_source "${CMAKE_CURRENT_BINARY_DIR}/build/png")
   set(png_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
 
   ExternalProject_Add(png
