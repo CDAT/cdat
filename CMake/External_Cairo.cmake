@@ -13,6 +13,7 @@ ExternalProject_Add(Cairo
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
   CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR>
+  DEPENDS ${Cairo_DEPENDENCIES}
 )
 
 set(Cairo_DIR "${Cairo_binary}" CACHE PATH "Cairo binary directory" FORCE)
