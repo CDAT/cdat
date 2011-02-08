@@ -10,7 +10,8 @@ ExternalProject_Add(Cairo
   URL_MD5 ${CAIRO_MD5}
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
-  CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR>
+  #CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR>
+  CONFIGURE_COMMAND ${cdat_configure_command} -DINSTALL_DIR="${Cairo_install}" -DWORKING_DIR="${Cairo_source}"
   DEPENDS ${Cairo_DEPENDENCIES}
 )
 
