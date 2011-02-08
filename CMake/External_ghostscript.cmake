@@ -1,12 +1,10 @@
 
-set(ghostscript_source "${CMAKE_CURRENT_BINARY_DIR}/ghostscript")
-set(ghostscript_binary "${CMAKE_CURRENT_BINARY_DIR}/ghostscript-build")
-set(ghostscript_install "${CMAKE_CURRENT_BINARY_DIR}/ghostscript-install")
+set(ghostscript_source "${CMAKE_CURRENT_BINARY_DIR}/build/ghostscript")
+set(ghostscript_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
 
 ExternalProject_Add(ghostscript
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
   SOURCE_DIR ${ghostscript_source}
-  BINARY_DIR ${ghostscript_build}
   INSTALL_DIR ${ghostscript_install}
   URL ${GS_URL}/${GS_GZ}
   URL_MD5 ${GS_MD5}

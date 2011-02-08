@@ -1,11 +1,12 @@
 
-# The png external project for ParaView
-set(png_source "${CMAKE_CURRENT_BINARY_DIR}/png")
-set(png_binary "${CMAKE_CURRENT_BINARY_DIR}/png-build")
-set(png_install "${CMAKE_CURRENT_BINARY_DIR}/png-install")
+
 
 # If Windows we use CMake otherwise ./configure
 if(WIN32)
+
+  set(png_source "${CMAKE_CURRENT_BINARY_DIR}/png")
+  set(png_binary "${CMAKE_CURRENT_BINARY_DIR}/png-build")
+  set(png_install "${CMAKE_CURRENT_BINARY_DIR}/png-install")
 
   ExternalProject_Add(png
   URL ${PNG_URL}/${PNG_GZ}
@@ -27,10 +28,12 @@ if(WIN32)
 
 else()
 
+  set(png_source "${CMAKE_CURRENT_BINARY_DIR}/build")
+  set(png_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
+
   ExternalProject_Add(png
     DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
     SOURCE_DIR ${png_source}
-    BINARY_DIR ${png_build}
     INSTALL_DIR ${png_install}
     URL ${PNG_URL}/${PNG_GZ}
     URL_MD5 ${PNG_MD5}

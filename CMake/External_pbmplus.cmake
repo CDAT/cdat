@@ -1,12 +1,10 @@
 
-set(pbmplus_source "${CMAKE_CURRENT_BINARY_DIR}/pbmplus")
-set(pbmplus_binary "${CMAKE_CURRENT_BINARY_DIR}/pbmplus-build")
-set(pbmplus_install "${CMAKE_CURRENT_BINARY_DIR}/pbmplus-install")
+set(pbmplus_source "${CMAKE_CURRENT_BINARY_DIR}/build/pbmplus")
+set(pbmplus_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
 
 ExternalProject_Add(pbmplus
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
   SOURCE_DIR ${pbmplus_source}
-  BINARY_DIR ${pbmplus_build}
   INSTALL_DIR ${pbmplus_install}
   URL ${PBMPLUS_URL}/${PBMPLUS_GZ}
   URL_MD5 ${PBMPLUS_MD5}

@@ -1,7 +1,6 @@
 
-set(jpeg_source "${CMAKE_CURRENT_BINARY_DIR}/jpeg")
-set(jpeg_binary "${CMAKE_CURRENT_BINARY_DIR}/jpeg-build")
-set(jpeg_install "${CMAKE_CURRENT_BINARY_DIR}/jpeg-install")
+set(jpeg_source "${CMAKE_CURRENT_BINARY_DIR}/build/jpeg")
+set(jpeg_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
 
 ExternalProject_Add(jpeg
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}

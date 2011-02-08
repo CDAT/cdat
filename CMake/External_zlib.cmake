@@ -1,10 +1,10 @@
 
-set(zlib_source "${CMAKE_CURRENT_BINARY_DIR}/zlib")
-set(zlib_binary "${CMAKE_CURRENT_BINARY_DIR}/zlib-build")
-set(zlib_install "${CMAKE_CURRENT_BINARY_DIR}/zlib-install")
-
 # If Windows we use CMake otherwise ./configure
 if(WIN32)
+
+  set(zlib_source "${CMAKE_CURRENT_BINARY_DIR}/zlib")
+  set(zlib_binary "${CMAKE_CURRENT_BINARY_DIR}/zlib-build")
+  set(zlib_install "${CMAKE_CURRENT_BINARY_DIR}/zlib-install")
 
   ExternalProject_Add(zlib
     DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
@@ -25,6 +25,10 @@ if(WIN32)
   )
 
 else()
+
+  set(zlib_source "${CMAKE_CURRENT_BINARY_DIR}/build/zlib")
+  set(zlib_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
+
   ExternalProject_Add(zlib
     DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
     SOURCE_DIR ${zlib_source}
