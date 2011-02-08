@@ -11,7 +11,7 @@ ExternalProject_Add(Cairo
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
   #CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR>
-  CONFIGURE_COMMAND ${cdat_configure_command} -DINSTALL_DIR="${Cairo_install}" -DWORKING_DIR="${Cairo_source}"
+  CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=${Cairo_install} -DWORKING_DIR=${Cairo_source} -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
   DEPENDS ${Cairo_DEPENDENCIES}
 )
 
