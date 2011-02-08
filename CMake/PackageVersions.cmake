@@ -50,7 +50,7 @@ set(CAIRO_MINOR_SRC 8)
 set(CAIRO_PATCH_SRC 10)
 set(CAIRO_URL http://cairographics.org/releases)
 set(CAIRO_GZ cairo-${CAIRO_MAJOR_SRC}.${CAIRO_MINOR_SRC}.${CAIRO_PATCH_SRC}.tar.gz)
-set(CAIRO_MD5 d922a88782b64441d06547632fd85744)
+set(CAIRO_MD5 b60a82f405f9400bbfdcf850b1728d25)
 
 set(FT_MAJOR 9)
 set(FT_MINOR 7)
