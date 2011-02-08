@@ -115,11 +115,21 @@ else()
   set(_LINK_LIBRARY_SUFFIX .so)
 endif()
 
-set(cdat_configure_command ${LIBRARY_PATH}=${cdat_CMAKE_BINARY_DIR}/Externals/lib:\$${LIBRARY_PATH})
-set(cdat_make_command ${LIBRARY_PATH}=${cdat_CMAKE_BINARY_DIR}/Externals/lib:\$${LIBRARY_PATH} ${CMAKE_COMMAND} --build)
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_configure_step.cmake.in
+    ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
+    @ONLY)
+  
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_make_step.cmake.in
+  ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake
+  @ONLY)
+  
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_install_step.cmake.in
+  ${cdat_CMAKE_BINARY_DIR}/cdat_install_step.cmake
+  @ONLY)
 
-message("cdat_configure_command ${cdat_configure_command}")
-message("cdat_make_command ${cdat_make_command}")
+set(cdat_configure_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake)
+set(cdat_make_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake)
+set(cdat_install_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/cdat_install_step.cmake)
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
