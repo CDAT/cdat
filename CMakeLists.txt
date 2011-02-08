@@ -26,7 +26,6 @@ set(cdat_VERSION_MINOR 0)
 set(cdat_VERSION_PATCH "alpha")
 set(cdat_VERSION ${cdat_VERSION_MAJOR}.${cdat_VERSION_MINOR}.${cdat_VERSION_PATCH})
 
-
 #-----------------------------------------------------------------------------
 # Git protocole option
 #-----------------------------------------------------------------------------
@@ -103,23 +102,21 @@ string(REPLACE "/W3" "/W0" pv_tpl_c_flags "${pv_tpl_c_flags}")
 string(REPLACE "/W4" "/W0" pv_tpl_c_flags "${pv_tpl_c_flags}")
 
 if(WIN32)
-  set(_LINK_LIBRARY_SUFFIX .lib)
-elseif(APPLE)
-  set(_LINK_LIBRARY_SUFFIX .dylib)
-else()
-  set(_LINK_LIBRARY_SUFFIX .so)
-endif()
-
-if(WIN32)
   set(LIBRARY_PATH PATH)
   set(CMAKE_PLATFORM WIN32)
+  set(_LINK_LIBRARY_SUFFIX .lib)
 elseif(APPLE)
   set(LIBRARY_PATH DYLD_LIBRARY_PATH)
   set(CMAKE_PLATFORM APPLE)
+  set(_LINK_LIBRARY_SUFFIX .dylib)
 else()
   set(LIBRARY_PATH LD_LIBRARY_PATH)
   set(CMAKE_PLATFORM UNIX)
+  set(_LINK_LIBRARY_SUFFIX .so)
 endif()
+
+set(cdat_configure_command "${LIBRARY_PATH}=")
+set(cdat_make_command "${LIBRARY_PATH}=")
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
@@ -131,10 +128,16 @@ macro (add_cdat_package package)
   string(TOUPPER ${package} UC_PACKAGE)
   string(TOLOWER ${package} LC_PACKAGE)
   option(CDAT_USE_SYSTEM_${UC_PACKAGE} "Use system installed ${LC_PACKAGE}" ON)
-  if(NOT ${UC_PACKAGE}_FOUND AND NOT CDAT_USE_SYSTEM_${UC_PACKAGE})
-    message("${package} not found.\n  ->Building ${UC_PACKAGE} ${${UC_PACKAGE}_MAJOR_SRC}.${${UC_PACKAGE}_MINOR_SRC}.${${UC_PACKAGE}_PATCH_SRC} from source.")
-    include(External_${package})
-    set(CDAT_USE_SYSTEM_${UC_PACKAGE} OFF CACHE BOOL "Use system installed ${LC_PACKAGE}" FORCE)
+  if(NOT ${UC_PACKAGE}_FOUND) 
+    if(NOT CDAT_USE_SYSTEM_${UC_PACKAGE})
+      message("${package} not found.\n  ->Building ${UC_PACKAGE} ${${UC_PACKAGE}_MAJOR_SRC}.${${UC_PACKAGE}_MINOR_SRC}.${${UC_PACKAGE}_PATCH_SRC} from source.")
+      #set(CDAT_USE_SYSTEM_${UC_PACKAGE} OFF CACHE BOOL "Use system installed ${LC_PACKAGE}" FORCE)
+      include(External_${package})
+    endif()
+  else()
+    if(NOT CDAT_USE_SYSTEM_${UC_PACKAGE})
+      include(External_${package})
+    endif()
   endif()
 endmacro (add_cdat_package)
 
@@ -180,12 +183,13 @@ find_package(PythonLibs)
 set(png_DEPENDENCIES zlib)
 set(tcl_DEPENDENCIES)
 set(python_DEPENDENCIES TclTk)
-set(PyQt_DEPENDENCIES Qt python)
-  if(WIN32)
-    set(python_DEPENDENCIES tcl)
-  else()
-    set(python_DEPENDENCIES tk)
-  endif()
+set(PyQt_DEPENDENCIES Qt sip)
+  
+if(WIN32)
+  set(python_DEPENDENCIES)
+else()
+  set(python_DEPENDENCIES)
+endif()
 
 set(CLAPACK_DEPENDENCIES)
 
@@ -197,6 +201,7 @@ endif()
 set(VTK_DEPENDENCIES)
 set(cmcurl_DEPENDENCIES)
 set(cdat_DEPENDENCIES VTK Insight BatchMake OpenIGTLink teem cmcurl)
+set(Cairo_DEPENDENCIES png fontconfig freetype)
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
