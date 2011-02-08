@@ -1,22 +1,24 @@
 
 if(WIN32)
 else()
-  set(ENV{@LIBRARY_PATH@} "@cdat_CMAKE_BINARY_DIR@/Externals/lib\:$ENV{@LIBRARY_PATH}")
-  set(ENV{LDFLAGS} "-L@cdat_CMAKE_BINARY_DIR@/Externals/NetCDF/lib -L@cdat_CMAKE_BINARY_DIR@/Externals/lib -L@cdat_CMAKE_BINARY_DIR@/lib")
-  set(ENV{CFLAGS} "-I/@cdat_CMAKE_BINARY_DIR@/Externals/NetCDF/include -I@cdat_CMAKE_BINARY_DIR@/Externals/include")
-  set(ENV{CPPFLAGS} "-I/@cdat_CMAKE_BINARY_DIR@/Externals/NetCDF/include -I@cdat_CMAKE_BINARY_DIR@/Externals/include")
+  set(ENV{@LIBRARY_PATH@} "@cdat_BINARY_DIR@/Externals/lib:$ENV{@LIBRARY_PATH@}")
+  set(ENV{LDFLAGS} "-L@cdat_BINARY_DIR@/Externals/NetCDF/lib -L@cdat_BINARY_DIR@/Externals/lib -L@cdat_BINARY_DIR@/lib")
+  set(ENV{CFLAGS} "-I@cdat_BINARY_DIR@/Externals/NetCDF/include -I@cdat_BINARY_DIR@/Externals/include")
+  set(ENV{CPPFLAGS} "-I@cdat_BINARY_DIR@/Externals/NetCDF/include -I@cdat_BINARY_DIR@/Externals/include")
   set(ENV{CXXFLAGS} "@CMAKE_CXX_FLAGS@")
-  set(ENV{PKG_CONFIG_PATH} "@cdat_CMAKE_BINARY_DIR@/Externals/lib/pkgconfig")
-  set(ENV{PYTHON_PATH} "@cdat_CMAKE_BINARY_DIR@/lib/python@PYTHON_MAJOR@.@PYTHON_MINOR@/site-packages\:$ENV{PYTHON_PATH}")
+  set(ENV{PKG_CONFIG_PATH} "@cdat_BINARY_DIR@/Externals/lib/pkgconfig")
+  set(ENV{PYTHON_PATH} "@cdat_BINARY_DIR@/lib/python@PYTHON_MAJOR@.@PYTHON_MINOR@/site-packages:$ENV{PYTHON_PATH}")
   #set(ENV{CFLAGS} "-arch x86_64 -mmacosx-version-min=10.5 -isysroot /Developer/SDKs/MacOSX10.5.sdk")
 endif()
 
+if(NOT CONFIGURE_ARGS)
+  set(CONFIGURE_ARGS "")
+endif()
+
 execute_process(
-  COMMAND configure --prefix=${INSTALL_DIR} ${CONFIGURE_ARGS}
+  COMMAND sh configure --prefix=${INSTALL_DIR} ${CONFIGURE_ARGS}
   WORKING_DIRECTORY "${WORKING_DIR}"
-  RESULT_VARIABLE res
-  OUTPUT_VARIABLE CDAT_OUT
-  OUTPUT_VARIABLE CDAT_ERR)
+  RESULT_VARIABLE res)
 
 if(NOT ${res} EQUAL 0)
   message("Config Errors detected: \n${CDAT_OUT}\n${CDAT_ERR}")
