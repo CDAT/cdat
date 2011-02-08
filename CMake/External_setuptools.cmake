@@ -8,7 +8,7 @@ ExternalProject_Add(setuptools
   SOURCE_DIR ${setuptools_source}
   BINARY_DIR ${setuptools_build}
   INSTALL_DIR ${setuptools_install}
-  URL ${SETUPTOOLS_URL}/${OPENMPI_GZ}
+  URL ${SETUPTOOLS_URL}/${SETUPTOOLS_GZ}
   URL_MD5 ${SETUPTOOLS_MD5}
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
