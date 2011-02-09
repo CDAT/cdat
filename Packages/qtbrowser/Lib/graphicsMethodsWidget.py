@@ -1,10 +1,12 @@
 from PyQt4 import QtCore, QtGui
 import customizeVCDAT
+import editorGraphicsMethodsWidget
 
 class QGraphicsMethodsWidget(QtGui.QWidget):
     def __init__(self,ptype,parent=None):
         QtGui.QWidget.__init__(self,parent)
         self.parent=parent
+        print 'type of self.parent:',type(parent),type(self.parent)
         self.root=parent.root
         layout = QtGui.QVBoxLayout()
 
@@ -32,7 +34,7 @@ class QGraphicsMethodsWidget(QtGui.QWidget):
         p.setBrush(p.Base,customizeVCDAT.gmsColor)
         self.gmList.setPalette(p)
         self.gmList.setAutoFillBackground(True)
-        gms = parent.canvas[0].listelements(str(ptype).lower())
+        gms = parent.parent.canvas[0].listelements(str(ptype).lower())
         default = 0
         for i in range(len(gms)):
             g = gms[i]
@@ -43,3 +45,12 @@ class QGraphicsMethodsWidget(QtGui.QWidget):
         layout.addWidget(self.gmList)
         self.setLayout(layout)
 
+        self.connect(self.gmList,QtCore.SIGNAL("itemSelectionChanged()"),self.changedGM)
+
+
+    def changedGM(self, *args):
+        print type(self),type(self.parent)
+        self.parent.editorTab.removeTab(1)
+        ptype = self.parent.parent.plotOptions.getPlotType()
+        self.parent.editorTab.addTab(editorGraphicsMethodsWidget.QEditorGraphicsMethodsWidget(ptype,self.parent),"'%s' %s Graphics Method Properties" % (self.parent.gms.gmList.currentItem().text(),ptype))
+        self.parent.editorTab.setCurrentIndex(1)

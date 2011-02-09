@@ -1106,7 +1106,7 @@ class QContinentsEditor(QtGui.QScrollArea):
             return int(self.lineColorIndex.text())
         except:
             return None        
-        
+
 class QBoxfillEditor(QtGui.QScrollArea):
 
     def __init__(self, parent=None, gm=None):
@@ -1129,6 +1129,8 @@ class QBoxfillEditor(QtGui.QScrollArea):
 
         # General Settings 
         generalSettings = QFramedWidget('General Settings')
+        self.projection = generalSettings.addLabeledComboBox("Projection",parent.root.tabView.widget(1).canvas[0].listelements("projection"))
+        self.projedit = generalSettings.addButton("Edit",newRow=False)
         self.missingLineEdit = generalSettings.addLabeledLineEdit('Missing:')
         self.ext1ButtonGroup = generalSettings.addRadioFrame('Ext1:',
                                                              ['No', 'Yes'],

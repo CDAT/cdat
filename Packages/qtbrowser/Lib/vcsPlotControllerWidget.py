@@ -31,10 +31,10 @@ class QVCSPlotController(QtGui.QWidget):
         hlayout_choices = QtGui.QHBoxLayout()
         self.choicesFrame.setLayout(hlayout_choices)
         
-        self.templates = templatesWidget.QTemplatesWidget(parent)
+        self.templates = templatesWidget.QTemplatesWidget(self)
         hlayout_choices.addWidget(self.templates)
 
-        self.gms = graphicsMethodsWidget.QGraphicsMethodsWidget(ptype,parent)
+        self.gms = graphicsMethodsWidget.QGraphicsMethodsWidget(ptype,self)
 
         hlayout_choices.addWidget(self.gms)
 
@@ -44,6 +44,7 @@ class QVCSPlotController(QtGui.QWidget):
 
         self.editorTab = QtGui.QTabWidget()
         self.editorTab.addTab(editorTemplateWidget.QEditorTemplateWidget(self),"'%s' Template Properties" % self.templates.templateList.currentItem().text())
+        print 'type of self:',type(self)
         self.editorTab.addTab(editorGraphicsMethodsWidget.QEditorGraphicsMethodsWidget(ptype,self),"'%s' %s Graphics Method Properties" % (self.gms.gmList.currentItem().text(),ptype))
         self.editorTab.setCurrentIndex(1)
         
@@ -54,7 +55,7 @@ class QVCSPlotController(QtGui.QWidget):
         vsplitter.addWidget(self.top)
 
         # Now prepare the bottom section
-
+        
         self.bottom=QtGui.QFrame()
         vlayout = QtGui.QVBoxLayout()
         self.bottom.setLayout(vlayout)

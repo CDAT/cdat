@@ -32,7 +32,7 @@ class QTemplatesWidget(QtGui.QWidget):
         p.setBrush(p.Base,customizeVCDAT.templatesColor)
         self.templateList.setPalette(p)
         self.templateList.setAutoFillBackground(True)
-        tpl = parent.canvas[0].listelements("template")
+        tpl = parent.parent.canvas[0].listelements("template")
         default = 0 
         for i in range(len(tpl)):
             t = tpl[i]
