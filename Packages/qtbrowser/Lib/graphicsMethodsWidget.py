@@ -6,7 +6,6 @@ class QGraphicsMethodsWidget(QtGui.QWidget):
     def __init__(self,ptype,parent=None):
         QtGui.QWidget.__init__(self,parent)
         self.parent=parent
-        print 'type of self.parent:',type(parent),type(self.parent)
         self.root=parent.root
         layout = QtGui.QVBoxLayout()
 
@@ -49,7 +48,6 @@ class QGraphicsMethodsWidget(QtGui.QWidget):
 
 
     def changedGM(self, *args):
-        print type(self),type(self.parent)
         self.parent.editorTab.removeTab(1)
         ptype = self.parent.parent.plotOptions.getPlotType()
         self.parent.editorTab.addTab(editorGraphicsMethodsWidget.QEditorGraphicsMethodsWidget(ptype,self.parent),"'%s' %s Graphics Method Properties" % (self.parent.gms.gmList.currentItem().text(),ptype))

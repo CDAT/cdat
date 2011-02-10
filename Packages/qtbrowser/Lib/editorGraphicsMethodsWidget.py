@@ -13,7 +13,6 @@ class QEditorGraphicsMethodsWidget(QtGui.QWidget):
         if ptype == "Boxfill":
             self.widget = graphicsMethodsWidgets.QBoxfillEditor(parent=self,gm = gmnm)
         if gmnm == "default":
-            print 'turnong off widget'
             self.widget.widget().setEnabled(False)
 
         f = QtGui.QFrame()
@@ -21,7 +20,9 @@ class QEditorGraphicsMethodsWidget(QtGui.QWidget):
         
         self.apply = QtGui.QPushButton("Apply")
         self.preview = QtGui.QPushButton("Preview")
+        self.preview.setEnabled(False)
         self.discard = QtGui.QPushButton("Discard")
+        self.discard.setEnabled(False)
         hl.addWidget(self.apply)
         hl.addWidget(self.preview)
         hl.addWidget(self.discard)

@@ -55,7 +55,6 @@ class QCDATWindow(QtGui.QMainWindow):
     def __init__(self, parent=None):
         """ Instantiate the child widgets of the main VCDAT window and setup
         the overall layout """
-        ## QtGui.QWidget.__init__(self, parent)
         centralWidget= QtGui.QWidget()
         QtGui.QMainWindow.__init__(self,parent)
         self.setCentralWidget(centralWidget)
@@ -80,36 +79,75 @@ class QCDATWindow(QtGui.QMainWindow):
         #Adds a shortcut to the record function
         self.record = self.recorder.record
         
+        ###########################################################
+        ###########################################################
+        ## WIDGETS
+        ###########################################################
+        ###########################################################
+
+        ###########################################################
         # Init Menu Widget
+        ###########################################################
         self.mainMenu = mainMenuWidget.QMenuWidget(self)
 
+        ###########################################################
         # Init Main Window Icon Tool Bar at the top of the GUI
+        ###########################################################
         self.tool_bar = mainToolbarWidget.QMainToolBarContainer(self)
         layout.addWidget(self.tool_bar)
         
-        # Init File Widget
-        vsplitter  = QtGui.QSplitter(QtCore.Qt.Vertical)        
-        ## vsplitter.addWidget(fileWidget)
-
-        # Init Defined Variables Widget
-        self.definedVar = QLabeledWidgetContainer(definedVariableWidget.QDefinedVariableWidget(self),
-                                             'DEFINED VARIABLES', self)
-        vsplitter.addWidget(self.definedVar)
+        ###########################################################
+        # Splitter between defined variables and controls tabs
+        ###########################################################
         hsplitter = QtGui.QSplitter(QtCore.Qt.Horizontal)
-        hsplitter.addWidget(vsplitter)
+        
+        ###########################################################
+        # Defined Variables Widget
+        ###########################################################
+        self.definedVar = QLabeledWidgetContainer(definedVariableWidget.QDefinedVariableWidget(self),'DEFINED VARIABLES', self)        
+        hsplitter.addWidget(self.definedVar)
 
-        # Init Var Plotting Widget
+        ###########################################################
+        ###########################################################
+        #  Controls Tabs Widget
+        ###########################################################
+        ###########################################################
         self.tabView = QtGui.QTabWidget()
-
-        self.tabView.addTab(variableViewWidget.QVariableView(self),"Variables")
-        self.tabView.addTab(plotViewWidget.QPlotView(self), "Plot")
-        self.tabView.addTab(commandLineWidget.QCommandLine(self), "CommandLine")
-        #self.tabView.addTab(calculatorWidget.QCalculator(self), "Calculator")
         hsplitter.addWidget(self.tabView)
         hsplitter.setStretchFactor(1, 2)
-        layout.addWidget(hsplitter)
 
+        ###########################################################
+        # File/Variable Controls Tab
+        ###########################################################
+        self.tabView.addTab(variableViewWidget.QVariableView(self),"Variables")
+        ###########################################################
+        # Plotting Controls Tab
+        ###########################################################
+        self.tabView.addTab(plotViewWidget.QPlotView(self), "Plot")
+        ###########################################################
+        # Command Line Controls Tab
+        ###########################################################
+        self.tabView.addTab(commandLineWidget.QCommandLine(self), "CommandLine")
+        ###########################################################
+        # Calculator Tab
+        ###########################################################
+        #self.tabView.addTab(calculatorWidget.QCalculator(self), "Calculator")
+
+        layout.addWidget(hsplitter)
+        self.show()
+        self.tabView.widget(1).show()
+        self.tabView.widget(1).plotOptions.plotTypeCombo.setCurrentIndex(0)
+
+
+        ###########################################################
+        ###########################################################
+        ## SIGNALS
+        ###########################################################
+        ###########################################################
+
+        ###########################################################
         ## Connect Signals between QVariableView & QDefinedVariable
+        ###########################################################
         self.tabView.widget(0).connect(self.definedVar.getWidget(), QtCore.SIGNAL('selectDefinedVariableEvent'),
                         self.tabView.widget(0).selectDefinedVariableEvent)
         self.tabView.widget(0).connect(self.definedVar.getWidget(), QtCore.SIGNAL('setupDefinedVariableAxes'),
@@ -119,17 +157,15 @@ class QCDATWindow(QtGui.QMainWindow):
         self.definedVar.connect(self.tabView.widget(0), QtCore.SIGNAL('definedVariableEvent'),
                            self.definedVar.getWidget().addVariable)
 
-        ## ## Connect Signals between QFileWidget & QVariableView
+        ###########################################################
+        ## Connect Signals between QFileWidget & QVariableView
+        ###########################################################
         self.tabView.widget(0).connect(self.tabView.widget(0).fileWidget.getWidget(), QtCore.SIGNAL('variableSelectedEvent'),
                         self.tabView.widget(0).setupFileVariableAxes)
         self.tabView.widget(0).connect(self.tabView.widget(0).fileWidget.getWidget(), QtCore.SIGNAL('defineVariableFromFileEvent'),
                         self.tabView.widget(0).defineVariableEvent)
         fw = self.tabView.widget(0).fileWidget.widget
         fw.connect(fw.plotButton,QtCore.SIGNAL('clicked(bool)'),self.tabView.widget(1).plot)
-        self.show()
-        self.tabView.widget(1).show()
-        self.tabView.widget(1).plotOptions.plotTypeCombo.setCurrentIndex(0)
-
     def closeEvent(self, event):
         # TODO
         # closeEvent() isn't called vistrails is closed,

@@ -9,7 +9,6 @@ class QEditorTemplateWidget(QtGui.QWidget):
         layout = QtGui.QHBoxLayout()
 
         tnm = parent.templates.templateList.currentItem().text()
-        print 'Template name is:',tnm
         self.widget = QtGui.QLabel("Template editor section")
         
         layout.addWidget(self.widget)

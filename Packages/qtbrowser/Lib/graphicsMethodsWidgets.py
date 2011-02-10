@@ -1142,41 +1142,41 @@ class QBoxfillEditor(QtGui.QScrollArea):
         vbox.addWidget(generalSettings)
         
         # Linear & Log Settings
-        linLogSettings = QFramedWidget('Linear and Log Settings')
+        self.linLogSettings = QFramedWidget('Linear and Log Settings')
 
-        self.level1LineEdit = linLogSettings.addLabeledLineEdit('Level 1:')
-        self.level2LineEdit = linLogSettings.addLabeledLineEdit('Level 2:',
+        self.level1LineEdit = self.linLogSettings.addLabeledLineEdit('Level 1:')
+        self.level2LineEdit = self.linLogSettings.addLabeledLineEdit('Level 2:',
                                                                 newRow = False)
-        self.color1LineEdit = linLogSettings.addLabeledLineEdit('Color 1:')
-        self.color2LineEdit = linLogSettings.addLabeledLineEdit('Color 2:',
+        self.color1LineEdit = self.linLogSettings.addLabeledLineEdit('Color 1:')
+        self.color2LineEdit = self.linLogSettings.addLabeledLineEdit('Color 2:',
                                                                 newRow = False)        
-        vbox.addWidget(linLogSettings)
+        vbox.addWidget(self.linLogSettings)
         
         # Custom Settings
-        customSettings = QFramedWidget('Custom Settings')
+        self.customSettings = QFramedWidget('Custom Settings')
 
-        customSettings.addWidget(QtGui.QLabel('Define iso level range values:'))
-        self.includeZeroButtonGroup = customSettings.addRadioFrame('Include Zero:',
+        self.customSettings.addWidget(QtGui.QLabel('Define iso level range values:'))
+        self.includeZeroButtonGroup = self.customSettings.addRadioFrame('Include Zero:',
                                                                    ['Off', 'On'],
                                                                    newRow=False)
-        self.rangeLineEdit = customSettings.addLabeledLineEdit('Ranges:')
-        self.colorsLineEdit = customSettings.addLabeledLineEdit('Colors:')
+        self.rangeLineEdit = self.customSettings.addLabeledLineEdit('Ranges:')
+        self.colorsLineEdit = self.customSettings.addLabeledLineEdit('Colors:')
 
-        customSettings.newRow()
-        customSettings.addWidget(QtGui.QLabel('Define iso level parameters:'))
-        self.spacingButtonGroup = customSettings.addRadioFrame('spacing:',
+        self.customSettings.newRow()
+        self.customSettings.addWidget(QtGui.QLabel('Define iso level parameters:'))
+        self.spacingButtonGroup = self.customSettings.addRadioFrame('spacing:',
                                                                ['Linear', 'Log'],
                                                                newRow=False)
 
-        self.minValLineEdit = customSettings.addLabeledLineEdit('Minimum Value:')
-        self.maxValLineEdit = customSettings.addLabeledLineEdit('Maximum Value:')
-        self.nIntervals = customSettings.addLabeledSpinBox('Number of Intervals:',
+        self.minValLineEdit = self.customSettings.addLabeledLineEdit('Minimum Value:')
+        self.maxValLineEdit = self.customSettings.addLabeledLineEdit('Maximum Value:')
+        self.nIntervals = self.customSettings.addLabeledSpinBox('Number of Intervals:',
                                                                    2, 223)
-        self.smallestExpLabel, self.expLineEdit = customSettings.addLabelAndLineEdit('Smallest Exponent for Negative Values:')
-        self.numNegDecLabel, self.negDecadesLineEdit = customSettings.addLabelAndLineEdit('Number of Negative Decades:')
-        genRangesButton = customSettings.addButton('Generate Ranges')
-        clearButton = customSettings.addButton('Clear All', newRow=False)        
-        vbox.addWidget(customSettings)
+        self.smallestExpLabel, self.expLineEdit = self.customSettings.addLabelAndLineEdit('Smallest Exponent for Negative Values:')
+        self.numNegDecLabel, self.negDecadesLineEdit = self.customSettings.addLabelAndLineEdit('Number of Negative Decades:')
+        genRangesButton = self.customSettings.addButton('Generate Ranges')
+        clearButton = self.customSettings.addButton('Clear All', newRow=False)        
+        vbox.addWidget(self.customSettings)
 
         # Init values
         self.initValues()
@@ -1196,33 +1196,59 @@ class QBoxfillEditor(QtGui.QScrollArea):
         self.connect(self.spacingButtonGroup.getButton('Log'),
                      QtCore.SIGNAL('pressed()'),
                      lambda : self.setEnabledLogLineEdits(True))
+        self.connect(self.boxfillTypeButtonGroup.buttonGroup,
+                     QtCore.SIGNAL('buttonClicked(int)'),
+                     self.clickedBoxType)
 
-    def initValues(self):
-        if self.gm is None:
+
+    def clickedBoxType(self,*args):
+
+        cid = self.boxfillTypeButtonGroup.buttonGroup.checkedId()
+        if str(self.boxfillTypeButtonGroup.buttonGroup.button(cid).text()) == "custom":
+            self.linLogSettings.setEnabled(False)
+            self.customSettings.setEnabled(True)
+        else:
+            self.linLogSettings.setEnabled(True)
+            self.customSettings.setEnabled(False)
+        
+    def setWidgetsValues(self,gm):
+        if gm is None:
             return
 
         # Init Line Edit Text
-        self.missingLineEdit.setText(str(self.gm.missing))
+        self.missingLineEdit.setText(str(gm.missing))
         self.legendLineEdit.setText('None')
-        self.level1LineEdit.setText(str(self.gm.level_1))
-        self.level2LineEdit.setText(str(self.gm.level_2))
-        self.color1LineEdit.setText(str(self.gm.color_1))
-        self.color2LineEdit.setText(str(self.gm.color_2))
-        self.rangeLineEdit.setText(str(self.gm.levels))
-        self.colorsLineEdit.setText('None')
+        self.level1LineEdit.setText(str(gm.level_1))
+        self.level2LineEdit.setText(str(gm.level_2))
+        self.color1LineEdit.setText(str(gm.color_1))
+        self.color2LineEdit.setText(str(gm.color_2))
+        self.rangeLineEdit.setText(str(gm.levels))
+        self.colorsLineEdit.setText(str(gm.fillareacolors))
+
+        # Init selected radio buttons
+        self.boxfillTypeButtonGroup.setChecked(gm.boxfill_type)
+        self.clickedBoxType()
+        
+        if gm.ext_1 == "n":
+            self.ext1ButtonGroup.setChecked('No')
+        else:
+            self.ext1ButtonGroup.setChecked('Yes')
+        if gm.ext_2 == "n":
+            self.ext2ButtonGroup.setChecked('No')
+        else:
+            self.ext2ButtonGroup.setChecked('Yes')
+
+    def initValues(self):
+        self.setWidgetsValues(self.gm)
         self.minValLineEdit.setText('')
         self.maxValLineEdit.setText('')
         self.expLineEdit.setText('')
         self.negDecadesLineEdit.setText('')
         self.nIntervals.setValue(2)
         self.setEnabledLogLineEdits(False)
-
-        # Init selected radio buttons
-        self.boxfillTypeButtonGroup.setChecked('linear')
-        self.ext1ButtonGroup.setChecked('No')
-        self.ext2ButtonGroup.setChecked('No')
         self.includeZeroButtonGroup.setChecked('Off')
         self.spacingButtonGroup.setChecked('Linear')
+
 
     def generateRanges(self):
         try:

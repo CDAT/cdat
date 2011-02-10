@@ -22,45 +22,41 @@ class QVCSPlotController(QtGui.QWidget):
 
         vsplitter = QtGui.QSplitter(QtCore.Qt.Vertical)
 
-        # Now lets prepare the top section (templates and gms)
-        self.top = QtGui.QFrame()
-        hlayout_top = QtGui.QHBoxLayout()
-        self.top.setLayout(hlayout_top)
-
-        self.choicesFrame =QtGui.QFrame()
+        ##########################################################
+        # Graphics Methods and Templates Selection Section
+        ##########################################################
         hlayout_choices = QtGui.QHBoxLayout()
-        self.choicesFrame.setLayout(hlayout_choices)
-        
         self.templates = templatesWidget.QTemplatesWidget(self)
         hlayout_choices.addWidget(self.templates)
-
         self.gms = graphicsMethodsWidget.QGraphicsMethodsWidget(ptype,self)
-
         hlayout_choices.addWidget(self.gms)
 
-        vsplitter2 = QtGui.QSplitter(QtCore.Qt.Vertical)
+        self.choicesFrame =QtGui.QFrame()
+        self.choicesFrame.setLayout(hlayout_choices)
 
-        vsplitter2.addWidget(self.choicesFrame)
+        vsplitter.addWidget(self.choicesFrame)
 
+
+        ##########################################################
+        # Plots setup section
+        ##########################################################
+        self.plotsSetup=QtGui.QFrame()
+        vlayout = QtGui.QVBoxLayout()
+        vlayout.addWidget(QtGui.QLabel("plot setup section"))
+        self.plotsSetup.setLayout(vlayout)
+        vsplitter.addWidget(self.plotsSetup)
+
+
+        ##########################################################
+        # Graphics Method and Templates editor Section
+        ##########################################################
         self.editorTab = QtGui.QTabWidget()
         self.editorTab.addTab(editorTemplateWidget.QEditorTemplateWidget(self),"'%s' Template Properties" % self.templates.templateList.currentItem().text())
-        print 'type of self:',type(self)
         self.editorTab.addTab(editorGraphicsMethodsWidget.QEditorGraphicsMethodsWidget(ptype,self),"'%s' %s Graphics Method Properties" % (self.gms.gmList.currentItem().text(),ptype))
         self.editorTab.setCurrentIndex(1)
-        
-        vsplitter2.addWidget(self.editorTab)
+        vsplitter.addWidget(self.editorTab)        
 
-        hlayout_top.addWidget(vsplitter2)
-        
-        vsplitter.addWidget(self.top)
 
-        # Now prepare the bottom section
-        
-        self.bottom=QtGui.QFrame()
-        vlayout = QtGui.QVBoxLayout()
-        self.bottom.setLayout(vlayout)
-        vsplitter.addWidget(self.bottom)
-        
         layout.addWidget(vsplitter)
         
         

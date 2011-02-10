@@ -18,8 +18,10 @@ class QCDATFileWidget(QtGui.QWidget):
         # Start the layout
         layout = QtGui.QVBoxLayout()
         self.setLayout(layout)
-        layout.setMargin(0)
+        #layout.setMargin(1)
 
+        self.maxSize = 0
+        
         self.fileDialog = QFileDialogWidget()
         self.fileDialog.setNameFilter(QCDATFileWidget.FILTER)
         layout.addWidget(self.fileDialog)
@@ -44,8 +46,6 @@ class QCDATFileWidget(QtGui.QWidget):
         hline.setFrameStyle(QtGui.QFrame.HLine | QtGui.QFrame.Sunken)
         hbox.addWidget(hline)
 
-        self.connect(self.drawerButton, QtCore.SIGNAL('clicked(bool)'),
-                     self.toggleFileDialog)
 
         vbox.addLayout(hbox)
         
@@ -98,7 +98,16 @@ class QCDATFileWidget(QtGui.QWidget):
 
         grid.addLayout(hbox, 1, 1)
 
+        # Init the widget with its file dialog hidden
+        self.fileDialog.hide()
+        self.setFileName('')
+        self.varCombo.setCurrentIndex(1)
+
+
         # Connect signals
+        self.connect(self.drawerButton, QtCore.SIGNAL('clicked(bool)'),
+                     self.toggleFileDialog)
+
         self.connect(self.fileDialog, QtCore.SIGNAL('filesSelected(const QStringList&)'),
                      self.filesSelected)
         self.connect(self.fileNameEdit, QtCore.SIGNAL('returnPressed()'),
@@ -110,10 +119,6 @@ class QCDATFileWidget(QtGui.QWidget):
         self.connect(self.defineVarButton, QtCore.SIGNAL('clicked(bool)'),
                      self.defineVariablePressed)
 
-        # Init the widget with its file dialog hidden
-        self.fileDialog.hide()
-        self.setFileName('')
-        self.varCombo.setCurrentIndex(1)
 
     def updateSizeConstraints(self):
         isDialogVisible = self.fileDialog.isVisible()
@@ -122,7 +127,9 @@ class QCDATFileWidget(QtGui.QWidget):
             self.setMaximumHeight(16777215)
         else:
             self.drawerButton.setArrowType(QtCore.Qt.DownArrow)
-            self.setMaximumHeight(self.fileVarLayout.contentsRect().height())
+            if self.maxSize == 0 :
+                self.maxSize = int(self.fileVarLayout.contentsRect().height()*1.4)
+            self.setMaximumHeight(self.maxSize)
         self.fileSelectButton.setVisible(not isDialogVisible)
 
     def toggleFileDialog(self, ignored=False):
@@ -282,5 +289,5 @@ class QFileDialogWidget(QtGui.QFileDialog):
     def done(self, result):
         pass
 
-    def sizeHint(self):
-        return QtCore.QSize(384, 150)
+    ## def sizeHint(self):
+    ##     return QtCore.QSize(384, 150)
