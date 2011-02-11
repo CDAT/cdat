@@ -3,9 +3,86 @@ import qtbrowser
 from PyQt4 import QtCore, QtGui
 if qtbrowser.useVistrails:
     from gui_controller import gm_name
+import vcs
 
 indentSpacing = 10
 
+class VCSGMs():
+    def saveOriginalValues(self):
+        self.originalValues={}
+        for a in self.gmAttributes:
+            self.originalValues[a] = getattr(self.gm,a)
+    def changesString(self):
+        rec = "## Change Graphics method attributes\n"
+        if isinstance(self.gm,vcs.boxfill.Gfb):
+           rec+="gm = vcs_canvas[%i].getboxfill('%s')\n" % (0,self.gm.name)
+        for a in self.gmAttributes:
+            if self.originalValues[a]!=getattr(self.gm,a):
+                rec+="gm.%s = %s\n" % (a,repr(getattr(self.gm,a)))
+        return rec
+
+    def initCommonValues(self):
+        self.datawc_x1.setText(str(self.gm.datawc_x1))
+        self.datawc_x2.setText(str(self.gm.datawc_x2))
+        self.datawc_y1.setText(str(self.gm.datawc_y1))
+        self.datawc_y2.setText(str(self.gm.datawc_y2))
+        self.xticlabels1.setText(str(self.gm.xticlabels1))
+        self.yticlabels1.setText(str(self.gm.yticlabels1))
+        self.xticlabels2.setText(str(self.gm.xticlabels2))
+        self.yticlabels2.setText(str(self.gm.yticlabels2))
+        self.xmtics1.setText(str(self.gm.xmtics1))
+        self.ymtics1.setText(str(self.gm.ymtics1))
+        self.xmtics2.setText(str(self.gm.xmtics2))
+        self.ymtics2.setText(str(self.gm.ymtics2))
+        for i in range(self.projection.count()):
+            if str(self.projection.itemText(i))==self.gm.projection:
+                self.projection.setCurrentIndex(i)
+                break
+        for b in self.xaxisconvert.buttonGroup.buttons():
+            if str(b.text()) == self.gm.xaxisconvert:
+                b.setChecked(True)
+                break
+        for b in self.yaxisconvert.buttonGroup.buttons():
+            if str(b.text()) == self.gm.yaxisconvert:
+                b.setChecked(True)
+                break
+            
+    def setupCommonSection(self):
+        sc=QtGui.QScrollArea()
+        frame = QtGui.QFrame()
+        layout = QtGui.QVBoxLayout()
+        frame.setLayout(layout)
+        
+        world = QFramedWidget('World Coordinates')
+        self.datawc_x1 = world.addLabeledLineEdit('datawc_x1')
+        self.datawc_x2 = world.addLabeledLineEdit('datawc_x2')
+        self.datawc_y1 = world.addLabeledLineEdit('datawc_y1')
+        self.datawc_y2 = world.addLabeledLineEdit('datawc_y2')
+        layout.addWidget(world)
+
+        ticks = QFramedWidget('Ticks and Labels')
+        self.xticlabels1 = ticks.addLabeledLineEdit('xticlabels1\t')
+        self.yticlabels1 = ticks.addLabeledLineEdit('yticlabels1\t',newRow=False)
+        self.xticlabels2 = ticks.addLabeledLineEdit('xticlabels2\t')
+        self.yticlabels2 = ticks.addLabeledLineEdit('yticlabels2\t',newRow=False)
+        self.xmtics1 = ticks.addLabeledLineEdit('xmtics1\t')
+        self.ymtics1 = ticks.addLabeledLineEdit('ymtics1\t',newRow=False)
+        self.xmtics2 = ticks.addLabeledLineEdit('xmtics2\t')
+        self.ymtics2 = ticks.addLabeledLineEdit('ymtics2\t',newRow=False)
+        layout.addWidget(ticks)
+
+        proj = QFramedWidget('Projection and Axes')
+        self.projection = proj.addLabeledComboBox("Projection",self.parent.root.tabView.widget(1).canvas[0].listelements("projection"))
+        self.projedit = proj.addButton("Edit",newRow=False)
+        self.projedit.setEnabled(False)
+        self.xaxisconvert = proj.addRadioFrame("X axis transform",["linear","log10","ln","exp","area_wt"])
+        self.yaxisconvert = proj.addRadioFrame("Y axis transform",["linear","log10","ln","exp","area_wt"])
+        layout.addWidget(proj)
+        sc.setWidget(frame)
+        self.parent.parent.editorTab.addTab(sc,"'%s' World Coordinates and Axes" % self.gm.name)
+        self.initCommonValues()
+        
+        
 class QGraphicsMethodAttributeWindow(QtGui.QWidget):
 
     def __init__(self, canvas=None, parent=None):
@@ -776,6 +853,7 @@ class QMeshfillEditor(QtGui.QScrollArea):
         self.spacing.setChecked('Linear')
         self.setEnabledLogLineEdits(False)
 
+
     def generateRanges(self):
         try:
             minValue = float(self.minVal.text())
@@ -1107,30 +1185,34 @@ class QContinentsEditor(QtGui.QScrollArea):
         except:
             return None        
 
-class QBoxfillEditor(QtGui.QScrollArea):
+class QBoxfillEditor(QtGui.QScrollArea,VCSGMs):
 
     def __init__(self, parent=None, gm=None):
         QtGui.QScrollArea.__init__(self, parent)
         vbox = QtGui.QVBoxLayout()
         self.parent=parent
         self.root=parent.root
-        
+        self.gmAttributes = ['boxfill_type', 'color_1', 'datawc_calendar', 'datawc_timeunits', 'datawc_x1', 'datawc_x2', 'datawc_y1', 'datawc_y2', 'ext_1', 'ext_2', 'fillareacolors', 'fillareaindices', 'fillareastyle', 'legend', 'level_1', 'level_2', 'levels', 'missing', 'name', 'projection', 'xaxisconvert', 'xmtics1', 'xmtics2', 'xticlabels1', 'xticlabels2', 'yaxisconvert', 'ymtics1', 'ymtics2', 'yticlabels1', 'yticlabels2']
         self.gm = parent.root.tabView.widget(1).canvas[0].getboxfill(gm)
+        self.saveOriginalValues()
         
         # 'define boxfill attributes + boxfill type radio buttons'
-        hbox1 = QtGui.QHBoxLayout()
-        hbox1.addWidget(QtGui.QLabel('Define boxfill attribute values'))
+        #hbox1 = QtGui.QHBoxLayout()
+        #hbox1.addWidget(QtGui.QLabel('Define boxfill attribute values'))
 
-        self.boxfillTypeButtonGroup = QRadioButtonFrame('Boxfill type:')
-        self.boxfillTypeButtonGroup.addButtonList(['linear', 'log10', 'custom'])
-        hbox1.addWidget(self.boxfillTypeButtonGroup)
+        ## self.boxfillTypeButtonGroup = QRadioButtonFrame('Boxfill type:')
+        ## self.boxfillTypeButtonGroup.addButtonList(['linear', 'log10', 'custom'])
+        ## hbox1.addWidget(self.boxfillTypeButtonGroup)
                                              
-        vbox.addLayout(hbox1)
+        #vbox.addLayout(hbox1)
 
-        # General Settings 
-        generalSettings = QFramedWidget('General Settings')
-        self.projection = generalSettings.addLabeledComboBox("Projection",parent.root.tabView.widget(1).canvas[0].listelements("projection"))
-        self.projedit = generalSettings.addButton("Edit",newRow=False)
+        self.setupCommonSection()
+        
+        # Boxfill General Settings 
+        generalSettings = QFramedWidget('Boxfill Settings')
+        self.boxfillTypeButtonGroup = generalSettings.addRadioFrame('Boxfill type:',
+                                                                    ['linear', 'log10', 'custom'])
+        #hbox1.addWidget(self.boxfillTypeButtonGroup)
         self.missingLineEdit = generalSettings.addLabeledLineEdit('Missing:')
         self.ext1ButtonGroup = generalSettings.addRadioFrame('Ext1:',
                                                              ['No', 'Yes'],
@@ -1200,6 +1282,39 @@ class QBoxfillEditor(QtGui.QScrollArea):
                      QtCore.SIGNAL('buttonClicked(int)'),
                      self.clickedBoxType)
 
+
+    def applyChanges(self):
+        try:
+            self.gm.projection = str(self.projection.currentText())
+            ## self.gm.xticlabels1 = 
+            ## self.gm.xticlabels2 =
+            ## self.gm.xmtics1 =
+            ## self.gm.xmtics2 = 
+            ## self.gm.yticlabels1 = 
+            ## self.gm.yticlabels2 =
+            ## self.gm.ymtics1 =
+            ## self.gm.ymtics2 = 
+            ## self.gm.datawc_x1 = 
+            ## self.gm.datawc_x2 = 
+            ## self.gm.datawc_y1 = 
+            ## self.gm.datawc_y2 = 
+            ## self.gm.datawc_time_units = 
+            ## self.gm.datawc_time_calendar =
+            ## self.gm.xaxisconvert = 
+            ## self.gm.yaxisconvert = 
+            ## self.boxfill_type =
+            ## self.gm.level_1 =
+            ## self.gm.level_2 =
+            ## self.gm.levels =
+            ## self.gm.color_1 =
+            ## self.gm.color_2 =
+            ## self.gm.fillareacolors =
+            ## self.gm.legend =
+            ## self.gm.ext_1 =
+            ## self.gm.ext_2 =
+            ## self.gm.missing =
+        except Exception, err:
+            print "oops error applying change on %s: %s" % (self.gm.name,err)
 
     def clickedBoxType(self,*args):
 
@@ -1347,6 +1462,7 @@ class QBoxfillEditor(QtGui.QScrollArea):
         self.nIntervals.setToolTip("The number of intervals between each contour level. Maximum number range [2 to 223].")
         self.expLineEdit.setToolTip("Disabled. Not in use for linear spacing.")
         self.negDecadesLineEdit.setToolTip("Disabled. Not in use for linear spacing.")
+        
 
     def clearCustomSettings(self):
         self.rangeLineEdit.setText('')

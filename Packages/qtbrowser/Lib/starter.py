@@ -1,4 +1,4 @@
-import vcdatWindow
+import vcdatWindow,cdms2,os
 from PyQt4 import QtCore
 
 def main():
@@ -8,6 +8,9 @@ def main():
     from PyQt4 import QtGui
 
     app = QtGui.QApplication(sys.argv)
+    ICONPATH = os.path.join(cdms2.__path__[0], '..', '..', '..', '..', 'share','icons')
+    icon = QtGui.QIcon(os.path.join(ICONPATH, "UV-CDAT_logo_sites.gif"))
+    app.setWindowIcon(icon)
 
 
     cdat = vcdatWindow.QCDATWindow()

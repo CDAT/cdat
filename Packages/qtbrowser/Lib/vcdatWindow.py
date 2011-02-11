@@ -59,11 +59,13 @@ class QCDATWindow(QtGui.QMainWindow):
         QtGui.QMainWindow.__init__(self,parent)
         self.setCentralWidget(centralWidget)
         
+        ###########################################################
+        ###########################################################
+        ## Prettyness
+        ###########################################################
+        ###########################################################
         self.setGeometry(0,0, 1100,800)
         self.setWindowTitle('The Visual Climate Data Analysis Tools - (VCDAT)')
-        ICONPATH = os.path.join(cdms2.__path__[0], '..', '..', '..', '..', 'bin')
-        icon = QtGui.QIcon(os.path.join(ICONPATH, "UVCDATfull.gif"))
-        self.setWindowIcon(QtGui.QIcon(icon))
         self.resize(1100,800)
         self.setMinimumSize(1100,800)
         self.main_window_placement()

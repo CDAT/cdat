@@ -14,6 +14,7 @@ class QEditorGraphicsMethodsWidget(QtGui.QWidget):
             self.widget = graphicsMethodsWidgets.QBoxfillEditor(parent=self,gm = gmnm)
         if gmnm == "default":
             self.widget.widget().setEnabled(False)
+            parent.editorTab.widget(1).widget().setEnabled(False)
 
         f = QtGui.QFrame()
         hl = QtGui.QHBoxLayout()
@@ -32,3 +33,9 @@ class QEditorGraphicsMethodsWidget(QtGui.QWidget):
         
         self.setLayout(layout)
 
+        self.connect(self.apply,QtCore.SIGNAL("clicked()"),self.applyChanges)
+
+    def applyChanges(self):
+        self.widget.applyChanges()
+        diff = self.widget.changesString()
+        self.root.record(diff)

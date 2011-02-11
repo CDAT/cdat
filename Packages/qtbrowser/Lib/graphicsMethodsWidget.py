@@ -48,7 +48,8 @@ class QGraphicsMethodsWidget(QtGui.QWidget):
 
 
     def changedGM(self, *args):
+        self.parent.editorTab.removeTab(2)
         self.parent.editorTab.removeTab(1)
         ptype = self.parent.parent.plotOptions.getPlotType()
-        self.parent.editorTab.addTab(editorGraphicsMethodsWidget.QEditorGraphicsMethodsWidget(ptype,self.parent),"'%s' %s Graphics Method Properties" % (self.parent.gms.gmList.currentItem().text(),ptype))
+        self.parent.editorTab.insertTab(1,editorGraphicsMethodsWidget.QEditorGraphicsMethodsWidget(ptype,self.parent),"'%s' %s Graphics Method Properties" % (self.parent.gms.gmList.currentItem().text(),ptype))
         self.parent.editorTab.setCurrentIndex(1)

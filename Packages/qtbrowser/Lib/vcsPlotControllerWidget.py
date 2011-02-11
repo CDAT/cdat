@@ -52,7 +52,7 @@ class QVCSPlotController(QtGui.QWidget):
         ##########################################################
         self.editorTab = QtGui.QTabWidget()
         self.editorTab.addTab(editorTemplateWidget.QEditorTemplateWidget(self),"'%s' Template Properties" % self.templates.templateList.currentItem().text())
-        self.editorTab.addTab(editorGraphicsMethodsWidget.QEditorGraphicsMethodsWidget(ptype,self),"'%s' %s Graphics Method Properties" % (self.gms.gmList.currentItem().text(),ptype))
+        self.editorTab.insertTab(1,editorGraphicsMethodsWidget.QEditorGraphicsMethodsWidget(ptype,self),"'%s' %s Graphics Method Properties" % (self.gms.gmList.currentItem().text(),ptype))
         self.editorTab.setCurrentIndex(1)
         vsplitter.addWidget(self.editorTab)        
 
