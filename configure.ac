@@ -1,5 +1,6 @@
 dnl                                                -*- Autoconf -*-
 dnl  Process this file with autoconf to produce a configure script.
+dnl  $Id: $
 
 dnl AC_PREREQ(2.59)
 AC_SUBST(SHELL)
@@ -11,7 +12,7 @@ if test ${SVN_TAG} == "rev" ; then
 fi
 CDAT_VERSION=${PACKAGE_VERSION}${SVN_TAG}
 AC_PREFIX_DEFAULT([/opt/cdat])
-AC_CONFIG_FILES([Makefile site.cfg README.txt Scripts/cdat Scripts/vcdat exsrc/CMakeCache.txt checked_get.sh exsrc/src/pbmplus/Makefile],[chmod +x Scripts/cdat Scripts/vcdat checked_get.sh])
+AC_CONFIG_FILES([Makefile site.cfg README.txt Scripts/cdat Scripts/vcdat Scripts/cdatversion exsrc/CMakeCache.txt checked_get.sh exsrc/src/pbmplus/Makefile],[chmod +x Scripts/cdat Scripts/vcdat checked_get.sh])
 
 
 dnl  Lib VERSION NUMBERS TO CHECK AGAINST
@@ -21,11 +22,11 @@ PYTHON_PATCH=0
 dnl  Lib VERSION NUMBERS WE PROVIDE
 PYTHON_MAJOR_SRC=2
 PYTHON_MINOR_SRC=7
-PYTHON_PATCH_SRC=0
-PYTHON_URL=http://python.org/ftp/python/${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}
+PYTHON_PATCH_SRC=1
+PYTHON_URL=http://python.org/ftp/python/${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.${PYTHON_PATCH_SRC}
 dnl .${PYTHON_PATCH_SRC}
-dnl PYTHON_GZ=Python-${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.${PYTHON_PATCH_SRC}.tgz
-PYTHON_GZ=Python-${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.tgz
+PYTHON_GZ=Python-${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.${PYTHON_PATCH_SRC}.tgz
+dnl PYTHON_GZ=Python-${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.tgz
 AC_SUBST(PREFIX_PATH)
 AC_SUBST(PYTHON_MAJOR)
 AC_SUBST(PYTHON_MINOR)
@@ -43,7 +44,7 @@ XML_MINOR=6
 XML_PATCH=27
 XML_MAJOR_SRC=2
 XML_MINOR_SRC=7
-XML_PATCH_SRC=7
+XML_PATCH_SRC=8
 XML_URL=ftp://xmlsoft.org/libxml2
 XML_GZ=libxml2-${XML_MAJOR_SRC}.${XML_MINOR_SRC}.${XML_PATCH_SRC}.tar.gz
 AC_SUBST(XML_URL)
@@ -74,7 +75,7 @@ PKG_MAJOR=0
 PKG_MINOR=9
 PKG_PATCH=0
 PKG_MAJOR_SRC=0
-PKG_MINOR_SRC=23
+PKG_MINOR_SRC=25
 PKG_PATCH_SRC=0
 PKG_URL=http://pkgconfig.freedesktop.org/releases/
 PKG_GZ=pkg-config-${PKG_MAJOR_SRC}.${PKG_MINOR_SRC}.tar.gz
@@ -90,8 +91,8 @@ CAIRO_MAJOR=1
 CAIRO_MINOR=8
 CAIRO_PATCH=10
 CAIRO_MAJOR_SRC=1
-CAIRO_MINOR_SRC=8
-CAIRO_PATCH_SRC=10
+CAIRO_MINOR_SRC=10
+CAIRO_PATCH_SRC=2
 CAIRO_URL=http://cairographics.org/releases
 CAIRO_GZ=cairo-${CAIRO_MAJOR_SRC}.${CAIRO_MINOR_SRC}.${CAIRO_PATCH_SRC}.tar.gz
 AC_SUBST(CAIRO_URL)
@@ -106,8 +107,8 @@ FT_MAJOR=9
 FT_MINOR=7
 FT_PATCH=3
 FT_MAJOR_SRC=2
-FT_MINOR_SRC=3
-FT_PATCH_SRC=12
+FT_MINOR_SRC=4
+FT_PATCH_SRC=4
 FT_URL=http://download.savannah.gnu.org/releases-noredirect/freetype
 FT_GZ=freetype-${FT_MAJOR_SRC}.${FT_MINOR_SRC}.${FT_PATCH_SRC}.tar.gz
 AC_SUBST(FT_URL)
@@ -135,10 +136,10 @@ AC_SUBST(FTCFG_MAJOR_SRC)
 AC_SUBST(FTCFG_MINOR_SRC)
 AC_SUBST(FTCFG_PATCH_SRC)
 PIX_MAJOR=0
-PIX_MINOR=19
+PIX_MINOR=20
 PIX_PATCH=2
 PIX_MAJOR_SRC=0
-PIX_MINOR_SRC=19
+PIX_MINOR_SRC=20
 PIX_PATCH_SRC=2
 PIX_URL=http://cairographics.org/releases
 PIX_GZ=pixman-${PIX_MAJOR_SRC}.${PIX_MINOR_SRC}.${PIX_PATCH_SRC}.tar.gz
@@ -154,8 +155,8 @@ CURL_MAJOR=7
 CURL_MINOR=19
 CURL_PATCH=7
 CURL_MAJOR_SRC=7
-CURL_MINOR_SRC=20
-CURL_PATCH_SRC=0
+CURL_MINOR_SRC=21
+CURL_PATCH_SRC=3
 CURL_URL=http://curl.haxx.se/download
 CURL_GZ=curl-${CURL_MAJOR_SRC}.${CURL_MINOR_SRC}.${CURL_PATCH_SRC}.tar.gz
 AC_SUBST(CURL_URL)
@@ -170,8 +171,8 @@ PNG_MAJOR=1
 PNG_MINOR=4
 PNG_PATCH=1
 PNG_MAJOR_SRC=1
-PNG_MINOR_SRC=4
-PNG_PATCH_SRC=2
+PNG_MINOR_SRC=5
+PNG_PATCH_SRC=1
 PNG_URL=ftp://ftp.simplesystems.org/pub/libpng/png/src
 PNG_GZ=libpng-${PNG_MAJOR_SRC}.${PNG_MINOR_SRC}.${PNG_PATCH_SRC}.tar.gz
 AC_SUBST(PNG_URL)
@@ -216,11 +217,11 @@ TCLTK_MINOR=5
 TCLTK_PATCH=4
 TCLTK_MAJOR_SRC=8
 TCLTK_MINOR_SRC=5
-TCLTK_PATCH_SRC=8
+TCLTK_PATCH_SRC=9
 TCLTK_VERSION=${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC}
 TCLTK_URL=http://prdownloads.sourceforge.net/tcl
-TCL_GZ=tcl${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC}.${TCLTK_PATCH}-src.tar.gz
-TK_GZ=tk${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC}.${TCLTK_PATCH}-src.tar.gz
+TCL_GZ=tcl${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC}.${TCLTK_PATCH_SRC}-src.tar.gz
+TK_GZ=tk${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC}.${TCLTK_PATCH_SRC}-src.tar.gz
 AC_SUBST(TCLTK_URL)
 AC_SUBST(TCL_GZ)
 AC_SUBST(TK_GZ)
@@ -449,6 +450,16 @@ VTK_URL=http://www.vtk.org/files/release/${VTK_MAJOR_SRC}.${VTK_MINOR_SRC}
 VTK_GZ=vtk-${VTK_MAJOR_SRC}.${VTK_MINOR_SRC}.${VTK_PATCH_SRC}.tar.gz
 AC_SUBST(VTK_URL)
 AC_SUBST(VTK_GZ)
+LIBCF_MAJOR_SRC=1
+LIBCF_MINOR_SRC=0
+LIBCF_PATCH_SRC=0
+LIBCF_URL=ftp://ftp.unidata.ucar.edu/pub/libcf
+LIBCF_GZ=libcf-daily.tar.gz
+AC_SUBST(LIBCF_MAJOR_SRC)
+AC_SUBST(LIBCF_MINOR_SRC)
+AC_SUBST(LIBCF_PATCH_SRC)
+AC_SUBST(LIBCF_URL)
+AC_SUBST(LIBCF_GZ)
 dnl AC_SUBST(COMPILE_IOAPI)
 AC_SUBST(ESG)
 AC_SUBST(PGCONFIG)
@@ -463,10 +474,10 @@ AC_SUBST(SIP_MAJOR_SRC)
 AC_SUBST(SIP_MINOR_SRC)
 AC_SUBST(SIP_PATCH_SRC)
 SIP_MAJOR=4
-SIP_MINOR=11
+SIP_MINOR=12
 SIP_PATCH=1
 SIP_MAJOR_SRC=4
-SIP_MINOR_SRC=11
+SIP_MINOR_SRC=12
 SIP_PATCH_SRC=1
 SIP_URL=http://www.riverbankcomputing.com/static/Downloads/sip${SIP_MAJOR_SRC}
 SIP_GZ=sip-${SIP_MAJOR_SRC}.${SIP_MINOR_SRC}.${SIP_PATCH_SRC}.tar.gz
@@ -487,8 +498,8 @@ PyQt_MAJOR=4
 PyQt_MINOR=7
 PyQt_PATCH=6
 PyQt_MAJOR_SRC=4
-PyQt_MINOR_SRC=7
-PyQt_PATCH_SRC=7
+PyQt_MINOR_SRC=8
+PyQt_PATCH_SRC=3
 PyQt_URL=http://www.riverbankcomputing.com/static/Downloads/PyQt${PyQt_MAJOR_SRC}
 
 R_MAJOR_SRC=2
@@ -615,7 +626,7 @@ PYTHON_INSTALL_PREFIX=""
 AC_SUBST(PYTHON_INSTALL_PREFIX)
 QT_MAJOR_SRC=4
 QT_MINOR_SRC=7
-QT_PATCH_SRC=0
+QT_PATCH_SRC=1
 QT_MAJOR=4
 QT_MINOR=6
 QT_PATCH=2
@@ -772,6 +783,18 @@ else
   COMPILE_VTK="no"
 fi
 AC_SUBST(COMPILE_VTK)
+
+dnl
+dnl LibCF
+dnl 
+AC_ARG_ENABLE([libcf],[AS_HELP_STRING([--enable-libcf],[enable/disable libcf build])]) 
+if test "x${enable_libcf}" == "xyes" ; then
+   COMPILE_LIBCF="yes"
+else
+  COMPILE_LIBCF="no"
+fi
+AC_SUBST(COMPILE_LIBCF)
+
 EXTRAENV=""
 
 ISFRAMEWORK="no"
@@ -2094,6 +2117,9 @@ if test ${COMPILE_NC} == "yes" ; then
     AC_MSG_NOTICE([libnetcdf >=4 not found... building library ${NC4_MAJOR_SRC}.${NC4_MINOR_SRC}.${NC4_PATCH_SRC}])
 else
     AC_MSG_NOTICE([libnetcdf >=4 found at ${NC4LOC}])
+fi
+if test ${COMPILE_LIBCF} == "yes" ; then
+    AC_MSG_NOTICE([libcf ..... building library ${LIBCF_MAJOR_SRC}.${LIBCF_MINOR_SRC}.${LIBCF_PATCH_SRC}])
 fi
 if test ${BUILDQT} == "yes" ; then
     AC_MSG_NOTICE([Qt libraries not found... building library ${QT_MAJOR_SRC}.${QT_MINOR_SRC}.${QT_PATCH_SRC}])

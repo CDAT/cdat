@@ -381,7 +381,7 @@ class Gfb(object,AutoAPI.AutoAPI):
         ###########################################################
         #                                                         #
         self.parent=parent
-        self.info=AutoAPI.Info()
+        self.info=AutoAPI.Info(self)
         self.info.expose=['ALL']
         self.info.hide+=["fillareastyle","fillareaindices"]
         self.__doc__ = self.__doc__ % xmldocs.graphics_method_core

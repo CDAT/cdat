@@ -4,6 +4,9 @@ import string
 from error import CDMSError
 from UserList import UserList
 
+# On in order to turn off some warnings
+WITH_GRIDSPEC_SUPPORT = True
+
 MethodNotImplemented = "Method not yet implemented"
 
 class AliasList (UserList):
@@ -107,7 +110,8 @@ class CFConvention(COARDSConvention):
             except KeyError:
                 # Note: not everything referenced by .coordinates attribute is
                 # in fact a coordinate axis, e.g., scalar coordinates
-                print 'Warning: coordinate attribute points to non-existent variable: %s'%key
+                if not WITH_GRIDSPEC_SUPPORT:
+                    print 'Warning: coordinate attribute points to non-existent variable: %s'%key
                 del coorddict[key]
                 continue
             # Omit scalar dimensions, and dimensions greater than 2-D

@@ -316,6 +316,10 @@ AC_SUBST(GRADS_BYTEORDER)dnl
 AC_SUBST(GRADS_CRAY)dnl
 AC_SUBST(GRADS_IEEE2CRAY_OBJECT)dnl
 
+echo "==================================================================="
+echo "NCLIB = $NCLIB"
+echo "NC_LIB_OPTIONS = $NC_LIB_OPTIONS"
+echo "==================================================================="
 dnl ----------------------------------------------------------------------
 AC_OUTPUT( dnl
   Makefile dnl
