@@ -54,6 +54,7 @@ FFLAGS = -I../../include @FFLAGS@ $(DEBUG)
 INSTALL = @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 LDFLAGS = -L/usr/local/HDF5/lib -L../../../lib -lcdms @NCOPTS@ @HDFOPTS@ @DRSOPTS@ @LIBS@ -lnetcdf -lcurl -lhdf5_hl -lhdf5 -lhdf5_hl -lgrib2c -lz -lpng -ljasper
+LDFLAGS = -L../../../lib -lcdms @NCOPTS@ @HDFOPTS@ @DRSOPTS@ @LIBS@ 
 OS = @OS@
 RANLIB = @RANLIB@
 
@@ -92,7 +93,7 @@ test:		testnc testgrib testdrs testpp
 		    rm -f $@.o; \
 		    ;; \
 	     *) \
-		    $(CC) $(CPPFLAGS) $(DEFS) $(CFLAGS) -o $@ $< $(LDFLAGS) -lm; \
+		    $(CC) $(CPPFLAGS) $(DEFS) $(CFLAGS) -o $@ $< $(LDFLAGS) m ; \
 		    ;; \
 	esac
 
@@ -104,7 +105,7 @@ test:		testnc testgrib testdrs testpp
 		    rm -f $@.o; \
 		    ;; \
 	     *) \
-		    $(CXX) $(CPPFLAGS) $(DEFS) $(CFLAGS) -o $@ $< $(LDFLAGS) $(CXX_LDFLAGS) -lm; \
+		    $(CXX) $(CPPFLAGS) $(DEFS) $(CFLAGS) -o $@ $< $(LDFLAGS) $(CXX_LDFLAGS) m ; \
 		    ;; \
 	esac
 
