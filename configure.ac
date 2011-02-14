@@ -538,6 +538,7 @@ if test ${with_externals} == "no" ; then
 else
    EXTERNALS=${with_externals}
 fi
+echo "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY"${EXTERNALS}
 NCPUS=1
 AC_ARG_WITH([cpus],
 	[AS_HELP_STRING([--with-cpus],[How many CPUs to use for make -j ])],

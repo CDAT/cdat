@@ -39,7 +39,9 @@
 #include "readline/history.h"
 #endif
 
+#ifdef HAVE_MALLOC_H
 #include <malloc.h>
+#endif
 
 #endif /* HAVE_CONFIG_H */
 

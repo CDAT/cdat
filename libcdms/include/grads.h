@@ -7,7 +7,7 @@
 #include <sys/types.h>
 #include "gabufr.h"
 /* #include <gatypes.h>  JMA why is this causing problems? */
-#if GRIB2==1
+#ifdef GRIB2
 #include "grib2.h"
 #endif
 #if USESHP==1
