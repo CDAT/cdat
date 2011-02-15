@@ -19,6 +19,8 @@ then
 else
 	INSTALL_PROGRAM="$INSTALL"
 fi
+
+
 dnl ----------------------------------------------------------------------
 dnl Check if DRS is enabled
 dnl
@@ -35,6 +37,7 @@ else
    AC_MSG_RESULT(no)
 fi
 AC_SUBST(ENABLE_DRS)
+
 dnl ----------------------------------------------------------------------
 dnl Check if HDF is enabled
 dnl
@@ -54,6 +57,15 @@ AC_SUBST(ENABLE_HDF)
 dnl ----------------------------------------------------------------------
 dnl Check if GRIB2 is enabled
 dnl
+dnl ----------------------------------------------------------------------
+dnl Checks for GRIB-2 header file.
+dnl
+dnl get location of GRIB-2 C header from --with-grib2inc=value
+dnl
+
+PC_CHECK_C_HEADER(GRIB2INC,/usr/local/include,[grib2inc],grib2.h, dnl
+  [--with-grib2inc=DIR        grib2.h is in DIR (default [GRIB2INC])])
+
 
 AC_MSG_CHECKING(if GRIB2 is enabled)
 AC_ARG_ENABLE(grib2,
@@ -64,11 +76,62 @@ AC_ARG_ENABLE(grib2,
 if test "X$ENABLE_GRIB2" = "Xyes"; then
    AC_MSG_RESULT(yes)
    GRIB2OPTS="-DGRIB2"
+   AC_ARG_WITH([grib2lib],
+	[AS_HELP_STRING([--with-grib2lib],[path where to look for libgrib2c])],
+        [],
+	[with_grib2lib=no])
+   if test ${with_grib2lib} == "no" ; then
+     GRIB2LIB="-L${prefix}/Externals/lib"
+   else
+     GRIB2LIB="-L"${with_grib2lib}
+   fi
+   AC_ARG_WITH([pnglib],
+	[AS_HELP_STRING([--with-pnglib],[path where to look for libpng])],
+        [],
+	[with_pnglib=no])
+   if test ${with_pnglib} == "no" ; then
+     PNGLIB="-L${prefix}/Externals/lib"
+   else
+     PNGLIB="-L"${with_pnglib}
+   fi
+   AC_CHECK_LIB([png],[png_error],[PNGLIBOK="yes"],[PNGLIBOK="no"],[${GRIB2LIB} ${PNGLIB}])
+   if test ${PNGLIBOK} == "no" ; then
+      AC_MSG_ERROR("[Could not find a working libpng]")
+   fi
+   AC_ARG_WITH([jasperlib],
+	[AS_HELP_STRING([--with-jasperlib],[path where to look for libjasper])],
+        [],
+	[with_jasperlib=no])
+   if test ${with_jasperlib} == "no" ; then
+     JASPERLIB="-L${prefix}/Externals/lib"
+   else
+     JASPERLIB="-L"${with_jasperlib}
+   fi
+   AC_CHECK_LIB([jasper],[jas_init],[JASPERLIBOK="yes"],[JASPERLIBOK="no"],[${GRIB2LIB} ${JASPERLIB}])
+   if test ${JASPERLIBOK} == "no" ; then
+      AC_MSG_ERROR("[Could not find a working libjasper]")
+   fi
+   AC_ARG_WITH([grib2lib],
+	[AS_HELP_STRING([--with-grib2lib],[path where to look for libgrib2c])],
+        [],
+	[with_grib2lib=no])
+   if test ${with_grib2lib} == "no" ; then
+     GRIB2LIB="-L${prefix}/Externals/lib -lgrib2c "${PNGLIB}" -lpng "${JASPERLIB}" -ljasper"
+   else
+     GRIB2LIB="-L"${with_grib2lib}" -lgrib2c "${PNGLIB}" -lpng "${JASPERLIB}" -ljasper"
+   fi
+   AC_CHECK_LIB([grib2c],[g2_getfld],[GRIB2LIBOK="yes"],[GRIB2LIBOK="no"],[${GRIB2LIB}])
+   if test ${GRIB2LIBOK} == "no" ; then
+      AC_MSG_ERROR("[Could not find a working libgrib2c]")
+   fi
+dnl in this case we also need jasper
+
 else
    AC_MSG_RESULT(no)
    GRIB2OPTS=""
+   GRIB2LIB=""
 fi
-echo "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG"${GRIB2OPTS}
+AC_SUBST(GRIB2LIB)
 AC_SUBST(ENABLE_GRIB2)
 AC_SUBST(GRIB2OPTS)
 dnl ----------------------------------------------------------------------
@@ -125,6 +188,8 @@ else
 fi
 AC_SUBST(ENABLE_QL)
 AC_SUBST(QLOPTS)
+
+
 dnl ----------------------------------------------------------------------
 dnl Checks for header files.
 dnl
@@ -154,16 +219,6 @@ if test "X$ENABLE_DRS" = "Xyes"; then
   PC_CHECK_C_HEADER(DRSINC,/usr/local/include,[drsinc],drscdf.h, dnl
   [--with-drsinc=DIR       drscdf.h is in DIR (default [DRSINC])])
 fi
-dnl ----------------------------------------------------------------------
-dnl Checks for GRIB-2 header file.
-dnl
-dnl get location of GRIB-2 C header from --with-grib2inc=value
-dnl
-
-PC_CHECK_C_HEADER(GRIB2INC,/usr/local/include,[grib2inc],grib2.h, dnl
-  [--with-grib2inc=DIR        grib2.h is in DIR (default [GRIB2INC])])
-
-
 dnl ----------------------------------------------------------------------
 dnl
 dnl get location of netCDF, and DRS FORTRAN header from --with-ncincf=value
@@ -244,6 +299,8 @@ else
   		;;
   esac
 fi
+
+
 PC_CHECK_ARG_LIB(NCLIB,/usr/local/lib,[nclib],$NC_LIB_OPTIONS,ncopen,NCOPTS,netcdf,libnetcdf.a, dnl
   [--with-nclib=DIR        libnetcdf.a is in DIR (default [NCLIB])])
 dnl ----------------------------------------------------------------------
