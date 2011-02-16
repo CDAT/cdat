@@ -63,10 +63,10 @@ d32ae4dfea42ebf37419a0ec28b597de  sources/sip-4.11.1.tar.gz
 d799804ca0a88bd76c6c2cdf8935c3cb  sources/sip-4.11.2.tar.gz
 0f8e8305b14c1812191de2e0ee22fea9  sources/sip-4.12.1.tar.gz
 15032a6a43f3bfbe9223b95186849472  sources/tcl8.5.4-src.tar.gz
-7afd2e38e67b44f4c4bd1935a94504fd  sources/tcl8.5.9-src.tar.gz
+8512d8db3233041dd68a81476906012a  sources/tcl8.5.9-src.tar.gz
 ffe6f86e63a3a29fa53ac645faaabdfa  sources/termcap-1.3.1.tar.gz
 a6aee7653566ec0b7c4b0f4c24a96f20  sources/tk8.5.4-src.tar.gz
-0a45b937a166b385d1a1148dfd2e468e  sources/tk8.5.9-src.tar.gz
+7cdeb9feb61593f58a0ae61f2497580e  sources/tk8.5.9-src.tar.gz
 17698289a0d6b04551fe6d6a389af41c  sources/udunits-2.1.14.tar.gz
 5db0d43a9022a6ebbbc25337ae28942f  sources/uuid-1.6.2.tar.gz
 e0360b9557355b02ad789c0ab4f3a7cb  sources/xgks.tar.gz
