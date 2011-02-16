@@ -12,9 +12,12 @@ class VCSGMs():
         self.originalValues={}
         for a in self.gmAttributes:
             self.originalValues[a] = getattr(self.gm,a)
+            print "stored original value for:",a,"as:",getattr(self.gm,a)
     def restoreOriginalValues(self):
         for a in self.gmAttributes:
+            print "Restoring",a,"As",self.originalValues[a]
             setattr(self.gm,a,self.originalValues[a])
+            self.gm.list()
         self.initValues()
             
     def changesString(self):
@@ -1434,7 +1437,7 @@ class QBoxfillEditor(QtGui.QScrollArea,VCSGMs,VCSGMRanges):
         widgetWrapper.setLayout(vbox)
         self.parent=parent
         self.root=parent.root
-        self.gmAttributes = ['boxfill_type', 'color_1', 'datawc_calendar', 'datawc_timeunits', 'datawc_x1', 'datawc_x2', 'datawc_y1', 'datawc_y2', 'ext_1', 'ext_2', 'fillareacolors', 'fillareaindices', 'fillareastyle', 'legend', 'level_1', 'level_2', 'levels', 'missing', 'projection', 'xaxisconvert', 'xmtics1', 'xmtics2', 'xticlabels1', 'xticlabels2', 'yaxisconvert', 'ymtics1', 'ymtics2', 'yticlabels1', 'yticlabels2']
+        self.gmAttributes = ['boxfill_type', 'color_1', 'datawc_calendar', 'datawc_timeunits', 'datawc_x1', 'datawc_x2', 'datawc_y1', 'datawc_y2', 'levels','ext_1', 'ext_2', 'fillareacolors', 'fillareaindices', 'fillareastyle', 'legend', 'level_1', 'level_2', 'missing', 'projection', 'xaxisconvert', 'xmtics1', 'xmtics2', 'xticlabels1', 'xticlabels2', 'yaxisconvert', 'ymtics1', 'ymtics2', 'yticlabels1', 'yticlabels2']
         self.gm = parent.root.tabView.widget(1).canvas[0].getboxfill(gm)
         self.saveOriginalValues()
         
@@ -1513,7 +1516,9 @@ class QBoxfillEditor(QtGui.QScrollArea,VCSGMs,VCSGMRanges):
             ## self.gm.fillareacolors =
             self.gm.legend = eval(str(self.legendLineEdit.text()))
             self.gm.ext_1 = str(self.ext1ButtonGroup.buttonGroup.button(self.ext1ButtonGroup.buttonGroup.checkedId()).text()).lower()[0]
+            print 'SEtting ext2 to:',str(self.ext2ButtonGroup.buttonGroup.button(self.ext2ButtonGroup.buttonGroup.checkedId()).text()).lower()[0]
             self.gm.ext2 = str(self.ext2ButtonGroup.buttonGroup.button(self.ext2ButtonGroup.buttonGroup.checkedId()).text()).lower()[0]
+            print "ok it is now:",self.gm.ext_2
             self.gm.missing = eval(str(self.missingLineEdit.text()))
             self.applyRangeSettings()
         except Exception, err:
@@ -1551,6 +1556,7 @@ class QBoxfillEditor(QtGui.QScrollArea,VCSGMs,VCSGMRanges):
             self.ext1ButtonGroup.setChecked('No')
         else:
             self.ext1ButtonGroup.setChecked('Yes')
+        print "self.gm.ext_2 is now:",self.gm.ext_2
         if self.gm.ext_2 == "n":
             self.ext2ButtonGroup.setChecked('No')
         else:
