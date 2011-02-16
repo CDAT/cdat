@@ -13,8 +13,6 @@ class QGraphicsMethodsWidget(QtGui.QWidget):
         menuVbox = QtGui.QVBoxLayout()
         menuVbox.setMargin(2)
         gmsMenu.setLayout(menuVbox)
-        redisplayAction = gmsMenu.addAction('&Redisplay List')
-        editAction = gmsMenu.addAction('&Edit')
         copyAction = gmsMenu.addAction('&Copy')
         renameAction = gmsMenu.addAction('Re&name')
         saveAsAction = gmsMenu.addAction('&Save as a Script file')
