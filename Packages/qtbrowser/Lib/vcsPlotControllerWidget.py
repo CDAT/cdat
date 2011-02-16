@@ -50,14 +50,47 @@ class QVCSPlotController(QtGui.QWidget):
         ##########################################################
         # Graphics Method and Templates editor Section
         ##########################################################
+        editorFrame = QtGui.QFrame()
+        vl = QtGui.QVBoxLayout()
+        editorFrame.setLayout(vl)
+        
+        buttonsFrame = QtGui.QFrame()
+        hl = QtGui.QHBoxLayout()
+        
+        self.apply = QtGui.QPushButton("Apply")
+        self.preview = QtGui.QPushButton("Preview")
+        self.discard = QtGui.QPushButton("Discard")
+        self.discard.setEnabled(False)
+        hl.addWidget(self.apply)
+        hl.addWidget(self.preview)
+        hl.addWidget(self.discard)
+        buttonsFrame.setLayout(hl)
         self.editorTab = QtGui.QTabWidget()
         self.editorTab.addTab(editorTemplateWidget.QEditorTemplateWidget(self),"'%s' Template Properties" % self.templates.templateList.currentItem().text())
         self.editorTab.insertTab(1,editorGraphicsMethodsWidget.QEditorGraphicsMethodsWidget(ptype,self),"'%s' %s Graphics Method Properties" % (self.gms.gmList.currentItem().text(),ptype))
         self.editorTab.setCurrentIndex(1)
-        vsplitter.addWidget(self.editorTab)        
+
+        vl.addWidget(self.editorTab)
+        vl.addWidget(buttonsFrame)
+        
+        vsplitter.addWidget(editorFrame)
 
 
         layout.addWidget(vsplitter)
         
+        self.connect(self.apply,QtCore.SIGNAL("clicked()"),self.applyChanges)
+        self.connect(self.preview,QtCore.SIGNAL("clicked()"),self.previewChanges)
+        self.connect(self.discard,QtCore.SIGNAL("clicked()"),self.discardChanges)
         
         
+    def applyChanges(self):
+        self.editorTab.widget(1).applyChanges()
+        self.discard.setEnabled(False)
+
+    def previewChanges(self):
+        self.editorTab.widget(1).previewChanges()
+        self.discard.setEnabled(True)
+
+    def discardChanges(self):
+        self.editorTab.widget(1).discardChanges()
+        self.discard.setEnabled(False)

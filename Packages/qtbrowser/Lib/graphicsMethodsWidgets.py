@@ -12,6 +12,11 @@ class VCSGMs():
         self.originalValues={}
         for a in self.gmAttributes:
             self.originalValues[a] = getattr(self.gm,a)
+    def restoreOriginalValues(self):
+        for a in self.gmAttributes:
+            setattr(self.gm,a,self.originalValues[a])
+        self.initValues()
+            
     def changesString(self):
         rec = "## Change Graphics method attributes\n"
         if isinstance(self.gm,vcs.boxfill.Gfb):
@@ -58,30 +63,264 @@ class VCSGMs():
         self.datawc_x2 = world.addLabeledLineEdit('datawc_x2')
         self.datawc_y1 = world.addLabeledLineEdit('datawc_y1')
         self.datawc_y2 = world.addLabeledLineEdit('datawc_y2')
+        self.datawc_x1.setToolTip("Set new X1 world coordinate value. If value is 1e+20,\nthen VCS will use the data's coordinate value specified\nin the dimension.")
+        self.datawc_x2.setToolTip("Set new X2 world coordinate value. If value is 1e+20,\nthen VCS will use the data's coordinate value specified\nin the dimension.")
+        self.datawc_y1.setToolTip("Set new Y1 world coordinate value. If value is 1e+20,\nthen VCS will use the data's coordinate value specified\nin the dimension.")
+        self.datawc_y2.setToolTip("Set new Y2 world coordinate value. If value is 1e+20,\nthen VCS will use the data's coordinate value specified\nin the dimension.")
         layout.addWidget(world)
 
         ticks = QFramedWidget('Ticks and Labels')
         self.xticlabels1 = ticks.addLabeledLineEdit('xticlabels1\t')
+        self.xticlabels1.setToolTip("Specify a predefine VCS list name (i.e., lon20, lon30,\np_levels etc.). Or allow VCS to generate the xticlabels#1 by\nentering '*'. Or create a Python dictionary. For example:\n{10:'10', 20:'20', 30:'30'} or {0:'text', 10:'more text'}.\n\nNote: if the Python dictionary is not correct, then no\nxticlabels#1 will be plotted.")
         self.yticlabels1 = ticks.addLabeledLineEdit('yticlabels1\t',newRow=False)
+        self.yticlabels1.setToolTip("Specify a predefine VCS list name (i.e., lon20, lon30,\np_levels etc.). Or allow VCS to generate the yticlabels#1 by\nentering '*'. Or create a Python dictionary. For example:\n{10:'10', 20:'20', 30:'30'} or {0:'text', 10:'more text'}.\n\nNote: if the Python dictionary is not correct, then no\nxticlabels#1 will be plotted.")
         self.xticlabels2 = ticks.addLabeledLineEdit('xticlabels2\t')
+        self.xticlabels2.setToolTip("Specify a predefine VCS list name (i.e., lon20, lon30,\np_levels etc.). Or allow VCS to generate the xticlabels#2 by\nentering '*'. Or create a Python dictionary. For example:\n{10:'10', 20:'20', 30:'30'} or {0:'text', 10:'more text'}.\n\nNote: if the Python dictionary is not correct, then no\nxticlabels#1 will be plotted.")
         self.yticlabels2 = ticks.addLabeledLineEdit('yticlabels2\t',newRow=False)
+        self.yticlabels2.setToolTip("Specify a predefine VCS list name (i.e., lon20, lon30,\np_levels etc.). Or allow VCS to generate the yticlabels#2 by\nentering '*'. Or create a Python dictionary. For example:\n{10:'10', 20:'20', 30:'30'} or {0:'text', 10:'more text'}.\n\nNote: if the Python dictionary is not correct, then no\nxticlabels#1 will be plotted.")
         self.xmtics1 = ticks.addLabeledLineEdit('xmtics1\t')
+        self.xmtics1.setToolTip("Specify a predefine VCS list name (i.e., lon20, lon30,\np_levels etc.). Or allow VCS to generate the xmtics#1 by\nentering '*'. Or create a Python dictionary. For example:\n{10:'10', 20:'20', 30:'30'} or {0:'text', 10:'more text'}.\n\nNote: if the Python dictionary is not correct, then no\nxmtics#1 will be plotted.")
         self.ymtics1 = ticks.addLabeledLineEdit('ymtics1\t',newRow=False)
+        self.ymtics1.setToolTip("Specify a predefine VCS list name (i.e., lon20, lon30,\np_levels etc.). Or allow VCS to generate the ymtics#1 by\nentering '*'. Or create a Python dictionary. For example:\n{10:'10', 20:'20', 30:'30'} or {0:'text', 10:'more text'}.\n\nNote: if the Python dictionary is not correct, then no\nxmtics#1 will be plotted.")
+
         self.xmtics2 = ticks.addLabeledLineEdit('xmtics2\t')
+        self.xmtics2.setToolTip("Specify a predefine VCS list name (i.e., lon20, lon30,\np_levels etc.). Or allow VCS to generate the xmtics#2 by\nentering '*'. Or create a Python dictionary. For example:\n{10:'10', 20:'20', 30:'30'} or {0:'text', 10:'more text'}.\n\nNote: if the Python dictionary is not correct, then no\nxmtics#1 will be plotted.")
         self.ymtics2 = ticks.addLabeledLineEdit('ymtics2\t',newRow=False)
+        self.ymtics2.setToolTip("Specify a predefine VCS list name (i.e., lon20, lon30,\np_levels etc.). Or allow VCS to generate the ymtics#1 by\nentering '*'. Or create a Python dictionary. For example:\n{10:'10', 20:'20', 30:'30'} or {0:'text', 10:'more text'}.\n\nNote: if the Python dictionary is not correct, then no\nxmtics#1 will be plotted.")
         layout.addWidget(ticks)
 
         proj = QFramedWidget('Projection and Axes')
         self.projection = proj.addLabeledComboBox("Projection",self.parent.root.tabView.widget(1).canvas[0].listelements("projection"))
+        self.projection.setToolTip("Choose Graphics Method Projection")
         self.projedit = proj.addButton("Edit",newRow=False)
+        self.projedit.setToolTip('Edit projection properties')
         self.projedit.setEnabled(False)
         self.xaxisconvert = proj.addRadioFrame("X axis transform",["linear","log10","ln","exp","area_wt"])
+        self.xaxisconvert.setToolTip("Choose X (horizontal) axis representation")
         self.yaxisconvert = proj.addRadioFrame("Y axis transform",["linear","log10","ln","exp","area_wt"])
+        self.yaxisconvert.setToolTip("Choose Y (vertical) axis representation")
         layout.addWidget(proj)
         sc.setWidget(frame)
         self.parent.parent.editorTab.addTab(sc,"'%s' World Coordinates and Axes" % self.gm.name)
-        self.initCommonValues()
+
+    def applyCommonChanges(self):
+        self.gm.projection = str(self.projection.currentText())
+        try:
+            self.gm.xticlabels1 = eval(str(self.xticlabels1.text()))
+        except:
+            self.gm.xticlabels1 = str(self.xticlabels1.text())
+        try:
+            self.gm.xticlabels2 = eval(str(self.xticlabels2.text()))
+        except:
+            self.gm.xticlabels2 = str(self.xticlabels2.text())
+        try:
+            self.gm.yticlabels1 = eval(str(self.yticlabels1.text()))
+        except:
+            self.gm.yticlabels1 = str(self.yticlabels1.text())
+        try:
+            self.gm.yticlabels2 = eval(str(self.yticlabels2.text()))
+        except:
+            self.gm.yticlabels2 = str(self.yticlabels2.text())
+        try:
+            self.gm.xmtics1 = eval(str(self.xmtics1.text()))
+        except:
+            self.gm.xmtics1 = str(self.xmtics1.text())
+        try:
+            self.gm.xmtics2 = eval(str(self.xmtics2.text()))
+        except:
+            self.gm.xmtics2 = str(self.xmtics2.text())
+        try:
+            self.gm.ymtics1 = eval(str(self.ymtics1.text()))
+        except:
+            self.gm.ymtics1 = str(self.ymtics1.text())
+        try:
+            self.gm.ymtics2 = eval(str(self.ymtics2.text()))
+        except:
+            self.gm.ymtics2 = str(self.ymtics2.text())
+        self.gm.datawc_x1 = eval(str(self.datawc_x1.text()))
+        self.gm.datawc_x2 = eval(str(self.datawc_x2.text()))
+        self.gm.datawc_y1 = eval(str(self.datawc_y1.text()))
+        self.gm.datawc_y2 = eval(str(self.datawc_y2.text()))
+        ## self.gm.datawc_time_units = 
+        ## self.gm.datawc_time_calendar =
+        self.gm.xaxisconvert = str(self.xaxisconvert.buttonGroup.button(self.xaxisconvert.buttonGroup.checkedId()).text())
+        self.gm.yaxisconvert = str(self.yaxisconvert.buttonGroup.button(self.yaxisconvert.buttonGroup.checkedId()).text())
+
+class VCSGMRanges():
+    def rangeSettings(self,target):
+        target.addWidget(QtGui.QLabel('Define level range:'))
+        self.includeZeroButtonGroup = target.addRadioFrame('Include Zero Level:',
+                                                                   ['Off', 'On'],
+                                                                   newRow=False)
+        self.rangeLineEdit = target.addLabeledLineEdit('Ranges:')
+        self.rangeLineEdit.setToolTip("The level range values.\ne.g: (10, 20, 30, 50)\nor: ([10,20],[20,30],[30,50])")
+        self.colorsLineEdit = target.addLabeledLineEdit('Colors:')
+        self.colorsLineEdit.setToolTip("The level color index values. The index colors range\nfrom 0 to 255. For example:\n   Use explicit indices: 16, 32, 48, 64, 80;\n   Use two values to generate index range: 16, 32")
+        self.patternsLineEdit = target.addLabeledLineEdit('Patterns:')
+        self.patternsLineEdit.setToolTip("The level pattern index values. The index pattern range\nfrom 0 to 18.")
+        self.patternTypeButtonGroup = target.addRadioFrame('Type:',
+                                                                   ['solid', 'hatch','pattern'],
+                                                                   newRow=False)
+        target.newRow()
+        target.addWidget(QtGui.QLabel('Generate level:'))
+        self.spacingButtonGroup = target.addRadioFrame('spacing:',
+                                                               ['Linear', 'Log'],
+                                                               newRow=False)
+
+        self.minValLineEdit = target.addLabeledLineEdit('Minimum Value:')
+        self.minValLineEdit.setToolTip("The first level")
+        self.maxValLineEdit = target.addLabeledLineEdit('Maximum Value:')
+        self.maxValLineEdit.setToolTip("The last level")
+        self.nIntervals = target.addLabeledSpinBox('Number of Intervals:',
+                                                                   2, 223)
+        self.nIntervals.setToolTip("The number of intervals between each contour level. Maximum number range [2 to 223].")
         
+        self.smallestExpLabel, self.expLineEdit = target.addLabelAndLineEdit('Smallest Exponent for Negative Values:')
+        self.smallestExpLabel.setEnabled(False)
+        self.numNegDecLabel, self.negDecadesLineEdit = target.addLabelAndLineEdit('Number of Negative Decades:')
+        self.numNegDecLabel.setEnabled(False)
+        genRangesButton = target.addButton('Generate Ranges')
+        genRangesButton.setToolTip("Use the 'Minimun Value', 'Maximum Value', and 'Number\nof Intervals' to generate the iso level range values\nand color index values. Note: if 'Ranges' and 'Colors'\nare specified, then the plot will use these numbers\nto generate the contour levels.")
+        clearButton = target.addButton('Clear All', newRow=False)        
+        self.initRangeValues()
+
+        # Connect Signals        
+        self.connect(clearButton, QtCore.SIGNAL('pressed()'), self.clearCustomSettings)
+        self.connect(genRangesButton, QtCore.SIGNAL('pressed()'), self.generateRanges)
+
+    def applyRangeSettings(self):
+        self.gm.fillareastyle = str(self.patternTypeButtonGroup.buttonGroup.button(self.patternTypeButtonGroup.buttonGroup.checkedId()).text())
+        self.gm.fillareacolors = eval(str(self.colorsLineEdit.text()))
+        self.gm.fillareaindices = eval(str(self.patternsLineEdit.text()))
+        self.levels = eval(str(self.rangeLineEdit.text()))
+
+    def initRangeValues(self):
+        self.minValLineEdit.setText('')
+        self.maxValLineEdit.setText('')
+        self.expLineEdit.setText('')
+        self.negDecadesLineEdit.setText('')
+        self.nIntervals.setValue(2)
+        self.setEnabledLogLineEdits(False)
+        self.includeZeroButtonGroup.setChecked('Off')
+        self.spacingButtonGroup.setChecked('Linear')
+        self.rangeLineEdit.setText(str(self.gm.levels))
+        self.colorsLineEdit.setText(str(self.gm.fillareacolors))
+        self.patternsLineEdit.setText(str(self.gm.fillareaindices))
+        self.patternTypeButtonGroup.setChecked(self.gm.fillareastyle)
+
+        
+    def generateRanges(self):
+        try:
+            minValue = float(self.minValLineEdit.text())
+            maxValue = float(self.maxValLineEdit.text())
+            numIntervals = int(self.nIntervals.text())
+        except:
+            QSimpleMessageBox('Values must be a number', self).show()
+            return
+        
+        if numIntervals < 2 or numIntervals > 223:
+            QSimpleMessageBox("The 'number of intervals' value must be between 2 and 223.",
+                              self).show()
+            return
+
+        colors = []
+        values = []                
+        value = minValue
+        color = 16
+
+        # Generate ranges and colors (Linear)
+        if self.spacingButtonGroup.isChecked('Linear'):
+            delta = float((maxValue - minValue) / numIntervals)
+            d = int(222 / (numIntervals - 1))
+            
+            for a in range(numIntervals + 1):
+                if color <= 238:
+                    colors.append(color)
+                values.append(value)
+                color += d
+                value += delta
+        # Generate ranges (Log)                
+        else:
+            A = float(self.minValLineEdit.text())
+            B = float(self.maxValLineEdit.text())
+            C = float(self.nIntervals.text())
+
+            try:
+                D = float(self.expLineEdit.text())
+            except:
+                D = 0
+            try:
+                E = float(self.negDecadesLineEdit.text())
+            except:
+                E = 0
+
+            if C > 0:
+                if E > 0:  # Generate negative contours
+                    for i in range(int(E * C), 0, -1):
+                        values.append(round_number(-10.0 ** (D+(i-1)/C)))
+                if B > 0:  # Generate positive contours
+                    for i in range(1, int((B * C) + 1)):
+                        values.append(round_number(10.0 ** (A+(i-1)/C)))
+            else:
+                QSimpleMessageBox("The 'Levels per Decade' must be a positive number.").show()
+
+            # Gen colors (Log)
+            numIntervals = len(values) - 1
+            d = int(222 / (numIntervals - 1))
+            for a in range(numIntervals):
+                colors.append(16 + a * d)
+            
+        if self.includeZeroButtonGroup.isChecked('On'):
+            values.insert(0, 0.0)
+
+        self.rangeLineEdit.setText(str(values))
+
+        self.colorsLineEdit.setText(str(colors))
+    def clearCustomSettings(self):
+        self.rangeLineEdit.setText('')
+        self.colorsLineEdit.setText('')
+        self.minValLineEdit.setText('')
+        self.maxValLineEdit.setText('')
+        self.nIntervals.setValue(2)
+        self.expLineEdit.setText('')
+        self.negDecadesLineEdit.setText('')
+
+    def linearButtonPressEvent(self):
+        """ Disable the 'Num neg decades' and 'smallest exp for neg values'
+        lineEdits """
+        
+        self.expLineEdit.setReadOnly(True)
+        self.negDecadesLineEdit.setReadOnly(True)
+        self.expLineEdit.setText('')
+        self.negDecadesLineEdit.setText('')
+        self.expLineEdit.setToolTip("Disabled. Not in use for linear spacing.")
+        self.negDecadesLineEdit.setToolTip("Disabled. Not in use for linear spacing.")        
+
+    def logButtonPressEvent(self):
+        """ Enable the 'Num neg decades' and 'smallest exp for neg values'
+        lineEdits """
+        
+        self.expLineEdit.setReadOnly(False)
+        self.negDecadesLineEdit.setReadOnly(False)
+        self.expLineEdit.setText('')
+        self.negDecadesLineEdit.setText('')
+        self.expLineEdit.setToolTip("Smallest exponent for negative values")
+        self.negDecadesLineEdit.setToolTip("Number of negative decades.")
+    def setEnabledLogLineEdits(self, enable):
+        """ Disable or Enable the 'Num neg decades' and 'smallest exp for neg
+        values' lineEdits """
+        self.expLineEdit.setEnabled(enable)
+        self.negDecadesLineEdit.setEnabled(enable)
+        self.smallestExpLabel.setEnabled(enable)
+        self.numNegDecLabel.setEnabled(enable)
+
+        if enable == True:
+            self.expLineEdit.setToolTip("Smallest exponent for negative values")
+            self.negDecadesLineEdit.setToolTip("Number of negative decades.")
+        else:
+            self.expLineEdit.setToolTip("Disabled. Not in use for linear spacing.")
+            self.negDecadesLineEdit.setToolTip("Disabled. Not in use for linear spacing.")            
+
         
 class QGraphicsMethodAttributeWindow(QtGui.QWidget):
 
@@ -1185,14 +1424,17 @@ class QContinentsEditor(QtGui.QScrollArea):
         except:
             return None        
 
-class QBoxfillEditor(QtGui.QScrollArea,VCSGMs):
+class QBoxfillEditor(QtGui.QScrollArea,VCSGMs,VCSGMRanges):
 
     def __init__(self, parent=None, gm=None):
         QtGui.QScrollArea.__init__(self, parent)
         vbox = QtGui.QVBoxLayout()
+        # Set up the scrollbar
+        widgetWrapper = QtGui.QFrame()
+        widgetWrapper.setLayout(vbox)
         self.parent=parent
         self.root=parent.root
-        self.gmAttributes = ['boxfill_type', 'color_1', 'datawc_calendar', 'datawc_timeunits', 'datawc_x1', 'datawc_x2', 'datawc_y1', 'datawc_y2', 'ext_1', 'ext_2', 'fillareacolors', 'fillareaindices', 'fillareastyle', 'legend', 'level_1', 'level_2', 'levels', 'missing', 'name', 'projection', 'xaxisconvert', 'xmtics1', 'xmtics2', 'xticlabels1', 'xticlabels2', 'yaxisconvert', 'ymtics1', 'ymtics2', 'yticlabels1', 'yticlabels2']
+        self.gmAttributes = ['boxfill_type', 'color_1', 'datawc_calendar', 'datawc_timeunits', 'datawc_x1', 'datawc_x2', 'datawc_y1', 'datawc_y2', 'ext_1', 'ext_2', 'fillareacolors', 'fillareaindices', 'fillareastyle', 'legend', 'level_1', 'level_2', 'levels', 'missing', 'projection', 'xaxisconvert', 'xmtics1', 'xmtics2', 'xticlabels1', 'xticlabels2', 'yaxisconvert', 'ymtics1', 'ymtics2', 'yticlabels1', 'yticlabels2']
         self.gm = parent.root.tabView.widget(1).canvas[0].getboxfill(gm)
         self.saveOriginalValues()
         
@@ -1212,6 +1454,7 @@ class QBoxfillEditor(QtGui.QScrollArea,VCSGMs):
         generalSettings = QFramedWidget('Boxfill Settings')
         self.boxfillTypeButtonGroup = generalSettings.addRadioFrame('Boxfill type:',
                                                                     ['linear', 'log10', 'custom'])
+        self.boxfillTypeButtonGroup.setToolTip("The boxfill type defines how the legend boxes and labels are picked\nlinear: uses colors from color1 to color2 and uses this number of colors to create levels ranging from level1 to level2\nlog10: same as linear but the levels are created using a log10 scale.custom: colors to use are specified by the user in any order, as well as the level range for each boxes")
         #hbox1.addWidget(self.boxfillTypeButtonGroup)
         self.missingLineEdit = generalSettings.addLabeledLineEdit('Missing:')
         self.ext1ButtonGroup = generalSettings.addRadioFrame('Ext1:',
@@ -1237,41 +1480,17 @@ class QBoxfillEditor(QtGui.QScrollArea,VCSGMs):
         # Custom Settings
         self.customSettings = QFramedWidget('Custom Settings')
 
-        self.customSettings.addWidget(QtGui.QLabel('Define iso level range values:'))
-        self.includeZeroButtonGroup = self.customSettings.addRadioFrame('Include Zero:',
-                                                                   ['Off', 'On'],
-                                                                   newRow=False)
-        self.rangeLineEdit = self.customSettings.addLabeledLineEdit('Ranges:')
-        self.colorsLineEdit = self.customSettings.addLabeledLineEdit('Colors:')
-
-        self.customSettings.newRow()
-        self.customSettings.addWidget(QtGui.QLabel('Define iso level parameters:'))
-        self.spacingButtonGroup = self.customSettings.addRadioFrame('spacing:',
-                                                               ['Linear', 'Log'],
-                                                               newRow=False)
-
-        self.minValLineEdit = self.customSettings.addLabeledLineEdit('Minimum Value:')
-        self.maxValLineEdit = self.customSettings.addLabeledLineEdit('Maximum Value:')
-        self.nIntervals = self.customSettings.addLabeledSpinBox('Number of Intervals:',
-                                                                   2, 223)
-        self.smallestExpLabel, self.expLineEdit = self.customSettings.addLabelAndLineEdit('Smallest Exponent for Negative Values:')
-        self.numNegDecLabel, self.negDecadesLineEdit = self.customSettings.addLabelAndLineEdit('Number of Negative Decades:')
-        genRangesButton = self.customSettings.addButton('Generate Ranges')
-        clearButton = self.customSettings.addButton('Clear All', newRow=False)        
+        self.rangeSettings(self.customSettings)
+        
         vbox.addWidget(self.customSettings)
 
         # Init values
         self.initValues()
         self.setToolTips()
 
-        # Set up the scrollbar
-        widgetWrapper = QtGui.QWidget()
-        widgetWrapper.setLayout(vbox)
         self.setWidget(widgetWrapper)
 
         # Connect Signals
-        self.connect(clearButton, QtCore.SIGNAL('pressed()'), self.clearCustomSettings)
-        self.connect(genRangesButton, QtCore.SIGNAL('pressed()'), self.generateRanges)
         self.connect(self.spacingButtonGroup.getButton('Linear'),
                      QtCore.SIGNAL('pressed()'),
                      lambda : self.setEnabledLogLineEdits(False))
@@ -1285,36 +1504,21 @@ class QBoxfillEditor(QtGui.QScrollArea,VCSGMs):
 
     def applyChanges(self):
         try:
-            self.gm.projection = str(self.projection.currentText())
-            ## self.gm.xticlabels1 = 
-            ## self.gm.xticlabels2 =
-            ## self.gm.xmtics1 =
-            ## self.gm.xmtics2 = 
-            ## self.gm.yticlabels1 = 
-            ## self.gm.yticlabels2 =
-            ## self.gm.ymtics1 =
-            ## self.gm.ymtics2 = 
-            ## self.gm.datawc_x1 = 
-            ## self.gm.datawc_x2 = 
-            ## self.gm.datawc_y1 = 
-            ## self.gm.datawc_y2 = 
-            ## self.gm.datawc_time_units = 
-            ## self.gm.datawc_time_calendar =
-            ## self.gm.xaxisconvert = 
-            ## self.gm.yaxisconvert = 
-            ## self.boxfill_type =
-            ## self.gm.level_1 =
-            ## self.gm.level_2 =
-            ## self.gm.levels =
-            ## self.gm.color_1 =
-            ## self.gm.color_2 =
+            self.applyCommonChanges()
+            self.boxfill_type = str(self.boxfillTypeButtonGroup.buttonGroup.button(self.boxfillTypeButtonGroup.buttonGroup.checkedId()).text())
+            self.gm.level_1 = eval(str(self.level1LineEdit.text()))
+            self.gm.level_2 = eval(str(self.level2LineEdit.text()))
+            self.gm.color_1 = eval(str(self.color1LineEdit.text()))
+            self.gm.color_2 = eval(str(self.color2LineEdit.text()))
             ## self.gm.fillareacolors =
-            ## self.gm.legend =
-            ## self.gm.ext_1 =
-            ## self.gm.ext_2 =
-            ## self.gm.missing =
+            self.gm.legend = eval(str(self.legendLineEdit.text()))
+            self.gm.ext_1 = str(self.ext1ButtonGroup.buttonGroup.button(self.ext1ButtonGroup.buttonGroup.checkedId()).text()).lower()[0]
+            self.gm.ext2 = str(self.ext2ButtonGroup.buttonGroup.button(self.ext2ButtonGroup.buttonGroup.checkedId()).text()).lower()[0]
+            self.gm.missing = eval(str(self.missingLineEdit.text()))
+            self.applyRangeSettings()
         except Exception, err:
             print "oops error applying change on %s: %s" % (self.gm.name,err)
+        
 
     def clickedBoxType(self,*args):
 
@@ -1326,174 +1530,47 @@ class QBoxfillEditor(QtGui.QScrollArea,VCSGMs):
             self.linLogSettings.setEnabled(True)
             self.customSettings.setEnabled(False)
         
-    def setWidgetsValues(self,gm):
-        if gm is None:
-            return
+    def initValues(self):
 
+        # Init common area
+        self.initCommonValues()
+        
         # Init Line Edit Text
-        self.missingLineEdit.setText(str(gm.missing))
+        self.missingLineEdit.setText(str(self.gm.missing))
         self.legendLineEdit.setText('None')
-        self.level1LineEdit.setText(str(gm.level_1))
-        self.level2LineEdit.setText(str(gm.level_2))
-        self.color1LineEdit.setText(str(gm.color_1))
-        self.color2LineEdit.setText(str(gm.color_2))
-        self.rangeLineEdit.setText(str(gm.levels))
-        self.colorsLineEdit.setText(str(gm.fillareacolors))
+        self.level1LineEdit.setText(str(self.gm.level_1))
+        self.level2LineEdit.setText(str(self.gm.level_2))
+        self.color1LineEdit.setText(str(self.gm.color_1))
+        self.color2LineEdit.setText(str(self.gm.color_2))
 
         # Init selected radio buttons
-        self.boxfillTypeButtonGroup.setChecked(gm.boxfill_type)
+        self.boxfillTypeButtonGroup.setChecked(self.gm.boxfill_type)
         self.clickedBoxType()
         
-        if gm.ext_1 == "n":
+        if self.gm.ext_1 == "n":
             self.ext1ButtonGroup.setChecked('No')
         else:
             self.ext1ButtonGroup.setChecked('Yes')
-        if gm.ext_2 == "n":
+        if self.gm.ext_2 == "n":
             self.ext2ButtonGroup.setChecked('No')
         else:
             self.ext2ButtonGroup.setChecked('Yes')
 
-    def initValues(self):
-        self.setWidgetsValues(self.gm)
-        self.minValLineEdit.setText('')
-        self.maxValLineEdit.setText('')
-        self.expLineEdit.setText('')
-        self.negDecadesLineEdit.setText('')
-        self.nIntervals.setValue(2)
-        self.setEnabledLogLineEdits(False)
-        self.includeZeroButtonGroup.setChecked('Off')
-        self.spacingButtonGroup.setChecked('Linear')
-
-
-    def generateRanges(self):
-        try:
-            minValue = float(self.minValLineEdit.text())
-            maxValue = float(self.maxValLineEdit.text())
-            numIntervals = int(self.nIntervals.text())
-        except:
-            QSimpleMessageBox('Values must be a number', self).show()
-            return
+        #Init range section
+        self.initRangeValues()
         
-        if numIntervals < 2 or numIntervals > 223:
-            QSimpleMessageBox("The 'number of intervals' value must be between 2 and 223.",
-                              self).show()
-            return
-
-        colors = []
-        values = []                
-        value = minValue
-        color = 16
-
-        # Generate ranges and colors (Linear)
-        if self.spacingButtonGroup.isChecked('Linear'):
-            delta = float((maxValue - minValue) / numIntervals)
-            d = int(222 / (numIntervals - 1))
-            
-            for a in range(numIntervals + 1):
-                if color <= 238:
-                    colors.append(color)
-                values.append(value)
-                color += d
-                value += delta
-        # Generate ranges (Log)                
-        else:
-            A = float(self.minValLineEdit.text())
-            B = float(self.maxValLineEdit.text())
-            C = float(self.nIntervals.text())
-
-            try:
-                D = float(self.expLineEdit.text())
-            except:
-                D = 0
-            try:
-                E = float(self.negDecadesLineEdit.text())
-            except:
-                E = 0
-
-            if C > 0:
-                if E > 0:  # Generate negative contours
-                    for i in range(int(E * C), 0, -1):
-                        values.append(round_number(-10.0 ** (D+(i-1)/C)))
-                if B > 0:  # Generate positive contours
-                    for i in range(1, int((B * C) + 1)):
-                        values.append(round_number(10.0 ** (A+(i-1)/C)))
-            else:
-                QSimpleMessageBox("The 'Levels per Decade' must be a positive number.").show()
-
-            # Gen colors (Log)
-            numIntervals = len(values) - 1
-            d = int(222 / (numIntervals - 1))
-            for a in range(numIntervals):
-                colors.append(16 + a * d)
-            
-        if self.includeZeroButtonGroup.isChecked('On'):
-            values.insert(0, 0.0)
-
-        self.rangeLineEdit.setText(str(values))
-
-        self.colorsLineEdit.setText(str(colors))
-        
-    def setEnabledLogLineEdits(self, enable):
-        """ Disable or Enable the 'Num neg decades' and 'smallest exp for neg
-        values' lineEdits """
-        self.expLineEdit.setEnabled(enable)
-        self.negDecadesLineEdit.setEnabled(enable)
-        self.smallestExpLabel.setEnabled(enable)
-        self.numNegDecLabel.setEnabled(enable)
-
-        if enable == True:
-            self.expLineEdit.setToolTip("Smallest exponent for negative values")
-            self.negDecadesLineEdit.setToolTip("Number of negative decades.")
-        else:
-            self.expLineEdit.setToolTip("Disabled. Not in use for linear spacing.")
-            self.negDecadesLineEdit.setToolTip("Disabled. Not in use for linear spacing.")            
 
     def setToolTips(self):
         self.missingLineEdit.setToolTip("Set the missing color index value. The colormap\nranges from 0 to 255, enter the desired color index value 0\nthrough 255.")
+        self.ext1ButtonGroup.setToolTip("Turn on 1st arrow on legend")
+        self.ext2ButtonGroup.setToolTip("Turn on 2nd arrow on legend")
         self.legendLineEdit.setToolTip("Specify the desired legend labels.\nFor example:\n None -- Allow VCS to generate legend labels\n(), or [ ], or { } -- No legend  labels\n [0, 10, 20] or { 0:'0', 10:'10', 20:'20' }\n[ 0, 10 ] or { 0:'text', 10:'more text'}")
         self.level1LineEdit.setToolTip("The minimum data value. If level 1 is set to '1e+20',\nthen VCS will select the level.")
         self.level2LineEdit.setToolTip("The maximum data value. If level 2 is set to '1e+20',\nthen VCS will select the level.")
         self.color1LineEdit.setToolTip("The minimum color range index value. The colormap\nranges from 0 to 255, but only color indices 0\nthrough 239 can be changed.")
         self.color2LineEdit.setToolTip("The maximum color range index value. The colormap\nranges from 0 to 255, but only color indices 0\nthrough 239 can be changed.")
-        self.rangeLineEdit.setToolTip("The iso level range values. (e.g., 10, 20, 30, 40, 50).")
-        self.colorsLineEdit.setToolTip("The iso level color index values. The index colors range\nfrom 0 to 255. For example:\n   Use explicit indices: 16, 32, 48, 64, 80;\n   Use two values to generate index range: 16, 32")
-        self.minValLineEdit.setToolTip("The minimum contour level.")
-        self.maxValLineEdit.setToolTip("The maximum contour level.")
-        self.nIntervals.setToolTip("The number of intervals between each contour level. Maximum number range [2 to 223].")
-        self.expLineEdit.setToolTip("Disabled. Not in use for linear spacing.")
-        self.negDecadesLineEdit.setToolTip("Disabled. Not in use for linear spacing.")
         
 
-    def clearCustomSettings(self):
-        self.rangeLineEdit.setText('')
-        self.colorsLineEdit.setText('')
-        self.minValLineEdit.setText('')
-        self.maxValLineEdit.setText('')
-        self.nIntervals.setValue(2)
-        self.expLineEdit.setText('')
-        self.negDecadesLineEdit.setText('')
-
-    def linearButtonPressEvent(self):
-        """ Disable the 'Num neg decades' and 'smallest exp for neg values'
-        lineEdits """
-        
-        self.expLineEdit.setReadOnly(True)
-        self.negDecadesLineEdit.setReadOnly(True)
-        self.expLineEdit.setText('')
-        self.negDecadesLineEdit.setText('')
-        self.expLineEdit.setToolTip("Disabled. Not in use for linear spacing.")
-        self.negDecadesLineEdit.setToolTip("Disabled. Not in use for linear spacing.")        
-
-    def logButtonPressEvent(self):
-        """ Enable the 'Num neg decades' and 'smallest exp for neg values'
-        lineEdits """
-        
-        self.expLineEdit.setReadOnly(False)
-        self.negDecadesLineEdit.setReadOnly(False)
-        self.expLineEdit.setText('')
-        self.negDecadesLineEdit.setText('')
-        self.expLineEdit.setToolTip("Smallest exponent for negative values")
-        self.negDecadesLineEdit.setToolTip("Number of negative decades.")
 
             
     def getValue(self, lineEdit, convertType, default=None):
