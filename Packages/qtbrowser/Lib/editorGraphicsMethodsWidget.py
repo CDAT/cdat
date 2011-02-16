@@ -12,6 +12,8 @@ class QEditorGraphicsMethodsWidget(QtGui.QWidget):
         gmnm = str(parent.gms.gmList.currentItem().text())
         if ptype == "Boxfill":
             self.widget = graphicsMethodsWidgets.QBoxfillEditor(parent=self,gm = gmnm)
+        elif ptype == "Isofill":
+            self.widget = graphicsMethodsWidgets.QIsofillEditor(parent=self,gm = gmnm)
         if gmnm == "default":
             self.widget.widget().setEnabled(False)
             parent.editorTab.widget(1).widget().setEnabled(False)

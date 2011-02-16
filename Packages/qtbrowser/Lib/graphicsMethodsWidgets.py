@@ -12,12 +12,9 @@ class VCSGMs():
         self.originalValues={}
         for a in self.gmAttributes:
             self.originalValues[a] = getattr(self.gm,a)
-            print "stored original value for:",a,"as:",getattr(self.gm,a)
     def restoreOriginalValues(self):
         for a in self.gmAttributes:
-            print "Restoring",a,"As",self.originalValues[a]
             setattr(self.gm,a,self.originalValues[a])
-            self.gm.list()
         self.initValues()
             
     def changesString(self):
@@ -1201,6 +1198,14 @@ class QMeshfillEditor(QtGui.QScrollArea):
         self.smallestExp.setToolTip("Disabled. Not in use for linear spacing.")
         self.numNegDec.setToolTip("Disabled. Not in use for linear spacing.")     
 
+class QIsofillEditor(QtGui.QScrollArea):
+    def __init__(self, parent=None, gm=None):
+        QtGui.QScrollArea.__init__(self, parent)
+        vbox = QtGui.QVBoxLayout()
+        frame = QFramedWidget()
+        frame.setLayout(vbox)
+        self.setWidget(frame)
+        
 class QContourEditor(QtGui.QScrollArea):
     def __init__(self, parent=None, gm=None):
         QtGui.QScrollArea.__init__(self, parent)
