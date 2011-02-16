@@ -16,26 +16,19 @@ class QEditorGraphicsMethodsWidget(QtGui.QWidget):
             self.widget.widget().setEnabled(False)
             parent.editorTab.widget(1).widget().setEnabled(False)
 
-        f = QtGui.QFrame()
-        hl = QtGui.QHBoxLayout()
-        
-        self.apply = QtGui.QPushButton("Apply")
-        self.preview = QtGui.QPushButton("Preview")
-        self.preview.setEnabled(False)
-        self.discard = QtGui.QPushButton("Discard")
-        self.discard.setEnabled(False)
-        hl.addWidget(self.apply)
-        hl.addWidget(self.preview)
-        hl.addWidget(self.discard)
-        f.setLayout(hl)
         layout.addWidget(self.widget)
-        layout.addWidget(f)
         
         self.setLayout(layout)
 
-        self.connect(self.apply,QtCore.SIGNAL("clicked()"),self.applyChanges)
 
     def applyChanges(self):
         self.widget.applyChanges()
         diff = self.widget.changesString()
         self.root.record(diff)
+
+    def previewChanges(self):
+        self.widget.applyChanges()
+
+    def discardChanges(self):
+        self.widget.restoreOriginalValues()
+        
