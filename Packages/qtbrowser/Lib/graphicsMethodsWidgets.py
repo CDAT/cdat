@@ -14,7 +14,9 @@ class VCSGMs():
             self.originalValues[a] = getattr(self.gm,a)
     def restoreOriginalValues(self):
         for a in self.gmAttributes:
+            print a,"to",self.originalValues[a]
             setattr(self.gm,a,self.originalValues[a])
+            self.gm.list()
         self.initValues()
             
     def changesString(self):
@@ -1198,23 +1200,83 @@ class QMeshfillEditor(QtGui.QScrollArea):
         self.smallestExp.setToolTip("Disabled. Not in use for linear spacing.")
         self.numNegDec.setToolTip("Disabled. Not in use for linear spacing.")     
 
-class QIsofillEditor(QtGui.QScrollArea):
+class QIsofillEditor(QtGui.QScrollArea,VCSGMs,VCSGMRanges):
     def __init__(self, parent=None, gm=None):
         QtGui.QScrollArea.__init__(self, parent)
         vbox = QtGui.QVBoxLayout()
-        frame = QFramedWidget()
+        frame = QtGui.QFrame()
         frame.setLayout(vbox)
+        self.parent=parent
+        self.root=parent.root
+        self.gmAttributes = [ 'datawc_calendar', 'datawc_timeunits', 'datawc_x1', 'datawc_x2', 'datawc_y1', 'datawc_y2', 'levels','ext_1', 'ext_2', 'fillareacolors', 'fillareaindices', 'fillareastyle', 'legend', 'missing', 'projection', 'xaxisconvert', 'xmtics1', 'xmtics2', 'xticlabels1', 'xticlabels2', 'yaxisconvert', 'ymtics1', 'ymtics2', 'yticlabels1', 'yticlabels2']
+        self.gm = parent.root.tabView.widget(1).canvas[0].getisofill(gm)
+        self.saveOriginalValues()
+        self.setupCommonSection()
+
+
+        # Isofill General Settings 
+        generalSettings = QFramedWidget('General Settings')
+        self.missingLineEdit = generalSettings.addLabeledLineEdit('Missing:')
+        self.ext1ButtonGroup = generalSettings.addRadioFrame('Ext1:',
+                                                             ['No', 'Yes'],
+                                                             newRow = False)
+        self.ext2ButtonGroup = generalSettings.addRadioFrame('Ext2:',
+                                                             ['No', 'Yes'],
+                                                             newRow = False)
+        self.legendLineEdit = generalSettings.addLabeledLineEdit('Legend Labels:')
+        vbox.addWidget(generalSettings)
+
+        self.isoSettings = QFramedWidget('Levels Range Settings')
+
+        self.rangeSettings(self.isoSettings)
+        vbox.addWidget(self.isoSettings)
         self.setWidget(frame)
         
-class QContourEditor(QtGui.QScrollArea):
-    def __init__(self, parent=None, gm=None):
-        QtGui.QScrollArea.__init__(self, parent)
-        vbox = QtGui.QVBoxLayout()
+        self.initValues()
+        self.setToolTips()
+    def initValues(self):
 
-        #### TODO gm stuff
+        # Init common area
+        self.initCommonValues()
+        
+        # Init Line Edit Text
+        self.missingLineEdit.setText(str(self.gm.missing))
+        self.legendLineEdit.setText('None')
 
-        frame = QFramedWidget()
+        
+        if self.gm.ext_1 == "n":
+            self.ext1ButtonGroup.setChecked('No')
+        else:
+            self.ext1ButtonGroup.setChecked('Yes')
+        if self.gm.ext_2 == "n":
+            self.ext2ButtonGroup.setChecked('No')
+        else:
+            self.ext2ButtonGroup.setChecked('Yes')
 
+        #Init range section
+        self.initRangeValues()
+        
+
+    def setToolTips(self):
+        self.missingLineEdit.setToolTip("Set the missing color index value. The colormap\nranges from 0 to 255, enter the desired color index value 0\nthrough 255.")
+        self.ext1ButtonGroup.setToolTip("Turn on 1st arrow on legend")
+        self.ext2ButtonGroup.setToolTip("Turn on 2nd arrow on legend")
+        self.legendLineEdit.setToolTip("Specify the desired legend labels.\nFor example:\n None -- Allow VCS to generate legend labels\n(), or [ ], or { } -- No legend  labels\n [0, 10, 20] or { 0:'0', 10:'10', 20:'20' }\n[ 0, 10 ] or { 0:'text', 10:'more text'}")
+    def applyChanges(self):
+        try:
+            self.applyCommonChanges()
+            self.gm.legend = eval(str(self.legendLineEdit.text()))
+            self.gm.ext_1 = str(self.ext1ButtonGroup.buttonGroup.button(self.ext1ButtonGroup.buttonGroup.checkedId()).text()).lower()[0]
+            self.gm.ext2 = str(self.ext2ButtonGroup.buttonGroup.button(self.ext2ButtonGroup.buttonGroup.checkedId()).text()).lower()[0]
+            self.gm.missing = eval(str(self.missingLineEdit.text()))
+            self.applyRangeSettings()
+        except Exception, err:
+            print "oops error applying change on %s: %s" % (self.gm.name,err)
+
+        
+class QContourEditor():
+    def contoursSettings(self, target):
+        
         frame.addWidget(QtGui.QLabel('Define iso level range values:'))
         self.includeZeroButtonGroup = frame.addRadioFrame('Include Zero:',
                                                           ['Off', 'On'],
@@ -1518,12 +1580,9 @@ class QBoxfillEditor(QtGui.QScrollArea,VCSGMs,VCSGMRanges):
             self.gm.level_2 = eval(str(self.level2LineEdit.text()))
             self.gm.color_1 = eval(str(self.color1LineEdit.text()))
             self.gm.color_2 = eval(str(self.color2LineEdit.text()))
-            ## self.gm.fillareacolors =
             self.gm.legend = eval(str(self.legendLineEdit.text()))
             self.gm.ext_1 = str(self.ext1ButtonGroup.buttonGroup.button(self.ext1ButtonGroup.buttonGroup.checkedId()).text()).lower()[0]
-            print 'SEtting ext2 to:',str(self.ext2ButtonGroup.buttonGroup.button(self.ext2ButtonGroup.buttonGroup.checkedId()).text()).lower()[0]
             self.gm.ext2 = str(self.ext2ButtonGroup.buttonGroup.button(self.ext2ButtonGroup.buttonGroup.checkedId()).text()).lower()[0]
-            print "ok it is now:",self.gm.ext_2
             self.gm.missing = eval(str(self.missingLineEdit.text()))
             self.applyRangeSettings()
         except Exception, err:
@@ -1561,7 +1620,6 @@ class QBoxfillEditor(QtGui.QScrollArea,VCSGMs,VCSGMRanges):
             self.ext1ButtonGroup.setChecked('No')
         else:
             self.ext1ButtonGroup.setChecked('Yes')
-        print "self.gm.ext_2 is now:",self.gm.ext_2
         if self.gm.ext_2 == "n":
             self.ext2ButtonGroup.setChecked('No')
         else:
