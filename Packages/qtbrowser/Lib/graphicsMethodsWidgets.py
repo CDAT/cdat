@@ -14,9 +14,7 @@ class VCSGMs():
             self.originalValues[a] = getattr(self.gm,a)
     def restoreOriginalValues(self):
         for a in self.gmAttributes:
-            print a,"to",self.originalValues[a]
             setattr(self.gm,a,self.originalValues[a])
-            self.gm.list()
         self.initValues()
             
     def changesString(self):
