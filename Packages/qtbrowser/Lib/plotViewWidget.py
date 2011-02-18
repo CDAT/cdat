@@ -2,6 +2,7 @@ from PyQt4 import QtGui, QtCore
 import vcs
 import qtbrowser
 import vcsPlotControllerWidget
+import customizeVCDAT
 
 class QPlotOptionsWidget(QtGui.QWidget):
     """ Widget containing plot options: plot button, plot type combobox, cell
@@ -32,9 +33,8 @@ class QPlotOptionsWidget(QtGui.QWidget):
         comboPalette.setColor(QtGui.QPalette.Highlight, QtCore.Qt.blue)                
         self.plotTypeCombo.view().setPalette(comboPalette)
 
-        plotTypes = ['Boxfill', 'Isofill', 'Isoline', 'Meshfill', 'Outfill',
-                     'Outline', 'Scatter', 'Taylordiagram', 'Vector', 'XvsY',
-                     'Xyvsy', 'Yxvsx','Ext']
+        plotTypes = customizeVCDAT.plotTypes
+        
         self.plotTypeCombo.addItems(plotTypes)
         hbox.addWidget(self.plotTypeCombo)
 

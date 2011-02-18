@@ -15,3 +15,7 @@ commentsColor = redColor
 recordCommands = True
 defaultTemplateName = "default"
 defaultGraphicsMethodName = "default"
+
+plotTypes = ['Boxfill', 'Isofill', 'Isoline', 'Meshfill', 'Outfill',
+             'Outline', 'Scatter', 'Taylordiagram', 'Vector', 'XvsY',
+             'Xyvsy', 'Yxvsx','Ext']
