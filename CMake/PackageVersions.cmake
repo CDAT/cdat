@@ -80,7 +80,7 @@ set(PIX_MINOR_SRC 19)
 set(PIX_PATCH_SRC 2)
 set(PIX_URL http://cairographics.org/releases)
 set(PIX_GZ pixman-${PIX_MAJOR_SRC}.${PIX_MINOR_SRC}.${PIX_PATCH_SRC}.tar.gz)
-set(PIX_MD5 d922a88782b64441d06547632fd85744)
+set(PIX_MD5 dfb84c9f402fbba5047f0e0a69c17518)
 
 set(CURL_MAJOR 7)
 set(CURL_MINOR 19)
