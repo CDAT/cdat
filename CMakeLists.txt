@@ -168,7 +168,7 @@ find_package(LAPACK)
 ##find_package(PNG)
 ##find_package(PkgConfig)
 find_package(Freetype)
-find_package(pixman)
+#find_package(pixman)
 #find_package(fontconfig)
 find_package(Cairo)
 #find_package(uuid)
@@ -214,7 +214,7 @@ endif()
 set(VTK_DEPENDENCIES)
 set(cmcurl_DEPENDENCIES)
 set(cdat_DEPENDENCIES VTK Insight BatchMake OpenIGTLink teem cmcurl)
-set(Cairo_DEPENDENCIES png fontconfig freetype)
+set(Cairo_DEPENDENCIES png fontconfig freetype pixman)
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
