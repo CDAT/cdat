@@ -1,12 +1,10 @@
 
 set(pixman_source "${CMAKE_CURRENT_BINARY_DIR}/pixman")
-set(pixman_binary "${CMAKE_CURRENT_BINARY_DIR}/pixman-build")
-set(pixman_install "${CMAKE_CURRENT_BINARY_DIR}/pixman-install")
+set(pixman_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
 
 ExternalProject_Add(pixman
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
   SOURCE_DIR ${pixman_source}
-  BINARY_DIR ${pixman_build}
   INSTALL_DIR ${pixman_install}
   URL ${PIX_URL}/${PIX_GZ}
   URL_MD5 ${PIX_MD5}
