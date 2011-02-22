@@ -1,7 +1,6 @@
 # The FFMPEG external project for ParaView
 
 set(ffmpeg_source "${CMAKE_CURRENT_BINARY_DIR}/FFMPEG")
-set(ffmpeg_binary "${CMAKE_CURRENT_BINARY_DIR}/FFMPEG-build")
 set(ffmpeg_install "${CMAKE_CURRENT_BINARY_DIR}/FFMPEG-install")
 
 configure_file(${cdat_CMAKE_SOURCE_DIR}/ffmpeg_configure_step.cmake.in
