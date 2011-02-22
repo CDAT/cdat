@@ -5,7 +5,7 @@ if(APPLE)
 endif()
 
   EXECUTE_PROCESS(
-    COMMAND sh ./configure --disable-static --disable-network --disable-zlib --disable-ffserver --disable-ffplay --disable-decoders --enable-shared --enable-swscale --prefix=@ffmpeg_install@
+    COMMAND sh configure --disable-static --disable-network --disable-zlib --disable-ffserver --disable-ffplay --disable-decoders --enable-shared --enable-swscale --prefix=@ffmpeg_install@
     WORKING_DIRECTORY "@ffmpeg_source@"
     RESULT_VARIABLE rv
     )
