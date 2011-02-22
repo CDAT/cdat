@@ -865,6 +865,11 @@ FFMPEG_URL
 FFMPEG_GZ
 VTK_URL
 VTK_GZ
+LIBCF_MAJOR_SRC
+LIBCF_MINOR_SRC
+LIBCF_PATCH_SRC
+LIBCF_URL
+LIBCF_GZ
 ESG
 PGCONFIG
 SETUPTOOLS
@@ -1005,6 +1010,7 @@ X_PRE_LIBS
 X_LIBS
 X_EXTRA_LIBS
 COMPILE_VTK
+COMPILE_LIBCF
 QTCONFIGOPT
 XTRA_LD_F2PY
 EXTRAENV
@@ -1631,6 +1637,7 @@ Optional Features:
   --enable-x              turn on/off build of things depending on X11
                           (default on)
   --enable-vtk            enable/disable vtk build
+  --enable-libcf          enable/disable libcf build
   --enable-aqua           enables aqua support for tk (if tk with aqua is on
                           your system)
   --enable-framework      Build (MacOSX|Darwin) framework
@@ -2121,7 +2128,7 @@ if test ${SVN_TAG} == "rev" ; then
 fi
 CDAT_VERSION=${PACKAGE_VERSION}${SVN_TAG}
 
-ac_config_files="$ac_config_files Makefile site.cfg README.txt Scripts/cdat Scripts/vcdat exsrc/CMakeCache.txt checked_get.sh exsrc/src/pbmplus/Makefile"
+ac_config_files="$ac_config_files Makefile site.cfg README.txt Scripts/cdat Scripts/vcdat Scripts/cdatversion exsrc/CMakeCache.txt checked_get.sh exsrc/src/pbmplus/Makefile"
 
 
 
@@ -2130,9 +2137,9 @@ PYTHON_MINOR=7
 PYTHON_PATCH=0
 PYTHON_MAJOR_SRC=2
 PYTHON_MINOR_SRC=7
-PYTHON_PATCH_SRC=0
-PYTHON_URL=http://python.org/ftp/python/${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}
-PYTHON_GZ=Python-${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.tgz
+PYTHON_PATCH_SRC=1
+PYTHON_URL=http://python.org/ftp/python/${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.${PYTHON_PATCH_SRC}
+PYTHON_GZ=Python-${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.${PYTHON_PATCH_SRC}.tgz
 
 
 
@@ -2150,7 +2157,7 @@ XML_MINOR=6
 XML_PATCH=27
 XML_MAJOR_SRC=2
 XML_MINOR_SRC=7
-XML_PATCH_SRC=7
+XML_PATCH_SRC=8
 XML_URL=ftp://xmlsoft.org/libxml2
 XML_GZ=libxml2-${XML_MAJOR_SRC}.${XML_MINOR_SRC}.${XML_PATCH_SRC}.tar.gz
 
@@ -2181,7 +2188,7 @@ PKG_MAJOR=0
 PKG_MINOR=9
 PKG_PATCH=0
 PKG_MAJOR_SRC=0
-PKG_MINOR_SRC=23
+PKG_MINOR_SRC=25
 PKG_PATCH_SRC=0
 PKG_URL=http://pkgconfig.freedesktop.org/releases/
 PKG_GZ=pkg-config-${PKG_MAJOR_SRC}.${PKG_MINOR_SRC}.tar.gz
@@ -2197,8 +2204,8 @@ CAIRO_MAJOR=1
 CAIRO_MINOR=8
 CAIRO_PATCH=10
 CAIRO_MAJOR_SRC=1
-CAIRO_MINOR_SRC=8
-CAIRO_PATCH_SRC=10
+CAIRO_MINOR_SRC=10
+CAIRO_PATCH_SRC=2
 CAIRO_URL=http://cairographics.org/releases
 CAIRO_GZ=cairo-${CAIRO_MAJOR_SRC}.${CAIRO_MINOR_SRC}.${CAIRO_PATCH_SRC}.tar.gz
 
@@ -2213,8 +2220,8 @@ FT_MAJOR=9
 FT_MINOR=7
 FT_PATCH=3
 FT_MAJOR_SRC=2
-FT_MINOR_SRC=3
-FT_PATCH_SRC=12
+FT_MINOR_SRC=4
+FT_PATCH_SRC=4
 FT_URL=http://download.savannah.gnu.org/releases-noredirect/freetype
 FT_GZ=freetype-${FT_MAJOR_SRC}.${FT_MINOR_SRC}.${FT_PATCH_SRC}.tar.gz
 
@@ -2242,10 +2249,10 @@ FTCFG_GZ=fontconfig-${FTCFG_MAJOR_SRC}.${FTCFG_MINOR_SRC}.${FTCFG_PATCH_SRC}.tar
 
 
 PIX_MAJOR=0
-PIX_MINOR=19
+PIX_MINOR=20
 PIX_PATCH=2
 PIX_MAJOR_SRC=0
-PIX_MINOR_SRC=19
+PIX_MINOR_SRC=20
 PIX_PATCH_SRC=2
 PIX_URL=http://cairographics.org/releases
 PIX_GZ=pixman-${PIX_MAJOR_SRC}.${PIX_MINOR_SRC}.${PIX_PATCH_SRC}.tar.gz
@@ -2261,8 +2268,8 @@ CURL_MAJOR=7
 CURL_MINOR=19
 CURL_PATCH=7
 CURL_MAJOR_SRC=7
-CURL_MINOR_SRC=20
-CURL_PATCH_SRC=0
+CURL_MINOR_SRC=21
+CURL_PATCH_SRC=3
 CURL_URL=http://curl.haxx.se/download
 CURL_GZ=curl-${CURL_MAJOR_SRC}.${CURL_MINOR_SRC}.${CURL_PATCH_SRC}.tar.gz
 
@@ -2277,8 +2284,8 @@ PNG_MAJOR=1
 PNG_MINOR=4
 PNG_PATCH=1
 PNG_MAJOR_SRC=1
-PNG_MINOR_SRC=4
-PNG_PATCH_SRC=2
+PNG_MINOR_SRC=5
+PNG_PATCH_SRC=1
 PNG_URL=ftp://ftp.simplesystems.org/pub/libpng/png/src
 PNG_GZ=libpng-${PNG_MAJOR_SRC}.${PNG_MINOR_SRC}.${PNG_PATCH_SRC}.tar.gz
 
@@ -2323,11 +2330,11 @@ TCLTK_MINOR=5
 TCLTK_PATCH=4
 TCLTK_MAJOR_SRC=8
 TCLTK_MINOR_SRC=5
-TCLTK_PATCH_SRC=8
+TCLTK_PATCH_SRC=9
 TCLTK_VERSION=${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC}
 TCLTK_URL=http://prdownloads.sourceforge.net/tcl
-TCL_GZ=tcl${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC}.${TCLTK_PATCH}-src.tar.gz
-TK_GZ=tk${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC}.${TCLTK_PATCH}-src.tar.gz
+TCL_GZ=tcl${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC}.${TCLTK_PATCH_SRC}-src.tar.gz
+TK_GZ=tk${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC}.${TCLTK_PATCH_SRC}-src.tar.gz
 
 
 
@@ -2556,6 +2563,16 @@ VTK_URL=http://www.vtk.org/files/release/${VTK_MAJOR_SRC}.${VTK_MINOR_SRC}
 VTK_GZ=vtk-${VTK_MAJOR_SRC}.${VTK_MINOR_SRC}.${VTK_PATCH_SRC}.tar.gz
 
 
+LIBCF_MAJOR_SRC=1
+LIBCF_MINOR_SRC=0
+LIBCF_PATCH_SRC=0
+LIBCF_URL=ftp://ftp.unidata.ucar.edu/pub/libcf
+LIBCF_GZ=libcf-daily.tar.gz
+
+
+
+
+
 
 
 
@@ -2569,10 +2586,10 @@ VTK_GZ=vtk-${VTK_MAJOR_SRC}.${VTK_MINOR_SRC}.${VTK_PATCH_SRC}.tar.gz
 
 
 SIP_MAJOR=4
-SIP_MINOR=11
+SIP_MINOR=12
 SIP_PATCH=1
 SIP_MAJOR_SRC=4
-SIP_MINOR_SRC=11
+SIP_MINOR_SRC=12
 SIP_PATCH_SRC=1
 SIP_URL=http://www.riverbankcomputing.com/static/Downloads/sip${SIP_MAJOR_SRC}
 SIP_GZ=sip-${SIP_MAJOR_SRC}.${SIP_MINOR_SRC}.${SIP_PATCH_SRC}.tar.gz
@@ -2593,8 +2610,8 @@ PyQt_MAJOR=4
 PyQt_MINOR=7
 PyQt_PATCH=6
 PyQt_MAJOR_SRC=4
-PyQt_MINOR_SRC=7
-PyQt_PATCH_SRC=7
+PyQt_MINOR_SRC=8
+PyQt_PATCH_SRC=3
 PyQt_URL=http://www.riverbankcomputing.com/static/Downloads/PyQt${PyQt_MAJOR_SRC}
 
 R_MAJOR_SRC=2
@@ -2729,7 +2746,7 @@ PYTHON_INSTALL_PREFIX=""
 
 QT_MAJOR_SRC=4
 QT_MINOR_SRC=7
-QT_PATCH_SRC=0
+QT_PATCH_SRC=1
 QT_MAJOR=4
 QT_MINOR=6
 QT_PATCH=2
@@ -7411,6 +7428,19 @@ if test ${enable_vtk} == "-yes" ; then
 else
   COMPILE_VTK="no"
 fi
+
+
+# Check whether --enable-libcf was given.
+if test "${enable_libcf+set}" = set; then
+  enableval=$enable_libcf;
+fi
+
+if test "x${enable_libcf}" == "xyes" ; then
+   COMPILE_LIBCF="yes"
+else
+  COMPILE_LIBCF="no"
+fi
+
 
 EXTRAENV=""
 
@@ -12491,6 +12521,7 @@ do
     "README.txt") CONFIG_FILES="$CONFIG_FILES README.txt" ;;
     "Scripts/cdat") CONFIG_FILES="$CONFIG_FILES Scripts/cdat" ;;
     "Scripts/vcdat") CONFIG_FILES="$CONFIG_FILES Scripts/vcdat" ;;
+    "Scripts/cdatversion") CONFIG_FILES="$CONFIG_FILES Scripts/cdatversion" ;;
     "exsrc/CMakeCache.txt") CONFIG_FILES="$CONFIG_FILES exsrc/CMakeCache.txt" ;;
     "checked_get.sh") CONFIG_FILES="$CONFIG_FILES checked_get.sh" ;;
     "exsrc/src/pbmplus/Makefile") CONFIG_FILES="$CONFIG_FILES exsrc/src/pbmplus/Makefile" ;;
@@ -12886,6 +12917,11 @@ FFMPEG_URL!$FFMPEG_URL$ac_delim
 FFMPEG_GZ!$FFMPEG_GZ$ac_delim
 VTK_URL!$VTK_URL$ac_delim
 VTK_GZ!$VTK_GZ$ac_delim
+LIBCF_MAJOR_SRC!$LIBCF_MAJOR_SRC$ac_delim
+LIBCF_MINOR_SRC!$LIBCF_MINOR_SRC$ac_delim
+LIBCF_PATCH_SRC!$LIBCF_PATCH_SRC$ac_delim
+LIBCF_URL!$LIBCF_URL$ac_delim
+LIBCF_GZ!$LIBCF_GZ$ac_delim
 ESG!$ESG$ac_delim
 PGCONFIG!$PGCONFIG$ac_delim
 SETUPTOOLS!$SETUPTOOLS$ac_delim
@@ -12922,11 +12958,6 @@ BUILD_DIR!$BUILD_DIR$ac_delim
 AQUA_PYTHON!$AQUA_PYTHON$ac_delim
 COMPILE_HDF!$COMPILE_HDF$ac_delim
 HDF!$HDF$ac_delim
-COMPILE_NC!$COMPILE_NC$ac_delim
-NC4LOC!$NC4LOC$ac_delim
-COMPILE_HDF5!$COMPILE_HDF5$ac_delim
-HDF5LOC!$HDF5LOC$ac_delim
-COMPILE_UDUNITS2!$COMPILE_UDUNITS2$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -12968,6 +12999,11 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+COMPILE_NC!$COMPILE_NC$ac_delim
+NC4LOC!$NC4LOC$ac_delim
+COMPILE_HDF5!$COMPILE_HDF5$ac_delim
+HDF5LOC!$HDF5LOC$ac_delim
+COMPILE_UDUNITS2!$COMPILE_UDUNITS2$ac_delim
 UDUNITS2LOC!$UDUNITS2LOC$ac_delim
 COMPILE_CURL!$COMPILE_CURL$ac_delim
 NC_FORTRAN!$NC_FORTRAN$ac_delim
@@ -13060,11 +13096,6 @@ host_os!$host_os$ac_delim
 target!$target$ac_delim
 target_cpu!$target_cpu$ac_delim
 target_vendor!$target_vendor$ac_delim
-target_os!$target_os$ac_delim
-XMKMF!$XMKMF$ac_delim
-X_CFLAGS!$X_CFLAGS$ac_delim
-X_PRE_LIBS!$X_PRE_LIBS$ac_delim
-X_LIBS!$X_LIBS$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -13106,8 +13137,14 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+target_os!$target_os$ac_delim
+XMKMF!$XMKMF$ac_delim
+X_CFLAGS!$X_CFLAGS$ac_delim
+X_PRE_LIBS!$X_PRE_LIBS$ac_delim
+X_LIBS!$X_LIBS$ac_delim
 X_EXTRA_LIBS!$X_EXTRA_LIBS$ac_delim
 COMPILE_VTK!$COMPILE_VTK$ac_delim
+COMPILE_LIBCF!$COMPILE_LIBCF$ac_delim
 QTCONFIGOPT!$QTCONFIGOPT$ac_delim
 XTRA_LD_F2PY!$XTRA_LD_F2PY$ac_delim
 EXTRAENV!$EXTRAENV$ac_delim
@@ -13134,7 +13171,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 26; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 32; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
@@ -13444,6 +13481,7 @@ which seems to be undefined.  Please make sure it is defined." >&2;}
     "README.txt":F) chmod +x Scripts/cdat Scripts/vcdat checked_get.sh ;;
     "Scripts/cdat":F) chmod +x Scripts/cdat Scripts/vcdat checked_get.sh ;;
     "Scripts/vcdat":F) chmod +x Scripts/cdat Scripts/vcdat checked_get.sh ;;
+    "Scripts/cdatversion":F) chmod +x Scripts/cdat Scripts/vcdat checked_get.sh ;;
     "exsrc/CMakeCache.txt":F) chmod +x Scripts/cdat Scripts/vcdat checked_get.sh ;;
     "checked_get.sh":F) chmod +x Scripts/cdat Scripts/vcdat checked_get.sh ;;
     "exsrc/src/pbmplus/Makefile":F) chmod +x Scripts/cdat Scripts/vcdat checked_get.sh ;;
@@ -13670,6 +13708,10 @@ echo "$as_me: libnetcdf >=4 not found... building library ${NC4_MAJOR_SRC}.${NC4
 else
     { echo "$as_me:$LINENO: libnetcdf >=4 found at ${NC4LOC}" >&5
 echo "$as_me: libnetcdf >=4 found at ${NC4LOC}" >&6;}
+fi
+if test ${COMPILE_LIBCF} == "yes" ; then
+    { echo "$as_me:$LINENO: libcf ..... building library ${LIBCF_MAJOR_SRC}.${LIBCF_MINOR_SRC}.${LIBCF_PATCH_SRC}" >&5
+echo "$as_me: libcf ..... building library ${LIBCF_MAJOR_SRC}.${LIBCF_MINOR_SRC}.${LIBCF_PATCH_SRC}" >&6;}
 fi
 if test ${BUILDQT} == "yes" ; then
     { echo "$as_me:$LINENO: Qt libraries not found... building library ${QT_MAJOR_SRC}.${QT_MINOR_SRC}.${QT_PATCH_SRC}" >&5

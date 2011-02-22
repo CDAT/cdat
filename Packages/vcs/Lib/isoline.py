@@ -598,7 +598,7 @@ class Gi(object,AutoAPI.AutoAPI):
         self._scale=getmember(self, 'scale')
         self._angle=getmember(self, 'angle')
         self._spacing=getmember(self, 'spacing')
-        self.info=AutoAPI.Info()
+        self.info=AutoAPI.Info(self)
         self.info.expose=['ALL']
         #self.info.hide+=["fillareastyle","fillareaindices"]
         self.__doc__ = self.__doc__ % (xmldocs.graphics_method_core,xmldocs.linesdoc,xmldocs.textsdoc)

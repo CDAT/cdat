@@ -88,6 +88,7 @@ nocleaninstall:
 	git submodule init
 	git submodule update
 	mkdir -p @prefix@
+	mkdir -p @prefix@/lib
 	mkdir -p @EXTERNALS@
 	mkdir -p @EXTERNALS@/lib
 	mkdir -p @EXTERNALS@/bin
@@ -198,7 +199,7 @@ ifeq (@FFMPEG@,no)
 endif
 ifeq (@COMPILE_CAIRO@,yes)
 	@echo "Building cairo"
-	$(call dobuild,@CAIRO_URL@,@CAIRO_GZ@,@EXTERNALS@)
+	$(call dobuild,@CAIRO_URL@,@CAIRO_GZ@,@EXTERNALS@,, --disable-gtk )
 endif
 ifeq (@COMPILE_HDF@,yes)
 	@echo "Building hdf4"
@@ -216,6 +217,10 @@ ifeq (@COMPILE_NC@,yes)
 	@echo "Building netcdf"
 	$(call dobuild,@NC4_URL@,@NC4_GZ@,@EXTERNALS@/NetCDF,@NC_FORTRAN@,  --enable-netcdf-4 --with-hdf5=@HDF5LOC@)
 endif
+ifeq (@COMPILE_LIBCF@,yes)
+	@echo "Building libcf"
+	$(call dobuild,@LIBCF_URL@,@LIBCF_GZ@,@EXTERNALS@/libcf,,  --enable-shared --with-hdf5=@HDF5LOC@ --with-netcdf=@NC4LOC@)
+endif
 ifeq (@COMPILE_R@,yes)
 	@echo "Building R"
 	$(call dobuild,@R_URL@,@R_GZ@,@EXTERNALS@)
@@ -227,6 +232,10 @@ endif
 ifeq (@BUILDQT@,yes)
 	@echo "Building Qt (extremely long, several hours, we recommend downloading the binaries from @QT_URL@ !)"
 	$(call dobuild,@QT_URL@,@QT_GZ@,@EXTERNALS@,, @QTCONFIGOPT@ < ../../exsrc/src/o.txt )
+endif
+ifeq (@NUMPY@,yes)
+	@echo "Building numpy"
+	$(call dobuildpy,,@NUMPY_URL@,@NUMPY_GZ@,@prefix@,)
 endif
 ifeq (@BUILDVIS@,yes)
 	@echo "Building SIP, "${PYVER}
@@ -242,10 +251,6 @@ endif
 ifeq (@SETUPTOOLS@,yes)
 	@echo "Building setuptools"
 	$(call dobuildpy,,@SETUPTOOLS_URL@,@SETUPTOOLS_GZ@,@prefix@,)
-endif
-ifeq (@NUMPY@,yes)
-	@echo "Building numpy"
-	$(call dobuildpy,,@NUMPY_URL@,@NUMPY_GZ@,@prefix@,)
 endif
 ifeq (@PyOpenGL@,yes)
 	@echo "Building PyOpenGL"

@@ -28,6 +28,7 @@ from tvariable import asVariable
 from cdmsNode import CdDatatypes
 import convention
 import typeconv
+import AutoAPI
 try:
     import cache
 except ImportError:
@@ -158,6 +159,20 @@ def createDataset(path,template=None):
 #   or LDAP URL of a catalog dataset entry.
 # 'mode' is 'r', 'r+', 'a', or 'w'
 def openDataset(uri,mode='r',template=None,dods=1,dpath=None):
+    """
+    Options:::
+mode :: (str) ('r') mode to open the file in read/write/append
+template :: (NoneType) (None) ???
+dods :: (int) (1) ???
+dpath :: (NoneType/str) (None) ???
+:::
+Input:::
+uri :: (str) (0) file to open
+:::
+Output:::
+file :: (cdms2.dataset.CdmsFile) (0) file to read from
+:::
+    """
     uri = string.strip(uri)
     (scheme,netloc,path,parameters,query,fragment)=urlparse.urlparse(uri)
     if scheme in ('','file'):
@@ -794,7 +809,7 @@ class Dataset(CdmsObj, cuDataset):
 ##                                             'uri',
 ##                                             'mode')
 
-class CdmsFile(CdmsObj, cuDataset):
+class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
     def __init__(self, path, mode):
         CdmsObj.__init__(self, None)
         cuDataset.__init__(self)
@@ -807,6 +822,7 @@ class CdmsFile(CdmsObj, cuDataset):
                                 'default_variable_name',
                                 'id',
                                 'parent',
+                                'info',
                                 'mode']
         self.___cdms_internals__ = value
         self.id = path
@@ -821,6 +837,7 @@ class CdmsFile(CdmsObj, cuDataset):
         self.grids = {}
         self.xlinks = {}
         self._gridmap_ = {}
+        self.info.expose.update(["sync","close","createAxis","createVirtualAxis","copyAxis","createRectGrid","copyGrid","createVariable","searchPattern","matchPattern","searchPredicate","createVariableCopy","write","getVariable","getVariables","getAxis","getGrid","getBoundsAxis"])
 
         # self.attributes returns the Cdunif file dictionary. 
 ##         self.replace_external_attributes(self._file_.__dict__)
@@ -986,6 +1003,17 @@ class CdmsFile(CdmsObj, cuDataset):
             del(self.attributes[name])
 
     def sync(self):
+        """
+        Options:::
+        nopt :: (str) () test opt
+:::
+  Input:::
+      self (str) (0) self
+  :::
+  Output:::
+   None :: (None) (0) yep
+   :::
+   """
         if self._status_=="closed":
             raise CDMSError, FileWasClosed + self.id
         self._file_.sync()
@@ -1017,6 +1045,24 @@ class CdmsFile(CdmsObj, cuDataset):
     # Set unlimited to true to designate the axis as unlimited
     # Return an axis object.
     def createAxis(self,name,ar,unlimited=0):
+        """
+        Create an axis
+        'name' is the string name of the Axis
+        'ar' is the 1-D data array, or None for an unlimited axis
+        Set unlimited to true to designate the axis as unlimited
+        Return an axis object.
+        :::
+        Options:::
+        unlimited :: (int/True/False) (0) unlimited dimension ?
+        :::
+        Input:::
+        name :: (str) (0) dimension name
+        ar :: (numpy.ndarray/None) (1) 1-D data array containing dimension values, or None for an unlimited axis
+        :::
+        Output:::
+        axis :: (cdms2.axis.FileAxis) (0) file axis whose id is name
+        :::
+        """
         if self._status_=="closed":
             raise CDMSError, FileWasClosed + self.id
         cufile = self._file_
@@ -1060,6 +1106,14 @@ class CdmsFile(CdmsObj, cuDataset):
         the associated coordinate array. On reads the axis will look like
         an axis of type float with values [0.0, 1.0, ..., float(axislen-1)].
         On write attempts an exception is raised.
+        :::
+        Input:::
+        name :: (str) (0) dimension name
+        axislen :: (int) (1) 
+        :::
+        Output:::
+        axis :: (cdms2.axis.FileVirtualAxis) (0) file axis whose id is name
+        :::
         """
         if self._status_=="closed":
             raise CDMSError, FileWasClosed + self.id
@@ -1072,6 +1126,22 @@ class CdmsFile(CdmsObj, cuDataset):
 
     # Copy axis description and data from another axis
     def copyAxis(self, axis, newname=None, unlimited=0, index=None, extbounds=None):
+        """
+        Copy axis description and data from another axis
+        :::
+        Options:::
+        newname :: (None/str) (None) new name for axis
+        unlimited :: (int/True/False) (0) unlimited dimension ?
+        index :: (int/None) (None) :: index
+        extbounds :: (None/numpy.ndarray) (None) :: new bounds to use bounds
+        :::
+        Input:::
+        axis :: (cdms2.axis.FileAxis/cdms2.axis.FileVirtualAxis) (0) axis to copy
+        :::
+        Output:::
+        axis :: (cdms2.axis.FileAxis/cdms2.axis.FileVirtualAxis) (0) copy of input axis
+        :::
+        """
         if newname is None: newname=axis.id
 
         # If the axis already exists and has the same values, return existing
@@ -1121,6 +1191,23 @@ class CdmsFile(CdmsObj, cuDataset):
     # Create an implicit rectilinear grid. lat, lon, and mask are objects.
     # order and type are strings
     def createRectGrid(self, id, lat, lon, order, type="generic", mask=None):
+        """
+        Create an implicit rectilinear grid. lat, lon, and mask are objects. order and type are strings
+        :::
+        Options:::
+        type :: (str) ('generic') grid type
+        mask :: (None/numpy.ndarray) (None) mask
+        :::
+        Input:::
+        id :: (str) (0) grid name
+        lat :: (numpy.ndarray) (1) latitude array
+        lon :: (numpy.ndarray) (2) longitude array
+        order :: (str) (3) order
+        :::
+        Output:::
+        grid :: (cdms2.grid.FileRectGrid) (0) file grid
+        :::
+        """
         grid = FileRectGrid(self, id, lat, lon, order, type, mask)
         self.grids[grid.id] = grid
         gridkey = (lat.id, lon.id, order, None)
@@ -1129,6 +1216,19 @@ class CdmsFile(CdmsObj, cuDataset):
 
     # Copy grid
     def copyGrid(self, grid, newname=None):
+        """
+        Create an implicit rectilinear grid. lat, lon, and mask are objects. order and type are strings
+        :::
+        Options:::
+        newname :: (str/None) (None) new name for grid
+        :::
+        Input:::
+        grid :: (cdms2.grid.FileRectGrid/cdms2.hgrid.FileCurveGrid/cdms2.gengrid.FileGenericGrid) (0) file grid
+        :::
+        Output:::
+        grid :: (cdms2.grid.FileRectGrid/cdms2.hgrid.FileCurveGrid/cdms2.gengrid.FileGenericGrid) (0) file grid
+        :::
+        """
         if newname is None:
             if hasattr(grid,'id'):
                 newname = grid.id
@@ -1174,6 +1274,25 @@ class CdmsFile(CdmsObj, cuDataset):
     #   generalized to allow subintervals of axes and/or grids)
     # Return a variable object.
     def createVariable(self,name,datatype,axesOrGrids,fill_value=None):
+        """
+        Create a variable
+        'name' is the string name of the Variable
+        'datatype' is a CDMS datatype or numpy typecode
+        'axesOrGrids' is a list of axes, grids. (Note: this should be generalized to allow subintervals of axes and/or grids)
+        Return a variable object.
+        :::
+        Options:::
+        fill_value :: (int/float/None) (None) fill_value
+        :::
+        Input:::
+        name :: (str) (0) file variable name
+        datatype :: (str/type) (1) file variable type
+        axesOrGrids :: (*FileAxis/*FileRectGrid) (2) list of FileAxis or FileRectGrid
+        :::
+        Output:::
+        axis :: (cdms2.fvariable.FileVariable) (0) file variable
+        :::
+        """
         if self._status_=="closed":
             raise CDMSError, FileWasClosed + self.id
         cufile = self._file_
@@ -1251,6 +1370,18 @@ class CdmsFile(CdmsObj, cuDataset):
     # else check all nodes in the dataset of class type matching the tag. If tag
     # is None, search the dataset and all objects contained in it.
     def searchPattern(self,pattern,attribute,tag):
+        """
+        Search for a pattern in a string-valued attribute. If attribute is None, search all string attributes. If tag is not None, it must match the internal node tag.
+        :::
+        Input:::
+        pattern :: (str) (0) pattern
+        attribute :: (str/None) (1) attribute name
+        tag :: (str/None) (2) node tag
+        :::
+        Output:::
+        result :: (list) (0) 
+        :::
+        """
         resultlist = []
         if tag is not None:
             tag = string.lower(tag)
@@ -1276,6 +1407,18 @@ class CdmsFile(CdmsObj, cuDataset):
     # else check all nodes in the dataset of class type matching the tag. If tag
     # is None, search the dataset and all objects contained in it.
     def matchPattern(self,pattern,attribute,tag):
+        """
+        Match for a pattern in a string-valued attribute. If attribute is None, search all string attributes. If tag is not None, it must match the internal node tag.
+        :::
+        Input:::
+        pattern :: (str) (0) pattern
+        attribute :: (str/None) (1) attribute name
+        tag :: (str/None) (2) node tag
+        :::
+        Output:::
+        result :: (list) (0) 
+        :::
+        """
         resultlist = []
         if tag is not None:
             tag = string.lower(tag)
@@ -1304,6 +1447,17 @@ class CdmsFile(CdmsObj, cuDataset):
     # in the dataset. If None, it is applied to all objects, including
     # the dataset itself.
     def searchPredicate(self,predicate,tag):
+        """
+        Apply a truth-valued predicate. Return a list containing a single instance: [self] if the predicate is true and either tag is None or matches the object node tag. If the predicate returns false, return an empty list
+        :::
+        Input:::
+        predicate :: (function) (0) predicate
+        tag :: (str/None) (1) node tag
+        :::
+        Output:::
+        result :: (list) (0) 
+        :::
+        """
         resultlist = []
         if tag is not None:
             tag = string.lower(tag)
@@ -1347,6 +1501,24 @@ class CdmsFile(CdmsObj, cuDataset):
         - index is the extended dimension index to write to. The default index is determined
           by lookup relative to the existing extended dimension.
         grid is the variable grid. If none, the value of var.getGrid() is used.
+        :::
+        Input:::
+        var :: (cdms2.tvariable.TransientVariable/cdms2.fvariable.FileVariable) (0) variable to copy
+        :::
+        Options:::
+        id :: (str/None) (None) id of copied variable
+        attributes :: (None/dict) (None) use these attributes instead of the original var ones
+        axes :: (None/[cdms2.axis.AbstractAxis]) (None) list of axes to use for the copied variable
+        extbounds :: (None,numpy.ndarray) (None) Bounds of the (portion of) the extended dimension being written
+        extend :: (int) (0) If 1, define the first dimension as the unlimited dimension. If 0, do not define an unlimited dimension. The default is the define the first dimension as unlimited only if it is a time dimension.
+        fill_value :: (None/float) (None) the missing value flag
+        index :: (None/int) the extended dimension index to write to. The default index is determined by lookup relative to the existing extended dimension
+        newname :: (str/None) id/newname of new variable
+        grid :: (None/cdms2.grid.AbstractGrid) grid to use
+        :::
+        Output:::
+        variable :: (cdms2.fvariable.FileVariable) (0) file variable
+        :::
         """
         if newname is None:
             newname=var.id
@@ -1456,6 +1628,24 @@ class CdmsFile(CdmsObj, cuDataset):
             by lookup relative to the existing extended dimension.
           - dtype is the numpy dtype
           - typecode is deprecated, for backward compatibility only
+        :::
+        Input:::
+        var :: (cdms2.tvariable.TransientVariable/cdms2.fvariable.FileVariable) (0) variable to copy
+        :::
+        Options:::
+        attributes :: (None/dict) (None) use these attributes instead of the original var ones
+        axes :: (None/[cdms2.axis.AbstractAxis]) (None) list of axes to use for the copied variable
+        extbounds :: (None,numpy.ndarray) (None) Bounds of the (portion of) the extended dimension being written
+        id :: (str/None) (None) id of copied variable
+        extend :: (int) (0) If 1, define the first dimension as the unlimited dimension. If 0, do not define an unlimited dimension. The default is the define the first dimension as unlimited only if it is a time dimension.
+        fill_value :: (None/float) (None) the missing value flag
+        index :: (None/int) the extended dimension index to write to. The default index is determined by lookup relative to the existing extended dimension
+        typecode :: (None/str) (None) typdecode to write the variable as
+        dtype :: (None/numpy.dtype) type to write the variable as; overwrites typecode
+        :::
+        Output:::
+        variable :: (cdms2.fvariable.FileVariable) (0) file variable
+        :::
         """
         if _showCompressWarnings:
             if  (Cdunif.CdunifGetNCFLAGS("shuffle")!=0) or (Cdunif.CdunifGetNCFLAGS("deflate")!=0) or (Cdunif.CdunifGetNCFLAGS("deflate_level")!=0):
@@ -1526,27 +1716,69 @@ class CdmsFile(CdmsObj, cuDataset):
         return v
 
     def getVariable(self, id):
-        "Get the variable object with the given id. Returns None if not found."
+        """
+        Get the variable object with the given id. Returns None if not found.
+        :::
+        Input:::
+        id :: (str) (0) id of the variable to get
+        :::
+        Output:::
+        variable :: (cdms2.fvariable.FileVariable/None) (0) file variable
+        :::        
+        """
         return self.variables.get(id)
 
     def getVariables(self, spatial=0):
         """Get a list of variable objects. If spatial=1, only return those
-        axes defined on latitude or longitude, excluding weights and bounds."""
+        axes defined on latitude or longitude, excluding weights and bounds.
+        :::
+        Options:::
+        spatial :: (int/True/False) (0) If spatial=1, only return those axes defined on latitude or longitude, excluding weights and bounds
+        :::
+        Output:::
+        variables :: ([cdms2.fvariable.FileVariable]) (0) file variables
+        :::        
+"""
         retval = self.variables.values()
         if spatial:
             retval = filter(lambda x: x.id[0:7]!="bounds_" and x.id[0:8]!="weights_" and ((x.getLatitude() is not None) or (x.getLongitude() is not None) or (x.getLevel() is not None)), retval)
         return retval
 
     def getAxis(self, id):
-        "Get the axis object with the given id. Returns None if not found."
+        """Get the axis object with the given id. Returns None if not found.
+        :::
+        Input:::
+        id :: (str) (0) id of the axis to get
+        :::
+        Output:::
+        axis :: (cdms2.axis.FileAxis/None) (0) file axis
+        :::        
+        """
         return self.axes.get(id)
 
     def getGrid(self, id):
-        "Get the grid object with the given id. Returns None if not found."
+        """
+        Get the grid object with the given id. Returns None if not found.
+        :::
+        Input:::
+        id :: (str) (0) id of the grid to get
+        :::
+        Output:::
+        grid :: (cdms2.hgrid.FileCurveGrid/cdms2.gengrid.FileGenericGrid/cdms2.grid.FileRectGrid/None) (0) file axis
+        :::        
+        """
         return self.grids.get(id)
 
     def getBoundsAxis(self, n):
-        "Get a bounds axis of length n. Create the bounds axis if necessary."
+        """Get a bounds axis of length n. Create the bounds axis if necessary.
+        :::
+        Input:::
+        n :: (int) (0) ?
+        :::
+        Output:::
+        axis :: (cdms2.axis.FileAxis/cdms2.axis.FileVirtualAxis) bound axis
+        :::
+        """
         if n==2:
             boundid = "bound"
         else:

@@ -7,10 +7,22 @@ from error import CDMSError
 from dataset import openDataset, createDataset
 from tvariable import createVariable
 import numpy
+import AutoAPI
 
-class cuDataset:
+class cuDataset(AutoAPI.AutoAPI):
     "A mixin class to support the old cu interface"
     def __init__ (self):
+        if not hasattr(self,"info"):
+            self.info=AutoAPI.Info(self)
+        if not hasattr(self.info,"expose"):
+            self.info.expose=set()
+        self.info.expose.update([
+            "listall","listattribute","listdimension","listglobal","listvariable",
+            "showglobal","showvariable","showattribute","showdimension","showall",
+            "dimensionobject","dimensionarray",
+            "getdimensionunits","getglobal","getattribute","getslab",
+            "readScripGrid",
+            ])
         self.cleardefault()
 
     def __call__ (self, id, *args, **kwargs):
@@ -52,7 +64,13 @@ class cuDataset:
         self.default_variable("no_default_variable_name_specified")
     
     def listall (self, vname=None, all=None):
-        "Get info about data from the file."
+        """Get info about data from the file.
+        :::
+        Options:::
+        vname :: (str/None) (None) variable name
+        all :: (None/True/False/int) (None) include axes information
+        :::
+        """
         if vname is None: vname = self.default_variable_name
         try:
             m = numpy.get_printoptions()['threshold']
@@ -85,7 +103,12 @@ class cuDataset:
             numpy.set_printoptions (threshold=m)
         
     def listattribute (self, vname=None):
-        "Get attributes of data from the file."
+        """Get attributes of data from the file.
+        :::
+        Options:::
+        vname :: (str/None) (None) variable name
+        :::
+        """
         if vname is None: vname = self.default_variable_name
         v = self._v(vname)
         return v.attributes.keys()
@@ -93,6 +116,10 @@ class cuDataset:
     def listdimension (self, vname=None):
         """Return a list of the dimension names associated with a variable.
            If no argument, return the file.axes.keys()
+        :::
+        Options:::
+        vname :: (str/None) (None) variable name
+        :::
         """
         if vname is None: 
             return self.axes.keys()
@@ -102,17 +129,26 @@ class cuDataset:
         return map (lambda n: getattr(n, 'id'), x)
 
     def listglobal (self):
-        "Returns a list of the global attributes in the file."
+        """Returns a list of the global attributes in the file.
+        :::
+        """
         return self.attributes.keys()
 
     def listvariable (self):
-        "Return a list of the variables in the file."
+        """Return a list of the variables in the file.
+        :::
+        """
         return self.variables.keys()
 
     listvariables = listvariable
 
     def showglobal (self, device=None):
-        "Show the global attributes in the file."
+        """Show the global attributes in the file.
+        :::
+        Options:::
+        device :: (None/file) (None) output device
+        :::
+        """
         if device is None: device=sys.stdout
         device.write("Global attributes in file ")
         device.write(self.id)
@@ -121,7 +157,12 @@ class cuDataset:
         device.write("\n")
 
     def showvariable (self, device=None):
-        "Show the variables in the file."
+        """Show the variables in the file.
+        :::
+        Options:::
+        device :: (None/file) (None) output device
+        :::
+        """
         if device is None: device=sys.stdout
         device.write("Variables in file ")
         device.write(self.id)
@@ -130,7 +171,13 @@ class cuDataset:
         device.write("\n")
 
     def showattribute (self, vname=None, device=None):
-        "Show the attributes of vname."
+        """Show the attributes of vname.
+        :::
+        Options:::
+        vname :: (str/None) (None) variable name
+        device :: (None/file) (None) output device
+        :::
+        """
         if device is None: device=sys.stdout
         if vname is None: vname = self.default_variable_name
         device.write("Attributes of ")
@@ -142,7 +189,13 @@ class cuDataset:
         device.write("\n")
         
     def showdimension (self, vname=None, device=None):
-        "Show the dimension names associated with a variable."
+        """Show the dimension names associated with a variable.
+        :::
+        Options:::
+        vname :: (str/None) (None) variable name
+        device :: (None/file) (None) output device
+        :::
+        """
         if device is None: device=sys.stdout
         if vname is None: vname = self.default_variable_name
         device.write("Dimension names of ")
@@ -154,7 +207,14 @@ class cuDataset:
         device.write("\n")
         
     def showall (self, vname=None, all=None, device=None):
-        "Show a full description of the variable."
+        """Show a full description of the variable.
+        :::
+        Options:::
+        vname :: (str/None) (None) variable name
+        all :: (None/True/False/int) (None) include axes information
+        device :: (None/file) (None) output device
+        :::
+        """
         if device is None: device=sys.stdout
         if vname is None: vname = self.default_variable_name
         alist = self.listall(vname, all=all)
@@ -162,7 +222,18 @@ class cuDataset:
         device.write("\n")
 
     def dimensionobject (self, dname, vname=None):
-        "CDMS axis object for the dimension named dname."
+        """CDMS axis object for the dimension named dname.
+        :::
+        Options:::
+        vname :: (str/None) (None) variable name
+        :::
+        Input:::
+        dname :: (str) (0) dimension name
+        :::
+        Output:::
+        axis :: (cdms2.axis.FileAxis) (0) file axis whose id is vname
+        :::
+        """
         if vname is None: 
             try:
                 return self.axes[dname]
@@ -180,23 +251,62 @@ class cuDataset:
                                 " in file " + self.id + "."
         
     def dimensionarray (self, dname, vname=None):
-        "Values of the dimension named dname."
+        """Values of the dimension named dname.
+        :::
+        Options:::
+        vname :: (str/None) (None) variable name
+        :::
+        Input:::
+        dname :: (str) (0) dimension name
+        :::
+        Output:::
+        axisvalues :: (numpy.ndarray) (0) array with values of axis whose id is vname
+        :::
+        """
         return self.dimensionobject(dname, vname).getValue()
     
     def getdimensionunits (self, dname, vname=None):
-        "Get the units for the given dimension."
+        """Get the units for the given dimension.
+        :::
+        Options:::
+        vname :: (str/None) (None) variable name
+        :::
+        Input:::
+        dname :: (str) (0) dimension name
+        :::
+        Output:::
+        units :: (str) (0) units of axis whose id is vname
+        :::
+        """
         x = self.dimensionobject(dname, vname)
         return x.units
 
     def getglobal (self, attribute):
-        "Get the value of the global attribute."
+        """Get the value of the global attribute.
+        :::
+        Input:::
+        attribute :: (str) (0) global attribute name
+        :::
+        Output:::
+        attribute_value :: (str/int/float/numpy.ndarray) (0) value of requested global attribute
+        :::
+        """
         try:
             return self.attributes[attribute]
         except KeyError:
             return None
     
     def getattribute (self, vname, attribute):
-        "Get the value of attribute for variable vname"
+        """Get the value of attribute for variable vname
+        :::
+        Input:::
+        vname :: (str/None) (0) variable name
+        attribute :: (str) (1) attribute name
+        :::
+        Output:::
+        attribute_value :: (str/int/float/numpy.ndarray) (0) value of requested attribute
+        :::
+        """
         v = self._v(vname)
         return getattr(v, attribute)
             
@@ -210,6 +320,16 @@ class cuDataset:
               (3) a pair of successive arguments giving an interval in
                   world coordinates.
               (4) a cdms-style tuple of world coordinates e.g. (start, stop, 'cc')
+        :::
+        Options:::
+        *args :: (tuple) () tuple of type (val1,val2,'cob') for any given dimension
+        :::
+        Input:::
+        vname :: (str/None) (0) variable name
+        :::
+        Output:::
+        variable :: (cdms2.tvariable.TransientVariable) (0) variable requested
+        :::
         """
         nargs = len(args)
         v = self._v(vname)
@@ -258,7 +378,16 @@ class cuDataset:
         'whichGrid' chooses the grid to read, either "source" or "destination".
         If 'checkGrid' is 1 (default), the grid cells are checked for convexity,
         and 'repaired' if necessary.
-        Returns the grid object."""
+        Returns the grid object.
+        :::
+        Options:::
+        whichGrid :: (str) ('destination') grid to read
+        checkGrid (int) (1) if 1 the grid cells are checked for convexity
+        :::
+        Output:::
+        grid :: (cdms2.hgrid.TransientCurveGrid/cdms2.gengrid.TransientGenericGrid) (0) variable requested
+        :::
+        """
         
         import hgrid, gengrid
 

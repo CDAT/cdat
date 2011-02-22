@@ -59,7 +59,7 @@ import shutil
 from types import *
 import VCS_validation_functions
 import AutoAPI
-from xmldocs import plot_keywords_doc,graphics_method_core,axesconvert,xaxisconvert,yaxisconvert, plot_1D_input, plot_2D_input, plot_output, plot_2_1D_input, create_GM_input, get_GM_input, boxfill_output, isofill_output, isoline_output, yxvsx_output, xyvsy_output, xvsy_output, scatter_output, outfill_output, outline_output
+from xmldocs import plot_keywords_doc,graphics_method_core,axesconvert,xaxisconvert,yaxisconvert, plot_1D_input, plot_2D_input, plot_output, plot_2_1D_input, create_GM_input, get_GM_input, boxfill_output, isofill_output, isoline_output, yxvsx_output, xyvsy_output, xvsy_output, scatter_output, outfill_output, outline_output, plot_2_1D_options
 # Flag to set if the initial attributes file has aready been read in
 called_initial_attributes_flg = 0
 gui_canvas_closed = 0
@@ -835,7 +835,7 @@ class Canvas(object,AutoAPI.AutoAPI):
         #                                                                           #
         #############################################################################
 
-        self.info = AutoAPI.Info()
+        self.info = AutoAPI.Info(self)
         self.info.expose=["plot", "boxfill", "isofill", "isoline", "outfill", "outline", "scatter", "xvsy", "xyvsy", "yxvsx", "createboxfill", "getboxfill", "createisofill", "getisofill", "createisoline", "getisoline", "createyxvsx", "getyxvsx", "createxyvsy", "getxyvsy", "createxvsy", "getxvsy", "createscatter", "getscatter", "createoutfill", "getoutfill", "createoutline", "getoutline"]
         ospath = os.environ["PATH"]
         found = False
@@ -4286,6 +4286,7 @@ Options:::
 %s
 %s
 %s
+%s
 :::
  Input:::
 %s
@@ -4443,7 +4444,7 @@ Options:::
 #            self.canvas_gui.dialog.dialog.transient( self.canvas_gui.top_parent )
             self.canvas_gui.show_data_plot_info( self.canvas_gui.parent, self )
         return a
-    plot.__doc__ = plot.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert,plot_2_1D_input, plot_output)
+    plot.__doc__ = plot.__doc__ % (plot_2_1D_options, plot_keywords_doc,graphics_method_core,axesconvert,plot_2_1D_input, plot_output)
 
     def _create_random_template(self,name):
 ##         icont=1

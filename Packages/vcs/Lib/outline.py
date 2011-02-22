@@ -484,7 +484,7 @@ class Go(object,AutoAPI.AutoAPI):
         self._linewidth=None
         self._datawc_timeunits=getmember(self, 'datawc_timeunits')
         self._datawc_calendar=getmember(self, 'datawc_calendar')
-        self.info=AutoAPI.Info()
+        self.info=AutoAPI.Info(self)
         self.info.expose=['ALL']
         self.__doc__ = self.__doc__ % (xmldocs.graphics_method_core,xmldocs.linedoc,xmldocs.outlinerdoc)
 

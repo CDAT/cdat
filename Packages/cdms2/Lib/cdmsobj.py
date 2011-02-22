@@ -10,6 +10,7 @@ import re
 import string
 import sys
 import types
+import AutoAPI
 #import internattr
 
 # Data types
@@ -439,7 +440,7 @@ def searchPredicate(objlist, predicate, tag=None):
 # Classes
 
 # Generic CDMS object has a tree node, attributes
-class CdmsObj (object):
+class CdmsObj (object,AutoAPI.AutoAPI):
 ##     def __setattr__(self,name,value):
 ##         object.__setattr__(self,name,value)
 ##         if not name in self.__cdms_internals__ and not name[0]=='_':
@@ -463,7 +464,7 @@ class CdmsObj (object):
         
     def __init__(self, node = None):
         if not hasattr(self,'___cdms_internals__'):
-            self.__dict__['___cdms_internals__']=['__cdms_internals__','___cdms_internals__','_node_','parent','attributes','shape']
+            self.__dict__['___cdms_internals__']=['__cdms_internals__','___cdms_internals__','_node_','parent','attributes','shape','info']
         self.attributes={}
         self._node_ = node
         if node is not None:
@@ -496,14 +497,24 @@ class CdmsObj (object):
                                 raise RuntimeError,"%s=%s must be an integer"%(attname,attval)
                 adict[attname] = attval
                 self.attributes[attname] = attval
+        self.info = AutoAPI.Info(self)
+        self.info.expose=set(["dump","searchone","matchone","searchPattern","matchPattern","searchPredicate"])
 
 
     def searchone(self, pattern, attname):
-        """Return true iff the attribute with name attname is a string
+        """Return true if the attribute with name attname is a string
         attribute which contains the compiled regular expression pattern, or
         if attname is None and pattern matches at least one string
         attribute. Return false if the attribute is not found or is not 
         a string.
+        :::
+        Input:::
+        pattern :: (str) (0) pattern
+        attname :: (str/None) (1) attribute name
+        :::
+        Output:::
+        result :: (int/True/False) (0) True if the attribute with name attname is a string attribute which contains the compiled regular expression pattern, or if attname is None and pattern matches at least one string attribute, False if the attribute is not found or is not a string
+        :::
         """
         if attname is None:
             for attval in self.attributes.values():
@@ -521,6 +532,20 @@ class CdmsObj (object):
     # if attname is None and pattern matches at least one string
     # attribute. Return false if the attribute is not found or is not a string
     def matchone(self, pattern, attname):
+        """
+        Return true if the attribute with name attname is a string
+        attribute which matches the compiled regular expression pattern, or
+        if attname is None and pattern matches at least one string
+        attribute. Return false if the attribute is not found or is not a string
+        :::
+        Input:::
+        pattern :: (str) (0) pattern
+        attname :: (str/None) (1) attribute name
+        :::
+        Output:::
+        result :: (int/True/False) (0) True if the attribute with name attname is a string attribute which matches the compiled regular expression pattern, or if attname is None and pattern matches at least one string attribute, False if the attribute is not found or is not a string
+        :::
+        """
         if attname is None:
             for attval in self.attributes.values():
                 if type(attval) is types.StringType and pattern.match(attval) is not None:
@@ -535,6 +560,18 @@ class CdmsObj (object):
     # Search for a pattern in a string-valued attribute. If attribute is None,
     # search all string attributes. If tag is not None, it must match the internal node tag.
     def searchPattern(self,pattern,attribute,tag):
+        """
+        Search for a pattern in a string-valued attribute. If attribute is None, search all string attributes. If tag is not None, it must match the internal node tag.
+        :::
+        Input:::
+        pattern :: (str) (0) pattern
+        attribute :: (str/None) (1) attribute name
+        tag :: (str/None) (2) node tag
+        :::
+        Output:::
+        result :: (list) (0) 
+        :::
+        """
         if tag is None or string.lower(tag)==self._node_.tag:
             if self.searchone(pattern,attribute):
                 return [self]
@@ -546,6 +583,18 @@ class CdmsObj (object):
     # Match a pattern in a string-valued attribute. If attribute is None,
     # search all string attributes. If tag is not None, it must match the internal node tag.
     def matchPattern(self,pattern,attribute,tag):
+        """
+        Match for a pattern in a string-valued attribute. If attribute is None, search all string attributes. If tag is not None, it must match the internal node tag.
+        :::
+        Input:::
+        pattern :: (str) (0) pattern
+        attribute :: (str/None) (1) attribute name
+        tag :: (str/None) (2) node tag
+        :::
+        Output:::
+        result :: (list) (0) 
+        :::
+        """
         if tag is None or string.lower(tag)==self._node_.tag:
             if self.matchone(pattern,attribute):
                 return [self]
@@ -558,6 +607,17 @@ class CdmsObj (object):
     # if the predicate is true and either tag is None or matches the object node tag.
     # If the predicate returns false, return an empty list
     def searchPredicate(self,predicate,tag):
+        """
+        Apply a truth-valued predicate. Return a list containing a single instance: [self] if the predicate is true and either tag is None or matches the object node tag. If the predicate returns false, return an empty list
+        :::
+        Input:::
+        predicate :: (function) (0) predicate
+        tag :: (str/None) (1) node tag
+        :::
+        Output:::
+        result :: (list) (0) 
+        :::
+        """
         if tag is None or string.lower(tag)==self._node_.tag:
             try:
                 if apply(predicate,(self,))==1:
@@ -572,7 +632,16 @@ class CdmsObj (object):
         """ dump(self,path=None,format=1)
         Dump an XML representation of this object to a file.
         'path' is the result file name, None for standard output.
-        'format'==1 iff the file is formatted with newlines for readability"""
+        'format'==1 if the file is formatted with newlines for readability
+        :::
+        Input:::
+          path :: (None) (0) result file name, None for standard output
+          format :: (int) (1) 1 if the file is formatted with newlines for readability
+        :::
+        Output:::
+        None :: (None) (0) nothing returned
+        :::
+        """
         if self._node_ is None:
             raise CDMSError, "No tree node found"
         self._node_.dump(path,format)

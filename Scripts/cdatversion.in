@@ -1,0 +1,2 @@
+#!/usr/bin/env sh
+exec @PYTHON@ -c "import cdat_info ; print cdat_info.Version"
