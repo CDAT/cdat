@@ -19,10 +19,6 @@ else()
   endif(APPLE)
 endif()
 
-if(NOT CONFIGURE_ARGS)
-  set(CONFIGURE_ARGS "")
-endif()
-
 execute_process(
   COMMAND sh configure --prefix=${INSTALL_DIR} ${CONFIGURE_ARGS}
   WORKING_DIRECTORY "${WORKING_DIR}"
