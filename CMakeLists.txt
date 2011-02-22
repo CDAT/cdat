@@ -215,7 +215,7 @@ set(VTK_DEPENDENCIES zlib png jpeg xml)
 set(cmcurl_DEPENDENCIES)
 set(cdat_DEPENDENCIES VTK Insight BatchMake OpenIGTLink teem cmcurl)
 set(Cairo_DEPENDENCIES png fontconfig freetype pixman)
-set(HDF4_DEPENDENCIES zlib)
+set(HDF4_DEPENDENCIES zlib jpeg)
 set(HDF5_DEPENDENCIES zlib)
 
 #-----------------------------------------------------------------------------
