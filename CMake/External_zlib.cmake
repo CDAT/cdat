@@ -38,14 +38,14 @@ else()
     PATCH_COMMAND ${CMAKE_COMMAND} -E remove <SOURCE_DIR>/zconf.h
     BUILD_IN_SOURCE 1
     PATCH_COMMAND ""
-    CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR>
+    CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
   )
 
 endif()
 
 set(ZLIB_INCLUDE_DIR ${zlib_install}/include)
 
-if(CMAKE_CONFIGURATION_TYPES OR CMAKE_BUILD_TYPE)
+if(WIN32)
   set(ZLIB_LIBRARY optimized ${zlib_install}/lib/zlib${_LINK_LIBRARY_SUFFIX} debug ${zlib_install}/lib/zlibd${_LINK_LIBRARY_SUFFIX})
 else()
   set(ZLIB_LIBRARY ${ZLIB_LIBRARY_PATH}/libz${_LINK_LIBRARY_SUFFIX})
