@@ -224,9 +224,9 @@ class QPlotView(QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
         self.selectedVars = []
         self.root=parent.root
-        self.canvas=[]
+        self.root.canvas=[]
         for i in range(4):
-            self.canvas.append(vcs.init())
+            self.root.canvas.append(vcs.init())
         # Init layout
         vbox = QtGui.QVBoxLayout()
         vbox.setMargin(0)
@@ -317,12 +317,12 @@ class QPlotView(QtGui.QWidget):
             else:
                 self.root.record("## Clearing vcs canvas %i" % icanvas)
                 self.root.record("vcs_canvas[%i].clear()" % icanvas)
-                self.canvas[icanvas].clear()
+                self.root.canvas[icanvas].clear()
                 #For now dirty plot_args
 
                 self.root.record("## Plotting onto canvas %i" % icanvas)
                 self.root.record("vcs_canvas[%i].plot(%s)" % (icanvas,plot_args))
-                self.canvas[icanvas].plot(*var)
+                self.root.canvas[icanvas].plot(*var)
         else:
             print "Don't Know how to plot this yet"
 
