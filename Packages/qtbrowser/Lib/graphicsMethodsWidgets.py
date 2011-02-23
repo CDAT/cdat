@@ -18,10 +18,26 @@ class VCSGMs():
             setattr(self.gm,a,self.originalValues[a])
         self.initValues()
 
+    def getOrCreateGMString(self,canvas=0,method = "get", name = None, original=""):
+        if original != "":
+            original=", '%s'" % original
+        if name is None:
+            name = self.gm.name
+        if isinstance(self.gm,vcs.boxfill.Gfb):
+            return "gm = vcs_canvas[%i].%sboxfill('%s'%s)\n" % (canvas,method,name,original)
+        elif isinstance(self.gm,vcs.isofill.Gfi):
+            return "gm = vcs_canvas[%i].%sisofill('%s'%s)\n" % (canvas,method,name,original)
+        elif isinstance(self.gm,vcs.isoline.Gi):
+            return "gm = vcs_canvas[%i].%sisoline('%s'%s)\n" % (canvas,method,name,original)
+        elif isinstance(self.gm,vcs.meshfill.Gfm):
+            return "gm = vcs_canvas[%i].%smeshfill('%s'%s)\n" % (canvas,method,name,original)
+
+    def getGMString(self,canvas=0):
+        return self.getOrCreateGMString(canvas)
+    
     def changesString(self):
         rec = "## Change Graphics method attributes\n"
-        if isinstance(self.gm,vcs.boxfill.Gfb):
-           rec+="gm = vcs_canvas[%i].getboxfill('%s')\n" % (0,self.gm.name)
+        rec += self.getGMString()
         for a in self.gmAttributes:
             if self.originalValues[a]!=getattr(self.gm,a):
                 rec+="gm.%s = %s\n" % (a,repr(getattr(self.gm,a)))
@@ -91,7 +107,7 @@ class VCSGMs():
         layout.addWidget(ticks)
 
         proj = QFramedWidget('Projection and Axes')
-        self.projection = proj.addLabeledComboBox("Projection",self.parent.root.tabView.widget(1).canvas[0].listelements("projection"))
+        self.projection = proj.addLabeledComboBox("Projection",self.root.canvas[0].listelements("projection"))
         self.projection.setToolTip("Choose Graphics Method Projection")
         self.projedit = proj.addButton("Edit",newRow=False)
         self.projedit.setToolTip('Edit projection properties')
@@ -1033,10 +1049,10 @@ class QMeshfillEditor(QtGui.QScrollArea,VCSGMs,VCSGMRanges):
         self.parent=parent
         self.root=parent.root
         self.gmAttributes = [ 'datawc_calendar', 'datawc_timeunits', 'datawc_x1', 'datawc_x2', 'datawc_y1', 'datawc_y2', 'projection', 'xaxisconvert', 'xmtics1', 'xmtics2', 'xticlabels1', 'xticlabels2', 'yaxisconvert', 'ymtics1', 'ymtics2', 'yticlabels1', 'yticlabels2','levels','ext_1', 'ext_2', 'fillareacolors', 'fillareaindices', 'fillareastyle', 'legend', 'missing', 'mesh','wrap']
-        self.gm = parent.root.tabView.widget(1).canvas[0].getmeshfill(gm)
+        self.gm = self.root.canvas[0].getmeshfill(gm)
         self.saveOriginalValues()
         self.setupCommonSection()
-    
+
         # General Settings
         genSettings = QFramedWidget('Mesh Settings')
         self.xWrap = genSettings.addLabeledLineEdit('X Wrap:')
@@ -1054,7 +1070,7 @@ class QMeshfillEditor(QtGui.QScrollArea,VCSGMs,VCSGMRanges):
                                                              newRow = False)
         self.legendLineEdit = generalSettings.addLabeledLineEdit('Legend Labels:')
         vbox.addWidget(generalSettings)
-        
+
         self.isoSettings = QFramedWidget('Levels Range Settings')
 
         self.rangeSettings(self.isoSettings)
@@ -1123,7 +1139,7 @@ class QIsofillEditor(QtGui.QScrollArea,VCSGMs,VCSGMRanges):
         self.parent=parent
         self.root=parent.root
         self.gmAttributes = [ 'datawc_calendar', 'datawc_timeunits', 'datawc_x1', 'datawc_x2', 'datawc_y1', 'datawc_y2', 'levels','ext_1', 'ext_2', 'fillareacolors', 'fillareaindices', 'fillareastyle', 'legend', 'missing', 'projection', 'xaxisconvert', 'xmtics1', 'xmtics2', 'xticlabels1', 'xticlabels2', 'yaxisconvert', 'ymtics1', 'ymtics2', 'yticlabels1', 'yticlabels2']
-        self.gm = parent.root.tabView.widget(1).canvas[0].getisofill(gm)
+        self.gm = self.root.canvas[0].getisofill(gm)
         self.saveOriginalValues()
         self.setupCommonSection()
 
@@ -1193,7 +1209,7 @@ class QIsolineEditor(QtGui.QScrollArea,VCSGMs,VCSGMRanges):
         self.parent=parent
         self.root=parent.root
         self.gmAttributes = [ 'datawc_calendar', 'datawc_timeunits', 'datawc_x1', 'datawc_x2', 'datawc_y1', 'datawc_y2', 'projection', 'xaxisconvert', 'xmtics1', 'xmtics2', 'xticlabels1', 'xticlabels2', 'yaxisconvert', 'ymtics1', 'ymtics2', 'yticlabels1', 'yticlabels2', 'level', 'line','linecolors','linewidths','text','textcolors','clockwise','scale','angle','spacing']
-        self.gm = parent.root.tabView.widget(1).canvas[0].getisoline(gm)
+        self.gm = self.root.canvas[0].getisoline(gm)
         self.saveOriginalValues()
         self.setupCommonSection()
 
@@ -1498,7 +1514,7 @@ class QBoxfillEditor(QtGui.QScrollArea,VCSGMs,VCSGMRanges):
         self.parent=parent
         self.root=parent.root
         self.gmAttributes = ['boxfill_type', 'color_1', 'datawc_calendar', 'datawc_timeunits', 'datawc_x1', 'datawc_x2', 'datawc_y1', 'datawc_y2', 'levels','ext_1', 'ext_2', 'fillareacolors', 'fillareaindices', 'fillareastyle', 'legend', 'level_1', 'level_2', 'missing', 'projection', 'xaxisconvert', 'xmtics1', 'xmtics2', 'xticlabels1', 'xticlabels2', 'yaxisconvert', 'ymtics1', 'ymtics2', 'yticlabels1', 'yticlabels2']
-        self.gm = parent.root.tabView.widget(1).canvas[0].getboxfill(gm)
+        self.gm = self.root.canvas[0].getboxfill(gm)
         self.saveOriginalValues()
         
         # 'define boxfill attributes + boxfill type radio buttons'

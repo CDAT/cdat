@@ -2811,8 +2811,6 @@ Options:::
 %s
 %s
 %s
-:::
- Input:::
 %s
     :::
  Output:::
@@ -3037,8 +3035,6 @@ Options:::
 %s
 %s
 %s
-:::
- Input:::
 %s
     :::
  Output:::
@@ -4287,8 +4283,6 @@ Options:::
 %s
 %s
 %s
-:::
- Input:::
 %s
     :::
  Output:::
