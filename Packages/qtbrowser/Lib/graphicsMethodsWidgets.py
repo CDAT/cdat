@@ -7,6 +7,7 @@ import vcs
 
 indentSpacing = 10
 
+
 class VCSGMs():
     def saveOriginalValues(self):
         self.originalValues={}
@@ -31,6 +32,22 @@ class VCSGMs():
             return "gm = vcs_canvas[%i].%sisoline('%s'%s)\n" % (canvas,method,name,original)
         elif isinstance(self.gm,vcs.meshfill.Gfm):
             return "gm = vcs_canvas[%i].%smeshfill('%s'%s)\n" % (canvas,method,name,original)
+        elif isinstance(self.gm,vcs.outfill.Gfo):
+            return "gm = vcs_canvas[%i].%soutfill('%s'%s)\n" % (canvas,method,name,original)
+        elif isinstance(self.gm,vcs.outline.Go):
+            return "gm = vcs_canvas[%i].%soutline('%s'%s)\n" % (canvas,method,name,original)
+        elif isinstance(self.gm,vcs.scatter.GSp):
+            return "gm = vcs_canvas[%i].%sscatter('%s'%s)\n" % (canvas,method,name,original)
+        elif isinstance(self.gm,vcs.xyvsy.GXy):
+            return "gm = vcs_canvas[%i].%sxyvsy('%s'%s)\n" % (canvas,method,name,original)
+        elif isinstance(self.gm,vcs.yxvsx.GYx):
+            return "gm = vcs_canvas[%i].%syxvsx('%s'%s)\n" % (canvas,method,name,original)
+        elif isinstance(self.gm,vcs.xvsy.GXY):
+            return "gm = vcs_canvas[%i].%sxvsy('%s'%s)\n" % (canvas,method,name,original)
+        elif isinstance(self.gm,vcs.vector.Gv):
+            return "gm = vcs_canvas[%i].%svector('%s'%s)\n" % (canvas,method,name,original)
+        elif isinstance(self.gm,vcs.taylor.Gtd):
+            return "gm = vcs_canvas[%i].%staylordiagram('%s'%s)\n" % (canvas,method,name,original)
 
     def getGMString(self,canvas=0):
         return self.getOrCreateGMString(canvas)
@@ -60,14 +77,16 @@ class VCSGMs():
             if str(self.projection.itemText(i))==self.gm.projection:
                 self.projection.setCurrentIndex(i)
                 break
-        for b in self.xaxisconvert.buttonGroup.buttons():
-            if str(b.text()) == self.gm.xaxisconvert:
-                b.setChecked(True)
-                break
-        for b in self.yaxisconvert.buttonGroup.buttons():
-            if str(b.text()) == self.gm.yaxisconvert:
-                b.setChecked(True)
-                break
+        if "xaxisconvert" in self.gmAttributes:
+            for b in self.xaxisconvert.buttonGroup.buttons():
+                if str(b.text()) == self.gm.xaxisconvert:
+                    b.setChecked(True)
+                    break
+        if "yaxisconvert" in self.gmAttributes:
+            for b in self.yaxisconvert.buttonGroup.buttons():
+                if str(b.text()) == self.gm.yaxisconvert:
+                    b.setChecked(True)
+                    break
 
     def setupCommonSection(self):
         sc=QtGui.QScrollArea()
@@ -112,10 +131,12 @@ class VCSGMs():
         self.projedit = proj.addButton("Edit",newRow=False)
         self.projedit.setToolTip('Edit projection properties')
         self.projedit.setEnabled(False)
-        self.xaxisconvert = proj.addRadioFrame("X axis transform",["linear","log10","ln","exp","area_wt"])
-        self.xaxisconvert.setToolTip("Choose X (horizontal) axis representation")
-        self.yaxisconvert = proj.addRadioFrame("Y axis transform",["linear","log10","ln","exp","area_wt"])
-        self.yaxisconvert.setToolTip("Choose Y (vertical) axis representation")
+        if "xaxisconvert" in self.gmAttributes:
+            self.xaxisconvert = proj.addRadioFrame("X axis transform",["linear","log10","ln","exp","area_wt"])
+            self.xaxisconvert.setToolTip("Choose X (horizontal) axis representation")
+        if "yaxisconvert" in self.gmAttributes:
+            self.yaxisconvert = proj.addRadioFrame("Y axis transform",["linear","log10","ln","exp","area_wt"])
+            self.yaxisconvert.setToolTip("Choose Y (vertical) axis representation")
         layout.addWidget(proj)
         sc.setWidget(frame)
         self.parent.parent.editorTab.addTab(sc,"'%s' World Coordinates and Axes" % self.gm.name)
@@ -160,9 +181,73 @@ class VCSGMs():
         self.gm.datawc_y2 = eval(str(self.datawc_y2.text()))
         ## self.gm.datawc_time_units = 
         ## self.gm.datawc_time_calendar =
-        self.gm.xaxisconvert = str(self.xaxisconvert.buttonGroup.button(self.xaxisconvert.buttonGroup.checkedId()).text())
-        self.gm.yaxisconvert = str(self.yaxisconvert.buttonGroup.button(self.yaxisconvert.buttonGroup.checkedId()).text())
+        if "xaxisconvert" in self.gmAttributes:
+            self.gm.xaxisconvert = str(self.xaxisconvert.buttonGroup.button(self.xaxisconvert.buttonGroup.checkedId()).text())
+        if "yaxisconvert" in self.gmAttributes:
+            self.gm.yaxisconvert = str(self.yaxisconvert.buttonGroup.button(self.yaxisconvert.buttonGroup.checkedId()).text())
+
+class VCSGMs1D:
+
+    def setupLines(self, target):
+        self.lineType = target.addLabeledComboBox('Type: ',
+                                                  ["solid", "dash", "dot", "dash-dot", "long-dash"])
+        self.lineColor = target.addLabeledSpinBox('Color: ',0,255)
+        self.lineWidth = target.addLabeledSpinBox('Width: ',0,300)
+        self.lineType.setToolTip("Set the line types. The line values can either be\n('solid', 'dash', 'dot', 'dash-dot', 'long-dash')\nor (0, 1, 2, 3, 4) or None")
+        self.lineColor.setToolTip("Set the line colors. The line color attribute\n values must be integers ranging from 0 to 255.\n(e.g., 16, 32, 48, 64) ")
+        self.lineWidth.setToolTip("Set the line width. The line width is an integer\nor float value in the range (1 to 300)")
+        self.initLineValues()
         
+    def setupMarkers(self, target):
+        self.markerType = target.addLabeledComboBox('Type:',
+                                                     ['dot', 'plus', 'star', 'circle', 'cross', 'diamond','triangle_up', 'triangle_down', 'triangle_left','triangle_right', 'square', 'diamond_fill','triangle_up_fill', 'triangle_down_fill','triangle_left_fill', 'triangle_right_fill','square_fill'])
+        self.markerColor = target.addLabeledSpinBox('Color:',0,255)
+        self.markerSize = target.addLabeledSpinBox('Sizes:',0,300)
+        self.markerType.setToolTip("Set the marker types. The marker values can either\nbe (None, 'dot', 'plus', 'star', 'circle', 'cross', 'diamond',\n'triangle_up', 'triangle_down', 'triangle_left',\n'triangle_right', 'square', 'diamond_fill',\n'triangle_up_fill', 'triangle_down_fill',\n'triangle_left_fill', 'triangle_right_fill',\n'square_fill') or (0, 1, 2, 3, 4, 5, 6, 7, 8, 9,\n10, 11, 12, 13, 14, 15, 16, 17) or None. ")
+        self.markerColor.setToolTip("Set the marker colors. The marker color attribute\nvalues must be integers ranging from 0 to 255.")
+        self.markerSize.setToolTip("Set the marker sizes. The marker size attribute\nvalues must be integers or floats ranging  from\n1 to 300. " )
+        self.initMarkerValues()
+
+    def initLineValues(self):
+        self.lineType.setCurrentIndex(0)
+        for i in range(self.lineType.count()):
+            if str(self.lineType.itemText(i))==self.gm.line:
+                self.lineType.setCurrentIndex(i)
+                break
+        if self.gm.linecolor is None:
+            self.lineColor.setValue(241)
+        else:
+            self.lineColor.setValue(self.gm.linecolor)
+        if self.gm.linewidth is None:
+            self.lineWidth.setValue(1)
+        else:
+            self.lineWidth.setValue(self.gm.linewidth)
+        
+    def initMarkerValues(self):
+        self.markerType.setCurrentIndex(0)
+        for i in range(self.markerType.count()):
+            if str(self.markerType.itemText(i))==self.gm.marker:
+                self.markerType.setCurrentIndex(i)
+                break
+        if self.gm.markercolor is None:
+            self.markerColor.setValue(241)
+        else:
+            self.markerColor.setValue(self.gm.markercolor)
+        if self.gm.markersize is None:
+            self.markerSize.setValue(1)
+        else:
+            self.markerSize.setValue(self.gm.markersize)
+
+    def applyMarkerChanges(self):
+        self.gm.marker=str(self.markerType.currentText())
+        self.gm.markersize=int(self.markerSize.text())
+        self.gm.markercolor=int(self.markerColor.text())
+        
+    def applyLineChanges(self):
+        self.gm.line=str(self.lineType.currentText())
+        self.gm.linewidth=int(self.lineWidth.text())
+        self.gm.linecolor=int(self.lineColor.text())
+
 class VCSGMRanges:
     def rangeSettings(self,target):
         target.addWidget(QtGui.QLabel('Define level range:'))
@@ -474,29 +559,37 @@ class QGraphicsMethodAttributeWindow(QtGui.QWidget):
         button.setText(text)
         return button
 
-class QVectorEditor(QtGui.QScrollArea):
+
+class QVectorEditor(VCSGMs1D,VCSGMs,QtGui.QScrollArea):
     def __init__(self, parent=None, gm=None):
         QtGui.QScrollArea.__init__(self, parent)
         vbox = QtGui.QVBoxLayout()
 
-        frame = QFramedWidget()
-        self.lineType = frame.addLabeledComboBox('Vector Line Type:',
-                                                 ['solid', 'dash', 'dot','dash-dot', 'long-dash'])
-        self.colorIndex = frame.addLabeledSpinBox('Vector Line Color Index',
-                                                  0, 255)
-        self.scale = frame.addLabeledDoubleSpinBox('Vector Scale', -1e20, 1e20, .1)
-        self.alignment = frame.addLabeledComboBox('Vector Alignment:',
+        # Create Widgets
+        frame = QtGui.QFrame()
+        frame.setLayout(vbox)
+        self.parent=parent
+        self.root=parent.root
+        self.gmAttributes = [ 'datawc_calendar', 'datawc_timeunits', 'datawc_x1', 'datawc_x2', 'datawc_y1', 'datawc_y2', 'projection', 'xaxisconvert', 'xmtics1', 'xmtics2', 'xticlabels1', 'xticlabels2', 'yaxisconvert', 'ymtics1', 'ymtics2', 'yticlabels1', 'yticlabels2','line','linecolor','linewidth','scale','alignment','reference','type']
+        self.gm = self.root.canvas[0].getvector(gm)
+        self.saveOriginalValues()
+        self.setupCommonSection()
+
+        lines = QFramedWidget("Line Settings")
+        self.setupLines(lines)
+        vbox.addWidget(lines)
+        vector = QFramedWidget("Vector Settings")
+        self.scale = vector.addLabeledDoubleSpinBox('Vector Scale', -1e20, 1e20, .1)
+        self.alignment = vector.addLabeledComboBox('Vector Alignment:',
                                                   ['head', 'center', 'tail'])
-        self.headType = frame.addLabeledComboBox('Vector Head Type:',
+        self.headType = vector.addLabeledComboBox('Vector Head Type:',
                                                  ['arrows', 'barbs', 'solidarrows'])
-        self.reference = frame.addLabeledDoubleSpinBox('Vector reference', -1e20, 1e20, .1)
+        self.reference = vector.addLabeledDoubleSpinBox('Vector reference', -1e20, 1e20, .1)
     
-        vbox.addWidget(frame)
+        vbox.addWidget(vector)
 
         # Init values & set tool tips
         self.initValues()
-        self.lineType.setToolTip("Select the vector line type.")
-        self.colorIndex.setToolTip("Select the vector color index.")
         self.scale.setToolTip("Select the vector scale factor.")
         self.alignment.setToolTip("Set the vector alignment.")
         self.headType.setToolTip("Set the vector head type.")
@@ -509,12 +602,26 @@ class QVectorEditor(QtGui.QScrollArea):
         self.setWidget(widgetWrapper)
 
     def initValues(self):
-        # TODO: don't init w/ hardcoded values?
-        self.colorIndex.setValue(241)
-        self.scale.setValue(1)
-        self.alignment.setCurrentIndex(1)
-        self.headType.setCurrentIndex(0)
-        self.reference.setValue(1e20)
+        self.initCommonValues()
+        self.initLineValues()
+        self.scale.setValue(self.gm.scale)
+        for i in range(self.headType.count()):
+            if str(self.headType.itemText(i))==self.gm.type:
+                self.headType.setCurrentIndex(i)
+                break
+        for i in range(self.alignment.count()):
+            if str(self.alignment.itemText(i))==self.gm.alignment:
+                self.alignment.setCurrentIndex(i)
+                break
+        self.reference.setValue(self.gm.reference)
+
+    def applyChanges(self):
+        self.applyCommonChanges()
+        self.applyLineChanges()
+        self.gm.alignment = str(self.alignment.currentText())
+        self.gm.type = str(self.headType.currentText())
+        self.gm.reference = float(self.reference.value())
+        self.gm.scale = float(self.scale.value())
 
 class QTaylorDiagramEditor(QtGui.QScrollArea):
     def __init__(self, parent=None, gm=None):
@@ -887,157 +994,213 @@ class QTaylorInterfaceTab(QtGui.QScrollArea):
     def baseChangedEvent(self, int):
         return # TODO
 
-class QScatterEditor(QtGui.QScrollArea):
+class QScatterEditor(VCSGMs1D,VCSGMs,QtGui.QScrollArea):
     def __init__(self, parent=None, gm=None):
         QtGui.QScrollArea.__init__(self, parent)
         vbox = QtGui.QVBoxLayout()
 
         # Create Widgets
-        frame = QFramedWidget()
-        markerTypes = ["dot", "plus", "star", "circle", "cross", "diamond", "triangle_up",
-                       "triangle_down", "triangle_left", "triangle_right", "square",
-                       "diamond_fill", "triangle_up_fill", "triangle_down_fill",
-                       "triangle_left_fill", "triangle_right_fill", "square_fill"]
-        self.markerType = frame.addLabeledComboBox('Scatter Marker Type:',
-                                                   markerTypes, indent=False)
-        self.colorIndex = frame.addLabeledSpinBox('Scatter Marker Color Index',
-                                                  0, 255, indent=False)
-        self.markerSize = frame.addLabeledSpinBox('Scatter Marker Size',
-                                                  1, 300, indent=False)
+        frame = QtGui.QFrame()
+        frame.setLayout(vbox)
+        self.parent=parent
+        self.root=parent.root
+        self.gmAttributes = [ 'datawc_calendar', 'datawc_timeunits', 'datawc_x1', 'datawc_x2', 'datawc_y1', 'datawc_y2', 'projection', 'xaxisconvert', 'xmtics1', 'xmtics2', 'xticlabels1', 'xticlabels2', 'yaxisconvert', 'ymtics1', 'ymtics2', 'yticlabels1', 'yticlabels2','marker','markercolor','markersize']
+        self.gm = self.root.canvas[0].getscatter(gm)
+        self.saveOriginalValues()
+        self.setupCommonSection()
 
+        markers = QFramedWidget("Markers Settings")
+        self.setupMarkers(markers)
+        vbox.addWidget(markers)
         self.initValues()
+        self.setWidget(frame)
 
-        # Set toolTips
-        self.markerType.setToolTip("Select the scatter marker type. ")
-        self.colorIndex.setToolTip("Select the scatter marker color index. ")
-        self.markerSize.setToolTip("Select the scatter marker size. ")
-
-        vbox.addWidget(frame)
-        vbox.setAlignment(frame, QtCore.Qt.AlignTop)
-
-        # Set up the scrollbar
-        widgetWrapper = QtGui.QWidget()
-        widgetWrapper.setMinimumWidth(580)        
-        widgetWrapper.setLayout(vbox)
-        self.setWidget(widgetWrapper)
 
     def initValues(self):
-        #  TODO: init w/ non-hardcoded values?        
-        self.colorIndex.setValue(241)
-        self.markerSize.setValue(3)        
+        self.initCommonValues()
+        self.initMarkerValues()
 
-class QOutlineEditor(QtGui.QScrollArea):
-    def __init__(self, parent=None, gm=None):
+    def applyChanges(self):
+        self.applyCommonChanges()
+        self.applyMarkerChanges()
+        
+class Q1DPlotEditor(VCSGMs1D,VCSGMs,QtGui.QScrollArea):
+    def __init__(self, parent=None, gm=None,type="xyvsy"):
         QtGui.QScrollArea.__init__(self, parent)
         vbox = QtGui.QVBoxLayout()
 
         # Create Widgets
-        frame = QFramedWidget()
-        self.lineType = frame.addLabeledComboBox('Outfill Fill Area Style:',
+        frame = QtGui.QFrame()
+        frame.setLayout(vbox)
+        self.parent=parent
+        self.root=parent.root
+        self.gmAttributes = [ 'datawc_calendar', 'datawc_timeunits', 'datawc_x1', 'datawc_x2', 'datawc_y1', 'datawc_y2', 'projection', 'xaxisconvert', 'xmtics1', 'xmtics2', 'xticlabels1', 'xticlabels2', 'yaxisconvert', 'ymtics1', 'ymtics2', 'yticlabels1', 'yticlabels2','line','linecolor','linewidth','marker','markercolor','markersize']
+        if type == "xyvsy":
+            self.gm = self.root.canvas[0].getxyvsy(gm)
+            self.gmAttributes.pop(self.gmAttributes.index("xaxisconvert"))
+        elif type == "yxvsx":
+            self.gm = self.root.canvas[0].getyxvsx(gm)
+            self.gmAttributes.pop(self.gmAttributes.index("yaxisconvert"))
+        elif type == "xvsy":
+            self.gm = self.root.canvas[0].getxvsy(gm)
+        self.saveOriginalValues()
+        self.setupCommonSection()
+
+        lines = QFramedWidget("Lines Settings")
+        self.setupLines(lines)
+        vbox.addWidget(lines)
+        markers = QFramedWidget("Markers Settings")
+        self.setupMarkers(markers)
+        vbox.addWidget(markers)
+        self.initValues()
+        self.setWidget(frame)
+
+
+    def initValues(self):
+        self.initCommonValues()
+        self.initMarkerValues()
+        self.initLineValues()
+
+    def applyChanges(self):
+        self.applyCommonChanges()
+        self.applyMarkerChanges()
+        self.applyLineChanges()
+        
+class QOutlineEditor(VCSGMs,QtGui.QScrollArea):
+    def __init__(self, parent=None, gm=None):
+        QtGui.QScrollArea.__init__(self, parent)
+        vbox = QtGui.QVBoxLayout()
+        frame = QtGui.QFrame()
+        frame.setLayout(vbox)
+        self.parent=parent
+        self.root=parent.root
+        self.gmAttributes = [ 'datawc_calendar', 'datawc_timeunits', 'datawc_x1', 'datawc_x2', 'datawc_y1', 'datawc_y2', 'projection', 'xaxisconvert', 'xmtics1', 'xmtics2', 'xticlabels1', 'xticlabels2', 'yaxisconvert', 'ymtics1', 'ymtics2', 'yticlabels1', 'yticlabels2','linecolor', 'linewidth', 'line', 'outline']
+        self.gm = self.root.canvas[0].getoutline(gm)
+        self.saveOriginalValues()
+        self.setupCommonSection()
+
+        # Create Widgets
+        genSettings = QFramedWidget("Outline Line Settings")
+        self.lineType = genSettings.addLabeledComboBox('Style:',
                                                  ['solid', 'dash', 'dot', 'dash-dot', 'long-dash'],
                                                  indent=False)
-        self.lineColorIndex = frame.addLabeledSpinBox('Outfill Line Color Index:',
+        self.lineColorIndex = genSettings.addLabeledSpinBox('Color:',
                                                       0, 255, indent=False)
-        self.indexValues = frame.addLabeledLineEdit('Outfill Index Values:',
+        self.lineWidth = genSettings.addLabeledSpinBox('Width:',
+                                                      0, 300, indent=False)
+        self.indexValues = genSettings.addLabeledLineEdit('Levels:',
                                                     indent=False)
 
-        # Init Values - TODO: init w/ non-hardcoded values?
-        self.lineColorIndex.setValue(241)
-        self.indexValues.setText('1')
+        vbox.addWidget(genSettings)
 
+        #vbox.setAlignment(frame, QtCore.Qt.AlignTop)
+        self.initValues()
+        self.setWidget(frame)
+        
+    def initValues(self):
+        # Init common area
+        self.initCommonValues()
+        self.indexValues.setText('1')
+        if self.gm.linewidth is None:
+            self.lineWidth.setValue(1)
+        else:
+            self.lineWidth.setValue(selg.gm.linewidth)
+        if self.gm.linecolor is None:
+            self.lineColorIndex.setValue(241)
+        else:
+            self.lineColorIndex.setValue(self.gm.linecolor)
+        for i in range(self.lineType.count()):
+            if str(self.lineType.itemText(i))==self.gm.line:
+                self.lineType.setCurrentIndex(i)
+                break
+        self.indexValues.setText(repr(self.gm.outline))
+        
+    def applyChanges(self):
+        self.applyCommonChanges()
+        try:
+            self.gm.outline=eval(str(self.indexValues.text()))
+        except:
+            self.gm.outline=str(self.indexValues.text())
+        self.gm.linecolor=int(self.lineColorIndex.text())
+        self.gm.linewidth=int(self.lineWidth.text())
+        self.gm.line=str(self.lineType.currentText())
+        
+    def setToolTips(self):
         # Set tool tips
         self.lineType.setToolTip("Select the outline line type. ")
+        self.lineWidth.setToolTip("Enter the line width value. There can only\nbe one value (ranging from 0 to 300).")
         self.lineColorIndex.setToolTip("Enter the line color index value. There can only\nbe one color index value (ranging from 0 to 255).\nIf an error in the color index value occurs, then the\ndefault color value index (i.e., 241) will be used.")
         self.indexValues.setToolTip("Outlines are drawn to enclose the specified values\nin the data array. As few as one, or\nas many as\nten values, can be specified:\noutline=([n1,[n2,[n3,...[n10]...]]]).")        
 
-        vbox.addWidget(frame)
-        vbox.setAlignment(frame, QtCore.Qt.AlignTop)
+        
 
-        # Set up the scrollbar
-        widgetWrapper = QtGui.QWidget()
-        widgetWrapper.setMinimumWidth(580)        
-        widgetWrapper.setLayout(vbox)
-        self.setWidget(widgetWrapper)        
-
-class QOutfillEditor(QtGui.QScrollArea):
+class QOutfillEditor(VCSGMs,QtGui.QScrollArea):
     def __init__(self, parent=None, gm=None):
         QtGui.QScrollArea.__init__(self, parent)
         vbox = QtGui.QVBoxLayout()
 
         # Create Widgets
-        frame = QFramedWidget()
-        self.fillArea = frame.addLabeledComboBox('Outfill Fill Area Style:',
-                                                 ['Solid', 'Hatch', 'Pattern', 'Hallow'],
+        frame = QtGui.QFrame()
+        frame.setLayout(vbox)
+        self.parent=parent
+        self.root=parent.root
+        self.gmAttributes = [ 'datawc_calendar', 'datawc_timeunits', 'datawc_x1', 'datawc_x2', 'datawc_y1', 'datawc_y2', 'projection', 'xaxisconvert', 'xmtics1', 'xmtics2', 'xticlabels1', 'xticlabels2', 'yaxisconvert', 'ymtics1', 'ymtics2', 'yticlabels1', 'yticlabels2','fillareacolor', 'fillareaindex', 'fillareastyle', 'outfill']
+        self.gm = self.root.canvas[0].getoutfill(gm)
+        self.saveOriginalValues()
+        self.setupCommonSection()
+        
+        genSettings = QFramedWidget('Outfill Fill Area Settings')
+        self.fillArea = genSettings.addLabeledComboBox('Style:',
+                                                 ['solid', 'hatch', 'pattern', 'hallow'],
                                                  indent=False)
-        self.fillAreaIndex = frame.addLabeledSpinBox('Outfill Fill Area Index:',
-                                                     1, 20, indent=False)
-        self.fillColorIndex = frame.addLabeledSpinBox('Outfill Fill Area Color Index:',
+        self.fillAreaIndex = genSettings.addLabeledSpinBox('Index:',
+                                                     1, 18, indent=False)
+        self.fillColorIndex = genSettings.addLabeledSpinBox('Color:',
                                                       0, 255, indent=False)
-        self.indexValues = frame.addLabeledLineEdit('Outfill Index Values:',
+        self.indexValues = genSettings.addLabeledLineEdit('Levels:',
                                                     indent=False)
-        vbox.addWidget(frame)
-        vbox.setAlignment(frame, QtCore.Qt.AlignTop)
+        vbox.addWidget(genSettings)
+        ## vbox.setAlignment(frame, QtCore.Qt.AlignTop)
 
         self.initValues()
 
+        self.setWidget(frame)
+
+    def initValues(self):
+        # Init common area
+        self.initCommonValues()
+        if self.gm.fillareaindex is None:
+            self.fillAreaIndex.setValue(1)
+        else:
+            self.fillAreaIndex.setValue(selg.gm.fillareaindex)
+        if self.gm.fillareacolor is None:
+            self.fillColorIndex.setValue(241)
+        else:
+            self.fillColorIndex.setValue(self.gm.fillareacolor)
+        for i in range(self.fillArea.count()):
+            if str(self.fillArea.itemText(i))==self.gm.fillareastyle:
+                self.fillArea.setCurrentIndex(i)
+                break
+        self.indexValues.setText(repr(self.gm.outfill))
+
+    def applyChanges(self):
+        self.applyCommonChanges()
+        try:
+            self.gm.outfill=eval(str(self.indexValues.text()))
+        except:
+            self.gm.outfill=str(self.indexValues.text())
+        self.gm.fillareacolor=int(self.fillColorIndex.text())
+        self.gm.fillareaindex = int(self.fillAreaIndex.text())
+        self.gm.fillareastyle=str(self.fillArea.currentText())
+        
+    def setToolTips(self):
         # Set ToolTips
         self.fillArea.setToolTip("Select the outfill fill area style type. ")
         self.fillAreaIndex.setToolTip("Select the outfill fill area index value. ")
         self.fillColorIndex.setToolTip("Enter the fillarea color index value. There can only\nbe one color index value (ranging from 0 to 255).\nIf an error in the color index value occurs, then the\ndefault color value index (i.e., 241) will be used.")
         self.indexValues.setToolTip("Outlines are filled to enclose the selected values\nthat appear in the data array. As few as one, or\nas many as ten values, can be specified:\noutline=([n1,[n2,[n3,...[n10]...]]]).")
 
-        # Set up the scrollbar
-        widgetWrapper = QtGui.QWidget()
-        widgetWrapper.setMinimumWidth(580)        
-        widgetWrapper.setLayout(vbox)
-        self.setWidget(widgetWrapper)
-
-    def initValues(self):
-        # TODO - init w/ non hardcoded values?
-        self.fillAreaIndex.setValue(1)
-        self.fillColorIndex.setValue(241)
-        self.indexValues.setText('1')
         
-class Q1DPlotEditor(QtGui.QScrollArea):
-
-    def __init__(self, parent=None, gm=None):
-        QtGui.QScrollArea.__init__(self, parent)
-        vbox = QtGui.QVBoxLayout()
-
-        frame = QFramedWidget()
-        frame.addWidget(QtGui.QLabel('Define up to 15 values:'), QtCore.Qt.AlignTop)
-        self.lineTypes = frame.addLabeledLineEdit('Line Types: ')
-        self.lineColors = frame.addLabeledLineEdit('Line Colors: ')
-        self.lineWidths = frame.addLabeledLineEdit('Line Widths: ')
-        self.markerTypes = frame.addLabeledLineEdit('Marker Types: ')
-        self.markerColors = frame.addLabeledLineEdit('Marker Colors: ')
-        self.markerSizes = frame.addLabeledLineEdit('Marker Sizes: ')
-
-        self.initValues()
-        self.lineTypes.setToolTip("Set the line types. The line values can either be\n('solid', 'dash', 'dot', 'dash-dot', 'long-dash')\nor (0, 1, 2, 3, 4) or None")
-        self.lineColors.setToolTip("Set the line colors. The line color attribute\n values must be integers ranging from 0 to 255.\n(e.g., 16, 32, 48, 64) ")
-        self.lineWidths.setToolTip("Set the line width. The line width is an integer\nor float value in the range (1 to 100)")
-        self.markerTypes.setToolTip("Set the marker types. The marker values can either\nbe (None, 'dot', 'plus', 'star', 'circle', 'cross', 'diamond',\n'triangle_up', 'triangle_down', 'triangle_left',\n'triangle_right', 'square', 'diamond_fill',\n'triangle_up_fill', 'triangle_down_fill',\n'triangle_left_fill', 'triangle_right_fill',\n'square_fill') or (0, 1, 2, 3, 4, 5, 6, 7, 8, 9,\n10, 11, 12, 13, 14, 15, 16, 17) or None. ")
-        self.markerColors.setToolTip("Set the marker colors. The marker color attribute\nvalues must be integers ranging from 0 to 255.")
-        self.markerSizes.setToolTip("Set the marker sizes. The marker size attribute\nvalues must be integers or floats ranging  from\n1 to 300. " )
-
-        vbox.addWidget(frame)
-        vbox.setAlignment(frame, QtCore.Qt.AlignTop)
-
-        # Set up the scrollbar
-        widgetWrapper = QtGui.QWidget()
-        widgetWrapper.setMinimumWidth(580)
-        widgetWrapper.setLayout(vbox)
-        self.setWidget(widgetWrapper)
-
-    def initValues(self):
-        # TODO ?
-        self.lineTypes.setText('None')
-        self.lineColors.setText('None')
-        self.lineWidths.setText('None')
-        self.markerTypes.setText('None')
-        self.markerColors.setText('None')
-        self.markerSizes.setText('None')
 
 class QMeshfillEditor(QtGui.QScrollArea,VCSGMs,VCSGMRanges):
 
