@@ -18,4 +18,4 @@ defaultGraphicsMethodName = "default"
 
 plotTypes = ['Boxfill', 'Isofill', 'Isoline', 'Meshfill', 'Outfill',
              'Outline', 'Scatter', 'Taylordiagram', 'Vector', 'XvsY',
-             'Xyvsy', 'Yxvsx','Ext']
+             'Xyvsy', 'Yxvsx']

@@ -18,6 +18,22 @@ class QEditorGraphicsMethodsWidget(QtGui.QWidget):
             self.widget = graphicsMethodsWidgets.QIsolineEditor(parent=self,gm = gmnm)
         elif ptype == "Meshfill":
             self.widget = graphicsMethodsWidgets.QMeshfillEditor(parent=self,gm = gmnm)
+        elif ptype == "Outfill":
+            self.widget = graphicsMethodsWidgets.QOutfillEditor(parent=self,gm = gmnm)
+        elif ptype == "Outline":
+            self.widget = graphicsMethodsWidgets.QOutlineEditor(parent=self,gm = gmnm)
+        elif ptype == "Scatter":
+            self.widget = graphicsMethodsWidgets.QScatterEditor(parent=self,gm = gmnm)
+        elif ptype == "Taylordiagram":
+            self.widget = graphicsMethodsWidgets.QTaylorDiagramEditor(parent=self,gm = gmnm)
+        elif ptype == "Vector":
+            self.widget = graphicsMethodsWidgets.QVectorEditor(parent=self,gm = gmnm)
+        elif ptype == "XvsY":
+            self.widget = graphicsMethodsWidgets.Q1DPlotEditor(parent=self,gm = gmnm, type="xvsy")
+        elif ptype == "Xyvsy":
+            self.widget = graphicsMethodsWidgets.Q1DPlotEditor(parent=self,gm = gmnm, type="xyvsy")
+        elif ptype == "Yxvsx":
+            self.widget = graphicsMethodsWidgets.Q1DPlotEditor(parent=self,gm = gmnm, type="yxvsx")
         if gmnm == "default":
             self.widget.widget().setEnabled(False)
             parent.editorTab.widget(1).widget().setEnabled(False)

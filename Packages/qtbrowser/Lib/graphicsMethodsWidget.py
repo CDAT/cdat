@@ -8,18 +8,18 @@ class QGraphicsMethodsWidget(QtGui.QWidget):
         self.parent=parent
         self.root=parent.root
         layout = QtGui.QVBoxLayout()        
-        gmsMenu = QtGui.QMenu(self)
+        self.gmsMenu = QtGui.QMenu(self)
         menuVbox = QtGui.QVBoxLayout()
         menuVbox.setMargin(2)
-        gmsMenu.setLayout(menuVbox)
-        copyAction = gmsMenu.addAction('&Copy')
-        renameAction = gmsMenu.addAction('Re&name')
-        saveAsAction = gmsMenu.addAction('&Save as a Script file')
-        removeAction = gmsMenu.addAction('&Remove')
+        self.gmsMenu.setLayout(menuVbox)
+        copyAction = self.gmsMenu.addAction('&Copy')
+        renameAction = self.gmsMenu.addAction('Re&name')
+        saveAsAction = self.gmsMenu.addAction('&Save as a Script file')
+        removeAction = self.gmsMenu.addAction('&Remove')
 
         self.gmButton = QtGui.QPushButton()
-        self.gmButton.setText('Modify %s Methods' % ptype)
-        self.gmButton.setMenu(gmsMenu)
+        self.gmButton.setText('%s Methods' % ptype)
+        self.gmButton.setMenu(self.gmsMenu)
 
         layout.addWidget(self.gmButton)
 
@@ -32,6 +32,7 @@ class QGraphicsMethodsWidget(QtGui.QWidget):
         self.gmList.setAutoFillBackground(True)
         gms = self.root.canvas[0].listelements(str(ptype).lower())
         default = 0
+        self.gmList.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         for i in range(len(gms)):
             g = gms[i]
             self.gmList.addItem(g)
@@ -63,6 +64,13 @@ class QGraphicsMethodsWidget(QtGui.QWidget):
         self.connect(saveAsAction, QtCore.SIGNAL('triggered ()'),
                          self.saveAsGM)
 
+        self.connect(self.gmList,QtCore.SIGNAL("customContextMenuRequested(QPoint)"),self.popupmenu)
+
+    def popupmenu(self,Point):
+        item = self.gmList.itemAt(Point)
+        if item:
+            self.gmsMenu.popup(self.gmList.mapToGlobal(Point))
+            
     def changedGM(self, *args):
         self.parent.editorTab.removeTab(2)
         self.parent.editorTab.removeTab(1)
@@ -85,7 +93,6 @@ class QGraphicsMethodsWidget(QtGui.QWidget):
         newItem = self.gmList.findItems(nm,QtCore.Qt.MatchFixedString)[0]
         self.gmList.setCurrentItem(newItem)
         self.root.record(rec)
-        print "Ok:",self.parent.editorTab.widget(1).widget.gm.name
 
     def renameGM(self):
         onm = self.parent.editorTab.widget(1).widget.gm.name
