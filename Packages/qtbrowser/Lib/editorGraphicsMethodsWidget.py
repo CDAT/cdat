@@ -34,10 +34,14 @@ class QEditorGraphicsMethodsWidget(QtGui.QWidget):
             self.widget = graphicsMethodsWidgets.Q1DPlotEditor(parent=self,gm = gmnm, type="xyvsy")
         elif ptype == "Yxvsx":
             self.widget = graphicsMethodsWidgets.Q1DPlotEditor(parent=self,gm = gmnm, type="yxvsx")
+        else:
+            print "UNKWON TYPE:",ptype
         if gmnm == "default":
             self.widget.widget().setEnabled(False)
-            parent.editorTab.widget(1).widget().setEnabled(False)
-
+            try:
+                parent.editorTab.widget(1).widget().setEnabled(False)
+            except:
+                pass
         layout.addWidget(self.widget)
 
         self.error = QtGui.QErrorMessage(parent=self)
