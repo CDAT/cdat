@@ -662,27 +662,29 @@ class QTaylorDiagramEditor(VCSGMs,QtGui.QScrollArea):
 
         # Skill
         skillFrame = QFramedWidget('Skill')
-        self.skillValues = skillFrame.addLabeledLineEdit('Skill Values:')
-        self.skillLineColor = skillFrame.addLabeledComboBox('Skill Lines Color:',
-                                                            ['TODO'])
         self.drawLabels = skillFrame.addCheckBox('Draw Skill Contour Labels')
+        self.skillValues = skillFrame.addLabeledLineEdit('Values:')
+        self.skillLineColor = skillFrame.addLabeledSpinBox('Color: ',0,255)
         self.skillCoefficients = skillFrame.addLabeledLineEdit('Skill Coefficients:')
         vbox.addWidget(skillFrame)
         
         # Arrows
         arrowFrame = QFramedWidget('Arrows')
-        self.lengthSlider = arrowFrame.addLabeledSlider('Length:', newRow=False)
-        self.angleSlider = arrowFrame.addLabeledSlider('Angle:',newRow=False)
-        self.baseSlider = arrowFrame.addLabeledSlider('Base:',newRow=False)
+        self.lengthSlider = arrowFrame.addLabeledSlider('Length:', newRow=False,divider=100.)
         self.lengthSlider.setTickPosition(QtGui.QSlider.TicksBelow)
         self.lengthSlider.setMinimum(0)
-        self.lengthSlider.setMaximum(10)
-        self.lengthSlider.setSingleStep(.05)
-        self.lengthSlider.setTickInterval(5)
+        self.lengthSlider.setMaximum(1000)
+        self.lengthSlider.setSingleStep(5)
+        self.lengthSlider.setTickInterval(100)
+        self.angleSlider = arrowFrame.addLabeledSlider('Angle:',newRow=False)
+        self.angleSlider.setMaximum(360)
         self.angleSlider.setTickPosition(QtGui.QSlider.TicksBelow)
+        self.baseSlider = arrowFrame.addLabeledSlider('Base:',newRow=False,divider=100.)
         self.baseSlider.setTickPosition(QtGui.QSlider.TicksBelow)
+        self.baseSlider.setMaximum(1000)
+        self.baseSlider.setSingleStep(5)
+        self.baseSlider.setTickInterval(100)
         # TODO - Create a widget to draw the arrow
-        
         vbox.addWidget(arrowFrame)
 
         ticFrame = QFramedWidget('Ticks and Labels')
@@ -694,7 +696,7 @@ class QTaylorDiagramEditor(VCSGMs,QtGui.QScrollArea):
         self.corTicks = ticFrame.addLabeledLineEdit('cmticks1:',newRow=False)
         vbox.addWidget(ticFrame)
 
-        self.markersTab = QTaylorMarkers(frame)
+        self.markersTab = QTaylorMarkers(self)
         self.parent.parent.editorTab.addTab(self.markersTab, "'%s' Markers" % self.gm.name)
 
         self.initValues()
@@ -707,10 +709,22 @@ class QTaylorDiagramEditor(VCSGMs,QtGui.QScrollArea):
         self.quadran.setChecked(str(self.gm.quadrans))
         self.refValue.setText(repr(self.gm.referencevalue))
 
+        # Skills
+        if self.gm.skillDrawLabels=="y":
+            self.drawLabels.setChecked(True)
+        else:
+            self.drawLabels.setChecked(False)
+        self.skillValues.setText(repr(self.gm.skillValues))
+        if isinstance(self.gm.skillColor,str):
+            self.skillLineColor.setValue(self.root.canvas[0].match_color(self.gm.skillColor))
+        else:
+            self.skillLineColor.setValue(self.gm.skillColor)
+        self.skillCoefficients.setText(repr(self.gm.skillCoefficient))
+        
         # Arrows
-        self.lengthSlider.setValue(self.gm.arrowlength)
+        self.lengthSlider.setValue(self.gm.arrowlength*100)
         self.angleSlider.setValue(self.gm.arrowangle)
-        self.baseSlider.setValue(self.gm.arrowbase)
+        self.baseSlider.setValue(self.gm.arrowbase*100)
 
         self.xlabels.setText(repr(self.gm.xticlabels1))
         self.xticks.setText(repr(self.gm.xmtics1))
@@ -729,6 +743,9 @@ class QTaylorMarkers(QtGui.QScrollArea):
         self.row = 1
         self.grid = QtGui.QGridLayout()
         self.markerList = []
+        self.parent=parent
+        self.root=parent.root
+        
         vbox = QtGui.QVBoxLayout()
         
         # Create Column Labels
@@ -738,10 +755,10 @@ class QTaylorMarkers(QtGui.QScrollArea):
         self.grid.addWidget(QtGui.QLabel('Symbol'), 0, 3)
         self.grid.addWidget(QtGui.QLabel('Color'), 0, 4)
         self.grid.addWidget(QtGui.QLabel('Size'), 0, 5)
-        self.grid.addWidget(QtGui.QLabel('Id'), 0, 6)
-        self.grid.addWidget(QtGui.QLabel('Id Size'), 0, 7)
-        self.grid.addWidget(QtGui.QLabel('+X'), 0, 8)
-        self.grid.addWidget(QtGui.QLabel('+Y'), 0, 9)
+        self.grid.addWidget(QtGui.QLabel('+X'), 0, 6)
+        self.grid.addWidget(QtGui.QLabel('+Y'), 0, 7)
+        self.grid.addWidget(QtGui.QLabel('Id'), 0, 8)
+        self.grid.addWidget(QtGui.QLabel('Id Size'), 0, 9)
         self.grid.addWidget(QtGui.QLabel('Id Color'), 0, 10)
         self.grid.addWidget(QtGui.QLabel('Id Font'), 0, 11)
         self.grid.addWidget(QtGui.QLabel('Line'), 0, 12)
@@ -774,11 +791,67 @@ class QTaylorMarkers(QtGui.QScrollArea):
         self.connect(delButton, QtCore.SIGNAL('pressed()'), self.removeSelectedMarkers)
         self.connect(insertButton, QtCore.SIGNAL('pressed()'), self.insertMarkers)
 
+    def setAComboxItem(self,combo,value):
+        for i in range(combo.count()):
+            if combo.itemText(i) == value:
+                combo.setCurrentIndex(i)
+                break
+        return
+    
     def initValues(self):
-        # Delete all markers
-        # TODO
+        for m in self.markerList:
+            m.widgets['selectedBox'].setChecked(True)
+        self.removeSelectedMarkers()
+        # Ok now determines the number of elets to add
+        M = self.parent.gm.Marker
+        nmax = 0
+        for a in ['status','line','id','id_size','id_color','id_font','symbol','color','size','xoffset','yoffset','line_color','line_size','line_type']:
+            nmax=max(nmax,len(getattr(M,a)))
+        for i in range(nmax):
+            self.addMarker()
+            #Ok now we need to initialize the values of these markers
+            m = self.markerList[-1]
+            w = m.getWidgets()
+            s = self.getGMMarkerAttributeValue(M,"status",i)
+            if s ==1:
+                w['activeBox'].setChecked(True)
+            else:
+                w['activeBox'].setChecked(False)
+            s = self.getGMMarkerAttributeValue(M,"symbol",i)
+            self.setAComboxItem(w['symbolCombo'],s)
+            c = self.getGMMarkerAttributeValue(M,"color",i)
+            w['colorCombo1'].setText(str(c))
+            s = self.getGMMarkerAttributeValue(M,"size",i)
+            w['size'].setText(str(s))
+            s = self.getGMMarkerAttributeValue(M,"id",i)
+            w['id'].setText(str(s))
+            s = self.getGMMarkerAttributeValue(M,"id_size",i)
+            w['idSize'].setText(str(s))
+            s = self.getGMMarkerAttributeValue(M,"id_color",i)
+            w['idColorCombo'].setText(str(s))
+            s = self.root.canvas[0].getfont(self.getGMMarkerAttributeValue(M,"id_font",i))
+            self.setAComboxItem(w['idFontCombo'],s)
+            s = self.getGMMarkerAttributeValue(M,"xoffset",i)
+            w['x'].setText(str(s))
+            s = self.getGMMarkerAttributeValue(M,"yoffset",i)
+            w['y'].setText(str(s))
+            s = str(self.getGMMarkerAttributeValue(M,"line",i))
+            self.setAComboxItem(w['lineCombo'],s)
+            s = str(self.getGMMarkerAttributeValue(M,"line_type",i))
+            self.setAComboxItem(w['typeCombo'],s)
+            s = self.getGMMarkerAttributeValue(M,"line_size",i)
+            w['size2'].setText(str(s))
+            s = self.getGMMarkerAttributeValue(M,"line_color",i)
+            w['colorCombo2'].setText(str(s))
         return
 
+    def getGMMarkerAttributeValue(self,M,a,i):
+        v = getattr(M,a)
+        if len(v)<i:
+            return v[-1]
+        else:
+            return v[i]
+        
     def removeMarker(self, marker):
         widgets = marker.getWidgets()
         for key in list(widgets):
@@ -835,7 +908,7 @@ class QTaylorMarkers(QtGui.QScrollArea):
             self.row += 1
 
     def addMarker(self):
-        self.markerList.append(QMarkerEditorEntry(self.grid, self.row))
+        self.markerList.append(QMarkerEditorEntry(self.grid, self.row,parent=self.parent))
         self.row += 1
         
     def createButton(self, text):
@@ -847,27 +920,28 @@ class QMarkerEditorEntry(QtGui.QWidget):
     def __init__(self, grid, row, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.widgets = {}
-
+        self.parent=parent
+        self.root=self.parent.root
         symbolList = ["dot", "plus", "star", "circle", "cross", "diamond", "triangle_up", "triangle_down", "triangle_left", "triangle_right", "square", "diamond_fill", "triangle_up_fill", "triangle_down_fill", "triangle_left_fill", "triangle_right_fill", "square_fill"]
-        lineList = ['None', 'Tail', 'Head', 'Line']
+        lineList = ['None', 'tail', 'head', 'line']
         typeList = ['solid', 'dash', 'dot', 'dash-dot', 'long-dash']
         
         self.widgets['selectedBox'] = QtGui.QCheckBox()
         self.widgets['entryNumber'] = QtGui.QLabel(str(row))
         self.widgets['activeBox'] = QtGui.QCheckBox()
         self.widgets['symbolCombo'] = self.createCombo(symbolList)
-        self.widgets['colorCombo1'] = self.createCombo(['TODO'])
+        self.widgets['colorCombo1'] = QtGui.QLineEdit()
         self.widgets['size'] = QtGui.QLineEdit()
         self.widgets['id'] = QtGui.QLineEdit()
         self.widgets['idSize'] = QtGui.QLineEdit()
         self.widgets['x'] = QtGui.QLineEdit()
         self.widgets['y'] = QtGui.QLineEdit()
-        self.widgets['idColorCombo'] = self.createCombo(['TODO'])
-        self.widgets['idFontCombo'] = self.createCombo(map(str, range(1,10)))
+        self.widgets['idColorCombo'] = QtGui.QLineEdit()
+        self.widgets['idFontCombo'] = self.createCombo(self.root.canvas[0].listelements("font"))
         self.widgets['lineCombo'] = self.createCombo(lineList)
         self.widgets['typeCombo'] = self.createCombo(typeList)
         self.widgets['size2'] = QtGui.QLineEdit()
-        self.widgets['colorCombo2'] = self.createCombo(['TODO'])        
+        self.widgets['colorCombo2'] = QtGui.QLineEdit()
         
         grid.addWidget(self.widgets['selectedBox'], row, 0, QtCore.Qt.AlignTop)
         grid.addWidget(self.widgets['entryNumber'], row, 1, QtCore.Qt.AlignTop)
@@ -875,10 +949,10 @@ class QMarkerEditorEntry(QtGui.QWidget):
         grid.addWidget(self.widgets['symbolCombo'], row, 3, QtCore.Qt.AlignTop)
         grid.addWidget(self.widgets['colorCombo1'], row, 4, QtCore.Qt.AlignTop)
         grid.addWidget(self.widgets['size'], row, 5, QtCore.Qt.AlignTop)
-        grid.addWidget(self.widgets['id'], row, 6, QtCore.Qt.AlignTop)
-        grid.addWidget(self.widgets['idSize'], row, 7, QtCore.Qt.AlignTop)
-        grid.addWidget(self.widgets['x'], row, 8, QtCore.Qt.AlignTop)
-        grid.addWidget(self.widgets['y'], row, 9, QtCore.Qt.AlignTop)
+        grid.addWidget(self.widgets['x'], row, 6, QtCore.Qt.AlignTop)
+        grid.addWidget(self.widgets['y'], row, 7, QtCore.Qt.AlignTop)
+        grid.addWidget(self.widgets['id'], row, 8, QtCore.Qt.AlignTop)
+        grid.addWidget(self.widgets['idSize'], row, 9, QtCore.Qt.AlignTop)
         grid.addWidget(self.widgets['idColorCombo'], row, 10, QtCore.Qt.AlignTop)
         grid.addWidget(self.widgets['idFontCombo'], row, 11, QtCore.Qt.AlignTop)
         grid.addWidget(self.widgets['lineCombo'], row, 12, QtCore.Qt.AlignTop)
@@ -1943,16 +2017,16 @@ class QFramedWidget(QtGui.QFrame):
         self.addWidget(slider)
         return slider
 
-    def addLabeledSlider(self, text, newRow=True):
+    def addLabeledSlider(self, text, newRow=True,divider=1):
         if newRow == True:
             self.newRow()
             
-        labeledSlider = QLabeledSlider(text)
+        labeledSlider = QLabeledSlider(text,divider=divider)
         self.addWidget(labeledSlider)
         return labeledSlider.getSlider()
 
 class QLabeledSlider(QtGui.QWidget):
-    def __init__(self, text, parent=None):
+    def __init__(self, text, parent=None, divider=1):
         QtGui.QWidget.__init__(self, parent)
         vbox = QtGui.QVBoxLayout()
         vbox.setSpacing(10)
@@ -1960,7 +2034,8 @@ class QLabeledSlider(QtGui.QWidget):
         self.text = text
         self.label = QtGui.QLabel(text)
         self.slider = QtGui.QSlider(QtCore.Qt.Horizontal)
-
+        self.divider=divider
+        
         vbox.addWidget(self.label)
         vbox.addWidget(self.slider)
 
@@ -1971,7 +2046,11 @@ class QLabeledSlider(QtGui.QWidget):
         return self.slider
 
     def updateLabel(self, value):
-        self.label.setText("%s  %d" %(self.text, value))
+        val = float(value)/self.divider
+        val = "%.2f" % val
+        if val[-2:]=="00":
+            val=val[:-3]
+        self.label.setText("%s  %s" %(self.text, val))
             
 class QRadioButtonFrame(QtGui.QFrame):
     """ Framed widget containing a label and list of radiobuttons """
