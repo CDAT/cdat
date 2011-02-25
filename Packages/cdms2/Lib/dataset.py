@@ -28,6 +28,8 @@ from tvariable import asVariable
 from cdmsNode import CdDatatypes
 import convention
 import typeconv
+import gsHost
+
 try:
     import cache
 except ImportError:
@@ -43,6 +45,8 @@ FileWasClosed = "File was closed: "
 InvalidDomain = "Domain elements must be axes or grids"
 ModeNotSupported = "Mode not supported: "
 SchemeNotSupported = "Scheme not supported: "
+
+GRIDSPEC_HOSTFILE_TYPE = "gridspec_host_file"
 
 # Regular expressions for parsing the file map.
 _Name = re.compile(r'[a-zA-Z_:][-a-zA-Z0-9._:]*')
@@ -168,6 +172,10 @@ def openDataset(uri,mode='r',template=None,dods=1,dpath=None):
             datanode = load(path)
         else:
             file = CdmsFile(path,mode)
+            if hasattr(file, "file_type"):
+                if file.file_type == GRIDSPEC_HOSTFILE_TYPE:
+                    file = gsHost.open(path, mode, file.file_type)
+
             return file
     elif scheme in ['http', 'gridftp']:
         
@@ -1174,6 +1182,7 @@ class CdmsFile(CdmsObj, cuDataset):
     #   generalized to allow subintervals of axes and/or grids)
     # Return a variable object.
     def createVariable(self,name,datatype,axesOrGrids,fill_value=None):
+        print 'dataset.py 1185'
         if self._status_=="closed":
             raise CDMSError, FileWasClosed + self.id
         cufile = self._file_

@@ -501,6 +501,7 @@ class AbstractVariable(CdmsObj, Slab):
                 resultgrid = None
             else:
                 alist = [item[0] for item in self.getDomain()]
+                print 'av  504', id(self.getGrid().getLongitude())
                 gridslices, newaxes = selfgrid.getGridSlices(alist, allaxes, slicelist)
 
                 # If one of the grid axes was squeezed, the result grid is None
@@ -577,6 +578,7 @@ class AbstractVariable(CdmsObj, Slab):
         keys['order'] = keys.get('order', None)
         keys['grid'] = keys.get('grid', None)
         isitem = keys.get('isitem', 0)
+        print 'av  580', id(self.getGrid().getLongitude())
         result = self.subSlice(*specs, **keys)
 
         # return a scalar for 0-D slices
@@ -1177,6 +1179,7 @@ class AbstractVariable(CdmsObj, Slab):
             speclist = self._process_specs([key], {})
 
         # Note: raw=0 ensures that a TransientVariable is returned
+        print 'av 1180', id(self.getGrid().getLongitude())
         return self.getSlice(numericSqueeze=1, raw=0, isitem=1, *speclist)
         
     def __getslice__(self, low, high):

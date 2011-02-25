@@ -1,7 +1,7 @@
 """
 CDMS module-level API
 """
-__all__ = ["cdmsobj", "axis", "coord", "grid", "hgrid", "avariable", "sliceut", "error", "variable", "fvariable", "tvariable", "dataset", "database", "cache", "selectors", "MV2", "convention", "bindex", "auxcoord", "gengrid"]
+__all__ = ["cdmsobj", "axis", "coord", "grid", "hgrid", "avariable", "sliceut", "error", "variable", "fvariable", "tvariable", "dataset", "database", "cache", "selectors", "MV2", "convention", "bindex", "auxcoord", "gengrid", "gsHost", "gsStatVar"]
 # Errors
 from error import CDMSError
 
@@ -33,5 +33,8 @@ from selectors import longitude, latitude, time, level, required, \
 from avariable import order2index, orderparse, setNumericCompatibility, getNumericCompatibility
 # TV
 from tvariable import asVariable, createVariable, isVariable
+
+from gsHost import GsHost
+from gsStatVar import GsStatVar
 
 MV = MV2
