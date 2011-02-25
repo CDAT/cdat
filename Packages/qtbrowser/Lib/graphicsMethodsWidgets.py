@@ -12,11 +12,20 @@ class VCSGMs():
     def saveOriginalValues(self):
         self.originalValues={}
         for a in self.gmAttributes:
-            self.originalValues[a] = getattr(self.gm,a)
+            if a.find(".")>-1:
+                sp=a.split(".")
+                self.originalValues[a] = getattr(getattr(self.gm,sp[0]),sp[1])
+            else:
+                self.originalValues[a] = getattr(self.gm,a)
             
     def restoreOriginalValues(self):
         for a in self.gmAttributes:
-            setattr(self.gm,a,self.originalValues[a])
+            if a.find(".")>-1:
+                sp=a.split(".")
+                tmp = getattr(self.gm,sp[0])
+                setattr(tmp,sp[1],self.originalValues[a])
+            else:
+                setattr(self.gm,a,self.originalValues[a])
         self.initValues()
 
     def getOrCreateGMString(self,canvas=0,method = "get", name = None, original=""):
@@ -439,125 +448,125 @@ class VCSGMRanges:
             self.negDecadesLineEdit.setToolTip("Disabled. Not in use for linear spacing.")            
 
         
-class QGraphicsMethodAttributeWindow(QtGui.QWidget):
+## class QGraphicsMethodAttributeWindow(QtGui.QWidget):
 
-    def __init__(self, canvas=None, parent=None):
-        QtGui.QWidget.__init__(self, parent)
-        initialWidth = 480
-        initialHeight = 640
-        self.resize(initialWidth, initialHeight)        
-        self.setWindowTitle('Graphics Methods Attrtibute Settings')
-        self.parent = parent
+##     def __init__(self, canvas=None, parent=None):
+##         QtGui.QWidget.__init__(self, parent)
+##         initialWidth = 480
+##         initialHeight = 640
+##         self.resize(initialWidth, initialHeight)        
+##         self.setWindowTitle('Graphics Methods Attrtibute Settings')
+##         self.parent = parent
 
-        # Create tab widgets
-        self.tabWidget = QtGui.QTabWidget()
-        if canvas is not None:
-            self.boxfillEditor = QBoxfillEditor(gm=canvas.getboxfill('ASD'))
-            self.continentsEditor = QContinentsEditor(gm=canvas.getcontinents('ASD'))
-            self.meshfillEditor = QMeshfillEditor(gm=canvas.getmeshfill())
-            self.outfillEditor = QOutfillEditor(gm=canvas.getoutfill())
-            self.scatterEditor = QScatterEditor(gm=canvas.getscatter('ASD'))
-            self.taylorEditor = QTaylorDiagramEditor(gm=canvas.gettaylordiagram('ASD'))
-            self.vectorEditor = QVectorEditor(gm=canvas.getvector())
-        else:
-            self.boxfillEditor = QBoxfillEditor()
-            self.continentsEditor = QContinentsEditor()
-            self.meshfillEditor = QMeshfillEditor()
-            self.outfillEditor = QOutfillEditor()
-            self.scatterEditor = QScatterEditor()
-            self.taylorEditor = QTaylorDiagramEditor()
-            self.vectorEditor = QVectorEditor()
+##         # Create tab widgets
+##         self.tabWidget = QtGui.QTabWidget()
+##         if canvas is not None:
+##             self.boxfillEditor = QBoxfillEditor(gm=canvas.getboxfill('ASD'))
+##             self.continentsEditor = QContinentsEditor(gm=canvas.getcontinents('ASD'))
+##             self.meshfillEditor = QMeshfillEditor(gm=canvas.getmeshfill())
+##             self.outfillEditor = QOutfillEditor(gm=canvas.getoutfill())
+##             self.scatterEditor = QScatterEditor(gm=canvas.getscatter('ASD'))
+##             self.taylorEditor = QTaylorDiagramEditor(gm=canvas.gettaylordiagram('ASD'))
+##             self.vectorEditor = QVectorEditor(gm=canvas.getvector())
+##         else:
+##             self.boxfillEditor = QBoxfillEditor()
+##             self.continentsEditor = QContinentsEditor()
+##             self.meshfillEditor = QMeshfillEditor()
+##             self.outfillEditor = QOutfillEditor()
+##             self.scatterEditor = QScatterEditor()
+##             self.taylorEditor = QTaylorDiagramEditor()
+##             self.vectorEditor = QVectorEditor()
             
-        self.contourEditor = QContourEditor()
-        self.oneDimEditor = Q1DPlotEditor()
-        self.outlineEditor = QOutlineEditor()
+##         self.contourEditor = QContourEditor()
+##         self.oneDimEditor = Q1DPlotEditor()
+##         self.outlineEditor = QOutlineEditor()
         
-        # Add tabs
-        self.tabWidget.addTab(self.boxfillEditor, 'Boxfill')
-        self.tabWidget.addTab(self.continentsEditor, 'Continents')
-        self.tabWidget.addTab(self.contourEditor, 'Contour')
-        self.tabWidget.addTab(self.meshfillEditor, 'Meshfill')
-        self.tabWidget.addTab(self.oneDimEditor, '1D Plot')
-        self.tabWidget.addTab(self.outfillEditor, 'Outfill')
-        self.tabWidget.addTab(self.outlineEditor, 'Outline')
-        self.tabWidget.addTab(self.scatterEditor, 'Scatter')
-        self.tabWidget.addTab(self.taylorEditor, 'Taylor Diagram')
-        self.tabWidget.addTab(self.vectorEditor, 'Vector')
-        self.setToolTips()        
+##         # Add tabs
+##         self.tabWidget.addTab(self.boxfillEditor, 'Boxfill')
+##         self.tabWidget.addTab(self.continentsEditor, 'Continents')
+##         self.tabWidget.addTab(self.contourEditor, 'Contour')
+##         self.tabWidget.addTab(self.meshfillEditor, 'Meshfill')
+##         self.tabWidget.addTab(self.oneDimEditor, '1D Plot')
+##         self.tabWidget.addTab(self.outfillEditor, 'Outfill')
+##         self.tabWidget.addTab(self.outlineEditor, 'Outline')
+##         self.tabWidget.addTab(self.scatterEditor, 'Scatter')
+##         self.tabWidget.addTab(self.taylorEditor, 'Taylor Diagram')
+##         self.tabWidget.addTab(self.vectorEditor, 'Vector')
+##         self.setToolTips()        
         
-        # Add preview, reset, apply, cancel buttons
-        previewButton = self.getButton('Preview')
-        resetButton = self.getButton('Reset')
-        applyButton = self.getButton('Apply')
-        cancelButton = self.getButton('Cancel')
+##         # Add preview, reset, apply, cancel buttons
+##         previewButton = self.getButton('Preview')
+##         resetButton = self.getButton('Reset')
+##         applyButton = self.getButton('Apply')
+##         cancelButton = self.getButton('Cancel')
 
-        hbox = QtGui.QHBoxLayout()
-        hbox.addWidget(previewButton)
-        hbox.addWidget(resetButton)
-        hbox.addWidget(applyButton)
-        hbox.addWidget(cancelButton)
+##         hbox = QtGui.QHBoxLayout()
+##         hbox.addWidget(previewButton)
+##         hbox.addWidget(resetButton)
+##         hbox.addWidget(applyButton)
+##         hbox.addWidget(cancelButton)
 
-        # Setup the layout
-        vbox = QtGui.QVBoxLayout()
-        vbox.addWidget(self.tabWidget)
-        vbox.addLayout(hbox)
-        wrapperWidget = QtGui.QWidget()
-        wrapperWidget.setLayout(vbox)
-        self.setCentralWidget(wrapperWidget)
+##         # Setup the layout
+##         vbox = QtGui.QVBoxLayout()
+##         vbox.addWidget(self.tabWidget)
+##         vbox.addLayout(hbox)
+##         wrapperWidget = QtGui.QWidget()
+##         wrapperWidget.setLayout(vbox)
+##         self.setCentralWidget(wrapperWidget)
 
-        # Connect Signals
-        self.connect(cancelButton, QtCore.SIGNAL('pressed()'), self.close)
-        self.connect(resetButton, QtCore.SIGNAL('pressed()'), self.resetPressedEvent)
-        self.connect(applyButton, QtCore.SIGNAL('pressed()'), self.applyPressedEvent)
-        self.connect(previewButton, QtCore.SIGNAL('pressed()'), self.previewPressedEvent)
+##         # Connect Signals
+##         self.connect(cancelButton, QtCore.SIGNAL('pressed()'), self.close)
+##         self.connect(resetButton, QtCore.SIGNAL('pressed()'), self.resetPressedEvent)
+##         self.connect(applyButton, QtCore.SIGNAL('pressed()'), self.applyPressedEvent)
+##         self.connect(previewButton, QtCore.SIGNAL('pressed()'), self.previewPressedEvent)
 
-    def resetPressedEvent(self):
-        self.boxfillEditor.initValues()
-        self.continentsEditor.initValues()
-        self.meshfillEditor.initValues()
-        self.outfillEditor.initValues()
-        self.scatterEditor.initValues()
-        self.taylorEditor.initValues()
-        self.vectorEditor.initValues()
+##     def resetPressedEvent(self):
+##         self.boxfillEditor.initValues()
+##         self.continentsEditor.initValues()
+##         self.meshfillEditor.initValues()
+##         self.outfillEditor.initValues()
+##         self.scatterEditor.initValues()
+##         self.taylorEditor.initValues()
+##         self.vectorEditor.initValues()
             
-        self.contourEditor.initValues()
-        self.oneDimEditor.initValues()
-        self.outlineEditor.initValues()
+##         self.contourEditor.initValues()
+##         self.oneDimEditor.initValues()
+##         self.outlineEditor.initValues()
 
-    def applyPressedEvent(self):
-        #self.boxfillEditor.setVistrailsGraphicsMethod(self.parent.getParent())
+##     def applyPressedEvent(self):
+##         #self.boxfillEditor.setVistrailsGraphicsMethod(self.parent.getParent())
         
-        # TODO
-        # self.continentsEditor.setVistrailsGraphicsMethod()
-        # self.meshfillEditor.setVistrailsGraphicsMethod()
-        # self.outfillEditor.setVistrailsGraphicsMethod()
-        # self.scatterEditor.setVistrailsGraphicsMethod()
-        # self.taylorEditor.setVistrailsGraphicsMethod()
-        # self.vectorEditor.setVistrailsGraphicsMethod()
-        # self.contourEditor.setVistrailsGraphicsMethod()
-        # self.oneDimEditor.setVistrailsGraphicsMethod()
-        # self.outlineEditor.setVistrailsGraphicsMethod()
-        return #todo
+##         # TODO
+##         # self.continentsEditor.setVistrailsGraphicsMethod()
+##         # self.meshfillEditor.setVistrailsGraphicsMethod()
+##         # self.outfillEditor.setVistrailsGraphicsMethod()
+##         # self.scatterEditor.setVistrailsGraphicsMethod()
+##         # self.taylorEditor.setVistrailsGraphicsMethod()
+##         # self.vectorEditor.setVistrailsGraphicsMethod()
+##         # self.contourEditor.setVistrailsGraphicsMethod()
+##         # self.oneDimEditor.setVistrailsGraphicsMethod()
+##         # self.outlineEditor.setVistrailsGraphicsMethod()
+##         return #todo
 
-    def previewPressedEvent(self):
-        return # TODO
+##     def previewPressedEvent(self):
+##         return # TODO
 
-    def setToolTips(self):
-        self.tabWidget.setTabToolTip(0, 'The Boxfill graphics method displays a two-dimensional data\narray by surrounding each data value with a colored grid box.')
-        self.tabWidget.setTabToolTip(1, "The Continents graphics method draws a predefined,\ngeneric set of continental outlines in a longitude\nby latitude space. (To draw continental outlines,\nno external data set is required.)")
-        self.tabWidget.setTabToolTip(2, "This Contour notebook tab represent both the Isofill\nand Isoline graphics methods. The Isofill graphics\nmethod fills the area between selected isolevels\n(levels of constant value) of a two-dimensional\narray; the manner of filling the area is determined\nby the named fill area attributes. The Isoline\ngraphics method draws lines of constant value at\nspecified levels to graphically represent the values\nof a two-dimensional array; labels also can be\ndisplayed on the isolines.\nIsolines can also have \"orientation\" arrows, indicating clockwise or counter-clockwise")
-        self.tabWidget.setTabToolTip(3, "The Meshfill graphics method draws data on irregular grid (or 'mesh')at specified levels to graphically represent\nthe values of a one-dimensional array;\nUnless the irregular grid is supported by cdms2, a mesh array must be passed as well")
-        self.tabWidget.setTabToolTip(4, "This 1D Plot notebook tab represent the XvsY, Xyvsy,\nand Yxvsx graphics methods. The XvsY graphics method\ndisplays a line plot from two 1D data arrays, that\nis X(t) and Y(t), where t represents the 1D\ncoordinate values. The Xyvsy graphics method displays\na line plot from a 1D data array, that is X(y),\nwhere y represents the 1D coordinate values. The\nYxvsx graphics method displays a line plot from\na 1D data array, that is Y(x), where y represents\nthe 1D coordinate values.")
-        self.tabWidget.setTabToolTip(5, "The Outfill graphics method fills a set of integer\nvalues in any data array. Its primary purpose is\nto display continents by filling their area as\ndefined by a surface type array that indicates land,\nocean, and sea-ice points. ")
-        self.tabWidget.setTabToolTip(6, "The Outline graphics method outlines a set of integer\nvalues in any data array. Its primary purpose is\nto display continental outlines as defined by a\nsurface type array that indicates land, ocean, and\nsea-ice points.")
-        self.tabWidget.setTabToolTip(7, "The Scatter graphics method displays a scatter plot\nof two 4-dimensional data arrays, e.g. A(x,y,z,t)\nand B(x,y,z,t). ")
-        self.tabWidget.setTabToolTip(8, "The Taylor diagram graphics method provides a statistical\nsummary of pattern correspondence. A single point on\nthe diagram indicates how similar two patterns are in\nterms of their correlation, root-mean-square (RMS)\ndifference, and the ratio of their variances.  The\nstandard deviation of a pattern is proportional to the\nradial distance.  The correlation is given by the cosine\nof the azimuthal angle. The RMS difference is proportional\nto the distance between the plotted points and the\nreference point (often chosen to be the observed\npattern), which is located along the abscissa at a radial\ndistance proportional to its standard deviation.")
-        self.tabWidget.setTabToolTip(9, "The Vector graphics method displays a vector plot\nof a 2D vector field. Vectors are located at the\ncoordinate locations and point in the direction of\nthe data vector field. Vector magnitudes are the\nproduct of data vector field lengths and a scaling\nfactor. ")
+##     def setToolTips(self):
+##         self.tabWidget.setTabToolTip(0, 'The Boxfill graphics method displays a two-dimensional data\narray by surrounding each data value with a colored grid box.')
+##         self.tabWidget.setTabToolTip(1, "The Continents graphics method draws a predefined,\ngeneric set of continental outlines in a longitude\nby latitude space. (To draw continental outlines,\nno external data set is required.)")
+##         self.tabWidget.setTabToolTip(2, "This Contour notebook tab represent both the Isofill\nand Isoline graphics methods. The Isofill graphics\nmethod fills the area between selected isolevels\n(levels of constant value) of a two-dimensional\narray; the manner of filling the area is determined\nby the named fill area attributes. The Isoline\ngraphics method draws lines of constant value at\nspecified levels to graphically represent the values\nof a two-dimensional array; labels also can be\ndisplayed on the isolines.\nIsolines can also have \"orientation\" arrows, indicating clockwise or counter-clockwise")
+##         self.tabWidget.setTabToolTip(3, "The Meshfill graphics method draws data on irregular grid (or 'mesh')at specified levels to graphically represent\nthe values of a one-dimensional array;\nUnless the irregular grid is supported by cdms2, a mesh array must be passed as well")
+##         self.tabWidget.setTabToolTip(4, "This 1D Plot notebook tab represent the XvsY, Xyvsy,\nand Yxvsx graphics methods. The XvsY graphics method\ndisplays a line plot from two 1D data arrays, that\nis X(t) and Y(t), where t represents the 1D\ncoordinate values. The Xyvsy graphics method displays\na line plot from a 1D data array, that is X(y),\nwhere y represents the 1D coordinate values. The\nYxvsx graphics method displays a line plot from\na 1D data array, that is Y(x), where y represents\nthe 1D coordinate values.")
+##         self.tabWidget.setTabToolTip(5, "The Outfill graphics method fills a set of integer\nvalues in any data array. Its primary purpose is\nto display continents by filling their area as\ndefined by a surface type array that indicates land,\nocean, and sea-ice points. ")
+##         self.tabWidget.setTabToolTip(6, "The Outline graphics method outlines a set of integer\nvalues in any data array. Its primary purpose is\nto display continental outlines as defined by a\nsurface type array that indicates land, ocean, and\nsea-ice points.")
+##         self.tabWidget.setTabToolTip(7, "The Scatter graphics method displays a scatter plot\nof two 4-dimensional data arrays, e.g. A(x,y,z,t)\nand B(x,y,z,t). ")
+##         self.tabWidget.setTabToolTip(8, "The Taylor diagram graphics method provides a statistical\nsummary of pattern correspondence. A single point on\nthe diagram indicates how similar two patterns are in\nterms of their correlation, root-mean-square (RMS)\ndifference, and the ratio of their variances.  The\nstandard deviation of a pattern is proportional to the\nradial distance.  The correlation is given by the cosine\nof the azimuthal angle. The RMS difference is proportional\nto the distance between the plotted points and the\nreference point (often chosen to be the observed\npattern), which is located along the abscissa at a radial\ndistance proportional to its standard deviation.")
+##         self.tabWidget.setTabToolTip(9, "The Vector graphics method displays a vector plot\nof a 2D vector field. Vectors are located at the\ncoordinate locations and point in the direction of\nthe data vector field. Vector magnitudes are the\nproduct of data vector field lengths and a scaling\nfactor. ")
 
-    def getButton(self, text):
-        button = QtGui.QToolButton()
-        button.setText(text)
-        return button
+##     def getButton(self, text):
+##         button = QtGui.QToolButton()
+##         button.setText(text)
+##         return button
 
 
 class QVectorEditor(VCSGMs1D,VCSGMs,QtGui.QScrollArea):
@@ -595,11 +604,7 @@ class QVectorEditor(VCSGMs1D,VCSGMs,QtGui.QScrollArea):
         self.headType.setToolTip("Set the vector head type.")
         self.reference.setToolTip("Set the vector reference. Note: if the value is 1e+20,\nthen VCS will determine the vector reference.")        
 
-        # Set up the scrollbar
-        widgetWrapper = QtGui.QWidget()
-        widgetWrapper.setLayout(vbox)
-        widgetWrapper.setMinimumWidth(580)
-        self.setWidget(widgetWrapper)
+        self.setWidget(frame)
 
     def initValues(self):
         self.initCommonValues()
@@ -623,30 +628,98 @@ class QVectorEditor(VCSGMs1D,VCSGMs,QtGui.QScrollArea):
         self.gm.reference = float(self.reference.value())
         self.gm.scale = float(self.scale.value())
 
-class QTaylorDiagramEditor(QtGui.QScrollArea):
+class QTaylorDiagramEditor(VCSGMs,QtGui.QScrollArea):
     def __init__(self, parent=None, gm=None):
         QtGui.QScrollArea.__init__(self, parent)
         vbox = QtGui.QVBoxLayout()
+        # Create Widgets
+        frame = QtGui.QFrame()
+        frame.setLayout(vbox)
+        self.parent=parent
+        self.root=parent.root
+        self.gmAttributes = [ 'xmtics1', 'xticlabels1', 'ymtics1', 'yticlabels1','cmtics1', 'cticlabels1', 'detail',
+                              'max','quadrans','skillValues','skillColor','skillDrawLabels','skillCoefficient',
+                              'referencevalue','arrowlength','arrowangle','arrowbase',
+                              'Marker.status','Marker.line','Marker.id','Marker.id_size','Marker.id_color',
+                              'Marker.id_font','Marker.symbol','Marker.color','Marker.size','Marker.xoffset',
+                              'Marker.yoffset','Marker.line_color','Marker.line_size','Marker.line_type',
+                              ]
+        self.gm=self.root.canvas[0].gettaylordiagram(gm)
+        self.saveOriginalValues()
 
-        tabWidget = QtGui.QTabWidget()
-        interfaceTab = QTaylorInterfaceTab()
-        tickAndLabelTab = QTaylorTicksLabels()
-        markersTab = QTaylorMarkers()
-        tabWidget.addTab(interfaceTab, 'Interface')
-        tabWidget.addTab(markersTab, 'Markers')
-        tabWidget.addTab(tickAndLabelTab, 'Ticks and Labels')
-        vbox.addWidget(tabWidget)
+        # General Aspect
+        genFrame = QFramedWidget('General Aspect')
+        self.detailSlider = genFrame.addLabeledSlider('Detail:', newRow=False)
+        self.detailSlider.setTickPosition(QtGui.QSlider.TicksBelow)
+        self.detailSlider.setMinimum(0)
+        self.detailSlider.setMaximum(100)
+        self.detailSlider.setSingleStep(5)
+        self.detailSlider.setTickInterval(10)
+        self.maxValue = genFrame.addLabeledLineEdit('Maximum Value:')
+        self.quadran = genFrame.addRadioFrame('Quadran', ['1', '2'])
+        self.refValue = genFrame.addLabeledLineEdit('Reference Value:')
+        vbox.addWidget(genFrame)
 
-        # Set up the scrollbar / widget size
-        widgetWrapper = QtGui.QWidget()
-        widgetWrapper.resize(670, 520)
-        widgetWrapper.setLayout(vbox)
-        self.setWidget(widgetWrapper)
+        # Skill
+        skillFrame = QFramedWidget('Skill')
+        self.skillValues = skillFrame.addLabeledLineEdit('Skill Values:')
+        self.skillLineColor = skillFrame.addLabeledComboBox('Skill Lines Color:',
+                                                            ['TODO'])
+        self.drawLabels = skillFrame.addCheckBox('Draw Skill Contour Labels')
+        self.skillCoefficients = skillFrame.addLabeledLineEdit('Skill Coefficients:')
+        vbox.addWidget(skillFrame)
+        
+        # Arrows
+        arrowFrame = QFramedWidget('Arrows')
+        self.lengthSlider = arrowFrame.addLabeledSlider('Length:', newRow=False)
+        self.angleSlider = arrowFrame.addLabeledSlider('Angle:',newRow=False)
+        self.baseSlider = arrowFrame.addLabeledSlider('Base:',newRow=False)
+        self.lengthSlider.setTickPosition(QtGui.QSlider.TicksBelow)
+        self.lengthSlider.setMinimum(0)
+        self.lengthSlider.setMaximum(10)
+        self.lengthSlider.setSingleStep(.05)
+        self.lengthSlider.setTickInterval(5)
+        self.angleSlider.setTickPosition(QtGui.QSlider.TicksBelow)
+        self.baseSlider.setTickPosition(QtGui.QSlider.TicksBelow)
+        # TODO - Create a widget to draw the arrow
+        
+        vbox.addWidget(arrowFrame)
+
+        ticFrame = QFramedWidget('Ticks and Labels')
+        self.xlabels = ticFrame.addLabeledLineEdit('xticlabels1:')
+        self.ylabels = ticFrame.addLabeledLineEdit('yticlabels:',newRow=False)
+        self.corLabels = ticFrame.addLabeledLineEdit('cticklabels1:',newRow=False)
+        self.xticks = ticFrame.addLabeledLineEdit('xmticks1:')
+        self.yticks = ticFrame.addLabeledLineEdit('ymticks1:',newRow=False)
+        self.corTicks = ticFrame.addLabeledLineEdit('cmticks1:',newRow=False)
+        vbox.addWidget(ticFrame)
+
+        self.markersTab = QTaylorMarkers(frame)
+        self.parent.parent.editorTab.addTab(self.markersTab, "'%s' Markers" % self.gm.name)
+
+        self.initValues()
+        self.setWidget(frame)
 
     def initValues(self):
-        interfaceTab.initValues()
-        markersTab.initValues()
-        tickAndLabelTab.initValues()
+        # General Aspect
+        self.detailSlider.setValue(self.gm.detail)
+        self.maxValue.setText(repr(self.gm.max))
+        self.quadran.setChecked(str(self.gm.quadrans))
+        self.refValue.setText(repr(self.gm.referencevalue))
+
+        # Arrows
+        self.lengthSlider.setValue(self.gm.arrowlength)
+        self.angleSlider.setValue(self.gm.arrowangle)
+        self.baseSlider.setValue(self.gm.arrowbase)
+
+        self.xlabels.setText(repr(self.gm.xticlabels1))
+        self.xticks.setText(repr(self.gm.xmtics1))
+        self.ylabels.setText(repr(self.gm.yticlabels1))
+        self.yticks.setText(repr(self.gm.ymtics1))
+        self.corLabels.setText(repr(self.gm.cticlabels1))
+        self.corTicks.setText(repr(self.gm.cmtics1))
+
+        self.markersTab.initValues()
 
 class QTaylorMarkers(QtGui.QScrollArea):
     """ Tabbed Widget for Taylor -> Markers """
@@ -882,117 +955,6 @@ class QMarkerEditorEntry(QtGui.QWidget):
 
         return comboBox
 
-class QTaylorTicksLabels(QtGui.QScrollArea):
-    def __init__(self, parent=None, gm=None):
-        QtGui.QScrollArea.__init__(self, parent)
-        vbox = QtGui.QVBoxLayout()
-
-        vbox = QtGui.QVBoxLayout()
-        xFrame = QFramedWidget('X axis')
-        self.xlabels = xFrame.addLabeledLineEdit('Labels:')
-        self.xticks = xFrame.addLabeledLineEdit('Ticks:')
-        vbox.addWidget(xFrame)
-
-        yFrame = QFramedWidget('Y axis')
-        self.ylabels = yFrame.addLabeledLineEdit('Labels:')
-        self.yticks = yFrame.addLabeledLineEdit('Ticks:')
-        vbox.addWidget(yFrame)
-
-        corArcFrame = QFramedWidget('Correlation arc')
-        self.corLabels = corArcFrame.addLabeledLineEdit('Labels:')
-        self.corTicks = corArcFrame.addLabeledLineEdit('Ticks:')
-        vbox.addWidget(corArcFrame)
-
-        # Init line edits
-        self.initValues()
-
-        # Set up the scrollbar
-        wrapperWidget = QtGui.QWidget()
-        wrapperWidget.setLayout(vbox)
-        wrapperWidget.setMinimumWidth(580)        
-        self.setWidget(wrapperWidget)
-
-    def initValues(self):
-        self.xlabels.setText('*')
-        self.xticks.setText('*')
-        self.ylabels.setText('*')
-        self.yticks.setText('*')
-        self.corLabels.setText('*')
-        self.corTicks.setText('*')        
-
-class QTaylorInterfaceTab(QtGui.QScrollArea):
-    def __init__(self, parent=None, gm=None):
-        QtGui.QScrollArea.__init__(self, parent)
-        vbox = QtGui.QVBoxLayout()
-
-        # General Aspect
-        genFrame = QFramedWidget('General Aspect')
-        self.detailSlider = genFrame.addLabeledSlider('Detail:', newRow=False)
-        self.maxValue = genFrame.addLabeledLineEdit('Maximum Value:')
-        self.quadran = genFrame.addRadioFrame('Quadran', ['1', '2'])
-        self.refValue = genFrame.addLabeledLineEdit('Reference Value:')
-        vbox.addWidget(genFrame)
-
-        # Skill
-        skillFrame = QFramedWidget('Skill')
-        self.skillValues = skillFrame.addLabeledLineEdit('Skill Values:')
-        self.skillLineColor = skillFrame.addLabeledComboBox('Skill Lines Color:',
-                                                            ['TODO'])
-        self.drawLabels = skillFrame.addCheckBox('Draw Skill Contour Labels')
-        self.skillCoefficients = skillFrame.addLabeledLineEdit('Skill Coefficients:')
-        vbox.addWidget(skillFrame)
-        
-        # Arrows
-        arrowFrame = QFramedWidget('Arrows')
-        self.lengthSlider = arrowFrame.addLabeledSlider('Length:', newRow=False)
-        self.angleSlider = arrowFrame.addLabeledSlider('Angle:')
-        self.baseSlider = arrowFrame.addLabeledSlider('Base:')
-        # TODO - Create a widget to draw the arrow
-        
-        vbox.addWidget(arrowFrame)
-        vbox.setAlignment(arrowFrame, QtCore.Qt.AlignTop)
-
-        # Set up the scrollbar
-        wrapperWidget = QtGui.QWidget()
-        wrapperWidget.setLayout(vbox)
-        wrapperWidget.setMinimumWidth(580)
-        self.setWidget(wrapperWidget)        
-
-        # Init Values
-        self.initValues()
-
-        # Connect Signals
-        self.connect(self.lengthSlider, QtCore.SIGNAL('valueChanged(int)'), self.lengthChangedEvent)
-        self.connect(self.angleSlider, QtCore.SIGNAL('valueChanged(int)'), self.angleChangedEvent)
-        self.connect(self.baseSlider, QtCore.SIGNAL('valueChanged(int)'), self.baseChangedEvent)        
-
-    def initValues(self):
-        # TODO Init w/ non hardcoded values?
-
-        # General Aspect
-        self.detailSlider.setTickPosition(QtGui.QSlider.TicksBelow)
-        self.detailSlider.setMinimum(0)
-        self.detailSlider.setMaximum(100)
-        self.detailSlider.setSingleStep(5)
-        self.detailSlider.setTickInterval(10)
-
-        self.maxValue.setText('None')
-        self.refValue.setText('1.0')
-        self.quadran.setChecked('1')
-
-        # Arrows
-        self.lengthSlider.setTickPosition(QtGui.QSlider.TicksBelow)
-        self.angleSlider.setTickPosition(QtGui.QSlider.TicksBelow)
-        self.baseSlider.setTickPosition(QtGui.QSlider.TicksBelow)
-
-    def lengthChangedEvent(self, int):
-        return # TODO
-
-    def angleChangedEvent(self, int):
-        return # TODO
-
-    def baseChangedEvent(self, int):
-        return # TODO
 
 class QScatterEditor(VCSGMs1D,VCSGMs,QtGui.QScrollArea):
     def __init__(self, parent=None, gm=None):

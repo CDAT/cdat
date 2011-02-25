@@ -17,9 +17,9 @@ class QGraphicsMethodsWidget(QtGui.QWidget):
         saveAsAction = self.gmsMenu.addAction('&Save as a Script file')
         removeAction = self.gmsMenu.addAction('&Remove')
 
-        self.gmButton = QtGui.QPushButton()
+        self.gmButton = QtGui.QLabel()
         self.gmButton.setText('%s Methods' % ptype)
-        self.gmButton.setMenu(self.gmsMenu)
+        #self.gmButton.setMenu(self.gmsMenu)
 
         layout.addWidget(self.gmButton)
 
