@@ -560,13 +560,13 @@ class AbstractCurveGrid(AbstractHorizontalGrid):
           preferred order of the grid.
         """
         
-        iaxis = self._lonaxis_.getAxis(0)
-        jaxis = self._lonaxis_.getAxis(1)
+        iaxis = self._lataxis_.getAxis(0)
+        jaxis = self._lataxis_.getAxis(1)
         k = 0
         i = j = -1
         for d in domainlist:
-            print " d  568", d, "\niaxis  ", iaxis
             print " d  568", id(d), "\niaxis  ", id(iaxis)
+            print " d  568", id(d), "\niaxis  ", id(jaxis)
             if d is iaxis:
                 inewaxis = newaxislist[k]
                 islice = slicelist[k]
