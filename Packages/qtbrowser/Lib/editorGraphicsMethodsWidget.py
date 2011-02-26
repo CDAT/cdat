@@ -54,13 +54,15 @@ class QEditorGraphicsMethodsWidget(QtGui.QWidget):
     def applyChanges(self):
         if self.widget.gm.name == "default":
             return
-        try:
+        ## try:
+        if 1:
             self.widget.applyChanges()
             diff = self.widget.changesString()
-            self.root.record(diff)
-        except Exception,err:
-            st = "Error Applying Changes On %s graphic method: %s\n%s" % (self.ptype,self.widget.gm.name,err)
-            self.error.showMessage(st)
+            if diff != "":
+                self.root.record(diff)
+        ## except Exception,err:
+        ##     st = "Error Applying Changes On %s graphic method: %s\n%s" % (self.ptype,self.widget.gm.name,err)
+        ##     self.error.showMessage(st)
 
 
     def previewChanges(self):

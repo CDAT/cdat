@@ -71,7 +71,7 @@ import vcsaddons
 def dictionarytovcslist(dictionary,name):
     for k in dictionary.keys():
         if not isinstance(k,(float,int,long)):
-            raise 'Error, vcs list must have numbers only as keys'
+            raise Exception,'Error, vcs list must have numbers only as keys'
     _vcs.dictionarytovcslist(dictionary,name)
     return None
 
@@ -1234,7 +1234,7 @@ class Canvas(object,AutoAPI.AutoAPI):
 ##                             print 'gone'
                     except Exception,err:
 ##                         print 'Error for:',o.name,err
-##                         raise
+##                         raise vcsError,err
                         pass
                         
         return
@@ -1630,7 +1630,7 @@ Options:::
                 #vcs.taylordiagrams.append(n)
                 n.Marker.equalize()
                 return n
-        raise 'Error, taylordiagram \"'+Gtd_name_src+'\" does not exist'
+        raise vcsError,'Error, taylordiagram \"'+Gtd_name_src+'\" does not exist'
     
     def taylordiagram(self, *args, **parms):
         """
@@ -8053,7 +8053,7 @@ Options:::
         """
         nb = apply(self.canvas.getfontnumber,(name,))
         if nb==-1:
-            raise "Font name not existing! %s" % name
+            raise vcsError,"Font name not existing! %s" % name
         return nb
     
     def getfontname(self, number):
@@ -8062,7 +8062,7 @@ Options:::
         """
         nm = apply(self.canvas.getfontname,(number,))
         if nm=="":
-            raise "Error font number not existing %i" % number
+            raise vcsError,"Error font number not existing %i" % number
         return nm
     
     def getfont(self, font):
@@ -8074,7 +8074,7 @@ Options:::
         elif isinstance(font,str):
             return self.getfontnumber(font)
         else:
-            raise "Error you must pass a string or int"
+            raise vcsError,"Error you must pass a string or int"
         
     def switchfonts(self,font1,font2):
         """ Switch 2 font indexes, you can pass either the font names or indexes """
@@ -8084,14 +8084,14 @@ Options:::
             index1 = int(font1)
             nm = self.getfont(index1) # make sure font exists
         else:
-            raise "Error you must pass either a number or font name!, you passed for font 1: %s" % font1
+            raise vcsError,"Error you must pass either a number or font name!, you passed for font 1: %s" % font1
         if isinstance(font2,str):
             index2 = self.getfont(font2)
         elif isinstance(font2,(int,float)):
             index2 = int(font2)
             nm = self.getfont(index2) # make sure font exists
         else:
-            raise "Error you must pass either a number or font name!, you passed for font 2: %s" % font2
+            raise vcsError,"Error you must pass either a number or font name!, you passed for font 2: %s" % font2
         
         return apply(self.canvas.switchfontnumbers,(index1,index2))
     
@@ -8103,14 +8103,14 @@ Options:::
             index1 = int(font1)
             nm = self.getfont(index1) # make sure font exists
         else:
-            raise "Error you must pass either a number or font name!, you passed for font 1: %s" % font1
+            raise vcsError,"Error you must pass either a number or font name!, you passed for font 1: %s" % font1
         if isinstance(font2,str):
             index2 = self.getfont(font2)
         elif isinstance(font2,(int,float)):
             index2 = int(font2)
             nm = self.getfont(index2) # make sure font exists
         else:
-            raise "Error you must pass either a number or font name!, you passed for font 2: %s" % font2
+            raise vcsError,"Error you must pass either a number or font name!, you passed for font 2: %s" % font2
         return apply(self.canvas.copyfontto,(index1,index2))
     
     def setdefaultfont(self,font):
