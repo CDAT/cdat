@@ -491,9 +491,9 @@ def checkTextTable(self,name,value):
      checkName(self,name,value)
      if isinstance(value,str):
           if not value in self.parent.parent.listelements("texttable"):
-               raise "Error : not a valid texttable"
+               raise ValueError,"Error : not a valid texttable"
      elif not isinstance(value,vcs.texttable.Tt):
-          raise "Error you must pass a texttable objector a texttable name"
+          raise ValueError,"Error you must pass a texttable objector a texttable name"
      else:
           return value.name
      return value
@@ -501,9 +501,9 @@ def checkTextOrientation(self,name,value):
      checkName(self,name,value)
      if isinstance(value,str):
           if not value in self.parent.parent.listelements("textorientation"):
-               raise "Error : not a valid textorientation"
+               raise ValueError,"Error : not a valid textorientation"
      elif not isinstance(value,vcs.textorientation.To):
-          raise "Error you must pass a textorientation objector a textorientation name"
+          raise ValueError,"Error you must pass a textorientation objector a textorientation name"
      else:
           return value.name
      return value

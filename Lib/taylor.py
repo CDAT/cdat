@@ -745,7 +745,7 @@ class Gtd(object):
     def script(self,file,option='a'):
         self.Marker.equalize()
         if not option in ['a','w']:
-            raise 'Error valid write option are w or a'
+            raise Exception,'Error valid write option are w or a'
         if option=='a' : option='r+'
         try:
             f=open(file,option)
@@ -1372,7 +1372,7 @@ class Gtd(object):
         elif vcs.istemplate(template):
             self.__dict__['template']=template
         else:
-            raise 'Error you passed an invalid template'
+            raise Exception,'Error you passed an invalid template'
         
         canvas.pause_time=0
         #canvas.open()
