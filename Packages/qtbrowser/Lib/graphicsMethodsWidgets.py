@@ -64,9 +64,18 @@ class VCSGMs():
     def changesString(self):
         rec = "## Change Graphics method attributes\n"
         rec += self.getGMString()
+        changes = 0 
         for a in self.gmAttributes:
-            if self.originalValues[a]!=getattr(self.gm,a):
-                rec+="gm.%s = %s\n" % (a,repr(getattr(self.gm,a)))
+            if a.find(".")>-1:
+                sp=a.split(".")
+                val = getattr(getattr(self.gm,sp[0]),sp[1])
+            else:
+                val = getattr(self.gm,a)
+            if self.originalValues[a]!=val:
+                rec+="gm.%s = %s\n" % (a,repr(val))
+                changes+=1
+        if changes==0:
+            rec=""
         return rec
 
     def initCommonValues(self):
@@ -735,6 +744,38 @@ class QTaylorDiagramEditor(VCSGMs,QtGui.QScrollArea):
 
         self.markersTab.initValues()
 
+    def applyChanges(self):
+        # General Aspect
+        self.gm.detail = self.detailSlider.value()
+        self.gm.max = eval(str(self.maxValue.text()))
+        self.gm.quadrans = int(self.quadran.buttonGroup.button(self.quadran.buttonGroup.checkedId()).text())
+        self.gm.referencevalue = eval(str(self.refValue.text()))
+
+        # Skills
+        if self.drawLabels.isChecked():
+            self.gm.skillDrawLabels = "y"
+        else:
+            self.gm.skillDrawLabels = "n"
+        self.gm.skillValues = eval(str(self.skillValues.text()))
+
+        self.gm.skillcolor = int(self.skillLineColor.text())
+        self.gm.skillCoefficient = eval(str(self.skillCoefficients.text()))
+        
+        # Arrows
+        self.gm.arrowlength = self.lengthSlider.value()/100.
+        self.gm.arrowangle = self.angleSlider.value()
+        self.gm.arrowbase = self.baseSlider.value()/100.
+
+        self.gm.xticlabels1 = eval(str(self.xlabels.text()))
+        self.gm.xmtics1 = eval(str(self.xticks.text()))
+        self.gm.yticlabels1 = eval(str(self.ylabels.text()))
+        self.gm.ymtics1 = eval(str(self.yticks.text()))
+        self.gm.cticlabels1 = eval(str(self.corLabels.text()))
+        self.gm.cmtics1 = eval(str(self.corTicks.text()))
+
+        self.markersTab.applyChanges()
+        
+
 class QTaylorMarkers(QtGui.QScrollArea):
     """ Tabbed Widget for Taylor -> Markers """
     
@@ -844,7 +885,59 @@ class QTaylorMarkers(QtGui.QScrollArea):
             s = self.getGMMarkerAttributeValue(M,"line_color",i)
             w['colorCombo2'].setText(str(s))
         return
+    
+    def applyChanges(self):
+        M = self.parent.gm.Marker
+        status =[]
+        symbol = []
+        color=[]
+        size=[]
+        id=[]
+        idsize=[]
+        idcolor=[]
+        idfont=[]
+        xoffset=[]
+        yoffset=[]
+        line=[]
+        linetype=[]
+        linesize=[]
+        linecolor=[]
+        for i in range(len(self.markerList)):
+            m = self.markerList[i]
+            w = m.getWidgets()
+            if w['activeBox'].isChecked():
+                status.append(1)
+            else:
+                status.append(0)
+            symbol.append(str(w['symbolCombo'].currentText()))
+            color.append(int(w['colorCombo1'].text()))
+            size.append(int(w['size'].text()))
+            id.append(str(str(w['id'].text())))
+            idsize.append(int(w['idSize'].text()))
+            idcolor.append(int(w['idColorCombo'].text()))
+            idfont.append(self.root.canvas[0].getfont(str(w['idFontCombo'].currentText())))
+            xoffset.append(float(w['x'].text()))
+            yoffset.append(float(w['y'].text()))
+            line.append(str(w['lineCombo'].currentText()))
+            linetype.append(str(w['typeCombo'].currentText()))
+            linesize.append(float(w['size2'].text()))
+            linecolor.append(int(w['colorCombo2'].text()))
 
+        M.status = status
+        M.symbol=symbol
+        M.size=size
+        M.id=id
+        M.id_size=idsize
+        M.id_color=idcolor
+        M.id_font=idfont
+        M.xoffset=xoffset
+        M.yoffset=yoffset
+        M.line=line
+        M.line_type=linetype
+        M.line_size=linesize
+        M.line_color=linecolor
+
+        
     def getGMMarkerAttributeValue(self,M,a,i):
         v = getattr(M,a)
         if len(v)<i:
