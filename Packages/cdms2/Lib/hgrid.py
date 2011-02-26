@@ -565,8 +565,6 @@ class AbstractCurveGrid(AbstractHorizontalGrid):
         k = 0
         i = j = -1
         for d in domainlist:
-            print " d  568", id(d), "\niaxis  ", id(iaxis)
-            print " d  568", id(d), "\niaxis  ", id(jaxis)
             if d is iaxis:
                 inewaxis = newaxislist[k]
                 islice = slicelist[k]
@@ -645,7 +643,6 @@ class AbstractCurveGrid(AbstractHorizontalGrid):
     def checkAxes(self, axes):
         """Return 1 iff every element of self.getAxisList() is in the list 'axes'."""
         for item in self.getAxisList():
-            print '\nhgrid 646\n', item, "\naxes\n", axes
             if item not in axes:
                 result = 0
                 break

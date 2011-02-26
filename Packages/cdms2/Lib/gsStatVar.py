@@ -94,8 +94,9 @@ class GsStatVar:
             return self.vars[0].typecode()
         return None
 
-#    def __repr__(self):
-#        res = ""
+    def __repr__(self):
+        res = ""
+        print dir(self)
 #        for gfindx in range(len(self.vars)):
 #            res += (" grid %d: " % gfindx) + repr(self.vars[gfindx])
 #        return res
@@ -173,19 +174,6 @@ def updateSetGridToAbstractVariable(AbstractVariable):
                 self.setAxis(i, self._lonaxis_.getAxis(i))
                 self.setAxis(i, self._lataxis_.getAxis(i))
 
-#            print 'var  lataxis', id(self._lataxis_.getAxis(0)), id(self._lataxis_.getAxis(1))
-#            print 'var  lonaxis', id(self._lonaxis_.getAxis(0)), id(self._lonaxis_.getAxis(1))
-#            print 'var  getAxis', id(self.getAxis(0)), id(self.getAxis(1))
-#            print
-#            print 'grid lataxis', id(self.grid._lataxis_.getAxis(0)), id(self.grid._lataxis_.getAxis(1))
-#            print 'grid lonaxis', id(self.grid._lonaxis_.getAxis(0)), id(self.grid._lonaxis_.getAxis(1))
-#            print 'grid getAxis', id(self.grid.getAxis(0)), id(self.grid.getAxis(1))
-#            print
-#            aa = self.getGrid()
-#            print 'set lon 169 ', id(aa.getAxis(0)), id(aa.getAxis(1))
-#            import sys
-#            sys.exit(1)
-    
         else:
             raise CDMSError, "No 'coordinates' attribute. Can't getLongitude"
 

@@ -145,7 +145,6 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         if axes is not None:
             self.initDomain(axes, copyaxes=copyaxes)           # Note: clobbers the grid, so set the grid after.
         if grid is not None:
-            print 'TransientVariable, 116', grid
             self.setGrid(grid)
  
         # Initialize attributes

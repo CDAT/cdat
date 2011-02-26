@@ -188,7 +188,7 @@ class GsTimeVar:
 #
 # This is not very satisfactory, since I am having to duplicate the code in
 # gsStatVar.py
-def addGetLatitudeToAbstractVariable(AbstractVariable):
+def updateGetLatitudeToAbstractVariable(AbstractVariable):
     """
     Update the AbstractVariable method getLatitude
     @param AbstractVariable a Abstract variable
@@ -196,7 +196,6 @@ def addGetLatitudeToAbstractVariable(AbstractVariable):
     def getLatitude(self):
         """
         Return the coordinate data associated with variable
-        @param AbstractVariable a Abstract variable
         @return latitude from a cdms2.hgrid.AbstrctCurveGrid
         """
         if 'coordinates' in self.attributes.keys():
@@ -209,16 +208,14 @@ def addGetLatitudeToAbstractVariable(AbstractVariable):
     # Add getLatitude to the AbstractVariable Class
     AbstractVariable.getLatitude = types.MethodType(getLatitude, AbstractVariable)
 
-def addGetLongitudeToAbstractVariable(AbstractVariable):
+def updateGetLongitudeToAbstractVariable(AbstractVariable):
     """
     Update the AbstractVariable method getLongitude
     @param AbstractVariable a Abstract variable
-    @return grid a cdms2.hgrid.AbstrctCurveGrid object
     """
     def getLongitude(self):
         """
         Return the coordinate data associated with variable
-        @param AbstractVariable a Abstract variable
         @return longitude from a cdms2.hgrid.AbstrctCurveGrid
         """
 
@@ -230,16 +227,15 @@ def addGetLongitudeToAbstractVariable(AbstractVariable):
     # Add getLongitude to the AbstractVariable Class
     AbstractVariable.getLongitude = types.MethodType(getLongitude, AbstractVariable)
 
-def addGetGridToAbstractVariable(AbstractVariable):
+def updateSetGridToAbstractVariable(AbstractVariable):
     """
-    Update getGrid in the Class AbstractVariable
+    Update setGrid in the Class AbstractVariable
     @param AbstractVariable a Abstract variable
     """
-    def getGrid(self):
+    def setGrid(self):
         """
         Return the coordinate data associated with variable
-        @param AbstractVariable a Abstract variable
-        @return grid a cdms2.hgrid.AbstrctCurveGrid object
+        @return grid a cdms2.hgrid.AbstractCurveGrid object
         """
 
         fh = cdms2.open(self.gridFilename)
@@ -248,11 +244,34 @@ def addGetGridToAbstractVariable(AbstractVariable):
     
             x = fh(xn)
             y = fh(yn)
-            grid = AbstractCurveGrid(x, y)
-    
-            return grid
+            self.grid = AbstractCurveGrid(x, y)
+            self._lonaxis_ = self.grid._lonaxis_
+            self._lataxis_ = self.grid._lataxis_
+            if self.rank() != len(self.grid.getAxisList()):
+                raise CDMSError, """self.rank doesn't match the number of axes 
+                                    for the grid"""
+            for i in range(self.rank()):
+                self.setAxis(i, self._lonaxis_.getAxis(i))
+                self.setAxis(i, self._lataxis_.getAxis(i))
+
         else:
             raise CDMSError, "No 'coordinates' attribute. Can't getLongitude"
+
+    # Add getGrids to the AbstractVariable Class
+    AbstractVariable.setGrid = types.MethodType(setGrid, AbstractVariable)
+
+def updateGetGridToAbstractVariable(AbstractVariable):
+    """
+    Update getGrid in the Class AbstractVariable
+    @param AbstractVariable a Abstract variable
+    """
+    def getGrid(self):
+        """
+        Return the coordinate data associated with variable
+        @return grid a cdms2.hgrid.AbstrctCurveGrid object
+        """
+
+        return self.grid
 
     # Add getGrids to the AbstractVariable Class
     AbstractVariable.getGrid = types.MethodType(getGrid, AbstractVariable)
@@ -262,17 +281,15 @@ def addGetCoordinatesToAbstractVariable(AbstractVariable):
     Add getCoordinates to the Class AbstractVariable
     @param AbstractVariable a Abstract variable
     """
-    def getCoordinates(AbstractVariable):
+    def getCoordinates(self):
         """
         Return the coordinate data associated with variable
-        @param AbstractVariable a Abstract variable
-        @return a tuple of lon and lat
+        @return tuple of Grids longitude and latitude
         """
-        av = AbstractVariable
 
-        fh = cdms2.open(av.gridFilename)
-        if 'coordinates' in av.attributes.keys():
-            xn, yn = av.attributes['coordinates'].split()
+        fh = cdms2.open(self.gridFilename)
+        if 'coordinates' in self.attributes.keys():
+            xn, yn = self.attributes['coordinates'].split()
     
             x = fh(xn)
             y = fh(yn)
