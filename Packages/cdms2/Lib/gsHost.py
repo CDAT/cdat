@@ -11,7 +11,7 @@ import cdms2
 from cdms2.avariable import AbstractVariable
 from cdms2.tvariable import TransientVariable
 from cdms2.cdmsobj import CdmsObj
-import gsStatVar
+from gsstaticvariableobj import GsStaticVariableObj
 import gsTimeVar
 
 # local imports
@@ -55,7 +55,7 @@ def open(hostfile, mode = 'r', file_type = ""):
     outHostFile = GsHost(hostfile, mode, file_type)
     return outHostFile
 
-class GsHost:
+class GsHost(object):
     """
     A LibCF/GRIDSPEC host file object. This acts as the single point of entry to
     a host file. Variables and grids can be requested solely through the GsHost
@@ -435,15 +435,16 @@ class GsHost:
         """
         # Static variables
         if self.statVars.has_key(varName):
-            vs = gsStatVar.GsStatVar(self, varName)
+            GsStatVar = GsStaticVariableObj
+            staticVariablesObj = GsStatVar(self, varName)
 
-            return vs.vars
+            return staticVariablesObj.vars 
 
         # Time variables
         elif self.timeDepVars.has_key(varName):
-            vt = gsTimeVar.GsTimeVar(self, varName)
+            timeVariablesObj = gsTimeVar.GsTimeObj(self, varName)
             
-            return vt.vars
+            return timeVariablesObj.vars
     
     def __call__(self, varName):
         """

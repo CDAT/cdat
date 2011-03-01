@@ -9,20 +9,14 @@ import operator
 import ctypes
 import cdms2
 from cdms2.MV2 import concatenate
-from cdms2.gsStatVar import GsStatVar
+from cdms2.gsstaticvariableobj import GsStaticVariableObj
 from cdms2.error import CDMSError
 from cdms2.hgrid import AbstractCurveGrid
 import types
 
 import sys
 
-#class SV(AbstractVariable):
-#    def __init__(self, var):
-#        self.var = var
-#    def getLatitude(self):
-#        print 'do stuff'
-
-class GsTimeVar:
+class GsTimeObj:
 
     def __init__(self, GsHost, varName):
         """
@@ -65,17 +59,11 @@ class GsTimeVar:
                         axes = [var.getAxis(0), lon.getAxis(0), lon.getAxis(1)])
                 else:
                     tmp = concatenate((tmp, var))
-
+                    
                 fh.close()
 
             # Attach the grid to the variable
-            print var.getAxis(1)
-            print lon.getAxis(1)
-            Domain = tmp.getDomain()
-            self.vars[gfindx] = cdms2.createVariable(tmp)
-            print '\nCreateVar\n'
-            print self.vars[gfindx].setGrid(curvegrid)
-            sys.exit(1)
+            self.vars[gfindx] = tmp
 
             # Concatenate is messing with the attributes, so I am reattaching them
             self.vars[gfindx].attributes = {}
@@ -83,17 +71,20 @@ class GsTimeVar:
                 self.vars[gfindx].__setattr__(key, var.attributes[key])
 
             # Add some methods to GsTimeVar[gfindx]
-            addGetLatitudeToAbstractVariable(self.vars[gfindx])
-            addGetLongitudeToAbstractVariable(self.vars[gfindx])
-            addGetGridToAbstractVariable(self.vars[gfindx])
-            addGetCoordinatesToAbstractVariable(self.vars[gfindx])
+            updateGetLatitudeToAbstractVariable(tmp)
+            updateGetLongitudeToAbstractVariable(tmp)
+            updateSetGridToAbstractVariable(tmp)
+            updateGetGridToAbstractVariable(tmp)
+            addGetCoordinatesToAbstractVariable(tmp)
 
             # Add some other attributes
             self.vars[gfindx].tile_name    = fh.tile_name
             self.vars[gfindx].gridFilename = gName
             grids = cdms2.open(gName)
             self.vars[gfindx].gridIndex    = gfindx
-#            self.vars[gfindx].setGrid(grids('lon'))
+
+            gg = self.vars[gfindx].setGrid()
+            sys.exit(1)
 
     def __getitem__(self, tfindx):
         """
@@ -242,20 +233,27 @@ def updateSetGridToAbstractVariable(AbstractVariable):
         if 'coordinates' in self.attributes.keys():
             xn, yn = self.attributes['coordinates'].split()
     
+            # Set the variable coordinates to the grid coordinates
             x = fh(xn)
             y = fh(yn)
             self.grid = AbstractCurveGrid(x, y)
             self._lonaxis_ = self.grid._lonaxis_
             self._lataxis_ = self.grid._lataxis_
-            if self.rank() != len(self.grid.getAxisList()):
+
+            # -1 to remove time dimension
+            if self.rank()-1 != len(self.grid.getAxisList()):
                 raise CDMSError, """self.rank doesn't match the number of axes 
                                     for the grid"""
-            for i in range(self.rank()):
-                self.setAxis(i, self._lonaxis_.getAxis(i))
-                self.setAxis(i, self._lataxis_.getAxis(i))
+            # Now set the axes
+            print self._lonaxis_.shape
+            print self._lataxis_.shape
+
+            for i in range(self.rank()-1):
+                self.setAxis(i+1, self._lonaxis_.getAxis(i))
+                self.setAxis(i+1, self._lataxis_.getAxis(i))
 
         else:
-            raise CDMSError, "No 'coordinates' attribute. Can't getLongitude"
+            raise CDMSError, "No 'coordinates' attribute. Can't execute getGrid"
 
     # Add getGrids to the AbstractVariable Class
     AbstractVariable.setGrid = types.MethodType(setGrid, AbstractVariable)

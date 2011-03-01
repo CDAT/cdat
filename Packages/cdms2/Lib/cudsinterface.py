@@ -23,8 +23,7 @@ class cuDataset:
             try:
                 if ( self.is_gridspec_grid_file() and
                      ( id=='' or id=='grid' or id=='gridspec' ) and
-                     len(args)==0 and
-                     len(kwargs)==0
+                     len(args)==0 and len(kwargs)==0
                      ):
                     return self.readg()
                 else:
