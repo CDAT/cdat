@@ -5,6 +5,7 @@ import editorGraphicsMethodsWidget
 import editorTemplateWidget
 import graphicsMethodsWidget
 import templatesWidget
+import vcsPageLayoutWidget
 
 class QVCSPlotController(QtGui.QWidget):
     """ Widget containing plot options: plot button, plot type combobox, cell
@@ -42,7 +43,7 @@ class QVCSPlotController(QtGui.QWidget):
         ##########################################################
         self.plotsSetup=QtGui.QFrame()
         vlayout = QtGui.QVBoxLayout()
-        vlayout.addWidget(QtGui.QLabel("plot setup section"))
+        vlayout.addWidget(vcsPageLayoutWidget.QPageLayoutWidget(parent=self))
         self.plotsSetup.setLayout(vlayout)
         vsplitter.addWidget(self.plotsSetup)
 
