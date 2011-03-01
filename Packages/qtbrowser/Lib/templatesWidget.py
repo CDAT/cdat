@@ -1,6 +1,7 @@
 from PyQt4 import QtCore, QtGui
 import customizeVCDAT
 import editorTemplateWidget
+import vcdatCommons
 
 class QTemplatesWidget(QtGui.QWidget):
     def __init__(self,parent=None):
@@ -25,7 +26,7 @@ class QTemplatesWidget(QtGui.QWidget):
 
         layout.addWidget(self.templateButton)
 
-        self.templateList = QtGui.QListWidget()
+        self.templateList = vcdatCommons.QDragListWidget(type="templates")
 ##         self.templateList.setAlternatingRowColors(True)
         self.templateList.setDragEnabled(True)
         p = QtGui.QPalette()
