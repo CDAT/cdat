@@ -1,6 +1,7 @@
 from PyQt4 import QtCore, QtGui
 import customizeVCDAT
 import editorGraphicsMethodsWidget
+import vcdatCommons
 
 class QGraphicsMethodsWidget(QtGui.QWidget):
     def __init__(self,ptype,parent=None):
@@ -23,7 +24,7 @@ class QGraphicsMethodsWidget(QtGui.QWidget):
 
         layout.addWidget(self.gmButton)
 
-        self.gmList = QtGui.QListWidget()
+        self.gmList = vcdatCommons.QDragListWidget(type="graphicmethods")
 ##         self.gmList.setAlternatingRowColors(True)
         self.gmList.setDragEnabled(True)
         p = QtGui.QPalette()
