@@ -5,7 +5,7 @@ import definedVariableWidget
 import mainToolbarWidget
 import mainMenuWidget
 import commandLineWidget
-#import calculatorWidget
+import calculatorWidget
 import plotViewWidget
 import variableViewWidget
 import commandsRecorderWidget
@@ -133,7 +133,7 @@ class QCDATWindow(QtGui.QMainWindow):
         ###########################################################
         # Calculator Tab
         ###########################################################
-        #self.tabView.addTab(calculatorWidget.QCalculator(self), "Calculator")
+        self.tabView.addTab(calculatorWidget.QCalculator(self), "Calculator")
 
         layout.addWidget(hsplitter)
         self.show()

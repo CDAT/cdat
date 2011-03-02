@@ -1,6 +1,7 @@
 from PyQt4 import QtGui, QtCore
 import os
 import cdms2
+import vcdatCommons
 
 
 
@@ -39,7 +40,7 @@ class QDefinedVariableWidget(QtGui.QWidget):
         ## vbox.addWidget(self.command_line)
 
         # Create List for defined variables and add it to the layout
-        self.varList = QtGui.QListWidget()
+        self.varList = vcdatCommons.QDragListWidget(type="definedVariables")
         self.varList.setAlternatingRowColors(True)
         self.varList.setSelectionMode(QtGui.QAbstractItemView.MultiSelection)
         vbox.addWidget(self.varList)
