@@ -3,6 +3,7 @@ import vcs
 import qtbrowser
 import vcsPlotControllerWidget
 import customizeVCDAT
+import vcsPageLayoutWidget
 
 class QPlotOptionsWidget(QtGui.QWidget):
     """ Widget containing plot options: plot button, plot type combobox, cell
@@ -17,8 +18,8 @@ class QPlotOptionsWidget(QtGui.QWidget):
         self.setLayout(layout)
         frame1 = QtGui.QFrame()
         layout.addWidget(frame1)
-        self.frame2 = QtGui.QFrame()
-        layout.addWidget(self.frame2)
+        self.customizePlotFrame = QtGui.QFrame()
+        layout.addWidget(self.customizePlotFrame)
         hbox = QtGui.QHBoxLayout()
         frame1.setLayout(hbox)
         self.root = parent.root
@@ -32,10 +33,8 @@ class QPlotOptionsWidget(QtGui.QWidget):
         comboPalette.setColor(QtGui.QPalette.HighlightedText, QtCore.Qt.white)
         comboPalette.setColor(QtGui.QPalette.Highlight, QtCore.Qt.blue)                
         self.plotTypeCombo.view().setPalette(comboPalette)
-
-        plotTypes = customizeVCDAT.plotTypes
         
-        self.plotTypeCombo.addItems(plotTypes)
+        self.plotTypeCombo.addItems(customizeVCDAT.plotTypes)
         hbox.addWidget(self.plotTypeCombo)
 
         if qtbrowser.useVistrails:
@@ -133,11 +132,11 @@ class QPlotOptionsWidget(QtGui.QWidget):
         
     def selectedPlotType(self,*args):
         ptype = self.getPlotType()
-        self.frame2.destroy()
-        self.layout.removeWidget(self.frame2)
+        self.customizePlotFrame.destroy()
+        self.layout.removeWidget(self.customizePlotFrame)
         if self.parent.isVCSPlot(ptype):
-            self.frame2=vcsPlotControllerWidget.QVCSPlotController(self.parent)
-            self.layout.addWidget(self.frame2)
+            self.customizePlotFrame=vcsPlotControllerWidget.QVCSPlotController(self.parent)
+            self.layout.addWidget(self.customizePlotFrame)
         else:
             print 'Cannot construct controller for graphic method type:',ptype
         
@@ -235,6 +234,14 @@ class QPlotView(QtGui.QWidget):
 
         self.plotOptions = QPlotOptionsWidget(self)
 
+        ##########################################################
+        # Plots setup section
+        ##########################################################
+        self.plotsSetup=QtGui.QFrame()
+        vlayout = QtGui.QVBoxLayout()
+        vlayout.addWidget(vcsPageLayoutWidget.QPageLayoutWidget(parent=self))
+        self.plotsSetup.setLayout(vlayout)
+        self.plotsSetup.hide()
         
         vbox.addWidget(self.plotOptions)
         #self.plotOptions.plotTypeCombo.emit(QtCore.SIGNAL('currentIndexChanged(QString("Meshfill"))'))
@@ -346,13 +353,13 @@ class QPlotView(QtGui.QWidget):
 
     def getTemplateName(self):
         """ Return the template given the plotType. """
-        return str(self.plotOptions.frame2.templates.templateList.currentItem().text())
+        return str(self.plotOptions.customizePlotFrame.templates.templateList.currentItem().text())
 
     def getGraphicsMethodName(self):
         """ Return the graphics method given the plotType.  This is currently
         hardcoded but should change based on the user? """
 
-        return str(self.plotOptions.frame2.gms.gmList.currentItem().text())
+        return str(self.plotOptions.customizePlotFrame.gms.gmList.currentItem().text())
     
     ## def setVistrailsCDATCell(self):
     ##     """ Vistrails: Update the vistrails' CDAT Cell modules' input ports: """
