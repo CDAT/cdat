@@ -1,0 +1,31 @@
+
+if(WIN32)
+else()
+  set(ENV{@LIBRARY_PATH@} "@cdat_BINARY_DIR@/Externals/lib:@PYTHON_LIBRARY_DIR@:$ENV{@LIBRARY_PATH@}")
+  set(ENV{LDFLAGS} "-L@cdat_BINARY_DIR@/Externals/NetCDF/lib -L@cdat_BINARY_DIR@/Externals/lib -L@cdat_BINARY_DIR@/lib")
+  set(ENV{CFLAGS} "-I@cdat_BINARY_DIR@/Externals/NetCDF/include -I@cdat_BINARY_DIR@/Externals/include")
+  set(ENV{CPPFLAGS} "-I@cdat_BINARY_DIR@/Externals/NetCDF/include -I@cdat_BINARY_DIR@/Externals/include")
+  set(ENV{CXXFLAGS} "@CMAKE_CXX_FLAGS@")
+  set(ENV{PKG_CONFIG_PATH} "@cdat_BINARY_DIR@/Externals/lib/pkgconfig")
+  set(ENV{PYTHON_PATH} "@cdat_BINARY_DIR@/lib/python@PYTHON_MAJOR@.@PYTHON_MINOR@/site-packages:$ENV{PYTHON_PATH}")
+  set(ENV{FC}="")
+  set(ENV{FCFLAGS}="")
+  set(ENV{FCLIBS}="")
+  set(ENV{F77}="")
+  set(ENV{FFLAGS}="")
+  set(ENV{FLIBS}="")
+  if(APPLE)
+    set(ENV{CFLAGS} "-arch x86_64 -mmacosx-version-min=10.6 -isysroot /Developer/SDKs/MacOSX10.6.sdk")
+  endif(APPLE)
+endif()
+
+execute_process(
+  COMMAND @PYTHON_EXECUTABLE@ setup.py build
+  WORKING_DIRECTORY @Pmw_source@
+  RESULT_VARIABLE res)
+
+if(NOT ${res} EQUAL 0)
+  message("Config Errors detected: \n${CDAT_OUT}\n${CDAT_ERR}")
+  message(FATAL_ERROR "Error in config")
+endif()
+message("Config succeeded.")

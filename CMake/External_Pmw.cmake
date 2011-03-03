@@ -13,7 +13,5 @@ ExternalProject_Add(Pmw
   CONFIGURE_COMMAND ${LIBRARY_PATH}=${PYTHON_LIBRARY_DIR} ${PYTHON_EXECUTABLE} setup.py
 )
 
-message("PMW_URL ${PMW_URL} ${PMW_GZ}")
-
 set(Pmw_DIR "${Pmw_binary}" CACHE PATH "Pmw binary directory" FORCE)
 mark_as_advanced(Pmw_DIR)
