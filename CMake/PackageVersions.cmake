@@ -110,7 +110,7 @@ set(PMW_MINOR_SRC 3)
 set(PMW_PATCH_SRC 2)
 set(PMW_URL http://downloads.sourceforge.net/project/pmw/Pmw/Pmw.${PMW_MAJOR_SRC}.${PMW_MINOR_SRC}.${PMW_PATCH_SRC})
 set(PMW_GZ Pmw.${PMW_MAJOR_SRC}.${PMW_MINOR_SRC}.${PMW_PATCH_SRC}.tar.gz)
-set(PMW_MD5 d922a88782b64441d06547632fd85744)
+set(PMW_MD5 7f30886fe9885ab3cf85dac6ce1fbda5)
 
 set(NUMPY_MAJOR 1)
 set(NUMPY_MINOR 5)
