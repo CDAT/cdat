@@ -790,6 +790,7 @@ def readScripCurveGrid(fileobj, dims, whichType, whichGrid):
     else:
         cornerLat = cornerLat.reshape(boundsshape)
         cornerLon = cornerLon.reshape(boundsshape)
+
     iaxis = TransientVirtualAxis("i",ni)
     jaxis = TransientVirtualAxis("j",nj)
 

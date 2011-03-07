@@ -491,9 +491,6 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
     def copy(self):
         return self.filled()
 
-
-
-
 ## PropertiedClasses.set_property(TransientVariable, 'shape', 
 ##                                nowrite=1, nodelete=1)
 

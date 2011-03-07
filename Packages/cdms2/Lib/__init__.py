@@ -36,6 +36,6 @@ from tvariable import asVariable, createVariable, isVariable
 
 from gsHost import GsHost
 from gsstaticvariableobj import GsStaticVariableObj
-from gsTimeVar import GsTimeObj
+from gstimevariableobj import GsTimeVariableObj
 
 MV = MV2

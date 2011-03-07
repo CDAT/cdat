@@ -11,8 +11,9 @@ import cdms2
 from cdms2.avariable import AbstractVariable
 from cdms2.tvariable import TransientVariable
 from cdms2.cdmsobj import CdmsObj
-from gsstaticvariableobj import GsStaticVariableObj
-import gsTimeVar
+from cdms2.gsstaticvariableobj import GsStaticVariableObj
+from cdms2.gstimevariableobj import GsTimeVariableObj
+import re
 
 # local imports
 import config
@@ -425,7 +426,7 @@ class GsHost(object):
         """
         self.libcf.nccf_free_host( self.hostId_t )
 
-    def __getitem__(self, varName):
+    def __getitem__(self, varName, **speclist):
         """
         self[variableName] 
         The returned variable is a var[nGrids][[nTimes, nz], ny,  nx]
@@ -436,22 +437,22 @@ class GsHost(object):
         # Static variables
         if self.statVars.has_key(varName):
             GsStatVar = GsStaticVariableObj
-            staticVariablesObj = GsStatVar(self, varName)
+            staticVariablesObj = GsStatVar(self, varName, **speclist)
 
             return staticVariablesObj.vars 
 
         # Time variables
         elif self.timeDepVars.has_key(varName):
-            timeVariablesObj = gsTimeVar.GsTimeObj(self, varName)
+            GsTimeObj = GsTimeVariableObj
+            timeVariablesObj = GsTimeObj(self, varName, **speclist)
             
             return timeVariablesObj.vars
     
-    def __call__(self, varName):
+    def __call__(self, varName, **speclist):
         """
         Equivalent to self[varName]
         """
-        return self.__getitem__(varName)
-
+        return self.__getitem__(varName, **speclist)
 
 ##############################################################################
 

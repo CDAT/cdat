@@ -10,14 +10,15 @@ import ctypes
 import cdms2
 import types
 from cdms2.error import CDMSError
-from cdms2.hgrid import AbstractCurveGrid
+from cdms2.hgrid import AbstractCurveGrid, TransientCurveGrid
+from cdms2.coord import TransientAxis2D, TransientVirtualAxis
 
 class GsStaticVariableObj(object):
     """
     Open a static variable.
     """
 
-    def __init__(self, GsHost, varName):
+    def __init__(self, GsHost, varName, *speclist):
         """
         Constructor
         @param varName variable name
@@ -32,25 +33,32 @@ class GsStaticVariableObj(object):
 
         for gfindx in range(self.ngrids):
             fName = GsHost.statVars[varName][gfindx]
-            gName = GsHost.gridFilenames[gfindx]
+            gFName = GsHost.gridFilenames[gfindx]
             fh = cdms2.open(fName)
 
-            gh = cdms2.open(gName)
+            gh = cdms2.open(gFName)
 
             vr = fh(varName)
-            vr.gridFilename = gName
+            fh.close()
+            vr.gridFilename = gFName
             vr.gridIndex    = gfindx
 
-            # Add some methods to GsStatVar[gfindx]
-            updateGetLatitudeToAbstractVariable(vr)
-            updateGetLongitudeToAbstractVariable(vr)
-            updateSetGridToAbstractVariable(vr)
-            updateGetGridToAbstractVariable(vr)
-            addGetCoordinatesToAbstractVariable(vr)
+            grid = self.createGrid(gFName, vr.attributes['coordinates'])
 
-            vr.setGrid()
-            self.vars[gfindx] = vr
-            fh.close()
+            # Add some methods to GsStatVar[gfindx]
+#            updateGetLatitudeToAbstractVariable(vr)
+#            updateGetLongitudeToAbstractVariable(vr)
+#            updateSetGridToAbstractVariable(vr)
+#            updateGetGridToAbstractVariable(vr)
+#            addGetCoordinatesToAbstractVariable(vr)
+            
+            # Create the variable
+            var = cdms2.createVariable(vr, 
+                                axes = grid.getAxisList(), 
+                                grid = grid, 
+                                attributes = vr.attributes, 
+                                id = vr.standard_name)
+            self.vars[gfindx] = var
 
     def __getitem__(self, gfindx):
         """
@@ -83,6 +91,54 @@ class GsStaticVariableObj(object):
         """
         return reduce(operator.add, [v.size for v in self.vars])
 
+    def createGrid(self, gFName, coordinates):
+        """
+        Return the coordinate data associated with variable.
+        @param gName The grid_filename
+        @param coordinates The coordinates attribute from the variable to be created
+        @return grid a cdms2.hgrid.AbstractCurveGrid object
+        """
+        from re import search
+
+        fh = cdms2.open(gFName)
+        gridid = None
+        if 'tile_name' in fh.attributes: gridid = getattr(fh, 'tile_name')
+        xn, yn = coordinates.split()
+
+        x = fh(xn)
+        y = fh(yn)
+
+        # Get the dimensions
+        xdim = x.shape
+        ydim = y.shape
+
+        if xdim != ydim: CDMSError, "Dimension of coordinates grids don't match"
+
+        ni = xdim[1]
+        nj = xdim[0]
+
+        # Define the axes, verifying the lon and lat grids
+        iaxis = TransientVirtualAxis("i",ni)
+        jaxis = TransientVirtualAxis("j",nj)
+
+        if search(xn, x.standard_name): lon = x
+        if search(xn, y.standard_name): lon = y
+        if search(yn, x.standard_name): lat = x
+        if search(yn, y.standard_name): lat = y
+
+        lataxis = TransientAxis2D(lat, 
+                       axes=(iaxis, jaxis), 
+                       attributes={'units':lat.units}, 
+                       id=lat.standard_name)
+        lonaxis = TransientAxis2D(lon, 
+                       axes=(iaxis, jaxis), 
+                       attributes={'units':lon.units}, 
+                       id=lon.standard_name)
+
+        # Define the combined grid
+        grid = TransientCurveGrid(lataxis, lonaxis, id=gridid)
+        return grid
+
     def typecode(self):
         """
         Return the type of the data
@@ -95,132 +151,10 @@ class GsStaticVariableObj(object):
 
     def __repr__(self):
         res = ""
-        print dir(self)
         for gfindx in range(len(self.vars)):
             res += (" grid %d: " % gfindx) + repr(self.vars[gfindx])
         return res
 
-###############################################################################
-
-# Add getCoordinates and use these versions of getLongitude and getLatitude
-# for each grid in a GsStatVar
-#
-# This is not very satisfactory, since I am having to duplicate the code in
-# gsTimeVar.py
-def updateGetLatitudeToAbstractVariable(AbstractVariable):
-    """
-    Update the AbstractVariable method getLatitude
-    @param AbstractVariable a Abstract variable
-    """
-    def getLatitude(self):
-        """
-        Return the coordinate data associated with variable
-        @return latitude from a cdms2.hgrid.AbstrctCurveGrid
-        """
-        if 'coordinates' in self.attributes.keys():
-          return self.getGrid().getLatitude()
-
-        else:
-            raise CDMSError, "No 'coordinates' attribute. Can't getLatitude"
-            
-
-    # Add getLatitude to the AbstractVariable Class
-    AbstractVariable.getLatitude = types.MethodType(getLatitude, AbstractVariable)
-
-def updateGetLongitudeToAbstractVariable(AbstractVariable):
-    """
-    Update the AbstractVariable method getLongitude
-    @param AbstractVariable a Abstract variable
-    """
-    def getLongitude(self):
-        """
-        Return the coordinate data associated with variable
-        @return longitude from a cdms2.hgrid.AbstrctCurveGrid
-        """
-
-        if 'coordinates' in self.attributes.keys():
-          return self.getGrid().getLongitude()
-        else:
-            raise CDMSError, "No 'coordinates' attribute. Can't getLongitude"
-
-    # Add getLongitude to the AbstractVariable Class
-    AbstractVariable.getLongitude = types.MethodType(getLongitude, AbstractVariable)
-
-def updateSetGridToAbstractVariable(AbstractVariable):
-    """
-    Update setGrid in the Class AbstractVariable
-    @param AbstractVariable a Abstract variable
-    """
-    def setGrid(self):
-        """
-        Return the coordinate data associated with variable
-        @return grid a cdms2.hgrid.AbstractCurveGrid object
-        """
-
-        fh = cdms2.open(self.gridFilename)
-        if 'coordinates' in self.attributes.keys():
-            xn, yn = self.attributes['coordinates'].split()
-    
-            x = fh(xn)
-            y = fh(yn)
-            self.grid = AbstractCurveGrid(x, y)
-            self._lonaxis_ = self.grid._lonaxis_
-            self._lataxis_ = self.grid._lataxis_
-            if self.rank() != len(self.grid.getAxisList()):
-                raise CDMSError, """self.rank doesn't match the number of axes 
-                                    for the grid"""
-            for i in range(self.rank()):
-                self.setAxis(i, self._lonaxis_.getAxis(i))
-                self.setAxis(i, self._lataxis_.getAxis(i))
-
-        else:
-            raise CDMSError, "No 'coordinates' attribute. Can't getLongitude"
-
-    # Add getGrids to the AbstractVariable Class
-    AbstractVariable.setGrid = types.MethodType(setGrid, AbstractVariable)
-
-def updateGetGridToAbstractVariable(AbstractVariable):
-    """
-    Update getGrid in the Class AbstractVariable
-    @param AbstractVariable a Abstract variable
-    """
-    def getGrid(self):
-        """
-        Return the coordinate data associated with variable
-        @return grid a cdms2.hgrid.AbstrctCurveGrid object
-        """
-
-        return self.grid
-
-    # Add getGrids to the AbstractVariable Class
-    AbstractVariable.getGrid = types.MethodType(getGrid, AbstractVariable)
-
-def addGetCoordinatesToAbstractVariable(AbstractVariable):
-    """
-    Add getCoordinates to the Class AbstractVariable
-    @param AbstractVariable a Abstract variable
-    """
-    def getCoordinates(self):
-        """
-        Return the coordinate data associated with variable
-        @return tuple of Grids longitude and latitude
-        """
-
-        fh = cdms2.open(self.gridFilename)
-        if 'coordinates' in self.attributes.keys():
-            xn, yn = self.attributes['coordinates'].split()
-    
-            x = fh(xn)
-            y = fh(yn)
-    
-            return (x, y)
-        else:
-            raise CDMSError, "No 'coordinates' attribute. Can't getLongitude"
-
-    # Add getCoordinates to the AbstractVariable Class
-    AbstractVariable.getCoordinates = types.MethodType(getCoordinates, AbstractVariable)
-
-###################################################################
 def test():
     pass
 
