@@ -10,8 +10,8 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/pyopengl_install_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/pyopengl_install_step.cmake
   @ONLY)
 
-set(Pmw_build_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/pyopengl_make_step.cmake)
-set(Pmw_install_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/pyopengl_install_step.cmake)
+set(PyOpenGL_build_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/pyopengl_make_step.cmake)
+set(PyOpenGL_install_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/pyopengl_install_step.cmake)
 
 ExternalProject_Add(PyOpenGL
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
@@ -19,8 +19,10 @@ ExternalProject_Add(PyOpenGL
   URL ${PYOPENGL_URL}/${PYOPENGL_GZ}
   URL_MD5 ${PYOPENGL_MD5}
   BUILD_IN_SOURCE 1
-  BUILD_COMMAND ${Pmw_build_command}
-  INSTALL_COMMAND ${Pmw_install_command}
+  PATCH_COMMAND ""
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND ${PyOpenGL_build_command}
+  INSTALL_COMMAND ${PyOpenGL_install_command}
 )
 
 set(PyOpenGL_DIR "${PyOpenGL_binary}" CACHE PATH "PyOpenGL binary directory" FORCE)
