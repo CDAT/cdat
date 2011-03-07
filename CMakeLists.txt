@@ -200,6 +200,7 @@ set(sip_DEPENDENCIES python)
 set(PyQt_DEPENDENCIES Qt sip)
 set(PyOpenGL_DEPENDENCIES python)
 set(Pmw_DEPENDENCIES python)
+set(ghostscript_DEPENDENCIES zlib jpeg)
   
 if(WIN32)
   set(python_DEPENDENCIES)
