@@ -21,7 +21,7 @@ endif()
 
 execute_process(
   COMMAND @PYTHON_EXECUTABLE@ setup.py build
-  WORKING_DIRECTORY @PyOpenGL_source@/src
+  WORKING_DIRECTORY @PyOpenGL_source@
   RESULT_VARIABLE res)
 
 if(NOT ${res} EQUAL 0)
