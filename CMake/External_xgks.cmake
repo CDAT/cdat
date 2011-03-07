@@ -10,7 +10,7 @@ ExternalProject_Add(xgks
   URL_MD5 ${XGKS_MD5}
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
-  CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR>
+  CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
 )
 
 set(xgks_DIR "${xgks_binary}" CACHE PATH "xgks binary directory" FORCE)
