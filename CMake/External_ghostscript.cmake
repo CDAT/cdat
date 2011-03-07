@@ -2,7 +2,7 @@
 set(ghostscript_source "${CMAKE_CURRENT_BINARY_DIR}/build/ghostscript")
 set(ghostscript_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
 
-set(ghostscripts_args --with-drivers=PS,BMP)
+set(ghostscripts_args --with-drivers=PS,BMP --disable-cups)
 
 ExternalProject_Add(ghostscript
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
