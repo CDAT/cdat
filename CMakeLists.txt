@@ -231,8 +231,6 @@ add_cdat_package(xgks)
 add_cdat_package(pbmplus)
 add_cdat_package(ffmpeg)
 add_cdat_package(gifsicle)
-add_cdat_package(ghostscript)
-
 add_cdat_package(jpeg)
 
 # On OSX use vecLib framework
@@ -249,6 +247,7 @@ add_cdat_package(fontconfig)
 add_cdat_package(Cairo)
 add_cdat_package(uuid)
 add_cdat_package(uduinits2)
+add_cdat_package(ghostscript)
 #add_cdat_package(HDF4) 
 add_cdat_package(HDF5)
 add_cdat_package(NetCDF)
