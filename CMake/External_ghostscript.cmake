@@ -10,7 +10,7 @@ ExternalProject_Add(ghostscript
   URL_MD5 ${GS_MD5}
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
-  CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR>
+  CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
 )
 
 set(ghostscript_DIR "${ghostscript_binary}" CACHE PATH "ghostscript binary directory" FORCE)

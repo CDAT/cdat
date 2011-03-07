@@ -11,7 +11,7 @@ ExternalProject_Add(freetype
   URL_MD5 ${FT_MD5}
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
-  CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR>
+  CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
 )
 
 set(freetype_DIR "${freetype_binary}" CACHE PATH "freetype binary directory" FORCE)

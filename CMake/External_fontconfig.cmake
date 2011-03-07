@@ -10,7 +10,7 @@ ExternalProject_Add(fontconfig
   URL_MD5 ${FTCFG_MD5}
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
-  CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR>
+  CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
 )
 
 set(fontconfig_DIR "${fontconfig_binary}" CACHE PATH "fontconfig binary directory" FORCE)
