@@ -196,7 +196,10 @@ find_package(PythonLibs)
 set(png_DEPENDENCIES zlib)
 set(tcl_DEPENDENCIES)
 set(python_DEPENDENCIES TclTk)
+set(sip_DEPENDENCIES python)
 set(PyQt_DEPENDENCIES Qt sip)
+set(PyOpenGL_DEPENDENCIES python
+set(Pmw_DEPENDENCIES python)
   
 if(WIN32)
   set(python_DEPENDENCIES)

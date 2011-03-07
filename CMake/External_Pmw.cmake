@@ -24,6 +24,7 @@ ExternalProject_Add(Pmw
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ${Pmw_build_command}
   INSTALL_COMMAND ${Pmw_install_command}
+  DEPENDS ${Pmw_DEPENDENCIES}
 )
 
 set(Pmw_DIR "${Pmw_binary}" CACHE PATH "Pmw binary directory" FORCE)

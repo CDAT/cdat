@@ -11,6 +11,6 @@ ExternalProject_Add(${proj}
      ${PYTHON_EXECUTABLE} configure.py
     CC=${CMAKE_C_COMPILER}
     CXX=${CMAKE_CXX_COMPILER}
-  DEPENDS python
+  DEPENDS ${sip_DEPENDENCIES}
   )
 
