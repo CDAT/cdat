@@ -44,7 +44,7 @@ MANDIR=$(prefix)/man
 PARMDIR=$(prefix)/lib/lats
 
 CC = @CC@
-CFLAGS = -I../../include @CFLAGS@ $(DEBUG) -Dgrads
+CFLAGS = -I../../include @CFLAGS@ $(DEBUG) -Dgrads @GRIB2INC@ @GRIB2OPTS@
 CPPFLAGS = @CPPFLAGS@
 DEBUG = -O
 DEFS = @DEFS@
@@ -52,7 +52,7 @@ FC = @FC@
 FFLAGS = -I../../include @FFLAGS@ $(DEBUG)
 INSTALL = @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
-LDFLAGS = -L../../../lib -lcdms @NCOPTS@ @HDFOPTS@ @DRSOPTS@ @LIBS@
+LDFLAGS = -L../../../lib -lcdms @NCOPTS@ @HDFOPTS@ @DRSOPTS@ @LIBS@ @GRIB2LIB@
 OS = @OS@
 RANLIB = @RANLIB@
 
@@ -200,8 +200,8 @@ clean:
 	cd src/db_util; $(MAKE) clean
 	cd src/api; $(MAKE) clean
 	cd src/api/test; $(MAKE) clean
-	cd include; rm *.~*~
-	rm *.~*~
+	cd include; rm -f *.~*~
+	rm -f *.~*~
 
 distclean: testclean
 	rm -f lib/libcdms.a

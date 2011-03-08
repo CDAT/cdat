@@ -668,15 +668,20 @@ INSTALL_DATA
 INSTALL
 ENABLE_DRS
 ENABLE_HDF
+GRIB2INC
+CPP
+GREP
+EGREP
+CFLAGSgrib2inc
+GRIB2LIB
+ENABLE_GRIB2
+GRIB2OPTS
 ENABLE_DAP
 ENABLE_PP
 PPOPTS
 ENABLE_QL
 QLOPTS
 NCINC
-CPP
-GREP
-EGREP
 CFLAGSncinc
 HDFINC
 CFLAGShdfinc
@@ -1278,6 +1283,7 @@ Optional Features:
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --enable-drs            Compile the DRS interface default=yes
   --enable-hdf            Compile the HDF interface default=yes
+  --enable-grib2            Compile GRIB-2 support default=yes
   --enable-dap            Compile with the OpenDAP interface default=no
   --enable-pp             Compile the PP interface default=yes
   --enable-ql            Compile the QL interface default=yes
@@ -1286,6 +1292,10 @@ Optional Features:
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
+  --with-grib2inc=DIR        grib2.h is in DIR (default GRIB2INC)
+  --with-grib2lib         path where to look for libgrib2c
+  --with-pnglib           path where to look for libpng
+  --with-jasperlib        path where to look for libjasper
   --with-ncinc=DIR        netcdf.h is in DIR (default NCINC)
   --with-hdfinc=DIR       hdf.h is in DIR (default HDFINC)
   --with-drsinc=DIR       drscdf.h is in DIR (default DRSINC)
@@ -3888,6 +3898,8 @@ else
 	INSTALL_PROGRAM="$INSTALL"
 fi
 
+
+
 { echo "$as_me:$LINENO: checking if DRS is enabled" >&5
 echo $ECHO_N "checking if DRS is enabled... $ECHO_C" >&6; }
 # Check whether --enable-drs was given.
@@ -3907,6 +3919,7 @@ echo "${ECHO_T}no" >&6; }
 fi
 
 
+
 { echo "$as_me:$LINENO: checking if HDF is enabled" >&5
 echo $ECHO_N "checking if HDF is enabled... $ECHO_C" >&6; }
 # Check whether --enable-hdf was given.
@@ -3924,69 +3937,6 @@ else
    { echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6; }
 fi
-
-
-{ echo "$as_me:$LINENO: checking if OpenDAP is enabled" >&5
-echo $ECHO_N "checking if OpenDAP is enabled... $ECHO_C" >&6; }
-# Check whether --enable-dap was given.
-if test "${enable_dap+set}" = set; then
-  enableval=$enable_dap; ENABLE_DAP=$enableval
-else
-  ENABLE_DAP=no
-fi
-
-
-if test "X$ENABLE_DAP" = "Xyes"; then
-   { echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6; }
-else
-   { echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6; }
-fi
-
-
-{ echo "$as_me:$LINENO: checking if PP is enabled" >&5
-echo $ECHO_N "checking if PP is enabled... $ECHO_C" >&6; }
-# Check whether --enable-pp was given.
-if test "${enable_pp+set}" = set; then
-  enableval=$enable_pp; ENABLE_PP=$enableval
-else
-  ENABLE_PP=yes
-fi
-
-
-if test "X$ENABLE_PP" = "Xyes"; then
-   { echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6; }
-   PPOPTS="-DHAVE_PP"
-else
-   { echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6; }
-   PPOPTS=""
-fi
-
-
-
-{ echo "$as_me:$LINENO: checking if QL is enabled" >&5
-echo $ECHO_N "checking if QL is enabled... $ECHO_C" >&6; }
-# Check whether --enable-ql was given.
-if test "${enable_ql+set}" = set; then
-  enableval=$enable_ql; ENABLE_QL=$enableval
-else
-  ENABLE_QL=yes
-fi
-
-
-if test "X$ENABLE_QL" = "Xyes"; then
-   { echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6; }; \
-   QLOPTS="-DHAVE_QL"
-else
-   { echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6; }; \
-   QLOPTS=""
-fi
-
 
 
 
@@ -4451,7 +4401,7 @@ if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
 else
   ac_cv_header_stdc=no
 fi
-rm -f conftest*
+rm -f -r conftest*
 
 fi
 
@@ -4472,7 +4422,7 @@ if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
 else
   ac_cv_header_stdc=no
 fi
-rm -f conftest*
+rm -f -r conftest*
 
 fi
 
@@ -4624,6 +4574,520 @@ _ACEOF
 fi
 
 done
+
+
+    GRIB2INC=${GRIB2INC-"/usr/local/include"}
+
+
+
+# Check whether --with-grib2inc was given.
+if test "${with_grib2inc+set}" = set; then
+  withval=$with_grib2inc;         GRIB2INC=$withval
+fi
+     echo "checking that grib2.h is in $GRIB2INC (modify with --with-grib2inc=DIR)"
+    as_ac_Header=`echo "ac_cv_header_$GRIB2INC/grib2.h" | $as_tr_sh`
+if { as_var=$as_ac_Header; eval "test \"\${$as_var+set}\" = set"; }; then
+  { echo "$as_me:$LINENO: checking for $GRIB2INC/grib2.h" >&5
+echo $ECHO_N "checking for $GRIB2INC/grib2.h... $ECHO_C" >&6; }
+if { as_var=$as_ac_Header; eval "test \"\${$as_var+set}\" = set"; }; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+fi
+ac_res=`eval echo '${'$as_ac_Header'}'`
+	       { echo "$as_me:$LINENO: result: $ac_res" >&5
+echo "${ECHO_T}$ac_res" >&6; }
+else
+  # Is the header compilable?
+{ echo "$as_me:$LINENO: checking $GRIB2INC/grib2.h usability" >&5
+echo $ECHO_N "checking $GRIB2INC/grib2.h usability... $ECHO_C" >&6; }
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+$ac_includes_default
+#include <$GRIB2INC/grib2.h>
+_ACEOF
+rm -f conftest.$ac_objext
+if { (ac_try="$ac_compile"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_compile") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest.$ac_objext; then
+  ac_header_compiler=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_header_compiler=no
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+{ echo "$as_me:$LINENO: result: $ac_header_compiler" >&5
+echo "${ECHO_T}$ac_header_compiler" >&6; }
+
+# Is the header present?
+{ echo "$as_me:$LINENO: checking $GRIB2INC/grib2.h presence" >&5
+echo $ECHO_N "checking $GRIB2INC/grib2.h presence... $ECHO_C" >&6; }
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <$GRIB2INC/grib2.h>
+_ACEOF
+if { (ac_try="$ac_cpp conftest.$ac_ext"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_cpp conftest.$ac_ext") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } >/dev/null && {
+	 test -z "$ac_c_preproc_warn_flag$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       }; then
+  ac_header_preproc=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+  ac_header_preproc=no
+fi
+
+rm -f conftest.err conftest.$ac_ext
+{ echo "$as_me:$LINENO: result: $ac_header_preproc" >&5
+echo "${ECHO_T}$ac_header_preproc" >&6; }
+
+# So?  What about this header?
+case $ac_header_compiler:$ac_header_preproc:$ac_c_preproc_warn_flag in
+  yes:no: )
+    { echo "$as_me:$LINENO: WARNING: $GRIB2INC/grib2.h: accepted by the compiler, rejected by the preprocessor!" >&5
+echo "$as_me: WARNING: $GRIB2INC/grib2.h: accepted by the compiler, rejected by the preprocessor!" >&2;}
+    { echo "$as_me:$LINENO: WARNING: $GRIB2INC/grib2.h: proceeding with the compiler's result" >&5
+echo "$as_me: WARNING: $GRIB2INC/grib2.h: proceeding with the compiler's result" >&2;}
+    ac_header_preproc=yes
+    ;;
+  no:yes:* )
+    { echo "$as_me:$LINENO: WARNING: $GRIB2INC/grib2.h: present but cannot be compiled" >&5
+echo "$as_me: WARNING: $GRIB2INC/grib2.h: present but cannot be compiled" >&2;}
+    { echo "$as_me:$LINENO: WARNING: $GRIB2INC/grib2.h:     check for missing prerequisite headers?" >&5
+echo "$as_me: WARNING: $GRIB2INC/grib2.h:     check for missing prerequisite headers?" >&2;}
+    { echo "$as_me:$LINENO: WARNING: $GRIB2INC/grib2.h: see the Autoconf documentation" >&5
+echo "$as_me: WARNING: $GRIB2INC/grib2.h: see the Autoconf documentation" >&2;}
+    { echo "$as_me:$LINENO: WARNING: $GRIB2INC/grib2.h:     section \"Present But Cannot Be Compiled\"" >&5
+echo "$as_me: WARNING: $GRIB2INC/grib2.h:     section \"Present But Cannot Be Compiled\"" >&2;}
+    { echo "$as_me:$LINENO: WARNING: $GRIB2INC/grib2.h: proceeding with the preprocessor's result" >&5
+echo "$as_me: WARNING: $GRIB2INC/grib2.h: proceeding with the preprocessor's result" >&2;}
+    { echo "$as_me:$LINENO: WARNING: $GRIB2INC/grib2.h: in the future, the compiler will take precedence" >&5
+echo "$as_me: WARNING: $GRIB2INC/grib2.h: in the future, the compiler will take precedence" >&2;}
+
+    ;;
+esac
+{ echo "$as_me:$LINENO: checking for $GRIB2INC/grib2.h" >&5
+echo $ECHO_N "checking for $GRIB2INC/grib2.h... $ECHO_C" >&6; }
+if { as_var=$as_ac_Header; eval "test \"\${$as_var+set}\" = set"; }; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  eval "$as_ac_Header=\$ac_header_preproc"
+fi
+ac_res=`eval echo '${'$as_ac_Header'}'`
+	       { echo "$as_me:$LINENO: result: $ac_res" >&5
+echo "${ECHO_T}$ac_res" >&6; }
+
+fi
+if test `eval echo '${'$as_ac_Header'}'` = yes; then
+          for arg in -I$GRIB2INC; do
+    case "$CFLAGSgrib2inc" in
+      *$arg*)
+	;;
+      *)
+	CFLAGSgrib2inc="${CFLAGSgrib2inc-} $arg"
+	;;
+    esac
+  done
+
+else
+        GRIB2INC=
+fi
+
+
+
+
+
+{ echo "$as_me:$LINENO: checking if GRIB2 is enabled" >&5
+echo $ECHO_N "checking if GRIB2 is enabled... $ECHO_C" >&6; }
+# Check whether --enable-grib2 was given.
+if test "${enable_grib2+set}" = set; then
+  enableval=$enable_grib2; ENABLE_GRIB2=$enableval
+else
+  ENABLE_GRIB2=no
+fi
+
+
+if test "X$ENABLE_GRIB2" = "Xyes"; then
+   { echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; }
+   GRIB2OPTS="-DGRIB2"
+
+# Check whether --with-grib2lib was given.
+if test "${with_grib2lib+set}" = set; then
+  withval=$with_grib2lib;
+else
+  with_grib2lib=no
+fi
+
+   if test ${with_grib2lib} == "no" ; then
+     GRIB2LIB="-L${prefix}/Externals/lib"
+   else
+     GRIB2LIB="-L"${with_grib2lib}
+   fi
+
+# Check whether --with-pnglib was given.
+if test "${with_pnglib+set}" = set; then
+  withval=$with_pnglib;
+else
+  with_pnglib=no
+fi
+
+   if test ${with_pnglib} == "no" ; then
+     PNGLIB="-L${prefix}/Externals/lib"
+   else
+     PNGLIB="-L"${with_pnglib}
+   fi
+   { echo "$as_me:$LINENO: checking for png_error in -lpng" >&5
+echo $ECHO_N "checking for png_error in -lpng... $ECHO_C" >&6; }
+if test "${ac_cv_lib_png_png_error+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lpng ${GRIB2LIB} ${PNGLIB} $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char png_error ();
+int
+main ()
+{
+return png_error ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext &&
+       $as_test_x conftest$ac_exeext; then
+  ac_cv_lib_png_png_error=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_cv_lib_png_png_error=no
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_lib_png_png_error" >&5
+echo "${ECHO_T}$ac_cv_lib_png_png_error" >&6; }
+if test $ac_cv_lib_png_png_error = yes; then
+  PNGLIBOK="yes"
+else
+  PNGLIBOK="no"
+fi
+
+   if test ${PNGLIBOK} == "no" ; then
+      { { echo "$as_me:$LINENO: error: \"Could not find a working libpng\"" >&5
+echo "$as_me: error: \"Could not find a working libpng\"" >&2;}
+   { (exit 1); exit 1; }; }
+   fi
+
+# Check whether --with-jasperlib was given.
+if test "${with_jasperlib+set}" = set; then
+  withval=$with_jasperlib;
+else
+  with_jasperlib=no
+fi
+
+   if test ${with_jasperlib} == "no" ; then
+     JASPERLIB="-L${prefix}/Externals/lib"
+   else
+     JASPERLIB="-L"${with_jasperlib}
+   fi
+   { echo "$as_me:$LINENO: checking for jas_init in -ljasper" >&5
+echo $ECHO_N "checking for jas_init in -ljasper... $ECHO_C" >&6; }
+if test "${ac_cv_lib_jasper_jas_init+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-ljasper ${GRIB2LIB} ${JASPERLIB} $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char jas_init ();
+int
+main ()
+{
+return jas_init ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext &&
+       $as_test_x conftest$ac_exeext; then
+  ac_cv_lib_jasper_jas_init=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_cv_lib_jasper_jas_init=no
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_lib_jasper_jas_init" >&5
+echo "${ECHO_T}$ac_cv_lib_jasper_jas_init" >&6; }
+if test $ac_cv_lib_jasper_jas_init = yes; then
+  JASPERLIBOK="yes"
+else
+  JASPERLIBOK="no"
+fi
+
+   if test ${JASPERLIBOK} == "no" ; then
+      { { echo "$as_me:$LINENO: error: \"Could not find a working libjasper\"" >&5
+echo "$as_me: error: \"Could not find a working libjasper\"" >&2;}
+   { (exit 1); exit 1; }; }
+   fi
+
+# Check whether --with-grib2lib was given.
+if test "${with_grib2lib+set}" = set; then
+  withval=$with_grib2lib;
+else
+  with_grib2lib=no
+fi
+
+   if test ${with_grib2lib} == "no" ; then
+     GRIB2LIB="-L${prefix}/Externals/lib -lgrib2c "${PNGLIB}" -lpng "${JASPERLIB}" -ljasper"
+   else
+     GRIB2LIB="-L"${with_grib2lib}" -lgrib2c "${PNGLIB}" -lpng "${JASPERLIB}" -ljasper"
+   fi
+   { echo "$as_me:$LINENO: checking for g2_getfld in -lgrib2c" >&5
+echo $ECHO_N "checking for g2_getfld in -lgrib2c... $ECHO_C" >&6; }
+if test "${ac_cv_lib_grib2c_g2_getfld+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lgrib2c ${GRIB2LIB} $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char g2_getfld ();
+int
+main ()
+{
+return g2_getfld ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext &&
+       $as_test_x conftest$ac_exeext; then
+  ac_cv_lib_grib2c_g2_getfld=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_cv_lib_grib2c_g2_getfld=no
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_lib_grib2c_g2_getfld" >&5
+echo "${ECHO_T}$ac_cv_lib_grib2c_g2_getfld" >&6; }
+if test $ac_cv_lib_grib2c_g2_getfld = yes; then
+  GRIB2LIBOK="yes"
+else
+  GRIB2LIBOK="no"
+fi
+
+   if test ${GRIB2LIBOK} == "no" ; then
+      { { echo "$as_me:$LINENO: error: \"Could not find a working libgrib2c\"" >&5
+echo "$as_me: error: \"Could not find a working libgrib2c\"" >&2;}
+   { (exit 1); exit 1; }; }
+   fi
+
+else
+   { echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+   GRIB2OPTS=""
+   GRIB2LIB=""
+fi
+
+
+
+
+{ echo "$as_me:$LINENO: checking if OpenDAP is enabled" >&5
+echo $ECHO_N "checking if OpenDAP is enabled... $ECHO_C" >&6; }
+# Check whether --enable-dap was given.
+if test "${enable_dap+set}" = set; then
+  enableval=$enable_dap; ENABLE_DAP=$enableval
+else
+  ENABLE_DAP=no
+fi
+
+
+if test "X$ENABLE_DAP" = "Xyes"; then
+   { echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; }
+else
+   { echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+fi
+
+
+{ echo "$as_me:$LINENO: checking if PP is enabled" >&5
+echo $ECHO_N "checking if PP is enabled... $ECHO_C" >&6; }
+# Check whether --enable-pp was given.
+if test "${enable_pp+set}" = set; then
+  enableval=$enable_pp; ENABLE_PP=$enableval
+else
+  ENABLE_PP=yes
+fi
+
+
+if test "X$ENABLE_PP" = "Xyes"; then
+   { echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; }
+   PPOPTS="-DHAVE_PP"
+else
+   { echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+   PPOPTS=""
+fi
+
+
+
+{ echo "$as_me:$LINENO: checking if QL is enabled" >&5
+echo $ECHO_N "checking if QL is enabled... $ECHO_C" >&6; }
+# Check whether --enable-ql was given.
+if test "${enable_ql+set}" = set; then
+  enableval=$enable_ql; ENABLE_QL=$enableval
+else
+  ENABLE_QL=yes
+fi
+
+
+if test "X$ENABLE_QL" = "Xyes"; then
+   { echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; }; \
+   QLOPTS="-DHAVE_QL"
+else
+   { echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }; \
+   QLOPTS=""
+fi
+
+
+
 
 
     NCINC=${NCINC-"/usr/local/include"}
@@ -5101,7 +5565,6 @@ fi
 
 fi
 
-
     NCINCF=${NCINCF-"$NCINC"}
 
 
@@ -5309,7 +5772,7 @@ if test "${with_nclib+set}" = set; then
   withval=$with_nclib; NCLIB=$withval
 fi
 
-      NC_LIB_OPTIONS="netcdf "`${NCLIB}/../bin/nc-config --libs`
+      NC_LIB_OPTIONS="netcdf" `${NCLIB}/../bin/nc-config --libs`
 else
 
 # Check whether --with-hdf5lib was given.
@@ -5330,6 +5793,8 @@ fi
   		;;
   esac
 fi
+
+
     NCLIB=${NCLIB-"/usr/local/lib"}
 
 
@@ -5953,7 +6418,7 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 ;;
 esac
-rm -f conftest*
+rm -f -r conftest*
   if test $ac_cv_sys_file_offset_bits = unknown; then
     { echo "$as_me:$LINENO: checking for _LARGE_FILES value needed for large files" >&5
 echo $ECHO_N "checking for _LARGE_FILES value needed for large files... $ECHO_C" >&6; }
@@ -6074,7 +6539,7 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 ;;
 esac
-rm -f conftest*
+rm -f -r conftest*
   fi
 fi
 
@@ -6185,6 +6650,10 @@ case $OS in
 esac
 
 
+echo "==================================================================="
+echo "NCLIB = $NCLIB"
+echo "NC_LIB_OPTIONS = $NC_LIB_OPTIONS"
+echo "==================================================================="
 ac_config_files="$ac_config_files Makefile src/cddrs/Makefile src/cddrs/test/Makefile src/cdunif/Makefile src/cdunif/cdunifpp/Makefile src/cdunif/test/Makefile src/db_util/Makefile src/api/Makefile src/api/test/Makefile"
 
 cat >confcache <<\_ACEOF
@@ -6879,15 +7348,20 @@ INSTALL_DATA!$INSTALL_DATA$ac_delim
 INSTALL!$INSTALL$ac_delim
 ENABLE_DRS!$ENABLE_DRS$ac_delim
 ENABLE_HDF!$ENABLE_HDF$ac_delim
+GRIB2INC!$GRIB2INC$ac_delim
+CPP!$CPP$ac_delim
+GREP!$GREP$ac_delim
+EGREP!$EGREP$ac_delim
+CFLAGSgrib2inc!$CFLAGSgrib2inc$ac_delim
+GRIB2LIB!$GRIB2LIB$ac_delim
+ENABLE_GRIB2!$ENABLE_GRIB2$ac_delim
+GRIB2OPTS!$GRIB2OPTS$ac_delim
 ENABLE_DAP!$ENABLE_DAP$ac_delim
 ENABLE_PP!$ENABLE_PP$ac_delim
 PPOPTS!$PPOPTS$ac_delim
 ENABLE_QL!$ENABLE_QL$ac_delim
 QLOPTS!$QLOPTS$ac_delim
 NCINC!$NCINC$ac_delim
-CPP!$CPP$ac_delim
-GREP!$GREP$ac_delim
-EGREP!$EGREP$ac_delim
 CFLAGSncinc!$CFLAGSncinc$ac_delim
 HDFINC!$HDFINC$ac_delim
 CFLAGShdfinc!$CFLAGShdfinc$ac_delim
@@ -6909,7 +7383,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 83; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 88; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5

@@ -42,15 +42,19 @@ MANDIR=$(prefix)/man
 PARMDIR=$(prefix)/lib/lats
 
 CC = @CC@
+CXX = g++
 CFLAGS = -I../../../include @CFLAGS@ $(DEBUG) -Dgrads
-CPPFLAGS = @CPPFLAGS@ @PPOPTS@
+CXXFLAGS = $(CFLAGS)
+CXX_LDFLAGS=-lcppunit
+CPPFLAGS = @CPPFLAGS@ @PPOPTS@ @GRIB2OPTS@
 DEBUG = -O
 DEFS = @DEFS@
 FC = @FC@
 FFLAGS = -I../../include @FFLAGS@ $(DEBUG)
 INSTALL = @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
-LDFLAGS = -L../../../lib -lcdms @NCOPTS@ @HDFOPTS@ @DRSOPTS@ @LIBS@
+LDFLAGS = -L/usr/local/HDF5/lib -L../../../lib -lcdms @NCOPTS@ @HDFOPTS@ @DRSOPTS@ @LIBS@ -lnetcdf -lcurl -lhdf5_hl -lhdf5 -lhdf5_hl -lgrib2c -lz -lpng -ljasper
+LDFLAGS = -L../../../lib -lcdms @GRIB2LIB@ @NCOPTS@ @HDFOPTS@ @DRSOPTS@ @LIBS@
 OS = @OS@
 RANLIB = @RANLIB@
 
@@ -78,15 +82,30 @@ test:		testnc testgrib testdrs testpp
 .c.o:
 	$(CC) $(CPPFLAGS) $(DEFS) $(CFLAGS) -c $<
 
+.cpp.o:
+	$(CPP) $(CPPFLAGS) $(DEFS) $(CXXFLAGS) -c $<
+
 .c:
 	case $(OS) in \
 	     aix) \
 		    $(CC) $(CPPFLAGS) $(DEFS) $(CFLAGS) -c $< -o $@.o; \
 		    $(FC) $(FFLAGS) $@.o -o $@ $(LDFLAGS) $(LIBS); \
-		    rm $@.o; \
+		    rm -f $@.o; \
 		    ;; \
 	     *) \
-		    $(CC) $(CPPFLAGS) $(DEFS) $(CFLAGS) -o $@ $< $(LDFLAGS) -lm; \
+		    $(CC) $(CPPFLAGS) $(DEFS) $(CFLAGS) -o $@ $< $(LDFLAGS) m ; \
+		    ;; \
+	esac
+
+.cpp:
+	case $(OS) in \
+	     aix) \
+		    $(CC) $(CPPFLAGS) $(DEFS) $(CFLAGS) -c $< -o $@.o; \
+		    $(FC) $(FFLAGS) $@.o -o $@ $(LDFLAGS) $(LIBS); \
+		    rm -f $@.o; \
+		    ;; \
+	     *) \
+		    $(CXX) $(CPPFLAGS) $(DEFS) $(CFLAGS) -o $@ $< $(LDFLAGS) $(CXX_LDFLAGS) m ; \
 		    ;; \
 	esac
 
@@ -95,7 +114,7 @@ test:		testnc testgrib testdrs testpp
 	     aix) \
 		    /usr/ccs/lib/cpp -P $(CPPFLAGS) $(CFLAGS) $(INCLUDES) $(DEFS) $< $@.f; \
 		    $(FC) $(FFLAGS) $(LDFLAGS) $(LIBS) $@.f -o $@; \
-		    rm $@.f; \
+		    rm -f $@.f; \
 		    ;; \
 	     *) \
 		    $(FC) $(CPPFLAGS) $(INCLUDES) $(DEFS) $(FFLAGS) -o $@ $< $(LDFLAGS) $(LIBS); \
