@@ -9,43 +9,10 @@ import calculatorWidget
 import plotViewWidget
 import variableViewWidget
 import commandsRecorderWidget
+import vcdatCommons
 import os
 import cdms2 # need to remove this!
 import __main__
-
-class QLabeledWidgetContainer(QtGui.QWidget):
-    """ Container widget for the 3 main widgets: QVariableView, QCDATFileWidget,
-    and QDefinedVariable """
-
-    def __init__(self, widget, label='', parent=None):
-        QtGui.QWidget.__init__(self, parent)
-
-        vbox = QtGui.QVBoxLayout()
-        vbox.setMargin(0)
-        
-        self.label = QtGui.QLabel(label)
-        self.label.setAutoFillBackground(True)
-        self.label.setAlignment(QtCore.Qt.AlignCenter)
-        self.label.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Raised)
-        vbox.addWidget(self.label, 0)
-
-        if widget!=None:
-            self.widget = widget
-        else:
-            self.widget = QtGui.QWidget()
-        vbox.addWidget(self.widget, 1)
-        
-        self.setLayout(vbox)
-
-    def getWidget(self):
-        return self.widget
-
-    def event(self, e):
-        if e.type()==76: #QtCore.QEvent.LayoutRequest:
-            self.setMaximumHeight(min(self.label.height()+self.layout().spacing()+
-                                      self.widget.maximumHeight(), 16777215))
-        return False
-
 
 
 class QCDATWindow(QtGui.QMainWindow):
@@ -106,7 +73,7 @@ class QCDATWindow(QtGui.QMainWindow):
         ###########################################################
         # Defined Variables Widget
         ###########################################################
-        self.definedVar = QLabeledWidgetContainer(definedVariableWidget.QDefinedVariableWidget(self),'DEFINED VARIABLES', self)        
+        self.definedVar = vcdatCommons.QLabeledWidgetContainer(definedVariableWidget.QDefinedVariableWidget(self),'DEFINED VARIABLES', self)        
         hsplitter.addWidget(self.definedVar)
 
         ###########################################################
