@@ -10,9 +10,12 @@ def main():
     d.add_argument("file",help="file to open at start time",nargs="?")
     d.add_argument("-f",dest="file2",help="file to open at start time",metavar="FILE")
     d.add_argument("--file",dest="file2",help="file to open at start time",metavar="FILE")
-    d.add_argument("var",help="variable to load at start time (you need a file arg as well)",nargs="?")
-    d.add_argument("-v",dest="var2",help="variable to load at start time (you need a file arg as well)",metavar="VAR")
-    d.add_argument("--var",dest="var2",help="variable to load at start time (you need a file arg as well)",metavar="VAR")
+    d.add_argument("var",help="variable to select at start time (you need a file arg as well)",nargs="?")
+    d.add_argument("-v",dest="var1",help="variable to select at start time (you need a file arg as well)",metavar="VAR")
+    d.add_argument("-v2",dest="var2",help="variable to load at start time (you need a file arg as well)",metavar="VAR2")
+    d.add_argument("--var",dest="var1",help="variable to select at start time (you need a file arg as well)",metavar="VAR")
+    d.add_argument("--var2",dest="var2",help="variable to load at start time (you need a file arg as well)",metavar="VAR2")
+    d.add_argument("-l",help="load variable(s) into memory (you need a variable)",dest="load_var",action="store_true",default=False)
     g = parser.add_argument_group("GUI")
     g.add_argument("-t,--tab",dest="tab",help="tab to select at start time",choices=["var","gm","cmd","calc"])
     g.add_argument("-g,--graphicsmethod",dest="gm",help="graphics method type to select at start time",choices=customizeVCDAT.plotTypes)
@@ -35,15 +38,22 @@ def main():
     if ifile is not None:
         cdat.tabView.widget(0).fileWidget.widget.fileNameEdit.setText(ifile)
         cdat.tabView.widget(0).fileWidget.widget.fileNameEdit.emit(QtCore.SIGNAL('returnPressed()'))
-        if n.var is not None or n.var2 is not None:
-            index=-1
-            for i in range(cdat.tabView.widget(0).fileWidget.widget.varCombo.count()):
-                t = cdat.tabView.widget(0).fileWidget.widget.varCombo.itemText(i)
-                if str(t).split()[0] in [n.var,n.var2]:
-                    index = i
-                    break
-            if index!=-1:
-                cdat.tabView.widget(0).fileWidget.widget.varCombo.setCurrentIndex(index)
+        if n.var is not None or n.var1 is not None:
+            for vrnm in [n.var1,n.var2]:
+                index=-1
+                for i in range(cdat.tabView.widget(0).fileWidget.widget.varCombo.count()):
+                    t = cdat.tabView.widget(0).fileWidget.widget.varCombo.itemText(i)
+                    if vrnm==n.var1:
+                        vnms=[n.var,n.var1]
+                    else:
+                        vnms=[n.var2,]
+                    if str(t).split()[0] in vnms:
+                        index = i
+                        break
+                if index!=-1:
+                    cdat.tabView.widget(0).fileWidget.widget.varCombo.setCurrentIndex(index)
+                    if n.load_var:
+                        cdat.tabView.widget(0).fileWidget.widget.defineVarButton.emit(QtCore.SIGNAL("clicked(bool)"),True)
     if n.tab in ["gm",]:
         cdat.tabView.setCurrentIndex(1)
     elif n.tab in ["cmd",]:
@@ -54,7 +64,7 @@ def main():
     for i in range(cdat.tabView.widget(1).plotOptions.plotTypeCombo.count()):
         if n.gm == str(cdat.tabView.widget(1).plotOptions.plotTypeCombo.itemText(i)):
             cdat.tabView.widget(1).plotOptions.plotTypeCombo.setCurrentIndex(i)
-            
+
     sys.exit(app.exec_())
     
 

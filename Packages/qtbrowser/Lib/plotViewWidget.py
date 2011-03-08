@@ -4,6 +4,7 @@ import qtbrowser
 import vcsPlotControllerWidget
 import customizeVCDAT
 import vcsPageLayoutWidget
+import vcdatCommons
 
 class QPlotOptionsWidget(QtGui.QWidget):
     """ Widget containing plot options: plot button, plot type combobox, cell
@@ -48,7 +49,6 @@ class QPlotOptionsWidget(QtGui.QWidget):
             comboPalette.setColor(QtGui.QPalette.HighlightedText, QtCore.Qt.white)
             comboPalette.setColor(QtGui.QPalette.Highlight, QtCore.Qt.blue)                
             self.cellRowCombo.view().setPalette(comboPalette)
-
             comboPalette = self.cellColCombo.view().palette()
             comboPalette.setColor(QtGui.QPalette.HighlightedText, QtCore.Qt.white)
             self.cellColCombo.view().setPalette(comboPalette)        
@@ -237,11 +237,13 @@ class QPlotView(QtGui.QWidget):
         ##########################################################
         # Plots setup section
         ##########################################################
-        self.plotsSetup=QtGui.QFrame()
-        vlayout = QtGui.QVBoxLayout()
-        vlayout.addWidget(vcsPageLayoutWidget.QPageLayoutWidget(parent=self))
-        self.plotsSetup.setLayout(vlayout)
+#        self.plotsSetup=QtGui.QFrame()
+#        vlayout = QtGui.QVBoxLayout()
+#        vlayout.addWidget(vcsPageLayoutWidget.QPageLayoutWidget(parent=self))
+#        self.plotsSetup.setLayout(vlayout)
+        self.plotsSetup=vcsPageLayoutWidget.QPageLayoutWidget(parent=self)
         self.plotsSetup.hide()
+        
         
         vbox.addWidget(self.plotOptions)
         #self.plotOptions.plotTypeCombo.emit(QtCore.SIGNAL('currentIndexChanged(QString("Meshfill"))'))
@@ -265,80 +267,96 @@ class QPlotView(QtGui.QWidget):
         ##     return
 
         # Error if not enough slabs
-        plotType = str(self.plotOptions.getPlotType()).lower()
+        plotType = str(self.plotOptions.getPlotType())
 
         
         selectedVars=self.root.definedVar.widget.getSelectedDefinedVariables()
 
-        
-        if len(selectedVars) < 2 and self.requiresTwoSlabs(plotType):
-            self.showError('Error Message to User', 'Vector, Scatter, Meshfill or XvsY plots \nmust have two data variables. The data \nvariables must be selected in the \n"Defined Variables" window.')
-            return
-
-
-        if len(selectedVars) == 0:
-            # Nothing selected grabs what's in the file
-            self.root.tabView.widget(0).defineVariableEvent()
-            # now "select" it
-            vnm = str(self.root.tabView.widget(0).fileWidget.widget.varCombo.currentText()).split()[0]
-            for i in range(self.root.definedVar.widget.varList.count()):
-                if vnm == str(self.root.definedVar.widget.varList.item(i).text()).split()[1]:
-                    break
+        ## First of all we need to go thru the VCS layouts
+        nplotted = 0
+        cleared = []
+        for i in range(self.plotsSetup.nlines):
+            tmp = self.plotsSetup.vlayout.itemAt(i)
+            h=tmp.widget().layout()
+            tmpi = h.itemAt(1)
+            if tmpi.widget().widget.isChecked():
+                nplotted+=1
+                template = str(h.itemAt(2).widget().widget.text())
+                ## Ok now figures out the Canvas
+                if qtbrowser.useVistrails:
+                    col = str(h.itemAt(h.count()-1).widget().widget.currentText())
+                    row = str(h.itemAt(h.count()-2).widget().widget.currentText())
+                else:
+                    icanvas = h.itemAt(h.count()-1).widget().widget.currentIndex()
+                    if not icanvas in cleared:
+                        cleared.append(icanvas)
+                        self.root.record("## Clearing vcs canvas %i" % icanvas)
+                        self.root.record("vcs_canvas[%i].clear()" % icanvas)
+                        self.root.canvas[icanvas].clear()
+                        
+                if template == "":
+                    ##Ok let's grab it from list
+                    template = self.getTemplateName()
+                gmType = str(h.itemAt(3).widget().label.text())
+                gm = str(h.itemAt(3).widget().widget.text())
+                if gm=="":
+                    if gmType==plotType:
+                        gm = self.getGraphicsMethodName()
+                    elif gmType=="GM":
+                        gmType=plotType
+                        gm = self.getGraphicsMethodName()
+                    else:
+                        gm = customizeVCDAT.defaultGraphicsMethodName
+                vars=[]
+                nused=0
+                nSlabs= self.nSlabsRequired(gmType)
+                for j in range(nSlabs):
+                    vnm = str(h.itemAt(4+j).widget().label.text())
+                    vars.append(self.root.definedVar.widget.getVariable(vnm))
+                    if vars[-1] is None:
+                        if nused>=len(selectedVars):
+                            self.showError('Error Message to User', '%s plots \nmust have %i data variables. The data \nvariables must be selected in the \n"Defined Variables or dropped into the Variable boxes of the VCS Page layout window.\nCould not find the %ith variable' % (gmType,nSlabs,j+1))
+                        else:
+                            vars[-1]=selectedVars[nused]
+                            nused+=1
                 
-            self.root.definedVar.widget.varList.setCurrentItem(self.root.definedVar.widget.varList.item(i))
-            selectedVars=self.root.definedVar.widget.getSelectedDefinedVariables()
-            
-        # Get the names of the 2 slabs so we can connect their modules in vistrails
-        if self.requiresTwoSlabs(plotType):
-            var = selectedVars[:2]
-            plot_args="%s, %s" % (var[0].id,var[1].id)
-        else:
-            var = [selectedVars[0],]
-            plot_args="%s" % (var[0].id,)
+                plot_args="%s" % vars[0].id
+                for i in range(1,nSlabs):
+                    plot_args+=", %s" % vars[i].id
+
+                # Template section
+                template = self.getTemplateName()
+                vars.append(template)
+                plot_args+=",'%s'" % template
+
+                # Plot type section
+                vars.append(gmType)
+                plot_args+=", '%s'" % gmType
+
+                # Graphic method
+                vars.append(gm)
+                plot_args+=", '%s'" % gm
 
 
-        if self.isVCSPlot(plotType):
-            # Template section
-            template = self.getTemplateName()
-            var.append(template)
-            plot_args+=",'%s'" % template
-
-            # Plot type section
-            var.append(plotType)
-            plot_args+=", '%s'" % plotType
-
-            # Graphic method
-            gm_name=self.getGraphicsMethodName()
-            var.append(gm_name)
-            plot_args+=", '%s'" % gm_name
-
-            icanvas = 0
-
-            if qtbrowser.useVistrails:
-                row = self.plotOptions.getRow()
-                col = self.plotOptions.getCol()
-                self.root.record('## Plotting into the spreadsheet')
-                self.root.record('plot(%s,row=%s,col=%s)'% (plot_args,
-                                                            row,
-                                                            col))
-            else:
-                self.root.record("## Clearing vcs canvas %i" % icanvas)
-                self.root.record("vcs_canvas[%i].clear()" % icanvas)
-                self.root.canvas[icanvas].clear()
-                #For now dirty plot_args
-
-                self.root.record("## Plotting onto canvas %i" % icanvas)
-                self.root.record("vcs_canvas[%i].plot(%s)" % (icanvas,plot_args))
-                self.root.canvas[icanvas].plot(*var)
-        else:
-            print "Don't Know how to plot this yet"
+                if qtbrowser.useVistrails:
+                    if row == "Auto" :
+                        row = self.plotOptions.getRow()
+                    if col == "Auto":
+                        col = self.plotOptions.getCol()
+                    self.root.record('## Plotting into the spreadsheet')
+                    self.root.record('plot(%s,row=%s,col=%s)'% (plot_args,
+                                                                row,
+                                                                col))
+                else:
+                    self.root.record("## Plotting onto canvas %i" % icanvas)
+                    self.root.record("vcs_canvas[%i].plot(%s)" % (icanvas,plot_args))
+                    self.root.canvas[icanvas].plot(*vars)
 
 
-    def requiresTwoSlabs(self, plotType):
-        """ Returns true if the plot requires 2 slabs """
-        multiVarPlots = ['Vector', 'Scatter', 'XvsY']
-        return plotType in multiVarPlots
 
+    def nSlabsRequired(self,plotType):
+        return vcdatCommons.gmInfos.get(plotType,{}).get('nSlabs',-1)
+    
     def getDefinedVars(self):
         """ Get a list of all of the defined tabnames / variables """
         numTabs = self.tabWidget.count()
