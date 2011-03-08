@@ -5,7 +5,6 @@ set(freetype_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
 ExternalProject_Add(freetype
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
   SOURCE_DIR ${freetype_source}
-  BINARY_DIR ${freetype_build}
   INSTALL_DIR ${freetype_install}
   URL ${FT_URL}/${FT_GZ}
   URL_MD5 ${FT_MD5}
