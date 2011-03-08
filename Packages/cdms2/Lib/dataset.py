@@ -1,4 +1,4 @@
-## Automatically adapted for numpy.oldnumeric Aug 01, 2007 by
+## Automatically adapted for numpy.oldnumeric Aug 01, 2007 by foo
 ## Further modified to be pure new numpy June 24th 2008
 
 """ CDMS dataset and file objects"""
