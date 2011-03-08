@@ -86,8 +86,20 @@ drs_file=`${PYPREFIX}/bin/python -c "import cdat_info;print cdat_info.drs_file,"
 CDMS_INCLUDE_DAP=`${PYPREFIX}/bin/python -c "import sys, os;sys.path.insert(0,os.path.join('${PREFIX}','lib','python%i.%i' % sys.version_info[:2],'site-packages')) ; import cdat_info;print cdat_info.CDMS_INCLUDE_DAP,"`
 CDMS_DAP_DIR=`${PYPREFIX}/bin/python -c "import sys, os;sys.path.insert(0,os.path.join('${PREFIX}','lib','python%i.%i' % sys.version_info[:2],'site-packages')) ; import cdat_info;print cdat_info.CDMS_DAP_DIR,"`
 CDMS_HDF_DIR=`${PYPREFIX}/bin/python -c "import sys, os;sys.path.insert(0,os.path.join('${PREFIX}','lib','python%i.%i' % sys.version_info[:2],'site-packages')) ; import cdat_info;print cdat_info.CDMS_HDF_DIR,"`
+
+# netcdf 
 netcdf_include_directory=`${PYPREFIX}/bin/python -c "import sys, os;sys.path.insert(0,os.path.join('${PREFIX}','lib','python%i.%i' % sys.version_info[:2],'site-packages')) ; import cdat_info;print cdat_info.netcdf_include_directory,"`
 netcdf_library_directory=`${PYPREFIX}/bin/python -c "import sys, os;sys.path.insert(0,os.path.join('${PREFIX}','lib','python%i.%i' % sys.version_info[:2],'site-packages')) ; import cdat_info;print cdat_info.netcdf_library_directory,"`
+which nc-config >& /dev/null
+if [ $? = 0 ]; then
+    has_nc4=`nc-config --has-nc4`
+    if [ "$has_nc4" = "yes" ]; then
+	netcdf_include_directory="`nc-config --prefix`/include"
+	netcdf_library_directory="`nc-config --prefix`/lib"
+	echo "will use netcdf library at `nc-config --prefix`"
+    fi
+fi
+
 echo "./configure --enable-dap=${CDMS_INCLUDE_DAP} --enable-drs=${CDMS_INCLUDE_DRS} --enable-hdf=${CDMS_INCLUDE_HDF} --enable-pp=${CDMS_INCLUDE_PP} --enable-ql=${CDMS_INCLUDE_QL} --cache-file=/dev/null --prefix=${PREFIX} --with-nclib=${netcdf_library_directory} --with-ncinc=${netcdf_include_directory} --with-daplib=${CDMS_DAP_DIR}/lib --with-dapinc=${CDMS_DAP_DIR}/include --with-hdfinc=${CDMS_HDF_DIR}/include --with-hdflib=${CDMS_HDF_DIR}/lib" 
 ./configure  --enable-dap=${CDMS_INCLUDE_DAP} --enable-drs=${CDMS_INCLUDE_DRS} --enable-hdf=${CDMS_INCLUDE_HDF} --enable-pp=${CDMS_INCLUDE_PP} --enable-ql=${CDMS_INCLUDE_QL} --cache-file=/dev/null --prefix=${PREFIX} --with-nclib=${netcdf_library_directory} --with-ncinc=${netcdf_include_directory} --with-daplib=${CDMS_DAP_DIR}/lib --with-dapinc=${CDMS_DAP_DIR}/include --with-hdfinc=${CDMS_HDF_DIR}/include --with-hdflib=${CDMS_HDF_DIR}/lib --with-hdf5lib=${CDMS_LIBRARY_HDF5} || exit 1
 echo "make ${target}"

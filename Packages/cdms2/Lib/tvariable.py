@@ -107,13 +107,13 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
 
     def __init__(self,data, typecode=None, copy=1, savespace=0, 
                  mask=numpy.ma.nomask, fill_value=None, grid=None,
-                 axes=None, attributes=None, id=None, copyaxes=1, dtype=None, order=False, no_update_from=False,**kargs):
+                 axes=None, attributes=None, id=None, copyaxes=1, dtype=None, 
+                 order=False, no_update_from=False,**kargs):
         """createVariable (self, data, typecode=None, copy=0, savespace=0, 
                  mask=None, fill_value=None, grid=None,
                  axes=None, attributes=None, id=None, dtype=None, order=False)
            The savespace argument is ignored, for backward compatibility only.
         """
-
         
         # Compatibility: assuming old typecode, map to new
         if dtype is None and typecode is not None:
@@ -132,7 +132,8 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
                 axes = map(lambda x: x[0], data.getDomain())
             if grid is None and not no_update_from:
                 grid = data.getGrid()
-                if (grid is not None) and (not isinstance(grid, AbstractRectGrid)) and (not grid.checkAxes(axes)):
+                if (grid is not None) and (not isinstance(grid, AbstractRectGrid)) \
+                                      and (not grid.checkAxes(axes)):
                     grid = grid.reconcile(axes) # Make sure grid and axes are consistent
 
         ncopy = (copy!=0)
@@ -262,7 +263,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
                     copyaxes=0
                     newgrid = item
                 else:
-                    raise CDMSError, "Invalid item in axis list: "+`item`
+                    raise CDMSError, "Invalid item in axis list:\n"+`item`
             if len(flataxes) != self.rank():
                 raise CDMSError, "Wrong number of axes to initialize domain."
             for i in range(len(flataxes)):
@@ -489,9 +490,6 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
     # For aggregation server interface. Use clone to make a true copy.
     def copy(self):
         return self.filled()
-
-
-
 
 ## PropertiedClasses.set_property(TransientVariable, 'shape', 
 ##                                nowrite=1, nodelete=1)

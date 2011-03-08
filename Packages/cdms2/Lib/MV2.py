@@ -522,6 +522,7 @@ def masked_inside(x, v1, v2):
 def concatenate (arrays, axis=0, axisid=None, axisattributes=None):
     """Concatenate the arrays along the given axis. Give the extended axis the id and
     attributes provided - by default, those of the first array."""
+
     tarrays = [_makeMaskedArg(a) for a in arrays]
     maresult = numpy.ma.concatenate(arrays, axis=axis)
     if len(arrays)>1:

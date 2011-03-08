@@ -29,6 +29,8 @@ from cdmsNode import CdDatatypes
 import convention
 import typeconv
 import AutoAPI
+import gsHost
+
 try:
     import cache
 except ImportError:
@@ -44,6 +46,8 @@ FileWasClosed = "File was closed: "
 InvalidDomain = "Domain elements must be axes or grids"
 ModeNotSupported = "Mode not supported: "
 SchemeNotSupported = "Scheme not supported: "
+
+GRIDSPEC_HOSTFILE_TYPE = "gridspec_host_file"
 
 # Regular expressions for parsing the file map.
 _Name = re.compile(r'[a-zA-Z_:][-a-zA-Z0-9._:]*')
@@ -183,6 +187,10 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
             datanode = load(path)
         else:
             file = CdmsFile(path,mode)
+            if hasattr(file, "file_type"):
+                if file.file_type == GRIDSPEC_HOSTFILE_TYPE:
+                    file = gsHost.open(path, mode, file.file_type)
+
             return file
     elif scheme in ['http', 'gridftp']:
         
@@ -1714,6 +1722,112 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
                 raise CDMSError,'Cannot write variable %s: the values of dimension %s=%s, do not overlap the extended dimension %s values: %s'%(varid, vec1.id,`vec1[:]`,vec2.id,`vec2[:]`)
 
         return v
+
+    def is_gridspec_grid_file( self ):
+        """returns True is self is a Gridspec file representing a known grid type,
+        otherwise False"""
+        return ( hasattr(self,'Conventions') and
+                 self.Conventions.find('Gridspec')>=0 and
+                 hasattr(self,'gs_filetypes') and
+                 self.gs_filetypes.find('Curvilinear_Tile')>=0 )
+
+    def gridspec_file_contents( self ):
+        """returns the important contents of the gridspec file representing a
+        curvilinear grid"""
+        from coord import TransientAxis2D
+        filename = self.id
+        filebase = os.path.basename(filename)
+        filepath = os.path.dirname(filename)
+
+        # Is this a Gridspec file, for a curvilinear tile?  If not, raise an error.
+        if ( not self.is_gridspec_grid_file() ):
+            print "File " + filename + " is not a Gridspec Curvilinear Tile file."
+            self.close()
+            raise IOError
+
+        # Save any Gridspec attributes from the file.
+        gs_attr = { 'filebase':filebase, 'filepath':filepath }
+        gs_attr['history'] = getattr( self, 'history', "" )
+        gs_attr['long_name'] = getattr( self, 'long_name', None )
+        # gs_geometryType is no longer required of Gridspec files, but as yet
+        # there is no other proposal for describing the geometry (July 2010)
+        gs_attr['gs_geometryType'] = getattr( self, 'gs_geometryType', None )
+        # gs_discretizationType is no longer required of Gridspec files, but it's
+        # harmless and may come in useful
+        gs_attr['gs_discretizationType'] = getattr( self, 'gs_discretizationType', None )
+
+        # Deduce the lon,lat variables x,y from the Gridspec file
+        # as described in the standard...
+        if ( hasattr( self, 'gs_lonv') ):
+            x = self(self.gs_lonv)
+        else:
+            # find a variable x with x.standard_name == 'longitude'
+            x = None
+            for nom in self.variables.keys():
+                if ( getattr( self[nom], 'standard_name', '' ) == 'longitude' ):
+                    x = self(nom)
+                    break
+                if ( getattr( self[nom], 'standard_name', '' ) ==
+                     'geographic_longitude' ):
+                    # temporary for file conversions
+                    x = self(nom)
+                    break
+        if ( hasattr( self, 'gs_latv') ):
+            y = self(self.gs_latv)
+        else:
+            # find a variable y with y.standard_name == 'latitude'
+            y = None
+            for nom in self.variables.keys():
+                if ( getattr( self[nom], 'standard_name', '' ) == 'latitude' ):
+                    y = self(nom)
+                    break
+                if ( getattr( self[nom], 'standard_name', '' ) ==
+                     'geographic_latitude' ):
+                    # temporary for file conversions
+                    y = self(nom)
+                    break
+        # Formerly, this is all it took:
+        # x = self('gs_x')
+        # y = self('gs_y')
+        assert( type(x)!=type(None) )
+        assert( type(y)!=type(None) )
+        
+        ax = TransientAxis2D( x )
+        ay = TransientAxis2D( y )
+        return ( ax, ay, gs_attr )
+
+    def readg( self ):
+        """Read a Gridspec grid defined by self (already open for reading).
+        Presently only curvilinear grids are supported.
+        Return the grid, a TransientCurveGrid."""
+        from cdms2.hgrid import TransientCurveGrid
+        ax, ay, gs_attr = self.gridspec_file_contents()
+        g = TransientCurveGrid( ay, ax )
+        g.history = gs_attr['history']
+        g.gsfile = gs_attr['filebase']
+        g.gspath = gs_attr['filepath']
+        g.long_name = gs_attr['long_name']
+        # gs_geometryType is no longer required of Gridspec files, but as yet
+        # there is no other proposal for describing the geometry (July 2010)
+        g.gs_geometryType = gs_attr['gs_geometryType']
+        # gs_discretizationType is no longer required of Gridspec files, but it's
+        # harmless and may come in useful
+        g.gs_discretizationType = gs_attr['gs_discretizationType']
+        return g
+
+    def write_it_yourself( self, obj ):
+        """Tell obj to write itself to self (already open for writing), using its
+        writeg method (AbstractCurveGrid has such a method, for example).  If no
+        such method be available, writeToFile will be used.  If that is not
+        available, then self.write(obj) will be called to try to write obj as
+        a variable."""
+        # This method was formerly called writeg and just wrote an AbstractCurveGrid.
+        if ( hasattr(obj,'writeg') and callable(getattr(obj,'writeg')) ):
+            obj.writeg( self )
+        elif ( hasattr(obj,'writeToFile') and callable(getattr(obj,'writeToFile')) ):
+            obj.writeToFile( self )
+        else:
+            self.write(obj)
 
     def getVariable(self, id):
         """

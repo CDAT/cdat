@@ -14,7 +14,11 @@
    for such use.  You agree that if you make any modifications to the
    source code, you will provide such modifications to Brian Doty for
    possible inclusion into the distributed version of GrADS (attribution
-   will be made if requested).  */
+   will be made if requested).  
+
+   $Id: $
+
+*/
 
 
 #include <stdio.h>
@@ -24,6 +28,7 @@
 #include <malloc.h>
 #endif
 #include "grads.h"
+#include <string.h>
 
 /*mf 961205 --- expose Mike Fiorino's global struct to these routines for 365 day calandars mf*/
 extern struct gamfcmn mfcmn;
