@@ -71,8 +71,14 @@ class QDefinedVariableWidget(QtGui.QWidget):
         varList = []
         for item in selectedItems:
             varList.append(item.getVariable())
-        
         return varList
+
+    def getVariable(self,name):
+        for i in range(self.varList.count()):
+            it = self.varList.item(i)
+            if str(it.text()).split()[1] == name:
+                return it.getVariable()
+            
     def addVariable(self, var):
         """ Add variable into dict / list & emit signal to create
         a tab for the variable
