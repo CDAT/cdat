@@ -219,15 +219,15 @@ class Gi(object,AutoAPI.AutoAPI):
 	iso.linewidths=None			# Turns off the line width size
 
     There are three ways to specify the text or font number:
-	iso.text=(1,2,3,4,5,6,7,8,9)   	# Font numbers are between 1 and 9
+	iso.text=(1,2,3,4,5,6,7,8,9)     	# Font numbers are between 1 and 9
 	iso.text=[9,8,7,6,5,4,3,2,1]
 	iso.text=([1,3,5,6,9,2])
-	iso.text=None			# Removes the text settings
+	iso.text=None		        	# Removes the text settings
 
     There are three possibilities for setting the text color indices (Ex.):
         iso.textcolors=([22,33,44,55,66,77])
 	iso.textcolors=(16,19,33,44)
-	iso.textcolors=None		# Turns off the text color index
+	iso.textcolors=None	        	# Turns off the text color index
 """
     rename=renameGi # Alias for VCS_Validation_Functions
     __slots__=[

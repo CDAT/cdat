@@ -1,4 +1,5 @@
 from PyQt4 import QtGui, QtCore
+import cdutil
 
 
 class QAxisListTabWidget(QtGui.QTabWidget):
@@ -261,7 +262,8 @@ class QAxis(QtGui.QWidget):
         self.axis = axis
         self.axisName = axisName # Axis name including the label
         self.axisIndex = axisIndex
-
+        self.parent=parent
+        
         hbox = QtGui.QHBoxLayout()
         hbox.setSpacing(0)
         hbox.setMargin(0)                
@@ -324,7 +326,7 @@ class QAxis(QtGui.QWidget):
 
         # If the operation is 'awt' ask the user for an alternate weight var
         if op == 'awt':
-            definedVars = self.parent.getParent().getDefinedVars()
+            definedVars = self.parent.parent.getDefinedVars()
             QReplaceAxisWeightsDialog(definedVars, self).show()
             return
 
@@ -333,7 +335,7 @@ class QAxis(QtGui.QWidget):
 
         # Update the vistrails 'Variable' module's axesOperations input
         axesOperations = self.parent.getAxesOperations()
-        varWidget = self.parent.getParent()
+        varWidget = self.parent.parent
         varWidget.emit(QtCore.SIGNAL('updateModule'),
                        self.parent.currentTabName(), 'axesOperations',
                        str(axesOperations)) 
@@ -371,7 +373,7 @@ class QAxis(QtGui.QWidget):
         # Add 're-order dimensions' option to menu
         axisMenu.addSeparator()
         reorderAxesMenu = axisMenu.addMenu('Re-Order Dimensions')
-        axesNames = self.parent().getAxesNames()                
+        axesNames = self.parent.getAxesNames()                
         for axisID in axesNames:
             reorderAction = reorderAxesMenu.addAction(axisID)
             self.connect(reorderAction, QtCore.SIGNAL('triggered()'),
@@ -419,7 +421,7 @@ class QAxis(QtGui.QWidget):
         'Replace Axis Values' Show a dialog box which asks the user to select
         a defined variable for replacement axis values
         """
-        definedVars = self.parent.getParent().getDefinedVars()
+        definedVars = self.parent.parent.getDefinedVars()
         QReplaceAxisValuesDialog(definedVars, self).show()
         
     def replaceAxisValues(self, newValuesVar):
@@ -764,7 +766,8 @@ class QAxisList(QtGui.QWidget):
         self.var = var # variable associated with the axes
         self.axisList = None # list of axes from the variable
         self.root = parent.root
-
+        self.parent=parent
+        
         # Init & set the layout
         vbox = QtGui.QVBoxLayout()
         self.gridLayout = QtGui.QGridLayout()
@@ -943,9 +946,6 @@ class QAxisList(QtGui.QWidget):
     def getVarID(self):
         return self.var.id
 
-    def getParent(self):
-        return self.parent
-
     def getAxesOrderString(self):
         """ Return a string with the axes' order """
         
@@ -973,7 +973,7 @@ class QAxisList(QtGui.QWidget):
         self.var = var
 
     def currentTabName(self):
-        return self.parent.currentTabName()
+        return self.parent.tabWidget.currentTabName()
 
     ## def setVistrailsVariableAxes(self):
     ##     """ Vistrails: Update the vistrails Variable modules 'axes' input. This

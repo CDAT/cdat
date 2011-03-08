@@ -1,6 +1,6 @@
 from PyQt4 import QtGui, QtCore
 import axesWidgets
-import vcdatWindow
+import vcdatCommons
 import fileWidget
 
 class QVariableView(QtGui.QWidget):
@@ -11,7 +11,8 @@ class QVariableView(QtGui.QWidget):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
         self.root=parent.root
-        self.fileWidget = vcdatWindow.QLabeledWidgetContainer(fileWidget.QCDATFileWidget(self),
+        self.parent=parent
+        self.fileWidget = vcdatCommons.QLabeledWidgetContainer(fileWidget.QCDATFileWidget(self),
                                              'FILE VARIABLE')
         self.ask = QtGui.QInputDialog()
         self.ask.setLabelText("This variable already exist!\nPlease change its name bellow or press ok to replace it\n")
