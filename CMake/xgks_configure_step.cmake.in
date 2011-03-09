@@ -21,7 +21,7 @@ else()
 endif()
 
 execute_process(
-  COMMAND LD_X11="" FC="" sh configure --prefix=${INSTALL_DIR} ${CONFIGURE_ARGS}
+  COMMAND --prefix=${INSTALL_DIR} ${CONFIGURE_ARGS}
   WORKING_DIRECTORY "${WORKING_DIR}"
   RESULT_VARIABLE res)
 
