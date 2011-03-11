@@ -166,7 +166,6 @@ class QVariableView(QtGui.QWidget):
         """ Create a new axis list and tab with the specified tab name and setup
         the axis list.
         """
-        print 'in setupDefinedVariableAxes you need to update this one!'
         if var is None:
             return
         tabName=var.id
@@ -202,7 +201,6 @@ class QVariableView(QtGui.QWidget):
         """ Save the list of selected variables and show the selected variable,
         variables are sorted in least recently selected to most recently selected
         """
-        print 'useless function need to repalced  directly with bellow one'
         self.tabWidget.selectAndUpdateDefinedVarTab(tabName, None, var)
 
 

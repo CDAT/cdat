@@ -75,13 +75,16 @@ class QCommandLineType(QtGui.QLineEdit):
     """ Command line events to trap the up, down, left, right arrow button events for the Qt Line Edit. """
 
     def keyPressEvent(self,event):
-        if event.key() in (QtCore.Qt.Key_Up, QtCore.Qt.Key_Left):
+        if event.key() in (QtCore.Qt.Key_Up, ):
+           if len(systemCommands.commandHistory) == 0:
+               return
            systemCommands.command_num += 1
            if systemCommands.command_num > len(systemCommands.commandHistory):
               systemCommands.command_num = len(systemCommands.commandHistory)
            command = systemCommands.commandHistory[len(systemCommands.commandHistory) - systemCommands.command_num]
            self.setText( command )
-        elif event.key() in (QtCore.Qt.Key_Down, QtCore.Qt.Key_Right):
+           self.setFocus()
+        elif event.key() in (QtCore.Qt.Key_Down, ):
            systemCommands.command_num -= 1
            if systemCommands.command_num <= 0:
               systemCommands.command_num = 0
@@ -89,8 +92,10 @@ class QCommandLineType(QtGui.QLineEdit):
            else:
               command = systemCommands.commandHistory[len(systemCommands.commandHistory) - systemCommands.command_num]
            self.setText( command )
+           self.setFocus()
         elif (event.key() == QtCore.Qt.Key_U and event.modifiers() == QtCore.Qt.MetaModifier):
            self.clear()
+           self.setFocus()
         QtGui.QLineEdit.keyPressEvent(self,event)
         
     def dragEnterEvent(self,event):
@@ -171,21 +176,21 @@ class QCommandLine(QtGui.QWidget):
         self.newRow()
         self.addButton(text='LN', styles=styles)
         self.addButton(text='LOG', styles=styles)
-        self.addButton(text='e^X', styles=styles)
-        self.addButton(text='10^X', styles=styles)
+        self.addButton(text='e^x', styles=styles)
+        self.addButton(text='10^x', styles=styles)
         self.newRow()
         self.addButton(text='x<y', styles=styles)
         self.addButton(text='x>y', styles=styles)
         self.addButton(text='x<>y', styles=styles)
-        self.addButton(text='x=y', styles=styles)
+        self.addButton(text='x==y', styles=styles)
         self.newRow()
         self.addButton(text='SIN', styles=styles)
-        self.addButton(text='ASIN', styles=styles)
+        self.addButton(text='ARCSIN', styles=styles)
         self.addButton(text='COS', styles=styles)
-        self.addButton(text='ACOS', styles=styles)
+        self.addButton(text='ARCCOS', styles=styles)
         self.newRow()
         self.addButton(text='TAN', styles=styles)
-        self.addButton(text='ATAN', styles=styles)
+        self.addButton(text='ARCTAN', styles=styles)
         self.addButton(text='STD',styles=styles)
         self.addButton(text='ABS',styles=styles)
         self.newRow()
@@ -214,7 +219,7 @@ class QCommandLine(QtGui.QWidget):
         self.addButton(QtCore.Qt.Key_Clear,'Clear', styles=styles)
         self.addButton(QtCore.Qt.Key_Delete, 'Del',styles=styles)
         self.addButton(QtCore.Qt.Key_Enter, 'Enter',styles=styles)
-        self.addButton(QtCore.Qt.Key_Equal, '=', styles=styles)
+        self.addButton(QtCore.Qt.Key_Equal, 'Plot', styles=styles)
 
         #Number Buttons
         styles["background-color"]="#6491DA"
@@ -249,6 +254,15 @@ class QCommandLine(QtGui.QWidget):
         self.addButton(QtCore.Qt.Key_Plus, '+', styles=styles)
         self.addButton(QtCore.Qt.Key_Minus, '-', styles=styles)
 
+        #pi and ()
+        self.newCol()
+        styles["background-color"]="#578038"
+        self.addButton(text = '(', styles=styles)
+        self.addButton(text = ")", styles=styles)
+        self.addButton(text="PI", styles=styles)
+        self.addButton(text="e", styles=styles)
+
+  
         #self.connect(self,QtCore.SIGNAL("keyRelease"),self.key)
         #------------------------------------------------------------------------------
 	# connect signal - if the return key is pressed, then call run_command
@@ -256,7 +270,6 @@ class QCommandLine(QtGui.QWidget):
         self.connect(self.le, QtCore.SIGNAL("returnPressed(void)"),
                      self.run_command)
 
-        self.connect(self,QtCore.SIGNAL("keyPressedEvent(QKeyEvent *event)"),self.myKeyPressEvent)
 
     def newRow(self,col=0):
         self.row+=1
@@ -278,83 +291,192 @@ class QCommandLine(QtGui.QWidget):
         else:
             self.row+=1
 
-    def myKeyPressEvent(self,event):
-        print "You pressed key: ",event.key()
-        key = event.key()
-        for r in range(self.Lay.rowCount()):
-            for c in range(self.Lay.columnCount()):
-                b = self.Lay.itemAtPosition(r,c).widget
-                if b.associated_key == key:
-                    print "That matches button:",b.text()
-                    self.issueCmd(b)
-                    return
-                
+            
     def issueCmd(self,button):
         st=""
-        txt = button.text()
-        selected = self.root.definedVar.widget.getSelectedDefinedVariables()
+        txt = str(button.text())
+        pressEnter=False
+        selected = self.root.definedVar.widget.varList.selectedItems()
         # Funcs that can take many many many variables
         if txt  in ["*","+","/","-"]:
-         if len(selected)==0:
-             st=txt
-         elif len(selected)==1:
-             self.le.setText(str(self.le.text())+txt+selected[0].varName)
-         else:
-             st = selected[0].varName
-             for s in selected[1:]:
-                 st+=txt+s.varName
-             self.le.setText(str(self.le.text())+st)
+            if len(selected)==0:
+                st=txt
+            elif len(selected)==1:
+                st = str(self.le.text())+txt+selected[0].varName
+            else:
+                st = selected[0].varName
+                for s in selected[1:]:
+                    st+=txt+s.varName
+                self.root.definedVar.widget.unselectItems(selected)
+                if str(self.le.text())=="" :
+                    pressEnter=True
         # 2 variable commands
-        elif txt in ["x^y","x<y","x>y","x<>y","x=y"]:
+        elif txt in ["x<y","x>y","x<>y","x==y"]:
             if len(selected)!=2:
                 st=txt[1:-1]
             else:
                 st=selected[0].varName+txt[1:-1]+selected[1].varName
-        elif txt == "REGRID":
+                self.root.definedVar.widget.unselectItems(selected)
+                if str(self.le.text())=="" :
+                    pressEnter=True
+        elif txt == "x^y":
             if len(selected)!=2:
-                st=".regrid("
+                st="MV2.power("
             else:
-                st="%s.regrid(%s.getGrid())" % (selected[0].varName,selected[1].varName)
+                st="MV2.power(%s,%s)" % (selected[0].varName,selected[1].varName)
+                self.root.definedVar.widget.unselectItems(selected)
+                if str(self.le.text())=="" :
+                    pressEnter=True
+        elif txt == "REGRVARNAME":
+            if len(selected)!=2:
+                st=".regrvarName("
+            else:
+                st="%s.regrvarName(%s.getGrvarName())" % (selected[0].varName,selected[1].varName)
+                self.root.definedVar.widget.unselectItems(selected)
+                if str(self.le.text())=="" :
+                    pressEnter=True
         elif txt == "MASK":
             if len(selected)!=2:
                 st="MV2.masked_where("
             else:
                 st="MV2.masked_where(%s,%s)" % (selected[0].varName,selected[1].varName)
+                self.root.definedVar.widget.unselectItems(selected)
+                if str(self.le.text())=="" :
+                    pressEnter=True
         elif txt == "GROWER":
             if len(selected)!=2:
                 st="genutil.grower("
             else:
                 st="genutil.grower(%s,%s)" % (selected[0].varName,selected[1].varName)
+                self.root.definedVar.widget.unselectItems(selected)
+                if str(self.le.text())=="" :
+                    pressEnter=True
         # ! variable only
         elif txt == "x^2":
             if len(selected)==1:
                 st="%s**2" % selected[0].varName
+                self.root.definedVar.widget.unselectItems(selected)
+                if str(self.le.text())=="" :
+                    pressEnter=True
             else:
                 st="**2"
         elif txt == "sqRT":
             if len(selected)==1:
                 st="MV2.sqrt(%s)" % selected[0].varName
+                self.root.definedVar.widget.unselectItems(selected)
+                if str(self.le.text())=="" :
+                    pressEnter=True
             else:
                 st="MV2.sqrt("
         elif txt == "1/x":
             if len(selected)==1:
                 st="1/%s" % selected[0].varName
+                self.root.definedVar.widget.unselectItems(selected)
+                if str(self.le.text())=="" :
+                    pressEnter=True
             else:
                 st="1/"
         elif txt == "LN":
             if len(selected)==1:
                 st="MV2.log(%s)" % selected[0].varName
+                self.root.definedVar.widget.unselectItems(selected)
+                if str(self.le.text())=="" :
+                    pressEnter=True
             else:
                 st="MV2.log("
         elif txt == "LOG":
             if len(selected)==1:
                 st="MV2.log10(%s)" % selected[0].varName
+                self.root.definedVar.widget.unselectItems(selected)
+                if str(self.le.text())=="" :
+                    pressEnter=True
             else:
                 st="MV2.log10("
+        elif txt == "e^x":
+            if len(selected)==1:
+                st="MV2.exp(%s)" % selected[0].varName
+                self.root.definedVar.widget.unselectItems(selected)
+                if str(self.le.text())=="" :
+                    pressEnter=True
+            else:
+                st="MV2.exp("
+        elif txt == "10^x":
+            if len(selected)==1:
+                st="MV2.power(10,%s)" % selected[0].varName
+                self.root.definedVar.widget.unselectItems(selected)
+                if str(self.le.text())=="" :
+                    pressEnter=True
+            else:
+                st="MV2.power(10,"
+        elif txt == "ABS":
+            if len(selected)==1:
+                st="MV2.absolute(%s)" % selected[0].varName
+                self.root.definedVar.widget.unselectItems(selected)
+                if str(self.le.text())=="" :
+                    pressEnter=True
+            else:
+                st="MV2.absoulte(,"
+        elif txt in ["SIN","ARCSIN","COS","ARCOS","TAN","ARCTAN"]:
+            if len(selected)==1:
+                st="MV2.%s(%s)" % (txt.lower(),selected[0].varName)
+                self.root.definedVar.widget.unselectItems(selected)
+                if str(self.le.text())=="" :
+                    pressEnter=True
+            else:
+                st="MV2.%s(," % (txt.lower())
+        elif txt == "STD":
+            if len(selected)==1:
+                st="genutil.statistics.std(%s)" % (txt.lower(),selected[0].varName)
+                self.root.definedVar.widget.unselectItems(selected)
+                if str(self.le.text())=="" :
+                    pressEnter=True
+            else:
+                st="genutil.statistics.std(," % (txt.lower())
+        elif txt == "Clear":
+            self.le.clear()
+        elif txt == "Del":
+            st = str(self.le.text())[:-1]
+            self.le.clear()
+        elif txt == "Enter":
+            pressEnter = True
+        elif txt == "Plot":
+            if len(str(self.le.text()))!=0:
+                res = self.run_command()
+                self.root.definedVar.widget.unselectItems(selected)
+                self.root.definedVar.widget.selectVariableFromName(res)
+                self.root.tabView.widget(1).plot()
+            elif len(selected)!=0:
+                self.root.tabView.widget(1).plot()
+        elif txt == "=":
+            if len(selected)==1:
+                st = "%s =" % selected[0].varName
+                self.root.definedVar.widget.unselectItems(selected)
+            else:
+                st="="
+        elif txt == "PI":
+            st="numpy.pi"
+        elif txt=="e":
+            st="numpy.e"
+        elif txt == "+/-":
+            st = str(self.le.text())
+            if st[:2]=="-(" and st[-1]==")" and st.count("(")==st.count(")"):
+                st=st[2:-1]
+            else:
+                if len(st)==0 and len(selected)==1:
+                    st = "-%s" % selected[0].varName
+                    self.root.definedVar.widget.unselectItems(selected)
+                else:
+                    st="-(%s)" % st
+            self.le.clear()
+        else:
+            st=txt
+
 
  
         if st!="":
-            self.le.setText(str(self.le.text())+txt)
+            self.le.setText(str(self.le.text())+st)
+        if pressEnter:
+            self.run_command()
         self.le.setFocus()
 
     def run_command(self):
@@ -377,11 +499,19 @@ class QCommandLine(QtGui.QWidget):
         #------------------------------------------------------------------------------
         # execute the command and clear the line entry if no error occurs
         #------------------------------------------------------------------------------
-        exec( command, __main__.__dict__ )
+        results = "temp_results_holder"
+        acommand = "temp_results_holder = %s"  % command
+        exec( "import MV2,genutil", __main__.__dict__ )
         self.le.clear()
-        self.root.stick_main_dict_into_defvar()
+        try:
+            exec( acommand, __main__.__dict__ )
+        except Exception,err:
+            exec( command, __main__.__dict__ )
+            results=None
+        res = self.root.stick_main_dict_into_defvar(results)
         #------------------------------------------------------------------------------
         # record the command for preproducibility
         #------------------------------------------------------------------------------
         self.root.record("## Command sent from prompt by user")
         self.root.record(command)
+        return res
