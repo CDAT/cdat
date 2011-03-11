@@ -156,8 +156,36 @@ class QCDATWindow(QtGui.QMainWindow):
     def stick_defvar_into_main_dict(self,var):
         __main__.__dict__[var.id]=var
 
-    def stick_main_dict_into_defvar(self):
+    def stick_main_dict_into_defvar(self,results=None):
+        #First evaluate if there's any var in the result
+        res = None
+        if results is not None:
+            tmp = __main__.__dict__[results]
+        else:
+            tmp=None
+        added = []
+        remove =[]
+        if isinstance(tmp,cdms2.tvariable.TransientVariable):
+            __main__.__dict__[tmp.id]=tmp
+            added.append(tmp.id)
+            res = tmp.id
+        elif isinstance(tmp,(list,tuple)):
+            for i in tmp:
+                if isinstance(i,cdms2.tvariable.TransientVariable):
+                    __main__.__dict__[i.id]=i
+                    added.append(i.id)
+
+        if results is not None:
+            del(__main__.__dict__[results])
         for k in __main__.__dict__:
             if isinstance(__main__.__dict__[k],cdms2.tvariable.TransientVariable):
-                __main__.__dict__[k].id=k
-                self.definedVar.getWidget().addVariable(__main__.__dict__[k])
+                if __main__.__dict__[k].id in added and k!=__main__.__dict__[k].id:
+                    remove.append( __main__.__dict__[k].id)
+                    res = k
+                if not k in remove:
+                    __main__.__dict__[k].id=k
+                    self.definedVar.getWidget().addVariable(__main__.__dict__[k])
+        for r in remove:
+            del(__main__.__dict__[r])
+
+        return res
