@@ -97,6 +97,21 @@ class QDefinedVariableWidget(QtGui.QWidget):
         # emit signal to QVariableView to create a new axisList / tab
         self.emit(QtCore.SIGNAL('setupDefinedVariableAxes'), var)
 
+    def unselectItems(self,items):
+        selected = self.varList.selectedItems()
+        for item in items:
+            if item in selected:
+                self.selectVariableFromListEvent(item)
+
+        
+    def selectVariableFromName(self,name):
+        for i in range(self.varList.count()):
+            it = self.varList.item(i)
+            if str(it.text()).split()[1] == name:
+                it.setSelected(True)
+                self.selectVariableFromListEvent(it)
+                break
+            
     def selectVariableFromListEvent(self, item):
         """ Update the number next to the selected defined variable and
         send a signal to QVariableView to display the selected variable
@@ -104,7 +119,6 @@ class QDefinedVariableWidget(QtGui.QWidget):
         ## print 'Ok we are where we should be'
         ## item = self.varList.item(modelIndex.row())
         selectedItems = self.varList.selectedItems()
-        print item,selectedItems
         # If the item is unselected then change the selection str back to '--'
         # and decrement all the numbers of the other selected vars that are
         # less than the number of the item that was unselected
@@ -271,7 +285,6 @@ class QDefinedVariableItem(QtGui.QListWidgetItem):
 
         varString = "%s %s %s" % (numString, self.varName, str(self.variable.shape))
         self.setData(0, QtCore.QVariant(QtCore.QString(varString)))
-        print "ok number is now:",self.selectNum
         
     def setFile(self, cdmsFile):
         self.cdmsFile = cdmsFile
