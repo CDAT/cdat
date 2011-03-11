@@ -96,11 +96,11 @@ class QCDATWindow(QtGui.QMainWindow):
         ###########################################################
         # Command Line Controls Tab
         ###########################################################
-        self.tabView.addTab(commandLineWidget.QCommandLine(self), "CommandLine")
-        ###########################################################
-        # Calculator Tab
-        ###########################################################
-        self.tabView.addTab(calculatorWidget.QCalculator(self), "Calculator")
+        self.tabView.addTab(commandLineWidget.QCommandLine(self), "Calculator")
+        ## ###########################################################
+        ## # Calculator Tab
+        ## ###########################################################
+        ## self.tabView.addTab(calculatorWidget.QCalculator(self), "Calculator")
 
         layout.addWidget(hsplitter)
         self.show()

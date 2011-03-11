@@ -33,8 +33,8 @@ class QMainToolBarContainer( QtGui.QWidget ):
             action.setToolTip(info[1])
         self.toolBar.addSeparator()
 
-        self.opButton = QtGui.QToolButton()
-        self.opButton.setText('Ops')
+        ## self.opButton = QtGui.QToolButton()
+        ## self.opButton.setText('Ops')
 
         vbox.addWidget(self.toolBar, 0)
         self.setLayout(vbox)

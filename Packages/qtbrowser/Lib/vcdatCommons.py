@@ -43,7 +43,6 @@ class QDropLineEdit(QtGui.QLineEdit):
             event.ignore()
         
     def dropEvent(self,event):
-        #event.setDropAction(QtCore.Qt.CopyAction)
         event.accept()
         self.setText(event.mimeData().text())
         self.emit(QtCore.SIGNAL("droppedInto"),self)
@@ -90,17 +89,17 @@ class QLabeledWidgetContainer(QtGui.QWidget):
     """ Container widget for the 3 main widgets: QVariableView, QCDATFileWidget,
     and QDefinedVariable """
 
-    def __init__(self, widget, label='', parent=None,margins=noMargins):
+    def __init__(self, widget, label='', parent=None,margins=noMargins,labelAlign = QtCore.Qt.AlignCenter,frameStyle = QtGui.QFrame.Panel | QtGui.QFrame.Raised):
         QtGui.QWidget.__init__(self, parent)
 
         vbox = QtGui.QVBoxLayout()
-        vbox.setMargin(0)
+        #vbox.setMargin(0)
         
         self.label = QtGui.QLabel(label)
-        self.label.setAutoFillBackground(True)
-        self.label.setAlignment(QtCore.Qt.AlignCenter)
-        self.label.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Raised)
-        vbox.addWidget(self.label, 0)
+        self.label.setAutoFillBackground(False)
+        self.label.setAlignment(labelAlign)
+        self.label.setFrameStyle(frameStyle)
+        vbox.addWidget(self.label)
 
         if widget!=None:
             self.widget = widget
