@@ -2,6 +2,7 @@ from PyQt4 import QtGui, QtCore
 import os
 import cdms2
 import vcdatCommons
+import customizeVCDAT
 
 
 
@@ -13,7 +14,6 @@ class QDefinedVariableWidget(QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
         self.warningWidget = QDefVarWarningBox(self) # Popup box to warn var is already defined
         self.quickplotItem = None
-        self.numVarsSelected = 0
         self.root=parent.root
         # Create Layout
         vbox = QtGui.QVBoxLayout()
@@ -46,7 +46,9 @@ class QDefinedVariableWidget(QtGui.QWidget):
         vbox.addWidget(self.varList)
 
         # Connect Signals
-        self.connect(self.varList, QtCore.SIGNAL('clicked(const QModelIndex&)'),
+        ## self.connect(self.varList, QtCore.SIGNAL('clicked(const QModelIndex&)'),
+        ##              self.selectVariableFromListEvent)
+        self.connect(self.varList, QtCore.SIGNAL('itemPressed( QListWidgetItem *)'),
                      self.selectVariableFromListEvent)
         self.connect(self.warningWidget, QtCore.SIGNAL('newVarID'),
                      self.addVariable)      
@@ -95,21 +97,20 @@ class QDefinedVariableWidget(QtGui.QWidget):
         # emit signal to QVariableView to create a new axisList / tab
         self.emit(QtCore.SIGNAL('setupDefinedVariableAxes'), var)
 
-    def selectVariableFromListEvent(self, modelIndex):
+    def selectVariableFromListEvent(self, item):
         """ Update the number next to the selected defined variable and
         send a signal to QVariableView to display the selected variable
         """
-        print 'Ok we are where we should be'
-        item = self.varList.item(modelIndex.row())
+        ## print 'Ok we are where we should be'
+        ## item = self.varList.item(modelIndex.row())
         selectedItems = self.varList.selectedItems()
-
+        print item,selectedItems
         # If the item is unselected then change the selection str back to '--'
         # and decrement all the numbers of the other selected vars that are
         # less than the number of the item that was unselected
         if item not in selectedItems:
             unselectedNum = item.getSelectNum()            
             item.updateVariableString(None)
-            self.numVarsSelected -= 1
             
             for item in selectedItems:
                 num = item.getSelectNum()
@@ -117,8 +118,7 @@ class QDefinedVariableWidget(QtGui.QWidget):
                     item.updateVariableString(item.getSelectNum() - 1)
         # If item is selected, change the selection str to a number
         else:
-            self.numVarsSelected += 1
-            item.updateVariableString(self.numVarsSelected)
+            item.updateVariableString(len(selectedItems))
 
         # Send signal of all selected vars to qvariableview and bring up the
         # most recently selected variable's tab
@@ -155,19 +155,20 @@ class QDefinedVariableWidget(QtGui.QWidget):
             self.emit(QtCore.SIGNAL('recordTeachingCommand'), command)
 
     def createToolbar(self):
-        ICONPATH = os.path.join(cdms2.__path__[0], '..', '..', '..', '..', 'bin')
+        ICONPATH = customizeVCDAT.ICONPATH
 
         # Create options bar
         self.toolBar = QtGui.QToolBar()
         self.toolBar.setIconSize(QtCore.QSize(16, 16))
+        self.toolBar.setIconSize(QtCore.QSize(customizeVCDAT.iconsize,customizeVCDAT.iconsize))
         actionInfo = [
-            ('edit_20.gif', 'Edit (in memory) selected defined variable.'),
-            ('save_20.gif', 'Save selected defined variable to a netCDF file.'),
-            ('info_20.gif', 'Display selected defined variable information.'),
-            ('editdelete_20.gif', 'Move selected defined variable(s) to trashcan for disposal.'),
-            ('recycle_20.gif', 'Move [ALL] defined variables to trashcan for disposal.'),
-            ('log_20.gif', 'Logged information about the defined variables.'),
-            ('trashcan_empty_20.gif', 'Defined variable items that can be disposed of permanetly or restored.'),
+            ('edit.gif', 'Edit (in memory) selected defined variable.'),
+            ('Save.gif', 'Save selected defined variable to a netCDF file.'),
+            ('info.gif', 'Display selected defined variable information.'),
+            ('editdelete.gif', 'Move selected defined variable(s) to trashcan for disposal.'),
+            ('recycle.gif', 'Move [ALL] defined variables to trashcan for disposal.'),
+            ('log.gif', 'Logged information about the defined variables.'),
+            ('trashcan_empty.gif', 'Defined variable items that can be disposed of permanetly or restored.'),
             ]
         
         for info in actionInfo:
@@ -238,7 +239,7 @@ class QDefinedVariableItem(QtGui.QListWidgetItem):
         self.varName = variable.id # This is also the tabname
         self.variable = variable
         
-        self.updateVariableString()
+        self.updateVariableString(None)
 
     def getVariable(self):
         return self.variable
@@ -263,17 +264,15 @@ class QDefinedVariableItem(QtGui.QListWidgetItem):
         """
         if num is None:
             self.selectNum = -1
-            numString = '-- '
-        elif 0 < num < 10:
-            self.selectNum = num
-            numString = "-%s " % num
+            numString = '--'
         else:
             self.selectNum = num
-            numString = "%s " % num
+            numString = str(num).zfill(2)
 
-        varString = numString + self.varName + ' ' + str(self.variable.shape)
+        varString = "%s %s %s" % (numString, self.varName, str(self.variable.shape))
         self.setData(0, QtCore.QVariant(QtCore.QString(varString)))
-
+        print "ok number is now:",self.selectNum
+        
     def setFile(self, cdmsFile):
         self.cdmsFile = cdmsFile
         

@@ -56,10 +56,10 @@ def main():
                         cdat.tabView.widget(0).fileWidget.widget.defineVarButton.emit(QtCore.SIGNAL("clicked(bool)"),True)
     if n.tab in ["gm",]:
         cdat.tabView.setCurrentIndex(1)
-    elif n.tab in ["cmd",]:
-        cdat.tabView.setCurrentIndex(2)
+    ## elif n.tab in ["cmd",]:
+    ##     cdat.tabView.setCurrentIndex(2)
     elif n.tab in ["calc",]:
-        cdat.tabView.setCurrentIndex(3)
+        cdat.tabView.setCurrentIndex(2)
 
     for i in range(cdat.tabView.widget(1).plotOptions.plotTypeCombo.count()):
         if n.gm == str(cdat.tabView.widget(1).plotOptions.plotTypeCombo.itemText(i)):

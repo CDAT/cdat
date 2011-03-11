@@ -778,7 +778,6 @@ def repeat(a, repeats, axis=None):
     return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid, no_update_from=True)
 
 def reshape (a, newshape, axes=None, attributes=None, id=None, grid=None):
-    "Copy of a with a new shape."
     ignore, attributes, id, ignore = _extractMetadata(a, axes, attributes, id)
     if axes is not None:
         axesshape = [len(item) for item in axes]
@@ -787,7 +786,7 @@ def reshape (a, newshape, axes=None, attributes=None, id=None, grid=None):
     ta = _makeMaskedArg(a)
     maresult = numpy.ma.reshape(ta, newshape)
     return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid, no_update_from=True)
-
+reshape.__doc__="numpy doc: %s\naxes/attributes/grid are applied onto the new variable" % numpy.reshape.__doc__
 
 def resize (a, new_shape, axes=None, attributes=None, id=None, grid=None):
     """resize(a, new_shape) returns a new array with the specified shape.

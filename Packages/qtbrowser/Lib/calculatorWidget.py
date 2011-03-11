@@ -37,6 +37,7 @@ import vcs, os, sys, string
 import __main__
 import systemCommands
 import qtbrowser
+import customizeVCDAT
 
 class Lcd(QtGui.QLCDNumber):
     """Main LCD Display"""
@@ -79,35 +80,44 @@ class LcdBox(QtGui.QFrame):
 
 class CalcButton(QtGui.QPushButton):
     """Calculator button class - size change & emits clicked text signal"""
-    def __init__(self, text, parent=None):
-        QtGui.QPushButton.__init__(self, text, parent)
+    def __init__(self, text, icon = None, tip = None, parent=None):
+        if icon is None:
+            QtGui.QPushButton.__init__(self, text, parent)
+        else:
+            icon = os.path.join(customizeVCDAT.ICONPATH,icon)
+            icon = QtGui.QIcon(icon)
+            QtGui.QPushButton.__init__(self, icon, text, parent)
+            self.setIconSize(QtCore.QSize(customizeVCDAT.iconsize,customizeVCDAT.iconsize))
         self.setMinimumSize(38, 16)
         self.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred,
                                              QtGui.QSizePolicy.Preferred))
         self.setFocusPolicy(QtCore.Qt.NoFocus)
+        if tip is not None:
+            self.setToolTip(tip)
+            
         self.connect(self, QtCore.SIGNAL('clicked()'), self.clickEvent)
 
     def clickEvent(self):
         """Emits signal with button text"""
         self.emit(QtCore.SIGNAL('activated(QString &)'), self.text())
 
-    def sizeHint(self):
-        """Set prefered size"""
-        size = QtGui.QPushButton.sizeHint(self)
-        size.setWidth(size.width() / 2)
-        return size
+    ## def sizeHint(self):
+    ##     """Set prefered size"""
+    ##     size = QtGui.QPushButton.sizeHint(self)
+    ##     size.setWidth(size.width() / 2)
+    ##     return size
 
-    def tmpDown(self, mSec):
-        """Button shows pushed in for mSec milliseconds"""
-        timer = QtCore.QTimer(self)
-        timer.setSingleShot(True)
-        self.connect(timer, QtCore.SIGNAL('timeout()'), self.timerUp)
-        timer.start(mSec)
-        self.setDown(True)
+    ## def tmpDown(self, mSec):
+    ##     """Button shows pushed in for mSec milliseconds"""
+    ##     timer = QtCore.QTimer(self)
+    ##     timer.setSingleShot(True)
+    ##     self.connect(timer, QtCore.SIGNAL('timeout()'), self.timerUp)
+    ##     timer.start(mSec)
+    ##     self.setDown(True)
 
-    def timerUp(self): 
-        """Button up at end of timer for tmpDown"""
-        self.setDown(False)
+    ## def timerUp(self): 
+    ##     """Button up at end of timer for tmpDown"""
+    ##     self.setDown(False)
 
 
 class QCalculator(QtGui.QWidget):
@@ -148,89 +158,96 @@ class QCalculator(QtGui.QWidget):
         self.cmdLay = QtGui.QGridLayout()
         topLay.addLayout(self.cmdLay)
         self.cmdDict = {}
-        self.addCmdButton('x^2', 0, 0)
-        self.addCmdButton('y^X', 0, 1)
-        self.addCmdButton('1/x', 0, 2)
+        ## First Row
+        self.addCmdButton('x^2',  0, 0)
+        self.addCmdButton('y^X',  0, 1)
+        self.addCmdButton('1/x',  0, 2)
         self.addCmdButton('sqRT', 0, 3)
-        self.addCmdButton('xRT', 0, 4)
-        self.addCmdButton('SIN', 1, 0)
-        self.addCmdButton('COS', 1, 1)
-        self.addCmdButton('TAN', 1, 2)
-        self.addCmdButton('LOG', 1, 3)
+        self.addCmdButton('xRT',  0, 4)
+        ## Second Row
+        self.addCmdButton('SIN',  1, 0)
+        self.addCmdButton('COS',  1, 1)
+        self.addCmdButton('TAN',  1, 2)
+        self.addCmdButton('LOG',  1, 3)
         self.addCmdButton('10^X', 1, 4)
+        ## Third Row
         self.addCmdButton('ASIN', 2, 0)
         self.addCmdButton('ACOS', 2, 1)
         self.addCmdButton('ATAN', 2, 2)
-        self.addCmdButton('LN', 2, 3)
-        self.addCmdButton('e^X', 2, 4)
+        self.addCmdButton('LN',   2, 3)
+        self.addCmdButton('e^X',  2, 4)
 
-        # Create separator line between each axis widget
-#        vline = QtGui.QFrame()
-#        vline.setFrameStyle(QtGui.QFrame.HLine | QtGui.QFrame.Sunken)
-#        vline.setMidLineWidth(3)
-#        palette = vline.palette()
-#        role = vline.foregroundRole()
-#        palette.setColor(role, QtGui.QColor(220,213,226))
-#        #vline.setPalette(palette)
-#        #vline.setAutoFillBackground(True)
-#        topLay.addWidget(vline)
-#        sepLay = QtGui.QGridLayout(vline)
 
-        self.addCmdButton('x<y', 3, 0)
-        self.addCmdButton('x>y', 3, 1)
+        ## Fourth Row
+        self.addCmdButton('x<y',  3, 0)
+        self.addCmdButton('x>y',  3, 1)
         self.addCmdButton('x<=y', 3, 2)
         self.addCmdButton('x<>y', 3, 3)
-        self.addCmdButton('x=y', 3, 4)
-        self.addCmdButton('REGRID', 4, 0)
-        self.addCmdButton('MASK', 4, 1)
-        self.addCmdButton('GET_MASK', 4, 2)
-        self.addCmdButton('GROWER', 4, 3)
-        self.addCmdButton('PI', 4, 4)
+        self.addCmdButton('x=y',  3, 4)
+
+        ## Fith Row
+        self.addCmdButton('REGRID',   4, 0,
+                          "regrid.gif",
+                          'Spatially regrid the first selected Defined Variable\nto the second selected Defined Variable.')
+        self.addCmdButton('MASK',     4, 1,
+                          "mask.gif",
+                          'Mask variable 2 where variable 1 is "true".')
+        self.addCmdButton('GET_MASK', 4, 2,
+                          "getmask.gif",
+                          'Get variable mask')
+        self.addCmdButton('GROWER',   4, 3,
+                          "grower.gif",
+                          '"Grows" variable 1 and variable 2 so that they end up having the same dimensions\n(order of variable 1 plus any extra dims)')
+        self.addCmdButton('PI',       4, 4)
+
+        ## Sixth Row
         self.addCmdButton('STD', 5, 0)
         self.addCmdButton('DEG', 5, 1)
         self.addCmdButton('ABS', 5, 2)
-        self.addCmdButton('(', 5, 3)
-        self.addCmdButton(')', 5, 4)
+        self.addCmdButton('(',   5, 3)
+        self.addCmdButton(')',   5, 4)
 
         self.mainLay = QtGui.QGridLayout()
         topLay.addLayout(self.mainLay)
         self.mainDict = {}
         self.addMainButton(0, 'Clear', 0, 0)
-        self.addMainButton(QtCore.Qt.Key_Equal, '=', 0, 1)
-        self.addMainButton(QtCore.Qt.Key_Slash, '/', 0, 2)
+        self.addMainButton(QtCore.Qt.Key_Equal, '=',    0, 1)
+        self.addMainButton(QtCore.Qt.Key_Slash, '/',    0, 2)
         self.addMainButton(QtCore.Qt.Key_Asterisk, '*', 0, 3)
-        self.addMainButton(QtCore.Qt.Key_7, '7', 1, 0)
-        self.addMainButton(QtCore.Qt.Key_8, '8', 1, 1)
-        self.addMainButton(QtCore.Qt.Key_9, '9', 1, 2)
-        self.addMainButton(QtCore.Qt.Key_Minus, '-', 1, 3)
-        self.addMainButton(QtCore.Qt.Key_4, '4', 2, 0)
-        self.addMainButton(QtCore.Qt.Key_5, '5', 2, 1)
-        self.addMainButton(QtCore.Qt.Key_6, '6', 2, 2)
-        self.addMainButton(QtCore.Qt.Key_Plus, '+', 2, 3)
-        self.addMainButton(QtCore.Qt.Key_1, '1', 3, 0)
-        self.addMainButton(QtCore.Qt.Key_2, '2', 3, 1)
-        self.addMainButton(QtCore.Qt.Key_3, '3', 3, 2)
-        self.addMainButton(QtCore.Qt.Key_Enter, 'Enter', 3, 3, 1, 0)
-        self.addMainButton(QtCore.Qt.Key_0, '0', 4, 0, 0, 1)
-        self.addMainButton(QtCore.Qt.Key_Period, '.', 4, 2)
+        self.addMainButton(QtCore.Qt.Key_7, '7',        1, 0)
+        self.addMainButton(QtCore.Qt.Key_8, '8',        1, 1)
+        self.addMainButton(QtCore.Qt.Key_9, '9',        1, 2)
+        self.addMainButton(QtCore.Qt.Key_Minus, '-',    1, 3)
+        self.addMainButton(QtCore.Qt.Key_4, '4',        2, 0)
+        self.addMainButton(QtCore.Qt.Key_5, '5',        2, 1)
+        self.addMainButton(QtCore.Qt.Key_6, '6',        2, 2)
+        self.addMainButton(QtCore.Qt.Key_Plus, '+',     2, 3)
+        self.addMainButton(QtCore.Qt.Key_1, '1',        3, 0)
+        self.addMainButton(QtCore.Qt.Key_2, '2',        3, 1)
+        self.addMainButton(QtCore.Qt.Key_3, '3',        3, 2)
+        self.addMainButton(QtCore.Qt.Key_Enter, 'Enter',3, 3, 1, 0)
+        self.addMainButton(QtCore.Qt.Key_0, '0',        4, 0, 0, 1)
+        self.addMainButton(QtCore.Qt.Key_Period, '.',   4, 2)
 
-        '''
+        #self.connect(self,QtCore.SIGNAL("keyRelease"),self.key)
 
-        '''
-
-    def addCmdButton(self, text, row, col):
+    def keyReleaseEvent(self,*args):
+        print "key:",args
+    def addCmdButton(self, text, row, col, icon=None, tip=None):
         """Adds a CalcButton for command functions"""
-        button = CalcButton(text)
-        self.cmdDict[text.upper()] = button
+        button = CalcButton(text,icon=icon,tip=tip)
         self.cmdLay.addWidget(button, row, col)
-##        self.connect(button, QtCore.SIGNAL('activated(QString &)'),
-##                     self.issueCmd) 
+        self.connect(button, QtCore.SIGNAL('activated(QString &)'),
+                    self.issueCmd) 
 
-    def addMainButton(self, key, text, row, col, extraRow=0, extraCol=0):
+    def addMainButton(self, key, text, row, col, extraRow=0, extraCol=0,icon=None, tip=None):
         """Adds a CalcButton for number and 4-function keys"""
-        button = CalcButton(text)
-        self.mainDict[key] = button
+        button = CalcButton(text,icon=icon,tip=tip)
+        self.mainDict[key] = text
         self.mainLay.addWidget(button, row, col, 1+extraRow, 1+extraCol)
-##        self.connect(button, QtCore.SIGNAL('activated(QString &)'),
-##                     self.issueCmd)
+        self.connect(button, QtCore.SIGNAL('activated(QString &)'),
+                    self.issueCmd)
+
+    def issueCmd(self,*args):
+        print "issued:",args
 
