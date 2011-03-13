@@ -11,6 +11,7 @@ ExternalProject_Add(pixman
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
   CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=${pixman_install} -DWORKING_DIR=${pixman_source} -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
+  DEPENDS ${pixman_DEPENDENCIES}
 )
 
 set(pixman_DIR "${pixman_binary}" CACHE PATH "pixman binary directory" FORCE)
