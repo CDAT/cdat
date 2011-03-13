@@ -193,13 +193,16 @@ find_package(PythonLibs)
 # Establish Target Dependencies based on Selected Options and find results
 #------------------------------------------------------------------------------
 
+set(zlib_DEPENDENCIES pkgconfig)
 set(png_DEPENDENCIES zlib)
-set(tcl_DEPENDENCIES)
+set(tcl_DEPENDENCIES pkgconfig)
 set(python_DEPENDENCIES TclTk)
 set(sip_DEPENDENCIES python)
 set(PyQt_DEPENDENCIES Qt sip)
 set(PyOpenGL_DEPENDENCIES python)
 set(Pmw_DEPENDENCIES python)
+set(pixman_DEPENDENCIES pkgconfig)
+set(freetype_DEPENDENCIES png)
 set(ghostscript_DEPENDENCIES zlib jpeg png fontconfig freetype pixman xgks xslt libXML2)
   
 if(WIN32)
@@ -218,12 +221,13 @@ endif()
 set(VTK_DEPENDENCIES zlib png jpeg xml)
 set(cmcurl_DEPENDENCIES)
 set(cdat_DEPENDENCIES VTK Insight BatchMake OpenIGTLink teem cmcurl)
-set(Cairo_DEPENDENCIES png fontconfig freetype pixman)
+set(Cairo_DEPENDENCIES pkgconfig png fontconfig freetype pixman)
 set(HDF4_DEPENDENCIES zlib jpeg)
 set(HDF5_DEPENDENCIES zlib)
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
+add_cdat_package(pkgconfig)
 add_cdat_package(setuptools)
 #add_cdat_package(termcap)
 #add_cdat_package(CURL)
@@ -244,7 +248,6 @@ endif()
 
 add_cdat_package(zlib)
 add_cdat_package(png)
-add_cdat_package(pkgconfig)
 add_cdat_package(freetype)
 add_cdat_package(pixman)
 add_cdat_package(fontconfig)
