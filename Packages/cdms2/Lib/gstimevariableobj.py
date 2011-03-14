@@ -31,7 +31,7 @@ class GsTimeVariableObj(GsStaticVariableObj):
         self.ntimeSlices = GsHost.ntimeSlices
 
         self.vars = []
-        if self.ntimeSlices > 0
+        if self.ntimeSlices > 0:
             self.vars = [None for i in range(GsHost.ngrids)]
 
         kwargs = {}
