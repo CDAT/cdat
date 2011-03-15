@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
 set(proj python)
-set(python_base ${CMAKE_CURRENT_BINARY_DIR}/${proj})
-set(python_build ${CMAKE_CURRENT_BINARY_DIR}/${proj}-build)
+set(python_base ${CMAKE_CURRENT_BINARY_DIR}/build/python)
 set(python_BUILD_IN_SOURCE 1)
 
 if(WIN32)
@@ -118,7 +117,7 @@ if(WIN32)
   endif()
     
 elseif(UNIX)
-  set(python_SOURCE_DIR python)
+  set(python_SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/build/python)
   set(python_BUILD_IN_SOURCE 1)
   
   configure_file(${cdat_CMAKE_SOURCE_DIR}/python_patch_step.cmake.in
@@ -174,9 +173,10 @@ if(WIN32)
   set(PYTHON_EXECUTABLE ${CMAKE_BINARY_DIR}/Python-build/PCbuild/python.exe)
 elseif(APPLE)
   set(PYTHON_INCLUDE ${CMAKE_BINARY_DIR}/python-build/include/python${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC})
-  set(PYTHON_LIBRARY ${CMAKE_BINARY_DIR}/python-build/lib/libpython${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.dylib)
+  set(PYTHON_LIBRARY ${CMAKE_BINARY_DIR}/Externals/Python.framework/Versions/${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}/Python)
   set(PYTHON_LIBRARY_DIR ${CMAKE_BINARY_DIR}/python-build/lib)
-  set(PYTHON_EXECUTABLE ${CMAKE_BINARY_DIR}/python-build/bin/python)
+#  set(PYTHON_EXECUTABLE ${CMAKE_BINARY_DIR}/python-build/bin/python)
+  set(PYTHON_EXECUTABLE ${CMAKE_BINARY_DIR}/Externals/Python.framework/Versions/${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}/bin/python)
 else()
   set(PYTHON_INCLUDE ${CMAKE_BINARY_DIR}/python-build/include/python${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC})
   set(PYTHON_LIBRARY ${CMAKE_BINARY_DIR}/python-build/lib/libpython${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.so)
