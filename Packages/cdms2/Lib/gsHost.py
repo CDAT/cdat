@@ -45,7 +45,7 @@ def addGetCoordinatesToAbstractVariable(AbstractVariable):
     # Add getCoordinates to the AbstractVariable Class
     AbstractVariable.getCoordinates = types.MethodType(getCoordinates, AbstractVariable)
 
-def open(hostfile, mode = 'r', file_type = ""):
+def open(hostfile, mode = 'r'):
     """
     Open host file
     @param inCdmsFile Host file cdms2 object
@@ -53,10 +53,10 @@ def open(hostfile, mode = 'r', file_type = ""):
     @param mode valid cdms2 open file mode
     """
 
-    outHostFile = GsHost(hostfile, mode, file_type)
+    outHostFile = GsHost(hostfile, mode)
     return outHostFile
 
-class GsHost(object):
+class GsHost:
     """
     A LibCF/GRIDSPEC host file object. This acts as the single point of entry to
     a host file. Variables and grids can be requested solely through the GsHost
@@ -65,12 +65,10 @@ class GsHost(object):
     consult http://www.unidata.ucar.edu/software/libcf/docs/libcf/ for details
     on building host files and all related GRIDSPEC files.
 
-    @param AbstractVariable cdms2 class
-    @param CdmsFile cdms2 class
     @return GsHost class on __init__
     """
 
-    def __init__(self, hostfile, mode = 'r', file_type = ""):
+    def __init__(self, hostfile, mode = 'r'):
         """
         Constructor
         @param inCdmsFile CdmsFile object
@@ -103,8 +101,6 @@ class GsHost(object):
 
             self.hostId_t = c_int(-1)
             self.globalId_t = c_int(-1)
-
-            self.file_type = file_type
 
             # number of grid files
             self.ngrids = 0

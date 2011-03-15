@@ -21,8 +21,10 @@ class GsStaticVariableObj(object):
     def __init__(self, GsHost, varName, *speclist):
         """
         Constructor
+        @param GsHost host object
         @param varName variable name
-        @param ngrids number of grids
+        @param speclist cudsinterface.py list for subsetting variables. 
+                        Not implemented locally as of now.
         """
         self.varName = varName
         self.ngrids = GsHost.ngrids
