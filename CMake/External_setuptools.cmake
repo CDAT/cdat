@@ -21,6 +21,7 @@ ExternalProject_Add(setuptools
   URL_MD5 ${SETUPTOOLS_MD5}
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
+  CONFIGURE_COMMAND ""
   BUILD_COMMAND ${setuptools_build_command}
   INSTALL_COMMAND ${setuptools_install_command}
   DEPENDS ${setuptools_DEPENDENCIES}
