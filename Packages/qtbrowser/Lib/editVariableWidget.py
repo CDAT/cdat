@@ -5,10 +5,17 @@ class editVariableWidget(QtGui.QWidget):
         QtGui.QWidget.__init__(self,parent=parent)
         self.parent=parent
         self.var=var
-        self.root=parent.root
+        try:
+            self.root=parent.root
+        except:
+            self.root=None
+        if root is not None:
+            self.root=root
+            
         l = QtGui.QVBoxLayout()
         self.setLayout(l)
         self.title = QtGui.QLabel("Edit Variable: %s" % var.id)
+        self.parent.setWindowTitle("Edit Variable: %s" % var.id)
         l.addWidget(self.title)
         self.modified = False
         
@@ -59,6 +66,7 @@ class editVariableWidget(QtGui.QWidget):
             return
         else:
             self.title.setText("%s (Modified)" % txt)
+            self.parent.setWindowTitle("%s (Modified)" % txt)
         
     def attributeEditor(self,label,selFunc,modFunc,addFunc,delFunc):
         fax = QtGui.QFrame()
@@ -78,6 +86,7 @@ class editVariableWidget(QtGui.QWidget):
         self.connect(attName,QtCore.SIGNAL("textEdited(const QString&)"),self.modifiedOn)
         fa1l.addWidget(attName)
         b = QtGui.QPushButton("Modify")
+        b.setFocusPolicy(QtCore.Qt.NoFocus)
         fa1l.addWidget(b)
         self.connect(b,QtCore.SIGNAL("clicked()"),modFunc)
         fa2=QtGui.QFrame()
@@ -87,9 +96,11 @@ class editVariableWidget(QtGui.QWidget):
         newAttName = QtGui.QLineEdit()
         fa2l.addWidget(newAttName)
         b = QtGui.QPushButton("Create Attribute")
+        b.setFocusPolicy(QtCore.Qt.NoFocus)
         fa2l.addWidget(b)
         self.connect(b,QtCore.SIGNAL("clicked()"),addFunc)
         b = QtGui.QPushButton("Delete Attribute")
+        b.setFocusPolicy(QtCore.Qt.NoFocus)
         fa2l.addWidget(b)
         self.connect(b,QtCore.SIGNAL("clicked()"),delFunc)
         
@@ -114,6 +125,7 @@ class editVariableWidget(QtGui.QWidget):
         setattr(ax,attName,attValue)
         tit = str(self.title.text()).split("(Modified)")[0]
         self.title.setText(tit)
+        self.parent.setWindowTitle(tit)
         
         self.root.record("## Modify attribute %s on axis %s of variable %s" % (attName,ax.id,self.var.id))
         self.root.record("ax = %s.getAxis(%s.getAxisIndex('%s'))" % (self.var.id,self.var.id,axName))
@@ -166,6 +178,9 @@ class editVariableWidget(QtGui.QWidget):
             attValue=str(self.varAttributeValue.text()).strip()
 
         setattr(self.var,attName,attValue)
+        tit = str(self.title.text()).split("(Modified)")[0]
+        self.title.setText(tit)
+        self.parent.setWindowTitle(tit)
         self.root.record("## Modify attribute %s on variable %s" % (attName,self.var.id))
         self.root.record("%s.%s = %s" % (self.var.id,attName,repr(attValue)))
         
