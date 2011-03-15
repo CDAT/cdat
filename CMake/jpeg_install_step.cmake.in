@@ -1,0 +1,24 @@
+
+
+#cp build/jpeg*/lib* /Users/partyd/Kitware/uv-cdat/make-file-install/Externals/lib
+#cp build/jpeg*/*.h /Users/partyd/Kitware/uv-cdat/make-file-install/Externals/include
+
+file(GLOB jpeglibs "@jpeg_source@/lib*")
+file(GLOB jpegheaders "@jpeg_source@/*.h")
+
+
+foreach(lib ${jpeglibs})
+  execute_process(
+    COMMAND "@CMAKE_COMMAND@" -E copy_if_different ${lib} @jpeg_install@/lib
+    RESULT_VARIABLE res
+    OUTPUT_VARIABLE CDAT_OUT
+    OUTPUT_VARIABLE CDAT_ERR)
+endforeach()
+
+foreach(header ${jpegheaders})
+    execute_process(
+      COMMAND "@CMAKE_COMMAND@" -E copy_if_different ${header} @jpeg_install@/include
+      RESULT_VARIABLE res
+      OUTPUT_VARIABLE CDAT_OUT
+      OUTPUT_VARIABLE CDAT_ERR)
+endforeach()
