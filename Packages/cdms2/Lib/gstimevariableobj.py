@@ -2,7 +2,7 @@
 
 """
 A variable-like object extending over multiple tiles and time slices
-$Id: gsTimeVar.py 1654 2011-01-18 22:11:06Z pletzer $
+$Id: $
 """
 
 import operator
@@ -22,9 +22,11 @@ class GsTimeVariableObj(GsStaticVariableObj):
     def __init__(self, GsHost, varName, **slicekwargs):
         """
         Constructor
+        @param GsHost host object 
         @param varName variable name
-        @param ntimeSlices number time files
-        @param ngrids number of grids
+        @param slicekwargs eg lon=(-180,180), lat=(-90,90), time=5
+                           cf Packages/cdms2/Lib/cudsinterface.py for 
+                           a list of keywords
         """
         from re import search
         self.varName = varName
