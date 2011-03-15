@@ -3,6 +3,7 @@ import os
 import cdms2
 import vcdatCommons
 import customizeVCDAT
+import editVariableWidget
 
 
 
@@ -152,13 +153,13 @@ class QDefinedVariableWidget(QtGui.QWidget):
                 return True
         return False
 
-    def getItem(self, varID):
-        """ Return the item with the defined variable with name = varID """
-        for i in range(self.varList.count()):
-            listItem = self.varList.item(i)
-            if varID == listItem.getVariable().id:
-                return listItem
-        return None  
+    ## def getItem(self, varID):
+    ##     """ Return the item with the defined variable with name = varID """
+    ##     for i in range(self.varList.count()):
+    ##         listItem = self.varList.item(i)
+    ##         if varID == listItem.getVariable().id:
+    ##             return listItem
+    ##     return None  
 
     def recordDefineVariableTeachingCommand(self, name, varName, file, axesArgString):
         if varName in list(getattr(file, 'variables')):
@@ -168,6 +169,33 @@ class QDefinedVariableWidget(QtGui.QWidget):
 
             self.emit(QtCore.SIGNAL('recordTeachingCommand'), command)
 
+    def editVariables(self):
+        self.eds=[]
+        sel = self.getSelectedDefinedVariables()
+        if len(sel)==0:
+            return
+        for s in sel:
+            d = QtGui.QDialog()
+            l=QtGui.QVBoxLayout()
+            d.setLayout(l)
+            e = editVariableWidget.editVariableWidget(s,parent=self)
+            l.addWidget(e)
+            d.show()
+            self.eds.append(d)
+        
+
+    def saveVariables(self):
+        pass
+
+    def variableInfo(self):
+        pass
+
+    def trashVariable(self):
+        pass
+
+    def trashAll(self):
+        pass
+        
     def createToolbar(self):
         ICONPATH = customizeVCDAT.ICONPATH
 
@@ -176,74 +204,76 @@ class QDefinedVariableWidget(QtGui.QWidget):
         self.toolBar.setIconSize(QtCore.QSize(16, 16))
         self.toolBar.setIconSize(QtCore.QSize(customizeVCDAT.iconsize,customizeVCDAT.iconsize))
         actionInfo = [
-            ('edit.gif', 'Edit (in memory) selected defined variable.'),
-            ('Save.gif', 'Save selected defined variable to a netCDF file.'),
-            ('info.gif', 'Display selected defined variable information.'),
-            ('editdelete.gif', 'Move selected defined variable(s) to trashcan for disposal.'),
-            ('recycle.gif', 'Move [ALL] defined variables to trashcan for disposal.'),
-            ('log.gif', 'Logged information about the defined variables.'),
-            ('trashcan_empty.gif', 'Defined variable items that can be disposed of permanetly or restored.'),
+            ('edit.gif', "edit",'Edit (in memory) selected defined variable.',self.editVariables),
+            ('Save.gif', "save",'Save selected defined variable to a netCDF file.',self.saveVariables),
+            ('info.gif', "info",'Display selected defined variable information.',self.variableInfo),
+            ('editdelete.gif', "del",'Move selected defined variable(s) to trashcan for disposal.',self.trashVariable),
+            ('recycle.gif', "recycle",'Move [ALL] defined variables to trashcan for disposal.',self.trashAll),
+            ## ('log.gif', "log",'Logged information about the defined variables.',self.variablesInfo),
+            ## ('trashcan_empty.gif', "trash",'Defined variable items that can be disposed of permanetly or restored.',self.empytTrash),
             ]
         
         for info in actionInfo:
             icon = QtGui.QIcon(os.path.join(ICONPATH, info[0]))
-            action = self.toolBar.addAction(icon, '')
-            action.setStatusTip(info[1])
-            action.setToolTip(info[1])
-        self.toolBar.addSeparator()
+            action = self.toolBar.addAction(icon, info[1])
+            action.setStatusTip(info[2])
+            action.setToolTip(info[2])
+            self.connect(action,QtCore.SIGNAL("triggered()"),info[3])
+            
+        ## self.toolBar.addSeparator()
 
-        self.opButton = QtGui.QToolButton()
-        self.opButton.setText('Ops')
+        ## self.opButton = QtGui.QToolButton()
+        ## self.opButton.setText('Ops')
         
-        # Create Operations Menu
-        menu = QtGui.QMenu(self)
-        grid = QtGui.QGridLayout()
-        grid.setMargin(0)
-        grid.setSpacing(0)
-        menu.setLayout(grid)
-        opDefs =[
-            ['Add a number or two (or more)\nselected Defined Variables.\n(Can be used as "or")','add.gif','add'],
-            ['Subtract a number or two (or more)\nselected Defined Variables.','subtract.gif','subtract'],
-            ['Multiply a number or two (or more)\nselected Defined Variables.\n(Can be used as "and")','multiply.gif','multiply'],
-            ['Divide a number or two (or more)\nselected Defined Variables.','divide.gif','divide'],
-            ['"Grows" variable 1 and variable 2 so that they end up having the same dimensions\n(order of variable 1 plus any extra dims)','grower.gif','grower'],
-            ['Spatially regrid the first selected Defined Variable\nto the second selected Defined Variable.','regrid.gif','regrid'],
-            ['Mask variable 2 where variable 1 is "true".','mask.gif','mask'],
-            ['Get variable mask','getmask.gif','getmask'],
-            ['Return true where variable 1 is less than variable 2 (or number)','less.gif','less'],
-            ['Return true where variable 1 is greater than variable 2 (or number)','greater.gif','greater'],
-            ['Return true where variable 1 is equal than variable 2 (or number)','equal.gif','equal'],
-            ['Return not of variable','not.gif','not'],
-            ['Compute the standard deviation\n(over first axis)','std.gif','std'],
-            ['Power (i.e., x ** y) of the most recently\nselected two Defined Variables, where\nx = variable 1 and y = variable 2 or float number.','power.gif','power'],
-            ['Exp (i.e., e ** x) of the most recently\nselected Defined Variable.','exp.gif','exp'],
-            ['Log (i.e., natural log) of the most recently\nselected Defined Variable.','mlog.gif','log'],
-            ['Base10 (i.e., 10 ** x) of the most recently\nselected Defined Variable.','base10.gif','base10'],
-            ['Log10 (i.e., log base 10) of the most\nrecently selected Defined Variable. ','mlog10.gif','log10'],
-            ['Inverse (i.e., 1/x) of the most recently\nselected Defined Variable.','inverse.gif','inverse'],
-            ['Abs (i.e., absolute value of x) of the most\nrecently selected Defined Variable.','fabs.gif','fabs'],
-            ['Sine (i.e., sin) of the most recently\nselected Defined Variable.','sin.gif','sin'],
-            ['Hyperbolic sine (i.e., sinh) of the most recently\nselected Defined Variable.','sinh.gif','sinh'],
-            ['Cosine (i.e., cos) of the most recently\nselected Defined Variable.','cos.gif', 'cos'],
-            ['Hyperbolic cosine (i.e., cosh) of the most recently\nselected Defined Variable.','cosh.gif','cosh'],
-            ['Tangent (i.e., tan) of the most recently\nselected Defined Variable.','tan.gif','tan'],
-            ['Hyperbolic tangent (i.e., tanh) of the most recently\nselected Defined Variable.','tanh.gif','tanh'],
-            ]
-        self.opActions = []
-        for i in xrange(len(opDefs)):
-            action = QtGui.QAction(QtGui.QIcon(os.path.join(ICONPATH, opDefs[i][1])), opDefs[i][2], menu)
-            action.setStatusTip(opDefs[i][0])
-            action.setToolTip(opDefs[i][0])
-            self.opActions.append(action)
-            b = QtGui.QToolButton()
-            b.setDefaultAction(action)
-            grid.addWidget(b, i/2, i%2)
+        ## # Create Operations Menu
+        ## menu = QtGui.QMenu(self)
+        ## grid = QtGui.QGridLayout()
+        ## grid.setMargin(0)
+        ## grid.setSpacing(0)
+        ## menu.setLayout(grid)
+        ## opDefs =[
+        ##     ['Add a number or two (or more)\nselected Defined Variables.\n(Can be used as "or")','add.gif','add'],
+        ##     ['Subtract a number or two (or more)\nselected Defined Variables.','subtract.gif','subtract'],
+        ##     ['Multiply a number or two (or more)\nselected Defined Variables.\n(Can be used as "and")','multiply.gif','multiply'],
+        ##     ['Divide a number or two (or more)\nselected Defined Variables.','divide.gif','divide'],
+        ##     ['"Grows" variable 1 and variable 2 so that they end up having the same dimensions\n(order of variable 1 plus any extra dims)','grower.gif','grower'],
+        ##     ['Spatially regrid the first selected Defined Variable\nto the second selected Defined Variable.','regrid.gif','regrid'],
+        ##     ['Mask variable 2 where variable 1 is "true".','mask.gif','mask'],
+        ##     ['Get variable mask','getmask.gif','getmask'],
+        ##     ['Return true where variable 1 is less than variable 2 (or number)','less.gif','less'],
+        ##     ['Return true where variable 1 is greater than variable 2 (or number)','greater.gif','greater'],
+        ##     ['Return true where variable 1 is equal than variable 2 (or number)','equal.gif','equal'],
+        ##     ['Return not of variable','not.gif','not'],
+        ##     ['Compute the standard deviation\n(over first axis)','std.gif','std'],
+        ##     ['Power (i.e., x ** y) of the most recently\nselected two Defined Variables, where\nx = variable 1 and y = variable 2 or float number.','power.gif','power'],
+        ##     ['Exp (i.e., e ** x) of the most recently\nselected Defined Variable.','exp.gif','exp'],
+        ##     ['Log (i.e., natural log) of the most recently\nselected Defined Variable.','mlog.gif','log'],
+        ##     ['Base10 (i.e., 10 ** x) of the most recently\nselected Defined Variable.','base10.gif','base10'],
+        ##     ['Log10 (i.e., log base 10) of the most\nrecently selected Defined Variable. ','mlog10.gif','log10'],
+        ##     ['Inverse (i.e., 1/x) of the most recently\nselected Defined Variable.','inverse.gif','inverse'],
+        ##     ['Abs (i.e., absolute value of x) of the most\nrecently selected Defined Variable.','fabs.gif','fabs'],
+        ##     ['Sine (i.e., sin) of the most recently\nselected Defined Variable.','sin.gif','sin'],
+        ##     ['Hyperbolic sine (i.e., sinh) of the most recently\nselected Defined Variable.','sinh.gif','sinh'],
+        ##     ['Cosine (i.e., cos) of the most recently\nselected Defined Variable.','cos.gif', 'cos'],
+        ##     ['Hyperbolic cosine (i.e., cosh) of the most recently\nselected Defined Variable.','cosh.gif','cosh'],
+        ##     ['Tangent (i.e., tan) of the most recently\nselected Defined Variable.','tan.gif','tan'],
+        ##     ['Hyperbolic tangent (i.e., tanh) of the most recently\nselected Defined Variable.','tanh.gif','tanh'],
+        ##     ]
+        ## self.opActions = []
+        ## for i in xrange(len(opDefs)):
+        ##     action = QtGui.QAction(QtGui.QIcon(os.path.join(ICONPATH, opDefs[i][1])), opDefs[i][2], menu)
+        ##     action.setStatusTip(opDefs[i][0])
+        ##     action.setToolTip(opDefs[i][0])
+        ##     self.opActions.append(action)
+        ##     b = QtGui.QToolButton()
+        ##     b.setDefaultAction(action)
+        ##     grid.addWidget(b, i/2, i%2)
 
-        self.opButton.setMenu(menu)
-        self.opButton.setPopupMode(QtGui.QToolButton.InstantPopup)
-        self.connect(self.opButton, QtCore.SIGNAL('clicked(bool)'), self.opButton.showMenu)
+        ## self.opButton.setMenu(menu)
+        ## self.opButton.setPopupMode(QtGui.QToolButton.InstantPopup)
+        ## self.connect(self.opButton, QtCore.SIGNAL('clicked(bool)'), self.opButton.showMenu)
         
-        self.toolBar.addWidget(self.opButton)
+        ## self.toolBar.addWidget(self.opButton)
 
 class QDefinedVariableItem(QtGui.QListWidgetItem):
     """ Item to be stored by QDefinedVariable's list widget """

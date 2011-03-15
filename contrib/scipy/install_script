@@ -2,10 +2,10 @@
 version=`more ../../version`
 
 SCIPY_MAJOR=0
-SCIPY_MINOR=8
+SCIPY_MINOR=9
 SCIPY_PATCH=0
 SCIPY_MAJOR_SRC=0
-SCIPY_MINOR_SRC=8
+SCIPY_MINOR_SRC=9
 SCIPY_PATCH_SRC=0
 SCIPY_URL=http://downloads.sourceforge.net/project/scipy/scipy/${SCIPY_MAJOR_SRC}.${SCIPY_MINOR_SRC}.${SCIPY_PATCH_SRC}
 

@@ -19,14 +19,21 @@ def main():
     g = parser.add_argument_group("GUI")
     g.add_argument("-t,--tab",dest="tab",help="tab to select at start time",choices=["var","gm","cmd","calc"])
     g.add_argument("-g,--graphicsmethod",dest="gm",help="graphics method type to select at start time",choices=customizeVCDAT.plotTypes)
+    g.add_argument("-c,--customize",metavar="CUSTOM_FILE",dest="custom",help="file to load containing GUI customizations")
+    g.add_argument("--font-size",dest="fontsize",type=int,help="default font size accross the GUI")
     n = parser.parse_args(sys.argv[1:])
     app = QtGui.QApplication(sys.argv)
-    ICONPATH = os.path.join(cdms2.__path__[0], '..', '..', '..', '..', 'share','icons')
-    icon = QtGui.QIcon(os.path.join(ICONPATH, "UV-CDAT_logo_sites.gif"))
+    icon = QtGui.QIcon(customizeVCDAT.appIcon)
     app.setWindowIcon(icon)
 
+    try:
+        execfile(n.custom,customizeVCDAT.__dict__,customizeVCDAT.__dict__)
+    except Exception,err:
+        pass
 
-    cdat = vcdatWindow.QCDATWindow()
+    if n.fontsize is not None:
+        customizeVCDAT.appStyles["font-size"]="%ipx" % n.fontsize
+    cdat = vcdatWindow.QCDATWindow(styles=customizeVCDAT.appStyles)
 
 
     ifile = None
