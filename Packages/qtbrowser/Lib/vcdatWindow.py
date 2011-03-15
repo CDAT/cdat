@@ -5,7 +5,6 @@ import definedVariableWidget
 import mainToolbarWidget
 import mainMenuWidget
 import commandLineWidget
-import calculatorWidget
 import plotViewWidget
 import variableViewWidget
 import commandsRecorderWidget
@@ -19,11 +18,25 @@ class QCDATWindow(QtGui.QMainWindow):
     """ Main class for VCDAT Window. Contains a menu widget, file widget,
     defined variable widget, and variable widget """
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None,styles={}):
         """ Instantiate the child widgets of the main VCDAT window and setup
         the overall layout """
         centralWidget= QtGui.QWidget()
         QtGui.QMainWindow.__init__(self,parent)
+
+        ## StylesSheet
+        st=""
+        if isinstance(styles,str):
+            st = styles
+        elif isinstance(styles,dict):
+            for k in styles.keys():
+                val = styles[k]
+                if isinstance(val,QtGui.QColor):
+                    val = str(val.name())
+                st+="%s:%s; " % (k,val)
+        if len(st)>0: self.setStyleSheet(st)
+
+        
         self.setCentralWidget(centralWidget)
         
         ###########################################################
@@ -94,13 +107,9 @@ class QCDATWindow(QtGui.QMainWindow):
         ###########################################################
         self.tabView.addTab(plotViewWidget.QPlotView(self), "Plot")
         ###########################################################
-        # Command Line Controls Tab
+        # Calculator and Command Line Controls Tab
         ###########################################################
         self.tabView.addTab(commandLineWidget.QCommandLine(self), "Calculator")
-        ## ###########################################################
-        ## # Calculator Tab
-        ## ###########################################################
-        ## self.tabView.addTab(calculatorWidget.QCalculator(self), "Calculator")
 
         layout.addWidget(hsplitter)
         self.show()

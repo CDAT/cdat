@@ -158,10 +158,7 @@ class QCommandLine(QtGui.QWidget):
 
 
         ## Scientifc Buttons
-        styles = {"background-color":"#3F3B3C",
-                  "color":"white",
-                  "font":"bold "
-                  }
+        styles = customizeVCDAT.scientificButtonsStyles
         self.topLay = QtGui.QGridLayout()
         self.Lay=self.topLay
         layout.addLayout(self.Lay)
@@ -211,8 +208,7 @@ class QCommandLine(QtGui.QWidget):
         self.Lay = QtGui.QGridLayout()
         layout.addLayout(self.Lay)
         # Clear/Validate Buttons
-        styles["background-color"]="qradialgradient(cx:0.8, cy:0.6, radius:1, fx:.8, fy:0.8, stop:0 red, stop:1 black)"
-        styles["background-color"]="#7C0404"
+        styles = customizeVCDAT.validateButtonsStyles
         self.row=0
         self.col=0
         self.direction="col"
@@ -222,7 +218,7 @@ class QCommandLine(QtGui.QWidget):
         self.addButton(QtCore.Qt.Key_Equal, 'Plot', styles=styles)
 
         #Number Buttons
-        styles["background-color"]="#6491DA"
+        styles = customizeVCDAT.numberButtonsStyles
         self.col=1
         self.row=0
         self.direction="row"
@@ -243,9 +239,7 @@ class QCommandLine(QtGui.QWidget):
         self.addButton(QtCore.Qt.Key_plusminus, '+/-', styles=styles)
 
         # Operators
-        styles["background-color"]="#78603C"
-        styles["background-color"]="#B79626"
-        styles["color"]="black"
+        styles = customizeVCDAT.operatorButtonsStyles
         self.col=4
         self.row=0
         self.direction="col"
@@ -256,7 +250,7 @@ class QCommandLine(QtGui.QWidget):
 
         #pi and ()
         self.newCol()
-        styles["background-color"]="#578038"
+        styles = customizeVCDAT.constantsButtonStyles
         self.addButton(text = '(', styles=styles)
         self.addButton(text = ")", styles=styles)
         self.addButton(text="PI", styles=styles)
@@ -302,7 +296,10 @@ class QCommandLine(QtGui.QWidget):
             if len(selected)==0:
                 st=txt
             elif len(selected)==1:
-                st = str(self.le.text())+txt+selected[0].varName
+                if len(str(self.le.text()))==0:
+                    st = selected[0].varName+txt
+                else:
+                    st = txt+selected[0].varName
             else:
                 st = selected[0].varName
                 for s in selected[1:]:
@@ -513,5 +510,9 @@ class QCommandLine(QtGui.QWidget):
         # record the command for preproducibility
         #------------------------------------------------------------------------------
         self.root.record("## Command sent from prompt by user")
-        self.root.record(command)
+        if res == command.split("=")[0]:
+            self.root.record(command)
+        else:
+            self.root.record("%s = %s" % (res,command))
+
         return res
