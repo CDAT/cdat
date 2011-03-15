@@ -175,10 +175,10 @@ class QDefinedVariableWidget(QtGui.QWidget):
         if len(sel)==0:
             return
         for s in sel:
-            d = QtGui.QDialog()
+            d = QtGui.QDialog(parent=self)
             l=QtGui.QVBoxLayout()
             d.setLayout(l)
-            e = editVariableWidget.editVariableWidget(s,parent=self)
+            e = editVariableWidget.editVariableWidget(s,parent=d,root=self.root)
             l.addWidget(e)
             d.show()
             self.eds.append(d)
