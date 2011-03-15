@@ -35,7 +35,7 @@ class QCommandsRecorderWidget(QtGui.QDialog):
         
         txt = """## This file records all user commands
 ## First a few necessary imports
-import vcs,cdms2
+import vcs,cdms2,MV2,genutil,cdutil
 vcs_canvas=[]
 for i in range(4):
    vcs_canvas.append(vcs.init())

@@ -311,7 +311,7 @@ class QPlotView(QtGui.QWidget):
                 nused=0
                 nSlabs= self.nSlabsRequired(gmType)
                 for j in range(nSlabs):
-                    vnm = str(h.itemAt(4+j).widget().label.text())
+                    vnm = str(h.itemAt(4+j).widget().label.text()).split()[0]
                     vars.append(self.root.definedVar.widget.getVariable(vnm))
                     if vars[-1] is None:
                         if nused>=len(selectedVars):
