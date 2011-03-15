@@ -27,6 +27,9 @@ class GsStaticVariableObj(object):
         self.varName = varName
         self.ngrids = GsHost.ngrids
 
+        # If the requested variable has coordinates it has a grid
+        hasCoordinates = False
+
         self.vars = []
         if self.ngrids > 0:
             self.vars = [None for i in range(self.ngrids)]
@@ -43,7 +46,12 @@ class GsStaticVariableObj(object):
             vr.gridFilename = gFName
             vr.gridIndex    = gfindx
 
-            grid = self.createGrid(gFName, vr.attributes['coordinates'])
+            if 'coordinates' in vr.attributes.keys():
+              grid = self.createGrid(gFName, vr.attributes['coordinates'])
+              hasCoordinates = True
+            atts = vr.attributes
+            if 'tile_name' in fh.attributes.keys():
+              atts['tile_name'] = fh.tile_name
 
             # Add some methods to GsStatVar[gfindx]
 #            updateGetLatitudeToAbstractVariable(vr)
@@ -53,11 +61,14 @@ class GsStaticVariableObj(object):
 #            addGetCoordinatesToAbstractVariable(vr)
             
             # Create the variable
-            var = cdms2.createVariable(vr, 
+            if hasCoordinates:
+              var = cdms2.createVariable(vr, 
                                 axes = grid.getAxisList(), 
                                 grid = grid, 
-                                attributes = vr.attributes, 
+                                attributes = atts, 
                                 id = vr.standard_name)
+            else: 
+              var = vr
             self.vars[gfindx] = var
 
     def __getitem__(self, gfindx):
@@ -102,7 +113,7 @@ class GsStaticVariableObj(object):
 
         fh = cdms2.open(gFName)
         gridid = None
-        if 'tile_name' in fh.attributes: gridid = getattr(fh, 'tile_name')
+        if 'tile_name' in fh.attributes.keys(): gridid = getattr(fh, 'tile_name')
         xn, yn = coordinates.split()
 
         x = fh(xn)
@@ -121,10 +132,13 @@ class GsStaticVariableObj(object):
         iaxis = TransientVirtualAxis("i",ni)
         jaxis = TransientVirtualAxis("j",nj)
 
-        if search(xn, x.standard_name): lon = x
-        if search(xn, y.standard_name): lon = y
-        if search(yn, x.standard_name): lat = x
-        if search(yn, y.standard_name): lat = y
+        lonstr = 'lon'
+        latstr = 'lat'
+
+        if search(lonstr, x.standard_name): lon = x
+        if search(lonstr, y.standard_name): lon = y
+        if search(latstr, x.standard_name): lat = x
+        if search(latstr, y.standard_name): lat = y
 
         lataxis = TransientAxis2D(lat, 
                        axes=(iaxis, jaxis), 
