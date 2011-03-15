@@ -213,7 +213,7 @@ else()
 endif()
 
 set(CLAPACK_DEPENDENCIES)
-
+set(setuptools_DEPENDENCIES python)
 set(NUMPY_DEPENDENCIES python)
 if(NOT APPLE)
   list(APPEND NUMPY_DEPENDENCIES lapack)
@@ -229,7 +229,6 @@ set(HDF5_DEPENDENCIES zlib)
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
 add_cdat_package(pkgconfig)
-add_cdat_package(setuptools)
 #add_cdat_package(termcap)
 #add_cdat_package(CURL)
 add_cdat_package(readline)
@@ -262,9 +261,13 @@ add_cdat_package(udunits2)
 add_cdat_package(HDF5)
 add_cdat_package(NetCDF)
 add_cdat_package(Qt)
+
+# Python Packages
 add_cdat_package(Python)
+add_cdat_package(setuptools)
 add_cdat_package(SIP)
 add_cdat_package(PyQt)
 add_cdat_package(PyOpenGL)
 add_cdat_package(numpy)
 add_cdat_package(pmw)
+
