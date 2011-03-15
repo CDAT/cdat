@@ -5,18 +5,28 @@ else()
   set(ENV{LDFLAGS} "-L@cdat_BINARY_DIR@/Externals/NetCDF/lib -L@cdat_BINARY_DIR@/Externals/lib -L@cdat_BINARY_DIR@/lib")
   set(ENV{CFLAGS} "-I@cdat_BINARY_DIR@/Externals/NetCDF/include -I@cdat_BINARY_DIR@/Externals/include")
   set(ENV{CPPFLAGS} "-I@cdat_BINARY_DIR@/Externals/NetCDF/include -I@cdat_BINARY_DIR@/Externals/include")
-  set(ENV{CXXFLAGS} "@CMAKE_CXX_FLAGS@")
+  set(ENV{CXXFLAGS} "-I@cdat_BINARY_DIR@/Externals/NetCDF/include -I@cdat_BINARY_DIR@/Externals/include")
   set(ENV{PKG_CONFIG_PATH} "@cdat_BINARY_DIR@/Externals/lib/pkgconfig")
+  set(ENV{PKG_CONFIG} "@cdat_BINARY_DIR@/Externals/bin/pkg-config")
   set(ENV{PYTHON_PATH} "@cdat_BINARY_DIR@/lib/python@PYTHON_MAJOR@.@PYTHON_MINOR@/site-packages:$ENV{PYTHON_PATH}")
-  #set(ENV{CFLAGS} "-arch x86_64 -mmacosx-version-min=10.5 -isysroot /Developer/SDKs/MacOSX10.5.sdk")
+  set(ENV{FC}="")
+  set(ENV{FCFLAGS}="")
+  set(ENV{FCLIBS}="")
+  set(ENV{F77}="")
+  set(ENV{FFLAGS}="")
+  set(ENV{FLIBS}="")
+  set(ENV{LD_X11}="") # for xgks
+  if(APPLE)
+    set(ENV{CFLAGS} "-arch x86_64 -mmacosx-version-min=10.6 -isysroot /Developer/SDKs/MacOSX10.6.sdk")
+  endif(APPLE)
 endif()
 
-if(NOT INSTALL_ARGS)
-  set(INSTALL_ARGS "")
+if(NOT BUILD_ARGS)
+  set(BUILD_ARGS "")
 endif()
 
 execute_process(
-  COMMAND "@CMAKE_COMMAND@" --build ${INSTALL_ARGS}
+  COMMAND make
   WORKING_DIRECTORY "${WORKING_DIR}"
   RESULT_VARIABLE res
   OUTPUT_VARIABLE CDAT_OUT
@@ -27,3 +37,4 @@ if(NOT ${res} EQUAL 0)
   message(FATAL_ERROR "Error in Make")
 endif()
 message("Make succeeded.")
+
