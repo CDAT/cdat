@@ -189,7 +189,7 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
             file = CdmsFile(path,mode)
             if hasattr(file, "file_type"):
                 if file.file_type == GRIDSPEC_HOSTFILE_TYPE:
-                    file = gsHost.open(path, mode, file.file_type)
+                    file = gsHost.open(path, mode)
 
             return file
     elif scheme in ['http', 'gridftp']:
