@@ -2,6 +2,7 @@ from PyQt4 import QtGui, QtCore
 import os
 import commandsRecorderWidget
 import customizeVCDAT
+import genutil,cdutil
 
 class QMenuWidget(QtGui.QMenuBar):
     def __init__(self, parent=None):
@@ -11,6 +12,7 @@ class QMenuWidget(QtGui.QMenuBar):
         self.pref = self.addMenu('&Preferences')
         self.tools = self.addMenu('&Tools')
         self.pcmdiTools = self.addMenu('&PCMDITools')
+        self.pcmdiTools.setTearOffEnabled(True)
         self.help = self.addMenu('&Help')
         self.root=parent.root
         
@@ -25,3 +27,95 @@ class QMenuWidget(QtGui.QMenuBar):
         ## self.connect(closeTeachingAction, QtCore.SIGNAL('triggered ()'),
         ##              self.closeTeachingCommands)        
 
+
+        self.time = self.pcmdiTools.addMenu("Time Tools")
+        self.time.setTearOffEnabled(True)
+        m = self.time.addMenu("Bounds Set")
+        m.setTearOffEnabled(True)
+        m.addAction("Set Bounds For Yearly Data")
+        m.addAction("Set Bounds For Monthly Data")
+        m.addAction("Set Bounds For Daily Data")
+        m.addAction("Set Bounds For Twice-daily Data")
+        m.addAction("Set Bounds For 6-Hourly Data")
+        m.addAction("Set Bounds For Hourly Data")
+        m.addAction("Set Bounds For X-Daily Data")
+        self.connect(m,QtCore.SIGNAL("triggered(QAction *)"),self.setBounds)
+        self.time.addSeparator()
+        for t in ["Extract","Climatology","Departures"]:
+            m = self.time.addMenu(t)
+            m.setTearOffEnabled(True)
+            m.addAction("Annual Means")
+            m.addSeparator()
+            m.addAction("Seasonal Means")
+            for s in ["DJF","MAM","JJA","SON"]:
+                m.addAction(s)
+            m.addSeparator()
+            for s in ["Monthly Means",
+                      "JAN","FEB","MAR",
+                      "APR","MAY","JUN",
+                      "JUL","AUG","SEP",
+                      "OCT","NOV","DEC"]:
+                m.addAction(s)
+            self.connect(m,QtCore.SIGNAL("triggered(QAction *)"),self.seasons)
+
+        self.stats = self.pcmdiTools.addMenu("Statistics")
+        self.stats.setTearOffEnabled(True)
+        self.vert = self.pcmdiTools.addMenu("Vertical Dims")
+        self.vert.setTearOffEnabled(True)
+        self.filters = self.pcmdiTools.addMenu("Filters")
+        self.filters.setTearOffEnabled(True)
+        self.nsdfiles = self.pcmdiTools.addMenu("Not Self Describing Files")
+        self.nsdfiles.setTearOffEnabled(True)
+
+
+    def seasons(self,action):
+        menu = action.parentWidget().title()
+        nm = str(action.text())
+        selectedVars=self.root.definedVar.widget.getSelectedDefinedVariables()
+        for v in selectedVars:
+            if nm == "Annual Means":
+                func = cdutil.times.YEAR
+                funcnm = 'cdutil.times.YEAR'
+            elif nm == "Seasonal Means":
+                pass
+        
+    def setBounds(self,action):
+        nm = str(action.text())
+        if nm == "Set Bounds For X-Daily Data":
+            self.bDialog = QtGui.QInputDialog()
+            ## self.bDialog.setInputMode(QtGui.QInputDialog.DoubleInput)
+            val,ok = self.bDialog.getDouble(self,"Reset Time Bounds to X-Hourly", "Frequency (# of samples per day)")
+            if ok is False or val <= 0.:
+                return
+        selectedVars=self.root.definedVar.widget.getSelectedDefinedVariables()
+        for v in selectedVars:
+            if nm == "Set Bounds For Yearly Data":
+                cdutil.times.setTimeBoundsYearly(v)
+                self.root.record("## Set Bounds For Yearly Data")
+                self.root.record("cdutil.times.setTimeBoundsYearly(%s)" % v.id)
+            elif nm == "Set Bounds For Monthly Data":
+                cdutil.times.setTimeBoundsMonthly(v)
+                self.root.record("## Set Bounds For Monthly Data")
+                self.root.record("cdutil.times.setTimeBoundsMonthly(%s)" % v.id)
+            elif nm == "Set Bounds For Daily Data":
+                cdutil.times.setTimeBoundsDaily(v)
+                self.root.record("## Set Bounds For Daily Data")
+                self.root.record("cdutil.times.setTimeBoundDaily(%s)" % v.id)
+            elif nm == "Set Bounds For Twice-daily Data":
+                cdutil.times.setTimeBoundsDaily(v,2)
+                self.root.record("## Set Bounds For Twice-daily Data")
+                self.root.record("cdutil.times.setTimeBoundDaily(%s,2)" % v.id)
+            elif nm == "Set Bounds For 6-Hourly Data":
+                cdutil.times.setTimeBoundsDaily(v,4)
+                self.root.record("## Set Bounds For 6-Hourly Data")
+                self.root.record("cdutil.times.setTimeBoundDaily(%s,4)" % v.id)
+            elif nm == "Set Bounds For Hourly Data":
+                cdutil.times.setTimeBoundsDaily(v,24)
+                self.root.record("## Set Bounds For Hourly Data")
+                self.root.record("cdutil.times.setTimeBoundDaily(%s,24)" % v.id)
+            elif nm == "Set Bounds For X-Daily Data":
+                cdutil.times.setTimeBoundsDaily(v,val)
+                self.root.record("## Set Bounds For X-Daily Data")
+                self.root.record("cdutil.times.setTimeBoundDaily(%s,%g)" % (v.id,val))
+
+                
