@@ -1,4 +1,4 @@
-10832891c9e8100f81108c1ec7da0da4 sources/lapack.tgz
+84213fca70936cc5f1b59a7b1bf71697  sources/lapack.tgz
 f0bfc6141b90e6a31555b31486602251 sources/scipy-0.8.0.tar.gz
 ebfef6e8e82d15c875a4ee6a46d4e1cd sources/scipy-0.9.0.tar.gz
 
