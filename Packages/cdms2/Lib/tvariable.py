@@ -491,6 +491,69 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
     def copy(self):
         return self.filled()
 
+    def toVisit(self, filename, sphereRadius=1.0):
+        """
+        Save data to file for postprocessing by the Visit visualization tool
+        filename: name of the file where the data will be saved
+        sphereRadius: radius of the earth
+        """
+        if len(self.shape) != 2:
+            raise CDMSError, 'Currently, toVisit is only working for 2D data'
+        try: 
+            import tables
+            import numpy
+
+            grd = self.getGrid()
+            lons = grd.getLongitude()
+            lats = grd.getLatitude()
+
+            if len(lons.shape) == len(lats.shape) == 1:
+                # tensor product to create 2D arrays
+                lons = numpy.outer(numpy.ones((lats.shape[0],)), lons)
+                lats = numpy.outer(lats, numpy.ones((lons.shape[0],)))
+                
+            xx = sphereRadius*numpy.cos(lons*numpy.pi/180.)*numpy.cos(lats*numpy.pi/180.)
+            yy = sphereRadius*numpy.sin(lons*numpy.pi/180.)*numpy.cos(lats*numpy.pi/180.)
+            zz = sphereRadius*numpy.sin(lats*numpy.pi/180.)
+            
+            # fix the filename by adding '.h5' if need be
+            if not (re.search(r'\.vsh5', filename) or \
+                    re.search(r'\.h5', filename)): 
+                filename += '.vsh5'
+                          
+            # mesh
+            size = reduce(lambda x,y:x*y, shp)
+            # vizschema wants 3d
+            shp = (1,) + shp
+            meshid = 'mesh_' + self.id
+            meshdata = numpy.zeros( (size, 3), numpy.float32 )
+            meshdata[:,0] = numpy.reshape(xx, (size,))
+            meshdata[:,1] = numpy.reshape(yy, (size,))
+            meshdata[:,2] = numpy.reshape(zz, (size,))
+            mdata = numpy.reshape(meshdata, shp + (3,))
+            mset = h5file.createArray("/", meshid, mdata)
+            mset.attrs.vsType = "mesh"
+            mset.attrs.vsKind = "structured"
+            mset.attrs.vsIndexOrder = "compMinorF"
+
+            # data
+            ddata = numpy.reshape(var, shp)
+            dset = h5file.createArray("/", self.id, ddata)
+            dset.attrs.vsType = "variable"
+            dset.attrs.vsMesh = meshid
+            mset.attrs.vsType = "mesh"
+            mset.attrs.vsKind = "structured"
+            mset.attrs.vsIndexOrder = "compMinorF"
+
+            # additional attributes
+            for a in self.attributes:
+                setattr(dset.attrs, a, getattr(var, a))
+            h5file.close()
+            
+        except:
+            # import error
+            raise CDMSError, "Must have pytables/numpy working to use toVisit"
+        
 ## PropertiedClasses.set_property(TransientVariable, 'shape', 
 ##                                nowrite=1, nodelete=1)
 
