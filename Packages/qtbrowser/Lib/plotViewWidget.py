@@ -96,7 +96,7 @@ class QPlotOptionsWidget(QtGui.QWidget):
         # Create graphic method attribute option / editor
         #canvas = vcs.init()
         #self.graphicsMethodController = graphicsMethodsWidgets.QGraphicsMethodAttributeWindow(canvas, self)
-        graphicMethodAction = optionsMenu.addAction('Se&t Graphics Method Attributes')
+        #graphicMethodAction = optionsMenu.addAction('Se&t Graphics Method Attributes')
 
         # Create Colormap option / widget
         colorMapAction = optionsMenu.addAction("&Colormap Editor")
@@ -153,6 +153,8 @@ class QPlotOptionsWidget(QtGui.QWidget):
     def getPlotType(self):
         return self.plotTypeCombo.currentText()
 
+    
+
     def getContinentType(self):
         """ Returns None or a number from 0-11 corresponding to the option
         selected in the continents menu """
@@ -164,11 +166,6 @@ class QPlotOptionsWidget(QtGui.QWidget):
 
         return None
 
-    def getGraphicsMethodController(self):
-        return self.graphicsMethodController
-
-    def getParent(self):
-        return self.parent
 
 class QCheckMenu(QtGui.QMenu):
     """ Menu where only a single 'checkable' action can be checked at a time """
@@ -269,6 +266,7 @@ class QPlotView(QtGui.QWidget):
         # Error if not enough slabs
         plotType = str(self.plotOptions.getPlotType())
 
+        cType = self.plotOptions.getContinentType()
         
         selectedVars=self.root.definedVar.widget.getSelectedDefinedVariables()
 
@@ -338,6 +336,11 @@ class QPlotView(QtGui.QWidget):
                 plot_args+=", '%s'" % gm
 
 
+                plot_kargs = {"continents":cType}
+
+                for k in plot_kargs.keys():
+                    plot_args+=", %s=%s" % (k,repr(plot_kargs[k]))
+                    
                 if qtbrowser.useVistrails:
                     if row == "Auto" :
                         row = self.plotOptions.getRow()
@@ -350,7 +353,7 @@ class QPlotView(QtGui.QWidget):
                 else:
                     self.root.record("## Plotting onto canvas %i" % icanvas)
                     self.root.record("vcs_canvas[%i].plot(%s)" % (icanvas,plot_args))
-                    self.root.canvas[icanvas].plot(*vars)
+                    self.root.canvas[icanvas].plot(*vars,**plot_kargs)
 
 
 
