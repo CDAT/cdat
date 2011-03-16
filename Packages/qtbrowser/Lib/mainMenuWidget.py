@@ -69,15 +69,44 @@ class QMenuWidget(QtGui.QMenuBar):
 
 
     def seasons(self,action):
-        menu = action.parentWidget().title()
+        menu = str(action.parentWidget().title())
         nm = str(action.text())
+        rec = "## Computing "
+        ## First which season ?
+        if nm == "Annual Means":
+            func = cdutil.times.YEAR
+            funcnm = 'cdutil.times.YEAR'
+        elif nm == "Seasonal Means":
+            func = cdutil.times.SEASONALCYCLE
+            funcnm = 'cdutil.times.SEASONALCYCLE'
+        elif nm == "Monthly Means":
+            func = cdutil.times.ANNUALCYCLE
+            funcnm = 'cdutil.times.ANNUALCYCLE'
+        else:
+            func = getattr(cdutil.times,nm)
+            funcnm = "cdutil.times.%s" % nm
+        ## Now which operator?
+        if menu == "Climatology":
+            func = func.climatology
+            funcnm+=".climatology"
+            rec = "climatological "
+        elif menu == "Departures":
+            func=func.departures
+            funcnm+=".departures"
+            rec = "departures from "
+        rec += nm.lower()
         selectedVars=self.root.definedVar.widget.getSelectedDefinedVariables()
         for v in selectedVars:
-            if nm == "Annual Means":
-                func = cdutil.times.YEAR
-                funcnm = 'cdutil.times.YEAR'
-            elif nm == "Seasonal Means":
-                pass
+            tmp = func(v)
+            ext = "".join(nm.lower().split())
+            newid = "%s_%s" % (v.id,ext)
+            if menu != "Extract":
+                newid+=menu.lower()
+            tmp.id = newid
+            self.root.definedVar.widget.addVariable(tmp)
+            self.root.record(rec)
+            self.root.record("%s = %s(%s)" % (newid,funcnm,v.id))
+            
         
     def setBounds(self,action):
         nm = str(action.text())

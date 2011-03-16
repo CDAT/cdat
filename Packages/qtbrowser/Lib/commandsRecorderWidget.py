@@ -70,6 +70,9 @@ for i in range(4):
             st=l.strip()
             if len(st)>0 and st[0]=="#": # comment
                 self.text.setTextColor( customizeVCDAT.commentsColor )
+                dtxt = str(self.text.toPlainText())
+                if len(dtxt)>2 and dtxt[-2]!="\n":
+                    self.text.insertPlainText('\n')
             else:
                 self.text.setTextColor( customizeVCDAT.defaultTextColor )
             

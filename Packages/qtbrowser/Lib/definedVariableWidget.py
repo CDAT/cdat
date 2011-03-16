@@ -81,6 +81,20 @@ class QDefinedVariableWidget(QtGui.QWidget):
             it = self.varList.item(i)
             if str(it.text()).split()[1] == name:
                 return it.getVariable()
+
+    def updateVars(self):
+        import __main__
+        for i in range(self.varList.count()):
+            it = self.varList.item(i)
+            ittxt = str(it.text())
+            v = it.getVariable()
+            if it.varName != v.id:
+                it.setText(ittxt.replace(it.varName,v.id,1))
+                iTab = self.root.tabView.widget(0).tabWidget.getTabIndexFromName(it.varName)
+                self.root.tabView.widget(0).tabWidget.setTabText(iTab,v.id)
+                del(__main__.__dict__[it.varName])
+                it.varName = v.id
+                self.root.stick_defvar_into_main_dict(v)
             
     def addVariable(self, var):
         """ Add variable into dict / list & emit signal to create
