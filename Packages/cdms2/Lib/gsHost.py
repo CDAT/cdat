@@ -2,7 +2,7 @@
 
 """
 A cdms2 file-like object to access mosaic and time aggregated data
-$Id: gsFile.py 1728 2011-02-04 21:26:11Z dkindig $
+$Id: $
 """
 
 import os.path
@@ -48,7 +48,6 @@ def addGetCoordinatesToAbstractVariable(AbstractVariable):
 def open(hostfile, mode = 'r'):
     """
     Open host file
-    @param inCdmsFile Host file cdms2 object
     @param hostfile host file
     @param mode valid cdms2 open file mode
     """
@@ -71,7 +70,6 @@ class GsHost:
     def __init__(self, hostfile, mode = 'r'):
         """
         Constructor
-        @param inCdmsFile CdmsFile object
         @param hostfile path to the host
         @param mode read only at the moment
         """
