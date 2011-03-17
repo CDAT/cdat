@@ -219,7 +219,7 @@ ifeq (@COMPILE_NC@,yes)
 endif
 ifeq (@COMPILE_LIBCF@,yes)
 	@echo "Building libcf"
-	$(call dobuild,@LIBCF_URL@,@LIBCF_GZ@,@EXTERNALS@/libcf,,  --enable-shared --with-hdf5=@HDF5LOC@ --with-netcdf=@NC4LOC@)
+	$(call dobuild,@LIBCF_URL@,@LIBCF_GZ@,@EXTERNALS@/libcf,, --enable-python-bindings --with-hdf5=@HDF5LOC@ --with-netcdf=@NC4LOC@)
 endif
 ifeq (@COMPILE_R@,yes)
 	@echo "Building R"
