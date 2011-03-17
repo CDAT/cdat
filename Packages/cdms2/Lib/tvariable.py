@@ -529,8 +529,11 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         shp = lons.shape
         if len(shp) == len(lats.shape) == 1:
             # tensor product to create 2D arrays
-            lons = numpy.outer(numpy.ones((lats.shape[0],)), lons)
-            lats = numpy.outer(lats, numpy.ones((lons.shape[0],)))
+            lons1D = lons[:]
+            lats1D = lats[:]
+            lons = numpy.outer(numpy.ones((lats1D.shape[0],)), lons1D)
+            lats = numpy.outer(lats1D, numpy.ones((lons1D.shape[0],)))
+            shp = lons.shape
 
         cosLats = numpy.cos(lats*numpy.pi/180.)
         xx = sphereRadius*numpy.cos(lons*numpy.pi/180.)*cosLats
@@ -545,7 +548,9 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         # mesh
         size = reduce(lambda x,y:x*y, shp)
         # vizschema wants 3d
-        shp = (1,) + shp
+        shp = list(shp)
+        shp.reverse()
+        shp = [1,] + shp
         meshid = 'mesh_' + self.id
         if self.tileIndex != None: 
             meshid += '_tile%d' % self.getTileIndex()
@@ -553,7 +558,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         meshdata[:,0] = numpy.reshape(xx, (size,))
         meshdata[:,1] = numpy.reshape(yy, (size,))
         meshdata[:,2] = numpy.reshape(zz, (size,))
-        mdata = numpy.reshape(meshdata, shp + (3,))
+        mdata = numpy.reshape(meshdata, shp + [3,])
         mset = h5file.createArray("/", meshid, mdata)
         mset.attrs.vsType = "mesh"
         mset.attrs.vsKind = "structured"
