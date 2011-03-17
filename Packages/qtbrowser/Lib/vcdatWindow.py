@@ -178,12 +178,9 @@ class QCDATWindow(QtGui.QMainWindow):
             __main__.__dict__[tmp.id]=tmp
             added.append(tmp.id)
             res = tmp.id
-        elif isinstance(tmp,(list,tuple)):
-            for i in tmp:
-                if isinstance(i,cdms2.tvariable.TransientVariable):
-                    __main__.__dict__[i.id]=i
-                    added.append(i.id)
-
+        else:
+            self.processList(tmp,added)
+            
         if results is not None:
             del(__main__.__dict__[results])
         for k in __main__.__dict__:
@@ -198,3 +195,14 @@ class QCDATWindow(QtGui.QMainWindow):
             del(__main__.__dict__[r])
 
         return res
+    
+    def processList(self,myList,added):
+        for v in myList:
+            if isinstance(v,cdms2.tvariable.TransientVariable):
+                __main__.__dict__[v.id]=v
+                added.append(v.id)
+            elif isinstance(v,(list,tuple)):
+                self.processList(v,added)
+            elif isinstance(v,dict):
+                self.processList(dict.values(),added)
+        return
