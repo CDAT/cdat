@@ -7154,7 +7154,8 @@ else
   as_fn_error $? "Could not find python executable ${with_python}" "$LINENO" 5
 fi
 
-  PYTHON_INSTALL_PREFIX=" --prefix=${with_python} "
+  # if /usr/bin/python then PYTHON_INSTALL_PREFIX should be /usr
+  PYTHON_INSTALL_PREFIX=" --prefix=`dirname ${with_python}`/.. "
 else
   # Extract the first word of "python", so it can be a program name with args.
 set dummy python; ac_word=$2

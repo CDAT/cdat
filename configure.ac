@@ -1017,7 +1017,8 @@ AC_ARG_WITH([python],
 		[with_python=no])
 if test ${with_python} != "no" ; then
   AC_CHECK_FILE([${with_python}],[PYTHON=${with_python}],[AC_MSG_ERROR([Could not find python executable ${with_python}])])
-  PYTHON_INSTALL_PREFIX=" --prefix=${with_python} "
+  # if /usr/bin/python then PYTHON_INSTALL_PREFIX should be /usr
+  PYTHON_INSTALL_PREFIX=" --prefix=`dirname ${with_python}`/.. "
 else
   AC_PATH_PROG(PYTHON,python,"no")
   if test ${PYTHON} != "${prefix}/bin/python" ; then
