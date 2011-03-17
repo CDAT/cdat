@@ -547,10 +547,12 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
 
         # mesh
         size = reduce(lambda x,y:x*y, shp)
-        # vizschema wants 3d
+        # invert index size order 
         shp = list(shp)
         shp.reverse()
-        shp = [1,] + shp
+	if len(shp) == 2:
+	    # vizschema wants 3d
+            shp = [1,] + shp
         meshid = 'mesh_' + self.id
         if self.tileIndex != None: 
             meshid += '_tile%d' % self.getTileIndex()
