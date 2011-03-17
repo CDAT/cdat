@@ -3,7 +3,7 @@ import os
 import commandsRecorderWidget
 import customizeVCDAT
 import genutil,cdutil
-
+import preFunctionPopUpWidget
 class QMenuWidget(QtGui.QMenuBar):
     def __init__(self, parent=None):
         QtGui.QMenuBar.__init__(self, parent)
@@ -58,8 +58,28 @@ class QMenuWidget(QtGui.QMenuBar):
                 m.addAction(s)
             self.connect(m,QtCore.SIGNAL("triggered(QAction *)"),self.seasons)
 
-        self.stats = self.pcmdiTools.addMenu("Statistics")
-        self.stats.setTearOffEnabled(True)
+        stats = self.pcmdiTools.addMenu("Statistics")
+        stats.setTearOffEnabled(True)
+        self.statsFuncs = {"Mean" : {"func":cdutil.averager,"nargsMin":1,"nargsMax":2},
+                           "Variance" :{"func":genutil.statistics.variance,"nargsMin":1,"nargsMax":2,"choices":["centered","biased","max_pct_missingoptions"]},
+                           "Standard Deviation" : {"func":genutil.statistics.std,"nargsMin":1,"nargsMax":2,"choices":["centered","biased","max_pct_missingoptions"]},
+                           "Root Mean Square" : {"func":genutil.statistics.rms,"nargsMin":2,"nargsMax":3,"choices":["centered","biased","max_pct_missingoptions"]},
+                           "Correlation" : {"func":genutil.statistics.correlation,"nargsMin":2,"nargsMax":3,"choices":["centered","biased","max_pct_missingoptions"]},
+                           "Lagged Corelation" : {"func":genutil.statistics.laggedcorrelation,"nargsMin":2,"nargsMax":2,"choices":["centered","partial","biased","noloop",("lag",[None,len])]},
+                           "Covariance" : {"func":genutil.statistics.covariance,"nargsMin":2,"nargsMax":3,"choices":["centered","biased","max_pct_missingoptions"]},
+                           "Lagged Covariance" : {"func":genutil.statistics.laggedcovariance,"nargsMin":2,"nargsMax":2,"choices":["centered","partial","noloop",("lag",[None,len])]},
+                           "Autocorrelation" : {"func":genutil.statistics.autocorrelation,"nargsMin":1,"nargsMax":1,"choices":["centered","partial","biased","noloop",("lag",[None,len])]},
+                           "Autocovariance" : {"func":genutil.statistics.autocovariance,"nargsMin":1,"nargsMax":1,"choices":["centered","partial","noloop",("lag",[None,len])]},
+                           "Mean Absolute Difference" : {"func":genutil.statistics.meanabsdiff,"nargsMin":2,"nargsMax":3,"choices":["centered",]},
+                           "Linear Regression": {"func":genutil.statistics.linearregression,"nargsMin":1,"nargsMax":2,"choices":[("error",[0,1,2,3]),"probability","nointercept","noslope"]},
+                           "Geometric Mean":{"func":genutil.statistics.geometricmean,"nargsMin":1,"nargsMax":1},
+                           "Median":{"func":genutil.statistics.median,"nargsMin":1,"nargsMax":1},
+                           "Rank (in %)":{"func":genutil.statistics.rank,"nargsMin":1,"nargsMax":1},
+                           }
+        for nm in sorted(self.statsFuncs.keys()):
+            stats.addAction(nm)
+        self.connect(stats,QtCore.SIGNAL("triggered(QAction *)"),self.stats)
+
         self.vert = self.pcmdiTools.addMenu("Vertical Dims")
         self.vert.setTearOffEnabled(True)
         self.filters = self.pcmdiTools.addMenu("Filters")
@@ -68,6 +88,14 @@ class QMenuWidget(QtGui.QMenuBar):
         self.nsdfiles.setTearOffEnabled(True)
 
 
+        self.errorMsg=QtGui.QErrorMessage()
+        self.errorMsg.hide()
+
+    def stats(self,action):
+        nm = str(action.text())
+        self.pop = preFunctionPopUpWidget.preFuncPopUp(parent=self,defs=self.statsFuncs[nm])
+        self.pop.show()
+        
     def seasons(self,action):
         menu = str(action.parentWidget().title())
         nm = str(action.text())
