@@ -9,13 +9,12 @@ import os
 from re import search
 from ctypes import c_float, c_char_p, c_int, CDLL, byref, POINTER
 import cdms2
-import gsStatVar
-import gsTimeVar
+import gsstaticvariableobj
+import gstimevariableobj
 
-# local imports
-import config
-
-LIBCF = config.LIBCFDIR + "/lib/libcf"
+import pycf
+LIBCF = pycf.__path__[0] + "/lib/libcf"
+config = pycf.libCFConfig
 
 def open(uri, mode = 'r'):
     """

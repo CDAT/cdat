@@ -14,8 +14,8 @@ from cdms2.cdmsobj import CdmsObj
 from cdms2.gsstaticvariableobj import GsStaticVariableObj
 from cdms2.gstimevariableobj import GsTimeVariableObj
 import re
-import pycf # libcf
-LBCF = pycf.__path__[0] + '/libcf'
+from pycf import libCFConfig, __path__
+LBCF = __path__[0] + '/libcf'
 
 def addGetCoordinatesToAbstractVariable(AbstractVariable):
     """
@@ -167,8 +167,8 @@ class GsHost:
             status = libcf.nccf_inq_host_ntimes(self.hostId_t, byref(i_t))
             self.ntimeSlices = i_t.value
 
-            varName_t = c_char_p(" " * (config.NC_MAX_NAME+1))
-            fName_t = c_char_p(" " * (config.NC_MAX_NAME+1))
+            varName_t = c_char_p(" " * (libCFConfig.NC_MAX_NAME+1))
+            fName_t = c_char_p(" " * (libCFConfig.NC_MAX_NAME+1))
 
             # Grid names and data
             for gfindx in range(self.ngrids):
@@ -356,8 +356,8 @@ class GsHost:
 
         natts = c_int(-1)
         self.global_atts = {}
-        attName_t = c_char_p(" " * (config.NC_MAX_NAME+1))
-        attValu_t = c_char_p(" " * (config.NC_MAX_NAME+1))
+        attName_t = c_char_p(" " * (libCFConfig.NC_MAX_NAME+1))
+        attValu_t = c_char_p(" " * (libCFConfig.NC_MAX_NAME+1))
         self.libcf.nccf_inq_global_natts( self.globalId_t, byref(natts))
         for i in range(natts.value):
             self.libcf.nccf_get_global_attval(self.globalId_t, i, attName_t, attValu_t)

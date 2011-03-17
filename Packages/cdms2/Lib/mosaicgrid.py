@@ -5,15 +5,12 @@ import os
 import os.path
 from  ctypes import CDLL, c_char_p, c_int, byref, c_double, c_uint, pointer, create_string_buffer
 import cdms2
-sys.path.append("/home/painter1/libcf/libcf-1.0-alpha6-snapshot2010041411/testpy")
 # ... This is very much temporary, the necessary functions there need to be moved<<<<
 from gscall import *
-# ... This is very much temporary, the necessary functions there need to be moved<<<<
 
-sys.path.append("/home/painter1/libcf/")  # <<< temporary
-import config
+import pycf
+libcf = CDLL(pycf.__path__[0] + '/lib/libcf.so')  # <<< doesn't seem very portable
 
-libcf = CDLL(config.prefix + '/lib/libcf.so')  # <<< doesn't seem very portable
 from cdms2.hgrid import AbstractHorizontalGrid
 from cdms2.grid import AbstractGrid
 import numpy
