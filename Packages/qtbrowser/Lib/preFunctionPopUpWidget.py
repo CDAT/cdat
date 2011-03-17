@@ -1,10 +1,10 @@
 from PyQt4 import QtCore,QtGui
 import vcdatCommons
 import cdms2
-
+import inspect
 
 class preFuncPopUp(QtGui.QDialog):
-    def __init__(self,parent=None,defs={},axes=True,multiAxes=True):
+    def __init__(self,parent=None,defs={}):
         QtGui.QDialog.__init__(self,parent=parent)
         self.defs = defs
         self.parent=parent
@@ -12,10 +12,16 @@ class preFuncPopUp(QtGui.QDialog):
         l = QtGui.QVBoxLayout()
         self.setLayout(l)
 
-        self.axes = axes
-        self.multiAxes = multiAxes
-
         module = defs["func"].__module__
+
+        ## Prepare defaults vals
+        ins = inspect.getargspec(defs["func"])
+        mydefaults = {}
+        n = len(ins.args)-len(ins.defaults)
+        for i in range(len(ins.defaults)):
+            mydefaults[ins.args[i+n]]=ins.defaults[i]
+
+        print "Mydefaults",mydefaults
         if module == "genutil.averager":
             nm = module
         else:
@@ -43,28 +49,30 @@ class preFuncPopUp(QtGui.QDialog):
         te.setReadOnly(True)
         f = te.currentFont()
         fm = QtGui.QFontMetrics(f)
-        maxWidth = max(map(fm.width,txt.split("\n")))
-        self.parent.setMinimumWidth(maxWidth)
-        self.setMinimumWidth(maxWidth)
+        minWidth = min(max(map(fm.width,txt.split("\n"))),65*fm.width("W"))
+        minHeight = min(len(txt.split()),20)
+        te.setMinimumHeight(fm.height()*minHeight)
+        te.setMinimumWidth(minWidth)
         l.addWidget(te)
 
         ## Show the user what he's using
-        lb = QtGui.QLabel("Variables selected:")
-        l.addWidget(lb)
-        te = QtGui.QTextEdit()
-        te.setDocumentTitle("BLA")
-        te.setMaximumHeight(fm.height()*(len(selectedVars)+1))
-        txt=""
-        for v in selectedVars:
-            txt+="%s %s\n" % (v.id, str(v.shape))
-        te.setPlainText(txt[:-1])
-        te.setReadOnly(True)
-        l.addWidget(te)
+        if len(selectedVars)>0:
+            lb = QtGui.QLabel("Variables selected:")
+            l.addWidget(lb)
+            te = QtGui.QTextEdit()
+            te.setDocumentTitle("BLA")
+            te.setMaximumHeight(fm.height()*(len(selectedVars)+1))
+            txt=""
+            for v in selectedVars:
+                txt+="%s %s\n" % (v.id, str(v.shape))
+            te.setPlainText(txt[:-1])
+            te.setReadOnly(True)
+            l.addWidget(te)
 
         ## section showing the axes
-        if axes:
+        if defs.get("axes",True):
             axFrame = vcdatCommons.QFramedWidget("Axes Options:")
-            if multiAxes:
+            if defs.get("multiAxes",True):
                 self.selAxes=[]
                 for ax in selectedVars[0].getAxisList():
                     c = axFrame.addCheckBox("%s" % ax.id,newRow=True)
@@ -72,9 +80,10 @@ class preFuncPopUp(QtGui.QDialog):
                     if ax == selectedVars[0].getAxis(0):
                         c.setCheckState(QtCore.Qt.Checked)
             else:
-                self.selAxes = axFrame.addLabeledComboBox("Axis:",selectedVars[0].getAxisListIds())
+                self.selAxes = axFrame.addLabeledComboBox("Axis:",selectedVars[0].getAxisIds())
 
             l.addWidget(axFrame)
+        self.entries=[]
         ## Ok now the "choices"
         self.choices=[]
         choices = vcdatCommons.QFramedWidget("Options:")
@@ -84,6 +93,9 @@ class preFuncPopUp(QtGui.QDialog):
             if isinstance(c,str):
                 ## Ok it's a simple yes/no
                 self.choices.append(choices.addCheckBox(c,newRow=True))
+                if c in mydefaults.keys():
+                    if mydefaults[c] in [1,"yes",True]:
+                        self.choices[-1].setChecked(True)
             else:
                 ## Ok it's a radio button or a combobox if too many
                 vals = c[1]
@@ -96,10 +108,38 @@ class preFuncPopUp(QtGui.QDialog):
                 vals=vals2
                 if len(vals)>5:
                     self.choices.append(choices.addLabeledComboBox(c[0],vals,newRow=True))
+                    if c in mydefaults.keys():
+                        try:
+                            self.choices[-1].setCurrentindex(vals.index(mydefaults[c]))
+                        except Exception,err:
+                            print "error:",err
                 else:
                     self.choices.append(choices.addRadioFrame(c[0],vals,newRow=True))
+                    if c in mydefaults.keys():
+                        try:
+                            b = self.choices[-1].buttonGroup.button(vals.index(mydefaults[c]))
+                            b.setChecked(True)
+                        except Exception,err:
+                            print "Error2:",err
         if hasChoices:
             l.addWidget(choices)
+
+        hasEntries = False
+        entries = vcdatCommons.QFramedWidget("Entries:")
+        ## Files entries first
+        for e in defs.get("fileEntries",[]):
+            hasEntries = True
+            self.entries.append(QFileOpener(e))
+            entries.addWidget(self.entries[-1],newRow=True)
+            if e in mydefaults.keys():
+                self.entries[-1].fileEntry.setText(mydefaults[e])
+        for e in defs.get("entries",[]):
+            hasEntries = True
+            self.entries.append(entries.addLabeledLineEdit(e,newRow=True))
+            if e in mydefaults.keys():
+                self.entries[-1].setText(repr(mydefaults[e]))
+        if hasEntries:
+            l.addWidget(entries)
         ##Ok and Finally the ok/cancel buttons
         valid = QtGui.QFrame()
         hl = QtGui.QHBoxLayout()
@@ -113,6 +153,11 @@ class preFuncPopUp(QtGui.QDialog):
         self.connect(ok,QtCore.SIGNAL("clicked()"),self.ok)
         self.connect(cancel,QtCore.SIGNAL("clicked()"),self.accept)
 
+        self.show()
+        if defs.get("axes",True) is False and hasChoices is False:
+            # No need to bring this up, let's run it
+            self.ok()
+
     def ok(self):
 
         ## First construct the args list
@@ -121,15 +166,15 @@ class preFuncPopUp(QtGui.QDialog):
 
         kargs = {}
         ## now do we have an axis option
-        if self.axes:
+        if self.defs.get("axes",True):
             ## single axis or multi?
-            if self.multiAxes:
+            if self.defs.get("multiAxes",True):
                 nms = ""
                 for c in self.selAxes:
                     if c.isChecked():
                         nms+="(%s)" % str(c.text())
             else:
-                nms = "(%s)" % str(self.selAxes.buttonGroup.checkedButton().text())
+                nms = "(%s)" % str(self.selAxes.currentText())
             if nms == "":
                 self.parent.errorMsg.showMessage("%s requires at least one axis to be checked" % (self.defs["func"].__name__))
                 return
@@ -151,20 +196,33 @@ class preFuncPopUp(QtGui.QDialog):
                     val = 0
             kargs[nm]=val
 
+        ## Entries section
+        for e in self.entries:
+            if isinstance(e,QFileOpener):
+                nm = str(e.label.text())
+                val = str(e.fileEntry.text())
+            else:
+                nm = str(e.label.text())
+                try:
+                    val = repr(str(e.text()))
+                except:
+                    val = str(e.text())
+            kargs[nm]=val
+
         fnm = str(self.windowTitle())
         c = self.cursor()
         self.setCursor(QtCore.Qt.BusyCursor)
         try:
             tmp  = self.defs["func"](*args,**kargs)
         except Exception, err:
-            self.parent.errorMsg.showMessage("The following exception was raised while runnning %S:\n%s" % (self.defs["func"].__name__,str(err)))
+            self.parent.errorMsg.showMessage("The following exception was raised while runnning %s:\n%s" % (self.defs["func"].__name__,str(err)))
             self.setCursor(c)
             self.accept()
             return
         self.setCursor(c)
 
         if isinstance(tmp,cdms2.tvariable.TransientVariable):
-            tmp.id="%s.%s" % (fnm,tmp.id)
+            tmp.id="%s.%s" % (tmp.id,fnm)
             self.root.definedVar.widget.addVariable(tmp)
             res = ", %s" % tmp.id
         else:
@@ -191,4 +249,25 @@ class preFuncPopUp(QtGui.QDialog):
             else:
                 res+=", nonvar"
         return res
+    
+import os
+import customizeVCDAT
 
+class QFileOpener(QtGui.QWidget):
+    def __init__(self,label):
+        QtGui.QWidget.__init__(self)
+        l = QtGui.QHBoxLayout()
+        self.setLayout(l)
+        self.label = QtGui.QLabel(label)
+        l.addWidget(self.label)
+        i = QtGui.QIcon(os.path.join(customizeVCDAT.ICONPATH,"Open_folder.gif"))
+        b = QtGui.QToolButton()
+        b.setIcon(i)
+        self.connect(b,QtCore.SIGNAL("clicked()"),self.selFile)
+        l.addWidget(b)
+        self.fileEntry = QtGui.QLineEdit()
+        l.addWidget(self.fileEntry)
+
+    def selFile(self):
+        myFile = QtGui.QFileDialog.getOpenFileName(self, 'Open file...',filter="Text Files (*.csv *.asc *.txt) ;; All Files (*.*)")
+        self.fileEntry.setText(myFile)

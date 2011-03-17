@@ -7,9 +7,10 @@ def custom1D(x,filter,axis=0):
     Function: custom(x,filter,axis=0)
      
     Description of function:
-        Apply a custom 1 dimensional filter to an array over a specified axis 
+        Apply a custom 1 dimensional filter to an array over a specified axis
+        filter can be a list of numbers or a 1D array
     Usage:
-        filtered = covariance(unfiltered,filter)
+        filtered = custom1D(x,filter)
     Options:
         axisoptions: 'x' | 'y' | 'z' | 't' | '(dimension_name)' | 0 | 1 ... | n 
             default value = 0. You can pass the name of the dimension or index

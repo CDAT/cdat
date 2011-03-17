@@ -77,15 +77,51 @@ class QMenuWidget(QtGui.QMenuBar):
                            "Rank (in %)":{"func":genutil.statistics.rank,"nargsMin":1,"nargsMax":1},
                            }
         for nm in sorted(self.statsFuncs.keys()):
-            stats.addAction(nm)
+            a = stats.addAction(nm)
+            a.setToolTip(self.statsFuncs[nm]["func"].__doc__)
         self.connect(stats,QtCore.SIGNAL("triggered(QAction *)"),self.stats)
 
-        self.vert = self.pcmdiTools.addMenu("Vertical Dims")
-        self.vert.setTearOffEnabled(True)
-        self.filters = self.pcmdiTools.addMenu("Filters")
-        self.filters.setTearOffEnabled(True)
-        self.nsdfiles = self.pcmdiTools.addMenu("Not Self Describing Files")
-        self.nsdfiles.setTearOffEnabled(True)
+        vert = self.pcmdiTools.addMenu("Vertical Dims")
+        vert.setTearOffEnabled(True)
+        self.vertFuncs = {"Reconstruct Pressure: P=B*Ps+A*P0" : {"func":cdutil.vertical.reconstructPressureFromHybrid,"nargsMin":4,"nargsMax":4,"axes":False},
+                          "Linear interpolation" : {"func":cdutil.vertical.linearInterpolation,"nargsMin":2,"nargsMax":3,"axes":False},
+                          "Log-Linear interpolation" : {"func":cdutil.vertical.logLinearInterpolation,"nargsMin":2,"nargsMax":3,"axes":False},
+                          }
+        for nm in sorted(self.vertFuncs.keys()):
+            a = vert.addAction(nm)
+            a.setToolTip(self.vertFuncs[nm]["func"].__doc__)
+        self.connect(vert,QtCore.SIGNAL("triggered(QAction *)"),self.vert)
+        
+        filters = self.pcmdiTools.addMenu("Filters")
+        filters.setTearOffEnabled(True)
+        self.filterFuncs = {"Running Average" : {"func":genutil.filters.runningaverage,"nargsMin":1,"nargsMax":1,"choices":[("N",[len,]),],"multiAxes":False},
+                            "121 Filter" : {"func":genutil.filters.smooth121,"nargsMin":1,"nargsMax":1,"multiAxes":False},
+                            "Custom Filter" : {"func":genutil.filters.custom1D,"nargsMin":2,"nargsMax":2,"multiAxes":False},
+                            }
+        for nm in sorted(self.filterFuncs.keys()):
+            a = filters.addAction(nm)
+            a.setToolTip(self.filterFuncs[nm]["func"].__doc__)
+        self.connect(filters,QtCore.SIGNAL("triggered(QAction *)"),self.filters)
+        
+        nsdfiles = self.pcmdiTools.addMenu("Not Self Describing Files")
+        nsdfiles.setTearOffEnabled(True)
+        self.nsdfilesFuncs = {"Read ASCII File" : {"func":genutil.ASCII.readAscii,
+                                                   "nargsMin":0,"nargsMax":0,
+                                                   "choices":[("header",list(range(50))),],
+                                                   "axes":False,
+                                                   "entries":["ids","shape","next","separators"],
+                                                   "fileEntries":["text_file",]},
+                              "Read ASCII File in Columns" : {"func":genutil.ASCII.readAsciiCols,
+                                                              "nargsMin":0,"nargsMax":0,
+                                                              "choices":[("header",list(range(50))),("cskip",list(range(25))),("cskip_type",["columns","rows"]),"axis","idrow"],
+                                                              "axes":False,
+                                                              "entries":["ids","separators"],
+                                                              "fileEntries":["text_file",]},
+                            }
+        for nm in sorted(self.nsdfilesFuncs.keys()):
+            a = nsdfiles.addAction(nm)
+            a.setToolTip(self.nsdfilesFuncs[nm]["func"].__doc__)
+        self.connect(nsdfiles,QtCore.SIGNAL("triggered(QAction *)"),self.nsdfiles)
 
 
         self.errorMsg=QtGui.QErrorMessage()
@@ -95,6 +131,16 @@ class QMenuWidget(QtGui.QMenuBar):
         nm = str(action.text())
         self.pop = preFunctionPopUpWidget.preFuncPopUp(parent=self,defs=self.statsFuncs[nm])
         self.pop.show()
+    def vert(self,action):
+        nm = str(action.text())
+        self.pop = preFunctionPopUpWidget.preFuncPopUp(parent=self,defs=self.vertFuncs[nm])
+    def filters(self,action):
+        nm = str(action.text())
+        self.pop = preFunctionPopUpWidget.preFuncPopUp(parent=self,defs=self.filterFuncs[nm])
+    def nsdfiles(self,action):
+        nm = str(action.text())
+        self.pop = preFunctionPopUpWidget.preFuncPopUp(parent=self,defs=self.nsdfilesFuncs[nm])
+        
         
     def seasons(self,action):
         menu = str(action.parentWidget().title())

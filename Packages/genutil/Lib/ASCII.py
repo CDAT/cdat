@@ -23,7 +23,7 @@ def readAscii( text_file ,header=0, ids=None, shape=None, next='------',separato
         next       :: ('------') character string marking separation between variables
         separators :: ([';',',', ':']) List of character recognized as column separator
     Output :::
-        vars       :: List containing transient variable possibly named after ids and reshaped from the 'shape' option.
+        vars       :: List containing transient(s) variable(s) possibly named after ids and reshaped from the 'shape' option.
     
     """
     sep=[]
@@ -68,7 +68,6 @@ def readAscii( text_file ,header=0, ids=None, shape=None, next='------',separato
         return vars
     else:
         return vars[0]
-
 
 
 def read_col( text_file ,header=0, cskip=0, cskip_type='columns', axis=False, ids=None, idrow=0, separators=[';',',', ':']):
@@ -142,3 +141,5 @@ def read_col( text_file ,header=0, cskip=0, cskip_type='columns', axis=False, id
         return vars
     else:
         return vars[0]
+    
+readAsciiCols = read_col
