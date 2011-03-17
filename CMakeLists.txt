@@ -261,6 +261,7 @@ add_cdat_package(udunits2)
 add_cdat_package(HDF5)
 add_cdat_package(NetCDF)
 add_cdat_package(Qt)
+add_cdat_package(CMOR)
 
 # Python Packages
 add_cdat_package(Python)
