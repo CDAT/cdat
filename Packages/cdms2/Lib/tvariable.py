@@ -114,6 +114,9 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
                  axes=None, attributes=None, id=None, dtype=None, order=False)
            The savespace argument is ignored, for backward compatibility only.
         """
+
+        # tile index, None means no mosaic 
+        self.tileIndex = None
         
         # Compatibility: assuming old typecode, map to new
         if dtype is None and typecode is not None:
@@ -491,10 +494,24 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
     def copy(self):
         return self.filled()
 
-    def toVisit(self, filename, sphereRadius=1.0):
+    def setTileIndex(self, index):
+        """
+        Set the tile index (for mosaics)
+        index: tile index
+        """
+        self.tileIndex = index
+
+    def getTileIndex(self):
+        """
+        Get the tile index (for mosaics)
+        """
+        return self.tileIndex
+
+    def toVisit(self, filename, mode='w', sphereRadius=1.0):
         """
         Save data to file for postprocessing by the Visit visualization tool
         filename: name of the file where the data will be saved
+        mode: currently either 'w' (new file) or 'a' (append to existing file)
         sphereRadius: radius of the earth
         """
         if len(self.shape) != 2:
@@ -523,13 +540,15 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         # add vsh5 suffix, if need be
         if filename.find('.vsh5') < 0 and filename.find('.h5') < 0:
             filename += '.vsh5' # VizSchema hdf5 format
-        h5file = tables.openFile(filename, 'w')
+        h5file = tables.openFile(filename, mode)
 
         # mesh
         size = reduce(lambda x,y:x*y, shp)
         # vizschema wants 3d
         shp = (1,) + shp
         meshid = 'mesh_' + self.id
+        if self.tileIndex != None: 
+            meshid += '_tile%d' % self.getTileIndex()
         meshdata = numpy.zeros( (size, 3), numpy.float32 )
         meshdata[:,0] = numpy.reshape(xx, (size,))
         meshdata[:,1] = numpy.reshape(yy, (size,))
@@ -541,8 +560,11 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         mset.attrs.vsIndexOrder = "compMinorF"
 
         # data
+        dataid = self.id
+        if self.tileIndex != None:
+            dataid += '_tile%d' % self.getTileIndex()
         ddata = numpy.reshape(self, shp)
-        dset = h5file.createArray("/", self.id, ddata)
+        dset = h5file.createArray("/", dataid, ddata)
         dset.attrs.vsType = "variable"
         dset.attrs.vsMesh = meshid
         mset.attrs.vsType = "mesh"
