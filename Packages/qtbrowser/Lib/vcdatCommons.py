@@ -291,7 +291,9 @@ class QFramedWidget(QtGui.QFrame):
             
         lineEdit = QtGui.QLineEdit()
         self.lineEditList.append(lineEdit)
-        self.addWidget(QtGui.QLabel(text))
+        tmp = QtGui.QLabel(text)
+        lineEdit.label = tmp
+        self.addWidget(tmp)
         self.addWidget(lineEdit, align)
 
         if align is not None:
@@ -313,7 +315,9 @@ class QFramedWidget(QtGui.QFrame):
         self.addWidget(lineEdit)
         return label, lineEdit        
 
-    def addWidget(self, widget, align=None):
+    def addWidget(self, widget, align=None,newRow=False):
+        if newRow == True:
+            self.newRow()
         if align is None:
             self.hbox.addWidget(widget)
         else:
