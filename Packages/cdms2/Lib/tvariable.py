@@ -497,11 +497,13 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         filename: name of the file where the data will be saved
         sphereRadius: radius of the earth
         """
-        #if len(self.shape) != 2:
-        #    raise CDMSError, 'Currently, toVisit is only working for 2D data'
-        #try: 
-        import tables
-        import numpy
+        if len(self.shape) != 2:
+            raise CDMSError, 'Currently, toVisit is only working for 2D data'
+        try: 
+            import tables
+            import numpy
+        except:
+            raise CDMSError, "Must have pytables/numpy working to use toVisit"
 
         grd = self.getGrid()
         lons = grd.getLongitude()
@@ -513,10 +515,14 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
             lons = numpy.outer(numpy.ones((lats.shape[0],)), lons)
             lats = numpy.outer(lats, numpy.ones((lons.shape[0],)))
 
-        xx = sphereRadius*numpy.cos(lons*numpy.pi/180.)*numpy.cos(lats*numpy.pi/180.)
-        yy = sphereRadius*numpy.sin(lons*numpy.pi/180.)*numpy.cos(lats*numpy.pi/180.)
+        cosLats = numpy.cos(lats*numpy.pi/180.)
+        xx = sphereRadius*numpy.cos(lons*numpy.pi/180.)*cosLats
+        yy = sphereRadius*numpy.sin(lons*numpy.pi/180.)*cosLats
         zz = sphereRadius*numpy.sin(lats*numpy.pi/180.)
 
+        # add vsh5 suffix, if need be
+        if filename.find('.vsh5') < 0 and filename.find('.h5') < 0:
+            filename += '.vsh5' # VizSchema hdf5 format
         h5file = tables.openFile(filename, 'w')
 
         # mesh
@@ -548,9 +554,6 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
             setattr(dset.attrs, a, getattr(self, a))
         h5file.close()
             
-        #except:
-        #    # import error
-        #    raise CDMSError, "Must have pytables/numpy working to use toVisit"
         
 ## PropertiedClasses.set_property(TransientVariable, 'shape', 
 ##                                nowrite=1, nodelete=1)
