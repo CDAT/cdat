@@ -123,8 +123,8 @@ class QPlotOptionsWidget(QtGui.QWidget):
                      self.optionButton.showMenu)
         self.connect(self.plotTypeCombo,QtCore.SIGNAL('currentIndexChanged(const QString&)'),
                      self.selectedPlotType)
-        self.connect(self.plotTypeCombo,QtCore.SIGNAL('activated(int)'),
-                     self.selectedPlotType)
+        ## self.connect(self.plotTypeCombo,QtCore.SIGNAL('activated(int)'),
+        ##              self.selectedPlotType)
         ## self.connect(graphicMethodAction, QtCore.SIGNAL('triggered ()'),
         ##              self.graphicsMethodController.show)
 

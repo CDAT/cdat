@@ -1,11 +1,8 @@
 import types
 import qtbrowser
 from PyQt4 import QtCore, QtGui
-if qtbrowser.useVistrails:
-    from gui_controller import gm_name
 import vcs
-
-indentSpacing = 10
+import vcdatCommons
 
 
 class VCSGMs():
@@ -112,7 +109,7 @@ class VCSGMs():
         layout = QtGui.QVBoxLayout()
         frame.setLayout(layout)
         
-        world = QFramedWidget('World Coordinates')
+        world = vcdatCommons.QFramedWidget('World Coordinates')
         self.datawc_x1 = world.addLabeledLineEdit('datawc_x1')
         self.datawc_x2 = world.addLabeledLineEdit('datawc_x2')
         self.datawc_y1 = world.addLabeledLineEdit('datawc_y1')
@@ -123,7 +120,7 @@ class VCSGMs():
         self.datawc_y2.setToolTip("Set new Y2 world coordinate value. If value is 1e+20,\nthen VCS will use the data's coordinate value specified\nin the dimension.")
         layout.addWidget(world)
 
-        ticks = QFramedWidget('Ticks and Labels')
+        ticks = vcdatCommons.QFramedWidget('Ticks and Labels')
         self.xticlabels1 = ticks.addLabeledLineEdit('xticlabels1\t')
         self.xticlabels1.setToolTip("Specify a predefine VCS list name (i.e., lon20, lon30,\np_levels etc.). Or allow VCS to generate the xticlabels#1 by\nentering '*'. Or create a Python dictionary. For example:\n{10:'10', 20:'20', 30:'30'} or {0:'text', 10:'more text'}.\n\nNote: if the Python dictionary is not correct, then no\nxticlabels#1 will be plotted.")
         self.yticlabels1 = ticks.addLabeledLineEdit('yticlabels1\t',newRow=False)
@@ -143,7 +140,7 @@ class VCSGMs():
         self.ymtics2.setToolTip("Specify a predefine VCS list name (i.e., lon20, lon30,\np_levels etc.). Or allow VCS to generate the ymtics#1 by\nentering '*'. Or create a Python dictionary. For example:\n{10:'10', 20:'20', 30:'30'} or {0:'text', 10:'more text'}.\n\nNote: if the Python dictionary is not correct, then no\nxmtics#1 will be plotted.")
         layout.addWidget(ticks)
 
-        proj = QFramedWidget('Projection and Axes')
+        proj = vcdatCommons.QFramedWidget('Projection and Axes')
         self.projection = proj.addLabeledComboBox("Projection",self.root.canvas[0].listelements("projection"))
         self.projection.setToolTip("Choose Graphics Method Projection")
         self.projedit = proj.addButton("Edit",newRow=False)
@@ -593,10 +590,10 @@ class QVectorEditor(VCSGMs1D,VCSGMs,QtGui.QScrollArea):
         self.saveOriginalValues()
         self.setupCommonSection()
 
-        lines = QFramedWidget("Line Settings")
+        lines = vcdatCommons.QFramedWidget("Line Settings")
         self.setupLines(lines)
         vbox.addWidget(lines)
-        vector = QFramedWidget("Vector Settings")
+        vector = vcdatCommons.QFramedWidget("Vector Settings")
         self.scale = vector.addLabeledDoubleSpinBox('Vector Scale', -1e20, 1e20, .1)
         self.alignment = vector.addLabeledComboBox('Vector Alignment:',
                                                   ['head', 'center', 'tail'])
@@ -657,7 +654,7 @@ class QTaylorDiagramEditor(VCSGMs,QtGui.QScrollArea):
         self.saveOriginalValues()
 
         # General Aspect
-        genFrame = QFramedWidget('General Aspect')
+        genFrame = vcdatCommons.QFramedWidget('General Aspect')
         self.detailSlider = genFrame.addLabeledSlider('Detail:', newRow=False)
         self.detailSlider.setTickPosition(QtGui.QSlider.TicksBelow)
         self.detailSlider.setMinimum(0)
@@ -670,7 +667,7 @@ class QTaylorDiagramEditor(VCSGMs,QtGui.QScrollArea):
         vbox.addWidget(genFrame)
 
         # Skill
-        skillFrame = QFramedWidget('Skill')
+        skillFrame = vcdatCommons.QFramedWidget('Skill')
         self.drawLabels = skillFrame.addCheckBox('Draw Skill Contour Labels')
         self.skillValues = skillFrame.addLabeledLineEdit('Values:')
         self.skillLineColor = skillFrame.addLabeledSpinBox('Color: ',0,255)
@@ -678,7 +675,7 @@ class QTaylorDiagramEditor(VCSGMs,QtGui.QScrollArea):
         vbox.addWidget(skillFrame)
         
         # Arrows
-        arrowFrame = QFramedWidget('Arrows')
+        arrowFrame = vcdatCommons.QFramedWidget('Arrows')
         self.lengthSlider = arrowFrame.addLabeledSlider('Length:', newRow=False,divider=100.)
         self.lengthSlider.setTickPosition(QtGui.QSlider.TicksBelow)
         self.lengthSlider.setMinimum(0)
@@ -696,7 +693,7 @@ class QTaylorDiagramEditor(VCSGMs,QtGui.QScrollArea):
         # TODO - Create a widget to draw the arrow
         vbox.addWidget(arrowFrame)
 
-        ticFrame = QFramedWidget('Ticks and Labels')
+        ticFrame = vcdatCommons.QFramedWidget('Ticks and Labels')
         self.xlabels = ticFrame.addLabeledLineEdit('xticlabels1:')
         self.ylabels = ticFrame.addLabeledLineEdit('yticlabels:',newRow=False)
         self.corLabels = ticFrame.addLabeledLineEdit('cticklabels1:',newRow=False)
@@ -1138,7 +1135,7 @@ class QScatterEditor(VCSGMs1D,VCSGMs,QtGui.QScrollArea):
         self.saveOriginalValues()
         self.setupCommonSection()
 
-        markers = QFramedWidget("Markers Settings")
+        markers = vcdatCommons.QFramedWidget("Markers Settings")
         self.setupMarkers(markers)
         vbox.addWidget(markers)
         self.initValues()
@@ -1175,10 +1172,10 @@ class Q1DPlotEditor(VCSGMs1D,VCSGMs,QtGui.QScrollArea):
         self.saveOriginalValues()
         self.setupCommonSection()
 
-        lines = QFramedWidget("Lines Settings")
+        lines = vcdatCommons.QFramedWidget("Lines Settings")
         self.setupLines(lines)
         vbox.addWidget(lines)
-        markers = QFramedWidget("Markers Settings")
+        markers = vcdatCommons.QFramedWidget("Markers Settings")
         self.setupMarkers(markers)
         vbox.addWidget(markers)
         self.initValues()
@@ -1209,7 +1206,7 @@ class QOutlineEditor(VCSGMs,QtGui.QScrollArea):
         self.setupCommonSection()
 
         # Create Widgets
-        genSettings = QFramedWidget("Outline Line Settings")
+        genSettings = vcdatCommons.QFramedWidget("Outline Line Settings")
         self.lineType = genSettings.addLabeledComboBox('Style:',
                                                  ['solid', 'dash', 'dot', 'dash-dot', 'long-dash'],
                                                  indent=False)
@@ -1278,7 +1275,7 @@ class QOutfillEditor(VCSGMs,QtGui.QScrollArea):
         self.saveOriginalValues()
         self.setupCommonSection()
         
-        genSettings = QFramedWidget('Outfill Fill Area Settings')
+        genSettings = vcdatCommons.QFramedWidget('Outfill Fill Area Settings')
         self.fillArea = genSettings.addLabeledComboBox('Style:',
                                                  ['solid', 'hatch', 'pattern', 'hallow'],
                                                  indent=False)
@@ -1346,13 +1343,13 @@ class QMeshfillEditor(QtGui.QScrollArea,VCSGMs,VCSGMRanges):
         self.setupCommonSection()
 
         # General Settings
-        genSettings = QFramedWidget('Mesh Settings')
+        genSettings = vcdatCommons.QFramedWidget('Mesh Settings')
         self.xWrap = genSettings.addLabeledLineEdit('X Wrap:')
         self.yWrap = genSettings.addLabeledLineEdit('Y Wrap:', newRow = False)
         self.showMesh = genSettings.addRadioFrame('Show Mesh:', ['No', 'Yes'])
         vbox.addWidget(genSettings)
 
-        generalSettings = QFramedWidget('General Settings')
+        generalSettings = vcdatCommons.QFramedWidget('General Settings')
         self.missingLineEdit = generalSettings.addLabeledLineEdit('Missing:')
         self.ext1ButtonGroup = generalSettings.addRadioFrame('Ext1:',
                                                              ['No', 'Yes'],
@@ -1363,7 +1360,7 @@ class QMeshfillEditor(QtGui.QScrollArea,VCSGMs,VCSGMRanges):
         self.legendLineEdit = generalSettings.addLabeledLineEdit('Legend Labels:')
         vbox.addWidget(generalSettings)
 
-        self.isoSettings = QFramedWidget('Levels Range Settings')
+        self.isoSettings = vcdatCommons.QFramedWidget('Levels Range Settings')
 
         self.rangeSettings(self.isoSettings)
         vbox.addWidget(self.isoSettings)
@@ -1437,7 +1434,7 @@ class QIsofillEditor(QtGui.QScrollArea,VCSGMs,VCSGMRanges):
 
 
         # Isofill General Settings 
-        generalSettings = QFramedWidget('General Settings')
+        generalSettings = vcdatCommons.QFramedWidget('General Settings')
         self.missingLineEdit = generalSettings.addLabeledLineEdit('Missing:')
         self.ext1ButtonGroup = generalSettings.addRadioFrame('Ext1:',
                                                              ['No', 'Yes'],
@@ -1448,7 +1445,7 @@ class QIsofillEditor(QtGui.QScrollArea,VCSGMs,VCSGMRanges):
         self.legendLineEdit = generalSettings.addLabeledLineEdit('Legend Labels:')
         vbox.addWidget(generalSettings)
 
-        self.isoSettings = QFramedWidget('Levels Range Settings')
+        self.isoSettings = vcdatCommons.QFramedWidget('Levels Range Settings')
 
         self.rangeSettings(self.isoSettings)
         vbox.addWidget(self.isoSettings)
@@ -1507,19 +1504,19 @@ class QIsolineEditor(QtGui.QScrollArea,VCSGMs,VCSGMRanges):
 
 
         # Isoline Levels Settings 
-        self.isoSettings = QFramedWidget('Levels Range Settings')
+        self.isoSettings = vcdatCommons.QFramedWidget('Levels Range Settings')
         self.rangeSettings(self.isoSettings)
         vbox.addWidget(self.isoSettings)
 
         #Isoline Labels Setting
-        self.textSettings = QFramedWidget('Levels Labels Settings')
+        self.textSettings = vcdatCommons.QFramedWidget('Levels Labels Settings')
         self.textLabelsOnOff = self.textSettings.addRadioFrame("Draw Labels:",["No","Yes"],newRow=False)
         self.textFonts = self.textSettings.addLabeledLineEdit("Text Fonts:")
         self.textColors = self.textSettings.addLabeledLineEdit("Text Colors:")
         vbox.addWidget(self.textSettings)
 
         # Isoline Streamline Settings 
-        self.streamSettings = QFramedWidget('Streamlines Settings')
+        self.streamSettings = vcdatCommons.QFramedWidget('Streamlines Settings')
         self.streamDirection = self.streamSettings.addLabeledLineEdit("Directions:")
         self.streamScale = self.streamSettings.addLabeledLineEdit("Scales:")
         self.streamAngle = self.streamSettings.addLabeledLineEdit("Angles:")
@@ -1743,7 +1740,7 @@ class QContinentsEditor(QtGui.QScrollArea):
     def __init__(self, parent=None, gm=None):
         QtGui.QScrollArea.__init__(self, parent)
         vbox = QtGui.QVBoxLayout()
-        frame = QFramedWidget()
+        frame = vcdatCommons.QFramedWidget()
         
         self.lineTypeComboBox = frame.addLabeledComboBox('Continents Line Type:',
                                                          ['solid', 'dash', 'dot', 'dash-dot', 'long-dash'])
@@ -1822,7 +1819,7 @@ class QBoxfillEditor(QtGui.QScrollArea,VCSGMs,VCSGMRanges):
         self.setupCommonSection()
         
         # Boxfill General Settings 
-        generalSettings = QFramedWidget('Boxfill Settings')
+        generalSettings = vcdatCommons.QFramedWidget('Boxfill Settings')
         self.boxfillTypeButtonGroup = generalSettings.addRadioFrame('Boxfill type:',
                                                                     ['linear', 'log10', 'custom'])
         self.boxfillTypeButtonGroup.setToolTip("The boxfill type defines how the legend boxes and labels are picked\nlinear: uses colors from color1 to color2 and uses this number of colors to create levels ranging from level1 to level2\nlog10: same as linear but the levels are created using a log10 scale.custom: colors to use are specified by the user in any order, as well as the level range for each boxes")
@@ -1838,7 +1835,7 @@ class QBoxfillEditor(QtGui.QScrollArea,VCSGMs,VCSGMRanges):
         vbox.addWidget(generalSettings)
         
         # Linear & Log Settings
-        self.linLogSettings = QFramedWidget('Linear and Log Settings')
+        self.linLogSettings = vcdatCommons.QFramedWidget('Linear and Log Settings')
 
         self.level1LineEdit = self.linLogSettings.addLabeledLineEdit('Level 1:')
         self.level2LineEdit = self.linLogSettings.addLabeledLineEdit('Level 2:',
@@ -1849,7 +1846,7 @@ class QBoxfillEditor(QtGui.QScrollArea,VCSGMs,VCSGMRanges):
         vbox.addWidget(self.linLogSettings)
         
         # Custom Settings
-        self.customSettings = QFramedWidget('Custom Settings')
+        self.customSettings = vcdatCommons.QFramedWidget('Custom Settings')
 
         self.rangeSettings(self.customSettings)
         
@@ -1945,261 +1942,4 @@ class QBoxfillEditor(QtGui.QScrollArea,VCSGMs,VCSGMRanges):
             return convertType(lineEdit.text())
         except:
             return default
-        
-class QSimpleMessageBox(QtGui.QMessageBox):
-
-    def __init__(self, text, parent):
-        QtGui.QMessageBox.__init__(self, parent)
-        self.setText(text)
-        
-class QFramedWidget(QtGui.QFrame):
-
-    def __init__(self, titleText=None, parent=None):
-        QtGui.QFrame.__init__(self, parent)    
-        self.setFrameStyle(QtGui.QFrame.Raised)
-        self.setFrameShape(QtGui.QFrame.Box)
-        self.lineEditList = []
-        self.vbox = QtGui.QVBoxLayout()
-        self.setLayout(self.vbox)
-        self.indent = 10
-
-        if titleText is not None:
-            title = QtGui.QLabel(titleText)
-            title.setFont(QtGui.QFont("Times", 14, QtGui.QFont.Bold))
-            self.vbox.addWidget(title)
-
-        self.newRow()
-
-    def setSpacing(self, spacing):
-        self.vbox.setSpacing(spacing)
-
-    def newRow(self):
-        self.hbox = QtGui.QHBoxLayout()
-        self.vbox.addLayout(self.hbox)
-
-    def addCheckBox(self, text, indent=True, newRow=True):
-        if newRow == True:
-            self.newRow()
-        if indent == True:
-            self.hbox.addSpacing(indentSpacing)
-
-        checkbox = QtGui.QCheckBox(text)
-        self.addWidget(checkbox)
-        return checkbox
-
-    def addLabeledComboBox(self, text, comboStringList, indent=True, newRow=True):
-        if newRow == True:
-            self.newRow()
-        if indent == True:
-            self.hbox.addSpacing(indentSpacing)
-
-        # Init combo box & set text to white on blue
-        comboBox = QtGui.QComboBox()
-        comboPalette = comboBox.view().palette()
-        comboPalette.setColor(QtGui.QPalette.HighlightedText, QtCore.Qt.white)        
-        comboPalette.setColor(QtGui.QPalette.Highlight, QtCore.Qt.blue)
-        comboBox.view().setPalette(comboPalette)
-
-        for string in comboStringList:
-            comboBox.addItem(string)        
-            
-        self.addLabel(text)            
-        self.addWidget(comboBox)
-        return comboBox
-
-    def addLabeledSpinBox(self, text, minValue=None, maxValue=None,
-                          indent=True, newRow=True):
-        if newRow == True:
-            self.newRow()
-        if indent == True:
-            self.hbox.addSpacing(indentSpacing)
-
-        spinbox = QtGui.QSpinBox()
-        if maxValue is not None:
-            spinbox.setMaximum(maxValue)
-        if minValue is not None:
-            spinbox.setMinimum(minValue)
-        self.addWidget(QtGui.QLabel(text))
-        self.addWidget(spinbox)
-        
-        return spinbox
-
-    def addLabeledDoubleSpinBox(self, text, minValue=None, maxValue=None,
-                                step=None, indent=True, newRow=True):
-        if newRow == True:
-            self.newRow()
-        if indent == True:
-            self.hbox.addSpacing(indentSpacing)
-
-        spinbox = QtGui.QDoubleSpinBox()
-        if maxValue is not None:
-            spinbox.setMaximum(maxValue)
-        if minValue is not None:
-            spinbox.setMinimum(minValue)
-        if step is not None:
-            spinbox.setSingleStep(step)
-            
-        self.addWidget(QtGui.QLabel(text))
-        self.addWidget(spinbox)
-        return spinbox    
-
-    def addButton(self, text, newRow=True):
-        if newRow == True:
-            self.newRow()
-            
-        button = QtGui.QToolButton()
-        button.setText(text)
-        self.addWidget(button)
-        return button
-
-    def addRadioFrame(self, text, buttonList, newRow=True):
-        if newRow == True:
-            self.newRow()
-            
-        buttonGroup = QRadioButtonFrame(text, buttonList)            
-        self.addWidget(buttonGroup)
-        return buttonGroup
-
-    def clearAllLineEdits(self):
-        for lineEdit in self.lineEditList:
-            lineEdit.setText('')
-
-    def addLabeledLineEdit(self, text, indent=True, newRow=True, align=None):
-        if newRow == True:
-            self.newRow()
-        if indent == True:
-            self.hbox.addSpacing(indentSpacing)
-            
-        lineEdit = QtGui.QLineEdit()
-        self.lineEditList.append(lineEdit)
-        self.addWidget(QtGui.QLabel(text))
-        self.addWidget(lineEdit, align)
-
-        if align is not None:
-            self.vbox.setAlignment(self.hbox, align)
-        
-        return lineEdit
-
-    def addLabelAndLineEdit(self, text, indent=True, newRow=True):
-        if newRow == True:
-            self.newRow()
-        if indent == True:
-            self.hbox.addSpacing(indentSpacing)
-
-        lineEdit = QtGui.QLineEdit()
-        self.lineEditList.append(lineEdit)
-        label = QtGui.QLabel(text)
-        
-        self.addWidget(label)
-        self.addWidget(lineEdit)
-        return label, lineEdit        
-
-    def addWidget(self, widget, align=None):
-        if align is None:
-            self.hbox.addWidget(widget)
-        else:
-            self.hbox.addWidget(widget, alignment=align)
-
-    def addLabel(self, text):
-        label = QtGui.QLabel(text)
-        self.addWidget(label)
-        return label
-
-    def addSlider(self):
-        slider = QtGui.QSlider(QtCore.Qt.Horizontal)
-        self.addWidget(slider)
-        return slider
-
-    def addLabeledSlider(self, text, newRow=True,divider=1):
-        if newRow == True:
-            self.newRow()
-            
-        labeledSlider = QLabeledSlider(text,divider=divider)
-        self.addWidget(labeledSlider)
-        return labeledSlider.getSlider()
-
-class QLabeledSlider(QtGui.QWidget):
-    def __init__(self, text, parent=None, divider=1):
-        QtGui.QWidget.__init__(self, parent)
-        vbox = QtGui.QVBoxLayout()
-        vbox.setSpacing(10)
-        self.setLayout(vbox)
-        self.text = text
-        self.label = QtGui.QLabel(text)
-        self.slider = QtGui.QSlider(QtCore.Qt.Horizontal)
-        self.divider=divider
-        
-        vbox.addWidget(self.label)
-        vbox.addWidget(self.slider)
-
-        self.connect(self.slider, QtCore.SIGNAL('valueChanged(int)'),
-                     self.updateLabel)
-
-    def getSlider(self):
-        return self.slider
-
-    def updateLabel(self, value):
-        val = float(value)/self.divider
-        val = "%.2f" % val
-        if val[-2:]=="00":
-            val=val[:-3]
-        self.label.setText("%s  %s" %(self.text, val))
-            
-class QRadioButtonFrame(QtGui.QFrame):
-    """ Framed widget containing a label and list of radiobuttons """
-    def __init__(self, labelText=None, buttonList=None, parent=None):
-        QtGui.QFrame.__init__(self, parent)
-        self.setFrameStyle(QtGui.QFrame.Raised)
-        self.setFrameShape(QtGui.QFrame.Box)
-
-        self.hbox = QtGui.QHBoxLayout()
-        self.setLayout(self.hbox)
-        self.buttonGroup = QtGui.QButtonGroup()
-        self.buttons = {}
-
-        if labelText is not None:
-            self.addLabel(QtGui.QLabel(labelText))
-        if buttonList is not None:
-            self.addButtonList(buttonList)
-
-    def addLabel(self, label):
-        self.hbox.addWidget(label)
-
-    def addButton(self, button):
-        self.buttonGroup.addButton(button)
-        self.hbox.addWidget(button)
-        self.buttons[str(button.text())] = button
-
-    def setChecked(self, buttonText):
-        if buttonText in list(self.buttons):
-            self.buttons[buttonText].setChecked(True)
-
-    def isChecked(self, buttonText):
-        if buttonText in list(self.buttons):
-            return self.buttons[buttonText].isChecked()
-
-        return False
-
-    def getButton(self, buttonText):
-        if buttonText in list(self.buttons):
-            return self.buttons[buttonText]
-
-        return None
-
-    def addButtonList(self, buttonList):
-        """ Create and add buttons from a list of strings """
-        for buttonText in buttonList:
-            button = QtGui.QRadioButton(buttonText)
-            self.buttons[buttonText] = button
-            self.addButton(button)
-
-def round_number( N ):
-   import numpy
-   P = 10.0 ** ( numpy.floor(numpy.log10(abs(N) ) ) )
-   return( sign(N) * int( abs(N)/P + 0.5) * P )
-
-def sign ( N ):
-   if (N < 0): return -1
-   else: return 1
-
         
