@@ -33,7 +33,7 @@ ExternalProject_Add_Step(${proj} symlink
 
 # tcltk
 #
-set(proj tcltk-${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC})
+set(proj tcltk)
 
 ExternalProject_Add(${proj}
   DOWNLOAD_COMMAND ""
