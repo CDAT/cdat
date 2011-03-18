@@ -1,30 +1,34 @@
 
-set(PyOpenGL_source "${CMAKE_CURRENT_BINARY_DIR}/PyOpenGL")
-set(PyOpenGL_install "${CMAKE_CURRENT_BINARY_DIR}/PyOpenGL-install")
+set(CDAT_source "${cdat_SOURCE_DIR}")
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/pyopengl_make_step.cmake.in
-  ${cdat_CMAKE_BINARY_DIR}/pyopengl_make_step.cmake
-  @ONLY)
+set(LDFLAGS "-L${cdat_BINARY_DIR}/Externals/NetCDF/lib -L${cdat_BINARY_DIR}/Externals/lib -L${cdat_BINARY_DIR}/lib")
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/pyopengl_install_step.cmake.in
-  ${cdat_CMAKE_BINARY_DIR}/pyopengl_install_step.cmake
-  @ONLY)
+get_filename_component(QT_BINARY_DIR ${QT_QMAKE_EXECUTABLE} PATH)
+get_filename_component(QT_ROOT ${QT_BINARY_DIR} PATH)
 
-set(PyOpenGL_build_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/pyopengl_make_step.cmake)
-set(PyOpenGL_install_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/pyopengl_install_step.cmake)
+#configure_file(${cdat_CMAKE_SOURCE_DIR}/pyopengl_make_step.cmake.in
+#  ${cdat_CMAKE_BINARY_DIR}/pyopengl_make_step.cmake
+#  @ONLY)
 
-ExternalProject_Add(PyOpenGL
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
-  SOURCE_DIR ${PyOpenGL_source}
-  URL ${PYOPENGL_URL}/${PYOPENGL_GZ}
-  URL_MD5 ${PYOPENGL_MD5}
+#configure_file(${cdat_CMAKE_SOURCE_DIR}/pyopengl_install_step.cmake.in
+#  ${cdat_CMAKE_BINARY_DIR}/pyopengl_install_step.cmake
+#  @ONLY)
+
+#set(PyOpenGL_build_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/pyopengl_make_step.cmake)
+#set(PyOpenGL_install_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/pyopengl_install_step.cmake)
+
+#env EXTERNALS=/Users/partyd/Kitware/uv-cdat/make-file-install/Externals  LDFLAGS="${LDFLAGS/"/} -undefined dynamic_lookup"  /Users/partyd/Kitware/uv-cdat/make-file-install/bin/python install.py  --enable-qt-framework  --with-qt=/Users/partyd/Kitware/uv-cdat/make-file-install/Externals
+
+ExternalProject_Add(CDAT
+  DOWNLOAD_DIR ""
+  SOURCE_DIR ${CDAT_source}
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
   CONFIGURE_COMMAND ""
-  BUILD_COMMAND ${PyOpenGL_build_command}
-  INSTALL_COMMAND ${PyOpenGL_install_command}
-  DEPENDS ${PyOpenGL_DEPENDENCIES}
+  BUILD_COMMAND ""
+  INSTALL_COMMAND env LDFLAGS=${LDFLAGS} ${PYTHON_EXECUTABLE} install.py --enable-qt-framework --with-qt=${QT_ROOT}
+  DEPENDS ${CDAT_DEPENDENCIES}
 )
 
-set(PyOpenGL_DIR "${PyOpenGL_binary}" CACHE PATH "PyOpenGL binary directory" FORCE)
-mark_as_advanced(PyOpenGL_DIR)
+set(CDAT_DIR "${PyOpenGL_binary}" CACHE PATH "CDAT binary directory" FORCE)
+mark_as_advanced(CDAT_DIR)
