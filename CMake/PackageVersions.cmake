@@ -1,3 +1,11 @@
+
+set(WGET_MAJOR 1)
+set(WGET_MINOR 12)
+set(WGET_PATCH)
+set(WGET_URL http://ftp.gnu.org/gnu/wget)
+set(WGET_GZ wget-${WGET_MAJOR}.${WGET_MINOR}.tar.gz)
+set(WGET_MD5 15ed56733655e3fab785e49a7278d2fb)
+
 set(PYTHON_MAJOR 2)
 set(PYTHON_MINOR 7)
 set(PYTHON_PATCH 1)
