@@ -547,12 +547,9 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
 
         # mesh
         size = reduce(lambda x,y:x*y, shp)
-        # invert index size order 
-        shp = list(shp)
-        shp.reverse()
 	if len(shp) == 2:
 	    # vizschema wants 3d
-            shp = [1,] + shp
+            shp = (1,) + shp
         meshid = 'mesh_' + self.id
         if self.tileIndex != None: 
             meshid += '_tile%d' % self.getTileIndex()
@@ -560,11 +557,11 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         meshdata[:,0] = numpy.reshape(xx, (size,))
         meshdata[:,1] = numpy.reshape(yy, (size,))
         meshdata[:,2] = numpy.reshape(zz, (size,))
-        mdata = numpy.reshape(meshdata, shp + [3,])
+        mdata = numpy.reshape(meshdata, shp + (3,))
         mset = h5file.createArray("/", meshid, mdata)
         mset.attrs.vsType = "mesh"
         mset.attrs.vsKind = "structured"
-        mset.attrs.vsIndexOrder = "compMinorF"
+        mset.attrs.vsIndexOrder = "compMinorC"
 
         # data
         dataid = self.id
@@ -576,7 +573,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         dset.attrs.vsMesh = meshid
         mset.attrs.vsType = "mesh"
         mset.attrs.vsKind = "structured"
-        mset.attrs.vsIndexOrder = "compMinorF"
+        mset.attrs.vsIndexOrder = "compMinorC"
 
         # additional attributes
         for a in self.attributes:
