@@ -13,6 +13,7 @@ ExternalProject_Add(netcdf
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
   CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -D CONFIGURE_ARGS=${netcdf_configure_args} -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
+  DEPENDS ${netcdf_DEPENDENCIES}
 )
 
 set(netcdf_DIR "${netcdf_binary}" CACHE PATH "netcdf binary directory" FORCE)
