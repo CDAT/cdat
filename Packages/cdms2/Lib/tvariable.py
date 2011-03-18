@@ -533,6 +533,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
             # normalize
             elvs -= elvs[0]
             elvs /= (elvs[-1] - elvs[0])
+            elvs *= maxElev
 
         shp = lons.shape
         if len(shp) == len(lats.shape) == 1:
@@ -550,16 +551,17 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
                 # tensor product to create 3D arrays
                 elvs1D = elvs[:]
                 nelvs = len(elvs1D)
-                ones_elvs = numpy.ones((nelvs,))
-                lons = numpy.outer(ones_elvs, 
-                                   numpy.outer(ones_lats,
-                                               lons1D))         
-                lats = numpy.outer(ones_elvs, 
-                                   numpy.outer(lats1D,
-                                               ones_lons))  
-                elvs = numpy.outer(elvs1D, 
-                                   numpy.outer(ones_lats,
-                                               ones_lons)) 
+                shp = (nelvs, nlats, nlons)
+                tp = lons.typecode()
+                lons = numpy.zeros(shp, tp)
+                lats = numpy.zeros(shp, tp)
+                elvs = numpy.zeros(shp, tp)
+                for k in range(nelvs):
+                    for j in range(nlats):
+                        for i in range(nlons):
+                            lons[k,j,i] = lons1D[i]
+                            lats[k,j,i] = lats1D[j]
+                            elvs[k,j,i] = elvs1D[k]
         shp = lons.shape
         # the cartesian points
         cosLats = numpy.cos(lats*numpy.pi/180.)
