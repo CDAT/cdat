@@ -6,6 +6,7 @@ TransientVariable (created by createVariable)
 is a child of both AbstractVariable and the masked array class.
 Contains also the write part of the old cu interface.
 """
+import re
 import types
 import typeconv
 import numpy
@@ -513,9 +514,11 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         filename: name of the file where the data will be saved
         mode: currently either 'w' (new file) or 'a' (append to existing file)
         sphereRadius: radius of the earth
+        
+        Assumes time, elv, lat, lon ordering....!!!
         """
-        if len(self.shape) != 2:
-            raise CDMSError, 'Currently, toVisit is only working for 2D data'
+        if len(self.shape) < 2 or len(self.shape) > 4:
+            raise CDMSError, 'Currently, toVisit only working for 2D to 4D data'
         try: 
             import tables
             import numpy
@@ -525,62 +528,100 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         grd = self.getGrid()
         lons = grd.getLongitude()
         lats = grd.getLatitude()
+        elvs = None
+        try:
+            elvs = grd.getLevel()
+        except: pass
 
         shp = lons.shape
         if len(shp) == len(lats.shape) == 1:
-            # tensor product to create 2D arrays
             lons1D = lons[:]
             lats1D = lats[:]
-            lons = numpy.outer(numpy.ones((lats1D.shape[0],)), lons1D)
-            lats = numpy.outer(lats1D, numpy.ones((lons1D.shape[0],)))
-            shp = lons.shape
-
+            nlats = len(lats1D)
+            nlons = len(lons1D)
+            ones_lons = numpy.ones((nlons,))
+            ones_lats = numpy.ones((nlats,))
+            if elvs == None:
+                # tensor product to create 2D arrays
+                lons = numpy.outer(ones_lats, lons1D)
+                lats = numpy.outer(lats1D, ones_lons)
+            else:
+                # tensor product to create 3D arrays
+                elvs1D = elevs[:]
+                nelvs = len(elvs1D)
+                ones_elvs = numpy.ones((nelvs,))
+                lons = numpy.outer(ones_elvs, 
+                                   numpy.outer(ones_lats,
+                                               lons1D))         
+                lats = numpy.outer(ones_elvs, 
+                                   numpy.outer(lats1D,
+                                               ones_lons))  
+                elvs = numpy.outer(elvs1D, 
+                                   numpy.outer(ones_lats,
+                                               ones_lons)) 
+        shp = lons.shape
+        
         cosLats = numpy.cos(lats*numpy.pi/180.)
         xx = sphereRadius*numpy.cos(lons*numpy.pi/180.)*cosLats
         yy = sphereRadius*numpy.sin(lons*numpy.pi/180.)*cosLats
         zz = sphereRadius*numpy.sin(lats*numpy.pi/180.)
 
-        # add vsh5 suffix, if need be
-        if filename.find('.vsh5') < 0 and filename.find('.h5') < 0:
-            filename += '.vsh5' # VizSchema hdf5 format
-        h5file = tables.openFile(filename, mode)
-
-        # mesh
         size = reduce(lambda x,y:x*y, shp)
-	if len(shp) == 2:
-	    # vizschema wants 3d
+        if len(shp) == 2:
+            # vizschema wants 3d
             shp = (1,) + shp
-        meshid = 'mesh_' + self.id
-        if self.tileIndex != None: 
-            meshid += '_tile%d' % self.getTileIndex()
+
         meshdata = numpy.zeros( (size, 3), numpy.float32 )
         meshdata[:,0] = numpy.reshape(xx, (size,))
         meshdata[:,1] = numpy.reshape(yy, (size,))
         meshdata[:,2] = numpy.reshape(zz, (size,))
         mdata = numpy.reshape(meshdata, shp + (3,))
-        mset = h5file.createArray("/", meshid, mdata)
-        mset.attrs.vsType = "mesh"
-        mset.attrs.vsKind = "structured"
-        mset.attrs.vsIndexOrder = "compMinorC"
-
-        # data
         dataid = self.id
         if self.tileIndex != None:
             dataid += '_tile%d' % self.getTileIndex()
-        ddata = numpy.reshape(self, shp)
-        dset = h5file.createArray("/", dataid, ddata)
-        dset.attrs.vsType = "variable"
-        dset.attrs.vsMesh = meshid
-        mset.attrs.vsType = "mesh"
-        mset.attrs.vsKind = "structured"
-        mset.attrs.vsIndexOrder = "compMinorC"
 
-        # additional attributes
-        for a in self.attributes:
-            setattr(dset.attrs, a, getattr(self, a))
-        h5file.close()
-            
-        
+        def writeToFile(filename, data, timeIndex=None):
+            # add vsh5 suffix, if need be
+            if filename.find('.vsh5') < 0 and filename.find('.h5') < 0:
+                filename += '.vsh5' # VizSchema hdf5 format
+            # open file
+            h5file = tables.openFile(filename, mode)
+            # put mesh
+            meshid = 'mesh_' + self.id
+            if self.tileIndex != None: 
+                meshid += '_tile%d' % self.getTileIndex()
+            mset = h5file.createArray("/", meshid, mdata)
+            mset.attrs.vsType = "mesh"
+            mset.attrs.vsKind = "structured"
+            mset.attrs.vsIndexOrder = "compMinorC"
+            # data
+            dset = h5file.createArray("/", dataid, numpy.reshape(data, shp))
+            dset.attrs.vsType = "variable"
+            dset.attrs.vsMesh = meshid
+            mset.attrs.vsType = "mesh"
+            mset.attrs.vsKind = "structured"
+            mset.attrs.vsIndexOrder = "compMinorC"
+            # additional attributes
+            for a in self.attributes:
+                setattr(dset.attrs, a, getattr(self, a))
+            # close file
+            h5file.close()
+
+        timeAxis = self.getTime()
+        if timeAxis == None:
+            writeToFile(filename, self)
+        else:
+            ntimes = len(timeAxis)
+            ndigits = len('%d'%ntimes)
+            for itime in range(ntimes):
+                # generate time dependent filename (<filename>_<itime>.vsh5)
+                itdigits = len('%d'%itime)
+                tiStr = '0'*(ndigits-itdigits) + ('%d'%itime)
+                timeFilename = re.sub(r'\.([vs]+)h5', '_%s.\\1h5' % tiStr, 
+                                      filename)
+                # assume time is the first index!!!
+                writeToFile(timeFilename, self[0,...], timeIndex=itime)
+       
 ## PropertiedClasses.set_property(TransientVariable, 'shape', 
 ##                                nowrite=1, nodelete=1)
 
