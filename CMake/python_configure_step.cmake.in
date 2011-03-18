@@ -21,6 +21,8 @@ if(UNIX)
     if(APPLE)
       set(ENV{CFLAGS} "-arch x86_64 -mmacosx-version-min=10.6 -isysroot /Developer/SDKs/MacOSX10.6.sdk")
     endif(APPLE)
+    set(ENV{AQUA_CDAT} "@python_aqua_cdat@")
+    set(ENV{OPT} "")
   endif()
 
   if(APPLE)
