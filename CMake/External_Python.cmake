@@ -119,7 +119,9 @@ if(WIN32)
 elseif(UNIX)
   set(python_SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/build/python)
   set(python_BUILD_IN_SOURCE 1)
-  
+
+  set(python_aqua_cdat no)
+
   configure_file(${cdat_CMAKE_SOURCE_DIR}/python_patch_step.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/python_patch_step.cmake
     @ONLY)
