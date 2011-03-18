@@ -27,6 +27,18 @@ set(cdat_VERSION_MINOR 0)
 set(cdat_VERSION_PATCH "alpha")
 set(cdat_VERSION ${cdat_VERSION_MAJOR}.${cdat_VERSION_MINOR}.${cdat_VERSION_PATCH})
 
+# configure version file
+configure_file(${cdat_CMAKE_SOURCE_DIR}/version.in
+  ${cdat_BINARY_DIR}/version
+  @ONLY)
+
+#
+# checked_get
+#
+configure_file(${cdat_SOURCE_DIR}/pyopengl_make_step.cmake.in
+  ${cdat_CMAKE_BINARY_DIR}/pyopengl_make_step.cmake
+  @ONLY)
+
 #-----------------------------------------------------------------------------
 # Git protocole option
 #-----------------------------------------------------------------------------
@@ -207,7 +219,7 @@ set(freetype_DEPENDENCIES png)
 set(ghostscript_DEPENDENCIES zlib jpeg png fontconfig freetype pixman xslt libXML2)
 set(netcdf_DEPENDENCIES HDF5)
 
-set(python_DEPENDENCIES)
+set(python_DEPENDENCIES tcltk)
 
 set(CLAPACK_DEPENDENCIES)
 set(setuptools_DEPENDENCIES python)
