@@ -32,13 +32,6 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/version.in
   ${cdat_BINARY_DIR}/version
   @ONLY)
 
-#
-# checked_get
-#
-configure_file(${cdat_SOURCE_DIR}/pyopengl_make_step.cmake.in
-  ${cdat_CMAKE_BINARY_DIR}/pyopengl_make_step.cmake
-  @ONLY)
-
 #-----------------------------------------------------------------------------
 # Git protocole option
 #-----------------------------------------------------------------------------
@@ -167,6 +160,8 @@ macro (add_cdat_package package)
   endif()
 endmacro (add_cdat_package)
 
+find_package(MD5)
+find_package(Wget)
 find_package(CURL)
 find_package(LibXml2)
 #find_package(XGKS)
@@ -239,6 +234,22 @@ set(CDAT_DEPENDENCIES cmor Cairo)
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
+add_cdat_package(wget)
+
+#-----------------------------------------------------------------------------
+# checked_get
+#-----------------------------------------------------------------------------
+
+set(HASWGET ${WGET_EXECUTABLE})
+set(MD5PRG ${MD5_EXECUTABLE})
+set(MD5CNT 1)
+configure_file(${cdat_SOURCE_DIR}/checked_get.sh.in
+  ${cdat_BINARY_DIR}/checked_get.sh
+  @ONLY)
+
+#-----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
+
 add_cdat_package(pkgconfig)
 #add_cdat_package(termcap)
 #add_cdat_package(CURL)
