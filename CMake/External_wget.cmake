@@ -1,0 +1,23 @@
+
+set(wget_source "${CMAKE_CURRENT_BINARY_DIR}/build/wget")
+set(wget_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
+
+ExternalProject_Add(wget
+  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  SOURCE_DIR ${wget_source}
+  INSTALL_DIR ${wget_install}
+  URL ${WGET_URL}/${WGET_GZ}
+  URL_MD5 ${WGET_MD5}
+  BUILD_IN_SOURCE 1
+  PATCH_COMMAND ""
+  CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
+)
+
+if(WIN32)
+  set(WGET_EXECUTABLE ${wget_install}/bin/wget.exe
+else()
+  set(WGET_EXECUTABLE ${wget_install}/bin/wget 
+endif()
+
+set(wget_DIR "${wget_binary}" CACHE PATH "wget binary directory" FORCE)
+mark_as_advanced(wget_DIR)
