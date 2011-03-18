@@ -223,6 +223,7 @@ set(Cairo_DEPENDENCIES pkgconfig png fontconfig freetype pixman)
 set(HDF4_DEPENDENCIES zlib jpeg)
 set(HDF5_DEPENDENCIES zlib)
 set(cmor_DEPENDENCIES HDF5 netcdf zlib uuid udunits2)
+set(CDAT_DEPENDENCIES cmor Cairo)
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
@@ -269,4 +270,5 @@ add_cdat_package(PyQt)
 add_cdat_package(PyOpenGL)
 add_cdat_package(numpy)
 add_cdat_package(pmw)
+add_cdat_package(CDAT)
 
