@@ -508,12 +508,13 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         """
         return self.tileIndex
 
-    def toVisit(self, filename, mode='w', sphereRadius=1.0):
+    def toVisit(self, filename, mode='w', sphereRadius=1.0, maxElev=0.1):
         """
         Save data to file for postprocessing by the Visit visualization tool
         filename: name of the file where the data will be saved
         mode: currently either 'w' (new file) or 'a' (append to existing file)
         sphereRadius: radius of the earth
+        maxElev: maximum elevation for representation on the sphere
         
         Assumes time, elv, lat, lon ordering....!!!
         """
@@ -525,13 +526,13 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         except:
             raise CDMSError, "Must have pytables/numpy working to use toVisit"
 
-        grd = self.getGrid()
-        lons = grd.getLongitude()
-        lats = grd.getLatitude()
-        elvs = None
-        try:
-            elvs = grd.getLevel()
-        except: pass
+        lons = self.getLongitude()
+        lats = self.getLatitude()
+        elvs = self.getLevel()
+        if elvs != None:
+            # normalize
+            elvs -= elvs[0]
+            elvs /= (elvs[-1] - elvs[0])
 
         shp = lons.shape
         if len(shp) == len(lats.shape) == 1:
@@ -547,7 +548,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
                 lats = numpy.outer(lats1D, ones_lons)
             else:
                 # tensor product to create 3D arrays
-                elvs1D = elevs[:]
+                elvs1D = elvs[:]
                 nelvs = len(elvs1D)
                 ones_elvs = numpy.ones((nelvs,))
                 lons = numpy.outer(ones_elvs, 
@@ -560,15 +561,18 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
                                    numpy.outer(ones_lats,
                                                ones_lons)) 
         shp = lons.shape
-        
+        # the cartesian points
         cosLats = numpy.cos(lats*numpy.pi/180.)
-        xx = sphereRadius*numpy.cos(lons*numpy.pi/180.)*cosLats
-        yy = sphereRadius*numpy.sin(lons*numpy.pi/180.)*cosLats
-        zz = sphereRadius*numpy.sin(lats*numpy.pi/180.)
+        rr = sphereRadius
+        if elvs != None: 
+            rr = sphereRadius*(1.0 + elvs)
+        xx = rr*numpy.cos(lons*numpy.pi/180.)*cosLats
+        yy = rr*numpy.sin(lons*numpy.pi/180.)*cosLats
+        zz = rr*numpy.sin(lats*numpy.pi/180.)
 
         size = reduce(lambda x,y:x*y, shp)
         if len(shp) == 2:
-            # vizschema wants 3d
+            # vizschema wants 3d so add a fake dimension
             shp = (1,) + shp
 
         meshdata = numpy.zeros( (size, 3), numpy.float32 )
