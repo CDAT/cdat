@@ -205,12 +205,9 @@ set(Pmw_DEPENDENCIES python)
 set(pixman_DEPENDENCIES pkgconfig)
 set(freetype_DEPENDENCIES png)
 set(ghostscript_DEPENDENCIES zlib jpeg png fontconfig freetype pixman xslt libXML2)
+set(netcdf_DEPENDENCIES HDF5)
 
-if(WIN32)
-  set(python_DEPENDENCIES)
-else()
-  set(python_DEPENDENCIES)
-endif()
+set(python_DEPENDENCIES)
 
 set(CLAPACK_DEPENDENCIES)
 set(setuptools_DEPENDENCIES python)
@@ -225,6 +222,7 @@ set(cdat_DEPENDENCIES VTK Insight BatchMake OpenIGTLink teem cmcurl)
 set(Cairo_DEPENDENCIES pkgconfig png fontconfig freetype pixman)
 set(HDF4_DEPENDENCIES zlib jpeg)
 set(HDF5_DEPENDENCIES zlib)
+set(cmor_DEPENDENCIES HDF5 netcdf zlib uuid udunits2)
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
