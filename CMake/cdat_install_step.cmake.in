@@ -22,7 +22,7 @@ else()
 endif()
 
 execute_process(
-  COMMAND "@CMAKE_COMMAND@" --build install ${INSTALL_ARGS}
+  COMMAND make install ${INSTALL_ARGS}
   WORKING_DIRECTORY "${WORKING_DIR}"
   RESULT_VARIABLE res)
 
