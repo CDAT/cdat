@@ -1,5 +1,9 @@
 # The CLAPACK external project
 
+set(clapack_source "${CMAKE_CURRENT_BINARY_DIR}/build/LAPACK")
+set(clapack_binary "${CMAKE_CURRENT_BINARY_DIR}/External")
+set(NUMPY_LAPACK_binary ${clapack_binary})
+
 ExternalProject_Add(CLAPACK
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
   SOURCE_DIR ${clapack_source}
