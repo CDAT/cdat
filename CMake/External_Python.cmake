@@ -149,7 +149,7 @@ elseif(UNIX)
     DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
     SOURCE_DIR ${python_SOURCE_DIR}
     BUILD_IN_SOURCE ${python_BUILD_IN_SOURCE}
-    PATCH_COMMAND ${python_PATCH_COMMAND}
+    PATCH_COMMMAND ${CMAKE_COMMAND} -E copy_if_different ${cdat_SOURCE_DIR}/pysrc/src/setup.py ${python_SOURCE_DIR}/setup.py
     CONFIGURE_COMMAND ${python_CONFIGURE_COMMAND}
     BUILD_COMMAND ${python_BUILD_COMMAND}
     UPDATE_COMMAND ""
@@ -180,10 +180,10 @@ elseif(APPLE)
 #  set(PYTHON_EXECUTABLE ${CMAKE_BINARY_DIR}/python-build/bin/python)
   set(PYTHON_EXECUTABLE ${CMAKE_BINARY_DIR}/Externals/Python.framework/Versions/${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}/bin/python)
 else()
-  set(PYTHON_INCLUDE ${CMAKE_BINARY_DIR}/python-build/include/python${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC})
-  set(PYTHON_LIBRARY ${CMAKE_BINARY_DIR}/python-build/lib/libpython${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.so)
-  set(PYTHON_LIBRARY_DIR ${CMAKE_BINARY_DIR}/python-build/lib)
-  set(PYTHON_EXECUTABLE ${CMAKE_BINARY_DIR}/python-build/bin/python)
+  set(PYTHON_INCLUDE ${CMAKE_BINARY_DIR}/Externals/include/python${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC})
+  set(PYTHON_LIBRARY ${CMAKE_BINARY_DIR}/Externals/lib/libpython${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.so)
+  set(PYTHON_LIBRARY_DIR ${CMAKE_BINARY_DIR}/Externals/lib)
+  set(PYTHON_EXECUTABLE ${CMAKE_BINARY_DIR}/Externals/bin/python)
 endif()
 
 
