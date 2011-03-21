@@ -9487,7 +9487,7 @@ else
   HAS_NCCONFIG=no
 fi
 
-    if  test ${HAS_NCCONFIG} == "yes"  ; then
+    if  test ${HAS_NCCONFIG} == "yes"; then
       NCCFLAGS=`${with_netcdf}/bin/nc-config --cflags`
       NCLDFLAGS=`${with_netcdf}/bin/nc-config --libs`
     else
@@ -9650,6 +9650,8 @@ main ()
 {
 
       char version[50];
+        /* this will not compile unless netcdf4 was selected */
+        printf("NC_NETCDF4 is %d", NC_NETCDF4);
         int num;
 	strcpy(version,nc_inq_libvers());
 	num=atoi(&version[0]);

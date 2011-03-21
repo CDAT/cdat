@@ -1734,7 +1734,7 @@ dnl ###########################################################
 if test ${with_netcdf} != "yes" -a ${with_netcdf} != "no"; then
     LOCNCCONFIG=${with_netcdf}/bin/nc-config
     AC_CHECK_FILE([${with_netcdf}/bin/nc-config],[HAS_NCCONFIG=yes],[HAS_NCCONFIG=no])
-    if  test ${HAS_NCCONFIG} == "yes"  ; then 
+    if  test ${HAS_NCCONFIG} == "yes"; then
       NCCFLAGS=`${with_netcdf}/bin/nc-config --cflags`
       NCLDFLAGS=`${with_netcdf}/bin/nc-config --libs`
     else 
@@ -1783,6 +1783,8 @@ if test ${COMPILE_NC} == "no" ; then
     ],
     [[
       char version[50];
+        /* this will not compile unless netcdf4 was selected */
+        printf("NC_NETCDF4 is %d", NC_NETCDF4);
         int num;
 	strcpy(version,nc_inq_libvers());
 	num=atoi(&version[0]);
