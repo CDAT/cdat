@@ -1,7 +1,8 @@
 # The CLAPACK external project
 
 set(clapack_source "${CMAKE_CURRENT_BINARY_DIR}/build/LAPACK")
-set(clapack_binary "${CMAKE_CURRENT_BINARY_DIR}/External")
+set(clapack_binary "${CMAKE_CURRENT_BINARY_DIR}/build/LAPACK-build")
+set(clapack_binary "${CMAKE_CURRENT_BINARY_DIR}/build/LAPACK-install")
 set(NUMPY_LAPACK_binary ${clapack_binary})
 
 #
@@ -10,13 +11,14 @@ set(NUMPY_LAPACK_binary ${clapack_binary})
 # See http://www.cmake.org/pipermail/cmake/2007-May/014350.html
 #
 if(UNIX AND CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
-  set(cdat_tpl_c_flags_LAPACK "-fPIC ${pv_tpl_c_flags}")
+  set(cdat_tpl_c_flags_LAPACK "-fPIC ${cdat_tpl_c_flags}")
 endif()
 
 ExternalProject_Add(CLAPACK
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
-  SOURCE_DIR ${CLAPACK_source}
-  BINARY_DIR ${CLAPACK_binary}
+  SOURCE_DIR ${clapack_source}
+  BINARY_DIR ${clapack_binary}
+  INSTALL_DIR ${clapack_install}
   URL ${CLAPACK_URL}/${CLAPACK_GZ}
   URL_MD5 ${CLAPACK_MD5}
   CMAKE_CACHE_ARGS
