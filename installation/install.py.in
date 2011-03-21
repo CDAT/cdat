@@ -64,9 +64,9 @@ def configure (configuration_files):
     action = options['action']
     # Establish libraries and directories for CDUNIF/CDMS
     netcdf_include_directory = norm(options.get('netcdf_include_directory', 
-                                   os.path.join(os.environ['EXTERNALS'],'NetCDF','include')))
+                                   os.path.join('@NC4LOC@', 'include')))
     netcdf_library_directory = norm(options.get('netcdf_library_directory', 
-                                           os.path.join(os.environ['EXTERNALS'],'NetCDF','lib')))
+                                           os.path.join('@NC4LOC@','lib')))
     hdf5_library_directory = norm(os.path.join(os.environ.get('HDF5LOC',os.path.join(os.environ["EXTERNALS"],"HDF5")), 'lib'))
     cdunif_library_directories = [cdms_library_directory]
     options['CDMS_INCLUDE_DAP']="yes"

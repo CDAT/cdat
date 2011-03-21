@@ -1979,9 +1979,6 @@ else
   PyQt_GZ=PyQt-${PyQt_PLATFORM}-gpl-${PyQt_MAJOR_SRC}.${PyQt_MINOR_SRC}.${PyQt_PATCH_SRC}.tar.gz
 fi
 
-
-AC_OUTPUT
-
 AC_MSG_NOTICE([])
 AC_MSG_NOTICE([************************************************************************])
 AC_MSG_NOTICE([                              SUMMARY])
@@ -2194,3 +2191,7 @@ AC_MSG_NOTICE([Now type "make" to install CDAT-${CDAT_VERSION} to: ${prefix} and
 dnl R check
 dnl ioapi
 dnl debug
+
+# do this after NC4LOC has been set
+AC_CONFIG_FILES([installation/install.py])
+AC_OUTPUT
