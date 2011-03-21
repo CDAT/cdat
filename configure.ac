@@ -2118,6 +2118,9 @@ else
 fi
 if test ${COMPILE_NC} == "yes" ; then
     AC_MSG_NOTICE([libnetcdf >=4 not found... building library ${NC4_MAJOR_SRC}.${NC4_MINOR_SRC}.${NC4_PATCH_SRC}])
+    # resetting because provided netcdf was not good enough
+    # (perhaps compiled without --enable-netcdf4)
+    NC4LOC="${EXTERNALS}/NetCDF"
 else
     AC_MSG_NOTICE([libnetcdf >=4 found at ${NC4LOC}])
 fi
