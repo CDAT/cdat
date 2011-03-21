@@ -26,7 +26,7 @@ FIND_PROGRAM(MD5_EXECUTABLE
 
 # handle the QUIETLY and REQUIRED arguments and set MD5_FOUND to TRUE if 
 # all listed variables are TRUE
-INCLUDE(${CMAKE_CURRENT_LIST_DIR}/FindPackageHandleStandardArgs.cmake)
+INCLUDE(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(MD5 DEFAULT_MSG MD5_EXECUTABLE)
 
 MARK_AS_ADVANCED( MD5_EXECUTABLE )
