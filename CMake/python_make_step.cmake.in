@@ -19,6 +19,7 @@ if(UNIX)
     set(ENV{FFLAGS}="")
     set(ENV{FLIBS}="")
     set(ENV{LD_X11}="") # for xgks
+    set(ENV{EXTERNALS}=@cdat_BINARY_DIR@/Externals)
     if(APPLE)
       set(ENV{CFLAGS} "-arch x86_64 -mmacosx-version-min=10.6 -isysroot /Developer/SDKs/MacOSX10.6.sdk")
     endif(APPLE)
