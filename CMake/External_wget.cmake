@@ -14,9 +14,9 @@ ExternalProject_Add(wget
 )
 
 if(WIN32)
-  set(WGET_EXECUTABLE ${wget_install}/bin/wget.exe
+  set(WGET_EXECUTABLE ${wget_install}/bin/wget.exe)
 else()
-  set(WGET_EXECUTABLE ${wget_install}/bin/wget 
+  set(WGET_EXECUTABLE ${wget_install}/bin/wget)
 endif()
 
 set(wget_DIR "${wget_binary}" CACHE PATH "wget binary directory" FORCE)
