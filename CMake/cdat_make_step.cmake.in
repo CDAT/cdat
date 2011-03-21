@@ -28,9 +28,7 @@ endif()
 execute_process(
   COMMAND make
   WORKING_DIRECTORY "${WORKING_DIR}"
-  RESULT_VARIABLE res
-  OUTPUT_VARIABLE CDAT_OUT
-  OUTPUT_VARIABLE CDAT_ERR)
+  RESULT_VARIABLE res)
 
 if(NOT ${res} EQUAL 0)
   message("Make Errors detected: \n${CDAT_OUT}\n${CDAT_ERR}")
