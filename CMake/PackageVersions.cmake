@@ -263,7 +263,7 @@ set(BLAS_MD5 d922a88782b64441d06547632fd85744)
 
 set(LAPACK_URL http://www.netlib.org/lapack)
 set(LAPACK_GZ lapack.tgz)
-set(LAPACK_MD5 d922a88782b64441d06547632fd85744)
+set(LAPACK_MD5 84213fca70936cc5f1b59a7b1bf71697)
 
 set(LAPACK95_URL http://www.netlib.org/lapack95)
 set(LAPACK95_GZ lapack95.tgz)
@@ -323,7 +323,7 @@ set(PYQT_URL http://www.riverbankcomputing.com/static/Downloads/PyQt${PYQT_MAJOR
 set(PYQT_GZ_APPLE PyQt-mac-gpl-${PYQT_VERSION}.tar.gz)
 set(PYQT_GZ_UNIX PyQt-x11-gpl-${PYQT_VERSION}.tar.gz)
 set(PYQT_MD5_APPLE 14bade8b251660177ccc1a0cbbe33aba)
-set(PYQT_MD5_UNIX d922a88782b64441d06547632fd85744)
+set(PYQT_MD5_UNIX d54fd1c37a74864faf42709c8102f254)
 
 set(R_MAJOR_SRC 2)
 set(R_MINOR_SRC 11)
