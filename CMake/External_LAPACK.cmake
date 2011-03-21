@@ -1,4 +1,4 @@
-# The LAPACK external project for Titan
+# The LAPACK external project
 
 set(lapack_source "${CMAKE_CURRENT_BINARY_DIR}/build/LAPACK")
 set(lapack_binary "${CMAKE_CURRENT_BINARY_DIR}/External")
@@ -18,4 +18,3 @@ ExternalProject_Add(LAPACK
     ${LAPACK_EXTRA_ARGS}
   INSTALL_COMMAND ""
   )
-list(APPEND trilinos_depends LAPACK)
