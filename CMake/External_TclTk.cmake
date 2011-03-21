@@ -43,15 +43,3 @@ ExternalProject_Add(${proj}
   DEPENDS tk-${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC}
 )
 
-# other projects need to know where tcltk gets installed:
-#
-#set(CSE_TCLTK_HOME ${prefix} PARENT_SCOPE)
-#set(CSE_TCLTK_PACKAGE "${name}-${version}" PARENT_SCOPE)
-#set(CSE_TCLTK_NAME "${name}" PARENT_SCOPE)
-#set(CSE_TCLTK_VERSIONXX "${version_major}.${version_minor}" PARENT_SCOPE)
-
-#set(extras
-#  "setenv TCLTK_INCLUDE_DIR  $prefix/include"
-#  "setenv TCLTK_LIB_DIR $prefix/lib"
-#  "setenv TCL_LIBRARY $prefix/lib/tcl8.4"
-#)
