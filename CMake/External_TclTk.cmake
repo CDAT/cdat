@@ -3,6 +3,8 @@ set(tcl_source "${CMAKE_CURRENT_BINARY_DIR}/build/tcl")
 set(tk_source "${CMAKE_CURRENT_BINARY_DIR}/build/tk")
 set(tcltk_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
 
+set(tcltk_configure_args --enable-shared)
+
 # tcl
 #
 set(proj tcl-${TCLTK_MAJOR}.${TCLTK_MINOR})
@@ -14,8 +16,7 @@ ExternalProject_Add(${proj}
   URL ${TCLTK_URL}/${TCL_GZ}
   URL_MD5 ${TCL_MD5}
   BUILD_IN_SOURCE 1
-  #CONFIGURE_COMMAND <SOURCE_DIR>/unix/configure --prefix=<INSTALL_DIR>
-  CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR>/unix -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
+  CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR>/unix -DCONFIGURE_ARGS=${tcltk_configure_args} -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
   BUILD_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR>/unix -P ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake
   INSTALL_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR>/unix -P ${cdat_CMAKE_BINARY_DIR}/cdat_install_step.cmake
 )
@@ -31,9 +32,9 @@ ExternalProject_Add(${proj}
   URL ${TCLTK_URL}/${TK_GZ}
   URL_MD5 ${TK_MD5}
   BUILD_IN_SOURCE 1
-  #CONFIGURE_COMMAND <SOURCE_DIR>/unix/configure --prefix=<INSTALL_DIR>  --with-tcl=<INSTALL_DIR>/lib
   CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR>/unix -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
   BUILD_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR>/unix -P ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake
+  INSTALL_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR>/unix -P ${cdat_CMAKE_BINARY_DIR}/cdat_install_step.cmake
   DEPENDS tcl-${TCLTK_MAJOR}.${TCLTK_MINOR}
 )
 
