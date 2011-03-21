@@ -5,22 +5,24 @@ set(tcltk_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
 
 # tcl
 #
-set(proj tcl-${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC})
+set(proj tcl-${TCLTK_MAJOR}.${TCLTK_MINOR})
 
 ExternalProject_Add(${proj}
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
-  SOURCE_DIR ${tk_source}
+  SOURCE_DIR ${tcl_source}
   INSTALL_DIR ${tcltk_install}
   URL ${TCLTK_URL}/${TCL_GZ}
   URL_MD5 ${TCL_MD5}
   BUILD_IN_SOURCE 1
-  CONFIGURE_COMMAND <SOURCE_DIR>/unix/configure --prefix=<INSTALL_DIR>
-  BUILD_COMMAND make
+  #CONFIGURE_COMMAND <SOURCE_DIR>/unix/configure --prefix=<INSTALL_DIR>
+  CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR>/unix -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
+  BUILD_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR>/unix -P ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake
+  INSTALL_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR>/unix -P ${cdat_CMAKE_BINARY_DIR}/cdat_install_step.cmake
 )
 
 # tk
 #
-set(proj tk-${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC})
+set(proj tk-${TCLTK_MAJOR}.${TCLTK_MINOR})
 
 ExternalProject_Add(${proj}
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
@@ -29,15 +31,16 @@ ExternalProject_Add(${proj}
   URL ${TCLTK_URL}/${TK_GZ}
   URL_MD5 ${TK_MD5}
   BUILD_IN_SOURCE 1
-  CONFIGURE_COMMAND <SOURCE_DIR>/unix/configure --prefix=<INSTALL_DIR>  --with-tcl=<INSTALL_DIR>/lib
-  BUILD_COMMAND make
-  DEPENDS tcl-${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC}
+  #CONFIGURE_COMMAND <SOURCE_DIR>/unix/configure --prefix=<INSTALL_DIR>  --with-tcl=<INSTALL_DIR>/lib
+  CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR>/unix -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
+  BUILD_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR>/unix -P ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake
+  DEPENDS tcl-${TCLTK_MAJOR}.${TCLTK_MINOR}
 )
 
 ExternalProject_Add_Step(${proj} symlink
-  COMMAND ${CMAKE_COMMAND} -E create_symlink "wish${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC}" wish
+  COMMAND ${CMAKE_COMMAND} -E create_symlink "wish${TCLTK_MAJOR}.${TCLTK_MINOR}" wish
   WORKING_DIRECTORY ${tcltk_install}/bin
-  COMMENT "Linking wish${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC} to wish"
+  COMMENT "Linking wish${TCLTK_MAJOR}.${TCLTK_MINOR} to wish"
   DEPENDEES install
 )
 
@@ -50,6 +53,6 @@ ExternalProject_Add(${proj}
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
   INSTALL_COMMAND ""
-  DEPENDS tk-${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC}
+  DEPENDS tk-${TCLTK_MAJOR}.${TCLTK_MINOR}
 )
 
