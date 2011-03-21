@@ -24,6 +24,8 @@ if(UNIX)
 
   if(APPLE)
     set(library_param --enable-framework=@CMAKE_CURRENT_BINARY_DIR@/Externals)
+  elseif(UNIX)
+    set(library_param --enable-shared)
   endif()
 
   EXECUTE_PROCESS( 
