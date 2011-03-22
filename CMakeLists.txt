@@ -97,15 +97,16 @@ else()
 endif()
 
 if(APPLE)
-  list(APPEND cdat_compiler_args ${pv_apple_compiler_args})
-endif()
+  set(cdat_apple_compiler_args
+    -DCMAKE_OSX_ARCHITECTURES:STRING=${CMAKE_OSX_ARCHITECTURES}
+    -DCMAKE_OSX_DEPLOYMENT_TARGET:STRING=${CMAKE_OSX_DEPLOYMENT_TARGET}
+    -DCMAKE_OSX_SYSROOT:PATH=${CMAKE_OSX_SYSROOT})
 
-# We aren't interested in seeing third party compiler warnings.
-set(pv_tpl_compiler_args ${pv_compiler_args})
-string(REPLACE "/W3" "/W0" pv_tpl_cxx_flags "${pv_tpl_cxx_flags}")
-string(REPLACE "/W4" "/W0" pv_tpl_cxx_flags "${pv_tpl_cxx_flags}")
-string(REPLACE "/W3" "/W0" pv_tpl_c_flags "${pv_tpl_c_flags}")
-string(REPLACE "/W4" "/W0" pv_tpl_c_flags "${pv_tpl_c_flags}")
+  list(APPEND cdat_compiler_args ${cdat_apple_compiler_args})
+  set(cdat_osx_arch_flag "-arch ${CMAKE_OSX_ARCHITECTURES}")
+  set(cdat_osx_version_flag "-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
+  set(cdat_osx_sysroot "-isysroot ${CMAKE_OSX_SYSROOT}")
+endif()
 
 if(WIN32)
   set(LIBRARY_PATH PATH)
@@ -206,7 +207,12 @@ set(png_DEPENDENCIES zlib)
 set(tcl_DEPENDENCIES pkgconfig)
 set(python_DEPENDENCIES TclTk)
 set(sip_DEPENDENCIES python)
-set(PyQt_DEPENDENCIES Qt sip)
+set(PyQt_DEPENDENCIES sip)
+
+if(NOT QT_FOUND)
+  list(APPEND PyQt_DEPENDENCIES Qt)
+endif()
+
 set(PyOpenGL_DEPENDENCIES python)
 set(Pmw_DEPENDENCIES python)
 set(pixman_DEPENDENCIES pkgconfig)
