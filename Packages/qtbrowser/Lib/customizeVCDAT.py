@@ -57,3 +57,6 @@ constantsButtonStyles = {"background-color":"qradialgradient(cx:0.3, cy:-0.4, ra
 ## constantsButtonStyles = { }
 
 plotTypes = vcdatCommons.plotTypes
+
+#this is a dictionary {plotname: plot object}
+extraPlotTypes = {}
