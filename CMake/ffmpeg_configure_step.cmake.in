@@ -1,7 +1,7 @@
 
 if(APPLE)
-  set(ENV{MACOSX_DEPLOYMENT_TARGET} "10.5")
-  set(ENV{CFLAGS} "-arch x86_64 -mmacosx-version-min=10.5 -isysroot /Developer/SDKs/MacOSX10.5.sdk")
+  set(ENV{MACOSX_DEPLOYMENT_TARGET} "@CMAKE_OSX_DEPLOYMENT_TARGET@")
+  set(ENV{CFLAGS} "@cdat_osx_arch_flag@ @cdat_osx_version_flag@ @cdat_osx_sysroot@")
 endif()
 
   EXECUTE_PROCESS(
