@@ -12,6 +12,7 @@ import vcdatCommons
 import os
 import cdms2 # need to remove this!
 import __main__
+import customizeVCDAT
 
 
 class QCDATWindow(QtGui.QMainWindow):
@@ -144,6 +145,14 @@ class QCDATWindow(QtGui.QMainWindow):
                         self.tabView.widget(0).defineVariableEvent)
         fw = self.tabView.widget(0).fileWidget.widget
         fw.connect(fw.plotButton,QtCore.SIGNAL('clicked(bool)'),self.tabView.widget(1).plot)
+
+        ###########################################################
+        ## Connect Signals between QFileWidget & QPlotView
+        ###########################################################
+        self.connect(self.tabView.widget(0).fileWidget.widget,
+                     QtCore.SIGNAL('fileChanged'),
+                     self.tabView.widget(1).fileChanged)
+                 
     def closeEvent(self, event):
         # TODO
         # closeEvent() isn't called vistrails is closed,
@@ -206,3 +215,7 @@ class QCDATWindow(QtGui.QMainWindow):
             elif isinstance(v,dict):
                 self.processList(dict.values(),added)
         return
+
+    def registerPlotType(self, plot_name, plot_object):
+        customizeVCDAT.extraPlotTypes[plot_name] = plot_object
+        self.tabView.widget(1).plotOptions.plotTypeCombo.addItem(plot_name)
