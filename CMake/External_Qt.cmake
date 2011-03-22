@@ -19,10 +19,12 @@ if(WIN32)
 else()
   set(qt_install_dir "${CMAKE_CURRENT_BINARY_DIR}/Qt-install")
   set(qt_configure echo yes | sh ./configure -release
-    -nomake examples -nomake demos --prefix=${qt_install_dir} -opensource)
+    -nomake examples -nomake demos -no-audio-backend -no-multimedia 
+    -phonon --prefix=${qt_install_dir} -opensource)
   if ("-m32" STREQUAL "${CMAKE_CXX_FLAGS}")
     set(qt_configure echo yes | sh ./configure -release
-      -nomake examples -nomake demos --prefix=${qt_install_dir} -opensource
+      -nomake examples -nomake demos -no-audio-backend -no-multimedia 
+      -phonon --prefix=${qt_install_dir} -opensource
       -platform linux-g++-32)
   endif ()
   set(qt_build ${MAKE})
