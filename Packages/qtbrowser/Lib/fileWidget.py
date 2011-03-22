@@ -8,8 +8,13 @@ class QCDATFileWidget(QtGui.QWidget):
     selection button.  It also has a combo box to choose variables once a file
     is specified. """
 
-    FILTER = "CDAT data (*.cdms *.ctl *.dic *.hdf *.nc *.xml)"
+    FILTER = "CDAT data (*.cdms *.ctl *.dic *.hdf *.nc *.xml)\
+;;VTK data (*.vtk)"
 
+    class CDATFileType:
+        CDAT=1
+        VTK=2
+        
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
 
@@ -111,14 +116,13 @@ class QCDATFileWidget(QtGui.QWidget):
         self.connect(self.fileDialog, QtCore.SIGNAL('filesSelected(const QStringList&)'),
                      self.filesSelected)
         self.connect(self.fileNameEdit, QtCore.SIGNAL('returnPressed()'),
-                     self.updateCDMSFile)
+                     self.updateFile)
         self.connect(self.fileSelectButton, QtCore.SIGNAL('clicked(bool)'),
                      self.openSelectFileDialog)
         self.connect(self.varCombo, QtCore.SIGNAL('currentIndexChanged(const QString&)'),
                      self.variableSelected)
         self.connect(self.defineVarButton, QtCore.SIGNAL('clicked(bool)'),
                      self.defineVariablePressed)
-
 
     def updateSizeConstraints(self):
         isDialogVisible = self.fileDialog.isVisible()
@@ -142,8 +146,40 @@ class QCDATFileWidget(QtGui.QWidget):
 
     def setFileName(self, fn):
         self.fileNameEdit.setText(fn)
-        self.updateCDMSFile()
+        self.updateFile()
 
+    def updateFile(self):
+        fn = self.fileNameEdit.text()
+        fi = QtCore.QFileInfo(fn)
+        ft = self.getFileType(fi.suffix())
+        # I imagine that there will be filetypes that both ParaView and
+        # CDAT will know how to deal with them.
+        if ft  == self.CDATFileType.VTK:
+            self.updateVTKFile()
+        if ft == self.CDATFileType.CDAT:
+            self.updateCDMSFile()
+
+    def getFileType(self, suffix):
+        # I'm keeping it simple for now. If file extension is vtk
+        # will return VTK type otherwise, it's a CDAT file.
+        # When the integration with ParaView is done, then this should be
+        # expanded
+        print suffix
+        if str(suffix) in ['vtk']:
+            return self.CDATFileType.VTK
+        else:
+            return self.CDATFileType.CDAT
+
+    def updateVTKFile(self):
+        fn = str(self.fileNameEdit.text())
+        fi = QtCore.QFileInfo(fn)
+        self.cdmsFile = None
+        if fi.exists():
+            self.fileDialog.setDirectory(fi.dir())
+            self.updateVTKPlot(str(fn))
+        else:
+            self.updateVTKPlot(None)
+        
     def updateCDMSFile(self):
         fn = str(self.fileNameEdit.text())
         fi = QtCore.QFileInfo(fn)
@@ -194,6 +230,11 @@ class QCDATFileWidget(QtGui.QWidget):
             # By default, not selecting anything
             self.varCombo.setCurrentIndex(-1)
 
+    def updateVTKPlot(self, filename):
+        self.varCombo.clear()
+        self.emit(QtCore.SIGNAL('fileChanged'), filename)
+        print "emitted signal"
+        
     def openSelectFileDialog(self):
         file = QtGui.QFileDialog.getOpenFileName(self, 'Open CDAT data file...',
                                                  self.fileDialog.directory().absolutePath(),
