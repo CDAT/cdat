@@ -91,8 +91,8 @@ LAPACK_GZ=lapack.tgz
 
 (../../../checked_get.sh ${LAPACK_GZ} ${LAPACK_URL}/${LAPACK_GZ} ; \
 tar xzf ../sources/${LAPACK_GZ};\
-export LAPACK_SRC='../lapack-3.2.2/SRC' ; \
-export BLAS_SRC='../lapack-3.2.2/BLAS/SRC' ; \
+export LAPACK_SRC='../lapack-3.3.0/SRC' ; \
+export BLAS_SRC='../lapack-3.3.0/BLAS/SRC' ; \
 cd scipy-*; \
 #cp ../../../../site.cfg . ; \
 ${pyprefix}/bin/python setup.py build ${D} install --prefix=${prefix} ;\
