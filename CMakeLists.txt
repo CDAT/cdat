@@ -144,7 +144,6 @@ set(cdat_install_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/cdat_insta
 include(PackageVersions)
 
 macro (add_cdat_package package)
-  message("Adding package: ${package}")
   string(TOUPPER ${package} UC_PACKAGE)
   string(TOLOWER ${package} LC_PACKAGE)
   if(NOT DEFINED CDAT_USE_SYSTEM_${UC_PACKAGE})
@@ -155,19 +154,8 @@ macro (add_cdat_package package)
     endif()
   endif()
 
-  #if(NOT ${UC_PACKAGE}_FOUND) 
-  #  if(NOT CDAT_USE_SYSTEM_${UC_PACKAGE})
-  #    message(STATUS "${package} not found.\n  ->Building ${UC_PACKAGE} ${${UC_PACKAGE}_MAJOR_SRC}.${${UC_PACKAGE}_MINOR_SRC}.${${UC_PACKAGE}_PATCH_SRC} from source.")
-  #    #set(CDAT_USE_SYSTEM_${UC_PACKAGE} OFF CACHE BOOL "Use system installed ${LC_PACKAGE}" FORCE)
-  #    include(External_${package})
-  #  endif()
-  #else()
-  #  if(NOT CDAT_USE_SYSTEM_${UC_PACKAGE})
-  #    include(External_${package})
-  #  endif()
-  #endif()
   if(NOT ${UC_PACKAGE}_FOUND)
-    include(External_${package})
+    list(APPEND external_packages External_${package})
     set(${package}_dep ${package})
   else()
     unset(${package}_dep)
@@ -175,6 +163,8 @@ macro (add_cdat_package package)
 endmacro (add_cdat_package)
 
 find_package(PkgConfig)
+set(PKGCONFIG_FOUND ${PKG_CONFIG_FOUND})
+
 find_package(MD5)
 find_package(Wget)
 find_package(CURL)
@@ -210,50 +200,6 @@ find_package(PythonLibs)
 #find_package(NUMPY)
 # python mega widgets
 #find_package(PMW)
-
-#------------------------------------------------------------------------------
-# Establish Target Dependencies based on Selected Options and find results
-#------------------------------------------------------------------------------
-
-set(zlib_DEPENDENCIES ${pkgconfig_dep})
-set(png_DEPENDENCIES ${zlib_dep})
-set(tcl_DEPENDENCIES ${pkgconfig_dep})
-set(python_DEPENDENCIES ${TclTk_dep})
-set(sip_DEPENDENCIES ${python_dep})
-set(PyQt_DEPENDENCIES ${sip_dep})
-
-if(NOT QT_FOUND)
-  list(APPEND PyQt_DEPENDENCIES ${Qt_dep})
-endif()
-
-set(PyOpenGL_DEPENDENCIES ${python_dep})
-set(Pmw_DEPENDENCIES ${python_dep})
-set(pixman_DEPENDENCIES ${pkgconfig_dep})
-set(fontconfig_DEPENDENCIES ${libXML2_dep})
-set(freetype_DEPENDENCIES ${png_dep})
-set(ghostscript_DEPENDENCIES ${zlib_dep} ${jpeg_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep} ${xslt_dep} ${libXML2_dep})
-set(netcdf_DEPENDENCIES ${HDF5_dep})
-
-set(python_DEPENDENCIES ${tcltk_dep})
-
-set(CLAPACK_DEPENDENCIES)
-set(setuptools_DEPENDENCIES ${python_dep})
-set(NUMPY_DEPENDENCIES ${python_dep})
-if(NOT APPLE)
-  if(CMAKE_Fortran_COMPILER)
-    set(NUMPY_DEPENDENCIES ${LAPACK_dep})
-  else()
-    set(NUMPY_DEPENDENCIES ${CLAPACK_dep})
-  endif()
-endif()
-
-set(VTK_DEPENDENCIES ${zlib_deb} ${png_dep} ${jpeg_dep} ${xml_dep})
-set(cmcurl_DEPENDENCIES)
-set(Cairo_DEPENDENCIES ${pkgconfig_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep})
-set(HDF4_DEPENDENCIES ${zlib_dep} ${jpeg_dep})
-set(HDF5_DEPENDENCIES ${zlib_dep})
-set(cmor_DEPENDENCIES ${HDF5_dep} ${netcdf_dep} ${zlib_dep} ${uuid_dep} ${udunits2_dep})
-set(CDAT_DEPENDENCIES ${cmor_dep} ${Cairo_dep} ${PyQt_dep} ${PyOpenGL_dep} ${Pmw_dep})
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
@@ -321,4 +267,63 @@ add_cdat_package(PyOpenGL)
 add_cdat_package(NUMPY)
 add_cdat_package(Pmw)
 add_cdat_package(CDAT)
+
+#------------------------------------------------------------------------------
+# Establish Target Dependencies based on Selected Options and find results
+#------------------------------------------------------------------------------
+
+set(zlib_DEPENDENCIES ${pkgconfig_dep})
+set(png_DEPENDENCIES ${zlib_dep})
+set(tcl_DEPENDENCIES ${pkgconfig_dep})
+set(python_DEPENDENCIES ${TclTk_dep})
+set(SIP_DEPENDENCIES ${Python_dep})
+set(PyQt_DEPENDENCIES ${SIP_dep})
+
+if(NOT QT_FOUND)
+  list(APPEND PyQt_DEPENDENCIES ${Qt_dep})
+endif()
+
+set(PyOpenGL_DEPENDENCIES ${Python_dep})
+set(Pmw_DEPENDENCIES ${Python_dep})
+set(pixman_DEPENDENCIES ${pkgconfig_dep})
+set(fontconfig_DEPENDENCIES ${libXML2_dep})
+set(freetype_DEPENDENCIES ${png_dep})
+set(ghostscript_DEPENDENCIES ${zlib_dep} ${jpeg_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep} ${xslt_dep} ${libXML2_dep})
+set(NetCDF_DEPENDENCIES ${HDF5_dep})
+
+set(TclTk_DEPENDENCIES ${pkgconfig_dep})
+set(Python_DEPENDENCIES ${TclTk_dep})
+
+set(setuptools_DEPENDENCIES ${Python_dep})
+set(NUMPY_DEPENDENCIES ${Python_dep})
+if(NOT APPLE)
+  if(CMAKE_Fortran_COMPILER)
+    set(LAPACK_DEPENDENCIES ${pkgconfig_dep})
+    set(NUMPY_DEPENDENCIES ${LAPACK_dep})
+  else()
+    set(CLAPACK_DEPENDENCIES ${pkgconfig_dep})
+    set(NUMPY_DEPENDENCIES ${CLAPACK_dep})
+  endif()
+endif()
+
+set(VTK_DEPENDENCIES ${zlib_deb} ${png_dep} ${jpeg_dep} ${xml_dep})
+set(cmcurl_DEPENDENCIES)
+set(Cairo_DEPENDENCIES ${pkgconfig_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep})
+set(HDF4_DEPENDENCIES ${zlib_dep} ${jpeg_dep})
+set(HDF5_DEPENDENCIES ${zlib_dep})
+set(cmor_DEPENDENCIES ${HDF5_dep} ${NetCDF_dep} ${zlib_dep} ${uuid_dep} ${udunits2_dep})
+set(CDAT_DEPENDENCIES ${CMOR_dep} ${Cairo_dep} ${PyQt_dep} ${PyOpenGL_dep} ${Pmw_dep})
+
+message("Pmw_DEPENDENCIES ${Pmw_DEPENDENCIES}")
+message("ghostscript_DEPENDENCIES ${ghostscript_DEPENDENCIES}")
+message("VTK_DEPENDENCIES ${VTK_DEPENDENCIES}")
+message("Cairo_DEPENDENCIES ${Cairo_DEPENDENCIES}")
+message("cmor_DEPENDENCIES ${cmor_DEPENDENCIES}")
+message("CDAT_DEPENDENCIES ${CDAT_DEPENDENCIES}")
+
+
+foreach(package ${external_packages})
+  message("Building ${package}")
+  include(${package})
+endforeach()
 
