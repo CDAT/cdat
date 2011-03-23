@@ -16,6 +16,3 @@ ExternalProject_Add(xgks
   PATCH_COMMAND ""
   CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/xgks_configure_step.cmake
 )
-
-set(xgks_DIR "${xgks_binary}" CACHE PATH "xgks binary directory" FORCE)
-mark_as_advanced(xgks_DIR)

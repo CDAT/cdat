@@ -28,6 +28,3 @@ ExternalProject_Add_Step(pbmplus CopyPbmplusHeader
 
 #pbmplus install fails if this directory doesnt already exist.
 file(MAKE_DIRECTORY ${pbmplus_install}/man/mann)
-
-set(pbmplus_DIR "${pbmplus_binary}" CACHE PATH "pbmplus binary directory" FORCE)
-mark_as_advanced(pbmplus_DIR)

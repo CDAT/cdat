@@ -16,6 +16,3 @@ ExternalProject_Add(ghostscript
   BUILD_COMMAND ${CMAKE_COMMAND} -DBUILD_ARGS=${ghostscript_source} -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake
   DEPENDS ${ghostscript_DEPENDENCIES}
 )
-
-set(ghostscript_DIR "${ghostscript_binary}" CACHE PATH "ghostscript binary directory" FORCE)
-mark_as_advanced(ghostscript_DIR)
