@@ -32,9 +32,9 @@ class AutoAPI:
     ## Template for Diagnostic classes to be used for diagnostics
     ## Reusable, implemeted for automod
     def __init__(self,**kw):
-        self.info=Info(self)
-        self.input=Input()
-        self.results=Results()
+        self.autoApiInfo=Info(self)
+        self.autoApiInput=Input()
+        self.autoApiResults=Results()
         for k in kw.keys():
             setattr(self,k,kw[k])
 
@@ -64,7 +64,7 @@ class AutoAPI:
                         break
                 except Exception,err:
                     continue
-            if self.info.name==nm:
+            if self.autoApiInfo.name==nm:
                 break
         info=D.getElementsByTagName("info")
         if info==[]:
@@ -72,11 +72,11 @@ class AutoAPI:
         for i in info:
             for c in i.childNodes:
                 if c.localName is not None:
-                    setattr(self.info,c.localName,self._processXmlValue(c))
+                    setattr(self.autoApiInfo,c.localName,self._processXmlValue(c))
         optdict={}
-        if hasattr(self,'info'):
-            if hasattr(self.info,'doc'):
-                optdict=self.scanDocString(self.info.doc,"options")
+        if hasattr(self,'autoApiInfo'):
+            if hasattr(self.autoApiInfo,'doc'):
+                optdict=self.scanDocString(self.autoApiInfo.doc,"options")
         ## Parse the Diagnostic Options
         options=D.getElementsByTagName("option")
         for o in options:
@@ -107,17 +107,17 @@ class AutoAPI:
             
 
             ## Ok now replace the options part
-            start=self.info.doc.lower().find('options:::')
+            start=self.autoApiInfo.doc.lower().find('options:::')
             if start!=-1:
-                beg=self.info.doc[:start]
-                doc=self.info.doc[start+11:]
+                beg=self.autoApiInfo.doc[:start]
+                doc=self.autoApiInfo.doc[start+11:]
                 end=doc.find(':::')
                 if end!=-1:
                     end=doc[end+3:]
                 else:
                     end=''
             else:
-                beg=self.info.doc
+                beg=self.autoApiInfo.doc
                 end=''
             doc='\nOptions:::\n'
             for k in optdict.keys():
@@ -127,7 +127,7 @@ class AutoAPI:
                 for l in lns:
                     docst+='\t\t'+l.strip()
                 doc+='\t%s:: (%s)\n%s\n' % (k,o[0],docst)
-            self.info.doc=beg+doc+end
+            self.autoApiInfo.doc=beg+doc+end
 
     def _getSections(self,doc):
         """ Try to figure out sections in a doc string so we can create the tags"""
@@ -218,17 +218,17 @@ class AutoAPI:
         outdict={}
         explist=[]
         hidelist=[]
-        if hasattr(obj,'info'):
-            if hasattr(obj.info,'doc'):
-                optdict=self.scanDocString(obj.info.doc,"options")
-                outdict=self.scanDocString(obj.info.doc,"output")
-            if hasattr(obj.info,'expose'):
-                explist=obj.info.expose
-            if hasattr(obj.info,'hide'):
-                hidelist=obj.info.hide
-            for attr in dir(obj.info):
+        if hasattr(obj,'autoApiInfo'):
+            if hasattr(obj.autoApiInfo,'doc'):
+                optdict=self.scanDocString(obj.autoApiInfo.doc,"options")
+                outdict=self.scanDocString(obj.autoApiInfo.doc,"output")
+            if hasattr(obj.autoApiInfo,'expose'):
+                explist=obj.autoApiInfo.expose
+            if hasattr(obj.autoApiInfo,'hide'):
+                hidelist=obj.autoApiInfo.hide
+            for attr in dir(obj.autoApiInfo):
                 if attr[0]!='_' and attr not in ['expose','doc','hide']:
-                    element.setAttribute(attr,str(getattr(obj.info,attr)))
+                    element.setAttribute(attr,str(getattr(obj.autoApiInfo,attr)))
         try:
             docst=obj.__call__.__doc__
 ##             print 'found:',docst
@@ -461,16 +461,16 @@ if __name__=='__main__':
         Parse the command line arguments, sets the option and execute default function
         pass --help option to see available options
         Simply add the following lines at the end of the script:
-        and run the script with --help option to see availaible option (with doc if classe is correctly documented. The result from parsing is stored in self.input.[keyword] if not default, the parser is stored in self.info.input._parser in case you need it again
+        and run the script with --help option to see availaible option (with doc if classe is correctly documented. The result from parsing is stored in self.autoApiInput.[keyword] if not default, the parser is stored in self.autoApiInfo.autoApiInput._parser in case you need it again
 if __name__=='__main__':
     D=Diagnosis() # Or whatever your inherited class name is
     D.go()       
         """
-        self.input._parser=self._makeOptParser()
-        opts,args = self.input._parser.parse_args()
+        self.autoApiInput._parser=self._makeOptParser()
+        opts,args = self.autoApiInput._parser.parse_args()
 ##         print opts.tonetcdf
 ##         sys.exit()
-        for option in self.input._parser.defaults.keys():
+        for option in self.autoApiInput._parser.defaults.keys():
 ##             print option,
             try:
                 setattr(self,option,eval(getattr(opts,option)))

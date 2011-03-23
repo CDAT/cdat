@@ -13,17 +13,20 @@ import os
 import cdms2 # need to remove this!
 import __main__
 import customizeVCDAT
+import preferencesWidget
 
 
 class QCDATWindow(QtGui.QMainWindow):
     """ Main class for VCDAT Window. Contains a menu widget, file widget,
     defined variable widget, and variable widget """
 
-    def __init__(self, parent=None,styles={}):
+    def __init__(self, parent=None,styles=customizeVCDAT.appStyles):
         """ Instantiate the child widgets of the main VCDAT window and setup
         the overall layout """
         centralWidget= QtGui.QWidget()
         QtGui.QMainWindow.__init__(self,parent)
+        icon = QtGui.QIcon(customizeVCDAT.appIcon)
+        self.setWindowIcon(icon)
 
         ## StylesSheet
         st=""
@@ -67,6 +70,9 @@ class QCDATWindow(QtGui.QMainWindow):
         ## WIDGETS
         ###########################################################
         ###########################################################
+
+        self.preferences = preferencesWidget.QPreferencesDialog(self)
+        self.preferences.hide()
 
         ###########################################################
         # Init Menu Widget
