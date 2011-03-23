@@ -3,7 +3,7 @@ set(netcdf_source "${CMAKE_CURRENT_BINARY_DIR}/build/netcdf")
 set(netcdf_install "${CMAKE_CURRENT_BINARY_DIR}/Externals/NetCDF")
 set(netcdf_configure_args "--enable-netcdf-4^^--with-hdf5=${CMAKE_CURRENT_BINARY_DIR}/Externals/HDF5")
 
-ExternalProject_Add(netcdf
+ExternalProject_Add(NetCDF
   LIST_SEPARATOR ^^
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
   SOURCE_DIR ${netcdf_source}
@@ -13,7 +13,7 @@ ExternalProject_Add(netcdf
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
   CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -D CONFIGURE_ARGS=${netcdf_configure_args} -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
-  DEPENDS ${netcdf_DEPENDENCIES}
+  DEPENDS ${NetCDF_DEPENDENCIES}
 )
 
 set(netcdf_DIR "${netcdf_binary}" CACHE PATH "netcdf binary directory" FORCE)
