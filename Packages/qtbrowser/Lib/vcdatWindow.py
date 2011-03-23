@@ -193,7 +193,7 @@ class QCDATWindow(QtGui.QMainWindow):
             __main__.__dict__[tmp.id]=tmp
             added.append(tmp.id)
             res = tmp.id
-        else:
+        elif tmp is not None:
             self.processList(tmp,added)
             
         if results is not None:
