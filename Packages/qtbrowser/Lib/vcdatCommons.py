@@ -1,4 +1,6 @@
 from PyQt4 import QtCore, QtGui
+import customizeVCDAT
+import os
 
 blackColor = QtGui.QColor(0,0,0)
 redColor = QtGui.QColor(255,0,0)
@@ -385,3 +387,138 @@ def sign ( N ):
    else: return 1
 
         
+class QCommandsFileWidget(QtGui.QDialog):
+    def __init__(self,parent,title,readOnly=True,file=None):
+        QtGui.QDialog.__init__(self,parent)
+        self.root=parent.root
+        layout = QtGui.QVBoxLayout()
+        layout.setMargin(2)
+        self.setLayout(layout)
+        self.toolBar = QtGui.QToolBar()
+        self.toolBar.setIconSize(QtCore.QSize(customizeVCDAT.iconsize, customizeVCDAT.iconsize))
+        icon = QtGui.QIcon(os.path.join(customizeVCDAT.ICONPATH, 'floppy_disk_blue.ico'))
+        action = self.toolBar.addAction(icon, 'saveas',self.saveAs)
+        action.setToolTip('Save to a new file.')
+        icon = QtGui.QIcon(os.path.join(customizeVCDAT.ICONPATH, 'run_copy.ico'))
+        action = self.toolBar.addAction(icon, 'exec',self.execute)
+        action.setToolTip('Execute commands.')
+        self.toolBar.addSeparator()
+        layout.addWidget(self.toolBar)
+
+        self.text = QtGui.QTextEdit(self)
+        self.text.setReadOnly(readOnly)
+        self.text.ensureCursorVisible()
+        
+        layout.addWidget(self.text)
+
+        self.setWindowTitle(title)
+
+        self.setMinimumWidth(600)
+
+        if file is not None:
+            f=open(file)
+            self.addText(f.read())
+            f.close()
+        self.connect(self.text, QtCore.SIGNAL("returnPressed(void)"),
+                     self.refresh)
+            
+    def saveAs(self):
+        cont = True
+        while cont is True:
+            fnm = QtGui.QFileDialog.getSaveFileName()
+            try:
+                f=open(fnm,'w')
+                cont=False
+            except:
+                if fnm is None:
+                    cont=False
+                    return
+        
+
+        print >> f, self.text.toPlainText()
+        f.close()
+
+    def addText(self,textString):
+        sp = textString.split("\n")
+        for l in sp:
+            st=l.strip()
+            if len(st)>0 and st[0]=="#": # comment
+                self.text.setTextColor( customizeVCDAT.commentsColor )
+                dtxt = str(self.text.toPlainText())
+                if len(dtxt)>2 and dtxt[-2]!="\n":
+                    self.text.insertPlainText('\n')
+            else:
+                self.text.setTextColor( customizeVCDAT.defaultTextColor )
+            
+            self.text.insertPlainText(l+'\n')
+
+    def execute(self):
+        txt = self.text.toPlainText()
+        for l in txt.split("\n"):
+            self.root.tabView.widget(2).le.setText(l)
+            self.root.tabView.widget(2).run_command()            
+
+    def refresh(self):
+        txt = self.text.toPlainText()
+        self.text.clear()
+        self.text.addText(text)
+
+        
+def getAvailablePrinters():
+    plist = []
+    try:
+        fn = os.path.join(os.environ['HOME'],'PCMDI_GRAPHICS','HARD_COPY')
+    except:
+        return plist
+    try:
+        f=open(fn)
+    except:
+        return plist
+    ln = f.readline()
+    for ln in f.xreadlines():
+        if ln[0] != '#':
+            if (ln[0:9] == 'landscape'
+                or ln[0:8] == 'portrait'
+                or ln[0] == ' ' or ln[0] == '\n'):
+                pass
+            else:
+                plist.append(ln[0:-1])
+    f.close( )
+    return plist
+
+class CalcButton(QtGui.QToolButton):
+    """Calculator button class - size change & emits clicked text signal"""
+    def __init__(self, text, icon = None, tip = None, styles={}, parent=None,signal="clickedMyButton"):
+        QtGui.QToolButton.__init__(self, parent)
+        if isinstance(styles,dict):
+            st=""
+            for k in styles.keys():
+                val = styles[k]
+                if isinstance(val,QtGui.QColor):
+                    val = str(val.name())
+                st+="%s:%s; " % (k,val)
+            if len(st)>0: self.setStyleSheet(st)
+        elif isinstance(styles,str):
+            self.setStyleSheet(styles)
+            
+        self.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
+        if icon is not None:
+            icon = os.path.join(customizeVCDAT.ICONPATH,icon)
+            icon = QtGui.QIcon(icon)
+            self.setIcon(icon)
+            self.setIconSize(QtCore.QSize(customizeVCDAT.iconsize,customizeVCDAT.iconsize))
+        self.setText(text)
+        self.setMinimumSize(38, 35)
+        ## self.setMaximumSize(60, 50)
+        self.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred,
+                                             QtGui.QSizePolicy.Preferred))
+        self.setFocusPolicy(QtCore.Qt.NoFocus)
+        if tip is not None:
+            self.setToolTip(tip)
+            
+        self.connect(self, QtCore.SIGNAL('clicked()'), self.clickEvent)
+        self.sendSignal = signal
+        
+    def clickEvent(self):
+        """Emits signal with button text"""
+        self.emit(QtCore.SIGNAL(self.sendSignal), self)

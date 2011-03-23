@@ -164,7 +164,6 @@ class QCDATFileWidget(QtGui.QWidget):
         # will return VTK type otherwise, it's a CDAT file.
         # When the integration with ParaView is done, then this should be
         # expanded
-        print suffix
         if str(suffix) in ['vtk']:
             return self.CDATFileType.VTK
         else:
@@ -233,7 +232,6 @@ class QCDATFileWidget(QtGui.QWidget):
     def updateVTKPlot(self, filename):
         self.varCombo.clear()
         self.emit(QtCore.SIGNAL('fileChanged'), filename)
-        print "emitted signal"
         
     def openSelectFileDialog(self):
         file = QtGui.QFileDialog.getOpenFileName(self, 'Open CDAT data file...',
@@ -263,7 +261,6 @@ class QCDATFileWidget(QtGui.QWidget):
     def getCDMSVariable(self):
         if not self.cdmsFile is None:
             data = self.varCombo.itemData(self.varCombo.currentIndex()).toStringList()
-            print 'DATA is:',data
             if data.count() > 0:
                 if data[0] == 'variables':
                     return getattr(self.cdmsFile, str(data[0]))[str(data[1])]

@@ -21,7 +21,6 @@ class preFuncPopUp(QtGui.QDialog):
         for i in range(len(ins.defaults)):
             mydefaults[ins.args[i+n]]=ins.defaults[i]
 
-        print "Mydefaults",mydefaults
         if module == "genutil.averager":
             nm = module
         else:
@@ -112,7 +111,7 @@ class preFuncPopUp(QtGui.QDialog):
                         try:
                             self.choices[-1].setCurrentindex(vals.index(mydefaults[c]))
                         except Exception,err:
-                            print "error:",err
+                            pass
                 else:
                     self.choices.append(choices.addRadioFrame(c[0],vals,newRow=True))
                     if c in mydefaults.keys():
@@ -120,7 +119,7 @@ class preFuncPopUp(QtGui.QDialog):
                             b = self.choices[-1].buttonGroup.button(vals.index(mydefaults[c]))
                             b.setChecked(True)
                         except Exception,err:
-                            print "Error2:",err
+                            pass
         if hasChoices:
             l.addWidget(choices)
 
