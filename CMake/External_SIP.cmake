@@ -1,8 +1,8 @@
 
 # SIP
-set(proj sip)
 
-ExternalProject_Add(${proj}
+
+ExternalProject_Add(SIP
   URL ${SIP_URL}/${SIP_GZ}
   URL_MD5 ${SIP_MD5}
   SOURCE_DIR ${proj}
@@ -11,6 +11,6 @@ ExternalProject_Add(${proj}
      ${PYTHON_EXECUTABLE} configure.py
     CC=${CMAKE_C_COMPILER}
     CXX=${CMAKE_CXX_COMPILER}
-  DEPENDS ${sip_DEPENDENCIES}
+  DEPENDS ${SIP_DEPENDENCIES}
   )
 
