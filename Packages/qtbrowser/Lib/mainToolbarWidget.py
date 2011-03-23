@@ -18,12 +18,11 @@ class QMainToolBarContainer( QtGui.QWidget ):
         #self.setFixedWidth(50)
         self.toolBar.setIconSize(QtCore.QSize(customizeVCDAT.iconsize, customizeVCDAT.iconsize))
         actionInfo = [
-            ('Open_folder.gif', 'Open a script file.'),
-            ('Save.gif', 'Save selected defined variable to a netCDF file.'),
-            ('Print.gif', 'Print selected defined variable information or selected plot.'),
-            ('Script.gif', 'Script out the button clicks and commands to a file.'),
-            ('ESG_download.gif', 'Connection to the Earth System Grid Federation (ESGF) data archive.'),
-            ('Help.gif', 'Display assistant content for this application.'),
+            ('script_folder_smooth.ico', 'Open a script file.',self.openScript,True),
+            ('folder_image_blue.ico', 'Save plots.',self.savePlots,True),
+            ('printer.ico', 'Print plots.',self.printPlots,True),
+            ('ESG_download.gif', 'Connection to the Earth System Grid Federation (ESGF) data archive.',self.ESG,False),
+            ('symbol_help.ico', 'Display assistant content for this application.',self.help,False),
             ]
 
         for info in actionInfo:
@@ -31,6 +30,8 @@ class QMainToolBarContainer( QtGui.QWidget ):
             action = self.toolBar.addAction(icon, 'help')
             #action.setStatusTip(info[1])
             action.setToolTip(info[1])
+            self.connect(action,QtCore.SIGNAL("triggered()"),info[2])
+            action.setEnabled(info[3])
         self.toolBar.addSeparator()
 
         ## self.opButton = QtGui.QToolButton()
@@ -39,17 +40,18 @@ class QMainToolBarContainer( QtGui.QWidget ):
         vbox.addWidget(self.toolBar, 0)
         self.setLayout(vbox)
 
-##         '''
-##         self.label = QtGui.QLabel("toolbar")
-##         self.label.setAutoFillBackground(True)
-##         self.label.setAlignment(QtCore.Qt.AlignCenter)
-##         self.label.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Raised)
-##         vbox.addWidget(self.label, 0)
 
-##         if widget!=None:
-##             self.widget = widget
-##         else:
-##             self.widget = QtGui.QWidget()
-##         vbox.addWidget(self.widget, 5)
-##         self.setLayout(vbox)
-## '''
+    def openScript(self):
+        fnm = QtGui.QFileDialog.getOpenFileName(self,"Open Python Script",filter="Python Scripts (*.py);; All (*.*)")
+        print "Filename:",fnm
+        #l = QtGui.QVBoxLayout()
+        
+        pass
+    def savePlots(self):
+        pass
+    def printPlots(self):
+        pass
+    def ESG(self):
+        pass
+    def help(self):
+        pass
