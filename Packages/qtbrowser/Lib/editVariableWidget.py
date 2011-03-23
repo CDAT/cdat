@@ -207,7 +207,6 @@ class editVariableWidget(QtGui.QWidget):
         self.varComboBox.setCurrentIndex(i)
     
     def delVarAttribute(self):
-        print "Adding an attribute"
         newName=str(self.newVarAttributeName.text()).strip()
         if len(newName)==0:
             return

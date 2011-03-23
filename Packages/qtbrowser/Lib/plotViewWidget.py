@@ -5,6 +5,7 @@ import vcsPlotControllerWidget
 import customizeVCDAT
 import vcsPageLayoutWidget
 import vcdatCommons
+import colormapEditorWidget
 
 class QPlotOptionsWidget(QtGui.QWidget):
     """ Widget containing plot options: plot button, plot type combobox, cell
@@ -102,9 +103,9 @@ class QPlotOptionsWidget(QtGui.QWidget):
 
         # Create Colormap option / widget
         colorMapAction = optionsMenu.addAction("&Colormap Editor")
-        self.colorDialog = QtGui.QColorDialog(self)
+        self.colorDialog = colormapEditorWidget.QColormapEditor(self)
         self.connect(colorMapAction, QtCore.SIGNAL('triggered ()'),
-                     self.colorDialog.open)
+                     self.colorDialog.show)
 
         # Create the options button
         self.optionButton = QtGui.QPushButton()
