@@ -8,8 +8,14 @@ class QMenuWidget(QtGui.QMenuBar):
     def __init__(self, parent=None):
         QtGui.QMenuBar.__init__(self, parent)
         
-        self.file = self.addMenu('&File')
-        self.pref = self.addMenu('&Preferences')
+        self.editMenu = self.addMenu('&Edit')
+        self.editPreferencesAction = QtGui.QAction('Preferences...', self)
+        self.editPreferencesAction.setEnabled(True)
+        self.editPreferencesAction.setStatusTip('Edit system preferences')
+        self.editMenu.addAction(self.editPreferencesAction)
+        self.connect(self.editPreferencesAction, QtCore.SIGNAL('triggered ()'),
+                     parent.root.preferences.show)
+
         self.tools = self.addMenu('&Tools')
         self.pcmdiTools = self.addMenu('&PCMDITools')
         self.pcmdiTools.setTearOffEnabled(True)

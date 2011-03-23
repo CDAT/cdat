@@ -12,11 +12,11 @@ import AutoAPI
 class cuDataset(AutoAPI.AutoAPI):
     "A mixin class to support the old cu interface"
     def __init__ (self):
-        if not hasattr(self,"info"):
-            self.info=AutoAPI.Info(self)
-        if not hasattr(self.info,"expose"):
-            self.info.expose=set()
-        self.info.expose.update([
+        if not hasattr(self,"autoApiInfo"):
+            self.autoApiInfo=AutoAPI.Info(self)
+        if not hasattr(self.autoApiInfo,"expose"):
+            self.autoApiInfo.expose=set()
+        self.autoApiInfo.expose.update([
             "listall","listattribute","listdimension","listglobal","listvariable",
             "showglobal","showvariable","showattribute","showdimension","showall",
             "dimensionobject","dimensionarray",

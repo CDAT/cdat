@@ -5,7 +5,7 @@ import vcdatCommons
 ## default values
 ICONPATH = os.path.join(cdms2.__path__[0], '..', '..', '..', '..', 'share','icons')
 appIcon = os.path.join(ICONPATH, "UV-CDAT_logo_sites.gif")
-iconsize=25
+iconsize=35
 defaultTextColor = vcdatCommons.blackColor
 templatesColor = vcdatCommons.defaultTemplatesColor
 gmsColor = vcdatCommons.defaultGmsColor
