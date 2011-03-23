@@ -3,7 +3,7 @@ import os
 
 
 icons = """
-icons/ESG_download.gif
+icons/connected.ico
 icons/off.gif
 icons/symbol_help.ico
 icons/on.gif
@@ -17,6 +17,8 @@ icons/floppy_disk_blue.ico
 icons/symbol_delete.ico
 icons/folder_image_blue.ico
 icons/pencil.ico
+icons/run_copy.ico
+icons/redo.ico
 """.split()
 setup (name = "qtbrowser",
        version='1.0',

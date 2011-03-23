@@ -35,42 +35,6 @@ import qtbrowser
 import customizeVCDAT
 import vcdatCommons
 
-class CalcButton(QtGui.QToolButton):
-    """Calculator button class - size change & emits clicked text signal"""
-    def __init__(self, text, icon = None, tip = None, styles={}, parent=None):
-        QtGui.QToolButton.__init__(self, parent)
-        if isinstance(styles,dict):
-            st=""
-            for k in styles.keys():
-                val = styles[k]
-                if isinstance(val,QtGui.QColor):
-                    val = str(val.name())
-                st+="%s:%s; " % (k,val)
-            if len(st)>0: self.setStyleSheet(st)
-        elif isinstance(styles,str):
-            self.setStyleSheet(styles)
-            
-        self.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
-        if icon is not None:
-            icon = os.path.join(customizeVCDAT.ICONPATH,icon)
-            icon = QtGui.QIcon(icon)
-            self.setIcon(icon)
-            self.setIconSize(QtCore.QSize(customizeVCDAT.iconsize,customizeVCDAT.iconsize))
-        self.setText(text)
-        self.setMinimumSize(38, 35)
-        ## self.setMaximumSize(60, 50)
-        self.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred,
-                                             QtGui.QSizePolicy.Preferred))
-        self.setFocusPolicy(QtCore.Qt.NoFocus)
-        if tip is not None:
-            self.setToolTip(tip)
-            
-        self.connect(self, QtCore.SIGNAL('clicked()'), self.clickEvent)
-
-    def clickEvent(self):
-        """Emits signal with button text"""
-        self.emit(QtCore.SIGNAL('clickedCalculator'), self)
-
 class QCommandLineType(QtGui.QLineEdit):
     """ Command line events to trap the up, down, left, right arrow button events for the Qt Line Edit. """
 
@@ -275,7 +239,7 @@ class QCommandLine(QtGui.QWidget):
 
     def addButton(self, key=None, text="", extraRow=0, extraCol=0,icon=None, tip=None,styles={}):
         """Adds a CalcButton"""
-        button = CalcButton(text,icon=icon,tip=tip,styles=styles)
+        button = vcdatCommons.CalcButton(text,icon=icon,tip=tip,styles=styles)
         button.associated_key =key
         self.Lay.addWidget(button, self.row, self.col, 1+extraRow, 1+extraCol)
         self.connect(button, QtCore.SIGNAL('clickedCalculator'),
@@ -483,6 +447,8 @@ class QCommandLine(QtGui.QWidget):
         #------------------------------------------------------------------------------
         command = str(self.le.text())    # read the command
         command = string.strip(command)  # strip leading and/or trailing whitespaces from the command
+        if command == "":
+            return
         self.te.setTextColor( QtGui.QColor(0,0,0)) # set the text editor output window text to black
         commandLine =  ">>> " + command + "\n"
         self.te.insertPlainText( commandLine )     # display the command in the text window
@@ -510,7 +476,7 @@ class QCommandLine(QtGui.QWidget):
         # record the command for preproducibility
         #------------------------------------------------------------------------------
         self.root.record("## Command sent from prompt by user")
-        if res == command.split("=")[0]:
+        if res == command.split("=")[0] or res is None:
             self.root.record(command)
         else:
             self.root.record("%s = %s" % (res,command))
