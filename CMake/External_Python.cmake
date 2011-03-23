@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-set(proj python)
+set(proj Python)
 set(python_base ${CMAKE_CURRENT_BINARY_DIR}/build/python)
 set(python_BUILD_IN_SOURCE 1)
 
@@ -155,7 +155,7 @@ elseif(UNIX)
     UPDATE_COMMAND ""
     INSTALL_COMMAND ${python_INSTALL_COMMAND}
     DEPENDS 
-      ${python_DEPENDENCIES}
+      ${Python_DEPENDENCIES}
     )
     
 endif()
