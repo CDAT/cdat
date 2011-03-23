@@ -25,7 +25,7 @@ execute_process(
   RESULT_VARIABLE res)
 
 if(NOT ${res} EQUAL 0)
-  message("Config Errors detected: \n${CDAT_OUT}\n${CDAT_ERR}")
-  message(FATAL_ERROR "Error in config")
+  message("Install Errors detected: \n${CDAT_OUT}\n${CDAT_ERR}")
+  message(FATAL_ERROR "Error in Install")
 endif()
-message("Config succeeded.")
+message("Install succeeded.")
