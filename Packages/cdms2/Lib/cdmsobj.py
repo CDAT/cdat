@@ -464,7 +464,7 @@ class CdmsObj (object,AutoAPI.AutoAPI):
         
     def __init__(self, node = None):
         if not hasattr(self,'___cdms_internals__'):
-            self.__dict__['___cdms_internals__']=['__cdms_internals__','___cdms_internals__','_node_','parent','attributes','shape','info']
+            self.__dict__['___cdms_internals__']=['__cdms_internals__','___cdms_internals__','_node_','parent','attributes','shape','autoApiInfo']
         self.attributes={}
         self._node_ = node
         if node is not None:
@@ -497,8 +497,8 @@ class CdmsObj (object,AutoAPI.AutoAPI):
                                 raise RuntimeError,"%s=%s must be an integer"%(attname,attval)
                 adict[attname] = attval
                 self.attributes[attname] = attval
-        self.info = AutoAPI.Info(self)
-        self.info.expose=set(["dump","searchone","matchone","searchPattern","matchPattern","searchPredicate"])
+        self.autoApiInfo = AutoAPI.Info(self)
+        self.autoApiInfo.expose=set(["dump","searchone","matchone","searchPattern","matchPattern","searchPredicate"])
 
 
     def searchone(self, pattern, attname):
