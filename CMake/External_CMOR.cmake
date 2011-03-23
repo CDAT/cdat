@@ -5,7 +5,7 @@ set(cmor_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
 set(cmor_configure_args --with-netcdf=${netcdf_install} --with-udunits2=${udunits_install} --with-uuid=${uuid_install} --with-zlib=${zlib_install} --enable-fortran=no)
 
 # it appears currently we only configure cmor but not build it.
-ExternalProject_Add(cmor
+ExternalProject_Add(CMOR
   GIT_REPOSITORY http://uv-cdat.llnl.gov/git/cmor.git
   SOURCE_DIR ${cmor_source}
   INSTALL_DIR ${cmor_install}
