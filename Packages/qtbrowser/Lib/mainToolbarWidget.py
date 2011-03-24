@@ -22,12 +22,14 @@ class QMainToolBarContainer( QtGui.QWidget ):
             ('script_folder_smooth.ico', 'Open a script file.',self.openScript,True),
             ('folder_image_blue.ico', 'Save plots.',self.savePlots,True),
             ('printer.ico', 'Print plots.',self.printPlots,True),
+            ('vistrails_icon.png', 'Vistrails Builder.',self.vistrails,True),
             ('connected.ico', 'Connection to the Earth System Grid Federation (ESGF) data archive.',self.ESG,False),
             ('symbol_help.ico', 'Display assistant content for this application.',self.help,False),
             ]
 
         for info in actionInfo:
-            icon = QtGui.QIcon(os.path.join(customizeVCDAT.ICONPATH, info[0]))
+            pth = os.path.join(customizeVCDAT.ICONPATH, info[0])
+            icon = QtGui.QIcon(pth)
             action = self.toolBar.addAction(icon, 'help')
             action.setToolTip(info[1])
             self.connect(action,QtCore.SIGNAL("triggered()"),info[2])
@@ -126,6 +128,9 @@ class QMainToolBarContainer( QtGui.QWidget ):
             self.customPrinter.label.setEnabled(False)            
         
     def ESG(self):
-        pass
+        return
     def help(self):
-        pass
+        return
+    def vistrails(self):
+        return
+    
