@@ -3,15 +3,39 @@ import customizeVCDAT
 import os
 import vcdatCommons
 
-class QColormapEditor(QtGui.QDialog):
+def parseLayout(l,prefix=""):
+    for i in range(l.count()):
+        it=l.itemAt(i)
+        print prefix,i,it.__class__
+        if isinstance(it,QtGui.QWidgetItem):
+            w=it.widget()
+            print prefix,w,
+            if isinstance(w,(QtGui.QPushButton,QtGui.QLabel)):
+                print prefix,w.text()
+            else:
+                print
+        elif isinstance(it,QtGui.QLayoutItem):
+            print prefix,it.__class__
+            l2 = it.layout()
+            if l2 is None:
+                print "No Layout"
+            else:
+                parseLayout(l2,"%s\t" % prefix)
+class QColormapEditor(QtGui.QColorDialog):
     def __init__(self,parent):
-        QtGui.QDialog.__init__(self,parent)
+        QtGui.QColorDialog.__init__(self,parent)
         self.parent=parent
         self.root=parent.root
-
-        l = QtGui.QVBoxLayout()
-        self.setLayout(l)
+        self.setOption(QtGui.QColorDialog.DontUseNativeDialog,True)
         
+        ## l = QtGui.QVBoxLayout()
+
+        l = self.layout()
+
+        parseLayout(l)
+
+        l.removeWidget(l.itemAt(1).widget())
+        l.removeItem(l.itemAt(1))
         self.toolBar = QtGui.QToolBar()
         self.toolBar.setIconSize(QtCore.QSize(customizeVCDAT.iconsize, customizeVCDAT.iconsize))
         actionInfo = [
@@ -26,7 +50,7 @@ class QColormapEditor(QtGui.QDialog):
             action.setEnabled(info[3])
         self.toolBar.addSeparator()
 
-        #l.addWidget(self.toolBar)
+        l.addWidget(self.toolBar)
 
         f = QtGui.QFrame()
         h = QtGui.QHBoxLayout()
@@ -45,8 +69,11 @@ class QColormapEditor(QtGui.QDialog):
 
 
         self.colors=QtGui.QFrame()
-        self.layout = l
+        self.mylayout = l
         self.colormap.setCurrentIndex(colormaps.index(self.root.canvas[0].getcolormapname()))
+        self.setLayout(l)
+        self.installEventFilter(self)
+
         
     def save(self):
         pass
@@ -74,7 +101,7 @@ class QColormapEditor(QtGui.QDialog):
                 self.connect(b,QtCore.SIGNAL("clickedVCSColorButton"),self.colorButtonClicked)
                 grid.addWidget(b,i,j)
                 icolor+=1
-        self.layout.addWidget(self.colors)
+        self.layout().addWidget(self.colors)
         self.update()
         
     
