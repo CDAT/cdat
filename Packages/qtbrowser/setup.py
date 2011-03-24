@@ -19,6 +19,7 @@ icons/folder_image_blue.ico
 icons/pencil.ico
 icons/run_copy.ico
 icons/redo.ico
+icons/vistrails_icon.png
 """.split()
 setup (name = "qtbrowser",
        version='1.0',
