@@ -14,10 +14,11 @@ from cdms2.error import CDMSError
 from cdms2.hgrid import AbstractCurveGrid, TransientCurveGrid
 from cdms2.coord import TransientAxis2D, TransientVirtualAxis
 import types
+from pycf import libCFConfig as libcf
 
 import sys
 
-class GsTimeVariableObj(GsStaticVariableObj):
+class GsTimeVariable(GsStaticVariable):
 
     def __init__(self, GsHost, varName, **slicekwargs):
         """
@@ -67,13 +68,15 @@ class GsTimeVariableObj(GsStaticVariableObj):
                     axis0 = var.getAxis(0)
                     gridaxes = grid.getAxisList()
                     axes = [axis0, gridaxes[0], gridaxes[1]]
+                    atts = dict(var.attributes)
+                    atts.update(fh.attributes)
 
                     # Create cdms2 transient variable
                     if tfindx == 0:
                         new = cdms2.createVariable(var, 
                                     axes = axes, 
                                     grid = grid, 
-                                    attributes = var.attributes, 
+                                    attributes = atts, 
                                     id = var.standard_name)
                     else:
                         tmp = concatenate((new, var))
@@ -94,8 +97,8 @@ class GsTimeVariableObj(GsStaticVariableObj):
                 self.vars[gfindx]              = new
 
                 # Add some other attributes
-                self.vars[gfindx].tile_name    = fh.tile_name
-                self.vars[gfindx].gridFilename = gFName
+                self.vars[gfindx][libcf.CF_GRIDNAME]    = getattr(fh, libcf.CF_GRIDNAME)
+                self.vars[gfindx]["gridFilename"] = gFName
 
     def __getitem__(self, tfindx):
         """

@@ -15,7 +15,7 @@ from cdms2.gsstaticvariableobj import GsStaticVariableObj
 from cdms2.gstimevariableobj import GsTimeVariableObj
 import re
 from pycf import libCFConfig, __path__
-LBCF = __path__[0] + '/libcf'
+LIBCF = __path__[0] + '/libcf'
 
 def addGetCoordinatesToAbstractVariable(AbstractVariable):
     """

@@ -30,6 +30,8 @@ import convention
 import typeconv
 import AutoAPI
 import gsHost
+from pycf import libCFConfig as libcf
+
 
 try:
     import cache
@@ -46,8 +48,6 @@ FileWasClosed = "File was closed: "
 InvalidDomain = "Domain elements must be axes or grids"
 ModeNotSupported = "Mode not supported: "
 SchemeNotSupported = "Scheme not supported: "
-
-GRIDSPEC_HOSTFILE_TYPE = "gridspec_host_file"
 
 # Regular expressions for parsing the file map.
 _Name = re.compile(r'[a-zA-Z_:][-a-zA-Z0-9._:]*')
@@ -187,8 +187,8 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
             datanode = load(path)
         else:
             file = CdmsFile(path,mode)
-            if hasattr(file, "file_type"):
-                if file.file_type == GRIDSPEC_HOSTFILE_TYPE:
+            if hasattr(file, libcf.CF_FILETYPE):
+                if getattr(file, libcf.CF_FILETYPE) == libcf.CF_GLATT_FILETYPE_HOST:
                     file = gsHost.open(path, mode)
 
             return file

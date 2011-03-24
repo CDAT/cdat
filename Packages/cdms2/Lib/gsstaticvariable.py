@@ -12,8 +12,9 @@ import types
 from cdms2.error import CDMSError
 from cdms2.hgrid import AbstractCurveGrid, TransientCurveGrid
 from cdms2.coord import TransientAxis2D, TransientVirtualAxis
+from pycf import libCFConfig as libcf
 
-class GsStaticVariableObj(object):
+class GsStaticVariable(object):
     """
     Open a static variable.
     """
@@ -51,17 +52,11 @@ class GsStaticVariableObj(object):
             if 'coordinates' in vr.attributes.keys():
               grid = self.createGrid(gFName, vr.attributes['coordinates'])
               hasCoordinates = True
-            atts = vr.attributes
-            if 'tile_name' in fh.attributes.keys():
-              atts['tile_name'] = fh.tile_name
+            atts = dict(vr.attributes)
+            atts.update(gh.attributes)
+            if libcf.CF_GRIDNAME in fh.attributes.keys():
+              atts[libcf.CF_GRIDNAME] = getattr(fh, libcf.CF_GRIDNAME)
 
-            # Add some methods to GsStatVar[gfindx]
-#            updateGetLatitudeToAbstractVariable(vr)
-#            updateGetLongitudeToAbstractVariable(vr)
-#            updateSetGridToAbstractVariable(vr)
-#            updateGetGridToAbstractVariable(vr)
-#            addGetCoordinatesToAbstractVariable(vr)
-            
             # Create the variable
             if hasCoordinates:
               var = cdms2.createVariable(vr, 
