@@ -1,5 +1,6 @@
 from PyQt4 import QtGui, QtCore
 import cdutil
+import cdms2
 
 
 class QAxisListTabWidget(QtGui.QTabWidget):
@@ -122,16 +123,23 @@ class QSliderCombo(QtGui.QWidget):
 
         # Init sliders
         hbox.addLayout(vbox)
+        self.topLabel = QtGui.QLabel('From', self)
+        hbox = QtGui.QHBoxLayout()        
+        hbox.addWidget(self.topLabel)
+        vbox.addLayout(hbox)
         self.topSlider = QtGui.QSlider(QtCore.Qt.Horizontal)
+        self.topSlider.setTickPosition(QtGui.QSlider.TicksAbove)
         self.bottomSlider = QtGui.QSlider(QtCore.Qt.Horizontal)        
+        self.bottomSlider.setTickPosition(QtGui.QSlider.TicksBelow)
         vbox.addWidget(self.topSlider)
         vbox.addWidget(self.bottomSlider)
 
         # Init axis slider value labels
         self.bottomLabel = QtGui.QLabel('To', self)
-        self.topLabel = QtGui.QLabel('From', self)
+        self.bottomLabel.setAlignment(QtCore.Qt.AlignRight)
+        aLabel = QtGui.QLabel('', self)
         hbox = QtGui.QHBoxLayout()        
-        hbox.addWidget(self.topLabel)
+        #hbox.addWidget(aLabel)
         hbox.addWidget(self.bottomLabel)
         vbox.addLayout(hbox)
 
@@ -160,9 +168,35 @@ class QSliderCombo(QtGui.QWidget):
         value to be the max value"""
         
         if (axis != None):
+            for coordlbls in ["coordinates","coord_labels",]:
+                lbls=getattr(axis,coordlbls,None)
+                if lbls is not None:
+                    break
             if self.isTime:
                 self.axisValues = [repr(t.tocomponent())
                                    for t in axis.asRelativeTime()]
+            elif lbls is not None:
+                try:
+                    lbls = eval(lbls)
+                except:
+                    pass
+                if isinstance(lbls,(list,tuple)):
+                    self.axisValues = lbls
+                elif isinstance(axis,cdms2.axis.FileAxis):
+                    ## All right let's fecth the coords
+                    try:
+                        lbls = axis.parent(lbls)
+                        vals =[]
+                        if lbls.rank()!=2 or lbls.shape[0]!=len(axis):
+                            vals = axis.getValue()
+                        else:
+                            for i in range(len(axis)):
+                                vals.append(lbls[i].tostring().strip())
+                        self.axisValues = vals
+                    except:
+                        self.axisValues = axis.getValue()
+                else:
+                    self.axisValues = axis.getValue()                    
             else:
                 self.axisValues = axis.getValue()
         else:
@@ -171,6 +205,13 @@ class QSliderCombo(QtGui.QWidget):
         self.axisIndices = range(len(self.axisValues))
         self.updateMin(0)
         self.updateMax(len(self.axisValues) - 1)
+        nticks = len(self.axisValues)
+        if nticks > 15:
+            nticks /= 15
+        else:
+            nticks=1
+        self.topSlider.setTickInterval(nticks)
+        self.bottomSlider.setTickInterval(nticks)
 
     def setStartIndex(self, index):
         self.startIndex = index
