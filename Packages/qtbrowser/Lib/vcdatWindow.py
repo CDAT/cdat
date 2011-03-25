@@ -17,7 +17,7 @@ import preferencesWidget
 
 
 class QCDATWindow(QtGui.QMainWindow):
-    """ Main class for VCDAT Window. Contains a menu widget, file widget,
+    """ Main class for UVCDAT Window. Contains a menu widget, file widget,
     defined variable widget, and variable widget """
 
     def __init__(self, parent=None,styles=customizeVCDAT.appStyles):
@@ -48,10 +48,10 @@ class QCDATWindow(QtGui.QMainWindow):
         ## Prettyness
         ###########################################################
         ###########################################################
-        self.setGeometry(0,0, 1100,800)
-        self.setWindowTitle('The Visual Climate Data Analysis Tools - (VCDAT)')
-        self.resize(1100,800)
-        self.setMinimumSize(1100,800)
+        #self.setGeometry(0,0, 1100,800)
+        self.setWindowTitle('The Ultra Visualization Climate Data Analysis Tools - (UV-CDAT)')
+        ## self.resize(1100,800)
+        self.setMinimumWidth(1100)
         self.main_window_placement()
 
         self.root = self
@@ -71,13 +71,7 @@ class QCDATWindow(QtGui.QMainWindow):
         ###########################################################
         ###########################################################
 
-        self.preferences = preferencesWidget.QPreferencesDialog(self)
-        self.preferences.hide()
 
-        ###########################################################
-        # Init Menu Widget
-        ###########################################################
-        self.mainMenu = mainMenuWidget.QMenuWidget(self)
 
         ###########################################################
         # Init Main Window Icon Tool Bar at the top of the GUI
@@ -123,6 +117,12 @@ class QCDATWindow(QtGui.QMainWindow):
         self.tabView.widget(1).show()
         self.tabView.widget(1).plotOptions.plotTypeCombo.setCurrentIndex(0)
 
+        self.preferences = preferencesWidget.QPreferencesDialog(self)
+        self.preferences.hide()
+        ###########################################################
+        # Init Menu Widget
+        ###########################################################
+        self.mainMenu = mainMenuWidget.QMenuWidget(self)
 
         ###########################################################
         ###########################################################
