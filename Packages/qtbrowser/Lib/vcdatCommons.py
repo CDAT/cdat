@@ -82,6 +82,8 @@ class QDragListWidget(QtGui.QListWidget):
         d =QtGui.QDrag(self)
         m = QtCore.QMimeData()
         a = QtCore.QByteArray()
+        if self.currentItem() is None:
+            return
         a.append(self.currentItem().text())
         m.setData("%s" % self.type,a)
         m.setText(self.currentItem().text())
@@ -264,11 +266,14 @@ class QFramedWidget(QtGui.QFrame):
         self.addWidget(spinbox)
         return spinbox    
 
-    def addButton(self, text, newRow=True):
+    def addButton(self, text, newRow=True, buttonType = "Tool"):
         if newRow == True:
             self.newRow()
             
-        button = QtGui.QToolButton()
+        if buttonType == "Tool":
+            button = QtGui.QToolButton()
+        else:
+            button = QtGui.PushButton()
         button.setText(text)
         self.addWidget(button)
         return button
@@ -331,16 +336,20 @@ class QFramedWidget(QtGui.QFrame):
         self.label = label
         return label
 
-    def addSlider(self):
+    def addSlider(self,minimum=None,maximum=None):
         slider = QtGui.QSlider(QtCore.Qt.Horizontal)
+        if minimum is not None:
+            slider.setMinimum(minimum)
+        if maximum is not None:
+            slider.setMaximum(maximum)
         self.addWidget(slider)
         return slider
 
-    def addLabeledSlider(self, text, newRow=True,divider=1):
+    def addLabeledSlider(self, text, newRow=True,divider=1,minimum=None,maximum=None):
         if newRow == True:
             self.newRow()
             
-        labeledSlider = QLabeledSlider(text,divider=divider)
+        labeledSlider = QLabeledSlider(text,divider=divider,minimum=minimum,maximum=maximum)
         self.addWidget(labeledSlider)
         return labeledSlider.getSlider()
     
@@ -351,7 +360,7 @@ class QSimpleMessageBox(QtGui.QMessageBox):
         self.setText(text)
 
 class QLabeledSlider(QtGui.QWidget):
-    def __init__(self, text, parent=None, divider=1):
+    def __init__(self, text, parent=None, divider=1,minimum=None,maximum=None):
         QtGui.QWidget.__init__(self, parent)
         vbox = QtGui.QVBoxLayout()
         vbox.setSpacing(10)
@@ -359,6 +368,10 @@ class QLabeledSlider(QtGui.QWidget):
         self.text = text
         self.label = QtGui.QLabel(text)
         self.slider = QtGui.QSlider(QtCore.Qt.Horizontal)
+        if minimum is not None:
+            self.slider.setMinimum(minimum)
+        if maximum is not None:
+            self.slider.setMaximum(maximum)
         self.divider=divider
         
         vbox.addWidget(self.label)
