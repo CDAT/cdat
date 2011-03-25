@@ -28,6 +28,6 @@ setup (name = "qtbrowser",
        url = "http://cdat.sourceforge.net",
        packages = ['qtbrowser'],
        package_dir = {'qtbrowser': 'Lib'},
-       scripts=['Scripts/vcdat',],
+       scripts=['Scripts/uv-cdat','Scripts/vcdat'],
        data_files = [('share/icons',icons),]
       )
