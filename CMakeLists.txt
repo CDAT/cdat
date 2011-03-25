@@ -29,7 +29,7 @@ set(cdat_VERSION ${cdat_VERSION_MAJOR}.${cdat_VERSION_MINOR}.${cdat_VERSION_PATC
 
 # configure version file
 configure_file(${cdat_CMAKE_SOURCE_DIR}/version.in
-  ${cdat_BINARY_DIR}/version
+  ${cdat_SOURCE_DIR}/version
   @ONLY)
 
 #-----------------------------------------------------------------------------
@@ -102,7 +102,7 @@ if(APPLE)
     -DCMAKE_OSX_DEPLOYMENT_TARGET:STRING=${CMAKE_OSX_DEPLOYMENT_TARGET}
     -DCMAKE_OSX_SYSROOT:PATH=${CMAKE_OSX_SYSROOT})
 
-  list(APPEND cdat_compiler_args ${cdat_apple_compiler_args})
+  set(cdat_osx_flags ${cdat_apple_compiler_args})
   set(cdat_osx_arch_flag "-arch ${CMAKE_OSX_ARCHITECTURES}")
   set(cdat_osx_version_flag "-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
   set(cdat_osx_sysroot "-isysroot ${CMAKE_OSX_SYSROOT}")
@@ -213,7 +213,7 @@ set(HASWGET ${WGET_EXECUTABLE})
 set(MD5PRG ${MD5_EXECUTABLE})
 set(MD5CNT 1)
 configure_file(${cdat_SOURCE_DIR}/checked_get.sh.in
-  ${cdat_BINARY_DIR}/checked_get.sh
+  ${cdat_SOURCE_DIR}/checked_get.sh
   @ONLY)
 
 #-----------------------------------------------------------------------------
@@ -221,14 +221,18 @@ configure_file(${cdat_SOURCE_DIR}/checked_get.sh.in
 
 add_cdat_package(pkgconfig)
 #add_cdat_package(termcap)
-#add_cdat_package(CURL)
 add_cdat_package(readline)
 add_cdat_package(libXML2)
-if(NOT APPLE)
+#add_cdat_package(CURL)
+# Probably should be eliminated since we use Qt now.
+if(0)
   add_cdat_package(xgks)
 endif()
 add_cdat_package(xslt)
-add_cdat_package(pbmplus)
+if(APPLE)
+  # really old package that doesn't often build on linux.
+  add_cdat_package(pbmplus)
+endif()
 add_cdat_package(FFMPEG)
 add_cdat_package(gifsicle)
 add_cdat_package(jpeg)
@@ -272,17 +276,15 @@ add_cdat_package(CDAT)
 # Establish Target Dependencies based on Selected Options and find results
 #------------------------------------------------------------------------------
 
-set(zlib_DEPENDENCIES ${pkgconfig_dep})
+set(readline_DEPENDENCIES ${pkgconfig_dep})
+set(libXML2_DEPENDENCIES ${readline_dep})
+set(xslt_DEPENDENCIES ${libXML2_dep})
+set(zlib_DEPENDENCIES ${pkgconfig_dep} ${libXML2_dep})
 set(png_DEPENDENCIES ${zlib_dep})
 set(tcl_DEPENDENCIES ${pkgconfig_dep})
-set(python_DEPENDENCIES ${TclTk_dep})
+set(Python_DEPENDENCIES ${TclTk_dep} ${libXML2_dep} ${CURL_dep} ${zlib_dep})
 set(SIP_DEPENDENCIES ${Python_dep})
-set(PyQt_DEPENDENCIES ${SIP_dep})
-
-if(NOT QT_FOUND)
-  list(APPEND PyQt_DEPENDENCIES ${Qt_dep})
-endif()
-
+set(PyQt_DEPENDENCIES ${Qt_dep} ${SIP_dep})
 set(PyOpenGL_DEPENDENCIES ${Python_dep})
 set(Pmw_DEPENDENCIES ${Python_dep})
 set(pixman_DEPENDENCIES ${pkgconfig_dep})
@@ -291,29 +293,23 @@ set(freetype_DEPENDENCIES ${png_dep})
 set(ghostscript_DEPENDENCIES ${zlib_dep} ${jpeg_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep} ${xslt_dep} ${libXML2_dep})
 set(NetCDF_DEPENDENCIES ${HDF5_dep})
 
-set(TclTk_DEPENDENCIES ${pkgconfig_dep})
-set(Python_DEPENDENCIES ${TclTk_dep})
+set(TclTk_DEPENDENCIES ${pkgconfig_dep} ${libXML2_dep})
 
 set(setuptools_DEPENDENCIES ${Python_dep})
-set(NUMPY_DEPENDENCIES ${Python_dep})
-if(NOT APPLE)
-  if(CMAKE_Fortran_COMPILER)
-    set(LAPACK_DEPENDENCIES ${pkgconfig_dep})
-    set(NUMPY_DEPENDENCIES ${LAPACK_dep})
-  else()
-    set(CLAPACK_DEPENDENCIES ${pkgconfig_dep})
-    set(NUMPY_DEPENDENCIES ${CLAPACK_dep})
-  endif()
-endif()
+set(LAPACK_DEPENDENCIES ${pkgconfig_dep})
+set(CLAPACK_DEPENDENCIES ${pkgconfig_dep})
+set(NUMPY_DEPENDENCIES ${Python_dep} ${CLAPACK_dep} ${LAPACK_dep})
 
 set(VTK_DEPENDENCIES ${zlib_deb} ${png_dep} ${jpeg_dep} ${xml_dep})
-set(cmcurl_DEPENDENCIES)
+set(cmcurl_DEPENDENCIES ${libXML2_dep} ${zlib_dep})
 set(Cairo_DEPENDENCIES ${pkgconfig_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep})
 set(HDF4_DEPENDENCIES ${zlib_dep} ${jpeg_dep})
 set(HDF5_DEPENDENCIES ${zlib_dep})
 set(cmor_DEPENDENCIES ${HDF5_dep} ${NetCDF_dep} ${zlib_dep} ${uuid_dep} ${udunits2_dep})
-set(CDAT_DEPENDENCIES ${CMOR_dep} ${Cairo_dep} ${PyQt_dep} ${PyOpenGL_dep} ${Pmw_dep})
+set(CDAT_DEPENDENCIES ${CMOR_dep} ${Cairo_dep} ${PyQt_dep} ${PyOpenGL_dep} ${NUMPY_dep} ${Pmw_dep})
 
+message("Python_DEPENDENCIES ${Python_DEPENDENCIES}")
+message("NetCDF_DEPENDENCIES ${NetCDF_DEPENDENCIES}")
 message("Pmw_DEPENDENCIES ${Pmw_DEPENDENCIES}")
 message("ghostscript_DEPENDENCIES ${ghostscript_DEPENDENCIES}")
 message("VTK_DEPENDENCIES ${VTK_DEPENDENCIES}")
