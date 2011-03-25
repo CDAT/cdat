@@ -294,7 +294,7 @@ class QColormapEditor(QtGui.QColorDialog):
         n = self.layout().count()
         self.cmap = self.root.canvas[0].getcolormap(str(self.colormap.currentText()))
         self.colors=QtGui.QFrame()
-        self.root.canvas[0].setcolormap(self.cmap)
+        self.root.canvas[0].setcolormap(str(self.colormap.currentText()))
 
         icolor = 0
         for i in range(16):
