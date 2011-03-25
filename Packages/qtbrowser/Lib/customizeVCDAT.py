@@ -14,6 +14,8 @@ commentsColor = vcdatCommons.redColor
 recordCommands = True
 defaultTemplateName = "default"
 defaultGraphicsMethodName = "default"
+colorSelectedStyle = "border:2px solid black"
+colorNotSelectedStyle = "border:2px solid white"
 
 ## General Styles
 appStyles = {}

@@ -3,6 +3,7 @@ import customizeVCDAT
 import os
 import vcdatCommons
 
+
 def parseLayout(l,prefix=""):
     for i in range(l.count()):
         it=l.itemAt(i)
@@ -127,7 +128,6 @@ class QColormapEditor(QtGui.QColorDialog):
 
     def applyChanges(self):
         cnm = self.root.canvas[0].getcolormapname()
-        self.root.canvas[0].setcolormap(str(self.colormap.currentText()))
         n=0
         for i in range(15):
             for j in range(16):
@@ -217,7 +217,7 @@ class QColormapEditor(QtGui.QColorDialog):
             for j in range(16):
                 b= self.grid.itemAtPosition(i,j).widget()
                 stsh = str(b.styleSheet())
-                if stsh.find("border:1px solid black")>-1:
+                if stsh.find(customizeVCDAT.colorSelectedStyle)>-1:
                     n+=1
                     if first is None:
                         first = b.vcscolor
@@ -266,9 +266,9 @@ class QColormapEditor(QtGui.QColorDialog):
             if sp[0].strip() not in ["border"]:
                 newstyles.append(":".join(sp))
         if on:
-            newstyles.append("border:1px solid black")
+            newstyles.append(customizeVCDAT.colorSelectedStyle)
         else:
-            newstyles.append("border:1px solid white")
+            newstyles.append(customizeVCDAT.colorNotSelectedStyle)
             
         styles=";".join(newstyles)
         button.setStyleSheet(styles)
@@ -294,6 +294,7 @@ class QColormapEditor(QtGui.QColorDialog):
         n = self.layout().count()
         self.cmap = self.root.canvas[0].getcolormap(str(self.colormap.currentText()))
         self.colors=QtGui.QFrame()
+        self.root.canvas[0].setcolormap(self.cmap)
 
         icolor = 0
         for i in range(16):
