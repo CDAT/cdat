@@ -11,7 +11,6 @@ ExternalProject_Add(libXML2
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
   CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
+  DEPENDS ${libXML2_DEPENDENCIES}
 )
 
-set(libXML2_DIR "${libXML2_binary}" CACHE PATH "libXML2 binary directory" FORCE)
-mark_as_advanced(libXML2_DIR)
