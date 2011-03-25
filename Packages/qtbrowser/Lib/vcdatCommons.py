@@ -488,7 +488,7 @@ def getAvailablePrinters():
 
 class CalcButton(QtGui.QToolButton):
     """Calculator button class - size change & emits clicked text signal"""
-    def __init__(self, text, icon = None, tip = None, styles={}, parent=None,signal="clickedMyButton"):
+    def __init__(self, text, icon = None, tip = None, styles={}, parent=None,signal="clickedMyButton",minimumXSize=35,minimumYSize=35):
         QtGui.QToolButton.__init__(self, parent)
         if isinstance(styles,dict):
             st=""
@@ -508,7 +508,7 @@ class CalcButton(QtGui.QToolButton):
             self.setIcon(icon)
             self.setIconSize(QtCore.QSize(customizeVCDAT.iconsize,customizeVCDAT.iconsize))
         self.setText(text)
-        self.setMinimumSize(38, 35)
+        self.setMinimumSize(minimumXSize,minimumYSize)
         ## self.setMaximumSize(60, 50)
         self.setSizePolicy(QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred,
                                              QtGui.QSizePolicy.Preferred))

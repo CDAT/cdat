@@ -25,7 +25,8 @@ def main():
     app = QtGui.QApplication(sys.argv)
     icon = QtGui.QIcon(customizeVCDAT.appIcon)
     app.setWindowIcon(icon)
-
+    #app.setQuitOnLastWindowClosed(True)
+    
     try:
         execfile(n.custom,customizeVCDAT.__dict__,customizeVCDAT.__dict__)
     except Exception,err:
