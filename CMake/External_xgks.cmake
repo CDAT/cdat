@@ -6,6 +6,8 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/xgks_configure_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/xgks_configure_step.cmake
   @ONLY)
 
+#cp -f build/xgks*/port/misc/udposix.h /home/partyd/Projects/uv-cdat/make-install/Externals/include
+
 ExternalProject_Add(xgks
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
   SOURCE_DIR ${xgks_source}
