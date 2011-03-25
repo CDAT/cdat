@@ -18,6 +18,7 @@ ExternalProject_Add(pbmplus
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${cdat_external_patch_dir}/src/pbmplus/libpbm1.c ${pbmplus_source}/pbm/
   CONFIGURE_COMMAND ""
+  DEPENDS ${pbmplus_DENDENCIES}
 )
 
 ExternalProject_Add_Step(pbmplus CopyPbmplusHeader
