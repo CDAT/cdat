@@ -27,6 +27,3 @@ ExternalProject_Add(Pmw
   DEPENDS ${Pmw_DEPENDENCIES}
 )
 
-set(Pmw_DIR "${Pmw_binary}" CACHE PATH "Pmw binary directory" FORCE)
-mark_as_advanced(Pmw_DIR)
-
