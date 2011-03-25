@@ -32,6 +32,31 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/version.in
   ${cdat_SOURCE_DIR}/version
   @ONLY)
 
+##############################################################################
+# Important: change architecture *before* any enable_language() or project()
+# calls so that it's set properly to detect 64-bit-ness...
+#
+if(APPLE)
+
+  string(REGEX REPLACE "^([0-9]+)\\.([0-9]+).*$" "\\1" OSX_VER_MAJOR "${CURRENT_OSX_VERSION}")
+  string(REGEX REPLACE "^([0-9]+)\\.([0-9]+).*$" "\\2" OSX_VER_MINOR "${CURRENT_OSX_VERSION}")
+
+  if("${CMAKE_OSX_DEPLOYMENT_TARGET}" STREQUAL "")
+    set(CMAKE_OSX_ARCHITECTURES "x86_64" CACHE STRING "" FORCE)
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "${OSX_VER_MAJOR}.${OSX_VER_MINOR}" CACHE STRING "" FORCE)
+  endif()
+
+  if(NOT "${CMAKE_OSX_SYSROOT}" STREQUAL "")
+    if(NOT EXISTS "${CMAKE_OSX_SYSROOT}")
+      message(FATAL_ERROR "error: CMAKE_OSX_SYSROOT='${CMAKE_OSX_SYSROOT}' does not exist")
+    endif()
+  endif()
+endif()
+
+#
+#
+#
+
 #-----------------------------------------------------------------------------
 # Git protocole option
 #-----------------------------------------------------------------------------
@@ -102,10 +127,10 @@ if(APPLE)
     -DCMAKE_OSX_DEPLOYMENT_TARGET:STRING=${CMAKE_OSX_DEPLOYMENT_TARGET}
     -DCMAKE_OSX_SYSROOT:PATH=${CMAKE_OSX_SYSROOT})
 
-  set(cdat_osx_flags ${cdat_apple_compiler_args})
   set(cdat_osx_arch_flag "-arch ${CMAKE_OSX_ARCHITECTURES}")
   set(cdat_osx_version_flag "-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
   set(cdat_osx_sysroot "-isysroot ${CMAKE_OSX_SYSROOT}")
+  set(cdat_osx_flags "${cdat_osx_arch_flag} ${cdat_osx_version_flag} ${cdat_osx_sysroot}")
 endif()
 
 if(WIN32)
