@@ -5,6 +5,7 @@ import vcsPlotControllerWidget
 import customizeVCDAT
 import vcsPageLayoutWidget
 import vcdatCommons
+import colormapEditorWidget
 
 class QPlotOptionsWidget(QtGui.QWidget):
     """ Widget containing plot options: plot button, plot type combobox, cell
@@ -36,6 +37,8 @@ class QPlotOptionsWidget(QtGui.QWidget):
         self.plotTypeCombo.view().setPalette(comboPalette)
         
         self.plotTypeCombo.addItems(customizeVCDAT.plotTypes)
+        self.plotTypeCombo.addItems(customizeVCDAT.extraPlotTypes.keys())
+
         hbox.addWidget(self.plotTypeCombo)
 
         if qtbrowser.useVistrails:
@@ -96,13 +99,13 @@ class QPlotOptionsWidget(QtGui.QWidget):
         # Create graphic method attribute option / editor
         #canvas = vcs.init()
         #self.graphicsMethodController = graphicsMethodsWidgets.QGraphicsMethodAttributeWindow(canvas, self)
-        graphicMethodAction = optionsMenu.addAction('Se&t Graphics Method Attributes')
+        #graphicMethodAction = optionsMenu.addAction('Se&t Graphics Method Attributes')
 
         # Create Colormap option / widget
         colorMapAction = optionsMenu.addAction("&Colormap Editor")
-        self.colorDialog = QtGui.QColorDialog(self)
+        self.colorDialog = colormapEditorWidget.QColormapEditor(self)
         self.connect(colorMapAction, QtCore.SIGNAL('triggered ()'),
-                     self.colorDialog.open)
+                     self.colorDialog.show)
 
         # Create the options button
         self.optionButton = QtGui.QPushButton()
@@ -123,8 +126,8 @@ class QPlotOptionsWidget(QtGui.QWidget):
                      self.optionButton.showMenu)
         self.connect(self.plotTypeCombo,QtCore.SIGNAL('currentIndexChanged(const QString&)'),
                      self.selectedPlotType)
-        self.connect(self.plotTypeCombo,QtCore.SIGNAL('activated(int)'),
-                     self.selectedPlotType)
+        ## self.connect(self.plotTypeCombo,QtCore.SIGNAL('activated(int)'),
+        ##              self.selectedPlotType)
         ## self.connect(graphicMethodAction, QtCore.SIGNAL('triggered ()'),
         ##              self.graphicsMethodController.show)
 
@@ -132,10 +135,17 @@ class QPlotOptionsWidget(QtGui.QWidget):
         
     def selectedPlotType(self,*args):
         ptype = self.getPlotType()
-        self.customizePlotFrame.destroy()
-        self.layout.removeWidget(self.customizePlotFrame)
+        old_widget = self.customizePlotFrame
+        old_widget.setVisible(False)
+        self.layout.removeWidget(old_widget)
+        old_widget.deleteLater()
+
         if self.parent.isVCSPlot(ptype):
             self.customizePlotFrame=vcsPlotControllerWidget.QVCSPlotController(self.parent)
+            self.layout.addWidget(self.customizePlotFrame)
+        elif self.parent.isRegisteredPlot(ptype):
+            self.customizePlotFrame = \
+               vcsPlotControllerWidget.QGenericPlotController(self.parent)
             self.layout.addWidget(self.customizePlotFrame)
         else:
             print 'Cannot construct controller for graphic method type:',ptype
@@ -151,7 +161,7 @@ class QPlotOptionsWidget(QtGui.QWidget):
         return int(self.cellColCombo.currentText()) - 1
 
     def getPlotType(self):
-        return self.plotTypeCombo.currentText()
+        return self.plotTypeCombo.currentText()    
 
     def getContinentType(self):
         """ Returns None or a number from 0-11 corresponding to the option
@@ -163,12 +173,6 @@ class QPlotOptionsWidget(QtGui.QWidget):
                 return continentType
 
         return None
-
-    def getGraphicsMethodController(self):
-        return self.graphicsMethodController
-
-    def getParent(self):
-        return self.parent
 
 class QCheckMenu(QtGui.QMenu):
     """ Menu where only a single 'checkable' action can be checked at a time """
@@ -233,7 +237,8 @@ class QPlotView(QtGui.QWidget):
         self.setLayout(vbox)
 
         self.plotOptions = QPlotOptionsWidget(self)
-
+        
+        self.currentFileName = None
         ##########################################################
         # Plots setup section
         ##########################################################
@@ -258,7 +263,10 @@ class QPlotView(QtGui.QWidget):
             return True
         else:
             return False
-         
+
+    def isRegisteredPlot(self, plotType):
+        return customizeVCDAT.extraPlotTypes.has_key(str(plotType))
+    
     def plot(self):
         """ Create the graphics method and cdatcell modules. Update the input
         port values and setup connections. Then plot.
@@ -269,89 +277,104 @@ class QPlotView(QtGui.QWidget):
         # Error if not enough slabs
         plotType = str(self.plotOptions.getPlotType())
 
+        if self.isVCSPlot(plotType):
+            cType = self.plotOptions.getContinentType()
         
-        selectedVars=self.root.definedVar.widget.getSelectedDefinedVariables()
+            selectedVars=self.root.definedVar.widget.getSelectedDefinedVariables()
 
-        ## First of all we need to go thru the VCS layouts
-        nplotted = 0
-        cleared = []
-        for i in range(self.plotsSetup.nlines):
-            tmp = self.plotsSetup.vlayout.itemAt(i)
-            h=tmp.widget().layout()
-            tmpi = h.itemAt(1)
-            if tmpi.widget().widget.isChecked():
-                nplotted+=1
-                template = str(h.itemAt(2).widget().widget.text())
-                ## Ok now figures out the Canvas
-                if qtbrowser.useVistrails:
-                    col = str(h.itemAt(h.count()-1).widget().widget.currentText())
-                    row = str(h.itemAt(h.count()-2).widget().widget.currentText())
-                else:
-                    icanvas = h.itemAt(h.count()-1).widget().widget.currentIndex()
-                    if not icanvas in cleared:
-                        cleared.append(icanvas)
-                        self.root.record("## Clearing vcs canvas %i" % icanvas)
-                        self.root.record("vcs_canvas[%i].clear()" % icanvas)
-                        self.root.canvas[icanvas].clear()
-                        
-                if template == "":
-                    ##Ok let's grab it from list
-                    template = self.getTemplateName()
-                gmType = str(h.itemAt(3).widget().label.text())
-                gm = str(h.itemAt(3).widget().widget.text())
-                if gm=="":
-                    if gmType==plotType:
-                        gm = self.getGraphicsMethodName()
-                    elif gmType=="GM":
-                        gmType=plotType
-                        gm = self.getGraphicsMethodName()
+            ## First of all we need to go thru the VCS layouts
+            nplotted = 0
+            cleared = []
+            for i in range(self.plotsSetup.nlines):
+                tmp = self.plotsSetup.vlayout.itemAt(i)
+                h=tmp.widget().layout()
+                tmpi = h.itemAt(1)
+                if tmpi.widget().widget.isChecked():
+                    nplotted+=1
+                    template = str(h.itemAt(2).widget().widget.text())
+                    ## Ok now figures out the Canvas
+                    if qtbrowser.useVistrails:
+                        col = str(h.itemAt(h.count()-1).widget().widget.currentText())
+                        row = str(h.itemAt(h.count()-2).widget().widget.currentText())
                     else:
-                        gm = customizeVCDAT.defaultGraphicsMethodName
-                vars=[]
-                nused=0
-                nSlabs= self.nSlabsRequired(gmType)
-                for j in range(nSlabs):
-                    vnm = str(h.itemAt(4+j).widget().label.text()).split()[0]
-                    vars.append(self.root.definedVar.widget.getVariable(vnm))
-                    if vars[-1] is None:
-                        if nused>=len(selectedVars):
-                            self.showError('Error Message to User', '%s plots \nmust have %i data variables. The data \nvariables must be selected in the \n"Defined Variables or dropped into the Variable boxes of the VCS Page layout window.\nCould not find the %ith variable' % (gmType,nSlabs,j+1))
+                        icanvas = h.itemAt(h.count()-1).widget().widget.currentIndex()
+                        if not icanvas in cleared:
+                            cleared.append(icanvas)
+                            self.root.record("## Clearing vcs canvas %i" % icanvas)
+                            self.root.record("vcs_canvas[%i].clear()" % icanvas)
+                            self.root.canvas[icanvas].clear()
+                        
+                    if template == "":
+                        ##Ok let's grab it from list
+                        template = self.getTemplateName()
+                    gmType = str(h.itemAt(3).widget().label.text())
+                    gm = str(h.itemAt(3).widget().widget.text())
+                    if gm=="":
+                        if gmType==plotType:
+                            gm = self.getGraphicsMethodName()
+                        elif gmType=="GM":
+                            gmType=plotType
+                            gm = self.getGraphicsMethodName()
                         else:
-                            vars[-1]=selectedVars[nused]
-                            nused+=1
+                            gm = customizeVCDAT.defaultGraphicsMethodName
+                    vars=[]
+                    nused=0
+                    nSlabs= self.nSlabsRequired(gmType)
+                    for j in range(nSlabs):
+                        vnm = str(h.itemAt(4+j).widget().label.text()).split()[0]
+                        vars.append(self.root.definedVar.widget.getVariable(vnm))
+                        if vars[-1] is None:
+                            if nused>=len(selectedVars):
+                                self.showError('Error Message to User', '%s plots \nmust have %i data variables. The data \nvariables must be selected in the \n"Defined Variables or dropped into the Variable boxes of the VCS Page layout window.\nCould not find the %ith variable' % (gmType,nSlabs,j+1))
+                            else:
+                                vars[-1]=selectedVars[nused]
+                                nused+=1
                 
-                plot_args="%s" % vars[0].id
-                for i in range(1,nSlabs):
-                    plot_args+=", %s" % vars[i].id
+                    plot_args="%s" % vars[0].id
+                    for i in range(1,nSlabs):
+                        plot_args+=", %s" % vars[i].id
 
-                # Template section
-                template = self.getTemplateName()
-                vars.append(template)
-                plot_args+=",'%s'" % template
+                    # Template section
+                    template = self.getTemplateName()
+                    vars.append(template)
+                    plot_args+=",'%s'" % template
 
-                # Plot type section
-                vars.append(gmType)
-                plot_args+=", '%s'" % gmType
+                    # Plot type section
+                    vars.append(gmType)
+                    plot_args+=", '%s'" % gmType
 
-                # Graphic method
-                vars.append(gm)
-                plot_args+=", '%s'" % gm
+                    # Graphic method
+                    vars.append(gm)
+                    plot_args+=", '%s'" % gm
 
 
-                if qtbrowser.useVistrails:
-                    if row == "Auto" :
-                        row = self.plotOptions.getRow()
-                    if col == "Auto":
-                        col = self.plotOptions.getCol()
-                    self.root.record('## Plotting into the spreadsheet')
-                    self.root.record('plot(%s,row=%s,col=%s)'% (plot_args,
+                    plot_kargs = {"continents":cType}
+
+                    for k in plot_kargs.keys():
+                        plot_args+=", %s=%s" % (k,repr(plot_kargs[k]))
+                    
+                    if qtbrowser.useVistrails:
+                        if row == "Auto" :
+                            row = self.plotOptions.getRow()
+                        if col == "Auto":
+                            col = self.plotOptions.getCol()
+                        self.root.record('## Plotting into the spreadsheet')
+                        self.root.record('plot(%s,row=%s,col=%s)'% (plot_args,
                                                                 row,
                                                                 col))
-                else:
-                    self.root.record("## Plotting onto canvas %i" % icanvas)
-                    self.root.record("vcs_canvas[%i].plot(%s)" % (icanvas,plot_args))
-                    self.root.canvas[icanvas].plot(*vars)
+                    else:
+                        self.root.record("## Plotting onto canvas %i" % icanvas)
+                        self.root.record("vcs_canvas[%i].plot(%s)" % (icanvas,plot_args))
+                        self.root.canvas[icanvas].plot(*vars,**plot_kargs)
 
+        elif self.isRegisteredPlot(plotType):
+            if isinstance(self.plotOptions.customizePlotFrame,
+                          vcsPlotControllerWidget.QGenericPlotController):
+                row_name = self.plotOptions.customizePlotFrame.plot.cells[0].row_name
+                col_name = self.plotOptions.customizePlotFrame.plot.cells[0].col_name
+                self.plotOptions.customizePlotFrame.plot.alias_values[row_name] = self.plotOptions.getRow()
+                self.plotOptions.customizePlotFrame.plot.alias_values[col_name] = self.plotOptions.getCol()
+                self.plotOptions.customizePlotFrame.plot.applyChanges()
 
 
     def nSlabsRequired(self,plotType):
@@ -420,3 +443,6 @@ class QPlotView(QtGui.QWidget):
 
     def currentTabName(self):
         return self.tabWidget.currentTabName()
+
+    def fileChanged(self, filename):
+        self.currentFileName = filename

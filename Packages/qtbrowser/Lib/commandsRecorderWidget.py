@@ -3,32 +3,12 @@ import qtbrowser
 
 import os
 import customizeVCDAT
+import vcdatCommons
 
-class QCommandsRecorderWidget(QtGui.QDialog):
-    def __init__(self,parent=None):
-        QtGui.QDialog.__init__(self,parent)
-        self.root=parent.root
-        layout = QtGui.QVBoxLayout()
-        layout.setMargin(2)
-        self.setLayout(layout)
-        self.toolBar = QtGui.QToolBar()
-        self.toolBar.setIconSize(QtCore.QSize(customizeVCDAT.iconsize, customizeVCDAT.iconsize))
-        icon = QtGui.QIcon(os.path.join(customizeVCDAT.ICONPATH, 'Save.gif'))
-        action = self.toolBar.addAction(icon, 'saveas',self.saveAs)
-        #action.setStatusTip(info[1])
-        action.setToolTip('Save to a new file.')
-        self.toolBar.addSeparator()
-        layout.addWidget(self.toolBar)
 
-        self.text = QtGui.QTextEdit(self)
-        self.text.setReadOnly(True)
-        self.text.ensureCursorVisible()
-        
-        layout.addWidget(self.text)
-
-        self.setWindowTitle("VCDAT Recorded Commands")
-
-        self.setMinimumWidth(600)
+class QCommandsRecorderWidget(vcdatCommons.QCommandsFileWidget):
+    def __init__(self,parent,title="VCDAT Recorded Commands",readOnly=True):
+        vcdatCommons.QCommandsFileWidget.__init__(self,parent,title,readOnly)
         self.initCommands()
 
     def initCommands(self):
@@ -45,39 +25,8 @@ for i in range(4):
 """
    
         self.addText(txt)
+                
         
-    def saveAs(self):
-        cont = True
-        while cont is True:
-            fnm = QtGui.QFileDialog.getSaveFileName()
-            print 'Got file:',fnm
-            try:
-                f=open(fnm,'w')
-                cont=False
-            except:
-                if fnm is None:
-                    cont=False
-                    return
-        
-
-        print >> f, self.text.toPlainText()
-        f.close()
-        
-    def addText(self,textString):
-        
-        sp = textString.split("\n")
-        for l in sp:
-            st=l.strip()
-            if len(st)>0 and st[0]=="#": # comment
-                self.text.setTextColor( customizeVCDAT.commentsColor )
-            else:
-                self.text.setTextColor( customizeVCDAT.defaultTextColor )
-            
-        
-            self.text.insertPlainText(l+'\n')
-        
-
-    
     def record(self,commands,*vistrails):
         for a in self.root.mainMenu.tools.actions():
             if a.text() == 'Record Commands' and a.isChecked():

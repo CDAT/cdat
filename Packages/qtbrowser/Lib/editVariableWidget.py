@@ -131,6 +131,7 @@ class editVariableWidget(QtGui.QWidget):
         self.root.record("ax = %s.getAxis(%s.getAxisIndex('%s'))" % (self.var.id,self.var.id,axName))
         self.root.record("ax.%s = %s" % (attName,repr(attValue)))
         
+        
     def addAxAttribute(self):
         axName = str(self.axisComboBox.currentText())
         ax = self.var.getAxis(self.var.getAxisIndex(axName))
@@ -184,9 +185,9 @@ class editVariableWidget(QtGui.QWidget):
         self.root.record("## Modify attribute %s on variable %s" % (attName,self.var.id))
         self.root.record("%s.%s = %s" % (self.var.id,attName,repr(attValue)))
         
-        
-        print "ok need to code this",self.var.id
-        
+        self.root.definedVar.widget.updateVars()
+        #self.root.stick_main_dict_into_defvar(None)        
+                    
     def addVarAttribute(self):
         newName=str(self.newVarAttributeName.text()).strip()
         if len(newName)==0:
@@ -206,7 +207,6 @@ class editVariableWidget(QtGui.QWidget):
         self.varComboBox.setCurrentIndex(i)
     
     def delVarAttribute(self):
-        print "Adding an attribute"
         newName=str(self.newVarAttributeName.text()).strip()
         if len(newName)==0:
             return

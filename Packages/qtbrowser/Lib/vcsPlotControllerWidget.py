@@ -5,6 +5,7 @@ import editorGraphicsMethodsWidget
 import editorTemplateWidget
 import graphicsMethodsWidget
 import templatesWidget
+import customizeVCDAT
 
 class QVCSPlotController(QtGui.QWidget):
     """ Widget containing plot options: plot button, plot type combobox, cell
@@ -91,3 +92,61 @@ class QVCSPlotController(QtGui.QWidget):
     def discardChanges(self):
         self.editorTab.widget(1).discardChanges()
         self.discard.setEnabled(False)
+
+class QGenericPlotController(QtGui.QWidget):
+    """ Widget containing plot widget for non-VCS plots
+    """
+
+    def __init__(self, parent=None):
+        QtGui.QWidget.__init__(self, parent)
+        self.parent = parent
+        self.root = parent.root
+        ptype = str(parent.plotOptions.getPlotType())
+        layout = QtGui.QVBoxLayout()
+        self.setLayout(layout)
+        if customizeVCDAT.extraPlotTypes.has_key(ptype):
+            self.plot = customizeVCDAT.extraPlotTypes[ptype]
+            if self.plot.widget is not None:
+                layout.addWidget(self.plot.widget)
+            
+        buttonsFrame = QtGui.QFrame()
+        hl = QtGui.QHBoxLayout()
+        
+        self.apply = QtGui.QPushButton("Apply")
+        self.preview = QtGui.QPushButton("Preview")
+        self.discard = QtGui.QPushButton("Discard")
+        self.discard.setEnabled(False)
+        hl.addWidget(self.apply)
+        hl.addWidget(self.preview)
+        hl.addWidget(self.discard)
+        buttonsFrame.setLayout(hl)
+
+        layout.addWidget(buttonsFrame)
+
+        self.connect(self.apply,QtCore.SIGNAL("clicked()"),self.applyChanges)
+        self.connect(self.preview,QtCore.SIGNAL("clicked()"),
+                     self.previewChanges)
+        self.connect(self.discard,QtCore.SIGNAL("clicked()"),
+                     self.discardChanges)
+
+    def applyChanges(self):
+        self.plot.applyChanges()
+        self.discard.setEnabled(False)
+
+    def previewChanges(self):
+        aliases = { self.plot.files[0] : self.parent.currentFileName,
+                    self.plot.cells[0].row_name : self.parent.plotOptions.getRow(),
+                    self.plot.cells[0].col_name : self.parent.plotOptions.getCol()
+                    }
+        for a,w in self.plot.alias_widgets.iteritems():
+            aliases[a] = w.contents()
+            
+        self.plot.previewChanges(aliases)
+        self.discard.setEnabled(True)
+
+    def discardChanges(self):
+        self.plot.discardChanges()
+        self.discard.setEnabled(False)
+
+    def fileChanged(self, filename):
+        self.plot.alias_values[self.plot.files[0]] = filename

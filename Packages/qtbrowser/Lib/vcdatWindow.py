@@ -12,17 +12,21 @@ import vcdatCommons
 import os
 import cdms2 # need to remove this!
 import __main__
+import customizeVCDAT
+import preferencesWidget
 
 
 class QCDATWindow(QtGui.QMainWindow):
-    """ Main class for VCDAT Window. Contains a menu widget, file widget,
+    """ Main class for UVCDAT Window. Contains a menu widget, file widget,
     defined variable widget, and variable widget """
 
-    def __init__(self, parent=None,styles={}):
+    def __init__(self, parent=None,styles=customizeVCDAT.appStyles):
         """ Instantiate the child widgets of the main VCDAT window and setup
         the overall layout """
         centralWidget= QtGui.QWidget()
         QtGui.QMainWindow.__init__(self,parent)
+        icon = QtGui.QIcon(customizeVCDAT.appIcon)
+        self.setWindowIcon(icon)
 
         ## StylesSheet
         st=""
@@ -44,10 +48,10 @@ class QCDATWindow(QtGui.QMainWindow):
         ## Prettyness
         ###########################################################
         ###########################################################
-        self.setGeometry(0,0, 1100,800)
-        self.setWindowTitle('The Visual Climate Data Analysis Tools - (VCDAT)')
-        self.resize(1100,800)
-        self.setMinimumSize(1100,800)
+        #self.setGeometry(0,0, 1100,800)
+        self.setWindowTitle('The Ultra Visualization Climate Data Analysis Tools - (UV-CDAT)')
+        ## self.resize(1100,800)
+        self.setMinimumWidth(1100)
         self.main_window_placement()
 
         self.root = self
@@ -67,10 +71,7 @@ class QCDATWindow(QtGui.QMainWindow):
         ###########################################################
         ###########################################################
 
-        ###########################################################
-        # Init Menu Widget
-        ###########################################################
-        self.mainMenu = mainMenuWidget.QMenuWidget(self)
+
 
         ###########################################################
         # Init Main Window Icon Tool Bar at the top of the GUI
@@ -116,6 +117,12 @@ class QCDATWindow(QtGui.QMainWindow):
         self.tabView.widget(1).show()
         self.tabView.widget(1).plotOptions.plotTypeCombo.setCurrentIndex(0)
 
+        self.preferences = preferencesWidget.QPreferencesDialog(self)
+        self.preferences.hide()
+        ###########################################################
+        # Init Menu Widget
+        ###########################################################
+        self.mainMenu = mainMenuWidget.QMenuWidget(self)
 
         ###########################################################
         ###########################################################
@@ -144,6 +151,14 @@ class QCDATWindow(QtGui.QMainWindow):
                         self.tabView.widget(0).defineVariableEvent)
         fw = self.tabView.widget(0).fileWidget.widget
         fw.connect(fw.plotButton,QtCore.SIGNAL('clicked(bool)'),self.tabView.widget(1).plot)
+
+        ###########################################################
+        ## Connect Signals between QFileWidget & QPlotView
+        ###########################################################
+        self.connect(self.tabView.widget(0).fileWidget.widget,
+                     QtCore.SIGNAL('fileChanged'),
+                     self.tabView.widget(1).fileChanged)
+                 
     def closeEvent(self, event):
         # TODO
         # closeEvent() isn't called vistrails is closed,
@@ -178,12 +193,9 @@ class QCDATWindow(QtGui.QMainWindow):
             __main__.__dict__[tmp.id]=tmp
             added.append(tmp.id)
             res = tmp.id
-        elif isinstance(tmp,(list,tuple)):
-            for i in tmp:
-                if isinstance(i,cdms2.tvariable.TransientVariable):
-                    __main__.__dict__[i.id]=i
-                    added.append(i.id)
-
+        elif tmp is not None:
+            self.processList(tmp,added)
+            
         if results is not None:
             del(__main__.__dict__[results])
         for k in __main__.__dict__:
@@ -198,3 +210,18 @@ class QCDATWindow(QtGui.QMainWindow):
             del(__main__.__dict__[r])
 
         return res
+    
+    def processList(self,myList,added):
+        for v in myList:
+            if isinstance(v,cdms2.tvariable.TransientVariable):
+                __main__.__dict__[v.id]=v
+                added.append(v.id)
+            elif isinstance(v,(list,tuple)):
+                self.processList(v,added)
+            elif isinstance(v,dict):
+                self.processList(dict.values(),added)
+        return
+
+    def registerPlotType(self, plot_name, plot_object):
+        customizeVCDAT.extraPlotTypes[plot_name] = plot_object
+        self.tabView.widget(1).plotOptions.plotTypeCombo.addItem(plot_name)

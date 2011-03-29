@@ -1,6 +1,7 @@
 from PyQt4 import QtGui, QtCore
 import os
 import customizeVCDAT
+import vcdatCommons
 
 class QMainToolBarContainer( QtGui.QWidget ):
     """ Main icon tool bar widget that is located at the top of VCDAT's main
@@ -18,38 +19,118 @@ class QMainToolBarContainer( QtGui.QWidget ):
         #self.setFixedWidth(50)
         self.toolBar.setIconSize(QtCore.QSize(customizeVCDAT.iconsize, customizeVCDAT.iconsize))
         actionInfo = [
-            ('Open_folder.gif', 'Open a script file.'),
-            ('Save.gif', 'Save selected defined variable to a netCDF file.'),
-            ('Print.gif', 'Print selected defined variable information or selected plot.'),
-            ('Script.gif', 'Script out the button clicks and commands to a file.'),
-            ('ESG_download.gif', 'Connection to the Earth System Grid Federation (ESGF) data archive.'),
-            ('Help.gif', 'Display assistant content for this application.'),
+            ('script_folder_smooth.ico', 'Open a script file.',self.openScript,True),
+            ('folder_image_blue.ico', 'Save plots.',self.savePlots,True),
+            ('printer.ico', 'Print plots.',self.printPlots,True),
+            ('vistrails_icon.png', 'Vistrails Builder.',self.vistrails,True),
+            ('connected.ico', 'Connection to the Earth System Grid Federation (ESGF) data archive.',self.ESG,False),
+            ('symbol_help.ico', 'Display assistant content for this application.',self.help,False),
             ]
 
         for info in actionInfo:
-            icon = QtGui.QIcon(os.path.join(customizeVCDAT.ICONPATH, info[0]))
+            pth = os.path.join(customizeVCDAT.ICONPATH, info[0])
+            icon = QtGui.QIcon(pth)
             action = self.toolBar.addAction(icon, 'help')
-            #action.setStatusTip(info[1])
             action.setToolTip(info[1])
+            self.connect(action,QtCore.SIGNAL("triggered()"),info[2])
+            action.setEnabled(info[3])
         self.toolBar.addSeparator()
 
-        ## self.opButton = QtGui.QToolButton()
-        ## self.opButton.setText('Ops')
 
         vbox.addWidget(self.toolBar, 0)
         self.setLayout(vbox)
+        self.files=[]
 
-##         '''
-##         self.label = QtGui.QLabel("toolbar")
-##         self.label.setAutoFillBackground(True)
-##         self.label.setAlignment(QtCore.Qt.AlignCenter)
-##         self.label.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Raised)
-##         vbox.addWidget(self.label, 0)
 
-##         if widget!=None:
-##             self.widget = widget
-##         else:
-##             self.widget = QtGui.QWidget()
-##         vbox.addWidget(self.widget, 5)
-##         self.setLayout(vbox)
-## '''
+        ## Printers dialog
+        osprinters = os.environ.get("PRINTER",None)
+        if osprinters is None:
+            printers=[]
+        else:
+            printers=[osprinters,]
+        vcsprinters =  sorted(vcdatCommons.getAvailablePrinters())
+        if osprinters is not None and osprinters in vcsprinters:
+            vcsprinters.pop(vcsprinters.index(osprinters))
+        printers+=vcsprinters
+        printers += ["Custom",]
+        
+        d = QtGui.QDialog()
+        l = QtGui.QVBoxLayout()
+        d.setLayout(l)
+        fp = vcdatCommons.QFramedWidget("Printer Selection",parent=self)
+        self.qprinters = fp.addLabeledComboBox("Printer",printers)
+        self.connect(self.qprinters,QtCore.SIGNAL("currentIndexChanged(int)"),self.changedPrinter)
+        l.addWidget(fp)
+        self.customPrinter=fp.addLabeledLineEdit("Custom Printer Name:",newRow=True)
+        f = QtGui.QFrame()
+        h = QtGui.QHBoxLayout()
+        b1 = QtGui.QPushButton("Print")
+        h.addWidget(b1)
+        b2 = QtGui.QPushButton("Cancel")
+        h.addWidget(b2)
+        self.connect(b1,QtCore.SIGNAL("clicked()"),self.printerSelected)
+        self.connect(b2,QtCore.SIGNAL("clicked()"),d.hide)
+        f.setLayout(h)
+        l.addWidget(f)
+        self.qprinters.setCurrentIndex(1)
+        self.qprinters.setCurrentIndex(0)
+
+        self.printers = d
+        d.hide()
+
+
+    def openScript(self):
+        fnm = str(QtGui.QFileDialog.getOpenFileName(self,"Open Python Script",filter="Python Scripts (*.py);; All (*.*)"))
+        d = vcdatCommons.QCommandsFileWidget(self,fnm,False,fnm)
+        d.show()
+        self.files.append(d)
+        
+    
+    def savePlots(self):
+        for x in self.root.canvas:
+            if x.iscanvasdisplayed():
+                fnm = str(QtGui.QFileDialog.getOpenFileName(self,"Save Plot",filter="VCS Images (*.png *.svg *.gif *.pdf *.ps *.eps);; All (*.*)"))
+                if fnm.lower()[-3:] == ".ps":
+                    x.postscript(fnm)
+                elif fnm.lower()[:-4] == ".eps":
+                    x.eps(fnm)
+                elif fnm.lower()[:4]==".png":
+                    x.png(fnm)
+                elif fnm.lower()[:4]==".pdf":
+                    x.pdf(fnm)
+                elif fnm.lower()[:4]==".gif":
+                    x.gif(fnm)
+                elif fnm.lower()[:4]==".svg":
+                    x.svg(fnm)
+                else:
+                    x.png(fnm)
+  
+    def printPlots(self):
+        self.printers.show()
+        pass
+    def printerSelected(self):
+        self.printers.hide()
+        printer = str(self.qprinters.currentText())
+        if printer == "Custom":
+            printer = str(self.customPrinter.text()).strip()
+        if printer=="":
+            return
+        for x in self.root.canvas:
+            if x.iscanvasdisplayed():
+                x.printer(printer)
+                
+    def changedPrinter(self,*args):
+        if str(self.qprinters.currentText()) == "Custom":
+            self.customPrinter.setEnabled(True)
+            self.customPrinter.label.setEnabled(True)
+        else:
+            self.customPrinter.setEnabled(False)            
+            self.customPrinter.label.setEnabled(False)            
+        
+    def ESG(self):
+        return
+    def help(self):
+        return
+    def vistrails(self):
+        return
+    

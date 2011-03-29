@@ -5,7 +5,7 @@ import customizeVCDAT
 def main():
     # simple.py
 
-    parser = argparse.ArgumentParser(description = "VCDAT")
+    parser = argparse.ArgumentParser(description = "UV-CDAT")
     d = parser.add_argument_group("Data")
     d.add_argument("file",help="file to open at start time",nargs="?")
     d.add_argument("-f",dest="file2",help="file to open at start time",metavar="FILE")
@@ -25,7 +25,8 @@ def main():
     app = QtGui.QApplication(sys.argv)
     icon = QtGui.QIcon(customizeVCDAT.appIcon)
     app.setWindowIcon(icon)
-
+    #app.setQuitOnLastWindowClosed(True)
+    
     try:
         execfile(n.custom,customizeVCDAT.__dict__,customizeVCDAT.__dict__)
     except Exception,err:

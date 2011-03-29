@@ -4,8 +4,7 @@ import cdms2
 import vcdatCommons
 import customizeVCDAT
 import editVariableWidget
-
-
+import  __main__
 
 class QDefinedVariableWidget(QtGui.QWidget):
     """ QDefinedVariable contains a list of the user defined variables and allows the
@@ -81,6 +80,20 @@ class QDefinedVariableWidget(QtGui.QWidget):
             it = self.varList.item(i)
             if str(it.text()).split()[1] == name:
                 return it.getVariable()
+
+    def updateVars(self):
+        for i in range(self.varList.count()):
+            it = self.varList.item(i)
+            ittxt = str(it.text())
+            v = it.getVariable()
+            if it.varName != v.id:
+                it.setText(ittxt.replace(it.varName,v.id,1))
+                iTab = self.root.tabView.widget(0).tabW
+                idget.getTabIndexFromName(it.varName)
+                self.root.tabView.widget(0).tabWidget.setTabText(iTab,v.id)
+                del(__main__.__dict__[it.varName])
+                it.varName = v.id
+                self.root.stick_defvar_into_main_dict(v)
             
     def addVariable(self, var):
         """ Add variable into dict / list & emit signal to create
@@ -91,12 +104,21 @@ class QDefinedVariableWidget(QtGui.QWidget):
             if self.varList.item(i).getVarName() == var.id:
                 self.varList.takeItem(i)
         self.varList.addItem(item)
-
         # Recording define variable teaching command
 #        self.recordDefineVariableTeachingCommand(varName, var.id, file, axesArgString)
 
         # emit signal to QVariableView to create a new axisList / tab
         self.emit(QtCore.SIGNAL('setupDefinedVariableAxes'), var)
+        
+    def deleteVariable(self, varid):
+        """ Add variable into dict / list & emit signal to create
+        a tab for the variable
+        """
+        for i in range(self.varList.count()-1,-1,-1):
+            if self.varList.item(i).getVarName() == varid:
+                del(__main__.__dict__[varid])
+                self.varList.takeItem(i)
+
 
     def unselectItems(self,items):
         selected = self.varList.selectedItems()
@@ -112,6 +134,14 @@ class QDefinedVariableWidget(QtGui.QWidget):
                 it.setSelected(True)
                 self.selectVariableFromListEvent(it)
                 break
+
+    def selectAllVariables(self):
+        selected = self.varList.selectedItems()
+        for i in range(self.varList.count()):
+            it = self.varList.item(i)
+            if not it in selected:
+                self.selectVariableFromName(it.varName)
+                
             
     def selectVariableFromListEvent(self, item):
         """ Update the number next to the selected defined variable and
@@ -124,7 +154,7 @@ class QDefinedVariableWidget(QtGui.QWidget):
         # and decrement all the numbers of the other selected vars that are
         # less than the number of the item that was unselected
         if item not in selectedItems:
-            unselectedNum = item.getSelectNum()            
+            unselectedNum = item.getSelectNum()
             item.updateVariableString(None)
             
             for item in selectedItems:
@@ -185,16 +215,72 @@ class QDefinedVariableWidget(QtGui.QWidget):
         
 
     def saveVariables(self):
-        pass
+        sel = self.getSelectedDefinedVariables()
+        if len(sel)==0:
+            return
+        out = QtGui.QFileDialog.getSaveFileName(self,"NetCDF File",filter="NetCDF Files (*.nc *.cdg *.NC *.CDF *.nc4 *.NC4) ;; All Files (*.*)",options=QtGui.QFileDialog.DontConfirmOverwrite)
+        mode = "w"
+        if os.path.exists(out):
+            overwrite = QtGui.QMessageBox.question(self,"Existing File","Do you want to append to it or overwrite it?","Append","Overwrite","Ooops",2)
+            if overwrite == 2:
+                return
+            elif overwrite == 0:
+                mode="r+"
 
+        c = self.cursor()
+        self.setCursor(QtCore.Qt.BusyCursor)
+        try:
+            fo = cdms2.open(str(out),mode)
+            for v in sel:
+                fo.write(v)
+            fo.close()
+        except Exception,err:
+            QtGui.QMessageBox.question(self,"Existing File","Error while saving variables: %s" % err)
+        self.setCursor(c)
+            
     def variableInfo(self):
-        pass
-
+        self.ieds=[]
+        class MyLog():
+            def __init__(self):
+                self.text=""
+            def write(self,text):
+                self.text+=text
+            def clear(self):
+                self.text=""
+        mylog = MyLog()
+        for v in self.getSelectedDefinedVariables():
+            d = QtGui.QDialog()
+            l = QtGui.QVBoxLayout()
+            d.setLayout(l)
+            lb = QtGui.QLabel("Variable: %s %s" % (v.id,repr(v.shape)))
+            l.addWidget(lb)
+            te = QtGui.QTextEdit()
+            v.info(device=mylog)
+            f = te.currentFont()
+            fm = QtGui.QFontMetrics(f)
+            minWidth = min(max(map(fm.width,mylog.text.split("\n"))),65*fm.width("W"))
+            minHeight = min(len(mylog.text.split()),30)
+            te.setMinimumHeight(fm.height()*minHeight)
+            te.setMinimumWidth(minWidth)
+            te.setText(mylog.text)
+            te.setReadOnly(True)
+            mylog.clear()
+            l.addWidget(te)
+            b = QtGui.QPushButton("Close")
+            l.addWidget(b)
+            self.connect(b,QtCore.SIGNAL("clicked()"),d.hide)
+            d.show()
+            self.ieds.append(d)
+            
     def trashVariable(self):
-        pass
-
+        for v in self.getSelectedDefinedVariables():
+            self.deleteVariable(v.id)
+            
     def trashAll(self):
-        pass
+        self.selectAllVariables()
+        for v in self.getSelectedDefinedVariables():
+            self.deleteVariable(v.id)
+        
         
     def createToolbar(self):
         ICONPATH = customizeVCDAT.ICONPATH
@@ -204,11 +290,11 @@ class QDefinedVariableWidget(QtGui.QWidget):
         self.toolBar.setIconSize(QtCore.QSize(16, 16))
         self.toolBar.setIconSize(QtCore.QSize(customizeVCDAT.iconsize,customizeVCDAT.iconsize))
         actionInfo = [
-            ('edit.gif', "edit",'Edit (in memory) selected defined variable.',self.editVariables),
-            ('Save.gif', "save",'Save selected defined variable to a netCDF file.',self.saveVariables),
-            ('info.gif', "info",'Display selected defined variable information.',self.variableInfo),
-            ('editdelete.gif', "del",'Move selected defined variable(s) to trashcan for disposal.',self.trashVariable),
-            ('recycle.gif', "recycle",'Move [ALL] defined variables to trashcan for disposal.',self.trashAll),
+            ('pencil.ico', "edit",'Edit selected defined variable(s).',self.editVariables),
+            ('floppy_disk_blue.ico', "save",'Save selected defined variable(s) to a netCDF file.',self.saveVariables),
+            ('symbol_information.ico', "info",'Display selected defined variable(s) information.',self.variableInfo),
+            ('symbol_delete.ico', "del",'Delete selected defined variable(s).',self.trashVariable),
+            ('symbol_check.ico', "recycle",'Select ALL variables.',self.selectAllVariables),
             ## ('log.gif', "log",'Logged information about the defined variables.',self.variablesInfo),
             ## ('trashcan_empty.gif', "trash",'Defined variable items that can be disposed of permanetly or restored.',self.empytTrash),
             ]
