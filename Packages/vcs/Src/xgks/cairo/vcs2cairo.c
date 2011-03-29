@@ -348,7 +348,7 @@ double yoffset(factor,preped,font_extents,alpha,delta,pass)
   font_face = CAIRO_FONT_FACES[preped.error];
 
 
-  //  cairo_set_font_face (cr, font_face);
+  cairo_set_font_face (cr, font_face);
   cairo_set_font_size (cr, font_size);
   font_options = cairo_font_options_create ();
   cairo_get_font_options (cr, font_options);
