@@ -456,8 +456,7 @@ Gpoint VCS2DEVICE(cairo_t *cr, double x,double y)
   if (cairo_surface_get_type(cairo_get_target(cr))==CAIRO_SURFACE_TYPE_PS) {
     to = VCS2PSDEVICE(x,y);
   }
-  else
-    {
+  else {
     if (strcmp(Page.page_orient,"landscape")==0) {
       xr=1.;
       /* yr=1.3195884995223088; */
