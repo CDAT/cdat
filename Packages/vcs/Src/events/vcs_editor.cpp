@@ -3,6 +3,7 @@
 #include "cdms.h"
 #include "project.h"
 #include "gksshort.h"
+#include <QtCore/QMutex>
 
 typedef struct level_fill {int color; float l1,l2;} S_boxfill;
 extern "C" int set_bfills(struct gfb_attr *pGfb,struct a_attr *pA, S_boxfill *regis,int *num);
