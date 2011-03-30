@@ -24,7 +24,7 @@ extern PyInterpreterState * mainInterpreterState;
 extern PyThreadState * mainThreadState;
 extern PyThreadState * myThreadState;
 
-QMutex globalvcsmutex(QMutex::Recursive);
+extern QMutex globalvcsmutex(QMutex::Recursive);
 
 void acquire_global_lock() {
   globalvcsmutex.lock();

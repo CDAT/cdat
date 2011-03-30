@@ -3,6 +3,7 @@
 #include "cdms.h"
 #include "project.h"
 #include "gksshort.h"
+#include <QtCore/QMutex>
 
 typedef struct level_fill {int color; float l1,l2;} S_boxfill;
 extern "C" int set_bfills(struct gfb_attr *pGfb,struct a_attr *pA, S_boxfill *regis,int *num);
@@ -870,6 +871,10 @@ PyVCS_BLOCK_X_SERVER(PyVCScanvas_Object *self, PyObject *args)
         *        X display for me.
         */
         BLOCK_X_SERVER += 1;
+#ifdef USEQT
+	extern QMutex globalvcsmutex;
+	globalvcsmutex.lock();
+#endif
         /* Return NULL Python Object */
         Py_INCREF(Py_None);
         return Py_None;
@@ -886,6 +891,10 @@ PyVCS_UNBLOCK_X_SERVER(PyVCScanvas_Object *self, PyObject *args)
         *        X display for me.
         */
         BLOCK_X_SERVER -= 1;
+#ifdef USEQT
+	extern QMutex globalvcsmutex;
+	globalvcsmutex.unlock();
+#endif
         /* Return NULL Python Object */
         Py_INCREF(Py_None);
         return Py_None;
