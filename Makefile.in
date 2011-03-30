@@ -220,7 +220,10 @@ endif
 ifeq (@COMPILE_LIBCF@,yes)
 	@echo "Building libcf" 
 	$(call dobuildpy,./configure --enable-python-bindings --with-hdf5=@HDF5LOC@ --with-netcdf=@NC4LOC@,@LIBCF_URL@,@LIBCF_GZ@, )
-	#$(call dobuild,@LIBCF_URL@,@LIBCF_GZ@,@EXTERNALS@/libcf,, --enable-python-bindings --with-hdf5=@HDF5LOC@ --with-netcdf=@NC4LOC@)
+endif
+ifeq (@COMPILE_PYTABLES@,yes)
+	@echo "Building pytables" 
+	$(call dobuildpy,,@PYTABLES_URL@,@PYTABLES_GZ@,,,--hdf5=@HDF5LOC@)
 endif
 
 ifeq (@COMPILE_R@,yes)

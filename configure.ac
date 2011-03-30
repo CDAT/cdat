@@ -1,6 +1,6 @@
 dnl                                                -*- Autoconf -*-
 dnl  Process this file with autoconf to produce a configure script.
-dnl  $Id: $
+dnl  
 
 dnl AC_PREREQ(2.59)
 AC_SUBST(SHELL)
@@ -460,6 +460,17 @@ AC_SUBST(LIBCF_MINOR_SRC)
 AC_SUBST(LIBCF_PATCH_SRC)
 AC_SUBST(LIBCF_URL)
 AC_SUBST(LIBCF_GZ)
+PYTABLES_MAJOR_SRC=2
+PYTABLES_MINOR_SRC=2
+PYTABLES_PATCH_SRC=1
+PYTABLES_URL=http://www.pytables.org/download/pytables-${PYTABLES_MAJOR_SRC}.${PYTABLES_MINOR_SRC}.${PYTABLES_PATCH_SRC}
+PYTABLES_GZ=tables-2.2.1.tar.gz
+AC_SUBST(PYTABLES_MAJOR_SRC)
+AC_SUBST(PYTABLES_MINOR_SRC)
+AC_SUBST(PYTABLES_PATCH_SRC)
+AC_SUBST(PYTABLES_URL)
+AC_SUBST(PYTABLES_GZ)
+
 dnl AC_SUBST(COMPILE_IOAPI)
 AC_SUBST(ESG)
 AC_SUBST(PGCONFIG)
@@ -794,6 +805,18 @@ else
   COMPILE_LIBCF="no"
 fi
 AC_SUBST(COMPILE_LIBCF)
+
+dnl
+dnl pytables
+dnl
+AC_ARG_ENABLE([pytables],[AS_HELP_STRING([--enable-pytables],[enable/disable pytables build])]) 
+if test "x${enable_pytables}" == "xyes" ; then
+   COMPILE_PYTABLES="yes"
+else
+  COMPILE_PYTABLES="no"
+fi
+AC_SUBST(COMPILE_PYTABLES)
+
 
 EXTRAENV=""
 
