@@ -17920,6 +17920,8 @@ heartbeat("Slab2 name set to %s", s_name[0]);
 		 {
 		   put_slab_in_VCS_data_struct(slab2,type2, s_name[1], self->frame_count, doing_animation, 2);
 		 }
+	       free(shape);
+	       free(shape2);
 	     }
 	   else
 	     {
