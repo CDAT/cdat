@@ -17697,7 +17697,8 @@ PyVCS_plot(PyVCScanvas_Object *self, PyObject *args)
 	struct p_tab    	*ttab;
         extern struct p_tab 	Pic_tab;
 	void put_slab_in_VCS_data_struct();
-	int slabRank(),slabShape();
+	int slabRank(PyObject* slab);
+	int* slabShape(PyObject* slab);
 	int graphics_num_of_dims();
 	int set_plot_minmax();
 	extern int python_display();
