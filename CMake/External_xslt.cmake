@@ -2,7 +2,9 @@
 set(xslt_source "${CMAKE_CURRENT_BINARY_DIR}/build/xslt")
 set(xslt_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
 
-set(xslt_configure_args --with-libxml-prefix=${xslt_install})
+if(NOT LIBXML2_FOUND)
+  set(xslt_configure_args --with-libxml-prefix=${xslt_install})
+endif()
 
 ExternalProject_Add(xslt
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
