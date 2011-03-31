@@ -107,7 +107,7 @@ set(PNG_MAJOR_SRC 1)
 set(PNG_MINOR_SRC 5)
 set(PNG_PATCH_SRC 1)
 set(PNG_VERSION ${PNG_MAJOR_SRC}.${PNG_MINOR_SRC}.${PNG_PATCH_SRC})
-set(PNG_URL ftp://ftp.simplesystems.org/pub/libpng/png/src)
+set(PNG_URL http://download.sourceforge.net/libpng)
 set(PNG_GZ libpng-${PNG_VERSION}.tar.gz)
 set(PNG_MD5 220035f111ea045a51e290906025e8b5)
 
