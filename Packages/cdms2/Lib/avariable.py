@@ -353,8 +353,8 @@ class AbstractVariable(CdmsObj, Slab):
             pass
         else:
             raise CDMSError, 'Invalid missing value %s'%`value`
-        
-        self.missing_value = value
+
+        self._missing = value
 
 
     def getTime(self):
