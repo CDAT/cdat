@@ -147,22 +147,6 @@ else()
   set(_LINK_LIBRARY_SUFFIX .so)
 endif()
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_configure_step.cmake.in
-    ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
-    @ONLY)
-  
-configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_make_step.cmake.in
-  ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake
-  @ONLY)
-  
-configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_install_step.cmake.in
-  ${cdat_CMAKE_BINARY_DIR}/cdat_install_step.cmake
-  @ONLY)
-
-set(cdat_configure_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake)
-set(cdat_make_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake)
-set(cdat_install_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/cdat_install_step.cmake)
-
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
 
@@ -187,8 +171,16 @@ macro (add_cdat_package package)
   endif()
 endmacro (add_cdat_package)
 
+
+# Attempt to find each package on the system
 find_package(PkgConfig)
 set(PKGCONFIG_FOUND ${PKG_CONFIG_FOUND})
+
+if(NOT PKG_CONFIG_FOUND)
+  set(cdat_PKG_CONFIG_EXECUTABLE ${cdat_BINARY_DIR}/Externals/bin/pkg-config)
+else()
+  set(cdat_PKG_CONFIG_EXECUTABLE ${PKG_CONFIG_EXECUTABLE})
+endif()
 
 find_package(MD5)
 find_package(Wget)
@@ -203,7 +195,10 @@ find_package(JPEG)
 find_package(BLAS)
 find_package(LAPACK)
 find_package(ZLIB)
-find_package(PNG)
+# This will find the png framework which Cairo won't find.
+if(NOT APPLE)
+  find_package(PNG)
+endif()
 find_package(Freetype)
 #find_package(pixman)
 #find_package(fontconfig)
@@ -225,6 +220,26 @@ find_package(PythonLibs)
 #find_package(NUMPY)
 # python mega widgets
 #find_package(PMW)
+
+#-----------------------------------------------------------------------------
+# configure custom configure/build/install step files
+#-----------------------------------------------------------------------------
+
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_configure_step.cmake.in
+    ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
+    @ONLY)
+
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_make_step.cmake.in
+  ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake
+  @ONLY)
+
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_install_step.cmake.in
+  ${cdat_CMAKE_BINARY_DIR}/cdat_install_step.cmake
+  @ONLY)
+
+set(cdat_configure_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake)
+set(cdat_make_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake)
+set(cdat_install_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/cdat_install_step.cmake)
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
@@ -307,7 +322,7 @@ set(xslt_DEPENDENCIES ${libXML2_dep})
 set(zlib_DEPENDENCIES ${pkgconfig_dep} ${libXML2_dep})
 set(png_DEPENDENCIES ${zlib_dep})
 set(tcl_DEPENDENCIES ${pkgconfig_dep})
-set(Python_DEPENDENCIES ${TclTk_dep} ${libXML2_dep} ${CURL_dep} ${zlib_dep})
+set(Python_DEPENDENCIES ${TclTk_dep} ${libXML2_dep} ${CURL_dep} ${zlib_dep} ${xslt_dep})
 set(SIP_DEPENDENCIES ${Python_dep})
 set(PyQt_DEPENDENCIES ${Qt_dep} ${SIP_dep})
 set(PyOpenGL_DEPENDENCIES ${Python_dep})
@@ -318,7 +333,7 @@ set(freetype_DEPENDENCIES ${png_dep})
 set(ghostscript_DEPENDENCIES ${zlib_dep} ${jpeg_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep} ${xslt_dep} ${libXML2_dep})
 set(NetCDF_DEPENDENCIES ${HDF5_dep})
 
-set(TclTk_DEPENDENCIES ${pkgconfig_dep} ${libXML2_dep})
+set(TclTk_DEPENDENCIES ${pkgconfig_dep} ${libXML2_dep} ${xlst_dep})
 
 set(setuptools_DEPENDENCIES ${Python_dep})
 set(LAPACK_DEPENDENCIES ${pkgconfig_dep})
@@ -330,8 +345,8 @@ set(cmcurl_DEPENDENCIES ${libXML2_dep} ${zlib_dep})
 set(Cairo_DEPENDENCIES ${pkgconfig_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep})
 set(HDF4_DEPENDENCIES ${zlib_dep} ${jpeg_dep})
 set(HDF5_DEPENDENCIES ${zlib_dep})
-set(cmor_DEPENDENCIES ${HDF5_dep} ${NetCDF_dep} ${zlib_dep} ${uuid_dep} ${udunits2_dep})
-set(CDAT_DEPENDENCIES ${CMOR_dep} ${Cairo_dep} ${PyQt_dep} ${PyOpenGL_dep} ${NUMPY_dep} ${Pmw_dep})
+set(cmor_DEPENDENCIES ${HDF5_dep} ${Cairo_dep} ${NetCDF_dep} ${zlib_dep} ${uuid_dep} ${udunits2_dep})
+set(CDAT_DEPENDENCIES ${CMOR_dep} ${PyQt_dep} ${PyOpenGL_dep} ${NUMPY_dep} ${Pmw_dep})
 
 message("Python_DEPENDENCIES ${Python_DEPENDENCIES}")
 message("NetCDF_DEPENDENCIES ${NetCDF_DEPENDENCIES}")
