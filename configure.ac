@@ -1787,7 +1787,7 @@ if test ${COMPILE_NC} == "no" ; then
 	num=atoi(&version[0]);
 	if (num>=${NC4_MAJOR}) return 0;
 	num=atoi(&version[1]); /*sometimes there is a " before */
-	if (num>${NC4_MAJOR}) return 0;
+	if (num>=${NC4_MAJOR}) return 0;
 	return 1;
     ]])],[COMPILE_NC=no],[COMPILE_NC=yes])
     if test ${COMPILE_NC} == "no" ; then
