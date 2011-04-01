@@ -327,7 +327,7 @@ class forecasts():
                 axis.length = len(axis._data_)
                 axis.partition = axis.partition[0:axis.length]
                 axis.axis = 'F'
-                axis.standard_name = 'reference_time'
+                axis.standard_name = 'forecast_reference_time'
                 timeaxis = var.getTime()
                 if not hasattr(axis,'calendar') and timeaxis:
                     axis.calendar = timeaxis.calendar
