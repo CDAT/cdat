@@ -11,7 +11,7 @@ ExternalProject_Add(fontconfig
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
   CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
-  DEPENDENCIES ${fontconfig_DEPENDENCIES}
+  DEPENDS ${fontconfig_DEPENDENCIES}
 )
 
 set(fontconfig_DIR "${fontconfig_binary}" CACHE PATH "fontconfig binary directory" FORCE)
