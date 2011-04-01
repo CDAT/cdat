@@ -10,5 +10,6 @@ ExternalProject_Add(pkgconfig
   SOURCE_DIR ${pkgconfig_source}
   INSTALL_DIR ${pkgconfig_install}
   CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
+  DEPENDS ${pkgconfig_DEPENDENCIES}
 )
 
