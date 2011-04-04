@@ -10,8 +10,6 @@ ExternalProject_Add(gifsicle
   URL_MD5 ${GIFSICLE_MD5}
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
-  CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR>
+  CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
+  DEPENDS ${gifsicle_DEPENDENCIES}
 )
-
-set(gifsicle_DIR "${gifsicle_binary}" CACHE PATH "gifsicle binary directory" FORCE)
-mark_as_advanced(gifsicle_DIR)
