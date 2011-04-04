@@ -1,4 +1,7 @@
 
+set(ENV${CC} "@CMAKE_C_COMPILER@")
+set(ENV${CXX} "@CMAKE_CXX_COMPILER@")
+set(ENV${CPP} "@CMAKE_CXX_COMPILER@")
 
 set(ENV{@LIBRARY_PATH@} "@cdat_BINARY_DIR@/Externals/lib:$ENV{@LIBRARY_PATH@}")
 set(ENV{LDFLAGS} "-L@cdat_BINARY_DIR@/Externals/NetCDF/lib -L@cdat_BINARY_DIR@/Externals/lib -L@cdat_BINARY_DIR@/lib")
