@@ -16,8 +16,6 @@ set(ENV{FFLAGS}="")
 set(ENV{FLIBS}="")
 set(ENV{LD_X11}="") # for xgks
 
-
-
 execute_process(
   COMMAND sh configure --prefix=${INSTALL_DIR} ${CONFIGURE_ARGS}
   WORKING_DIRECTORY "${WORKING_DIR}"
