@@ -7,6 +7,7 @@ project(cdat)
 
 set(cdat_CMAKE_SOURCE_DIR ${cdat_SOURCE_DIR}/CMake)
 set(cdat_CMAKE_BINARY_DIR ${cdat_BINARY_DIR}/CMake)
+set(cdat_EXTERNALS ${cdat_BINARY_DIR}/Externals)
 set(cdat_external_patch_dir ${cdat_SOURCE_DIR}/exsrc)
 
 #------------------------------------------------------------------------------
@@ -82,15 +83,6 @@ endif(CMAKE_Fortran_COMPILER)
 
 INCLUDE(ExternalProject)
 
-#set(ep_common_args
-  #-DCMAKE_INSTALL_PREFIX:PATH=${ep_install_dir}
-#  -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-#  -DBUILD_TESTING:BOOL=OFF
-#  )
-
-#set(ep_common_c_flags "${CMAKE_C_FLAGS}")
-#set(ep_common_cxx_flags "${CMAKE_CXX_FLAGS}")
-
 # ----------------------------------------------------------------------------
 # generic compiler args (compiler and cflags) to pass to subprojects
 #-----------------------------------------------------------------------------
@@ -146,6 +138,19 @@ else()
   set(CMAKE_PLATFORM UNIX)
   set(_LINK_LIBRARY_SUFFIX .so)
 endif()
+
+#-----------------------------------------------------------------------------
+# Create binary subdirectories
+#-----------------------------------------------------------------------------
+
+# Here we create several of binary directory subdirectories as often
+# third party install systems do bad things when left to create them.
+
+file(MAKE_DIRECTORY ${cdat_EXTERNALS} ${cdat_EXTERNALS}/lib ${cdat_EXTERNALS}/bin ${cdat_EXTERNALS}/include)
+
+file(MAKE_DIRECTORY ${cdat_BINARY_DIR}/logs)
+file(MAKE_DIRECTORY ${cdat_BINARY_DIR}/build)
+file(MAKE_DIRECTORY ${cdat_BINARY_DIR}/sources)
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
