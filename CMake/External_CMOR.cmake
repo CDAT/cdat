@@ -14,8 +14,5 @@ ExternalProject_Add(CMOR
   CONFIGURE_COMMAND sh configure --prefix=<INSTALL_DIR> ${cmor_configure_args}
   BUILD_COMMAND ""
   INSTALL_COMMAND ""
-  DEPENDS ${cmor_DEPENDENCIES}
+  DEPENDS ${CMOR_DEPENDENCIES}
 )
-
-set(cmor_DIR "${cmor_binary}" CACHE PATH "cmor binary directory" FORCE)
-mark_as_advanced(cmor_DIR)
