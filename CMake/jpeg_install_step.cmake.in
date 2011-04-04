@@ -9,7 +9,7 @@ file(GLOB jpegheaders "@jpeg_source@/*.h")
 
 foreach(lib ${jpeglibs})
   execute_process(
-    COMMAND "@CMAKE_COMMAND@" -E copy_if_different ${lib} @jpeg_install@/lib
+    COMMAND "@CMAKE_COMMAND@" -E copy_if_different ${lib} @jpeg_install@/lib/${lib}
     RESULT_VARIABLE res
     OUTPUT_VARIABLE CDAT_OUT
     OUTPUT_VARIABLE CDAT_ERR)
@@ -17,7 +17,7 @@ endforeach()
 
 foreach(header ${jpegheaders})
     execute_process(
-      COMMAND "@CMAKE_COMMAND@" -E copy_if_different ${header} @jpeg_install@/include
+      COMMAND "@CMAKE_COMMAND@" -E copy_if_different ${header} @jpeg_install@/include/${header}
       RESULT_VARIABLE res
       OUTPUT_VARIABLE CDAT_OUT
       OUTPUT_VARIABLE CDAT_ERR)
