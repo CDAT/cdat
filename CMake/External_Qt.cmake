@@ -59,6 +59,7 @@ ExternalProject_Add(Qt
   CONFIGURE_COMMAND ${qt_configure}
   BUILD_COMMAND ${qt_build}
   INSTALL_COMMAND "${qt_install}"
+  DEPENDS ${Qt_DEPENDENCIES}
   )
 set(QT_QMAKE_EXECUTABLE "${qt_install_dir}/bin/qmake"
   CACHE FILEPATH "Path to qmake executable" FORCE)
