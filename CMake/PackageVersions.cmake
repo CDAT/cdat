@@ -140,6 +140,13 @@ set(TK_GZ tk${TCLTK_MAJOR}.${TCLTK_MINOR}.${TCLTK_PATCH}-src.tar.gz)
 set(TCL_MD5 8512d8db3233041dd68a81476906012a)
 set(TK_MD5 7cdeb9feb61593f58a0ae61f2497580e)
 
+set(TIFF_MAJOR 3)
+set(TIFF_MINOR 9)
+set(TIFF_PATCH 4)
+set(TIFF_URL ftp://ftp.remotesensing.org/pub/libtiff)
+set(TIFF_GZ tiff-${TIFF_MAJOR}.${TIFF_MINOR}.${TIFF_PATCH}.tar.gz)
+set(TIFF_MD5 7cdeb9feb61593f58a0ae61f2497580e)
+
 set(RL_MAJOR 5)
 set(RL_MINOR 2)
 set(RL_MAJOR_SRC 6)
