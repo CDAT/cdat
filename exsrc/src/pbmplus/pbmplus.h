@@ -99,10 +99,10 @@ extern int write();
 ** malloc.h at all.  A sad situation.  If you have compilation problems
 ** that point here, feel free to tweak or remove these declarations.
 */
-#include <sys/malloc.h>
-extern char* malloc();
-extern char* realloc();
-extern char* calloc();
+#include <malloc.h>
+//extern char* malloc();
+//extern char* realloc();
+//extern char* calloc();
 
 /* CONFIGURE: Some systems don't have vfprintf(), which we need for the
 ** error-reporting routines.  If you compile and get a link error about
