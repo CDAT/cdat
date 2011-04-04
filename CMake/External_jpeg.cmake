@@ -21,7 +21,3 @@ ExternalProject_Add(jpeg
   DEPENDS ${jpeg_DEPENDENCIES}
 )
 
-
-
-set(jpeg_DIR "${jpeg_binary}" CACHE PATH "jpeg binary directory" FORCE)
-mark_as_advanced(jpeg_DIR)
