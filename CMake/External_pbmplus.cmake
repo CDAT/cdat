@@ -4,10 +4,9 @@ set(pbmplus_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
 
 #cp ../../exsrc/src/pbmplus/pbmplus.h . ; cp ../../exsrc/src/pbmplus/libpbm1.c pbm  ;cp ../../exsrc/src/pbmplus/Makefile .
 
-set(EXTERNALS ${pbmplus_install})
-configure_file(${cdat_external_patch_dir}/src/pbmplus/Makefile.in
-  ${pbmplus_source}/Makefile
-  @ONLY)
+configure_file(${cdat_CMAKE_SOURCE_DIR}/pbmplus_configure_step.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/pbmplus_configure_step.cmake
+    @ONLY)
 
 ExternalProject_Add(pbmplus
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
@@ -18,7 +17,7 @@ ExternalProject_Add(pbmplus
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${cdat_external_patch_dir}/src/pbmplus/libpbm1.c ${pbmplus_source}/pbm/
   BUILD_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake
-  CONFIGURE_COMMAND ""
+  CONFIGURE_COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/pbmplus_configure_step.cmake
   DEPENDS ${pbmplus_DEPENDENCIES}
 )
 
