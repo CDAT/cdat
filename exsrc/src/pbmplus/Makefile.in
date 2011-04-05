@@ -21,7 +21,7 @@ CC =		cc
 #CC =		gcc -ansi -pedantic -fcombine-regs -fpcc-struct-return
 
 # CONFIGURE: cc flags go here.
-CFLAGS =	-O
+CFLAGS =	-O -w
 #CFLAGS =	-g
 #CFLAGS =	-g -O
 
