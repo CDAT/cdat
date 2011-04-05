@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------------
 set(proj Python)
-set(python_base ${CMAKE_CURRENT_BINARY_DIR}/build/python)
+set(python_base ${CMAKE_CURRENT_BINARY_DIR}/build/Python)
 set(python_BUILD_IN_SOURCE 1)
 
 if(WIN32)
@@ -117,7 +117,7 @@ if(WIN32)
   endif()
     
 elseif(UNIX)
-  set(python_SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/build/python)
+  set(python_SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/build/Python)
   set(python_BUILD_IN_SOURCE 1)
 
   set(python_aqua_cdat no)
@@ -158,7 +158,7 @@ elseif(UNIX)
     INSTALL_COMMAND make install
     DEPENDS ${Python_DEPENDENCIES}
     )
-    
+
 endif()
 
 #-----------------------------------------------------------------------------
