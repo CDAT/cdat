@@ -13,7 +13,7 @@
 #CC =		cc
 CC =		gcc -ansi -pedantic -fcombine-regs -fpcc-struct-return
 #CFLAGS =	-O
-CFLAGS =	-g
+CFLAGS =	-g -w
 #CFLAGS =	-g -O
 TIFFDEF =	-DLIBTIFF
 TIFFINC =	-I@EXTERNALS@/include
@@ -143,7 +143,7 @@ $(LIBPPM) BAR:
 	cd $(PPMDIR) ; make lib
 lib:		$(LIBPNM)
 $(LIBPNM):	libpnm1.o libpnm2.o libpnm3.o libpnm4.o
-	-rm $(LIBPNM)
+	-rm -f $(LIBPNM)
 	ar rc $(LIBPNM) libpnm1.o libpnm2.o libpnm3.o libpnm4.o
 	-ranlib $(LIBPNM)
 
