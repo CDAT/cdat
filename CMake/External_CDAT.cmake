@@ -16,7 +16,7 @@ ExternalProject_Add(CDAT
   PATCH_COMMAND ""
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
-  INSTALL_COMMAND env EXTERNALS=${cdat_BINARY_DIR}/Externals LDFLAGS="${LDFLAGS}" ${LIBRARY_PATH}="${RUNTIME_FLAGS}" ${PYTHON_EXECUTABLE} install.py --enable-qt-framework --with-qt=${QT_ROOT}
+  INSTALL_COMMAND env EXTERNALS=${cdat_BINARY_DIR}/Externals LDFLAGS="${LDFLAGS}" ${LIBRARY_PATH}=${RUNTIME_FLAGS} ${PYTHON_EXECUTABLE} install.py --enable-qt-framework --with-qt=${QT_ROOT}
   DEPENDS ${CDAT_DEPENDENCIES}
 )
 
