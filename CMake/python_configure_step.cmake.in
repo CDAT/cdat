@@ -31,6 +31,6 @@ if(UNIX)
 
   EXECUTE_PROCESS( 
     COMMAND sh configure --prefix=@CMAKE_CURRENT_BINARY_DIR@/Externals ${library_param} --enable-unicode=ucs2
-    WORKING_DIRECTORY "@python_base@"
+    WORKING_DIRECTORY "@python_SOURCE_DIR@"
     )
 endif()
