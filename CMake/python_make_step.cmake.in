@@ -1,34 +1,10 @@
 
-if(UNIX)
+EXECUTE_PROCESS( 
+  COMMAND make
+  WORKING_DIRECTORY "@python_SOURCE_DIR@"
+  )
 
-  set(cmd "make")
-  if(WIN32)
-  else()
-    set(ENV{@LIBRARY_PATH@} "@cdat_BINARY_DIR@/Externals/lib:$ENV{@LIBRARY_PATH@}")
-    set(ENV{LDFLAGS} "-L@cdat_BINARY_DIR@/Externals/NetCDF/lib -L@cdat_BINARY_DIR@/Externals/lib")
-    set(ENV{CFLAGS} "-I@cdat_BINARY_DIR@/Externals/NetCDF/include -I@cdat_BINARY_DIR@/Externals/include")
-    set(ENV{CPPFLAGS} "-I@cdat_BINARY_DIR@/Externals/NetCDF/include -I@cdat_BINARY_DIR@/Externals/include")
-    set(ENV{CXXFLAGS} "-I@cdat_BINARY_DIR@/Externals/NetCDF/include -I@cdat_BINARY_DIR@/Externals/include")
-    set(ENV{PKG_CONFIG_PATH} "@cdat_BINARY_DIR@/Externals/lib/pkgconfig")
-    set(ENV{PKG_CONFIG} "@cdat_BINARY_DIR@/Externals/bin/pkg-config")
-    set(ENV{PYTHON_PATH} "@cdat_BINARY_DIR@/lib/python@PYTHON_MAJOR@.@PYTHON_MINOR@/site-packages:$ENV{PYTHON_PATH}")
-    set(ENV{FC}="")
-    set(ENV{FCFLAGS}="")
-    set(ENV{FCLIBS}="")
-    set(ENV{F77}="")
-    set(ENV{FFLAGS}="")
-    set(ENV{FLIBS}="")
-    set(ENV{LD_X11}="") # for xgks
-    set(ENV{EXTERNALS}=@cdat_BINARY_DIR@/Externals)
-    if(APPLE)
-      set(ENV{CFLAGS} "@cdat_osx_arch_flag@ @cdat_osx_version_flag@ @cdat_osx_sysroot@")
-    endif(APPLE)
-  endif()
-
-  EXECUTE_PROCESS( 
-    COMMAND ${cmd}
-    WORKING_DIRECTORY "@python_base@"
-    )
-
-endif()
-
+EXECUTE_PROCESS( 
+  COMMAND make
+  WORKING_DIRECTORY "@python_SOURCE_DIR@"
+  )
