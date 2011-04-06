@@ -35,7 +35,12 @@ public:
 class QPythonApp : public QApplication {
 public:
   
-  QPythonApp(int &argc, char **argv): QApplication(argc, argv) {}
+  QPythonApp(int &argc, char **argv): QApplication(argc, argv)
+  {
+    // We are using the desktop widget later on, in other threads,
+    // thus, we want to pre-create the widget here.
+    QApplication::desktop();
+  }
   
   virtual bool event(QEvent *e) {
     if (e->type()==VCS_DEFERRED_EXECUTION) {
