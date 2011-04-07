@@ -152,7 +152,6 @@ elseif(UNIX)
     PATCH_COMMMAND ${CMAKE_COMMAND} -E copy_if_different ${cdat_SOURCE_DIR}/pysrc/src/setup.py ${python_SOURCE_DIR}/setup.py
     CONFIGURE_COMMAND ${python_CONFIGURE_COMMAND}
     BUILD_COMMAND ${python_BUILD_COMMAND}
-#    BUILD_COMMAND asdfasdfasdfadf
     UPDATE_COMMAND ""
     INSTALL_COMMAND ${python_INSTALL_COMMAND}
     DEPENDS ${Python_DEPENDENCIES}
