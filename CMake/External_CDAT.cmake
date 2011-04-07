@@ -9,6 +9,12 @@ get_filename_component(QT_ROOT ${QT_BINARY_DIR} PATH)
 
 #env EXTERNALS=/Users/partyd/Kitware/uv-cdat/make-file-install//Externals  LDFLAGS="${LDFLAGS/"/} -undefined dynamic_lookup"  /Users/partyd/Kitware/uv-cdat/make-file-install//bin/python install.py  --enable-qt-framework  --with-qt=/Users/partyd/Kitware/uv-cdat/make-file-install//Externals
 
+if(APPLE)
+  set(qt_flags "--enable-qt-framework --with-qt=${QT_ROOT}")
+else()
+  set(qt_flags "--with-qt=${QT_ROOT}")
+endif()
+
 ExternalProject_Add(CDAT
   DOWNLOAD_DIR ""
   SOURCE_DIR ${cdat_SOURCE_DIR}
@@ -16,7 +22,7 @@ ExternalProject_Add(CDAT
   PATCH_COMMAND ""
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
-  INSTALL_COMMAND env EXTERNALS=${cdat_BINARY_DIR}/Externals LDFLAGS="${LDFLAGS}" ${LIBRARY_PATH}=${RUNTIME_FLAGS} ${PYTHON_EXECUTABLE} install.py --enable-qt-framework --with-qt=${QT_ROOT}
+  INSTALL_COMMAND env EXTERNALS=${cdat_BINARY_DIR}/Externals LDFLAGS="${LDFLAGS}" ${LIBRARY_PATH}=${RUNTIME_FLAGS} ${PYTHON_EXECUTABLE} install.py ${qt_flags}
   DEPENDS ${CDAT_DEPENDENCIES}
 )
 
