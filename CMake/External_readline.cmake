@@ -1,6 +1,6 @@
 
 
-set(readline_binary "${CMAKE_CURRENT_BINARY_DIR}/build/readline")
+set(readline_source "${CMAKE_CURRENT_BINARY_DIR}/build/readline")
 set(readline_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
 
 ExternalProject_Add(readline
