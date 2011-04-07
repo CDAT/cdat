@@ -268,7 +268,7 @@ configure_file(${cdat_SOURCE_DIR}/checked_get.sh.in
 #-----------------------------------------------------------------------------
 
 add_cdat_package(pkgconfig)
-#add_cdat_package(termcap)
+add_cdat_package(termcap)
 add_cdat_package(readline)
 add_cdat_package(libXML2)
 add_cdat_package(libXSLT)
@@ -332,7 +332,8 @@ add_cdat_package(CDAT)
 
 set(wget_DEPENDENCIES)
 set(pkgconfig_DEPDENCIES ${wget_dep})
-set(readline_DEPENDENCIES ${pkgconfig_dep})
+set(termcap_DEPENDENCIES ${pkgconfig_dep})
+set(readline_DEPENDENCIES ${pkgconfig_dep} ${termcap_dep})
 set(uuid_DEPENDENCIES ${pkgconfig_dep})
 set(udunits2_DEPENDENCIES ${pkgconfig_dep})
 set(libXML2_DEPENDENCIES ${pkgconfig_dep} ${readline_dep})
