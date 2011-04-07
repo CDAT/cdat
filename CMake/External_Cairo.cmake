@@ -13,6 +13,3 @@ ExternalProject_Add(Cairo
   CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
   DEPENDS ${Cairo_DEPENDENCIES}
 )
-
-set(Cairo_DIR "${Cairo_binary}" CACHE PATH "Cairo binary directory" FORCE)
-mark_as_advanced(Cairo_DIR)
