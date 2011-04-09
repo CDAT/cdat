@@ -112,6 +112,8 @@ class esgNodeConnection(object,AutoAPI.AutoAPI):
     
     def search(self,stringType=False,**keys):
         resp = self.request(stringType,**keys)
+        if stringType:
+            return resp
         datasets = []
         for r in resp[:]:
             if r.tag=="result":
@@ -140,7 +142,6 @@ class esgNodeDataset(esgNodeConnection):
         self.keys = self.params.keys
         self.items = self.params.items
         self.values = self.params.values
-        self.files = self.search()
         resp = self.request()
         tags = ["title","url","version","timestamp","score","description","id"]
         for r in resp[:]:
@@ -158,26 +159,74 @@ class esgNodeDataset(esgNodeConnection):
                             setattr(self,d.get("name"),d.text)
                         else:
                             setattr(self,d.get("name"),d)
+        self.files = self._extractFiles(resp)
 
+    def _extractFiles(self,resp):
+        for r in resp[:]:
+            if r.tag=="result":
+                for d in r[0][:]:
+                    nm = d.get("name")
+                    if nm=="file_size":
+                        sizes=d
+                    elif nm=="file_url":
+                        urls=d
+                    elif nm=="file_id":
+                        ids=d
+                    elif nm=="service_type":
+                        services=d
+                break
+        fileId=None
+        files=[]
+        for i in range(len(services)):
+            if ids[i].text!=fileId:
+                if fileId is not None:
+                    files.append(esgNodeFile(fileId,furls,fservices))
+                fileId=ids[i].text
+                furls=[urls[i].text,]
+                fservices=[services[i].text,]
+            else:
+                furls.append(urls[i].text)
+                fservices.append(services[i].text)
+        files.append(esgNodeFile(fileId,furls,fservices))
+        return files
+            
+    def info(self):
+        print self
+
+    def __str__(self):
+        return "Dataset Information\nid: %s\ntitle: %s\nurl: %s\ntimestamp: %s\nversion: %s\ndescription: %s\n# of files: %i" % (self.id,self.title,self.url,self.timestamp,self.version,self.description,len(self.files))
+
+    
     def search(self,stringType=False,**keys):
         resp = self.request(stringType,**keys)
         if stringType:
             return resp
-        files = []
-        for r in resp[:]:
-            if r.tag=="result":
-                for d in r[0][:]:
-                    if d.get("name")=="url":
-                        ##Ok open the url to figure out the files
-                        url = httplib.urlsplit(d.text)
-                        tmphttp = httplib.HTTPConnection(url.netloc)
-                        tmphttp.request("GET",url.path)
-                        r=tmphttp.getresponse().read()
-                        files.append(r)
+        return self._extractFiles(resp)
 
-                break
-        return files
+class esgNodeFile(object,AutoAPI.AutoAPI):
+    def __init__(self,id,urls,services):
+        self.autoApiInfo = AutoAPI.Info(self)
+        self.id=id
+        self.services=services
+        self.urls=urls
+        self.__items__={}
+        self.keys = self.__items__.keys
+        self.items = self.__items__.items
+        self.values = self.__items__.values
+        
+        for service , url in zip(services,urls):
+            self[service]=url
 
-class esgNodeFile():
-    def __init__(self):
-        pass
+    def __getitem__(self,key):
+        val = self.__items__[key]
+        return val
+    
+    def __setitem__(self,key,value):
+        self.__items__[key]=value
+        return
+
+    def __str__(self):
+        st = "File Information\nid: %s\n" % (self.id,)
+        for service,url in zip(self.services,self.urls):
+            st+="service: %s @ %s\n" % (service,url)
+        return st[:-1]
