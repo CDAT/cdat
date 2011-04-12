@@ -9,6 +9,7 @@ import os
 from re import search, sub
 from ctypes import c_float, c_char_p, c_int, CDLL, byref, POINTER
 import cdms2
+from numpy import zeros, float64, asarray
 from pycf import libCFConfig, __path__
 
 LIBCFDIR  = __path__[0] + "/libcf"
@@ -144,41 +145,80 @@ class GsMosaic:
     def getTileNames(self):
         return self.tile_names
 
-    def getSeamGrid(self, tileName, otherTileName, coordData):
-      """
-      @param tileName tile name for First tile
-      @param otherTileName tile name for other tile
-      @param coordData dictionary containing lon-lat names and their
-                       coordinate values
-      @return coords dictionary of seam sliced coordinates
-      """
-      slab1, slab2 = self.contacts[tileName][otherTileName]
+    def getCellCenteredSlab(self, slab1, slab2):
+        # adjust for cell centers
+        newslabs = []
+        for slab in slab1, slab2:
+            newslab = []
+            for sl in slab:
+                b = sl.start
+                e = sl.stop + 1
+                newsl = slice(max(b-1, 0), max(e-1, -1), sl.step)
+                newslab.append(newsl)
+            newslabs.append(tuple(newslab))
+        slab1, slab2 = newslabs
+    
+        return (slab1, slab2)
 
-      # adjust for cell centers
-      newslabs = []
-      for slab in slab1, slab2:
-          newslab = []
-          for sl in slab:
-              b = sl.start
-              e = sl.stop + 1
-              newsl = slice(max(b-1, 0), max(e-1, -1), sl.step)
-              newslab.append(newsl)
-          newslabs.append(tuple(newslab))
-      slab1, slab2 = newslabs
-      coords = {}
+    def getGrids(self, coordData):
+        res = []
+        for tn1 in self.tile_contacts.keys():
+            for tn2 in self.tile_contacts[tn1].keys():
+                tmp = self.getSeamData(tn1, tn2, coordData)
+                res.append(tmp)
+    
+        return res
 
-      for coordName in coordData.keys():
-          d1 = numpy.asarray(coordData[coordName][tileName].ma)
-          d2 = numpy.asarray(coordData[coordName][otherTileName].ma)
-          data1 = d1[slab1]
-          data2 = d2[slab2]
-          print 'd1:   ', data1
-          print 'd2:   ', data2
-          d = numpy.zeros( (n, 2), numpy.float64 )
-          d[:, 0] = data1[:]
-          d[:, 1] = data2[:]
-          coords[coordName] = d
-      return coords
+    def getSeamData(self, tileName, otherTileName, inputData):
+        """
+        @param tileName Name for the first tile
+        @param otherTileName Name for the other tile
+        @param inputData Dictionary containing lon-lat names and their flat
+                          coordinate data values
+        @return newData Grid of data on slice
+        """
+        slab1, slab2 = self.tile_contacts[tileName][otherTileName]
+    
+        # Convert to cell centered slabs
+        slab1, slab2 = self.getCellCenteredSlab(slab1, slab2)
+
+        d1 = inputData[tileName]
+        d2 = inputData[otherTileName]
+        data1 = d1[slab1].flatten()
+        data2 = d2[slab2].flatten()
+        n = len(data1)
+        newData = zeros( (n, 2), float64 )
+        newData[:, 0] = data1
+        newData[:, 1] = data2
+
+        return newData
+
+    def getSeamSlice(self, tileName, otherTileName, inputData):
+        """
+        @param tileName Name for the first tile
+        @param otherTileName Name for the other tile
+        @param inputData Dictionary containing lon-lat names and their flat
+                          coordinate data values
+        @return coords dictionary of seam sliced coordinates
+        """
+        slab1, slab2 = self.tile_contacts[tileName][otherTileName]
+    
+        # Convert to cell centered slabs
+        slab1, slab2 = self.getCellCenteredSlab(slab1, slab2)
+    
+        coords = {}
+    
+        for coordName in inputData.keys():
+            d1 = inputData[coordName][tileName]
+            d2 = inputData[coordName][otherTileName]
+            data1 = d1[slab1].flatten()
+            data2 = d2[slab2].flatten()
+            n = len(data1)
+            d = zeros( (n, 2), float64 )
+            d[:, 0] = data1
+            d[:, 1] = data2
+            coords[coordName] = d
+        return coords
 
     def getCoordinateNames(self):
         return self.coordinate_names
