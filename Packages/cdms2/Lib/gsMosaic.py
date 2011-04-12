@@ -6,15 +6,13 @@ $Id: gsFile.py 1728 2011-02-04 21:26:11Z dkindig $
 """
 
 import os
-from re import search
+from re import search, sub
 from ctypes import c_float, c_char_p, c_int, CDLL, byref, POINTER
 import cdms2
-import gsstaticvariableobj
-import gstimevariableobj
+from pycf import libCFConfig, __path__
 
-import pycf
-LIBCF = pycf.__path__[0] + "/lib/libcf"
-config = pycf.libCFConfig
+LIBCFDIR  = __path__[0] + "/libcf"
+libCF  = libCFConfig
 
 def open(uri, mode = 'r'):
     """
@@ -24,14 +22,42 @@ def open(uri, mode = 'r'):
     @param inCdmsFile Mosaic file cdms2 object
     """
 
-    outMosaicFile = gsMosaic(uri, mode)
+    outMosaicFile = GsMosaic(uri, mode)
     return outMosaicFile
 
-class gsMosaic:
+def getSlab(str):
+    """
+    From a string return a tuple of slice objects
+    @param str input string in the format "1:2 7:-1" for instance
+    @return slice tuple, eg (slice(1, 2, 1), slice(7, -1, -1))
+    """
+    res = []
+    # remove extra spaces
+    str = sub(r'\s+', ' ', str)
+    # remove leading/trailing spaces
+    str = sub(r'^\s+', '', str)
+    str = sub(r'\s+$', '', str)
+    for index_range in str.split(libCF.CF_INDEX_SEPARATOR):
+        m = search(r'([\-\d]+):([\-\d]+)', index_range)
+        if m:
+            step = 1
+            startIndex = int(m.group(1))
+            endIndex = int(m.group(2))
+            if endIndex < startIndex: step = -1
+            slc = slice(startIndex, endIndex, step)
+            res.append(slc)
+    return tuple(res)
+
+class GsMosaic:
+    """
+    Define a mosaic.
+    """
 
     def __init__(self, uri, mode = 'r'):
         """
-        Constructor, no arg
+        Constructor
+        @param uri Filename with path
+        @param mode read/write. Currently only read is supported
         """
 
         self.id      = uri
@@ -42,18 +68,20 @@ class gsMosaic:
         self.mosaicId_t = c_int(-1)
         self.lib = None
         for sosuffix in '.so', '.dylib', '.dll', '.a':
-            self.lib = CDLL(LIBCF + sosuffix)
+            self.lib = CDLL(LIBCFDIR + sosuffix)
             if self.lib:
                 break
 
-        libcf = self.lib
+        libcfdll = self.lib
 
-        self.file_type           = "" 
+        self.file_type           = ""
+        self.contact_map         = {}
         self.tile_contacts       = {}
         self.tile_contacts_compl = {}
+        self.coordinate_names    = []
         tile_names               = []
 
-        status = libcf.nccf_def_mosaic_from_file(uri, "", byref(self.mosaicId_t))
+        status = libcfdll.nccf_def_mosaic_from_file(uri, "", byref(self.mosaicId_t))
 
         if status != 0:
             print "ERROR: File %s doesn't exist or is not a valid mosaic file" % \
@@ -61,54 +89,96 @@ class gsMosaic:
             print "error code: ", status
             return
 
-        ngrids = c_int(-1)
-        ncontacts = c_int(-1)
-        separator_t = c_char_p(" " * (config.NC_MAX_NAME+1))
-        contact_map_t = c_char_p(" " * (config.NC_MAX_NAME+1))
-        tile_contact_t = c_char_p(" " * (config.NC_MAX_NAME+1))
-        tile_name_t = c_char_p(" " * (config.NC_MAX_NAME+1))
-        coord_t = c_char_p(" " * (config.NC_MAX_NAME+1))
+        # Get some sizes
+        ngrids         = c_int(-1)
+        ndims          = c_int(-1)
+        ncontacts      = c_int(-1)
+        libcfdll.nccf_get_mosaic_ndims(self.mosaicId_t, byref(ndims))
+        libcfdll.nccf_get_mosaic_ngrids(self.mosaicId_t, byref(ngrids))
+        libcfdll.nccf_get_mosaic_ncontacts(self.mosaicId_t, byref(ncontacts))
 
-        libcf.nccf_get_mosaic_ngrids(self.mosaicId_t, byref(ngrids))
-        libcf.nccf_get_mosaic_ncontacts(self.mosaicId_t, byref(ncontacts))
-        print 'HERE', ngrids, ncontacts
+        # Build the character arrays
+        separator_t = libCF.CF_TILE_SEPARATOR
+        contact_map_t  = c_char_p(" " * (libCF.NC_MAX_NAME+1))
+        tile_contact_t = c_char_p(" " * (libCF.NC_MAX_NAME+1))
+        tile_name_t    = c_char_p(" " * (libCF.NC_MAX_NAME+1))
+        coord_t = (c_char_p * ndims.value)()
+        for iDim in range(ndims.value):
+            coord_t[iDim] = " " * (libCF.NC_MAX_NAME+1)
 
         # Get the coordinate names for the grids
-        libcf.nccf_get_mosaic_coord_names(self.mosaicId_t, coord_t)
-        for iCrd in range(len(coord_t)):
-            self.coordinate_names.append(coord_t[0].value)
-        print 'HERE', ngrids, ncontacts
+        libcfdll.nccf_get_mosaic_coord_names(self.mosaicId_t, coord_t)
 
-        # Get the tile names
-        for iGrid in range(ngrids):
-            libcf.nccf_get_mosaic_grid_name(self.mosaicId_t, tile_name_t)
-            tile_names.append(tile_name_t.value)
+        for iCrd in range(len(coord_t)):
+            self.coordinate_names.append(coord_t[iCrd])
 
         # Get the contact map information
-        for iContact in range(ncontacts):
-            status = libcf.nccf_get_mosaic_contact_map(self.mosaicId_t, contact_map_t)
-            self.contact_map.append(contact_map_t.value)
-            status = libcf.nccf_get_mosaic_tile_contact(self.mosaicId_t, tile_contact_t)
-            self.tile_contact.append(tile_contact_t.value)
+        for iContact in range(ncontacts.value):
+            status = libcfdll.nccf_get_mosaic_contact_map(self.mosaicId_t, \
+                                                       iContact, contact_map_t)
+            status = libcfdll.nccf_get_mosaic_tile_contact(self.mosaicId_t, \
+                                                        iContact, tile_contact_t)
 
-            tileName1, tileName2 = tile_contact_t.value.split(separator_t.value)
-            slab1, slab2         = contact_map_t.value.split(separator_t.value)
+            tN1, tN2             = tile_contact_t.value.split(separator_t)
+            tileName1, tileName2 = tN1.strip(), tN2.strip()
+            s1, s2               = contact_map_t.value.split(separator_t)
 
-            # Create the tile contact dictionary. Non symmetric
-            if not self.tile_contacts.has_key(tileName1.strip()):
-                self.tile_contacts[tileName1.strip()] = {}
+            # slice objects
+            slab1 = getSlab(s1.strip())
+            slab2 = getSlab(s2.strip())
+
+            # Create the tile contact dictionary. Non symmetric.
+            if not self.tile_contacts.has_key(tileName1):
+                self.tile_contacts[tileName1] = {}
             # The complement to tile_contacts
-            if not self.tile_contacts_compl.has_key(tileName2.strip()):
-                self.tile_contacts[tileName2.strip()] = {}
+            if not self.tile_contacts_compl.has_key(tileName2):
+                self.tile_contacts_compl[tileName2] = {}
 
-            self.tile_contacts[tileName1.strip()][tileName2.strip()] = (slab1.strip(), slab2.strip())
-            self.tile_contacts[tileName2.strip()][tileName1.strip()] = (slab2.strip(), slab1.strip())
+            # Attach the contact map (slab) between the tiles
+            self.tile_contacts[tileName1][tileName2] = (slab1, slab2)
+            self.tile_contacts_compl[tileName2][tileName1] = (slab2, slab1)
 
     def getContactMap(self):
         return self.tile_contacts
 
     def getTileNames(self):
         return self.tile_names
+
+    def getSeamGrid(self, tileName, otherTileName, coordData):
+      """
+      @param tileName tile name for First tile
+      @param otherTileName tile name for other tile
+      @param coordData dictionary containing lon-lat names and their
+                       coordinate values
+      @return coords dictionary of seam sliced coordinates
+      """
+      slab1, slab2 = self.contacts[tileName][otherTileName]
+
+      # adjust for cell centers
+      newslabs = []
+      for slab in slab1, slab2:
+          newslab = []
+          for sl in slab:
+              b = sl.start
+              e = sl.stop + 1
+              newsl = slice(max(b-1, 0), max(e-1, -1), sl.step)
+              newslab.append(newsl)
+          newslabs.append(tuple(newslab))
+      slab1, slab2 = newslabs
+      coords = {}
+
+      for coordName in coordData.keys():
+          d1 = numpy.asarray(coordData[coordName][tileName].ma)
+          d2 = numpy.asarray(coordData[coordName][otherTileName].ma)
+          data1 = d1[slab1]
+          data2 = d2[slab2]
+          print 'd1:   ', data1
+          print 'd2:   ', data2
+          d = numpy.zeros( (n, 2), numpy.float64 )
+          d[:, 0] = data1[:]
+          d[:, 1] = data2[:]
+          coords[coordName] = d
+      return coords
 
     def getCoordinateNames(self):
         return self.coordinate_names
@@ -142,13 +212,36 @@ def test():
     import os.path
     from sys import exit
 
-    mfile = '/home/kindig/projects/modave/examples/ex2_mosaic.nc'
+    from optparse import OptionParser
+
+    cfdir = '/home/kindig/projects/libcf/libcf/build/examples/'
+    mfile = cfdir + 'ex2_mosaic.nc'
+    usage = """
+    Full path to mosaic file.
+    e.g. python gsMosaic.py -f /home/kindig/projects/libcf/libcf/build/examples/ex2_mosaic.nc
+    """
+    parser = OptionParser()
+    parser.add_option("-f", "--file", dest="mfile",
+                  help="full path to mosaic file")
+
+    options, args = parser.parse_args()
+    if not options.mfile:
+        print usage
+        exit(1)
+    # Use the libcf examples directory.
     if not os.path.exists(mfile):
         print "File '%s' does not exist. Check path"
         return
 
     m = open(mfile)
 
-    print m
+    print "\nCoordinate Names"
+    for c in m.coordinate_names: print c
+
+    print "\nTile Contacts"
+    for t in m.tile_contacts: print "%s -> %s" % (t, m.tile_contacts[t])
+    print "\nTile Contacts Complement"
+    for t in m.tile_contacts_compl: print "%s -> %s" % (t, m.tile_contacts_compl[t])
+    print
 
 if __name__ == "__main__": test()

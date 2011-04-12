@@ -9,7 +9,7 @@ import operator
 import ctypes
 import cdms2
 from cdms2.MV2 import concatenate
-from cdms2.gsstaticvariableobj import GsStaticVariableObj
+from cdms2.gsstaticvariable import GsStaticVariable
 from cdms2.error import CDMSError
 from cdms2.hgrid import AbstractCurveGrid, TransientCurveGrid
 from cdms2.coord import TransientAxis2D, TransientVirtualAxis
@@ -88,17 +88,13 @@ class GsTimeVariable(GsStaticVariable):
                         new  = cdms2.createVariable(tmp, 
                                     axes = axes, 
                                     grid = grid, 
-                                    attributes = var.attributes, 
+                                    attributes = atts, 
                                     id = var.standard_name)
                         
                     fh.close()
 
                 # Add the variable to the index
-                self.vars[gfindx]              = new
-
-                # Add some other attributes
-                self.vars[gfindx][libcf.CF_GRIDNAME]    = getattr(fh, libcf.CF_GRIDNAME)
-                self.vars[gfindx]["gridFilename"] = gFName
+                self.vars[gfindx] = new
 
     def __getitem__(self, tfindx):
         """

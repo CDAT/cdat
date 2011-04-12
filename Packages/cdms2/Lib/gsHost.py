@@ -11,8 +11,8 @@ import cdms2
 from cdms2.avariable import AbstractVariable
 from cdms2.tvariable import TransientVariable
 from cdms2.cdmsobj import CdmsObj
-from cdms2.gsstaticvariableobj import GsStaticVariableObj
-from cdms2.gstimevariableobj import GsTimeVariableObj
+from cdms2.gsstaticvariable import GsStaticVariable
+from cdms2.gstimevariable import GsTimeVariable
 import re
 from pycf import libCFConfig, __path__
 LIBCF = __path__[0] + '/libcf'
@@ -75,7 +75,7 @@ class GsHost:
 #        CdmsObj.__init__(self)
 
         # Data dir based on location of hostfile
-        self.libcf = None
+        self.libcfdll = None
         self.dirname  = os.path.dirname(hostfile)
         self.uri      = hostfile
         self.id       = os.path.dirname(hostfile)
@@ -83,16 +83,16 @@ class GsHost:
         self._status_ = 'open'
 
         for sosuffix in '.so', '.dylib', '.dll', '.a':
-            self.libcf = CDLL(LIBCF + sosuffix)
-            if self.libcf:
+            self.libcfdll = CDLL(LIBCF + sosuffix)
+            if self.libcfdll:
                 break
-        if self.libcf == None: 
-            print 'libcf not installed or incorrect path', self.libcf
+        if self.libcfdll == None: 
+            print 'libcf not installed or incorrect path\n  ', self.libcfdll
             self._status_ = 'closed'
 
-        if self._status_ == 'open':
+        elif self._status_ == 'open':
 
-            libcf = self.libcf
+            libcfdll = self.libcfdll
 
             self.hostId_t = c_int(-1)
             self.globalId_t = c_int(-1)
@@ -143,7 +143,7 @@ class GsHost:
             # host file name
             self.host_filename = ""
 
-            status = libcf.nccf_def_host_from_file(hostfile,
+            status = libcfdll.nccf_def_host_from_file(hostfile,
                                                    byref(self.hostId_t))
             if status != 0:
                 print "ERROR: File %s doesn't exist or is not a valid host file" % \
@@ -152,19 +152,19 @@ class GsHost:
                 return
 
             # Attach global attrs
-            libcf.nccf_def_global_from_file( hostfile, byref(self.globalId_t))
+            libcfdll.nccf_def_global_from_file( hostfile, byref(self.globalId_t))
 
             self.host_file_opened = True
             self.host_filename = hostfile
 
             i_t = c_int()
-            status = libcf.nccf_inq_host_ngrids(self.hostId_t, byref(i_t))
+            status = libcfdll.nccf_inq_host_ngrids(self.hostId_t, byref(i_t))
             self.ngrids = i_t.value
-            status = libcf.nccf_inq_host_nstaticdata(self.hostId_t, byref(i_t))
+            status = libcfdll.nccf_inq_host_nstaticdata(self.hostId_t, byref(i_t))
             self.nstatFiles = i_t.value
-            status = libcf.nccf_inq_host_ntimedata(self.hostId_t, byref(i_t))
+            status = libcfdll.nccf_inq_host_ntimedata(self.hostId_t, byref(i_t))
             self.ntimeFiles = i_t.value
-            status = libcf.nccf_inq_host_ntimes(self.hostId_t, byref(i_t))
+            status = libcfdll.nccf_inq_host_ntimes(self.hostId_t, byref(i_t))
             self.ntimeSlices = i_t.value
 
             varName_t = c_char_p(" " * (libCFConfig.NC_MAX_NAME+1))
@@ -172,7 +172,7 @@ class GsHost:
 
             # Grid names and data
             for gfindx in range(self.ngrids):
-                status = libcf.nccf_inq_host_gridfilename(self.hostId_t, 
+                status = libcfdll.nccf_inq_host_gridfilename(self.hostId_t, 
                                                           gfindx, 
                                                           fName_t)
                 self.gridFilenames.append(fName_t.value)
@@ -186,7 +186,7 @@ class GsHost:
                     self.gridVars[vn][gfindx] = fName_t.value
 
                 # Get the grid names
-                status = libcf.nccf_inq_host_grid_name(self.hostId_t, 
+                status = libcfdll.nccf_inq_host_grid_name(self.hostId_t, 
                                                           gfindx, 
                                                           fName_t)
                 self.gridNames.append(fName_t.value)
@@ -194,7 +194,7 @@ class GsHost:
             # static data
             for vfindx in range(self.nstatFiles):
                 for gfindx in range(self.ngrids):
-                    status = libcf.nccf_inq_host_statfilename(self.hostId_t, 
+                    status = libcfdll.nccf_inq_host_statfilename(self.hostId_t, 
                                                               vfindx, gfindx, 
                                                               fName_t)
                     self.statFilenames.append(fName_t.value)
@@ -211,7 +211,7 @@ class GsHost:
             for vfindx in range(self.ntimeFiles):
                 for tfindx in range(self.ntimeSlices):
                     for gfindx in range(self.ngrids):
-                        status = libcf.nccf_inq_host_timefilename(self.hostId_t, 
+                        status = libcfdll.nccf_inq_host_timefilename(self.hostId_t, 
                                                                   vfindx, tfindx, gfindx, 
                                                                   fName_t)
                         self.timeFilenames.append(fName_t.value)
@@ -225,7 +225,7 @@ class GsHost:
                             self.timeDepVars[vn][tfindx][gfindx] = fName_t.value
                       
           ## now close the host file NOT HERE. USE __del__
-          #status = libcf.nccf_free_host(self.hostId_t)
+          #status = libcfdll.nccf_free_host(self.hostId_t)
     
     def listhostfilevars(self):
         """
@@ -234,6 +234,17 @@ class GsHost:
         @return list of variable names
         """
         return hostFileVars
+
+    def getMosaic(self):
+        from gsMosaic import GsMosaic
+        mosaic_filename = c_char_p(" " * (libCFConfig.NC_MAX_NAME + 1))
+        status = self.libcfdll.nccf_inq_host_mosaicfilename(self.hostId_t, mosaic_filename)
+        mfn = GsMosaic(mosaic_filename, "r")
+
+        return mfn
+
+    def writeMosaic(self):
+        pass
 
     def getCoordinates(self, gindx):
         """
@@ -358,9 +369,9 @@ class GsHost:
         self.global_atts = {}
         attName_t = c_char_p(" " * (libCFConfig.NC_MAX_NAME+1))
         attValu_t = c_char_p(" " * (libCFConfig.NC_MAX_NAME+1))
-        self.libcf.nccf_inq_global_natts( self.globalId_t, byref(natts))
+        self.libcfdll.nccf_inq_global_natts( self.globalId_t, byref(natts))
         for i in range(natts.value):
-            self.libcf.nccf_get_global_attval(self.globalId_t, i, attName_t, attValu_t)
+            self.libcfdll.nccf_get_global_attval(self.globalId_t, i, attName_t, attValu_t)
             if not self.global_atts.has_key( attName_t.value ):
                 self.global_atts[attName_t.value] = attValu_t.value
         
@@ -384,7 +395,7 @@ class GsHost:
         @param value attribute value
         @return status 0 if valid
         """
-        status = self.libcf.nccf_add_global_att( self.globalId_t, name, value)
+        status = self.libcfdll.nccf_add_global_att( self.globalId_t, name, value)
         return status
 
     def addfiletohost(self, filename):
@@ -393,7 +404,7 @@ class GsHost:
         @param filename file to be added
         @return status 0 if valid return
         """
-        status = libcf.nccf_add_host_file(self.hostId_t, filename)
+        status = self.libcfdll.nccf_add_host_file(self.hostId_t, filename)
         return status
 
     def __repr__(self): 
@@ -401,21 +412,21 @@ class GsHost:
         Python repr()
         """
         res = "< '%s',  URI: '%s', MODE: '%s', STATUS: '%s',\n libcf: %s >" % \
-            ( self.__class__, self.uri, self.mode, self._status_, self.libcf)
+            ( self.__class__, self.uri, self.mode, self._status_, self.libcfdll)
         return res 
 
     def __setitem__(self):
         """
         Setitem
         """
-        # self.libcf.nccf_put_host( ncid, self.hostId_t )
+        # self.libcfdll.nccf_put_host( ncid, self.hostId_t )
         pass
 
     def __del__(self):
         """
         Run at close time
         """
-        self.libcf.nccf_free_host( self.hostId_t )
+        self.libcfdll.nccf_free_host( self.hostId_t )
 
     def __getitem__(self, varName, **speclist):
         """
@@ -427,17 +438,17 @@ class GsHost:
         """
         # Static variables
         if self.statVars.has_key(varName):
-            GsStatVar = GsStaticVariableObj
-            staticVariablesObj = GsStatVar(self, varName, **speclist)
+            GsStatVar = GsStaticVariable
+            staticVariables = GsStatVar(self, varName, **speclist)
 
-            return staticVariablesObj.vars 
+            return staticVariables.vars 
 
         # Time variables
         elif self.timeDepVars.has_key(varName):
-            GsTimeObj = GsTimeVariableObj
-            timeVariablesObj = GsTimeObj(self, varName, **speclist)
+            GsTimeObj = GsTimeVariable
+            timeVariables = GsTimeObj(self, varName, **speclist)
             
-            return timeVariablesObj.vars
+            return timeVariables.vars
     
     def __call__(self, varName, **speclist):
         """
@@ -463,11 +474,13 @@ def test():
         print "need to provide a host file, use -h to get a full list of options"
         sys.exit(1)
 
-    print 'create grdspec file object...'
+    print 'open file..., create grdspec file object...'
     gf = cdms2.open(options.host_filename)
+    if gf._status_ == 'closed': 
+        print "File not opened"
+        sys.exit(1)
     print 
     print "type=", type(gf)
-    print 'open file...'
     print 'listvariable...'
     print gf.listvariable()
     print 'listattributes...'
@@ -477,12 +490,20 @@ def test():
     print gf.listglobal()
     print 'print...'
     print gf
-    print 'access static data...'
+    print 'access static data...', 'distance' in gf.listvariable()
     print type(gf['distance'])
-    print gf['distance'].size()
-    print gf['distance'].shape(0)
-    print 'acess time dependent data...'
-    print gf['v'].size()
+    di = gf['distance']
+    print di[0].size
+    print gf['distance'][0].shape
+    print 'acess time dependent data...', "V" in gf.listvariables()
+    print gf['V'][0].size
+
+
+    # Test the mosaic
+    print 'getMosaic...', 'getMosaic' in dir(gf)
+    mosaic = gf.getMosaic()
+    for c in mosaic.coordinate_names: print c
+    for t in mosaic.tile_contacts: print "%s -> %s" % (t, mosaic.tile_contacts[t])
 
 ##############################################################################
 

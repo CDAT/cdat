@@ -35,7 +35,7 @@ from avariable import order2index, orderparse, setNumericCompatibility, getNumer
 from tvariable import asVariable, createVariable, isVariable
 
 from gsHost import GsHost
-from gsstaticvariableobj import GsStaticVariableObj
-from gstimevariableobj import GsTimeVariableObj
+from gsstaticvariable import GsStaticVariable
+from gstimevariable import GsTimeVariable
 
 MV = MV2
