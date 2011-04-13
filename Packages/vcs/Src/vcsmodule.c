@@ -21110,8 +21110,8 @@ PyVCS_startQtApp(self,args)
 {
 #ifdef QTWM
   Py_BEGIN_ALLOW_THREADS
-    PyEval_AcquireLock();
-    PyEval_ReleaseLock();
+    /* PyEval_AcquireLock(); */
+    /* PyEval_ReleaseLock(); */
   createVCSCanvases();
   Py_END_ALLOW_THREADS
 #endif
