@@ -6,10 +6,12 @@ $Id: gsFile.py 1728 2011-02-04 21:26:11Z dkindig $
 """
 
 import os
+import sys
+sys.path.append("/home/kindig/software/projects/cdat/lib/python2.7/cdms2/")
 from re import search, sub
 from ctypes import c_float, c_char_p, c_int, CDLL, byref, POINTER
 import cdms2
-from numpy import zeros, float64, asarray
+from numpy import zeros, float64, asarray, unique
 from pycf import libCFConfig, __path__
 
 LIBCFDIR  = __path__[0] + "/libcf"
@@ -159,15 +161,80 @@ class GsMosaic:
         slab1, slab2 = newslabs
     
         return (slab1, slab2)
-
-    def getGrids(self, coordData):
-        res = []
+    
+    def getSeamGrids(self, coordData):
+        result = []
         for tn1 in self.tile_contacts.keys():
             for tn2 in self.tile_contacts[tn1].keys():
-                tmp = self.getSeamData(tn1, tn2, coordData)
-                res.append(tmp)
-    
-        return res
+                # Get the seam data
+                result.append(self.getSeamData(tn1, tn2, coordData))
+
+                # Get the triangle data. Need to find the three cells 
+                # comprising a corner.
+                if tn2 in self.tile_contacts.keys():
+                    t1n = self.tile_contacts[tn1].keys() 
+                    t2n = self.tile_contacts[tn2].keys() 
+
+                    # Look for a tile in the main list. Now compare the adjacent
+                    # tiles to 1 and 2 until there is match. Now we have tile 3
+                    for tn3 in t1n:
+                        if tn3 in t1n and tn3 in t2n:
+                            cornerIndex = self.getCornerData(tn1, tn2, tn3)
+                            c1 = coordData[tn1][cornerIndex[0]]
+                            c2 = coordData[tn2][cornerIndex[1]]
+                            c3 = coordData[tn3][cornerIndex[2]]
+
+                            # Make the triangle a degenerate square.
+                            corner = zeros((2, 2), dtype = coordData[tn1].dtype)
+                            if 'data' in dir(c1):
+                                corner[0, 0] = c1.data
+                                corner[0, 1] = c2.data
+                                corner[1, 1] = c3.data
+                                corner[1, 0] = c3.data
+                            else:
+                                corner[0, 0] = c1
+                                corner[0, 1] = c2
+                                corner[1, 1] = c3
+                                corner[1, 0] = c3
+                                
+        return (result, corner)
+
+    def getCornerData(self, tileName1, tileName2, tileName3):
+        
+        # Get the slabs and account for cell centers
+        s1, s2 = self.tile_contacts[tileName1][tileName2]
+        s3, s4 = self.tile_contacts[tileName1][tileName3]
+        s5, s6 = self.tile_contacts[tileName2][tileName3]
+        s1, s2 = self.getCellCenteredSlab(s1, s2)
+        s3, s4 = self.getCellCenteredSlab(s3, s4)
+        s5, s6 = self.getCellCenteredSlab(s5, s6)
+
+        # Get the index for the corners for each tile at the contact point.
+        c1, c2 = self.getContactCornerIndex(s1, s2)
+        c3, c4 = self.getContactCornerIndex(s3, s4)
+        c5, c6 = self.getContactCornerIndex(s5, s6)
+
+        # Set the tuple containing the corner indices in j, i order.
+        if c1 == 0 and c3 == 1: pair1 = (s1[c1].start, s3[c3].start)
+        if c1 == 1 and c3 == 0: pair1 = (s3[c3].start, s1[c1].start)
+        if c2 == 0 and c5 == 1: pair2 = (s2[c2].start, s5[c5].start)
+        if c2 == 1 and c5 == 0: pair2 = (s5[c5].start, s2[c2].start)
+        if c4 == 0 and c6 == 1: pair3 = (s4[c4].start, s6[c6].start)
+        if c4 == 1 and c6 == 0: pair3 = (s6[c6].start, s4[c4].start)
+
+        return (pair1, pair2, pair3)
+
+    def getContactCornerIndex(self, slab1, slab2):
+        c1 = -1
+        c2 = -1
+        for index in range(2):
+            aa = slab1[index].start - slab1[index].stop == -1
+            bb = slab2[index].start - slab2[index].stop == -1
+            if slab1[index].start - slab1[index].stop == -1:
+                c1 = index
+            if slab2[index].start - slab2[index].stop == -1:
+                c2 = index
+        return (c1, c2)
 
     def getSeamData(self, tileName, otherTileName, inputData):
         """
@@ -187,7 +254,7 @@ class GsMosaic:
         data1 = d1[slab1].flatten()
         data2 = d2[slab2].flatten()
         n = len(data1)
-        newData = zeros( (n, 2), float64 )
+        newData = zeros( (n, 2), d1.dtype)
         newData[:, 0] = data1
         newData[:, 1] = data2
 
@@ -214,7 +281,7 @@ class GsMosaic:
             data1 = d1[slab1].flatten()
             data2 = d2[slab2].flatten()
             n = len(data1)
-            d = zeros( (n, 2), float64 )
+            d = zeros( (n, 2), d1.dtype)
             d[:, 0] = data1
             d[:, 1] = data2
             coords[coordName] = d
