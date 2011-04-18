@@ -110,7 +110,7 @@ class GsStaticVariable(object):
 
         fh = cdms2.open(gFName)
         gridid = None
-        if 'tile_name' in fh.attributes.keys(): gridid = getattr(fh, 'tile_name')
+        if CF_GRIDNAME in fh.attributes.keys(): gridid = getattr(fh, CF_GRIDNAME)
         xn, yn = coordinates.split()
 
         x = fh(xn)

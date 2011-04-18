@@ -11,8 +11,10 @@ sys.path.append("/home/kindig/software/projects/cdat/lib/python2.7/cdms2/")
 from re import search, sub
 from ctypes import c_float, c_char_p, c_int, CDLL, byref, POINTER
 import cdms2
-from numpy import zeros, float64, asarray, unique
+from numpy import zeros, float64, asarray, unique, reshape
 from pycf import libCFConfig, __path__
+from cdms2.hgrid import AbstractCurveGrid, TransientCurveGrid
+from cdms2.coord import TransientAxis2D, TransientVirtualAxis
 
 LIBCFDIR  = __path__[0] + "/libcf"
 libCF  = libCFConfig
@@ -180,24 +182,61 @@ class GsMosaic:
                     for tn3 in t1n:
                         if tn3 in t1n and tn3 in t2n:
                             cornerIndex = self.getCornerData(tn1, tn2, tn3)
-                            c1 = coordData[tn1][cornerIndex[0]]
-                            c2 = coordData[tn2][cornerIndex[1]]
-                            c3 = coordData[tn3][cornerIndex[2]]
+                            def getCornerInfo(data, cornerindex):
+                                lon = data.getLongitude()
+                                lat = data.getLatitude()
+                                c1 = data[cornerindex]
+                                n1 = lon[cornerindex]
+                                t1 = lat[cornerindex]
+                                lonatts = {'units':lon.units, 
+                                           'standard_name':lon.standard_name}
+                                latatts = {'units':lat.units, 
+                                           'standard_name':lat.standard_name}
+
+                                return c1, n1, t1, lonatts, latatts
+
+                            def popCorner(d1, d2, d3, dtype):
+                                corner = zeros((2, 2), dtype = dtype)
+                                if 'data' in dir(d1):
+                                    corner[0, 0] = d1.data
+                                    corner[0, 1] = d2.data
+                                    corner[1, 1] = d3.data
+                                    corner[1, 0] = d3.data
+                                else:
+                                    corner[0, 0] = d1
+                                    corner[0, 1] = d2
+                                    corner[1, 1] = d3
+                                    corner[1, 0] = d3
+                                return corner
+
+                            c1, n1, t1, lonAtts, latAtts = \
+                                        getCornerInfo(coordData[tn1], cornerIndex[0])
+                            c2, n2, t2, lonAtts, latAtts = \
+                                getCornerInfo(coordData[tn2], cornerIndex[1])
+                            c3, n3, t3, lonAtts, latAtts = \
+                                getCornerInfo(coordData[tn3], cornerIndex[2])
 
                             # Make the triangle a degenerate square.
-                            corner = zeros((2, 2), dtype = coordData[tn1].dtype)
-                            if 'data' in dir(c1):
-                                corner[0, 0] = c1.data
-                                corner[0, 1] = c2.data
-                                corner[1, 1] = c3.data
-                                corner[1, 0] = c3.data
-                            else:
-                                corner[0, 0] = c1
-                                corner[0, 1] = c2
-                                corner[1, 1] = c3
-                                corner[1, 0] = c3
+                            dtype = coordData[tn1].dtype
+                            lon_dtype = coordData[tn1].getLongitude().dtype
+                            lat_dtype = coordData[tn1].getLatitude().dtype
+                            corner = popCorner(c1, c2, c3, dtype)
+                            lon    = popCorner(n1, n2, n3, lon_dtype)
+                            lat    = popCorner(t1, t2, t3, lat_dtype)
+                            gridid = 'corner_%d_%d_%d' % (coordData[tn1].gridIndex, \
+                                                           coordData[tn2].gridIndex, 
+                                                           coordData[tn3].gridIndex)
+                            gridAtts = {'lon':lonAtts, 'lat':latAtts, 'gridid':gridid}
+                            cornerGrid = self.createSeamGrid(lon, lat, gridAtts)
+
+                            cornerTV = cdms2.createVariable(corner, 
+                                             axes = cornerGrid.getAxisList(), 
+                                             grid = cornerGrid, 
+                                             attributes = coordData[tn1].attributes, 
+                                             id = gridid)
+                    
                                 
-        return (result, corner)
+        return (result, cornerTV)
 
     def getCornerData(self, tileName1, tileName2, tileName3):
         
@@ -236,6 +275,58 @@ class GsMosaic:
                 c2 = index
         return (c1, c2)
 
+    def createCornerGrid(self, x, y, attrs):
+        """
+        Return the coordinate data associated with variable.
+        @param x longitude coordinate
+        @param y latitude coordinate
+        @return attrs Attributes for eash plus the gridid
+        """
+        pass
+        
+    def createSeamGrid(self, x, y, attrs):
+        """
+        Return the coordinate data associated with variable.
+        @param x longitude coordinate
+        @param y latitude coordinate
+        @return attrs Attributes for eash plus the gridid
+        """
+        from re import search
+        LONSTR = 'lon'
+        LATSTR = 'lat'
+
+
+        # Get the dimensions
+        xdim = x.shape
+        ydim = y.shape
+
+        if xdim != ydim: CDMSError, "Dimension of coordinates grids don't match"
+
+        nj = xdim[0]
+        ni = xdim[1]
+
+        # Define the axes, verifying the lon and lat grids
+        jaxis = TransientVirtualAxis("j",nj)
+        iaxis = TransientVirtualAxis("i",ni)
+
+        if search(LONSTR, attrs['lon']['standard_name']): lon = x
+        if search(LONSTR, attrs['lat']['standard_name']): lon = y
+        if search(LATSTR, attrs['lon']['standard_name']): lat = x
+        if search(LATSTR, attrs['lat']['standard_name']): lat = y
+
+        lataxis = TransientAxis2D(lat, 
+                       axes=(jaxis, iaxis), 
+                       attributes=attrs['lat'], 
+                       id=attrs['lat']['standard_name'])
+        lonaxis = TransientAxis2D(lon, 
+                       axes=(jaxis, iaxis), 
+                       attributes=attrs['lon'], 
+                       id=attrs['lon']['standard_name'])
+
+        # Define the combined grid
+        grid = TransientCurveGrid(lataxis, lonaxis, id=attrs['gridid'])
+        return grid
+
     def getSeamData(self, tileName, otherTileName, inputData):
         """
         @param tileName Name for the first tile
@@ -244,49 +335,58 @@ class GsMosaic:
                           coordinate data values
         @return newData Grid of data on slice
         """
+
         slab1, slab2 = self.tile_contacts[tileName][otherTileName]
     
         # Convert to cell centered slabs
         slab1, slab2 = self.getCellCenteredSlab(slab1, slab2)
-
         d1 = inputData[tileName]
-        d2 = inputData[otherTileName]
-        data1 = d1[slab1].flatten()
-        data2 = d2[slab2].flatten()
-        n = len(data1)
-        newData = zeros( (n, 2), d1.dtype)
-        newData[:, 0] = data1
-        newData[:, 1] = data2
+        l1 = d1.getLongitude()
+        t1 = d1.getLatitude()
+
+        def createNewVar(data, slab):
+            dat = data[slab]
+            lon = data.getLongitude()
+            lon = lon[slab]
+            lat = data.getLatitude()
+            lat = lat[slab]
+            return (dat, lon, lat)
+
+        data1, lon1, lat1 = createNewVar(inputData[tileName], slab1)
+        data2, lon2, lat2 = createNewVar(inputData[otherTileName], slab2)
+        
+        # Remove dimensions of size 1.
+        shape = []
+        for d in data1.shape:
+            if d != 1: shape.append(d)
+
+        newshape = tuple(shape + [2])
+        shape = tuple(shape)
+        newVar = zeros(newshape, data1.dtype)
+        newLon = zeros(newshape, lon1.dtype)
+        newLat = zeros(newshape, lat1.dtype)
+        newVar[:, 0] = reshape(data1, shape)
+        newVar[:, 1] = reshape(data2, shape)
+        newLon[:, 0] = reshape(lon1[:], shape)
+        newLon[:, 1] = reshape(lon2, shape)
+        newLat[:, 0] = reshape(lat1[:], shape)
+        newLat[:, 1] = reshape(lat2, shape)
+        gridid = 'seam_tile%d_tile%d' % (data1.gridIndex, data2.gridIndex)
+        gridAtts = {'lon':{'units':l1.units, 'standard_name':l1.standard_name}, \
+                    'lat':{'units':t1.units, 'standard_name':t1.standard_name}, \
+                    'gridid':gridid}
+        seamGrid = self.createSeamGrid(newLon, newLat, gridAtts)
+
+        dataAtts = {'gridid': gridid}
+        newData = cdms2.createVariable(newVar, 
+                         axes = seamGrid.getAxisList(), 
+                         grid = seamGrid, 
+                         attributes = d1.attributes, 
+                         id = dataAtts['gridid'])
 
         return newData
 
-    def getSeamSlice(self, tileName, otherTileName, inputData):
-        """
-        @param tileName Name for the first tile
-        @param otherTileName Name for the other tile
-        @param inputData Dictionary containing lon-lat names and their flat
-                          coordinate data values
-        @return coords dictionary of seam sliced coordinates
-        """
-        slab1, slab2 = self.tile_contacts[tileName][otherTileName]
     
-        # Convert to cell centered slabs
-        slab1, slab2 = self.getCellCenteredSlab(slab1, slab2)
-    
-        coords = {}
-    
-        for coordName in inputData.keys():
-            d1 = inputData[coordName][tileName]
-            d2 = inputData[coordName][otherTileName]
-            data1 = d1[slab1].flatten()
-            data2 = d2[slab2].flatten()
-            n = len(data1)
-            d = zeros( (n, 2), d1.dtype)
-            d[:, 0] = data1
-            d[:, 1] = data2
-            coords[coordName] = d
-        return coords
-
     def getCoordinateNames(self):
         return self.coordinate_names
 

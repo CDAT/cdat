@@ -506,7 +506,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         """
         Get the tile index (for mosaics)
         """
-        return self.tileIndex
+        return self.gridIndex
 
     def toVisit(self, filename, mode='w', sphereRadius=1.0, maxElev=0.1):
         """
@@ -536,6 +536,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
             elvs *= maxElev
 
         shp = lons.shape
+        # Axis type coordinates
         if len(shp) == len(lats.shape) == 1:
             lons1D = lons[:]
             lats1D = lats[:]
@@ -551,18 +552,18 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
                 # tensor product to create 3D arrays
                 elvs1D = elvs[:]
                 nelvs = len(elvs1D)
-                shp = (nelvs, nlats, nlons)
+                axisshp = (nelvs, nlats, nlons)
                 tp = lons.typecode()
-                lons = numpy.zeros(shp, tp)
-                lats = numpy.zeros(shp, tp)
-                elvs = numpy.zeros(shp, tp)
+                lons = numpy.zeros(axisshp, tp)
+                lats = numpy.zeros(axisshp, tp)
+                elvs = numpy.zeros(axisshp, tp)
                 for k in range(nelvs):
                     for j in range(nlats):
                         for i in range(nlons):
                             lons[k,j,i] = lons1D[i]
                             lats[k,j,i] = lats1D[j]
                             elvs[k,j,i] = elvs1D[k]
-        shp = lons.shape
+
         # the cartesian points
         cosLats = numpy.cos(lats*numpy.pi/180.)
         rr = sphereRadius
@@ -583,7 +584,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         meshdata[:,2] = numpy.reshape(zz, (size,))
         mdata = numpy.reshape(meshdata, shp + (3,))
         dataid = self.id
-        if self.tileIndex != None:
+        if self.getTileIndex != None:
             dataid += '_tile%d' % self.getTileIndex()
 
         def writeToFile(filename, data, timeIndex=None):
@@ -594,7 +595,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
             h5file = tables.openFile(filename, mode)
             # put mesh
             meshid = 'mesh_' + self.id
-            if self.tileIndex != None: 
+            if self.getTileIndex != None: 
                 meshid += '_tile%d' % self.getTileIndex()
             mset = h5file.createArray("/", meshid, mdata)
             mset.attrs.vsType = "mesh"
