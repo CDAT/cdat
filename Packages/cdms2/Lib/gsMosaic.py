@@ -98,9 +98,9 @@ class GsMosaic:
         ngrids         = c_int(-1)
         ndims          = c_int(-1)
         ncontacts      = c_int(-1)
-        libcfdll.nccf_get_mosaic_ndims(self.mosaicId_t, byref(ndims))
-        libcfdll.nccf_get_mosaic_ngrids(self.mosaicId_t, byref(ngrids))
-        libcfdll.nccf_get_mosaic_ncontacts(self.mosaicId_t, byref(ncontacts))
+        libcfdll.nccf_inq_mosaic_ndims(self.mosaicId_t, byref(ndims))
+        libcfdll.nccf_inq_mosaic_ngrids(self.mosaicId_t, byref(ngrids))
+        libcfdll.nccf_inq_mosaic_ncontacts(self.mosaicId_t, byref(ncontacts))
 
         # Build the character arrays
         separator_t = libCF.CF_TILE_SEPARATOR
@@ -112,16 +112,16 @@ class GsMosaic:
             coord_t[iDim] = " " * (libCF.NC_MAX_NAME+1)
 
         # Get the coordinate names for the grids
-        libcfdll.nccf_get_mosaic_coord_names(self.mosaicId_t, coord_t)
+        libcfdll.nccf_inq_mosaic_coordnames(self.mosaicId_t, coord_t)
 
         for iCrd in range(len(coord_t)):
             self.coordinate_names.append(coord_t[iCrd])
 
         # Get the contact map information
         for iContact in range(ncontacts.value):
-            status = libcfdll.nccf_get_mosaic_contact_map(self.mosaicId_t, \
+            status = libcfdll.nccf_inq_mosaic_contactmap(self.mosaicId_t, \
                                                        iContact, contact_map_t)
-            status = libcfdll.nccf_get_mosaic_tile_contact(self.mosaicId_t, \
+            status = libcfdll.nccf_inq_mosaic_tilecontact(self.mosaicId_t, \
                                                         iContact, tile_contact_t)
 
             tN1, tN2             = tile_contact_t.value.split(separator_t)

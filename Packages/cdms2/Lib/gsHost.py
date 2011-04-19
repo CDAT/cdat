@@ -371,7 +371,7 @@ class GsHost:
         attValu_t = c_char_p(" " * (libCFConfig.NC_MAX_NAME+1))
         self.libcfdll.nccf_inq_global_natts( self.globalId_t, byref(natts))
         for i in range(natts.value):
-            self.libcfdll.nccf_get_global_attval(self.globalId_t, i, attName_t, attValu_t)
+            self.libcfdll.nccf_inq_global_attval(self.globalId_t, i, attName_t, attValu_t)
             if not self.global_atts.has_key( attName_t.value ):
                 self.global_atts[attName_t.value] = attValu_t.value
         
