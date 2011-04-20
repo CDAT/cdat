@@ -34,6 +34,6 @@ from avariable import order2index, orderparse, setNumericCompatibility, getNumer
 # TV
 from tvariable import asVariable, createVariable, isVariable
 
-from restApi import esgNodeConnection
+from restApi import esgfConnection
 
 MV = MV2
