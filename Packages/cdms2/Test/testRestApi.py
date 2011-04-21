@@ -5,15 +5,17 @@ import sys,os
 readline.parse_and_bind("tab: complete")
 restPath=None
 test = "Luca"
-test="Gavin"
+#test="Gavin"
 #test="Luca-new"
 if test == "Luca":
     gateway = "esg-datanode.jpl.nasa.gov"
     #gateway = "test-datanode.jpl.nasa.gov"
     restPath = "/esg-search2/ws/rest/search"
-    datasetids = "%(project).%(obs_structure).%(realm).%(instrument_type).%(time_frequency)"
+    datasetids = "%(project).%(obs_structure).%(realm).%(instrument).%(time_frequency)"
+    datasetids = "%(project).%(crappy)"
     fileids="%(datasetid).%(version).%(variable)_%(crap).nc"
-    mapping="%(datasetid).%(version).%(variable)"
+    fileids="%(datasetid).%(variable)_%(crap)"
+    mapping="%(project).%(variable)"
     #mapping="%(datasetid).%(version)"
     stringType= False
 elif test == "Gavin":
@@ -21,7 +23,6 @@ elif test == "Gavin":
     datasetids = "%(project).%(product).%(institution).%(model).%(experiment).%(time_frequency).%(realm).%(MIPTable).%(ensemble)"
     fileids="%(datasetid).%(version).%(variable)_%(MIPTable)_%(model)_%(experiment)_%(ensemble)_%(timespan).nc"
     mapping="%(datasetid).%(variable)"
-    stringType= False
     #stringType= True
 elif test== "Luca-new":
     gateway = "uv-cdat"
@@ -31,32 +32,47 @@ elif test== "Luca-new":
     stringType= True
     stringType= False
     
+mapping="%(project).%(variable)"
+#fileids=None
+#datasetids=None
+#datasetids = "%(project).%(product).%(institute).%(model).%(experiment).%(time_frequency).%(realm).%(MIPTable).%(ensemble)"
+fileids=None
+#mapping="%(datasetid).%(variable)"
+stringType= False
+#mapping=None
 myGateway = cdms2.esgfConnection(gateway,mapping=mapping,datasetids=datasetids,fileids=fileids,restPath=restPath)
-
-datasets =  myGateway.search(stringType=stringType,variable="ta")
-#print datasets[0]
+#stringType=True
+datasets =  myGateway.searchDatasets(**{})#,variable="ta")
+#print datasets
+#sys.exit()
 if stringType:
     print datasets
 else:
     ## for f in dataset[-1].files:
     ##     print f
-
+    
     print datasets[0].id
     print myGateway.keys()
 
     ## print datasets[0].files
+    i=0
     for d in datasets:
-        print d.id,len(d.files)
+        print i,d.id
+        i+=1
+        #search1 = d.search()
+        #print len(search1)
+    #print d.search(stringType=True)
+    #sys.exit()
     #print datasets[0]
     #print datasets[0].files[:]
-    if test[:4]=="Luca":
-        print datasets[0].mapping.keys()
-        print datasets[0].mapped#["obs4cmip5"]["NASA-JPL"]["AQUA"]["AIRS"]["mon"]
-    elif test=="Gavin":
-        i=0
-        print datasets[i].id
-        #print datasets[i].search(variable="ta",stringType=True)
-        sys.exit()
-        print datasets[0].mapped["cmip5"]["output1"]["INM"]["inmcm4"]["1pctCO2"]["mon"]["atmos"]["Amon"]["r1i1p1"].keys()
+    i=0
+    print "Looking at:",datasets[i].id
+    search1 = datasets[i].search()
+    print len(search1)
+    search1.remap()
+    print search1.mapped#["cmip5"]["output1"]["INM"]["inmcm4"]["amip"]["day"]["atmos"]["day"]["r1i1p1"].keys()
+    #print search1.parent["MIPTable"]
+        #search2 = datasets[i].search(variable="crap")
+        #print len(search2)
     ## f=cdms2.open(datasets[1].files[0]["OPENDAP"])
     ## print f.variables.keys()
