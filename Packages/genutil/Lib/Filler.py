@@ -88,8 +88,15 @@ class StringConstructor:
             i1=name.find(sp[0])+len(sp[0])
             j1=sp[1].find("%(")
             if j1==-1:
-                i2=name.find(sp[1])
-                val = name[i1:i2]
+                if sp[1]=="":
+                    val=name[i1:]
+                else:
+                    i2=name.find(sp[1])
+                    val = name[i1:i2]
+                if debug:
+                    print k,j1,sp[1],"****",sp
+                    print k,name[i1:i2]
+                    print k,i1,i2,val
             else:
                 i2=name[i1:].find(sp[1][:j1])
                 val=name[i1:i1+i2]
@@ -100,6 +107,8 @@ class StringConstructor:
             if debug:
                 print '-----------------'
             template=template.replace("%%(%s)"%k,val)
+            if debug:
+                print template
             out[k]=val
         if debug:
             print out

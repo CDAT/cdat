@@ -1,8 +1,10 @@
 import cdms2
-import httplib
+import urllib2
 import AutoAPI
 import xml.etree.ElementTree
 import genutil
+import os
+import bz2
 
 class esgfConnectionException(Exception):
     pass
@@ -20,13 +22,14 @@ validSearchTypes =  ["Dataset","File"]#"ById","ByTimeStamp"]
 class esgfConnection(object,AutoAPI.AutoAPI):
     def __init__(self,host,port=80,timeout=15,limit=100000000,offset=0,mapping=None,datasetids=None,fileids=None,restPath=None):
         self.autoApiInfo = AutoAPI.Info(self)
-        self._http=httplib.HTTPConnection(host,port,timeout=timeout)
+        self.port=port
+        self.host=host
         if restPath is None:
             self.restPath="/esg-search/ws/rest/search"
         else:
             self.restPath=restPath
         self.defaultSearchType = "Dataset"
-        self.ESGObjectException = esgfConnectionException
+        self.EsgfObjectException = esgfConnectionException
         self.validSearchTypes=validSearchTypes
         self.validSearchTypes=["Dataset",]
         all = self._search("cf_variable=crap",searchType=None)
@@ -54,10 +57,16 @@ class esgfConnection(object,AutoAPI.AutoAPI):
 
         if datasetids is not None:
             self.datasetids=genutil.StringConstructor(datasetids)
+        else:
+            self.datasetids=None
         if fileids is not None:
             self.fileids=genutil.StringConstructor(fileids)
             if datasetids is not None:
                 self.fileids.template=self.fileids.template.replace("%(datasetid)",self.datasetids.template)
+        elif self.datasetids is not None:
+            self.fileids=genutil.StringConstructor("%s.%%(filename)" % self.datasetids.template)
+        else:
+            self.fileids=None
         #self.setMapping(mapping)
         self.mapping=mapping                    
             
@@ -70,11 +79,11 @@ class esgfConnection(object,AutoAPI.AutoAPI):
         try:
             val = self.params[key]
         except:
-            raise self.ESGObjectException("Invalid key: %s" % repr(key))
+            raise self.EsgfObjectException("Invalid key: %s" % repr(key))
         return val
     def __setitem__(self,key,value):
         if not key in self.params.keys():
-            raise self.ESGObjectException("Invalid key: %s, valid keys are: %s" % (repr(key),repr(self.params.keys())))
+            raise self.EsgfObjectException("Invalid key: %s, valid keys are: %s" % (repr(key),repr(self.params.keys())))
         self.params[key]=value
         return
 
@@ -83,29 +92,20 @@ class esgfConnection(object,AutoAPI.AutoAPI):
         if searchType is None:
             searchType=self.defaultSearchType
         if not searchType in self.validSearchTypes:
-            raise self.ESGObjectException("Valid Search types are: %s" % repr(self.validSearchTypes))
+            raise self.EsgfObjectException("Valid Search types are: %s" % repr(self.validSearchTypes))
         while search[0]=="&":
             search=search[1:]
-        if self._http.host[:7]=="uv-cdat":
-            rqst = "/search.xml"
-        if self._http.host[:7]=="uv-cdat":
-            rqst = "/search.xml"
+        rqst = "%s/?type=%s&%s" % (self.restPath,searchType,search)
+        print "REQUEST: %s%s" % (self.host,rqst)
+        if self.host.find("://")>-1:
+            urltype=""
         else:
-            rqst = "%s/?type=%s&%s" % (self.restPath,searchType,search)
-        #print "REQUEST: %s%s" % (self._http.host,rqst)
-        self._http.request("GET",rqst)
-        response = self._http.getresponse()
-        r= response.read()
-        if not response.status == httplib.OK:
-            i = r.find("<body>")
-            r=r[i+6:]
-            i = r.find("<b>description</b>")
-            r=r[i+18:]
-            j=r.find("</p>")
-            r=r[:j]
-            msg = "receive http error (%i:%s), Tomcat message: %s" % (response.status,httplib.responses[response.status],r)
-            #print msg
-            raise self.ESGObjectException(msg)
+            urltype="http://"
+        try:
+            url = urllib2.urlopen("%s%s:%s/%s" % (urltype,self.host,self.port,rqst))
+        except Exception,msg:
+             raise self.EsgfObjectException(msg)
+        r = url.read()
         if stringType:
             return r
         else:
@@ -127,7 +127,7 @@ class esgfConnection(object,AutoAPI.AutoAPI):
             elif k == "type":
                 continue
             ## elif not k in self.searchableKeys:
-            ##     raise self.ESGObjectException("Invalid key: %s, valid keys are: %s" % (repr(k),repr(self.params.keys())))
+            ##     raise self.EsgfObjectException("Invalid key: %s, valid keys are: %s" % (repr(k),repr(self.params.keys())))
             if keys[k] is not None:
                 params[k]=keys[k]
 
@@ -175,7 +175,7 @@ class esgfConnection(object,AutoAPI.AutoAPI):
             out=out[0]
         return out
         
-    def search(self,**keys):
+    def searchDatasets(self,**keys):
         resp = self.request(**keys)
         stringType=keys.get("stringType",False)
         if stringType:
@@ -192,29 +192,27 @@ class esgfConnection(object,AutoAPI.AutoAPI):
                         tmpkeys[k]=self.extractTag(f)
                     if tmpkeys["type"]=="Dataset":
                         datasetid = tmpkeys["id"]
-                        #print datasetid
+                        print datasetid,self.restPath
                         #print "KEYS FOR DATASET",keys.keys()
-                        datasets.append(esgfDataset(_http=self._http,limit=self["limit"],offset=self["offset"],mapping=self.mapping,datasetids=self.datasetids,fileids=self.fileids,keys=tmpkeys,originalKeys=keys,restPath=self.restPath))
+                        datasets.append(esgfDataset(host=self.host,port=self.port,limit=self["limit"],offset=self["offset"],mapping=self.mapping,datasetids=self.datasetids,fileids=self.fileids,keys=tmpkeys,originalKeys=keys,restPath=self.restPath))
         return datasets
 
 class esgfDataset(esgfConnection):
     def __init__(self,host=None,port=80,limit=1000000,offset=0,mapping=None,datasetids=None,fileids=None,_http=None,restPath=None,keys={},originalKeys={}):
-        if host is None and _http is None:
-            raise esgfDatasetException("You need to pass url of an http connection")
-        if _http is not None:
-            self._http=_http
-        else:
-            self._http=httplib.HTTPConnection(host,port)
+        if host is None:
+            raise esgfDatasetException("You need to pass url")
+        self.host=host
+        self.port=port
         self.defaultSearchType="File"
         if restPath is None:
             self.restPath="/esg-search/ws/rest/search"
         else:
             self.restPath=restPath
         if datasetids is None:
-            datasetids=""
+            self.datasetids=None
         if isinstance(datasetids,genutil.StringConstructor):
             self.datasetids=datasetids
-        else:
+        elif isinstance(datasetids,str):
             self.datasetids=genutil.StringConstructor(datasetids)
         if fileids is not None:
             if isinstance(fileids,genutil.StringConstructor):
@@ -223,104 +221,43 @@ class esgfDataset(esgfConnection):
                 self.fileids=genutil.StringConstructor(fileids)
             if self.datasetids is not None:
                 self.fileids.template=self.fileids.template.replace("%(datasetid)",self.datasetids.template)
-
+        elif self.datasetids is not None:
+            self.fileids=genutil.StringConstructor("%s.%%(filename)" % self.datasetids.template)
+        else:
+            self.fileids=None
         self.originalKeys=originalKeys
         self.validSearchTypes=validSearchTypes
         self.validSearchTypes=["File",]
-        self.ESGObjectException = esgfDatasetException
+        self.EsgfObjectException = esgfDatasetException
         self.params=keys
         self.keys = self.params.keys
         self.items = self.params.items
         self.values = self.params.values
-        self.setMapping(mapping)
         self.id=self["id"]
         self.params["limit"]=limit
         self.params["offset"]=offset
+        self.mapping=mapping
         #print "SEARCHING DS:",originalKeys
         self.resp=None
-        self.search()
+        self.cacheTime = None
+#        self.search()
 #        self.remap()
         
         ## Ok now we need to "map" this according to the user wishes
 
-    def setMapping(self,mapping):
-        if mapping is None:
-            self.mapping=""
-            for k in self.keys():
-                self.mapping+="%%(%s)" % k
-        else:
-            self.mapping=mapping
-        #print "Stage 1 mapping:",self.mapping
-        if not isinstance(self.mapping,genutil.StringConstructor):
-            if self.datasetids is not None:
-                self.mapping=self.mapping.replace("%(datasetid)",self.datasetids.template)
-            self.mapping = genutil.StringConstructor(self.mapping)
-        #print "Stage 2:",self.mapping.template,self.keys()
-
-        for k in self.mapping.keys():
-            ok = False
-            if self.datasetids is not None:
-                if k in self.datasetids.keys():
-                    ok = True
-            if self.fileids is not None:
-                if k in self.fileids.keys():
-                    ok = True
-            if k in self.keys():
-                ok=True
-            if ok is False:
-                raise self.ESGObjectException("Invalid mapping key: %s" % k)
-            
-    def remap(self,mapping=None):
-        if mapping is None:
-            thismapping = self.mapping
-        self.mapped={}
-        #print "################ REMAPPING: %s: %s #############################" % (thismapping.template,repr(thismapping.keys()))
-        for f in self.files:
-            mappoint=self.mapped
-            tabs=""
-            nok=0
-            nlevels = len(thismapping.keys())
-            for k in thismapping.keys():
-                #print tabs,"keys:",k,"File keys:",f.keys()
-                ## if k == self.mapping.keys()[0]:
-                ##     f.matched.keys()
-                ## else:
-                ##     print
-                if k in f.keys():
-                    #print tabs,k,f[k]
-                    nok+=1
-                    cont = f[k]
-                    if not f[k] in mappoint.keys():
-                        mappoint[f[k]]={}
-                elif k in self.keys():
-                    #print tabs,k,f[k]
-                    nok+=1
-                    cont = self[k]
-                    if not self[k] in mappoint.keys():
-                        mappoint[self[k]]={}
-                else:
-                    break
-                mappoint=mappoint[cont]
-                tabs+="\t"
-            tmp = mappoint.get("files",[])
-            tmp.append(f)
-            mappoint["files"] = tmp
-        #print "################ REMAPPED: %s #############################" % (thismapping,)
            
 
-    def mappedItems():
-        mapped=[]
-        mapppoint=self.mapped
-        for k in self.mapping.keys():
-            keys=[]
-            level=[k,mappoint.keys()]
-            mappoint
+    ## def mappedItems():
+    ##     mapped=[]
+    ##     mapppoint=self.mapped
+    ##     for k in self.mapping.keys():
+    ##         keys=[]
+    ##         level=[k,mappoint.keys()]
+    ##         mappoint
     def _extractFiles(self,resp,**inKeys):
         ## We need to stick in there the bit from Luca to fill in the matching key from facet for now it's empty
         files=[]
         skipped = ["type","title","timestamp","service","id","score","file_url","service_type"]
-        nfiles = 0
-        nta = 0
         for r in resp[:]:
             if r.tag=="result":
                 for d in r[:][:]:
@@ -329,14 +266,13 @@ class esgfDataset(esgfConnection):
                         k = f.get("name")
                         keys[k]=self.extractTag(f)
                     if keys["type"]=="File":
-                        nfiles+=1
-                        ## if keys["variable"]=="ta":
-                        ##     verbose=False
-                        ##     nta+=1
+                        ## if self["id"]=="obs4cmip5.NASA-JPL.AQUA.AIRS.mon":
+                        ##     verbose=True
                         ## else:
                         ##     verbose=False
                         ## if verbose: print "OK",keys["variable"],keys["file_id"],self["id"]
                         #if verbose: print "FILEIDS:",self.fileids
+                        #if verbose: print "Fileids:",self.fileids.template
                         if self.fileids is not None:
                             try:
                                 #if verbose: print "file:",keys["file_id"],self.fileids.template
@@ -357,12 +293,16 @@ class esgfDataset(esgfConnection):
                             else:
                                 matchWithKeys[k]=self[k]
                         for s in skipped:
-                            matchWithKeys.pop(s)
+                            try:
+                                matchWithKeys.pop(s)
+                            except:
+                                pass
                         for k in inKeys.keys():
                             matchWithKeys[k]=inKeys[k]
+                        ## ## if verbose: print "matching:",matchWithKeys.keys()
                         for k in keys.keys():
                             if k in matchWithKeys.keys():
-                                #if verbose: print "Testing:",k,keys[k]
+                                ## if verbose: print "Testing:",k,keys[k]
                                 v = matchWithKeys[k]
                                 if isinstance(v,(str,int,float)):
                                     ## if verbose: print "\tComparing with:",v
@@ -371,41 +311,19 @@ class esgfDataset(esgfConnection):
                                         ## if verbose: print "\t\tNOPE"
                                         break
                                 elif isinstance(v,list):
-                                    #if verbose: print "\tComparing with (and %i more):%s"%(len(v),v[0])
+                                    ## if verbose: print "\tComparing with (and %i more):%s"%(len(v),v[0]),v
                                     if not keys[k] in v:
                                         matched = False
-                                        #if verbose: print "\t\tNOPE"
+                                        ## if verbose: print "\t\tNOPE"
                                         break
                                 else:
                                     print "\twould compare %s with type: %s if I knew how to" % (str(v),type(v))
-                        #if verbose: print keys["file_id"],matched
+                        ## if verbose: print keys["file_id"],matched
                         if matched :
                             for k in self.keys():
                                 if not k in keys.keys():
                                     keys[k]=self[k]
                             files.append(esgfFile(**keys))
-        #print "We found:",nfiles,"files on dataset",self["id"],nta,"of them have ta"
-        ##         break
-        ## fileId=None
-        ## files=[]
-        ## for i in range(len(services)):
-        ##     if ids[i].text!=fileId:
-        ##         if fileId is not None:
-        ##             files.append(esgfFile(fileId,furls,fservices,keys))
-        ##         fileId=ids[i].text
-        ##         furls=[urls[i].text,]
-        ##         fservices=[services[i].text,]
-        ##         keys={}
-        ##         if self.fileids is not None:
-        ##             try:
-        ##                 keys = self.fileids.reverse(ids[i].text)
-        ##             except:
-        ##                 #print "Failed:",ids[i].text,self.fileids.template
-        ##                 pass
-        ##     else:
-        ##         furls.append(urls[i].text)
-        ##         fservices.append(services[i].text)
-        ## files.append(esgfFile(fileId,furls,fservices,keys))
         return files
             
     def info(self):
@@ -417,22 +335,91 @@ class esgfDataset(esgfConnection):
             st+="\t%s : %s\n" % (k,self[k])
         return st
         
+    def clearWebCache(self):
+        self.resp = None
 
+    def saveCache(self,target="."):
+        if self.resp is None:
+            return
+        if os.path.isdir(target):
+            target = os.path.join(target,"esgfDatasetsCache.pckl")
+        if os.path.exists(target):
+            f=open(source)
+            dict=eval(bz2.decompress(f.read()))
+            f.close()
+        else:
+            dict={}
+        dict[self.id]=[self["timestamp"],xml.etree.ElementTree.tostring(self.resp),self.originalKeys]
+        f=open(target,"w")
+        f.write(bz2.compress(repr(self.cache)))
+        f.close()
+        
+    def loadCache(self,source):
+        if isinstance(source,dict):
+            dict=source
+        else:
+            if os.path.isdir(source):
+                source = os.path.join(source,"esgfDatasetsCache.pckl")
+            if os.path.exists(source):
+                f=open(source)
+                dict=eval(bz2.decompress(f.read()))
+                f.close()
+            else:
+                dict={}
+        vals = dict.get(self.id,["",None,{}])
+        if vals[1] is not None:
+            self.cacheTime=vals[0]
+            self.resp=xml.etree.ElementTree.fromstring(vals[0])
+            self.originalKeys=vals[1]
+        
+    def clearOriginalQueryCache(self):
+        self.originalKeys={}
+
+    def clear(self):
+        self.clearWebCache()
+        self.clearOriginalQueryCache()
     
     def search(self,**keys):
         #search = self.generateRequest(**keys)
-        if self.resp is None:
-            self.resp = self._search("parent_id=%s&limit=%s&offset=%s" % (self["id"],self["limit"],self["offset"]))
         stringType=keys.get("stringType",False)
+        if self.resp is None:
+            self.resp = self._search("parent_id=%s&limit=%s&offset=%s" % (self["id"],self["limit"],self["offset"]),stringType=stringType)
         if stringType:
             return self.resp
-        self.files = esgfFiles(self._extractFiles(self.resp,**keys))
-        self.remap()
+        return esgfFiles(self._extractFiles(self.resp,**keys),self)
 
 
 class esgfFiles(object,AutoAPI.AutoAPI):
-    def __init__(self,files):
+    def __init__(self,files,parent,mapping=None,datasetids=None,fileids=None):
         self._files=files
+        if not isinstance(parent,esgfDataset):
+            raise esgfFilesException("parent must be an esgfDataset instance")
+        self.parent=parent
+        self.EsgfObjectException = esgfFilesException
+        if datasetids is None:
+            datasetids=parent.datasetids
+        if isinstance(datasetids,genutil.StringConstructor):
+            self.datasetids=datasetids
+        elif isinstance(datasetids,str):
+            self.datasetids=genutil.StringConstructor(datasetids)
+        else:
+            self.datasetids=None
+        if fileids is not None:
+            if isinstance(fileids,genutil.StringConstructor):
+                self.fileids=fileids
+            else:
+                self.fileids=genutil.StringConstructor(fileids)
+            if self.datasetids is not None:
+                self.fileids.template=self.fileids.template.replace("%(datasetid)",self.datasetids.template)
+        elif self.datasetids is not None:
+            self.fileids=genutil.StringConstructor("%s.%%(filename)" % self.datasetids.template)
+        else:
+            self.fileids=parent.fileids
+        if mapping is None:
+            mapping=parent.mapping
+        self.setMapping(mapping)
+        self.remap()
+        
     def __getitem__(self,item):
         if isinstance(item,int):
             return self._files[item]
@@ -448,6 +435,98 @@ class esgfFiles(object,AutoAPI.AutoAPI):
         raise esgfFilesException("You cannot set items")
     def __len__(self):
         return len(self._files)
+    def setMapping(self,mapping):
+        if mapping is None:
+            self.mapping=""
+            for k in self.parent.keys():
+                self.mapping+="%%(%s)" % k
+        else:
+            self.mapping=mapping
+        #print "Stage 1 mapping:",self.mapping
+        if not isinstance(self.mapping,genutil.StringConstructor):
+            if self.datasetids is not None:
+                self.mapping=self.mapping.replace("%(datasetid)",self.datasetids.template)
+            self.mapping = genutil.StringConstructor(self.mapping)
+        #print "Stage 2:",self.mapping.template,self.keys()
+
+        vk = self.parent.keys()
+        for k in self.mapping.keys():
+            ok = False
+            if self.datasetids is not None:
+                vk += self.datasetids.keys()
+                if k in self.datasetids.keys():
+                    ok = True
+            if self.fileids is not None:
+                vk+=self.fileids.keys()
+                if k in self.fileids.keys():
+                    ok = True
+            if k in self.parent.keys():
+                ok=True
+            ## Ok second to last hope... Matching to datasetids
+            if isinstance(self.datasetids,genutil.StringConstructor) and ok is False:
+                try:
+                    mapid = self.datasetids.reverse(self.parent.id)
+                    vk+=mapid.keys()
+                    if k in mapid.keys():
+                        ok = True
+                        
+                except:
+                    print "Couldn't map: %s to %s" % (self.parent.id,self.datasetids.template)
+            if ok is False:
+                vk = set(vk)
+                raise self.EsgfObjectException("Invalid mapping key: %s, valid keys are: %s" % (k,sorted(vk)))
+            
+    def remap(self,mapping=None,verbose=False):
+        if mapping is None:
+            thismapping = self.mapping
+        self.mapped={}
+        ## if verbose: print "################ REMAPPING: %s: %s #############################" % (thismapping.template,repr(thismapping.keys()))
+        for f in self._files:
+            mappoint=self.mapped
+            tabs=""
+            nok=0
+            nlevels = len(thismapping.keys())
+            for k in thismapping.keys():
+                ## if verbose: print tabs,"keys:",k,"File keys:",f.keys()
+                ## if k == self.mapping.keys()[0]:
+                ##     f.matched.keys()
+                ## else:
+                ##     ## if verbose: print
+                if k in f.keys():
+                    ## if verbose: print tabs,k,f[k]
+                    nok+=1
+                    cont = f[k]
+                    if not isinstance(cont,(str,int,float)):
+                        break
+                    if not cont in mappoint.keys():
+                        mappoint[cont]={}
+                elif k in self.parent.keys():
+                    ## if verbose: print tabs,k,f[k]
+                    nok+=1
+                    cont = self[k]
+                    if not cont in mappoint.keys():
+                        mappoint[cont]={}
+                elif isinstance(self.fileids,genutil.StringConstructor):
+                    try:
+                        mapid = self.fileids.reverse(self.parent.id)
+                        ## if verbose:
+                            ## print "MAPID:",k,mapid
+                        if k in mapid.keys():
+                            ## if verbose: print tabs,k,mapid[k]
+                            nok+=1
+                            cont = mapid[k]
+                            if not cont in mappoint.keys():
+                                mappoint[cont]={}
+                    except:
+                        break
+                else:
+                    break
+                mappoint=mappoint[cont]
+                tabs+="\t"
+            tmp = mappoint.get("files",[])
+            tmp.append(f)
+            mappoint["files"] = tmp
+        ## if verbose: print "################ REMAPPED: %s #############################" % (thismapping,)
 
 class esgfFile(object,AutoAPI.AutoAPI):
     def __init__(self,**keys):
