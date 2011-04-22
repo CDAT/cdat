@@ -69,7 +69,7 @@ PC_CHECK_C_HEADER(GRIB2INC,/usr/local/include,[grib2inc],grib2.h, dnl
 
 AC_MSG_CHECKING(if GRIB2 is enabled)
 AC_ARG_ENABLE(grib2,
-   [  --enable-grib2            Compile GRIB-2 support [default=yes]],
+   [  --enable-grib2            Compile GRIB-2 support [default=no]],
    ENABLE_GRIB2=$enableval,
    ENABLE_GRIB2=no)
 
@@ -280,7 +280,7 @@ dnl                DAP_LIB_OPTIONS="nc-dap -ldap -lstdc++ -lcurl -lz -lssl -lpth
 dnl                ;;
 dnl   esac
       AC_ARG_WITH([nclib], [--with-nclib=DIR        libnetcdf.a is in DIR (default [NCLIB])],[NCLIB=$withval])
-      NC_LIB_OPTIONS="netcdf" `${NCLIB}/../bin/nc-config --libs`
+      NC_LIB_OPTIONS="netcdf $(${NCLIB}/../bin/nc-config --libs)"
 dnl   PC_CHECK_ARG_LIB(DAPLIB,/usr/local/lib,[daplib],$DAP_LIB_OPTIONS,SDstart,DAPOPTS,dap,libnc-dap.a, dnl
 dnl   [--with-dap=DIR       libnc-dap.a is in DIR (default [DAPLIB])])
 else
