@@ -126,8 +126,8 @@ class esgfConnection(object,AutoAPI.AutoAPI):
                 continue
             elif k == "type":
                 continue
-            ## elif not k in self.searchableKeys:
-            ##     raise self.EsgfObjectException("Invalid key: %s, valid keys are: %s" % (repr(k),repr(self.params.keys())))
+            elif not k in self.searchableKeys:
+                raise self.EsgfObjectException("Invalid key: %s, valid keys are: %s" % (repr(k),repr(self.params.keys())))
             if keys[k] is not None:
                 params[k]=keys[k]
 
