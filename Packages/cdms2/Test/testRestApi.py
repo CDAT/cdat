@@ -42,7 +42,7 @@ stringType= False
 #mapping=None
 myGateway = cdms2.esgfConnection(gateway,mapping=mapping,datasetids=datasetids,fileids=fileids,restPath=restPath)
 #stringType=True
-datasets =  myGateway.searchDatasets(okkbs_type="satellite_retrieval",stringType=True)#,variable="ta")
+datasets =  myGateway.searchDatasets(version=1,stringType=True)#,variable="ta")
 print datasets
 #sys.exit()
 if stringType:
