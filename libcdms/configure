@@ -1283,7 +1283,7 @@ Optional Features:
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --enable-drs            Compile the DRS interface default=yes
   --enable-hdf            Compile the HDF interface default=yes
-  --enable-grib2            Compile GRIB-2 support default=yes
+  --enable-grib2            Compile GRIB-2 support default=no
   --enable-dap            Compile with the OpenDAP interface default=no
   --enable-pp             Compile the PP interface default=yes
   --enable-ql            Compile the QL interface default=yes
@@ -5772,7 +5772,8 @@ if test "${with_nclib+set}" = set; then
   withval=$with_nclib; NCLIB=$withval
 fi
 
-      NC_LIB_OPTIONS="netcdf" `${NCLIB}/../bin/nc-config --libs`
+      NC_LIB_OPTIONS="netcdf $(${NCLIB}/../bin/nc-config --libs)"
+
 else
 
 # Check whether --with-hdf5lib was given.
@@ -6653,6 +6654,9 @@ esac
 echo "==================================================================="
 echo "NCLIB = $NCLIB"
 echo "NC_LIB_OPTIONS = $NC_LIB_OPTIONS"
+echo "HDFLIB = $HDFLIB"
+echo "HDF_LIB_OPTIONS = $HDF_LIB_OPTIONS"
+echo "GRIB2OPTS" = $GRIB2OPTS
 echo "==================================================================="
 ac_config_files="$ac_config_files Makefile src/cddrs/Makefile src/cddrs/test/Makefile src/cdunif/Makefile src/cdunif/cdunifpp/Makefile src/cdunif/test/Makefile src/db_util/Makefile src/api/Makefile src/api/test/Makefile"
 
