@@ -93,7 +93,7 @@ test:		testnc testgrib testdrs testpp
 		    rm -f $@.o; \
 		    ;; \
 	     *) \
-		    $(CC) $(CPPFLAGS) $(DEFS) $(CFLAGS) -o $@ $< $(LDFLAGS) m ; \
+		    $(CC) $(CPPFLAGS) $(DEFS) $(CFLAGS) -o $@ $< $(LDFLAGS); \
 		    ;; \
 	esac
 
