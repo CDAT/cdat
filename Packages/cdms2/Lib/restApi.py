@@ -23,11 +23,18 @@ class esgfConnection(object,AutoAPI.AutoAPI):
     def __init__(self,host,port=80,timeout=15,limit=100000000,offset=0,mapping=None,datasetids=None,fileids=None,restPath=None):
         self.autoApiInfo = AutoAPI.Info(self)
         self.port=port
-        self.host=host
+        url=str(host).replace("://","^^^---^^^")
+        sp= url.split("/")
+        host = sp[0].replace("^^^---^^^","://")
         if restPath is None:
-            self.restPath="/esg-search/ws/rest/search"
+            restPath = "/".join(sp[1:])
+            if len(restPath)==0:
+                self.restPath="/esg-search/ws/rest/search"
+            else:
+                self.restPath=restPath
         else:
             self.restPath=restPath
+        self.host=host
         self.defaultSearchType = "Dataset"
         self.EsgfObjectException = esgfConnectionException
         self.validSearchTypes=validSearchTypes
@@ -96,7 +103,7 @@ class esgfConnection(object,AutoAPI.AutoAPI):
         while search[0]=="&":
             search=search[1:]
         rqst = "%s/?type=%s&%s" % (self.restPath,searchType,search)
-        print "REQUEST: %s%s" % (self.host,rqst)
+        #print "REQUEST: %s%s" % (self.host,rqst)
         if self.host.find("://")>-1:
             urltype=""
         else:
@@ -109,7 +116,11 @@ class esgfConnection(object,AutoAPI.AutoAPI):
         if stringType:
             return r
         else:
-            return xml.etree.ElementTree.fromstring(r)
+            try:
+                e = xml.etree.ElementTree.fromstring(r)
+                return e
+            except Exception,err:
+                raise self.EsgfObjectException("Could not interpret server's results: %s" % err)
 
     def generateRequest(self,stringType=False,**keys):
         search = ""
@@ -126,8 +137,8 @@ class esgfConnection(object,AutoAPI.AutoAPI):
                 continue
             elif k == "type":
                 continue
-            elif not k in self.searchableKeys:
-                raise self.EsgfObjectException("Invalid key: %s, valid keys are: %s" % (repr(k),repr(self.params.keys())))
+            ## elif not k in self.searchableKeys:
+            ##     raise self.EsgfObjectException("Invalid key: %s, valid keys are: %s" % (repr(k),repr(self.params.keys())))
             if keys[k] is not None:
                 params[k]=keys[k]
 
@@ -192,7 +203,7 @@ class esgfConnection(object,AutoAPI.AutoAPI):
                         tmpkeys[k]=self.extractTag(f)
                     if tmpkeys["type"]=="Dataset":
                         datasetid = tmpkeys["id"]
-                        print datasetid,self.restPath
+                        #print datasetid,self.restPath
                         #print "KEYS FOR DATASET",keys.keys()
                         datasets.append(esgfDataset(host=self.host,port=self.port,limit=self["limit"],offset=self["offset"],mapping=self.mapping,datasetids=self.datasetids,fileids=self.fileids,keys=tmpkeys,originalKeys=keys,restPath=self.restPath))
         return datasets
@@ -471,7 +482,8 @@ class esgfFiles(object,AutoAPI.AutoAPI):
                         ok = True
                         
                 except:
-                    print "Couldn't map: %s to %s" % (self.parent.id,self.datasetids.template)
+                    #print "Couldn't map: %s to %s" % (self.parent.id,self.datasetids.template)
+                    pass
             if ok is False:
                 vk = set(vk)
                 raise self.EsgfObjectException("Invalid mapping key: %s, valid keys are: %s" % (k,sorted(vk)))
