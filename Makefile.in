@@ -145,6 +145,14 @@ ifeq (@COMPILE_FONTCONFIG@,yes)
 	@echo "Building fontconfig"
 	$(call dobuild,@FTCFG_URL@,@FTCFG_GZ@,@EXTERNALS@)
 endif
+ifeq (@COMPILE_JASPER@,yes)
+	@echo "Building jasper"
+	$(call dobuild,@JASPER_URL@,@JASPER_GZ@,@EXTERNALS@)
+endif
+ifeq (@COMPILE_G2CLIB@,yes)
+	@echo "Building g2clib"
+	$(call dobuild,@G2CLIB_URL@,@G2CLIB_GZ@,@EXTERNALS@)
+endif
 ifeq (@COMPILE_TCLTK@,yes)
 	echo "Couldn't find a working tcl/tk, building it"
 	$(call dobuild,@TCLTK_URL@,@TCL_GZ@,@EXTERNALS@,cd unix;, )
