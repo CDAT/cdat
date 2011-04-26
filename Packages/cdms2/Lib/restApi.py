@@ -4,7 +4,7 @@ import AutoAPI
 import xml.etree.ElementTree
 import genutil
 import os
-import bz2
+#import bz2
 
 class esgfConnectionException(Exception):
     pass
@@ -356,13 +356,15 @@ class esgfDataset(esgfConnection):
             target = os.path.join(target,"esgfDatasetsCache.pckl")
         if os.path.exists(target):
             f=open(source)
-            dict=eval(bz2.decompress(f.read()))
+            #dict=eval(bz2.decompress(f.read()))
+	    dict=eval(f.read())
             f.close()
         else:
             dict={}
         dict[self.id]=[self["timestamp"],xml.etree.ElementTree.tostring(self.resp),self.originalKeys]
         f=open(target,"w")
-        f.write(bz2.compress(repr(self.cache)))
+        #f.write(bz2.compress(repr(self.cache)))
+        f.write(repr(self.cache))
         f.close()
         
     def loadCache(self,source):
@@ -373,7 +375,8 @@ class esgfDataset(esgfConnection):
                 source = os.path.join(source,"esgfDatasetsCache.pckl")
             if os.path.exists(source):
                 f=open(source)
-                dict=eval(bz2.decompress(f.read()))
+                #dict=eval(bz2.decompress(f.read()))
+                dict=eval(f.read())
                 f.close()
             else:
                 dict={}
