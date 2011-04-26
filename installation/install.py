@@ -220,6 +220,8 @@ def get_drs_libs():
 CDMS_INCLUDE_DAP = %s
 CDMS_DAP_DIR = %s
 CDMS_HDF_DIR = %s
+CDMS_GRIB2LIB_DIR = %s
+CDMS_INCLUDE_GRIB2LIB = %s
 CDMS_INCLUDE_DRS = %s
 CDMS_INCLUDE_HDF = %s
 CDMS_INCLUDE_PP = %s
@@ -240,6 +242,8 @@ externals = %s
         repr(options.get('CDMS_INCLUDE_DAP','no')),
         repr(options.get('CDMS_DAP_DIR','.')),
         repr(options.get('CDMS_HDF_DIR','.')),
+        repr(options.get('CDMS_GRIB2LIB_DIR',os.environ['EXTERNALS'])),
+        repr(options.get('CDMS_INCLUDE_GRIB2LIB',"yes")),
         repr(options['CDMS_INCLUDE_DRS']),
         repr(options['CDMS_INCLUDE_HDF']),
         repr(options['CDMS_INCLUDE_PP']),
