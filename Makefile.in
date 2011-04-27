@@ -176,7 +176,7 @@ endif
 ifeq (@HAVE_LIBBLAS@,no)
 	@echo "Building blas"
 	$(call dobuild,@BLAS_URL@,@BLAS_GZ@,@EXTERNALS@,FORTRAN=@FC@;export FORTRAN ; cd BLAS; sed 's/FORTRAN  = g77//g' make.inc > crap && mv -f crap make.inc ; sed 's/LOADER   = g77//g' make.inc > crap && mv -f crap make.inc ; FORTRAN=gfortran;export FORTRAN;)
-	cp build/BLAS/blas_LINUX.a /lgm/bew_cdat/Externals/lib/libblas.a
+	cp build/BLAS/blas_LINUX.a @EXTERNALS@/lib/libblas.a
 endif
 ifeq (@HAVE_LIBLAPACK@,no)
 	@echo "Building lapack"
@@ -277,6 +277,7 @@ ifeq (@DOCMOR@,yes)
 	@(cd Packages/cmor ; ./configure --prefix=@EXTERNALS@ --with-netcdf=@NC4LOC@ --with-udunits2=@UDUNITS2LOC@ --with-uuid=@UUIDLOC@ --with-zlib=@EXTERNALS@ --enable-fortran=no; cd ../..) >> @MAINDIR@/logs/cmor_config.LOG 
 endif
 	@echo "Building CDAT"
+	@cp matplotlib.setup.cfg contrib/matplotlib/setup.cfg
 	@XTRA_LD_F2PY@ @PYTHON@ install.py @PYTHON_INSTALL_OPTIONS@
 	@echo "Done building CDAT"
 ifeq (@ESG@,yes)

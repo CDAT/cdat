@@ -65,13 +65,11 @@ SHELL = /bin/sh
 #
 LIBRARY		= ../../../lib/libcdms.a
 
-all:		cdfile cudump cuget testnc testgrib testdrs testpp
+all:		cdfile cudump cuget testnc testdrs testpp
 
-test:		testnc testgrib testdrs testpp
+test:		testnc testdrs testpp
 		@echo "test netCDF"
 		@testnc
-		@echo "test GRIB"
-		@testgrib
 		@echo "test DRS"
 		@testdrs
 		@echo "test PP"
@@ -125,5 +123,5 @@ clean:
 	-rm -f *.o core *.~*~
 
 distclean: clean
-	-rm -f cdfile cudump cuget testnc testgrib testdrs testslab testpp
+	-rm -f cdfile cudump cuget testnc testdrs testslab testpp
 
