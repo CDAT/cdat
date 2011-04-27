@@ -57,8 +57,6 @@ packages = [
     "Packages/ncml",
     "Packages/vcs", 
     "Packages/vcsaddons",
-##    "Packages/browser", 
-    "Packages/qtbrowser",
     "Packages/cdutil",
     "Packages/unidata",
     "Packages/xmgrace",
