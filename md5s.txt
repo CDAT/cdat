@@ -25,10 +25,12 @@ f101a9e88b783337b20b2e26dfd26d5f  sources/cairo-1.10.2.tar.gz
 9c2744f1aa72fe755adda33663aa3fad  sources/freetype-2.3.9.tar.gz
 6fc690d9b34154b51a919ff466cea90c  sources/freetype-2.3.12.tar.gz
 9273efacffb683483e58a9e113efae9f  sources/freetype-2.4.4.tar.gz
+92cfb80a0daee0080e3c3b6f03af7ba0  sources/g2clib-1.2.2.tgz
 dd927ecf7e4db38b62be3dc17b1b04d2  sources/ghostscript-8.64.tar.gz
 51a522a5b4818bd3dc7c1c0e9dd22bad  sources/ghostscript-8.71.tar.gz
 aa3878d2fcc5fe92a1482d79cf2eee58  sources/hdf5-1.8.4-patch1.tar.gz
 d22a35a17877e369055ed50da5ba91fa  sources/hdf5-1.8.5-patch1.tar.gz
+b5ae85050d034555790a3ccbc2522860  sources/jasper-1.900.1.tgz
 5146e68be3633c597b0d14d3ed8fa2ea  sources/jpegsrc.v8a.tar.gz
 e022acbc5b36cd2cb70785f5b575661e  sources/jpegsrc.v8b.tar.gz
 a3202a4f9e2f15ffd05d15dab4ac7857  sources/lapack.tgz

@@ -16,6 +16,14 @@
 #define _CDUNIF_MODULE
 #include "Cdunifmodule.h"
 
+/* This is a workaround, always something elsewhere should have set NC_NETCDF4. */
+#ifndef NC_NETCDF4
+#define NC_NETCDF4 0
+#define NC_CLASSIC_MODEL 0
+int nc_def_var_deflate(int i,int j,int k,int l, int m) {return 0;};
+int nc_def_var_chunking(int i,int j,int k,size_t *l) {return 0;};
+#endif
+
 int cdms_shuffle = 0 ;
 int cdms_deflate = 1 ;
 int cdms_deflate_level = 1 ;
@@ -171,7 +179,7 @@ cdunif_signalerror(int code)
     }
     release_Cdunif_lock();
     Py_END_ALLOW_THREADS;
-    fprintf(stderr, buffer); printf("\n");
+    fprintf(stderr, buffer,0); printf("\n");
     PyErr_SetString(PyExc_IOError, buffer);
  }
 }

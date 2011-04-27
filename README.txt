@@ -133,6 +133,8 @@ CDAT will look for and install if necessary (minimum version required/version di
           ffmpeg
           jpeg any/6b
           libpng 1.4.1 / 1.5.1
+          libjasper 1.900.1 / @JASPER_MAJOR_SRC@.@JASPER_MINOR_SRC@.@JASPER_PATCH_SRC@
+          libg2clib 1.2.2 / @G2CLIB_MAJOR_SRC@.@G2CLIB_MINOR_SRC@.@G2CLIB_PATCH_SRC@
           libxml 2.6.27 / 2.7.8
           libxslt 1.1.22 / 1.1.26
           Ghostscript

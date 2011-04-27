@@ -39,6 +39,30 @@ AC_SUBST(PYTHON_GZ)
 PYVER=${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}
 echo "PYVER IS : " ${PYVER}
 AC_SUBST(PYVER)
+JASPER_MAJOR=1
+JASPER_MINOR=900
+JASPER_PATCH=1
+JASPER_URL=uv-cdat.llnl.gov
+JASPER_GZ=jasper-${JASPER_MAJOR}.${JASPER_MINOR}.${JASPER_PATCH}.tgz
+AC_SUBST(JASPER_MAJOR)
+AC_SUBST(JASPER_MINOR)
+AC_SUBST(JASPER_PATCH)
+AC_SUBST(JASPER_URL)
+AC_SUBST(JASPER_GZ)
+AC_SUBST(COMPILE_JASPER)
+COMPILE_JASPER=yes
+G2CLIB_MAJOR=1
+G2CLIB_MINOR=2
+G2CLIB_PATCH=2
+G2CLIB_URL=uv-cdat.llnl.gov
+G2CLIB_GZ=g2clib-${JASPER_MAJOR}.${G2CLIB_MINOR}.${G2CLIB_PATCH}.tgz
+AC_SUBST(G2CLIB_MAJOR)
+AC_SUBST(G2CLIB_MINOR)
+AC_SUBST(G2CLIB_PATCH)
+AC_SUBST(G2CLIB_URL)
+AC_SUBST(G2CLIB_GZ)
+AC_SUBST(COMPILE_G2CLIB)
+COMPILE_G2CLIB=yes
 XML_MAJOR=2
 XML_MINOR=6
 XML_PATCH=27
@@ -538,6 +562,7 @@ if test ${with_externals} == "no" ; then
 else
    EXTERNALS=${with_externals}
 fi
+echo "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY"${EXTERNALS}
 NCPUS=1
 AC_ARG_WITH([cpus],
 	[AS_HELP_STRING([--with-cpus],[How many CPUs to use for make -j ])],
@@ -1787,7 +1812,7 @@ if test ${COMPILE_NC} == "no" ; then
 	num=atoi(&version[0]);
 	if (num>=${NC4_MAJOR}) return 0;
 	num=atoi(&version[1]); /*sometimes there is a " before */
-	if (num>${NC4_MAJOR}) return 0;
+	if (num>=${NC4_MAJOR}) return 0;
 	return 1;
     ]])],[COMPILE_NC=no],[COMPILE_NC=yes])
     if test ${COMPILE_NC} == "no" ; then

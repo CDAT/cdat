@@ -662,6 +662,18 @@ PYTHON_PATCH_SRC
 PYTHON_URL
 PYTHON_GZ
 PYVER
+JASPER_MAJOR
+JASPER_MINOR
+JASPER_PATCH
+JASPER_URL
+JASPER_GZ
+COMPILE_JASPER
+G2CLIB_MAJOR
+G2CLIB_MINOR
+G2CLIB_PATCH
+G2CLIB_URL
+G2CLIB_GZ
+COMPILE_G2CLIB
 XML_URL
 XML_GZ
 XML_MAJOR
@@ -2152,6 +2164,30 @@ PYTHON_GZ=Python-${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.${PYTHON_PATCH_SRC}.tgz
 PYVER=${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}
 echo "PYVER IS : " ${PYVER}
 
+JASPER_MAJOR=1
+JASPER_MINOR=900
+JASPER_PATCH=1
+JASPER_URL=uv-cdat.llnl.gov
+JASPER_GZ=jasper-${JASPER_MAJOR}.${JASPER_MINOR}.${JASPER_PATCH}.tgz
+
+
+
+
+
+
+COMPILE_JASPER=yes
+G2CLIB_MAJOR=1
+G2CLIB_MINOR=2
+G2CLIB_PATCH=2
+G2CLIB_URL=uv-cdat.llnl.gov
+G2CLIB_GZ=g2clib-${JASPER_MAJOR}.${G2CLIB_MINOR}.${G2CLIB_PATCH}.tgz
+
+
+
+
+
+
+COMPILE_G2CLIB=yes
 XML_MAJOR=2
 XML_MINOR=6
 XML_PATCH=27
@@ -2653,6 +2689,7 @@ if test ${with_externals} == "no" ; then
 else
    EXTERNALS=${with_externals}
 fi
+echo "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY"${EXTERNALS}
 NCPUS=1
 
 # Check whether --with-cpus was given.
@@ -11656,7 +11693,7 @@ main ()
 	num=atoi(&version[0]);
 	if (num>=${NC4_MAJOR}) return 0;
 	num=atoi(&version[1]); /*sometimes there is a " before */
-	if (num>${NC4_MAJOR}) return 0;
+	if (num>=${NC4_MAJOR}) return 0;
 	return 1;
 
   ;
@@ -12632,6 +12669,18 @@ PYTHON_PATCH_SRC!$PYTHON_PATCH_SRC$ac_delim
 PYTHON_URL!$PYTHON_URL$ac_delim
 PYTHON_GZ!$PYTHON_GZ$ac_delim
 PYVER!$PYVER$ac_delim
+JASPER_MAJOR!$JASPER_MAJOR$ac_delim
+JASPER_MINOR!$JASPER_MINOR$ac_delim
+JASPER_PATCH!$JASPER_PATCH$ac_delim
+JASPER_URL!$JASPER_URL$ac_delim
+JASPER_GZ!$JASPER_GZ$ac_delim
+COMPILE_JASPER!$COMPILE_JASPER$ac_delim
+G2CLIB_MAJOR!$G2CLIB_MAJOR$ac_delim
+G2CLIB_MINOR!$G2CLIB_MINOR$ac_delim
+G2CLIB_PATCH!$G2CLIB_PATCH$ac_delim
+G2CLIB_URL!$G2CLIB_URL$ac_delim
+G2CLIB_GZ!$G2CLIB_GZ$ac_delim
+COMPILE_G2CLIB!$COMPILE_G2CLIB$ac_delim
 XML_URL!$XML_URL$ac_delim
 XML_GZ!$XML_GZ$ac_delim
 XML_MAJOR!$XML_MAJOR$ac_delim
@@ -12670,18 +12719,6 @@ FT_MAJOR!$FT_MAJOR$ac_delim
 FT_MINOR!$FT_MINOR$ac_delim
 FT_PATCH!$FT_PATCH$ac_delim
 FT_MAJOR_SRC!$FT_MAJOR_SRC$ac_delim
-FT_MINOR_SRC!$FT_MINOR_SRC$ac_delim
-FT_PATCH_SRC!$FT_PATCH_SRC$ac_delim
-FTCFG_URL!$FTCFG_URL$ac_delim
-FTCFG_GZ!$FTCFG_GZ$ac_delim
-FTCFG_MAJOR!$FTCFG_MAJOR$ac_delim
-FTCFG_MINOR!$FTCFG_MINOR$ac_delim
-FTCFG_PATCH!$FTCFG_PATCH$ac_delim
-FTCFG_MAJOR_SRC!$FTCFG_MAJOR_SRC$ac_delim
-FTCFG_MINOR_SRC!$FTCFG_MINOR_SRC$ac_delim
-FTCFG_PATCH_SRC!$FTCFG_PATCH_SRC$ac_delim
-PIX_URL!$PIX_URL$ac_delim
-PIX_GZ!$PIX_GZ$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -12723,6 +12760,18 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+FT_MINOR_SRC!$FT_MINOR_SRC$ac_delim
+FT_PATCH_SRC!$FT_PATCH_SRC$ac_delim
+FTCFG_URL!$FTCFG_URL$ac_delim
+FTCFG_GZ!$FTCFG_GZ$ac_delim
+FTCFG_MAJOR!$FTCFG_MAJOR$ac_delim
+FTCFG_MINOR!$FTCFG_MINOR$ac_delim
+FTCFG_PATCH!$FTCFG_PATCH$ac_delim
+FTCFG_MAJOR_SRC!$FTCFG_MAJOR_SRC$ac_delim
+FTCFG_MINOR_SRC!$FTCFG_MINOR_SRC$ac_delim
+FTCFG_PATCH_SRC!$FTCFG_PATCH_SRC$ac_delim
+PIX_URL!$PIX_URL$ac_delim
+PIX_GZ!$PIX_GZ$ac_delim
 PIX_MAJOR!$PIX_MAJOR$ac_delim
 PIX_MINOR!$PIX_MINOR$ac_delim
 PIX_PATCH!$PIX_PATCH$ac_delim
@@ -12808,18 +12857,6 @@ MATPLOTLIB_PATCH_SRC!$MATPLOTLIB_PATCH_SRC$ac_delim
 PyOpenGL_URL!$PyOpenGL_URL$ac_delim
 PyOpenGL_GZ!$PyOpenGL_GZ$ac_delim
 PyOpenGL_MAJOR!$PyOpenGL_MAJOR$ac_delim
-PyOpenGL_MINOOR!$PyOpenGL_MINOOR$ac_delim
-PyOpenGL_PATCH!$PyOpenGL_PATCH$ac_delim
-PyOpenGL_MAJOR_SRC!$PyOpenGL_MAJOR_SRC$ac_delim
-PyOpenGL_MINOR_SRC!$PyOpenGL_MINOR_SRC$ac_delim
-PyOpenGL_PATCH_SRC!$PyOpenGL_PATCH_SRC$ac_delim
-HDF4_URL!$HDF4_URL$ac_delim
-HDF4_GZ!$HDF4_GZ$ac_delim
-HDF4_MAJOR_SRC!$HDF4_MAJOR_SRC$ac_delim
-HDF4_MINOR_SRC!$HDF4_MINOR_SRC$ac_delim
-HDF4_PATCH_SRC!$HDF4_PATCH_SRC$ac_delim
-HDF5_URL!$HDF5_URL$ac_delim
-HDF5_GZ!$HDF5_GZ$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -12861,6 +12898,18 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+PyOpenGL_MINOOR!$PyOpenGL_MINOOR$ac_delim
+PyOpenGL_PATCH!$PyOpenGL_PATCH$ac_delim
+PyOpenGL_MAJOR_SRC!$PyOpenGL_MAJOR_SRC$ac_delim
+PyOpenGL_MINOR_SRC!$PyOpenGL_MINOR_SRC$ac_delim
+PyOpenGL_PATCH_SRC!$PyOpenGL_PATCH_SRC$ac_delim
+HDF4_URL!$HDF4_URL$ac_delim
+HDF4_GZ!$HDF4_GZ$ac_delim
+HDF4_MAJOR_SRC!$HDF4_MAJOR_SRC$ac_delim
+HDF4_MINOR_SRC!$HDF4_MINOR_SRC$ac_delim
+HDF4_PATCH_SRC!$HDF4_PATCH_SRC$ac_delim
+HDF5_URL!$HDF5_URL$ac_delim
+HDF5_GZ!$HDF5_GZ$ac_delim
 HDF5_MAJOR_SRC!$HDF5_MAJOR_SRC$ac_delim
 HDF5_MINOR_SRC!$HDF5_MINOR_SRC$ac_delim
 HDF5_PATCH_SRC!$HDF5_PATCH_SRC$ac_delim
@@ -12946,18 +12995,6 @@ PyQt_MAJOR_SRC!$PyQt_MAJOR_SRC$ac_delim
 PyQt_MINOR_SRC!$PyQt_MINOR_SRC$ac_delim
 PyQt_PATCH_SRC!$PyQt_PATCH_SRC$ac_delim
 R_MAJOR_SRC!$R_MAJOR_SRC$ac_delim
-R_MINOR_SRC!$R_MINOR_SRC$ac_delim
-R_PATCH_SRC!$R_PATCH_SRC$ac_delim
-R_GZ!$R_GZ$ac_delim
-R_URL!$R_URL$ac_delim
-MD5PRG!$MD5PRG$ac_delim
-MD5CNT!$MD5CNT$ac_delim
-DOCMOR!$DOCMOR$ac_delim
-MAINDIR!$MAINDIR$ac_delim
-BUILD_DIR!$BUILD_DIR$ac_delim
-AQUA_PYTHON!$AQUA_PYTHON$ac_delim
-COMPILE_HDF!$COMPILE_HDF$ac_delim
-HDF!$HDF$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -12999,6 +13036,18 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+R_MINOR_SRC!$R_MINOR_SRC$ac_delim
+R_PATCH_SRC!$R_PATCH_SRC$ac_delim
+R_GZ!$R_GZ$ac_delim
+R_URL!$R_URL$ac_delim
+MD5PRG!$MD5PRG$ac_delim
+MD5CNT!$MD5CNT$ac_delim
+DOCMOR!$DOCMOR$ac_delim
+MAINDIR!$MAINDIR$ac_delim
+BUILD_DIR!$BUILD_DIR$ac_delim
+AQUA_PYTHON!$AQUA_PYTHON$ac_delim
+COMPILE_HDF!$COMPILE_HDF$ac_delim
+HDF!$HDF$ac_delim
 COMPILE_NC!$COMPILE_NC$ac_delim
 NC4LOC!$NC4LOC$ac_delim
 COMPILE_HDF5!$COMPILE_HDF5$ac_delim
@@ -13084,18 +13133,6 @@ F77!$F77$ac_delim
 FFLAGS!$FFLAGS$ac_delim
 ac_ct_F77!$ac_ct_F77$ac_delim
 FCLIBS!$FCLIBS$ac_delim
-FLIBS!$FLIBS$ac_delim
-build!$build$ac_delim
-build_cpu!$build_cpu$ac_delim
-build_vendor!$build_vendor$ac_delim
-build_os!$build_os$ac_delim
-host!$host$ac_delim
-host_cpu!$host_cpu$ac_delim
-host_vendor!$host_vendor$ac_delim
-host_os!$host_os$ac_delim
-target!$target$ac_delim
-target_cpu!$target_cpu$ac_delim
-target_vendor!$target_vendor$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -13137,6 +13174,18 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+FLIBS!$FLIBS$ac_delim
+build!$build$ac_delim
+build_cpu!$build_cpu$ac_delim
+build_vendor!$build_vendor$ac_delim
+build_os!$build_os$ac_delim
+host!$host$ac_delim
+host_cpu!$host_cpu$ac_delim
+host_vendor!$host_vendor$ac_delim
+host_os!$host_os$ac_delim
+target!$target$ac_delim
+target_cpu!$target_cpu$ac_delim
+target_vendor!$target_vendor$ac_delim
 target_os!$target_os$ac_delim
 XMKMF!$XMKMF$ac_delim
 X_CFLAGS!$X_CFLAGS$ac_delim
@@ -13171,7 +13220,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 32; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 44; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
