@@ -136,6 +136,7 @@ def configure (configuration_files):
         hdf_include=[]
         hdf_lib_dir=[]
 
+    grib2_libraries = ["grib2c","png","jasper"]
     if netcdf_library_directory not in cdunif_library_directories: 
         cdunif_library_directories.append(netcdf_library_directory)
     cdunif_include_directories = [cdms_include_directory]
@@ -232,7 +233,7 @@ netcdf_include_directory = %s
 netcdf_library_directory = %s
 cdunif_include_directories = %s + %s + %s
 cdunif_library_directories = %s + get_drs_dirs() + %s +%s
-cdunif_libraries = %s + %s + get_drs_libs() + %s
+cdunif_libraries = %s + %s + get_drs_libs() + %s + %s
 x11include = %s
 x11libdir = %s
 mathlibs = %s
@@ -254,7 +255,7 @@ externals = %s
         repr(netcdf_library_directory),
         repr(cdunif_include_directories),repr(dap_include),repr(hdf_include),
         repr(cdunif_library_directories),repr(dap_lib_dir),repr(hdf_lib_dir),
-        repr(['cdms', netcdfname]),repr(dap_lib),repr(hdf_libraries),
+        repr(['cdms', netcdfname]),repr(dap_lib),repr(hdf_libraries),repr(grib2_libraries),
         repr(options['x11include']),
         repr(options['x11libdir']),
         repr(options['mathlibs']),

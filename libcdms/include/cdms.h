@@ -100,6 +100,10 @@
 #define CD_ROOT_ENV "CDMSROOT"		     /* CDMS root environment variable */
 #define CD_SUCCESS 0
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef enum cdType {cdInvalidType = -1,
 			     cdByte = CuByte,
 			     cdChar = CuChar,
@@ -311,4 +315,8 @@ typedef struct {
 	CdTimeUnit		units;	     /* time interval units */
 } CdDeltaTime;
 
+#ifdef __cplusplus
+}
 #endif
+#endif
+
