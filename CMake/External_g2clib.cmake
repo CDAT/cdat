@@ -1,0 +1,15 @@
+
+set(g2clib_source "${CMAKE_CURRENT_BINARY_DIR}/build/png")
+set(g2clib_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
+
+ExternalProject_Add(png
+  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  SOURCE_DIR ${g2clib_source}
+  INSTALL_DIR ${g2clib_install}
+  URL ${G2CLIB_URL}/${G2CLIB_GZ}
+  URL_MD5 ${G2CLIB_MD5}
+  BUILD_IN_SOURCE 1
+  PATCH_COMMAND ""
+  CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
+  DEPENDS ${g2clib_DEPENDENCIES}
+)
