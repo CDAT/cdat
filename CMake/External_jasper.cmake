@@ -1,8 +1,8 @@
 
-set(jasper_source "${CMAKE_CURRENT_BINARY_DIR}/build/png")
+set(jasper_source "${CMAKE_CURRENT_BINARY_DIR}/build/jasper")
 set(jasper_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
 
-ExternalProject_Add(png
+ExternalProject_Add(jasper
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
   SOURCE_DIR ${jasper_source}
   INSTALL_DIR ${jasper_install}
