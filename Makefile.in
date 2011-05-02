@@ -151,7 +151,7 @@ ifeq (@COMPILE_JASPER@,yes)
 endif
 ifeq (@COMPILE_G2CLIB@,yes)
 	@echo "Building g2clib"
-	$(call dobuild,@G2CLIB_URL@,@G2CLIB_GZ@,@EXTERNALS@,make;, )
+	$(call dobuild,@G2CLIB_URL@,@G2CLIB_GZ@,@EXTERNALS@)
 endif
 ifeq (@COMPILE_TCLTK@,yes)
 	echo "Couldn't find a working tcl/tk, building it"
