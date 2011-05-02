@@ -1,27 +1,38 @@
 
 # If Windows we use CMake otherwise ./configure
 
-set(vtk_source "${CMAKE_CURRENT_BINARY_DIR}/ParaView")
-set(vtk_binary "${CMAKE_CURRENT_BINARY_DIR}/ParaView-build")
-set(vtk_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
+set(ParaView_source "${CMAKE_CURRENT_BINARY_DIR}/ParaView")
+set(ParaView_binary "${CMAKE_CURRENT_BINARY_DIR}/ParaView-build")
+set(ParaView_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
 
 ExternalProject_Add(ParaView
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
-  SOURCE_DIR ${vtk_source}
-  BINARY_DIR ${vtk_build}
-  INSTALL_DIR ${vtk_install}
-  URL ${VTK_URL}/${VTK_GZ}
-  URL_MD5 ${VTK_MD5}
+  SOURCE_DIR ${ParaView_source}
+  BINARY_DIR ${ParaView_binary}
+  INSTALL_DIR ${ParaView_install}
+  URL ${PARAVIEW_URL}/${PARAVIEW_GZ}
+  URL_MD5 ${PARAVIEW_MD5}
   PATCH_COMMAND ""
   CMAKE_CACHE_ARGS
     -DBUILD_SHARED_LIBS:BOOL=ON
     -DBUILD_TESTING:BOOL=OFF
+    -DPARAVIEW_DISABLE_VTK_TESTING:BOOL=ON
+    -DPARAVIEW_TESTING_WITH_PYTHON:BOOL=OFF
     -DCMAKE_CXX_FLAGS:STRING=${cdat_tpl_cxx_flags}
     -DCMAKE_C_FLAGS:STRING=${cdat_tpl_c_flags}
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_CFG_INTDIR}
+    # Qt
+    -DQT_QMAKE_EXECUTABLE:FILEPATH=${QT_QMAKE_EXECUTABLE}
+    # Python
+    -DPARAVIEW_ENABLE_PYTHON:BOOL=ON
+    -DPYTHON_EXECUTABLE:FILEPATH=${PYTHON_EXECUTABLE}
+    -DPYTHON_INCLUDE_DIR:PATH=${PYTHON_INCLUDE_DIR}
+    -DPYTHON_LIBRARY:FILEPATH=${PYTHON_LIBRARY}
+    # HDF5
+    ${HDF5_ARGS}
     ${cdat_compiler_args}
-    -DWRAP_VTK_PYTHON:BOOL=ON
   CMAKE_ARGS
     -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-  DEPENDS ${
+  BUILD_COMMAND ${CMAKE_COMMAND} -DWORKING_DIR=<BINARY_DIR> -Dmake=$(MAKE) -P ${cdat_CMAKE_BINARY_DIR}/cdat_cmake_make_step.cmake
+  DEPENDS ${ParaView_DEPENDENCIES}
 )
