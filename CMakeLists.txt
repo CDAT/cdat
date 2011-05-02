@@ -215,7 +215,7 @@ find_package(Cairo)
 #find_package(udunits2)
 find_package(HDF5)
 #find_package(NetCDF)
-find_package(Qt4)
+find_package(Qt)
 find_package(PythonInterp)
 find_package(PythonLibs)
 # unix tools
@@ -239,6 +239,10 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_configure_step.cmake.in
 
 configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_make_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake
+  @ONLY)
+
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_cmake_make_step.cmake.in
+  ${cdat_CMAKE_BINARY_DIR}/cdat_cmake_make_step.cmake
   @ONLY)
 
 configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_install_step.cmake.in
@@ -313,6 +317,8 @@ add_cdat_package(udunits2)
 add_cdat_package(HDF5)
 add_cdat_package(NetCDF)
 add_cdat_package(Qt)
+add_cdat_package(jasper)
+add_cdat_package(g2clib)
 
 # Python Packages
 add_cdat_package(Python)
@@ -322,6 +328,8 @@ add_cdat_package(PyQt)
 add_cdat_package(PyOpenGL)
 add_cdat_package(NUMPY)
 add_cdat_package(Pmw)
+
+#add_cdat_package(ParaView)
 
 add_cdat_package(CMOR)
 add_cdat_package(CDAT)
@@ -339,11 +347,13 @@ set(udunits2_DEPENDENCIES ${pkgconfig_dep})
 set(libXML2_DEPENDENCIES ${pkgconfig_dep} ${readline_dep})
 set(libXSLT_DEPENDENCIES ${pkgconfig_dep} ${libXML2_dep})
 set(jpeg_DEPENDENCIES ${pkgconfig_dep})
-set(zlib_DEPENDENCIES ${pkgconfig_dep} ${libXML2_dep})
+set(zlib_DEPENDENCIES ${pkgconfig_dep})
 set(png_DEPENDENCIES ${pkgconfig_dep} ${zlib_dep})
 set(tiff_DEPENDENCIES ${pkgconfig_dep} ${jpeg_dep} ${zlib_dep})
+set(jasper_DEPENDENCIES ${pkgconfig_dep} ${jpeg_dep} ${zlib_dep})
 set(gifsicle_DEPENDENCIES ${pkgconfig_dep})
 set(pbmplus_DEPENDENCIES ${pkgconfig_dep} ${tiff_dep} ${jpeg_dep} ${zlib_dep})
+set(g2clib_DEPENDENCIES ${pkgconfig_dep} ${png_dep} ${zlib_dep} ${jasper_dep})
 set(tcl_DEPENDENCIES ${pkgconfig_dep})
 set(Python_DEPENDENCIES ${pkgconfig_dep} ${readline_dep} ${TclTk_dep} ${libXML2_dep} ${CURL_dep} ${zlib_dep} ${libXSLT_dep})
 set(SIP_DEPENDENCIES ${pkgconfig_dep} ${Python_dep})
@@ -369,8 +379,11 @@ set(cmcurl_DEPENDENCIES ${pkgconfig_dep} ${libXML2_dep} ${zlib_dep})
 set(Cairo_DEPENDENCIES ${pkgconfig_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep})
 set(HDF4_DEPENDENCIES ${pkgconfig_dep} ${zlib_dep} ${jpeg_dep})
 set(HDF5_DEPENDENCIES ${pkgconfig_dep} ${libXML2_dep} ${libXSLT_dep} ${zlib_dep})
+
+set(ParaView_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${HDF5_dep} ${png_dep} ${jpeg_dep} ${libXML2_dep} ${Qt_dep} ${freetype_dep} ${NetCDF_dep} ${zlib_dep})
+
 set(CMOR_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${HDF5_dep} ${Cairo_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep} ${NetCDF_dep} ${zlib_dep} ${uuid_dep} ${udunits2_dep})
-set(CDAT_DEPENDENCIES ${CMOR_dep} ${Python_dep} ${PyQt_dep} ${PyOpenGL_dep} ${NUMPY_dep} ${Pmw_dep})
+set(CDAT_DEPENDENCIES ${CMOR_dep} ${Python_dep} ${PyQt_dep} ${PyOpenGL_dep} ${NUMPY_dep} ${Pmw_dep} ${jasper_dep} ${g2clib_dep})
 
 message("readline_DEPENDENCIES ${readline_DEPENDENCIES}")
 message("libXML2_DEPENDENCIES ${libXML2_DEPENDENCIES}")
