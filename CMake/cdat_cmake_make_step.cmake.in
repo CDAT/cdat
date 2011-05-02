@@ -21,13 +21,18 @@ set(ENV{LD_X11}="") # for xgks
 
 set(ENV{EXTERNALS "@cdat_BINARY_DIR@/Externals")
 
+
+message("WORKING DIR: ${WORKING_DIR}")
+message("MAKE COMMAND: ${make}")
+
 execute_process(
-  COMMAND sh configure --prefix=${INSTALL_DIR} ${CONFIGURE_ARGS}
+  COMMAND ${make}
   WORKING_DIRECTORY "${WORKING_DIR}"
   RESULT_VARIABLE res)
 
 if(NOT ${res} EQUAL 0)
-  message("Config Errors detected: \n${CDAT_OUT}\n${CDAT_ERR}")
-  message(FATAL_ERROR "Error in config")
+  message("Make Errors detected: \n${CDAT_OUT}\n${CDAT_ERR}")
+  message(FATAL_ERROR "Error in Make")
 endif()
-message("Config succeeded.")
+message("Make succeeded.")
+
