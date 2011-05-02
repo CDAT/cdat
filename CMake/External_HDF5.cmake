@@ -16,3 +16,10 @@ ExternalProject_Add(HDF5
   DEPENDS ${HDF5_DEPENDENCIES}
 )
 
+if(WIN32)
+  set(HDF5_INCLUDE_DIR ${HDF5_install}/include)
+  set(HDF5_LIBRARY ${HDF5_install}/lib/hdf5dll${_LINK_LIBRARY_SUFFIX})
+else()
+  set(HDF5_INCLUDE_DIR ${HDF5_install}/include)
+  set(HDF5_LIBRARY ${HDF5_install}/lib/libhdf5${_LINK_LIBRARY_SUFFIX})
+endif()
