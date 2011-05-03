@@ -169,7 +169,7 @@ macro (add_cdat_package package)
     endif()
   endif()
 
-  if(NOT ${UC_PACKAGE}_FOUND)
+  if(NOT ${UC_PACKAGE}_FOUND OR NOT ${CDAT_USE_SYSTEM_${UC_PACKAGE}})
     list(APPEND external_packages External_${package})
     set(${package}_dep ${package})
   else()
