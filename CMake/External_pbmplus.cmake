@@ -16,7 +16,7 @@ ExternalProject_Add(pbmplus
   URL_MD5 ${PBMPLUS_MD5}
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${cdat_external_patch_dir}/src/pbmplus/libpbm1.c ${pbmplus_source}/pbm/
-  BUILD_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake
+  BUILD_COMMAND ${CMAKE_COMMAND} -Dmake=$(MAKE) -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake
   CONFIGURE_COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/pbmplus_configure_step.cmake
   DEPENDS ${pbmplus_DEPENDENCIES}
 )
