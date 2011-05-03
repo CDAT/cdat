@@ -149,6 +149,8 @@ endif()
 file(MAKE_DIRECTORY ${cdat_EXTERNALS} ${cdat_EXTERNALS}/lib ${cdat_EXTERNALS}/bin ${cdat_EXTERNALS}/include)
 
 file(MAKE_DIRECTORY ${cdat_BINARY_DIR}/logs)
+file(MAKE_DIRECTORY ${cdat_SOURCE_DIR}/logs)
+file(MAKE_DIRECTORY ${cdat_SOURCE_DIR}/libcdms)
 file(MAKE_DIRECTORY ${cdat_BINARY_DIR}/build)
 file(MAKE_DIRECTORY ${cdat_BINARY_DIR}/sources)
 file(MAKE_DIRECTORY ${cdat_EXTERNALS}/NetCDF ${cdat_EXTERNALS}/NetCDF/lib)
