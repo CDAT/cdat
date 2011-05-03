@@ -19,7 +19,7 @@ set(ENV{FFLAGS}="")
 set(ENV{FLIBS}="")
 set(ENV{LD_X11}="") # for xgks
 
-set(ENV{EXTERNALS "@cdat_BINARY_DIR@/Externals")
+set(ENV{EXTERNALS} "@cdat_BINARY_DIR@/Externals")
 
 execute_process(
   COMMAND make install ${INSTALL_ARGS}
