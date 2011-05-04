@@ -171,11 +171,12 @@ macro (add_cdat_package package)
     endif()
   endif()
 
-  if(NOT ${UC_PACKAGE}_FOUND OR NOT ${CDAT_USE_SYSTEM_${UC_PACKAGE}})
+  if(NOT ${UC_PACKAGE}_FOUND AND NOT ${CDAT_USE_SYSTEM_${UC_PACKAGE}})
     list(APPEND external_packages External_${package})
     set(${package}_dep ${package})
   else()
     unset(${package}_dep)
+    list(REMOVE_ITEM external_packages External_${package})
   endif()
 endmacro (add_cdat_package)
 
@@ -404,7 +405,7 @@ message("Cairo_DEPENDENCIES ${Cairo_DEPENDENCIES}")
 message("CMOR_DEPENDENCIES ${CMOR_DEPENDENCIES}")
 message("CDAT_DEPENDENCIES ${CDAT_DEPENDENCIES}")
 
-
+list(REMOVE_DUPLICATES external_packages)
 foreach(package ${external_packages})
   message("Building ${package}")
   include(${package})
