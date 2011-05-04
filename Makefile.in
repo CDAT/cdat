@@ -87,7 +87,7 @@ install: clean nocleaninstall
 nocleaninstall:
 	git submodule init
 	git submodule update
-	mkdir -p @prefix@
+	mkdir -p @prefix@/bin
 	mkdir -p @prefix@/lib
 	mkdir -p @EXTERNALS@
 	mkdir -p @EXTERNALS@/lib
