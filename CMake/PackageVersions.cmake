@@ -308,11 +308,11 @@ set(GS_MD5 51a522a5b4818bd3dc7c1c0e9dd22bad)
 
 set(FFMPEG_MAJOR_SRC 0)
 set(FFMPEG_MINOR_SRC 6)
-set(FFMPEG_PATCH_SRC 1)
+set(FFMPEG_PATCH_SRC 3)
 #set(FFMPEG_URL http://ffmpeg.org/releases)
 set(FFMPEG_URL http://uv-cdat.llnl.gov/cdat/resources)
 set(FFMPEG_GZ ffmpeg-${FFMPEG_MAJOR_SRC}.${FFMPEG_MINOR_SRC}.${FFMPEG_PATCH_SRC}.tar.gz)
-set(FFMPEG_MD5 fd45cacbe1294554eb72a5c9a311866f)
+set(FFMPEG_MD5 0165cb1ac7d4f4d9b1d631d2256dea78)
 
 set(VTK_MAJOR_SRC 5)
 set(VTK_MINOR_SRC 6)
