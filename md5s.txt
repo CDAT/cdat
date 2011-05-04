@@ -57,6 +57,7 @@ a3270bab3f4b69b7dc6dbdacbcae9745  sources/pkg-config-0.25.tar.gz
 3a2f25b9b115037277f4fb759194a7a5  sources/qt-everywhere-opensource-src-4.7.0.tar.gz
 6f88d96507c84e9fea5bf3a71ebeb6d7  sources/qt-everywhere-opensource-src-4.7.1.tar.gz
 66b992f5c21145df08c99d21847f4fdb  sources/qt-everywhere-opensource-src-4.7.2.tar.gz
+49b96eefb1224cc529af6fe5608654fe  sources/qt-everywhere-opensource-src-4.7.3.tar.gz
 fc2f7e714fe792db1ce6ddc4c9fb4ef3  sources/readline-6.1.tar.gz
 7df2a529a074f613b509fb44feefe74e  sources/setuptools-0.6c11.tar.gz
 52d11ca9c1a0d0cddc9b89268bff5929  sources/sip-4.10.2.tar.gz
