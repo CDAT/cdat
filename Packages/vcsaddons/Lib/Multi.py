@@ -186,6 +186,7 @@ class Multi(object):
                  top_margin=.05,bottom_margin=.075,left_margin=.033,right_margin=.05,
                  horizontal_spacing=0.05,vertical_spacing=0.035,
                  legend_thickness=.2,legend_direction='horizontal',legend_stretch=.8,legend_fat=0.05,
+		 x=None
                  ):
         """ Initialize the Object, need to pass number of row and columns (rows and columns)
         default: 2 cols, 3 rows
@@ -209,12 +210,15 @@ class Multi(object):
         self.legend  = Legend(direction=legend_direction,fat=legend_fat,thickness=legend_thickness,stretch=legend_stretch)
 
         found=False
-        for obj in globals():
+	if x is not None:
+		self.x=x
+	else:
+          for obj in globals():
             if isinstance(obj,vcs.Canvas.Canvas):
                 self.x=obj
                 found=True
                 break
-        if found is False:
+          if found is False:
             self.x=vcs.init()
             
         self.template_names = []
