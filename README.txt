@@ -120,7 +120,7 @@ CDAT will look for and install if necessary (minimum version required/version di
 	  setuptools 0.6 / 0.6c11
 	  numpy 1.5.1 / 1.5.1
 	  tcl/tk : 8.5.4 / 8.5.9
-	  QT : 4.6.2 / 4.7.2
+	  QT : 4.6.2 / 4.7.3
 	  sip : 4.12.1 / 4.12.1
 	  PyQt : 4.7.6 / 4.8.3
           readline : 5.2 / 6.1
