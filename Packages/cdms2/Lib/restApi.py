@@ -220,7 +220,10 @@ class esgfDataset(esgfConnection):
         else:
             self.restPath=restPath
         if datasetids is None:
-            self.datasetids=None
+            if "dataset_id_template_" in keys.keys():
+                self.datasetids = genutil.StringConstructor(keys["dataset_id_template_"].replace(")s",")"))
+            else:
+                self.datasetids=None
         if isinstance(datasetids,genutil.StringConstructor):
             self.datasetids=datasetids
         elif isinstance(datasetids,str):
@@ -452,8 +455,11 @@ class esgfFiles(object,AutoAPI.AutoAPI):
     def setMapping(self,mapping):
         if mapping is None:
             self.mapping=""
-            for k in self.parent.keys():
-                self.mapping+="%%(%s)" % k
+            if self.datasetids is not None:
+                self.mapping=self.datasetids
+            else:
+                for k in self.parent.keys():
+                    self.mapping+="%%(%s)" % k
         else:
             self.mapping=mapping
         #print "Stage 1 mapping:",self.mapping
