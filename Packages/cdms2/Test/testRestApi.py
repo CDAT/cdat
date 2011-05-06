@@ -13,10 +13,12 @@ if test == "Luca":
     restPath = "/esg-search2/ws/rest/search"
     datasetids = "%(project).%(obs_structure).%(realm).%(instrument).%(time_frequency)"
     datasetids = "%(project).%(crappy)"
+    datasetids=None
     fileids="%(datasetid).%(version).%(variable)_%(crap).nc"
     fileids="%(datasetid).%(variable)_%(crap)"
     mapping="%(project).%(variable)"
     #mapping="%(datasetid).%(version)"
+    mapping=None
     stringType= False
 elif test == "Gavin":
     gateway = "esgf-node1.llnl.gov"
@@ -32,7 +34,7 @@ elif test== "Luca-new":
     stringType= True
     stringType= False
     
-mapping="%(project).%(variable)"
+#mapping="%(project).%(variable)"
 #fileids=None
 #datasetids=None
 #datasetids = "%(project).%(product).%(institute).%(model).%(experiment).%(time_frequency).%(realm).%(MIPTable).%(ensemble)"
@@ -41,12 +43,13 @@ fileids=None
 stringType= False
 #mapping=None
 myGateway = cdms2.esgfConnection(gateway,mapping=mapping,datasetids=datasetids,fileids=fileids,restPath=restPath)
-#stringType=True
-datasets =  myGateway.searchDatasets(version=1,stringType=True)#,variable="ta")
+stringType=False
+datasets =  myGateway.searchDatasets(stringType=stringType,variable="hus",version=1)
 print datasets
 #sys.exit()
 if stringType:
-    print datasets
+    #print datasets
+    pass
 else:
     ## for f in dataset[-1].files:
     ##     print f
@@ -71,6 +74,8 @@ else:
     print len(search1)
     search1.remap()
     print search1.mapped#["cmip5"]["output1"]["INM"]["inmcm4"]["amip"]["day"]["atmos"]["day"]["r1i1p1"].keys()
+#    print search1.mapped['obs4cmip5']['NASA-JPL']['AURA']['MLS']['mon']['files'][0].OPENDAP
+    print search1.mapped['obs4cmip5']['NASA-JPL']['AQUA']['AIRS']['mon']['files'][0].OPENDAP
     #print search1.parent["MIPTable"]
         #search2 = datasets[i].search(variable="crap")
         #print len(search2)
