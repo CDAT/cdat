@@ -371,7 +371,7 @@ set(Pmw_DEPENDENCIES ${pkgconfig_dep} ${Python_dep})
 set(pixman_DEPENDENCIES ${pkgconfig_dep})
 set(FFMPEG_DEPENDENCIES ${pkgconfig_dep})
 set(ghostscript_DEPENDENCIES ${pkgconfig_dep} ${zlib_dep} ${jpeg_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep} ${libXSLT_dep} ${libXML2_dep})
-set(NetCDF_DEPENDENCIES ${pkgconfig_dep} ${HDF5_dep})
+set(NetCDF_DEPENDENCIES ${pkgconfig_dep} ${HDF5_dep} ${CURL_dep} ${zlib_dep})
 
 set(TclTk_DEPENDENCIES ${pkgconfig_dep} ${libXML2_dep} ${libXSLT_dep})
 
