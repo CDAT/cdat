@@ -108,7 +108,7 @@ set(CURL_PATCH_SRC 3)
 #set(CURL_URL http://curl.haxx.se/download)
 set(CURL_URL http://uv-cdat.llnl.gov/cdat/resources)
 set(CURL_GZ curl-${CURL_MAJOR_SRC}.${CURL_MINOR_SRC}.${CURL_PATCH_SRC}.tar.gz)
-set(CURL_MD5 d922a88782b64441d06547632fd85744)
+set(CURL_MD5 25e01bd051533f320c05ccbb0c52b246)
 
 set(PNG_MAJOR 1)
 set(PNG_MINOR 4)
