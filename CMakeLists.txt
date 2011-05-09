@@ -221,8 +221,8 @@ find_package(Cairo)
 find_package(HDF5)
 #find_package(NetCDF)
 find_package(Qt)
-find_package(PythonInterp)
-find_package(PythonLibs)
+#find_package(PythonInterp)
+#find_package(PythonLibs)
 # unix tools
 #find_package(termcap)
 #find_package(readline)
@@ -252,6 +252,10 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_cmake_make_step.cmake.in
 
 configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_install_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/cdat_install_step.cmake
+  @ONLY)
+
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_python_install_step.cmake.in
+  ${cdat_CMAKE_BINARY_DIR}/cdat_python_install_step.cmake
   @ONLY)
 
 set(cdat_configure_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake)
