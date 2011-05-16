@@ -26,6 +26,7 @@ f101a9e88b783337b20b2e26dfd26d5f  sources/cairo-1.10.2.tar.gz
 6fc690d9b34154b51a919ff466cea90c  sources/freetype-2.3.12.tar.gz
 9273efacffb683483e58a9e113efae9f  sources/freetype-2.4.4.tar.gz
 9a4a1cfd0237436af88b6df8de5a9fe5  sources/g2clib-1.2.2.tgz
+bfa269aa147f9141b3fd48886d4ee374  sources/g2clib-1.2.3.tar.gz
 dd927ecf7e4db38b62be3dc17b1b04d2  sources/ghostscript-8.64.tar.gz
 51a522a5b4818bd3dc7c1c0e9dd22bad  sources/ghostscript-8.71.tar.gz
 aa3878d2fcc5fe92a1482d79cf2eee58  sources/hdf5-1.8.4-patch1.tar.gz
