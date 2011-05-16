@@ -134,14 +134,14 @@ CDAT will look for and install if necessary (minimum version required/version di
           jpeg any/6b
           libpng 1.4.1 / 1.5.1
           libjasper 1.900.1 / @JASPER_MAJOR_SRC@.@JASPER_MINOR_SRC@.@JASPER_PATCH_SRC@
-          libg2clib 1.2.2 / @G2CLIB_MAJOR_SRC@.@G2CLIB_MINOR_SRC@.@G2CLIB_PATCH_SRC@
+          libg2clib 1.2.3 / @G2CLIB_MAJOR_SRC@.@G2CLIB_MINOR_SRC@.@G2CLIB_PATCH_SRC@
           libxml 2.6.27 / 2.7.8
           libxslt 1.1.22 / 1.1.26
           Ghostscript
 	  libuuid /1.6.2
 	  Udunits 2 /2.1.14
           HDF5 any / 1.8.5-patch1
-          NetCDF4 4.1.0/ 4.1.1
+          NetCDF4 4.1.2/ 4.1.2
           XGKS
           Pmw 1.3 / 1.3
           gifsicle any any/ 1.58
