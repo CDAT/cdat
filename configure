@@ -11538,6 +11538,7 @@ fi
       LDFLAGS=${NCLDFLAGS}" "${LDFLAGS}
       CFLAGS=${NCCFLAGS}" "${CFLAGS}
     else
+      LOCNCCONFIG="${EXTERNALS}/bin/nc-config"
       NC4LOC=${EXTERNALS}
       CPPFLAGS="-I${EXTERNALS}/include "${CPPFLAGS}
       LDFLAGS="-L${EXTERNALS}/lib "${LDFLAGS}
@@ -11746,13 +11747,14 @@ fi
           fi
   fi
   if test ${with_hdf5} != "no" ; then
-                { echo "$as_me:$LINENO: checking for H5open in -lhdf5" >&5
+                echo "HDF5LOC:"${HDF5LOC}
+    { echo "$as_me:$LINENO: checking for H5open in -lhdf5" >&5
 echo $ECHO_N "checking for H5open in -lhdf5... $ECHO_C" >&6; }
 if test "${ac_cv_lib_hdf5_H5open+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lhdf5  -lz   $LIBS"
+LIBS="-lhdf5  -L${HDF5LOC}/lib -lz   $LIBS"
 cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
@@ -11819,7 +11821,7 @@ if test "${ac_cv_lib_hdf5_hl_H5PTopen+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lhdf5_hl -lhdf5 -lz  $LIBS"
+LIBS="-lhdf5_hl  -L${HDF5LOC}/lib -lhdf5 -lz  $LIBS"
 cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF

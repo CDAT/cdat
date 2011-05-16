@@ -284,8 +284,8 @@ ifeq (@ESG@,yes)
 	@echo "Building ESG dependencies"
 	@echo " ... building gui_support"
 	@$(call dobuildpynotar,@prefix@,guisupport,cd Packages/gui_support)
-# 	@echo " ... building psycopg2"
-# 	@env PATH="@prefix@/bin:${PATH}:@PGCONFIG@" easy_install psycopg2 > logs/psycopg2.LOG
+ 	@echo " ... building psycopg2"
+ 	@env PATH="@prefix@/bin:${PATH}:@PGCONFIG@" easy_install MyProxyClient > logs/MyProxyClient.LOG
 # 	@echo " ... building SQLAlchemy"
 # 	@env PATH="@prefix@/bin:${PATH}:@PGCONFIG@" easy_install SQLAlchemy > logs/SQLAlchemy.LOG
 # 	@echo " ... building lxml"
