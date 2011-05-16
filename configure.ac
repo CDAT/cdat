@@ -39,30 +39,29 @@ AC_SUBST(PYTHON_GZ)
 PYVER=${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}
 echo "PYVER IS : " ${PYVER}
 AC_SUBST(PYVER)
-JASPER_MAJOR=1
-JASPER_MINOR=900
-JASPER_PATCH=1
+JASPER_MAJOR_SRC=1
+JASPER_MINOR_SRC=900
+JASPER_PATCH_SRC=1
 JASPER_URL=uv-cdat.llnl.gov
-JASPER_GZ=jasper-${JASPER_MAJOR}.${JASPER_MINOR}.${JASPER_PATCH}.tgz
-AC_SUBST(JASPER_MAJOR)
-AC_SUBST(JASPER_MINOR)
-AC_SUBST(JASPER_PATCH)
+JASPER_GZ=jasper-${JASPER_MAJOR_SRC}.${JASPER_MINOR_SRC}.${JASPER_PATCH_SRC}.tgz
+AC_SUBST(JASPER_MAJOR_SRC)
+AC_SUBST(JASPER_MINOR_SRC)
+AC_SUBST(JASPER_PATCH_SRC)
 AC_SUBST(JASPER_URL)
 AC_SUBST(JASPER_GZ)
 AC_SUBST(COMPILE_JASPER)
 COMPILE_JASPER=yes
-G2CLIB_MAJOR=1
-G2CLIB_MINOR=2
-G2CLIB_PATCH=3
+G2CLIB_MAJOR_SRC=1
+G2CLIB_MINOR_SRC=2
+G2CLIB_PATCH_SRC=3
 G2CLIB_URL=uv-cdat.llnl.gov
-G2CLIB_GZ=g2clib-${JASPER_MAJOR}.${G2CLIB_MINOR}.${G2CLIB_PATCH}.tar.gz
-AC_SUBST(G2CLIB_MAJOR)
-AC_SUBST(G2CLIB_MINOR)
-AC_SUBST(G2CLIB_PATCH)
+G2CLIB_GZ=g2clib-${JASPER_MAJOR_SRC}.${G2CLIB_MINOR_SRC}.${G2CLIB_PATCH_SRC}.tar.gz
+AC_SUBST(G2CLIB_MAJOR_SRC)
+AC_SUBST(G2CLIB_MINOR_SRC)
+AC_SUBST(G2CLIB_PATCH_SRC)
 AC_SUBST(G2CLIB_URL)
 AC_SUBST(G2CLIB_GZ)
 AC_SUBST(COMPILE_G2CLIB)
-COMPILE_G2CLIB=yes
 XML_MAJOR=2
 XML_MINOR=6
 XML_PATCH=27
@@ -574,7 +573,7 @@ else
    NCPUS=${with_cpus}
 fi
 
-PATH=${EXTERNALS}/bin:${prefix}/bin:${EXTERNALS}/NetCDF/bin:${EXTERNALS}/HDF5/bin:$PATH
+PATH=${EXTERNALS}/bin:${prefix}/bin:$PATH
 PKG_CONFIG_PATH=${EXTERNALS}/lib/pkgconfig:${PKG_CONFIG_PATH}
 
 BUILD_DIR=`pwd`
@@ -827,7 +826,7 @@ ISFRAMEWORK="no"
 AC_SUBST(QTCONFIGOPT)
 dnl #General compilation flags
 AC_MSG_NOTICE([add ${EXTERNALS} to LD and CPP FLAGS])
-LDFLAGS="-L${EXTERNALS}/lib  -L${prefix}/lib -L${EXTERNALS}/NetCDF/lib  -L${EXTERNALS}/HDF5/lib "$LDFLAGS
+LDFLAGS="-L${EXTERNALS}/lib  -L${prefix}/lib "$LDFLAGS
 CPPFLAGS="-I${EXTERNALS}/include  "$CPPFLAGS
 CFLAGS="-I${EXTERNALS}/include  -L${EXTERNALS}/lib  "${CFLAGS}
 COMPILE_TCLTK=no
@@ -837,8 +836,8 @@ case ${target_os} in
  linux-*) 
   PyQt_PLATFORM="x11"
   cp exsrc/src/CMakeCache.txt.linux.in exsrc/CMakeCache.txt.in
-  AC_MSG_NOTICE([Linux: adding -Wl,--rpath,${prefix}/lib -Wl,--rpath,${EXTERNALS}/lib  -Wl,--rpath,${EXTERNALS}/NetCDF/lib  -Wl,--rpath,${EXTERNALS}/HDF5/lib to LDFLAGS])
-  LDFLAGS=${LDFLAGS}" -Wl,--rpath,${prefix}/lib -Wl,--rpath,${EXTERNALS}/lib  -Wl,--rpath,${EXTERNALS}/NetCDF/lib  -Wl,--rpath,${EXTERNALS}/HDF5/lib" 
+  AC_MSG_NOTICE([Linux: adding -Wl,--rpath,${prefix}/lib -Wl,--rpath,${EXTERNALS}/lib  to LDFLAGS])
+  LDFLAGS=${LDFLAGS}" -Wl,--rpath,${prefix}/lib -Wl,--rpath,${EXTERNALS}/lib " 
   AC_MSG_CHECKING([if we are using icc])
   if test ${CC} == "icc" ; then
     AC_MSG_RESULT([yes])
@@ -860,7 +859,7 @@ case ${target_os} in
   QTCONFIGOPT=" -cocoa "
   MD5PRG="md5"
   MD5CNT=4
-  LDFLAGS=${LDFLAGS}" -R${prefix}/lib -R${EXTERNALS}/lib  -R${EXTERNALS}/NetCDF/lib  -R${EXTERNALS}/HDF5/lib " 
+  LDFLAGS=${LDFLAGS}" -R${prefix}/lib -R${EXTERNALS}/lib " 
   dnl CFLAGS=${CFLAGS}" -R${EXTERNALS}/lib   -R${EXTERNALS}/NetCDF/lib   -R${EXTERNALS}/HDF5/lib -R${EXTERNALS}/OpenDAP/lib" 
   dnl AC_MSG_NOTICE([Darwin removing -Wno-long-double when building Python for gcc 4.2 and higher. Replacing configure])
   dnl PYADD=${PYADD}" cp -f ../../pysrc/src/Python-2.5.2-configure-mac10.6-replacement configure ; "
@@ -1687,6 +1686,10 @@ fi
 COMPILE_NC=no
 COMPILE_CURL=no
 
+AC_CHECK_LIB([jasper],[jas_init],[COMPILE_JASPER=no],[COMPILE_JASPER=yes],[ -ljpeg -lm ])
+
+AC_CHECK_LIB([grib2c],[g2_getfld],[COMPILE_G2CLIB=no],[COMPILE_G2CLIB=yes],[ -lpng -ljasper ])
+
 AC_ARG_WITH([netcdf],[AS_HELP_STRING([--with-netcdf],[enable support for NetCDF in some none standard location])],[],[with_netcdf=no])
 AC_ARG_ENABLE([netcdf-fortran],[AS_HELP_STRING([--enable-netcdf-fortran],[enables netcdf-fortran (default is no)])])
 enable_netcdf_fortran="-"${enable_netcdf_fortran}
@@ -1723,38 +1726,11 @@ else
   AC_MSG_RESULT([no])
 fi
 
-dnl ###########################################################
-dnl  HDF 5
-dnl ###########################################################
-COMPILE_HDF5=no
-AC_ARG_WITH([hdf5],[AS_HELP_STRING([--with-hdf5],[enable location of hdf5 libs])],[],[with_hdf5=yes])
-if test ${with_hdf5} == "yes" ; then
-    HDF5LOC="${EXTERNALS}/HDF5"
-dnl    CPPFLAGS="-I${EXTERNALS}/HDF5/include "${CPPFLAGS}
-dnl    LDFLAGS="-L${EXTERNALS}/HDF5/lib "${LDFLAGS}
-dnl    CFLAGS="-I${EXTERNALS}/HDF5/include -L${EXTERNALS}/HDF5/lib "${CFLAGS}
-else 
-    if test ${with_hdf5} != "no" ; then
-      HDF5LOC=${with_hdf5}
-dnl      CPPFLAGS="-I${with_hdf5}/include "${CPPFLAGS}
-dnl      LDFLAGS="-L${with_hdf5}/lib "${LDFLAGS}
-dnl      CFLAGS="-I${with_hdf5}/include -L${with_hdf5}/lib "${CFLAGS}
-    fi
-fi
-if test ${with_hdf5} != "no" ; then
-    dnl ###########################################################
-    dnl  LIBHDF5
-    dnl ###########################################################
-    AC_CHECK_LIB([hdf5],[H5open],[COMPILE_HDF5=no],[COMPILE_HDF5=yes],[ -lz  ])
-    AC_CHECK_LIB([hdf5_hl],[H5PTopen],[COMPILE_HDF5=no],[COMPILE_HDF5=yes],[-lhdf5 -lz ])
-dnl    CPPFLAGS=${CPPFLAGS}" -I${EXTERNALS}/HDF5/include"
-dnl    CFLAGS="-I${EXTERNALS}/HDF5/include -L${EXTERNALS}/HDF5/lib "${CFLAGS}
-    dnl #AC_CHECK_HEADER([hdf5.h],[],[COMPILE_HDF5=yes])
-fi
 
 dnl ###########################################################
 dnl  LIBNETCDF4
 dnl ###########################################################
+AC_SUBST(LOCNCCONFIG)
 if test ${with_netcdf} != "yes" -a ${with_netcdf} != "no"; then
     LOCNCCONFIG=${with_netcdf}/bin/nc-config
     AC_CHECK_FILE([${with_netcdf}/bin/nc-config],[HAS_NCCONFIG=yes],[HAS_NCCONFIG=no])
@@ -1779,12 +1755,12 @@ else
       LDFLAGS=${NCLDFLAGS}" "${LDFLAGS}
       CFLAGS=${NCCFLAGS}" "${CFLAGS}
     else
-      NC4LOC=${EXTERNALS}/NetCDF
-      CPPFLAGS="-I${EXTERNALS}/NetCDF/include "${CPPFLAGS}
-      LDFLAGS="-L${EXTERNALS}/NetCDF/lib "${LDFLAGS}
-      CFLAGS="-I${EXTERNALS}/NetCDF/include -L${EXTERNALS}/NetCDF/lib "${CFLAGS}
-      NCLDFLAGS="-L${EXTERNALS}/NetCDF/lib "
-      NCCFLAGS="-I${EXTERNALS}/NetCDF/include"
+      NC4LOC=${EXTERNALS}
+      CPPFLAGS="-I${EXTERNALS}/include "${CPPFLAGS}
+      LDFLAGS="-L${EXTERNALS}/lib "${LDFLAGS}
+      CFLAGS="-I${EXTERNALS}/include "${CFLAGS}
+      NCLDFLAGS="-L${EXTERNALS}/lib "
+      NCCFLAGS="-I${EXTERNALS}/include"
     fi
 fi
 AC_CHECK_LIB([netcdf],[nc_open],[COMPILE_NC=no],[COMPILE_NC=yes],[ ${NCCFLAGS} ${NCLDFLAGS} ])
@@ -1823,6 +1799,38 @@ if test ${COMPILE_NC} == "no" ; then
     dnl LDFLAGS=${LDFLAGS_OLD}
 fi  
 
+COMPILE_HDF5=no
+HDF5LOC="${EXTERNALS}"
+if test ${COMPILE_NC} == "yes" ; then
+  dnl ###########################################################
+  dnl  HDF 5
+  dnl ###########################################################
+  COMPILE_HDF5=no
+  AC_ARG_WITH([hdf5],[AS_HELP_STRING([--with-hdf5],[enable location of hdf5 libs])],[],[with_hdf5=yes])
+  if test ${with_hdf5} == "yes" ; then
+    HDF5LOC="${EXTERNALS}"
+  dnl    CPPFLAGS="-I${EXTERNALS}/HDF5/include "${CPPFLAGS}
+  dnl    LDFLAGS="-L${EXTERNALS}/HDF5/lib "${LDFLAGS}
+  dnl    CFLAGS="-I${EXTERNALS}/HDF5/include -L${EXTERNALS}/HDF5/lib "${CFLAGS}
+  else 
+    if test ${with_hdf5} != "no" ; then
+      HDF5LOC=${with_hdf5}
+  dnl      CPPFLAGS="-I${with_hdf5}/include "${CPPFLAGS}
+  dnl      LDFLAGS="-L${with_hdf5}/lib "${LDFLAGS}
+  dnl      CFLAGS="-I${with_hdf5}/include -L${with_hdf5}/lib "${CFLAGS}
+    fi
+  fi
+  if test ${with_hdf5} != "no" ; then
+    dnl ###########################################################
+    dnl  LIBHDF5
+    dnl ###########################################################
+    AC_CHECK_LIB([hdf5],[H5open],[COMPILE_HDF5=no],[COMPILE_HDF5=yes],[ -lz  ])
+    AC_CHECK_LIB([hdf5_hl],[H5PTopen],[COMPILE_HDF5=no],[COMPILE_HDF5=yes],[-lhdf5 -lz ])
+  dnl    CPPFLAGS=${CPPFLAGS}" -I${EXTERNALS}/HDF5/include"
+  dnl    CFLAGS="-I${EXTERNALS}/HDF5/include -L${EXTERNALS}/HDF5/lib "${CFLAGS}
+    dnl #AC_CHECK_HEADER([hdf5.h],[],[COMPILE_HDF5=yes])
+  fi
+fi
 
 dnl ###########################################################
 dnl  HDF 4
@@ -1844,9 +1852,9 @@ dnl ###########################################################
 dnl Ghostscript stuff
 dnl ###########################################################
 
-if test ${DOGS} == "no" -a ${COMPILE_HDF} == "no" ; then
-  COMPILE_LIBJPEG=no
-fi
+dnl if test ${DOGS} == "no" -a ${COMPILE_HDF} == "no" ; then
+dnl   COMPILE_LIBJPEG=no
+dnl fi
 
 dnl AC_ARG_ENABLE([ioapi],[AS_HELP_STRING([--enable-ioapi],[enable ioapi (default is off)])])
 dnl enable_ioapi="-"${enable_ioapi}
@@ -2132,6 +2140,16 @@ if test ${enable_esg} != "-yes" ; then
   else
     AC_MSG_NOTICE([libudunits2 found])
   fi
+fi
+if test ${COMPILE_JASPER} == "yes" ; then
+    AC_MSG_NOTICE([libjasper not found... building library ${JASPER_MAJOR_SRC}.${JASPER_MINOR_SRC}.${JASPER_PATCH_SRC}])
+else
+    AC_MSG_NOTICE([libjasper found])
+fi
+if test ${COMPILE_G2CLIB} == "yes" ; then
+    AC_MSG_NOTICE([libg2clib not found... building library ${G2CLIB_MAJOR_SRC}.${G2CLIB_MINOR_SRC}.${G2CLIB_PATCH_SRC}])
+else
+    AC_MSG_NOTICE([libg2clib found])
 fi
 if test ${COMPILE_HDF5} == "yes" ; then
     AC_MSG_NOTICE([libhdf5 not found... building library ${HDF5_MAJOR_SRC}.${HDF5_MINOR_SRC}.${HDF5_PATCH_SRC}])
