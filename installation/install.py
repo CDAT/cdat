@@ -63,11 +63,11 @@ def configure (configuration_files):
     # Retrieve action
     action = options['action']
     # Establish libraries and directories for CDUNIF/CDMS
+    netcdf_directory = norm(options.get('netcdf_directory',os.environ['EXTERNALS']))
     netcdf_include_directory = norm(options.get('netcdf_include_directory', 
-                                   os.path.join(os.environ['EXTERNALS'],'NetCDF','include')))
-    netcdf_library_directory = norm(options.get('netcdf_library_directory', 
-                                           os.path.join(os.environ['EXTERNALS'],'NetCDF','lib')))
-    hdf5_library_directory = norm(os.path.join(os.environ.get('HDF5LOC',os.path.join(os.environ["EXTERNALS"],"HDF5")), 'lib'))
+                                           os.path.join(os.environ['EXTERNALS'],'include')))
+    
+    #hdf5_library_directory = norm(os.path.join(os.environ.get('HDF5LOC',os.path.join(os.environ["EXTERNALS"])), 'lib'))
     cdunif_library_directories = [cdms_library_directory]
     options['CDMS_INCLUDE_DAP']="yes"
 ##     if options.get('CDMS_INCLUDE_DAP','no')=='yes':
@@ -98,11 +98,19 @@ def configure (configuration_files):
 ## ##         print 'daplib:',dap_lib
 ##     else:
     if 1:
-        dap_include = [os.path.join(hdf5path,"include"),os.path.join(os.environ['EXTERNALS'],'include')]
+        ## dap_include = [os.path.join(hdf5path,"include"),os.path.join(os.environ['EXTERNALS'],'include')]
+        dap_include = []
+        Dirs=os.popen('%s --cflags' % os.environ.get("LOCNCCONFIG","nc-config")).readlines()[0]
+        for d in Dirs.split():
+            if d[:2]=="-I":
+                dnm = d[2:]
+                if not dnm in dap_include:
+                    dap_include.append(dnm)
         dap_lib = ['stdc++']
         dap_lib = []
         dap_lib_dir=[]
-        Libs=os.popen(norm(os.path.join(os.environ['EXTERNALS'],'NetCDF','bin','nc-config'))+' --libs').readlines()
+        ## Libs=os.popen(norm(os.path.join(os.environ['EXTERNALS'],'bin','nc-config'))+' --libs').readlines()
+        Libs=os.popen('%s --libs' % os.environ.get("LOCNCCONFIG","nc-config")).readlines()
         for libs in Libs:
             libs=libs.split()
             for l in libs:
@@ -137,11 +145,11 @@ def configure (configuration_files):
         hdf_lib_dir=[]
 
     grib2_libraries = ["grib2c","png","jasper"]
-    if netcdf_library_directory not in cdunif_library_directories: 
-        cdunif_library_directories.append(netcdf_library_directory)
+    ## if netcdf_library_directory not in cdunif_library_directories: 
+    ##     cdunif_library_directories.append(netcdf_library_directory)
     cdunif_include_directories = [cdms_include_directory]
-    if netcdf_include_directory not in cdunif_include_directories: 
-        cdunif_include_directories.append(netcdf_include_directory)
+    ## if netcdf_include_directory not in cdunif_include_directories: 
+    ##     cdunif_include_directories.append(netcdf_include_directory)
                          
         
     if sys.platform == "sunos5":
@@ -227,10 +235,9 @@ CDMS_INCLUDE_DRS = %s
 CDMS_INCLUDE_HDF = %s
 CDMS_INCLUDE_PP = %s
 CDMS_INCLUDE_QL = %s
-CDMS_LIBRARY_HDF5  = %s
 drs_file = %s
+netcdf_directory = %s
 netcdf_include_directory = %s
-netcdf_library_directory = %s
 cdunif_include_directories = %s + %s + %s
 cdunif_library_directories = %s + get_drs_dirs() + %s +%s
 cdunif_libraries = %s + %s + get_drs_libs() + %s + %s
@@ -249,10 +256,9 @@ externals = %s
         repr(options['CDMS_INCLUDE_HDF']),
         repr(options['CDMS_INCLUDE_PP']),
         repr(options['CDMS_INCLUDE_QL']),
-        repr(hdf5_library_directory),
         repr(drs_file),
+        repr(netcdf_directory),
         repr(netcdf_include_directory),
-        repr(netcdf_library_directory),
         repr(cdunif_include_directories),repr(dap_include),repr(hdf_include),
         repr(cdunif_library_directories),repr(dap_lib_dir),repr(hdf_lib_dir),
         repr(['cdms', netcdfname]),repr(dap_lib),repr(hdf_libraries),repr(grib2_libraries),
@@ -504,7 +510,7 @@ def main(arglist):
         configuration_files.append(os.path.join('installation', 'pp.py'))
         do_configure=1  # Need libcdms built a certain way too.
 
-    if hdf5path is None: hdf5path= os.path.join(externals,'HDF5')
+    if hdf5path is None: hdf5path= os.path.join(externals)
     if zpath is None: zpath= externals
     os.environ['EXTERNALS']=externals
 

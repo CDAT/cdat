@@ -662,15 +662,15 @@ PYTHON_PATCH_SRC
 PYTHON_URL
 PYTHON_GZ
 PYVER
-JASPER_MAJOR
-JASPER_MINOR
-JASPER_PATCH
+JASPER_MAJOR_SRC
+JASPER_MINOR_SRC
+JASPER_PATCH_SRC
 JASPER_URL
 JASPER_GZ
 COMPILE_JASPER
-G2CLIB_MAJOR
-G2CLIB_MINOR
-G2CLIB_PATCH
+G2CLIB_MAJOR_SRC
+G2CLIB_MINOR_SRC
+G2CLIB_PATCH_SRC
 G2CLIB_URL
 G2CLIB_GZ
 COMPILE_G2CLIB
@@ -2164,11 +2164,11 @@ PYTHON_GZ=Python-${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.${PYTHON_PATCH_SRC}.tgz
 PYVER=${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}
 echo "PYVER IS : " ${PYVER}
 
-JASPER_MAJOR=1
-JASPER_MINOR=900
-JASPER_PATCH=1
+JASPER_MAJOR_SRC=1
+JASPER_MINOR_SRC=900
+JASPER_PATCH_SRC=1
 JASPER_URL=uv-cdat.llnl.gov
-JASPER_GZ=jasper-${JASPER_MAJOR}.${JASPER_MINOR}.${JASPER_PATCH}.tgz
+JASPER_GZ=jasper-${JASPER_MAJOR_SRC}.${JASPER_MINOR_SRC}.${JASPER_PATCH_SRC}.tgz
 
 
 
@@ -2176,18 +2176,17 @@ JASPER_GZ=jasper-${JASPER_MAJOR}.${JASPER_MINOR}.${JASPER_PATCH}.tgz
 
 
 COMPILE_JASPER=yes
-G2CLIB_MAJOR=1
-G2CLIB_MINOR=2
-G2CLIB_PATCH=3
+G2CLIB_MAJOR_SRC=1
+G2CLIB_MINOR_SRC=2
+G2CLIB_PATCH_SRC=3
 G2CLIB_URL=uv-cdat.llnl.gov
-G2CLIB_GZ=g2clib-${JASPER_MAJOR}.${G2CLIB_MINOR}.${G2CLIB_PATCH}.tar.gz
+G2CLIB_GZ=g2clib-${JASPER_MAJOR_SRC}.${G2CLIB_MINOR_SRC}.${G2CLIB_PATCH_SRC}.tar.gz
 
 
 
 
 
 
-COMPILE_G2CLIB=yes
 XML_MAJOR=2
 XML_MINOR=6
 XML_PATCH=27
@@ -2705,7 +2704,7 @@ else
    NCPUS=${with_cpus}
 fi
 
-PATH=${EXTERNALS}/bin:${prefix}/bin:${EXTERNALS}/NetCDF/bin:${EXTERNALS}/HDF5/bin:$PATH
+PATH=${EXTERNALS}/bin:${prefix}/bin:$PATH
 PKG_CONFIG_PATH=${EXTERNALS}/lib/pkgconfig:${PKG_CONFIG_PATH}
 
 BUILD_DIR=`pwd`
@@ -7486,7 +7485,7 @@ ISFRAMEWORK="no"
 
 { echo "$as_me:$LINENO: add ${EXTERNALS} to LD and CPP FLAGS" >&5
 echo "$as_me: add ${EXTERNALS} to LD and CPP FLAGS" >&6;}
-LDFLAGS="-L${EXTERNALS}/lib  -L${prefix}/lib -L${EXTERNALS}/NetCDF/lib  -L${EXTERNALS}/HDF5/lib "$LDFLAGS
+LDFLAGS="-L${EXTERNALS}/lib  -L${prefix}/lib "$LDFLAGS
 CPPFLAGS="-I${EXTERNALS}/include  "$CPPFLAGS
 CFLAGS="-I${EXTERNALS}/include  -L${EXTERNALS}/lib  "${CFLAGS}
 COMPILE_TCLTK=no
@@ -7496,9 +7495,9 @@ case ${target_os} in
  linux-*)
   PyQt_PLATFORM="x11"
   cp exsrc/src/CMakeCache.txt.linux.in exsrc/CMakeCache.txt.in
-  { echo "$as_me:$LINENO: Linux: adding -Wl,--rpath,${prefix}/lib -Wl,--rpath,${EXTERNALS}/lib  -Wl,--rpath,${EXTERNALS}/NetCDF/lib  -Wl,--rpath,${EXTERNALS}/HDF5/lib to LDFLAGS" >&5
-echo "$as_me: Linux: adding -Wl,--rpath,${prefix}/lib -Wl,--rpath,${EXTERNALS}/lib  -Wl,--rpath,${EXTERNALS}/NetCDF/lib  -Wl,--rpath,${EXTERNALS}/HDF5/lib to LDFLAGS" >&6;}
-  LDFLAGS=${LDFLAGS}" -Wl,--rpath,${prefix}/lib -Wl,--rpath,${EXTERNALS}/lib  -Wl,--rpath,${EXTERNALS}/NetCDF/lib  -Wl,--rpath,${EXTERNALS}/HDF5/lib"
+  { echo "$as_me:$LINENO: Linux: adding -Wl,--rpath,${prefix}/lib -Wl,--rpath,${EXTERNALS}/lib  to LDFLAGS" >&5
+echo "$as_me: Linux: adding -Wl,--rpath,${prefix}/lib -Wl,--rpath,${EXTERNALS}/lib  to LDFLAGS" >&6;}
+  LDFLAGS=${LDFLAGS}" -Wl,--rpath,${prefix}/lib -Wl,--rpath,${EXTERNALS}/lib "
   { echo "$as_me:$LINENO: checking if we are using icc" >&5
 echo $ECHO_N "checking if we are using icc... $ECHO_C" >&6; }
   if test ${CC} == "icc" ; then
@@ -7529,7 +7528,7 @@ echo "${ECHO_T}no" >&6; }
   QTCONFIGOPT=" -cocoa "
   MD5PRG="md5"
   MD5CNT=4
-  LDFLAGS=${LDFLAGS}" -R${prefix}/lib -R${EXTERNALS}/lib  -R${EXTERNALS}/NetCDF/lib  -R${EXTERNALS}/HDF5/lib "
+  LDFLAGS=${LDFLAGS}" -R${prefix}/lib -R${EXTERNALS}/lib "
         { echo "$as_me:$LINENO: Darwin: Cannot use the aqua enabled tk, will build it if not already in Externals" >&5
 echo "$as_me: Darwin: Cannot use the aqua enabled tk, will build it if not already in Externals" >&6;}
   as_ac_File=`echo "ac_cv_file_${EXTERNALS}/lib/libtclstub${TCLTK_MAJOR}.${TCLTK_MINOR}.a" | $as_tr_sh`
@@ -11145,6 +11144,142 @@ fi
 COMPILE_NC=no
 COMPILE_CURL=no
 
+{ echo "$as_me:$LINENO: checking for jas_init in -ljasper" >&5
+echo $ECHO_N "checking for jas_init in -ljasper... $ECHO_C" >&6; }
+if test "${ac_cv_lib_jasper_jas_init+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-ljasper  -ljpeg -lm  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char jas_init ();
+int
+main ()
+{
+return jas_init ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext &&
+       $as_test_x conftest$ac_exeext; then
+  ac_cv_lib_jasper_jas_init=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_cv_lib_jasper_jas_init=no
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_lib_jasper_jas_init" >&5
+echo "${ECHO_T}$ac_cv_lib_jasper_jas_init" >&6; }
+if test $ac_cv_lib_jasper_jas_init = yes; then
+  COMPILE_JASPER=no
+else
+  COMPILE_JASPER=yes
+fi
+
+
+{ echo "$as_me:$LINENO: checking for g2_getfld in -lgrib2c" >&5
+echo $ECHO_N "checking for g2_getfld in -lgrib2c... $ECHO_C" >&6; }
+if test "${ac_cv_lib_grib2c_g2_getfld+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lgrib2c  -lpng -ljasper  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char g2_getfld ();
+int
+main ()
+{
+return g2_getfld ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext &&
+       $as_test_x conftest$ac_exeext; then
+  ac_cv_lib_grib2c_g2_getfld=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_cv_lib_grib2c_g2_getfld=no
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_lib_grib2c_g2_getfld" >&5
+echo "${ECHO_T}$ac_cv_lib_grib2c_g2_getfld" >&6; }
+if test $ac_cv_lib_grib2c_g2_getfld = yes; then
+  COMPILE_G2CLIB=no
+else
+  COMPILE_G2CLIB=yes
+fi
+
+
 
 # Check whether --with-netcdf was given.
 if test "${with_netcdf+set}" = set; then
@@ -11313,158 +11448,7 @@ else
 echo "${ECHO_T}no" >&6; }
 fi
 
-COMPILE_HDF5=no
 
-# Check whether --with-hdf5 was given.
-if test "${with_hdf5+set}" = set; then
-  withval=$with_hdf5;
-else
-  with_hdf5=yes
-fi
-
-if test ${with_hdf5} == "yes" ; then
-    HDF5LOC="${EXTERNALS}/HDF5"
-else
-    if test ${with_hdf5} != "no" ; then
-      HDF5LOC=${with_hdf5}
-    fi
-fi
-if test ${with_hdf5} != "no" ; then
-                { echo "$as_me:$LINENO: checking for H5open in -lhdf5" >&5
-echo $ECHO_N "checking for H5open in -lhdf5... $ECHO_C" >&6; }
-if test "${ac_cv_lib_hdf5_H5open+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lhdf5  -lz   $LIBS"
-cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char H5open ();
-int
-main ()
-{
-return H5open ();
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (ac_try="$ac_link"
-case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
-  (eval "$ac_link") 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } && {
-	 test -z "$ac_c_werror_flag" ||
-	 test ! -s conftest.err
-       } && test -s conftest$ac_exeext &&
-       $as_test_x conftest$ac_exeext; then
-  ac_cv_lib_hdf5_H5open=yes
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-	ac_cv_lib_hdf5_H5open=no
-fi
-
-rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
-      conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_lib_hdf5_H5open" >&5
-echo "${ECHO_T}$ac_cv_lib_hdf5_H5open" >&6; }
-if test $ac_cv_lib_hdf5_H5open = yes; then
-  COMPILE_HDF5=no
-else
-  COMPILE_HDF5=yes
-fi
-
-    { echo "$as_me:$LINENO: checking for H5PTopen in -lhdf5_hl" >&5
-echo $ECHO_N "checking for H5PTopen in -lhdf5_hl... $ECHO_C" >&6; }
-if test "${ac_cv_lib_hdf5_hl_H5PTopen+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lhdf5_hl -lhdf5 -lz  $LIBS"
-cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char H5PTopen ();
-int
-main ()
-{
-return H5PTopen ();
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (ac_try="$ac_link"
-case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
-  (eval "$ac_link") 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } && {
-	 test -z "$ac_c_werror_flag" ||
-	 test ! -s conftest.err
-       } && test -s conftest$ac_exeext &&
-       $as_test_x conftest$ac_exeext; then
-  ac_cv_lib_hdf5_hl_H5PTopen=yes
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-	ac_cv_lib_hdf5_hl_H5PTopen=no
-fi
-
-rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
-      conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_lib_hdf5_hl_H5PTopen" >&5
-echo "${ECHO_T}$ac_cv_lib_hdf5_hl_H5PTopen" >&6; }
-if test $ac_cv_lib_hdf5_hl_H5PTopen = yes; then
-  COMPILE_HDF5=no
-else
-  COMPILE_HDF5=yes
-fi
-
-    fi
 
 if test ${with_netcdf} != "yes" -a ${with_netcdf} != "no"; then
     LOCNCCONFIG=${with_netcdf}/bin/nc-config
@@ -11554,12 +11538,12 @@ fi
       LDFLAGS=${NCLDFLAGS}" "${LDFLAGS}
       CFLAGS=${NCCFLAGS}" "${CFLAGS}
     else
-      NC4LOC=${EXTERNALS}/NetCDF
-      CPPFLAGS="-I${EXTERNALS}/NetCDF/include "${CPPFLAGS}
-      LDFLAGS="-L${EXTERNALS}/NetCDF/lib "${LDFLAGS}
-      CFLAGS="-I${EXTERNALS}/NetCDF/include -L${EXTERNALS}/NetCDF/lib "${CFLAGS}
-      NCLDFLAGS="-L${EXTERNALS}/NetCDF/lib "
-      NCCFLAGS="-I${EXTERNALS}/NetCDF/include"
+      NC4LOC=${EXTERNALS}
+      CPPFLAGS="-I${EXTERNALS}/include "${CPPFLAGS}
+      LDFLAGS="-L${EXTERNALS}/lib "${LDFLAGS}
+      CFLAGS="-I${EXTERNALS}/include "${CFLAGS}
+      NCLDFLAGS="-L${EXTERNALS}/lib "
+      NCCFLAGS="-I${EXTERNALS}/include"
     fi
 fi
 { echo "$as_me:$LINENO: checking for nc_open in -lnetcdf" >&5
@@ -11742,6 +11726,162 @@ echo "${ECHO_T}no" >&6; }
     fi
     fi
 
+COMPILE_HDF5=no
+HDF5LOC="${EXTERNALS}"
+if test ${COMPILE_NC} == "yes" ; then
+        COMPILE_HDF5=no
+
+# Check whether --with-hdf5 was given.
+if test "${with_hdf5+set}" = set; then
+  withval=$with_hdf5;
+else
+  with_hdf5=yes
+fi
+
+  if test ${with_hdf5} == "yes" ; then
+    HDF5LOC="${EXTERNALS}"
+        else
+    if test ${with_hdf5} != "no" ; then
+      HDF5LOC=${with_hdf5}
+          fi
+  fi
+  if test ${with_hdf5} != "no" ; then
+                { echo "$as_me:$LINENO: checking for H5open in -lhdf5" >&5
+echo $ECHO_N "checking for H5open in -lhdf5... $ECHO_C" >&6; }
+if test "${ac_cv_lib_hdf5_H5open+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lhdf5  -lz   $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char H5open ();
+int
+main ()
+{
+return H5open ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext &&
+       $as_test_x conftest$ac_exeext; then
+  ac_cv_lib_hdf5_H5open=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_cv_lib_hdf5_H5open=no
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_lib_hdf5_H5open" >&5
+echo "${ECHO_T}$ac_cv_lib_hdf5_H5open" >&6; }
+if test $ac_cv_lib_hdf5_H5open = yes; then
+  COMPILE_HDF5=no
+else
+  COMPILE_HDF5=yes
+fi
+
+    { echo "$as_me:$LINENO: checking for H5PTopen in -lhdf5_hl" >&5
+echo $ECHO_N "checking for H5PTopen in -lhdf5_hl... $ECHO_C" >&6; }
+if test "${ac_cv_lib_hdf5_hl_H5PTopen+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lhdf5_hl -lhdf5 -lz  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char H5PTopen ();
+int
+main ()
+{
+return H5PTopen ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext &&
+       $as_test_x conftest$ac_exeext; then
+  ac_cv_lib_hdf5_hl_H5PTopen=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_cv_lib_hdf5_hl_H5PTopen=no
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_lib_hdf5_hl_H5PTopen" >&5
+echo "${ECHO_T}$ac_cv_lib_hdf5_hl_H5PTopen" >&6; }
+if test $ac_cv_lib_hdf5_hl_H5PTopen = yes; then
+  COMPILE_HDF5=no
+else
+  COMPILE_HDF5=yes
+fi
+
+          fi
+fi
 
 COMPILE_HDF=no
 
@@ -11761,9 +11901,6 @@ else
 fi
 
 
-if test ${DOGS} == "no" -a ${COMPILE_HDF} == "no" ; then
-  COMPILE_LIBJPEG=no
-fi
 
 
 if test ${enable_esg} == "-yes" ; then
@@ -12670,15 +12807,15 @@ PYTHON_PATCH_SRC!$PYTHON_PATCH_SRC$ac_delim
 PYTHON_URL!$PYTHON_URL$ac_delim
 PYTHON_GZ!$PYTHON_GZ$ac_delim
 PYVER!$PYVER$ac_delim
-JASPER_MAJOR!$JASPER_MAJOR$ac_delim
-JASPER_MINOR!$JASPER_MINOR$ac_delim
-JASPER_PATCH!$JASPER_PATCH$ac_delim
+JASPER_MAJOR_SRC!$JASPER_MAJOR_SRC$ac_delim
+JASPER_MINOR_SRC!$JASPER_MINOR_SRC$ac_delim
+JASPER_PATCH_SRC!$JASPER_PATCH_SRC$ac_delim
 JASPER_URL!$JASPER_URL$ac_delim
 JASPER_GZ!$JASPER_GZ$ac_delim
 COMPILE_JASPER!$COMPILE_JASPER$ac_delim
-G2CLIB_MAJOR!$G2CLIB_MAJOR$ac_delim
-G2CLIB_MINOR!$G2CLIB_MINOR$ac_delim
-G2CLIB_PATCH!$G2CLIB_PATCH$ac_delim
+G2CLIB_MAJOR_SRC!$G2CLIB_MAJOR_SRC$ac_delim
+G2CLIB_MINOR_SRC!$G2CLIB_MINOR_SRC$ac_delim
+G2CLIB_PATCH_SRC!$G2CLIB_PATCH_SRC$ac_delim
 G2CLIB_URL!$G2CLIB_URL$ac_delim
 G2CLIB_GZ!$G2CLIB_GZ$ac_delim
 COMPILE_G2CLIB!$COMPILE_G2CLIB$ac_delim
@@ -13745,6 +13882,20 @@ echo "$as_me: libudunits2 not found... building library ${UDUNITS2_MAJOR_SRC}.${
     { echo "$as_me:$LINENO: libudunits2 found" >&5
 echo "$as_me: libudunits2 found" >&6;}
   fi
+fi
+if test ${COMPILE_JASPER} == "yes" ; then
+    { echo "$as_me:$LINENO: libjasper not found... building library ${JASPER_MAJOR_SRC}.${JASPER_MINOR_SRC}.${JASPER_PATCH_SRC}" >&5
+echo "$as_me: libjasper not found... building library ${JASPER_MAJOR_SRC}.${JASPER_MINOR_SRC}.${JASPER_PATCH_SRC}" >&6;}
+else
+    { echo "$as_me:$LINENO: libjasper found" >&5
+echo "$as_me: libjasper found" >&6;}
+fi
+if test ${COMPILE_G2CLIB} == "yes" ; then
+    { echo "$as_me:$LINENO: libg2clib not found... building library ${G2CLIB_MAJOR_SRC}.${G2CLIB_MINOR_SRC}.${G2CLIB_PATCH_SRC}" >&5
+echo "$as_me: libg2clib not found... building library ${G2CLIB_MAJOR_SRC}.${G2CLIB_MINOR_SRC}.${G2CLIB_PATCH_SRC}" >&6;}
+else
+    { echo "$as_me:$LINENO: libg2clib found" >&5
+echo "$as_me: libg2clib found" >&6;}
 fi
 if test ${COMPILE_HDF5} == "yes" ; then
     { echo "$as_me:$LINENO: libhdf5 not found... building library ${HDF5_MAJOR_SRC}.${HDF5_MINOR_SRC}.${HDF5_PATCH_SRC}" >&5

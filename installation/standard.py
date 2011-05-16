@@ -26,8 +26,9 @@ for i in range(len(sys.argv)):
 
 
 # This is where we build netcdf, if you let us
-netcdf_library_directory = os.path.join(os.environ.get("EXTERNALS",os.path.join(sys.prefix,'Externals')),'NetCDF','lib')
-netcdf_include_directory= os.path.join(os.environ.get("EXTERNALS",os.path.join(sys.prefix,'Externals')), 'NetCDF','include')
+netcdf_directory = os.popen('%s --prefix' % os.environ.get("LOCNCCONFIG","nc-config")).readlines()[0]
+netcdf_include_directory = os.popen('%s --includedir' % os.environ.get("LOCNCCONFIG","nc-config")).readlines()[0]
+#netcdf_include_directory= os.path.join(os.environ.get("EXTERNALS",os.path.join(sys.prefix,'Externals')),'include')
 
 #  Control of the CDMS build
 drs_file = '/usr/local/libdrs.a'  # only needed if next line is 'yes'
