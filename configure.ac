@@ -1755,6 +1755,7 @@ else
       LDFLAGS=${NCLDFLAGS}" "${LDFLAGS}
       CFLAGS=${NCCFLAGS}" "${CFLAGS}
     else
+      LOCNCCONFIG="${EXTERNALS}/bin/nc-config"
       NC4LOC=${EXTERNALS}
       CPPFLAGS="-I${EXTERNALS}/include "${CPPFLAGS}
       LDFLAGS="-L${EXTERNALS}/lib "${LDFLAGS}
@@ -1824,8 +1825,9 @@ if test ${COMPILE_NC} == "yes" ; then
     dnl ###########################################################
     dnl  LIBHDF5
     dnl ###########################################################
-    AC_CHECK_LIB([hdf5],[H5open],[COMPILE_HDF5=no],[COMPILE_HDF5=yes],[ -lz  ])
-    AC_CHECK_LIB([hdf5_hl],[H5PTopen],[COMPILE_HDF5=no],[COMPILE_HDF5=yes],[-lhdf5 -lz ])
+    echo "HDF5LOC:"${HDF5LOC}
+    AC_CHECK_LIB([hdf5],[H5open],[COMPILE_HDF5=no],[COMPILE_HDF5=yes],[ -L${HDF5LOC}/lib -lz  ])
+    AC_CHECK_LIB([hdf5_hl],[H5PTopen],[COMPILE_HDF5=no],[COMPILE_HDF5=yes],[ -L${HDF5LOC}/lib -lhdf5 -lz ])
   dnl    CPPFLAGS=${CPPFLAGS}" -I${EXTERNALS}/HDF5/include"
   dnl    CFLAGS="-I${EXTERNALS}/HDF5/include -L${EXTERNALS}/HDF5/lib "${CFLAGS}
     dnl #AC_CHECK_HEADER([hdf5.h],[],[COMPILE_HDF5=yes])
