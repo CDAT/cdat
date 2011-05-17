@@ -561,7 +561,6 @@ if test ${with_externals} == "no" ; then
 else
    EXTERNALS=${with_externals}
 fi
-echo "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY"${EXTERNALS}
 NCPUS=1
 AC_ARG_WITH([cpus],
 	[AS_HELP_STRING([--with-cpus],[How many CPUs to use for make -j ])],
@@ -750,8 +749,11 @@ AC_CANONICAL_TARGET
 echo "TARGET: "${target_os}
 DO_X="yes"
 PYADD=""
+AC_SUBST(MACPATH)
 case ${target_os} in
  darwin*)
+    echo "Mac System"
+    MACPATH=${prefix}/Python.framework/Versions/${PYVER}/bin
     case ${target_cpu} in
       i686*)
          dnl do nothing
