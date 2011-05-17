@@ -501,7 +501,7 @@ SIP_MINOR=12
 SIP_PATCH=1
 SIP_MAJOR_SRC=4
 SIP_MINOR_SRC=12
-SIP_PATCH_SRC=1
+SIP_PATCH_SRC=2
 SIP_URL=http://www.riverbankcomputing.com/static/Downloads/sip${SIP_MAJOR_SRC}
 SIP_GZ=sip-${SIP_MAJOR_SRC}.${SIP_MINOR_SRC}.${SIP_PATCH_SRC}.tar.gz
 AC_SUBST(SIP_GZ)
@@ -522,7 +522,7 @@ PyQt_MINOR=7
 PyQt_PATCH=6
 PyQt_MAJOR_SRC=4
 PyQt_MINOR_SRC=8
-PyQt_PATCH_SRC=3
+PyQt_PATCH_SRC=4
 PyQt_URL=http://www.riverbankcomputing.com/static/Downloads/PyQt${PyQt_MAJOR_SRC}
 
 R_MAJOR_SRC=2

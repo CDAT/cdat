@@ -280,10 +280,10 @@ endif
 	@cp matplotlib.setup.cfg contrib/matplotlib/setup.cfg
 	@XTRA_LD_F2PY@ LOCNCCONFIG="@LOCNCCONFIG@" @PYTHON@ install.py @PYTHON_INSTALL_OPTIONS@
 	@echo "Done building CDAT"
- 	@echo " ... building MyProxyClient"
- 	@env PATH="@prefix@/bin:${PATH}:@PGCONFIG@" easy_install MyProxyClient > logs/MyProxyClient.LOG
- 	@echo " ... building PyTables"
- 	@env PATH="@prefix@/bin:${PATH}:@PGCONFIG@" easy_install tables > logs/pytables.LOG
+	@echo " ... building MyProxyClient"
+	@env PATH="@prefix@/bin:${PATH}:@PGCONFIG@" easy_install MyProxyClient > logs/MyProxyClient.LOG
+	@echo " ... building PyTables"
+	@env PATH="@prefix@/bin:${PATH}:@PGCONFIG@" easy_install tables > logs/pytables.LOG
 ifeq (@ESG@,yes)
 	@echo "Building ESG dependencies"
 	@echo " ... building gui_support"
