@@ -9,4 +9,4 @@
 	url = http://uv-cdat.llnl.gov/git/windfield.git
 [submodule "contrib/matplotlib"]
 	path = contrib/matplotlib
-	url = http://github.com:matplotlib/matplotlib.git
+	url = http://github.com/matplotlib/matplotlib.git
