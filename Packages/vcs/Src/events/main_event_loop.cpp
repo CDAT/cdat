@@ -744,6 +744,10 @@ void event_handler(PyVCScanvas_Object *self,  QEvent *event)
     case VCS_ConfigureNotify:
 #ifdef QTWM
     case QEvent::Type(QEvent::Resize):
+      // if (QApplication::mouseButtons()&Qt::LeftButton) {
+      // 	printf("Ok we are resizing and the left button is on\n");
+      // 	break;
+      // }
 #endif
       setup_canvas_globals(self);
       /* Set up the VCS Canvas id and XGKS workstation */

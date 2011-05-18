@@ -77,12 +77,12 @@ test:		testslab
 	     aix) \
 		    $(CC) $(CPPFLAGS) $(DEFS) $(CFLAGS) -c $< -o $@.o; \
 		    $(FC) $(FFLAGS) $@.o -o $@ $(LDFLAGS) $(LIBS); \
-		    rm $@.o; \
+		    rm -f $@.o; \
 		    ;; \
 	     osf*) \
 		    $(CC) $(CPPFLAGS) $(DEFS) $(CFLAGS) -c $< -o $@.o; \
 		    $(FC) -nofor_main $(FFLAGS) $@.o -o $@ $(LDFLAGS) $(LIBS); \
-		    rm $@.o; \
+		    rm -f $@.o; \
 		    ;; \
 	     *) \
 		    $(CC) $(CPPFLAGS) $(DEFS) $(CFLAGS) -o $@ $< $(LDFLAGS); \
@@ -94,7 +94,7 @@ test:		testslab
 	     aix) \
 		    /usr/ccs/lib/cpp -P $(CPPFLAGS) $(CFLAGS) $(INCLUDES) $(DEFS) $< $@.f; \
 		    $(FC) $(FFLAGS) $(LDFLAGS) $(LIBS) $@.f -o $@; \
-		    rm $@.f; \
+		    rm -f $@.f; \
 		    ;; \
 	     *) \
 		    $(FC) $(CPPFLAGS) $(INCLUDES) $(DEFS) $(FFLAGS) -o $@ $< $(LDFLAGS) $(LIBS); \

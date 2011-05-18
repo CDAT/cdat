@@ -44,13 +44,13 @@ Gpoint VCS2PSDEVICE(x,y)
     xr = (double)(YW-MARGINT-MARGINB)/(double)(XW-MARGINR-MARGINL);
     xr = (double)(YW)/(double)(XW);
    // xr = xr*(double)XW/(double)(XW-MARGINL-MARGINR);
-    //printf("T<B<L<R: %i, %i, %i, %i, %f\n",MARGINT,MARGINB,MARGINL,MARGINR,xr);
+    //printf("T<B<L<R: %i, %i, %i, %i, %f, %i, %i,%f, %f\n",MARGINT,MARGINB,MARGINL,MARGINR,xr,XW,YW,x,y);
 /*     xr = xr * (double)(XW)/(double)(XW-MARGINT -MARGINB); */
 /*     xr = xr / (double)(YW)*(double)(YW-MARGINL-MARGINR); */
-    yr = (double)(YW)*(double)(YW-MARGINL-MARGINR);
-    yr = 1.;
+    yr = (double)(YW-MARGINL-MARGINR)/(double)(YW);
     to.x = x*xr*(XW-MARGINT-MARGINB)+MARGINB;
-    to.y = (YW-MARGINR)-y*yr*(YW-MARGINL-MARGINR);
+    to.y = (YW-MARGINR)-y*yr*(YW-MARGINL-MARGINR); //bigger Y means move to the right
+    to.y = (YW-MARGINR)/yr-y*yr*(YW-MARGINL-MARGINR);//-MARGINR); //bigger Y means move to the right
   }
   else {
     xr = (double)(YW)/(double)(XW);
@@ -63,7 +63,6 @@ Gpoint VCS2PSDEVICE(x,y)
   }
   return to;
 }
-
 
 
 extern cairo_status_t stream_cairo_write();

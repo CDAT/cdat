@@ -48,7 +48,7 @@ class AbstractVariable(CdmsObj, Slab):
         if variableNode is not None and variableNode.tag !='variable':
             raise CDMSError, 'Node is not a variable node'
         CdmsObj.__init__(self, variableNode)
-        val = self.__cdms_internals__ + ['id','domain']
+        val = self.__cdms_internals__ + ['id','domain',"autoApiInfo"]
         self.___cdms_internals__ = val 
         Slab.__init__(self)
         self.id = None                  # Transient variables key on this to create a default ID
@@ -353,8 +353,8 @@ class AbstractVariable(CdmsObj, Slab):
             pass
         else:
             raise CDMSError, 'Invalid missing value %s'%`value`
-        
-        self.missing_value = value
+
+        self._missing = value
 
 
     def getTime(self):

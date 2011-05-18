@@ -94,9 +94,10 @@ struct cu_dispatch_s {
 	void (*cuseterropts_dispatch)(int erropts);
 };
 
-					     /* Function dispatch struct */
-					     /* NB! The formats must appear in the same order */
-					     /* as they are defined in the CuFileType enum !!!*/
+
+/* Function dispatch struct */
+/* NB! The formats must appear in the same order */
+/* as they are defined in the CuFileType enum !!!*/
 static CuDispatch cu_dispatch[] = {
 {
 	CuDrs,
@@ -324,129 +325,156 @@ static CuDispatch cu_dispatch[] = {
 }
 };
 
-int cuErrOpts = CU_VERBOSE;		     /* Default error options */
+int cuErrOpts = CU_VERBOSE;		   /* Default error options */
 
-static int cuNextLu1;	        	     /* Default next Fortran logical unit for DRS files */
+static int cuNextLu1;	        	 /* Default next Fortran logical unit for DRS files */
 static int cuNextLu2;
-static int cuUseLuMap = 1;	             /* True iff should lookup next lu */
-static int cuLuMap[CU_MAX_LU+1];	     /* cuLuMap[lu]==1 iff lu is in use */
-static int cuLuMapInit = 0;		     /* True iff CuLuMap has been initialized */
+static int cuUseLuMap = 1;	     /* True iff should lookup next lu */
+static int cuLuMap[CU_MAX_LU+1]; /* cuLuMap[lu]==1 iff lu is in use */
+static int cuLuMapInit = 0;		   /* True iff CuLuMap has been initialized */
 static int cuLuAvailable;		     /* Number of logical units currently available */
+
 
 int cuopenread(const char* controlpath, const char* datapath){
 	CuFileType filetype;
-					     /* Determine the file format */
-	if((filetype=CuGetFileType(controlpath))==CuUnknown)
+  /* Determine the file format */
+	if((filetype=CuGetFileType(controlpath))==CuUnknown){
 		return -1;
-					     /* Dispatch the open function */
+  }
+
+  /* Dispatch the open function */
 	return (*(cu_dispatch[filetype].cuopenread_dispatch))(controlpath, datapath);
 }
+
 int cuclose(int fileid){
 	CuFile *file;
 	int err;
-					     /* Lookup the file */
-	if((file=CuLookupFile(fileid)) == (CuFile*)0)
+  /* Lookup the file */
+	if((file=CuLookupFile(fileid)) == (CuFile*)0){
 		return -1;
+  }
 
-					     /* Dispatch the close function */
-
+  /* Dispatch the close function */
 	if((err=(*(cu_dispatch[file->filetype].cuclose_dispatch))(file)) != CU_SUCCESS)
 		return err;
 
-					     /* Delete the file structure */
+  /* Delete the file structure */
 	return CuDeleteFile(fileid);
 }
+
+
 int cuinquire(int fileid, int* ngdims, int* nvars, int* natts, int* recdim){
 	CuFile* file;
 
-					     /* Lookup the file */
+  /* Lookup the file */
 	if((file=CuLookupFile(fileid)) == (CuFile*)0)
 		return -1;
-					     /* Dispatch the file inquiry function */
+  /* Dispatch the file inquiry function */
 	return (*(cu_dispatch[file->filetype].cuinquire_dispatch))(file,ngdims,nvars,natts,recdim);
 }
+
+
 int cudimid(int fileid, int varid, const char* name){
 	CuFile* file;
 
-					     /* Lookup the file */
+  /* Lookup the file */
 	if((file=CuLookupFile(fileid)) == (CuFile*)0)
 		return -1;
-					     /* Dispatch the dimension ID function */
+  /* Dispatch the dimension ID function */
 	return (*(cu_dispatch[file->filetype].cudimid_dispatch))(file,varid,name);
 }
-int cudiminq(int fileid, int dimid, char* dimname, char* dimunits, CuType* dataType, CuDimType* dimtype, int* varid, long* length){
+
+
+int cudiminq(int fileid, int dimid, char* dimname, char* dimunits, CuType* dataType,
+             CuDimType* dimtype, int* varid, long* length){
 	CuFile* file;
 
-					     /* Lookup the file */
+  /* Lookup the file */
 	if((file=CuLookupFile(fileid)) == (CuFile*)0)
 		return -1;
-					     /* Dispatch the dimension inquiry function */
+  /* Dispatch the dimension inquiry function */
 	return (*(cu_dispatch[file->filetype].cudiminq_dispatch))(file, dimid, dimname, dimunits, dataType, dimtype, varid, length);
 }
+
+
 int cudimget(int fileid, int dimid, void* values){
 	CuFile* file;
 
-					     /* Lookup the file */
+  /* Lookup the file */
 	if((file=CuLookupFile(fileid)) == (CuFile*)0)
 		return -1;
-					     /* Dispatch the dimension read function */
+
+  /* Dispatch the dimension read function */
 	return (*(cu_dispatch[file->filetype].cudimget_dispatch))(file, dimid, values);
 }
+
+
 int cuvarid(int fileid, const char* name){
 	CuFile* file;
 
-
-					     /* Lookup the file */
+  /* Lookup the file */
 	if((file=CuLookupFile(fileid)) == (CuFile*)0)
 		return -1;
-					     /* Dispatch the variable ID function */
+  /* Dispatch the variable ID function */
 	return (*(cu_dispatch[file->filetype].cuvarid_dispatch))(file, name);
 }
+
+
 int cuvarinq(int fileid, int varid, char* name, CuType* datatype, int* ndims, int dimids[], int* natts){
 	CuFile* file;
 
-					     /* Lookup the file */
+  /* Lookup the file */
 	if((file=CuLookupFile(fileid)) == (CuFile*)0)
 		return -1;
-					     /* Dispatch the variable inquiry function */
+  /* Dispatch the variable inquiry function */
 	return (*(cu_dispatch[file->filetype].cuvarinq_dispatch))(file, varid, name, datatype, ndims, dimids, natts);
 }
+
+
 int cuvarget(int fileid, int varid, const long start[], const long count[], void* value){
 	CuFile* file;
 
-					     /* Lookup the file */
+  /* Lookup the file */
 	if((file=CuLookupFile(fileid)) == (CuFile*)0)
 		return -1;
-					     /* Dispatch the variable read function */
+  /* Dispatch the variable read function */
 	return (*(cu_dispatch[file->filetype].cuvarget_dispatch))(file, varid, start, count, value);
 }
+
+
 int cuattinq(int fileid, int varid, const char* name, CuType* datatype, int* len){
 	CuFile* file;
 
-					     /* Lookup the file */
+  /* Lookup the file */
 	if((file=CuLookupFile(fileid)) == (CuFile*)0)
 		return -1;
-					     /* Dispatch the attribute inquiry function */
+  /* Dispatch the attribute inquiry function */
 	return (*(cu_dispatch[file->filetype].cuattinq_dispatch))(file, varid, name, datatype, len);
 }
+
+
 int cuattget(int fileid, int varid, const char* name, void* value){
 	CuFile* file;
 
-					     /* Lookup the file */
+  /* Lookup the file */
 	if((file=CuLookupFile(fileid)) == (CuFile*)0)
 		return -1;
-					     /* Dispatch the attribute read function */
+  /* Dispatch the attribute read function */
 	return (*(cu_dispatch[file->filetype].cuattget_dispatch))(file, varid, name, value);
 }
+
+
 int cuattname(int fileid, int varid, int attnum, char* name){
 	CuFile* file;
 
-					     /* Lookup the file */
+  /* Lookup the file */
 	if((file=CuLookupFile(fileid)) == (CuFile*)0)
 		return -1;
-					     /* Dispatch the attribute lookup function */
+  /* Dispatch the attribute lookup function */
 	return (*(cu_dispatch[file->filetype].cuattname_dispatch))(file, varid, attnum, name);
 }
+
+
 int cutypelen(CuType datatype){
 	switch(datatype){
 	  case CuByte:
@@ -471,10 +499,12 @@ int cutypelen(CuType datatype){
 		return -1;
 	}
 }
-					     /* All the logical unit stuff is localized here. */
-					     /* If cusetlu is called, cugetlu returns the lus */
-					     /* specified, otherwise cugetlu looks up two */
-					     /* free lus in cuLuMap. lus must be freed for reuse.*/
+
+
+/* All the logical unit stuff is localized here. */
+/* If cusetlu is called, cugetlu returns the lus */
+/* specified, otherwise cugetlu looks up two */
+/* free lus in cuLuMap. lus must be freed for reuse.*/
 int cusetlu(int lu1, int lu2){
 
 	int i;
@@ -497,8 +527,9 @@ int cusetlu(int lu1, int lu2){
 	cuUseLuMap = 0;			     /* Use user-specified lus next call to cugetlu*/
 	return CU_SUCCESS;
 }
-int cugetlu(int* lu1, int* lu2){
 
+
+int cugetlu(int* lu1, int* lu2){
 	int i;
 
 	if(!cuLuMapInit){
@@ -507,7 +538,8 @@ int cugetlu(int* lu1, int* lu2){
 		cuLuMapInit = 1;
 		cuLuAvailable = 48;	     /* Use 51..98 for lookup*/
 	}
-					     /* Use user-specified lus? */
+
+  /* Use user-specified lus? */
 	if(!cuUseLuMap){
 		*lu1 = cuNextLu1;
 		*lu2 = cuNextLu2;
@@ -518,7 +550,7 @@ int cugetlu(int* lu1, int* lu2){
 		CuError(CU_EINVLU,"No more logical units available");
 		return -1;
 	}
-					     /* Lookup two free lus */
+  /* Lookup two free lus */
 	for(i=51; i<CU_MAX_LU && cuLuMap[i]; i++);
 	*lu1 = i;
 	cuLuMap[i] = 1;
@@ -542,10 +574,11 @@ void cuseterropts(int erropts){
 	CuFileType filetype;
 
 	cuErrOpts = erropts;
-					     /* Dispatch function for all formats.
-					      * Stub functions do not cause an error,
-					      * are no-ops.
-					      */
+
+  /* Dispatch function for all formats.
+  * Stub functions do not cause an error,
+  * are no-ops.
+  */
 	for(filetype=0;filetype<CuNumberOfFormats;filetype++){
 		(*(cu_dispatch[filetype].cuseterropts_dispatch))(erropts);
 	}
@@ -553,6 +586,6 @@ void cuseterropts(int erropts){
 }
 int cugeterr(void){
 	extern int cuLastError;
-	
+
 	return cuLastError;
 }

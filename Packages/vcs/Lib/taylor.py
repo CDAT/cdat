@@ -745,7 +745,7 @@ class Gtd(object):
     def script(self,file,option='a'):
         self.Marker.equalize()
         if not option in ['a','w']:
-            raise 'Error valid write option are w or a'
+            raise Exception,'Error valid write option are w or a'
         if option=='a' : option='r+'
         try:
             f=open(file,option)
@@ -865,7 +865,7 @@ class Gtd(object):
                     try:
                         y2=numpy.ma.sin(numpy.ma.arccos(data[i+1][1].astype('d')))*data[i+1][0].astype('d')
                     except:
-                        y2=numpy.ma.sin(numpy.ma.arccos(float(data[i+1][1])))*float(data[i+1])
+                        y2=numpy.ma.sin(numpy.ma.arccos(float(data[i+1][1])))*float(data[i+1][0])
   
                     l.x=[x1,x2]
                     l.y=[y1,y2]
@@ -884,7 +884,7 @@ class Gtd(object):
                     except:
                         dd0=float(data[i-1][0])
                     
-                    self.drawarrow(canvas,x1,y1,dd1*dd0.astype('d'),numpy.ma.sin(numpy.ma.arccos(dd1))*dd0,x1,y1,VCS_validation_functions.color2vcs(self.Marker.line_color[i-1]))
+                    self.drawarrow(canvas,x1,y1,dd1*dd0,numpy.ma.sin(numpy.ma.arccos(dd1))*dd0,x1,y1,VCS_validation_functions.color2vcs(self.Marker.line_color[i-1]))
                 self.displays.append(canvas.plot(l,bg=self.bg))
 
     def drawarrow(self,canvas,xloc,yloc,x1,y1,x2,y2,color):
@@ -1372,7 +1372,7 @@ class Gtd(object):
         elif vcs.istemplate(template):
             self.__dict__['template']=template
         else:
-            raise 'Error you passed an invalid template'
+            raise Exception,'Error you passed an invalid template'
         
         canvas.pause_time=0
         #canvas.open()

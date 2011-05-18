@@ -2,10 +2,10 @@
 version=`more ../../version`
 
 SCIPY_MAJOR=0
-SCIPY_MINOR=8
+SCIPY_MINOR=9
 SCIPY_PATCH=0
 SCIPY_MAJOR_SRC=0
-SCIPY_MINOR_SRC=8
+SCIPY_MINOR_SRC=9
 SCIPY_PATCH_SRC=0
 SCIPY_URL=http://downloads.sourceforge.net/project/scipy/scipy/${SCIPY_MAJOR_SRC}.${SCIPY_MINOR_SRC}.${SCIPY_PATCH_SRC}
 
@@ -91,8 +91,8 @@ LAPACK_GZ=lapack.tgz
 
 (../../../checked_get.sh ${LAPACK_GZ} ${LAPACK_URL}/${LAPACK_GZ} ; \
 tar xzf ../sources/${LAPACK_GZ};\
-export LAPACK_SRC='../lapack-3.2.2/SRC' ; \
-export BLAS_SRC='../lapack-3.2.2/BLAS/SRC' ; \
+export LAPACK_SRC='../lapack-3.3.0/SRC' ; \
+export BLAS_SRC='../lapack-3.3.0/BLAS/SRC' ; \
 cd scipy-*; \
 #cp ../../../../site.cfg . ; \
 ${pyprefix}/bin/python setup.py build ${D} install --prefix=${prefix} ;\

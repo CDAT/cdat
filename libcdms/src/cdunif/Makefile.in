@@ -53,15 +53,15 @@ ifeq ($(ARCH),x86_64)
 else
    CC = @CC@
 endif
-CFLAGS = -I../../include -I@NCINC@ -I@HDFINC@ -I@DRSINC@ @CFLAGS@ $(DEBUG) -Dgrads
-CPPFLAGS = @CPPFLAGS@ -DSTNDALN=1 -DBYTEORDER=@GRADS_BYTEORDER@ -DGRADS_CRAY=@GRADS_CRAY@ @QLOPTS@ @PPOPTS@
+CFLAGS = -I../../include -I"@NCINC@" -I@HDFINC@ -I@DRSINC@ @CFLAGS@ $(DEBUG) -Dgrads -I@GRIB2INC@ @GRIB2OPTS@
+CPPFLAGS = @CPPFLAGS@ -DSTNDALN=1 -DBYTEORDER=@GRADS_BYTEORDER@ -DGRADS_CRAY=@GRADS_CRAY@ @QLOPTS@ @PPOPTS@ @GRIB2OPTS@
 DEBUG = -O
 DEFS = @DEFS@
 FC = @FC@
 FFLAGS = -I../../include @FFLAGS@ $(DEBUG)
 INSTALL = @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
-LDFLAGS = -L../../../lib -lcdms @NCOPTS@ @HDFOPTS@ @DRSOPTS@ @LIBS@
+LDFLAGS = -L../../../lib -lcdms @NCOPTS@ @HDFOPTS@ @DRSOPTS@ @LIBS@ @GRIB2LIB@
 OS = @OS@
 RANLIB = @RANLIB@
 
@@ -71,7 +71,7 @@ SHELL = /bin/sh
 # Do not change values below this line
 #
 LIBRARY		= ../../lib/libcdms.a
-OBJS		= cdunif.o cdunifint.o cdunifgen.o cdunifdrs.o cdunifgrads.o cdunifnc.o cdunifhdf.o cdunifslab.o cdunifstub.o cdunifra.o cdrra.o cdsort.o gamach.o gaio.o gaprnt.o gautil.o gaddes.o cdunifql.o @GRADS_IEEE2CRAY_OBJECT@
+OBJS		= cdunif.o cdunifint.o cdunifgen.o cdunifdrs.o cdunifgrads.o cdunifnc.o cdunifhdf.o cdunifslab.o cdunifstub.o cdunifra.o cdrra.o cdsort.o gamach.o gaio.o gaprnt.o gautil.o gaddes.o galloc.o gabufr.o gabufrtbl.o cdunifql.o @GRADS_IEEE2CRAY_OBJECT@
 
 all:		$(OBJS) FORCE
 		ar rv $(LIBRARY) $(OBJS)
@@ -96,6 +96,9 @@ gaprnt.o:	gaprnt.c ../../include/grads.h
 gautil.o:	gautil.c ../../include/grads.h
 gaddes.o:	gaddes.c ../../include/grads.h
 cdunifql.o:	cdunifql.c ../../include/cdmsint_new.h ../../include/cdunifint.h
+galloc.o:	galloc.c ../../include/grads.h ../../include/gatypes.h
+gabufr.o:	gabufr.c ../../include/grads.h ../../include/gatypes.h
+gabufrtbl.o:	gabufrtbl.c ../../include/grads.h ../../include/gatypes.h
 
 ieee2cray.o:	ieee2cray.f
 		cft77 -i 64 -a static -Rb ieee2cray.f
