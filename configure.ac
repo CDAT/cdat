@@ -1768,24 +1768,24 @@ if test ${with_netcdf} != "yes" -a ${with_netcdf} != "no"; then
      NCLDFLAGS=" -L${with_netcdf}/lib "
     fi
     NC4LOC=${with_netcdf}
-    CPPFLAGS=${NCCFLAGS}" "${CPPFLAGS}
-    LDFLAGS=${NCLDFLAGS}" "${LDFLAGS}
-    CFLAGS=${NCCFLAGS}" "${CFLAGS}
+    #CPPFLAGS=${NCCFLAGS}" "${CPPFLAGS}
+    #LDFLAGS=${NCLDFLAGS}" "${LDFLAGS}
+    #CFLAGS=${NCCFLAGS}" "${CFLAGS}
 else
     AC_PATH_PROG(LOCNCCONFIG,nc-config,"no")
     if  test ${LOCNCCONFIG} != "no" ; then 
       NCCFLAGS=`nc-config --cflags`
       NCLDFLAGS=`nc-config --libs`
       NC4LOC=`nc-config --prefix`
-      CPPFLAGS=${NCCFLAGS}" "${CPPFLAGS}
-      LDFLAGS=${NCLDFLAGS}" "${LDFLAGS}
-      CFLAGS=${NCCFLAGS}" "${CFLAGS}
+      #CPPFLAGS=${NCCFLAGS}" "${CPPFLAGS}
+      #LDFLAGS=${NCLDFLAGS}" "${LDFLAGS}
+      #CFLAGS=${NCCFLAGS}" "${CFLAGS}
     else
       LOCNCCONFIG="${EXTERNALS}/bin/nc-config"
       NC4LOC=${EXTERNALS}
-      CPPFLAGS="-I${EXTERNALS}/include "${CPPFLAGS}
-      LDFLAGS="-L${EXTERNALS}/lib "${LDFLAGS}
-      CFLAGS="-I${EXTERNALS}/include "${CFLAGS}
+      #CPPFLAGS="-I${EXTERNALS}/include "${CPPFLAGS}
+      #LDFLAGS="-L${EXTERNALS}/lib "${LDFLAGS}
+      #CFLAGS="-I${EXTERNALS}/include "${CFLAGS}
       NCLDFLAGS="-L${EXTERNALS}/lib "
       NCCFLAGS="-I${EXTERNALS}/include"
     fi
@@ -2263,5 +2263,4 @@ dnl ioapi
 dnl debug
 
 # do this after NC4LOC has been set
-AC_CONFIG_FILES([installation/install.py])
 AC_OUTPUT
