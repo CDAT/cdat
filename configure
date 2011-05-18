@@ -2141,7 +2141,7 @@ if test ${SVN_TAG} == "rev" ; then
 fi
 CDAT_VERSION=${PACKAGE_VERSION}${SVN_TAG}
 
-ac_config_files="$ac_config_files Makefile site.cfg README.txt Scripts/cdat Scripts/vcdat Scripts/cdatversion exsrc/CMakeCache.txt checked_get.sh exsrc/src/pbmplus/Makefile matplotlib.setup.cfg"
+ac_config_files="$ac_config_files Makefile site.cfg README.txt Scripts/cdat Scripts/cdatversion exsrc/CMakeCache.txt checked_get.sh exsrc/src/pbmplus/Makefile matplotlib.setup.cfg"
 
 
 
@@ -12699,7 +12699,6 @@ do
     "site.cfg") CONFIG_FILES="$CONFIG_FILES site.cfg" ;;
     "README.txt") CONFIG_FILES="$CONFIG_FILES README.txt" ;;
     "Scripts/cdat") CONFIG_FILES="$CONFIG_FILES Scripts/cdat" ;;
-    "Scripts/vcdat") CONFIG_FILES="$CONFIG_FILES Scripts/vcdat" ;;
     "Scripts/cdatversion") CONFIG_FILES="$CONFIG_FILES Scripts/cdatversion" ;;
     "exsrc/CMakeCache.txt") CONFIG_FILES="$CONFIG_FILES exsrc/CMakeCache.txt" ;;
     "checked_get.sh") CONFIG_FILES="$CONFIG_FILES checked_get.sh" ;;
@@ -13669,16 +13668,15 @@ which seems to be undefined.  Please make sure it is defined." >&2;}
 
 
   case $ac_file$ac_mode in
-    "Makefile":F) chmod +x Scripts/cdat Scripts/vcdat checked_get.sh ;;
-    "site.cfg":F) chmod +x Scripts/cdat Scripts/vcdat checked_get.sh ;;
-    "README.txt":F) chmod +x Scripts/cdat Scripts/vcdat checked_get.sh ;;
-    "Scripts/cdat":F) chmod +x Scripts/cdat Scripts/vcdat checked_get.sh ;;
-    "Scripts/vcdat":F) chmod +x Scripts/cdat Scripts/vcdat checked_get.sh ;;
-    "Scripts/cdatversion":F) chmod +x Scripts/cdat Scripts/vcdat checked_get.sh ;;
-    "exsrc/CMakeCache.txt":F) chmod +x Scripts/cdat Scripts/vcdat checked_get.sh ;;
-    "checked_get.sh":F) chmod +x Scripts/cdat Scripts/vcdat checked_get.sh ;;
-    "exsrc/src/pbmplus/Makefile":F) chmod +x Scripts/cdat Scripts/vcdat checked_get.sh ;;
-    "matplotlib.setup.cfg":F) chmod +x Scripts/cdat Scripts/vcdat checked_get.sh ;;
+    "Makefile":F) chmod +x Scripts/cdat checked_get.sh ;;
+    "site.cfg":F) chmod +x Scripts/cdat checked_get.sh ;;
+    "README.txt":F) chmod +x Scripts/cdat checked_get.sh ;;
+    "Scripts/cdat":F) chmod +x Scripts/cdat checked_get.sh ;;
+    "Scripts/cdatversion":F) chmod +x Scripts/cdat checked_get.sh ;;
+    "exsrc/CMakeCache.txt":F) chmod +x Scripts/cdat checked_get.sh ;;
+    "checked_get.sh":F) chmod +x Scripts/cdat checked_get.sh ;;
+    "exsrc/src/pbmplus/Makefile":F) chmod +x Scripts/cdat checked_get.sh ;;
+    "matplotlib.setup.cfg":F) chmod +x Scripts/cdat checked_get.sh ;;
 
   esac
 done # for ac_tag
