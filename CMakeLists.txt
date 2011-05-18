@@ -334,10 +334,11 @@ add_cdat_package(PyOpenGL)
 add_cdat_package(NUMPY)
 add_cdat_package(Pmw)
 
-#add_cdat_package(ParaView)
+add_cdat_package(ParaView)
 
 add_cdat_package(CMOR)
 add_cdat_package(CDAT)
+add_cdat_package(VisTrails)
 
 #------------------------------------------------------------------------------
 # Establish Target Dependencies based on Selected Options and find results
@@ -389,7 +390,8 @@ set(HDF5_DEPENDENCIES ${pkgconfig_dep} ${libXML2_dep} ${libXSLT_dep} ${zlib_dep}
 set(ParaView_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${HDF5_dep} ${png_dep} ${jpeg_dep} ${libXML2_dep} ${Qt_dep} ${freetype_dep} ${NetCDF_dep} ${zlib_dep})
 
 set(CMOR_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${HDF5_dep} ${Cairo_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep} ${NetCDF_dep} ${zlib_dep} ${uuid_dep} ${udunits2_dep})
-set(CDAT_DEPENDENCIES ${wget_dep} ${CMOR_dep} ${Python_dep} ${PyQt_dep} ${PyOpenGL_dep} ${NUMPY_dep} ${Pmw_dep} ${jasper_dep} ${g2clib_dep} ${FFMPEG_dep} ${Qt_dep} ${pixman_dep} ${tiff_dep})
+set(CDAT_DEPENDENCIES ${wget_dep} ${CMOR_dep} ${Python_dep} ${PyQt_dep} ${PyOpenGL_dep} ${NUMPY_dep} ${Pmw_dep} ${jasper_dep} ${g2clib_dep} ${FFMPEG_dep} ${Qt_dep} ${pixman_dep} ${tiff_dep} ${ParaView_dep})
+set(VisTrails_DEPENDENCIES ${ParaView_dep} ${CDAT_dep})
 
 message("readline_DEPENDENCIES ${readline_DEPENDENCIES}")
 message("libXML2_DEPENDENCIES ${libXML2_DEPENDENCIES}")
