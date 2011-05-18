@@ -211,12 +211,16 @@ find_package(ZLIB)
 # This will find the png framework which Cairo won't find.
 if(NOT APPLE)
   find_package(PNG)
+  find_package(Freetype)
 endif()
-find_package(Freetype)
 #find_package(pixman)
 #find_package(fontconfig)
 find_package(Cairo)
-#find_package(uuid)
+
+# CMOR doesn't know how to configure with the System frameworks version of uuid
+if(NOT APPLE)
+  find_package(UUID)
+endif()
 #find_package(udunits2)
 find_package(HDF5)
 #find_package(NetCDF)
@@ -224,8 +228,8 @@ find_package(Qt)
 #find_package(PythonInterp)
 #find_package(PythonLibs)
 # unix tools
-#find_package(termcap)
-#find_package(readline)
+find_package(TermCap)
+find_package(Readline)
 ##find_package(TCL)
 # python packages
 #find_package(setuptools)
@@ -254,9 +258,9 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_install_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/cdat_install_step.cmake
   @ONLY)
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_python_install_step.cmake.in
-  ${cdat_CMAKE_BINARY_DIR}/cdat_python_install_step.cmake
-  @ONLY)
+#configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_python_install_step.cmake.in
+#  ${cdat_CMAKE_BINARY_DIR}/cdat_python_install_step.cmake
+#  @ONLY)
 
 set(cdat_configure_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake)
 set(cdat_make_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake)
@@ -265,21 +269,6 @@ set(cdat_install_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/cdat_insta
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
 add_cdat_package(wget)
-
-#-----------------------------------------------------------------------------
-# checked_get
-#-----------------------------------------------------------------------------
-
-set(HASWGET ${WGET_EXECUTABLE})
-set(MD5PRG ${MD5_EXECUTABLE})
-set(MD5CNT 1)
-configure_file(${cdat_SOURCE_DIR}/checked_get.sh.in
-  ${cdat_SOURCE_DIR}/checked_get.sh
-  @ONLY)
-
-#-----------------------------------------------------------------------------
-#-----------------------------------------------------------------------------
-
 add_cdat_package(pkgconfig)
 add_cdat_package(termcap)
 add_cdat_package(readline)
@@ -288,23 +277,30 @@ add_cdat_package(libXSLT)
 add_cdat_package(CURL)
 
 # Probably should be eliminated since we use Qt now.
-if(0)
-  add_cdat_package(xgks)
-endif()
+#if(0)
+#  add_cdat_package(xgks)
+#endif()
 
 add_cdat_package(FFMPEG)
 add_cdat_package(zlib)
 add_cdat_package(png)
 #add_cdat_package(gifsicle)
 add_cdat_package(jpeg)
-add_cdat_package(tiff)
 
-if(APPLE)
-  # really old package that doesn't often build on linux.
-  add_cdat_package(pbmplus)
+# use system framework
+if(NOT APPLE)
+  add_cdat_package(tiff)
 endif()
 
-add_cdat_package(TclTk)
+#if(APPLE)
+  # really old package that doesn't often build on linux.
+#  add_cdat_package(pbmplus)
+#endif()
+
+# Use system framework
+#if(NOT APPLE)
+  add_cdat_package(TclTk)
+#endif()
 
 # On OSX use vecLib framework
 if(NOT APPLE)
@@ -367,7 +363,7 @@ set(fontconfig_DEPENDENCIES ${pkgconfig_dep} ${libXML2_dep})
 set(freetype_DEPENDENCIES ${pkgconfig_dep} ${png_dep})
 set(g2clib_DEPENDENCIES ${pkgconfig_dep} ${png_dep} ${zlib_dep} ${jasper_dep})
 set(tcl_DEPENDENCIES ${pkgconfig_dep})
-set(Python_DEPENDENCIES ${pkgconfig_dep} ${readline_dep} ${TclTk_dep} ${libXML2_dep} ${CURL_dep} ${zlib_dep} ${libXSLT_dep})
+set(Python_DEPENDENCIES ${pkgconfig_dep} ${termcap_dep} ${readline_dep} ${TclTk_dep} ${libXML2_dep} ${CURL_dep} ${zlib_dep} ${libXSLT_dep})
 set(SIP_DEPENDENCIES ${pkgconfig_dep} ${Python_dep})
 set(Qt_DEPENDENCIES ${pkgconfig_dep} ${readline_dep} ${libXML2_dep} ${jpeg_dep} ${zlib_dep} ${png_dep} ${tiff_dep} ${fontconfig_dep} ${fontconfig_dep})
 set(PyQt_DEPENDENCIES ${pkgconfig_dep} ${Qt_dep} ${SIP_dep})
@@ -416,4 +412,16 @@ foreach(package ${external_packages})
   message("Building ${package}")
   include(${package})
 endforeach()
+
+#-----------------------------------------------------------------------------
+# checked_get
+#-----------------------------------------------------------------------------
+
+set(HASWGET ${WGET_EXECUTABLE})
+set(MD5PRG ${MD5_EXECUTABLE})
+set(MD5CNT 1)
+message("HASWGET ${HASWGET}")
+configure_file(${cdat_SOURCE_DIR}/checked_get.sh.in
+  ${cdat_SOURCE_DIR}/checked_get.sh
+  @ONLY)
 
