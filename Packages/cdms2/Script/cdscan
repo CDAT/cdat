@@ -76,9 +76,12 @@ Options:
 
     --forecast     generate a description of a forecast dataset.
                    This is not compatible with the -i, -r, -t, or -l options.
-                   A file can contain data for exactly one forecast; its generating time
-                   (aka run time, analysis time, starting time, tau=0 time)
-                   is specified by the nbdate,nbsec variables.
+                   A file can contain data for exactly one forecast; its
+                   forecast_reference_time (aka run time, analysis time, starting time,
+                   generating time, tau=0 time) is specified by the nbdate,nbsec variables.
+                   Each file's time axis will be interpreted as the forecast_period (aka
+                   tau, the interval from the forecast_reference_time to the current time)
+                   regardless of its units, standard_name, or other attributes.
 
     -h:            print a help message.
 
@@ -1267,6 +1270,8 @@ def main(argv):
     sameCalendars = 1                   # True iff all time calendars are the same
     prevcal = None
     if forecast:
+        # The data files' time axis is interpreted to be tau time, i.e. the forecast_period.
+        # Find the axis, and remember it in timedict.
         for key in timedict.keys():
             values, units, calendar = timedict[key]
             if prevcal is not None and calendar != prevcal:
@@ -1278,9 +1283,11 @@ def main(argv):
                 time0 = cdtime.abstime(values[0],units)
             offset = time0.torel( units, calendar ).value  # normally will be 0
             values = values+offset-values[0]
+            # Switch units from "normal" time such as "days since 2001-06-01"
+            # to "basic" time such as "days", which makes sense for a forecast_period.
             baslen = time0.units.find(' since ')
             basic_units = time0.units[0:baslen]  # e.g. 'days'
-            fc_units = basic_units + ' since forecast generated'
+            fc_units = basic_units
             timedict[key] = (values, fc_units, calendar)
     else:       # splitOnTime is true
         for key in timedict.keys():
@@ -1320,7 +1327,12 @@ def main(argv):
                     del fc_time_attr[attrn]    # not all time attributes have the same value for attrn
         # At this point fc_time_attr is the dictionary of those time attributes which are common to
         # all time axes encountered (in the context of a forecast dataset).
-
+        # Finally, add the appropriate standard_name to it, if we haven't already gotten one from
+        # the data file.  If the file has anything other than 'forecast_period', it's wrong, but
+        # we'll stick with it anyway.
+        if not 'standard_name' in fc_time_attr.keys():
+            fc_time_attr['standard_name'] = 'forecast_period'
+        
     # Create partitioned axes
     axes = []
     masterCoordToInd = {}               # varkey => (timeCoordToInd, levCoordToInd)

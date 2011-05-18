@@ -822,7 +822,7 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
                                 'default_variable_name',
                                 'id',
                                 'parent',
-                                'info',
+                                'autoApiInfo',
                                 'mode']
         self.___cdms_internals__ = value
         self.id = path
@@ -837,7 +837,7 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
         self.grids = {}
         self.xlinks = {}
         self._gridmap_ = {}
-        self.info.expose.update(["sync","close","createAxis","createVirtualAxis","copyAxis","createRectGrid","copyGrid","createVariable","searchPattern","matchPattern","searchPredicate","createVariableCopy","write","getVariable","getVariables","getAxis","getGrid","getBoundsAxis"])
+        self.autoApiInfo.expose.update(["sync","close","createAxis","createVirtualAxis","copyAxis","createRectGrid","copyGrid","createVariable","searchPattern","matchPattern","searchPredicate","createVariableCopy","write","getVariable","getVariables","getAxis","getGrid","getBoundsAxis"])
 
         # self.attributes returns the Cdunif file dictionary. 
 ##         self.replace_external_attributes(self._file_.__dict__)
@@ -1004,12 +1004,7 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
 
     def sync(self):
         """
-        Options:::
-        nopt :: (str) () test opt
-:::
-  Input:::
-      self (str) (0) self
-  :::
+        Syncs the file
   Output:::
    None :: (None) (0) yep
    :::
@@ -1287,7 +1282,7 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
         Input:::
         name :: (str) (0) file variable name
         datatype :: (str/type) (1) file variable type
-        axesOrGrids :: (*FileAxis/*FileRectGrid) (2) list of FileAxis or FileRectGrid
+        axesOrGrids :: ([cdms2.axis.FileAxis]/[cdms2.grid.FileRectGrid]) (2) list of FileAxis or FileRectGrid
         :::
         Output:::
         axis :: (cdms2.fvariable.FileVariable) (0) file variable
@@ -1509,7 +1504,7 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
         id :: (str/None) (None) id of copied variable
         attributes :: (None/dict) (None) use these attributes instead of the original var ones
         axes :: (None/[cdms2.axis.AbstractAxis]) (None) list of axes to use for the copied variable
-        extbounds :: (None,numpy.ndarray) (None) Bounds of the (portion of) the extended dimension being written
+        extbounds :: (None/numpy.ndarray) (None) Bounds of the (portion of) the extended dimension being written
         extend :: (int) (0) If 1, define the first dimension as the unlimited dimension. If 0, do not define an unlimited dimension. The default is the define the first dimension as unlimited only if it is a time dimension.
         fill_value :: (None/float) (None) the missing value flag
         index :: (None/int) the extended dimension index to write to. The default index is determined by lookup relative to the existing extended dimension
@@ -1635,7 +1630,7 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
         Options:::
         attributes :: (None/dict) (None) use these attributes instead of the original var ones
         axes :: (None/[cdms2.axis.AbstractAxis]) (None) list of axes to use for the copied variable
-        extbounds :: (None,numpy.ndarray) (None) Bounds of the (portion of) the extended dimension being written
+        extbounds :: (None/numpy.ndarray) (None) Bounds of the (portion of) the extended dimension being written
         id :: (str/None) (None) id of copied variable
         extend :: (int) (0) If 1, define the first dimension as the unlimited dimension. If 0, do not define an unlimited dimension. The default is the define the first dimension as unlimited only if it is a time dimension.
         fill_value :: (None/float) (None) the missing value flag
@@ -1650,7 +1645,7 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
         if _showCompressWarnings:
             if  (Cdunif.CdunifGetNCFLAGS("shuffle")!=0) or (Cdunif.CdunifGetNCFLAGS("deflate")!=0) or (Cdunif.CdunifGetNCFLAGS("deflate_level")!=0):
                 import warnings
-                warnings.warn("Since CDAT Version 5.2 File are now written with compression and shuffling\nYou can query different values of compression using the functions:\ncdms2.getNetcdfShuffleFlag() returning 1 if shuffling is enabled, 0 otherwise\ncdms2.getNetcdfDeflateFlag() returning 1 if deflate is used, 0 otherwise\ncdms2.getNetcdfDeflateLevelFlag() returning the level of compression for the deflate method\n\nIf you want to turn that off or set different values of compression use the functions:\ncdms2.setNetcdfShuffleFlag(value) where value is either 0 or 1\ncdms2.setNetcdfDeflateFlag(value) where value is either 0 or 1\ncdms2.setNetcdfDeflateLevelFlag(value) where value is a integer between 0 and 9 included\n\nTurning all values to 0 will produce NetCDF3 Classic files\n",Warning)
+                warnings.warn("Since CDAT Version 5.2 File are now written with compression and shuffling\nYou can query different values of compression using the functions:\ncdms2.getNetcdfShuffleFlag() returning 1 if shuffling is enabled, 0 otherwise\ncdms2.getNetcdfDeflateFlag() returning 1 if deflate is used, 0 otherwise\ncdms2.getNetcdfDeflateLevelFlag() returning the level of compression for the deflate method\n\nIf you want to turn that off or set different values of compression use the functions:\ncdms2.setNetcdfShuffleFlag(value) ## where value is either 0 or 1\ncdms2.setNetcdfDeflateFlag(value) ## where value is either 0 or 1\ncdms2.setNetcdfDeflateLevelFlag(value) ## where value is a integer between 0 and 9 included\n\nTurning all values to 0 will produce NetCDF3 Classic files\n",Warning)
                 
         # Make var an AbstractVariable
         if dtype is None and typecode is not None:
@@ -1776,7 +1771,7 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
         n :: (int) (0) ?
         :::
         Output:::
-        axis :: (cdms2.axis.FileAxis/cdms2.axis.FileVirtualAxis) bound axis
+        axis :: (cdms2.axis.FileAxis/cdms2.axis.FileVirtualAxis) (0) bound axis
         :::
         """
         if n==2:

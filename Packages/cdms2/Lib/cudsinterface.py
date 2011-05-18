@@ -12,11 +12,11 @@ import AutoAPI
 class cuDataset(AutoAPI.AutoAPI):
     "A mixin class to support the old cu interface"
     def __init__ (self):
-        if not hasattr(self,"info"):
-            self.info=AutoAPI.Info(self)
-        if not hasattr(self.info,"expose"):
-            self.info.expose=set()
-        self.info.expose.update([
+        if not hasattr(self,"autoApiInfo"):
+            self.autoApiInfo=AutoAPI.Info(self)
+        if not hasattr(self.autoApiInfo,"expose"):
+            self.autoApiInfo.expose=set()
+        self.autoApiInfo.expose.update([
             "listall","listattribute","listdimension","listglobal","listvariable",
             "showglobal","showvariable","showattribute","showdimension","showall",
             "dimensionobject","dimensionarray",
@@ -322,7 +322,13 @@ class cuDataset(AutoAPI.AutoAPI):
               (4) a cdms-style tuple of world coordinates e.g. (start, stop, 'cc')
         :::
         Options:::
-        *args :: (tuple) () tuple of type (val1,val2,'cob') for any given dimension
+        args :: (*tuple/*cdms2.selectors.Selector) () tuple of type (val1,val2,'cob') for any given dimension or cdms selector
+        :::
+        Keys:::
+        squeeze :: (int/True/False) (0) squeezes (removes) dimensions of length 1
+        order :: (str) ('...') reorder the dimensions, can use numbers or xyzt or dim names in between paranthesis
+        raw :: (int/True/False) (0) return a numpy.ma instead of a transient variable
+        grid :: (cdms2.grid.AbstractGrid) (None) regrid the result to the grid passed
         :::
         Input:::
         vname :: (str/None) (0) variable name

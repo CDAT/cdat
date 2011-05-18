@@ -118,11 +118,11 @@ CDAT will look for and install if necessary (minimum version required/version di
 
 	  python 2.7.0 / 2.7.1
 	  setuptools 0.6 / 0.6c11
-	  numpy 1.4.1 / 1.4.1
+	  numpy 1.5.1 / 1.5.1
 	  tcl/tk : 8.5.4 / 8.5.9
-	  QT : 4.6.2 / 4.7.1
-	  sip : 4.12.1 / 4.12.1
-	  PyQt : 4.7.6 / 4.8.3
+	  QT : 4.6.2 / 4.7.3
+	  sip : 4.12.1 / 4.12.2
+	  PyQt : 4.7.6 / 4.8.4
           readline : 5.2 / 6.1
 	  zlib: any / 1.2.5
 	  termcap: any / 1.3.1
@@ -133,13 +133,15 @@ CDAT will look for and install if necessary (minimum version required/version di
           ffmpeg
           jpeg any/6b
           libpng 1.4.1 / 1.5.1
+          libjasper 1.900.1 / 1.900.1
+          libg2clib 1.2.3 / 1.2.3
           libxml 2.6.27 / 2.7.8
           libxslt 1.1.22 / 1.1.26
           Ghostscript
 	  libuuid /1.6.2
 	  Udunits 2 /2.1.14
           HDF5 any / 1.8.5-patch1
-          NetCDF4 4.1.0/ 4.1.1
+          NetCDF4 4.1.2/ 4.1.2
           XGKS
           Pmw 1.3 / 1.3
           gifsicle any any/ 1.58

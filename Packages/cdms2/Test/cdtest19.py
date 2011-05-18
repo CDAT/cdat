@@ -11,7 +11,11 @@ clearError()
 # Generate some test data, then write it out.  This section doesn't test anything.
 xaxis = cdms2.createAxis( [ 0.1, 0.2 ], id='x' )
 taxis = cdms2.createAxis( [ 10.0, 20.0 ], id='t' )
-taxis.units='seconds since 2006-01-02'    # required!
+taxis.units='seconds'    # required!
+#...  Note that this is seconds since the forecast was generated, i.e. the appropriate
+# standard_name is "forecast_period".
+taxis.standard_name = 'forecast_period'
+
 taxis.designateTime()
 v1 = cdms2.tvariable.TransientVariable( [[1.1,1.2],[2.1,2.1]], axes=[taxis,xaxis], id='var' )
 v2 = cdms2.tvariable.TransientVariable( [[3.1,3.2],[4.1,4.1]], axes=[taxis,xaxis], id='var' )
@@ -38,7 +42,7 @@ f1.close()
 f2.close()
 f3.close()
 
-os.system("cdscan -q --forecast -x 'test_fc.xml' test_fc?")
+os.system("../Script/cdscan -q --forecast -x 'test_fc.xml' test_fc?")
 
 # Read in the data.
 

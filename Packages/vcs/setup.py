@@ -482,7 +482,7 @@ if (WM=="QT" or EM=="QT") and sys.platform in ['darwin']:
       os.system(ldCmd)
       if 'install' in sys.argv:
         print 'renaming to :',target_prefix
-        os.rename("build/qpython", "%s/bin/cdat" % (target_prefix))
+        shutil.move("build/qpython", "%s/bin/cdat" % (target_prefix))
         if target_prefix.find("Versions")>-1:
             pth=os.path.sep+os.path.sep.join(target_prefix.split(os.path.sep)[:-3]+['bin','cdat'])
             print 'symlinking to ',pth

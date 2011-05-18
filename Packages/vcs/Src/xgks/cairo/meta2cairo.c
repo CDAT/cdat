@@ -456,17 +456,17 @@ Gpoint VCS2DEVICE(cairo_t *cr, double x,double y)
   if (cairo_surface_get_type(cairo_get_target(cr))==CAIRO_SURFACE_TYPE_PS) {
     to = VCS2PSDEVICE(x,y);
   }
-  else
-    {
+  else {
     if (strcmp(Page.page_orient,"landscape")==0) {
       xr=1.;
-      yr=1.3195884995223088;
+      /* yr=1.3195884995223088; */
+      yr = (float)XW/(float)YW;
     }
-    else
-      {
-	xr=1.3195884995223088;
-	yr=1.;
-      }
+    else {
+      /* xr=1.3195884995223088; */
+      yr=1.;
+      xr = (float)YW/(float)XW;
+    }
     x2 = x*xr*XW;
     y2 = YW - y*yr*YW;
     cairo_user_to_device (cr, &x2, &y2);

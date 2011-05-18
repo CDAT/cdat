@@ -78,6 +78,43 @@ class StringConstructor:
 ##             cmd='template=string.replace(template,\'%('+k+')\',self.'+k+')'
 ##             exec(cmd)
         return template
+
+    def reverse(self,name,debug=False):
+        out={}
+        template = self.template
+        for k in self.keys():
+            sp=template.split("%%(%s)" % k)
+            n = len(sp)
+            i1=name.find(sp[0])+len(sp[0])
+            j1=sp[1].find("%(")
+            if j1==-1:
+                if sp[1]=="":
+                    val=name[i1:]
+                else:
+                    i2=name.find(sp[1])
+                    val = name[i1:i2]
+                if debug:
+                    print k,j1,sp[1],"****",sp
+                    print k,name[i1:i2]
+                    print k,i1,i2,val
+            else:
+                i2=name[i1:].find(sp[1][:j1])
+                val=name[i1:i1+i2]
+                if debug:
+                    print k,j1,sp[1][:j1]
+                    print k,name[i1:]
+                    print k,i1,i2,val
+            if debug:
+                print '-----------------'
+            template=template.replace("%%(%s)"%k,val)
+            if debug:
+                print template
+            out[k]=val
+        if debug:
+            print out
+        if self.construct(self.template,**out)!=name:
+            raise "Invalid pattern sent"
+        return out
     
     def __call__(self,*args,**kw):
         """default call is construct function"""
