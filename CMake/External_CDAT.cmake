@@ -20,6 +20,10 @@ if(CDAT_USE_SYSTEM_QT)
   set(ADDITIONAL_CPPFLAGS "-I${QT_INCLUDE_ROOT}")
 endif()
 
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_python_install_step.cmake.in
+  ${cdat_CMAKE_BINARY_DIR}/cdat_python_install_step.cmake
+  @ONLY)
+
 ExternalProject_Add(CDAT
   DOWNLOAD_DIR ""
   SOURCE_DIR ${cdat_SOURCE_DIR}
