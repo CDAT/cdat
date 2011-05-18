@@ -37,5 +37,6 @@ from tvariable import asVariable, createVariable, isVariable
 from gsHost import GsHost
 from gsstaticvariable import GsStaticVariable
 from gstimevariable import GsTimeVariable
+from restApi import esgfConnection
 
 MV = MV2

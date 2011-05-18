@@ -9,7 +9,7 @@ CC=@CC@
 CPP=@CPP@
 CXX=@CXX@
 EXTERNALS=@EXTERNALS@
-
+LOCNCCONFIG=@LOCNCCONFIG@
 
 dosetenv = LDFLAGS="@LDFLAGS@"; \
 	export LDFLAGS ; \
@@ -74,8 +74,8 @@ dobuild_keyed = @$(call doprolog,$(1),$(2))  \
 dobuild = @$(call dobuild_keyed,$(1),$(2),$(3),$(4),$(5),install) 
 dobuildpynotar = @$(3) @KEEPLOGa@  \
 	echo "$(3);" @KEEPLOGa@ ; \
-	echo "env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS=@CFLAGS@ CPPFLAGS=@CPPFLAGS@ LDFLAGS=@LDFLAGS@ @PYTHON@ setup.py build $(4) --force install @PYTHON_INSTALL_PREFIX@ ;"  @KEEPLOGa@ ;\
-	env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" @PYTHON@ setup.py build $(4) --force install @PYTHON_INSTALL_PREFIX@  @KEEPLOGa@ ;
+	echo "env @EXTRAENV@ LOCNCCONFIG="@LOCNCCONFIG@" CXXFLAGS="@CXXFLAGS@" CFLAGS=@CFLAGS@ CPPFLAGS=@CPPFLAGS@ LDFLAGS=@LDFLAGS@ @PYTHON@ setup.py build $(4) --force install @PYTHON_INSTALL_PREFIX@ ;"  @KEEPLOGa@ ;\
+	env @EXTRAENV@ LOCNCCONFIG="@LOCNCCONFIG@" CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" @PYTHON@ setup.py build $(4) --force install @PYTHON_INSTALL_PREFIX@  @KEEPLOGa@ ;
 dobuildpy = @$(call doprolog,$(2),$(3)) \
         $(1) ; \
 	echo "cp "@MAINDIR@/site.cfg" . ;" @KEEPLOGa@; \
@@ -87,7 +87,7 @@ install: clean nocleaninstall
 nocleaninstall:
 	git submodule init
 	git submodule update
-	mkdir -p @prefix@
+	mkdir -p @prefix@/bin
 	mkdir -p @prefix@/lib
 	mkdir -p @EXTERNALS@
 	mkdir -p @EXTERNALS@/lib
@@ -120,6 +120,12 @@ ifeq (@COMPILE_XML2@,yes)
 	@echo "Building libxml2"
 	$(call dobuild,@XML_URL@,@XML_GZ@,@EXTERNALS@)
 endif
+ifeq (@COMPILE_LIBJPEG@,yes)
+	@echo "Building libjpeg"
+	$(call dobuild,@JPEG_URL@,@JPEG_GZ@,@EXTERNALS@,cd jpeg*;)
+	cp build/jpeg*/lib* @EXTERNALS@/lib
+	cp build/jpeg*/*.h @EXTERNALS@/include
+endif
 ifeq (@COMPILE_CURL@,yes)
 	@echo "Building curl"
 	$(call dobuild,@CURL_URL@,@CURL_GZ@,@EXTERNALS@)
@@ -145,6 +151,14 @@ ifeq (@COMPILE_FONTCONFIG@,yes)
 	@echo "Building fontconfig"
 	$(call dobuild,@FTCFG_URL@,@FTCFG_GZ@,@EXTERNALS@)
 endif
+ifeq (@COMPILE_JASPER@,yes)
+	@echo "Building jasper"
+	$(call dobuild,@JASPER_URL@,@JASPER_GZ@,@EXTERNALS@)
+endif
+ifeq (@COMPILE_G2CLIB@,yes)
+	@echo "Building g2clib"
+	$(call dobuild,@G2CLIB_URL@,@G2CLIB_GZ@,@EXTERNALS@)
+endif
 ifeq (@COMPILE_TCLTK@,yes)
 	echo "Couldn't find a working tcl/tk, building it"
 	$(call dobuild,@TCLTK_URL@,@TCL_GZ@,@EXTERNALS@,cd unix;, )
@@ -159,16 +173,10 @@ ifeq (@COMPILE_XGKS@,yes)
 	$(call dobuild,@XGKS_URL@,@XGKS_GZ@,@EXTERNALS@,FC=""; export FC ; LD_X11=""; export LD_X11 ; )
 	cp -f build/xgks*/port/misc/udposix.h @EXTERNALS@/include
 endif
-ifeq (@COMPILE_LIBJPEG@,yes)
-	@echo "Building libjpeg"
-	$(call dobuild,@JPEG_URL@,@JPEG_GZ@,@EXTERNALS@,cd jpeg*;)
-	cp build/jpeg*/lib* @EXTERNALS@/lib
-	cp build/jpeg*/*.h @EXTERNALS@/include
-endif
 ifeq (@HAVE_LIBBLAS@,no)
 	@echo "Building blas"
 	$(call dobuild,@BLAS_URL@,@BLAS_GZ@,@EXTERNALS@,FORTRAN=@FC@;export FORTRAN ; cd BLAS; sed 's/FORTRAN  = g77//g' make.inc > crap && mv -f crap make.inc ; sed 's/LOADER   = g77//g' make.inc > crap && mv -f crap make.inc ; FORTRAN=gfortran;export FORTRAN;)
-	cp build/BLAS/blas_LINUX.a /lgm/bew_cdat/Externals/lib/libblas.a
+	cp build/BLAS/blas_LINUX.a @EXTERNALS@/lib/libblas.a
 endif
 ifeq (@HAVE_LIBLAPACK@,no)
 	@echo "Building lapack"
@@ -207,7 +215,7 @@ ifeq (@COMPILE_HDF@,yes)
 endif
 ifeq (@COMPILE_HDF5@,yes)
 	@echo "Building hdf5"
-	$(call dobuild,@HDF5_URL@,@HDF5_GZ@,@EXTERNALS@/HDF5)
+	$(call dobuild,@HDF5_URL@,@HDF5_GZ@,@EXTERNALS@)
 endif
 ifeq (@COMPILE_UDUNITS2@,yes)
 	@echo "Building udunits2"
@@ -215,7 +223,7 @@ ifeq (@COMPILE_UDUNITS2@,yes)
 endif
 ifeq (@COMPILE_NC@,yes)
 	@echo "Building netcdf"
-	$(call dobuild,@NC4_URL@,@NC4_GZ@,@EXTERNALS@/NetCDF,@NC_FORTRAN@,  --enable-netcdf-4 --with-hdf5=@HDF5LOC@)
+	$(call dobuild,@NC4_URL@,@NC4_GZ@,@EXTERNALS@,@NC_FORTRAN@,  --enable-netcdf-4 --with-hdf5=@HDF5LOC@)
 endif
 ifeq (@COMPILE_LIBCF@,yes)
 	@echo "Building libcf" 
@@ -274,14 +282,17 @@ ifeq (@DOCMOR@,yes)
 	@(cd Packages/cmor ; ./configure --prefix=@EXTERNALS@ --with-netcdf=@NC4LOC@ --with-udunits2=@UDUNITS2LOC@ --with-uuid=@UUIDLOC@ --with-zlib=@EXTERNALS@ --enable-fortran=no; cd ../..) >> @MAINDIR@/logs/cmor_config.LOG 
 endif
 	@echo "Building CDAT"
-	@XTRA_LD_F2PY@ @PYTHON@ install.py @PYTHON_INSTALL_OPTIONS@
+	@cp matplotlib.setup.cfg contrib/matplotlib/setup.cfg
+	@XTRA_LD_F2PY@ LOCNCCONFIG="@LOCNCCONFIG@" @PYTHON@ install.py @PYTHON_INSTALL_OPTIONS@
 	@echo "Done building CDAT"
+#	@echo " ... building MyProxyClient"
+#	@env PATH="@MACPATH@:@prefix@/bin:${PATH}:@PKG_CONFIG_PATH@" easy_install MyProxyClient > logs/MyProxyClient.LOG
+#	@echo " ... building PyTables"
+#	@env PATH="@MACPATH@:@prefix@/bin:${PATH}:@PKG_CONFIG_PATH@" easy_install tables > logs/pytables.LOG
 ifeq (@ESG@,yes)
 	@echo "Building ESG dependencies"
 	@echo " ... building gui_support"
 	@$(call dobuildpynotar,@prefix@,guisupport,cd Packages/gui_support)
-# 	@echo " ... building psycopg2"
-# 	@env PATH="@prefix@/bin:${PATH}:@PGCONFIG@" easy_install psycopg2 > logs/psycopg2.LOG
 # 	@echo " ... building SQLAlchemy"
 # 	@env PATH="@prefix@/bin:${PATH}:@PGCONFIG@" easy_install SQLAlchemy > logs/SQLAlchemy.LOG
 # 	@echo " ... building lxml"

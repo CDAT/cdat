@@ -1,7 +1,7 @@
 #include "vcs_events.h"
 #include "display.h"
 #include "cdms.h"
-#include "project.h"x
+#include "project.h"
 #include "gksshort.h"
 
 typedef struct level_fill {int color; float l1,l2;} S_boxfill;
@@ -870,7 +870,6 @@ PyVCS_BLOCK_X_SERVER(PyVCScanvas_Object *self, PyObject *args)
         *        X display for me.
         */
         BLOCK_X_SERVER += 1;
-
         /* Return NULL Python Object */
         Py_INCREF(Py_None);
         return Py_None;
@@ -887,7 +886,6 @@ PyVCS_UNBLOCK_X_SERVER(PyVCScanvas_Object *self, PyObject *args)
         *        X display for me.
         */
         BLOCK_X_SERVER -= 1;
-
         /* Return NULL Python Object */
         Py_INCREF(Py_None);
         return Py_None;

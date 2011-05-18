@@ -1,0 +1,28 @@
+#!/bin/bash
+
+set -e
+
+g2clib_archive=g2clib-1.2.1.tar.gz
+if [ "$1" != "" ]; then
+  g2clib_archive=$1
+fi
+
+build_dir=build
+install_dir=$PWD/../install
+
+echo "Installing grib2clib"
+mkdir -p $build_dir
+mkdir -p $install_dir
+
+rm -rf $build_dir/g2clib-1.2.1
+tar -xzf $g2clib_archive -C $build_dir
+
+cd $build_dir/g2clib-1.2.1
+patch -i ../../g2clib-1.2.0-makefile.patch
+make all
+mkdir -p $install_dir/lib/
+cp libgrib2c.a $install_dir/lib/
+mkdir -p $install_dir/include/
+cp grib2.h $install_dir/include/
+
+

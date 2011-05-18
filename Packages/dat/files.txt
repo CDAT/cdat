@@ -66,6 +66,9 @@ eeccb158901c3a0aa2a5ae13c18edee7  test.2.bin
 dc907995211917107fa346c729f9a60d  test.xml
 77e2a7d684616c83b87ef6d41b11e6ca  test_anim.nc
 4b8798e4b7cbd508423462ad37c0a192  test_col.asc
+b2f434b723551b70d1e8bae3e2c9b0f7  testgrib2.ctl
+65f756b71f16c1512372618572810585  testgrib2.grib2
+e9667df48cea924d945abba130f28c68  testgrib2.idx
 d8e2a43d0cdb9097763111abe10cead4  testpp.pp
 ee4a4b2827c126d48a2c177771d7a69c  th_yr.nc
 1d7e23bed6c9e562eb87d9cdc38b4fab  thermo.nc

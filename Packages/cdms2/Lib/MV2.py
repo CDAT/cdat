@@ -24,6 +24,7 @@ e = numpy.e
 pi = numpy.pi
 #NewAxis = numpy.oldnumeric.NewAxis
 newaxis = numpy.newaxis
+counter = 0
 
 def fill_value(ar):
     return ar.fill_value
@@ -50,7 +51,8 @@ def _extractMetadata(a, axes=None, attributes=None, id=None, omit=None, omitall=
         if attributes is None:
             attributes = a.attributes
         if id is None:
-            id = a.id
+            id = "variable_%i" % TransientVariable.variable_count
+            TransientVariable.variable_count+=1
 
         # If the grid is rectilinear, don't return an explicit grid: it's implicitly defined
         # by the axes.
@@ -217,12 +219,14 @@ class var_binary_operation:
         self.__doc__ = mafunc.__doc__
 
     def __call__ (self, a, b):
+        id = "variable_%i" % TransientVariable.variable_count
+        TransientVariable.variable_count+=1
         axes = commonDomain(a,b)
         grid = commonGrid(a,b,axes)
         ta = _makeMaskedArg(a)
         tb = _makeMaskedArg(b)
         maresult = self.mafunc(ta,tb)
-        return TransientVariable(maresult, axes=axes, grid=grid,no_update_from=True)
+        return TransientVariable(maresult, axes=axes, grid=grid,no_update_from=True,id=id)
 
     def reduce (self, target, axis=0):
         ttarget = _makeMaskedArg(target)
@@ -270,8 +274,9 @@ def power (a, b, third=None):
     ta = _makeMaskedArg(a)
     tb = _makeMaskedArg(b)
     maresult = numpy.ma.power(ta,tb,third)
+    print "Here"
     axes, attributes, id, grid = _extractMetadata(a)
-    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid)
+    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id)
 
 def left_shift (a, n):
     "Left shift n bits"
@@ -279,7 +284,7 @@ def left_shift (a, n):
     tb = _makeMaskedArg(n)
     maresult = numpy.ma.left_shift(ta,numpy.ma.filled(tb))
     axes, attributes, id, grid = _extractMetadata(a)
-    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid)
+    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id)
 
 def right_shift (a, n):
     "Right shift n bits"
@@ -287,7 +292,7 @@ def right_shift (a, n):
     tb = _makeMaskedArg(n)
     maresult = numpy.ma.right_shift(ta,numpy.ma.filled(tb))
     axes, attributes, id, grid = _extractMetadata(a)
-    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid)
+    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id)
 
 
 def _convdtype(dtype, typecode):
@@ -373,7 +378,7 @@ def count (a, axis = None):
         ta = _makeMaskedArg(a)
         maresult = numpy.ma.count(ta,axis)
         axes, attributes, id, grid = _extractMetadata(a,omit=axis)
-        return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid)
+        return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id)
 
 def sum (a, axis = None, fill_value=0, dtype=None):
     "Sum of elements along a certain axis."
@@ -381,14 +386,14 @@ def sum (a, axis = None, fill_value=0, dtype=None):
     ta = _makeMaskedArg(a)
     maresult = numpy.ma.sum(ta, axis, dtype=dtype)
     axes, attributes, id, grid = _extractMetadata(a, omit=axis, omitall=(axis is None))
-    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid)
+    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id)
 
 def product (a, axis = 0, dtype=None):
     "Product of elements along axis."
     ta = _makeMaskedArg(a)
     maresult = numpy.ma.product(ta, axis, dtype=dtype)
     axes, attributes, id, grid = _extractMetadata(a, omit=axis)
-    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid)
+    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id)
 
 def average (a, axis=None, weights=None, returned=0):
     axis = _conv_axis_arg(axis)
@@ -396,9 +401,9 @@ def average (a, axis=None, weights=None, returned=0):
     maresult = numpy.ma.average(ta, axis, weights, returned)
     axes, attributes, id, grid = _extractMetadata(a, omit=axis, omitall=(axis is None))
     if returned: maresult, wresult = maresult
-    r1 = TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid,no_update_from=True)
+    r1 = TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id,no_update_from=True)
     if returned:
-        w1 = TransientVariable(wresult, axes=axes, grid=grid,no_update_from=True)
+        w1 = TransientVariable(wresult, axes=axes, grid=grid, id=id,no_update_from=True)
         return r1, w1
     else:
         return r1
@@ -409,7 +414,7 @@ def max (a, axis=None):
     ta = _makeMaskedArg(a)
     maresult = numpy.ma.max(ta, axis)
     axes, attributes, id, grid = _extractMetadata(a, omit=axis, omitall=(axis is None))
-    r1 = TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid,no_update_from=True)
+    r1 = TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id,no_update_from=True)
     return r1
 max.__doc__ = numpy.ma.max.__doc__
 def min (a, axis=None):
@@ -417,7 +422,7 @@ def min (a, axis=None):
     ta = _makeMaskedArg(a)
     maresult = numpy.ma.min(ta, axis)
     axes, attributes, id, grid = _extractMetadata(a, omit=axis, omitall=(axis is None))
-    r1 = TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid,no_update_from=True)
+    r1 = TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id,no_update_from=True)
     return r1
 min.__doc__ = numpy.ma.min.__doc__
 
@@ -429,7 +434,7 @@ def sort (a, axis=-1):
     if (grid is not None) and (sortaxis in grid.getAxisList()):
         grid = None
     axes[axis] = TransientAxis(numpy.arange(len(sortaxis)))
-    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid)
+    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id)
 sort.__doc__ = numpy.ma.sort.__doc__ + "The sort axis is replaced with a dummy axis."
 
 def choose (indices, t):
@@ -449,7 +454,7 @@ def where (condition, x, y):
 ##    grid = commonGrid(x,y,axes)
     maresult = numpy.ma.where(condition, _makeMaskedArg(x), _makeMaskedArg(y))
     axes, attributes, id, grid = _extractMetadata(condition)
-    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid)
+    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id)
 
 def masked_where(condition, x, copy=1):
     """Return x as an array masked where condition is true. 
@@ -629,7 +634,7 @@ class _minimum_operation:
             m = numpy.logical_and.reduce(m, axis)
             result = masked_array(t, m, fill_value(a))
         return TransientVariable(result, axes=axes, copy=0,
-                     fill_value=fill_value(a), grid=grid)
+                     fill_value=fill_value(a), grid=grid, id=id)
 
     def outer (self, a, b):
         "Return the function applied to the outer product of a and b."
@@ -684,7 +689,7 @@ class _maximum_operation:
             t = numpy.maximum.reduce(filled(a, numpy.ma.maximum_fill_value(a)), axis)
             m = numpy.logical_and.reduce(m, axis)
             return TransientVariable(t, mask=m, fill_value=fill_value(a),
-                        axes = axes, grid=grid)
+                        axes = axes, grid=grid, id=id)
 
     def outer (self, a, b):
         "Return the function applied to the outer product of a and b."
@@ -779,7 +784,6 @@ def repeat(a, repeats, axis=None):
     return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid, no_update_from=True)
 
 def reshape (a, newshape, axes=None, attributes=None, id=None, grid=None):
-    "Copy of a with a new shape."
     ignore, attributes, id, ignore = _extractMetadata(a, axes, attributes, id)
     if axes is not None:
         axesshape = [len(item) for item in axes]
@@ -788,7 +792,7 @@ def reshape (a, newshape, axes=None, attributes=None, id=None, grid=None):
     ta = _makeMaskedArg(a)
     maresult = numpy.ma.reshape(ta, newshape)
     return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid, no_update_from=True)
-
+reshape.__doc__="numpy doc: %s\naxes/attributes/grid are applied onto the new variable" % numpy.reshape.__doc__
 
 def resize (a, new_shape, axes=None, attributes=None, id=None, grid=None):
     """resize(a, new_shape) returns a new array with the specified shape.

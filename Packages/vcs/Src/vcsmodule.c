@@ -17697,7 +17697,8 @@ PyVCS_plot(PyVCScanvas_Object *self, PyObject *args)
 	struct p_tab    	*ttab;
         extern struct p_tab 	Pic_tab;
 	void put_slab_in_VCS_data_struct();
-	int slabRank(),slabShape();
+	int slabRank(PyObject* slab);
+	int* slabShape(PyObject* slab);
 	int graphics_num_of_dims();
 	int set_plot_minmax();
 	extern int python_display();
@@ -17919,6 +17920,8 @@ heartbeat("Slab2 name set to %s", s_name[0]);
 		 {
 		   put_slab_in_VCS_data_struct(slab2,type2, s_name[1], self->frame_count, doing_animation, 2);
 		 }
+	       free(shape);
+	       free(shape2);
 	     }
 	   else
 	     {
@@ -21107,8 +21110,8 @@ PyVCS_startQtApp(self,args)
 {
 #ifdef QTWM
   Py_BEGIN_ALLOW_THREADS
-    PyEval_AcquireLock();
-    PyEval_ReleaseLock();
+    /* PyEval_AcquireLock(); */
+    /* PyEval_ReleaseLock(); */
   createVCSCanvases();
   Py_END_ALLOW_THREADS
 #endif

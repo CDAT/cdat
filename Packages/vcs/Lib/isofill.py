@@ -666,6 +666,8 @@ Class: Gfi				# Isofill
         self._xaxisconvert=getmember(self, 'xaxisconvert')
         self._yaxisconvert=getmember(self, 'yaxisconvert')
         self._missing=getmember(self, 'missing')
+        if self._missing>255:
+             self._missing=241
         self._ext_1='n'
         self._ext_2='n'
         self._fillareastyle='solid'

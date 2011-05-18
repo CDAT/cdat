@@ -1,5 +1,0 @@
-#!python
-
-import qtbrowser
-qtbrowser.starter.main()
-

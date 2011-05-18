@@ -1,11 +1,11 @@
 /* -*-Mode: C;-*-
- * Module:      
+ * Module:
  *
  * Copyright:	1995, Regents of the University of California
  *		This software may not be distributed to others without
  *		permission of the author.
  *
- * Author:      Mike Fiorino      
+ * Author:      Mike Fiorino
  *
  * Version:     $Id$
  *
@@ -69,7 +69,7 @@
 #include "cdunifint.h"
 #include "grads.h"
 
-FILE *ofile; 
+FILE *ofile;
 
 static struct gafile *pfi;
 static struct gavar *pvr;
@@ -89,7 +89,7 @@ static int bpsav = -999;      /* Bit cache pointer */
 static int bssav = -999;      /* Bit cache size */
 static int *bpcach;           /* expanded bit map cache */
 
-/* Station data I/O caching.  We will cache fairly small I/O 
+/* Station data I/O caching.  We will cache fairly small I/O
    requests that fit within the specified size buffer.  If the buffer
    gets overfilled, we just forget the caching.  */
 
@@ -97,7 +97,7 @@ static int scflg = 0;         /* Anything cached? */
 static int scuca = 0;         /* Can use cache for this request */
 static int scerr = 0;         /* Buffer full? */
 static int scok;              /* Ok to fill buffer */
-static int scpnt;             /* Current cache offset */ 
+static int scpnt;             /* Current cache offset */
 static struct gastn scstn;    /* Previous request */
 static char *scbuf=NULL;      /* Cache */
 
@@ -129,13 +129,14 @@ int cuopenread_grads(const char* controlpath, const char* datapath) {
 
   char rec[256],  *ch, *dn, *pos, *name;
 
-  float *grall,*grmod,*grstat,*grhist;
-  float *fp;
+  double *fp;
 
   long idmo, idmin;
   int i,j,k,len,rc;
   int nv,size,ioff;
   int verb=0;
+
+  float undefValue;
 
 
   /*grads --------    allocate memory for the file struct    grads*/
@@ -173,7 +174,7 @@ int cuopenread_grads(const char* controlpath, const char* datapath) {
    * subsets of Z dimensions for GrADS.)
    * 'ngdims' is the number of global dimensions.
    */
-	
+
   file->nvars = pfi->vnum;
   file->ndims =  4 ;
   file->ngatts =  1 ;
@@ -190,9 +191,9 @@ int cuopenread_grads(const char* controlpath, const char* datapath) {
   if((var = CuCreateVars(file,file->nvars))==(CuVar*)0) ;
 
   /* Create the array of dimensions for this file */
-  
+
   if((dim = CuCreateDims(file,file->ndims+file->nvars))==(CuDim*)0) ;
-		
+
   /* For each GLOBAL dimension (XDEF, YDEF, etc. in GrADS) ...
    *
    * For GrADS:
@@ -248,7 +249,7 @@ int cuopenread_grads(const char* controlpath, const char* datapath) {
   dim->dimtype = CuGlobalDim;
   dim->coord = (CuVar*)0;		     /* No associated coordinate variable */
   dim->len =  pfi->dnum[3] ;
-  dim++;	
+  dim++;
 
   strcpy(dim->name, "level");
   strncpy(dim->units, "lev" , CU_MAX_NAME);
@@ -256,7 +257,7 @@ int cuopenread_grads(const char* controlpath, const char* datapath) {
   dim->dimtype = CuGlobalDim;
   dim->coord = (CuVar*)0;		     /* No associated coordinate variable */
   dim->len = pfi->dnum[2] ;
-  dim++;	
+  dim++;
 
   strcpy(dim->name, "latitude");
   strncpy(dim->units, "degrees_north" , CU_MAX_NAME);
@@ -264,7 +265,7 @@ int cuopenread_grads(const char* controlpath, const char* datapath) {
   dim->dimtype = CuGlobalDim;
   dim->coord = (CuVar*)0;		     /* No associated coordinate variable */
   dim->len =  pfi->dnum[1] ;
-  dim++;	
+  dim++;
 
   strcpy(dim->name, "longitude");
   strncpy(dim->units,  "degrees_east" , CU_MAX_NAME);
@@ -280,7 +281,7 @@ int cuopenread_grads(const char* controlpath, const char* datapath) {
   /* Create the global attribute array */
 
   if((att = CuCreateAtts(file,(CuVar*)0,file->ngatts))==(CuAtt*)0) ;
-		
+
 
   /* Set the global attributes, IDs = 0..file->ngatts-1
    * 0 = format (GRADS, GRIB, DRS, whatever ...)
@@ -305,7 +306,7 @@ int cuopenread_grads(const char* controlpath, const char* datapath) {
 
     if(pvr->levels == 0) {
       var->ndims = 3 ;
-    } else { 
+    } else {
       var->ndims = 4 ;
     }
 
@@ -318,9 +319,9 @@ int cuopenread_grads(const char* controlpath, const char* datapath) {
     /* Set the variable attributes; use IDs 0..var->natts-1
      * Attributes can have ANY datatype (not just CuChar). */
 
-    if(CuSetAtt(file,var,0,"title",CuChar,
-		strlen(pvr->varnm)+1,pvr->varnm) != CU_SUCCESS);
-    CuSetAtt(file,var,1,"missing_value",CuFloat,1,(void *)&pfi->undef);
+    if(CuSetAtt(file,var,0,"title",CuChar, strlen(pvr->varnm)+1,pvr->varnm) != CU_SUCCESS);
+    undefValue = (float)pfi->undef;
+    CuSetAtt(file,var,1,"missing_value",CuFloat,1,(void *)&undefValue);
 
     /* Set dimension info for the variable.
      * For GrADS, first two dimensions are always x and y.
@@ -394,13 +395,13 @@ int cuclose_grads(CuFile* file) {
 
 int cudimget_grads(CuFile* file, int dimid, void* value){
 
-  struct gafile *pfi; 
+  struct gafile *pfi;
 
   CuDim* dim;
 
   double* dp;
   double delta, prev;
-  float* fp; 
+  float* fp;
   float cyr,cda,cmo,chr,dtmo,dtmn;
   int i;
 
@@ -411,10 +412,10 @@ int cudimget_grads(CuFile* file, int dimid, void* value){
   switch(dimid){
   case 0:
 
-/*----  l -> t (time) map -----*/ 
+/*----  l -> t (time) map -----*/
 
     dp=value;
-    fp=pfi->grvals[3];
+// fp is not actually used     fp=pfi->grvals[3];
 
     delta = dim->interval;
     *dp++ = prev = 0.0;
@@ -422,7 +423,7 @@ int cudimget_grads(CuFile* file, int dimid, void* value){
 	    *dp++ = prev += delta;
     break;
 
-/*----  k -> z (lev) map -----*/ 
+/*----  k -> z (lev) map -----*/
 
   case 1:
     fp=value;
@@ -437,7 +438,7 @@ int cudimget_grads(CuFile* file, int dimid, void* value){
     }
     break;
 
-/*----  j -> y (lat) map -----*/ 
+/*----  j -> y (lat) map -----*/
 
   case 2:
     fp=value;
@@ -453,7 +454,7 @@ int cudimget_grads(CuFile* file, int dimid, void* value){
     break;
 
 
-/*----  i -> x (lon) map -----*/ 
+/*----  i -> x (lon) map -----*/
 
   case 3:
 
@@ -483,7 +484,7 @@ int cudimget_grads(CuFile* file, int dimid, void* value){
         fp[i] = ( *pfi->grvals[2] * (float)(i+1) ) + *(pfi->grvals[2]+1) ;
       }
     }
-    
+
   }
 
   return CU_SUCCESS;
@@ -503,19 +504,18 @@ int cuvarget_grads(CuFile* file, int varid, const long start[], const long count
   int dimlen[4];
   int i,j,k,ii,siz;
   int rc,len,verb=0;
-  
-  /* initialize the read offset */
+
 
   cpos = 0;
 
   /* Lookup the variable */
- 
+
   if(verb) printf("qqq read for var lookup %d %d %d\n",file->ndims,file->nvars,varid);
   if((var = CuLookupVar(file,varid)) == (CuVar*)0) {
     printf("qqq failure\n");
     return -1;
   }
- 
+
 
   if(verb) {
     printf("qqq varget %d %s %d\n",var->id,var->name,var->ndims);
@@ -524,7 +524,7 @@ int cuvarget_grads(CuFile* file, int varid, const long start[], const long count
 
 /* set up the dimension environment for GrADS I/0 */
 
-  for(i=0;i<4;i++) { ib[i]=1; ie[i]=1; dimlen[i]=1;}
+  for(i=0;i<4;i++) { ib[i]=1; ie[i]=1; je[i]=1; jb[i]=1; dimlen[i]=1;}
 
   for(i=0;i<var->ndims;i++) {
     ii=var->dims[i];
@@ -537,20 +537,20 @@ int cuvarget_grads(CuFile* file, int varid, const long start[], const long count
 
 /* bounds check */
 
-  for(i=0;i<4;i++) { 
-    if( (ib[i]<1) || (ie[i]>dimlen[i]) ) { 
+  for(i=0;i<4;i++) {
+    if( (ib[i]<1) || (ie[i]>dimlen[i]) ) {
       CuError(CU_EBADDIM,"BOUND ERROR in cuvarget_grads dim = %d ib= %d ie= %d maxlen= %d\n",i,ib[i],ie[i],dimlen[i] ) ;
       return -1 ;
     }
   }
-  
+
   if(ib[3]<ie[3]) {
     for(i=ib[3];i<=ie[3];i++) {
       jb[3]=i;
       je[3]=i;
       if (ib[2]<ie[2]) {
-	for(j=ib[2];j<=ie[2];j++) { 
-	  jb[2]=j; 
+	for(j=ib[2];j<=ie[2];j++) {
+	  jb[2]=j;
 	  je[2]=j;
 	  if(verb) printf("********* 4-D, x,y,z,t \n");
 	  for(k=0;k<2;k++) { jb[k]=ib[k]; je[k]=ie[k]; }
@@ -564,9 +564,9 @@ int cuvarget_grads(CuFile* file, int varid, const long start[], const long count
     }
   } else if(ib[2]<ie[2]) {
     if(verb) printf("********** 3-D, x,y,z \n");
-    for(j=ib[2];j<=ie[2];j++) { 
+    for(j=ib[2];j<=ie[2];j++) {
       for(k=0;k<4;k++) { jb[k]=ib[k]; je[k]=ie[k]; }
-      jb[2]=j; 
+      jb[2]=j;
       je[2]=j;
       rc=grads_varget(file,varid,jb,je,value);
     }
@@ -584,25 +584,25 @@ int grads_varget( CuFile* file, int varid, int* ib, int* ie, void* value) {
   struct gagrid *pgr;
   struct gafile *pfi;
   struct gavar *pvr;
-  float* fp; 
+  float* fp;
   int i,siz;
   int rc,len,verb=0;
-  char tempname[200];
+  char tempname[4096];
 
   extern int cuIsAbsolute(char *path, int len);
-		
+
 /* point to the value array */
 
   fp=value;
 
   if(verb) {
-    for(i=0;i<4;i++) {
+    for(i=0;i<5;i++) {
       printf("qqq grads_varge %d %d %d\n",i,*(ib+i),*(ie+i));
     }
   }
 
   siz = sizeof(struct gagrid);
-  pgr = (struct gagrid *)malloc(siz);
+  pgr = (struct gagrid *)galloc(siz, "varget");
   if (pgr==NULL) {
     gaprnt (0,"Unable to allocate memory for grid structure \n");
     return 0;
@@ -616,9 +616,9 @@ int grads_varget( CuFile* file, int varid, int* ib, int* ie, void* value) {
 					     /* If the descriptor filename is absolute, and */
 					     /* the data file name is not, make the datafile name */
 					     /* absolute with the same directory*/
-	  if(cuIsAbsolute(pfi->dnam,199) && !cuIsAbsolute(pfi->name,199)){
+    if(cuIsAbsolute(pfi->dnam,4095) && !cuIsAbsolute(pfi->name,4095)){
 					     /* fnmexp removes first character from tempname */
-		  strncpy(tempname+1,pfi->name,198);
+      strncpy(tempname+1,pfi->name,4094);
 		  fnmexp(pfi->name,tempname,pfi->dnam);
 	  }
     pfi->infile = fopen (pfi->name, "rb");
@@ -631,25 +631,28 @@ int grads_varget( CuFile* file, int varid, int* ib, int* ie, void* value) {
     }
   }
 
-  pgr->pfile = pfi;		
+  pgr->pfile = pfi;
   pgr->undef = pfi->undef;
-  pgr->idim  = 0;		
+  pgr->idim  = 0;
   pgr->jdim  = 1;
   pgr->alocf = 0;
+  pgr->toff = 0;
 
   for(i=0;i<4;i++) {
     pgr->dimmin[i]=ib[i];
     pgr->dimmax[i]=ie[i];
   }
+  pgr->dimmin[4]=1;
+  pgr->dimmax[4]=1;
 
   pgr->rmin = 0;
   pgr->rmax = 0;
   pgr->grid = &pgr->rmin;
 
-  pgr->isiz = 0;         
+  pgr->isiz = 0;
   pgr->jsiz = 0;
   pgr->exprsn = NULL;
-    
+
   pgr->pvar = pfi->pvar1+varid;
   pvr=pgr->pvar;
 
@@ -663,13 +666,16 @@ int grads_varget( CuFile* file, int varid, int* ib, int* ie, void* value) {
 
   /* load into output array */
 
-  for(i=0;i<len;i++) fp[i+cpos]=*(pgr->grid+i);
+  for(i=0;i<len;i++)
+  {
+    fp[i+cpos]=(float)(*(pgr->grid+i));
+  }
 
   /* bump cpos */
 
   cpos=cpos+len;
 
-  gagfre(pgr); 
+  gagfre(pgr);
 
   return -1;
 

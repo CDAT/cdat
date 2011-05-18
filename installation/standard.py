@@ -29,18 +29,9 @@ for i in range(len(sys.argv)):
 
 
 # This is where we build netcdf, if you let us
-netcdf_library_directory = os.path.join(os.environ.get("EXTERNALS",os.path.join(sys.prefix,'Externals')),'NetCDF','lib')
-netcdf_include_directory= os.path.join(os.environ.get("EXTERNALS",os.path.join(sys.prefix,'Externals')), 'NetCDF','include')
-# override if nc-config is in the path
-try:
-    has_nc4 = subprocess.check_output(["nc-config", "--has-nc4"])
-    nc_prefix = subprocess.check_output(["nc-config", "--prefix"])
-    nc_prefix = re.sub('\n', '', nc_prefix) # remove trailing \n on UNIX
-    nc_prefix = re.sub('\r', '', nc_prefix) # ... and Mac OS X/Windows
-    netcdf_library_directory = nc_prefix + '/lib'
-    netcdf_include_directory = nc_prefix + '/include'
-except:
-    pass
+netcdf_directory = os.popen('%s --prefix' % os.environ.get("LOCNCCONFIG","nc-config")).readlines()[0]
+netcdf_include_directory = os.popen('%s --includedir' % os.environ.get("LOCNCCONFIG","nc-config")).readlines()[0]
+#netcdf_include_directory= os.path.join(os.environ.get("EXTERNALS",os.path.join(sys.prefix,'Externals')),'include')
 
 #  Control of the CDMS build
 drs_file = '/usr/local/libdrs.a'  # only needed if next line is 'yes'

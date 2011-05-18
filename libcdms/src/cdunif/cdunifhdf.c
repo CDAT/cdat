@@ -219,7 +219,7 @@ int cudimid_hdf(CuFile* file, int varid, const char* name){
  * function returns the failure status (-1).
  */
 int cudiminq_hdf(CuFile* file, int dimidx, char* dimname, char* dimunits, CuType* dataType, CuDimType* dimtype, int* varid, long* length){
-	char dname[MAX_NC_NAME+1];
+	char dname[H4_MAX_NC_NAME+1];
 	int cdfid;
 	int dimvarid; /* HDF ID of variable associated with this dimension. */
 	int found;   /* True iff a dimension variable was found. */
@@ -229,12 +229,12 @@ int cudiminq_hdf(CuFile* file, int dimidx, char* dimname, char* dimunits, CuType
 	long len;
 	hdf_type hdftype, hdfunitstype;
 	int natts;
-	char varname[MAX_NC_NAME+1];
+	char varname[H4_MAX_NC_NAME+1];
 	int attlen;
 
 	int32 sds_id, attr_index, datatype, nattrs;
-	int32 dim_sizes[MAX_VAR_DIMS];
-	char attr_name[MAX_NC_NAME];
+	int32 dim_sizes[H4_MAX_VAR_DIMS];
+	char attr_name[H4_MAX_NC_NAME];
 	int32 dimid;
 
 	cdfid = file->internid1;
@@ -320,7 +320,7 @@ int cudiminq_hdf(CuFile* file, int dimidx, char* dimname, char* dimunits, CuType
  * function returns the failure status (-1).
  */
 int cudimget_hdf(CuFile* file, int dimidx, void* values){
-	char dimname[MAX_NC_NAME+1];
+	char dimname[H4_MAX_NC_NAME+1];
 	float *fp;
 	int cdfid;
 	int get_dimid;
@@ -331,14 +331,14 @@ int cudimget_hdf(CuFile* file, int dimidx, void* values){
 	long i;
 	long length;
 	long start;
-	char varname[MAX_NC_NAME+1];
+	char varname[H4_MAX_NC_NAME+1];
 	hdf_type hdftype;
 	int natts;
 	int32 dimid;
 
         int32 sds_id, datatype, nattrs, attr_index, num_type, count;
-        int32 dim_sizes[MAX_VAR_DIMS];
-	char attr_name[MAX_NC_NAME];
+        int32 dim_sizes[H4_MAX_VAR_DIMS];
+	char attr_name[H4_MAX_NC_NAME];
 
 	cdfid = file->internid1;
 	if((dimid = cudimid2hdf(file, dimidx))==-1)
@@ -413,11 +413,11 @@ int cuvarid_hdf(CuFile* file, const char* name){
 int cuvarinq_hdf(CuFile* file, int varid, char* name, CuType* datatype, int* ndims, int dimids[], int* natts){
 	int err, i;
 	hdf_type dtype;
-	char t_name[MAX_NC_NAME+1];
+	char t_name[H4_MAX_NC_NAME+1];
 	int t_ndims, t_natts, numdims;
-	int t_dimids[MAX_VAR_DIMS];
+	int t_dimids[H4_MAX_VAR_DIMS];
 	int32 sds_id, index;
-	int32 dim_sizes[MAX_VAR_DIMS];
+	int32 dim_sizes[H4_MAX_VAR_DIMS];
 
 	/* Select the data set corresponding to the returned index. */
 	sds_id = SDselect(file->internid1, varid);
@@ -455,8 +455,8 @@ int cuvarget_hdf(CuFile* file, int varid, const long start[], const long count[]
 
 	int32 sds_id, i, ndims;
 	int32 *startvalues, *edges, natts;
-	int32 dim_sizes[MAX_VAR_DIMS];
-	char name[MAX_NC_NAME+1];
+	int32 dim_sizes[H4_MAX_VAR_DIMS];
+	char name[H4_MAX_NC_NAME+1];
 	hdf_type dtype;
 
  	/* Get the identifier for the data set. */
@@ -501,7 +501,7 @@ int cuattinq_hdf(CuFile* file, int varid, const char* name, CuType* datatype, in
 	int t_len;
 
 	int32 sds_id, attr_index;
-	char attr_name[MAX_NC_NAME];
+	char attr_name[H4_MAX_NC_NAME];
 
 	/* Get the identifier for the first data set or file. */
 	if (varid == CU_GLOBAL)
@@ -536,7 +536,7 @@ int cuattget_hdf(CuFile* file, int varid, const char* name, void* value){
 	int32 sds_id, attr_index, num_type, count;
 	int32 status;
 	int8 *buffer;
-	char attr_name[MAX_NC_NAME];
+	char attr_name[H4_MAX_NC_NAME];
 
         /* Get the identifier for the data set or file. */
 	if (varid == CU_GLOBAL)
@@ -561,7 +561,7 @@ int cuattget_hdf(CuFile* file, int varid, const char* name, void* value){
  */
 int cuattname_hdf(CuFile* file, int varid, int attnum, char* name){
         int32 sds_id, num_type, count, status;
-        char attr_name[MAX_NC_NAME];
+        char attr_name[H4_MAX_NC_NAME];
 
         /* Get the identifier for the data set or file. */
 	if (varid == CU_GLOBAL)
