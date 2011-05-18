@@ -1,6 +1,4 @@
 
-# If Windows we use CMake otherwise ./configure
-
 set(ParaView_source "${CMAKE_CURRENT_BINARY_DIR}/ParaView")
 set(ParaView_binary "${CMAKE_CURRENT_BINARY_DIR}/ParaView-build")
 set(ParaView_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
@@ -26,7 +24,7 @@ ExternalProject_Add(ParaView
     # Python
     -DPARAVIEW_ENABLE_PYTHON:BOOL=ON
     -DPYTHON_EXECUTABLE:FILEPATH=${PYTHON_EXECUTABLE}
-    -DPYTHON_INCLUDE_DIR:PATH=${PYTHON_INCLUDE_DIR}
+    -DPYTHON_INCLUDE_DIR:PATH=${PYTHON_INCLUDE}
     -DPYTHON_LIBRARY:FILEPATH=${PYTHON_LIBRARY}
     # HDF5
     ${HDF5_ARGS}
