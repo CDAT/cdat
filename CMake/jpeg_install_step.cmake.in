@@ -1,4 +1,8 @@
 
+execute_process(
+  COMMAND make install ${INSTALL_ARGS}
+  WORKING_DIRECTORY "${WORKING_DIR}"
+  RESULT_VARIABLE res)
 
 #cp build/jpeg*/lib* /Users/partyd/Kitware/uv-cdat/make-file-install/Externals/lib
 #cp build/jpeg*/*.h /Users/partyd/Kitware/uv-cdat/make-file-install/Externals/include
