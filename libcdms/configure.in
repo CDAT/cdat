@@ -116,9 +116,9 @@ if test "X$ENABLE_GRIB2" = "Xyes"; then
         [],
 	[with_grib2lib=no])
    if test ${with_grib2lib} == "no" ; then
-     GRIB2LIB="-L${prefix}/Externals/lib -lgrib2c "${PNGLIB}" -lpng "${JASPERLIB}" -ljasper"
+     GRIB2LIB="-L${prefix}/Externals/lib -lgrib2c "${PNGLIB}" -lpng "${JASPERLIB}" -ljasper -lm"
    else
-     GRIB2LIB="-L"${with_grib2lib}" -lgrib2c "${PNGLIB}" -lpng "${JASPERLIB}" -ljasper"
+     GRIB2LIB="-L"${with_grib2lib}" -lgrib2c "${PNGLIB}" -lpng "${JASPERLIB}" -ljasper -lm"
    fi
    AC_CHECK_LIB([grib2c],[g2_getfld],[GRIB2LIBOK="yes"],[GRIB2LIBOK="no"],[${GRIB2LIB}])
    if test ${GRIB2LIBOK} == "no" ; then
