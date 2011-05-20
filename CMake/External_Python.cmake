@@ -58,7 +58,7 @@ set(PYTHON_EXECUTABLE)
 set(PYTHON_SITE_PACKAGES ${CMAKE_BINARY_DIR}/python-build/lib/python${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}/site-packages)
 
 if(APPLE)
-  set(PYTHON_INCLUDE ${CMAKE_BINARY_DIR}/python-build/include/python${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC})
+  set(PYTHON_INCLUDE ${CMAKE_BINARY_DIR}/Externals/Python.framework/Versions/${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}/Headers)
   set(PYTHON_LIBRARY ${CMAKE_BINARY_DIR}/Externals/Python.framework/Versions/${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}/Python)
   set(PYTHON_LIBRARY_DIR ${CMAKE_BINARY_DIR}/python-build/lib)
 #  set(PYTHON_EXECUTABLE ${CMAKE_BINARY_DIR}/python-build/bin/python)
