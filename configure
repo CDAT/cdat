@@ -10054,7 +10054,7 @@ fi;
 BUILDVIS=yes
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking if python ${PYTHON} has PyQt4 support" >&5
 $as_echo_n "checking if python ${PYTHON} has PyQt4 support... " >&6; }
-if test `${PYTHON} -c "cmd = 'try:\n  import PyQt4\n  print 0\nexcept:\n  print 1'; exec(cmd)" 2>/dev/null` = "0" ; then
+if  `${PYTHON} -c "cmd = 'try:\n  import PyQt4\n  print 0\nexcept:\n  print 1'; exec(cmd)" 2>/dev/null` = "0" ; then
   { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 $as_echo "yes" >&6; }
   BUILDVIS=no

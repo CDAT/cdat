@@ -2018,7 +2018,7 @@ dnl ###########################################################
 
 BUILDVIS=yes
 AC_MSG_CHECKING([if python ${PYTHON} has PyQt4 support]) 
-if [test `${PYTHON} -c "cmd = 'try:\n  import PyQt4\n  print 0\nexcept:\n  print 1'; exec(cmd)" 2>/dev/null` = "0"] ; then
+if [ `${PYTHON} -c "cmd = 'try:\n  import PyQt4\n  print 0\nexcept:\n  print 1'; exec(cmd)" 2>/dev/null` = "0" ]; then
   AC_MSG_RESULT([yes])
   BUILDVIS=no
 else
