@@ -1080,12 +1080,12 @@ dnl  at this point we have a python, but we need to test for some features
 if test ${COMPILE_PYTHON} == "no"; then
 dnl  First testing for version of python
   AC_MSG_CHECKING([if python ${PYTHON} is recent enough])
-  if [test `${PYTHON} -c "import sys;print sys.version_info[0]"` -lt "${PYTHON_MAJOR}"] ; then
+  if test [`${PYTHON} -c "import sys;print sys.version_info[0]"` -lt "${PYTHON_MAJOR}" ] ; then
     AC_MSG_RESULT([got a very old python])
     COMPILE_PYTHON=yes
   else
-    if [test `${PYTHON} -c "import sys;print sys.version_info[0]"` == "${PYTHON_MAJOR}"] ; then
-      if [test `${PYTHON} -c "import sys;print sys.version_info[1]"` -lt "${PYTHON_MINOR}"] ; then
+    if test [ `${PYTHON} -c "import sys;print sys.version_info[0]"` == "${PYTHON_MAJOR}" ] ; then
+      if test [ `${PYTHON} -c "import sys;print sys.version_info[1]"` -lt "${PYTHON_MINOR}" ] ; then
         AC_MSG_RESULT([got a slightly old python])
         COMPILE_PYTHON=yes
       else
@@ -1106,7 +1106,7 @@ if test ${COMPILE_PYTHON} == "no" ; then
   dnl  Now testing for must have modules
   for module in Tkinter ; do
     AC_MSG_CHECKING([if python ${PYTHON} has Tkinter support])
-    if [test `${PYTHON} -c "cmd = 'try:\n  import Tkinter\n  print 0\nexcept:\n  print 1'; exec(cmd)"` == "1"] ; then
+    if test [ `${PYTHON} -c "cmd = 'try:\n  import Tkinter\n  print 0\nexcept:\n  print 1'; exec(cmd)"` == "1" ] ; then
       AC_MSG_RESULT([no])
       COMPILE_PYTHON=yes
       if test ${with_python} != "no" ; then
@@ -1132,7 +1132,7 @@ if test ${COMPILE_PYTHON} == "no"; then
   dnl  Now testing for useful modules
   for module in rlcompleter readline ; do
     AC_MSG_CHECKING([if python ${PYTHON} has ${module} support])
-    if [test `${PYTHON} -c "cmd = 'try:\n  import ${module}\n  print 0\nexcept:\n  print 1'; exec(cmd)"` == "1"] ; then
+    if test [ `${PYTHON} -c "cmd = 'try:\n  import ${module}\n  print 0\nexcept:\n  print 1'; exec(cmd)"` == "1" ] ; then
       AC_MSG_RESULT([no])
       AC_MSG_WARN([your python does not have support for ${module}, you should consider adding support for it in your python])
     else
@@ -1373,7 +1373,7 @@ if test  ${enable_cdms_only} != "-yes" ; then
     fi
 
     if test ${enable_fortran} != "-no" ; then
-      if test [ ${FC} != "" -o ${F77} != "" ]  ; then
+      if [ ${FC} != "" -o ${F77} != "" ]  ; then
         if test ${enable_blasbuild} == "-" ; then
           AC_CHECK_LIB([blas],[srotmg_],[HAVE_LIBBLAS=yes],[HAVE_LIBBLAS=no],[${FCLIBS}])
         fi
@@ -1413,26 +1413,26 @@ if [ test ${COMPILE_PYTHON} == "no" ] ; then
   NUMPY=no
   AC_MSG_NOTICE([your python path: ${PYTHONPATH}])
   AC_MSG_CHECKING([if python ${PYTHON} has numpy support]) 
-  if [test `${PYTHON} -c "cmd = 'try:\n  import numpy\n  print 0\nexcept:\n  print 1'; exec(cmd)"` == "1"] ; then
+  if test [ `${PYTHON} -c "cmd = 'try:\n  import numpy\n  print 0\nexcept:\n  print 1'; exec(cmd)"` == "1" ] ; then
     AC_MSG_RESULT([no])
     AC_MSG_NOTICE([your python does not have numpy, we will build it])
     NUMPY=yes
   else
     AC_MSG_RESULT([yes])
     AC_MSG_CHECKING([if numpy is the right version ( > ${NUMPY_MAJOR}.${NUMPY_MINOR}.${NUMPY_PATCH})])
-    if test [`${PYTHON} -c "import numpy ; print numpy.version.version.split('.')[0]"` -lt "${NUMPY_MAJOR}" ] ; then
+    if test [ `${PYTHON} -c "import numpy ; print numpy.version.version.split('.')[0]"` -lt "${NUMPY_MAJOR}" ] ; then
       AC_MSG_RESULT([no])
       AC_MSG_NOTICE([your python does not have a recent enough numpy (MAJOR release is wrong), we will rebuild it])
       NUMPY=yes
     else
-      if test [`${PYTHON} -c "import numpy ; print numpy.version.version.split('.')[0]"` -eq "${NUMPY_MAJOR}" ] ; then
-        if test [`${PYTHON} -c "import numpy ; print numpy.version.version.split('.')[1]"` -lt "${NUMPY_MINOR}" ] ; then
+      if test [ `${PYTHON} -c "import numpy ; print numpy.version.version.split('.')[0]"` -eq "${NUMPY_MAJOR}" ] ; then
+        if test [ `${PYTHON} -c "import numpy ; print numpy.version.version.split('.')[1]"` -lt "${NUMPY_MINOR}" ] ; then
           AC_MSG_RESULT([no])
           AC_MSG_NOTICE([your python does not have a recent enough numpy (MINOR release is wrong), we will rebuild it])
           NUMPY=yes
         else
-          if test [`${PYTHON} -c "import numpy ; print numpy.version.version.split('.')[1]"` -eq "${NUMPY_MINOR}" ] ; then
-            if test [`${PYTHON} -c "import numpy ; print numpy.version.version.split('.')[2]"` -lt "${NUMPY_PATCH}" ] ; then
+          if test [ `${PYTHON} -c "import numpy ; print numpy.version.version.split('.')[1]"` -eq "${NUMPY_MINOR}" ] ; then
+            if test [ `${PYTHON} -c "import numpy ; print numpy.version.version.split('.')[2]"` -lt "${NUMPY_PATCH}" ] ; then
               AC_MSG_RESULT([no])
               AC_MSG_NOTICE([your python does not have a recent enough numpy (PATCH NUMBER is WRONG), we will rebuild it])
               NUMPY=yes
@@ -1453,20 +1453,20 @@ if [ test ${COMPILE_PYTHON} == "no" ] ; then
   dnl ########################################################
   SETUPTOOLS=no
   AC_MSG_CHECKING([if python ${PYTHON} has setuptools support]) 
-  if [test `${PYTHON} -c "cmd = 'try:\n  import setuptools\n  print 0\nexcept:\n  print 1'; exec(cmd)"` == "1"] ; then
+  if test [ `${PYTHON} -c "cmd = 'try:\n  import setuptools\n  print 0\nexcept:\n  print 1'; exec(cmd)"` == "1" ] ; then
     AC_MSG_RESULT([no])
     AC_MSG_NOTICE([your python does not have setuptools, we will build it])
     SETUPTOOLS=yes
   else
     AC_MSG_RESULT([yes])
     AC_MSG_CHECKING([if setuptools is the right version ( > ${SETUPTOOLS_MAJOR}.${SETUPTOOLS_MINOR})])
-    if test [`${PYTHON} -c "import setuptools ; print setuptools.__version__.split('.')[0]"` -lt "${SETUPTOOLS_MAJOR}" ] ; then
+    if test [ `${PYTHON} -c "import setuptools ; print setuptools.__version__.split('.')[0]"` -lt "${SETUPTOOLS_MAJOR}" ] ; then
       AC_MSG_RESULT([no])
       AC_MSG_NOTICE([your python does not have a recent enough setuptools (MAJOR release is wrong), we will rebuild it])
       SETUPTOOLS=yes
     else
-      if test [`${PYTHON} -c "import setuptools ; print setuptools.__version__.split('.')[0]"` -eq "${SETUPTOOLS_MAJOR}" ] ; then
-        if test [`${PYTHON} -c "import setuptools ; vmin = setuptools.__version__.split('.')[1]; cont = True ; cmd = 'while cont:\n try:\n  vmin=int(vmin)\n  cont=False\n except:\n  vmin=vmin[:-1]';exec(cmd);print vmin"` -lt "${SETUPTOOLS_MINOR}" ] ; then
+      if test [ `${PYTHON} -c "import setuptools ; print setuptools.__version__.split('.')[0]"` -eq "${SETUPTOOLS_MAJOR}" ] ; then
+        if test [ `${PYTHON} -c "import setuptools ; vmin = setuptools.__version__.split('.')[1]; cont = True ; cmd = 'while cont:\n try:\n  vmin=int(vmin)\n  cont=False\n except:\n  vmin=vmin[:-1]';exec(cmd);print vmin"` -lt "${SETUPTOOLS_MINOR}"] ; then
           AC_MSG_RESULT([no])
           AC_MSG_NOTICE([your python does not have a recent enough setuptools (MINOR release is wrong), we will rebuild it])
           SETUPTOOLS=yes
@@ -1484,20 +1484,20 @@ if [ test ${COMPILE_PYTHON} == "no" ] ; then
    dnl  PyOpenGL
    dnl ########################################################
    AC_MSG_CHECKING([if python ${PYTHON} has PyOpenGL support]) 
-   if [test `${PYTHON} -c "cmd = 'try:\n  import OpenGL\n  print 0\nexcept:\n  print 1'; exec(cmd)"` == "1"] ; then
+   if test [ `${PYTHON} -c "cmd = 'try:\n  import OpenGL\n  print 0\nexcept:\n  print 1'; exec(cmd)"` == "1" ] ; then
      AC_MSG_RESULT([no])
      AC_MSG_NOTICE([your python does not have PyOpenGL, we will build it])
      PyOpenGL=yes
    else
      AC_MSG_RESULT([yes])
      AC_MSG_CHECKING([if PyOpenGL is the right version ( > ${PyOpenGL_MAJOR}.${PyOpenGL_MINOR})])
-     if test [`${PYTHON} -c "import OpenGL ; print OpenGL.__version__.split('.')[0]"` -lt "${PyOpenGL_MAJOR}" ] ; then
+     if test [ `${PYTHON} -c "import OpenGL ; print OpenGL.__version__.split('.')[0]"` -lt "${PyOpenGL_MAJOR}" ] ; then
        AC_MSG_RESULT([no])
        AC_MSG_NOTICE([your python does not have a recent enough PyOpenGL (MAJOR release is wrong), we will rebuild it])
        PyOpenGL=yes
      else
-       if test [`${PYTHON} -c "import OpenGL ; print OpenGL.__version__.split('.')[0]"` -eq "${PyOpenGL_MAJOR}" ] ; then
-         if test [`${PYTHON} -c "import OpenGL ; vmin = OpenGL.__version__.split('.')[1]; cont = True ; cmd = 'while cont:\n try:\n  vmin=int(vmin)\n  cont=False\n except:\n  vmin=vmin[:-1]';exec(cmd);print vmin"` -lt "${PyOpenGL_MINOR}" ] ; then
+       if test [ `${PYTHON} -c "import OpenGL ; print OpenGL.__version__.split('.')[0]"` -eq "${PyOpenGL_MAJOR}" ] ; then
+         if test [ `${PYTHON} -c "import OpenGL ; vmin = OpenGL.__version__.split('.')[1]; cont = True ; cmd = 'while cont:\n try:\n  vmin=int(vmin)\n  cont=False\n except:\n  vmin=vmin[:-1]';exec(cmd);print vmin"` -lt "${PyOpenGL_MINOR}" ] ; then
            AC_MSG_RESULT([no])
            AC_MSG_NOTICE([your python does not have a recent enough PyOpenGL (MINOR release is wrong), we will rebuild it])
            PyOpenGL=yes
@@ -1517,19 +1517,19 @@ if [ test ${COMPILE_PYTHON} == "no" ] ; then
     dnl ##########################################################
     Pmw=no
     AC_MSG_CHECKING([if python ${PYTHON} has Pmw support]) 
-    if [test `${PYTHON} -c "cmd = 'try:\n  import Pmw\n  print 0\nexcept:\n  print 1'; exec(cmd)"` == "1"] ; then
+    if test [ `${PYTHON} -c "cmd = 'try:\n  import Pmw\n  print 0\nexcept:\n  print 1'; exec(cmd)"` == "1" ] ; then
       AC_MSG_RESULT([no])
       AC_MSG_NOTICE([your python does not have Pmw, we will build it])
       Pmw=yes
     else
       AC_MSG_RESULT([yes])
       AC_MSG_CHECKING([if Pmw is the right version ( > ${PMW_MAJOR}.${PMW_MINOR})])
-      if test [`${PYTHON} -c "import Pmw ; print Pmw.version().split('.')[0]"` -lt "${PMW_MAJOR}" ] ; then
+      if test [ `${PYTHON} -c "import Pmw ; print Pmw.version().split('.')[0]"` -lt "${PMW_MAJOR}" ] ; then
         AC_MSG_RESULT([no])
         AC_MSG_NOTICE([your python does not have a recent enough Pmw, we will rebuild it])
         Pmw=yes
       else
-        if test [`${PYTHON} -c "import Pmw ; print Pmw.version().split('.')[1]"` -lt "${PMW_MINOR}" ] ; then
+        if test [ `${PYTHON} -c "import Pmw ; print Pmw.version().split('.')[1]"` -lt "${PMW_MINOR}" ] ; then
           AC_MSG_RESULT([no])
           AC_MSG_NOTICE([your python does not have a recent enough Pmw, we will rebuild it])
           Pmw=yes
@@ -2018,7 +2018,7 @@ dnl ###########################################################
 
 BUILDVIS=yes
 AC_MSG_CHECKING([if python ${PYTHON} has PyQt4 support]) 
-if [ `${PYTHON} -c "cmd = 'try:\n  import PyQt4\n  print 0\nexcept:\n  print 1'; exec(cmd)" 2>/dev/null` = "0" ]; then
+if test [ `${PYTHON} -c "cmd = 'try:\n  import PyQt4\n  print 0\nexcept:\n  print 1'; exec(cmd)" 2>/dev/null` = "0" ] ; then
   AC_MSG_RESULT([yes])
   BUILDVIS=no
 else
