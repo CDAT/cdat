@@ -1,7 +1,7 @@
 
 set(ParaView_source "${CMAKE_CURRENT_BINARY_DIR}/ParaView")
 set(ParaView_binary "${CMAKE_CURRENT_BINARY_DIR}/ParaView-build")
-set(ParaView_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
+set(ParaView_install "${cdat_EXTERNALS}")
 
 ExternalProject_Add(ParaView
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
@@ -28,9 +28,21 @@ ExternalProject_Add(ParaView
     -DPYTHON_LIBRARY:FILEPATH=${PYTHON_LIBRARY}
     # HDF5
     ${HDF5_ARGS}
+    -DPARAVIEW_INSTALL_THIRD_PARTY_LIBRARIES:BOOL=OFF
     ${cdat_compiler_args}
   CMAKE_ARGS
     -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
   BUILD_COMMAND ${CMAKE_COMMAND} -DWORKING_DIR=<BINARY_DIR> -Dmake=$(MAKE) -P ${cdat_CMAKE_BINARY_DIR}/cdat_cmake_make_step.cmake
   DEPENDS ${ParaView_DEPENDENCIES}
 )
+
+configure_file(${cdat_CMAKE_SOURCE_DIR}/vtk_install_python_module.cmake.in
+  ${cdat_CMAKE_BINARY_DIR}/vtk_install_python_module.cmake
+  @ONLY)
+
+
+ ExternalProject_Add_Step(ParaView InstallVTKPythonModule
+    COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/vtk_install_python_module.cmake
+    DEPENDEES install
+    WORKING_DIRECTORY ${cdat_CMAKE_BINARY_DIR}
+    )
