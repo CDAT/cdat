@@ -4,7 +4,7 @@ set(ENV${CXX} "@CMAKE_CXX_COMPILER@")
 set(ENV${CPP} "@CMAKE_CXX_COMPILER@")
 
 set(ENV{PATH} "@cdat_BINARY_DIR@/Externals/bin:@cdat_BINARY_DIR@/Externals/NetCDF/bin:@cdat_BINARY_DIR@/Externals/HDF5/bin:$ENV{PATH}")
-set(ENV{@LIBRARY_PATH@} "@cdat_BINARY_DIR@/Externals/lib:$ENV{@LIBRARY_PATH@}")
+set(ENV{@LIBRARY_PATH@} "@cdat_BINARY_DIR@/Externals/lib:@cdat_BINARY_DIR@/Externals/lib/paraview-@PARAVIEW_MAJOR@.@PARAVIEW_MINOR@:$ENV{@LIBRARY_PATH@}")
 set(ENV{LDFLAGS} "-L@cdat_BINARY_DIR@/Externals/NetCDF/lib -L@cdat_BINARY_DIR@/Externals/lib")
 set(ENV{CFLAGS} "@cdat_osx_flags@ -I@cdat_BINARY_DIR@/Externals/NetCDF/include -I@cdat_BINARY_DIR@/Externals/include ${ADDITIONAL_CFLAGS}")
 set(ENV{CPPFLAGS} "@cdat_osx_flags@ -I@cdat_BINARY_DIR@/Externals/NetCDF/include -I@cdat_BINARY_DIR@/Externals/include ${ADDITIONAL_CPPFLAGS}")
