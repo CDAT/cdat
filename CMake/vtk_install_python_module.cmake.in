@@ -1,0 +1,28 @@
+
+set(ENV${CC} "@CMAKE_C_COMPILER@")
+set(ENV${CXX} "@CMAKE_CXX_COMPILER@")
+set(ENV${CPP} "@CMAKE_CXX_COMPILER@")
+
+#set(ENV{PATH} "@cdat_BINARY_DIR@/Externals/bin:@cdat_BINARY_DIR@/Externals/NetCDF/bin:@cdat_BINARY_DIR@/Externals/HDF5/bin:$ENV{PATH}")
+set(ENV{@LIBRARY_PATH@} "@cdat_BINARY_DIR@/Externals/lib:$ENV{@LIBRARY_PATH@}")
+set(ENV{LDFLAGS} "-L@cdat_BINARY_DIR@/Externals/lib")
+set(ENV{CFLAGS} "@cdat_osx_flags@ -I@cdat_BINARY_DIR@/Externals/include -I@cdat_BINARY_DIR@/Externals/include/freetype2 @ADDITIONAL_CFLAGS@")
+set(ENV{CPPFLAGS} "@cdat_osx_flags@ -I@cdat_BINARY_DIR@/Externals/include -I@cdat_BINARY_DIR@/Externals/include/freetype2 @ADDITIONAL_CPPFLAGS@")
+set(ENV{CXXFLAGS} "@cdat_osx_flags@ -I@cdat_BINARY_DIR@/Externals/include -I@cdat_BINARY_DIR@/Externals/include/freetype2 @ADDITIONAL_CXXFLAGS@")
+#set(ENV{PKG_CONFIG_PATH} "@cdat_BINARY_DIR@/Externals/lib/pkgconfig")
+#set(ENV{PKG_CONFIG} "@cdat_PKG_CONFIG_EXECUTABLE@")
+#set(ENV{PYTHON_PATH} "@cdat_BINARY_DIR@/lib/python@PYTHON_MAJOR@.@PYTHON_MINOR@/site-packages:$ENV{PYTHON_PATH}")
+
+set(ENV{EXTERNALS} "@cdat_BINARY_DIR@/Externals")
+
+execute_process(
+  COMMAND @PYTHON_EXECUTABLE@ setup.py install
+  WORKING_DIRECTORY @cdat_BINARY_DIR@/ParaView-build/VTK/Wrapping/Python
+  RESULT_VARIABLE res)
+
+if(NOT ${res} EQUAL 0)
+  message("Make Errors detected: \n${CDAT_OUT}\n${CDAT_ERR}")
+  message(FATAL_ERROR "Error in VTK Python Install")
+endif()
+message("Install succeeded.")
+
