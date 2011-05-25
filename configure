@@ -882,6 +882,11 @@ LIBCF_MINOR_SRC
 LIBCF_PATCH_SRC
 LIBCF_URL
 LIBCF_GZ
+PYTABLES_MAJOR_SRC
+PYTABLES_MINOR_SRC
+PYTABLES_PATCH_SRC
+PYTABLES_URL
+PYTABLES_GZ
 ESG
 PGCONFIG
 SETUPTOOLS
@@ -1024,6 +1029,7 @@ X_LIBS
 X_EXTRA_LIBS
 COMPILE_VTK
 COMPILE_LIBCF
+COMPILE_PYTABLES
 QTCONFIGOPT
 XTRA_LD_F2PY
 EXTRAENV
@@ -1651,6 +1657,7 @@ Optional Features:
                           (default on)
   --enable-vtk            enable/disable vtk build
   --enable-libcf          enable/disable libcf build
+  --enable-pytables       enable/disable pytables build
   --enable-aqua           enables aqua support for tk (if tk with aqua is on
                           your system)
   --enable-framework      Build (MacOSX|Darwin) framework
@@ -2136,12 +2143,12 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 SVN_TAG="rev"`./get_svn_version.sh`
-if test ${SVN_TAG} == "rev" ; then
+if test ${SVN_TAG} = "rev" ; then
   SVN_TAG=""
 fi
 CDAT_VERSION=${PACKAGE_VERSION}${SVN_TAG}
 
-ac_config_files="$ac_config_files Makefile site.cfg README.txt Scripts/cdat Scripts/cdatversion exsrc/CMakeCache.txt checked_get.sh exsrc/src/pbmplus/Makefile matplotlib.setup.cfg"
+ac_config_files="$ac_config_files Makefile site.cfg README.txt Scripts/cdatversion exsrc/CMakeCache.txt checked_get.sh exsrc/src/pbmplus/Makefile matplotlib.setup.cfg"
 
 
 
@@ -2179,7 +2186,7 @@ JASPER_GZ=jasper-${JASPER_MAJOR_SRC}.${JASPER_MINOR_SRC}.${JASPER_PATCH_SRC}.tgz
 COMPILE_JASPER=yes
 G2CLIB_MAJOR_SRC=1
 G2CLIB_MINOR_SRC=2
-G2CLIB_PATCH_SRC=3
+G2CLIB_PATCH_SRC=4
 G2CLIB_URL=uv-cdat.llnl.gov
 G2CLIB_GZ=g2clib-${JASPER_MAJOR_SRC}.${G2CLIB_MINOR_SRC}.${G2CLIB_PATCH_SRC}.tar.gz
 
@@ -2609,6 +2616,17 @@ LIBCF_GZ=libcf-daily.tar.gz
 
 
 
+PYTABLES_MAJOR_SRC=2
+PYTABLES_MINOR_SRC=2
+PYTABLES_PATCH_SRC=1
+PYTABLES_URL=http://www.pytables.org/download/pytables-${PYTABLES_MAJOR_SRC}.${PYTABLES_MINOR_SRC}.${PYTABLES_PATCH_SRC}
+PYTABLES_GZ=tables-2.2.1.tar.gz
+
+
+
+
+
+
 
 
 
@@ -2684,7 +2702,7 @@ else
   with_externals=no
 fi
 
-if test ${with_externals} == "no" ; then
+if test ${with_externals} = "no" ; then
    EXTERNALS=${prefix}/Externals
 else
    EXTERNALS=${with_externals}
@@ -2698,7 +2716,7 @@ else
   with_cpus=1
 fi
 
-if test ${with_cpus} == "no" ; then
+if test ${with_cpus} = "no" ; then
    NCPUS=1
 else
    NCPUS=${with_cpus}
@@ -2843,7 +2861,7 @@ fi
 
 
 
-if test ${HASWGET} == "no" ; then
+if test ${HASWGET} = "no" ; then
    # Extract the first word of "curl", so it can be a program name with args.
 set dummy curl; ac_word=$2
 { echo "$as_me:$LINENO: checking for $ac_word" >&5
@@ -2885,7 +2903,7 @@ echo "${ECHO_T}no" >&6; }
 fi
 
 
-   if test ${HASCURL} == "no" ; then
+   if test ${HASCURL} = "no" ; then
     { { echo "$as_me:$LINENO: error: you need either wget or curl installed" >&5
 echo "$as_me: error: you need either wget or curl installed" >&2;}
    { (exit 1); exit 1; }; }
@@ -2923,7 +2941,7 @@ if test "${enable_fortran+set}" = set; then
 fi
 
 enable_fortran="-"${enable_fortran}
-if test ${enable_fortran} == "-no" ; then
+if test ${enable_fortran} = "-no" ; then
   FC=""
   F77=""
   FFLAGS=""
@@ -5296,7 +5314,7 @@ ac_fc_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_fc_v_output" >&5
 FCFLAGS=$ac_save_FFLAGS
 
-rm -f -r conftest*
+rm -f conftest*
 
 # On HP/UX there is a line like: "LPATH is: /foo:/bar:/baz" where
 # /foo, /bar, and /baz are search directories for the Fortran linker.
@@ -5387,7 +5405,7 @@ ac_fc_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_fc_v_output" >&5
 FCFLAGS=$ac_save_FFLAGS
 
-rm -f -r conftest*
+rm -f conftest*
 
 # On HP/UX there is a line like: "LPATH is: /foo:/bar:/baz" where
 # /foo, /bar, and /baz are search directories for the Fortran linker.
@@ -5621,7 +5639,7 @@ ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
 
-rm -f -r conftest*
+rm -f conftest*
 
 # On HP/UX there is a line like: "LPATH is: /foo:/bar:/baz" where
 # /foo, /bar, and /baz are search directories for the Fortran linker.
@@ -5712,7 +5730,7 @@ ac_f77_v_output=`eval $ac_link 5>&1 2>&1 | grep -v 'Driving:'`
 echo "$ac_f77_v_output" >&5
 FFLAGS=$ac_save_FFLAGS
 
-rm -f -r conftest*
+rm -f conftest*
 
 # On HP/UX there is a line like: "LPATH is: /foo:/bar:/baz" where
 # /foo, /bar, and /baz are search directories for the Fortran linker.
@@ -6037,7 +6055,7 @@ case ${target_os} in
   *)
     echo "Testing for X11";;
 esac
-if test ${DO_X} == "yes" ; then
+if test ${DO_X} = "yes" ; then
 
 
 { echo "$as_me:$LINENO: checking for X" >&5
@@ -6080,7 +6098,7 @@ _ACEOF
       eval "ac_im_$ac_var=\`\${MAKE-make} $ac_var 2>/dev/null | sed -n 's/^$ac_var=//p'\`"
     done
     # Open Windows xmkmf reportedly sets LIBDIR instead of USRLIBDIR.
-    for ac_extension in a so sl dylib la dll; do
+    for ac_extension in a so sl; do
       if test ! -f "$ac_im_usrlibdir/libX11.$ac_extension" &&
 	 test -f "$ac_im_libdir/libX11.$ac_extension"; then
 	ac_im_usrlibdir=$ac_im_libdir; break
@@ -6233,7 +6251,7 @@ sed 's/^/| /' conftest.$ac_ext >&5
 for ac_dir in `echo "$ac_x_includes $ac_x_header_dirs" | sed s/include/lib/g`
 do
   # Don't even attempt the hair of trying to link an X program!
-  for ac_extension in a so sl dylib la dll; do
+  for ac_extension in a so sl; do
     if test -r "$ac_dir/libX11.$ac_extension"; then
       ac_x_libraries=$ac_dir
       break 2
@@ -7355,8 +7373,8 @@ fi
 fi
 
     long_no_x="_"${no_x}
-  if  test ${long_no_x} == "_yes"   ; then
-    if test ${enable_esg} == "-yes" ; then
+  if  test ${long_no_x} = "_yes"   ; then
+    if test ${enable_esg} = "-yes" ; then
       enable_X11="-no"
       { echo "$as_me:$LINENO: WARNING: no X found turn off X11 dependencies, that means no tcl/tk or Tkinter suport in your python" >&5
 echo "$as_me: WARNING: no X found turn off X11 dependencies, that means no tcl/tk or Tkinter suport in your python" >&2;}
@@ -7462,7 +7480,7 @@ if test "${enable_vtk+set}" = set; then
 fi
 
 enable_vtk="-"${enable_vtk}
-if test ${enable_vtk} == "-yes" ; then
+if test ${enable_vtk} = "-yes" ; then
    COMPILE_VTK="yes"
 else
   COMPILE_VTK="no"
@@ -7474,11 +7492,24 @@ if test "${enable_libcf+set}" = set; then
   enableval=$enable_libcf;
 fi
 
-if test "x${enable_libcf}" == "xyes" ; then
+if test "x${enable_libcf}" = "xyes" ; then
    COMPILE_LIBCF="yes"
 else
   COMPILE_LIBCF="no"
 fi
+
+
+# Check whether --enable-pytables was given.
+if test "${enable_pytables+set}" = set; then
+  enableval=$enable_pytables;
+fi
+
+if test "x${enable_pytables}" = "xyes" ; then
+   COMPILE_PYTABLES="yes"
+else
+  COMPILE_PYTABLES="no"
+fi
+
 
 
 EXTRAENV=""
@@ -7503,12 +7534,12 @@ echo "$as_me: Linux: adding -Wl,--rpath,${prefix}/lib -Wl,--rpath,${EXTERNALS}/l
   LDFLAGS=${LDFLAGS}" -Wl,--rpath,${prefix}/lib -Wl,--rpath,${EXTERNALS}/lib "
   { echo "$as_me:$LINENO: checking if we are using icc" >&5
 echo $ECHO_N "checking if we are using icc... $ECHO_C" >&6; }
-  if test ${CC} == "icc" ; then
+  if test ${CC} = "icc" ; then
     { echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6; }
     { echo "$as_me:$LINENO: checking if IC env variable is set" >&5
 echo $ECHO_N "checking if IC env variable is set... $ECHO_C" >&6; }
-    if test "-"${IC} == "-" ; then
+    if test "-"${IC} = "-" ; then
        { echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6; }
        { { echo "$as_me:$LINENO: error: set environment variable IC to the location of libimf.a, libirc.a" >&5
@@ -7566,7 +7597,7 @@ fi
 
             cp exsrc/src/CMakeCache.txt.mac.in exsrc/CMakeCache.txt.in
   enable_aqua="-"${enable_aqua}
-  if test ${enable_aqua} == "-yes" ; then
+  if test ${enable_aqua} = "-yes" ; then
      AQUA_PYTHON="export AQUA_CDAT=yes ; "
   else
      AQUA_PYTHON="export AQUA_CDAT=no ; "
@@ -7577,7 +7608,7 @@ if test "${enable_framework+set}" = set; then
 fi
 
   enable_fw="-"${enable_framework}
-  if test ${enable_fw} == "-yes" ; then
+  if test ${enable_fw} = "-yes" ; then
     PYOPT=" --enable-framework"
     ISFRAMEWORK="yes"
     cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
@@ -7589,7 +7620,7 @@ fi
          PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall "
          ISFRAMEWORK="yes"
      else
-       if test ${enable_vtk} == "-yes" ; then
+       if test ${enable_vtk} = "-yes" ; then
            PYOPT=" --enable-framework=${prefix} "
            cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
            PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall"
@@ -7603,14 +7634,14 @@ if test "${enable_toolbox_glue+set}" = set; then
 fi
 
   enable_tbg="-"${enable_toolbox_glue}
-  if test ${enable_tbg} == "-yes" ; then
+  if test ${enable_tbg} = "-yes" ; then
     PYOPT=${PYOPT}" --enable-toolbox-glue"
   fi
   case ${target_os} in
     darwin10*)
     EXTRAENV="MACOSX_DEPLOYMENT_TARGET=10.6"
 
-    if test ${enable_fw} == "-yes" ; then
+    if test ${enable_fw} = "-yes" ; then
       PYOPT=" --enable-framework"
       PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall"
       ISFRAMEWORK="yes"
@@ -7620,7 +7651,7 @@ fi
          PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall"
          ISFRAMEWORK="yes"
       else
-         if test ${enable_vtk} == "-yes" ; then
+         if test ${enable_vtk} = "-yes" ; then
            PYOPT=" --enable-framework=${prefix} "
            cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
            PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall"
@@ -7645,7 +7676,7 @@ esac
 
 { echo "$as_me:$LINENO: checking for 64bit machine" >&5
 echo $ECHO_N "checking for 64bit machine... $ECHO_C" >&6; }
-if test ${target_cpu} == "x86_64" -o ${target_cpu} == "ia64" ; then
+if test ${target_cpu} = "x86_64" -o ${target_cpu} = "ia64" ; then
   case ${target_os} in
   darwin10*)
     { echo "$as_me:$LINENO: result: yes" >&5
@@ -7679,7 +7710,7 @@ if test "${enable_logfiles+set}" = set; then
 fi
 
 enable_logfiles="-"${enable_logfiles}
-if test  ${enable_logfiles} == "-no" ; then
+if test  ${enable_logfiles} = "-no" ; then
    KEEPLOG=""
    KEEPLOGa=""
    KEEPLOGroot="/dev/null"
@@ -7689,7 +7720,7 @@ else
    KEEPLOGroot="\"${MAINDIR}/logs\""
 fi
 
-if test ${enable_esg} == "-yes" ; then
+if test ${enable_esg} = "-yes" ; then
   enable_cdms_only="yes"
   ESG=yes
   DOCMOR="no"
@@ -7734,7 +7765,7 @@ echo "${ECHO_T}no" >&6; }
 fi
 
 
-  if test ${PGCONFIG} == "no" ; then
+  if test ${PGCONFIG} = "no" ; then
 
 # Check whether --with-pg_config was given.
 if test "${with_pg_config+set}" = set; then
@@ -7779,7 +7810,7 @@ if test "${enable_cdms_only+set}" = set; then
 fi
 
 enable_cdms_only="-"${enable_cdms_only}
-if test ${enable_cdms_only} == "-yes" ; then
+if test ${enable_cdms_only} = "-yes" ; then
   PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --enable-cdms-only"
 fi
 
@@ -7789,7 +7820,7 @@ if test "${enable_debug+set}" = set; then
 fi
 
 enable_debug="-"${enable_debug}
-if test ${enable_debug} == "-yes" ; then
+if test ${enable_debug} = "-yes" ; then
   PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --debug"
   CFLAGS="-g "${CFLAGS}
 fi
@@ -7831,7 +7862,8 @@ echo "$as_me: error: Could not find python executable ${with_python}" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
-  PYTHON_INSTALL_PREFIX=" --prefix=${with_python} "
+  # if /usr/bin/python then PYTHON_INSTALL_PREFIX should be /usr
+  PYTHON_INSTALL_PREFIX=" --prefix=`dirname ${with_python}`/.. "
 else
   # Extract the first word of "python", so it can be a program name with args.
 set dummy python; ac_word=$2
@@ -7903,16 +7935,16 @@ if test `eval echo '${'$as_ac_File'}'` = yes; then
 fi
 
 fi
-if test ${COMPILE_PYTHON} == "no"; then
+if test ${COMPILE_PYTHON} = "no"; then
   { echo "$as_me:$LINENO: checking if python ${PYTHON} is recent enough" >&5
 echo $ECHO_N "checking if python ${PYTHON} is recent enough... $ECHO_C" >&6; }
-  if test `${PYTHON} -c "import sys;print sys.version_info[0]"` -lt "${PYTHON_MAJOR}" ; then
+  if test `${PYTHON} -c "import sys;print sys.version_info[0]"` -lt "${PYTHON_MAJOR}"  ; then
     { echo "$as_me:$LINENO: result: got a very old python" >&5
 echo "${ECHO_T}got a very old python" >&6; }
     COMPILE_PYTHON=yes
   else
-    if test `${PYTHON} -c "import sys;print sys.version_info[0]"` == "${PYTHON_MAJOR}" ; then
-      if test `${PYTHON} -c "import sys;print sys.version_info[1]"` -lt "${PYTHON_MINOR}" ; then
+    if test  `${PYTHON} -c "import sys;print sys.version_info[0]"` = "${PYTHON_MAJOR}"  ; then
+      if test  `${PYTHON} -c "import sys;print sys.version_info[1]"` -lt "${PYTHON_MINOR}"  ; then
         { echo "$as_me:$LINENO: result: got a slightly old python" >&5
 echo "${ECHO_T}got a slightly old python" >&6; }
         COMPILE_PYTHON=yes
@@ -7922,7 +7954,7 @@ echo "${ECHO_T}yes" >&6; }
       fi
     fi
   fi
-  if test ${COMPILE_PYTHON} == "yes" ; then
+  if test ${COMPILE_PYTHON} = "yes" ; then
     if test ${with_python} != "no" ; then
       { { echo "$as_me:$LINENO: error: your python is too old" >&5
 echo "$as_me: error: your python is too old" >&2;}
@@ -7933,12 +7965,12 @@ echo "$as_me: WARNING: we will build a new python for you" >&2;}
     fi
   fi
 fi
-if test ${COMPILE_PYTHON} == "no" ; then
- if  test ${enable_cdms_only} != "-yes" -o ${enable_esg} == "-yes"   ; then
+if test ${COMPILE_PYTHON} = "no" ; then
+ if  test ${enable_cdms_only} != "-yes" -o ${enable_esg} = "-yes"   ; then
     for module in Tkinter ; do
     { echo "$as_me:$LINENO: checking if python ${PYTHON} has Tkinter support" >&5
 echo $ECHO_N "checking if python ${PYTHON} has Tkinter support... $ECHO_C" >&6; }
-    if test `${PYTHON} -c "cmd = 'try:\n  import Tkinter\n  print 0\nexcept:\n  print 1'; exec(cmd)"` == "1" ; then
+    if test  `${PYTHON} -c "cmd = 'try:\n  import Tkinter\n  print 0\nexcept:\n  print 1'; exec(cmd)"` = "1"  ; then
       { echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6; }
       COMPILE_PYTHON=yes
@@ -7957,7 +7989,7 @@ echo "${ECHO_T}yes" >&6; }
   done
  fi
 fi
-if test ${COMPILE_PYTHON} == "no"; then
+if test ${COMPILE_PYTHON} = "no"; then
     PYVER=`${PYTHON} -c "import sys;print sys.version.split(' ').pop(0)"`
     TCLTK_VERSION=`${PYTHON} -c "import Tkinter;print Tkinter.TkVersion"`
     COMPILE_READLINE=no
@@ -7966,7 +7998,7 @@ if test ${COMPILE_PYTHON} == "no"; then
     for module in rlcompleter readline ; do
     { echo "$as_me:$LINENO: checking if python ${PYTHON} has ${module} support" >&5
 echo $ECHO_N "checking if python ${PYTHON} has ${module} support... $ECHO_C" >&6; }
-    if test `${PYTHON} -c "cmd = 'try:\n  import ${module}\n  print 0\nexcept:\n  print 1'; exec(cmd)"` == "1" ; then
+    if test  `${PYTHON} -c "cmd = 'try:\n  import ${module}\n  print 0\nexcept:\n  print 1'; exec(cmd)"` = "1"  ; then
       { echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6; }
       { echo "$as_me:$LINENO: WARNING: your python does not have support for ${module}, you should consider adding support for it in your python" >&5
@@ -7983,7 +8015,7 @@ else
   if test ${target_os} = "OSF1" ;  then
     PYOPT=${PYOPT}" --disable-ipv6"
   fi
-  if test ${target_os} == "AIX" ; then
+  if test ${target_os} = "AIX" ; then
     PYOPT=${PYOPT}" --disable-ipv6"
   fi
   PYTHON=${prefix}/bin/python
@@ -8294,7 +8326,7 @@ if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
 else
   ac_cv_header_stdc=no
 fi
-rm -f -r conftest*
+rm -f conftest*
 
 fi
 
@@ -8315,7 +8347,7 @@ if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
 else
   ac_cv_header_stdc=no
 fi
-rm -f -r conftest*
+rm -f conftest*
 
 fi
 
@@ -8885,7 +8917,7 @@ rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext conftest.$a
 fi
 
 
-  if test $COMPILE_READLINE == "no" ; then
+  if test $COMPILE_READLINE = "no" ; then
     { echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6; }
   else
@@ -9108,7 +9140,7 @@ fi
   { echo "$as_me:$LINENO: tcl/tk always built. This avoids conflicts with systems with multiple tcl/tk versions" >&5
 echo "$as_me: tcl/tk always built. This avoids conflicts with systems with multiple tcl/tk versions" >&6;}
   if  test ${COMPILE_TCLTK} != "yes"  ; then
-   if  test ${enable_cdms_only} != "-yes" -o ${enable_esg} == "-yes"   ; then
+   if  test ${enable_cdms_only} != "-yes" -o ${enable_esg} = "-yes"   ; then
         { echo "$as_me:$LINENO: checking if you have a recent tcl (> ${TCLTK_MAJOR}.${TCLTK_MINOR})" >&5
 echo $ECHO_N "checking if you have a recent tcl (> ${TCLTK_MAJOR}.${TCLTK_MINOR})... $ECHO_C" >&6; }
     if test "$cross_compiling" = yes; then
@@ -9176,7 +9208,7 @@ rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext conftest.$a
 fi
 
 
-    if test $COMPILE_TCLTK == "no" ; then
+    if test $COMPILE_TCLTK = "no" ; then
       { echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6; }
       { echo "$as_me:$LINENO: checking if you have a recent tk" >&5
@@ -9246,7 +9278,7 @@ rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext conftest.$a
 fi
 
 
-      if test $COMPILE_TCLTK == "no" ; then
+      if test $COMPILE_TCLTK = "no" ; then
         { echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6; }
       else
@@ -9257,7 +9289,7 @@ echo "${ECHO_T}no" >&6; }
       { echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6; }
     fi
-    if test ${COMPILE_TCLTK} == "yes" ; then
+    if test ${COMPILE_TCLTK} = "yes" ; then
       { echo "$as_me:$LINENO: checking if you have a recent tcl  (> ${TCLTK_MAJOR}.${TCLTK_MINOR}) (with subdir for tcl include)" >&5
 echo $ECHO_N "checking if you have a recent tcl  (> ${TCLTK_MAJOR}.${TCLTK_MINOR}) (with subdir for tcl include)... $ECHO_C" >&6; }
       if test "$cross_compiling" = yes; then
@@ -9325,7 +9357,7 @@ rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext conftest.$a
 fi
 
 
-      if test $COMPILE_TCLTK == "no" ; then
+      if test $COMPILE_TCLTK = "no" ; then
         { echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6; }
         { echo "$as_me:$LINENO: checking if you have a recent tk" >&5
@@ -9395,7 +9427,7 @@ rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext conftest.$a
 fi
 
 
-        if test $COMPILE_TCLTK == "no" ; then
+        if test $COMPILE_TCLTK = "no" ; then
           { echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6; }
         else
@@ -9458,7 +9490,7 @@ echo "${ECHO_T}no" >&6; }
 fi
 
 
-  if test ${HAVE_CMAKE} == "no" ; then
+  if test ${HAVE_CMAKE} = "no" ; then
     # Extract the first word of "cmake", so it can be a program name with args.
 set dummy cmake; ac_word=$2
 { echo "$as_me:$LINENO: checking for $ac_word" >&5
@@ -9573,7 +9605,7 @@ rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext conftest.$a
 fi
 
 
-     if test ${COMPILE_CMAKE} == "yes" ; then
+     if test ${COMPILE_CMAKE} = "yes" ; then
         { echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6; }
 	CMAKE_PATH=${EXTERNALS}/bin/cmake
@@ -9701,7 +9733,7 @@ echo "${ECHO_T}no" >&6; }
 fi
 
 
-  if test ${GS} == "no" -o ${PS2EPSI} == "no" ; then
+  if test ${GS} = "no" -o ${PS2EPSI} = "no" ; then
    DOGS=yes
   fi
   # Extract the first word of "gifsicle", so it can be a program name with args.
@@ -9857,13 +9889,13 @@ fi
 
 
   DOPBMPLUS=no
-  if test ${PNMFLIP} == "no" ; then
+  if test ${PNMFLIP} = "no" ; then
     DOPBMPLUS=yes
   fi
-  if test ${PPMTOGIF} == "no"; then
+  if test ${PPMTOGIF} = "no"; then
     DOPBMPLUS=yes
   fi
-  if test ${PNMCROP} == "no" ; then
+  if test ${PNMCROP} = "no" ; then
     DOPBMPLUS=yes
   fi
   # Check whether --enable-spanlib was given.
@@ -9872,7 +9904,7 @@ if test "${enable_spanlib+set}" = set; then
 fi
 
   enable_spanlib="-"${enable_spanlib}
-  if test ${enable_spanlib} == "-yes" ; then
+  if test ${enable_spanlib} = "-yes" ; then
     PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --enable-spanlib"
                 # Check whether --enable-blasbuild was given.
 if test "${enable_blasbuild+set}" = set; then
@@ -9880,10 +9912,10 @@ if test "${enable_blasbuild+set}" = set; then
 fi
 
     enable_blasbuild="-"${enable_blasbuild}
-    if test  ${enable_blasbuild} == "-no" ; then
+    if test  ${enable_blasbuild} = "-no" ; then
       HAVE_LIBBLAS=yes
     fi
-    if test  ${enable_blasbuild} == "-yes" ; then
+    if test  ${enable_blasbuild} = "-yes" ; then
       HAVE_LIBBLAS=no
     fi
     # Check whether --enable-lapackbuild was given.
@@ -9892,10 +9924,10 @@ if test "${enable_lapackbuild+set}" = set; then
 fi
 
     enable_lapackbuild="-"${enable_lapackbuild}
-    if test  ${enable_lapackbuild} == "-no" ; then
+    if test  ${enable_lapackbuild} = "-no" ; then
       HAVE_LIBLAPACK=yes
     fi
-    if test  ${enable_lapackbuild} == "-yes" ; then
+    if test  ${enable_lapackbuild} = "-yes" ; then
       HAVE_LIBLAPACK=no
     fi
     # Check whether --enable-lapack95build was given.
@@ -9904,16 +9936,16 @@ if test "${enable_lapack95build+set}" = set; then
 fi
 
     enable_lapack95build="-"${enable_lapack95build}
-    if test  ${enable_lapack95build} == "-no" ; then
+    if test  ${enable_lapack95build} = "-no" ; then
       HAVE_LIBLAPACK95=yes
     fi
-    if test  ${enable_lapack95build} == "-yes" ; then
+    if test  ${enable_lapack95build} = "-yes" ; then
       HAVE_LIBLAPACK95=no
     fi
 
     if test ${enable_fortran} != "-no" ; then
-      if test  ${FC} != "" -o ${F77} != ""   ; then
-        if test ${enable_blasbuild} == "-" ; then
+      if  ${FC} != "" -o ${F77} != ""   ; then
+        if test ${enable_blasbuild} = "-" ; then
           { echo "$as_me:$LINENO: checking for srotmg_ in -lblas" >&5
 echo $ECHO_N "checking for srotmg_ in -lblas... $ECHO_C" >&6; }
 if test "${ac_cv_lib_blas_srotmg_+set}" = set; then
@@ -9982,7 +10014,7 @@ else
 fi
 
         fi
-        if test ${enable_lapackbuild} == "-" ; then
+        if test ${enable_lapackbuild} = "-" ; then
           { echo "$as_me:$LINENO: checking for slags2_ in -llapack" >&5
 echo $ECHO_N "checking for slags2_ in -llapack... $ECHO_C" >&6; }
 if test "${ac_cv_lib_lapack_slags2_+set}" = set; then
@@ -10051,7 +10083,7 @@ else
 fi
 
         fi
-        if test ${enable_lapack95build} == "-" ; then
+        if test ${enable_lapack95build} = "-" ; then
           { echo "$as_me:$LINENO: checking for erinfo_ in -llapack95" >&5
 echo $ECHO_N "checking for erinfo_ in -llapack95... $ECHO_C" >&6; }
 if test "${ac_cv_lib_lapack95_erinfo_+set}" = set; then
@@ -10471,13 +10503,13 @@ fi
 
 fi
 
-if  test ${COMPILE_PYTHON} == "no"  ; then
+if  test ${COMPILE_PYTHON} = "no"  ; then
         NUMPY=no
   { echo "$as_me:$LINENO: your python path: ${PYTHONPATH}" >&5
 echo "$as_me: your python path: ${PYTHONPATH}" >&6;}
   { echo "$as_me:$LINENO: checking if python ${PYTHON} has numpy support" >&5
 echo $ECHO_N "checking if python ${PYTHON} has numpy support... $ECHO_C" >&6; }
-  if test `${PYTHON} -c "cmd = 'try:\n  import numpy\n  print 0\nexcept:\n  print 1'; exec(cmd)"` == "1" ; then
+  if test  `${PYTHON} -c "cmd = 'try:\n  import numpy\n  print 0\nexcept:\n  print 1'; exec(cmd)"` = "1"  ; then
     { echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6; }
     { echo "$as_me:$LINENO: your python does not have numpy, we will build it" >&5
@@ -10488,23 +10520,23 @@ echo "$as_me: your python does not have numpy, we will build it" >&6;}
 echo "${ECHO_T}yes" >&6; }
     { echo "$as_me:$LINENO: checking if numpy is the right version ( > ${NUMPY_MAJOR}.${NUMPY_MINOR}.${NUMPY_PATCH})" >&5
 echo $ECHO_N "checking if numpy is the right version ( > ${NUMPY_MAJOR}.${NUMPY_MINOR}.${NUMPY_PATCH})... $ECHO_C" >&6; }
-    if test `${PYTHON} -c "import numpy ; print numpy.version.version.split('.')[0]"` -lt "${NUMPY_MAJOR}"  ; then
+    if test  `${PYTHON} -c "import numpy ; print numpy.version.version.split('.')[0]"` -lt "${NUMPY_MAJOR}"  ; then
       { echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6; }
       { echo "$as_me:$LINENO: your python does not have a recent enough numpy (MAJOR release is wrong), we will rebuild it" >&5
 echo "$as_me: your python does not have a recent enough numpy (MAJOR release is wrong), we will rebuild it" >&6;}
       NUMPY=yes
     else
-      if test `${PYTHON} -c "import numpy ; print numpy.version.version.split('.')[0]"` -eq "${NUMPY_MAJOR}"  ; then
-        if test `${PYTHON} -c "import numpy ; print numpy.version.version.split('.')[1]"` -lt "${NUMPY_MINOR}"  ; then
+      if test  `${PYTHON} -c "import numpy ; print numpy.version.version.split('.')[0]"` -eq "${NUMPY_MAJOR}"  ; then
+        if test  `${PYTHON} -c "import numpy ; print numpy.version.version.split('.')[1]"` -lt "${NUMPY_MINOR}"  ; then
           { echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6; }
           { echo "$as_me:$LINENO: your python does not have a recent enough numpy (MINOR release is wrong), we will rebuild it" >&5
 echo "$as_me: your python does not have a recent enough numpy (MINOR release is wrong), we will rebuild it" >&6;}
           NUMPY=yes
         else
-          if test `${PYTHON} -c "import numpy ; print numpy.version.version.split('.')[1]"` -eq "${NUMPY_MINOR}"  ; then
-            if test `${PYTHON} -c "import numpy ; print numpy.version.version.split('.')[2]"` -lt "${NUMPY_PATCH}"  ; then
+          if test  `${PYTHON} -c "import numpy ; print numpy.version.version.split('.')[1]"` -eq "${NUMPY_MINOR}"  ; then
+            if test  `${PYTHON} -c "import numpy ; print numpy.version.version.split('.')[2]"` -lt "${NUMPY_PATCH}"  ; then
               { echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6; }
               { echo "$as_me:$LINENO: your python does not have a recent enough numpy (PATCH NUMBER is WRONG), we will rebuild it" >&5
@@ -10528,7 +10560,7 @@ echo "${ECHO_T}yes" >&6; }
         SETUPTOOLS=no
   { echo "$as_me:$LINENO: checking if python ${PYTHON} has setuptools support" >&5
 echo $ECHO_N "checking if python ${PYTHON} has setuptools support... $ECHO_C" >&6; }
-  if test `${PYTHON} -c "cmd = 'try:\n  import setuptools\n  print 0\nexcept:\n  print 1'; exec(cmd)"` == "1" ; then
+  if test  `${PYTHON} -c "cmd = 'try:\n  import setuptools\n  print 0\nexcept:\n  print 1'; exec(cmd)"` = "1"  ; then
     { echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6; }
     { echo "$as_me:$LINENO: your python does not have setuptools, we will build it" >&5
@@ -10539,15 +10571,15 @@ echo "$as_me: your python does not have setuptools, we will build it" >&6;}
 echo "${ECHO_T}yes" >&6; }
     { echo "$as_me:$LINENO: checking if setuptools is the right version ( > ${SETUPTOOLS_MAJOR}.${SETUPTOOLS_MINOR})" >&5
 echo $ECHO_N "checking if setuptools is the right version ( > ${SETUPTOOLS_MAJOR}.${SETUPTOOLS_MINOR})... $ECHO_C" >&6; }
-    if test `${PYTHON} -c "import setuptools ; print setuptools.__version__.split('.')[0]"` -lt "${SETUPTOOLS_MAJOR}"  ; then
+    if test  `${PYTHON} -c "import setuptools ; print setuptools.__version__.split('.')[0]"` -lt "${SETUPTOOLS_MAJOR}"  ; then
       { echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6; }
       { echo "$as_me:$LINENO: your python does not have a recent enough setuptools (MAJOR release is wrong), we will rebuild it" >&5
 echo "$as_me: your python does not have a recent enough setuptools (MAJOR release is wrong), we will rebuild it" >&6;}
       SETUPTOOLS=yes
     else
-      if test `${PYTHON} -c "import setuptools ; print setuptools.__version__.split('.')[0]"` -eq "${SETUPTOOLS_MAJOR}"  ; then
-        if test `${PYTHON} -c "import setuptools ; vmin = setuptools.__version__.split('.')[1]; cont = True ; cmd = 'while cont:\n try:\n  vmin=int(vmin)\n  cont=False\n except:\n  vmin=vmin[:-1]';exec(cmd);print vmin"` -lt "${SETUPTOOLS_MINOR}"  ; then
+      if test  `${PYTHON} -c "import setuptools ; print setuptools.__version__.split('.')[0]"` -eq "${SETUPTOOLS_MAJOR}"  ; then
+        if test  `${PYTHON} -c "import setuptools ; vmin = setuptools.__version__.split('.')[1]; cont = True ; cmd = 'while cont:\n try:\n  vmin=int(vmin)\n  cont=False\n except:\n  vmin=vmin[:-1]';exec(cmd);print vmin"` -lt "${SETUPTOOLS_MINOR}" ; then
           { echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6; }
           { echo "$as_me:$LINENO: your python does not have a recent enough setuptools (MINOR release is wrong), we will rebuild it" >&5
@@ -10567,7 +10599,7 @@ echo "${ECHO_T}yes" >&6; }
   if test ${enable_cdms_only} != "yes" ; then
             { echo "$as_me:$LINENO: checking if python ${PYTHON} has PyOpenGL support" >&5
 echo $ECHO_N "checking if python ${PYTHON} has PyOpenGL support... $ECHO_C" >&6; }
-   if test `${PYTHON} -c "cmd = 'try:\n  import OpenGL\n  print 0\nexcept:\n  print 1'; exec(cmd)"` == "1" ; then
+   if test  `${PYTHON} -c "cmd = 'try:\n  import OpenGL\n  print 0\nexcept:\n  print 1'; exec(cmd)"` = "1"  ; then
      { echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6; }
      { echo "$as_me:$LINENO: your python does not have PyOpenGL, we will build it" >&5
@@ -10578,15 +10610,15 @@ echo "$as_me: your python does not have PyOpenGL, we will build it" >&6;}
 echo "${ECHO_T}yes" >&6; }
      { echo "$as_me:$LINENO: checking if PyOpenGL is the right version ( > ${PyOpenGL_MAJOR}.${PyOpenGL_MINOR})" >&5
 echo $ECHO_N "checking if PyOpenGL is the right version ( > ${PyOpenGL_MAJOR}.${PyOpenGL_MINOR})... $ECHO_C" >&6; }
-     if test `${PYTHON} -c "import OpenGL ; print OpenGL.__version__.split('.')[0]"` -lt "${PyOpenGL_MAJOR}"  ; then
+     if test  `${PYTHON} -c "import OpenGL ; print OpenGL.__version__.split('.')[0]"` -lt "${PyOpenGL_MAJOR}"  ; then
        { echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6; }
        { echo "$as_me:$LINENO: your python does not have a recent enough PyOpenGL (MAJOR release is wrong), we will rebuild it" >&5
 echo "$as_me: your python does not have a recent enough PyOpenGL (MAJOR release is wrong), we will rebuild it" >&6;}
        PyOpenGL=yes
      else
-       if test `${PYTHON} -c "import OpenGL ; print OpenGL.__version__.split('.')[0]"` -eq "${PyOpenGL_MAJOR}"  ; then
-         if test `${PYTHON} -c "import OpenGL ; vmin = OpenGL.__version__.split('.')[1]; cont = True ; cmd = 'while cont:\n try:\n  vmin=int(vmin)\n  cont=False\n except:\n  vmin=vmin[:-1]';exec(cmd);print vmin"` -lt "${PyOpenGL_MINOR}"  ; then
+       if test  `${PYTHON} -c "import OpenGL ; print OpenGL.__version__.split('.')[0]"` -eq "${PyOpenGL_MAJOR}"  ; then
+         if test  `${PYTHON} -c "import OpenGL ; vmin = OpenGL.__version__.split('.')[1]; cont = True ; cmd = 'while cont:\n try:\n  vmin=int(vmin)\n  cont=False\n except:\n  vmin=vmin[:-1]';exec(cmd);print vmin"` -lt "${PyOpenGL_MINOR}"  ; then
            { echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6; }
            { echo "$as_me:$LINENO: your python does not have a recent enough PyOpenGL (MINOR release is wrong), we will rebuild it" >&5
@@ -10603,11 +10635,11 @@ echo "${ECHO_T}yes" >&6; }
      fi
    fi
   fi
-    if test  ${enable_cdms_only} != "-yes" -o ${enable_esg} == "-yes" ; then
+    if test  ${enable_cdms_only} != "-yes" -o ${enable_esg} = "-yes" ; then
                 Pmw=no
     { echo "$as_me:$LINENO: checking if python ${PYTHON} has Pmw support" >&5
 echo $ECHO_N "checking if python ${PYTHON} has Pmw support... $ECHO_C" >&6; }
-    if test `${PYTHON} -c "cmd = 'try:\n  import Pmw\n  print 0\nexcept:\n  print 1'; exec(cmd)"` == "1" ; then
+    if test  `${PYTHON} -c "cmd = 'try:\n  import Pmw\n  print 0\nexcept:\n  print 1'; exec(cmd)"` = "1"  ; then
       { echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6; }
       { echo "$as_me:$LINENO: your python does not have Pmw, we will build it" >&5
@@ -10618,14 +10650,14 @@ echo "$as_me: your python does not have Pmw, we will build it" >&6;}
 echo "${ECHO_T}yes" >&6; }
       { echo "$as_me:$LINENO: checking if Pmw is the right version ( > ${PMW_MAJOR}.${PMW_MINOR})" >&5
 echo $ECHO_N "checking if Pmw is the right version ( > ${PMW_MAJOR}.${PMW_MINOR})... $ECHO_C" >&6; }
-      if test `${PYTHON} -c "import Pmw ; print Pmw.version().split('.')[0]"` -lt "${PMW_MAJOR}"  ; then
+      if test  `${PYTHON} -c "import Pmw ; print Pmw.version().split('.')[0]"` -lt "${PMW_MAJOR}"  ; then
         { echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6; }
         { echo "$as_me:$LINENO: your python does not have a recent enough Pmw, we will rebuild it" >&5
 echo "$as_me: your python does not have a recent enough Pmw, we will rebuild it" >&6;}
         Pmw=yes
       else
-        if test `${PYTHON} -c "import Pmw ; print Pmw.version().split('.')[1]"` -lt "${PMW_MINOR}"  ; then
+        if test  `${PYTHON} -c "import Pmw ; print Pmw.version().split('.')[1]"` -lt "${PMW_MINOR}"  ; then
           { echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6; }
           { echo "$as_me:$LINENO: your python does not have a recent enough Pmw, we will rebuild it" >&5
@@ -10647,14 +10679,14 @@ else
     Pmw=yes
     PyOpenGL=yes
   fi
-  if test  ${enable_esg} == "-yes" ; then
+  if test  ${enable_esg} = "-yes" ; then
     Pmw="yes"
   fi
 fi
 
 # Ok now do we need to change the prefix ?
-if  test ${COMPILE_PYTHON} == "no"  ; then
- if  test "-"${PYTHON_INSTALL_PREFIX} == "-"  ; then
+if  test ${COMPILE_PYTHON} = "no"  ; then
+ if  test "-"${PYTHON_INSTALL_PREFIX} = "-"  ; then
   as_ac_File=`echo "ac_cv_file_${prefix}/bin/python" | $as_tr_sh`
 { echo "$as_me:$LINENO: checking for ${prefix}/bin/python" >&5
 echo $ECHO_N "checking for ${prefix}/bin/python... $ECHO_C" >&6; }
@@ -10871,7 +10903,7 @@ else
   { echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6; }
 fi
-if test ${enable_esg} == "-yes" ; then
+if test ${enable_esg} = "-yes" ; then
  { echo "$as_me:$LINENO: checking for a usable libxslt > ${XSLT_MAJOR}.${XSLT_MINOR}.${XSLT_PATCH}" >&5
 echo $ECHO_N "checking for a usable libxslt > ${XSLT_MAJOR}.${XSLT_MINOR}.${XSLT_PATCH}... $ECHO_C" >&6; }
  if { (echo "$as_me:$LINENO: \${PKG_CONFIG} --atleast-version \${XSLT_MAJOR}.\${XSLT_MINOR}.\${XSLT_PATCH} --print-errors libxslt ") >&5
@@ -10975,7 +11007,7 @@ else
   with_udunits2=yes
 fi
 
-  if test ${with_udunits2} == "yes" ; then
+  if test ${with_udunits2} = "yes" ; then
        UDUNITS2LOC="${EXTERNALS}"
   else
       if test ${with_udunits2} != "no" ; then
@@ -11297,7 +11329,7 @@ if test "${enable_netcdf_fortran+set}" = set; then
 fi
 
 enable_netcdf_fortran="-"${enable_netcdf_fortran}
-if test  ${enable_netcdf_fortran} == "-yes" ; then
+if test  ${enable_netcdf_fortran} = "-yes" ; then
    NC_FORTRAN=""
 else
    NC_FORTRAN=" export FC=''; export F77='' ;  export FCFLAGS='' ; export FCLIBS='' ; export FFLAGS='' ; export FLIBS='' ;"
@@ -11443,7 +11475,7 @@ rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext conftest.$a
 fi
 
 
-if test ${COMPILE_CURL} == "no" ; then
+if test ${COMPILE_CURL} = "no" ; then
   { echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6; }
 else
@@ -11480,7 +11512,7 @@ else
   HAS_NCCONFIG=no
 fi
 
-    if  test ${HAS_NCCONFIG} == "yes"  ; then
+    if  test ${HAS_NCCONFIG} = "yes"; then
       NCCFLAGS=`${with_netcdf}/bin/nc-config --cflags`
       NCLDFLAGS=`${with_netcdf}/bin/nc-config --libs`
     else
@@ -11488,9 +11520,9 @@ fi
      NCLDFLAGS=" -L${with_netcdf}/lib "
     fi
     NC4LOC=${with_netcdf}
-    CPPFLAGS=${NCCFLAGS}" "${CPPFLAGS}
-    LDFLAGS=${NCLDFLAGS}" "${LDFLAGS}
-    CFLAGS=${NCCFLAGS}" "${CFLAGS}
+    #CPPFLAGS=${NCCFLAGS}" "${CPPFLAGS}
+    #LDFLAGS=${NCLDFLAGS}" "${LDFLAGS}
+    #CFLAGS=${NCCFLAGS}" "${CFLAGS}
 else
     # Extract the first word of "nc-config", so it can be a program name with args.
 set dummy nc-config; ac_word=$2
@@ -11537,15 +11569,15 @@ fi
       NCCFLAGS=`nc-config --cflags`
       NCLDFLAGS=`nc-config --libs`
       NC4LOC=`nc-config --prefix`
-      CPPFLAGS=${NCCFLAGS}" "${CPPFLAGS}
-      LDFLAGS=${NCLDFLAGS}" "${LDFLAGS}
-      CFLAGS=${NCCFLAGS}" "${CFLAGS}
+      #CPPFLAGS=${NCCFLAGS}" "${CPPFLAGS}
+      #LDFLAGS=${NCLDFLAGS}" "${LDFLAGS}
+      #CFLAGS=${NCCFLAGS}" "${CFLAGS}
     else
       LOCNCCONFIG="${EXTERNALS}/bin/nc-config"
       NC4LOC=${EXTERNALS}
-      CPPFLAGS="-I${EXTERNALS}/include "${CPPFLAGS}
-      LDFLAGS="-L${EXTERNALS}/lib "${LDFLAGS}
-      CFLAGS="-I${EXTERNALS}/include "${CFLAGS}
+      #CPPFLAGS="-I${EXTERNALS}/include "${CPPFLAGS}
+      #LDFLAGS="-L${EXTERNALS}/lib "${LDFLAGS}
+      #CFLAGS="-I${EXTERNALS}/include "${CFLAGS}
       NCLDFLAGS="-L${EXTERNALS}/lib "
       NCCFLAGS="-I${EXTERNALS}/include"
     fi
@@ -11617,7 +11649,7 @@ else
   COMPILE_NC=yes
 fi
 
-if test ${COMPILE_NC} == "no" ; then
+if test ${COMPILE_NC} = "no" ; then
     as_ac_File=`echo "ac_cv_file_${LOCNCCONFIG}" | $as_tr_sh`
 { echo "$as_me:$LINENO: checking for ${LOCNCCONFIG}" >&5
 echo $ECHO_N "checking for ${LOCNCCONFIG}... $ECHO_C" >&6; }
@@ -11643,14 +11675,14 @@ else
   HAS_NCCONFIG=no
 fi
 
-    if  test ${HAS_NCCONFIG} == "yes"  ; then
+    if  test ${HAS_NCCONFIG} = "yes"  ; then
       NCCFLAGS=`${LOCNCCONFIG} --cflags`
       NCLDFLAGS=`${LOCNCCONFIG} --libs`
     else
      NCCFLAGS=" -I${with_netcdf}/include"
      NCLDFLAGS=" -L${with_netcdf}/lib "
     fi
-    LIBS=${LIBS}" "${NCLDFLAGS}
+    LIBS=${LIBS}" "${NCLDFLAGS}" "${NCCFLAGS}
     { echo "$as_me:$LINENO: checking if you have version 4 of NetCDF" >&5
 echo $ECHO_N "checking if you have version 4 of NetCDF... $ECHO_C" >&6; }
     if test "$cross_compiling" = yes; then
@@ -11676,11 +11708,13 @@ main ()
 {
 
       char version[50];
+        /* this will not compile unless netcdf4 was selected */
+        printf("NC_NETCDF4 is %d", NC_NETCDF4);
         int num;
 	strcpy(version,nc_inq_libvers());
 	num=atoi(&version[0]);
 	if (num>=${NC4_MAJOR}) return 0;
-	num=atoi(&version[1]); /*sometimes there is a " before */
+	num=atoi(&version[1]); /*sometimes there is a ' before */
 	if (num>=${NC4_MAJOR}) return 0;
 	return 1;
 
@@ -11721,7 +11755,7 @@ rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext conftest.$a
 fi
 
 
-    if test ${COMPILE_NC} == "no" ; then
+    if test ${COMPILE_NC} = "no" ; then
         { echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6; }
     else
@@ -11732,7 +11766,7 @@ echo "${ECHO_T}no" >&6; }
 
 COMPILE_HDF5=no
 HDF5LOC="${EXTERNALS}"
-if test ${COMPILE_NC} == "yes" ; then
+if test ${COMPILE_NC} = "yes" ; then
         COMPILE_HDF5=no
 
 # Check whether --with-hdf5 was given.
@@ -11742,7 +11776,7 @@ else
   with_hdf5=yes
 fi
 
-  if test ${with_hdf5} == "yes" ; then
+  if test ${with_hdf5} = "yes" ; then
     HDF5LOC="${EXTERNALS}"
         else
     if test ${with_hdf5} != "no" ; then
@@ -11897,7 +11931,7 @@ else
   with_hdf4=no
 fi
 
-if test ${with_hdf4} == "yes" ; then
+if test ${with_hdf4} = "yes" ; then
   PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --with-hdf=${EXTERNALS}/HDF"
 else
   if test ${with_hdf4} != "no" ; then
@@ -11908,8 +11942,8 @@ fi
 
 
 
-if test ${enable_esg} == "-yes" ; then
-  if test ${enable_X11} == "-no" ; then
+if test ${enable_esg} = "-yes" ; then
+  if test ${enable_X11} = "-no" ; then
      COMPILE_TCLTK=no
      COMPILE_XGKS=no
   fi
@@ -11921,7 +11955,7 @@ if test "${enable_all+set}" = set; then
 fi
 
 enall="-"${enable_all}
-if test ${enall} == "-yes" ; then
+if test ${enall} = "-yes" ; then
 COMPILE_TERMCAP="yes"
 COMPILE_READLINE="yes"
 COMPILE_Z="yes"
@@ -11990,9 +12024,9 @@ else
 fi
 
 
-if test ${with_qt} != "no" -a ${with_qt_bin} == "no" -a ${with_qt_lib} == "no" -a ${with_qt_inc} == "no" ; then
+if test ${with_qt} != "no" -a ${with_qt_bin} = "no" -a ${with_qt_lib} = "no" -a ${with_qt_inc} = "no" ; then
  COMPILE_XGKS=no
- if test ${with_qt} == "yes" ; then
+ if test ${with_qt} = "yes" ; then
    QMAKE=${EXTERNALS}/bin/qmake
  else
    QMAKE=${with_qt}/bin/qmake
@@ -12022,14 +12056,14 @@ else
   HAS_QMAKE=no
 fi
 
- if test ${HAS_QMAKE} == "no" ; then
+ if test ${HAS_QMAKE} = "no" ; then
    { echo "$as_me:$LINENO: WARNING: Could not find qmake at ${QMAKE} will build Qt for you" >&5
 echo "$as_me: WARNING: Could not find qmake at ${QMAKE} will build Qt for you" >&2;}
    BUILDQT="yes"
    PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}${PYOPTXTRAQT}" --with-qt="${EXTERNALS}
    QMAKE=${EXTERNALS}/bin/qmake
  else
-  if test ${with_qt} == "yes" ; then
+  if test ${with_qt} = "yes" ; then
    PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}${PYOPTXTRAQT}" --with-qt="${EXTERNALS}
   else
    PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}${PYOPTXTRAQT}" --with-qt="${with_qt}
@@ -12072,7 +12106,7 @@ else
   HAS_QMAKE=no
 fi
 
-     if test ${HAS_QMAKE} == "no" ; then
+     if test ${HAS_QMAKE} = "no" ; then
        { echo "$as_me:$LINENO: WARNING: Could not find qmake at ${QMAKE} will build Qt for you" >&5
 echo "$as_me: WARNING: Could not find qmake at ${QMAKE} will build Qt for you" >&2;}
        BUILDQT="yes"
@@ -12091,7 +12125,7 @@ else
 fi
 
 enble_qtdbg="-"${enable_qt_debug}
-if test ${enble_qtdbg} == "-yes" ; then
+if test ${enble_qtdbg} = "-yes" ; then
      PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --qt-debug"
 fi;
 
@@ -12099,7 +12133,7 @@ fi;
 BUILDVIS=yes
 { echo "$as_me:$LINENO: checking if python ${PYTHON} has PyQt4 support" >&5
 echo $ECHO_N "checking if python ${PYTHON} has PyQt4 support... $ECHO_C" >&6; }
-if test `${PYTHON} -c "cmd = 'try:\n  import PyQt4\n  print 0\nexcept:\n  print 1'; exec(cmd)" 2>/dev/null` == "0" ; then
+if test  `${PYTHON} -c "cmd = 'try:\n  import PyQt4\n  print 0\nexcept:\n  print 1'; exec(cmd)" 2>/dev/null` = "0"  ; then
   { echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6; }
   BUILDVIS=no
@@ -12111,8 +12145,8 @@ echo "$as_me: your python does not have PyQt4, we will build it" >&6;}
   BUILDVIS=yes
   case ${target_os} in
    darwin*)
-    if test ${enable_fw} == "-" -a "-"${with_qt} != "-no" -a ${ISFRAMEWORK} !="yes"  ; then
-       if test ${COMPILE_PYTHON} == "yes" ; then
+    if test ${enable_fw} = "-" -a "-"${with_qt} != "-no" -a ${ISFRAMEWORK} !="yes"  ; then
+       if test ${COMPILE_PYTHON} = "yes" ; then
          PYOPT=" --enable-framework="${prefix}
          { echo "$as_me:$LINENO: Your are under Mac you need to enable framework, we did this for you" >&5
 echo "$as_me: Your are under Mac you need to enable framework, we did this for you" >&6;}
@@ -12126,7 +12160,313 @@ echo "$as_me: error: \"You need a framework enabled python\"" >&2;}
   PyQt_GZ=PyQt-${PyQt_PLATFORM}-gpl-${PyQt_MAJOR_SRC}.${PyQt_MINOR_SRC}.${PyQt_PATCH_SRC}.tar.gz
 fi
 
+{ echo "$as_me:$LINENO: " >&5
+echo "$as_me: " >&6;}
+{ echo "$as_me:$LINENO: ************************************************************************" >&5
+echo "$as_me: ************************************************************************" >&6;}
+{ echo "$as_me:$LINENO:                               SUMMARY" >&5
+echo "$as_me:                               SUMMARY" >&6;}
+{ echo "$as_me:$LINENO:                             VERSION: ${CDAT_VERSION}" >&5
+echo "$as_me:                             VERSION: ${CDAT_VERSION}" >&6;}
+{ echo "$as_me:$LINENO: ************************************************************************" >&5
+echo "$as_me: ************************************************************************" >&6;}
+{ echo "$as_me:$LINENO: " >&5
+echo "$as_me: " >&6;}
+{ echo "$as_me:$LINENO: ........................................................................" >&5
+echo "$as_me: ........................................................................" >&6;}
+{ echo "$as_me:$LINENO: ...                             EXTERNALS                            ..." >&5
+echo "$as_me: ...                             EXTERNALS                            ..." >&6;}
+if test ${NCPUS} != "1" ; then
+{ echo "$as_me:$LINENO: ...                     Taking advantage of ${NCPUS} CPUS                  ..." >&5
+echo "$as_me: ...                     Taking advantage of ${NCPUS} CPUS                  ..." >&6;}
+fi
+{ echo "$as_me:$LINENO: ........................................................................" >&5
+echo "$as_me: ........................................................................" >&6;}
+{ echo "$as_me:$LINENO: " >&5
+echo "$as_me: " >&6;}
+if test ${COMPILE_CURL} = "yes" ; then
+  { echo "$as_me:$LINENO: curl >= ${CURL_MAJOR}.${CURL_MINOR}.${CURL_PATCH} not found... building library ${CURL_MAJOR_SRC}.${CURL_MINOR_SRC}.${CURL_PATCH_SRC}" >&5
+echo "$as_me: curl >= ${CURL_MAJOR}.${CURL_MINOR}.${CURL_PATCH} not found... building library ${CURL_MAJOR_SRC}.${CURL_MINOR_SRC}.${CURL_PATCH_SRC}" >&6;}
+else
+  { echo "$as_me:$LINENO: curl >= ${CURL_MAJOR}.${CURL_MINOR}.${CURL_PATCH} found or not necessary for this configuration" >&5
+echo "$as_me: curl >= ${CURL_MAJOR}.${CURL_MINOR}.${CURL_PATCH} found or not necessary for this configuration" >&6;}
+fi
+if test ${COMPILE_XML2} = "yes" ; then
+  { echo "$as_me:$LINENO: libxml2 >= ${XML_MAJOR}.${XML_MINOR}.${XML_PATCH} not found... building library ${XML_MAJOR_SRC}.${XML_MINOR_SRC}.${XML_PATCH_SRC}" >&5
+echo "$as_me: libxml2 >= ${XML_MAJOR}.${XML_MINOR}.${XML_PATCH} not found... building library ${XML_MAJOR_SRC}.${XML_MINOR_SRC}.${XML_PATCH_SRC}" >&6;}
+else
+  { echo "$as_me:$LINENO: libxml2 >= ${XML_MAJOR}.${XML_MINOR}.${XML_PATCH} found" >&5
+echo "$as_me: libxml2 >= ${XML_MAJOR}.${XML_MINOR}.${XML_PATCH} found" >&6;}
+fi
+if test ${enable_esg} = "-yes" ; then
+ if test ${COMPILE_XSLT} = "yes" ; then
+  { echo "$as_me:$LINENO: libxslt >= ${XSLT_MAJOR}.${XSLT_MINOR}.${XSLT_PATCH} not found... building library ${XSLT_MAJOR_SRC}.${XSLT_MINOR_SRC}.${XSLT_PATCH_SRC}" >&5
+echo "$as_me: libxslt >= ${XSLT_MAJOR}.${XSLT_MINOR}.${XSLT_PATCH} not found... building library ${XSLT_MAJOR_SRC}.${XSLT_MINOR_SRC}.${XSLT_PATCH_SRC}" >&6;}
+ else
+  { echo "$as_me:$LINENO: libxslt >= ${XSLT_MAJOR}.${XSLT_MINOR}.${XSLT_PATCH} found" >&5
+echo "$as_me: libxslt >= ${XSLT_MAJOR}.${XSLT_MINOR}.${XSLT_PATCH} found" >&6;}
+ fi
+fi
+if test ${enable_cdms_only} != "-yes" ; then
+ if test ${COMPILE_CMAKE} = "yes" ; then
+  { echo "$as_me:$LINENO: cmake >= ${CMAKE_MAJOR}.${CMAKE_MINOR} not found... building software ${CMAKE_MAJOR_SRC}.${CMAKE_MINOR_SRC}.${CMAKE_PATCH_SRC}" >&5
+echo "$as_me: cmake >= ${CMAKE_MAJOR}.${CMAKE_MINOR} not found... building software ${CMAKE_MAJOR_SRC}.${CMAKE_MINOR_SRC}.${CMAKE_PATCH_SRC}" >&6;}
+ else
+  { echo "$as_me:$LINENO: cmake >= ${CMAKE_MAJOR}.${CMAKE_MINOR} found" >&5
+echo "$as_me: cmake >= ${CMAKE_MAJOR}.${CMAKE_MINOR} found" >&6;}
+ fi
+ if test ${COMPILE_XGKS} = "yes" ; then
+   { echo "$as_me:$LINENO: xgks not found ... building library" >&5
+echo "$as_me: xgks not found ... building library" >&6;}
+ else
+   { echo "$as_me:$LINENO: xgks found" >&5
+echo "$as_me: xgks found" >&6;}
+ fi
+ if test ${DOPBMPLUS} = "yes" ; then
+   { echo "$as_me:$LINENO: pbmplus not found ... building library" >&5
+echo "$as_me: pbmplus not found ... building library" >&6;}
+ else
+   { echo "$as_me:$LINENO: pbmplus found" >&5
+echo "$as_me: pbmplus found" >&6;}
+ fi
+ if test ${FFMPEG} = "no" ; then
+   { echo "$as_me:$LINENO: ffmpeg not found ... building software" >&5
+echo "$as_me: ffmpeg not found ... building software" >&6;}
+ else
+   { echo "$as_me:$LINENO: ffmpeg found" >&5
+echo "$as_me: ffmpeg found" >&6;}
+ fi
+ if test ${GIFSICLE} = "no" ; then
+   { echo "$as_me:$LINENO: gifsicle not found ... building software ${GIFSICLE_MAJOR_SRC}.${GIFSICLE_MINOR_SRC}" >&5
+echo "$as_me: gifsicle not found ... building software ${GIFSICLE_MAJOR_SRC}.${GIFSICLE_MINOR_SRC}" >&6;}
+ else
+   { echo "$as_me:$LINENO: gifsicle found" >&5
+echo "$as_me: gifsicle found" >&6;}
+ fi
+ if test ${DOGS} = "yes" ; then
+   { echo "$as_me:$LINENO: gs not found ... building software" >&5
+echo "$as_me: gs not found ... building software" >&6;}
+ else
+   { echo "$as_me:$LINENO: gs found" >&5
+echo "$as_me: gs found" >&6;}
+ fi
+ if test ${COMPILE_LIBJPEG} = "yes" ; then
+   { echo "$as_me:$LINENO: libjpeg not found ... building library" >&5
+echo "$as_me: libjpeg not found ... building library" >&6;}
+ else
+   { echo "$as_me:$LINENO: libjpeg found or not necessary for this configuration" >&5
+echo "$as_me: libjpeg found or not necessary for this configuration" >&6;}
+ fi
+ if test ${HAVE_LIBBLAS} = "no" ; then
+   { echo "$as_me:$LINENO: libblas not found ... building library" >&5
+echo "$as_me: libblas not found ... building library" >&6;}
+ else
+   { echo "$as_me:$LINENO: libblas found or not necessary for this configuration" >&5
+echo "$as_me: libblas found or not necessary for this configuration" >&6;}
+ fi
+ if test ${HAVE_LIBLAPACK} = "no" ; then
+   { echo "$as_me:$LINENO: liblapack not found ... building library" >&5
+echo "$as_me: liblapack not found ... building library" >&6;}
+ else
+   { echo "$as_me:$LINENO: liblapack found or not necessary for this configuration" >&5
+echo "$as_me: liblapack found or not necessary for this configuration" >&6;}
+ fi
+ if test ${HAVE_LIBLAPACK95} = "no" ; then
+   { echo "$as_me:$LINENO: liblapack95 not found ... building library" >&5
+echo "$as_me: liblapack95 not found ... building library" >&6;}
+ else
+   { echo "$as_me:$LINENO: liblapack95 found or not necessary for this configuration" >&5
+echo "$as_me: liblapack95 found or not necessary for this configuration" >&6;}
+ fi
+ if test ${COMPILE_LIBPNG} = "yes" ; then
+  { echo "$as_me:$LINENO: libpng >= ${PNG_MAJOR}.${PNG_MINOR}.${PNG_PATCH} not found... building library ${PNG_MAJOR_SRC}.${PNG_MINOR_SRC}.${PNG_PATCH_SRC}" >&5
+echo "$as_me: libpng >= ${PNG_MAJOR}.${PNG_MINOR}.${PNG_PATCH} not found... building library ${PNG_MAJOR_SRC}.${PNG_MINOR_SRC}.${PNG_PATCH_SRC}" >&6;}
+ else
+  { echo "$as_me:$LINENO: libpng >= ${PNG_MAJOR}.${PNG_MINOR}.${PNG_PATCH} found" >&5
+echo "$as_me: libpng >= ${PNG_MAJOR}.${PNG_MINOR}.${PNG_PATCH} found" >&6;}
+ fi
+ if test ${COMPILE_PKGCONFIG} = "yes" ; then
+  { echo "$as_me:$LINENO: pkg-config >= ${PKG_MAJOR}.${PKG_MINOR}.${PKG_PATCH} not found... building software ${PKG_MAJOR_SRC}.${PKG_MINOR_SRC}.${PKG_PATCH_SRC}" >&5
+echo "$as_me: pkg-config >= ${PKG_MAJOR}.${PKG_MINOR}.${PKG_PATCH} not found... building software ${PKG_MAJOR_SRC}.${PKG_MINOR_SRC}.${PKG_PATCH_SRC}" >&6;}
+ else
+  { echo "$as_me:$LINENO: pkg-config >= ${PKG_MAJOR}.${PKG_MINOR}.${PKG_PATCH} found" >&5
+echo "$as_me: pkg-config >= ${PKG_MAJOR}.${PKG_MINOR}.${PKG_PATCH} found" >&6;}
+ fi
+ if test ${COMPILE_FREETYPE} = "yes" ; then
+  { echo "$as_me:$LINENO: libfreetype >= ${FT_MAJOR}.${FT_MINOR}.${FT_PATCH} not found... building library ${FT_MAJOR_SRC}.${FT_MINOR_SRC}.${FT_PATCH_SRC} " >&5
+echo "$as_me: libfreetype >= ${FT_MAJOR}.${FT_MINOR}.${FT_PATCH} not found... building library ${FT_MAJOR_SRC}.${FT_MINOR_SRC}.${FT_PATCH_SRC} " >&6;}
+ else
+  { echo "$as_me:$LINENO: libfreetype >= ${FT_MAJOR}.${FT_MINOR}.${FT_PATCH} found" >&5
+echo "$as_me: libfreetype >= ${FT_MAJOR}.${FT_MINOR}.${FT_PATCH} found" >&6;}
+ fi
+ if test ${COMPILE_PIXMAN} = "yes" ; then
+  { echo "$as_me:$LINENO: libpixman >= ${PIX_MAJOR}.${PIX_MINOR}.${PIX_PATCH} not found... building  library ${PIX_MAJOR_SRC}.${PIX_MINOR_SRC}.${PIX_PATCH_SRC}" >&5
+echo "$as_me: libpixman >= ${PIX_MAJOR}.${PIX_MINOR}.${PIX_PATCH} not found... building  library ${PIX_MAJOR_SRC}.${PIX_MINOR_SRC}.${PIX_PATCH_SRC}" >&6;}
+ else
+  { echo "$as_me:$LINENO: libpixman >= ${PIX_MAJOR}.${PIX_MINOR}.${PIX_PATCH} found" >&5
+echo "$as_me: libpixman >= ${PIX_MAJOR}.${PIX_MINOR}.${PIX_PATCH} found" >&6;}
+ fi
+ if test ${COMPILE_FONTCONFIG} = "yes" ; then
+  { echo "$as_me:$LINENO: fontconfig >= ${FTCFG_MAJOR}.${FTCFG_MINOR}.${FTCFG_PATCH} not found... building library ${FTCFG_MAJOR_SRC}.${FTCFG_MINOR_SRC}.${FTCFG_PATCH_SRC}" >&5
+echo "$as_me: fontconfig >= ${FTCFG_MAJOR}.${FTCFG_MINOR}.${FTCFG_PATCH} not found... building library ${FTCFG_MAJOR_SRC}.${FTCFG_MINOR_SRC}.${FTCFG_PATCH_SRC}" >&6;}
+ else
+  { echo "$as_me:$LINENO: fontconfig >= ${FTCFG_MAJOR}.${FTCFG_MINOR}.${FTCFG_PATCH} found" >&5
+echo "$as_me: fontconfig >= ${FTCFG_MAJOR}.${FTCFG_MINOR}.${FTCFG_PATCH} found" >&6;}
+ fi
+ if test ${COMPILE_CAIRO} = "yes" ; then
+  { echo "$as_me:$LINENO: libcairo >= ${CAIRO_MAJOR}.${CAIRO_MINOR}.${CAIRO_PATCH} not found... building library ${CAIRO_MAJOR_SRC}.${CAIRO_MINOR_SRC}.${CAIRO_PATCH_SRC}" >&5
+echo "$as_me: libcairo >= ${CAIRO_MAJOR}.${CAIRO_MINOR}.${CAIRO_PATCH} not found... building library ${CAIRO_MAJOR_SRC}.${CAIRO_MINOR_SRC}.${CAIRO_PATCH_SRC}" >&6;}
+ else
+  { echo "$as_me:$LINENO: libcairo >= ${CAIRO_MAJOR}.${CAIRO_MINOR}.${CAIRO_PATCH} found" >&5
+echo "$as_me: libcairo >= ${CAIRO_MAJOR}.${CAIRO_MINOR}.${CAIRO_PATCH} found" >&6;}
+ fi
+fi
+if test ${enable_esg} != "-yes" ; then
+  if test ${COMPILE_UUID} = "yes" ; then
+    { echo "$as_me:$LINENO: libuuid not found... building library ${UUID_MAJOR_SRC}.${UUID_MINOR_SRC}.${UUID_PATCH_SRC}" >&5
+echo "$as_me: libuuid not found... building library ${UUID_MAJOR_SRC}.${UUID_MINOR_SRC}.${UUID_PATCH_SRC}" >&6;}
+  else
+    { echo "$as_me:$LINENO: libuuid found" >&5
+echo "$as_me: libuuid found" >&6;}
+  fi
+  if test ${COMPILE_UDUNITS2} = "yes" ; then
+    { echo "$as_me:$LINENO: libudunits2 not found... building library ${UDUNITS2_MAJOR_SRC}.${UDUNITS2_MINOR_SRC}.${UDUNITS2_PATCH_SRC}" >&5
+echo "$as_me: libudunits2 not found... building library ${UDUNITS2_MAJOR_SRC}.${UDUNITS2_MINOR_SRC}.${UDUNITS2_PATCH_SRC}" >&6;}
+  else
+    { echo "$as_me:$LINENO: libudunits2 found" >&5
+echo "$as_me: libudunits2 found" >&6;}
+  fi
+fi
+if test ${COMPILE_JASPER} = "yes" ; then
+    { echo "$as_me:$LINENO: libjasper not found... building library ${JASPER_MAJOR_SRC}.${JASPER_MINOR_SRC}.${JASPER_PATCH_SRC}" >&5
+echo "$as_me: libjasper not found... building library ${JASPER_MAJOR_SRC}.${JASPER_MINOR_SRC}.${JASPER_PATCH_SRC}" >&6;}
+else
+    { echo "$as_me:$LINENO: libjasper found" >&5
+echo "$as_me: libjasper found" >&6;}
+fi
+if test ${COMPILE_G2CLIB} = "yes" ; then
+    { echo "$as_me:$LINENO: libg2clib not found... building library ${G2CLIB_MAJOR_SRC}.${G2CLIB_MINOR_SRC}.${G2CLIB_PATCH_SRC}" >&5
+echo "$as_me: libg2clib not found... building library ${G2CLIB_MAJOR_SRC}.${G2CLIB_MINOR_SRC}.${G2CLIB_PATCH_SRC}" >&6;}
+else
+    { echo "$as_me:$LINENO: libg2clib found" >&5
+echo "$as_me: libg2clib found" >&6;}
+fi
+if test ${COMPILE_HDF5} = "yes" ; then
+    { echo "$as_me:$LINENO: libhdf5 not found... building library ${HDF5_MAJOR_SRC}.${HDF5_MINOR_SRC}.${HDF5_PATCH_SRC}" >&5
+echo "$as_me: libhdf5 not found... building library ${HDF5_MAJOR_SRC}.${HDF5_MINOR_SRC}.${HDF5_PATCH_SRC}" >&6;}
+else
+    { echo "$as_me:$LINENO: libhdf5 found" >&5
+echo "$as_me: libhdf5 found" >&6;}
+fi
+if test ${COMPILE_NC} = "yes" ; then
+    { echo "$as_me:$LINENO: libnetcdf >=4 not found... building library ${NC4_MAJOR_SRC}.${NC4_MINOR_SRC}.${NC4_PATCH_SRC}" >&5
+echo "$as_me: libnetcdf >=4 not found... building library ${NC4_MAJOR_SRC}.${NC4_MINOR_SRC}.${NC4_PATCH_SRC}" >&6;}
+    # resetting because provided netcdf was not good enough
+    # (perhaps compiled without --enable-netcdf4)
+    NC4LOC="${EXTERNALS}/NetCDF"
+else
+    { echo "$as_me:$LINENO: libnetcdf >=4 found at ${NC4LOC}" >&5
+echo "$as_me: libnetcdf >=4 found at ${NC4LOC}" >&6;}
+fi
+if test ${COMPILE_LIBCF} = "yes" ; then
+    { echo "$as_me:$LINENO: libcf ..... building library ${LIBCF_MAJOR_SRC}.${LIBCF_MINOR_SRC}.${LIBCF_PATCH_SRC}" >&5
+echo "$as_me: libcf ..... building library ${LIBCF_MAJOR_SRC}.${LIBCF_MINOR_SRC}.${LIBCF_PATCH_SRC}" >&6;}
+fi
+if test ${BUILDQT} = "yes" ; then
+    { echo "$as_me:$LINENO: Qt libraries not found... building library ${QT_MAJOR_SRC}.${QT_MINOR_SRC}.${QT_PATCH_SRC}" >&5
+echo "$as_me: Qt libraries not found... building library ${QT_MAJOR_SRC}.${QT_MINOR_SRC}.${QT_PATCH_SRC}" >&6;}
+else
+    { echo "$as_me:$LINENO: Qt > ${QT_MAJOR}.${QT_MINOR}.${QT_PATCH} found or not needed in this configuration" >&5
+echo "$as_me: Qt > ${QT_MAJOR}.${QT_MINOR}.${QT_PATCH} found or not needed in this configuration" >&6;}
+fi
+{ echo "$as_me:$LINENO: " >&5
+echo "$as_me: " >&6;}
+{ echo "$as_me:$LINENO: ........................................................................" >&5
+echo "$as_me: ........................................................................" >&6;}
+{ echo "$as_me:$LINENO: ...                               PYTHON                             ..." >&5
+echo "$as_me: ...                               PYTHON                             ..." >&6;}
+{ echo "$as_me:$LINENO: ........................................................................" >&5
+echo "$as_me: ........................................................................" >&6;}
+{ echo "$as_me:$LINENO: " >&5
+echo "$as_me: " >&6;}
+if test ${COMPILE_PYTHON} = "yes" ; then
+  { echo "$as_me:$LINENO: python >= ${PYTHON_MAJOR}.${PYTHON_MINOR} with tcl/tk support not found... building software ${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.${PYTHON_PATCH_SRC}" >&5
+echo "$as_me: python >= ${PYTHON_MAJOR}.${PYTHON_MINOR} with tcl/tk support not found... building software ${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.${PYTHON_PATCH_SRC}" >&6;}
+  if test ${COMPILE_Z} = "yes" ; then
+     { echo "$as_me:$LINENO: zlib not found ... building library ${ZLIB_MAJOR_SRC}.${ZLIB_MINOR_SRC}.${ZLIB_PATCH_SRC}" >&5
+echo "$as_me: zlib not found ... building library ${ZLIB_MAJOR_SRC}.${ZLIB_MINOR_SRC}.${ZLIB_PATCH_SRC}" >&6;}
+  else
+     { echo "$as_me:$LINENO: zlib found" >&5
+echo "$as_me: zlib found" >&6;}
+  fi
+  if test ${COMPILE_TERMCAP} = "yes" ; then
+     { echo "$as_me:$LINENO: termcap not found ... building library ${TCAP_MAJOR_SRC}.${TCAP_MINOR_SRC}.${TCAP_PATCH_SRC}" >&5
+echo "$as_me: termcap not found ... building library ${TCAP_MAJOR_SRC}.${TCAP_MINOR_SRC}.${TCAP_PATCH_SRC}" >&6;}
+  else
+     { echo "$as_me:$LINENO: termcap found" >&5
+echo "$as_me: termcap found" >&6;}
+  fi
+  if test ${COMPILE_READLINE} = "yes" ; then
+    { echo "$as_me:$LINENO: libreadline >= ${RL_MAJOR}.${RL_MINOR} not found... building library ${RL_MAJOR_SRC}.${RL_MINOR_SRC}" >&5
+echo "$as_me: libreadline >= ${RL_MAJOR}.${RL_MINOR} not found... building library ${RL_MAJOR_SRC}.${RL_MINOR_SRC}" >&6;}
+  else
+    { echo "$as_me:$LINENO: libreadline >= ${RL_MAJOR}.${RL_MINOR} found" >&5
+echo "$as_me: libreadline >= ${RL_MAJOR}.${RL_MINOR} found" >&6;}
+  fi
+  if test ${COMPILE_TCLTK} = "yes" ; then
+    { echo "$as_me:$LINENO: tcl/tk >= ${TCLTK_MAJOR}.${TCLTK_MINOR}.${TCLTK_PATCH} not found... building library ${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC}.${TCLTK_PATCH_SRC}" >&5
+echo "$as_me: tcl/tk >= ${TCLTK_MAJOR}.${TCLTK_MINOR}.${TCLTK_PATCH} not found... building library ${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC}.${TCLTK_PATCH_SRC}" >&6;}
+  else
+    { echo "$as_me:$LINENO: tcl/tk >= ${TCLTK_MAJOR}.${TCLTK_MINOR}.${TCLTK_PATCH} found" >&5
+echo "$as_me: tcl/tk >= ${TCLTK_MAJOR}.${TCLTK_MINOR}.${TCLTK_PATCH} found" >&6;}
+  fi
+else
+  { echo "$as_me:$LINENO: python >= ${PYTHON_MAJOR}.${PYTHON_MINOR}.${PYTHON_PATCH} with tcl/tk support found" >&5
+echo "$as_me: python >= ${PYTHON_MAJOR}.${PYTHON_MINOR}.${PYTHON_PATCH} with tcl/tk support found" >&6;}
+fi
+if test ${SETUPTOOLS} = "yes" ; then
+  { echo "$as_me:$LINENO: setuptools >= ${SETUPTOOLS_MAJOR}.${SETUPTOOLS_MINOR} not found... building package ${SETUPTOOLS_MAJOR_SRC}.${SETUPTOOLS_MINOR_SRC}" >&5
+echo "$as_me: setuptools >= ${SETUPTOOLS_MAJOR}.${SETUPTOOLS_MINOR} not found... building package ${SETUPTOOLS_MAJOR_SRC}.${SETUPTOOLS_MINOR_SRC}" >&6;}
+else
+  { echo "$as_me:$LINENO: setuptools >= ${SETUPTOOLS_MAJOR}.${SETUPTOOLS_MINOR} found" >&5
+echo "$as_me: setuptools >= ${SETUPTOOLS_MAJOR}.${SETUPTOOLS_MINOR} found" >&6;}
+fi
+if test ${PyOpenGL} = "yes" ; then
+  { echo "$as_me:$LINENO: PyOpenGL >= ${PyOpenGL_MAJOR}.${PyOpenGL_MINOR} not found... building package ${PyOpenGL_MAJOR_SRC}.${PyOpenGL_MINOR_SRC}.${PyOpenGL_PATCH_SRC}" >&5
+echo "$as_me: PyOpenGL >= ${PyOpenGL_MAJOR}.${PyOpenGL_MINOR} not found... building package ${PyOpenGL_MAJOR_SRC}.${PyOpenGL_MINOR_SRC}.${PyOpenGL_PATCH_SRC}" >&6;}
+else
+  { echo "$as_me:$LINENO: PyOpenGL >= ${PyOpenGL_MAJOR}.${PyOpenGL_MINOR} found or not necessary in this configuration" >&5
+echo "$as_me: PyOpenGL >= ${PyOpenGL_MAJOR}.${PyOpenGL_MINOR} found or not necessary in this configuration" >&6;}
+fi
+if test ${NUMPY} = "yes" ; then
+  { echo "$as_me:$LINENO: numpy >= ${NUMPY_MAJOR}.${NUMPY_MINOR}.${NUMPY_PATCH} not found... building package ${NUMPY_MAJOR_SRC}.${NUMPY_MINOR_SRC}.${NUMPY_PATCH_SRC}" >&5
+echo "$as_me: numpy >= ${NUMPY_MAJOR}.${NUMPY_MINOR}.${NUMPY_PATCH} not found... building package ${NUMPY_MAJOR_SRC}.${NUMPY_MINOR_SRC}.${NUMPY_PATCH_SRC}" >&6;}
+else
+  { echo "$as_me:$LINENO: numpy >= ${NUMPY_MAJOR}.${NUMPY_MINOR}.${NUMPY_PATCH} found" >&5
+echo "$as_me: numpy >= ${NUMPY_MAJOR}.${NUMPY_MINOR}.${NUMPY_PATCH} found" >&6;}
+fi
+if test ${Pmw} = "yes" ; then
+  { echo "$as_me:$LINENO: Pmw >= ${PMW_MAJOR}.${PMW_MINOR} not found... building package ${PMW_MAJOR_SRC}.${PMW_MINOR_SRC}" >&5
+echo "$as_me: Pmw >= ${PMW_MAJOR}.${PMW_MINOR} not found... building package ${PMW_MAJOR_SRC}.${PMW_MINOR_SRC}" >&6;}
+else
+  { echo "$as_me:$LINENO: Pmw >= ${PMW_MAJOR}.${PMW_MINOR} found" >&5
+echo "$as_me: Pmw >= ${PMW_MAJOR}.${PMW_MINOR} found" >&6;}
+fi
+if test ${with_qt} != "no" ; then
+  { echo "$as_me:$LINENO: Will build with Qt support" >&5
+echo "$as_me: Will build with Qt support" >&6;}
+else
+ if test ${with_qt_bin} != "no"; then
+  { echo "$as_me:$LINENO: Will build with Qt support" >&5
+echo "$as_me: Will build with Qt support" >&6;}
+ fi
+fi
+{ echo "$as_me:$LINENO: " >&5
+echo "$as_me: " >&6;}
+{ echo "$as_me:$LINENO: Now type \"make\" to install CDAT-${CDAT_VERSION} to: ${prefix} and its dependencies to: ${EXTERNALS}" >&5
+echo "$as_me: Now type \"make\" to install CDAT-${CDAT_VERSION} to: ${prefix} and its dependencies to: ${EXTERNALS}" >&6;}
 
+# do this after NC4LOC has been set
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -12698,7 +13038,6 @@ do
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "site.cfg") CONFIG_FILES="$CONFIG_FILES site.cfg" ;;
     "README.txt") CONFIG_FILES="$CONFIG_FILES README.txt" ;;
-    "Scripts/cdat") CONFIG_FILES="$CONFIG_FILES Scripts/cdat" ;;
     "Scripts/cdatversion") CONFIG_FILES="$CONFIG_FILES Scripts/cdatversion" ;;
     "exsrc/CMakeCache.txt") CONFIG_FILES="$CONFIG_FILES exsrc/CMakeCache.txt" ;;
     "checked_get.sh") CONFIG_FILES="$CONFIG_FILES checked_get.sh" ;;
@@ -13113,6 +13452,11 @@ LIBCF_MINOR_SRC!$LIBCF_MINOR_SRC$ac_delim
 LIBCF_PATCH_SRC!$LIBCF_PATCH_SRC$ac_delim
 LIBCF_URL!$LIBCF_URL$ac_delim
 LIBCF_GZ!$LIBCF_GZ$ac_delim
+PYTABLES_MAJOR_SRC!$PYTABLES_MAJOR_SRC$ac_delim
+PYTABLES_MINOR_SRC!$PYTABLES_MINOR_SRC$ac_delim
+PYTABLES_PATCH_SRC!$PYTABLES_PATCH_SRC$ac_delim
+PYTABLES_URL!$PYTABLES_URL$ac_delim
+PYTABLES_GZ!$PYTABLES_GZ$ac_delim
 ESG!$ESG$ac_delim
 PGCONFIG!$PGCONFIG$ac_delim
 SETUPTOOLS!$SETUPTOOLS$ac_delim
@@ -13132,11 +13476,6 @@ PyQt_URL!$PyQt_URL$ac_delim
 PyQt_PLATFORM!$PyQt_PLATFORM$ac_delim
 PyQt_MAJOR!$PyQt_MAJOR$ac_delim
 PyQt_MINOR!$PyQt_MINOR$ac_delim
-PyQt_PATCH!$PyQt_PATCH$ac_delim
-PyQt_MAJOR_SRC!$PyQt_MAJOR_SRC$ac_delim
-PyQt_MINOR_SRC!$PyQt_MINOR_SRC$ac_delim
-PyQt_PATCH_SRC!$PyQt_PATCH_SRC$ac_delim
-R_MAJOR_SRC!$R_MAJOR_SRC$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -13178,6 +13517,11 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+PyQt_PATCH!$PyQt_PATCH$ac_delim
+PyQt_MAJOR_SRC!$PyQt_MAJOR_SRC$ac_delim
+PyQt_MINOR_SRC!$PyQt_MINOR_SRC$ac_delim
+PyQt_PATCH_SRC!$PyQt_PATCH_SRC$ac_delim
+R_MAJOR_SRC!$R_MAJOR_SRC$ac_delim
 R_MINOR_SRC!$R_MINOR_SRC$ac_delim
 R_PATCH_SRC!$R_PATCH_SRC$ac_delim
 R_GZ!$R_GZ$ac_delim
@@ -13270,11 +13614,6 @@ SED!$SED$ac_delim
 RANLIB!$RANLIB$ac_delim
 FC!$FC$ac_delim
 FCFLAGS!$FCFLAGS$ac_delim
-ac_ct_FC!$ac_ct_FC$ac_delim
-F77!$F77$ac_delim
-FFLAGS!$FFLAGS$ac_delim
-ac_ct_F77!$ac_ct_F77$ac_delim
-FCLIBS!$FCLIBS$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -13316,6 +13655,11 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+ac_ct_FC!$ac_ct_FC$ac_delim
+F77!$F77$ac_delim
+FFLAGS!$FFLAGS$ac_delim
+ac_ct_F77!$ac_ct_F77$ac_delim
+FCLIBS!$FCLIBS$ac_delim
 FLIBS!$FLIBS$ac_delim
 build!$build$ac_delim
 build_cpu!$build_cpu$ac_delim
@@ -13337,6 +13681,7 @@ X_LIBS!$X_LIBS$ac_delim
 X_EXTRA_LIBS!$X_EXTRA_LIBS$ac_delim
 COMPILE_VTK!$COMPILE_VTK$ac_delim
 COMPILE_LIBCF!$COMPILE_LIBCF$ac_delim
+COMPILE_PYTABLES!$COMPILE_PYTABLES$ac_delim
 QTCONFIGOPT!$QTCONFIGOPT$ac_delim
 XTRA_LD_F2PY!$XTRA_LD_F2PY$ac_delim
 EXTRAENV!$EXTRAENV$ac_delim
@@ -13363,7 +13708,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 45; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 51; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
@@ -13668,15 +14013,14 @@ which seems to be undefined.  Please make sure it is defined." >&2;}
 
 
   case $ac_file$ac_mode in
-    "Makefile":F) chmod +x Scripts/cdat checked_get.sh ;;
-    "site.cfg":F) chmod +x Scripts/cdat checked_get.sh ;;
-    "README.txt":F) chmod +x Scripts/cdat checked_get.sh ;;
-    "Scripts/cdat":F) chmod +x Scripts/cdat checked_get.sh ;;
-    "Scripts/cdatversion":F) chmod +x Scripts/cdat checked_get.sh ;;
-    "exsrc/CMakeCache.txt":F) chmod +x Scripts/cdat checked_get.sh ;;
-    "checked_get.sh":F) chmod +x Scripts/cdat checked_get.sh ;;
-    "exsrc/src/pbmplus/Makefile":F) chmod +x Scripts/cdat checked_get.sh ;;
-    "matplotlib.setup.cfg":F) chmod +x Scripts/cdat checked_get.sh ;;
+    "Makefile":F) chmod +x checked_get.sh ;;
+    "site.cfg":F) chmod +x checked_get.sh ;;
+    "README.txt":F) chmod +x checked_get.sh ;;
+    "Scripts/cdatversion":F) chmod +x checked_get.sh ;;
+    "exsrc/CMakeCache.txt":F) chmod +x checked_get.sh ;;
+    "checked_get.sh":F) chmod +x checked_get.sh ;;
+    "exsrc/src/pbmplus/Makefile":F) chmod +x checked_get.sh ;;
+    "matplotlib.setup.cfg":F) chmod +x checked_get.sh ;;
 
   esac
 done # for ac_tag
@@ -13709,306 +14053,3 @@ if test "$no_create" != yes; then
   $ac_cs_success || { (exit 1); exit 1; }
 fi
 
-
-{ echo "$as_me:$LINENO: " >&5
-echo "$as_me: " >&6;}
-{ echo "$as_me:$LINENO: ************************************************************************" >&5
-echo "$as_me: ************************************************************************" >&6;}
-{ echo "$as_me:$LINENO:                               SUMMARY" >&5
-echo "$as_me:                               SUMMARY" >&6;}
-{ echo "$as_me:$LINENO:                             VERSION: ${CDAT_VERSION}" >&5
-echo "$as_me:                             VERSION: ${CDAT_VERSION}" >&6;}
-{ echo "$as_me:$LINENO: ************************************************************************" >&5
-echo "$as_me: ************************************************************************" >&6;}
-{ echo "$as_me:$LINENO: " >&5
-echo "$as_me: " >&6;}
-{ echo "$as_me:$LINENO: ........................................................................" >&5
-echo "$as_me: ........................................................................" >&6;}
-{ echo "$as_me:$LINENO: ...                             EXTERNALS                            ..." >&5
-echo "$as_me: ...                             EXTERNALS                            ..." >&6;}
-if test ${NCPUS} != "1" ; then
-{ echo "$as_me:$LINENO: ...                     Taking advantage of ${NCPUS} CPUS                  ..." >&5
-echo "$as_me: ...                     Taking advantage of ${NCPUS} CPUS                  ..." >&6;}
-fi
-{ echo "$as_me:$LINENO: ........................................................................" >&5
-echo "$as_me: ........................................................................" >&6;}
-{ echo "$as_me:$LINENO: " >&5
-echo "$as_me: " >&6;}
-if test ${COMPILE_CURL} == "yes" ; then
-  { echo "$as_me:$LINENO: curl >= ${CURL_MAJOR}.${CURL_MINOR}.${CURL_PATCH} not found... building library ${CURL_MAJOR_SRC}.${CURL_MINOR_SRC}.${CURL_PATCH_SRC}" >&5
-echo "$as_me: curl >= ${CURL_MAJOR}.${CURL_MINOR}.${CURL_PATCH} not found... building library ${CURL_MAJOR_SRC}.${CURL_MINOR_SRC}.${CURL_PATCH_SRC}" >&6;}
-else
-  { echo "$as_me:$LINENO: curl >= ${CURL_MAJOR}.${CURL_MINOR}.${CURL_PATCH} found or not necessary for this configuration" >&5
-echo "$as_me: curl >= ${CURL_MAJOR}.${CURL_MINOR}.${CURL_PATCH} found or not necessary for this configuration" >&6;}
-fi
-if test ${COMPILE_XML2} == "yes" ; then
-  { echo "$as_me:$LINENO: libxml2 >= ${XML_MAJOR}.${XML_MINOR}.${XML_PATCH} not found... building library ${XML_MAJOR_SRC}.${XML_MINOR_SRC}.${XML_PATCH_SRC}" >&5
-echo "$as_me: libxml2 >= ${XML_MAJOR}.${XML_MINOR}.${XML_PATCH} not found... building library ${XML_MAJOR_SRC}.${XML_MINOR_SRC}.${XML_PATCH_SRC}" >&6;}
-else
-  { echo "$as_me:$LINENO: libxml2 >= ${XML_MAJOR}.${XML_MINOR}.${XML_PATCH} found" >&5
-echo "$as_me: libxml2 >= ${XML_MAJOR}.${XML_MINOR}.${XML_PATCH} found" >&6;}
-fi
-if test ${enable_esg} == "-yes" ; then
- if test ${COMPILE_XSLT} == "yes" ; then
-  { echo "$as_me:$LINENO: libxslt >= ${XSLT_MAJOR}.${XSLT_MINOR}.${XSLT_PATCH} not found... building library ${XSLT_MAJOR_SRC}.${XSLT_MINOR_SRC}.${XSLT_PATCH_SRC}" >&5
-echo "$as_me: libxslt >= ${XSLT_MAJOR}.${XSLT_MINOR}.${XSLT_PATCH} not found... building library ${XSLT_MAJOR_SRC}.${XSLT_MINOR_SRC}.${XSLT_PATCH_SRC}" >&6;}
- else
-  { echo "$as_me:$LINENO: libxslt >= ${XSLT_MAJOR}.${XSLT_MINOR}.${XSLT_PATCH} found" >&5
-echo "$as_me: libxslt >= ${XSLT_MAJOR}.${XSLT_MINOR}.${XSLT_PATCH} found" >&6;}
- fi
-fi
-if test ${enable_cdms_only} != "-yes" ; then
- if test ${COMPILE_CMAKE} == "yes" ; then
-  { echo "$as_me:$LINENO: cmake >= ${CMAKE_MAJOR}.${CMAKE_MINOR} not found... building software ${CMAKE_MAJOR_SRC}.${CMAKE_MINOR_SRC}.${CMAKE_PATCH_SRC}" >&5
-echo "$as_me: cmake >= ${CMAKE_MAJOR}.${CMAKE_MINOR} not found... building software ${CMAKE_MAJOR_SRC}.${CMAKE_MINOR_SRC}.${CMAKE_PATCH_SRC}" >&6;}
- else
-  { echo "$as_me:$LINENO: cmake >= ${CMAKE_MAJOR}.${CMAKE_MINOR} found" >&5
-echo "$as_me: cmake >= ${CMAKE_MAJOR}.${CMAKE_MINOR} found" >&6;}
- fi
- if test ${COMPILE_XGKS} == "yes" ; then
-   { echo "$as_me:$LINENO: xgks not found ... building library" >&5
-echo "$as_me: xgks not found ... building library" >&6;}
- else
-   { echo "$as_me:$LINENO: xgks found" >&5
-echo "$as_me: xgks found" >&6;}
- fi
- if test ${DOPBMPLUS} == "yes" ; then
-   { echo "$as_me:$LINENO: pbmplus not found ... building library" >&5
-echo "$as_me: pbmplus not found ... building library" >&6;}
- else
-   { echo "$as_me:$LINENO: pbmplus found" >&5
-echo "$as_me: pbmplus found" >&6;}
- fi
- if test ${FFMPEG} == "no" ; then
-   { echo "$as_me:$LINENO: ffmpeg not found ... building software" >&5
-echo "$as_me: ffmpeg not found ... building software" >&6;}
- else
-   { echo "$as_me:$LINENO: ffmpeg found" >&5
-echo "$as_me: ffmpeg found" >&6;}
- fi
- if test ${GIFSICLE} == "no" ; then
-   { echo "$as_me:$LINENO: gifsicle not found ... building software ${GIFSICLE_MAJOR_SRC}.${GIFSICLE_MINOR_SRC}" >&5
-echo "$as_me: gifsicle not found ... building software ${GIFSICLE_MAJOR_SRC}.${GIFSICLE_MINOR_SRC}" >&6;}
- else
-   { echo "$as_me:$LINENO: gifsicle found" >&5
-echo "$as_me: gifsicle found" >&6;}
- fi
- if test ${DOGS} == "yes" ; then
-   { echo "$as_me:$LINENO: gs not found ... building software" >&5
-echo "$as_me: gs not found ... building software" >&6;}
- else
-   { echo "$as_me:$LINENO: gs found" >&5
-echo "$as_me: gs found" >&6;}
- fi
- if test ${COMPILE_LIBJPEG} == "yes" ; then
-   { echo "$as_me:$LINENO: libjpeg not found ... building library" >&5
-echo "$as_me: libjpeg not found ... building library" >&6;}
- else
-   { echo "$as_me:$LINENO: libjpeg found or not necessary for this configuration" >&5
-echo "$as_me: libjpeg found or not necessary for this configuration" >&6;}
- fi
- if test ${HAVE_LIBBLAS} == "no" ; then
-   { echo "$as_me:$LINENO: libblas not found ... building library" >&5
-echo "$as_me: libblas not found ... building library" >&6;}
- else
-   { echo "$as_me:$LINENO: libblas found or not necessary for this configuration" >&5
-echo "$as_me: libblas found or not necessary for this configuration" >&6;}
- fi
- if test ${HAVE_LIBLAPACK} == "no" ; then
-   { echo "$as_me:$LINENO: liblapack not found ... building library" >&5
-echo "$as_me: liblapack not found ... building library" >&6;}
- else
-   { echo "$as_me:$LINENO: liblapack found or not necessary for this configuration" >&5
-echo "$as_me: liblapack found or not necessary for this configuration" >&6;}
- fi
- if test ${HAVE_LIBLAPACK95} == "no" ; then
-   { echo "$as_me:$LINENO: liblapack95 not found ... building library" >&5
-echo "$as_me: liblapack95 not found ... building library" >&6;}
- else
-   { echo "$as_me:$LINENO: liblapack95 found or not necessary for this configuration" >&5
-echo "$as_me: liblapack95 found or not necessary for this configuration" >&6;}
- fi
- if test ${COMPILE_LIBPNG} == "yes" ; then
-  { echo "$as_me:$LINENO: libpng >= ${PNG_MAJOR}.${PNG_MINOR}.${PNG_PATCH} not found... building library ${PNG_MAJOR_SRC}.${PNG_MINOR_SRC}.${PNG_PATCH_SRC}" >&5
-echo "$as_me: libpng >= ${PNG_MAJOR}.${PNG_MINOR}.${PNG_PATCH} not found... building library ${PNG_MAJOR_SRC}.${PNG_MINOR_SRC}.${PNG_PATCH_SRC}" >&6;}
- else
-  { echo "$as_me:$LINENO: libpng >= ${PNG_MAJOR}.${PNG_MINOR}.${PNG_PATCH} found" >&5
-echo "$as_me: libpng >= ${PNG_MAJOR}.${PNG_MINOR}.${PNG_PATCH} found" >&6;}
- fi
- if test ${COMPILE_PKGCONFIG} == "yes" ; then
-  { echo "$as_me:$LINENO: pkg-config >= ${PKG_MAJOR}.${PKG_MINOR}.${PKG_PATCH} not found... building software ${PKG_MAJOR_SRC}.${PKG_MINOR_SRC}.${PKG_PATCH_SRC}" >&5
-echo "$as_me: pkg-config >= ${PKG_MAJOR}.${PKG_MINOR}.${PKG_PATCH} not found... building software ${PKG_MAJOR_SRC}.${PKG_MINOR_SRC}.${PKG_PATCH_SRC}" >&6;}
- else
-  { echo "$as_me:$LINENO: pkg-config >= ${PKG_MAJOR}.${PKG_MINOR}.${PKG_PATCH} found" >&5
-echo "$as_me: pkg-config >= ${PKG_MAJOR}.${PKG_MINOR}.${PKG_PATCH} found" >&6;}
- fi
- if test ${COMPILE_FREETYPE} == "yes" ; then
-  { echo "$as_me:$LINENO: libfreetype >= ${FT_MAJOR}.${FT_MINOR}.${FT_PATCH} not found... building library ${FT_MAJOR_SRC}.${FT_MINOR_SRC}.${FT_PATCH_SRC} " >&5
-echo "$as_me: libfreetype >= ${FT_MAJOR}.${FT_MINOR}.${FT_PATCH} not found... building library ${FT_MAJOR_SRC}.${FT_MINOR_SRC}.${FT_PATCH_SRC} " >&6;}
- else
-  { echo "$as_me:$LINENO: libfreetype >= ${FT_MAJOR}.${FT_MINOR}.${FT_PATCH} found" >&5
-echo "$as_me: libfreetype >= ${FT_MAJOR}.${FT_MINOR}.${FT_PATCH} found" >&6;}
- fi
- if test ${COMPILE_PIXMAN} == "yes" ; then
-  { echo "$as_me:$LINENO: libpixman >= ${PIX_MAJOR}.${PIX_MINOR}.${PIX_PATCH} not found... building  library ${PIX_MAJOR_SRC}.${PIX_MINOR_SRC}.${PIX_PATCH_SRC}" >&5
-echo "$as_me: libpixman >= ${PIX_MAJOR}.${PIX_MINOR}.${PIX_PATCH} not found... building  library ${PIX_MAJOR_SRC}.${PIX_MINOR_SRC}.${PIX_PATCH_SRC}" >&6;}
- else
-  { echo "$as_me:$LINENO: libpixman >= ${PIX_MAJOR}.${PIX_MINOR}.${PIX_PATCH} found" >&5
-echo "$as_me: libpixman >= ${PIX_MAJOR}.${PIX_MINOR}.${PIX_PATCH} found" >&6;}
- fi
- if test ${COMPILE_FONTCONFIG} == "yes" ; then
-  { echo "$as_me:$LINENO: fontconfig >= ${FTCFG_MAJOR}.${FTCFG_MINOR}.${FTCFG_PATCH} not found... building library ${FTCFG_MAJOR_SRC}.${FTCFG_MINOR_SRC}.${FTCFG_PATCH_SRC}" >&5
-echo "$as_me: fontconfig >= ${FTCFG_MAJOR}.${FTCFG_MINOR}.${FTCFG_PATCH} not found... building library ${FTCFG_MAJOR_SRC}.${FTCFG_MINOR_SRC}.${FTCFG_PATCH_SRC}" >&6;}
- else
-  { echo "$as_me:$LINENO: fontconfig >= ${FTCFG_MAJOR}.${FTCFG_MINOR}.${FTCFG_PATCH} found" >&5
-echo "$as_me: fontconfig >= ${FTCFG_MAJOR}.${FTCFG_MINOR}.${FTCFG_PATCH} found" >&6;}
- fi
- if test ${COMPILE_CAIRO} == "yes" ; then
-  { echo "$as_me:$LINENO: libcairo >= ${CAIRO_MAJOR}.${CAIRO_MINOR}.${CAIRO_PATCH} not found... building library ${CAIRO_MAJOR_SRC}.${CAIRO_MINOR_SRC}.${CAIRO_PATCH_SRC}" >&5
-echo "$as_me: libcairo >= ${CAIRO_MAJOR}.${CAIRO_MINOR}.${CAIRO_PATCH} not found... building library ${CAIRO_MAJOR_SRC}.${CAIRO_MINOR_SRC}.${CAIRO_PATCH_SRC}" >&6;}
- else
-  { echo "$as_me:$LINENO: libcairo >= ${CAIRO_MAJOR}.${CAIRO_MINOR}.${CAIRO_PATCH} found" >&5
-echo "$as_me: libcairo >= ${CAIRO_MAJOR}.${CAIRO_MINOR}.${CAIRO_PATCH} found" >&6;}
- fi
-fi
-if test ${enable_esg} != "-yes" ; then
-  if test ${COMPILE_UUID} == "yes" ; then
-    { echo "$as_me:$LINENO: libuuid not found... building library ${UUID_MAJOR_SRC}.${UUID_MINOR_SRC}.${UUID_PATCH_SRC}" >&5
-echo "$as_me: libuuid not found... building library ${UUID_MAJOR_SRC}.${UUID_MINOR_SRC}.${UUID_PATCH_SRC}" >&6;}
-  else
-    { echo "$as_me:$LINENO: libuuid found" >&5
-echo "$as_me: libuuid found" >&6;}
-  fi
-  if test ${COMPILE_UDUNITS2} == "yes" ; then
-    { echo "$as_me:$LINENO: libudunits2 not found... building library ${UDUNITS2_MAJOR_SRC}.${UDUNITS2_MINOR_SRC}.${UDUNITS2_PATCH_SRC}" >&5
-echo "$as_me: libudunits2 not found... building library ${UDUNITS2_MAJOR_SRC}.${UDUNITS2_MINOR_SRC}.${UDUNITS2_PATCH_SRC}" >&6;}
-  else
-    { echo "$as_me:$LINENO: libudunits2 found" >&5
-echo "$as_me: libudunits2 found" >&6;}
-  fi
-fi
-if test ${COMPILE_JASPER} == "yes" ; then
-    { echo "$as_me:$LINENO: libjasper not found... building library ${JASPER_MAJOR_SRC}.${JASPER_MINOR_SRC}.${JASPER_PATCH_SRC}" >&5
-echo "$as_me: libjasper not found... building library ${JASPER_MAJOR_SRC}.${JASPER_MINOR_SRC}.${JASPER_PATCH_SRC}" >&6;}
-else
-    { echo "$as_me:$LINENO: libjasper found" >&5
-echo "$as_me: libjasper found" >&6;}
-fi
-if test ${COMPILE_G2CLIB} == "yes" ; then
-    { echo "$as_me:$LINENO: libg2clib not found... building library ${G2CLIB_MAJOR_SRC}.${G2CLIB_MINOR_SRC}.${G2CLIB_PATCH_SRC}" >&5
-echo "$as_me: libg2clib not found... building library ${G2CLIB_MAJOR_SRC}.${G2CLIB_MINOR_SRC}.${G2CLIB_PATCH_SRC}" >&6;}
-else
-    { echo "$as_me:$LINENO: libg2clib found" >&5
-echo "$as_me: libg2clib found" >&6;}
-fi
-if test ${COMPILE_HDF5} == "yes" ; then
-    { echo "$as_me:$LINENO: libhdf5 not found... building library ${HDF5_MAJOR_SRC}.${HDF5_MINOR_SRC}.${HDF5_PATCH_SRC}" >&5
-echo "$as_me: libhdf5 not found... building library ${HDF5_MAJOR_SRC}.${HDF5_MINOR_SRC}.${HDF5_PATCH_SRC}" >&6;}
-else
-    { echo "$as_me:$LINENO: libhdf5 found" >&5
-echo "$as_me: libhdf5 found" >&6;}
-fi
-if test ${COMPILE_NC} == "yes" ; then
-    { echo "$as_me:$LINENO: libnetcdf >=4 not found... building library ${NC4_MAJOR_SRC}.${NC4_MINOR_SRC}.${NC4_PATCH_SRC}" >&5
-echo "$as_me: libnetcdf >=4 not found... building library ${NC4_MAJOR_SRC}.${NC4_MINOR_SRC}.${NC4_PATCH_SRC}" >&6;}
-else
-    { echo "$as_me:$LINENO: libnetcdf >=4 found at ${NC4LOC}" >&5
-echo "$as_me: libnetcdf >=4 found at ${NC4LOC}" >&6;}
-fi
-if test ${COMPILE_LIBCF} == "yes" ; then
-    { echo "$as_me:$LINENO: libcf ..... building library ${LIBCF_MAJOR_SRC}.${LIBCF_MINOR_SRC}.${LIBCF_PATCH_SRC}" >&5
-echo "$as_me: libcf ..... building library ${LIBCF_MAJOR_SRC}.${LIBCF_MINOR_SRC}.${LIBCF_PATCH_SRC}" >&6;}
-fi
-if test ${BUILDQT} == "yes" ; then
-    { echo "$as_me:$LINENO: Qt libraries not found... building library ${QT_MAJOR_SRC}.${QT_MINOR_SRC}.${QT_PATCH_SRC}" >&5
-echo "$as_me: Qt libraries not found... building library ${QT_MAJOR_SRC}.${QT_MINOR_SRC}.${QT_PATCH_SRC}" >&6;}
-else
-    { echo "$as_me:$LINENO: Qt > ${QT_MAJOR}.${QT_MINOR}.${QT_PATCH} found or not needed in this configuration" >&5
-echo "$as_me: Qt > ${QT_MAJOR}.${QT_MINOR}.${QT_PATCH} found or not needed in this configuration" >&6;}
-fi
-{ echo "$as_me:$LINENO: " >&5
-echo "$as_me: " >&6;}
-{ echo "$as_me:$LINENO: ........................................................................" >&5
-echo "$as_me: ........................................................................" >&6;}
-{ echo "$as_me:$LINENO: ...                               PYTHON                             ..." >&5
-echo "$as_me: ...                               PYTHON                             ..." >&6;}
-{ echo "$as_me:$LINENO: ........................................................................" >&5
-echo "$as_me: ........................................................................" >&6;}
-{ echo "$as_me:$LINENO: " >&5
-echo "$as_me: " >&6;}
-if test ${COMPILE_PYTHON} == "yes" ; then
-  { echo "$as_me:$LINENO: python >= ${PYTHON_MAJOR}.${PYTHON_MINOR} with tcl/tk support not found... building software ${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.${PYTHON_PATCH_SRC}" >&5
-echo "$as_me: python >= ${PYTHON_MAJOR}.${PYTHON_MINOR} with tcl/tk support not found... building software ${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.${PYTHON_PATCH_SRC}" >&6;}
-  if test ${COMPILE_Z} == "yes" ; then
-     { echo "$as_me:$LINENO: zlib not found ... building library ${ZLIB_MAJOR_SRC}.${ZLIB_MINOR_SRC}.${ZLIB_PATCH_SRC}" >&5
-echo "$as_me: zlib not found ... building library ${ZLIB_MAJOR_SRC}.${ZLIB_MINOR_SRC}.${ZLIB_PATCH_SRC}" >&6;}
-  else
-     { echo "$as_me:$LINENO: zlib found" >&5
-echo "$as_me: zlib found" >&6;}
-  fi
-  if test ${COMPILE_TERMCAP} == "yes" ; then
-     { echo "$as_me:$LINENO: termcap not found ... building library ${TCAP_MAJOR_SRC}.${TCAP_MINOR_SRC}.${TCAP_PATCH_SRC}" >&5
-echo "$as_me: termcap not found ... building library ${TCAP_MAJOR_SRC}.${TCAP_MINOR_SRC}.${TCAP_PATCH_SRC}" >&6;}
-  else
-     { echo "$as_me:$LINENO: termcap found" >&5
-echo "$as_me: termcap found" >&6;}
-  fi
-  if test ${COMPILE_READLINE} == "yes" ; then
-    { echo "$as_me:$LINENO: libreadline >= ${RL_MAJOR}.${RL_MINOR} not found... building library ${RL_MAJOR_SRC}.${RL_MINOR_SRC}" >&5
-echo "$as_me: libreadline >= ${RL_MAJOR}.${RL_MINOR} not found... building library ${RL_MAJOR_SRC}.${RL_MINOR_SRC}" >&6;}
-  else
-    { echo "$as_me:$LINENO: libreadline >= ${RL_MAJOR}.${RL_MINOR} found" >&5
-echo "$as_me: libreadline >= ${RL_MAJOR}.${RL_MINOR} found" >&6;}
-  fi
-  if test ${COMPILE_TCLTK} == "yes" ; then
-    { echo "$as_me:$LINENO: tcl/tk >= ${TCLTK_MAJOR}.${TCLTK_MINOR}.${TCLTK_PATCH} not found... building library ${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC}.${TCLTK_PATCH_SRC}" >&5
-echo "$as_me: tcl/tk >= ${TCLTK_MAJOR}.${TCLTK_MINOR}.${TCLTK_PATCH} not found... building library ${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC}.${TCLTK_PATCH_SRC}" >&6;}
-  else
-    { echo "$as_me:$LINENO: tcl/tk >= ${TCLTK_MAJOR}.${TCLTK_MINOR}.${TCLTK_PATCH} found" >&5
-echo "$as_me: tcl/tk >= ${TCLTK_MAJOR}.${TCLTK_MINOR}.${TCLTK_PATCH} found" >&6;}
-  fi
-else
-  { echo "$as_me:$LINENO: python >= ${PYTHON_MAJOR}.${PYTHON_MINOR}.${PYTHON_PATCH} with tcl/tk support found" >&5
-echo "$as_me: python >= ${PYTHON_MAJOR}.${PYTHON_MINOR}.${PYTHON_PATCH} with tcl/tk support found" >&6;}
-fi
-if test ${SETUPTOOLS} == "yes" ; then
-  { echo "$as_me:$LINENO: setuptools >= ${SETUPTOOLS_MAJOR}.${SETUPTOOLS_MINOR} not found... building package ${SETUPTOOLS_MAJOR_SRC}.${SETUPTOOLS_MINOR_SRC}" >&5
-echo "$as_me: setuptools >= ${SETUPTOOLS_MAJOR}.${SETUPTOOLS_MINOR} not found... building package ${SETUPTOOLS_MAJOR_SRC}.${SETUPTOOLS_MINOR_SRC}" >&6;}
-else
-  { echo "$as_me:$LINENO: setuptools >= ${SETUPTOOLS_MAJOR}.${SETUPTOOLS_MINOR} found" >&5
-echo "$as_me: setuptools >= ${SETUPTOOLS_MAJOR}.${SETUPTOOLS_MINOR} found" >&6;}
-fi
-if test ${PyOpenGL} == "yes" ; then
-  { echo "$as_me:$LINENO: PyOpenGL >= ${PyOpenGL_MAJOR}.${PyOpenGL_MINOR} not found... building package ${PyOpenGL_MAJOR_SRC}.${PyOpenGL_MINOR_SRC}.${PyOpenGL_PATCH_SRC}" >&5
-echo "$as_me: PyOpenGL >= ${PyOpenGL_MAJOR}.${PyOpenGL_MINOR} not found... building package ${PyOpenGL_MAJOR_SRC}.${PyOpenGL_MINOR_SRC}.${PyOpenGL_PATCH_SRC}" >&6;}
-else
-  { echo "$as_me:$LINENO: PyOpenGL >= ${PyOpenGL_MAJOR}.${PyOpenGL_MINOR} found or not necessary in this configuration" >&5
-echo "$as_me: PyOpenGL >= ${PyOpenGL_MAJOR}.${PyOpenGL_MINOR} found or not necessary in this configuration" >&6;}
-fi
-if test ${NUMPY} == "yes" ; then
-  { echo "$as_me:$LINENO: numpy >= ${NUMPY_MAJOR}.${NUMPY_MINOR}.${NUMPY_PATCH} not found... building package ${NUMPY_MAJOR_SRC}.${NUMPY_MINOR_SRC}.${NUMPY_PATCH_SRC}" >&5
-echo "$as_me: numpy >= ${NUMPY_MAJOR}.${NUMPY_MINOR}.${NUMPY_PATCH} not found... building package ${NUMPY_MAJOR_SRC}.${NUMPY_MINOR_SRC}.${NUMPY_PATCH_SRC}" >&6;}
-else
-  { echo "$as_me:$LINENO: numpy >= ${NUMPY_MAJOR}.${NUMPY_MINOR}.${NUMPY_PATCH} found" >&5
-echo "$as_me: numpy >= ${NUMPY_MAJOR}.${NUMPY_MINOR}.${NUMPY_PATCH} found" >&6;}
-fi
-if test ${Pmw} == "yes" ; then
-  { echo "$as_me:$LINENO: Pmw >= ${PMW_MAJOR}.${PMW_MINOR} not found... building package ${PMW_MAJOR_SRC}.${PMW_MINOR_SRC}" >&5
-echo "$as_me: Pmw >= ${PMW_MAJOR}.${PMW_MINOR} not found... building package ${PMW_MAJOR_SRC}.${PMW_MINOR_SRC}" >&6;}
-else
-  { echo "$as_me:$LINENO: Pmw >= ${PMW_MAJOR}.${PMW_MINOR} found" >&5
-echo "$as_me: Pmw >= ${PMW_MAJOR}.${PMW_MINOR} found" >&6;}
-fi
-if test ${with_qt} != "no" ; then
-  { echo "$as_me:$LINENO: Will build with Qt support" >&5
-echo "$as_me: Will build with Qt support" >&6;}
-else
- if test ${with_qt_bin} != "no"; then
-  { echo "$as_me:$LINENO: Will build with Qt support" >&5
-echo "$as_me: Will build with Qt support" >&6;}
- fi
-fi
-{ echo "$as_me:$LINENO: " >&5
-echo "$as_me: " >&6;}
-{ echo "$as_me:$LINENO: Now type \"make\" to install CDAT-${CDAT_VERSION} to: ${prefix} and its dependencies to: ${EXTERNALS}" >&5
-echo "$as_me: Now type \"make\" to install CDAT-${CDAT_VERSION} to: ${prefix} and its dependencies to: ${EXTERNALS}" >&6;}

@@ -1,18 +1,18 @@
 dnl                                                -*- Autoconf -*-
 dnl  Process this file with autoconf to produce a configure script.
-dnl  $Id: $
+dnl  
 
 dnl AC_PREREQ(2.59)
 AC_SUBST(SHELL)
 
 AC_INIT(cdat, 6.0.alpha, doutriaux1@llnl.gov)
 SVN_TAG="rev"`./get_svn_version.sh`
-if test ${SVN_TAG} == "rev" ; then
+if test ${SVN_TAG} = "rev" ; then
   SVN_TAG=""
 fi
 CDAT_VERSION=${PACKAGE_VERSION}${SVN_TAG}
 AC_PREFIX_DEFAULT([/opt/cdat])
-AC_CONFIG_FILES([Makefile site.cfg README.txt Scripts/cdat Scripts/cdatversion exsrc/CMakeCache.txt checked_get.sh exsrc/src/pbmplus/Makefile matplotlib.setup.cfg ],[chmod +x Scripts/cdat checked_get.sh])
+AC_CONFIG_FILES([Makefile site.cfg README.txt Scripts/cdatversion exsrc/CMakeCache.txt checked_get.sh exsrc/src/pbmplus/Makefile matplotlib.setup.cfg ],[chmod +x checked_get.sh])
 
 
 dnl  Lib VERSION NUMBERS TO CHECK AGAINST
@@ -53,7 +53,7 @@ AC_SUBST(COMPILE_JASPER)
 COMPILE_JASPER=yes
 G2CLIB_MAJOR_SRC=1
 G2CLIB_MINOR_SRC=2
-G2CLIB_PATCH_SRC=3
+G2CLIB_PATCH_SRC=4
 G2CLIB_URL=uv-cdat.llnl.gov
 G2CLIB_GZ=g2clib-${JASPER_MAJOR_SRC}.${G2CLIB_MINOR_SRC}.${G2CLIB_PATCH_SRC}.tar.gz
 AC_SUBST(G2CLIB_MAJOR_SRC)
@@ -483,6 +483,17 @@ AC_SUBST(LIBCF_MINOR_SRC)
 AC_SUBST(LIBCF_PATCH_SRC)
 AC_SUBST(LIBCF_URL)
 AC_SUBST(LIBCF_GZ)
+PYTABLES_MAJOR_SRC=2
+PYTABLES_MINOR_SRC=2
+PYTABLES_PATCH_SRC=1
+PYTABLES_URL=http://www.pytables.org/download/pytables-${PYTABLES_MAJOR_SRC}.${PYTABLES_MINOR_SRC}.${PYTABLES_PATCH_SRC}
+PYTABLES_GZ=tables-2.2.1.tar.gz
+AC_SUBST(PYTABLES_MAJOR_SRC)
+AC_SUBST(PYTABLES_MINOR_SRC)
+AC_SUBST(PYTABLES_PATCH_SRC)
+AC_SUBST(PYTABLES_URL)
+AC_SUBST(PYTABLES_GZ)
+
 dnl AC_SUBST(COMPILE_IOAPI)
 AC_SUBST(ESG)
 AC_SUBST(PGCONFIG)
@@ -556,7 +567,7 @@ AC_ARG_WITH([externals],
 	[AS_HELP_STRING([--with-externals],[path where to build/look for externals programs/libraries [PREFIX/Externals]])],
         [],
 	[with_externals=no])
-if test ${with_externals} == "no" ; then
+if test ${with_externals} = "no" ; then
    EXTERNALS=${prefix}/Externals
 else
    EXTERNALS=${with_externals}
@@ -566,7 +577,7 @@ AC_ARG_WITH([cpus],
 	[AS_HELP_STRING([--with-cpus],[How many CPUs to use for make -j ])],
         [],
 	[with_cpus=1])
-if test ${with_cpus} == "no" ; then
+if test ${with_cpus} = "no" ; then
    NCPUS=1
 else
    NCPUS=${with_cpus}
@@ -670,9 +681,9 @@ DOWGET="no"
 
 AC_PATH_PROG(HASWGET,wget,no)
 
-if test ${HASWGET} == "no" ; then
+if test ${HASWGET} = "no" ; then
    AC_PATH_PROG(HASCURL,curl,no)
-   if test ${HASCURL} == "no" ; then
+   if test ${HASCURL} = "no" ; then
     AC_MSG_ERROR([you need either wget or curl installed])
    else
     DOWGET="yes"
@@ -711,7 +722,7 @@ dnl  Turn off fortran
 dnl ##########################################################
 AC_ARG_ENABLE([fortran],[AS_HELP_STRING([--enable-fortran],[enable pur fortran codes (default will try)])])
 enable_fortran="-"${enable_fortran}
-if test ${enable_fortran} == "-no" ; then
+if test ${enable_fortran} = "-no" ; then
   FC=""
   F77=""
   FFLAGS=""
@@ -766,12 +777,12 @@ case ${target_os} in
   *)
     echo "Testing for X11";;
 esac
-if test ${DO_X} == "yes" ; then
+if test ${DO_X} = "yes" ; then
   AC_PATH_XTRA
   dnl here we add the result of XTRA and make sure /usr/X11 is in anyway
   long_no_x="_"${no_x}
-  if  test ${long_no_x} == "_yes"   ; then
-    if test ${enable_esg} == "-yes" ; then
+  if  test ${long_no_x} = "_yes"   ; then
+    if test ${enable_esg} = "-yes" ; then
       enable_X11="-no"
       AC_MSG_WARN([no X found turn off X11 dependencies, that means no tcl/tk or Tkinter suport in your python])
     else
@@ -803,7 +814,7 @@ export PYTHONPATH
 
 AC_ARG_ENABLE([vtk],[AS_HELP_STRING([--enable-vtk],[enable/disable vtk build])]) 
 enable_vtk="-"${enable_vtk}
-if test ${enable_vtk} == "-yes" ; then
+if test ${enable_vtk} = "-yes" ; then
    COMPILE_VTK="yes"
 else
   COMPILE_VTK="no"
@@ -814,12 +825,24 @@ dnl
 dnl LibCF
 dnl 
 AC_ARG_ENABLE([libcf],[AS_HELP_STRING([--enable-libcf],[enable/disable libcf build])]) 
-if test "x${enable_libcf}" == "xyes" ; then
+if test "x${enable_libcf}" = "xyes" ; then
    COMPILE_LIBCF="yes"
 else
   COMPILE_LIBCF="no"
 fi
 AC_SUBST(COMPILE_LIBCF)
+
+dnl
+dnl pytables
+dnl
+AC_ARG_ENABLE([pytables],[AS_HELP_STRING([--enable-pytables],[enable/disable pytables build])]) 
+if test "x${enable_pytables}" = "xyes" ; then
+   COMPILE_PYTABLES="yes"
+else
+  COMPILE_PYTABLES="no"
+fi
+AC_SUBST(COMPILE_PYTABLES)
+
 
 EXTRAENV=""
 
@@ -841,10 +864,10 @@ case ${target_os} in
   AC_MSG_NOTICE([Linux: adding -Wl,--rpath,${prefix}/lib -Wl,--rpath,${EXTERNALS}/lib  to LDFLAGS])
   LDFLAGS=${LDFLAGS}" -Wl,--rpath,${prefix}/lib -Wl,--rpath,${EXTERNALS}/lib " 
   AC_MSG_CHECKING([if we are using icc])
-  if test ${CC} == "icc" ; then
+  if test ${CC} = "icc" ; then
     AC_MSG_RESULT([yes])
     AC_MSG_CHECKING([if IC env variable is set])
-    if test "-"${IC} == "-" ; then
+    if test "-"${IC} = "-" ; then
        AC_MSG_RESULT([no])
        AC_MSG_ERROR([set environment variable IC to the location of libimf.a, libirc.a])
     else
@@ -878,7 +901,7 @@ case ${target_os} in
   dnl CXXFLAGS=${CXXFLAGS}" -arch i386 -arch x86_64"
   cp exsrc/src/CMakeCache.txt.mac.in exsrc/CMakeCache.txt.in
   enable_aqua="-"${enable_aqua}
-  if test ${enable_aqua} == "-yes" ; then
+  if test ${enable_aqua} = "-yes" ; then
      AQUA_PYTHON="export AQUA_CDAT=yes ; "
   else
      AQUA_PYTHON="export AQUA_CDAT=no ; "
@@ -888,7 +911,7 @@ case ${target_os} in
   dnl ##########################################################
   AC_ARG_ENABLE([framework],[AS_HELP_STRING([--enable-framework],[Build (MacOSX|Darwin) framework])])
   enable_fw="-"${enable_framework}
-  if test ${enable_fw} == "-yes" ; then
+  if test ${enable_fw} = "-yes" ; then
     PYOPT=" --enable-framework"
     ISFRAMEWORK="yes"
     cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
@@ -900,7 +923,7 @@ case ${target_os} in
          PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall "
          ISFRAMEWORK="yes"
      else
-       if test ${enable_vtk} == "-yes" ; then
+       if test ${enable_vtk} = "-yes" ; then
            PYOPT=" --enable-framework=${prefix} "
            cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
            PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall"
@@ -913,14 +936,14 @@ case ${target_os} in
   dnl ##########################################################
   AC_ARG_ENABLE([toolbox-glue],[AS_HELP_STRING([--enable-toolbox-glue],[disable/enable MacOSX glue code for extensions])])
   enable_tbg="-"${enable_toolbox_glue}
-  if test ${enable_tbg} == "-yes" ; then
+  if test ${enable_tbg} = "-yes" ; then
     PYOPT=${PYOPT}" --enable-toolbox-glue"
   fi
   case ${target_os} in
     darwin10*)
     EXTRAENV="MACOSX_DEPLOYMENT_TARGET=10.6"
     AC_SUBST(EXTRAENV)
-    if test ${enable_fw} == "-yes" ; then
+    if test ${enable_fw} = "-yes" ; then
       PYOPT=" --enable-framework"
       PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall"
       ISFRAMEWORK="yes"
@@ -930,7 +953,7 @@ case ${target_os} in
          PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall"
          ISFRAMEWORK="yes"
       else
-         if test ${enable_vtk} == "-yes" ; then
+         if test ${enable_vtk} = "-yes" ; then
            PYOPT=" --enable-framework=${prefix} "
            cp exsrc/src/CMakeCache.txt.mac.Framework.in exsrc/CMakeCache.txt.in
            PYINSTALLKEY="frameworkinstallunixtools; make frameworkinstall"
@@ -955,7 +978,7 @@ case ${target_os} in
 esac
 
 AC_MSG_CHECKING([for 64bit machine])
-if test ${target_cpu} == "x86_64" -o ${target_cpu} == "ia64" ; then
+if test ${target_cpu} = "x86_64" -o ${target_cpu} = "ia64" ; then
   case ${target_os} in 
   darwin10*)
     AC_MSG_RESULT([yes])
@@ -973,7 +996,7 @@ fi
 dnl  some fortran flags... yerk
 dnl TESTFFLAGS=""
 dnl AC_MSG_CHECKING([for gfortran compiler])
-dnl if test ${FC} == "gfortran" ; then
+dnl if test ${FC} = "gfortran" ; then
 dnl   AC_MSG_RESULT([yes])
 dnl   AC_MSG_NOTICE([adding -DpgiFortran to CPPFLAGS])
 dnl   CPPFLAGS=${CPPFLAGS}" -DpgiFortran"
@@ -994,7 +1017,7 @@ COMPILE_PYTHON=no
 dnl enable_logfiles=crap
 AC_ARG_ENABLE([logfiles],[AS_HELP_STRING([--enable-logfiles],[enable log files (default)])])
 enable_logfiles="-"${enable_logfiles}
-if test  ${enable_logfiles} == "-no" ; then
+if test  ${enable_logfiles} = "-no" ; then
    KEEPLOG=""
    KEEPLOGa=""
    KEEPLOGroot="/dev/null"
@@ -1004,12 +1027,12 @@ else
    KEEPLOGroot="\"${MAINDIR}/logs\""
 fi
 
-if test ${enable_esg} == "-yes" ; then
+if test ${enable_esg} = "-yes" ; then
   enable_cdms_only="yes"
   ESG=yes
   DOCMOR="no"
   AC_PATH_PROG(PGCONFIG,pg_config,no)
-  if test ${PGCONFIG} == "no" ; then
+  if test ${PGCONFIG} = "no" ; then
     AC_ARG_WITH([pg_config],
 		[AS_HELP_STRING([--with-pg_config],[specify where to find pg_config program (esg only)])],
 		[],
@@ -1018,20 +1041,20 @@ if test ${enable_esg} == "-yes" ; then
         AC_CHECK_FILE([${with_pg_config}],[PGCONFIG=${with_pg_config}],[PGCONFIG='no'])
     fi
   fi
-  dnl if test ${PGCONFIG} == "no" ; then
+  dnl if test ${PGCONFIG} = "no" ; then
   dnl   AC_MSG_ERROR([You need to have pg_config in your path or secify with --with-pg_config=])
   dnl fi
   PGCONFIG=`dirname ${PGCONFIG}`
 fi
 AC_ARG_ENABLE([cdms-only],[AS_HELP_STRING([--enable-cdms-only],[enable build of cdms only (default off)])])
 enable_cdms_only="-"${enable_cdms_only}
-if test ${enable_cdms_only} == "-yes" ; then
+if test ${enable_cdms_only} = "-yes" ; then
   PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --enable-cdms-only"
 fi
 
 AC_ARG_ENABLE([debug],[AS_HELP_STRING([--enable-debug],[enable build with debug flags (default off)])])
 enable_debug="-"${enable_debug}
-if test ${enable_debug} == "-yes" ; then
+if test ${enable_debug} = "-yes" ; then
   PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --debug"
   CFLAGS="-g "${CFLAGS}
 fi
@@ -1043,7 +1066,8 @@ AC_ARG_WITH([python],
 		[with_python=no])
 if test ${with_python} != "no" ; then
   AC_CHECK_FILE([${with_python}],[PYTHON=${with_python}],[AC_MSG_ERROR([Could not find python executable ${with_python}])])
-  PYTHON_INSTALL_PREFIX=" --prefix=${with_python} "
+  # if /usr/bin/python then PYTHON_INSTALL_PREFIX should be /usr
+  PYTHON_INSTALL_PREFIX=" --prefix=`dirname ${with_python}`/.. "
 else
   AC_PATH_PROG(PYTHON,python,"no")
   if test ${PYTHON} != "${prefix}/bin/python" ; then
@@ -1053,15 +1077,15 @@ else
   AC_CHECK_FILE([${prefix}/bin/python],[PYTHON=${prefix}/bin/python ; COMPILE_PYTHON=no ],[])
 fi
 dnl  at this point we have a python, but we need to test for some features
-if test ${COMPILE_PYTHON} == "no"; then
+if test ${COMPILE_PYTHON} = "no"; then
 dnl  First testing for version of python
   AC_MSG_CHECKING([if python ${PYTHON} is recent enough])
-  if [test `${PYTHON} -c "import sys;print sys.version_info[0]"` -lt "${PYTHON_MAJOR}"] ; then
+  if test [`${PYTHON} -c "import sys;print sys.version_info[0]"` -lt "${PYTHON_MAJOR}" ] ; then
     AC_MSG_RESULT([got a very old python])
     COMPILE_PYTHON=yes
   else
-    if [test `${PYTHON} -c "import sys;print sys.version_info[0]"` == "${PYTHON_MAJOR}"] ; then
-      if [test `${PYTHON} -c "import sys;print sys.version_info[1]"` -lt "${PYTHON_MINOR}"] ; then
+    if test [ `${PYTHON} -c "import sys;print sys.version_info[0]"` = "${PYTHON_MAJOR}" ] ; then
+      if test [ `${PYTHON} -c "import sys;print sys.version_info[1]"` -lt "${PYTHON_MINOR}" ] ; then
         AC_MSG_RESULT([got a slightly old python])
         COMPILE_PYTHON=yes
       else
@@ -1069,7 +1093,7 @@ dnl  First testing for version of python
       fi
     fi
   fi
-  if test ${COMPILE_PYTHON} == "yes" ; then
+  if test ${COMPILE_PYTHON} = "yes" ; then
     if test ${with_python} != "no" ; then
       AC_MSG_ERROR([your python is too old])
     else
@@ -1077,12 +1101,12 @@ dnl  First testing for version of python
     fi
   fi
 fi
-if test ${COMPILE_PYTHON} == "no" ; then
- if [ test ${enable_cdms_only} != "-yes" -o ${enable_esg} == "-yes"  ] ; then
+if test ${COMPILE_PYTHON} = "no" ; then
+ if [ test ${enable_cdms_only} != "-yes" -o ${enable_esg} = "-yes"  ] ; then
   dnl  Now testing for must have modules
   for module in Tkinter ; do
     AC_MSG_CHECKING([if python ${PYTHON} has Tkinter support])
-    if [test `${PYTHON} -c "cmd = 'try:\n  import Tkinter\n  print 0\nexcept:\n  print 1'; exec(cmd)"` == "1"] ; then
+    if test [ `${PYTHON} -c "cmd = 'try:\n  import Tkinter\n  print 0\nexcept:\n  print 1'; exec(cmd)"` = "1" ] ; then
       AC_MSG_RESULT([no])
       COMPILE_PYTHON=yes
       if test ${with_python} != "no" ; then
@@ -1096,7 +1120,7 @@ if test ${COMPILE_PYTHON} == "no" ; then
   done
  fi
 fi
-if test ${COMPILE_PYTHON} == "no"; then
+if test ${COMPILE_PYTHON} = "no"; then
   dnl figures out which version of python we have
   PYVER=`${PYTHON} -c "import sys;print sys.version.split(' ').pop(0)"`
   dnl figures out which version of tcl/tk we have
@@ -1108,7 +1132,7 @@ if test ${COMPILE_PYTHON} == "no"; then
   dnl  Now testing for useful modules
   for module in rlcompleter readline ; do
     AC_MSG_CHECKING([if python ${PYTHON} has ${module} support])
-    if [test `${PYTHON} -c "cmd = 'try:\n  import ${module}\n  print 0\nexcept:\n  print 1'; exec(cmd)"` == "1"] ; then
+    if test [ `${PYTHON} -c "cmd = 'try:\n  import ${module}\n  print 0\nexcept:\n  print 1'; exec(cmd)"` = "1" ] ; then
       AC_MSG_RESULT([no])
       AC_MSG_WARN([your python does not have support for ${module}, you should consider adding support for it in your python])
     else
@@ -1125,7 +1149,7 @@ else
   if test ${target_os} = "OSF1" ;  then
     PYOPT=${PYOPT}" --disable-ipv6"
   fi
-  if test ${target_os} == "AIX" ; then
+  if test ${target_os} = "AIX" ; then
     PYOPT=${PYOPT}" --disable-ipv6"
   fi
   PYTHON=${prefix}/bin/python
@@ -1152,7 +1176,7 @@ else
   if (RL_VERSION_MAJOR>${RL_MAJOR}) return 0;
   if (RL_VERSION_MINOR<${RL_MINOR}) return 1;
   ])],[COMPILE_READLINE=no],[COMPILE_READLINE=yes])
-  if test $COMPILE_READLINE == "no" ; then
+  if test $COMPILE_READLINE = "no" ; then
     AC_MSG_RESULT([yes])
   else
     AC_MSG_RESULT([no])
@@ -1165,7 +1189,7 @@ else
   COMPILE_TCLTK=yes
   AC_MSG_NOTICE([tcl/tk always built. This avoids conflicts with systems with multiple tcl/tk versions])
   if [ test ${COMPILE_TCLTK} != "yes" ] ; then 
-   if [ test ${enable_cdms_only} != "-yes" -o ${enable_esg} == "-yes"  ] ; then
+   if [ test ${enable_cdms_only} != "-yes" -o ${enable_esg} = "-yes"  ] ; then
     dnl Now checking for tcl/tk
     AC_MSG_CHECKING([if you have a recent tcl (> ${TCLTK_MAJOR}.${TCLTK_MINOR})])
     AC_RUN_IFELSE(
@@ -1181,7 +1205,7 @@ else
     if (TCL_MINOR_VERSION>${TCLTK_MINOR}) return 0;
     /*if (TCL_RELEASE_SERIAL<${TCLTK_PATCH}) return 1;*/
     ])],[COMPILE_TCLTK=no],[COMPILE_TCLTK=yes])
-    if test $COMPILE_TCLTK == "no" ; then
+    if test $COMPILE_TCLTK = "no" ; then
       AC_MSG_RESULT([yes])
       AC_MSG_CHECKING([if you have a recent tk])
       AC_RUN_IFELSE(
@@ -1197,7 +1221,7 @@ else
       if (TK_MINOR_VERSION>${TCLTK_MINOR}) return 0;
       /*if (TK_RELEASE_SERIAL<${TCLTK_PATCH}) return 1;*/
       ])],[COMPILE_TCLTK=no],[COMPILE_TCLTK=yes])
-      if test $COMPILE_TCLTK == "no" ; then
+      if test $COMPILE_TCLTK = "no" ; then
         AC_MSG_RESULT([yes])
       else
         AC_MSG_RESULT([no])
@@ -1205,7 +1229,7 @@ else
     else
       AC_MSG_RESULT([no])
     fi
-    if test ${COMPILE_TCLTK} == "yes" ; then 
+    if test ${COMPILE_TCLTK} = "yes" ; then 
       AC_MSG_CHECKING([if you have a recent tcl  (> ${TCLTK_MAJOR}.${TCLTK_MINOR}) (with subdir for tcl include)])
       AC_RUN_IFELSE(
       [AC_LANG_PROGRAM([
@@ -1220,7 +1244,7 @@ else
       if (TCL_MINOR_VERSION>${TCLTK_MINOR}) return 0;
       /*if (TCL_RELEASE_SERIAL<${TCLTK_PATCH}) return 1;*/
       ])],[COMPILE_TCLTK=no],[COMPILE_TCLTK=yes])
-      if test $COMPILE_TCLTK == "no" ; then
+      if test $COMPILE_TCLTK = "no" ; then
         AC_MSG_RESULT([yes])
         AC_MSG_CHECKING([if you have a recent tk])
         AC_RUN_IFELSE(
@@ -1236,7 +1260,7 @@ else
         if (TK_MINOR_VERSION>${TCLTK_MINOR}) return 0;
         /*if (TK_RELEASE_SERIAL<${TCLTK_PATCH}) return 1;*/
         ])],[COMPILE_TCLTK=no],[COMPILE_TCLTK=yes])
-        if test $COMPILE_TCLTK == "no" ; then
+        if test $COMPILE_TCLTK = "no" ; then
           AC_MSG_RESULT([yes])
         else
           AC_MSG_RESULT([no])
@@ -1262,7 +1286,7 @@ if test  ${enable_cdms_only} != "-yes" ; then
   dnl
   COMPILE_CMAKE=yes
   AC_PATH_PROG(HAVE_CMAKE,${CMAKE_PATH},no)
-  if test ${HAVE_CMAKE} == "no" ; then
+  if test ${HAVE_CMAKE} = "no" ; then
     AC_PATH_PROG(HAVE_CMAKEE,cmake,no)
     HAVE_CMAKE=${HAVE_CMAKEE}
   fi
@@ -1284,7 +1308,7 @@ if test  ${enable_cdms_only} != "-yes" ; then
       printf("got : %i.%i ... ",M,m);
       return 0;
      ]])],[COMPILE_CMAKE=no],[COMPILE_CMAKE=yes])
-     if test ${COMPILE_CMAKE} == "yes" ; then
+     if test ${COMPILE_CMAKE} = "yes" ; then
         AC_MSG_RESULT([no])
 	CMAKE_PATH=${EXTERNALS}/bin/cmake
      else
@@ -1299,7 +1323,7 @@ if test  ${enable_cdms_only} != "-yes" ; then
   AC_CHECK_PROG(FFMPEG,ffmpeg,[yes],[no])
   AC_CHECK_PROG(GS,gs,[yes],[no])
   AC_CHECK_PROG(PS2EPSI,ps2epsi,[yes],[no])
-  if test ${GS} == "no" -o ${PS2EPSI} == "no" ; then
+  if test ${GS} = "no" -o ${PS2EPSI} = "no" ; then
    DOGS=yes
   fi
   AC_CHECK_PROG(GIFSICLE,gifsicle,[yes],[no])
@@ -1307,56 +1331,56 @@ if test  ${enable_cdms_only} != "-yes" ; then
   AC_CHECK_PROG(PNMCROP,pnmcrop,[yes],[no])
   AC_CHECK_PROG(PPMTOGIF,ppmtogif,[yes],[no])
   DOPBMPLUS=no
-  if test ${PNMFLIP} == "no" ; then
+  if test ${PNMFLIP} = "no" ; then
     DOPBMPLUS=yes
   fi
-  if test ${PPMTOGIF} == "no"; then
+  if test ${PPMTOGIF} = "no"; then
     DOPBMPLUS=yes
   fi
-  if test ${PNMCROP} == "no" ; then
+  if test ${PNMCROP} = "no" ; then
     DOPBMPLUS=yes
   fi
   AC_ARG_ENABLE([spanlib],[AS_HELP_STRING([--enable-spanlib],[enable spanlib, and therefore checks for blas/lapack/lapack95])])
   enable_spanlib="-"${enable_spanlib}
-  if test ${enable_spanlib} == "-yes" ; then
+  if test ${enable_spanlib} = "-yes" ; then
     PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --enable-spanlib"
     dnl ########################################################
     dnl  BLAS, LAPACK and LAPACK95
     dnl ########################################################
     AC_ARG_ENABLE([blasbuild],[AS_HELP_STRING([--enable-blasbuild],[enable blas build (default off)])])
     enable_blasbuild="-"${enable_blasbuild}
-    if test  ${enable_blasbuild} == "-no" ; then
+    if test  ${enable_blasbuild} = "-no" ; then
       HAVE_LIBBLAS=yes
     fi
-    if test  ${enable_blasbuild} == "-yes" ; then
+    if test  ${enable_blasbuild} = "-yes" ; then
       HAVE_LIBBLAS=no
     fi
     AC_ARG_ENABLE([lapackbuild],[AS_HELP_STRING([--enable-lapackbuild],[enable lapack build (default off)])])
     enable_lapackbuild="-"${enable_lapackbuild}
-    if test  ${enable_lapackbuild} == "-no" ; then
+    if test  ${enable_lapackbuild} = "-no" ; then
       HAVE_LIBLAPACK=yes
     fi
-    if test  ${enable_lapackbuild} == "-yes" ; then
+    if test  ${enable_lapackbuild} = "-yes" ; then
       HAVE_LIBLAPACK=no
     fi
     AC_ARG_ENABLE([lapack95build],[AS_HELP_STRING([--enable-lapack95build],[enable lapack95 build (default off)])])
     enable_lapack95build="-"${enable_lapack95build}
-    if test  ${enable_lapack95build} == "-no" ; then
+    if test  ${enable_lapack95build} = "-no" ; then
       HAVE_LIBLAPACK95=yes
     fi
-    if test  ${enable_lapack95build} == "-yes" ; then
+    if test  ${enable_lapack95build} = "-yes" ; then
       HAVE_LIBLAPACK95=no
     fi
 
     if test ${enable_fortran} != "-no" ; then
-      if test [ ${FC} != "" -o ${F77} != "" ]  ; then
-        if test ${enable_blasbuild} == "-" ; then
+      if [ ${FC} != "" -o ${F77} != "" ]  ; then
+        if test ${enable_blasbuild} = "-" ; then
           AC_CHECK_LIB([blas],[srotmg_],[HAVE_LIBBLAS=yes],[HAVE_LIBBLAS=no],[${FCLIBS}])
         fi
-        if test ${enable_lapackbuild} == "-" ; then
+        if test ${enable_lapackbuild} = "-" ; then
           AC_CHECK_LIB([lapack],[slags2_],[HAVE_LIBLAPACK=yes],[HAVE_LIBLAPACK=no],[${FCLIBS}])
         fi
-        if test ${enable_lapack95build} == "-" ; then
+        if test ${enable_lapack95build} = "-" ; then
           AC_CHECK_LIB([lapack95],[erinfo_],[HAVE_LIBLAPACK95=yes],[HAVE_LIBLAPACK95=no],[${FCLIBS}])
         fi
       fi
@@ -1382,33 +1406,33 @@ dnl ########################################################
 dnl  PYTHON Dependent parts
 dnl  no check if we build the python, obviously it won't be in!
 dnl ########################################################
-if [ test ${COMPILE_PYTHON} == "no" ] ; then 
+if [ test ${COMPILE_PYTHON} = "no" ] ; then 
   dnl ########################################################
   dnl  NUMPY
   dnl ########################################################
   NUMPY=no
   AC_MSG_NOTICE([your python path: ${PYTHONPATH}])
   AC_MSG_CHECKING([if python ${PYTHON} has numpy support]) 
-  if [test `${PYTHON} -c "cmd = 'try:\n  import numpy\n  print 0\nexcept:\n  print 1'; exec(cmd)"` == "1"] ; then
+  if test [ `${PYTHON} -c "cmd = 'try:\n  import numpy\n  print 0\nexcept:\n  print 1'; exec(cmd)"` = "1" ] ; then
     AC_MSG_RESULT([no])
     AC_MSG_NOTICE([your python does not have numpy, we will build it])
     NUMPY=yes
   else
     AC_MSG_RESULT([yes])
     AC_MSG_CHECKING([if numpy is the right version ( > ${NUMPY_MAJOR}.${NUMPY_MINOR}.${NUMPY_PATCH})])
-    if test [`${PYTHON} -c "import numpy ; print numpy.version.version.split('.')[0]"` -lt "${NUMPY_MAJOR}" ] ; then
+    if test [ `${PYTHON} -c "import numpy ; print numpy.version.version.split('.')[0]"` -lt "${NUMPY_MAJOR}" ] ; then
       AC_MSG_RESULT([no])
       AC_MSG_NOTICE([your python does not have a recent enough numpy (MAJOR release is wrong), we will rebuild it])
       NUMPY=yes
     else
-      if test [`${PYTHON} -c "import numpy ; print numpy.version.version.split('.')[0]"` -eq "${NUMPY_MAJOR}" ] ; then
-        if test [`${PYTHON} -c "import numpy ; print numpy.version.version.split('.')[1]"` -lt "${NUMPY_MINOR}" ] ; then
+      if test [ `${PYTHON} -c "import numpy ; print numpy.version.version.split('.')[0]"` -eq "${NUMPY_MAJOR}" ] ; then
+        if test [ `${PYTHON} -c "import numpy ; print numpy.version.version.split('.')[1]"` -lt "${NUMPY_MINOR}" ] ; then
           AC_MSG_RESULT([no])
           AC_MSG_NOTICE([your python does not have a recent enough numpy (MINOR release is wrong), we will rebuild it])
           NUMPY=yes
         else
-          if test [`${PYTHON} -c "import numpy ; print numpy.version.version.split('.')[1]"` -eq "${NUMPY_MINOR}" ] ; then
-            if test [`${PYTHON} -c "import numpy ; print numpy.version.version.split('.')[2]"` -lt "${NUMPY_PATCH}" ] ; then
+          if test [ `${PYTHON} -c "import numpy ; print numpy.version.version.split('.')[1]"` -eq "${NUMPY_MINOR}" ] ; then
+            if test [ `${PYTHON} -c "import numpy ; print numpy.version.version.split('.')[2]"` -lt "${NUMPY_PATCH}" ] ; then
               AC_MSG_RESULT([no])
               AC_MSG_NOTICE([your python does not have a recent enough numpy (PATCH NUMBER is WRONG), we will rebuild it])
               NUMPY=yes
@@ -1429,20 +1453,20 @@ if [ test ${COMPILE_PYTHON} == "no" ] ; then
   dnl ########################################################
   SETUPTOOLS=no
   AC_MSG_CHECKING([if python ${PYTHON} has setuptools support]) 
-  if [test `${PYTHON} -c "cmd = 'try:\n  import setuptools\n  print 0\nexcept:\n  print 1'; exec(cmd)"` == "1"] ; then
+  if test [ `${PYTHON} -c "cmd = 'try:\n  import setuptools\n  print 0\nexcept:\n  print 1'; exec(cmd)"` = "1" ] ; then
     AC_MSG_RESULT([no])
     AC_MSG_NOTICE([your python does not have setuptools, we will build it])
     SETUPTOOLS=yes
   else
     AC_MSG_RESULT([yes])
     AC_MSG_CHECKING([if setuptools is the right version ( > ${SETUPTOOLS_MAJOR}.${SETUPTOOLS_MINOR})])
-    if test [`${PYTHON} -c "import setuptools ; print setuptools.__version__.split('.')[0]"` -lt "${SETUPTOOLS_MAJOR}" ] ; then
+    if test [ `${PYTHON} -c "import setuptools ; print setuptools.__version__.split('.')[0]"` -lt "${SETUPTOOLS_MAJOR}" ] ; then
       AC_MSG_RESULT([no])
       AC_MSG_NOTICE([your python does not have a recent enough setuptools (MAJOR release is wrong), we will rebuild it])
       SETUPTOOLS=yes
     else
-      if test [`${PYTHON} -c "import setuptools ; print setuptools.__version__.split('.')[0]"` -eq "${SETUPTOOLS_MAJOR}" ] ; then
-        if test [`${PYTHON} -c "import setuptools ; vmin = setuptools.__version__.split('.')[1]; cont = True ; cmd = 'while cont:\n try:\n  vmin=int(vmin)\n  cont=False\n except:\n  vmin=vmin[:-1]';exec(cmd);print vmin"` -lt "${SETUPTOOLS_MINOR}" ] ; then
+      if test [ `${PYTHON} -c "import setuptools ; print setuptools.__version__.split('.')[0]"` -eq "${SETUPTOOLS_MAJOR}" ] ; then
+        if test [ `${PYTHON} -c "import setuptools ; vmin = setuptools.__version__.split('.')[1]; cont = True ; cmd = 'while cont:\n try:\n  vmin=int(vmin)\n  cont=False\n except:\n  vmin=vmin[:-1]';exec(cmd);print vmin"` -lt "${SETUPTOOLS_MINOR}"] ; then
           AC_MSG_RESULT([no])
           AC_MSG_NOTICE([your python does not have a recent enough setuptools (MINOR release is wrong), we will rebuild it])
           SETUPTOOLS=yes
@@ -1460,20 +1484,20 @@ if [ test ${COMPILE_PYTHON} == "no" ] ; then
    dnl  PyOpenGL
    dnl ########################################################
    AC_MSG_CHECKING([if python ${PYTHON} has PyOpenGL support]) 
-   if [test `${PYTHON} -c "cmd = 'try:\n  import OpenGL\n  print 0\nexcept:\n  print 1'; exec(cmd)"` == "1"] ; then
+   if test [ `${PYTHON} -c "cmd = 'try:\n  import OpenGL\n  print 0\nexcept:\n  print 1'; exec(cmd)"` = "1" ] ; then
      AC_MSG_RESULT([no])
      AC_MSG_NOTICE([your python does not have PyOpenGL, we will build it])
      PyOpenGL=yes
    else
      AC_MSG_RESULT([yes])
      AC_MSG_CHECKING([if PyOpenGL is the right version ( > ${PyOpenGL_MAJOR}.${PyOpenGL_MINOR})])
-     if test [`${PYTHON} -c "import OpenGL ; print OpenGL.__version__.split('.')[0]"` -lt "${PyOpenGL_MAJOR}" ] ; then
+     if test [ `${PYTHON} -c "import OpenGL ; print OpenGL.__version__.split('.')[0]"` -lt "${PyOpenGL_MAJOR}" ] ; then
        AC_MSG_RESULT([no])
        AC_MSG_NOTICE([your python does not have a recent enough PyOpenGL (MAJOR release is wrong), we will rebuild it])
        PyOpenGL=yes
      else
-       if test [`${PYTHON} -c "import OpenGL ; print OpenGL.__version__.split('.')[0]"` -eq "${PyOpenGL_MAJOR}" ] ; then
-         if test [`${PYTHON} -c "import OpenGL ; vmin = OpenGL.__version__.split('.')[1]; cont = True ; cmd = 'while cont:\n try:\n  vmin=int(vmin)\n  cont=False\n except:\n  vmin=vmin[:-1]';exec(cmd);print vmin"` -lt "${PyOpenGL_MINOR}" ] ; then
+       if test [ `${PYTHON} -c "import OpenGL ; print OpenGL.__version__.split('.')[0]"` -eq "${PyOpenGL_MAJOR}" ] ; then
+         if test [ `${PYTHON} -c "import OpenGL ; vmin = OpenGL.__version__.split('.')[1]; cont = True ; cmd = 'while cont:\n try:\n  vmin=int(vmin)\n  cont=False\n except:\n  vmin=vmin[:-1]';exec(cmd);print vmin"` -lt "${PyOpenGL_MINOR}" ] ; then
            AC_MSG_RESULT([no])
            AC_MSG_NOTICE([your python does not have a recent enough PyOpenGL (MINOR release is wrong), we will rebuild it])
            PyOpenGL=yes
@@ -1487,25 +1511,25 @@ if [ test ${COMPILE_PYTHON} == "no" ] ; then
    fi
   fi
   dnl  no need to go further is cdms-only
-  if test  ${enable_cdms_only} != "-yes" -o ${enable_esg} == "-yes" ; then
+  if test  ${enable_cdms_only} != "-yes" -o ${enable_esg} = "-yes" ; then
     dnl ##########################################################
     dnl  Pmw
     dnl ##########################################################
     Pmw=no
     AC_MSG_CHECKING([if python ${PYTHON} has Pmw support]) 
-    if [test `${PYTHON} -c "cmd = 'try:\n  import Pmw\n  print 0\nexcept:\n  print 1'; exec(cmd)"` == "1"] ; then
+    if test [ `${PYTHON} -c "cmd = 'try:\n  import Pmw\n  print 0\nexcept:\n  print 1'; exec(cmd)"` = "1" ] ; then
       AC_MSG_RESULT([no])
       AC_MSG_NOTICE([your python does not have Pmw, we will build it])
       Pmw=yes
     else
       AC_MSG_RESULT([yes])
       AC_MSG_CHECKING([if Pmw is the right version ( > ${PMW_MAJOR}.${PMW_MINOR})])
-      if test [`${PYTHON} -c "import Pmw ; print Pmw.version().split('.')[0]"` -lt "${PMW_MAJOR}" ] ; then
+      if test [ `${PYTHON} -c "import Pmw ; print Pmw.version().split('.')[0]"` -lt "${PMW_MAJOR}" ] ; then
         AC_MSG_RESULT([no])
         AC_MSG_NOTICE([your python does not have a recent enough Pmw, we will rebuild it])
         Pmw=yes
       else
-        if test [`${PYTHON} -c "import Pmw ; print Pmw.version().split('.')[1]"` -lt "${PMW_MINOR}" ] ; then
+        if test [ `${PYTHON} -c "import Pmw ; print Pmw.version().split('.')[1]"` -lt "${PMW_MINOR}" ] ; then
           AC_MSG_RESULT([no])
           AC_MSG_NOTICE([your python does not have a recent enough Pmw, we will rebuild it])
           Pmw=yes
@@ -1525,14 +1549,14 @@ dnl   SCIPY=yes
     Pmw=yes
     PyOpenGL=yes
   fi
-  if test  ${enable_esg} == "-yes" ; then
+  if test  ${enable_esg} = "-yes" ; then
     Pmw="yes"
   fi
 fi
 
 # Ok now do we need to change the prefix ? 
-if [ test ${COMPILE_PYTHON} == "no" ] ; then
- if [ test "-"${PYTHON_INSTALL_PREFIX} == "-" ] ; then
+if [ test ${COMPILE_PYTHON} = "no" ] ; then
+ if [ test "-"${PYTHON_INSTALL_PREFIX} = "-" ] ; then
   AC_CHECK_FILE([${prefix}/bin/python],[],[PYTHON_INSTALL_PREFIX=" --prefix="${prefix}])
  fi
 fi
@@ -1576,7 +1600,7 @@ fi
 dnl ###########################################################
 dnl ## LIBXSLT 
 dnl ###########################################################
-if test ${enable_esg} == "-yes" ; then
+if test ${enable_esg} = "-yes" ; then
  AC_MSG_CHECKING([for a usable libxslt > ${XSLT_MAJOR}.${XSLT_MINOR}.${XSLT_PATCH}])
  if AC_RUN_LOG([${PKG_CONFIG} --atleast-version ${XSLT_MAJOR}.${XSLT_MINOR}.${XSLT_PATCH} --print-errors libxslt ]); then
   COMPILE_XSLT=no
@@ -1646,7 +1670,7 @@ if test  ${enable_cdms_only} != "-yes" ; then
   dnl ###########################################################
   COMPILE_UDUNITS2=no
   AC_ARG_WITH([udunits2],[AS_HELP_STRING([--with-udunits2],[enable location of udunits2])],[],[with_udunits2=yes])
-  if test ${with_udunits2} == "yes" ; then
+  if test ${with_udunits2} = "yes" ; then
        UDUNITS2LOC="${EXTERNALS}"
   else 
       if test ${with_udunits2} != "no" ; then
@@ -1695,7 +1719,7 @@ AC_CHECK_LIB([grib2c],[g2_getfld],[COMPILE_G2CLIB=no],[COMPILE_G2CLIB=yes],[ -lp
 AC_ARG_WITH([netcdf],[AS_HELP_STRING([--with-netcdf],[enable support for NetCDF in some none standard location])],[],[with_netcdf=no])
 AC_ARG_ENABLE([netcdf-fortran],[AS_HELP_STRING([--enable-netcdf-fortran],[enables netcdf-fortran (default is no)])])
 enable_netcdf_fortran="-"${enable_netcdf_fortran}
-if test  ${enable_netcdf_fortran} == "-yes" ; then
+if test  ${enable_netcdf_fortran} = "-yes" ; then
    NC_FORTRAN=""
 else
    NC_FORTRAN=" export FC=''; export F77='' ;  export FCFLAGS='' ; export FCLIBS='' ; export FFLAGS='' ; export FLIBS='' ;"
@@ -1722,7 +1746,7 @@ AC_RUN_IFELSE(
 	[COMPILE_CURL=no],
 	[COMPILE_CURL=yes]
 	)
-if test ${COMPILE_CURL} == "no" ; then
+if test ${COMPILE_CURL} = "no" ; then
   AC_MSG_RESULT([yes])
 else
   AC_MSG_RESULT([no])
@@ -1736,7 +1760,7 @@ AC_SUBST(LOCNCCONFIG)
 if test ${with_netcdf} != "yes" -a ${with_netcdf} != "no"; then
     LOCNCCONFIG=${with_netcdf}/bin/nc-config
     AC_CHECK_FILE([${with_netcdf}/bin/nc-config],[HAS_NCCONFIG=yes],[HAS_NCCONFIG=no])
-    if  test ${HAS_NCCONFIG} == "yes"  ; then 
+    if  test ${HAS_NCCONFIG} = "yes"; then
       NCCFLAGS=`${with_netcdf}/bin/nc-config --cflags`
       NCLDFLAGS=`${with_netcdf}/bin/nc-config --libs`
     else 
@@ -1744,39 +1768,39 @@ if test ${with_netcdf} != "yes" -a ${with_netcdf} != "no"; then
      NCLDFLAGS=" -L${with_netcdf}/lib "
     fi
     NC4LOC=${with_netcdf}
-    CPPFLAGS=${NCCFLAGS}" "${CPPFLAGS}
-    LDFLAGS=${NCLDFLAGS}" "${LDFLAGS}
-    CFLAGS=${NCCFLAGS}" "${CFLAGS}
+    #CPPFLAGS=${NCCFLAGS}" "${CPPFLAGS}
+    #LDFLAGS=${NCLDFLAGS}" "${LDFLAGS}
+    #CFLAGS=${NCCFLAGS}" "${CFLAGS}
 else
     AC_PATH_PROG(LOCNCCONFIG,nc-config,"no")
     if  test ${LOCNCCONFIG} != "no" ; then 
       NCCFLAGS=`nc-config --cflags`
       NCLDFLAGS=`nc-config --libs`
       NC4LOC=`nc-config --prefix`
-      CPPFLAGS=${NCCFLAGS}" "${CPPFLAGS}
-      LDFLAGS=${NCLDFLAGS}" "${LDFLAGS}
-      CFLAGS=${NCCFLAGS}" "${CFLAGS}
+      #CPPFLAGS=${NCCFLAGS}" "${CPPFLAGS}
+      #LDFLAGS=${NCLDFLAGS}" "${LDFLAGS}
+      #CFLAGS=${NCCFLAGS}" "${CFLAGS}
     else
       LOCNCCONFIG="${EXTERNALS}/bin/nc-config"
       NC4LOC=${EXTERNALS}
-      CPPFLAGS="-I${EXTERNALS}/include "${CPPFLAGS}
-      LDFLAGS="-L${EXTERNALS}/lib "${LDFLAGS}
-      CFLAGS="-I${EXTERNALS}/include "${CFLAGS}
+      #CPPFLAGS="-I${EXTERNALS}/include "${CPPFLAGS}
+      #LDFLAGS="-L${EXTERNALS}/lib "${LDFLAGS}
+      #CFLAGS="-I${EXTERNALS}/include "${CFLAGS}
       NCLDFLAGS="-L${EXTERNALS}/lib "
       NCCFLAGS="-I${EXTERNALS}/include"
     fi
 fi
 AC_CHECK_LIB([netcdf],[nc_open],[COMPILE_NC=no],[COMPILE_NC=yes],[ ${NCCFLAGS} ${NCLDFLAGS} ])
-if test ${COMPILE_NC} == "no" ; then
+if test ${COMPILE_NC} = "no" ; then
     AC_CHECK_FILE([${LOCNCCONFIG}],[HAS_NCCONFIG=yes],[HAS_NCCONFIG=no])
-    if  test ${HAS_NCCONFIG} == "yes"  ; then 
+    if  test ${HAS_NCCONFIG} = "yes"  ; then 
       NCCFLAGS=`${LOCNCCONFIG} --cflags`
       NCLDFLAGS=`${LOCNCCONFIG} --libs`
     else 
      NCCFLAGS=" -I${with_netcdf}/include"
      NCLDFLAGS=" -L${with_netcdf}/lib "
     fi
-    LIBS=${LIBS}" "${NCLDFLAGS}
+    LIBS=${LIBS}" "${NCLDFLAGS}" "${NCCFLAGS}
     AC_MSG_CHECKING([if you have version 4 of NetCDF])
     AC_RUN_IFELSE(
     [AC_LANG_PROGRAM([
@@ -1786,15 +1810,17 @@ if test ${COMPILE_NC} == "no" ; then
     ],
     [[
       char version[50];
+        /* this will not compile unless netcdf4 was selected */
+        printf("NC_NETCDF4 is %d", NC_NETCDF4);
         int num;
 	strcpy(version,nc_inq_libvers());
 	num=atoi(&version[0]);
 	if (num>=${NC4_MAJOR}) return 0;
-	num=atoi(&version[1]); /*sometimes there is a " before */
+	num=atoi(&version[1]); /*sometimes there is a ' before */
 	if (num>=${NC4_MAJOR}) return 0;
 	return 1;
     ]])],[COMPILE_NC=no],[COMPILE_NC=yes])
-    if test ${COMPILE_NC} == "no" ; then
+    if test ${COMPILE_NC} = "no" ; then
         AC_MSG_RESULT([yes])
     else
         AC_MSG_RESULT([no])
@@ -1804,13 +1830,13 @@ fi
 
 COMPILE_HDF5=no
 HDF5LOC="${EXTERNALS}"
-if test ${COMPILE_NC} == "yes" ; then
+if test ${COMPILE_NC} = "yes" ; then
   dnl ###########################################################
   dnl  HDF 5
   dnl ###########################################################
   COMPILE_HDF5=no
   AC_ARG_WITH([hdf5],[AS_HELP_STRING([--with-hdf5],[enable location of hdf5 libs])],[],[with_hdf5=yes])
-  if test ${with_hdf5} == "yes" ; then
+  if test ${with_hdf5} = "yes" ; then
     HDF5LOC="${EXTERNALS}"
   dnl    CPPFLAGS="-I${EXTERNALS}/HDF5/include "${CPPFLAGS}
   dnl    LDFLAGS="-L${EXTERNALS}/HDF5/lib "${LDFLAGS}
@@ -1841,7 +1867,7 @@ dnl  HDF 4
 dnl ###########################################################
 COMPILE_HDF=no
 AC_ARG_WITH([hdf4],[AS_HELP_STRING([--with-hdf4],[enable support for HDF4])],[],[with_hdf4=no])
-if test ${with_hdf4} == "yes" ; then
+if test ${with_hdf4} = "yes" ; then
 dnl  CPPFLAGS=${CPPFLAGS}" -I${EXTERNALS}/HDF/include"
   PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --with-hdf=${EXTERNALS}/HDF"
 else 
@@ -1856,13 +1882,13 @@ dnl ###########################################################
 dnl Ghostscript stuff
 dnl ###########################################################
 
-dnl if test ${DOGS} == "no" -a ${COMPILE_HDF} == "no" ; then
+dnl if test ${DOGS} = "no" -a ${COMPILE_HDF} = "no" ; then
 dnl   COMPILE_LIBJPEG=no
 dnl fi
 
 dnl AC_ARG_ENABLE([ioapi],[AS_HELP_STRING([--enable-ioapi],[enable ioapi (default is off)])])
 dnl enable_ioapi="-"${enable_ioapi}
-dnl if test ${enable_ioapi} == "-yes" ; then
+dnl if test ${enable_ioapi} = "-yes" ; then
 dnl    COMPILE_IOAPI=yes
 dnl    PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --enable-ioapi"
 dnl    NC_FORTRAN=""
@@ -1870,8 +1896,8 @@ dnl else
 dnl    COMPILE_IOAPI=no
 dnl fi
 
-if test ${enable_esg} == "-yes" ; then
-  if test ${enable_X11} == "-no" ; then
+if test ${enable_esg} = "-yes" ; then
+  if test ${enable_X11} = "-no" ; then
      COMPILE_TCLTK=no
      COMPILE_XGKS=no
   fi
@@ -1879,7 +1905,7 @@ fi
 
 AC_ARG_ENABLE([all],[AS_HELP_STRING([--enable-all],[build all externals])])
 enall="-"${enable_all}
-if test ${enall} == "-yes" ; then
+if test ${enall} = "-yes" ; then
 COMPILE_TERMCAP="yes"
 COMPILE_READLINE="yes"
 COMPILE_Z="yes"
@@ -1934,21 +1960,21 @@ AC_ARG_WITH([qt-inc],
 	    [],
 	    [with_qt_inc='no'])
 AC_SUBST(BUILDQT)
-if test ${with_qt} != "no" -a ${with_qt_bin} == "no" -a ${with_qt_lib} == "no" -a ${with_qt_inc} == "no" ; then
+if test ${with_qt} != "no" -a ${with_qt_bin} = "no" -a ${with_qt_lib} = "no" -a ${with_qt_inc} = "no" ; then
  COMPILE_XGKS=no
- if test ${with_qt} == "yes" ; then
+ if test ${with_qt} = "yes" ; then
    QMAKE=${EXTERNALS}/bin/qmake
  else
    QMAKE=${with_qt}/bin/qmake
  fi
  AC_CHECK_FILE(${QMAKE},[HAS_QMAKE=yes],[HAS_QMAKE=no])
- if test ${HAS_QMAKE} == "no" ; then 
+ if test ${HAS_QMAKE} = "no" ; then 
    AC_MSG_WARN([Could not find qmake at ${QMAKE} will build Qt for you])
    BUILDQT="yes"
    PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}${PYOPTXTRAQT}" --with-qt="${EXTERNALS}
    QMAKE=${EXTERNALS}/bin/qmake
  else
-  if test ${with_qt} == "yes" ; then
+  if test ${with_qt} = "yes" ; then
    PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}${PYOPTXTRAQT}" --with-qt="${EXTERNALS}
   else
    PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}${PYOPTXTRAQT}" --with-qt="${with_qt}
@@ -1967,7 +1993,7 @@ else
      COMPILE_XGKS=no
      QMAKE=${with_qt_bin}/qmake
      AC_CHECK_FILE(${QMAKE},[HAS_QMAKE=yes],[HAS_QMAKE=no])
-     if test ${HAS_QMAKE} == "no" ; then 
+     if test ${HAS_QMAKE} = "no" ; then 
        AC_MSG_WARN([Could not find qmake at ${QMAKE} will build Qt for you])
        BUILDQT="yes"
        PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}${PYOPTXTRAQT}" --with-qt="${EXTERNALS}
@@ -1982,7 +2008,7 @@ AC_ARG_ENABLE([qt-debug],
 	    [],
 	    [enable_qt_debug='no'])
 enble_qtdbg="-"${enable_qt_debug}
-if test ${enble_qtdbg} == "-yes" ; then
+if test ${enble_qtdbg} = "-yes" ; then
      PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --qt-debug"
 fi;
 
@@ -1992,7 +2018,7 @@ dnl ###########################################################
 
 BUILDVIS=yes
 AC_MSG_CHECKING([if python ${PYTHON} has PyQt4 support]) 
-if [test `${PYTHON} -c "cmd = 'try:\n  import PyQt4\n  print 0\nexcept:\n  print 1'; exec(cmd)" 2>/dev/null` == "0"] ; then
+if test [ `${PYTHON} -c "cmd = 'try:\n  import PyQt4\n  print 0\nexcept:\n  print 1'; exec(cmd)" 2>/dev/null` = "0" ] ; then
   AC_MSG_RESULT([yes])
   BUILDVIS=no
 else
@@ -2001,8 +2027,8 @@ else
   BUILDVIS=yes
   case ${target_os} in
    darwin*)
-    if test ${enable_fw} == "-" -a "-"${with_qt} != "-no" -a ${ISFRAMEWORK} !="yes"  ; then 
-       if test ${COMPILE_PYTHON} == "yes" ; then
+    if test ${enable_fw} = "-" -a "-"${with_qt} != "-no" -a ${ISFRAMEWORK} !="yes"  ; then 
+       if test ${COMPILE_PYTHON} = "yes" ; then
          PYOPT=" --enable-framework="${prefix}
          AC_MSG_NOTICE([Your are under Mac you need to enable framework, we did this for you])
        else
@@ -2012,9 +2038,6 @@ else
   esac
   PyQt_GZ=PyQt-${PyQt_PLATFORM}-gpl-${PyQt_MAJOR_SRC}.${PyQt_MINOR_SRC}.${PyQt_PATCH_SRC}.tar.gz
 fi
-
-
-AC_OUTPUT
 
 AC_MSG_NOTICE([])
 AC_MSG_NOTICE([************************************************************************])
@@ -2029,146 +2052,149 @@ AC_MSG_NOTICE([...                     Taking advantage of ${NCPUS} CPUS        
 fi
 AC_MSG_NOTICE([........................................................................])
 AC_MSG_NOTICE([])
-if test ${COMPILE_CURL} == "yes" ; then
+if test ${COMPILE_CURL} = "yes" ; then
   AC_MSG_NOTICE([curl >= ${CURL_MAJOR}.${CURL_MINOR}.${CURL_PATCH} not found... building library ${CURL_MAJOR_SRC}.${CURL_MINOR_SRC}.${CURL_PATCH_SRC}])
 else
   AC_MSG_NOTICE([curl >= ${CURL_MAJOR}.${CURL_MINOR}.${CURL_PATCH} found or not necessary for this configuration])
 fi
-if test ${COMPILE_XML2} == "yes" ; then
+if test ${COMPILE_XML2} = "yes" ; then
   AC_MSG_NOTICE([libxml2 >= ${XML_MAJOR}.${XML_MINOR}.${XML_PATCH} not found... building library ${XML_MAJOR_SRC}.${XML_MINOR_SRC}.${XML_PATCH_SRC}])
 else
   AC_MSG_NOTICE([libxml2 >= ${XML_MAJOR}.${XML_MINOR}.${XML_PATCH} found])
 fi
-if test ${enable_esg} == "-yes" ; then
- if test ${COMPILE_XSLT} == "yes" ; then
+if test ${enable_esg} = "-yes" ; then
+ if test ${COMPILE_XSLT} = "yes" ; then
   AC_MSG_NOTICE([libxslt >= ${XSLT_MAJOR}.${XSLT_MINOR}.${XSLT_PATCH} not found... building library ${XSLT_MAJOR_SRC}.${XSLT_MINOR_SRC}.${XSLT_PATCH_SRC}])
  else
   AC_MSG_NOTICE([libxslt >= ${XSLT_MAJOR}.${XSLT_MINOR}.${XSLT_PATCH} found])
  fi
 fi
 if test ${enable_cdms_only} != "-yes" ; then
- if test ${COMPILE_CMAKE} == "yes" ; then
+ if test ${COMPILE_CMAKE} = "yes" ; then
   AC_MSG_NOTICE([cmake >= ${CMAKE_MAJOR}.${CMAKE_MINOR} not found... building software ${CMAKE_MAJOR_SRC}.${CMAKE_MINOR_SRC}.${CMAKE_PATCH_SRC}])
  else
   AC_MSG_NOTICE([cmake >= ${CMAKE_MAJOR}.${CMAKE_MINOR} found])
  fi
- if test ${COMPILE_XGKS} == "yes" ; then
+ if test ${COMPILE_XGKS} = "yes" ; then
    AC_MSG_NOTICE([xgks not found ... building library])
  else
    AC_MSG_NOTICE([xgks found])
  fi
- if test ${DOPBMPLUS} == "yes" ; then
+ if test ${DOPBMPLUS} = "yes" ; then
    AC_MSG_NOTICE([pbmplus not found ... building library])
  else
    AC_MSG_NOTICE([pbmplus found])
  fi
- if test ${FFMPEG} == "no" ; then
+ if test ${FFMPEG} = "no" ; then
    AC_MSG_NOTICE([ffmpeg not found ... building software])
  else
    AC_MSG_NOTICE([ffmpeg found])
  fi
- if test ${GIFSICLE} == "no" ; then
+ if test ${GIFSICLE} = "no" ; then
    AC_MSG_NOTICE([gifsicle not found ... building software ${GIFSICLE_MAJOR_SRC}.${GIFSICLE_MINOR_SRC}])
  else
    AC_MSG_NOTICE([gifsicle found])
  fi
- if test ${DOGS} == "yes" ; then
+ if test ${DOGS} = "yes" ; then
    AC_MSG_NOTICE([gs not found ... building software])
  else
    AC_MSG_NOTICE([gs found])
  fi
- if test ${COMPILE_LIBJPEG} == "yes" ; then
+ if test ${COMPILE_LIBJPEG} = "yes" ; then
    AC_MSG_NOTICE([libjpeg not found ... building library])
  else
    AC_MSG_NOTICE([libjpeg found or not necessary for this configuration])
  fi
- if test ${HAVE_LIBBLAS} == "no" ; then
+ if test ${HAVE_LIBBLAS} = "no" ; then
    AC_MSG_NOTICE([libblas not found ... building library])
  else
    AC_MSG_NOTICE([libblas found or not necessary for this configuration])
  fi
- if test ${HAVE_LIBLAPACK} == "no" ; then
+ if test ${HAVE_LIBLAPACK} = "no" ; then
    AC_MSG_NOTICE([liblapack not found ... building library])
  else
    AC_MSG_NOTICE([liblapack found or not necessary for this configuration])
  fi
- if test ${HAVE_LIBLAPACK95} == "no" ; then
+ if test ${HAVE_LIBLAPACK95} = "no" ; then
    AC_MSG_NOTICE([liblapack95 not found ... building library])
  else
    AC_MSG_NOTICE([liblapack95 found or not necessary for this configuration])
  fi
-dnl  if test ${COMPILE_IOAPI} == "yes" ; then
+dnl  if test ${COMPILE_IOAPI} = "yes" ; then
 dnl   AC_MSG_NOTICE([ioapi enabled... building ioapi, proj and gdal])
 dnl  else
 dnl   AC_MSG_NOTICE([ioapi not enabled])
 dnl  fi
- if test ${COMPILE_LIBPNG} == "yes" ; then
+ if test ${COMPILE_LIBPNG} = "yes" ; then
   AC_MSG_NOTICE([libpng >= ${PNG_MAJOR}.${PNG_MINOR}.${PNG_PATCH} not found... building library ${PNG_MAJOR_SRC}.${PNG_MINOR_SRC}.${PNG_PATCH_SRC}])
  else
   AC_MSG_NOTICE([libpng >= ${PNG_MAJOR}.${PNG_MINOR}.${PNG_PATCH} found])
  fi
- if test ${COMPILE_PKGCONFIG} == "yes" ; then
+ if test ${COMPILE_PKGCONFIG} = "yes" ; then
   AC_MSG_NOTICE([pkg-config >= ${PKG_MAJOR}.${PKG_MINOR}.${PKG_PATCH} not found... building software ${PKG_MAJOR_SRC}.${PKG_MINOR_SRC}.${PKG_PATCH_SRC}])
  else
   AC_MSG_NOTICE([pkg-config >= ${PKG_MAJOR}.${PKG_MINOR}.${PKG_PATCH} found])
  fi
- if test ${COMPILE_FREETYPE} == "yes" ; then
+ if test ${COMPILE_FREETYPE} = "yes" ; then
   AC_MSG_NOTICE([libfreetype >= ${FT_MAJOR}.${FT_MINOR}.${FT_PATCH} not found... building library ${FT_MAJOR_SRC}.${FT_MINOR_SRC}.${FT_PATCH_SRC} ])
  else
   AC_MSG_NOTICE([libfreetype >= ${FT_MAJOR}.${FT_MINOR}.${FT_PATCH} found])
  fi
- if test ${COMPILE_PIXMAN} == "yes" ; then
+ if test ${COMPILE_PIXMAN} = "yes" ; then
   AC_MSG_NOTICE([libpixman >= ${PIX_MAJOR}.${PIX_MINOR}.${PIX_PATCH} not found... building  library ${PIX_MAJOR_SRC}.${PIX_MINOR_SRC}.${PIX_PATCH_SRC}])
  else
   AC_MSG_NOTICE([libpixman >= ${PIX_MAJOR}.${PIX_MINOR}.${PIX_PATCH} found])
  fi
- if test ${COMPILE_FONTCONFIG} == "yes" ; then
+ if test ${COMPILE_FONTCONFIG} = "yes" ; then
   AC_MSG_NOTICE([fontconfig >= ${FTCFG_MAJOR}.${FTCFG_MINOR}.${FTCFG_PATCH} not found... building library ${FTCFG_MAJOR_SRC}.${FTCFG_MINOR_SRC}.${FTCFG_PATCH_SRC}])
  else
   AC_MSG_NOTICE([fontconfig >= ${FTCFG_MAJOR}.${FTCFG_MINOR}.${FTCFG_PATCH} found])
  fi
- if test ${COMPILE_CAIRO} == "yes" ; then
+ if test ${COMPILE_CAIRO} = "yes" ; then
   AC_MSG_NOTICE([libcairo >= ${CAIRO_MAJOR}.${CAIRO_MINOR}.${CAIRO_PATCH} not found... building library ${CAIRO_MAJOR_SRC}.${CAIRO_MINOR_SRC}.${CAIRO_PATCH_SRC}])
  else
   AC_MSG_NOTICE([libcairo >= ${CAIRO_MAJOR}.${CAIRO_MINOR}.${CAIRO_PATCH} found])
  fi
 fi
 if test ${enable_esg} != "-yes" ; then
-  if test ${COMPILE_UUID} == "yes" ; then
+  if test ${COMPILE_UUID} = "yes" ; then
     AC_MSG_NOTICE([libuuid not found... building library ${UUID_MAJOR_SRC}.${UUID_MINOR_SRC}.${UUID_PATCH_SRC}])
   else
     AC_MSG_NOTICE([libuuid found])
   fi
-  if test ${COMPILE_UDUNITS2} == "yes" ; then
+  if test ${COMPILE_UDUNITS2} = "yes" ; then
     AC_MSG_NOTICE([libudunits2 not found... building library ${UDUNITS2_MAJOR_SRC}.${UDUNITS2_MINOR_SRC}.${UDUNITS2_PATCH_SRC}])
   else
     AC_MSG_NOTICE([libudunits2 found])
   fi
 fi
-if test ${COMPILE_JASPER} == "yes" ; then
+if test ${COMPILE_JASPER} = "yes" ; then
     AC_MSG_NOTICE([libjasper not found... building library ${JASPER_MAJOR_SRC}.${JASPER_MINOR_SRC}.${JASPER_PATCH_SRC}])
 else
     AC_MSG_NOTICE([libjasper found])
 fi
-if test ${COMPILE_G2CLIB} == "yes" ; then
+if test ${COMPILE_G2CLIB} = "yes" ; then
     AC_MSG_NOTICE([libg2clib not found... building library ${G2CLIB_MAJOR_SRC}.${G2CLIB_MINOR_SRC}.${G2CLIB_PATCH_SRC}])
 else
     AC_MSG_NOTICE([libg2clib found])
 fi
-if test ${COMPILE_HDF5} == "yes" ; then
+if test ${COMPILE_HDF5} = "yes" ; then
     AC_MSG_NOTICE([libhdf5 not found... building library ${HDF5_MAJOR_SRC}.${HDF5_MINOR_SRC}.${HDF5_PATCH_SRC}])
 else
     AC_MSG_NOTICE([libhdf5 found])
 fi
-if test ${COMPILE_NC} == "yes" ; then
+if test ${COMPILE_NC} = "yes" ; then
     AC_MSG_NOTICE([libnetcdf >=4 not found... building library ${NC4_MAJOR_SRC}.${NC4_MINOR_SRC}.${NC4_PATCH_SRC}])
+    # resetting because provided netcdf was not good enough
+    # (perhaps compiled without --enable-netcdf4)
+    NC4LOC="${EXTERNALS}/NetCDF"
 else
     AC_MSG_NOTICE([libnetcdf >=4 found at ${NC4LOC}])
 fi
-if test ${COMPILE_LIBCF} == "yes" ; then
+if test ${COMPILE_LIBCF} = "yes" ; then
     AC_MSG_NOTICE([libcf ..... building library ${LIBCF_MAJOR_SRC}.${LIBCF_MINOR_SRC}.${LIBCF_PATCH_SRC}])
 fi
-if test ${BUILDQT} == "yes" ; then
+if test ${BUILDQT} = "yes" ; then
     AC_MSG_NOTICE([Qt libraries not found... building library ${QT_MAJOR_SRC}.${QT_MINOR_SRC}.${QT_PATCH_SRC}])
 else
     AC_MSG_NOTICE([Qt > ${QT_MAJOR}.${QT_MINOR}.${QT_PATCH} found or not needed in this configuration])
@@ -2178,24 +2204,24 @@ AC_MSG_NOTICE([.................................................................
 AC_MSG_NOTICE([...                               PYTHON                             ...])
 AC_MSG_NOTICE([........................................................................])
 AC_MSG_NOTICE([])
-if test ${COMPILE_PYTHON} == "yes" ; then
+if test ${COMPILE_PYTHON} = "yes" ; then
   AC_MSG_NOTICE([python >= ${PYTHON_MAJOR}.${PYTHON_MINOR} with tcl/tk support not found... building software ${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.${PYTHON_PATCH_SRC}])
-  if test ${COMPILE_Z} == "yes" ; then
+  if test ${COMPILE_Z} = "yes" ; then
      AC_MSG_NOTICE([zlib not found ... building library ${ZLIB_MAJOR_SRC}.${ZLIB_MINOR_SRC}.${ZLIB_PATCH_SRC}])
   else
      AC_MSG_NOTICE([zlib found])
   fi
-  if test ${COMPILE_TERMCAP} == "yes" ; then
+  if test ${COMPILE_TERMCAP} = "yes" ; then
      AC_MSG_NOTICE([termcap not found ... building library ${TCAP_MAJOR_SRC}.${TCAP_MINOR_SRC}.${TCAP_PATCH_SRC}])
   else
      AC_MSG_NOTICE([termcap found])
   fi
-  if test ${COMPILE_READLINE} == "yes" ; then
+  if test ${COMPILE_READLINE} = "yes" ; then
     AC_MSG_NOTICE([libreadline >= ${RL_MAJOR}.${RL_MINOR} not found... building library ${RL_MAJOR_SRC}.${RL_MINOR_SRC}])
   else
     AC_MSG_NOTICE([libreadline >= ${RL_MAJOR}.${RL_MINOR} found])
   fi
-  if test ${COMPILE_TCLTK} == "yes" ; then
+  if test ${COMPILE_TCLTK} = "yes" ; then
     AC_MSG_NOTICE([tcl/tk >= ${TCLTK_MAJOR}.${TCLTK_MINOR}.${TCLTK_PATCH} not found... building library ${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC}.${TCLTK_PATCH_SRC}])
   else
     AC_MSG_NOTICE([tcl/tk >= ${TCLTK_MAJOR}.${TCLTK_MINOR}.${TCLTK_PATCH} found])
@@ -2203,22 +2229,22 @@ if test ${COMPILE_PYTHON} == "yes" ; then
 else
   AC_MSG_NOTICE([python >= ${PYTHON_MAJOR}.${PYTHON_MINOR}.${PYTHON_PATCH} with tcl/tk support found])
 fi
-if test ${SETUPTOOLS} == "yes" ; then
+if test ${SETUPTOOLS} = "yes" ; then
   AC_MSG_NOTICE([setuptools >= ${SETUPTOOLS_MAJOR}.${SETUPTOOLS_MINOR} not found... building package ${SETUPTOOLS_MAJOR_SRC}.${SETUPTOOLS_MINOR_SRC}])
 else
   AC_MSG_NOTICE([setuptools >= ${SETUPTOOLS_MAJOR}.${SETUPTOOLS_MINOR} found])
 fi
-if test ${PyOpenGL} == "yes" ; then
+if test ${PyOpenGL} = "yes" ; then
   AC_MSG_NOTICE([PyOpenGL >= ${PyOpenGL_MAJOR}.${PyOpenGL_MINOR} not found... building package ${PyOpenGL_MAJOR_SRC}.${PyOpenGL_MINOR_SRC}.${PyOpenGL_PATCH_SRC}])
 else
   AC_MSG_NOTICE([PyOpenGL >= ${PyOpenGL_MAJOR}.${PyOpenGL_MINOR} found or not necessary in this configuration])
 fi
-if test ${NUMPY} == "yes" ; then
+if test ${NUMPY} = "yes" ; then
   AC_MSG_NOTICE([numpy >= ${NUMPY_MAJOR}.${NUMPY_MINOR}.${NUMPY_PATCH} not found... building package ${NUMPY_MAJOR_SRC}.${NUMPY_MINOR_SRC}.${NUMPY_PATCH_SRC}])
 else
   AC_MSG_NOTICE([numpy >= ${NUMPY_MAJOR}.${NUMPY_MINOR}.${NUMPY_PATCH} found])
 fi
-if test ${Pmw} == "yes" ; then
+if test ${Pmw} = "yes" ; then
   AC_MSG_NOTICE([Pmw >= ${PMW_MAJOR}.${PMW_MINOR} not found... building package ${PMW_MAJOR_SRC}.${PMW_MINOR_SRC}])
 else
   AC_MSG_NOTICE([Pmw >= ${PMW_MAJOR}.${PMW_MINOR} found])
@@ -2235,3 +2261,6 @@ AC_MSG_NOTICE([Now type "make" to install CDAT-${CDAT_VERSION} to: ${prefix} and
 dnl R check
 dnl ioapi
 dnl debug
+
+# do this after NC4LOC has been set
+AC_OUTPUT

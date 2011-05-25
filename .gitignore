@@ -36,6 +36,7 @@ generated/
 /test-results
 Packages/cdms2/Test/test*fc*
 Packages/cdms2/Test/*.nc
+Packages/*/it*.*
 Packages/*/build
 Packages/*/rebuild.py
 Packages/vcs/pyqtscripting.sbf

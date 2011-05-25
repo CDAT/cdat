@@ -5,6 +5,8 @@
 import numpy
 import typeconv
 import types
+import re
+
 from cdmsobj import Max32int
 from variable import DatasetVariable
 from error import CDMSError
@@ -170,5 +172,6 @@ class FileVariable(DatasetVariable):
             return "<Variable: %s, file: %s, shape: %s>"%(self.id, self.parent.id, `self.shape`)
         else:
             return "<Variable: %s, file: **CLOSED**>"%self.id
+
 
     shape = property(_getShape,None)
