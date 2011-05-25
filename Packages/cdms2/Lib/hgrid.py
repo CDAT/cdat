@@ -4,6 +4,9 @@
 """CDMS HorizontalGrid objects"""
 
 import numpy
+import cdms2
+import os
+import os.path
 ## import PropertiedClasses
 from error import CDMSError
 from grid import AbstractGrid, LongitudeType, LatitudeType, VerticalType, TimeType, CoordTypeToLoc
@@ -373,6 +376,161 @@ class AbstractCurveGrid(AbstractHorizontalGrid):
             lonvar.maskid = maskid
         return (latvar, lonvar)
 
+    def writeg( self, file ):
+        """Write self as a Gridspec file representing a curvilinear grid.
+        The file, normally a CdmsFile, should already be open for writing
+        and will be closed."""
+        import time
+        from tvariable import TransientVariable
+        
+        # Set attributes
+        if ( hasattr(file,'Conventions') ):
+            if ( file.Conventions.find('Gridspec')<0 ):
+                file.Conventions = file.Conventions + ' Gridspec-0.0'
+        else:
+            file.Conventions = 'Gridspec-0.0'
+        if ( hasattr(file,'gs_filetypes') ):
+            if ( file.gs_filetypes.find('Curvilinear_Tile')<0 ):
+                file.gs_filetypes = file.gs_filetypes + ' Curvilinear_Tile'
+        else:
+            file.gs_filetypes = 'Curvilinear_Tile'
+        t=time.time()
+        id=int((t-int(t))*1.0e9)
+        file.gs_id = id
+        file.gs_originalfilename = os.path.basename( file.id )
+
+        newhistory = '\n' + time.ctime() + ' CDAT/CDMS AbstractCurveGrid'
+        # ... The \n gives a newline in the CDMS Python and in the Cdunif C code
+        # which gets called to write to a file.  Someplace in the NetCDF libraries,
+        # or possibly the ncdump utility, the newline is converted back to a "\n"
+        # string, so you don't see a newline when you view the file. If we want
+        # a real newline as the CF specification says, the libraries or ncdump
+        # will have to be changed.
+        # ... In the future we may want to add more history information.
+        file.history = getattr( self, 'history', '' ) + \
+                       getattr( file, 'history', '' ) + newhistory
+
+        # former tile variable and attributes
+        if ( hasattr(self,'long_name') and self.long_name!=None ):
+            file.long_name = self.long_name
+        else:
+            file.long_name = 'gridspec_tile'
+        # gs_geometryType is no longer required of Gridspec files, but as yet
+        # there is no other proposal for describing the geometry (July 2010)
+        if ( hasattr(self,'gs_geometryType') and self.gs_geometryType!=None):
+            file.gs_geometryType = self.gs_geometryType
+        else:
+            file.gs_geometryType = 'spherical'
+        # gs_discretizationType is no longer required of Gridspec files, but it's
+        # harmless and may come in useful
+        if ( hasattr(self,'gs_discretizationType') and self.gs_discretizationType!=None ):
+            file.gs_discretizationType = self.gs_discretizationType
+        else:
+            file.gs_discretizationType = 'logically_rectangular'
+
+        file.gs_lonv = 'gs_x'
+        file.gs_latv = 'gs_y'
+    
+        # Set up and write variables.  When written, cdms writes not only the arrays
+        # but also their coordinates, e.g. gs_nip.
+        
+        x=self._lonaxis_
+        if ( not hasattr(x,'units') ):
+            print "Warning, no units found for longitude"
+            x.units = 'degree_east'
+        if ( not hasattr(x,'standard_name') ):
+            print "Warning, no standard_name found for longitude axis"
+            x.standard_name = 'longitude'
+        if ( x.standard_name == 'geographic_longitude'):
+            # temporary for updating test files
+            x.standard_name = 'longitude'
+        x.id = file.gs_lonv
+        # _lonaxis_ is a TransientAxis2D, hence a TransientVariable
+        # But I don't know where the attribute _TransientVariable__domain comes from
+        
+        y=self._lataxis_
+        if ( not hasattr(y,'units') ):
+            print "Warning, no units found for latitude"
+            y.units = 'degree_north'
+        if ( not hasattr(y,'standard_name') ):
+            print "Warning, no standard_name found for latitude axis"
+            y.standard_name = 'latitude'
+        if ( y.standard_name == 'geographic_latitude'):
+            # temporary for updating test files
+            y.standard_name = 'latitude'
+        y.id = file.gs_latv
+
+        if( not hasattr(x,'_TransientVariable__domain') ):
+            # There probably doesn't exist enough information to write a correct
+            # grid, but this will help.
+            x._TransientVariable__domain = [ (x,), (y,) ]
+        x._TransientVariable__domain[0][0].id='gs_njp'
+        x._TransientVariable__domain[1][0].id='gs_nip'
+        if ( not hasattr(y,'_TransientVariable__domain') ) :
+            # There probably doesn't exist enough information to write a correct
+            # grid, but this will help.
+            y._TransientVariable__domain = [ (x,), (y,) ]
+        y._TransientVariable__domain[0][0].id='gs_njp'
+        y._TransientVariable__domain[1][0].id='gs_nip'
+
+        file.write(x)
+        file.write(y)
+        file.close()
+    
+    def write_gridspec( self, filename ):
+        """writes this grid to a Gridspec-compliant file, or does nothing if there is
+        already a known file corresponding to this grid.  The filename should be a
+        complete path."""
+        # This method was never completed because the libCF functionality I had planned to
+        # use never appeared (yet).
+        # The functionality (other than checking gsfile) is now done by the writeg
+        # method above.
+        if ( not hasattr( self, "gsfile" ) ):
+            self.gsfile=None
+            self.gspath=None
+        if ( self.gsfile!=None ):
+            return ( tcg.gsfile, tcg.gspath )
+        else:
+            raise RuntimeError, 'The libCF/Gridspec API does not provide for writing CurveGrids<<<'
+
+    def init_from_gridspec( self, filename ):
+        """reads to grid from a Gridspec-compliant file.  The filename should be a
+        complete path.  The contents of the file may overwrite data in the existing
+        grid object."""
+        # - This is really a kind of init function.  The __init__ function should
+        # determine what kind of initialization is being done (from a file, from
+        # another object, from arguments specifying the contents e.g. axes) and branch
+        # to call a method such as this one.
+        # - Another way to read a file is with the standard CDMS
+        # pattern        file=cdms2.open(...);   g=file('grid') or g=file('')
+        try:
+            f = cdms2.open( filename )
+        except IOError:
+            print "Cannot open grid file for reading: ", filename
+            return
+        init_from_gridspec_file( self, f )
+        f.close()
+
+    def init_from_gridspec_file( self, f ):
+        """reads to grid from a Gridspec-compliant file, f.  This f should be a
+        CdmsFile object, already open for reading.  The contents of the file may
+        overwrite data in the existing grid object."""
+        # As for the above init_from_gridspec method, this is really a kind of
+        # init function and should be called from __init__ .
+        ax, ay, gs_attr = f.gridspec_file_contents()
+        # ... gridspec_file_contents is defined in dataset.py
+        self.__init__( ay, ax )
+        self.gsfile = gs_attr['filebase']
+        self.gspath = gs_attr['filepath']
+        self.long_name = gs_attr['long_name']
+        # gs_geometryType is no longer required of Gridspec files, but as yet
+        # there is no other proposal for describing the geometry (July 2010)
+        self.gs_geometryType = gs_attr['gs_geometryType']
+        # gs_discretizationType is no longer required of Gridspec files, but it's
+        # harmless and may come in useful
+        self.gs_discretizationType = gs_attr['gs_discretizationType']
+        return self
+
     def subSlice(self, *specs, **keys):
         """Get a transient subgrid based on an argument list <specs> of slices."""
 
@@ -632,6 +790,7 @@ def readScripCurveGrid(fileobj, dims, whichType, whichGrid):
     else:
         cornerLat = cornerLat.reshape(boundsshape)
         cornerLon = cornerLon.reshape(boundsshape)
+
     iaxis = TransientVirtualAxis("i",ni)
     jaxis = TransientVirtualAxis("j",nj)
 

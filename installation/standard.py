@@ -14,6 +14,9 @@
 #This file is executed as Python input so you can compute values depending on
 #platform, etc. Modules os, sys will be imported already.
 
+import subprocess
+import re
+
 ## This part figures out the target tihng
 target_prefix = sys.prefix
 for i in range(len(sys.argv)):

@@ -226,9 +226,14 @@ ifeq (@COMPILE_NC@,yes)
 	$(call dobuild,@NC4_URL@,@NC4_GZ@,@EXTERNALS@,@NC_FORTRAN@,  --enable-netcdf-4 --with-hdf5=@HDF5LOC@)
 endif
 ifeq (@COMPILE_LIBCF@,yes)
-	@echo "Building libcf"
-	$(call dobuild,@LIBCF_URL@,@LIBCF_GZ@,@EXTERNALS@/libcf,,  --enable-shared --with-hdf5=@HDF5LOC@ --with-netcdf=@NC4LOC@)
+	@echo "Building libcf" 
+	$(call dobuildpy,./configure --enable-python-bindings --with-hdf5=@HDF5LOC@ --with-netcdf=@NC4LOC@,@LIBCF_URL@,@LIBCF_GZ@, )
 endif
+ifeq (@COMPILE_PYTABLES@,yes)
+	@echo "Building pytables" 
+	$(call dobuildpy,,@PYTABLES_URL@,@PYTABLES_GZ@,,,--hdf5=@HDF5LOC@)
+endif
+
 ifeq (@COMPILE_R@,yes)
 	@echo "Building R"
 	$(call dobuild,@R_URL@,@R_GZ@,@EXTERNALS@)
