@@ -9,7 +9,7 @@
 #  TERMCAP_LIBRARY, the full path to the TermCap library.
 #  TERMCAP_INCLUDE_PATH, for CMake backward compatibility
 
-FIND_FILE( TERMCAP_INCLUDE_DIR termcap.h
+FIND_PATH( TERMCAP_INCLUDE_DIR termcap.h
   PATHS /usr/local/include
         /usr/include
   PATH_SUFFIXES termcap
