@@ -54,10 +54,6 @@ if(APPLE)
   endif()
 endif()
 
-#
-#
-#
-
 #-----------------------------------------------------------------------------
 # Git protocole option
 #-----------------------------------------------------------------------------
@@ -80,6 +76,8 @@ endif(CMAKE_Fortran_COMPILER)
 #-----------------------------------------------------------------------------
 # Enable and setup External project global properties
 #-----------------------------------------------------------------------------
+
+set(EP_PREFIX ${cdat_BINARY_DIR}/build/prefix)
 
 INCLUDE(ExternalProject)
 
@@ -160,6 +158,10 @@ file(MAKE_DIRECTORY ${cdat_EXTERNALS}/NetCDF ${cdat_EXTERNALS}/NetCDF/lib)
 
 include(PackageVersions)
 
+set(external_packages)
+set(found_system_include_dirs)
+set(found_system_libraries)
+
 macro (add_cdat_package package)
   string(TOUPPER ${package} UC_PACKAGE)
   string(TOLOWER ${package} LC_PACKAGE)
@@ -179,9 +181,27 @@ macro (add_cdat_package package)
     if(external_packages)
       list(REMOVE_ITEM external_packages External_${package})
     endif()
+
+    if(${UC_PACKAGE}_INCLUDE_DIR)
+      list(APPEND found_system_include_dirs ${${UC_PACKAGE}_INCLUDE_DIR})
+      message("  Including: ${UC_PACKAGE}_INCLUDE_DIR: ${${UC_PACKAGE}_INCLUDE_DIR}")
+    endif()
+
+    if(${UC_PACKAGE}_LIBRARY)
+      get_filename_component(lib_path ${${UC_PACKAGE}_LIBRARY} PATH)
+      list(APPEND found_system_libraries ${lib_path})
+      message("  Linking: ${UC_PACKAGE}_LIBRARY: ${lib_path}")
+    endif()
   endif()
 endmacro (add_cdat_package)
 
+message("CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES ${CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES}")
+message("CMAKE_C_IMPLICIT_LINK_DIRECTORIES ${CMAKE_C_IMPLICIT_LINK_DIRECTORIES}")
+message("CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES ${CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES}")
+
+message("CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES}")
+message("CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES ${CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES}")
+message("CMAKE_PLATFORM_IMPLICIT_INCLUDE_DIRECTORIES ${CMAKE_PLATFORM_IMPLICIT_INCLUDE_DIRECTORIES}")
 
 # Attempt to find each package on the system
 find_package(PkgConfig)
@@ -237,30 +257,6 @@ find_package(Readline)
 #find_package(NUMPY)
 # python mega widgets
 #find_package(PMW)
-
-#-----------------------------------------------------------------------------
-# configure custom configure/build/install step files
-#-----------------------------------------------------------------------------
-
-configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_configure_step.cmake.in
-    ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
-    @ONLY)
-
-configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_make_step.cmake.in
-  ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake
-  @ONLY)
-
-configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_cmake_make_step.cmake.in
-  ${cdat_CMAKE_BINARY_DIR}/cdat_cmake_make_step.cmake
-  @ONLY)
-
-configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_install_step.cmake.in
-  ${cdat_CMAKE_BINARY_DIR}/cdat_install_step.cmake
-  @ONLY)
-
-#configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_python_install_step.cmake.in
-#  ${cdat_CMAKE_BINARY_DIR}/cdat_python_install_step.cmake
-#  @ONLY)
 
 set(cdat_configure_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake)
 set(cdat_make_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake)
@@ -339,6 +335,60 @@ add_cdat_package(ParaView)
 add_cdat_package(CMOR)
 add_cdat_package(CDAT)
 add_cdat_package(VisTrails)
+
+#-----------------------------------------------------------------------------
+# Construct Include and Link variables
+#-----------------------------------------------------------------------------
+
+#set(system_include_dirs)
+if(found_system_include_dirs)
+  list(REMOVE_DUPLICATES found_system_include_dirs)
+  set(cdat_external_include_directories)
+  foreach(include_dir ${found_system_include_dirs})
+    set(cdat_external_include_directories "-I${include_dir} ${cdat_external_include_directories}")
+  endforeach()
+endif()
+message("cdat_external_include_directories: ${cdat_external_include_directories}")
+
+
+#set(system_libraries)
+message("found_system_libraries ${found_system_libraries}")
+if(found_system_libraries)
+  list(REMOVE_DUPLICATES found_system_libraries)
+  set(cdat_external_link_directories)
+  foreach(library_dir ${found_system_libraries})
+    set(cdat_external_link_directories "-L${library_dir} ${cdat_external_link_directories}")
+  endforeach()
+endif()
+message("cdat_external_link_directories: ${cdat_external_link_directories}")
+
+#-----------------------------------------------------------------------------
+# configure custom configure/build/install step files
+#-----------------------------------------------------------------------------
+
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_common_environment.cmake.in
+    ${cdat_CMAKE_BINARY_DIR}/cdat_common_environment.cmake
+    @ONLY)
+
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_configure_step.cmake.in
+    ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
+    @ONLY)
+
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_make_step.cmake.in
+  ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake
+  @ONLY)
+
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_cmake_make_step.cmake.in
+  ${cdat_CMAKE_BINARY_DIR}/cdat_cmake_make_step.cmake
+  @ONLY)
+
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_install_step.cmake.in
+  ${cdat_CMAKE_BINARY_DIR}/cdat_install_step.cmake
+  @ONLY)
+
+#configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_python_install_step.cmake.in
+#  ${cdat_CMAKE_BINARY_DIR}/cdat_python_install_step.cmake
+#  @ONLY)
 
 #------------------------------------------------------------------------------
 # Establish Target Dependencies based on Selected Options and find results
@@ -422,7 +472,7 @@ endforeach()
 set(HASWGET ${WGET_EXECUTABLE})
 set(MD5PRG ${MD5_EXECUTABLE})
 set(MD5CNT 1)
-message("HASWGET ${HASWGET}")
+
 configure_file(${cdat_SOURCE_DIR}/checked_get.sh.in
   ${cdat_SOURCE_DIR}/checked_get.sh
   @ONLY)
