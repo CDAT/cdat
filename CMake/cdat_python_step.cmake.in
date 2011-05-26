@@ -1,26 +1,5 @@
 
-set(ENV${CC} "@CMAKE_C_COMPILER@")
-set(ENV${CXX} "@CMAKE_CXX_COMPILER@")
-set(ENV${CPP} "@CMAKE_CXX_COMPILER@")
-
-set(ENV{PATH} "@cdat_BINARY_DIR@/Externals/bin:@cdat_BINARY_DIR@/Externals/NetCDF/bin:@cdat_BINARY_DIR@/Externals/HDF5/bin:$ENV{PATH}")
-set(ENV{@LIBRARY_PATH@} "@cdat_BINARY_DIR@/Externals/lib:$ENV{@LIBRARY_PATH@}")
-set(ENV{LDFLAGS} "-L@cdat_BINARY_DIR@/Externals/NetCDF/lib -L@cdat_BINARY_DIR@/Externals/lib")
-set(ENV{CFLAGS} "@cdat_osx_flags@ -I@cdat_BINARY_DIR@/Externals/NetCDF/include -I@cdat_BINARY_DIR@/Externals/include ${ADDITIONAL_CFLAGS}")
-set(ENV{CPPFLAGS} "@cdat_osx_flags@ -I@cdat_BINARY_DIR@/Externals/NetCDF/include -I@cdat_BINARY_DIR@/Externals/include ${ADDITIONAL_CPPFLAGS}")
-set(ENV{CXXFLAGS} "@cdat_osx_flags@ -I@cdat_BINARY_DIR@/Externals/NetCDF/include -I@cdat_BINARY_DIR@/Externals/include ${ADDITIONAL_CXXFLAGS}")
-set(ENV{PKG_CONFIG_PATH} "@cdat_BINARY_DIR@/Externals/lib/pkgconfig")
-set(ENV{PKG_CONFIG} "@cdat_PKG_CONFIG_EXECUTABLE@")
-set(ENV{PYTHON_PATH} "@cdat_BINARY_DIR@/lib/python@PYTHON_MAJOR@.@PYTHON_MINOR@/site-packages:$ENV{PYTHON_PATH}")
-set(ENV{FC} "")
-set(ENV{FCFLAGS} "")
-set(ENV{FCLIBS} "")
-set(ENV{F77} "")
-set(ENV{FFLAGS} "")
-set(ENV{FLIBS} "")
-set(ENV{LD_X11} "") # for xgks
-
-set(ENV{EXTERNALS} "@cdat_BINARY_DIR@/Externals")
+include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
 
 if(NOT ${make})
   set(make make)
