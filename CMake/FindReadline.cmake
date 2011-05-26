@@ -15,8 +15,6 @@ FIND_PATH(READLINE_INCLUDE_DIR readline.h
   PATH_SUFFIXES readline
 )
 
-message("READLINE_INCLUDE_DIR: ${READLINE_INCLUDE_DIR}")
-
 FIND_LIBRARY(READLINE_LIBRARY readline
   /usr/lib
   /usr/local/lib
