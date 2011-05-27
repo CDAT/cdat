@@ -506,11 +506,11 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         """
         Get the tile index (for mosaics)
         """
-        return self.gridIndex
+        return self.tileIndex
 
     def toVisit(self, filename, mode='w', sphereRadius=1.0, maxElev=0.1):
         """
-        Save data to file for postprocessing by the Visit visualization tool
+        Save data to file for postprocessing by the VisIt visualization tool
         filename: name of the file where the data will be saved
         mode: currently either 'w' (new file) or 'a' (append to existing file)
         sphereRadius: radius of the earth
@@ -519,7 +519,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         Assumes time, elv, lat, lon ordering....!!!
         """
         if len(self.shape) < 2 or len(self.shape) > 4:
-            raise CDMSError, 'Currently, toVisit only working for 2D to 4D data'
+            raise CDMSError, 'Currently, toVisit only works for 2D to 4D data'
         try: 
             import tables
             import numpy
@@ -548,6 +548,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
                 # tensor product to create 2D arrays
                 lons = numpy.outer(ones_lats, lons1D)
                 lats = numpy.outer(lats1D, ones_lons)
+                shp = (len(lats1D), len(lons1D))
             else:
                 # tensor product to create 3D arrays
                 elvs1D = elvs[:]
@@ -557,6 +558,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
                 lons = numpy.zeros(axisshp, tp)
                 lats = numpy.zeros(axisshp, tp)
                 elvs = numpy.zeros(axisshp, tp)
+                shp = (lens(elvs1D), len(lats1D), len(lons1D))
                 for k in range(nelvs):
                     for j in range(nlats):
                         for i in range(nlons):
@@ -564,7 +566,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
                             lats[k,j,i] = lats1D[j]
                             elvs[k,j,i] = elvs1D[k]
 
-        # the cartesian points
+        # cartesian points
         cosLats = numpy.cos(lats*numpy.pi/180.)
         rr = sphereRadius
         if elvs != None: 
@@ -584,7 +586,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         meshdata[:,2] = numpy.reshape(zz, (size,))
         mdata = numpy.reshape(meshdata, shp + (3,))
         dataid = self.id
-        if self.getTileIndex != None:
+        if self.getTileIndex() != None:
             dataid += '_tile%d' % self.getTileIndex()
 
         def writeToFile(filename, data, timeIndex=None):
@@ -595,7 +597,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
             h5file = tables.openFile(filename, mode)
             # put mesh
             meshid = 'mesh_' + self.id
-            if self.getTileIndex != None: 
+            if self.getTileIndex() != None: 
                 meshid += '_tile%d' % self.getTileIndex()
             mset = h5file.createArray("/", meshid, mdata)
             mset.attrs.vsType = "mesh"
