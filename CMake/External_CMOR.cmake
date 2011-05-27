@@ -1,5 +1,5 @@
 
-set(cmor_source "${CMAKE_CURRENT_BINARY_DIR}/build/cmor")
+set(cmor_source "${cdat_SOURCE_DIR}/Packages/cmor")
 set(cmor_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
 
 set(cmor_configure_args --with-netcdf=${netcdf_install} --with-udunits2=${udunits_install} --with-uuid=${uuid_install} --with-zlib=${zlib_install} --enable-fortran=no)
