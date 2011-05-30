@@ -1,5 +1,7 @@
 
-set(qt_source "${CMAKE_CURRENT_BINARY_DIR}/Qt")
+set(qt_source "${CMAKE_CURRENT_BINARY_DIR}/build/Qt")
+set(qt_install_dir "${CMAKE_CURRENT_BINARY_DIR}/Externals")
+
 if(WIN32)
   # if jom is in the path use it as it will be faster
   find_program(JOM jom)
@@ -17,7 +19,6 @@ if(WIN32)
   set(qt_build ${qt_build_program})
   set(qt_install "")
 else()
-  set(qt_install_dir "${CMAKE_CURRENT_BINARY_DIR}/Qt-install")
   set(qt_configure echo yes | sh ./configure -release
     -nomake examples -nomake demos -no-audio-backend -no-multimedia 
     -phonon --prefix=${qt_install_dir} -opensource)
@@ -61,6 +62,9 @@ ExternalProject_Add(Qt
   INSTALL_COMMAND "${qt_install}"
   DEPENDS ${Qt_DEPENDENCIES}
   )
-set(QT_QMAKE_EXECUTABLE "${qt_install_dir}/bin/qmake"
-  CACHE FILEPATH "Path to qmake executable" FORCE)
+
+if(QT_QMAKE_EXECUTABLE)
+  set(QT_QMAKE_EXECUTABLE "${qt_install_dir}/bin/qmake"
+    CACHE FILEPATH "Path to qmake executable" FORCE)
+endif()
 
