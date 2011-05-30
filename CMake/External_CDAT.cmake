@@ -15,7 +15,7 @@ else()
   set(qt_flags "--with-qt=${QT_ROOT}")
 endif()
 
-if(CDAT_USE_SYSTEM_QT)
+if(CDAT_USE_SYSTEM_QT AND QT_QTCORE_INCLUDE_DIR)
   get_filename_component(QT_INCLUDE_ROOT ${QT_QTCORE_INCLUDE_DIR} PATH)
   set(ADDITIONAL_CPPFLAGS "-I${QT_INCLUDE_ROOT}")
 endif()
