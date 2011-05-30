@@ -13,3 +13,11 @@ ExternalProject_Add(freetype
   CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
   DEPENDS ${freetype_DEPENDENCIES}
 )
+
+#ln -sf @EXTERNALS@/include/freetype2/freetype @EXTERNALS@/include/freetype
+
+ExternalProject_Add_Step(freetype symlink
+  COMMAND ${CMAKE_COMMAND} -E create_symlink @cdat_EXTERNALS@/include/freetype2/freetype @cdat_EXTERNALS@/include/freetype
+  COMMENT "Symlink include/freetype2/freetype include directory as include/freetype"
+  DEPENDEES install
+)
