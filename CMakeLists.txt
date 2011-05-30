@@ -151,7 +151,6 @@ file(MAKE_DIRECTORY ${cdat_SOURCE_DIR}/logs)
 file(MAKE_DIRECTORY ${cdat_SOURCE_DIR}/libcdms)
 file(MAKE_DIRECTORY ${cdat_BINARY_DIR}/build)
 file(MAKE_DIRECTORY ${cdat_BINARY_DIR}/sources)
-file(MAKE_DIRECTORY ${cdat_EXTERNALS}/NetCDF ${cdat_EXTERNALS}/NetCDF/lib)
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
@@ -294,9 +293,9 @@ endif()
 #endif()
 
 # Use system framework
-#if(NOT APPLE)
+if(NOT APPLE)
   add_cdat_package(TclTk)
-#endif()
+endif()
 
 # On OSX use vecLib framework
 if(NOT APPLE)
@@ -343,6 +342,7 @@ add_cdat_package(VisTrails)
 #set(system_include_dirs)
 if(found_system_include_dirs)
   list(REMOVE_DUPLICATES found_system_include_dirs)
+  list(REMOVE_ITEM found_system_include_dirs ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES} ${CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES})
   set(cdat_external_include_directories)
   foreach(include_dir ${found_system_include_dirs})
     set(cdat_external_include_directories "-I${include_dir} ${cdat_external_include_directories}")
@@ -355,6 +355,7 @@ message("cdat_external_include_directories: ${cdat_external_include_directories}
 message("found_system_libraries ${found_system_libraries}")
 if(found_system_libraries)
   list(REMOVE_DUPLICATES found_system_libraries)
+  list(REMOVE_ITEM found_system_libraries ${CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES})
   set(cdat_external_link_directories)
   foreach(library_dir ${found_system_libraries})
     set(cdat_external_link_directories "-L${library_dir} ${cdat_external_link_directories}")
