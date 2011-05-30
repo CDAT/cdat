@@ -333,6 +333,8 @@ add_cdat_package(ParaView)
 
 add_cdat_package(CMOR)
 add_cdat_package(CDAT)
+add_cdat_package(gui_support)
+
 add_cdat_package(VisTrails)
 
 #-----------------------------------------------------------------------------
@@ -442,6 +444,7 @@ set(ParaView_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${HDF5_dep} ${png_dep} 
 
 set(CMOR_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${HDF5_dep} ${Cairo_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep} ${NetCDF_dep} ${zlib_dep} ${uuid_dep} ${udunits2_dep})
 set(CDAT_DEPENDENCIES ${wget_dep} ${CMOR_dep} ${Python_dep} ${PyQt_dep} ${PyOpenGL_dep} ${NUMPY_dep} ${Pmw_dep} ${jasper_dep} ${g2clib_dep} ${FFMPEG_dep} ${Qt_dep} ${pixman_dep} ${tiff_dep} ${ParaView_dep})
+set(gui_support_DEPENDENCIES ${CDAT_dep})
 set(VisTrails_DEPENDENCIES ${ParaView_dep} ${CDAT_dep})
 
 message("readline_DEPENDENCIES ${readline_DEPENDENCIES}")
