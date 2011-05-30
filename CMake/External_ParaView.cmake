@@ -4,7 +4,7 @@ set(ParaView_binary "${CMAKE_CURRENT_BINARY_DIR}/ParaView-build")
 set(ParaView_install "${cdat_EXTERNALS}")
 
 set(ParaView_install_command "")
-if(APPLE)
+if(NOT APPLE)
   set(ParaView_install_command "make install")
 endif()
 
