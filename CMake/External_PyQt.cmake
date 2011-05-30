@@ -17,7 +17,5 @@ ExternalProject_Add(${proj}
   URL_MD5 ${PYQT_MD5_${CMAKE_PLATFORM}}
   BUILD_IN_SOURCE 1
   CONFIGURE_COMMAND ${PyQt_configure_command}
-  BUILD_COMMAND ""
-  INSTALL_COMMAND ""
   DEPENDS ${PyQt_DEPENDENCIES}
   )
