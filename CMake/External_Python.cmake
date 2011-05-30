@@ -23,15 +23,17 @@ set(proj Python)
     @ONLY)
 
   set(python_PATCH_COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/python_patch_step.cmake)
-  set(python_CONFIGURE_COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/python_configure_step.cmake)
-  set(python_BUILD_COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/python_make_step.cmake)
-  set(python_INSTALL_COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/python_install_step.cmake)
-
-if(APPLE)
-  set(library_param --enable-framework=${cdat_EXTERNALS}/Library/Frameworks)
-elseif(UNIX)
-  set(library_param --enable-shared)
-endif()
+  if(APPLE)
+    set(library_param --enable-framework=${cdat_EXTERNALS}/Library/Frameworks)
+    set(python_CONFIGURE_COMMAND unset MAKEFLAGS && env EXTERNALS=${cdat_EXTERNALS} <SOURCE_DIR>/configure ${library_param} && make && make install)
+    set(python_BUILD_COMMAND "")
+    set(python_INSTALL_COMMAND "")
+  else()
+    set(library_param --prefix=${cdat_EXTERNALS} --enable-shared)
+    set(python_CONFIGURE_COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/python_configure_step.cmake)
+    set(python_BUILD_COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/python_make_step.cmake)
+    set(python_INSTALL_COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/python_install_step.cmake)
+  endif()
   
   ExternalProject_Add(${proj}
     URL ${PYTHON_URL}/${PYTHON_GZ}
@@ -40,24 +42,12 @@ endif()
     SOURCE_DIR ${python_SOURCE_DIR}
     BUILD_IN_SOURCE ${python_BUILD_IN_SOURCE}
     UPDATE_COMMAND pwd
-    #PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${cdat_SOURCE_DIR}/pysrc/src/setup-${PYTHON_VERSION}.py ${python_SOURCE_DIR}/setup.py
-    #CONFIGURE_COMMAND ${python_CONFIGURE_COMMAND}
-    PATCH_COMMAND export
-    CONFIGURE_COMMAND unset MAKEFLAGS && env EXTERNALS=${cdat_EXTERNALS} <SOURCE_DIR>/configure ${library_param} && make && make install
-    #BUILD_COMMAND make
-    BUILD_COMMAND ""
-    INSTALL_COMMAND ""
-    #BUILD_COMMAND ${python_BUILD_COMMAND}
-    #INSTALL_COMMAND ${python_INSTALL_COMMAND}
+    PATCH_COMMAND 
+    CONFIGURE_COMMAND ${python_CONFIGURE_COMMAND}
+    BUILD_COMMAND ${python_BUILD_COMMAND}
+    INSTALL_COMMAND ${python_INSTALL_COMMAND}
     DEPENDS ${Python_DEPENDENCIES}
     )
-
-# ExternalProject_Add_Step(${proj} PythonMakeAgain
-#    COMMAND make
-#    COMMAND make install
-#    DEPENDEES install
-#    WORKING_DIRECTORY ${python_SOURCE_DIR}
-#    )
 
 #-----------------------------------------------------------------------------
 # Set PYTHON_INCLUDE and PYTHON_LIBRARY variables
