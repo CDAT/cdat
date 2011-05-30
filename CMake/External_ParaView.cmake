@@ -5,7 +5,7 @@ set(ParaView_install "${cdat_EXTERNALS}")
 
 set(ParaView_install_command "")
 if(NOT APPLE)
-  set(ParaView_install_command "make install")
+  set(ParaView_install_command make install)
 endif()
 
 ExternalProject_Add(ParaView
