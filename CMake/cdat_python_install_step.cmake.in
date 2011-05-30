@@ -1,8 +1,8 @@
 
-set(ENV{@LIBRARY_PATH@} "@cdat_BINARY_DIR@/Externals/lib:$ENV{@LIBRARY_PATH@}")
-set(ENV{CFLAGS} "@cdat_osx_flags@ -I@cdat_BINARY_DIR@/Externals/include -I@cdat_BINARY_DIR@/Externals/include/freetype2 @ADDITIONAL_CFLAGS@")
-set(ENV{CPPFLAGS} "@cdat_osx_flags@ -I@cdat_BINARY_DIR@/Externals/include -I@cdat_BINARY_DIR@/Externals/include/freetype2 @ADDITIONAL_CPPFLAGS@")
-set(ENV{CXXFLAGS} "@cdat_osx_flags@ -I@cdat_BINARY_DIR@/Externals/include -I@cdat_BINARY_DIR@/Externals/include/freetype2 @ADDITIONAL_CXXFLAGS@")
+#set(ENV{@LIBRARY_PATH@} "@cdat_BINARY_DIR@/Externals/lib:$ENV{@LIBRARY_PATH@}")
+#set(ENV{CFLAGS} "@cdat_osx_flags@ -I@cdat_BINARY_DIR@/Externals/include -I@cdat_BINARY_DIR@/Externals/include/freetype2 @ADDITIONAL_CFLAGS@")
+#set(ENV{CPPFLAGS} "@cdat_osx_flags@ -I@cdat_BINARY_DIR@/Externals/include -I@cdat_BINARY_DIR@/Externals/include/freetype2 @ADDITIONAL_CPPFLAGS@")
+#set(ENV{CXXFLAGS} "@cdat_osx_flags@ -I@cdat_BINARY_DIR@/Externals/include -I@cdat_BINARY_DIR@/Externals/include/freetype2 @ADDITIONAL_CXXFLAGS@")
 
 set(ENV{LOCNCCONFIG} "@cdat_BINARY_DIR@/Externals/bin/nc-config")
 
