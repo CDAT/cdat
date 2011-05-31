@@ -63,8 +63,6 @@ ExternalProject_Add(Qt
   DEPENDS ${Qt_DEPENDENCIES}
   )
 
-if(QT_QMAKE_EXECUTABLE)
-  set(QT_QMAKE_EXECUTABLE "${qt_install_dir}/bin/qmake"
+set(QT_QMAKE_EXECUTABLE "${qt_install_dir}/bin/qmake"
     CACHE FILEPATH "Path to qmake executable" FORCE)
-endif()
 
