@@ -9,7 +9,7 @@ import time
 import mvSphereMesh
 import mvBaseWriter
 
-class VTKVsWriter(mvBaseWriter.BaseWriter):
+class VsWriter(mvBaseWriter.BaseWriter):
 
     def write(self, filename):
         """
@@ -61,13 +61,13 @@ def test2DRect():
                        sin(5*pi*lons[:]/180.0))
     var = cdms2.createVariable(data, id='fake_data_2d_rect', 
                                axes=(lats, lons))
-    vw = VTKVsWriter(var)
+    vw = VsWriter(var)
     vw.write('test2DRect.vsh5')
 
 def test3D():
     import cdms2
     var = cdms2.open('sample_data/ta_ncep_87-6-88-4.nc', 'r')('ta')
-    vw = VTKVsWriter(var[0,0:10,0:20,0:30])
+    vw = VsWriter(var[0,0:10,0:20,0:30])
     vw.write('test3D.vsh5')
 
 if __name__ == '__main__': 
