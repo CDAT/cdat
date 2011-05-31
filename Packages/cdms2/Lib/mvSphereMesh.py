@@ -16,30 +16,30 @@ class SphereMesh:
         @param var cdms2 variable
         """
         
+        self.isRectilinear = True
+        self.ndims = 0
+        self.elvDown = False
+        self.minElv = 0
+        self.maxElv = 1
+
         # get the lon, lat, elv coordinates (or axes)
         lons = var.getLongitude()
         lats = var.getLatitude()
         elvs = var.getLevel()
-        
-        self.elvDown = False
 
         # compute the min/max of elevation, we will
         # normalize
-        self.minElv = 0
-        self.maxElv = 1
-        if elvs:
+        if type(elvs) != NoneType:
             self.minElvs = min(elvs[:])
             self.maxElvs = max(elvs[:])
 
         # determine the dimensionality and 
         # whether the grid is rectilinear
-        self.isRectilinear = True
-        self.ndims = 0
         for axis in lons, lats, elvs:
             if type(axis) != NoneType:
                 self.ndims += 1
                 if len(axis.shape) != 1:
-                    self.isRectlinear = False
+                    self.isRectilinear = False
 
         self.shape = lons.shape
         if self.isRectilinear:
@@ -50,7 +50,7 @@ class SphereMesh:
             self.shape.reverse()
 
         while len(self.shape) < 3:
-            self.shape = [1,] + self.shape
+            self.shape = [1,] + list(self.shape)
 
         # store lon, lat, elv as a curvilinear grid
         if self.isRectilinear:
@@ -62,16 +62,19 @@ class SphereMesh:
                     for i in range(self.shape[2]):
                         self.lons[k, j, i] = lons[i]
                         self.lats[k, j, i] = lats[j]
-                        if elvs:
+                        if type(elvs) != NoneType:
                             self.elvs[k, j, i] = (elvs[k] - self.minElv) / \
                                 (self.maxElv - self.minElv)
                         else:
                             self.elvs[k, j, i] = 0
         else:
             # already in curvilinear form
-            self.lons = lons.copy()
-            self.lats = lats.copy()
-            self.elvs = (elvs - self.minElv)(self.maxElv - self.minElv)
+            self.lons = lons[:]
+            self.lats = lats[:]
+            if type(elvs) != NoneType:
+                self.elvs = (elvs - self.minElv)(self.maxElv - self.minElv)
+            else:
+                self.elvs = numpy.zeros( self.shape, numpy.float32 )
 
         # reshape as flat arrays
         sz = reduce(lambda x,y:x*y, self.shape)

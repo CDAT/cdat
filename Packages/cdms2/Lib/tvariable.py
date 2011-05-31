@@ -508,7 +508,76 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         """
         return self.tileIndex
 
-    def toVisit(self, filename, mode='w', sphereRadius=1.0, maxElev=0.1):
+    def toVisit(self, filename, format='VTK', sphereRadius=1.0, 
+                maxElev=0.1):
+        """
+        Save data to file for postprocessing by the VisIt visualization tool
+        filename: name of the file where the data will be saved
+        format: 'Vs' for VizSchema, 'VTK',....
+        sphereRadius: radius of the earth
+        maxElev: maximum elevation for representation on the sphere
+        """
+        import mvSphereMesh
+        import mvVTKSGWriter
+        try:
+            import mvVsWriter # must tables installed
+        except:
+            pass
+
+        def generateTimeFileName(filename, tIndex, tIndexMax, suffix):
+            ndigits = len('%d'%tIndexMax)
+            itdigits = len('%d'%tIndex)
+            tiStr = '0'*(ndigits-itdigits) + ('%d'%tIndex)
+            return re.sub(r'\.' + suffix, '_%s.%s' % (tiStr, suffix), 
+                          filename)
+
+        # determine whether data are time dependent
+        timeAxis = self.getTime()
+
+        # if time dependent, then which index is time?
+        timeIndex = -1
+        if timeAxis:
+            counter = -1
+            for axis in self.getAxisIds():
+                counter += 1
+                if axis == 'time':
+                    timeIndex = counter
+        
+        if timeAxis == None or timeIndex == -1:
+            # static data
+            if format == 'VTK':
+                vw = mvVTKSGWriter.VTKSGWriter(self)
+                if not filename.find('.vtk'): 
+                    filename += '.vtk'
+                vw.write(filename)
+            else: 
+                vw = mvVsWriter.VsWriter(self)
+                if filename.find('.vsh5') == -1: 
+                    filename += '.vsh5'
+                vw.write(filename)
+        else:
+            # time dependent data
+            tIndexMax = len(timeAxis)
+            for tIndex in range(tIndexMax):
+                sliceOp = 'self[' + (':,'*timeIndex) + ('%d,'%tIndex) + '...]'
+                var = eval(sliceOp)
+                if format == 'VTK':
+                    if filename.find('.vtk') == -1:
+                        filename += '.vtk'
+                    tFilename = generateTimeFileName(filename, 
+                                                     tIndex, tIndexMax, 'vtk')
+                    vw = mvVTKSGWriter.VTKSGWriter(var)
+                    vw.write(tFilename)
+                else:
+                    if filename.find('.h5') == -1:
+                        filename += '.h5'
+                    tFilename = generateTimeFileName(filename, 
+                                                     tIndex, tIndexMax, 'h5')
+                    vw = mvVsWriter.VsWriter(var)
+                    vw.write(tFilename)
+
+
+    def toVisitOld(self, filename, mode='w', sphereRadius=1.0, maxElev=0.1):
         """
         Save data to file for postprocessing by the VisIt visualization tool
         filename: name of the file where the data will be saved
