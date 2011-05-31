@@ -243,7 +243,7 @@ endif()
 #find_package(udunits2)
 find_package(HDF5)
 #find_package(NetCDF)
-find_package(Qt)
+find_package(Qt4)
 #find_package(PythonInterp)
 #find_package(PythonLibs)
 # unix tools
