@@ -1,8 +1,8 @@
 
 set(CDAT_source "${cdat_SOURCE_DIR}")
 
-set(RUNTIME_FLAGS "${cdat_BINARY_DIR}/Externals/lib:$ENV{${LIBRARY_PATH}}")
-set(LDFLAGS "-L${cdat_BINARY_DIR}/Externals/NetCDF/lib -L${cdat_BINARY_DIR}/Externals/lib")
+set(RUNTIME_FLAGS ${cdat_BINARY_DIR}/Externals/lib)
+set(LDFLAGS -L${cdat_BINARY_DIR}/Externals/lib)
 
 get_filename_component(QT_BINARY_DIR ${QT_QMAKE_EXECUTABLE} PATH)
 get_filename_component(QT_ROOT ${QT_BINARY_DIR} PATH)
@@ -10,9 +10,9 @@ get_filename_component(QT_ROOT ${QT_BINARY_DIR} PATH)
 #env EXTERNALS=/Users/partyd/Kitware/uv-cdat/make-file-install//Externals  LDFLAGS="${LDFLAGS/"/} -undefined dynamic_lookup"  /Users/partyd/Kitware/uv-cdat/make-file-install//bin/python install.py  --enable-qt-framework  --with-qt=/Users/partyd/Kitware/uv-cdat/make-file-install//Externals
 
 if(APPLE)
-  set(qt_flags "--enable-qt-framework --with-qt=${QT_ROOT}")
+  set(qt_flags --enable-qt-framework --with-qt=${QT_ROOT})
 else()
-  set(qt_flags "--with-qt=${QT_ROOT}")
+  set(qt_flags --with-qt=${QT_ROOT})
 endif()
 
 if(CDAT_USE_SYSTEM_QT AND QT_QTCORE_INCLUDE_DIR)
