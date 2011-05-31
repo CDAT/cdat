@@ -1,9 +1,11 @@
 
-set(ParaView_source "${CMAKE_CURRENT_BINARY_DIR}/ParaView")
-set(ParaView_binary "${CMAKE_CURRENT_BINARY_DIR}/ParaView-build")
+
+set(ParaView_source "${CMAKE_CURRENT_BINARY_DIR}/build/ParaView")
+set(ParaView_binary "${CMAKE_CURRENT_BINARY_DIR}/build/ParaView-build")
 set(ParaView_install "${cdat_EXTERNALS}")
 
 set(ParaView_install_command "")
+
 if(NOT APPLE)
   set(ParaView_install_command make install)
 endif()
@@ -37,7 +39,7 @@ ExternalProject_Add(ParaView
     ${cdat_compiler_args}
   CMAKE_ARGS
     -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-  BUILD_COMMAND ${LIBRARY_PATH}=${cdat_EXTERNALS}/lib ${CMAKE_COMMAND} -DWORKING_DIR=<BINARY_DIR> -Dmake=$(MAKE) -P ${cdat_CMAKE_BINARY_DIR}/cdat_cmake_make_step.cmake
+  BUILD_COMMAND ${CMAKE_COMMAND} -DWORKING_DIR=<BINARY_DIR> -Dmake=$(MAKE) -P ${cdat_CMAKE_BINARY_DIR}/cdat_cmake_make_step.cmake
   INSTALL_COMMAND ${ParaView_install_command}
   DEPENDS ${ParaView_DEPENDENCIES}
 )
