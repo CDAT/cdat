@@ -508,21 +508,22 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         """
         return self.tileIndex
 
-    def toVisit(self, filename, format='VTK', sphereRadius=1.0, 
+    def toVisit(self, filename, format='Vs', sphereRadius=1.0, 
                 maxElev=0.1):
         """
         Save data to file for postprocessing by the VisIt visualization tool
         filename: name of the file where the data will be saved
-        format: 'Vs' for VizSchema, 'VTK',....
+        format: 'Vs' for VizSchema, 'VTK', ...
         sphereRadius: radius of the earth
         maxElev: maximum elevation for representation on the sphere
         """
         import mvSphereMesh
         import mvVTKSGWriter
         try:
-            import mvVsWriter # must tables installed
+            import mvVsWriter # must have tables installed
         except:
-            pass
+            # fall back 
+            format = 'VTK'
 
         def generateTimeFileName(filename, tIndex, tIndexMax, suffix):
             ndigits = len('%d'%tIndexMax)
@@ -547,7 +548,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
             # static data
             if format == 'VTK':
                 vw = mvVTKSGWriter.VTKSGWriter(self)
-                if not filename.find('.vtk'): 
+                if filename.find('.vtk') == -1: 
                     filename += '.vtk'
                 vw.write(filename)
             else: 
@@ -575,130 +576,6 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
                                                      tIndex, tIndexMax, 'h5')
                     vw = mvVsWriter.VsWriter(var)
                     vw.write(tFilename)
-
-
-    def toVisitOld(self, filename, mode='w', sphereRadius=1.0, maxElev=0.1):
-        """
-        Save data to file for postprocessing by the VisIt visualization tool
-        filename: name of the file where the data will be saved
-        mode: currently either 'w' (new file) or 'a' (append to existing file)
-        sphereRadius: radius of the earth
-        maxElev: maximum elevation for representation on the sphere
-        
-        Assumes time, elv, lat, lon ordering....!!!
-        """
-        if len(self.shape) < 2 or len(self.shape) > 4:
-            raise CDMSError, 'Currently, toVisit only works for 2D to 4D data'
-        try: 
-            import tables
-            import numpy
-        except:
-            raise CDMSError, "Must have pytables/numpy working to use toVisit"
-
-        lons = self.getLongitude()
-        lats = self.getLatitude()
-        elvs = self.getLevel()
-        if elvs != None:
-            # normalize
-            elvs -= elvs[0]
-            elvs /= (elvs[-1] - elvs[0])
-            elvs *= maxElev
-
-        shp = lons.shape
-        # Axis type coordinates
-        if len(shp) == len(lats.shape) == 1:
-            lons1D = lons[:]
-            lats1D = lats[:]
-            nlats = len(lats1D)
-            nlons = len(lons1D)
-            ones_lons = numpy.ones((nlons,))
-            ones_lats = numpy.ones((nlats,))
-            if elvs == None:
-                # tensor product to create 2D arrays
-                lons = numpy.outer(ones_lats, lons1D)
-                lats = numpy.outer(lats1D, ones_lons)
-                shp = (len(lats1D), len(lons1D))
-            else:
-                # tensor product to create 3D arrays
-                elvs1D = elvs[:]
-                nelvs = len(elvs1D)
-                axisshp = (nelvs, nlats, nlons)
-                tp = lons.typecode()
-                lons = numpy.zeros(axisshp, tp)
-                lats = numpy.zeros(axisshp, tp)
-                elvs = numpy.zeros(axisshp, tp)
-                shp = (lens(elvs1D), len(lats1D), len(lons1D))
-                for k in range(nelvs):
-                    for j in range(nlats):
-                        for i in range(nlons):
-                            lons[k,j,i] = lons1D[i]
-                            lats[k,j,i] = lats1D[j]
-                            elvs[k,j,i] = elvs1D[k]
-
-        # cartesian points
-        cosLats = numpy.cos(lats*numpy.pi/180.)
-        rr = sphereRadius
-        if elvs != None: 
-            rr = sphereRadius*(1.0 + elvs)
-        xx = rr*numpy.cos(lons*numpy.pi/180.)*cosLats
-        yy = rr*numpy.sin(lons*numpy.pi/180.)*cosLats
-        zz = rr*numpy.sin(lats*numpy.pi/180.)
-
-        size = reduce(lambda x,y:x*y, shp)
-        if len(shp) == 2:
-            # vizschema wants 3d so add a fake dimension
-            shp = (1,) + shp
-
-        meshdata = numpy.zeros( (size, 3), numpy.float32 )
-        meshdata[:,0] = numpy.reshape(xx, (size,))
-        meshdata[:,1] = numpy.reshape(yy, (size,))
-        meshdata[:,2] = numpy.reshape(zz, (size,))
-        mdata = numpy.reshape(meshdata, shp + (3,))
-        dataid = self.id
-        if self.getTileIndex() != None:
-            dataid += '_tile%d' % self.getTileIndex()
-
-        def writeToFile(filename, data, timeIndex=None):
-            # add vsh5 suffix, if need be
-            if filename.find('.vsh5') < 0 and filename.find('.h5') < 0:
-                filename += '.vsh5' # VizSchema hdf5 format
-            # open file
-            h5file = tables.openFile(filename, mode)
-            # put mesh
-            meshid = 'mesh_' + self.id
-            if self.getTileIndex() != None: 
-                meshid += '_tile%d' % self.getTileIndex()
-            mset = h5file.createArray("/", meshid, mdata)
-            mset.attrs.vsType = "mesh"
-            mset.attrs.vsKind = "structured"
-            mset.attrs.vsIndexOrder = "compMinorC"
-            # data
-            dset = h5file.createArray("/", dataid, numpy.reshape(data, shp))
-            dset.attrs.vsType = "variable"
-            dset.attrs.vsMesh = meshid
-            mset.attrs.vsType = "mesh"
-            mset.attrs.vsKind = "structured"
-            mset.attrs.vsIndexOrder = "compMinorC"
-            # additional attributes
-            for a in self.attributes:
-                setattr(dset.attrs, a, getattr(self, a))
-            # close file
-            h5file.close()
-
-        timeAxis = self.getTime()
-        if timeAxis == None:
-            writeToFile(filename, self)
-        else:
-            ntimes = len(timeAxis)
-            ndigits = len('%d'%ntimes)
-            for itime in range(ntimes):
-                # generate time dependent filename (<filename>_<itime>.vsh5)
-                itdigits = len('%d'%itime)
-                tiStr = '0'*(ndigits-itdigits) + ('%d'%itime)
-                timeFilename = re.sub(r'\.([vs]+)h5', '_%s.\\1h5' % tiStr, 
-                                      filename)
-                # assume time is the first index!!!
-                writeToFile(timeFilename, self[0,...], timeIndex=itime)
        
 ## PropertiedClasses.set_property(TransientVariable, 'shape', 
 ##                                nowrite=1, nodelete=1)
