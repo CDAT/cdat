@@ -4,8 +4,10 @@ set(CDAT_source "${cdat_SOURCE_DIR}")
 set(RUNTIME_FLAGS ${cdat_BINARY_DIR}/Externals/lib)
 set(LDFLAGS -L${cdat_BINARY_DIR}/Externals/lib)
 
-get_filename_component(QT_BINARY_DIR ${QT_QMAKE_EXECUTABLE} PATH)
-get_filename_component(QT_ROOT ${QT_BINARY_DIR} PATH)
+if(QT_QMAKE_EXECUTABLE)
+  get_filename_component(QT_BINARY_DIR ${QT_QMAKE_EXECUTABLE} PATH)
+  get_filename_component(QT_ROOT ${QT_BINARY_DIR} PATH)
+endif()
 
 #env EXTERNALS=/Users/partyd/Kitware/uv-cdat/make-file-install//Externals  LDFLAGS="${LDFLAGS/"/} -undefined dynamic_lookup"  /Users/partyd/Kitware/uv-cdat/make-file-install//bin/python install.py  --enable-qt-framework  --with-qt=/Users/partyd/Kitware/uv-cdat/make-file-install//Externals
 
