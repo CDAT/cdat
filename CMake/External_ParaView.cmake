@@ -40,14 +40,13 @@ ExternalProject_Add(ParaView
   CMAKE_ARGS
     -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
   BUILD_COMMAND ${CMAKE_COMMAND} -DWORKING_DIR=<BINARY_DIR> -Dmake=$(MAKE) -P ${cdat_CMAKE_BINARY_DIR}/cdat_cmake_make_step.cmake
-  INSTALL_COMMAND ${ParaView_install_command}
+  INSTALL_COMMAND pwd
   DEPENDS ${ParaView_DEPENDENCIES}
 )
 
 configure_file(${cdat_CMAKE_SOURCE_DIR}/vtk_install_python_module.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/vtk_install_python_module.cmake
   @ONLY)
-
 
  ExternalProject_Add_Step(ParaView InstallVTKPythonModule
     COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/vtk_install_python_module.cmake
