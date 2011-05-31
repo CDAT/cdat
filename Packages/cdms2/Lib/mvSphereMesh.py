@@ -6,6 +6,7 @@ Alex Pletzer
 """
 
 import numpy
+from types import NoneType
 
 class SphereMesh:
     
@@ -35,7 +36,7 @@ class SphereMesh:
         self.isRectilinear = True
         self.ndims = 0
         for axis in lons, lats, elvs:
-            if axis:
+            if type(axis) != NoneType:
                 self.ndims += 1
                 if len(axis.shape) != 1:
                     self.isRectlinear = False
@@ -44,7 +45,7 @@ class SphereMesh:
         if self.isRectilinear:
             self.shape = []
             for axis in lons, lats, elvs:
-                if axis != None:
+                if type(axis) != NoneType:
                     self.shape.append( len(axis) )
             self.shape.reverse()
 
