@@ -28,7 +28,7 @@ ExternalProject_Add(gui_support
   PATCH_COMMAND ""
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
-  INSTALL_COMMAND env EXTERNALS=${cdat_BINARY_DIR}/Externals ${LIBRARY_PATH}=${RUNTIME_FLAGS} ${PYTHON_EXECUTABLE} setup.py
+  INSTALL_COMMAND env EXTERNALS=${cdat_BINARY_DIR}/Externals ${LIBRARY_PATH}=${RUNTIME_FLAGS} ${PYTHON_EXECUTABLE} setup.py build --force install
   #INSTALL_COMMAND ${CMAKE_COMMAND} -DWORKING_DIR=<SOURCE_DIR> -DPYTHON_INSTALL_ARGS=${qt_flags} -P ${cdat_CMAKE_BINARY_DIR}/cdat_python_install_step.cmake
   DEPENDS ${gui_support_DEPENDENCIES}
 )
