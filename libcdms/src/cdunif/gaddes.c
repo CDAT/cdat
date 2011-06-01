@@ -22,6 +22,7 @@
 #include <math.h>
 #include <ctype.h>
 #include "grads.h"
+#include <string.h>
 
 extern struct gamfcmn mfcmn;
 static char pout[256];

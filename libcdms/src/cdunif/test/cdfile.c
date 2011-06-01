@@ -3,6 +3,8 @@
 					     /* to stdout */
 #include <stdio.h>
 #include <cdunif.h>
+#include <string.h>
+#include <stdlib.h>
 
 main(int argc, char *argv[]){
 
