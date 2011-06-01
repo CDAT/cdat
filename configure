@@ -652,6 +652,7 @@ LIBS
 build_alias
 host_alias
 target_alias
+GIT_TAG
 PREFIX_PATH
 PYTHON_MAJOR
 PYTHON_MINOR
@@ -2142,13 +2143,15 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
-SVN_TAG="rev"`./get_svn_version.sh`
-if test ${SVN_TAG} = "rev" ; then
-  SVN_TAG=""
+GIT_TAG=`./get_git_version.sh`
+if test "-"${GIT_TAG} = "-" ; then
+  CDAT_VERSION=${PACKAGE_VERSION}
+else
+  CDAT_VERSION=${PACKAGE_VERSION}"-"${GIT_TAG}
 fi
-CDAT_VERSION=${PACKAGE_VERSION}${SVN_TAG}
 
 ac_config_files="$ac_config_files Makefile site.cfg README.txt Scripts/cdatversion exsrc/CMakeCache.txt checked_get.sh exsrc/src/pbmplus/Makefile matplotlib.setup.cfg"
+
 
 
 
@@ -13140,6 +13143,7 @@ LIBS!$LIBS$ac_delim
 build_alias!$build_alias$ac_delim
 host_alias!$host_alias$ac_delim
 target_alias!$target_alias$ac_delim
+GIT_TAG!$GIT_TAG$ac_delim
 PREFIX_PATH!$PREFIX_PATH$ac_delim
 PYTHON_MAJOR!$PYTHON_MAJOR$ac_delim
 PYTHON_MINOR!$PYTHON_MINOR$ac_delim
@@ -13199,7 +13203,6 @@ FT_GZ!$FT_GZ$ac_delim
 FT_MAJOR!$FT_MAJOR$ac_delim
 FT_MINOR!$FT_MINOR$ac_delim
 FT_PATCH!$FT_PATCH$ac_delim
-FT_MAJOR_SRC!$FT_MAJOR_SRC$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -13241,6 +13244,7 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+FT_MAJOR_SRC!$FT_MAJOR_SRC$ac_delim
 FT_MINOR_SRC!$FT_MINOR_SRC$ac_delim
 FT_PATCH_SRC!$FT_PATCH_SRC$ac_delim
 FTCFG_URL!$FTCFG_URL$ac_delim
@@ -13337,7 +13341,6 @@ MATPLOTLIB_MINOR_SRC!$MATPLOTLIB_MINOR_SRC$ac_delim
 MATPLOTLIB_PATCH_SRC!$MATPLOTLIB_PATCH_SRC$ac_delim
 PyOpenGL_URL!$PyOpenGL_URL$ac_delim
 PyOpenGL_GZ!$PyOpenGL_GZ$ac_delim
-PyOpenGL_MAJOR!$PyOpenGL_MAJOR$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -13379,6 +13382,7 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+PyOpenGL_MAJOR!$PyOpenGL_MAJOR$ac_delim
 PyOpenGL_MINOOR!$PyOpenGL_MINOOR$ac_delim
 PyOpenGL_PATCH!$PyOpenGL_PATCH$ac_delim
 PyOpenGL_MAJOR_SRC!$PyOpenGL_MAJOR_SRC$ac_delim
@@ -13475,7 +13479,6 @@ PyQt_GZ!$PyQt_GZ$ac_delim
 PyQt_URL!$PyQt_URL$ac_delim
 PyQt_PLATFORM!$PyQt_PLATFORM$ac_delim
 PyQt_MAJOR!$PyQt_MAJOR$ac_delim
-PyQt_MINOR!$PyQt_MINOR$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -13517,6 +13520,7 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+PyQt_MINOR!$PyQt_MINOR$ac_delim
 PyQt_PATCH!$PyQt_PATCH$ac_delim
 PyQt_MAJOR_SRC!$PyQt_MAJOR_SRC$ac_delim
 PyQt_MINOR_SRC!$PyQt_MINOR_SRC$ac_delim
@@ -13613,7 +13617,6 @@ LN_S!$LN_S$ac_delim
 SED!$SED$ac_delim
 RANLIB!$RANLIB$ac_delim
 FC!$FC$ac_delim
-FCFLAGS!$FCFLAGS$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -13655,6 +13658,7 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+FCFLAGS!$FCFLAGS$ac_delim
 ac_ct_FC!$ac_ct_FC$ac_delim
 F77!$F77$ac_delim
 FFLAGS!$FFLAGS$ac_delim
@@ -13708,7 +13712,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 51; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 52; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
