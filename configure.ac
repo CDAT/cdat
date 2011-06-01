@@ -6,14 +6,16 @@ dnl AC_PREREQ(2.59)
 AC_SUBST(SHELL)
 
 AC_INIT(cdat, 6.0.alpha, doutriaux1@llnl.gov)
-SVN_TAG="rev"`./get_svn_version.sh`
-if test ${SVN_TAG} = "rev" ; then
-  SVN_TAG=""
+GIT_TAG=`./get_git_version.sh`
+if test "-"${GIT_TAG} = "-" ; then
+  CDAT_VERSION=${PACKAGE_VERSION}
+else
+  CDAT_VERSION=${PACKAGE_VERSION}"-"${GIT_TAG}
 fi
-CDAT_VERSION=${PACKAGE_VERSION}${SVN_TAG}
 AC_PREFIX_DEFAULT([/opt/cdat])
 AC_CONFIG_FILES([Makefile site.cfg README.txt Scripts/cdatversion exsrc/CMakeCache.txt checked_get.sh exsrc/src/pbmplus/Makefile matplotlib.setup.cfg ],[chmod +x checked_get.sh])
 
+AC_SUBST(GIT_TAG)
 
 dnl  Lib VERSION NUMBERS TO CHECK AGAINST
 PYTHON_MAJOR=2

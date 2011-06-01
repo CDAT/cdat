@@ -301,6 +301,7 @@ ifeq (@ESG@,yes)
 #	(cd @EXTERNALS@ ; rm -rf esgcet ; svn co http://www-pcmdi.llnl.gov/svn/repository/Esgcet/trunk/esgcet esgcet ; cd esgcet ; @PYTHON@ setup.py --verbose develop  ) > logs/ESGCET.LOG
 	pwd
 endif
+	@curl http://uv-cdat.llnl.gov/UVCDATLogger/`whoami`/`uname`/bldcnf/@GIT_TAG@
 clean:
 	rm -rf build
 	./clean_script all

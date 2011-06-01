@@ -19,8 +19,16 @@
 #################################################################################
 """
 import vcs.info
-
+import cdat_info
 import sys
+try:
+    if cdat_info.ping is False:
+        import urllib2,os
+        urllib2.urlopen("http://uv-cdat.llnl.gov/UVCDATLogger/%s/%s/cdat/start" % (os.getlogin(),sys.platform))
+        cdat_info.ping = True
+except:
+    cdat_info.ping = False
+    pass
 if sys.executable[-4:]!='cdat' and sys.platform in ['darwin'] and (vcs.info.WM=='QT' or vcs.info.EM=='QT'):
     raise ImportError,"if you are going to use vcs you need to run this as 'cdat' not %s" % sys.executable
 import slabapi # to make sure it is initialized

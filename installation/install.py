@@ -201,6 +201,7 @@ Failed to find X11 directories. Please see README.txt for instructions.
     f = open('cdat_info.py', 'w')
     print >> f,"""
 Version = '%s'
+ping = False
 def version():
     return %s
 """ % (Version,str(version))
