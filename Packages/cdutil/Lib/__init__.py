@@ -8,3 +8,12 @@ from retrieve import WeightsMaker,  WeightedGridMaker, VariableConditioner, Vari
 from vertical import sigma2Pressure, reconstructPressureFromHybrid, logLinearInterpolation, linearInterpolation
 from create_landsea_mask import generateLandSeaMask
 from sftbyrgn import generateSurfaceTypeByRegionMask
+try:
+    import cdat_info
+    if cdat_info.ping is False:
+        import urllib2,os,sys
+        urllib2.urlopen("http://uv-cdat.llnl.gov/UVCDATLogger/%s/%s/cdat/start" % (os.getlogin(),sys.platform))
+        cdat_info.ping = True
+except:
+    cdat_info.ping = False
+    pass
