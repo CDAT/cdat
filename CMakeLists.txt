@@ -329,13 +329,19 @@ add_cdat_package(PyOpenGL)
 add_cdat_package(NUMPY)
 add_cdat_package(Pmw)
 
-add_cdat_package(ParaView)
+option(CDAT_BUILD_PARAVIEW "Build ParaView" OFF)
+if(CDAT_BUILD_PARAVIEW)
+  add_cdat_package(ParaView)
+endif()
 
 add_cdat_package(CMOR)
 add_cdat_package(CDAT)
 add_cdat_package(gui_support)
 
-add_cdat_package(VisTrails)
+option(CDAT_BUILD_VISTRAILS "Build VisTrails" OFF)
+if(CDAT_BUILD_VisTrails)
+  add_cdat_package(VisTrails)
+endif()
 
 #-----------------------------------------------------------------------------
 # Construct Include and Link variables
