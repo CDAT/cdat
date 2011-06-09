@@ -487,3 +487,5 @@ configure_file(${cdat_SOURCE_DIR}/checked_get.sh.in
   ${cdat_SOURCE_DIR}/checked_get.sh
   @ONLY)
 
+include(CDATLogger)
+
