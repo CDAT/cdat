@@ -411,8 +411,10 @@ CANVASINFO_LINK    cptr; /* connection ID info */
           if (cptr->connect_id.canvas_pixmap != (Pixmap) NULL)
               XFreePixmap(cptr->connect_id.display, cptr->connect_id.canvas_pixmap);
            cptr->connect_id.canvas_pixmap = copy_pixmap( cptr->connect_id );
+#elif defined USECAIRO
+	   /* Nothing to do for QT */
 #else
-	   fprintf(stderr,"humm... maybe we need some Qt code for procLoop_cdat\n");
+	   fprintf(stderr,"humm... maybe we need some code for procLoop_cdat\n");
 #endif
         }
 }
