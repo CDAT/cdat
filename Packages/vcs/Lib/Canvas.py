@@ -67,6 +67,11 @@ canvas_closed = 0
 #import Pmw
 import vcsaddons
 
+from PyQt4 import QtGui,QtCore
+def showerror(msg):
+    d=QtGui.QErrorMessage()
+    d.showMessage(msg)
+    d.exec_()
 
 def dictionarytovcslist(dictionary,name):
     for k in dictionary.keys():
@@ -5756,7 +5761,7 @@ Options:::
     #                                                                           #
     #############################################################################
     def templateeditor(self, template_name='default', template_orig_name='default', plot=None, gui_parent=None, canvas = None, called_from = 0):
-        from tkMessageBox import showerror
+        ##from tkMessageBox import showerror
         '''
  Function: templateeditor
 
@@ -8264,7 +8269,7 @@ class animate_obj:
    def create( self, parent=None, min=None, max=None, save_file=None, thread_it = 1, rate=5., bitrate=None, ffmpegoptions='' ):
       from vcs import minmax
       from numpy.ma import maximum,minimum
-      from tkMessageBox import showerror
+      ##from tkMessageBox import showerror
 
       # Cannot "Run" or "Create" an animation while already creating an animation
       if self.run_flg == 1: return
@@ -8585,7 +8590,7 @@ class animate_obj:
    # Load animation from a stored Raster file.   				#
    ##############################################################################
    def load_from_file( self, parent=None, load_file=None, thread_it = 1 ):
-      from tkMessageBox import showerror
+      ##from tkMessageBox import showerror
       if os.access(load_file, os.R_OK) == 0:
          showerror( "Error Message to the User", "The specfied file does not have read permission or does not exist. Please check the availability of the file.")
          return
