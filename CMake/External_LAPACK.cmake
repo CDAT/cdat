@@ -1,7 +1,7 @@
 # The LAPACK external project
 
 set(lapack_source "${CMAKE_CURRENT_BINARY_DIR}/build/LAPACK")
-set(lapack_install "${CMAKE_INSTALL_PREFIX}")
+set(lapack_install "${cdat_EXTERNALS}")
 set(NUMPY_LAPACK_binary ${lapack_binary})
 
 ExternalProject_Add(LAPACK

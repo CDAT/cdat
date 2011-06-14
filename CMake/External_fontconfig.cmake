@@ -1,6 +1,6 @@
 
 set(fontconfig_source "${CMAKE_CURRENT_BINARY_DIR}/build/fontconfig")
-set(fontconfig_install "${CMAKE_INSTALL_PREFIX}")
+set(fontconfig_install "${cdat_EXTERNALS}")
 
 ExternalProject_Add(fontconfig
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}

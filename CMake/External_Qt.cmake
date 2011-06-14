@@ -1,6 +1,6 @@
 
 set(qt_source "${CMAKE_CURRENT_BINARY_DIR}/build/Qt")
-set(qt_install_dir "${CMAKE_INSTALL_PREFIX}")
+set(qt_install_dir "${cdat_EXTERNALS}")
 
 if(WIN32)
   # if jom is in the path use it as it will be faster

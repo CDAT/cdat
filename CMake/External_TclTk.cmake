@@ -1,7 +1,7 @@
 
 set(tcl_source "${CMAKE_CURRENT_BINARY_DIR}/build/tcl")
 set(tk_source "${CMAKE_CURRENT_BINARY_DIR}/build/tk")
-set(tcltk_install "${CMAKE_INSTALL_PREFIX}")
+set(tcltk_install "${cdat_EXTERNALS}")
 
 set(tcltk_configure_args --enable-shared)
 

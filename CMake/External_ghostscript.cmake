@@ -1,6 +1,6 @@
 
 set(ghostscript_source "${CMAKE_CURRENT_BINARY_DIR}/build/ghostscript")
-set(ghostscript_install "${CMAKE_INSTALL_PREFIX}")
+set(ghostscript_install "${cdat_EXTERNALS}")
 
 set(ghostscripts_args "--with-drivers=PS,BMP --disable-cups")
 

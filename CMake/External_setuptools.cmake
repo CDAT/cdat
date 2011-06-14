@@ -1,6 +1,6 @@
 
 set(setuptools_source "${CMAKE_CURRENT_BINARY_DIR}/build/setuptools")
-set(setuptools_install "${CMAKE_INSTALL_PREFIX}")
+set(setuptools_install "${cdat_EXTERNALS}")
 
 configure_file(${cdat_CMAKE_SOURCE_DIR}/setuptools_make_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/setuptools_make_step.cmake

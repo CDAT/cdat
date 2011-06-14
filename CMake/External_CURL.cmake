@@ -1,6 +1,6 @@
 
 set(curl_source "${CMAKE_CURRENT_BINARY_DIR}/build/CURL")
-set(curl_install "${CMAKE_INSTALL_PREFIX}")
+set(curl_install "${cdat_EXTERNALS}")
 
 ExternalProject_Add(CURL
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}

@@ -6,7 +6,7 @@ if(WIN32)
 
   set(png_source "${CMAKE_CURRENT_BINARY_DIR}/png")
   set(png_binary "${CMAKE_CURRENT_BINARY_DIR}/png-build")
-  set(png_install "${CMAKE_INSTALL_PREFIX}")
+  set(png_install "${cdat_EXTERNALS}")
 
   ExternalProject_Add(png
   URL ${PNG_URL}/${PNG_GZ}
@@ -29,7 +29,7 @@ if(WIN32)
 else()
 
   set(png_source "${CMAKE_CURRENT_BINARY_DIR}/build/png")
-  set(png_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
+  set(png_install "${cdat_EXTERNALS}")
 
   ExternalProject_Add(png
     DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}

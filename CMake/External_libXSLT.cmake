@@ -1,6 +1,6 @@
 
 set(libXSLT_source "${CMAKE_CURRENT_BINARY_DIR}/build/libXSLT")
-set(libXSLT_install "${CMAKE_INSTALL_PREFIX}")
+set(libXSLT_install "${cdat_EXTERNALS}")
 
 if(NOT LIBXML2_FOUND)
   set(libXSLT_configure_args --with-libxml-prefix=${libXSLT_install})

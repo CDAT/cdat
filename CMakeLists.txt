@@ -7,7 +7,6 @@ project(cdat)
 
 set(cdat_CMAKE_SOURCE_DIR ${cdat_SOURCE_DIR}/CMake)
 set(cdat_CMAKE_BINARY_DIR ${cdat_BINARY_DIR}/CMake)
-set(cdat_EXTERNALS ${cdat_BINARY_DIR}/Externals)
 set(cdat_external_patch_dir ${cdat_SOURCE_DIR}/exsrc)
 
 if("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local")

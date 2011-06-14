@@ -1,6 +1,6 @@
 
 set(uuid_source "${CMAKE_CURRENT_BINARY_DIR}/uuid")
-set(uuid_install "${CMAKE_INSTALL_PREFIX}")
+set(uuid_install "${cdat_EXTERNALS}")
 
 ExternalProject_Add(uuid
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}

@@ -1,8 +1,8 @@
 # The CLAPACK external project
 
-set(clapack_source "${CMAKE_CURRENT_BINARY_DIR}/build/LAPACK")
-set(clapack_binary "${CMAKE_CURRENT_BINARY_DIR}/build/LAPACK-build")
-set(clapack_binary "${CMAKE_INSTALL_PREFIX}")
+set(clapack_source "${cdat_EXTERNALS}/build/LAPACK")
+set(clapack_binary "${cdat_EXTERNALS}/build/LAPACK-build")
+set(clapack_binary "${cdat_EXTERNALS}")
 set(NUMPY_LAPACK_binary ${clapack_binary})
 
 #

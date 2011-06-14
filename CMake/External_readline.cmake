@@ -1,7 +1,7 @@
 
 
 set(readline_source "${CMAKE_CURRENT_BINARY_DIR}/build/readline")
-set(readline_install "${CMAKE_INSTALL_PREFIX}")
+set(readline_install "${cdat_EXTERNALS}")
 
 ExternalProject_Add(readline
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}

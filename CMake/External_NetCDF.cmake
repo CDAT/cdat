@@ -1,7 +1,7 @@
 
 set(netcdf_source "${CMAKE_CURRENT_BINARY_DIR}/build/netcdf")
-set(netcdf_install "${CMAKE_INSTALL_PREFIX}")
-set(netcdf_configure_args "--enable-netcdf-4^^--with-hdf5=${CMAKE_INSTALL_PREFIX}")
+set(netcdf_install "${cdat_EXTERNALS}")
+set(netcdf_configure_args "--enable-netcdf-4^^--with-hdf5=${cdat_EXTERNALS}")
 
 ExternalProject_Add(NetCDF
   LIST_SEPARATOR ^^

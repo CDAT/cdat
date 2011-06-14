@@ -1,6 +1,6 @@
 
 set(R_source "${CMAKE_CURRENT_BINARY_DIR}/build/R")
-set(R_install "${CMAKE_INSTALL_PREFIX}")
+set(R_install "${cdat_EXTERNALS}")
 
 ExternalProject_Add(R
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
