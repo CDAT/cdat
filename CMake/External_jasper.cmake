@@ -1,6 +1,6 @@
 
 set(jasper_source "${CMAKE_CURRENT_BINARY_DIR}/build/jasper")
-set(jasper_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
+set(jasper_install "${CMAKE_INSTALL_PREFIX}")
 
 ExternalProject_Add(jasper
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}

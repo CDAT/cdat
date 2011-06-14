@@ -1,6 +1,6 @@
 
 set(g2clib_source "${CMAKE_CURRENT_BINARY_DIR}/build/g2clib")
-set(g2clib_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
+set(g2clib_install "${CMAKE_INSTALL_PREFIX}")
 
 ExternalProject_Add(g2clib
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}

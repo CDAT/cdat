@@ -1,6 +1,6 @@
 
 set(termcap_source "${CMAKE_CURRENT_BINARY_DIR}/build/termcap")
-set(termcap_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
+set(termcap_install "${CMAKE_INSTALL_PREFIX}")
 
 ExternalProject_Add(termcap
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}

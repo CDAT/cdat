@@ -1,6 +1,6 @@
 
 set(Pmw_source "${CMAKE_CURRENT_BINARY_DIR}/Pmw")
-set(Pmw_install "${CMAKE_CURRENT_BINARY_DIR}/Pmw-install")
+set(Pmw_install "${CMAKE_INSTALL_PREFIX}")
 
 configure_file(${cdat_CMAKE_SOURCE_DIR}/pmw_make_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/pmw_make_step.cmake

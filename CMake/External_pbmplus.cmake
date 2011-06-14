@@ -1,6 +1,6 @@
 
 set(pbmplus_source "${CMAKE_CURRENT_BINARY_DIR}/build/pbmplus")
-set(pbmplus_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
+set(pbmplus_install "${CMAKE_INSTALL_PREFIX}")
 
 #cp ../../exsrc/src/pbmplus/pbmplus.h . ; cp ../../exsrc/src/pbmplus/libpbm1.c pbm  ;cp ../../exsrc/src/pbmplus/Makefile .
 

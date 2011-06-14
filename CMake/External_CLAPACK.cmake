@@ -2,7 +2,7 @@
 
 set(clapack_source "${CMAKE_CURRENT_BINARY_DIR}/build/LAPACK")
 set(clapack_binary "${CMAKE_CURRENT_BINARY_DIR}/build/LAPACK-build")
-set(clapack_binary "${CMAKE_CURRENT_BINARY_DIR}/build/LAPACK-install")
+set(clapack_binary "${CMAKE_INSTALL_PREFIX}")
 set(NUMPY_LAPACK_binary ${clapack_binary})
 
 #

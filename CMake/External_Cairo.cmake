@@ -1,6 +1,6 @@
 
 set(Cairo_source "${CMAKE_CURRENT_BINARY_DIR}/build/Cairo")
-set(Cairo_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
+set(Cairo_install "${CMAKE_INSTALL_PREFIX}")
 
 ExternalProject_Add(Cairo
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}

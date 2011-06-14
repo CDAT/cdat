@@ -1,6 +1,6 @@
 
 set(wget_source "${CMAKE_CURRENT_BINARY_DIR}/build/wget")
-set(wget_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
+set(wget_install "${CMAKE_INSTALL_PREFIX}")
 
 ExternalProject_Add(wget
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}

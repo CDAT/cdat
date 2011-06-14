@@ -4,7 +4,7 @@ if(WIN32)
 
   set(zlib_source "${CMAKE_CURRENT_BINARY_DIR}/zlib")
   set(zlib_binary "${CMAKE_CURRENT_BINARY_DIR}/zlib-build")
-  set(zlib_install "${CMAKE_CURRENT_BINARY_DIR}/zlib-install")
+  set(zlib_install "${CMAKE_INSTALL_PREFIX}")
 
   ExternalProject_Add(zlib
     DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}

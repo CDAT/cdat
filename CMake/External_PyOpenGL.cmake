@@ -1,6 +1,6 @@
 
 set(PyOpenGL_source "${CMAKE_CURRENT_BINARY_DIR}/PyOpenGL")
-set(PyOpenGL_install "${CMAKE_CURRENT_BINARY_DIR}/PyOpenGL-install")
+set(PyOpenGL_install "${CMAKE_INSTALL_PREFIX}")
 
 configure_file(${cdat_CMAKE_SOURCE_DIR}/pyopengl_make_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/pyopengl_make_step.cmake

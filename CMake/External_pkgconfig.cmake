@@ -1,6 +1,6 @@
 
 set(pkgconfig_source "${CMAKE_CURRENT_BINARY_DIR}/build/pkgconfig")
-set(pkgconfig_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
+set(pkgconfig_install "${CMAKE_INSTALL_PREFIX}")
 
 ExternalProject_Add(pkgconfig
   URL ${PKG_URL}/${PKG_GZ}

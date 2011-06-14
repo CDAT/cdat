@@ -1,6 +1,6 @@
 
 set(tiff_source "${CMAKE_CURRENT_BINARY_DIR}/build/tiff")
-set(tiff_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
+set(tiff_install "${CMAKE_INSTALL_PREFIX}")
 
 ExternalProject_Add(tiff
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}

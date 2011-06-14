@@ -1,6 +1,6 @@
 
 set(curl_source "${CMAKE_CURRENT_BINARY_DIR}/build/CURL")
-set(curl_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
+set(curl_install "${CMAKE_INSTALL_PREFIX}")
 
 ExternalProject_Add(CURL
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}

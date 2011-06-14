@@ -1,6 +1,6 @@
 
 set(gifsicle_source "${CMAKE_CURRENT_BINARY_DIR}/build/gifsicle")
-set(gifsicle_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
+set(gifsicle_install "${CMAKE_INSTALL_PREFIX}")
 
 ExternalProject_Add(gifsicle
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}

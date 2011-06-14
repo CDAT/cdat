@@ -1,6 +1,6 @@
 
 set(udunits_source "${CMAKE_CURRENT_BINARY_DIR}/build/udunits2")
-set(udunits_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
+set(udunits_install "${CMAKE_INSTALL_PREFIX}")
 
 ExternalProject_Add(udunits2
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}

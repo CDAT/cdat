@@ -6,7 +6,7 @@ if(WIN32)
 
   set(png_source "${CMAKE_CURRENT_BINARY_DIR}/png")
   set(png_binary "${CMAKE_CURRENT_BINARY_DIR}/png-build")
-  set(png_install "${CMAKE_CURRENT_BINARY_DIR}/png-install")
+  set(png_install "${CMAKE_INSTALL_PREFIX}")
 
   ExternalProject_Add(png
   URL ${PNG_URL}/${PNG_GZ}

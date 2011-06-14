@@ -1,6 +1,6 @@
 
 set(HDF5_source "${CMAKE_CURRENT_BINARY_DIR}/build/HDF5")
-set(HDF5_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
+set(HDF5_install "${CMAKE_INSTALL_PREFIX}")
 
 # we disable HDF5 warnings because it has way too many of them.
 ExternalProject_Add(HDF5
