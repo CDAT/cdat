@@ -27,7 +27,7 @@ if(WIN32)
 else()
 
   set(zlib_source "${CMAKE_CURRENT_BINARY_DIR}/build/zlib")
-  set(zlib_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
+  set(zlib_install "${cdat_EXTERNALS}")
 
   ExternalProject_Add(zlib
     DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}

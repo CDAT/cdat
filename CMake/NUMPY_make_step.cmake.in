@@ -1,5 +1,5 @@
 message("Building NUMPY:\n@NUMPY_binary@")
-set(ENV{@LIBRARY_PATH@} "@cdat_BINARY_DIR@/Externals/lib:$ENV{@LIBRARY_PATH@}")
+set(ENV{@LIBRARY_PATH@} "@cdat_EXTERNALS@/lib:$ENV{@LIBRARY_PATH@}")
 set(ENV{VS_UNICODE_OUTPUT} "")
 
 if(APPLE)
