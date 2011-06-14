@@ -220,7 +220,7 @@ find_package(PkgConfig)
 set(PKGCONFIG_FOUND ${PKG_CONFIG_FOUND})
 
 if(NOT PKG_CONFIG_FOUND)
-  set(cdat_PKG_CONFIG_EXECUTABLE ${cdat_BINARY_DIR}/Externals/bin/pkg-config)
+  set(cdat_PKG_CONFIG_EXECUTABLE ${cdat_EXTERNALS}/bin/pkg-config)
 else()
   set(cdat_PKG_CONFIG_EXECUTABLE ${PKG_CONFIG_EXECUTABLE})
 endif()
