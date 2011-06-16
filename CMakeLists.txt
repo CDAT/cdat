@@ -213,8 +213,7 @@ find_package(Qt4)
 
 option(CDAT_USE_SYSTEM_INTROSPECTION "Build ParaView" OFF)
 
-# By default lets build everything but make an exception for Qt.
-if(CDAT_USE_SYSTEM_INTROSPECTION)
+
 # Attempt to find each package on the system
 find_package(PkgConfig)
 set(PKGCONFIG_FOUND ${PKG_CONFIG_FOUND})
@@ -227,6 +226,10 @@ endif()
 
 find_package(MD5)
 find_package(Wget)
+
+# By default lets build everything but make an exception for Qt.
+if(CDAT_USE_SYSTEM_INTROSPECTION)
+
 find_package(CURL)
 find_package(LibXml2)
 find_package(LibXslt)
