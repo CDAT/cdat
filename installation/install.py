@@ -227,6 +227,15 @@ def get_drs_libs():
 """
 
     print >>f, """\
+def pingPCMDIdb(action,key):
+  try:
+    import urllib2,sys,os,cdat_info
+    cdat_info.ping=True
+    if not "--norecord" in sys.argv:
+        urllib2.urlopen("http://uv-cdat.llnl.gov/UVCDATLogger/%%s/%%s/%%s/%%s" %% (os.getlogin(),sys.platform,action,key),None,1)
+  except:
+    pass
+
 CDMS_INCLUDE_DAP = %s
 CDMS_DAP_DIR = %s
 CDMS_HDF_DIR = %s
