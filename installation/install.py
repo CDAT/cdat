@@ -586,7 +586,10 @@ def main(arglist):
                 md5=md5.hexdigest()
             while md5 != sp[0] and tries<5:
                 print 'Redownloading target: %s' % fnm
-                ln = os.popen("%s --no-check-certificate -O %s %s/%s" % (wget,target,data_source_url,fnm)).readlines()
+                print 'target: ', target
+                print 'data_source_url', data_source_url
+                print 'fnm', fnm
+                ln = os.popen("%s -O %s %s/%s" % (wget,target,data_source_url,fnm)).readlines()
                 tries+=1
                 data_files=open(target)
                 t=data_files.read()
