@@ -26,6 +26,6 @@ elseif(UNIX)
 endif()
 
 EXECUTE_PROCESS(
-  COMMAND sh configure --prefix=@cdat_EXTERNALS@ ${library_param} --enable-unicode=ucs2
+  COMMAND sh configure --prefix=@CMAKE_INSTALL_PREFIX@ ${library_param} --enable-unicode=ucs2
   WORKING_DIRECTORY "@python_SOURCE_DIR@"
   )
