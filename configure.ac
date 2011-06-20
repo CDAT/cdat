@@ -260,8 +260,8 @@ AC_SUBST(TCLTK_VERSION)
 RL_MAJOR=5
 RL_MINOR=2
 RL_MAJOR_SRC=6
-RL_MINOR_SRC=1
-READLINE_URL=ftp://ftp.gnu.org/gnu/readline
+RL_MINOR_SRC=2
+READLINE_URL=http://ftp.gnu.org/gnu/readline
 READLINE_GZ=readline-${RL_MAJOR_SRC}.${RL_MINOR_SRC}.tar.gz
 AC_SUBST(READLINE_URL)
 AC_SUBST(READLINE_GZ)
@@ -1962,27 +1962,28 @@ AC_ARG_WITH([qt-inc],
 	    [],
 	    [with_qt_inc='no'])
 AC_SUBST(BUILDQT)
-if test ${with_qt} != "no" -a ${with_qt_bin} = "no" -a ${with_qt_lib} = "no" -a ${with_qt_inc} = "no" ; then
- COMPILE_XGKS=no
- if test ${with_qt} = "yes" ; then
+if test ${enable_cdms_only} != "-yes" ; then
+ if test ${with_qt} != "no" -a ${with_qt_bin} = "no" -a ${with_qt_lib} = "no" -a ${with_qt_inc} = "no" ; then
+  COMPILE_XGKS=no
+  if test ${with_qt} = "yes" ; then
    QMAKE=${EXTERNALS}/bin/qmake
- else
+  else
    QMAKE=${with_qt}/bin/qmake
- fi
- AC_CHECK_FILE(${QMAKE},[HAS_QMAKE=yes],[HAS_QMAKE=no])
- if test ${HAS_QMAKE} = "no" ; then 
+  fi
+  AC_CHECK_FILE(${QMAKE},[HAS_QMAKE=yes],[HAS_QMAKE=no])
+  if test ${HAS_QMAKE} = "no" ; then 
    AC_MSG_WARN([Could not find qmake at ${QMAKE} will build Qt for you])
    BUILDQT="yes"
    PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}${PYOPTXTRAQT}" --with-qt="${EXTERNALS}
    QMAKE=${EXTERNALS}/bin/qmake
- else
-  if test ${with_qt} = "yes" ; then
-   PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}${PYOPTXTRAQT}" --with-qt="${EXTERNALS}
   else
-   PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}${PYOPTXTRAQT}" --with-qt="${with_qt}
+   if test ${with_qt} = "yes" ; then
+    PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}${PYOPTXTRAQT}" --with-qt="${EXTERNALS}
+   else
+    PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}${PYOPTXTRAQT}" --with-qt="${with_qt}
+   fi
   fi
- fi
-else
+ else
   if test ${with_qt_lib} != "no" ; then
    COMPILE_XGKS=no
    PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --with-qt-lib="${with_qt_lib}
@@ -2004,26 +2005,26 @@ else
        PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}${PYOPTXTRAQT}" --with-qt-bin="${with_qt_bin}
      fi
   fi
-fi
-AC_ARG_ENABLE([qt-debug],
+ fi
+ AC_ARG_ENABLE([qt-debug],
 	    [AS_HELP_STRING([--enable-qt-debug],[adds _debug to Qt libs])],
 	    [],
 	    [enable_qt_debug='no'])
-enble_qtdbg="-"${enable_qt_debug}
-if test ${enble_qtdbg} = "-yes" ; then
+ enble_qtdbg="-"${enable_qt_debug}
+ if test ${enble_qtdbg} = "-yes" ; then
      PYTHON_INSTALL_OPTIONS=${PYTHON_INSTALL_OPTIONS}" --qt-debug"
-fi;
+ fi;
 
-dnl ###########################################################
-dnl PyQT
-dnl ###########################################################
+ dnl ###########################################################
+ dnl PyQT
+ dnl ###########################################################
 
-BUILDVIS=yes
-AC_MSG_CHECKING([if python ${PYTHON} has PyQt4 support]) 
-if test [ `${PYTHON} -c "cmd = 'try:\n  import PyQt4\n  print 0\nexcept:\n  print 1'; exec(cmd)" 2>/dev/null` = "0" ] ; then
+ BUILDVIS=yes
+ AC_MSG_CHECKING([if python ${PYTHON} has PyQt4 support]) 
+ if test [ `${PYTHON} -c "cmd = 'try:\n  import PyQt4\n  print 0\nexcept:\n  print 1'; exec(cmd)" 2>/dev/null` = "0" ] ; then
   AC_MSG_RESULT([yes])
   BUILDVIS=no
-else
+ else
   AC_MSG_RESULT([no])
   AC_MSG_NOTICE([your python does not have PyQt4, we will build it])
   BUILDVIS=yes
@@ -2039,8 +2040,8 @@ else
     fi;;
   esac
   PyQt_GZ=PyQt-${PyQt_PLATFORM}-gpl-${PyQt_MAJOR_SRC}.${PyQt_MINOR_SRC}.${PyQt_PATCH_SRC}.tar.gz
+ fi
 fi
-
 AC_MSG_NOTICE([])
 AC_MSG_NOTICE([************************************************************************])
 AC_MSG_NOTICE([                              SUMMARY])

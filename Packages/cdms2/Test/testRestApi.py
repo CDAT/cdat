@@ -10,7 +10,7 @@ test = "Luca"
 if test == "Luca":
     gateway = "esg-datanode.jpl.nasa.gov"
     #gateway = "test-datanode.jpl.nasa.gov"
-    restPath = "/esg-search2/ws/rest/search"
+    restPath = "/esg-search/ws/rest/search"
     datasetids = "%(project).%(obs_structure).%(realm).%(instrument).%(time_frequency)"
     datasetids = "%(project).%(crappy)"
     datasetids=None
@@ -44,7 +44,7 @@ stringType= False
 #mapping=None
 myGateway = cdms2.esgfConnection(gateway,mapping=mapping,datasetids=datasetids,fileids=fileids,restPath=restPath)
 stringType=False
-datasets =  myGateway.searchDatasets(stringType=stringType,variable="hus",version=1)
+datasets =  myGateway.searchDatasets(stringType=stringType,variable="hus")
 print datasets
 #sys.exit()
 if stringType:
@@ -69,8 +69,9 @@ else:
     #print datasets[0]
     #print datasets[0].files[:]
     i=0
-    print "Looking at:",datasets[i].id
-    search1 = datasets[i].search()
+    print "Looking at:",datasets[i].id,datasets[i].mapping
+    search1 = datasets[i].search()#searchString=True)
+    print search1
     print len(search1)
     search1.remap()
     print search1.mapped#["cmip5"]["output1"]["INM"]["inmcm4"]["amip"]["day"]["atmos"]["day"]["r1i1p1"].keys()
