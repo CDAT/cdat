@@ -70,6 +70,7 @@ import vcsaddons
 from PyQt4 import QtGui,QtCore
 class QAnimThread(QtCore.QThread):
     def __init__(self,parent,func,*args):
+        QtCore.QThread.__init__(self,parent)
         print "Func is:",func
         print "Args:",args
         self.func=func
@@ -77,6 +78,7 @@ class QAnimThread(QtCore.QThread):
     def run(self):
         print "RUNNING:"
         self.func(*self.args)
+        print "BACK"
         
 def showerror(msg):
     d=QtGui.QErrorMessage()
@@ -8360,8 +8362,8 @@ class animate_obj:
               #thread.start_new_thread( self.vcs_self.canvas.animate_init, (save_file,) )
               ## from cdatguiwrap import VCSQtManager
               ## w = VCSQtManager.window(0)
-              mythread=QAnimThread(None,self.vcs_self.canvas.animate_init,save_file)
-              mythread.start()
+              self.mythread=QAnimThread(None,self.vcs_self.canvas.animate_init,save_file)
+              self.mythread.start()
           else:
               self.vcs_self.canvas.animate_init( save_file )
       else: # ffmpeg stuff
