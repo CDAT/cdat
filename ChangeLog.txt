@@ -1,3 +1,9 @@
+2011-06-22 : recap (probably forgot many things):
+ 		- grib2 support
+		- restAPI support
+		- GUI code moved to uv-cdat repo
+		- forecast support
+		- gridspec support
 2010-06-17 : got Qt to build automatically, (or use the binaries) 
 2010-06-17 : got --enable-vistrails to work and build SIP and PyQt
 2010-06-15 : got the right LDFLAGS going to compile Fortran extensions under mac
