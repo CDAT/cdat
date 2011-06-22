@@ -213,7 +213,6 @@ find_package(Qt4)
 
 option(CDAT_USE_SYSTEM_INTROSPECTION "Build ParaView" OFF)
 
-
 # Attempt to find each package on the system
 find_package(PkgConfig)
 set(PKGCONFIG_FOUND ${PKG_CONFIG_FOUND})
