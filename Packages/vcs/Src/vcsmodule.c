@@ -1260,6 +1260,8 @@ PyObject *PyVCS_close(PyVCScanvas_Object *self, PyObject *args)
            Py_INCREF (Py_None);
            return Py_None;
 	}
+#elif defined QTWM 
+	/* nothing to do for Qt */
 #else
 	fprintf(stderr,"insert here your WM pseudo color colormap thing\n");
 #endif
@@ -1362,6 +1364,8 @@ PyObject *PyVCS_close(PyVCScanvas_Object *self, PyObject *args)
                      self->connect_id.canvas_pixmap = (Pixmap) NULL;
                  }
                  self->connect_id.canvas_pixmap = copy_pixmap(self->connect_id, self->canvas_id);
+#elif defined QTWM 
+	/* nothing to do for Qt */
 #else
 		 fprintf(stderr,"insert here your WM cpy to backing stor pixmap func\n");
 #endif

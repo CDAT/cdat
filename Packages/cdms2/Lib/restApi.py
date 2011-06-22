@@ -109,7 +109,9 @@ class esgfConnection(object,AutoAPI.AutoAPI):
         else:
             urltype="http://"
         try:
-            url = urllib2.urlopen("%s%s:%s/%s" % (urltype,self.host,self.port,rqst))
+            rqst="%s%s:%s/%s" % (urltype,self.host,self.port,rqst)
+            print "Request:%s"%rqst
+            url = urllib2.urlopen(rqst)
         except Exception,msg:
              raise self.EsgfObjectException(msg)
         r = url.read()
@@ -280,63 +282,66 @@ class esgfDataset(esgfConnection):
                         k = f.get("name")
                         keys[k]=self.extractTag(f)
                     if keys["type"]=="File":
-                        ## if self["id"]=="obs4cmip5.NASA-JPL.AQUA.AIRS.mon":
+                        ## if self["id"]=="obs4MIPs.NASA-JPL.AIRS.mon":
                         ##     verbose=True
                         ## else:
                         ##     verbose=False
+                        ## #verbose=True
                         ## if verbose: print "OK",keys["variable"],keys["file_id"],self["id"]
-                        #if verbose: print "FILEIDS:",self.fileids
-                        #if verbose: print "Fileids:",self.fileids.template
-                        if self.fileids is not None:
-                            try:
-                                #if verbose: print "file:",keys["file_id"],self.fileids.template
-                                k2 = self.fileids.reverse(keys["file_id"])
-                                #if verbose: print "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",k2
-                                for k in k2.keys():
-                                    keys[k]=k2[k]
-                            except:
-                                #if verbose: print "Failed:",ids[i].text,self.fileids.template
-                                pass
+                        ## if verbose: print "FILEIDS:",self.fileids
+                        ## if verbose: print "Fileids:",self.fileids.template
+                        ## if verbose: print "keys:",keys
+                        ## if self.fileids is not None:
+                        ##     try:
+                        ##         if verbose: print "file:",keys["file_id"],self.fileids.template
+                        ##         k2 = self.fileids.reverse(keys["file_id"])
+                        ##         if verbose: print "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",k2
+                        ##         for k in k2.keys():
+                        ##             keys[k]=k2[k]
+                        ##     except:
+                        ##         if verbose: print "Failed:",ids[i].text,self.fileids.template
+                        ##         pass
                         ## if verbose: print "KEYS FOR FILE:",keys.keys()
                         ## if verbose: print "INKEYS:",inKeys.keys()
-                        matched = True
-                        matchWithKeys = {}
-                        for k in self.keys():
-                            if k in self.originalKeys.keys():
-                                matchWithKeys[k]=self.originalKeys[k]
-                            else:
-                                matchWithKeys[k]=self[k]
-                        for s in skipped:
-                            try:
-                                matchWithKeys.pop(s)
-                            except:
-                                pass
-                        for k in inKeys.keys():
-                            matchWithKeys[k]=inKeys[k]
-                        ## ## if verbose: print "matching:",matchWithKeys.keys()
-                        for k in keys.keys():
-                            if k in matchWithKeys.keys():
-                                ## if verbose: print "Testing:",k,keys[k]
-                                v = matchWithKeys[k]
-                                if isinstance(v,(str,int,float)):
-                                    ## if verbose: print "\tComparing with:",v
-                                    if v != keys[k]:
-                                        matched = False
-                                        ## if verbose: print "\t\tNOPE"
-                                        break
-                                elif isinstance(v,list):
-                                    ## if verbose: print "\tComparing with (and %i more):%s"%(len(v),v[0]),v
-                                    if not keys[k] in v:
-                                        matched = False
-                                        ## if verbose: print "\t\tNOPE"
-                                        break
-                                else:
-                                    print "\twould compare %s with type: %s if I knew how to" % (str(v),type(v))
+                        ## matched = True
+                        ## matchWithKeys = {}
+                        ## for k in self.keys():
+                        ##     if k in self.originalKeys.keys():
+                        ##         matchWithKeys[k]=self.originalKeys[k]
+                        ##     else:
+                        ##         matchWithKeys[k]=self[k]
+                        ## for s in skipped:
+                        ##     try:
+                        ##         matchWithKeys.pop(s)
+                        ##     except:
+                        ##         pass
+                        ## for k in inKeys.keys():
+                        ##     matchWithKeys[k]=inKeys[k]
+                        ## if verbose: print "matching:",matchWithKeys.keys()
+                        ## for k in keys.keys():
+                        ##     if k in matchWithKeys.keys():
+                        ##         if verbose: print "Testing:",k,keys[k]
+                        ##         v = matchWithKeys[k]
+                        ##         if isinstance(v,(str,int,float)):
+                        ##             if verbose: print "\tComparing with:",v
+                        ##             if v != keys[k]:
+                        ##                 matched = False
+                        ##                 if verbose: print "\t\tNOPE"
+                        ##                 break
+                        ##         elif isinstance(v,list):
+                        ##             if verbose: print "\tComparing with (and %i more):%s"%(len(v),v[0]),v
+                        ##             if not keys[k] in v:
+                        ##                 matched = False
+                        ##                 if verbose: print "\t\tNOPE"
+                        ##                 break
+                        ##         else:
+                        ##             print "\twould compare %s with type: %s if I knew how to" % (str(v),type(v))
                         ## if verbose: print keys["file_id"],matched
-                        if matched :
-                            for k in self.keys():
-                                if not k in keys.keys():
-                                    keys[k]=self[k]
+                        ## if matched :
+                        ##     for k in self.keys():
+                        ##         if not k in keys.keys():
+                        ##             keys[k]=self[k]
+                        ##     print "KEYS:",keys
                             files.append(esgfFile(**keys))
         return files
             
@@ -399,8 +404,14 @@ class esgfDataset(esgfConnection):
     def search(self,**keys):
         #search = self.generateRequest(**keys)
         stringType=keys.get("stringType",False)
+        keys.update(self.originalKeys)
+        st=""
+        for k in keys.keys():
+            if k in ["searchString","stringType",]:
+                continue
+            st+="&%s=%s" % (k,keys[k])
         if self.resp is None:
-            self.resp = self._search("parent_id=%s&limit=%s&offset=%s" % (self["id"],self["limit"],self["offset"]),stringType=stringType)
+            self.resp = self._search("parent_id=%s&limit=%s&offset=%s%s" % (self["id"],self["limit"],self["offset"],st),stringType=stringType)
         if stringType:
             return self.resp
         return esgfFiles(self._extractFiles(self.resp,**keys),self)

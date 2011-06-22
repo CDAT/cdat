@@ -67,6 +67,23 @@ canvas_closed = 0
 #import Pmw
 import vcsaddons
 
+from PyQt4 import QtGui,QtCore
+class QAnimThread(QtCore.QThread):
+    def __init__(self,parent,func,*args):
+        QtCore.QThread.__init__(self,parent)
+        print "Func is:",func
+        print "Args:",args
+        self.func=func
+        self.args=args
+    def run(self):
+        print "RUNNING:"
+        self.func(*self.args)
+        print "BACK"
+        
+def showerror(msg):
+    d=QtGui.QErrorMessage()
+    d.showMessage(msg)
+    d.exec_()
 
 def dictionarytovcslist(dictionary,name):
     for k in dictionary.keys():
@@ -5756,7 +5773,7 @@ Options:::
     #                                                                           #
     #############################################################################
     def templateeditor(self, template_name='default', template_orig_name='default', plot=None, gui_parent=None, canvas = None, called_from = 0):
-        from tkMessageBox import showerror
+        ##from tkMessageBox import showerror
         '''
  Function: templateeditor
 
@@ -8264,7 +8281,7 @@ class animate_obj:
    def create( self, parent=None, min=None, max=None, save_file=None, thread_it = 1, rate=5., bitrate=None, ffmpegoptions='' ):
       from vcs import minmax
       from numpy.ma import maximum,minimum
-      from tkMessageBox import showerror
+      ##from tkMessageBox import showerror
 
       # Cannot "Run" or "Create" an animation while already creating an animation
       if self.run_flg == 1: return
@@ -8342,7 +8359,11 @@ class animate_obj:
 
       if save_file is None or save_file.split('.')[-1].lower()=='ras':
           if thread_it == 1:
-              thread.start_new_thread( self.vcs_self.canvas.animate_init, (save_file,) )
+              #thread.start_new_thread( self.vcs_self.canvas.animate_init, (save_file,) )
+              ## from cdatguiwrap import VCSQtManager
+              ## w = VCSQtManager.window(0)
+              self.mythread=QAnimThread(None,self.vcs_self.canvas.animate_init,save_file)
+              self.mythread.start()
           else:
               self.vcs_self.canvas.animate_init( save_file )
       else: # ffmpeg stuff
@@ -8585,7 +8606,7 @@ class animate_obj:
    # Load animation from a stored Raster file.   				#
    ##############################################################################
    def load_from_file( self, parent=None, load_file=None, thread_it = 1 ):
-      from tkMessageBox import showerror
+      ##from tkMessageBox import showerror
       if os.access(load_file, os.R_OK) == 0:
          showerror( "Error Message to the User", "The specfied file does not have read permission or does not exist. Please check the availability of the file.")
          return
