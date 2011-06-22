@@ -1,7 +1,7 @@
 # Autodetecting setup.py script for building the Python extensions
 #
 
-__version__ = "$Revision: 82272 $"
+__version__ = "$Revision: 86041 $"
 
 import sys, os, imp, re, optparse
 from glob import glob
@@ -354,7 +354,6 @@ class PyBuildExt(build_ext):
         add_dir_to_list(self.compiler.library_dirs, mylibdir)
         add_dir_to_list(self.compiler.include_dirs, myincdir)
         # end PCMDI change
-
         # Ensure that /usr/local is always used
         add_dir_to_list(self.compiler.library_dirs, '/usr/local/lib')
         add_dir_to_list(self.compiler.include_dirs, '/usr/local/include')
@@ -393,7 +392,12 @@ class PyBuildExt(build_ext):
                     for directory in reversed(options.dirs):
                         add_dir_to_list(dir_list, directory)
 
-        if os.path.normpath(sys.prefix) != '/usr':
+        if os.path.normpath(sys.prefix) != '/usr' \
+                and not sysconfig.get_config_var('PYTHONFRAMEWORK'):
+            # OSX note: Don't add LIBDIR and INCLUDEDIR to building a framework
+            # (PYTHONFRAMEWORK is set) to avoid # linking problems when
+            # building a framework with different architectures than
+            # the one that is currently installed (issue #7473)
             add_dir_to_list(self.compiler.library_dirs,
                             sysconfig.get_config_var("LIBDIR"))
             add_dir_to_list(self.compiler.include_dirs,
@@ -462,7 +466,7 @@ class PyBuildExt(build_ext):
         #
 
         # Some modules that are normally always on:
-        exts.append( Extension('_weakref', ['_weakref.c']) )
+        #exts.append( Extension('_weakref', ['_weakref.c']) )
 
         # array objects
         exts.append( Extension('array', ['arraymodule.c']) )
@@ -538,7 +542,11 @@ class PyBuildExt(build_ext):
         # supported...)
 
         # fcntl(2) and ioctl(2)
-        exts.append( Extension('fcntl', ['fcntlmodule.c']) )
+        libs = []
+        if (config_h_vars.get('FLOCK_NEEDS_LIBBSD', False)):
+            # May be necessary on AIX for flock function
+            libs = ['bsd']
+        exts.append( Extension('fcntl', ['fcntlmodule.c'], libraries=libs) )
         # pwd(3)
         exts.append( Extension('pwd', ['pwdmodule.c']) )
         # grp(3)
@@ -603,16 +611,18 @@ class PyBuildExt(build_ext):
         # Determine if readline is already linked against curses or tinfo.
         if do_readline and find_executable('ldd'):
             fp = os.popen("ldd %s" % do_readline)
-            for ln in fp:
-                if 'curses' in ln:
-                    readline_termcap_library = re.sub(
-                        r'.*lib(n?cursesw?)\.so.*', r'\1', ln
-                    ).rstrip()
-                    break
-                if 'tinfo' in ln: # termcap interface split out from ncurses
-                    readline_termcap_library = 'tinfo'
-                    break
-            fp.close()
+            ldd_output = fp.readlines()
+            ret = fp.close()
+            if ret is None or ret >> 8 == 0:
+                for ln in ldd_output:
+                    if 'curses' in ln:
+                        readline_termcap_library = re.sub(
+                            r'.*lib(n?cursesw?)\.so.*', r'\1', ln
+                        ).rstrip()
+                        break
+                    if 'tinfo' in ln: # termcap interface split out from ncurses
+                        readline_termcap_library = 'tinfo'
+                        break
         # Issue 7384: If readline is already linked against curses,
         # use the same library for the readline and curses modules.
         if 'curses' in readline_termcap_library:
@@ -1328,7 +1338,7 @@ class PyBuildExt(build_ext):
         # The pyexpat module was written by Paul Prescod after a prototype by
         # Jack Jansen.  The Expat source is included in Modules/expat/.  Usage
         # of a system shared libexpat.so is possible with --with-system-expat
-        # cofigure option.
+        # configure option.
         #
         # More information on Expat can be found at www.libexpat.org.
         #
@@ -1877,11 +1887,11 @@ class PyBuildExt(build_ext):
                    '_ctypes/callbacks.c',
                    '_ctypes/callproc.c',
                    '_ctypes/stgdict.c',
-                   '_ctypes/cfield.c',
-                   '_ctypes/malloc_closure.c']
+                   '_ctypes/cfield.c']
         depends = ['_ctypes/ctypes.h']
 
         if sys.platform == 'darwin':
+            sources.append('_ctypes/malloc_closure.c')
             sources.append('_ctypes/darwin/dlfcn_simple.c')
             extra_compile_args.append('-DMACOSX')
             include_dirs.append('_ctypes/darwin')
