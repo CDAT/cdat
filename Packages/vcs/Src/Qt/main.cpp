@@ -14,12 +14,12 @@
 QMutex canvasupdatemutex(QMutex::Recursive);
 
 extern "C" void vcs_acquire_update() {
-  fprintf(stderr,"mutex lock\n");
+  //fprintf(stderr,"mutex lock\n");
    canvasupdatemutex.lock();
 }
 
 extern "C" void vcs_release_update() {
-  fprintf(stderr,"mutex unlock\n");
+  //fprintf(stderr,"mutex unlock\n");
    canvasupdatemutex.unlock();
 }
 
