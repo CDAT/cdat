@@ -1392,17 +1392,17 @@ if test  ${enable_cdms_only} != "-yes" ; then
     HAVE_LIBLAPACK="yes"
     HAVE_LIBLAPACK95="yes"
   fi
-  dnl ########################################################
-  dnl  LIBJPEG
-  dnl ########################################################
-  AC_CHECK_LIB([jpeg],[jpeg_start_decompress],[COMPILE_LIBJPEG=no],[COMPILE_LIBJPEG=yes])
-  AC_CHECK_HEADER([jpeglib.h],[COMPILE_LIBJPEG=no],[COMPILE_LIBJPEG=yes])
 
   dnl ##########################################################
   dnl  UDPOSIX
   dnl ##########################################################
   AC_CHECK_HEADER([udposix.h],[COMPILE_XGKS=no],[COMPILE_XGKS=yes])
 fi
+dnl ########################################################
+dnl  LIBJPEG
+dnl ########################################################
+AC_CHECK_LIB([jpeg],[jpeg_start_decompress],[COMPILE_LIBJPEG=no],[COMPILE_LIBJPEG=yes])
+AC_CHECK_HEADER([jpeglib.h],[COMPILE_LIBJPEG=no],[COMPILE_LIBJPEG=yes])
 
 dnl ########################################################
 dnl  PYTHON Dependent parts
@@ -1612,18 +1612,18 @@ if test ${enable_esg} = "-yes" ; then
   AC_MSG_RESULT([no])
  fi
 fi
+dnl ###########################################################
+dnl LIBPNG
+dnl ###########################################################
+AC_MSG_CHECKING([for a usable libpng > ${PNG_MAJOR}.${PNG_MINOR}.${PNG_PATCH}])
+if AC_RUN_LOG([${PKG_CONFIG} --atleast-version ${PNG_MAJOR}.${PNG_MINOR}.${PNG_PATCH} --print-errors libpng ]); then
+  COMPILE_LIBPNG=no
+  AC_MSG_RESULT([yes])
+else
+  COMPILE_LIBPNG=yes  
+  AC_MSG_RESULT([no])
+fi
 if test  ${enable_cdms_only} != "-yes" ; then
-  dnl ###########################################################
-  dnl LIBPNG
-  dnl ###########################################################
-  AC_MSG_CHECKING([for a usable libpng > ${PNG_MAJOR}.${PNG_MINOR}.${PNG_PATCH}])
-  if AC_RUN_LOG([${PKG_CONFIG} --atleast-version ${PNG_MAJOR}.${PNG_MINOR}.${PNG_PATCH} --print-errors libpng ]); then
-    COMPILE_LIBPNG=no
-    AC_MSG_RESULT([yes])
-  else
-    COMPILE_LIBPNG=yes  
-    AC_MSG_RESULT([no])
-  fi
 
   AC_MSG_CHECKING([for a usable freetype > ${FT_MAJOR}.${FT_MINOR}.${FT_PATCH}])
   if AC_RUN_LOG([${PKG_CONFIG} --atleast-version ${FT_MAJOR}.${FT_MINOR}.${FT_PATCH} --print-errors freetype2]); then
