@@ -2,6 +2,9 @@
 
 """
 Abstract class for writing data into file
+Alex Pletzer, Tech-X Corp.
+This code is provided with the hope that it will be useful. 
+No guarantee is provided whatsoever. Use at your own risk.
 """
 
 import mvSphereMesh
