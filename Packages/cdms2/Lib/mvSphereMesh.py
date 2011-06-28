@@ -18,7 +18,7 @@ class SphereMesh:
         
         self.isRectilinear = True
         self.ndims = 0
-        self.elvDown = False
+        self.elvPositiveDown = False
         self.minElv = 0
         self.maxElv = 1
 
@@ -32,6 +32,9 @@ class SphereMesh:
         if type(elvs) != NoneType:
             self.minElvs = min(elvs[:])
             self.maxElvs = max(elvs[:])
+            if hasattr(elvs, 'positive'):
+                if getattr(elvs, 'positive') == 'down':
+                    self.elvPositiveDown = True
 
         # determine the dimensionality and 
         # whether the grid is rectilinear
@@ -89,7 +92,7 @@ class SphereMesh:
         @param maxElev maximum elevation 
         """
         sz = reduce(lambda x,y:x*y, self.shape)
-        if self.elvDown:
+        if self.elvPositiveDown:
             rr = sphereRadius*(1.0 - self.elvs)
         else:
             rr = sphereRadius*(1.0 + self.elvs)        
