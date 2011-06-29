@@ -10,9 +10,9 @@ import re
 from cdmsobj import Max32int
 from variable import DatasetVariable
 from error import CDMSError
-from Cdunif import CdunifError
 from sliceut import reverseSlice
 from avariable import AbstractVariable
+from Cdunif import CdunifError
 
 FileClosed = "Cannot read from closed file, variable: "
 FileClosedWrite = "Cannot write to a closed file, variable: "

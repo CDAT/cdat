@@ -15,6 +15,7 @@ from numpy import zeros, float64, asarray, unique, reshape
 from pycf import libCFConfig, __path__
 from cdms2.hgrid import AbstractCurveGrid, TransientCurveGrid
 from cdms2.coord import TransientAxis2D, TransientVirtualAxis
+from error import CDMSError
 
 LIBCFDIR  = __path__[0] + "/libcf"
 libCF  = libCFConfig
@@ -300,7 +301,8 @@ class GsMosaic:
         xdim = x.shape
         ydim = y.shape
 
-        if xdim != ydim: CDMSError, "Dimension of coordinates grids don't match"
+        if xdim != ydim: 
+            raise CDMSError, "Dimension of coordinates grids don't match"
 
         nj = xdim[0]
         ni = xdim[1]
