@@ -22,7 +22,7 @@ class BaseWriter:
         self.var = var
         sm = mvSphereMesh.SphereMesh(var)
         self.shape = sm.shape
-        self.mesh = sm.getXYZCoords(sphereRadius, maxElev)
+        self.mesh = sm.getXYZCoords(sphereRadius)
 
     def write(self, filename):
         """

@@ -17,7 +17,7 @@ class SphereMesh:
         Constructor
         @param var cdms2 variable
         """
-        
+       
         self.isRectilinear = True
         self.ndims = 0
         self.elvPositiveDown = False
@@ -92,11 +92,18 @@ class SphereMesh:
         Get the curvilinear cartesian coordinates
         @param sphereRadius radius of sphere 
         """
-        sz = reduce(lambda x,y:x*y, self.shape)
-        if self.elvPositiveDown:
-            rr = sphereRadius*(1.0 - self.elvs)
-        else:
-            rr = sphereRadius*(1.0 + self.elvs)  
+        sz = reduce(lambda x, y: x*y, self.shape)
+        elvMax = max(self.elvs[:])
+        elvMin = min(self.elvs[:])
+        diffElv = elvMax - elvMin
+        rr = sphereRadius*numpy.ones(self.lons.shape, numpy.float32 )
+        if diffElv > 0:
+            if self.elvPositiveDown:
+                # depth
+                rr = sphereRadius*(1.0 - (self.elvs - elvMax)/diffElv)
+            else:
+                # height
+                rr = sphereRadius*(1.0 + (self.elvs - elvMin)/diffElv)  
 
         mesh = numpy.zeros( (sz, 3), numpy.float32 )
         cosLats = numpy.cos(self.lats*numpy.pi/180.)
