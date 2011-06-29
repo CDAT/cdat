@@ -2,20 +2,26 @@
 
 """
 A file-like object to access mosaic and time aggregated data
-$Id: gsFile.py 1728 2011-02-04 21:26:11Z dkindig $
+Dave Kindig and Alex Pletzer, Tech-X (2011)
+This code is provided with the hope that it will be useful. 
+No guarantee is provided whatsoever. Use at your own risk.
 """
 
-import os
-import sys
-sys.path.append("/home/kindig/software/projects/cdat/lib/python2.7/cdms2/")
+# standard python includes
 from re import search, sub
-from ctypes import c_float, c_char_p, c_int, CDLL, byref, POINTER
+from ctypes import c_char_p, c_int, CDLL, byref
+
+# numpy 
+from numpy import zeros, reshape
+
+# CDAT
 import cdms2
-from numpy import zeros, float64, asarray, unique, reshape
-from pycf import libCFConfig, __path__
-from cdms2.hgrid import AbstractCurveGrid, TransientCurveGrid
+from cdms2.hgrid import TransientCurveGrid
 from cdms2.coord import TransientAxis2D, TransientVirtualAxis
 from error import CDMSError
+
+# libcf
+from pycf import libCFConfig, __path__
 
 LIBCFDIR  = __path__[0] + "/libcf"
 libCF  = libCFConfig
@@ -31,19 +37,19 @@ def open(uri, mode = 'r'):
     outMosaicFile = GsMosaic(uri, mode)
     return outMosaicFile
 
-def getSlab(str):
+def getSlab(strg):
     """
     From a string return a tuple of slice objects
-    @param str input string in the format "1:2 7:-1" for instance
+    @param strg input string in the format "1:2 7:-1" for instance
     @return slice tuple, eg (slice(1, 2, 1), slice(7, -1, -1))
     """
     res = []
     # remove extra spaces
-    str = sub(r'\s+', ' ', str)
+    strg = sub(r'\s+', ' ', strg)
     # remove leading/trailing spaces
-    str = sub(r'^\s+', '', str)
-    str = sub(r'\s+$', '', str)
-    for index_range in str.split(libCF.CF_INDEX_SEPARATOR):
+    strg = sub(r'^\s+', '', strg)
+    strg = sub(r'\s+$', '', strg)
+    for index_range in strg.split(libCF.CF_INDEX_SEPARATOR):
         m = search(r'([\-\d]+):([\-\d]+)', index_range)
         if m:
             step = 1
@@ -85,15 +91,15 @@ class GsMosaic:
         self.tile_contacts       = {}
         self.tile_contacts_compl = {}
         self.coordinate_names    = []
-        tile_names               = []
+        self.tile_names          = []
 
-        status = libcfdll.nccf_def_mosaic_from_file(uri, "", byref(self.mosaicId_t))
+        status = libcfdll.nccf_def_mosaic_from_file(uri, "", 
+                                                    byref(self.mosaicId_t))
 
         if status != 0:
-            print "ERROR: File %s doesn't exist or is not a valid mosaic file" % \
-                mosaicfile
             print "error code: ", status
-            return
+            raise CDMSError, "ERROR status=%d: File %s doesn't exist or is not a valid mosaic file" % \
+                (status, uri)
 
         # Get some sizes
         ngrids         = c_int(-1)
@@ -109,8 +115,15 @@ class GsMosaic:
         tile_contact_t = c_char_p(" " * (libCF.NC_MAX_NAME+1))
         tile_name_t    = c_char_p(" " * (libCF.NC_MAX_NAME+1))
         coord_t = (c_char_p * ndims.value)()
+
         for iDim in range(ndims.value):
             coord_t[iDim] = " " * (libCF.NC_MAX_NAME+1)
+
+        # Get the grid names
+        for igrid in range(ngrids):
+            libcfdll.nccf_inq_mosaic_gridname(self.mosaicId_t, igrid, tile_name_t)
+            tname = str(tile_name_t)
+            self.tile_names.append(tname)
 
         # Get the coordinate names for the grids
         libcfdll.nccf_inq_mosaic_coordnames(self.mosaicId_t, coord_t)
@@ -268,8 +281,6 @@ class GsMosaic:
         c1 = -1
         c2 = -1
         for index in range(2):
-            aa = slab1[index].start - slab1[index].stop == -1
-            bb = slab2[index].start - slab2[index].stop == -1
             if slab1[index].start - slab1[index].stop == -1:
                 c1 = index
             if slab2[index].start - slab2[index].stop == -1:
@@ -292,7 +303,6 @@ class GsMosaic:
         @param y latitude coordinate
         @return attrs Attributes for eash plus the gridid
         """
-        from re import search
         LONSTR = 'lon'
         LATSTR = 'lat'
 
@@ -419,15 +429,11 @@ class GsMosaic:
 
 def test():
     import os.path
-    from sys import exit
-
     from optparse import OptionParser
 
-    cfdir = '/home/kindig/projects/libcf/libcf/build/examples/'
-    mfile = cfdir + 'ex2_mosaic.nc'
     usage = """
     Full path to mosaic file.
-    e.g. python gsMosaic.py -f /home/kindig/projects/libcf/libcf/build/examples/ex2_mosaic.nc
+    e.g. python gsMosaic.py -f <path>/ex2_mosaic.nc
     """
     parser = OptionParser()
     parser.add_option("-f", "--file", dest="mfile",
@@ -438,11 +444,11 @@ def test():
         print usage
         exit(1)
     # Use the libcf examples directory.
-    if not os.path.exists(mfile):
-        print "File '%s' does not exist. Check path"
-        return
+    if not os.path.exists(options.mfile):
+        print "File '%s' does not exist. Check path" % options.mfile
+        exit(2)
 
-    m = open(mfile)
+    m = open(options.mfile)
 
     print "\nCoordinate Names"
     for c in m.coordinate_names: print c
