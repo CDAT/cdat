@@ -11,7 +11,7 @@ import mvSphereMesh
 
 class BaseWriter:
 
-    def __init__(self, var, sphereRadius=1.0, maxElev=0.1):
+    def __init__(self, var, sphereRadius=1.0):
         """
         Constructor
         @param var a cdms2 variable
