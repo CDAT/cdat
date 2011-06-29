@@ -138,17 +138,34 @@ def test2D():
     Test data on 2D curvilinear grid
     """
     import cdms2
+    from cdms2.coord import TransientAxis2D, TransientVirtualAxis
+    from cdms2.hgrid import TransientCurveGrid
     from numpy import pi, cos, sin
-    nlat, nlon = 12, 15
+    nlat, nlon = 3, 4
     dlon, dlat = 60.0/float(nlon - 1), 30.0/float(nlat - 1)
     lons1D = numpy.array([0.0 + i*dlon for i in range(nlon)])
-    lats1D = numpy.array([0.0 + i*dlat for i in range(nlat)])
+    lats1D = numpy.array([0.0 + j*dlat for j in range(nlat)])
     lons = numpy.outer(numpy.ones((nlat,)), lons1D)
     lats = numpy.outer(lats1D, numpy.ones((nlon,)))
-    data = numpy.outer(cos(3*pi*lats/180.0), 
-                       sin(5*pi*lons/180.0))
+    data = cos(3*pi*lats/180.0) * sin(5*pi*lons/180.0)
+    # create grid
+    iaxis = TransientVirtualAxis("i", nlon)
+    jaxis = TransientVirtualAxis("j", nlat)
+    lataxis = TransientAxis2D(lats, 
+                       axes=(jaxis, iaxis), 
+                       attributes={'units': 'degree_north'}, 
+                       id='lats')
+    lonaxis = TransientAxis2D(lons, 
+                       axes=(jaxis, iaxis), 
+                       attributes={'units': 'degree_east'}, 
+                       id='lons')
+    grid =  TransientCurveGrid(lataxis, lonaxis, id='lats_lons')
+
     var = cdms2.createVariable(data, id='fake_data_2d', 
-                               axes=(lats, lons))
+                               axes = grid.getAxisList(),
+                               grid = grid,
+                               attributes = {'coordinates': 'lats lons'},
+                               )
     sphere_mesh = SphereMesh(var)
     print sphere_mesh.getXYZCoords()
 
@@ -158,7 +175,7 @@ def test3DRect():
     """
     import cdms2
     from numpy import pi, cos, sin, exp
-    nelv, nlat, nlon = 4, 12, 15
+    nelv, nlat, nlon = 3, 4, 5
     delv, dlon, dlat = 90000./float(nelv-1), \
         60.0/float(nlon-1), 30.0/float(nlat-1)
     elvs1D = numpy.array([100000 - i*delv for i in range(nelv)])
@@ -181,33 +198,9 @@ def test3DRect():
                                axes=(elvs, lats, lons))
     sphere_mesh = SphereMesh(var)
     print sphere_mesh.getXYZCoords()
-    
-def test3D():
-    """
-    Test data on 3d curvilinear grid
-    """
-    import cdms2
-    from numpy import pi, cos, sin, exp
-    nelv, nlat, nlon = 4, 12, 15
-    delv, dlon, dlat = 90000./float(nelv-1), \
-        60.0/float(nlon-1), 30.0/float(nlat-1)
-    elvs1D = numpy.array([100000 - i*delv for i in range(nelv)])
-    lons1D = numpy.array([0.0 + i*dlon for i in range(nlon)])
-    lats1D = numpy.array([0.0 + i*dlat for i in range(nlat)])
-    data = numpy.zeros( (nlon, nlat, nelv), numpy.float32 )
-    for i in range(nlon):
-        for j in range(nlat):
-            for k in range(nelv):
-                data[i, j, k] = cos(3*pi*lats1D[j]/180.) * \
-                    sin(5*pi*lons1D[i]/180.) * exp(-elvs1D[k])
-    var = cdms2.createVariable(data, id='fake_data_3d_rect_2', 
-                               axes=(elvs1D, lats1D, lons1D))
-    sphere_mesh = SphereMesh(var)
-    print sphere_mesh.getXYZCoords()
-    
+        
 
 if __name__ == '__main__': 
     test2DRect()
     test2D()
     test3DRect()
-    test3D()
