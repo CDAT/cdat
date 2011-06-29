@@ -120,7 +120,7 @@ class GsMosaic:
             coord_t[iDim] = " " * (libCF.NC_MAX_NAME+1)
 
         # Get the grid names
-        for igrid in range(ngrids):
+        for igrid in range(ngrids.value):
             libcfdll.nccf_inq_mosaic_gridname(self.mosaicId_t, igrid, tile_name_t)
             tname = str(tile_name_t)
             self.tile_names.append(tname)
