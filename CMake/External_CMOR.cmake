@@ -6,7 +6,6 @@ set(cmor_configure_args --with-netcdf=${netcdf_install} --with-udunits2=${udunit
 
 # it appears currently we only configure cmor but not build it.
 ExternalProject_Add(CMOR
-  GIT_REPOSITORY http://uv-cdat.llnl.gov/git/cmor.git
   SOURCE_DIR ${cmor_source}
   INSTALL_DIR ${cmor_install}
   BUILD_IN_SOURCE 1
