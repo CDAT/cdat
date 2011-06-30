@@ -121,7 +121,8 @@ class GsStaticVariable(object):
         xdim = x.shape
         ydim = y.shape
 
-        if xdim != ydim: CDMSError, "Dimension of coordinates grids don't match"
+        if xdim != ydim: 
+            raise CDMSError, "Dimension of coordinates grids don't match"
 
         ni = xdim[1]
         nj = xdim[0]

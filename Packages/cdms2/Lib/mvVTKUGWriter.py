@@ -2,11 +2,13 @@
 
 """
 Write data to VTK file format using the unstructured grid format
+Alex Pletzer, Tech-X Corp. (2011)
+This code is provided with the hope that it will be useful. 
+No guarantee is provided whatsoever. Use at your own risk.
 """
 
 import numpy
 import time
-import mvSphereMesh
 import mvBaseWriter
 
 class VTKUGWriter(mvBaseWriter.BaseWriter):
