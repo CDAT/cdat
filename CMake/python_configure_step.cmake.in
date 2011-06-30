@@ -5,7 +5,7 @@ set(ENV${CPP} "@CMAKE_CXX_COMPILER@")
 
 set(ENV{PATH} "@cdat_EXTERNALS@/bin:$ENV{PATH}")
 set(ENV{@LIBRARY_PATH@} "@cdat_EXTERNALS@/lib:@cdat_EXTERNALS@/lib/paraview-@PARAVIEW_MAJOR@.@PARAVIEW_MINOR@:$ENV{@LIBRARY_PATH@}")
-set(ENV{LDFLAGS} "@cdat_external_link_directories@ -L@cdat_EXTERNALS@/lib")
+set(ENV{LDFLAGS} "@cdat_external_link_directories@ -L@cdat_EXTERNALS@/lib -Wl,--rpath,@CMAKE_INSTALL_PREFIX@/lib -Wl,--rpath,@cdat_EXTERNALS@/lib")
 set(ENV{CFLAGS} "@cdat_osx_flags@ @cdat_external_include_directories@ -I@cdat_EXTERNALS@/include ${ADDITIONAL_CFLAGS}")
 set(ENV{CPPFLAGS} "@cdat_osx_flags@ @cdat_external_include_directories@ -I@cdat_EXTERNALS@/include ${ADDITIONAL_CPPFLAGS}")
 set(ENV{CXXFLAGS} "@cdat_osx_flags@ @cdat_external_include_directories@ -I@cdat_EXTERNALS@/include ${ADDITIONAL_CXXFLAGS}")
@@ -19,6 +19,8 @@ set(ENV{FFLAGS} "")
 set(ENV{FLIBS} "")
 set(ENV{LD_X11} "") # for xgks
 
+set(ENV{EXTERNALS} "@cdat_EXTERNALS@")
+
 if(APPLE)
   set(library_param --enable-framework=@cdat_EXTERNALS@)
 elseif(UNIX)
@@ -26,6 +28,6 @@ elseif(UNIX)
 endif()
 
 EXECUTE_PROCESS(
-  COMMAND sh configure --prefix=@CMAKE_INSTALL_PREFIX@ ${library_param} --enable-unicode=ucs2
+  COMMAND sh configure --prefix=@CMAKE_INSTALL_PREFIX@ ${library_param}
   WORKING_DIRECTORY "@python_SOURCE_DIR@"
   )
