@@ -234,12 +234,13 @@ class AbstractCurveGrid(AbstractHorizontalGrid):
 ##             lonbounds=lonbounds.filled()
             if latbounds is None or lonbounds is None:
                 raise CDMSError, 'No boundary data is available for grid %s'%self.id
-            mesh = numpy.zeros((self.size(),2,4),latbounds.dtype.char)
             if (transpose is not None) and (transpose[1]==0):
                 latbounds = numpy.transpose(latbounds, (1,0,2))
                 lonbounds = numpy.transpose(lonbounds, (1,0,2))
-            mesh[:,LAT,:] = numpy.reshape(latbounds,(self.size(),4))
-            mesh[:,LON,:]  = numpy.reshape(lonbounds,(self.size(),4))
+            print latbounds.shape
+            mesh = numpy.zeros((self.size(),2,latbounds.shape[-1]),latbounds.dtype.char)
+            mesh[:,LAT,:] = numpy.reshape(latbounds,(self.size(),latbounds.shape[-1]))
+            mesh[:,LON,:]  = numpy.reshape(lonbounds,(self.size(),latbounds.shape[-1]))
             self._mesh_ = mesh
         return self._mesh_
 

@@ -40,6 +40,7 @@ e022acbc5b36cd2cb70785f5b575661e  sources/jpegsrc.v8b.tar.gz
 a3202a4f9e2f15ffd05d15dab4ac7857  sources/lapack.tgz
 a49ac8f061d7cd429e5279e69bbe334d  sources/lapack95.tgz
 56f1f22e06d37af75edafc7ce94c8d9f  sources/libcf-2011.05.20.tar.gz
+06189afb180af6107763677686ce6170  sources/libcf-1.0.beta1.tar.gz
 fa0b2a84733463f90d3ac9f43ccafabc  sources/libpng-1.4.1.tar.gz
 89fd334dc5fc84ff146b9269c4fa452f  sources/libpng-1.4.2.tar.gz
 220035f111ea045a51e290906025e8b5  sources/libpng-1.5.1.tar.gz
