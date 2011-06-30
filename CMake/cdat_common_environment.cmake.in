@@ -19,5 +19,9 @@ set(ENV{FFLAGS} "")
 set(ENV{FLIBS} "")
 set(ENV{LD_X11} "") # for xgks
 
+if(APPLE)
+  set(ENV{MAC_OSX_DEPLOYMENT_TARGET} "@CMAKE_OSX_DEPLOYMENT_TARGET@")
+endif()
+
 set(ENV{EXTERNALS} "@cdat_EXTERNALS@")
 

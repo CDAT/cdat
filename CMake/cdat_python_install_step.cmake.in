@@ -10,6 +10,10 @@ set(ENV{LOCNCCONFIG} "@cdat_EXTERNALS@/bin/nc-config")
 
 set(ENV{EXTERNALS} "@cdat_EXTERNALS@")
 
+if(APPLE)
+  set(ENV{MAC_OSX_DEPLOYMENT_TARGET} "@CMAKE_OSX_DEPLOYMENT_TARGET@")
+endif()
+
 execute_process(
   COMMAND @PYTHON_EXECUTABLE@ install.py @qt_flags@
   WORKING_DIRECTORY "${WORKING_DIR}"

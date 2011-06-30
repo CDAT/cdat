@@ -22,12 +22,16 @@ set(ENV{LD_X11} "") # for xgks
 set(ENV{EXTERNALS} "@cdat_EXTERNALS@")
 
 if(APPLE)
-  set(library_param --enable-framework=@cdat_EXTERNALS@)
+  set(ENV{MAC_OSX_DEPLOYMENT_TARGET} "@CMAKE_OSX_DEPLOYMENT_TARGET@")
+endif()
+
+if(APPLE)
+  set(library_param --enable-framework=@CMAKE_INSTALL_PREFIX@/Library/Frameworks)
 elseif(UNIX)
-  set(library_param --enable-shared)
+  set(library_param --prefix=@CMAKE_INSTALL_PREFIX@ --enable-shared)
 endif()
 
 EXECUTE_PROCESS(
-  COMMAND sh configure --prefix=@CMAKE_INSTALL_PREFIX@ ${library_param}
+  COMMAND sh configure ${library_param}
   WORKING_DIRECTORY "@python_SOURCE_DIR@"
   )
