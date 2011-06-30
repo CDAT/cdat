@@ -22,7 +22,7 @@ set(proj Python)
     ${CMAKE_CURRENT_BINARY_DIR}/python_install_step.cmake
     @ONLY)
 
-  set(python_PATCH_COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/python_patch_step.cmake)
+  set(python_PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${cdat_SOURCE_DIR}/pysrc/src/setup-${PYTHON_VERSION}.py ${python_SOURCE_DIR}/setup.py)
   if(APPLE)
     set(library_param --enable-framework=${CMAKE_INSTALL_PREFIX}/Library/Frameworks)
     set(python_CONFIGURE_COMMAND unset MAKEFLAGS && env EXTERNALS=${cdat_EXTERNALS} <SOURCE_DIR>/configure ${library_param} && make && make install)
@@ -42,7 +42,7 @@ set(proj Python)
     SOURCE_DIR ${python_SOURCE_DIR}
     BUILD_IN_SOURCE ${python_BUILD_IN_SOURCE}
     UPDATE_COMMAND pwd
-    PATCH_COMMAND 
+    PATCH_COMMAND ${python_PATCH_COMMAND}
     CONFIGURE_COMMAND ${python_CONFIGURE_COMMAND}
     BUILD_COMMAND ${python_BUILD_COMMAND}
     INSTALL_COMMAND ${python_INSTALL_COMMAND}
