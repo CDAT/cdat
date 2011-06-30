@@ -16,7 +16,7 @@ endif()
 
 execute_process(
   COMMAND @PYTHON_EXECUTABLE@ install.py @qt_flags@
-  WORKING_DIRECTORY "${WORKING_DIR}"
+  WORKING_DIRECTORY "@WORKING_DIR@"
   RESULT_VARIABLE res)
 
 if(NOT ${res} EQUAL 0)

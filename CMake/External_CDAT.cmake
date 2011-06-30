@@ -24,6 +24,8 @@ if(CDAT_USE_SYSTEM_QT AND QT_QTCORE_INCLUDE_DIR)
   set(ADDITIONAL_CFLAGS "-I${QT_INCLUDE_ROOT}")
 endif()
 
+set(WORKING_DIR ${cdat_SOURCE_DIR})
+
 configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_python_install_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/cdat_python_install_step.cmake
   @ONLY)
@@ -36,7 +38,7 @@ ExternalProject_Add(CDAT
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
   #INSTALL_COMMAND env EXTERNALS=${cdat_EXTERNALS} LDFLAGS=${LDFLAGS} ${LIBRARY_PATH}=${RUNTIME_FLAGS} ${PYTHON_EXECUTABLE} install.py ${qt_flags}
-  INSTALL_COMMAND ${CMAKE_COMMAND} -DWORKING_DIR=<SOURCE_DIR> -DPYTHON_INSTALL_ARGS=${qt_flags} -P ${cdat_CMAKE_BINARY_DIR}/cdat_python_install_step.cmake
+  INSTALL_COMMAND ${CMAKE_COMMAND} -DPYTHON_INSTALL_ARGS=${qt_flags} -P ${cdat_CMAKE_BINARY_DIR}/cdat_python_install_step.cmake
   DEPENDS ${CDAT_DEPENDENCIES}
 )
 
