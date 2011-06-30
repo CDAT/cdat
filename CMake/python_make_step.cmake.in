@@ -11,7 +11,6 @@ set(ENV{CPPFLAGS} "@cdat_osx_flags@ -I@cdat_EXTERNALS@/include ${ADDITIONAL_CPPF
 set(ENV{CXXFLAGS} "@cdat_osx_flags@ -I@cdat_EXTERNALS@/include ${ADDITIONAL_CXXFLAGS}")
 set(ENV{PKG_CONFIG_PATH} "@cdat_EXTERNALS@/lib/pkgconfig")
 set(ENV{PKG_CONFIG} "@cdat_PKG_CONFIG_EXECUTABLE@")
-#set(ENV{PYTHON_PATH} "@cdat_BINARY_DIR@/lib/python@PYTHON_MAJOR@.@PYTHON_MINOR@/site-packages:$ENV{PYTHON_PATH}")
 set(ENV{FC} "")
 set(ENV{FCFLAGS} "")
 set(ENV{FCLIBS} "")
@@ -26,14 +25,3 @@ EXECUTE_PROCESS(
   COMMAND make
   WORKING_DIRECTORY "@python_SOURCE_DIR@"
   )
-
-EXECUTE_PROCESS( 
-  COMMAND make install
-  WORKING_DIRECTORY "@python_SOURCE_DIR@"
-  )
-
-EXECUTE_PROCESS( 
-  COMMAND make
-  WORKING_DIRECTORY "@python_SOURCE_DIR@"
-  )
-
