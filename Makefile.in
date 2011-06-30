@@ -227,7 +227,7 @@ ifeq (@COMPILE_NC@,yes)
 endif
 ifeq (@COMPILE_LIBCF@,yes)
 	@echo "Building libcf" 
-	$(call dobuildpy,./configure --enable-python-bindings --with-hdf5=@HDF5LOC@ --with-netcdf=@NC4LOC@,@LIBCF_URL@,@LIBCF_GZ@, )
+	$(call dobuildpy,./configure LDFLAGS="-L@NC4LOC@/lib -L=@HDF5LOC@/lib" CPPFLAGS="-I@NC4LOC@/include",@LIBCF_URL@,@LIBCF_GZ@, )
 endif
 ifeq (@COMPILE_PYTABLES@,yes)
 	@echo "Building pytables" 
