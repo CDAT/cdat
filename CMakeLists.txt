@@ -111,6 +111,12 @@ set(cdat_tpl_c_flags ${CMAKE_C_FLAGS})
 set(cdat_cxx_flags ${CMAKE_CXX_FLAGS})
 set(cdat_c_flags ${CMAKE_C_FLAGS})
 
+if(APPLE)
+  set(cdat_rpath_flag -R)
+else()
+  set(cdat_rpath_flag -Wl,--rpath,)
+endif()
+
 if(WIN32)
   list(APPEND cdat_compiler_args -DCMAKE_BUILD_TYPE:STRING=${CMAKE_CFG_INTDIR})
 else()
