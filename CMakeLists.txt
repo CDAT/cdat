@@ -302,10 +302,10 @@ add_cdat_package(FFMPEG)
 add_cdat_package(zlib)
 add_cdat_package(png)
 #add_cdat_package(gifsicle)
-add_cdat_package(jpeg)
 
 # use system framework
 if(NOT APPLE)
+  add_cdat_package(jpeg)
   add_cdat_package(tiff)
 endif()
 
