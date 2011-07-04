@@ -129,10 +129,11 @@ if(APPLE)
     -DCMAKE_OSX_DEPLOYMENT_TARGET:STRING=${CMAKE_OSX_DEPLOYMENT_TARGET}
     -DCMAKE_OSX_SYSROOT:PATH=${CMAKE_OSX_SYSROOT})
 
-  set(cdat_osx_arch_flag "-arch ${CMAKE_OSX_ARCHITECTURES}")
+  set(cdat_osx_arch_flag "-arch ${CMAKE_OSX_ARCHITECTURES} -Xarch_${CMAKE_OSX_ARCHITECTURES}")
   set(cdat_osx_version_flag "-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
   set(cdat_osx_sysroot "-isysroot ${CMAKE_OSX_SYSROOT}")
-  set(cdat_osx_flags "${cdat_osx_arch_flag} ${cdat_osx_version_flag} ${cdat_osx_sysroot}")
+  set(cdat_osx_flags "${cdat_osx_arch_flag} ${cdat_osx_version_flag} ${cdat_osx_sysroot} -pipe")
+  set(cdat_osx_ld_flags "-bind_at_load -mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
 endif()
 
 if(WIN32)
@@ -303,21 +304,14 @@ add_cdat_package(zlib)
 #add_cdat_package(gifsicle)
 add_cdat_package(png)
 add_cdat_package(jpeg)
-
-# use system framework
-if(NOT APPLE)
-   add_cdat_package(tiff)
-endif()
+add_cdat_package(tiff)
 
 #if(APPLE)
   # really old package that doesn't often build on linux.
 #  add_cdat_package(pbmplus)
 #endif()
 
-# Use system framework
-if(NOT APPLE)
-  add_cdat_package(TclTk)
-endif()
+add_cdat_package(TclTk)
 
 # On OSX use vecLib framework
 if(NOT APPLE)
@@ -444,7 +438,6 @@ set(pbmplus_DEPENDENCIES ${pkgconfig_dep} ${tiff_dep} ${jpeg_dep} ${zlib_dep})
 set(fontconfig_DEPENDENCIES ${pkgconfig_dep} ${libXML2_dep})
 set(freetype_DEPENDENCIES ${pkgconfig_dep} ${png_dep})
 set(g2clib_DEPENDENCIES ${pkgconfig_dep} ${png_dep} ${zlib_dep} ${jasper_dep})
-set(tcl_DEPENDENCIES ${pkgconfig_dep})
 set(Python_DEPENDENCIES ${pkgconfig_dep} ${termcap_dep} ${readline_dep} ${TclTk_dep} ${libXML2_dep} ${CURL_dep} ${zlib_dep} ${libXSLT_dep} ${png_dep} ${jpeg_dep} ${tiff_dep})
 set(SIP_DEPENDENCIES ${pkgconfig_dep} ${Python_dep})
 set(Qt_DEPENDENCIES ${pkgconfig_dep} ${readline_dep} ${libXML2_dep} ${jpeg_dep} ${zlib_dep} ${png_dep} ${tiff_dep} ${fontconfig_dep} ${fontconfig_dep})
@@ -456,7 +449,7 @@ set(FFMPEG_DEPENDENCIES ${pkgconfig_dep})
 set(ghostscript_DEPENDENCIES ${pkgconfig_dep} ${zlib_dep} ${jpeg_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep} ${libXSLT_dep} ${libXML2_dep})
 set(NetCDF_DEPENDENCIES ${pkgconfig_dep} ${HDF5_dep} ${CURL_dep} ${zlib_dep})
 
-set(TclTk_DEPENDENCIES ${pkgconfig_dep} ${libXML2_dep} ${libXSLT_dep})
+set(TclTk_DEPENDENCIES ${pkgconfig_dep} ${libXML2_dep} ${libXSLT_dep} ${jpeg_dep} ${png_dep} ${tiff_dep})
 
 set(setuptools_DEPENDENCIES ${pkgconfig_dep} ${Python_dep})
 set(LAPACK_DEPENDENCIES ${pkgconfig_dep})
