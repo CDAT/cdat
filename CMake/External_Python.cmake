@@ -59,7 +59,7 @@ set(proj Python)
 set(PYTHON_INCLUDE)
 set(PYTHON_LIBRARY)
 set(PYTHON_EXECUTABLE)
-set(PYTHON_SITE_PACKAGES ${CMAKE_BINARY_DIR}/python-build/lib/python${PYVER}/site-packages)
+set(PYTHON_SITE_PACKAGES ${CMAKE_INSTALL_PREFIX}/lib/python${PYVER}/site-packages)
 
 if(APPLE)
   set(PYTHON_INCLUDE ${CMAKE_INSTALL_PREFIX}/Python.framework/Versions/${PYVER}/Headers)
