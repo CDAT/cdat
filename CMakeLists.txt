@@ -292,6 +292,7 @@ add_cdat_package(termcap)
 add_cdat_package(readline)
 add_cdat_package(libXML2)
 add_cdat_package(libXSLT)
+add_cdat_package(zlib)
 add_cdat_package(CURL)
 
 # Probably should be eliminated since we use Qt now.
@@ -300,7 +301,6 @@ add_cdat_package(CURL)
 #endif()
 
 add_cdat_package(FFMPEG)
-add_cdat_package(zlib)
 #add_cdat_package(gifsicle)
 add_cdat_package(png)
 add_cdat_package(jpeg)
