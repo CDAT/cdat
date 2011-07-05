@@ -268,8 +268,7 @@ set(XGKS_URL http://uv-cdat.llnl.gov/cdat)
 set(XGKS_GZ xgks.tar.gz)
 set(XGKS_MD5 e0360b9557355b02ad789c0ab4f3a7cb)
 
-set(JPEG_URL http://www.ijg.org/files)
-#set(JPEG_URL http://uv-cdat.llnl.gov/cdat/resources)
+set(JPEG_URL http://uv-cdat.llnl.gov/cdat/resources)
 set(JPEG_GZ jpegsrc.v8c.tar.gz)
 set(JPEG_MD5 a2c10c04f396a9ce72894beb18b4e1f9)
 
