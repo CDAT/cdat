@@ -20,9 +20,9 @@ class BaseWriter:
         @param maxElev max elevation/depth normalized to the sphere radius
         """
         self.var = var
-        sm = mvSphereMesh.SphereMesh(var)
-        self.shape = sm.shape
-        self.mesh = sm.getXYZCoords(sphereRadius)
+        sphere_mesh = mvSphereMesh.SphereMesh(var)
+        self.shape = sphere_mesh.shape
+        self.mesh = sphere_mesh.getXYZCoords(sphereRadius)
 
     def write(self, filename):
         """
