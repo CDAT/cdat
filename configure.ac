@@ -431,7 +431,7 @@ XGKS_GZ=xgks.tar.gz
 AC_SUBST(XGKS_URL)
 AC_SUBST(XGKS_GZ)
 JPEG_URL=http://www.ijg.org/files
-JPEG_GZ=jpegsrc.v8b.tar.gz
+JPEG_GZ=jpegsrc.v8c.tar.gz
 AC_SUBST(JPEG_URL)
 AC_SUBST(JPEG_GZ)
 BLAS_URL=http://www.netlib.org/blas

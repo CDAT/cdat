@@ -2565,7 +2565,7 @@ XGKS_GZ=xgks.tar.gz
 
 
 JPEG_URL=http://www.ijg.org/files
-JPEG_GZ=jpegsrc.v8b.tar.gz
+JPEG_GZ=jpegsrc.v8c.tar.gz
 
 
 BLAS_URL=http://www.netlib.org/blas

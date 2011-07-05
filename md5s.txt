@@ -37,6 +37,7 @@ d22a35a17877e369055ed50da5ba91fa  sources/hdf5-1.8.5-patch1.tar.gz
 b5ae85050d034555790a3ccbc2522860  sources/jasper-1.900.1.tgz
 5146e68be3633c597b0d14d3ed8fa2ea  sources/jpegsrc.v8a.tar.gz
 e022acbc5b36cd2cb70785f5b575661e  sources/jpegsrc.v8b.tar.gz
+a2c10c04f396a9ce72894beb18b4e1f9  sources/jpegsrc.v8c.tar.gz
 a3202a4f9e2f15ffd05d15dab4ac7857  sources/lapack.tgz
 a49ac8f061d7cd429e5279e69bbe334d  sources/lapack95.tgz
 56f1f22e06d37af75edafc7ce94c8d9f  sources/libcf-2011.05.20.tar.gz
