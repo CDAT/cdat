@@ -36,12 +36,10 @@ from avariable import order2index, orderparse, setNumericCompatibility, getNumer
 # TV
 from tvariable import asVariable, createVariable, isVariable
 
-try:
-    from gsHost import GsHost
-    from gsstaticvariable import GsStaticVariable
-    from gstimevariable import GsTimeVariable
-except:
-    pass
+from gsHost import GsHost
+from gsstaticvariable import GsStaticVariable
+from gstimevariable import GsTimeVariable
+
 from restApi import esgfConnection
 
 MV = MV2

@@ -2,11 +2,12 @@
 
 """
 A variable-like object extending over multiple tiles and time slices
-$Id: $
+Dave Kindig and Alex Pletzer, Tech-X Corp. (2011)
+This code is provided with the hope that it will be useful. 
+No guarantee is provided whatsoever. Use at your own risk.
 """
 
 import operator
-import ctypes
 import cdms2
 from cdms2.MV2 import concatenate
 from cdms2.gsstaticvariable import GsStaticVariable
@@ -14,28 +15,26 @@ from cdms2.error import CDMSError
 from cdms2.hgrid import AbstractCurveGrid, TransientCurveGrid
 from cdms2.coord import TransientAxis2D, TransientVirtualAxis
 import types
-from pycf import libCFConfig as libcf
 
 import sys
 
 class GsTimeVariable(GsStaticVariable):
 
-    def __init__(self, GsHost, varName, **slicekwargs):
+    def __init__(self, gsHost, varName, **slicekwargs):
         """
         Constructor
-        @param GsHost host object 
+        @param gsHost host object 
         @param varName variable name
         @param slicekwargs eg lon=(-180,180), lat=(-90,90), time=5
                            cf Packages/cdms2/Lib/cudsinterface.py for 
                            a list of keywords
         """
-        from re import search
         self.varName = varName
-        self.ntimeSlices = GsHost.ntimeSlices
+        self.ntimeSlices = gsHost.ntimeSlices
 
         self.vars = []
         if self.ntimeSlices > 0:
-            self.vars = [None for i in range(GsHost.ngrids)]
+            self.vars = [None for i in range(gsHost.ngrids)]
 
         kwargs = {}
         for k in slicekwargs.keys():
@@ -46,16 +45,16 @@ class GsTimeVariable(GsStaticVariable):
         # variable across time.
         if ('time' in kwargs.keys() and len(slicekwargs) <= 1) or \
                 len(slicekwargs) == 0:
-            for gfindx in range(GsHost.ngrids):
+            for gfindx in range(gsHost.ngrids):
 
                 # Create the horizontal curvilinear grid.
                 # But how do I add the time grid? I don't know it yet.
                 # It is known after looping over the time files for a given
                 # variable
-                gFName = GsHost.gridFilenames[gfindx]
+                gFName = gsHost.gridFilenames[gfindx]
                 
-                for tfindx in range(GsHost.ntimeSlices):
-                    fName = GsHost.timeDepVars[varName][tfindx][gfindx]
+                for tfindx in range(gsHost.ntimeSlices):
+                    fName = gsHost.timeDepVars[varName][tfindx][gfindx]
                     fh = cdms2.open(fName)
                     # TransientVariable
                     try:
@@ -64,7 +63,8 @@ class GsTimeVariable(GsStaticVariable):
                         continue
 
                     # Attach the grid to the variable
-                    grid = self.createGrid(gFName, var.attributes['coordinates'])
+                    grid = cdms2.gsstaticvariable.createGrid(gFName, \
+                                           var.attributes['coordinates'])
                     axis0 = var.getAxis(0)
                     gridaxes = grid.getAxisList()
                     axes = [axis0, gridaxes[0], gridaxes[1]]
