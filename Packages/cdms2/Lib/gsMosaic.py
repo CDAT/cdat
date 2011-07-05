@@ -1,7 +1,7 @@
 #/usr/bin/env python
 
 """
-A file-like object to access mosaic and time aggregated data
+A file-like object to access mosaic.
 Dave Kindig and Alex Pletzer, Tech-X (2011)
 This code is provided with the hope that it will be useful. 
 No guarantee is provided whatsoever. Use at your own risk.
