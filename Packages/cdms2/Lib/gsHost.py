@@ -1,8 +1,11 @@
 #/usr/bin/env python
 
 """
-A cdms2 file-like object to access mosaic and time aggregated data
-$Id: $
+A file-like object to access a host file. There by granting entry to an entire
+data set.
+Dave Kindig and Alex Pletzer, Tech-X (2011)
+This code is provided with the hope that it will be useful. 
+No guarantee is provided whatsoever. Use at your own risk.
 """
 
 import os.path
