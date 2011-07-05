@@ -29,7 +29,7 @@ if(APPLE)
 endif()
 
 if(APPLE)
-  set(library_param --prefix=@CMAKE_INSTALL_PREFIX@ --enable-framework=@CMAKE_INSTALL_PREFIX@)
+  set(library_param --prefix=@CMAKE_INSTALL_PREFIX@ --enable-framework=@CMAKE_INSTALL_PREFIX@/Library/Frameworks)
 elseif(UNIX)
   set(library_param --prefix=@CMAKE_INSTALL_PREFIX@ --enable-shared)
 endif()

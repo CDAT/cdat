@@ -26,21 +26,26 @@ set(ENV{OPT} "")
 
 set(ENV{EXTERNALS} "@cdat_EXTERNALS@")
 
-set(make_arg install)
-
 if(APPLE)
-  set(make_arg frameworkinstall)
   set(ENV{AQUA_CDAT} "no")
   set(ENV{MAC_OSX_DEPLOYMENT_TARGET} "@CMAKE_OSX_DEPLOYMENT_TARGET@")
   unset(ENV{MAKEFLAGS})
  
   EXECUTE_PROCESS(
-    COMMAND frameworkinstallunixtools
+    COMMAND make frameworkinstallunixtools
     WORKING_DIRECTORY "@python_SOURCE_DIR@"
   )
-endif()
 
-EXECUTE_PROCESS(
-  COMMAND make ${make_arg}
-  WORKING_DIRECTORY "@python_SOURCE_DIR@"
+  EXECUTE_PROCESS(
+    COMMAND make frameworkinstall
+    WORKING_DIRECTORY "@python_SOURCE_DIR@"
   )
+
+else()
+
+  EXECUTE_PROCESS(
+    COMMAND make install
+    WORKING_DIRECTORY "@python_SOURCE_DIR@"
+  )
+
+endif()
