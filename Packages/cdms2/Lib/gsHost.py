@@ -17,30 +17,30 @@ import re
 from pycf import libCFConfig, __path__
 LIBCF = __path__[0] + '/libcf'
 
-def addGetCoordinatesToAbstractVariable(AbstractVariable):
-    """
-    Add getCoordinates to the Class AbstractVariable
-    @param AbstractVariable a Transient variable
-    """
-    import types
-    def getCoordinates(AbstractVariable):
-        """
-        Return the coordinate data associated with variable
-        @param AbstractVariable a Transient variable
-        """
-        av = AbstractVariable
-
-        fh = cdms2.open(av.tile_filename)
-        xn, yn = av.Attributes['coordinates'].split()
-
-        x = fh(xn)
-        y = fh(yn)
-
-        return (x, y)
-        
-
-    # Add getCoordinates to the AbstractVariable Class
-    AbstractVariable.getCoordinates = types.MethodType(getCoordinates, AbstractVariable)
+#def addGetCoordinatesToAbstractVariable(AbstractVariable):
+#    """
+#    Add getCoordinates to the Class AbstractVariable
+#    @param AbstractVariable a Transient variable
+#    """
+#    import types
+#    def getCoordinates(AbstractVariable):
+#        """
+#        Return the coordinate data associated with variable
+#        @param AbstractVariable a Transient variable
+#        """
+#        av = AbstractVariable
+#
+#        fh = cdms2.open(av.tile_filename)
+#        xn, yn = av.Attributes['coordinates'].split()
+#
+#        x = fh(xn)
+#        y = fh(yn)
+#
+#        return (x, y)
+#        
+#
+#    # Add getCoordinates to the AbstractVariable Class
+#    AbstractVariable.getCoordinates = types.MethodType(getCoordinates, AbstractVariable)
 
 def open(hostfile, mode = 'r'):
     """
@@ -109,7 +109,7 @@ class GsHost:
             # number of time files
             self.ntimeSlices = 0
 
-            self.mosaic_filename = ""
+            self.mosaicFilename = ""
 
             # Filenames
             self.timeFilenames = []
@@ -138,10 +138,10 @@ class GsHost:
             self.coords = {}
 
             # flags checking whethed host was constructed
-            self.host_file_opened = False
+            self.hostFileOpened = False
 
             # host file name
-            self.host_filename = ""
+            self.hostFilename = ""
 
             status = libcfdll.nccf_def_host_from_file(hostfile,
                                                    byref(self.hostId_t))
@@ -154,8 +154,8 @@ class GsHost:
             # Attach global attrs
             libcfdll.nccf_def_global_from_file( hostfile, byref(self.globalId_t))
 
-            self.host_file_opened = True
-            self.host_filename = hostfile
+            self.hostFileOpened = True
+            self.hostFilename = hostfile
 
             i_t = c_int()
             status = libcfdll.nccf_inq_host_ngrids(self.hostId_t, byref(i_t))
@@ -237,9 +237,9 @@ class GsHost:
 
     def getMosaic(self):
         from gsMosaic import GsMosaic
-        mosaic_filename = c_char_p(" " * (libCFConfig.NC_MAX_NAME + 1))
-        status = self.libcfdll.nccf_inq_host_mosaicfilename(self.hostId_t, mosaic_filename)
-        mfn = GsMosaic(mosaic_filename, "r")
+        mosaicFilename = c_char_p(" " * (libCFConfig.NC_MAX_NAME + 1))
+        status = self.libcfdll.nccf_inq_host_mosaicfilename(self.hostId_t, mosaicFilename)
+        mfn = GsMosaic(mosaicFilename, "r")
 
         return mfn
 
@@ -466,16 +466,16 @@ def test():
     """
     from optparse import OptionParser
     parser = OptionParser()
-    parser.add_option("-f", "--file", dest="host_filename",
+    parser.add_option("-f", "--file", dest="hostFilename",
                   help="host file name")
 
     options, args = parser.parse_args()
-    if not options.host_filename:
+    if not options.hostFilename:
         print "need to provide a host file, use -h to get a full list of options"
         sys.exit(1)
 
     print 'open file..., create grdspec file object...'
-    gf = cdms2.open(options.host_filename)
+    gf = cdms2.open(options.hostFilename)
     if gf._status_ == 'closed': 
         print "File not opened"
         sys.exit(1)
