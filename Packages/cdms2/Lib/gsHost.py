@@ -233,7 +233,7 @@ class GsHost:
         to create grids or variables and are attributes in the host object
         @return list of variable names
         """
-        return hostFileVars
+        return self.hostFileVars
 
     def getMosaic(self):
         from gsMosaic import GsMosaic
