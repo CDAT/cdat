@@ -11,8 +11,8 @@ import cdms2
 from cdms2.avariable import AbstractVariable
 from cdms2.tvariable import TransientVariable
 from cdms2.cdmsobj import CdmsObj
-from cdms2.gsstaticvariable import GsStaticVariable
-from cdms2.gstimevariable import GsTimeVariable
+from cdms2.gsStaticVariable import GsStaticVariable
+from cdms2.gsTimeVariable import GsTimeVariable
 import re
 from pycf import libCFConfig, __path__
 LIBCF = __path__[0] + '/libcf'

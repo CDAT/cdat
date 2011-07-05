@@ -37,8 +37,8 @@ from avariable import order2index, orderparse, setNumericCompatibility, getNumer
 from tvariable import asVariable, createVariable, isVariable
 
 from gsHost import GsHost
-from gsstaticvariable import GsStaticVariable
-from gstimevariable import GsTimeVariable
+from gsStaticVariable import GsStaticVariable
+from gsTimeVariable import GsTimeVariable
 
 from restApi import esgfConnection
 
