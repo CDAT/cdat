@@ -98,7 +98,9 @@ class GsStaticVariable(object):
             fh = cdms2.open(fName)
             gh = cdms2.open(gFName)
 
-            vr = fh(varName)
+            # alternatively vr = fh(varName)
+            vr = fh[varName]
+
             fh.close()
             vr.gridFilename = gFName
             vr.gridIndex    = gfindx
