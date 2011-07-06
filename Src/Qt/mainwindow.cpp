@@ -332,6 +332,10 @@ bool MainWindow::event(QEvent *event)
     this->raise();
     this->show();
   }
+  // else if (event->type()==VCS_ANIMATION_CREATED_EVENT) {
+  //   fprintf(stderr,"Ok we are done with anim on canvas: %i, %i\n",this->vcs_obj->canvas_id,this->vcs_obj->wkst_id);
+  //   this->animationCreated(this->vcs_obj->canvas_id);
+  // }
   else if (event->type()==VCS_PUT_IMAGE_EVENT) {
     this->image = ((QVCSEvent *)event)->data;
     this->repaint();
@@ -617,3 +621,6 @@ void MainWindow::paintEvent(QPaintEvent *)
 }
 
 
+// void MainWindow::animationCreated(int window) {
+//   emit animationCreatedSignal(window);
+// }

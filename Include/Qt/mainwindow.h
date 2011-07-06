@@ -21,6 +21,7 @@
 #define VCS_INFO_EVENT QEvent::Type(QEvent::User+8)
 #define VCS_HIDE_INFO_EVENT QEvent::Type(QEvent::User+9)
 #define VCS_PUT_IMAGE_EVENT QEvent::Type(QEvent::User+10)
+/* #define VCS_ANIMATION_CREATED_EVENT QEvent::Type(QEvent::User+11) */
 
 #define VCS_UNDEFINED_EVENT_1 QEvent::Type(QEvent::User+101)
 #define VCS_UNDEFINED_EVENT_2 QEvent::Type(QEvent::User+102)
@@ -47,6 +48,9 @@ class MainWindow : public QMainWindow
   QImage *images;
   public slots:
   void actionTriggered(QAction*);
+/*   void animationCreated(int window); */
+/* signals: */
+/*   void animationCreatedSignal(int window); */
 };
 
 class QVCSEvent : public QVCSBaseEvent
