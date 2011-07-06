@@ -241,23 +241,18 @@ endmacro (add_cdat_package)
 
 find_package(Qt4)
 
-option(CDAT_USE_SYSTEM_INTROSPECTION "Build ParaView" OFF)
+option(CDAT_USE_SYSTEM_INTROSPECTION "Detect System installed libraries." OFF)
 
 # Attempt to find each package on the system
-find_package(PkgConfig)
-set(PKGCONFIG_FOUND ${PKG_CONFIG_FOUND})
-
-if(NOT PKG_CONFIG_FOUND)
-  set(cdat_PKG_CONFIG_EXECUTABLE ${cdat_EXTERNALS}/bin/pkg-config)
-else()
-  set(cdat_PKG_CONFIG_EXECUTABLE ${PKG_CONFIG_EXECUTABLE})
-endif()
 
 find_package(MD5)
 find_package(Wget)
 
 # By default lets build everything but make an exception for Qt.
 if(CDAT_USE_SYSTEM_INTROSPECTION)
+
+find_package(PkgConfig)
+set(PKGCONFIG_FOUND ${PKG_CONFIG_FOUND})
 
 find_package(CURL)
 find_package(LibXml2)
@@ -302,6 +297,12 @@ find_package(Readline)
 #find_package(PMW)
 
 endif(CDAT_USE_SYSTEM_INTROSPECTION)
+
+if(NOT PKG_CONFIG_FOUND)
+  set(cdat_PKG_CONFIG_EXECUTABLE ${cdat_EXTERNALS}/bin/pkg-config)
+else()
+  set(cdat_PKG_CONFIG_EXECUTABLE ${PKG_CONFIG_EXECUTABLE})
+endif()
 
 set(cdat_configure_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake)
 set(cdat_make_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake)
