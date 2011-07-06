@@ -272,7 +272,7 @@ set(JPEG_URL http://uv-cdat.llnl.gov/cdat/resources)
 set(JPEG_GZ jpegsrc.v8c.tar.gz)
 set(JPEG_MD5 a2c10c04f396a9ce72894beb18b4e1f9)
 
-set(BLAS_URL http://www.netlib.org/blas)
+set(BLAS_URL http://uv-cdat.llnl.gov/cdat/resource)
 set(BLAS_GZ blas.tgz)
 set(BLAS_MD5 d922a88782b64441d06547632fd85744)
 
@@ -285,11 +285,11 @@ set(CLAPACK_URL http://www.netlib.org/clapack)
 set(CLAPACK_GZ clapack-${CLAPACK_VERSION}-CMAKE.tgz)
 set(CLAPACK_MD5 4fd18eb33f3ff8c5d65a7d43913d661b)
 
-set(LAPACK_URL http://www.netlib.org/lapack)
+set(LAPACK_URL http://uv-cdat.llnl.gov/cdat/resources)
 set(LAPACK_GZ lapack.tgz)
 set(LAPACK_MD5 d0d533ec9a5b74933c2a1e84eedc58b4)
 
-set(LAPACK95_URL http://www.netlib.org/lapack95)
+set(LAPACK95_URL http://uv-cdat.llnl.gov/cdat/resource)
 set(LAPACK95_GZ lapack95.tgz)
 set(LAPACK95_MD5 d922a88782b64441d06547632fd85744)
 
