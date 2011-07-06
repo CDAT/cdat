@@ -10,13 +10,10 @@ No guarantee is provided whatsoever. Use at your own risk.
 import operator
 import cdms2
 from cdms2.MV2 import concatenate
-from cdms2.gsstaticvariable import GsStaticVariable
+from cdms2.gsStaticVariable import GsStaticVariable
 from cdms2.error import CDMSError
 from cdms2.hgrid import AbstractCurveGrid, TransientCurveGrid
 from cdms2.coord import TransientAxis2D, TransientVirtualAxis
-import types
-
-import sys
 
 class GsTimeVariable(GsStaticVariable):
 
@@ -95,23 +92,6 @@ class GsTimeVariable(GsStaticVariable):
 
                 # Add the variable to the index
                 self.vars[gfindx] = new
-
-    def __getitem__(self, tfindx):
-        """
-        Data accessor
-        @param tfindx file file index
-        @return variable at tfindx
-        """
-        return self.vars[tfindx]
-
-    def __setitem__(self, tfindx, vals):
-
-        """
-        Data setter
-        @param tfindx time file indexer
-        @param vals values to set
-        """
-        self.vars[tfindx] = vals
 
     def shape(self, gfindx):
         """
