@@ -24,6 +24,7 @@ ExternalProject_Add(PyOpenGL
   BUILD_COMMAND ${PyOpenGL_build_command}
   INSTALL_COMMAND ${PyOpenGL_install_command}
   DEPENDS ${PyOpenGL_DEPENDENCIES}
+  ${EP_LOG_OPTIONS}
 )
 
 set(PyOpenGL_DIR "${PyOpenGL_binary}" CACHE PATH "PyOpenGL binary directory" FORCE)

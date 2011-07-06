@@ -12,4 +12,5 @@ ExternalProject_Add(fontconfig
   PATCH_COMMAND ""
   CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -DCONFIGURE_ARGS=--disable-docs -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
   DEPENDS ${fontconfig_DEPENDENCIES}
+  ${EP_LOG_OPTIONS}
 )

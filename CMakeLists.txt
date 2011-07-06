@@ -106,6 +106,15 @@ endif(CMAKE_Fortran_COMPILER)
 
 set(EP_PREFIX ${cdat_BINARY_DIR}/build/prefix)
 
+set(EP_LOG_OPTIONS
+  LOG_DOWNLOAD 1
+  LOG_UPDATE 1
+  LOG_CONFIGURE 1
+  LOG_BUILD 1
+  LOG_TEST 1
+  LOG_INSTALL 1
+)
+
 INCLUDE(ExternalProject)
 
 # ----------------------------------------------------------------------------
@@ -228,16 +237,9 @@ macro (add_cdat_package package)
   endif()
 endmacro (add_cdat_package)
 
-message("CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES ${CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES}")
-message("CMAKE_C_IMPLICIT_LINK_DIRECTORIES ${CMAKE_C_IMPLICIT_LINK_DIRECTORIES}")
-message("CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES ${CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES}")
-
-message("CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES}")
-message("CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES ${CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES}")
-message("CMAKE_PLATFORM_IMPLICIT_INCLUDE_DIRECTORIES ${CMAKE_PLATFORM_IMPLICIT_INCLUDE_DIRECTORIES}")
-
-
-find_package(Qt4)
+if(NOT QT_QMAKE_EXECUTABLE)
+  find_package(Qt4)
+endif()
 
 option(CDAT_USE_SYSTEM_INTROSPECTION "Build ParaView" OFF)
 
@@ -456,8 +458,8 @@ set(tiff_DEPENDENCIES ${pkgconfig_dep} ${jpeg_dep} ${zlib_dep})
 set(jasper_DEPENDENCIES ${pkgconfig_dep} ${jpeg_dep} ${zlib_dep})
 #set(gifsicle_DEPENDENCIES ${pkgconfig_dep})
 set(pbmplus_DEPENDENCIES ${pkgconfig_dep} ${tiff_dep} ${jpeg_dep} ${zlib_dep})
-set(fontconfig_DEPENDENCIES ${pkgconfig_dep} ${libXML2_dep})
 set(freetype_DEPENDENCIES ${pkgconfig_dep} ${png_dep})
+set(fontconfig_DEPENDENCIES ${pkgconfig_dep} ${libXML2_dep} ${freetype_dep})
 set(g2clib_DEPENDENCIES ${pkgconfig_dep} ${png_dep} ${zlib_dep} ${jasper_dep})
 set(Python_DEPENDENCIES ${pkgconfig_dep} ${termcap_dep} ${readline_dep} ${TclTk_dep} ${libXML2_dep} ${CURL_dep} ${zlib_dep} ${libXSLT_dep} ${png_dep} ${jpeg_dep} ${tiff_dep})
 set(SIP_DEPENDENCIES ${pkgconfig_dep} ${Python_dep})

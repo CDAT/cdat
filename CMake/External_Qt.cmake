@@ -19,9 +19,9 @@ if(WIN32)
   set(qt_build ${qt_build_program})
   set(qt_install "")
 else()
-  set(qt_configure echo yes | sh ./configure -release
+  set(qt_configure echo yes | sh configure --prefix=${qt_install_dir} -release
     -nomake examples -nomake demos -no-audio-backend -no-multimedia 
-    -phonon --prefix=${qt_install_dir} -opensource)
+    -phonon -opensource)
   if ("-m32" STREQUAL "${CMAKE_CXX_FLAGS}")
     set(qt_configure echo yes | sh ./configure -release
       -nomake examples -nomake demos -no-audio-backend -no-multimedia 
@@ -58,8 +58,6 @@ ExternalProject_Add(Qt
   SOURCE_DIR ${qt_source}
   BUILD_IN_SOURCE 1
   CONFIGURE_COMMAND ${qt_configure}
-  BUILD_COMMAND ${qt_build}
-  INSTALL_COMMAND "${qt_install}"
   DEPENDS ${Qt_DEPENDENCIES}
   )
 

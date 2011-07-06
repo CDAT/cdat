@@ -14,5 +14,6 @@ ExternalProject_Add(VisTrails
   BUILD_IN_SOURCE 1
   CONFIGURE_COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/vistrails_make_step.cmake
   DEPENDS ${VisTrails_DEPENDENCIES}
+  ${EP_LOG_OPTIONS}
   )
 

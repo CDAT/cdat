@@ -50,6 +50,7 @@ set(proj Python)
     BUILD_COMMAND ${python_BUILD_COMMAND}
     INSTALL_COMMAND ${python_INSTALL_COMMAND}
     DEPENDS ${Python_DEPENDENCIES}
+    ${EP_LOG_OPTIONS}
     )
 
 #-----------------------------------------------------------------------------

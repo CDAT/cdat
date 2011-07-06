@@ -25,5 +25,6 @@ ExternalProject_Add(Pmw
   BUILD_COMMAND ${Pmw_build_command}
   INSTALL_COMMAND ${Pmw_install_command}
   DEPENDS ${Pmw_DEPENDENCIES}
+  ${EP_LOG_OPTIONS}
 )
 

@@ -25,6 +25,7 @@ ExternalProject_Add(setuptools
   BUILD_COMMAND ${setuptools_build_command}
   INSTALL_COMMAND ${setuptools_install_command}
   DEPENDS ${setuptools_DEPENDENCIES}
+  ${EP_LOG_OPTIONS}
 )
 
 set(setuptools_DIR "${setuptools_binary}" CACHE PATH "setuptools binary directory" FORCE)

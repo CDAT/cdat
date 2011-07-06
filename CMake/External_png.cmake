@@ -24,6 +24,7 @@ if(WIN32)
   CMAKE_ARGS
     -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
   DEPENDS ${png_dependencies}
+  ${EP_LOG_OPTIONS}
   )
 
 else()
@@ -41,6 +42,7 @@ else()
     PATCH_COMMAND ""
     CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
     DEPENDS ${png_DEPENDENCIES}
+    ${EP_LOG_OPTIONS}
   )
 
 endif()

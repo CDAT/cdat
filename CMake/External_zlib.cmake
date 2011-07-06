@@ -22,6 +22,7 @@ if(WIN32)
       ${zlib_EXTRA_ARGS}
     CMAKE_ARGS
       -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+    ${EP_LOG_OPTIONS}
   )
 
 else()
@@ -39,6 +40,7 @@ else()
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
     DEPENDS ${zlib_DEPENDENCIES}
+    ${EP_LOG_OPTIONS}
   )
 
 endif()

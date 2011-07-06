@@ -42,6 +42,7 @@ ExternalProject_Add(ParaView
   BUILD_COMMAND ${CMAKE_COMMAND} -DWORKING_DIR=<BINARY_DIR> -Dmake=$(MAKE) -P ${cdat_CMAKE_BINARY_DIR}/cdat_cmake_make_step.cmake
   INSTALL_COMMAND pwd
   DEPENDS ${ParaView_DEPENDENCIES}
+  ${EP_LOG_OPTIONS}
 )
 
 configure_file(${cdat_CMAKE_SOURCE_DIR}/vtk_install_python_module.cmake.in

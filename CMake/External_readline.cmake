@@ -13,5 +13,6 @@ ExternalProject_Add(readline
   PATCH_COMMAND ""
   CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
   DEPENDS ${readline_DEPENDENCIES}
+  ${EP_LOG_OPTIONS}
 )
 

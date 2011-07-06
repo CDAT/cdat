@@ -12,4 +12,5 @@ ExternalProject_Add(termcap
   PATCH_COMMAND ""
   CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
   DEPENDS ${termcap_DEPENDENCIES}
+  ${EP_LOG_OPTIONS}
 )

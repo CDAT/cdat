@@ -12,4 +12,5 @@ ExternalProject_Add(gifsicle
   PATCH_COMMAND ""
   CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
   DEPENDS ${gifsicle_DEPENDENCIES}
+  ${EP_LOG_OPTIONS}
 )

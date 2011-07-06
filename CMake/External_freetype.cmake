@@ -12,6 +12,7 @@ ExternalProject_Add(freetype
   PATCH_COMMAND ""
   CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
   DEPENDS ${freetype_DEPENDENCIES}
+  ${EP_LOG_OPTIONS}
 )
 
 #ln -sf @EXTERNALS@/include/freetype2/freetype @EXTERNALS@/include/freetype

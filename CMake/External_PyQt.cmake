@@ -13,4 +13,5 @@ ExternalProject_Add(PyQt
   BUILD_IN_SOURCE 1
   CONFIGURE_COMMAND ${PyQt_configure_command}
   DEPENDS ${PyQt_DEPENDENCIES}
+  ${EP_LOG_OPTIONS}
   )

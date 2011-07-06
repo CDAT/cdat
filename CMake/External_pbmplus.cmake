@@ -19,6 +19,7 @@ ExternalProject_Add(pbmplus
   BUILD_COMMAND ${CMAKE_COMMAND} -Dmake=$(MAKE) -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake
   CONFIGURE_COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/pbmplus_configure_step.cmake
   DEPENDS ${pbmplus_DEPENDENCIES}
+  ${EP_LOG_OPTIONS}
 )
 
 ExternalProject_Add_Step(pbmplus CopyPbmplusHeader

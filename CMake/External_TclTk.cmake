@@ -20,6 +20,7 @@ ExternalProject_Add(${proj}
   BUILD_COMMAND ${CMAKE_COMMAND} -Dmake=$(MAKE) -DWORKING_DIR=<SOURCE_DIR>/unix -P ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake
   INSTALL_COMMAND ${CMAKE_COMMAND} -DWORKING_DIR=<SOURCE_DIR>/unix -P ${cdat_CMAKE_BINARY_DIR}/cdat_install_step.cmake
   DEPENDS ${TclTk_DEPENDENCIES}
+  ${EP_LOG_OPTIONS}
 )
 
 # tk
@@ -37,6 +38,7 @@ ExternalProject_Add(${proj}
   BUILD_COMMAND ${CMAKE_COMMAND} -Dmake=$(MAKE) -DWORKING_DIR=<SOURCE_DIR>/unix -P ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake
   INSTALL_COMMAND ${CMAKE_COMMAND} -DWORKING_DIR=<SOURCE_DIR>/unix -P ${cdat_CMAKE_BINARY_DIR}/cdat_install_step.cmake
   DEPENDS tcl-${TCLTK_MAJOR}.${TCLTK_MINOR}
+  ${EP_LOG_OPTIONS}
 )
 
 ExternalProject_Add_Step(${proj} symlink
@@ -55,5 +57,6 @@ ExternalProject_Add(TclTk
   BUILD_COMMAND ""
   INSTALL_COMMAND ""
   DEPENDS tk-${TCLTK_MAJOR}.${TCLTK_MINOR}
+  ${EP_LOG_OPTIONS}
 )
 

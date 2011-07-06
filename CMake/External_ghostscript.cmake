@@ -15,4 +15,5 @@ ExternalProject_Add(ghostscript
   CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -DCONFIGURE_ARGS=${ghostscripts_args} -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
   BUILD_COMMAND ${CMAKE_COMMAND} -Dmake=$(MAKE) -DBUILD_ARGS=${ghostscript_source} -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake
   DEPENDS ${ghostscript_DEPENDENCIES}
+  ${EP_LOG_OPTIONS}
 )

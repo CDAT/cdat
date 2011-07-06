@@ -12,9 +12,9 @@ endif()
 #env EXTERNALS=/Users/partyd/Kitware/uv-cdat/make-file-install//Externals  LDFLAGS="${LDFLAGS/"/} -undefined dynamic_lookup"  /Users/partyd/Kitware/uv-cdat/make-file-install//bin/python install.py  --enable-qt-framework  --with-qt=/Users/partyd/Kitware/uv-cdat/make-file-install//Externals
 
 if(APPLE)
-  set(qt_flags --enable-qt-framework --with-qt=${QT_ROOT})
+  set(qt_flags "--enable-qt-framework --with-qt=${QT_ROOT}")
 else()
-  set(qt_flags --with-qt=${QT_ROOT})
+  set(qt_flags "--with-qt=${QT_ROOT}")
 endif()
 
 if(CDAT_USE_SYSTEM_QT AND QT_QTCORE_INCLUDE_DIR)

@@ -14,4 +14,5 @@ ExternalProject_Add(g2clib
   BUILD_COMMAND ${CMAKE_COMMAND} -Dmake=$(MAKE) -DWORKING_DIR=<SOURCE_DIR>/g2clib-${G2CLIB_VERSION} -P ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake
   INSTALL_COMMAND ${CMAKE_COMMAND} -DWORKING_DIR=<SOURCE_DIR>/g2clib-${G2CLIB_VERSION} -P ${cdat_CMAKE_BINARY_DIR}/cdat_install_step.cmake
   DEPENDS ${g2clib_DEPENDENCIES}
+  ${EP_LOG_OPTIONS}
 )

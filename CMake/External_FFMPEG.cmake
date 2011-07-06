@@ -17,6 +17,7 @@ ExternalProject_Add(FFMPEG
   PATCH_COMMAND ""
   CONFIGURE_COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/ffmpeg_configure_step.cmake
   DEPENDS ${FFMPEG_DEPENDENCIES}
+  ${EP_LOG_OPTIONS}
   )
 
 set(FFMPEG_INCLUDE_DIR ${ffmpeg_install}/include)
