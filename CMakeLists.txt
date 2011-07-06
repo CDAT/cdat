@@ -106,6 +106,8 @@ endif(CMAKE_Fortran_COMPILER)
 
 set(EP_PREFIX ${cdat_BINARY_DIR}/build/prefix)
 
+set_property(DIRECTORY PROPERTY EP_LOG_DIR  ${cdat_BINARY_DIR}/logs)
+
 set(EP_LOG_OPTIONS
   LOG_DOWNLOAD 1
   LOG_UPDATE 1
@@ -237,9 +239,7 @@ macro (add_cdat_package package)
   endif()
 endmacro (add_cdat_package)
 
-if(NOT QT_QMAKE_EXECUTABLE)
-  find_package(Qt4)
-endif()
+find_package(Qt4)
 
 option(CDAT_USE_SYSTEM_INTROSPECTION "Build ParaView" OFF)
 
