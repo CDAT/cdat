@@ -7,19 +7,19 @@ set(proj Python)
   set(python_aqua_cdat no)
 
   configure_file(${cdat_CMAKE_SOURCE_DIR}/python_patch_step.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/python_patch_step.cmake
+    ${cdat_CMAKE_BINARY_DIR}/python_patch_step.cmake
     @ONLY)
     
   configure_file(${cdat_CMAKE_SOURCE_DIR}/python_configure_step.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/python_configure_step.cmake
+    ${cdat_CMAKE_BINARY_DIR}/python_configure_step.cmake
     @ONLY)
   
   configure_file(${cdat_CMAKE_SOURCE_DIR}/python_make_step.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/python_make_step.cmake
+    ${cdat_CMAKE_BINARY_DIR}/python_make_step.cmake
     @ONLY)
     
   configure_file(${cdat_CMAKE_SOURCE_DIR}/python_install_step.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/python_install_step.cmake
+    ${cdat_CMAKE_BINARY_DIR}/python_install_step.cmake
     @ONLY)
 
   set(python_PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${cdat_SOURCE_DIR}/pysrc/src/setup-${PYTHON_VERSION}.py ${python_SOURCE_DIR}/setup.py)
@@ -29,13 +29,13 @@ set(proj Python)
     #set(python_BUILD_COMMAND ${CMAKE_COMMAND} -E echo "Fake Python Build step")
     #set(python_INSTALL_COMMAND ${CMAKE_COMMAND} -E echo "Fake Python Install step")
 
-    set(python_CONFIGURE_COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/python_configure_step.cmake)
-    set(python_BUILD_COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/python_make_step.cmake)
-    set(python_INSTALL_COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/python_install_step.cmake)
+    set(python_CONFIGURE_COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/python_configure_step.cmake)
+    set(python_BUILD_COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/python_make_step.cmake)
+    set(python_INSTALL_COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/python_install_step.cmake)
   else()
-    set(python_CONFIGURE_COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/python_configure_step.cmake)
-    set(python_BUILD_COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/python_make_step.cmake)
-    set(python_INSTALL_COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/python_install_step.cmake)
+    set(python_CONFIGURE_COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/python_configure_step.cmake)
+    set(python_BUILD_COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/python_make_step.cmake)
+    set(python_INSTALL_COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/python_install_step.cmake)
   endif()
   
   ExternalProject_Add(${proj}

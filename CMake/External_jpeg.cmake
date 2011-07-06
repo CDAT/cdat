@@ -3,10 +3,10 @@ set(jpeg_source "${CMAKE_CURRENT_BINARY_DIR}/build/jpeg")
 set(jpeg_install "${cdat_EXTERNALS}")
 
 configure_file(${cdat_CMAKE_SOURCE_DIR}/jpeg_install_step.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/jpeg_install_step.cmake
+    ${cdat_CMAKE_BINARY_DIR}/jpeg_install_step.cmake
     @ONLY)
 
-set(jpeg_INSTALL_COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/jpeg_install_step.cmake)
+set(jpeg_INSTALL_COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/jpeg_install_step.cmake)
 
 ExternalProject_Add(jpeg
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
