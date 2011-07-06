@@ -61,7 +61,7 @@ if(APPLE)
 endif()
 
 #-----------------------------------------------------------------------------
-# Git protocole option
+# Git protocol option
 #-----------------------------------------------------------------------------
 
 option(GIT_USE_GIT_PROTOCOL "If behind a firewall turn this off to use http instead." ON)
@@ -71,8 +71,29 @@ if(NOT Slicer_USE_GIT_PROTOCOL)
   set(git_protocol "http")
 endif()
 
+#-----------------------------------------------------------------------------
+# Initialize git submodules.
+#-----------------------------------------------------------------------------
 
+find_package(Git)
+
+if(GIT_FOUND)
+  message("Updating git submodules")
+
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} submodule init
+    WORKING_DIRECTORY ${cdat_SOURCE_DIR}
+  )
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} submodule update
+    WORKING_DIRECTORY ${cdat_SOURCE_DIR}
+  )
+endif()
+
+#-----------------------------------------------------------------------------
 # Attempt to detect if we have a Fortran Compiler available.
+#-----------------------------------------------------------------------------
+
 include(CheckFortran)
 
 if(CMAKE_Fortran_COMPILER)
