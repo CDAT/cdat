@@ -3,7 +3,8 @@ CDMS module-level API
 """
 import cdat_info
 cdat_info.pingPCMDIdb("cdat","start")
-__all__ = ["cdmsobj", "axis", "coord", "grid", "hgrid", "avariable", "sliceut", "error", "variable", "fvariable", "tvariable", "dataset", "database", "cache", "selectors", "MV2", "convention", "bindex", "auxcoord", "gengrid", "gsHost", "gsStatVar"]
+__all__ = ["cdmsobj", "axis", "coord", "grid", "hgrid", "avariable", "sliceut", "error", "variable", "fvariable", "tvariable", "dataset", "database", "cache", "selectors", "MV2", "convention",
+"bindex", "auxcoord", "gengrid", "gsHost", "gsStaticVariable"]
 # Errors
 from error import CDMSError
 
@@ -37,8 +38,8 @@ from avariable import order2index, orderparse, setNumericCompatibility, getNumer
 from tvariable import asVariable, createVariable, isVariable
 
 from gsHost import GsHost
-from gsStaticVariable import GsStaticVariable
-from gsTimeVariable import GsTimeVariable
+from gsStaticVariable import StaticVariable
+from gsTimeVariable import TimeVariable
 
 from restApi import esgfConnection
 

@@ -68,7 +68,7 @@ def createGrid(gFName, coordinates):
     grid = TransientCurveGrid(lataxis, lonaxis, id=gridid)
     return grid
 
-class GsStaticVariable(object):
+class StaticVariable:
     """
     Static variable extending over multiple grid files
     """

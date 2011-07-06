@@ -14,8 +14,8 @@ import cdms2
 from cdms2.avariable import AbstractVariable
 from cdms2.tvariable import TransientVariable
 from cdms2.cdmsobj import CdmsObj
-from cdms2.gsStaticVariable import GsStaticVariable
-from cdms2.gsTimeVariable import GsTimeVariable
+from cdms2.gsStaticVariable import StaticVariable
+from cdms2.gsTimeVariable import TimeVariable
 import re
 from pycf import libCFConfig, __path__
 LIBCF = __path__[0] + '/libcf'
@@ -441,15 +441,13 @@ class GsHost:
         """
         # Static variables
         if self.statVars.has_key(varName):
-            GsStatVar = GsStaticVariable
-            staticVariables = GsStatVar(self, varName, **speclist)
+            staticVariables = StatVariable(self, varName, **speclist)
 
             return staticVariables.vars 
 
         # Time variables
         elif self.timeDepVars.has_key(varName):
-            GsTimeObj = GsTimeVariable
-            timeVariables = GsTimeObj(self, varName, **speclist)
+            timeVariables = TimeVariable(self, varName, **speclist)
             
             return timeVariables.vars
     

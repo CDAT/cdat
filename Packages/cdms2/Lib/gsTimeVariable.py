@@ -10,12 +10,12 @@ No guarantee is provided whatsoever. Use at your own risk.
 import operator
 import cdms2
 from cdms2.MV2 import concatenate
-from cdms2.gsStaticVariable import GsStaticVariable
+from cdms2.gsStaticVariable import StaticVariable
 from cdms2.error import CDMSError
 from cdms2.hgrid import AbstractCurveGrid, TransientCurveGrid
 from cdms2.coord import TransientAxis2D, TransientVirtualAxis
 
-class GsTimeVariable(GsStaticVariable):
+class TimeVariable(StaticVariable):
 
     def __init__(self, gsHost, varName, **slicekwargs):
         """
