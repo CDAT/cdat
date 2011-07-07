@@ -29,8 +29,11 @@ from cdmsNode import CdDatatypes
 import convention
 import typeconv
 import AutoAPI
-import gsHost
-from pycf import libCFConfig as libcf
+try:
+ import gsHost
+ from pycf import libCFConfig as libcf
+except:
+ pass
 
 try:
     import cache
