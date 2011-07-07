@@ -186,8 +186,6 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
             datanode = load(path)
         else:
             file = CdmsFile(path,mode)
-            print '\nPRINTING dir(%s)\n' % path
-            print dir(file)
             try:
              if hasattr(file, libcf.CF_FILETYPE):
                 if getattr(file, libcf.CF_FILETYPE) == libcf.CF_GLATT_FILETYPE_HOST:
