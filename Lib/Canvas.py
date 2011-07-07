@@ -68,17 +68,13 @@ canvas_closed = 0
 import vcsaddons
 
 from PyQt4 import QtGui,QtCore
-class QAnimThread(QtCore.QThread):
-    def __init__(self,parent,func,*args):
-        QtCore.QThread.__init__(self,parent)
-        print "Func is:",func
-        print "Args:",args
-        self.func=func
-        self.args=args
-    def run(self):
-        print "RUNNING:"
-        self.func(*self.args)
-        print "BACK"
+## class QAnimThread(QtCore.QThread):
+##     def __init__(self,parent,func,*args):
+##         QtCore.QThread.__init__(self,parent)
+##         self.func=func
+##         self.args=args
+##     def run(self):
+##         self.func(*self.args)
         
 def showerror(msg):
     d=QtGui.QErrorMessage()
@@ -8359,11 +8355,11 @@ class animate_obj:
 
       if save_file is None or save_file.split('.')[-1].lower()=='ras':
           if thread_it == 1:
-              #thread.start_new_thread( self.vcs_self.canvas.animate_init, (save_file,) )
+              thread.start_new_thread( self.vcs_self.canvas.animate_init, (save_file,) )
               ## from cdatguiwrap import VCSQtManager
               ## w = VCSQtManager.window(0)
-              self.mythread=QAnimThread(None,self.vcs_self.canvas.animate_init,save_file)
-              self.mythread.start()
+              #self.mythread=QAnimThread(None,self.vcs_self.canvas.animate_init,save_file)
+              #self.mythread.start()
           else:
               self.vcs_self.canvas.animate_init( save_file )
       else: # ffmpeg stuff
