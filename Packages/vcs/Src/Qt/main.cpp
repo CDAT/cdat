@@ -61,6 +61,10 @@ extern "C" void vcs_Qt_clear_window_by_id(int id)
 //   QCoreApplication::postEvent(VCSQtWindows[index], new QEvent(VCS_HIDE_EVENT));
 //   return;
 // }
+// extern "C" void vcs_Qt_animation_created(int index){
+//   QVCSEvent *event = new QVCSEvent(VCS_ANIMATION_CREATED_EVENT);
+//   VCSQtManager::sendEvent(index, event);
+// }
 
 extern "C" void vcs_Qt_resize_window(int index,int x,int y,int w, int h)
 {

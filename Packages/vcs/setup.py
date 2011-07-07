@@ -200,7 +200,9 @@ if WM=="QT" or EM=="QT":
     ## Ok here we generate the moc file
     if os.path.exists("Src/Qt/moc_mainwindow.cpp"):
        os.remove("Src/Qt/moc_mainwindow.cpp")
-    ln = os.popen("%s Include/Qt/mainwindow.h > Src/Qt/moc_mainwindow.cpp" % MOC).readlines()
+    moccmd = "%s Include/Qt/mainwindow.h > Src/Qt/moc_mainwindow.cpp" % MOC
+    print "MOC:",moccmd
+    ln = os.popen(moccmd).readlines()
     if not os.path.exists("Src/Qt/moc_mainwindow.cpp"):
         print "".join(ln)
         raise "Error could not generate the moc file"

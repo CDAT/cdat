@@ -20089,7 +20089,7 @@ PyVCS_animate_init(PyVCScanvas_Object *self, PyObject *args)
 	extern void 		update_vcs_connection_information();
         extern int		create_image_toggle_cb();
 	extern int 		animate_module();
-
+	/* extern void vcs_Qt_animation_created(); */
 	/* Check for animation file name */
 	afile[0] = '\0';
   	if(PyArg_ParseTuple(args, "|s", &save_file)) {
@@ -20138,6 +20138,7 @@ PyVCS_animate_init(PyVCScanvas_Object *self, PyObject *args)
         if (self->gui == 1) {
              update_end_of_animation( self );
         }
+	/* vcs_Qt_animation_created(self->canvas_id); */
         /* Return NULL Python Object */
         Py_INCREF (Py_None);
         return Py_None;

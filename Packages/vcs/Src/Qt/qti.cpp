@@ -17,6 +17,7 @@ static void createWindows() {
   }
 }
 
+
 void VCSQtManager::createCanvases() {
 #ifndef __APPLE__
   if (VCSQtManager::app()==NULL) {
@@ -44,7 +45,28 @@ void VCSQtManager::sendEvent(int index, QEvent::Type eventType) {
 }
 
 void VCSQtManager::sendEvent(int index, QVCSBaseEvent *event) {
-  sendEvent(VCSQtManager::window(index), event);
+  event->mutex = NULL;
+  event->cond = NULL;
+  if (QThread::currentThread()==VCSQtManager::window(index)->thread()) {
+    QCoreApplication::sendEvent(VCSQtManager::window(index),event);
+  }
+  else {
+    if (VCSQtManager::owningApp()) {
+      QMutex *mutex = new QMutex();
+      QWaitCondition *cond = new QWaitCondition();
+      event->mutex=mutex;
+      event->cond=cond;
+      mutex->lock();
+      QCoreApplication::postEvent(VCSQtManager::window(index),event);
+      cond->wait(mutex);
+      delete mutex;
+      delete cond;
+    }
+    else {
+      QCoreApplication::postEvent(VCSQtManager::window(index),event);
+    }
+  }
+  //sendEvent(VCSQtManager::window(index), event);
 }
 
 void VCSQtManager::sendEvent(QObject *window, QVCSBaseEvent *event) {

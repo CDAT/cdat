@@ -485,7 +485,9 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
     def set_fill_value(self, value):
         "Set missing value attribute and fill value"
         AbstractVariable.setMissing(self, value)
-        self.__dict__['_fill_value'] = self.missing_value
+        #self.__dict__['_fill_value'] = self.missing_value
+        ## Fix submitted by Ghislain Picard, this was broken with numpy 1.5
+        numpy.ma.MaskedArray.set_fill_value(self,value)
 
     def setMissing (self, value):
         "Set missing value attribute and fill value"
