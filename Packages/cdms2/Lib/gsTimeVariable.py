@@ -60,8 +60,8 @@ class TimeVariable(StaticVariable):
                         continue
 
                     # Attach the grid to the variable
-                    grid = cdms2.gsstaticvariable.createGrid(gFName, \
-                                           var.attributes['coordinates'])
+                    grid = cdms2.gsStaticVariable.createGrid(gFName, \
+                                         var.attributes['coordinates'])
                     axis0 = var.getAxis(0)
                     gridaxes = grid.getAxisList()
                     axes = [axis0, gridaxes[0], gridaxes[1]]
