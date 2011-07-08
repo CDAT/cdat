@@ -228,6 +228,9 @@ class Host:
         return mfn
 
     def writeMosaic(self):
+        """
+        Write a mosaic file from tiles and data stored in self.
+        """
         raise CDMSError, "Method Not Implemented"
 
     def getCoordinates(self, gindx):
@@ -416,8 +419,8 @@ class Host:
         """
         # Static variables
         if self.statVars.has_key(varName):
-            staticVariables = StaticVariable(self, varName, **speclist)
-#            staticVariables = StaticVariable(self, varName)
+#            staticVariables = StaticVariable(self, varName, **speclist)
+            staticVariables = StaticVariable(self, varName)
 
             return staticVariables.vars 
 
@@ -428,7 +431,7 @@ class Host:
             
             return timeVariables.vars
     
-#    def __call__(self, varName):
+    def __call__(self, varName):
         """
         Equivalent to self[varName] -- Return a list of file variables
         including the grid for each.
@@ -439,7 +442,8 @@ class Host:
         Currently returns a transient variable. File variable needs still to
         be implemented
         """
-        return self.__getitem__(varName, **speclist)
+#        return self.__getitem__(varName, **speclist)
+        return self.__getitem__(varName)
 
 ##############################################################################
 
