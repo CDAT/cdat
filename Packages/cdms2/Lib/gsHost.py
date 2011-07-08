@@ -16,6 +16,7 @@ from cdms2.tvariable import TransientVariable
 from cdms2.cdmsobj import CdmsObj
 from cdms2.gsStaticVariable import StaticVariable
 from cdms2.gsTimeVariable import TimeVariable
+from cdms2.error import CDMSError
 
 try:
     from pycf import libCFConfig, __path__
@@ -66,8 +67,7 @@ class Host:
             if self.libcfdll:
                 break
         if self.libcfdll == None: 
-            print 'libcf not installed or incorrect path\n  ', self.libcfdll
-            self._status_ = 'closed'
+            raise CDMSError, 'libcf not installed or incorrect path\n  '
 
         elif self._status_ == 'open':
 
@@ -125,10 +125,9 @@ class Host:
             status = libcfdll.nccf_def_host_from_file(hostfile,
                                                    byref(self.hostId_t))
             if status != 0:
-                print "ERROR: File %s doesn't exist or is not a valid host file" % \
-                    hostfile
-                print "error code: ", status
-                return
+                raise CDMSError, \
+                    "ERROR: not a valid host file (status=%d)" % \
+                    (hostfile, status)
 
             # Attach global attrs
             libcfdll.nccf_def_global_from_file( hostfile, byref(self.globalId_t))
@@ -315,7 +314,6 @@ class Host:
         @param varName variable name
         @return attributes list
         """
-        print 'Host.listatt'
         fName = ""
         if self.statVars.has_key(varName):
             fName = self.statVars[varName][0]
