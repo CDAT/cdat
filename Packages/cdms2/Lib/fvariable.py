@@ -12,6 +12,7 @@ from variable import DatasetVariable
 from error import CDMSError
 from sliceut import reverseSlice
 from avariable import AbstractVariable
+from cdms2 import Cdunif
 from Cdunif import CdunifError
 
 FileClosed = "Cannot read from closed file, variable: "

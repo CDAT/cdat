@@ -16,7 +16,8 @@ from cdms2.tvariable import TransientVariable
 from cdms2.cdmsobj import CdmsObj
 from cdms2.gsStaticVariable import StaticVariable
 from cdms2.gsTimeVariable import TimeVariable
-import re
+
+# IF pycf is being loaded in dataset.py, we don't need to check here.
 from pycf import libCFConfig, __path__
 LIBCF = __path__[0] + '/libcf'
 
@@ -49,9 +50,6 @@ class Host:
         @param mode read only at the moment
         """
         
-#        AbstractVariable.__init__(self, None)
-#        CdmsObj.__init__(self)
-
         # Data dir based on location of hostfile
         self.libcfdll = None
         self.dirname  = os.path.dirname(hostfile)
@@ -154,7 +152,9 @@ class Host:
                                                           gfindx, 
                                                           fName_t)
                 self.gridFilenames.append(fName_t.value)
-                varNames = cdms2.open(fName_t.value, 'r').listvariable()
+
+                f = cdms2.open(fName_t.value, 'r')
+                varNames = f.listvariable()
                 for vn in varNames:
                     if not self.gridVars.has_key(vn):
                         # allocate
@@ -214,6 +214,10 @@ class Host:
         return self.hostFileVars
 
     def getMosaic(self):
+        """
+        Get the mosaic filename
+        @return mfn Mosaic filename
+        """
         from gsMosaic import Mosaic
         mosaicFilename = c_char_p(" " * (libCFConfig.NC_MAX_NAME + 1))
         status = self.libcfdll.nccf_inq_host_mosaicfilename(self.hostId_t, mosaicFilename)
@@ -222,7 +226,7 @@ class Host:
         return mfn
 
     def writeMosaic(self):
-        pass
+        raise CDMSError, "Method Not Implemented"
 
     def getCoordinates(self, gindx):
         """
@@ -250,6 +254,7 @@ class Host:
             from re import search
             # Look for some form of degrees_north
             if search('degree', crd.units) and search('[nN]', crd.units):
+                gridFile.close()
                 return crd
 
     def getLongitude(self, gindx):
@@ -273,7 +278,6 @@ class Host:
         @return number of grids
         """
         return len(self.gridFilenames)
-#        return self.ngrids
 
     def getNumStatDataFiles(self):
         """
@@ -388,31 +392,25 @@ class Host:
     def __repr__(self): 
         """
         Python repr()
+        @return res Print statement
         """
         res = "< '%s',  URI: '%s', MODE: '%s', STATUS: '%s',\n libcf: %s >" % \
             ( self.__class__, self.uri, self.mode, self._status_, self.libcfdll)
         return res 
 
-    def __setitem__(self):
-        """
-        Setitem
-        """
-        # self.libcfdll.nccf_put_host( ncid, self.hostId_t )
-        pass
-
     def __del__(self):
         """
-        Run at close time
+        Free the host file from memory
         """
         self.libcfdll.nccf_free_host( self.hostId_t )
 
     def __getitem__(self, varName, **speclist):
         """
-        self[variableName] 
+        self(variableName) 
         The returned variable is a var[nGrids][[nTimes, nz], ny,  nx]
         Note that for nTimes, the time across files are concatenated together
         @param varName name of variable
-        @return aggregated variable
+        @return aggregated transient variable
         """
         # Static variables
         if self.statVars.has_key(varName):
@@ -428,7 +426,14 @@ class Host:
     
     def __call__(self, varName, **speclist):
         """
-        Equivalent to self[varName]
+        Equivalent to self[varName] -- Return a list of file variables
+        including the grid for each.
+        @varName variable name
+        @return File variable
+
+        NOTE:
+        Currently returns a transient variable. File variable needs still to
+        be implemented
         """
         return self.__getitem__(varName, **speclist)
 
