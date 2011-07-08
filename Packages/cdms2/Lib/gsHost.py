@@ -441,7 +441,7 @@ class GsHost:
         """
         # Static variables
         if self.statVars.has_key(varName):
-            staticVariables = StatVariable(self, varName, **speclist)
+            staticVariables = StaticVariable(self, varName, **speclist)
 
             return staticVariables.vars 
 
