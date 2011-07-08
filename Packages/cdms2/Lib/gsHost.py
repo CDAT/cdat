@@ -404,7 +404,8 @@ class Host:
         """
         self.libcfdll.nccf_free_host( self.hostId_t )
 
-    def __getitem__(self, varName, **speclist):
+#    def __getitem__(self, varName, **speclist):
+    def __getitem__(self, varName):
         """
         self(variableName) 
         The returned variable is a var[nGrids][[nTimes, nz], ny,  nx]
@@ -415,16 +416,18 @@ class Host:
         # Static variables
         if self.statVars.has_key(varName):
             staticVariables = StaticVariable(self, varName, **speclist)
+#            staticVariables = StaticVariable(self, varName)
 
             return staticVariables.vars 
 
         # Time variables
         elif self.timeDepVars.has_key(varName):
-            timeVariables = TimeVariable(self, varName, **speclist)
+            timeVariables = TimeVariable(self, varName)
+#            timeVariables = TimeVariable(self, varName, **speclist)
             
             return timeVariables.vars
     
-    def __call__(self, varName, **speclist):
+#    def __call__(self, varName):
         """
         Equivalent to self[varName] -- Return a list of file variables
         including the grid for each.

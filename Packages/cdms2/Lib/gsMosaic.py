@@ -440,27 +440,6 @@ class Mosaic:
             ( self.id, self.uri, self.mode, self._status)
         return res
 
-    # Not sure yet if these are needed.
-    def __getitem__(self):
-        pass
-
-    def __call__(self):
-        pass
-
-    def __setitem__(self):
-        CDMSError, "Method not implemented"
-#        """
-#        Only if self.mode is 'w'
-#        """
-#        if self.mode == 'w':
-#            # self.lib.nccf_put_mosaic( ncid, self.mosaicId_t )
-#            pass
-#        else:
-#            print 'Mode set to %s' % self.mode
-
-    def __del__(self):
-        self.lib.nccf_free_mosaic(self.mosaicId_t)
-
 #############################################################################
 
 def test():
