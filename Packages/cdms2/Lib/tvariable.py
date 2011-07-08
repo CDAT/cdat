@@ -515,14 +515,16 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         """
         Save data to file for postprocessing by the VisIt visualization tool
         filename: name of the file where the data will be saved
-        format: 'Vs' for VizSchema, 'VTK', ...
+        format: 'Vs' for VizSchema, 'VTK' for VTK, ...
         sphereRadius: radius of the earth
         maxElev: maximum elevation for representation on the sphere
         """
         import mvSphereMesh
         import mvVTKSGWriter
+        import mvVsWriter
         try:
-            import mvVsWriter # must have tables installed
+            # required by mvVsWriter
+            import tables
         except:
             # fall back 
             format = 'VTK'
@@ -553,7 +555,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
                 if filename.find('.vtk') == -1: 
                     filename += '.vtk'
                 vw.write(filename)
-            else: 
+            else:
                 vw = mvVsWriter.VsWriter(self)
                 if filename.find('.vsh5') == -1: 
                     filename += '.vsh5'

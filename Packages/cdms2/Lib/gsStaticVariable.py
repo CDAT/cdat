@@ -98,8 +98,8 @@ class StaticVariable:
             fh = cdms2.open(fName)
             gh = cdms2.open(gFName)
 
-            # alternatively vr = fh(varName)
-            vr = fh[varName]
+            # alternatively vr = fh[varName]
+            vr = fh(varName)
 
             fh.close()
             vr.gridFilename = gFName
