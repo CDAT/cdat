@@ -9,7 +9,7 @@ No guarantee is provided whatsoever. Use at your own risk.
 """
 
 import os.path
-from ctypes import c_float, c_char_p, c_int, CDLL, byref, POINTER
+from ctypes import c_char_p, c_int, CDLL, byref
 import cdms2
 from cdms2.avariable import AbstractVariable
 from cdms2.tvariable import TransientVariable

@@ -446,7 +446,6 @@ class Mosaic:
     def __del__(self):
         self.lib.nccf_free_mosaic(self.mosaicId_t)
 
-
 #############################################################################
 
 def test():
