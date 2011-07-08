@@ -158,13 +158,24 @@ class Mosaic:
             self.tile_contacts_compl[tileName2][tileName1] = (slab2, slab1)
 
     def getContactMap(self):
+        """
+        @return tile_contacts
+        """
         return self.tile_contacts
 
     def getTileNames(self):
+        """
+        @return tile_names
+        """
         return self.tile_names
 
     def getCellCenteredSlab(self, slab1, slab2):
-        # adjust for cell centers
+        """
+        Adjust Slab from node based to cell based
+        @slab1 Slab from tile 1
+        @slab2 Slab from tile 2
+        @return tuple of adjusted slab 1 and slab 2
+        """
         newslabs = []
         for slab in slab1, slab2:
             newslab = []
@@ -179,6 +190,11 @@ class Mosaic:
         return (slab1, slab2)
     
     def getSeamGrids(self, coordData):
+        """
+        Retrieve the seem grids between two cell centered tiles
+        @coordData Coordinate data
+        @return transient variable grid
+        """
         result = []
         for tn1 in self.tile_contacts.keys():
             for tn2 in self.tile_contacts[tn1].keys():
@@ -253,6 +269,13 @@ class Mosaic:
         return (result, cornerTV)
 
     def getCornerData(self, tileName1, tileName2, tileName3):
+        """
+        Retrieve the data for the corner piece between three grids (tiles)
+        @tileName1 Tile name of first grid (tile)
+        @tileName2 Tile name of second grid (tile)
+        @tileName3 Tile name of third grid (tile)
+        @return tuple of data marking the corners of the corner grid        
+        """
         
         # Get the slabs and account for cell centers
         s1, s2 = self.tile_contacts[tileName1][tileName2]
@@ -278,6 +301,12 @@ class Mosaic:
         return (pair1, pair2, pair3)
 
     def getContactCornerIndex(self, slab1, slab2):
+        """
+        Get the joining index for two grid from their slab
+        @slab1 First grid (tile)
+        @slab2 Second grid (tile)
+        @return tuple of corner indices
+        """
         c1 = -1
         c2 = -1
         for index in range(2):
@@ -400,6 +429,10 @@ class Mosaic:
 
     
     def getCoordinateNames(self):
+        """
+        Get the coordinate names for a mosaic
+        @return coordinate_names
+        """
         return self.coordinate_names
 
     def __repr__(self):
@@ -415,14 +448,15 @@ class Mosaic:
         pass
 
     def __setitem__(self):
-        """
-        Only if self.mode is 'w'
-        """
-        if self.mode == 'w':
-            # self.lib.nccf_put_mosaic( ncid, self.mosaicId_t )
-            pass
-        else:
-            print 'Mode set to %s' % self.mode
+        CDMSError, "Method not implemented"
+#        """
+#        Only if self.mode is 'w'
+#        """
+#        if self.mode == 'w':
+#            # self.lib.nccf_put_mosaic( ncid, self.mosaicId_t )
+#            pass
+#        else:
+#            print 'Mode set to %s' % self.mode
 
     def __del__(self):
         self.lib.nccf_free_mosaic(self.mosaicId_t)
