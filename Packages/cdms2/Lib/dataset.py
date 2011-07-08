@@ -191,7 +191,7 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
             datanode = load(path)
         else:
             file1 = CdmsFile(path,"r")
-            if hasattr(file1, libcf1.CF_FILETYPE):
+            if hasattr(file1, libcf.CF_FILETYPE):
                 if getattr(file1, libcf.CF_FILETYPE) == libcf.CF_GLATT_FILETYPE_HOST:
                     file = gsHost.open(path, mode)
                 else:

@@ -448,7 +448,7 @@ class Mosaic:
         pass
 
     def __setitem__(self):
-        CDMSError, "Method not implemented"
+        raise CDMSError, "Method not implemented"
 #        """
 #        Only if self.mode is 'w'
 #        """
