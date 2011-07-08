@@ -18,7 +18,7 @@ from numpy import zeros, reshape
 import cdms2
 from cdms2.hgrid import TransientCurveGrid
 from cdms2.coord import TransientAxis2D, TransientVirtualAxis
-from error import CDMSError
+from cdms2.error import CDMSError
 
 # libcf
 from pycf import libCFConfig, __path__
@@ -408,14 +408,16 @@ class Mosaic:
         return res
 
     # Not sure yet if these are needed.
-    def __get_item__(self):
+    def __getitem__(self):
         pass
 
     def __call__(self):
         pass
 
-    # Write? Only if self.mode is 'w'
-    def __set_item__(self):
+    def __setitem__(self):
+        """
+        Only if self.mode is 'w'
+        """
         if self.mode == 'w':
             # self.lib.nccf_put_mosaic( ncid, self.mosaicId_t )
             pass
@@ -431,32 +433,32 @@ def test():
     import os.path
     from optparse import OptionParser
 
-    usage = """
-    Full path to mosaic file.
-    e.g. python gsMosaic.py -f <path>/ex2_mosaic.nc
-    """
-    parser = OptionParser()
-    parser.add_option("-f", "--file", dest="mfile",
-                  help="full path to mosaic file")
-
-    options, args = parser.parse_args()
-    if not options.mfile:
-        print usage
-        exit(1)
-    # Use the libcf examples directory.
-    if not os.path.exists(options.mfile):
-        print "File '%s' does not exist. Check path" % options.mfile
-        exit(2)
-
-    m = open(options.mfile)
-
-    print "\nCoordinate Names"
-    for c in m.coordinate_names: print c
-
-    print "\nTile Contacts"
-    for t in m.tile_contacts: print "%s -> %s" % (t, m.tile_contacts[t])
-    print "\nTile Contacts Complement"
-    for t in m.tile_contacts_compl: print "%s -> %s" % (t, m.tile_contacts_compl[t])
-    print
+#    usage = """
+#    Full path to mosaic file.
+#    e.g. python gsMosaic.py -f <path>/ex2_mosaic.nc
+#    """
+#    parser = OptionParser()
+#    parser.add_option("-f", "--file", dest="mfile",
+#                  help="full path to mosaic file")
+#
+#    options, args = parser.parse_args()
+#    if not options.mfile:
+#        print usage
+#        exit(1)
+#    # Use the libcf examples directory.
+#    if not os.path.exists(options.mfile):
+#        print "File '%s' does not exist. Check path" % options.mfile
+#        exit(2)
+#
+#    m = open(options.mfile)
+#
+#    print "\nCoordinate Names"
+#    for c in m.coordinate_names: print c
+#
+#    print "\nTile Contacts"
+#    for t in m.tile_contacts: print "%s -> %s" % (t, m.tile_contacts[t])
+#    print "\nTile Contacts Complement"
+#    for t in m.tile_contacts_compl: print "%s -> %s" % (t, m.tile_contacts_compl[t])
+#    print
 
 if __name__ == "__main__": test()
