@@ -142,7 +142,7 @@ class StaticVariable:
 
     def shape(self, gfindx):
         """
-        Return the shape in the format (n0, n1, ...)
+        Return the shape in the format (n0, n1, ...) for a given grid index
         @param gfindx grid file index
         @return result
         """
@@ -150,7 +150,7 @@ class StaticVariable:
 
     def size(self):
         """
-        Return the total number of elements
+        Return the total number of elements for the whole grid
         @return number of elements
         """
         # adding the size of each tile

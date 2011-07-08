@@ -152,7 +152,9 @@ class Host:
                                                           gfindx, 
                                                           fName_t)
                 self.gridFilenames.append(fName_t.value)
-                varNames = cdms2.open(fName_t.value, 'r').listvariable()
+
+                f = cdms2.open(fName_t.value, 'r')
+                varNames = f.listvariable()
                 for vn in varNames:
                     if not self.gridVars.has_key(vn):
                         # allocate

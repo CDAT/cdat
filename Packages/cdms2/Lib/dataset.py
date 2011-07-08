@@ -30,7 +30,11 @@ import convention
 import typeconv
 import AutoAPI
 import gsHost
-from pycf import libCFConfig as libcf
+
+try:
+    from pycf import libCFConfig as libcf
+except:
+    pass
 
 try:
     import cache
@@ -181,17 +185,20 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
     if scheme in ('','file'):
         path = os.path.expanduser(path)
         root,ext = os.path.splitext(path)
+
         if ext in ['.xml','.cdml']:
             if mode!='r': raise ModeNotSupported,mode
             datanode = load(path)
         else:
-            file = CdmsFile(path,mode)
-            try:
-             if hasattr(file, libcf.CF_FILETYPE):
-                if getattr(file, libcf.CF_FILETYPE) == libcf.CF_GLATT_FILETYPE_HOST:
+            file1 = CdmsFile(path,"r")
+            if hasattr(file1, libcf1.CF_FILETYPE):
+                if getattr(file1, libcf.CF_FILETYPE) == libcf.CF_GLATT_FILETYPE_HOST:
                     file = gsHost.open(path, mode)
-            except:
-                pass
+                else:
+                    file = CdmsFile(path, mode)
+            else:
+                file = CdmsFile(path, mode)
+            file1.close()
             return file
     elif scheme in ['http', 'gridftp']:
         

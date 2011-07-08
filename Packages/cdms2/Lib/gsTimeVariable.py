@@ -93,42 +93,8 @@ class TimeVariable(StaticVariable):
                 # Add the variable to the index
                 self.vars[gfindx] = new
 
-#    def shape(self, gfindx):
-#        """
-#        Return the shape in the format (n0, n1, ...)
-#        @param gfindx time file index
-#        @return result
-#        """
-#        v = self.vars[gfindx]
-#        if v:
-#            return self.vars[tfindx].shape
-#        else:
-#            return []
-#
-#    def size(self):
-#        """
-#        Return the total number of elements
-#        @return number of elements
-#        """
-#        return reduce(operator.mul, [v.size() for v in self.vars])
-#
-#    def typecode(self):
-#        """
-#        Return the type of the data
-#        @return type
-#        """
-#        v = self.vars[0]
-#        if v:
-#            return self.vars[0].typecode()
-#        return None
-#
-#    def __repr__(self):
-#        res = ""
-#        for gfindx in range(len(self.vars)):
-#            res += (" Grid slice %d: " % gfindx) + repr(self.vars[gfindx])
-#        return res
-
 ###################################################################
+
 def test():
     pass
 
