@@ -20,31 +20,6 @@ import re
 from pycf import libCFConfig, __path__
 LIBCF = __path__[0] + '/libcf'
 
-#def addGetCoordinatesToAbstractVariable(AbstractVariable):
-#    """
-#    Add getCoordinates to the Class AbstractVariable
-#    @param AbstractVariable a Transient variable
-#    """
-#    import types
-#    def getCoordinates(AbstractVariable):
-#        """
-#        Return the coordinate data associated with variable
-#        @param AbstractVariable a Transient variable
-#        """
-#        av = AbstractVariable
-#
-#        fh = cdms2.open(av.tile_filename)
-#        xn, yn = av.Attributes['coordinates'].split()
-#
-#        x = fh(xn)
-#        y = fh(yn)
-#
-#        return (x, y)
-#        
-#
-#    # Add getCoordinates to the AbstractVariable Class
-#    AbstractVariable.getCoordinates = types.MethodType(getCoordinates, AbstractVariable)
-
 def open(hostfile, mode = 'r'):
     """
     Open host file
