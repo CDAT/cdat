@@ -91,6 +91,7 @@ class SphereMesh:
         """
         Get the curvilinear cartesian coordinates
         @param sphereRadius radius of sphere 
+        @return mesh
         """
         sz = reduce(lambda x, y: x*y, self.shape)
         elvMax = max(self.elvs[:])
