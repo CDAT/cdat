@@ -18,7 +18,7 @@ from numpy import zeros, reshape
 import cdms2
 from cdms2.hgrid import TransientCurveGrid
 from cdms2.coord import TransientAxis2D, TransientVirtualAxis
-from error import CDMSError
+from cdms2.error import CDMSError
 
 # libcf
 from pycf import libCFConfig, __path__
