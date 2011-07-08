@@ -1,7 +1,7 @@
 #/usr/bin/env python
 
 """
-A file-like object to access a host file. There by granting entry to an entire
+A file-like object to access a host file. Thereby granting entry to an entire
 data set.
 Dave Kindig and Alex Pletzer, Tech-X (2011)
 This code is provided with the hope that it will be useful. 
