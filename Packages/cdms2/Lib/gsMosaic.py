@@ -440,6 +440,13 @@ class Mosaic:
             ( self.id, self.uri, self.mode, self._status)
         return res
 
+    def __call__(self):
+        pass
+
+    def __del__(self):
+        self.lib.nccf_free_mosaic(self.mosaicId_t)
+
+
 #############################################################################
 
 def test():
