@@ -100,9 +100,8 @@ class Mosaic:
                                                     byref(self.mosaicId_t))
 
         if status != 0:
-            print "error code: ", status
-            raise CDMSError, "ERROR status=%d: File %s doesn't exist or is not a valid mosaic file" % \
-                (status, uri)
+            raise CDMSError, "ERROR: %s is not a valid mosaic file (status = %d)" % \
+                (uri, status)
 
         # Get some sizes
         ngrids         = c_int(-1)
