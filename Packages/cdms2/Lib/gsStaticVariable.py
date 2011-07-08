@@ -13,7 +13,11 @@ import types
 from cdms2.error import CDMSError
 from cdms2.hgrid import AbstractCurveGrid, TransientCurveGrid
 from cdms2.coord import TransientAxis2D, TransientVirtualAxis
-from pycf import libCFConfig as libcf
+
+try:
+    from pycf import libCFConfig as libcf
+except:
+    raise ImportError, 'Error: could not import pycf'
 
 def createTransientGrid(gFName, coordinates):
     """

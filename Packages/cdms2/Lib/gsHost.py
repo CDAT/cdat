@@ -17,8 +17,11 @@ from cdms2.cdmsobj import CdmsObj
 from cdms2.gsStaticVariable import StaticVariable
 from cdms2.gsTimeVariable import TimeVariable
 
-# IF pycf is being loaded in dataset.py, we don't need to check here.
-from pycf import libCFConfig, __path__
+try:
+    from pycf import libCFConfig, __path__
+except:
+    raise ImportError, 'Error: could not import pycf'
+
 LIBCF = __path__[0] + '/libcf'
 
 def open(hostfile, mode = 'r'):

@@ -21,7 +21,10 @@ from cdms2.coord import TransientAxis2D, TransientVirtualAxis
 from cdms2.error import CDMSError
 
 # libcf
-from pycf import libCFConfig, __path__
+try:
+    from pycf import libCFConfig, __path__
+except:
+    raise ImportError, 'Error: could not import pycf'
 
 LIBCFDIR  = __path__[0] + "/libcf"
 libCF  = libCFConfig
