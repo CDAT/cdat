@@ -226,6 +226,9 @@ class Host:
         return mfn
 
     def writeMosaic(self):
+        """
+        Write a mosaic file from tiles and data stored in self.
+        """
         raise CDMSError, "Method Not Implemented"
 
     def getCoordinates(self, gindx):
