@@ -20,31 +20,6 @@ import re
 from pycf import libCFConfig, __path__
 LIBCF = __path__[0] + '/libcf'
 
-#def addGetCoordinatesToAbstractVariable(AbstractVariable):
-#    """
-#    Add getCoordinates to the Class AbstractVariable
-#    @param AbstractVariable a Transient variable
-#    """
-#    import types
-#    def getCoordinates(AbstractVariable):
-#        """
-#        Return the coordinate data associated with variable
-#        @param AbstractVariable a Transient variable
-#        """
-#        av = AbstractVariable
-#
-#        fh = cdms2.open(av.tile_filename)
-#        xn, yn = av.Attributes['coordinates'].split()
-#
-#        x = fh(xn)
-#        y = fh(yn)
-#
-#        return (x, y)
-#        
-#
-#    # Add getCoordinates to the AbstractVariable Class
-#    AbstractVariable.getCoordinates = types.MethodType(getCoordinates, AbstractVariable)
-
 def open(hostfile, mode = 'r'):
     """
     Open host file
@@ -52,19 +27,19 @@ def open(hostfile, mode = 'r'):
     @param mode valid cdms2 open file mode
     """
 
-    outHostFile = GsHost(hostfile, mode)
+    outHostFile = Host(hostfile, mode)
     return outHostFile
 
-class GsHost:
+class Host:
     """
     A LibCF/GRIDSPEC host file object. This acts as the single point of entry to
-    a host file. Variables and grids can be requested solely through the GsHost
+    a host file. Variables and grids can be requested solely through the Host
     object. The host object is a hybrid between a variable and file object. 
-    GsHost relies on the libcf shared object. As such, if there is a problem
+    Host relies on the libcf shared object. As such, if there is a problem
     consult http://www.unidata.ucar.edu/software/libcf/docs/libcf/ for details
     on building host files and all related GRIDSPEC files.
 
-    @return GsHost class on __init__
+    @return Host class on __init__
     """
 
     def __init__(self, hostfile, mode = 'r'):
@@ -239,10 +214,10 @@ class GsHost:
         return self.hostFileVars
 
     def getMosaic(self):
-        from gsMosaic import GsMosaic
+        from gsMosaic import Mosaic
         mosaicFilename = c_char_p(" " * (libCFConfig.NC_MAX_NAME + 1))
         status = self.libcfdll.nccf_inq_host_mosaicfilename(self.hostId_t, mosaicFilename)
-        mfn = GsMosaic(mosaicFilename, "r")
+        mfn = Mosaic(mosaicFilename, "r")
 
         return mfn
 
@@ -333,7 +308,7 @@ class GsHost:
         @param varName variable name
         @return attributes list
         """
-        print 'gsHost.listatt'
+        print 'Host.listatt'
         fName = ""
         if self.statVars.has_key(varName):
             fName = self.statVars[varName][0]

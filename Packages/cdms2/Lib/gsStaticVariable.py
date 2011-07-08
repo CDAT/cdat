@@ -15,7 +15,7 @@ from cdms2.hgrid import AbstractCurveGrid, TransientCurveGrid
 from cdms2.coord import TransientAxis2D, TransientVirtualAxis
 from pycf import libCFConfig as libcf
 
-def createGrid(gFName, coordinates):
+def createTransientGrid(gFName, coordinates):
     """
     Return the coordinate data associated with variable.
     @param gName The grid_filename
@@ -73,15 +73,15 @@ class StaticVariable:
     Static variable extending over multiple grid files
     """
 
-    def __init__(self, gsHost, varName):
+    def __init__(self, HostObj, varName):
         """
         Constructor
-        @param gsHost host object
+        @param HostObj host object
         @param varName variable name
         """
 
         self.varName = varName
-        self.ngrids = gsHost.ngrids
+        self.ngrids = HostObj.ngrids
 
         self.vars = []
         if self.ngrids > 0:
@@ -90,10 +90,10 @@ class StaticVariable:
         for gfindx in range(self.ngrids):
 
             # name of the file containing the data on tile gfindx
-            fName = gsHost.statVars[varName][gfindx]
+            fName = HostObj.statVars[varName][gfindx]
 
             # name of the file containing coordinate data
-            gFName = gsHost.gridFilenames[gfindx]
+            gFName = HostObj.gridFilenames[gfindx]
 
             fh = cdms2.open(fName)
             gh = cdms2.open(gFName)
@@ -107,7 +107,7 @@ class StaticVariable:
 
             grid = None
             if 'coordinates' in vr.attributes.keys():
-                grid = createGrid(gFName, vr.attributes['coordinates'])
+                grid = createTransientGrid(gFName, vr.attributes['coordinates'])
             atts = dict(vr.attributes)
             atts.update(gh.attributes)
             if libcf.CF_GRIDNAME in fh.attributes.keys():

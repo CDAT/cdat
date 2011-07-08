@@ -34,7 +34,7 @@ def open(uri, mode = 'r'):
     @param inCdmsFile Mosaic file cdms2 object
     """
 
-    outMosaicFile = GsMosaic(uri, mode)
+    outMosaicFile = Mosaic(uri, mode)
     return outMosaicFile
 
 def getSlab(strg):
@@ -60,7 +60,7 @@ def getSlab(strg):
             res.append(slc)
     return tuple(res)
 
-class GsMosaic:
+class Mosaic:
     """
     Define a mosaic.
     """
