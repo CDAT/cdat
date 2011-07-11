@@ -1,0 +1,9 @@
+
+set(EXTERNALS @pbmplus_install@)
+configure_file(@cdat_external_patch_dir@/src/pbmplus/Makefile.in
+  @pbmplus_source@/Makefile
+  @ONLY)
+
+configure_file(@cdat_external_patch_dir@/src/pbmplus/pnm/Makefile.in
+  ${pbmplus_source}/pnm/Makefile
+  @ONLY)

@@ -1,0 +1,30 @@
+
+if(NOT APPLE)
+  set(ENV{@LIBRARY_PATH@} "@CMAKE_INSTALL_PREFIX@/lib:@cdat_EXTERNALS@/lib:$ENV{@LIBRARY_PATH@}")
+endif()
+
+set(ENV{CFLAGS} "@cdat_osx_flags@ -I@cdat_EXTERNALS@/include @ADDITIONAL_CFLAGS@")
+set(ENV{CPPFLAGS} "@cdat_osx_flags@ -I@cdat_EXTERNALS@/include @ADDITIONAL_CPPFLAGS@")
+set(ENV{CXXFLAGS} "@cdat_osx_flags@ -I@cdat_EXTERNALS@/include @ADDITIONAL_CXXFLAGS@")
+
+set(ENV{LDFLAGS} "-L@cdat_EXTERNALS@/lib @cdat_external_link_directories@  @cdat_rpath_flag@@CMAKE_INSTALL_PREFIX@/lib @cdat_rpath_flag@@cdat_EXTERNALS@/lib @cdat_osx_ld_flags@")
+
+set(ENV{LOCNCCONFIG} "@cdat_EXTERNALS@/bin/nc-config")
+
+set(ENV{EXTERNALS} "@cdat_EXTERNALS@")
+
+if(APPLE)
+  set(ENV{MAC_OSX_DEPLOYMENT_TARGET} "@CMAKE_OSX_DEPLOYMENT_TARGET@")
+endif()
+
+execute_process(
+  COMMAND @PYTHON_EXECUTABLE@ install.py @qt_flags@
+  WORKING_DIRECTORY "@WORKING_DIR@"
+  RESULT_VARIABLE res)
+
+if(NOT ${res} EQUAL 0)
+  message("Make Errors detected: \n${CDAT_OUT}\n${CDAT_ERR}")
+  message(FATAL_ERROR "Error in Python Install")
+endif()
+message("Make succeeded.")
+
