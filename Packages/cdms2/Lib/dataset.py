@@ -33,7 +33,9 @@ import AutoAPI
 try:
  import gsHost
  from pycf import libCFConfig as libcf
+ hasLibcf = True
 except:
+ hasLibcf = False
  pass
 
 try:
@@ -191,7 +193,7 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
             datanode = load(path)
         else:
             file1 = CdmsFile(path,"r")
-            if hasattr(file1, libcf.CF_FILETYPE):
+            if hasLibcf and hasattr(file1, libcf.CF_FILETYPE):
                 if getattr(file1, libcf.CF_FILETYPE) == libcf.CF_GLATT_FILETYPE_HOST:
                     file = gsHost.open(path, mode)
                 else:
