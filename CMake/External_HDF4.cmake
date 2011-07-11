@@ -1,6 +1,6 @@
 
 set(HDF4_source "${CMAKE_CURRENT_BINARY_DIR}/HDF4")
-set(HDF4_install "${CMAKE_CURRENT_BINARY_DIR}/Externals/HDF")
+set(HDF4_install "${cdat_EXTERNALS}")
 
 if(NOT CMAKE_Fortran_COMPILER)
   set(hdf4_configure_args --disable-fortran)

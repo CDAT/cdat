@@ -18,6 +18,7 @@
 #    [SVN_REVISION rev]          # Revision to checkout from Subversion repo
 #    [SVN_USERNAME john ]        # Username for Subversion checkout and update
 #    [SVN_PASSWORD doe ]         # Password for Subversion checkout and update
+#    [SVN_TRUST_CERT 1 ]         # Trust the Subversion server site certificate
 #    [GIT_REPOSITORY url]        # URL of git repo
 #    [GIT_TAG tag]               # Git branch name, commit id or tag
 #    [URL /.../src.tgz]          # Full path or URL of source
@@ -250,6 +251,11 @@ define_property(DIRECTORY PROPERTY "EP_STEP_TARGETS" INHERITED
   "ExternalProject module."
   )
 
+define_property(DIRECTORY PROPERTY "EP_LOG_DIR" INHERITED
+  BRIEF_DOCS "Directory containing step log files"
+  FULL_DOCS "See documentation of the ExternalProject_Add() function in the "
+  "ExternalProject module."
+  )
 
 function(_ep_write_gitclone_script script_filename source_dir git_EXECUTABLE git_repository git_tag src_name work_dir)
   file(WRITE ${script_filename}
@@ -403,11 +409,11 @@ endfunction(_ep_write_verifyfile_script)
 function(_ep_write_extractfile_script script_filename name filename directory)
   set(args "")
 
-  if(filename MATCHES "(\\.bz2|\\.tar\\.gz|\\.tgz|\\.zip)$")
+  if(filename MATCHES "(\\.|=)(bz2|tar\\.gz|tgz|zip)$")
     set(args xfz)
   endif()
 
-  if(filename MATCHES "\\.tar$")
+  if(filename MATCHES "(\\.|=)tar$")
     set(args xf)
   endif()
 
@@ -550,7 +556,24 @@ function(_ep_set_directories name)
   endforeach()
 endfunction(_ep_set_directories)
 
-function(_ep_write_initial_cache script_filename args)
+
+# IMPORTANT: this MUST be a macro and not a function because of the
+# in-place replacements that occur in each ${var}
+#
+macro(_ep_replace_location_tags target_name)
+  set(vars ${ARGN})
+  foreach(var ${vars})
+    if(${var})
+      foreach(dir SOURCE_DIR BINARY_DIR INSTALL_DIR TMP_DIR)
+        get_property(val TARGET ${target_name} PROPERTY _EP_${dir})
+        string(REPLACE "<${dir}>" "${val}" ${var} "${${var}}")
+      endforeach()
+    endif()
+  endforeach()
+endmacro()
+
+
+function(_ep_write_initial_cache target_name script_filename args)
   # Write out values into an initial cache, that will be passed to CMake with -C
   set(script_initial_cache "")
   set(regex "^([^:]+):([^=]+)=(.*)$")
@@ -584,6 +607,8 @@ function(_ep_write_initial_cache script_filename args)
     set(setArg "${setArg}${accumulator}\" CACHE ${type} \"Initial cache\" FORCE)")
     set(script_initial_cache "${script_initial_cache}\n${setArg}")
   endif()
+  # Replace location tags.
+  _ep_replace_location_tags(${target_name} script_initial_cache)
   # Write out the initial cache file to the location specified.
   if(NOT EXISTS "${script_filename}.in")
     file(WRITE "${script_filename}.in" "\@script_initial_cache\@\n")
@@ -753,16 +778,25 @@ endif()
         set(sep ";")
       endif()
     endforeach()
-    set(code "${code}set(command \"${cmd}\")${code_execute_process}")
+    set(code "set(ENV{VS_UNICODE_OUTPUT} \"\")\n${code}set(command \"${cmd}\")${code_execute_process}")
     file(WRITE ${stamp_dir}/${name}-${step}-impl.cmake "${code}")
     set(command ${CMAKE_COMMAND} "-Dmake=\${make}" "-Dconfig=\${config}" -P ${stamp_dir}/${name}-${step}-impl.cmake)
   endif()
 
   # Wrap the command in a script to log output to files.
   set(script ${stamp_dir}/${name}-${step}.cmake)
-  set(logbase ${stamp_dir}/${name}-${step})
+
+  # user EP_LOG_DIR otherwise default to stamp-dir
+  get_property(base DIRECTORY PROPERTY EP_LOG_DIR)
+  if(NOT base)
+    set(logbase ${stamp_dir}/${name}-${step})
+  else()
+    set(logbase ${base}/${name}-${step})
+  endif()
+  
   file(WRITE ${script} "
 ${code_cygpath_make}
+set(ENV{VS_UNICODE_OUTPUT} \"\")
 set(command \"${command}\")
 execute_process(
   COMMAND \${command}
@@ -863,14 +897,7 @@ function(ExternalProject_Add_Step name step)
   endif()
 
   # Replace location tags.
-  foreach(var comment command work_dir)
-    if(${var})
-      foreach(dir SOURCE_DIR BINARY_DIR INSTALL_DIR TMP_DIR)
-        get_property(val TARGET ${name} PROPERTY _EP_${dir})
-        string(REPLACE "<${dir}>" "${val}" ${var} "${${var}}")
-      endforeach()
-    endif()
-  endforeach()
+  _ep_replace_location_tags(${name} comment command work_dir)
 
   # Custom comment?
   get_property(comment_set TARGET ${name} PROPERTY _EP_${step}_COMMENT SET)
@@ -1013,6 +1040,7 @@ function(_ep_add_download_command name)
     get_property(svn_revision TARGET ${name} PROPERTY _EP_SVN_REVISION)
     get_property(svn_username TARGET ${name} PROPERTY _EP_SVN_USERNAME)
     get_property(svn_password TARGET ${name} PROPERTY _EP_SVN_PASSWORD)
+    get_property(svn_trust_cert TARGET ${name} PROPERTY _EP_SVN_TRUST_CERT)
 
     set(repository "${svn_repository} user=${svn_username} password=${svn_password}")
     set(module)
@@ -1033,8 +1061,11 @@ function(_ep_add_download_command name)
     if(svn_password)
       set(svn_user_pw_args ${svn_user_pw_args} "--password=${svn_password}")
     endif()
+    if(svn_trust_cert)
+      set(svn_trust_cert_args --trust-server-cert)
+    endif()
     set(cmd ${Subversion_SVN_EXECUTABLE} co ${svn_repository} ${svn_revision}
-      ${svn_user_pw_args} ${src_name})
+      --non-interactive ${svn_trust_cert_args} ${svn_user_pw_args} ${src_name})
     list(APPEND depends ${stamp_dir}/${name}-svninfo.txt)
   elseif(git_repository)
     find_package(Git)
@@ -1096,10 +1127,15 @@ function(_ep_add_download_command name)
     else()
       if("${url}" MATCHES "^[a-z]+://")
         # TODO: Should download and extraction be different steps?
-        string(REGEX MATCH "[^/]*$" fname "${url}")
-        if(NOT "${fname}" MATCHES "\\.(bz2|tar|tgz|tar\\.gz|zip)$")
+        string(REGEX MATCH "[^/\\?]*$" fname "${url}")
+        if(NOT "${fname}" MATCHES "(\\.|=)(bz2|tar|tgz|tar\\.gz|zip)$")
+          string(REGEX MATCH "([^/\\?]+(\\.|=)(bz2|tar|tgz|tar\\.gz|zip))/.*$" match_result "${url}")
+          set(fname "${CMAKE_MATCH_1}")
+        endif()
+        if(NOT "${fname}" MATCHES "(\\.|=)(bz2|tar|tgz|tar\\.gz|zip)$")
           message(FATAL_ERROR "Could not extract tarball filename from url:\n  ${url}")
         endif()
+        string(REPLACE ";" "-" fname "${fname}")
         set(file ${download_dir}/${fname})
         get_property(timeout TARGET ${name} PROPERTY _EP_TIMEOUT)
         _ep_write_downloadfile_script("${stamp_dir}/download-${name}.cmake" "${url}" "${file}" "${timeout}" "${md5}")
@@ -1173,6 +1209,7 @@ function(_ep_add_update_command name)
     get_property(svn_revision TARGET ${name} PROPERTY _EP_SVN_REVISION)
     get_property(svn_username TARGET ${name} PROPERTY _EP_SVN_USERNAME)
     get_property(svn_password TARGET ${name} PROPERTY _EP_SVN_PASSWORD)
+    get_property(svn_trust_cert TARGET ${name} PROPERTY _EP_SVN_TRUST_CERT)
     set(svn_user_pw_args "")
     if(svn_username)
       set(svn_user_pw_args ${svn_user_pw_args} "--username=${svn_username}")
@@ -1180,8 +1217,11 @@ function(_ep_add_update_command name)
     if(svn_password)
       set(svn_user_pw_args ${svn_user_pw_args} "--password=${svn_password}")
     endif()
+    if(svn_trust_cert)
+      set(svn_trust_cert_args --trust-server-cert)
+    endif()
     set(cmd ${Subversion_SVN_EXECUTABLE} up ${svn_revision}
-      ${svn_user_pw_args})
+      --non-interactive ${svn_trust_cert_args} ${svn_user_pw_args})
     set(always 1)
   elseif(git_repository)
     if(NOT GIT_EXECUTABLE)
@@ -1270,7 +1310,7 @@ function(_ep_add_configure_command name)
     get_property(cmake_cache_args TARGET ${name} PROPERTY _EP_CMAKE_CACHE_ARGS)
     if(cmake_cache_args)
       set(_ep_cache_args_script "${tmp_dir}/${name}-cache.cmake")
-      _ep_write_initial_cache("${_ep_cache_args_script}" "${cmake_cache_args}")
+      _ep_write_initial_cache(${name} "${_ep_cache_args_script}" "${cmake_cache_args}")
       list(APPEND cmd "-C${_ep_cache_args_script}")
     endif()
 

@@ -1,6 +1,6 @@
 
 set(udunits_source "${CMAKE_CURRENT_BINARY_DIR}/build/udunits2")
-set(udunits_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
+set(udunits_install "${cdat_EXTERNALS}")
 
 ExternalProject_Add(udunits2
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
@@ -11,7 +11,7 @@ ExternalProject_Add(udunits2
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
   CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
+  DEPENDS ${udunits2_DEPENDENCIES}
+  ${EP_LOG_OPTIONS}
 )
 
-set(udunits_DIR "${udunits_binary}" CACHE PATH "udunits binary directory" FORCE)
-mark_as_advanced(udunits_DIR)

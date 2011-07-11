@@ -21,4 +21,5 @@ ExternalProject_Add(cmcurl
     ${cmcurl_EXTRA_ARGS}
     -DTRIGGER_REBUILD:STRING=0
   INSTALL_COMMAND ""
+  DEPENDS ${cmcurl_DEPENDENCIES}
 )

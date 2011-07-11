@@ -1,6 +1,6 @@
 
 set(freetype_source "${CMAKE_CURRENT_BINARY_DIR}/build/freetype")
-set(freetype_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
+set(freetype_install "${cdat_EXTERNALS}")
 
 ExternalProject_Add(freetype
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
@@ -11,7 +11,14 @@ ExternalProject_Add(freetype
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
   CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
+  DEPENDS ${freetype_DEPENDENCIES}
+  ${EP_LOG_OPTIONS}
 )
 
-set(freetype_DIR "${freetype_binary}" CACHE PATH "freetype binary directory" FORCE)
-mark_as_advanced(freetype_DIR)
+#ln -sf @EXTERNALS@/include/freetype2/freetype @EXTERNALS@/include/freetype
+
+ExternalProject_Add_Step(freetype symlink
+  COMMAND ${CMAKE_COMMAND} -E create_symlink @cdat_EXTERNALS@/include/freetype2/freetype @cdat_EXTERNALS@/include/freetype
+  COMMENT "Symlink include/freetype2/freetype include directory as include/freetype"
+  DEPENDEES install
+)

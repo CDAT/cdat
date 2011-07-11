@@ -1,10 +1,10 @@
 # The FFMPEG external project for ParaView
 
 set(ffmpeg_source "${CMAKE_CURRENT_BINARY_DIR}/FFMPEG")
-set(ffmpeg_install "${CMAKE_CURRENT_BINARY_DIR}/FFMPEG-install")
+set(ffmpeg_install "${cdat_EXTERNALS}")
 
 configure_file(${cdat_CMAKE_SOURCE_DIR}/ffmpeg_configure_step.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/ffmpeg_configure_step.cmake
+    ${cdat_CMAKE_BINARY_DIR}/ffmpeg_configure_step.cmake
     @ONLY)
 
 ExternalProject_Add(FFMPEG
@@ -15,7 +15,9 @@ ExternalProject_Add(FFMPEG
   URL_MD5 ${FFMPEG_MD5}
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
-  CONFIGURE_COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/ffmpeg_configure_step.cmake
+  CONFIGURE_COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/ffmpeg_configure_step.cmake
+  DEPENDS ${FFMPEG_DEPENDENCIES}
+  ${EP_LOG_OPTIONS}
   )
 
 set(FFMPEG_INCLUDE_DIR ${ffmpeg_install}/include)

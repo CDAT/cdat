@@ -1,8 +1,8 @@
 
 set(ghostscript_source "${CMAKE_CURRENT_BINARY_DIR}/build/ghostscript")
-set(ghostscript_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
+set(ghostscript_install "${cdat_EXTERNALS}")
 
-set(ghostscripts_args --with-drivers=PS,BMP)
+set(ghostscripts_args "--with-drivers=PS,BMP --disable-cups")
 
 ExternalProject_Add(ghostscript
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
@@ -13,8 +13,7 @@ ExternalProject_Add(ghostscript
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
   CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -DCONFIGURE_ARGS=${ghostscripts_args} -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
+  BUILD_COMMAND ${CMAKE_COMMAND} -Dmake=$(MAKE) -DBUILD_ARGS=${ghostscript_source} -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake
   DEPENDS ${ghostscript_DEPENDENCIES}
+  ${EP_LOG_OPTIONS}
 )
-
-set(ghostscript_DIR "${ghostscript_binary}" CACHE PATH "ghostscript binary directory" FORCE)
-mark_as_advanced(ghostscript_DIR)

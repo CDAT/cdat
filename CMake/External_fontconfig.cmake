@@ -1,6 +1,6 @@
 
 set(fontconfig_source "${CMAKE_CURRENT_BINARY_DIR}/build/fontconfig")
-set(fontconfig_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
+set(fontconfig_install "${cdat_EXTERNALS}")
 
 ExternalProject_Add(fontconfig
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
@@ -10,8 +10,7 @@ ExternalProject_Add(fontconfig
   URL_MD5 ${FTCFG_MD5}
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
-  CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
+  CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -DCONFIGURE_ARGS=--disable-docs -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
+  DEPENDS ${fontconfig_DEPENDENCIES}
+  ${EP_LOG_OPTIONS}
 )
-
-set(fontconfig_DIR "${fontconfig_binary}" CACHE PATH "fontconfig binary directory" FORCE)
-mark_as_advanced(fontconfig_DIR)

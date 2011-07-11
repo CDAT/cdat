@@ -1,57 +1,62 @@
 
+set(tcl_source "${CMAKE_CURRENT_BINARY_DIR}/build/tcl")
+set(tk_source "${CMAKE_CURRENT_BINARY_DIR}/build/tk")
+set(tcltk_install "${cdat_EXTERNALS}")
+
+set(tcltk_configure_args --enable-shared)
+
 # tcl
 #
-set(proj tcl-${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC})
+set(proj tcl-${TCLTK_MAJOR}.${TCLTK_MINOR})
 
 ExternalProject_Add(${proj}
+  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  SOURCE_DIR ${tcl_source}
+  INSTALL_DIR ${tcltk_install}
   URL ${TCLTK_URL}/${TCL_GZ}
   URL_MD5 ${TCL_MD5}
-  INSTALL_DIR tcltk-install
-  CONFIGURE_COMMAND <SOURCE_DIR>/unix/configure --prefix=<INSTALL_DIR>
-  BUILD_COMMAND make
+  BUILD_IN_SOURCE 1
+  CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR>/unix -DCONFIGURE_ARGS=${tcltk_configure_args} -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
+  BUILD_COMMAND ${CMAKE_COMMAND} -Dmake=$(MAKE) -DWORKING_DIR=<SOURCE_DIR>/unix -P ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake
+  INSTALL_COMMAND ${CMAKE_COMMAND} -DWORKING_DIR=<SOURCE_DIR>/unix -P ${cdat_CMAKE_BINARY_DIR}/cdat_install_step.cmake
+  DEPENDS ${TclTk_DEPENDENCIES}
+  ${EP_LOG_OPTIONS}
 )
 
 # tk
 #
-set(proj tk-${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC})
+set(proj tk-${TCLTK_MAJOR}.${TCLTK_MINOR})
 
 ExternalProject_Add(${proj}
+  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  SOURCE_DIR ${tk_source}
+  INSTALL_DIR ${tcltk_install}
   URL ${TCLTK_URL}/${TK_GZ}
   URL_MD5 ${TK_MD5}
-  INSTALL_DIR tcltk-install
-  CONFIGURE_COMMAND <SOURCE_DIR>/unix/configure --prefix=<INSTALL_DIR>  --with-tcl=<INSTALL_DIR>/lib
-  BUILD_COMMAND make
-  DEPENDS tcl-${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC}
+  BUILD_IN_SOURCE 1
+  CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR>/unix -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
+  BUILD_COMMAND ${CMAKE_COMMAND} -Dmake=$(MAKE) -DWORKING_DIR=<SOURCE_DIR>/unix -P ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake
+  INSTALL_COMMAND ${CMAKE_COMMAND} -DWORKING_DIR=<SOURCE_DIR>/unix -P ${cdat_CMAKE_BINARY_DIR}/cdat_install_step.cmake
+  DEPENDS tcl-${TCLTK_MAJOR}.${TCLTK_MINOR}
+  ${EP_LOG_OPTIONS}
 )
 
 ExternalProject_Add_Step(${proj} symlink
-  COMMAND ${CMAKE_COMMAND} -E create_symlink "wish${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC}" wish
-  WORKING_DIRECTORY tcltk-install/bin
-  COMMENT "Linking wish${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC} to wish"
+  COMMAND ${CMAKE_COMMAND} -E create_symlink "wish${TCLTK_MAJOR}.${TCLTK_MINOR}" wish
+  WORKING_DIRECTORY ${tcltk_install}/bin
+  COMMENT "Linking wish${TCLTK_MAJOR}.${TCLTK_MINOR} to wish"
   DEPENDEES install
 )
 
 # tcltk
 #
-set(proj tcltk-${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC})
 
-ExternalProject_Add(${proj}
+ExternalProject_Add(TclTk
   DOWNLOAD_COMMAND ""
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
   INSTALL_COMMAND ""
-  DEPENDS tk-${TCLTK_MAJOR_SRC}.${TCLTK_MINOR_SRC}
+  DEPENDS tk-${TCLTK_MAJOR}.${TCLTK_MINOR}
+  ${EP_LOG_OPTIONS}
 )
 
-# other projects need to know where tcltk gets installed:
-#
-#set(CSE_TCLTK_HOME ${prefix} PARENT_SCOPE)
-#set(CSE_TCLTK_PACKAGE "${name}-${version}" PARENT_SCOPE)
-#set(CSE_TCLTK_NAME "${name}" PARENT_SCOPE)
-#set(CSE_TCLTK_VERSIONXX "${version_major}.${version_minor}" PARENT_SCOPE)
-
-#set(extras
-#  "setenv TCLTK_INCLUDE_DIR  $prefix/include"
-#  "setenv TCLTK_LIB_DIR $prefix/lib"
-#  "setenv TCL_LIBRARY $prefix/lib/tcl8.4"
-#)

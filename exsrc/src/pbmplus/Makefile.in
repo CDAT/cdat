@@ -21,7 +21,7 @@ CC =		cc
 #CC =		gcc -ansi -pedantic -fcombine-regs -fpcc-struct-return
 
 # CONFIGURE: cc flags go here.
-CFLAGS =	-O
+CFLAGS =	-O -w
 #CFLAGS =	-g
 #CFLAGS =	-g -O
 
@@ -53,9 +53,9 @@ RGBDEF =	-DRGB_DB=\"/usr/lib/X11/rgb\"
 #
 # By the way, you must have at least version 2.4 of libtiff.  Earlier
 # versions will not work.
-#TIFFDEF =	-DLIBTIFF
-#TIFFINC =	-I../libtiff
-#TIFFLIB =	../libtiff/libtiff.a
+TIFFDEF =	-DLIBTIFF
+TIFFINC =	-I@EXTERNALS@/include
+TIFFLIB =	@EXTERNALS@/lib/libtiff.a
 #TIFFBINARIES =	tifftopnm pnmtotiff
 #TIFFOBJECTS =	tifftopnm.o pnmtotiff.o
 

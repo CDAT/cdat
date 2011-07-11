@@ -484,7 +484,11 @@ if (WM=="QT" or EM=="QT") and sys.platform in ['darwin']:
         print 'renaming to :',target_prefix
         shutil.move("build/qpython", "%s/bin/cdat" % (target_prefix))
         if target_prefix.find("Versions")>-1:
-            pth=os.path.sep+os.path.sep.join(target_prefix.split(os.path.sep)[:-3]+['bin','cdat'])
+            if target_prefix.find("Library/Frameworks")>-1:
+                pth=os.path.sep+os.path.sep.join(target_prefix.split(os.path.sep)[:-5]+['bin','cdat'])
+            else:
+                pth=os.path.sep+os.path.sep.join(target_prefix.split(os.path.sep)[:-3]+['bin','cdat'])
+
             print 'symlinking to ',pth
             try:
                 os.remove(pth)

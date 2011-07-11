@@ -1,33 +1,33 @@
-# The CLAPACK external project for Titan
+# The CLAPACK external project
 
-set(clapack_source "${CMAKE_CURRENT_BINARY_DIR}/CLAPACK")
-set(clapack_binary "${CMAKE_CURRENT_BINARY_DIR}/CLAPACK-build")
-# turn off the warnings for clapack on windows
-string(REPLACE "/W3" "/W0" CMAKE_CXX_FLAGS_CLAPACK "${CMAKE_CXX_FLAGS}")
-string(REPLACE "/W4" "/W0" CMAKE_CXX_FLAGS_CLAPACK
-  "${CMAKE_CXX_FLAGS_CLAPACK}")
-string(REPLACE "/W3" "/W0" CMAKE_C_FLAGS_CLAPACK "${CMAKE_C_FLAGS}")
-string(REPLACE "/W4" "/W0" CMAKE_C_FLAGS_CLAPACK
-  "${CMAKE_C_FLAGS_CLAPACK}")
+set(clapack_source "${cdat_EXTERNALS}/build/LAPACK")
+set(clapack_binary "${cdat_EXTERNALS}/build/LAPACK-build")
+set(clapack_binary "${cdat_EXTERNALS}")
+set(NUMPY_LAPACK_binary ${clapack_binary})
+
+#
+# To fix compilation problem: relocation R_X86_64_32 against `a local symbol' can not be
+# used when making a shared object; recompile with -fPIC
+# See http://www.cmake.org/pipermail/cmake/2007-May/014350.html
+#
+if(UNIX AND CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+  set(cdat_tpl_c_flags_LAPACK "-fPIC ${cdat_tpl_c_flags}")
+endif()
+
 ExternalProject_Add(CLAPACK
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
   SOURCE_DIR ${clapack_source}
   BINARY_DIR ${clapack_binary}
-  URL ${clapack_file}
-  URL_MD5 ${clapack_md5}
-  CMAKE_GENERATOR ${gen}
-  CMAKE_ARGS
-    -DCMAKE_CXX_FLAGS:STRING=${CMAKE_CXX_FLAGS_CLAPACK}
-    -DCMAKE_C_FLAGS:STRING=${CMAKE_C_FLAGS_CLAPACK}
-    -DBUILD_SHARED_LIBS:BOOL=OFF
+  INSTALL_DIR ${clapack_install}
+  URL ${CLAPACK_URL}/${CLAPACK_GZ}
+  URL_MD5 ${CLAPACK_MD5}
+  CMAKE_CACHE_ARGS
+    -DCMAKE_CXX_FLAGS:STRING=${cdat_tpl_cxx_flags}
+    -DCMAKE_C_FLAGS:STRING=${cdat_tpl_c_flags}
+    -DBUILD_SHARED_LIBS:BOOL=ON
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-    ${titan_binary_args}
     ${CLAPACK_EXTRA_ARGS}
   INSTALL_COMMAND ""
+  DEPENDS ${CLAPACK_DEPENDENCIES}
+  ${EP_LOG_OPTIONS}
   )
-list(APPEND trilinos_depends CLAPACK)
-set(trilinos_blas_args
-  -DCLAPACK_DIR=${clapack_binary})
-
-set(Titan_CLAPACK_DIR "${clapack_binary}" CACHE PATH
-  "CLAPACK binary directory" FORCE)

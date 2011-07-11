@@ -6,7 +6,7 @@ if(WIN32)
 
   set(png_source "${CMAKE_CURRENT_BINARY_DIR}/png")
   set(png_binary "${CMAKE_CURRENT_BINARY_DIR}/png-build")
-  set(png_install "${CMAKE_CURRENT_BINARY_DIR}/png-install")
+  set(png_install "${cdat_EXTERNALS}")
 
   ExternalProject_Add(png
   URL ${PNG_URL}/${PNG_GZ}
@@ -24,12 +24,13 @@ if(WIN32)
   CMAKE_ARGS
     -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
   DEPENDS ${png_dependencies}
+  ${EP_LOG_OPTIONS}
   )
 
 else()
 
   set(png_source "${CMAKE_CURRENT_BINARY_DIR}/build/png")
-  set(png_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
+  set(png_install "${cdat_EXTERNALS}")
 
   ExternalProject_Add(png
     DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
@@ -40,6 +41,8 @@ else()
     BUILD_IN_SOURCE 1
     PATCH_COMMAND ""
     CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
+    DEPENDS ${png_DEPENDENCIES}
+    ${EP_LOG_OPTIONS}
   )
 
 endif()

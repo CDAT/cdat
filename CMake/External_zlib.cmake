@@ -4,7 +4,7 @@ if(WIN32)
 
   set(zlib_source "${CMAKE_CURRENT_BINARY_DIR}/zlib")
   set(zlib_binary "${CMAKE_CURRENT_BINARY_DIR}/zlib-build")
-  set(zlib_install "${CMAKE_CURRENT_BINARY_DIR}/zlib-install")
+  set(zlib_install "${cdat_EXTERNALS}")
 
   ExternalProject_Add(zlib
     DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
@@ -22,12 +22,13 @@ if(WIN32)
       ${zlib_EXTRA_ARGS}
     CMAKE_ARGS
       -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
+    ${EP_LOG_OPTIONS}
   )
 
 else()
 
   set(zlib_source "${CMAKE_CURRENT_BINARY_DIR}/build/zlib")
-  set(zlib_install "${CMAKE_CURRENT_BINARY_DIR}/Externals")
+  set(zlib_install "${cdat_EXTERNALS}")
 
   ExternalProject_Add(zlib
     DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
@@ -37,8 +38,9 @@ else()
     URL_MD5 ${ZLIB_MD5}
     PATCH_COMMAND ${CMAKE_COMMAND} -E remove <SOURCE_DIR>/zconf.h
     BUILD_IN_SOURCE 1
-    PATCH_COMMAND ""
     CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
+    DEPENDS ${zlib_DEPENDENCIES}
+    ${EP_LOG_OPTIONS}
   )
 
 endif()

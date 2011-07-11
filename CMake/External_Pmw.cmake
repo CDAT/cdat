@@ -1,6 +1,6 @@
 
 set(Pmw_source "${CMAKE_CURRENT_BINARY_DIR}/Pmw")
-set(Pmw_install "${CMAKE_CURRENT_BINARY_DIR}/Pmw-install")
+set(Pmw_install "${cdat_EXTERNALS}")
 
 configure_file(${cdat_CMAKE_SOURCE_DIR}/pmw_make_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/pmw_make_step.cmake
@@ -25,8 +25,6 @@ ExternalProject_Add(Pmw
   BUILD_COMMAND ${Pmw_build_command}
   INSTALL_COMMAND ${Pmw_install_command}
   DEPENDS ${Pmw_DEPENDENCIES}
+  ${EP_LOG_OPTIONS}
 )
-
-set(Pmw_DIR "${Pmw_binary}" CACHE PATH "Pmw binary directory" FORCE)
-mark_as_advanced(Pmw_DIR)
 
