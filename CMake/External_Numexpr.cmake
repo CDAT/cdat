@@ -13,5 +13,5 @@ ExternalProject_Add(Numexpr
   BUILD_COMMAND ${PYTHON_EXECUTABLE} setup.py build
   INSTALL_COMMAND ${PYTHON_EXECUTABLE} setup.py install
   DEPENDS ${Numexpr_DEPENDENCIES}
-#  ${EP_LOG_OPTIONS}
+  ${EP_LOG_OPTIONS}
   )
