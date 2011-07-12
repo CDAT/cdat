@@ -66,7 +66,6 @@ dnl
 PC_CHECK_C_HEADER(GRIB2INC,/usr/local/include,[grib2inc],grib2.h, dnl
   [--with-grib2inc=DIR        grib2.h is in DIR (default [GRIB2INC])])
 
-
 AC_MSG_CHECKING(if GRIB2 is enabled)
 AC_ARG_ENABLE(grib2,
    [  --enable-grib2            Compile GRIB-2 support [default=no]],
@@ -81,7 +80,11 @@ if test "X$ENABLE_GRIB2" = "Xyes"; then
         [],
 	[with_grib2lib=no])
    if test ${with_grib2lib} == "no" ; then
-     GRIB2LIB="-L${prefix}/Externals/lib"
+     if test "${EXTERNALS+set}" = set; then 
+       GRIB2LIB="-L${EXTERNALS}/lib"
+     else
+       GRIB2LIB="-L${prefix}/Externals/lib"
+     fi
    else
      GRIB2LIB="-L"${with_grib2lib}
    fi
@@ -90,7 +93,11 @@ if test "X$ENABLE_GRIB2" = "Xyes"; then
         [],
 	[with_pnglib=no])
    if test ${with_pnglib} == "no" ; then
-     PNGLIB="-L${prefix}/Externals/lib"
+     if test "${EXTERNALS+set}" = set; then 
+       PNGLIB="-L${EXTERNALS}/lib"
+     else
+       PNGLIB="-L${prefix}/Externals/lib"
+     fi
    else
      PNGLIB="-L"${with_pnglib}
    fi
@@ -103,7 +110,11 @@ if test "X$ENABLE_GRIB2" = "Xyes"; then
         [],
 	[with_jasperlib=no])
    if test ${with_jasperlib} == "no" ; then
-     JASPERLIB="-L${prefix}/Externals/lib"
+     if test "${EXTERNALS+set}" = set; then 
+       JASPERLIB="-L${EXTERNALS}/lib"
+     else
+       JASPERLIB="-L${prefix}/Externals/lib"
+     fi
    else
      JASPERLIB="-L"${with_jasperlib}
    fi
@@ -116,7 +127,11 @@ if test "X$ENABLE_GRIB2" = "Xyes"; then
         [],
 	[with_grib2lib=no])
    if test ${with_grib2lib} == "no" ; then
-     GRIB2LIB="-L${prefix}/Externals/lib -lgrib2c "${PNGLIB}" -lpng "${JASPERLIB}" -ljasper -lm"
+     if test "${EXTERNALS+set}" = set; then 
+       GRIB2LIB="-L${EXTERNALS}/lib -lgrib2c "${PNGLIB}" -lpng "${JASPERLIB}" -ljasper -lm"
+     else
+       GRIB2LIB="-L${prefix}/Externals/lib -lgrib2c "${PNGLIB}" -lpng "${JASPERLIB}" -ljasper -lm"
+     fi
    else
      GRIB2LIB="-L"${with_grib2lib}" -lgrib2c "${PNGLIB}" -lpng "${JASPERLIB}" -ljasper -lm"
    fi
