@@ -44,7 +44,7 @@ MANDIR=$(prefix)/man
 PARMDIR=$(prefix)/lib/lats
 
 CC = @CC@
-CFLAGS = -I../../include @CFLAGS@ $(DEBUG) -Dgrads @GRIB2INC@ @GRIB2OPTS@
+CFLAGS = -I../../include @CFLAGS@ $(DEBUG) -Dgrads -I@GRIB2INC@ @GRIB2OPTS@
 CPPFLAGS = @CPPFLAGS@
 DEBUG = -O
 DEFS = @DEFS@
