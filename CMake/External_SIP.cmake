@@ -6,7 +6,7 @@ set(SIP_configure_command env ${LIBRARY_PATH}=${PYTHON_LIBRARY_DIR} ${PYTHON_EXE
 ExternalProject_Add(SIP
   URL ${SIP_URL}/${SIP_GZ}
   URL_MD5 ${SIP_MD5}
-  SOURCE_DIR ${proj}
+  SOURCE_DIR ${cdat_BINARY_DIR}/build/SIP
   BUILD_IN_SOURCE 1
   CONFIGURE_COMMAND ${SIP_configure_command}
   DEPENDS ${SIP_DEPENDENCIES}
