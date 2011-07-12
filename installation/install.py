@@ -699,7 +699,7 @@ def _install(file, action):
         if not silent:
             print >>sys.stderr, "Processing", dirfinal
     p1 = p1 % { 'filename': file }
-    sep = "1>%s 2>&1 ; " % logfile
+    sep = " > %s 2>&1 ; " % logfile
     p = sep.join(p1.split(";"))
 ##     os.environ["CFLAGS"]="%s -L%s/lib" % (os.environ.get("CFLAGS",""), os.environ["EXTERNALS"])
     add_lib = "-L%s/lib" % (os.environ["EXTERNALS"],)
@@ -707,8 +707,8 @@ def _install(file, action):
     if cflags_current.find(add_lib) == -1:
         os.environ["CFLAGS"]="%s %s" % (cflags_current, add_lib)
     p = 'env CFLAGS="%s" %s' % (os.environ["CFLAGS"],p)
-##     print 'p:',p
-##     print 'p1:',p1
+    #print 'p:',p
+    #print 'p1:',p1
     if echo:
         print >> sys.stderr, p
     if norun:
