@@ -192,15 +192,15 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
             if mode!='r': raise ModeNotSupported,mode
             datanode = load(path)
         else:
-            file1 = CdmsFile(path,"r")
-            if hasLibcf and hasattr(file1, libcf.CF_FILETYPE):
-                if getattr(file1, libcf.CF_FILETYPE) == libcf.CF_GLATT_FILETYPE_HOST:
-                    file = gsHost.open(path, mode)
-                else:
-                    file = CdmsFile(path, mode)
-            else:
+            try:
+             file1 = CdmsFile(path,"r")
+             if getattr(file1, libcf.CF_FILETYPE) == libcf.CF_GLATT_FILETYPE_HOST:
+                 file = gsHost.open(path, mode)
+             else:
+                 file = CdmsFile(path, mode)
+             file1.close()
+            except:
                 file = CdmsFile(path, mode)
-            file1.close()
             return file
     elif scheme in ['http', 'gridftp']:
         
