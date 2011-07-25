@@ -320,6 +320,9 @@ xXgksPolyLine(ws, plin_ptr)
 #else
 	line_style = GLN_SOLID;
 #endif
+#ifdef CAIRODRAW
+	cairo_set_dash(connect_id.cr,0,0,0.);
+#endif
 	if (line_width == 1)
 	    line_width = 0;
     } else {					/* set dashed line values */
