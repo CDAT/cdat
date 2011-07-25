@@ -112,7 +112,7 @@ python_close_canvas(void)
 	/* Shutdown the VCS Canvas, WISS, and CGM output
          * workstations
 	 */
-        printf("If this is called, then an error has occured.\n");
+        /*printf("If this is called, then an error has occured.\n");*/
         shutdown(connect_id,2);
         shutdown(connect_id,1);
         shutdown(connect_id,7);
@@ -172,6 +172,8 @@ python_colormap(char *str)
                 return  ("Error - The specified colormap was not found.");
            } else
              return NULL;
+#elif defined (QTWM)
+          /* Nothing to do */
 #else
 	   fprintf(stderr,"pymisc colormapchange code here?\n");
 #endif
