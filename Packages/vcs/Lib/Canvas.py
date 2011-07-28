@@ -1730,103 +1730,123 @@ Options:::
         return meshfill.Gfm(self, Gfm_name, Gfm_name_src, 1)
 
    
+
+    def prettifyAxisLabels(self,ticks,axis):
+        for k in ticks.keys():
+            if len(ticks[k])==0:
+                continue
+            if axis=="longitude":
+                if k<0:
+                    ticks[k]=ticks[k][1:]+"W"
+                elif k>0:
+                    ticks[k]=ticks[k]+"E"
+            elif axis=="latitude":
+                if k<0:
+                    ticks[k]=ticks[k][1:]+"S"
+                elif k>0:
+                    ticks[k]=ticks[k]+"N"
+                else:
+                    ticks[0]="Eq"
+        return ticks
     
-##     def setTicksandLabels(self,gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2):
-##         """ Sets the labels and ticks for a graphics method made in python
-##         Usage setTicksandLabels(gm)
-##         """
-##         # Now the template stuff
-##         # first create the dictionary to remember which ones are changed
-##         dic={}
-##         for i in ('xticlabels1','xmtics1','xticlabels2','xmtics2','yticlabels1','ymtics1','yticlabels2','ymtics2'):
-##             dic[i]=0
-##         #xticklabels1
-##         if gm.xticlabels1 is None or gm.xticlabels1=='*':
-##             ticks=vcs.mkscale(datawc_x1,datawc_x2)
-##             ticks=vcs.mklabels(ticks)
-##             for k in ticks.keys() : # make sure you're in the range
-##                 if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
-##                     del(ticks[k])
-##             setattr(gm,'xticlabels1',ticks)
-##             dic['xticlabels1']=1
-##         #xmtics1
-##         if gm.xmtics1 is None or gm.xmtics1=='*':
-##             ticks=vcs.mkscale(datawc_x1,datawc_x2)
-##             tick2=[]
-##             for i in range(len(ticks)-1):
-##                 tick2.append((ticks[i]+ticks[i+1])/2.)
-##             ticks=vcs.mklabels(tick2)
-##             for k in ticks.keys() : # make sure you're in the range
-##                 if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
-##                     del(ticks[k])
-##             setattr(gm,'xmtics1',ticks)
-##             dic['xmtics1']=1
-##         #xticklabels2
-##         if gm.xticlabels2 is None or gm.xticlabels2=='*':
-##             ticks=vcs.mkscale(datawc_x1,datawc_x2)
-##             ticks=vcs.mklabels(ticks)
-##             for k in ticks.keys():
-##                 ticks[k]=''
-##                 if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
-##                     del(ticks[k])
-##             setattr(gm,'xticlabels2',ticks)
-##             dic['xticlabels2']=1
-##         #xmtics2
-##         if gm.xmtics2 is None or gm.xmtics2=='*':
-##             ticks=vcs.mkscale(datawc_x1,datawc_x2)
-##             tick2=[]
-##             for i in range(len(ticks)-1):
-##                 tick2.append((ticks[i]+ticks[i+1])/2.)
-##             ticks=vcs.mklabels(tick2)
-##             for k in ticks.keys() : # make sure you're in the range
-##                 if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
-##                     del(ticks[k])
-##             setattr(gm,'xmtics2',ticks)
-##             dic['xmtics2']=1
-##         #yticklabels1
-##         if gm.yticlabels1 is None or gm.yticlabels1=='*':
-##             ticks=vcs.mkscale(datawc_y1,datawc_y2)
-##             ticks=vcs.mklabels(ticks)
-##             for k in ticks.keys() : # make sure you're in the range
-##                 if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
-##                     del(ticks[k])
-##             setattr(gm,'yticlabels1',ticks)
-##             dic['yticlabels1']=1
-##         #ymtics1
-##         if gm.ymtics1 is None or gm.ymtics1=='*':
-##             ticks=vcs.mkscale(datawc_y1,datawc_y2)
-##             tick2=[]
-##             for i in range(len(ticks)-1):
-##                 tick2.append((ticks[i]+ticks[i+1])/2.)
-##             ticks=vcs.mklabels(tick2)
-##             for k in ticks.keys() : # make sure you're in the range
-##                 if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
-##                     del(ticks[k])
-##             setattr(gm,'ymtics1',ticks)
-##             dic['ymtics1']=1
-##         #yticklabels2
-##         if gm.yticlabels2 is None or gm.yticlabels2=='*':
-##             ticks=vcs.mkscale(datawc_y1,datawc_y2)
-##             ticks=vcs.mklabels(ticks)
-##             for k in ticks.keys():
-##                 ticks[k]=''
-##                 if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
-##                     del(ticks[k])
-##             setattr(gm,'yticlabels2',ticks)
-##             dic['yticlabels2']=1
-##         #ymtics2
-##         if gm.ymtics2 is None or gm.ymtics2=='*':
-##             ticks=vcs.mkscale(datawc_y1,datawc_y2)
-##             tick2=[]
-##             for i in range(len(ticks)-1):
-##                 tick2.append((ticks[i]+ticks[i+1])/2.)
-##             ticks=vcs.mklabels(tick2)
-##             for k in ticks.keys() : # make sure you're in the range
-##                 if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
-##                     del(ticks[k])
-##             setattr(gm,'ymtics2',ticks)
-##             dic['ymtics2']=1
-##         return dic
+    def setTicksandLabels(self,gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
+        """ Sets the labels and ticks for a graphics method made in python
+        Usage setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None)
+        datawc are world coordinates
+        
+        """
+        # Now the template stuff
+        # first create the dictionary to remember which ones are changed
+        dic={}
+        for i in ('xticlabels1','xmtics1','xticlabels2','xmtics2','yticlabels1','ymtics1','yticlabels2','ymtics2'):
+            dic[i]=False
+        #xticklabels1
+        if gm.xticlabels1 is None or gm.xticlabels1=='*':
+            ticks=vcs.mkscale(datawc_x1,datawc_x2)
+            ticks=self.prettifyAxisLabels(vcs.mklabels(ticks),x)
+            ## for k in ticks.keys() : # make sure you're in the range
+            ##     if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
+            ##         del(ticks[k])
+            setattr(gm,'xticlabels1',ticks)
+            dic['xticlabels1']=True
+        #xmtics1
+        if gm.xmtics1 is None or gm.xmtics1=='*':
+            ticks=vcs.mkscale(datawc_x1,datawc_x2)
+            tick2=[]
+            for i in range(len(ticks)-1):
+                tick2.append((ticks[i]+ticks[i+1])/2.)
+            ticks=self.prettifyAxisLabels(vcs.mklabels(tick2),x)
+            ## for k in ticks.keys() : # make sure you're in the range
+            ##     if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
+            ##         del(ticks[k])
+            setattr(gm,'xmtics1',ticks)
+            dic['xmtics1']=True
+        #xticklabels2
+        if gm.xticlabels2 is None or gm.xticlabels2=='*':
+            ticks=vcs.mkscale(datawc_x1,datawc_x2)
+            ticks=self.prettifyAxisLabels(vcs.mklabels(ticks),x)
+            ## for k in ticks.keys():
+            ##     ticks[k]=''
+            ##     if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
+            ##         del(ticks[k])
+            setattr(gm,'xticlabels2',ticks)
+            dic['xticlabels2']=True
+        #xmtics2
+        if gm.xmtics2 is None or gm.xmtics2=='*':
+            ticks=vcs.mkscale(datawc_x1,datawc_x2)
+            tick2=[]
+            for i in range(len(ticks)-1):
+                tick2.append((ticks[i]+ticks[i+1])/2.)
+            ticks=self.prettifyAxisLabels(vcs.mklabels(tick2),x)
+            ## for k in ticks.keys() : # make sure you're in the range
+            ##     if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
+            ##         del(ticks[k])
+            setattr(gm,'xmtics2',ticks)
+            dic['xmtics2']=True
+        #yticklabels1
+        if gm.yticlabels1 is None or gm.yticlabels1=='*':
+            ticks=vcs.mkscale(datawc_y1,datawc_y2)
+            ticks=self.prettifyAxisLabels(vcs.mklabels(ticks),y)
+            ## for k in ticks.keys() : # make sure you're in the range
+            ##     if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
+            ##         del(ticks[k])
+            setattr(gm,'yticlabels1',ticks)
+            dic['yticlabels1']=True
+        #ymtics1
+        if gm.ymtics1 is None or gm.ymtics1=='*':
+            ticks=vcs.mkscale(datawc_y1,datawc_y2)
+            tick2=[]
+            for i in range(len(ticks)-1):
+                tick2.append((ticks[i]+ticks[i+1])/2.)
+            ticks=self.prettifyAxisLabels(vcs.mklabels(tick2),y)
+            ## for k in ticks.keys() : # make sure you're in the range
+            ##     if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
+            ##         del(ticks[k])
+            setattr(gm,'ymtics1',ticks)
+            dic['ymtics1']=True
+        #yticklabels2
+        if gm.yticlabels2 is None or gm.yticlabels2=='*':
+            ticks=vcs.mkscale(datawc_y1,datawc_y2)
+            ticks=self.prettifyAxisLabels(vcs.mklabels(ticks),y)
+            ## for k in ticks.keys():
+            ##     ticks[k]=''
+            ##     if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
+            ##         del(ticks[k])
+            setattr(gm,'yticlabels2',ticks)
+            dic['yticlabels2']=True
+        #ymtics2
+        if gm.ymtics2 is None or gm.ymtics2=='*':
+            ticks=vcs.mkscale(datawc_y1,datawc_y2)
+            tick2=[]
+            for i in range(len(ticks)-1):
+                tick2.append((ticks[i]+ticks[i+1])/2.)
+            ticks=self.prettifyAxisLabels(vcs.mklabels(tick2),y)
+            ## for k in ticks.keys() : # make sure you're in the range
+            ##     if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
+            ##         del(ticks[k])
+            setattr(gm,'ymtics2',ticks)
+            dic['ymtics2']=True
+        return dic
         
 
     def meshfill(self,*args, **parms):
@@ -5014,9 +5034,9 @@ Options:::
         wasnone=0
         if copy_mthd is None:
             if arglist[3]!='default':
-                copy_mthd=self.get_gm(arglist[3],arglist[4])
+                copy_mthd=self.generate_gm(arglist[3],arglist[4])
             else:
-                copy_mthd=self.get_gm('boxfill',arglist[4])
+                copy_mthd=self.generate_gm('boxfill',arglist[4])
             wasnone=1
 ##                and (type(copy_mthd.datawc_x1) in [type(cdtime.comptime(1900)),type(cdtime.reltime(0,'days since 1900'))] or \
 ##                type(copy_mthd.datawc_x2) in [type(cdtime.comptime(1900)),type(cdtime.reltime(0,'days since 1900'))]) \
@@ -5246,6 +5266,44 @@ Options:::
                 
         else:
             set_convert_labels(copy_mthd)
+
+        if copy_mthd is None:
+            copy_mthd=self.generate_gm(arglist[3],arglist[4])
+        x=None
+        y=None
+        try:
+            if arglist[0].getAxis(-1).isLongitude():
+                x="longitude"
+            elif arglist[0].getAxis(-1).isLatitude():
+                x="latitude"
+            if copy_mthd.g_name in ["GXy","GXY"]:
+                datawc_x1=MV2.minimum(arglist[0])
+                datawc_x2=MV2.maximum(arglist[0])
+                x=None
+            else:            
+                datawc_x1=arglist[0].getAxis(-1)[0]
+                datawc_x2=arglist[0].getAxis(-1)[-1]
+            if arglist[0].getAxis(-2).isLongitude():
+                y="longitude"
+            elif arglist[0].getAxis(-2).isLatitude():
+                y="latitude"
+            
+            if copy_mthd.g_name in ["GYx",]:
+                datawc_y1=MV2.minimum(arglist[0])
+                datawc_y2=MV2.maximum(arglist[0])
+                y=None
+            elif copy_mthd.g_name in ["GYX",]:
+                datawc_y1=MV2.minimum(arglist[1])
+                datawc_y2=MV2.maximum(arglist[1])
+                y=None
+            else:
+                datawc_y1=arglist[0].getAxis(-2)[0]
+                datawc_y2=arglist[0].getAxis(-2)[-1]
+        except:
+            pass                
+
+        dic = self.setTicksandLabels(copy_mthd,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=x,y=y)
+
         if not copy_mthd is None: arglist[4]=copy_mthd.name
         if not copy_tmpl is None: arglist[2]=copy_tmpl.name
 
