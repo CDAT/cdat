@@ -15,6 +15,7 @@ c9114258f494cafa87fc2740364fa7f4  sources/PyQt-mac-gpl-4.8.4.tar.gz
 cd04b5b9383b6c1fccdaa991af762cf4  sources/Python-2.6.5.tgz
 35f56b092ecf39a6bd59d64f142aae0f  sources/Python-2.7.tgz
 15ed56733655e3fab785e49a7278d2fb  sources/Python-2.7.1.tgz
+0ddfe265f1b3d0a8c2459f5bf66894c7  sources/Python-2.7.2.tgz
 7e6af7022440d8688d16be86d55fb358  sources/blas.tgz
 b60a82f405f9400bbfdcf850b1728d25  sources/cairo-1.8.10.tar.gz
 f101a9e88b783337b20b2e26dfd26d5f  sources/cairo-1.10.2.tar.gz
