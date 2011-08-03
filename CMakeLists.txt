@@ -108,14 +108,14 @@ set(EP_PREFIX ${cdat_BINARY_DIR}/build/prefix)
 
 set_property(DIRECTORY PROPERTY EP_LOG_DIR  ${cdat_BINARY_DIR}/logs)
 
-set(EP_LOG_OPTIONS
-  LOG_DOWNLOAD 1
-  LOG_UPDATE 1
-  LOG_CONFIGURE 1
-  LOG_BUILD 1
-  LOG_TEST 1
-  LOG_INSTALL 1
-)
+#set(EP_LOG_OPTIONS
+#  LOG_DOWNLOAD 1
+#  LOG_UPDATE 1
+#  LOG_CONFIGURE 1
+#  LOG_BUILD 1
+#  LOG_TEST 1
+#  LOG_INSTALL 1
+#)
 
 INCLUDE(ExternalProject)
 
@@ -146,7 +146,7 @@ set(cdat_c_flags ${CMAKE_C_FLAGS})
 if(APPLE)
   set(cdat_rpath_flag -R)
 else()
-  set(cdat_rpath_flag -Wl,--rpath,)
+  set(cdat_rpath_flag -Wl,-rpath,)
 endif()
 
 if(WIN32)
@@ -383,7 +383,7 @@ add_cdat_package(CDAT)
 add_cdat_package(gui_support)
 
 option(CDAT_BUILD_VISTRAILS "Build VisTrails" OFF)
-if(CDAT_BUILD_VisTrails)
+if(CDAT_BUILD_VISTRAILS)
   add_cdat_package(VisTrails)
 endif()
 
