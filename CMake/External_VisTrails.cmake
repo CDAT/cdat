@@ -8,7 +8,7 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/vistrails_make_step.cmake.in
   @ONLY)
 
 ExternalProject_Add(VisTrails
-  GIT_REPOSITORY git://vistrails.sci.utah.edu/vistrails.git
+  GIT_REPOSITORY git://vistrails.org/vistrails.git
   GIT_TAG pcmdi
   SOURCE_DIR ${VisTrails_source}
   BUILD_IN_SOURCE 1

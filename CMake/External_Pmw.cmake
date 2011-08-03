@@ -1,5 +1,5 @@
 
-set(Pmw_source "${CMAKE_CURRENT_BINARY_DIR}/Pmw")
+set(Pmw_source "${CMAKE_CURRENT_BINARY_DIR}/build/Pmw")
 set(Pmw_install "${cdat_EXTERNALS}")
 
 configure_file(${cdat_CMAKE_SOURCE_DIR}/pmw_make_step.cmake.in
