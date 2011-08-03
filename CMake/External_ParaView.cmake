@@ -34,23 +34,35 @@ ExternalProject_Add(ParaView
     -DPYTHON_INCLUDE_DIR:PATH=${PYTHON_INCLUDE}
     -DPYTHON_LIBRARY:FILEPATH=${PYTHON_LIBRARY}
     # HDF5
-    ${HDF5_ARGS}
+    -DVTK_USE_SYSTEM_HDF5:BOOL=ON
+    -DHDF5_INCLUDE_DIR:PATH=${cdat_EXTERNALS}/include
+    -DHDF5_LIBRARY:FILEPATH=${cdat_EXTERNALS}/lib/libhdf5${_LINK_LIBRARY_SUFFIX}
+    -DVTK_USE_SYSTEM_ZLIB:BOOL=ON
+    -DZLIB_INCLUDE_DIR:PATH=${cdat_EXTERNALS}/include
+    -DZLIB_LIBRARY:FILEPATH=${cdat_EXTERNALS}/lib/libz${_LINK_LIBRARY_SUFFIX}
+    -DVTK_USE_SYSTEM_LIBXML2:BOOL=ON
+    -DLIBXML2_INCLUDE_DIR:PATH=${cdat_EXTERNALS}/include/libxml2
+    -DLIBXML2_LIBRARIES:FILEPATH=${cdat_EXTERNALS}/lib/libxml2${_LINK_LIBRARY_SUFFIX}
+    -DLIBXML2_XMLLINT_EXECUTABLE:FILEPATH=${cdat_EXTERNALS}/bin/xmllint
     -DPARAVIEW_INSTALL_THIRD_PARTY_LIBRARIES:BOOL=OFF
     ${cdat_compiler_args}
+    -DCMAKE_EXE_LINKER_FLAGS:STRING=${cdat_rpath_flag}${CMAKE_INSTALL_PREFIX}/lib ${cdat_rpath_flag}${cdat_EXTERNALS}/lib ${cdat_rpath_flag}${ParaView_install}/lib/paraview-@PARAVIEW_MAJOR@.@PARAVIEW_MINOR@
+    -DCMAKE_MODULE_LINKER_FLAGS:STRING=${cdat_rpath_flag}${CMAKE_INSTALL_PREFIX}/lib ${cdat_rpath_flag}${cdat_EXTERNALS}/lib ${cdat_rpath_flag}${ParaView_install}/lib/paraview-@PARAVIEW_MAJOR@.@PARAVIEW_MINOR@
+    -DCMAKE_SHARED_LINKER_FLAGS:STRING=${cdat_rpath_flag}${CMAKE_INSTALL_PREFIX}/lib ${cdat_rpath_flag}${cdat_EXTERNALS}/lib ${cdat_rpath_flag}${ParaView_install}/lib/paraview-@PARAVIEW_MAJOR@.@PARAVIEW_MINOR@
   CMAKE_ARGS
     -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
   BUILD_COMMAND ${CMAKE_COMMAND} -DWORKING_DIR=<BINARY_DIR> -Dmake=$(MAKE) -P ${cdat_CMAKE_BINARY_DIR}/cdat_cmake_make_step.cmake
-  INSTALL_COMMAND pwd
+  INSTALL_COMMAND ${ParaView_install_command}
   DEPENDS ${ParaView_DEPENDENCIES}
   ${EP_LOG_OPTIONS}
 )
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/vtk_install_python_module.cmake.in
-  ${cdat_CMAKE_BINARY_DIR}/vtk_install_python_module.cmake
+configure_file(${cdat_CMAKE_SOURCE_DIR}/paraview_install_python_module.cmake.in
+  ${cdat_CMAKE_BINARY_DIR}/paraview_install_python_module.cmake
   @ONLY)
 
- ExternalProject_Add_Step(ParaView InstallVTKPythonModule
-    COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/vtk_install_python_module.cmake
+ ExternalProject_Add_Step(ParaView InstallParaViewPythonModule
+    COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/paraview_install_python_module.cmake
     DEPENDEES install
     WORKING_DIRECTORY ${cdat_CMAKE_BINARY_DIR}
     )
