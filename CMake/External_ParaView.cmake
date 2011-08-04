@@ -15,7 +15,10 @@ if(NOT APPLE)
   set(ParaView_install_command make install)
 endif()
 
+set(pv_rpath_linker_flags "${cdat_rpath_flag}${CMAKE_INSTALL_PREFIX}/lib^^${cdat_rpath_flag}${cdat_EXTERNALS}/lib^^${cdat_rpath_flag}${ParaView_install}/lib/paraview-${PARAVIEW_MAJOR}.${PARAVIEW_MINOR}")
+
 ExternalProject_Add(ParaView
+  LIST_SEPARATOR ^^
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
   SOURCE_DIR ${ParaView_source}
   BINARY_DIR ${ParaView_binary}
@@ -28,7 +31,7 @@ ExternalProject_Add(ParaView
     -DBUILD_TESTING:BOOL=OFF
     -DPARAVIEW_DISABLE_VTK_TESTING:BOOL=ON
     -DPARAVIEW_TESTING_WITH_PYTHON:BOOL=OFF
-    -DParaView_BUILD_APPLICATION_BUNDLE:BOOL=OFF
+    -DPARAVIEW_BUILD_AS_APPLICATION_BUNDLE:BOOL=OFF
     -DCMAKE_CXX_FLAGS:STRING=${cdat_tpl_cxx_flags}
     -DCMAKE_C_FLAGS:STRING=${cdat_tpl_c_flags}
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_CFG_INTDIR}
@@ -53,9 +56,9 @@ ExternalProject_Add(ParaView
     #-DLIBXML2_XMLLINT_EXECUTABLE:FILEPATH=${cdat_EXTERNALS}/bin/xmllint
     -DPARAVIEW_INSTALL_THIRD_PARTY_LIBRARIES:BOOL=OFF
     ${cdat_compiler_args}
-    -DCMAKE_EXE_LINKER_FLAGS:STRING=${cdat_rpath_flag}${CMAKE_INSTALL_PREFIX}/lib ${cdat_rpath_flag}${cdat_EXTERNALS}/lib ${cdat_rpath_flag}${ParaView_install}/lib/paraview-@PARAVIEW_MAJOR@.@PARAVIEW_MINOR@
-    -DCMAKE_MODULE_LINKER_FLAGS:STRING=${cdat_rpath_flag}${CMAKE_INSTALL_PREFIX}/lib ${cdat_rpath_flag}${cdat_EXTERNALS}/lib ${cdat_rpath_flag}${ParaView_install}/lib/paraview-@PARAVIEW_MAJOR@.@PARAVIEW_MINOR@
-    -DCMAKE_SHARED_LINKER_FLAGS:STRING=${cdat_rpath_flag}${CMAKE_INSTALL_PREFIX}/lib ${cdat_rpath_flag}${cdat_EXTERNALS}/lib ${cdat_rpath_flag}${ParaView_install}/lib/paraview-@PARAVIEW_MAJOR@.@PARAVIEW_MINOR@
+    -DCMAKE_EXE_LINKER_FLAGS:STRING=${pv_rpath_linker_flags}
+    -DCMAKE_MODULE_LINKER_FLAGS:STRING=${pv_rpath_linker_flags}
+    -DCMAKE_SHARED_LINKER_FLAGS:STRING=${pv_rpath_linker_flags}
   CMAKE_ARGS
     -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
   BUILD_COMMAND ${CMAKE_COMMAND} -DWORKING_DIR=<BINARY_DIR> -Dmake=$(MAKE) -P ${cdat_CMAKE_BINARY_DIR}/cdat_cmake_make_step.cmake
