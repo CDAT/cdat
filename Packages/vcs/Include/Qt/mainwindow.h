@@ -1,11 +1,11 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-#include <QCustomEvent>
-#include <QEvent>
-#include <QMutex>
-#include <QThread>
-#include <QWaitCondition>
-#include <QMainWindow>
+#include <QtCore/QCustomEvent>
+#include <QtCore/QEvent>
+#include <QtCore/QMutex>
+#include <QtCore/QThread>
+#include <QtCore/QWaitCondition>
+#include <QtGui/QMainWindow>
 #include <pyvcs.h>
 #include "xgks.h"
 #include "vcs_events.h"
