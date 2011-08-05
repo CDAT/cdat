@@ -15,10 +15,9 @@ if(NOT APPLE)
   set(ParaView_install_command make install)
 endif()
 
-set(pv_rpath_linker_flags "${cdat_rpath_flag}${CMAKE_INSTALL_PREFIX}/lib^^${cdat_rpath_flag}${cdat_EXTERNALS}/lib^^${cdat_rpath_flag}${ParaView_install}/lib/paraview-${PARAVIEW_MAJOR}.${PARAVIEW_MINOR}")
+set(pv_rpath_linker_flags "${cdat_rpath_flag}${CMAKE_INSTALL_PREFIX}/lib ${cdat_rpath_flag}${cdat_EXTERNALS}/lib ${cdat_rpath_flag}${ParaView_install}/lib/paraview-${PARAVIEW_MAJOR}.${PARAVIEW_MINOR}")
 
 ExternalProject_Add(ParaView
-  LIST_SEPARATOR ^^
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
   SOURCE_DIR ${ParaView_source}
   BINARY_DIR ${ParaView_binary}
