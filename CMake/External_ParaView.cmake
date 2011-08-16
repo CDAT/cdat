@@ -81,16 +81,16 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/paraview_install_python_module.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/paraview_install_python_module.cmake
   @ONLY)
 
- ExternalProject_Add_Step(ParaView InstallParaViewPythonModule
-    COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/paraview_install_python_module.cmake
-    DEPENDEES install
-    WORKING_DIRECTORY ${cdat_CMAKE_BINARY_DIR}
-    )
+ExternalProject_Add_Step(ParaView InstallParaViewPythonModule
+  COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/paraview_install_python_module.cmake
+  DEPENDEES install
+  WORKING_DIRECTORY ${cdat_CMAKE_BINARY_DIR}
+  )
 
 ExternalProject_Add_Step(ParaView InstallVTKPythonModule
-    COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/vtk_install_python_module.cmake
-    DEPENDEES install
-    WORKING_DIRECTORY ${cdat_CMAKE_BINARY_DIR}
-    )
+  COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/vtk_install_python_module.cmake
+  DEPENDEES InstallParaViewPythonModule
+  WORKING_DIRECTORY ${cdat_CMAKE_BINARY_DIR}
+  )
 
 
