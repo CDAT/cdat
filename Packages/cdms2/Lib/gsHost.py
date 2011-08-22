@@ -88,8 +88,6 @@ class Host:
             # number of time files
             self.ntimeSlices = 0
 
-            self.mosaicFilename = ""
-
             # Filenames
             self.timeFilenames = []
             self.statFilenames = []
@@ -148,6 +146,61 @@ class Host:
             varName_t = c_char_p(" " * (libCFConfig.NC_MAX_NAME+1))
             fName_t = c_char_p(" " * (libCFConfig.NC_MAX_NAME+1))
 
+
+            # Mosaic filename (use getMosaic to return the connectivity)
+            mosaicFilename = c_char_p(" " * (libCFConfig.NC_MAX_NAME + 1))
+            status = libcfdll.nccf_inq_host_mosaicfilename(self.hostId_t, mosaicFilename)
+            self.mosaicFilename = mosaicFilename.value
+
+            coordinates = []
+
+            # static data
+            for vfindx in range(self.nstatFiles):
+                for gfindx in range(self.ngrids):
+                    status = libcfdll.nccf_inq_host_statfilename(self.hostId_t, 
+                                                              vfindx, gfindx, 
+                                                              fName_t)
+                    am=0
+                    self.statFilenames.append(fName_t.value)
+                    f = cdms2.open(fName_t.value, 'r')
+                    varNames = f.listvariable()
+
+                    for vn in varNames:
+                        # Add coordinate names a local list of coordinates
+                        if 'coordinates' in dir(f[vn]):
+                            for coord in f[vn].coordinates.split():
+                                if not coord in coordinates: coordinates.append(coord)
+                        if not self.statVars.has_key(vn):
+                            # allocate
+                            self.statVars[vn] = ["" for ig in range(self.ngrids)] 
+
+                        # set file name
+                        self.statVars[vn][gfindx] = fName_t.value
+                    f.close()
+
+            # time dependent data
+            for vfindx in range(self.ntimeFiles):
+                for tfindx in range(self.ntimeSlices):
+                    for gfindx in range(self.ngrids):
+                        status = libcfdll.nccf_inq_host_timefilename(self.hostId_t, 
+                                                                  vfindx, tfindx, gfindx, 
+                                                                  fName_t)
+                        self.timeFilenames.append(fName_t.value)
+                        f = cdms2.open(fName_t.value, 'r')
+                        varNames = f.listvariable()
+                        # Add coordinate names a local list of coordinates
+                        if 'coordinates' in dir(f[vn]):
+                            for coord in f[vn].coordinates.split():
+                                if not coord in coordinates: coordinates.append(coord)
+                        for vn in varNames:
+                            if not self.timeDepVars.has_key(vn):
+                                # allocate
+                                self.timeDepVars[vn] = [["" for ig in range(self.ngrids)] \
+                                                            for it in range(self.ntimeSlices)]
+                            # set file name
+                            self.timeDepVars[vn][tfindx][gfindx] = fName_t.value
+                        f.close()
+
             # Grid names and data
             for gfindx in range(self.ngrids):
                 status = libcfdll.nccf_inq_host_gridfilename(self.hostId_t, 
@@ -155,12 +208,13 @@ class Host:
                                                           fName_t)
                 self.gridFilenames.append(fName_t.value)
 
-                f = cdms2.open(fName_t.value, 'r')
-                varNames = f.listvariable()
+                varNames = cdms2.open(fName_t.value, 'r').listvariable()
                 for vn in varNames:
-                    if not self.gridVars.has_key(vn):
+                    if not self.gridVars.has_key(vn) and vn in coordinates:
                         # allocate
                         self.gridVars[vn] = ["" for ig in range(self.ngrids)] 
+                    else:   
+                        continue
 
                     # set file name
                     self.gridVars[vn][gfindx] = fName_t.value
@@ -171,39 +225,6 @@ class Host:
                                                           fName_t)
                 self.gridNames.append(fName_t.value)
 
-            # static data
-            for vfindx in range(self.nstatFiles):
-                for gfindx in range(self.ngrids):
-                    status = libcfdll.nccf_inq_host_statfilename(self.hostId_t, 
-                                                              vfindx, gfindx, 
-                                                              fName_t)
-                    self.statFilenames.append(fName_t.value)
-                    varNames = cdms2.open(fName_t.value, 'r').listvariable()
-                    for vn in varNames:
-                        if not self.statVars.has_key(vn):
-                            # allocate
-                            self.statVars[vn] = ["" for ig in range(self.ngrids)] 
-
-                        # set file name
-                        self.statVars[vn][gfindx] = fName_t.value
-
-            # time dependent data
-            for vfindx in range(self.ntimeFiles):
-                for tfindx in range(self.ntimeSlices):
-                    for gfindx in range(self.ngrids):
-                        status = libcfdll.nccf_inq_host_timefilename(self.hostId_t, 
-                                                                  vfindx, tfindx, gfindx, 
-                                                                  fName_t)
-                        self.timeFilenames.append(fName_t.value)
-                        varNames = cdms2.open(fName_t.value, 'r').listvariable()
-                        for vn in varNames:
-                            if not self.timeDepVars.has_key(vn):
-                                # allocate
-                                self.timeDepVars[vn] = [["" for ig in range(self.ngrids)] \
-                                                            for it in range(self.ntimeSlices)]
-                            # set file name
-                            self.timeDepVars[vn][tfindx][gfindx] = fName_t.value
-                      
           ## now close the host file NOT HERE. USE __del__
           #status = libcfdll.nccf_free_host(self.hostId_t)
     
@@ -221,9 +242,7 @@ class Host:
         @return mfn Mosaic filename
         """
         from gsMosaic import Mosaic
-        mosaicFilename = c_char_p(" " * (libCFConfig.NC_MAX_NAME + 1))
-        status = self.libcfdll.nccf_inq_host_mosaicfilename(self.hostId_t, mosaicFilename)
-        mfn = Mosaic(mosaicFilename, "r")
+        mfn = Mosaic(self.mosaicFilename, "r")
 
         return mfn
 
@@ -302,7 +321,12 @@ class Host:
         """
         @return list of all variables, including static and time dependent
         """
-        return self.statVars.keys() + self.timeDepVars.keys()
+        self.vars = self.gridVars.keys()
+        for item in self.statVars.keys(): 
+            if not item in self.vars: self.vars.append(item)
+        for item in self.timeDepVars.keys(): 
+            if not item in self.vars: self.vars.append(item)
+        return self.vars
 
     def listvariables(self):
         """
@@ -411,11 +435,16 @@ class Host:
 #    def __getitem__(self, varName, **speclist):
     def __getitem__(self, varName):
         """
-        self(variableName) 
-        The returned variable is a var[nGrids][[nTimes, nz], ny,  nx]
+        The returned variable is a list of cdms2.transientVariables
+        var[nGrids][[nTimes, nz], ny,  nx]
         Note that for nTimes, the time across files are concatenated together
         @param varName name of variable
         @return aggregated transient variable
+
+        example: f = filename
+                 h = cdms2.open)
+                 h.listvariables()
+                 v = h('varname')
         """
         # Static variables
         if self.statVars.has_key(varName):
@@ -433,14 +462,19 @@ class Host:
     
     def __call__(self, varName):
         """
-        Equivalent to self[varName] -- Return a list of file variables
-        including the grid for each.
+
+        The returned variable is a list of cdms2.fileVariables
+        Equivalent to self[varName]
         @varName variable name
-        @return File variable
+        @return aggregated File variable
 
         NOTE:
         Currently returns a transient variable. File variable needs still to
         be implemented
+        example: f = filename
+                 h = cdms2.open)
+                 h.listvariables()
+                 v = h['varname']
         """
 #        return self.__getitem__(varName, **speclist)
         return self.__getitem__(varName)
