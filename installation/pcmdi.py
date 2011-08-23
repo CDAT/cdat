@@ -2,6 +2,10 @@
 # Always build with --force after changing a configuration.
 # You do not need to rebuild Python itself.
 CDMS_INCLUDE_DRS='yes'
+if sys.platform=="linux2":
+  COMPILER_EXTRA_LIBS=['pgftnrtl','pgc']
+else:
+  COMPILER_EXTRA_LIBS=[]
 #if sys.platform[0:3] == "aix":  # and probably other platforms...
 #    CMDS_INCLUDE_QL = 'no'
 #else:

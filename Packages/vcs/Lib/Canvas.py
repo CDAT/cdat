@@ -5301,8 +5301,10 @@ Options:::
                 datawc_y2=arglist[0].getAxis(-2)[-1]
         except:
             pass                
-
-        dic = self.setTicksandLabels(copy_mthd,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=x,y=y)
+        try:
+            dic = self.setTicksandLabels(copy_mthd,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=x,y=y)
+        except:
+            pass
 
         if not copy_mthd is None: arglist[4]=copy_mthd.name
         if not copy_tmpl is None: arglist[2]=copy_tmpl.name

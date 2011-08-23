@@ -116,7 +116,7 @@ Make sure environment variable HOME set.
 
 CDAT will look for and install if necessary (minimum version required/version distributed) :
 
-	  python 2.7.0 / 2.7.1
+	  python 2.7.0 / 2.7.2
 	  setuptools 0.6 / 0.6c11
 	  numpy 1.5.1 / 1.5.1
 	  tcl/tk : 8.5.4 / 8.5.9
