@@ -1782,7 +1782,7 @@ Options:::
             setattr(gm,'xmtics1',ticks)
             dic['xmtics1']=True
         #xticklabels2
-        if gm.xticlabels2 is None or gm.xticlabels2=='*':
+        if  hasattr(gm,"xticlabels2") and (gm.xticlabels2 is None or gm.xticlabels2=='*'):
             ticks=vcs.mkscale(datawc_x1,datawc_x2)
             ticks=self.prettifyAxisLabels(vcs.mklabels(ticks),x)
             ## for k in ticks.keys():
@@ -1792,7 +1792,7 @@ Options:::
             setattr(gm,'xticlabels2',ticks)
             dic['xticlabels2']=True
         #xmtics2
-        if gm.xmtics2 is None or gm.xmtics2=='*':
+        if hasattr(gm,"xmtics2") and (gm.xmtics2 is None or gm.xmtics2=='*'):
             ticks=vcs.mkscale(datawc_x1,datawc_x2)
             tick2=[]
             for i in range(len(ticks)-1):
@@ -1825,7 +1825,7 @@ Options:::
             setattr(gm,'ymtics1',ticks)
             dic['ymtics1']=True
         #yticklabels2
-        if gm.yticlabels2 is None or gm.yticlabels2=='*':
+        if hasattr(gm,"yticlabels2") and (gm.yticlabels2 is None or gm.yticlabels2=='*'):
             ticks=vcs.mkscale(datawc_y1,datawc_y2)
             ticks=self.prettifyAxisLabels(vcs.mklabels(ticks),y)
             ## for k in ticks.keys():
@@ -1835,7 +1835,7 @@ Options:::
             setattr(gm,'yticlabels2',ticks)
             dic['yticlabels2']=True
         #ymtics2
-        if gm.ymtics2 is None or gm.ymtics2=='*':
+        if hasattr(gm,"ymtics2") and (gm.ymtics2 is None or gm.ymtics2=='*'):
             ticks=vcs.mkscale(datawc_y1,datawc_y2)
             tick2=[]
             for i in range(len(ticks)-1):
