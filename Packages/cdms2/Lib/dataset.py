@@ -889,6 +889,8 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
             for name in self._file_.dimensions.keys():
                 if name in coords1d:
                     cdunifvar = self._file_.variables[name]
+                elif name in coordsaux:
+                    cdunifvar = self._file_.variables[name]
                 else:
                     cdunifvar = None
                 self.axes[name] = FileAxis(self,name,cdunifvar)

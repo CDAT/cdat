@@ -148,10 +148,10 @@ class AbstractVariable(CdmsObj, Slab):
         return result
 
     def generateGridkey(self, convention, vardict):
-        """ generateGridkey(): Determine if the variable is gridded, 
-            and generate ((latname, lonname, order, maskname, class), lat, lon) if gridded,
-            or (None, None, None) if not gridded. vardict is the variable dictionary of the parent"""
-
+        """ generateGridkey(): Determine if the variable is gridded, and
+        generate ((latname, lonname, order, maskname, class), lat, lon) if
+        gridded, or (None, None, None) if not gridded. vardict is the variable
+        dictionary of the parent """
         lat, nlat = convention.getVarLatId(self, vardict)
         lon, nlon = convention.getVarLonId(self, vardict)
         if (lat is not None) and (lat is lon):

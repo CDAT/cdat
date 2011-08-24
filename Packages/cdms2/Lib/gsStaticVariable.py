@@ -77,7 +77,7 @@ class StaticVariable:
     Static variable extending over multiple grid files
     """
 
-    def __init__(self, HostObj, varName):
+    def __init__(self, HostObj, varName, isFileVariable = False):
         """
         Constructor
         @param HostObj host object
@@ -99,34 +99,39 @@ class StaticVariable:
             # name of the file containing coordinate data
             gFName = HostObj.gridFilenames[gfindx]
 
-            fh = cdms2.open(fName)
+            fh = cdms2.open(fName, "a")
             gh = cdms2.open(gFName)
 
             # alternatively vr = fh[varName]
-            vr = fh(varName)
+            if isFileVariable: vr = fh[varName]
+            else: vr = fh(varName)
 
-            fh.close()
-            vr.gridFilename = gFName
-            vr.gridIndex    = gfindx
+            if isFileVariable:
+                # Bracket operator - fileVariable
+                self.vars[gfindx] = vr
+            else:
+                # Parenthetical operator - Transient Variable routine
+                #vr.gridFilename = gFName
+                vr.gridIndex    = gfindx
 
-            grid = None
-            if 'coordinates' in vr.attributes.keys():
-                grid = createTransientGrid(gFName, vr.attributes['coordinates'])
-            atts = dict(vr.attributes)
-            atts.update(gh.attributes)
-            if libcf.CF_GRIDNAME in fh.attributes.keys():
-                atts[libcf.CF_GRIDNAME] = getattr(fh, libcf.CF_GRIDNAME)
+                grid = None
+                if 'coordinates' in vr.attributes.keys():
+                    grid = createTransientGrid(gFName, vr.attributes['coordinates'])
+                atts = dict(vr.attributes)
+                atts.update(gh.attributes)
+                if libcf.CF_GRIDNAME in fh.attributes.keys():
+                    atts[libcf.CF_GRIDNAME] = getattr(fh, libcf.CF_GRIDNAME)
 
-            # Create the variable
-            if grid:
-                var = cdms2.createVariable(vr, 
-                                axes = grid.getAxisList(), 
-                                grid = grid, 
-                                attributes = atts, 
-                                id = vr.standard_name)
-            else: 
-                var = vr
-            self.vars[gfindx] = var
+                # Create the variable
+                if grid:
+                    var = cdms2.createVariable(vr, 
+                                    axes = grid.getAxisList(), 
+                                    grid = grid, 
+                                    attributes = atts, 
+                                    id = vr.standard_name)
+                else: 
+                    var = vr
+                self.vars[gfindx] = var
 
     def __getitem__(self, gfindx):
         """

@@ -417,6 +417,12 @@ class Host:
         status = self.libcfdll.nccf_add_host_file(self.hostId_t, filename)
         return status
 
+    def close(self):
+        self.variables = {}
+        self.axes = {}
+        self.grids = {}
+        self._status_ = 'closed'
+
     def __repr__(self): 
         """
         Python repr()
@@ -433,33 +439,6 @@ class Host:
         self.libcfdll.nccf_free_host( self.hostId_t )
 
 #    def __getitem__(self, varName, **speclist):
-    def __getitem__(self, varName):
-        """
-        The returned variable is a list of cdms2.transientVariables
-        var[nGrids][[nTimes, nz], ny,  nx]
-        Note that for nTimes, the time across files are concatenated together
-        @param varName name of variable
-        @return aggregated transient variable
-
-        example: f = filename
-                 h = cdms2.open)
-                 h.listvariables()
-                 v = h('varname')
-        """
-        # Static variables
-        if self.statVars.has_key(varName):
-#            staticVariables = StaticVariable(self, varName, **speclist)
-            staticVariables = StaticVariable(self, varName)
-
-            return staticVariables.vars 
-
-        # Time variables
-        elif self.timeDepVars.has_key(varName):
-            timeVariables = TimeVariable(self, varName)
-#            timeVariables = TimeVariable(self, varName, **speclist)
-            
-            return timeVariables.vars
-    
     def __call__(self, varName):
         """
 
@@ -476,9 +455,45 @@ class Host:
                  h.listvariables()
                  v = h['varname']
         """
-#        return self.__getitem__(varName, **speclist)
-        return self.__getitem__(varName)
 
+        if self.statVars.has_key(varName):
+            staticVariables = StaticVariable(self, varName, 
+                                             isFileVariable = False)
+
+            return staticVariables.vars 
+
+        # Time variables
+        elif self.timeDepVars.has_key(varName):
+            timeVariables = TimeVariable(self, varName, isFileVariable = False)
+            
+            return timeVariables.vars
+
+    def __getitem__(self, varName):
+        """
+        The returned variable is a list of cdms2.transientVariables
+        var[nGrids][[nTimes, nz], ny,  nx]
+        Note that for nTimes, the time across files are concatenated together
+        @param varName name of variable
+        @return aggregated transient variable
+
+        example: f = filename
+                 h = cdms2.open)
+                 h.listvariables()
+                 v = h('varname')
+        """
+        # Static variables
+        if self.statVars.has_key(varName):
+            staticVariables = StaticVariable(self, varName, 
+                                             isFileVariable = True)
+
+            return staticVariables.vars 
+
+        # Time variables
+        elif self.timeDepVars.has_key(varName):
+            timeVariables = TimeVariable(self, varName, isFileVariable = True)
+            
+            return timeVariables.vars
+    
 ##############################################################################
 
 def test():
