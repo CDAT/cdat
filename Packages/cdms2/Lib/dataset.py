@@ -165,7 +165,7 @@ def createDataset(path,template=None):
 # 'uri' is a Uniform Resource Identifier, referring to a cdunif file, XML file,
 #   or LDAP URL of a catalog dataset entry.
 # 'mode' is 'r', 'r+', 'a', or 'w'
-def openDataset(uri,mode='r',template=None,dods=1,dpath=None):
+def openDataset(uri,mode='r',template=None,dods=1,dpath=None, HostObj=None):
     """
     Options:::
 mode :: (str) ('r') mode to open the file in read/write/append
@@ -195,7 +195,7 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
                 if getattr(file1, libcf.CF_FILETYPE) == libcf.CF_GLATT_FILETYPE_HOST:
                     file = gsHost.open(path, mode)
                 else:
-                    file = CdmsFile(path, mode)
+                    file = CdmsFile(path, mode, HostObj = HostObj)
             else:
                 file = CdmsFile(path, mode)
             file1.close()
@@ -826,7 +826,7 @@ class Dataset(CdmsObj, cuDataset):
 ##                                             'mode')
 
 class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
-    def __init__(self, path, mode):
+    def __init__(self, path, mode, HostObj = None):
         CdmsObj.__init__(self, None)
         cuDataset.__init__(self)
         value = self.__cdms_internals__+['datapath',
@@ -867,6 +867,18 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
         self._convention_ = convention.getDatasetConvention(self)
 
         try:
+            
+            # A mosaic variable with coordinates attached, but the coordinate variables reside in a
+            # different file. Add the coordinate variables to the mosaic variables list.
+            if not HostObj is None:
+                for name in self._file_.variables.keys():
+                    if 'coordinates' in dir(self._file_.variables[name]):
+                        coords = self._file_.variables[name].coordinates.split()
+                        for coord in coords:
+                            if not coord in self._file_.variables.keys():
+                                cdunifvar = Cdunif.CdunifFile(HostObj.gridVars[coord][0], mode)
+                                self._file_.variables[coord] = cdunifvar.variables[coord]
+                
             # Get lists of 1D and auxiliary coordinate axes
             coords1d = self._convention_.getAxisIds(self._file_.variables)
             coordsaux = self._convention_.getAxisAuxIds(self._file_.variables, coords1d)

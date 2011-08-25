@@ -49,7 +49,7 @@ class TimeVariable(StaticVariable):
                 for tfindx in range(HostObj.ntimeSlices):
 
                     fName = HostObj.timeDepVars[varName][tfindx][gfindx]
-                    fh = cdms2.open(fName)
+                    fh = cdms2.open(fName, HostObj=HostObj)
 
                     if isFileVariable:
                         var = fh[varName]

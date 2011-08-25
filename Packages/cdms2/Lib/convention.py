@@ -48,10 +48,7 @@ class AbstractConvention:
         lat = None
         nlat = 0
 
-        if 'coordinates' in dir(var):
-            print 'convention', var.id, var.coordinates.split(), var.getDomain()
         for obj in [d[0] for d in var.getDomain()]:
-            print self.axisIsLatitude(obj)
             if self.axisIsLatitude(obj):
                 if nlat==0:
                     lat = obj

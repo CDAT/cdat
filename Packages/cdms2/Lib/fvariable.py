@@ -168,11 +168,11 @@ class FileVariable(DatasetVariable):
             raise CDMSError, FileClosed+self.id
         return len(self._obj_)
 
-    def __repr__(self):
-        if self.parent is not None:
-            return "<Variable: %s, file: %s, shape: %s>"%(self.id, self.parent.id, `self.shape`)
-        else:
-            return "<Variable: %s, file: **CLOSED**>"%self.id
+#    def __repr__(self):
+#        if self.parent is not None:
+#            return "<Variable: %s, file: %s, shape: %s>"%(self.id, self.parent.id, `self.shape`)
+#        else:
+#            return "<Variable: %s, file: **CLOSED**>"%self.id
 
 
     shape = property(_getShape,None)
