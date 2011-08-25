@@ -99,7 +99,7 @@ class StaticVariable:
             # name of the file containing coordinate data
             gFName = HostObj.gridFilenames[gfindx]
 
-            fh = cdms2.open(fName, "a")
+            fh = cdms2.open(fName, HostObj = HostObj)
             gh = cdms2.open(gFName)
 
             # alternatively vr = fh[varName]
