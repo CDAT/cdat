@@ -110,7 +110,7 @@ class esgfConnection(object,AutoAPI.AutoAPI):
             urltype="http://"
         try:
             rqst="%s%s:%s/%s" % (urltype,self.host,self.port,rqst)
-            print "Request:%s"%rqst
+            #print "Request:%s"%rqst
             url = urllib2.urlopen(rqst)
         except Exception,msg:
              raise self.EsgfObjectException(msg)
