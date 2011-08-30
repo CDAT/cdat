@@ -110,6 +110,8 @@ class esgfConnection(object,AutoAPI.AutoAPI):
             urltype="http://"
         try:
             rqst="%s%s:%s/%s" % (urltype,self.host,self.port,rqst)
+            tmp=rqst[6:].replace("//","/")
+            rqst=rqst[:6]+tmp
             #print "Request:%s"%rqst
             url = urllib2.urlopen(rqst)
         except Exception,msg:
@@ -223,7 +225,11 @@ class esgfDataset(esgfConnection):
             self.restPath=restPath
         if datasetids is None:
             if "dataset_id_template_" in keys.keys():
-                self.datasetids = genutil.StringConstructor(keys["dataset_id_template_"].replace(")s",")"))
+                tmp=keys["dataset_id_template_"]
+                if tmp[:5]=="cmip5":
+                    tmp = tmp.replace("valid_institute","institute")
+                    tmp="%(project)"+tmp[5:]
+                self.datasetids = genutil.StringConstructor(tmp.replace(")s",")"))
             else:
                 self.datasetids=None
         if isinstance(datasetids,genutil.StringConstructor):
