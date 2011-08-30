@@ -72,6 +72,30 @@ def createTransientGrid(gFName, coordinates):
     grid = TransientCurveGrid(lataxis, lonaxis, id=gridid)
     return grid
 
+#class GsStaticFileVariable(FileVariable):
+#    def __init__(self, fileObj, mode, HostObj):
+#        pass
+#
+#    def getGrid(self):
+#        pass
+#
+#    def getLongitude(self):
+#        pass
+#    def getLatitude(self):
+#        pass
+#
+#class GsStaticTransientVariable(TransientVariable):
+#    def __init__(self, fileObj, varName):
+#        self.vr = fileObj(varName)
+#
+#    def getGrid(self):
+#        pass
+#
+#    def getLongitude(self):
+#        pass
+#    def getLatitude(self):
+#        pass
+
 class StaticVariable:
     """
     Static variable extending over multiple grid files

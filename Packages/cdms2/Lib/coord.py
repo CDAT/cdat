@@ -307,11 +307,11 @@ class FileAxis2D(AbstractAxis2D, FileVariable):
         FileVariable.__init__(self, parent, id, obj)
         self._data_ = None              # Cached values
 
-#    def __repr__(self):
-#        if self.parent is not None:
-#            return "<FileAxis2D: %s, file: %s, shape: %s>"%(self.id, self.parent.id, `self.shape`)
-#        else:
-#            return "<FileAxis2D: %s, file: **CLOSED**>"%self.id
+    def __repr__(self):
+        if self.parent is not None:
+            return "<FileAxis2D: %s, file: %s, shape: %s>"%(self.id, self.parent.id, `self.shape`)
+        else:
+            return "<FileAxis2D: %s, file: **CLOSED**>"%self.id
 
 ## internattr.initialize_internal_attributes(FileAxis2D) # Copy internal attrs from parents
 

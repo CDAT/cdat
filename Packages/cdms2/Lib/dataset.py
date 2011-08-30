@@ -853,7 +853,10 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
         self.grids = {}
         self.xlinks = {}
         self._gridmap_ = {}
-        self.autoApiInfo.expose.update(["sync","close","createAxis","createVirtualAxis","copyAxis","createRectGrid","copyGrid","createVariable","searchPattern","matchPattern","searchPredicate","createVariableCopy","write","getVariable","getVariables","getAxis","getGrid","getBoundsAxis"])
+        self.autoApiInfo.expose.update(["sync","close","createAxis","createVirtualAxis", \
+            "copyAxis","createRectGrid","copyGrid","createVariable","searchPattern",     \
+            "matchPattern","searchPredicate","createVariableCopy","write","getVariable", \
+            "getVariables","getAxis","getGrid","getBoundsAxis"])
 
         # self.attributes returns the Cdunif file dictionary. 
 ##         self.replace_external_attributes(self._file_.__dict__)
