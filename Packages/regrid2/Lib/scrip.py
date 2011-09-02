@@ -267,21 +267,21 @@ def readRegridder(fileobj, mapMethod=None, checkGrid=1):
         else:
             raise RegridError, "Unrecognized map method: %s"%mapString
 
-     convention = 'SCRIP'
-     if fileobj.variables.keys().count('S'):
-         convention = 'NCAR'
-     if convention == 'SCRIP':
-         remapMatrix = fileobj('remap_matrix').filled()
-         srcAddress = fileobj('src_address').filled()
-         dstAddress = fileobj('dst_address').filled()
-         srcfrac = fileobj('src_grid_frac')
-         dstfrac = fileobj('dst_grid_frac')
-     else:
-         remapMatrix = fileobj('S').filled()
-         srcAddress = fileobj('col').filled()
-         dstAddress = fileobj('row').filled()
-         srcfrac = fileobj('frac_a')
-         dstfrac = fileobj('frac_b')
+    convention = 'SCRIP'
+    if fileobj.variables.keys().count('S'):
+        convention = 'NCAR'
+    if convention == 'SCRIP':
+        remapMatrix = fileobj('remap_matrix').filled()
+        srcAddress = fileobj('src_address').filled()
+        dstAddress = fileobj('dst_address').filled()
+        srcfrac = fileobj('src_grid_frac')
+        dstfrac = fileobj('dst_grid_frac')
+    else:
+        remapMatrix = fileobj('S').filled()
+        srcAddress = fileobj('col').filled()
+        dstAddress = fileobj('row').filled()
+        srcfrac = fileobj('frac_a')
+        dstfrac = fileobj('frac_b')
     ingrid = fileobj.readScripGrid(whichGrid="source", checkGrid=checkGrid)
     outgrid = fileobj.readScripGrid(whichGrid="destination", checkGrid=checkGrid)
 
