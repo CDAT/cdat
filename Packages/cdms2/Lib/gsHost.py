@@ -11,11 +11,12 @@ No guarantee is provided whatsoever. Use at your own risk.
 import os.path
 from ctypes import c_char_p, c_int, CDLL, byref
 import cdms2
+from cdms2.error import CDMSError
 from cdms2.avariable import AbstractVariable
 from cdms2.tvariable import TransientVariable
 from cdms2.cdmsobj import CdmsObj
-from cdms2.gsStaticVariable import StaticVariable
-from cdms2.gsTimeVariable import TimeVariable
+from cdms2.gsStaticVariable import StaticTransientVariable, StaticFileVariable
+from cdms2.gsTimeVariable import TimeTransientVariable, TimeFileVariable
 from cdms2.error import CDMSError
 
 try:
@@ -55,11 +56,13 @@ class Host:
         """
         
         # Data dir based on location of hostfile
+        if mode in ['w', 'a']:
+            raise CDMSError, MethodNotImplemented
+        self.mode     = mode
         self.libcfdll = None
         self.dirname  = os.path.dirname(hostfile)
         self.uri      = hostfile
         self.id       = os.path.dirname(hostfile)
-        self.mode     = mode
         self._status_ = 'open'
 
         for sosuffix in '.so', '.dylib', '.dll', '.a':
@@ -418,6 +421,9 @@ class Host:
         return status
 
     def close(self):
+        """
+        Close the file
+        """
         self.variables = {}
         self.axes = {}
         self.grids = {}
@@ -438,8 +444,34 @@ class Host:
         """
         self.libcfdll.nccf_free_host( self.hostId_t )
 
-#    def __getitem__(self, varName, **speclist):
     def __call__(self, varName):
+        """
+        The returned variable is a list of cdms2.transientVariables
+        var[nGrids][[nTimes, nz], ny,  nx]
+        Note that for nTimes, the time across files are concatenated together
+        @param varName name of variable
+        @return aggregated transient variable
+
+        example: f = filename
+                 h = cdms2.open)
+                 h.listvariables()
+                 v = h('varname')
+        """
+
+        if self.statVars.has_key(varName):
+            staticTV = StaticTransientVariable(self, varName)
+
+#            return staticFV.vars 
+            return staticTV
+
+        # Time variables
+        elif self.timeDepVars.has_key(varName):
+            timeVariables = TimeTransientVariable(self, varName)
+            
+#            return timeVariables.vars
+            return timeVariables
+
+    def __getitem__(self, varName):
         """
 
         The returned variable is a list of cdms2.fileVariables
@@ -455,44 +487,19 @@ class Host:
                  h.listvariables()
                  v = h['varname']
         """
-
-        if self.statVars.has_key(varName):
-            staticVariables = StaticVariable(self, varName, 
-                                             isFileVariable = False)
-
-            return staticVariables.vars 
-
-        # Time variables
-        elif self.timeDepVars.has_key(varName):
-            timeVariables = TimeVariable(self, varName, isFileVariable = False)
-            
-            return timeVariables.vars
-
-    def __getitem__(self, varName):
-        """
-        The returned variable is a list of cdms2.transientVariables
-        var[nGrids][[nTimes, nz], ny,  nx]
-        Note that for nTimes, the time across files are concatenated together
-        @param varName name of variable
-        @return aggregated transient variable
-
-        example: f = filename
-                 h = cdms2.open)
-                 h.listvariables()
-                 v = h('varname')
-        """
         # Static variables
         if self.statVars.has_key(varName):
-            staticVariables = StaticVariable(self, varName, 
-                                             isFileVariable = True)
+            staticFV= StaticFileVariable(self, varName)
 
-            return staticVariables.vars 
+#            return staticTV.vars 
+            return staticFV
 
         # Time variables
         elif self.timeDepVars.has_key(varName):
-            timeVariables = TimeVariable(self, varName, isFileVariable = True)
+            timeVariables = TimeFileVariable(self, varName)
             
-            return timeVariables.vars
+#            return timeVariables.vars
+            return timeVariables
     
 ##############################################################################
 
