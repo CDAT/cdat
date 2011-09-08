@@ -274,7 +274,6 @@ def power (a, b, third=None):
     ta = _makeMaskedArg(a)
     tb = _makeMaskedArg(b)
     maresult = numpy.ma.power(ta,tb,third)
-    print "Here"
     axes, attributes, id, grid = _extractMetadata(a)
     return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id)
 

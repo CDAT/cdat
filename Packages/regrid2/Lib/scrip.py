@@ -3,6 +3,7 @@
 import cdms2
 import _scrip
 from error import RegridError
+import numpy
 
 """Regrid support for nonrectangular grids, based on the SCRIP package."""
 
@@ -127,6 +128,8 @@ class ConservativeRegridder(ScripRegridder):
 ##             print "On input, shape(remap_matrix) = %s"%`self.remapMatrix.shape`
 ##             print "On input, shape(src_address) = %s"%`self.sourceAddress.shape`
 ##             print "On input, shape(dst_address) = %s"%`self.destAddress.shape`
+            print self.remapMatrix.shape
+            print self.remapMatrix.__class__
             result = _scrip.conserv_regrid(self.outputGrid.size(), input, self.remapMatrix, self.sourceAddress, self.destAddress)
         else:
             result = _scrip.conserv_regrid_normal(self.outputGrid.size(), input, self.remapMatrix, self.sourceAddress, self.destAddress, self.normal)
@@ -289,7 +292,15 @@ def readRegridder(fileobj, mapMethod=None, checkGrid=1):
         if convention == 'SCRIP':
             srcarea = fileobj('src_grid_area')
             dstarea = fileobj('dst_grid_area')
-        else:
+        else: #NCAR stuff
+            if "S2" in fileobj.variables.keys():
+                remapMatrix=fileobj("S2")
+                sh = list(remapMatrix.shape)
+                if len(sh)==2 and sh[-1]==2:
+                    sh[-1]=1
+                    S=fileobj("S").filled()
+                    S.shape=sh
+                    remapMatrix = numpy.concatenate((S,remapMatrix),axis=1)
             srcarea = fileobj('area_a')
             dstarea = fileobj('area_b')
         regridder = ConservativeRegridder(outgrid, remapMatrix,srcAddress, dstAddress, inputGrid=ingrid, sourceFrac=srcfrac, destFrac=dstfrac, sourceArea=srcarea, destArea=dstarea)
