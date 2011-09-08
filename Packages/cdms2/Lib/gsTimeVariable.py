@@ -43,27 +43,58 @@ class TimeVariable:
         @return variable at gridIndex
         """
         from types import *
+
+        def getVariable(var, *args):
+            """
+            args is a list of indices
+            """
+            pass
+
         if type(indices) is IntType:
             return self.vars[indices]
-        elif type(indices) is SliceType:
-            # Return the given grids.
-            pass
-        elif len(indices) > 2: 
-            print "%s\n%s" % \
-            ("variable[gridIndex] OR variable[gridIndex, timeIndex]",  \
-             "variable[gridIndex, timeIndexSlice] to aggregate a grid in time")
-            raise CDMSError, "Check number of indices"
-        elif len(indices) == 2:
-            gridIndex = indices[0]
-            timeIndex = indices[1]
+        elif type(indices) is TupleType:
+            if type(indices[0]) is SliceType:
+                raise CDMSError, "Slices not allowed for grid index"
+                # Return the given grids.
+                pass
+            elif len(indices) == 2:
+                gridIndex = indices[0]
+                timeIndex = indices[1]
+                if isinstance(timeIndex, int):
+                    return self.vars[gridIndex][timeIndex]
+                elif type(timeIndex) is SliceType:
+                    # Aggregate in time
+                    # self.aggregateInTime(self, gridIndex, timeIndex)
+                    pass
+                    # return aggregation
+                elif type(timeIndex) is EllipsisType:
+                    # We must aggregate in time before returning 
+                    pass
+                else:
+                    raise CDMSError, "Wrong type for timeIndex"
 
-        # May need to iterate over the grids. Maybe the user should do this?
-        if type(timeIndex) is SliceType:
-            # Aggregate in time
-            # self.aggregateInTime(self, gridIndex, timeIndex)
-            pass
-        elif type(timeIndex) is IntType:
-            return self.vars[gridIndex][timeIndex]
+##############################################################################
+            # Below here, we must aggregate in time before returning 
+##############################################################################
+
+            elif len(indices) == 3:
+                gridIndex = indices[0]
+                timeIndex = indices[1]
+                latsIndex = indices[2]
+                # Check into time and space slices using indices
+                # Latitude
+                pass
+            elif len(indices) == 4:
+                gridIndex = indices[0]
+                timeIndex = indices[1]
+                latsIndex = indices[2]
+                latsIndex = indices[3]
+                # Check into time and space slices using indices
+                # Latitude
+                pass
+
+            # May need to iterate over the grids. Maybe the user should do this?
+
 
     def __call__(self, gridIndex, timeIndex):
         """
