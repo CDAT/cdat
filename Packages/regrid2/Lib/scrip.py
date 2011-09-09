@@ -128,8 +128,6 @@ class ConservativeRegridder(ScripRegridder):
 ##             print "On input, shape(remap_matrix) = %s"%`self.remapMatrix.shape`
 ##             print "On input, shape(src_address) = %s"%`self.sourceAddress.shape`
 ##             print "On input, shape(dst_address) = %s"%`self.destAddress.shape`
-            print self.remapMatrix.shape
-            print self.remapMatrix.__class__
             result = _scrip.conserv_regrid(self.outputGrid.size(), input, self.remapMatrix, self.sourceAddress, self.destAddress)
         else:
             result = _scrip.conserv_regrid_normal(self.outputGrid.size(), input, self.remapMatrix, self.sourceAddress, self.destAddress, self.normal)
