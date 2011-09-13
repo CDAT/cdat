@@ -1755,6 +1755,8 @@ Options:::
         datawc are world coordinates
         
         """
+        if isinstance(gm,vcs.taylor.Gtd):
+            return
         # Now the template stuff
         # first create the dictionary to remember which ones are changed
         dic={}
@@ -5300,7 +5302,7 @@ Options:::
                 datawc_y1=arglist[0].getAxis(-2)[0]
                 datawc_y2=arglist[0].getAxis(-2)[-1]
         except:
-            pass                
+            pass
         try:
             dic = self.setTicksandLabels(copy_mthd,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=x,y=y)
         except:
