@@ -701,7 +701,9 @@ PyVCS_open(PyVCScanvas_Object *self, PyObject *args)
 
 	/* Set the proper VCS Canvas */
 	/* DNW and CD took that out it was confusing the XGKS when opening multiple ws */
-	//	Wkst[0].id = self->wkst_id;
+	/*	Wkst[0].id = self->wkst_id; */
+	/* CD put it back on for background plots only */
+	if (self->wkst_id==8) Wkst[0].id = 8;
 	if (self->virgin==0) {
 	   if (self->vcs_gui != 1)
 #ifdef X11WM
@@ -19831,6 +19833,9 @@ PyObject *PyVCS_showbg(PyVCScanvas_Object *self, PyObject *args)
            self->connect_id.canvas_pixmap = (Pixmap) NULL;
        }
        self->connect_id.canvas_pixmap = copy_pixmap(self->connect_id, self->canvas_id);
+#elif defined (QTWM)
+       /* fprintf(stderr,"workstation: %i, %i\n",self->wkst_id,self->connect_id.wkst_id); */
+       vcs_Qt_repaint_window_by_id(self->connect_id.wkst_id);
 #else
        fprintf(stderr,"insert here your WM copy vcs to backing store pixmap\n");
 #endif
