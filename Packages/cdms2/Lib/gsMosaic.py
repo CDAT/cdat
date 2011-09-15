@@ -80,7 +80,7 @@ class Mosaic:
         self.uri     = uri
         self._status = 'Open'
 
-        self.mosaicId_t = c_int(-1)
+        self.mosaicId_ct = c_int(-1)
         self.lib = None
         for sosuffix in '.so', '.dylib', '.dll', '.a':
             self.lib = CDLL(LIBCFDIR + sosuffix)
@@ -97,52 +97,52 @@ class Mosaic:
         self.tile_names          = []
 
         status = libcfdll.nccf_def_mosaic_from_file(uri, "", 
-                                                    byref(self.mosaicId_t))
+                                                    byref(self.mosaicId_ct))
 
         if status != 0:
             raise CDMSError, "ERROR: %s is not a valid mosaic file (status = %d)" % \
                 (uri, status)
 
         # Get some sizes
-        ngrids         = c_int(-1)
+        nGrids         = c_int(-1)
         ndims          = c_int(-1)
         ncontacts      = c_int(-1)
-        libcfdll.nccf_inq_mosaic_ndims(self.mosaicId_t, byref(ndims))
-        libcfdll.nccf_inq_mosaic_ngrids(self.mosaicId_t, byref(ngrids))
-        libcfdll.nccf_inq_mosaic_ncontacts(self.mosaicId_t, byref(ncontacts))
+        libcfdll.nccf_inq_mosaic_ndims(self.mosaicId_ct, byref(ndims))
+        libcfdll.nccf_inq_mosaic_ngrids(self.mosaicId_ct, byref(nGrids))
+        libcfdll.nccf_inq_mosaic_ncontacts(self.mosaicId_ct, byref(ncontacts))
 
         # Build the character arrays
-        separator_t = libCF.CF_TILE_SEPARATOR
-        contact_map_t  = c_char_p(" " * (libCF.NC_MAX_NAME+1))
-        tile_contact_t = c_char_p(" " * (libCF.NC_MAX_NAME+1))
-        tile_name_t    = c_char_p(" " * (libCF.NC_MAX_NAME+1))
-        coord_t = (c_char_p * ndims.value)()
+        separator_ct = libCF.CF_TILE_SEPARATOR
+        contact_map_ct  = c_char_p(" " * (libCF.NC_MAX_NAME+1))
+        tile_contact_ct = c_char_p(" " * (libCF.NC_MAX_NAME+1))
+        tile_name_ct    = c_char_p(" " * (libCF.NC_MAX_NAME+1))
+        coord_ct = (c_char_p * ndims.value)()
 
         for iDim in range(ndims.value):
-            coord_t[iDim] = " " * (libCF.NC_MAX_NAME+1)
+            coord_ct[iDim] = " " * (libCF.NC_MAX_NAME+1)
 
         # Get the grid names
-        for igrid in range(ngrids.value):
-            libcfdll.nccf_inq_mosaic_gridname(self.mosaicId_t, igrid, tile_name_t)
-            tname = str(tile_name_t)
+        for igrid in range(nGrids.value):
+            libcfdll.nccf_inq_mosaic_gridname(self.mosaicId_ct, igrid, tile_name_ct)
+            tname = str(tile_name_ct)
             self.tile_names.append(tname)
 
         # Get the coordinate names for the grids
-        libcfdll.nccf_inq_mosaic_coordnames(self.mosaicId_t, coord_t)
+        libcfdll.nccf_inq_mosaic_coordnames(self.mosaicId_ct, coord_ct)
 
-        for iCrd in range(len(coord_t)):
-            self.coordinate_names.append(coord_t[iCrd])
+        for iCrd in range(len(coord_ct)):
+            self.coordinate_names.append(coord_ct[iCrd])
 
         # Get the contact map information
         for iContact in range(ncontacts.value):
-            status = libcfdll.nccf_inq_mosaic_contactmap(self.mosaicId_t, \
-                                                       iContact, contact_map_t)
-            status = libcfdll.nccf_inq_mosaic_tilecontact(self.mosaicId_t, \
-                                                        iContact, tile_contact_t)
+            status = libcfdll.nccf_inq_mosaic_contactmap(self.mosaicId_ct, \
+                                                       iContact, contact_map_ct)
+            status = libcfdll.nccf_inq_mosaic_tilecontact(self.mosaicId_ct, \
+                                                        iContact, tile_contact_ct)
 
-            tN1, tN2             = tile_contact_t.value.split(separator_t)
+            tN1, tN2             = tile_contact_ct.value.split(separator_ct)
             tileName1, tileName2 = tN1.strip(), tN2.strip()
-            s1, s2               = contact_map_t.value.split(separator_t)
+            s1, s2               = contact_map_ct.value.split(separator_ct)
 
             # slice objects
             slab1 = getSlab(s1.strip())
@@ -446,7 +446,7 @@ class Mosaic:
         pass
 
     def __del__(self):
-        self.lib.nccf_free_mosaic(self.mosaicId_t)
+        self.lib.nccf_free_mosaic(self.mosaicId_ct)
 
 #############################################################################
 

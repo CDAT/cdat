@@ -52,10 +52,6 @@ def createTransientGrid(gFName, coordinates):
     ni = xdim[1]
     nj = xdim[0]
 
-    # Define the axes, verifying the lon and lat grids
-    iaxis = TransientVirtualAxis("i", ni)
-    jaxis = TransientVirtualAxis("j", nj)
-
     lonstr = 'lon'
     latstr = 'lat'
 
@@ -63,6 +59,10 @@ def createTransientGrid(gFName, coordinates):
     if re.search(lonstr, y.standard_name): lon = y
     if re.search(latstr, x.standard_name): lat = x
     if re.search(latstr, y.standard_name): lat = y
+
+    # Define the axes, verifying the lon and lat grids
+    iaxis = TransientVirtualAxis("i", ni)
+    jaxis = TransientVirtualAxis("j", nj)
 
     lataxis = TransientAxis2D(lat, 
                    axes=(iaxis, jaxis), 
@@ -86,11 +86,11 @@ class StaticVariable:
         @param varName for the id
         """
         StaticVariable.id     = varName
-        StaticVariable.ngrids = HostObj.ngrids
+        StaticVariable.nGrids = HostObj.nGrids
 
         StaticVariable.vars = []
-        if StaticVariable.ngrids > 0:
-            StaticVariable.vars = [None]*StaticVariable.ngrids
+        if StaticVariable.nGrids > 0:
+            StaticVariable.vars = [None]*StaticVariable.nGrids
 
     def __getitem__(self, gridIndex):
         """
@@ -118,7 +118,7 @@ class StaticVariable:
 
     def len(self):
         """
-        Length aka ngrids
+        Length aka nGrids
         """
         return len(self.vars)
 
@@ -172,7 +172,7 @@ class StaticTransientVariable(StaticVariable):
         # Inititialize the variable
         StaticVariable(self, HostObj, varName)
 
-        for gridIndex in range(self.ngrids):
+        for gridIndex in range(self.nGrids):
 
             # name of the file containing the data on tile gridIndex
             fName = HostObj.statVars[varName][gridIndex]
@@ -220,7 +220,7 @@ class StaticFileVariable(StaticVariable):
         StaticVariable(self, HostObj, varName)
         mode = HostObj.mode
 
-        for gridIndex in range(self.ngrids):
+        for gridIndex in range(self.nGrids):
 
             # Get the filenames
             fn = HostObj.statVars[varName][gridIndex]

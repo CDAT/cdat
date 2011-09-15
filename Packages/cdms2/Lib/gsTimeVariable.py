@@ -31,18 +31,16 @@ class TimeVariable:
         @param varName variable name
         """
         TimeObj.id = varName
-        TimeObj.ntimeSlices = HostObj.ntimeSlices
-
         TimeObj.vars = []
 
     def __getitem__(self, indices):
         """
         Data accessor
-        @param gridIndex the grid index < HostObj.ngrids
-        @param timeIndex the time slice index < HostObj.ntimeslices
+        @param gridIndex the grid index < HostObj.nGrids
+        @param timeFileIndex the time slice index < HostObj.nTimeSlices
         @return variable at gridIndex
         """
-        from types import *
+        import types
 
         def getVariable(var, *args):
             """
@@ -50,28 +48,28 @@ class TimeVariable:
             """
             pass
 
-        if type(indices) is IntType:
+        if type(indices) is types.IntType:
             return self.vars[indices]
-        elif type(indices) is TupleType:
-            if type(indices[0]) is SliceType:
+        elif type(indices) is types.TupleType:
+            if type(indices[0]) is types.SliceType:
                 raise CDMSError, "Slices not allowed for grid index"
                 # Return the given grids.
                 pass
             elif len(indices) == 2:
                 gridIndex = indices[0]
-                timeIndex = indices[1]
-                if isinstance(timeIndex, int):
-                    return self.vars[gridIndex][timeIndex]
-                elif type(timeIndex) is SliceType:
+                timeFileIndex = indices[1]
+                if isinstance(timeFileIndex, int):
+                    return self.vars[gridIndex][timeFileIndex]
+                elif type(timeFileIndex) is types.SliceType:
                     # Aggregate in time
-                    # self.aggregateInTime(self, gridIndex, timeIndex)
+                    # self.aggregateInTime(self, gridIndex, timeFileIndex)
                     pass
                     # return aggregation
-                elif type(timeIndex) is EllipsisType:
+                elif type(timeFileIndex) is types.EllipsisType:
                     # We must aggregate in time before returning 
                     pass
                 else:
-                    raise CDMSError, "Wrong type for timeIndex"
+                    raise CDMSError, "Wrong type for timeFileIndex"
 
 ##############################################################################
             # Below here, we must aggregate in time before returning 
@@ -79,14 +77,14 @@ class TimeVariable:
 
             elif len(indices) == 3:
                 gridIndex = indices[0]
-                timeIndex = indices[1]
+                timeFileIndex = indices[1]
                 latsIndex = indices[2]
                 # Check into time and space slices using indices
                 # Latitude
                 pass
             elif len(indices) == 4:
                 gridIndex = indices[0]
-                timeIndex = indices[1]
+                timeFileIndex = indices[1]
                 latsIndex = indices[2]
                 latsIndex = indices[3]
                 # Check into time and space slices using indices
@@ -95,48 +93,47 @@ class TimeVariable:
 
             # May need to iterate over the grids. Maybe the user should do this?
 
-
-    def __call__(self, gridIndex, timeIndex):
+    def __call__(self, gridIndex, timeFileIndex):
         """
         Data accessor
-        @param gridIndex the grid index < HostObj.ngrids
-        @param timeIndex the time slice index < HostObj.ntimeslices
+        @param gridIndex the grid index < HostObj.nGrids
+        @param timeFileIndex the time slice index < HostObj.nTimeSlices
         @return variable at gridIndex
         """
-        return self.vars[gridIndex][timeIndex]
+        return self.vars[gridIndex][timeFileIndex]
 
     def __setitem__(self, indices, vals):
         """
         Data setter
-        @param indices list or tuple (gridIndex, timeIndex)
+        @param indices list or tuple (gridIndex, timeFileIndex)
         @param vals values to set
         """
         if len(indices) != 2: 
-            raise 'indices must be a two item list or tuple (gridIndex, timeIndex)'
-        self.vars[gridIndex][timeIndex] = vals
+            raise 'indices must be a two item list or tuple (gridIndex, timeFileIndex)'
+        self.vars[gridIndex][timeFileIndex] = vals
 
-    def len(self, gridIndex = None, timeIndex = None):
+    def len(self, gridIndex = None, timeFileIndex = None):
         """
-        Length aka ngrids
-        @param gridIndex the grid index < HostObj.ngrids
-        @param timeIndex the time slice index < HostObj.ntimeslices
+        Length aka nGrids
+        @param gridIndex the grid index < HostObj.nGrids
+        @param timeFileIndex the time slice index < HostObj.nTimeSlices
         @return a length dependent upon the input indices
         """
         # Return a length of some sort
         if gridIndex is None: 
             return len(self.vars)
         else:
-            if timeIndex is None: return len(self.vars[gridIndex])
-            else: return len(self.vars[gridIndex][timeIndex])
+            if timeFileIndex is None: return len(self.vars[gridIndex])
+            else: return len(self.vars[gridIndex][timeFileIndex])
 
-    def shape(self, gridIndex, timeIndex):
+    def shape(self, gridIndex, timeFileIndex):
         """
         Return the shape in the format (n0, n1, ...) for a given grid index
-        @param gridIndex the grid index < HostObj.ngrids
-        @param timeIndex the time slice index < HostObj.ntimeslices
+        @param gridIndex the grid index < HostObj.nGrids
+        @param timeFileIndex the time slice index < HostObj.nTimeSlices
         @return result
         """
-        return self.vars[gridIndex][timeIndex].shape
+        return self.vars[gridIndex][timeFileIndex].shape
 
     def size(self):
         """
@@ -170,71 +167,23 @@ class TimeVariable:
             res = "<%s, %s>" % (self._repr_string, res)
         return res
 
-    def aggregateInTime(self, grid, gridIndex, timeIndex):
+    def aggregateInTime(self, gridIndex, timeFileSlice):
         """
         Aggregate a time variable per grid.
         timeVariable[grid]
+        @param gridIndex grid index to be aggregated in time
+        @param timeFileTuple tuple of start and end file indices over which to concatenate
         @return timeVariable
         """
-        pass
-        for gridIndex in range(HostObj.ngrids):
+        from cdms2.MV2 import concatenate
+        var = self[gridIndex]
+        if isinstance(timeFileSlice, slice):
+            newVar = concatenate(var[timeFileSlice])
+            return newVar
+        else:
+            raise CDMSError, 'Need slice over time indices'
 
-            # Create the horizontal curvilinear grid.
-            # But how do I add the time grid? I don't know it yet.
-            # It is known after looping over the time files for a given
-            # variable
-            gFName = HostObj.gridFilenames[gridIndex]
-            
-            for timeIndex in range(HostObj.ntimeSlices):
-                fName = HostObj.timeDepVars[varName][timeIndex][gridIndex]
-                fh = cdms2.open(fName)
-                print isFileVariable
-                if isFileVariable:
-                    var = fh[varName]
-                    print type(var)
-                    if timeIndex == 0: 
-                        new = var
-                    else: 
-                        tmp = concatenate((new, var))
-                        new = tmp
-                else:
-                    # TransientVariable
-                    var = fh(varName, **slicekwargs)
-
-                    # Attach the grid to the variable
-                    grid = cdms2.gsStaticVariable.createTransientGrid(gFName, \
-                                         var.attributes['coordinates'])
-                    axis0 = var.getAxis(0)
-                    gridaxes = grid.getAxisList()
-                    axes = [axis0, gridaxes[0], gridaxes[1]]
-                    atts = dict(var.attributes)
-                    atts.update(fh.attributes)
-
-                    # Create cdms2 transient variable
-                    if timeIndex == 0:
-                        new = cdms2.createVariable(var, 
-                                    axes = axes, 
-                                    grid = grid, 
-                                    attributes = atts, 
-                                    id = var.standard_name)
-                    else:
-                        tmp = concatenate((new, var))
-                        axis0 = tmp.getAxis(0)
-                        gridaxes = grid.getAxisList()
-                        axes = [axis0, gridaxes[0], gridaxes[1]]
-
-                        # Recreate the variable with all the decorations
-                        new  = cdms2.createVariable(tmp, 
-                                    axes = axes, 
-                                    grid = grid, 
-                                    attributes = atts, 
-                                    id = var.standard_name)
-                        
-                    fh.close()
-
-            # Add the variable to the index
-            print type(new)
-            self.vars[gridIndex] = new
+        print "###########"
 
 class TimeTransientVariable(TimeVariable):
     def __init__(self, HostObj, varName, **slicekwargs):
@@ -257,13 +206,13 @@ class TimeTransientVariable(TimeVariable):
         # grid populated by a list for each time file.
         if ('time' in kwargs.keys() and len(slicekwargs) <= 1) or \
                 len(slicekwargs) == 0:
-            for gridIndex in range(HostObj.ngrids):
+            for gridIndex in range(HostObj.nGrids):
 
                 gFName = HostObj.gridFilenames[gridIndex]
 
-                for timeIndex in range(HostObj.ntimeSlices):
+                for timeFileIndex in range(HostObj.nTimeDataFiles):
 
-                    fName = HostObj.timeDepVars[varName][timeIndex][gridIndex]
+                    fName = HostObj.timeDepVars[varName][gridIndex][timeFileIndex]
                     fh = cdms2.open(fName, HostObj=HostObj)
 
                     # TransientVariable
@@ -274,29 +223,36 @@ class TimeTransientVariable(TimeVariable):
                                          var.attributes['coordinates'])
                     axis0 = var.getAxis(0)
                     gridaxes = grid.getAxisList()
-                    axes = [axis0, gridaxes[0], gridaxes[1]]
+                    axes = [axis0] + list(gridaxes)
                     atts = dict(var.attributes)
                     atts.update(fh.attributes)
 
                     # Create cdms2 transient variable
-                    tmp = cdms2.createVariable(var, 
+                    if timeFileIndex == 0:
+                        new = cdms2.createVariable(var, 
                                 axes = axes, 
                                 grid = grid, 
                                 attributes = atts, 
                                 id = var.standard_name)
-                    if timeIndex == 0:
-                        new = [tmp]
                     else:
-                        new.append(tmp)
+                        tmp = concatenate((new, var))
+                        axis0 = tmp.getAxis(0)
+                        gridaxes = grid.getAxisList()
+                        axes = [axis0, gridaxes[0], gridaxes[1]]
+#                        new.append(tmp)
+                        new = cdms2.createVariable(tmp, 
+                                axes = axes, 
+                                grid = grid, 
+                                attributes = atts, 
+                                id = var.standard_name)
                     fh.close()
 
                 # Add the variable to the index
                 self.vars.append(new)
 
-            print len(self.vars)
         self._repr_string = "TimeTransientVariable"
 
-class TimeFileVariable(StaticVariable):
+class TimeFileVariable(TimeVariable):
     def __init__(self, HostObj, varName):
         """
         Create a list of file variable with grid attached
@@ -307,16 +263,18 @@ class TimeFileVariable(StaticVariable):
         TimeVariable(self, HostObj, varName)
         mode = HostObj.mode
 
-        for gridIndex in range(HostObj.ngrids):
+        for gridIndex in range(HostObj.nGrids):
 
             # Get the filenames
             gn = HostObj.gridFilenames[gridIndex]
             g = CdunifFile(gn, mode)
 
-            for timeIndex in range(self.ntimeSlices):
+            vars = []
+
+            for timeFileIndex in range(HostObj.nTimeDataFiles):
 
                 # Open the files
-                fn = HostObj.timeDepVars[varName][gridIndex][timeIndex]
+                fn = HostObj.timeDepVars[varName][gridIndex][timeFileIndex]
                 f = cdms2.open(fn, mode)   # Need f and u because they serve slightly different purposes
                 u = CdunifFile(fn, mode)   # f.axes exists while axes is not a part of u
 #                u.variables[varName].gridIndex = gridIndex
@@ -352,11 +310,14 @@ class TimeFileVariable(StaticVariable):
 
                 # Add the grid
                 gridkey, lat, lon = f.variables[varName].generateGridkey(f._convention_, f.variables)
-                gridname = "grid_%dx%d" % lat.shape
+                gridname = ("grid%d_" % gridIndex) + "%dx%d" % lat.shape
 #                grid = FileGenericGrid(lat, lon, gridname, parent = f, maskvar = None)
                 grid = FileCurveGrid(lat, lon, gridname, parent = f, maskvar = None)
                 f.variables[varName]._grid_ = grid
-                self.vars[gridIndex] = f.variables[varName]
+                vars.append(f.variables[varName])
+
+            self.vars.append(vars)
+
         self._repr_string = "TimeFileVariable"
 
 
