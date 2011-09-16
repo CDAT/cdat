@@ -218,8 +218,8 @@ def get_drs_dirs ():
 def get_drs_libs ():
     #import Pyfort
     #c = Pyfort.get_compiler('default')
-    return ['drs',]# + c.liblist
-"""
+    return ['drs',] + %s
+""" % repr(options.get("COMPILER_EXTRA_LIBS",[]))
     else:
         print >>f, """
 def get_drs_dirs ():
