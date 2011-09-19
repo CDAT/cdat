@@ -60,6 +60,8 @@ ed8298f8173bee510129eb32ef872db5  sources/pbmplus_10dec1991.tar.gz
 6041fe8982cc4d1323adc47e629c7d13  sources/pixman-0.17.10.tar.gz
 dfb84c9f402fbba5047f0e0a69c17518  sources/pixman-0.19.2.tar.gz
 a923c20af88e469ac29ba42cfedb88c2  sources/pixman-0.20.2.tar.gz
+3dd0d9ed05dbf0e5e75d526ebae42e11  sources/pixman-0.22.2.tar.gz
+38e8707962515baf39cf9000479bfbe3  sources/pixman-0.23.4.tar.gz
 d922a88782b64441d06547632fd85744  sources/pkg-config-0.23.tar.gz
 a3270bab3f4b69b7dc6dbdacbcae9745  sources/pkg-config-0.25.tar.gz
 5c69f16d452b0bb3d44bc3c10556c072  sources/qt-everywhere-opensource-src-4.6.3.tar.gz
