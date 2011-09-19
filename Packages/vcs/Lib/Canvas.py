@@ -1262,8 +1262,8 @@ class Canvas(object,AutoAPI.AutoAPI):
                 name = '__%s_%i' % (type[:4],rnd)
         if not isinstance(name,str):
             raise vcsError, '%s object name must be a string or %s name' % (type,type)
-        elif len(name)>24:
-                raise vcsError,'%s object name must be at most 24 character long' % (type)
+        elif len(name)>16:
+                raise vcsError,'%s object name must be at most 16 character long' % (type)
 
         if not isinstance(source,str):
             exec("ok = vcs.is%s(source)" % (type,))
