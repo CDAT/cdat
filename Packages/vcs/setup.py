@@ -109,59 +109,63 @@ t = os.popen('uname')
 uname = t.read()[:-1]
 t.close()
 
+pkgconfig = os.path.join(externals,'bin','pkg-config')
+if not os.path.exists(pkgconfig):
+    pkgconfig="pkg-config"
+    
 freetypelibdir = [ os.path.join(externals,'lib'), ]
 freetypeincdir = [ os.path.join(externals,'include')]
-freetypelibdir = os.popen("pkg-config --libs-only-L freetype2").read().strip().split("-L")[1:]
+freetypelibdir = os.popen("%s --libs-only-L freetype2" % pkgconfig).read().strip().split("-L")[1:]
 c=[]
 for e in freetypelibdir:
     c.append(e.strip())
 freetypelibdir=c
 c=[]
-freetypeincdir = os.popen("pkg-config --cflags-only-I freetype2").read().strip().split("-I")[1:]
+freetypeincdir = os.popen("%s --cflags-only-I freetype2" % pkgconfig).read().strip().split("-I")[1:]
 for e in freetypeincdir:
     c.append(e.strip())
 freetypeincdir=c
 # Platform-specific modifications
 # added freetype for output of fonts
 c=[]
-freetype_libs = os.popen("pkg-config --libs-only-l freetype2").read().strip().split("-l")[1:]
+freetype_libs = os.popen("%s --libs-only-l freetype2" % pkgconfig).read().strip().split("-l")[1:]
 for e in freetype_libs:
     c.append(e.strip())
 freetype_libs=c
 
 c=[]
-cairolibdir = os.popen("pkg-config --libs-only-L cairo").read().strip().split("-L")[1:]
+cairolibdir = os.popen("%s --libs-only-L cairo" % pkgconfig).read().strip().split("-L")[1:]
 c=[]
 for e in cairolibdir:
     c.append(e.strip())
 cairolibdir=c
 c=[]
-cairoincdir = os.popen("pkg-config --cflags-only-I cairo").read().strip().split("-I")[1:]
+cairoincdir = os.popen("%s --cflags-only-I cairo" % pkgconfig).read().strip().split("-I")[1:]
 for e in cairoincdir:
     c.append(e.strip())
 cairoincdir=c
 # Platform-specific modifications
 # added freetype for output of fonts
 c=[]
-cairo_libs = os.popen("pkg-config --libs-only-l cairo").read().strip().split("-l")[1:]
+cairo_libs = os.popen("%s --libs-only-l cairo" % pkgconfig).read().strip().split("-l")[1:]
 for e in cairo_libs:
     c.append(e.strip())
 cairo_libs=c
 
 c=[]
-xml2libdir = os.popen("pkg-config --libs-only-L xml2").read().strip().split("-L")[1:]
+xml2libdir = os.popen("%s --libs-only-L xml2" % pkgconfig).read().strip().split("-L")[1:]
 for e in xml2libdir:
     c.append(e.strip())
 xml2libdir=c
 c=[]
-xml2incdir = os.popen("pkg-config --cflags-only-I xml2").read().strip().split("-I")[1:]
+xml2incdir = os.popen("%s --cflags-only-I xml2" % pkgconfig).read().strip().split("-I")[1:]
 for e in xml2incdir:
     c.append(e.strip())
 xml2incdir=c
 c=[]
 # Platform-specific modifications
 # added freetype for output of fonts
-xml2_libs = os.popen("pkg-config --libs-only-l xml2").read().strip().split("-l")[1:]
+xml2_libs = os.popen("%s --libs-only-l xml2" % pkgconfig).read().strip().split("-l")[1:]
 for e in xml2_libs:
     c.append(e.strip())
 xml2_libs=c
