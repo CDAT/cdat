@@ -5753,7 +5753,11 @@ Options:::
     a.colormapgui()
     a.colormapgui(max_intensity = 255)
 '''
-        _colormapgui.create(self, gui_parent=gui_parent, transient=transient, max_intensity=max_intensity)
+        
+        import warnings
+        warnings.warn("The colormap gui has been removed from CDAT, you can access it via the UV-CDAT GUI.", Warning)
+        return
+##         _colormapgui.create(self, gui_parent=gui_parent, transient=transient, max_intensity=max_intensity)
 
     #############################################################################
     #                                                                           #
@@ -5774,7 +5778,10 @@ Options:::
     a=vcs.init()
     a.projectiongui()
 '''
-        _projectiongui.create(gui_parent=gui_parent,canvas=self,projection=projection)
+        import warnings
+        warnings.warn("The projection gui has been removed from CDAT, you can access it via the UV-CDAT GUI.", Warning)
+        return
+        ## _projectiongui.create(gui_parent=gui_parent,canvas=self,projection=projection)
 
     #############################################################################
     #                                                                           #
@@ -5824,8 +5831,11 @@ Options:::
     a=vcs.init()
     a.graphicsmethodgui('boxfill', 'quick')
 '''
-        _graphicsmethodgui.create( self, gm_type=gm_type, gm_name=gm_name,
-                                   gui_parent=gui_parent)
+        import warnings
+        warnings.warn("The graphics method gui has been removed from CDAT, you can access it via the UV-CDAT GUI.", Warning)
+        return
+    ## _graphicsmethodgui.create( self, gm_type=gm_type, gm_name=gm_name,
+    ## gui_parent=gui_parent)
 
     #############################################################################
     #                                                                           #
