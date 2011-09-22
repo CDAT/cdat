@@ -1413,6 +1413,8 @@ void set_viewport_and_worldcoordinate (
   extern struct workstations 	Wkst[];
   extern struct orientation 	Page;
   struct pe_dsp 			tmp_vp;
+  extern int XW ;
+  extern int YW ;
 
   /* Ok wc is not in the same order than template wc need to reorder*/
   wc[0]=(float)wc_in[0];
@@ -1428,22 +1430,22 @@ void set_viewport_and_worldcoordinate (
 #endif
 #ifdef X11WM
       /* Must be generating the images in background mode */
-      if (strcmp(Page.page_orient,"landscape") == 0) {
-        xwa.width = 767;
-        xwa.height = 582;
-      } else {
-        xwa.width = 614;
-        xwa.height = 806;
-      }
+      /* if (strcmp(Page.page_orient,"landscape") == 0) { */
+      /*   xwa.width = XW; */
+      /*   xwa.height = YW; */
+      /* } else { */
+        xwa.width = XW;
+        xwa.height = YW;
+      /* } */
 #elif defined (QTWM) 
       /* Must be generating the images in background mode */
-      if (strcmp(Page.page_orient,"landscape") == 0) {
-        w = 767;
-        h = 582;
-      } else {
-        w = 614;
-        h = 806;
-      }
+      /* if (strcmp(Page.page_orient,"landscape") == 0) { */
+	w=XW;
+	h=YW;
+      /* } else { */
+      /*   w = XW; */
+      /*   h = YW; */
+      /* } */
 #else
       fprintf(stderr,"insert here your WM setting of  default w/h \n");
 #endif
