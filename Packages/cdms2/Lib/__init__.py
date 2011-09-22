@@ -41,12 +41,18 @@ from avariable import order2index, orderparse, setNumericCompatibility, getNumer
 # TV
 from tvariable import asVariable, createVariable, isVariable
 
-try:
- from gsHost import GsHost
- from gsStaticVariable import StaticVariable
- from gsTimeVariable import TimeVariable
-except:
- pass
+#<<<<<<< HEAD
+#try:
+# from gsHost import GsHost
+# from gsStaticVariable import StaticVariable
+# from gsTimeVariable import TimeVariable
+#except:
+# pass
+#=======
+from gsHost import Host
+from gsStaticVariable import StaticTransientVariable, StaticFileVariable
+from gsTimeVariable import TimeTransientVariable, TimeFileVariable
+#>>>>>>> gridspec
 
 from restApi import esgfConnection
 

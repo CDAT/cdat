@@ -69,12 +69,12 @@ class DatasetVariable(AbstractVariable):
 
         return length
 
-    def __repr__(self):
-        if self.parent is not None:
-            parentid = self.parent.id
-        else:
-            parentid = "**CLOSED**"
-        return "<Variable: %s, dataset: %s, shape: %s>"%(self.id, parentid, `self.shape`)
+#    def __repr__(self):
+#        if self.parent is not None:
+#            parentid = self.parent.id
+#        else:
+#            parentid = "**CLOSED**"
+#        return "<Variable: %s, dataset: %s, shape: %s>"%(self.id, parentid, `self.shape`)
 
     def __getitem__(self, key):
         if self.parent is None:

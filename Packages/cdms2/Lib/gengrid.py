@@ -28,9 +28,9 @@ class AbstractGenericGrid(AbstractHorizontalGrid):
         newlon = self._lonaxis_.clone(copyData)
         return TransientGenericGrid(newlat, newlon, id=self.id)
 
-    def __repr__(self):
-        return "<GenericGrid, id: %s, shape: %s>"%(self.id, `self.shape`)
-    __str__ = __repr__
+#    def __repr__(self):
+#        return "<GenericGrid, id: %s, shape: %s>"%(self.id, `self.shape`)
+#    __str__ = __repr__
 
     def getMesh(self, transpose=None):
         """Generate a mesh array for the meshfill graphics method.

@@ -280,12 +280,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
                 self.setGrid(newgrid)
 
     def getDomain(self):
-##         print 'in getDomain'
-##         print self.rank()
-##         print self.__domain
-##         print self.shape
         for i in range(self.rank()):
-##             print 'domain:',i,len(self.__domain)
             if self.__domain[i] is None:
                 junk = self.getAxis(i)  # will force a fill in
         return self.__domain

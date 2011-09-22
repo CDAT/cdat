@@ -47,6 +47,7 @@ class AbstractConvention:
     def getVarLatId(self, var, vardict=None):
         lat = None
         nlat = 0
+
         for obj in [d[0] for d in var.getDomain()]:
             if self.axisIsLatitude(obj):
                 if nlat==0:
@@ -120,6 +121,7 @@ class CFConvention(COARDSConvention):
         return coorddict.keys()
 
     def getDsetnodeAuxAxisIds(self, dsetnode):
+        print 'convention.getDsetnodeAuxAxisIds'
         "Get auxiliary axis IDs from a dataset node"
         coorddict = {}
         dsetdict = dsetnode.getIdDict()
