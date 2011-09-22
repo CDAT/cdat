@@ -1,4 +1,5 @@
 import platform
+prefix_path = "/lgm/cdat/Qt"
 if "omar" in platform.uname():
     xpth=""
     arch="i386"
@@ -35,8 +36,8 @@ for f in files:
         continue
     if fnm.find("qpython")>-1:
         continue
-    ## if fnm.find("xgks/cgm/")>-1:
-    ##     continue
+    if fnm.find("xgks/cgm/cl")>-1:
+        continue
     if fnm.find("/X11/")>-1:
         continue
     if fnm.find("Src/xgks/gif/gif.c")>-1:
@@ -66,6 +67,7 @@ for f in files:
 #sys.exit()
 for file,out in do:
     cmd="%s %s %s -o %s %s" % (compile_line,opt,xopt,out,file)
+    cmd = cmd.replace("/lgm/cdat/uvcdat",prefix_path)
     print "Recompiling file:",file,"cmd:",cmd
     print os.popen(cmd).readlines()
     #print fnm,fo,os.path.exists(fo)
@@ -76,6 +78,7 @@ socmd = """g++ -L/lgm/cdat/uvcdat/Externals/lib -R/lgm/cdat/uvcdat/lib -R/lgm/cd
 cp build/lib.macosx-10.4-x86_64-2.7/vcs/_vcs.so /lgm/cdat/uvcdat%s/Python.framework/Versions/2.7/lib/python2.7/site-packages/vcs
 """ % (xpth,xpth,xpth)
 socmd=socmd.replace("x86_64",arch)
+socmd=socmd.replace("/lgm/cdat/uvcdat",prefix_path)
 print "So:",os.popen(socmd).readlines()
 if len(sys.argv)>1: raw_input("soed")
 sipcmd="""cd cdatwrap
@@ -87,6 +90,7 @@ cp -f cdatguiwrap.so /lgm/cdat/uvcdat%s/Python.framework/Versions/2.7/lib/python
 echo 'Yep'
 """% (xpth,xpth,xpth,xpth,xpth,xpth,xpth,xpth,xpth,xpth,xpth)
 sipcmd=sipcmd.replace("x86_64",arch)
+sipcmd=sipcmd.replace("/lgm/cdat/uvcdat",prefix_path)
 print "sip",os.popen(sipcmd).readlines()
 if len(sys.argv)>1: raw_input("siped")
 qpycmd="""g++ -O3 -c  -pipe -g -gdwarf-2 -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -I. -pipe -g -gdwarf-2 -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -I/usr/include  -IInclude/Qt -IInclude -I//lgm/cdat/uvcdat%s/Python.framework/Versions/2.7/include -o build/qpython.o Src/Qt/qpython.cpp
@@ -94,5 +98,6 @@ g++ -o build/qpython build/qpython.o /lgm/cdat/uvcdat%s/Python.framework/Version
 cp build/qpython /lgm/cdat/uvcdat%s/Python.framework/Versions/2.7/bin/cdat
 """ %(xpth,xpth,xpth)
 qpycmd=qpycmd.replace("x86_64",arch)
+qpycmd=qpycmd.replace("/lgm/cdat/uvcdat",prefix_path)
 print "qpython:",os.popen(qpycmd).readlines()
 if len(sys.argv)>1: raw_input("qpyed")

@@ -77,8 +77,8 @@ int MARGINL=.2*72; /* in inches * 72dpi */
 int MARGINT=.2*72;
 int MARGINR=.2*72; /* in inches * 72dpi */
 int MARGINB=.2*72;
-int XW = 712;
-int YW = 692.;
+int XW = 806;
+int YW = 614;
 
     struct func_list
       {

@@ -26,7 +26,7 @@
 Normally, created by vcs.init()
 Contains the method plot.
 """
-import _vcs, string, types, signal
+import _vcs, string, types, signal, warnings
 import tempfile
 #import Tkinter
 from pauser import pause
@@ -6566,22 +6566,20 @@ Options:::
         return o
     ##########################################################################
     #                                                                        #
-    # png wrapper for VCS.                                                   #
+    # bg dims wrapper for VCS.                                               #
     #                                                                        #
     ##########################################################################
-    def png(self, file, width=None,height=None,units='inches'):
+    def setbgoutputdimensions(self, width=None,height=None,units='inches'):
         """
- Function: postscript
+ Function: setbgoutputdimensions
 
  Description of Function:
-    SVG output is another form of vector graphics.
+    Sets dimensions for output in bg mode.
 
  Example of Use:
     a=vcs.init()
-    a.plot(array)
-    a.png('example')       # Overwrite a postscript file
-    a.png('example', width=11.5, height= 8.5)  # US Legal
-    a.png('example', width=21, height=29.7, units='cm')  # A4
+    a.setbgoutputdimensions(width=11.5, height= 8.5)  # US Legal
+    a.setbgoutputdimensions(width=21, height=29.7, units='cm')  # A4
 """
         if not units in ['inches','in','cm','mm','pixel','pixels','dot','dots']:
             raise Exception,"units must be on of inches, in, cm, mm, pixel(s) or dot(s)"
@@ -6605,9 +6603,36 @@ Options:::
             W= H
             H = tmp
             
+        return apply(self.canvas.setbgoutputdimensions,(W,H))
+    ##########################################################################
+    #                                                                        #
+    # png wrapper for VCS.                                                   #
+    #                                                                        #
+    ##########################################################################
+    def png(self, file, width=None,height=None,units=None):
+        """
+ Function: png
+
+ Description of Function:
+    PNG output, dimensions set via setbgoutputdimensions
+
+ Example of Use:
+    a=vcs.init()
+    a.plot(array)
+    a.png('example')       # Overwrite a png file
+"""
+        if units is not None or width is not None or height is not None:
+            if self.iscanvasdisplayed():
+                warnings.warn("Dimensions cannot be set once canvas is opened, window dims will be used, use bg=1 when plotting to control output dimesnsions")
+            else:
+                warnings.warn("Dimensions must be set apriori (before plotting in bg mode) via setbgoutputdimensions function")
+        if self.iscanvasdisplayed():
+            info=self.canvasinfo()
+            self.setbgoutputdimensions(info["width"],info["height"],"pixels")
+            
         if not file.split('.')[-1].lower() in ['png']:
             file+='.png'
-        return apply(self.canvas.png,(file,W,H))
+        return apply(self.canvas.png,(file,))
     #############################################################################
     #                                                                           #
     # pdf wrapper for VCS.                                               #
@@ -6828,7 +6853,24 @@ Options:::
                 height = width / 1.2941176470588236
             else:
                 height = width / self.size
-
+        ## Now forces correct aspect ratio for dumping in bg
+        ## if self.iscanvasdisplayed():
+        ##     info=self.canvasinfo()
+        ##     ratio = float(info["height"])/float(info["width"])
+        ##     if ratio < 1.:
+        ##         ratio=1./ratio
+        ## else:
+        ##     ratio = 1.3127035830618892
+        ## if height>width:
+        ##     if height/width>ratio:
+        ##         height=ratio*width
+        ##     else:
+        ##         width=height/ratio
+        ## else:
+        ##     if width/height>ratio:
+        ##         width=ratio*height
+        ##     else:
+        ##         height=width/ratio
         return width,height,sfactor
     
     def postscript(self, file,mode='r',orientation=None,width=None,height=None,units='inches',left_margin=None,right_margin=None,top_margin=None,bottom_margin=None):
