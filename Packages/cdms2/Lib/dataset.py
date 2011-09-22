@@ -29,14 +29,12 @@ from cdmsNode import CdDatatypes
 import convention
 import typeconv
 import AutoAPI
+import gsHost
 
 try:
- import gsHost
- from pycf import libCFConfig as libcf
- hasLibcf = True
+    from pycf import libCFConfig as libcf
 except:
- hasLibcf = False
- pass
+    libcf = None
 
 try:
     import cache
@@ -192,27 +190,19 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
             if mode!='r': raise ModeNotSupported,mode
             datanode = load(path)
         else:
-#<<<<<<< HEAD
-#            try:
-#                file1 = CdmsFile(path,"r")
-#                if getattr(file1, libcf.CF_FILETYPE) == libcf.CF_GLATT_FILETYPE_HOST:
-#                    file = gsHost.open(path, mode)
-#                else:
-#                    file = CdmsFile(path, mode)
-#                file1.close()
-#            except:
-#                file1.close()
-#=======
             file1 = CdmsFile(path,"r")
-            if hasattr(file1, libcf.CF_FILETYPE):
-                if getattr(file1, libcf.CF_FILETYPE) == libcf.CF_GLATT_FILETYPE_HOST:
-                    file = gsHost.open(path, mode)
+            if libcf is not None:
+                if hasattr(file1, libcf.CF_FILETYPE):
+                    if getattr(file1, libcf.CF_FILETYPE) == libcf.CF_GLATT_FILETYPE_HOST:
+                        file = gsHost.open(path, mode)
+                    else:
+                        file = CdmsFile(path, mode, HostObj = HostObj)
                 else:
-                    file = CdmsFile(path, mode, HostObj = HostObj)
+                    file = CdmsFile(path, mode)
+                file1.close()
+                return file
             else:
-#>>>>>>> gridspec
-                file = CdmsFile(path, mode)
-            return file
+                return file1
     elif scheme in ['http', 'gridftp']:
         
         if (dods):
