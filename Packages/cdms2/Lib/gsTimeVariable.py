@@ -38,7 +38,7 @@ from cdms2.axis import FileAxis
 #        """
 #        Data accessor
 #        @param gridIndex the grid index < HostObj.nGrids
-#        @param timeFileIndex the time slice index < HostObj.nTimeSliceFilesPerVar
+#        @param timeFileIndex the time slice index < HostObj.nTimeSliceFiles
 #        @return variable at gridIndex
 #        """
 #        import types
@@ -101,7 +101,7 @@ from cdms2.axis import FileAxis
 #        """
 #        Data accessor
 #        @param gridIndex the grid index < HostObj.nGrids
-#        @param timeFileIndex the time slice index < HostObj.nTimeSliceFilesPerVar
+#        @param timeFileIndex the time slice index < HostObj.nTimeSliceFiles
 #        @return variable at gridIndex
 #        """
 #        return self.vars[gridIndex][timeFileIndex]
@@ -120,7 +120,7 @@ from cdms2.axis import FileAxis
 #        """
 #        Length aka nGrids
 #        @param gridIndex the grid index < HostObj.nGrids
-#        @param timeFileIndex the time slice index < HostObj.nTimeSliceFilesPerVar
+#        @param timeFileIndex the time slice index < HostObj.nTimeSliceFiles
 #        @return a length dependent upon the input indices
 #        """
 #        # Return a length of some sort
@@ -134,7 +134,7 @@ from cdms2.axis import FileAxis
 #        """
 #        Return the shape in the format (n0, n1, ...) for a given grid index
 #        @param gridIndex the grid index < HostObj.nGrids
-#        @param timeFileIndex the time slice index < HostObj.nTimeSliceFilesPerVar
+#        @param timeFileIndex the time slice index < HostObj.nTimeSliceFiles
 #        @return result
 #        """
 #        return self.vars[gridIndex][timeFileIndex].shape
@@ -253,12 +253,12 @@ class TimeAggregatedFileVariable:
         # Loop over the number of time slices per file for the given variable and the number of
         # time steps per file.
 
-        for timeFileIndex in range(HostObj.nTimeSliceFilesPerVar):
+        for timeFileIndex in range(HostObj.nTimeSliceFiles):
             for timeSliceIndex in range(self.nTimeStepsPerFV):
-                cind = timeFileIndex * HostObj.nTimeSliceFilesPerVar + timeSliceIndex
+                cind = timeFileIndex * HostObj.nTimeSliceFiles + timeSliceIndex
                 # Return the timeFileIndex
                 if cind == index: return timeFileIndex
-        return HostObj.nTimeDataVariables
+        return HostObj.nTimeDataFiles
 
     def createTransientVariable(self, startTimeFileIndex, endTimeFileIndex):
         """
@@ -300,7 +300,7 @@ class TimeFileVariable:
 
             vars = []
 
-            for timeFileIndex in range(HostObj.nTimeDataVariables):
+            for timeFileIndex in range(HostObj.nTimeDataFiles):
 
                 # Open the files
                 fn = HostObj.timeDepVars[varName][gridIndex][timeFileIndex]
@@ -383,7 +383,7 @@ class TimeTransientVariable:
 
                 gFName = HostObj.gridFilenames[gridIndex]
 
-                for timeFileIndex in range(HostObj.nTimeDataVariables):
+                for timeFileIndex in range(HostObj.nTimeDataFiles):
 
                     fName = HostObj.timeDepVars[varName][gridIndex][timeFileIndex]
                     fh = cdms2.open(fName, HostObj=HostObj)
