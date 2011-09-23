@@ -376,7 +376,9 @@ xXgksFillArea(WS_STATE_PTR    ws, FILL_AREA_ST   *fill_ptr)
 #endif
 #ifdef CAIRODRAW
 	cairoXgksSetForeground(cr,fill_colour);
+	fprintf(stderr,"Ok first of all pattenr is: %p, and cr is: %p, index:%i\n",pattern,cr,-fill_style+1);
 	pattern =  CAIROcreatePattern(cr,-fill_style+1,1);
+	fprintf(stderr,"CAIRO STATUS: %s",cairo_status_to_string(cairo_status(cr)));
 	cairo_set_source(cr,pattern);
 	CAIROFillPolygon(cr, ype, npnt, Complex, CoordModeOrigin);
 	cairo_pattern_get_surface(pattern,&asurface);

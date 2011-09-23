@@ -553,9 +553,16 @@ void MainWindow::setupCairo()
   /* only do this if it is not done yet */
   this->vcs_obj->connect_id.surface =   cairo_image_surface_create(CAIRO_FORMAT_ARGB32,qs.width(),qs.height());
   this->vcs_obj->connect_id.cr = cairo_create(this->vcs_obj->connect_id.surface);
-//   fprintf(stderr,"ok surface and cairo setup as: %p, %p, on %i, size: %ix%i\n",this->vcs_obj->connect_id.surface,this->vcs_obj->connect_id.cr,this->vcs_obj->connect_id.wkst_id,qs.width(),qs.height());
+  fprintf(stderr,"ok surface and cairo setup as: %p, %p, on %i, size: %ix%i\n",this->vcs_obj->connect_id.surface,this->vcs_obj->connect_id.cr,this->vcs_obj->connect_id.wkst_id,qs.width(),qs.height());
+#ifdef GENCAIRO
+  fprintf(stderr,"surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,%i,%i);\n",qs.width(),qs.height());
+  fprintf(stderr,"cr = cairo_create(surface);\n");
+#endif
   VCS2CAIRO_setrgb(this->vcs_obj->connect_id.cr,0);
   cairo_paint(this->vcs_obj->connect_id.cr);
+#ifdef GENCAIRO
+  fprintf(stderr,"cr = cairo_paint(cr);\n");
+#endif
 
   if (head_canvas_info!=NULL) {
     cptr->connect_id.cr = this->vcs_obj->connect_id.cr;
@@ -576,6 +583,10 @@ void MainWindow::unsetupCairo()
   }
   cairo_destroy(this->vcs_obj->connect_id.cr);
   cairo_surface_destroy(this->vcs_obj->connect_id.surface);
+#ifdef GENCAIRO
+  fprintf(stderr,"cairo_destroy(cr);\n");
+  fprintf(stderr,"cairo_surface_destroy(surface);\n");
+#endif
 //   printf("ok destroyed a cairo status is: %s\n",cairo_status_to_string(cairo_status(this->vcs_obj->connect_id.cr)));
   this->vcs_obj->connect_id.cr=NULL;
   this->vcs_obj->connect_id.surface=NULL;
