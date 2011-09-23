@@ -651,6 +651,7 @@ void cairogqtxx(int wkid,Gpoint pxy,char *str,Gextent *extent)
 #ifdef X11WM
   int screen = DefaultScreen (connect_id.display);
 #endif
+  extern int XW,YW;
   cairo_t        *cr;
   cairo_surface_t *surface;
   XWindowAttributes 	xwa;
