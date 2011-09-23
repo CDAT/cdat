@@ -22,7 +22,8 @@ from cdms2.error import CDMSError
 try:
     from pycf import libCFConfig, __path__
 except:
-    raise ImportError, 'Error: could not import pycf'
+#    raise ImportError, 'Error: could not import pycf'
+    pass
 
 LIBCF = __path__[0] + '/libcf'
 
@@ -86,7 +87,7 @@ class Host:
             self.nStatDataFiles = 0
 
             # number of time dependent var files 
-            self.nTimeDataVariables = 0
+            self.nTimeDataFiles = 0
 
             # number of time files
             self.nTimeSliceFiles = 0
@@ -144,7 +145,7 @@ class Host:
             self.nStatDataFiles = i_ct.value
             status = libcfdll.nccf_inq_host_ntimedatafiles(self.hostId_ct, byref(i_ct))
 
-            self.nTimeDataVariables = i_ct.value
+            self.nTimeDataFiles = i_ct.value
             status = libcfdll.nccf_inq_host_ntimeslices(self.hostId_ct, byref(i_ct))
             self.nTimeSliceFiles = i_ct.value
 
@@ -153,7 +154,7 @@ class Host:
             gName_ct = c_char_p(" " * (libCFConfig.NC_MAX_NAME+1))
 
             self.dimensions = {"nGrids": self.nGrids, "nStatDataFiles": self.nStatDataFiles, \
-                               "nTimeDataVariables": self.nTimeDataVariables, \
+                               "nTimeDataFiles": self.nTimeDataFiles, \
                                "nTimeSliceFiles":self.nTimeSliceFiles }
 
             # Mosaic filename (use getMosaic to return the connectivity)
@@ -188,7 +189,7 @@ class Host:
                     f.close()
 
             # time dependent data
-            for vfindx in range(self.nTimeDataVariables):
+            for vfindx in range(self.nTimeDataFiles):
                 for tfindx in range(self.nTimeSliceFiles):
                     for gfindx in range(self.nGrids):
                         status = libcfdll.nccf_inq_host_timefilename(self.hostId_ct, 
@@ -309,7 +310,7 @@ class Host:
         Get number of time dependent data files
         @return number time data files
         """
-        return self.nTimeDataVariables
+        return self.nTimeDataFiles
 
     def listvariable(self, gstype = None):
         """

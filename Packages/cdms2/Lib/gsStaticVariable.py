@@ -22,7 +22,8 @@ from cdms2.axis import FileAxis
 try:
     from pycf import libCFConfig as libcf
 except:
-    raise ImportError, 'Error: could not import pycf'
+#    raise ImportError, 'Error: could not import pycf'
+    pass
 
 def createTransientGrid(gFName, coordinates):
     """

@@ -295,7 +295,8 @@ class TimeFileVariable:
         for gridIndex in range(HostObj.nGrids):
 
             # Get the filenames
-            gn = HostObj.gridFilenames[gridIndex]
+            aa = HostObj.gridVars.keys()
+            gn = HostObj.gridVars[aa[0]][gridIndex]
             g = CdunifFile(gn, mode)
 
             vars = []

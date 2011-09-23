@@ -29,9 +29,9 @@ from cdmsNode import CdDatatypes
 import convention
 import typeconv
 import AutoAPI
-import gsHost
 
 try:
+    import gsHost
     from pycf import libCFConfig as libcf
 except:
     libcf = None
