@@ -1031,7 +1031,9 @@ cairo_pattern_t *CAIROcreatePattern(cr,index,style)
     break;
   case 20:
     cr2=prep_image_surface(cr,9,10,style);
+    fprintf(stderr,"CAIRO STATUS cr2: %s]\n",cairo_status_to_string(cairo_status(cr2)));
     cairo_rectangle(cr2,0,0,8,4);
+    fprintf(stderr,"CAIRO STATUS2 cr2: %s\n",cairo_status_to_string(cairo_status(cr2)));
     cairo_fill(cr2);
     cairo_rectangle(cr2,-4,5,8,4);
     cairo_fill(cr2);
@@ -1082,6 +1084,7 @@ cairo_pattern_t *CAIROcreatePattern(cr,index,style)
     printf("cairo_pattern_set_matrix(pattern,&matrix);\n");
 #endif
   }
+  fprintf(stderr,"CAIRO STATUS3 cr2: %s\n",cairo_status_to_string(cairo_status(cr2)));
   cairo_destroy(cr2);
   cr2=NULL;
   return pattern; 

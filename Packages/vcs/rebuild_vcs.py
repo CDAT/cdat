@@ -4,7 +4,7 @@ if "omar" in platform.uname():
     xpth=""
     arch="i386"
     OSX=5
-    compile_line="""gcc -DNDEBUG -L/lgm/cdat/uvcdat/Externals/lib"""
+    compile_line="""gcc -DNDEBUG -DGENCAIRO -L/lgm/cdat/uvcdat/Externals/lib"""
 
     opt="""-DDarwin -DCDCOMPAT -DPYTHON -Dincxws -Dinctty -Dincps -Dinccgm -IInclude -I/lgm/cdat/uvcdat/Externals/include -I/lgm/cdat/uvcdat/Externals/include/cairo -I/lgm/cdat/uvcdat/Externals/include/pixman-1 -I/lgm/cdat/uvcdat/Externals/include -I/lgm/cdat/uvcdat/Externals/include/freetype2 -I/lgm/cdat/uvcdat/Externals/include/libpng15 -I/lgm/cdat/uvcdat/Externals/include/freetype2 -I/lgm/cdat/uvcdat/Externals/include -I/git/cdat/Packages/vcs/Src/gctpc -I/lgm/cdat/uvcdat/Python.framework/Versions/2.7/include -I/lgm/cdat/uvcdat/Python.framework/Versions/2.7/include/cdms -I/lgm/cdat/uvcdat/Externals/include -I/lgm/cdat/uvcdat/Python.framework/Versions/2.7/include -I/usr/include -I/usr/local/include -I/git/cdat/Packages/vcs/Include/Qt -I/lgm/cdat/uvcdat/Python.framework/Versions/2.7/lib/python2.7/site-packages/numpy/core/include -I/lgm/cdat/uvcdat/Python.framework/Versions/2.7/include/python2.7 -c"""
 
@@ -16,7 +16,7 @@ else:
     OSX=6
 
     compile_line="""
-    gcc -fno-strict-aliasing -fno-common -dynamic -I/lgm/cdat/uvcdat/Externals/include -L/lgm/cdat/uvcdat/Externals/lib -arch %s -Xarch_%s -mmacosx-version-min=10.%i -isysroot /Developer/SDKs/MacOSX10.%i.sdk -pipe -I/Library/Frameworks/QtCore.framework -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I/Developer/SDKs/MacOSX10.%i.sdk/usr/include
+    gcc -DGENCAIRO -fno-strict-aliasing -fno-common -dynamic -I/lgm/cdat/uvcdat/Externals/include -L/lgm/cdat/uvcdat/Externals/lib -arch %s -Xarch_%s -mmacosx-version-min=10.%i -isysroot /Developer/SDKs/MacOSX10.%i.sdk -pipe -I/Library/Frameworks/QtCore.framework -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I/Developer/SDKs/MacOSX10.%i.sdk/usr/include
     """.strip() % (arch,arch,OSX,OSX,OSX)
 
     opt="""
