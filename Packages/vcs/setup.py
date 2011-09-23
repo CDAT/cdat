@@ -471,8 +471,15 @@ if dovcs:
 
 # Vistrails will need these includes later, let's copy them.
 import shutil
-shutil.rmtree("%s/vcs/Include" % sysconfig.get_python_lib(),ignore_errors=True)
-shutil.copytree("Include", "%s/vcs/Include" % sysconfig.get_python_lib())
+ptho = sysconfig.get_python_lib()
+try:
+ shutil.rmtree("%s/vcs/Include" % ptho,ignore_errors=True)
+ shutil.copytree("Include", "%s/vcs/Include" % ptho)
+except:
+ ptho=target_prefix+"/lib/python2.7/site-packages/"
+ shutil.rmtree("%s/vcs/Include" % ptho,ignore_errors=True)
+ shutil.copytree("Include", "%s/vcs/Include" % ptho)
+
 print 'Copied the include files to: %s/vcs/Include' % sysconfig.get_python_lib()
 
 if (WM=="QT" or EM=="QT") and sys.platform in ['darwin']:
