@@ -264,8 +264,6 @@ class TimeAggregatedFileVariable:
         """
         @param startTimeFileIndex 
         """
-#        HostObj = self.HostObj
-#        gFName = HostObj.gridFilenames[self.gridIndex]
         firstTime = True
         rng = range(startTimeFileIndex, endTimeFileIndex)
         for i in rng:
@@ -372,6 +370,8 @@ class TimeTransientVariable:
         self.id = varName
         self.vars = []
 
+        gridFilenames = HostObj.getGridFilenames()
+
         kwargs = {}
         for k in slicekwargs.keys():
             kwargs[k.lower()] = slicekwargs[k]
@@ -382,7 +382,7 @@ class TimeTransientVariable:
                 len(slicekwargs) == 0:
             for gridIndex in range(HostObj.nGrids):
 
-                gFName = HostObj.gridFilenames[gridIndex]
+                gFName = gridFilenames[gridIndex]
 
                 for timeFileIndex in range(HostObj.nTimeDataFiles):
 

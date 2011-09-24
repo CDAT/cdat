@@ -172,6 +172,7 @@ class StaticTransientVariable(StaticVariable):
 
         # Inititialize the variable
         StaticVariable(self, HostObj, varName)
+        gridFilenames = HostObj.getGridFilenames()
 
         for gridIndex in range(self.nGrids):
 
@@ -179,7 +180,7 @@ class StaticTransientVariable(StaticVariable):
             fName = HostObj.statVars[varName][gridIndex]
 
             # name of the file containing coordinate data
-            gFName = HostObj.gridFilenames[gridIndex]
+            gFName = gridFilenames[gridIndex]
 
             fh = cdms2.open(fName, HostObj = HostObj)
             gh = cdms2.open(gFName)
@@ -220,12 +221,13 @@ class StaticFileVariable(StaticVariable):
 
         StaticVariable(self, HostObj, varName)
         mode = HostObj.mode
+        gridFilenames = HostObj.getGridFilenames()
 
         for gridIndex in range(self.nGrids):
 
             # Get the filenames
             fn = HostObj.statVars[varName][gridIndex]
-            gn = HostObj.gridFilenames[gridIndex]
+            gn = gridFilenames[gridIndex]
 
             # Open the files
             f = cdms2.open(fn, mode)   # Need f and u because they serve slightly different purposes

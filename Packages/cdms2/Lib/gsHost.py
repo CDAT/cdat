@@ -256,9 +256,10 @@ class Host:
 
     def getGridFilenames(self):
         """
-        Return a list of time filenames
+        Return a list of time filenames. Assumes each coordinate is in each file.
         """
-        return self.gridVars.values()
+        c = self.gridVars.keys()
+        return self.gridVars[c[0]]
 
     def getGridNames(self):
         """
@@ -266,17 +267,31 @@ class Host:
         """
         return self.gridName.values()
 
-    def getStatFilenames(self):
+    def getStatFilenames(self, varName = None):
         """
-        Return a list of time filenames
+        Return a list of static variable filenames
+        @param varName Return filename for input variable name only
         """
-        return self.statVars.values()
+        if varName is not None:
+            return self.statVars[varName]
+        vn = self.statVars.keys()
+        statFilenames = []
+        for v in vn:
+            statFilenames.append(self.statVars[v])
+        return statFilenames
 
-    def getTimeFilenames(self):
+    def getTimeFilenames(self, varName = None):
         """
-        Return a list of time filenames
+        Return a list of time dependent variable filenames
+        @param varName Return filename for input variable name only
         """
-        return self.timeDepVars.values()
+        if varName is not None:
+            return self.timeDepVars[varName]
+        vn = self.timeDepVars.keys()
+        timeFilenames = []
+        for v in vn:
+            timeFilenames.append(self.timeDepVars[v])
+        return timeFilenames
 
     def getCoordinates(self, gindx):
         """
@@ -284,19 +299,15 @@ class Host:
         @param gindx Grid index
         @return coordinates list of coordinates
         """
-        gridFile = cdms2.open(self.gridFilenames[gindx])
-        c = []
-        for i in range(len(self.coordinates)):
-          c.append(gridFile(self.coordinates[i]))
-
-        return c
+        return self.gridVars.keys()
     
     def getNumGrids(self):
         """
         Get number of grids (tiles)
         @return number of grids
         """
-        return len(self.gridFilenames)
+        c = self.gridVars.keys()
+        return len(self.gridVars[c[0]].values())
 
     def getNumStatDataFiles(self):
         """
