@@ -40,13 +40,11 @@ def open(hostfile, mode = 'r'):
 class Host:
     """
     A LibCF/GRIDSPEC host file object. This acts as the single point of entry to
-    a host file. Variables and grids can be requested solely through the Host
-    object. The host object is a hybrid between a variable and file object. 
+    a GRIDSPEC aggregation. Variables and grids can be requested solely through
+    the Host object, which is a hybrid between a variable and file object. 
     Host relies on the libcf shared object. As such, if there is a problem
     consult http://www.unidata.ucar.edu/software/libcf/docs/libcf/ for details
     on building host files and all related GRIDSPEC files.
-
-    @return Host class on __init__
     """
 
     def __init__(self, hostfile, mode = 'r'):
@@ -70,9 +68,9 @@ class Host:
             self.libcfdll = CDLL(LIBCF + sosuffix)
             if self.libcfdll:
                 break
+
         if self.libcfdll == None: 
             raise CDMSError, 'libcf not installed or incorrect path\n  '
-
         elif self._status_ == 'open':
 
             libcfdll = self.libcfdll
