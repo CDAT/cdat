@@ -53,16 +53,12 @@ class Host:
         @param hostfile path to the host
         @param mode read only at the moment
         """
+
+        self.__initialize()
         
         # Data dir based on location of hostfile
-        if mode in ['w', 'a']:
-            raise CDMSError, MethodNotImplemented
-        self.mode     = mode
-        self.libcfdll = None
-        self.dirname  = os.path.dirname(hostfile)
-        self.uri      = hostfile
-        self.id       = os.path.dirname(hostfile)
-        self._status_ = 'open'
+        if mode != 'r':
+            raise CDMSError, 'Only read mode is supported for host file'
 
         for sosuffix in '.so', '.dylib', '.dll', '.a':
             self.libcfdll = CDLL(LIBCF + sosuffix)
@@ -71,162 +67,196 @@ class Host:
 
         if self.libcfdll == None: 
             raise CDMSError, 'libcf not installed or incorrect path\n  '
-        elif self._status_ == 'open':
 
-            libcfdll = self.libcfdll
+        libcfdll = self.libcfdll
 
-            self.hostId_ct = c_int(-1)
-            self.globalId_ct = c_int(-1)
 
-            # number of grid files
-            self.nGrids = 0
-            
-            # number of static var files 
-            self.nStatDataFiles = 0
+        status = libcfdll.nccf_def_host_from_file(hostfile,
+                                               byref(self.hostId_ct))
+        if status != 0:
+            raise CDMSError, \
+                "ERROR: not a valid host file (status=%d)" % \
+                (hostfile, status)
 
-            # number of time dependent var files 
-            self.nTimeDataFiles = 0
+        # Attach global attrs
+        libcfdll.nccf_def_global_from_file( hostfile, \
+                                            byref(self.globalId_ct))
 
-            # number of time files
-            self.nTimeSliceFiles = 0
+        # get the global attributes from the file
+        natts = c_int(-1)
+        attName_ct = c_char_p(" " * (libCFConfig.NC_MAX_NAME+1))
+        attValu_ct = c_char_p(" " * (libCFConfig.NC_MAX_NAME+1))
+        self.libcfdll.nccf_inq_global_natts( self.globalId_ct, byref(natts))
+        for i in range(natts.value):
+            self.libcfdll.nccf_inq_global_attval(self.globalId_ct, \
+                                                     i, attName_ct, \
+                                                     attValu_ct)
+            if not self.global_atts.has_key( attName_ct.value ):
+                self.global_atts[attName_ct.value] = attValu_ct.value
 
-            # Filenames
-            timeFilenames = []
-            statFilenames = []
-            gridFilenames = []
-            gridNames     = []
+        self.hostFileOpened = True
+        self.hostFilename = hostfile
 
-            self.hostFileVars = [ "timeFilenames", 
-                                  "statFilenames", 
-                                  "gridFilenames", 
-                                  "gridNames    " ]
-            
-            # {'varName': fileNames}
-            # fileNames is array of ngrid
-            self.gridVars = {}
-            self.gridName = {}
+        i_ct = c_int()
+        status = libcfdll.nccf_inq_host_ngrids(self.hostId_ct, byref(i_ct))
+        self.nGrids = i_ct.value
+        status = libcfdll.nccf_inq_host_nstatdatafiles(self.hostId_ct, \
+                                                           byref(i_ct))
+        self.nStatDataFiles = i_ct.value
+        status = libcfdll.nccf_inq_host_ntimedatafiles(self.hostId_ct, \
+                                                           byref(i_ct))
 
-            # {'varName': fileNames}
-            # fileNames is array of ntimes x ngrid
-            self.timeDepVars = {}
+        self.nTimeDataFiles = i_ct.value
+        status = libcfdll.nccf_inq_host_ntimeslices(self.hostId_ct, \
+                                                        byref(i_ct))
+        self.nTimeSliceFiles = i_ct.value
 
-            # {'varName': fileNames}
-            # fileNames is array of ngrid
-            self.statVars = {}
+        varName_ct = c_char_p(" " * (libCFConfig.NC_MAX_NAME+1))
+        fName_ct = c_char_p(" " * (libCFConfig.NC_MAX_NAME+1))
+        gName_ct = c_char_p(" " * (libCFConfig.NC_MAX_NAME+1))
 
-            # {coordName: gridFiles}
-            self.coords = {}
+        self.dimensions = {"nGrids": self.nGrids, "nStatDataFiles": self.nStatDataFiles, \
+                           "nTimeDataFiles": self.nTimeDataFiles, \
+                           "nTimeSliceFiles":self.nTimeSliceFiles }
 
-            # flags checking whethed host was constructed
-            self.hostFileOpened = False
+        # Mosaic filename (use getMosaic to return the connectivity)
+        mosaicFilename = c_char_p(" " * (libCFConfig.NC_MAX_NAME + 1))
+        status = libcfdll.nccf_inq_host_mosaicfilename(self.hostId_ct, mosaicFilename)
+        self.mosaicFilename = mosaicFilename.value
 
-            # host file name
-            self.hostFilename = ""
+        # Filenames
+        timeFilenames = []
+        statFilenames = []
+        gridFilenames = []
+        gridNames     = []
 
-            status = libcfdll.nccf_def_host_from_file(hostfile,
-                                                   byref(self.hostId_ct))
-            if status != 0:
-                raise CDMSError, \
-                    "ERROR: not a valid host file (status=%d)" % \
-                    (hostfile, status)
+        coordinates = []
 
-            # Attach global attrs
-            libcfdll.nccf_def_global_from_file( hostfile, byref(self.globalId_ct))
+        # static data
+        for vfindx in range(self.nStatDataFiles):
+            for gfindx in range(self.nGrids):
+                status = libcfdll.nccf_inq_host_statfilename(self.hostId_ct, 
+                                                          vfindx, gfindx, 
+                                                          fName_ct)
+                am=0
+                statFilenames.append(fName_ct.value)
+                f = cdms2.open(fName_ct.value, 'r')
+                varNames = f.listvariable()
 
-            self.hostFileOpened = True
-            self.hostFilename = hostfile
+                for vn in varNames:
+                    # Add coordinate names a local list of coordinates
+                    if 'coordinates' in dir(f[vn]):
+                        for coord in f[vn].coordinates.split():
+                            if not coord in coordinates: 
+                                coordinates.append(coord)
+                    if not self.statVars.has_key(vn):
+                        # allocate
+                        self.statVars[vn] = ["" for ig in \
+                                                 range(self.nGrids)] 
 
-            i_ct = c_int()
-            status = libcfdll.nccf_inq_host_ngrids(self.hostId_ct, byref(i_ct))
-            self.nGrids = i_ct.value
-            status = libcfdll.nccf_inq_host_nstatdatafiles(self.hostId_ct, byref(i_ct))
-            self.nStatDataFiles = i_ct.value
-            status = libcfdll.nccf_inq_host_ntimedatafiles(self.hostId_ct, byref(i_ct))
+                    # set file name
+                    self.statVars[vn][gfindx] = fName_ct.value
+                f.close()
 
-            self.nTimeDataFiles = i_ct.value
-            status = libcfdll.nccf_inq_host_ntimeslices(self.hostId_ct, byref(i_ct))
-            self.nTimeSliceFiles = i_ct.value
-
-            varName_ct = c_char_p(" " * (libCFConfig.NC_MAX_NAME+1))
-            fName_ct = c_char_p(" " * (libCFConfig.NC_MAX_NAME+1))
-            gName_ct = c_char_p(" " * (libCFConfig.NC_MAX_NAME+1))
-
-            self.dimensions = {"nGrids": self.nGrids, "nStatDataFiles": self.nStatDataFiles, \
-                               "nTimeDataFiles": self.nTimeDataFiles, \
-                               "nTimeSliceFiles":self.nTimeSliceFiles }
-
-            # Mosaic filename (use getMosaic to return the connectivity)
-            mosaicFilename = c_char_p(" " * (libCFConfig.NC_MAX_NAME + 1))
-            status = libcfdll.nccf_inq_host_mosaicfilename(self.hostId_ct, mosaicFilename)
-            self.mosaicFilename = mosaicFilename.value
-
-            coordinates = []
-
-            # static data
-            for vfindx in range(self.nStatDataFiles):
+        # time dependent data
+        for vfindx in range(self.nTimeDataFiles):
+            for tfindx in range(self.nTimeSliceFiles):
                 for gfindx in range(self.nGrids):
-                    status = libcfdll.nccf_inq_host_statfilename(self.hostId_ct, 
-                                                              vfindx, gfindx, 
+                    status = \
+                        libcfdll.nccf_inq_host_timefilename(self.hostId_ct, 
+                                                            vfindx, \
+                                                                tfindx, \
+                                                                gfindx, \
                                                               fName_ct)
-                    am=0
-                    statFilenames.append(fName_ct.value)
+                    timeFilenames.append(fName_ct.value)
                     f = cdms2.open(fName_ct.value, 'r')
                     varNames = f.listvariable()
-
+                    # Add coordinate names a local list of coordinates
+                    if 'coordinates' in dir(f[vn]):
+                        for coord in f[vn].coordinates.split():
+                            if not coord in coordinates: coordinates.append(coord)
                     for vn in varNames:
-                        # Add coordinate names a local list of coordinates
-                        if 'coordinates' in dir(f[vn]):
-                            for coord in f[vn].coordinates.split():
-                                if not coord in coordinates: coordinates.append(coord)
-                        if not self.statVars.has_key(vn):
+                        if not self.timeDepVars.has_key(vn):
                             # allocate
-                            self.statVars[vn] = ["" for ig in range(self.nGrids)] 
-
+                            self.timeDepVars[vn] = [["" for it in range(self.nTimeSliceFiles)] \
+                                                        for ig in range(self.nGrids)]
                         # set file name
-                        self.statVars[vn][gfindx] = fName_ct.value
+                        self.timeDepVars[vn][gfindx][tfindx] = fName_ct.value
                     f.close()
 
-            # time dependent data
-            for vfindx in range(self.nTimeDataFiles):
-                for tfindx in range(self.nTimeSliceFiles):
-                    for gfindx in range(self.nGrids):
-                        status = libcfdll.nccf_inq_host_timefilename(self.hostId_ct, 
-                                                                  vfindx, tfindx, gfindx, 
-                                                                  fName_ct)
-                        timeFilenames.append(fName_ct.value)
-                        f = cdms2.open(fName_ct.value, 'r')
-                        varNames = f.listvariable()
-                        # Add coordinate names a local list of coordinates
-                        if 'coordinates' in dir(f[vn]):
-                            for coord in f[vn].coordinates.split():
-                                if not coord in coordinates: coordinates.append(coord)
-                        for vn in varNames:
-                            if not self.timeDepVars.has_key(vn):
-                                # allocate
-                                self.timeDepVars[vn] = [["" for it in range(self.nTimeSliceFiles)] \
-                                                            for ig in range(self.nGrids)]
-                            # set file name
-                            self.timeDepVars[vn][gfindx][tfindx] = fName_ct.value
-                        f.close()
+        # Grid names and data
+        for gfindx in range(self.nGrids):
+            status = libcfdll.nccf_inq_host_gridfilename(self.hostId_ct, 
+                                                      gfindx, 
+                                                      fName_ct)
+            status = libcfdll.nccf_inq_host_gridname(self.hostId_ct, 
+                                                      gfindx, 
+                                                      gName_ct)
 
-            # Grid names and data
-            for gfindx in range(self.nGrids):
-                status = libcfdll.nccf_inq_host_gridfilename(self.hostId_ct, 
-                                                          gfindx, 
-                                                          fName_ct)
-                status = libcfdll.nccf_inq_host_gridname(self.hostId_ct, 
-                                                          gfindx, 
-                                                          gName_ct)
+            varNames = cdms2.open(fName_ct.value, 'r').listvariable()
+            for vn in varNames:
+                if vn in coordinates:
+                    if vn not in self.gridVars.keys():
+                        self.gridVars[vn] = []
+                        self.gridName[vn] = []
 
-                varNames = cdms2.open(fName_ct.value, 'r').listvariable()
-                for vn in varNames:
-                    if vn in coordinates:
-                        if vn not in self.gridVars.keys():
-                            self.gridVars[vn] = []
-                            self.gridName[vn] = []
+                    self.gridVars[vn].append(fName_ct.value)
+                    self.gridName[vn].append(gName_ct.value)
 
-                        self.gridVars[vn].append(fName_ct.value)
-                        self.gridName[vn].append(gName_ct.value)
+    def __initialize(self):
+        self.mode     = ''
+        self.libcfdll = None
+        self.dirname  = ''
+        self.uri      = ''
+        self.id       = ''
+        self._status_ = ''
+        
+        # ctypes variables
+        self.hostId_ct = c_int(-1)
+        self.globalId_ct = c_int(-1)
+
+        # number of grid files
+        self.nGrids = 0
+
+        # number of static var files 
+        self.nStatDataFiles = 0
+
+        # number of time dependent var files 
+        self.nTimeDataFiles = 0
+
+        # number of time files
+        self.nTimeSliceFiles = 0
+
+        self.hostFileVars = [ "timeFilenames", 
+                              "statFilenames", 
+                              "gridFilenames", 
+                              "gridNames    " ]
+
+        # {'varName': fileNames}
+        # fileNames is array of ngrid
+        self.gridVars = {}
+        self.gridName = {}
+
+        # {'varName': fileNames}
+        # fileNames is array of ntimes x ngrid
+        self.timeDepVars = {}
+
+        # {'varName': fileNames}
+        # fileNames is array of ngrid
+        self.statVars = {}
+
+        # {coordName: gridFiles}
+        self.coords = {}
+
+        # flags checking whethed host was constructed
+        self.hostFileOpened = False
+
+        # host file name
+        self.hostFilename = ""
+
+        # global attributes
+        self.global_atts = {}
+        
 
     def listhostfilevars(self):
         """
@@ -268,15 +298,14 @@ class Host:
     def getStatFilenames(self, varName = None):
         """
         Return a list of static variable filenames
-        @param varName Return filename for input variable name only
+        @param varName variable name (or None if all the static file names are to 
+                       be returned)
+        @return all the file names corresponding to varName
         """
         if varName is not None:
             return self.statVars[varName]
-        vn = self.statVars.keys()
-        statFilenames = []
-        for v in vn:
-            statFilenames.append(self.statVars[v])
-        return statFilenames
+        # return all the static var filenames
+        return self.statVars.values()
 
     def getTimeFilenames(self, varName = None):
         """
@@ -285,11 +314,8 @@ class Host:
         """
         if varName is not None:
             return self.timeDepVars[varName]
-        vn = self.timeDepVars.keys()
-        timeFilenames = []
-        for v in vn:
-            timeFilenames.append(self.timeDepVars[v])
-        return timeFilenames
+        # return all the time var filenames
+        return self.timeDepVars.values()
 
     def getCoordinates(self, gindx):
         """
@@ -385,62 +411,26 @@ class Host:
         """
         return self.dimensions.keys()
         
-    def listglobal(self, attName = ""):
+    def listglobal(self):
         """
         List global attributes of host file
-        @param [attName] - Optional attribute to get a value
-        @return list 
+        @return a list of the global attributes in the file
         """ 
+        return self.global_atts.keys()
 
-        natts = c_int(-1)
-        self.global_atts = {}
-        attName_ct = c_char_p(" " * (libCFConfig.NC_MAX_NAME+1))
-        attValu_ct = c_char_p(" " * (libCFConfig.NC_MAX_NAME+1))
-        self.libcfdll.nccf_inq_global_natts( self.globalId_ct, byref(natts))
-        for i in range(natts.value):
-            self.libcfdll.nccf_inq_global_attval(self.globalId_ct, i, attName_ct, attValu_ct)
-            if not self.global_atts.has_key( attName_ct.value ):
-                self.global_atts[attName_ct.value] = attValu_ct.value
-
-        if attName == "":
-            return self.global_atts.keys()
-        elif self.global_atts.has_key(attName):
-            return (attName, self.global_atts[attName])
-
-    def showglobal(self, attName = ""):
+    def getglobal(self, attName):
         """
-        synonymous to listglobal
-        @param [attName] - Optional attribute to get a value
-        @return list 
-        """
-        return self.listglobal()
-
-    def addglobal(self, name, value):
-        """
-        Add a global attribute to a file
-        @param name attribute name
-        @param value attribute value
-        @return status 0 if valid
-        """
-        status = self.libcfdll.nccf_add_global_att( self.globalId_ct, name, value)
-        return status
-
-    def addfiletohost(self, filename):
-        """
-        Using libcf, add a file name to the host file
-        @param filename file to be added
-        @return status 0 if valid return
-        """
-        status = self.libcfdll.nccf_add_host_file(self.hostId_ct, filename)
-        return status
+        Get the value of the global attribute
+        @param [attName] - global attribute name
+        @return attribute value
+        """        
+        return self.global_atts[attName]
 
     def close(self):
         """
         Close the file
         """
-        self.variables = {}
-        self.axes = {}
-        self.grids = {}
+        self.__initialize()
         self._status_ = 'closed'
 
     def __repr__(self): 
@@ -456,7 +446,9 @@ class Host:
         """
         Free the host file from memory
         """
-        self.libcfdll.nccf_free_host( self.hostId_ct )
+        if self.hostId_ct.value >= 0: 
+            self.libcfdll.nccf_free_host( self.hostId_ct )
+        self.hostId_ct.value = -1
 
 # NOTE: There is no __call__ method for host files.
 

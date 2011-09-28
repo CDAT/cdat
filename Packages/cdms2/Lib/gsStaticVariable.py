@@ -149,16 +149,6 @@ class StaticVariable:
             return self.vars[0].typecode()
         return None
 
-    def __repr__(self):
-        res = ""
-        if not hasattr(self, 'vars'): 
-            res = "< %s >" % ("gsStaticVariable")
-        else:
-            for gridIndex in range(len(self.vars)):
-                res += ("grid %d: " % gridIndex) + repr(self.vars[gridIndex])
-            res = "<%s, %s>" % (self._repr_string, res)
-        return res
-
 class StaticTransientVariable(StaticVariable):
     """
     Static variable extending over multiple grid files
