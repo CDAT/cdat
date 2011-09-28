@@ -1,8 +1,9 @@
 #/usr/bin/env python
 
 """
-A file-like object to access a host file. Thereby granting entry to an entire
-data set.
+A file-like object to access a host file, the single entry point
+to an entire data file layout.
+
 Dave Kindig and Alex Pletzer, Tech-X (2011)
 This code is provided with the hope that it will be useful. 
 No guarantee is provided whatsoever. Use at your own risk.
@@ -17,7 +18,6 @@ from cdms2.tvariable import TransientVariable
 from cdms2.cdmsobj import CdmsObj
 from cdms2.gsStaticVariable import StaticTransientVariable, StaticFileVariable
 from cdms2.gsTimeVariable import TimeTransientVariable, TimeFileVariable
-from cdms2.error import CDMSError
 
 try:
     from pycf import libCFConfig, __path__
@@ -76,7 +76,7 @@ class Host:
                                                byref(self.hostId_ct))
         if status != 0:
             raise CDMSError, \
-                "ERROR: not a valid host file (status=%d)" % \
+                "ERROR: not a valid host file %s (status=%d)" % \
                 (hostfile, status)
 
         # Attach global attrs
@@ -138,7 +138,6 @@ class Host:
                 status = libcfdll.nccf_inq_host_statfilename(self.hostId_ct, 
                                                           vfindx, gfindx, 
                                                           fName_ct)
-                am=0
                 statFilenames.append(fName_ct.value)
                 f = cdms2.open(fName_ct.value, 'r')
                 varNames = f.listvariable()
