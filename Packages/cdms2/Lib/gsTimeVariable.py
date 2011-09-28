@@ -138,7 +138,7 @@ class TimeFileVariable:
             for timeFileIndex in range(HostObj.nTimeDataFiles):
 
                 # Open the files
-                fn = HostObj.timeDepVars[varName][gridIndex][timeFileIndex]
+                fn = HostObj.timeVars[varName][gridIndex][timeFileIndex]
                 f = cdms2.open(fn, mode)   # Need f and u because they serve slightly different purposes
                 u = CdunifFile(fn, mode)   # f.axes exists while axes is not a part of u
 #                u.variables[varName].gridIndex = gridIndex
