@@ -93,7 +93,28 @@ class TimeAggregatedFileVariable:
                 if cind == index: return timeFileIndex
         return HostObj.nTimeDataFiles
 
+    def createTransientVariable(self, startTimeFileIndex, endTimeFileIndex):
+        """
+        @param startTimeFileIndex 
+        """
+        firstTime = True
+        rng = range(startTimeFileIndex, endTimeFileIndex)
+        for i in rng:
+            var = self.fvs[i][:]
+
+            if firstTime:
+                new = var
+                firstTime = False
+            else:
+                tmp = concatenate((new, var))
+                new = tmp
+
+        return new
+
 class TimeFileVariable:
+    """
+    Construct a time file variable object
+    """
     def __init__(self, HostObj, varName):
         """
         Create a list of file variable with grid attached
@@ -169,7 +190,7 @@ class TimeFileVariable:
         @param gridIndex gridIndex
         """
         return self.vars[gridIndex]
-
+        
 ###################################################################
 
 def test():
