@@ -55,6 +55,7 @@ class Host:
         """
 
         self.__initialize()
+        self.uri = hostfile
         
         # Data dir based on location of hostfile
         if mode != 'r':
@@ -91,11 +92,10 @@ class Host:
             self.libcfdll.nccf_inq_global_attval(self.globalId_ct, \
                                                      i, attName_ct, \
                                                      attValu_ct)
-            if not self.global_atts.has_key( attName_ct.value ):
-                self.global_atts[attName_ct.value] = attValu_ct.value
+            if not self.attributes.has_key( attName_ct.value ):
+                self.attributes[attName_ct.value] = attValu_ct.value
 
-        self.hostFileOpened = True
-        self.hostFilename = hostfile
+        self.id = hostfile
 
         i_ct = c_int()
         status = libcfdll.nccf_inq_host_ngrids(self.hostId_ct, byref(i_ct))
@@ -204,9 +204,9 @@ class Host:
                     self.gridName[vn].append(gName_ct.value)
 
     def __initialize(self):
+
         self.mode     = ''
         self.libcfdll = None
-        self.dirname  = ''
         self.uri      = ''
         self.id       = ''
         self._status_ = ''
@@ -227,11 +227,6 @@ class Host:
         # number of time files
         self.nTimeSliceFiles = 0
 
-        self.hostFileVars = [ "timeFilenames", 
-                              "statFilenames", 
-                              "gridFilenames", 
-                              "gridNames    " ]
-
         # {'varName': fileNames}
         # fileNames is array of ngrid
         self.gridVars = {}
@@ -248,23 +243,8 @@ class Host:
         # {coordName: gridFiles}
         self.coords = {}
 
-        # flags checking whethed host was constructed
-        self.hostFileOpened = False
-
-        # host file name
-        self.hostFilename = ""
-
         # global attributes
-        self.global_atts = {}
-        
-
-    def listhostfilevars(self):
-        """
-        Return the variables contained in the host file. These are referenced
-        to create grids or variables and are attributes in the host object
-        @return list of variable names
-        """
-        return self.hostFileVars
+        self.attributes = {}   
 
     def getMosaic(self):
         """
@@ -416,7 +396,7 @@ class Host:
         List global attributes of host file
         @return a list of the global attributes in the file
         """ 
-        return self.global_atts.keys()
+        return self.attributes.keys()
 
     def getglobal(self, attName):
         """
@@ -424,7 +404,7 @@ class Host:
         @param [attName] - global attribute name
         @return attribute value
         """        
-        return self.global_atts[attName]
+        return self.attributes[attName]
 
     def close(self):
         """
