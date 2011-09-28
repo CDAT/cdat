@@ -93,24 +93,6 @@ class TimeAggregatedFileVariable:
                 if cind == index: return timeFileIndex
         return HostObj.nTimeDataFiles
 
-    def createTransientVariable(self, startTimeFileIndex, endTimeFileIndex):
-        """
-        @param startTimeFileIndex 
-        """
-        firstTime = True
-        rng = range(startTimeFileIndex, endTimeFileIndex)
-        for i in rng:
-            var = self.fvs[i][:]
-
-            if firstTime:
-                new = var
-                firstTime = False
-            else:
-                tmp = concatenate((new, var))
-                new = tmp
-
-        return new
-
 class TimeFileVariable:
     def __init__(self, HostObj, varName):
         """
@@ -187,78 +169,6 @@ class TimeFileVariable:
         @param gridIndex gridIndex
         """
         return self.vars[gridIndex]
-        
-class TimeTransientVariable:
-    def __init__(self, HostObj, varName, **slicekwargs):
-        """
-        Constructor
-        @param HostObj host object 
-        @param varName variable name
-        @param slicekwargs eg lon=(-180,180), lat=(-90,90), time=5
-                           cf Packages/cdms2/Lib/cudsinterface.py for 
-                           a list of keywords
-        """
-        
-#        TimeVariable(self, HostObj, varName)
-        self.id = varName
-        self.vars = []
-
-        gridFilenames = HostObj.getGridFilenames()
-
-        kwargs = {}
-        for k in slicekwargs.keys():
-            kwargs[k.lower()] = slicekwargs[k]
-
-        # time dependent variable. Create a list of list. One list for each
-        # grid populated by a list for each time file.
-        if ('time' in kwargs.keys() and len(slicekwargs) <= 1) or \
-                len(slicekwargs) == 0:
-            for gridIndex in range(HostObj.nGrids):
-
-                gFName = gridFilenames[gridIndex]
-
-                for timeFileIndex in range(HostObj.nTimeDataFiles):
-
-                    fName = HostObj.timeDepVars[varName][gridIndex][timeFileIndex]
-                    fh = cdms2.open(fName, HostObj=HostObj)
-
-                    # TransientVariable
-                    var = fh(varName, **slicekwargs)
-
-                    # Attach the grid to the variable
-                    grid = cdms2.gsStaticVariable.createTransientGrid(gFName, \
-                                         var.attributes['coordinates'])
-                    axis0 = var.getAxis(0)
-                    gridaxes = grid.getAxisList()
-                    axes = [axis0] + list(gridaxes)
-                    atts = dict(var.attributes)
-                    atts.update(fh.attributes)
-
-                    # Create cdms2 transient variable
-                    if timeFileIndex == 0:
-                        new = cdms2.createVariable(var, 
-                                axes = axes, 
-                                grid = grid, 
-                                attributes = atts, 
-                                id = var.standard_name)
-                    else:
-                        tmp = concatenate((new, var))
-                        axis0 = tmp.getAxis(0)
-                        gridaxes = grid.getAxisList()
-                        axes = [axis0, gridaxes[0], gridaxes[1]]
-#                        new.append(tmp)
-                        new = cdms2.createVariable(tmp, 
-                                axes = axes, 
-                                grid = grid, 
-                                attributes = atts, 
-                                id = var.standard_name)
-                    fh.close()
-
-                # Add the variable to the index
-                self.vars.append(new)
-
-        self._repr_string = "TimeTransientVariable"
-
 
 ###################################################################
 
