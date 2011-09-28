@@ -149,6 +149,55 @@ class StaticVariable:
             return self.vars[0].typecode()
         return None
 
+class StaticTransientVariable(StaticVariable):
+    """
+    Static variable extending over multiple grid files
+    """
+    def __init__(self, HostObj, varName):
+        """
+        Constructor
+        @param HostObj host object
+        @param varName variable name
+        """
+
+        # Inititialize the variable
+        StaticVariable(self, HostObj, varName)
+        gridFilenames = HostObj.getGridFilenames()
+
+        for gridIndex in range(self.nGrids):
+
+            # name of the file containing the data on tile gridIndex
+            fName = HostObj.statVars[varName][gridIndex]
+
+            # name of the file containing coordinate data
+            gFName = gridFilenames[gridIndex]
+
+            fh = cdms2.open(fName, HostObj = HostObj)
+            gh = cdms2.open(gFName)
+
+            vr = fh(varName)
+            vr.gridIndex    = gridIndex
+
+            grid = None
+            if 'coordinates' in vr.attributes.keys():
+                grid = createTransientGrid(gFName, vr.attributes['coordinates'])
+            atts = dict(vr.attributes)
+            atts.update(gh.attributes)
+            if libcf.CF_GRIDNAME in fh.attributes.keys():
+                atts[libcf.CF_GRIDNAME] = getattr(fh, libcf.CF_GRIDNAME)
+
+            # Create the variable
+            if grid:
+                var = cdms2.createVariable(vr, 
+                                axes = grid.getAxisList(), 
+                                grid = grid, 
+                                attributes = atts, 
+                                id = vr.standard_name)
+            else: 
+                var = vr
+            self.vars[gridIndex] = var
+        self._repr_string = "StaticTransientVariable"
+
 class StaticFileVariable(StaticVariable):
     """
     Static variable extending over multiple grid files
