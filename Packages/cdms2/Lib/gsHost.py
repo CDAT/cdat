@@ -53,6 +53,7 @@ class Host:
 
         self.__initialize()
         self.uri = hostfile
+        self.mode = mode
         
         # Data dir based on location of hostfile
         if mode != 'r':
@@ -434,19 +435,9 @@ class Host:
 
     def __getitem__(self, varName):
         """
-
-        The returned variable is a list of cdms2.fileVariables
-        Equivalent to self[varName]
-        @varName variable name
-        @return aggregated File variable
-
-        NOTE:
-        Currently returns a transient variable. File variable needs still to
-        be implemented
-        example: f = filename
-                 h = cdms2.open)
-                 h.listvariables()
-                 v = h['varname']
+        Get a variable by name
+        @param varName variable name
+        @return list of cdms2 file variables, one for each grid
         """
         # Static variables
         if self.statVars.has_key(varName):
@@ -457,6 +448,23 @@ class Host:
         elif self.timeVars.has_key(varName):
             timeVariables = TimeFileVariable(self, varName)
             return timeVariables
+
+    def getVariable(self, varName):
+        """
+        Get a variable by name
+        @param varName variable name
+        @return list of cdms2 file variables, one for each grid
+        """
+        return self[varName]
+
+    def getVariables(self):
+        """
+        Get all variables
+        @return list of file variables
+        """
+        statVars = [self[vn] for vn in self.statVars]
+        timeVars = [self[vn] for vn in self.timeVars]
+        return statVars + timeVars
     
 ##############################################################################
 
