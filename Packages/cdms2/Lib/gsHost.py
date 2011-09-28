@@ -295,7 +295,7 @@ class Host:
         """
         Given a grid Index return the coordinates of that grid
         @param gindx Grid index
-        @return coordinates list of coordinates
+        @return list of coordinate names
         """
         return self.gridVars.keys()
     
