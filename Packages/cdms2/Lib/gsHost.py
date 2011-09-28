@@ -9,23 +9,20 @@ This code is provided with the hope that it will be useful.
 No guarantee is provided whatsoever. Use at your own risk.
 """
 
-import os.path
 from ctypes import c_char_p, c_int, CDLL, byref
 import cdms2
 from cdms2.error import CDMSError
-from cdms2.avariable import AbstractVariable
-from cdms2.tvariable import TransientVariable
-from cdms2.cdmsobj import CdmsObj
-from cdms2.gsStaticVariable import StaticTransientVariable, StaticFileVariable
-from cdms2.gsTimeVariable import TimeTransientVariable, TimeFileVariable
+from cdms2.gsStaticVariable import StaticFileVariable
+from cdms2.gsTimeVariable import TimeFileVariable
 
+LIBCF = 'libcf'
 try:
     from pycf import libCFConfig, __path__
-except:
-#    raise ImportError, 'Error: could not import pycf'
-    pass
+    LIBCF = __path__[0] + '/libcf'
 
-LIBCF = __path__[0] + '/libcf'
+except:
+    # raise ImportError, 'Error: could not import pycf'
+    print 'Error: could not import pycf'
 
 def open(hostfile, mode = 'r'):
     """
@@ -115,13 +112,15 @@ class Host:
         fName_ct = c_char_p(" " * (libCFConfig.NC_MAX_NAME+1))
         gName_ct = c_char_p(" " * (libCFConfig.NC_MAX_NAME+1))
 
-        self.dimensions = {"nGrids": self.nGrids, "nStatDataFiles": self.nStatDataFiles, \
-                           "nTimeDataFiles": self.nTimeDataFiles, \
+        self.dimensions = {"nGrids": self.nGrids, 
+                           "nStatDataFiles": self.nStatDataFiles,
+                           "nTimeDataFiles": self.nTimeDataFiles,
                            "nTimeSliceFiles":self.nTimeSliceFiles }
 
         # Mosaic filename (use getMosaic to return the connectivity)
         mosaicFilename = c_char_p(" " * (libCFConfig.NC_MAX_NAME + 1))
-        status = libcfdll.nccf_inq_host_mosaicfilename(self.hostId_ct, mosaicFilename)
+        status = libcfdll.nccf_inq_host_mosaicfilename(self.hostId_ct, 
+                                                       mosaicFilename)
         self.mosaicFilename = mosaicFilename.value
 
         # Filenames
@@ -173,12 +172,14 @@ class Host:
                     # Add coordinate names a local list of coordinates
                     if 'coordinates' in dir(f[vn]):
                         for coord in f[vn].coordinates.split():
-                            if not coord in coordinates: coordinates.append(coord)
+                            if not coord in coordinates: 
+                                coordinates.append(coord)
                     for vn in varNames:
                         if not self.timeDepVars.has_key(vn):
                             # allocate
-                            self.timeDepVars[vn] = [["" for it in range(self.nTimeSliceFiles)] \
-                                                        for ig in range(self.nGrids)]
+                            self.timeDepVars[vn] = \
+                                [["" for it in range(self.nTimeSliceFiles)] \
+                                     for ig in range(self.nGrids)]
                         # set file name
                         self.timeDepVars[vn][gfindx][tfindx] = fName_ct.value
                     f.close()
@@ -347,7 +348,7 @@ class Host:
 
         # Raise error
         else:
-            text = "type must be  \"Static\",\"Time\",\"TimeDep\", None or empty"
+            text = 'type must be "Static", "Time", "TimeDep", None or empty'
             raise CDMSError, text
 
     def listvariables(self, type = None):
@@ -449,7 +450,7 @@ class Host:
         """
         # Static variables
         if self.statVars.has_key(varName):
-            staticFV= StaticFileVariable(self, varName)
+            staticFV = StaticFileVariable(self, varName)
             return staticFV
 
         # Time variables
@@ -472,7 +473,8 @@ def test():
 
     options, args = parser.parse_args()
     if not options.hostFilename:
-        print "need to provide a host file, use -h to get a full list of options"
+        print """need to provide a host file, use -h 
+to get a full list of options"""
         sys.exit(1)
 
     print 'open file..., create grdspec file object...'
@@ -503,8 +505,10 @@ def test():
     # Test the mosaic
     print 'getMosaic...', 'getMosaic' in dir(gf)
     mosaic = gf.getMosaic()
-    for c in mosaic.coordinate_names: print c
-    for t in mosaic.tile_contacts: print "%s -> %s" % (t, mosaic.tile_contacts[t])
+    for c in mosaic.coordinate_names: 
+        print c
+    for t in mosaic.tile_contacts: 
+        print "%s -> %s" % (t, mosaic.tile_contacts[t])
 
 ##############################################################################
 
