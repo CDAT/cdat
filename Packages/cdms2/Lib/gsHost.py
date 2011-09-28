@@ -175,13 +175,13 @@ class Host:
                             if not coord in coordinates: 
                                 coordinates.append(coord)
                     for vn in varNames:
-                        if not self.timeDepVars.has_key(vn):
+                        if not self.timeVars.has_key(vn):
                             # allocate
-                            self.timeDepVars[vn] = \
+                            self.timeVars[vn] = \
                                 [["" for it in range(self.nTimeSliceFiles)] \
                                      for ig in range(self.nGrids)]
                         # set file name
-                        self.timeDepVars[vn][gfindx][tfindx] = fName_ct.value
+                        self.timeVars[vn][gfindx][tfindx] = fName_ct.value
                     f.close()
 
         # Grid names and data
@@ -234,7 +234,7 @@ class Host:
 
         # {'varName': fileNames}
         # fileNames is array of ntimes x ngrid
-        self.timeDepVars = {}
+        self.timeVars = {}
 
         # {'varName': fileNames}
         # fileNames is array of ngrid
@@ -293,9 +293,9 @@ class Host:
         @param varName Return filename for input variable name only
         """
         if varName is not None:
-            return self.timeDepVars[varName]
+            return self.timeVars[varName]
         # return all the time var filenames
-        return self.timeDepVars.values()
+        return self.timeVars.values()
 
     def getCoordinates(self, gindx):
         """
@@ -336,19 +336,19 @@ class Host:
         isStr = isinstance(gstype, str)
 
         if isNone:
-            variables = self.statVars.keys() + self.timeDepVars.keys()
+            variables = self.statVars.keys() + self.timeVars.keys()
             return variables
 
         elif isStr:
             if gstype.upper() == "STATIC":
                 return self.statVars.keys()
-            if gstype.upper() == "TIME" or gstype.upper() == "TIMEDEP":
-                return self.timeDepVars.keys()
+            if gstype[0:4].upper() == "TIME":
+                return self.timeVars.keys()
             return None
 
         # Raise error
         else:
-            text = 'type must be "Static", "Time", "TimeDep", None or empty'
+            text = 'type must be "Static", "Time", None or empty'
             raise CDMSError, text
 
     def listvariables(self, type = None):
@@ -368,8 +368,8 @@ class Host:
         fName = ""
         if self.statVars.has_key(varName):
             fName = self.statVars[varName][0]
-        elif self.timeDepVars.has_key(varName):
-            fName = self.timeDepVars[varName][0][0]
+        elif self.timeVars.has_key(varName):
+            fName = self.timeVars[varName][0][0]
         if fName:
             var = cdms2.open(fName, 'r')(varName)
             return var.listattributes()
@@ -454,7 +454,7 @@ class Host:
             return staticFV
 
         # Time variables
-        elif self.timeDepVars.has_key(varName):
+        elif self.timeVars.has_key(varName):
             timeVariables = TimeFileVariable(self, varName)
             return timeVariables
     
