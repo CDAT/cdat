@@ -241,9 +241,6 @@ class Host:
         # fileNames is array of ngrid
         self.statVars = {}
 
-        # {coordName: gridFiles}
-        self.coords = {}
-
         # global attributes
         self.attributes = {}   
 
