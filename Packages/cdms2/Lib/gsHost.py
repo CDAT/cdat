@@ -2,7 +2,7 @@
 
 """
 A file-like object to access a host file, the single entry point
-to an entire data file layout.
+to an entire gridspec data file layout.
 
 Dave Kindig and Alex Pletzer, Tech-X (2011)
 This code is provided with the hope that it will be useful. 
@@ -463,6 +463,14 @@ class Host:
         statVars = [self[vn] for vn in self.statVars]
         timeVars = [self[vn] for vn in self.timeVars]
         return statVars + timeVars
+
+    def getattribute(self, name):
+        """
+        Get the global attribute value by name
+        @param name attribute name
+        @return value
+        """
+        return self.attributes[name]
     
 ##############################################################################
 
