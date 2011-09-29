@@ -755,27 +755,50 @@ def readScripCurveGrid(fileobj, dims, whichType, whichGrid):
     import string
     from coord import TransientAxis2D
 
-    if whichType=="grid":
-        gridCornerLatName = 'grid_corner_lat'
-        gridCornerLonName = 'grid_corner_lon'
-        gridMaskName = 'grid_imask'
-        gridCenterLatName = 'grid_center_lat'
-        gridCenterLonName = 'grid_center_lon'
-        titleName = 'title'
-    elif whichGrid=="destination":
-        gridCornerLatName = 'dst_grid_corner_lat'
-        gridCornerLonName = 'dst_grid_corner_lon'
-        gridMaskName = 'dst_grid_imask'
-        gridCenterLatName = 'dst_grid_center_lat'
-        gridCenterLonName = 'dst_grid_center_lon'
-        titleName = 'dest_grid'
+    if 'S' in fileobj.variables.keys():
+        if whichType=="grid":
+            gridCornerLatName = 'grid_corner_lat'
+            gridCornerLonName = 'grid_corner_lon'
+            gridMaskName = 'grid_imask'
+            gridCenterLatName = 'grid_center_lat'
+            gridCenterLonName = 'grid_center_lon'
+            titleName = 'title'
+        elif whichGrid=="destination":
+            gridCornerLatName = 'yv_b'
+            gridCornerLonName = 'xv_b'
+            gridMaskName = 'mask_b'
+            gridCenterLatName = 'yc_b'
+            gridCenterLonName = 'xc_b'
+            titleName = 'dest_grid'
+        else:
+            gridCornerLatName = 'yv_a'
+            gridCornerLonName = 'xv_a'
+            gridMaskName = 'mask_a'
+            gridCenterLatName = 'yc_a'
+            gridCenterLonName = 'xc_a'
+            titleName = 'source_grid'
     else:
-        gridCornerLatName = 'src_grid_corner_lat'
-        gridCornerLonName = 'src_grid_corner_lon'
-        gridMaskName = 'src_grid_imask'
-        gridCenterLatName = 'src_grid_center_lat'
-        gridCenterLonName = 'src_grid_center_lon'
-        titleName = 'source_grid'
+        if whichType=="grid":
+            gridCornerLatName = 'grid_corner_lat'
+            gridCornerLonName = 'grid_corner_lon'
+            gridMaskName = 'grid_imask'
+            gridCenterLatName = 'grid_center_lat'
+            gridCenterLonName = 'grid_center_lon'
+            titleName = 'title'
+        elif whichGrid=="destination":
+            gridCornerLatName = 'dst_grid_corner_lat'
+            gridCornerLonName = 'dst_grid_corner_lon'
+            gridMaskName = 'dst_grid_imask'
+            gridCenterLatName = 'dst_grid_center_lat'
+            gridCenterLonName = 'dst_grid_center_lon'
+            titleName = 'dest_grid'
+        else:
+            gridCornerLatName = 'src_grid_corner_lat'
+            gridCornerLonName = 'src_grid_corner_lon'
+            gridMaskName = 'src_grid_imask'
+            gridCenterLatName = 'src_grid_center_lat'
+            gridCenterLonName = 'src_grid_center_lon'
+            titleName = 'source_grid'
 
     vardict = fileobj.variables
     cornerLat = fileobj(gridCornerLatName)

@@ -160,9 +160,7 @@ class WeightedGridMaker(object):
         self.latitude.type=grid_type
         if isinstance(source,cdms2.grid.AbstractGrid):
             self.grid=source
-            self.file=None
         elif type(source) == types.StringType:
-            self.grid=None
             self.file=source
         else:
             self.grid=None

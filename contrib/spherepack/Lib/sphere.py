@@ -776,7 +776,7 @@ class Sphere:
 
         wsha, lsha = gridComp.shai(nlat, nlon)
 
-        as, bs = gridComp.sha(nlat, nlon, nt, lsha, wsha, sf)
+        as_, bs = gridComp.sha(nlat, nlon, nt, lsha, wsha, sf)
 
         wsha, lsha = gridComp.shai(nlat, nlon)
 
@@ -786,7 +786,7 @@ class Sphere:
 
         wvhs, lvhs = gridComp.vhsi(nlat, nlon)
 
-        u, v = gridComp.isfvp(nlat, nlon, nt, as, bs, av, bv, lvhs, wvhs)
+        u, v = gridComp.isfvp(nlat, nlon, nt, as_, bs, av, bv, lvhs, wvhs)
 
         u, v = mathtogeo(reverseLatitude, standardShape, inverseOrder, u, v)
 
@@ -1812,13 +1812,13 @@ class Wrapec:
 
         return sf 
 
-    def isfvp(self, nlat, nlon, nt, as, bs, av, bv, lvhsec, wvhsec):
+    def isfvp(self, nlat, nlon, nt, as_, bs, av, bv, lvhsec, wvhsec):
         #-----------------------------------------------------------------------------
         #                                      
         #     purpose: computes a vector function with a given stream function and
         #              velocity potential on a equally spaced grid
         #
-        #     usage:   u, v = x.isfvp(nlat, nlon, nt, as, bs, av, bv, wvhsec, lvhsec)
+        #     usage:   u, v = x.isfvp(nlat, nlon, nt, as_, bs, av, bv, wvhsec, lvhsec)
         #
         #-----------------------------------------------------------------------------
 
@@ -1849,7 +1849,7 @@ class Wrapec:
 
         work = numpy.zeros((lwork,),'f')
         v, w, ierror = spherepack.isfvpec(nlat, nlon, isym, idv, jdv,
-                                          numpy.transpose(as),
+                                          numpy.transpose(as_),
                                           numpy.transpose(bs),
                                           numpy.transpose(av),
                                           numpy.transpose(bv),
@@ -3167,13 +3167,13 @@ class Wrapgc:
 
         return sf 
 
-    def isfvp(self, nlat, nlon, nt, as, bs, av, bv, lvhsgc, wvhsgc):
+    def isfvp(self, nlat, nlon, nt, as_, bs, av, bv, lvhsgc, wvhsgc):
         #-----------------------------------------------------------------------------
         #                                      
         #     purpose: computes a vector function with a given stream function and
         #              velocity potential on a gaussian grid
         #
-        #     usage:   u, v = g.isfvp(nlat, nlon, nt, as, bs, av, bv, wvhsgc, lvhsgc)
+        #     usage:   u, v = g.isfvp(nlat, nlon, nt, as_, bs, av, bv, wvhsgc, lvhsgc)
         #
         #-----------------------------------------------------------------------------
 
@@ -3199,7 +3199,7 @@ class Wrapgc:
 
         work = numpy.zeros((lwork,),'f')
         v, w, ierror = spherepack.isfvpgc(nlat, nlon, isym, idv, jdv, 
-                                          numpy.transpose(as),
+                                          numpy.transpose(as_),
                                           numpy.transpose(bs),
                                           numpy.transpose(av),
                                           numpy.transpose(bv),
@@ -4513,13 +4513,13 @@ class Wrapes:
 
         return sf 
 
-    def isfvp(self, nlat, nlon, nt, as, bs, av, bv, lvhses, wvhses):
+    def isfvp(self, nlat, nlon, nt, as_, bs, av, bv, lvhses, wvhses):
         #-----------------------------------------------------------------------------
         #                                      
         #     purpose: computes a vector function with a given stream function and
         #              velocity potential on a equally spaced grid
         #
-        #     usage:   u, v = x.isfvp(nlat, nlon, nt, as, bs, av, bv, wvhses, lvhses)
+        #     usage:   u, v = x.isfvp(nlat, nlon, nt, as_, bs, av, bv, wvhses, lvhses)
         #
         #-----------------------------------------------------------------------------
 
@@ -4542,7 +4542,7 @@ class Wrapes:
 
         work = numpy.zeros((lwork,),'f')
         v, w, ierror = spherepack.isfvpes(nlat, nlon, isym, idv, jdv,
-                                          numpy.transpose(as),
+                                          numpy.transpose(as_),
                                           numpy.transpose(bis),
                                           numpy.transpose(av),
                                           numpy.transpose(bv),
@@ -5878,13 +5878,13 @@ class Wrapgs:
 
         return sf 
 
-    def isfvp(self, nlat, nlon, nt, as, bs, av, bv, lvhsgs, wvhsgs):
+    def isfvp(self, nlat, nlon, nt, as_, bs, av, bv, lvhsgs, wvhsgs):
         #-----------------------------------------------------------------------------
         #                                      
         #     purpose: computes a vector function with a given stream function and
         #              velocity potential on a gaussian grid
         #
-        #     usage:   u, v, ierror = g.isfvp(nlat, nlon, nt, as, bs, av, bv, wvhsgs, lvhsgs)
+        #     usage:   u, v, ierror = g.isfvp(nlat, nlon, nt, as_, bs, av, bv, wvhsgs, lvhsgs)
         #
         #-----------------------------------------------------------------------------
 
@@ -5910,7 +5910,7 @@ class Wrapgs:
 
         work = numpy.zeros((lwork,),'f')
         v, w, ierror = spherepack.isfvpgs(nlat, nlon, isym, idv, jdv,
-                                          numpy.transpose(as),
+                                          numpy.transpose(as_),
                                           numpy.transpose(bs),
                                           numpy.transpose(av),
                                           numpy.transpose(bv),

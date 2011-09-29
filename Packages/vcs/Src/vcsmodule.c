@@ -227,6 +227,8 @@ void setup_canvas_globals(PyVCScanvas_Object *self)
 
 	/* DNW and CD removing this as it confuses everything */
         //Wkst[0].id = self->wkst_id;
+	/* CD put it back on for background plots only */
+	if (self->wkst_id==8) Wkst[0].id = 8;
 }
 
 /* Called when Python is exited or the object name is reused. Deallocates
@@ -701,7 +703,9 @@ PyVCS_open(PyVCScanvas_Object *self, PyObject *args)
 
 	/* Set the proper VCS Canvas */
 	/* DNW and CD took that out it was confusing the XGKS when opening multiple ws */
-	//	Wkst[0].id = self->wkst_id;
+	/*	Wkst[0].id = self->wkst_id; */
+	/* CD put it back on for background plots only */
+	if (self->wkst_id==8) Wkst[0].id = 8;
 	if (self->virgin==0) {
 	   if (self->vcs_gui != 1)
 #ifdef X11WM
@@ -1512,12 +1516,12 @@ PyVCS_geometry( PyVCScanvas_Object *self, PyObject *args)
 /*           width=0.60*width; */
 /*           height=0.76*width; */
 	  height = 0.568359375 * height;
-	  width = 1.319587628866 * width;
+	  width = 1.3127035830618892 * width;
         } else if (self->orientation == 1) {
 /*           width=0.48*width; */
 /*           height=width/0.76; */
           height=0.7880859375 * height;
-          width=0.76084262701363 * width;
+          width=0.761786600496278 * width;
         }
 	xpos = 2;
 	ypos = y-height-30;
@@ -18903,6 +18907,29 @@ PyVCS_svg(PyVCScanvas_Object *self, PyObject *args)
         Py_INCREF (Py_None);
   	return Py_None;
 }
+/* PNG font won't scale if output dims are not set BEFORE plotting, this function does set them */
+static PyObject *
+PyVCS_setbgoutputdimensions(PyVCScanvas_Object *self, PyObject *args)
+{
+	int W,H;
+	extern int XW ;
+	extern int YW ;
+	/* Check to see if vcs has been initalized */
+	if (self == NULL) {
+           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs.init()).");
+  	   return NULL;
+	}
+	if (!PyArg_ParseTuple(args, "ii", &W,&H)) {
+	   PyErr_SetString(PyExc_TypeError, "Must provide a width and a height");
+	   return NULL;
+	}
+	XW=W;
+	YW=H;
+	/* Return NULL Python Object */
+        Py_INCREF (Py_None);
+  	return Py_None;
+}
+
 /* Charles' attempt at plugging in png output
  */
 static PyObject *
@@ -18910,9 +18937,9 @@ PyVCS_png(PyVCScanvas_Object *self, PyObject *args)
 {
 	char *ps_name, *mode=NULL;
 	int app=0;
-	int W,H;
-	extern int XW ;
-	extern int YW ;
+	/* int W,H; */
+	/* extern int XW ; */
+	/* extern int YW ; */
 	int ier;
 	extern int trimbl();
 	extern int out_meta();
@@ -18933,7 +18960,6 @@ PyVCS_png(PyVCScanvas_Object *self, PyObject *args)
 
 	/* Set up the VCS Canvas and XGKS workstation */
         setup_canvas_globals(self);
-
         /*
          * Make sure the VCS canvas is up and running.
          * If the VCS Canvas is not open, then return.
@@ -18945,8 +18971,8 @@ PyVCS_png(PyVCScanvas_Object *self, PyObject *args)
         }
 #endif
 
-	if (!PyArg_ParseTuple(args, "sii", &ps_name, &W, &H)) {
-	   PyErr_SetString(PyExc_TypeError, "Must provide an output png name and width/height");
+	if (!PyArg_ParseTuple(args, "s", &ps_name)) {
+	   PyErr_SetString(PyExc_TypeError, "Must provide an output png name");
 	   return NULL;
 	}
 
@@ -18956,8 +18982,8 @@ PyVCS_png(PyVCScanvas_Object *self, PyObject *args)
 	   return NULL;
 	}
 
-	XW = W;
-	YW = H;
+	/* XW = W; */
+	/* YW = H; */
 
 	strcpy(meta_type,"png");
 	trimbl(ps_name,256);
@@ -19831,6 +19857,9 @@ PyObject *PyVCS_showbg(PyVCScanvas_Object *self, PyObject *args)
            self->connect_id.canvas_pixmap = (Pixmap) NULL;
        }
        self->connect_id.canvas_pixmap = copy_pixmap(self->connect_id, self->canvas_id);
+#elif defined (QTWM)
+       /* fprintf(stderr,"workstation: %i, %i\n",self->wkst_id,self->connect_id.wkst_id); */
+       vcs_Qt_repaint_window_by_id(self->connect_id.wkst_id);
 #else
        fprintf(stderr,"insert here your WM copy vcs to backing store pixmap\n");
 #endif
@@ -21165,6 +21194,7 @@ static PyMethodDef PyVCScanvas_methods[] =
   {"pdf", (PyCFunction)PyVCS_pdf, 1},
   {"printer", (PyCFunction)PyVCS_printer, 1},
   {"showbg", (PyCFunction)PyVCS_showbg, 1},
+  {"setbgoutputdimensions", (PyCFunction)PyVCS_setbgoutputdimensions, 1},
   {"backing_store", (PyCFunction)PyVCS_backing_store, 1},
   /*{"refreshcanvas", (PyCFunction)PyVCS_refreshcanvas, 1},*/
   /*{"flushcanvas", (PyCFunction)PyVCS_flushcanvas, 1},*/

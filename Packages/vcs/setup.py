@@ -17,7 +17,6 @@ EM="X11"
 QT_PATH_LIB = '/usr/local/Trolltech/Qt-4.6.2/lib'
 QT_PATH_INC = '/usr/local/Trolltech/Qt-4.6.2/include'
 QT_PATH_BIN = '/usr/local/Trolltech/Qt-4.6.2/bin'
-
 USE_FRAMEWORK = False
 
 target_prefix = sys.prefix
@@ -110,59 +109,63 @@ t = os.popen('uname')
 uname = t.read()[:-1]
 t.close()
 
+pkgconfig = os.path.join(externals,'bin','pkg-config')
+if not os.path.exists(pkgconfig):
+    pkgconfig="pkg-config"
+    
 freetypelibdir = [ os.path.join(externals,'lib'), ]
 freetypeincdir = [ os.path.join(externals,'include')]
-freetypelibdir = os.popen("pkg-config --libs-only-L freetype2").read().strip().split("-L")[1:]
+freetypelibdir = os.popen("%s --libs-only-L freetype2" % pkgconfig).read().strip().split("-L")[1:]
 c=[]
 for e in freetypelibdir:
     c.append(e.strip())
 freetypelibdir=c
 c=[]
-freetypeincdir = os.popen("pkg-config --cflags-only-I freetype2").read().strip().split("-I")[1:]
+freetypeincdir = os.popen("%s --cflags-only-I freetype2" % pkgconfig).read().strip().split("-I")[1:]
 for e in freetypeincdir:
     c.append(e.strip())
 freetypeincdir=c
 # Platform-specific modifications
 # added freetype for output of fonts
 c=[]
-freetype_libs = os.popen("pkg-config --libs-only-l freetype2").read().strip().split("-l")[1:]
+freetype_libs = os.popen("%s --libs-only-l freetype2" % pkgconfig).read().strip().split("-l")[1:]
 for e in freetype_libs:
     c.append(e.strip())
 freetype_libs=c
 
 c=[]
-cairolibdir = os.popen("pkg-config --libs-only-L cairo").read().strip().split("-L")[1:]
+cairolibdir = os.popen("%s --libs-only-L cairo" % pkgconfig).read().strip().split("-L")[1:]
 c=[]
 for e in cairolibdir:
     c.append(e.strip())
 cairolibdir=c
 c=[]
-cairoincdir = os.popen("pkg-config --cflags-only-I cairo").read().strip().split("-I")[1:]
+cairoincdir = os.popen("%s --cflags-only-I cairo" % pkgconfig).read().strip().split("-I")[1:]
 for e in cairoincdir:
     c.append(e.strip())
 cairoincdir=c
 # Platform-specific modifications
 # added freetype for output of fonts
 c=[]
-cairo_libs = os.popen("pkg-config --libs-only-l cairo").read().strip().split("-l")[1:]
+cairo_libs = os.popen("%s --libs-only-l cairo" % pkgconfig).read().strip().split("-l")[1:]
 for e in cairo_libs:
     c.append(e.strip())
 cairo_libs=c
 
 c=[]
-xml2libdir = os.popen("pkg-config --libs-only-L xml2").read().strip().split("-L")[1:]
+xml2libdir = os.popen("%s --libs-only-L xml2" % pkgconfig).read().strip().split("-L")[1:]
 for e in xml2libdir:
     c.append(e.strip())
 xml2libdir=c
 c=[]
-xml2incdir = os.popen("pkg-config --cflags-only-I xml2").read().strip().split("-I")[1:]
+xml2incdir = os.popen("%s --cflags-only-I xml2" % pkgconfig).read().strip().split("-I")[1:]
 for e in xml2incdir:
     c.append(e.strip())
 xml2incdir=c
 c=[]
 # Platform-specific modifications
 # added freetype for output of fonts
-xml2_libs = os.popen("pkg-config --libs-only-l xml2").read().strip().split("-l")[1:]
+xml2_libs = os.popen("%s --libs-only-l xml2" % pkgconfig).read().strip().split("-l")[1:]
 for e in xml2_libs:
     c.append(e.strip())
 xml2_libs=c
@@ -170,6 +173,7 @@ xml2_libs=c
 vcs_extra_compile_args = []
 # ??? Add code to detect Qt and locaton here
 if WM=="QT" or EM=="QT":
+    print "QT PATH:",QT_PATH_INC,QT_PATH_LIB
     QT_SOURCES=""" main.cpp mainwindow.cpp moc_mainwindow.cpp qti.cpp """
     qtsourcelist=QT_SOURCES.split()
     vcsbase_qt = os.path.join(here, 'Src','Qt')
@@ -370,10 +374,12 @@ if cdat_info.CDMS_INCLUDE_HDF == "yes":
 # If this effects other platforms put in sys.plotform for Darwin only.        #
 #                                                                             #
 ###############################################################################
+dovcs = True # turn this to off to do simply the sip part
 try:
    from distutils import sysconfig
-   vcs_so = '%s/vcs/_vcs.so' % sysconfig.get_python_lib()
-   os.remove(vcs_so)
+   if dovcs:
+    vcs_so = '%s/vcs/_vcs.so' % sysconfig.get_python_lib()
+    os.remove(vcs_so)
    sysconfig.get_config_vars('OPT')
    cflg= sysconfig._config_vars['OPT'].split()
    cflg2=[]
@@ -390,8 +396,8 @@ except:
 
 ## Testing extra args for Vistrails
 
-
-setup (name = "vcs",
+if dovcs:
+ setup (name = "vcs",
        version=cdat_info.Version,
        description = "Visualization and Control System",
        url = "http://www-pcmdi.llnl.gov/software",
@@ -409,6 +415,7 @@ setup (name = "vcs",
     
                       ]
        )
+
 #raw_input("ok first one done")
 print 'slabapi done'
 try:
@@ -435,8 +442,8 @@ f.close()
 
 ## Testing extra args for Vistrails
 
-
-setup (name = "vcs",
+if dovcs:
+ setup (name = "vcs",
        version=cdat_info.Version,
        description = "Visualization and Control System",
        url = "http://www-pcmdi.llnl.gov/software",
@@ -464,8 +471,15 @@ setup (name = "vcs",
 
 # Vistrails will need these includes later, let's copy them.
 import shutil
-shutil.rmtree("%s/vcs/Include" % sysconfig.get_python_lib(),ignore_errors=True)
-shutil.copytree("Include", "%s/vcs/Include" % sysconfig.get_python_lib())
+ptho = sysconfig.get_python_lib()
+try:
+ shutil.rmtree("%s/vcs/Include" % ptho,ignore_errors=True)
+ shutil.copytree("Include", "%s/vcs/Include" % ptho)
+except:
+ ptho=target_prefix+"/lib/python2.7/site-packages/"
+ shutil.rmtree("%s/vcs/Include" % ptho,ignore_errors=True)
+ shutil.copytree("Include", "%s/vcs/Include" % ptho)
+
 print 'Copied the include files to: %s/vcs/Include' % sysconfig.get_python_lib()
 
 if (WM=="QT" or EM=="QT") and sys.platform in ['darwin']:
@@ -516,7 +530,7 @@ if (WM=='QT' or EM=='QT'):
     ## vcs_so = '/Users/hvo/src/uvcdat/cdatBuild/lib/python2.7/site-packages/vcs/_vcs.so'
     ## vcs_inc = '/Users/hvo/src/uvcdat/cdat/Packages/vcs/Include'
 
-
+    print "so is at:",vcs_so,vcs_inc
     # The name of the SIP build file generated by SIP and used by the build
     # system.
     build_file = "pyqtscripting.sbf"
@@ -568,6 +582,7 @@ if (WM=='QT' or EM=='QT'):
 
     cwd = os.getcwd()
     makefile.LFLAGS.append("-Wl,-rpath,%s/cdatwrap" % cwd)
+    makefile.LFLAGS.append("%s" % vcs_so)
 
     # Generate the Makefile itself.
     makefile.generate()

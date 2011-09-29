@@ -1,15 +1,12 @@
 
 if(NOT APPLE)
   set(ENV{@LIBRARY_PATH@} "@CMAKE_INSTALL_PREFIX@/lib:@cdat_EXTERNALS@/lib:$ENV{@LIBRARY_PATH@}")
-  set(ENV{CFLAGS} "@cdat_osx_flags@ -I@cdat_EXTERNALS@/include @ADDITIONAL_CFLAGS@")
-  set(ENV{CPPFLAGS} "@cdat_osx_flags@ -I@cdat_EXTERNALS@/include @ADDITIONAL_CPPFLAGS@")
-  set(ENV{CXXFLAGS} "@cdat_osx_flags@ -I@cdat_EXTERNALS@/include @ADDITIONAL_CXXFLAGS@")
 endif()
 
-#set(ENV{LDFLAGS} "-L@cdat_EXTERNALS@/lib @cdat_external_link_directories@ @cdat_osx_ld_flags@")
-
+set(ENV{CPPFLAGS} "-I@cdat_EXTERNALS@/include @ADDITIONAL_CPPFLAGS@")
+set(ENV{CXXFLAGS} "-I@cdat_EXTERNALS@/include @ADDITIONAL_CXXFLAGS@")  
+set(ENV{CFLAGS} "-w -I@cdat_EXTERNALS@/include @ADDITIONAL_CFLAGS@")
 set(ENV{LOCNCCONFIG} "@cdat_EXTERNALS@/bin/nc-config")
-
 set(ENV{EXTERNALS} "@cdat_EXTERNALS@")
 
 if(APPLE)

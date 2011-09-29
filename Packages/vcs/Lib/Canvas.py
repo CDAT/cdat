@@ -26,7 +26,7 @@
 Normally, created by vcs.init()
 Contains the method plot.
 """
-import _vcs, string, types, signal
+import _vcs, string, types, signal, warnings
 import tempfile
 #import Tkinter
 from pauser import pause
@@ -1262,6 +1262,8 @@ class Canvas(object,AutoAPI.AutoAPI):
                 name = '__%s_%i' % (type[:4],rnd)
         if not isinstance(name,str):
             raise vcsError, '%s object name must be a string or %s name' % (type,type)
+        elif len(name)>16:
+                raise vcsError,'%s object name must be at most 16 character long' % (type)
 
         if not isinstance(source,str):
             exec("ok = vcs.is%s(source)" % (type,))
@@ -1730,103 +1732,125 @@ Options:::
         return meshfill.Gfm(self, Gfm_name, Gfm_name_src, 1)
 
    
+
+    def prettifyAxisLabels(self,ticks,axis):
+        for k in ticks.keys():
+            if len(ticks[k])==0:
+                continue
+            if axis=="longitude":
+                if k<0:
+                    ticks[k]=ticks[k][1:]+"W"
+                elif k>0:
+                    ticks[k]=ticks[k]+"E"
+            elif axis=="latitude":
+                if k<0:
+                    ticks[k]=ticks[k][1:]+"S"
+                elif k>0:
+                    ticks[k]=ticks[k]+"N"
+                else:
+                    ticks[0]="Eq"
+        return ticks
     
-##     def setTicksandLabels(self,gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2):
-##         """ Sets the labels and ticks for a graphics method made in python
-##         Usage setTicksandLabels(gm)
-##         """
-##         # Now the template stuff
-##         # first create the dictionary to remember which ones are changed
-##         dic={}
-##         for i in ('xticlabels1','xmtics1','xticlabels2','xmtics2','yticlabels1','ymtics1','yticlabels2','ymtics2'):
-##             dic[i]=0
-##         #xticklabels1
-##         if gm.xticlabels1 is None or gm.xticlabels1=='*':
-##             ticks=vcs.mkscale(datawc_x1,datawc_x2)
-##             ticks=vcs.mklabels(ticks)
-##             for k in ticks.keys() : # make sure you're in the range
-##                 if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
-##                     del(ticks[k])
-##             setattr(gm,'xticlabels1',ticks)
-##             dic['xticlabels1']=1
-##         #xmtics1
-##         if gm.xmtics1 is None or gm.xmtics1=='*':
-##             ticks=vcs.mkscale(datawc_x1,datawc_x2)
-##             tick2=[]
-##             for i in range(len(ticks)-1):
-##                 tick2.append((ticks[i]+ticks[i+1])/2.)
-##             ticks=vcs.mklabels(tick2)
-##             for k in ticks.keys() : # make sure you're in the range
-##                 if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
-##                     del(ticks[k])
-##             setattr(gm,'xmtics1',ticks)
-##             dic['xmtics1']=1
-##         #xticklabels2
-##         if gm.xticlabels2 is None or gm.xticlabels2=='*':
-##             ticks=vcs.mkscale(datawc_x1,datawc_x2)
-##             ticks=vcs.mklabels(ticks)
-##             for k in ticks.keys():
-##                 ticks[k]=''
-##                 if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
-##                     del(ticks[k])
-##             setattr(gm,'xticlabels2',ticks)
-##             dic['xticlabels2']=1
-##         #xmtics2
-##         if gm.xmtics2 is None or gm.xmtics2=='*':
-##             ticks=vcs.mkscale(datawc_x1,datawc_x2)
-##             tick2=[]
-##             for i in range(len(ticks)-1):
-##                 tick2.append((ticks[i]+ticks[i+1])/2.)
-##             ticks=vcs.mklabels(tick2)
-##             for k in ticks.keys() : # make sure you're in the range
-##                 if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
-##                     del(ticks[k])
-##             setattr(gm,'xmtics2',ticks)
-##             dic['xmtics2']=1
-##         #yticklabels1
-##         if gm.yticlabels1 is None or gm.yticlabels1=='*':
-##             ticks=vcs.mkscale(datawc_y1,datawc_y2)
-##             ticks=vcs.mklabels(ticks)
-##             for k in ticks.keys() : # make sure you're in the range
-##                 if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
-##                     del(ticks[k])
-##             setattr(gm,'yticlabels1',ticks)
-##             dic['yticlabels1']=1
-##         #ymtics1
-##         if gm.ymtics1 is None or gm.ymtics1=='*':
-##             ticks=vcs.mkscale(datawc_y1,datawc_y2)
-##             tick2=[]
-##             for i in range(len(ticks)-1):
-##                 tick2.append((ticks[i]+ticks[i+1])/2.)
-##             ticks=vcs.mklabels(tick2)
-##             for k in ticks.keys() : # make sure you're in the range
-##                 if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
-##                     del(ticks[k])
-##             setattr(gm,'ymtics1',ticks)
-##             dic['ymtics1']=1
-##         #yticklabels2
-##         if gm.yticlabels2 is None or gm.yticlabels2=='*':
-##             ticks=vcs.mkscale(datawc_y1,datawc_y2)
-##             ticks=vcs.mklabels(ticks)
-##             for k in ticks.keys():
-##                 ticks[k]=''
-##                 if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
-##                     del(ticks[k])
-##             setattr(gm,'yticlabels2',ticks)
-##             dic['yticlabels2']=1
-##         #ymtics2
-##         if gm.ymtics2 is None or gm.ymtics2=='*':
-##             ticks=vcs.mkscale(datawc_y1,datawc_y2)
-##             tick2=[]
-##             for i in range(len(ticks)-1):
-##                 tick2.append((ticks[i]+ticks[i+1])/2.)
-##             ticks=vcs.mklabels(tick2)
-##             for k in ticks.keys() : # make sure you're in the range
-##                 if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
-##                     del(ticks[k])
-##             setattr(gm,'ymtics2',ticks)
-##             dic['ymtics2']=1
-##         return dic
+    def setTicksandLabels(self,gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
+        """ Sets the labels and ticks for a graphics method made in python
+        Usage setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None)
+        datawc are world coordinates
+        
+        """
+        if isinstance(gm,vcs.taylor.Gtd):
+            return
+        # Now the template stuff
+        # first create the dictionary to remember which ones are changed
+        dic={}
+        for i in ('xticlabels1','xmtics1','xticlabels2','xmtics2','yticlabels1','ymtics1','yticlabels2','ymtics2'):
+            dic[i]=False
+        #xticklabels1
+        if gm.xticlabels1 is None or gm.xticlabels1=='*':
+            ticks=vcs.mkscale(datawc_x1,datawc_x2)
+            ticks=self.prettifyAxisLabels(vcs.mklabels(ticks),x)
+            ## for k in ticks.keys() : # make sure you're in the range
+            ##     if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
+            ##         del(ticks[k])
+            setattr(gm,'xticlabels1',ticks)
+            dic['xticlabels1']=True
+        #xmtics1
+        if gm.xmtics1 is None or gm.xmtics1=='*':
+            ticks=vcs.mkscale(datawc_x1,datawc_x2)
+            tick2=[]
+            for i in range(len(ticks)-1):
+                tick2.append((ticks[i]+ticks[i+1])/2.)
+            ticks=self.prettifyAxisLabels(vcs.mklabels(tick2),x)
+            ## for k in ticks.keys() : # make sure you're in the range
+            ##     if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
+            ##         del(ticks[k])
+            setattr(gm,'xmtics1',ticks)
+            dic['xmtics1']=True
+        #xticklabels2
+        if  hasattr(gm,"xticlabels2") and (gm.xticlabels2 is None or gm.xticlabels2=='*'):
+            ticks=vcs.mkscale(datawc_x1,datawc_x2)
+            ticks=self.prettifyAxisLabels(vcs.mklabels(ticks),x)
+            ## for k in ticks.keys():
+            ##     ticks[k]=''
+            ##     if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
+            ##         del(ticks[k])
+            setattr(gm,'xticlabels2',ticks)
+            dic['xticlabels2']=True
+        #xmtics2
+        if hasattr(gm,"xmtics2") and (gm.xmtics2 is None or gm.xmtics2=='*'):
+            ticks=vcs.mkscale(datawc_x1,datawc_x2)
+            tick2=[]
+            for i in range(len(ticks)-1):
+                tick2.append((ticks[i]+ticks[i+1])/2.)
+            ticks=self.prettifyAxisLabels(vcs.mklabels(tick2),x)
+            ## for k in ticks.keys() : # make sure you're in the range
+            ##     if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
+            ##         del(ticks[k])
+            setattr(gm,'xmtics2',ticks)
+            dic['xmtics2']=True
+        #yticklabels1
+        if gm.yticlabels1 is None or gm.yticlabels1=='*':
+            ticks=vcs.mkscale(datawc_y1,datawc_y2)
+            ticks=self.prettifyAxisLabels(vcs.mklabels(ticks),y)
+            ## for k in ticks.keys() : # make sure you're in the range
+            ##     if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
+            ##         del(ticks[k])
+            setattr(gm,'yticlabels1',ticks)
+            dic['yticlabels1']=True
+        #ymtics1
+        if gm.ymtics1 is None or gm.ymtics1=='*':
+            ticks=vcs.mkscale(datawc_y1,datawc_y2)
+            tick2=[]
+            for i in range(len(ticks)-1):
+                tick2.append((ticks[i]+ticks[i+1])/2.)
+            ticks=self.prettifyAxisLabels(vcs.mklabels(tick2),y)
+            ## for k in ticks.keys() : # make sure you're in the range
+            ##     if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
+            ##         del(ticks[k])
+            setattr(gm,'ymtics1',ticks)
+            dic['ymtics1']=True
+        #yticklabels2
+        if hasattr(gm,"yticlabels2") and (gm.yticlabels2 is None or gm.yticlabels2=='*'):
+            ticks=vcs.mkscale(datawc_y1,datawc_y2)
+            ticks=self.prettifyAxisLabels(vcs.mklabels(ticks),y)
+            ## for k in ticks.keys():
+            ##     ticks[k]=''
+            ##     if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
+            ##         del(ticks[k])
+            setattr(gm,'yticlabels2',ticks)
+            dic['yticlabels2']=True
+        #ymtics2
+        if hasattr(gm,"ymtics2") and (gm.ymtics2 is None or gm.ymtics2=='*'):
+            ticks=vcs.mkscale(datawc_y1,datawc_y2)
+            tick2=[]
+            for i in range(len(ticks)-1):
+                tick2.append((ticks[i]+ticks[i+1])/2.)
+            ticks=self.prettifyAxisLabels(vcs.mklabels(tick2),y)
+            ## for k in ticks.keys() : # make sure you're in the range
+            ##     if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
+            ##         del(ticks[k])
+            setattr(gm,'ymtics2',ticks)
+            dic['ymtics2']=True
+        return dic
         
 
     def meshfill(self,*args, **parms):
@@ -5014,9 +5038,9 @@ Options:::
         wasnone=0
         if copy_mthd is None:
             if arglist[3]!='default':
-                copy_mthd=self.get_gm(arglist[3],arglist[4])
+                copy_mthd=self.generate_gm(arglist[3],arglist[4])
             else:
-                copy_mthd=self.get_gm('boxfill',arglist[4])
+                copy_mthd=self.generate_gm('boxfill',arglist[4])
             wasnone=1
 ##                and (type(copy_mthd.datawc_x1) in [type(cdtime.comptime(1900)),type(cdtime.reltime(0,'days since 1900'))] or \
 ##                type(copy_mthd.datawc_x2) in [type(cdtime.comptime(1900)),type(cdtime.reltime(0,'days since 1900'))]) \
@@ -5246,6 +5270,46 @@ Options:::
                 
         else:
             set_convert_labels(copy_mthd)
+
+        if copy_mthd is None:
+            copy_mthd=self.generate_gm(arglist[3],arglist[4])
+        x=None
+        y=None
+        try:
+            if arglist[0].getAxis(-1).isLongitude():
+                x="longitude"
+            elif arglist[0].getAxis(-1).isLatitude():
+                x="latitude"
+            if copy_mthd.g_name in ["GXy","GXY"]:
+                datawc_x1=MV2.minimum(arglist[0])
+                datawc_x2=MV2.maximum(arglist[0])
+                x=None
+            else:            
+                datawc_x1=arglist[0].getAxis(-1)[0]
+                datawc_x2=arglist[0].getAxis(-1)[-1]
+            if arglist[0].getAxis(-2).isLongitude():
+                y="longitude"
+            elif arglist[0].getAxis(-2).isLatitude():
+                y="latitude"
+            
+            if copy_mthd.g_name in ["GYx",]:
+                datawc_y1=MV2.minimum(arglist[0])
+                datawc_y2=MV2.maximum(arglist[0])
+                y=None
+            elif copy_mthd.g_name in ["GYX",]:
+                datawc_y1=MV2.minimum(arglist[1])
+                datawc_y2=MV2.maximum(arglist[1])
+                y=None
+            else:
+                datawc_y1=arglist[0].getAxis(-2)[0]
+                datawc_y2=arglist[0].getAxis(-2)[-1]
+        except:
+            pass
+        try:
+            dic = self.setTicksandLabels(copy_mthd,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=x,y=y)
+        except:
+            pass
+
         if not copy_mthd is None: arglist[4]=copy_mthd.name
         if not copy_tmpl is None: arglist[2]=copy_tmpl.name
 
@@ -5689,7 +5753,11 @@ Options:::
     a.colormapgui()
     a.colormapgui(max_intensity = 255)
 '''
-        _colormapgui.create(self, gui_parent=gui_parent, transient=transient, max_intensity=max_intensity)
+        
+        import warnings
+        warnings.warn("The colormap gui has been removed from CDAT, you can access it via the UV-CDAT GUI.", Warning)
+        return
+##         _colormapgui.create(self, gui_parent=gui_parent, transient=transient, max_intensity=max_intensity)
 
     #############################################################################
     #                                                                           #
@@ -5710,7 +5778,10 @@ Options:::
     a=vcs.init()
     a.projectiongui()
 '''
-        _projectiongui.create(gui_parent=gui_parent,canvas=self,projection=projection)
+        import warnings
+        warnings.warn("The projection gui has been removed from CDAT, you can access it via the UV-CDAT GUI.", Warning)
+        return
+        ## _projectiongui.create(gui_parent=gui_parent,canvas=self,projection=projection)
 
     #############################################################################
     #                                                                           #
@@ -5760,8 +5831,11 @@ Options:::
     a=vcs.init()
     a.graphicsmethodgui('boxfill', 'quick')
 '''
-        _graphicsmethodgui.create( self, gm_type=gm_type, gm_name=gm_name,
-                                   gui_parent=gui_parent)
+        import warnings
+        warnings.warn("The graphics method gui has been removed from CDAT, you can access it via the UV-CDAT GUI.", Warning)
+        return
+    ## _graphicsmethodgui.create( self, gm_type=gm_type, gm_name=gm_name,
+    ## gui_parent=gui_parent)
 
     #############################################################################
     #                                                                           #
@@ -6492,22 +6566,20 @@ Options:::
         return o
     ##########################################################################
     #                                                                        #
-    # png wrapper for VCS.                                                   #
+    # bg dims wrapper for VCS.                                               #
     #                                                                        #
     ##########################################################################
-    def png(self, file, width=None,height=None,units='inches'):
+    def setbgoutputdimensions(self, width=None,height=None,units='inches'):
         """
- Function: postscript
+ Function: setbgoutputdimensions
 
  Description of Function:
-    SVG output is another form of vector graphics.
+    Sets dimensions for output in bg mode.
 
  Example of Use:
     a=vcs.init()
-    a.plot(array)
-    a.png('example')       # Overwrite a postscript file
-    a.png('example', width=11.5, height= 8.5)  # US Legal
-    a.png('example', width=21, height=29.7, units='cm')  # A4
+    a.setbgoutputdimensions(width=11.5, height= 8.5)  # US Legal
+    a.setbgoutputdimensions(width=21, height=29.7, units='cm')  # A4
 """
         if not units in ['inches','in','cm','mm','pixel','pixels','dot','dots']:
             raise Exception,"units must be on of inches, in, cm, mm, pixel(s) or dot(s)"
@@ -6531,9 +6603,36 @@ Options:::
             W= H
             H = tmp
             
+        return apply(self.canvas.setbgoutputdimensions,(W,H))
+    ##########################################################################
+    #                                                                        #
+    # png wrapper for VCS.                                                   #
+    #                                                                        #
+    ##########################################################################
+    def png(self, file, width=None,height=None,units=None):
+        """
+ Function: png
+
+ Description of Function:
+    PNG output, dimensions set via setbgoutputdimensions
+
+ Example of Use:
+    a=vcs.init()
+    a.plot(array)
+    a.png('example')       # Overwrite a png file
+"""
+        if units is not None or width is not None or height is not None:
+            if self.iscanvasdisplayed():
+                warnings.warn("Dimensions cannot be set once canvas is opened, window dims will be used, use bg=1 when plotting to control output dimesnsions")
+            else:
+                warnings.warn("Dimensions must be set apriori (before plotting in bg mode) via setbgoutputdimensions function")
+        if self.iscanvasdisplayed():
+            info=self.canvasinfo()
+            self.setbgoutputdimensions(info["width"],info["height"],"pixels")
+            
         if not file.split('.')[-1].lower() in ['png']:
             file+='.png'
-        return apply(self.canvas.png,(file,W,H))
+        return apply(self.canvas.png,(file,))
     #############################################################################
     #                                                                           #
     # pdf wrapper for VCS.                                               #
@@ -6754,7 +6853,24 @@ Options:::
                 height = width / 1.2941176470588236
             else:
                 height = width / self.size
-
+        ## Now forces correct aspect ratio for dumping in bg
+        ## if self.iscanvasdisplayed():
+        ##     info=self.canvasinfo()
+        ##     ratio = float(info["height"])/float(info["width"])
+        ##     if ratio < 1.:
+        ##         ratio=1./ratio
+        ## else:
+        ##     ratio = 1.3127035830618892
+        ## if height>width:
+        ##     if height/width>ratio:
+        ##         height=ratio*width
+        ##     else:
+        ##         width=height/ratio
+        ## else:
+        ##     if width/height>ratio:
+        ##         width=ratio*height
+        ##     else:
+        ##         height=width/ratio
         return width,height,sfactor
     
     def postscript(self, file,mode='r',orientation=None,width=None,height=None,units='inches',left_margin=None,right_margin=None,top_margin=None,bottom_margin=None):
