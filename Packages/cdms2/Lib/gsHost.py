@@ -420,7 +420,8 @@ class Host:
         @return res Print statement
         """
         res = "< '%s',  URI: '%s', MODE: '%s', STATUS: '%s',\n libcf: %s >" % \
-            ( self.__class__, self.uri, self.mode, self._status_)
+            ( self.__class__, self.uri, self.mode, 
+              self._status_, self.libcfdll)
         return res 
 
     def __del__(self):
