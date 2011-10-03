@@ -274,7 +274,6 @@ def power (a, b, third=None):
     ta = _makeMaskedArg(a)
     tb = _makeMaskedArg(b)
     maresult = numpy.ma.power(ta,tb,third)
-    print "Here"
     axes, attributes, id, grid = _extractMetadata(a)
     return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id)
 
@@ -552,9 +551,16 @@ def concatenate (arrays, axis=0, axisid=None, axisattributes=None):
         if axisid is None:
             axisid = tarrays[0].getAxis(axis).id
         allunitsequal=True
-        allunits=tarrays[0].getAxis(axis).units
+        try:
+            allunits=tarrays[0].getAxis(axis).units
+        except:
+            allunits=None
         for t in tarrays[1:]:
-            if t.getAxis(axis).units!=allunits:
+            try:
+                tunits=t.getAxis(axis).units
+            except:
+                tunits=None
+            if tunits!=allunits:
                 allunitsequal=False
         if allunitsequal:
             if axisattributes is None:

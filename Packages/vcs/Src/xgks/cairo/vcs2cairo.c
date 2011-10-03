@@ -240,6 +240,7 @@ double yoffset(factor,preped,font_extents,alpha,delta,pass)
 #endif
 #ifdef QTWM
   int qth,qtw,qtx,qty;
+  extern int YW ;
 #endif
   cairo_font_face_t *font_face;
 
@@ -313,9 +314,14 @@ double yoffset(factor,preped,font_extents,alpha,delta,pass)
   }
 #elif defined (QTWM)
   if (cairo_surface_get_type(cairo_get_target(cr))==CAIRO_FORMAT_ARGB32) {
-    vcs_Qt_get_window_dimensions_by_id(connect_id.wkst_id,&qtx,&qty,&qtw,&qth);
-    multiplier = (float)qth;
-    
+    vcs_Qt_get_window_visibility_by_id(connect_id.wkst_id,&qtx);
+    if (qtx==1) {
+      vcs_Qt_get_window_dimensions_by_id(connect_id.wkst_id,&qtx,&qty,&qtw,&qth);
+      multiplier = (float)qth;
+    }
+    else {
+      multiplier = YW;
+    }
   }
 #else
   printf("insert here your WM func for rx comp\n");
@@ -332,17 +338,17 @@ double yoffset(factor,preped,font_extents,alpha,delta,pass)
     multiplier = (float)YW;
   }
 
-/*   printf("multiplier: %f, %f\n",multiplier,text_height); */
+  /* printf("multiplier: %f, %f\n",multiplier,text_height); */
   
-/*   printf("rx is: %f\n",rx); */
+  /* printf("rx is: %f\n",rx); */
   font_size = (text_height+0.006)*multiplier*.6;
-
+  /* printf("Font size ends up being: %f\n",font_size); */
   
   /* load the face for the font we need */
 
   preped.error = LoadFontNumber(text_font,&(preped.face));
   if (preped.error==-1) {
-    printf("error loading font\n");
+    fprintf(stderr,"error loading font\n");
     return preped;
   }
   font_face = CAIRO_FONT_FACES[preped.error];
@@ -645,6 +651,7 @@ void cairogqtxx(int wkid,Gpoint pxy,char *str,Gextent *extent)
 #ifdef X11WM
   int screen = DefaultScreen (connect_id.display);
 #endif
+  extern int XW,YW;
   cairo_t        *cr;
   cairo_surface_t *surface;
   XWindowAttributes 	xwa;
@@ -679,10 +686,18 @@ void cairogqtxx(int wkid,Gpoint pxy,char *str,Gextent *extent)
     if (strcmp(Page.page_orient,"landscape") == 0) {
       width = 827;
       height= 639;
+      width=806;
+      height=614;
+      width=XW;
+      height=YW;
     }
     else {
       width = 639;
       height= 827;
+      width=614;
+      height=806;
+      width=XW;
+      height=YW;
     }
 /*     surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, */
 /* 					 width,height); */

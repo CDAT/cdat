@@ -208,16 +208,18 @@ def version():
     if options.get('CDMS_INCLUDE_DRS','no') == 'yes':
         print >>f, """
 def get_drs_dirs ():
-    import Pyfort, os
-    c = Pyfort.get_compiler('default')
+    #import Pyfort, os
+    import os
+    #c = Pyfort.get_compiler('default')
     drs_dir, junk = os.path.split(drs_file)
-    return c.dirlist + [drs_dir]
+    #return c.dirlist + [drs_dir]
+    return [drs_dir,]
 
 def get_drs_libs ():
-    import Pyfort
-    c = Pyfort.get_compiler('default')
-    return ['drs'] + c.liblist
-"""
+    #import Pyfort
+    #c = Pyfort.get_compiler('default')
+    return ['drs',] + %s
+""" % repr(options.get("COMPILER_EXTRA_LIBS",[]))
     else:
         print >>f, """
 def get_drs_dirs ():

@@ -3,6 +3,7 @@
 import cdms2
 import _scrip
 from error import RegridError
+import numpy
 
 """Regrid support for nonrectangular grids, based on the SCRIP package."""
 
@@ -267,17 +268,39 @@ def readRegridder(fileobj, mapMethod=None, checkGrid=1):
         else:
             raise RegridError, "Unrecognized map method: %s"%mapString
 
-    remapMatrix = fileobj('remap_matrix').filled()
-    srcAddress = fileobj('src_address').filled()
-    dstAddress = fileobj('dst_address').filled()
+    convention = 'SCRIP'
+    if fileobj.variables.keys().count('S'):
+        convention = 'NCAR'
+    if convention == 'SCRIP':
+        remapMatrix = fileobj('remap_matrix').filled()
+        srcAddress = fileobj('src_address').filled()
+        dstAddress = fileobj('dst_address').filled()
+        srcfrac = fileobj('src_grid_frac')
+        dstfrac = fileobj('dst_grid_frac')
+    else:
+        remapMatrix = fileobj('S').filled()
+        srcAddress = fileobj('col').filled()
+        dstAddress = fileobj('row').filled()
+        srcfrac = fileobj('frac_a')
+        dstfrac = fileobj('frac_b')
     ingrid = fileobj.readScripGrid(whichGrid="source", checkGrid=checkGrid)
     outgrid = fileobj.readScripGrid(whichGrid="destination", checkGrid=checkGrid)
-    srcfrac = fileobj('src_grid_frac')
-    dstfrac = fileobj('dst_grid_frac')
 
     if mapMethod=="conservative":
-        srcarea = fileobj('src_grid_area')
-        dstarea = fileobj('dst_grid_area')
+        if convention == 'SCRIP':
+            srcarea = fileobj('src_grid_area')
+            dstarea = fileobj('dst_grid_area')
+        else: #NCAR stuff
+            if "S2" in fileobj.variables.keys():
+                remapMatrix=fileobj("S2")
+                sh = list(remapMatrix.shape)
+                if len(sh)==2 and sh[-1]==2:
+                    sh[-1]=1
+                    S=fileobj("S").filled()
+                    S.shape=sh
+                    remapMatrix = numpy.concatenate((S,remapMatrix),axis=1)
+            srcarea = fileobj('area_a')
+            dstarea = fileobj('area_b')
         regridder = ConservativeRegridder(outgrid, remapMatrix,srcAddress, dstAddress, inputGrid=ingrid, sourceFrac=srcfrac, destFrac=dstfrac, sourceArea=srcarea, destArea=dstarea)
     elif mapMethod=="bilinear":
         regridder = BilinearRegridder(outgrid, remapMatrix,srcAddress, dstAddress, inputGrid=ingrid, sourceFrac=srcfrac, destFrac=dstfrac)

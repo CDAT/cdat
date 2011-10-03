@@ -46,15 +46,19 @@ fi
 if (test ! -d build) then
     # Unpack everything into build
     mkdir build
+fi
+if (test ! -d sources) then
     mkdir sources
 fi
 
 if (test ! -e sources/${SCIPY_NAME}) then
     cd build
     ../../../checked_get.sh ${SCIPY_NAME} ${SCIPY_URL}/${SCIPY_NAME}
-    tar xzf ../sources/${SCIPY_NAME}
     cd ..
 fi
+cd build
+tar xzf ../sources/${SCIPY_NAME}
+cd ..
 
 cd build
 echo "Installation to ${prefix}"

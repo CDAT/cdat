@@ -27,5 +27,3 @@ ExternalProject_Add(PyOpenGL
   ${EP_LOG_OPTIONS}
 )
 
-set(PyOpenGL_DIR "${PyOpenGL_binary}" CACHE PATH "PyOpenGL binary directory" FORCE)
-mark_as_advanced(PyOpenGL_DIR)

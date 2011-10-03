@@ -376,6 +376,7 @@ class PyBuildExt(build_ext):
         add_dir_to_list(self.compiler.library_dirs, mylibdir)
         add_dir_to_list(self.compiler.include_dirs, myincdir)
         # end PCMDI change
+
         # Ensure that /usr/local is always used
         add_dir_to_list(self.compiler.library_dirs, '/usr/local/lib')
         add_dir_to_list(self.compiler.include_dirs, '/usr/local/include')

@@ -23,6 +23,6 @@ find_program(CURL_EXECUTABLE curl)
 
 if(CURL_EXECUTABLE)
   execute_process(
-    COMMAND ${CURL_EXECUTABLE} http://uv-cdat.llnl.gov/UVCDATLogger/${whoami_output}/${uname_output}/bldcnf/${git_log_output}
+    COMMAND ${CURL_EXECUTABLE} http://uv-cdat.llnl.gov/UVCDATLogger/${whoami_output}/${uname_output}/bldcmk/${git_log_output}
   )
 endif()
