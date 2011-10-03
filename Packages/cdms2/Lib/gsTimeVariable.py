@@ -3,13 +3,14 @@
 """
 A variable-like object extending over multiple tiles and time slices
 Dave Kindig and Alex Pletzer, Tech-X Corp. (2011)
-This code is provided with the hope that it will be useful. 
+This code is provided with the hope that it will be useful.
 No guarantee is provided whatsoever. Use at your own risk.
 """
 
 import operator
+import cdtime
 import cdms2
-from cdms2.MV2 import concatenate
+from cdms2.MV2 import concatenate as MV2concatenate
 from cdms2.gsStaticVariable import StaticVariable
 from cdms2.tvariable import TransientVariable
 from cdms2.error import CDMSError
@@ -19,25 +20,50 @@ from cdms2.Cdunif import CdunifFile
 from cdms2.coord import FileAxis2D
 from cdms2.gengrid import FileGenericGrid
 from cdms2.fvariable import FileVariable
-from cdms2.axis import FileAxis
-
+from cdms2.axis import FileAxis, TransientAxis
+from cdms2.axis import concatenate as axisConcatenate
 
 class TimeAggregatedFileVariable:
+    """
+    Constructor Class for aggregating a time dependant variable across files.
+    """
     def __init__(self, gridIndex, listOfFVs, HostObj):
         """
+        @param gridIndex Index of requested grid
         @param listOfFVs List of cdms2.FileVariable
+        @param HostObj For access to constants
         """
         self.fvs = listOfFVs
         self.gridIndex = gridIndex
         self.HostObj = HostObj
+        self.nTimeStepFiles = HostObj.nTimeSliceFiles * HostObj.nTimeDataFiles * HostObj.nGrids
+        it = self.fvs[0].getAxisIndex("time")
+        self.nTimeStepsPerFV = (self.fvs[0].shape)[it]
+
+    def __call__(self, *args, **kwargs):
+        """
+        @param *args cdms2 arguments
+        @param kwargs cdms2 keywords
+        @return sliced variable
+        """
+
+        subsetList = []
+        for iFile in range(self.HostObj.nTimeSliceFiles):
+            try:
+                var = self.fvs[iFile](*args, **kwargs)
+                subsetList.append(var)
+            except Exception:
+                pass
+
+        newvar = self.createTransientVariableFromList(subsetList)
+
+        return newvar
 
     def __getitem__(self, slc):
         """
         @param slc Integer, slice or tuple of slices. If tuple 0 is time
+        @return sliced variable
         """
-
-        it = self.fvs[0].getAxisIndex("time")
-        self.nTimeStepsPerFV = (self.fvs[0].shape)[it]
 
         if isinstance(slc, int):
             # return FileVariable
@@ -45,73 +71,203 @@ class TimeAggregatedFileVariable:
         elif isinstance(slc, tuple):
             # create TransientVariable
             # do we need to aggregate in time?
-            if isinstance(slc[0], slice):
-                itfStart = self.getTimeFileIndex(slc[0].start)
-                itfEnd = self.getTimeFileIndex(slc[0].stop)
-                tv = self.createTransientVariable(itfStart, itfEnd) # could be made more efficient
-                return tv[slc]
-            elif isinstance(slc[0], int):
-                index = self.getTimeFileIndex(slc[0])
+            nTSF = self.HostObj.nTimeSliceFiles
+            axes = self.fvs[0].getAxisList()
+            timeAxisIndex = self.getTimeAxisIndex(axes)
+            if timeAxisIndex is None:
+                CDMSError, "No time axis in :\n"  + axes
+            if isinstance(slc[timeAxisIndex], slice):
+                (fileInds, timeStepInds) = self.getTimeFileIndex(slc[timeAxisIndex])
+                tv = self.createTransientVariableFromIndices(fileInds, timeStepInds)
+                newslc = self.buildSlice(slc, tv.getAxisList())
+                return tv[newslc]
+            elif isinstance(slc[timeAxisIndex], int):
+                fileIndex = slc[timeAxisIndex] / nTSF
+                timeIndex = slc[timeAxisIndex] % nTSF
 
                 # Get just the file needed for the index slice requested.
-                tv = self.createTransientVariable(index, index+1)
-                if slc[0] > self.nTimeStepsPerFV: returnIndex = slc[0] - self.nTimeStepsPerFV
-                else: returnIndex = slc[0]
-                return tv[returnIndex]
-                
-        elif isinstance(slc, slice):
-            itfStart = self.getTimeFileIndex(slc.start)
-            itfEnd = self.getTimeFileIndex(slc.stop)
-            tv = self.createTransientVariable(itfStart, itfEnd) # could be made more efficient
-            return tv[slc]
+                tv = self.createTransientVariableFromIndices(fileIndex, timeIndex)
+                newslc = self.buildSlice(slc, axes)
+                return tv[newslc]
 
-    def __call__(self, **kw):
-        if kw.has_key('time'):
-            itStart = self.getTimeIndexFromStr( kw['time'][0] )
-            itEnd = self.getTimeIndexFromStr( kw['time'][1] )
-            tv = self[itStart:itEnd, ...]
-            return tv(kw)
+        elif isinstance(slc, slice):
+            (fileInds, timeStepInds) = self.getTimeFileIndex(slc)
+            tv = self.createTransientVariableFromIndices(fileInds, timeStepInds)
+            return tv
 
     def __len__(self):
         return len(self.fvs)
-    
-    def getTimeFileIndex(self, index):
+
+    def getTimeFileIndex(self, timeslc):
         """
         @param index The time index requested
-        @param HostObj The host object contain the dimensions
         @return the file index for a given time index
         """
-        HostObj = self.HostObj
-        
-        # Loop over the number of time slices per file for the given variable and the number of
-        # time steps per file.
 
-        for timeFileIndex in range(HostObj.nTimeSliceFiles):
-            for timeSliceIndex in range(self.nTimeStepsPerFV):
-                cind = timeFileIndex * HostObj.nTimeSliceFiles + timeSliceIndex
-                # Return the timeFileIndex
-                if cind == index: return timeFileIndex
-        return HostObj.nTimeDataFiles
+        # Loop over the number of time slices per file for the given variable and
+        # the number of time steps per file.
 
-    def createTransientVariable(self, startTimeFileIndex, endTimeFileIndex):
-        """
-        @param startTimeFileIndex 
-        """
-        firstTime = True
-        rng = range(startTimeFileIndex, endTimeFileIndex)
-        for i in rng:
-            var = self.fvs[i][:]
+        nTSF = self.nTimeStepsPerFV
+        timI1 = []
+        filI1 = []
+        timI2 = []
+        filI2 = []
 
-            if firstTime:
-                new = var
-                firstTime = False
+        if timeslc.step is None: step = 1
+        else: step = timeslc.step
+        ii = [i / nTSF for i in range(timeslc.start, timeslc.stop, step)]
+        tt = [i % nTSF for i in range(timeslc.start, timeslc.stop, step)]
+        indx = 0
+        for i in ii:
+            if indx == 0:
+                timI1.append(tt[indx])
+                filI1.append(ii[indx])
             else:
-                tmp = concatenate((new, var))
-                new = tmp
+                if ii[indx] == ii[indx-1]:
+                    timI1.append(tt[indx])
+                    filI1.append(ii[indx])
+                else:
+                    timI2.append(timI1)
+                    filI2.append(filI1)
+                    timI1 = []
+                    filI1 = []
+                    timI1.append(tt[indx])
+                    filI1.append(ii[indx])
+            indx += 1
+
+        filI2.append(filI1)
+        timI2.append(timI1)
+
+        return filI2, timI2
+
+    def getTimeAxisIndex(self, inAxes):
+        """
+        Get the index for the time index
+        @param inAxes The axes list where we want to find the time index
+        @return the index - None if time not found
+        """
+        for indx, axis in enumerate(inAxes):
+            if axis.isTime(): return indx
+            return None
+
+    def buildSlice(self, inslc, inAxes):
+        """
+        Build a slice where the global time is either removed (single time step
+        requested) OR the all requested times are returned. This is based on
+        the new variables time shape.
+        @param inslc The original slice
+        @param inAxes The input axis to search for the time axis
+        @return newslc New slice with no time dimension or the time axis slice is
+                       (None, None, None)
+        """
+        newslc = []
+        for cslc, axis in zip(inslc, inAxes):
+            if axis.isTime():
+                if type(cslc) is int:
+                    # Omit slice - the new variable has only the shape of the grid.
+                    continue
+                else:
+                    newslc.append(slice(None, None, None))
+            else:
+                newslc.append(cslc)
+        return tuple(newslc)
+
+    def buildAxes(self, timeAxis, inAxes):
+        """
+        Construct the time axis based on the current time index and insert into
+        proper location in the axes list
+        @param timeAxis The Current time axis
+        @param inAxes The current axes
+        @return new axes
+        """
+        axes = []
+        for axis in inAxes:
+            if axis.isTime():
+                axes.append(timeAxis)
+            else:
+                axes.append(axis)
+        return axes
+
+    def createTransientVariableFromList(self, tvList):
+        """
+        Aggregate a sliced/subseted list of transient variables.
+        @param tvlist List of subset/sliced transient variables.
+        @return aggregated transient variable
+        """
+
+        outvar = tvList[0]
+        if len(tvList) > 1:
+            for varIndex in range(1, len(tvList)):
+                new = MV2concatenate((outvar, tvList[varIndex]))
+                outvar = new
+
+        return outvar
+
+    def createTransientVariableFromIndices(self, fileIndices, timeIndices):
+        """
+        Aggregate a time file variable. Start and End Indices use slice notation.
+        @param fileIndices the file indices to aggregate across
+        @param timeIndices which time steps with in each file
+        @return aggregated time dep. variable. Has shape of full grid. 
+                Subset the grid after exiting.
+        """
+        from numpy import reshape
+        firsttime = True
+        nTSF = self.nTimeStepsPerFV
+        if type(fileIndices) is not int:
+            for files, times in zip(fileIndices, timeIndices):
+                for indx, file in enumerate(files):
+                    # Should make these slices.
+                    cvar = self.fvs[file][times[indx]]
+
+                    grid = self.fvs[file].getGrid()
+                    atts = cvar.attributes
+
+                    # Insert the new time axis.
+                    axisTime = self.fvs[file].getTime()
+                    timeAxis = TransientAxis([files[files[indx]] * nTSF + times[indx]],
+                                              attributes = axisTime.attributes,
+                                              id = axisTime.id)
+                    axes = self.buildAxes(timeAxis, self.fvs[file].getAxisList())
+
+                    # shape --> tm1.shape = (1, :, :)
+                    tm1 = reshape(cvar, tuple([1] + list(cvar.shape)))
+
+                    # Attach needed items
+                    var = cdms2.createVariable(tm1,
+                            axes = axes,
+                            grid = grid,
+                            attributes = atts,
+                            id = cvar.standard_name)
+
+                    # Create cdms2 transient variable
+                    if firsttime:
+                        new = var
+                        firsttime = False
+                    else:
+                        # insert the new time axis.
+                        taA = new.getTime()
+                        newTime = axisConcatenate((taA, timeAxis),
+                                                  attributes = axisTime.attributes,
+                                                  id = axisTime.id)
+                        axes = self.buildAxes(newTime, self.fvs[file].getAxisList())
+
+                        tmp = MV2concatenate((new, var))
+                        new = cdms2.createVariable(tmp,
+                                axes = axes,
+                                grid = grid,
+                                attributes = atts,
+                                id = cvar.standard_name)
+
+        else:
+            new = self.fvs[fileIndices][timeIndices]
 
         return new
 
 class TimeFileVariable:
+    """
+    Construct an aggregated time dependant variable.
+    """
     def __init__(self, HostObj, varName):
         """
         Create a list of file variable with grid attached
@@ -155,7 +311,7 @@ class TimeFileVariable:
                 for coord in coords:
                     f.variables[coord] = g.variables[coord]
                     f.variables[coord] = FileAxis2D(f, coord, g.variables[coord])
-                
+
                 # Build the axes
                 for key in f.axes.keys():
                     f.axes[key] = FileAxis(f, key, None)
@@ -187,18 +343,22 @@ class TimeFileVariable:
         @param gridIndex gridIndex
         """
         return self.vars[gridIndex]
-        
+
+###############################################################################
+############## DEPRECIATED - Testing required to fully remove #################
+###############################################################################
+
 class TimeTransientVariable:
     def __init__(self, HostObj, varName, **slicekwargs):
         """
         Constructor
-        @param HostObj host object 
+        @param HostObj host object
         @param varName variable name
         @param slicekwargs eg lon=(-180,180), lat=(-90,90), time=5
-                           cf Packages/cdms2/Lib/cudsinterface.py for 
+                           cf Packages/cdms2/Lib/cudsinterface.py for
                            a list of keywords
         """
-        
+
 #        TimeVariable(self, HostObj, varName)
         self.id = varName
         self.vars = []
@@ -236,21 +396,21 @@ class TimeTransientVariable:
 
                     # Create cdms2 transient variable
                     if timeFileIndex == 0:
-                        new = cdms2.createVariable(var, 
-                                axes = axes, 
-                                grid = grid, 
-                                attributes = atts, 
+                        new = cdms2.createVariable(var,
+                                axes = axes,
+                                grid = grid,
+                                attributes = atts,
                                 id = var.standard_name)
                     else:
-                        tmp = concatenate((new, var))
+                        tmp =MV2concatenate((new, var))
                         axis0 = tmp.getAxis(0)
                         gridaxes = grid.getAxisList()
                         axes = [axis0, gridaxes[0], gridaxes[1]]
 #                        new.append(tmp)
-                        new = cdms2.createVariable(tmp, 
-                                axes = axes, 
-                                grid = grid, 
-                                attributes = atts, 
+                        new = cdms2.createVariable(tmp,
+                                axes = axes,
+                                grid = grid,
+                                attributes = atts,
                                 id = var.standard_name)
                     fh.close()
 

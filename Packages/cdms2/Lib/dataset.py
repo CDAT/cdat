@@ -202,7 +202,7 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
                 file1.close()
                 return file
             else:
-                return file1
+                return CdmsFile(path, mode)
     elif scheme in ['http', 'gridftp']:
         
         if (dods):
