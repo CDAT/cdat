@@ -37,8 +37,9 @@ class TimeAggregatedFileVariable:
         self.gridIndex = gridIndex
         self.HostObj = HostObj
         self.nTimeStepFiles = HostObj.nTimeSliceFiles * HostObj.nTimeDataFiles * HostObj.nGrids
-        it = self.fvs[0].getAxisIndex("time")
-        self.nTimeStepsPerFV = (self.fvs[0].shape)[it]
+        it = self.getTimeAxisIndex(self.fvs[0].getAxisList())
+        self.nTimeStepsPerFile = (self.fvs[0].shape)[it]
+        self.nTimeStepsPerVariable = HostObj.nTimeSliceFiles * self.nTimeStepsPerFile
 
     def __call__(self, *args, **kwargs):
         """
@@ -64,14 +65,14 @@ class TimeAggregatedFileVariable:
         @param slc Integer, slice or tuple of slices. If tuple 0 is time
         @return sliced variable
         """
-
+        
         if isinstance(slc, int):
             # return FileVariable
             return self.fvs[slc]
         elif isinstance(slc, tuple):
             # create TransientVariable
             # do we need to aggregate in time?
-            nTSF = self.HostObj.nTimeSliceFiles
+            nTSF = self.nTimeStepsPerFile
             axes = self.fvs[0].getAxisList()
             timeAxisIndex = self.getTimeAxisIndex(axes)
             if timeAxisIndex is None:
@@ -107,7 +108,8 @@ class TimeAggregatedFileVariable:
         # Loop over the number of time slices per file for the given variable and
         # the number of time steps per file.
 
-        nTSF = self.nTimeStepsPerFV
+        nTSF = self.nTimeStepsPerFile
+        nTSV = self.nTimeStepsPerVariable
         timI1 = []
         filI1 = []
         timI2 = []
@@ -115,8 +117,11 @@ class TimeAggregatedFileVariable:
 
         if timeslc.step is None: step = 1
         else: step = timeslc.step
-        ii = [i / nTSF for i in range(timeslc.start, timeslc.stop, step)]
-        tt = [i % nTSF for i in range(timeslc.start, timeslc.stop, step)]
+        stop = timeslc.stop
+        if timeslc.stop >= nTSV:
+            stop = nTSV
+        ii = [i / nTSF for i in range(timeslc.start, stop, step)]
+        tt = [i % nTSF for i in range(timeslc.start, stop, step)]
         indx = 0
         for i in ii:
             if indx == 0:
@@ -213,7 +218,7 @@ class TimeAggregatedFileVariable:
         """
         from numpy import reshape
         firsttime = True
-        nTSF = self.nTimeStepsPerFV
+        nTSF = self.nTimeStepsPerFile
         if type(fileIndices) is not int:
             for files, times in zip(fileIndices, timeIndices):
                 for indx, file in enumerate(files):
