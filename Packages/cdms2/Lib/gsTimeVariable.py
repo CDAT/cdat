@@ -230,7 +230,7 @@ class TimeAggregatedFileVariable:
 
                     # Insert the new time axis.
                     axisTime = self.fvs[file].getTime()
-                    timeAxis = TransientAxis([files[files[indx]] * nTSF + times[indx]],
+                    timeAxis = TransientAxis([file * nTSF + times[indx]],
                                               attributes = axisTime.attributes,
                                               id = axisTime.id)
                     axes = self.buildAxes(timeAxis, self.fvs[file].getAxisList())
