@@ -109,7 +109,6 @@ class Host:
                                                         byref(i_ct))
         self.nTimeSliceFiles = i_ct.value
 
-        varName_ct = c_char_p(" " * (libCFConfig.NC_MAX_NAME+1))
         fName_ct = c_char_p(" " * (libCFConfig.NC_MAX_NAME+1))
         gName_ct = c_char_p(" " * (libCFConfig.NC_MAX_NAME+1))
 
@@ -127,8 +126,6 @@ class Host:
         # Filenames
         timeFilenames = []
         statFilenames = []
-        gridFilenames = []
-        gridNames     = []
 
         coordinates = []
 
@@ -170,12 +167,12 @@ class Host:
                     timeFilenames.append(fName_ct.value)
                     f = cdms2.open(fName_ct.value, 'r')
                     varNames = f.listvariable()
-                    # Add coordinate names a local list of coordinates
-                    if 'coordinates' in dir(f[vn]):
-                        for coord in f[vn].coordinates.split():
-                            if not coord in coordinates: 
-                                coordinates.append(coord)
                     for vn in varNames:
+                        # Add coordinate names a local list of coordinates
+                        if 'coordinates' in dir(f[vn]):
+                            for coord in f[vn].coordinates.split():
+                                if not coord in coordinates: 
+                                    coordinates.append(coord)
                         if not self.timeVars.has_key(vn):
                             # allocate
                             self.timeVars[vn] = \
@@ -185,7 +182,8 @@ class Host:
                         self.timeVars[vn][gfindx][tfindx] = fName_ct.value
                     f.close()
 
-        # Grid names and data
+        # Grid names and data. Must come after time and static file dictionaries
+        # because they define the coordinates.
         for gfindx in range(self.nGrids):
             status = libcfdll.nccf_inq_host_gridfilename(self.hostId_ct, 
                                                       gfindx, 
@@ -205,6 +203,10 @@ class Host:
                     self.gridName[vn].append(gName_ct.value)
 
     def __initialize(self):
+        """
+        private method to inititialze the HostObj and for use in reseting 
+        the HostObj on close
+        """
 
         self.mode     = ''
         self.libcfdll = None
@@ -278,7 +280,7 @@ class Host:
         Return a list of static variable filenames
         @param varName variable name (or None if all the static file names are to 
                        be returned)
-        @return all the file names corresponding to varName
+        @return list the file names corresponding to varName
         """
         if varName is not None:
             return self.statVars[varName]
@@ -288,17 +290,17 @@ class Host:
     def getTimeFilenames(self, varName = None):
         """
         Return a list of time dependent variable filenames
-        @param varName Return filename for input variable name only
+        @param varName variable name. None for all variables
+        @return filename for input variable name only
         """
         if varName is not None:
             return self.timeVars[varName]
         # return all the time var filenames
         return self.timeVars.values()
 
-    def getCoordinates(self, gindx):
+    def getCoordinates(self):
         """
-        Given a grid Index return the coordinates of that grid
-        @param gindx Grid index
+        Coordinates variables contained within the host object
         @return list of coordinate names
         """
         return self.gridVars.keys()
