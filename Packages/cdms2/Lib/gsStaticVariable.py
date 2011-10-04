@@ -262,6 +262,24 @@ class StaticFileVariable(StaticVariable):
             f.variables[varName]._grid_ = grid
             self.vars[gridIndex] = f.variables[varName]
         self._repr_string = "StaticFileVariable"
+
+    def listall(self, all = None):
+        """
+        Gain access to cdms2 listall method. Requires a StaticFileVariable
+        @param all
+        @returns list
+        """
+        return self[0].listall(all = all)
+
+    def showall(self, all = None, device = None):
+        """
+        Gain access to cdms2 showall method
+        Requires a StaticFileVariable
+        @param all 
+        @param device
+        @returns list
+        """
+        return self[0][:].showall(all = all, device = device)
         
 def test():
     pass

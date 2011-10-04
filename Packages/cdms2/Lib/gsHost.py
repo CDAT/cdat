@@ -404,6 +404,34 @@ class Host:
         """        
         return self.attributes[attName]
 
+    def listall(self, varName = None, all = None):
+        """
+        Get info about data from the file.
+        @param varName variable name
+        @param all include axes information
+        @return information about file.
+        """
+
+        if varName is None: return None 
+        var = self.getVariable(varName)
+        return var.listall(all = all)
+
+    def showall(self, varName = None, all = None, device = None):
+        """
+        Get info about data from the file.
+        @param varName variable name
+        @param all include axes information
+        @param device output device
+        @return information about file.
+        """
+        import sys, string
+        if device is None: device=sys.stdout
+        if varName is None: return None 
+        var = self.getVariable(varName)
+        alist = var.listall(all=all)
+        device.write(string.join(alist, "\n"))
+        device.write("\n")
+
     def close(self):
         """
         Close the file
