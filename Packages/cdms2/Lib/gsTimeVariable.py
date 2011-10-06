@@ -27,19 +27,19 @@ class TimeAggregatedFileVariable:
     """
     Constructor Class for aggregating a time dependant variable across files.
     """
-    def __init__(self, gridIndex, listOfFVs, HostObj):
+    def __init__(self, gridIndex, listOfFVs, hostObj):
         """
         @param gridIndex Index of requested grid
         @param listOfFVs List of cdms2.FileVariable
-        @param HostObj For access to constants
+        @param hostObj For access to constants
         """
         self.fvs = listOfFVs
         self.gridIndex = gridIndex
-        self.HostObj = HostObj
-        self.nTimeStepFiles = HostObj.nTimeSliceFiles * HostObj.nTimeDataFiles * HostObj.nGrids
+        self.hostObj = hostObj
+        self.nTimeStepFiles = hostObj.nTimeSliceFiles * hostObj.nTimeDataFiles * hostObj.nGrids
         it = self.getTimeAxisIndex(self.fvs[0].getAxisList())
         self.nTimeStepsPerFile = (self.fvs[0].shape)[it]
-        self.nTimeStepsPerVariable = HostObj.nTimeSliceFiles * self.nTimeStepsPerFile
+        self.nTimeStepsPerVariable = hostObj.nTimeSliceFiles * self.nTimeStepsPerFile
 
     def __call__(self, *args, **kwargs):
         """
@@ -49,7 +49,7 @@ class TimeAggregatedFileVariable:
         """
 
         subsetList = []
-        for iFile in range(self.HostObj.nTimeSliceFiles):
+        for iFile in range(self.hostObj.nTimeSliceFiles):
             try:
                 var = self.fvs[iFile](*args, **kwargs)
                 subsetList.append(var)
@@ -273,30 +273,30 @@ class TimeFileVariable:
     """
     Construct an aggregated time dependant variable.
     """
-    def __init__(self, HostObj, varName):
+    def __init__(self, hostObj, varName):
         """
         Create a list of file variable with grid attached
-        @param HostObj The host object opened by gsHost
+        @param hostObj The host object opened by gsHost
         @param varName the variable name to be returned
         """
 
         self.id = varName
         self.vars = []
-        mode = HostObj.mode
+        mode = hostObj.mode
 
-        for gridIndex in range(HostObj.nGrids):
+        for gridIndex in range(hostObj.nGrids):
 
             # Get the filenames
-            aa = HostObj.gridVars.keys()
-            gn = HostObj.gridVars[aa[0]][gridIndex]
+            aa = hostObj.gridVars.keys()
+            gn = hostObj.gridVars[aa[0]][gridIndex]
             g = CdunifFile(gn, mode)
 
             vars = []
 
-            for timeFileIndex in range(HostObj.nTimeDataFiles):
+            for timeFileIndex in range(hostObj.nTimeDataFiles):
 
                 # Open the files
-                fn = HostObj.timeVars[varName][gridIndex][timeFileIndex]
+                fn = hostObj.timeVars[varName][gridIndex][timeFileIndex]
                 f = cdms2.open(fn, mode)   # Need f and u because they serve slightly different purposes
                 u = CdunifFile(fn, mode)   # f.axes exists while axes is not a part of u
 #                u.variables[varName].gridIndex = gridIndex
@@ -338,7 +338,7 @@ class TimeFileVariable:
                 f.variables[varName]._grid_ = grid
                 vars.append(f.variables[varName])
 
-            tafv = TimeAggregatedFileVariable(gridIndex, vars, HostObj)
+            tafv = TimeAggregatedFileVariable(gridIndex, vars, hostObj)
             self.vars.append(tafv)
 
         self._repr_string = "TimeFileVariable"
@@ -372,21 +372,21 @@ class TimeFileVariable:
 ###############################################################################
 
 class TimeTransientVariable:
-    def __init__(self, HostObj, varName, **slicekwargs):
+    def __init__(self, hostObj, varName, **slicekwargs):
         """
         Constructor
-        @param HostObj host object
+        @param hostObj host object
         @param varName variable name
         @param slicekwargs eg lon=(-180,180), lat=(-90,90), time=5
                            cf Packages/cdms2/Lib/cudsinterface.py for
                            a list of keywords
         """
 
-#        TimeVariable(self, HostObj, varName)
+#        TimeVariable(self, hostObj, varName)
         self.id = varName
         self.vars = []
 
-        gridFilenames = HostObj.getGridFilenames()
+        gridFilenames = hostObj.getGridFilenames()
 
         kwargs = {}
         for k in slicekwargs.keys():
@@ -396,14 +396,14 @@ class TimeTransientVariable:
         # grid populated by a list for each time file.
         if ('time' in kwargs.keys() and len(slicekwargs) <= 1) or \
                 len(slicekwargs) == 0:
-            for gridIndex in range(HostObj.nGrids):
+            for gridIndex in range(hostObj.nGrids):
 
                 gFName = gridFilenames[gridIndex]
 
-                for timeFileIndex in range(HostObj.nTimeDataFiles):
+                for timeFileIndex in range(hostObj.nTimeDataFiles):
 
-                    fName = HostObj.timeDepVars[varName][gridIndex][timeFileIndex]
-                    fh = cdms2.open(fName, HostObj=HostObj)
+                    fName = hostObj.timeDepVars[varName][gridIndex][timeFileIndex]
+                    fh = cdms2.open(fName, hostObj=hostObj)
 
                     # TransientVariable
                     var = fh(varName, **slicekwargs)
