@@ -194,7 +194,7 @@ if WM=="QT" or EM=="QT":
     if USE_FRAMEWORK:
         #MOC = "/usr/bin/moc"
 ### Framework stuff
-        qt_vcs_extra_compile_args += ' -pipe -g -gdwarf-2 -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -I%s ' % (QT_PATH_INC)
+        qt_vcs_extra_compile_args += ' -pipe -g -gdwarf-2 -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -I%s -F%s -I%s/QtCore.framework/Headers -I%s/QtGui.framework/Headers' % (QT_PATH_INC,QT_PATH_LIB,QT_PATH_LIB,QT_PATH_LIB)
 #        vcs_extra_compile_args = ' -c -pipe -g -gdwarf-2 -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -F/Library/Frameworks  -I. -I%s -I%s/QtCore -I%s/QtGui '%(QT_PATH_INC,QT_PATH_INC,QT_PATH_INC)
         qt_vcs_extra_link_args = ' -F%s -framework QtCore -framework QtGui -lz -lm ' % (QT_PATH_LIB)
     else:
@@ -216,7 +216,6 @@ else:
     s10=[]
     vcs_extra_link_args = []
     qt_include_dirs=[]
-
 
 if WM=="X11" or EM=="X11" or DRAW=="X11":
     x_libraries = freetype_libs + cairo_libs + xml2_libs + ['X11',] + cdat_info.mathlibs
