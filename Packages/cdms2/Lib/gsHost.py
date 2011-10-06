@@ -204,8 +204,8 @@ class Host:
 
     def __initialize(self):
         """
-        private method to inititialze the HostObj and for use in reseting 
-        the HostObj on close
+        private method to inititialze the hostObj and for use in reseting 
+        the hostObj on close
         """
 
         self.mode     = ''

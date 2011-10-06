@@ -82,15 +82,15 @@ class StaticVariable:
     """
     Constructor
     """
-    def __init__(self, StaticVariable, HostObj, varName):
+    def __init__(self, StaticVariable, hostObj, varName):
         """
         Constructor - Contains methods applicable to both file and transient static variables
         @param StaticVariable A generic static variable (Either File or Transient)
-        @param HostObj The host file object
+        @param hostObj The host file object
         @param varName for the id
         """
         StaticVariable.id     = varName
-        StaticVariable.nGrids = HostObj.nGrids
+        StaticVariable.nGrids = hostObj.nGrids
 
         StaticVariable.vars = []
         if StaticVariable.nGrids > 0:
@@ -156,21 +156,21 @@ class StaticFileVariable(StaticVariable):
     """
     Static variable extending over multiple grid files
     """
-    def __init__(self, HostObj, varName):
+    def __init__(self, hostObj, varName):
         """
         Create a list of file variable with grid attached
-        @param HostObj The host object opened by gsHost
+        @param hostObj The host object opened by gsHost
         @param varName the variable name to be returned
         """
 
-        StaticVariable(self, HostObj, varName)
-        mode = HostObj.mode
-        gridFilenames = HostObj.getGridFilenames()
+        StaticVariable(self, hostObj, varName)
+        mode = hostObj.mode
+        gridFilenames = hostObj.getGridFilenames()
 
         for gridIndex in range(self.nGrids):
 
             # Get the filenames
-            fn = HostObj.statVars[varName][gridIndex]
+            fn = hostObj.statVars[varName][gridIndex]
             gn = gridFilenames[gridIndex]
 
             # Open the files
@@ -229,26 +229,26 @@ class StaticTransientVariable(StaticVariable):
     """
     Static variable extending over multiple grid files
     """
-    def __init__(self, HostObj, varName):
+    def __init__(self, hostObj, varName):
         """
         Constructor
-        @param HostObj host object
+        @param hostObj host object
         @param varName variable name
         """
 
         # Inititialize the variable
-        StaticVariable(self, HostObj, varName)
-        gridFilenames = HostObj.getGridFilenames()
+        StaticVariable(self, hostObj, varName)
+        gridFilenames = hostObj.getGridFilenames()
 
         for gridIndex in range(self.nGrids):
 
             # name of the file containing the data on tile gridIndex
-            fName = HostObj.statVars[varName][gridIndex]
+            fName = hostObj.statVars[varName][gridIndex]
 
             # name of the file containing coordinate data
             gFName = gridFilenames[gridIndex]
 
-            fh = cdms2.open(fName, HostObj = HostObj)
+            fh = cdms2.open(fName, hostObj = hostObj)
             gh = cdms2.open(gFName)
 
             vr = fh(varName)
