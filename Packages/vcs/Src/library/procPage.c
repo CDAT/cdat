@@ -481,7 +481,7 @@ char *type;
 #elif defined QTWM
 	extern void vcs_Qt_resize_window(int index,int x,int y,int w, int h);
 	vcs_Qt_resize_window(connect_id.wkst_id,x_pos,y_pos,canvas_width,canvas_height);
-	vcs_Qt_repaint_window_by_id(connect_id.wkst_id);
+	/* vcs_Qt_repaint_window_by_id(connect_id.wkst_id); */
 #else
 	printf("insert your WM move func here\n");
 	printf("insert your WM sync/flush here\n");

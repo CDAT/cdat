@@ -51,7 +51,7 @@ void VCSQtManager::sendEvent(int index, QVCSBaseEvent *event) {
     QCoreApplication::sendEvent(VCSQtManager::window(index),event);
   }
   else {
-    if (VCSQtManager::owningApp()) {
+    if (event->isSpontaneous || VCSQtManager::owningApp()) {
       QMutex *mutex = new QMutex();
       QWaitCondition *cond = new QWaitCondition();
       event->mutex=mutex;

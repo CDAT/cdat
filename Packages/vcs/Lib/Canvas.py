@@ -8758,7 +8758,8 @@ class animate_obj:
 
       if ((self.create_flg == 1) and (self.run_flg == 0)):
          self.run_flg = 1
-         thread.start_new_thread( self.vcs_self.canvas.animate_run,( ) )
+         #thread.start_new_thread( self.vcs_self.canvas.animate_run,( ) )
+         self.vcs_self.canvas.animate_run()
 
    ##############################################################################
    # Stop the animation creation                                                #

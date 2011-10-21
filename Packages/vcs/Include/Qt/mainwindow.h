@@ -38,7 +38,9 @@
 class MainWindow : public QMainWindow
 {
   Q_OBJECT
-    public:
+public:
+  MainWindow(QWidget * parent=0, Qt::WindowFlags flags=0);
+  
   void paintEvent(QPaintEvent *);
   virtual bool event(QEvent *);
   PyVCScanvas_Object *vcs_obj;
@@ -46,18 +48,18 @@ class MainWindow : public QMainWindow
   void unsetupCairo();
   void *image;
   QImage *images;
-  public slots:
+public slots:
   void actionTriggered(QAction*);
-/*   void animationCreated(int window); */
-/* signals: */
-/*   void animationCreatedSignal(int window); */
+  /*   void animationCreated(int window); */
+  /* signals: */
+  /*   void animationCreatedSignal(int window); */
 };
 
 class QVCSEvent : public QVCSBaseEvent
 {
- public:
- QVCSEvent(QEvent::Type type)
-     : QVCSBaseEvent(type) {}
+public:
+  QVCSEvent(QEvent::Type type, bool _isSpontaneous=false)
+      : QVCSBaseEvent(type, _isSpontaneous) {}
   QRect geom;
   int minWidth;
   int minHeight;

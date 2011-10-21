@@ -5,6 +5,7 @@
 #include <QtCore/QWaitCondition>
 #include <QtCore/QMutex>
 #include <QtCore/QSize>
+#include <QtCore/QThread>
 #include <QtGui/QApplication>
 #include <QtGui/QDesktopWidget>
 #include <QtGui/QResizeEvent>
@@ -52,6 +53,16 @@ extern "C" void vcs_Qt_clear_window_by_id(int id)
     VCS2CAIRO_setrgb(window->vcs_obj->connect_id.cr,0);
     cairo_paint(window->vcs_obj->connect_id.cr);
     vcs_Qt_repaint_window_by_id(id);
+  }
+  return;
+}
+
+extern "C" void vcs_Qt_clear_window_by_id_without_repaint(int id)
+{
+  MainWindow *window = VCSQtManager::window(id);
+  if (window->vcs_obj->connect_id.cr !=NULL) {
+    VCS2CAIRO_setrgb(window->vcs_obj->connect_id.cr,0);
+    cairo_paint(window->vcs_obj->connect_id.cr);
   }
   return;
 }
@@ -159,7 +170,7 @@ extern "C" void vcs_Qt_window_get_image_by_id(int id, void **ximage)
 
 extern "C" void vcs_Qt_window_put_image_by_id(int id, void *ximage)
 {
-  QVCSEvent *event = new QVCSEvent(VCS_PUT_IMAGE_EVENT);
+  QVCSEvent *event = new QVCSEvent(VCS_PUT_IMAGE_EVENT, true);
   event->data = ximage;
   VCSQtManager::sendEvent(id, event);
 }
