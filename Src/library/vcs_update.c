@@ -1377,7 +1377,10 @@ int vcs_canvas_update ( short use_defer_flg )
                 }
             }
         }
-
+      if (change==1) {
+	/* Put code to do the logo here */
+	draw_logo(connect_id.cr);
+	}
       killP( pp ); /* Remove the newly created picture template. */
     }
   }
@@ -1392,6 +1395,28 @@ int vcs_canvas_update ( short use_defer_flg )
   if (erret == 0) return 1;
   else
     return 0;
+}
+
+void draw_logo(cairo_t *cr) {
+  int w,h,wl,hl;
+  float ratio = .075;
+  float ws,hs,x,y;
+  cairo_surface_t *logo;
+  logo = cairo_image_surface_create_from_png("/lgm/cdat/Qt/Library/Frameworks/Python.framework/Versions/2.7/bin/UV-CDAT_logo_sites.png");
+  wl=cairo_image_surface_get_width(logo);
+  hl=cairo_image_surface_get_height(logo);
+  w=cairo_image_surface_get_width(cairo_get_target(cr));
+  h=cairo_image_surface_get_height(cairo_get_target(cr));
+  x=(float)w*(1.-ratio);
+  y= (float)h*(1.-ratio);
+  cairo_rectangle(cr,x,y,(float)w*ratio,(float)h*ratio);
+  cairo_clip(cr);
+  hs = (float)h*ratio/(float)hl;
+  ws=(float)w*ratio/(float)wl;
+  cairo_scale(cr,ws,hs);
+  cairo_set_source_surface(cr,logo,x/ws,y/hs);
+  cairo_paint(cr);
+  cairo_scale(cr,1./ws,1./hs);
 }
 
 void set_viewport_and_worldcoordinate ( 

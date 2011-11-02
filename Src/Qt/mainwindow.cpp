@@ -556,7 +556,7 @@ void MainWindow::setupCairo()
   /* only do this if it is not done yet */
   this->vcs_obj->connect_id.surface =   cairo_image_surface_create(CAIRO_FORMAT_ARGB32,qs.width(),qs.height());
   this->vcs_obj->connect_id.cr = cairo_create(this->vcs_obj->connect_id.surface);
-  fprintf(stderr,"ok surface and cairo setup as: %p, %p, on %i, size: %ix%i\n",this->vcs_obj->connect_id.surface,this->vcs_obj->connect_id.cr,this->vcs_obj->connect_id.wkst_id,qs.width(),qs.height());
+  //fprintf(stderr,"ok surface and cairo setup as: %p, %p, on %i, size: %ix%i\n",this->vcs_obj->connect_id.surface,this->vcs_obj->connect_id.cr,this->vcs_obj->connect_id.wkst_id,qs.width(),qs.height());
 #ifdef GENCAIRO
   fprintf(stderr,"surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,%i,%i);\n",qs.width(),qs.height());
   fprintf(stderr,"cr = cairo_create(surface);\n");

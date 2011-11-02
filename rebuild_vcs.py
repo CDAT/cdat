@@ -16,7 +16,7 @@ else:
     OSX=6
 
     compile_line="""
-    gcc -DGENCAIRO -fno-strict-aliasing -fno-common -dynamic -I/lgm/cdat/uvcdat/Externals/include -L/lgm/cdat/uvcdat/Externals/lib -arch %s -Xarch_%s -mmacosx-version-min=10.%i -isysroot /Developer/SDKs/MacOSX10.%i.sdk -pipe -I/Library/Frameworks/QtCore.framework -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I/Developer/SDKs/MacOSX10.%i.sdk/usr/include
+    gcc  -fno-strict-aliasing -fno-common -dynamic -I/lgm/cdat/uvcdat/Externals/include -L/lgm/cdat/uvcdat/Externals/lib -arch %s -Xarch_%s -mmacosx-version-min=10.%i -isysroot /Developer/SDKs/MacOSX10.%i.sdk -pipe -I/Library/Frameworks/QtCore.framework -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I/Developer/SDKs/MacOSX10.%i.sdk/usr/include
     """.strip() % (arch,arch,OSX,OSX,OSX)
 
     opt="""
