@@ -1664,7 +1664,8 @@ CAIROmoClose(Metafile *mf)
     mf_cgmo *cgmo	= mf->cgmo;
     FILE *fp = cgmo->fp;
     surface = cairo_get_target(cgmo->ws->cr);
-
+    /* draws the logo */
+    draw_logo(cgmo->ws->cr);
     if (fp != NULL) {
       cairo_show_page(cgmo->ws->cr);
       /* plug for png output ? */
