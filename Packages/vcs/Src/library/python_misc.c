@@ -1842,6 +1842,7 @@ int python_display(char *a_name[17], char *template, char *type, char *graphics,
         if ((cmpncs(type,"line") == 0) || (cmpncs(type,"marker") == 0) ||
             (cmpncs(type,"fillarea") == 0) || (cmpncs(type,"text") == 0)) {
 	   vcs_draw_primatives( d_name );
+	   draw_logo(connect_id.cr);
         } else {
 	  vcs_canvas_update(0);
 	}

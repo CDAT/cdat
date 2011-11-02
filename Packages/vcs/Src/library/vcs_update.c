@@ -34,7 +34,9 @@ extern struct gXy_tab GXy_tab;
 extern struct gYx_tab GYx_tab;
 extern struct gXY_tab GXY_tab;
 extern struct gSp_tab GSp_tab;
-
+extern cairo_surface_t *logo;
+extern cairo_pattern_t *logo_p;
+extern int logo_width,logo_height;
 extern int Inactive;
 extern int user_defer_update;
 
@@ -1377,14 +1379,14 @@ int vcs_canvas_update ( short use_defer_flg )
                 }
             }
         }
-      if (change==1) {
-	/* Put code to do the logo here */
-	draw_logo(connect_id.cr);
-	}
       killP( pp ); /* Remove the newly created picture template. */
     }
   }
-
+  if (change==1) {
+    /* Put code to do the logo here */
+    draw_logo(connect_id.cr);
+  }
+  
   /* 	if (wks > 0) { */
   /*            if ((Inactive==1) && (user_defer_update==0)) */
   /*               guwk(wks,GPERFORM); */
@@ -1398,25 +1400,27 @@ int vcs_canvas_update ( short use_defer_flg )
 }
 
 void draw_logo(cairo_t *cr) {
-  int w,h,wl,hl;
-  float ratio = .075;
-  float ws,hs,x,y;
-  cairo_surface_t *logo;
-  logo = cairo_image_surface_create_from_png("/lgm/cdat/Qt/Library/Frameworks/Python.framework/Versions/2.7/bin/UV-CDAT_logo_sites.png");
-  wl=cairo_image_surface_get_width(logo);
-  hl=cairo_image_surface_get_height(logo);
+  int w,h;
+  float ratio = .025;
+  float logo_ratio;
+  float hr,x,y,dw,dh;
   w=cairo_image_surface_get_width(cairo_get_target(cr));
   h=cairo_image_surface_get_height(cairo_get_target(cr));
-  x=(float)w*(1.-ratio);
-  y= (float)h*(1.-ratio);
-  cairo_rectangle(cr,x,y,(float)w*ratio,(float)h*ratio);
+  hr = (float)(int)((float)h*ratio)/(float)logo_height;
+  logo_ratio = (float)logo_width/(float)logo_height;
+  dh = (float)h*ratio;
+  y= (float)h-dh;
+  dw = dh*logo_ratio;
+  x=(float)w-dw;
+  cairo_rectangle(cr,x,y,dw,dh);
   cairo_clip(cr);
-  hs = (float)h*ratio/(float)hl;
-  ws=(float)w*ratio/(float)wl;
-  cairo_scale(cr,ws,hs);
-  cairo_set_source_surface(cr,logo,x/ws,y/hs);
-  cairo_paint(cr);
-  cairo_scale(cr,1./ws,1./hs);
+  cairo_scale(cr,hr,hr);
+  cairo_set_source_surface(cr,logo,x/hr,y/hr);
+  //cairo_set_source(cr,logo_p);
+  //cairo_set_source_rgb(cr,1.,0.,0.);
+  cairo_paint_with_alpha(cr,.5);
+  cairo_reset_clip(cr);
+  cairo_scale(cr,1./hr,1./hr);
 }
 
 void set_viewport_and_worldcoordinate ( 
