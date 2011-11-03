@@ -3,7 +3,7 @@
 #
 set(PyQt_source "${CMAKE_CURRENT_BINARY_DIR}/build/PyQt")
 
-set(PyQt_configure_command ${PYTHON_EXECUTABLE} configure.py -q ${QT_QMAKE_EXECUTABLE} --confirm-license -b ${CMAKE_INSTALL_PREFIX}/bin -d ${PYTHON_SITE_PACKAGES} -v ${CMAKE_INSTALL_PREFIX}/include -v ${CMAKE_INSTALL_PREFIX}/share -p ${CMAKE_INSTALL_PREFIX}/share/plugins -n ${CMAKE_INSTALL_PREFIX}/share/qsci)
+set(PyQt_configure_command ${PYTHON_EXECUTABLE} configure.py -q ${QT_QMAKE_EXECUTABLE} --confirm-license -b ${CMAKE_INSTALL_PREFIX}/bin -d ${PYTHON_SITE_PACKAGES} -v ${CMAKE_INSTALL_PREFIX}/include -v ${CMAKE_INSTALL_PREFIX}/share -p ${CMAKE_INSTALL_PREFIX}/share/plugins -n ${CMAKE_INSTALL_PREFIX}/share/qsci --assume-shared)
 
 ExternalProject_Add(PyQt
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
