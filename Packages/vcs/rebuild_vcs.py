@@ -1,5 +1,5 @@
 import platform
-prefix_path = "/lgm/cdat/Qt"
+prefix_path = "/lgm/cdat/uvcdat"
 if "omar" in platform.uname():
     xpth=""
     arch="i386"
@@ -67,6 +67,7 @@ for f in files:
 #sys.exit()
 for file,out in do:
     cmd="%s %s %s -o %s %s" % (compile_line,opt,xopt,out,file)
+    print "prefix path:",prefix_path
     cmd = cmd.replace("/lgm/cdat/uvcdat",prefix_path)
     print "Recompiling file:",file,"cmd:",cmd
     print os.popen(cmd).readlines()
