@@ -16,6 +16,7 @@
 
 #define STRMAX 256
 
+extern Gpoint VCS2PSDEVICE();
 extern struct a_tab A_tab;
 extern struct p_tab Pic_tab;
 
@@ -52,7 +53,7 @@ extern int QtWorking;
 #endif
 extern int cairoIsSetup;
 extern     int err_warn (int beep,FILE *fp,char *fmt,...);
-
+extern int XW,YW;
 #ifdef USEX11
 int updating =0;
 void vcs_acquire_update(){
@@ -1404,14 +1405,30 @@ void draw_logo(cairo_t *cr) {
   float ratio = .025;
   float logo_ratio;
   float hr,x,y,dw,dh;
-  w=cairo_image_surface_get_width(cairo_get_target(cr));
-  h=cairo_image_surface_get_height(cairo_get_target(cr));
+  int xtmp;
+  cairo_surface_t *surface;
+  cairo_surface_type_t stype;
+  surface = cairo_get_target(cr);
+  stype = cairo_surface_get_type(surface);
+  if (stype==CAIRO_SURFACE_TYPE_IMAGE) {
+    w=cairo_image_surface_get_width(surface);
+    h=cairo_image_surface_get_height(surface);
+  } 
+  else {
+    w = XW;
+    h = YW;
+  }
+
   hr = (float)(int)((float)h*ratio)/(float)logo_height;
   logo_ratio = (float)logo_width/(float)logo_height;
   dh = (float)h*ratio;
   y= (float)h-dh;
   dw = dh*logo_ratio;
   x=(float)w-dw;
+  if (stype==CAIRO_SURFACE_TYPE_PS) {
+	xtmp = (int) ((float)(YW)/15.);
+	cairo_translate(cr,xtmp,0);
+  }
   cairo_rectangle(cr,x,y,dw,dh);
   cairo_clip(cr);
   cairo_scale(cr,hr,hr);
