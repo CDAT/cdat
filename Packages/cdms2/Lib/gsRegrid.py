@@ -17,13 +17,19 @@ LIBCFDIR  = __path__[0] + "/libcf"
 
 # standard python includes
 from re import search, sub
-from ctypes import c_double, c_char_p, c_int, CDLL, byref, POINTER
+from ctypes import c_double, c_float, c_int, c_char_p, CDLL, byref, POINTER
 
 # numpy
 import numpy
 
 import sys
 __FILE__ = sys._getframe().f_code.co_filename
+
+def catchError(status, lineno):
+    if status != 0:
+        raise CDMSError, "ERROR in %s: status = %d at line %d" \
+                % (__FILE__, status, lineno)
+
 
 def getTensorProduct(axis, dim, dims):
     """
@@ -67,7 +73,6 @@ class Regrid:
             raise CDMSError, "ERROR in %s: could not open shared library %s" \
                 (__FILE__, LIBCFDIR)
         
-
         # Number of space dimensions
         self.ndims = len(src_grid)
         if len(dst_grid) != self.ndims:
@@ -123,9 +128,7 @@ class Regrid:
                                              dataPtr, save, name, 
                                              standard_name, units, 
                                              byref(coordid))
-            if status != 0:
-                raise CDMSError, "ERROR in %s: status = %d at line %d" \
-                    % (__FILE__, status, sys._getframe().f_lineno)
+            catchError(status, sys._getframe().f_lineno)
             self.src_coordids[i] = coordid
 
             data =  numpy.array( dst_grid[i], numpy.float64 )
@@ -136,62 +139,43 @@ class Regrid:
                                              dataPtr, save, name, 
                                              standard_name, units, 
                                              byref(coordid))
-            if status != 0:
-                raise CDMSError, "ERROR in %s: status = %d at line %d" \
-                    % (__FILE__, status, sys._getframe().f_lineno)
+            catchError(status, sys._getframe().f_lineno)
             self.dst_coordids[i] = coordid
 
         # Build grid objects
         status = self.lib.nccf_def_grid(self.src_coordids, "src_grid", 
                                         byref(self.src_gridid))
-        if status != 0:
-            raise CDMSError, "ERROR in %s: status = %d at line %d" \
-                % (__FILE__, status, sys._getframe().f_lineno)
+        catchError(status, sys._getframe().f_lineno)
 
         status = self.lib.nccf_def_grid(self.dst_coordids, "dst_grid", 
                                         byref(self.dst_gridid))
-        if status != 0:
-            raise CDMSError, "ERROR in %s: status = %d at line %d" \
-                % (__FILE__, status, sys._getframe().f_lineno)
+        catchError(status, sys._getframe().f_lineno)
 
         # Create regrid object
         status = self.lib.nccf_def_regrid(self.src_gridid, self.dst_gridid, 
                                           byref(self.regridid))
-        if status != 0:
-            raise CDMSError, "ERROR in %s: status = %d at line %d" \
-                % (__FILE__, status, sys._getframe().f_lineno)
-
+        catchError(status, sys._getframe().f_lineno)
 
     def __del__(self):
         """
         Destructor, will be called automatically
         """
         status = self.lib.nccf_free_regrid(self.regridid)
-        if status != 0:
-            raise CDMSError, "ERROR in %s: status = %d at line %d" \
-                % (__FILE__, status, sys._getframe().f_lineno)
+        catchError(status, sys._getframe().f_lineno)
 
         status = self.lib.nccf_free_grid(self.src_gridid)
-        if status != 0:
-            raise CDMSError, "ERROR in %s: status = %d at line %d" \
-                % (__FILE__, status, sys._getframe().f_lineno)
+        catchError(status, sys._getframe().f_lineno)
         
         status = self.lib.nccf_free_grid(self.dst_gridid)
-        if status != 0:
-            raise CDMSError, "ERROR in %s: status = %d at line %d" \
-                % (__FILE__, status, sys._getframe().f_lineno)
+        catchError(status, sys._getframe().f_lineno)
 
         for i in range(self.ndims):
 
             status = self.lib.nccf_free_coord(self.src_coordids[i])
-            if status != 0:
-                raise CDMSError, "ERROR in %s: status = %d at line %d" \
-                    % (__FILE__, status, sys._getframe().f_lineno)
+            catchError(status, sys._getframe().f_lineno)
 
             status = self.lib.nccf_free_coord(self.dst_coordids[i])
-            if status != 0:
-                raise CDMSError, "ERROR in %s: status = %d at line %d" \
-                    % (__FILE__, status, sys._getframe().f_lineno) 
+            catchError(status, sys._getframe().f_lineno) 
 
     def addForbiddenBox(self, lo, hi):
         """
@@ -216,9 +200,7 @@ class Regrid:
         status = self.lib.nccf_add_regrid_forbidden(self.regridid, 
                                                     loIndices, 
                                                     hiIndices)
-        if status != 0:
-            raise CDMSError, "ERROR in %s: status = %d at line %d" \
-                % (__FILE__, status, sys._getframe().f_lineno)
+        catchError(status, sys._getframe().f_lineno)
 
     def computeWeights(self, nitermax=100, tolpos=1.e-2, is_periodic=[]):
         """
@@ -242,11 +224,90 @@ class Regrid:
                                                       nitermax, 
                                                       c_double(tolpos),
                                                       isPeriodic)
-        if status != 0:
-            raise CDMSError, "ERROR in %s: status = %d at line %d" \
-                % (__FILE__, status, sys._getframe().f_lineno)
-        
+        catchError(status, sys._getframe().f_lineno)
 
+    def apply(self, src_data, dst_data):
+        """
+        Apply interpolation
+        @param src_data data on source grid
+        @param dst_data data on destination grid
+        @note destination coordinates falling outside the valid domain
+              of src_data will not be interpoloted, the corresponding
+              dst_data will not be touched.
+        """
+        # Check 
+        if numpy.any(src_data.shape != self.src_dims):
+            raise CDMSError, ("ERROR in %s: supplied src_data have wrong shape " \
+                + "%s != %s") % (__FILE__, str(src_data.shape), str(self.src_dims))
+        if numpy.any(dst_data.shape != self.dst_dims):
+            raise CDMSError, ("ERROR in %s: supplied dst_data have wrong shape " \
+                + "%s != %s") % (__FILE__, str(dst_data.shape), str(self.dst_dims))
+
+        # Create data objects
+        src_dataid = c_int(-1)
+        dst_dataid = c_int(-1)
+        save = 0
+        standard_name = ""
+        units = ""
+        time_dimname = ""
+
+        status = self.lib.nccf_def_data(self.src_gridid, "src_data", \
+                                        standard_name, units, time_dimname, \
+                                            byref(src_dataid))
+        catchError(status, sys._getframe().f_lineno)
+        if src_data.dtype == numpy.float64:
+            status = self.lib.nccf_set_data_double(src_dataid, 
+                                                   src_data.ctypes.data_as(POINTER(c_double)),
+                                                   save, LibCFConfig.NC_FILL_DOUBLE)
+            catchError(status, __FILE__, sys._getframe().f_lineno)
+        elif src_data.dtype == numpy.float32:
+            status = self.lib.nccf_set_data_float(src_dataid, 
+                                                  src_data.ctypes.data_as(POINTER(c_float)),
+                                                  save, LibCFConfig.NC_FILL_FLOAT)
+            catchError(status, __FILE__, sys._getframe().f_lineno)
+        elif src_data.dtype == numpy.int32:
+            status = self.lib.nccf_set_data_int(src_dataid, 
+                                                src_data.ctypes.data_as(POINTER(c_int)),
+                                                save, LibCFConfig.NC_FILL_INT)
+            catchError(status, __FILE__, sys._getframe().f_lineno)
+        else:
+            raise CDMSError, "ERROR in %s: invalid src_data type = %s" \
+                % (__FILE__, src_data.dtype)
+            
+
+        status = self.lib.nccf_def_data(self.dst_gridid, "dst_data", \
+                                        standard_name, units, time_dimname, \
+                                            byref(dst_dataid))
+        catchError(status, sys._getframe().f_lineno)
+        if dst_data.dtype == numpy.float64:
+            status = self.lib.nccf_set_data_double(dst_dataid, 
+                                                   dst_data.ctypes.data_as(POINTER(c_double)),
+                                                   save, LibCFConfig.NC_FILL_DOUBLE)
+            catchError(status, __FILE__, sys._getframe().f_lineno)
+        elif dst_data.dtype == numpy.float32:
+            status = self.lib.nccf_set_data_float(dst_dataid, 
+                                                  dst_data.ctypes.data_as(POINTER(c_float)),
+                                                  save, LibCFConfig.NC_FILL_FLOAT)
+            catchError(status, __FILE__, sys._getframe().f_lineno)
+        elif dst_data.dtype == numpy.int32:
+            status = self.lib.nccf_set_data_int(dst_dataid, 
+                                                dst_data.ctypes.data_as(POINTER(c_int)),
+                                                save, LibCFConfig.NC_FILL_INT)
+            catchError(status, __FILE__, sys._getframe().f_lineno)
+        else:
+            raise CDMSError, "ERROR in %s: invalid dst_data type = %s" \
+                % (__FILE__, dst_data.dtype)
+
+        # Now apply weights
+        status = self.lib.nccf_apply_regrid(self.regridid, src_dataid, dst_dataid)
+        catchError(status, sys._getframe().f_lineno)
+
+        # Clean up
+        status = self.lib.nccf_free_data(src_dataid)
+        catchError(status, sys._getframe().f_lineno)
+        status = self.lib.nccf_free_data(dst_dataid)
+        catchError(status, sys._getframe().f_lineno)
+    
     def getNumValid(self):
         """
         Return the number of valid destination points. Destination points
@@ -258,9 +319,7 @@ class Regrid:
         res = c_int(-1)
         status = self.lib.nccf_inq_regrid_nvalid(self.regridid, 
                                                  byref(res))
-        if status != 0:
-            raise CDMSError, "ERROR in %s: status = %d at line %d" \
-                % (__FILE__, status, sys._getframe().f_lineno)
+        catchError(status, sys._getframe().f_lineno)
         return res.value
 
     def getNumDstPoints(self):
@@ -271,9 +330,7 @@ class Regrid:
         res = c_int(-1)
         status = self.lib.nccf_inq_regrid_ntargets(self.regridid, 
                                                   byref(res))
-        if status != 0:
-            raise CDMSError, "ERROR in %s: status = %d at line %d" \
-                % (__FILE__, status, sys._getframe().f_lineno)
+        catchError(status, sys._getframe().f_lineno)
         return res.value
 
 ######################################################################
