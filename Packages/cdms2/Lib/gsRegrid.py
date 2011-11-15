@@ -13,7 +13,10 @@ try:
 except:
     raise ImportError, 'Error: could not import pycf'
 
-LIBCFDIR  = __path__[0] + "/libcf"
+#LIBCFDIR  = __path__[0] + "/libcf"
+LIBCFDIR  = "/home/pletzer/software/libcf-debug/lib/libcf"
+LIBCFDIR  = "/home/pletzer/software/libcf-opt/lib/libcf"
+
 
 from error import CDMSError
 import numpy
@@ -30,6 +33,22 @@ def catchError(status, lineno):
     if status != 0:
         raise CDMSError, "ERROR in %s: status = %d at line %d" \
                 % (__FILE__, status, lineno)
+
+def getPeriodicityArray(ndims, is_periodic):
+    """
+    Cast a periodicity array of True/False booleans into 
+    a ctypes array of int's
+    @param is_periodic list of True/False
+    @return array of integers
+    """
+    # cast into a ctypes array of int's
+    res = (c_int * ndims)()
+    for i in range(ndims):
+        res[i] = 0
+    for i in range(len(is_periodic)):
+        if is_periodic[i]: 
+            res[i] = 1
+    return res
 
 
 def getTensorProduct(axis, dim, dims):
@@ -218,13 +237,7 @@ class Regrid:
                            axes. A coordinate is said to be periodic iff
                            the last coordinate value matches the first.
         """
-        # cast into a ctypes array of int's
-        isPeriodic = (c_int * self.ndims)()
-        for i in range(self.ndims):
-            isPeriodic[i] = 0
-        if is_periodic != []:
-            if is_periodic[i]: 
-                isPeriodic[i] = 1
+        isPeriodic = getPeriodicityArray(self.ndims, is_periodic)
         status = self.lib.nccf_compute_regrid_weights(self.regridid,
                                                       nitermax, 
                                                       c_double(tolpos),
@@ -361,7 +374,38 @@ class Regrid:
         @return grid
         """
         return self.dst_coords
- 
+
+    def _findIndices(self, targetPos, nitermax, tolpos, 
+                        is_periodic=[]):
+        """
+        Find the floating indices
+        @param targetPos numpy array of target positions
+        @param nitermax max number of iterations
+        @param tolpos max toelrance in positions
+        @param is_periodic an array of bools, True if axis is periodic
+        """
+        posPtr = targetPos.ctypes.data_as(POINTER(c_double))
+        adjustFunc = None
+        isPeriodic = getPeriodicityArray(self.ndims, is_periodic)
+        res = numpy.zeros( (self.ndims,), numpy.float64 )
+        resPtr = res.ctypes.data_as(POINTER(c_double))
+        src_coords = (POINTER(c_double) * self.ndims)()
+        for i in range(self.ndims):
+            ptr = self.src_coords[i].ctypes.data_as(POINTER(c_double))
+            src_coords[i] = ptr
+        status = self.lib.nccf_find_indices_double(self.ndims, 
+                                                   self.src_dims, 
+                                                   src_coords,
+                                                   isPeriodic, 
+                                                   posPtr,
+                                                   nitermax, 
+                                                   c_double(tolpos),
+                                                   adjustFunc,
+                                                   resPtr)
+        print 'status = ', status
+        return res
+        
+
 ######################################################################
 
 def testOuterProduct():
@@ -383,18 +427,26 @@ def test():
     def func(coords):
         return coords[0]*coords[1] + coords[2]
     
-    # rectilinear grid
+    # source grid, tensor product od axes
     src_x = numpy.array([1, 2, 3, 4])
     src_y = numpy.array([10, 20, 30])
     src_z = numpy.array([100, 200])
 
-    # curvilinear grid
+    # destination grid, product of axes
     dst_x = numpy.array([1.5, 2.0, 2.5, 3.5])
     dst_y = numpy.array([15., 20., 25.])
     dst_z = numpy.array([120.0, 180.0])
 
     rg = Regrid([src_x, src_y, src_z], 
                 [dst_x, dst_y, dst_z])
+    #rg = Regrid([src_x, src_y], 
+    #            [dst_x, dst_y])
+
+    indices = rg._findIndices(numpy.array([1.5, 18.0, 140.0]), 
+                              nitermax = 20, tolpos = 1.e-2, 
+                              is_periodic=[False])
+    print 'indices = ', indices
+
     rg.computeWeights(10, 1.e-3, is_periodic=[False, False, False])
     nvalid = rg.getNumValid()
     ndstpts = rg.getNumDstPoints()
@@ -403,6 +455,8 @@ def test():
     # data 
     src_coords = rg.getSrcGrid()
     dst_coords = rg.getDstGrid()
+    #print 'src_coords = ', src_coords
+    #print 'dst_coords = ', dst_coords
     src_data = numpy.array( func(src_coords), numpy.float32 )
     dst_data = -numpy.ones( dst_coords[0].shape, numpy.float32 )
 
@@ -411,8 +465,8 @@ def test():
 
     # check
     error = numpy.sum(abs(dst_data - func(dst_coords)))
-    print dst_data
-    print func(dst_coords)
+    #print dst_data
+    #print func(dst_coords)
     print 'error = ', error
         
 
