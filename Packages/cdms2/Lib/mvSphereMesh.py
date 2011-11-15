@@ -12,10 +12,11 @@ from types import NoneType
 
 class SphereMesh:
     
-    def __init__(self, var):
+    def __init__(self, var, sphereThickness):
         """
         Constructor
         @param var cdms2 variable
+        @param sphereThickness thickness of the shell in normalized sphere radius
         """
        
         self.isRectilinear = True
@@ -23,14 +24,15 @@ class SphereMesh:
         self.elvPositiveDown = False
         self.minElv = 0
         self.maxElv = 1
+        self.sphereThickness = sphereThickness
 
         # get the lon, lat, elv coordinates (or axes)
         lons = var.getLongitude()
         lats = var.getLatitude()
         elvs = var.getLevel()
 
-        # compute the min/max of elevation, we will
-        # normalize
+        # compute the min/max of elevation, needed
+        # for normalization
         if type(elvs) != NoneType:
             self.minElv = min(elvs[:])
             self.maxElv = max(elvs[:])
@@ -60,7 +62,7 @@ class SphereMesh:
         # store lon, lat, elv as a curvilinear grid
         if self.isRectilinear:
             # apply tensore product of axes to generat curvilinear coordinates
-            if elvs != NoneType:
+            if type(elvs) != NoneType:
                 self.elvs = numpy.outer(numpy.outer( numpy.ones(self.shape[:0], numpy.float32), elvs),
                                         numpy.ones(self.shape[0+1:], numpy.float32)).reshape(self.shape)
             else:
@@ -79,11 +81,6 @@ class SphereMesh:
             else:
                 self.elvs = numpy.zeros( self.shape, numpy.float32 )
 
-        # normalize elevation
-        if type(elvs) != NoneType:
-            self.elvs -= self.minElv
-            self.elvs /= (self.maxElv - self.minElv)
-
         # reshape as flat arrays
         sz = reduce(lambda x, y: x*y, self.shape)
         self.lons = numpy.reshape(self.lons, (sz,))
@@ -97,20 +94,20 @@ class SphereMesh:
         @return mesh
         """
         sz = reduce(lambda x, y: x*y, self.shape)
-        elvMax = max(self.elvs[:])
-        elvMin = min(self.elvs[:])
-        diffElv = elvMax - elvMin
+        rr = sphereRadius*(1.0 + self.elvs)
+        diffElv = self.maxElv - self.minElv
         rr = sphereRadius*numpy.ones(self.lons.shape, numpy.float32 )
-        if diffElv > 0:
+        if diffElv != 0:
+            coeff = sphereRadius*self.sphereThickness/diffElv
             if self.elvPositiveDown:
                 # depth
-                rr = sphereRadius*(1.0 - (self.elvs - elvMax)/diffElv)
+                rr += coeff*(self.maxElv - self.elvs)
             else:
                 # height
-                rr = sphereRadius*(1.0 + (self.elvs - elvMin)/diffElv)  
+                rr += coeff*(self.elvs - self.minElv)
 
         mesh = numpy.zeros( (sz, 3), numpy.float32 )
-        cosLats = numpy.cos(self.lats*numpy.pi/180.)
+        cosLats = numpy.cos( self.lats*numpy.pi/180. )
         mesh[:, 0] = rr*numpy.cos(self.lons*numpy.pi/180.)*cosLats
         mesh[:, 1] = rr*numpy.sin(self.lons*numpy.pi/180.)*cosLats
         mesh[:, 2] = rr*numpy.sin(self.lats*numpy.pi/180.)

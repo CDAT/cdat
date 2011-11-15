@@ -18,7 +18,8 @@ LIBCFDIR  = "/home/pletzer/software/libcf-debug/lib/libcf"
 LIBCFDIR  = "/home/pletzer/software/libcf-opt/lib/libcf"
 
 
-from error import CDMSError
+#from error import CDMSError
+from cdms2.error import CDMSError
 import numpy
 
 # standard python includes
@@ -378,7 +379,7 @@ class Regrid:
     def _findIndices(self, targetPos, nitermax, tolpos, 
                         is_periodic=[]):
         """
-        Find the floating indices
+        Find the floating point indices
         @param targetPos numpy array of target positions
         @param nitermax max number of iterations
         @param tolpos max toelrance in positions

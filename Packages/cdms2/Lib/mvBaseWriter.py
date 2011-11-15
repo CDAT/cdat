@@ -11,7 +11,7 @@ import mvSphereMesh
 
 class BaseWriter:
 
-    def __init__(self, var, sphereRadius=1.0):
+    def __init__(self, var, sphereRadius=1.0, maxElev=0.1):
         """
         Constructor
         @param var a cdms2 variable
@@ -20,7 +20,7 @@ class BaseWriter:
         @param maxElev max elevation/depth normalized to the sphere radius
         """
         self.var = var
-        sphere_mesh = mvSphereMesh.SphereMesh(var)
+        sphere_mesh = mvSphereMesh.SphereMesh(var, maxElev)
         self.shape = sphere_mesh.shape
         self.mesh = sphere_mesh.getXYZCoords(sphereRadius)
 
