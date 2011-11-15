@@ -59,27 +59,30 @@ class SphereMesh:
 
         # store lon, lat, elv as a curvilinear grid
         if self.isRectilinear:
-            self.lons = numpy.zeros( self.shape, numpy.float32 )
-            self.lats = numpy.zeros( self.shape, numpy.float32 )
-            self.elvs = numpy.zeros( self.shape, numpy.float32 )
-            for k in range(self.shape[0]):
-                for j in range(self.shape[1]):
-                    for i in range(self.shape[2]):
-                        self.lons[k, j, i] = lons[i]
-                        self.lats[k, j, i] = lats[j]
-                        if type(elvs) != NoneType:
-                            self.elvs[k, j, i] = (elvs[k] - self.minElv) / \
-                                (self.maxElv - self.minElv)
-                        else:
-                            self.elvs[k, j, i] = 0
+            # apply tensore product of axes to generat curvilinear coordinates
+            if elvs != NoneType:
+                self.elvs = numpy.outer(numpy.outer( numpy.ones(self.shape[:0], numpy.float32), elvs),
+                                        numpy.ones(self.shape[0+1:], numpy.float32)).reshape(self.shape)
+            else:
+                self.elvs = numpy.zeros( self.shape, numpy.float32 )
+            self.lats = numpy.outer(numpy.outer( numpy.ones(self.shape[:1], numpy.float32), lats),
+                                    numpy.ones(self.shape[1+1:], numpy.float32)).reshape(self.shape)
+            self.lons = numpy.outer(numpy.outer( numpy.ones(self.shape[:2], numpy.float32), lons),
+                                    numpy.ones(self.shape[2+1:], numpy.float32)).reshape(self.shape)
+    
         else:
             # already in curvilinear form
             self.lons = lons[:]
             self.lats = lats[:]
             if type(elvs) != NoneType:
-                self.elvs = (elvs - self.minElv)(self.maxElv - self.minElv)
+                self.elvs = elvs[:]
             else:
                 self.elvs = numpy.zeros( self.shape, numpy.float32 )
+
+        # normalize elevation
+        if type(elvs) != NoneType:
+            self.elvs -= self.minElv
+            self.elvs /= (self.maxElv - self.minElv)
 
         # reshape as flat arrays
         sz = reduce(lambda x, y: x*y, self.shape)
