@@ -7,26 +7,30 @@ This code is provided with the hope that it will be useful.
 No guarantee is provided whatsoever. Use at your own risk.
 """
 
-# libcf
-try:
-    from pycf import libCFConfig, __path__
-except:
-    raise ImportError, 'Error: could not import pycf'
-
-#LIBCFDIR  = __path__[0] + "/libcf"
-LIBCFDIR  = "/home/pletzer/software/libcf-debug/lib/libcf"
-LIBCFDIR  = "/home/pletzer/software/libcf-opt/lib/libcf"
-
-
-#from error import CDMSError
-from cdms2.error import CDMSError
-import numpy
 
 # standard python includes
 from re import search, sub
 from ctypes import c_double, c_float, c_int, c_char_p, CDLL, byref, POINTER
 import operator
 import sys
+
+import numpy
+
+# libcf
+try:
+    from pycf import libCFConfig, __path__
+except:
+    raise ImportError, 'Error: could not import pycf'
+
+LIBCFDIR  = __path__[0] + "/libcf"
+#LIBCFDIR  = "/home/pletzer/software/libcf-debug/lib/libcf"
+#LIBCFDIR  = "/home/pletzer/software/libcf-opt/lib/libcf"
+#LIBCFDIR  = "/home/pletzer/software/libcf-debug-logging/lib/libcf"
+
+try:
+    from error import CDMSError
+except:
+    from cdms2.error import CDMSError
 
 __FILE__ = sys._getframe().f_code.co_filename
 
@@ -51,7 +55,6 @@ def getPeriodicityArray(ndims, is_periodic):
             res[i] = 1
     return res
 
-
 def getTensorProduct(axis, dim, dims):
     """
     Convert an axis into a curvilinear coordinate by applying 
@@ -63,7 +66,6 @@ def getTensorProduct(axis, dim, dims):
     """
     return numpy.outer(numpy.outer( numpy.ones(dims[:dim], axis.dtype), axis),
                       numpy.ones(dims[dim+1:], axis.dtype)).reshape(dims)
-
 
 class Regrid:
 
@@ -112,7 +114,7 @@ class Regrid:
             src_dims = tuple([len(a) for a in src_grid])
         dst_dims = dst_grid[0].shape
         if len(dst_dims) < self.ndims:
-            dst_dims = tuple([len(a) for a in src_grid])
+            dst_dims = tuple([len(a) for a in dst_grid])
 
         # Convert src_grid/dst_grid to curvilinear grid, if need be
         if self.ndims > 1:
