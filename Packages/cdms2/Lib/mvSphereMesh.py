@@ -12,11 +12,12 @@ from types import NoneType
 
 class SphereMesh:
     
-    def __init__(self, var, sphereThickness):
+    def __init__(self, var, sphereThickness=0.1):
         """
         Constructor
         @param var cdms2 variable
-        @param sphereThickness thickness of the shell in normalized sphere radius
+        @param sphereThickness thickness of the shell in normalized 
+                               sphere radius
         """
        
         self.isRectilinear = True
@@ -131,7 +132,7 @@ def test2DRect():
                        sin(5*pi*lons[:]/180.0))
     var = cdms2.createVariable(data, id='fake_data_2d_rect', 
                                axes=(lats, lons))
-    sphere_mesh = SphereMesh(var)
+    sphere_mesh = SphereMesh(var, 0.1)
     print sphere_mesh.getXYZCoords()
 
 def test2D():
