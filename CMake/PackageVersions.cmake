@@ -288,9 +288,9 @@ set(CLAPACK_MD5 4fd18eb33f3ff8c5d65a7d43913d661b)
 #set(LAPACK_URL http://uv-cdat.llnl.gov/cdat/resources)
 #set(LAPACK_GZ lapack.tgz)
 #set(LAPACK_MD5 d0d533ec9a5b74933c2a1e84eedc58b4)
-set(LAPACK_URL http://www.netlib.org/lapack
+set(LAPACK_URL http://www.netlib.org/lapack)
 set(LAPACK_GZ lapack-3.4.0.tgz)
-set(LAPACK_MD5)
+set(LAPACK_MD5 d0d533ec9a5b74933c2a1e84eedc58b4)
 
 set(LAPACK95_URL http://uv-cdat.llnl.gov/cdat/resource)
 set(LAPACK95_GZ lapack95.tgz)
