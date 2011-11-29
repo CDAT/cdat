@@ -14,11 +14,11 @@ if(UNIX AND CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
   set(cdat_tpl_c_flags_LAPACK "-fPIC ${cdat_tpl_c_flags}")
 endif()
 
-configure_file(${ParaViewSuperBuild_CMAKE_SOURCE_DIR}/CLAPACK_install_step.cmake.in
-    ${CMAKE_CURRENT_BINARY_DIR}/CLAPACK_install_step.cmake
+configure_file(${cdat_CMAKE_SOURCE_DIR}/CLAPACK_install_step.cmake.in
+    ${cdat_CMAKE_BINARY_DIR}/CLAPACK_install_step.cmake
     @ONLY)
 
-set(CLAPACK_INSTALL_COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/CLAPACK_install_step.cmake)
+set(CLAPACK_INSTALL_COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/CLAPACK_install_step.cmake)
 
 ExternalProject_Add(CLAPACK
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
