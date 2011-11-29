@@ -2,7 +2,7 @@
 
 set(clapack_source "${cdat_EXTERNALS}/build/LAPACK")
 set(clapack_binary "${cdat_EXTERNALS}/build/LAPACK-build")
-set(clapack_binary "${cdat_EXTERNALS}")
+set(clapack_install "${cdat_EXTERNALS}")
 set(NUMPY_LAPACK_binary ${clapack_binary})
 
 #
