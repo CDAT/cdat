@@ -20,15 +20,15 @@ if(WIN32)
 else()
 
   EXECUTE_PROCESS(
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different "@clapack_binary@/SRC/liblapack.@_LINK_LIBRARY_SUFFIX@" "@clapack_install@/lib/"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "@clapack_binary@/SRC/liblapack@_LINK_LIBRARY_SUFFIX@" "@clapack_install@/lib/"
     )
 
   EXECUTE_PROCESS(
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different "@clapack_binary@/BLAS/SRC/libblas.@_LINK_LIBRARY_SUFFIX@" "@clapack_install@/lib/"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "@clapack_binary@/BLAS/SRC/libblas@_LINK_LIBRARY_SUFFIX@" "@clapack_install@/lib/"
     )
 
   EXECUTE_PROCESS(
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different "@clapack_binary@/F2CLIBS/libf2c/libf2c.@_LINK_LIBRARY_SUFFIX@" "@clapack_install@/lib/"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "@clapack_binary@/F2CLIBS/libf2c/libf2c@_LINK_LIBRARY_SUFFIX@" "@clapack_install@/lib/"
     )
 
   EXECUTE_PROCESS(
