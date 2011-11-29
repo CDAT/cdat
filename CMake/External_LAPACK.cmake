@@ -1,6 +1,7 @@
 # The LAPACK external project
 
 set(lapack_source "${CMAKE_CURRENT_BINARY_DIR}/build/LAPACK")
+set(lapack_binary "${CMAKE_CURRENT_BINARY_DIR}/build/LAPACK-build")
 set(lapack_install "${cdat_EXTERNALS}")
 set(NUMPY_LAPACK_binary ${lapack_binary})
 
@@ -8,6 +9,7 @@ ExternalProject_Add(LAPACK
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
   SOURCE_DIR ${lapack_source}
   BINARY_DIR ${lapack_binary}
+  INSTALL_DIR ${lapack_install}
   URL ${LAPACK_URL}/${LAPACK_GZ}
   URL_MD5 ${LAPACK_MD5}
   CMAKE_ARGS
@@ -15,8 +17,8 @@ ExternalProject_Add(LAPACK
     -DCMAKE_C_FLAGS:STRING=${cdat_tpl_c_flags}
     -DBUILD_SHARED_LIBS:BOOL=ON
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-    ${LAPACK_EXTRA_ARGS}
-  INSTALL_COMMAND ""
+    CMAKE_ARGS
+      -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
   DEPENDS ${LAPACK_DEPENDENCIES}
   ${EP_LOG_OPTIONS}
   )
