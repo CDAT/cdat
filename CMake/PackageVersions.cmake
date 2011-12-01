@@ -207,11 +207,11 @@ set(HDF4_MD5 7241a34b722d29d8561da0947c06069f)
 
 set(HDF5_MAJOR_SRC 1)
 set(HDF5_MINOR_SRC 8)
-set(HDF5_PATCH_SRC 5-patch1)
+set(HDF5_PATCH_SRC 8)
 #set(HDF5_URL http://www.hdfgroup.org/ftp/HDF5/current/src)
 set(HDF5_URL http://uv-cdat.llnl.gov/cdat/resources)
 set(HDF5_GZ hdf5-${HDF5_MAJOR_SRC}.${HDF5_MINOR_SRC}.${HDF5_PATCH_SRC}.tar.gz)
-set(HDF5_MD5 d22a35a17877e369055ed50da5ba91fa)
+set(HDF5_MD5 1196e668f5592bfb50d1de162eb16cff)
 
 set(UUID_MAJOR_SRC 1)
 set(UUID_MINOR_SRC 6)
