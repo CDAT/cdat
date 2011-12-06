@@ -1,8 +1,8 @@
 # The CLAPACK external project
 
-set(clapack_source "${cdat_EXTERNALS}/build/LAPACK")
-set(clapack_binary "${cdat_EXTERNALS}/build/LAPACK-build")
-set(clapack_binary "${cdat_EXTERNALS}")
+set(clapack_source "${CMAKE_CURRENT_BINARY_DIR}/LAPACK")
+set(clapack_binary "${CMAKE_CURRENT_BINARY_DIR}/LAPACK-build")
+set(clapack_install "${cdat_EXTERNALS}")
 set(NUMPY_LAPACK_binary ${clapack_binary})
 
 #
@@ -13,6 +13,12 @@ set(NUMPY_LAPACK_binary ${clapack_binary})
 if(UNIX AND CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
   set(cdat_tpl_c_flags_LAPACK "-fPIC ${cdat_tpl_c_flags}")
 endif()
+
+configure_file(${cdat_CMAKE_SOURCE_DIR}/CLAPACK_install_step.cmake.in
+    ${cdat_CMAKE_BINARY_DIR}/CLAPACK_install_step.cmake
+    @ONLY)
+
+set(CLAPACK_INSTALL_COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/CLAPACK_install_step.cmake)
 
 ExternalProject_Add(CLAPACK
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
@@ -27,7 +33,7 @@ ExternalProject_Add(CLAPACK
     -DBUILD_SHARED_LIBS:BOOL=ON
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     ${CLAPACK_EXTRA_ARGS}
-  INSTALL_COMMAND ""
+  INSTALL_COMMAND ${CLAPACK_INSTALL_COMMAND}
   DEPENDS ${CLAPACK_DEPENDENCIES}
   ${EP_LOG_OPTIONS}
   )
