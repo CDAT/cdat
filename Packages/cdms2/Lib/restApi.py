@@ -224,12 +224,14 @@ class esgfDataset(esgfConnection):
         else:
             self.restPath=restPath
         if datasetids is None:
-            if "dataset_id_template_" in keys.keys():
+            if "dataset_id_template_" in keys:
                 tmp=keys["dataset_id_template_"]
                 if tmp[:5]=="cmip5":
                     tmp = tmp.replace("valid_institute","institute")
                     tmp="%(project)"+tmp[5:]
                 self.datasetids = genutil.StringConstructor(tmp.replace(")s",")"))
+            elif "project" in keys and keys["project"]=="cmip5":
+                self.datasetids = genutil.StringConstructor("%(project).%(product).%(institute).%(model).%(experiment).%(time_frequency).%(realm).%(cmor_table).%(ensemble)")
             else:
                 self.datasetids=None
         if isinstance(datasetids,genutil.StringConstructor):
