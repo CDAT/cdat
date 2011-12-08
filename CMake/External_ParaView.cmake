@@ -28,7 +28,7 @@ if(NOT APPLE)
     -DLIBXML2_LIBRARIES:FILEPATH=${cdat_EXTERNALS}/lib/libxml2${_LINK_LIBRARY_SUFFIX}
     -DLIBXML2_XMLLINT_EXECUTABLE:FILEPATH=${cdat_EXTERNALS}/bin/xmllint
    )
-  message("PV build MPI ${PARAVIEW_USE_MPI}")
+
   if(PARAVIEW_USE_MPI)
     set(ParaView_mpi_args
       -DPARAVIEW_USE_MPI:BOOL=ON
@@ -42,8 +42,6 @@ if(NOT APPLE)
     )
   endif()
 endif()
-
-#set(pv_rpath_linker_flags "${cdat_rpath_flag}${CMAKE_INSTALL_PREFIX}/lib ${cdat_rpath_flag}${cdat_EXTERNALS}/lib ${cdat_rpath_flag}${ParaView_install}/lib/paraview-${PARAVIEW_MAJOR}.${PARAVIEW_MINOR}")
 
 ExternalProject_Add(ParaView
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
@@ -74,9 +72,6 @@ ExternalProject_Add(ParaView
     -DPYTHON_INCLUDE_DIR:PATH=${PYTHON_INCLUDE}
     -DPYTHON_LIBRARY:FILEPATH=${PYTHON_LIBRARY}
     -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=ON
-    -DCMAKE_EXE_LINKER_FLAGS:STRING=${pv_rpath_linker_flags}
-    -DCMAKE_MODULE_LINKER_FLAGS:STRING=${pv_rpath_linker_flags}
-    -DCMAKE_SHARED_LINKER_FLAGS:STRING=${pv_rpath_linker_flags}
     # MPI
     ${ParaView_mpi_args}
   CMAKE_ARGS
