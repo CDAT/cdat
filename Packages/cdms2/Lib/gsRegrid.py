@@ -13,6 +13,7 @@ from re import search, sub
 from ctypes import c_double, c_float, c_int, c_char_p, CDLL, byref, POINTER
 import operator
 import sys
+import copy
 
 import numpy
 
@@ -38,6 +39,25 @@ def catchError(status, lineno):
     if status != 0:
         raise CDMSError, "ERROR in %s: status = %d at line %d" \
                 % (__FILE__, status, lineno)
+
+def getNetCDFFillValue(dtype):
+    """
+    Get the NetCDF fill value 
+    @param dtype numpy data type, e.g. numpy.float32
+    """
+    if dtype == numpy.float64:
+        return libCFConfig.NC_FILL_DOUBLE
+    elif dtype == numpy.float32:
+        return libCFConfig.NC_FILL_FLOAT
+    elif dtype == numpy.int32:
+        return libCFConfig.NC_FILL_INT
+    elif dtype == numpy.int16:
+        return libCFConfig.NC_FILL_SHORT
+    elif dtype == numpy.int8:
+        return libCFConfig.NC_FILL_BYTE
+    else:
+        raise CDMSError, "ERROR in %s: invalid type %s" \
+            % (__FILE__, str(dtype)) 
 
 def getPeriodicityArray(ndims, is_periodic):
     """
@@ -378,21 +398,49 @@ class Regrid:
         """
         return self.dst_coords
 
+    def getIndicesAndWeights(self, dst_indices):
+        """
+        Get the indices and weights for a single target location
+        @param dst_indices index set on the target grid
+        @return [index sets on original grid, weights]
+        """
+        dinds = numpy.array(dst_indices)
+        sinds = (c_int * 2**self.ndims)()
+        weights = numpy.zeros( (2**self.ndims,), numpy.float64 )
+        status = self.lib.nccf_get_regrid_weights(self.regridid,
+                                                  dinds.ctypes.data_as(POINTER(c_double)), 
+                                                  sinds, 
+                                                  weights.ctypes.data_as(POINTER(c_double)))
+        catchError(status, sys._getframe().f_lineno)
+        # convert the flat indices to index sets
+        ori_inds = []
+        for i in range(2**self.ndims):
+            inx = numpy.zeros( (self.ndims,), numpy.int32 )
+            self.lib.nccf_get_multi_index(self.ndims, self.src_dims, 
+                                          sinds[i],
+                                          inx.ctypes.data_as(POINTER(c_int)))
+            ori_inds.append(inx)
+        return ori_inds, weights
+
     def _findIndices(self, targetPos, nitermax, tolpos, 
-                        is_periodic=[]):
+                     dindicesGuess, is_periodic=[]):
         """
         Find the floating point indices
         @param targetPos numpy array of target positions
         @param nitermax max number of iterations
         @param tolpos max toelrance in positions
+        @param dindicesGuess guess for the floating point indices
         @param is_periodic an array of bools, True if axis is periodic
+        @return indices, number of iterations, achieved tolerance
         """
         posPtr = targetPos.ctypes.data_as(POINTER(c_double))
         adjustFunc = None
         isPeriodic = getPeriodicityArray(self.ndims, is_periodic)
-        res = numpy.zeros( (self.ndims,), numpy.float64 )
+        res = copy.copy(dindicesGuess)
         resPtr = res.ctypes.data_as(POINTER(c_double))
         src_coords = (POINTER(c_double) * self.ndims)()
+        niter = c_int(nitermax)
+        tol = c_double(tolpos)
         for i in range(self.ndims):
             ptr = self.src_coords[i].ctypes.data_as(POINTER(c_double))
             src_coords[i] = ptr
@@ -401,13 +449,12 @@ class Regrid:
                                                    src_coords,
                                                    isPeriodic, 
                                                    posPtr,
-                                                   nitermax, 
-                                                   c_double(tolpos),
+                                                   byref(niter), 
+                                                   byref(tol),
                                                    adjustFunc,
                                                    resPtr)
-        print 'status = ', status
-        return res
-        
+        catchError(status, sys._getframe().f_lineno)
+        return res, niter.value, tol.value
 
 ######################################################################
 
