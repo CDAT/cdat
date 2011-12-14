@@ -546,12 +546,12 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         if timeAxis == None or timeIndex == -1:
             # static data
             if format == 'VTK':
-                vw = mvVTKSGWriter.VTKSGWriter(self)
+                vw = mvVTKSGWriter.VTKSGWriter(self, maxElev)
                 if filename.find('.vtk') == -1: 
                     filename += '.vtk'
                 vw.write(filename)
             else:
-                vw = mvVsWriter.VsWriter(self)
+                vw = mvVsWriter.VsWriter(self, maxElev)
                 if filename.find('.vsh5') == -1: 
                     filename += '.vsh5'
                 vw.write(filename)
@@ -566,14 +566,14 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
                         filename += '.vtk'
                     tFilename = generateTimeFileName(filename, 
                                                      tIndex, tIndexMax, 'vtk')
-                    vw = mvVTKSGWriter.VTKSGWriter(var)
+                    vw = mvVTKSGWriter.VTKSGWriter(var, maxElev)
                     vw.write(tFilename)
                 else:
                     if filename.find('.h5') == -1:
                         filename += '.h5'
                     tFilename = generateTimeFileName(filename, 
                                                      tIndex, tIndexMax, 'h5')
-                    vw = mvVsWriter.VsWriter(var)
+                    vw = mvVsWriter.VsWriter(var, maxElev)
                     vw.write(tFilename)
        
 ## PropertiedClasses.set_property(TransientVariable, 'shape', 

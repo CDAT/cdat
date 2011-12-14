@@ -39,9 +39,6 @@ class VsWriter(mvBaseWriter.BaseWriter):
                                   numpy.reshape(self.var, self.shape))
         dset.attrs.vsType = "variable"
         dset.attrs.vsMesh = meshid
-        mset.attrs.vsType = "mesh"
-        mset.attrs.vsKind = "structured"
-        mset.attrs.vsIndexOrder = "compMinorC"
         # additional attributes
         for a in self.var.attributes:
             setattr(dset.attrs, a, getattr(self.var, a))

@@ -7,6 +7,16 @@ This code is provided with the hope that it will be useful.
 No guarantee is provided whatsoever. Use at your own risk.
 """
 
+
+# standard python includes
+from re import search, sub
+from ctypes import c_double, c_float, c_int, c_char_p, CDLL, byref, POINTER
+import operator
+import sys
+import copy
+
+import numpy
+
 # libcf
 try:
     from pycf import libCFConfig, __path__
@@ -14,16 +24,56 @@ except:
     raise ImportError, 'Error: could not import pycf'
 
 LIBCFDIR  = __path__[0] + "/libcf"
+#LIBCFDIR  = "/home/pletzer/software/libcf-debug/lib/libcf"
+#LIBCFDIR  = "/home/pletzer/software/libcf-opt/lib/libcf"
+#LIBCFDIR  = "/home/pletzer/software/libcf-debug-logging/lib/libcf"
 
-# standard python includes
-from re import search, sub
-from ctypes import c_double, c_char_p, c_int, CDLL, byref, POINTER
+try:
+    from error import CDMSError
+except:
+    from cdms2.error import CDMSError
 
-# numpy
-import numpy
-
-import sys
 __FILE__ = sys._getframe().f_code.co_filename
+
+def catchError(status, lineno):
+    if status != 0:
+        raise CDMSError, "ERROR in %s: status = %d at line %d" \
+                % (__FILE__, status, lineno)
+
+def getNetCDFFillValue(dtype):
+    """
+    Get the NetCDF fill value 
+    @param dtype numpy data type, e.g. numpy.float32
+    """
+    if dtype == numpy.float64:
+        return libCFConfig.NC_FILL_DOUBLE
+    elif dtype == numpy.float32:
+        return libCFConfig.NC_FILL_FLOAT
+    elif dtype == numpy.int32:
+        return libCFConfig.NC_FILL_INT
+    elif dtype == numpy.int16:
+        return libCFConfig.NC_FILL_SHORT
+    elif dtype == numpy.int8:
+        return libCFConfig.NC_FILL_BYTE
+    else:
+        raise CDMSError, "ERROR in %s: invalid type %s" \
+            % (__FILE__, str(dtype)) 
+
+def getPeriodicityArray(ndims, is_periodic):
+    """
+    Cast a periodicity array of True/False booleans into 
+    a ctypes array of int's
+    @param is_periodic list of True/False
+    @return array of integers
+    """
+    # cast into a ctypes array of int's
+    res = (c_int * ndims)()
+    for i in range(ndims):
+        res[i] = 0
+    for i in range(len(is_periodic)):
+        if is_periodic[i]: 
+            res[i] = 1
+    return res
 
 def getTensorProduct(axis, dim, dims):
     """
@@ -36,7 +86,6 @@ def getTensorProduct(axis, dim, dims):
     """
     return numpy.outer(numpy.outer( numpy.ones(dims[:dim], axis.dtype), axis),
                       numpy.ones(dims[dim+1:], axis.dtype)).reshape(dims)
-
 
 class Regrid:
 
@@ -56,6 +105,8 @@ class Regrid:
         self.ndims = 0
         self.src_dims = []
         self.dst_dims = []
+        self.src_coords = []
+        self.dst_coords = []
         self.lib = None
 
         # Open the shaped library
@@ -67,7 +118,6 @@ class Regrid:
             raise CDMSError, "ERROR in %s: could not open shared library %s" \
                 (__FILE__, LIBCFDIR)
         
-
         # Number of space dimensions
         self.ndims = len(src_grid)
         if len(dst_grid) != self.ndims:
@@ -84,7 +134,7 @@ class Regrid:
             src_dims = tuple([len(a) for a in src_grid])
         dst_dims = dst_grid[0].shape
         if len(dst_dims) < self.ndims:
-            dst_dims = tuple([len(a) for a in src_grid])
+            dst_dims = tuple([len(a) for a in dst_grid])
 
         # Convert src_grid/dst_grid to curvilinear grid, if need be
         if self.ndims > 1:
@@ -110,12 +160,13 @@ class Regrid:
         self.src_coordids = (c_int * self.ndims)()
         self.dst_coordids = (c_int * self.ndims)()
         c_double_p = POINTER(c_double)
-        save = 1
+        save = 0
         standard_name = ""
         units = ""
         coordid = c_int(-1)
         for i in range(self.ndims):
             data =  numpy.array( src_grid[i], numpy.float64 )
+            self.src_coords.append( data )
             dataPtr = data.ctypes.data_as(c_double_p)
             name = "src_coord%d" % i
             status = self.lib.nccf_def_coord(self.ndims, self.src_dims, 
@@ -123,12 +174,11 @@ class Regrid:
                                              dataPtr, save, name, 
                                              standard_name, units, 
                                              byref(coordid))
-            if status != 0:
-                raise CDMSError, "ERROR in %s: status = %d at line %d" \
-                    % (__FILE__, status, sys._getframe().f_lineno)
+            catchError(status, sys._getframe().f_lineno)
             self.src_coordids[i] = coordid
 
             data =  numpy.array( dst_grid[i], numpy.float64 )
+            self.dst_coords.append( data )
             dataPtr = data.ctypes.data_as(c_double_p)
             name = "dst_coord%d" % i
             status = self.lib.nccf_def_coord(self.ndims, self.dst_dims, 
@@ -136,62 +186,43 @@ class Regrid:
                                              dataPtr, save, name, 
                                              standard_name, units, 
                                              byref(coordid))
-            if status != 0:
-                raise CDMSError, "ERROR in %s: status = %d at line %d" \
-                    % (__FILE__, status, sys._getframe().f_lineno)
+            catchError(status, sys._getframe().f_lineno)
             self.dst_coordids[i] = coordid
 
         # Build grid objects
         status = self.lib.nccf_def_grid(self.src_coordids, "src_grid", 
                                         byref(self.src_gridid))
-        if status != 0:
-            raise CDMSError, "ERROR in %s: status = %d at line %d" \
-                % (__FILE__, status, sys._getframe().f_lineno)
+        catchError(status, sys._getframe().f_lineno)
 
         status = self.lib.nccf_def_grid(self.dst_coordids, "dst_grid", 
                                         byref(self.dst_gridid))
-        if status != 0:
-            raise CDMSError, "ERROR in %s: status = %d at line %d" \
-                % (__FILE__, status, sys._getframe().f_lineno)
+        catchError(status, sys._getframe().f_lineno)
 
         # Create regrid object
         status = self.lib.nccf_def_regrid(self.src_gridid, self.dst_gridid, 
                                           byref(self.regridid))
-        if status != 0:
-            raise CDMSError, "ERROR in %s: status = %d at line %d" \
-                % (__FILE__, status, sys._getframe().f_lineno)
-
+        catchError(status, sys._getframe().f_lineno)
 
     def __del__(self):
         """
         Destructor, will be called automatically
         """
         status = self.lib.nccf_free_regrid(self.regridid)
-        if status != 0:
-            raise CDMSError, "ERROR in %s: status = %d at line %d" \
-                % (__FILE__, status, sys._getframe().f_lineno)
+        catchError(status, sys._getframe().f_lineno)
 
         status = self.lib.nccf_free_grid(self.src_gridid)
-        if status != 0:
-            raise CDMSError, "ERROR in %s: status = %d at line %d" \
-                % (__FILE__, status, sys._getframe().f_lineno)
+        catchError(status, sys._getframe().f_lineno)
         
         status = self.lib.nccf_free_grid(self.dst_gridid)
-        if status != 0:
-            raise CDMSError, "ERROR in %s: status = %d at line %d" \
-                % (__FILE__, status, sys._getframe().f_lineno)
+        catchError(status, sys._getframe().f_lineno)
 
         for i in range(self.ndims):
 
             status = self.lib.nccf_free_coord(self.src_coordids[i])
-            if status != 0:
-                raise CDMSError, "ERROR in %s: status = %d at line %d" \
-                    % (__FILE__, status, sys._getframe().f_lineno)
+            catchError(status, sys._getframe().f_lineno)
 
             status = self.lib.nccf_free_coord(self.dst_coordids[i])
-            if status != 0:
-                raise CDMSError, "ERROR in %s: status = %d at line %d" \
-                    % (__FILE__, status, sys._getframe().f_lineno) 
+            catchError(status, sys._getframe().f_lineno) 
 
     def addForbiddenBox(self, lo, hi):
         """
@@ -216,9 +247,7 @@ class Regrid:
         status = self.lib.nccf_add_regrid_forbidden(self.regridid, 
                                                     loIndices, 
                                                     hiIndices)
-        if status != 0:
-            raise CDMSError, "ERROR in %s: status = %d at line %d" \
-                % (__FILE__, status, sys._getframe().f_lineno)
+        catchError(status, sys._getframe().f_lineno)
 
     def computeWeights(self, nitermax=100, tolpos=1.e-2, is_periodic=[]):
         """
@@ -231,50 +260,201 @@ class Regrid:
                            axes. A coordinate is said to be periodic iff
                            the last coordinate value matches the first.
         """
-        # cast into a ctypes array of int's
-        isPeriodic = (c_int * self.ndims)()
-        for i in range(self.ndims):
-            isPeriodic[i] = 0
-        if is_periodic != []:
-            if is_periodic[i]: 
-                isPeriodic[i] = 1
+        isPeriodic = getPeriodicityArray(self.ndims, is_periodic)
         status = self.lib.nccf_compute_regrid_weights(self.regridid,
                                                       nitermax, 
                                                       c_double(tolpos),
                                                       isPeriodic)
-        if status != 0:
-            raise CDMSError, "ERROR in %s: status = %d at line %d" \
-                % (__FILE__, status, sys._getframe().f_lineno)
-        
+        catchError(status, sys._getframe().f_lineno)
 
+    def apply(self, src_data, dst_data):
+        """
+        Apply interpolation
+        @param src_data data on source grid
+        @param dst_data data on destination grid
+        @note destination coordinates falling outside the valid domain
+              of src_data will not be interpoloted, the corresponding
+              dst_data will not be touched.
+        """
+        # Check 
+        if reduce(operator.iand, [src_data.shape[i] == self.src_dims[i] \
+                                 for i in range(self.ndims)]) == False:
+            raise CDMSError, ("ERROR in %s: supplied src_data have wrong shape " \
+                + "%s != %s") % (__FILE__, str(src_data.shape), \
+                                     str(tuple([d for d in self.src_dims])))
+        if reduce(operator.iand, [dst_data.shape[i] == self.dst_dims[i] \
+                                 for i in range(self.ndims)]) == False:
+            raise CDMSError, ("ERROR in %s: supplied dst_data have wrong shape " \
+                + "%s != %s") % (__FILE__, str(dst_data.shape), 
+                                 str(self.dst_dims))
+
+        # Create data objects
+        src_dataid = c_int(-1)
+        dst_dataid = c_int(-1)
+        save = 0
+        standard_name = ""
+        units = ""
+        time_dimname = ""
+
+        status = self.lib.nccf_def_data(self.src_gridid, "src_data", \
+                                        standard_name, units, time_dimname, \
+                                            byref(src_dataid))
+        catchError(status, sys._getframe().f_lineno)
+        if src_data.dtype == numpy.float64:
+            fill_value = c_double(libCFConfig.NC_FILL_DOUBLE)
+            status = self.lib.nccf_set_data_double(src_dataid, 
+                                                   src_data.ctypes.data_as(POINTER(c_double)),
+                                                   save, fill_value)
+            catchError(status, sys._getframe().f_lineno)
+        elif src_data.dtype == numpy.float32:
+            fill_value = c_float(libCFConfig.NC_FILL_FLOAT)
+            status = self.lib.nccf_set_data_float(src_dataid, 
+                                                  src_data.ctypes.data_as(POINTER(c_float)),
+                                                  save, fill_value)
+            catchError(status, sys._getframe().f_lineno)
+        elif src_data.dtype == numpy.int32:
+            fill_value = c_int(libCFConfig.NC_FILL_INT)
+            status = self.lib.nccf_set_data_int(src_dataid, 
+                                                src_data.ctypes.data_as(POINTER(c_int)),
+                                                save, fill_value)
+            catchError(status, sys._getframe().f_lineno)
+        else:
+            raise CDMSError, "ERROR in %s: invalid src_data type = %s" \
+                % (__FILE__, src_data.dtype)
+            
+
+        status = self.lib.nccf_def_data(self.dst_gridid, "dst_data", \
+                                        standard_name, units, time_dimname, \
+                                            byref(dst_dataid))
+        catchError(status, sys._getframe().f_lineno)
+        if dst_data.dtype == numpy.float64:
+            fill_value = c_double(libCFConfig.NC_FILL_DOUBLE)
+            status = self.lib.nccf_set_data_double(dst_dataid, 
+                                                   dst_data.ctypes.data_as(POINTER(c_double)),
+                                                   save, fill_value)
+            catchError(status, sys._getframe().f_lineno)
+        elif dst_data.dtype == numpy.float32:
+            fill_value = c_float(libCFConfig.NC_FILL_FLOAT)
+            status = self.lib.nccf_set_data_float(dst_dataid, 
+                                                  dst_data.ctypes.data_as(POINTER(c_float)),
+                                                  save, fill_value)
+            catchError(status, sys._getframe().f_lineno)
+        elif dst_data.dtype == numpy.int32:
+            fill_value = c_int(libCFConfig.NC_FILL_INT)
+            status = self.lib.nccf_set_data_int(dst_dataid, 
+                                                dst_data.ctypes.data_as(POINTER(c_int)),
+                                                save, fill_value)
+            catchError(status, sys._getframe().f_lineno)
+        else:
+            raise CDMSError, "ERROR in %s: invalid dst_data type = %s" \
+                % (__FILE__, dst_data.dtype)
+
+        # Now apply weights
+        status = self.lib.nccf_apply_regrid(self.regridid, src_dataid, dst_dataid)
+        catchError(status, sys._getframe().f_lineno)
+
+        # Clean up
+        status = self.lib.nccf_free_data(src_dataid)
+        catchError(status, sys._getframe().f_lineno)
+        status = self.lib.nccf_free_data(dst_dataid)
+        catchError(status, sys._getframe().f_lineno)
+    
     def getNumValid(self):
         """
         Return the number of valid destination points. Destination points
         falling outside the source domain, more gnerally, points which 
         could not be located on the source grid, reduce the number of 
         valid points.
-        @return number of valid points
+        @return number of points
         """
         res = c_int(-1)
         status = self.lib.nccf_inq_regrid_nvalid(self.regridid, 
                                                  byref(res))
-        if status != 0:
-            raise CDMSError, "ERROR in %s: status = %d at line %d" \
-                % (__FILE__, status, sys._getframe().f_lineno)
+        catchError(status, sys._getframe().f_lineno)
         return res.value
 
     def getNumDstPoints(self):
         """
         Return the number of points on the destination grid
-        @return number of valid points
+        @return number of points
         """
         res = c_int(-1)
         status = self.lib.nccf_inq_regrid_ntargets(self.regridid, 
                                                   byref(res))
-        if status != 0:
-            raise CDMSError, "ERROR in %s: status = %d at line %d" \
-                % (__FILE__, status, sys._getframe().f_lineno)
+        catchError(status, sys._getframe().f_lineno)
         return res.value
+
+    def getSrcGrid(self):
+        """
+        Return the source grid
+        @return grid
+        """
+        return self.src_coords
+
+    def getDstGrid(self):
+        """
+        Return the destination grid
+        @return grid
+        """
+        return self.dst_coords
+
+    def getIndicesAndWeights(self, dst_indices):
+        """
+        Get the indices and weights for a single target location
+        @param dst_indices index set on the target grid
+        @return [index sets on original grid, weights]
+        """
+        dinds = numpy.array(dst_indices)
+        sinds = (c_int * 2**self.ndims)()
+        weights = numpy.zeros( (2**self.ndims,), numpy.float64 )
+        status = self.lib.nccf_get_regrid_weights(self.regridid,
+                                                  dinds.ctypes.data_as(POINTER(c_double)), 
+                                                  sinds, 
+                                                  weights.ctypes.data_as(POINTER(c_double)))
+        catchError(status, sys._getframe().f_lineno)
+        # convert the flat indices to index sets
+        ori_inds = []
+        for i in range(2**self.ndims):
+            inx = numpy.zeros( (self.ndims,), numpy.int32 )
+            self.lib.nccf_get_multi_index(self.ndims, self.src_dims, 
+                                          sinds[i],
+                                          inx.ctypes.data_as(POINTER(c_int)))
+            ori_inds.append(inx)
+        return ori_inds, weights
+
+    def _findIndices(self, targetPos, nitermax, tolpos, 
+                     dindicesGuess, is_periodic=[]):
+        """
+        Find the floating point indices
+        @param targetPos numpy array of target positions
+        @param nitermax max number of iterations
+        @param tolpos max toelrance in positions
+        @param dindicesGuess guess for the floating point indices
+        @param is_periodic an array of bools, True if axis is periodic
+        @return indices, number of iterations, achieved tolerance
+        """
+        posPtr = targetPos.ctypes.data_as(POINTER(c_double))
+        adjustFunc = None
+        isPeriodic = getPeriodicityArray(self.ndims, is_periodic)
+        res = copy.copy(dindicesGuess)
+        resPtr = res.ctypes.data_as(POINTER(c_double))
+        src_coords = (POINTER(c_double) * self.ndims)()
+        niter = c_int(nitermax)
+        tol = c_double(tolpos)
+        for i in range(self.ndims):
+            ptr = self.src_coords[i].ctypes.data_as(POINTER(c_double))
+            src_coords[i] = ptr
+        status = self.lib.nccf_find_indices_double(self.ndims, 
+                                                   self.src_dims, 
+                                                   src_coords,
+                                                   isPeriodic, 
+                                                   posPtr,
+                                                   byref(niter), 
+                                                   byref(tol),
+                                                   adjustFunc,
+                                                   resPtr)
+        catchError(status, sys._getframe().f_lineno)
+        return res, niter.value, tol.value
 
 ######################################################################
 
@@ -293,23 +473,52 @@ def testOuterProduct():
     print getTensorProduct(z, 2, [len(x), len(y), len(z)])
 
 def test():
+
+    def func(coords):
+        return coords[0]*coords[1] + coords[2]
     
-    # rectilinear grid
+    # source grid, tensor product od axes
     src_x = numpy.array([1, 2, 3, 4])
     src_y = numpy.array([10, 20, 30])
     src_z = numpy.array([100, 200])
 
-    # curvilinear grid
+    # destination grid, product of axes
     dst_x = numpy.array([1.5, 2.0, 2.5, 3.5])
     dst_y = numpy.array([15., 20., 25.])
     dst_z = numpy.array([120.0, 180.0])
 
     rg = Regrid([src_x, src_y, src_z], 
                 [dst_x, dst_y, dst_z])
+    #rg = Regrid([src_x, src_y], 
+    #            [dst_x, dst_y])
+
+    indices = rg._findIndices(numpy.array([1.5, 18.0, 140.0]), 
+                              nitermax = 20, tolpos = 1.e-2, 
+                              is_periodic=[False])
+    print 'indices = ', indices
+
     rg.computeWeights(10, 1.e-3, is_periodic=[False, False, False])
     nvalid = rg.getNumValid()
     ndstpts = rg.getNumDstPoints()
     print 'nvalid = ', nvalid, ' ndstpts = ', ndstpts
+
+    # data 
+    src_coords = rg.getSrcGrid()
+    dst_coords = rg.getDstGrid()
+    #print 'src_coords = ', src_coords
+    #print 'dst_coords = ', dst_coords
+    src_data = numpy.array( func(src_coords), numpy.float32 )
+    dst_data = -numpy.ones( dst_coords[0].shape, numpy.float32 )
+
+    # regrid    
+    rg.apply(src_data, dst_data)
+
+    # check
+    error = numpy.sum(abs(dst_data - func(dst_coords)))
+    #print dst_data
+    #print func(dst_coords)
+    print 'error = ', error
+        
 
 if __name__ == '__main__': 
     #testOuterProduct()

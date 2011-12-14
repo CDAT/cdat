@@ -82,7 +82,7 @@ class Mosaic:
 
         self.mosaicId_ct = c_int(-1)
         self.lib = None
-        for sosuffix in '.so', '.dylib', '.dll', '.a':
+        for sosuffix in '.so', '.dylib', '.dll', '.DLL', '.a':
             self.lib = CDLL(LIBCFDIR + sosuffix)
             if self.lib:
                 break
