@@ -190,6 +190,10 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
             if mode!='r': raise ModeNotSupported,mode
             datanode = load(path)
         else:
+            # If the doesn't exist allow it to be created
+            if not os.path.exists(path): return CdmsFile(path,mode)
+            
+            # The file exists
             file1 = CdmsFile(path,"r")
             if libcf is not None:
                 if hasattr(file1, libcf.CF_FILETYPE):
