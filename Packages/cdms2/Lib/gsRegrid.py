@@ -492,14 +492,26 @@ def testOuterProduct():
     # 2d
     x = numpy.array([1, 2, 3, 4])
     y = numpy.array([10, 20, 30])
-    print getTensorProduct(x, 0, [len(x), len(y)])
-    print getTensorProduct(y, 1, [len(x), len(y)])
+    xx = getTensorProduct(x, 0, [len(x), len(y)])
+    yy = getTensorProduct(y, 1, [len(x), len(y)])
+    print xx
+    print yy
 
     # 3d
     z = numpy.array([100, 200])
     print getTensorProduct(x, 0, [len(x), len(y), len(z)])
     print getTensorProduct(y, 1, [len(x), len(y), len(z)])
     print getTensorProduct(z, 2, [len(x), len(y), len(z)])
+
+    #Mixed coordinates and axes
+
+    print "\nCurvilinear"
+    aa = makeCurvilinear([z, yy, xx])
+    print len(aa)
+    for g in aa: 
+        print g.shape
+        print g
+
 
 def test():
 
