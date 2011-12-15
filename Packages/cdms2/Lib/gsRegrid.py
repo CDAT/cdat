@@ -122,8 +122,8 @@ def makeCurvilinear(coords):
             coords[i] = getTensorProduct(coords[i], i, dims)
         elif ndims == 3 and nd == 2 and i > 0:
             # assume leading coordinate is an axis
-            coords[i] = numpy.outer( numpy.ones( (len(coords[0]),), coords[i].dtype), 
-                                     coords[i])
+            o1 = numpy.ones( (len(coords[0]),), coords[i].dtype )
+            coords[i] = numpy.outer(o1, coords[i]).reshape(dims)
         else:
             raise CDMSError, "ERROR in %s: funky mixture of axes and curvilinear coords %s" \
                 % (__FILE__, str([x.shape for x in coords]))
