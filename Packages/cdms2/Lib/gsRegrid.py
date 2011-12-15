@@ -87,6 +87,48 @@ def getTensorProduct(axis, dim, dims):
     return numpy.outer(numpy.outer( numpy.ones(dims[:dim], axis.dtype), axis),
                       numpy.ones(dims[dim+1:], axis.dtype)).reshape(dims)
 
+def makeCurvilinear(coords):
+    """
+    Turn a mixture of axes and curvilinear coordinates into
+    full curvilinear coordinates
+    @param coords list of coordinates
+    @return new list of coordinates
+    """
+    ndims = len(coords)
+
+    count1DAxes = 0
+    dims = []
+    for i in range(ndims):
+        coord = coords[i]
+        if len(coord.shape) == 1:
+            # axis
+            dims.append( len(coord) )
+            count1DAxes += 1
+        elif len(coord.shape) == ndims:
+            # fully curvilinear
+            dims.append( coord.shape[i] )
+        else:
+            # assumption: all 1D axes preceed curvilinear 
+            # coordinates!!!
+            dims.append( coord.shape[i - count1DAxes] )
+        
+    for i in range(ndims):
+        nd = len(coords[i].shape)
+        if nd == ndims:
+            # already in curvilinear form, keep as is
+            pass
+        elif nd == 1:
+            # it's an axis
+            coords[i] = getTensorProduct(coords[i], i, dims)
+        elif ndims == 3 and nd == 2 and i > 0:
+            # assume leading coordinate is an axis
+            coords[i] = numpy.outer( numpy.ones( (len(coords[0]),), coords[i].dtype), 
+                                     coords[i])
+        else:
+            raise CDMSError, "ERROR in %s: funky mixture of axes and curvilinear coords %s" \
+                % (__FILE__, str([x.shape for x in coords]))
+    return coords
+
 class Regrid:
 
     def __init__(self, src_grid, dst_grid):
@@ -128,23 +170,10 @@ class Regrid:
             raise CDMSError, "ERROR in %s: must have at least one dimension, ndims = %d" \
                 (__FILE__, self.ndims)
 
-        # Determine the source/destination sizes
-        src_dims = src_grid[0].shape
-        if len(src_dims) < self.ndims:
-            src_dims = tuple([len(a) for a in src_grid])
-        dst_dims = dst_grid[0].shape
-        if len(dst_dims) < self.ndims:
-            dst_dims = tuple([len(a) for a in dst_grid])
-
         # Convert src_grid/dst_grid to curvilinear grid, if need be
         if self.ndims > 1:
-            for i in range(self.ndims):
-                if len(src_grid[i].shape) == 1:
-                    src_grid[i] = getTensorProduct(src_grid[i], i, 
-                                                   src_dims)
-                if len(dst_grid[i].shape) == 1:
-                    dst_grid[i] = getTensorProduct(dst_grid[i], i,
-                                                   dst_dims)
+            src_grid = makeCurvilinear(src_grid)
+            dst_grid = makeCurvilinear(dst_grid)
 
         self.src_dims = (c_int * self.ndims)()
         self.dst_dims = (c_int * self.ndims)()
@@ -453,7 +482,7 @@ class Regrid:
                                                    byref(tol),
                                                    adjustFunc,
                                                    resPtr)
-        catchError(status, sys._getframe().f_lineno)
+        #catchError(status, sys._getframe().f_lineno)
         return res, niter.value, tol.value
 
 ######################################################################
@@ -477,7 +506,7 @@ def test():
     def func(coords):
         return coords[0]*coords[1] + coords[2]
     
-    # source grid, tensor product od axes
+    # source grid, tensor product of axes
     src_x = numpy.array([1, 2, 3, 4])
     src_y = numpy.array([10, 20, 30])
     src_z = numpy.array([100, 200])
