@@ -311,7 +311,6 @@ class Regrid:
               dst_data will not be touched.
         """
         # Check 
-        print self.src_dims
         if reduce(operator.iand, [src_data.shape[i] == self.src_dims[i] \
                                  for i in range(self.ndims)]) == False:
             raise CDMSError, ("ERROR in %s: supplied src_data have wrong shape " \
