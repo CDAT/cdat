@@ -127,7 +127,7 @@ def makeCurvilinear(coords):
         else:
             raise CDMSError, "ERROR in %s: funky mixture of axes and curvilinear coords %s" \
                 % (__FILE__, str([x.shape for x in coords]))
-    return coords
+    return coords, dims
 
 class Regrid:
 
@@ -172,8 +172,8 @@ class Regrid:
 
         # Convert src_grid/dst_grid to curvilinear grid, if need be
         if self.ndims > 1:
-            src_grid = makeCurvilinear(src_grid)
-            dst_grid = makeCurvilinear(dst_grid)
+            src_grid, src_dims = makeCurvilinear(src_grid)
+            dst_grid, dst_dims = makeCurvilinear(dst_grid)
 
         self.src_dims = (c_int * self.ndims)()
         self.dst_dims = (c_int * self.ndims)()
@@ -278,22 +278,27 @@ class Regrid:
                                                     hiIndices)
         catchError(status, sys._getframe().f_lineno)
 
-    def computeWeights(self, nitermax=100, tolpos=1.e-2, is_periodic=[]):
+    def setValidMask(self, mask):
+        """
+        Set a mask for the grid
+        @param mask an array of type char of size dims for the grid
+        """
+        c_intmask = mask.ctypes.data_as(POINTER(c_int))
+        status = self.lib.nccf_set_grid_validmask(self.regridid, c_intmask)
+
+        catchError(status, sys._getframe().f_lineno)
+
+    def computeWeights(self, nitermax=100, tolpos=1.e-2):
         """
         Compute the the interpolation weights
         
         @param nitermax max number of iterations
         @param tolpos max tolerance when locating destination positions in 
                index space
-        @param is_periodic a list of bools to denote periodicity along
-                           axes. A coordinate is said to be periodic iff
-                           the last coordinate value matches the first.
         """
-        isPeriodic = getPeriodicityArray(self.ndims, is_periodic)
         status = self.lib.nccf_compute_regrid_weights(self.regridid,
                                                       nitermax, 
-                                                      c_double(tolpos),
-                                                      isPeriodic)
+                                                      c_double(tolpos))
         catchError(status, sys._getframe().f_lineno)
 
     def apply(self, src_data, dst_data):
@@ -306,6 +311,7 @@ class Regrid:
               dst_data will not be touched.
         """
         # Check 
+        print self.src_dims
         if reduce(operator.iand, [src_data.shape[i] == self.src_dims[i] \
                                  for i in range(self.ndims)]) == False:
             raise CDMSError, ("ERROR in %s: supplied src_data have wrong shape " \
@@ -449,22 +455,25 @@ class Regrid:
                                           sinds[i],
                                           inx.ctypes.data_as(POINTER(c_int)))
             ori_inds.append(inx)
+        
         return ori_inds, weights
 
     def _findIndices(self, targetPos, nitermax, tolpos, 
-                     dindicesGuess, is_periodic=[]):
+                     dindicesGuess):
         """
         Find the floating point indices
         @param targetPos numpy array of target positions
         @param nitermax max number of iterations
         @param tolpos max toelrance in positions
         @param dindicesGuess guess for the floating point indices
-        @param is_periodic an array of bools, True if axis is periodic
         @return indices, number of iterations, achieved tolerance
         """
         posPtr = targetPos.ctypes.data_as(POINTER(c_double))
         adjustFunc = None
-        isPeriodic = getPeriodicityArray(self.ndims, is_periodic)
+        index_periodicity = numpy.zeros((self.ndims), 
+                                  dtype = int).ctypes.data_as(POINTER(c_int))
+        coord_periodicity = numpy.zeros((self.ndims),
+                                  dtype = numpy.float32).ctypes.data_as(POINTER(c_double))
         res = copy.copy(dindicesGuess)
         resPtr = res.ctypes.data_as(POINTER(c_double))
         src_coords = (POINTER(c_double) * self.ndims)()
@@ -476,14 +485,15 @@ class Regrid:
         status = self.lib.nccf_find_indices_double(self.ndims, 
                                                    self.src_dims, 
                                                    src_coords,
-                                                   isPeriodic, 
+                                                   index_periodicity, 
+                                                   coord_periodicity, 
                                                    posPtr,
                                                    byref(niter), 
                                                    byref(tol),
                                                    adjustFunc,
                                                    resPtr)
-        #catchError(status, sys._getframe().f_lineno)
-        return res, niter.value, tol.value
+        catchError(status, sys._getframe().f_lineno)
+        return resPtr.contents.value, niter.value, tol.value
 
 ######################################################################
 
@@ -509,53 +519,58 @@ def testOuterProduct():
     aa = makeCurvilinear([z, yy, xx])
     print len(aa)
     for g in aa: 
+        print
         print g.shape
         print g
 
 
 def test():
 
-    def func(coords):
+    def func1(coords):
         return coords[0]*coords[1] + coords[2]
+    def func2(coords):
+        return coords[0] * coords[1]
     
     # source grid, tensor product of axes
-    src_x = numpy.array([1, 2, 3, 4])
-    src_y = numpy.array([10, 20, 30])
+    src_x = numpy.array([1, 2, 3, 4, 5, 6])
+    src_y = numpy.array([10, 20, 30, 40, 50])
     src_z = numpy.array([100, 200])
 
     # destination grid, product of axes
-    dst_x = numpy.array([1.5, 2.0, 2.5, 3.5])
-    dst_y = numpy.array([15., 20., 25.])
-    dst_z = numpy.array([120.0, 180.0])
+    dst_x = numpy.array([1.5, 2.0, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5])
+    dst_y = numpy.array([15., 20., 25., 30., 40.])
+    dst_z = numpy.array([120.0, 180.0, 240.])
 
     rg = Regrid([src_x, src_y, src_z], 
                 [dst_x, dst_y, dst_z])
-    #rg = Regrid([src_x, src_y], 
-    #            [dst_x, dst_y])
+#    rg = Regrid([src_x, src_y], 
+#                [dst_x, dst_y])
 
+    kk = numpy.array([0.0, 0.0, 0.0])
     indices = rg._findIndices(numpy.array([1.5, 18.0, 140.0]), 
-                              nitermax = 20, tolpos = 1.e-2, 
-                              is_periodic=[False])
-    print 'indices = ', indices
+                              20, 1.e-2, kk)
 
-    rg.computeWeights(10, 1.e-3, is_periodic=[False, False, False])
+    rg.computeWeights(10, 1.e-3)
     nvalid = rg.getNumValid()
     ndstpts = rg.getNumDstPoints()
     print 'nvalid = ', nvalid, ' ndstpts = ', ndstpts
+
+    # Get the weights
+    inds, weights = rg.getIndicesAndWeights([3, 1])
 
     # data 
     src_coords = rg.getSrcGrid()
     dst_coords = rg.getDstGrid()
     #print 'src_coords = ', src_coords
     #print 'dst_coords = ', dst_coords
-    src_data = numpy.array( func(src_coords), numpy.float32 )
+    src_data = numpy.array( func1(src_coords), numpy.float32 )
     dst_data = -numpy.ones( dst_coords[0].shape, numpy.float32 )
 
     # regrid    
     rg.apply(src_data, dst_data)
 
     # check
-    error = numpy.sum(abs(dst_data - func(dst_coords)))
+    error = numpy.sum(abs(dst_data - func1(dst_coords)))
     #print dst_data
     #print func(dst_coords)
     print 'error = ', error
