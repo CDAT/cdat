@@ -106,6 +106,11 @@ ExternalProject_Add_Step(ParaView InstallVTKPythonModule
 
 # symlinks of Externals/bin get placed in prefix/bin so we need to symlink paraview
 # libs into prefix/lib as well for pvserver to work.
+if(NOT EXISTS ${CMAKE_INSTALL_PREFIX}/lib)
+  message("making ${ParaView_install}/lib")
+  file(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib)
+endif()
+
 ExternalProject_Add_Step(ParaView InstallParaViewLibSymlink
   COMMAND ${CMAKE_COMMAND} -E create_symlink ${ParaView_install}/lib/paraview-${PARAVIEW_MAJOR}.${PARAVIEW_MINOR} ${CMAKE_INSTALL_PREFIX}/lib/paraview-${PARAVIEW_MAJOR}.${PARAVIEW_MINOR}
   DEPENDEES InstallVTKPythonModule
