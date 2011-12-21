@@ -127,7 +127,7 @@ def makeCurvilinear(coords):
         else:
             raise CDMSError, "ERROR in %s: funky mixture of axes and curvilinear coords %s" \
                 % (__FILE__, str([x.shape for x in coords]))
-    return coords
+    return coords, dims
 
 class Regrid:
 
@@ -172,8 +172,8 @@ class Regrid:
 
         # Convert src_grid/dst_grid to curvilinear grid, if need be
         if self.ndims > 1:
-            src_grid = makeCurvilinear(src_grid)
-            dst_grid = makeCurvilinear(dst_grid)
+            src_grid, src_dims = makeCurvilinear(src_grid)
+            dst_grid, dst_dims = makeCurvilinear(dst_grid)
 
         self.src_dims = (c_int * self.ndims)()
         self.dst_dims = (c_int * self.ndims)()
