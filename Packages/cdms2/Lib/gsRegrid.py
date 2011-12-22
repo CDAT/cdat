@@ -182,6 +182,7 @@ class Regrid:
             self.src_coords.append( data )
             dataPtr = data.ctypes.data_as(c_double_p)
             name = "src_coord%d" % i
+            # assume [lev,] lat, lon ordering
             if i == self.ndims - 2:
                 standard_name = 'latitude'
                 units = 'degrees_north'
