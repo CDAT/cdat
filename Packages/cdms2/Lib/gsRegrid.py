@@ -23,10 +23,10 @@ try:
 except:
     raise ImportError, 'Error: could not import pycf'
 
-#LIBCFDIR  = __path__[0] + "/libcf"
+LIBCFDIR  = __path__[0] + "/libcf"
 #LIBCFDIR  = "/home/pletzer/software/libcf-debug/lib/libcf"
 #LIBCFDIR  = "/home/pletzer/software/libcf-opt/lib/libcf"
-LIBCFDIR  = "/home/pletzer/software/libcf-debug-logging/lib/libcf"
+#LIBCFDIR  = "/home/pletzer/software/libcf-debug-logging/lib/libcf"
 
 try:
     from error import CDMSError
