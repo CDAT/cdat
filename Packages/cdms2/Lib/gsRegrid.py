@@ -23,10 +23,10 @@ try:
 except:
     raise ImportError, 'Error: could not import pycf'
 
-LIBCFDIR  = __path__[0] + "/libcf"
+#LIBCFDIR  = __path__[0] + "/libcf"
 #LIBCFDIR  = "/home/pletzer/software/libcf-debug/lib/libcf"
 #LIBCFDIR  = "/home/pletzer/software/libcf-opt/lib/libcf"
-#LIBCFDIR  = "/home/pletzer/software/libcf-debug-logging/lib/libcf"
+LIBCFDIR  = "/home/pletzer/software/libcf-debug-logging/lib/libcf"
 
 try:
     from error import CDMSError
@@ -58,22 +58,6 @@ def getNetCDFFillValue(dtype):
     else:
         raise CDMSError, "ERROR in %s: invalid type %s" \
             % (__FILE__, str(dtype)) 
-
-def getPeriodicityArray(ndims, is_periodic):
-    """
-    Cast a periodicity array of True/False booleans into 
-    a ctypes array of int's
-    @param is_periodic list of True/False
-    @return array of integers
-    """
-    # cast into a ctypes array of int's
-    res = (c_int * ndims)()
-    for i in range(ndims):
-        res[i] = 0
-    for i in range(len(is_periodic)):
-        if is_periodic[i]: 
-            res[i] = 1
-    return res
 
 def getTensorProduct(axis, dim, dims):
     """
@@ -198,6 +182,12 @@ class Regrid:
             self.src_coords.append( data )
             dataPtr = data.ctypes.data_as(c_double_p)
             name = "src_coord%d" % i
+            if i == self.ndims - 2:
+                standard_name = 'latitude'
+                units = 'degrees_north'
+            elif i == self.ndims - 1:
+                standard_name = 'longitude'
+                units = 'degrees_east'
             status = self.lib.nccf_def_coord(self.ndims, self.src_dims, 
                                              src_dimnames, 
                                              dataPtr, save, name, 
@@ -222,6 +212,15 @@ class Regrid:
         status = self.lib.nccf_def_grid(self.src_coordids, "src_grid", 
                                         byref(self.src_gridid))
         catchError(status, sys._getframe().f_lineno)
+
+        # check periodicity
+        coord_periodicity = numpy.zeros( (self.ndims,), numpy.float64 )
+        status = self.lib.nccf_inq_grid_periodicity(self.src_gridid,
+                                 coord_periodicity.ctypes.data_as(c_double_p))
+        catchError(status, sys._getframe().f_lineno)
+        for i in range(self.ndims):
+            print '====> coordinate %d has periodicity %f' % \
+                (i, coord_periodicity[i])                                     
 
         status = self.lib.nccf_def_grid(self.dst_coordids, "dst_grid", 
                                         byref(self.dst_gridid))
@@ -469,9 +468,9 @@ class Regrid:
         """
         posPtr = targetPos.ctypes.data_as(POINTER(c_double))
         adjustFunc = None
-        index_periodicity = numpy.zeros((self.ndims), 
+        hit_bounds = numpy.zeros((self.ndims), 
                                   dtype = int).ctypes.data_as(POINTER(c_int))
-        coord_periodicity = numpy.zeros((self.ndims),
+        coord_periodicity = float('inf') * numpy.ones((self.ndims),
                                   dtype = numpy.float32).ctypes.data_as(POINTER(c_double))
         res = copy.copy(dindicesGuess)
         resPtr = res.ctypes.data_as(POINTER(c_double))
@@ -484,13 +483,13 @@ class Regrid:
         status = self.lib.nccf_find_indices_double(self.ndims, 
                                                    self.src_dims, 
                                                    src_coords,
-                                                   index_periodicity, 
                                                    coord_periodicity, 
                                                    posPtr,
                                                    byref(niter), 
                                                    byref(tol),
                                                    adjustFunc,
-                                                   resPtr)
+                                                   resPtr,
+                                                   hit_bounds)
         catchError(status, sys._getframe().f_lineno)
         return resPtr.contents.value, niter.value, tol.value
 
