@@ -119,9 +119,6 @@ endif()
 #-----------------------------------------------------------------------------
 # Initialize git submodules.
 #-----------------------------------------------------------------------------
-
-find_package(Git)
-
 if(GIT_FOUND)
   message("Updating git submodules")
   execute_process(
