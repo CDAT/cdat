@@ -214,15 +214,6 @@ class Regrid:
                                         byref(self.src_gridid))
         catchError(status, sys._getframe().f_lineno)
 
-        # check periodicity
-        coord_periodicity = numpy.zeros( (self.ndims,), numpy.float64 )
-        status = self.lib.nccf_inq_grid_periodicity(self.src_gridid,
-                                 coord_periodicity.ctypes.data_as(c_double_p))
-        catchError(status, sys._getframe().f_lineno)
-        for i in range(self.ndims):
-            print '====> coordinate %d has periodicity %f' % \
-                (i, coord_periodicity[i])                                     
-
         status = self.lib.nccf_def_grid(self.dst_coordids, "dst_grid", 
                                         byref(self.dst_gridid))
         catchError(status, sys._getframe().f_lineno)
@@ -231,6 +222,17 @@ class Regrid:
         status = self.lib.nccf_def_regrid(self.src_gridid, self.dst_gridid, 
                                           byref(self.regridid))
         catchError(status, sys._getframe().f_lineno)
+
+    def getPeriodicities(self):
+        """
+        Get the periodicity lengths of the coordinates
+        @return numpy array, values inf indicate no periodicity 
+        """
+        coord_periodicity = numpy.zeros( (self.ndims,), numpy.float64 )
+        status = self.lib.nccf_inq_grid_periodicity(self.src_gridid,
+                                 coord_periodicity.ctypes.data_as(c_double_p))
+        catchError(status, sys._getframe().f_lineno)
+        return coord_periodicity        
 
     def __del__(self):
         """
