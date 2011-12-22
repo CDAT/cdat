@@ -76,7 +76,7 @@ def makeCurvilinear(coords):
     Turn a mixture of axes and curvilinear coordinates into
     full curvilinear coordinates
     @param coords list of coordinates
-    @return new list of coordinates
+    @return new list of coordinates and associated dimensions
     """
     ndims = len(coords)
 
@@ -113,9 +113,43 @@ def makeCurvilinear(coords):
                 % (__FILE__, str([x.shape for x in coords]))
     return coords, dims
 
+def makeCoordsCyclic(coords, dims):
+    """
+    Make coordinates cyclic
+    @params coords input coordinates 
+    @params dims input dimensions
+    @return new, extended coordinates such that the longitudes cover the sphere
+            and new dimensions
+    """
+    # assume lon is the last coordinate!!
+
+    # check if already cyclic
+    eps = 1.e-3
+    isCyclic = True
+    for i in range(len(coords)):
+        if abs(numpy.sum(coords[i][...,-1] - coords[i][...,0])) > eps:
+            isCyclic = False
+    if isCyclic:
+        # cyclic, return input coordinates
+        return coords, dims
+        
+    newCoords = []
+    newDims = list(copy.copy(dims))
+    newDims[-1] += 1
+    for i in range(len(coords)):
+        newCoords.append( numpy.zeros( newDims, coords[i].dtype ) )
+        newCoords[i][..., 0:dims[-1]] = coords[i][...]
+        # wrap around
+        if i != len(coords) - 1:
+            newCoords[i][..., dims[-1]] = coords[i][..., 0]
+        else:
+            # assuming degrees!!
+            newCoords[i][..., dims[-1]] = coords[i][..., 0] + 360.0
+    return newCoords, newDims
+
 class Regrid:
 
-    def __init__(self, src_grid, dst_grid):
+    def __init__(self, src_grid, dst_grid, mkCyclic=False):
         """
         Constructor
         
@@ -134,6 +168,7 @@ class Regrid:
         self.src_coords = []
         self.dst_coords = []
         self.lib = None
+        self.extendedGrid = False
 
         # Open the shaped library
         for sosuffix in '.so', '.dylib', '.dll', '.DLL', '.a':
@@ -158,6 +193,23 @@ class Regrid:
         if self.ndims > 1:
             src_grid, src_dims = makeCurvilinear(src_grid)
             dst_grid, dst_dims = makeCurvilinear(dst_grid)
+
+        # Make sure coordinates wrap around if mkCyclic is True
+        if mkCyclic:
+            src_gridNew, src_dimsNew = makeCoordsCyclic(src_grid, src_dims)
+            print '...  src_dims=%s, after making cyclic src_dimsNew=%s' \
+                % (str(src_dims), str(src_dimsNew))
+            for i in range(self.ndims):
+                print '...... src_gridNew[%d].shape = %s' % \
+                    (i, str(src_gridNew[i].shape))
+            # flag indicating that the grid was extended
+            if reduce(lambda x, y:x+y, \
+                          [src_dimsNew[i] - src_dims[i] \
+                               for i in range(self.ndims)]) > 0:
+                self.extendedGrid = True
+            # reset
+            src_grid = src_gridNew
+            src_dims = src_dimsNew
 
         self.src_dims = (c_int * self.ndims)()
         self.dst_dims = (c_int * self.ndims)()
@@ -312,6 +364,13 @@ class Regrid:
               of src_data will not be interpoloted, the corresponding
               dst_data will not be touched.
         """
+        # extend src data is grid was made cyclic
+        if self.extendedGrid:
+            src_dataNew = numpy.zeros( self.src_dims, src_data.dtype )
+            src_dataNew[..., 0:self.src_dims[-1]-1] = src_data[...]
+            src_dataNew[..., self.src_dims[-1]-1] = src_data[..., 0]
+            src_data = src_dataNew
+
         # Check 
         if reduce(operator.iand, [src_data.shape[i] == self.src_dims[i] \
                                  for i in range(self.ndims)]) == False:
@@ -498,6 +557,20 @@ class Regrid:
 
 ######################################################################
 
+def testMakeCyclic():
+
+    y = numpy.array([-90.0 + i*30.0 for i in range(7)])
+    x = numpy.array([(i+0.5)*60.0 for i in range(6)])
+    yy = getTensorProduct(y, 0, [len(y), len(x)])
+    xx = getTensorProduct(x, 1, [len(y), len(x)])
+    coords = [yy, xx]
+    dims = [len(y), len(x)]
+    newCoords, newDims = makeCoordsCyclic(coords, dims)
+    print 'cyclic lats'
+    print newCoords[0]
+    print 'cyclic lons'
+    print newCoords[1]
+
 def testOuterProduct():
     
     # 2d
@@ -579,5 +652,6 @@ def test():
 
 if __name__ == '__main__': 
     #testOuterProduct()
-    test()
+    #test()
+    testMakeCyclic()
     
