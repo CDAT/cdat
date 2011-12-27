@@ -124,11 +124,11 @@ def makeCoordsCyclic(coords, dims):
     # assume lon is the last coordinate!!
 
     # check if already cyclic
-    eps = 1.e-3
+    n = reduce(lambda x,y:x*y, coords[-1][...,-1].shape) # number of coordinates at given longitude
+    eps = 360.0 /float(n)
     isCyclic = True
-    for i in range(len(coords)):
-        if abs(numpy.sum(coords[i][...,-1] - coords[i][...,0])) > eps:
-            isCyclic = False
+    if abs(numpy.sum(coords[-1][...,-1] - coords[-1][...,0]))/float(n) > eps:
+        isCyclic = False
     if isCyclic:
         # cyclic, return input coordinates
         return coords, dims
