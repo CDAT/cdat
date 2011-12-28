@@ -123,16 +123,25 @@ def makeCoordsCyclic(coords, dims):
     """
     # assume lon is the last coordinate!!
 
-    # check if already cyclic
-    n = reduce(lambda x,y:x*y, coords[-1][...,-1].shape) # number of coordinates at given longitude
-    eps = 360.0 /float(n)
-    isCyclic = True
-    if abs(numpy.sum(coords[-1][...,-1] - coords[-1][...,0]))/float(n) > eps:
-        isCyclic = False
-    if isCyclic:
-        # cyclic, return input coordinates
+    dlon = 360.0 / float(dims[-1])
+    moduloTerm = 0.0
+    eps = 1.e-2 * dlon
+    tol = 0.5 * 360.0
+
+    # the dateline may be anywhere in the grid, not necessarily at the edge
+    n = reduce(lambda x,y:x*y, dims[:-1]) # no of surface elements
+    avgJump = abs(numpy.sum(coords[-1][...,-1] - coords[-1][...,0]))/float(n)
+    if avgJump < eps:
+        # cyclic, return input coordinates, no need to append
+        print '.... nodal coordinates detected, no need to append'
         return coords, dims
+
+    if avgJump > tol:
+        # looks like the date line is at the edge
+        print '.... order 360 jump detected at the edge of the grid'
+        moduloTerm = 360.0
         
+    # make cyclic by appending a column to the lats and lons
     newCoords = []
     newDims = list(copy.copy(dims))
     newDims[-1] += 1
@@ -141,10 +150,12 @@ def makeCoordsCyclic(coords, dims):
         newCoords[i][..., 0:dims[-1]] = coords[i][...]
         # wrap around
         if i != len(coords) - 1:
-            newCoords[i][..., dims[-1]] = coords[i][..., 0]
+            # any other coordinate but longitudes
+            newCoords[i][..., -1] = coords[i][..., 0]
         else:
-            # assuming degrees!!
-            newCoords[i][..., dims[-1]] = coords[i][..., 0] + 360.0
+            # for longitudes and assuming degrees
+            newCoords[i][..., -1] = coords[i][..., 0] + moduloTerm
+
     return newCoords, newDims
 
 class Regrid:
