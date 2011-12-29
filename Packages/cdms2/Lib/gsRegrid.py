@@ -122,39 +122,25 @@ def makeCoordsCyclic(coords, dims):
             and new dimensions
     """
     # assume lon is the last coordinate!!
-
-    dlon = 360.0 / float(dims[-1])
-    moduloTerm = 0.0
-    eps = 1.e-2 * dlon
-    tol = 0.5 * 360.0
-
-    # the dateline may be anywhere in the grid, not necessarily at the edge
-    n = reduce(lambda x,y:x*y, dims[:-1]) # no of surface elements
-    avgJump = abs(numpy.sum(coords[-1][...,-1] - coords[-1][...,0]))/float(n)
-    if avgJump < eps:
-        # cyclic, return input coordinates, no need to append
-        print '.... nodal coordinates detected, no need to append'
-        return coords, dims
-
-    if avgJump > tol:
-        # looks like the date line is at the edge
-        print '.... order 360 jump detected at the edge of the grid'
-        moduloTerm = 360.0
+    nlon = dims[-1]
+    dlon = 360.0 / float(nlon) # average resolution
         
-    # make cyclic by appending a column to the lats and lons
+    # make cyclic by appending a column to the coordinates
     newCoords = []
     newDims = list(copy.copy(dims))
-    newDims[-1] += 1
+    newDims[-1] += 1 # append to the right
     for i in range(len(coords)):
         newCoords.append( numpy.zeros( newDims, coords[i].dtype ) )
-        newCoords[i][..., 0:dims[-1]] = coords[i][...]
-        # wrap around
-        if i != len(coords) - 1:
-            # any other coordinate but longitudes
-            newCoords[i][..., -1] = coords[i][..., 0]
-        else:
-            # for longitudes and assuming degrees
-            newCoords[i][..., -1] = coords[i][..., 0] + moduloTerm
+        newCoords[i][..., 0:-1] = coords[i][...]
+        newCoords[i][...,   -1] = coords[i][...,  0]
+
+    # add modulo term, want deltas ~ order of dlon otherwise add
+    # or subtract a periodicity length
+    tol = 360.0 - min(5, nlon)*dlon
+    mask1 = (newCoords[-1][..., -1] - newCoords[-1][..., -2] < -tol)
+    mask2 = (newCoords[-1][..., -1] - newCoords[-1][..., -2] > +tol)
+    newCoords[-1][..., -1] += 360.0*mask1
+    newCoords[-1][..., -1] -= 360.0*mask2
 
     return newCoords, newDims
 
@@ -350,7 +336,6 @@ class Regrid:
         """
         c_intmask = mask.ctypes.data_as(POINTER(c_int))
         status = self.lib.nccf_set_grid_validmask(self.regridid, c_intmask)
-
         catchError(status, sys._getframe().f_lineno)
 
     def computeWeights(self, nitermax=100, tolpos=1.e-2):
@@ -378,8 +363,8 @@ class Regrid:
         # extend src data is grid was made cyclic
         if self.extendedGrid:
             src_dataNew = numpy.zeros( self.src_dims, src_data.dtype )
-            src_dataNew[..., 0:self.src_dims[-1]-1] = src_data[...]
-            src_dataNew[..., self.src_dims[-1]-1] = src_data[..., 0]
+            src_dataNew[..., 0:-1] = src_data[...]
+            src_dataNew[...,   -1] = src_data[...,  0]
             src_data = src_dataNew
 
         # Check 
