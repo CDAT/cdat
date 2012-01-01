@@ -24,6 +24,7 @@ except:
     raise ImportError, 'Error: could not import pycf'
 
 LIBCFDIR  = __path__[0] + "/libcf"
+LIBCFDIR  = "/home/research/kindig/software/libcf/lib/libcf"
 #LIBCFDIR  = "/home/pletzer/software/libcf-debug/lib/libcf"
 #LIBCFDIR  = "/home/pletzer/software/libcf-opt/lib/libcf"
 #LIBCFDIR  = "/home/pletzer/software/libcf-debug-logging/lib/libcf"
@@ -37,8 +38,8 @@ __FILE__ = sys._getframe().f_code.co_filename
 
 def catchError(status, lineno):
     if status != 0:
-        raise CDMSError, "ERROR in %s: status = %d at line %d" \
-                % (__FILE__, status, lineno)
+        raise CDMSError, "ERROR ins: status = %d at line %d" \
+ (__FILE__, status, lineno)
 
 def getNetCDFFillValue(dtype):
     """
@@ -56,8 +57,8 @@ def getNetCDFFillValue(dtype):
     elif dtype == numpy.int8:
         return libCFConfig.NC_FILL_BYTE
     else:
-        raise CDMSError, "ERROR in %s: invalid type %s" \
-            % (__FILE__, str(dtype)) 
+        raise CDMSError, "ERROR ins: invalid type %s" \
+ (__FILE__, str(dtype)) 
 
 def getTensorProduct(axis, dim, dims):
     """
@@ -109,8 +110,8 @@ def makeCurvilinear(coords):
             o1 = numpy.ones( (len(coords[0]),), coords[i].dtype )
             coords[i] = numpy.outer(o1, coords[i]).reshape(dims)
         else:
-            raise CDMSError, "ERROR in %s: funky mixture of axes and curvilinear coords %s" \
-                % (__FILE__, str([x.shape for x in coords]))
+            raise CDMSError, "ERROR ins: funky mixture of axes and curvilinear coords %s" \
+ (__FILE__, str([x.shape for x in coords]))
     return coords, dims
 
 def makeCoordsCyclic(coords, dims):
@@ -122,36 +123,171 @@ def makeCoordsCyclic(coords, dims):
             and new dimensions
     """
     # assume lon is the last coordinate!!
-    nlon = dims[-1]
-    dlon = 360.0 / float(nlon) # average resolution
+
+    # check if already cyclic
+    eps = 1.e-3
+    isCyclic = True
+    for i in range(len(coords)):
+        if abs(numpy.sum(coords[i][...,-1] - coords[i][...,0])) > eps:
+            isCyclic = False
+    if isCyclic:
+        # cyclic, return input coordinates
+        return coords, dims
         
-    # make cyclic by appending a column to the coordinates
     newCoords = []
     newDims = list(copy.copy(dims))
-    newDims[-1] += 1 # append to the right
+    newDims[-1] += 1
     for i in range(len(coords)):
         newCoords.append( numpy.zeros( newDims, coords[i].dtype ) )
-        newCoords[i][..., 0:-1] = coords[i][...]
-        newCoords[i][...,   -1] = coords[i][...,  0]
-
-    # add modulo term, want deltas ~ order of dlon otherwise add
-    # or subtract a periodicity length
-    tol = 360.0 - min(5, nlon)*dlon
-    mask1 = (newCoords[-1][..., -1] - newCoords[-1][..., -2] < -tol)
-    mask2 = (newCoords[-1][..., -1] - newCoords[-1][..., -2] > +tol)
-    newCoords[-1][..., -1] += 360.0*mask1
-    newCoords[-1][..., -1] -= 360.0*mask2
-
+        newCoords[i][..., 0:dims[-1]] = coords[i][...]
+        # wrap around
+        if i != len(coords) - 1:
+            newCoords[i][..., dims[-1]] = coords[i][..., 0]
+        else:
+            # assuming degrees!!
+            newCoords[i][..., dims[-1]] = coords[i][..., 0] + 360.0
     return newCoords, newDims
+
+def checkForCoordCut(coords, dims):
+    """
+    Look for a cut in a coordinate system (e.g. tri-polar grid)
+    Assume latitude is next to last coordinate
+    @params coords input coordinates 
+    @params dims input dimensions
+    @return True for cut found
+            False for no cut
+    """
+
+    # Assume latitude is next to last coordinate
+    if len(dims) < 2: return False
+    nlat, nlon = dims[-2], dims[-1]
+    lat = coords[-2]
+
+    maxLatInd = lat[nlat-1, :].argmax()
+    maxLonInd = lat[:, maxLatInd].argmax()
+    rowOfMaxLat = numpy.arange(nlon)
+    rowOfMaxLat[:] = lat[maxLonInd, :]
+    topRow = numpy.arange(nlon)
+    topRow[:] = lat[nlat-1, :]
+    diff = rowOfMaxLat - topRow
+
+    if diff.max() != 0:
+        # Make no change. There is no cut
+        return False
+
+    # A rotated pole grid has only one minimum. A tripolar grid should 
+    # have two.
+
+    count = 0
+    found = True
+    max1 = lat[nlat-1, :].argmax()
+    max2 = max1
+    maxN = max2
+    while found:
+        max2 = lat[nlat-1, (max2+1):].argmax() + max2 + 1
+        if lat[nlat-1, maxN] > lat[nlat-1, max2]:
+            found = False
+        else:
+            maxN = max2
+
+    eps = 1.e-4
+    if (lat[nlat-1, max1] - lat[nlat-1, max2]) < eps:
+        return False
+
+    return True
+
+def handleCoordsCut(coords, dims, bounds):
+    """
+    Generate connectivity across a cut. e.g. from a tri-polar grid.
+    @params coords input coordinates 
+    @params dims input dimensions
+    @return new, extended coordinates such that there is an extra row containing
+            connectivity information across the cut
+    """
+
+    # Check to see if cut exists in latitudes. 
+    # Assume latitude is next to last coordinate
+
+    epsExp = 3
+    eps = 10**(-1*epsExp)
+    isCut = checkForCoordCut(coords, dims)
+    if not isCut:
+        # No cut
+        return coords, dims
+
+    # Add row to top with connectivity information. This means rearranging 
+    # the top row
+    def getIndices(array, nlon, newI):
+        """
+        Find indices where a cell edge matches for two cells
+        param array Array of booleans
+        param nlon number of longitudes
+        newI newI index row with connectivity to be updated
+        """
+        for i in range(len(array)):
+            # An edge
+            if len(numpy.where(array[i, :]==True)[0]) >= 2:
+                if newI[i] < 0: newI[i] = (nlon-1) - i
+                if newI[(nlon-1)-i] < 0: newI[(nlon-1)-i] = i
+    
+    dims = coords[-2].shape
+    ndims = len(dims)
+    nlat, nlon = dims[-2], dims[-1]
+
+    def shift(data):
+        n = len(data)-1 # Account for extra cell
+        newdata = data.copy()
+        newdata[0:n-2] = data[1:n-1]
+        newdata[n-1] = data[0]
+
+        return newdata
+
+    lonb = bounds[-1][nlat-1, ...].data
+    latb = bounds[-2][nlat-1, ...].data
+
+    # Assume mkCyclic == True
+    # No fancy comparisons of the bounds
+    newI = numpy.arange(nlon-1, -1, -1)-1
+    newI[nlon-1] = 0 #  Complete the rotation
+    
+    # Build new coordinate array and adjust dims
+    newCoords = []
+    newDims = list(copy.copy(dims))
+    newDims[-2] += 1
+
+    # Assuming mkCyclic == True Assuming 2D
+
+    for i in range(len(coords)):
+        nD = len(dims)
+        newCoords.append( numpy.zeros( newDims, coords[i].dtype ) )
+        if nD == 2:
+            # 2D
+            newCoords[i][0:dims[-2], :] = coords[i][...]
+            newCoords[i][dims[-2], :] = coords[i][dims[-2]-1, newI]
+        elif nD > 2:
+            # 3D and above!
+            newCoords[i][..., 0:dims[-2], :] = coords[i][...]
+            newCoords[i][..., dims[-2], :] = coords[i][..., dims[-2]-1, newI]
+
+    for i in range(nlon):
+        tup = [i, newCoords[0][199, i], newCoords[0][200, i]]
+        tup = tuple(tup + [newCoords[1][199, i], newCoords[1][200, i]])
+    return newCoords, newDims, newI
 
 class Regrid:
 
-    def __init__(self, src_grid, dst_grid, mkCyclic=False):
+    def __init__(self, src_grid, dst_grid, src_bounds = None, mkCyclic=False, 
+                 handleCut=False):
         """
         Constructor
         
         @param src_grid source grid, a list of [x, y, ...] coordinates
         @param dst_grid destination grid, a list of [x, y, ...] coordinates
+        @param src_bounds list of [lat_bounds, lon_bounds]
+        @param mkCyclic Add a column to the right side of the grid to complete
+               a cyclic grid
+        @param handleCut Add a row to the top of grid to handle a cut for 
+               grids such as the tri-polar grid
         @note the grid coordinates can either be axes (rectilinear grid) or
               n-dimensional for curvilinear grids. Rectilinear grids will 
               be converted to curvilinear grids.
@@ -166,6 +302,8 @@ class Regrid:
         self.dst_coords = []
         self.lib = None
         self.extendedGrid = False
+        self.handleCut = False
+        self.dst_Index = []
 
         # Open the shaped library
         for sosuffix in '.so', '.dylib', '.dll', '.DLL', '.a':
@@ -173,17 +311,17 @@ class Regrid:
             if self.lib:
                 break
         if self.lib == None:
-            raise CDMSError, "ERROR in %s: could not open shared library %s" \
+            raise CDMSError, "ERROR ins: could not open shared library %s" \
                 (__FILE__, LIBCFDIR)
         
         # Number of space dimensions
         self.ndims = len(src_grid)
         if len(dst_grid) != self.ndims:
-            raise CDMSError, "ERROR in %s: len(dst_grid) = %d != %d" \
+            raise CDMSError, "ERROR ins: len(dst_grid) = %d != %d" \
                 (__FILE__, len(dst_grid), self.ndims)
 
         if self.ndims <= 0:
-            raise CDMSError, "ERROR in %s: must have at least one dimension, ndims = %d" \
+            raise CDMSError, "ERROR ins: must have at least one dimension, ndims = %d" \
                 (__FILE__, self.ndims)
 
         # Convert src_grid/dst_grid to curvilinear grid, if need be
@@ -194,10 +332,11 @@ class Regrid:
         # Make sure coordinates wrap around if mkCyclic is True
         if mkCyclic:
             src_gridNew, src_dimsNew = makeCoordsCyclic(src_grid, src_dims)
-            print '...  src_dims=%s, after making cyclic src_dimsNew=%s' \
-                % (str(src_dims), str(src_dimsNew))
+            aa, bb = str(src_dims), str(src_dimsNew)
+            print '...  src_dims=%s, after making cyclic src_dimsNew=%s', \
+                aa, bb
             for i in range(self.ndims):
-                print '...... src_gridNew[%d].shape = %s' % \
+                print '...... src_gridNew[%d].shape =s', \
                     (i, str(src_gridNew[i].shape))
             # flag indicating that the grid was extended
             if reduce(lambda x, y:x+y, \
@@ -207,6 +346,19 @@ class Regrid:
             # reset
             src_grid = src_gridNew
             src_dims = src_dimsNew
+
+        # Handle a cut in the coordinate system. Run after mkCyclic.
+        # e.g. a tri-polar grid
+        if handleCut and src_bounds is not None:
+            src_gridNew, src_dimsNew, dst_Index= handleCoordsCut(src_grid,
+                                                 src_dims,
+                                                 src_bounds)
+            self.handleCut = True
+            self.extendedGrid = True
+            src_grid = src_gridNew
+            src_dims = src_dimsNew
+            self.dst_Index = dst_Index.copy()
+
 
         self.src_dims = (c_int * self.ndims)()
         self.dst_dims = (c_int * self.ndims)()
@@ -314,11 +466,11 @@ class Regrid:
         
         # Check lo and hi
         if len(lo) != self.ndims:
-            raise CDMSError, "ERROR in %s: len(lo) = %d != %d" % \
+            raise CDMSError, "ERROR ins: len(lo) = %d != %d" % \
                 (__FILE__, len(lo), self.ndims)
 
         if len(hi) != self.ndims:
-            raise CDMSError, "ERROR in %s: len(hi) = %d != %d" % \
+            raise CDMSError, "ERROR ins: len(hi) = %d != %d" % \
                 (__FILE__, len(hi), self.ndims)
 
         # Apply
@@ -336,6 +488,7 @@ class Regrid:
         """
         c_intmask = mask.ctypes.data_as(POINTER(c_int))
         status = self.lib.nccf_set_grid_validmask(self.regridid, c_intmask)
+
         catchError(status, sys._getframe().f_lineno)
 
     def computeWeights(self, nitermax=100, tolpos=1.e-2):
@@ -360,23 +513,31 @@ class Regrid:
               of src_data will not be interpoloted, the corresponding
               dst_data will not be touched.
         """
-        # extend src data is grid was made cyclic
+        # extend src data is grid was made cyclic and or had a cut accounted for
         if self.extendedGrid:
             src_dataNew = numpy.zeros( self.src_dims, src_data.dtype )
-            src_dataNew[..., 0:-1] = src_data[...]
-            src_dataNew[...,   -1] = src_data[...,  0]
+            d2, d1 = self.src_dims[-2]-1, self.src_dims[-1]-1
+            if self.handleCut:
+                src_dataNew[..., 0:d2, 0:d1] = src_data[...]
+                src_dataNew[..., 0:d2, d1] = src_data[..., 0:d2, 0]
+                # Deal with the row of lats...
+                for i in range(d1):
+                    src_dataNew[..., d2, i] = src_data[..., d2-1, self.dst_Index[i]]
+            else:
+                src_dataNew[..., 0:d1] = src_data[...]
+                src_dataNew[..., d1] = src_data[..., 0]
             src_data = src_dataNew
 
         # Check 
         if reduce(operator.iand, [src_data.shape[i] == self.src_dims[i] \
                                  for i in range(self.ndims)]) == False:
-            raise CDMSError, ("ERROR in %s: supplied src_data have wrong shape " \
-                + "%s != %s") % (__FILE__, str(src_data.shape), \
+            raise CDMSError, ("ERROR ins: supplied src_data have wrong shape " \
+                + "%s !=s") % (__FILE__, str(src_data.shape), \
                                      str(tuple([d for d in self.src_dims])))
         if reduce(operator.iand, [dst_data.shape[i] == self.dst_dims[i] \
                                  for i in range(self.ndims)]) == False:
-            raise CDMSError, ("ERROR in %s: supplied dst_data have wrong shape " \
-                + "%s != %s") % (__FILE__, str(dst_data.shape), 
+            raise CDMSError, ("ERROR ins: supplied dst_data have wrong shape " \
+                + "%s !=s") % (__FILE__, str(dst_data.shape), 
                                  str(self.dst_dims))
 
         # Create data objects
@@ -410,8 +571,8 @@ class Regrid:
                                                 save, fill_value)
             catchError(status, sys._getframe().f_lineno)
         else:
-            raise CDMSError, "ERROR in %s: invalid src_data type = %s" \
-                % (__FILE__, src_data.dtype)
+            raise CDMSError, "ERROR ins: invalid src_data type = %s" \
+ (__FILE__, src_data.dtype)
             
 
         status = self.lib.nccf_def_data(self.dst_gridid, "dst_data", \
@@ -437,8 +598,8 @@ class Regrid:
                                                 save, fill_value)
             catchError(status, sys._getframe().f_lineno)
         else:
-            raise CDMSError, "ERROR in %s: invalid dst_data type = %s" \
-                % (__FILE__, dst_data.dtype)
+            raise CDMSError, "ERROR ins: invalid dst_data type = %s" \
+ (__FILE__, dst_data.dtype)
 
         # Now apply weights
         status = self.lib.nccf_apply_regrid(self.regridid, src_dataid, dst_dataid)
@@ -567,6 +728,30 @@ def testMakeCyclic():
     print 'cyclic lons'
     print newCoords[1]
 
+def testHandleCut():
+
+    # Need tripolar grid
+    import cdms2
+    filename = "data/so_Omon_GFDL-ESM2M_1pctCO2_r1i1p2_000101-000512_2timesteps.nc"
+    f = cdms2.open(filename)
+    if not f: return
+
+    so = f.variables['so'][0, 0, :, :]
+    if 'lon' in f.variables.keys():
+        alllat = f.variables['lat']
+        alllon = f.variables['lon']
+    else:
+        alllat = f.getAxis("lat").getData()
+        alllon = f.getAxis("lon").getData()
+    
+    bounds = [f.variables['bounds_lon'][:].data, 
+              f.variables['bounds_lat'][:].data]
+    coords = [alllat[:].data, alllon[:].data]
+    dims = alllat.shape
+    from matplotlib import pylab
+    newCoords, newDims = makeCoordsCyclic(coords, dims)
+    newCoords, newDims = handleCoordsCut(newCoords, newDims, bounds, isCyclic = True)
+
 def testOuterProduct():
     
     # 2d
@@ -644,10 +829,10 @@ def test():
     #print dst_data
     #print func(dst_coords)
     print 'error = ', error
-        
 
 if __name__ == '__main__': 
     #testOuterProduct()
     #test()
     testMakeCyclic()
+    testHandleCut()
     
