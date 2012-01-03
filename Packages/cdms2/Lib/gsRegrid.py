@@ -338,11 +338,11 @@ class Regrid:
         if mkCyclic:
             src_gridNew, src_dimsNew = makeCoordsCyclic(src_grid, src_dims)
             aa, bb = str(src_dims), str(src_dimsNew)
-            print '...  src_dims=%s, after making cyclic src_dimsNew=%s', \
-                aa, bb
+            print '...  src_dims = %s, after making cyclic src_dimsNew = %s' \
+                % (aa, bb)
             for i in range(self.ndims):
-                print '...... src_gridNew[%d].shape =s', \
-                    (i, str(src_gridNew[i].shape))
+                print '...... src_gridNew[%d].shape = %s' \
+                    % (i, str(src_gridNew[i].shape))
             # flag indicating that the grid was extended
             if reduce(lambda x, y:x+y, \
                           [src_dimsNew[i] - src_dims[i] \
