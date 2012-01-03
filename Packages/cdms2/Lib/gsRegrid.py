@@ -26,7 +26,7 @@ except:
 LIBCFDIR  = __path__[0] + "/libcf"
 #LIBCFDIR  = "/home/research/kindig/software/libcf/lib/libcf"
 #LIBCFDIR  = "/home/pletzer/software/libcf-debug/lib/libcf"
-#LIBCFDIR  = "/home/pletzer/software/libcf-opt/lib/libcf"
+LIBCFDIR  = "/home/pletzer/software/libcf-opt/lib/libcf"
 #LIBCFDIR  = "/home/pletzer/software/libcf-debug-logging/lib/libcf"
 
 try:
@@ -487,7 +487,8 @@ class Regrid:
         @param mask an array of type char of size dims for the grid
         """
         c_intmask = mask.ctypes.data_as(POINTER(c_int))
-        status = self.lib.nccf_set_grid_validmask(self.regridid, c_intmask)
+        status = self.lib.nccf_set_grid_validmask(self.src_gridid, 
+                                                  c_intmask)
 
         catchError(status, sys._getframe().f_lineno)
 
