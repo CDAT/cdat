@@ -24,7 +24,7 @@ except:
     raise ImportError, 'Error: could not import pycf'
 
 LIBCFDIR  = __path__[0] + "/libcf"
-LIBCFDIR  = "/home/research/kindig/software/libcf/lib/libcf"
+#LIBCFDIR  = "/home/research/kindig/software/libcf/lib/libcf"
 #LIBCFDIR  = "/home/pletzer/software/libcf-debug/lib/libcf"
 #LIBCFDIR  = "/home/pletzer/software/libcf-opt/lib/libcf"
 #LIBCFDIR  = "/home/pletzer/software/libcf-debug-logging/lib/libcf"
