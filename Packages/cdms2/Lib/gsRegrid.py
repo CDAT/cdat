@@ -10,12 +10,15 @@ No guarantee is provided whatsoever. Use at your own risk.
 
 # standard python includes
 from re import search, sub
-from ctypes import c_double, c_float, c_int, c_char_p, CDLL, byref, POINTER
+from ctypes import c_double, c_float, c_int, \
+    c_char_p, CDLL, byref, POINTER
 import operator
 import sys
 import copy
-
 import numpy
+        
+C_DOUBLE_P = POINTER(c_double)
+
 
 # libcf
 try:
@@ -26,7 +29,7 @@ except:
 LIBCFDIR  = __path__[0] + "/libcf"
 #LIBCFDIR  = "/home/research/kindig/software/libcf/lib/libcf"
 #LIBCFDIR  = "/home/pletzer/software/libcf-debug/lib/libcf"
-LIBCFDIR  = "/home/pletzer/software/libcf-opt/lib/libcf"
+#LIBCFDIR  = "/home/pletzer/software/libcf-opt/lib/libcf"
 #LIBCFDIR  = "/home/pletzer/software/libcf-debug-logging/lib/libcf"
 
 try:
@@ -38,8 +41,8 @@ __FILE__ = sys._getframe().f_code.co_filename
 
 def catchError(status, lineno):
     if status != 0:
-        raise CDMSError, "ERROR ins: status = %d at line %d" \
- (__FILE__, status, lineno)
+        raise CDMSError, "ERROR in %s: status = %d at line %d" \
+            % (__FILE__, status, lineno)
 
 def getNetCDFFillValue(dtype):
     """
@@ -57,8 +60,8 @@ def getNetCDFFillValue(dtype):
     elif dtype == numpy.int8:
         return libCFConfig.NC_FILL_BYTE
     else:
-        raise CDMSError, "ERROR ins: invalid type %s" \
- (__FILE__, str(dtype)) 
+        raise CDMSError, "ERROR in %s: invalid type %s" \
+            % (__FILE__, str(dtype)) 
 
 def getTensorProduct(axis, dim, dims):
     """
@@ -110,8 +113,9 @@ def makeCurvilinear(coords):
             o1 = numpy.ones( (len(coords[0]),), coords[i].dtype )
             coords[i] = numpy.outer(o1, coords[i]).reshape(dims)
         else:
-            raise CDMSError, "ERROR ins: funky mixture of axes and curvilinear coords %s" \
- (__FILE__, str([x.shape for x in coords]))
+            raise CDMSError, \
+                "ERROR in %s: funky mixture of axes and curvilinear coords %s" \
+                % (__FILE__, str([x.shape for x in coords]))
     return coords, dims
 
 def makeCoordsCyclic(coords, dims):
@@ -311,18 +315,19 @@ class Regrid:
             if self.lib:
                 break
         if self.lib == None:
-            raise CDMSError, "ERROR ins: could not open shared library %s" \
-                (__FILE__, LIBCFDIR)
+            raise CDMSError, "ERROR in %s: could not open shared library %s" \
+                % (__FILE__, LIBCFDIR)
         
         # Number of space dimensions
         self.ndims = len(src_grid)
         if len(dst_grid) != self.ndims:
-            raise CDMSError, "ERROR ins: len(dst_grid) = %d != %d" \
-                (__FILE__, len(dst_grid), self.ndims)
+            raise CDMSError, "ERROR in %s: len(dst_grid) = %d != %d" \
+                % (__FILE__, len(dst_grid), self.ndims)
 
         if self.ndims <= 0:
-            raise CDMSError, "ERROR ins: must have at least one dimension, ndims = %d" \
-                (__FILE__, self.ndims)
+            raise CDMSError, \
+                "ERROR in %s: must have at least one dimension, ndims = %d" \
+                % (__FILE__, self.ndims)
 
         # Convert src_grid/dst_grid to curvilinear grid, if need be
         if self.ndims > 1:
@@ -373,7 +378,6 @@ class Regrid:
             self.dst_dims[i] = dst_dims[i]
         self.src_coordids = (c_int * self.ndims)()
         self.dst_coordids = (c_int * self.ndims)()
-        c_double_p = POINTER(c_double)
         save = 0
         standard_name = ""
         units = ""
@@ -381,7 +385,7 @@ class Regrid:
         for i in range(self.ndims):
             data =  numpy.array( src_grid[i], numpy.float64 )
             self.src_coords.append( data )
-            dataPtr = data.ctypes.data_as(c_double_p)
+            dataPtr = data.ctypes.data_as(C_DOUBLE_P)
             name = "src_coord%d" % i
             # assume [lev,] lat, lon ordering
             if i == self.ndims - 2:
@@ -400,7 +404,7 @@ class Regrid:
 
             data =  numpy.array( dst_grid[i], numpy.float64 )
             self.dst_coords.append( data )
-            dataPtr = data.ctypes.data_as(c_double_p)
+            dataPtr = data.ctypes.data_as(C_DOUBLE_P)
             name = "dst_coord%d" % i
             status = self.lib.nccf_def_coord(self.ndims, self.dst_dims, 
                                              dst_dimnames, 
@@ -431,7 +435,7 @@ class Regrid:
         """
         coord_periodicity = numpy.zeros( (self.ndims,), numpy.float64 )
         status = self.lib.nccf_inq_grid_periodicity(self.src_gridid,
-                                 coord_periodicity.ctypes.data_as(c_double_p))
+                                 coord_periodicity.ctypes.data_as(C_DOUBLE_P))
         catchError(status, sys._getframe().f_lineno)
         return coord_periodicity        
 
@@ -466,12 +470,12 @@ class Regrid:
         
         # Check lo and hi
         if len(lo) != self.ndims:
-            raise CDMSError, "ERROR ins: len(lo) = %d != %d" % \
-                (__FILE__, len(lo), self.ndims)
+            raise CDMSError, "ERROR in %s: len(lo) = %d != %d" \
+                % (__FILE__, len(lo), self.ndims)
 
         if len(hi) != self.ndims:
-            raise CDMSError, "ERROR ins: len(hi) = %d != %d" % \
-                (__FILE__, len(hi), self.ndims)
+            raise CDMSError, "ERROR in %s: len(hi) = %d != %d" \
+                % (__FILE__, len(hi), self.ndims)
 
         # Apply
         loIndices = (c_int * self.ndims)(tuple(lo))
@@ -532,13 +536,13 @@ class Regrid:
         # Check 
         if reduce(operator.iand, [src_data.shape[i] == self.src_dims[i] \
                                  for i in range(self.ndims)]) == False:
-            raise CDMSError, ("ERROR ins: supplied src_data have wrong shape " \
-                + "%s !=s") % (__FILE__, str(src_data.shape), \
+            raise CDMSError, ("ERROR in %s: supplied src_data have wrong shape " \
+                                  + "%s != %s") % (__FILE__, str(src_data.shape), \
                                      str(tuple([d for d in self.src_dims])))
         if reduce(operator.iand, [dst_data.shape[i] == self.dst_dims[i] \
                                  for i in range(self.ndims)]) == False:
             raise CDMSError, ("ERROR ins: supplied dst_data have wrong shape " \
-                + "%s !=s") % (__FILE__, str(dst_data.shape), 
+                + "%s != %s") % (__FILE__, str(dst_data.shape), 
                                  str(self.dst_dims))
 
         # Create data objects
@@ -572,8 +576,8 @@ class Regrid:
                                                 save, fill_value)
             catchError(status, sys._getframe().f_lineno)
         else:
-            raise CDMSError, "ERROR ins: invalid src_data type = %s" \
- (__FILE__, src_data.dtype)
+            raise CDMSError, "ERROR in %s: invalid src_data type = %s" \
+                % (__FILE__, src_data.dtype)
             
 
         status = self.lib.nccf_def_data(self.dst_gridid, "dst_data", \
@@ -599,8 +603,8 @@ class Regrid:
                                                 save, fill_value)
             catchError(status, sys._getframe().f_lineno)
         else:
-            raise CDMSError, "ERROR ins: invalid dst_data type = %s" \
- (__FILE__, dst_data.dtype)
+            raise CDMSError, "ERROR in %s: invalid dst_data type = %s" \
+                % (__FILE__, dst_data.dtype)
 
         # Now apply weights
         status = self.lib.nccf_apply_regrid(self.regridid, src_dataid, dst_dataid)
@@ -751,7 +755,7 @@ def testHandleCut():
     dims = alllat.shape
     from matplotlib import pylab
     newCoords, newDims = makeCoordsCyclic(coords, dims)
-    newCoords, newDims = handleCoordsCut(newCoords, newDims, bounds, isCyclic = True)
+    newCoords, newDims = handleCoordsCut(newCoords, newDims, bounds)
 
 def testOuterProduct():
     
@@ -775,8 +779,6 @@ def testOuterProduct():
     aa = makeCurvilinear([z, yy, xx])
     print len(aa)
     for g in aa: 
-        print
-        print g.shape
         print g
 
 
