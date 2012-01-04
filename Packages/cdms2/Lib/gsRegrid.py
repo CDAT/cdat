@@ -29,7 +29,7 @@ except:
 LIBCFDIR  = __path__[0] + "/libcf"
 #LIBCFDIR  = "/home/research/kindig/software/libcf/lib/libcf"
 #LIBCFDIR  = "/home/pletzer/software/libcf-debug/lib/libcf"
-#LIBCFDIR  = "/home/pletzer/software/libcf-opt/lib/libcf"
+LIBCFDIR  = "/home/pletzer/software/libcf-opt/lib/libcf"
 #LIBCFDIR  = "/home/pletzer/software/libcf-debug-logging/lib/libcf"
 
 try:
@@ -128,28 +128,51 @@ def makeCoordsCyclic(coords, dims):
     """
     # assume lon is the last coordinate!!
 
-    # check if already cyclic
+    # check if already extended
     eps = 1.e-3
-    isCyclic = True
-    for i in range(len(coords)):
-        if abs(numpy.sum(coords[i][...,-1] - coords[i][...,0])) > eps:
-            isCyclic = False
-    if isCyclic:
-        # cyclic, return input coordinates
+
+    diff1 = abs(coords[-1][...,-2] - coords[-1][...,0])
+    diff2 = abs(coords[-1][...,-2] - coords[-1][...,0] - 360.0)
+    diff3 = abs(coords[-1][...,-2] - coords[-1][...,0] + 360.0)
+    adiff = numpy.sum(numpy.minimum(diff1, numpy.minimum(diff2, diff3))) \
+        / float(dims[-1])
+    if adiff < eps:
+        # cyclic, return input coordinates unchanged
         return coords, dims
+    
+    diff1 = abs(coords[-1][...,-1] - coords[-1][...,0])
+    diff2 = abs(coords[-1][...,-1] - coords[-1][...,0] - 360.0)
+    diff3 = abs(coords[-1][...,-1] - coords[-1][...,0] + 360.0)
+    adiff = numpy.sum(numpy.minimum(diff1, numpy.minimum(diff2, diff3))) \
+        / float(dims[-1])
+    if adiff < eps:
+        # cyclic, return input coordinates unchanged
+        return coords, dims    
         
+    # make cyclic by appending a column to the coordinates
     newCoords = []
     newDims = list(copy.copy(dims))
-    newDims[-1] += 1
+    newDims[-1] += 1 # append to the right
     for i in range(len(coords)):
         newCoords.append( numpy.zeros( newDims, coords[i].dtype ) )
-        newCoords[i][..., 0:dims[-1]] = coords[i][...]
-        # wrap around
-        if i != len(coords) - 1:
-            newCoords[i][..., dims[-1]] = coords[i][..., 0]
-        else:
-            # assuming degrees!!
-            newCoords[i][..., dims[-1]] = coords[i][..., 0] + 360.0
+        newCoords[i][..., 0:-1] = coords[i][...]
+        newCoords[i][...,   -1] = coords[i][...,  0]
+
+    # add modulo term, want deltas ~ order of dlon otherwise add
+    # or subtract a periodicity length
+    nlon = dims[-1]
+    dlon = 360.0 / float(nlon) # average resolution
+    tol = 360.0 - min(5, nlon)*dlon
+    mask1 = (newCoords[-1][..., -1] - newCoords[-1][..., -2] < -tol)
+    mask2 = (newCoords[-1][..., -1] - newCoords[-1][..., -2] > +tol)
+    newCoords[-1][..., -1] += 360.0*mask1
+    newCoords[-1][..., -1] -= 360.0*mask2
+
+    print 'old lon coords'
+    print coords[-1][...,  0]
+    print coords[-1][..., -2]
+    print coords[-1][..., -1]
+
     return newCoords, newDims
 
 def checkForCoordCut(coords, dims):
