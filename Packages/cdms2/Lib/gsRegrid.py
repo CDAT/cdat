@@ -26,8 +26,8 @@ try:
 except:
     raise ImportError, 'Error: could not import pycf'
 
-LIBCFDIR  = __path__[0] + "/libcf"
-#LIBCFDIR  = "/home/research/kindig/software/libcf/lib/libcf"
+#LIBCFDIR  = __path__[0] + "/libcf"
+LIBCFDIR  = "/home/research/kindig/software/libcf/lib/libcf"
 #LIBCFDIR  = "/home/pletzer/software/libcf-debug/lib/libcf"
 #LIBCFDIR  = "/home/pletzer/software/libcf-opt/lib/libcf"
 #LIBCFDIR  = "/home/pletzer/software/libcf-debug-logging/lib/libcf"
@@ -199,45 +199,67 @@ def checkForCoordCut(coords, dims):
         # Make no change. There is no cut
         return False
 
+    # Find locale minima. 
     # A rotated pole grid has only one minimum. A tripolar grid should 
-    # have two.
+    # have two, though they may not be at the same latitude
 
-    count = 0
-    found = True
-    max1 = lat[nlat-1, :].argmax()
-    max2 = max1
-    maxN = max2
-    while found:
-        max2 = lat[nlat-1, (max2+1):].argmax() + max2 + 1
-        if lat[nlat-1, maxN] > lat[nlat-1, max2]:
-            found = False
-        else:
-            maxN = max2
+    minInd = []
+    diffs = numpy.diff(topRow)
+    for i in range(nlon-2):
+        if diffs[i] <= 0 and diffs[i+1] >= 0: minInd.append(i+1)
 
-    eps = 1.e-4
-    if (lat[nlat-1, max1] - lat[nlat-1, max2]) < eps:
+    mins = topRow[minInd]
+    nmin = len(mins)
+    min1 = []
+    min1.append(mins.argmin())
+    ww = numpy.where(abs(mins - mins.min()) > 1.e-7)
+    if len(ww[0]) >= 2:
+        newmins = mins[ww[0]]
+        min1.append(newmins.argmin()+min(ww[0]))
+
+        # More than on minimum
+        return True
+    else:
+        # Only one minimum
         return False
-
-    return True
 
 def handleCoordsCut(coords, dims, bounds):
     """
     Generate connectivity across a cut. e.g. from a tri-polar grid.
-    @params coords input coordinates 
-    @params dims input dimensions
+    @params coords input coordinates list of ndims 
+    @params dims input dimensions 
+    @params bounds boundaries for each coordinate
     @return new, extended coordinates such that there is an extra row containing
             connectivity information across the cut
     """
 
-    # Check to see if cut exists in latitudes. 
-    # Assume latitude is next to last coordinate
+    # Assume latitude is next to last coordinate!!!
+
+    dims = coords[-2].shape
+    ndims = len(dims)
+    nlat, nlon = dims[-2], dims[-1]
+
+    # Check to see if the top row has already be dealt with by the modeling 
+    # agency
+
+    topRow = coords[-2][..., nlat-1, :]
+    nextRow = coords[-2][..., nlat-2, ::-1]  # Reverse nextRow
+    diffs = abs(topRow[2:nlon-3] - nextRow[2:nlon-3])
+
+    # If already accounted for and not cyclic, all diffs are 0.
+    # If already accounted for and cyclic then the endpoints may not be zero.
+    # Check all but the last two endpoints. IPSL model has the first two
+    # rows and columns repeated as the last two columns.
+    aa = numpy.where(diffs == 0)
+    if (len(aa[0]) == nlon - 5):
+        return coords, dims, None
 
     epsExp = 3
     eps = 10**(-1*epsExp)
     isCut = checkForCoordCut(coords, dims)
     if not isCut:
         # No cut
-        return coords, dims
+        return coords, dims, None
 
     # Add row to top with connectivity information. This means rearranging 
     # the top row
@@ -254,23 +276,10 @@ def handleCoordsCut(coords, dims, bounds):
                 if newI[i] < 0: newI[i] = (nlon-1) - i
                 if newI[(nlon-1)-i] < 0: newI[(nlon-1)-i] = i
     
-    dims = coords[-2].shape
-    ndims = len(dims)
-    nlat, nlon = dims[-2], dims[-1]
-
-    def shift(data):
-        n = len(data)-1 # Account for extra cell
-        newdata = data.copy()
-        newdata[0:n-2] = data[1:n-1]
-        newdata[n-1] = data[0]
-
-        return newdata
-
-    lonb = bounds[-1][nlat-1, ...].data
-    latb = bounds[-2][nlat-1, ...].data
+    lonb = bounds[-1][..., nlat-1, ...]
+    latb = bounds[-2][..., nlat-1, ...]
 
     # Assume mkCyclic == True
-    # No fancy comparisons of the bounds
     newI = numpy.arange(nlon-1, -1, -1)-1
     newI[nlon-1] = 0 #  Complete the rotation
     
@@ -279,19 +288,11 @@ def handleCoordsCut(coords, dims, bounds):
     newDims = list(copy.copy(dims))
     newDims[-2] += 1
 
-    # Assuming mkCyclic == True Assuming 2D
-
     for i in range(len(coords)):
         nD = len(dims)
         newCoords.append( numpy.zeros( newDims, coords[i].dtype ) )
-        if nD == 2:
-            # 2D
-            newCoords[i][0:dims[-2], :] = coords[i][...]
-            newCoords[i][dims[-2], :] = coords[i][dims[-2]-1, newI]
-        elif nD > 2:
-            # 3D and above!
-            newCoords[i][..., 0:dims[-2], :] = coords[i][...]
-            newCoords[i][..., dims[-2], :] = coords[i][..., dims[-2]-1, newI]
+        newCoords[i][..., 0:dims[-2], :] = coords[i][...]
+        newCoords[i][..., dims[-2], :] = coords[i][..., dims[-2]-1, newI]
 
     for i in range(nlon):
         tup = [i, newCoords[0][199, i], newCoords[0][200, i]]
@@ -375,15 +376,17 @@ class Regrid:
         # Handle a cut in the coordinate system. Run after mkCyclic.
         # e.g. a tri-polar grid
         if handleCut and src_bounds is not None:
-            src_gridNew, src_dimsNew, dst_Index= handleCoordsCut(src_grid,
-                                                 src_dims,
-                                                 src_bounds)
-            self.handleCut = True
-            self.extendedGrid = True
+            src_gridNew, src_dimsNew, dst_Index = handleCoordsCut(src_grid,
+                                                 src_dims, src_bounds)
+            if dst_Index is not None:
+                self.handleCut = True
+                self.extendedGrid = True
+            else:
+                self.handleCut = False
+                self.extendedGrid = False
             src_grid = src_gridNew
             src_dims = src_dimsNew
-            self.dst_Index = dst_Index.copy()
-
+            self.dst_Index = dst_Index
 
         self.src_dims = (c_int * self.ndims)()
         self.dst_dims = (c_int * self.ndims)()
