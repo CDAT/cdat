@@ -26,8 +26,8 @@ try:
 except:
     raise ImportError, 'Error: could not import pycf'
 
-#LIBCFDIR  = __path__[0] + "/libcf"
-LIBCFDIR  = "/home/research/kindig/software/libcf/lib/libcf"
+LIBCFDIR  = __path__[0] + "/libcf"
+#LIBCFDIR  = "/home/research/kindig/software/libcf/lib/libcf"
 #LIBCFDIR  = "/home/pletzer/software/libcf-debug/lib/libcf"
 #LIBCFDIR  = "/home/pletzer/software/libcf-opt/lib/libcf"
 #LIBCFDIR  = "/home/pletzer/software/libcf-debug-logging/lib/libcf"
@@ -513,10 +513,12 @@ class Regrid:
         Set a mask for the grid
         @param mask an array of type char of size dims for the grid
         """
-        c_intmask = mask.ctypes.data_as(POINTER(c_int))
+        # extend src data if grid was made cyclic and or had a cut accounted for
+        newMask = self._extend(mask)
+
+        c_intmask = newMask.ctypes.data_as(POINTER(c_int))
         status = self.lib.nccf_set_grid_validmask(self.src_gridid, 
                                                   c_intmask)
-
         catchError(status, sys._getframe().f_lineno)
 
     def computeWeights(self, nitermax=100, tolpos=1.e-2):
@@ -541,20 +543,8 @@ class Regrid:
               of src_data will not be interpoloted, the corresponding
               dst_data will not be touched.
         """
-        # extend src data is grid was made cyclic and or had a cut accounted for
-        if self.extendedGrid:
-            src_dataNew = numpy.zeros( self.src_dims, src_data.dtype )
-            d2, d1 = self.src_dims[-2]-1, self.src_dims[-1]-1
-            if self.handleCut:
-                src_dataNew[..., 0:d2, 0:d1] = src_data[...]
-                src_dataNew[..., 0:d2, d1] = src_data[..., 0:d2, 0]
-                # Deal with the row of lats...
-                for i in range(d1):
-                    src_dataNew[..., d2, i] = src_data[..., d2-1, self.dst_Index[i]]
-            else:
-                src_dataNew[..., 0:d1] = src_data[...]
-                src_dataNew[..., d1] = src_data[..., 0]
-            src_data = src_dataNew
+        # extend src data if grid was made cyclic and or had a cut accounted for
+        src_data = self._extend(src_data)
 
         # Check 
         if reduce(operator.iand, [src_data.shape[i] == self.src_dims[i] \
@@ -702,6 +692,31 @@ class Regrid:
             ori_inds.append(inx)
         
         return ori_inds, weights
+
+    def _extend(self, src_data):
+        """
+        Extend the data by padding a column and a row, depending on whether the 
+        grid was made cyclic and a fold was added or not
+        @param src_data input source data
+        @return extended source data (or source input data of no padding was applied)
+        """
+
+        src_dataNew = src_data
+
+        if self.extendedGrid:
+            src_dataNew = numpy.zeros( self.src_dims, src_data.dtype )
+            d2, d1 = self.src_dims[-2]-1, self.src_dims[-1]-1
+            if self.handleCut:
+                src_dataNew[..., 0:d2, 0:d1] = src_data[...]
+                src_dataNew[..., 0:d2, d1] = src_data[..., 0:d2, 0]
+                # Deal with the row of lats...
+                for i in range(d1):
+                    src_dataNew[..., d2, i] = src_data[..., d2-1, self.dst_Index[i]]
+            else:
+                src_dataNew[..., 0:d1] = src_data[...]
+                src_dataNew[..., d1] = src_data[..., 0]
+            
+        return src_dataNew
 
     def _findIndices(self, targetPos, nitermax, tolpos, 
                      dindicesGuess):
