@@ -19,7 +19,6 @@ import numpy
         
 C_DOUBLE_P = POINTER(c_double)
 
-
 # libcf
 try:
     from pycf import libCFConfig, __path__
@@ -725,20 +724,30 @@ class Regrid:
         @return extended source data (or source input data of no padding was applied)
         """
 
+        # extended dimensions
+        nlatX, nlonX = self.src_dims[-2], self.src_dims[-1]
+        # original dimensions, before extension
+        # assuming ..., lat, lon ordering
+        nlat, nlon = src_data.shape[-2:]
+
+        # no cut and no cyclic extension 
         src_dataNew = src_data
 
+        if self.handleCut or self.extendedGrid:
+            # copy data into new, extended container
+            src_dataNew = numpy.zeros(self.src_dims, src_data.dtype)
+            # start filling in...
+            src_dataNew[..., :nlat, :nlon] = src_data[...]
+
+        if self.handleCut:
+            # fill in polar cut (e.g. tripolar cut), top row
+            # self.dst_Index[i] knows how to fold
+            for i in range(nlon):
+                src_dataNew[..., -1, i] = src_data[..., -2, self.dst_Index[i]]
+
         if self.extendedGrid:
-            src_dataNew = numpy.zeros( self.src_dims, src_data.dtype )
-            d2, d1 = self.src_dims[-2]-1, self.src_dims[-1]-1
-            if self.handleCut:
-                src_dataNew[..., 0:d2, 0:d1] = src_data[...]
-                src_dataNew[..., 0:d2, d1] = src_data[..., 0:d2, 0]
-                # Deal with the row of lats...
-                for i in range(d1):
-                    src_dataNew[..., d2, i] = src_data[..., d2-1, self.dst_Index[i]]
-            else:
-                src_dataNew[..., 0:d1] = src_data[...]
-                src_dataNew[..., d1] = src_data[..., 0]
+            # make data periodic in longitudes
+            src_dataNew[..., -1] = src_dataNew[..., 0]
             
         return src_dataNew
 
