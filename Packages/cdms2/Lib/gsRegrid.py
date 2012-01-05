@@ -175,57 +175,96 @@ def makeCoordsCyclic(coords, dims):
 def checkForCoordCut(coords, dims):
     """
     Look for a cut in a coordinate system (e.g. tri-polar grid)
-    Assume latitude is next to last coordinate
+    Assume latitude is next to last coordinate and longitude is last coordinate!!!
+
     @params coords input coordinates 
     @params dims input dimensions
     @return True for cut found
             False for no cut
     """
 
-    # Assume latitude is next to last coordinate
-    if len(dims) < 2: return False
+    # Assume latitude is next to last coordinate and longitude is last coordinate!!!
+
+    ndims = len(dims)
+    if ndims < 2: 
+        # print 'no cut: dims < 2'
+        return False
     nlat, nlon = dims[-2], dims[-1]
     lat = coords[-2]
+    eps = 1.e-7
 
-    maxLatInd = lat[nlat-1, :].argmax()
-    maxLonInd = lat[:, maxLatInd].argmax()
-    rowOfMaxLat = numpy.arange(nlon)
-    rowOfMaxLat[:] = lat[maxLonInd, :]
-    topRow = numpy.arange(nlon)
-    topRow[:] = lat[nlat-1, :]
-    diff = rowOfMaxLat - topRow
+    # Check to see if the top row has already be dealt with by the modeling 
+    # agency. Last row is repeated in reverse.
 
-    if diff.max() != 0:
-        # Make no change. There is no cut
+    topRow = coords[-2][..., nlat-1, :]
+    revTop = coords[-2][..., nlat-1, ::-1]
+    nextRow = coords[-2][..., nlat-2, :]  # Reverse nextRow
+    diffs = abs(revTop - nextRow)
+
+    # If already accounted for all diffs are 0.
+    if numpy.all(diffs < eps): 
+        # print "no cut: reversed"
+        return False
+
+    # Lon of max latitude -- Looking for a rotated pole
+    maxLats = numpy.where(abs(lat - numpy.max(lat)) < eps)
+    inTopRow = False
+    if len(maxLats[0] > 0): inTopRow = numpy.all(maxLats[0] == nlat-1)
+    if not inTopRow:
+        # The max lats are not in the top row. The cut may already be handled
+        # print 'no cut: max lat not in top row.' + \
+        #          'Either: it is a funky grid or rotated pole'
+        return False
+
+    # Only in top row.
+    maxLatInd = lat[..., nlat-1, :].argmax()
+    maxLonInd = lat[..., maxLatInd].argmax()
+    rowOfMaxLat = lat[..., maxLonInd, :]
+    diffs = rowOfMaxLat - topRow
+
+    if diffs.max() != 0:
+        # Rotated Pole
+        # print "no cut: rotated pole"
         return False
 
     # Find locale minima. 
     # A rotated pole grid has only one minimum. A tripolar grid should 
     # have two, though they may not be at the same latitude
 
-    minInd = []
-    diffs = numpy.diff(topRow)
-    for i in range(nlon-2):
-        if diffs[i] <= 0 and diffs[i+1] >= 0: minInd.append(i+1)
-
-    mins = topRow[minInd]
-    nmin = len(mins)
-    min1 = []
-    min1.append(mins.argmin())
-    ww = numpy.where(abs(mins - mins.min()) > 1.e-7)
-    if len(ww[0]) >= 2:
-        newmins = mins[ww[0]]
-        min1.append(newmins.argmin()+min(ww[0]))
-
-        # More than on minimum
+    minInds = numpy.where(abs(topRow - topRow.min()) < eps)
+    if len(minInds[0]) > 2:
+        # Account for the end points matching
+        # Multiple minima in the top row
         return True
+
+    # Now if we have an offset tri-pole. The extra poles are not at the same
+    # latitude
+    minCount = 0
+    firstInd = topRow.argmin()
+    diffs = numpy.diff(topRow)
+    if firstInd == 0:
+        if revTop.argmin() == 0:
+            if topRow[firstInd] == revTop[0]: minCount += 1
     else:
-        # Only one minimum
+        minCount += 1
+        # Look for next Minima
+    index = firstInd + 1
+    while diffs[index] > 0:
+        index += 1
+        if index == nlon: break
+    nextIndex = topRow[index+1:].argmin() + index+1
+    if nextIndex != index+1 and nextIndex != nlon-1: minCount += 1
+    if minCount == 1: 
+        # print "no cut: one pole"
         return False
+
+    return True
 
 def handleCoordsCut(coords, dims, bounds):
     """
     Generate connectivity across a cut. e.g. from a tri-polar grid.
+    Assume latitude is next to last coordinate and longitude is last coordinate!!!
+
     @params coords input coordinates list of ndims 
     @params dims input dimensions 
     @params bounds boundaries for each coordinate
@@ -233,26 +272,11 @@ def handleCoordsCut(coords, dims, bounds):
             connectivity information across the cut
     """
 
-    # Assume latitude is next to last coordinate!!!
+    # Assume latitude is next to last coordinate and longitude is last coordinate!!!
 
     dims = coords[-2].shape
     ndims = len(dims)
     nlat, nlon = dims[-2], dims[-1]
-
-    # Check to see if the top row has already be dealt with by the modeling 
-    # agency
-
-    topRow = coords[-2][..., nlat-1, :]
-    nextRow = coords[-2][..., nlat-2, ::-1]  # Reverse nextRow
-    diffs = abs(topRow[2:nlon-3] - nextRow[2:nlon-3])
-
-    # If already accounted for and not cyclic, all diffs are 0.
-    # If already accounted for and cyclic then the endpoints may not be zero.
-    # Check all but the last two endpoints. IPSL model has the first two
-    # rows and columns repeated as the last two columns.
-    aa = numpy.where(diffs == 0)
-    if (len(aa[0]) == nlon - 5):
-        return coords, dims, None
 
     epsExp = 3
     eps = 10**(-1*epsExp)
