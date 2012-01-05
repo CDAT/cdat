@@ -29,7 +29,7 @@ except:
 LIBCFDIR  = __path__[0] + "/libcf"
 #LIBCFDIR  = "/home/research/kindig/software/libcf/lib/libcf"
 #LIBCFDIR  = "/home/pletzer/software/libcf-debug/lib/libcf"
-LIBCFDIR  = "/home/pletzer/software/libcf-opt/lib/libcf"
+#LIBCFDIR  = "/home/pletzer/software/libcf-opt/lib/libcf"
 #LIBCFDIR  = "/home/pletzer/software/libcf-debug-logging/lib/libcf"
 
 try:
@@ -131,6 +131,7 @@ def makeCoordsCyclic(coords, dims):
     # check if already extended
     eps = 1.e-3
 
+    # some models already overlap
     diff1 = abs(coords[-1][...,-2] - coords[-1][...,0])
     diff2 = abs(coords[-1][...,-2] - coords[-1][...,0] - 360.0)
     diff3 = abs(coords[-1][...,-2] - coords[-1][...,0] + 360.0)
@@ -140,6 +141,7 @@ def makeCoordsCyclic(coords, dims):
         # cyclic, return input coordinates unchanged
         return coords, dims
     
+    # some models are already periodic
     diff1 = abs(coords[-1][...,-1] - coords[-1][...,0])
     diff2 = abs(coords[-1][...,-1] - coords[-1][...,0] - 360.0)
     diff3 = abs(coords[-1][...,-1] - coords[-1][...,0] + 360.0)
@@ -167,11 +169,6 @@ def makeCoordsCyclic(coords, dims):
     mask2 = (newCoords[-1][..., -1] - newCoords[-1][..., -2] > +tol)
     newCoords[-1][..., -1] += 360.0*mask1
     newCoords[-1][..., -1] -= 360.0*mask2
-
-    print 'old lon coords'
-    print coords[-1][...,  0]
-    print coords[-1][..., -2]
-    print coords[-1][..., -1]
 
     return newCoords, newDims
 
