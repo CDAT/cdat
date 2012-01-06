@@ -28,7 +28,7 @@ except:
 LIBCFDIR  = __path__[0] + "/libcf"
 #LIBCFDIR  = "/home/research/kindig/software/libcf/lib/libcf"
 #LIBCFDIR  = "/home/pletzer/software/libcf-debug/lib/libcf"
-#LIBCFDIR  = "/home/pletzer/software/libcf-opt/lib/libcf"
+LIBCFDIR  = "/home/pletzer/software/libcf-opt/lib/libcf"
 #LIBCFDIR  = "/home/pletzer/software/libcf-debug-logging/lib/libcf"
 
 try:
@@ -354,10 +354,12 @@ class Regrid:
         self.dst_Index = []
 
         # Open the shaped library
-        for sosuffix in '.so', '.dylib', '.dll', '.DLL', '.a':
-            self.lib = CDLL(LIBCFDIR + sosuffix)
-            if self.lib:
+        for sosuffix in '.dylib', '.dll', '.DLL', '.so', '.a':
+            try:
+                self.lib = CDLL(LIBCFDIR + sosuffix)
                 break
+            except:
+                pass
         if self.lib == None:
             raise CDMSError, "ERROR in %s: could not open shared library %s" \
                 % (__FILE__, LIBCFDIR)
