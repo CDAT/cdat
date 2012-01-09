@@ -26,9 +26,9 @@ except:
     raise ImportError, 'Error: could not import pycf'
 
 LIBCFDIR  = __path__[0] + "/libcf"
-#LIBCFDIR  = "/home/research/kindig/software/libcf/lib/libcf"
+LIBCFDIR  = "/home/research/kindig/software/libcf/lib/libcf"
 #LIBCFDIR  = "/home/pletzer/software/libcf-debug/lib/libcf"
-LIBCFDIR  = "/home/pletzer/software/libcf-opt/lib/libcf"
+#LIBCFDIR  = "/home/pletzer/software/libcf-opt/lib/libcf"
 #LIBCFDIR  = "/home/pletzer/software/libcf-debug-logging/lib/libcf"
 
 try:
@@ -538,15 +538,14 @@ class Regrid:
         Set a mask for the grid
         @param mask an array of type char of size dims for the grid
         """
-        # run some checks
-        if mask.dtype != numpy.int:
+        # run some checks. int32 required incase of receiving data from 64-bit machines
+        if mask.dtype != numpy.int32:
             raise CDMSError, \
                 "ERROR in %s: mask must be array of integers" \
                 % (__FILE__,)
         
         # extend src data if grid was made cyclic and or had a cut accounted for
         newMask = self._extend(mask)
-
         c_intmask = newMask.ctypes.data_as(POINTER(c_int))
         status = self.lib.nccf_set_grid_validmask(self.src_gridid, 
                                                   c_intmask)
@@ -708,7 +707,7 @@ class Regrid:
         dinds = numpy.array(dst_indices)
         sinds = (c_int * 2**self.ndims)()
         weights = numpy.zeros( (2**self.ndims,), numpy.float64 )
-        status = self.lib.nccf_get_regrid_weights(self.regridid,
+        status = self.lib.nccf_inq_regrid_weights(self.regridid,
                                                   dinds.ctypes.data_as(POINTER(c_double)), 
                                                   sinds, 
                                                   weights.ctypes.data_as(POINTER(c_double)))
