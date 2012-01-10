@@ -1,0 +1,2388 @@
+cmor_version: 2.0         ! version of CMOR that can read this table
+cf_version:   1.0         ! version of CF that output conforms to
+project_id:   IPCC Fourth Assessment  ! project id
+table_id:     Table A1    ! table id
+table_date:   17 November 2004 ! date this table was constructed
+required_global_attributes: creation_date tracking_id model_id forcing
+
+expt_id_ok:   'pre-industrial control experiment'
+expt_id_ok:   'present-day control experiment'
+expt_id_ok:   'climate of the 20th Century experiment (20C3M)'
+expt_id_ok:   'committed climate change experiment'  ! official name(s) of 
+expt_id_ok:   'SRES A2 experiment'                   !  project's experiments
+expt_id_ok:   '720 ppm stabilization experiment (SRES A1B)'    
+expt_id_ok:   '550 ppm stabilization experiment (SRES B1)'
+expt_id_ok:   '1%/year CO2 increase experiment (to doubling)'
+expt_id_ok:   '1%/year CO2 increase experiment (to quadrupling)'
+expt_id_ok:   'slab ocean control experiment'
+expt_id_ok:   '2xCO2 equilibrium experiment'
+expt_id_ok:   'AMIP experiment'
+
+baseURL: http://cmip-pcmdi.llnl.gov
+
+magic_number: -1          ! used to check whether this file has been 
+                          !   altered from the official version.
+                          !   should be set to number of non-blank 
+                          !   characters in file. 
+approx_interval:  30.     ! approximate spacing between successive time
+                          !   samples (in units of the output time 
+                          !   coordinate), but this is ignored if set to 0.
+missing_value: 1.e20      ! value used to indicate a missing value
+                          !   in arrays output by netCDF as 32-bit IEEE 
+                          !   floating-point numbers (float or real)
+
+!*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#
+!
+! SUBROUTINE ARGUMENT DEFAULT INFORMATION
+!
+!*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#
+!
+!  set default specifications for subroutine arguments to:
+!     required/indeterminate/optional/ignored/forbidden
+!    (indeterminate may or may not be required information, but is not always
+!     required as an argument of the function call)
+!
+!
+!============
+subroutine_entry: cmor_axis
+!============
+!
+required: table axis_name units length coord_vals cell_bounds
+ignored: interval
+!
+!============
+subroutine_entry: cmor_variable
+!============
+!
+required: table table_entry units axis_ids
+indeterminate: missing_value
+optional: tolerance original_name history comment
+ignored: positive
+!
+!============
+subroutine_entry: cmor_write
+!============
+!
+required:  var_id data 
+indeterminate: ntimes_passed time_vals time_bnds store_with
+optional: file_suffix
+!
+!
+!*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#
+!
+! AXIS INFORMATION
+!
+!*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#
+!
+! ??? what about climatology???
+! ??? what about model level data???
+!
+!
+!  TEMPLATE FOR AXES
+!
+!============
+!axis_entry:               ! (required)
+!============
+!
+!    Override default argument specifications for cmor_axis 
+!------------
+!    acceptable arguments include units length coord_vals cell_bounds interval
+!required:                  ! (default: table axis_name units length
+!                                        coord_vals cell_bounds)
+!indeterminate:
+!optional:
+!ignored:                   ! (default: interval)
+!forbidden:
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+!standard_name:             ! (required)
+!units:                     ! (required)
+!axis:                      ! X, Y, Z, T (default: undeclared)
+!positive:                  ! up or down (default: undeclared)
+!long_name:                 ! (default: undeclared)
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+!out_name:                ! (default: same as axis_entry) 
+!type:                    ! double (default), real, character, integer
+!stored_direction:        ! increasing (default) or decreasing
+!valid_min:               ! type: double precision (default: no check performed
+!valid_max:               ! type: double precision (default: no check performed
+!requested:               ! space-separated list of requested coordinates 
+                          !       (default: undeclared)
+!bounds_requested:        ! space-separated list of requested coordinate bounds
+                          !       (default: undeclared)
+!tol_on_requests:         ! fractional tolerance for meeting request
+                          !  (default=1.e-3, which is used in the formula:
+                          !     eps =  MIN(( tol*interval between grid-points)
+                          !          and (1.e-3*tol*coordinate value)))
+!value:                   ! of scalar (singleton) dimension 
+!bounds_values:           ! of scalar (singleton) dimension bounds
+!----------------------------------	
+!
+!
+!  TEMPLATE FOR VARIABLES
+!
+!
+!============
+!variable_entry:                ! (required)
+!============
+!
+!    Override default argument specifications for cmor_variable
+!------------
+!        acceptable arguments include  file_suffix missing_value tolerance 
+!                               original_name history comment positive
+!required:                   ! (default: table table_entry units axis_ids)
+!indeterminate:              ! (default: file_suffix missing_value)
+!optional:                   ! (default: original_name history comment)
+!ignored:                    ! (default: positive)
+!forbidden:
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+!standard_name:              ! (required)
+!units:                      ! (required)
+!cell_methods:               ! (default: undeclared)
+!long_name:                  ! (default: undeclared)
+!comment:                    ! (default: undeclared)
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+!dimensions:                 ! (required)  (scalar dimension(s) should appear
+                             !      last in list)
+!out_name:                   ! (default: variable_entry)
+!type:                       ! real (default), double, integer 
+!positive:                   ! up or down (default: undeclared)
+!valid_min:                  ! type: real (default: no check performed)
+!valid_max:                  ! type: real (default: no check performed)
+!ok_min_mean_abs:            ! type: real (default: no check performed)
+!ok_max_mean_abs:            ! type: real (default: no check performed)
+!----------------------------------	
+! 
+
+!
+!============
+axis_entry: longitude
+!============
+!
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    longitude
+units:            degrees_east
+axis:             X
+long_name:        longitude
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         lon
+valid_min:        0.           ! CMOR will add n*360 to input values
+                               ! (where n is an integer) to ensure 
+                               !  longitudes are in proper range.  The
+                               !  data will also be rearranged 
+                               !  appropriately.
+valid_max:        360.         !  see above comment.
+!----------------------------------	
+!
+!
+!=============
+axis_entry: latitude
+!=============
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    latitude
+units:            degrees_north
+axis:             Y
+long_name:        latitude
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         lat
+valid_min:        -90.
+valid_max:        90.
+!----------------------------------	
+!
+!
+
+! ??? What about climatological data???
+!
+
+!============
+axis_entry: time
+!============
+!
+!    Override default argument specifications for cmor_axis 
+!------------
+optional: interval length
+indeterminate: coord_vals cell_bounds
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    time
+units:            days since ?
+axis:             T
+long_name:        time
+!----------------------------------	
+!
+!
+!============
+axis_entry: pressure
+!============
+!
+!    Override default argument specifications for cmor_axis 
+!------------
+ignored: cell_bounds
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    air_pressure
+units:            Pa 
+axis:             Z
+positive:         down
+long_name:        pressure
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         plev
+stored_direction: decreasing
+valid_min:        0.
+valid_max:        110000.
+!requested:        100000. 92500. 85000. 70000. 60000. 50000. 40000. 
+!requested:         30000. 25000. 20000. 15000. 10000.  7000.  5000.
+!requested:          3000.  2000.  1000.
+!----------------------------------	
+!
+!
+!============
+axis_entry: height1
+!============
+!
+!    Override default argument specifications for cmor_axis 
+!------------
+ignored: cell_bounds
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    height
+units:            m
+axis:             Z
+positive:         up
+long_name:        height
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         height
+valid_min:        0.
+valid_max:        10.
+value:            2.
+!----------------------------------	
+!
+!
+!============
+axis_entry: height2
+!============
+!
+!    Override default argument specifications for cmor_axis 
+!------------
+ignored: cell_bounds
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    height
+units:            m
+axis:             Z
+positive:         up
+long_name:        height
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         height
+valid_min:        0.
+valid_max:        30.
+value:            10.
+!----------------------------------	
+!
+!
+!============
+axis_entry: depth1
+!============
+!
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    depth
+units:            m
+axis:             Z
+positive:         down
+long_name:         depth
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         depth
+valid_min:        0.0
+valid_max:        1.0
+value:            0.05
+bounds_values:    0.0 0.1
+!----------------------------------
+!
+!
+!============
+axis_entry: pressure1
+!
+!   Scalar dimension (200 hPa) defined for near-tropopause radiation fluxes
+!      (rsntp, rlntp, rsntpcs, rlntpcs, rsftropa_?, rsftropi_?, rlftropa_?, 
+!       rlftropi_?, rsftropacs_?, rsftropics_?, rlftropacs_?, rlftropics_?)
+!============
+!
+!    Override default argument specifications for cmor_axis 
+!------------
+ignored: cell_bounds
+!------------
+!
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    air_pressure
+units:            Pa
+axis:             Z
+positive:         down
+long_name:        pressure
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         plev
+valid_min:        10000.
+valid_max:        30000.
+value:            20000.
+!----------------------------------
+!
+!
+!============
+axis_entry: pressure2
+!============
+!
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    air_pressure
+stored_direction: decreasing
+units:            Pa
+axis:             Z
+positive:         down
+long_name:        pressure
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         plev
+bounds_requested: 100000. 80000. 80000. 68000. 68000. 56000. 56000. 44000. 44000. 31000. 31000. 18000. 18000.   0.
+!bounds_requested:  56000. 44000. 44000. 31000. 31000. 18000.
+!bounds_requested:  18000.     0.
+!----------------------------------!
+!
+!
+!============
+axis_entry: pressure3
+!
+!   Is defined for Table A1e: sulfate aerosol data (trsul)
+!============
+!
+!    Override default argument specifications for cmor_axis 
+!------------
+optional: cell_bounds
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    air_pressure
+units:            Pa 
+axis:             Z
+positive:         down
+long_name:        pressure
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         plev
+stored_direction: decreasing
+valid_min:        0.
+valid_max:        110000.
+requested:        100400. 98300. 95300. 91000. 84800. 76500. 66300. 
+requested:         54600. 42500. 31800. 23800. 18300. 14000. 10300.
+requested:          7200.  4700.  2700.  1300.   400.
+!----------------------------------	
+!
+!
+!============
+axis_entry: tau
+!============
+!
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    cloud_optical_depth
+units:            1
+long_name:        optical depth
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+bounds_requested:  0.0  0.3  0.3  1.3  1.3  3.6  3.6  9.4 
+bounds_requested:  9.4 23.0 23.0 60.0 60.0 100000.
+!----------------------------------
+!
+!
+!============
+axis_entry: standard_sigma
+!============
+!
+!    Override default argument specifications for cmor_axis 
+!------------
+optional: units
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    atmosphere_sigma_coordinate
+axis:             Z
+positive:         down
+long_name:        sigma coordinate
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         lev
+stored_direction: decreasing
+valid_min:        0.0
+valid_max:        1.0
+formula:          p(n,k,j,i) = ptop + sigma(k)*(ps(n,j,i) - ptop)
+convert_to:       standard_hybrid_sigma
+z_factors:        ptop: ptop sigma: sigma ps: ps
+z_bounds_factors: ptop: ptop sigma: sigma_bnds ps: ps
+!----------------------------------	
+!
+!
+!============
+axis_entry:  standard_hybrid_sigma
+!============
+!
+!    Override default argument specifications for cmor_axis 
+!------------
+optional: units
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    atmosphere_hybrid_sigma_pressure_coordinate
+units:            1
+axis:             Z 
+positive:         down
+long_name:        hybrid sigma pressure coordinate
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         lev
+stored_direction: decreasing
+valid_min:        0.0
+valid_max:        1.0
+formula:          p(n,k,j,i) = a(k)*p0 + b(k)*ps(n,j,i)
+z_factors:        p0: p0 a: a b: b ps: ps
+z_bounds_factors: p0: p0 a: a_bnds b: b_bnds ps: ps
+!----------------------------------		
+!
+!
+!============
+axis_entry:  alternate_hybrid_sigma
+!============
+!
+!    Override default argument specifications for cmor_axis 
+!------------
+optional: units
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    atmosphere_hybrid_sigma_pressure_coordinate
+stored_direction: decreasing
+units:            1
+axis:             Z
+positive:         down
+long_name:        hybrid sigma pressure coordinate
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         lev
+valid_min:        0.0
+valid_max:        1.0
+formula:          p(n,k,j,i) = ap(k) + b(k)*ps(n,j,i)
+convert_to:       standard_hybrid_sigma
+z_factors:        p0: p0 ap: ap b: b ps: ps
+z_bounds_factors: p0 ap: ap_bnds b: b_bnds ps: ps
+!----------------------------------		
+!
+!
+!============
+axis_entry:  hybrid_height
+!============
+!
+!    Override default argument specifications for cmor_axis 
+!------------
+optional: units
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    atmosphere_hybrid_height_coordinate
+units:            m
+axis:             Z 
+positive:         up
+long_name:        hybrid height coordinate
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         lev
+stored_direction: increasing
+valid_min:        0.0
+formula:          z(k,j,i) = a(k) + b(k)*orog(j,i)
+z_factors:        a: a b: b orog: orog
+z_bounds_factors: a: a_bnds b: b_bnds orog: orog
+!----------------------------------		
+!
+!
+!*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#
+!
+! VARIABLE INFORMATION
+!
+!*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#
+!
+!
+!
+! ***************************************************************
+!
+! Vertical dimensionless coordinate variables:
+!
+! ***************************************************************
+!
+!
+!
+!============
+variable_entry: p0
+!============
+!
+!    Override default argument specifications for cmor_variable
+!------------
+ignored: axis_ids
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:       reference pressure for hybrid sigma coordinate 
+units:           Pa
+!----------------------------------	
+!
+!
+!============
+variable_entry: ptop
+!============
+!
+!    Override default argument specifications for cmor_variable
+!------------
+ignored: axis_ids
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:       pressure at top of model 
+units:           Pa
+!----------------------------------	
+!
+!
+!============
+variable_entry: sigma
+!============
+!
+!    Override default argument specifications for cmor_variable
+!------------
+optional: units
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:  sigma coordinate
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------	
+!
+!
+!============
+variable_entry: sigma_bnds
+!============
+!
+!    Override default argument specifications for cmor_variable
+!------------
+optional: units
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:  sigma coordinate for layer bounds
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------	
+!
+!
+!============
+variable_entry: a
+!============
+!
+!    Override default argument specifications for cmor_variable
+!------------
+optional: units
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   hybrid sigma coordinate A coefficient for layer
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------	
+!
+!
+!============
+variable_entry: b
+!============
+!
+!    Override default argument specifications for cmor_variable
+!------------
+optional: units
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   hybrid sigma coordinate B coefficient for layer
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------	
+!
+!
+!============
+variable_entry: a_bnds
+!============
+!
+!    Override default argument specifications for cmor_variable
+!------------
+optional: units
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   hybrid sigma coordinate A coefficient for layer bounds
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------	
+!
+!
+!============
+variable_entry: b_bnds
+!============
+!
+!    Override default argument specifications for cmor_variable
+!------------
+optional: units
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   hybrid sigma coordinate B coefficient for layer bounds
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------
+!
+!
+!============
+variable_entry: ap
+!============
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   alternate hybrid sigma coordinate A coefficient for layer
+units:           Pa
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------	
+!
+!
+!============
+variable_entry: ap_bnds
+!============
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   alternate hybrid sigma coordinate A coefficient for layer bounds
+units:           Pa
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------	
+!
+!
+!============
+variable_entry: ztop
+!============
+!
+!    Override default argument specifications for cmor_variable
+!------------
+ignored: axis_ids
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:       height of top of model 
+units:           m
+!----------------------------------	
+!
+!
+!============
+variable_entry: az
+!============
+!
+!    Override default argument specifications for cmor_variable
+!------------
+optional: units
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   hybrid height coordinate coefficient (eta) for layer
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------	
+!
+!
+!============
+variable_entry: bz
+!============
+!
+!    Override default argument specifications for cmor_variable 
+!------------
+optional: units
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   hybrid height coordinate coefficient (tau) for layer
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------	
+!
+!
+!============
+variable_entry: az_bnds
+!============
+!
+!    Override default argument specifications for cmor_variable
+!------------
+optional: units
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   hybrid sigma coordinate coefficient (eta) for layer bounds
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------	
+!
+!
+!============
+variable_entry: bz_bnds
+!============
+!
+!    Override default argument specifications for cmor_variable
+!------------
+optional: units
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+long_name:   hybrid sigma coordinate B coefficient (tau) for layer bounds
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         zlevel
+type:               double
+!----------------------------------
+!
+!
+!
+! ***************************************************************
+!
+! IPCC Table A1a: Monthly-mean 2-d atmosphere or land surface data
+!
+! ***************************************************************
+!
+!
+!
+!============
+variable_entry: psl
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name:   air_pressure_at_sea_level     
+units:           Pa
+cell_methods:    time: mean
+long_name:       Sea Level Pressure
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+valid_min:        90000.
+valid_max:        120000.
+ok_min_mean_abs:  102000.
+ok_max_mean_abs:  98000.
+!----------------------------------	
+! 
+!
+!============
+variable_entry: pr
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name:  precipitation_flux
+units:          kg m-2 s-1
+cell_methods:   time: mean
+long_name:      Precipitation
+comment:        includes all types (rain, snow, large-scale, convective, etc.)
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         longitude latitude time
+valid_min:          0.0
+valid_max:          1.e-3
+ok_min_mean_abs:    1.e-6
+ok_max_mean_abs:    5.e-5 
+!----------------------------------	
+!
+!
+!============
+variable_entry: tas
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name:   air_temperature     
+units:           K
+cell_methods:    time: mean
+long_name:       Surface Air Temperature
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time height1
+valid_min:        195.
+valid_max:        330.
+ok_min_mean_abs:  270.
+ok_max_mean_abs:  300.
+!----------------------------------	
+! 
+!
+!============
+variable_entry: mrsos
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: moisture_content_of_soil_layer
+units:         kg m-2
+cell_methods:  time: mean
+long_name:     Moisture in Upper 0.1 m of Soil Column
+comment:         includes subsurface frozen water but not surface snow and ice 
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time depth1
+!----------------------------------	 
+!
+!
+!============
+variable_entry: mrso
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: soil_moisture_content
+units:         kg m-2
+cell_methods:  time: mean
+long_name:     Total Soil Moisture Content
+comment:         includes subsurface frozen water but not surface snow and ice 
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+!----------------------------------	 
+!
+!
+!============
+variable_entry: tauu
+!============
+!
+!    Override default argument specifications for cmor_variable
+!------------
+required: positive
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: surface_downward_eastward_stress
+units:         Pa
+cell_methods:  time: mean
+long_name:     Zonal Surface Wind Stress
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+positive:         down
+!----------------------------------	
+! 
+!
+!============
+variable_entry: tauv
+!============
+!
+!    Override default argument specifications for cmor_variable
+!------------
+required: positive
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: surface_downward_northward_stress
+units:         Pa
+cell_methods:  time: mean
+long_name:     Meridional Surface Wind Stress
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+positive:         down
+!----------------------------------	
+! 
+!
+!============
+variable_entry: snd
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: surface_snow_thickness
+units:         m
+cell_methods:  time: mean
+long_name:     Snow Depth
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+valid_min:        0.0
+!----------------------------------	
+! 
+!
+!============
+variable_entry: hfls
+!============
+!
+!    Override default argument specifications for cmor_variable
+!------------
+required: positive
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: surface_upward_latent_heat_flux
+units:         W m-2
+cell_methods:  time: mean
+long_name:     Surface Latent Heat Flux
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+positive:         up
+valid_min:        -120
+valid_max:        900.
+ok_min_mean_abs:  50.
+ok_max_mean_abs:  120.
+!----------------------------------	
+! 
+!
+!============
+variable_entry: hfss
+!============
+!
+!    Override default argument specifications for cmor_variable
+!------------
+required: positive
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: surface_upward_sensible_heat_flux
+units:         W m-2
+cell_methods:  time: mean
+long_name:     Surface Sensible Heat Flux
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+positive:         up
+!----------------------------------	
+! 
+!
+!============
+variable_entry: rlds
+!============
+!
+!    Override default argument specifications for cmor_variable
+!------------
+required: positive
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: surface_downwelling_longwave_flux_in_air
+units:         W m-2
+cell_methods:  time: mean
+long_name:     Surface Downwelling Longwave Radiation
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+positive:         down
+valid_min:        20.
+valid_max:        600.
+ok_min_mean_abs:  300.
+ok_max_mean_abs:  370.
+!----------------------------------	
+! 
+!
+!============
+variable_entry: rlus
+!============
+!
+!    Override default argument specifications for cmor_variable
+!------------
+required: positive
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: surface_upwelling_longwave_flux_in_air
+units:         W m-2
+cell_methods:  time: mean
+long_name:     Surface Upwelling Longwave Radiation
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+positive:         up
+valid_min:        50.
+valid_max:        750.
+ok_min_mean_abs:  250.
+ok_max_mean_abs:  450.
+!----------------------------------	
+! 
+!
+!============
+variable_entry: rsds
+!============
+!
+!    Override default argument specifications for cmor_variable
+!------------
+required: positive
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: surface_downwelling_shortwave_flux_in_air
+units:         W m-2
+cell_methods:  time: mean
+long_name:     Surface Downwelling Shortwave Radiation
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+positive:         down
+valid_min:        0.
+valid_max:        550.
+ok_min_mean_abs:  150.
+ok_max_mean_abs:  220.
+!----------------------------------	
+! 
+!
+!============
+variable_entry: rsus
+!============
+!
+!    Override default argument specifications for cmor_variable
+!------------
+required: positive
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: surface_upwelling_shortwave_flux_in_air
+units:         W m-2
+cell_methods:  time: mean
+long_name:     Surface Upwelling Shortwave Radiation
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+valid_min:        0.
+positive:         up
+!----------------------------------	
+! 
+!
+!============
+variable_entry: ts
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: surface_temperature
+units:         K    
+cell_methods:  time: mean
+long_name:     Surface Skin Temperature
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+valid_min:        170.
+valid_max:        340.
+ok_min_mean_abs:  280.
+ok_max_mean_abs:  300.
+!----------------------------------	
+! 
+!
+!============
+variable_entry: ps
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name:   surface_air_pressure     
+units:           Pa
+cell_methods:    time: mean
+long_name:       Surface Pressure
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+valid_min:        0.48e5
+valid_max:        1.1e5
+ok_min_mean_abs:  0.97e5
+ok_max_mean_abs:  1.0e5
+!----------------------------------	
+!
+!
+!============
+variable_entry: prsn
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name:  snowfall_flux
+units:          kg m-2 s-1
+cell_methods:   time: mean
+long_name:      Snowfall Flux
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         longitude latitude time
+valid_min:          0.0
+!----------------------------------	
+!
+!
+!============
+variable_entry: prc
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name:  convective_precipitation_flux
+units:          kg m-2 s-1
+cell_methods:   time: mean
+long_name:      Convective Precipitation
+comment:        includes both liquid and solid phases
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         longitude latitude time
+valid_min:          0.0
+!----------------------------------	
+!
+!
+!============
+variable_entry: prw
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name:  atmosphere_water_vapor_content
+units:          kg m-2
+cell_methods:   time: mean
+long_name:      Precipitable Water
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         longitude latitude time
+valid_min:          0.0
+valid_max:          150.
+ok_min_mean_abs:    20.
+ok_max_mean_abs:    30. 
+!----------------------------------	
+!
+!
+!============
+variable_entry: mrfso
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: soil_frozen_water_content
+units:         kg m-2
+cell_methods:  time: mean
+long_name:     Soil Frozen Water Content
+comment:       excludes surface snow and ice
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+valid_min:          0.0
+!----------------------------------	 
+!
+!
+!============
+variable_entry: mrros
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: surface_runoff_flux
+units:         kg m-2 s-1
+cell_methods:  time: mean
+long_name:     Surface Runoff
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+!----------------------------------	 
+!
+!
+!============
+variable_entry: mrro
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: runoff_flux
+units:         kg m-2 s-1
+cell_methods:  time: mean
+long_name:     Surface and Subsurface Runoff
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+!----------------------------------	 
+!
+!
+!============
+variable_entry: snw
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: surface_snow_amount_where_land
+units:         kg m-2
+cell_methods:  time: mean
+long_name:     Snow Amount
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+valid_min:          0.0
+!----------------------------------	 
+!
+!
+!============
+variable_entry: snc
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: surface_snow_area_fraction_where_land
+units:         %
+cell_methods:  time: mean
+long_name:     Snow Area Fraction
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+valid_min:          0.0
+valid_max:          100.
+!----------------------------------	 
+!
+!
+!============
+variable_entry: snm
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: surface_snow_melt_flux_where_land
+units:         kg m-2 s-1
+cell_methods:  time: mean
+long_name:     Snow Melt
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+valid_min:          0.0
+!----------------------------------	 
+!
+!
+!============
+variable_entry: uas
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name:   eastward_wind    
+units:           m s-1
+cell_methods:    time: mean
+long_name:       Zonal Surface Wind Speed
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time height2
+!----------------------------------	
+! 
+!
+!============
+variable_entry: vas
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name:   northward_wind    
+units:           m s-1
+cell_methods:    time: mean
+long_name:       Meridional Surface Wind Speed
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time height2
+!----------------------------------	
+! 
+!
+!============
+variable_entry: huss
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name:   specific_humidity   
+units:           kg kg-1
+cell_methods:    time: mean
+long_name:       Surface Specific Humidity
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time height1
+valid_min:        0.0
+!----------------------------------	
+! 
+!
+!============
+variable_entry: rsdt
+!============
+!
+!    Override default argument specifications for cmor_variable
+!------------
+required: positive
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: toa_incoming_shortwave_flux
+units:         W m-2
+cell_methods:  time: mean
+long_name:     TOA Incident Shortwave Radiation
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+valid_min:        0.
+positive:         down
+!----------------------------------	
+! 
+!
+!============
+variable_entry: rsut
+!============
+!
+!    Override default argument specifications for cmor_variable
+!------------
+required: positive
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: toa_outgoing_shortwave_flux
+units:         W m-2
+cell_methods:  time: mean
+long_name:     TOA Reflected Shortwave Radiation
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+valid_min:        0.
+positive:         up
+!----------------------------------	
+! 
+!
+!============
+variable_entry: rlut
+!============
+!
+!    Override default argument specifications for cmor_variable
+!------------
+required: positive
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: toa_outgoing_longwave_flux
+units:         W m-2
+cell_methods:  time: mean
+long_name:     Outgoing Longwave Radiation
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+valid_min:        10.
+valid_max:        500.
+positive:         up
+!----------------------------------	
+! 
+!
+!============
+variable_entry: rtmt
+!============
+!
+!    Override default argument specifications for cmor_variable
+!------------
+required: positive
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: net_downward_radiative_flux_at_top_of_atmosphere_model
+units:         W m-2
+cell_methods:  time: mean
+long_name:     Net Flux at Top of Model
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+positive:         down
+!----------------------------------	
+! 
+!
+!============
+variable_entry: rsntp
+!============
+!
+!    Override default argument specifications for cmor_variable
+!------------
+required: positive
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: net_downward_shortwave_flux_in_air
+units:         W m-2
+cell_methods:  time: mean
+long_name:     Net Downward Shortwave Flux at 200 hPa
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time pressure1
+valid_min:        0.
+positive:         down
+!----------------------------------	
+! 
+!
+!============
+variable_entry: rlntp
+!============
+!
+!    Override default argument specifications for cmor_variable
+!------------
+required: positive
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: net_upward_longwave_flux_in_air
+units:         W m-2
+cell_methods:  time: mean
+long_name:     Net Upward Longwave Flux at 200 hPa
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time pressure1
+valid_min:        0.
+positive:         up
+!----------------------------------	
+! 
+!
+!============
+variable_entry: rsntpcs
+!============
+!
+!    Override default argument specifications for cmor_variable
+!------------
+required: positive
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: net_downward_shortwave_flux_in_air_assuming_clear_sky
+units:         W m-2
+cell_methods:  time: mean
+long_name:     Net Downward Clear-Sky Shortwave Flux at 200 hPa
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time pressure1
+valid_min:        0.
+positive:         down
+!----------------------------------	
+! 
+!
+!============
+variable_entry: rlntpcs
+!============
+!
+!    Override default argument specifications for cmor_variable
+!------------
+required: positive
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: net_upward_longwave_flux_in_air_assuming_clear_sky
+units:         W m-2
+cell_methods:  time: mean
+long_name:     Net Upward Clear-Sky Longwave Flux at 200 hPa
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time pressure1
+valid_min:        0.
+positive:         up
+!----------------------------------	
+! 
+!
+!============
+variable_entry: rsdscs
+!============
+!
+!    Override default argument specifications for cmor_variable
+!------------
+required: positive
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: surface_downwelling_shortwave_flux_in_air_assuming_clear_sky
+units:         W m-2
+cell_methods:  time: mean
+long_name:     Incident Surface Clear-Sky Shortwave
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+valid_min:        0.
+positive:         down
+!----------------------------------	
+! 
+!
+!============
+variable_entry: rsuscs
+!============
+!
+!    Override default argument specifications for cmor_variable
+!------------
+required: positive
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: surface_upwelling_shortwave_flux_in_air_assuming_clear_sky
+units:         W m-2
+cell_methods:  time: mean
+long_name:     Reflected Surface Clear-Sky Shortwave
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+valid_min:        0.
+positive:         up
+!----------------------------------	
+! 
+!
+!============
+variable_entry: rldscs
+!============
+!
+!    Override default argument specifications for cmor_variable
+!------------
+required: positive
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: surface_downwelling_longwave_flux_in_air_assuming_clear_sky
+units:         W m-2
+cell_methods:  time: mean
+long_name:     Downwelling Surface Clear-Sky Longwave
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+valid_min:        0.
+positive:         down
+!----------------------------------	
+! 
+!
+!============
+variable_entry: rlutcs
+!============
+!
+!    Override default argument specifications for cmor_variable
+!------------
+required: positive
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: toa_outgoing_longwave_flux_assuming_clear_sky
+units:         W m-2
+cell_methods:  time: mean
+long_name:     Outgoing Clear-Sky Longwave
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+valid_min:        10.
+valid_max:        500.
+positive:         up
+!----------------------------------	
+! 
+!
+!============
+variable_entry: rsutcs
+!============
+!
+!    Override default argument specifications for cmor_variable
+!------------
+required: positive
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: toa_outgoing_shortwave_flux_assuming_clear_sky
+units:         W m-2
+cell_methods:  time: mean
+long_name:     Reflected Clear-Sky Shortwave
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+valid_min:        0.
+positive:         up
+!----------------------------------	
+! 
+!
+!============
+variable_entry: clt2
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: cloud_area_fraction
+units:         %
+cell_methods:  time: mean
+long_name:     Total Cloud Fraction
+deflate: 1
+deflate_level: 9
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+valid_min:        0.0
+valid_max:        100.0
+ok_min_mean_abs:  30.
+ok_max_mean_abs:  75.
+!----------------------------------	
+! 
+!
+!============
+variable_entry: clt
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: cloud_area_fraction
+units:         %
+cell_methods:  time: mean
+long_name:     Total Cloud Fraction
+deflate: 0
+deflate_level: 0
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+valid_min:        0.0
+valid_max:        100.0
+ok_min_mean_abs:  30.
+ok_max_mean_abs:  75.
+!----------------------------------	
+! 
+!
+!============
+variable_entry: clwvi
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: atmosphere_cloud_condensed_water_content
+units:         kg m-2
+cell_methods:  time: mean
+long_name:     Column Integerated Cloud Water Content
+comment:       should include both liquid and solid phase
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+valid_min:        0.0
+!----------------------------------	
+! 
+!
+!============
+variable_entry: clivi
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: atmosphere_cloud_ice_content
+units:         kg m-2
+cell_methods:  time: mean
+long_name:     Column Integerated Cloud Ice Content
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+valid_min:        0.0
+!----------------------------------	
+!
+!
+!
+!
+! ***************************************************************
+!
+! IPCC Table A1b: Time-independent 2-d land surface data
+!
+! ***************************************************************
+!
+!
+!
+!============
+variable_entry: orog
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: surface_altitude
+units:         m
+long_name:     Surface Altitude
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude
+valid_min:        -500.
+valid_max:        12000.
+ok_min_mean_abs:  0.
+ok_max_mean_abs:  2000.
+!----------------------------------	
+!
+!
+!============
+variable_entry: sftlf
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: land_area_fraction
+units:         %
+long_name:     Land Area Fraction
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude
+valid_min:        0.0
+valid_max:        100.
+ok_min_mean_abs:  20.
+ok_max_mean_abs:  40.
+!----------------------------------	
+!
+!
+!============
+variable_entry: sftgif
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: land_ice_area_fraction
+units:         %
+long_name:     Fraction of Grid Cell Covered with Glacier
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude
+valid_min:        0.0
+valid_max:        100.
+!----------------------------------	
+!
+!
+!============
+variable_entry: mrsofc
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: soil_moisture_content_at_field_capacity
+units:         kg m-2
+long_name:     Capacity of Soil to Store Water
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude
+!----------------------------------	
+!
+!
+!
+!
+! ***************************************************************
+!
+! IPCC Table A1c: Monthly-mean 3-d atmosphere data
+!
+! ***************************************************************
+!
+!
+!
+!============
+variable_entry: cl
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name:  cloud_area_fraction_in_atmosphere_layer
+units:          %
+cell_methods:   time: mean
+long_name:      Cloud Fraction
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:         longitude latitude zlevel time
+valid_min:          0.0
+valid_max:          100.0
+ok_min_mean_abs:    10.0
+ok_max_mean_abs:    90.0
+!----------------------------------	
+!
+!
+!============
+variable_entry: ta
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: air_temperature
+units:         K
+cell_methods:  time: mean
+long_name:     Temperature
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude pressure2 time
+valid_min:        150.
+valid_max:        350.
+ok_min_mean_abs:  200.
+ok_max_mean_abs:  300.
+!----------------------------------	
+!
+!
+!============
+variable_entry: ua
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: eastward_wind
+units:         m s-1
+cell_methods:  time: mean
+long_name:     Zonal Wind Component
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude pressure time
+valid_min:        -200.
+valid_max:        300.
+ok_min_mean_abs:  0.1
+ok_max_mean_abs:  100.
+!----------------------------------	
+!
+!
+!============
+variable_entry: va
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: northward_wind
+units:         m s-1
+cell_methods:  time: mean
+long_name:     Meridional Wind Component
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude pressure time
+valid_min:        -100.
+valid_max:        100.
+ok_min_mean_abs:  0.1
+ok_max_mean_abs:  50.
+!----------------------------------	
+!
+!
+!============
+variable_entry: hus
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: specific_humidity
+units:         1
+cell_methods:  time: mean
+long_name:     Specific Humidity 
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude pressure time
+!----------------------------------	
+!
+!
+!============
+variable_entry: wap
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: lagrangian_tendency_of_air_pressure
+units:         Pa s-1
+cell_methods:  time: mean
+long_name:     Omega (=dp/dt) 
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude pressure time
+!----------------------------------	
+!
+!
+!============
+variable_entry: zg
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: geopotential_height
+units:         m
+cell_methods:  time: mean
+long_name:     Geopotential Height 
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude pressure time
+!----------------------------------	
+!
+!
+!============
+variable_entry: hur
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: relative_humidity
+units:         %
+cell_methods:  time: mean
+long_name:     Relative Humidity 
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude pressure time
+valid_min:        0.
+valid_max:        100.
+ok_min_mean_abs:  1.
+ok_max_mean_abs:  99.
+!----------------------------------	
+!
+!
+!============
+variable_entry: tro3
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: mole_fraction_of_o3_in_air
+units:         1e-9
+cell_methods:  time: mean
+long_name:     Ozone Mole Fraction
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude pressure time
+!----------------------------------	
+!
+!
+!
+!
+! ***************************************************************
+!
+! IPCC Table A1d: Monthly-mean 3-d ISCCP simulator data
+!
+! ***************************************************************
+!
+!
+!
+!============
+variable_entry: clisccp
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: isccp_cloud_area_fraction
+units:         1
+cell_methods:  time: mean
+long_name:     Cloud Fraction as Calculated by the ISCCP Simulator
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude pressure2 tau time
+valid_min:        0.0
+valid_max:        1.0
+ok_min_mean_abs:  0.001
+ok_max_mean_abs:  0.9
+!----------------------------------	
+!
+!
+!
+!
+! ***************************************************************
+!
+! IPCC Table A1e: Monthly-mean 2-d and 3-d sulfate aerosol fields
+!
+! ***************************************************************
+!
+!
+!
+!============
+variable_entry: trsul
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: mass_concentration_of_sulfate_aerosol_in_air 
+units:         1e-9 kg m-3
+cell_methods:  time: mean
+long_name:     Mass Concentration of Sulfate Aerosol
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude pressure3 time
+!----------------------------------	
+!
+!
+!============
+variable_entry: trsult
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: atmosphere_content_of_sulfate_aerosol 
+units:         1e-6 kg m-2
+cell_methods:  time: mean
+long_name:     Sulfate Burden
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+!----------------------------------	
+!
+!
+!
+!
+! ***************************************************************
+!
+! IPCC Table A1f: Monthly-mean land surface fields and prescribed land surface characteristics
+!
+! ***************************************************************
+!
+!
+!
+!============
+variable_entry: prveg
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: precipitation_flux_onto_canopy
+units:         kg m-2 s-1 
+cell_methods:  time: mean
+long_name:     Precipitation Intercepted by Vegetation Canopy
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+!----------------------------------	
+!
+!
+!============
+variable_entry: evspsblveg
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: water_evaporation_flux_from_canopy
+units:         kg m-2 s-1 
+cell_methods:  time: mean
+long_name:     Evaporation from Vegetation Canopy
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+!----------------------------------	
+!
+!
+!============
+variable_entry: zmla
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: atmosphere_boundary_layer_thickness
+units:         m
+cell_methods:  time: mean
+long_name:     Atmospheric Boundary Layer Thickness
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time
+!----------------------------------	
+!
+!
+!============
+variable_entry: rootd
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: root_depth
+units:         m
+long_name:     Root Depth
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude
+!----------------------------------	
+!
+!
+!============
+variable_entry: tasmin
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: air_temperature
+units:         K
+cell_methods:  time: minimum within days time: mean over days
+long_name:     Daily Minimum Surface Air Temperature
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time height1
+!----------------------------------	
+!
+!
+!============
+variable_entry: tasmax
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name: air_temperature
+units:         K
+cell_methods:  time: maximum within days time: mean over days
+long_name:     Daily Miximum Surface Air Temperature
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       longitude latitude time height1
+!----------------------------------	
+!
+!

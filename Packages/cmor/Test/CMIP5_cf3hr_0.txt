@@ -1,0 +1,185 @@
+table_id: Table cf3hr
+modeling_realm: atmos
+
+cmor_version: 2.0         ! version of CMOR that can read this table
+cf_version:   1.4         ! version of CF that output conforms to
+project_id:   CMIP5  ! project id
+table_date:   23 June 2009 ! date this table was constructed
+
+missing_value: 1.e20      ! value used to indicate a missing value
+                          !   in arrays output by netCDF as 32-bit IEEE 
+                          !   floating-point numbers (float or real)
+
+required_global_attributes: creation_date tracking_id forcing model_id ! space separated required global attribute
+
+expt_id_ok: '10-and 30-year predictions XXXX' 'decadal-XXXX'
+expt_id_ok: 'volcano-free hindcasts' 'no-volcano'
+expt_id_ok: 'prediction with 2010 volcano' 'volcano-2010'
+expt_id_ok: 'chemistry-focused runs XXXX' 'decadal-chem-XXXX'
+expt_id_ok: 'pre-industrial control' 'pi-control'
+expt_id_ok: 'Historical' 'historical'
+expt_id_ok: 'mid-Holocene' 'mid-holocene'
+expt_id_ok: 'last glacial maximum' 'lgm'
+expt_id_ok: 'last millennium' 'past-1000'
+expt_id_ok: 'RCP4.5' 'rcp45'
+expt_id_ok: 'RCP8.5' 'rcp85'
+expt_id_ok: 'RCP2.X' 'rcp2x'
+expt_id_ok: 'RCP6' 'rcp6'
+expt_id_ok: 'ESM pre-industrial control' 'esm-control'
+expt_id_ok: 'ESM historical' 'esm-historical'
+expt_id_ok: 'ESM RCP8.5' 'esm-rcp85'
+expt_id_ok: 'ESM fixed climate 1' 'esm-fixclim1'
+expt_id_ok: 'ESM fixed climate 2' 'esm-fixclim2'
+expt_id_ok: 'ESM feedback 1' 'esm-fdbk1'
+expt_id_ok: 'ESM feedback 2' 'esm-fdbk2'
+expt_id_ok: '1 percent per year CO2' '1pct-co2'
+expt_id_ok: 'abrupt 4XCO2' 'abrupt-4xco2'
+expt_id_ok: 'natural-only' 'historical-nat???'
+expt_id_ok: 'GHG-only' 'historical-ghg???'
+expt_id_ok: 'other-only' 'historical-???'
+expt_id_ok: 'AMIP' 'amip'
+expt_id_ok: '2030 time-slice' 'sst-2030'
+expt_id_ok: 'control SST climatology' 'sstclim'
+expt_id_ok: 'CO2 forcing' 'sstclim-4xco2'
+expt_id_ok: 'aerosol forcing' 'sstclim-aerosol'
+expt_id_ok: '4xCO2 AMIP' 'amip-4xco2'
+expt_id_ok: 'AMIP plus patterned anomaly' 'amip-future'
+expt_id_ok: 'aqua planet control' 'aqua-control'
+expt_id_ok: '4xCO2 aqua planet' 'aqua-4xco2'
+expt_id_ok: 'aqua planet plus 4K anomaly' 'aqua-4k'
+expt_id_ok: 'AMIP plus 4K anomaly' 'amip-4k'
+
+
+approx_interval:  1.000000     ! approximate spacing between successive time
+                          !   samples (in units of the output time 
+                          !   coordinate.
+
+
+!============
+axis_entry: height40
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    altitude
+units:            m
+axis:             Z             ! X, Y, Z, T (default: undeclared)
+positive:         up         ! up or down (default: undeclared)
+long_name:        altitude
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         height40
+!stored_direction: increasing
+tolerance:        0.001
+
+type:             double
+! requested:        240. 720. 1200. 1680. 2160. 2640. 3120. 3600. 4080. 4560. 5040. 5520. 6000. 6480. 6960. 7440. 7920. 8400. 8880. 9360. 9840. 10320. 10800. 11280. 11760. 12240. 12720. 13200. 13680. 14160. 14640. 15120. 15600. 16080. 16560. 17040. 17520. 18000. 18480. 18960.        ! space-separated list of requested coordinates 
+! requested_bounds: . 0. 480. 480. 960. 960. 1440. 1440. 1920. 1920. 2400. 2400. 2880. 2880. 3360. 3360. 3840. 3840. 4320. 4320. 4800. 4800. 5280. 5280. 5760. 5760. 6240. 6240. 6720. 6720. 7200. 7200. 7680. 7680. 8160. 8160. 8640. 8640. 9120. 9120. 9600. 9600. 10080. 10080. 10560. 10560. 11040. 11040. 11520. 11520. 12000. 12000. 12480. 12480. 12960. 12960. 13440. 13440. 13920. 13920. 14400. 14400. 14880. 14880. 15360. 15360. 15840. 15840. 16320. 16320. 16800. 16800. 17280. 17280. 17760. 17760. 18240. 18240. 18720. . 18720. 19200. ! space-separated list of requested coordinate bounds
+must_have_bounds: yes
+!----------------------------------
+!
+
+!============
+axis_entry: location
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    profile_id
+units:            1
+long_name:        location index
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         loc
+stored_direction: increasing
+type:             double
+must_have_bounds: no
+index_only:       ok
+!----------------------------------
+!
+
+!============
+axis_entry: section
+!============
+!----------------------------------
+! Axis attributes:
+!----------------------------------
+standard_name:    section_id
+units:            1
+long_name:        section
+!----------------------------------
+! Additional axis information:
+!----------------------------------
+out_name:         section
+stored_direction: increasing
+type:             double
+must_have_bounds: no
+index_only:       ok
+!----------------------------------
+!
+
+
+!============
+variable_entry: longitude
+!============
+modeling_realm:  atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:  longitude
+units:         degrees_east
+long_name:          Longitude
+comment:      function of time
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:      location
+out_name:  lon
+type:      real
+!----------------------------------
+!
+
+!============
+variable_entry: latitude
+!============
+modeling_realm:  atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+standard_name:  latitude
+units:         degrees_north
+long_name:          Latitude
+comment:      function of time
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:      location
+out_name:  lat
+type:      real
+!----------------------------------
+!
+
+!============
+variable_entry: curtain
+!============
+modeling_realm:  atmos
+
+!----------------------------------
+! Variable attributes:
+!----------------------------------
+units:         1
+long_name:     curtain
+comment:      Test of curtain format with grid
+!----------------------------------
+! Additional variable information:
+!----------------------------------
+dimensions:      location section height40
+out_name:  curtain
+type:      real
+!----------------------------------
+!
+

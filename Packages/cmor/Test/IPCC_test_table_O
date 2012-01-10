@@ -1,0 +1,287 @@
+cmor_version: 1.0         ! version of CMOR that can read this table
+cf_version:   1.0         ! version of CF that output conforms to
+project_id:   IPCC Fourth Assessment  ! project id
+table_id:     Table O1    ! table id
+table_date:   4 June 2004 ! date this table was constructed
+
+modeling_realm:	   atm
+
+expt_id_ok:   'climate of the 20th Century (20C3M)'
+expt_id_ok:   'committed climate change experiment'  ! official name(s) of 
+expt_id_ok:   'SRES A2 experiment'                   !  project's experiments
+expt_id_ok:   'control experiment (for 20C3M)'
+expt_id_ok:   '720 ppm stabilization experiment (SRES A1B)'    
+expt_id_ok:   '550 ppm stabilization experiment (SRES B1)'
+expt_id_ok:   '1%/year CO2 increase experiment (to doubling)'
+expt_id_ok:   '1%/year CO2 increase experiment (to quadrupling)'
+expt_id_ok:   'control experiment (for 1%/year CO2 run)'
+expt_id_ok:   '2xCO2 equilibrium experiment' '2xco2'
+expt_id_ok:   'control experiment (for 2xCO2 run)'
+
+required_global_attributes: creation_date tracking_id forcing model_id ! space separated required global attribute
+
+magic_number: -1          ! used to check whether this file has been 
+                          !   altered from the official version.
+                          !   should be set to number of non-blank 
+                          !   characters in file. 
+approx_interval:  30.     ! approximate spacing between successive time
+                          !   samples (in units of the output time 
+                          !   coordinate.
+missing_value: 1.e20      ! value used to indicate a missing value
+                          !   in arrays output by netCDF as 32-bit IEEE 
+                          !   floating-point numbers (float or real)
+
+!*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#
+!
+! SUBROUTINE ARGUMENT DEFAULT INFORMATION
+!
+!*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#
+!
+!  set default specifications for subroutine arguments to:
+!     required/indeterminate/optional/ignored/forbidden
+!    (indeterminate may or may not be required information, but is not always
+!     required as an argument of the function call)
+!
+!
+!============
+subroutine_entry: cmor_axis
+!============
+!
+required: table axis_name units length coord_vals cell_bounds
+ignored: interval
+!
+!============
+subroutine_entry: cmor_variable
+!============
+!
+required: table table_entry units axis_ids
+indeterminate: missing_value
+optional: tolerance original_name history comment
+ignored: positive
+!
+!============
+subroutine_entry: cmor_write
+!============
+!
+required:  var_id data 
+indeterminate: ntimes_passed time_vals time_bnds store_with
+optional: file_suffix
+!
+!
+!*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#
+!
+! AXIS INFORMATION
+!
+!*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#
+!
+! ??? what about climatology???
+! ??? what about model level data???
+!
+!
+!  TEMPLATE FOR AXES
+!
+!============
+!axis_entry:               ! (required)
+!============
+!
+!    Override default argument specifications for cmor_axis 
+!------------
+!    acceptable arguments include units length coord_vals cell_bounds interval
+!required:                  ! (default: table axis_name units length
+!                                        coord_vals cell_bounds)
+!indeterminate:
+!optional:
+!ignored:                   ! (default: interval)
+!forbidden:
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+!standard_name:             ! (required)
+!units:                     ! (required)
+!axis:                      ! X, Y, Z, T (default: undeclared)
+!positive:                  ! up or down (default: undeclared)
+!long_name:                 ! (default: undeclared)
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+!out_name:                ! (default: same as axis_entry) 
+!type:                    ! double (default), real, character, integer
+!stored_direction:        ! increasing (default) or decreasing
+!valid_min:               ! type: double precision (default: no check performed
+!valid_max:               ! type: double precision (default: no check performed
+!requested:               ! space-separated list of requested coordinates 
+                          !       (default: undeclared)
+!requested_bounds:        ! space-separated list of requested coordinate bounds
+                          !       (default: undeclared)
+!tol_on_requests:         ! fractional tolerance for meeting request
+                          !  (default=1.e-3, which is used in the formula:
+                          !     eps =  MIN(( tol*interval between grid-points)
+                          !          and (1.e-3*tol*coordinate value)))
+!value:                   ! of scalar (singleton) dimension 
+!bounds_values:           ! of scalar (singleton) dimension bounds
+!----------------------------------	
+!
+!
+!  TEMPLATE FOR VARIABLES
+!
+!
+!============
+!variable_entry:                ! (required)
+!============
+!
+!    Override default argument specifications for cmor_variable
+!------------
+!        acceptable arguments include  file_suffix missing_value tolerance 
+!                               original_name history comment positive
+!required:                   ! (default: table table_entry units axis_ids)
+!indeterminate:              ! (default: file_suffix missing_value)
+!optional:                   ! (default: original_name history comment)
+!ignored:                    ! (default: positive)
+!forbidden:
+!------------
+!
+! Variable attributes:
+!----------------------------------	
+!standard_name:              ! (required)
+!units:                      ! (required)
+!cell_methods:               ! (default: undeclared)
+!long_name:                  ! (default: undeclared)
+!comment:                    ! (default: undeclared)
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+!dimensions:                 ! (required)  (scalar dimension(s) should appear
+                             !      last in list)
+!out_name:                   ! (default: variable_entry)
+!type:                       ! real (default), double, integer 
+!positive:                   ! up or down (default: undeclared)
+!valid_min:                  ! type: real (default: no check performed)
+!valid_max:                  ! type: real (default: no check performed)
+!ok_min_mean_abs:            ! type: real (default: no check performed)
+!ok_max_mean_abs:            ! type: real (default: no check performed)
+!----------------------------------	
+! 
+
+!
+!============
+axis_entry: longitude
+!============
+!
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    longitude
+units:            degrees_east
+axis:             X
+long_name:        longitude
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         lon
+valid_min:        0.           ! CMOR will add n*360 to input values
+                               ! (where n is an integer) to ensure 
+                               !  longitudes are in proper range.  The
+                               !  data will also be rearranged 
+                               !  appropriately.
+valid_max:        360.         !  see above comment.
+!----------------------------------	
+!
+!
+!=============
+axis_entry: latitude
+!=============
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    latitude
+units:            degrees_north
+axis:             Y
+long_name:        latitude
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         lat
+valid_min:        -90.
+valid_max:        90.
+!----------------------------------	
+!
+!
+
+! ??? What about climatological data???
+!
+
+!============
+axis_entry: time
+!============
+!
+!    Override default argument specifications for cmor_axis 
+!------------
+optional: interval
+indeterminate: coord_vals cell_bounds
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    time
+units:            days since ?
+axis:             T
+long_name:        time
+!
+!
+!============
+axis_entry: region
+!============
+!
+!    Override default argument specifications for cmor_axis 
+!------------
+ignored: units cell_bounds
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    region
+long_name:        Ocean Basin 
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------
+coords_attrib:     geo_region
+type:             character
+requested:        atlantic_ocean indian_ocean pacific_ocean global_ocean
+!----------------------------------	
+!	
+!
+!
+!*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#
+!
+! VARIABLE INFORMATION
+!
+!*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#*#
+!
+!
+!============
+variable_entry: hfogo
+!============
+!
+! Variable attributes:
+!----------------------------------	
+standard_name:   northward_ocean_heat_transport     
+units:           W
+cell_methods:    time: mean  longitude: sum
+long_name:       Northward Ocean Heat Transport
+!----------------------------------	
+!
+! Additional variable information:
+!----------------------------------	
+dimensions:       latitude region time
+valid_min:          -4.e15
+valid_max:          4.e15
+ok_min_mean_abs:    0.0
+ok_max_mean_abs:    4.e15
+!----------------------------------

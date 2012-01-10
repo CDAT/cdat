@@ -1,0 +1,67 @@
+import numpy
+from numpy.distutils.core import setup, Extension
+#from numpy.distutils.ccompiler import CCompiler
+import os,sys,string
+
+include_dirs = [numpy.lib.utils.get_include(),"include","include/cdTime"]
+
+library_dirs = [ os.path.join("@prefix@","lib") ,'.']
+include_dirs.append(os.path.join("@prefix@","include"))
+libraries = []
+
+for st in ["@NCLDFLAGS@", "@NCCFLAGS@", "@UDUNITS2FLAGS@", "@UDUNITS2LDFLAGS@", "@UUIDFLAGS@", "@UUIDLDFLAGS@"]:
+   sp = st.strip().split()
+   for s in sp:
+      if s[:2]=='-L':
+        library_dirs.append(s[2:])
+      if s[:2]=='-l':
+        libraries.append(s[2:])
+      if s[:2]=='-I':
+        include_dirs.append(s[2:])
+
+srcfiles = "@LIBSOURCES@".split()
+srcfiles.insert(0,os.path.join("Src","_cmormodule.c"))
+
+macros=[]
+for m in "@MACROS@".split():
+   macros.append((m[2:],None))
+   
+ld =[]
+for p in library_dirs:
+   if os.path.exists(p):
+      ld.append(p)
+library_dirs=ld
+
+ld =[]
+for p in include_dirs:
+   if os.path.exists(p):
+      ld.append(p)
+include_dirs=ld
+
+print 'Setting up python module with:'
+print 'libraries:',libraries
+print 'libdir:',library_dirs
+print 'incdir',include_dirs
+print 'src:',srcfiles
+print 'macros:',macros
+
+setup (name = "CMOR",
+       version='2.0',
+       author='Charles Doutriaux, PCMDI',
+       description = "Python Interface to CMOR output library",
+       url = "http://www-pcmdi.llnl.gov/cmor",
+       packages = ['cmor'],
+       package_dir = {'cmor': 'Lib'},
+       ext_modules = [
+    Extension('cmor._cmor',
+              srcfiles,
+	      include_dirs = include_dirs,
+              library_dirs = library_dirs,
+              libraries = libraries,
+              define_macros = macros,
+              extra_compile_args = [ "@DEBUG@", ]
+              ),
+    
+    ]
+      )
+

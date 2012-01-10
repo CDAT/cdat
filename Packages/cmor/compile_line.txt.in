@@ -1,0 +1,5 @@
+# The following line will compile "C" code mycode.c with cmor, additional libraries mycode.c may requires should be added to this line
+ @CC@ @DEBUG@ @MACROS@ @CFLAGS@ @CPPFLAGS@  mycode.c -L@prefix@/lib -I@prefix@/include  -L. -lcmor @NCCFLAGS@ @NCLDFLAGS@ @UDUNITS2LDFLAGS@ @UDUNITS2FLAGS@ @UUIDLDFLAGS@ @UUIDFLAGS@ @ZLDFLAGS@ -o mycode
+
+# The following line will compile "FORTRAN" code mycode.f90 with cmor, additional libraries mycode.f90 may requires should be added to this line
+@FC@ @DEBUG@ @FCFLAGS@ mycode.f90 -L@prefix@/lib -L. -lcmor @NCCFLAGS@ @NCLDFLAGS@ @UDUNITS2LDFLAGS@ @UDUNITS2FLAGS@ @UUIDLDFLAGS@ @UUIDFLAGS@ @ZFLAGS@ @ZLDFLAGS@ -o mycode

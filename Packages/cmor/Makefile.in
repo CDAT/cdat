@@ -1,0 +1,254 @@
+#!/usr/bin/env sh
+FC=@FC@
+CPPFLAGS_USER=""
+FFLAGS_USER="-fPIC"
+#MODULE_SUFFIX="mod"
+PREFIX=@prefix@
+FCFLAGS=@FCFLAGS@
+PYTHONEXEC=@PYTHONEXEC@
+NO_COLOR2=\x1b[0m
+OK_COLOR2=\x1b[2;34m
+NO_COLOR=${@NO_COLOR@}
+OK_COLOR=${@OK_COLOR@}
+
+
+# Library name
+LIBNAME = libcmor.a
+
+# Library sources
+#LIBSOURCES = Src/cmor.c Src/cmor_variables.c Src/cmor_axes.c Src/cmor_tables.c Src/cmor_grids.c Src/cdTime/cdTimeConv.c Src/cdTime/cdUtil.c Src/cdTime/timeConv.c Src/cdTime/timeArith.c
+LIBSOURCES = @LIBSOURCES@
+LIBFSOURCES = @LIBFSOURCES@
+
+LIBFILES = @LIBFILES@
+
+#Include Files
+INCFILES = @INCFILES@
+
+# Temporary Files
+TMPFILES = *~ $(LIBFILES) *.mod a.out *.stb Test/*.nc Test/IPCC_Fourth_Assessment *.LOG* *.dSYM Test/IPCC Test/CMIP5 CMIP5
+DISTFILES = libcmor.a
+DEPEND= makedepend -c @DEBUG@ @CFLAGS@  @NCCFLAGS@ @UDUNITS2FLAGS@ @UUIDFLAGS@ @ZFLAGS@
+
+all:    cmor
+	@echo
+depend:  $(LIBSOURCES)
+	${DEPEND}  $(LIBSOURCES)
+cmor.o: Src/cmor.c include/cmor.h include/cmor_func_def.h
+	@CC@ -c @DEBUG@ @MACROS@ @CFLAGS@  @NCCFLAGS@ @UDUNITS2FLAGS@ @UUIDFLAGS@ @ZFLAGS@ Src/cmor.c
+cmor_variables.o: Src/cmor_variables.c include/cmor.h include/cmor_func_def.h
+	@CC@ -c @DEBUG@ @MACROS@ @CFLAGS@  @NCCFLAGS@ @UDUNITS2FLAGS@ @UUIDFLAGS@ @ZFLAGS@ Src/cmor_variables.c
+cmor_axes.o: Src/cmor_axes.c include/cmor.h include/cmor_func_def.h
+	@CC@ -c @DEBUG@ @MACROS@ @CFLAGS@  @NCCFLAGS@ @UDUNITS2FLAGS@ @UUIDFLAGS@ @ZFLAGS@ Src/cmor_axes.c
+cmor_tables.o: Src/cmor_tables.c include/cmor.h include/cmor_func_def.h
+	@CC@ -c @DEBUG@ @MACROS@ @CFLAGS@  @NCCFLAGS@ @UDUNITS2FLAGS@ @UUIDFLAGS@ @ZFLAGS@ Src/cmor_tables.c
+cmor_grids.o: Src/cmor_grids.c include/cmor.h include/cmor_func_def.h
+	@CC@ -c @DEBUG@ @MACROS@ @CFLAGS@  @NCCFLAGS@ @UDUNITS2FLAGS@ @UUIDFLAGS@ @ZFLAGS@ Src/cmor_grids.c
+cmor_md5.o: Src/cmor_md5.c include/cmor.h include/cmor_func_def.h include/cmor_md5.h
+	@CC@ -c @DEBUG@ @MACROS@ @CFLAGS@  @NCCFLAGS@ @UDUNITS2FLAGS@ @UUIDFLAGS@ @ZFLAGS@ Src/cmor_md5.c
+cmor_cfortran_interface.o: Src/cmor_cfortran_interface.c include/cmor.h include/cmor_func_def.h
+	@CC@ -c @DEBUG@ @MACROS@ @CFLAGS@  @NCCFLAGS@ @UDUNITS2FLAGS@ @UUIDFLAGS@ @ZFLAGS@ Src/cmor_cfortran_interface.c
+cdTimeConv.o: Src/cdTime/cdTimeConv.c include/cmor.h include/cmor_func_def.h
+	@CC@ -c @DEBUG@ @MACROS@ @CFLAGS@  @NCCFLAGS@ @UDUNITS2FLAGS@ @UUIDFLAGS@ @ZFLAGS@ Src/cdTime/cdTimeConv.c
+cdUtil.o: Src/cdTime/cdUtil.c include/cmor.h include/cmor_func_def.h
+	@CC@ -c @DEBUG@ @MACROS@ @CFLAGS@  @NCCFLAGS@ @UDUNITS2FLAGS@ @UUIDFLAGS@ @ZFLAGS@ Src/cdTime/cdUtil.c
+timeConv.o: Src/cdTime/timeConv.c include/cmor.h include/cmor_func_def.h
+	@CC@ -c @DEBUG@ @MACROS@ @CFLAGS@  @NCCFLAGS@ @UDUNITS2FLAGS@ @UUIDFLAGS@ @ZFLAGS@ Src/cdTime/timeConv.c
+timeArith.o:Src/cdTime/timeArith.c include/cmor.h include/cmor_func_def.h
+	@CC@ -c @DEBUG@ @MACROS@ @CFLAGS@  @NCCFLAGS@ @UDUNITS2FLAGS@ @UUIDFLAGS@ @ZFLAGS@ Src/cdTime/timeArith.c
+cmor_fortran_interface.o: Src/cmor_fortran_interface.f90
+	@FC@ -c @FCFLAGS@ @DEBUG@ @MACROS@ Src/cmor_fortran_interface.f90
+cmor:  $(LIBFILES) @MAKEDEPPYTHON@
+	@ar crv $(LIBNAME) $(LIBFILES) 
+	@ranlib $(LIBNAME)
+clean:
+	@echo "Cleaning [$(WHEREAMI)] ..."
+	@rm -rf $(TMPFILES)
+distclean: clean
+	@echo "Completely cleaning [$(WHEREAMI)]..."
+	@rm -f $(DISTFILES)
+install: cmor
+	mkdir -p @prefix@/lib
+	mkdir -p @prefix@/include
+	mkdir -p @prefix@/include/cdTime
+	mkdir -p @prefix@/include/cdTime/cdunifpp
+	cp -p $(LIBNAME) @prefix@/lib
+	cp -pr include/*.h @MODFILES@ @prefix@/include
+	cp -pr include/cdTime/*.h @prefix@/include/cdTime
+	cp -pr include/cdTime/cdunifpp/*.h @prefix@/include/cdTime/cdunifpp
+uninstall: distclean 
+	rm @prefix@/lib/$(LIBNAME)    
+	cd @prefix@ ; rm $(INCFILES)  
+backup: clean
+	@echo "Creating full backup tar file..."
+	@(cd ..; \
+	@TGZNAME=$(TGZDIR)/cmor_`$(TIMESTAMP)`_full.tgz; \
+	@tar cfz $$TGZNAME Cmor; \
+	@touch $(TIMESTAMPDIR)/cmor_`$(TIMESTAMP)`_full.time; \
+	@echo "Full backup tar file created : $$TGZNAME")
+test:  cmor test_C @TEST_FORTRAN@ @MAKETESTPYTHON@
+	@echo "All C and Fortran Test passed successfully"
+test_C: cmor 
+	@rm -f ./ipcc_test_code ; @CC@ @CFLAGS@ @CPPFLAGS@  Test/ipcc_test_code.c -L@prefix@/lib -I@prefix@/include  -L. -lcmor @NCCFLAGS@ @NCLDFLAGS@ @UDUNITS2LDFLAGS@ @UDUNITS2FLAGS@ @UUIDLDFLAGS@ @UUIDFLAGS@ -o ipcc_test_code  @VERB@; ./ipcc_test_code @VERB@
+	@rm -f test_grid ; @CC@ @CFLAGS@ @CPPFLAGS@  Test/test_grid.c -L@prefix@/lib -I@prefix@/include  -L. -lcmor @NCCFLAGS@ @NCLDFLAGS@ @UDUNITS2LDFLAGS@ @UDUNITS2FLAGS@ @UUIDLDFLAGS@ @UUIDFLAGS@ -o test_grid @VERB@; ./test_grid @VERB@;
+	@rm -f test_lots_of_variables ; @CC@ @CFLAGS@ @CPPFLAGS@  Test/test_lots_of_variables.c -L@prefix@/lib -I@prefix@/include  -L. -lcmor @NCCFLAGS@ @NCLDFLAGS@ @UDUNITS2LDFLAGS@ @UDUNITS2FLAGS@ @UUIDLDFLAGS@ @UUIDFLAGS@ -o test_lots_of_variables @VERB@; ./test_lots_of_variables @VERB@;
+python:
+	@echo "Building Python interface"
+	@${PYTHONEXEC} setup.py install @CDATPREFIX@
+test_a_python:
+	@echo "${OK_COLOR}Testing ${TEST_NAME} ${NO_COLOR}"
+	${PYTHONEXEC} ${TEST_NAME} @VERB@
+test_python: python
+	@env TEST_NAME=Test/test_python_direct_calls.py make test_a_python
+	@env TEST_NAME=Test/test_python_user_interface_00.py make test_a_python
+	@env TEST_NAME=Test/test_python_user_interface_01.py make test_a_python
+	@env TEST_NAME=Test/test_python_user_interface_03.py make test_a_python
+	@env TEST_NAME=Test/test_python_common.py make test_a_python
+	@env TEST_NAME=Test/cmor_speed_and_compression.py make test_a_python
+	@env TEST_NAME=Test/cmor_speed_and_compression_01.py make test_a_python
+#	@env TEST_NAME=Test/cmor_speed_and_compression_02.py make test_a_python
+	@env TEST_NAME=Test/test_compression.py make test_a_python
+	@env TEST_NAME=Test/test_python_appending.py make test_a_python
+	@env TEST_NAME=Test/test_python_bounds_request.py make test_a_python
+	@env TEST_NAME=Test/test_python_new_tables.py make test_a_python
+#	@env TEST_NAME=Test/test_python_index_coord.py make test_a_python
+	@env TEST_NAME=Test/test_python_jamie.py make test_a_python
+	@env TEST_NAME=Test/test_python_jamie_2.py make test_a_python
+	@env TEST_NAME=Test/test_python_jamie_3.py make test_a_python
+	@env TEST_NAME=Test/test_python_jamie_4.py make test_a_python
+	@env TEST_NAME=Test/test_python_jamie_6.py make test_a_python
+	@env TEST_NAME=Test/test_python_jamie_7.py make test_a_python
+	@env TEST_NAME=Test/test_python_jamie_8.py make test_a_python
+	@env TEST_NAME=Test/test_python_memory_check.py make test_a_python
+	@env TEST_NAME=Test/test_python_open_close_cmor_multiple.py make test_a_python
+	@env TEST_NAME=Test/test_python_jamie_7.py make test_a_python
+	@env TEST_NAME=Test/test_python_joerg_1.py make test_a_python
+	@env TEST_NAME=Test/test_python_joerg_2.py make test_a_python
+	@env TEST_NAME=Test/test_python_joerg_3.py make test_a_python
+#	@env TEST_NAME=Test/test_python_joerg_4.py make test_a_python
+	@env TEST_NAME=Test/test_python_joerg_5.py make test_a_python
+	@env TEST_NAME=Test/test_python_joerg_6.py make test_a_python
+	@env TEST_NAME=Test/test_python_joerg_7.py make test_a_python
+	@env TEST_NAME=Test/test_python_joerg_8.py make test_a_python
+#	@env TEST_NAME=Test/test_python_joerg_9.py make test_a_python
+	@env TEST_NAME=Test/test_python_joerg_10.py make test_a_python
+        @env TEST_NAME=Test/test_python_joerg_11.py make test_a_python
+        @env TEST_NAME=Test/test_python_joerg_12.py make test_a_python
+	@env TEST_NAME=Test/test_python_YYYMMDDHH_exp_fmt.py make test_a_python
+	@env TEST_NAME=Test/test_python_region.py make test_a_python
+	@env TEST_NAME=Test/jamie_hybrid_height.py make test_a_python
+	@env TEST_NAME=Test/jamie_positive.py make test_a_python
+	@env TEST_NAME=Test/test_python_1D_var.py make test_a_python
+	@env TEST_NAME=Test/test_python_2Gb_file.py make test_a_python
+	@env TEST_NAME=Test/test_python_2Gb_slice.py make test_a_python
+	@env TEST_NAME=Test/test_python_3hr.py make test_a_python
+	@env TEST_NAME=Test/test_python_YYYMMDDHH_exp_fmt.py make test_a_python
+#	@env TEST_NAME=Test/test_python_alastair_1.py make test_a_python
+	@env TEST_NAME=Test/test_python_cfmip_site_axis_test.py make test_a_python
+	@env TEST_NAME=Test/test_python_fx.py make test_a_python
+	@env TEST_NAME=Test/test_python_grid_and_ocn_sigma.py make test_a_python
+	@env TEST_NAME=Test/test_python_jamie_site_surface.py make test_a_python
+	@env TEST_NAME=Test/test_python_max_variables.py make test_a_python
+	@env TEST_NAME=Test/test_python_max_variables_2.py make test_a_python
+	@env TEST_NAME=Test/test_python_reverted_lats.py make test_a_python
+#	@env TEST_NAME= make test_a_python
+
+test_case:
+	@echo "${OK_COLOR}Testing: "${TEST_NAME}" with input file: ${INPUT_FILE}${NO_COLOR}"
+	@rm -f ./${TEST_NAME} 2>/dev/null ; @FC@ @FCFLAGS@ @DEBUG@  Test/${TEST_NAME}.f90 -L@prefix@/lib -L. -lcmor @NCCFLAGS@ @NCLDFLAGS@ @UDUNITS2LDFLAGS@ @UDUNITS2FLAGS@ @UUIDLDFLAGS@ @UUIDFLAGS@ @ZFLAGS@ @ZLDFLAGS@ -o ${TEST_NAME} ;
+	@./${TEST_NAME} @VERB@ < ${INPUT_FILE} ;
+	@ rm ./${TEST_NAME}
+ifeq (@MAKEDEPPYTHON@,python)
+	@env TEST_NAME="Test/check_results.py ${TEST_NAME}" make test_a_python
+endif
+test_case_old_cmor_tables:
+	@echo "Testing: "${TEST_NAME}" with input file: "${INPUT_FILE}
+	@rm -f ./${TEST_NAME} 2>/dev/null ; @FC@ @FCFLAGS@ @DEBUG@  Test/old_cmor_tables/${TEST_NAME}.f90 -L@prefix@/lib -L. -lcmor @NCCFLAGS@ @NCLDFLAGS@ @UDUNITS2LDFLAGS@ @UDUNITS2FLAGS@ @UUIDLDFLAGS@ @UUIDFLAGS@ @ZFLAGS@ @ZLDFLAGS@ -o ${TEST_NAME} ;
+	@./${TEST_NAME} @VERB@ < ${INPUT_FILE} ;
+	@ rm ./${TEST_NAME}
+ifeq (@MAKEDEPPYTHON@,python)
+	@env TEST_NAME="Test/check_results.py old_cmor_tables_${TEST_NAME}" make test_a_python
+endif
+test_fortran_old_cmor_tables: cmor
+	@env TEST_NAME="test_any_from_asc" INPUT_FILE="Test/tas_3D_noreorder.input" make test_case_old_cmor_tables
+	@env TEST_NAME="test_any_from_asc" INPUT_FILE="Test/3D_txy.input" make test_case_old_cmor_tables
+	@env TEST_NAME="test_any_from_asc" INPUT_FILE="Test/3D_txy_split_lon.input" make test_case_old_cmor_tables
+	@env TEST_NAME="test_any_from_asc" INPUT_FILE="Test/3D_xty_split_lon.input" make test_case_old_cmor_tables
+	@env TEST_NAME="test_any_from_asc_d" INPUT_FILE="Test/tas_3D_noreorder.input" make test_case_old_cmor_tables
+	@env TEST_NAME="test_any_from_asc_d" INPUT_FILE="Test/3D_txy.input" make test_case_old_cmor_tables
+	@env TEST_NAME="test_any_from_asc_d" INPUT_FILE="Test/3D_txy_split_lon.input" make test_case_old_cmor_tables
+	@env TEST_NAME="test_any_from_asc_d" INPUT_FILE="Test/3D_xty_split_lon.input" make test_case_old_cmor_tables
+	@env TEST_NAME="karls_test" INPUT_FILE="Test/noinput" make test_case_old_cmor_tables
+	@env TEST_NAME="test1" INPUT_FILE="Test/noinput" make test_case_old_cmor_tables
+	@env TEST_NAME="test2" INPUT_FILE="Test/noinput" make test_case_old_cmor_tables
+	@env TEST_NAME="test3" INPUT_FILE="Test/noinput" make test_case_old_cmor_tables
+	@env TEST_NAME="test4" INPUT_FILE="Test/noinput" make test_case_old_cmor_tables
+	@env TEST_NAME="main_prog" INPUT_FILE="Test/noinput" make test_case_old_cmor_tables
+	@env TEST_NAME="test_any_from_asc_i" INPUT_FILE="Test/tas_mytest_3d_i.input" make test_case_old_cmor_tables
+	@env TEST_NAME="mytest_4d_r" INPUT_FILE="Test/noinput" make test_case_old_cmor_tables
+	@env TEST_NAME="rewrite_harvardf_data" INPUT_FILE="Test/noinput" make test_case_old_cmor_tables
+	@env TEST_NAME="test_3h" INPUT_FILE="Test/noinput" make test_case_old_cmor_tables
+	@env TEST_NAME="test_dimensionless" INPUT_FILE="Test/noinput" make test_case_old_cmor_tables
+	@env TEST_NAME="test_fortran_example_00" INPUT_FILE="Test/noinput" make test_case_old_cmor_tables
+	@env TEST_NAME="test_fortran_example_01" INPUT_FILE="Test/noinput" make test_case_old_cmor_tables
+	@env TEST_NAME="test_station_data" INPUT_FILE="Test/noinput" make test_case_old_cmor_tables
+	@env TEST_NAME="test_region" INPUT_FILE="Test/noinput" make test_case_old_cmor_tables
+	@env TEST_NAME="test_sigma" INPUT_FILE="Test/noinput" make test_case_old_cmor_tables
+	@env TEST_NAME="test_singleton" INPUT_FILE="Test/noinput" make test_case_old_cmor_tables
+	@env TEST_NAME="mytest_4d_r_big_array" INPUT_FILE="Test/noinput" make test_case_old_cmor_tables
+	@env TEST_NAME="mytest_4d_d_big_array_2" INPUT_FILE="Test/noinput" make test_case_old_cmor_tables
+	@env TEST_NAME="mytest_4d_d_big_array_3" INPUT_FILE="Test/noinput" make test_case_old_cmor_tables
+	@env TEST_NAME="mytest_4d_d_big_array_4" INPUT_FILE="Test/noinput" make test_case_old_cmor_tables
+	@env TEST_NAME="mytest_4d_d_big_array_5" INPUT_FILE="Test/noinput" make test_case_old_cmor_tables
+	@env TEST_NAME="climatology_test_code" INPUT_FILE="Test/noinput" make test_case_old_cmor_tables
+	@env TEST_NAME="test_lots_of_variables" INPUT_FILE="Test/noinput" make test_case_old_cmor_tables
+	@env TEST_NAME="test_shrt_exp_nm_set_att_initi" INPUT_FILE="Test/noinput" make test_case_old_cmor_tables
+	@env TEST_NAME="test_sophie" INPUT_FILE="Test/noinput" make test_case_old_cmor_tables
+test_fortran: cmor
+	@env TEST_NAME="test_any_from_asc" INPUT_FILE="Test/tas_3D_noreorder.input" make test_case
+	@env TEST_NAME="test_any_from_asc" INPUT_FILE="Test/3D_txy.input" make test_case
+	@env TEST_NAME="test_any_from_asc" INPUT_FILE="Test/3D_txy_split_lon.input" make test_case
+	@env TEST_NAME="test_any_from_asc" INPUT_FILE="Test/3D_xty_split_lon.input" make test_case
+	@env TEST_NAME="test_any_from_asc_d" INPUT_FILE="Test/tas_3D_noreorder.input" make test_case
+	@env TEST_NAME="test_any_from_asc_d" INPUT_FILE="Test/3D_txy.input" make test_case
+	@env TEST_NAME="test_any_from_asc_d" INPUT_FILE="Test/3D_txy_split_lon.input" make test_case
+	@env TEST_NAME="test_any_from_asc_d" INPUT_FILE="Test/3D_xty_split_lon.input" make test_case
+	@env TEST_NAME="karls_test" INPUT_FILE="Test/noinput" make test_case
+	@env TEST_NAME="test1" INPUT_FILE="Test/noinput" make test_case
+	@env TEST_NAME="test2" INPUT_FILE="Test/noinput" make test_case
+	@env TEST_NAME="test3" INPUT_FILE="Test/noinput" make test_case
+	@env TEST_NAME="test4" INPUT_FILE="Test/noinput" make test_case
+	@env TEST_NAME="main_prog" INPUT_FILE="Test/noinput" make test_case
+	@env TEST_NAME="test_any_from_asc_i" INPUT_FILE="Test/tas_mytest_3d_i.input" make test_case
+	@env TEST_NAME="mytest_4d_r" INPUT_FILE="Test/noinput" make test_case
+	@env TEST_NAME="rewrite_harvardf_data" INPUT_FILE="Test/noinput" make test_case
+	@env TEST_NAME="test_3h" INPUT_FILE="Test/noinput" make test_case
+	@env TEST_NAME="test_dimensionless" INPUT_FILE="Test/noinput" make test_case
+	@env TEST_NAME="test_fortran_example_00" INPUT_FILE="Test/noinput" make test_case
+	@env TEST_NAME="test_fortran_example_01" INPUT_FILE="Test/noinput" make test_case
+	@env TEST_NAME="test_station_data" INPUT_FILE="Test/noinput" make test_case
+	@env TEST_NAME="test_cmor_grid_alejandro" INPUT_FILE="Test/alejandro.txt" make test_case
+	@env TEST_NAME="test_cmor_grid_alejandro" INPUT_FILE="Test/alejandro_1.txt" make test_case
+	@env TEST_NAME="test_cmor_grid_alejandro" INPUT_FILE="Test/alejandro_2.txt" make test_case
+	@env TEST_NAME="test_cmor_grid_time_varying" INPUT_FILE="Test/alejandro.txt" make test_case
+	@env TEST_NAME="test_cmor_grid_time_varying" INPUT_FILE="Test/alejandro_1.txt" make test_case
+	@env TEST_NAME="test_region" INPUT_FILE="Test/noinput" make test_case
+	@env TEST_NAME="test_sigma" INPUT_FILE="Test/noinput" make test_case
+	@env TEST_NAME="test_singleton" INPUT_FILE="Test/noinput" make test_case
+	@env TEST_NAME="mytest_4d_r_big_array" INPUT_FILE="Test/noinput" make test_case
+	@env TEST_NAME="mytest_4d_d_big_array_2" INPUT_FILE="Test/noinput" make test_case
+	@env TEST_NAME="mytest_4d_d_big_array_3" INPUT_FILE="Test/noinput" make test_case
+	@env TEST_NAME="mytest_4d_d_big_array_4" INPUT_FILE="Test/noinput" make test_case
+	@env TEST_NAME="mytest_4d_d_big_array_5" INPUT_FILE="Test/noinput" make test_case
+	@env TEST_NAME="climatology_test_code" INPUT_FILE="Test/noinput" make test_case
+	@env TEST_NAME="test_lots_of_variables" INPUT_FILE="Test/noinput" make test_case
+	@env TEST_NAME="test_shrt_exp_nm_set_att_initi" INPUT_FILE="Test/noinput" make test_case
+	@env TEST_NAME="test_sophie" INPUT_FILE="Test/noinput" make test_case
+	@env TEST_NAME="ipcc_test_code" INPUT_FILE="Test/noinput" make test_case
+atest: cmor
+#	@env TEST_NAME="mytest_4d_d_big_array_2" INPUT_FILE="Test/noinput" make test_case
+	@env TEST_NAME="test_lots_of_variables" INPUT_FILE="Test/noinput" make test_case
+#	@env TEST_NAME="wegner_test" INPUT_FILE="Test/noinput" make test_case
+
+
+

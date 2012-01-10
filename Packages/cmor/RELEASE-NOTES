@@ -1,0 +1,235 @@
+2011-11-08 : Tagging 2.8.0
+2011-11-08 : Realized there was a difference in calendar names between cdtime and the CF conventions. CMOR now maps correctly the CF names to the cdtime names for correct internal processing.
+2011-10-24 : Removed the treatlon in case 'X' axis has units not in degrees
+2011-06-23 : Tagging 2.7.1
+2011-06-23 : removing sloppy print statements in python wrap
+2011-06-21 : Tagging 2.7.0
+2011-06-21 : Fixed bug using the wrong dims for checking validity of arrays in fortran interface - for vertices-
+2011-06-13 : Tagging 2.6.1
+2011-06-13 : Fixed bug triggering wrong warning on bounds being at the beg/end of month
+2011-05-26 : File name for subhourly were wrongly constructed, upped version to 2.6
+2011-05-24 : when we decide to add the extra time precision in the file name only for less than 6hr, i did this only for the first time, not the second one... Fixed.
+2011-04-27 : Tagging 2.5.9
+2011-04-27 : fixed file name for climatologies, last bounds was set improperly
+2011-04-26 : was setting coordinates attribute multiple times, now first check if the bit we are trying to add is already in
+2011-04-11 : releasing 2.5.8
+2011-04-07 : only adding extra time precision in file names if it is < 6hr instead of 1 day
+2011-04-05 : not overwriting user time values in climatology case
+2011-02-25 : releasing 2.5.7
+2011-02-25 : fixed bug for dims of length one where bounds needed to be flliped, it used to raise an unwarranted error
+2011-02-23 : releasing 2.5.6
+2011-02-23 : got cmor_set_variable_attribute to actually do something and not raise error all the time, thx to Larry Solheim to spot this.
+2011-02-23 : fixed issue when writing 1 time step at a time for climatological means, issue could led to seg fault and bad final file names, thx to Koji Ogochi to spot this one.
+2011-02-16 : releasing 2.5.5
+2011-02-16 : added process id to temporary file names so that code can be run via mpi
+2011-02-02 : releasing 2.5.4
+2011-02-02 : fixed a memory issue in the Python API for get_variable_attribute and has_variable_attribute
+2011-01-31 : releasing 2.5.3
+2011-01-25 : path produced w/o '/' or weird characters
+2011-01-25 : cannot set global attribute if it is an attribute that can be set via cmor_dataset
+2011-01-25 : cannot set var attribute after var has been created into nc file
+2011-01-25 : cannot set var attribute if it is settable via cmor_variable
+2011-01-25 : can handle "character type" singleton dimensions
+2011-01-25 : does not stores units on character typevariables
+2011-01-24 : cmor_axes, interval check cleanup errormessage, now specifies which units the diff calaculated is in.
+2011-01-24 : updated cmor_set_variable_attrubtes to go thru an 'internal' one
+2010-12-17 : when passing character type axes, checking output is suppposed to be character
+2010-12-17 : fixed bug found by Jamie that didn't pass the correct args in get_var_Attribute
+2010-12-16 : added two python test for var with string dimensions
+2010-12-06 : turned off udunits2 warnings when reading database in
+2010-11-18 : added a '/' after output path for tmp file testing
+2010-11-12 : Updated documentation
+2010-11-11 : updated pywrapper from Jamie
+2010-11-11 : new examples into Makefile for Python
+2010-11-11 : added a flag that says need to cal cmor_grid on some axis (site and location)
+2010-11-05 : new doc updated by Karl.
+2010-11-05 : removed option, for now, to create non-standard calendars because the dates in filenames would be wrong.
+2010-11-05 : file_name=True ignored in python if no var_id is passed to it as well.
+2010-11-05 : added realm to gridspec file names
+2010-11-05 : reverted ext_cell_measures to cell_measures
+2010-10-27 : edited the test for permission on output directory, used to fail if you had group write privileges but that wasnt your main group
+2010-10-22 : Tagging 2.4.0
+2010-10-22 : updated docs to reflect all these changes
+2010-10-22 : exposed cmor_set/get/has_variable in Fortran interface, just like Python works only on "string" variables
+2010-10-22 : add optional "parent_experiment_rip" to cmor_dataset (C,Fortran,Python)
+2010-10-22 : fixed bug with variables using "grids" and singleton dimensions
+2010-10-22 : upgraded to 2.4 in devel branch
+2010-10-22 : exposed cmor_set_variable_attribute to users in Python
+2010-10-22 : cell_measures var attribute is now called ext_cell_measures
+2010-10-06 : tagging 2.3
+2010-09-29 : Cleaned up error messages, now tries to output var/axis it was working on as well as table used.
+2010-09-29 : When value that exceeds valid_min/max is found, now returns location of extreme point instead of first point encountered, as well as actuall coordinates values (not just indices)
+2010-09-22 : Joerg found a bug that was due to checking only the refvar.dimension w/o checking the actual tables as well
+2010-09-01 : fixed a bug on mac 32bit when reading in net3 version string
+2010-09-01 : some vars with grid and singleton dims were wrongly analyzed by cmor_variable has not being defined with the right number of dimmensions.
+2010-09-01 : updated doc. Was saying you can pass "none" for units when it really is: ""
+2010-09-01 : updated doc. Was wrongly stating you can pass "none" if no missing_value
+2010-08-24 : when writing time only variables, the time_bnds would fail to write if passed at cmor_write time.
+2010-08-23 : tagging 2.2
+2010-08-23 : DRS was wrongly constructed for table Oclim
+2010-08-23 : tagging 2.1
+2010-08-23 : create_output_path doesn't need to be called b4 cmor_write any more.
+2010-08-19 : dimensions were always stored as double regardless of what the table wanted. Fixed
+2010-08-19 : go thru cmor_create_path to figure out isfixed and set frequency, even if directory layout is not required.
+2010-08-19 : checker: works with version number of format major.minor.patch
+2010-08-19 : checker: update git url from wich to fetch md5s tables
+2010-08-19 : forcings attribute can now end with notes in between parenthesis
+2010-08-18 : added a check for cmor_variables making sure axes/grid ids passed are valid
+2010-08-18 : downgraded abs min/max CRITICAL error to NORMAL
+2010-08-18 : dowgraded invalid min/max from NORMAL error to WARNING
+2010-08-10 : cmor_setup, was initalizing strings beyhond the max number fo elts, cause seg fault with python (loop was to CMOR_MAX_ELEMENTS when it should have been CMOR_MAX_ATTRIBUTES)
+2010-06-14 : expanded the CMOR_MAX_GRIDS to 100 form 10. And replaced the "10" in the code with CMOR_MAX_GRIDS
+2010-06-14 : updated python example and testtable to work w/o error about abs mean
+2010-06-11 : shorten the TestTables to a minimum so they can't be confused with the real one and used in production
+2010-06-11 : removed tables unused by examples
+2010-06-11 : add ${Prefix}/share to the list of locations where to search for tables
+2010-06-09 : removing files related to Tables, moving the Tables dir to TestTables
+2010-06-09 : cmor axis entry "requested_bounds" now is also valid used to be "bounds_requested"
+2010-06-09 : cmor_axis non-monotnic error was showing incoorect set of bad values
+2010-06-09 : changed absolute mean error from CRITICAL to NORMAL if less than an order of magnitude off
+2010-06-09 : tables generated with min/max now being 3 sigma (from 2) and (20% form 5%)
+2010-06-09 : Coord: depth_coord was wrongly defined as positive up, fixed
+2010-06-01 : table generation was sometimes gen same value for valid_min and valid_max, fixed
+2010-06-01 : table generation using %.4g instead of %.2g for valid min/max
+2010-06-01 : new tables to reflect that
+2010-06-01 : updated examples to work with abs min/max from tables
+2010-06-01 : edited example to have only 1 file to edit when tweaking the data generation in test fortran/C samples.
+2010-06-01 : changed cmor_dataset to trim input arguments, revelant mostly for calendar that was declared as wrong if it had extra spaces
+2010-06-01 : fixed error message formating for value less or greater than valid_min/max, now uses nice formatting %.4g instead of unreadable for big numbers: %lf
+2010-06-09 : yep
+2010-05-28 : Tagging RC10
+2010-05-28 : cmor_checker now checks table md5s in file vs the one passed and vs our control online
+2010-05-28 : new tables that include the ok_min/max_mean_absolute value
+2010-05-28 : reverted file name construction to use first/last time. BUT added precision for daily and higher frequencies
+2010-05-28 : fixed a bug in cmor checker when variable entry was "pop" would break
+2010-05-28 : fixed default values of noerror in script from True to cmor.CMOR_CRITICAL
+2010-05-27 : switch version tagging from svn to git
+2010-05-27 : fixed  abug in test patch number of NetCDF3 version i was using = instead of ==
+2010-05-25 : trying a new way to store date in file names for Jamie. Probably going to be reverted
+2010-05-24 : changed the way the final file name is constructed, uses time bounds if present, otherwise as before uses time values
+2010-05-20 : tagging RC9
+2010-05-20 : fixed a bug in python interface when converting zfactor bounds array from 2D to the required 1D.
+2010-05-20 : "changed sign" was always written in history even when not necessary. Fixed
+2010-05-20 : newer tables
+2010-05-12 : CMIP5_fx add time dependency, fixed
+2010-05-12 : user could pass any calendar name! Now has to match valid ones!
+2010-05-11 : updated tables
+2010-05-11 : created a xls2csv script MUCH improved my life when Karl changes tables from now on.
+2010-05-11 : sigma coord and irregular girds: implemented
+2010-05-11 : cmor_close now preserves the original  variable id
+2010-05-11 : cmor_zfactor MUST have values if zfactor is not time dependent
+2010-04-29 : updated repo to git
+2010-04-27 : updated examples to reflect new required things
+2010-04-27 : colored Makefile output for fortran testing, makes it eaiser to see what's being tested
+2010-04-27 : API changes for Jamie, close_variable can now preserve a variable and redefine it for later use (new file) by user. See doc and test_python_max_variables_2.py for details.
+2010-04-27 : when creating new variable, looks for the first available in the list instead of always adding one. This helps preventing users to run into "maximum number of variables" when opeing/closing a lot of files. See test_python_max_variables.py for details.
+2010-04-27 : model_id must now match begining of source if CMIP5
+2010-04-27 : institute_id is now required in tables
+2010-04-27 : changed history from "reverted axes" to "inverted axis"
+2010-04-27 : "hyphenized model_id has nor more "-" at the end
+2010-04-27 : comment: original_table_comment changed to [project_id]_table_comment where [project_id] is what the table specifies
+2010-04-27 : "singleton" replaced with "scalr" in history output
+2010-04-27 : zfactor_bnds are now reverted if needed. 
+2010-04-27 : "height" scalar dimension is now defined in the file BEFORE the actual variable (so it looks better on an ncdump)
+2010-04-27 : "converted type to" was written only to the the last variable (multiple times) instead of the correct variable(s)
+2010-04-21 : fixed appendix in doc to reflect newest values of include files
+2010-04-21 : fixed ippc_test_code.f90 that somehow stayed CMOR1 for the most part
+2010-04-15 : reverted axes did not result in flipping data!
+2010-04-02 : updated all examples FORTRAN, C and Python to run with newer tables
+2010-04-02 : allowed user to pass 1D bounds for time in cmor.write in Python, automagically converts to 2D
+2010-04-02 : updated tables
+2010-04-02 : contact is now required (that might change...)
+2010-04-02 : removed a test that was wrong and was allowing to define variable with wrong dimension (as long as axis (T) attribute matched)
+2010-04-01 : fixed associated_files attribute, the file names are now constructed correctly
+2010-03-31 : non_standard calendar must have "non_standard" as calendar name
+2010-03-25 : value of forcing is now checked and returns a CRITICAL_ERROR if wrong
+2010-03-25 : added parent_Experiment to list of required_global attributes in table
+2010-03-24 : fixed a bug when user was declaring multiple zfactor with same name
+2010-03-24 : fixed issue for alternate hybrid level being stored as infinite
+2010-03-22 : fixed configure with  Jamie's patch
+2010-03-22 : fixed alternate_hybrid_sigma code thx to Joerg for spotting the bug
+2010-03-22 : fixed a bug in definition of alternate_hybrid_sigma in tables
+2010-03-19 : fixed bug when starting from appending file, wasn't reseting the "last_time" written, this caused error when writing time values less than the default -999
+2010-03-19 : fixed configure to always add -lm since it wans't added in case of NetCDF3 libary use
+2010-03-16 : cleaned test_sophie , some int wasn't intialized
+2010-03-16 : Python interface now checks that the data passed somewhat check the expected shape (ignores 1 length dims)
+2010-03-12 : cleaned up configure, thx to Stephen Pascoe
+2010-03-12 : works for windows messed up files. But the md5 will probably come out wrong in that case
+2010-03-12 : tweaked grid table to remove some attributes
+2010-03-12 : check validity of parent_experiment_id
+2010-03-09 : Now accepting "generic" exp_ids ending with YYYYMMDDHH
+2010-03-09 : Storing md5 for Tables used by user, this should help detecting "tweaking of tables"
+2010-03-04 : 'rip' convention is now in place no matter if physics_method and _nitialisation_method' are passed or not
+2010-03-04 : file suffix no longer allowed for table made for cmor 2.0 and up
+2010-03-04 : associated_files attribute is now smart enough to use areacell/volumcell in agreement with cell_measures attribute
+2010-03-04 : appending to file fixed, was broken becasue of new DRS
+2010-03-04 : axis flipping no checks first vs last values not just first and second, in case we have a bunch of 0. to start.
+2010-02-23 : if a critical error happens during cmor_write or cmor_close_variable cleans up the file it was trying to produce
+2010-02-23 : cleans up cvalues if they were malloced
+2010-02-22 : links against either NetCDF4 or NetCDF3
+2010-02-19 : if ref variable defines "positive" and user does not pass it to cmor_variable, changed from WARNING to CRITICAL error[:]
+2010-02-19 : checking that "output" directory is indeed a directory and that you have read/write permissions to it
+2010-02-19 : added more experiement ids to tables
+2010-02-19 : added a note in install file about not mixing 32bit and 64bit compilers (mac transition to 10.6)
+2010-02-18 : fixed a bug with variable not being completely cleared after closing/setup.
+2010-02-18 : added possibility of "cell_measures" attribute.
+2010-02-18 : fixed MAJOR bug with grids, all reference tables were mixed, it was a miracle it even worked on examples.
+2010-02-17 : added Tables/CMIP5_grids file that contains "irregular" grid informations
+2010-02-17 : fixed bug when comparing exp_id with the ones in the table
+2010-02-17 : fixed "must have bounds check" was returning an error when user was sending time values via axis definition.
+2010-02-17 : do not store "positive" attribute on variables any longer.
+2010-02-16 : fixed tables_generator and updated tables
+2010-02-09 : cleaned-up table genrators add_dims2.txt
+2010-02-09 : for "region" (char) coordinates, now recognizes "coords_attrib" table definiton which defines name of the coordinate variable (still geo_'coord' if not defined)
+2010-02-01 : removed warnings in _cmormodule.c
+2010-02-01 : fixed error in cf3hr table
+2010-02-01 : fixed a small leak in python wrapper
+2010-02-01 : added some python example to the test suite
+2010-01-28 : fixed add_dims.txt (hybrid stuff) tables
+2010-01-28 : zfactors can now reference to axis values in formula
+2010-01-20 : fixed tables generator. Dims are not repeated anymore. fixed "climatology" keyword for dime time2
+2010-01-17 : add "eq" unit to udunits2 not convertible to anything, but won't die when reading in from tables
+2010-01-15 : newer table containing ocean sigma coords and some updtes from Karl
+2010-01-06 : added option to turn off coloring : --disable-color
+2010-01-05 : reset default values for shuffle/deflate/defalte_level to 0 (can be changed via table)
+2010-01-05 : fixed table generator to replace zlevel with appropriate alevel or olevel
+2010-01-05 : added colors to output to easily spot error and warnings
+2010-01-04 : added traceback through C calls
+2009-12-22 : model_id can now contain any character BUT they will be converted to "-" in directory structure
+2009-12-22 : exposed cmor_set_cur_dataset_attribute
+2009-12-22 : newer set of tables
+2009-12-22 : documented above changes into CMOR users guide
+2009-11-25 : updated acknowledgment
+2009-11-25 : history is not copied over multiple times any longer
+2009-11-25 : CMOR checker now checks for file directory structure
+2009-11-23 : updated documentation to reflect nvertices argument to Fortran and python. Also added this optional arg to python
+2009-11-23 : fixed bug for python wrapper that had the missing_value converted to the wrong type
+2009-11-22 : preserve mode fixed (can't know the name of the final file until closing, it now checks then as well)
+2009-11-22 : time varying grids are now accepted, see cmor_time_varying_grid_coordinate new function
+2009-11-22 : put back in use of nc-config at build time, which should allow for misc builds of netcdf
+2009-11-10 : allowed fortran to write fixed field (no time) w/o passing ntimes_passed=0
+2009-11-10 : now catching grid defined with time varying axes, not allowed at the moment
+2009-11-10 : fixed bug spoted by Kostas, when zfactor axis was created w/o bounds extra attributes were added to the previous dimension
+2009-11-10 : improved error messages when incompatible units in cmor_axes and cmor_variables
+2009-11-09 : updated python interface's keywords for cmor.variable: axes is now axis_ids and missing is now missing_value, this make it the same as C and Fortran versions
+2009-11-05 : unique id generated by uuid is now different fr each file (instead of being the same for every var generated nder a call to cmor_dataset). Appending to files will now change the tracking_id (uuid) number
+2009-11-05 : cmor_create_output_directory now return 1 in C only if the variable is a fixed frequency, no changes for Fortran and Python
+2009-11-05 : 30min frequency renamed "subhr"
+2009-11-05 : examples adapted to reflect new directory/names structure
+2009-11-05 : "output" directory added to directory structure between "project_id" and "institution_id" dirs, to prepare for future "derived" products
+2009-11-05 : Newer CMOR tables
+2009-11-05 : fixed fields are stored under realization "0" no matter which realization number is passed
+2009-11-05 : "fixed" is now "fx"
+2009-11-05 : removed area from cmor_grid, it is now supposed to be stored in a separate file
+2009-11-05 : updated "associated_files" to point to the gridspec/cellArea/cellVolume files + baseURL instead of "self"
+2009-10-20 : fixed paramters type for fortran they used to be real where integer was needed
+2009-10-15 : Patch from Jamie Kettleborough that fixes a bug in cmor.write that was returning incomplete bounds
+2009-08-25 : Fixed a bug with cell_method that would always add interval even if user did not pass it.
+2009-08-25 : Updated documenation of cmor_write to reflect the cell_method order difference in Fortran vs C/Python
+2009-08-25 : fixed a bug with python interface when passing 1 time slice bounds only.
+2009-08-25 : nc-config flags are different from 1 version unitl another, so until it is stabalized, commented code out
+2009-08-25 : Fixed a typo in doc of cmor_setup
+2009-08-24 : Tagged as release candidate 3
+2009-08-24 : Fixed a bug with realms being mangled with memory while construcitng path, added jamie's test for it
+2009-08-24 : Edited configure.ac to take advantage of nc-config if present
+2009-08-24 : Added this file RELEASES-NOTES
