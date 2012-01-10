@@ -1,12 +1,6 @@
-[submodule "Packages/cmor"]
-	path = Packages/cmor
-	url = http://uv-cdat.llnl.gov/git/cmor.git
 [submodule "contrib/eof2"]
 	path = contrib/eof2
 	url = http://uv-cdat.llnl.gov/git/eof2.git
 [submodule "contrib/windfield"]
 	path = contrib/windfield
 	url = http://uv-cdat.llnl.gov/git/windfield.git
-[submodule "contrib/matplotlib"]
-	path = contrib/matplotlib
-	url = http://github.com/matplotlib/matplotlib.git
