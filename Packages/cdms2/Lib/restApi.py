@@ -20,7 +20,7 @@ class esgfFilesException(Exception):
     ##     return msg
 validSearchTypes =  ["Dataset","File"]#"ById","ByTimeStamp"]
 class esgfConnection(object,AutoAPI.AutoAPI):
-    def __init__(self,host,port=80,timeout=15,limit=100000000,offset=0,mapping=None,datasetids=None,fileids=None,restPath=None):
+    def __init__(self,host,port=80,timeout=15,limit=1000,offset=0,mapping=None,datasetids=None,fileids=None,restPath=None):
         self.autoApiInfo = AutoAPI.Info(self)
         self.port=port
         url=str(host).replace("://","^^^---^^^")
@@ -29,7 +29,7 @@ class esgfConnection(object,AutoAPI.AutoAPI):
         if restPath is None:
             restPath = "/".join(sp[1:])
             if len(restPath)==0:
-                self.restPath="/esg-search/ws/rest/search"
+                self.restPath="/esg-search/search"
             else:
                 self.restPath=restPath
         else:
@@ -213,23 +213,25 @@ class esgfConnection(object,AutoAPI.AutoAPI):
         return datasets
 
 class esgfDataset(esgfConnection):
-    def __init__(self,host=None,port=80,limit=1000000,offset=0,mapping=None,datasetids=None,fileids=None,_http=None,restPath=None,keys={},originalKeys={}):
+    def __init__(self,host=None,port=80,limit=1000,offset=0,mapping=None,datasetids=None,fileids=None,_http=None,restPath=None,keys={},originalKeys={}):
         if host is None:
             raise esgfDatasetException("You need to pass url")
         self.host=host
         self.port=port
         self.defaultSearchType="File"
         if restPath is None:
-            self.restPath="/esg-search/ws/rest/search"
+            self.restPath="/esg-search/search"
         else:
             self.restPath=restPath
         if datasetids is None:
-            if "dataset_id_template_" in keys.keys():
+            if "dataset_id_template_" in keys:
                 tmp=keys["dataset_id_template_"]
                 if tmp[:5]=="cmip5":
                     tmp = tmp.replace("valid_institute","institute")
                     tmp="%(project)"+tmp[5:]
                 self.datasetids = genutil.StringConstructor(tmp.replace(")s",")"))
+            elif "project" in keys and keys["project"]=="cmip5":
+                self.datasetids = genutil.StringConstructor("%(project).%(product).%(institute).%(model).%(experiment).%(time_frequency).%(realm).%(cmor_table).%(ensemble)")
             else:
                 self.datasetids=None
         if isinstance(datasetids,genutil.StringConstructor):
@@ -417,7 +419,7 @@ class esgfDataset(esgfConnection):
                 continue
             st+="&%s=%s" % (k,keys[k])
         if self.resp is None:
-            self.resp = self._search("parent_id=%s&limit=%s&offset=%s%s" % (self["id"],self["limit"],self["offset"],st),stringType=stringType)
+            self.resp = self._search("dataset_id=%s&limit=%s&offset=%s%s" % (self["id"],self["limit"],self["offset"],st),stringType=stringType)
         if stringType:
             return self.resp
         return esgfFiles(self._extractFiles(self.resp,**keys),self)
@@ -575,11 +577,13 @@ class esgfFile(object,AutoAPI.AutoAPI):
         self.values = self.__items__.values
 
         services=[]
-        S=self["service"]
+        #print "Keys:",self.keys()
+        #print self["url"]
+        S=self["url"]
         if isinstance(S,str):
             S=[S,]
         for service in S:
-            s1,s2,url = service.split("|")
+            url,s2,s1 = service.split("|")
             setattr(self,s1,url)
             services.append(s1)
         self.services=services
@@ -594,7 +598,7 @@ class esgfFile(object,AutoAPI.AutoAPI):
         return
 
     def __str__(self):
-        st = "File Information\nid: %s\nParent Dataset: %s" % (self["file_id"],self["parent_id"])
+        st = "File Information\nid: %s\nParent Dataset: %s" % (self["file_id"],self["dataset_id"])
         st+="Matched keys: %s\n" % (repr(self.__items__))
         for service in self.services:
             st+="service: %s @ %s\n" % (service,getattr(self,service))

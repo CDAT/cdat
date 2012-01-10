@@ -182,6 +182,10 @@ if WM=="QT" or EM=="QT":
     qt_include_dirs=[os.path.join(here, 'Include','Qt'),]
 ## Generic non framework thing
     MOC = os.path.join(QT_PATH_BIN,"moc")
+    if not os.path.exists(MOC):
+        MOC = os.path.join(QT_PATH_BIN,"moc-qt4")
+    if not os.path.exists(MOC):
+        raise "Error could not find moc executable"
 ##    qt_vcs_extra_compile_args = ' -pipe -g -gdwarf-2 -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -I. -I%s -I%s/QtCore -I%s/QtGui '%(QT_PATH_INC,QT_PATH_INC,QT_PATH_INC)
     qt_vcs_extra_compile_args = ' -pipe -g -gdwarf-2 -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -I.'
 #     MOC = os.path.join(QT_PATH_BIN,"moc")

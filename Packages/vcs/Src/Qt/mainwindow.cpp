@@ -50,9 +50,9 @@ QString prepare_info(struct data_point info) {
   else
     {
       if (info.x == -999)
-	sprintf( buffer, "X    : NaN");
+        sprintf( buffer, "X    : NaN");
       else
-	sprintf( buffer, "X    : %g", info.x);
+        sprintf( buffer, "X    : %g", info.x);
     }
 
   /* Second Line of Text */
@@ -63,9 +63,9 @@ QString prepare_info(struct data_point info) {
   else
     {
       if (info.y == -999)
-	sprintf( buffer, "\nY    : NaN");
+        sprintf( buffer, "\nY    : NaN");
       else
-	sprintf( buffer, "\nY    : %g", info.y);
+        sprintf( buffer, "\nY    : %g", info.y);
     }
 
   /* Third Line of Text */
@@ -73,35 +73,35 @@ QString prepare_info(struct data_point info) {
   if (((info.x_index == -999) || (info.y_index == -999)) && info.value == -999)
     if (info.value2 == -999)
       {
-	sprintf( buffer, "\0");
+        sprintf( buffer, "\0");
       }
     else
       {
-	sprintf( buffer, "\nData 1:   N/A");
+        sprintf( buffer, "\nData 1:   N/A");
       }
   else
     if (info.value>9.9E19) 
       {
-	if (info.value2 == -999)
-	  {
-	    sprintf( buffer, "\nData:   Masked");
-	  }
-	else
-	  {
-	    sprintf( buffer, "\nData 1:   Masked");
-	  }
+        if (info.value2 == -999)
+          {
+            sprintf( buffer, "\nData:   Masked");
+          }
+        else
+          {
+            sprintf( buffer, "\nData 1:   Masked");
+          }
         info.color=-999;
       }
     else
       {
-	if (info.value2 == -999)
-	  {
-	    sprintf( buffer, "\nData:   %g", info.value);
-	  }
-	else
-	  {
-	    sprintf( buffer, "\nData 1:   %g", info.value);
-	  }
+        if (info.value2 == -999)
+          {
+            sprintf( buffer, "\nData:   %g", info.value);
+          }
+        else
+          {
+            sprintf( buffer, "\nData 1:   %g", info.value);
+          }
       }
 
   /* Fourth and Fith Line of Text */
@@ -110,19 +110,19 @@ QString prepare_info(struct data_point info) {
   if (info.value2 != -999)
     if (info.value2>9.9E19) 
       {
-	sprintf( buffer, "\nData 2:   Masked");
+        sprintf( buffer, "\nData 2:   Masked");
       }
     else
       {
-	sprintf( buffer, "\nData 2:   %g", info.value2);
-	if (info.value<9.9E19)
-	  {
-	    sprintf(buffer, "\nVector: %g",sqrt(info.value2*info.value2+info.value*info.value));
-	  }
-	else
-	  {
-	    sprintf(buffer, "");
-	  }
+        sprintf( buffer, "\nData 2:   %g", info.value2);
+        if (info.value<9.9E19)
+          {
+            sprintf(buffer, "\nVector: %g",sqrt(info.value2*info.value2+info.value*info.value));
+          }
+        else
+          {
+            sprintf(buffer, "");
+          }
 
       }
   else
@@ -133,15 +133,22 @@ QString prepare_info(struct data_point info) {
   /* Sixth Line of Text */
   strcat(final, buffer);
   if (info.color!=-999)
-      {
-	sprintf( buffer, "\nColor:   %d", info.color);
-      }
+    {
+      sprintf( buffer, "\nColor:   %d", info.color);
+    }
   else
     {
-	sprintf( buffer, "");
+      sprintf( buffer, "");
     }
   strcat(final, buffer);
   return QString(final);
+}
+
+MainWindow::MainWindow(QWidget * parent, Qt::WindowFlags flags):
+    QMainWindow(parent, flags)
+{
+  this->setAutoFillBackground(false);
+  this->setAttribute(Qt::WA_OpaquePaintEvent);
 }
 
 void MainWindow::actionTriggered(QAction *a) {
@@ -181,8 +188,8 @@ void MainWindow::actionTriggered(QAction *a) {
     }
   }
   PY_ENTER_THREADS
-  PY_GRAB_THREAD
-  canvas = getPyCanvas( this->vcs_obj );
+    PY_GRAB_THREAD
+    canvas = getPyCanvas( this->vcs_obj );
   kargs = PyDict_New();
   if (info.x!=-999.)
     {
@@ -278,7 +285,7 @@ void MainWindow::actionTriggered(QAction *a) {
   if (PyList_Check(funcs)) 
     {
       for (line=0;line<PyObject_Length(funcs);line++) {
-	if (strcmp(PyString_AsString(PyList_GetItem(funcs,line)),(const char *)a->text().toLatin1().data())==0) break;
+        if (strcmp(PyString_AsString(PyList_GetItem(funcs,line)),(const char *)a->text().toLatin1().data())==0) break;
       }
     }
   else line=0;
@@ -292,24 +299,24 @@ void MainWindow::actionTriggered(QAction *a) {
     {
       func = PyList_GetItem(funcs,line);
       if (PyCallable_Check(func))
-	{
-	  PY_RELEASE_THREAD
-	  PY_LEAVE_THREADS
-	  PY_ENTER_THREADS
-	  PY_GRAB_THREAD
-	  kval = PyEval_CallObjectWithKeywords(func,args,kargs);
-	  Py_DECREF(kargs);
-	  Py_DECREF(args);
-	  Py_XDECREF(kval);
-	  PY_RELEASE_THREAD
-	  PY_LEAVE_THREADS
-	}
+        {
+          PY_RELEASE_THREAD
+            PY_LEAVE_THREADS
+            PY_ENTER_THREADS
+            PY_GRAB_THREAD
+            kval = PyEval_CallObjectWithKeywords(func,args,kargs);
+          Py_DECREF(kargs);
+          Py_DECREF(args);
+          Py_XDECREF(kval);
+          PY_RELEASE_THREAD
+            PY_LEAVE_THREADS
+            }
       else
-	{
-	  PY_RELEASE_THREAD
-	    PY_LEAVE_THREADS
-	    return;
-	}
+        {
+          PY_RELEASE_THREAD
+            PY_LEAVE_THREADS
+            return;
+        }
     }
   else {
     PY_RELEASE_THREAD
@@ -411,14 +418,10 @@ bool MainWindow::event(QEvent *event)
     this->hide();
   }
   else if (event->type()==VCS_RESIZE_EVENT) {
-    vcs_acquire_update();
     this->resize(static_cast<QVCSEvent *>(event)->geom.size());
     if ((static_cast<QVCSEvent *>(event)->geom.topLeft()!=this->pos())) {
       this->move(static_cast<QVCSEvent *>(event)->geom.topLeft());
     }
-    this->setupCairo();
-    this->show();
-    vcs_release_update();
   }
   else if (event->type()==QEvent::Type(QEvent::Resize)) {
     //printf("here ? \n");
@@ -516,8 +519,8 @@ extern "C" void VCS2CAIRO_setrgb(cairo_t *cr,int color);
 
 void MainWindow::setupCairo()
 {
-    CANVASINFO_LINK         cptr; /* connection ID pointers */
-//   while((updating>0)) {}; /* wait until vcs and Qt are done */
+  CANVASINFO_LINK         cptr; /* connection ID pointers */
+  //   while((updating>0)) {}; /* wait until vcs and Qt are done */
   vcs_acquire_update();
   QSize qs = this->size();
   /* first test if vcs is setup */
@@ -553,9 +556,16 @@ void MainWindow::setupCairo()
   /* only do this if it is not done yet */
   this->vcs_obj->connect_id.surface =   cairo_image_surface_create(CAIRO_FORMAT_ARGB32,qs.width(),qs.height());
   this->vcs_obj->connect_id.cr = cairo_create(this->vcs_obj->connect_id.surface);
-//   fprintf(stderr,"ok surface and cairo setup as: %p, %p, on %i, size: %ix%i\n",this->vcs_obj->connect_id.surface,this->vcs_obj->connect_id.cr,this->vcs_obj->connect_id.wkst_id,qs.width(),qs.height());
+  //fprintf(stderr,"ok surface and cairo setup as: %p, %p, on %i, size: %ix%i\n",this->vcs_obj->connect_id.surface,this->vcs_obj->connect_id.cr,this->vcs_obj->connect_id.wkst_id,qs.width(),qs.height());
+#ifdef GENCAIRO
+  fprintf(stderr,"surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,%i,%i);\n",qs.width(),qs.height());
+  fprintf(stderr,"cr = cairo_create(surface);\n");
+#endif
   VCS2CAIRO_setrgb(this->vcs_obj->connect_id.cr,0);
   cairo_paint(this->vcs_obj->connect_id.cr);
+#ifdef GENCAIRO
+  fprintf(stderr,"cr = cairo_paint(cr);\n");
+#endif
 
   if (head_canvas_info!=NULL) {
     cptr->connect_id.cr = this->vcs_obj->connect_id.cr;
@@ -568,7 +578,7 @@ void MainWindow::setupCairo()
 void MainWindow::unsetupCairo()
 {
   cairoIsSetup = 0;
-//   while((updating>0)) {}; /* wait until vcs and Qt are done */
+  //   while((updating>0)) {}; /* wait until vcs and Qt are done */
   if (this->vcs_obj->connect_id.cr==NULL) {
     /* nothing to be done it is not here */
     vcs_release_update();
@@ -576,21 +586,28 @@ void MainWindow::unsetupCairo()
   }
   cairo_destroy(this->vcs_obj->connect_id.cr);
   cairo_surface_destroy(this->vcs_obj->connect_id.surface);
-//   printf("ok destroyed a cairo status is: %s\n",cairo_status_to_string(cairo_status(this->vcs_obj->connect_id.cr)));
+#ifdef GENCAIRO
+  fprintf(stderr,"cairo_destroy(cr);\n");
+  fprintf(stderr,"cairo_surface_destroy(surface);\n");
+#endif
+  //   printf("ok destroyed a cairo status is: %s\n",cairo_status_to_string(cairo_status(this->vcs_obj->connect_id.cr)));
   this->vcs_obj->connect_id.cr=NULL;
   this->vcs_obj->connect_id.surface=NULL;
 }
 
 void MainWindow::paintEvent(QPaintEvent *)
 {
-  QPainter painter(this);
+  QPainter painter;
   vcs_acquire_update();
+  painter.begin(this);
   if (this->image == NULL) {
     if (this->vcs_obj == NULL) {
+      painter.end();
       vcs_release_update();
       return;
     };
     if (this->vcs_obj->connect_id.cr == NULL) {
+      painter.end();
       vcs_release_update();
       return;
     };
@@ -599,6 +616,7 @@ void MainWindow::paintEvent(QPaintEvent *)
       
       /* Making sure we have the right dims */
       if (this->width()!=cairo_image_surface_get_width (this->vcs_obj->connect_id.surface)) {
+        painter.end();
         vcs_release_update();
         return;
       }
@@ -611,12 +629,13 @@ void MainWindow::paintEvent(QPaintEvent *)
     }
   }
   else {
-    painter.fillRect(0,0,this->geometry().width(),this->geometry().height(),Qt::white);
+    // painter.fillRect(0,0,this->geometry().width(),this->geometry().height(),Qt::white);
     QPointF origin(0.,0.);
     QImage img ((uchar *)this->image,this->geometry().width(),this->geometry().height(),QImage::Format_ARGB32_Premultiplied);
     painter.drawImage(origin,img);
     this->image = NULL;
   }
+  painter.end();
   vcs_release_update();
 }
 

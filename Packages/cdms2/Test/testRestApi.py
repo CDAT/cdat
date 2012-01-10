@@ -10,7 +10,7 @@ test = "Luca"
 if test == "Luca":
     gateway = "esg-datanode.jpl.nasa.gov"
     #gateway = "test-datanode.jpl.nasa.gov"
-    restPath = "/esg-search/ws/rest/search"
+    #restPath = "/esg-search/ws/rest/search"
     datasetids = "%(project).%(obs_structure).%(realm).%(instrument).%(time_frequency)"
     datasetids = "%(project).%(crappy)"
     datasetids=None
@@ -76,7 +76,8 @@ else:
     search1.remap()
     print search1.mapped#["cmip5"]["output1"]["INM"]["inmcm4"]["amip"]["day"]["atmos"]["day"]["r1i1p1"].keys()
 #    print search1.mapped['obs4cmip5']['NASA-JPL']['AURA']['MLS']['mon']['files'][0].OPENDAP
-    print search1.mapped['obs4cmip5']['NASA-JPL']['AQUA']['AIRS']['mon']['files'][0].OPENDAP
+    print search1.mapped['obs4MIPs']['NASA-JPL']['AIRS']['mon']['files'][0].services
+    print search1.mapped['obs4MIPs']['NASA-JPL']['AIRS']['mon']['files'][0].OPENDAP
     #print search1.parent["MIPTable"]
         #search2 = datasets[i].search(variable="crap")
         #print len(search2)

@@ -28,9 +28,20 @@ if(NOT APPLE)
     -DLIBXML2_LIBRARIES:FILEPATH=${cdat_EXTERNALS}/lib/libxml2${_LINK_LIBRARY_SUFFIX}
     -DLIBXML2_XMLLINT_EXECUTABLE:FILEPATH=${cdat_EXTERNALS}/bin/xmllint
    )
-endif()
 
-set(pv_rpath_linker_flags "${cdat_rpath_flag}${CMAKE_INSTALL_PREFIX}/lib ${cdat_rpath_flag}${cdat_EXTERNALS}/lib ${cdat_rpath_flag}${ParaView_install}/lib/paraview-${PARAVIEW_MAJOR}.${PARAVIEW_MINOR}")
+  if(PARAVIEW_USE_MPI)
+    set(ParaView_mpi_args
+      -DPARAVIEW_USE_MPI:BOOL=ON
+      -DMPIEXEC:FILEPATH=${MPIEXEC}
+      -DVTK_MPIRUN_EXE:FILEPATH=${MPIEXEC}
+      -DMPI_INCLUDE_PATH:PATH=${MPI_INCLUDE_PATH}
+      -DMPI_LIBRARY:FILEPATH=${MPI_LIBRARY}
+      -DMPI_EXTRA_LIBRARY:FILEPATH=${MPI_EXTRA_LIBRARY}
+      -DMPI_C_COMPILER:FILEPATH=${MPI_C_COMPILER}
+      -DMPI_CXX_COMPILER:FILEPATH=${MPI_CXX_COMPILER}
+    )
+  endif()
+endif()
 
 ExternalProject_Add(ParaView
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
@@ -60,9 +71,9 @@ ExternalProject_Add(ParaView
     -DPYTHON_EXECUTABLE:FILEPATH=${PYTHON_EXECUTABLE}
     -DPYTHON_INCLUDE_DIR:PATH=${PYTHON_INCLUDE}
     -DPYTHON_LIBRARY:FILEPATH=${PYTHON_LIBRARY}
-    -DCMAKE_EXE_LINKER_FLAGS:STRING=${pv_rpath_linker_flags}
-    -DCMAKE_MODULE_LINKER_FLAGS:STRING=${pv_rpath_linker_flags}
-    -DCMAKE_SHARED_LINKER_FLAGS:STRING=${pv_rpath_linker_flags}
+    -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=ON
+    # MPI
+    ${ParaView_mpi_args}
   CMAKE_ARGS
     -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
   BUILD_COMMAND ${CMAKE_COMMAND} -DWORKING_DIR=<BINARY_DIR> -Dmake=$(MAKE) -P ${cdat_CMAKE_BINARY_DIR}/cdat_cmake_make_step.cmake
@@ -93,4 +104,16 @@ ExternalProject_Add_Step(ParaView InstallVTKPythonModule
   WORKING_DIRECTORY ${cdat_CMAKE_BINARY_DIR}
   )
 
+# symlinks of Externals/bin get placed in prefix/bin so we need to symlink paraview
+# libs into prefix/lib as well for pvserver to work.
+if(NOT EXISTS ${CMAKE_INSTALL_PREFIX}/lib)
+  message("making ${ParaView_install}/lib")
+  file(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib)
+endif()
+
+ExternalProject_Add_Step(ParaView InstallParaViewLibSymlink
+  COMMAND ${CMAKE_COMMAND} -E create_symlink ${ParaView_install}/lib/paraview-${PARAVIEW_MAJOR}.${PARAVIEW_MINOR} ${CMAKE_INSTALL_PREFIX}/lib/paraview-${PARAVIEW_MAJOR}.${PARAVIEW_MINOR}
+  DEPENDEES InstallVTKPythonModule
+  WORKING_DIRECTORY ${cdat_CMAKE_BINARY_DIR}
+  )
 

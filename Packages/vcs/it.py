@@ -11,8 +11,8 @@ doclose    = False
 doresize= True
 domultiple = False
 dumpps = False
-doanim = False
-docreate = False
+doanim = True
+docreate = True
 x=vcs.init()
 if domultiple:
     y=vcs.init()

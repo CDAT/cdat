@@ -406,7 +406,14 @@ CANVASINFO_LINK    cptr; /* connection ID info */
 #else
 	  if (cptr->connect_id.cr != NULL ) {
 #endif
-           clearCanvas(cptr->connect_id); /* blank the VCS Canvas */
+        
+#if USEQT
+      extern void vcs_Qt_clear_window_by_id_without_repaint(int);
+      vcs_Qt_clear_window_by_id_without_repaint(cptr->connect_id.wkst_id);
+#else
+      clearCanvas(cptr->connect_id); /* blank the VCS Canvas */
+#endif
+
 #ifdef USEX11
           if (cptr->connect_id.canvas_pixmap != (Pixmap) NULL)
               XFreePixmap(cptr->connect_id.display, cptr->connect_id.canvas_pixmap);
