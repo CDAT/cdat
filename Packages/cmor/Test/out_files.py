@@ -1,0 +1,493 @@
+lots = """
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls0/r1i4p6/hfls0_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls1/r1i4p6/hfls1_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls10/r1i4p6/hfls10_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls100/r1i4p6/hfls100_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls101/r1i4p6/hfls101_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls102/r1i4p6/hfls102_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls103/r1i4p6/hfls103_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls104/r1i4p6/hfls104_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls105/r1i4p6/hfls105_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls106/r1i4p6/hfls106_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls107/r1i4p6/hfls107_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls108/r1i4p6/hfls108_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls109/r1i4p6/hfls109_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls11/r1i4p6/hfls11_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls110/r1i4p6/hfls110_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls111/r1i4p6/hfls111_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls112/r1i4p6/hfls112_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls113/r1i4p6/hfls113_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls114/r1i4p6/hfls114_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls115/r1i4p6/hfls115_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls116/r1i4p6/hfls116_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls117/r1i4p6/hfls117_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls118/r1i4p6/hfls118_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls119/r1i4p6/hfls119_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls12/r1i4p6/hfls12_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls120/r1i4p6/hfls120_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls121/r1i4p6/hfls121_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls122/r1i4p6/hfls122_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls123/r1i4p6/hfls123_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls124/r1i4p6/hfls124_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls125/r1i4p6/hfls125_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls126/r1i4p6/hfls126_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls127/r1i4p6/hfls127_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls128/r1i4p6/hfls128_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls129/r1i4p6/hfls129_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls13/r1i4p6/hfls13_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls130/r1i4p6/hfls130_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls131/r1i4p6/hfls131_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls132/r1i4p6/hfls132_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls133/r1i4p6/hfls133_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls134/r1i4p6/hfls134_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls135/r1i4p6/hfls135_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls136/r1i4p6/hfls136_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls137/r1i4p6/hfls137_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls138/r1i4p6/hfls138_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls139/r1i4p6/hfls139_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls14/r1i4p6/hfls14_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls140/r1i4p6/hfls140_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls141/r1i4p6/hfls141_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls142/r1i4p6/hfls142_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls143/r1i4p6/hfls143_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls144/r1i4p6/hfls144_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls145/r1i4p6/hfls145_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls146/r1i4p6/hfls146_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls147/r1i4p6/hfls147_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls148/r1i4p6/hfls148_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls149/r1i4p6/hfls149_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls15/r1i4p6/hfls15_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls150/r1i4p6/hfls150_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls151/r1i4p6/hfls151_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls152/r1i4p6/hfls152_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls153/r1i4p6/hfls153_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls154/r1i4p6/hfls154_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls155/r1i4p6/hfls155_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls156/r1i4p6/hfls156_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls157/r1i4p6/hfls157_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls158/r1i4p6/hfls158_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls159/r1i4p6/hfls159_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls16/r1i4p6/hfls16_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls160/r1i4p6/hfls160_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls161/r1i4p6/hfls161_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls162/r1i4p6/hfls162_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls163/r1i4p6/hfls163_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls164/r1i4p6/hfls164_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls165/r1i4p6/hfls165_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls166/r1i4p6/hfls166_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls167/r1i4p6/hfls167_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls168/r1i4p6/hfls168_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls169/r1i4p6/hfls169_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls17/r1i4p6/hfls17_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls170/r1i4p6/hfls170_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls171/r1i4p6/hfls171_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls172/r1i4p6/hfls172_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls173/r1i4p6/hfls173_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls174/r1i4p6/hfls174_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls175/r1i4p6/hfls175_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls176/r1i4p6/hfls176_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls177/r1i4p6/hfls177_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls178/r1i4p6/hfls178_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls179/r1i4p6/hfls179_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls18/r1i4p6/hfls18_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls180/r1i4p6/hfls180_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls181/r1i4p6/hfls181_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls182/r1i4p6/hfls182_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls183/r1i4p6/hfls183_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls184/r1i4p6/hfls184_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls185/r1i4p6/hfls185_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls186/r1i4p6/hfls186_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls187/r1i4p6/hfls187_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls188/r1i4p6/hfls188_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls189/r1i4p6/hfls189_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls19/r1i4p6/hfls19_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls190/r1i4p6/hfls190_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls191/r1i4p6/hfls191_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls192/r1i4p6/hfls192_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls193/r1i4p6/hfls193_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls194/r1i4p6/hfls194_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls195/r1i4p6/hfls195_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls196/r1i4p6/hfls196_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls197/r1i4p6/hfls197_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls198/r1i4p6/hfls198_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls199/r1i4p6/hfls199_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls2/r1i4p6/hfls2_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls20/r1i4p6/hfls20_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls200/r1i4p6/hfls200_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls201/r1i4p6/hfls201_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls202/r1i4p6/hfls202_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls203/r1i4p6/hfls203_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls204/r1i4p6/hfls204_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls205/r1i4p6/hfls205_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls206/r1i4p6/hfls206_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls207/r1i4p6/hfls207_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls208/r1i4p6/hfls208_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls209/r1i4p6/hfls209_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls21/r1i4p6/hfls21_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls210/r1i4p6/hfls210_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls211/r1i4p6/hfls211_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls212/r1i4p6/hfls212_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls213/r1i4p6/hfls213_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls214/r1i4p6/hfls214_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls215/r1i4p6/hfls215_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls216/r1i4p6/hfls216_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls217/r1i4p6/hfls217_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls218/r1i4p6/hfls218_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls219/r1i4p6/hfls219_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls22/r1i4p6/hfls22_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls220/r1i4p6/hfls220_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls221/r1i4p6/hfls221_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls222/r1i4p6/hfls222_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls223/r1i4p6/hfls223_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls224/r1i4p6/hfls224_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls225/r1i4p6/hfls225_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls226/r1i4p6/hfls226_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls227/r1i4p6/hfls227_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls228/r1i4p6/hfls228_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls229/r1i4p6/hfls229_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls23/r1i4p6/hfls23_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls230/r1i4p6/hfls230_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls231/r1i4p6/hfls231_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls232/r1i4p6/hfls232_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls233/r1i4p6/hfls233_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls234/r1i4p6/hfls234_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls235/r1i4p6/hfls235_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls236/r1i4p6/hfls236_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls237/r1i4p6/hfls237_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls238/r1i4p6/hfls238_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls239/r1i4p6/hfls239_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls24/r1i4p6/hfls24_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls240/r1i4p6/hfls240_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls241/r1i4p6/hfls241_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls242/r1i4p6/hfls242_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls243/r1i4p6/hfls243_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls244/r1i4p6/hfls244_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls245/r1i4p6/hfls245_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls246/r1i4p6/hfls246_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls247/r1i4p6/hfls247_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls248/r1i4p6/hfls248_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls249/r1i4p6/hfls249_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls25/r1i4p6/hfls25_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls250/r1i4p6/hfls250_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls251/r1i4p6/hfls251_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls252/r1i4p6/hfls252_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls253/r1i4p6/hfls253_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls254/r1i4p6/hfls254_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls255/r1i4p6/hfls255_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls256/r1i4p6/hfls256_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls257/r1i4p6/hfls257_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls258/r1i4p6/hfls258_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls259/r1i4p6/hfls259_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls26/r1i4p6/hfls26_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls260/r1i4p6/hfls260_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls261/r1i4p6/hfls261_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls262/r1i4p6/hfls262_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls263/r1i4p6/hfls263_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls264/r1i4p6/hfls264_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls265/r1i4p6/hfls265_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls266/r1i4p6/hfls266_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls267/r1i4p6/hfls267_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls268/r1i4p6/hfls268_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls269/r1i4p6/hfls269_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls27/r1i4p6/hfls27_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls270/r1i4p6/hfls270_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls271/r1i4p6/hfls271_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls272/r1i4p6/hfls272_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls273/r1i4p6/hfls273_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls274/r1i4p6/hfls274_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls275/r1i4p6/hfls275_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls276/r1i4p6/hfls276_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls277/r1i4p6/hfls277_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls278/r1i4p6/hfls278_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls279/r1i4p6/hfls279_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls28/r1i4p6/hfls28_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls280/r1i4p6/hfls280_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls281/r1i4p6/hfls281_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls282/r1i4p6/hfls282_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls283/r1i4p6/hfls283_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls284/r1i4p6/hfls284_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls285/r1i4p6/hfls285_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls286/r1i4p6/hfls286_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls287/r1i4p6/hfls287_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls288/r1i4p6/hfls288_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls289/r1i4p6/hfls289_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls29/r1i4p6/hfls29_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls290/r1i4p6/hfls290_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls291/r1i4p6/hfls291_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls292/r1i4p6/hfls292_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls293/r1i4p6/hfls293_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls294/r1i4p6/hfls294_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls295/r1i4p6/hfls295_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls296/r1i4p6/hfls296_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls297/r1i4p6/hfls297_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls298/r1i4p6/hfls298_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls299/r1i4p6/hfls299_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls3/r1i4p6/hfls3_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls30/r1i4p6/hfls30_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls300/r1i4p6/hfls300_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls301/r1i4p6/hfls301_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls302/r1i4p6/hfls302_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls303/r1i4p6/hfls303_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls304/r1i4p6/hfls304_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls305/r1i4p6/hfls305_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls306/r1i4p6/hfls306_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls307/r1i4p6/hfls307_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls308/r1i4p6/hfls308_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls309/r1i4p6/hfls309_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls31/r1i4p6/hfls31_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls310/r1i4p6/hfls310_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls311/r1i4p6/hfls311_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls312/r1i4p6/hfls312_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls313/r1i4p6/hfls313_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls314/r1i4p6/hfls314_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls315/r1i4p6/hfls315_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls316/r1i4p6/hfls316_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls317/r1i4p6/hfls317_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls318/r1i4p6/hfls318_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls319/r1i4p6/hfls319_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls32/r1i4p6/hfls32_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls320/r1i4p6/hfls320_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls321/r1i4p6/hfls321_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls322/r1i4p6/hfls322_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls323/r1i4p6/hfls323_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls324/r1i4p6/hfls324_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls325/r1i4p6/hfls325_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls326/r1i4p6/hfls326_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls327/r1i4p6/hfls327_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls328/r1i4p6/hfls328_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls329/r1i4p6/hfls329_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls33/r1i4p6/hfls33_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls330/r1i4p6/hfls330_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls331/r1i4p6/hfls331_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls332/r1i4p6/hfls332_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls333/r1i4p6/hfls333_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls334/r1i4p6/hfls334_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls335/r1i4p6/hfls335_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls336/r1i4p6/hfls336_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls337/r1i4p6/hfls337_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls338/r1i4p6/hfls338_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls339/r1i4p6/hfls339_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls34/r1i4p6/hfls34_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls340/r1i4p6/hfls340_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls341/r1i4p6/hfls341_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls342/r1i4p6/hfls342_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls343/r1i4p6/hfls343_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls344/r1i4p6/hfls344_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls345/r1i4p6/hfls345_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls346/r1i4p6/hfls346_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls347/r1i4p6/hfls347_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls348/r1i4p6/hfls348_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls349/r1i4p6/hfls349_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls35/r1i4p6/hfls35_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls350/r1i4p6/hfls350_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls351/r1i4p6/hfls351_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls352/r1i4p6/hfls352_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls353/r1i4p6/hfls353_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls354/r1i4p6/hfls354_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls355/r1i4p6/hfls355_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls356/r1i4p6/hfls356_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls357/r1i4p6/hfls357_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls358/r1i4p6/hfls358_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls359/r1i4p6/hfls359_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls36/r1i4p6/hfls36_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls360/r1i4p6/hfls360_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls361/r1i4p6/hfls361_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls362/r1i4p6/hfls362_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls363/r1i4p6/hfls363_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls364/r1i4p6/hfls364_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls365/r1i4p6/hfls365_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls366/r1i4p6/hfls366_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls367/r1i4p6/hfls367_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls368/r1i4p6/hfls368_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls369/r1i4p6/hfls369_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls37/r1i4p6/hfls37_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls370/r1i4p6/hfls370_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls371/r1i4p6/hfls371_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls372/r1i4p6/hfls372_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls373/r1i4p6/hfls373_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls374/r1i4p6/hfls374_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls375/r1i4p6/hfls375_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls376/r1i4p6/hfls376_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls377/r1i4p6/hfls377_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls378/r1i4p6/hfls378_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls379/r1i4p6/hfls379_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls38/r1i4p6/hfls38_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls380/r1i4p6/hfls380_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls381/r1i4p6/hfls381_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls382/r1i4p6/hfls382_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls383/r1i4p6/hfls383_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls384/r1i4p6/hfls384_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls385/r1i4p6/hfls385_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls386/r1i4p6/hfls386_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls387/r1i4p6/hfls387_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls388/r1i4p6/hfls388_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls389/r1i4p6/hfls389_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls39/r1i4p6/hfls39_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls390/r1i4p6/hfls390_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls391/r1i4p6/hfls391_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls392/r1i4p6/hfls392_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls393/r1i4p6/hfls393_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls394/r1i4p6/hfls394_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls395/r1i4p6/hfls395_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls396/r1i4p6/hfls396_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls397/r1i4p6/hfls397_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls398/r1i4p6/hfls398_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls399/r1i4p6/hfls399_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls4/r1i4p6/hfls4_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls40/r1i4p6/hfls40_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls41/r1i4p6/hfls41_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls42/r1i4p6/hfls42_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls43/r1i4p6/hfls43_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls44/r1i4p6/hfls44_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls45/r1i4p6/hfls45_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls46/r1i4p6/hfls46_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls47/r1i4p6/hfls47_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls48/r1i4p6/hfls48_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls49/r1i4p6/hfls49_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls5/r1i4p6/hfls5_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls50/r1i4p6/hfls50_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls51/r1i4p6/hfls51_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls52/r1i4p6/hfls52_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls53/r1i4p6/hfls53_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls54/r1i4p6/hfls54_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls55/r1i4p6/hfls55_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls56/r1i4p6/hfls56_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls57/r1i4p6/hfls57_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls58/r1i4p6/hfls58_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls59/r1i4p6/hfls59_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls6/r1i4p6/hfls6_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls60/r1i4p6/hfls60_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls61/r1i4p6/hfls61_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls62/r1i4p6/hfls62_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls63/r1i4p6/hfls63_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls64/r1i4p6/hfls64_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls65/r1i4p6/hfls65_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls66/r1i4p6/hfls66_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls67/r1i4p6/hfls67_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls68/r1i4p6/hfls68_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls69/r1i4p6/hfls69_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls7/r1i4p6/hfls7_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls70/r1i4p6/hfls70_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls71/r1i4p6/hfls71_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls72/r1i4p6/hfls72_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls73/r1i4p6/hfls73_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls74/r1i4p6/hfls74_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls75/r1i4p6/hfls75_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls76/r1i4p6/hfls76_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls77/r1i4p6/hfls77_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls78/r1i4p6/hfls78_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls79/r1i4p6/hfls79_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls8/r1i4p6/hfls8_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls80/r1i4p6/hfls80_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls81/r1i4p6/hfls81_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls82/r1i4p6/hfls82_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls83/r1i4p6/hfls83_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls84/r1i4p6/hfls84_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls85/r1i4p6/hfls85_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls86/r1i4p6/hfls86_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls87/r1i4p6/hfls87_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls88/r1i4p6/hfls88_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls89/r1i4p6/hfls89_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls9/r1i4p6/hfls9_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls90/r1i4p6/hfls90_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls91/r1i4p6/hfls91_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls92/r1i4p6/hfls92_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls93/r1i4p6/hfls93_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls94/r1i4p6/hfls94_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls95/r1i4p6/hfls95_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls96/r1i4p6/hfls96_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls97/r1i4p6/hfls97_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls98/r1i4p6/hfls98_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls99/r1i4p6/hfls99_A1_pcmdi-08a_2xco2_r1i4p6_197901-197902.nc
+""".split()
+    
+out = {
+   'old_cmor_tables_climatology_test_code' : ['IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-01/2xco2/monClim/atm/tasDiurnal/r1i1p1/tasDiurnal_A1_pcmdi-01_2xco2_r1i1p1_203001-203003_clim.nc'],
+   'old_cmor_tables_test_any_from_asc' : ['IPCC/output/INSTITUTE_ID/pcmdi-01a/2xco2/mon/atm/tas/r1i1p1/tas_2_pcmdi-01a_2xco2_r1i1p1_187001-187003.nc'],
+   'old_cmor_tables_test_any_from_asc_d' : ['IPCC/output/INSTITUTE_ID/pcmdi-01a/2xco2/mon/atm/tas/r1i1p1/tas_2_pcmdi-01a_2xco2_r1i1p1_187001-187003.nc'],
+   'old_cmor_tables_test_any_from_asc_i' : ['IPCC/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/tas/r1i1p1/tas_2_pcmdi-08a_2xco2_r1i1p1_187001-187003.nc'],
+   'old_cmor_tables_karls_test' : ['IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-a01/2xco2/mon/atm/cl/r1i1p1/cl_A1_pcmdi-a01_2xco2_r1i1p1_203001-203002.nc',
+                   'IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-a01/2xco2/mon/atmosphere/hfls/r1i1p1/hfls_A1_pcmdi-a01_2xco2_r1i1p1_203001-203002.nc',
+                   'IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-a01/2xco2/mon/atm/mrsos/r1i1p1/mrsos_A1_pcmdi-a01_2xco2_r1i1p1_203001-203002.nc',
+                    'IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-a01/2xco2/mon/atm/ps/r1i1p1/ps_A1_pcmdi-a01_2xco2_r1i1p1_203001-203002.nc',
+                    'IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-a01/2xco2/mon/atm/ta/r1i1p1/ta_A1_pcmdi-a01_2xco2_r1i1p1_203001-203002.nc',
+                    'IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-a01/2xco2/mon/atm/tas/r1i1p1/tas_A1_pcmdi-a01_2xco2_r1i1p1_203001-203002.nc',
+                    'IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-a01/2xco2/mon/atm/ua/r1i1p1/ua_A1_pcmdi-a01_2xco2_r1i1p1_203001-203002.nc'],
+   'old_cmor_tables_test1' : ['IPCC/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/hfls/r1i1p1/hfls_2_pcmdi-08a_2xco2_r1i1p1_197901-197902.nc',
+               'IPCC/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/mrsos/r1i1p1/mrsos_2_pcmdi-08a_2xco2_r1i1p1_197901-197902.nc',
+               'IPCC/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/ta/r1i1p1/ta_2_pcmdi-08a_2xco2_r1i1p1_197901-197902.nc',
+               'IPCC/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/tas/r1i1p1/tas_2_pcmdi-08a_2xco2_r1i1p1_197901-197902.nc',
+               'IPCC/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/ua/r1i1p1/ua_2_pcmdi-08a_2xco2_r1i1p1_197901-197902.nc'],
+   'old_cmor_tables_test2' : ['IPCC/output/INSTITUTE_ID/pcmdi-01a/2xco2/mon/atm/hfls/r1i1p1/hfls_2_pcmdi-01a_2xco2_r1i1p1_197901-197902.nc',
+               'IPCC/output/INSTITUTE_ID/pcmdi-01a/2xco2/mon/atm/mrsos/r1i1p1/mrsos_2_pcmdi-01a_2xco2_r1i1p1_197901-197902.nc',
+               'IPCC/output/INSTITUTE_ID/pcmdi-01a/2xco2/mon/atm/ta/r1i1p1/ta_2_pcmdi-01a_2xco2_r1i1p1_197901-197902_User-suffix-1979-2001.nc',
+               'IPCC/output/INSTITUTE_ID/pcmdi-01a/2xco2/mon/atm/tas/r1i1p1/tas_2_pcmdi-01a_2xco2_r1i1p1_197901-197902.nc',
+               'IPCC/output/INSTITUTE_ID/pcmdi-01a/2xco2/mon/atm/ua/r1i1p1/ua_2_pcmdi-01a_2xco2_r1i1p1_197901-197902_User-suffix-1979-2001.nc'],
+   'old_cmor_tables_test3' : ['IPCC/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/hfls/r1i1p1/hfls_2_pcmdi-08a_2xco2_r1i1p1_197901-197902_1979-2001.nc',
+               'IPCC/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/mrsos/r1i1p1/mrsos_2_pcmdi-08a_2xco2_r1i1p1_197901-197902_1979-2001.nc',
+               'IPCC/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/ta/r1i1p1/ta_2_pcmdi-08a_2xco2_r1i1p1_197901-197902_1979-2001.nc',
+               'IPCC/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/tas/r1i1p1/tas_2_pcmdi-08a_2xco2_r1i1p1_197901-197902_1979-2001.nc',
+               'IPCC/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/ua/r1i1p1/ua_2_pcmdi-08a_2xco2_r1i1p1_197901-197902_1979-2001.nc'],
+   'old_cmor_tables_test4' : ['IPCC/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/hfls/r1i1p1/hfls_2_pcmdi-08a_2xco2_r1i1p1_197901-197902.nc',
+               'IPCC/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/mrsos/r1i1p1/mrsos_2_pcmdi-08a_2xco2_r1i1p1_197901-197902.nc',
+               'IPCC/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/ta/r1i1p1/ta_2_pcmdi-08a_2xco2_r1i1p1_197901-197902.nc',
+               'IPCC/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/tas/r1i1p1/tas_2_pcmdi-08a_2xco2_r1i1p1_197901-197902.nc',
+               'IPCC/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/ua/r1i1p1/ua_2_pcmdi-08a_2xco2_r1i1p1_197901-197902.nc'],
+   'old_cmor_tables_main_prog' : ['IPCC/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/hfls/r1i1p1/hfls_2_pcmdi-08a_2xco2_r1i1p1_197901-197902.nc',
+                   'IPCC/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/mrsos/r1i1p1/mrsos_2_pcmdi-08a_2xco2_r1i1p1_197901-197902.nc',
+                   'IPCC/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/ta/r1i1p1/ta_2_pcmdi-08a_2xco2_r1i1p1_197901-197902.nc',
+                   'IPCC/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/tas/r1i1p1/tas_2_pcmdi-08a_2xco2_r1i1p1_197901-197902.nc',
+                   'IPCC/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/ua/r1i1p1/ua_2_pcmdi-08a_2xco2_r1i1p1_197901-197902.nc'],
+   'old_cmor_tables_mytest_4d_r' : ['IPCC/output/INSTITUTE_ID/pcmdi-a08/2xco2/mon/atm/ta/r1i1p1/ta_2_pcmdi-a08_2xco2_r1i1p1_194901-194903.nc'],
+   'old_cmor_tables_rewrite_harvardf_data' :['IPCC_Fourth_Assessment/output/INSTITUTE_ID/20c3m/day/atm/tas/r1i1p1/tas_A_20c3m_r1i1p1_19920101-19920110.nc'],
+   'old_cmor_tables_test_3h' : ['IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/3hr/atm/hfls/r1i1p1/hfls_A3_pcmdi-08a_2xco2_r1i1p1_2030010101-2030010104.nc',
+                 'IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/3hr/atm/pr/r1i1p1/pr_A3_pcmdi-08a_2xco2_r1i1p1_2030010101-2030010104.nc',
+                 'IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/3hr/atm/tas/r1i1p1/tas_A3_pcmdi-08a_2xco2_r1i1p1_2030010101-2030010104.nc'],
+   'old_cmor_tables_test_dimensionless' : ['IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-a08/2xco2/mon/atm/cl/r1i1p1/cl_A1_pcmdi-a08_2xco2_r1i1p1_203001-203002.nc',
+                            'IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-a08/2xco2/mon/atm/hfls/r1i1p1/hfls_A1_pcmdi-a08_2xco2_r1i1p1_203001-203002.nc',
+                            'IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-a08/2xco2/mon/atm/mrsos/r1i1p1/mrsos_A1_pcmdi-a08_2xco2_r1i1p1_203001-203002.nc',
+                            'IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-a08/2xco2/mon/atm/ps/r1i1p1/ps_A1_pcmdi-a08_2xco2_r1i1p1_203001-203002.nc',
+                            'IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-a08/2xco2/mon/atm/ta/r1i1p1/ta_A1_pcmdi-a08_2xco2_r1i1p1_203001-203002.nc',
+                            'IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-a08/2xco2/mon/atm/tas/r1i1p1/tas_A1_pcmdi-a08_2xco2_r1i1p1_203001-203002.nc',
+                            'IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-a08/2xco2/mon/atm/tro3/r1i1p1/tro3_A1_pcmdi-a08_2xco2_r1i1p1_203001-203002.nc',
+                            'IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-a08/2xco2/mon/atm/ua/r1i1p1/ua_A1_pcmdi-a08_2xco2_r1i1p1_203001-203002.nc'],
+   'old_cmor_tables_test_fortran_example_00' : ['IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/cl/r1i1p1/cl_A1_pcmdi-08a_2xco2_r1i1p1_203001-203002_ftn.nc',
+                                 'IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls/r1i1p1/hfls_A1_pcmdi-08a_2xco2_r1i1p1_203001-203002_ftn-00.nc',
+                                 'IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/mrsos/r1i1p1/mrsos_A1_pcmdi-08a_2xco2_r1i1p1_203001-203002_ftn-00.nc',
+                                 'IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/ps/r1i1p1/ps_A1_pcmdi-08a_2xco2_r1i1p1_203001-203002_ftn-00.nc',
+                                 'IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/ta/r1i1p1/ta_A1_pcmdi-08a_2xco2_r1i1p1_203001-203002_ftn-00.nc',
+                                 'IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/tas/r1i1p1/tas_A1_pcmdi-08a_2xco2_r1i1p1_203001-203002_ftn-00.nc',
+                                 'IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/ua/r1i1p1/ua_A1_pcmdi-08a_2xco2_r1i1p1_203001-203002_ftn-00.nc'],
+   'old_cmor_tables_test_fortran_example_01' : ['IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls/r1i1p1/hfls_A1_pcmdi-08a_2xco2_r1i1p1_198001-198002_ftn-01.nc',] ,
+   'old_cmor_tables_test_fortran_example_02' : ['Test/IPCC_Fourth_Assessment/output/INSTITUTE_ID/mon/REALM/hfls/r1i1p1/hfls_A1_r1i1p1_203001-203002_ftn-02.nc',
+                                 'Test/IPCC_Fourth_Assessment/output/INSTITUTE_ID/mon/REALM/mrsos/r1i1p1/mrsos_A1_r1i1p1_203001-203002_ftn-02.nc',
+                                 'Test/IPCC_Fourth_Assessment/output/INSTITUTE_ID/mon/REALM/ps/r1i1p1/ps_A1_r1i1p1_203001-203002_ftn-02.nc',
+                                 'Test/IPCC_Fourth_Assessment/output/INSTITUTE_ID/mon/REALM/tas/r1i1p1/tas_A1_r1i1p1_203001-203002_ftn-02.nc',
+                                 ],
+   'old_cmor_tables_test_station_data': [None],
+   'old_cmor_tables_test_cmor_grid_alejandro' : [None],
+   'old_cmor_tables_test_sophie': ['IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/fx/atmosphere/hfls/r0i0p0/hfls_A1_pcmdi-08a_r0i0p0.nc'],
+   'old_cmor_tables_test_region' : ['IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/hfogo/r1i1p1/hfogo_O1_pcmdi-08a_2xco2_r1i1p1_203001-203002.nc'],
+   'old_cmor_tables_test_sigma' : ['IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/cl/r1i1p1/cl_A1_pcmdi-08a_2xco2_r1i1p1_203001-203002.nc',
+                    'IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/hfls/r1i1p1/hfls_A1_pcmdi-08a_2xco2_r1i1p1_203001-203002.nc',
+                    'IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/mrsos/r1i1p1/mrsos_A1_pcmdi-08a_2xco2_r1i1p1_203001-203002.nc',
+                    'IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/ps/r1i1p1/ps_A1_pcmdi-08a_2xco2_r1i1p1_203001-203002.nc',
+                    'IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/ta/r1i1p1/ta_A1_pcmdi-08a_2xco2_r1i1p1_203001-203002.nc',
+                    'IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/tas/r1i1p1/tas_A1_pcmdi-08a_2xco2_r1i1p1_203001-203002.nc',
+                    'IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/tro3/r1i1p1/tro3_A1_pcmdi-08a_2xco2_r1i1p1_203001-203002.nc',
+                    'IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/ua/r1i1p1/ua_A1_pcmdi-08a_2xco2_r1i1p1_203001-203002.nc'],
+   'old_cmor_tables_test_singleton' : ['IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/cl/r1i1p1/cl_A1_pcmdi-08a_2xco2_r1i1p1_203001-203002.nc',
+                        'IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls/r1i1p1/hfls_A1_pcmdi-08a_2xco2_r1i1p1_203001-203002.nc',
+                        'IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/mrsos/r1i1p1/mrsos_A1_pcmdi-08a_2xco2_r1i1p1_203001-203002.nc',
+                        'IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/ps/r1i1p1/ps_A1_pcmdi-08a_2xco2_r1i1p1_203001-203002.nc',
+                        'IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/ta/r1i1p1/ta_A1_pcmdi-08a_2xco2_r1i1p1_203001-203002.nc',
+                        'IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/tas/r1i1p1/tas_A1_pcmdi-08a_2xco2_r1i1p1_203001-203002.nc',
+                        'IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/ua/r1i1p1/ua_A1_pcmdi-08a_2xco2_r1i1p1_203001-203002.nc'],
+   'old_cmor_tables_mytest_4d_r_big_array' : ['IPCC/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/ta/r1i1p1/ta_2_pcmdi-08a_2xco2_r1i1p1_194901-194903.nc'],
+   'old_cmor_tables_mytest_4d_d_big_array_2' : ['IPCC/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/ta/r1i1p1/ta_2_pcmdi-08a_2xco2_r1i1p1_194901-194903.nc'],
+   'old_cmor_tables_mytest_4d_d_big_array_3' : ['IPCC/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/ta/r1i1p1/ta_2_pcmdi-08a_2xco2_r1i1p1_194901-194903.nc'],
+   'old_cmor_tables_mytest_4d_d_big_array_4' : ['IPCC/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/ta/r1i1p1/ta_2_pcmdi-08a_2xco2_r1i1p1_194901-194903.nc'],
+   'old_cmor_tables_mytest_4d_d_big_array_5' : ['IPCC/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atm/ta/r1i1p1/ta_2_pcmdi-08a_2xco2_r1i1p1_194901-194903.nc'],
+   'old_cmor_tables_test_lots_of_variables' : lots,
+   'old_cmor_tables_test_shrt_exp_nm_set_att_initi' : ['IPCC_Fourth_Assessment/output/INSTITUTE_ID/pcmdi-08a/2xco2/mon/atmosphere/hfls0/r1i1p1/hfls0_A1_pcmdi-08a_2xco2_r1i1p1_197901-197902.nc'],
+    }

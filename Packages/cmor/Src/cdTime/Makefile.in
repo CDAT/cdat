@@ -1,0 +1,98 @@
+# -*-Mode: indented-text;-*-
+# Makefile:    db_util makefile
+#
+# Copyright:   1996, Regents of the University of California
+#	       This software may not be distributed to others without
+#	       permission of the author.
+#
+# Author:      Bob Drach, Lawrence Livermore National Laboratory
+#              drach@llnl.gov
+#
+# Version:     $Id$
+#
+# Revision History:
+#
+# $Log: Makefile.in,v $
+# Revision 1.2  1997/10/24  18:23:57  drach
+# - Cache netCDF unlimited dimensions
+# - Consistent with GrADS src170
+#
+# Revision 1.1  1996/09/09  18:28:31  drach
+# - Cleaned up minor compilation warnings
+#
+#
+# Note: Makefile is generated from Makefile.in by top level configure
+#
+
+# Install prefix for architecture-independent files
+prefix=         @prefix@
+
+# Install prefix for architecture-dependent files
+exec_prefix=    @exec_prefix@
+
+# Expanded directories
+BINDIR=$(exec_prefix)/bin
+INCLUDEDIR=$(prefix)/include
+LIBDIR=$(exec_prefix)/lib
+MANDIR=$(prefix)/man
+PARMDIR=$(prefix)/lib/lats
+
+CC = @CC@
+CFLAGS = -I../../include @CFLAGS@ $(DEBUG) -Dgrads
+CPPFLAGS = @CPPFLAGS@
+DEBUG = -O
+DEFS = @DEFS@
+FC = @FC@
+FFLAGS = -I../../include @FFLAGS@ $(DEBUG)
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+LDFLAGS = -L../../../lib -lcdms @NCOPTS@ @DRSOPTS@ @LIBS@
+OS = @OS@
+RANLIB = @RANLIB@
+
+# Shell to run make subcommands
+SHELL = /bin/sh
+
+# Do not change values below this line
+#
+LIBRARY		= ../../lib/libcdms.a
+OBJS		= cdTimeConv.o timeConv.o timeArith.o reg_trfm.o cdRegTrfm.o \
+		  cdUtil.o
+
+all:		$(OBJS) FORCE
+		ar rv $(LIBRARY) $(OBJS)
+		$(RANLIB) $(LIBRARY)
+
+cdTimeConv.o:	cdTimeConv.c ../../include/cdmsint.h ../../include/cdms.h ../../include/cdunif.h
+fcdTimeConv.o:	fcdTimeConv.c ../../include/cdmsint.h ../../include/cdms.h ../../include/cdunif.h ../../include/cfortran.h
+timeConv.o:	timeConv.c ../../include/cdmsint.h ../../include/cdms.h ../../include/cdunif.h
+timeArith.o:	timeArith.c ../../include/cdmsint.h ../../include/cdms.h ../../include/cdunif.h
+reg_trfm.o:	reg_trfm.c ../../include/isdb.h	../../include/gaussLats.h
+cdRegTrfm.o:	cdRegTrfm.c ../../include/cdmsint.h ../../include/cdms.h ../../include/cdunif.h ../../include/isdb.h
+
+.SUFFIXES: .F
+
+.c.o:
+	$(CC) $(CPPFLAGS) $(DEFS) $(CFLAGS) -c $<
+
+.c:
+	$(CC) $(CPPFLAGS) $(DEFS) $(CFLAGS) -o $@ $< $(LDFLAGS)
+
+.F:
+	case $(OS) in \
+	     'aix') \
+		    /usr/ccs/lib/cpp -P $(CPPFLAGS) $(CFLAGS) $(INCLUDES) $(DEFS) $< $@.f; \
+		    $(FC) $(FFLAGS) $(LDFLAGS) $(LIBS) $@.f -o $@; \
+		    rm $@.f; \
+		    ;; \
+	     *) \
+		    $(FC) $(CPPFLAGS) $(INCLUDES) $(DEFS) $(FFLAGS) -o $@ $< $(LDFLAGS) $(LIBS); \
+		    ;; \
+	esac
+
+clean:
+	-rm -f *.o core *.~*~
+
+distclean: clean
+
+FORCE:
