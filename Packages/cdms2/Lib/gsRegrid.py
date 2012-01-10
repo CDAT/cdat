@@ -551,7 +551,7 @@ class Regrid:
                                                   c_intmask)
         catchError(status, sys._getframe().f_lineno)
 
-    def computeWeights(self, nitermax=100, tolpos=1.e-2):
+    def computeWeights(self, nitermax=20, tolpos=1.e-2):
         """
         Compute the the interpolation weights
         
