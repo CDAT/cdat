@@ -199,10 +199,49 @@ def test3DRect():
     var = cdms2.createVariable(data, id='fake_data_3d_rect', 
                                axes=(elvs, lats, lons))
     sphere_mesh = SphereMesh(var)
-    print sphere_mesh.getXYZCoords()
-        
+    print sphereMesh.getXYZCoords()
+
+def test3DposDown():
+    """
+    Test 3d data with elev positive down
+    """
+    print 'test positive down'
+    import cdms2
+    import numpy
+    nlev, nlat, nlon = 4, 5, 6
+    dlev, dlat, dlon = 5000./float(nlev-1), 180./float(nlat-1), 360./float(nlon-1)
+    levs1d = numpy.arange(0., 5001., dlev)
+    lats1d = numpy.array([0. - i*dlat for i in range(nlat)])
+    lons1d = numpy.array([0. - i*dlon for i in range(nlon)])
+    levs = numpy.zeros((nlev, nlat, nlon), numpy.float32)
+    lats = numpy.zeros((nlev, nlat, nlon), numpy.float32)
+    lons = numpy.zeros((nlev, nlat, nlon), numpy.float32)
+    data = numpy.zeros((nlev, nlat, nlon), numpy.float32)
+
+    for k in range(nlev):
+        for j in range(nlat):
+            for i in range(nlon):
+                levs[k, j, i] = levs1d[k]
+                lats[k, j, i] = lats1d[j]
+                lons[k, j, i] = lons1d[i]
+                data[k, j, i] = numpy.cos(3*numpy.pi*lats1d[j]/180.) * \
+                                numpy.sin(5*numpy.pi*lons1d[i]/180.) * \
+                                numpy.exp(-levs1d[k])
+
+    a1 = cdms2.axis.TransientAxis(levs1d, id = 'levels', 
+                                  attributes = {'positive':'down'})
+    a2 = cdms2.axis.TransientAxis(lats1d, id = 'latitude')
+    a3 = cdms2.axis.TransientAxis(lons1d, id = 'longitude')
+    var = cdms2.createVariable(data, id = 'pos_down_3d_data',
+                               axes = (a1, a2, a3))
+    sphereMesh = SphereMesh(var)
+    aa = sphereMesh.getXYZCoords()
+    bb = aa.reshape((4, 5, 6, 3))
+    for i in range(nlev):
+        print levs1d[nlev-1-i], bb[i, 1, 1, :]
 
 if __name__ == '__main__': 
-    test2DRect()
-    test2D()
-    test3DRect()
+#    test2DRect()
+#    test2D()
+#    test3DRect()
+    test3DposDown()
