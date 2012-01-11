@@ -64,28 +64,73 @@ endif()
 # Git protocol option
 #-----------------------------------------------------------------------------
 
-option(GIT_USE_GIT_PROTOCOL "If behind a firewall turn this off to use http instead." ON)
+find_package(Git)
 
-set(git_protocol "git")
-if(NOT Slicer_USE_GIT_PROTOCOL)
-  set(git_protocol "http")
+if(NOT GIT_PROTOCOL)
+  message("Select Either git:// or http:// for checking out git submodules.
+  If you are behind a firewall then likely you need to choose http:// instead.")
+  set(GIT_PROTOCOL "git://" CACHE STRING "Choose protocol to be used by git for submodules" FORCE)
+  set_property(CACHE GIT_PROTOCOL PROPERTY STRINGS "git://" "http://")
+  return()
+endif()
+
+if(GIT_PROTOCOL MATCHES "http://")
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} config --unset url.git://uv-cdat.llnl.gov/cmor.git.insteadof http://uv-cdat.llnl.gov/git/cmor.git
+    WORKING_DIRECTORY ${cdat_SOURCE_DIR}
+  )
+
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} config --unset url.git://uv-cdat.llnl.gov/eof2.git.insteadof http://uv-cdat.llnl.gov/git/eof2.git
+    WORKING_DIRECTORY ${cdat_SOURCE_DIR}
+  )
+
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} config --unset url.git://uv-cdat.llnl.gov/windfield.git.insteadof http://uv-cdat.llnl.gov/git/windfield.git
+    WORKING_DIRECTORY ${cdat_SOURCE_DIR}
+  )
+
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} config --unset url.git://github.com/matplotlib/matplotlib.git.insteadof http://github.com/matplotlib/matplotlib.git
+    WORKING_DIRECTORY ${cdat_SOURCE_DIR}
+  )
+else()
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} config url.git://uv-cdat.llnl.gov/cmor.git.insteadOf http://uv-cdat.llnl.gov/git/cmor.git
+    WORKING_DIRECTORY ${cdat_SOURCE_DIR}
+  )
+
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} config url.git://uv-cdat.llnl.gov/eof2.git.insteadOf http://uv-cdat.llnl.gov/git/eof2.git
+    WORKING_DIRECTORY ${cdat_SOURCE_DIR}
+  )
+
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} config url.git://uv-cdat.llnl.gov/windfield.git.insteadOf http://uv-cdat.llnl.gov/git/windfield.git
+    WORKING_DIRECTORY ${cdat_SOURCE_DIR}
+  )
+
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} config url.git://github.com/matplotlib/matplotlib.git.insteadOf http://github.com/matplotlib/matplotlib.git
+    WORKING_DIRECTORY ${cdat_SOURCE_DIR}
+  )
 endif()
 
 #-----------------------------------------------------------------------------
 # Initialize git submodules.
 #-----------------------------------------------------------------------------
-
-find_package(Git)
-
 if(GIT_FOUND)
   message("Updating git submodules")
-
   execute_process(
     COMMAND ${GIT_EXECUTABLE} submodule init
+    OUTPUT_VARIABLE subinit_out
+    ERROR_VARIABLE subinit_err
     WORKING_DIRECTORY ${cdat_SOURCE_DIR}
   )
   execute_process(
     COMMAND ${GIT_EXECUTABLE} submodule update
+    OUTPUT_VARIABLE subup_out
+    ERROR_VARIABLE subup_err
     WORKING_DIRECTORY ${cdat_SOURCE_DIR}
   )
 endif()

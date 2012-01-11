@@ -31,7 +31,10 @@
 #define W_OK 2
 #define X_OK 1
 #define F_OK 0
-
+/* logo */
+#include "logo.h"
+ cairo_surface_t *logo;
+cairo_pattern_t *logo_p;
 
     FILE *fpin, *fpout, *fperr; /* input, output, and error files for scripts */
     FILE *fpcgm,*frast;		/* cgm and raster files.		*/
@@ -1053,16 +1056,18 @@ int text_color,text_font;
 	char *ptri, *ptro;
 	int mode=0777;
         char str[2], buf[1024];
+	char logo_data2[388680];
 	struct display_tab *dtab;
         extern struct table_line Tl_tab;
         extern struct table_mark Tm_tab;
         extern struct table_fill Tf_tab;
 	extern struct table_FT_VCS_FONTS TTFFONTS;
-	struct table_FT_VCS_FONTS *current_font;
+	struct table_FT_VCS_FONTS  *current_font;
 	
 	int *pi;
         static int read_initial_attribute = 0;
-
+	FILE *logo_file,*logo_file2;
+	char c;
 
 /*        f_init();
 */
@@ -1106,6 +1111,9 @@ int text_color,text_font;
 	/* First time around add user's home to path of fonts */
 	if (read_initial_attribute==0)
 	  {
+	    /* logo stuff */
+	    logo = cairo_image_surface_create_for_data(&logo_data[0],logo_format,logo_width,logo_height,logo_stride);
+	    logo_p = cairo_pattern_create_for_surface(logo);
 	    i = FT_Init_FreeType( &ft_library );
 	    if (i!=0)
 	      {

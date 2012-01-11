@@ -9,7 +9,7 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/vistrails_make_step.cmake.in
 
 ExternalProject_Add(VisTrails
   GIT_REPOSITORY git://vistrails.org/vistrails.git
-  GIT_TAG pcmdi
+  GIT_TAG pcmdi2.0
   SOURCE_DIR ${VisTrails_source}
   BUILD_IN_SOURCE 1
   CONFIGURE_COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/vistrails_make_step.cmake

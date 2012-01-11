@@ -18132,7 +18132,7 @@ heartbeat("Slab2 name set to %s", s_name[0]);
         }
 /* 	fprintf(stderr,"ok this is where i want to update for now\n"); */
 #elif defined (QTWM)
-	vcs_Qt_repaint_window_by_id(self->connect_id.wkst_id);
+	/* vcs_Qt_repaint_window_by_id(self->connect_id.wkst_id); */
 
 #else
 	printf("insert here your WM sync and flush functions\n");

@@ -15,9 +15,10 @@
 //======================== Events ========================
 class QVCSBaseEvent : public QEvent {
 public:
-  QVCSBaseEvent(QEvent::Type type): QEvent(type) {}
+  QVCSBaseEvent(QEvent::Type type, bool _isSpontaneous=false): QEvent(type), isSpontaneous(_isSpontaneous) {}
   QMutex *mutex;
   QWaitCondition *cond;
+  bool isSpontaneous;
 };
 
 #define VCS_DEFERRED_EXECUTION QEvent::Type(QEvent::User+0x828)
