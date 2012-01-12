@@ -7,7 +7,8 @@ cdat_info.pingPCMDIdb("cdat","start")
 __all__ = ["cdmsobj", "axis", "coord", "grid", "hgrid", "avariable", \
 "sliceut", "error", "variable", "fvariable", "tvariable", "dataset", \
 "database", "cache", "selectors", "MV2", "convention", "bindex", \
-"auxcoord", "gengrid", "gsHost", "gsStaticVariable", "gsTimeVariable"]
+"auxcoord", "gengrid", "gsHost", "gsStaticVariable", "gsTimeVariable", \
+"gsRegrid", "mvBaseWriter", "mvSphereMesh", "mvVsWriter"]
 
 # Errors
 from error import CDMSError
@@ -43,9 +44,13 @@ from tvariable import asVariable, createVariable, isVariable
 
 # Gridspec is not installed by default so just pass on if it isn't installed
 try:
-    from gsHost import Host
     from gsStaticVariable import StaticFileVariable
     from gsTimeVariable import TimeFileVariable
+    from mvSphereMesh import SphereMesh
+    from mvBaseWriter import BaseWriter
+    from mvVsWriter import VsWriter
+    from mvVTKSGWriter import VTKSGWriter
+    from mvVTKUGWriter import VTKUGWriter
 except:
     pass
 
