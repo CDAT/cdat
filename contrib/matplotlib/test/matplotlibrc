@@ -1,0 +1,3 @@
+backend      : Agg
+font.family  : Bitstream Vera Sans
+text.hinting : True

@@ -1,0 +1,192 @@
+cmor_version: 2.0         ! version of CMOR that can read this table
+cf_version:   1.0         ! version of CF that output conforms to
+project_id:   IPCC Fourth Assessment  ! project id
+table_id:     Table Grids    ! table id
+table_date:   25 October 2007 ! date this table was constructed
+
+expt_id_ok:   'pre-industrial control experiment'
+expt_id_ok:   'present-day control experiment'
+expt_id_ok:   'climate of the 20th Century experiment (20C3M)'
+expt_id_ok:   'committed climate change experiment'  ! official name(s) of 
+expt_id_ok:   'SRES A2 experiment'                   !  project's experiments
+expt_id_ok:   '720 ppm stabilization experiment (SRES A1B)'    
+expt_id_ok:   '550 ppm stabilization experiment (SRES B1)'
+expt_id_ok:   '1%/year CO2 increase experiment (to doubling)'
+expt_id_ok:   '1%/year CO2 increase experiment (to quadrupling)'
+expt_id_ok:   'slab ocean control experiment'
+expt_id_ok:   '2xCO2 equilibrium experiment'
+expt_id_ok:   'AMIP experiment'
+
+magic_number: -1          ! used to check whether this file has been 
+                          !   altered from the official version.
+                          !   should be set to number of non-blank 
+                          !   characters in file. 
+approx_interval:  30.     ! approximate spacing between successive time
+                          !   samples (in units of the output time 
+                          !   coordinate.
+missing_value: 1.e20      ! value used to indicate a missing value
+                          !   in arrays output by netCDF as 32-bit IEEE 
+                          !   floating-point numbers (float or real)
+!
+!
+!============
+mapping_entry: crap
+!============
+parameter: false_easting
+parameter: false_northing
+coordinates: rlon rlat
+!
+!============
+axis_entry: x
+!============
+!
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    projection_x_coordinate
+units:            ?
+long_name:        x coordinate of projection
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+!
+!============
+axis_entry: y
+!============
+!
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    projection_y_coordinate
+units:            ?
+long_name:        y coordinate of projection
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+!
+!============
+axis_entry: grid_latitude
+!============
+!
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    grid_latitude
+units:            degrees
+long_name:        latitude in rotated pole grid
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         rlat
+!
+!============
+axis_entry: grid_longitude
+!============
+!
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    grid_longitude
+units:            degrees
+long_name:        longitude in rotated pole grid
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         rlon
+!
+!============
+axis_entry: vertices
+!============
+!
+!------------
+!
+! Axis attributes:
+!----------------------------------	
+standard_name:    vertices
+units:            1
+long_name:        vertices
+!
+!============
+variable_entry: longitude
+!============
+!----------------------------------	
+standard_name:    longitude
+units:            degrees_east
+long_name:        longitude coordinate
+dimensions:	  longitude latitude
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         lon
+valid_min:        -180.        ! CMOR will add n*360 to input values
+                               ! (where n is an integer) to ensure 
+                               !  longitudes are in proper range.
+valid_max:        180.         !  see above comment.
+!----------------------------------	
+!
+!
+!============
+variable_entry: latitude
+!============
+!----------------------------------	
+standard_name:    latitude
+units:            degrees_north
+long_name:        latitude coordinate
+dimensions:	  longitude latitude
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         lat
+valid_min:        -90.        
+valid_max:        90.
+!----------------------------------	
+!
+!
+!============
+variable_entry: vertices_longitude
+!============
+!----------------------------------	
+standard_name:    vertices_longitude
+units:            degrees_east
+long_name:        longitude vertices coordinate 
+dimensions:	  vertices longitude latitude
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         vertices_lon
+valid_min:        -180.        ! CMOR will add n*360 to input values
+                               ! (where n is an integer) to ensure 
+                               !  longitudes are in proper range.
+valid_max:        180.         !  see above comment.
+!----------------------------------	
+!
+!
+!============
+variable_entry: vertices_latitude
+!============
+!----------------------------------	
+standard_name:    vertices_latitude
+units:            degrees_north
+long_name:        latitude vertices coordinate
+dimensions:	  vertices longitude latitude
+!----------------------------------	
+!
+! Additional axis information:
+!----------------------------------	
+out_name:         vertices_lat
+valid_min:        -90.        
+valid_max:        90.
+!----------------------------------	
+!
+!
