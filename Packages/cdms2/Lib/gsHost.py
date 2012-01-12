@@ -18,7 +18,7 @@ from cdms2.gsTimeVariable import TimeFileVariable
 LIBCF = 'libcf'
 try:
     from pycf import libCFConfig, __path__
-    LIBCF = __path__[0] + '/libcf'
+    LIBCF = __path__[0] + '/pylibcf'
 
 except:
     # raise ImportError, 'Error: could not import pycf'
