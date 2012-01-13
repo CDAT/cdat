@@ -36,7 +36,10 @@ if os.environ.has_key('MAKE'):
     make_code = os.environ['MAKE']
 else:
     make_code = 'make'
-setup_action = sys.executable + ' setup.py install'
+
+# maplotlib depends on pkg-config under install/bin
+setup_action = 'PATH=%sbin:$PATH && %s setup.py install' \
+    % (sys.exec_prefix, sys.executable)
 install_script_action = './install_script ' + sys.exec_prefix
 make_action = make_code + " PREFIX='%s' install " % sys.exec_prefix
 
