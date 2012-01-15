@@ -203,7 +203,7 @@ def test3DRect():
 
 def test3DposDown():
     """
-    Test 3d data with elev positive down
+    Test 3d data with elev positive down. Need to work with 1D axes.
     """
     print 'test positive down'
     import cdms2
@@ -213,17 +213,11 @@ def test3DposDown():
     levs1d = numpy.arange(0., 5001., dlev)
     lats1d = numpy.array([0. - i*dlat for i in range(nlat)])
     lons1d = numpy.array([0. - i*dlon for i in range(nlon)])
-    levs = numpy.zeros((nlev, nlat, nlon), numpy.float32)
-    lats = numpy.zeros((nlev, nlat, nlon), numpy.float32)
-    lons = numpy.zeros((nlev, nlat, nlon), numpy.float32)
     data = numpy.zeros((nlev, nlat, nlon), numpy.float32)
 
     for k in range(nlev):
         for j in range(nlat):
             for i in range(nlon):
-                levs[k, j, i] = levs1d[k]
-                lats[k, j, i] = lats1d[j]
-                lons[k, j, i] = lons1d[i]
                 data[k, j, i] = numpy.cos(3*numpy.pi*lats1d[j]/180.) * \
                                 numpy.sin(5*numpy.pi*lons1d[i]/180.) * \
                                 numpy.exp(-levs1d[k])
@@ -237,8 +231,7 @@ def test3DposDown():
     sphereMesh = SphereMesh(var)
     aa = sphereMesh.getXYZCoords()
     bb = aa.reshape((4, 5, 6, 3))
-    for i in range(nlev):
-        print levs1d[nlev-1-i], bb[i, 1, 1, :]
+    for i in range(nlev): print levs1d[i], bb[i, 0, 0, :]
 
 if __name__ == '__main__': 
 #    test2DRect()
