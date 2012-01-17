@@ -3,7 +3,7 @@
 """
 Regridding of curvilinear structured grids
 Alex Pletzer and Dave Kindig, Tech-X (2011)
-This code is provided with the hope that it will be useful. 
+This code is provided with the hope that it will be useful.
 No guarantee is provided whatsoever. Use at your own risk.
 """
 
@@ -16,7 +16,7 @@ import operator
 import sys
 import copy
 import numpy
-        
+
 C_DOUBLE_P = POINTER(c_double)
 
 # libcf
@@ -25,8 +25,8 @@ try:
 except:
     raise ImportError, 'Error: could not import pycf'
 
-LIBCFDIR  = __path__[0] + "/pylibcf"
-#LIBCFDIR  = "/home/research/kindig/software/libcf/lib/libcf"
+LIBCFDIR  = __path__[0] + "/libcf"
+LIBCFDIR  = "/home/research/kindig/software/libcf/lib/libcf"
 #LIBCFDIR  = "/home/pletzer/software/libcf-debug/lib/libcf"
 #LIBCFDIR  = "/home/pletzer/software/libcf-opt/lib/libcf"
 #LIBCFDIR  = "/home/pletzer/software/libcf-debug-logging/lib/libcf"
@@ -45,7 +45,7 @@ def catchError(status, lineno):
 
 def getNetCDFFillValue(dtype):
     """
-    Get the NetCDF fill value 
+    Get the NetCDF fill value
     @param dtype numpy data type, e.g. numpy.float32
     """
     if dtype == numpy.float64:
@@ -60,11 +60,11 @@ def getNetCDFFillValue(dtype):
         return libCFConfig.NC_FILL_BYTE
     else:
         raise CDMSError, "ERROR in %s: invalid type %s" \
-            % (__FILE__, str(dtype)) 
+            % (__FILE__, str(dtype))
 
 def getTensorProduct(axis, dim, dims):
     """
-    Convert an axis into a curvilinear coordinate by applying 
+    Convert an axis into a curvilinear coordinate by applying
     a tensor product
     @param axis 1D array of coordinates
     @param dim dimensional index of the above coordinate
@@ -95,10 +95,10 @@ def makeCurvilinear(coords):
             # fully curvilinear
             dims.append( coord.shape[i] )
         else:
-            # assumption: all 1D axes preceed curvilinear 
+            # assumption: all 1D axes preceed curvilinear
             # coordinates!!!
             dims.append( coord.shape[i - count1DAxes] )
-        
+
     for i in range(ndims):
         nd = len(coords[i].shape)
         if nd == ndims:
@@ -120,7 +120,7 @@ def makeCurvilinear(coords):
 def makeCoordsCyclic(coords, dims):
     """
     Make coordinates cyclic
-    @params coords input coordinates 
+    @params coords input coordinates
     @params dims input dimensions
     @return new, extended coordinates such that the longitudes cover the sphere
             and new dimensions
@@ -139,7 +139,7 @@ def makeCoordsCyclic(coords, dims):
     if adiff < eps:
         # cyclic, return input coordinates unchanged
         return coords, dims
-    
+
     # some models are already periodic
     diff1 = abs(coords[-1][...,-1] - coords[-1][...,0])
     diff2 = abs(coords[-1][...,-1] - coords[-1][...,0] - 360.0)
@@ -148,8 +148,8 @@ def makeCoordsCyclic(coords, dims):
         / float(dims[-1])
     if adiff < eps:
         # cyclic, return input coordinates unchanged
-        return coords, dims    
-        
+        return coords, dims
+
     # make cyclic by appending a column to the coordinates
     newCoords = []
     newDims = list(copy.copy(dims))
@@ -176,7 +176,7 @@ def checkForCoordCut(coords, dims):
     Look for a cut in a coordinate system (e.g. tri-polar grid)
     Assume latitude is next to last coordinate and longitude is last coordinate!!!
 
-    @params coords input coordinates 
+    @params coords input coordinates
     @params dims input dimensions
     @return True for cut found
             False for no cut
@@ -185,14 +185,18 @@ def checkForCoordCut(coords, dims):
     # Assume latitude is next to last coordinate and longitude is last coordinate!!!
 
     ndims = len(dims)
-    if ndims < 2: 
+    if ndims < 2:
         # print 'no cut: dims < 2'
         return False
+    if len(coords[-2].shape) < 2:
+        # Is the 'lat' coordinate an axis?
+        return False
+
     nlat, nlon = dims[-2], dims[-1]
     lat = coords[-2]
     eps = 1.e-7
 
-    # Check to see if the top row has already be dealt with by the modeling 
+    # Check to see if the top row has already be dealt with by the modeling
     # agency. Last row is repeated in reverse.
 
     topRow = coords[-2][..., nlat-1, :]
@@ -201,18 +205,18 @@ def checkForCoordCut(coords, dims):
     diffs = abs(revTop - nextRow)
 
     # If already accounted for all diffs are 0.
-    if numpy.all(diffs < eps): 
+    if numpy.all(diffs < eps):
         # print "no cut: reversed"
         return False
 
     # Lon of max latitude -- Looking for a rotated pole
     maxLats = numpy.where(abs(lat - numpy.max(lat)) < eps)
     inTopRow = False
-    if len(maxLats[0] > 0): inTopRow = numpy.all(maxLats[0] == nlat-1)
+    if len(maxLats[0] > 0): inTopRow = numpy.all(maxLats[-2] == nlat-1)
     if not inTopRow:
         # The max lats are not in the top row. The cut may already be handled
         # print 'no cut: max lat not in top row.' + \
-        #          'Either: it is a funky grid or rotated pole'
+        #         'Either: it is a funky grid or rotated pole'
         return False
 
     # Only in top row.
@@ -226,8 +230,8 @@ def checkForCoordCut(coords, dims):
         # print "no cut: rotated pole"
         return False
 
-    # Find locale minima. 
-    # A rotated pole grid has only one minimum. A tripolar grid should 
+    # Find locale minima.
+    # A rotated pole grid has only one minimum. A tripolar grid should
     # have two, though they may not be at the same latitude
 
     minInds = numpy.where(abs(topRow - topRow.min()) < eps)
@@ -253,7 +257,7 @@ def checkForCoordCut(coords, dims):
         if index == nlon: break
     nextIndex = topRow[index+1:].argmin() + index+1
     if nextIndex != index+1 and nextIndex != nlon-1: minCount += 1
-    if minCount == 1: 
+    if minCount == 1:
         # print "no cut: one pole"
         return False
 
@@ -264,8 +268,8 @@ def handleCoordsCut(coords, dims, bounds):
     Generate connectivity across a cut. e.g. from a tri-polar grid.
     Assume latitude is next to last coordinate and longitude is last coordinate!!!
 
-    @params coords input coordinates list of ndims 
-    @params dims input dimensions 
+    @params coords input coordinates list of ndims
+    @params dims input dimensions
     @params bounds boundaries for each coordinate
     @return new, extended coordinates such that there is an extra row containing
             connectivity information across the cut
@@ -280,11 +284,12 @@ def handleCoordsCut(coords, dims, bounds):
     epsExp = 3
     eps = 10**(-1*epsExp)
     isCut = checkForCoordCut(coords, dims)
+
     if not isCut:
         # No cut
         return coords, dims, None
 
-    # Add row to top with connectivity information. This means rearranging 
+    # Add row to top with connectivity information. This means rearranging
     # the top row
     def getIndices(array, nlon, newI):
         """
@@ -298,14 +303,14 @@ def handleCoordsCut(coords, dims, bounds):
             if len(numpy.where(array[i, :]==True)[0]) >= 2:
                 if newI[i] < 0: newI[i] = (nlon-1) - i
                 if newI[(nlon-1)-i] < 0: newI[(nlon-1)-i] = i
-    
+
     lonb = bounds[-1][..., nlat-1, ...]
     latb = bounds[-2][..., nlat-1, ...]
 
     # Assume mkCyclic == True
     newI = numpy.arange(nlon-1, -1, -1)-1
     newI[nlon-1] = 0 #  Complete the rotation
-    
+
     # Build new coordinate array and adjust dims
     newCoords = []
     newDims = list(copy.copy(dims))
@@ -317,27 +322,24 @@ def handleCoordsCut(coords, dims, bounds):
         newCoords[i][..., 0:dims[-2], :] = coords[i][...]
         newCoords[i][..., dims[-2], :] = coords[i][..., dims[-2]-1, newI]
 
-    for i in range(nlon):
-        tup = [i, newCoords[0][199, i], newCoords[0][200, i]]
-        tup = tuple(tup + [newCoords[1][199, i], newCoords[1][200, i]])
     return newCoords, newDims, newI
 
 class Regrid:
 
-    def __init__(self, src_grid, dst_grid, src_bounds = None, mkCyclic=False, 
-                 handleCut=False):
+    def __init__(self, src_grid, dst_grid, src_bounds = None, mkCyclic=False,
+                 handleCut=False, diagnostics = False):
         """
         Constructor
-        
+
         @param src_grid source grid, a list of [x, y, ...] coordinates
         @param dst_grid destination grid, a list of [x, y, ...] coordinates
         @param src_bounds list of [lat_bounds, lon_bounds]
         @param mkCyclic Add a column to the right side of the grid to complete
                a cyclic grid
-        @param handleCut Add a row to the top of grid to handle a cut for 
+        @param handleCut Add a row to the top of grid to handle a cut for
                grids such as the tri-polar grid
         @note the grid coordinates can either be axes (rectilinear grid) or
-              n-dimensional for curvilinear grids. Rectilinear grids will 
+              n-dimensional for curvilinear grids. Rectilinear grids will
               be converted to curvilinear grids.
         """
         self.regridid = c_int(-1)
@@ -352,6 +354,7 @@ class Regrid:
         self.extendedGrid = False
         self.handleCut = False
         self.dst_Index = []
+        self.diagnostics = diagnostics
 
         # Open the shaped library
         for sosuffix in '.dylib', '.dll', '.DLL', '.so', '.a':
@@ -363,7 +366,7 @@ class Regrid:
         if self.lib == None:
             raise CDMSError, "ERROR in %s: could not open shared library %s" \
                 % (__FILE__, LIBCFDIR)
-        
+
         # Number of space dimensions
         self.ndims = len(src_grid)
         if len(dst_grid) != self.ndims:
@@ -383,12 +386,13 @@ class Regrid:
         # Make sure coordinates wrap around if mkCyclic is True
         if mkCyclic:
             src_gridNew, src_dimsNew = makeCoordsCyclic(src_grid, src_dims)
-            aa, bb = str(src_dims), str(src_dimsNew)
-            print '...  src_dims = %s, after making cyclic src_dimsNew = %s' \
-                % (aa, bb)
-            for i in range(self.ndims):
-                print '...... src_gridNew[%d].shape = %s' \
-                    % (i, str(src_gridNew[i].shape))
+            if self.diagnostics:
+                aa, bb = str(src_dims), str(src_dimsNew)
+                print '...  src_dims = %s, after making cyclic src_dimsNew = %s' \
+                    % (aa, bb)
+                for i in range(self.ndims):
+                    print '...... src_gridNew[%d].shape = %s' \
+                        % (i, str(src_gridNew[i].shape))
             # flag indicating that the grid was extended
             if reduce(lambda x, y:x+y, \
                           [src_dimsNew[i] - src_dims[i] \
@@ -405,10 +409,14 @@ class Regrid:
                                                  src_dims, src_bounds)
             if dst_Index is not None:
                 self.handleCut = True
-                self.extendedGrid = True
+                self.extendedGrid = self.extendedGrid
             else:
                 self.handleCut = False
-                self.extendedGrid = False
+                self.extendedGrid = self.extendedGrid
+            if self.diagnostics:
+                aa, bb = str(src_dims), str(src_dimsNew)
+                print '...  src_dims = %s, after making cyclic src_dimsNew = %s' \
+                    % (aa, bb)
             src_grid = src_gridNew
             src_dims = src_dimsNew
             self.dst_Index = dst_Index
@@ -442,10 +450,10 @@ class Regrid:
             elif i == self.ndims - 1:
                 standard_name = 'longitude'
                 units = 'degrees_east'
-            status = self.lib.nccf_def_coord(self.ndims, self.src_dims, 
-                                             src_dimnames, 
-                                             dataPtr, save, name, 
-                                             standard_name, units, 
+            status = self.lib.nccf_def_coord(self.ndims, self.src_dims,
+                                             src_dimnames,
+                                             dataPtr, save, name,
+                                             standard_name, units,
                                              byref(coordid))
             catchError(status, sys._getframe().f_lineno)
             self.src_coordids[i] = coordid
@@ -454,38 +462,38 @@ class Regrid:
             self.dst_coords.append( data )
             dataPtr = data.ctypes.data_as(C_DOUBLE_P)
             name = "dst_coord%d" % i
-            status = self.lib.nccf_def_coord(self.ndims, self.dst_dims, 
-                                             dst_dimnames, 
-                                             dataPtr, save, name, 
-                                             standard_name, units, 
+            status = self.lib.nccf_def_coord(self.ndims, self.dst_dims,
+                                             dst_dimnames,
+                                             dataPtr, save, name,
+                                             standard_name, units,
                                              byref(coordid))
             catchError(status, sys._getframe().f_lineno)
             self.dst_coordids[i] = coordid
 
         # Build grid objects
-        status = self.lib.nccf_def_grid(self.src_coordids, "src_grid", 
+        status = self.lib.nccf_def_grid(self.src_coordids, "src_grid",
                                         byref(self.src_gridid))
         catchError(status, sys._getframe().f_lineno)
 
-        status = self.lib.nccf_def_grid(self.dst_coordids, "dst_grid", 
+        status = self.lib.nccf_def_grid(self.dst_coordids, "dst_grid",
                                         byref(self.dst_gridid))
         catchError(status, sys._getframe().f_lineno)
 
         # Create regrid object
-        status = self.lib.nccf_def_regrid(self.src_gridid, self.dst_gridid, 
+        status = self.lib.nccf_def_regrid(self.src_gridid, self.dst_gridid,
                                           byref(self.regridid))
         catchError(status, sys._getframe().f_lineno)
 
     def getPeriodicities(self):
         """
         Get the periodicity lengths of the coordinates
-        @return numpy array, values inf indicate no periodicity 
+        @return numpy array, values inf indicate no periodicity
         """
         coord_periodicity = numpy.zeros( (self.ndims,), numpy.float64 )
         status = self.lib.nccf_inq_grid_periodicity(self.src_gridid,
                                  coord_periodicity.ctypes.data_as(C_DOUBLE_P))
         catchError(status, sys._getframe().f_lineno)
-        return coord_periodicity        
+        return coord_periodicity
 
     def __del__(self):
         """
@@ -496,7 +504,7 @@ class Regrid:
 
         status = self.lib.nccf_free_grid(self.src_gridid)
         catchError(status, sys._getframe().f_lineno)
-        
+
         status = self.lib.nccf_free_grid(self.dst_gridid)
         catchError(status, sys._getframe().f_lineno)
 
@@ -506,7 +514,7 @@ class Regrid:
             catchError(status, sys._getframe().f_lineno)
 
             status = self.lib.nccf_free_coord(self.dst_coordids[i])
-            catchError(status, sys._getframe().f_lineno) 
+            catchError(status, sys._getframe().f_lineno)
 
     def addForbiddenBox(self, lo, hi):
         """
@@ -515,7 +523,7 @@ class Regrid:
         @param lo inclusive lower set of indices
         @param hi inclusive upper set of indices
         """
-        
+
         # Check lo and hi
         if len(lo) != self.ndims:
             raise CDMSError, "ERROR in %s: len(lo) = %d != %d" \
@@ -528,8 +536,8 @@ class Regrid:
         # Apply
         loIndices = (c_int * self.ndims)(tuple(lo))
         hiIndices = (c_int * self.ndims)(tuple(hi))
-        status = self.lib.nccf_add_regrid_forbidden(self.regridid, 
-                                                    loIndices, 
+        status = self.lib.nccf_add_regrid_forbidden(self.regridid,
+                                                    loIndices,
                                                     hiIndices)
         catchError(status, sys._getframe().f_lineno)
 
@@ -543,24 +551,24 @@ class Regrid:
             raise CDMSError, \
                 "ERROR in %s: mask must be array of integers" \
                 % (__FILE__,)
-        
+
         # extend src data if grid was made cyclic and or had a cut accounted for
         newMask = self._extend(mask)
         c_intmask = newMask.ctypes.data_as(POINTER(c_int))
-        status = self.lib.nccf_set_grid_validmask(self.src_gridid, 
+        status = self.lib.nccf_set_grid_validmask(self.src_gridid,
                                                   c_intmask)
         catchError(status, sys._getframe().f_lineno)
 
-    def computeWeights(self, nitermax=20, tolpos=1.e-2):
+    def computeWeights(self, nitermax=100, tolpos=1.e-2):
         """
         Compute the the interpolation weights
-        
+
         @param nitermax max number of iterations
-        @param tolpos max tolerance when locating destination positions in 
+        @param tolpos max tolerance when locating destination positions in
                index space
         """
         status = self.lib.nccf_compute_regrid_weights(self.regridid,
-                                                      nitermax, 
+                                                      nitermax,
                                                       c_double(tolpos))
         catchError(status, sys._getframe().f_lineno)
 
@@ -576,7 +584,7 @@ class Regrid:
         # extend src data if grid was made cyclic and or had a cut accounted for
         src_data = self._extend(src_data)
 
-        # Check 
+        # Check
         if reduce(operator.iand, [src_data.shape[i] == self.src_dims[i] \
                                  for i in range(self.ndims)]) == False:
             raise CDMSError, ("ERROR in %s: supplied src_data have wrong shape " \
@@ -585,7 +593,7 @@ class Regrid:
         if reduce(operator.iand, [dst_data.shape[i] == self.dst_dims[i] \
                                  for i in range(self.ndims)]) == False:
             raise CDMSError, ("ERROR ins: supplied dst_data have wrong shape " \
-                + "%s != %s") % (__FILE__, str(dst_data.shape), 
+                + "%s != %s") % (__FILE__, str(dst_data.shape),
                                  str(self.dst_dims))
 
         # Create data objects
@@ -602,26 +610,26 @@ class Regrid:
         catchError(status, sys._getframe().f_lineno)
         if src_data.dtype == numpy.float64:
             fill_value = c_double(libCFConfig.NC_FILL_DOUBLE)
-            status = self.lib.nccf_set_data_double(src_dataid, 
+            status = self.lib.nccf_set_data_double(src_dataid,
                                                    src_data.ctypes.data_as(POINTER(c_double)),
                                                    save, fill_value)
             catchError(status, sys._getframe().f_lineno)
         elif src_data.dtype == numpy.float32:
             fill_value = c_float(libCFConfig.NC_FILL_FLOAT)
-            status = self.lib.nccf_set_data_float(src_dataid, 
+            status = self.lib.nccf_set_data_float(src_dataid,
                                                   src_data.ctypes.data_as(POINTER(c_float)),
                                                   save, fill_value)
             catchError(status, sys._getframe().f_lineno)
         elif src_data.dtype == numpy.int32:
             fill_value = c_int(libCFConfig.NC_FILL_INT)
-            status = self.lib.nccf_set_data_int(src_dataid, 
+            status = self.lib.nccf_set_data_int(src_dataid,
                                                 src_data.ctypes.data_as(POINTER(c_int)),
                                                 save, fill_value)
             catchError(status, sys._getframe().f_lineno)
         else:
             raise CDMSError, "ERROR in %s: invalid src_data type = %s" \
                 % (__FILE__, src_data.dtype)
-            
+
 
         status = self.lib.nccf_def_data(self.dst_gridid, "dst_data", \
                                         standard_name, units, time_dimname, \
@@ -629,19 +637,19 @@ class Regrid:
         catchError(status, sys._getframe().f_lineno)
         if dst_data.dtype == numpy.float64:
             fill_value = c_double(libCFConfig.NC_FILL_DOUBLE)
-            status = self.lib.nccf_set_data_double(dst_dataid, 
+            status = self.lib.nccf_set_data_double(dst_dataid,
                                                    dst_data.ctypes.data_as(POINTER(c_double)),
                                                    save, fill_value)
             catchError(status, sys._getframe().f_lineno)
         elif dst_data.dtype == numpy.float32:
             fill_value = c_float(libCFConfig.NC_FILL_FLOAT)
-            status = self.lib.nccf_set_data_float(dst_dataid, 
+            status = self.lib.nccf_set_data_float(dst_dataid,
                                                   dst_data.ctypes.data_as(POINTER(c_float)),
                                                   save, fill_value)
             catchError(status, sys._getframe().f_lineno)
         elif dst_data.dtype == numpy.int32:
             fill_value = c_int(libCFConfig.NC_FILL_INT)
-            status = self.lib.nccf_set_data_int(dst_dataid, 
+            status = self.lib.nccf_set_data_int(dst_dataid,
                                                 dst_data.ctypes.data_as(POINTER(c_int)),
                                                 save, fill_value)
             catchError(status, sys._getframe().f_lineno)
@@ -658,17 +666,17 @@ class Regrid:
         catchError(status, sys._getframe().f_lineno)
         status = self.lib.nccf_free_data(dst_dataid)
         catchError(status, sys._getframe().f_lineno)
-    
+
     def getNumValid(self):
         """
         Return the number of valid destination points. Destination points
-        falling outside the source domain, more gnerally, points which 
-        could not be located on the source grid, reduce the number of 
+        falling outside the source domain, more gnerally, points which
+        could not be located on the source grid, reduce the number of
         valid points.
         @return number of points
         """
         res = c_int(-1)
-        status = self.lib.nccf_inq_regrid_nvalid(self.regridid, 
+        status = self.lib.nccf_inq_regrid_nvalid(self.regridid,
                                                  byref(res))
         catchError(status, sys._getframe().f_lineno)
         return res.value
@@ -679,7 +687,7 @@ class Regrid:
         @return number of points
         """
         res = c_int(-1)
-        status = self.lib.nccf_inq_regrid_ntargets(self.regridid, 
+        status = self.lib.nccf_inq_regrid_ntargets(self.regridid,
                                                   byref(res))
         catchError(status, sys._getframe().f_lineno)
         return res.value
@@ -708,24 +716,24 @@ class Regrid:
         sinds = (c_int * 2**self.ndims)()
         weights = numpy.zeros( (2**self.ndims,), numpy.float64 )
         status = self.lib.nccf_inq_regrid_weights(self.regridid,
-                                                  dinds.ctypes.data_as(POINTER(c_double)), 
-                                                  sinds, 
+                                                  dinds.ctypes.data_as(POINTER(c_double)),
+                                                  sinds,
                                                   weights.ctypes.data_as(POINTER(c_double)))
         catchError(status, sys._getframe().f_lineno)
         # convert the flat indices to index sets
         ori_inds = []
         for i in range(2**self.ndims):
             inx = numpy.zeros( (self.ndims,), numpy.int32 )
-            self.lib.nccf_get_multi_index(self.ndims, self.src_dims, 
+            self.lib.nccf_get_multi_index(self.ndims, self.src_dims,
                                           sinds[i],
                                           inx.ctypes.data_as(POINTER(c_int)))
             ori_inds.append(inx)
-        
+
         return ori_inds, weights
 
     def _extend(self, src_data):
         """
-        Extend the data by padding a column and a row, depending on whether the 
+        Extend the data by padding a column and a row, depending on whether the
         grid was made cyclic and a fold was added or not
         @param src_data input source data
         @return extended source data (or source input data of no padding was applied)
@@ -737,7 +745,7 @@ class Regrid:
         # assuming ..., lat, lon ordering
         nlat, nlon = src_data.shape[-2:]
 
-        # no cut and no cyclic extension 
+        # no cut and no cyclic extension
         src_dataNew = src_data
 
         if self.handleCut or self.extendedGrid:
@@ -755,10 +763,10 @@ class Regrid:
         if self.extendedGrid:
             # make data periodic in longitudes
             src_dataNew[..., -1] = src_dataNew[..., 0]
-            
+
         return src_dataNew
 
-    def _findIndices(self, targetPos, nitermax, tolpos, 
+    def _findIndices(self, targetPos, nitermax, tolpos,
                      dindicesGuess):
         """
         Find the floating point indices
@@ -770,7 +778,7 @@ class Regrid:
         """
         posPtr = targetPos.ctypes.data_as(POINTER(c_double))
         adjustFunc = None
-        hit_bounds = numpy.zeros((self.ndims), 
+        hit_bounds = numpy.zeros((self.ndims),
                                   dtype = int).ctypes.data_as(POINTER(c_int))
         coord_periodicity = float('inf') * numpy.ones((self.ndims),
                                   dtype = numpy.float32).ctypes.data_as(POINTER(c_double))
@@ -782,12 +790,12 @@ class Regrid:
         for i in range(self.ndims):
             ptr = self.src_coords[i].ctypes.data_as(POINTER(c_double))
             src_coords[i] = ptr
-        status = self.lib.nccf_find_indices_double(self.ndims, 
-                                                   self.src_dims, 
+        status = self.lib.nccf_find_indices_double(self.ndims,
+                                                   self.src_dims,
                                                    src_coords,
-                                                   coord_periodicity, 
+                                                   coord_periodicity,
                                                    posPtr,
-                                                   byref(niter), 
+                                                   byref(niter),
                                                    byref(tol),
                                                    adjustFunc,
                                                    resPtr,
@@ -806,10 +814,10 @@ def testMakeCyclic():
     coords = [yy, xx]
     dims = [len(y), len(x)]
     newCoords, newDims = makeCoordsCyclic(coords, dims)
-    print 'cyclic lats'
-    print newCoords[0]
-    print 'cyclic lons'
-    print newCoords[1]
+#    print 'cyclic lats'
+#    print newCoords[0]
+#    print 'cyclic lons'
+#    print newCoords[1]
 
 def testHandleCut():
 
@@ -826,8 +834,8 @@ def testHandleCut():
     else:
         alllat = f.getAxis("lat").getData()
         alllon = f.getAxis("lon").getData()
-    
-    bounds = [f.variables['bounds_lon'][:].data, 
+
+    bounds = [f.variables['bounds_lon'][:].data,
               f.variables['bounds_lat'][:].data]
     coords = [alllat[:].data, alllon[:].data]
     dims = alllat.shape
@@ -836,28 +844,21 @@ def testHandleCut():
     newCoords, newDims = handleCoordsCut(newCoords, newDims, bounds)
 
 def testOuterProduct():
-    
+
     # 2d
     x = numpy.array([1, 2, 3, 4])
     y = numpy.array([10, 20, 30])
     xx = getTensorProduct(x, 0, [len(x), len(y)])
     yy = getTensorProduct(y, 1, [len(x), len(y)])
-    print xx
-    print yy
 
     # 3d
     z = numpy.array([100, 200])
-    print getTensorProduct(x, 0, [len(x), len(y), len(z)])
-    print getTensorProduct(y, 1, [len(x), len(y), len(z)])
-    print getTensorProduct(z, 2, [len(x), len(y), len(z)])
 
     #Mixed coordinates and axes
 
-    print "\nCurvilinear"
     aa = makeCurvilinear([z, yy, xx])
-    print len(aa)
-    for g in aa: 
-        print g
+#    for g in aa:
+#        print g
 
 
 def test():
@@ -866,7 +867,7 @@ def test():
         return coords[0]*coords[1] + coords[2]
     def func2(coords):
         return coords[0] * coords[1]
-    
+
     # source grid, tensor product of axes
     src_x = numpy.array([1, 2, 3, 4, 5, 6])
     src_y = numpy.array([10, 20, 30, 40, 50])
@@ -877,13 +878,13 @@ def test():
     dst_y = numpy.array([15., 20., 25., 30., 40.])
     dst_z = numpy.array([120.0, 180.0, 240.])
 
-    rg = Regrid([src_x, src_y, src_z], 
+    rg = Regrid([src_x, src_y, src_z],
                 [dst_x, dst_y, dst_z])
-#    rg = Regrid([src_x, src_y], 
+#    rg = Regrid([src_x, src_y],
 #                [dst_x, dst_y])
 
     kk = numpy.array([0.0, 0.0, 0.0])
-    indices = rg._findIndices(numpy.array([1.5, 18.0, 140.0]), 
+    indices = rg._findIndices(numpy.array([1.5, 18.0, 140.0]),
                               20, 1.e-2, kk)
 
     rg.computeWeights(10, 1.e-3)
@@ -894,7 +895,7 @@ def test():
     # Get the weights
     inds, weights = rg.getIndicesAndWeights([3, 1])
 
-    # data 
+    # data
     src_coords = rg.getSrcGrid()
     dst_coords = rg.getDstGrid()
     #print 'src_coords = ', src_coords
@@ -902,7 +903,7 @@ def test():
     src_data = numpy.array( func1(src_coords), numpy.float32 )
     dst_data = -numpy.ones( dst_coords[0].shape, numpy.float32 )
 
-    # regrid    
+    # regrid
     rg.apply(src_data, dst_data)
 
     # check
@@ -911,9 +912,9 @@ def test():
     #print func(dst_coords)
     print 'error = ', error
 
-if __name__ == '__main__': 
+if __name__ == '__main__':
     #testOuterProduct()
     #test()
     testMakeCyclic()
     testHandleCut()
-    
+
