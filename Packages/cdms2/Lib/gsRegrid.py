@@ -333,7 +333,8 @@ class Regrid:
 
         @param src_grid source grid, a list of [x, y, ...] coordinates
         @param dst_grid destination grid, a list of [x, y, ...] coordinates
-        @param src_bounds list of [lat_bounds, lon_bounds]
+        @param src_bounds list of cell bounding coordinates (to be used when 
+                          handling a cut in coordinates)
         @param mkCyclic Add a column to the right side of the grid to complete
                a cyclic grid
         @param handleCut Add a row to the top of grid to handle a cut for
