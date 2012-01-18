@@ -326,7 +326,7 @@ def handleCoordsCut(coords, dims, bounds):
 
 class Regrid:
 
-    def __init__(self, src_grid, dst_grid, src_bounds = None, mkCyclic=False,
+    def __init__(self, src_grid, dst_grid, src_bounds=None, mkCyclic=False,
                  handleCut=False, diagnostics = False):
         """
         Constructor
@@ -666,6 +666,18 @@ class Regrid:
         catchError(status, sys._getframe().f_lineno)
         status = self.lib.nccf_free_data(dst_dataid)
         catchError(status, sys._getframe().f_lineno)
+
+    def __call__(self, src_data, dst_data):
+        """
+        Apply interpolation (synonymous to aply method)
+        @param src_data data on source grid
+        @param dst_data data on destination grid
+        @note destination coordinates falling outside the valid domain
+              of src_data will not be interpoloted, the corresponding
+              dst_data will not be touched.
+        """
+        self.apply(src_data, dst_data)
+
 
     def getNumValid(self):
         """
