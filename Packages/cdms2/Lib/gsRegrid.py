@@ -327,7 +327,7 @@ def handleCoordsCut(coords, dims, bounds):
 class Regrid:
 
     def __init__(self, src_grid, dst_grid, src_bounds=None, mkCyclic=False,
-                 handleCut=False, diagnostics = False):
+                 handleCut=False, diagnostics=False):
         """
         Constructor
 
@@ -339,6 +339,7 @@ class Regrid:
                a cyclic grid
         @param handleCut Add a row to the top of grid to handle a cut for
                grids such as the tri-polar grid
+        @param diagnostics print diagnostic messages
         @note the grid coordinates can either be axes (rectilinear grid) or
               n-dimensional for curvilinear grids. Rectilinear grids will
               be converted to curvilinear grids.
