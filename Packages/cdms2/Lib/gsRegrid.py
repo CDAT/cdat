@@ -271,11 +271,12 @@ def handleCoordsCut(coords, dims, bounds):
     @params coords input coordinates list of ndims
     @params dims input dimensions
     @params bounds boundaries for each coordinate
-    @return new, extended coordinates such that there is an extra row containing
+    @return extended coordinates such that there is an extra row containing
             connectivity information across the cut
     """
 
-    # Assume latitude is next to last coordinate and longitude is last coordinate!!!
+    # Assume latitude is next to last coordinate and longitude is 
+    # last coordinate!!!
 
     dims = coords[-2].shape
     ndims = len(dims)
@@ -294,9 +295,10 @@ def handleCoordsCut(coords, dims, bounds):
     def getIndices(array, nlon, newI):
         """
         Find indices where a cell edge matches for two cells
-        param array Array of booleans
-        param nlon number of longitudes
-        newI newI index row with connectivity to be updated
+        @param array Array of booleans
+        @param nlon number of longitudes
+        @param newI index row with connectivity to be updated
+        @return new coordinates, new dimensions, index row
         """
         for i in range(len(array)):
             # An edge
