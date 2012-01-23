@@ -26,10 +26,6 @@ except:
     raise ImportError, 'Error: could not import pycf'
 
 LIBCFDIR  = __path__[0] + "/pylibcf"
-#LIBCFDIR  = "/home/research/kindig/software/libcf/lib/libcf"
-#LIBCFDIR  = "/home/pletzer/software/libcf-debug/lib/libcf"
-#LIBCFDIR  = "/home/pletzer/software/libcf-opt/lib/libcf"
-#LIBCFDIR  = "/home/pletzer/software/libcf-debug-logging/lib/libcf"
 
 try:
     from error import CDMSError
@@ -284,11 +280,6 @@ def handleCoordsCut(coords, dims, bounds):
 
     epsExp = 3
     eps = 10**(-1*epsExp)
-    isCut = checkForCoordCut(coords, dims)
-
-    if not isCut:
-        # No cut
-        return coords, dims, None
 
     # Add row to top with connectivity information. This means rearranging
     # the top row
@@ -409,21 +400,25 @@ class Regrid:
         # Handle a cut in the coordinate system. Run after mkCyclic.
         # e.g. a tri-polar grid
         if handleCut and src_bounds is not None:
-            src_gridNew, src_dimsNew, dst_Index = handleCoordsCut(src_grid,
-                                                 src_dims, src_bounds)
-            if dst_Index is not None:
-                self.handleCut = True
-                self.extendedGrid = self.extendedGrid
-            else:
-                self.handleCut = False
-                self.extendedGrid = self.extendedGrid
-            if self.diagnostics:
-                aa, bb = str(src_dims), str(src_dimsNew)
-                print '...  src_dims = %s, after making cyclic src_dimsNew = %s' \
-                    % (aa, bb)
-            src_grid = src_gridNew
-            src_dims = src_dimsNew
-            self.dst_Index = dst_Index
+            # Test for the presence of a cut.
+            isCut = checkForCoordCut(src_grid, src_dims)
+            if isCut:
+                # No cut
+                src_gridNew, src_dimsNew, dst_Index = handleCoordsCut(src_grid,
+                                                     src_dims, src_bounds)
+                if dst_Index is not None:
+                    self.handleCut = True
+                    self.extendedGrid = self.extendedGrid
+                else:
+                    self.handleCut = False
+                    self.extendedGrid = self.extendedGrid
+                if self.diagnostics:
+                    aa, bb = str(src_dims), str(src_dimsNew)
+                    print '...  src_dims = %s, after making cyclic src_dimsNew = %s' \
+                        % (aa, bb)
+                src_grid = src_gridNew
+                src_dims = src_dimsNew
+                self.dst_Index = dst_Index
 
         self.src_dims = (c_int * self.ndims)()
         self.dst_dims = (c_int * self.ndims)()
