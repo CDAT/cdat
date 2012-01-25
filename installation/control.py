@@ -38,7 +38,7 @@ else:
     make_code = 'make'
 
 # maplotlib depends on pkg-config under install/bin
-setup_action = 'PATH=%sbin:$PATH && %s setup.py install' \
+setup_action = 'PATH=%s/bin:$PATH && %s setup.py install' \
     % (sys.exec_prefix, sys.executable)
 install_script_action = './install_script ' + sys.exec_prefix
 make_action = make_code + " PREFIX='%s' install " % sys.exec_prefix
