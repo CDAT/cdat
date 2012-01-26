@@ -791,8 +791,9 @@ class Regrid:
         adjustFunc = None
         hit_bounds = numpy.zeros((self.ndims),
                                   dtype = int).ctypes.data_as(POINTER(c_int))
-        coord_periodicity = float('inf') * numpy.ones((self.ndims),
-                                  dtype = numpy.float32).ctypes.data_as(POINTER(c_double))
+        # no periodicity
+        coord_periodicity = float('inf') * numpy.ones((self.ndims), targetPos.dtype)
+        coord_periodicity_ptr = coord_periodicity.ctypes.data_as(POINTER(c_double))
         res = copy.copy(dindicesGuess)
         resPtr = res.ctypes.data_as(POINTER(c_double))
         src_coords = (POINTER(c_double) * self.ndims)()
@@ -804,7 +805,7 @@ class Regrid:
         status = self.lib.nccf_find_indices_double(self.ndims,
                                                    self.src_dims,
                                                    src_coords,
-                                                   coord_periodicity,
+                                                   coord_periodicity_ptr,
                                                    posPtr,
                                                    byref(niter),
                                                    byref(tol),
@@ -889,22 +890,32 @@ def test():
     dst_y = numpy.array([15., 20., 25., 30., 40.])
     dst_z = numpy.array([120.0, 180.0, 240.])
 
+    # regridding constructor
     rg = Regrid([src_x, src_y, src_z],
                 [dst_x, dst_y, dst_z])
 #    rg = Regrid([src_x, src_y],
 #                [dst_x, dst_y])
 
-    kk = numpy.array([0.0, 0.0, 0.0])
+    initialIndexGuess = numpy.array([0.0, 0.0, 0.0])
     indices = rg._findIndices(numpy.array([1.5, 18.0, 140.0]),
-                              20, 1.e-2, kk)
+                              20, 1.e-2, initialIndexGuess)
 
-    rg.computeWeights(10, 1.e-3)
+    maxNumIters = 20
+    posTol = 1.e-3
+    rg.computeWeights(maxNumIters, posTol)
+
+    # number of valid points (some destination points may fall 
+    # outside the domain)
     nvalid = rg.getNumValid()
+
+    # number of destination points
     ndstpts = rg.getNumDstPoints()
     print 'nvalid = ', nvalid, ' ndstpts = ', ndstpts
 
-    # Get the weights
-    inds, weights = rg.getIndicesAndWeights([3, 1])
+    # get the indices and weights for a single target location
+    dst_indices = [4, 2, 1]
+    inds, weights = rg.getIndicesAndWeights(dst_indices)
+    print 'indices and weights are: ', inds, weights
 
     # data
     src_coords = rg.getSrcGrid()
@@ -915,7 +926,8 @@ def test():
     dst_data = -numpy.ones( dst_coords[0].shape, numpy.float32 )
 
     # regrid
-    rg.apply(src_data, dst_data)
+    rg(src_data, dst_data)
+    print 'after interp: dst_data = ', dst_data
 
     # check
     error = numpy.sum(abs(dst_data - func1(dst_coords)))
@@ -925,7 +937,7 @@ def test():
 
 if __name__ == '__main__':
     #testOuterProduct()
-    #test()
-    testMakeCyclic()
-    testHandleCut()
+    test()
+    #testMakeCyclic()
+    #testHandleCut()
 
