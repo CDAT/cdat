@@ -791,8 +791,9 @@ class Regrid:
         adjustFunc = None
         hit_bounds = numpy.zeros((self.ndims),
                                   dtype = int).ctypes.data_as(POINTER(c_int))
-        coord_periodicity = float('inf') * numpy.ones((self.ndims),
-                                  dtype = numpy.float32).ctypes.data_as(POINTER(c_double))
+        # no periodicity
+        coord_periodicity = float('inf') * numpy.ones((self.ndims), targetPos.dtype)
+        coord_periodicity_ptr = coord_periodicity.ctypes.data_as(POINTER(c_double))
         res = copy.copy(dindicesGuess)
         resPtr = res.ctypes.data_as(POINTER(c_double))
         src_coords = (POINTER(c_double) * self.ndims)()
@@ -804,7 +805,7 @@ class Regrid:
         status = self.lib.nccf_find_indices_double(self.ndims,
                                                    self.src_dims,
                                                    src_coords,
-                                                   coord_periodicity,
+                                                   coord_periodicity_ptr,
                                                    posPtr,
                                                    byref(niter),
                                                    byref(tol),
@@ -925,7 +926,7 @@ def test():
 
 if __name__ == '__main__':
     #testOuterProduct()
-    #test()
-    testMakeCyclic()
-    testHandleCut()
+    test()
+    #testMakeCyclic()
+    #testHandleCut()
 
