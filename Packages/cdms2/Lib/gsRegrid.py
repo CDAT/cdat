@@ -545,7 +545,7 @@ class Regrid:
         Set a mask for the grid
         @param mask an array of type char of size dims for the grid
         """
-        # run some checks. int32 required incase of receiving data from 64-bit machines
+        # run some checks.
         if mask.dtype != numpy.int32:
             raise CDMSError, \
                 "ERROR in %s: mask must be array of integers" \
