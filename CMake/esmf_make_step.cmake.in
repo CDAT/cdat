@@ -1,19 +1,8 @@
 
 include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
 
-message("cdat_source "${esmf_source})
-message("cdat_install "${esmf_install})
-set(esmf_source "${CMAKE_CURRENT_BINARY_DIR}")
-set(esmf_install "/tmp/cdat/Externals")
-
-message("")
-message("Make_step ESMF")
-message("source_dir "${esmf_source})
-message("esmf_install "${esmf_install})
-message("")
-
-set(ENV{ESMF_DIR} ${esmf_source})
-set(ENV{ESMF_INSTALL_PREFIX} ${esmf_install})
+set(ENV{ESMF_DIR} @esmf_source@)
+set(ENV{ESMF_INSTALL_PREFIX} @esmf_install@)
 set(ENV{ESMF_COMM} mpiuni)
 
 execute_process(

@@ -1,21 +1,9 @@
 
 include(/home/research/kindig/projects/cdat/CMake/cdat_common_environment.cmake)
 
-set(esmf_source "${CMAKE_CURRENT_BINARY_DIR}")
-set(esmf_install "/tmp/cdat/External")
-
-message("")
-message("Install_step ESMF")
-message("source "${esmf_source})
-message("cdat_EXTERNALS "${cdat_EXTERNALS})
-message("esmf_install "${esmf_install})
-message("")
-
-
-set(ENV{ESMF_DIR} ${esmf_source})
-set(ENV{ESMF_INSTALL_PREFIX} ${esmf_install})
+set(ENV{ESMF_DIR} /home/research/kindig/projects/cdat/build/esmf)
+set(ENV{ESMF_INSTALL_PREFIX} cdat_EXTERNALS})
 set(ENV{ESMF_COMM} mpiuni)
-
 
 execute_process(
   COMMAND gmake install
