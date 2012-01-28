@@ -314,7 +314,8 @@ set_lineWidth(mf_cgmo *cgmo, double size, Gint attr, Gasf type)
   }
   msgInfo("set_lineWidth: setting width to %lf\n", size);
   extern int YW;
-  cairo_set_line_width(cgmo->ws->cr,size*(float)YW/792.*.5);
+  cairo_set_line_width(cgmo->ws->cr,(int)size*(float)YW/792.*.5);
+  //cairo_set_line_width(cgmo->ws->cr,1.);
 #ifdef GENCAIRO
   printf("cairo_set_line_width(cr,%f*(float)%i/792.*.5);\n",size,YW);
 #endif
@@ -453,14 +454,24 @@ Gpoint VCS2DEVICE(cairo_t *cr, double x,double y)
   Gpoint to;
   double xr,yr,x2,y2;
 
-  if (cairo_surface_get_type(cairo_get_target(cr))==CAIRO_SURFACE_TYPE_PS) {
-    to = VCS2PSDEVICE(x,y);
-  }
-  else {
+  /* if (cairo_surface_get_type(cairo_get_target(cr))==CAIRO_SURFACE_TYPE_PS) {ç */
+  /*   //to = VCS2PSDEVICE(x,y); */
+  /*   //x2=to.x; */
+  /*   //y2=to.y; */
+  /*   cairo_user_to_device (cr, &x, &y); */
+  /*   x2=(int)x; */
+  /*   y2=(int)y; */
+  /*   to.x=x2; */
+  /*   to.y=y2; */
+
+  /* } */
+  /* else { */
+  {
     if (strcmp(Page.page_orient,"landscape")==0) {
       xr=1.;
       /* yr=1.3195884995223088; */
       yr = (float)XW/(float)YW;
+      //printf("xr: %f, yr: %f\n",xr,yr);
     }
     else {
       /* xr=1.3195884995223088; */
@@ -1098,7 +1109,7 @@ CAIROoutputGraphic(Metafile *mf, int num, Gint code, Gint num_pt, Gpoint *pos)
     int		imf;
     cairo_pattern_t *pattern=NULL;
     extern VCS2CAIRO_setrgb();
-    int              w, h;
+    int              w, h,stype;
     mf_cgmo		**cgmo	= &mf->cgmo;
     for (imf = 0; imf < num; ++imf) {
 	Gint	i;
@@ -1170,8 +1181,19 @@ CAIROoutputGraphic(Metafile *mf, int num, Gint code, Gint num_pt, Gpoint *pos)
 #endif
 	    } else {
 /* 	      cairo_close_path(cr); */
-/* 	      cairo_set_fill_rule(cr,CAIRO_FILL_RULE_WINDING); */
-/* 	      cairo_set_antialias(cr,CAIRO_ANTIALIAS_NONE); */
+	      //cairo_set_fill_rule(mf->cgmo->ws->cr,CAIRO_FILL_RULE_EVEN_ODD);
+	      //cairo_set_antialias(mf->cgmo->ws->cr,CAIRO_ANTIALIAS_NONE);
+	      cairo_close_path(mf->cgmo->ws->cr);
+	      /* Need this to avoid white lines in postscript */
+	      stype = cairo_surface_get_type(cairo_get_target(mf->cgmo->ws->cr));
+	      if ((stype==CAIRO_SURFACE_TYPE_PS) || (stype==CAIRO_SURFACE_TYPE_PDF)) {
+		cairo_set_line_width(mf->cgmo->ws->cr,1.);
+		cairo_stroke_preserve(mf->cgmo->ws->cr);
+#ifdef GENCAIRO
+		printf("cairo_set_line_width(cr,1.);\n");
+		printf("cairo_stroke_preserve(cr);\n");
+#endif
+	      }
 	      cairo_fill(mf->cgmo->ws->cr);
 #ifdef GENCAIRO
 	      printf("cairo_fill(cr);\n");

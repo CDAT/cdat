@@ -19119,10 +19119,10 @@ PyVCS_postscript(PyVCScanvas_Object *self, PyObject *args)
 
 	XW = W;
 	YW = H;
-	MARGINL = L;
-	MARGINR = R;
-	MARGINT = T;
-	MARGINB = B;
+	//MARGINL = L;
+	//MARGINR = R;
+	//MARGINT = T;
+	//MARGINB = B;
 
 /* 	printf("in ps vcs i got %i,%i,%i,%i,%i,%i\n",W,H,L,R,T,B); */
 	strcpy(meta_type,"ps");
