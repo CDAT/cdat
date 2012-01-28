@@ -5,7 +5,7 @@ import sys,os
 readline.parse_and_bind("tab: complete")
 restPath=None
 test = "Luca"
-#test="Gavin"
+test="Gavin"
 #test="Luca-new"
 if test == "Luca":
     gateway = "esg-datanode.jpl.nasa.gov"
@@ -21,7 +21,7 @@ if test == "Luca":
     mapping=None
     stringType= False
 elif test == "Gavin":
-    gateway = "esgf-node1.llnl.gov"
+    gateway = "pcmdi9.llnl.gov"
     datasetids = "%(project).%(product).%(institution).%(model).%(experiment).%(time_frequency).%(realm).%(MIPTable).%(ensemble)"
     fileids="%(datasetid).%(version).%(variable)_%(MIPTable)_%(model)_%(experiment)_%(ensemble)_%(timespan).nc"
     mapping="%(datasetid).%(variable)"
@@ -41,7 +41,8 @@ elif test== "Luca-new":
 fileids=None
 #mapping="%(datasetid).%(variable)"
 stringType= False
-#mapping=None
+mapping=None
+print gateway,mapping,datasetids,restPath
 myGateway = cdms2.esgfConnection(gateway,mapping=mapping,datasetids=datasetids,fileids=fileids,restPath=restPath)
 stringType=False
 datasets =  myGateway.searchDatasets(stringType=stringType,variable="hus")
