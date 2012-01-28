@@ -1,14 +1,6 @@
 
 include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
 
-message("")
-message("Install_step ESMP")
-message("source "@esmp_source@)
-message(@cdat_EXTERNALS@)
-message("install "@esmp_install@)
-message("")
-
-message("INSTALL @esmp_source@ DESTINATION @esmp_install@")
 file(INSTALL @esmp_source@ DESTINATION @esmp_install@)
 
 if(NOT ${res} EQUAL 0)

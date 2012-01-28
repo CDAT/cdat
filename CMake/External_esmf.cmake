@@ -2,13 +2,6 @@
 set(esmf_source "${CMAKE_CURRENT_BINARY_DIR}/build/esmf" CACHE INTERNAL "")
 set(esmf_install "cdat_EXTERNALS}" CACHE INTERNAL "")
 
-message("")
-message("external_step ESMF")
-message("install_dir "${esmf_source})
-message("cdat_EXTERNALS "${cdat_EXTERNALS})
-message("esmf_install "${esmf_install})
-message("")
-
 configure_file(${cdat_CMAKE_SOURCE_DIR}/esmf_make_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/esmf_make_step.cmake
   @ONLY)
