@@ -4,13 +4,11 @@
 #
 #===========================================================================
 
-
 """UnitDblConverter module containing class UnitDblConverter."""
 
 #===========================================================================
 # Place all imports after here.
 #
-from __future__ import print_function
 import numpy as np
 import matplotlib.units as units
 import matplotlib.ticker as ticker

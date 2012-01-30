@@ -2,7 +2,6 @@
 Contains a class for managing paths (polylines).
 """
 
-from __future__ import print_function
 import math
 from weakref import WeakValueDictionary
 

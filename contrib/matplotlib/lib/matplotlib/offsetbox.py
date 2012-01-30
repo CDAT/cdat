@@ -15,7 +15,6 @@ width and height of the its child text.
 """
 
 
-from __future__ import print_function
 import matplotlib.transforms as mtransforms
 import matplotlib.artist as martist
 import matplotlib.text as mtext
@@ -620,7 +619,7 @@ class TextArea(OffsetBox):
         if textprops is None:
             textprops = {}
 
-        if "va" not in textprops:
+        if not textprops.has_key("va"):
             textprops["va"]="baseline"
 
         self._text = mtext.Text(0, 0, s, **textprops)

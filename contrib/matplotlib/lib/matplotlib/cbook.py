@@ -2,9 +2,8 @@
 A collection of utility functions and classes.  Many (but not all)
 from the Python Cookbook -- hence the name cbook
 """
-from __future__ import print_function
-
-import re, os, errno, sys, io, traceback, locale, threading, types
+from __future__ import generators
+import re, os, errno, sys, StringIO, traceback, locale, threading, types
 import time, datetime
 import warnings
 import numpy as np
@@ -13,35 +12,12 @@ from weakref import ref, WeakKeyDictionary
 import cPickle
 import os.path
 import random
-from functools import reduce
+import new
 
 import matplotlib
 
 major, minor1, minor2, s, tmp = sys.version_info
 
-# Handle the transition from urllib2 in Python 2 to urllib in Python 3
-if major >= 3:
-    import types
-    import urllib.request, urllib.error, urllib.parse
-    def urllib_quote():
-        return urllib.parse.quote
-    def addinfourl(data, headers, url, code=None):
-        return urllib.request.addinfourl(io.BytesIO(data),
-                                         headers, url, code)
-    urllib_HTTPSHandler = urllib.request.HTTPSHandler
-    urllib_build_opener = urllib.request.build_opener
-    urllib_URLError = urllib.error.URLError
-else:
-    import new
-    import urllib2
-    def urllib_quote():
-        return urllib2.quote
-    def addinfourl(data, headers, url, code=None):
-        return urllib2.addinfourl(io.StringIO(data),
-                                  headers, url, code)
-    urllib_HTTPSHandler = urllib2.HTTPSHandler
-    urllib_build_opener = urllib2.build_opener
-    urllib_URLError = urllib2.URLError
 
 # On some systems, locale.getpreferredencoding returns None,
 # which can break unicode; and the sage project reports that
@@ -52,40 +28,20 @@ else:
 # On some systems, getpreferredencoding sets the locale, which has
 # side effects.  Passing False eliminates those side effects.
 
-if sys.version_info[0] >= 3:
-    def unicode_safe(s):
-        import matplotlib
 
-        try:
-            preferredencoding = locale.getpreferredencoding(
-                matplotlib.rcParams['axes.formatter.use_locale']).strip()
-            if not preferredencoding:
-                preferredencoding = None
-        except (ValueError, ImportError, AttributeError):
+def unicode_safe(s):
+    import matplotlib
+
+    try:
+        preferredencoding = locale.getpreferredencoding(
+            matplotlib.rcParams['axes.formatter.use_locale']).strip()
+        if not preferredencoding:
             preferredencoding = None
+    except (ValueError, ImportError, AttributeError):
+        preferredencoding = None
 
-        if isinstance(s, bytes):
-            if preferredencoding is None:
-                return unicode(s)
-            else:
-                # We say "unicode" and not "str" here so it passes through
-                # 2to3 correctly.
-                return unicode(s, preferredencoding)
-        return s
-else:
-    def unicode_safe(s):
-        import matplotlib
-
-        try:
-            preferredencoding = locale.getpreferredencoding(
-                matplotlib.rcParams['axes.formatter.use_locale']).strip()
-            if not preferredencoding:
-                preferredencoding = None
-        except (ValueError, ImportError, AttributeError):
-            preferredencoding = None
-
-        if preferredencoding is None: return unicode(s)
-        else: return unicode(s, preferredencoding)
+    if preferredencoding is None: return unicode(s)
+    else: return unicode(s, preferredencoding)
 
 
 class converter:
@@ -228,10 +184,7 @@ class CallbackRegistry:
                 raise ReferenceError
             elif self.inst is not None:
                 # build a new instance method with a strong reference to the instance
-                if sys.version_info[0] >= 3:
-                    mtd = types.MethodType(self.func, self.inst())
-                else:
-                    mtd = new.instancemethod(self.func, self.inst(), self.klass)
+                mtd = new.instancemethod(self.func, self.inst(), self.klass)
             else:
                 # not a bound method, just return the func
                 mtd = self.func
@@ -264,24 +217,21 @@ class CallbackRegistry:
                 DeprecationWarning)
         self.callbacks = dict()
         self._cid = 0
-        self._func_cid_map = {}
+        self._func_cid_map = WeakKeyDictionary()
 
     def connect(self, s, func):
         """
         register *func* to be called when a signal *s* is generated
         func will be called
         """
-        self._func_cid_map.setdefault(s, WeakKeyDictionary())
-        if func in self._func_cid_map[s]:
-            return self._func_cid_map[s][func]
-
-        self._cid += 1
-        cid = self._cid
-        self._func_cid_map[s][func] = cid
-        self.callbacks.setdefault(s, dict())
+        if func in self._func_cid_map:
+            return self._func_cid_map[func]
         proxy = self.BoundMethodProxy(func)
-        self.callbacks[s][cid] = proxy
-        return cid
+        self._cid += 1
+        self.callbacks.setdefault(s, dict())
+        self.callbacks[s][self._cid] = proxy
+        self._func_cid_map[func] = self._cid
+        return self._cid
 
     def disconnect(self, cid):
         """
@@ -409,7 +359,7 @@ class Bunch:
 
 
     def __repr__(self):
-        keys = self.__dict__.iterkeys()
+        keys = self.__dict__.keys()
         return 'Bunch(%s)'%', '.join(['%s=%s'%(k,self.__dict__[k]) for k in keys])
 
 def unique(x):
@@ -480,7 +430,7 @@ def to_filehandle(fname, flag='rU', return_opened=False):
             import bz2
             fh = bz2.BZ2File(fname, flag)
         else:
-            fh = open(fname, flag)
+            fh = file(fname, flag)
         opened = True
     elif hasattr(fname, 'seek'):
         fh = fname
@@ -495,18 +445,19 @@ def is_scalar_or_string(val):
     return is_string_like(val) or not iterable(val)
 
 def _get_data_server(cache_dir, baseurl):
-    class ViewVCCachedServer(urllib_HTTPSHandler):
+    import urllib2
+    class ViewVCCachedServer(urllib2.HTTPSHandler):
         """
-        Urllib handler that takes care of caching files.
+        Urllib2 handler that takes care of caching files.
         The file cache.pck holds the directory of files that have been cached.
         """
         def __init__(self, cache_dir, baseurl):
-            urllib_HTTPSHandler.__init__(self)
+            urllib2.HTTPSHandler.__init__(self)
             self.cache_dir = cache_dir
             self.baseurl = baseurl
             self.read_cache()
             self.remove_stale_files()
-            self.opener = urllib_build_opener(self)
+            self.opener = urllib2.build_opener(self)
 
         def in_cache_dir(self, fn):
             # make sure the datadir exists
@@ -526,8 +477,9 @@ def _get_data_server(cache_dir, baseurl):
                 self.cache = {}
                 return
 
-            with open(fn, 'rb') as f:
-                cache = cPickle.load(f)
+            f = open(fn, 'rb')
+            cache = cPickle.load(f)
+            f.close()
 
             # Earlier versions did not have the full paths in cache.pck
             for url, (fn, x, y) in cache.items():
@@ -570,8 +522,9 @@ def _get_data_server(cache_dir, baseurl):
             Write the cache data structure into the cache directory.
             """
             fn = self.in_cache_dir('cache.pck')
-            with open(fn, 'wb') as f:
-                cPickle.dump(self.cache, f, -1)
+            f = open(fn, 'wb')
+            cPickle.dump(self.cache, f, -1)
+            f.close()
 
         def cache_file(self, url, data, headers):
             """
@@ -581,15 +534,16 @@ def _get_data_server(cache_dir, baseurl):
             fn = url[len(self.baseurl):]
             fullpath = self.in_cache_dir(fn)
 
-            with open(fullpath, 'wb') as f:
-                f.write(data)
+            f = open(fullpath, 'wb')
+            f.write(data)
+            f.close()
 
             # Update the cache
             self.cache[url] = (fullpath, headers.get('ETag'),
                                headers.get('Last-Modified'))
             self.write_cache()
 
-        # These urllib entry points are used:
+        # These urllib2 entry points are used:
         # http_request for preprocessing requests
         # http_error_304 for handling 304 Not Modified responses
         # http_response for postprocessing requests
@@ -619,8 +573,8 @@ def _get_data_server(cache_dir, baseurl):
             matplotlib.verbose.report(
                 'ViewVCCachedServer: reading data file from cache file "%s"'
                 %fn, 'debug')
-            with open(fn, 'rb') as file:
-                handle = addinfourl(file, hdrs, url)
+            file = open(fn, 'rb')
+            handle = urllib2.addinfourl(file, hdrs, url)
             handle.code = 304
             return handle
 
@@ -636,9 +590,9 @@ def _get_data_server(cache_dir, baseurl):
             else:
                 data = response.read()
                 self.cache_file(req.get_full_url(), data, response.headers)
-                result = addinfourl(StringIO.StringIO(data),
-                                    response.headers,
-                                    req.get_full_url())
+                result = urllib2.addinfourl(StringIO.StringIO(data),
+                                            response.headers,
+                                            req.get_full_url())
                 result.code = response.code
                 result.msg = response.msg
                 return result
@@ -653,9 +607,14 @@ def _get_data_server(cache_dir, baseurl):
             path to the file as a string will be returned.
             """
             # TODO: time out if the connection takes forever
-            # (may not be possible with urllib only - spawn a helper process?)
+            # (may not be possible with urllib2 only - spawn a helper process?)
 
-            quote = urllib_quote()
+            # quote is not in python2.4, so check for it and get it from
+            # urllib if it is not available
+            quote = getattr(urllib2, 'quote', None)
+            if quote is None:
+                import urllib
+                quote = urllib.quote
 
             # retrieve the URL for the side effect of refreshing the cache
             url = self.baseurl + quote(fname)
@@ -664,7 +623,7 @@ def _get_data_server(cache_dir, baseurl):
                                       % url, 'debug')
             try:
                 response = self.opener.open(url)
-            except urllib_URLError as e:
+            except urllib2.URLError, e:
                 # could be a missing network connection
                 error = str(e)
 
@@ -833,7 +792,7 @@ class Xlator(dict):
 
     def _make_regex(self):
         """ Build re object based on the keys of the current dictionary """
-        return re.compile("|".join(map(re.escape, self.iterkeys())))
+        return re.compile("|".join(map(re.escape, self.keys())))
 
     def __call__(self, match):
         """ Handler invoked for each regex *match* """
@@ -889,7 +848,7 @@ class Null:
 
 
 
-def mkdirs(newdir, mode=0o777):
+def mkdirs(newdir, mode=0777):
     """
     make directory *newdir* recursively, and set *mode*.  Equivalent to ::
 
@@ -904,7 +863,7 @@ def mkdirs(newdir, mode=0o777):
                 if not os.path.exists(thispart):
                     os.makedirs(thispart, mode)
 
-    except OSError as err:
+    except OSError, err:
         # Reraise the error unless it's about an already existing directory
         if err.errno != errno.EEXIST or not os.path.isdir(newdir):
             raise
@@ -978,7 +937,7 @@ def get_split_ind(seq, N):
 
     sLen = 0
     # todo: use Alex's xrange pattern from the cbook for efficiency
-    for (word, ind) in zip(seq, xrange(len(seq))):
+    for (word, ind) in zip(seq, range(len(seq))):
         sLen += len(word) + 1  # +1 to account for the len(' ')
         if sLen>=N: return ind
     return len(seq)
@@ -1059,22 +1018,27 @@ def listFiles(root, patterns='*', recurse=1, return_folders=0):
     import os.path, fnmatch
     # Expand patterns from semicolon-separated string to list
     pattern_list = patterns.split(';')
-    results = []
+    # Collect input and output arguments into one bunch
+    class Bunch:
+        def __init__(self, **kwds): self.__dict__.update(kwds)
+    arg = Bunch(recurse=recurse, pattern_list=pattern_list,
+        return_folders=return_folders, results=[])
 
-    for dirname, dirs, files in os.walk(root):
-        # Append to results all relevant files (and perhaps folders)
+    def visit(arg, dirname, files):
+        # Append to arg.results all relevant files (and perhaps folders)
         for name in files:
             fullname = os.path.normpath(os.path.join(dirname, name))
-            if return_folders or os.path.isfile(fullname):
-                for pattern in pattern_list:
+            if arg.return_folders or os.path.isfile(fullname):
+                for pattern in arg.pattern_list:
                     if fnmatch.fnmatch(name, pattern):
-                        results.append(fullname)
+                        arg.results.append(fullname)
                         break
         # Block recursion if recursion was disallowed
-        if not recurse:
-            break
+        if not arg.recurse: files[:]=[]
 
-    return results
+    os.path.walk(root, visit, arg)
+
+    return arg.results
 
 def get_recursive_filelist(args):
     """
@@ -1106,8 +1070,8 @@ def pieces(seq, num=2):
 
 def exception_to_str(s = None):
 
-    sh = io.StringIO()
-    if s is not None: print(s, file=sh)
+    sh = StringIO.StringIO()
+    if s is not None: print >>sh, s
     traceback.print_exc(file=sh)
     return sh.getvalue()
 
@@ -1279,7 +1243,7 @@ def finddir(o, match, case=False):
 
 def reverse_dict(d):
     'reverse the dictionary -- may lose data if values are not unique!'
-    return dict([(v,k) for k,v in d.iteritems()])
+    return dict([(v,k) for k,v in d.items()])
 
 def restrict_dict(d, keys):
     """
@@ -1369,18 +1333,18 @@ class MemoryMonitor:
         dn = int(n/segments)
         ii = range(0, n, dn)
         ii[-1] = n-1
-        print()
-        print('memory report: i, mem, dmem, dmem/nloops')
-        print(0, self._mem[0])
+        print
+        print 'memory report: i, mem, dmem, dmem/nloops'
+        print 0, self._mem[0]
         for i in range(1, len(ii)):
             di = ii[i] - ii[i-1]
             if di == 0:
                 continue
             dm = self._mem[ii[i]] - self._mem[ii[i-1]]
-            print('%5d %5d %3d %8.3f' % (ii[i], self._mem[ii[i]],
-                                            dm, dm / float(di)))
+            print '%5d %5d %3d %8.3f' % (ii[i], self._mem[ii[i]],
+                                            dm, dm / float(di))
         if self._overflow:
-            print("Warning: array size was too small for the number of calls.")
+            print "Warning: array size was too small for the number of calls."
 
     def xy(self, i0=0, isub=1):
         x = np.arange(i0, self._n, isub)
@@ -1419,7 +1383,7 @@ def print_cycles(objects, outstream=sys.stdout, show_progress=False):
 
             outstream.write("   %s -- " % str(type(step)))
             if isinstance(step, dict):
-                for key, val in step.iteritems():
+                for key, val in step.items():
                     if val is next:
                         outstream.write("[%s]" % repr(key))
                         break
@@ -1509,10 +1473,10 @@ class Grouper(object):
         Clean dead weak references from the dictionary
         """
         mapping = self._mapping
-        to_drop = [key for key in mapping if key() is None]
-        for key in to_drop:
-            val = mapping.pop(key)
-            val.remove(key)
+        for key, val in mapping.items():
+            if key() is None:
+                del mapping[key]
+                val.remove(key)
 
     def join(self, a, *args):
         """
@@ -1836,7 +1800,7 @@ def align_iterators(func, *iterables):
 
         def iternext(self):
             try:
-                self.value = next(self.it)
+                self.value = self.it.next()
                 self.key = func(self.value)
             except StopIteration:
                 self.value = self.key = None
@@ -1847,14 +1811,14 @@ def align_iterators(func, *iterables):
                 retval = self.value
                 self.iternext()
             elif self.key and key > self.key:
-                raise ValueError("Iterator has been left behind")
+                raise ValueError, "Iterator has been left behind"
             return retval
 
     # This can be made more efficient by not computing the minimum key for each iteration
     iters = [myiter(it) for it in iterables]
     minvals = minkey = True
     while 1:
-        minvals = ([_f for _f in [it.key for it in iters] if _f])
+        minvals = (filter(None, [it.key for it in iters]))
         if minvals:
             minkey = min(minvals)
             yield (minkey, [it(minkey) for it in iters])

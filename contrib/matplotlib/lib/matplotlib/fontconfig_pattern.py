@@ -19,14 +19,9 @@ information.
 # dependency problems, or an undesired dependency on traits even
 # when the traits-based config framework is not used.
 
-from __future__ import print_function
-import re, sys
-if sys.version_info[0] >= 3:
-    from matplotlib.pyparsing_py3 import Literal, ZeroOrMore, \
-         Optional, Regex, StringEnd, ParseException, Suppress
-else:
-    from matplotlib.pyparsing_py2 import Literal, ZeroOrMore, \
-         Optional, Regex, StringEnd, ParseException, Suppress
+import re
+from matplotlib.pyparsing import Literal, ZeroOrMore, \
+    Optional, Regex, StringEnd, ParseException, Suppress
 
 family_punc = r'\\\-:,'
 family_unescape = re.compile(r'\\([%s])' % family_punc).sub
@@ -128,14 +123,10 @@ class FontconfigPatternParser:
         props = self._properties = {}
         try:
             self._parser.parseString(pattern)
-        except self.ParseException as e:
-            raise ValueError(
-                "Could not parse font string: '%s'\n%s" % (pattern, e))
+        except self.ParseException, e:
+            raise ValueError("Could not parse font string: '%s'\n%s" % (pattern, e))
 
         self._properties = None
-
-        self._parser.resetCache()
-
         return props
 
     def _family(self, s, loc, tokens):

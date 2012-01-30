@@ -52,7 +52,7 @@ static PyMethodDef _backend_gdk_functions[] = {
     { NULL, NULL, 0 }
 };
 
-PyMODINIT_FUNC
+DL_EXPORT(void)
 init_backend_gdk(void)
 {
     PyObject *mod;

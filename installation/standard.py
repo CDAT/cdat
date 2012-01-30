@@ -17,7 +17,7 @@
 import subprocess
 import re
 
-## This part figures out the target tihng
+## This part figures out the target thing
 target_prefix = sys.prefix
 for i in range(len(sys.argv)):
     a = sys.argv[i]
@@ -65,7 +65,9 @@ elif os.path.exists(os.path.join(sys.exec_prefix, 'bin', 'pyfort')):
 else:
     action['*.pfp'] = "pyfort  -i %(file)s ; "
     
-action['setup.py'] = sys.executable + ' setup.py install --prefix=%s ; ' % target_prefix
+# matplotlib depends on pkg-config
+action['setup.py'] = 'PATH=%s/bin:$PATH && %s setup.py install --prefix=%s ; ' \
+    % (sys.exec_prefix, sys.executable, target_prefix)
 action['install_script'] = './install_script %s %s ; ' % (target_prefix, sys.exec_prefix)
 for k in ['makefile','Makefile','MAKEFILE']:
     action[k] = make_code + " PYPREFIX='%s' PREFIX='%s' install ; " % (sys.exec_prefix,target_prefix)

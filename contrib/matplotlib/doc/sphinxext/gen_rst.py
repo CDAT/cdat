@@ -1,7 +1,6 @@
 """
 generate the rst files for the examples by iterating over the pylab examples
 """
-from __future__ import print_function
 import os, glob
 
 import os
@@ -153,7 +152,7 @@ Matplotlib Examples
 
     fhindex.close()
 
-    print()
+    print
 
 def setup(app):
     app.connect('builder-inited', generate_example_rst)

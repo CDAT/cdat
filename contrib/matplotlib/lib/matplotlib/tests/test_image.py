@@ -1,4 +1,3 @@
-from __future__ import print_function
 import numpy as np
 
 from matplotlib.testing.decorators import image_comparison, knownfailureif, cleanup
@@ -7,7 +6,7 @@ import matplotlib.pyplot as plt
 from nose.tools import assert_raises
 from numpy.testing import assert_array_equal
 
-import io
+import cStringIO
 import os
 
 @image_comparison(baseline_images=['image_interps'])
@@ -71,7 +70,7 @@ def test_image_python_io():
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.plot([1,2,3])
-    buffer = io.BytesIO()
+    buffer = cStringIO.StringIO()
     fig.savefig(buffer)
     buffer.seek(0)
     plt.imread(buffer)
@@ -97,10 +96,10 @@ def test_imsave():
     random.seed(1)
     data = random.rand(256, 128)
 
-    buff_dpi1 = io.BytesIO()
+    buff_dpi1 = cStringIO.StringIO()
     plt.imsave(buff_dpi1, data, dpi=1)
 
-    buff_dpi100 = io.BytesIO()
+    buff_dpi100 = cStringIO.StringIO()
     plt.imsave(buff_dpi100, data, dpi=100)
 
     buff_dpi1.seek(0)
@@ -136,8 +135,6 @@ def test_imshow():
     ax.imshow(arr, interpolation="bilinear", extent=(1,2,1,2))
     ax.set_xlim(0,3)
     ax.set_ylim(0,3)
-    ax.set_xticks([])
-    ax.set_yticks([])
 
 if __name__=='__main__':
     import nose

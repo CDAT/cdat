@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 import numpy as np
 from basic_units import cm, inch
-import matplotlib.pyplot as plt
-
+from pylab import figure, show
 
 N = 5
 menMeans = (150*cm, 160*cm, 146*cm, 172*cm, 155*cm)
 menStd =   ( 20*cm,  30*cm,  32*cm,  10*cm,  20*cm)
 
-fig = plt.figure()
+fig = figure()
 ax = fig.add_subplot(111)
 
 ind = np.arange(N)    # the x locations for the groups
@@ -28,5 +27,5 @@ ax.legend( (p1[0], p2[0]), ('Men', 'Women') )
 ax.yaxis.set_units(inch)
 ax.autoscale_view()
 
-#plt.savefig('barchart_demo')
-plt.show()
+#savefig('barchart_demo')
+show()

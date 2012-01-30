@@ -22,12 +22,6 @@
 #include <stdio.h>
 #include "numpy/arrayobject.h"
 
-#if PY_MAJOR_VERSION >= 3
-#define PY3K 1
-#else
-#define PY3K 0
-#endif
-
 /* Note that all arrays in these routines are Fortran-style,
    in the sense that the "i" index varies fastest; the dimensions
    of the corresponding C array are z[jmax][imax] in the notation
@@ -1751,11 +1745,7 @@ static void
 Cntr_dealloc(Cntr* self)
 {
     Cntr_clear(self);
-    #if PY3K
-        Py_TYPE(self)->tp_free((PyObject*)self);
-    #else
-        self->ob_type->tp_free((PyObject*)self);
-    #endif
+    self->ob_type->tp_free((PyObject*)self);
 }
 
 static PyObject *
@@ -1925,12 +1915,8 @@ static PyMethodDef Cntr_methods[] = {
 };
 
 static PyTypeObject CntrType = {
-    #if PY3K
-        PyVarObject_HEAD_INIT(NULL, 0)
-    #else
-        PyObject_HEAD_INIT(NULL)
-        0,                         /*ob_size*/
-    #endif
+    PyObject_HEAD_INIT(NULL)
+    0,                         /*ob_size*/
     "cntr.Cntr",               /*tp_name*/
     sizeof(Cntr),              /*tp_basicsize*/
     0,                         /*tp_itemsize*/
@@ -1974,54 +1960,24 @@ static PyMethodDef module_methods[] = {
     {NULL}  /* Sentinel */
 };
 
-#if PY3K
-static PyModuleDef cntr_module = {
-    PyModuleDef_HEAD_INIT,
-    "_cntr",
-    "Contouring engine as an extension type (numpy).",
-    -1,
-    module_methods,
-    NULL, NULL, NULL, NULL
-};
-
-#define ERROR_RETURN return NULL
-
-PyMODINIT_FUNC
-PyInit__cntr(void)
-#else
-#define ERROR_RETURN return
-
 PyMODINIT_FUNC
 init_cntr(void)
-#endif
 {
     PyObject* m;
 
-    if (PyType_Ready(&CntrType) < 0) {
-        ERROR_RETURN;
-    }
+    if (PyType_Ready(&CntrType) < 0)
+        return;
 
-    #if PY3K
-        m = PyModule_Create(&cntr_module);
-    #else
-        m = Py_InitModule3("_cntr", module_methods,
-                           "Contouring engine as an extension type (numpy).");
-    #endif
+    m = Py_InitModule3("_cntr", module_methods,
+                       "Contouring engine as an extension type (numpy).");
 
-    if (m == NULL) {
-        ERROR_RETURN;
-    }
-
+    if (m == NULL)
+      return;
     PyModule_AddIntConstant(m, "_slitkind", (long)kind_slit_up );
     /* We can add all the point_kinds values later if we need them. */
     import_array();
-
     Py_INCREF(&CntrType);
     PyModule_AddObject(m, "Cntr", (PyObject *)&CntrType);
-
-    #if PY3K
-        return m;
-    #endif
 }
 
 

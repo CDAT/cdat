@@ -2,7 +2,6 @@
 This module is to support *bbox_inches* option in savefig command.
 """
 
-from __future__ import print_function
 import warnings
 from matplotlib.transforms import Bbox, TransformedBbox, Affine2D
 
@@ -110,7 +109,7 @@ def adjust_bbox_pdf(fig, bbox_inches):
 
 def process_figure_for_rasterizing(figure,
                                    bbox_inches_restore, mode):
-
+    
     """
     This need to be called when figure dpi changes during the drawing
     (e.g., rasterizing). It recovers the bbox and re-adjust it with

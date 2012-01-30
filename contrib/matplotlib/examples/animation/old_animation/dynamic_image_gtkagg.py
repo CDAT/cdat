@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-
-from __future__ import print_function
 """
 An animated image
 """
@@ -36,7 +34,7 @@ def updatefig(*args):
     manager.canvas.draw()
     cnt += 1
     if cnt==50:
-        print('FPS', cnt/(time.time() - tstart))
+        print 'FPS', cnt/(time.time() - tstart)
         return False
     return True
 

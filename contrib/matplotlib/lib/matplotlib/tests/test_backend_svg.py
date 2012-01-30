@@ -1,8 +1,6 @@
-from __future__ import print_function
 import matplotlib.pyplot as plt
 import numpy as np
-import sys
-from io import BytesIO
+import cStringIO as StringIO
 import xml.parsers.expat
 from matplotlib.testing.decorators import knownfailureif, cleanup
 
@@ -21,8 +19,8 @@ def test_visibility():
     for artist in b:
         artist.set_visible(False)
 
-    fd = BytesIO()
-    fig.savefig(fd,format='svg')
+    fd = StringIO.StringIO()
+    fig.savefig(fd, format='svg')
 
     fd.seek(0)
     buf = fd.read()

@@ -42,12 +42,8 @@ public:
     {
         add_varargs_method("write_png", &_png_module::write_png,
                            "write_png(buffer, width, height, fileobj, dpi=None)");
-        add_varargs_method("read_png", &_png_module::read_png_float,
+        add_varargs_method("read_png", &_png_module::read_png,
                            "read_png(fileobj)");
-        add_varargs_method("read_png_float", &_png_module::read_png_float,
-                           "read_png_float(fileobj)");
-        add_varargs_method("read_png_uint8", &_png_module::read_png_uint8,
-                           "read_png_uint8(fileobj)");
         initialize("Module to write PNG files");
     }
 
@@ -55,9 +51,7 @@ public:
 
 private:
     Py::Object write_png(const Py::Tuple& args);
-    Py::Object read_png_uint8(const Py::Tuple& args);
-    Py::Object read_png_float(const Py::Tuple& args);
-    PyObject* _read_png(const Py::Object& py_fileobj, const bool float_result);
+    Py::Object read_png(const Py::Tuple& args);
 };
 
 static void write_png_data(png_structp png_ptr, png_bytep data, png_size_t length)
@@ -67,13 +61,8 @@ static void write_png_data(png_structp png_ptr, png_bytep data, png_size_t lengt
     PyObject* result = NULL;
     if (write_method)
     {
-        #if PY3K
-        result = PyObject_CallFunction(write_method, (char *)"y#", data,
-                                       length);
-        #else
         result = PyObject_CallFunction(write_method, (char *)"s#", data,
                                        length);
-        #endif
     }
     Py_XDECREF(write_method);
     Py_XDECREF(result);
@@ -125,10 +114,6 @@ Py::Object _png_module::write_png(const Py::Tuple& args)
     }
 
     Py::Object py_fileobj = Py::Object(args[3]);
-#if PY3K
-    int fd = PyObject_AsFileDescriptor(py_fileobj.ptr());
-    PyErr_Clear();
-#endif
     if (py_fileobj.isString())
     {
         std::string fileName = Py::String(py_fileobj);
@@ -140,17 +125,10 @@ Py::Object _png_module::write_png(const Py::Tuple& args)
         }
         close_file = true;
     }
-#if PY3K
-    else if (fd != -1)
-    {
-        fp = fdopen(fd, "w");
-    }
-#else
     else if (PyFile_CheckExact(py_fileobj.ptr()))
     {
         fp = PyFile_AsFile(py_fileobj.ptr());
     }
-#endif
     else
     {
         PyObject* write_method = PyObject_GetAttrString(
@@ -233,30 +211,24 @@ Py::Object _png_module::write_png(const Py::Tuple& args)
     }
     catch (...)
     {
-        if (png_ptr && info_ptr)
-        {
-            png_destroy_write_struct(&png_ptr, &info_ptr);
-        }
-        delete [] row_pointers;
         if (fp && close_file)
         {
             fclose(fp);
         }
+        delete [] row_pointers;
         /* Changed calls to png_destroy_write_struct to follow
            http://www.libpng.org/pub/png/libpng-manual.txt.
            This ensures the info_ptr memory is released.
         */
+        if (png_ptr && info_ptr)
+        {
+            png_destroy_write_struct(&png_ptr, &info_ptr);
+        }
         throw;
     }
 
     png_destroy_write_struct(&png_ptr, &info_ptr);
     delete [] row_pointers;
-#if PY3K
-    if (fp)
-    {
-        fflush(fp);
-    }
-#endif
     if (fp && close_file)
     {
         fclose(fp);
@@ -279,7 +251,7 @@ static void _read_png_data(PyObject* py_file_obj, png_bytep data, png_size_t len
     {
         result = PyObject_CallFunction(read_method, (char *)"i", length);
     }
-    if (PyBytes_AsStringAndSize(result, &buffer, &bufflen) == 0)
+    if (PyString_AsStringAndSize(result, &buffer, &bufflen) == 0)
     {
         if (bufflen == (Py_ssize_t)length)
         {
@@ -296,18 +268,16 @@ static void read_png_data(png_structp png_ptr, png_bytep data, png_size_t length
     _read_png_data(py_file_obj, data, length);
 }
 
-PyObject*
-_png_module::_read_png(const Py::Object& py_fileobj, const bool float_result)
+Py::Object
+_png_module::read_png(const Py::Tuple& args)
 {
+
+    args.verify_length(1);
     png_byte header[8];   // 8 is the maximum size that can be checked
     FILE* fp = NULL;
     bool close_file = false;
 
-#if PY3K
-    int fd = PyObject_AsFileDescriptor(py_fileobj.ptr());
-    PyErr_Clear();
-#endif
-
+    Py::Object py_fileobj = Py::Object(args[0]);
     if (py_fileobj.isString())
     {
         std::string fileName = Py::String(py_fileobj);
@@ -319,16 +289,10 @@ _png_module::_read_png(const Py::Object& py_fileobj, const bool float_result)
         }
         close_file = true;
     }
-#if PY3K
-    else if (fd != -1) {
-        fp = fdopen(fd, "r");
-    }
-#else
     else if (PyFile_CheckExact(py_fileobj.ptr()))
     {
         fp = PyFile_AsFile(py_fileobj.ptr());
     }
-#endif
     else
     {
         PyObject* read_method = PyObject_GetAttrString(py_fileobj.ptr(), "read");
@@ -465,70 +429,35 @@ _png_module::_read_png(const Py::Object& py_fileobj, const bool float_result)
     int num_dims  = (png_get_color_type(png_ptr, info_ptr)
                                 & PNG_COLOR_MASK_COLOR) ? 3 : 2;
 
-    PyArrayObject *A = NULL;
-    if (float_result) {
-        double max_value = (1 << bit_depth) - 1;
-        PyArrayObject *A = (PyArrayObject *) PyArray_SimpleNew(
-            num_dims, dimensions, PyArray_FLOAT);
+    double max_value = (1 << ((bit_depth < 8) ? 8 : bit_depth)) - 1;
+    PyArrayObject *A = (PyArrayObject *) PyArray_SimpleNew(
+        num_dims, dimensions, PyArray_FLOAT);
 
-        if (A == NULL)
-        {
-            throw Py::MemoryError("Could not allocate image array");
-        }
+    if (A == NULL)
+    {
+        throw Py::MemoryError("Could not allocate image array");
+    }
 
-        for (png_uint_32 y = 0; y < height; y++)
+    for (png_uint_32 y = 0; y < height; y++)
+    {
+        png_byte* row = row_pointers[y];
+        for (png_uint_32 x = 0; x < width; x++)
         {
-            png_byte* row = row_pointers[y];
-            for (png_uint_32 x = 0; x < width; x++)
+            size_t offset = y * A->strides[0] + x * A->strides[1];
+            if (bit_depth == 16)
             {
-                size_t offset = y * A->strides[0] + x * A->strides[1];
-                if (bit_depth == 16)
+                png_uint_16* ptr = &reinterpret_cast<png_uint_16*>(row)[x * dimensions[2]];
+                for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++)
                 {
-                    png_uint_16* ptr = &reinterpret_cast<png_uint_16*>(row)[x * dimensions[2]];
-                    for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++)
-                    {
-                        *(float*)(A->data + offset + p*A->strides[2]) = (float)(ptr[p]) / max_value;
-                    }
-                }
-                else
-                {
-                    png_byte* ptr = &(row[x * dimensions[2]]);
-                    for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++)
-                    {
-                        *(float*)(A->data + offset + p*A->strides[2]) = (float)(ptr[p]) / max_value;
-                    }
+                    *(float*)(A->data + offset + p*A->strides[2]) = (float)(ptr[p]) / max_value;
                 }
             }
-        }
-    } else {
-        A = (PyArrayObject *) PyArray_SimpleNew(num_dims, dimensions, NPY_UBYTE);
-
-        if (A == NULL)
-        {
-            throw Py::MemoryError("Could not allocate image array");
-        }
-
-        for (png_uint_32 y = 0; y < height; y++)
-        {
-            png_byte* row = row_pointers[y];
-            for (png_uint_32 x = 0; x < width; x++)
+            else
             {
-                size_t offset = y * A->strides[0] + x * A->strides[1];
-                if (bit_depth == 16)
+                png_byte* ptr = &(row[x * dimensions[2]]);
+                for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++)
                 {
-                    png_uint_16* ptr = &reinterpret_cast<png_uint_16*>(row)[x * dimensions[2]];
-                    for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++)
-                    {
-                        *(png_byte*)(A->data + offset + p*A->strides[2]) = ptr[p] >> 8;
-                    }
-                }
-                else
-                {
-                    png_byte* ptr = &(row[x * dimensions[2]]);
-                    for (png_uint_32 p = 0; p < (png_uint_32)dimensions[2]; p++)
-                    {
-                        *(png_byte*)(A->data + offset + p*A->strides[2]) = ptr[p];
-                    }
+                    *(float*)(A->data + offset + p*A->strides[2]) = (float)(ptr[p]) / max_value;
                 }
             }
         }
@@ -553,39 +482,18 @@ _png_module::_read_png(const Py::Object& py_fileobj, const bool float_result)
 
     if (PyErr_Occurred()) {
         Py_DECREF((PyObject *)A);
-        return NULL;
+        throw Py::Exception();
     } else {
-        return (PyObject *)A;
+        return Py::asObject((PyObject*)A);
     }
 }
 
-Py::Object
-_png_module::read_png_float(const Py::Tuple& args)
-{
-    args.verify_length(1);
-    return Py::asObject(_read_png(args[0], true));
-}
-
-Py::Object
-_png_module::read_png_uint8(const Py::Tuple& args)
-{
-    args.verify_length(1);
-    return Py::asObject(_read_png(args[0], false));
-}
-
-PyMODINIT_FUNC
-#if PY3K
-PyInit__png(void)
-#else
-init_png(void)
-#endif
+extern "C"
+    DL_EXPORT(void)
+    init_png(void)
 {
     import_array();
 
     static _png_module* _png = NULL;
     _png = new _png_module;
-
-#if PY3K
-    return _png->module().ptr();
-#endif
 }

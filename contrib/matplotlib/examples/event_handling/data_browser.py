@@ -1,5 +1,16 @@
 import numpy as np
+from pylab import figure, show
 
+
+X = np.random.rand(100, 200)
+xs = np.mean(X, axis=1)
+ys = np.std(X, axis=1)
+
+fig = figure()
+ax = fig.add_subplot(211)
+ax.set_title('click on point to plot time series')
+line, = ax.plot(xs, ys, 'o', picker=5)  # 5 points tolerance
+ax2 = fig.add_subplot(212)
 
 class PointBrowser:
     """
@@ -63,23 +74,9 @@ class PointBrowser:
         fig.canvas.draw()
 
 
-if __name__ == '__main__':
-    import matplotlib.pyplot as plt
+browser = PointBrowser()
 
-    X = np.random.rand(100, 200)
-    xs = np.mean(X, axis=1)
-    ys = np.std(X, axis=1)
+fig.canvas.mpl_connect('pick_event', browser.onpick)
+fig.canvas.mpl_connect('key_press_event', browser.onpress)
 
-    fig = plt.figure()
-    ax = fig.add_subplot(211)
-    ax.set_title('click on point to plot time series')
-    line, = ax.plot(xs, ys, 'o', picker=5)  # 5 points tolerance
-    ax2 = fig.add_subplot(212)
-
-    browser = PointBrowser()
-
-    fig.canvas.mpl_connect('pick_event', browser.onpick)
-    fig.canvas.mpl_connect('key_press_event', browser.onpress)
-
-    plt.show()
-
+show()

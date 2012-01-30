@@ -4,11 +4,13 @@ conversion and different tick formatting depending on the "unit".
 Here the "unit" is just a scalar conversion factor, but this example shows mpl is
 entirely agnostic to what kind of units client packages use
 """
+
+import matplotlib
+
 from matplotlib.cbook import iterable
 import matplotlib.units as units
 import matplotlib.ticker as ticker
-import matplotlib.pyplot as plt
-
+from pylab import figure, show
 
 class Foo:
     def __init__( self, val, unit=1.0 ):
@@ -69,7 +71,7 @@ y = [i for i in range( len(x) ) ]
 
 
 # plot specifying units
-fig = plt.figure()
+fig = figure()
 fig.suptitle("Custom units")
 fig.subplots_adjust(bottom=0.2)
 ax = fig.add_subplot(1,2,2)
@@ -88,4 +90,4 @@ for label in ax.get_xticklabels():
     label.set_rotation(30)
     label.set_ha('right')
 
-plt.show()
+show()

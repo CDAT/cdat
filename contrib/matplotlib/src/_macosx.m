@@ -506,7 +506,7 @@ GraphicsContext_dealloc(GraphicsContext *self)
 static PyObject*
 GraphicsContext_repr(GraphicsContext* self)
 {
-#if PY3K
+#if PY_MAJOR_VERSION >= 3
     return PyUnicode_FromFormat("GraphicsContext object %p wrapping the Quartz 2D graphics context %p", (void*)self, (void*)(self->cr));
 #else
     return PyString_FromFormat("GraphicsContext object %p wrapping the Quartz 2D graphics context %p", (void*)self, (void*)(self->cr));
@@ -2252,7 +2252,7 @@ setfont(CGContextRef cr, PyObject* family, float size, const char weight[],
 #else
     ATSFontRef font = 0;
 #endif
-#if PY3K
+#if PY_MAJOR_VERSION >= 3
     PyObject* ascii = NULL;
 #endif
 
@@ -2435,7 +2435,41 @@ setfont(CGContextRef cr, PyObject* family, float size, const char weight[],
     for (i = 0; i < n; i++)
     {
         PyObject* item = PyList_GET_ITEM(family, i);
-#if PY3K
+#if PY_MAJOR_VERSION >= 3
+        ascii = PyUnicode_AsASCIIString(item);
+        if(!ascii) return 0;
+        temp = PyBytes_AS_STRING(ascii);
+#else
+        if(!PyString_Check(item)) return 0;
+        temp = PyString_AS_STRING(item);
+#endif
+        for (j = 0; j < NMAP; j++)
+        {    if (!strcmp(map[j].name, temp))
+             {    temp = psnames[map[j].index][k];
+                  break;
+             }
+        }
+        /* If the font name is not found in mapping, we assume */
+        /* that the user specified the Postscript name directly */
+
+        /* Check if this font can be found on the system */
+        string = CFStringCreateWithCString(kCFAllocatorDefault,
+                                           temp,
+                                           kCFStringEncodingMacRoman);
+#ifdef COMPILING_FOR_10_5
+        font = CTFontCreateWithName(string, size, NULL);
+#else
+        font = ATSFontFindFromPostScriptName(string, kATSOptionFlagsDefault);
+#endif
+
+        CFRelease(string);
+
+        if(font)
+        {
+            name = temp;
+            break;
+        }
+#if PY_MAJOR_VERSION >= 3
         Py_DECREF(ascii);
         ascii = NULL;
 #endif
@@ -2454,7 +2488,7 @@ setfont(CGContextRef cr, PyObject* family, float size, const char weight[],
 #ifndef COMPILING_FOR_10_5
     CGContextSelectFont(cr, name, size, kCGEncodingMacRoman);
 #endif
-#if PY3K
+#if PY_MAJOR_VERSION >= 3
     Py_XDECREF(ascii);
 #endif
     return font;
@@ -2955,15 +2989,19 @@ GraphicsContext_draw_image(GraphicsContext* self, PyObject* args)
     CGDataProviderRef provider;
     double rect[4] = {0.0, 0.0, self->size.width, self->size.height};
 
+#if PY_MAJOR_VERSION >= 3
     if (!PyBytes_Check(image))
     {
-#if PY3K
-        PyErr_SetString(PyExc_RuntimeError, "image is not a bytes object");
-#else
-        PyErr_SetString(PyExc_RuntimeError, "image is not a str object");
-#endif
+        PyErr_SetString(PyExc_RuntimeError, "image is not a byte array");
         return NULL;
     }
+#else
+    if (!PyString_Check(image))
+    {
+        PyErr_SetString(PyExc_RuntimeError, "image is not a string");
+        return NULL;
+    }
+#endif
 
     const size_t bytesPerComponent = 1;
     const size_t bitsPerComponent = 8 * bytesPerComponent;
@@ -2979,7 +3017,7 @@ GraphicsContext_draw_image(GraphicsContext* self, PyObject* args)
     }
 
     Py_INCREF(image);
-#if PY3K
+#if PY_MAJOR_VERSION >= 3
     n = PyByteArray_GET_SIZE(image);
     data = PyByteArray_AS_STRING(image);
 #else
@@ -3258,7 +3296,7 @@ FigureCanvas_dealloc(FigureCanvas* self)
 static PyObject*
 FigureCanvas_repr(FigureCanvas* self)
 {
-#if PY3K
+#if PY_MAJOR_VERSION >= 3
     return PyUnicode_FromFormat("FigureCanvas object %p wrapping NSView %p",
                                (void*)self, (void*)(self->view));
 #else
@@ -3727,7 +3765,7 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
 static PyObject*
 FigureManager_repr(FigureManager* self)
 {
-#if PY3K
+#if PY_MAJOR_VERSION >= 3
     return PyUnicode_FromFormat("FigureManager object %p wrapping NSWindow %p",
                                (void*) self, (void*)(self->window));
 #else
@@ -4137,7 +4175,7 @@ NavigationToolbar_dealloc(NavigationToolbar *self)
 static PyObject*
 NavigationToolbar_repr(NavigationToolbar* self)
 {
-#if PY3K
+#if PY_MAJOR_VERSION >= 3
     return PyUnicode_FromFormat("NavigationToolbar object %p", (void*)self);
 #else
     return PyString_FromFormat("NavigationToolbar object %p", (void*)self);
@@ -4248,7 +4286,7 @@ NavigationToolbar_get_active (NavigationToolbar* self)
     {
         if(states[i]==1)
         {
-#if PY3K
+#if PY_MAJOR_VERSION >= 3
             PyList_SET_ITEM(list, j, PyLong_FromLong(i));
 #else
             PyList_SET_ITEM(list, j, PyInt_FromLong(i));
@@ -4668,7 +4706,7 @@ NavigationToolbar2_dealloc(NavigationToolbar2 *self)
 static PyObject*
 NavigationToolbar2_repr(NavigationToolbar2* self)
 {
-#if PY3K
+#if PY_MAJOR_VERSION >= 3
     return PyUnicode_FromFormat("NavigationToolbar2 object %p", (void*)self);
 #else
     return PyString_FromFormat("NavigationToolbar2 object %p", (void*)self);
@@ -5062,7 +5100,6 @@ set_cursor(PyObject* unused, PyObject* args)
 {
     int x, y;
     int num;
-    int dblclick = 0;
     PyObject* result;
     PyGILState_STATE gstate;
     NSPoint location = [event locationInWindow];
@@ -5090,11 +5127,8 @@ set_cursor(PyObject* unused, PyObject* args)
          case NSRightMouseDown: num = 3; break;
          default: return; /* Unknown mouse event */
     }
-    if ([event clickCount] == 2) {
-      dblclick = 1;
-    }
     gstate = PyGILState_Ensure();
-    result = PyObject_CallMethod(canvas, "button_press_event", "iiii", x, y, num, dblclick);
+    result = PyObject_CallMethod(canvas, "button_press_event", "iii", x, y, num);
     if(result)
         Py_DECREF(result);
     else
@@ -5171,7 +5205,6 @@ set_cursor(PyObject* unused, PyObject* args)
 {
     int x, y;
     int num = 3;
-    int dblclick = 0;
     PyObject* result;
     PyGILState_STATE gstate;
     NSPoint location = [event locationInWindow];
@@ -5179,10 +5212,7 @@ set_cursor(PyObject* unused, PyObject* args)
     x = location.x;
     y = location.y;
     gstate = PyGILState_Ensure();
-    if ([event clickCount] == 2) {
-      dblclick = 1;
-    }
-    result = PyObject_CallMethod(canvas, "button_press_event", "iiii", x, y, num, dblclick);
+    result = PyObject_CallMethod(canvas, "button_press_event", "iii", x, y, num);
     if(result)
         Py_DECREF(result);
     else
@@ -5232,7 +5262,6 @@ set_cursor(PyObject* unused, PyObject* args)
 {
     int x, y;
     int num = 2;
-    int dblclick = 0;
     PyObject* result;
     PyGILState_STATE gstate;
     NSPoint location = [event locationInWindow];
@@ -5240,10 +5269,7 @@ set_cursor(PyObject* unused, PyObject* args)
     x = location.x;
     y = location.y;
     gstate = PyGILState_Ensure();
-    if ([event clickCount] == 2) {
-      dblclick = 1;
-    }
-    result = PyObject_CallMethod(canvas, "button_press_event", "iiii", x, y, num, dblclick);
+    result = PyObject_CallMethod(canvas, "button_press_event", "iii", x, y, num);
     if(result)
         Py_DECREF(result);
     else
@@ -5605,7 +5631,7 @@ Timer_dealloc(Timer* self)
 static PyObject*
 Timer_repr(Timer* self)
 {
-#if PY3K
+#if PY_MAJOR_VERSION >= 3
     return PyUnicode_FromFormat("Timer object %p wrapping CFRunLoopTimerRef %p",
                                (void*) self, (void*)(self->timer));
 #else
@@ -5786,7 +5812,7 @@ static struct PyMethodDef methods[] = {
    {NULL,          NULL, 0, NULL}/* sentinel */
 };
 
-#if PY3K
+#if PY_MAJOR_VERSION >= 3
 
 static struct PyModuleDef moduledef = {
     PyModuleDef_HEAD_INIT,
@@ -5816,13 +5842,13 @@ void init_macosx(void)
      || PyType_Ready(&NavigationToolbarType) < 0
      || PyType_Ready(&NavigationToolbar2Type) < 0
      || PyType_Ready(&TimerType) < 0)
-#if PY3K
+#if PY_MAJOR_VERSION >= 3
         return NULL;
 #else
         return;
 #endif
 
-#if PY3K
+#if PY_MAJOR_VERSION >= 3
     module = PyModule_Create(&moduledef);
     if (module==NULL) return NULL;
 #else

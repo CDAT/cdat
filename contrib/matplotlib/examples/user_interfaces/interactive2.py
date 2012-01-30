@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-from __future__ import print_function
-
 #  GTK Interactive Console
 #  (C) 2003, Jon Anderson
 #  See www.python.org/2.2/license.html for
@@ -369,7 +367,7 @@ def main():
   if len(sys.argv)>1:
     fname = sys.argv[1]
     if not os.path.exists(fname):
-      print('%s does not exist' % fname)
+      print >> sys.stderr, '%s does not exist' % fname
     for line in file(fname):
       line = line.strip()
 

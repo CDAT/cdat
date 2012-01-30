@@ -11,7 +11,7 @@ handlers are defined in the :mod:`~matplotlib.legend_handler` module). Note
 that not all kinds of artist are supported by the legend yet (See
 :ref:`plotting-guide-legend` for more information).
 """
-from __future__ import division, print_function
+from __future__ import division
 import warnings
 
 import numpy as np
@@ -257,7 +257,7 @@ in the normalized axes coordinate.
         bbox = parent.bbox
         axessize_fontsize = min(bbox.width, bbox.height)/self._fontsize
 
-        for k, v in deprecated_kwds.iteritems():
+        for k, v in deprecated_kwds.items():
             # use deprecated value if not None and if their newer
             # counter part is None.
             if localdict[k] is not None and localdict[v] is None:
@@ -315,12 +315,12 @@ in the normalized axes coordinate.
                 if self.isaxes:
                     warnings.warn('Unrecognized location "%s". Falling back on "best"; '
                                   'valid locations are\n\t%s\n'
-                                  % (loc, '\n\t'.join(self.codes.iterkeys())))
+                                  % (loc, '\n\t'.join(self.codes.keys())))
                     loc = 0
                 else:
                     warnings.warn('Unrecognized location "%s". Falling back on "upper right"; '
                                   'valid locations are\n\t%s\n'
-                                   % (loc, '\n\t'.join(self.codes.iterkeys())))
+                                   % (loc, '\n\t'.join(self.codes.keys())))
                     loc = 1
             else:
                 loc = self.codes[loc]
@@ -767,17 +767,9 @@ in the normalized axes coordinate.
         'return a list of text.Text instance in the legend'
         return silent_list('Text', self.texts)
 
-    def set_title(self, title, prop=None):
-        """
-        set the legend title. Fontproperties can be optionally set
-        with *prop* parameter.
-        """
+    def set_title(self, title):
+        'set the legend title'
         self._legend_title_box._text.set_text(title)
-
-        if prop is not None:
-            if isinstance(prop, dict):
-                prop = FontProperties(**prop)
-            self._legend_title_box._text.set_fontproperties(prop)
 
         if title:
             self._legend_title_box.set_visible(True)

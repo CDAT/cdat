@@ -1,7 +1,6 @@
 """
 Comparison of griddata and tricontour for an unstructured triangular grid.
 """
-from __future__ import print_function
 import matplotlib.pyplot as plt
 import matplotlib.tri as tri
 import numpy as np
@@ -30,7 +29,7 @@ plt.plot(x, y, 'ko', ms=3)
 plt.xlim(-2,2)
 plt.ylim(-2,2)
 plt.title('griddata and contour (%d points, %d grid points)' % (npts, ngridx*ngridy))
-print ('griddata and contour seconds: %f' % (time.clock() - start))
+print 'griddata and contour seconds:', time.clock() - start
 
 # tricontour.
 start = time.clock()
@@ -43,6 +42,6 @@ plt.plot(x, y, 'ko', ms=3)
 plt.xlim(-2,2)
 plt.ylim(-2,2)
 plt.title('tricontour (%d points)' % npts)
-print ('tricontour seconds: %f' % (time.clock() - start))
+print 'tricontour seconds:', time.clock() - start
 
 plt.show()

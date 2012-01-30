@@ -48,7 +48,6 @@ are in the range [0,1].
 Finally, legal html names for colors, like 'red', 'burlywood' and
 'chartreuse' are supported.
 """
-from __future__ import print_function
 import re
 import numpy as np
 from numpy import ma
@@ -308,7 +307,7 @@ class ColorConverter:
 
             self.cache[arg] = color
 
-        except (KeyError, ValueError, TypeError) as exc:
+        except (KeyError, ValueError, TypeError), exc:
             raise ValueError('to_rgb: Invalid rgb arg "%s"\n%s' % (str(arg), exc))
             # Error messages could be improved by handling TypeError
             # separately; but this should be rare and not too hard
@@ -350,7 +349,7 @@ class ColorConverter:
             if alpha is None:
                 alpha = 1.0
             return r,g,b,alpha
-        except (TypeError, ValueError) as exc:
+        except (TypeError, ValueError), exc:
             raise ValueError('to_rgba: Invalid rgba arg "%s"\n%s' % (str(arg), exc))
 
     def to_rgba_array(self, c, alpha=None):
@@ -624,7 +623,7 @@ class LinearSegmentedColormap(Colormap):
 
         segmentdata argument is a dictionary with a red, green and blue
         entries. Each entry should be a list of *x*, *y0*, *y1* tuples,
-        forming rows in a table. Entries for alpha are optional.
+        forming rows in a table.
 
         Example: suppose you want red to increase from 0 to 1 over
         the bottom half, green to do the same over the middle half,
@@ -680,9 +679,6 @@ class LinearSegmentedColormap(Colormap):
                 self._segmentdata['green'], self._gamma)
         self._lut[:-3, 2] = makeMappingArray(self.N,
                 self._segmentdata['blue'], self._gamma)
-        if 'alpha' in self._segmentdata:
-            self._lut[:-3, 3] = makeMappingArray(self.N,
-                    self._segmentdata['alpha'], 1)
         self._isinit = True
         self._set_extremes()
 
@@ -714,13 +710,12 @@ class LinearSegmentedColormap(Colormap):
         else:
             vals = np.linspace(0., 1., len(colors))
 
-        cdict = dict(red=[], green=[], blue=[], alpha=[])
+        cdict = dict(red=[], green=[], blue=[])
         for val, color in zip(vals, colors):
-            r,g,b,a = colorConverter.to_rgba(color)
+            r,g,b = colorConverter.to_rgb(color)
             cdict['red'].append((val, r, r))
             cdict['green'].append((val, g, g))
             cdict['blue'].append((val, b, b))
-            cdict['alpha'].append((val, a, a))
 
         return LinearSegmentedColormap(name, cdict, N, gamma)
 
@@ -737,8 +732,7 @@ class ListedColormap(Colormap):
 
         *colors*
             a list of matplotlib color specifications,
-            or an equivalent Nx3  or Nx4 floating point array
-            (*N* rgb or rgba values)
+            or an equivalent Nx3 floating point array (*N* rgb values)
         *name*
             a string to identify the colormap
         *N*
@@ -779,9 +773,11 @@ class ListedColormap(Colormap):
 
 
     def _init(self):
-        rgba = colorConverter.to_rgba_array(self.colors)
+        rgb = np.array([colorConverter.to_rgb(c)
+                    for c in self.colors], np.float)
         self._lut = np.zeros((self.N + 3, 4), np.float)
-        self._lut[:-3] = rgba
+        self._lut[:-3, :-1] = rgb
+        self._lut[:-3, -1] = 1
         self._isinit = True
         self._set_extremes()
 

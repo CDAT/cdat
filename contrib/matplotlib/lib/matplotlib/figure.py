@@ -11,14 +11,13 @@ contains all the plot elements.  The following classes are defined
 
 
 """
-from __future__ import print_function
 import numpy as np
 
 import artist
 from artist import Artist, allow_rasterization
 from axes import Axes, SubplotBase, subplot_class_factory
 from cbook import flatten, allequal, Stack, iterable, is_string_like
-from matplotlib import _image
+import _image
 import colorbar as cbar
 from image import FigureImage
 from matplotlib import rcParams
@@ -316,7 +315,7 @@ class Figure(Artist):
         """
         allsubplots = np.alltrue([hasattr(ax, 'is_last_row') for ax in self.axes])
         if len(self.axes)==1:
-            for label in self.axes[0].get_xticklabels():
+            for label in ax.get_xticklabels():
                 label.set_ha(ha)
                 label.set_rotation(rotation)
         else:
@@ -628,7 +627,7 @@ class Figure(Artist):
                 ret.append(a)
             return tuple(ret)
 
-        key = fixlist(args), fixitems(kwargs.iteritems())
+        key = fixlist(args), fixitems(kwargs.items())
         return key
 
     @docstring.dedent_interpd

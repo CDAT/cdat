@@ -980,22 +980,19 @@ XY TriContourGenerator::interp(int point1,
 
 
 
-#if PY_MAJOR_VERSION >= 3
-PyMODINIT_FUNC
-PyInit__tri(void)
-#else
-PyMODINIT_FUNC
-init_tri(void)
-#endif
-{
-    import_array();
 
+#if defined(_MSC_VER)
+DL_EXPORT(void)
+#elif defined(__cplusplus)
+extern "C" void
+#else
+void
+#endif
+init_tri()
+{
     static TriModule* triModule = NULL;
     triModule = new TriModule();
-
-    #if PY_MAJOR_VERSION >= 3
-    return triModule->module().ptr();
-    #endif
+    import_array();
 }
 
 TriModule::TriModule()

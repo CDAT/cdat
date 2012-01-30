@@ -9,14 +9,13 @@ units)
 """
 import numpy as np
 from basic_units import cm, inch
-import matplotlib.pyplot as plt
-
+from pylab import figure, show
 
 cms = cm *np.arange(0, 10, 2)
 bottom=0*cm
 width=0.8*cm
 
-fig = plt.figure()
+fig = figure()
 
 ax1 = fig.add_subplot(2,2,1)
 ax1.bar(cms, cms, bottom=bottom)
@@ -33,4 +32,4 @@ ax4.bar(cms, cms, bottom=bottom, width=width, xunits=inch, yunits=inch)
 #fig.savefig('simple_conversion_plot.png')
 ax4.set_xlim(2*cm, 6*cm) # cm are converted to inches
 
-plt.show()
+show()

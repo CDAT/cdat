@@ -18,7 +18,7 @@ Naming Conventions
   * functions underscore_separated
 """
 
-from __future__ import division, print_function
+from __future__ import division
 import os, sys, warnings, gzip
 
 import numpy as np
@@ -89,7 +89,7 @@ class RendererCairo(RendererBase):
     def __init__(self, dpi):
         """
         """
-        if _debug: print('%s.%s()' % (self.__class__.__name__, _fn_name()))
+        if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
         self.dpi = dpi
         self.gc = GraphicsContextCairo (renderer=self)
         self.text_ctx = cairo.Context (
@@ -155,7 +155,7 @@ class RendererCairo(RendererBase):
 
     def draw_image(self, gc, x, y, im):
         # bbox - not currently used
-        if _debug: print('%s.%s()' % (self.__class__.__name__, _fn_name()))
+        if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
 
         clippath, clippath_trans = gc.get_clip_path()
 
@@ -181,7 +181,7 @@ class RendererCairo(RendererBase):
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False):
         # Note: x,y are device/display coords, not user-coords, unlike other
         # draw_* methods
-        if _debug: print('%s.%s()' % (self.__class__.__name__, _fn_name()))
+        if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
 
         if ismath:
            self._draw_mathtext(gc, x, y, s, prop, angle)
@@ -200,14 +200,11 @@ class RendererCairo(RendererBase):
            if angle:
               ctx.rotate (-angle * np.pi / 180)
            ctx.set_font_size (size)
-           if sys.version_info[0] < 3:
-              ctx.show_text (s.encode("utf-8"))
-           else:
-              ctx.show_text (s)
+           ctx.show_text (s.encode("utf-8"))
            ctx.restore()
 
     def _draw_mathtext(self, gc, x, y, s, prop, angle):
-        if _debug: print('%s.%s()' % (self.__class__.__name__, _fn_name()))
+        if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
 
         ctx = gc.ctx
         width, height, descent, glyphs, rects = self.mathtext_parser.parse(
@@ -243,19 +240,19 @@ class RendererCairo(RendererBase):
 
 
     def flipy(self):
-        if _debug: print('%s.%s()' % (self.__class__.__name__, _fn_name()))
+        if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
         return True
         #return False # tried - all draw objects ok except text (and images?)
         # which comes out mirrored!
 
 
     def get_canvas_width_height(self):
-        if _debug: print('%s.%s()' % (self.__class__.__name__, _fn_name()))
+        if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
         return self.width, self.height
 
 
     def get_text_width_height_descent(self, s, prop, ismath):
-        if _debug: print('%s.%s()' % (self.__class__.__name__, _fn_name()))
+        if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
         if ismath:
             width, height, descent, fonts, used_characters = self.mathtext_parser.parse(
                s, self.dpi, prop)
@@ -284,7 +281,7 @@ class RendererCairo(RendererBase):
 
 
     def new_gc(self):
-        if _debug: print('%s.%s()' % (self.__class__.__name__, _fn_name()))
+        if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
         self.gc.ctx.save()
         self.gc._alpha = 1.0
         self.gc._forced_alpha = False # if True, _alpha overrides A from RGBA
@@ -292,7 +289,7 @@ class RendererCairo(RendererBase):
 
 
     def points_to_pixels(self, points):
-        if _debug: print('%s.%s()' % (self.__class__.__name__, _fn_name()))
+        if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
         return points/72.0 * self.dpi
 
 
@@ -398,7 +395,7 @@ def new_figure_manager(num, *args, **kwargs): # called by backends/__init__.py
     """
     Create a new figure manager instance
     """
-    if _debug: print('%s.%s()' % (self.__class__.__name__, _fn_name()))
+    if _debug: print '%s.%s()' % (self.__class__.__name__, _fn_name())
     FigureClass = kwargs.pop('FigureClass', Figure)
     thisFig = FigureClass(*args, **kwargs)
     canvas  = FigureCanvasCairo(thisFig)
@@ -464,14 +461,7 @@ class FigureCanvasCairo (FigureCanvasBase):
                 filename = fo
                 if is_string_like(fo):
                     fo = open(fo, 'wb')
-                    close = True
-                else:
-                    close = False
-                try:
-                    fo = gzip.GzipFile(None, 'wb', fileobj=fo)
-                finally:
-                    if close:
-                        fo.close()
+                fo = gzip.GzipFile(None, 'wb', fileobj=fo)
             surface = cairo.SVGSurface (fo, width_in_points, height_in_points)
         else:
            warnings.warn ("unknown format: %s" % format)

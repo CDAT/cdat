@@ -4,7 +4,7 @@ variety of line styles, markers and colors.
 """
 
 # TODO: expose cap and join style attrs
-from __future__ import division, print_function
+from __future__ import division
 
 import numpy as np
 from numpy import ma
@@ -237,11 +237,10 @@ class Line2D(Artist):
 
         TODO: sort returned indices by distance
         """
-        if callable(self._contains):
-            return self._contains(self,mouseevent)
+        if callable(self._contains): return self._contains(self,mouseevent)
 
         if not is_numlike(self.pickradius):
-            raise ValueError("pick radius should be a distance")
+            raise ValueError,"pick radius should be a distance"
 
         # Make sure we have data to plot
         if self._invalidy or self._invalidx:
@@ -276,12 +275,12 @@ class Line2D(Artist):
         ind += self.ind_offset
 
         # Debugging message
-        if False and self._label != '':
-            print("Checking line",self._label,"at",mouseevent.x,mouseevent.y)
-            print('xt', xt)
-            print('yt', yt)
+        if False and self._label != u'':
+            print "Checking line",self._label,"at",mouseevent.x,mouseevent.y
+            print 'xt', xt
+            print 'yt', yt
             #print 'dx,dy', (xt-mouseevent.x)**2., (yt-mouseevent.y)**2.
-            print('ind',ind)
+            print 'ind',ind
 
         # Return the point(s) within radius
         return len(ind)>0,dict(ind=ind)
@@ -306,9 +305,9 @@ class Line2D(Artist):
     def set_fillstyle(self, fs):
         """
         Set the marker fill style; 'full' means fill the whole marker.
-        'none' means no filling; other options are for half-filled markers.
+        The other options are for half filled markers
 
-        ACCEPTS: ['full' | 'left' | 'right' | 'bottom' | 'top' | 'none']
+        ACCEPTS: ['full' | 'left' | 'right' | 'bottom' | 'top']
         """
         self._marker.set_fillstyle(fs)
 
@@ -572,16 +571,15 @@ class Line2D(Artist):
     def get_marker(self): return self._marker.get_marker()
 
     def get_markeredgecolor(self):
-        mec = self._markeredgecolor
-        if (is_string_like(mec) and mec == 'auto'):
+        if (is_string_like(self._markeredgecolor) and
+                                    self._markeredgecolor == 'auto'):
             if self._marker.get_marker() in ('.', ','):
                 return self._color
-            if self._marker.is_filled() and self.get_fillstyle() != 'none':
+            if self._marker.is_filled():
                 return 'k'  # Bad hard-wired default...
             else:
                 return self._color
-        else:
-            return mec
+        return self._markeredgecolor
 
     def get_markeredgewidth(self): return self._markeredgewidth
 
@@ -591,11 +589,10 @@ class Line2D(Artist):
         else:
             fc = self._markerfacecolor
 
-        if (is_string_like(fc) and fc.lower() == 'auto'):
-            if self.get_fillstyle() == 'none':
-                return 'none'
-            else:
-                return self._color
+        if (fc is None or (is_string_like(fc) and fc.lower()=='none') ):
+            return fc
+        elif (is_string_like(fc) and fc.lower() == 'auto'):
+            return self._color
         else:
             return fc
 
@@ -1186,4 +1183,4 @@ docstring.interpd.update(Line2D = artist.kwdoc(Line2D))
 
 # You can not set the docstring of an instancemethod,
 # but you can on the underlying function.  Go figure.
-docstring.dedent_interpd(Line2D.__init__)
+docstring.dedent_interpd(Line2D.__init__.im_func)

@@ -123,7 +123,8 @@ major an minor ticks.  See the :mod:`matplotlib.dates` module for
 more information and examples of using date locators and formatters.
 """
 
-from __future__ import division, print_function
+
+from __future__ import division
 import decimal
 import locale
 import math
@@ -369,7 +370,7 @@ class ScalarFormatter(Formatter):
             self._useLocale = val
 
     useLocale = property(fget=get_useLocale, fset=set_useLocale)
-
+    
     def fix_minus(self, s):
         'use a unicode minus rather than hyphen'
         if rcParams['text.usetex'] or not rcParams['axes.unicode_minus']: return s
@@ -455,7 +456,7 @@ class ScalarFormatter(Formatter):
             if self._useOffset:
                 self._set_offset(d)
             self._set_orderOfMagnitude(d)
-            self._set_format(vmin, vmax)
+            self._set_format()
 
     def _set_offset(self, range):
         # offset of 20,001 is 20,000, for example
@@ -496,30 +497,15 @@ class ScalarFormatter(Formatter):
         else:
             self.orderOfMagnitude = 0
 
-    def _set_format(self, vmin, vmax):
+    def _set_format(self):
         # set the format string to format all the ticklabels
-        if len(self.locs) < 2:
-            # Temporarily augment the locations with the axis end points.
-            _locs = list(self.locs) + [vmin, vmax]
-        else:
-            _locs = self.locs
-        locs = (np.asarray(_locs)-self.offset) / 10**self.orderOfMagnitude
-        loc_range = np.ptp(locs)
-        if len(self.locs) < 2:
-            # We needed the end points only for the loc_range calculation.
-            locs = locs[:-2]
-        loc_range_oom = int(math.floor(math.log10(loc_range)))
-        # first estimate:
-        sigfigs = max(0, 3 - loc_range_oom)
-        # refined estimate:
-        thresh = 1e-3 * 10**loc_range_oom
-        while sigfigs >= 0:
-            if np.abs(locs - np.round(locs, decimals=sigfigs)).max() < thresh:
-                sigfigs -= 1
-            else:
-                break
-        sigfigs += 1
-        self.format = '%1.' + str(sigfigs) + 'f'
+        # The floating point black magic (adding 1e-15 and formatting
+        # to 8 digits) may warrant review and cleanup.
+        locs = (np.asarray(self.locs)-self.offset) / 10**self.orderOfMagnitude+1e-15
+        sigfigs = [len(str('%1.8f'% loc).split('.')[1].rstrip('0')) \
+                   for loc in locs]
+        sigfigs.sort()
+        self.format = '%1.' + str(sigfigs[-1]) + 'f'
         if self._usetex:
             self.format = '$%s$' % self.format
         elif self._useMathText:
@@ -559,7 +545,7 @@ class ScalarFormatter(Formatter):
             else:
                 s = ('%se%s%s' %(significand, sign, exponent)).rstrip('e')
                 return s
-        except IndexError:
+        except IndexError, msg:
             return s
 
 
@@ -1410,7 +1396,7 @@ class SymmetricalLogLocator(Locator):
         #
         # "simple" mode is when the range falls entirely within (-t,
         # t) -- it should just display (vmin, 0, vmax)
-
+        
         has_a = has_b = has_c = False
         if vmin < -t:
             has_a = True
@@ -1460,11 +1446,11 @@ class SymmetricalLogLocator(Locator):
         if has_b:
             total_ticks += 1
         stride = max(np.floor(float(total_ticks) / (self.numticks - 1)), 1)
-
+        
         decades = []
         if has_a:
             decades.extend(-1 * (b ** (np.arange(a_range[0], a_range[1], stride)[::-1])))
-
+        
         if has_b:
             decades.append(0.0)
 
@@ -1483,7 +1469,7 @@ class SymmetricalLogLocator(Locator):
                 ticklocs.extend(subs * decade)
         else:
             ticklocs = decades
-
+            
         return self.raise_if_exceeds(np.array(ticklocs))
 
     def view_limits(self, vmin, vmax):

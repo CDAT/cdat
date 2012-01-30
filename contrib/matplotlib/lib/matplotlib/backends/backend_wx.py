@@ -1,4 +1,4 @@
-from __future__ import division, print_function
+from __future__ import division
 """
 
  backend_wx.py
@@ -36,11 +36,6 @@ if _DEBUG < 5:
     import traceback, pdb
 _DEBUG_lvls = {1 : 'Low ', 2 : 'Med ', 3 : 'High', 4 : 'Error' }
 
-if sys.version_info[0] >= 3:
-    warnings.warn(
-        "The wx and wxagg backends have not been tested with Python 3.x",
-        ImportWarning)
-
 missingwx = "Matplotlib backend_wx and backend_wxagg require wxPython >=2.8"
 
 if not hasattr(sys, 'frozen'): # i.e., not py2exe
@@ -74,7 +69,7 @@ except ImportError:
 # there really *is* a problem with the version.
 major, minor = [int(n) for n in backend_version.split('.')[:2]]
 if major < 2 or (major < 3 and minor < 8):
-    print(" wxPython version %s was imported." % backend_version)
+    print " wxPython version %s was imported." % backend_version
     raise ImportError(missingwx)
 
 
@@ -88,12 +83,12 @@ def DEBUG_MSG(string, lvl=3, o=None):
         # one below does.  I think WX is redefining stderr, damned
         # beast
         #print >>sys.stderr, "%s- %s in %s" % (_DEBUG_lvls[lvl], string, cls)
-        print("%s- %s in %s" % (_DEBUG_lvls[lvl], string, cls))
+        print "%s- %s in %s" % (_DEBUG_lvls[lvl], string, cls)
 
 def debug_on_error(type, value, tb):
     """Code due to Thomas Heller - published in Python Cookbook (O'Reilley)"""
     traceback.print_exc(type, value, tb)
-    print()
+    print
     pdb.pm()  # jdh uncomment
 
 class fake_stderr:
@@ -101,7 +96,7 @@ class fake_stderr:
     is probably no console. This redirects stderr to the console, since we know
     that there is one!"""
     def write(self, msg):
-        print("Stderr: %s\n\r" % msg)
+        print "Stderr: %s\n\r" % msg
 
 #if _DEBUG < 5:
 #    sys.excepthook = debug_on_error
@@ -744,11 +739,11 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         bind(self, wx.EVT_KEY_DOWN, self._onKeyDown)
         bind(self, wx.EVT_KEY_UP, self._onKeyUp)
         bind(self, wx.EVT_RIGHT_DOWN, self._onRightButtonDown)
-        bind(self, wx.EVT_RIGHT_DCLICK, self._onRightButtonDClick)
+        bind(self, wx.EVT_RIGHT_DCLICK, self._onRightButtonDown)
         bind(self, wx.EVT_RIGHT_UP, self._onRightButtonUp)
         bind(self, wx.EVT_MOUSEWHEEL, self._onMouseWheel)
         bind(self, wx.EVT_LEFT_DOWN, self._onLeftButtonDown)
-        bind(self, wx.EVT_LEFT_DCLICK, self._onLeftButtonDClick)
+        bind(self, wx.EVT_LEFT_DCLICK, self._onLeftButtonDown)
         bind(self, wx.EVT_LEFT_UP, self._onLeftButtonUp)
         bind(self, wx.EVT_MOTION, self._onMotion)
         bind(self, wx.EVT_LEAVE_WINDOW, self._onLeave)
@@ -756,7 +751,7 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         bind(self, wx.EVT_IDLE, self._onIdle)
         #Add middle button events
         bind(self, wx.EVT_MIDDLE_DOWN, self._onMiddleButtonDown)
-        bind(self, wx.EVT_MIDDLE_DCLICK, self._onMiddleButtonDClick)
+        bind(self, wx.EVT_MIDDLE_DCLICK, self._onMiddleButtonDown)
         bind(self, wx.EVT_MIDDLE_UP, self._onMiddleButtonUp)
 
         self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
@@ -777,13 +772,10 @@ class FigureCanvasWx(FigureCanvasBase, wx.Panel):
         "copy bitmap of canvas to system clipboard"
         bmp_obj = wx.BitmapDataObject()
         bmp_obj.SetBitmap(self.bitmap)
-        
-        if not wx.TheClipboard.IsOpened(): 
-           open_success = wx.TheClipboard.Open()
-           if open_success:
-              wx.TheClipboard.SetData(bmp_obj)
-              wx.TheClipboard.Close()
-              wx.TheClipboard.Flush()
+        wx.TheClipboard.Open()
+        wx.TheClipboard.SetData(bmp_obj)
+        wx.TheClipboard.Close()
+        wx.TheClipboard.Flush()
 
     def Printer_Init(self):
         """
@@ -926,7 +918,7 @@ The current aspect ratio will be kept."""
         po2  = PrintoutWx(self, width=self.printer_width,
                           margin=self.printer_margin)
         self.preview = wx.PrintPreview(po1,po2,self.printerData)
-        if not self.preview.Ok():  print("error with preview")
+        if not self.preview.Ok():  print "error with preview"
 
         self.preview.SetZoom(50)
         frameInst= self
@@ -1279,13 +1271,6 @@ The current aspect ratio will be kept."""
         self.CaptureMouse()
         FigureCanvasBase.button_press_event(self, x, y, 3, guiEvent=evt)
 
-    def _onRightButtonDClick(self, evt):
-        """Start measuring on an axis."""
-        x = evt.GetX()
-        y = self.figure.bbox.height - evt.GetY()
-        evt.Skip()
-        self.CaptureMouse()
-        FigureCanvasBase.button_press_event(self, x, y, 3, dblclick=True,guiEvent=evt)
 
     def _onRightButtonUp(self, evt):
         """End measuring on an axis."""
@@ -1302,14 +1287,6 @@ The current aspect ratio will be kept."""
         evt.Skip()
         self.CaptureMouse()
         FigureCanvasBase.button_press_event(self, x, y, 1, guiEvent=evt)
-
-    def _onLeftButtonDClick(self, evt):
-        """Start measuring on an axis."""
-        x = evt.GetX()
-        y = self.figure.bbox.height - evt.GetY()
-        evt.Skip()
-        self.CaptureMouse()
-        FigureCanvasBase.button_press_event(self, x, y, 1, dblclick=True, guiEvent=evt)
 
     def _onLeftButtonUp(self, evt):
         """End measuring on an axis."""
@@ -1328,14 +1305,6 @@ The current aspect ratio will be kept."""
         evt.Skip()
         self.CaptureMouse()
         FigureCanvasBase.button_press_event(self, x, y, 2, guiEvent=evt)
-
-    def _onMiddleButtonDClick(self, evt):
-        """Start measuring on an axis."""
-        x = evt.GetX()
-        y = self.figure.bbox.height - evt.GetY()
-        evt.Skip()
-        self.CaptureMouse()
-        FigureCanvasBase.button_press_event(self, x, y, 2, dblclick=True, guiEvent=evt)
 
     def _onMiddleButtonUp(self, evt):
         """End measuring on an axis."""
@@ -1880,7 +1849,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
             try:
                 self.canvas.print_figure(
                     os.path.join(dirname, filename), format=format)
-            except Exception as e:
+            except Exception, e:
                 error_msg_wx(str(e))
 
     def set_cursor(self, cursor):

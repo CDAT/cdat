@@ -3,23 +3,21 @@ A collection of modules for collecting, analyzing and plotting
 financial data.   User contributions welcome!
 
 """
-from __future__ import division, print_function
-import os, sys, warnings
+#from __future__ import division
+import os, warnings
 from urllib2 import urlopen
 
-if sys.version_info[0] < 3:
+try:
     from hashlib import md5
-else:
-    import hashlib
-    md5 = lambda x: hashlib.md5(x.encode())
-
+except ImportError:
+    from md5 import md5 #Deprecated in 2.5
 import datetime
 
 import numpy as np
 
 from matplotlib import verbose, get_configdir
 from matplotlib.dates import date2num
-from matplotlib.cbook import iterable, mkdirs
+from matplotlib.cbook import iterable
 from matplotlib.collections import LineCollection, PolyCollection
 from matplotlib.colors import colorConverter
 from matplotlib.lines import Line2D, TICKLEFT, TICKRIGHT
@@ -181,17 +179,18 @@ def fetch_historical_yahoo(ticker, date1, date2, cachename=None,dividends=False)
     if cachename is None:
         cachename = os.path.join(cachedir, md5(url).hexdigest())
     if os.path.exists(cachename):
-        fh = open(cachename)
+        fh = file(cachename)
         verbose.report('Using cachefile %s for %s'%(cachename, ticker))
     else:
-        mkdirs(cachedir)
+        if not os.path.isdir(cachedir):
+            os.mkdir(cachedir)
         urlfh = urlopen(url)
 
-        fh = open(cachename, 'wb')
+        fh = file(cachename, 'w')
         fh.write(urlfh.read())
         fh.close()
         verbose.report('Saved %s data to cache file %s'%(ticker, cachename))
-        fh = open(cachename, 'r')
+        fh = file(cachename, 'r')
 
     return fh
 
@@ -231,7 +230,7 @@ def quotes_historical_yahoo(ticker, date1, date2, asobject=False,
                                             adjusted=adjusted)
         if len(ret) == 0:
             return None
-    except IOError as exc:
+    except IOError, exc:
         warnings.warn('fh failure\n%s'%(exc.strerror[1]))
         return None
 

@@ -1,8 +1,6 @@
 # For detailed comments on animation and the techniqes used here, see
 # the wiki entry http://www.scipy.org/Cookbook/Matplotlib/Animations
 
-from __future__ import print_function
-
 import os
 import sys
 
@@ -65,7 +63,7 @@ class BlitQT(FigureCanvas):
             self.draw()
         if self.cnt==ITERS:
             # print the timing info and quit
-            print('FPS:' , ITERS/(time.time()-self.tstart))
+            print 'FPS:' , ITERS/(time.time()-self.tstart)
             sys.exit()
         else:
             self.cnt += 1

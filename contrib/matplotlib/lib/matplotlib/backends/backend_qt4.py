@@ -1,4 +1,4 @@
-from __future__ import division, print_function
+from __future__ import division
 import math
 import os
 import sys
@@ -48,7 +48,7 @@ def _create_qApp():
     Only one qApp can exist at a time, so check before creating one.
     """
     if QtGui.QApplication.startingUp():
-        if DEBUG: print("Starting up QApplication")
+        if DEBUG: print "Starting up QApplication"
         global qApp
         app = QtGui.QApplication.instance()
         if app is None:
@@ -120,33 +120,12 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
     keyvald = { QtCore.Qt.Key_Control : 'control',
                 QtCore.Qt.Key_Shift : 'shift',
                 QtCore.Qt.Key_Alt : 'alt',
-                QtCore.Qt.Key_Return : 'enter',
-                QtCore.Qt.Key_Left : 'left',
-                QtCore.Qt.Key_Up : 'up',
-                QtCore.Qt.Key_Right : 'right',
-                QtCore.Qt.Key_Down : 'down',
-                QtCore.Qt.Key_Escape : 'escape',
-                QtCore.Qt.Key_F1 : 'f1',
-                QtCore.Qt.Key_F2 : 'f2',
-                QtCore.Qt.Key_F3 : 'f3',
-                QtCore.Qt.Key_F4 : 'f4',
-                QtCore.Qt.Key_F5 : 'f5',
-                QtCore.Qt.Key_F6 : 'f6',
-                QtCore.Qt.Key_F7 : 'f7',
-                QtCore.Qt.Key_F8 : 'f8',
-                QtCore.Qt.Key_F9 : 'f9',
-                QtCore.Qt.Key_F10 : 'f10',
-                QtCore.Qt.Key_F11 : 'f11',
-                QtCore.Qt.Key_F12 : 'f12',
-                QtCore.Qt.Key_Home : 'home',
-                QtCore.Qt.Key_End : 'end',
-                QtCore.Qt.Key_PageUp : 'pageup',
-                QtCore.Qt.Key_PageDown : 'pagedown',
+                QtCore.Qt.Key_Return : 'enter'
                }
     # left 1, middle 2, right 3
     buttond = {1:1, 2:3, 4:2}
     def __init__( self, figure ):
-        if DEBUG: print('FigureCanvasQt: ', figure)
+        if DEBUG: print 'FigureCanvasQt: ', figure
         _create_qApp()
 
         QtGui.QWidget.__init__( self )
@@ -179,15 +158,7 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
         y = self.figure.bbox.height - event.pos().y()
         button = self.buttond[event.button()]
         FigureCanvasBase.button_press_event( self, x, y, button )
-        if DEBUG: print('button pressed:', event.button())
-
-    def mouseDoubleClickEvent(self, event):
-        x = event.pos().x()
-        # flipy so y=0 is bottom of canvas
-        y = self.figure.bbox.height - event.pos().y()
-        button = self.buttond[event.button()]
-        FigureCanvasBase.button_press_event( self, x, y, button, dblclick=True )
-        if DEBUG: print ('button doubleclicked:', event.button())
+        if DEBUG: print 'button pressed:', event.button()
 
     def mouseMoveEvent( self, event ):
         x = event.x()
@@ -202,7 +173,7 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
         y = self.figure.bbox.height - event.y()
         button = self.buttond[event.button()]
         FigureCanvasBase.button_release_event( self, x, y, button )
-        if DEBUG: print('button released')
+        if DEBUG: print 'button released'
 
     def wheelEvent( self, event ):
         x = event.x()
@@ -212,27 +183,27 @@ class FigureCanvasQT( QtGui.QWidget, FigureCanvasBase ):
         steps = event.delta()/120
         if (event.orientation() == QtCore.Qt.Vertical):
             FigureCanvasBase.scroll_event( self, x, y, steps)
-            if DEBUG: print('scroll event : delta = %i, steps = %i ' % (event.delta(),steps))
+            if DEBUG: print 'scroll event : delta = %i, steps = %i ' % (event.delta(),steps)
 
     def keyPressEvent( self, event ):
         key = self._get_key( event )
         if key is None:
             return
         FigureCanvasBase.key_press_event( self, key )
-        if DEBUG: print('key press', key)
+        if DEBUG: print 'key press', key
 
     def keyReleaseEvent( self, event ):
         key = self._get_key(event)
         if key is None:
             return
         FigureCanvasBase.key_release_event( self, key )
-        if DEBUG: print('key release', key)
+        if DEBUG: print 'key release', key
 
     def resizeEvent( self, event ):
-        if DEBUG: print('resize (%d x %d)' % (event.size().width(), event.size().height()))
+        if DEBUG: print 'resize (%d x %d)' % (event.size().width(), event.size().height())
         w = event.size().width()
         h = event.size().height()
-        if DEBUG: print("FigureCanvasQtAgg.resizeEvent(", w, ",", h, ")")
+        if DEBUG: print "FigureCanvasQtAgg.resizeEvent(", w, ",", h, ")"
         dpival = self.figure.dpi
         winch = w/dpival
         hinch = h/dpival
@@ -307,7 +278,7 @@ class FigureManagerQT( FigureManagerBase ):
     """
 
     def __init__( self, canvas, num ):
-        if DEBUG: print('FigureManagerQT.%s' % fn_name())
+        if DEBUG: print 'FigureManagerQT.%s' % fn_name()
         FigureManagerBase.__init__( self, canvas, num )
         self.canvas = canvas
         self.window = QtGui.QMainWindow()
@@ -375,7 +346,7 @@ class FigureManagerQT( FigureManagerBase ):
         # must be inited after the window, drawingArea and figure
         # attrs are set
         if matplotlib.rcParams['toolbar'] == 'classic':
-            print("Classic toolbar is not supported")
+            print "Classic toolbar is not supported"
         elif matplotlib.rcParams['toolbar'] == 'toolbar2':
             toolbar = NavigationToolbar2QT(canvas, parent, False)
         else:
@@ -397,7 +368,7 @@ class FigureManagerQT( FigureManagerBase ):
         QtCore.QObject.disconnect( self.window, QtCore.SIGNAL( 'destroyed()' ),
                                    self._widgetclosed )
         if self.toolbar: self.toolbar.destroy()
-        if DEBUG: print("destroy figure manager")
+        if DEBUG: print "destroy figure manager"
         self.window.close()
 
     def set_window_title(self, title):
@@ -503,7 +474,7 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
             self.locLabel.setText(s.replace(', ', '\n'))
 
     def set_cursor( self, cursor ):
-        if DEBUG: print('Set cursor' , cursor)
+        if DEBUG: print 'Set cursor' , cursor
         QtGui.QApplication.restoreOverrideCursor()
         QtGui.QApplication.setOverrideCursor( QtGui.QCursor( cursord[cursor] ) )
 
@@ -515,7 +486,7 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
         w = abs(x1 - x0)
         h = abs(y1 - y0)
 
-        rect = [ int(val)for val in (min(x0,x1), min(y0, y1), w, h) ]
+        rect = [ int(val)for val in min(x0,x1), min(y0, y1), w, h ]
         self.canvas.drawRectangle( rect )
 
     def configure_subplots(self):
@@ -558,7 +529,7 @@ class NavigationToolbar2QT( NavigationToolbar2, QtGui.QToolBar ):
         if fname:
             try:
                 self.canvas.print_figure( unicode(fname) )
-            except Exception as e:
+            except Exception, e:
                 QtGui.QMessageBox.critical(
                     self, "Error saving file", str(e),
                     QtGui.QMessageBox.Ok, QtGui.QMessageBox.NoButton)

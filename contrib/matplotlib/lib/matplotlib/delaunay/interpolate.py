@@ -1,4 +1,3 @@
-from __future__ import print_function
 import numpy as np
 
 from matplotlib._delaunay import compute_planes, linear_interpolate_grid, nn_interpolate_grid

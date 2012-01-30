@@ -3,7 +3,7 @@ The image module supports basic image loading, rescaling and display
 operations.
 
 """
-from __future__ import division, print_function
+from __future__ import division
 import os, warnings
 
 import numpy as np
@@ -52,7 +52,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
     }
 
     # reverse interp dict
-    _interpdr = dict([ (v,k) for k,v in _interpd.iteritems()])
+    _interpdr = dict([ (v,k) for k,v in _interpd.items()])
 
     interpnames = _interpd.keys()
 
@@ -199,14 +199,7 @@ class _AxesImageBase(martist.Artist, cm.ScalarMappable):
                 im.is_grayscale = False
             else:
                 if self._rgbacache is None:
-                    x = self.to_rgba(self._A, bytes=False)
-                    # Avoid side effects: to_rgba can return its argument
-                    # unchanged.
-                    if np.may_share_memory(x, self._A):
-                        x = x.copy()
-                    # premultiply the colors
-                    x[...,0:3] *= x[...,3:4]
-                    x = (x * 255).astype(np.uint8)
+                    x = self.to_rgba(self._A, bytes=True)
                     self._rgbacache = x
                 else:
                     x = self._rgbacache
@@ -879,9 +872,9 @@ class PcolorImage(martist.Artist, cm.ScalarMappable):
             y = np.asarray(y, np.float64).ravel()
 
         if A.shape[:2] != (y.size-1, x.size-1):
-            print(A.shape)
-            print(y.size)
-            print(x.size)
+            print A.shape
+            print y.size
+            print x.size
             raise ValueError("Axes don't match array shape")
         if A.ndim not in [2, 3]:
             raise ValueError("A must be 2D or 3D")
@@ -1168,8 +1161,7 @@ class BboxImage(_AxesImageBase):
 def imread(fname, format=None):
     """
     Return image file in *fname* as :class:`numpy.array`.  *fname* may
-    be a string path or a Python file-like object.  If using a file
-    object, it must be opened in binary mode.
+    be a string path or a Python file-like object.
 
     If *format* is provided, will try to read file of that type,
     otherwise the format is deduced from the filename.  If nothing can
@@ -1202,7 +1194,7 @@ def imread(fname, format=None):
     else:
         ext = format
 
-    if ext not in handlers.iterkeys():
+    if ext not in handlers.keys():
         im = pilread()
         if im is None:
             raise ValueError('Only know how to handle extensions: %s; with PIL installed matplotlib can handle more images' % handlers.keys())
@@ -1214,10 +1206,9 @@ def imread(fname, format=None):
     # reader extension, since Python handles them quite well, but it's
     # tricky in C.
     if cbook.is_string_like(fname):
-        with open(fname, 'rb') as fd:
-            return handler(fd)
-    else:
-        return handler(fname)
+        fname = open(fname, 'rb')
+
+    return handler(fname)
 
 
 def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,

@@ -1,10 +1,9 @@
 # -*- coding: iso-8859-1 -*-
-
 """
-A PDF matplotlib backend
+A PDF matplotlib backend (not yet complete)
 Author: Jouni K Seppänen <jks@iki.fi>
 """
-from __future__ import division, print_function
+from __future__ import division
 
 import codecs
 import os
@@ -16,10 +15,7 @@ import zlib
 
 import numpy as np
 
-if sys.version_info[0] >= 3:
-    from io import BytesIO
-else:
-    from cStringIO import StringIO as BytesIO
+from cStringIO import StringIO
 from datetime import datetime
 from math import ceil, cos, floor, pi, sin
 try:
@@ -109,11 +105,11 @@ def fill(strings, linelen=75):
         if currpos + length < linelen:
             currpos += length + 1
         else:
-            result.append(b' '.join(strings[lasti:i]))
+            result.append(' '.join(strings[lasti:i]))
             lasti = i
             currpos = length
-    result.append(b' '.join(strings[lasti:]))
-    return b'\n'.join(result)
+    result.append(' '.join(strings[lasti:]))
+    return '\n'.join(result)
 
 # PDF strings are supposed to be able to include any eight-bit data,
 # except that unbalanced parens and backslashes must be escaped by a
@@ -121,12 +117,12 @@ def fill(strings, linelen=75):
 # character may get read as a newline; these characters correspond to
 # \gamma and \Omega in TeX's math font encoding. Escaping them fixes
 # the bug.
-_string_escape_regex = re.compile(br'([\\()\r\n])')
+_string_escape_regex = re.compile(r'([\\()\r\n])')
 def _string_escape(match):
     m = match.group(0)
-    if m in br'\()': return b'\\' + m
-    elif m == b'\n': return br'\n'
-    elif m == b'\r': return br'\r'
+    if m in r'\()': return '\\' + m
+    elif m == '\n': return r'\n'
+    elif m == '\r': return r'\r'
     assert False
 
 def pdfRepr(obj):
@@ -141,18 +137,18 @@ def pdfRepr(obj):
     # should adapt to the magnitude of the number?
     elif isinstance(obj, float):
         if not np.isfinite(obj):
-            raise ValueError("Can only output finite numbers in PDF")
-        r = ("%.10f" % obj).encode('ascii')
-        return r.rstrip(b'0').rstrip(b'.')
+            raise ValueError, "Can only output finite numbers in PDF"
+        r = "%.10f" % obj
+        return r.rstrip('0').rstrip('.')
 
     # Booleans. Needs to be tested before integers since
     # isinstance(True, int) is true.
     elif isinstance(obj, bool):
-        return [b'false', b'true'][obj]
+        return ['false', 'true'][obj]
 
     # Integers are written as such.
     elif isinstance(obj, (int, long)):
-        return ("%d" % obj).encode('ascii')
+        return "%d" % obj
 
     # Unicode strings are encoded in UTF-16BE with byte-order mark.
     elif isinstance(obj, unicode):
@@ -168,30 +164,30 @@ def pdfRepr(obj):
     # escaped. Actually balanced parens are allowed, but it is
     # simpler to escape them all. TODO: cut long strings into lines;
     # I believe there is some maximum line length in PDF.
-    elif isinstance(obj, bytes):
-        return b'(' + _string_escape_regex.sub(_string_escape, obj) + b')'
+    elif is_string_like(obj):
+        return '(' + _string_escape_regex.sub(_string_escape, obj) + ')'
 
     # Dictionaries. The keys must be PDF names, so if we find strings
     # there, we make Name objects from them. The values may be
     # anything, so the caller must ensure that PDF names are
     # represented as Name objects.
     elif isinstance(obj, dict):
-        r = [b"<<"]
-        r.extend([Name(key).pdfRepr() + b" " + pdfRepr(val)
-                  for key, val in obj.iteritems()])
-        r.append(b">>")
+        r = ["<<"]
+        r.extend(["%s %s" % (Name(key).pdfRepr(), pdfRepr(val))
+                  for key, val in obj.items()])
+        r.append(">>")
         return fill(r)
 
     # Lists.
     elif isinstance(obj, (list, tuple)):
-        r = [b"["]
+        r = ["["]
         r.extend([pdfRepr(val) for val in obj])
-        r.append(b"]")
+        r.append("]")
         return fill(r)
 
     # The null keyword.
     elif obj is None:
-        return b'null'
+        return 'null'
 
     # A date.
     elif isinstance(obj, datetime):
@@ -208,8 +204,9 @@ def pdfRepr(obj):
         return fill([pdfRepr(val) for val in obj.bounds])
 
     else:
-        raise TypeError("Don't know a PDF representation for %s objects." \
-            % type(obj))
+        raise TypeError, \
+            "Don't know a PDF representation for %s objects." \
+            % type(obj)
 
 class Reference(object):
     """PDF reference object.
@@ -223,13 +220,13 @@ class Reference(object):
         return "<Reference %d>" % self.id
 
     def pdfRepr(self):
-        return ("%d 0 R" % self.id).encode('ascii')
+        return "%d 0 R" % self.id
 
     def write(self, contents, file):
         write = file.write
-        write(("%d 0 obj\n" % self.id).encode('ascii'))
+        write("%d 0 obj\n" % self.id)
         write(pdfRepr(contents))
-        write(b"\nendobj\n")
+        write("\nendobj\n")
 
 class Name(object):
     """PDF name object."""
@@ -240,22 +237,20 @@ class Name(object):
         if isinstance(name, Name):
             self.name = name.name
         else:
-            if isinstance(name, bytes):
-                name = name.decode('ascii')
-            self.name = self._regex.sub(Name.hexify, name).encode('ascii')
+            self.name = self._regex.sub(Name.hexify, name)
 
     def __repr__(self):
         return "<Name %s>" % self.name
 
     def __str__(self):
-        return '/' + unicode(self.name)
+        return '/' + self.name
 
     @staticmethod
     def hexify(match):
         return '#%02x' % ord(match.group())
 
     def pdfRepr(self):
-        return b'/' + self.name
+        return '/' + self.name
 
 class Operator(object):
     """PDF operator object."""
@@ -271,47 +266,24 @@ class Operator(object):
         return self.op
 
 # PDF operators (not an exhaustive list)
-_pdfops = dict(close_fill_stroke=b'b', fill_stroke=b'B', fill=b'f',
-               closepath=b'h', close_stroke=b's', stroke=b'S', endpath=b'n',
-               begin_text=b'BT', end_text=b'ET',
-               curveto=b'c', rectangle=b're', lineto=b'l', moveto=b'm',
-               concat_matrix=b'cm',
-               use_xobject=b'Do',
-               setgray_stroke=b'G', setgray_nonstroke=b'g',
-               setrgb_stroke=b'RG', setrgb_nonstroke=b'rg',
-               setcolorspace_stroke=b'CS', setcolorspace_nonstroke=b'cs',
-               setcolor_stroke=b'SCN', setcolor_nonstroke=b'scn',
-               setdash=b'd', setlinejoin=b'j', setlinecap=b'J', setgstate=b'gs',
-               gsave=b'q', grestore=b'Q',
-               textpos=b'Td', selectfont=b'Tf', textmatrix=b'Tm',
-               show=b'Tj', showkern=b'TJ',
-               setlinewidth=b'w', clip=b'W', shading=b'sh')
+_pdfops = dict(close_fill_stroke='b', fill_stroke='B', fill='f',
+               closepath='h', close_stroke='s', stroke='S', endpath='n',
+               begin_text='BT', end_text='ET',
+               curveto='c', rectangle='re', lineto='l', moveto='m',
+               concat_matrix='cm',
+               use_xobject='Do',
+               setgray_stroke='G', setgray_nonstroke='g',
+               setrgb_stroke='RG', setrgb_nonstroke='rg',
+               setcolorspace_stroke='CS', setcolorspace_nonstroke='cs',
+               setcolor_stroke='SCN', setcolor_nonstroke='scn',
+               setdash='d', setlinejoin='j', setlinecap='J', setgstate='gs',
+               gsave='q', grestore='Q',
+               textpos='Td', selectfont='Tf', textmatrix='Tm',
+               show='Tj', showkern='TJ',
+               setlinewidth='w', clip='W', shading='sh')
 
 Op = Bunch(**dict([(name, Operator(value))
-                   for name, value in _pdfops.iteritems()]))
-
-def _paint_path(closep, fillp, strokep):
-    """Return the PDF operator to paint a path in the following way:
-    closep:  close the path before painting
-    fillp:   fill the path with the fill color
-    strokep: stroke the outline of the path with the line color"""
-    if strokep:
-        if closep:
-            if fillp:
-                return Op.close_fill_stroke
-            else:
-                return Op.close_stroke
-        else:
-            if fillp:
-                return Op.fill_stroke
-            else:
-                return Op.stroke
-    else:
-        if fillp:
-            return Op.fill
-        else:
-            return Op.endpath
-Op.paint_path = _paint_path
+                   for name, value in _pdfops.items()]))
 
 class Stream(object):
     """PDF stream object.
@@ -338,21 +310,21 @@ class Stream(object):
         if rcParams['pdf.compression']:
             self.compressobj = zlib.compressobj(rcParams['pdf.compression'])
         if self.len is None:
-            self.file = BytesIO()
+            self.file = StringIO()
         else:
             self._writeHeader()
             self.pos = self.file.tell()
 
     def _writeHeader(self):
         write = self.file.write
-        write(("%d 0 obj\n" % self.id).encode('ascii'))
+        write("%d 0 obj\n" % self.id)
         dict = self.extra
         dict['Length'] = self.len
         if rcParams['pdf.compression']:
             dict['Filter'] = Name('FlateDecode')
 
         write(pdfRepr(dict))
-        write(b"\nstream\n")
+        write("\nstream\n")
 
     def end(self):
         """Finalize stream."""
@@ -364,10 +336,10 @@ class Stream(object):
             self.file = self.pdfFile.fh
             self._writeHeader()
             self.file.write(contents)
-            self.file.write(b"\nendstream\nendobj\n")
+            self.file.write("\nendstream\nendobj\n")
         else:
             length = self.file.tell() - self.pos
-            self.file.write(b"\nendstream\nendobj\n")
+            self.file.write("\nendstream\nendobj\n")
             self.pdfFile.writeObject(self.len, length)
 
     def write(self, data):
@@ -395,7 +367,7 @@ class PdfFile(object):
         self.xrefTable = [ [0, 65535, 'the zero object'] ]
         self.passed_in_file_object = False
         if is_string_like(filename):
-            fh = open(filename, 'wb')
+            fh = file(filename, 'wb')
         elif is_writable_file_like(filename):
             fh = filename
             self.passed_in_file_object = True
@@ -406,11 +378,11 @@ class PdfFile(object):
             rcParams['datapath'], 'fonts', 'pdfcorefonts')
         self.fh = fh
         self.currentstream = None # stream object to write to, if any
-        fh.write(b"%PDF-1.4\n")    # 1.4 is the first version to have alpha
+        fh.write("%PDF-1.4\n")    # 1.4 is the first version to have alpha
         # Output some eight-bit chars as a comment so various utilities
         # recognize the file as binary by looking at the first few
         # lines (see note in section 3.4.1 of the PDF reference).
-        fh.write(b"%\254\334 \253\272\n")
+        fh.write("%\254\334 \253\272\n")
 
         self.rootObject = self.reserveObject('root')
         self.pagesObject = self.reserveObject('pages')
@@ -493,13 +465,13 @@ class PdfFile(object):
         self.writeFonts()
         self.writeObject(self.alphaStateObject,
                          dict([(val[0], val[1])
-                               for val in self.alphaStates.itervalues()]))
+                               for val in self.alphaStates.values()]))
         self.writeHatches()
         self.writeGouraudTriangles()
-        xobjects = dict(self.images.itervalues())
-        for tup in self.markers.itervalues():
+        xobjects = dict(self.images.values())
+        for tup in self.markers.values():
             xobjects[tup[0]] = tup[1]
-        for name, value in self.multi_byte_charprocs.iteritems():
+        for name, value in self.multi_byte_charprocs.items():
             xobjects[name] = value
         self.writeObject(self.XObjectObject, xobjects)
         self.writeImages()
@@ -526,7 +498,7 @@ class PdfFile(object):
 
     def output(self, *data):
         self.write(fill(map(pdfRepr, data)))
-        self.write(b'\n')
+        self.write('\n')
 
     def beginStream(self, id, len, extra=None):
         assert self.currentstream is None
@@ -568,13 +540,13 @@ class PdfFile(object):
 
     def writeFonts(self):
         fonts = {}
-        for filename, Fx in self.fontNames.iteritems():
+        for filename, Fx in self.fontNames.items():
             matplotlib.verbose.report('Embedding font %s' % filename, 'debug')
             if filename.endswith('.afm'):
                 # from pdf.use14corefonts
                 matplotlib.verbose.report('Writing AFM font', 'debug')
                 fonts[Fx] = self._write_afm_font(filename)
-            elif filename in self.dviFontInfo:
+            elif self.dviFontInfo.has_key(filename):
                 # a Type 1 font from a dvi file; the filename is really the TeX name
                 matplotlib.verbose.report('Writing Type-1 font', 'debug')
                 fonts[Fx] = self.embedTeXFont(filename, self.dviFontInfo[filename])
@@ -588,8 +560,9 @@ class PdfFile(object):
         self.writeObject(self.fontObject, fonts)
 
     def _write_afm_font(self, filename):
-        with open(filename, 'rb') as fh:
-            font = AFM(fh)
+        fh = file(filename)
+        font = AFM(fh)
+        fh.close()
         fontname = font.get_fontname()
         fontdict = { 'Type': Name('Font'),
                      'Subtype': Name('Type1'),
@@ -601,7 +574,7 @@ class PdfFile(object):
 
     def embedTeXFont(self, texname, fontinfo):
         matplotlib.verbose.report(
-            'Embedding TeX font ' + texname + ' - fontinfo=' + repr(fontinfo.__dict__),
+            'Embedding TeX font ' + texname + ' - fontinfo=' + `fontinfo.__dict__`,
             'debug')
 
         # Widths
@@ -824,7 +797,7 @@ end"""
             rawcharprocs = ttconv.get_pdf_charprocs(filename, glyph_ids)
             charprocs = {}
             charprocsRef = {}
-            for charname, stream in rawcharprocs.iteritems():
+            for charname, stream in rawcharprocs.items():
                 charprocDict = { 'Length': len(stream) }
                 # The 2-byte characters are used as XObjects, so they
                 # need extra info in their dictionary
@@ -838,7 +811,7 @@ end"""
                     # from the stream here.  It's not needed anyway,
                     # since the Form XObject includes it in its BBox
                     # value.
-                    stream = stream[stream.find(b"d1") + 2:]
+                    stream = stream[stream.find("d1") + 2:]
                 charprocObject = self.reserveObject('charProc')
                 self.beginStream(charprocObject.id, None, charprocDict)
                 self.currentstream.write(stream)
@@ -899,13 +872,14 @@ end"""
                 fontfileObject.id,
                 self.reserveObject('length of font stream'),
                 {'Length1': length1Object})
-            with open(filename, 'rb') as fontfile:
-                length1 = 0
-                while True:
-                    data = fontfile.read(4096)
-                    if not data: break
-                    length1 += len(data)
-                    self.currentstream.write(data)
+            fontfile = open(filename, 'rb')
+            length1 = 0
+            while True:
+                data = fontfile.read(4096)
+                if not data: break
+                length1 += len(data)
+                self.currentstream.write(data)
+            fontfile.close()
             self.endStream()
             self.writeObject(length1Object, length1)
 
@@ -1060,7 +1034,7 @@ end"""
     def writeHatches(self):
         hatchDict = dict()
         sidelen = 72.0
-        for hatch_style, name in self.hatchPatterns.iteritems():
+        for hatch_style, name in self.hatchPatterns.items():
             ob = self.reserveObject('hatch pattern')
             hatchDict[name] = ob
             res = { 'Procsets':
@@ -1177,7 +1151,7 @@ end"""
         return rgbat[0], rgbat[1], gray.tostring()
 
     def writeImages(self):
-        for img, pair in self.images.iteritems():
+        for img, pair in self.images.items():
             img.flipud_out()
             if img.is_grayscale:
                 height, width, data = self._gray(img)
@@ -1213,22 +1187,10 @@ end"""
 
             img.flipud_out()
 
-    def markerObject(self, path, trans, fillp, strokep, lw):
+    def markerObject(self, path, trans, fillp, lw):
         """Return name of a marker XObject representing the given path."""
-        # self.markers used by markerObject, writeMarkers, close:
-        # mapping from (path operations, fill?, stroke?) to
-        #   [name, object reference, bounding box, linewidth]
-        # This enables different draw_markers calls to share the XObject
-        # if the gc is sufficiently similar: colors etc can vary, but
-        # the choices of whether to fill and whether to stroke cannot.
-        # We need a bounding box enclosing all of the XObject path,
-        # but since line width may vary, we store the maximum of all
-        # occurring line widths in self.markers.
-        # close() is somewhat tightly coupled in that it expects the
-        # first two components of each value in self.markers to be the
-        # name and object reference.
         pathops = self.pathOperations(path, trans, simplify=False)
-        key = (tuple(pathops), bool(fillp), bool(strokep))
+        key = (tuple(pathops), bool(fillp))
         result = self.markers.get(key)
         if result is None:
             name = Name('M%d' % len(self.markers))
@@ -1242,15 +1204,17 @@ end"""
         return name
 
     def writeMarkers(self):
-        for ((pathops, fillp, strokep),
-             (name, ob, bbox, lw)) in self.markers.iteritems():
+        for (pathops, fillp),(name, ob, bbox, lw) in self.markers.iteritems():
             bbox = bbox.padded(lw * 0.5)
             self.beginStream(
                 ob.id, None,
                 {'Type': Name('XObject'), 'Subtype': Name('Form'),
                  'BBox': list(bbox.extents) })
             self.output(*pathops)
-            self.output(Op.paint_path(False, fillp, strokep))
+            if fillp:
+                self.output(Op.fill_stroke)
+            else:
+                self.output(Op.stroke)
             self.endStream()
 
     @staticmethod
@@ -1265,7 +1229,7 @@ end"""
                 cmds.append(Op.moveto)
             elif last_points is None:
                 # The other operations require a previous point
-                raise ValueError('Path lacks initial MOVETO')
+                raise ValueError, 'Path lacks initial MOVETO'
             elif code == Path.LINETO:
                 cmds.extend(points)
                 cmds.append(Op.lineto)
@@ -1313,21 +1277,22 @@ end"""
         """Write out the xref table."""
 
         self.startxref = self.fh.tell()
-        self.write(("xref\n0 %d\n" % self.nextObject).encode('ascii'))
+        self.write("xref\n0 %d\n" % self.nextObject)
         i = 0
         borken = False
         for offset, generation, name in self.xrefTable:
             if offset is None:
-                print('No offset for object %d (%s)' % (i, name), file=sys.stderr)
+                print >>sys.stderr, \
+                    'No offset for object %d (%s)' % (i, name)
                 borken = True
             else:
                 if name == 'the zero object':
-                    self.write(("%010d %05d f \n" % (offset, generation)).encode('ascii'))
+                    self.write("%010d %05d f \n" % (offset, generation))
                 else:
-                    self.write(("%010d %05d n \n" % (offset, generation)).encode('ascii'))
+                    self.write("%010d %05d n \n" % (offset, generation))
             i += 1
         if borken:
-            raise AssertionError('Indirect object does not exist')
+            raise AssertionError, 'Indirect object does not exist'
 
     def writeInfoDict(self):
         """Write out the info dictionary, checking it for good form"""
@@ -1344,7 +1309,7 @@ end"""
                     'CreationDate': is_date,
                     'ModDate': is_date,
                     'Trapped': check_trapped}
-        for k in self.infoDict.iterkeys():
+        for k in self.infoDict.keys():
             if k not in keywords:
                 warnings.warn('Unknown infodict keyword: %s' % k)
             else:
@@ -1357,13 +1322,13 @@ end"""
     def writeTrailer(self):
         """Write out the PDF trailer."""
 
-        self.write(b"trailer\n")
+        self.write("trailer\n")
         self.write(pdfRepr(
                 {'Size': self.nextObject,
                  'Root': self.rootObject,
                  'Info': self.infoObject }))
         # Could add 'ID'
-        self.write(("\nstartxref\n%d\n%%%%EOF\n" % self.startxref).encode('ascii'))
+        self.write("\nstartxref\n%d\n%%%%EOF\n" % self.startxref)
 
 class RendererPdf(RendererBase):
     truetype_font_cache = maxdict(50)
@@ -1409,7 +1374,7 @@ class RendererPdf(RendererBase):
         used_characters[1].update([ord(x) for x in s])
 
     def merge_used_characters(self, other):
-        for stat_key, (realpath, charset) in other.iteritems():
+        for stat_key, (realpath, charset) in other.items():
             used_characters = self.file.used_characters.setdefault(
                 stat_key, (realpath, set()))
             used_characters[1].update(charset)
@@ -1437,7 +1402,7 @@ class RendererPdf(RendererBase):
             h = 72.0*h/self.image_dpi
         else:
             h = dy
-
+        
         imob = self.file.imageObject(im)
 
         if transform is None:
@@ -1451,7 +1416,7 @@ class RendererPdf(RendererBase):
                              tr1, tr2, tr3, tr4, tr5, tr6, Op.concat_matrix,
                              w, 0, 0, h, x, y, Op.concat_matrix,
                              imob, Op.use_xobject, Op.grestore)
-
+        
 
     def draw_path(self, gc, path, transform, rgbFace=None):
         self.check_gc(gc, rgbFace)
@@ -1469,12 +1434,11 @@ class RendererPdf(RendererBase):
             return
 
         self.check_gc(gc, rgbFace)
-        fillp = gc.fillp()
-        strokep = gc.strokep()
+        fillp = rgbFace is not None
 
         output = self.file.output
         marker = self.file.markerObject(
-            marker_path, marker_trans, fillp, strokep, self.gc._linewidth)
+            marker_path, marker_trans, fillp, self.gc._linewidth)
 
         output(Op.gsave)
         lastx, lasty = 0, 0
@@ -1604,7 +1568,7 @@ class RendererPdf(RendererBase):
         for x1, y1, dvifont, glyph, width in page.text:
             if dvifont != oldfont:
                 pdfname = self.file.fontName(dvifont.texname)
-                if dvifont.texname not in self.file.dviFontInfo:
+                if not self.file.dviFontInfo.has_key(dvifont.texname):
                     psfont = self.tex_font_mapping(dvifont.texname)
                     self.file.dviFontInfo[dvifont.texname] = Bunch(
                         fontfile=psfont.filename,
@@ -1621,17 +1585,17 @@ class RendererPdf(RendererBase):
         # string (if any kerns would be less than 0.1 points).
         i, curx, fontsize = 0, 0, None
         while i < len(seq)-1:
-            elt, nxt = seq[i:i+2]
+            elt, next = seq[i:i+2]
             if elt[0] == 'font':
                 fontsize = elt[2]
-            elif elt[0] == nxt[0] == 'text' and elt[2] == nxt[2]:
-                offset = elt[4] - nxt[1]
+            elif elt[0] == next[0] == 'text' and elt[2] == next[2]:
+                offset = elt[4] - next[1]
                 if abs(offset) < 0.1:
-                    elt[3][-1] += nxt[3][0]
-                    elt[4] += nxt[4]-nxt[1]
+                    elt[3][-1] += next[3][0]
+                    elt[4] += next[4]-next[1]
                 else:
-                    elt[3] += [offset*1000.0/fontsize, nxt[3][0]]
-                    elt[4] = nxt[4]
+                    elt[3] += [offset*1000.0/fontsize, next[3][0]]
+                    elt[4] = next[4]
                 del seq[i+1]
                 continue
             i += 1
@@ -1720,7 +1684,7 @@ class RendererPdf(RendererBase):
             chunks = []
 
             if not rcParams['pdf.use14corefonts']:
-                if fonttype == 3 and not isinstance(s, bytes) and len(s) != 0:
+                if fonttype == 3 and not isinstance(s, str) and len(s) != 0:
                     # Break the string into chunks where each chunk is either
                     # a string of chars <= 255, or a single character > 255.
                     s = unicode(s)
@@ -1859,9 +1823,10 @@ class RendererPdf(RendererBase):
                     directory=self.file._core14fontdir)
             font = self.afm_font_cache.get(filename)
             if font is None:
-                with open(filename, 'rb') as fh:
-                    font = AFM(fh)
-                    self.afm_font_cache[filename] = font
+                fh = file(filename)
+                font = AFM(fh)
+                self.afm_font_cache[filename] = font
+                fh.close()
             self.afm_font_cache[key] = font
         return font
 
@@ -1901,20 +1866,18 @@ class GraphicsContextPdf(GraphicsContextBase):
         d = dict(self.__dict__)
         del d['file']
         del d['parent']
-        return repr(d)
+        return `d`
 
-    def strokep(self):
+    def _strokep(self):
         """
         Predicate: does the path need to be stroked (its outline drawn)?
         This tests for the various conditions that disable stroking
         the path, in which case it would presumably be filled.
         """
-        # _linewidth > 0: in pdf a line of width 0 is drawn at minimum
-        #   possible device width, but e.g. agg doesn't draw at all
         return (self._linewidth > 0 and self._alpha > 0 and
                 (len(self._rgb) <= 3 or self._rgb[3] != 0.0))
 
-    def fillp(self):
+    def _fillp(self):
         """
         Predicate: does the path need to be filled?
         """
@@ -1927,14 +1890,32 @@ class GraphicsContextPdf(GraphicsContextBase):
         Return the appropriate pdf operator to close the path and
         cause it to be stroked, filled, or both.
         """
-        return Op.paint_path(True, self.fillp(), self.strokep())
+        if self._strokep():
+            if self._fillp():
+                return Op.close_fill_stroke
+            else:
+                return Op.close_stroke
+        else:
+            if self._fillp():
+                return Op.fill
+            else:
+                return Op.endpath
 
     def paint(self):
         """
         Return the appropriate pdf operator to cause the path to be
         stroked, filled, or both.
         """
-        return Op.paint_path(False, self.fillp(), self.strokep())
+        if self._strokep():
+            if self._fillp():
+                return Op.fill_stroke
+            else:
+                return Op.stroke
+        else:
+            if self._fillp():
+                return Op.fill
+            else:
+                return Op.endpath
 
     capstyles = { 'butt': 0, 'round': 1, 'projecting': 2 }
     joinstyles = { 'miter': 0, 'round': 1, 'bevel': 2 }
@@ -2160,7 +2141,7 @@ class PdfPages(object):
             else:
                 figureManager = Gcf.get_fig_manager(figure)
             if figureManager is None:
-                raise ValueError("No such figure: " + repr(figure))
+                raise ValueError, "No such figure: " + `figure`
             else:
                 figureManager.canvas.figure.savefig(self, format='pdf')
 
@@ -2190,19 +2171,17 @@ class FigureCanvasPdf(FigureCanvasBase):
             file = filename._file
         else:
             file = PdfFile(filename)
-        try:
-            file.newPage(width, height)
-            _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
-            renderer = MixedModeRenderer(self.figure,
-                                         width, height, image_dpi, RendererPdf(file, image_dpi),
-                                         bbox_inches_restore=_bbox_inches_restore)
-            self.figure.draw(renderer)
-            renderer.finalize()
-        finally:
-            if isinstance(filename, PdfPages): # finish off this page
-                file.endStream()
-            else:            # we opened the file above; now finish it off
-                file.close()
+        file.newPage(width, height)
+        _bbox_inches_restore = kwargs.pop("bbox_inches_restore", None)
+        renderer = MixedModeRenderer(self.figure,
+            width, height, image_dpi, RendererPdf(file, image_dpi),
+            bbox_inches_restore=_bbox_inches_restore)
+        self.figure.draw(renderer)
+        renderer.finalize()
+        if isinstance(filename, PdfPages): # finish off this page
+            file.endStream()
+        else:            # we opened the file above; now finish it off
+            file.close()
 
 class FigureManagerPdf(FigureManagerBase):
     pass

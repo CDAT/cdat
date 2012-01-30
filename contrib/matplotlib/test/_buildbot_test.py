@@ -1,5 +1,4 @@
 """This script will test matplotlib in a virtual environment"""
-from __future__ import print_function
 import os, glob
 
 from _buildbot_util import check_call

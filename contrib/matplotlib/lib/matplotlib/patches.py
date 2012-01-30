@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import division, print_function
+from __future__ import division
 import math
 
 import matplotlib as mpl
@@ -431,7 +431,7 @@ for k in ('Rectangle', 'Circle', 'RegularPolygon', 'Polygon', 'Wedge', 'Arrow',
     docstring.interpd.update({k:patchdoc})
 
 # define Patch.__init__ docstring after the class has been added to interpd
-docstring.dedent_interpd(Patch.__init__)
+docstring.dedent_interpd(Patch.__init__.im_func)
 
 class Shadow(Patch):
     def __str__(self):
@@ -768,10 +768,7 @@ class Polygon(Patch):
         Patch.__init__(self, **kwargs)
         xy = np.asarray(xy, np.float_)
         self._path = Path(xy)
-        self._closed = closed
-        if closed and len(xy):
-            xy = np.concatenate([xy, [xy[0]]])
-        self._set_xy(xy)
+        self.set_closed(closed)
 
     def get_path(self):
         return self._path
@@ -780,8 +777,6 @@ class Polygon(Patch):
         return self._closed
 
     def set_closed(self, closed):
-        if self._closed == bool(closed):
-            return
         self._closed = closed
         xy = self._get_xy()
         if closed:
@@ -979,15 +974,13 @@ class FancyArrow(Polygon):
                     coords=np.concatenate([left_half_arrow[:-1],
                                             right_half_arrow[-2::-1]])
                 else:
-                    raise ValueError("Got unknown shape: %s" % shape)
+                    raise ValueError, "Got unknown shape: %s" % shape
             cx = float(dx)/distance
             sx = float(dy)/distance
             M = np.array([[cx, sx],[-sx,cx]])
             verts = np.dot(coords, M) + (x+dx, y+dy)
 
         Polygon.__init__(self, map(tuple, verts), closed=True, **kwargs)
-
-docstring.interpd.update({"FancyArrow":FancyArrow.__init__.__doc__})
 
 docstring.interpd.update({"FancyArrow":FancyArrow.__init__.__doc__})
 

@@ -26,7 +26,7 @@ try:
 except:
     raise ImportError, 'Error: could not import pycf'
 
-LIBCFDIR  = __path__[0] + "/libcf"
+LIBCFDIR  = __path__[0] + "/pylibcf"
 libCF  = libCFConfig
 
 def open(uri, mode = 'r'):

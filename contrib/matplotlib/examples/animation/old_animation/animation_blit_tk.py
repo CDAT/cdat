@@ -1,8 +1,6 @@
 # For detailed comments on animation and the techniqes used here, see
 # the wiki entry http://www.scipy.org/Cookbook/Matplotlib/Animations
 
-from __future__ import print_function
-
 import matplotlib
 matplotlib.use('TkAgg')
 
@@ -36,7 +34,7 @@ def run(*args):
 
         if run.cnt==1000:
             # print the timing info and quit
-            print('FPS:', 1000/(time.time()-tstart))
+            print 'FPS:' , 1000/(time.time()-tstart)
             sys.exit()
 
         run.cnt += 1

@@ -13,7 +13,6 @@ is recommended that the namespaces be kept separate, e.g.::
     plt.plot(x, y)
 
 """
-from __future__ import print_function
 
 import sys, warnings
 

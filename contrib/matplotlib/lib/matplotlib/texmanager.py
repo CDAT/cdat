@@ -33,8 +33,6 @@ or include these two lines in your script::
 
 """
 
-from __future__ import print_function
-
 import copy, glob, os, shutil, sys, warnings
 from subprocess import Popen, PIPE, STDOUT
 
@@ -48,7 +46,6 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib import rcParams
 from matplotlib._png import read_png
-from matplotlib.cbook import mkdirs
 import matplotlib.dviread as dviread
 import re
 
@@ -62,11 +59,10 @@ def dvipng_hack_alpha():
         stderr=STDOUT, close_fds=(sys.platform!='win32'))
     stdin, stdout = p.stdin, p.stdout
     for line in stdout:
-        if line.startswith(b'dvipng '):
+        if line.startswith('dvipng '):
             version = line.split()[-1]
             mpl.verbose.report('Found dvipng version %s'% version,
                 'helpful')
-            version = version.decode('ascii')
             version = distutils.version.LooseVersion(version)
             return version < distutils.version.LooseVersion('1.6')
     mpl.verbose.report('No dvipng was found', 'helpful')
@@ -88,11 +84,12 @@ class TexManager:
     texcache = os.path.join(configdir, 'tex.cache')
 
     if os.path.exists(oldcache):
-        print("""\
+        print >> sys.stderr, """\
 WARNING: found a TeX cache dir in the deprecated location "%s".
-  Moving it to the new default location "%s"."""%(oldcache, texcache), file=sys.stderr)
+  Moving it to the new default location "%s"."""%(oldcache, texcache)
         shutil.move(oldcache, texcache)
-    mkdirs(texcache)
+    if not os.path.exists(texcache):
+        os.mkdir(texcache)
 
     _dvipng_hack_alpha = None
     #_dvipng_hack_alpha = dvipng_hack_alpha()
@@ -133,7 +130,8 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
 
     def __init__(self):
 
-        mkdirs(self.texcache)
+        if not os.path.isdir(self.texcache):
+            os.mkdir(self.texcache)
         ff = rcParams['font.family'].lower()
         if ff in self.font_families:
             self.font_family = ff
@@ -150,11 +148,11 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
                     setattr(self, font_family_attr,
                             self.font_info[font.lower()])
                     if DEBUG:
-                        print('family: %s, font: %s, info: %s'%(font_family,
-                                    font, self.font_info[font.lower()]))
+                        print 'family: %s, font: %s, info: %s'%(font_family,
+                                    font, self.font_info[font.lower()])
                     break
                 else:
-                    if DEBUG: print('$s font is not compatible with usetex')
+                    if DEBUG: print '$s font is not compatible with usetex'
             else:
                 mpl.verbose.report('No LaTeX-compatible font found for the %s font family in rcParams. Using default.' % ff, 'helpful')
                 setattr(self, font_family_attr, self.font_info[font_family])
@@ -188,16 +186,16 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         changed = [par for par in self._rc_cache_keys if rcParams[par] != \
                    self._rc_cache[par]]
         if changed:
-            if DEBUG: print('DEBUG following keys changed:', changed)
+            if DEBUG: print 'DEBUG following keys changed:', changed
             for k in changed:
                 if DEBUG:
-                    print('DEBUG %-20s: %-10s -> %-10s' % \
-                            (k, self._rc_cache[k], rcParams[k]))
+                    print 'DEBUG %-20s: %-10s -> %-10s' % \
+                            (k, self._rc_cache[k], rcParams[k])
                 # deepcopy may not be necessary, but feels more future-proof
                 self._rc_cache[k] = copy.deepcopy(rcParams[k])
-            if DEBUG: print('DEBUG RE-INIT\nold fontconfig:', self._fontconfig)
+            if DEBUG: print 'DEBUG RE-INIT\nold fontconfig:', self._fontconfig
             self.__init__()
-        if DEBUG: print('DEBUG fontconfig:', self._fontconfig)
+        if DEBUG: print 'DEBUG fontconfig:', self._fontconfig
         return self._fontconfig
 
     def get_font_preamble(self):
@@ -230,6 +228,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         """
         basefile = self.get_basefile(tex, fontsize)
         texfile = '%s.tex'%basefile
+        fh = file(texfile, 'w')
         custom_preamble = self.get_custom_preamble()
         fontcmd = {'sans-serif' : r'{\sffamily %s}',
                    'monospace'  : r'{\ttfamily %s}'}.get(self.font_family,
@@ -237,7 +236,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         tex = fontcmd % tex
 
         if rcParams['text.latex.unicode']:
-            unicode_preamble = r"""\usepackage{ucs}
+            unicode_preamble = """\usepackage{ucs}
 \usepackage[utf8x]{inputenc}"""
         else:
             unicode_preamble = ''
@@ -253,17 +252,18 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
 \end{document}
 """ % (self._font_preamble, unicode_preamble, custom_preamble,
        fontsize, fontsize*1.25, tex)
-        with open(texfile, 'wb') as fh:
-            if rcParams['text.latex.unicode']:
-                fh.write(s.encode('utf8'))
-            else:
-                try:
-                    fh.write(s.encode('ascii'))
-                except UnicodeEncodeError as err:
-                    mpl.verbose.report("You are using unicode and latex, but have "
-                                "not enabled the matplotlib 'text.latex.unicode' "
-                                "rcParam.", 'helpful')
-                    raise
+        if rcParams['text.latex.unicode']:
+            fh.write(s.encode('utf8'))
+        else:
+            try:
+                fh.write(s)
+            except UnicodeEncodeError, err:
+                mpl.verbose.report("You are using unicode and latex, but have "
+                            "not enabled the matplotlib 'text.latex.unicode' "
+                            "rcParam.", 'helpful')
+                raise
+
+        fh.close()
 
         return texfile
 
@@ -280,6 +280,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         """
         basefile = self.get_basefile(tex, fontsize)
         texfile = '%s.tex'%basefile
+        fh = file(texfile, 'w')
         custom_preamble = self.get_custom_preamble()
         fontcmd = {'sans-serif' : r'{\sffamily %s}',
                    'monospace'  : r'{\ttfamily %s}'}.get(self.font_family,
@@ -287,7 +288,7 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
         tex = fontcmd % tex
 
         if rcParams['text.latex.unicode']:
-            unicode_preamble = r"""\usepackage{ucs}
+            unicode_preamble = """\usepackage{ucs}
 \usepackage[utf8x]{inputenc}"""
         else:
             unicode_preamble = ''
@@ -316,17 +317,18 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
 \end{document}
 """ % (self._font_preamble, unicode_preamble, custom_preamble,
        fontsize, fontsize*1.25, tex)
-        with open(texfile, 'wb') as fh:
-            if rcParams['text.latex.unicode']:
-                fh.write(s.encode('utf8'))
-            else:
-                try:
-                    fh.write(s.encode('ascii'))
-                except UnicodeEncodeError as err:
-                    mpl.verbose.report("You are using unicode and latex, but have "
-                                "not enabled the matplotlib 'text.latex.unicode' "
-                                "rcParam.", 'helpful')
-                    raise
+        if rcParams['text.latex.unicode']:
+            fh.write(s.encode('utf8'))
+        else:
+            try:
+                fh.write(s)
+            except UnicodeEncodeError, err:
+                mpl.verbose.report("You are using unicode and latex, but have "
+                            "not enabled the matplotlib 'text.latex.unicode' "
+                            "rcParam.", 'helpful')
+                raise
+
+        fh.close()
 
         return texfile
 
@@ -354,8 +356,9 @@ WARNING: found a TeX cache dir in the deprecated location "%s".
             mpl.verbose.report(command, 'debug')
             exit_status = os.system(command)
             try:
-                with open(outfile) as fh:
-                    report = fh.read()
+                fh = file(outfile)
+                report = fh.read()
+                fh.close()
             except IOError:
                 report = 'No latex error report available.'
             try:
@@ -399,8 +402,9 @@ string:\n%s\nHere is the full report generated by LaTeX: \n\n'% repr(tex)) + rep
             mpl.verbose.report(command, 'debug')
             exit_status = os.system(command)
             try:
-                with open(outfile) as fh:
-                    report = fh.read()
+                fh = file(outfile)
+                report = fh.read()
+                fh.close()
 
             except IOError:
                 report = 'No latex error report available.'
@@ -412,8 +416,7 @@ string:\n%s\nHere is the full report generated by LaTeX: \n\n'% repr(tex)) + rep
             # find the box extent information in the latex output
             # file and store them in ".baseline" file
             m = TexManager._re_vbox.search(report)
-            with open(basefile+'.baseline',"w") as fh:
-                fh.write(" ".join(m.groups()))
+            open(basefile+'.baseline',"w").write(" ".join(m.groups()))
 
             for fname in glob.glob(basefile+'*'):
                 if fname.endswith('dvi'): pass
@@ -445,8 +448,9 @@ string:\n%s\nHere is the full report generated by LaTeX: \n\n'% repr(tex)) + rep
             mpl.verbose.report(command, 'debug')
             exit_status = os.system(command)
             try:
-                with open(outfile) as fh:
-                    report = fh.read()
+                fh = file(outfile)
+                report = fh.read()
+                fh.close()
             except IOError:
                 report = 'No dvipng error report available.'
             if exit_status:
@@ -477,13 +481,13 @@ process the following file:\n%s\nHere is the full report generated by dvipng: \
                           os.path.split(dvifile)[-1], outfile))
             mpl.verbose.report(command, 'debug')
             exit_status = os.system(command)
-            with open(outfile) as fh:
-                if exit_status:
-                    raise RuntimeError('dvipng was not able to \
-                    process the flowing file:\n%s\nHere is the full report generated by dvipng: \
-                    \n\n'% dvifile + fh.read())
-                else:
-                    mpl.verbose.report(fh.read(), 'debug')
+            fh = file(outfile)
+            if exit_status:
+                raise RuntimeError('dvipng was not able to \
+process the flowing file:\n%s\nHere is the full report generated by dvipng: \
+\n\n'% dvifile + fh.read())
+            else: mpl.verbose.report(fh.read(), 'debug')
+            fh.close()
             os.remove(outfile)
 
         return psfile
@@ -494,10 +498,10 @@ process the following file:\n%s\nHere is the full report generated by dvipng: \
         rendering of the tex string
         """
         psfile = self.make_ps(tex, fontsize)
-        with open(psfile) as ps:
-            for line in ps:
-                if line.startswith('%%BoundingBox:'):
-                    return [int(val) for val in line.split()[1:]]
+        ps = file(psfile)
+        for line in ps:
+            if line.startswith('%%BoundingBox:'):
+                return [int(val) for val in line.split()[1:]]
         raise RuntimeError('Could not parse %s'%psfile)
 
     def get_grey(self, tex, fontsize=None, dpi=None):
@@ -593,8 +597,7 @@ process the following file:\n%s\nHere is the full report generated by dvipng: \
             if DEBUG or not os.path.exists(baselinefile):
                 dvifile = self.make_dvi_preview(tex, fontsize)
 
-            with open(baselinefile) as fh:
-                l = fh.read().split()
+            l = open(baselinefile).read().split()
             height, depth, width = [float(l1)*dpi_fraction for l1 in l]
             return width, height+depth, depth
 
@@ -602,9 +605,7 @@ process the following file:\n%s\nHere is the full report generated by dvipng: \
             # use dviread. It sometimes returns a wrong descent.
             dvifile = self.make_dvi(tex, fontsize)
             dvi = dviread.Dvi(dvifile, 72*dpi_fraction)
-            try:
-                page = next(iter(dvi))
-            finally:
-                dvi.close()
+            page = iter(dvi).next()
+            dvi.close()
             # A total height (including the descent) needs to be returned.
             return page.width, page.height+page.descent, page.descent

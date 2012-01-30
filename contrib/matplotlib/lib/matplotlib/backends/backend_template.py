@@ -54,7 +54,7 @@ Naming Conventions
 
 """
 
-from __future__ import division, print_function
+from __future__ import division
 
 import matplotlib
 from matplotlib._pylab_helpers import Gcf

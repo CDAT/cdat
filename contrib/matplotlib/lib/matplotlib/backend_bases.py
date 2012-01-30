@@ -1,3 +1,4 @@
+
 """
 Abstract base classes define the primitives that renderers and
 graphics contexts must implement to serve as a matplotlib backend
@@ -27,8 +28,8 @@ graphics contexts must implement to serve as a matplotlib backend
 
 """
 
-from __future__ import division, print_function
-import os, warnings, time, io
+from __future__ import division
+import os, warnings, time
 
 import numpy as np
 import matplotlib.cbook as cbook
@@ -1227,7 +1228,8 @@ class LocationEvent(Event):
             self._update_enter_leave()
             return
         elif (len(axes_list) > 1): # Overlap, get the highest zorder
-            axes_list.sort(key=lambda x: x.zorder)
+            axCmp = lambda _x,_y: cmp(_x.zorder, _y.zorder)
+            axes_list.sort(axCmp)
             self.inaxes = axes_list[-1] # Use the highest zorder
         else: # Just found one hit
             self.inaxes = axes_list[0]
@@ -1302,14 +1304,13 @@ class MouseEvent(LocationEvent):
     x      = None       # x position - pixels from left of canvas
     y      = None       # y position - pixels from right of canvas
     button = None       # button pressed None, 1, 2, 3
-    dblclick = None     # whether or not the event is the result of a double click
     inaxes = None       # the Axes instance if mouse us over axes
     xdata  = None       # x coord of mouse in data coords
     ydata  = None       # y coord of mouse in data coords
     step   = None       # scroll steps for scroll events
 
     def __init__(self, name, canvas, x, y, button=None, key=None,
-                 step=0, dblclick=False, guiEvent=None):
+                 step=0, guiEvent=None):
         """
         x, y in figure coords, 0,0 = bottom, left
         button pressed None, 1, 2, 3, 'up', 'down'
@@ -1318,11 +1319,6 @@ class MouseEvent(LocationEvent):
         self.button = button
         self.key = key
         self.step = step
-        self.dblclick = dblclick
-
-    def __str__(self):
-        return "MPL MouseEvent: xy=(%d,%d) xydata=(%s,%s) button=%d dblclick=%s inaxes=%s"%\
-             (self.x,self.y,str(self.xdata),str(self.ydata),self.button,self.dblclick,self.inaxes)
 
 class PickEvent(Event):
     """
@@ -1467,7 +1463,7 @@ class FigureCanvasBase(object):
         # Try deleting that artist, or its parent if you
         # can't delete the artist
         while h:
-            print("Removing",h)
+            print "Removing",h
             if h.remove():
                 self.draw_idle()
                 break
@@ -1620,7 +1616,7 @@ class FigureCanvasBase(object):
         self.callbacks.process(s, mouseevent)
 
 
-    def button_press_event(self, x, y, button, dblclick=False, guiEvent=None):
+    def button_press_event(self, x, y, button, guiEvent=None):
         """
         Backend derived classes should call this function on any mouse
         button press.  x,y are the canvas coords: 0,0 is lower, left.
@@ -1632,7 +1628,7 @@ class FigureCanvasBase(object):
         """
         self._button = button
         s = 'button_press_event'
-        mouseevent = MouseEvent(s, self, x, y, button, self._key, dblclick=dblclick, guiEvent=guiEvent)
+        mouseevent = MouseEvent(s, self, x, y, button, self._key, guiEvent=guiEvent)
         self.callbacks.process(s, mouseevent)
 
     def button_release_event(self, x, y, button, guiEvent=None):
@@ -1777,12 +1773,6 @@ class FigureCanvasBase(object):
     #     classes inherit from FigureCanvasBase
     #  b) so we don't import a bunch of stuff the user may never use
 
-    # TODO: these print_* throw ImportErrror when called from
-    # compare_images_decorator (decorators.py line 112)
-    # if the backend has not already been loaded earlier on.  Simple trigger:
-    # >>> import matplotlib.tests.test_spines
-    # >>> list(matplotlib.tests.test_spines.test_spines_axes_positions())[0][0]()
-
     def print_emf(self, *args, **kwargs):
         from backends.backend_emf import FigureCanvasEMF # lazy import
         emf = self.switch_backends(FigureCanvasEMF)
@@ -1867,7 +1857,7 @@ class FigureCanvasBase(object):
 
     def get_supported_filetypes_grouped(self):
         groupings = {}
-        for ext, name in self.filetypes.iteritems():
+        for ext, name in self.filetypes.items():
             groupings.setdefault(name, []).append(ext)
             groupings[name].sort()
         return groupings
@@ -1982,9 +1972,9 @@ class FigureCanvasBase(object):
                 # the backend to support file-like object, i'm going
                 # to leave it as it is. However, a better solution
                 # than stringIO seems to be needed. -JJL
-                #result = getattr(self, method_name)
+                #result = getattr(self, method_name)(
                 result = print_method(
-                    io.BytesIO(),
+                    cStringIO.StringIO(),
                     dpi=dpi,
                     facecolor=facecolor,
                     edgecolor=edgecolor,

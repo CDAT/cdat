@@ -131,7 +131,9 @@ private:
     }
 };
 
-PyMODINIT_FUNC
+
+extern "C"
+DL_EXPORT(void)
 init_gtkagg(void)
 {
     init_pygobject();

@@ -195,10 +195,6 @@ public:
     Py::Object restore_region(const Py::Tuple & args);
     Py::Object restore_region2(const Py::Tuple & args);
 
-    #if PY3K
-    virtual int buffer_get( Py_buffer *, int flags );
-    #endif
-
     virtual ~RendererAgg();
 
     static const size_t PIXELS_PER_INCH;

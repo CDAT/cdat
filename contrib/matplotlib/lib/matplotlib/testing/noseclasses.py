@@ -1,4 +1,3 @@
-from __future__ import print_function
 import os
 from nose.plugins.errorclass import ErrorClass, ErrorClassPlugin
 

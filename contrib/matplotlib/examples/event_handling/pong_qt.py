@@ -1,8 +1,6 @@
 # For detailed comments on animation and the techniqes used here, see
 # the wiki entry http://www.scipy.org/Cookbook/Matplotlib/Animations
 
-from __future__ import print_function
-
 import os, sys
 import matplotlib
 matplotlib.use('QtAgg') # qt3 example
@@ -41,4 +39,4 @@ app.tstart = time.time()
 app.startTimer(10)
 
 plt.show()
-print('FPS:' , app.animation.cnt/(time.time()-app.tstart))
+print 'FPS:' , app.animation.cnt/(time.time()-app.tstart)

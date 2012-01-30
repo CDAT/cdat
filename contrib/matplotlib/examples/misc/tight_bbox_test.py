@@ -1,4 +1,3 @@
-from __future__ import print_function
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -10,6 +9,6 @@ plt.yticks([0.5, 1.5], ["long long tick label",
 plt.ylabel("My y-label")
 plt.title("Check saved figures for their bboxes")
 for ext in ["png", "pdf", "svg", "svgz", "eps"]:
-    print("saving tight_bbox_test.%s" % (ext,))
+    print "saving tight_bbox_test.%s" % (ext,)
     plt.savefig("tight_bbox_test.%s" % (ext,), bbox_inches="tight")
 plt.show()

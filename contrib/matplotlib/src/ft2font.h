@@ -21,13 +21,14 @@ extern "C"
 #include FT_TRUETYPE_TABLES_H
 }
 
+
 // the freetype string rendered into a width, height buffer
-class FT2Image : public Py::PythonClass<FT2Image>
+class FT2Image : public Py::PythonExtension<FT2Image>
 {
 public:
-    FT2Image(Py::PythonClassInstance *self, Py::Tuple &args, Py::Dict &kwds);
-    virtual ~FT2Image();
-    static Py::PythonClassObject<FT2Image> factory(int width, int height);
+    // FT2Image();
+    FT2Image(unsigned long width, unsigned long height);
+    ~FT2Image();
 
     static void init_type();
 
@@ -65,6 +66,7 @@ public:
     Py::Object py_as_rgb_str(const Py::Tuple & args);
     static char as_rgba_str__doc__ [];
     Py::Object py_as_rgba_str(const Py::Tuple & args);
+
     Py::Object py_get_width(const Py::Tuple & args);
     Py::Object py_get_height(const Py::Tuple & args);
 
@@ -73,31 +75,35 @@ private:
     unsigned char *_buffer;
     unsigned long _width;
     unsigned long _height;
+    FT2Image* _rgbCopy;
+    FT2Image* _rgbaCopy;
+
+    void makeRgbCopy();
+    void makeRgbaCopy();
 
     void resize(long width, long height);
 };
 
-class Glyph : public Py::PythonClass<Glyph>
+
+class Glyph : public Py::PythonExtension<Glyph>
 {
 public:
-    Glyph(Py::PythonClassInstance *self, Py::Tuple &args, Py::Dict &kwds) :
-        Py::PythonClass<Glyph>::PythonClass(self, args, kwds) { }
-    virtual ~Glyph();
-    static Py::PythonClassObject<Glyph> factory(const FT_Face&, const FT_Glyph&, size_t);
-    int setattro(const Py::String &name, const Py::Object &value);
-    Py::Object getattro(const Py::String &name);
+    Glyph(const FT_Face&, const FT_Glyph&, size_t);
+    ~Glyph();
+    int setattr(const char *_name, const Py::Object &value);
+    Py::Object getattr(const char *_name);
     static void init_type(void);
     size_t glyphInd;
 private:
     Py::Dict __dict__;
 };
 
-class FT2Font : public Py::PythonClass<FT2Font>
+class FT2Font : public Py::PythonExtension<FT2Font>
 {
 
 public:
-    FT2Font(Py::PythonClassInstance *self, Py::Tuple &args, Py::Dict &kwds);
-    virtual ~FT2Font();
+    FT2Font(std::string);
+    ~FT2Font();
     static void init_type(void);
     Py::Object clear(const Py::Tuple & args);
     Py::Object set_size(const Py::Tuple & args);
@@ -110,6 +116,7 @@ public:
     Py::Object load_glyph(const Py::Tuple & args, const Py::Dict & kws);
     Py::Object get_width_height(const Py::Tuple & args);
     Py::Object get_descent(const Py::Tuple & args);
+    Py::Object draw_rect_filled(const Py::Tuple & args);
     Py::Object get_xys(const Py::Tuple & args);
     Py::Object draw_glyphs_to_bitmap(const Py::Tuple & args);
     Py::Object draw_glyph_to_bitmap(const Py::Tuple & args);
@@ -121,10 +128,10 @@ public:
     Py::Object get_sfnt_table(const Py::Tuple & args);
     Py::Object get_image(const Py::Tuple & args);
     Py::Object attach_file(const Py::Tuple & args);
-    int setattro(const Py::String &name, const Py::Object &value);
-    Py::Object getattro(const Py::String &name);
+    int setattr(const char *_name, const Py::Object &value);
+    Py::Object getattr(const char *_name);
     Py::Object get_path();
-    Py::Object image;
+    FT2Image* image;
 
 private:
     Py::Dict __dict__;
@@ -137,6 +144,7 @@ private:
     double angle;
     double ptsize;
     double dpi;
+
 
     FT_BBox compute_string_bbox();
     void set_scalable_attributes();
@@ -172,8 +180,27 @@ class ft2font_module : public Py::ExtensionModule<ft2font_module>
 
 {
 public:
-    ft2font_module();
-    virtual ~ft2font_module();
+    ft2font_module()
+            : Py::ExtensionModule<ft2font_module>("ft2font")
+    {
+        FT2Image::init_type();
+        Glyph::init_type();
+        FT2Font::init_type();
+
+        add_varargs_method("FT2Font", &ft2font_module::new_ft2font,
+                           "FT2Font");
+        add_varargs_method("FT2Image", &ft2font_module::new_ft2image,
+                           "FT2Image");
+        initialize("The ft2font module");
+    }
+
+    ~ft2font_module();
+    //static FT_Library ft2Library;
+
+private:
+
+    Py::Object new_ft2font(const Py::Tuple &args);
+    Py::Object new_ft2image(const Py::Tuple &args);
 };
 
 #endif

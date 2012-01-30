@@ -53,11 +53,11 @@ will create a custom, regular symbol.
 For backward compatibility, the form (*verts*, 0) is also accepted,
 but it is equivalent to just *verts* for giving a raw set of vertices
 that define the shape.
-"""
-
+""" 
+    
     # TODO: Automatically generate this
     accepts = """ACCEPTS: [ %s | ``'$...$'`` | *tuple* | *Nx2 array* ]"""
-
+    
     markers =  {
         '.'        : 'point',
         ','        : 'pixel',
@@ -100,13 +100,12 @@ that define the shape.
     # is calculated in the _set_* functions.
     filled_markers = (
         'o', 'v', '^', '<', '>', '8', 's', 'p', '*', 'h', 'H', 'D', 'd')
-
-    fillstyles = ('full', 'left' , 'right' , 'bottom' , 'top', 'none')
-    _half_fillstyles = ('left' , 'right' , 'bottom' , 'top')
+        
+    fillstyles = ('full', 'left' , 'right' , 'bottom' , 'top')
 
     # TODO: Is this ever used as a non-constant?
     _point_size_reduction = 0.5
-
+    
     def __init__(self, marker=None, fillstyle='full'):
         self._fillstyle = fillstyle
         self.set_marker(marker)
@@ -120,13 +119,13 @@ that define the shape.
         self._snap_threshold = None
         self._filled = True
         self._marker_function()
-
+        
     def __nonzero__(self):
-        return bool(len(self._path.vertices))
-
+        return len(self._path.vertices)
+        
     def is_filled(self):
         return self._filled
-
+    
     def get_fillstyle(self):
         return self._fillstyle
 
@@ -135,7 +134,7 @@ that define the shape.
         assert fillstyle in self.fillstyles
         self._fillstyle = fillstyle
         self._recache()
-
+        
     def get_marker(self):
         return self._marker
 
@@ -174,7 +173,7 @@ that define the shape.
 
     def get_snap_threshold(self):
         return self._snap_threshold
-
+        
     def _set_nothing(self):
         self._filled = False
 
@@ -183,14 +182,14 @@ that define the shape.
         rescale = max(np.max(np.abs(verts[:,0])), np.max(np.abs(verts[:,1])))
         self._transform = Affine2D().scale(1.0 / rescale)
         self._path = path
-
+    
     def _set_path_marker(self):
         self._set_custom_marker(self._marker)
-
+        
     def _set_vertices(self):
         path = Path(verts)
         self._set_custom_marker(path)
-
+        
     def _set_tuple_marker(self):
         marker = self._marker
         if is_numlike(marker[0]):
@@ -213,7 +212,7 @@ that define the shape.
             verts = np.asarray(marker[0])
             path = Path(verts)
             self._set_custom_marker(path)
-
+            
     def _set_mathtext_path(self):
         """
         Draws mathtext markers '$...$' using TextPath object.
@@ -223,7 +222,7 @@ that define the shape.
         from matplotlib.patches import PathPatch
         from matplotlib.text import TextPath
         from matplotlib.font_manager import FontProperties
-
+        
         # again, the properties could be initialised just once outside
         # this function
         # Font size is irrelevant here, it will be rescaled based on
@@ -233,7 +232,7 @@ that define the shape.
                         usetex=rcParams['text.usetex'])
         if len(text.vertices) == 0:
             return
-
+        
         xmin, ymin = text.vertices.min(axis=0)
         xmax, ymax = text.vertices.max(axis=0)
         width = xmax - xmin
@@ -245,16 +244,11 @@ that define the shape.
         self._path = text
         self._snap = False
 
-    def _half_fill(self):
-        fs = self.get_fillstyle()
-        result = fs in self._half_fillstyles
-        return result
-
     def _set_circle(self, reduction = 1.0):
         self._transform = Affine2D().scale(0.5 * reduction)
         self._snap_threshold = 3.0
         fs = self.get_fillstyle()
-        if not self._half_fill():
+        if fs=='full':
             self._path = Path.unit_circle()
         else:
             # build a right-half circle
@@ -271,7 +265,7 @@ that define the shape.
         self._path = Path.unit_rectangle()
         self._transform = Affine2D().translate(-0.5, 0.5)
         self._snap_threshold = False
-
+        
     def _set_point(self):
         self._set_circle(reduction = self._point_size_reduction)
 
@@ -296,14 +290,14 @@ that define the shape.
         self._snap_threshold = 5.0
         fs = self.get_fillstyle()
 
-        if not self._half_fill():
+        if fs=='full':
             self._path = self._triangle_path
         else:
             mpaths = [self._triangle_path_u,
                       self._triangle_path_l,
                       self._triangle_path_d,
                       self._triangle_path_r]
-
+            
             if fs=='top':
                 self._path = mpaths[(0+skip) % 4]
                 self._alt_path = mpaths[(2+skip) % 4]
@@ -335,7 +329,7 @@ that define the shape.
         self._transform = Affine2D().translate(-0.5, -0.5)
         self._snap_threshold = 2.0
         fs = self.get_fillstyle()
-        if not self._half_fill():
+        if fs=='full':
             self._path = Path.unit_rectangle()
         else:
             # build a bottom filled square out of two rectangles, one
@@ -355,7 +349,7 @@ that define the shape.
         self._transform = Affine2D().translate(-0.5, -0.5).rotate_deg(45)
         self._snap_threshold = 5.0
         fs = self.get_fillstyle()
-        if not self._half_fill():
+        if fs=='full':
             self._path = Path.unit_rectangle()
         else:
             self._path = Path([[0.0, 0.0], [1.0, 0.0], [1.0, 1.0], [0.0, 0.0]])
@@ -368,7 +362,7 @@ that define the shape.
 
             self._transform.rotate_deg(rotate)
             self._alt_transform = self._transform
-
+            
     def _set_thin_diamond(self):
         self._set_diamond()
         self._transform.scale(0.6, 1.0)
@@ -376,11 +370,11 @@ that define the shape.
     def _set_pentagon(self):
         self._transform = Affine2D().scale(0.5)
         self._snap_threshold = 5.0
-
+        
         polypath = Path.unit_regular_polygon(5)
         fs = self.get_fillstyle()
 
-        if not self._half_fill():
+        if fs == 'full':
             self._path = polypath
         else:
             verts = polypath.vertices
@@ -410,7 +404,7 @@ that define the shape.
         fs = self.get_fillstyle()
         polypath = Path.unit_regular_star(5, innerCircle=0.381966)
 
-        if not self._half_fill():
+        if fs == 'full':
             self._path = polypath
         else:
             verts = polypath.vertices
@@ -435,11 +429,11 @@ that define the shape.
     def _set_hexagon1(self):
         self._transform = Affine2D().scale(0.5)
         self._snap_threshold = 5.0
-
+        
         fs = self.get_fillstyle()
         polypath = Path.unit_regular_polygon(6)
 
-        if not self._half_fill():
+        if fs == 'full':
             self._path = polypath
         else:
             verts = polypath.vertices
@@ -467,11 +461,11 @@ that define the shape.
     def _set_hexagon2(self):
         self._transform = Affine2D().scale(0.5).rotate_deg(30)
         self._snap_threshold = 5.0
-
+        
         fs = self.get_fillstyle()
         polypath = Path.unit_regular_polygon(6)
 
-        if not self._half_fill():
+        if fs == 'full':
             self._path = polypath
         else:
             verts = polypath.vertices
@@ -499,11 +493,11 @@ that define the shape.
     def _set_octagon(self):
         self._transform = Affine2D().scale(0.5)
         self._snap_threshold = 5.0
-
+        
         fs = self.get_fillstyle()
         polypath = Path.unit_regular_polygon(8)
 
-        if not self._half_fill():
+        if fs == 'full':
             self._transform.rotate_deg(22.5)
             self._path = polypath
         else:
@@ -545,14 +539,14 @@ that define the shape.
         self._snap_threshold = 1.0
         self._filled = False
         self._path = self._tickhoriz_path
-
+        
     _tickvert_path = Path([[-0.0, 0.0], [-0.0, 1.0]])
     def _set_tickup(self):
         self._transform = Affine2D().scale(1.0, 1.0)
         self._snap_threshold = 1.0
         self._filled = False
         self._path = self._tickvert_path
-
+        
     def _set_tickdown(self):
         self._transform = Affine2D().scale(1.0, -1.0)
         self._snap_threshold = 1.0
@@ -635,7 +629,7 @@ that define the shape.
         self._path = self._x_path
 
 _styles = [(repr(x), y) for x, y in MarkerStyle.markers.items()]
-_styles.sort(key = lambda x: x[1])
+_styles.sort(lambda x, y: cmp(x[1], y[1]))
 MarkerStyle.style_table = (
     MarkerStyle.style_table %
     '\n'.join(['%-30s %-33s' % ('``%s``' % x, y) for (x, y) in _styles]))

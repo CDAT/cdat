@@ -132,11 +132,11 @@ class SimpleAxisArtist(Artist):
         labelOn = "label%dOn" % self._axisnum
 
         if _ticks is not None:
-            tickparam = {tickOn: _ticks}
-            self._axis.set_tick_params(**tickparam)
+            for tick in self._axis.get_major_ticks():
+                setattr(tick, tickOn, _ticks)
         if _ticklabels is not None:
-            tickparam = {labelOn: _ticklabels}
-            self._axis.set_tick_params(**tickparam)
+            for tick in self._axis.get_major_ticks():
+                setattr(tick, labelOn, _ticklabels)
 
         if _label is not None:
             pos = self._axis.get_label_position()

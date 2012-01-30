@@ -4,7 +4,7 @@ from matplotlib.patches import Ellipse
 NUM = 250
 
 ells = [Ellipse(xy=rand(2)*10, width=rand(), height=rand(), angle=rand()*360)
-        for i in range(NUM)]
+        for i in xrange(NUM)]
 
 fig = figure()
 ax = fig.add_subplot(111, aspect='equal')

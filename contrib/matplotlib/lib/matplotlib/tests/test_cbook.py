@@ -1,4 +1,3 @@
-from __future__ import print_function
 import numpy as np
 from numpy.testing.utils import assert_array_equal
 import matplotlib.cbook as cbook

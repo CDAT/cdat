@@ -54,14 +54,6 @@ def test_formatter_ticker():
     ax.set_xlabel( "x-label 005" )
     ax.autoscale_view()
 
-@image_comparison(baseline_images=["formatter_large_small"])
-def test_formatter_large_small():
-    # github issue #617, pull #619
-    fig, ax = plt.subplots(1)
-    x = [0.500000001, 0.500000002]
-    y = [500000001, 500000002]
-    ax.plot(x, y)
-
 @image_comparison(baseline_images=['offset_points'])
 def test_basic_annotate():
     # Setup some data
@@ -400,8 +392,8 @@ def test_imshow():
     #Create a NxN image
     N=100
     (x,y) = np.indices((N,N))
-    x -= N//2
-    y -= N//2
+    x -= N/2
+    y -= N/2
     r = np.sqrt(x**2+y**2-x*y)
 
     #Create a contour plot at N/4 and extract both the clip path and transform
@@ -417,8 +409,8 @@ def test_imshow_clip():
     #Create a NxN image
     N=100
     (x,y) = np.indices((N,N))
-    x -= N//2
-    y -= N//2
+    x -= N/2
+    y -= N/2
     r = np.sqrt(x**2+y**2-x*y)
 
     #Create a contour plot at N/4 and extract both the clip path and transform
@@ -636,16 +628,6 @@ def test_markevery_line():
     ax.plot(x, y, '-+', markevery=(5, 20), label='mark every 5 starting at 10')
     ax.legend()
 
-@image_comparison(baseline_images=['marker_edges'])
-def test_marker_edges():
-    x = np.linspace(0, 1, 10)
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.plot(x, np.sin(x), 'y.', ms=30.0, mew=0, mec='r')
-    ax.plot(x+0.1, np.sin(x), 'y.', ms=30.0, mew=1, mec='r')
-    ax.plot(x+0.2, np.sin(x), 'y.', ms=30.0, mew=2, mec='b')
-    ax.set_xticks([])
-    ax.set_yticks([])
 
 if __name__=='__main__':
     import nose

@@ -1,7 +1,6 @@
 """
 Manage figures for pyplot interface.
 """
-from __future__ import print_function
 
 import sys, gc
 
@@ -10,7 +9,7 @@ import traceback
 
 
 def error_msg(msg):
-    print(msg, file=sys.stderr)
+    print >>sys.stderr, msg
 
 class Gcf(object):
     """
@@ -72,13 +71,9 @@ class Gcf(object):
     @staticmethod
     def destroy_fig(fig):
         "*fig* is a Figure instance"
-        num = None
-        for manager in Gcf.figs.itervalues():
+        for manager in Gcf.figs.values():
             if manager.canvas.figure == fig:
-                num = manager.num
-                break
-        if num is not None:
-            Gcf.destroy(num)
+                Gcf.destroy(manager.num)
 
     @staticmethod
     def destroy_all():

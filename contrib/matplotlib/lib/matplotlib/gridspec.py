@@ -14,7 +14,7 @@ of the subplot in the figure.
 
 """
 
-from __future__ import division, print_function
+from __future__ import division
 
 import matplotlib
 rcParams = matplotlib.rcParams
@@ -218,7 +218,7 @@ class GridSpec(GridSpecBase):
         the current value, if set, otherwise to rc.
         """
 
-        for k, v in kwargs.iteritems():
+        for k, v in kwargs.items():
             if k in self._AllowedKeys:
                 setattr(self, k, v)
             else:
@@ -227,23 +227,20 @@ class GridSpec(GridSpecBase):
 
         from matplotlib import _pylab_helpers
         from matplotlib.axes import SubplotBase
-        for figmanager in _pylab_helpers.Gcf.figs.itervalues():
+        for figmanager in _pylab_helpers.Gcf.figs.values():
             for ax in figmanager.canvas.figure.axes:
                 # copied from Figure.subplots_adjust
                 if not isinstance(ax, SubplotBase):
                     # Check if sharing a subplots axis
                     if ax._sharex is not None and isinstance(ax._sharex, SubplotBase):
-                        if ax._sharex.get_subplotspec().get_gridspec() == self:
-                            ax._sharex.update_params()
-                            ax.set_position(ax._sharex.figbox)
+                        ax._sharex.update_params()
+                        ax.set_position(ax._sharex.figbox)
                     elif ax._sharey is not None and isinstance(ax._sharey,SubplotBase):
-                        if ax._sharey.get_subplotspec().get_gridspec() == self:
-                            ax._sharey.update_params()
-                            ax.set_position(ax._sharey.figbox)
+                        ax._sharey.update_params()
+                        ax.set_position(ax._sharey.figbox)
                 else:
-                    if ax.get_subplotspec().get_gridspec() == self:
-                        ax.update_params()
-                        ax.set_position(ax.figbox)
+                    ax.update_params()
+                    ax.set_position(ax.figbox)
 
 
 
@@ -291,7 +288,7 @@ class GridSpec(GridSpecBase):
         subplot_list = []
         num1num2_list = []
         subplot_dict = {}
-
+        
         for ax in fig.axes:
             locator = ax.get_axes_locator()
             if hasattr(locator, "get_subplotspec"):
@@ -344,7 +341,7 @@ class GridSpec(GridSpecBase):
                                              pad=pad, h_pad=h_pad, w_pad=w_pad,
                                              rect=(left, bottom, right, top))
 
-
+            
         self.update(**kwargs)
 
 

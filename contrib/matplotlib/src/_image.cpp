@@ -200,13 +200,8 @@ Image::as_rgba_str(const Py::Tuple& args, const Py::Dict& kwargs)
 
     std::pair<agg::int8u*, bool> bufpair = _get_output_buffer();
 
-    #if PY3K
-    Py::Object ret =  Py::asObject(Py_BuildValue("lly#", rowsOut, colsOut,
-                                   bufpair.first, colsOut * rowsOut * 4));
-    #else
     Py::Object ret =  Py::asObject(Py_BuildValue("lls#", rowsOut, colsOut,
                                    bufpair.first, colsOut * rowsOut * 4));
-    #endif
 
     if (bufpair.second) delete [] bufpair.first;
     return ret;
@@ -226,14 +221,9 @@ Image::color_conv(const Py::Tuple& args)
 
     args.verify_length(1);
     int format = Py::Int(args[0]);
-    PyObject* py_buffer = NULL;
+
     int row_len = colsOut * 4;
-#if PY3K
-    unsigned char* buf = (unsigned char *)malloc(row_len * rowsOut);
-    if (buf == NULL)
-        throw Py::MemoryError("Image::color_conv could not allocate memory");
-#else
-    py_buffer = PyBuffer_New(row_len * rowsOut);
+    PyObject* py_buffer = PyBuffer_New(row_len * rowsOut);
     if (py_buffer == NULL)
         throw Py::MemoryError("Image::color_conv could not allocate memory");
 
@@ -241,11 +231,7 @@ Image::color_conv(const Py::Tuple& args)
     Py_ssize_t buffer_len;
     int ret = PyObject_AsWriteBuffer(py_buffer, &buf, &buffer_len);
     if (ret != 0)
-    {
-        Py_XDECREF(py_buffer);
         throw Py::MemoryError("Image::color_conv could not allocate memory");
-    }
-#endif
 
     agg::rendering_buffer rtmp;
     rtmp.attach(reinterpret_cast<unsigned char*>(buf), colsOut, rowsOut,
@@ -260,16 +246,8 @@ Image::color_conv(const Py::Tuple& args)
         agg::color_conv(&rtmp, rbufOut, agg::color_conv_rgba32_to_argb32());
         break;
     default:
-        Py_XDECREF(py_buffer);
         throw Py::ValueError("Image::color_conv unknown format");
     }
-
-#if PY3K
-    py_buffer = PyByteArray_FromStringAndSize((char *)buf, row_len * rowsOut);
-    if (py_buffer == NULL) {
-        free(buf);
-    }
-#endif
 
     PyObject* o = Py_BuildValue("llN", rowsOut, colsOut, py_buffer);
     return Py::asObject(o);
@@ -1552,10 +1530,10 @@ _image_module::pcolor(const Py::Tuple& args)
     Py::Object xp = args[0];
     Py::Object yp = args[1];
     Py::Object dp = args[2];
-    unsigned int rows = (unsigned long)Py::Int(args[3]);
-    unsigned int cols = (unsigned long)Py::Int(args[4]);
+    unsigned int rows = Py::Int(args[3]);
+    unsigned int cols = Py::Int(args[4]);
     Py::Tuple bounds = args[5];
-    unsigned int interpolation = (unsigned long)Py::Int(args[6]);
+    unsigned int interpolation = Py::Int(args[6]);
 
     if (rows >= 32768 || cols >= 32768)
     {
@@ -1949,13 +1927,17 @@ _image_module::pcolor2(const Py::Tuple& args)
     return Py::asObject(imo);
 }
 
-#if PY3K
-PyMODINIT_FUNC
-PyInit__image(void)
+
+
+#if defined(_MSC_VER)
+DL_EXPORT(void)
+#elif defined(__cplusplus)
+extern "C" void
 #else
-PyMODINIT_FUNC
-init_image(void)
+void
 #endif
+
+init_image(void)
 {
     _VERBOSE("init_image");
 
@@ -1984,10 +1966,6 @@ init_image(void)
 
     d["ASPECT_FREE"] = Py::Int(Image::ASPECT_FREE);
     d["ASPECT_PRESERVE"] = Py::Int(Image::ASPECT_PRESERVE);
-
-#if PY3K
-    return _image->module().ptr();
-#endif
 }
 
 

@@ -1,4 +1,3 @@
-from __future__ import print_function
 """
 A very simple 'animation' of a 3D plot
 """
@@ -35,4 +34,4 @@ for phi in np.linspace(0, 360 / 2 / np.pi, 100):
 
     plt.draw()
 
-print ('FPS: %f' % (100 / (time.time() - tstart)))
+print 'FPS: %f' % (100 / (time.time() - tstart))

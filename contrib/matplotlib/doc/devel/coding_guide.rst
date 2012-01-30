@@ -17,7 +17,8 @@ in mind.
   and consider posting to `matplotlib-devel
   <http://lists.sourceforge.net/mailman/listinfo/matplotlib-devel>`_
 
-* Are your changes python2.6 compatible?  We support python2.6 and later
+* Are your changes python2.4 compatible?  We still support 2.4, so
+  avoid features new to 2.5
 
 * Can you pass :file:`examples/tests/backend_driver.py`?  This is our
   poor man's unit test.
@@ -365,7 +366,11 @@ Requirements
 
 The following software is required to run the tests:
 
-  - nose_, version 1.0 or later
+  - nose_, version 0.11.1 or later
+
+  - `Python Imaging Library
+    <http://www.pythonware.com/products/pil/>`_ (to compare image
+    results)
 
   - `Ghostscript <http://pages.cs.wisc.edu/~ghost/>`_ (to render PDF
     files)
@@ -401,9 +406,6 @@ arguments works from within Python::
 .. _`nosetest arguments`: http://somethingaboutorange.com/mrl/projects/nose/1.0.0/usage.html
 
 
-Running tests by any means other than `matplotlib.test()`
-does not load the nose "knownfailureif" (Known failing tests) plugin,
-causing known-failing tests to fail for real.
 
 Writing a simple test
 ---------------------

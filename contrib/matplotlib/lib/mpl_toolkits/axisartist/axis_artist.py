@@ -888,20 +888,8 @@ def test_ticklabels():
 
 class GridlinesCollection(LineCollection):
     def __init__(self, *kl, **kwargs):
-        """
-        *which* : "major" or "minor"
-        *axis* : "both", "x" or "y"
-        """
-        self._which = kwargs.pop("which", "major")
-        self._axis = kwargs.pop("axis", "both")
         super(GridlinesCollection, self).__init__(*kl, **kwargs)
         self.set_grid_helper(None)
-
-    def set_which(self, which):
-        self._which = which
-
-    def set_axis(self, axis):
-        self._axis = axis
 
     def set_grid_helper(self, grid_helper):
         self._grid_helper = grid_helper
@@ -909,7 +897,7 @@ class GridlinesCollection(LineCollection):
     def draw(self, renderer):
         if self._grid_helper is not None:
             self._grid_helper.update_lim(self.axes)
-            gl = self._grid_helper.get_gridlines(self._which, self._axis)
+            gl = self._grid_helper.get_gridlines()
             if gl:
                 self.set_segments([np.transpose(l) for l in gl])
             else:

@@ -2,7 +2,6 @@
 And another broken test...
 """
 
-from __future__ import print_function
 import sys, time, os
 from matplotlib.ft2font import FT2Font
 from numpy.random import rand
@@ -12,7 +11,7 @@ from matplotlib.backends._backend_agg import RendererAgg
 def report_memory(i):
     pid = os.getpid()
     a2 = os.popen('ps -p %d -o rss,sz' % pid).readlines()
-    print(i, '  ', a2[1], end='')
+    print i, '  ', a2[1],
     return int(a2[1].split()[0])
 
 fname = '/usr/local/share/matplotlib/Vera.ttf'
@@ -53,7 +52,7 @@ for i in range(N):
     if i==1: start = val
 
 end = val
-print('Average memory consumed per loop: %1.4f\n' % ((end-start)/float(N)))
+print 'Average memory consumed per loop: %1.4f\n' % ((end-start)/float(N))
 
 # w/o text and w/o write_png: Average memory consumed per loop: 0.02
 # w/o text and w/ write_png : Average memory consumed per loop: 0.3400

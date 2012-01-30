@@ -1,15 +1,10 @@
 #=======================================================================
-
 """ A set of utilities for comparing results.
 """
 #=======================================================================
 
-from __future__ import division
-
 import matplotlib
 from matplotlib.testing.noseclasses import ImageComparisonFailure
-from matplotlib.testing import image_util
-from matplotlib import _png
 import math
 import operator
 import os
@@ -17,7 +12,6 @@ import numpy as np
 import shutil
 import subprocess
 import sys
-from functools import reduce
 
 #=======================================================================
 
@@ -38,7 +32,7 @@ def compare_float( expected, actual, relTol = None, absTol = None ):
       exMsg = "You haven't specified a 'relTol' relative tolerance "
       exMsg += "or a 'absTol' absolute tolerance function argument.  "
       exMsg += "You must specify one."
-      raise ValueError(exMsg)
+      raise ValueError, exMsg
 
    msg = ""
 
@@ -102,7 +96,7 @@ def make_external_conversion_command(cmd):
             msg += "Standard output:\n%s\n" % stdout
          if stderr:
             msg += "Standard error:\n%s\n" % stderr
-         raise IOError(msg)
+         raise IOError, msg
    return convert
 
 if matplotlib.checkdep_ghostscript() is not None:
@@ -134,10 +128,10 @@ def convert(filename):
    '''
    base, extension = filename.rsplit('.', 1)
    if extension not in converter:
-      raise ImageComparisonFailure("Don't know how to convert %s files to png" % extension)
+      raise ImageComparisonFailure, "Don't know how to convert %s files to png" % extension
    newname = base + '_' + extension + '.png'
    if not os.path.exists(filename):
-      raise IOError("'%s' does not exist" % filename)
+      raise IOError, "'%s' does not exist" % filename
    # Only convert the file if the destination doesn't already exist or
    # is out of date.
    if (not os.path.exists(newname) or
@@ -152,7 +146,7 @@ def verify(filename):
    Verify the file through some sort of verification tool.
    """
    if not os.path.exists(filename):
-      raise IOError("'%s' does not exist" % filename)
+      raise IOError, "'%s' does not exist" % filename
    base, extension = filename.rsplit('.', 1)
    verifier = verifiers.get(extension, None)
    if verifier is not None:
@@ -166,7 +160,7 @@ def verify(filename):
             msg += "Standard output:\n%s\n" % stdout
          if stderr:
             msg += "Standard error:\n%s\n" % stderr
-         raise IOError(msg)
+         raise IOError, msg
 
 # Turning this off, because it seems to cause multiprocessing issues
 if matplotlib.checkdep_xmllint() and False:
@@ -177,9 +171,9 @@ def crop_to_same(actual_path, actual_image, expected_path, expected_image):
    # clip the images to the same size -- this is useful only when
    # comparing eps to pdf
    if actual_path[-7:-4] == 'eps' and expected_path[-7:-4] == 'pdf':
-      aw, ah = actual_image.shape
-      ew, eh = expected_image.shape
-      actual_image = actual_image[int(aw/2-ew/2):int(aw/2+ew/2),int(ah/2-eh/2):int(ah/2+eh/2)]
+      aw, ah = actual_image.size
+      ew, eh = expected_image.size
+      actual_image = actual_image.crop((aw/2-ew/2, ah/2-eh/2, aw/2+ew/2, ah/2+eh/2))
    return actual_image, expected_image
 
 def compare_images( expected, actual, tol, in_decorator=False ):
@@ -201,6 +195,18 @@ def compare_images( expected, actual, tol, in_decorator=False ):
                True. (default=False)
    '''
 
+   try:
+      from PIL import Image, ImageOps, ImageFilter
+   except ImportError, e:
+      msg = "Image Comparison requires the Python Imaging Library to " \
+            "be installed.  To run tests without using PIL, then use " \
+            "the '--without-tag=PIL' command-line option.\n"           \
+            "Importing PIL failed with the following error:\n%s" % e
+      if in_decorator:
+         raise NotImplementedError, e
+      else:
+         return msg
+
    verify(actual)
 
    # Convert the image to png
@@ -210,27 +216,19 @@ def compare_images( expected, actual, tol, in_decorator=False ):
       expected = convert(expected)
 
    # open the image files and remove the alpha channel (if it exists)
-   expectedImage = _png.read_png_uint8( expected )
-   actualImage = _png.read_png_uint8( actual )
+   expectedImage = Image.open( expected ).convert("RGB")
+   actualImage = Image.open( actual ).convert("RGB")
 
    actualImage, expectedImage = crop_to_same(actual, actualImage, expected, expectedImage)
 
    # normalize the images
-   expectedImage = image_util.autocontrast( expectedImage, 2 )
-   actualImage = image_util.autocontrast( actualImage, 2 )
+   expectedImage = ImageOps.autocontrast( expectedImage, 2 )
+   actualImage = ImageOps.autocontrast( actualImage, 2 )
 
    # compare the resulting image histogram functions
-   rms = 0
-   bins = np.arange(257)
-   for i in xrange(0, 3):
-      h1p = expectedImage[:,:,i]
-      h2p = actualImage[:,:,i]
-
-      h1h = np.histogram(h1p, bins=bins)[0]
-      h2h = np.histogram(h2p, bins=bins)[0]
-
-      rms += np.sum(np.power((h1h-h2h), 2))
-   rms = np.sqrt(rms / (256 * 3))
+   h1 = expectedImage.histogram()
+   h2 = actualImage.histogram()
+   rms = math.sqrt( reduce(operator.add, map(lambda a,b: (a-b)**2, h1, h2)) / len(h1) )
 
    diff_image = os.path.join(os.path.dirname(actual),
                              'failed-diff-'+os.path.basename(actual))
@@ -261,28 +259,17 @@ def compare_images( expected, actual, tol, in_decorator=False ):
       return msg
 
 def save_diff_image( expected, actual, output ):
-   expectedImage = _png.read_png( expected )
-   actualImage = _png.read_png( actual )
+   from PIL import Image
+   expectedImage = Image.open( expected ).convert("RGB")
+   actualImage = Image.open( actual ).convert("RGB")
    actualImage, expectedImage = crop_to_same(actual, actualImage, expected, expectedImage)
    expectedImage = np.array(expectedImage).astype(np.float)
    actualImage = np.array(actualImage).astype(np.float)
    assert expectedImage.ndim==actualImage.ndim
    assert expectedImage.shape==actualImage.shape
    absDiffImage = abs(expectedImage-actualImage)
-
    # expand differences in luminance domain
-   absDiffImage *= 255 * 10
-   save_image_np = np.clip(absDiffImage, 0, 255).astype(np.uint8)
-   height, width, depth = save_image_np.shape
-
-   # The PDF renderer doesn't produce an alpha channel, but the
-   # matplotlib PNG writer requires one, so expand the array
-   if depth == 3:
-      with_alpha = np.empty((height, width, 4), dtype=np.uint8)
-      with_alpha[:,:,0:3] = save_image_np
-      save_image_np = with_alpha
-
-   # Hard-code the alpha channel to fully solid
-   save_image_np[:,:,3] = 255
-
-   _png.write_png(save_image_np.tostring(), width, height, output)
+   absDiffImage *= 10
+   save_image_np = np.clip(absDiffImage,0,255).astype(np.uint8)
+   save_image = Image.fromarray(save_image_np)
+   save_image.save(output)

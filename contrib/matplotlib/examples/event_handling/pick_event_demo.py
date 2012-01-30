@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 """
 
 You can enable picking by setting the"picker" property of an artist
@@ -64,13 +63,12 @@ specified epsilon tolerance)
 The examples below illustrate each of these methods.
 """
 
-from __future__ import print_function
 from matplotlib.pyplot import figure, show
 from matplotlib.lines import Line2D
-from matplotlib.patches import Rectangle
+from matplotlib.patches import Patch, Rectangle
 from matplotlib.text import Text
 from matplotlib.image import AxesImage
-import numpy as np
+import numpy as npy
 from numpy.random import rand
 
 if 1: # simple picking, lines, rectangles and text
@@ -94,13 +92,13 @@ if 1: # simple picking, lines, rectangles and text
             xdata = thisline.get_xdata()
             ydata = thisline.get_ydata()
             ind = event.ind
-            print('onpick1 line:', zip(np.take(xdata, ind), np.take(ydata, ind)))
+            print 'onpick1 line:', zip(npy.take(xdata, ind), npy.take(ydata, ind))
         elif isinstance(event.artist, Rectangle):
             patch = event.artist
-            print('onpick1 patch:', patch.get_path())
+            print 'onpick1 patch:', patch.get_path()
         elif isinstance(event.artist, Text):
             text = event.artist
-            print('onpick1 text:', text.get_text())
+            print 'onpick1 text:', text.get_text()
 
 
 
@@ -126,19 +124,19 @@ if 1: # picking with a custom hit test function
         xdata = line.get_xdata()
         ydata = line.get_ydata()
         maxd = 0.05
-        d = np.sqrt((xdata-mouseevent.xdata)**2. + (ydata-mouseevent.ydata)**2.)
+        d = npy.sqrt((xdata-mouseevent.xdata)**2. + (ydata-mouseevent.ydata)**2.)
 
-        ind = np.nonzero(np.less_equal(d, maxd))
+        ind = npy.nonzero(npy.less_equal(d, maxd))
         if len(ind):
-            pickx = np.take(xdata, ind)
-            picky = np.take(ydata, ind)
+            pickx = npy.take(xdata, ind)
+            picky = npy.take(ydata, ind)
             props = dict(ind=ind, pickx=pickx, picky=picky)
             return True, props
         else:
             return False, dict()
 
     def onpick2(event):
-        print('onpick2 line:', event.pickx, event.picky)
+        print 'onpick2 line:', event.pickx, event.picky
 
     fig = figure()
     ax1 = fig.add_subplot(111)
@@ -152,7 +150,7 @@ if 1: # picking on a scatter plot (matplotlib.collections.RegularPolyCollection)
     x, y, c, s = rand(4, 100)
     def onpick3(event):
         ind = event.ind
-        print('onpick3 scatter:', ind, np.take(x, ind), np.take(y, ind))
+        print 'onpick3 scatter:', ind, npy.take(x, ind), npy.take(y, ind)
 
     fig = figure()
     ax1 = fig.add_subplot(111)
@@ -174,7 +172,7 @@ if 1: # picking images (matplotlib.image.AxesImage)
         if isinstance(artist, AxesImage):
             im = artist
             A = im.get_array()
-            print('onpick4 image', A.shape)
+            print 'onpick4 image', A.shape
 
     fig.canvas.mpl_connect('pick_event', onpick4)
 

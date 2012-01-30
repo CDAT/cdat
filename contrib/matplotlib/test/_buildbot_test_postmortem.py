@@ -4,7 +4,6 @@ by target_dir.
 
 This is meant to be run from the mplroot directory."""
 
-from __future__ import print_function
 import os, shutil
 
 roots = ['test_matplotlib','test_plots']
@@ -92,8 +91,8 @@ if 1:
             continue
         if not os.path.exists(expected_fname):
             continue
-        print(fname)
-        print(absdiff_fname)
+        print fname
+        print absdiff_fname
 
         teststr = os.path.splitext(fname)[0]
         this_targetdir = os.path.join(target_dir,teststr)

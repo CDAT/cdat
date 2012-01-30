@@ -1,11 +1,5 @@
-from __future__ import unicode_literals
-
-import numpy as np
-from numpy import ma
 from matplotlib import scale as mscale
 from matplotlib import transforms as mtransforms
-from matplotlib.ticker import Formatter, FixedLocator
-
 
 class MercatorLatitudeScale(mscale.ScaleBase):
     """
@@ -73,7 +67,7 @@ class MercatorLatitudeScale(mscale.ScaleBase):
         class DegreeFormatter(Formatter):
             def __call__(self, x, pos=None):
                 # \u00b0 : degree symbol
-                return "%d\u00b0" % ((x / np.pi) * 180.0)
+                return u"%d\u00b0" % ((x / np.pi) * 180.0)
 
         deg2rad = np.pi / 180.0
         axis.set_major_locator(FixedLocator(
@@ -154,20 +148,18 @@ class MercatorLatitudeScale(mscale.ScaleBase):
 # that ``matplotlib`` can find it.
 mscale.register_scale(MercatorLatitudeScale)
 
+from pylab import *
+import numpy as np
 
-if __name__ == '__main__':
-    import matplotlib.pyplot as plt
+t = arange(-180.0, 180.0, 0.1)
+s = t / 360.0 * np.pi
 
-    t = np.arange(-180.0, 180.0, 0.1)
-    s = t / 360.0 * np.pi
+plot(t, s, '-', lw=2)
+gca().set_yscale('mercator')
 
-    plt.plot(t, s, '-', lw=2)
-    plt.gca().set_yscale('mercator')
+xlabel('Longitude')
+ylabel('Latitude')
+title('Mercator: Projection of the Oppressor')
+grid(True)
 
-    plt.xlabel('Longitude')
-    plt.ylabel('Latitude')
-    plt.title('Mercator: Projection of the Oppressor')
-    plt.grid(True)
-
-    plt.show()
-
+show()

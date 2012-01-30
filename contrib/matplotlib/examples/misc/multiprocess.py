@@ -3,8 +3,6 @@
 #Written by Robert Cimrman
 #Requires >= Python 2.6 for the multiprocessing module or having the
 #standalone processing module installed
-
-from __future__ import print_function
 import time
 try:
     from multiprocessing import Process, Pipe
@@ -50,7 +48,7 @@ class ProcessPlotter(object):
         return call_back
 
     def __call__(self, pipe):
-        print('starting plotter...')
+        print 'starting plotter...'
 
         self.pipe = pipe
         self.fig = plt.figure()
@@ -58,7 +56,7 @@ class ProcessPlotter(object):
         self.ax = self.fig.add_subplot(111)
         self.gid = gobject.timeout_add(1000, self.poll_draw())
 
-        print('...done')
+        print '...done'
         plt.show()
 
 
@@ -81,7 +79,7 @@ class NBPlot(object):
 
 def main():
     pl = NBPlot()
-    for ii in range(10):
+    for ii in xrange(10):
         pl.plot()
         time.sleep(0.5)
     raw_input('press Enter...')

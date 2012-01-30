@@ -407,14 +407,12 @@ class GridHelperCurveLinear(grid_helper_curvelinear.GridHelperCurveLinear):
 
 
 
-    def get_gridlines(self, which="major", axis="both"):
+    def get_gridlines(self):
         grid_lines = []
-        if axis in ["both", "x"]:
-            for gl in self.grid_info["lon_lines"]:
-                grid_lines.extend([gl])
-        if axis in ["both", "y"]:
-            for gl in self.grid_info["lat_lines"]:
-                grid_lines.extend([gl])
+        for gl in self.grid_info["lat_lines"]:
+            grid_lines.extend([gl])
+        for gl in self.grid_info["lon_lines"]:
+            grid_lines.extend([gl])
 
         return grid_lines
 
@@ -520,15 +518,17 @@ class FloatingAxesBase(object):
 
 
 
+import new
+
 _floatingaxes_classes = {}
 
 def floatingaxes_class_factory(axes_class):
 
     new_class = _floatingaxes_classes.get(axes_class)
     if new_class is None:
-        new_class = type("Floating %s" % (axes_class.__name__),
-                         (FloatingAxesBase, axes_class),
-                         {'_axes_class_floating': axes_class})
+        new_class = new.classobj("Floating %s" % (axes_class.__name__),
+                                 (FloatingAxesBase, axes_class),
+                                 {'_axes_class_floating': axes_class})
         _floatingaxes_classes[axes_class] = new_class
 
     return new_class

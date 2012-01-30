@@ -22,18 +22,12 @@ Sources:
   v1.1, 1993. ISBN 0-201-57044-0.
 """
 
-from __future__ import print_function
 import matplotlib.cbook as cbook
-import io
+import cStringIO
 import itertools
 import numpy as np
 import re
 import struct
-import sys
-
-if sys.version_info[0] >= 3:
-    def ord(x):
-        return x
 
 class Type1Font(object):
     """
@@ -58,10 +52,13 @@ class Type1Font(object):
         if isinstance(input, tuple) and len(input) == 3:
             self.parts = input
         else:
-            with open(input, 'rb') as file:
+            file = open(input, 'rb')
+            try:
                 data = self._read(file)
+            finally:
+                file.close()
             self.parts = self._split(data)
-
+            
         self._parse()
 
     def _read(self, file):
@@ -69,14 +66,15 @@ class Type1Font(object):
         Read the font from a file, decoding into usable parts.
         """
         rawdata = file.read()
-        if not rawdata.startswith(b'\x80'):
+        if not rawdata.startswith(chr(128)):
             return rawdata
 
-        data = b''
+        data = ''
         while len(rawdata) > 0:
-            if not rawdata.startswith(b'\x80'):
-                raise RuntimeError('Broken pfb file (expected byte 128, got %d)' % \
-                    ord(rawdata[0]))
+            if not rawdata.startswith(chr(128)):
+                raise RuntimeError, \
+                    'Broken pfb file (expected byte 128, got %d)' % \
+                    ord(rawdata[0])
             type = ord(rawdata[1])
             if type in (1,2):
                 length, = struct.unpack('<i', rawdata[2:6])
@@ -86,12 +84,13 @@ class Type1Font(object):
             if type == 1:       # ASCII text: include verbatim
                 data += segment
             elif type == 2:     # binary data: encode in hexadecimal
-                data += b''.join([('%02x' % ord(char)).encode('ascii')
-                                  for char in segment])
+                data += ''.join(['%02x' % ord(char)
+                                      for char in segment])
             elif type == 3:     # end of file
                 break
             else:
-                raise RuntimeError('Unknown segment type %d in pfb file' % type)
+                raise RuntimeError, \
+                    'Unknown segment type %d in pfb file' % type
 
         return data
 
@@ -106,38 +105,37 @@ class Type1Font(object):
         """
 
         # Cleartext part: just find the eexec and skip whitespace
-        idx = data.index(b'eexec')
-        idx += len(b'eexec')
-        while data[idx] in b' \t\r\n':
+        idx = data.index('eexec')
+        idx += len('eexec')
+        while data[idx] in ' \t\r\n':
             idx += 1
         len1 = idx
 
         # Encrypted part: find the cleartomark operator and count
         # zeros backward
-        idx = data.rindex(b'cleartomark') - 1
+        idx = data.rindex('cleartomark') - 1
         zeros = 512
-        while zeros and ord(data[idx]) in (
-            ord(b'0'[0]), ord(b'\n'[0]), ord(b'\r'[0])):
-            if ord(data[idx]) == ord(b'0'[0]):
+        while zeros and data[idx] in ('0', '\n', '\r'):
+            if data[idx] == '0':
                 zeros -= 1
             idx -= 1
         if zeros:
-            raise RuntimeError('Insufficiently many zeros in Type 1 font')
+            raise RuntimeError, 'Insufficiently many zeros in Type 1 font'
 
         # Convert encrypted part to binary (if we read a pfb file, we
         # may end up converting binary to hexadecimal to binary again;
         # but if we read a pfa file, this part is already in hex, and
         # I am not quite sure if even the pfb format guarantees that
         # it will be in binary).
-        binary = b''.join([unichr(int(data[i:i+2], 16)).encode('latin-1')
-                           for i in range(len1, idx, 2)])
+        binary = ''.join([chr(int(data[i:i+2], 16))
+                          for i in range(len1, idx, 2)])
 
         return data[:len1], binary, data[idx:]
 
-    _whitespace = re.compile(br'[\0\t\r\014\n ]+')
-    _token = re.compile(br'/{0,2}[^]\0\t\r\v\n ()<>{}/%[]+')
-    _comment = re.compile(br'%[^\r\n\v]*')
-    _instring = re.compile(br'[()\\]')
+    _whitespace = re.compile(r'[\0\t\r\014\n ]+')
+    _token = re.compile(r'/{0,2}[^]\0\t\r\v\n ()<>{}/%[]+')
+    _comment = re.compile(r'%[^\r\n\v]*')
+    _instring = re.compile(r'[()\\]')
     @classmethod
     def _tokens(cls, text):
         """
@@ -197,35 +195,35 @@ class Type1Font(object):
         tokenizer = self._tokens(self.parts[0])
         filtered = itertools.ifilter(lambda x: x[0] != 'whitespace', tokenizer)
         for token, value in filtered:
-            if token == b'name' and value.startswith(b'/'):
+            if token == 'name' and value.startswith('/'):
                 key = value[1:]
-                token, value = next(filtered)
-                if token == b'name':
-                    if value in (b'true', b'false'):
-                        value = value == b'true'
+                token, value = filtered.next()
+                if token == 'name':
+                    if value in ('true', 'false'):
+                        value = value == 'true'
                     else:
-                        value = value.lstrip(b'/')
-                elif token == b'string':
-                    value = value.lstrip(b'(').rstrip(b')')
-                elif token == b'number':
-                    if b'.' in value: value = float(value)
+                        value = value.lstrip('/')
+                elif token == 'string':
+                    value = value.lstrip('(').rstrip(')')
+                elif token == 'number':
+                    if '.' in value: value = float(value)
                     else: value = int(value)
                 else: # more complicated value such as an array
                     value = None
-                if key != b'FontInfo' and value is not None:
+                if key != 'FontInfo' and value is not None:
                     prop[key] = value
 
         # Fill in the various *Name properties
-        if 'FontName' not in prop:
+        if not prop.has_key('FontName'):
             prop['FontName'] = prop.get('FullName') or prop.get('FamilyName') or 'Unknown'
-        if 'FullName' not in prop:
+        if not prop.has_key('FullName'):
             prop['FullName'] = prop['FontName']
-        if 'FamilyName' not in prop:
+        if not prop.has_key('FamilyName'):
             extras = r'(?i)([ -](regular|plain|italic|oblique|(semi)?bold|(ultra)?light|extra|condensed))+$'
             prop['FamilyName'] = re.sub(extras, '', prop['FullName'])
-
+                
         self.prop = prop
-
+                        
     @classmethod
     def _transformer(cls, tokens, slant, extend):
         def fontname(name):
@@ -253,19 +251,19 @@ class Type1Font(object):
 
         def replace(fun):
             def replacer(tokens):
-                token, value = next(tokens)      # name, e.g. /FontMatrix
+                token, value = tokens.next()      # name, e.g. /FontMatrix
                 yield value
-                token, value = next(tokens)      # possible whitespace
+                token, value = tokens.next()      # possible whitespace
                 while token == 'whitespace':
                     yield value
-                    token, value = next(tokens)
+                    token, value = tokens.next()
                 if value != '[':                  # name/number/etc.
                     yield fun(value)
                 else:                             # array, e.g. [1 2 3]
                     array = []
                     while value != ']':
                         array += value
-                        token, value = next(tokens)
+                        token, value = tokens.next()
                     array += value
                     yield fun(''.join(array))
             return replacer
@@ -274,20 +272,20 @@ class Type1Font(object):
             for x in itertools.takewhile(lambda x: x[1] != 'def', tokens):
                 pass
             yield ''
-
+        
         table = { '/FontName': replace(fontname),
                   '/ItalicAngle': replace(italicangle),
                   '/FontMatrix': replace(fontmatrix),
                   '/UniqueID': suppress }
 
         while True:
-            token, value = next(tokens)
+            token, value = tokens.next()
             if token == 'name' and value in table:
                 for value in table[value](itertools.chain([(token, value)], tokens)):
                     yield value
             else:
                 yield value
-
+                        
     def transform(self, effects):
         """
         Transform the font by slanting or extending. *effects* should
@@ -297,18 +295,15 @@ class Type1Font(object):
         multiplier by which the font is to be extended (so values less
         than 1.0 condense). Returns a new :class:`Type1Font` object.
         """
-        buffer = io.BytesIO()
-        try:
-            tokenizer = self._tokens(self.parts[0])
-            for value in self._transformer(tokenizer,
-                                           slant=effects.get('slant', 0.0),
-                                           extend=effects.get('extend', 1.0)):
-                if sys.version_info[0] >= 3 and isinstance(value, int):
-                    value = chr(value).encode('latin-1')
-                buffer.write(value)
-            result = buffer.getvalue()
-        finally:
-            buffer.close()
+
+        buffer = cStringIO.StringIO()
+        tokenizer = self._tokens(self.parts[0])
+        for value in self._transformer(tokenizer,
+                                       slant=effects.get('slant', 0.0),
+                                       extend=effects.get('extend', 1.0)):
+            buffer.write(value)
+        result = buffer.getvalue()
+        buffer.close()
 
         return Type1Font((result, self.parts[1], self.parts[2]))
-
+    

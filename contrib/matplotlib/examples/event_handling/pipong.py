@@ -3,8 +3,6 @@
 # animation which are easily ported to multiply backends
 # pipong.py was written by Paul Ivanov <http://pirsquared.org>
 
-from __future__ import print_function
-
 import numpy as np
 import matplotlib.pyplot as plt
 from numpy.random import randn, randint
@@ -202,7 +200,7 @@ class Game(object):
 
         if self.cnt==50000:
             # just so we don't get carried away
-            print("...and you've been playing for too long!!!")
+            print "...and you've been playing for too long!!!"
             plt.close()
 
         self.cnt += 1

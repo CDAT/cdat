@@ -1,4 +1,4 @@
-from __future__ import division, print_function
+from __future__ import division
 """
  backend_cocoaagg.py
 
@@ -142,7 +142,7 @@ class PlotView(NibClassBuilder.AutoBaseClass):
         self.image_.setSize_((w,h))
 
         brep = NSBitmapImageRep.alloc().initWithBitmapDataPlanes_pixelsWide_pixelsHigh_bitsPerSample_samplesPerPixel_hasAlpha_isPlanar_colorSpaceName_bytesPerRow_bitsPerPixel_(
-            (self.canvas.buffer_rgba(),'','','',''), # Image data
+            (self.canvas.buffer_rgba(0,0),'','','',''), # Image data
             w, # width
             h, # height
             8, # bits per pixel
@@ -164,15 +164,14 @@ class PlotView(NibClassBuilder.AutoBaseClass):
         self.updatePlot()
 
     def mouseDown_(self, event):
-        dblclick = (event.clickCount() == 2)
         loc = self.convertPoint_fromView_(event.locationInWindow(), None)
         type = event.type()
         if (type == NSLeftMouseDown):
             button = 1
         else:
-            print('Unknown mouse event type:', type, file=sys.stderr)
+            print >>sys.stderr, 'Unknown mouse event type:', type
             button = -1
-        self.canvas.button_press_event(loc.x, loc.y, button, dblclick=dblclick)
+        self.canvas.button_press_event(loc.x, loc.y, button)
         self.updatePlot()
 
     def mouseDragged_(self, event):
@@ -186,7 +185,7 @@ class PlotView(NibClassBuilder.AutoBaseClass):
         if (type == NSLeftMouseUp):
             button = 1
         else:
-            print('Unknown mouse event type:', type, file=sys.stderr)
+            print >>sys.stderr, 'Unknown mouse event type:', type
             button = -1
         self.canvas.button_release_event(loc.x, loc.y, button)
         self.updatePlot()
@@ -204,7 +203,7 @@ class MPLBootstrap(NSObject):
     def startWithBundle_(self, bundle):
         #NSApplicationLoad()
         if not bundle.loadNibFile_externalNameTable_withZone_('Matplotlib.nib', {}, None):
-            print('Unable to load Matplotlib Cocoa UI!', file=sys.stderr)
+            print >>sys.stderr, 'Unable to load Matplotlib Cocoa UI!'
             sys.exit()
 
 class FigureManagerCocoaAgg(FigureManagerBase):
@@ -258,21 +257,21 @@ def WMEnable(name='Python'):
         return True
     bndl = NSBundle.bundleWithPath_(objc.pathForFramework('/System/Library/Frameworks/ApplicationServices.framework'))
     if bndl is None:
-        print('ApplicationServices missing', file=sys.stderr)
+        print >>sys.stderr, 'ApplicationServices missing'
         return False
     d = {}
     objc.loadBundleFunctions(bndl, d, FUNCTIONS)
     for (fn, sig) in FUNCTIONS:
         if fn not in d:
-            print('Missing', fn, file=sys.stderr)
+            print >>sys.stderr, 'Missing', fn
             return False
     err, psn = d['GetCurrentProcess']()
     if err:
-        print('GetCurrentProcess', (err, psn), file=sys.stderr)
+        print >>sys.stderr, 'GetCurrentProcess', (err, psn)
         return False
     err = d['CPSSetProcessName'](psn, name)
     if err:
-        print('CPSSetProcessName', (err, psn), file=sys.stderr)
+        print >>sys.stderr, 'CPSSetProcessName', (err, psn)
         return False
     err = d['CPSEnableForegroundOperation'](psn)
     if err:
@@ -280,7 +279,7 @@ def WMEnable(name='Python'):
         return False
     err = d['SetFrontProcess'](psn)
     if err:
-        print('SetFrontProcess', (err, psn), file=sys.stderr)
+        print >>sys.stderr, 'SetFrontProcess', (err, psn)
         return False
     return True
 

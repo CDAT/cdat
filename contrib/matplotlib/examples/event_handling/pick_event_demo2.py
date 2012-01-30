@@ -4,14 +4,14 @@ When you click on one of the mu, sigma points, plot the raw data from
 the dataset that generated the mean and stddev
 """
 import numpy
-import matplotlib.pyplot as plt
+from pylab import figure, show
 
 
 X = numpy.random.rand(100, 1000)
 xs = numpy.mean(X, axis=1)
 ys = numpy.std(X, axis=1)
 
-fig = plt.figure()
+fig = figure()
 ax = fig.add_subplot(111)
 ax.set_title('click on point to plot time series')
 line, = ax.plot(xs, ys, 'o', picker=5)  # 5 points tolerance
@@ -25,7 +25,7 @@ def onpick(event):
     if not N: return True
 
 
-    figi = plt.figure()
+    figi = figure()
     for subplotnum, dataind in enumerate(event.ind):
         ax = figi.add_subplot(N,1,subplotnum+1)
         ax.plot(X[dataind])
@@ -37,7 +37,7 @@ def onpick(event):
 
 fig.canvas.mpl_connect('pick_event', onpick)
 
-plt.show()
+show()
 
 
 

@@ -1,6 +1,6 @@
 # Todd Miller   jmiller@stsci.edu
 
-from __future__ import division, print_function
+from __future__ import division
 
 import os, sys, math
 import os.path
@@ -193,8 +193,6 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         self._tkcanvas.bind("<KeyRelease>", self.key_release)
         for name in "<Button-1>", "<Button-2>", "<Button-3>":
             self._tkcanvas.bind(name, self.button_press_event)
-        for name in "<Double-Button-1>", "<Double-Button-2>", "<Double-Button-3>":
-            self._tkcanvas.bind(name, self.button_dblclick_event)
         for name in "<ButtonRelease-1>", "<ButtonRelease-2>", "<ButtonRelease-3>":
             self._tkcanvas.bind(name, self.button_release_event)
 
@@ -273,7 +271,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
         FigureCanvasBase.motion_notify_event(self, x, y, guiEvent=event)
 
 
-    def button_press_event(self, event, dblclick=False):
+    def button_press_event(self, event):
         x = event.x
         # flipy so y=0 is bottom of canvas
         y = self.figure.bbox.height - event.y
@@ -285,10 +283,7 @@ class FigureCanvasTkAgg(FigureCanvasAgg):
             if   num==2: num=3
             elif num==3: num=2
 
-        FigureCanvasBase.button_press_event(self, x, y, num, dblclick=dblclick, guiEvent=event)
-
-    def button_dblclick_event(self,event):
-        self.button_press_event(event,dblclick=True)
+        FigureCanvasBase.button_press_event(self, x, y, num, guiEvent=event)
 
     def button_release_event(self, event):
         x = event.x
@@ -635,7 +630,7 @@ class NavigationToolbar(Tk.Frame):
         self.lastDir = os.path.dirname(fname)
         try:
             self.canvas.print_figure(fname)
-        except IOError as msg:
+        except IOError, msg:
             err = '\n'.join(map(str, msg))
             msg = 'Failed to save %s: Error msg was\n\n%s' % (
                 fname, err)
@@ -784,7 +779,7 @@ class NavigationToolbar2TkAgg(NavigationToolbar2, Tk.Frame):
             try:
                 # This method will handle the delegation to the correct type
                 self.canvas.print_figure(fname)
-            except Exception as e:
+            except Exception, e:
                 showerror("Error saving file", str(e))
 
     def set_active(self, ind):

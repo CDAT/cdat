@@ -1,4 +1,3 @@
-from __future__ import print_function
 from matplotlib.contour import ContourSet
 from matplotlib.tri.triangulation import Triangulation
 import matplotlib._tri as _tri

@@ -21,7 +21,7 @@ ax = fig.add_subplot(111)
 
 (x,y) = zip(*DATA)
 ax.plot(x, y, marker='o')
-for i in range(len(DATA)):
+for i in xrange(len(DATA)):
     (x,y) = DATA[i]
     (dd, dl, r, dr, dp) = dash_style[i]
     #print 'dashlen call', dl

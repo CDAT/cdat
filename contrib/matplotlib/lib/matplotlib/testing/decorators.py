@@ -1,7 +1,6 @@
-from __future__ import print_function
 from matplotlib.testing.noseclasses import KnownFailureTest, \
      KnownFailureDidNotFailTest, ImageComparisonFailure
-import os, sys, shutil
+import os, sys, shutil, new
 import nose
 import matplotlib
 import matplotlib.tests
@@ -34,7 +33,7 @@ def knownfailureif(fail_condition, msg=None, known_exception_class=None ):
             try:
                 # Always run the test (to generate images).
                 result = f(*args, **kwargs)
-            except Exception as err:
+            except Exception, err:
                 if fail_condition:
                     if known_exception_class is not None:
                         if not isinstance(err,known_exception_class):
@@ -50,7 +49,7 @@ def knownfailureif(fail_condition, msg=None, known_exception_class=None ):
         return nose.tools.make_decorator(f)(failer)
     return known_fail_decorator
 
-class CleanupTest(object):
+class CleanupTest:
     @classmethod
     def setup_class(cls):
         cls.original_units_registry = matplotlib.units.registry.copy()
@@ -72,7 +71,7 @@ def cleanup(func):
     name = func.__name__
     func = staticmethod(func)
     func.__get__(1).__name__ = '_private'
-    new_class = type(
+    new_class = new.classobj(
         name,
         (CleanupTest,),
         {'_func': func})
@@ -164,8 +163,8 @@ def image_comparison(baseline_images=None, extensions=None, tol=1e-3):
         # of output file.  The only way to achieve this with nose
         # appears to be to create a test class with "setup_class" and
         # "teardown_class" methods.  Creating a class instance doesn't
-        # work, so we use type() to actually create a class and fill
-        # it with the appropriate methods.
+        # work, so we use new.classobj to actually create a class and
+        # fill it with the appropriate methods.
         name = func.__name__
         # For nose 1.0, we need to rename the test function to
         # something without the word "test", or it will be run as
@@ -173,7 +172,7 @@ def image_comparison(baseline_images=None, extensions=None, tol=1e-3):
         # generator.
         func = staticmethod(func)
         func.__get__(1).__name__ = '_private'
-        new_class = type(
+        new_class = new.classobj(
             name,
             (ImageComparisonTest,),
             {'_func': func,

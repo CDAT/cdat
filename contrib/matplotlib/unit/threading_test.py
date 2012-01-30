@@ -1,12 +1,10 @@
 #! /usr/bin/python
-
 """
-Test by Karen Tracey for threading problem reported in
+Test by Karen Tracey for threading problem reported in 
 http://www.mail-archive.com/matplotlib-devel@lists.sourceforge.net/msg04819.html
 and solved by JDH in git commit 175e3ec5bed9144.
 """
 
-from __future__ import print_function
 import os
 import threading
 import traceback
@@ -41,17 +39,17 @@ def png_thread(tn):
 
         png_f.close()
         if excp:
-            print('png_thread %d failed on iteration %d:' % (tn, i))
-            print(traceback.format_exc(excp))
+            print 'png_thread %d failed on iteration %d:' % (tn, i)
+            print traceback.format_exc(excp)
             exception_raised = True
-        else:
-            print('png_thread %d completed iteration %d.' % (tn, i))
+        else: 
+            print 'png_thread %d completed iteration %d.' % (tn, i)
 
     os.unlink(png_fname)
 
 def main(tc):
     threads = []
-    for i in range(tc):
+    for i in range(tc):     
         threads.append(threading.Thread(target=png_thread, args=(i+1,)))
 
     for t in threads:
@@ -65,7 +63,7 @@ def main(tc):
     else:
         msg = 'Failed! Exception raised before %d threads completed %d iterations.'
 
-    print(msg % (tc, max_iterations))
+    print msg % (tc, max_iterations)
 
 if __name__== "__main__":
     main(thread_count)

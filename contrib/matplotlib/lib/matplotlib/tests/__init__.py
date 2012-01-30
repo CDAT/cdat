@@ -1,4 +1,3 @@
-from __future__ import print_function
 from matplotlib import rcParams, rcdefaults, use
 
 _multiprocess_can_split_ = True

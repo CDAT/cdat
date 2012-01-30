@@ -2,7 +2,7 @@
 These are  classes to support contour plotting and
 labelling for the axes class
 """
-from __future__ import division, print_function
+from __future__ import division
 import warnings
 import matplotlib as mpl
 import numpy as np
@@ -12,7 +12,7 @@ import matplotlib.path as mpath
 import matplotlib.ticker as ticker
 import matplotlib.cm as cm
 import matplotlib.colors as colors
-import matplotlib.collections as mcoll
+import matplotlib.collections as collections
 import matplotlib.font_manager as font_manager
 import matplotlib.text as text
 import matplotlib.cbook as cbook
@@ -110,9 +110,6 @@ class ContourLabeler:
             placement, delete or backspace act like the third mouse button,
             and any other key will select a label location).
 
-            *manual* can be an iterable object of x,y tuples. Contour labels
-            will be created as if mouse is clicked at each x,y positions.
-
           *rightside_up*:
             if *True* (default), label rotations will always be plus
             or minus 90 degrees from level.
@@ -200,16 +197,11 @@ class ContourLabeler:
         #self.labelCValues = [] # same
         self.labelXYs = []
 
-        if cbook.iterable(self.labelManual):
-            for x,y in self.labelManual:
-                self.add_label_near(x, y, inline,
-                                    inline_spacing)
-
-        elif self.labelManual:
-            print('Select label locations manually using first mouse button.')
-            print('End manual selection with second mouse button.')
+        if self.labelManual:
+            print 'Select label locations manually using first mouse button.'
+            print 'End manual selection with second mouse button.'
             if not inline:
-                print('Remove last label by clicking third mouse button.')
+                print 'Remove last label by clicking third mouse button.'
 
             blocking_contour_labeler = BlockingContourLabeler(self)
             blocking_contour_labeler(inline,inline_spacing)
@@ -455,11 +447,11 @@ class ContourLabeler:
                 pl, np.arange(len(pl)), xi, extrap=False )
 
             # If those indices aren't beyond contour edge, find x,y
-            if (not np.isnan(I[0])) and int(I[0])!=I[0]:
+            if (not np.isnan(I[0])) and int(I[0])<>I[0]:
                 xy1 = mlab.less_simple_linear_interpolation(
                     pl, lc, [ xi[0] ] )
 
-            if (not np.isnan(I[1])) and int(I[1])!=I[1]:
+            if (not np.isnan(I[1])) and int(I[1])<>I[1]:
                 xy2 = mlab.less_simple_linear_interpolation(
                     pl, lc, [ xi[1] ] )
 
@@ -540,67 +532,6 @@ class ContourLabeler:
         self._add_label(t, x, y, lev, cvalue)
 
 
-    def add_label_near(self, x, y, inline=True, inline_spacing=5,
-                       transform=None):
-        """
-        Add a label near the point (x, y) of the given transform.
-        If transform is None, data transform is used. If transform is
-        False, IdentityTransform is used.
-
-        *inline*:
-          controls whether the underlying contour is removed or
-          not. Default is *True*.
-
-        *inline_spacing*:
-          space in pixels to leave on each side of label when
-          placing inline.  Defaults to 5.  This spacing will be
-          exact for labels at locations where the contour is
-          straight, less so for labels on curved contours.
-        """
-
-        if transform is None:
-            transform = self.ax.transData
-
-        if transform:
-            x,y = transform.transform_point((x, y))
-
-        conmin,segmin,imin,xmin,ymin = self.find_nearest_contour(
-            x, y, self.labelIndiceList)[:5]
-
-        # Get index of nearest level in subset of levels used for labeling
-        lmin = self.labelIndiceList.index(conmin)
-
-        # Coordinates of contour
-        paths = self.collections[conmin].get_paths()
-        lc = paths[segmin].vertices
-
-        # In pixel/screen space
-        slc = self.ax.transData.transform(lc)
-
-        # Get label width for rotating labels and breaking contours
-        lw = self.get_label_width(self.labelLevelList[lmin],
-                                  self.labelFmt, self.labelFontSizeList[lmin])
-
-        # Figure out label rotation.
-        if inline:
-            lcarg = lc
-        else:
-            lcarg = None
-        rotation,nlc = self.calc_label_rot_and_inline(
-            slc, imin, lw, lcarg,
-            inline_spacing )
-
-        self.add_label(xmin,ymin,rotation,self.labelLevelList[lmin],
-                       self.labelCValueList[lmin])
-
-        if inline:
-            # Remove old, not looping over paths so we can do this up front
-            paths.pop(segmin)
-
-            # Add paths if not empty or single point
-            for n in nlc:
-                if len(n)>1:
-                    paths.append( mpath.Path(n) )
 
     def pop_label(self,index=-1):
         '''Defaults to removing last label, but any index can be supplied'''
@@ -775,9 +706,9 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 ncolors -= 1
             cmap = colors.ListedColormap(self.colors, N=ncolors)
         if self.filled:
-            self.collections = cbook.silent_list('mcoll.PathCollection')
+            self.collections = cbook.silent_list('collections.PathCollection')
         else:
-            self.collections = cbook.silent_list('mcoll.LineCollection')
+            self.collections = cbook.silent_list('collections.LineCollection')
         # label lists must be initialized here
         self.labelTexts = []
         self.labelCValues = []
@@ -806,7 +737,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 paths = self._make_paths(segs, kinds)
                 # Default zorder taken from Collection
                 zorder = kwargs.get('zorder', 1)
-                col = mcoll.PathCollection(paths,
+                col = collections.PathCollection(paths,
                                      antialiaseds = (self.antialiased,),
                                      edgecolors= 'none',
                                      alpha=self.alpha,
@@ -824,7 +755,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                     zip(self.levels, tlinewidths, tlinestyles, self.allsegs):
                 # Default zorder taken from LineCollection
                 zorder = kwargs.get('zorder', 2)
-                col = mcoll.LineCollection(segs,
+                col = collections.LineCollection(segs,
                                      antialiaseds = aa,
                                      linewidths = width,
                                      linestyle = lstyle,
@@ -1015,7 +946,7 @@ class ContourSet(cm.ScalarMappable, ContourLabeler):
                 i0 = -1
             if self.extend in ('both', 'max'):
                 i1 += 1
-            self.cvalues = list(range(i0, i1))
+            self.cvalues = range(i0, i1)
             self.set_norm(colors.NoNorm())
         else:
             self.cvalues = self.layers

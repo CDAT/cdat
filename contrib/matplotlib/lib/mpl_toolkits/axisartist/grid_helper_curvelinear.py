@@ -201,10 +201,7 @@ class FloatingAxisArtistHelper(AxisArtistHelper.Floating):
             xx0 = lon_levs
             dx = 0.01
 
-        if None in self._extremes:
-            e0, e1 = self._extremes
-        else:
-            e0, e1 = sorted(self._extremes)
+        e0, e1 = sorted(self._extremes)
         if e0 is None:
             e0 = -np.inf
         if e1 is None:
@@ -416,15 +413,12 @@ class GridHelperCurveLinear(GridHelperBase):
         self.grid_info = self.grid_finder.get_grid_info(x1, y1, x2, y2)
 
 
-    def get_gridlines(self, which="major", axis="both"):
+    def get_gridlines(self):
         grid_lines = []
-
-        if axis in ["both", "x"]:
-            for gl in self.grid_info["lon"]["lines"]:
-                grid_lines.extend(gl)
-        if axis in ["both", "y"]:
-            for gl in self.grid_info["lat"]["lines"]:
-                grid_lines.extend(gl)
+        for gl in self.grid_info["lat"]["lines"]:
+            grid_lines.extend(gl)
+        for gl in self.grid_info["lon"]["lines"]:
+            grid_lines.extend(gl)
 
         return grid_lines
 

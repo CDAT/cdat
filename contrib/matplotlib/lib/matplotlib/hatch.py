@@ -2,7 +2,6 @@
 Contains a classes for generating hatch patterns.
 """
 
-from __future__ import print_function
 import numpy as np
 from matplotlib.path import Path
 
