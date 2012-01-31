@@ -716,6 +716,7 @@ def _install(file, action):
     if norun:
         r = 0
     else:
+        print '====>executing: ', p
         r = os.system(p)
     if r:
         print >>sys.stderr, "Install failed in directory", dirname
