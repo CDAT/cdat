@@ -38,7 +38,11 @@ Gpoint VCS2PSDEVICE(x,y)
      double y;
 {
   Gpoint to;
-  double xr,yr;
+  double xr,yr,x2,y2;
+
+  to.x=x;
+  to.y=y;
+  return to;
   yr=1.;
   if (strcmp(Page.page_orient,"landscape")==0) {
     xr = (double)(YW-MARGINT-MARGINB)/(double)(XW-MARGINR-MARGINL);
@@ -61,6 +65,9 @@ Gpoint VCS2PSDEVICE(x,y)
     to.x = x*xr*(XW-MARGINL-MARGINR)+MARGINL;
     to.y = (YW-MARGINB)-y*yr*(YW-MARGINT-MARGINB);
   }
+
+  to.x=(int)to.x;
+  to.y=(int)to.y;
   return to;
 }
 
@@ -102,24 +109,35 @@ PSmoOpen(WS_STATE_PTR ws)
       printf("cr = cairo_create (surface);\n");
       printf("cairo_save (cr);\n");
 #endif
-      surface = cairo_ps_surface_create_for_stream(stream_cairo_write,
-						   ws->mf.any->fp,
-						   XW,YW);
-          
-      cairo_ps_surface_dsc_begin_setup (surface);
-      cairo_ps_surface_dsc_begin_page_setup (surface);
+      if (strcmp(Page.page_orient,"landscape")==0) {
+	tmp=YW;
+	YW=XW;
+	XW=tmp;
+	surface = cairo_ps_surface_create_for_stream(stream_cairo_write,
+						     ws->mf.any->fp,
+						     XW,YW);
+      } else {
+	surface = cairo_ps_surface_create_for_stream(stream_cairo_write,
+						     ws->mf.any->fp,
+						     XW,YW);
+      };
+      cairo_ps_surface_set_eps (surface, TRUE);
+      //cairo_ps_surface_dsc_begin_setup (surface);
+      //cairo_ps_surface_dsc_begin_page_setup (surface);
       
 #ifdef CAIRODRAW
       ws->cr = cairo_create (surface);
+      cairo_set_antialias(ws->cr,CAIRO_ANTIALIAS_NONE);
       cairo_save(ws->cr);
+      //cairo_set_line_cap(ws->cr,CAIRO_LINE_CAP_SQUARE);
 #endif
       cgmo->ws			= ws;
       cgmo->type			= MF_CAIRO;
 #ifdef CAIRODRAW
       if (strcmp(Page.page_orient,"landscape")==0) {
-	xtmp = -(int) ((float)(XW)/4.);
-	cairo_translate(ws->cr,xtmp,YW);
-	cairo_rotate(ws->cr,-1.5707963267948966);
+	//xtmp = -(int) ((float)(XW)/4.);
+	//cairo_translate(ws->cr,xtmp,YW);
+	//cairo_rotate(ws->cr,-1.5707963267948966);
 #ifdef GENCAIRO
 	printf("cairo_translate(cr,%i,%i);\n",xtmp,YW);
 	printf("cairo_rotate(cr,-1.5707963267948966);\n");

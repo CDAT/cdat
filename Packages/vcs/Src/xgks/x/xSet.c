@@ -105,6 +105,7 @@ cairoXgksSetLineAttributes(cr, line_width,line_style,cap_style, join_style)
     printf("unknown join type: %i\n",join_style);
   }
   if (cap_style == CapButt ) {
+    //printf("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5\n");
     cairo_set_line_cap(cr,CAIRO_LINE_CAP_BUTT);
   }
   else {

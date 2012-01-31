@@ -75,10 +75,6 @@ if(NOT GIT_PROTOCOL)
 endif()
 
 if(GIT_PROTOCOL MATCHES "http://")
-  execute_process(
-    COMMAND ${GIT_EXECUTABLE} config --unset url.git://uv-cdat.llnl.gov/cmor.git.insteadof http://uv-cdat.llnl.gov/git/cmor.git
-    WORKING_DIRECTORY ${cdat_SOURCE_DIR}
-  )
 
   execute_process(
     COMMAND ${GIT_EXECUTABLE} config --unset url.git://uv-cdat.llnl.gov/eof2.git.insteadof http://uv-cdat.llnl.gov/git/eof2.git
@@ -90,15 +86,7 @@ if(GIT_PROTOCOL MATCHES "http://")
     WORKING_DIRECTORY ${cdat_SOURCE_DIR}
   )
 
-  execute_process(
-    COMMAND ${GIT_EXECUTABLE} config --unset url.git://github.com/matplotlib/matplotlib.git.insteadof http://github.com/matplotlib/matplotlib.git
-    WORKING_DIRECTORY ${cdat_SOURCE_DIR}
-  )
 else()
-  execute_process(
-    COMMAND ${GIT_EXECUTABLE} config url.git://uv-cdat.llnl.gov/cmor.git.insteadOf http://uv-cdat.llnl.gov/git/cmor.git
-    WORKING_DIRECTORY ${cdat_SOURCE_DIR}
-  )
 
   execute_process(
     COMMAND ${GIT_EXECUTABLE} config url.git://uv-cdat.llnl.gov/eof2.git.insteadOf http://uv-cdat.llnl.gov/git/eof2.git
@@ -110,10 +98,6 @@ else()
     WORKING_DIRECTORY ${cdat_SOURCE_DIR}
   )
 
-  execute_process(
-    COMMAND ${GIT_EXECUTABLE} config url.git://github.com/matplotlib/matplotlib.git.insteadOf http://github.com/matplotlib/matplotlib.git
-    WORKING_DIRECTORY ${cdat_SOURCE_DIR}
-  )
 endif()
 
 #-----------------------------------------------------------------------------
