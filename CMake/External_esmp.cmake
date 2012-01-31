@@ -13,8 +13,7 @@ ExternalProject_Add(ESMP
   SOURCE_DIR @esmp_source@
   INSTALL_DIR @esmp_install@
   URL ${ESMP_URL}/${ESMP_GZ}
-#  URL_MD5 ${ESMP_MD5}
-  URL_MD5 ""
+  URL_MD5 ${ESMP_MD5}
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
   CONFIGURE_COMMAND ""
