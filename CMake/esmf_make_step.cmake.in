@@ -3,7 +3,8 @@ include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
 
 set(ENV{ESMF_DIR} @esmf_source@)
 set(ENV{ESMF_INSTALL_PREFIX} @esmf_install@)
-set(ENV{ESMF_COMM} mpiuni)
+set(ENV{ESMF_COMM} @esmf_comm@)
+set(ENV{ESMF_PTHREADS} @esmf_pthreads@)
 
 execute_process(
   COMMAND gmake

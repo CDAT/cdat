@@ -5,6 +5,11 @@ set(ENV{ESMF_DIR} @esmf_source@)
 set(ENV{ESMF_INSTALL_PREFIX} @esmf_install@)
 set(ENV{ESMF_COMM} mpiuni)
 
+# Store the configuration used to build ESMF
+set(infile @esmf_source@/set_esmf_env_ser.sh.in)
+set(outfile @esmf_source@/set_esmf_env_ser.sh)
+configure_file(${infile} ${outfile})
+
 execute_process(
   COMMAND gmake install
   WORKING_DIRECTORY @esmf_source@

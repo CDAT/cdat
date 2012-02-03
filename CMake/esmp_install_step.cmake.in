@@ -1,6 +1,15 @@
 
 include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
 
+set(ENV{ESMFMKFILE} @esmp_install@)
+
+execute_process(
+  COMMAND gmake
+  WORKING_DIRECTORY @esmp_source@
+  OUTPUT_VARIABLE CDAT_OUT
+  ERROR_VARIABLE CDAT_ERR
+  RESULT_VARIABLE res)
+
 file(INSTALL @esmp_source@ DESTINATION @esmp_install@)
 
 if(NOT ${res} EQUAL 0)
