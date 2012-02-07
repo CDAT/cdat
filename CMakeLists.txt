@@ -424,10 +424,15 @@ add_cdat_package(CDAT)
 add_cdat_package(gui_support)
 
 # Optional Packages
-if(CDAT_BUILD_ESMF_ESMP)
-  message("build esmp")
-  add_cdat_package(esmf)
-  add_cdat_package(esmp)
+
+# Earth System Modelling Framework and the Python wrapper.
+if(NOT APPLE)
+  if(CDAT_BUILD_ESMF_ESMP)
+    if(CMAKE_Fortran_COMPILER)
+      add_cdat_package(esmf)
+      add_cdat_package(esmp)
+    endif()
+  endif()
 endif()
 
 option(CDAT_BUILD_PARAVIEW "Build ParaView" OFF)
@@ -527,7 +532,7 @@ set(PyQt_DEPENDENCIES ${pkgconfig_dep} ${Qt_dep} ${SIP_dep})
 set(Pmw_DEPENDENCIES ${pkgconfig_dep} ${Python_dep})
 set(libcf_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${NetCDF_dep} ${HDF5_dep} ${CURL_dep} ${zlib_dep})
 set(esmf_DEPENDENCIES ${pkgconfig_dep})
-set(esmp_DEPENDENCIES ${pkgconfig_dep})
+set(esmp_DEPENDENCIES ${pkgconfig_dep} ${NUMPY_dep} ${Python_dep})
 set(Cython_DEPENDENCIES ${pkgconfig_dep} ${Python_dep})
 set(Numexpr_DEPENDENCIES ${pkgconfig_dep} ${NUMPY_dep} ${Python_dep})
 set(PyTables_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${Cython_dep} ${Numexpr_dep} ${HDF5_dep} ${libXML2_dep} ${libXSLT_dep} ${zlib_dep})
