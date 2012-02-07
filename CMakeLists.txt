@@ -426,12 +426,10 @@ add_cdat_package(gui_support)
 # Optional Packages
 
 # Earth System Modelling Framework and the Python wrapper.
-if(NOT APPLE)
-  if(CDAT_BUILD_ESMF_ESMP)
-    if(CMAKE_Fortran_COMPILER)
-      add_cdat_package(esmf)
-      add_cdat_package(esmp)
-    endif()
+if(CDAT_BUILD_ESMF_ESMP)
+  if(CMAKE_Fortran_COMPILER)
+    add_cdat_package(esmf)
+    add_cdat_package(esmp)
   endif()
 endif()
 
