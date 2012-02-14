@@ -587,7 +587,7 @@ class esgfFile(object,AutoAPI.AutoAPI):
             setattr(self,s1,url)
             services.append(s1)
         self.services=services
-        self.id=self["file_id"]
+        self.id=self["id"]
 
     def __getitem__(self,key):
         val = self.__items__[key]
@@ -598,7 +598,7 @@ class esgfFile(object,AutoAPI.AutoAPI):
         return
 
     def __str__(self):
-        st = "File Information\nid: %s\nParent Dataset: %s" % (self["file_id"],self["dataset_id"])
+        st = "File Information\nid: %s\nParent Dataset: %s" % (self["id"],self["dataset_id"])
         st+="Matched keys: %s\n" % (repr(self.__items__))
         for service in self.services:
             st+="service: %s @ %s\n" % (service,getattr(self,service))
