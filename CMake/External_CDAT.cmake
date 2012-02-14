@@ -7,7 +7,7 @@ set(LDFLAGS -L${cdat_EXTERNALS}/lib)
 if(QT_QMAKE_EXECUTABLE)
   get_filename_component(QT_BINARY_DIR ${QT_QMAKE_EXECUTABLE} PATH)
   get_filename_component(QT_ROOT ${QT_BINARY_DIR} PATH)
-  get_filename_component(QT_INC_DIR ${QT_INCLUDE_DIR} PATH)
+  get_filename_component(QT_INC_DIR ${QT_QTCORE_INCLUDE_DIR} PATH)
   get_filename_component(QT_LIB_DIR ${QT_QTCORE_LIBRARY} PATH)
 endif()
 
