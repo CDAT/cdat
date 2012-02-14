@@ -271,6 +271,7 @@ endmacro (add_cdat_package)
 find_package(Qt4)
 
 option(CDAT_USE_SYSTEM_INTROSPECTION "Detect System installed libraries." OFF)
+option(CDAT_BUILD_ESMF_ESMP "Build python version Earth System Modelling Framework" OFF)
 
 # Attempt to find each package on the system
 
@@ -388,8 +389,6 @@ add_cdat_package(NetCDF)
 add_cdat_package(Qt)
 add_cdat_package(jasper)
 add_cdat_package(g2clib)
-add_cdat_package(esmf)
-add_cdat_package(esmp)
 
 # Python Packages
 add_cdat_package(Python)
@@ -404,14 +403,24 @@ add_cdat_package(Cython)
 add_cdat_package(Numexpr)
 add_cdat_package(PyTables)
 
+add_cdat_package(CMOR)
+add_cdat_package(CDAT)
+add_cdat_package(gui_support)
+
+# Optional Packages
+
+# Earth System Modelling Framework and the Python wrapper.
+if(CDAT_BUILD_ESMF_ESMP)
+  if(CMAKE_Fortran_COMPILER)
+    add_cdat_package(esmf)
+    add_cdat_package(esmp)
+  endif()
+endif()
+
 option(CDAT_BUILD_PARAVIEW "Build ParaView" OFF)
 if(CDAT_BUILD_PARAVIEW)
   add_cdat_package(ParaView)
 endif()
-
-add_cdat_package(CMOR)
-add_cdat_package(CDAT)
-add_cdat_package(gui_support)
 
 option(CDAT_BUILD_VISTRAILS "Build VisTrails" OFF)
 if(CDAT_BUILD_VISTRAILS)
@@ -505,7 +514,7 @@ set(PyQt_DEPENDENCIES ${pkgconfig_dep} ${Qt_dep} ${SIP_dep})
 set(Pmw_DEPENDENCIES ${pkgconfig_dep} ${Python_dep})
 set(libcf_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${NetCDF_dep} ${HDF5_dep} ${CURL_dep} ${zlib_dep})
 set(esmf_DEPENDENCIES ${pkgconfig_dep})
-set(esmp_DEPENDENCIES ${pkgconfig_dep})
+set(esmp_DEPENDENCIES ${pkgconfig_dep} ${NUMPY_dep} ${Python_dep})
 set(Cython_DEPENDENCIES ${pkgconfig_dep} ${Python_dep})
 set(Numexpr_DEPENDENCIES ${pkgconfig_dep} ${NUMPY_dep} ${Python_dep})
 set(PyTables_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${Cython_dep} ${Numexpr_dep} ${HDF5_dep} ${libXML2_dep} ${libXSLT_dep} ${zlib_dep})
