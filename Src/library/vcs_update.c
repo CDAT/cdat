@@ -1385,6 +1385,7 @@ int vcs_canvas_update ( short use_defer_flg )
   }
   if (change==1) {
     /* Put code to do the logo here */
+    extern void draw_logo(cairo_t *cr);
     draw_logo(connect_id.cr);
   }
   
