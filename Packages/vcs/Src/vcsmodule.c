@@ -130,7 +130,7 @@ typedef struct graphics_method_list {  /* Store the graphics methods names */
  extern PyObject *PyVCS_Xpending(PyVCScanvas_Object *self, PyObject *args);
  extern PyObject *PyVCS_stopxmainloop(PyVCScanvas_Object *self, PyObject *args);
  extern PyObject *PyVCS_startxmainloop(PyVCScanvas_Object *self, PyObject *args);
- extern PyObject *PyVCS_get_selected_display_graphic_method(self,args);
+ extern PyObject *PyVCS_get_selected_display_graphic_method(PyVCScanvas_Object *self,PyObject *args);
 
 
 staticforward PyTypeObject PyVCScanvas_Type;

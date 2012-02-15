@@ -71,7 +71,7 @@ extern "C" int rotateextent(Gextent* extent)
   float tx,ty;
 
 /*   /\* Now rotate until lower right is first *\/ */
-  extern void printextentp();
+  extern void printextentp(Gextent *extent);
 /*   printextentp(extent); */
 /*   printf("back from gq\n"); */
   corner=0;

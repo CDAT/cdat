@@ -1680,6 +1680,7 @@ CAIROsetSegDetect(Metafile *mf, int num, Gint name, Gsegdet det)
     int
 CAIROmoClose(Metafile *mf)
 {
+  extern void draw_logo(cairo_t *cr);
   cairo_surface_t *surface;
   int status = 1;		/* return status error */
   if (mf != NULL && mf->cgmo != NULL) {
