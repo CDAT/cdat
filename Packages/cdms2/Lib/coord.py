@@ -246,7 +246,7 @@ class AbstractCoordinateAxis(CdmsObj):
             axislist = fvar.getAxisList()
             axislist.append(boundsaxis)
             boundsvar = file.createVariable(boundsid, cdmsNode.NumericToCdType.get(self.dtype.char), axislist)
-            boundsvar[:] = self._bounds_
+            boundsvar[:] = self._bounds_.astype(boundsvar.dtype)
         return fvar
 
 class AbstractAxis2D(AbstractCoordinateAxis):
