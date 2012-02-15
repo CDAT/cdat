@@ -101,6 +101,7 @@ def setCompressionWarnings(value=None):
     return _showCompressWarnings
 
 def setNetcdfShuffleFlag(value):        
+    """ Sets NetCDF shuffle flag value"""
     if value not in [True,False,0,1]:
         raise CDMSError, "Error NetCDF Shuffle flag must be 1/0 or true/False"
     if value in [0,False]:
@@ -108,6 +109,7 @@ def setNetcdfShuffleFlag(value):
     else:
         Cdunif.CdunifSetNCFLAGS("shuffle",1)
 def setNetcdfDeflateFlag(value):
+    """ Sets NetCDF deflate flag value"""
     if value not in [True,False,0,1]:
         raise CDMSError, "Error NetCDF deflate flag must be 1/0 or true/False"
     if value in [0,False]:
@@ -116,18 +118,29 @@ def setNetcdfDeflateFlag(value):
         Cdunif.CdunifSetNCFLAGS("deflate",1)
         
 def setNetcdfDeflateLevelFlag(value):
+    """ Sets NetCDF deflate level flag value"""
     if value not in [0,1,2,3,4,5,6,7,8,9]:
         raise CDMSError, "Error NetCDF deflate_level flag must be an integer < 10"
     Cdunif.CdunifSetNCFLAGS("deflate_level",value)
 
 def getNetcdfShuffleFlag():
+    """ Returns NetCDF shuffle flag value"""
     return Cdunif.CdunifGetNCFLAGS("shuffle")
 
 def getNetcdfDeflateFlag():
+    """ Returns NetCDF deflate flag value"""
     return Cdunif.CdunifGetNCFLAGS("deflate")
 
 def getNetcdfDeflateLevelFlag():
+    """ Returns NetCDF deflate level flag value"""
     return Cdunif.CdunifGetNCFLAGS("deflate_level")
+def useNetcdf3():
+    """ Turns off (0) NetCDF flags for shuffle/defalte/defaltelevel
+    Output files are generated as NetCDF3 Classic after that
+    """
+    setNetcdfShuffleFlag(0)
+    setNetcdfDeflateFlag(0)
+    setNetcdfDeflateLevelFlag(0)
 
 # Create a tree from a file path.
 # Returns the parse tree root node.
