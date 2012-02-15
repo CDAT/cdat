@@ -1617,6 +1617,22 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
 
             axislist.append(newaxis)
 
+        # Copy variable metadata
+        if attributes is None:
+            attributes = var.attributes
+            try:
+                attributes['missing_value']=var.missing_value
+            except Exception,err:
+                print err
+                pass
+            try:
+                attributes['_FillValue']=var._FillValue
+            except:
+                pass
+            if attributes.has_key("name"):
+                if attributes['name']!=var.id:
+                    del(attributes['name'])
+
         # Create grid as necessary
         if grid is None:
             grid = var.getGrid()
@@ -1633,21 +1649,6 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
         datatype = cdmsNode.NumericToCdType.get(var.typecode())
         newvar = self.createVariable(newname, datatype, axislist)
 
-        # Copy variable metadata
-        if attributes is None:
-            attributes = var.attributes
-            try:
-                attributes['missing_value']=var.missing_value
-            except Exception,err:
-                print err
-                pass
-            try:
-                attributes['_FillValue']=var._FillValue
-            except:
-                pass
-            if attributes.has_key("name"):
-                if attributes['name']!=var.id:
-                    del(attributes['name'])
         for attname,attval in attributes.items():
             if attname not in ["id", "datatype", "parent"]:
                 setattr(newvar, attname, attval)
