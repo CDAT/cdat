@@ -1832,7 +1832,7 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
         """
         return self.grids.get(id)
 
-    def getBoundsAxis(self, n):
+    def getBoundsAxis(self, n,boundid=None):
         """Get a bounds axis of length n. Create the bounds axis if necessary.
         :::
         Input:::
@@ -1842,10 +1842,12 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
         axis :: (cdms2.axis.FileAxis/cdms2.axis.FileVirtualAxis) (0) bound axis
         :::
         """
-        if n==2:
-            boundid = "bound"
-        else:
-            boundid = "bound_%d"%n
+        if boundid is None:
+            if n==2:
+                boundid = "bound"
+            else:
+                boundid = "bound_%d"%n
+            
         if self.axes.has_key(boundid):
             boundaxis = self.axes[boundid]
         else:
