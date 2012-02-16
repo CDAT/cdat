@@ -10,6 +10,8 @@
 #include <QtGui/QDesktopWidget>
 #include <QtGui/QResizeEvent>
 #include <QtGui/QToolTip>
+#include <QMutex>
+
 #include <stdio.h>
 
 QMutex canvasupdatemutex(QMutex::Recursive);

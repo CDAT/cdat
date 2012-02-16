@@ -234,7 +234,10 @@ class AbstractCoordinateAxis(CdmsObj):
     def writeToFile(self, file):
 
         if self._bounds_ is not None:
-            boundsid = "bounds_"+self.id
+            if hasattr(self,"bounds"):
+                boundsid = self.bounds
+            else:
+                boundsid = "bounds_"+self.id
             self.bounds = boundsid
 
         fvar = file.write(self)
@@ -242,11 +245,16 @@ class AbstractCoordinateAxis(CdmsObj):
         # Create the bounds variable 
         if (self._bounds_ is not None) and not file.variables.has_key(boundsid):
             boundslen = self._bounds_.shape[-1]
-            boundsaxis = file.getBoundsAxis(boundslen)
+            try:
+                boundid = self._bounds_.getAxis(-1).id
+                boundsaxis = file.getBoundsAxis(boundslen,boundid=boundid)
+            except:
+                boundsaxis = file.getBoundsAxis(boundslen)
+            
             axislist = fvar.getAxisList()
             axislist.append(boundsaxis)
             boundsvar = file.createVariable(boundsid, cdmsNode.NumericToCdType.get(self.dtype.char), axislist)
-            boundsvar[:] = self._bounds_
+            boundsvar[:] = self._bounds_.astype(boundsvar.dtype)
         return fvar
 
 class AbstractAxis2D(AbstractCoordinateAxis):

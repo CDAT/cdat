@@ -234,7 +234,7 @@ def convertfile(path, **args):
     aggressive = args.get('aggressive', False)
     clobber = args.get('clobber', False)
     nocomment = args.get('nocomment', False)
-    
+    stats = os.stat(path)
     f = open(path)
     fstr = f.read()
     f.close()
@@ -265,6 +265,7 @@ def convertfile(path, **args):
         fid = file(path, 'w')
         fid.write(result)
         fid.close()
+        os.chmod(path,stats.st_mode)
 
 def convertall(direc, args):
     """Convert all .py files to use numpy/ma/cdms2 in the directory given

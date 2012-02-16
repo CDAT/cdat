@@ -101,6 +101,7 @@ def setCompressionWarnings(value=None):
     return _showCompressWarnings
 
 def setNetcdfShuffleFlag(value):        
+    """ Sets NetCDF shuffle flag value"""
     if value not in [True,False,0,1]:
         raise CDMSError, "Error NetCDF Shuffle flag must be 1/0 or true/False"
     if value in [0,False]:
@@ -108,6 +109,7 @@ def setNetcdfShuffleFlag(value):
     else:
         Cdunif.CdunifSetNCFLAGS("shuffle",1)
 def setNetcdfDeflateFlag(value):
+    """ Sets NetCDF deflate flag value"""
     if value not in [True,False,0,1]:
         raise CDMSError, "Error NetCDF deflate flag must be 1/0 or true/False"
     if value in [0,False]:
@@ -116,18 +118,29 @@ def setNetcdfDeflateFlag(value):
         Cdunif.CdunifSetNCFLAGS("deflate",1)
         
 def setNetcdfDeflateLevelFlag(value):
+    """ Sets NetCDF deflate level flag value"""
     if value not in [0,1,2,3,4,5,6,7,8,9]:
         raise CDMSError, "Error NetCDF deflate_level flag must be an integer < 10"
     Cdunif.CdunifSetNCFLAGS("deflate_level",value)
 
 def getNetcdfShuffleFlag():
+    """ Returns NetCDF shuffle flag value"""
     return Cdunif.CdunifGetNCFLAGS("shuffle")
 
 def getNetcdfDeflateFlag():
+    """ Returns NetCDF deflate flag value"""
     return Cdunif.CdunifGetNCFLAGS("deflate")
 
 def getNetcdfDeflateLevelFlag():
+    """ Returns NetCDF deflate level flag value"""
     return Cdunif.CdunifGetNCFLAGS("deflate_level")
+def useNetcdf3():
+    """ Turns off (0) NetCDF flags for shuffle/defalte/defaltelevel
+    Output files are generated as NetCDF3 Classic after that
+    """
+    setNetcdfShuffleFlag(0)
+    setNetcdfDeflateFlag(0)
+    setNetcdfDeflateLevelFlag(0)
 
 # Create a tree from a file path.
 # Returns the parse tree root node.
@@ -1604,6 +1617,22 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
 
             axislist.append(newaxis)
 
+        # Copy variable metadata
+        if attributes is None:
+            attributes = var.attributes
+            try:
+                attributes['missing_value']=var.missing_value
+            except Exception,err:
+                print err
+                pass
+            try:
+                attributes['_FillValue']=var._FillValue
+            except:
+                pass
+            if attributes.has_key("name"):
+                if attributes['name']!=var.id:
+                    del(attributes['name'])
+
         # Create grid as necessary
         if grid is None:
             grid = var.getGrid()
@@ -1620,21 +1649,6 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
         datatype = cdmsNode.NumericToCdType.get(var.typecode())
         newvar = self.createVariable(newname, datatype, axislist)
 
-        # Copy variable metadata
-        if attributes is None:
-            attributes = var.attributes
-            try:
-                attributes['missing_value']=var.missing_value
-            except Exception,err:
-                print err
-                pass
-            try:
-                attributes['_FillValue']=var._FillValue
-            except:
-                pass
-            if attributes.has_key("name"):
-                if attributes['name']!=var.id:
-                    del(attributes['name'])
         for attname,attval in attributes.items():
             if attname not in ["id", "datatype", "parent"]:
                 setattr(newvar, attname, attval)
@@ -1818,7 +1832,7 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
         """
         return self.grids.get(id)
 
-    def getBoundsAxis(self, n):
+    def getBoundsAxis(self, n,boundid=None):
         """Get a bounds axis of length n. Create the bounds axis if necessary.
         :::
         Input:::
@@ -1828,10 +1842,12 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
         axis :: (cdms2.axis.FileAxis/cdms2.axis.FileVirtualAxis) (0) bound axis
         :::
         """
-        if n==2:
-            boundid = "bound"
-        else:
-            boundid = "bound_%d"%n
+        if boundid is None:
+            if n==2:
+                boundid = "bound"
+            else:
+                boundid = "bound_%d"%n
+            
         if self.axes.has_key(boundid):
             boundaxis = self.axes[boundid]
         else:

@@ -1408,6 +1408,7 @@ void draw_logo(cairo_t *cr) {
   int xtmp;
   cairo_surface_t *surface;
   cairo_surface_type_t stype;
+  if (cr == NULL) return;
   surface = cairo_get_target(cr);
   stype = cairo_surface_get_type(surface);
   if (stype==CAIRO_SURFACE_TYPE_IMAGE) {
@@ -1425,10 +1426,10 @@ void draw_logo(cairo_t *cr) {
   y= (float)h-dh;
   dw = dh*logo_ratio;
   x=(float)w-dw;
-  if (stype==CAIRO_SURFACE_TYPE_PS) {
-	xtmp = (int) ((float)(YW)/15.);
-	cairo_translate(cr,xtmp,0);
-  }
+  /* if (stype==CAIRO_SURFACE_TYPE_PS) { */
+  /* 	xtmp = (int) ((float)(YW)/15.); */
+  /* 	cairo_translate(cr,xtmp,0); */
+  /* } */
   cairo_rectangle(cr,x,y,dw,dh);
   cairo_clip(cr);
   cairo_scale(cr,hr,hr);

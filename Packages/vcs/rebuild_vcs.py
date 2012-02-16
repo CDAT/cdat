@@ -1,5 +1,5 @@
 import platform
-prefix_path = "/lgm/cdat/uvcdat"
+prefix_path = "/lgm/uvcdat/latest"
 if "omar" in platform.uname():
     xpth=""
     arch="i386"
