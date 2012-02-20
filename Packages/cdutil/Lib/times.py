@@ -43,7 +43,7 @@ def centroid(msk,bounds,coords=None):
     sw=sw/2.
     msk=msk/sw
     return msk
-    
+
 def cyclicalcentroid(s,bounds,coords=None):
     '''
     returns the centroid, but this assumes cyclical axis, therefore spread the points around a circle, before computing the centroid
@@ -174,6 +174,7 @@ def mergeTime(ds,statusbar=1):
         if order0 is None : order0=order
         if order[0]!='t' :
             ds[i]=ds[i](order='t...')
+            ax=ds[i].getAxisList()
         times[i]=ds[i].getTime()
         units=times[i].units
         cal=times[i].getCalendar()
