@@ -515,31 +515,6 @@ class Regrid:
             status = self.lib.nccf_free_coord(self.dst_coordids[i])
             catchError(status, sys._getframe().f_lineno)
 
-    def addForbiddenBox(self, lo, hi):
-        """
-        Add a forbidden box, points falling inside the box will not
-        be interpolated.
-        @param lo inclusive lower set of indices
-        @param hi inclusive upper set of indices
-        """
-
-        # Check lo and hi
-        if len(lo) != self.ndims:
-            raise CDMSError, "ERROR in %s: len(lo) = %d != %d" \
-                % (__FILE__, len(lo), self.ndims)
-
-        if len(hi) != self.ndims:
-            raise CDMSError, "ERROR in %s: len(hi) = %d != %d" \
-                % (__FILE__, len(hi), self.ndims)
-
-        # Apply
-        loIndices = (c_int * self.ndims)(tuple(lo))
-        hiIndices = (c_int * self.ndims)(tuple(hi))
-        status = self.lib.nccf_add_regrid_forbidden(self.regridid,
-                                                    loIndices,
-                                                    hiIndices)
-        catchError(status, sys._getframe().f_lineno)
-
     def setValidMask(self, mask):
         """
         Set a mask for the grid
