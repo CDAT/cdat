@@ -181,7 +181,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
     def _getmissing(self):
         return self._missing
     def _setmissing(self,value):
-        self._missing=value
+        self._missing=numpy.array(value).astype(self.dtype)
 
     missing = property(_getmissing,_setmissing)
     def __new__(cls, data, typecode=None, copy=0, savespace=0, 
