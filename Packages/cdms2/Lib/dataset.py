@@ -864,6 +864,8 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
         self.id = path
         self._mode_ = mode
         try:
+            if mode[0].lower()=="w":
+                os.remove(path)
             _fileobj_ = Cdunif.CdunifFile (path, mode)
         except:
             raise CDMSError, 'Cannot open file %s'%path
