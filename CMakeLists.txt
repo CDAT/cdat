@@ -271,6 +271,7 @@ endmacro (add_cdat_package)
 find_package(Qt4)
 
 option(CDAT_USE_SYSTEM_INTROSPECTION "Detect System installed libraries." OFF)
+# Added by Dave Kindig Tech-X Corp. kindig@txcorp.com
 option(CDAT_BUILD_ESMF_ESMP "Build python version Earth System Modelling Framework" OFF)
 
 # Attempt to find each package on the system
@@ -410,6 +411,7 @@ add_cdat_package(gui_support)
 # Optional Packages
 
 # Earth System Modelling Framework and the Python wrapper.
+# Added by Dave Kindig Tech-X Corp. kindig@txcorp.com
 if(CDAT_BUILD_ESMF_ESMP)
   if(CMAKE_Fortran_COMPILER)
     add_cdat_package(esmf)
@@ -513,6 +515,7 @@ set(PyQt_DEPENDENCIES ${pkgconfig_dep} ${Qt_dep} ${SIP_dep})
 #set(PyOpenGL_DEPENDENCIES ${pkgconfig_dep} ${Python_dep})
 set(Pmw_DEPENDENCIES ${pkgconfig_dep} ${Python_dep})
 set(libcf_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${NetCDF_dep} ${HDF5_dep} ${CURL_dep} ${zlib_dep})
+# Added by Dave Kindig Tech-X Corp. kindig@txcorp.com
 set(esmf_DEPENDENCIES ${pkgconfig_dep})
 set(esmp_DEPENDENCIES ${pkgconfig_dep} ${NUMPY_dep} ${Python_dep})
 set(Cython_DEPENDENCIES ${pkgconfig_dep} ${Python_dep})
