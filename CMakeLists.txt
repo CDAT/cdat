@@ -392,6 +392,13 @@ add_cdat_package(g2clib)
 
 # Python Packages
 add_cdat_package(Python)
+if (CDAT_USE_SYSTEM_PYTHON)
+   include(FindPythonInterp)
+   set(PYVER ${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR})
+   message("Using system python ${PYTHON_EXECUTABLE}")
+   set(PYTHON_SITE_PACKAGES ${CMAKE_INSTALL_PREFIX}/lib/python${PYVER}/site-packages)
+   message("Putting packages in directory ${PYTHON_SITE_PACKAGES}")
+endif()
 add_cdat_package(setuptools)
 add_cdat_package(SIP)
 add_cdat_package(PyQt)

@@ -101,9 +101,11 @@ os.environ['PKG_CONFIG_PATH']=os.path.join(externals,'lib','pkgconfig')+':'+os.e
 here = os.getcwd().replace(" ","\ ")
 vcsbase = os.path.join(here, 'Src','library')
 vcsbase_proj = os.path.join(here,'Src','gctpc')
-cdatbase = os.path.join(sys.prefix,'include')
+# cdatbase = os.path.join(sys.prefix,'include')
+cdatbase = os.path.join(target_prefix,'include')
 xgksroot = os.path.join(here,'Src', 'xgks')
-py = sys.prefix
+# py = sys.prefix
+py = target_prefix
 major, minor = sys.version_info[0:2]
 t = os.popen('uname')
 uname = t.read()[:-1]
@@ -479,7 +481,7 @@ try:
  shutil.rmtree("%s/vcs/Include" % ptho,ignore_errors=True)
  shutil.copytree("Include", "%s/vcs/Include" % ptho)
 except:
- ptho=target_prefix+"/lib/python2.7/site-packages/"
+ ptho=target_prefix+"/lib/python%i.%i/site-packages/" % sys.version_info[:2]
  shutil.rmtree("%s/vcs/Include" % ptho,ignore_errors=True)
  shutil.copytree("Include", "%s/vcs/Include" % ptho)
 
