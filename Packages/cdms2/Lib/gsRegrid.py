@@ -517,8 +517,10 @@ class Regrid:
 
     def setValidMask(self, mask):
         """
-        Set a mask for the grid
-        @param mask an array of type char of size dims for the grid
+        Set valid mask array for the grid
+        @param mask flat array of type char and size dims
+        @note this must be invoked before computing the weights, the 
+        mask is a property of the grid (not the data).
         """
         # run some checks.
         if mask.dtype != numpy.int32:
