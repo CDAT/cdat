@@ -490,7 +490,7 @@ print 'Copied the include files to: %s/vcs/Include' % sysconfig.get_python_lib()
 if (WM=="QT" or EM=="QT") and sys.platform in ['darwin']:
     pref = sys.prefix
     ver = ".".join(sys.version.split(' ')[0].split(".")[:2])
-    ccCmd = 'g++ -O3 -c %s -IInclude/Qt -IInclude -I/%s/include -I/System/Library/Frameworks/Python.framework/Versions/2.6/include/python2.6 -o build/qpython.o Src/Qt/qpython.cpp' % (qt_vcs_extra_compile_args,pref)
+    ccCmd = 'g++ -O3 -c %s -IInclude/Qt -IInclude -I/%s/include -I%s -o build/qpython.o Src/Qt/qpython.cpp' % (qt_vcs_extra_compile_args,pref,sysconfig.get_python_inc())
     print 'Running: ', ccCmd
     os.system(ccCmd)
     qt_vcs_extra_link_args = '%s/lib/python%s/config/libpython%s.a ' % (pref, ver, ver) + qt_vcs_extra_link_args
