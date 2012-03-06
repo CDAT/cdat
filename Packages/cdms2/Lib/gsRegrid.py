@@ -643,7 +643,7 @@ class Regrid:
 
     def __call__(self, src_data, dst_data):
         """
-        Apply interpolation (synonymous to aply method)
+        Apply interpolation (synonymous to apply method)
         @param src_data data on source grid
         @param dst_data data on destination grid
         @note destination coordinates falling outside the valid domain
