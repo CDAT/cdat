@@ -951,7 +951,6 @@ CANVASINFO_LINK          	cptr;
 
 	PyThreadState 			*_save;
 
-
 	/* Set the application's color map */
 	if (aptr->animation_colormap == 1)
            (void) load_color_table_proc(FALSE);
@@ -1096,7 +1095,7 @@ DNW*/
 #ifdef X11WM
            XResizeWindow(connect_id.display, connect_id.drawable, last_width, last_height);
 #elif defined QTWM
-	   vcs_Qt_resize_window(connect_id.wkst_id,0,30,last_width, last_height);
+           vcs_Qt_resize_window(connect_id.wkst_id,-1,-1,last_width, last_height);
 #endif
 	   /* Show the image in the canvas */
 	   if (aptr->zoom_animation) { /* Zoom and Pan the Images */
