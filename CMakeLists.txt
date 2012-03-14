@@ -15,6 +15,8 @@ if("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local")
 endif()
 
 set(cdat_EXTERNALS ${CMAKE_INSTALL_PREFIX}/Externals)
+set(ENV{PATH} "${cdat_EXTERNALS}/bin:$ENV{PATH}")
+message("Hi we reset your path to: " $ENV{PATH})
 
 #------------------------------------------------------------------------------
 # Update CMake module path
@@ -137,14 +139,14 @@ set(EP_PREFIX ${cdat_BINARY_DIR}/build/prefix)
 
 set_property(DIRECTORY PROPERTY EP_LOG_DIR  ${cdat_BINARY_DIR}/logs)
 
-#set(EP_LOG_OPTIONS
-#  LOG_DOWNLOAD 1
-#  LOG_UPDATE 1
-#  LOG_CONFIGURE 1
-#  LOG_BUILD 1
-#  LOG_TEST 1
-#  LOG_INSTALL 1
-#)
+set(EP_LOG_OPTIONS
+  LOG_DOWNLOAD 0
+  LOG_UPDATE 1
+  LOG_CONFIGURE 1
+  LOG_BUILD 1
+  LOG_TEST 1
+  LOG_INSTALL 1
+)
 
 INCLUDE(ExternalProject)
 
@@ -402,7 +404,7 @@ add_cdat_package(libcf)
 add_cdat_package(Cython)
 add_cdat_package(Numexpr)
 add_cdat_package(PyTables)
-
+add_cdat_package(Matplotlib)
 add_cdat_package(CMOR)
 add_cdat_package(CDAT)
 add_cdat_package(gui_support)
@@ -541,7 +543,7 @@ set(CMOR_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${HDF5_dep} ${Cairo_dep} ${
 set(CDAT_DEPENDENCIES ${wget_dep} ${CMOR_dep} ${Python_dep} ${PyQt_dep} ${NUMPY_dep} ${Pmw_dep} ${jasper_dep} ${g2clib_dep} ${FFMPEG_dep} ${Qt_dep} ${pixman_dep} ${tiff_dep})
 set(gui_support_DEPENDENCIES ${CDAT_dep})
 set(VisTrails_DEPENDENCIES ${ParaView_dep} ${CDAT_dep})
-
+set(Matplotlib_DEPENDENCIES ${PyQt_dep} ${Cairo_dep} ${NUMPY_dep} )
 list(REMOVE_DUPLICATES external_packages)
 foreach(package ${external_packages})
   message("Building ${package}")
