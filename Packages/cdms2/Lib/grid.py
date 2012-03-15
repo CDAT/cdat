@@ -148,6 +148,13 @@ def setRegionSpecs(grid, coordSpec, coordType, resultSpec):
         raise CDMSError, 'Multiple specifications for coordinate type %s'%coordType
     resultSpec[coordLoc] = canonSpec
 
+def isGrid(grid):
+    """
+    Is grid a grid?
+    @param grid cdms2 contruct to be examined
+    """
+    return isinstance(grid, AbstractGrid)
+
 class AbstractGrid (CdmsObj):
 
     def __init__ (self, node):
