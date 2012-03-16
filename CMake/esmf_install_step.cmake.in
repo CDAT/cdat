@@ -5,9 +5,13 @@ set(ENV{ESMF_DIR} @esmf_source@)
 set(ENV{ESMF_INSTALL_PREFIX} @esmf_install@)
 set(ENV{ESMF_COMM} mpiuni)
 set(ENV{ESMF_PTHREADS} @esmf_pthreads@)
+set(ENV{CFLAGS} ${cdat_osx_flags_fortran})
+set(ENV{CXXFLAGS} ${cdat_osx_flags_fortran})
+set(ENV{CPPFLAGS} ${cdat_osx_flags_fortran})
+set(ENV{FFLAGS} ${cdat_osx_flags_fortran})
 
 execute_process(
-  COMMAND gmake install
+  COMMAND make install
   WORKING_DIRECTORY @esmf_source@
   OUTPUT_VARIABLE CDAT_OUT
   ERROR_VARIABLE CDAT_ERR

@@ -5,9 +5,14 @@ set(ENV{ESMF_DIR} @esmf_source@)
 set(ENV{ESMF_INSTALL_PREFIX} @esmf_install@)
 set(ENV{ESMF_COMM} @esmf_comm@)
 set(ENV{ESMF_PTHREADS} @esmf_pthreads@)
+set(ENV{CFLAGS} ${cdat_osx_flags_fortran})
+set(ENV{CXXFLAGS} ${cdat_osx_flags_fortran})
+set(ENV{CPPFLAGS} ${cdat_osx_flags_fortran})
+set(ENV{FFLAGS} ${cdat_osx_flags_fortran})
 
+# make should be detected by CMAKE at some point
 execute_process(
-  COMMAND gmake
+  COMMAND make 
   WORKING_DIRECTORY @esmf_source@
   OUTPUT_VARIABLE CDAT_OUT
   ERROR_VARIABLE CDAT_ERR
@@ -15,6 +20,6 @@ execute_process(
 
 if(NOT ${res} EQUAL 0)
   message("Make Errors detected: \n${CDAT_OUT}\n${CDAT_ERR}")
-  message(FATAL_ERROR "Error in Make")
+  message(FATAL_ERROR "Error in Make:\n" ${res})
 endif()
 message("Make succeeded.")

@@ -150,14 +150,14 @@ set(EP_PREFIX ${cdat_BINARY_DIR}/build/prefix)
 
 set_property(DIRECTORY PROPERTY EP_LOG_DIR  ${cdat_BINARY_DIR}/logs)
 
-#set(EP_LOG_OPTIONS
-#  LOG_DOWNLOAD 1
-#  LOG_UPDATE 1
-#  LOG_CONFIGURE 1
-#  LOG_BUILD 1
-#  LOG_TEST 1
-#  LOG_INSTALL 1
-#)
+set(EP_LOG_OPTIONS
+  LOG_DOWNLOAD 0
+  LOG_UPDATE 1
+  LOG_CONFIGURE 1
+  LOG_BUILD 1
+  LOG_TEST 1
+  LOG_INSTALL 1
+)
 
 INCLUDE(ExternalProject)
 
@@ -204,9 +204,11 @@ if(APPLE)
     -DCMAKE_OSX_SYSROOT:PATH=${CMAKE_OSX_SYSROOT})
 
   set(cdat_osx_arch_flag "-arch ${CMAKE_OSX_ARCHITECTURES} -Xarch_${CMAKE_OSX_ARCHITECTURES}")
+  set(cdat_osx_arch_flag_fortran "-arch ${CMAKE_OSX_ARCHITECTURES}")
   set(cdat_osx_version_flag "-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
   set(cdat_osx_sysroot "-isysroot ${CMAKE_OSX_SYSROOT}")
   set(cdat_osx_flags "${cdat_osx_arch_flag} ${cdat_osx_version_flag} ${cdat_osx_sysroot} -pipe")
+  set(cdat_osx_flags_fortran "${cdat_osx_arch_flag_fortran} ${cdat_osx_version_flag} ${cdat_osx_sysroot} -pipe")
   set(cdat_osx_ld_flags "-bind_at_load -mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
 endif()
 
@@ -429,8 +431,23 @@ if(CDAT_BUILD_ESMF_ESMP)
   if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL GNU)
     # GNU gfortran must be >= 4.3
     if(${Fortran_MAJOR_VERSION} GREATER 3 AND ${Fortran_MINOR_VERSION} GREATER 2)
-      add_cdat_package(esmf)
-      add_cdat_package(esmp)
+      ## On APPLE need to test for -arch as well!
+      if (APPLE)
+         execute_process(COMMAND gfortran -arch i386 dummy.f90 -o dummy_test_gfortran COMMAND  rm dummy_test_gfortran
+    	                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/CMake
+ 			 OUTPUT_VARIABLE GFOR_OUT
+			 ERROR_VARIABLE GFOR_ERR 		  
+  			 RESULT_VARIABLE res)
+         if (NOT ${res} EQUAL 0)	  
+      	    message("    gfortran needs to understand -arch to build ESMF\n${GFOR_OUT}\n${GFOR_ERR}\n${res}")
+    	 else (NOT ${res} EQUAL 0)
+            add_cdat_package(esmf)
+      	    add_cdat_package(esmp)
+	 endif (NOT ${res} EQUAL 0)
+      else (APPLE)
+         add_cdat_package(esmf)
+         add_cdat_package(esmp)
+      endif (APPLE)
     else()
       message("    Skipping ESMF")
       message("    gfortran version needs to be at least 4.3 to install ESMF")
