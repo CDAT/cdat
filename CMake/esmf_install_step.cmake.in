@@ -7,7 +7,7 @@ set(ENV{ESMF_COMM} mpiuni)
 set(ENV{ESMF_PTHREADS} @esmf_pthreads@)
 
 execute_process(
-  COMMAND gmake install
+  COMMAND make install
   WORKING_DIRECTORY @esmf_source@
   OUTPUT_VARIABLE CDAT_OUT
   ERROR_VARIABLE CDAT_ERR
