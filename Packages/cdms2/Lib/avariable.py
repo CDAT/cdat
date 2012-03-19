@@ -7,6 +7,7 @@ import types, string, re
 import cdmsNode
 from cdmsobj import CdmsObj
 import cdms2
+from cdms2 import gsRegrid
 from slabinterface import Slab
 from sliceut import *
 from error import CDMSError
@@ -876,16 +877,50 @@ class AbstractVariable(CdmsObj, Slab):
             return self
         return MV.transpose (self, permutation)
 
-    def regrid (self, togrid, missing=None, order=None, mask=None):
+    def regrid (self, toGridin, missing=None, order=None, mask=None, 
+                regridTool = "gsRegrid", regridMethod = "multilinear"):
         """return self regridded to the new grid. Keyword arguments
-        are as for regrid.Regridder."""
-        from regrid2 import Regridder
+        are as for regrid.Regridder. This simply regrids a variable to another 
+        grid. Nothing fancy.
+        @param toGridin cdms2.grid or cdms2.var. Will be cast to 
+                        destination grid
+        @param missing missing value default is None
+        @param order variable index order form "tzyx", "tyx", etc.
+        @param mask Masked region same dimension as the input data
+        @param regridTool ESMP/libcf/regrid2/SCRIP
+        @param regridMethod multilinear/consevative
+        """
 
-        if togrid is None: 
+        if toGridin is None: 
             return self
         else:
-            fromgrid = self.getGrid()
-            regridf = Regridder(fromgrid, togrid)
+            if hasattr(toGridin, 'getGrid'):
+                toGrid = toGridin.getGrid()
+            else:
+                toGrid = toGridin
+        
+        # The different tools
+        if(regridTool == "ESMP"):
+            pass
+            import ESMP, esmf
+            regridObj = esmf(fromGrid, toGrid)
+            dstData = regridObj(srcData)
+        elif(regridTool == "gsRegrid"):
+            if not hasattr(self, 'getGrid'):
+                raise CDMSError,  'calling object must be a cdsm2 variable'
+            fromGrid = self.getGrid()
+            regridObj = gsRegrid.Regrid(fromGrid, toGrid)
+            dstData = numpy.zeros(regridObj.getDstGrid()[0].shape, self.dtype)
+            regridObj(self, dstData)
+            return dstData
+            # Need to convert dstData to same type as srcData. e.g. TransientVariable...
+        elif(regridTool == "SCRIP"):
+            pass
+        else: # regridTool == "regrid2"
+            from regrid2 import Regridder
+
+            fromGrid = self.getGrid()
+            regridf = Regridder(fromGrid, toGrid)
             result = regridf(self, missing=missing, order=order, mask=mask)
             return result
 
