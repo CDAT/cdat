@@ -35,7 +35,6 @@ Clist = [
     ['contrib/EzTemplate','Package to generate VCS templates easily','GNU'],
     ['contrib/ZonalMeans','Package to compute zonal means on any grid (requires f90 compiler)','GNU'],
     ['contrib/HDF5Tools','Package to read HDF5 files into CDAT (requires h5dump binary utility)','GNU'],
-    ['contrib/matplotlib','Matlab like plotting tools','GNU'],
 ]
 
 # natgrid has illegal C comments but gcc lets them through...

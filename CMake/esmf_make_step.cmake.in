@@ -12,7 +12,7 @@ set(ENV{FFLAGS} ${cdat_osx_flags_fortran})
 
 # make should be detected by CMAKE at some point
 execute_process(
-  COMMAND make 
+  COMMAND make
   WORKING_DIRECTORY @esmf_source@
   OUTPUT_VARIABLE CDAT_OUT
   ERROR_VARIABLE CDAT_ERR
