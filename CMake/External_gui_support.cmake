@@ -8,8 +8,8 @@ ExternalProject_Add(gui_support
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
   CONFIGURE_COMMAND ""
-  BUILD_COMMAND ""
-  INSTALL_COMMAND env EXTERNALS=${cdat_EXTERNALS} ${LIBRARY_PATH}=${runtime_library_path} ${PYTHON_EXECUTABLE} setup.py build --force install
+  BUILD_COMMAND env EXTERNALS=${cdat_EXTERNALS} ${LIBRARY_PATH}=${runtime_library_path} ${PYTHON_EXECUTABLE} setup.py build
+  INSTALL_COMMAND env EXTERNALS=${cdat_EXTERNALS} ${LIBRARY_PATH}=${runtime_library_path} ${PYTHON_EXECUTABLE} setup.py install --prefix=${CMAKE_INSTALL_PREFIX}
   DEPENDS ${gui_support_DEPENDENCIES}
   ${EP_LOG_OPTIONS}
 )

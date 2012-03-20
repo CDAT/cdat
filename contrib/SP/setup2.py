@@ -34,6 +34,11 @@ if "--numarray" in sys.argv:
     use_numpy = False
     sys.argv.remove("--numarray")
 
+install_prefix = sys.prefix
+for arg in sys.argv[1:]:
+    if arg[:9] == "--prefix=":
+        install_prefix = arg[9:]
+
 if use_numeric:
     extra_compile_args.append("-DNUMERIC=1")
 elif use_numarray:
@@ -41,10 +46,10 @@ elif use_numarray:
 else :
     extra_compile_args.append("-DNUMPY=1")
     if sys.platform == 'win32':
-        arrayobject_h_include = [os.path.join(sys.prefix,
+        arrayobject_h_include = [os.path.join(install_prefix,
                                  "Lib/site-packages/numpy/core/include")]
     else:
-        arrayobject_h_include = [os.path.join(sys.prefix,
+        arrayobject_h_include = [os.path.join(install_prefix,
                                 "lib/python%s.%s/site-packages/numpy/core/include"
                                 % sys.version_info [:2])]
 
