@@ -4,6 +4,8 @@ set(ParaView_source "${CMAKE_CURRENT_BINARY_DIR}/build/ParaView")
 set(ParaView_binary "${CMAKE_CURRENT_BINARY_DIR}/build/ParaView-build")
 set(ParaView_install "${cdat_EXTERNALS}")
 
+message("OK PYTHON LIBRARIES IS:  " ${PYTHON_LIBRARIES}" "${PYTHON_EXECUTABLE})
+
 if(QT_QMAKE_EXECUTABLE)
   get_filename_component(QT_BINARY_DIR ${QT_QMAKE_EXECUTABLE} PATH)
   get_filename_component(QT_ROOT ${QT_BINARY_DIR} PATH)

@@ -1,7 +1,7 @@
 
 # SIP
-# message("Site packages: ${PYTHON_SITE_PACKAGES}")
-set(SIP_configure_command env ${LIBRARY_PATH}=${PYTHON_LIBRARY_DIR} ${PYTHON_EXECUTABLE} configure.py -b ${CMAKE_INSTALL_PREFIX}/bin -d ${PYTHON_SITE_PACKAGES} -e ${CMAKE_INSTALL_PREFIX}/include -v ${CMAKE_INSTALL_PREFIX}/share CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER})
+message("Site packages: ${PYTHON_SITE_PACKAGES}")
+set(SIP_configure_command ${PYTHON_EXECUTABLE} configure.py -b ${CMAKE_INSTALL_PREFIX}/bin -d ${PYTHON_SITE_PACKAGES} -e ${CMAKE_INSTALL_PREFIX}/include -v ${CMAKE_INSTALL_PREFIX}/share CC=${CMAKE_C_COMPILER} CXX=${CMAKE_CXX_COMPILER})
 
 ExternalProject_Add(SIP
   URL ${SIP_URL}/${SIP_GZ}
