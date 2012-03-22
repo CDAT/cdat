@@ -66,7 +66,7 @@ else:
     action['*.pfp'] = "pyfort  -i %(file)s ; "
     
 # matplotlib depends on pkg-config
-action['setup.py'] = 'PATH=%s/bin:$PATH && %s setup.py install --prefix=%s ; ' \
+action['setup.py'] = 'PATH=%s/bin:$PATH  %s setup.py install --prefix=%s ; ' \
     % (sys.exec_prefix, sys.executable, target_prefix)
 action['install_script'] = './install_script %s %s ; ' % (target_prefix, sys.exec_prefix)
 for k in ['makefile','Makefile','MAKEFILE']:
