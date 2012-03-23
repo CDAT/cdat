@@ -193,9 +193,18 @@ class Regridder:
             # or masked array
             if inputIsVariable==1:
                 if isinstance(self.outGrid, list):
-                    grid = regrid2.gsRegrid.makeCurvilinear(self.outGrid)
-                    # Need to convert to a cdms2.grid...
-                
+                    if len(self.outGrid) == 2:
+                        index = 0
+                    else:
+                        index = 1
+                    if not cdms2.isGrid(self.outGrid[index]):
+                        #cdms2.coord.TransientAxis2D
+                        pass
+                        
+                    grid = cdms2.hgrid.TransientCurveGrid(self.outGrid[index], 
+                                                        self.outGrid[index + 1],
+                                                        id = 'CurveGrid')
+                ipshell() 
                 if inData.rank() == 2: 
                     axisList = grid.getAxisList()
                 elif inData.rank() == 3 or inData.rank() == 4:
