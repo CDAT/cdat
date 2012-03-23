@@ -4,9 +4,6 @@ import regrid2
 from regrid2 import RegridError
 import re
 
-from IPython.Shell import IPShellEmbed
-ipshell = IPShellEmbed()
-
 def setMaskDtype(mask):
     if mask.dtype != numpy.int32:
         mask = numpy.array(mask, numpy.int32)

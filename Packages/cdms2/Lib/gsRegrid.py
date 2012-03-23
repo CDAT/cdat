@@ -319,8 +319,6 @@ def handleCoordsCut(coords, dims, bounds):
 
     return newCoords, newDims, newI
 
-from IPython.Shell import IPShellEmbed
-ipshell = IPShellEmbed()
 class Regrid:
 
     def __init__(self, src_grid, dst_grid, src_bounds=None, mkCyclic=False,
@@ -342,7 +340,6 @@ class Regrid:
               n-dimensional for curvilinear grids. Rectilinear grids will
               be converted to curvilinear grids.
         """
-        #ipshell()
         self.regridid = c_int(-1)
         self.src_gridid = c_int(-1)
         self.dst_gridid = c_int(-1)
