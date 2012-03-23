@@ -47,56 +47,38 @@ class Regridder:
             self.regridTool = 'esmp'
         elif rgTool == 'gsregrid' or rgTool == 'libcf':
             # Prep in and out grid for gsRegrid!
-            if cdms2.isGrid(inGrid):
-                index = 0
-                hasTime = False
-                for axis in inGrid.getAxisList():
-                    if axis == 'time':
-                        timindex = index
-                        self.hasTime = True
-                srcRank = len(inGrid.getAxisList())
-                if srcRank == 2:
-                    self.srcGrid = [inGrid.getLatitude(), inGrid.getLongitude()]
-                elif srcRank == 3 or srcRank == 4:
-                    if self.hasTime and srcRank == 3:
-                        self.srcGrid = [inGrid.getLatitude(), inGrid.getLongitude()]
-                    else:
-                        self.srcGrid = [inGrid.getLevel(), 
-                                        inGrid.getLatitude(), 
-                                        inGrid.getLongitude()]
-            elif isinstance(inGrid, list):
-                srcRank = len(inGrid)
-                self.srcGrid = inGrid
-            else:
-                raise RegridError, 'inGrid must be a list of coordinates or a cdms2 grid'
-            self.order = 'yx'
+            def makeGridList(grid):
+                if cdms2.isGrid(grid):
+                    index = 0
+                    hasTime = False
+                    for axis in grid.getAxisList():
+                        if axis == 'time':
+                            timindex = index
+                            hasTime = True
+                    rank = len(grid.getAxisList())
+                    if rank == 2:
+                        retGrid = [grid.getLatitude(), grid.getLongitude()]
+                    elif rank == 3:
+                        if hasTime:
+                            retGrid = [grid.getLatitude(), grid.getLongitude()]
+                        else:
+                            retGrid = [grid.getLevel(), 
+                                       grid.getLatitude(), 
+                                       grid.getLongitude()]
+                        
+                elif isinstance(grid, list):
+                    rank = len(grid)
+                    retGrid = grid
+                else:
+                    raise RegridError, 'Grid must be a list of coordinates or a cdms2 grid'
+                return retGrid, rank
 
-            if cdms2.isGrid(outGrid):
-                dstRank = len(outGrid.getAxisList())
-                hasTime = False
-                for axis in outGrid.getAxisList():
-                    if axis == 'time':
-                        timindex = index
-                        hasTime = True
-                if dstRank == 2:
-                    self.dstGrid = [outGrid.getLatitude(), outGrid.getLongitude()]
-                if dstRank == 3 or dstRank == 4:
-                    if hasTime and srcRank == 3:
-                        self.dstGrid = [outGrid.getLatitude(), outGrid.getLongitude()]
-                    else:
-                        self.dstGrid = [outGrid.getLevel(), 
-                                        outGrid.getLatitude(), 
-                                        outGrid.getLongitude()]
-            elif isinstance(outGrid, list):
-                dstRank = len(outGrid)
-                self.dstGrid = outGrid 
-            else:
-                raise RegridError, 'outGrid must be a list of coordinates or a cdms2 grid'
-            self.outGrid = outGrid
+            self.srcGrid, self.srcRank = makeGridList(inGrid)
+            self.dstGrid, self.dstRank = makeGridList(outGrid)
 
-            if dstRank != srcRank:
+            if self.dstRank != self.srcRank:
                 raise RegridError, 'outGrid rank (%d) != inGrid rank (%d)' % \
-                                   (dstRank, srcRank)
+                                   (self.dstRank, self.srcRank)
 
             # Create the regrid object
             ro = regrid2.gsRegrid.Regrid(self.srcGrid, self.dstGrid)
@@ -144,7 +126,7 @@ class Regridder:
         if isinstance(inData, AbstractVariable):
             attrs = copy.copy(inData.attributes)
             varid = inData.id
-            axislist = list(map(lambda x: x[0].clone(), inData.getDomain()))
+            axisList = list(map(lambda x: x[0].clone(), inData.getDomain()))
             inputIsVariable = 1
             if 'order' not in args.keys():
                 order = inData.getOrder()
@@ -166,7 +148,54 @@ class Regridder:
             if (not self.regridObj.maskSet) and inData.mask is not None:
                 print 'WARNING: Ignoring mask'
 
-            outVar = self.regridObj(inData)
+            # Create the result TransientVariable (if input inData is an AbstractVariable)
+            # or masked array
+            hasTime = None
+            if inputIsVariable==1:
+                hasTime = inData.getTime()
+                if isinstance(self.dstGrid, list):
+                    if len(self.dstGrid) == 2:
+                        index = 0
+                    else:
+                        index = 1
+                    from cdms2.coord import TransientAxis2D as T2D
+                    lats = T2D(self.regridObj.dst_coords[index], id = 'lat')
+                    lons = T2D(self.regridObj.dst_coords[index+1], id = 'lon')
+                    grid = cdms2.hgrid.TransientCurveGrid(lats, lons, id = 'CurveGrid')
+                
+                shape = grid.shape
+                axisList = list(grid.getAxisList())
+                if inData.rank() == 2: 
+                    pass
+                elif inData.rank() == 3:
+                    if inData.getTime() is not None:
+                        axisList = [inData.getTime()] + list(axisList)
+                        shape = tuple(list(axisList[0].shape) + list(shape))
+                    else:
+                        axisList = [inData.getLevel()] + list(axisList)
+                        shape = tuple(list(axisList[0].shape) + list(shape))
+                elif inData.rank() == 4 and inData.getTime() is not None:
+                        aL = [inData.getTime(), inData.getLevel()]
+                        axisList = aL + list(axisList)
+                        s = []
+                        for a in aL:
+                            s.append(a.shape)
+                        shape = tuple(s + list(shape))
+                else:
+                    raise RegridError, \
+                          'Ranks > 4 currently not supported though this API'
+                axisList = tuple(axisList)
+
+            # Loop over the time variable
+            nTime = 1
+            if hasTime is not None:
+                nTime = len(inData.getTime())
+                outVar = numpy.zeros(shape, inData.dtype)
+                for iTime in range(nTime):
+                    outVar[iTime, ...] = self.regridObj(inData[iTime, ...])
+            else:
+                outVar = self.regridObj(inData)
+
             # Correct the shape of output weights
             amskout = numpy.ma.zeros(outVar.shape, numpy.bool8)
             if inputIsVariable == 1:
@@ -189,32 +218,8 @@ class Regridder:
             else:
                 outmask = slabMask
 
-            # Create the result TransientVariable (if input inData is an AbstractVariable)
-            # or masked array
-            if inputIsVariable==1:
-                if isinstance(self.outGrid, list):
-                    if len(self.outGrid) == 2:
-                        index = 0
-                    else:
-                        index = 1
-                    if not cdms2.isGrid(self.outGrid[index]):
-                        from cdms2.coord import TransientAxis2D as T2D
-                        lats = T2D(self.regridObj.dst_coords[index], id = 'lat')
-                        lons = T2D(self.regridObj.dst_coords[index+1], id = 'lon')
-                    grid = cdms2.hgrid.TransientCurveGrid(lats, lons, id = 'CurveGrid')
-                ipshell() 
-                if inData.rank() == 2: 
-                    axisList = grid.getAxisList()
-                elif inData.rank() == 3 or inData.rank() == 4:
-                    if self.hasTime and inData.rank() == 3:
-                        self.srcGrid = [inGrid.getLatitude(), inGrid.getLongitude()]
-                    else:
-                        self.srcGrid = [inGrid.getLevel(), 
-                                        inGrid.getLatitude(), 
-                                        inGrid.getLongitude()]
-                elif inData.rank() == 3 and not self.hasTime:
-                    axisList = [self.outGrid.getLevel()] + axisList
 
+            if inputIsVariable:
                 result = cdms2.createVariable(outVar, mask = outmask, 
                                               fill_value = inData.fill_value,
                                               axes = axisList, 
