@@ -192,7 +192,10 @@ class Regridder:
             # Create the result TransientVariable (if input inData is an AbstractVariable)
             # or masked array
             if inputIsVariable==1:
-                grid = self.outData.toCurveGrid()
+                if isinstance(self.outGrid, list):
+                    grid = regrid2.gsRegrid.makeCurvilinear(self.outGrid)
+                    # Need to convert to a cdms2.grid...
+                
                 if inData.rank() == 2: 
                     axisList = grid.getAxisList()
                 elif inData.rank() == 3 or inData.rank() == 4:
