@@ -12,10 +12,12 @@ No guarantee is provided whatsoever. Use at your own risk.
 from re import search, sub
 from ctypes import c_double, c_float, c_int, \
     c_char_p, CDLL, byref, POINTER
+import ctypes
 import operator
 import sys
 import copy
 import numpy
+import cdms2
 
 C_DOUBLE_P = POINTER(c_double)
 
@@ -77,17 +79,17 @@ def makeCurvilinear(coords):
     @param coords list of coordinates
     @return new list of coordinates and associated dimensions
     """
-    ndims = len(coords)
+    rank = len(coords)
 
     count1DAxes = 0
     dims = []
-    for i in range(ndims):
+    for i in range(rank):
         coord = coords[i]
         if len(coord.shape) == 1:
             # axis
             dims.append( len(coord) )
             count1DAxes += 1
-        elif len(coord.shape) == ndims:
+        elif len(coord.shape) == rank:
             # fully curvilinear
             dims.append( coord.shape[i] )
         else:
@@ -95,15 +97,15 @@ def makeCurvilinear(coords):
             # coordinates!!!
             dims.append( coord.shape[i - count1DAxes] )
 
-    for i in range(ndims):
+    for i in range(rank):
         nd = len(coords[i].shape)
-        if nd == ndims:
+        if nd == rank:
             # already in curvilinear form, keep as is
             pass
         elif nd == 1:
             # it's an axis
-            coords[i] = getTensorProduct(coords[i], i, dims)
-        elif ndims == 3 and nd == 2 and i > 0:
+            coords[i] = getTensorProduct(coords[i][:], i, dims)
+        elif rank == 3 and nd == 2 and i > 0:
             # assume leading coordinate is an axis
             o1 = numpy.ones( (len(coords[0]),), coords[i].dtype )
             coords[i] = numpy.outer(o1, coords[i]).reshape(dims)
@@ -180,8 +182,8 @@ def checkForCoordCut(coords, dims):
 
     # Assume latitude is next to last coordinate and longitude is last coordinate!!!
 
-    ndims = len(dims)
-    if ndims < 2:
+    rank = len(dims)
+    if rank < 2:
         # print 'no cut: dims < 2'
         return False
     if len(coords[-2].shape) < 2:
@@ -264,7 +266,7 @@ def handleCoordsCut(coords, dims, bounds):
     Generate connectivity across a cut. e.g. from a tri-polar grid.
     Assume latitude is next to last coordinate and longitude is last coordinate!!!
 
-    @params coords input coordinates list of ndims
+    @params coords input coordinates list of rank
     @params dims input dimensions
     @params bounds boundaries for each coordinate
     @return extended coordinates such that there is an extra row containing
@@ -275,7 +277,7 @@ def handleCoordsCut(coords, dims, bounds):
     # last coordinate!!!
 
     dims = coords[-2].shape
-    ndims = len(dims)
+    rank = len(dims)
     nlat, nlon = dims[-2], dims[-1]
 
     epsExp = 3
@@ -325,6 +327,7 @@ class Regrid:
         Constructor
 
         @param src_grid source grid, a list of [x, y, ...] coordinates
+                        or a cdms2.grid.Transient
         @param dst_grid destination grid, a list of [x, y, ...] coordinates
         @param src_bounds list of cell bounding coordinates (to be used when 
                           handling a cut in coordinates)
@@ -340,7 +343,7 @@ class Regrid:
         self.regridid = c_int(-1)
         self.src_gridid = c_int(-1)
         self.dst_gridid = c_int(-1)
-        self.ndims = 0
+        self.rank = 0
         self.src_dims = []
         self.dst_dims = []
         self.src_coords = []
@@ -350,6 +353,8 @@ class Regrid:
         self.handleCut = False
         self.dst_Index = []
         self.diagnostics = diagnostics
+        self.weightsComputed = False
+        self.maskSet = False
 
         # Open the shaped library
         for sosuffix in '.dylib', '.dll', '.DLL', '.so', '.a':
@@ -363,18 +368,19 @@ class Regrid:
                 % (__FILE__, LIBCFDIR)
 
         # Number of space dimensions
-        self.ndims = len(src_grid)
-        if len(dst_grid) != self.ndims:
-            raise CDMSError, "ERROR in %s: len(dst_grid) = %d != %d" \
-                % (__FILE__, len(dst_grid), self.ndims)
+        self.rank = len(src_grid)
 
-        if self.ndims <= 0:
+        if len(dst_grid) != self.rank:
+            raise CDMSError, "ERROR in %s: len(dst_grid) = %d != %d" \
+                % (__FILE__, len(dst_grid), self.rank)
+
+        if self.rank <= 0:
             raise CDMSError, \
-                "ERROR in %s: must have at least one dimension, ndims = %d" \
-                % (__FILE__, self.ndims)
+                "ERROR in %s: must have at least one dimension, rank = %d" \
+                % (__FILE__, self.rank)
 
         # Convert src_grid/dst_grid to curvilinear grid, if need be
-        if self.ndims > 1:
+        if self.rank > 1:
             src_grid, src_dims = makeCurvilinear(src_grid)
             dst_grid, dst_dims = makeCurvilinear(dst_grid)
 
@@ -385,13 +391,13 @@ class Regrid:
                 aa, bb = str(src_dims), str(src_dimsNew)
                 print '...  src_dims = %s, after making cyclic src_dimsNew = %s' \
                     % (aa, bb)
-                for i in range(self.ndims):
+                for i in range(self.rank):
                     print '...... src_gridNew[%d].shape = %s' \
                         % (i, str(src_gridNew[i].shape))
             # flag indicating that the grid was extended
             if reduce(lambda x, y:x+y, \
                           [src_dimsNew[i] - src_dims[i] \
-                               for i in range(self.ndims)]) > 0:
+                               for i in range(self.rank)]) > 0:
                 self.extendedGrid = True
             # reset
             src_grid = src_gridNew
@@ -420,36 +426,36 @@ class Regrid:
                 src_dims = src_dimsNew
                 self.dst_Index = dst_Index
 
-        self.src_dims = (c_int * self.ndims)()
-        self.dst_dims = (c_int * self.ndims)()
+        self.src_dims = (c_int * self.rank)()
+        self.dst_dims = (c_int * self.rank)()
 
         # Build coordinate objects
-        src_dimnames = (c_char_p * self.ndims)()
-        dst_dimnames = (c_char_p * self.ndims)()
-        for i in range(self.ndims):
+        src_dimnames = (c_char_p * self.rank)()
+        dst_dimnames = (c_char_p * self.rank)()
+        for i in range(self.rank):
             src_dimnames[i] = 'src_n%d' % i
             dst_dimnames[i] = 'dst_n%d' % i
             self.src_dims[i] = src_dims[i]
             self.dst_dims[i] = dst_dims[i]
-        self.src_coordids = (c_int * self.ndims)()
-        self.dst_coordids = (c_int * self.ndims)()
+        self.src_coordids = (c_int * self.rank)()
+        self.dst_coordids = (c_int * self.rank)()
         save = 0
         standard_name = ""
         units = ""
         coordid = c_int(-1)
-        for i in range(self.ndims):
+        for i in range(self.rank):
             data =  numpy.array( src_grid[i], numpy.float64 )
             self.src_coords.append( data )
             dataPtr = data.ctypes.data_as(C_DOUBLE_P)
             name = "src_coord%d" % i
             # assume [lev,] lat, lon ordering
-            if i == self.ndims - 2:
+            if i == self.rank - 2:
                 standard_name = 'latitude'
                 units = 'degrees_north'
-            elif i == self.ndims - 1:
+            elif i == self.rank - 1:
                 standard_name = 'longitude'
                 units = 'degrees_east'
-            status = self.lib.nccf_def_coord(self.ndims, self.src_dims,
+            status = self.lib.nccf_def_coord(self.rank, self.src_dims,
                                              src_dimnames,
                                              dataPtr, save, name,
                                              standard_name, units,
@@ -461,14 +467,14 @@ class Regrid:
             self.dst_coords.append( data )
             dataPtr = data.ctypes.data_as(C_DOUBLE_P)
             name = "dst_coord%d" % i
-            status = self.lib.nccf_def_coord(self.ndims, self.dst_dims,
+            status = self.lib.nccf_def_coord(self.rank, self.dst_dims,
                                              dst_dimnames,
                                              dataPtr, save, name,
                                              standard_name, units,
                                              byref(coordid))
             catchError(status, sys._getframe().f_lineno)
             self.dst_coordids[i] = coordid
-
+         
         # Build grid objects
         status = self.lib.nccf_def_grid(self.src_coordids, "src_grid",
                                         byref(self.src_gridid))
@@ -488,7 +494,7 @@ class Regrid:
         Get the periodicity lengths of the coordinates
         @return numpy array, values inf indicate no periodicity
         """
-        coord_periodicity = numpy.zeros( (self.ndims,), numpy.float64 )
+        coord_periodicity = numpy.zeros( (self.rank,), numpy.float64 )
         status = self.lib.nccf_inq_grid_periodicity(self.src_gridid,
                                  coord_periodicity.ctypes.data_as(C_DOUBLE_P))
         catchError(status, sys._getframe().f_lineno)
@@ -507,7 +513,7 @@ class Regrid:
         status = self.lib.nccf_free_grid(self.dst_gridid)
         catchError(status, sys._getframe().f_lineno)
 
-        for i in range(self.ndims):
+        for i in range(self.rank):
 
             status = self.lib.nccf_free_coord(self.src_coordids[i])
             catchError(status, sys._getframe().f_lineno)
@@ -517,8 +523,10 @@ class Regrid:
 
     def setValidMask(self, mask):
         """
-        Set a mask for the grid
-        @param mask an array of type char of size dims for the grid
+        Set valid mask array for the grid
+        @param mask flat array of type char and size dims
+        @note this must be invoked before computing the weights, the 
+        mask is a property of the grid (not the data).
         """
         # run some checks.
         if mask.dtype != numpy.int32:
@@ -532,6 +540,7 @@ class Regrid:
         status = self.lib.nccf_set_grid_validmask(self.src_gridid,
                                                   c_intmask)
         catchError(status, sys._getframe().f_lineno)
+        self.maskSet = True
 
     def computeWeights(self, nitermax=100, tolpos=1.e-2):
         """
@@ -545,8 +554,9 @@ class Regrid:
                                                       nitermax,
                                                       c_double(tolpos))
         catchError(status, sys._getframe().f_lineno)
+        self.weightsComputed = True
 
-    def apply(self, src_data, dst_data):
+    def apply(self, src_data_in, dst_data_in = None):
         """
         Apply interpolation
         @param src_data data on source grid
@@ -555,17 +565,24 @@ class Regrid:
               of src_data will not be interpoloted, the corresponding
               dst_data will not be touched.
         """
+        if not self.weightsComputed:
+            raise CDMSError, 'Weights must be set before applying the regrid'
         # extend src data if grid was made cyclic and or had a cut accounted for
-        src_data = self._extend(src_data)
+        src_data = self._extend(src_data_in)
 
         # Check
         if reduce(operator.iand, [src_data.shape[i] == self.src_dims[i] \
-                                 for i in range(self.ndims)]) == False:
+                                 for i in range(self.rank)]) == False:
             raise CDMSError, ("ERROR in %s: supplied src_data have wrong shape " \
                                   + "%s != %s") % (__FILE__, str(src_data.shape), \
                                      str(tuple([d for d in self.src_dims])))
+        if dst_data_in is None:
+            shape = tuple(self.dst_dims)
+            dst_data = numpy.zeros(shape, src_data.dtype)
+        else:
+            dst_data = dst_data_in
         if reduce(operator.iand, [dst_data.shape[i] == self.dst_dims[i] \
-                                 for i in range(self.ndims)]) == False:
+                                 for i in range(self.rank)]) == False:
             raise CDMSError, ("ERROR ins: supplied dst_data have wrong shape " \
                 + "%s != %s") % (__FILE__, str(dst_data.shape),
                                  str(self.dst_dims))
@@ -577,33 +594,61 @@ class Regrid:
         standard_name = ""
         units = ""
         time_dimname = ""
+        if cdms2.isVariable(src_data_in): 
+            if hasattr(src_data_in, 'standard_name'): 
+                standard_name = src_data_in.standard_name
+            if hasattr(src_data_in, 'units'): 
+                units = src_data_in.units
+            order = src_data_in.getOrder()
+            if 't' in order: 
+                t = src_data_in.getTime()
+                time_dimname = t.id
 
         status = self.lib.nccf_def_data(self.src_gridid, "src_data", \
                                         standard_name, units, time_dimname, \
-                                            byref(src_dataid))
+                                        byref(src_dataid))
         catchError(status, sys._getframe().f_lineno)
+        def setFillValue(data):
+            if data.dtype == numpy.float64:
+                if data.fill_value is not None or \
+                   data.missing_value is not None:
+                        fill_value = c_double(data.fill_value)
+                else:
+                        fill_value = c_double(libCFConfig.NC_FILL_DOUBLE)
+            elif data.dtype == numpy.float32:
+                if data.fill_value is not None or \
+                   data.missing_value is not None:
+                        fill_value = c_float(data.fill_value)
+                else:
+                        fill_value = c_float(libCFConfig.NC_FILL_FLOAT)
+            elif data.dtype == numpy.int32:
+                if data.fill_value is not None or \
+                   data.missing_value is not None:
+                        fill_value = c_int(data.fill_value)
+                else:
+                        fill_value = c_int(libCFConfig.NC_FILL_INT)
+            return fill_value
         if src_data.dtype == numpy.float64:
-            fill_value = c_double(libCFConfig.NC_FILL_DOUBLE)
+            fill_value = setFillValue(src_data)
             status = self.lib.nccf_set_data_double(src_dataid,
-                                                   src_data.ctypes.data_as(POINTER(c_double)),
+                                     src_data.ctypes.data_as(POINTER(c_double)),
                                                    save, fill_value)
             catchError(status, sys._getframe().f_lineno)
         elif src_data.dtype == numpy.float32:
-            fill_value = c_float(libCFConfig.NC_FILL_FLOAT)
+            fill_value = setFillValue(src_data)
             status = self.lib.nccf_set_data_float(src_dataid,
-                                                  src_data.ctypes.data_as(POINTER(c_float)),
+                                     src_data.ctypes.data_as(POINTER(c_float)),
                                                   save, fill_value)
             catchError(status, sys._getframe().f_lineno)
         elif src_data.dtype == numpy.int32:
-            fill_value = c_int(libCFConfig.NC_FILL_INT)
+            fill_value = setFillValue(src_data)
             status = self.lib.nccf_set_data_int(src_dataid,
-                                                src_data.ctypes.data_as(POINTER(c_int)),
+                                     src_data.ctypes.data_as(POINTER(c_int)),
                                                 save, fill_value)
             catchError(status, sys._getframe().f_lineno)
         else:
             raise CDMSError, "ERROR in %s: invalid src_data type = %s" \
                 % (__FILE__, src_data.dtype)
-
 
         status = self.lib.nccf_def_data(self.dst_gridid, "dst_data", \
                                         standard_name, units, time_dimname, \
@@ -634,14 +679,18 @@ class Regrid:
         # Now apply weights
         status = self.lib.nccf_apply_regrid(self.regridid, src_dataid, dst_dataid)
         catchError(status, sys._getframe().f_lineno)
-
+        
         # Clean up
         status = self.lib.nccf_free_data(src_dataid)
         catchError(status, sys._getframe().f_lineno)
         status = self.lib.nccf_free_data(dst_dataid)
         catchError(status, sys._getframe().f_lineno)
 
-    def __call__(self, src_data, dst_data):
+        # Allow the regridder to be used in either mode
+        if dst_data_in is None: 
+            return dst_data
+
+    def __call__(self, src_data, dst_data = None):
         """
         Apply interpolation (synonymous to apply method)
         @param src_data data on source grid
@@ -650,7 +699,10 @@ class Regrid:
               of src_data will not be interpoloted, the corresponding
               dst_data will not be touched.
         """
-        self.apply(src_data, dst_data)
+        if dst_data is None:
+            return self.apply(src_data)
+        else:            
+            self.apply(src_data, dst_data)
 
 
     def getNumValid(self):
@@ -699,8 +751,8 @@ class Regrid:
         @return [index sets on original grid, weights]
         """
         dinds = numpy.array(dst_indices)
-        sinds = (c_int * 2**self.ndims)()
-        weights = numpy.zeros( (2**self.ndims,), numpy.float64 )
+        sinds = (c_int * 2**self.rank)()
+        weights = numpy.zeros( (2**self.rank,), numpy.float64 )
         status = self.lib.nccf_inq_regrid_weights(self.regridid,
                                                   dinds.ctypes.data_as(POINTER(c_double)),
                                                   sinds,
@@ -708,9 +760,9 @@ class Regrid:
         catchError(status, sys._getframe().f_lineno)
         # convert the flat indices to index sets
         ori_inds = []
-        for i in range(2**self.ndims):
-            inx = numpy.zeros( (self.ndims,), numpy.int32 )
-            self.lib.nccf_get_multi_index(self.ndims, self.src_dims,
+        for i in range(2**self.rank):
+            inx = numpy.zeros( (self.rank,), numpy.int32 )
+            self.lib.nccf_get_multi_index(self.rank, self.src_dims,
                                           sinds[i],
                                           inx.ctypes.data_as(POINTER(c_int)))
             ori_inds.append(inx)
@@ -764,20 +816,20 @@ class Regrid:
         """
         posPtr = targetPos.ctypes.data_as(POINTER(c_double))
         adjustFunc = None
-        hit_bounds = numpy.zeros((self.ndims),
+        hit_bounds = numpy.zeros((self.rank),
                                   dtype = int).ctypes.data_as(POINTER(c_int))
         # no periodicity
-        coord_periodicity = float('inf') * numpy.ones((self.ndims), targetPos.dtype)
+        coord_periodicity = float('inf') * numpy.ones((self.rank), targetPos.dtype)
         coord_periodicity_ptr = coord_periodicity.ctypes.data_as(POINTER(c_double))
         res = copy.copy(dindicesGuess)
         resPtr = res.ctypes.data_as(POINTER(c_double))
-        src_coords = (POINTER(c_double) * self.ndims)()
+        src_coords = (POINTER(c_double) * self.rank)()
         niter = c_int(nitermax)
         tol = c_double(tolpos)
-        for i in range(self.ndims):
+        for i in range(self.rank):
             ptr = self.src_coords[i].ctypes.data_as(POINTER(c_double))
             src_coords[i] = ptr
-        status = self.lib.nccf_find_indices_double(self.ndims,
+        status = self.lib.nccf_find_indices_double(self.rank,
                                                    self.src_dims,
                                                    src_coords,
                                                    coord_periodicity_ptr,
@@ -826,7 +878,6 @@ def testHandleCut():
               f.variables['bounds_lat'][:].data]
     coords = [alllat[:].data, alllon[:].data]
     dims = alllat.shape
-    from matplotlib import pylab
     newCoords, newDims = makeCoordsCyclic(coords, dims)
     newCoords, newDims = handleCoordsCut(newCoords, newDims, bounds)
 

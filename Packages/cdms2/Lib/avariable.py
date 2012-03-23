@@ -7,6 +7,7 @@ import types, string, re
 import cdmsNode
 from cdmsobj import CdmsObj
 import cdms2
+from cdms2 import gsRegrid
 from slabinterface import Slab
 from sliceut import *
 from error import CDMSError
@@ -876,16 +877,26 @@ class AbstractVariable(CdmsObj, Slab):
             return self
         return MV.transpose (self, permutation)
 
-    def regrid (self, togrid, missing=None, order=None, mask=None):
+    def regrid (self, toGrid, missing=None, order=None, mask=None, 
+                regridTool = "gsRegrid", regridMethod = "multilinear"):
         """return self regridded to the new grid. Keyword arguments
-        are as for regrid.Regridder."""
-        from regrid2 import Regridder
+        are as for regrid.Regridder. This simply regrids a variable to another 
+        grid. Nothing fancy.
+        @param toGrid cdms2.grid or cdms2.var. Will be cast to 
+                        destination grid
+        @param missing missing value default is None
+        @param order variable index order form "tzyx", "tyx", etc.
+        @param mask Masked region same dimension as the input data
+        @param regridTool ESMP/libcf/regrid2/SCRIP
+        @param regridMethod multilinear/consevative
+        """
 
-        if togrid is None: 
+        if toGrid is None: 
             return self
         else:
-            fromgrid = self.getGrid()
-            regridf = Regridder(fromgrid, togrid)
+            fromGrid = self.getGrid()
+            regridf = Regridder(fromGrid, toGrid, 
+                regridTool = "gsRegrid", regridMethod = "multilinear")
             result = regridf(self, missing=missing, order=order, mask=mask)
             return result
 
