@@ -544,7 +544,7 @@ class Dataset(CdmsObj, cuDataset):
                     # but now there _may_ be an additional item before path...
                     for varm1 in varmap:
                         tstart, tend, levstart, levend = varm1[0:4]
-                        if (len(varmap)>=6):
+                        if (len(varm1)>=6):
                             forecast = varm1[4]
                         else:
                             forecast = None
