@@ -57,10 +57,10 @@ set(proj Python)
 # Set PYTHON_INCLUDE and PYTHON_LIBRARY variables
 #
 
-set(PYTHON_INCLUDE /usr/common/usg/python/2.7.1/include/python2.7)
-set(PYTHON_LIBRARY /usr/common/usg/python/2.7.1/lib/libpython2.7.so)
-set(PYTHON_LIBRARY_DIR /usr/common/usg/python/2.7.1/lib)
-set(PYTHON_EXECUTABLE /usr/common/usg/python/2.7.1/bin/python)
+#set(PYTHON_INCLUDE /usr/common/usg/python/2.7.1/include/python2.7)
+#set(PYTHON_LIBRARY /usr/common/usg/python/2.7.1/lib/libpython2.7.so)
+#set(PYTHON_LIBRARY_DIR /usr/common/usg/python/2.7.1/lib)
+#set(PYTHON_EXECUTABLE /usr/common/usg/python/2.7.1/bin/python)
 set(PYTHON_SITE_PACKAGES ${CMAKE_INSTALL_PREFIX}/lib/python${PYVER}/site-packages)
 
 if(APPLE)
