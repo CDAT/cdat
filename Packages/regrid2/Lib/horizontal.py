@@ -18,10 +18,15 @@ def extractBounds(bounds):
 
     return (lower.astype(numpy.float32), upper.astype(numpy.float32))
 
-# Create a regridder. ingrid and outgrid are CDMS AbstractGrid objects.
-class Regridder:
+# Create a horizontal regridder. ingrid and outgrid are CDMS AbstractGrid objects.
+class Horizontal:
 
     def __init__(self, ingrid, outgrid):
+        """
+        Constructor for regridding class
+        @param ingrid cdms2, ndarray variable
+        @param outgrid cdms2, ndarray variable
+        """
 
         inlat = ingrid.getLatitude()
         outlat = outgrid.getLatitude()
@@ -66,15 +71,18 @@ class Regridder:
 
         self.londx, self.lonpt, self.wtlon, self.latdx, self.latpt, self.wtlat = _regrid.maparea( self.nloni, self.nlono, self.nlati, self.nlato, bnin, bnout, bsin, bsout, bein, beout, bwin, bwout )
 
-    # Call the regridder function.
-    # ar is the input array.
-    # order is of the form "tzyx", "tyx", etc.
-    # missing is the missing data value, if any.
-    # mask is either 2-D or the same shape as ar.
-    # If returnTuple is true, return the tuple (outArray, outWeights) where
-    # outWeights is the fraction of each zone of the output grid which overlaps non-missing
-    # zones of the input grid; it has the same shape as the output array.
     def __call__(self, ar, missing=None, order=None, mask=None, returnTuple=0):
+        """
+        Call the regridder function.
+        @param ar is the input array.
+        @param order is of the form "tzyx", "tyx", etc.
+        @param missing is the missing data value, if any.
+        @param mask is either 2-D or the same shape as ar.
+        @param returnTuple If true, return the tuple (outArray, outWeights) where
+                    outWeights is the fraction of each zone of the output grid 
+                    which overlaps non-missing zones of the input grid; it has 
+                    the same shape as the output array.
+        """
 
         import cdms2
         from cdms2.avariable import AbstractVariable
@@ -237,7 +245,9 @@ class Regridder:
         outshape[rank-ilon-1] = self.nlono
         outar = numpy.zeros(tuple(outshape),numpy.float32)
 
-        # Perform the regridding. The return array has the same shape as the output array, and is the fraction of the zone which overlaps a non-masked zone of the input grid.
+        # Perform the regridding. The return array has the same shape 
+        # as the output array, and is the fraction of the zone which overlaps 
+        # a non-masked zone of the input grid.
         amskout = _regrid.rgdarea(ilon, ilat, itim1, itim2, ntim1, ntim2, nloni, self.nlono, nlati, self.nlato, flag2D, missing, self.londx, self.lonpt, self.wtlon, self.latdx, self.latpt, self.wtlat, inmask, ar, outar)
 
         # Correct the shape of output weights

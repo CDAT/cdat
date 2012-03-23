@@ -12,6 +12,7 @@ No guarantee is provided whatsoever. Use at your own risk.
 from re import search, sub
 from ctypes import c_double, c_float, c_int, \
     c_char_p, CDLL, byref, POINTER
+import ctypes
 import operator
 import sys
 import copy
@@ -103,7 +104,7 @@ def makeCurvilinear(coords):
             pass
         elif nd == 1:
             # it's an axis
-            coords[i] = getTensorProduct(coords[i], i, dims)
+            coords[i] = getTensorProduct(coords[i][:], i, dims)
         elif rank == 3 and nd == 2 and i > 0:
             # assume leading coordinate is an axis
             o1 = numpy.ones( (len(coords[0]),), coords[i].dtype )
@@ -341,7 +342,7 @@ class Regrid:
               n-dimensional for curvilinear grids. Rectilinear grids will
               be converted to curvilinear grids.
         """
-        ipshell()
+        #ipshell()
         self.regridid = c_int(-1)
         self.src_gridid = c_int(-1)
         self.dst_gridid = c_int(-1)
@@ -355,6 +356,8 @@ class Regrid:
         self.handleCut = False
         self.dst_Index = []
         self.diagnostics = diagnostics
+        self.weightsComputed = False
+        self.maskSet = False
 
         # Open the shaped library
         for sosuffix in '.dylib', '.dll', '.DLL', '.so', '.a':
@@ -368,32 +371,7 @@ class Regrid:
                 % (__FILE__, LIBCFDIR)
 
         # Number of space dimensions
-        # Test both source and destination for grid type here. 
-        # Then convert to ndarrays
-        def hasTime(grid):
-#        if isinstance(src_grid, cdms2.grid.TransientRectGrid):
-            struct = {'hasTime':0, 'timeIndex':0, 'timeName':""}
-            if cdms2.isGrid(grid):
-                print "Check the order of the grids. Make sure it is in lat-lon order.\n NOT lon-lat!!!!!!!!"
-                ipshell()
-                tmp_grid = grid.toCurveGrid()
-
-                grid = []
-                index = 0
-                
-                for axis in tmp_grid.getAxisList():
-                    if not axis.isTime():
-                        grid.append(axis[:])
-                    else:
-                        struct['hasTime'] = 1
-                        struct['timeIndex'] = index
-                        struct['timeName'] =  axis.id
-                    index += 1
-            return grid, struct
-
-        src_grid, self.srcStruct = hasTime(src_grid)
-        self.rank = len(src_grid) - self.srcStruct['hasTime']
-        dst_grid, self.dstStruct = hasTime(dst_grid)
+        self.rank = len(src_grid)
 
         if len(dst_grid) != self.rank:
             raise CDMSError, "ERROR in %s: len(dst_grid) = %d != %d" \
@@ -499,7 +477,7 @@ class Regrid:
                                              byref(coordid))
             catchError(status, sys._getframe().f_lineno)
             self.dst_coordids[i] = coordid
-
+         
         # Build grid objects
         status = self.lib.nccf_def_grid(self.src_coordids, "src_grid",
                                         byref(self.src_gridid))
@@ -565,6 +543,7 @@ class Regrid:
         status = self.lib.nccf_set_grid_validmask(self.src_gridid,
                                                   c_intmask)
         catchError(status, sys._getframe().f_lineno)
+        self.maskSet = True
 
     def computeWeights(self, nitermax=100, tolpos=1.e-2):
         """
@@ -578,8 +557,9 @@ class Regrid:
                                                       nitermax,
                                                       c_double(tolpos))
         catchError(status, sys._getframe().f_lineno)
+        self.weightsComputed = True
 
-    def apply(self, src_data_in, dst_data_in):
+    def apply(self, src_data_in, dst_data_in = None):
         """
         Apply interpolation
         @param src_data data on source grid
@@ -588,27 +568,10 @@ class Regrid:
               of src_data will not be interpoloted, the corresponding
               dst_data will not be touched.
         """
-        # If there is a time index deal with it.
-        def checkForTime(data):
-            if cdms2.isVariable(data):
-                index = 0
-                for axis in data.getAxisList():
-                    if axis.isTime:
-                        timeIndex = index
-                    index += 1
-                # Convert to ndarray
-                return timeIndex, data[:].filled(data.missing_value)
-            return None, data
-
-        timeIndex, src_data = checkForTime(src_data_in)
-        ti, dst_data = checkForTime(dst_data_in)
-
+        if not self.weightsComputed:
+            raise CDMSError, 'Weights must be set before applying the regrid'
         # extend src data if grid was made cyclic and or had a cut accounted for
-        if cdms2.isVariable(src_data):
-            src_tmpD = src_data[:].filled()
-        else:
-            src_tmpD = src_data[:]
-#        src_data = self._extend(src_tmpD)
+        src_data = self._extend(src_data_in)
 
         # Check
         if reduce(operator.iand, [src_data.shape[i] == self.src_dims[i] \
@@ -616,6 +579,11 @@ class Regrid:
             raise CDMSError, ("ERROR in %s: supplied src_data have wrong shape " \
                                   + "%s != %s") % (__FILE__, str(src_data.shape), \
                                      str(tuple([d for d in self.src_dims])))
+        if dst_data_in is None:
+            shape = tuple(self.dst_dims)
+            dst_data = numpy.zeros(shape, src_data.dtype)
+        else:
+            dst_data = dst_data_in
         if reduce(operator.iand, [dst_data.shape[i] == self.dst_dims[i] \
                                  for i in range(self.rank)]) == False:
             raise CDMSError, ("ERROR ins: supplied dst_data have wrong shape " \
@@ -628,33 +596,55 @@ class Regrid:
         save = 0
         standard_name = ""
         units = ""
+        time_dimname = ""
         if cdms2.isVariable(src_data_in): 
             if hasattr(src_data_in, 'standard_name'): 
                 standard_name = src_data_in.standard_name
             if hasattr(src_data_in, 'units'): 
                 units = src_data_in.units
-        time_dimname = self.srcStruct['timeName']
+            order = src_data_in.getOrder()
+            if 't' in order: 
+                t = src_data_in.getTime()
+                time_dimname = t.id
 
-        # Loop over time!
-        print 'srcdata.shape', src_data.shape
         status = self.lib.nccf_def_data(self.src_gridid, "src_data", \
                                         standard_name, units, time_dimname, \
                                         byref(src_dataid))
         catchError(status, sys._getframe().f_lineno)
+        def setFillValue(data):
+            if data.dtype == numpy.float64:
+                if data.fill_value is not None or \
+                   data.missing_value is not None:
+                        fill_value = c_double(data.fill_value)
+                else:
+                        fill_value = c_double(libCFConfig.NC_FILL_DOUBLE)
+            elif data.dtype == numpy.float32:
+                if data.fill_value is not None or \
+                   data.missing_value is not None:
+                        fill_value = c_float(data.fill_value)
+                else:
+                        fill_value = c_float(libCFConfig.NC_FILL_FLOAT)
+            elif data.dtype == numpy.int32:
+                if data.fill_value is not None or \
+                   data.missing_value is not None:
+                        fill_value = c_int(data.fill_value)
+                else:
+                        fill_value = c_int(libCFConfig.NC_FILL_INT)
+            return fill_value
         if src_data.dtype == numpy.float64:
-            fill_value = c_double(libCFConfig.NC_FILL_DOUBLE)
+            fill_value = setFillValue(src_data)
             status = self.lib.nccf_set_data_double(src_dataid,
                                      src_data.ctypes.data_as(POINTER(c_double)),
                                                    save, fill_value)
             catchError(status, sys._getframe().f_lineno)
         elif src_data.dtype == numpy.float32:
-            fill_value = c_float(libCFConfig.NC_FILL_FLOAT)
+            fill_value = setFillValue(src_data)
             status = self.lib.nccf_set_data_float(src_dataid,
                                      src_data.ctypes.data_as(POINTER(c_float)),
                                                   save, fill_value)
             catchError(status, sys._getframe().f_lineno)
         elif src_data.dtype == numpy.int32:
-            fill_value = c_int(libCFConfig.NC_FILL_INT)
+            fill_value = setFillValue(src_data)
             status = self.lib.nccf_set_data_int(src_dataid,
                                      src_data.ctypes.data_as(POINTER(c_int)),
                                                 save, fill_value)
@@ -662,7 +652,6 @@ class Regrid:
         else:
             raise CDMSError, "ERROR in %s: invalid src_data type = %s" \
                 % (__FILE__, src_data.dtype)
-
 
         status = self.lib.nccf_def_data(self.dst_gridid, "dst_data", \
                                         standard_name, units, time_dimname, \
@@ -691,25 +680,20 @@ class Regrid:
                 % (__FILE__, dst_data.dtype)
 
         # Now apply weights
-        print 'before apply', self.regridid.value, src_dataid.value, dst_dataid.value
-        print 'Figure out what is up with the data pointers'
-        print dst_data.ctypes.data_as(POINTER(c_float))
-        print src_data.ctypes.data_as(POINTER(c_float))
-        ipshell()
         status = self.lib.nccf_apply_regrid(self.regridid, src_dataid, dst_dataid)
-        print 'middle apply'
         catchError(status, sys._getframe().f_lineno)
-        print 'after  apply'
         
-        print 'before clean up'
         # Clean up
         status = self.lib.nccf_free_data(src_dataid)
         catchError(status, sys._getframe().f_lineno)
         status = self.lib.nccf_free_data(dst_dataid)
         catchError(status, sys._getframe().f_lineno)
-        print 'after  clean up'
 
-    def __call__(self, src_data, dst_data):
+        # Allow the regridder to be used in either mode
+        if dst_data_in is None: 
+            return dst_data
+
+    def __call__(self, src_data, dst_data = None):
         """
         Apply interpolation (synonymous to apply method)
         @param src_data data on source grid
@@ -718,7 +702,10 @@ class Regrid:
               of src_data will not be interpoloted, the corresponding
               dst_data will not be touched.
         """
-        self.apply(src_data, dst_data)
+        if dst_data is None:
+            return self.apply(src_data)
+        else:            
+            self.apply(src_data, dst_data)
 
 
     def getNumValid(self):
@@ -894,7 +881,6 @@ def testHandleCut():
               f.variables['bounds_lat'][:].data]
     coords = [alllat[:].data, alllon[:].data]
     dims = alllat.shape
-    from matplotlib import pylab
     newCoords, newDims = makeCoordsCyclic(coords, dims)
     newCoords, newDims = handleCoordsCut(newCoords, newDims, bounds)
 
