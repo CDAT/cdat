@@ -198,12 +198,10 @@ class Regridder:
                     else:
                         index = 1
                     if not cdms2.isGrid(self.outGrid[index]):
-                        #cdms2.coord.TransientAxis2D
-                        pass
-                        
-                    grid = cdms2.hgrid.TransientCurveGrid(self.outGrid[index], 
-                                                        self.outGrid[index + 1],
-                                                        id = 'CurveGrid')
+                        from cdms2.coord import TransientAxis2D as T2D
+                        lats = T2D(self.regridObj.dst_coords[index], id = 'lat')
+                        lons = T2D(self.regridObj.dst_coords[index+1], id = 'lon')
+                    grid = cdms2.hgrid.TransientCurveGrid(lats, lons, id = 'CurveGrid')
                 ipshell() 
                 if inData.rank() == 2: 
                     axisList = grid.getAxisList()
