@@ -398,11 +398,13 @@ set(JASPER_MD5 b5ae85050d034555790a3ccbc2522860)
 
 set(LIBCF_MAJOR 1)
 set(LIBCF_MINOR 0)
-set(LIBCF_PATCH beta9)
+set(LIBCF_PATCH beta10)
 set(LIBCF_VERSION ${LIBCF_MAJOR}.${LIBCF_MINOR}-${LIBCF_PATCH})
 set(LIBCF_URL http://uv-cdat.llnl.gov/cdat/resources)
 set(LIBCF_GZ libcf-${LIBCF_VERSION}.tar.gz)
-set(LIBCF_MD5 c14edc86f8f5a244860dc50559d8eaa4)
+#set(LIBCF_MD5 c14edc86f8f5a244860dc50559d8eaa4)  # beta9
+set(LIBCF_MD5 9152723b6ca7c979f17b433308ec3521)  # beta10
+
 
 set(ESMF_MAJOR 5)
 set(ESMF_MINOR 3)
