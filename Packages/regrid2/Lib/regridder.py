@@ -2,6 +2,7 @@ import numpy, copy
 import cdms2
 import regrid2
 from regrid2 import RegridError
+import re
 
 from IPython.Shell import IPShellEmbed
 ipshell = IPShellEmbed()
@@ -37,14 +38,13 @@ class Regridder:
         self.regridMethod = rgMeth
         self.outmask = None
         
-        if rgTool == 'regrid2':
+        if re.match('regrid', rgTool, re.I):
             self.regridObj = regrid2.Horizontal(ingrid, outGrid)
             self.regridTool = 'regrid2'
         elif rgTool == 'scrip':
             pass
-        elif rgTool == 'esmf' or rgTool == 'esmp':
+        elif re.match('esm', rgTool):
             self.regridTool = 'esmp'
-            pass
         elif rgTool == 'gsregrid' or rgTool == 'libcf':
             # Prep in and out grid for gsRegrid!
             if cdms2.isGrid(inGrid):
