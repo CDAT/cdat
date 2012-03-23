@@ -56,11 +56,6 @@ set(proj Python)
 #-----------------------------------------------------------------------------
 # Set PYTHON_INCLUDE and PYTHON_LIBRARY variables
 #
-
-#set(PYTHON_INCLUDE /usr/common/usg/python/2.7.1/include/python2.7)
-#set(PYTHON_LIBRARY /usr/common/usg/python/2.7.1/lib/libpython2.7.so)
-#set(PYTHON_LIBRARY_DIR /usr/common/usg/python/2.7.1/lib)
-#set(PYTHON_EXECUTABLE /usr/common/usg/python/2.7.1/bin/python)
 set(PYTHON_SITE_PACKAGES ${CMAKE_INSTALL_PREFIX}/lib/python${PYVER}/site-packages)
 
 if(APPLE)
@@ -71,10 +66,8 @@ if(APPLE)
   #set(PYTHON_EXECUTABLE ${CMAKE_INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}/bin/python)
   set(PYTHON_SITE_PACKAGES ${CMAKE_INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/${PYVER}/lib/python${PYVER}/site-packages)
 else()
-#  set(PYTHON_INCLUDE ${CMAKE_INSTALL_PREFIX}/include/python${PYVER})
-#  set(PYTHON_LIBRARY ${CMAKE_INSTALL_PREFIX}/lib/libpython${PYVER}.so)
-#  set(PYTHON_LIBRARY_DIR ${CMAKE_INSTALL_PREFIX}/lib)
-#  set(PYTHON_EXECUTABLE ${CMAKE_INSTALL_PREFIX}/bin/python)
+  set(PYTHON_INCLUDE ${CMAKE_INSTALL_PREFIX}/include/python${PYVER})
+  set(PYTHON_LIBRARY ${CMAKE_INSTALL_PREFIX}/lib/libpython${PYVER}.so)
 endif()
 
 
