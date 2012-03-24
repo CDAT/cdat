@@ -1,5 +1,3 @@
-
-
 set(ParaView_source "${CMAKE_CURRENT_BINARY_DIR}/build/ParaView")
 set(ParaView_binary "${CMAKE_CURRENT_BINARY_DIR}/build/ParaView-build")
 set(ParaView_install "${cdat_EXTERNALS}")

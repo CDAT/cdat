@@ -1035,6 +1035,9 @@ static int
 set_attribute(int fileid, int varid, PyObject *attributes,
 	      char *name, PyObject *value)
 {
+  if (value==Py_None) {
+    return 0;
+  }
   if (PyString_Check(value)) {
     int len = PyString_Size(value);
     char *string = PyString_AsString(value);
