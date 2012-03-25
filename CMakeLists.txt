@@ -486,11 +486,11 @@ option(CDAT_BUILD_PARAVIEW "Build ParaView" OFF)
 if(CDAT_BUILD_PARAVIEW)
   add_cdat_package(ParaView)
 endif()
-
-option(CDAT_BUILD_VISTRAILS "Build VisTrails" OFF)
-if(CDAT_BUILD_VISTRAILS)
-  add_cdat_package(VisTrails)
-endif()
+# C. Doutriaux Turning off Vistrails build from within CDAT
+#option(CDAT_BUILD_VISTRAILS "Build VisTrails" OFF)
+#if(CDAT_BUILD_VISTRAILS)
+#  add_cdat_package(VisTrails)
+#endif()
 
 #-----------------------------------------------------------------------------
 # Construct Include and Link variables
@@ -605,7 +605,8 @@ set(ParaView_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${HDF5_dep} ${png_dep} 
 set(CMOR_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${HDF5_dep} ${Cairo_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep} ${NetCDF_dep} ${zlib_dep} ${uuid_dep} ${udunits2_dep})
 set(CDAT_DEPENDENCIES ${wget_dep} ${CMOR_dep} ${Python_dep} ${PyQt_dep} ${NUMPY_dep} ${Pmw_dep} ${jasper_dep} ${g2clib_dep} ${FFMPEG_dep} ${Qt_dep} ${pixman_dep} ${tiff_dep})
 set(gui_support_DEPENDENCIES ${CDAT_dep})
-set(VisTrails_DEPENDENCIES ${ParaView_dep} ${CDAT_dep})
+# C.Doutriaux Turning off vistrails build from within CDAT not needed
+#set(VisTrails_DEPENDENCIES ${ParaView_dep} ${CDAT_dep})
 set(Matplotlib_DEPENDENCIES ${PyQt_dep} ${Cairo_dep} ${NUMPY_dep} )
 list(REMOVE_DUPLICATES external_packages)
 foreach(package ${external_packages})

@@ -41,12 +41,12 @@ elif test== "Luca-new":
 #datasetids = "%(project).%(product).%(institute).%(model).%(experiment).%(time_frequency).%(realm).%(MIPTable).%(ensemble)"
 fileids=None
 #mapping="%(datasetid).%(variable)"
-stringType= False
-mapping=None
+stringType = True
+mapping = None
 print gateway,mapping,datasetids,restPath
 myGateway = cdms2.esgfConnection(gateway,mapping=mapping,datasetids=datasetids,fileids=fileids,restPath=restPath)
-stringType=False
-datasets =  myGateway.searchDatasets(stringType=stringType,variable="hus")
+stringType = False
+datasets = myGateway.searchDatasets(stringType=stringType,variable="hus")
 print datasets
 #sys.exit()
 if stringType:
