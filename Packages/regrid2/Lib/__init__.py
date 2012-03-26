@@ -9,4 +9,8 @@ from horizontal import Horizontal
 from pressure import PressureRegridder
 from crossSection import CrossSectionRegridder
 from scrip import ConservativeRegridder, BilinearRegridder, BicubicRegridder, DistwgtRegridder, readRegridder
-from cdms2 import gsRegrid, esmf
+from cdms2 import gsRegrid
+try:
+    from cdms2 import esmf
+except:
+    pass
