@@ -14,6 +14,8 @@ endif()
 
 GET_FILENAME_COMPONENT(CMAKE_PATH_VAR ${CMAKE_COMMAND} PATH)
 
+GET_FILENAME_COMPONENT(VISIT_C_COMPILER ${CMAKE_C_COMPILER} NAME)
+GET_FILENAME_COMPONENT(VISIT_CXX_COMPILER ${CMAKE_CXX_COMPILER} NAME)
 
 MACRO(DETERMINE_VISIT_ARCHITECTURE ARCH)
     IF(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
@@ -68,8 +70,8 @@ ENDMACRO(DETERMINE_VISIT_ARCHITECTURE ARCH)
 SITE_NAME(VISIT_HOSTNAME)
 SET(TMP_STR1 "FILE(APPEND ${VisIt_source}/${VISIT_HOSTNAME}.cmake \"VISIT_OPTION_DEFAULT(VISIT_HDF5_DIR ${cdat_EXTERNALS})\\n\")\n")
 SET(TMP_STR2 "FILE(APPEND ${VisIt_source}/${VISIT_HOSTNAME}.cmake \"VISIT_OPTION_DEFAULT(VISIT_NETCDF_DIR ${cdat_EXTERNALS})\\n\")\n")
-SET(TMP_STR3 "FILE(APPEND ${VisIt_source}/${VISIT_HOSTNAME}.cmake \"VISIT_OPTION_DEFAULT(VISIT_C_COMPILER ${CMAKE_C_COMPILER} TYPE FILEPATH)\\n\")\n")
-SET(TMP_STR4 "FILE(APPEND ${VisIt_source}/${VISIT_HOSTNAME}.cmake \"VISIT_OPTION_DEFAULT(VISIT_CXX_COMPILER ${CMAKE_CXX_COMPILER} TYPE FILEPATH)\\n\")\n")
+#SET(TMP_STR3 "FILE(APPEND ${VisIt_source}/${VISIT_HOSTNAME}.cmake \"VISIT_OPTION_DEFAULT(VISIT_C_COMPILER ${CMAKE_C_COMPILER} TYPE FILEPATH)\\n\")\n")
+#SET(TMP_STR4 "FILE(APPEND ${VisIt_source}/${VISIT_HOSTNAME}.cmake \"VISIT_OPTION_DEFAULT(VISIT_CXX_COMPILER ${CMAKE_CXX_COMPILER} TYPE FILEPATH)\\n\")\n")
 SET(TMP_STR5 "FILE(APPEND ${VisIt_source}/${VISIT_HOSTNAME}.cmake \"VISIT_OPTION_DEFAULT(HAVE_PYQT ON TYPE BOOL)\\n\")\n")
 SET(TMP_STR6 "FILE(APPEND ${VisIt_source}/${VISIT_HOSTNAME}.cmake \"VISIT_OPTION_DEFAULT(VISIT_SIP_DIR ${CMAKE_INSTALL_PREFIX})\\n\")\n")
 
@@ -83,14 +85,15 @@ FILE(APPEND  ${CMAKE_CURRENT_BINARY_DIR}/visit.cmake "FILE(WRITE ${VisIt_source}
 FILE(APPEND  ${CMAKE_CURRENT_BINARY_DIR}/visit.cmake "FILE(APPEND ${VisIt_source}/CMakeLists.txt \"add_subdirectory(mangled_src)\\n\")\n")
 
 
-FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/visit_patch "cd ${VisIt_source} | echo yes | ${VisIt_source}/src/svn_bin/build_visit --gpl --console --R --stdout --thirdparty-path ${VisIt_install}/thirdparty --vtk --mesa --cmake-bin-dir ${CMAKE_PATH_VAR} --alt-python-dir ${CMAKE_INSTALL_PREFIX} --alt-qt-dir ${QT_ROOT} --mangle-libraries --makeflags \"-j4\" --no-visit\n")
+FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/visit_patch "cd ${VisIt_source} | echo yes | ${VisIt_source}/src/svn_bin/build_visit --gpl --console --cc ${VISIT_C_COMPILER} --cxx ${VISIT_CXX_COMPILER} --R --stdout --thirdparty-path ${VisIt_install}/thirdparty --vtk --mesa --cmake-bin-dir ${CMAKE_PATH_VAR} --alt-python-dir ${CMAKE_INSTALL_PREFIX} --alt-qt-dir ${QT_ROOT} --mangle-libraries --makeflags \"-j4\" --no-visit\n")
 FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/visit_patch "${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/visit.cmake\n")
 FILE(APPEND  ${CMAKE_CURRENT_BINARY_DIR}/visit_patch "${CMAKE_COMMAND} -E  copy ${VisIt_source}/${VISIT_HOSTNAME}.cmake ${VisIt_source}/mangled_src/config-site/${VISIT_HOSTNAME}.cmake\n")
-FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/visit_patch "cd ${VisIt_source} | echo yes | ${VisIt_source}/src/svn_bin/build_visit --console --gpl --R --stdout --thirdparty-path ${VisIt_install}/thirdparty --vtk --mesa --cmake-bin-dir ${CMAKE_PATH_VAR} --alt-python-dir ${CMAKE_INSTALL_PREFIX} --alt-qt-dir ${QT_ROOT} --mangle-libraries --makeflags \"-j4\" --no-hostconf\n")
+FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/visit_patch "cd ${VisIt_source} | echo yes | ${VisIt_source}/src/svn_bin/build_visit --console --cc ${VISIT_C_COMPILER} --cxx ${VISIT_CXX_COMPILER} --gpl --R --stdout --thirdparty-path ${VisIt_install}/thirdparty --vtk --mesa --cmake-bin-dir ${CMAKE_PATH_VAR} --alt-python-dir ${CMAKE_INSTALL_PREFIX} --alt-qt-dir ${QT_ROOT} --mangle-libraries --makeflags \"-j4\" --no-hostconf\n")
 
 #determine visit architecture..
 DETERMINE_VISIT_ARCHITECTURE(VISIT_INSTALL_PLATFORM)
 FILE(APPEND  ${CMAKE_CURRENT_BINARY_DIR}/visit_patch "${CMAKE_COMMAND} -E create_symlink ${VisIt_install}/${VISIT_VERSION}/${VISIT_INSTALL_PLATFORM}/lib ${VisIt_install}/lib/VisIt-${VISIT_VERSION}\n")
+FILE(APPEND  ${CMAKE_CURRENT_BINARY_DIR}/visit_patch "${CMAKE_COMMAND} -E create_symlink ${VisIt_install}/${VISIT_VERSION}/${VISIT_INSTALL_PLATFORM}/plugins ${VisIt_install}/lib/VisIt-${VISIT_VERSION}-plugins\n")
 
 #don't build visit yet..
 #FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/visit_patch "cd ${VisIt_source} | echo yes | ${VisIt_source}/src/svn_bin/build_visit --console --stdout --thirdparty-path ${VisIt_install}/thirdparty --vtk --mesa --cmake-bin-dir ${CMAKE_PATH_VAR} --alt-python-dir ${CMAKE_INSTALL_PREFIX} --alt-qt-dir ${QT_ROOT} --mangle-libraries --makeflags \"-j2\" --no-visit\n")
