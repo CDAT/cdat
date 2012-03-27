@@ -90,19 +90,12 @@ FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/visit_patch "${CMAKE_COMMAND} -P ${CMAKE
 FILE(APPEND  ${CMAKE_CURRENT_BINARY_DIR}/visit_patch "${CMAKE_COMMAND} -E  copy ${VisIt_source}/${VISIT_HOSTNAME}.cmake ${VisIt_source}/mangled_src/config-site/${VISIT_HOSTNAME}.cmake\n")
 FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/visit_patch "cd ${VisIt_source} | echo yes | ${VisIt_source}/src/svn_bin/build_visit --console --cc ${VISIT_C_COMPILER} --cxx ${VISIT_CXX_COMPILER} --gpl --R --stdout --thirdparty-path ${VisIt_install}/thirdparty --vtk --mesa --cmake-bin-dir ${CMAKE_PATH_VAR} --alt-python-dir ${CMAKE_INSTALL_PREFIX} --alt-qt-dir ${QT_ROOT} --mangle-libraries --makeflags \"-j4\" --no-hostconf\n")
 
+IF(NOT APPLE AND NOT WIN32) #UNIX only, make symlinks..
 #determine visit architecture..
 DETERMINE_VISIT_ARCHITECTURE(VISIT_INSTALL_PLATFORM)
 FILE(APPEND  ${CMAKE_CURRENT_BINARY_DIR}/visit_patch "${CMAKE_COMMAND} -E create_symlink ${VisIt_install}/${VISIT_VERSION}/${VISIT_INSTALL_PLATFORM}/lib ${VisIt_install}/lib/VisIt-${VISIT_VERSION}\n")
 FILE(APPEND  ${CMAKE_CURRENT_BINARY_DIR}/visit_patch "${CMAKE_COMMAND} -E create_symlink ${VisIt_install}/${VISIT_VERSION}/${VISIT_INSTALL_PLATFORM}/plugins ${VisIt_install}/lib/VisIt-${VISIT_VERSION}-plugins\n")
-
-#don't build visit yet..
-#FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/visit_patch "cd ${VisIt_source} | echo yes | ${VisIt_source}/src/svn_bin/build_visit --console --stdout --thirdparty-path ${VisIt_install}/thirdparty --vtk --mesa --cmake-bin-dir ${CMAKE_PATH_VAR} --alt-python-dir ${CMAKE_INSTALL_PREFIX} --alt-qt-dir ${QT_ROOT} --mangle-libraries --makeflags \"-j2\" --no-visit\n")
-#FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/visit_patch "${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/visit_patch_1\n")
-#UPDATE_COMMAND puts the host filename in VisIt_source directory..
-#FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/visit_patch "${CMAKE_COMMAND} -E  copy ${VisIt_source}/${VISIT_HOSTNAME}.cmake ${VisIt_source}/mangled_src/config-site/${VISIT_HOSTNAME}.cmake\n")
-
-#build visit now..
-#FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/visit_patch "cd ${VisIt_source} | echo yes | ${VisIt_source}/src/svn_bin/build_visit --console --stdout --thirdparty-path ${VisIt_install}/thirdparty --vtk --mesa --cmake-bin-dir ${CMAKE_PATH_VAR} --alt-python-dir ${CMAKE_INSTALL_PREFIX} --alt-qt-dir ${QT_ROOT} --mangle-libraries --makeflags \"-j2\" --no-hostconf\n")
+ENDIF(NOT APPLE AND NOT WIN32)
 
 #build
 ExternalProject_Add(VisIt
