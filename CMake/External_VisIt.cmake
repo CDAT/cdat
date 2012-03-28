@@ -92,9 +92,9 @@ FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/visit_patch "cd ${VisIt_source} | echo y
 
 IF(NOT APPLE AND NOT WIN32) #UNIX only, make symlinks..
 #determine visit architecture..
-DETERMINE_VISIT_ARCHITECTURE(VISIT_INSTALL_PLATFORM)
-FILE(APPEND  ${CMAKE_CURRENT_BINARY_DIR}/visit_patch "${CMAKE_COMMAND} -E create_symlink ${VisIt_install}/${VISIT_VERSION}/${VISIT_INSTALL_PLATFORM}/lib ${VisIt_install}/lib/VisIt-${VISIT_VERSION}\n")
-FILE(APPEND  ${CMAKE_CURRENT_BINARY_DIR}/visit_patch "${CMAKE_COMMAND} -E create_symlink ${VisIt_install}/${VISIT_VERSION}/${VISIT_INSTALL_PLATFORM}/plugins ${VisIt_install}/lib/VisIt-${VISIT_VERSION}-plugins\n")
+#DETERMINE_VISIT_ARCHITECTURE(VISIT_INSTALL_PLATFORM)
+#FILE(APPEND  ${CMAKE_CURRENT_BINARY_DIR}/visit_patch "${CMAKE_COMMAND} -E create_symlink ${VisIt_install}/${VISIT_VERSION}/${VISIT_INSTALL_PLATFORM}/lib ${VisIt_install}/lib/VisIt-${VISIT_VERSION}\n")
+#FILE(APPEND  ${CMAKE_CURRENT_BINARY_DIR}/visit_patch "${CMAKE_COMMAND} -E create_symlink ${VisIt_install}/${VISIT_VERSION}/${VISIT_INSTALL_PLATFORM}/plugins ${VisIt_install}/lib/VisIt-${VISIT_VERSION}-plugins\n")
 ENDIF(NOT APPLE AND NOT WIN32)
 
 #build
