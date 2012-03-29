@@ -19696,9 +19696,9 @@ PyVCS_printer(PyVCScanvas_Object *self, PyObject *args)
 	}
 
 	/* Get the correct UNIX printer command for ATT or BSD */
-        strcpy(printer_type_str, " | lp -d");
+        strcpy(printer_type_str, " | lp -o fit-to-page -d");
         if ((printer_type=(char *)getenv((const char *)"PRINTER"))!=NULL)
-           strcpy(printer_type_str, " | lpr -P");
+           strcpy(printer_type_str, " | lpr -o fit-to-page -P");
 
         /* Set the orientation to portrait. Landscape is the default setting.
          * If orientation is "p" or "P", the set to portrait. Anything else
