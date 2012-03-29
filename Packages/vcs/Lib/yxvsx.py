@@ -508,12 +508,12 @@ class GYx(object,AutoAPI.AutoAPI):
         self.g_name='GYx'
         self._xaxisconvert=getGYxmember(self, 'xaxisconvert')
 #        self._['yaxisconvert=getGYxmember(self, 'yaxisconvert')
-        self._line=None
-        self._linecolor=None
-        self._linewidth=None
-        self._marker=None
-        self._markercolor=None
-        self._markersize=None
+        self._line='solid'
+        self._linecolor=241
+        self._linewidth=1
+        self._marker='dot'
+        self._markercolor=241
+        self._markersize=1
         self._datawc_timeunits=getmember(self, 'datawc_timeunits')
         self._datawc_calendar=getmember(self, 'datawc_calendar')
         #                                                         #

@@ -474,9 +474,9 @@ class GSp(object,AutoAPI.AutoAPI):
         self.g_name='GSp'
         self._yaxisconvert=getmember(self, 'yaxisconvert')
         self._xaxisconvert=getmember(self, 'xaxisconvert')
-        self._marker=None
-        self._markercolor=None
-        self._markersize=None
+        self._marker='dot'
+        self._markercolor=241
+        self._markersize=1
         self._datawc_timeunits=getmember(self, 'datawc_timeunits')
         self._datawc_calendar=getmember(self, 'datawc_calendar')
         self.info=AutoAPI.Info(self)
