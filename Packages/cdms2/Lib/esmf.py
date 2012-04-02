@@ -122,10 +122,7 @@ class EsmfStructField:
     Create a structured field object
     """
     def __init__(self, esmfGrid, name, data, 
-                 meshloc = ESMP.ESMP_MESHLOC_NODE, 
-                 gridToFieldMapN = np.array([1]), 
-                 ungriddedLBoundN = np.array([], np.int32), 
-                 ungriddedUBoundN = np.array([], np.int32)):
+                 meshloc = ESMP.ESMP_MESHLOC_NODE):
         """
         Creator for ESMF Field
         @param esmfGrid instance of an ESMP_Mesh
@@ -133,14 +130,6 @@ class EsmfStructField:
         @param data numpy array of data
         @param meshloc ESMP_MESHLOC_NODE for Bilinear interpolation
                        ESMP_MESHLOC_ELEMENT for Conservative interpolation
-        @param gridToFieldMapN numpy array with a number of elements equal to 
-                               dim count. See the ESMF documentation for more 
-                               details.
-        @param ungriddedLBoundN numpy array (default is empty). See the ESMF 
-                               documentation
-        @param ungriddedUBoundN numpy array - (default is empty). See the ESMF 
-                               documentation
-
         """
         numpyType2EsmfType = {
             'float64': ESMP.ESMP_TYPEKIND_R8,
@@ -150,10 +139,7 @@ class EsmfStructField:
         etype = numpyType2EsmfType[str(data.dtype)]
         self.field = ESMP.ESMP_FieldCreate(esmfGrid.grid, name,
                         meshloc = meshloc,
-                        typekind = etype,
-                        gridToFieldMapN = gridToFieldMapN, 
-                        ungriddedLBoundN = ungriddedLBoundN, 
-                        ungriddedUBoundN = ungriddedUBoundN)
+                        typekind = etype)
         # Copy the data
         ptr = self.getPointer()
         ptr[:] = data.flat
