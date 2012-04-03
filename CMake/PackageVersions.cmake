@@ -412,7 +412,7 @@ set(ESMF_PATCH 0_beta_snapshot_37)
 set(ESMF_VERSION ${ESMF_MAJOR}_${ESMF_MINOR}_${ESMF_PATCH})
 set(ESMF_URL http://uv-cdat.llnl.gov/cdat/resources)
 set(ESMF_GZ ESMF-${ESMF_VERSION}.tar.gz)
-set(ESMF_MD5 84ba6f8cce268d45c09c0147cd9060f5)
+set(ESMF_MD5 3a8d3e36cb26fea4c23fba5cac260ea2)
 
 set(ESMP_MAJOR 5)
 set(ESMP_MINOR 3)
