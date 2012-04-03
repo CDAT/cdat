@@ -86,10 +86,10 @@ FILE(APPEND  ${CMAKE_CURRENT_BINARY_DIR}/visit.cmake "FILE(WRITE ${VisIt_source}
 FILE(APPEND  ${CMAKE_CURRENT_BINARY_DIR}/visit.cmake "FILE(APPEND ${VisIt_source}/CMakeLists.txt \"add_subdirectory(mangled_src)\\n\")\n")
 
 
-FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/visit_patch "cd ${VisIt_source} | echo yes | ${VisIt_source}/src/svn_bin/build_visit --gpl --console --cc ${VISIT_C_COMPILER} --cxx ${VISIT_CXX_COMPILER} --R --stdout --thirdparty-path ${VisIt_install}/thirdparty --vtk --mesa --cmake-bin-dir '${CMAKE_PATH_VAR}' --alt-python-dir '${CMAKE_INSTALL_PREFIX}' --alt-qt-dir '${QT_ROOT}' --mangle-libraries --makeflags \"-j4\" --no-visit\n")
+FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/visit_patch "cd ${VisIt_source} | echo yes | ${VisIt_source}/src/svn_bin/build_visit --gpl --console --cc ${VISIT_C_COMPILER} --cxx ${VISIT_CXX_COMPILER} --R --stdout --thirdparty-path ${VisIt_install}/thirdparty --vtk --mesa --cmake-bin-dir '${CMAKE_PATH_VAR}' --alt-python-dir '${CMAKE_INSTALL_PREFIX}' --alt-qt-dir '${QT_ROOT}' --mangle-libraries --makeflags \"-j16\" --no-visit\n")
 FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/visit_patch "'${CMAKE_COMMAND}' -P ${CMAKE_CURRENT_BINARY_DIR}/visit.cmake\n")
 FILE(APPEND  ${CMAKE_CURRENT_BINARY_DIR}/visit_patch "'${CMAKE_COMMAND}' -E  copy ${VisIt_source}/${VISIT_HOSTNAME}.cmake ${VisIt_source}/mangled_src/config-site/${VISIT_HOSTNAME}.cmake\n")
-FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/visit_patch "cd ${VisIt_source} | echo yes | ${VisIt_source}/src/svn_bin/build_visit --console --cc ${VISIT_C_COMPILER} --cxx ${VISIT_CXX_COMPILER} --gpl --R --stdout --thirdparty-path ${VisIt_install}/thirdparty --vtk --mesa --cmake-bin-dir '${CMAKE_PATH_VAR}' --alt-python-dir '${CMAKE_INSTALL_PREFIX}' --alt-qt-dir '${QT_ROOT}' --mangle-libraries --makeflags \"-j4\" --no-hostconf\n")
+FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/visit_patch "cd ${VisIt_source} | echo yes | ${VisIt_source}/src/svn_bin/build_visit --console --cc ${VISIT_C_COMPILER} --cxx ${VISIT_CXX_COMPILER} --gpl --R --stdout --thirdparty-path ${VisIt_install}/thirdparty --vtk --mesa --cmake-bin-dir '${CMAKE_PATH_VAR}' --alt-python-dir '${CMAKE_INSTALL_PREFIX}' --alt-qt-dir '${QT_ROOT}' --mangle-libraries --makeflags \"-j16\" --no-hostconf\n")
 
 #build
 ExternalProject_Add(VisIt
@@ -115,12 +115,12 @@ endif()
 #copy hdf5, netcdf
 #move pyqt_pyqtviewer.so into python site-packages
 ExternalProject_Add_Step(VisIt InstallVisItLibSymLink
-  COMMAND '${CMAKE_COMMAND}' -E create_symlink ${VisIt_install}/${VISIT_VERSION}/${VISIT_INSTALL_PLATFORM}/lib ${CMAKE_INSTALL_PREFIX}/lib/VisIt-${VISIT_VERSION}
+  COMMAND ${CMAKE_COMMAND} -E create_symlink ${VisIt_install}/${VISIT_VERSION}/${VISIT_INSTALL_PLATFORM}/lib ${CMAKE_INSTALL_PREFIX}/lib/VisIt-${VISIT_VERSION}
   DEPENDEES install
   WORKING_DIRECTORY ${cdat_CMAKE_BINARY_DIR})
 
 ExternalProject_Add_Step(VisIt InstallVisItPluginSymLink
-  COMMAND '${CMAKE_COMMAND}' -E create_symlink ${VisIt_install}/${VISIT_VERSION}/${VISIT_INSTALL_PLATFORM}/plugins ${CMAKE_INSTALL_PREFIX}/lib/VisIt-${VISIT_VERSION}-plugins
+  COMMAND ${CMAKE_COMMAND} -E create_symlink ${VisIt_install}/${VISIT_VERSION}/${VISIT_INSTALL_PLATFORM}/plugins ${CMAKE_INSTALL_PREFIX}/lib/VisIt-${VISIT_VERSION}-plugins
   DEPENDEES install
   WORKING_DIRECTORY ${cdat_CMAKE_BINARY_DIR})
 
@@ -139,18 +139,18 @@ FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/visit_install_patch "file(COPY \${curl_f
 
 
 ExternalProject_Add_Step(VisIt InstallVisItExternalLibraries
-  COMMAND '${CMAKE_COMMAND}' -P ${CMAKE_CURRENT_BINARY_DIR}/visit_install_patch
+  COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/visit_install_patch
   DEPENDEES InstallVisItLibSymLink
   WORKING_DIRECTORY ${cdat_CMAKE_BINARY_DIR}
   )
 
 ExternalProject_Add_Step(VisIt InstallVisItPyQtViewer
-  COMMAND '${CMAKE_COMMAND}' -E copy ${VisIt_install}/${VISIT_VERSION}/${VISIT_INSTALL_PLATFORM}/lib/pyqt_pyqtviewer.so ${PYTHON_SITE_PACKAGES}
+  COMMAND ${CMAKE_COMMAND} -E copy ${VisIt_install}/${VISIT_VERSION}/${VISIT_INSTALL_PLATFORM}/lib/pyqt_pyqtviewer.so ${PYTHON_SITE_PACKAGES}
   DEPENDEES install
   WORKING_DIRECTORY ${cdat_CMAKE_BINARY_DIR})
 
 ExternalProject_Add_Step(VisIt InstallVisItModule
-  COMMAND '${CMAKE_COMMAND}' -E copy ${VisIt_install}/${VISIT_VERSION}/${VISIT_INSTALL_PLATFORM}/lib/visit.so ${PYTHON_SITE_PACKAGES}
+  COMMAND ${CMAKE_COMMAND} -E copy ${VisIt_install}/${VISIT_VERSION}/${VISIT_INSTALL_PLATFORM}/lib/visit.so ${PYTHON_SITE_PACKAGES}
   DEPENDEES install
   WORKING_DIRECTORY ${cdat_CMAKE_BINARY_DIR})
 
