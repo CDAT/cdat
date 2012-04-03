@@ -86,10 +86,10 @@ FILE(APPEND  ${CMAKE_CURRENT_BINARY_DIR}/visit.cmake "FILE(WRITE ${VisIt_source}
 FILE(APPEND  ${CMAKE_CURRENT_BINARY_DIR}/visit.cmake "FILE(APPEND ${VisIt_source}/CMakeLists.txt \"add_subdirectory(mangled_src)\\n\")\n")
 
 
-FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/visit_patch "cd ${VisIt_source} | echo yes | ${VisIt_source}/src/svn_bin/build_visit --gpl --console --cc ${VISIT_C_COMPILER} --cxx ${VISIT_CXX_COMPILER} --R --stdout --thirdparty-path ${VisIt_install}/thirdparty --vtk --mesa --cmake-bin-dir '${CMAKE_PATH_VAR}' --alt-python-dir ${CMAKE_INSTALL_PREFIX} --alt-qt-dir ${QT_ROOT} --mangle-libraries --makeflags \"-j4\" --no-visit\n")
+FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/visit_patch "cd ${VisIt_source} | echo yes | ${VisIt_source}/src/svn_bin/build_visit --gpl --console --cc ${VISIT_C_COMPILER} --cxx ${VISIT_CXX_COMPILER} --R --stdout --thirdparty-path ${VisIt_install}/thirdparty --vtk --mesa --cmake-bin-dir '${CMAKE_PATH_VAR}' --alt-python-dir '${CMAKE_INSTALL_PREFIX}' --alt-qt-dir '${QT_ROOT}' --mangle-libraries --makeflags \"-j4\" --no-visit\n")
 FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/visit_patch "'${CMAKE_COMMAND}' -P ${CMAKE_CURRENT_BINARY_DIR}/visit.cmake\n")
 FILE(APPEND  ${CMAKE_CURRENT_BINARY_DIR}/visit_patch "'${CMAKE_COMMAND}' -E  copy ${VisIt_source}/${VISIT_HOSTNAME}.cmake ${VisIt_source}/mangled_src/config-site/${VISIT_HOSTNAME}.cmake\n")
-FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/visit_patch "cd ${VisIt_source} | echo yes | ${VisIt_source}/src/svn_bin/build_visit --console --cc ${VISIT_C_COMPILER} --cxx ${VISIT_CXX_COMPILER} --gpl --R --stdout --thirdparty-path ${VisIt_install}/thirdparty --vtk --mesa --cmake-bin-dir '${CMAKE_PATH_VAR}' --alt-python-dir ${CMAKE_INSTALL_PREFIX} --alt-qt-dir ${QT_ROOT} --mangle-libraries --makeflags \"-j4\" --no-hostconf\n")
+FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/visit_patch "cd ${VisIt_source} | echo yes | ${VisIt_source}/src/svn_bin/build_visit --console --cc ${VISIT_C_COMPILER} --cxx ${VISIT_CXX_COMPILER} --gpl --R --stdout --thirdparty-path ${VisIt_install}/thirdparty --vtk --mesa --cmake-bin-dir '${CMAKE_PATH_VAR}' --alt-python-dir '${CMAKE_INSTALL_PREFIX}' --alt-qt-dir '${QT_ROOT}' --mangle-libraries --makeflags \"-j4\" --no-hostconf\n")
 
 #build
 ExternalProject_Add(VisIt
