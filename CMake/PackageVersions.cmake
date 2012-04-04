@@ -408,19 +408,19 @@ set(LIBCF_MD5 9152723b6ca7c979f17b433308ec3521)  # beta10
 
 set(ESMF_MAJOR 5)
 set(ESMF_MINOR 3)
-set(ESMF_PATCH 0_beta_snapshot_31)
+set(ESMF_PATCH 0_beta_snapshot_37)
 set(ESMF_VERSION ${ESMF_MAJOR}_${ESMF_MINOR}_${ESMF_PATCH})
 set(ESMF_URL http://uv-cdat.llnl.gov/cdat/resources)
 set(ESMF_GZ ESMF-${ESMF_VERSION}.tar.gz)
-set(ESMF_MD5 5a82493f092696a417f12a1e64f995ef)
+set(ESMF_MD5 3a8d3e36cb26fea4c23fba5cac260ea2)
 
 set(ESMP_MAJOR 5)
 set(ESMP_MINOR 3)
-set(ESMP_PATCH 0_beta_snapshot_31)
+set(ESMP_PATCH 0_beta_snapshot_37)
 set(ESMP_VERSION ${ESMP_MAJOR}_${ESMP_MINOR}_${ESMP_PATCH})
 set(ESMP_URL http://uv-cdat.llnl.gov/cdat/resources)
 set(ESMP_GZ ESMP-${ESMP_VERSION}.tar.gz)
-set(ESMP_MD5 366b9828696db990ae356b71cecb33a0)
+set(ESMP_MD5 aa75ffcab13ae9c75dd3f357e5182008)
 
 set(CYTHON_MAJOR 0)
 set(CYTHON_MINOR 15)
