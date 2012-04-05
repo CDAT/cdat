@@ -342,7 +342,7 @@ set(VISIT_VERSION ${VISIT_MAJOR}.${VISIT_MINOR}.${VISIT_PATCH})
 #set(VISIT_URL http://portal.nersc.gov/svn/visit/trunk/releases/${VISIT_VERSION})
 set(VISIT_URL http://vis.lbl.gov/~visit)
 set(VISIT_GZ visit${VISIT_VERSION}.tar.gz)
-#set(VISIT_MD5 3d5249d88a106f27b5249fe78b310e49)
+set(VISIT_MD5 475b053e162dcc9366049b1aaa022a6e)
 
 set(SIP_MAJOR 4)
 set(SIP_MINOR 12)
