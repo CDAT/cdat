@@ -383,7 +383,7 @@ if(NOT APPLE)
   endif()
   set(CDAT_OS_XTRA_PATH  "")
 else()
-  set(CDAT_OS_XTRA_PATH  ${CMAKE_INSTALL_PREFIX}/Python.framework/Versions/${PYVER}/bin)
+  set(CDAT_OS_XTRA_PATH  ${CMAKE_INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/${PYVER}/bin)
 endif()
 
 add_cdat_package(freetype)
