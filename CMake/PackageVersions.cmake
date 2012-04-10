@@ -180,13 +180,6 @@ set(SETUPTOOLS_URL http://uv-cdat.llnl.gov/cdat/resources)
 set(SETUPTOOLS_GZ setuptools-${SETUPTOOLS_MAJOR_SRC}.${SETUPTOOLS_MINOR_SRC}.tar.gz)
 set(SETUPTOOLS_MD5 7df2a529a074f613b509fb44feefe74e)
 
-set(MATPLOTLIB_MAJOR 0)
-set(MATPLOTLIB_MINOR 98)
-set(MATPLOTLIB_MAJOR_SRC 0)
-set(MATPLOTLIB_MINOR_SRC 98)
-set(MATPLOTLIB_PATCH_SRC 3)
-set(MATPLOTLIB_MD5 d922a88782b64441d06547632fd85744)
-
 set(PYOPENGL_MAJOR 3)
 set(PYOPENGL_MINOR 0)
 set(PYOPENGL_PATCH 0)
@@ -466,3 +459,18 @@ set( MATPLOTLIB_VERSION ${MATPLOTLIB_MAJOR}.${MATPLOTLIB_MINOR}.${MATPLOTLIB_PAT
 set( MATPLOTLIB_URL http://uvcdat.llnl.gov/cdat/resources )
 set( MATPLOTLIB_GZ matplotlib-${MATPLOTLIB_VERSION}.tar.gz )
 set( MATPLOTLIB_MD5 57a627f30b3b27821f808659889514c2 )
+
+set( basemap_MAJOR 1  )
+set( basemap_MINOR 0  )
+set( basemap_PATCH 2  )
+set(basemap_URL http://uvcdat.llnl.gov/cdat/resources)
+set(basemap_GZ basemap-${basemap_MAJOR}.${basemap_MINOR}.${basemap_PATCH}.tar.gz)
+set(basemap_MD5 f30b2c0cd6afa426a107cc96bb468fa4)
+
+set( GEOS_MAJOR 3  )
+set( GEOS_MINOR 3  )
+set( GEOS_PATCH 3  )
+set(GEOS_URL http://uvcdat.llnl.gov/cdat/resources)
+set(GEOS_BZ2 geos-${GEOS_MAJOR}.${GEOS_MINOR}.${GEOS_PATCH}.tar.bz2)
+set(GEOS_MD5 8454e653d7ecca475153cc88fd1daa26)
+
