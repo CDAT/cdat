@@ -11,6 +11,7 @@ from crossSection import CrossSectionRegridder
 from scrip import ConservativeRegridder, BilinearRegridder, BicubicRegridder, DistwgtRegridder, readRegridder
 from cdms2 import gsRegrid
 try:
-    from cdms2 import esmf
+    from regrid2 import esmf
+    import ESMP
 except:
     pass

@@ -4,14 +4,49 @@ import regrid2
 from regrid2 import RegridError
 import re
 
+esmfImported = False
+try:
+    from regrid2 import esmf
+    import ESMP
+    esmfImported = True
+except:
+    pass
+
 def setMaskDtype(mask):
     if mask.dtype != numpy.int32:
         mask = numpy.array(mask, numpy.int32)
     return mask
 
+def _makeGridList(grid):
+    if cdms2.isGrid(grid):
+        index = 0
+        hasTime = False
+        for axis in grid.getAxisList():
+            if axis == 'time':
+                timindex = index
+                hasTime = True
+        rank = len(grid.getAxisList())
+        if rank == 2:
+            retGrid = [grid.getLatitude(), grid.getLongitude()]
+        elif rank == 3:
+            if hasTime:
+                retGrid = [grid.getLatitude(), grid.getLongitude()]
+            else:
+                retGrid = [grid.getLevel(), 
+                           grid.getLatitude(), 
+                           grid.getLongitude()]
+            
+    elif isinstance(grid, list):
+        rank = len(grid)
+        retGrid = grid
+    else:
+        raise RegridError, 'Grid must be a list of coordinates or a cdms2 grid'
+    return retGrid, rank
+
+
 class Regridder:
     def __init__(self, inGrid, outGrid, mask = None, regridTool = "gsRegrid",
-                 regridMethod = '', **args):
+                 regridMethod = "bilinear", **args):
         """
         Constructor for regridding object. Currently just uses a 2-D object
         @param ingrid cdms2, ndarray variable
@@ -29,6 +64,10 @@ class Regridder:
         @param **args Optional keyword arguments for each type of regridder
                 gsRegrid accepts nitermax and tolpos for computing the weights
         """
+        if regridTool is None:
+            regridTool = 'gsregrid'
+        if regridMethod is None:
+            regridMethod = 'bilinear'
         rgTool = regridTool.lower()
         rgMeth = regridMethod.lower()
         self.regridTool = rgTool
@@ -41,37 +80,54 @@ class Regridder:
         elif rgTool == 'scrip':
             pass
         elif re.match('esm', rgTool):
+            self.esmfImported = esmfImported
+            if not self.esmfImported:
+                string = "ESMP is not installed or is unable to be imported"
+                raise RegridError, string
             self.regridTool = 'esmp'
+
+            # Set the regridding method - Bilinear / Conservative
+            if regridMethod is None or regridMethod.lower() == 'bilinear':
+                self.regridMethod = ESMP.ESMP_REGRIDMETHOD_BILINEAR
+            else:
+                self.regridMethod = ESMP.ESMP_REGRIDMETHOD_CONSERVE
+            if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
+                message = \
+                """\n
+                Conservative regridding not implemented in regrid2
+                import ESMP
+                import esmf
+                Then create the coordinates from the bounds for both the 
+                source and destination grids.
+                """
+                raise RegridError, message
+            
+
+            if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_BILINEAR:
+                self.location = ESMP.ESMP_MESHLOC_NODE
+            elif self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
+                self.location = ESMP.ESMP_MESHLOC_ELEMENT
+
+            print self.regridMethod, self.location
+
+            self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE
+            for arg in args:
+                if re.search('unmappedaction', args[arg]):
+                    unMappedAction = args[arg]
+                    if re.search('error', unMappedAction):
+                        self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_ERROR
+
+            # Initialize the ESMP
+            esmf.initialize()
+            srcGrid, self.srcRank = _makeGridList(inGrid)
+            dstGrid, self.dstRank = _makeGridList(outGrid)
+            self.srcMesh = esmf.EsmfStructMesh(srcGrid)
+            self.dstMesh = esmf.EsmfStructMesh(dstGrid)
+
         elif rgTool == 'gsregrid' or rgTool == 'libcf':
             # Prep in and out grid for gsRegrid!
-            def makeGridList(grid):
-                if cdms2.isGrid(grid):
-                    index = 0
-                    hasTime = False
-                    for axis in grid.getAxisList():
-                        if axis == 'time':
-                            timindex = index
-                            hasTime = True
-                    rank = len(grid.getAxisList())
-                    if rank == 2:
-                        retGrid = [grid.getLatitude(), grid.getLongitude()]
-                    elif rank == 3:
-                        if hasTime:
-                            retGrid = [grid.getLatitude(), grid.getLongitude()]
-                        else:
-                            retGrid = [grid.getLevel(), 
-                                       grid.getLatitude(), 
-                                       grid.getLongitude()]
-                        
-                elif isinstance(grid, list):
-                    rank = len(grid)
-                    retGrid = grid
-                else:
-                    raise RegridError, 'Grid must be a list of coordinates or a cdms2 grid'
-                return retGrid, rank
-
-            self.srcGrid, self.srcRank = makeGridList(inGrid)
-            self.dstGrid, self.dstRank = makeGridList(outGrid)
+            self.srcGrid, self.srcRank = _makeGridList(inGrid)
+            self.dstGrid, self.dstRank = _makeGridList(outGrid)
 
             if self.dstRank != self.srcRank:
                 raise RegridError, 'outGrid rank (%d) != inGrid rank (%d)' % \
@@ -84,29 +140,28 @@ class Regridder:
             if mask is not None:
                 if len(mask.shape) > 3:
                     raise RegridError, \
-                           'Ranks greater than three are not supported at'
+                           'Ranks greater than three are not supported'
                 self.mask = setMaskDtype(mask)
                 ro.setValidMask(self.mask)
 
             # Compute the weights
-            nitermax = 20
-            nlat = self.dstGrid[0].shape[0]
-            tolpos = 0.01 * 180. / (nlat-1)
+            self.nitermax = 20
+            self.nlat = self.dstGrid[0].shape[0]
+            self.tolpos = 0.01 * 180. / (self.nlat-1)
             if 'nitermax' in args.keys():
-                nitermax = args['nitermax']
+                self.nitermax = args['nitermax']
             if 'tolpos' in args.keys():
-                tolpos = args['tolpos']
-            ro.computeWeights(nitermax = nitermax, 
-                              tolpos   = tolpos)
+                self.tolpos = args['tolpos']
+            ro.computeWeights(nitermax = self.nitermax, 
+                              tolpos   = self.tolpos)
             self.regridTool = 'gsregrid'
+            self.regridObj = ro
         else:
             raise RegridError, ''' Regrid tools are: regrid2,   
                   (gsRegrid or libcf), 
                   (esmf or esmp)'''
         
-        self.regridObj = ro
-
-    def __call__(self, inData, **args):
+    def __call__(self, inData):
         """
         Apply the interpolation.
         @param inData The input data
@@ -119,8 +174,10 @@ class Regridder:
 
         from cdms2.avariable import AbstractVariable
         from cdms2.tvariable import TransientVariable
-
         if isinstance(inData, AbstractVariable):
+            if not isinstance(inData, numpy.ndarray):
+                inData = inData.data
+
             attrs = copy.copy(inData.attributes)
             varid = inData.id
             axisList = list(map(lambda x: x[0].clone(), inData.getDomain()))
@@ -139,11 +196,61 @@ class Regridder:
 
         if self.regridTool == 'regrid2':
             result = self.regridObj(inData, args)
-        elif self.regridTool == 'gsregrid':
-            # The data has a mask and the mask has not been set previously
+        elif self.regridTool == 'esmp':
+            if not self.esmfImported:
+                string = "ESMP is not installed or is unable to be imported"
+                raise RegridError, string
+
+            if self.location is None:
+                location = ESMP.ESMP_MESHLOC_NODE
+            else:
+                location = self.location
+
+            # Make sure we are passing a ndarray
+            print location
+            self.srcField = esmf.EsmfStructField(self.srcMesh, inData.id, 
+                                                 inData.data, 
+                                                 meshloc = location)
+            outData = numpy.zeros(self.dstMesh.getNodeDims(), inData.dtype)
+            self.dstField = esmf.EsmfStructField(self.dstMesh, inData.id, 
+                                                 outData, 
+                                                 meshloc = location)
+            if self.regridMethod is not None:
+                method = self.regridMethod
+            else:
+                method = ESMP.ESMP_REGRIDMETHOD_BILINEAR
+                
+            if self.unMappedAction is not None:
+                unMappedAction = self.unMappedAction
+            else:
+                unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE
+                
+            self.regrid = esmf.EsmfRegrid(self.srcField, self.dstField, method,
+                                     unMappedAction)
+            # Call the regrid proceedure
+            self.regrid()
+            ptr = self.dstField.getPointer()
+            outData.flat = self.dstField.getPointer()
+            result = outData
             
+            # Need to convert this to a cdms2 variable
+                
+        elif self.regridTool == 'scrip':
+            pass  
+        elif self.regridTool == 'gsregrid':
+
+            # The data has a mask and the mask has not been set previously
+            # If the mask is then set, the weights must be computed...
             if (not self.regridObj.maskSet) and inData.mask is not None:
-                print 'WARNING: Ignoring mask'
+                self.regridObj.setValidMask(inData.mask)
+                # Recompute/Compute the weights taking the mask into account
+                self.regridObj.computeWeights(tolpos = self.tolpos, 
+                                              nitermax = self.nitermax)
+
+            # If the weights have somehow escaped being generated, compute them
+            if not self.regridObj.weightsComputed:
+                self.regridObj.computeWeights(tolpos = self.tolpos, 
+                                              nitermax = self.nitermax)
 
             # Create the result TransientVariable (if input inData is an AbstractVariable)
             # or masked array
@@ -225,11 +332,14 @@ class Regridder:
             else:
                 result = numpy.ma.masked_array(outVar, mask = outmask, fill_value = missing)
 
-        elif self.regridTool == 'esmp':
-            pass
-        elif self.regridTool == 'scrip':
-            pass  
         
 
         return result
+
+    def __del__(self):
+        if self.regridTool == 'esmp':
+            pass
+
+            # Why does this fail?
+            # esmf.finalize()
          
