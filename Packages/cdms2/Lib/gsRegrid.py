@@ -524,14 +524,15 @@ class Regrid:
     def setValidMask(self, mask):
         """
         Set valid mask array for the grid
-        @param mask flat array of type char and size dims
+        @param mask flat numpy array of type numpy.int32 and size dims. 
+                    0 - invalid, 1 - valid data
         @note this must be invoked before computing the weights, the 
         mask is a property of the grid (not the data).
         """
         # run some checks.
         if mask.dtype != numpy.int32:
             raise CDMSError, \
-                "ERROR in %s: mask must be array of integers" \
+                "ERROR in %s: mask must be an array of numpy.int32" \
                 % (__FILE__,)
 
         # extend src data if grid was made cyclic and or had a cut accounted for
