@@ -92,15 +92,20 @@ class Regridder:
             else:
                 self.regridMethod = ESMP.ESMP_REGRIDMETHOD_CONSERVE
             if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-                message = \
+                # If the bounds are the same rank maybe we can use them...
+                if inGrid.getBounds().rank() == inGrid.rank():
+                    pass                
+                else:
+                    message = \
                 """\n
-                Conservative regridding not implemented in regrid2
-                import ESMP
-                import esmf
-                Then create the coordinates from the bounds for both the 
-                source and destination grids.
+             Conservative regridding not implemented in regrid2 for coordinates
+             whose ranks are not the same as the bounds
+             import ESMP
+             import esmf
+             Then create the coordinates from the bounds for both the 
+             source and destination grids.
                 """
-                raise RegridError, message
+                    raise RegridError, message
             
 
             if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_BILINEAR:
@@ -161,7 +166,7 @@ class Regridder:
                   (gsRegrid or libcf), 
                   (esmf or esmp)'''
         
-    def __call__(self, inData):
+    def __call__(self, inData,**args):
         """
         Apply the interpolation.
         @param inData The input data
@@ -226,7 +231,7 @@ class Regridder:
                 unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE
                 
             self.regrid = esmf.EsmfRegrid(self.srcField, self.dstField, method,
-                                     unMappedAction)
+                                          unMappedAction)
             # Call the regrid proceedure
             self.regrid()
             ptr = self.dstField.getPointer()
