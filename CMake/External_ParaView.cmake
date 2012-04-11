@@ -26,7 +26,6 @@ if(NOT APPLE)
     -DLIBXML2_LIBRARIES:FILEPATH=${cdat_EXTERNALS}/lib/libxml2${_LINK_LIBRARY_SUFFIX}
     -DLIBXML2_XMLLINT_EXECUTABLE:FILEPATH=${cdat_EXTERNALS}/bin/xmllint
    )
-  endif()
 endif()
 
 ExternalProject_Add(ParaView
