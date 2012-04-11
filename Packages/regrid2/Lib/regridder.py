@@ -113,8 +113,6 @@ class Regridder:
             elif self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
                 self.location = ESMP.ESMP_MESHLOC_ELEMENT
 
-            print self.regridMethod, self.location
-
             self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE
             for arg in args:
                 if re.search('unmappedaction', args[arg]):
@@ -166,7 +164,7 @@ class Regridder:
                   (gsRegrid or libcf), 
                   (esmf or esmp)'''
         
-    def __call__(self, inData,**args):
+    def __call__(self, inData, **args):
         """
         Apply the interpolation.
         @param inData The input data
@@ -212,7 +210,6 @@ class Regridder:
                 location = self.location
 
             # Make sure we are passing a ndarray
-            print location
             self.srcField = esmf.EsmfStructField(self.srcMesh, inData.id, 
                                                  inData.data, 
                                                  meshloc = location)
@@ -246,7 +243,7 @@ class Regridder:
 
             # The data has a mask and the mask has not been set previously
             # If the mask is then set, the weights must be computed...
-            if (not self.regridObj.maskSet) and inData.mask is not None:
+            if inData.mask.size > 1 and self.regridObj.maskSet is False:
                 self.regridObj.setValidMask(inData.mask)
                 # Recompute/Compute the weights taking the mask into account
                 self.regridObj.computeWeights(tolpos = self.tolpos, 
