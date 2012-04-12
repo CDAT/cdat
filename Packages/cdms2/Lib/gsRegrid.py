@@ -524,7 +524,7 @@ class Regrid:
     def setValidMask(self, inMask):
         """
         Set valid mask array for the grid
-        @param mask flat numpy array of type numpy.int32 or a valid cdms2 variable
+        @param inMask flat numpy array of type numpy.int32 or a valid cdms2 variable
                     with its mask set. 
                     0 - invalid, 1 - valid data
         @note This must be invoked before computing the weights, the 
