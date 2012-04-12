@@ -521,32 +521,40 @@ class Regrid:
             status = self.lib.nccf_free_coord(self.dst_coordids[i])
             catchError(status, sys._getframe().f_lineno)
 
+    def setMask(self, inDataOrMask):
+        """
+        Set mask array for grid
+        @param inDataOrMask cdms2 array or flat mask array, 
+                                      0 - valid data
+                                      1 - invalid data      
+        @note this definition is compatible with the numpy masked arrays
+        @note see setValidMask for the opposite definition 
+        @note should be called before computing the weights
+        """
+        mask = None
+        if hasattr(inDataOrMask, 'getmask'):
+            # cdms2 variable
+            mask = inDataOrMask.getmask()
+        else:
+            # flat mask array
+            mask = inDataOrMask
+        # reversing the meaning 1 == valid, 0 == invalid
+        mask = 1 - numpy.array(inMask, dtype = numpy.int32)
+        # now calling our own mask setter
+        self.setValidMask(mask)
+
     def setValidMask(self, inMask):
         """
         Set valid mask array for the grid
-        @param mask flat numpy array of type numpy.int32 or a valid cdms2 variable
-                    with its mask set. 
+        @param inMask flat numpy array
                     0 - invalid, 1 - valid data
         @note This must be invoked before computing the weights, the 
         mask is a property of the grid (not the data).
         """
-        
-        # run some checks. Try to convert the mask to int32 using the masking
-        # rules from cdms2
-        if inMask.dtype != numpy.int32:
-            if inMask.dtype == numpy.bool:
-                mask = numpy.array(inMask, dtype = numpy.int32)
-                # Since numpy.mask uses True for a masked (invalid) value
-                # 1-mask gives 1 as valid (unmasked) and 0 as invalid (masked)
-                mask = 1 - mask
-            else:
-                message = """\n
-                ERROR in %s: mask must be an array of numpy.int32 or a valid
-                cdms2 variable with its mask set.
-                """ % (__FILE__,)
-                raise CDMSError, message
-        else:
-            mask = inMask
+        if self.weightsComputed:
+            raise CDMSError, 'Must set mask before computing weights'
+
+        mask = numpy.array(inMask, dtype = numpy.int32)
 
         # extend src data if grid was made cyclic and or had a cut accounted for
         newMask = self._extend(mask)
