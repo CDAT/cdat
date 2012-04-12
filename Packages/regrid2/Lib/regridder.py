@@ -12,29 +12,32 @@ try:
 except:
     pass
 
-def setMaskDtype(mask):
+def _setMaskDtype(mask):
+    """
+    Convert a mask to int32
+    @param mask the mask to be converted
+    """
     if mask.dtype != numpy.int32:
-        mask = numpy.array(mask, numpy.int32)
+        if mask.dtype == numpy.bool:
+            mask = numpy.array(mask, numpy.int32)
+        elif mask.dtypye == numpy.bool8:
+            mask = numpy.array(mask, numpy.int32)
+            
     return mask
 
 def _makeGridList(grid):
+    """
+    Convert a cdms2 grid to a list of coordinates
+    @param grid The grid to be converted
+    """
     if cdms2.isGrid(grid):
         index = 0
-        hasTime = False
-        for axis in grid.getAxisList():
-            if axis == 'time':
-                timindex = index
-                hasTime = True
-        rank = len(grid.getAxisList())
-        if rank == 2:
-            retGrid = [grid.getLatitude(), grid.getLongitude()]
-        elif rank == 3:
-            if hasTime:
-                retGrid = [grid.getLatitude(), grid.getLongitude()]
-            else:
-                retGrid = [grid.getLevel(), 
-                           grid.getLatitude(), 
-                           grid.getLongitude()]
+        retGrid = [grid.getLatitude(), grid.getLongitude()]
+        try:
+            retGrid.append(grid.getLevel())
+        except:
+            pass
+        rank = len(retGrid)
             
     elif isinstance(grid, list):
         rank = len(grid)
@@ -144,7 +147,7 @@ class Regridder:
                 if len(mask.shape) > 3:
                     raise RegridError, \
                            'Ranks greater than three are not supported'
-                self.mask = setMaskDtype(mask)
+                self.mask = _setMaskDtype(mask)
                 ro.setValidMask(self.mask)
 
             # Compute the weights
