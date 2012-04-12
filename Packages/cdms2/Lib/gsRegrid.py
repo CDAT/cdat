@@ -530,24 +530,12 @@ class Regrid:
         @note This must be invoked before computing the weights, the 
         mask is a property of the grid (not the data).
         """
-        
-        # run some checks. Try to convert the mask to int32 using the masking
-        # rules from cdms2
-        if inMask.dtype != numpy.int32:
-            if inMask.dtype == numpy.bool:
-                mask = numpy.array(inMask, dtype = numpy.int32)
-                # Since numpy.mask uses True for a masked (invalid) value
-                # 1-mask gives 1 as valid (unmasked) and 0 as invalid (masked)
-                mask = 1 - mask
-            else:
-                message = """\n
-                ERROR in %s: mask must be an array of numpy.int32 or a valid
-                cdms2 variable with its mask set.
-                """ % (__FILE__,)
-                raise CDMSError, message
-        else:
-            mask = inMask
-
+        print 'gsRegrid.setValidMask, self.weightsComputed', self.weightsComputed
+        if self.weightsComputed:
+            raise CDMSError, 'Must set mask before computing weights'
+    
+        mask = numpy.array(inMask, dtype = numpy.int32)
+    
         # extend src data if grid was made cyclic and or had a cut accounted for
         newMask = self._extend(mask)
         c_intmask = newMask.ctypes.data_as(POINTER(c_int))
@@ -555,6 +543,29 @@ class Regrid:
                                                   c_intmask)
         catchError(status, sys._getframe().f_lineno)
         self.maskSet = True
+
+    def setMask(self, inDataOrMask):
+        """
+        Set mask array for grid
+        @param inDataOrMask cdms2 array or flat mask array, 
+                                0 - valid data
+                                1 - invalid data      
+        @note this definition is compatible with the numpy masked arrays
+        @note see setValidMask for the opposite definition 
+        @note should be called before computing the weights
+        """
+        print 'gsRegrid.setMask, self.weightsComputed', self.weightsComputed
+        mask = None
+        if hasattr(inDataOrMask, 'getmask'):
+            # cdms2 variable
+            mask = inDataOrMask.getmask()
+        else:
+            # flat mask array
+            mask = inDataOrMask
+        # reversing the meaning 1 == valid, 0 == invalid
+        mask = 1 - numpy.array(inDataOrMask, dtype = numpy.int32)
+        # now calling our own mask setter
+        self.setValidMask(mask)
 
     def computeWeights(self, nitermax=100, tolpos=1.e-2):
         """

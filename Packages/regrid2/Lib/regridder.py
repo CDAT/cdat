@@ -148,7 +148,7 @@ class Regridder:
                     raise RegridError, \
                            'Ranks greater than three are not supported'
                 self.mask = _setMaskDtype(mask)
-                ro.setValidMask(self.mask)
+                ro.setMask(self.mask)
 
             # Compute the weights
             self.nitermax = 20
@@ -247,7 +247,9 @@ class Regridder:
             # The data has a mask and the mask has not been set previously
             # If the mask is then set, the weights must be computed...
             if inData.mask.size > 1 and self.regridObj.maskSet is False:
-                self.regridObj.setValidMask(inData.mask)
+                # Reset the weightsComputed flag since they will be recalculated
+                self.regridObj.weightsComputed = False
+                self.regridObj.setMask(inData.mask)
                 # Recompute/Compute the weights taking the mask into account
                 self.regridObj.computeWeights(tolpos = self.tolpos, 
                                               nitermax = self.nitermax)
