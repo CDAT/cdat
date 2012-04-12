@@ -423,7 +423,7 @@ set(ESMP_PATCH 0_beta_snapshot_37)
 set(ESMP_VERSION ${ESMP_MAJOR}_${ESMP_MINOR}_${ESMP_PATCH})
 set(ESMP_URL http://uv-cdat.llnl.gov/cdat/resources)
 set(ESMP_GZ ESMP-${ESMP_VERSION}.tar.gz)
-set(ESMP_MD5 aa75ffcab13ae9c75dd3f357e5182008)
+set(ESMP_MD5 6d49a7aa052989ae73309476fafe46fd)
 
 set(CYTHON_MAJOR 0)
 set(CYTHON_MINOR 15)
