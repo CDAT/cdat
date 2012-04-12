@@ -533,9 +533,8 @@ class Regrid:
         
         # run some checks. Try to convert the mask to int32 using the masking
         # rules from cdms2
-        if mask.dtype != numpy.int32:
-            if isinstance(mask.dtype, numpy.bool) or \
-               isinstance(mask.dtype, numpy.bool8):
+        if inMask.dtype != numpy.int32:
+            if inMask.dtype == numpy.bool:
                 mask = numpy.array(inMask, dtype = numpy.int32)
                 # Since numpy.mask uses True for a masked (invalid) value
                 # 1-mask gives 1 as valid (unmasked) and 0 as invalid (masked)

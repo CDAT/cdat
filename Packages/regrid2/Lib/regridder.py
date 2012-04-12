@@ -12,29 +12,32 @@ try:
 except:
     pass
 
-def setMaskDtype(mask):
+def _setMaskDtype(mask):
+    """
+    Convert a mask to int32
+    @param mask the mask to be converted
+    """
     if mask.dtype != numpy.int32:
-        mask = numpy.array(mask, numpy.int32)
+        if mask.dtype == numpy.bool:
+            mask = numpy.array(mask, numpy.int32)
+        elif mask.dtypye == numpy.bool8:
+            mask = numpy.array(mask, numpy.int32)
+            
     return mask
 
 def _makeGridList(grid):
+    """
+    Convert a cdms2 grid to a list of coordinates
+    @param grid The grid to be converted
+    """
     if cdms2.isGrid(grid):
         index = 0
-        hasTime = False
-        for axis in grid.getAxisList():
-            if axis == 'time':
-                timindex = index
-                hasTime = True
-        rank = len(grid.getAxisList())
-        if rank == 2:
-            retGrid = [grid.getLatitude(), grid.getLongitude()]
-        elif rank == 3:
-            if hasTime:
-                retGrid = [grid.getLatitude(), grid.getLongitude()]
-            else:
-                retGrid = [grid.getLevel(), 
-                           grid.getLatitude(), 
-                           grid.getLongitude()]
+        retGrid = [grid.getLatitude(), grid.getLongitude()]
+        try:
+            retGrid.append(grid.getLevel())
+        except:
+            pass
+        rank = len(retGrid)
             
     elif isinstance(grid, list):
         rank = len(grid)
@@ -92,23 +95,26 @@ class Regridder:
             else:
                 self.regridMethod = ESMP.ESMP_REGRIDMETHOD_CONSERVE
             if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-                message = \
+                # If the bounds are the same rank maybe we can use them...
+                if inGrid.getBounds().rank() == inGrid.rank():
+                    pass                
+                else:
+                    message = \
                 """\n
-                Conservative regridding not implemented in regrid2
-                import ESMP
-                import esmf
-                Then create the coordinates from the bounds for both the 
-                source and destination grids.
+             Conservative regridding not implemented in regrid2 for coordinates
+             whose ranks are not the same as the bounds
+             import ESMP
+             import esmf
+             Then create the coordinates from the bounds for both the 
+             source and destination grids.
                 """
-                raise RegridError, message
+                    raise RegridError, message
             
 
             if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_BILINEAR:
                 self.location = ESMP.ESMP_MESHLOC_NODE
             elif self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
                 self.location = ESMP.ESMP_MESHLOC_ELEMENT
-
-            print self.regridMethod, self.location
 
             self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE
             for arg in args:
@@ -141,7 +147,7 @@ class Regridder:
                 if len(mask.shape) > 3:
                     raise RegridError, \
                            'Ranks greater than three are not supported'
-                self.mask = setMaskDtype(mask)
+                self.mask = _setMaskDtype(mask)
                 ro.setValidMask(self.mask)
 
             # Compute the weights
@@ -161,7 +167,7 @@ class Regridder:
                   (gsRegrid or libcf), 
                   (esmf or esmp)'''
         
-    def __call__(self, inData):
+    def __call__(self, inData, **args):
         """
         Apply the interpolation.
         @param inData The input data
@@ -207,7 +213,6 @@ class Regridder:
                 location = self.location
 
             # Make sure we are passing a ndarray
-            print location
             self.srcField = esmf.EsmfStructField(self.srcMesh, inData.id, 
                                                  inData.data, 
                                                  meshloc = location)
@@ -226,7 +231,7 @@ class Regridder:
                 unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE
                 
             self.regrid = esmf.EsmfRegrid(self.srcField, self.dstField, method,
-                                     unMappedAction)
+                                          unMappedAction)
             # Call the regrid proceedure
             self.regrid()
             ptr = self.dstField.getPointer()
@@ -241,7 +246,7 @@ class Regridder:
 
             # The data has a mask and the mask has not been set previously
             # If the mask is then set, the weights must be computed...
-            if (not self.regridObj.maskSet) and inData.mask is not None:
+            if inData.mask.size > 1 and self.regridObj.maskSet is False:
                 self.regridObj.setValidMask(inData.mask)
                 # Recompute/Compute the weights taking the mask into account
                 self.regridObj.computeWeights(tolpos = self.tolpos, 
