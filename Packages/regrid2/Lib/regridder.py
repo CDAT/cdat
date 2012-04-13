@@ -124,9 +124,18 @@ class Regridder:
                         self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_ERROR
 
             # Initialize the ESMP
+            if not isinstance(inGrid, list):
+                srcGrid, self.srcRank = _makeGridList(inGrid)
+            rank = len(inGrid)
+            if rank > 1:
+                srcGrid, srcRank = cdms2.gsRegrid.makeCurvilinear(inGrid)
+            if not isinstance(outGrid, list):
+                dstGrid, self.dstRank = _makeGridList(outGrid)
+            rank = len(outGrid)
+            if rank > 1:
+                dstGrid, dstRank = cdms2.gsRegrid.makeCurvilinear(outGrid)
+
             esmf.initialize()
-            srcGrid, self.srcRank = _makeGridList(inGrid)
-            dstGrid, self.dstRank = _makeGridList(outGrid)
             self.srcMesh = esmf.EsmfStructMesh(srcGrid)
             self.dstMesh = esmf.EsmfStructMesh(dstGrid)
 

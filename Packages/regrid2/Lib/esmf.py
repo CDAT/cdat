@@ -146,7 +146,6 @@ class EsmfStructField:
                         typekind = etype)
         # Copy the data
         ptr = self.getPointer()
-        print ptr.shape,data.shape
         ptr[:] = data.flat
 
     def getPointer(self):
