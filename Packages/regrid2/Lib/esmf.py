@@ -1,5 +1,5 @@
 import ESMP
-import matplotlib.pylab as np
+import numpy as np
 import operator
 import cdms2
 import tables
@@ -19,6 +19,92 @@ def initialize():
 def finalize():
     """Finalize (close) ESMP"""
     ESMP.ESMP_Finalize()
+    
+class EsmfGrid:
+    def __init__(self, upperBound, lowerBound, coordsCor = None, 
+                 coordsCtr = None, mask = None, periodicity = 1,
+                 coordSys = ESMP.ESMP_COORDSYS_CART):
+        """
+        Construct an ESMP Grid object
+        @param upperBoundXY tuple Upper Dimension of the grid in x, y (lon, lat)
+        @param lowerBoundXY tuple Lower dimension of the grid in x, y
+        @param coordsCor tuple Corner coordinates of the grid (lon, lat)
+        @param coordsCtr tuple Center coordinates of the grid (lon, lat)
+        @param mask Mask 1 is invalid data 0 valid (numpy definition)
+        @param periodicity Number of periodic boundaries
+                           0 - None
+                           1 - One e.g. longitude default (Assume global)
+                           2 - Two e.g.
+        @param coordSys (default) ESMP_COORDSYS_CART
+                                  ESMP_COORDSYS_SPH_DEG
+                                  ESMP_COORDSYS_SPH_RAD
+        """
+        coordSystems = [ESMP.ESMP_COORDSYS_CART, ESMP.ESMP_COORDSYS_SPH_DEG,
+                        ESMP.ESMP_COORDSYS_SPH_RAD]
+        if coordSys not in coordSystems:
+            raise cdms2.CDMSError, """
+                  Coordinate system must be ESMP.ESMP_COORDSYS_CART
+                                            ESMP.ESMP_COORDSYS_SPH_DEG
+                                            ESMP.ESMP_COORDSYS_SPH_RAD"""
+        rank = len(upperBound)
+        maxList = []
+        for i in range(rank):
+            maxList.append(upperBound[i] - lowerBound[i])
+        maxIndex = np.array(maxList, dtype = np.int32)
+        
+        # Create the grid object
+        if periodicity == 0:
+            self.grid = ESMP.ESMP_GridCreateNoPeriDim(maxIndex, 
+                                                      coordSys = coordSys)
+        elif periodicity == 1:                                             
+            self.grid = ESMP.ESMP_GridCreate1PeriDim(maxIndex, 
+                                                      coordSys = coordSys)
+        elif periodicity == 2:                                             
+            self.grid = ESMP.ESMP_GridCreate2PeriDim(maxIndex, 
+                                                      coordSys = coordSys)
+        else:
+            raise cdms2.CDMSError, """
+                    Periodicity must be 0, 1 or 2"""
+
+        locs = [ESMP.ESMP_STAGGERLOC_CORNER, ESMP.ESMP_STAGGERLOC_CENTER]
+        cLoc = [coordsCor, coordsCtr]
+        
+        # Populate the corners and centers if given
+        for iLoc in range(len(cLoc)):
+            if cLoc[iLoc] is not None:
+                ESMP.ESMP_GridAddCoord(self.grid, staggerloc=locs[iLoc])
+    
+                exLBLoc, exUBLoc = ESMP.ESMP_GridGetCoord(self.grid, 
+                                                          locs[iLoc])
+                                                        
+                xyLoc = []
+                for i in range(rank):
+                    tmp = ESMP.ESMP_GridGetCoordPtr(self.grid, i+1, locs[iLoc])
+                    xyLoc.append(tmp)
+                
+                # Poplulate the self.grid with coordinates
+                for iC in range(2):
+                    p = 0
+                    for i1 in range(exLBLoc[1], exUBLoc[1]):
+                        for i0 in range(exLBLoc[0], exUBLoc[0]):
+                            xyLoc[iC][p] = cLoc[iC][i0, i1]
+                            p = p + 1
+
+        # Populate the  mask
+        ESMP.ESMP_GridAddItem(self.grid, item=ESMP.ESMP_GRIDITEM_MASK)
+        self.mask = ESMP.ESMP_GridGetItem(self.grid, 
+                                          item=ESMP.ESMP_GRIDITEM_MASK)
+        p = 0
+        for i1 in range(exLBLoc[1], exUBLoc[1]):
+            for i0 in range(exLBLoc[0], exUBLoc[0]):
+                if mask is not None:
+                    self.mask[p] = mask[i0, i1]
+                else:
+                    self.mask[p] = 0
+                p = p + 1
+        
+    def __del__(self):
+        pass
 
 class EsmfStructMesh:
     """
@@ -135,6 +221,12 @@ class EsmfStructField:
         @param meshloc ESMP_MESHLOC_NODE for Bilinear interpolation
                        ESMP_MESHLOC_ELEMENT for Conservative interpolation
         """
+        locations = [ESMP.ESMP_MESHLOC_NODE, ESMP.ESMP_MESHLOC_ELEMENT]
+        if meshloc not in locations:
+            raise cdms2.CDMSError, """
+                  Coordinate system must be ESMP.ESMP_MESHLOC_NODE
+                                            ESMP.ESMP_MESHLOC_ELEMENT"""
+
         numpyType2EsmfType = {
             'float64': ESMP.ESMP_TYPEKIND_R8,
             'float32': ESMP.ESMP_TYPEKIND_R4,
@@ -158,6 +250,38 @@ class EsmfStructField:
 
     def  __del__(self):
         ESMP.ESMP_FieldDestroy(self.field)
+
+class EsmfGridField(EsmfStructField):
+    """
+    Create a grid field object. Inherits from EsmfStructField
+    """
+    def __init__(self, esmfGrid, name, data, 
+                 staggerloc = ESMP.ESMP_MESHLOC_NODE):
+        """
+        Creator for ESMF Field
+        @param esmfGrid instance of an ESMP_Mesh
+        @param name field name
+        @param data numpy ndarray of data
+        @param staggerloc ESMP_STAGGERLOC_CENTER
+                       ESMP_STAGGERLOC_CORNER
+        """
+        locations = [ESMP.ESMP_MESHLOC_NODE, ESMP.ESMP_MESHLOC_ELEMENT]
+        if meshloc not in locations:
+            raise cdms2.CDMSError, """
+                  Coordinate system must be ESMP.ESMP_MESHLOC_NODE
+                                            ESMP.ESMP_MESHLOC_ELEMENT"""
+        numpyType2EsmfType = {
+            'float64': ESMP.ESMP_TYPEKIND_R8,
+            'float32': ESMP.ESMP_TYPEKIND_R4,
+            'int64': ESMP.ESMP_TYPEKIND_I8,
+            'int64': ESMP.ESMP_TYPEKIND_I4, }
+        etype = numpyType2EsmfType[str(data.dtype)]
+        self.field = ESMP.ESMP_FieldCreateGrid(esmfGrid.grid, name,
+                        staggerloc = staggerloc,
+                        typekind = etype)
+        # Copy the data
+        ptr = self.getPointer()
+        ptr[:] = data.flat
 
 class EsmfRegrid:
     """
@@ -290,21 +414,21 @@ def writeVSH5(filename, grid, data):
     @param grid esmf grid object containing xyz coordinates and cell connectivity
     @param data data
     """
-    h5 = tables.openFile(filename, mode = 'w', title = 'test')
     title = 'test'
-    pointname = "/TestPoints"
-    dataname = '/TestData'
+    h5 = tables.openFile(filename, mode = 'w', title = title)
+    pointname = "TestPoints"
+    dataname = 'TestData'
     xgroup = h5.createGroup("/", "TestPoints", "P")
     xgroup._f_setAttr("vsType", "mesh")
     xgroup._f_setAttr("vsKind", "unstructured")
     xgroup._f_setAttr("vsQuadrilaterals", "quads")
-    carray = h5.createArray("/TestPoints", 'quads', grid.cellConn-1)
-    xarray = h5.createArray("/TestPoints", 'points', grid.xyz)
+    carray = h5.createArray("/"+pointname, 'quads', grid.cellConn-1)
+    xarray = h5.createArray("/"+pointname, 'points', grid.xyz)
 
-    darray = h5.createArray("/", 'testdata', data.flat[:])
+    darray = h5.createArray("/", dataname, data.flat[:])
     darray._f_setAttr("coordinate", "lat lon")
     darray._f_setAttr("vsType", "variable")
-    darray._f_setAttr("vsMesh", "TestPoints")
+    darray._f_setAttr("vsMesh", pointname)
     darray._f_setAttr("vsCentering", "zonal")
     h5.close()
 
@@ -390,13 +514,14 @@ def test2d(useMethod = 0, doPlot = False):
     sptr = srcField.getPointer()
     dptr = dstField.getPointer()
 
-    print 'Src Cell avg before', srcData[useMethod].sum()/(snx*sny), snx, sny
-    print 'Src Cell avg after ', sptr.sum()/(snx*sny)
+    print 'Src Cell avg before', srcData[useMethod].sum()/(numCells), snx, sny
+    print 'Src Cell avg after ', sptr.sum()/(numCells)
     print 'Dst Cell avg before', dstDataE.sum()/(dnx*dny), dnx, dny
     print 'Dst Cell avg after ', dptr.sum()/(dnx*dny)
 
     print
-    print 'Error Ratio s/d', 100*(1 - (sptr.sum()/(snx*sny))/(dptr.sum()/(dnx*dny))), " %"
+    errorRatio = 100*(1 - (sptr.sum()/(numCells))/(dptr.sum()/(dnx*dny)))
+    print 'Error Ratio s/d', errorRatio, " %"
 
     if doPlot:
         sp = np.reshape(sptr, (sny, snx))
