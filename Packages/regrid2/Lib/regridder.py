@@ -22,7 +22,7 @@ def _setMaskDtype(mask):
             mask = numpy.array(mask, numpy.int32)
         elif mask.dtypye == numpy.bool8:
             mask = numpy.array(mask, numpy.int32)
-            
+
     return mask
 
 def _makeGridList(grid):
@@ -38,7 +38,7 @@ def _makeGridList(grid):
         except:
             pass
         rank = len(retGrid)
-            
+
     elif isinstance(grid, list):
         rank = len(grid)
         retGrid = grid
@@ -46,23 +46,32 @@ def _makeGridList(grid):
         raise RegridError, 'Grid must be a list of coordinates or a cdms2 grid'
     return retGrid, rank
 
+def hasMask(data):
+    hasMask = False
+    if hasattr(data, 'mask'):
+        if data.mask.size > 1:
+            hasMask = True
+    return hasMask
+
 
 class Regridder:
-    def __init__(self, inGrid, outGrid, mask = None, regridTool = "gsRegrid",
-                 regridMethod = "bilinear", **args):
+    def __init__(self, inGrid, outGrid, srcMask = None, dstMask = None,
+                 regridTool = "gsRegrid", regridMethod = "bilinear", **args):
         """
         Constructor for regridding object. Currently just uses a 2-D object
         @param ingrid cdms2, ndarray variable
         @param outGrid cdms2, ndarray variable
-        @param mask The mask
-        @param regridTool Which regridder to use. 
+        @param srcMask mask for the source grid - use numpy masking rules
+                        0 - Valid, 1 - Invalid
+        @param dstMask mask for the destination grid
+        @param regridTool Which regridder to use.
                         regrid2 - uses only axis CDAT original regriding tool
                         gsRegrid - curviliner grids - libcf is a synonym
                         esmf - curvilinear grids, axes, bilinear, conservative.
                                ESMP is a synonym.
                         scrip - many options but requires a remapping file from
                                 SCRIP
-        @param regridMethod Conservative, Mutlilinear. Some regrid tools use 
+        @param regridMethod Conservative, Mutlilinear. Some regrid tools use
                             only bilinear or multilinear
         @param **args Optional keyword arguments for each type of regridder
                 gsRegrid accepts nitermax and tolpos for computing the weights
@@ -75,18 +84,18 @@ class Regridder:
         rgMeth = regridMethod.lower()
         self.regridTool = rgTool
         self.regridMethod = rgMeth
-        self.outmask = None
-        
+        self.outMask = None
+
         if re.match('regrid', rgTool, re.I):
             self.regridObj = regrid2.Horizontal(ingrid, outGrid)
             self.regridTool = 'regrid2'
         elif rgTool == 'scrip':
             pass
         elif re.match('esm', rgTool):
-            self.esmfImported = esmfImported
-            if not self.esmfImported:
+            if not esmfImported:
                 string = "ESMP is not installed or is unable to be imported"
                 raise RegridError, string
+            self.esmfImported = esmfImported
             self.regridTool = 'esmp'
 
             # Set the regridding method - Bilinear / Conservative
@@ -97,7 +106,7 @@ class Regridder:
             if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
                 # If the bounds are the same rank maybe we can use them...
                 if inGrid.getBounds().rank() == inGrid.rank():
-                    pass                
+                    pass
                 else:
                     message = \
                 """\n
@@ -105,39 +114,68 @@ class Regridder:
              whose ranks are not the same as the bounds
              import ESMP
              import esmf
-             Then create the coordinates from the bounds for both the 
+             Then create the coordinates from the bounds for both the
              source and destination grids.
                 """
                     raise RegridError, message
-            
 
             if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_BILINEAR:
-                self.location = ESMP.ESMP_MESHLOC_NODE
+                self.location = ESMP.ESMP_STAGGERLOC_CENTER
             elif self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-                self.location = ESMP.ESMP_MESHLOC_ELEMENT
+                self.location = ESMP.ESMP_STAGGERLOC_CORNER
 
             self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE
+            self.staggerloc = ESMP.ESMP_STAGGERLOC_CENTER
+            self.coordSys = ESMP.ESMP_COORDSYS_CART
+            self.periodicity = 1
+
             for arg in args:
-                if re.search('unmappedaction', args[arg]):
+                if re.search('unmappedaction', arg):
                     unMappedAction = args[arg]
                     if re.search('error', unMappedAction):
                         self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_ERROR
+                if re.search('periodicity', arg):
+                    self.periodicity = args[arg]
+                if re.search('staggerloc', arg):
+                    self.staggerloc = args[arg]
+                if re.search('coordsys', arg):
+                    self.coordSys = args[arg]
 
             # Initialize the ESMP
             if not isinstance(inGrid, list):
                 srcGrid, self.srcRank = _makeGridList(inGrid)
             rank = len(inGrid)
+            if isinstance(inGrid[0], cdms2.coord.TransientAxis2D):
+                newGrid = []
+                for i in range(rank):
+                    newGrid.append(inGrid[i].data)
+                inGrid = newGrid
             if rank > 1:
                 srcGrid, srcRank = cdms2.gsRegrid.makeCurvilinear(inGrid)
             if not isinstance(outGrid, list):
                 dstGrid, self.dstRank = _makeGridList(outGrid)
             rank = len(outGrid)
+            if isinstance(outGrid[0], cdms2.coord.TransientAxis2D):
+                newGrid = []
+                for i in range(rank):
+                    newGrid.append(outGrid[i].data)
+                outGrid = newGrid
             if rank > 1:
                 dstGrid, dstRank = cdms2.gsRegrid.makeCurvilinear(outGrid)
 
             esmf.initialize()
-            self.srcMesh = esmf.EsmfStructMesh(srcGrid)
-            self.dstMesh = esmf.EsmfStructMesh(dstGrid)
+            #self.srcMesh = esmf.EsmfStructMesh(srcGrid)
+            #self.dstMesh = esmf.EsmfStructMesh(dstGrid)
+            self.outMask = srcMask
+            self.dstMask = dstMask
+            self.srcGrid = esmf.EsmfStructGrid(srcGrid, mask = srcMask,
+                                               periodicity = self.periodicity,
+                                               staggerloc = self.staggerloc,
+                                               coordSys = self.coordSys)
+            self.dstGrid = esmf.EsmfStructGrid(dstGrid, mask = dstMask,
+                                               periodicity = self.periodicity,
+                                               staggerloc = self.staggerloc,
+                                               coordSys = self.coordSys)
 
         elif rgTool == 'gsregrid' or rgTool == 'libcf':
             # Prep in and out grid for gsRegrid!
@@ -151,13 +189,13 @@ class Regridder:
             # Create the regrid object
             ro = regrid2.gsRegrid.Regrid(self.srcGrid, self.dstGrid)
 
-            # Set the mask
-            if mask is not None:
-                if len(mask.shape) > 3:
+            # Set the source mask
+            if srcMask is not None:
+                if len(srcMask.shape) > 3:
                     raise RegridError, \
                            'Ranks greater than three are not supported'
-                self.mask = _setMaskDtype(mask)
-                ro.setMask(self.mask)
+                self.srcMask = _setMaskDtype(srcMask)
+                ro.setMask(self.srcMask)
 
             # Compute the weights
             self.nitermax = 20
@@ -167,15 +205,15 @@ class Regridder:
                 self.nitermax = args['nitermax']
             if 'tolpos' in args.keys():
                 self.tolpos = args['tolpos']
-            ro.computeWeights(nitermax = self.nitermax, 
+            ro.computeWeights(nitermax = self.nitermax,
                               tolpos   = self.tolpos)
             self.regridTool = 'gsregrid'
             self.regridObj = ro
         else:
-            raise RegridError, ''' Regrid tools are: regrid2,   
-                  (gsRegrid or libcf), 
+            raise RegridError, ''' Regrid tools are: regrid2,
+                  (gsRegrid or libcf),
                   (esmf or esmp)'''
-        
+
     def __call__(self, inData, **args):
         """
         Apply the interpolation.
@@ -184,7 +222,7 @@ class Regridder:
         @param order The order of the data
         @param mask Mask
         @param **args Optional keyword arguments for each regrid type
-                regrid2 has: missing = None, order = None, mask = None, 
+                regrid2 has: missing = None, order = None, mask = None,
         """
 
         from cdms2.avariable import AbstractVariable
@@ -204,10 +242,15 @@ class Regridder:
                 inData = inData.ascontiguous()
         else:
             inputIsVariable = 0
-        
+
         missing = None
+        mvAttList = ['missing_value', 'fill_value']
         if 'missing' in args.keys():
             missing = args['missing']
+        else:
+            for att in mvAttList:
+                if hasattr(inData, att):
+                    missing = getattr(inData, att)
 
         if self.regridTool == 'regrid2':
             result = self.regridObj(inData, args)
@@ -217,55 +260,104 @@ class Regridder:
                 raise RegridError, string
 
             if self.location is None:
-                location = ESMP.ESMP_MESHLOC_NODE
+                location = ESMP.ESMP_STAGGERLOC_CENTER
             else:
                 location = self.location
 
             # Make sure we are passing a ndarray
-            self.srcField = esmf.EsmfStructField(self.srcMesh, inData.id, 
-                                                 inData.data, 
-                                                 meshloc = location)
-            outData = numpy.zeros(self.dstMesh.getNodeDims(), inData.dtype)
-            self.dstField = esmf.EsmfStructField(self.dstMesh, inData.id, 
-                                                 outData, 
-                                                 meshloc = location)
+            self.srcField = esmf.EsmfGridField(self.srcGrid, inData.id,
+                                                 inData.data,
+                                                 staggerloc = location)
+            # Convert bask y, x
+            outShape = self.dstGrid.maxIndex[::-1]
+            outVar = numpy.zeros(outShape, inData.dtype)
+            self.dstField = esmf.EsmfGridField(self.dstGrid, inData.id,
+                                               outVar,
+                                               staggerloc = location)
             if self.regridMethod is not None:
                 method = self.regridMethod
             else:
                 method = ESMP.ESMP_REGRIDMETHOD_BILINEAR
-                
+
             if self.unMappedAction is not None:
                 unMappedAction = self.unMappedAction
             else:
                 unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE
-                
+
             self.regrid = esmf.EsmfRegrid(self.srcField, self.dstField, method,
                                           unMappedAction)
             # Call the regrid proceedure
             self.regrid()
             ptr = self.dstField.getPointer()
-            outData.flat = self.dstField.getPointer()
-            result = outData
-            
+            outVar.flat = self.dstField.getPointer()
+
+            # Set the output mask if available
+            outMask = None
+            if self.dstMask is not None:
+                outMask = self.dstMask
+            elif hasMask(inData) or self.outMask is not None:
+                attrs = ('missing_value','fill_value',)
+                missing = None
+                for att in attrs:
+                    if hasattr(inData, att):
+                       missing = getattr(inData, att)
+                if missing is not None: outMask = (outVar == missing)
+
+#            amskout = numpy.ma.ones(outVar.shape, numpy.bool8)
+#            print 'hasMask(inData)', hasMask(inData)
+#            if hasMask(inData):
+#                if inputIsVariable == 1:
+#                    if inData.fill_value is not None:
+#                        amskout = 1 - (outVar == inData.fill_value)
+#
+#            # Set the missing data mask of the output array, if any.
+#            hasMissing = not numpy.ma.alltrue(numpy.ma.ravel(amskout))
+#            slabMask = None
+#            if hasMissing:
+#                slabMask = numpy.ma.where(numpy.ma.equal(amskout, 0), 1, 0)
+#
+#            # Combine missing data mask and output grid mask
+#            # Note: slabMask and outMask are Boolean here
+#            if self.outMask is not None:
+#                outMask = numpy.logical_not(numpy.resize(self.outMask, outShape))
+#                if hasMissing:
+#                    outMask = numpy.ma.logical_or(outMask, slabMask)
+#            else:
+#                outMask = slabMask
+
             # Need to convert this to a cdms2 variable
-                
+            if inputIsVariable:
+                # Grid
+                lats = numpy.reshape(esmf.getPointer(1), outVar.shape)
+                lons = numpy.reshape(esmf.getPointer(2), outVar.shape)
+                grid = cdms2.hgrid.TransientCurveGrid(lats, lons, id = 'CurveGrid')
+                result = cdms2.createVariable(outVar, mask = outMask,
+                                              fill_value = inData.fill_value,
+                                              axes = grid.getAxisList(),
+                                              grid = grid,
+                                              attributes = attrs, id = varid)
+            else:
+                result = numpy.ma.masked_array(outVar, mask = outMask, fill_value = missing)
+
+            return result
+
         elif self.regridTool == 'scrip':
-            pass  
+            pass
         elif self.regridTool == 'gsregrid':
 
             # The data has a mask and the mask has not been set previously
             # If the mask is then set, the weights must be computed...
-            if inData.mask.size > 1 and self.regridObj.maskSet is False:
+            if hasMask(inData) and self.regridObj.maskSet is False:
                 # Reset the weightsComputed flag since they will be recalculated
                 self.regridObj.weightsComputed = False
                 self.regridObj.setMask(inData.mask)
                 # Recompute/Compute the weights taking the mask into account
-                self.regridObj.computeWeights(tolpos = self.tolpos, 
+                self.regridObj.computeWeights(tolpos = self.tolpos,
                                               nitermax = self.nitermax)
 
             # If the weights have somehow escaped being generated, compute them
             if not self.regridObj.weightsComputed:
-                self.regridObj.computeWeights(tolpos = self.tolpos, 
+                self.regridObj.computeWeights(tolpos = self.tolpos,
                                               nitermax = self.nitermax)
 
             # Create the result TransientVariable (if input inData is an AbstractVariable)
@@ -282,10 +374,10 @@ class Regridder:
                     lats = T2D(self.regridObj.dst_coords[index], id = 'lat')
                     lons = T2D(self.regridObj.dst_coords[index+1], id = 'lon')
                     grid = cdms2.hgrid.TransientCurveGrid(lats, lons, id = 'CurveGrid')
-                
+
                 shape = grid.shape
                 axisList = list(grid.getAxisList())
-                if inData.rank() == 2: 
+                if inData.rank() == 2:
                     pass
                 elif inData.rank() == 3:
                     if inData.getTime() is not None:
@@ -317,38 +409,35 @@ class Regridder:
                 outVar = self.regridObj(inData)
 
             # Correct the shape of output weights
-            amskout = numpy.ma.zeros(outVar.shape, numpy.bool8)
-            if inputIsVariable == 1:
-                if inData.fill_value is not None:
-                    amskout = 1 - (outVar == inData.fill_value)
+            amskout = numpy.ma.ones(outVar.shape, numpy.bool8)
+            if hasMask(inData):
+                if inputIsVariable == 1:
+                    if inData.fill_value is not None:
+                        amskout = 1 - (outVar == inData.fill_value)
 
             # Set the missing data mask of the output array, if any.
             hasMissing = not numpy.ma.alltrue(numpy.ma.ravel(amskout))
+            slabMask = None
             if hasMissing:
                 slabMask = numpy.ma.where(numpy.ma.equal(amskout, 0), 1, 0)
-            else:
-                slabMask = None
 
             # Combine missing data mask and output grid mask
-            # Note: slabMask and outmask are Boolean here
-            if self.outmask is not None:
-                outmask = numpy.logical_not(numpy.resize(self.outmask, outshape))
+            # Note: slabMask and outMask are Boolean here
+            if self.outMask is not None:
+                outMask = numpy.logical_not(numpy.resize(self.outMask, outshape))
                 if hasMissing:
-                    outmask = numpy.ma.logical_or(outmask, slabMask)
+                    outMask = numpy.ma.logical_or(outMask, slabMask)
             else:
-                outmask = slabMask
-
+                outMask = slabMask
 
             if inputIsVariable:
-                result = cdms2.createVariable(outVar, mask = outmask, 
+                result = cdms2.createVariable(outVar, mask = outMask,
                                               fill_value = inData.fill_value,
-                                              axes = axisList, 
-                                              grid = grid, 
+                                              axes = axisList,
+                                              grid = grid,
                                               attributes = attrs, id = varid)
             else:
-                result = numpy.ma.masked_array(outVar, mask = outmask, fill_value = missing)
-
-        
+                result = numpy.ma.masked_array(outVar, mask = outMask, fill_value = missing)
 
         return result
 
@@ -358,4 +447,4 @@ class Regridder:
 
             # Why does this fail?
             # esmf.finalize()
-         
+

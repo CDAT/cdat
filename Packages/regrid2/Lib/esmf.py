@@ -20,24 +20,24 @@ def finalize():
     """Finalize (close) ESMP"""
     ESMP.ESMP_Finalize()
     
-class EsmfGrid:
-    def __init__(self, upperBound, lowerBound, coordsCor = None, 
-                 coordsCtr = None, mask = None, periodicity = 1,
-                 coordSys = ESMP.ESMP_COORDSYS_CART):
+class EsmfStructGrid:
+    def __init__(self, coords, mask = None, 
+                 staggerloc = ESMP.ESMP_STAGGERLOC_CENTER,
+                 periodicity = 1, coordSys = ESMP.ESMP_COORDSYS_CART):
         """
         Construct an ESMP Grid object
-        @param upperBoundXY tuple Upper Dimension of the grid in x, y (lon, lat)
-        @param lowerBoundXY tuple Lower dimension of the grid in x, y
-        @param coordsCor tuple Corner coordinates of the grid (lon, lat)
-        @param coordsCtr tuple Center coordinates of the grid (lon, lat)
+        @param coords tuple coordinates of the grid (lat, lon)
         @param mask Mask 1 is invalid data 0 valid (numpy definition)
+        @param staggerloc Coordinate location
+                           ESMP.ESMP_STAGGERLOC_CENTER (default)
+                           ESMP.ESMP_STAGGERLOC_CORNER
         @param periodicity Number of periodic boundaries
                            0 - None
                            1 - One e.g. longitude default (Assume global)
                            2 - Two e.g.
-        @param coordSys (default) ESMP_COORDSYS_CART
-                                  ESMP_COORDSYS_SPH_DEG
-                                  ESMP_COORDSYS_SPH_RAD
+        @param coordSys    ESMP.ESMP_COORDSYS_CART (default)
+                           ESMP.ESMP_COORDSYS_SPH_DEG
+                           ESMP.ESMP_COORDSYS_SPH_RAD
         """
         coordSystems = [ESMP.ESMP_COORDSYS_CART, ESMP.ESMP_COORDSYS_SPH_DEG,
                         ESMP.ESMP_COORDSYS_SPH_RAD]
@@ -46,65 +46,77 @@ class EsmfGrid:
                   Coordinate system must be ESMP.ESMP_COORDSYS_CART
                                             ESMP.ESMP_COORDSYS_SPH_DEG
                                             ESMP.ESMP_COORDSYS_SPH_RAD"""
-        rank = len(upperBound)
-        maxList = []
-        for i in range(rank):
-            maxList.append(upperBound[i] - lowerBound[i])
-        maxIndex = np.array(maxList, dtype = np.int32)
+        
+        # maxIndex -> x, y 
+        self.maxIndex = np.array(coords[0].shape[::-1], dtype = np.int32)
+        rank = len(coords[0].shape)
         
         # Create the grid object
         if periodicity == 0:
-            self.grid = ESMP.ESMP_GridCreateNoPeriDim(maxIndex, 
+            self.grid = ESMP.ESMP_GridCreateNoPeriDim(self.maxIndex, 
                                                       coordSys = coordSys)
         elif periodicity == 1:                                             
-            self.grid = ESMP.ESMP_GridCreate1PeriDim(maxIndex, 
+            self.grid = ESMP.ESMP_GridCreate1PeriDim(self.maxIndex, 
                                                       coordSys = coordSys)
         elif periodicity == 2:                                             
-            self.grid = ESMP.ESMP_GridCreate2PeriDim(maxIndex, 
+            raise cdms2.CDMSError, 'Method Not Implemented'
+            self.grid = ESMP.ESMP_GridCreate2PeriDim(self.maxIndex, 
                                                       coordSys = coordSys)
         else:
             raise cdms2.CDMSError, """
                     Periodicity must be 0, 1 or 2"""
 
-        locs = [ESMP.ESMP_STAGGERLOC_CORNER, ESMP.ESMP_STAGGERLOC_CENTER]
-        cLoc = [coordsCor, coordsCtr]
-        
         # Populate the corners and centers if given
-        for iLoc in range(len(cLoc)):
-            if cLoc[iLoc] is not None:
-                ESMP.ESMP_GridAddCoord(self.grid, staggerloc=locs[iLoc])
+        ESMP.ESMP_GridAddCoord(self.grid, staggerloc=staggerloc)
     
-                exLBLoc, exUBLoc = ESMP.ESMP_GridGetCoord(self.grid, 
-                                                          locs[iLoc])
-                                                        
-                xyLoc = []
-                for i in range(rank):
-                    tmp = ESMP.ESMP_GridGetCoordPtr(self.grid, i+1, locs[iLoc])
-                    xyLoc.append(tmp)
-                
-                # Poplulate the self.grid with coordinates
-                for iC in range(2):
-                    p = 0
-                    for i1 in range(exLBLoc[1], exUBLoc[1]):
-                        for i0 in range(exLBLoc[0], exUBLoc[0]):
-                            xyLoc[iC][p] = cLoc[iC][i0, i1]
-                            p = p + 1
+        exLBLoc, exUBLoc = ESMP.ESMP_GridGetCoord(self.grid, staggerloc) 
+        
+        xyLoc = []
+        for i in range(rank):
+            tmp = ESMP.ESMP_GridGetCoordPtr(self.grid, i+1, staggerloc)
+            xyLoc.append(tmp)
+        
+        # Poplulate the self.grid with coordinates
+        for iC in range(rank):
+            p = 0
+            for i0 in range(exLBLoc[1], exUBLoc[1]):
+                for i1 in range(exLBLoc[0], exUBLoc[0]):
+                    a = coords[iC][i0, i1]
+                    xyLoc[iC][p] = a
+                    p = p + 1
 
         # Populate the  mask
-        ESMP.ESMP_GridAddItem(self.grid, item=ESMP.ESMP_GRIDITEM_MASK)
-        self.mask = ESMP.ESMP_GridGetItem(self.grid, 
+        self.mask = None
+        if mask is not None:
+            ESMP.ESMP_GridAddItem(self.grid, item=ESMP.ESMP_GRIDITEM_MASK)
+            self.mask = ESMP.ESMP_GridGetItem(self.grid, 
                                           item=ESMP.ESMP_GRIDITEM_MASK)
-        p = 0
-        for i1 in range(exLBLoc[1], exUBLoc[1]):
-            for i0 in range(exLBLoc[0], exUBLoc[0]):
-                if mask is not None:
-                    self.mask[p] = mask[i0, i1]
-                else:
-                    self.mask[p] = 0
-                p = p + 1
+            p = 0
+            for i0 in range(exLBLoc[1], exUBLoc[1]):
+                for i1 in range(exLBLoc[0], exUBLoc[0]):
+                    if mask is not None:
+                        self.mask[p] = mask[i0, i1]
+                    else:
+                        self.mask[p] = 0
+                    p = p + 1
+
+        self.staggerloc = staggerloc
+        self.coordSys = coordSys
         
+    def getPointer(self, dim):
+        """
+        Return the coordinates for a dimension
+        @param dim desired dimension 1-based
+        """
+        if dim < 1:
+            raise RegridError, "dim is 1-based"
+
+        
+        return ESMP.ESMP_GridGetCoordPtr(self.grid, dim, self.grid.staggerloc)
+
     def __del__(self):
         pass
+        #ESMP.EMSP_GridDestroy(self)
 
 class EsmfStructMesh:
     """
@@ -212,20 +224,20 @@ class EsmfStructField:
     Create a structured field object
     """
     def __init__(self, esmfGrid, name, data, 
-                 meshloc = ESMP.ESMP_MESHLOC_NODE):
+                 staggerloc = ESMP.ESMP_STAGGERLOC_CENTER):
         """
         Creator for ESMF Field
         @param esmfGrid instance of an ESMP_Mesh
         @param name field name
         @param data numpy ndarray of data
-        @param meshloc ESMP_MESHLOC_NODE for Bilinear interpolation
-                       ESMP_MESHLOC_ELEMENT for Conservative interpolation
+        @param staggerloc ESMP_STAGGERLOC_CENTER for Bilinear interpolation
+                       ESMP_STAGGERLOC_CORNER for Conservative interpolation
         """
         locations = [ESMP.ESMP_MESHLOC_NODE, ESMP.ESMP_MESHLOC_ELEMENT]
-        if meshloc not in locations:
+        if staggerloc not in locations:
             raise cdms2.CDMSError, """
-                  Coordinate system must be ESMP.ESMP_MESHLOC_NODE
-                                            ESMP.ESMP_MESHLOC_ELEMENT"""
+                  Stagger location must be ESMP.ESMP_STAGGERLOC_CENTER
+                                           ESMP.ESMP_STAGGERLOC_CORNER"""
 
         numpyType2EsmfType = {
             'float64': ESMP.ESMP_TYPEKIND_R8,
@@ -256,20 +268,20 @@ class EsmfGridField(EsmfStructField):
     Create a grid field object. Inherits from EsmfStructField
     """
     def __init__(self, esmfGrid, name, data, 
-                 staggerloc = ESMP.ESMP_MESHLOC_NODE):
+                 staggerloc = ESMP.ESMP_STAGGERLOC_CENTER):
         """
         Creator for ESMF Field
-        @param esmfGrid instance of an ESMP_Mesh
+        @param esmfGrid instance of an ESMP_Grid
         @param name field name
         @param data numpy ndarray of data
         @param staggerloc ESMP_STAGGERLOC_CENTER
-                       ESMP_STAGGERLOC_CORNER
+                          ESMP_STAGGERLOC_CORNER
         """
-        locations = [ESMP.ESMP_MESHLOC_NODE, ESMP.ESMP_MESHLOC_ELEMENT]
-        if meshloc not in locations:
+        locations = [ESMP.ESMP_STAGGERLOC_CENTER, ESMP.ESMP_STAGGERLOC_CORNER]
+        if staggerloc not in locations:
             raise cdms2.CDMSError, """
-                  Coordinate system must be ESMP.ESMP_MESHLOC_NODE
-                                            ESMP.ESMP_MESHLOC_ELEMENT"""
+                  Grid staggering must be ESMP.ESMP_STAGGERLOC_CENTER
+                                          ESMP.ESMP_STAGGERLOC_CORNER"""
         numpyType2EsmfType = {
             'float64': ESMP.ESMP_TYPEKIND_R8,
             'float32': ESMP.ESMP_TYPEKIND_R4,
@@ -299,8 +311,12 @@ class EsmfRegrid:
         """
         self.srcField = srcField
         self.dstField = dstField
-        self.regrid = ESMP.ESMP_FieldRegridStore( srcField.field, dstField.field,
-                                                  regridMethod, unMappedAction)
+        self.regrid = ESMP.ESMP_FieldRegridStore( srcField.field, 
+                                                  dstField.field,
+                                                  srcMaskValues = None, 
+                                                  dstMaskValues = None,
+                                                  regridmethod = regridMethod, 
+                                                  unmappedaction = unMappedAction)
 
     def __call__(self, srcField=None, dstField=None):
         """
