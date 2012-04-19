@@ -328,9 +328,12 @@ class Regridder:
             # Need to convert this to a cdms2 variable
             if inputIsVariable:
                 # Grid
+                attrs = inData.attributes
                 lats = numpy.reshape(self.dstGrid.getPointer(1), outVar.shape)
                 lons = numpy.reshape(self.dstGrid.getPointer(2), outVar.shape)
-                grid = cdms2.hgrid.TransientCurveGrid(lats, lons, id = 'CurveGrid')
+                lat = cdms2.coord.TransientAxis2D(lats, id = 'lat')
+                lon = cdms2.coord.TransientAxis2D(lons, id = 'lon')
+                grid = cdms2.hgrid.TransientCurveGrid(lat, lon, id = 'CurveGrid')
                 result = cdms2.createVariable(outVar, mask = outMask,
                                               fill_value = inData.fill_value,
                                               axes = grid.getAxisList(),
