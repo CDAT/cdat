@@ -53,6 +53,79 @@ def hasMask(data):
             hasMask = True
     return hasMask
 
+def _makeCrdsFromBounds(coords = None):
+    """
+    Need to build a mesh that is nodal for the ESMF regridding to work
+    consevatively. The models use both 1d and 2d axes.
+    @param list of coordinates [lon, lat]
+    """
+    if coords is None: 
+        raise RegridError, 'Coordinates required'
+    if not isinstance(coords, list):
+        raise RegridError, 'Coordinates must be a list'
+
+    rank = coords[0].shape
+    bounds = []
+    for c in coords:
+        bounds.append(c.getBounds())
+
+    if len(rank) == 1:
+
+        # 1-d axes have different dimensions for each
+        ni = len(coords[1])
+        nj = len(coords[0])
+        newDims = [nj+1, ni+1]
+        newMeshLons = numpy.zeros(newDims[1], numpy.float64)
+        newMeshLats = numpy.zeros(newDims[0], numpy.float64)
+
+        newMeshLons[:ni] = bounds[1][:, 0]
+        newMeshLons[-1] = bounds[1][ni-1, 1]
+        newMeshLats[:nj] = bounds[0][:, 0]
+        newMeshLats[-1] = bounds[0][nj-1, 1]
+        if newMeshLats[0] < -90: newMeshLats[0] = -90
+        if newMeshLats[-1] > 90: newMeshLats[-1] = 90
+        gridDims = newDims
+
+    elif len(rank) == 2:
+
+        # 2-d axes have the same dimensions for each
+        nj = rank[0]+1
+        ni = rank[1]+1
+
+        def checkBndOrder(bnd):
+            if bnd[0] <= bnd[1] and bnd[1] >= bnd[2]:
+                order = (0, 1, 2, 3)
+            elif bnd[0] <= bnd[1] and bnd[1] <= bnd[2]:
+                order = (0, 1, 2, 3)
+            elif bnd[0] >= bnd[1] and bnd[1] <= bnd[2]:
+                order = (2, 3, 0, 1)
+            elif bnd[0] >= bnd[1] and bnd[1] >= bnd[2]:
+                order = (3, 0, 1, 2)
+            else:
+                order = bnd
+            return order
+
+        newMeshLons = numpy.zeros((nj, ni), numpy.float64)
+        newMeshLats = numpy.zeros((nj, ni), numpy.float64)
+        mnj, mni, nnj, nni = nj-1, ni-1, nj-2, ni-2
+
+        o = checkBndOrder(bounds[1][0, 0, :])
+
+        newMeshLons[:mnj, :mni] = bounds[1][  :,   :, o[0]]   # Lower Left
+        newMeshLats[:mnj, :mni] = bounds[0][  :,   :, o[0]]   # Lower Left
+        newMeshLons[:mnj,   -1] = bounds[1][  :,  -1, o[1]]   # Right Edge
+        newMeshLats[:mnj,   -1] = bounds[0][  :,  -1, o[1]]   # Right Edge
+        newMeshLons[  -1, :mni] = bounds[1][ -1,   :, o[3]]   # Top Row
+        newMeshLats[  -1, :mni] = bounds[0][ -1,   :, o[3]]   # Top Row
+        newMeshLons[  -1,   -1] = bounds[1][ -1,  -1, o[2]]   # Upper Right corner
+        newMeshLats[  -1,   -1] = bounds[0][ -1,  -1, o[2]]   # Upper Right corner
+
+        gridDims = (nj, ni)
+
+    else:
+        raise RegridError, '3D+ interp not supported yet...'
+
+    return [newMeshLons, newMeshLats], gridDims
 
 class Regridder:
     def __init__(self, inGrid, outGrid, srcMask = None, dstMask = None,
@@ -103,27 +176,27 @@ class Regridder:
                 self.regridMethod = ESMP.ESMP_REGRIDMETHOD_BILINEAR
             else:
                 self.regridMethod = ESMP.ESMP_REGRIDMETHOD_CONSERVE
+
+            # Create new coordinates from bounds if available
             if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-                # If the bounds are the same rank maybe we can use them...
-                if inGrid.getBounds().rank() == inGrid.rank():
-                    pass
+                if isinstance(inGrid, list):
+                    for g in inGrid:
+                        if not hasattr(g, 'getBounds'):
+                            raise RegridError, 'cdms2 grid required in list'
+                    inGridSave = inGrid
+                    # Create new grid and replace
+                    inGrid, newDims = _makeCrdsFromBounds(inGrid)
                 else:
-                    message = \
-                """\n
-             Conservative regridding not implemented in regrid2 for coordinates
-             whose ranks are not the same as the bounds
-             import ESMP
-             import esmf
-             Then create the coordinates from the bounds for both the
-             source and destination grids.
-                """
+                    message = "Input grid must be a list of grids"
                     raise RegridError, message
 
+            # Set the location of the staggering
             if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_BILINEAR:
                 self.location = ESMP.ESMP_STAGGERLOC_CENTER
             elif self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
                 self.location = ESMP.ESMP_STAGGERLOC_CORNER
 
+            # Set some required values
             self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE
             self.staggerloc = ESMP.ESMP_STAGGERLOC_CENTER
             self.coordSys = ESMP.ESMP_COORDSYS_CART
