@@ -28,25 +28,37 @@ def _setMaskDtype(mask):
 def _makeGridList(grid):
     """
     Convert a cdms2 grid to a list of coordinates
+    Using this because TransientRectGrids have no AxisList though the method
+    exists
     @param grid The grid to be converted
     """
     if cdms2.isGrid(grid):
+        # It is a grid
         index = 0
         retGrid = [grid.getLatitude(), grid.getLongitude()]
         try:
             retGrid.append(grid.getLevel())
         except:
             pass
-        rank = len(retGrid)
-
+        nSpatial = len(retGrid)
     elif isinstance(grid, list):
-        rank = len(grid)
+        # It is a list already
+        nSpatial = len(grid)
         retGrid = grid
     else:
         raise RegridError, 'Grid must be a list of coordinates or a cdms2 grid'
-    return retGrid, rank
+
+    # Check the number of coordinates
+    if nSpatial < 2:
+        raise RegridError, 'Only one coordinate found. Regridding needs at\n' + \
+                           'least two.'
+    return retGrid, nSpatial
 
 def hasMask(data):
+    """
+    Does the data provided contain a mask?
+    @param data
+    """
     hasMask = False
     if hasattr(data, 'mask'):
         if data.mask.size > 1:
@@ -127,6 +139,27 @@ def _makeCrdsFromBounds(coords = None):
 
     return [newMeshLons, newMeshLats], gridDims
 
+def _makeBoundsCurveList(grid):
+    """
+    Construct a curvilinear grid from the bounds of the given grid
+    @param grid the grid. Needs to have getBounds()
+    """
+    if isinstance(grid, list):
+        for g in grid:
+            if not hasattr(g, 'getBounds'):
+                raise RegridError, 'cdms2 grid required in list'
+        gridSave = grid
+        # Create new grid and replace
+        bounds, newDims = _makeCrdsFromBounds(grid)
+    elif cdms2.isGrid(grid):
+        g = [grid.getLongitude(), grid.getLatitude()]
+        bounds, newDims = _makeCrdsFromBounds(g)
+    else:
+        message = "Input grid must be a list of grids"
+        raise RegridError, message
+
+    srcBoundsCurve = cdms2.gsRegrid.makeCurvilinear(bounds)
+
 class Regridder:
     def __init__(self, inGrid, outGrid, srcMask = None, dstMask = None,
                  regridTool = "gsRegrid", regridMethod = "bilinear", **args):
@@ -177,27 +210,27 @@ class Regridder:
             else:
                 self.regridMethod = ESMP.ESMP_REGRIDMETHOD_CONSERVE
 
-            # Create new coordinates from bounds if available
-            if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-                if isinstance(inGrid, list):
-                    for g in inGrid:
-                        if not hasattr(g, 'getBounds'):
-                            raise RegridError, 'cdms2 grid required in list'
-                    inGridSave = inGrid
-                    # Create new grid and replace
-                    inGrid, newDims = _makeCrdsFromBounds(inGrid)
-                else:
-                    message = "Input grid must be a list of grids"
-                    raise RegridError, message
+            # Want 2D coordinates in a list [lat, lon]
+            # Choices list, TransientAxis2D, TransientRectAxis
+            srcGrid, self.srcSpatial = _makeGridList(inGrid)
+            if self.srcSpatial > 1:
+                srcGrid, srcSpatial = cdms2.gsRegrid.makeCurvilinear(srcGrid)
 
-            # Set the location of the staggering
-            if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_BILINEAR:
-                self.location = ESMP.ESMP_STAGGERLOC_CENTER
-            elif self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
+            dstGrid, self.dstSpatial = _makeGridList(outGrid)
+            if self.dstSpatial > 1:
+                dstGrid, dstSpatial = cdms2.gsRegrid.makeCurvilinear(dstGrid)
+
+            self.location = ESMP.ESMP_STAGGERLOC_CENTER
+            srcBoundsCurveList = None
+            dstBoundsCurveList = None
+            if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
+                # Create new coordinates from bounds if available
                 self.location = ESMP.ESMP_STAGGERLOC_CORNER
+                srcBoundsCurveList = _makeBoundsCurveList(inGrid)
+                dstBoundsCurveList = _makeBoundsCurveList(outGrid)
 
             # Set some required values
-            self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE
+            self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_ERROR
             self.staggerloc = ESMP.ESMP_STAGGERLOC_CENTER
             self.coordSys = ESMP.ESMP_COORDSYS_CART
             self.periodicity = 1
@@ -214,38 +247,24 @@ class Regridder:
                 if re.search('coordsys', arg):
                     self.coordSys = args[arg]
 
-            # Initialize the ESMP
-            if not isinstance(inGrid, list):
-                srcGrid, self.srcRank = _makeGridList(inGrid)
-            rank = len(inGrid)
-            if isinstance(inGrid[0], cdms2.coord.TransientAxis2D):
-                newGrid = []
-                for i in range(rank):
-                    newGrid.append(inGrid[i].data)
-                inGrid = newGrid
-            if rank > 1:
-                srcGrid, srcRank = cdms2.gsRegrid.makeCurvilinear(inGrid)
-            if not isinstance(outGrid, list):
-                dstGrid, self.dstRank = _makeGridList(outGrid)
-            rank = len(outGrid)
-            if isinstance(outGrid[0], cdms2.coord.TransientAxis2D):
-                newGrid = []
-                for i in range(rank):
-                    newGrid.append(outGrid[i].data)
-                outGrid = newGrid
-            if rank > 1:
-                dstGrid, dstRank = cdms2.gsRegrid.makeCurvilinear(outGrid)
-
+            # Initialize ESMP
             esmf.initialize()
-            #self.srcMesh = esmf.EsmfStructMesh(srcGrid)
-            #self.dstMesh = esmf.EsmfStructMesh(dstGrid)
+
             self.outMask = srcMask
             self.dstMask = dstMask
-            self.srcGrid = esmf.EsmfStructGrid(srcGrid, mask = srcMask,
+
+            # Create the ESMP grids
+            self.srcGrid = esmf.EsmfStructGrid(srcGrid, 
+                                               bounds = srcBoundsCurveList, 
+                                               mask = srcMask,
+                                               regridMethod = regridMethod, 
                                                periodicity = self.periodicity,
                                                staggerloc = self.staggerloc,
                                                coordSys = self.coordSys)
-            self.dstGrid = esmf.EsmfStructGrid(dstGrid, mask = dstMask,
+            self.dstGrid = esmf.EsmfStructGrid(dstGrid, 
+                                               bounds = dstBoundsCurveList,
+                                               mask = dstMask,
+                                               regridMethod = regridMethod, 
                                                periodicity = self.periodicity,
                                                staggerloc = self.staggerloc,
                                                coordSys = self.coordSys)
@@ -337,6 +356,8 @@ class Regridder:
             else:
                 location = self.location
 
+            location = ESMP.ESMP_STAGGERLOC_CENTER
+
             # Make sure we are passing a ndarray
             self.srcField = esmf.EsmfGridField(self.srcGrid, inData.id,
                                                  inData.data,
@@ -375,28 +396,6 @@ class Regridder:
                     if hasattr(inData, att):
                        missing = getattr(inData, att)
                 if missing is not None: outMask = (outVar == missing)
-
-#            amskout = numpy.ma.ones(outVar.shape, numpy.bool8)
-#            print 'hasMask(inData)', hasMask(inData)
-#            if hasMask(inData):
-#                if inputIsVariable == 1:
-#                    if inData.fill_value is not None:
-#                        amskout = 1 - (outVar == inData.fill_value)
-#
-#            # Set the missing data mask of the output array, if any.
-#            hasMissing = not numpy.ma.alltrue(numpy.ma.ravel(amskout))
-#            slabMask = None
-#            if hasMissing:
-#                slabMask = numpy.ma.where(numpy.ma.equal(amskout, 0), 1, 0)
-#
-#            # Combine missing data mask and output grid mask
-#            # Note: slabMask and outMask are Boolean here
-#            if self.outMask is not None:
-#                outMask = numpy.logical_not(numpy.resize(self.outMask, outShape))
-#                if hasMissing:
-#                    outMask = numpy.ma.logical_or(outMask, slabMask)
-#            else:
-#                outMask = slabMask
 
             # Need to convert this to a cdms2 variable
             if inputIsVariable:
