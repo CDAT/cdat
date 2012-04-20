@@ -521,18 +521,32 @@ class Regrid:
             status = self.lib.nccf_free_coord(self.dst_coordids[i])
             catchError(status, sys._getframe().f_lineno)
 
-    def setValidMask(self, mask):
+    def setValidMask(self, inMask):
         """
         Set valid mask array for the grid
-        @param mask flat array of type char and size dims
-        @note this must be invoked before computing the weights, the 
+        @param mask flat numpy array of type numpy.int32 or a valid cdms2 variable
+                    with its mask set. 
+                    0 - invalid, 1 - valid data
+        @note This must be invoked before computing the weights, the 
         mask is a property of the grid (not the data).
         """
-        # run some checks.
-        if mask.dtype != numpy.int32:
-            raise CDMSError, \
-                "ERROR in %s: mask must be array of integers" \
-                % (__FILE__,)
+        
+        # run some checks. Try to convert the mask to int32 using the masking
+        # rules from cdms2
+        if inMask.dtype != numpy.int32:
+            if inMask.dtype == numpy.bool:
+                mask = numpy.array(inMask, dtype = numpy.int32)
+                # Since numpy.mask uses True for a masked (invalid) value
+                # 1-mask gives 1 as valid (unmasked) and 0 as invalid (masked)
+                mask = 1 - mask
+            else:
+                message = """\n
+                ERROR in %s: mask must be an array of numpy.int32 or a valid
+                cdms2 variable with its mask set.
+                """ % (__FILE__,)
+                raise CDMSError, message
+        else:
+            mask = inMask
 
         # extend src data if grid was made cyclic and or had a cut accounted for
         newMask = self._extend(mask)

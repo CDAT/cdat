@@ -29,7 +29,7 @@ set(CMAKE_MODULE_PATH
   )
 
 #-----------------------------------------------------------------------------
-# CDat version
+# CDAT version
 #------------------------------------------------------------------------------
 set(cdat_VERSION_MAJOR 6)
 set(cdat_VERSION_MINOR 0)
@@ -381,6 +381,9 @@ if(NOT APPLE)
   else()
     add_cdat_package(CLAPACK)
   endif()
+  set(CDAT_OS_XTRA_PATH  "")
+else()
+  set(CDAT_OS_XTRA_PATH  ${CMAKE_INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/${PYVER}/bin)
 endif()
 
 add_cdat_package(freetype)
@@ -425,6 +428,7 @@ else ()
    message("Building you a python at ${PYTHON_EXECUTABLE}")
    set(PYTHON_EXTRA_PREFIX "")
    message("Building packages into this python")
+   set(PYVER 2.7)
 endif()
 add_cdat_package(setuptools)
 add_cdat_package(SIP)
@@ -443,6 +447,8 @@ else (Matplotlib_FOUND)
   message("We will build Matplotlib for you")
   add_cdat_package(Matplotlib)
 endif(Matplotlib_FOUND)
+add_cdat_package(GEOS)
+add_cdat_package(basemap)
 add_cdat_package(CMOR)
 add_cdat_package(CDAT)
 add_cdat_package(gui_support)
@@ -617,6 +623,8 @@ set(gui_support_DEPENDENCIES ${CDAT_dep})
 # C.Doutriaux Turning off vistrails build from within CDAT not needed
 #set(VisTrails_DEPENDENCIES ${ParaView_dep} ${CDAT_dep})
 set(Matplotlib_DEPENDENCIES ${PyQt_dep} ${Cairo_dep} ${NUMPY_dep} )
+set(GEOS_DEPENDENCIES ${Matplotlib_dep} )
+set(basemap_DEPENDENCIES ${GEOS_dep} )
 list(REMOVE_DUPLICATES external_packages)
 foreach(package ${external_packages})
   message("Building ${package}")
@@ -637,3 +645,6 @@ configure_file(${cdat_SOURCE_DIR}/checked_get.sh.in
 
 include(CDATLogger)
 
+configure_file(${cdat_CMAKE_SOURCE_DIR}/setup_cdat.sh.in
+  ${CMAKE_INSTALL_PREFIX}/bin/setup_cdat.sh
+  @ONLY)
