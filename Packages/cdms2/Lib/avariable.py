@@ -14,7 +14,7 @@ from error import CDMSError
 from axis import axisMatchIndex, axisMatchAxis, axisMatches, unspecified, CdtimeTypes, AbstractAxis
 import selectors
 import copy
-# from regrid2 import Regridder, PressureRegridder, CrossSectionRegridder
+from regrid2 import Regridder, PressureRegridder, CrossSectionRegridder
 #import PropertiedClasses
 from convention import CF1
 from grid import AbstractRectGrid

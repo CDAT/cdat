@@ -11,9 +11,13 @@ meshloc = [ESMP.ESMP_MESHLOC_NODE, ESMP.ESMP_MESHLOC_ELEMENT]
 regridMethod = [ESMP.ESMP_REGRIDMETHOD_BILINEAR, ESMP.ESMP_REGRIDMETHOD_CONSERVE]
 
 def initialize():
+    """
+    Initialize ESMP
+    """
     ESMP.ESMP_Initialize()
 
 def finalize():
+    """Finalize (close) ESMP"""
     ESMP.ESMP_Finalize()
 
 class EsmfStructMesh:
@@ -127,7 +131,7 @@ class EsmfStructField:
         Creator for ESMF Field
         @param esmfGrid instance of an ESMP_Mesh
         @param name field name
-        @param data numpy array of data
+        @param data numpy ndarray of data
         @param meshloc ESMP_MESHLOC_NODE for Bilinear interpolation
                        ESMP_MESHLOC_ELEMENT for Conservative interpolation
         """
@@ -142,6 +146,7 @@ class EsmfStructField:
                         typekind = etype)
         # Copy the data
         ptr = self.getPointer()
+        print ptr.shape,data.shape
         ptr[:] = data.flat
 
     def getPointer(self):
@@ -173,8 +178,6 @@ class EsmfRegrid:
         self.dstField = dstField
         self.regrid = ESMP.ESMP_FieldRegridStore( srcField.field, dstField.field,
                                                   regridMethod, unMappedAction)
-
-
 
     def __call__(self, srcField=None, dstField=None):
         """
@@ -489,9 +492,6 @@ def testCurviLinear(useMethod, writeVTK = False, doPlot = False):
         writeVSH5('testDst.vsh5', dstESMFGrid, dstData)
 
     # Interpolate Bilinear
-    print ' Regrid'
-    print 'data shape src:', srcData.shape, 'dst:', dstData.shape
-    print 'grid shape src:', sxxn.shape, 'dst:', dxxn.shape
     regrid = EsmfRegrid(srcESMFField, dstESMFField,
                 regridMethod = regridMethod[useMethod],
                 unMappedAction = unMappedAction)
