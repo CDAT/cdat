@@ -87,7 +87,6 @@ class EsmfStructGrid:
         else:
             staggerLocations = [staggerloc]
 
-        print self.maxIndex, conserve
         for sLoc in staggerLocations:
             ESMP.ESMP_GridAddCoord(self.grid, staggerloc=sLoc)
             exLBLoc, exUBLoc = ESMP.ESMP_GridGetCoord(self.grid, sLoc) 
@@ -96,7 +95,6 @@ class EsmfStructGrid:
             for i in range(rank):
                 tmp = ESMP.ESMP_GridGetCoordPtr(self.grid, i+1, sLoc)
                 xyLoc.append(tmp)
-            print 'loc, bound, vals', sLoc, exLBLoc, exUBLoc
             
             # Poplulate the self.grid with coordinates or the bounds as needed
             for iC in range(rank):
@@ -315,7 +313,6 @@ class EsmfGridField(EsmfStructField):
                         typekind = etype)
         # Copy the data
         ptr = self.getPointer()
-        print 'esmfgridfield data pointer', ptr.shape, data.shape
         ptr[:] = data.flat
 
 class EsmfRegrid:
@@ -334,7 +331,6 @@ class EsmfRegrid:
         """
         self.srcField = srcField
         self.dstField = dstField
-        print ESMP.ESMP_REGRIDMETHOD_BILINEAR, ESMP.ESMP_UNMAPPEDACTION_ERROR, unMappedAction
         self.regrid = ESMP.ESMP_FieldRegridStore( srcField.field, 
                                                   dstField.field,
                                                   srcMaskValues = None, 

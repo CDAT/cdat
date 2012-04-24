@@ -76,12 +76,12 @@ def _makeCrdsFromBounds(coords = None):
     if not isinstance(coords, list):
         raise RegridError, 'Coordinates must be a list'
 
-    rank = coords[0].shape
+    rank = len(coords[0].shape)
     bounds = []
     for c in coords:
         bounds.append(c.getBounds())
 
-    if len(rank) == 1:
+    if rank == 1:
 
         # 1-d axes have different dimensions for each
         ni = len(coords[1])
@@ -98,7 +98,7 @@ def _makeCrdsFromBounds(coords = None):
         if newMeshLats[-1] > 90: newMeshLats[-1] = 90
         gridDims = newDims
 
-    elif len(rank) == 2:
+    elif rank == 2:
 
         # 2-d axes have the same dimensions for each
         nj = rank[0]+1
@@ -137,7 +137,7 @@ def _makeCrdsFromBounds(coords = None):
     else:
         raise RegridError, '3D+ interp not supported yet...'
 
-    return [newMeshLons, newMeshLats], gridDims
+    return [newMeshLats, newMeshLons], gridDims
 
 def _makeBoundsCurveList(grid):
     """
@@ -152,13 +152,14 @@ def _makeBoundsCurveList(grid):
         # Create new grid and replace
         bounds, newDims = _makeCrdsFromBounds(grid)
     elif cdms2.isGrid(grid):
-        g = [grid.getLongitude(), grid.getLatitude()]
+        g = [grid.getLatitude(), grid.getLongitude()]
         bounds, newDims = _makeCrdsFromBounds(g)
     else:
         message = "Input grid must be a list of grids"
         raise RegridError, message
 
-    srcBoundsCurve = cdms2.gsRegrid.makeCurvilinear(bounds)
+    boundsCurve, dims = cdms2.gsRegrid.makeCurvilinear(bounds)
+    return boundsCurve
 
 class Regridder:
     def __init__(self, inGrid, outGrid, srcMask = None, dstMask = None,
@@ -210,6 +211,7 @@ class Regridder:
             else:
                 self.regridMethod = ESMP.ESMP_REGRIDMETHOD_CONSERVE
 
+
             # Want 2D coordinates in a list [lat, lon]
             # Choices list, TransientAxis2D, TransientRectAxis
             srcGrid, self.srcSpatial = _makeGridList(inGrid)
@@ -257,14 +259,14 @@ class Regridder:
             self.srcGrid = esmf.EsmfStructGrid(srcGrid, 
                                                bounds = srcBoundsCurveList, 
                                                mask = srcMask,
-                                               regridMethod = regridMethod, 
+                                               regridMethod = self.regridMethod, 
                                                periodicity = self.periodicity,
                                                staggerloc = self.staggerloc,
                                                coordSys = self.coordSys)
             self.dstGrid = esmf.EsmfStructGrid(dstGrid, 
                                                bounds = dstBoundsCurveList,
                                                mask = dstMask,
-                                               regridMethod = regridMethod, 
+                                               regridMethod = self.regridMethod, 
                                                periodicity = self.periodicity,
                                                staggerloc = self.staggerloc,
                                                coordSys = self.coordSys)
@@ -310,9 +312,6 @@ class Regridder:
         """
         Apply the interpolation.
         @param inData The input data
-        @param missing Missing value
-        @param order The order of the data
-        @param mask Mask
         @param **args Optional keyword arguments for each regrid type
                 regrid2 has: missing = None, order = None, mask = None,
         """
@@ -380,6 +379,7 @@ class Regridder:
 
             self.regrid = esmf.EsmfRegrid(self.srcField, self.dstField, method,
                                           unMappedAction)
+
             # Call the regrid proceedure
             self.regrid()
             ptr = self.dstField.getPointer()
@@ -387,15 +387,15 @@ class Regridder:
 
             # Set the output mask if available
             outMask = None
-            if self.dstMask is not None:
-                outMask = self.dstMask
-            elif hasMask(inData) or self.outMask is not None:
+            if hasMask(inData) or self.outMask is not None:
                 attrs = ('missing_value','fill_value',)
                 missing = None
                 for att in attrs:
                     if hasattr(inData, att):
                        missing = getattr(inData, att)
                 if missing is not None: outMask = (outVar == missing)
+            elif self.dstMask is None:
+                outMask = self.dstMask
 
             # Need to convert this to a cdms2 variable
             if inputIsVariable:
