@@ -72,26 +72,20 @@ class EsmfStructGrid:
         staggerLocations = [ESMP.ESMP_STAGGERLOC_CORNER, 
                             ESMP.ESMP_STAGGERLOC_CENTER]
 
+        # Copy the data
         for sLoc in staggerLocations:
             ESMP.ESMP_GridAddCoord(self.grid, staggerloc=sLoc)
             exLBLoc, exUBLoc = ESMP.ESMP_GridGetCoord(self.grid, sLoc) 
             
-            xyLoc = []
             for i in range(rank):
-                tmp = ESMP.ESMP_GridGetCoordPtr(self.grid, i+1, sLoc)
-                xyLoc.append(tmp)
+                ptr = ESMP.ESMP_GridGetCoordPtr(self.grid, i+1, sLoc)
             
             # Poplulate the self.grid with coordinates or the bounds as needed
-            for iC in range(rank):
                 p = 0
-                for i0 in range(exLBLoc[1], exUBLoc[1]):
-                    for i1 in range(exLBLoc[0], exUBLoc[0]):
-                        if sLoc == ESMP.ESMP_STAGGERLOC_CORNER:
-                            a = bounds[iC][i0, i1]
-                        else:
-                            a = coords[iC][i0, i1]
-                        xyLoc[iC][p] = a
-                        p = p + 1
+                if sLoc == ESMP.ESMP_STAGGERLOC_CORNER:
+                    ptr[:] = bounds[i].flat
+                else:
+                    ptr[:] = coords[i].flat
 
             # Populate the mask on Cell Centers
             self.maskPtr = None
@@ -99,11 +93,7 @@ class EsmfStructGrid:
                 ESMP.ESMP_GridAddItem(self.grid, item=ESMP.ESMP_GRIDITEM_MASK)
                 self.maskPtr = ESMP.ESMP_GridGetItem(self.grid, 
                                               item=ESMP.ESMP_GRIDITEM_MASK)
-                p = 0
-                for i0 in range(exLBLoc[1], exUBLoc[1]):
-                    for i1 in range(exLBLoc[0], exUBLoc[0]):
-                        self.maskPtr[p] = mask[i0, i1]
-                        p = p + 1
+                self.maskPtr = mask.flat
 
     def getPointer(self, dim):
         """
@@ -293,6 +283,8 @@ class EsmfGridField(EsmfStructField):
         self.field = ESMP.ESMP_FieldCreateGrid(esmfGrid.grid, name,
                         staggerloc = staggerloc,
                         typekind = etype)
+        g = ESMP.ESMP_GridGetCoordPtr(esmfGrid.grid, 1, ESMP.ESMP_STAGGERLOC_CENTER)
+
         # Copy the data
         ptr = self.getPointer()
         ptr[:] = data.flat
