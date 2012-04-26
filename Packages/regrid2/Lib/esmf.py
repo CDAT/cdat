@@ -21,10 +21,8 @@ def finalize():
     ESMP.ESMP_Finalize()
     
 class EsmfStructGrid:
-    def __init__(self, coords, bounds = None, mask = None, periodicity = 1, 
-                 staggerloc = ESMP.ESMP_STAGGERLOC_CENTER,
-                 coordSys = ESMP.ESMP_COORDSYS_CART,
-                 regridMethod = ESMP.ESMP_REGRIDMETHOD_BILINEAR):
+    def __init__(self, coords, bounds = None, mask = None, periodicity = 0, 
+                 coordSys = ESMP.ESMP_COORDSYS_SPH_DEG):
         """
         Construct an ESMP Grid object
         @param coords tuple or list of coordinates of the grid (lat, lon)
@@ -32,17 +30,12 @@ class EsmfStructGrid:
                       conservative interpolation
         @param mask Mask 1 is invalid data 0 valid (numpy definition)
         @param periodicity Number of periodic boundaries
-                           0 - None
-                           1 - One e.g. longitude default (Assume global)
+                           0 - None Default
+                           1 - One e.g. longitude (Assume global)
                            2 - Two e.g.
-        @param staggerloc Coordinate location
-                           ESMP.ESMP_STAGGERLOC_CENTER (default)
-                           ESMP.ESMP_STAGGERLOC_CORNER
-                           Conservative regridding requires both
         @param coordSys    ESMP.ESMP_COORDSYS_CART (default)
                            ESMP.ESMP_COORDSYS_SPH_DEG
                            ESMP.ESMP_COORDSYS_SPH_RAD
-        @param regridMethod Conservative or bilinear
         """
         coordSystems = [ESMP.ESMP_COORDSYS_CART, ESMP.ESMP_COORDSYS_SPH_DEG,
                         ESMP.ESMP_COORDSYS_SPH_RAD]
@@ -52,16 +45,11 @@ class EsmfStructGrid:
                                             ESMP.ESMP_COORDSYS_SPH_DEG
                                             ESMP.ESMP_COORDSYS_SPH_RAD"""
         
-        # Make sure there are bounds and a mask
-        if (bounds is None and regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE):
-            raise RegridError, 'Need the bounds to conservatively regrid'
+        # Make sure there are bounds
+        if bounds is None:
+            raise RegridError, 'Need the bounds for ESMP.'
 
         # maxIndex -> x, y 
-        conserve = False
-        if regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-            conserve = True
-        #    self.maxIndex = np.array(bounds[0].shape[::-1], dtype = np.int32)
-        #else:
         self.maxIndex = np.array(coords[0].shape[::-1], dtype = np.int32)
         rank = len(coords[0].shape)
         
@@ -80,12 +68,9 @@ class EsmfStructGrid:
             raise cdms2.CDMSError, """
                     Periodicity must be 0, 1 or 2"""
 
-        # Populate the corners and centers if given
-        if conserve:
-            staggerLocations = [ESMP.ESMP_STAGGERLOC_CORNER, 
-                                ESMP.ESMP_STAGGERLOC_CENTER]
-        else:
-            staggerLocations = [staggerloc]
+        # Populate the corners and centers
+        staggerLocations = [ESMP.ESMP_STAGGERLOC_CORNER, 
+                            ESMP.ESMP_STAGGERLOC_CENTER]
 
         for sLoc in staggerLocations:
             ESMP.ESMP_GridAddCoord(self.grid, staggerloc=sLoc)
@@ -101,7 +86,7 @@ class EsmfStructGrid:
                 p = 0
                 for i0 in range(exLBLoc[1], exUBLoc[1]):
                     for i1 in range(exLBLoc[0], exUBLoc[0]):
-                        if conserve:
+                        if sLoc == ESMP.ESMP_STAGGERLOC_CORNER:
                             a = bounds[iC][i0, i1]
                         else:
                             a = coords[iC][i0, i1]
@@ -109,18 +94,15 @@ class EsmfStructGrid:
                         p = p + 1
 
             # Populate the mask on Cell Centers
-            maskPtr = None
+            self.maskPtr = None
             if mask is not None and sLoc == ESMP.ESMP_STAGGERLOC_CENTER:
                 ESMP.ESMP_GridAddItem(self.grid, item=ESMP.ESMP_GRIDITEM_MASK)
-                maskPtr = ESMP.ESMP_GridGetItem(self.grid, 
+                self.maskPtr = ESMP.ESMP_GridGetItem(self.grid, 
                                               item=ESMP.ESMP_GRIDITEM_MASK)
                 p = 0
                 for i0 in range(exLBLoc[1], exUBLoc[1]):
                     for i1 in range(exLBLoc[0], exUBLoc[0]):
-                        if mask is not None:
-                            maskPtr[p] = mask[i0, i1]
-                        else:
-                            maskPtr[p] = 0
+                        self.maskPtr[p] = mask[i0, i1]
                         p = p + 1
 
     def getPointer(self, dim):
@@ -320,8 +302,10 @@ class EsmfRegrid:
     Regrid source grid data to destination grid data
     """
     def __init__(self, srcField, dstField,
+                 srcFrac = None, dstFrac = None,
+                 srcMask = None, dstMask = None,
                  regridMethod   = ESMP.ESMP_REGRIDMETHOD_BILINEAR,
-                 unMappedAction = ESMP.ESMP_UNMAPPEDACTION_ERROR):
+                 unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE):
         """
         Regrid
         @param srcField the source field object
@@ -331,12 +315,21 @@ class EsmfRegrid:
         """
         self.srcField = srcField
         self.dstField = dstField
-        self.regrid = ESMP.ESMP_FieldRegridStore( srcField.field, 
-                                                  dstField.field,
-                                                  srcMaskValues = None, 
-                                                  dstMaskValues = None,
-                                                  regridmethod = regridMethod, 
-                                                  unmappedaction = unMappedAction)
+        srcMaskV = None
+        dstMaskV = None
+        if srcMask is not None: 
+            srcMaskV = np.array([1], dtype = np.int32)
+        if dstMask is not None: 
+            dstMaskV = np.array([1], dtype = np.int32)
+        self.regridHandle = ESMP.ESMP_FieldRegridStore( 
+                                                srcField.field, 
+                                                dstField.field,
+                                                srcMaskValues = srcMaskV, 
+                                                dstMaskValues = dstMaskV,
+                                                srcFracField = srcFrac, 
+                                                dstFracField = dstFrac,
+                                                regridmethod = regridMethod, 
+                                                unmappedaction = unMappedAction)
 
     def __call__(self, srcField=None, dstField=None):
         """
@@ -348,10 +341,12 @@ class EsmfRegrid:
             srcField = self.srcField
         if dstField == None:
             dstField = self.dstField
-        ESMP.ESMP_FieldRegrid(srcField.field, dstField.field, self.regrid)
+        ESMP.ESMP_FieldRegrid(srcField.field, dstField.field, self.regridHandle)
+        ESMP.ESMP_FieldRegridRelease(self.regridHandle)
     
     def __del__(self):
-        ESMP.ESMP_FieldRegridRelease(self.regrid)
+        #ESMP.ESMP_FieldRegridRelease(self.regridHandle)
+        pass
 
 def _createCLMeshFromAxes(lons, lats, conserved = 0):
     """

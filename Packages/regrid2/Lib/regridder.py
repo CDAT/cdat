@@ -145,6 +145,7 @@ def _makeBoundsCurveList(grid):
     @param grid the grid. Needs to have getBounds()
     """
     if isinstance(grid, list):
+        print '_makeBoundsCurveList, grid'
         for g in grid:
             if not hasattr(g, 'getBounds'):
                 raise RegridError, 'cdms2 grid required in list'
@@ -225,17 +226,19 @@ class Regridder:
             self.location = ESMP.ESMP_STAGGERLOC_CENTER
             srcBoundsCurveList = None
             dstBoundsCurveList = None
-            if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
+            try: 
                 # Create new coordinates from bounds if available
                 self.location = ESMP.ESMP_STAGGERLOC_CORNER
                 srcBoundsCurveList = _makeBoundsCurveList(inGrid)
                 dstBoundsCurveList = _makeBoundsCurveList(outGrid)
+            except:
+                RegridError, "Bounds required"
 
             # Set some required values
             self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_ERROR
             self.staggerloc = ESMP.ESMP_STAGGERLOC_CENTER
             self.coordSys = ESMP.ESMP_COORDSYS_CART
-            self.periodicity = 1
+            self.periodicity = None
 
             for arg in args:
                 if re.search('unmappedaction', arg):
@@ -249,26 +252,39 @@ class Regridder:
                 if re.search('coordsys', arg):
                     self.coordSys = args[arg]
 
+            # Set the periodicity from the longitude bounds and coords if
+            # not set by the user.
+            if self.periodicity is None:
+                calc360C = abs(srcGrid[1][0,0]) + \
+                           abs(srcGrid[1][0,srcSpatial[1]-1])
+                calc360B = abs(srcBoundsCurveList[1][0,0]) + \
+                           abs(srcBoundsCurveList[1][0,srcSpatial[1]])
+                if calc360B == 360 and calc360C == 360:
+                    # Bounds are not periodic
+                    self.periodicity = 0
+                else:
+                    if calc360B != 360 and calc360C != 360:
+                        # Bounds are periodic
+                        self.periodicity = 1
+                    else:
+                        raise RegridError, 'use import ESMP for regrional grids'
+
             # Initialize ESMP
             esmf.initialize()
 
-            self.outMask = srcMask
+            self.srcMask = srcMask
             self.dstMask = dstMask
 
             # Create the ESMP grids
             self.srcGrid = esmf.EsmfStructGrid(srcGrid, 
                                                bounds = srcBoundsCurveList, 
                                                mask = srcMask,
-                                               regridMethod = self.regridMethod, 
                                                periodicity = self.periodicity,
-                                               staggerloc = self.staggerloc,
                                                coordSys = self.coordSys)
             self.dstGrid = esmf.EsmfStructGrid(dstGrid, 
                                                bounds = dstBoundsCurveList,
                                                mask = dstMask,
-                                               regridMethod = self.regridMethod, 
                                                periodicity = self.periodicity,
-                                               staggerloc = self.staggerloc,
                                                coordSys = self.coordSys)
 
         elif rgTool == 'gsregrid' or rgTool == 'libcf':
@@ -377,8 +393,11 @@ class Regridder:
             else:
                 unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE
 
-            self.regrid = esmf.EsmfRegrid(self.srcField, self.dstField, method,
-                                          unMappedAction)
+            self.regrid = esmf.EsmfRegrid(self.srcField, self.dstField, 
+                                srcMask = self.srcGrid.maskPtr, 
+                                dstMask = self.dstGrid.maskPtr,
+                                regridMethod = method,
+                                unMappedAction = unMappedAction)
 
             # Call the regrid proceedure
             self.regrid()
