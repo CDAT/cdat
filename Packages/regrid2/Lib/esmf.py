@@ -4,6 +4,7 @@ import operator
 import cdms2
 import tables
 import sys
+from regrid2 import RegridError
 
 # Global variables
 method = ['bilinear', 'conservative']
@@ -85,6 +86,8 @@ class EsmfStructGrid:
                 if sLoc == ESMP.ESMP_STAGGERLOC_CORNER:
                     ptr[:] = bounds[i].flat
                 else:
+                    print '\nc', ptr.shape,coords[i].shape, type(coords[i])
+                    print str(type(coords[i])) == "<class 'cdms2.coord.TransientAxis2D'>"
                     ptr[:] = coords[i].flat
 
             # Populate the mask on Cell Centers
@@ -95,6 +98,11 @@ class EsmfStructGrid:
                                               item=ESMP.ESMP_GRIDITEM_MASK)
                 self.maskPtr = mask.flat
 
+    def getMask(self):
+        self.maskPtr = ESMP.ESMP_GridGetItem(self.grid, 
+                                         item = ESMP.ESMP_GRIDITEM_MASK)
+        return np.reshape(self.maskPtr, self.maxIndex)
+
     def getPointer(self, dim):
         """
         Return the coordinates for a dimension
@@ -104,7 +112,8 @@ class EsmfStructGrid:
             raise RegridError, "dim is 1-based"
 
         
-        return ESMP.ESMP_GridGetCoordPtr(self.grid, dim, self.grid.staggerloc)
+        gridPtr = ESMP.ESMP_GridGetCoordPtr(self.grid, dim, self.grid.staggerloc)
+        return np.reshape(gridPtr, self.maxIndex)
 
     def __del__(self):
         pass
@@ -295,33 +304,50 @@ class EsmfRegrid:
     """
     def __init__(self, srcField, dstField,
                  srcFrac = None, dstFrac = None,
-                 srcMask = None, dstMask = None,
+                 srcMaskValues = None, 
+                 dstMaskValues = None,
                  regridMethod   = ESMP.ESMP_REGRIDMETHOD_BILINEAR,
                  unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE):
         """
         Regrid
         @param srcField the source field object
         @param dstField the destination field object
+
+        Optional:
+        @param srcMaskValues Value of masked cells in source
+        @param dstMaskValues Value of masked cells in destination
+                     e.g. 
         @param regridMethod ESMF constanct bilinear, conservative, etc.
         @param unMappedAction ESMP Constant Error, Ignore, etc.
+        @param srcFrac Source fraction of cells used - Output value
+        @param dstFrac Source fraction of cells used - Output value
         """
         self.srcField = srcField
         self.dstField = dstField
-        srcMaskV = None
-        dstMaskV = None
-        if srcMask is not None: 
-            srcMaskV = np.array([1], dtype = np.int32)
-        if dstMask is not None: 
-            dstMaskV = np.array([1], dtype = np.int32)
+
+        def checkMaskValues(maskValues):
+            if maskValues is None:
+                maskValue = np.array([1], dtype = np.int32)
+            elif isinstance(maskValues, list):
+                maskValue = np.array(srcMaskValues, dtype = np.int32)
+            elif isinstance(maskValues, np.ndarray):
+                maskValue = maskValues.copy()
+            else:
+                raise RegridError, 'Masked values must be None, a list or numpy array'
+            return maskValue
+
+        srcMaskValue = checkMaskValues(srcMaskValues)
+        dstMaskValue = checkMaskValues(dstMaskValues)
+
         self.regridHandle = ESMP.ESMP_FieldRegridStore( 
-                                                srcField.field, 
-                                                dstField.field,
-                                                srcMaskValues = srcMaskV, 
-                                                dstMaskValues = dstMaskV,
-                                                srcFracField = srcFrac, 
-                                                dstFracField = dstFrac,
-                                                regridmethod = regridMethod, 
-                                                unmappedaction = unMappedAction)
+                                     srcField.field, 
+                                     dstField.field,
+                                     srcMaskValues = srcMaskValue, 
+                                     dstMaskValues = dstMaskValue,
+                                     srcFracField = srcFrac, 
+                                     dstFracField = dstFrac,
+                                     regridmethod = regridMethod, 
+                                     unmappedaction = unMappedAction)
 
     def __call__(self, srcField=None, dstField=None):
         """

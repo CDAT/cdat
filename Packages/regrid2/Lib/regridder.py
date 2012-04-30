@@ -44,7 +44,7 @@ def _makeGridList(grid):
     elif isinstance(grid, list):
         # It is a list already
         nSpatial = len(grid)
-        retGrid = grid
+        retGrid = copy.copy(grid)
     else:
         raise RegridError, 'Grid must be a list of coordinates or a cdms2 grid'
 
@@ -65,6 +65,19 @@ def hasMask(data):
             hasMask = True
     return hasMask
 
+def _checkBndOrder(bnd):
+    if bnd[0] <= bnd[1] and bnd[1] >= bnd[2]:
+        order = (0, 1, 2, 3)
+    elif bnd[0] <= bnd[1] and bnd[1] <= bnd[2]:
+        order = (0, 1, 2, 3)
+    elif bnd[0] >= bnd[1] and bnd[1] <= bnd[2]:
+        order = (2, 3, 0, 1)
+    elif bnd[0] >= bnd[1] and bnd[1] >= bnd[2]:
+        order = (3, 0, 1, 2)
+    else:
+        order = bnd
+    return order
+
 def _makeCrdsFromBounds(coords = None):
     """
     Need to build a mesh that is nodal for the ESMF regridding to work
@@ -79,8 +92,13 @@ def _makeCrdsFromBounds(coords = None):
     rank = len(coords[0].shape)
     bounds = []
     for c in coords:
-        bounds.append(c.getBounds())
-
+        if hasattr(c, 'getBounds'):
+            bounds.append(c.getBounds())
+        elif hasattr(c, 'genGenericBounds'):
+            bounds.appen(c.genGenericBounds())
+        else:
+            raise RegridError, "Bounds cannot be found or created"
+    
     if rank == 1:
 
         # 1-d axes have different dimensions for each
@@ -101,27 +119,14 @@ def _makeCrdsFromBounds(coords = None):
     elif rank == 2:
 
         # 2-d axes have the same dimensions for each
-        nj = rank[0]+1
-        ni = rank[1]+1
-
-        def checkBndOrder(bnd):
-            if bnd[0] <= bnd[1] and bnd[1] >= bnd[2]:
-                order = (0, 1, 2, 3)
-            elif bnd[0] <= bnd[1] and bnd[1] <= bnd[2]:
-                order = (0, 1, 2, 3)
-            elif bnd[0] >= bnd[1] and bnd[1] <= bnd[2]:
-                order = (2, 3, 0, 1)
-            elif bnd[0] >= bnd[1] and bnd[1] >= bnd[2]:
-                order = (3, 0, 1, 2)
-            else:
-                order = bnd
-            return order
+        nj = coords[0].shape[0]+1
+        ni = coords[0].shape[1]+1
 
         newMeshLons = numpy.zeros((nj, ni), numpy.float64)
         newMeshLats = numpy.zeros((nj, ni), numpy.float64)
         mnj, mni, nnj, nni = nj-1, ni-1, nj-2, ni-2
 
-        o = checkBndOrder(bounds[1][0, 0, :])
+        o = _checkBndOrder(bounds[1][0, 0, :])
 
         newMeshLons[:mnj, :mni] = bounds[1][  :,   :, o[0]]   # Lower Left
         newMeshLats[:mnj, :mni] = bounds[0][  :,   :, o[0]]   # Lower Left
@@ -145,13 +150,16 @@ def _makeBoundsCurveList(grid):
     @param grid the grid. Needs to have getBounds()
     """
     if isinstance(grid, list):
-        print '_makeBoundsCurveList, grid'
+        bn = []
         for g in grid:
             if not hasattr(g, 'getBounds'):
-                raise RegridError, 'cdms2 grid required in list'
-        gridSave = grid
+                b = cdms2.axis.createAxis(g)
+                bn.append(b)
+            else:
+                bn.append(g)
+        gridUse = bn
         # Create new grid and replace
-        bounds, newDims = _makeCrdsFromBounds(grid)
+        bounds, newDims = _makeCrdsFromBounds(gridUse)
     elif cdms2.isGrid(grid):
         g = [grid.getLatitude(), grid.getLongitude()]
         bounds, newDims = _makeCrdsFromBounds(g)
@@ -183,6 +191,7 @@ class Regridder:
                             only bilinear or multilinear
         @param **args Optional keyword arguments for each type of regridder
                 gsRegrid accepts nitermax and tolpos for computing the weights
+                ESMP accepts src(dst)MaskValue and periodicity
         """
         if regridTool is None:
             regridTool = 'gsregrid'
@@ -222,20 +231,16 @@ class Regridder:
             dstGrid, self.dstSpatial = _makeGridList(outGrid)
             if self.dstSpatial > 1:
                 dstGrid, dstSpatial = cdms2.gsRegrid.makeCurvilinear(dstGrid)
-
+            
             self.location = ESMP.ESMP_STAGGERLOC_CENTER
             srcBoundsCurveList = None
             dstBoundsCurveList = None
-            try: 
-                # Create new coordinates from bounds if available
-                self.location = ESMP.ESMP_STAGGERLOC_CORNER
-                srcBoundsCurveList = _makeBoundsCurveList(inGrid)
-                dstBoundsCurveList = _makeBoundsCurveList(outGrid)
-            except:
-                RegridError, "Bounds required"
+            self.location = ESMP.ESMP_STAGGERLOC_CORNER
+            srcBoundsCurveList = _makeBoundsCurveList(inGrid)
+            dstBoundsCurveList = _makeBoundsCurveList(outGrid)
 
             # Set some required values
-            self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_ERROR
+            self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE
             self.staggerloc = ESMP.ESMP_STAGGERLOC_CENTER
             self.coordSys = ESMP.ESMP_COORDSYS_CART
             self.periodicity = None
@@ -252,30 +257,29 @@ class Regridder:
                 if re.search('coordsys', arg):
                     self.coordSys = args[arg]
 
-            # Set the periodicity from the longitude bounds and coords if
+            # Use non periodic boundaries unless the user says otherwise
             # not set by the user.
             if self.periodicity is None:
-                calc360C = abs(srcGrid[1][0,0]) + \
-                           abs(srcGrid[1][0,srcSpatial[1]-1])
-                calc360B = abs(srcBoundsCurveList[1][0,0]) + \
-                           abs(srcBoundsCurveList[1][0,srcSpatial[1]])
-                if calc360B == 360 and calc360C == 360:
-                    # Bounds are not periodic
-                    self.periodicity = 0
-                else:
-                    if calc360B != 360 and calc360C != 360:
-                        # Bounds are periodic
-                        self.periodicity = 1
-                    else:
-                        raise RegridError, 'use import ESMP for regrional grids'
+                self.periodicity = 0
+
+            self.srcMask = srcMask
+            self.dstMask = dstMask
+            
+            # Default to the numpy and ESMP standard. 1 (True) is a masked value.
+            # This is needed for EsmfRegrid()
+            self.srcMaskValue = numpy.array([1], dtype = numpy.int32)
+            self.dstMaskValue = numpy.array([1], dtype = numpy.int32)
+            for arg in args.keys():
+                if re.search('srcmaskvalue', arg):
+                    self.srcMaskValue = numpy.array([args[arg]], dtype = numpy.int32)
+                if re.search('dstmaskvalue', arg):
+                    self.dstMaskValue = numpy.array([args[arg]], dtype = numpy.int32)
+
+            # Create the ESMP grids
 
             # Initialize ESMP
             esmf.initialize()
 
-            self.srcMask = srcMask
-            self.dstMask = dstMask
-
-            # Create the ESMP grids
             self.srcGrid = esmf.EsmfStructGrid(srcGrid, 
                                                bounds = srcBoundsCurveList, 
                                                mask = srcMask,
@@ -377,7 +381,7 @@ class Regridder:
             self.srcField = esmf.EsmfGridField(self.srcGrid, inData.id,
                                                  inData.data,
                                                  staggerloc = location)
-            # Convert bask y, x
+            # Convert mask y, x
             outShape = self.dstGrid.maxIndex[::-1]
             outVar = numpy.zeros(outShape, inData.dtype)
             self.dstField = esmf.EsmfGridField(self.dstGrid, inData.id,
@@ -393,9 +397,12 @@ class Regridder:
             else:
                 unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE
 
+            srcFrac = None
+            dstFrac = None
+
             self.regrid = esmf.EsmfRegrid(self.srcField, self.dstField, 
-                                srcMask = self.srcGrid.maskPtr, 
-                                dstMask = self.dstGrid.maskPtr,
+                                srcFrac = srcFrac,
+                                dstFrac = dstFrac,
                                 regridMethod = method,
                                 unMappedAction = unMappedAction)
 
