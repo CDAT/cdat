@@ -436,6 +436,7 @@ add_cdat_package(libcf)
 add_cdat_package(Cython)
 add_cdat_package(Numexpr)
 add_cdat_package(PyTables)
+
 find_package(Matplotlib)
 if (Matplotlib_FOUND)
   message("We found Matplotlib")
@@ -443,9 +444,23 @@ else (Matplotlib_FOUND)
   message("We will build Matplotlib for you")
   add_cdat_package(Matplotlib)
 endif(Matplotlib_FOUND)
+
+find_pacakge(MPI)
+find_package(Mpi4py)
+if (Mpi4py_FOUND)
+  message("We found Mpi4py")
+else (Mpi4py_FOUND)
+  message("We will build Mpi4py for you")
+  add_cdat_package(Mpi4py)
+endif(Mpi4py_FOUND)
+
+
+
 add_cdat_package(CMOR)
 add_cdat_package(CDAT)
 add_cdat_package(gui_support)
+
+
 
 # Optional Packages
 
@@ -617,6 +632,7 @@ set(gui_support_DEPENDENCIES ${CDAT_dep})
 # C.Doutriaux Turning off vistrails build from within CDAT not needed
 #set(VisTrails_DEPENDENCIES ${ParaView_dep} ${CDAT_dep})
 set(Matplotlib_DEPENDENCIES ${PyQt_dep} ${Cairo_dep} ${NUMPY_dep} )
+set(Mpi4py_DEPENDENCIES ${NUMPY_dep} )
 list(REMOVE_DUPLICATES external_packages)
 foreach(package ${external_packages})
   message("Building ${package}")
