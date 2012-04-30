@@ -579,7 +579,7 @@ class Regrid:
         catchError(status, sys._getframe().f_lineno)
         self.weightsComputed = True
 
-    def apply(self, src_data_in, dst_data_in = None):
+    def apply(self, src_data_in, dst_data):
         """
         Apply interpolation
         @param src_data data on source grid
@@ -599,11 +599,7 @@ class Regrid:
             raise CDMSError, ("ERROR in %s: supplied src_data have wrong shape " \
                                   + "%s != %s") % (__FILE__, str(src_data.shape), \
                                      str(tuple([d for d in self.src_dims])))
-        if dst_data_in is None:
-            shape = tuple(self.dst_dims)
-            dst_data = numpy.zeros(shape, src_data.dtype)
-        else:
-            dst_data = dst_data_in
+        dst_data
         if reduce(operator.iand, [dst_data.shape[i] == self.dst_dims[i] \
                                  for i in range(self.rank)]) == False:
             raise CDMSError, ("ERROR ins: supplied dst_data have wrong shape " \
@@ -712,11 +708,9 @@ class Regrid:
         status = self.lib.nccf_free_data(dst_dataid)
         catchError(status, sys._getframe().f_lineno)
 
-        # Allow the regridder to be used in either mode
-        if dst_data_in is None: 
-            return dst_data
+        return dst_data
 
-    def __call__(self, src_data, dst_data = None):
+    def __call__(self, src_data, dst_data):
         """
         Apply interpolation (synonymous to apply method)
         @param src_data data on source grid
@@ -725,10 +719,7 @@ class Regrid:
               of src_data will not be interpoloted, the corresponding
               dst_data will not be touched.
         """
-        if dst_data is None:
-            return self.apply(src_data)
-        else:            
-            self.apply(src_data, dst_data)
+        self.apply(src_data, dst_data)
 
 
     def getNumValid(self):

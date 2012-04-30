@@ -95,7 +95,7 @@ class EsmfStructGrid:
                 ESMP.ESMP_GridAddItem(self.grid, item=ESMP.ESMP_GRIDITEM_MASK)
                 self.maskPtr = ESMP.ESMP_GridGetItem(self.grid, 
                                               item=ESMP.ESMP_GRIDITEM_MASK)
-                self.maskPtr = mask.flat
+                self.maskPtr[:] = mask.flat
 
     def getMask(self):
         self.maskPtr = ESMP.ESMP_GridGetItem(self.grid, 

@@ -498,12 +498,29 @@ class Regridder:
                     raise RegridError, \
                           'Ranks > 4 currently not supported though this API'
                 axisList = tuple(axisList)
+            
+            # Create the output data array. Assuming time in first index
+            outShape = self.regridObj.dst_dims[:]
+            if len(outShape) != len(inData.shape):
+                dd = [d for d in self.regridObj.dst_dims[:]]
+                outShape = [inData.shape[0]] + dd
+            outVar = numpy.ones(outShape, dtype = inData.dtype)
+            if hasattr(inData, 'missing_value'):
+                 outVar = outVar * inData.missing_value
+            elif hasattr(inData, 'fill_value'):
+                 outVar = outVar * inData.fill_value
+            if len(outVar.shape) != len(inData.shape):
+                string = 'outVar and inData have different shapes: ', \
+                  outVar.shape, inData.shape
+                print string
+                raise RegridError, string
+
+            outVar = numpy.ma.array(outVar, mask = self.outMask)
 
             # Loop over the time variable
             nTime = 1
             if hasTime is not None:
                 nTime = len(inData.getTime())
-                outVar = numpy.zeros(shape, inData.dtype)
                 for iTime in range(nTime):
                     outVar[iTime, ...] = self.regridObj(inData[iTime, ...])
             else:
