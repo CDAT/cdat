@@ -75,14 +75,15 @@ ExternalProject_Add(VisIt
   URL ${VISIT_URL}/${VISIT_GZ}
   #URL_MD5 ${VISIT_MD5}
   PATCH_COMMAND ""
-  #PATCH_COMMAND bash ${CMAKE_CURRENT_BINARY_DIR}/visit_patch
+  #CONFIGURE_COMMAND ""
+  BUILD_COMMAND ""
   CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${VisIt_install} -DCMAKE_INSTALL_NAME_DIR=${VisIt_install}/${VISIT_VERSION}/${VISIT_INSTALL_PLATFORM}/lib
   DEPENDS ${VisIt_DEPENDENCIES}
   ${EP_LOG_OPTIONS}
 )
 
 SET(VISIT_PARALLEL_PROCESSORS "4" CACHE STRING "Enter number of parallel processors used by VisIt" FORCE)
-MARK_AS_ADVANCED(CLEAR VISIT_PARALLEL_PROCESSORS)
+#MARK_AS_ADVANCED(CLEAR VISIT_PARALLEL_PROCESSORS)
 
 if(NOT EXISTS ${CMAKE_INSTALL_PREFIX}/lib)
   file(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib)
@@ -91,14 +92,8 @@ endif()
 MESSAGE(STATUS "Using ${VISIT_PARALLEL_PROCESSORS} processors to build VisIt") 
 # Before install step
 #load VisIt installation 
-ExternalProject_Add_Step(VisIt BuildVisItPatch_Step0
-  COMMAND echo $ENV{MFLAGS}
-  DEPENDEES patch
-  DEPENDERS configure
-  WORKING_DIRECTORY ${VisIt_source})
-
 ExternalProject_Add_Step(VisIt BuildVisItPatch_Step1
-  COMMAND echo yes | src/svn_bin/build_visit --gpl --console --cc ${VISIT_C_COMPILER} --cxx ${VISIT_CXX_COMPILER} --R --stdout --thirdparty-path ${CMAKE_CURRENT_BINARY_DIR}/visit-thirdparty --vtk --mesa --cmake-bin-dir ${CMAKE_PATH_VAR} --alt-python-dir ${CMAKE_INSTALL_PREFIX} --alt-qt-dir ${QT_ROOT} --mangle-libraries  --no-visit --makeflags -j${VISIT_PARALLEL_PROCESSORS}
+  COMMAND echo yes | src/svn_bin/build_visit --gpl --console --cc ${VISIT_C_COMPILER} --cxx ${VISIT_CXX_COMPILER} --R --thirdparty-path ${CMAKE_CURRENT_BINARY_DIR}/visit-thirdparty --vtk --mesa --cmake-bin-dir ${CMAKE_PATH_VAR} --alt-python-dir ${CMAKE_INSTALL_PREFIX} --alt-qt-dir ${QT_ROOT} --mangle-libraries  --no-visit --makeflags -j${VISIT_PARALLEL_PROCESSORS} --log-file ${CMAKE_BINARY_DIR}/logs/VisIt-build-out.log 
   DEPENDEES patch
   DEPENDERS configure
   WORKING_DIRECTORY ${VisIt_source})
@@ -110,12 +105,17 @@ SET(TMP_STR3 "FILE(APPEND ${VisIt_source}/${VISIT_HOSTNAME}.cmake \"VISIT_OPTION
 SET(TMP_STR4 "FILE(APPEND ${VisIt_source}/${VISIT_HOSTNAME}.cmake \"VISIT_OPTION_DEFAULT(VISIT_SIP_DIR ${CMAKE_INSTALL_PREFIX})\\n\")\n")
 SET(TMP_STR5 "FILE(APPEND ${VisIt_source}/${VISIT_HOSTNAME}.cmake \"VISIT_OPTION_DEFAULT(VISIT_OSX_USE_RPATH TYPE BOOL ON)\\n\")\n")
 SET(TMP_STR6 "FILE(APPEND ${VisIt_source}/${VISIT_HOSTNAME}.cmake \"VISIT_OPTION_DEFAULT(VISIT_QT_SKIP_INSTALL TYPE BOOL ON)\\n\")\n")
+SET(TMP_STR7 "FILE(APPEND ${VisIt_source}/${VISIT_HOSTNAME}.cmake \"VISIT_OPTION_DEFAULT(VISIT_PYTHON_SKIP_INSTALL TYPE BOOL ON)\\n\")\n")
+SET(TMP_STR8 "FILE(APPEND ${VisIt_source}/${VISIT_HOSTNAME}.cmake \"VISIT_OPTION_DEFAULT(VISIT_HEADERS_SKIP_INSTALL TYPE BOOL ON)\\n\")\n")
 
 FILE(WRITE   ${CMAKE_CURRENT_BINARY_DIR}/visit.cmake ${TMP_STR1})
 FILE(APPEND  ${CMAKE_CURRENT_BINARY_DIR}/visit.cmake ${TMP_STR2})
 FILE(APPEND  ${CMAKE_CURRENT_BINARY_DIR}/visit.cmake ${TMP_STR3})
 FILE(APPEND  ${CMAKE_CURRENT_BINARY_DIR}/visit.cmake ${TMP_STR4})
 FILE(APPEND  ${CMAKE_CURRENT_BINARY_DIR}/visit.cmake ${TMP_STR5})
+FILE(APPEND  ${CMAKE_CURRENT_BINARY_DIR}/visit.cmake ${TMP_STR6})
+FILE(APPEND  ${CMAKE_CURRENT_BINARY_DIR}/visit.cmake ${TMP_STR7})
+FILE(APPEND  ${CMAKE_CURRENT_BINARY_DIR}/visit.cmake ${TMP_STR8})
 FILE(APPEND  ${CMAKE_CURRENT_BINARY_DIR}/visit.cmake "FILE(WRITE ${VisIt_source}/CMakeLists.txt \"cmake_minimum_required(VERSION 2.8)\\n\")\n")
 FILE(APPEND  ${CMAKE_CURRENT_BINARY_DIR}/visit.cmake "FILE(APPEND ${VisIt_source}/CMakeLists.txt \"add_subdirectory(mangled_src)\\n\")\n")
 
@@ -123,16 +123,18 @@ ExternalProject_Add_Step(VisIt BuildVisItPatch_Step2
   COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/visit.cmake
   DEPENDEES BuildVisItPatch_Step1
   DEPENDERS configure
+  #DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/visit.cmake #only use to force steps..
   WORKING_DIRECTORY ${VisIt_source})
 
 ExternalProject_Add_Step(VisIt BuildVisItPatch_Step3
   COMMAND ${CMAKE_COMMAND} -E  copy ${VisIt_source}/${VISIT_HOSTNAME}.cmake ${VisIt_source}/mangled_src/config-site/${VISIT_HOSTNAME}.cmake
   DEPENDEES BuildVisItPatch_Step2
   DEPENDERS configure
+  #DEPENDS ${VisIt_source}/${VISIT_HOSTNAME}.cmake
   WORKING_DIRECTORY ${VisIt_source})
 
 ExternalProject_Add_Step(VisIt BuildVisItPatch_Step4
-  COMMAND echo yes | src/svn_bin/build_visit --gpl --console --cc ${VISIT_C_COMPILER} --cxx ${VISIT_CXX_COMPILER} --R --stdout --thirdparty-path ${CMAKE_CURRENT_BINARY_DIR}/visit-thirdparty --vtk --mesa --cmake-bin-dir ${CMAKE_PATH_VAR} --alt-python-dir ${CMAKE_INSTALL_PREFIX} --alt-qt-dir ${QT_ROOT} --mangle-libraries  --no-hostconf --makeflags -j${VISIT_PARALLEL_PROCESSORS}
+  COMMAND echo yes | src/svn_bin/build_visit --gpl --console --cc ${VISIT_C_COMPILER} --cxx ${VISIT_CXX_COMPILER} --R --thirdparty-path ${CMAKE_CURRENT_BINARY_DIR}/visit-thirdparty --vtk --mesa --cmake-bin-dir ${CMAKE_PATH_VAR} --alt-python-dir ${CMAKE_INSTALL_PREFIX} --alt-qt-dir ${QT_ROOT} --mangle-libraries  --no-hostconf --makeflags -j${VISIT_PARALLEL_PROCESSORS} --log-file ${CMAKE_BINARY_DIR}/logs/VisIt-build-out.log
 
   DEPENDEES BuildVisItPatch_Step3
   DEPENDERS configure
@@ -172,13 +174,13 @@ ExternalProject_Add_Step(VisIt InstallVisItExternalLibraries
   WORKING_DIRECTORY ${cdat_CMAKE_BINARY_DIR}
   )
 
-#ExternalProject_Add_Step(VisIt InstallVisItPyQtViewer
-#  COMMAND ${CMAKE_COMMAND} -E create_symlink ${VisIt_install}/${VISIT_VERSION}/${VISIT_INSTALL_PLATFORM}/lib/pyqt_pyqtviewer.so ${PYTHON_SITE_PACKAGES}
-#  DEPENDEES install
-#  WORKING_DIRECTORY ${cdat_CMAKE_BINARY_DIR})
+ExternalProject_Add_Step(VisIt RemoveUnnecessaryDatabaseReaders
+  COMMAND find . ! \( -iname "*netcdf*" -o -iname "*image*" -o -iname "*hdf5*" -o -iname "*pixie*" -o -iname "*vtk*" -o -iname "*mtk*" -o -iname "*xdmf*" \) -type f -delete
+  DEPENDEES install
+  WORKING_DIRECTORY ${VisIt_install}/${VISIT_VERSION}/${VISIT_INSTALL_PLATFORM}/plugins/databases)
 
 ExternalProject_Add_Step(VisIt InstallVisItModule
-  COMMAND ${CMAKE_COMMAND} -E create_symlink ${VisIt_install}/${VISIT_VERSION}/${VISIT_INSTALL_PLATFORM}/lib/site-packages/visit ${PYTHON_SITE_PACKAGES}
+  COMMAND ${CMAKE_COMMAND} -E create_symlink ${VisIt_install}/${VISIT_VERSION}/${VISIT_INSTALL_PLATFORM}/lib/site-packages/visit ${PYTHON_SITE_PACKAGES}/visit
   DEPENDEES install
   WORKING_DIRECTORY ${cdat_CMAKE_BINARY_DIR})
 
