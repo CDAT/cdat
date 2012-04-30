@@ -445,22 +445,22 @@ else (Matplotlib_FOUND)
   add_cdat_package(Matplotlib)
 endif(Matplotlib_FOUND)
 
-find_pacakge(MPI)
+find_package(MPI)
 find_package(Mpi4py)
 if (Mpi4py_FOUND)
   message("We found Mpi4py")
 else (Mpi4py_FOUND)
-  message("We will build Mpi4py for you")
-  add_cdat_package(Mpi4py)
+  if (MPI_FOUND)
+    message("We will build Mpi4py for you")
+    add_cdat_package(Mpi4py)
+  else ()
+    message("No MPI installation was found, will not build mpi4py")
+  endif ()
 endif(Mpi4py_FOUND)
-
-
 
 add_cdat_package(CMOR)
 add_cdat_package(CDAT)
 add_cdat_package(gui_support)
-
-
 
 # Optional Packages
 
