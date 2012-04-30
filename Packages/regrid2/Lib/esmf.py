@@ -82,13 +82,12 @@ class EsmfStructGrid:
                 ptr = ESMP.ESMP_GridGetCoordPtr(self.grid, i+1, sLoc)
             
             # Poplulate the self.grid with coordinates or the bounds as needed
+            # np.arrays required since numpy.ma arrays don't support flat
                 p = 0
                 if sLoc == ESMP.ESMP_STAGGERLOC_CORNER:
-                    ptr[:] = bounds[i].flat
+                    ptr[:] = np.array(bounds[i]).flat
                 else:
-                    print '\nc', ptr.shape,coords[i].shape, type(coords[i])
-                    print str(type(coords[i])) == "<class 'cdms2.coord.TransientAxis2D'>"
-                    ptr[:] = coords[i].flat
+                    ptr[:] = np.array(coords[i]).flat
 
             # Populate the mask on Cell Centers
             self.maskPtr = None
