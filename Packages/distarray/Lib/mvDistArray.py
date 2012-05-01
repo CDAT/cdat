@@ -9,7 +9,7 @@ modification, are permitted provided that the conditions
 specified in the license file 'license.txt' are met.
 """
 
-__version__ = "$Id: $"
+__version__ = "0.9"
 
 # standard imports
 import copy
@@ -110,7 +110,7 @@ class DistArray(numpy.ndarray):
         """
         for iw in self.windows:
             self.windows[iw]['window'].Free()
-            
+
 ######################################################################
 
 def test():

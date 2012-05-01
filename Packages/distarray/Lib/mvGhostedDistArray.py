@@ -9,7 +9,7 @@ modification, are permitted provided that the conditions
 specified in the license file 'license.txt' are met.
 """
 
-__version__ = "$Id: $"
+__version__ = "0.9"
 
 from mvDistArray import DistArray
 
@@ -18,9 +18,9 @@ class GhostedDistArray(DistArray):
     def getSlab(self, dim, slce):
         """
         Get slab. A slab is a multi-dimensional slice extending in
-        all directions except dim where slce applies
-        @param dim dimension where the slce applies (0=first index, 1=2nd index...)
-        @param slce slice object along dimension dim
+        all directions except along dim where slce applies
+        @param dim dimension (0=first index, 1=2nd index...)
+        @param slce python slice object along dimension dim
         @return slab
         """
         shape = self.shape
