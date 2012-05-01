@@ -7,5 +7,6 @@ packages = [
             "Packages/cdms2", 
 #            "Packages/cdms", 
             "Packages/ncml", 
-            "Packages/esg", 
+            "Packages/esg",
+            "Packages/distarray",
            ]
