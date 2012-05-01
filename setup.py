@@ -494,16 +494,13 @@ if (WM=="QT" or EM=="QT") and sys.platform in ['darwin']:
     print 'Running: ', ccCmd
     os.system(ccCmd)
     qt_vcs_extra_link_args = '%s/lib/python%s/config/libpython%s.a ' % (pref, ver, ver) + qt_vcs_extra_link_args
-    if sys.platform in ['darwin']:
-        ldCmd = 'g++ -o build/qpython build/qpython.o %s -lutil' % (qt_vcs_extra_link_args)
-    #else:
-    #    ldCmd = 'g++ -o build/qpython build/qpython.o %s -lutil -Wl,-E -Wl,-rpath -Wl,%s/Externals/lib' % (qt_vcs_extra_link_args,pref)
-    if sys.platform in ['darwin']:
-      print 'Running: ', ldCmd
-      os.system(ldCmd)
-      if 'install' in sys.argv:
+    ldCmd = 'g++ -o build/qpython build/qpython.o %s -lutil' % (qt_vcs_extra_link_args)
+    print 'Running: ', ldCmd
+    os.system(ldCmd)
+    if 'install' in sys.argv:
+        src = "%s/bin/cdat" % (target_prefix)
         print 'renaming to :',target_prefix
-        shutil.move("build/qpython", "%s/bin/cdat" % (target_prefix))
+        shutil.move("build/qpython", src)
         if target_prefix.find("Versions")>-1:
             if target_prefix.find("Library/Frameworks")>-1:
                 pth=os.path.sep+os.path.sep.join(target_prefix.split(os.path.sep)[:-5]+['bin','cdat'])
@@ -511,13 +508,17 @@ if (WM=="QT" or EM=="QT") and sys.platform in ['darwin']:
                 pth=os.path.sep+os.path.sep.join(target_prefix.split(os.path.sep)[:-3]+['bin','cdat'])
 
 else:
-    pth = os.path.sep+os.path.sep.join(target_prefix.split(os.path.sep)[:-3]+['bin','cdat'])
-    print 'symlinking to ',pth
+    pth = "%s/bin/cdat" % (target_prefix)
+    src = os.path.sep.join([sys.prefix,"bin","python"])
+    print 'symlinking from ',pth,sys.prefix
 try:
    os.remove(pth)
 except:
    pass
-os.symlink("%s/bin/cdat" % (target_prefix),pth)
+#print "At that point target is:",target_prefix
+print "Symlink:",pth
+#sys.exit()
+os.symlink(src,pth)
 #filedds = os.popen("find build/temp* -name '*.o'").readlines()
 #ofiles=' '.join(files).replace('\n',' ')
 #print ofiles
