@@ -1,7 +1,7 @@
 #/usr/bin/env python
 
 """
-Copyright (c) 2008, Tech-X Corporation
+Copyright (c) 2008-2012, Tech-X Corporation
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
