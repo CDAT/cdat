@@ -11,15 +11,21 @@ specified in the license file 'license.txt' are met.
 
 __version__ = "$Id: $"
 
-import numpy
+# standard imports
 import copy
-from mpi4py import MPI
 
+# external dependencies
+import numpy
+from mpi4py import MPI
 
 class DistArray(numpy.ndarray):
 
     """
-    Distributed array
+    Distributed array. Each process owns data and can expose a subset 
+    of the data to other processes. These are known as windows. Any 
+    number of windows can be exposed and the data of windows can be 
+    overlapping. Any process can access exposed windows from any other
+    process. This relies on MPI-2 one-sided Get communication.
     """
 
     def __init__(self, shape, dtype):
@@ -34,11 +40,21 @@ class DistArray(numpy.ndarray):
                                    #         'dataDst': dataDst,
                                    #         'window': window}
 
-        self.dtypeMPI = MPI.DOUBLE
-        if self.dtype == numpy.float32:
+        self.rk = self.comm.Get_rank()
+        self.sz = self.comm.Get_size()
+
+        if dtype == numpy.float64:
+            self.dtypeMPI = MPI.DOUBLE
+        elif dtype == numpy.float32:
             self.dtypeMPI = MPI.FLOAT
-        elif self.dtype == numpy.int32:
-            self.dtypeMPI = MPI.INT
+        elif dtype == numpy.int32:
+            self.dtypeMPI = MPI.INT32_T
+        elif dtype == numpy.int16:
+            self.dtypeMPI = MPI.INT16_T
+        elif dtype == numpy.int8:
+            self.dtypeMPI = MPI.INT8_T
+        else:
+            raise NotImplementedError
 
     def setComm(self, comm):
         """
@@ -46,15 +62,19 @@ class DistArray(numpy.ndarray):
         @param comm communicator
         """
         self.comm = comm
+        self.rk = self.comm.Get_rank()
+        self.sz = self.comm.Get_size()
 
     def expose(self, slce, winID):
         """
         Collective operation to expose a sub-set of data
-        @param slce a slice object
+        @param slce tuple of slice objects
         @param winID the data window ID
         """
-        dataSrc = numpy.zeros(self[slce].shape, self.dtype) # must be contiguous
-        dataDst = numpy.zeros(self[slce].shape, self.dtype) # must be contiguous
+        # buffer for source data
+        dataSrc = float('inf') * numpy.ones(self[slce].shape, self.dtype) 
+        # buffer for destination data
+        dataDst = float('inf') * numpy.ones(self[slce].shape, self.dtype)
         self.windows[winID] = {
             'slice': slce,
             'dataSrc': dataSrc,
@@ -75,7 +95,7 @@ class DistArray(numpy.ndarray):
         dataDst = iw['dataDst']
 
         # copy src data into buffer
-        dataSrc[...] = self[slce] # sync
+        dataSrc[...] = self[slce]
 
         win = iw['window']
         win.Fence()
@@ -84,17 +104,6 @@ class DistArray(numpy.ndarray):
 
         return dataDst
 
-    def fence(self, winID = None):
-        """
-        Synchronization barrier
-        @param winID apply given window (use None to apply to all)
-        """
-        if winID != None:
-            self.windows[winID]['window'].Fence()
-        else:
-            for winID in self.windows:
-                self.windows[winID]['window'].Fence()
-        
     def free(self):
         """
         Must be called to free all exposed windows
