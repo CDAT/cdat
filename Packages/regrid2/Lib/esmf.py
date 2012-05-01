@@ -34,8 +34,8 @@ class EsmfStructGrid:
                            0 - None Default
                            1 - One e.g. longitude (Assume global)
                            2 - Two e.g.
-        @param coordSys    ESMP.ESMP_COORDSYS_CART (default)
-                           ESMP.ESMP_COORDSYS_SPH_DEG
+        @param coordSys    ESMP.ESMP_COORDSYS_CART
+                           ESMP.ESMP_COORDSYS_SPH_DEG (default)
                            ESMP.ESMP_COORDSYS_SPH_RAD
         """
         coordSystems = [ESMP.ESMP_COORDSYS_CART, ESMP.ESMP_COORDSYS_SPH_DEG,

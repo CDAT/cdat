@@ -84,7 +84,7 @@ def _makeCrdsFromBounds(coords = None):
     consevatively. The models use both 1d and 2d axes.
     @param list of coordinates [lon, lat]
     """
-    if coords is None: 
+    if coords is None:
         raise RegridError, 'Coordinates required'
     if not isinstance(coords, list):
         raise RegridError, 'Coordinates must be a list'
@@ -98,7 +98,7 @@ def _makeCrdsFromBounds(coords = None):
             bounds.appen(c.genGenericBounds())
         else:
             raise RegridError, "Bounds cannot be found or created"
-    
+
     if rank == 1:
 
         # 1-d axes have different dimensions for each
@@ -231,13 +231,22 @@ class Regridder:
             dstGrid, self.dstSpatial = _makeGridList(outGrid)
             if self.dstSpatial > 1:
                 dstGrid, dstSpatial = cdms2.gsRegrid.makeCurvilinear(dstGrid)
-            
+
             self.location = ESMP.ESMP_STAGGERLOC_CENTER
             srcBoundsCurveList = None
             dstBoundsCurveList = None
             self.location = ESMP.ESMP_STAGGERLOC_CORNER
             srcBoundsCurveList = _makeBoundsCurveList(inGrid)
             dstBoundsCurveList = _makeBoundsCurveList(outGrid)
+
+#            print "\nSrc Coords"
+#            print inGrid
+#            print "Src Bounds"
+#            print srcBoundsCurveList
+#            print "Dst Coords"
+#            print outGrid
+#            print "Dst Bounds"
+#            print dstBoundsCurveList
 
             # Set some required values
             self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE
@@ -264,7 +273,7 @@ class Regridder:
 
             self.srcMask = srcMask
             self.dstMask = dstMask
-            
+
             # Default to the numpy and ESMP standard. 1 (True) is a masked value.
             # This is needed for EsmfRegrid()
             self.srcMaskValue = numpy.array([1], dtype = numpy.int32)
@@ -280,12 +289,12 @@ class Regridder:
             # Initialize ESMP
             esmf.initialize()
 
-            self.srcGrid = esmf.EsmfStructGrid(srcGrid, 
-                                               bounds = srcBoundsCurveList, 
+            self.srcGrid = esmf.EsmfStructGrid(srcGrid,
+                                               bounds = srcBoundsCurveList,
                                                mask = srcMask,
                                                periodicity = self.periodicity,
                                                coordSys = self.coordSys)
-            self.dstGrid = esmf.EsmfStructGrid(dstGrid, 
+            self.dstGrid = esmf.EsmfStructGrid(dstGrid,
                                                bounds = dstBoundsCurveList,
                                                mask = dstMask,
                                                periodicity = self.periodicity,
@@ -400,7 +409,7 @@ class Regridder:
             srcFrac = None
             dstFrac = None
 
-            self.regrid = esmf.EsmfRegrid(self.srcField, self.dstField, 
+            self.regrid = esmf.EsmfRegrid(self.srcField, self.dstField,
                                 srcFrac = srcFrac,
                                 dstFrac = dstFrac,
                                 regridMethod = method,
@@ -498,7 +507,7 @@ class Regridder:
                     raise RegridError, \
                           'Ranks > 4 currently not supported though this API'
                 axisList = tuple(axisList)
-            
+
             # Create the output data array. Assuming time in first index
             outShape = self.regridObj.dst_dims[:]
             if len(outShape) != len(inData.shape):
@@ -512,7 +521,6 @@ class Regridder:
             if len(outVar.shape) != len(inData.shape):
                 string = 'outVar and inData have different shapes: ', \
                   outVar.shape, inData.shape
-                print string
                 raise RegridError, string
 
             outVar = numpy.ma.array(outVar, mask = self.outMask)
