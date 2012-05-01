@@ -34,8 +34,8 @@ class EsmfStructGrid:
                            0 - None Default
                            1 - One e.g. longitude (Assume global)
                            2 - Two e.g.
-        @param coordSys    ESMP.ESMP_COORDSYS_CART (default)
-                           ESMP.ESMP_COORDSYS_SPH_DEG
+        @param coordSys    ESMP.ESMP_COORDSYS_CART
+                           ESMP.ESMP_COORDSYS_SPH_DEG (default)
                            ESMP.ESMP_COORDSYS_SPH_RAD
         """
         coordSystems = [ESMP.ESMP_COORDSYS_CART, ESMP.ESMP_COORDSYS_SPH_DEG,
@@ -95,7 +95,7 @@ class EsmfStructGrid:
                 ESMP.ESMP_GridAddItem(self.grid, item=ESMP.ESMP_GRIDITEM_MASK)
                 self.maskPtr = ESMP.ESMP_GridGetItem(self.grid, 
                                               item=ESMP.ESMP_GRIDITEM_MASK)
-                self.maskPtr = mask.flat
+                self.maskPtr[:] = mask.flat
 
     def getMask(self):
         self.maskPtr = ESMP.ESMP_GridGetItem(self.grid, 
