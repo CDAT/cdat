@@ -232,21 +232,13 @@ class Regridder:
             if self.dstSpatial > 1:
                 dstGrid, dstSpatial = cdms2.gsRegrid.makeCurvilinear(dstGrid)
 
-            self.location = ESMP.ESMP_STAGGERLOC_CENTER
             srcBoundsCurveList = None
             dstBoundsCurveList = None
             self.location = ESMP.ESMP_STAGGERLOC_CORNER
-            srcBoundsCurveList = _makeBoundsCurveList(inGrid)
-            dstBoundsCurveList = _makeBoundsCurveList(outGrid)
-
-#            print "\nSrc Coords"
-#            print inGrid
-#            print "Src Bounds"
-#            print srcBoundsCurveList
-#            print "Dst Coords"
-#            print outGrid
-#            print "Dst Bounds"
-#            print dstBoundsCurveList
+            # Dont need them for bilinear
+            if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
+                srcBoundsCurveList = _makeBoundsCurveList(inGrid)
+                dstBoundsCurveList = _makeBoundsCurveList(outGrid)
 
             # Set some required values
             self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE
@@ -287,7 +279,7 @@ class Regridder:
             # Create the ESMP grids
 
             # Initialize ESMP
-            esmf.initialize()
+            #esmf.initialize()
 
             self.srcGrid = esmf.EsmfStructGrid(srcGrid,
                                                bounds = srcBoundsCurveList,
@@ -387,13 +379,20 @@ class Regridder:
             location = ESMP.ESMP_STAGGERLOC_CENTER
 
             # Make sure we are passing a ndarray
-            self.srcField = esmf.EsmfGridField(self.srcGrid, inData.id,
-                                                 inData.data,
+            try:
+                iid = inData.id
+                diid = inData.id
+            except:
+                iid = "Source_Data"
+                diid = "Desintation_Data"
+
+            self.srcField = esmf.EsmfGridField(self.srcGrid, iid,
+                                                 numpy.array(inData),
                                                  staggerloc = location)
             # Convert mask y, x
             outShape = self.dstGrid.maxIndex[::-1]
             outVar = numpy.zeros(outShape, inData.dtype)
-            self.dstField = esmf.EsmfGridField(self.dstGrid, inData.id,
+            self.dstField = esmf.EsmfGridField(self.dstGrid, diid,
                                                outVar,
                                                staggerloc = location)
             if self.regridMethod is not None:
@@ -530,9 +529,9 @@ class Regridder:
             if hasTime is not None:
                 nTime = len(inData.getTime())
                 for iTime in range(nTime):
-                    outVar[iTime, ...] = self.regridObj(inData[iTime, ...])
+                     self.regridObj(inData[iTime, ...], outVar[iTime, ...])
             else:
-                outVar = self.regridObj(inData)
+                 self.regridObj(inData, outVar)
 
             # Correct the shape of output weights
             amskout = numpy.ma.ones(outVar.shape, numpy.bool8)
