@@ -510,12 +510,14 @@ if (WM=="QT" or EM=="QT") and sys.platform in ['darwin']:
             else:
                 pth=os.path.sep+os.path.sep.join(target_prefix.split(os.path.sep)[:-3]+['bin','cdat'])
 
-            print 'symlinking to ',pth
-            try:
-                os.remove(pth)
-            except:
-                pass
-            os.symlink("%s/bin/cdat" % (target_prefix),pth)
+else:
+    pth = os.path.sep+os.path.sep.join(target_prefix.split(os.path.sep)[:-3]+['bin','cdat'])
+    print 'symlinking to ',pth
+try:
+   os.remove(pth)
+except:
+   pass
+os.symlink("%s/bin/cdat" % (target_prefix),pth)
 #filedds = os.popen("find build/temp* -name '*.o'").readlines()
 #ofiles=' '.join(files).replace('\n',' ')
 #print ofiles
