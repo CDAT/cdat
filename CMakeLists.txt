@@ -287,7 +287,7 @@ macro (add_cdat_package package)
   endif()
 endmacro (add_cdat_package)
 
-find_package(Qt4)
+find_package(Qt4 REQUIRED)
 
 option(CDAT_USE_SYSTEM_INTROSPECTION "Detect System installed libraries." OFF)
 # Added by Dave Kindig Tech-X Corp. kindig@txcorp.com
