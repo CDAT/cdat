@@ -1,0 +1,20 @@
+message("Installing basemap:\n@basemap_PREFIX_ARGS@")
+set(ENV{@LIBRARY_PATH@} "@CMAKE_INSTALL_PREFIX@/lib:@cdat_EXTERNALS@/lib:$ENV{@LIBRARY_PATH@}")
+set(ENV{VS_UNICODE_OUTPUT} "")
+set(ENV{GEOS_DIR} "@cdat_EXTERNALS@")
+
+if(APPLE)
+    set(ENV{CFLAGS} "@cdat_osx_arch_flag@ @cdat_osx_version_flag@ @cdat_osx_sysroot@")
+endif()
+
+execute_process(
+  COMMAND "@PYTHON_EXECUTABLE@" setup.py install @PYTHON_EXTRA_PREFIX@
+  WORKING_DIRECTORY "@basemap_binary@"
+  RESULT_VARIABLE res
+)
+
+if(NOT ${res} EQUAL 0)
+  message("basemap Errors detected: \n${basemap_OUT}\n${basemap_ERR}")
+  message(FATAL_ERROR "Error in config of basemap")
+endif()
+message("Numpy install succeeded.")

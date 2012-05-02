@@ -1,7 +1,7 @@
 #/usr/bin/env python
 
 """
-Copyright (c) 2008, Tech-X Corporation
+Copyright (c) 2008-2012, Tech-X Corporation
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -12,7 +12,7 @@ specified in the license file 'license.txt' are met.
 __version__ = "$Id: $"
 
 import numpy
-from mvGhostedDistArray import GhostedDistArray
+from distarray import GhostedDistArray
 import time
 
 class LaplacianTest:
@@ -137,8 +137,6 @@ class LaplacianTest:
             import os
             # save data in file, one per pe, then combine data
             fname = 'mvLaplacianTest_rk%d.txt' % self.myid
-            #print 'rm -f ' + re.sub(r'\d\.txt', '*.txt', fname)
-            #os.system('rm -f ' + re.sub(r'%d', '*', fname))
             numpy.savetxt(fname, res, fmt = '%12.6g')
             self.comm.barrier()
             if self.myid == 0:
@@ -196,8 +194,6 @@ class LaplacianTest:
         fname = re.sub(r'_rk\*.txt', '', rootFilename) + '.png'
         print 'saving colorplot in file ' + fname
         pylab.savefig(fname)
-        os.system('display ' + fname)
-
 
 ######################################################################
 
