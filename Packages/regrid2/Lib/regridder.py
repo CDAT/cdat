@@ -32,19 +32,16 @@ def _makeGridList(grid):
     exists
     @param grid The grid to be converted
     """
+    retGrid = []
+    nSpatial = 0
     if cdms2.isGrid(grid):
-        # It is a grid
-        index = 0
+        # It is a grid. In cdms2 world, a grid is lon/lat (no elevation).
+        nSpatial = 2
         retGrid = [grid.getLatitude(), grid.getLongitude()]
-        try:
-            retGrid.append(grid.getLevel())
-        except:
-            pass
-        nSpatial = len(retGrid)
     elif isinstance(grid, list):
         # It is a list already
         nSpatial = len(grid)
-        retGrid = copy.copy(grid)
+        retGrid = grid
     else:
         raise RegridError, 'Grid must be a list of coordinates or a cdms2 grid'
 
@@ -277,9 +274,7 @@ class Regridder:
                     self.dstMaskValue = numpy.array([args[arg]], dtype = numpy.int32)
 
             # Create the ESMP grids
-
-            # Initialize ESMP
-            #esmf.initialize()
+            # ESMP.ESMP_Initialize() should have been called 
 
             self.srcGrid = esmf.EsmfStructGrid(srcGrid,
                                                bounds = srcBoundsCurveList,
@@ -496,12 +491,8 @@ class Regridder:
                         axisList = [inData.getLevel()] + list(axisList)
                         shape = tuple(list(axisList[0].shape) + list(shape))
                 elif inData.rank() == 4 and inData.getTime() is not None:
-                        aL = [inData.getTime(), inData.getLevel()]
-                        axisList = aL + list(axisList)
-                        s = []
-                        for a in aL:
-                            s.append(a.shape)
-                        shape = tuple(s + list(shape))
+                    shape = tuple([inData.getTime().shape[0],
+                                   inData.getLevel().shape[0]] + list(shape))
                 else:
                     raise RegridError, \
                           'Ranks > 4 currently not supported though this API'
