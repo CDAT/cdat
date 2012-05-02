@@ -8,6 +8,7 @@ project(cdat)
 set(cdat_CMAKE_SOURCE_DIR ${cdat_SOURCE_DIR}/CMake)
 set(cdat_CMAKE_BINARY_DIR ${cdat_BINARY_DIR}/CMake)
 set(cdat_external_patch_dir ${cdat_SOURCE_DIR}/exsrc)
+option(CDAT_USE_SYSTEM_INTROSPECTION "Detect System installed libraries." OFF)
 
 if("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local")
   get_filename_component(cdat_ROOT_DIR ${cdat_BINARY_DIR} PATH)
@@ -16,7 +17,7 @@ endif()
 
 set(cdat_EXTERNALS ${CMAKE_INSTALL_PREFIX}/Externals)
 set(ENV{PATH} "${cdat_EXTERNALS}/bin:$ENV{PATH}")
-message("Hi we reset your path to: " $ENV{PATH})
+message("We reset your path to: " $ENV{PATH})
 
 #------------------------------------------------------------------------------
 # Update CMake module path
@@ -289,7 +290,6 @@ endmacro (add_cdat_package)
 
 find_package(Qt4)
 
-option(CDAT_USE_SYSTEM_INTROSPECTION "Detect System installed libraries." OFF)
 # Added by Dave Kindig Tech-X Corp. kindig@txcorp.com
 option(CDAT_BUILD_ESMF_ESMP "Build python version Earth System Modelling Framework" OFF)
 
@@ -360,7 +360,7 @@ set(cdat_install_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/cdat_insta
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
 add_cdat_package(wget)
-#add_cdat_package(pkgconfig)
+add_cdat_package(pkgconfig)
 add_cdat_package(termcap)
 add_cdat_package(readline)
 add_cdat_package(libXML2)
@@ -667,4 +667,7 @@ include(CDATLogger)
 
 configure_file(${cdat_CMAKE_SOURCE_DIR}/setup_cdat.sh.in
   ${CMAKE_INSTALL_PREFIX}/bin/setup_cdat.sh
+  @ONLY)
+configure_file(${cdat_CMAKE_SOURCE_DIR}/setup_cdat.csh.in
+  ${CMAKE_INSTALL_PREFIX}/bin/setup_cdat.csh
   @ONLY)
