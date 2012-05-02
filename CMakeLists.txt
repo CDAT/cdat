@@ -446,6 +446,10 @@ add_cdat_package(SIP)
 add_cdat_package(PyQt)
 #add_cdat_package(PyOpenGL)
 
+add_cdat_package(NUMPY)
+add_cdat_package(SCIPY)
+#add_cdat_package(ZMQ)
+add_cdat_package(IPYTHON)
 
 find_package(MPI)
 find_package(Mpi4py)
@@ -459,12 +463,6 @@ else (Mpi4py_FOUND)
     message("No MPI installation was found, will not build mpi4py")
   endif ()
 endif(Mpi4py_FOUND)
-
-
-add_cdat_package(NUMPY)
-add_cdat_package(SCIPY)
-#add_cdat_package(ZMQ)
-add_cdat_package(IPYTHON)
 
 add_cdat_package(Pmw)
 add_cdat_package(libcf)
