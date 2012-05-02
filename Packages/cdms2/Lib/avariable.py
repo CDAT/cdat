@@ -7,14 +7,13 @@ import types, string, re
 import cdmsNode
 from cdmsobj import CdmsObj
 import cdms2
-from cdms2 import gsRegrid
 from slabinterface import Slab
 from sliceut import *
 from error import CDMSError
 from axis import axisMatchIndex, axisMatchAxis, axisMatches, unspecified, CdtimeTypes, AbstractAxis
 import selectors
 import copy
-from regrid2 import Regridder, PressureRegridder, CrossSectionRegridder
+# from regrid2 import Regridder, PressureRegridder, CrossSectionRegridder
 #import PropertiedClasses
 from convention import CF1
 from grid import AbstractRectGrid
@@ -49,7 +48,7 @@ class AbstractVariable(CdmsObj, Slab):
         if variableNode is not None and variableNode.tag !='variable':
             raise CDMSError, 'Node is not a variable node'
         CdmsObj.__init__(self, variableNode)
-        val = self.__cdms_internals__ + ['id','domain',"autoApiInfo"]
+        val = self.__cdms_internals__ + ['id','domain']
         self.___cdms_internals__ = val 
         Slab.__init__(self)
         self.id = None                  # Transient variables key on this to create a default ID
@@ -149,10 +148,10 @@ class AbstractVariable(CdmsObj, Slab):
         return result
 
     def generateGridkey(self, convention, vardict):
-        """ generateGridkey(): Determine if the variable is gridded, and
-        generate ((latname, lonname, order, maskname, class), lat, lon) if
-        gridded, or (None, None, None) if not gridded. vardict is the variable
-        dictionary of the parent """
+        """ generateGridkey(): Determine if the variable is gridded, 
+            and generate ((latname, lonname, order, maskname, class), lat, lon) if gridded,
+            or (None, None, None) if not gridded. vardict is the variable dictionary of the parent"""
+
         lat, nlat = convention.getVarLatId(self, vardict)
         lon, nlon = convention.getVarLonId(self, vardict)
         if (lat is not None) and (lat is lon):
@@ -354,8 +353,8 @@ class AbstractVariable(CdmsObj, Slab):
             pass
         else:
             raise CDMSError, 'Invalid missing value %s'%`value`
-
-        self._missing = value
+        
+        self.missing_value = value
 
 
     def getTime(self):
@@ -877,26 +876,16 @@ class AbstractVariable(CdmsObj, Slab):
             return self
         return MV.transpose (self, permutation)
 
-    def regrid (self, toGrid, missing=None, order=None, mask=None, 
-                regridTool = "gsRegrid", regridMethod = "multilinear"):
+    def regrid (self, togrid, missing=None, order=None, mask=None):
         """return self regridded to the new grid. Keyword arguments
-        are as for regrid.Regridder. This simply regrids a variable to another 
-        grid. Nothing fancy.
-        @param toGrid cdms2.grid or cdms2.var. Will be cast to 
-                        destination grid
-        @param missing missing value default is None
-        @param order variable index order form "tzyx", "tyx", etc.
-        @param mask Masked region same dimension as the input data
-        @param regridTool ESMP/libcf/regrid2/SCRIP
-        @param regridMethod multilinear/consevative
-        """
+        are as for regrid.Regridder."""
+        from regrid2 import Regridder
 
-        if toGrid is None: 
+        if togrid is None: 
             return self
         else:
-            fromGrid = self.getGrid()
-            regridf = Regridder(fromGrid, toGrid, 
-                regridTool = "gsRegrid", regridMethod = "multilinear")
+            fromgrid = self.getGrid()
+            regridf = Regridder(fromgrid, togrid)
             result = regridf(self, missing=missing, order=order, mask=mask)
             return result
 

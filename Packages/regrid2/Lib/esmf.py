@@ -1,9 +1,11 @@
 import ESMP
-import matplotlib.pylab as np
+import numpy
 import operator
 import cdms2
 import tables
 import sys
+import copy
+from regrid2 import RegridError
 
 # Global variables
 method = ['bilinear', 'conservative']
@@ -19,6 +21,106 @@ def initialize():
 def finalize():
     """Finalize (close) ESMP"""
     ESMP.ESMP_Finalize()
+    
+class EsmfStructGrid:
+    def __init__(self, coords, bounds = None, mask = None, periodicity = 0, 
+                 coordSys = ESMP.ESMP_COORDSYS_SPH_DEG):
+        """
+        Construct an ESMP Grid object
+        @param coords tuple or list of coordinates of the grid (lat, lon)
+        @param bounds tuple or list containing the bounds. Only needed if doing
+                      conservative interpolation
+        @param mask Mask 1 is invalid data 0 valid (numpy definition)
+        @param periodicity Number of periodic boundaries
+                           0 - None Default
+                           1 - One e.g. longitude (Assume global)
+                           2 - Two e.g.
+        @param coordSys    ESMP.ESMP_COORDSYS_CART
+                           ESMP.ESMP_COORDSYS_SPH_DEG (default)
+                           ESMP.ESMP_COORDSYS_SPH_RAD
+        """
+        coordSystems = [ESMP.ESMP_COORDSYS_CART, ESMP.ESMP_COORDSYS_SPH_DEG,
+                        ESMP.ESMP_COORDSYS_SPH_RAD]
+        if coordSys not in coordSystems:
+            raise cdms2.CDMSError, """
+                  Coordinate system must be ESMP.ESMP_COORDSYS_CART
+                                            ESMP.ESMP_COORDSYS_SPH_DEG
+                                            ESMP.ESMP_COORDSYS_SPH_RAD"""
+        
+        # Make sure there are bounds
+        #if bounds is None:
+        #    raise RegridError, 'Need the bounds for ESMP.'
+
+        # maxIndex -> x, y 
+        self.maxIndex = numpy.array(coords[0].shape[::-1], dtype = numpy.int32)
+        rank = len(coords[0].shape)
+        
+        # Create the grid object
+        if periodicity == 0:
+            self.grid = ESMP.ESMP_GridCreateNoPeriDim(self.maxIndex, 
+                                                      coordSys = coordSys)
+        elif periodicity == 1:                                             
+            self.grid = ESMP.ESMP_GridCreate1PeriDim(self.maxIndex, 
+                                                      coordSys = coordSys)
+        elif periodicity == 2:                                             
+            raise cdms2.CDMSError, 'Method Not Implemented'
+            self.grid = ESMP.ESMP_GridCreate2PeriDim(self.maxIndex, 
+                                                      coordSys = coordSys)
+        else:
+            raise cdms2.CDMSError, """
+                    Periodicity must be 0, 1 or 2"""
+
+        # Populate the corners and centers
+        if bounds is not None:
+            staggerLocations = [ESMP.ESMP_STAGGERLOC_CORNER, 
+                                ESMP.ESMP_STAGGERLOC_CENTER]
+        else:
+            staggerLocations = [ESMP.ESMP_STAGGERLOC_CENTER]
+
+        # Copy the data
+        for sLoc in staggerLocations:
+            ESMP.ESMP_GridAddCoord(self.grid, staggerloc=sLoc)
+            exLBLoc, exUBLoc = ESMP.ESMP_GridGetCoord(self.grid, sLoc) 
+            
+            for i in range(rank):
+                ptr = ESMP.ESMP_GridGetCoordPtr(self.grid, i+1, sLoc)
+            
+            # Poplulate the self.grid with coordinates or the bounds as needed
+            # numpy.arrays required since numpy.ma arrays don't support flat
+                p = 0
+                if sLoc == ESMP.ESMP_STAGGERLOC_CORNER:
+                    ptr[:] = numpy.array(bounds[i]).flat
+                else:
+                    ptr[:] = numpy.array(coords[i]).flat
+
+            # Populate the mask on Cell Centers
+            self.maskPtr = None
+            if mask is not None and sLoc == ESMP.ESMP_STAGGERLOC_CENTER:
+                ESMP.ESMP_GridAddItem(self.grid, item=ESMP.ESMP_GRIDITEM_MASK)
+                self.maskPtr = ESMP.ESMP_GridGetItem(self.grid, 
+                                              item=ESMP.ESMP_GRIDITEM_MASK)
+                self.maskPtr[:] = mask.flat
+
+    def getMask(self):
+        self.maskPtr = ESMP.ESMP_GridGetItem(self.grid, 
+                                         item = ESMP.ESMP_GRIDITEM_MASK)
+        return numpy.reshape(self.maskPtr, self.maxIndex)
+
+    def getPointer(self, dim):
+        """
+        Return the coordinates for a dimension
+        @param dim desired dimension 1-based
+        """
+        if dim < 1:
+            raise RegridError, "dim is 1-based"
+
+        
+        gridPtr = ESMP.ESMP_GridGetCoordPtr(self.grid, dim, self.grid.staggerloc)
+        return numpy.reshape(gridPtr, self.maxIndex)
+
+    def __del__(self):
+        pass
+        #ESMP.EMSP_GridDestroy(self)
 
 class EsmfStructMesh:
     """
@@ -69,16 +171,16 @@ class EsmfStructMesh:
         self.dimsE = tuple(dimsE)
 
         self.numNodes = reduce(operator.mul, self.dimsN)
-        self.nodeIndx = np.arange(1, self.numNodes+1, dtype = np.int32)
-        self.pes = np.zeros((self.numNodes, ), np.int32)
-        self.xyz = np.zeros((self.numNodes, self.numSpaceDims), np.float64)
+        self.nodeIndx = numpy.arange(1, self.numNodes+1, dtype = numpy.int32)
+        self.pes = numpy.zeros((self.numNodes, ), numpy.int32)
+        self.xyz = numpy.zeros((self.numNodes, self.numSpaceDims), numpy.float64)
 
         for i in range(self.numSpaceDims):
             self.xyz[:, i] = coords[i].reshape(self.xyz[:, i].shape)
         self.numCells = reduce(lambda x, y:(x)*(y), self.dimsE)
-        self.cellIndx = np.arange(1, self.numCells+1, dtype = np.int32)
-        self.cellTyps = meshType * np.ones((self.numCells, ), np.int32)
-        self.cellConn = np.zeros((self.numCells, 2**self.numTopoDims), np.int32)
+        self.cellIndx = numpy.arange(1, self.numCells+1, dtype = numpy.int32)
+        self.cellTyps = meshType * numpy.ones((self.numCells, ), numpy.int32)
+        self.cellConn = numpy.zeros((self.numCells, 2**self.numTopoDims), numpy.int32)
 
         # Note: The node ordering for connectivity for the conservative case 
         # must go in counter clockwise order. If you are receiving a rc = 506
@@ -87,10 +189,10 @@ class EsmfStructMesh:
             i = k + (k // (self.dimsN[-1] - 1))
             # cell indexing is 1-based (?)
             i1 = i + 1
-            genCell = np.array([i1, i1+1, i1+1+self.dimsN[-1], i1+self.dimsN[-1]])
+            genCell = numpy.array([i1, i1+1, i1+1+self.dimsN[-1], i1+self.dimsN[-1]])
             cellConn.append(genCell)
 
-        self.cellConn = np.array(cellConn, np.int32)
+        self.cellConn = numpy.array(cellConn, numpy.int32)
         self.grid = ESMP.ESMP_MeshCreate(self.numTopoDims, self.numSpaceDims)
         ESMP.ESMP_MeshAddNodes(self.grid, self.numNodes, self.nodeIndx,
                                self.xyz, self.pes)
@@ -126,15 +228,21 @@ class EsmfStructField:
     Create a structured field object
     """
     def __init__(self, esmfGrid, name, data, 
-                 meshloc = ESMP.ESMP_MESHLOC_NODE):
+                 staggerloc = ESMP.ESMP_STAGGERLOC_CENTER):
         """
         Creator for ESMF Field
         @param esmfGrid instance of an ESMP_Mesh
         @param name field name
         @param data numpy ndarray of data
-        @param meshloc ESMP_MESHLOC_NODE for Bilinear interpolation
-                       ESMP_MESHLOC_ELEMENT for Conservative interpolation
+        @param staggerloc ESMP_STAGGERLOC_CENTER for Bilinear interpolation
+                       ESMP_STAGGERLOC_CORNER for Conservative interpolation
         """
+        locations = [ESMP.ESMP_MESHLOC_NODE, ESMP.ESMP_MESHLOC_ELEMENT]
+        if staggerloc not in locations:
+            raise cdms2.CDMSError, """
+                  Stagger location must be ESMP.ESMP_STAGGERLOC_CENTER
+                                           ESMP.ESMP_STAGGERLOC_CORNER"""
+
         numpyType2EsmfType = {
             'float64': ESMP.ESMP_TYPEKIND_R8,
             'float32': ESMP.ESMP_TYPEKIND_R4,
@@ -146,7 +254,51 @@ class EsmfStructField:
                         typekind = etype)
         # Copy the data
         ptr = self.getPointer()
-        print ptr.shape,data.shape
+        ptr[:] = data.flat
+
+    def getPointer(self):
+        """
+        Get the field pointer to the data
+        @return pointer to field data
+        """
+        pe = 0 # (serial)
+        return ESMP.ESMP_FieldGetPtr(self.field, localDe = pe)
+
+    def  __del__(self):
+        ESMP.ESMP_FieldDestroy(self.field)
+
+class EsmfGridField:
+    """
+    Create a grid field object. Inherits from EsmfStructField
+    """
+    def __init__(self, esmfGrid, name, data, 
+                 staggerloc = ESMP.ESMP_STAGGERLOC_CENTER):
+        """
+        Creator for ESMF Field
+        @param esmfGrid instance of an ESMP_Grid
+        @param name field name
+        @param data numpy ndarray of data
+        @param staggerloc ESMP_STAGGERLOC_CENTER
+                          ESMP_STAGGERLOC_CORNER
+        """
+        locations = [ESMP.ESMP_STAGGERLOC_CENTER, ESMP.ESMP_STAGGERLOC_CORNER]
+        if staggerloc not in locations:
+            raise cdms2.CDMSError, """
+                  Grid staggering must be ESMP.ESMP_STAGGERLOC_CENTER
+                                          ESMP.ESMP_STAGGERLOC_CORNER"""
+        numpyType2EsmfType = {
+            'float64': ESMP.ESMP_TYPEKIND_R8,
+            'float32': ESMP.ESMP_TYPEKIND_R4,
+            'int64': ESMP.ESMP_TYPEKIND_I8,
+            'int64': ESMP.ESMP_TYPEKIND_I4, }
+        etype = numpyType2EsmfType[str(data.dtype)]
+
+        self.field = ESMP.ESMP_FieldCreateGrid(esmfGrid.grid, name,
+                        staggerloc = staggerloc,
+                        typekind = etype)
+
+        # Copy the data
+        ptr = self.getPointer()
         ptr[:] = data.flat
 
     def getPointer(self):
@@ -165,19 +317,51 @@ class EsmfRegrid:
     Regrid source grid data to destination grid data
     """
     def __init__(self, srcField, dstField,
+                 srcFrac = None, dstFrac = None,
+                 srcMaskValues = None, 
+                 dstMaskValues = None,
                  regridMethod   = ESMP.ESMP_REGRIDMETHOD_BILINEAR,
-                 unMappedAction = ESMP.ESMP_UNMAPPEDACTION_ERROR):
+                 unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE):
         """
         Regrid
         @param srcField the source field object
         @param dstField the destination field object
+
+        Optional:
+        @param srcMaskValues Value of masked cells in source
+        @param dstMaskValues Value of masked cells in destination
+                     e.g. 
         @param regridMethod ESMF constanct bilinear, conservative, etc.
         @param unMappedAction ESMP Constant Error, Ignore, etc.
+        @param srcFrac Source fraction of cells used - Output value
+        @param dstFrac Source fraction of cells used - Output value
         """
         self.srcField = srcField
         self.dstField = dstField
-        self.regrid = ESMP.ESMP_FieldRegridStore( srcField.field, dstField.field,
-                                                  regridMethod, unMappedAction)
+
+        def checkMaskValues(maskValues):
+            if maskValues is None:
+                maskValue = numpy.array([1], dtype = numpy.int32)
+            elif isinstance(maskValues, list):
+                maskValue = numpy.array(srcMaskValues, dtype = numpy.int32)
+            elif isinstance(maskValues, numpy.ndarray):
+                maskValue = maskValues.copy()
+            else:
+                raise RegridError, 'Masked values must be None, a list or numpy array'
+            return maskValue
+
+        srcMaskValue = checkMaskValues(srcMaskValues)
+        dstMaskValue = checkMaskValues(dstMaskValues)
+
+        self.regridHandle = ESMP.ESMP_FieldRegridStore( 
+                                     srcField.field, 
+                                     dstField.field,
+                                     srcMaskValues = srcMaskValue, 
+                                     dstMaskValues = dstMaskValue,
+                                     srcFracField = srcFrac, 
+                                     dstFracField = dstFrac,
+                                     regridmethod = regridMethod, 
+                                     unmappedaction = unMappedAction)
 
     def __call__(self, srcField=None, dstField=None):
         """
@@ -189,10 +373,12 @@ class EsmfRegrid:
             srcField = self.srcField
         if dstField == None:
             dstField = self.dstField
-        ESMP.ESMP_FieldRegrid(srcField.field, dstField.field, self.regrid)
+        ESMP.ESMP_FieldRegrid(srcField.field, dstField.field, self.regridHandle)
+        ESMP.ESMP_FieldRegridRelease(self.regridHandle)
     
     def __del__(self):
-        ESMP.ESMP_FieldRegridRelease(self.regrid)
+        #ESMP.ESMP_FieldRegridRelease(self.regridHandle)
+        pass
 
 def _createCLMeshFromAxes(lons, lats, conserved = 0):
     """
@@ -206,10 +392,10 @@ def _createCLMeshFromAxes(lons, lats, conserved = 0):
     latb, late, nlat = lats
 
     # Geographic coordinates
-    tlon = np.linspace(lonb, lone, nlon)   # X
-    tlat = np.linspace(latb, late, nlat)   # Y
-    lon = np.array(tlon, np.float64)
-    lat = np.array(tlat, np.float64)
+    tlon = numpy.linspace(lonb, lone, nlon)   # X
+    tlat = numpy.linspace(latb, late, nlat)   # Y
+    lon = numpy.array(tlon, numpy.float64)
+    lat = numpy.array(tlat, numpy.float64)
 
     dimsN = [len(lat), len(lon)]
 
@@ -221,10 +407,10 @@ def _createCLMeshFromAxes(lons, lats, conserved = 0):
     for i in dimsN: dimsE.append(i-conserved)
 
     # Cartesian Coordinates
-    rad = np.pi/180.0
-    XXN = np.cos(lat2D * rad) * np.cos(lon2D * rad)
-    YYN = np.cos(lat2D * rad) * np.sin(lon2D * rad)
-    ZZN = np.sin(lat2D * rad)
+    rad = numpy.pi/180.0
+    XXN = numpy.cos(lat2D * rad) * numpy.cos(lon2D * rad)
+    YYN = numpy.cos(lat2D * rad) * numpy.sin(lon2D * rad)
+    ZZN = numpy.sin(lat2D * rad)
 
     return (XXN, YYN, ZZN), (dimsN, dimsE), (lon2D, lat2D)
 
@@ -240,10 +426,10 @@ def _createCLMeshFrom2DAxes(lon2D, lat2D):
     for i in dimsE: dimsE[i] = dimsE[i]-1
 
     # Cartesian Coordinates
-    rad = np.pi/180.0
-    XXN = np.cos(lat2D * rad) * np.cos(lon2D * rad)
-    YYN = np.cos(lat2D * rad) * np.sin(lon2D * rad)
-    ZZN = np.sin(lat2D * rad)
+    rad = numpy.pi/180.0
+    XXN = numpy.cos(lat2D * rad) * numpy.cos(lon2D * rad)
+    YYN = numpy.cos(lat2D * rad) * numpy.sin(lon2D * rad)
+    ZZN = numpy.sin(lat2D * rad)
 
     return (XXN, YYN, ZZN), (dimsN, dimsE)
 
@@ -256,8 +442,8 @@ def getTensorProduct(axis, dim, dims):
     @param dims sizes of all coordinates
     @return coordinate values obtained by tensor product
     """
-    return np.outer(np.outer( np.ones(dims[:dim], axis.dtype), axis),
-                      np.ones(dims[dim+1:], axis.dtype)).reshape(dims)
+    return numpy.outer(numpy.outer( numpy.ones(dims[:dim], axis.dtype), axis),
+                      numpy.ones(dims[dim+1:], axis.dtype)).reshape(dims)
 
 def createPlot(srcCds, dstCds, data, vmin = 0, vmax = 0):
     """
@@ -291,21 +477,21 @@ def writeVSH5(filename, grid, data):
     @param grid esmf grid object containing xyz coordinates and cell connectivity
     @param data data
     """
-    h5 = tables.openFile(filename, mode = 'w', title = 'test')
     title = 'test'
-    pointname = "/TestPoints"
-    dataname = '/TestData'
+    h5 = tables.openFile(filename, mode = 'w', title = title)
+    pointname = "TestPoints"
+    dataname = 'TestData'
     xgroup = h5.createGroup("/", "TestPoints", "P")
     xgroup._f_setAttr("vsType", "mesh")
     xgroup._f_setAttr("vsKind", "unstructured")
     xgroup._f_setAttr("vsQuadrilaterals", "quads")
-    carray = h5.createArray("/TestPoints", 'quads', grid.cellConn-1)
-    xarray = h5.createArray("/TestPoints", 'points', grid.xyz)
+    carray = h5.createArray("/"+pointname, 'quads', grid.cellConn-1)
+    xarray = h5.createArray("/"+pointname, 'points', grid.xyz)
 
-    darray = h5.createArray("/", 'testdata', data.flat[:])
+    darray = h5.createArray("/", dataname, data.flat[:])
     darray._f_setAttr("coordinate", "lat lon")
     darray._f_setAttr("vsType", "variable")
-    darray._f_setAttr("vsMesh", "TestPoints")
+    darray._f_setAttr("vsMesh", pointname)
     darray._f_setAttr("vsCentering", "zonal")
     h5.close()
 
@@ -328,8 +514,8 @@ def _create2DMesh(axes, factor):
     grid = EsmfStructMesh([yyN, xxN])
 
     # Data  -- Must be float 64
-    dataN = np.array(xxN *factor*yyN, np.float64)
-    dataE = np.zeros(dimsE, np.float64)
+    dataN = numpy.array(xxN *factor*yyN, numpy.float64)
+    dataE = numpy.zeros(dimsE, numpy.float64)
     for k in range(nDimE):
         i, j = k/dimsE[1], k % dimsE[1]
         dataE[i, j] = i * factor  * 10. + j
@@ -355,8 +541,8 @@ def test2d(useMethod = 0, doPlot = False):
     numCells = snx * sny
 
     # Source Grid
-    src_x = np.linspace(0, snx1, snx1, np.float64)
-    src_y = np.linspace(0, sny1, sny1, np.float64)
+    src_x = numpy.linspace(0, snx1, snx1, numpy.float64)
+    src_y = numpy.linspace(0, sny1, sny1, numpy.float64)
     print ' Source'
     srcGrid, srcDataN, srcDataE = _create2DMesh([src_x, src_y], 2)
 
@@ -370,8 +556,8 @@ def test2d(useMethod = 0, doPlot = False):
     dnx1 = 360 
     dny1 = 180
     dnx, dny = dnx1-1, dny1-1
-    dst_x = np.linspace(0, snx1, dnx1, np.float64)
-    dst_y = np.linspace(0, sny1, dny1, np.float64)
+    dst_x = numpy.linspace(0, snx1, dnx1, numpy.float64)
+    dst_y = numpy.linspace(0, sny1, dny1, numpy.float64)
     print ' Destination'
     dstGrid, dstDataN, dstDataE = _create2DMesh([dst_x, dst_y], 1)
     dstDataE[:] = -1
@@ -391,35 +577,36 @@ def test2d(useMethod = 0, doPlot = False):
     sptr = srcField.getPointer()
     dptr = dstField.getPointer()
 
-    print 'Src Cell avg before', srcData[useMethod].sum()/(snx*sny), snx, sny
-    print 'Src Cell avg after ', sptr.sum()/(snx*sny)
+    print 'Src Cell avg before', srcData[useMethod].sum()/(numCells), snx, sny
+    print 'Src Cell avg after ', sptr.sum()/(numCells)
     print 'Dst Cell avg before', dstDataE.sum()/(dnx*dny), dnx, dny
     print 'Dst Cell avg after ', dptr.sum()/(dnx*dny)
 
     print
-    print 'Error Ratio s/d', 100*(1 - (sptr.sum()/(snx*sny))/(dptr.sum()/(dnx*dny))), " %"
+    errorRatio = 100*(1 - (sptr.sum()/(numCells))/(dptr.sum()/(dnx*dny)))
+    print 'Error Ratio s/d', errorRatio, " %"
 
     if doPlot:
-        sp = np.reshape(sptr, (sny, snx))
-        dp = np.reshape(dptr, (dny, dnx))
-        np.figure()
-        np.subplot(2,2,1)
-        np.pcolor(srcData[useMethod], edgecolor = "w")
-        np.title('Src Before')
-        np.colorbar()
-        np.subplot(2,2,2)
-        np.pcolor(sp, edgecolor = "w")
-        np.title('Src After')
-        np.colorbar()
-        np.subplot(2,2,3)
-        np.pcolor(dstData[useMethod], edgecolor = "w")
-        np.title('Dst Before')
-        np.colorbar()
-        np.subplot(2,2,4)
-        np.pcolor(dp, edgecolor = "w")
-        np.title('Dst After')
-        np.colorbar()
-        np.show()
+        sp = numpy.reshape(sptr, (sny, snx))
+        dp = numpy.reshape(dptr, (dny, dnx))
+        numpy.figure()
+        numpy.subplot(2,2,1)
+        numpy.pcolor(srcData[useMethod], edgecolor = "w")
+        numpy.title('Src Before')
+        numpy.colorbar()
+        numpy.subplot(2,2,2)
+        numpy.pcolor(sp, edgecolor = "w")
+        numpy.title('Src After')
+        numpy.colorbar()
+        numpy.subplot(2,2,3)
+        numpy.pcolor(dstData[useMethod], edgecolor = "w")
+        numpy.title('Dst Before')
+        numpy.colorbar()
+        numpy.subplot(2,2,4)
+        numpy.pcolor(dp, edgecolor = "w")
+        numpy.title('Dst After')
+        numpy.colorbar()
+        numpy.show()
 
     del regrid
     del dstField
@@ -459,7 +646,7 @@ def testCurviLinear(useMethod, writeVTK = False, doPlot = False):
 
     # Field Data
     nElem = srcDims[useMethod][0]*srcDims[useMethod][1] 
-    srcData = np.ones(srcDims[useMethod], np.float64)
+    srcData = numpy.ones(srcDims[useMethod], numpy.float64)
 
     for j in range(srcDims[useMethod][0]):
         for i in range(srcDims[useMethod][1]): srcData[j, i] = i * j
@@ -483,7 +670,7 @@ def testCurviLinear(useMethod, writeVTK = False, doPlot = False):
     dstESMFGrid = EsmfStructMesh([dxxn, dyyn, dzzn])
 
     # Field Data
-    dstData = np.ones(dstDims[useMethod], np.float64)
+    dstData = numpy.ones(dstDims[useMethod], numpy.float64)
 
     dstESMFField = EsmfStructField(dstESMFGrid, 'source', dstData, 
                         meshloc = meshloc[useMethod])
@@ -496,8 +683,8 @@ def testCurviLinear(useMethod, writeVTK = False, doPlot = False):
                 regridMethod = regridMethod[useMethod],
                 unMappedAction = unMappedAction)
 
-    newSrc = np.reshape(srcESMFField.getPointer(), srcDims[useMethod])
-    newDst = np.reshape(dstESMFField.getPointer(), dstDims[useMethod])
+    newSrc = numpy.reshape(srcESMFField.getPointer(), srcDims[useMethod])
+    newDst = numpy.reshape(dstESMFField.getPointer(), dstDims[useMethod])
     
     if writeVTK: 
         ESMP.ESMP_MeshWrite(dstESMFGrid.grid, filename['dstGrid'])
@@ -509,10 +696,10 @@ def testCurviLinear(useMethod, writeVTK = False, doPlot = False):
     print 'Destination Data/cell', dstval
     print 'src/dst, src-dst   ', 100*(1-srcval/dstval), "%", srcval-dstval
 
-    srcCds = np.meshgrid(np.linspace(0, 360, snlon-1), 
-                         np.linspace(-90, 87.712616, snlat-1))
-    dstCds = np.meshgrid(np.linspace(0, 360, dnlon-1), 
-                         np.linspace(-90, 87.712616, dnlat-1))
+    srcCds = numpy.meshgrid(numpy.linspace(0, 360, snlon-1), 
+                         numpy.linspace(-90, 87.712616, snlat-1))
+    dstCds = numpy.meshgrid(numpy.linspace(0, 360, dnlon-1), 
+                         numpy.linspace(-90, 87.712616, dnlat-1))
     if doPlot: 
         createPlot(srcCds, dstCds, (srcData, newSrc, 
                    dstData, newDst))

@@ -62,5 +62,6 @@ packages = [
     "Packages/WK",
     "Packages/gui_support",
     "Packages/cmor",
+    "Packages/distarray",
 ##    "Packages/visus",
     ]

@@ -8,6 +8,7 @@ project(cdat)
 set(cdat_CMAKE_SOURCE_DIR ${cdat_SOURCE_DIR}/CMake)
 set(cdat_CMAKE_BINARY_DIR ${cdat_BINARY_DIR}/CMake)
 set(cdat_external_patch_dir ${cdat_SOURCE_DIR}/exsrc)
+option(CDAT_USE_SYSTEM_INTROSPECTION "Detect System installed libraries." OFF)
 
 if("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local")
   get_filename_component(cdat_ROOT_DIR ${cdat_BINARY_DIR} PATH)
@@ -16,7 +17,7 @@ endif()
 
 set(cdat_EXTERNALS ${CMAKE_INSTALL_PREFIX}/Externals)
 set(ENV{PATH} "${cdat_EXTERNALS}/bin:$ENV{PATH}")
-message("Hi we reset your path to: " $ENV{PATH})
+message("We reset your path to: " $ENV{PATH})
 
 #------------------------------------------------------------------------------
 # Update CMake module path
@@ -289,7 +290,6 @@ endmacro (add_cdat_package)
 
 find_package(Qt4)
 
-option(CDAT_USE_SYSTEM_INTROSPECTION "Detect System installed libraries." OFF)
 # Added by Dave Kindig Tech-X Corp. kindig@txcorp.com
 option(CDAT_BUILD_ESMF_ESMP "Build python version Earth System Modelling Framework" OFF)
 
@@ -343,12 +343,15 @@ if(CDAT_USE_SYSTEM_INTROSPECTION)
   #find_package(NUMPY)
   #find_package(PMW)
 endif(CDAT_USE_SYSTEM_INTROSPECTION)
-
+find_package(PKG_CONFIG)
 if(NOT PKG_CONFIG_FOUND)
+  add_cdat_package(pkgconfig)
   set(cdat_PKG_CONFIG_EXECUTABLE ${cdat_EXTERNALS}/bin/pkg-config)
+  message("DID NOT FIND pkg-config")
 else()
   set(cdat_PKG_CONFIG_EXECUTABLE ${PKG_CONFIG_EXECUTABLE})
 endif()
+set(ENV{PKG_CONFIG_PATH} ${cdat_EXTERNALS}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH})
 
 set(cdat_configure_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake)
 set(cdat_make_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake)
@@ -442,16 +445,35 @@ add_cdat_package(setuptools)
 add_cdat_package(SIP)
 add_cdat_package(PyQt)
 #add_cdat_package(PyOpenGL)
+
+
+find_package(MPI)
+find_package(Mpi4py)
+if (Mpi4py_FOUND)
+  message("We found Mpi4py")
+else (Mpi4py_FOUND)
+  if (MPI_FOUND)
+    message("We will build Mpi4py for you")
+    add_cdat_package(Mpi4py)
+  else ()
+    message("No MPI installation was found, will not build mpi4py")
+  endif ()
+endif(Mpi4py_FOUND)
+
+
 add_cdat_package(NUMPY)
 add_cdat_package(SCIPY)
-add_cdat_package(ZMQ)
+#add_cdat_package(ZMQ)
 add_cdat_package(IPYTHON)
+
 add_cdat_package(Pmw)
 add_cdat_package(libcf)
 add_cdat_package(Cython)
 add_cdat_package(Numexpr)
 add_cdat_package(PyTables)
+
 add_cdat_package(pyspharm)
+
 find_package(Matplotlib)
 if (Matplotlib_FOUND)
   message("We found Matplotlib")
@@ -459,8 +481,10 @@ else (Matplotlib_FOUND)
   message("We will build Matplotlib for you")
   add_cdat_package(Matplotlib)
 endif(Matplotlib_FOUND)
+
 add_cdat_package(GEOS)
 add_cdat_package(basemap)
+
 add_cdat_package(CMOR)
 add_cdat_package(CDAT)
 add_cdat_package(gui_support)
@@ -639,9 +663,13 @@ set(gui_support_DEPENDENCIES ${CDAT_dep})
 # C.Doutriaux Turning off vistrails build from within CDAT not needed
 #set(VisTrails_DEPENDENCIES ${ParaView_dep} ${CDAT_dep})
 set(Matplotlib_DEPENDENCIES ${PyQt_dep} ${Cairo_dep} ${NUMPY_dep} )
+
+set(Mpi4py_DEPENDENCIES ${NUMPY_dep} )
+
 set(GEOS_DEPENDENCIES ${Matplotlib_dep} )
 set(basemap_DEPENDENCIES ${GEOS_dep} )
 set(pyspharm_DEPENDENCIES ${NUMPY_dep})
+
 list(REMOVE_DUPLICATES external_packages)
 foreach(package ${external_packages})
   message("Building ${package}")
@@ -664,4 +692,7 @@ include(CDATLogger)
 
 configure_file(${cdat_CMAKE_SOURCE_DIR}/setup_cdat.sh.in
   ${CMAKE_INSTALL_PREFIX}/bin/setup_cdat.sh
+  @ONLY)
+configure_file(${cdat_CMAKE_SOURCE_DIR}/setup_cdat.csh.in
+  ${CMAKE_INSTALL_PREFIX}/bin/setup_cdat.csh
   @ONLY)

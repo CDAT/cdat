@@ -108,7 +108,7 @@ def makeCurvilinear(coords):
         elif rank == 3 and nd == 2 and i > 0:
             # assume leading coordinate is an axis
             o1 = numpy.ones( (len(coords[0]),), coords[i].dtype )
-            coords[i] = numpy.outer(o1, coords[i]).reshape(dims)
+            coords[i] = numpy.ma.outer(o1, coords[i]).reshape(dims)
         else:
             raise CDMSError, \
                 "ERROR in %s: funky mixture of axes and curvilinear coords %s" \
@@ -524,30 +524,17 @@ class Regrid:
     def setValidMask(self, inMask):
         """
         Set valid mask array for the grid
-        @param mask flat numpy array of type numpy.int32 or a valid cdms2 variable
+        @param inMask flat numpy array of type numpy.int32 or a valid cdms2 variable
                     with its mask set. 
                     0 - invalid, 1 - valid data
         @note This must be invoked before computing the weights, the 
         mask is a property of the grid (not the data).
         """
-        
-        # run some checks. Try to convert the mask to int32 using the masking
-        # rules from cdms2
-        if inMask.dtype != numpy.int32:
-            if inMask.dtype == numpy.bool:
-                mask = numpy.array(inMask, dtype = numpy.int32)
-                # Since numpy.mask uses True for a masked (invalid) value
-                # 1-mask gives 1 as valid (unmasked) and 0 as invalid (masked)
-                mask = 1 - mask
-            else:
-                message = """\n
-                ERROR in %s: mask must be an array of numpy.int32 or a valid
-                cdms2 variable with its mask set.
-                """ % (__FILE__,)
-                raise CDMSError, message
-        else:
-            mask = inMask
-
+        if self.weightsComputed:
+            raise CDMSError, 'Must set mask before computing weights'
+    
+        mask = numpy.array(inMask, dtype = numpy.int32)
+    
         # extend src data if grid was made cyclic and or had a cut accounted for
         newMask = self._extend(mask)
         c_intmask = newMask.ctypes.data_as(POINTER(c_int))
@@ -555,6 +542,28 @@ class Regrid:
                                                   c_intmask)
         catchError(status, sys._getframe().f_lineno)
         self.maskSet = True
+
+    def setMask(self, inDataOrMask):
+        """
+        Set mask array for grid
+        @param inDataOrMask cdms2 array or flat mask array, 
+                                0 - valid data
+                                1 - invalid data      
+        @note this definition is compatible with the numpy masked arrays
+        @note see setValidMask for the opposite definition 
+        @note should be called before computing the weights
+        """
+        mask = None
+        if hasattr(inDataOrMask, 'getmask'):
+            # cdms2 variable
+            mask = inDataOrMask.getmask()
+        else:
+            # flat mask array
+            mask = inDataOrMask
+        # reversing the meaning 1 == valid, 0 == invalid
+        mask = 1 - numpy.array(inDataOrMask, dtype = numpy.int32)
+        # now calling our own mask setter
+        self.setValidMask(mask)
 
     def computeWeights(self, nitermax=100, tolpos=1.e-2):
         """
@@ -570,7 +579,7 @@ class Regrid:
         catchError(status, sys._getframe().f_lineno)
         self.weightsComputed = True
 
-    def apply(self, src_data_in, dst_data_in = None):
+    def apply(self, src_data_in, dst_data):
         """
         Apply interpolation
         @param src_data data on source grid
@@ -590,11 +599,7 @@ class Regrid:
             raise CDMSError, ("ERROR in %s: supplied src_data have wrong shape " \
                                   + "%s != %s") % (__FILE__, str(src_data.shape), \
                                      str(tuple([d for d in self.src_dims])))
-        if dst_data_in is None:
-            shape = tuple(self.dst_dims)
-            dst_data = numpy.zeros(shape, src_data.dtype)
-        else:
-            dst_data = dst_data_in
+        dst_data
         if reduce(operator.iand, [dst_data.shape[i] == self.dst_dims[i] \
                                  for i in range(self.rank)]) == False:
             raise CDMSError, ("ERROR ins: supplied dst_data have wrong shape " \
@@ -623,6 +628,9 @@ class Regrid:
                                         byref(src_dataid))
         catchError(status, sys._getframe().f_lineno)
         def setFillValue(data):
+            
+            if not hasattr(data, 'fill_value'):
+                data = numpy.ma.masked_array(data)
             if data.dtype == numpy.float64:
                 if data.fill_value is not None or \
                    data.missing_value is not None:
@@ -700,11 +708,9 @@ class Regrid:
         status = self.lib.nccf_free_data(dst_dataid)
         catchError(status, sys._getframe().f_lineno)
 
-        # Allow the regridder to be used in either mode
-        if dst_data_in is None: 
-            return dst_data
+        return dst_data
 
-    def __call__(self, src_data, dst_data = None):
+    def __call__(self, src_data, dst_data):
         """
         Apply interpolation (synonymous to apply method)
         @param src_data data on source grid
@@ -713,10 +719,7 @@ class Regrid:
               of src_data will not be interpoloted, the corresponding
               dst_data will not be touched.
         """
-        if dst_data is None:
-            return self.apply(src_data)
-        else:            
-            self.apply(src_data, dst_data)
+        self.apply(src_data, dst_data)
 
 
     def getNumValid(self):
@@ -914,7 +917,6 @@ def testOuterProduct():
 
 
 def test():
-
     def func1(coords):
         return coords[0]*coords[1] + coords[2]
     def func2(coords):
@@ -975,9 +977,74 @@ def test():
     #print func(dst_coords)
     print 'error = ', error
 
+def testMasking():
+    import numpy.ma as ma
+
+    def func1(coords):
+        return coords[0]*coords[1]
+    def func2(coords):
+        return coords[0] * coords[1]
+
+    # source grid, tensor product of axes
+    src_x = ma.masked_array([1, 2, 3, 4, 5, 6], mask = [0,0,1,0,0,0])
+    src_y = ma.masked_array([10, 20, 30, 40, 50],mask = [0,0,0,1,0])
+
+    # destination grid, product of axes
+    dst_x = numpy.array([0.5,1,1.5, 2.0, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5,8.5,9.5])
+    dst_y = numpy.array([15., 20., 25., 30., 35.,40.,45.,50.,55])
+
+    # regridding constructor
+    rg = Regrid([src_x, src_y],
+                [dst_x, dst_y])
+
+    initialIndexGuess = numpy.array([0.0, 0.0, 0.0])
+    indices = rg._findIndices(numpy.array([1.5, 18.0, 140.0]),
+                              20, 1.e-2, initialIndexGuess)
+
+    # Mask needs to be set before weights are computed
+    mask = rg.getSrcGrid()[0] == 3
+    mask[:,3] = True
+    rg.setValidMask(mask)
+    rg.setMask(mask)
+    maxNumIters = 20
+    posTol = 1.e-2
+    rg.computeWeights(maxNumIters, posTol)
+
+    # number of valid points (some destination points may fall 
+    # outside the domain)
+    nvalid = rg.getNumValid()
+
+    # number of destination points
+    ndstpts = rg.getNumDstPoints()
+    print 'nvalid = ', nvalid, ' ndstpts = ', ndstpts
+
+    # get the indices and weights for a single target location
+    dst_indices = [4, 2, 1]
+    inds, weights = rg.getIndicesAndWeights(dst_indices)
+    print 'indices and weights are: ', inds, weights
+
+    # data
+    src_coords = rg.getSrcGrid()
+    dst_coords = rg.getDstGrid()
+    #print 'src_coords = ', src_coords
+    #print 'dst_coords = ', dst_coords
+    src_data = numpy.array( func1(src_coords), numpy.float32 )
+    dst_data = -numpy.ones( dst_coords[0].shape, numpy.float32 )
+
+    # regrid
+    rg(src_data, dst_data)
+    print 'after interp: dst_data =\n', dst_data
+
+    # check
+    error = numpy.sum(abs(dst_data - func1(dst_coords)))
+    #print dst_data
+    #print func(dst_coords)
+    print 'error = ', error
+
 if __name__ == '__main__':
     #testOuterProduct()
     test()
+    testMasking()
     #testMakeCyclic()
     #testHandleCut()
 
