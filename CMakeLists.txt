@@ -8,6 +8,7 @@ project(cdat)
 set(cdat_CMAKE_SOURCE_DIR ${cdat_SOURCE_DIR}/CMake)
 set(cdat_CMAKE_BINARY_DIR ${cdat_BINARY_DIR}/CMake)
 set(cdat_external_patch_dir ${cdat_SOURCE_DIR}/exsrc)
+option(CDAT_USE_SYSTEM_INTROSPECTION "Detect System installed libraries." OFF)
 
 if("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local")
   get_filename_component(cdat_ROOT_DIR ${cdat_BINARY_DIR} PATH)
@@ -16,7 +17,7 @@ endif()
 
 set(cdat_EXTERNALS ${CMAKE_INSTALL_PREFIX}/Externals)
 set(ENV{PATH} "${cdat_EXTERNALS}/bin:$ENV{PATH}")
-message("Hi we reset your path to: " $ENV{PATH})
+message("We reset your path to: " $ENV{PATH})
 
 #------------------------------------------------------------------------------
 # Update CMake module path
@@ -29,7 +30,7 @@ set(CMAKE_MODULE_PATH
   )
 
 #-----------------------------------------------------------------------------
-# CDat version
+# CDAT version
 #------------------------------------------------------------------------------
 set(cdat_VERSION_MAJOR 6)
 set(cdat_VERSION_MINOR 0)
@@ -289,7 +290,6 @@ endmacro (add_cdat_package)
 
 find_package(Qt4)
 
-option(CDAT_USE_SYSTEM_INTROSPECTION "Detect System installed libraries." OFF)
 # Added by Dave Kindig Tech-X Corp. kindig@txcorp.com
 option(CDAT_BUILD_ESMF_ESMP "Build python version Earth System Modelling Framework" OFF)
 
@@ -343,12 +343,15 @@ if(CDAT_USE_SYSTEM_INTROSPECTION)
   #find_package(NUMPY)
   #find_package(PMW)
 endif(CDAT_USE_SYSTEM_INTROSPECTION)
-
+find_package(PKG_CONFIG)
 if(NOT PKG_CONFIG_FOUND)
+  add_cdat_package(pkgconfig)
   set(cdat_PKG_CONFIG_EXECUTABLE ${cdat_EXTERNALS}/bin/pkg-config)
+  message("DID NOT FIND pkg-config")
 else()
   set(cdat_PKG_CONFIG_EXECUTABLE ${PKG_CONFIG_EXECUTABLE})
 endif()
+set(ENV{PKG_CONFIG_PATH} ${cdat_EXTERNALS}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH})
 
 set(cdat_configure_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake)
 set(cdat_make_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake)
@@ -365,6 +368,7 @@ add_cdat_package(libXSLT)
 add_cdat_package(zlib)
 add_cdat_package(CURL)
 
+add_cdat_package(YASM)
 add_cdat_package(FFMPEG)
 #add_cdat_package(gifsicle)
 add_cdat_package(png)
@@ -381,6 +385,9 @@ if(NOT APPLE)
   else()
     add_cdat_package(CLAPACK)
   endif()
+  set(CDAT_OS_XTRA_PATH  "")
+else()
+  set(CDAT_OS_XTRA_PATH  ${CMAKE_INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/${PYVER}/bin)
 endif()
 
 add_cdat_package(freetype)
@@ -413,7 +420,6 @@ if (CDAT_USE_SYSTEM_PYTHON)
    set(PYTHON_EXTRA_PREFIX "--prefix=${CMAKE_INSTALL_PREFIX}")
    message("Setting up prefix for instaling python packages into: ${PYTHON_EXTRA_PREFIX}")
    set(ENV{LD_LIBRARY_PATH} $ENV{LD_LIBRARY_PATH})
-   set(ENV{PYTHONPATH} "${PYTHON_SITE_PACKAGES}:$ENV{PYTHONPATH}")
    set(PYTHONPATH "${PYTHON_SITE_PACKAGES}:$ENV{PYTHONPATH}")
    message("Set PYTHONPATH to $ENV{PYTHONPATH}")
    get_filename_component(PYTHON_EXECUTABLE_PATH ${PYTHON_EXECUTABLE} PATH)
@@ -421,16 +427,25 @@ if (CDAT_USE_SYSTEM_PYTHON)
    message("set PYTHON_LIBRARY TO" ${PYTHON_LIBRARY})
    set(PYTHON_INCLUDE ${PYTHON_INCLUDE_DIRS})
 else ()
-  set(PYTHON_EXECUTABLE ${CMAKE_INSTALL_PREFIX}/bin/python)
+   set(PYTHON_EXECUTABLE ${CMAKE_INSTALL_PREFIX}/bin/python)
    message("Building you a python at ${PYTHON_EXECUTABLE}")
    set(PYTHON_EXTRA_PREFIX "")
    message("Building packages into this python")
+   set(PYVER 2.7)
+   if (NOT APPLE)
+     set(EASY_INSTALL_BINARY ${CMAKE_INSTALL_PREFIX}/bin/easy_install)
+     set(PYTHONPATH ${CMAKE_INSTALL_PREFIX}/lib/python${PYVER}/site-packages)
+   else ()
+     set(EASY_INSTALL_BINARY ${CMAKE_INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/${PYVER}/bin/easy_install)
+     set(PYTHONPATH ${CMAKE_INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/${PYVER}/lib/python${PYVER}/site-packages)
+   endif()
 endif()
+set(ENV{PYTHONPATH} "${PYTHONPATH}")
 add_cdat_package(setuptools)
 add_cdat_package(SIP)
 add_cdat_package(PyQt)
 #add_cdat_package(PyOpenGL)
-add_cdat_package(NUMPY)
+
 
 find_package(MPI)
 find_package(Mpi4py)
@@ -445,11 +460,19 @@ else (Mpi4py_FOUND)
   endif ()
 endif(Mpi4py_FOUND)
 
+
+add_cdat_package(NUMPY)
+add_cdat_package(SCIPY)
+#add_cdat_package(ZMQ)
+add_cdat_package(IPYTHON)
+
 add_cdat_package(Pmw)
 add_cdat_package(libcf)
 add_cdat_package(Cython)
 add_cdat_package(Numexpr)
 add_cdat_package(PyTables)
+
+add_cdat_package(pyspharm)
 
 find_package(Matplotlib)
 if (Matplotlib_FOUND)
@@ -458,6 +481,9 @@ else (Matplotlib_FOUND)
   message("We will build Matplotlib for you")
   add_cdat_package(Matplotlib)
 endif(Matplotlib_FOUND)
+
+add_cdat_package(GEOS)
+add_cdat_package(basemap)
 
 add_cdat_package(CMOR)
 add_cdat_package(CDAT)
@@ -608,7 +634,8 @@ set(Cython_DEPENDENCIES ${pkgconfig_dep} ${Python_dep})
 set(Numexpr_DEPENDENCIES ${pkgconfig_dep} ${NUMPY_dep} ${Python_dep})
 set(PyTables_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${Cython_dep} ${Numexpr_dep} ${HDF5_dep} ${libXML2_dep} ${libXSLT_dep} ${zlib_dep})
 set(pixman_DEPENDENCIES ${pkgconfig_dep})
-set(FFMPEG_DEPENDENCIES ${pkgconfig_dep})
+set(YASM_DEPENDENCIES ${pkgconfig_dep})
+set(FFMPEG_DEPENDENCIES ${pkgconfig_dep} ${YASM_dep})
 set(ghostscript_DEPENDENCIES ${pkgconfig_dep} ${zlib_dep} ${jpeg_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep} ${libXSLT_dep} ${libXML2_dep})
 set(NetCDF_DEPENDENCIES ${pkgconfig_dep} ${HDF5_dep} ${CURL_dep} ${zlib_dep})
 
@@ -618,6 +645,9 @@ set(setuptools_DEPENDENCIES ${pkgconfig_dep} ${Python_dep})
 set(LAPACK_DEPENDENCIES ${pkgconfig_dep})
 set(CLAPACK_DEPENDENCIES ${pkgconfig_dep})
 set(NUMPY_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${CLAPACK_dep} ${LAPACK_dep})
+set(SCIPY_DEPENDENCIES ${NUMPY_dep})
+set(ZMQ_DEPENDENCIES)
+set(IPYTHON_DEPENDENCIES ${setuptools_dep} ${ZMQ_dep} ${NUMPY_dep})
 
 set(VTK_DEPENDENCIES ${pkgconfig_dep} ${zlib_deb} ${png_dep} ${jpeg_dep} ${xml_dep})
 set(Cairo_DEPENDENCIES ${pkgconfig_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep})
@@ -633,7 +663,13 @@ set(gui_support_DEPENDENCIES ${CDAT_dep})
 # C.Doutriaux Turning off vistrails build from within CDAT not needed
 #set(VisTrails_DEPENDENCIES ${ParaView_dep} ${CDAT_dep})
 set(Matplotlib_DEPENDENCIES ${PyQt_dep} ${Cairo_dep} ${NUMPY_dep} )
+
 set(Mpi4py_DEPENDENCIES ${NUMPY_dep} )
+
+set(GEOS_DEPENDENCIES ${Matplotlib_dep} )
+set(basemap_DEPENDENCIES ${GEOS_dep} )
+set(pyspharm_DEPENDENCIES ${NUMPY_dep})
+
 list(REMOVE_DUPLICATES external_packages)
 foreach(package ${external_packages})
   message("Building ${package}")
@@ -654,3 +690,9 @@ configure_file(${cdat_SOURCE_DIR}/checked_get.sh.in
 
 include(CDATLogger)
 
+configure_file(${cdat_CMAKE_SOURCE_DIR}/setup_cdat.sh.in
+  ${CMAKE_INSTALL_PREFIX}/bin/setup_cdat.sh
+  @ONLY)
+configure_file(${cdat_CMAKE_SOURCE_DIR}/setup_cdat.csh.in
+  ${CMAKE_INSTALL_PREFIX}/bin/setup_cdat.csh
+  @ONLY)
