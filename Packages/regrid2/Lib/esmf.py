@@ -229,7 +229,7 @@ class EsmfStructField:
     Create a structured field object
     """
     def __init__(self, esmfGrid, name, data, 
-                 staggerloc = ESMP.ESMP_STAGGERLOC_CENTER):
+                 meshloc = ESMP.ESMP_MESHLOC_ELEMENT):
         """
         Creator for ESMF Field
         @param esmfGrid instance of an ESMP_Mesh
@@ -239,10 +239,10 @@ class EsmfStructField:
                        ESMP_STAGGERLOC_CORNER for Conservative interpolation
         """
         locations = [ESMP.ESMP_MESHLOC_NODE, ESMP.ESMP_MESHLOC_ELEMENT]
-        if staggerloc not in locations:
+        if meshloc not in locations:
             raise cdms2.CDMSError, """
-                  Stagger location must be ESMP.ESMP_STAGGERLOC_CENTER
-                                           ESMP.ESMP_STAGGERLOC_CORNER"""
+                  Stagger location must be ESMP.ESMP_MESHLOC_NODE
+                                           ESMP.ESMP_MESHLOC_ELEMENT"""
 
         numpyType2EsmfType = {
             'float64': ESMP.ESMP_TYPEKIND_R8,
@@ -462,7 +462,7 @@ def getTensorProduct(axis, dim, dims):
     return numpy.outer(numpy.outer( numpy.ones(dims[:dim], axis.dtype), axis),
                       numpy.ones(dims[dim+1:], axis.dtype)).reshape(dims)
 
-def createPlot(srcCds, dstCds, data, vmin = 0, vmax = 0, savefig = False, fileName = None):
+def createPlot(srcCds, dstCds, data, vmin = 0, vmax = 0, fileName = None):
     """
     matplotlib.pylab plots
     @param srcCds list of source coordinates lon-lat order
@@ -484,7 +484,7 @@ def createPlot(srcCds, dstCds, data, vmin = 0, vmax = 0, savefig = False, fileNa
                   vmin = vmin, vmax = vmax)
         pl.title(titles[i] + str(Cds[i][0].shape))
         pl.colorbar()
-    if fileName is not None and savefig:
+    if fileName is not None:
         pl.savefig(fileName)
     else:
         pl.show()
@@ -580,6 +580,8 @@ def test2d(useMethod = 0, doPlot = False):
     print ' Destination'
     dstGrid, dstDataN, dstDataE = _create2DMesh([dst_x, dst_y], 1)
     dstDataE[:] = -1
+    dstDataN[:] = -1
+    dstData = (dstDataN, dstDataE)
 
     ESMP.ESMP_MeshWrite(dstGrid.grid, filename['dstGrid'])
 
@@ -635,8 +637,7 @@ def test2d(useMethod = 0, doPlot = False):
     print ' Done'
 
 def testCurviLinearGrid(useMethod, useStagger, writeVTK = False, 
-                        doPlot = False, savefig = False,
-                        fileName = None):
+                        doPlot = False, fileName = None):
     """
     Create a curvilinear mesh and regrid it.
     topological 2d
@@ -721,10 +722,10 @@ def testCurviLinearGrid(useMethod, useStagger, writeVTK = False,
     print 'Destination Data/cell', dstval
     print 'src/dst, src-dst   ', 100*(1-srcval/dstval), "%", srcval-dstval
 
-    if doPlot: 
-        fileName = "%s_%s_test.png" % (method[useMethod], stagger[useStagger])
+    if doPlot or fileName is not None: 
+        fileName = "%s_%s_test.png" % (method[useMethod], stagName[useStagger])
         aa = (srcData, newSrc, dstData, newDst)
-        createPlot(srcCds, dstCds, aa, fileName = fileName, savefig = savefig)
+        createPlot(srcCds, dstCds, aa, fileName = fileName)
 
     del regrid
     del dstESMFField
@@ -734,7 +735,7 @@ def testCurviLinearGrid(useMethod, useStagger, writeVTK = False,
 
     print ' Done'
 
-def testCurviLinearMesh(useMethod, writeVTK = False, doPlot = False):
+def testCurviLinearMesh(useMethod, writeVTK = False, doPlot = False, fileName = None):
     """
     Create a curvilinear mesh and regrid it.
     topological 2d
@@ -750,8 +751,8 @@ def testCurviLinearMesh(useMethod, writeVTK = False, doPlot = False):
     filename = {}
     for f in filepref: filename[f] = "%s_%s" % (f, method[useMethod])
 
-    snlon, snlat = 192, 189
-    dnlon, dnlat = 360, 180
+    snlon, snlat = 16, 8  # Nodes
+    dnlon, dnlat =  8, 4  # Nodes
 
     print ' Source'
     srcxyz, srcDims, srcCds, srcBds = _createCLMeshFromAxes((-.93750, 359.0625, snlon), 
@@ -816,12 +817,16 @@ def testCurviLinearMesh(useMethod, writeVTK = False, doPlot = False):
     print 'Destination Data/cell', dstval
     print 'src/dst, src-dst   ', 100*(1-srcval/dstval), "%", srcval-dstval
 
-    srcCds = numpy.meshgrid(numpy.linspace(0, 360, snlon-1), 
-                         numpy.linspace(-90, 87.712616, snlat-1))
-    dstCds = numpy.meshgrid(numpy.linspace(0, 360, dnlon-1), 
-                         numpy.linspace(-90, 87.712616, dnlat-1))
+#    srcCds = numpy.meshgrid(numpy.linspace(0, 360, snlon-1), 
+#                         numpy.linspace(-90, 87.712616, snlat-1))
+#    dstCds = numpy.meshgrid(numpy.linspace(0, 360, dnlon-1), 
+#                         numpy.linspace(-90, 87.712616, dnlat-1))
     if doPlot: 
-        createPlot(srcCds, dstCds, (srcData, newSrc, 
+        if fileName is not None:
+            createPlot(srcCds, dstCds, (srcData, newSrc, 
+                   dstData, newDst), fileName = fileName)
+        else:
+            createPlot(srcCds, dstCds, (srcData, newSrc, 
                    dstData, newDst))
 
     del regrid
@@ -838,12 +843,10 @@ if __name__ == "__main__":
     These features are off (False) by default.
     """
     ESMP.ESMP_Initialize()
-#    test2d(0, doPlot = False)  # Flat world
-#    test2d(1, doPlot = False)  # Flat world
+    test2d(0, doPlot = False)  # Flat world
+    test2d(1, doPlot = False)  # Flat world
     # Curvilinear Mesh or grid. Bilinear (0) or Conservative (1)
-#    testCurviLinearMesh(0, writeVTK = False, doPlot = False)  # Curvilinear world
-#    testCurviLinearMesh(1, writeVTK = False, doPlot = False)  # Curvilinear world
-    testCurviLinearGrid(0, 0,writeVTK = False, doPlot = True)  # Curvilinear world
-#    testCurviLinearGrid(1, 1,writeVTK = False, doPlot = True)  # Curvilinear world
-#    testCurviLinearGrid(1, writeVTK = False, doPlot = False)  # Curvilinear world
+    testCurviLinearMesh(0, writeVTK = False, doPlot = False) #, fileName = 'curviMeshBil.png')  # Curvilinear world
+    testCurviLinearMesh(1, writeVTK = False, doPlot = False) #, fileName = 'curviMeshCon.png')  # Curvilinear world
+    testCurviLinearGrid(0, 0,writeVTK = False, doPlot = False) #, fileName = 'curviGridBil.png')  # Curvilinear world
     ESMP.ESMP_Finalize()
