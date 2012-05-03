@@ -92,7 +92,7 @@ def _makeCrdsFromBounds(coords = None):
         if hasattr(c, 'getBounds'):
             bounds.append(c.getBounds())
         elif hasattr(c, 'genGenericBounds'):
-            bounds.appen(c.genGenericBounds())
+            bounds.append(c.genGenericBounds())
         else:
             raise RegridError, "Bounds cannot be found or created"
 
@@ -172,7 +172,7 @@ class Regridder:
                  regridTool = "gsRegrid", regridMethod = "bilinear", **args):
         """
         Constructor for regridding object. Currently just uses a 2-D object
-        @param ingrid cdms2, ndarray variable
+        @param inGrid cdms2, ndarray variable
         @param outGrid cdms2, ndarray variable
         @param srcMask mask for the source grid - use numpy masking rules
                         0 - Valid, 1 - Invalid
@@ -201,7 +201,7 @@ class Regridder:
         self.outMask = None
 
         if re.match('regrid', rgTool, re.I):
-            self.regridObj = regrid2.Horizontal(ingrid, outGrid)
+            self.regridObj = regrid2.Horizontal(inGrid, outGrid)
             self.regridTool = 'regrid2'
         elif rgTool == 'scrip':
             pass
@@ -409,9 +409,8 @@ class Regridder:
                                 regridMethod = method,
                                 unMappedAction = unMappedAction)
 
-            # Call the regrid proceedure
+            # Call the regrid procedure
             self.regrid()
-            ptr = self.dstField.getPointer()
             outVar.flat = self.dstField.getPointer()
 
             # Set the output mask if available
@@ -540,7 +539,7 @@ class Regridder:
             # Combine missing data mask and output grid mask
             # Note: slabMask and outMask are Boolean here
             if self.outMask is not None:
-                outMask = numpy.logical_not(numpy.resize(self.outMask, outshape))
+                outMask = numpy.logical_not(numpy.resize(self.outMask, outShape))
                 if hasMissing:
                     outMask = numpy.ma.logical_or(outMask, slabMask)
             else:
