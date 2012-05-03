@@ -76,21 +76,20 @@ class EsmfStructGrid:
 
         # Copy the data
         for sLoc in staggerLocations:
-            ESMP.ESMP_GridAddCoord(self.grid, staggerloc=sLoc)
-            exLBLoc, exUBLoc = ESMP.ESMP_GridGetCoord(self.grid, sLoc) 
+            ESMP.ESMP_GridAddCoord(self.grid, staggerloc = sLoc)
+            exLBLoc, exUBLoc = ESMP.ESMP_GridGetCoord(self.grid, staggerloc = sLoc) 
             
             for i in range(rank):
                 # 1 based coordinate population
-                ptr = ESMP.ESMP_GridGetCoordPtr(self.grid, i+1, sLoc)
+                ptr = ESMP.ESMP_GridGetCoordPtr(self.grid, i+1, 
+                                                staggerloc = sLoc)
             
-            # Poplulate the self.grid with coordinates or the bounds as needed
-            # numpy.arrays required since numpy.ma arrays don't support flat
+                # Poplulate the self.grid with coordinates or the bounds as needed
+                # numpy.arrays required since numpy.ma arrays don't support flat
                 if sLoc == ESMP.ESMP_STAGGERLOC_CORNER:
                     ptr[:] = numpy.array(bounds[i]).flat
-                    print 'EsmfStructGrid bounds', ptr.shape, self.maxIndex, sLoc, ESMP.ESMP_STAGGERLOC_CORNER
                 else:
                     ptr[:] = numpy.array(coords[i]).flat
-                    print 'EsmfStructGrid coords', ptr.shape, self.maxIndex,sLoc, ESMP.ESMP_STAGGERLOC_CENTER
 
             # Populate the mask on Cell Centers
             self.maskPtr = None
@@ -295,7 +294,6 @@ class EsmfGridField:
             'int64': ESMP.ESMP_TYPEKIND_I4, }
         etype = numpyType2EsmfType[str(data.dtype)]
 
-        print esmfGrid.getPointer(2,staggerloc= ESMP.ESMP_STAGGERLOC_CORNER).shape
         self.field = ESMP.ESMP_FieldCreateGrid(esmfGrid.grid, name,
                         staggerloc = staggerloc,
                         typekind = etype)
@@ -305,6 +303,7 @@ class EsmfGridField:
         ndata = 1
         for i in data.shape:
             ndata *= i
+        # This is here because the numpy.flat gives a strange error message.
         if ptr.shape[0] != ndata:
             raise RegridError, 'N-Elements mismatch nptr = %s, ndata = %s' % \
                             (ptr.shape[0], ndata)
@@ -366,10 +365,10 @@ class EsmfRegrid:
         self.regridHandle = ESMP.ESMP_FieldRegridStore( 
                                      srcField.field, 
                                      dstField.field,
-                                     srcMaskValues = srcMaskValue, 
-                                     dstMaskValues = dstMaskValue,
-                                     srcFracField = srcFrac, 
+                                     srcFracField = srcFrac,
                                      dstFracField = dstFrac,
+                                     srcMaskValues = srcMaskValue,
+                                     dstMaskValues = dstMaskValue,
                                      regridmethod = regridMethod, 
                                      unmappedaction = unMappedAction)
 
@@ -584,7 +583,6 @@ def test2d(useMethod = 0, doPlot = False):
 
     ESMP.ESMP_MeshWrite(dstGrid.grid, filename['dstGrid'])
 
-    dstData = [dstDataN, dstDataE]
     dstField = EsmfStructField(dstGrid, 'dstField', dstData[useMethod],
                                meshloc = meshloc[useMethod])
 
@@ -666,9 +664,6 @@ def testCurviLinearGrid(useMethod, useStagger, writeVTK = False,
                                               (-80.00, 80, snlat), 
                                               useMethod)
 
-    sxxn, syyn, szzn = srcxyz
-    srcDimsN, srcDimsE = srcDims
-    lon2D, lat2D = srcCds
 
     # Create the grid object
     if useStagger == 0 and useMethod == 0:
@@ -676,7 +671,6 @@ def testCurviLinearGrid(useMethod, useStagger, writeVTK = False,
     else:
         srcESMFGrid = EsmfStructGrid(srcCds, bounds = srcBds)
 
-    srcESMFGrid.getPointer
     # Field Data
     nElem = srcDims[useMethod][0]*srcDims[0][1] 
     srcData = numpy.ones(srcDims[0], numpy.float64)
@@ -688,31 +682,28 @@ def testCurviLinearGrid(useMethod, useStagger, writeVTK = False,
         ESMP.ESMP_MeshWrite(srcESMFGrid.grid, filename['srcGrid'])
         writeVSH5('testSrc.vsh5', srcESMFGrid, srcData)
 
-    srcESMFField = EsmfGridField(srcESMFGrid, 'source', srcData, 
-                       staggerloc = stagger[useStagger])
+    srcESMFField = EsmfGridField(srcESMFGrid, 'srcData', srcData, 
+                       staggerloc = stagger[0])
 
     print ' Destination'
     dstxyz, dstDims, dstCds, dstBds = _createCLMeshFromAxes(
                                                    (-.93750, 359.0625, dnlon), 
                                                    (-80.00, 80.00, dnlat), 
                                                    useMethod)
-    dxxn, dyyn, dzzn = dstxyz
-    dstDimsN, dstDimsE = dstDims
-    lon2D, lat2D = dstCds
 
     # Create the grid object
-    dstESMFGrid = EsmfStructGrid(dstCds)
+    dstESMFGrid = EsmfStructGrid(dstCds, bounds = dstBds)
 
     # Field Data
-    dstData = numpy.ones(dstDims[useMethod], numpy.float64)
+    dstData = numpy.ones(dstDims[0], numpy.float64)
 
-    dstESMFField = EsmfGridField(dstESMFGrid, 'source', dstData, 
-                        staggerloc = stagger[useStagger])
+    dstESMFField = EsmfGridField(dstESMFGrid, 'dstData', dstData, 
+                        staggerloc = stagger[0])
     if writeVTK: 
         ESMP.ESMP_MeshWrite(dstESMFGrid.grid, filename['dstGrid'])
         writeVSH5('testDst.vsh5', dstESMFGrid, dstData)
 
-    # Interpolate Bilinear
+    # Interpolate
     regrid = EsmfRegrid(srcESMFField, dstESMFField,
                 regridMethod = regridMethod[useMethod],
                 unMappedAction = unMappedAction)
@@ -852,7 +843,7 @@ if __name__ == "__main__":
     # Curvilinear Mesh or grid. Bilinear (0) or Conservative (1)
 #    testCurviLinearMesh(0, writeVTK = False, doPlot = False)  # Curvilinear world
 #    testCurviLinearMesh(1, writeVTK = False, doPlot = False)  # Curvilinear world
-#    testCurviLinearGrid(0, 0,writeVTK = False, doPlot = True)  # Curvilinear world
-    testCurviLinearGrid(1, 1,writeVTK = False, doPlot = True)  # Curvilinear world
+    testCurviLinearGrid(0, 0,writeVTK = False, doPlot = True)  # Curvilinear world
+#    testCurviLinearGrid(1, 1,writeVTK = False, doPlot = True)  # Curvilinear world
 #    testCurviLinearGrid(1, writeVTK = False, doPlot = False)  # Curvilinear world
     ESMP.ESMP_Finalize()
