@@ -12,19 +12,6 @@ try:
 except:
     pass
 
-def _setMaskDtype(mask):
-    """
-    Convert a mask to int32
-    @param mask the mask to be converted
-    """
-    if mask.dtype != numpy.int32:
-        if mask.dtype == numpy.bool:
-            mask = numpy.array(mask, numpy.int32)
-        elif mask.dtypye == numpy.bool8:
-            mask = numpy.array(mask, numpy.int32)
-
-    return mask
-
 def _makeGridList(grid):
     """
     Convert a cdms2 grid to a list of coordinates
@@ -92,7 +79,7 @@ def _makeCrdsFromBounds(coords = None):
         if hasattr(c, 'getBounds'):
             bounds.append(c.getBounds())
         elif hasattr(c, 'genGenericBounds'):
-            bounds.appen(c.genGenericBounds())
+            bounds.append(c.genGenericBounds())
         else:
             raise RegridError, "Bounds cannot be found or created"
 
@@ -172,7 +159,7 @@ class Regridder:
                  regridTool = "gsRegrid", regridMethod = "bilinear", **args):
         """
         Constructor for regridding object. Currently just uses a 2-D object
-        @param ingrid cdms2, ndarray variable
+        @param inGrid cdms2, ndarray variable
         @param outGrid cdms2, ndarray variable
         @param srcMask mask for the source grid - use numpy masking rules
                         0 - Valid, 1 - Invalid
@@ -201,7 +188,7 @@ class Regridder:
         self.outMask = None
 
         if re.match('regrid', rgTool, re.I):
-            self.regridObj = regrid2.Horizontal(ingrid, outGrid)
+            self.regridObj = regrid2.Horizontal(inGrid, outGrid)
             self.regridTool = 'regrid2'
         elif rgTool == 'scrip':
             pass
@@ -209,7 +196,6 @@ class Regridder:
             if not esmfImported:
                 string = "ESMP is not installed or is unable to be imported"
                 raise RegridError, string
-            self.esmfImported = esmfImported
             self.regridTool = 'esmp'
 
             # Set the regridding method - Bilinear / Conservative
@@ -297,14 +283,14 @@ class Regridder:
                                    (self.dstRank, self.srcRank)
 
             # Create the regrid object
-            ro = regrid2.gsRegrid.Regrid(self.srcGrid, self.dstGrid)
+            ro = cdms2.gsRegrid.Regrid(self.srcGrid, self.dstGrid)
 
             # Set the source mask
             if srcMask is not None:
                 if len(srcMask.shape) > 3:
                     raise RegridError, \
                            'Ranks greater than three are not supported'
-                self.srcMask = _setMaskDtype(srcMask)
+                self.srcMask = numpy.array(srcMask, dtype = numpy.int32)
                 ro.setMask(self.srcMask)
 
             # Compute the weights
@@ -362,7 +348,7 @@ class Regridder:
         if self.regridTool == 'regrid2':
             result = self.regridObj(inData, args)
         elif self.regridTool == 'esmp':
-            if not self.esmfImported:
+            if not esmfImported:
                 string = "ESMP is not installed or is unable to be imported"
                 raise RegridError, string
 
@@ -411,7 +397,6 @@ class Regridder:
 
             # Call the regrid proceedure
             self.regrid()
-            ptr = self.dstField.getPointer()
             outVar.flat = self.dstField.getPointer()
 
             # Set the output mask if available
@@ -466,9 +451,10 @@ class Regridder:
 
             # Create the result TransientVariable (if input inData is an AbstractVariable)
             # or masked array
-            hasTime = None
+            timeAxis = inData.getTime() # or None if time independent
+            levelAxis = inData.getLevel() # or None if level independent
+            rank = inData.rank()
             if inputIsVariable==1:
-                hasTime = inData.getTime()
                 if isinstance(self.dstGrid, list):
                     if len(self.dstGrid) == 2:
                         index = 0
@@ -481,48 +467,72 @@ class Regridder:
 
                 shape = grid.shape
                 axisList = list(grid.getAxisList())
-                if inData.rank() == 2:
-                    pass
-                elif inData.rank() == 3:
-                    if inData.getTime() is not None:
-                        axisList = [inData.getTime()] + list(axisList)
-                        shape = tuple(list(axisList[0].shape) + list(shape))
+                if rank == 3:
+                    if timeAxis is not None:
+                        axisList = [timeAxis] + list(axisList)
                     else:
-                        axisList = [inData.getLevel()] + list(axisList)
-                        shape = tuple(list(axisList[0].shape) + list(shape))
-                elif inData.rank() == 4 and inData.getTime() is not None:
-                    shape = tuple([inData.getTime().shape[0],
-                                   inData.getLevel().shape[0]] + list(shape))
-                else:
+                        axisList = [levelAxis] + list(axisList)
+                    shape = tuple(list(axisList[0].shape) + list(shape))
+                elif rank == 4:
+                    shape = tuple([timeAxis.shape[0], levelAxis.shape[0]] \
+                                      + list(shape))
+                elif rank < 2 or rank > 4:
                     raise RegridError, \
-                          'Ranks > 4 currently not supported though this API'
+                          'Data must have 2 <= rank  <= 4  (got %d)' % rank
                 axisList = tuple(axisList)
 
-            # Create the output data array. Assuming time in first index
+            nTime = 1
+            if timeAxis is not None: 
+                nTime = len(timeAxis)
+            nLevl = 1
+            if levelAxis is not None:
+                nLevl = len(levelAxis)
+
+            # Create the output data array. Assuming time in first index, 
+            # followed by level, ...
             outShape = self.regridObj.dst_dims[:]
-            if len(outShape) != len(inData.shape):
-                dd = [d for d in self.regridObj.dst_dims[:]]
-                outShape = [inData.shape[0]] + dd
-            outVar = numpy.ones(outShape, dtype = inData.dtype)
+            if levelAxis is not None:
+                outShape = [nLevl] + outShape
+            if timeAxis is not None:
+                outShape = [nTime] + outShape
+
+            outVar = numpy.ones(inData.shape, dtype = inData.dtype)
+
             if hasattr(inData, 'missing_value'):
                  outVar = outVar * inData.missing_value
             elif hasattr(inData, 'fill_value'):
                  outVar = outVar * inData.fill_value
+
             if len(outVar.shape) != len(inData.shape):
-                string = 'outVar and inData have different shapes: ', \
-                  outVar.shape, inData.shape
-                raise RegridError, string
+                raise RegridError, 'outVar and inData have different shapes: %s %s' \
+                    % (outVar.shape, inData.shape)
 
             outVar = numpy.ma.array(outVar, mask = self.outMask)
 
-            # Loop over the time variable
-            nTime = 1
-            if hasTime is not None:
-                nTime = len(inData.getTime())
-                for iTime in range(nTime):
-                     self.regridObj(inData[iTime, ...], outVar[iTime, ...])
+        
+            # Loop over the time/level
+            if timeAxis is not None:
+                if levelAxis is not None:
+                    for iTime in range(nTime):
+                        for iLevl in range(nLevl):
+                            # time, level, y, x
+                            print '*** time, level, y, x. nTime = ', nTime, ' nLevl = ', nLevl
+                            self.regridObj(inData[iTime, iLevl, ...], outVar[iTime, iLevl, ...])
+                else:
+                    for iTime in range(nTime):
+                        # time, y, x
+                        print '*** time, y, x. nTime = ', nTime
+                        self.regridObj(inData[iTime, ...], outVar[iTime, ...])
             else:
-                 self.regridObj(inData, outVar)
+                if levelAxis is not None:
+                    # level, y, x
+                    print '*** level, y, x. nLevls = ', nLevl
+                    for iLevl in range(nLevl):
+                        self.regridObj(inData[iLevl,...], outVar[iLevl,...])
+                else:
+                    # y, x
+                    print '*** y, x'
+                    self.regridObj(inData, outVar)
 
             # Correct the shape of output weights
             amskout = numpy.ma.ones(outVar.shape, numpy.bool8)
@@ -540,7 +550,7 @@ class Regridder:
             # Combine missing data mask and output grid mask
             # Note: slabMask and outMask are Boolean here
             if self.outMask is not None:
-                outMask = numpy.logical_not(numpy.resize(self.outMask, outshape))
+                outMask = numpy.logical_not(numpy.resize(self.outMask, outShape))
                 if hasMissing:
                     outMask = numpy.ma.logical_or(outMask, slabMask)
             else:
@@ -556,11 +566,3 @@ class Regridder:
                 result = numpy.ma.masked_array(outVar, mask = outMask, fill_value = missing)
 
         return result
-
-    def __del__(self):
-        if self.regridTool == 'esmp':
-            pass
-
-            # Why does this fail?
-            # esmf.finalize()
-
