@@ -80,14 +80,17 @@ class EsmfStructGrid:
             exLBLoc, exUBLoc = ESMP.ESMP_GridGetCoord(self.grid, sLoc) 
             
             for i in range(rank):
+                # 1 based coordinate population
                 ptr = ESMP.ESMP_GridGetCoordPtr(self.grid, i+1, sLoc)
             
             # Poplulate the self.grid with coordinates or the bounds as needed
             # numpy.arrays required since numpy.ma arrays don't support flat
                 if sLoc == ESMP.ESMP_STAGGERLOC_CORNER:
                     ptr[:] = numpy.array(bounds[i]).flat
+                    print 'EsmfStructGrid bounds', ptr.shape, self.maxIndex, sLoc, ESMP.ESMP_STAGGERLOC_CORNER
                 else:
                     ptr[:] = numpy.array(coords[i]).flat
+                    print 'EsmfStructGrid coords', ptr.shape, self.maxIndex,sLoc, ESMP.ESMP_STAGGERLOC_CENTER
 
             # Populate the mask on Cell Centers
             self.maskPtr = None
@@ -105,7 +108,7 @@ class EsmfStructGrid:
                                          item = ESMP.ESMP_GRIDITEM_MASK)
         return numpy.reshape(self.maskPtr, self.maxIndex)
 
-    def getPointer(self, dim):
+    def getPointer(self, dim, staggerloc = ESMP.ESMP_STAGGERLOC_CENTER):
         """
         Return the coordinates for a dimension
         @param dim desired dimension 1-based
@@ -114,7 +117,7 @@ class EsmfStructGrid:
             raise RegridError, "dim is 1-based"
 
         
-        gridPtr = ESMP.ESMP_GridGetCoordPtr(self.grid, dim, self.grid.staggerloc)
+        gridPtr = ESMP.ESMP_GridGetCoordPtr(self.grid, dim, staggerloc)
         return numpy.reshape(gridPtr, self.maxIndex)
 
     def __del__(self):
@@ -292,12 +295,20 @@ class EsmfGridField:
             'int64': ESMP.ESMP_TYPEKIND_I4, }
         etype = numpyType2EsmfType[str(data.dtype)]
 
+        print esmfGrid.getPointer(2,staggerloc= ESMP.ESMP_STAGGERLOC_CORNER).shape
         self.field = ESMP.ESMP_FieldCreateGrid(esmfGrid.grid, name,
                         staggerloc = staggerloc,
                         typekind = etype)
 
         # Copy the data
         ptr = self.getPointer()
+        ndata = 1
+        for i in data.shape:
+            ndata *= i
+        if ptr.shape[0] != ndata:
+            raise RegridError, 'N-Elements mismatch nptr = %s, ndata = %s' % \
+                            (ptr.shape[0], ndata)
+
         ptr[:] = data.flat
 
     def getPointer(self):
@@ -393,14 +404,22 @@ def _createCLMeshFromAxes(lons, lats, conserved = 0):
     # Geographic coordinates
     tlon = numpy.linspace(lonb, lone, nlon)   # X
     tlat = numpy.linspace(latb, late, nlat)   # Y
+
     lon = numpy.array(tlon, numpy.float64)
     lat = numpy.array(tlat, numpy.float64)
 
+    dy, dx = (tlat[1]-tlat[0])/2., (tlon[1]-tlon[0])/2.
+    lonbd = numpy.linspace(lonb - dx, lone + dx, nlon+1)
+    latbd = numpy.linspace(latb - dx, late + dx, nlat+1)
+
     dimsN = [len(lat), len(lon)]
+    dimsB = [len(latbd), len(lonbd)]
 
     lon2D = getTensorProduct(lon, 1, dimsN)
     lat2D = getTensorProduct(lat, 0, dimsN)
 
+    lonbd2D = getTensorProduct(lonbd, 1, dimsB)
+    latbd2D = getTensorProduct(latbd, 0, dimsB)
     dimsN = lat2D.shape
     dimsE = []
     for i in dimsN: dimsE.append(i-conserved)
@@ -411,7 +430,7 @@ def _createCLMeshFromAxes(lons, lats, conserved = 0):
     YYN = numpy.cos(lat2D * rad) * numpy.sin(lon2D * rad)
     ZZN = numpy.sin(lat2D * rad)
 
-    return (XXN, YYN, ZZN), (dimsN, dimsE), (lon2D, lat2D)
+    return (XXN, YYN, ZZN), (dimsN, dimsE), (lon2D, lat2D), (lonbd2D, latbd2D)
 
 def _createCLMeshFrom2DAxes(lon2D, lat2D):
     """
@@ -456,7 +475,6 @@ def createPlot(srcCds, dstCds, data, vmin = 0, vmax = 0, savefig = False, fileNa
     import matplotlib.pylab as pl
     titles = ['Src Before', 'Src After', 'Dst Before', 'Dst After']
     Cds = [srcCds, srcCds, dstCds, dstCds]
-
 
     figure = pl.figure()
     for i in range(4):
@@ -638,23 +656,30 @@ def testCurviLinearGrid(useMethod, useStagger, writeVTK = False,
     filename = {}
     for f in filepref: filename[f] = "%s_%s" % (f, method[useMethod])
 
-    snlon, snlat = 10, 20
-    dnlon, dnlat =  5, 10
+    # Num Nodes
+    snlon, snlat =  6, 8
+    dnlon, dnlat =  3, 4
 
     print ' Source'
-    srcxyz, srcDims, srcCds = _createCLMeshFromAxes((-.93750, 359.0625, snlon), 
-                                                   (-80.00, 80, snlat), 
-                                                   useMethod)
+    srcxyz, srcDims, srcCds, srcBds = _createCLMeshFromAxes(
+                                              (-.93750, 359.0625, snlon), 
+                                              (-80.00, 80, snlat), 
+                                              useMethod)
+
     sxxn, syyn, szzn = srcxyz
     srcDimsN, srcDimsE = srcDims
     lon2D, lat2D = srcCds
 
     # Create the grid object
-    srcESMFGrid = EsmfStructGrid(srcCds)
+    if useStagger == 0 and useMethod == 0:
+        srcESMFGrid = EsmfStructGrid(srcCds)
+    else:
+        srcESMFGrid = EsmfStructGrid(srcCds, bounds = srcBds)
 
+    srcESMFGrid.getPointer
     # Field Data
-    nElem = srcDims[useMethod][0]*srcDims[useMethod][1] 
-    srcData = numpy.ones(srcDims[useMethod], numpy.float64)
+    nElem = srcDims[useMethod][0]*srcDims[0][1] 
+    srcData = numpy.ones(srcDims[0], numpy.float64)
 
     for j in range(srcDims[useMethod][0]):
         for i in range(srcDims[useMethod][1]): srcData[j, i] = i * j
@@ -667,7 +692,8 @@ def testCurviLinearGrid(useMethod, useStagger, writeVTK = False,
                        staggerloc = stagger[useStagger])
 
     print ' Destination'
-    dstxyz, dstDims, dstCds = _createCLMeshFromAxes((-.93750, 359.0625, dnlon), 
+    dstxyz, dstDims, dstCds, dstBds = _createCLMeshFromAxes(
+                                                   (-.93750, 359.0625, dnlon), 
                                                    (-80.00, 80.00, dnlat), 
                                                    useMethod)
     dxxn, dyyn, dzzn = dstxyz
@@ -691,8 +717,8 @@ def testCurviLinearGrid(useMethod, useStagger, writeVTK = False,
                 regridMethod = regridMethod[useMethod],
                 unMappedAction = unMappedAction)
 
-    newSrc = numpy.reshape(srcESMFField.getPointer(), srcDims[useMethod])
-    newDst = numpy.reshape(dstESMFField.getPointer(), dstDims[useMethod])
+    newSrc = numpy.reshape(srcESMFField.getPointer(), srcDims[0])
+    newDst = numpy.reshape(dstESMFField.getPointer(), dstDims[0])
     
     if writeVTK: 
         ESMP.ESMP_MeshWrite(dstESMFGrid.grid, filename['dstGrid'])
@@ -704,14 +730,10 @@ def testCurviLinearGrid(useMethod, useStagger, writeVTK = False,
     print 'Destination Data/cell', dstval
     print 'src/dst, src-dst   ', 100*(1-srcval/dstval), "%", srcval-dstval
 
-    srcCds = numpy.meshgrid(numpy.linspace(0, 360, snlon-1), 
-                         numpy.linspace(-90, 87.712616, snlat-1))
-    dstCds = numpy.meshgrid(numpy.linspace(0, 360, dnlon-1), 
-                         numpy.linspace(-90, 87.712616, dnlat-1))
     if doPlot: 
         fileName = "%s_%s_test.png" % (method[useMethod], stagger[useStagger])
-        createPlot(srcCds, dstCds, (srcData, newSrc, 
-                   dstData, newDst), fileName = fileName, savefig = savefig)
+        aa = (srcData, newSrc, dstData, newDst)
+        createPlot(srcCds, dstCds, aa, fileName = fileName, savefig = savefig)
 
     del regrid
     del dstESMFField
@@ -741,7 +763,7 @@ def testCurviLinearMesh(useMethod, writeVTK = False, doPlot = False):
     dnlon, dnlat = 360, 180
 
     print ' Source'
-    srcxyz, srcDims, srcCds = _createCLMeshFromAxes((-.93750, 359.0625, snlon), 
+    srcxyz, srcDims, srcCds, srcBds = _createCLMeshFromAxes((-.93750, 359.0625, snlon), 
                                                    (-80.00, 80, snlat), 
                                                    useMethod)
     sxxn, syyn, szzn = srcxyz
@@ -766,7 +788,7 @@ def testCurviLinearMesh(useMethod, writeVTK = False, doPlot = False):
                         meshloc = meshloc[useMethod])
 
     print ' Destination'
-    dstxyz, dstDims, dstCds = _createCLMeshFromAxes((-.93750, 359.0625, dnlon), 
+    dstxyz, dstDims, dstCds, dstBds = _createCLMeshFromAxes((-.93750, 359.0625, dnlon), 
                                                    (-80.00, 80.00, dnlat), 
                                                    useMethod)
     dxxn, dyyn, dzzn = dstxyz
@@ -830,6 +852,7 @@ if __name__ == "__main__":
     # Curvilinear Mesh or grid. Bilinear (0) or Conservative (1)
 #    testCurviLinearMesh(0, writeVTK = False, doPlot = False)  # Curvilinear world
 #    testCurviLinearMesh(1, writeVTK = False, doPlot = False)  # Curvilinear world
-    testCurviLinearGrid(0, 0,writeVTK = False, doPlot = True, savefig = False)  # Curvilinear world
+#    testCurviLinearGrid(0, 0,writeVTK = False, doPlot = True)  # Curvilinear world
+    testCurviLinearGrid(1, 1,writeVTK = False, doPlot = True)  # Curvilinear world
 #    testCurviLinearGrid(1, writeVTK = False, doPlot = False)  # Curvilinear world
     ESMP.ESMP_Finalize()
