@@ -4,13 +4,21 @@ import regrid2
 from regrid2 import RegridError
 import re
 
-esmfImported = False
+# Test for the presence of esmp.
+esmfpyImported = False
+esmpImported = False
 try:
     from regrid2 import esmf
-    import ESMP
-    esmfImported = True
+    esmfpyImported = True
+    try:
+        import ESMP
+        esmpImported = True
+    except:
+        pass
 except:
     pass
+
+if esmfpyImported and esmpImported: esmfImported = True
 
 def _setMaskDtype(mask):
     """
@@ -420,7 +428,7 @@ class Regridder:
                 missing = None
                 for att in attrs:
                     if hasattr(inData, att):
-                       missing = getattr(inData, att)
+                        missing = getattr(inData, att)
                 if missing is not None: outMask = (outVar == missing)
             elif self.dstMask is None:
                 outMask = self.dstMask
@@ -504,9 +512,9 @@ class Regridder:
                 outShape = [inData.shape[0]] + dd
             outVar = numpy.ones(outShape, dtype = inData.dtype)
             if hasattr(inData, 'missing_value'):
-                 outVar = outVar * inData.missing_value
+                outVar = outVar * inData.missing_value
             elif hasattr(inData, 'fill_value'):
-                 outVar = outVar * inData.fill_value
+                outVar = outVar * inData.fill_value
             if len(outVar.shape) != len(inData.shape):
                 string = 'outVar and inData have different shapes: ', \
                   outVar.shape, inData.shape
@@ -519,9 +527,9 @@ class Regridder:
             if hasTime is not None:
                 nTime = len(inData.getTime())
                 for iTime in range(nTime):
-                     self.regridObj(inData[iTime, ...], outVar[iTime, ...])
+                    self.regridObj(inData[iTime, ...], outVar[iTime, ...])
             else:
-                 self.regridObj(inData, outVar)
+                self.regridObj(inData, outVar)
 
             # Correct the shape of output weights
             amskout = numpy.ma.ones(outVar.shape, numpy.bool8)
