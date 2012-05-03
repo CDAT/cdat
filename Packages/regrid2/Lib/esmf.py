@@ -3,8 +3,6 @@ import numpy
 import operator
 import cdms2
 import tables
-import sys
-import copy
 from regrid2 import RegridError
 
 # Global variables
@@ -23,6 +21,9 @@ def finalize():
     ESMP.ESMP_Finalize()
     
 class EsmfStructGrid:
+    """
+    Create an ESMF structured grid
+    """
     def __init__(self, coords, bounds = None, mask = None, periodicity = 0, 
                  coordSys = ESMP.ESMP_COORDSYS_SPH_DEG):
         """
@@ -62,10 +63,6 @@ class EsmfStructGrid:
         elif periodicity == 1:                                             
             self.grid = ESMP.ESMP_GridCreate1PeriDim(self.maxIndex, 
                                                       coordSys = coordSys)
-        elif periodicity == 2:                                             
-            raise cdms2.CDMSError, 'Method Not Implemented'
-            self.grid = ESMP.ESMP_GridCreate2PeriDim(self.maxIndex, 
-                                                      coordSys = coordSys)
         else:
             raise cdms2.CDMSError, """
                     Periodicity must be 0, 1 or 2"""
@@ -87,7 +84,6 @@ class EsmfStructGrid:
             
             # Poplulate the self.grid with coordinates or the bounds as needed
             # numpy.arrays required since numpy.ma arrays don't support flat
-                p = 0
                 if sLoc == ESMP.ESMP_STAGGERLOC_CORNER:
                     ptr[:] = numpy.array(bounds[i]).flat
                 else:
@@ -102,6 +98,9 @@ class EsmfStructGrid:
                 self.maskPtr[:] = mask.flat
 
     def getMask(self):
+        """
+        @return a mask pointer
+        """
         self.maskPtr = ESMP.ESMP_GridGetItem(self.grid, 
                                          item = ESMP.ESMP_GRIDITEM_MASK)
         return numpy.reshape(self.maskPtr, self.maxIndex)
@@ -445,7 +444,7 @@ def getTensorProduct(axis, dim, dims):
     return numpy.outer(numpy.outer( numpy.ones(dims[:dim], axis.dtype), axis),
                       numpy.ones(dims[dim+1:], axis.dtype)).reshape(dims)
 
-def createPlot(srcCds, dstCds, data, vmin = 0, vmax = 0):
+def createPlot(srcCds, dstCds, data, vmin = 0, vmax = 0, savefig = False, fileName = None):
     """
     matplotlib.pylab plots
     @param srcCds list of source coordinates lon-lat order
@@ -466,9 +465,12 @@ def createPlot(srcCds, dstCds, data, vmin = 0, vmax = 0):
         if vmax == 0: vmax = data[i].max()
         pl.pcolor(Cds[i][0], Cds[i][1], data[i], edgecolor = 'w', 
                   vmin = vmin, vmax = vmax)
-        pl.title = titles[i]
+        pl.title(titles[i] + str(Cds[i][0].shape))
         pl.colorbar()
-    pl.show()
+    if fileName is not None and savefig:
+        pl.savefig(fileName)
+    else:
+        pl.show()
 
 def writeVSH5(filename, grid, data):
     """
@@ -616,12 +618,117 @@ def test2d(useMethod = 0, doPlot = False):
 
     print ' Done'
 
-def testCurviLinear(useMethod, writeVTK = False, doPlot = False):
+def testCurviLinearGrid(useMethod, useStagger, writeVTK = False, 
+                        doPlot = False, savefig = False,
+                        fileName = None):
     """
     Create a curvilinear mesh and regrid it.
     topological 2d
     spatial 3d
     @param useMethod choose between Bilinear (0, default) and Conservative (1)
+    @param writeVTK Write out a vtk file for use in VisIt
+    @param doPlot a X plot
+    """
+    print '\nCurvilinear Coordinates --', method[useMethod]
+    stagger  = [ESMP.ESMP_STAGGERLOC_CENTER, ESMP.ESMP_STAGGERLOC_CORNER]
+    stagName = ['center', 'corner']
+
+    unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE
+    filepref = ['srcGrid', 'dstGrid']
+    filename = {}
+    for f in filepref: filename[f] = "%s_%s" % (f, method[useMethod])
+
+    snlon, snlat = 10, 20
+    dnlon, dnlat =  5, 10
+
+    print ' Source'
+    srcxyz, srcDims, srcCds = _createCLMeshFromAxes((-.93750, 359.0625, snlon), 
+                                                   (-80.00, 80, snlat), 
+                                                   useMethod)
+    sxxn, syyn, szzn = srcxyz
+    srcDimsN, srcDimsE = srcDims
+    lon2D, lat2D = srcCds
+
+    # Create the grid object
+    srcESMFGrid = EsmfStructGrid(srcCds)
+
+    # Field Data
+    nElem = srcDims[useMethod][0]*srcDims[useMethod][1] 
+    srcData = numpy.ones(srcDims[useMethod], numpy.float64)
+
+    for j in range(srcDims[useMethod][0]):
+        for i in range(srcDims[useMethod][1]): srcData[j, i] = i * j
+
+    if writeVTK: 
+        ESMP.ESMP_MeshWrite(srcESMFGrid.grid, filename['srcGrid'])
+        writeVSH5('testSrc.vsh5', srcESMFGrid, srcData)
+
+    srcESMFField = EsmfGridField(srcESMFGrid, 'source', srcData, 
+                       staggerloc = stagger[useStagger])
+
+    print ' Destination'
+    dstxyz, dstDims, dstCds = _createCLMeshFromAxes((-.93750, 359.0625, dnlon), 
+                                                   (-80.00, 80.00, dnlat), 
+                                                   useMethod)
+    dxxn, dyyn, dzzn = dstxyz
+    dstDimsN, dstDimsE = dstDims
+    lon2D, lat2D = dstCds
+
+    # Create the grid object
+    dstESMFGrid = EsmfStructGrid(dstCds)
+
+    # Field Data
+    dstData = numpy.ones(dstDims[useMethod], numpy.float64)
+
+    dstESMFField = EsmfGridField(dstESMFGrid, 'source', dstData, 
+                        staggerloc = stagger[useStagger])
+    if writeVTK: 
+        ESMP.ESMP_MeshWrite(dstESMFGrid.grid, filename['dstGrid'])
+        writeVSH5('testDst.vsh5', dstESMFGrid, dstData)
+
+    # Interpolate Bilinear
+    regrid = EsmfRegrid(srcESMFField, dstESMFField,
+                regridMethod = regridMethod[useMethod],
+                unMappedAction = unMappedAction)
+
+    newSrc = numpy.reshape(srcESMFField.getPointer(), srcDims[useMethod])
+    newDst = numpy.reshape(dstESMFField.getPointer(), dstDims[useMethod])
+    
+    if writeVTK: 
+        ESMP.ESMP_MeshWrite(dstESMFGrid.grid, filename['dstGrid'])
+        writeVSH5('testDst.vsh5', dstESMFGrid, newDst)
+
+    srcval = newSrc.sum()/newSrc.size
+    dstval = newDst.sum()/newDst.size
+    print '     Source Data/cell', srcval
+    print 'Destination Data/cell', dstval
+    print 'src/dst, src-dst   ', 100*(1-srcval/dstval), "%", srcval-dstval
+
+    srcCds = numpy.meshgrid(numpy.linspace(0, 360, snlon-1), 
+                         numpy.linspace(-90, 87.712616, snlat-1))
+    dstCds = numpy.meshgrid(numpy.linspace(0, 360, dnlon-1), 
+                         numpy.linspace(-90, 87.712616, dnlat-1))
+    if doPlot: 
+        fileName = "%s_%s_test.png" % (method[useMethod], stagger[useStagger])
+        createPlot(srcCds, dstCds, (srcData, newSrc, 
+                   dstData, newDst), fileName = fileName, savefig = savefig)
+
+    del regrid
+    del dstESMFField
+    del srcESMFField
+    del srcESMFGrid
+    del dstESMFGrid
+
+    print ' Done'
+
+def testCurviLinearMesh(useMethod, writeVTK = False, doPlot = False):
+    """
+    Create a curvilinear mesh and regrid it.
+    topological 2d
+    spatial 3d
+    @param useMethod choose between Bilinear (0, default) and Conservative (1)
+    @param writeVTK Write out a vtk file for use in VisIt
+    @param doPlot a X plot
     """
     print '\nCurvilinear Coordinates --', method[useMethod]
 
@@ -718,8 +825,11 @@ if __name__ == "__main__":
     These features are off (False) by default.
     """
     ESMP.ESMP_Initialize()
-    test2d(0, doPlot = False)  # Flat world
-    test2d(1, doPlot = False)  # Flat world
-    testCurviLinear(0, writeVTK = False, doPlot = False)  # Curvilinear world
-    testCurviLinear(1, writeVTK = False, doPlot = False)  # Curvilinear world
+#    test2d(0, doPlot = False)  # Flat world
+#    test2d(1, doPlot = False)  # Flat world
+    # Curvilinear Mesh or grid. Bilinear (0) or Conservative (1)
+#    testCurviLinearMesh(0, writeVTK = False, doPlot = False)  # Curvilinear world
+#    testCurviLinearMesh(1, writeVTK = False, doPlot = False)  # Curvilinear world
+    testCurviLinearGrid(0, 0,writeVTK = False, doPlot = True, savefig = False)  # Curvilinear world
+#    testCurviLinearGrid(1, writeVTK = False, doPlot = False)  # Curvilinear world
     ESMP.ESMP_Finalize()
