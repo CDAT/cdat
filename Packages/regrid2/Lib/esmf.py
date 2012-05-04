@@ -3,6 +3,7 @@ import numpy
 import operator
 import cdms2
 import tables
+import matplotlib.pylab as pl
 from regrid2 import RegridError
 
 # Global variables
@@ -471,7 +472,6 @@ def createPlot(srcCds, dstCds, data, vmin = 0, vmax = 0, fileName = None):
     @param vmin minimum for plot. If not given, use data minimum
     @param vmax maximum for plot. If not given, use data maximum
     """
-    import matplotlib.pylab as pl
     titles = ['Src Before', 'Src After', 'Dst Before', 'Dst After']
     Cds = [srcCds, srcCds, dstCds, dstCds]
 
@@ -552,8 +552,8 @@ def test2d(useMethod = 0, doPlot = False):
     filename = {}
     for f in filepref: filename[f] = "%s_%s" % (f, method[useMethod])
 
-    snx1 = 230
-    sny1 = 115
+    snx1 = 23
+    sny1 = 11
     snx  = snx1 - 1
     sny  = sny1 -1
     numNodes = snx1*sny1
@@ -572,8 +572,8 @@ def test2d(useMethod = 0, doPlot = False):
                                meshloc = meshloc[useMethod])
 
     # Destination Grid
-    dnx1 = 360 
-    dny1 = 180
+    dnx1 = 36 
+    dny1 = 18
     dnx, dny = dnx1-1, dny1-1
     dst_x = numpy.linspace(0, snx1, dnx1, numpy.float64)
     dst_y = numpy.linspace(0, sny1, dny1, numpy.float64)
@@ -607,26 +607,26 @@ def test2d(useMethod = 0, doPlot = False):
     print 'Error Ratio s/d', errorRatio, " %"
 
     if doPlot:
-        sp = numpy.reshape(sptr, (sny, snx))
-        dp = numpy.reshape(dptr, (dny, dnx))
-        numpy.figure()
-        numpy.subplot(2,2,1)
-        numpy.pcolor(srcData[useMethod], edgecolor = "w")
-        numpy.title('Src Before')
-        numpy.colorbar()
-        numpy.subplot(2,2,2)
-        numpy.pcolor(sp, edgecolor = "w")
-        numpy.title('Src After')
-        numpy.colorbar()
-        numpy.subplot(2,2,3)
-        numpy.pcolor(dstData[useMethod], edgecolor = "w")
-        numpy.title('Dst Before')
-        numpy.colorbar()
-        numpy.subplot(2,2,4)
-        numpy.pcolor(dp, edgecolor = "w")
-        numpy.title('Dst After')
-        numpy.colorbar()
-        numpy.show()
+        sp = numpy.reshape(sptr, (sny1-useMethod, snx1-useMethod))
+        dp = numpy.reshape(dptr, (dny1-useMethod, dnx1-useMethod))
+        fig = pl.figure()
+        fig.add_subplot(2, 2, 1)
+        pl.pcolor(srcData[useMethod], edgecolor = "w")
+        pl.title('Src Before')
+        pl.colorbar()
+        fig.add_subplot(2, 2, 2)
+        pl.pcolor(sp, edgecolor = "w")
+        pl.title('Src After')
+        pl.colorbar()
+        fig.add_subplot(2, 2, 3)
+        pl.pcolor(dstData[useMethod], edgecolor = "w")
+        pl.title('Dst Before')
+        pl.colorbar()
+        fig.add_subplot(2, 2, 4)
+        pl.pcolor(dp, edgecolor = "w")
+        pl.title('Dst After')
+        pl.colorbar()
+        pl.show()
 
     del regrid
     del dstField
@@ -843,8 +843,8 @@ if __name__ == "__main__":
     These features are off (False) by default.
     """
     ESMP.ESMP_Initialize()
-    test2d(0, doPlot = False)  # Flat world
-    test2d(1, doPlot = False)  # Flat world
+    test2d(0, doPlot = True)  # Flat world
+    test2d(1, doPlot = True)  # Flat world
     # Curvilinear Mesh or grid. Bilinear (0) or Conservative (1)
     testCurviLinearMesh(0, writeVTK = False, doPlot = False) #, fileName = 'curviMeshBil.png')  # Curvilinear world
     testCurviLinearMesh(1, writeVTK = False, doPlot = False) #, fileName = 'curviMeshCon.png')  # Curvilinear world
