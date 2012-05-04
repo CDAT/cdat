@@ -474,8 +474,10 @@ class Regridder:
             # Create the result TransientVariable (if input inData is an AbstractVariable)
             # or masked array
             hasTime = None
+            hasLevel = None
             if inputIsVariable==1:
-                hasTime = inData.getTime()
+                hasTime = inData.getTime()   # None if empty
+                hasLevel = inData.getLevel() # None if empty
                 if isinstance(self.dstGrid, list):
                     if len(self.dstGrid) == 2:
                         index = 0
@@ -486,27 +488,29 @@ class Regridder:
                     lons = T2D(self.regridObj.dst_coords[index+1], id = 'lon')
                     grid = cdms2.hgrid.TransientCurveGrid(lats, lons, id = 'CurveGrid')
 
-                shape = grid.shape
+                outShape = grid.shape
                 axisList = list(grid.getAxisList())
                 if inData.rank() == 2:
                     pass
                 elif inData.rank() == 3:
                     if inData.getTime() is not None:
                         axisList = [inData.getTime()] + list(axisList)
-                        shape = tuple(list(axisList[0].shape) + list(shape))
+                        outShape = tuple(list(axisList[0].shape) + list(outShape))
                     else:
                         axisList = [inData.getLevel()] + list(axisList)
-                        shape = tuple(list(axisList[0].shape) + list(shape))
+                        outShape = tuple(list(axisList[0].shape) + list(outShape))
                 elif inData.rank() == 4 and inData.getTime() is not None:
-                    shape = tuple([inData.getTime().shape[0],
-                                   inData.getLevel().shape[0]] + list(shape))
+                    axisList = [inData.getTime(), inData.getLevel()] + \
+                                list(axisList)
+                    outShape = inData.shape
                 else:
                     raise RegridError, \
                           'Ranks > 4 currently not supported though this API'
                 axisList = tuple(axisList)
+            else:
+                outShape = self.regridObj.dst_dims[:]
 
             # Create the output data array. Assuming time in first index
-            outShape = self.regridObj.dst_dims[:]
             if len(outShape) != len(inData.shape):
                 dd = [d for d in self.regridObj.dst_dims[:]]
                 outShape = [inData.shape[0]] + dd
@@ -516,21 +520,49 @@ class Regridder:
             elif hasattr(inData, 'fill_value'):
                 outVar = outVar * inData.fill_value
             if len(outVar.shape) != len(inData.shape):
-                string = 'outVar and inData have different shapes: ', \
-                  outVar.shape, inData.shape
+                string = "outVar and inData have different shapes outVar.shape"
+                string = "%s = %s inVar.shape = %s: " % \
+                             (string, str(outVar.shape), str(inData.shape))
                 raise RegridError, string
 
+            # Convert to masked array
             outVar = numpy.ma.array(outVar, mask = self.outMask)
 
-            # Loop over the time variable
+            # Loop over the time or level variable
+            # regridder will regrid in the horizontal axes, while using the 
+            # existing time and level information
+            rank = len(inData.shape)
             nTime = 1
-            if hasTime is not None:
-                nTime = len(inData.getTime())
-                for iTime in range(nTime):
-                    self.regridObj(inData[iTime, ...], outVar[iTime, ...])
-            else:
+            if rank == 2:
+                # lat-lon grid
                 self.regridObj(inData, outVar)
-
+            elif rank == 3:
+                if hasTime is not None:
+                    #Time without Level
+                    nTime = len(inData.getTime())
+                    for iTime in range(nTime):
+                        self.regridObj(inData[iTime, ...], outVar[iTime, ...])
+                elif hasLevel is not None:
+                    # Level without time
+                    nLevel = len(inData.getLevel())
+                    for iLevel in range(nLevel):
+                        self.regridObj(inData[iLevel, ...], outVar[iLevel, ...])
+                else:
+                    raise RegridError, 'Third dimension is not time or level'
+            elif rank == 4:
+                if hasTime is None or hasLevel is None:
+                    string = "regrid2.Regridder can only handle time, lev, lat"
+                    string = string + "\n, lon regridding. Use regrid2.ESMP or"
+                    string = string + "\ncdms2.gsRegrid"
+                    raise RegridError, string
+                else:
+                    nLevel = len(inData.getLevel())
+                    nTime = len(inData.getTime())
+                    for iTime in range(nTime):
+                        for iLevel in range(nLevel):
+                            self.regridObj(inData[iTime, iLevel, ...], 
+                                           outVar[iTime, iLevel, ...])
+                    
             # Correct the shape of output weights
             amskout = numpy.ma.ones(outVar.shape, numpy.bool8)
             if hasMask(inData):
