@@ -7,6 +7,7 @@ restPath=None
 test = "Luca"
 test="Gavin"
 #test="Luca-new"
+datasetids=None
 if test == "Luca":
     gateway = "esg-datanode.jpl.nasa.gov"
     #gateway = "test-datanode.jpl.nasa.gov"
@@ -22,9 +23,9 @@ if test == "Luca":
     stringType= False
 elif test == "Gavin":
     gateway = "pcmdi9.llnl.gov"
-    datasetids = "%(project).%(product).%(institution).%(model).%(experiment).%(time_frequency).%(realm).%(MIPTable).%(ensemble)"
-    fileids="%(datasetid).%(version).%(variable)_%(MIPTable)_%(model)_%(experiment)_%(ensemble)_%(timespan).nc"
-    mapping="%(datasetid).%(variable)"
+    #datasetids = "%(project).%(product).%(institution).%(model).%(experiment).%(time_frequency).%(realm).%(MIPTable).%(ensemble)"
+    #fileids="%(datasetid).%(version).%(variable)_%(MIPTable)_%(model)_%(experiment)_%(ensemble)_%(timespan).nc"
+    #mapping="%(datasetid).%(variable)"
     #stringType= True
 elif test== "Luca-new":
     gateway = "uv-cdat"
@@ -40,12 +41,12 @@ elif test== "Luca-new":
 #datasetids = "%(project).%(product).%(institute).%(model).%(experiment).%(time_frequency).%(realm).%(MIPTable).%(ensemble)"
 fileids=None
 #mapping="%(datasetid).%(variable)"
-stringType= False
-mapping=None
+stringType = True
+mapping = None
 print gateway,mapping,datasetids,restPath
 myGateway = cdms2.esgfConnection(gateway,mapping=mapping,datasetids=datasetids,fileids=fileids,restPath=restPath)
-stringType=False
-datasets =  myGateway.searchDatasets(stringType=stringType,variable="hus")
+stringType = False
+datasets = myGateway.searchDatasets(stringType=stringType,variable="hus")
 print datasets
 #sys.exit()
 if stringType:
@@ -69,16 +70,22 @@ else:
     #sys.exit()
     #print datasets[0]
     #print datasets[0].files[:]
-    i=0
+    i=5
     print "Looking at:",datasets[i].id,datasets[i].mapping
     search1 = datasets[i].search()#searchString=True)
     print search1
     print len(search1)
     search1.remap()
     print search1.mapped#["cmip5"]["output1"]["INM"]["inmcm4"]["amip"]["day"]["atmos"]["day"]["r1i1p1"].keys()
+    print search1.mapped["CMIP5"]["output1"]["CNRM-CERFACS"]["CNRM-CM5"]["historical"]["mon"]["atmos"]["Amon"]["r4i1p1"]
+    f1=search1[0]
+    print f1
+    print f1.OPENDAP
+    f=cdms2.open(f1.OPENDAP)
+    print f.listvariables()
 #    print search1.mapped['obs4cmip5']['NASA-JPL']['AURA']['MLS']['mon']['files'][0].OPENDAP
-    print search1.mapped['obs4MIPs']['NASA-JPL']['AIRS']['mon']['files'][0].services
-    print search1.mapped['obs4MIPs']['NASA-JPL']['AIRS']['mon']['files'][0].OPENDAP
+    #print search1.mapped['obs4MIPs']['NASA-JPL']['AIRS']['mon']['files'][0].services
+    #print search1.mapped['obs4MIPs']['NASA-JPL']['AIRS']['mon']['files'][0].OPENDAP
     #print search1.parent["MIPTable"]
         #search2 = datasets[i].search(variable="crap")
         #print len(search2)

@@ -1,7 +1,7 @@
 
 set(esmp_source "${CMAKE_CURRENT_BINARY_DIR}/build/ESMP")
 set(PYTHON_VER "python${PYTHON_MAJOR}.${PYTHON_MINOR}")
-set(esmp_install "${CMAKE_INSTALL_PREFIX}/lib/${PYTHON_VER}/site-packages/")
+set(esmp_install "${CMAKE_INSTALL_PREFIX}/lib/${PYTHON_VER}/site-packages")
 
 configure_file(${cdat_CMAKE_SOURCE_DIR}/esmp_install_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/esmp_install_step.cmake
@@ -13,7 +13,8 @@ ExternalProject_Add(ESMP
   SOURCE_DIR @esmp_source@
   INSTALL_DIR @esmp_install@
   URL ${ESMP_URL}/${ESMP_GZ}
-  URL_MD5 ${ESMP_MD5}
+#  URL_MD5 ${ESMP_MD5}
+  URL_MD5 ""
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
   CONFIGURE_COMMAND ""

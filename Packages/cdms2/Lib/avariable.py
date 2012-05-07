@@ -48,7 +48,7 @@ class AbstractVariable(CdmsObj, Slab):
         if variableNode is not None and variableNode.tag !='variable':
             raise CDMSError, 'Node is not a variable node'
         CdmsObj.__init__(self, variableNode)
-        val = self.__cdms_internals__ + ['id','domain',"autoApiInfo"]
+        val = self.__cdms_internals__ + ['id','domain']
         self.___cdms_internals__ = val 
         Slab.__init__(self)
         self.id = None                  # Transient variables key on this to create a default ID
@@ -148,10 +148,10 @@ class AbstractVariable(CdmsObj, Slab):
         return result
 
     def generateGridkey(self, convention, vardict):
-        """ generateGridkey(): Determine if the variable is gridded, and
-        generate ((latname, lonname, order, maskname, class), lat, lon) if
-        gridded, or (None, None, None) if not gridded. vardict is the variable
-        dictionary of the parent """
+        """ generateGridkey(): Determine if the variable is gridded, 
+            and generate ((latname, lonname, order, maskname, class), lat, lon) if gridded,
+            or (None, None, None) if not gridded. vardict is the variable dictionary of the parent"""
+
         lat, nlat = convention.getVarLatId(self, vardict)
         lon, nlon = convention.getVarLonId(self, vardict)
         if (lat is not None) and (lat is lon):
@@ -353,8 +353,8 @@ class AbstractVariable(CdmsObj, Slab):
             pass
         else:
             raise CDMSError, 'Invalid missing value %s'%`value`
-
-        self._missing = value
+        
+        self.missing_value = value
 
 
     def getTime(self):
@@ -884,7 +884,7 @@ class AbstractVariable(CdmsObj, Slab):
         if togrid is None: 
             return self
         else:
-            fromgrid = self.getGrid()
+            fromgrid = self.getGrid() # returns horizontal grid only
             regridf = Regridder(fromgrid, togrid)
             result = regridf(self, missing=missing, order=order, mask=mask)
             return result

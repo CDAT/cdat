@@ -1,0 +1,14 @@
+
+if(APPLE)
+  set(ENV{MACOSX_DEPLOYMENT_TARGET} "@CMAKE_OSX_DEPLOYMENT_TARGET@")
+  set(ENV{CFLAGS} "@cdat_osx_arch_flag@ @cdat_osx_version_flag@ @cdat_osx_sysroot@")
+endif()
+
+set(ENV{PATH} $ENV{PATH}:@cdat_EXTERNALS@/bin)
+
+EXECUTE_PROCESS(
+  #    COMMAND sh configure --disable-static --disable-network --disable-zlib --disable-ffserver --disable-ffplay --disable-decoders --enable-shared --enable-swscale --prefix=@ffmpeg_install@
+  COMMAND make
+  WORKING_DIRECTORY "@ffmpeg_source@"
+  RESULT_VARIABLE rv
+  )

@@ -12,15 +12,15 @@ if not 'clist' in locals().keys():
 Clist = [
     ['contrib/Sphinx','sphinx documentation builder','GNU'],
 ##     ['contrib/zope-interface','zope interface','GNU'],
-    ['contrib/Twisted','network computing tools','GNU'],
-    ['contrib/Foolscap','RPC protocol for Python+Twisted','GNU'],
-    ['contrib/ipython','an Enhanced Python Shell','GNU'],
-    ['contrib/scipy','Scientific tools for Python (core only)','GNU'],
+#    ['contrib/Twisted','network computing tools','GNU'],
+#    ['contrib/Foolscap','RPC protocol for Python+Twisted','GNU'],
+#    ['contrib/ipython','an Enhanced Python Shell','GNU'],
+#    ['contrib/scipy','Scientific tools for Python (core only)','GNU'],
     ['contrib/SP','A collection of Python modules that are useful for scientific computing.','LICENSE'],
     ['contrib/cssgrid','An interpolation package for random data on the surface of a sphere based on the work of Robert Renka. cssgrid uses cubic splines to calculate its interpolation function.',''],
     ['contrib/lmoments','56 routines for statistical analysis using L-moments','UC'],
     ['contrib/ort','Reads in Oort data files','UC'],
-    ['contrib/spherepack','A collection of programs for computing certain common differential operators and performing related manipulations on a sphere.',''],
+#    ['contrib/spherepack','A collection of programs for computing certain common differential operators and performing related manipulations on a sphere.',''],
     ['contrib/asciidata','Reads in ASCII files with the ability to specify tab or comma or space delimited fields','Lib/ASV.py'],
     ['contrib/eof','Calculates Empirical Orthogonal Functions of either one variable or two variables jointly','UC'],
     ['contrib/trends','Computes variance estimate taking auto-correlation into account.',''],
@@ -35,7 +35,6 @@ Clist = [
     ['contrib/EzTemplate','Package to generate VCS templates easily','GNU'],
     ['contrib/ZonalMeans','Package to compute zonal means on any grid (requires f90 compiler)','GNU'],
     ['contrib/HDF5Tools','Package to read HDF5 files into CDAT (requires h5dump binary utility)','GNU'],
-    ['contrib/matplotlib','Matlab like plotting tools','GNU'],
 ]
 
 # natgrid has illegal C comments but gcc lets them through...

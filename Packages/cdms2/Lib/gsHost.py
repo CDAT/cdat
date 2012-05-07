@@ -69,7 +69,6 @@ class Host:
 
         libcfdll = self.libcfdll
 
-
         status = libcfdll.nccf_def_host_from_file(hostfile,
                                                byref(self.hostId_ct))
         if status != 0:
@@ -201,6 +200,14 @@ class Host:
 
                     self.gridVars[vn].append(fName_ct.value)
                     self.gridName[vn].append(gName_ct.value)
+
+        # Populate the variables dictionary, avoid the grids
+        self.variables = {}
+        for item in self.statVars.keys():
+            self.variables[item] = StaticFileVariable(self, item) 
+        for item in self.timeVars.keys():
+            self.variables[item] = TimeFileVariable(self, item)
+
 
     def __initialize(self):
         """

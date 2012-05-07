@@ -1830,6 +1830,7 @@ int python_display(char *a_name[17], char *template, char *type, char *graphics,
         extern int update_ind;
 	extern int vcs_canvas_update();
         extern Gconid_X_drawable 	connect_id;
+        extern void draw_logo(cairo_t *cr);
 
 	if (d_name == NULL)
 	  return 0;

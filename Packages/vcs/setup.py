@@ -101,9 +101,11 @@ os.environ['PKG_CONFIG_PATH']=os.path.join(externals,'lib','pkgconfig')+':'+os.e
 here = os.getcwd().replace(" ","\ ")
 vcsbase = os.path.join(here, 'Src','library')
 vcsbase_proj = os.path.join(here,'Src','gctpc')
-cdatbase = os.path.join(sys.prefix,'include')
+# cdatbase = os.path.join(sys.prefix,'include')
+cdatbase = os.path.join(target_prefix,'include')
 xgksroot = os.path.join(here,'Src', 'xgks')
-py = sys.prefix
+# py = sys.prefix
+py = target_prefix
 major, minor = sys.version_info[0:2]
 t = os.popen('uname')
 uname = t.read()[:-1]
@@ -479,7 +481,7 @@ try:
  shutil.rmtree("%s/vcs/Include" % ptho,ignore_errors=True)
  shutil.copytree("Include", "%s/vcs/Include" % ptho)
 except:
- ptho=target_prefix+"/lib/python2.7/site-packages/"
+ ptho=target_prefix+"/lib/python%i.%i/site-packages/" % sys.version_info[:2]
  shutil.rmtree("%s/vcs/Include" % ptho,ignore_errors=True)
  shutil.copytree("Include", "%s/vcs/Include" % ptho)
 
@@ -488,32 +490,35 @@ print 'Copied the include files to: %s/vcs/Include' % sysconfig.get_python_lib()
 if (WM=="QT" or EM=="QT") and sys.platform in ['darwin']:
     pref = sys.prefix
     ver = ".".join(sys.version.split(' ')[0].split(".")[:2])
-    ccCmd = 'g++ -O3 -c %s -IInclude/Qt -IInclude -I/%s/include -o build/qpython.o Src/Qt/qpython.cpp' % (qt_vcs_extra_compile_args,pref)
+    ccCmd = 'g++ -O3 -c %s -IInclude/Qt -IInclude -I/%s/include -I%s -o build/qpython.o Src/Qt/qpython.cpp' % (qt_vcs_extra_compile_args,pref,sysconfig.get_python_inc())
     print 'Running: ', ccCmd
     os.system(ccCmd)
     qt_vcs_extra_link_args = '%s/lib/python%s/config/libpython%s.a ' % (pref, ver, ver) + qt_vcs_extra_link_args
-    if sys.platform in ['darwin']:
-        ldCmd = 'g++ -o build/qpython build/qpython.o %s -lutil' % (qt_vcs_extra_link_args)
-    #else:
-    #    ldCmd = 'g++ -o build/qpython build/qpython.o %s -lutil -Wl,-E -Wl,-rpath -Wl,%s/Externals/lib' % (qt_vcs_extra_link_args,pref)
-    if sys.platform in ['darwin']:
-      print 'Running: ', ldCmd
-      os.system(ldCmd)
-      if 'install' in sys.argv:
+    ldCmd = 'g++ -o build/qpython build/qpython.o %s -lutil' % (qt_vcs_extra_link_args)
+    print 'Running: ', ldCmd
+    os.system(ldCmd)
+    if 'install' in sys.argv:
+        src = "%s/bin/cdat" % (target_prefix)
         print 'renaming to :',target_prefix
-        shutil.move("build/qpython", "%s/bin/cdat" % (target_prefix))
+        shutil.move("build/qpython", src)
         if target_prefix.find("Versions")>-1:
             if target_prefix.find("Library/Frameworks")>-1:
                 pth=os.path.sep+os.path.sep.join(target_prefix.split(os.path.sep)[:-5]+['bin','cdat'])
             else:
                 pth=os.path.sep+os.path.sep.join(target_prefix.split(os.path.sep)[:-3]+['bin','cdat'])
 
-            print 'symlinking to ',pth
-            try:
-                os.remove(pth)
-            except:
-                pass
-            os.symlink("%s/bin/cdat" % (target_prefix),pth)
+else:
+    pth = "%s/bin/cdat" % (target_prefix)
+    src = os.path.sep.join([sys.prefix,"bin","python"])
+    print 'symlinking from ',pth,sys.prefix
+try:
+   os.remove(pth)
+except:
+   pass
+#print "At that point target is:",target_prefix
+print "Symlink:",pth
+#sys.exit()
+os.symlink(src,pth)
 #filedds = os.popen("find build/temp* -name '*.o'").readlines()
 #ofiles=' '.join(files).replace('\n',' ')
 #print ofiles

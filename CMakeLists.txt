@@ -8,6 +8,7 @@ project(cdat)
 set(cdat_CMAKE_SOURCE_DIR ${cdat_SOURCE_DIR}/CMake)
 set(cdat_CMAKE_BINARY_DIR ${cdat_BINARY_DIR}/CMake)
 set(cdat_external_patch_dir ${cdat_SOURCE_DIR}/exsrc)
+option(CDAT_USE_SYSTEM_INTROSPECTION "Detect System installed libraries." OFF)
 
 if("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local")
   get_filename_component(cdat_ROOT_DIR ${cdat_BINARY_DIR} PATH)
@@ -15,6 +16,8 @@ if("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local")
 endif()
 
 set(cdat_EXTERNALS ${CMAKE_INSTALL_PREFIX}/Externals)
+set(ENV{PATH} "${cdat_EXTERNALS}/bin:$ENV{PATH}")
+message("We reset your path to: " $ENV{PATH})
 
 #------------------------------------------------------------------------------
 # Update CMake module path
@@ -27,7 +30,7 @@ set(CMAKE_MODULE_PATH
   )
 
 #-----------------------------------------------------------------------------
-# CDat version
+# CDAT version
 #------------------------------------------------------------------------------
 set(cdat_VERSION_MAJOR 6)
 set(cdat_VERSION_MINOR 0)
@@ -127,6 +130,21 @@ include(CheckFortran)
 
 if(CMAKE_Fortran_COMPILER)
   enable_language(Fortran)
+  set(CONFIG_SUMMARY ${cdat_SOURCE_DIR}/logs/config.summary)
+  include(${CMAKE_ROOT}/Modules/CMakeDetermineFortranCompiler.cmake)
+  if (CDAT_BUILD_ESMF_ESMP)
+    set(TXCMAKE_DIR ${cdat_SOURCE_DIR}/contrib/sciMake)
+    include(${TXCMAKE_DIR}/sciFuncsMacros.cmake)
+    include(${TXCMAKE_DIR}/sciFortranChecks.cmake)
+    if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL GNU)
+      string(REGEX MATCHALL "[0-9]+\\." test_version_list ${Fortran_VERSION})
+      string(SUBSTRING ${Fortran_VERSION} 0 3 Fortran_MAJOR_VERSION)
+      LIST(GET test_version_list 0 Fortran_MAJOR_VERSION)
+      LIST(GET test_version_list 1 Fortran_MINOR_VERSION)
+    else()
+      set(Fortran_MINOR_VERSION "")
+    endif()
+  endif()
 endif(CMAKE_Fortran_COMPILER)
 
 #-----------------------------------------------------------------------------
@@ -137,14 +155,14 @@ set(EP_PREFIX ${cdat_BINARY_DIR}/build/prefix)
 
 set_property(DIRECTORY PROPERTY EP_LOG_DIR  ${cdat_BINARY_DIR}/logs)
 
-#set(EP_LOG_OPTIONS
-#  LOG_DOWNLOAD 1
-#  LOG_UPDATE 1
-#  LOG_CONFIGURE 1
-#  LOG_BUILD 1
-#  LOG_TEST 1
-#  LOG_INSTALL 1
-#)
+set(EP_LOG_OPTIONS
+  LOG_DOWNLOAD 0
+  LOG_UPDATE 1
+  LOG_CONFIGURE 1
+  LOG_BUILD 1
+  LOG_TEST 1
+  LOG_INSTALL 1
+)
 
 INCLUDE(ExternalProject)
 
@@ -191,9 +209,11 @@ if(APPLE)
     -DCMAKE_OSX_SYSROOT:PATH=${CMAKE_OSX_SYSROOT})
 
   set(cdat_osx_arch_flag "-arch ${CMAKE_OSX_ARCHITECTURES} -Xarch_${CMAKE_OSX_ARCHITECTURES}")
+  set(cdat_osx_arch_flag_fortran "-arch ${CMAKE_OSX_ARCHITECTURES}")
   set(cdat_osx_version_flag "-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
   set(cdat_osx_sysroot "-isysroot ${CMAKE_OSX_SYSROOT}")
   set(cdat_osx_flags "${cdat_osx_arch_flag} ${cdat_osx_version_flag} ${cdat_osx_sysroot} -pipe")
+  set(cdat_osx_flags_fortran "${cdat_osx_arch_flag_fortran} ${cdat_osx_version_flag} ${cdat_osx_sysroot} -pipe")
   set(cdat_osx_ld_flags "-bind_at_load -mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
 endif()
 
@@ -268,9 +288,10 @@ macro (add_cdat_package package)
   endif()
 endmacro (add_cdat_package)
 
-find_package(Qt4)
+find_package(Qt4 REQUIRED)
 
-option(CDAT_USE_SYSTEM_INTROSPECTION "Detect System installed libraries." OFF)
+# Added by Dave Kindig Tech-X Corp. kindig@txcorp.com
+option(CDAT_BUILD_ESMF_ESMP "Build python version Earth System Modelling Framework" OFF)
 
 # Attempt to find each package on the system
 
@@ -280,58 +301,57 @@ find_package(Wget)
 # By default lets build everything but make an exception for Qt.
 if(CDAT_USE_SYSTEM_INTROSPECTION)
 
-find_package(PkgConfig)
-set(PKGCONFIG_FOUND ${PKG_CONFIG_FOUND})
+  find_package(PkgConfig)
+  set(PKGCONFIG_FOUND ${PKG_CONFIG_FOUND})
 
-find_package(CURL)
-find_package(LibXml2)
-find_package(LibXslt)
-#find_package(XGKS)
-#find_package(PBMPLUS)
-find_package(FFMPEG)
-#find_package(gifsicle)
-#find_package(GS)
-find_package(TIFF)
-find_package(JPEG)
-find_package(BLAS)
-find_package(LAPACK)
-find_package(ZLIB)
-# This will find the png framework which Cairo won't find.
-if(NOT APPLE)
-  find_package(PNG)
-  find_package(Freetype)
-endif()
-#find_package(pixman)
-#find_package(fontconfig)
-find_package(Cairo)
+  find_package(CURL)
+  find_package(LibXml2)
+  find_package(LibXslt)
+  find_package(FFMPEG)
+  #find_package(gifsicle)
+  #find_package(GS)
+  find_package(TIFF)
+  find_package(JPEG)
+  find_package(BLAS)
+  find_package(LAPACK)
+  find_package(ZLIB)
+  # This will find the png framework which Cairo won't find.
+  if(NOT APPLE)
+    find_package(PNG)
+    find_package(Freetype)
+  endif()
+  #find_package(pixman)
+  #find_package(fontconfig)
+  find_package(Cairo)
 
-# CMOR doesn't know how to configure with the System frameworks version of uuid
-if(NOT APPLE)
-  find_package(UUID)
-endif()
-#find_package(udunits2)
-find_package(HDF5)
-#find_package(NetCDF)
-#find_package(PythonInterp)
-#find_package(PythonLibs)
-# unix tools
-find_package(TermCap)
-find_package(Readline)
-##find_package(TCL)
-# python packages
-#find_package(setuptools)
-#find_package(PyOpenGL)
-#find_package(NUMPY)
-# python mega widgets
-#find_package(PMW)
-
+  # CMOR doesn't know how to configure with the System frameworks version of uuid
+  if(NOT APPLE)
+    find_package(UUID)
+  endif()
+  #find_package(udunits2)
+  find_package(HDF5)
+  #find_package(NetCDF)
+  #find_package(PythonInterp)
+  #find_package(PythonLibs)
+  ## unix tools
+  find_package(TermCap)
+  find_package(Readline)
+  #find_package(TCL)
+  ## python packages
+  #find_package(setuptools)
+  #find_package(PyOpenGL)
+  #find_package(NUMPY)
+  #find_package(PMW)
 endif(CDAT_USE_SYSTEM_INTROSPECTION)
-
+find_package(PKG_CONFIG)
 if(NOT PKG_CONFIG_FOUND)
+  add_cdat_package(pkgconfig)
   set(cdat_PKG_CONFIG_EXECUTABLE ${cdat_EXTERNALS}/bin/pkg-config)
+  message("DID NOT FIND pkg-config")
 else()
   set(cdat_PKG_CONFIG_EXECUTABLE ${PKG_CONFIG_EXECUTABLE})
 endif()
+set(ENV{PKG_CONFIG_PATH} ${cdat_EXTERNALS}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH})
 
 set(cdat_configure_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake)
 set(cdat_make_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake)
@@ -348,21 +368,13 @@ add_cdat_package(libXSLT)
 add_cdat_package(zlib)
 add_cdat_package(CURL)
 
-# Probably should be eliminated since we use Qt now.
-#if(0)
-#  add_cdat_package(xgks)
-#endif()
-
+add_cdat_package(YASM)
 add_cdat_package(FFMPEG)
 #add_cdat_package(gifsicle)
 add_cdat_package(png)
 add_cdat_package(jpeg)
 add_cdat_package(tiff)
 
-#if(APPLE)
-  # really old package that doesn't often build on linux.
-#  add_cdat_package(pbmplus)
-#endif()
 
 add_cdat_package(TclTk)
 
@@ -373,6 +385,9 @@ if(NOT APPLE)
   else()
     add_cdat_package(CLAPACK)
   endif()
+  set(CDAT_OS_XTRA_PATH  "")
+else()
+  set(CDAT_OS_XTRA_PATH  ${CMAKE_INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/${PYVER}/bin)
 endif()
 
 add_cdat_package(freetype)
@@ -388,35 +403,142 @@ add_cdat_package(NetCDF)
 add_cdat_package(Qt)
 add_cdat_package(jasper)
 add_cdat_package(g2clib)
-add_cdat_package(esmf)
-add_cdat_package(esmp)
 
 # Python Packages
 add_cdat_package(Python)
+if (CDAT_USE_SYSTEM_PYTHON)
+   include(FindPythonInterp)
+   set(PYVER ${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR})
+   # \NOTE This is required or else FindPythonLibs may find whatever version is
+   # listed first internally and if that version exists on the system. For example
+   # a system might have python version 2.6 and 2.7 both installed.
+   set(Python_ADDITIONAL_VERSIONS ${PYVER})
+   include(FindPythonLibs)
+   message("Using system python ${PYTHON_EXECUTABLE}")
+   set(PYTHON_SITE_PACKAGES ${CMAKE_INSTALL_PREFIX}/lib/python${PYVER}/site-packages)
+   message("Putting packages in directory ${PYTHON_SITE_PACKAGES}")
+   set(PYTHON_EXTRA_PREFIX "--prefix=${CMAKE_INSTALL_PREFIX}")
+   message("Setting up prefix for instaling python packages into: ${PYTHON_EXTRA_PREFIX}")
+   set(ENV{LD_LIBRARY_PATH} $ENV{LD_LIBRARY_PATH})
+   set(PYTHONPATH "${PYTHON_SITE_PACKAGES}:$ENV{PYTHONPATH}")
+   message("Set PYTHONPATH to $ENV{PYTHONPATH}")
+   get_filename_component(PYTHON_EXECUTABLE_PATH ${PYTHON_EXECUTABLE} PATH)
+   set(PYTHON_LIBRARY ${PYTHON_LIBRARIES})
+   message("set PYTHON_LIBRARY TO" ${PYTHON_LIBRARY})
+   set(PYTHON_INCLUDE ${PYTHON_INCLUDE_DIRS})
+else ()
+   set(PYTHON_EXECUTABLE ${CMAKE_INSTALL_PREFIX}/bin/python)
+   message("Building you a python at ${PYTHON_EXECUTABLE}")
+   set(PYTHON_EXTRA_PREFIX "")
+   message("Building packages into this python")
+   set(PYVER 2.7)
+   if (NOT APPLE)
+     set(EASY_INSTALL_BINARY ${CMAKE_INSTALL_PREFIX}/bin/easy_install)
+     set(PYTHONPATH ${CMAKE_INSTALL_PREFIX}/lib/python${PYVER}/site-packages)
+   else ()
+     set(EASY_INSTALL_BINARY ${CMAKE_INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/${PYVER}/bin/easy_install)
+     set(PYTHONPATH ${CMAKE_INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/${PYVER}/lib/python${PYVER}/site-packages)
+   endif()
+endif()
+set(ENV{PYTHONPATH} "${PYTHONPATH}")
 add_cdat_package(setuptools)
 add_cdat_package(SIP)
 add_cdat_package(PyQt)
 #add_cdat_package(PyOpenGL)
+
 add_cdat_package(NUMPY)
+add_cdat_package(SCIPY)
+#add_cdat_package(ZMQ)
+add_cdat_package(IPYTHON)
+
+find_package(MPI)
+find_package(Mpi4py)
+if (Mpi4py_FOUND)
+  message("We found Mpi4py")
+else (Mpi4py_FOUND)
+  if (MPI_FOUND)
+    message("We will build Mpi4py for you")
+    add_cdat_package(Mpi4py)
+  else ()
+    message("No MPI installation was found, will not build mpi4py")
+  endif ()
+endif(Mpi4py_FOUND)
+
 add_cdat_package(Pmw)
 add_cdat_package(libcf)
 add_cdat_package(Cython)
 add_cdat_package(Numexpr)
 add_cdat_package(PyTables)
 
-option(CDAT_BUILD_PARAVIEW "Build ParaView" OFF)
-if(CDAT_BUILD_PARAVIEW)
-  add_cdat_package(ParaView)
-endif()
+add_cdat_package(pyspharm)
+
+find_package(Matplotlib)
+if (Matplotlib_FOUND)
+  message("We found Matplotlib")
+else (Matplotlib_FOUND)
+  message("We will build Matplotlib for you")
+  add_cdat_package(Matplotlib)
+endif(Matplotlib_FOUND)
+
+add_cdat_package(GEOS)
+add_cdat_package(basemap)
 
 add_cdat_package(CMOR)
 add_cdat_package(CDAT)
 add_cdat_package(gui_support)
 
-option(CDAT_BUILD_VISTRAILS "Build VisTrails" OFF)
-if(CDAT_BUILD_VISTRAILS)
-  add_cdat_package(VisTrails)
+# Optional Packages
+
+# Earth System Modelling Framework and the Python wrapper.
+# Added by Dave Kindig Tech-X Corp. kindig@txcorp.com
+if(CDAT_BUILD_ESMF_ESMP)
+  if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL GNU)
+    # GNU gfortran must be >= 4.3
+    if(${Fortran_MAJOR_VERSION} GREATER 3 AND ${Fortran_MINOR_VERSION} GREATER 2)
+      ## On APPLE need to test for -arch as well!
+      if (APPLE)
+         execute_process(COMMAND gfortran dummy.f90 -o dummy_test_gfortran COMMAND  rm dummy_test_gfortran
+    	                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/CMake
+ 			 OUTPUT_VARIABLE GFOR_OUT
+			 ERROR_VARIABLE GFOR_ERR 		  
+  			 RESULT_VARIABLE res)
+         if (NOT ${res} EQUAL 0)	  
+      	    message("    gfortran needs to understand -arch to build ESMF\n${GFOR_OUT}\n${GFOR_ERR}\n${res}")
+    	 else (NOT ${res} EQUAL 0)
+            add_cdat_package(esmf)
+      	    add_cdat_package(esmp)
+	 endif (NOT ${res} EQUAL 0)
+      else (APPLE)
+         add_cdat_package(esmf)
+         add_cdat_package(esmp)
+      endif (APPLE)
+    else()
+      message("    Skipping ESMF")
+      message("    gfortran version needs to be at least 4.3 to install ESMF")
+      message("    You have ${Fortran_VERSION}")
+    endif()
+  else()
+    add_cdat_package(esmf)
+    add_cdat_package(esmp)
+    message("Fortran Compiler is: ${CMAKE_Fortran_COMPILER}")
+  endif()
 endif()
+
+option(CDAT_BUILD_PARAVIEW "Build ParaView" OFF)
+if(CDAT_BUILD_PARAVIEW)
+  add_cdat_package(ParaView)
+endif()
+
+option(CDAT_BUILD_VISIT "Build VisIt" OFF)
+if(CDAT_BUILD_VISIT)
+  add_cdat_package(VisIt)
+endif()
+
+# C. Doutriaux Turning off Vistrails build from within CDAT
+#option(CDAT_BUILD_VISTRAILS "Build VisTrails" OFF)
+#if(CDAT_BUILD_VISTRAILS)
+#  add_cdat_package(VisTrails)
+#endif()
 
 #-----------------------------------------------------------------------------
 # Construct Include and Link variables
@@ -493,7 +615,6 @@ set(png_DEPENDENCIES ${pkgconfig_dep} ${zlib_dep})
 set(tiff_DEPENDENCIES ${pkgconfig_dep} ${jpeg_dep} ${zlib_dep})
 set(jasper_DEPENDENCIES ${pkgconfig_dep} ${jpeg_dep} ${zlib_dep})
 #set(gifsicle_DEPENDENCIES ${pkgconfig_dep})
-set(pbmplus_DEPENDENCIES ${pkgconfig_dep} ${tiff_dep} ${jpeg_dep} ${zlib_dep})
 set(freetype_DEPENDENCIES ${pkgconfig_dep} ${png_dep})
 set(fontconfig_DEPENDENCIES ${pkgconfig_dep} ${libXML2_dep} ${freetype_dep})
 set(g2clib_DEPENDENCIES ${pkgconfig_dep} ${png_dep} ${zlib_dep} ${jasper_dep})
@@ -504,13 +625,15 @@ set(PyQt_DEPENDENCIES ${pkgconfig_dep} ${Qt_dep} ${SIP_dep})
 #set(PyOpenGL_DEPENDENCIES ${pkgconfig_dep} ${Python_dep})
 set(Pmw_DEPENDENCIES ${pkgconfig_dep} ${Python_dep})
 set(libcf_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${NetCDF_dep} ${HDF5_dep} ${CURL_dep} ${zlib_dep})
+# Added by Dave Kindig Tech-X Corp. kindig@txcorp.com
 set(esmf_DEPENDENCIES ${pkgconfig_dep})
-set(esmp_DEPENDENCIES ${pkgconfig_dep})
+set(esmp_DEPENDENCIES ${pkgconfig_dep} ${NUMPY_dep} ${Python_dep})
 set(Cython_DEPENDENCIES ${pkgconfig_dep} ${Python_dep})
 set(Numexpr_DEPENDENCIES ${pkgconfig_dep} ${NUMPY_dep} ${Python_dep})
 set(PyTables_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${Cython_dep} ${Numexpr_dep} ${HDF5_dep} ${libXML2_dep} ${libXSLT_dep} ${zlib_dep})
 set(pixman_DEPENDENCIES ${pkgconfig_dep})
-set(FFMPEG_DEPENDENCIES ${pkgconfig_dep})
+set(YASM_DEPENDENCIES ${pkgconfig_dep})
+set(FFMPEG_DEPENDENCIES ${pkgconfig_dep} ${YASM_dep})
 set(ghostscript_DEPENDENCIES ${pkgconfig_dep} ${zlib_dep} ${jpeg_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep} ${libXSLT_dep} ${libXML2_dep})
 set(NetCDF_DEPENDENCIES ${pkgconfig_dep} ${HDF5_dep} ${CURL_dep} ${zlib_dep})
 
@@ -520,6 +643,9 @@ set(setuptools_DEPENDENCIES ${pkgconfig_dep} ${Python_dep})
 set(LAPACK_DEPENDENCIES ${pkgconfig_dep})
 set(CLAPACK_DEPENDENCIES ${pkgconfig_dep})
 set(NUMPY_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${CLAPACK_dep} ${LAPACK_dep})
+set(SCIPY_DEPENDENCIES ${NUMPY_dep})
+set(ZMQ_DEPENDENCIES)
+set(IPYTHON_DEPENDENCIES ${setuptools_dep} ${ZMQ_dep} ${NUMPY_dep})
 
 set(VTK_DEPENDENCIES ${pkgconfig_dep} ${zlib_deb} ${png_dep} ${jpeg_dep} ${xml_dep})
 set(Cairo_DEPENDENCIES ${pkgconfig_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep})
@@ -527,11 +653,20 @@ set(HDF4_DEPENDENCIES ${pkgconfig_dep} ${zlib_dep} ${jpeg_dep})
 set(HDF5_DEPENDENCIES ${pkgconfig_dep} ${libXML2_dep} ${libXSLT_dep} ${zlib_dep})
 
 set(ParaView_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${HDF5_dep} ${png_dep} ${jpeg_dep} ${libXML2_dep} ${Qt_dep} ${freetype_dep} ${NetCDF_dep} ${zlib_dep})
+set(VisIt_DEPENDENCIES  ${pkgconfig_dep} ${Python_dep} ${HDF5_dep} ${png_dep} ${jpeg_dep} ${libXML2_dep} ${Qt_dep} ${freetype_dep} ${NetCDF_dep} ${zlib_dep} ${SIP_dep} ${PyQt_dep})
 
 set(CMOR_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${HDF5_dep} ${Cairo_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep} ${NetCDF_dep} ${zlib_dep} ${uuid_dep} ${udunits2_dep})
 set(CDAT_DEPENDENCIES ${wget_dep} ${CMOR_dep} ${Python_dep} ${PyQt_dep} ${NUMPY_dep} ${Pmw_dep} ${jasper_dep} ${g2clib_dep} ${FFMPEG_dep} ${Qt_dep} ${pixman_dep} ${tiff_dep})
 set(gui_support_DEPENDENCIES ${CDAT_dep})
-set(VisTrails_DEPENDENCIES ${ParaView_dep} ${CDAT_dep})
+# C.Doutriaux Turning off vistrails build from within CDAT not needed
+#set(VisTrails_DEPENDENCIES ${ParaView_dep} ${CDAT_dep})
+set(Matplotlib_DEPENDENCIES ${PyQt_dep} ${Cairo_dep} ${NUMPY_dep} )
+
+set(Mpi4py_DEPENDENCIES ${NUMPY_dep} )
+
+set(GEOS_DEPENDENCIES ${Matplotlib_dep} )
+set(basemap_DEPENDENCIES ${GEOS_dep} )
+set(pyspharm_DEPENDENCIES ${NUMPY_dep})
 
 list(REMOVE_DUPLICATES external_packages)
 foreach(package ${external_packages})
@@ -553,3 +688,9 @@ configure_file(${cdat_SOURCE_DIR}/checked_get.sh.in
 
 include(CDATLogger)
 
+configure_file(${cdat_CMAKE_SOURCE_DIR}/setup_cdat.sh.in
+  ${CMAKE_INSTALL_PREFIX}/bin/setup_cdat.sh
+  @ONLY)
+configure_file(${cdat_CMAKE_SOURCE_DIR}/setup_cdat.csh.in
+  ${CMAKE_INSTALL_PREFIX}/bin/setup_cdat.csh
+  @ONLY)

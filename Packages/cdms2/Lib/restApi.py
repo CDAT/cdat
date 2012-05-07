@@ -20,7 +20,7 @@ class esgfFilesException(Exception):
     ##     return msg
 validSearchTypes =  ["Dataset","File"]#"ById","ByTimeStamp"]
 class esgfConnection(object,AutoAPI.AutoAPI):
-    def __init__(self,host,port=80,timeout=15,limit=1000,offset=0,mapping=None,datasetids=None,fileids=None,restPath=None):
+    def __init__(self,host,port=80,timeout=15,limit=None,offset=0,mapping=None,datasetids=None,fileids=None,restPath=None):
         self.autoApiInfo = AutoAPI.Info(self)
         self.port=port
         url=str(host).replace("://","^^^---^^^")
@@ -39,7 +39,7 @@ class esgfConnection(object,AutoAPI.AutoAPI):
         self.EsgfObjectException = esgfConnectionException
         self.validSearchTypes=validSearchTypes
         self.validSearchTypes=["Dataset",]
-        all = self._search("cf_variable=crap",searchType=None)
+        all = self._search("facets=*",searchType=None)
         ## Now figure out the facet fields
         self.serverOrder = []
         for e in all:
@@ -164,9 +164,31 @@ class esgfConnection(object,AutoAPI.AutoAPI):
         return search
     
     def request(self,**keys):
-        search = self.generateRequest(**keys)
-        stringType=keys.get("stringType",False)
-        return self._search(search,stringType=stringType)
+        numFound=0
+        cont = True
+        r=[]
+        limit = self["limit"]
+        while cont:
+            self["offset"]=numFound
+            if limit is None or limit>1000:
+                self["limit"]=1000
+            search = self.generateRequest(**keys)
+            stringType=keys.get("stringType",False)
+            r.append(self._search(search,stringType=stringType))
+            if numFound==0:
+                for s in r[0][:]:
+                    if s.tag=="result":
+                        n = int(s.get("numFound"))
+            numFound+=self["limit"]
+            if limit is None:
+                if numFound>=n:
+                    cont = False
+            else:
+                if numFound>=limit:
+                    cont=False
+        self["limit"]=limit
+        self["offset"]=0
+        return r
     
     def extractTag(self,f):
         out=None
@@ -191,25 +213,26 @@ class esgfConnection(object,AutoAPI.AutoAPI):
         return out
         
     def searchDatasets(self,**keys):
-        resp = self.request(**keys)
+        resps = self.request(**keys)
         stringType=keys.get("stringType",False)
         if stringType:
             return resp
         datasets = []
-        for r in resp[:]:
-            if r.tag=="result":
-                ##Ok let's go thru these datasets
-                for d in r[:]:
-                    #print "************************************************"
-                    tmpkeys={}
-                    for f in d[:]:
-                        k = f.get("name")
-                        tmpkeys[k]=self.extractTag(f)
-                    if tmpkeys["type"]=="Dataset":
-                        datasetid = tmpkeys["id"]
-                        #print datasetid,self.restPath
-                        #print "KEYS FOR DATASET",keys.keys()
-                        datasets.append(esgfDataset(host=self.host,port=self.port,limit=self["limit"],offset=self["offset"],mapping=self.mapping,datasetids=self.datasetids,fileids=self.fileids,keys=tmpkeys,originalKeys=keys,restPath=self.restPath))
+        for resp in resps:
+            for r in resp[:]:
+                if r.tag=="result":
+                    ##Ok let's go thru these datasets
+                    for d in r[:]:
+                        #print "************************************************"
+                        tmpkeys={}
+                        for f in d[:]:
+                            k = f.get("name")
+                            tmpkeys[k]=self.extractTag(f)
+                        if tmpkeys["type"]=="Dataset":
+                            datasetid = tmpkeys["id"]
+                            #print datasetid,self.restPath
+                            #print "KEYS FOR DATASET",keys.keys()
+                            datasets.append(esgfDataset(host=self.host,port=self.port,limit=1000,offset=0,mapping=self.mapping,datasetids=self.datasetids,fileids=self.fileids,keys=tmpkeys,originalKeys=keys,restPath=self.restPath))
         return datasets
 
 class esgfDataset(esgfConnection):
@@ -587,7 +610,7 @@ class esgfFile(object,AutoAPI.AutoAPI):
             setattr(self,s1,url)
             services.append(s1)
         self.services=services
-        self.id=self["file_id"]
+        self.id=self["id"]
 
     def __getitem__(self,key):
         val = self.__items__[key]
@@ -598,7 +621,7 @@ class esgfFile(object,AutoAPI.AutoAPI):
         return
 
     def __str__(self):
-        st = "File Information\nid: %s\nParent Dataset: %s" % (self["file_id"],self["dataset_id"])
+        st = "File Information\nid: %s\nParent Dataset: %s" % (self["id"],self["dataset_id"])
         st+="Matched keys: %s\n" % (repr(self.__items__))
         for service in self.services:
             st+="service: %s @ %s\n" % (service,getattr(self,service))

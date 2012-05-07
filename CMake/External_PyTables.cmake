@@ -2,7 +2,6 @@
 # PyTables
 #
 set(PyTables_source "${CMAKE_CURRENT_BINARY_DIR}/build/PyTables")
-
 ExternalProject_Add(PyTables
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
   SOURCE_DIR ${PyTables_source}
@@ -10,8 +9,8 @@ ExternalProject_Add(PyTables
   URL_MD5 ${PYTABLES_MD5}
   BUILD_IN_SOURCE 1
   CONFIGURE_COMMAND ""
-  BUILD_COMMAND ${PYTHON_EXECUTABLE} setup.py build --hdf5=${cdat_EXTERNALS}
-  INSTALL_COMMAND ${PYTHON_EXECUTABLE} setup.py install --hdf5=${cdat_EXTERNALS}
+  BUILD_COMMAND env PYTHONPATH=$ENV{PYTHONPATH} ${PYTHON_EXECUTABLE} setup.py build --hdf5=${cdat_EXTERNALS}
+  INSTALL_COMMAND env PYTHONPATH=$ENV{PYTHONPATH} ${PYTHON_EXECUTABLE} setup.py install --hdf5=${cdat_EXTERNALS} ${PYTHON_EXTRA_PREFIX}
   DEPENDS ${PyTables_DEPENDENCIES}
   ${EP_LOG_OPTIONS}
   )

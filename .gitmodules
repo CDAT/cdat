@@ -4,3 +4,6 @@
 [submodule "contrib/windfield"]
 	path = contrib/windfield
 	url = http://uv-cdat.llnl.gov/git/windfield.git
+[submodule "contrib/sciMake"]
+	path = contrib/sciMake
+	url = git://github.com/Tech-XCorp/sciMake.git

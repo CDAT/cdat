@@ -757,6 +757,14 @@ class TransientRectGrid(AbstractRectGrid):
 
 ## internattr.add_internal_attribute(TransientRectGrid)
 
+def isGrid(grid):
+    """
+    Is grid a grid?
+    @param grid cdms2 contruct to be examined
+    """
+    return isinstance(grid, AbstractGrid)
+
+
 def writeScripGrid(path, grid, gridTitle=None):
     """Write a grid to a SCRIP grid file.
     path is the path of the SCRIP file to be created.

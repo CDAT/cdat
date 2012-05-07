@@ -1385,6 +1385,7 @@ int vcs_canvas_update ( short use_defer_flg )
   }
   if (change==1) {
     /* Put code to do the logo here */
+    extern void draw_logo(cairo_t *cr);
     draw_logo(connect_id.cr);
   }
   
@@ -1408,6 +1409,7 @@ void draw_logo(cairo_t *cr) {
   int xtmp;
   cairo_surface_t *surface;
   cairo_surface_type_t stype;
+  if (cr == NULL) return;
   surface = cairo_get_target(cr);
   stype = cairo_surface_get_type(surface);
   if (stype==CAIRO_SURFACE_TYPE_IMAGE) {
