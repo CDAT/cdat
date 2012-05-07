@@ -884,7 +884,7 @@ class AbstractVariable(CdmsObj, Slab):
         if togrid is None: 
             return self
         else:
-            fromgrid = self.getGrid()
+            fromgrid = self.getGrid() # returns horizontal grid only
             regridf = Regridder(fromgrid, togrid)
             result = regridf(self, missing=missing, order=order, mask=mask)
             return result

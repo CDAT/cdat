@@ -15,6 +15,7 @@ from ctypes import c_double, c_float, c_int, \
 import ctypes
 import operator
 import sys
+import os
 import copy
 import numpy
 import cdms2
@@ -357,14 +358,20 @@ class Regrid:
         self.maskSet = False
 
         # Open the shaped library
+        dynLibFound = False
         for sosuffix in '.dylib', '.dll', '.DLL', '.so', '.a':
-            try:
-                self.lib = CDLL(LIBCFDIR + sosuffix)
-                break
-            except:
-                pass
+	    if os.path.exists(LIBCFDIR + sosuffix):
+                dynLibFound = True
+            	try:
+                    self.lib = CDLL(LIBCFDIR + sosuffix)
+                    break
+                except:
+                    pass
         if self.lib == None:
-            raise CDMSError, "ERROR in %s: could not open shared library %s" \
+            if not dynLibFound:
+ 	        raise CDMSError, "ERROR in %s: could not find shared library %s.{so,dylib,dll,DLL}" \
+                % (__FILE__, LIBCFDIR)
+            raise CDMSError, "ERROR in %s: could not open shared library %s.{so,dylib,dll,DLL}" \
                 % (__FILE__, LIBCFDIR)
 
         # Number of space dimensions
