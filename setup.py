@@ -434,7 +434,10 @@ except:
 #
 ## print "macros:",vcs_macros,"EM:",EM,"WM:",WM
 
-
+try:
+ os.makedirs("Info")
+except:
+ pass
 f=open("Info/__init__.py","w")
 print >> f, "macros = \"",vcs_macros,"EM:",EM,"WM:",WM,"\""
 print >> f, "EM = \"",EM,"\""
