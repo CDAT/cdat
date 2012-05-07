@@ -288,7 +288,7 @@ macro (add_cdat_package package)
   endif()
 endmacro (add_cdat_package)
 
-find_package(Qt4)
+find_package(Qt4 REQUIRED)
 
 # Added by Dave Kindig Tech-X Corp. kindig@txcorp.com
 option(CDAT_BUILD_ESMF_ESMP "Build python version Earth System Modelling Framework" OFF)
@@ -498,7 +498,7 @@ if(CDAT_BUILD_ESMF_ESMP)
     if(${Fortran_MAJOR_VERSION} GREATER 3 AND ${Fortran_MINOR_VERSION} GREATER 2)
       ## On APPLE need to test for -arch as well!
       if (APPLE)
-         execute_process(COMMAND gfortran -arch i386 dummy.f90 -o dummy_test_gfortran COMMAND  rm dummy_test_gfortran
+         execute_process(COMMAND gfortran dummy.f90 -o dummy_test_gfortran COMMAND  rm dummy_test_gfortran
     	                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/CMake
  			 OUTPUT_VARIABLE GFOR_OUT
 			 ERROR_VARIABLE GFOR_ERR 		  
