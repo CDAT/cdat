@@ -1,4 +1,4 @@
-#include <cairo.h>
+#include <cairo/cairo.h>
 #include "mainwindow.h"
 #include <Python.h>
 #include <QtCore/QEvent>
