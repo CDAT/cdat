@@ -1,4 +1,4 @@
-#include <cairo.h>
+#include <cairo/cairo.h>
 #include "xgks.h"
 #ifdef X11WM
 #include <X.h>

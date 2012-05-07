@@ -57,7 +57,7 @@
  */
 #endif
 #include <sys/types.h>
-#include <cairo.h>
+#include <cairo/cairo.h>
 
 /*
  * Description of header for files containing raster images
