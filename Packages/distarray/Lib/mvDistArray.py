@@ -18,6 +18,36 @@ import copy
 import numpy
 from mpi4py import MPI
 
+def array(arry, dtype=None):
+    """
+    Array constructor
+    @param arry numpy array
+    """
+    a = numpy.array(arry, dtype)
+    res = DistArray(a.shape, a.dtype)
+    res[:] = a # copy
+    return res
+
+def zeros(shape, dtype=numpy.float):
+    """
+    Zero constructor
+    @param shape the shape of the array
+    @param dtype the numpy data type 
+    """
+    res = DistArray(shape, dtype)
+    res[:] = numpy.zeros(shape, dtype)
+    return res
+
+def ones(shape, dtype=numpy.float):
+    """
+    One constructor
+    @param shape the shape of the array
+    @param dtype the numpy data type 
+    """
+    res = DistArray(shape, dtype)
+    res[:] = numpy.zeros(shape, dtype)
+    return res
+
 class DistArray(numpy.ndarray):
 
     """
@@ -28,11 +58,11 @@ class DistArray(numpy.ndarray):
     process. This relies on MPI-2 one-sided get communication.
     """
 
-    def __init__(self, shape, dtyp):
+    def __init__(self, shap, dtyp):
         """
         Constructor
-        @param shape tuple of dimensions
-        @param dtype numpy type
+        @param shap array shape
+        @param dtyp numpy type
         """
         self.comm = MPI.COMM_WORLD # default communicator
         self.windows = {}          # winID: {'slice': slce,
