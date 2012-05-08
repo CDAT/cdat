@@ -23,8 +23,8 @@
 #include "cddrs.h"
 #include "vcs_marker.h"
 #include <ft2build.h>
-#include <cairo.h>
-#include <cairo-ft.h>
+#include <cairo/cairo.h>
+#include <cairo/cairo-ft.h>
 /* #include FT_FREETYPE_H  */
 
 #define R_OK 4

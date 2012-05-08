@@ -55,7 +55,7 @@ typedef void    *voidp;
     static char rcsid[]	= "$Id$";
 #endif
 #ifdef CAIRODRAW
-#include "cairo.h"
+#include "cairo/cairo.h"
 #include "workstations.h"
 extern Gconid_X_drawable connect_id;/*VCS canvas display and drawable id */
 #endif

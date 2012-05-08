@@ -227,20 +227,20 @@ class EsmfStructField:
     Create a structured field object
     """
     def __init__(self, esmfGrid, name, data, 
-                 staggerloc = ESMP.ESMP_STAGGERLOC_CENTER):
+                 meshloc = ESMP.ESMP_MESHLOC_NODE):
         """
         Creator for ESMF Field
         @param esmfGrid instance of an ESMP_Mesh
         @param name field name
         @param data numpy ndarray of data
-        @param staggerloc ESMP_STAGGERLOC_CENTER for Bilinear interpolation
-                       ESMP_STAGGERLOC_CORNER for Conservative interpolation
+        @param meshloc ESMP_MESHLOC_NODE for Bilinear interpolation
+                       ESMP_MESHLOC_ELEMENT for Conservative interpolation
         """
         locations = [ESMP.ESMP_MESHLOC_NODE, ESMP.ESMP_MESHLOC_ELEMENT]
-        if staggerloc not in locations:
+        if meshloc not in locations:
             raise cdms2.CDMSError, """
-                  Stagger location must be ESMP.ESMP_STAGGERLOC_CENTER
-                                           ESMP.ESMP_STAGGERLOC_CORNER"""
+                  mesh location must be ESMP.ESMP_MESHLOC_NODE
+                                           ESMP.ESMP_MESHLOC_ELEMENT"""
 
         numpyType2EsmfType = {
             'float64': ESMP.ESMP_TYPEKIND_R8,
