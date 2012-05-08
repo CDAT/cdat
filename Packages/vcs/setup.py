@@ -114,7 +114,9 @@ t.close()
 pkgconfig = os.path.join(externals,'bin','pkg-config')
 if not os.path.exists(pkgconfig):
     pkgconfig="pkg-config"
-    
+print "OK WE ARE USING:",pkgconfig
+print "ENV FOR PKG IS:",os.environ.get("PKG_CONFIG_PATH","NO PKGPATH")
+ 
 freetypelibdir = [ os.path.join(externals,'lib'), ]
 freetypeincdir = [ os.path.join(externals,'include')]
 freetypelibdir = os.popen("%s --libs-only-L freetype2" % pkgconfig).read().strip().split("-L")[1:]
