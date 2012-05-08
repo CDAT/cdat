@@ -18,17 +18,17 @@ import copy
 import numpy
 from mpi4py import MPI
 
-def array(arry, dtype=None):
+def daArray(arry, dtype=None):
     """
     Array constructor
-    @param arry numpy array
+    @param arry numpy-like array
     """
     a = numpy.array(arry, dtype)
     res = DistArray(a.shape, a.dtype)
     res[:] = a # copy
     return res
 
-def zeros(shape, dtype=numpy.float):
+def daZeros(shape, dtype=numpy.float):
     """
     Zero constructor
     @param shape the shape of the array
@@ -38,7 +38,7 @@ def zeros(shape, dtype=numpy.float):
     res[:] = numpy.zeros(shape, dtype)
     return res
 
-def ones(shape, dtype=numpy.float):
+def daOnes(shape, dtype=numpy.float):
     """
     One constructor
     @param shape the shape of the array
