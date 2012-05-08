@@ -14,7 +14,7 @@ execute_process(
   ERROR_VARIABLE CDAT_ERR
   RESULT_VARIABLE res)
 
-file(INSTALL @esmp_source@ DESTINATION @esmp_install@)
+file(INSTALL @esmp_source@ DESTINATION @PYTHONPATH@)
 
 if(NOT ${res} EQUAL 0)
   message("Install Errors detected: \n${CDAT_OUT}\n${CDAT_ERR}")
