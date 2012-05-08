@@ -877,8 +877,15 @@ class AbstractVariable(CdmsObj, Slab):
         return MV.transpose (self, permutation)
 
     def regrid (self, togrid, missing=None, order=None, mask=None):
-        """return self regridded to the new grid. Keyword arguments
-        are as for regrid.Regridder."""
+        """return self regridded to the new grid.  
+        Example:
+        new_cdmsVar = cdmsVar.regrid(newGrid)  # Uses gsRegrid (aka: LibCF)
+
+        If you wish to use ESMF, SCRIP or the original regrid2 use for example:
+        from regrid2 import Regridder
+        regridObject = Regridder(sourceGrid, destingGrid, regridTool = 'ESMF')
+        new_cdmsVar = regridObject(sourcecdmsVar)
+        """
         from regrid2 import Regridder
 
         if togrid is None: 
