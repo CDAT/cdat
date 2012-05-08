@@ -20,8 +20,8 @@ typedef void    *voidp;
 #include "ttffonts.h"
 #include "picture.h"
 #include FT_STROKER_H
-#include <cairo.h>
-#include <cairo-ft.h>
+#include <cairo/cairo.h>
+#include <cairo/cairo-ft.h>
 
 
 extern FT_Face FT_FACE_FONTS[MAX_FONTS];

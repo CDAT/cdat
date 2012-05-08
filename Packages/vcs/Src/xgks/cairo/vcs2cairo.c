@@ -13,15 +13,15 @@ typedef void    *voidp;
 #include "picture.h"
 #include <ft2build.h>
 #include FT_FREETYPE_H 
-#include <cairo.h>
-#include <cairo-ps.h>
-#include <cairo-ft.h>
-#include <cairo-features.h>
-#include <cairo-pdf.h>
-#include <cairo-ps.h>
-#include <cairo-svg.h>
-#include <cairo-xlib.h>
-/*#include <cairo-xlib-xrender.h>*/
+#include <cairo/cairo.h>
+#include <cairo/cairo-ps.h>
+#include <cairo/cairo-ft.h>
+#include <cairo/cairo-features.h>
+#include <cairo/cairo-pdf.h>
+#include <cairo/cairo-ps.h>
+#include <cairo/cairo-svg.h>
+#include <cairo/cairo-xlib.h>
+/*#include <cairo/cairo-xlib-xrender.h>*/
 #include "ttffonts.h"
 
 #ifdef VCSQT

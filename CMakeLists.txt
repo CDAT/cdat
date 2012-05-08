@@ -288,7 +288,7 @@ macro (add_cdat_package package)
   endif()
 endmacro (add_cdat_package)
 
-find_package(Qt4)
+find_package(Qt4 REQUIRED)
 
 # Added by Dave Kindig Tech-X Corp. kindig@txcorp.com
 option(CDAT_BUILD_ESMF_ESMP "Build python version Earth System Modelling Framework" OFF)
@@ -344,13 +344,14 @@ if(CDAT_USE_SYSTEM_INTROSPECTION)
   #find_package(PMW)
 endif(CDAT_USE_SYSTEM_INTROSPECTION)
 find_package(PKG_CONFIG)
-if(NOT PKG_CONFIG_FOUND)
+#message("PKGCONFIG SAYS:"${PKG_CONFIG_FOUND})
+#if(NOT PKG_CONFIG_FOUND)
   add_cdat_package(pkgconfig)
   set(cdat_PKG_CONFIG_EXECUTABLE ${cdat_EXTERNALS}/bin/pkg-config)
-  message("DID NOT FIND pkg-config")
-else()
-  set(cdat_PKG_CONFIG_EXECUTABLE ${PKG_CONFIG_EXECUTABLE})
-endif()
+#  message("DID NOT FIND pkg-config")
+#else()
+#  set(cdat_PKG_CONFIG_EXECUTABLE ${PKG_CONFIG_EXECUTABLE})
+#endif()
 set(ENV{PKG_CONFIG_PATH} ${cdat_EXTERNALS}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH})
 
 set(cdat_configure_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake)
@@ -497,7 +498,7 @@ if(CDAT_BUILD_ESMF_ESMP)
     if(${Fortran_MAJOR_VERSION} GREATER 3 AND ${Fortran_MINOR_VERSION} GREATER 2)
       ## On APPLE need to test for -arch as well!
       if (APPLE)
-         execute_process(COMMAND gfortran -arch i386 dummy.f90 -o dummy_test_gfortran COMMAND  rm dummy_test_gfortran
+         execute_process(COMMAND gfortran dummy.f90 -o dummy_test_gfortran COMMAND  rm dummy_test_gfortran
     	                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/CMake
  			 OUTPUT_VARIABLE GFOR_OUT
 			 ERROR_VARIABLE GFOR_ERR 		  
