@@ -58,9 +58,9 @@ typedef void    *voidp;
   }               FontTable[DEFINED_FONT_TYPE + 1];
 
 #else
-  #include "cairo.h"
-  #include <cairo-xlib.h>
-  /*#include <cairo-xlib-xrender.h>*/
+  #include "cairo/cairo.h"
+  #include <cairo/cairo-xlib.h>
+  /*#include <cairo/cairo-xlib-xrender.h>*/
   #include "workstations.h"
   extern Gconid_X_drawable connect_id;/*VCS canvas display and drawable id */
 #endif

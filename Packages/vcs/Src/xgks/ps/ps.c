@@ -15,8 +15,8 @@ typedef void    *voidp;
 #include "gksm.h"
 
 #include "workstations.h"
-#include <cairo.h>
-#include <cairo-ps.h>
+#include <cairo/cairo.h>
+#include <cairo/cairo-ps.h>
 #include "ps.h"
 #include "cgm.h"
 #include "cgm_implem.h"

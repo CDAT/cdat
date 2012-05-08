@@ -46,7 +46,7 @@
 #include "gks.h"
 #endif
 #ifdef CAIRODRAW
-#include <cairo.h>
+#include <cairo/cairo.h>
 #endif
 /*
  * NDC to DC, DC to X, and NDC to X transformations are stored in the
