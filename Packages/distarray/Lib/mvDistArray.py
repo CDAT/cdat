@@ -25,10 +25,10 @@ class DistArray(numpy.ndarray):
     of the data to other processes. These are known as windows. Any 
     number of windows can be exposed and the data of windows can be 
     overlapping. Any process can access exposed windows from any other
-    process. This relies on MPI-2 one-sided Get communication.
+    process. This relies on MPI-2 one-sided get communication.
     """
 
-    def __init__(self, shape, dtype):
+    def __init__(self, shape, dtyp):
         """
         Constructor
         @param shape tuple of dimensions
@@ -40,18 +40,22 @@ class DistArray(numpy.ndarray):
                                    #         'dataDst': dataDst,
                                    #         'window': window}
 
+        self.dtyp = dtyp
         self.rk = self.comm.Get_rank()
         self.sz = self.comm.Get_size()
 
-        if dtype == numpy.float64:
-            self.dtypeMPI = MPI.DOUBLE
-        elif dtype == numpy.float32:
+        self.dtypMPI = None
+        if dtyp == numpy.float64:
+            self.dtypMPI = MPI.DOUBLE
+        elif dtyp == numpy.float32:
             self.dtypeMPI = MPI.FLOAT
-        elif dtype == numpy.int32:
+        elif dtyp == numpy.int64:
+            self.dtypeMPI = MPI.INT64_T
+        elif dtyp == numpy.int32:
             self.dtypeMPI = MPI.INT32_T
-        elif dtype == numpy.int16:
+        elif dtyp == numpy.int16:
             self.dtypeMPI = MPI.INT16_T
-        elif dtype == numpy.int8:
+        elif dtyp == numpy.int8:
             self.dtypeMPI = MPI.INT8_T
         else:
             raise NotImplementedError
@@ -72,9 +76,9 @@ class DistArray(numpy.ndarray):
         @param winID the data window ID
         """
         # buffer for source data
-        dataSrc = float('inf') * numpy.ones(self[slce].shape, self.dtype) 
+        dataSrc = numpy.ones(self[slce].shape, self.dtyp) 
         # buffer for destination data
-        dataDst = float('inf') * numpy.ones(self[slce].shape, self.dtype)
+        dataDst = numpy.ones(self[slce].shape, self.dtyp)
         self.windows[winID] = {
             'slice': slce,
             'dataSrc': dataSrc,
@@ -99,7 +103,7 @@ class DistArray(numpy.ndarray):
 
         win = iw['window']
         win.Fence()
-        win.Get( [dataDst, self.dtypeMPI], pe )
+        win.Get( [dataDst, self.dtypMPI], pe )
         win.Fence()
 
         return dataDst
