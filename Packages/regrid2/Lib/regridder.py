@@ -197,6 +197,28 @@ class Regridder:
         @param **args Optional keyword arguments for each type of regridder
                 gsRegrid accepts nitermax and tolpos for computing the weights
                 ESMP accepts src(dst)MaskValue and periodicity
+
+        List of regridTools gsRegrid is the default
+        "Libcf":    LibCF regridder. Handles curvilinear grids and 3D
+        "gsRegrid": Same as libcf
+                Optional args:
+                   src_bounds=None, mkCyclic=False, handleCut=False, diagnostics=False 
+
+        "regrid2":  Original horizontal regridder
+                Optional args:
+                    missing=None, order=None, mask=None, returnTuple=0
+
+        "ESMF":     Earth System Modelling Framework.
+                    For more information
+                    http://www.earthsystemmodeling.org/users/python_doc/html/index.html,
+        "ESMP":     Same as ESMF,
+                Optional args:
+                    
+
+        "SCRIP":    Not implemented in regridder. Run as stand alone for now
+                    SCRIP regridder.
+                Optional Packages. ScripRegridder, ConservativeRegridder, BilinearRegridder
+                                   BicubicRegridder, DistwgtRegridder
         """
         if regridTool is None:
             regridTool = 'gsregrid'
@@ -212,7 +234,10 @@ class Regridder:
             self.regridObj = regrid2.Horizontal(inGrid, outGrid)
             self.regridTool = 'regrid2'
         elif rgTool == 'scrip':
-            pass
+            raise RegridError, """
+                SCRIP has not yet been implemented in regridder. Use:
+                import scrip
+                """
         elif re.match('esm', rgTool):
             if not esmfImported:
                 string = "ESMP is not installed or is unable to be imported"

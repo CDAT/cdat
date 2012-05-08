@@ -876,8 +876,10 @@ class AbstractVariable(CdmsObj, Slab):
             return self
         return MV.transpose (self, permutation)
 
-    def regrid (self, togrid, missing=None, order=None, mask=None):
+    def regrid (self, togrid, missing=None, order=None, mask=None, **keywords):
         """return self regridded to the new grid.  
+        One can use the regrid2.Regridder optional arguments as well.
+
         Example:
         new_cdmsVar = cdmsVar.regrid(newGrid)  # Uses gsRegrid (aka: LibCF)
 
@@ -885,6 +887,13 @@ class AbstractVariable(CdmsObj, Slab):
         from regrid2 import Regridder
         regridObject = Regridder(sourceGrid, destingGrid, regridTool = 'ESMF')
         new_cdmsVar = regridObject(sourcecdmsVar)
+
+        @param togrid Desination grid. CDMS grid
+        @param missing Missing values
+        @param order axis order
+        @param mask grid/data mask
+        @param Optional keywords dependent on regridTool
+        @return Regridded variable
         """
         from regrid2 import Regridder
 
@@ -893,7 +902,8 @@ class AbstractVariable(CdmsObj, Slab):
         else:
             fromgrid = self.getGrid() # returns horizontal grid only
             regridf = Regridder(fromgrid, togrid)
-            result = regridf(self, missing=missing, order=order, mask=mask)
+            result = regridf(self, missing=missing, order=order, mask=mask, 
+                             **keywords)
             return result
 
     def pressureRegrid (self, newLevel, missing=None, order=None, method="log"):
