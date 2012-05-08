@@ -442,7 +442,6 @@ set(ESMF_URL ${LLNL_URL})
 set(ESMF_GZ ESMF-${ESMF_VERSION}.tar.gz)
 set(ESMF_MD5 588938d00a39a19db1d93b0d56e64016)
 
-
 set(ESMP_MAJOR 5)
 set(ESMP_MINOR 3)
 set(ESMP_PATCH 0_beta_snapshot_42_02)
