@@ -204,7 +204,7 @@ class Regridder:
         self.outMask = None
 
         if re.match('regrid', rgTool, re.I):
-            self.regridObj = regrid2.Horizontal(ingrid, outGrid)
+            self.regridObj = regrid2.Horizontal(inGrid, outGrid)
             self.regridTool = 'regrid2'
         elif rgTool == 'scrip':
             pass
