@@ -1,4 +1,5 @@
-import numpy, copy
+import numpy
+import copy
 import cdms2
 import regrid2
 from regrid2 import RegridError
@@ -176,10 +177,41 @@ def _makeBoundsCurveList(grid):
     return boundsCurve
 
 class Regridder:
+    """
+    Regridding object. Wrapper class to run all of the different regridding
+    tools available within UV-CDAT
+
+    @param **args Optional keyword arguments for each type of regridder
+            gsRegrid accepts nitermax and tolpos for computing the weights
+            ESMP accepts src(dst)MaskValue and periodicity
+
+    List of regridTools gsRegrid is the default
+    "Libcf":    LibCF regridder. Handles curvilinear grids and 3D
+    "gsRegrid": Same as libcf
+            Optional args:
+               src_bounds=None, mkCyclic=False, handleCut=False, diagnostics=False 
+
+    "regrid2":  Original horizontal regridder
+            Optional args:
+                missing=None, order=None, mask=None, returnTuple=0
+
+    "ESMF":     Earth System Modelling Framework.
+                For more information
+                http://www.earthsystemmodeling.org/users/python_doc/html/index.html,
+    "ESMP":     Same as ESMF,
+            Optional args:
+                
+
+    "SCRIP":    Not implemented in regridder. Run as stand alone for now
+                SCRIP regridder.
+            Optional Packages. ScripRegridder, ConservativeRegridder, BilinearRegridder
+                               BicubicRegridder, DistwgtRegridder
+    """
     def __init__(self, inGrid, outGrid, srcMask = None, dstMask = None,
                  regridTool = "gsRegrid", regridMethod = "bilinear", **args):
         """
-        Constructor for regridding object. Currently just uses a 2-D object
+        Constructor
+
         @param inGrid cdms2, ndarray variable
         @param outGrid cdms2, ndarray variable
         @param srcMask mask for the source grid - use numpy masking rules
@@ -229,6 +261,7 @@ class Regridder:
         self.regridTool = rgTool
         self.regridMethod = rgMeth
         self.outMask = None
+        self.outGrid = copy.copy(outGrid)
 
         if re.match('regrid', rgTool, re.I):
             self.regridObj = regrid2.Horizontal(inGrid, outGrid)
@@ -458,9 +491,23 @@ class Regridder:
             elif self.dstMask is None:
                 outMask = self.dstMask
 
-            # Need to convert this to a cdms2 variable
+            # Need to convert this to a cdms2 variable using the input grid
+            # Axes and grid if available
+            convertToCurvilinear = False
+            print 'inputIsVariable'
             if inputIsVariable:
-                # Grid
+                print 'YUP HERE I AM'
+                attrs = inData.attributes
+                axes = self.outGrid.getAxisList()
+                grid = self.outGrid.getGrid()
+                result = cdms2.createVariable(outVar, mask = outMask,
+                                              fill_value = inData.fill_value,
+                                              axes = axes,
+                                              grid = grid,
+                                              attributes = attrs, id = varid)
+
+            elif convertToCurvilinear:
+                # Make a curvilinear Grid
                 attrs = inData.attributes
                 lats = numpy.reshape(self.dstGrid.getPointer(1), outVar.shape)
                 lons = numpy.reshape(self.dstGrid.getPointer(2), outVar.shape)
@@ -622,6 +669,9 @@ class Regridder:
         return result
 
     def __del__(self):
+        """
+        Destructor
+        """
         if self.regridTool == 'esmp':
             pass
 
