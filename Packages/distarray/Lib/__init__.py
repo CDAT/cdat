@@ -2,5 +2,5 @@
 Distributed array
 """
 __all__ = ["mvDistArray", "mvGhostedDistArray",]
-from mvDistArray import DistArray, zeros, ones, array
-from mvGhostedDistArray import GhostedDistArray
+from mvDistArray import DistArray, daZeros, daOnes, daArray
+from mvGhostedDistArray import GhostedDistArray, ghZeros, ghOnes, ghArray
