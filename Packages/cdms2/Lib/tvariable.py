@@ -188,6 +188,8 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
 
         # MPI data members
         self.mpiComm = None
+        if HAVE_MPI:
+            self.mpiComm = MPI.COMM_WORLD
         self.mpiWindows = {}
         self.mpiType = self.__getMPIType()
 
@@ -628,7 +630,8 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         ghostWidth - width of the halo region (> 0)
         """
         if HAVE_MPI:
-            ndims = len(self.shape)
+            shape = self.shape
+            ndims = len(shape)
             for dim in range(ndims):
                 for drect in (-1, 1):
                     # the window id uniquely specifies the
@@ -639,13 +642,13 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
                     # -1 on the low index side.
                     winId = tuple( [0 for i in range(dim) ] \
                                    + [drect] + \
-                                   [0 for i in range(dim+1, ndim) ] )
+                                   [0 for i in range(dim+1, ndims) ] )
 
                     slce = slice(0, ghostWidth)
                     if drect == 1:
                         slce = slice(shape[dim] - ghostWidth, shape[dim])
 
-                    slab = self.getSlab(dim, slce)
+                    slab = self.__getSlab(dim, slce)
 
                     # create the MPI window
                     dataSrc = numpy.zeros(self[slce].shape, self.dtype) 
@@ -657,6 +660,21 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
                         'window': MPI.Win.Create(dataSrc, comm=self.mpiComm),
                         }
                 
+    def getHaloSideEllipsis(self, haloSide):
+        """
+        Get the ellipsis for a given halo side
+        
+        haloSide - a tuple of zeros and one +1 or -1.  To access
+                    the "north" side for instance, set haloSide=(1, 0),
+                    (-1, 0) to access the south side, (0, 1) the east
+                    side, etc.
+
+        Return none if halo was not exposed (see exposeHalo)
+        """
+        if HAVE_MPI and self.mpiWindows.has_key(haloSide):
+            return self.mpiWindows[haloSide]['slice']
+        else:
+            return None
 
     def getHaloSide(self, pe, haloSide):
         """
@@ -672,7 +690,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
                     side, etc. 
         """
         if HAVE_MPI:
-            iw = self.mpiWindows[winID]
+            iw = self.mpiWindows[haloSide]
             slce = iw['slice']
             dataSrc = iw['dataSrc']
             dataDst = iw['dataDst']
@@ -692,7 +710,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         """
         Free the MPI windows attached to the halo
         """
-        for iw in self.windows:
+        for iw in self.mpiWindows:
             self.mpiWindows[iw]['window'].Free()        
 
     def __getSlab(self, dim, slce):
@@ -706,11 +724,11 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         return slab
         """
         shape = self.shape
-        ndim = len(shape)
+        ndims = len(shape)
         
         slab = [ slice(0, shape[i]) for i in range(dim) ] \
                     + [slce] + \
-                  [ slice(0, shape[i]) for i in range(dim+1, ndim) ]
+                  [ slice(0, shape[i]) for i in range(dim+1, ndims) ]
         return slab
 
     def __getMPIType(self):
