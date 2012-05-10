@@ -19,6 +19,14 @@ from grid import createRectGrid, AbstractRectGrid
 from hgrid import AbstractCurveGrid
 from gengrid import AbstractGenericGrid
 
+# dist array support 
+HAVE_MPI = False
+try:
+    from mpi4py import MPI
+    HAVE_MPI = True
+except:
+    pass
+
 
 id_builtin = id                         # built_in gets clobbered by keyword
 
@@ -177,6 +185,14 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
             TransientVariable.variable_count = TransientVariable.variable_count + 1
             self.id = 'variable_' + str(TransientVariable.variable_count)
         self.name = getattr(self, 'name', self.id)
+
+        # MPI data members
+        self.mpiComm = None
+        if HAVE_MPI:
+            self.mpiComm = MPI.COMM_WORLD
+        self.mpiWindows = {}
+        self.mpiType = self.__getMPIType()
+
 
     def _getmissing(self):
         return self._missing
@@ -576,6 +592,169 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
                     vw = mvVsWriter.VsWriter(var, maxElev)
                     vw.write(tFilename)
        
+    # Following are distributed array methods, they require mpi4py 
+    # to be installed
+
+    def setMPIComm(self, comm):
+        """
+        Set the MPI communicator. This is a no-op if MPI 
+        is not available.
+        """
+        if HAVE_MPI:
+            self.mpiComm = comm
+
+    def getMPIRank(self):
+        """
+        Return the MPI rank
+        """
+        if HAVE_MPI:
+            return self.mpiComm.Get_rank()
+        else:
+            return 0
+
+    def getMPISize(self):
+        """
+        Return the MPI communicator size
+        """
+        if HAVE_MPI:
+            return self.mpiComm.Get_size()
+        else:
+            return 1
+
+    def exposeHalo(self, ghostWidth=1):
+        """
+        Expose the halo to other processors. The halo is the region
+        within the local MPI data domain that is exposed to other 
+        processors and borders the data range. 
+
+        ghostWidth - width of the halo region (> 0)
+        """
+        if HAVE_MPI:
+            shape = self.shape
+            ndims = len(shape)
+            for dim in range(ndims):
+                for drect in (-1, 1):
+                    # the window id uniquely specifies the
+                    # location of the window. We use 0's to indicate
+                    # a slab extending over the entire length for a
+                    # given direction, a 1 represents a layer of
+                    # thickness ghostWidth on the high index side,
+                    # -1 on the low index side.
+                    winId = tuple( [0 for i in range(dim) ] \
+                                   + [drect] + \
+                                   [0 for i in range(dim+1, ndims) ] )
+
+                    slce = slice(0, ghostWidth)
+                    if drect == 1:
+                        slce = slice(shape[dim] - ghostWidth, shape[dim])
+
+                    slab = self.__getSlab(dim, slce)
+
+                    # create the MPI window
+                    dataSrc = numpy.zeros(self[slce].shape, self.dtype) 
+                    dataDst = numpy.zeros(self[slce].shape, self.dtype) 
+                    self.mpiWindows[winId] = {
+                        'slice': slce,
+                        'dataSrc': dataSrc,
+                        'dataDst': dataDst,
+                        'window': MPI.Win.Create(dataSrc, comm=self.mpiComm),
+                        }
+                
+    def getHaloSideEllipsis(self, haloSide):
+        """
+        Get the ellipsis for a given halo side
+        
+        haloSide - a tuple of zeros and one +1 or -1.  To access
+                    the "north" side for instance, set haloSide=(1, 0),
+                    (-1, 0) to access the south side, (0, 1) the east
+                    side, etc.
+
+        Return none if halo was not exposed (see exposeHalo)
+        """
+        if HAVE_MPI and self.mpiWindows.has_key(haloSide):
+            return self.mpiWindows[haloSide]['slice']
+        else:
+            return None
+
+    def getHaloSide(self, pe, haloSide):
+        """
+        Get the halo side from another processor. The halo side
+        is a subdomain of the halo which is exposed to other 
+        processors. It is an error to call this method when
+        MPI is not enabled.
+
+        pe       -  processor owning the halo side data
+        haloSide -  a tuple of zeros and one +1 or -1.  To access
+                    the "north" side for instance, set haloSide=(1, 0),
+                    (-1, 0) to access the south side, (0, 1) the east
+                    side, etc. 
+        """
+        if HAVE_MPI:
+            iw = self.mpiWindows[haloSide]
+            slce = iw['slice']
+            dataSrc = iw['dataSrc']
+            dataDst = iw['dataDst']
+
+            # copy src data into buffer
+            dataSrc[...] = self[slce]
+
+            win = iw['window']
+            win.Fence()
+            win.Get( [dataDst, self.mpiType], pe )
+            win.Fence()
+            return dataDst
+        else:
+            raise CDMSError, 'Must have MPI to invoke getHalo'
+
+    def freeHalo(self):
+        """
+        Free the MPI windows attached to the halo
+        """
+        for iw in self.mpiWindows:
+            self.mpiWindows[iw]['window'].Free()        
+
+    def __getSlab(self, dim, slce):
+        """
+        Get slab. A slab is a multi-dimensional slice extending in
+        all directions except along dim where slce applies
+        
+        dim      - dimension (0=first index, 1=2nd index...)
+        slce     - python slice object along dimension dim
+        
+        return slab
+        """
+        shape = self.shape
+        ndims = len(shape)
+        
+        slab = [ slice(0, shape[i]) for i in range(dim) ] \
+                    + [slce] + \
+                  [ slice(0, shape[i]) for i in range(dim+1, ndims) ]
+        return slab
+
+    def __getMPIType(self):
+        """
+        Return the MPI type of the array
+        """
+        typ = None
+        dtyp = self.dtype
+        if HAVE_MPI:
+            if dtyp == numpy.float64:
+                typ = MPI.DOUBLE
+            elif dtyp == numpy.float32:
+                typ = MPI.FLOAT
+            elif dtyp == numpy.int64:
+                typ = MPI.INT64_T
+            elif dtyp == numpy.int32:
+                typ = MPI.INT32_T
+            elif dtyp == numpy.int16:
+                typ = MPI.INT16_T
+            elif dtyp == numpy.int8:
+                typ = MPI.INT8_T
+            else:
+                raise NotImplementedError            
+        else:
+            return typ
+
 ## PropertiedClasses.set_property(TransientVariable, 'shape', 
 ##                                nowrite=1, nodelete=1)
 
