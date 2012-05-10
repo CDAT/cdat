@@ -291,7 +291,9 @@ endmacro (add_cdat_package)
 find_package(Qt4 REQUIRED)
 
 # Added by Dave Kindig Tech-X Corp. kindig@txcorp.com
-option(CDAT_BUILD_ESMF_ESMP "Build python version Earth System Modelling Framework" OFF)
+option(CDAT_BUILD_ESMF_ESMP "Build python version Earth System Modeling Framework" OFF)
+option(CDAT_BUILD_ESMF_PARALLEL "Build parallel version of Earth System Modeling Framework library" OFF)
+
 
 # Attempt to find each package on the system
 
