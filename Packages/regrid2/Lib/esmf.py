@@ -339,8 +339,14 @@ class EsmfRegrid:
         self.dstField = dstField
 
         def checkMaskValues(maskValues):
+            """ 
+            Check type(maskValues), convert to ndarray, dtype = int32
+            @param maskValues list or ndarray of mask values
+            @return ndarray of dtype = int32, or None if None
+            """
+
             if maskValues is None:
-                maskValue = numpy.array([1], dtype = numpy.int32)
+                maskValue = None
             elif isinstance(maskValues, list):
                 maskValue = numpy.array(srcMaskValues, dtype = numpy.int32)
             elif isinstance(maskValues, numpy.ndarray):
@@ -349,14 +355,14 @@ class EsmfRegrid:
                 raise RegridError, 'Masked values must be None, a list or numpy array'
             return maskValue
 
-        srcMaskValue = checkMaskValues(srcMaskValues)
-        dstMaskValue = checkMaskValues(dstMaskValues)
+        srcMaskValueArr = checkMaskValues(srcMaskValues)
+        dstMaskValueArr = checkMaskValues(dstMaskValues)
 
         self.regridHandle = ESMP.ESMP_FieldRegridStore( 
                                      srcField.field, 
                                      dstField.field,
-                                     srcMaskValues = srcMaskValue, 
-                                     dstMaskValues = dstMaskValue,
+                                     srcMaskValues = srcMaskValueArr, 
+                                     dstMaskValues = dstMaskValueArr,
                                      srcFracField = srcFrac, 
                                      dstFracField = dstFrac,
                                      regridmethod = regridMethod, 

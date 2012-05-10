@@ -50,7 +50,7 @@ def _makeGridList(grid):
     elif isinstance(grid, list):
         # It is a list already
         nSpatial = len(grid)
-        retGrid = grid
+        retGrid = copy.copy(grid)
     else:
         raise RegridError, 'Grid must be a list of coordinates or a cdms2 grid'
 
@@ -208,7 +208,8 @@ class Regridder:
                                BicubicRegridder, DistwgtRegridder
     """
     def __init__(self, inGrid, outGrid, srcMask = None, dstMask = None,
-                 regridTool = "gsRegrid", regridMethod = "bilinear", **args):
+                 regridTool = "gsRegrid", regridMethod = "bilinear", 
+                 toCurvilinear = False, **args):
         """
         Constructor
 
@@ -225,10 +226,13 @@ class Regridder:
                         scrip - many options but requires a remapping file from
                                 SCRIP
         @param regridMethod Conservative, Mutlilinear. Some regrid tools use
-                            only bilinear or multilinear
+                        only bilinear or multilinear
+        @param toCurvilinear Return a curvilinear grid instead of the 
+                        input grid
         @param **args Optional keyword arguments for each type of regridder
-                gsRegrid accepts nitermax and tolpos for computing the weights
-                ESMP accepts src(dst)MaskValue and periodicity
+                        gsRegrid accepts nitermax and tolpos for computing the
+                        weights
+                        ESMP accepts src(dst)MaskValue and periodicity
 
         List of regridTools gsRegrid is the default
         "Libcf":    LibCF regridder. Handles curvilinear grids and 3D
@@ -261,7 +265,12 @@ class Regridder:
         self.regridTool = rgTool
         self.regridMethod = rgMeth
         self.outMask = None
+        self.srcMask = srcMask
+        self.dstMask = dstMask
+        self.srcMaskValue = None
+        self.dstMaskValue = None
         self.outGrid = copy.copy(outGrid)
+        self.toCurvilinear = toCurvilinear
 
         if re.match('regrid', rgTool, re.I):
             self.regridObj = regrid2.Horizontal(inGrid, outGrid)
@@ -284,24 +293,24 @@ class Regridder:
             else:
                 self.regridMethod = ESMP.ESMP_REGRIDMETHOD_CONSERVE
 
-
             # Want 2D coordinates in a list [lat, lon]
             # Choices list, TransientAxis2D, TransientRectAxis
-            srcGrid, self.srcSpatial = _makeGridList(inGrid)
-            if self.srcSpatial > 1:
+            srcGrid, self.srcRank = _makeGridList(inGrid)
+            if self.srcRank > 1:
                 srcGrid, srcSpatial = cdms2.gsRegrid.makeCurvilinear(srcGrid)
 
-            dstGrid, self.dstSpatial = _makeGridList(outGrid)
-            if self.dstSpatial > 1:
+            dstGrid, self.dstRank = _makeGridList(outGrid)
+            if self.dstRank > 1:
                 dstGrid, dstSpatial = cdms2.gsRegrid.makeCurvilinear(dstGrid)
 
+            # Convert bounds to curvilinear grids
             srcBoundsCurveList = None
             dstBoundsCurveList = None
             self.location = ESMP.ESMP_STAGGERLOC_CORNER
             # Dont need them for bilinear
             if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
                 srcBoundsCurveList = _makeBoundsCurveList(inGrid)
-                dstBoundsCurveList = _makeBoundsCurveList(outGrid)
+                dstBoundsCurveList = _makeBoundsCurveList(self.outGrid)
 
             # Set some required values
             self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE
@@ -310,15 +319,15 @@ class Regridder:
             self.periodicity = None
 
             for arg in args:
-                if re.search('unmappedaction', arg):
+                if re.search('unmappedaction', arg.lower()):
                     unMappedAction = args[arg]
                     if re.search('error', unMappedAction):
                         self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_ERROR
-                if re.search('periodicity', arg):
+                if re.search('periodicity', arg.lower()):
                     self.periodicity = args[arg]
-                if re.search('staggerloc', arg):
+                if re.search('staggerloc', arg.lower()):
                     self.staggerloc = args[arg]
-                if re.search('coordsys', arg):
+                if re.search('coordsys', arg.lower()):
                     self.coordSys = args[arg]
 
             # Use non periodic boundaries unless the user says otherwise
@@ -326,22 +335,24 @@ class Regridder:
             if self.periodicity is None:
                 self.periodicity = 0
 
-            self.srcMask = srcMask
-            self.dstMask = dstMask
-
-            # Default to the numpy and ESMP standard. 1 (True) is a masked value.
-            # This is needed for EsmfRegrid()
-            self.srcMaskValue = numpy.array([1], dtype = numpy.int32)
-            self.dstMaskValue = numpy.array([1], dtype = numpy.int32)
+            # If xxxMaskValues in arguments, set them for later in __call__
             for arg in args.keys():
-                if re.search('srcmaskvalue', arg):
+                if re.search('srcmaskvalue', arg.lower()):
                     self.srcMaskValue = numpy.array([args[arg]], dtype = numpy.int32)
-                if re.search('dstmaskvalue', arg):
+                elif not re.search('srcmaskvalue', arg.lower()) and \
+                     srcMask is not None:
+                    string = 'srcMaskValues must be provided with source mask'
+                    raise RegridError, string
+                if re.search('dstmaskvalue', arg.lower()):
                     self.dstMaskValue = numpy.array([args[arg]], dtype = numpy.int32)
+                elif not re.search('dstmaskvalue', arg.lower()) and \
+                     dstMask is not None:
+                    string = 'dstMaskValues must be provided with destination mask'
+                    raise RegridError, string
 
             # Create the ESMP grids
-            # ESMP.ESMP_Initialize() should have been called 
-
+            # ESMP.ESMP_Initialize() should have been called outside of 
+            # regridding
             self.srcGrid = esmf.EsmfStructGrid(srcGrid,
                                                bounds = srcBoundsCurveList,
                                                mask = srcMask,
@@ -425,8 +436,12 @@ class Regridder:
                 if hasattr(inData, att):
                     missing = getattr(inData, att)
 
+        useResult = False
         if self.regridTool == 'regrid2':
             result = self.regridObj(inData, args)
+            useResult = True
+        elif self.regridTool == 'scrip':
+            pass
         elif self.regridTool == 'esmp':
             if not self.esmfImported:
                 string = "ESMP is not installed or is unable to be imported"
@@ -446,6 +461,8 @@ class Regridder:
             except:
                 iid = "Source_Data"
                 diid = "Desintation_Data"
+
+            # Create the ESMF Fields
 
             self.srcField = esmf.EsmfGridField(self.srcGrid, iid,
                                                  numpy.array(inData),
@@ -469,14 +486,19 @@ class Regridder:
             srcFrac = None
             dstFrac = None
 
+            # Regrid
             self.regrid = esmf.EsmfRegrid(self.srcField, self.dstField,
                                 srcFrac = srcFrac,
                                 dstFrac = dstFrac,
+                                srcMaskValues = self.srcMaskValue,
+                                dstMaskValues = self.dstMaskValue,
                                 regridMethod = method,
                                 unMappedAction = unMappedAction)
 
             # Call the regrid procedure
             self.regrid()
+
+            # Get the regridded variable
             outVar.flat = self.dstField.getPointer()
 
             # Set the output mask if available
@@ -490,42 +512,13 @@ class Regridder:
                 if missing is not None: outMask = (outVar == missing)
             elif self.dstMask is None:
                 outMask = self.dstMask
+            
+            # Get the coordinates
+            lats = numpy.reshape(self.dstGrid.getPointer(1), outVar.shape)
+            lons = numpy.reshape(self.dstGrid.getPointer(2), outVar.shape)
+            if self.srcRank > 2:
+                levs = numpy.reshape(self.dstGrid.getPointer(3), outVar.shape)
 
-            # Need to convert this to a cdms2 variable using the input grid
-            # Axes and grid if available
-            convertToCurvilinear = False
-            print 'inputIsVariable'
-            if inputIsVariable:
-                print 'YUP HERE I AM'
-                attrs = inData.attributes
-                axes = self.outGrid.getAxisList()
-                grid = self.outGrid.getGrid()
-                result = cdms2.createVariable(outVar, mask = outMask,
-                                              fill_value = inData.fill_value,
-                                              axes = axes,
-                                              grid = grid,
-                                              attributes = attrs, id = varid)
-
-            elif convertToCurvilinear:
-                # Make a curvilinear Grid
-                attrs = inData.attributes
-                lats = numpy.reshape(self.dstGrid.getPointer(1), outVar.shape)
-                lons = numpy.reshape(self.dstGrid.getPointer(2), outVar.shape)
-                lat = cdms2.coord.TransientAxis2D(lats, id = 'lat')
-                lon = cdms2.coord.TransientAxis2D(lons, id = 'lon')
-                grid = cdms2.hgrid.TransientCurveGrid(lat, lon, id = 'CurveGrid')
-                result = cdms2.createVariable(outVar, mask = outMask,
-                                              fill_value = inData.fill_value,
-                                              axes = grid.getAxisList(),
-                                              grid = grid,
-                                              attributes = attrs, id = varid)
-            else:
-                result = numpy.ma.masked_array(outVar, mask = outMask, fill_value = missing)
-
-            return result
-
-        elif self.regridTool == 'scrip':
-            pass
         elif self.regridTool == 'gsregrid':
 
             # The data has a mask and the mask has not been set previously
@@ -657,14 +650,63 @@ class Regridder:
             else:
                 outMask = slabMask
 
-            if inputIsVariable:
-                result = cdms2.createVariable(outVar, mask = outMask,
-                                              fill_value = inData.fill_value,
-                                              axes = axisList,
-                                              grid = grid,
-                                              attributes = attrs, id = varid)
-            else:
-                result = numpy.ma.masked_array(outVar, mask = outMask, fill_value = missing)
+        # Return the output variable from ESMP or gsRegrid, or the result from
+        # regrid2
+        
+        if isinstance(self.outGrid, list):
+            if re.search('transientaxis2d', str(type(self.outGrid[0])).lower()):
+                self.toCurvilinear = True
+            
+        if inputIsVariable and not self.toCurvilinear:
+            # Use the output grid
+            attrs = inData.attributes
+            grid = None
+            if isinstance(self.outGrid, list):
+                axes = self.outGrid
+                if len(inData.shape) > 2:
+                    for a in inData.getOrder():
+                        if a == 'z':
+                            axes.insert(0, inData.getLevel())
+                        if a == 't':
+                            axes.insert(0, inData.getTime())
+            elif cdms2.isGrid(self.outGrid):
+                grid = self.outGrid
+                try:
+                    # Method exists but is not always implemented 
+                    # e.g. TransientRectGrid
+                    axes = self.outGrid.getAxisList()
+                except:
+                    axes = []
+                    for a in inData.getOrder():
+                        if a == 'x':
+                            axes.append(self.outGrid.getLongitude())
+                        if a == 'y':
+                            axes.append(self.outGrid.getLatitude())
+                        if a == 'z':
+                            axes.append(inData.getLevel())
+                        if a == 't':
+                            axes.append(inData.getTime())
+            result = cdms2.createVariable(outVar, mask = outMask,
+                                          fill_value = inData.fill_value,
+                                          axes = axes,
+                                          grid = grid,
+                                          attributes = attrs, id = varid)
+
+        elif self.toCurvilinear:
+            # Make a curvilinear Grid. Overrides inputIsVariable
+            lat = cdms2.coord.TransientAxis2D(lats, id = 'lat')
+            lon = cdms2.coord.TransientAxis2D(lons, id = 'lon')
+            grid = cdms2.hgrid.TransientCurveGrid(lat, lon, id = 'CurveGrid')
+            result = cdms2.createVariable(outVar, mask = outMask,
+                                          fill_value = inData.fill_value,
+                                          axes = grid.getAxisList(),
+                                          grid = grid,
+                                          attributes = attrs, id = varid)
+        elif useResult:
+            pass # Place holder
+        else:
+            result = numpy.ma.masked_array(outVar, mask = outMask, 
+                                           fill_value = missing)
 
         return result
 
