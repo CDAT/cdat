@@ -684,7 +684,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         processors. It is an error to call this method when
         MPI is not enabled.
 
-        pe       -  processor owning the halo side data
+        pe       -  processor owning the halo data
         haloSide -  a tuple of zeros and one +1 or -1.  To access
                     the "north" side for instance, set haloSide=(1, 0),
                     (-1, 0) to access the south side, (0, 1) the east
@@ -724,12 +724,11 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         
         return slab
         """
-        shape = self.shape
-        ndims = len(shape)
+        ndims = len(self.shape)
         
-        slab = [ slice(0, shape[i]) for i in range(dim) ] \
+        slab = [ slice(0, None) for i in range(dim) ] \
                     + [slce] + \
-                  [ slice(0, shape[i]) for i in range(dim+1, ndims) ]
+                  [ slice(0, None) for i in range(dim+1, ndims) ]
         return tuple(slab)
 
     def __getMPIType(self):
