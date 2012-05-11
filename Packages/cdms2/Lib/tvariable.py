@@ -651,10 +651,10 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
                     slab = self.__getSlab(dim, slce)
 
                     # create the MPI window
-                    dataSrc = numpy.zeros(self[slce].shape, self.dtype) 
-                    dataDst = numpy.zeros(self[slce].shape, self.dtype) 
+                    dataSrc = numpy.zeros(self[slab].shape, self.dtype) 
+                    dataDst = numpy.zeros(self[slab].shape, self.dtype) 
                     self.mpiWindows[winId] = {
-                        'slice': slce,
+                        'slice': slab,
                         'dataSrc': dataSrc,
                         'dataDst': dataDst,
                         'window': MPI.Win.Create(dataSrc, comm=self.mpiComm),
@@ -729,7 +729,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         slab = [ slice(0, shape[i]) for i in range(dim) ] \
                     + [slce] + \
                   [ slice(0, shape[i]) for i in range(dim+1, ndims) ]
-        return slab
+        return tuple(slab)
 
     def __getMPIType(self):
         """
