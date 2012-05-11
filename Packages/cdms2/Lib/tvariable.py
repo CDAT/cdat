@@ -624,8 +624,9 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
     def exposeHalo(self, ghostWidth=1):
         """
         Expose the halo to other processors. The halo is the region
-        within the local MPI data domain that is exposed to other 
-        processors and borders the data range. 
+        within the local MPI data domain that is accessible to other 
+        processors. The halo encompasses the edge of the data region
+        and has thickness ghostWidth.
 
         ghostWidth - width of the halo region (> 0)
         """
@@ -654,7 +655,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
                     dataSrc = numpy.zeros(self[slab].shape, self.dtype) 
                     dataDst = numpy.zeros(self[slab].shape, self.dtype) 
                     self.mpiWindows[winId] = {
-                        'slice': slab,
+                        'slab': slab,
                         'dataSrc': dataSrc,
                         'dataDst': dataDst,
                         'window': MPI.Win.Create(dataSrc, comm=self.mpiComm),
@@ -672,7 +673,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         Return none if halo was not exposed (see exposeHalo)
         """
         if HAVE_MPI and self.mpiWindows.has_key(haloSide):
-            return self.mpiWindows[haloSide]['slice']
+            return self.mpiWindows[haloSide]['slab']
         else:
             return None
 
@@ -691,7 +692,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         """
         if HAVE_MPI:
             iw = self.mpiWindows[haloSide]
-            slce = iw['slice']
+            slce = iw['slab']
             dataSrc = iw['dataSrc']
             dataDst = iw['dataDst']
 
