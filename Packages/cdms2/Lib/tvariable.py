@@ -661,55 +661,58 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
                         'window': MPI.Win.Create(dataSrc, comm=self.mpiComm),
                         }
                 
-    def getHaloSideEllipsis(self, haloSide):
+    def getHaloEllipsis(self, side):
         """
         Get the ellipsis for a given halo side
         
-        haloSide - a tuple of zeros and one +1 or -1.  To access
-                    the "north" side for instance, set haloSide=(1, 0),
-                    (-1, 0) to access the south side, (0, 1) the east
-                    side, etc.
+        side - a tuple of zeros and one +1 or -1.  To access
+               the "north" side for instance, set side=(1, 0),
+               (-1, 0) to access the south side, (0, 1) the east
+               side, etc. This does not involve any communication.
 
         Return none if halo was not exposed (see exposeHalo)
         """
-        if HAVE_MPI and self.mpiWindows.has_key(haloSide):
-            return self.mpiWindows[haloSide]['slab']
+        if HAVE_MPI and self.mpiWindows.has_key(side):
+            return self.mpiWindows[side]['slab']
         else:
             return None
 
-    def getHaloSide(self, pe, haloSide):
+    def fetchHaloData(self, pe, side):
         """
-        Get the halo side from another processor. The halo side
-        is a subdomain of the halo which is exposed to other 
+        Fetch the halo data from another processor. The halo side
+        is a subdomain of the halo that is exposed to other 
         processors. It is an error to call this method when
-        MPI is not enabled.
+        MPI is not enabled. This is a collective method (must
+        be called by all processes), which involves synchronization
+        of data among all processors.
 
         pe       -  processor owning the halo data
-        haloSide -  a tuple of zeros and one +1 or -1.  To access
-                    the "north" side for instance, set haloSide=(1, 0),
+        side     -  a tuple of zeros and one +1 or -1.  To access
+                    the "north" side for instance, set side=(1, 0),
                     (-1, 0) to access the south side, (0, 1) the east
                     side, etc. 
         """
         if HAVE_MPI:
-            iw = self.mpiWindows[haloSide]
-            slce = iw['slab']
+            iw = self.mpiWindows[side]
+            slab = iw['slab']
             dataSrc = iw['dataSrc']
             dataDst = iw['dataDst']
 
             # copy src data into buffer
-            dataSrc[...] = self[slce]
+            dataSrc[...] = self[slab]
 
             win = iw['window']
-            win.Fence()
+            win.Fence() # get the data ready
             win.Get( [dataDst, self.mpiType], pe )
-            win.Fence()
+            win.Fence() # make sure the communication completed
             return dataDst
         else:
-            raise CDMSError, 'Must have MPI to invoke getHalo'
+            raise CDMSError, 'Must have MPI to invoke fetchHaloData'
 
     def freeHalo(self):
         """
-        Free the MPI windows attached to the halo
+        Free the MPI windows attached to the halo. This must be 
+        called before MPI_Finalize.
         """
         for iw in self.mpiWindows:
             self.mpiWindows[iw]['window'].Free()        
