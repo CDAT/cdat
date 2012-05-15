@@ -3,6 +3,13 @@ set(esmf_source "${CMAKE_CURRENT_BINARY_DIR}/build/esmf" CACHE INTERNAL "")
 set(esmf_install "${cdat_EXTERNALS}" CACHE INTERNAL "")
 set(esmf_pthreads "OFF")
 
+# Set the os
+if (Linux)
+  set(esmf_os "Linux")
+elseif(APPLE)
+  set(esmf_os "Darwin")
+endif()
+
 # check if ESMF should be built in parallel
 set(emsf_enable_mpi FALSE)
 if(CDAT_BUILD_ESMF_PARALLEL)
