@@ -4,7 +4,7 @@ set(esmf_install "${cdat_EXTERNALS}" CACHE INTERNAL "")
 set(esmf_pthreads "OFF")
 
 # Set the os
-if (Linux)
+if(LINUX)
   set(esmf_os "Linux")
 elseif(APPLE)
   set(esmf_os "Darwin")
