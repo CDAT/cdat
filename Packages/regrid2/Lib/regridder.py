@@ -3,6 +3,7 @@ import copy
 import cdms2
 import regrid2
 from regrid2 import RegridError
+import ESMP
 import re
 
 # Test for the presence of esmp.
@@ -315,7 +316,7 @@ class Regridder:
             # Set some required values
             self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE
             self.staggerloc = ESMP.ESMP_STAGGERLOC_CENTER
-            self.coordSys = ESMP.ESMP_COORDSYS_CART
+            self.coordSys = ESMP.ESMP_COORDSYS_SPH_DEG
             self.periodicity = None
 
             for arg in args:
@@ -326,9 +327,32 @@ class Regridder:
                 if re.search('periodicity', arg.lower()):
                     self.periodicity = args[arg]
                 if re.search('staggerloc', arg.lower()):
-                    self.staggerloc = args[arg]
+                    if re.search('corner', args[arg].lower()):
+                        self.staggerloc = ESMP.ESMP_STAGGERLOC_CORNER
+                    elif re.search('center', args[arg].lower()):
+                        self.staggerloc = ESMP.ESMP_STAGGERLOC_CENTER
+                    else:
+                        string = """
+            ESMP stagger locations are:
+                ESMP.ESMP_STAGGERLOC_CENTER (Default)
+                ESMP.ESMP_STAGGERLOC_CORNER """
+                        raise RegridError, string
                 if re.search('coordsys', arg.lower()):
-                    self.coordSys = args[arg]
+                    for a in args.keys():
+                        if re.search('cart', args[arg].lower()):
+                            self.coordSys = ESMP.ESMP_COORDSYS_CART
+                        elif re.search('deg', args[arg].lower()):
+                            self.coordSys = ESMP.ESMP_COORDSYS_SPH_DEG
+                        elif re.search('rad', args[arg].lower()):
+                            self.coordSys = ESMP.ESMP_COORDSYS_SPH_RAD
+                        else:
+                            string = """
+            ESMP coordinate systems are:
+                ESMP.ESMP_COORDSYS_SPH_DEG (Default)
+                ESMP.ESMP_COORDSYS_CART
+                ESMP.ESMP_COORDSYS_SPH_DEG"""
+
+                            raise RegridError, string
 
             # Use non periodic boundaries unless the user says otherwise
             # not set by the user.
@@ -342,27 +366,48 @@ class Regridder:
                 elif not re.search('srcmaskvalue', arg.lower()) and \
                      srcMask is not None:
                     string = 'srcMaskValues must be provided with source mask'
-                    raise RegridError, string
+                    #raise RegridError, string
+                    self.srcMaskValue = numpy.array([1], dtype = numpy.int32)
                 if re.search('dstmaskvalue', arg.lower()):
                     self.dstMaskValue = numpy.array([args[arg]], dtype = numpy.int32)
                 elif not re.search('dstmaskvalue', arg.lower()) and \
                      dstMask is not None:
                     string = 'dstMaskValues must be provided with destination mask'
-                    raise RegridError, string
+                    #raise RegridError, string
+                    self.dstMaskValue = numpy.array([1], dtype = numpy.int32)
 
             # Create the ESMP grids
-            # ESMP.ESMP_Initialize() should have been called outside of 
-            # regridding
-            self.srcGrid = esmf.EsmfStructGrid(srcGrid,
-                                               bounds = srcBoundsCurveList,
-                                               mask = srcMask,
-                                               periodicity = self.periodicity,
-                                               coordSys = self.coordSys)
-            self.dstGrid = esmf.EsmfStructGrid(dstGrid,
-                                               bounds = dstBoundsCurveList,
-                                               mask = dstMask,
-                                               periodicity = self.periodicity,
-                                               coordSys = self.coordSys)
+            # ESMP.ESMP_Initialize() must be called outside of regridder
+            # X, Y, ... ordering
+            srcMaxIndex = numpy.array(srcGrid[0].shape[::-1], dtype = numpy.int32)
+            dstMaxIndex = numpy.array(dstGrid[0].shape[::-1], dtype = numpy.int32)
+            
+            self.srcGrid = esmf.GridCreate(srcMaxIndex, 
+                                           periodicity = self.periodicity,
+                                           coordSys = self.coordSys)
+            self.dstGrid = esmf.GridCreate(dstMaxIndex, 
+                                           periodicity = self.periodicity,
+                                           coordSys = self.coordSys)
+            self.dstGrid.maxIndex = dstMaxIndex
+            self.dstGrid.shape = dstGrid[0].shape
+            # Populate the grid centers. Bilinear and conservative
+            esmf.EsmfStructGrid(self.srcGrid,
+                                srcGrid,
+                                staggerloc = self.staggerloc,
+                                mask = srcMask)
+            esmf.EsmfStructGrid(self.dstGrid,
+                                dstGrid,
+                                staggerloc = self.staggerloc,
+                                mask = self.dstMask)
+
+            # Populate the grid corners. Conservative only.
+            if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
+                esmf.EsmfStructGrid(self.srcGrid,
+                                    srcBoundsCurveList,
+                                    staggerloc = ESMP.ESMP_STAGGERLOC_CORNER)
+                esmf.EsmfStructGrid(self.dstGrid,
+                                    dstBoundsCurveList,
+                                    staggerloc = ESMP.ESMP_STAGGERLOC_CORNER)
 
         elif rgTool == 'gsregrid' or rgTool == 'libcf':
             # Prep in and out grid for gsRegrid!
@@ -468,11 +513,23 @@ class Regridder:
                                                  numpy.array(inData),
                                                  staggerloc = location)
             # Convert mask y, x
-            outShape = self.dstGrid.maxIndex[::-1]
+            outShape = self.dstGrid.shape
             outVar = numpy.zeros(outShape, inData.dtype)
             self.dstField = esmf.EsmfGridField(self.dstGrid, diid,
                                                outVar,
                                                staggerloc = location)
+
+            srcFrac = None
+            dstFrac = None
+            if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
+                srcFrac = esmf.EsmfGridField(self.srcGrid, diid,
+                                 staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
+                dstFrac = esmf.EsmfGridField(self.dstGrid, diid,
+                                 staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
+                srcArea = esmf.EsmfGridField(self.srcGrid, diid,
+                                 staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
+                dstArea = esmf.EsmfGridField(self.dstGrid, diid,
+                                 staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
             if self.regridMethod is not None:
                 method = self.regridMethod
             else:
@@ -482,10 +539,7 @@ class Regridder:
                 unMappedAction = self.unMappedAction
             else:
                 unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE
-
-            srcFrac = None
-            dstFrac = None
-
+            
             # Regrid
             self.regrid = esmf.EsmfRegrid(self.srcField, self.dstField,
                                 srcFrac = srcFrac,
@@ -514,8 +568,22 @@ class Regridder:
                 outMask = self.dstMask
             
             # Get the coordinates
-            lats = numpy.reshape(self.dstGrid.getPointer(1), outVar.shape)
-            lons = numpy.reshape(self.dstGrid.getPointer(2), outVar.shape)
+            if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
+                self.srcFractionPtr = numpy.ones(inData.shape, dtype = inData.dtype)
+                self.dstFractionPtr = numpy.ones(outShape, dtype = inData.dtype)
+                self.srcAreaPtr = numpy.ones(inData.shape, dtype = inData.dtype)
+                self.dstAreaPtr = numpy.ones(outShape, dtype = inData.dtype)
+
+                ESMP.ESMP_FieldRegridGetArea(srcArea.field)
+                ESMP.ESMP_FieldRegridGetArea(dstArea.field)
+
+                self.srcFractionPtr.flat = srcFrac.getPointer()
+                self.dstFractionPtr.flat = dstFrac.getPointer()
+                self.srcAreaPtr.flat = srcArea.getPointer()
+                self.dstAreaPtr.flat = dstArea.getPointer()
+
+            lats = numpy.reshape(self.dstGrid.getPointer(1, ESMP.ESMP_STAGGERLOC_CENTER), outVar.shape)
+            lons = numpy.reshape(self.dstGrid.getPointer(2, ESMP.ESMP_STAGGERLOC_CENTER), outVar.shape)
             if self.srcRank > 2:
                 levs = numpy.reshape(self.dstGrid.getPointer(3), outVar.shape)
 
