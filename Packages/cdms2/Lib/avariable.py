@@ -882,6 +882,9 @@ class AbstractVariable(CdmsObj, Slab):
 
         Example:
         new_cdmsVar = cdmsVar.regrid(newGrid)  # Uses gsRegrid (aka: LibCF)
+        new_cdmsVar = cdmsVar.regrid(newGrid, regridTool = 'ESMF', 
+                                     regridMethod = 'Conservative,
+                                     coordSys = 'Cart')
 
         If you wish to use ESMF, SCRIP or the original regrid2 use for example:
         from regrid2 import Regridder

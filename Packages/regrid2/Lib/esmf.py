@@ -338,7 +338,6 @@ class EsmfRegrid:
             @param maskValues list or ndarray of mask values
             @return ndarray of dtype = int32, or None if None
             """
-
             if maskValues is None:
                 maskValue = None
             elif isinstance(maskValues, list):
@@ -351,20 +350,28 @@ class EsmfRegrid:
 
         srcMaskValueArr = checkMaskValues(srcMaskValues)
         dstMaskValueArr = checkMaskValues(dstMaskValues)
-        srcFracField = None
-        dstFracField = None
-        if srcFrac is not None: srcFracField = srcFrac.field
-        if dstFrac is not None: dstFracField = dstFrac.field
+        self.srcFracField = None
+        self.dstFracField = None
+        if srcFrac is not None: self.srcFracField = srcFrac.field
+        if dstFrac is not None: self.dstFracField = dstFrac.field
 
         self.regridHandle = ESMP.ESMP_FieldRegridStore( 
                                      srcField.field, 
                                      dstField.field,
                                      srcMaskValues = srcMaskValueArr, 
                                      dstMaskValues = dstMaskValueArr,
-                                     srcFracField = srcFracField, 
-                                     dstFracField = dstFracField,
+                                     srcFracField = self.srcFracField, 
+                                     dstFracField = self.dstFracField,
                                      regridmethod = regridMethod, 
                                      unmappedaction = unMappedAction)
+
+    def getArea(self, areaField):
+        """
+        Compare Source mass to Destinatin mass
+        """
+        ESMP.ESMP_FieldRegridGetArea(areaField.field)
+        areaPtr = areaField.getPointer()
+        return areaPtr
 
     def __call__(self, srcField=None, dstField=None):
         """
@@ -377,11 +384,10 @@ class EsmfRegrid:
         if dstField == None:
             dstField = self.dstField
         ESMP.ESMP_FieldRegrid(srcField.field, dstField.field, self.regridHandle)
-        ESMP.ESMP_FieldRegridRelease(self.regridHandle)
+#        ESMP.ESMP_FieldRegridRelease(self.regridHandle)
     
     def __del__(self):
-        #ESMP.ESMP_FieldRegridRelease(self.regridHandle)
-        pass
+        ESMP.ESMP_FieldRegridRelease(self.regridHandle)
 
 def _createCLMeshFromAxes(lons, lats, conserved = 0):
     """

@@ -1,6 +1,7 @@
 import numpy
 import copy
 import cdms2
+from cdms2 import gsRegrid
 import regrid2
 from regrid2 import RegridError
 import ESMP
@@ -182,11 +183,11 @@ class Regridder:
     Regridding object. Wrapper class to run all of the different regridding
     tools available within UV-CDAT
 
-    @param **args Optional keyword arguments for each type of regridder
+    Optional keyword arguments for each type of regridder
             gsRegrid accepts nitermax and tolpos for computing the weights
             ESMP accepts src(dst)MaskValue and periodicity
 
-    List of regridTools gsRegrid is the default
+    List of regridTools. cdms2.gsRegrid is the default
     "Libcf":    LibCF regridder. Handles curvilinear grids and 3D
     "gsRegrid": Same as libcf
             Optional args:
@@ -288,36 +289,15 @@ class Regridder:
             self.esmfImported = esmfImported
             self.regridTool = 'esmp'
 
-            # Set the regridding method - Bilinear / Conservative
-            if regridMethod is None or regridMethod.lower() == 'bilinear':
-                self.regridMethod = ESMP.ESMP_REGRIDMETHOD_BILINEAR
-            else:
-                self.regridMethod = ESMP.ESMP_REGRIDMETHOD_CONSERVE
-
-            # Want 2D coordinates in a list [lat, lon]
-            # Choices list, TransientAxis2D, TransientRectAxis
-            srcGrid, self.srcRank = _makeGridList(inGrid)
-            if self.srcRank > 1:
-                srcGrid, srcSpatial = cdms2.gsRegrid.makeCurvilinear(srcGrid)
-
-            dstGrid, self.dstRank = _makeGridList(outGrid)
-            if self.dstRank > 1:
-                dstGrid, dstSpatial = cdms2.gsRegrid.makeCurvilinear(dstGrid)
-
-            # Convert bounds to curvilinear grids
-            srcBoundsCurveList = None
-            dstBoundsCurveList = None
-            self.location = ESMP.ESMP_STAGGERLOC_CORNER
-            # Dont need them for bilinear
-            if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-                srcBoundsCurveList = _makeBoundsCurveList(inGrid)
-                dstBoundsCurveList = _makeBoundsCurveList(self.outGrid)
-
             # Set some required values
             self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE
             self.staggerloc = ESMP.ESMP_STAGGERLOC_CENTER
             self.coordSys = ESMP.ESMP_COORDSYS_SPH_DEG
             self.periodicity = None
+            makeCyclic = False
+            handleCut = False
+            srcBounds = None
+            dstBounds = None
 
             for arg in args:
                 if re.search('unmappedaction', arg.lower()):
@@ -326,6 +306,10 @@ class Regridder:
                         self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_ERROR
                 if re.search('periodicity', arg.lower()):
                     self.periodicity = args[arg]
+                if re.search('cycl', arg.lower()):
+                    makeCyclic = True
+                if re.search('handle', arg.lower()):
+                    handleCut = True
                 if re.search('staggerloc', arg.lower()):
                     if re.search('corner', args[arg].lower()):
                         self.staggerloc = ESMP.ESMP_STAGGERLOC_CORNER
@@ -351,13 +335,7 @@ class Regridder:
                 ESMP.ESMP_COORDSYS_SPH_DEG (Default)
                 ESMP.ESMP_COORDSYS_CART
                 ESMP.ESMP_COORDSYS_SPH_DEG"""
-
                             raise RegridError, string
-
-            # Use non periodic boundaries unless the user says otherwise
-            # not set by the user.
-            if self.periodicity is None:
-                self.periodicity = 0
 
             # If xxxMaskValues in arguments, set them for later in __call__
             for arg in args.keys():
@@ -375,6 +353,65 @@ class Regridder:
                     string = 'dstMaskValues must be provided with destination mask'
                     #raise RegridError, string
                     self.dstMaskValue = numpy.array([1], dtype = numpy.int32)
+
+
+            # Set the regridding method - Bilinear / Conservative
+            if regridMethod is None or regridMethod.lower() == 'bilinear':
+                self.regridMethod = ESMP.ESMP_REGRIDMETHOD_BILINEAR
+            else:
+                self.regridMethod = ESMP.ESMP_REGRIDMETHOD_CONSERVE
+
+            # Want 2D coordinates in a list [lat, lon]
+            # Choices list, TransientAxis2D, TransientRectAxis
+            srcGrid, self.srcRank = _makeGridList(inGrid)
+            if self.srcRank > 1:
+                srcGrid, srcSpatial = cdms2.gsRegrid.makeCurvilinear(srcGrid)
+
+            dstGrid, self.dstRank = _makeGridList(outGrid)
+            if self.dstRank > 1:
+                dstGrid, dstSpatial = cdms2.gsRegrid.makeCurvilinear(dstGrid)
+
+            # Convert bounds to curvilinear grids
+            srcBoundsCurveList = None
+            dstBoundsCurveList = None
+            self.location = ESMP.ESMP_STAGGERLOC_CORNER
+            # Dont need them for bilinear
+            if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
+                if srcBounds is None:
+                    srcBoundsCurveList = _makeBoundsCurveList(inGrid)
+                if dstBounds is None:
+                    dstBoundsCurveList = _makeBoundsCurveList(self.outGrid)
+
+# Need to test this. I don't want to check it in just yet
+#                # Check for cyclic coordinates
+#                if makeCyclic:
+#                    srcGridNew, srcDimsNew = gsRegrid.makeCoordsCyclic(srcGrid, srcSpatial)
+#                    if reduce(lambda x, y:x+y, \
+#                            [srcDimsNew[i] - srcSpatial[i] \
+#                                for i in range(self.srcRank)]) > 0:
+#                        self.extendedGrid = True
+#                    # reset
+#                    srcGrid = srcGridNew
+#                    srcDims = srcDimsNew
+#
+#                # Check the grid for a cut at a pole
+#                if handleCut:
+#                    print 'Checking for cut'
+#                    hasCut = gsRegrid.checkForCoordCut(srcGrid, srcDims)
+#                    if hasCut:
+#                        print 'Yup has a cut'
+#                        tmp = gsRegrid.handleCoordsCut(srcGrid, srcDims,
+#                                                       srcBoundsCurveList) 
+#                        srcGridNew, srcDimsNew, dstIndex = tmp
+#                    # reset
+#                    srcGrid = srcGridNew
+#                    srcDims = srcDimsNew
+
+
+            # Use non periodic boundaries unless the user says otherwise
+            # not set by the user.
+            if self.periodicity is None:
+                self.periodicity = 0
 
             # Create the ESMP grids
             # ESMP.ESMP_Initialize() must be called outside of regridder
@@ -419,7 +456,7 @@ class Regridder:
                                    (self.dstRank, self.srcRank)
 
             # Create the regrid object
-            ro = regrid2.gsRegrid.Regrid(self.srcGrid, self.dstGrid)
+            ro = cdms2.gsRegrid.Regrid(self.srcGrid, self.dstGrid)
 
             # Set the source mask
             if srcMask is not None:
@@ -754,6 +791,19 @@ class Regridder:
                             axes.append(inData.getLevel())
                         if a == 't':
                             axes.append(inData.getTime())
+                    
+                    if len(axes) < 2:
+                        axes = []
+                        for a in grid.getOrder():
+                            if a == 'x':
+                                axes.append(self.outGrid.getLongitude())
+                            if a == 'y':
+                                axes.append(self.outGrid.getLatitude())
+                            if a == 'z':
+                                axes.append(inData.getLevel())
+                            if a == 't':
+                                axes.append(inData.getTime())
+
             result = cdms2.createVariable(outVar, mask = outMask,
                                           fill_value = inData.fill_value,
                                           axes = axes,
