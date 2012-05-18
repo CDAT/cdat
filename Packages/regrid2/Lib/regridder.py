@@ -428,21 +428,21 @@ class Regridder:
             self.dstGrid.maxIndex = dstMaxIndex
             self.dstGrid.shape = dstGrid[0].shape
             # Populate the grid centers. Bilinear and conservative
-            esmf.EsmfStructGrid(self.srcGrid,
+            esmf.EsmfGridAddCoords(self.srcGrid,
                                 srcGrid,
                                 staggerloc = self.staggerloc,
                                 mask = srcMask)
-            esmf.EsmfStructGrid(self.dstGrid,
+            esmf.EsmfGridAddCoords(self.dstGrid,
                                 dstGrid,
                                 staggerloc = self.staggerloc,
                                 mask = self.dstMask)
 
             # Populate the grid corners. Conservative only.
             if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-                esmf.EsmfStructGrid(self.srcGrid,
+                esmf.EsmfGridAddCoords(self.srcGrid,
                                     srcBoundsCurveList,
                                     staggerloc = ESMP.ESMP_STAGGERLOC_CORNER)
-                esmf.EsmfStructGrid(self.dstGrid,
+                esmf.EsmfGridAddCoords(self.dstGrid,
                                     dstBoundsCurveList,
                                     staggerloc = ESMP.ESMP_STAGGERLOC_CORNER)
 
@@ -546,26 +546,26 @@ class Regridder:
 
             # Create the ESMF Fields
 
-            self.srcField = esmf.EsmfGridField(self.srcGrid, iid,
+            self.srcField = esmf.EsmfFieldCreate(self.srcGrid, iid,
                                                  numpy.array(inData),
                                                  staggerloc = location)
             # Convert mask y, x
             outShape = self.dstGrid.shape
             outVar = numpy.zeros(outShape, inData.dtype)
-            self.dstField = esmf.EsmfGridField(self.dstGrid, diid,
+            self.dstField = esmf.EsmfFieldCreate(self.dstGrid, diid,
                                                outVar,
                                                staggerloc = location)
 
             srcFrac = None
             dstFrac = None
             if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-                srcFrac = esmf.EsmfGridField(self.srcGrid, diid,
+                srcFrac = esmf.EsmfFieldCreate(self.srcGrid, diid,
                                  staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
-                dstFrac = esmf.EsmfGridField(self.dstGrid, diid,
+                dstFrac = esmf.EsmfFieldCreate(self.dstGrid, diid,
                                  staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
-                srcArea = esmf.EsmfGridField(self.srcGrid, diid,
+                srcArea = esmf.EsmfFieldCreate(self.srcGrid, diid,
                                  staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
-                dstArea = esmf.EsmfGridField(self.dstGrid, diid,
+                dstArea = esmf.EsmfFieldCreate(self.dstGrid, diid,
                                  staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
             if self.regridMethod is not None:
                 method = self.regridMethod
@@ -621,8 +621,8 @@ class Regridder:
 
             lats = numpy.reshape(self.dstGrid.getPointer(1, ESMP.ESMP_STAGGERLOC_CENTER), outVar.shape)
             lons = numpy.reshape(self.dstGrid.getPointer(2, ESMP.ESMP_STAGGERLOC_CENTER), outVar.shape)
-            if self.srcRank > 2:
-                levs = numpy.reshape(self.dstGrid.getPointer(3), outVar.shape)
+            #if self.srcRank > 2:
+            #    levs = numpy.reshape(self.dstGrid.getPointer(3), outVar.shape)
 
         elif self.regridTool == 'gsregrid':
 

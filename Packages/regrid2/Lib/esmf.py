@@ -75,7 +75,7 @@ class GridCreate:
         pass
         #ESMP.EMSP_GridDestroy(self)
     
-class EsmfStructGrid:
+class EsmfGridAddCoords:
     """
     Create an ESMF structured grid
     """
@@ -257,9 +257,9 @@ class EsmfStructField:
     def  __del__(self):
         ESMP.ESMP_FieldDestroy(self.field)
 
-class EsmfGridField:
+class EsmfFieldCreate:
     """
-    Create a grid field object. Inherits from EsmfStructField
+    Create a grid field object.
     """
     def __init__(self, esmfGrid, name, data = None, 
                  staggerloc = ESMP.ESMP_STAGGERLOC_CENTER):
@@ -657,7 +657,7 @@ def testCurviLinearGrid(useMethod, useStagger, writeVTK = False,
                                                    (-80.00, 80, snlat), 
                                                    useMethod)
     # Create the grid object
-    srcESMFGrid = EsmfStructGrid(srcCds)
+    srcESMFGrid = EsmfGridAddCoords(srcCds)
 
     # Field Data
     srcData = numpy.ones(srcDims[useMethod], numpy.float64)
@@ -669,7 +669,7 @@ def testCurviLinearGrid(useMethod, useStagger, writeVTK = False,
         ESMP.ESMP_MeshWrite(srcESMFGrid.grid, filename['srcGrid'])
         writeVSH5('testSrc.vsh5', srcESMFGrid, srcData)
 
-    srcESMFField = EsmfGridField(srcESMFGrid, 'source', srcData, 
+    srcESMFField = EsmfFieldCreate(srcESMFGrid, 'source', srcData, 
                        staggerloc = staggerlocList[useStagger])
 
     print ' Destination'
@@ -678,12 +678,12 @@ def testCurviLinearGrid(useMethod, useStagger, writeVTK = False,
                                                    useMethod)
 
     # Create the grid object
-    dstESMFGrid = EsmfStructGrid(dstCds)
+    dstESMFGrid = EsmfGridAddCoords(dstCds)
 
     # Field Data
     dstData = numpy.ones(dstDims[useMethod], numpy.float64)
 
-    dstESMFField = EsmfGridField(dstESMFGrid, 'source', dstData, 
+    dstESMFField = EsmfFieldCreate(dstESMFGrid, 'source', dstData, 
                         staggerloc = staggerlocList[useStagger])
     if writeVTK: 
         ESMP.ESMP_MeshWrite(dstESMFGrid.grid, filename['dstGrid'])
