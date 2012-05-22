@@ -13,42 +13,75 @@ regridMethodList = [ESMP.ESMP_REGRIDMETHOD_BILINEAR,
                     ESMP.ESMP_REGRIDMETHOD_CONSERVE]
 coordSystemsList = [ESMP.ESMP_COORDSYS_CART, ESMP.ESMP_COORDSYS_SPH_DEG,
                     ESMP.ESMP_COORDSYS_SPH_RAD]
-def initialize():
-    """
-    Initialize ESMP
-    """
-    ESMP.ESMP_Initialize()
 
-def finalize():
-    """Finalize (close) ESMP"""
-    ESMP.ESMP_Finalize()
-
-class GridCreate:
+class EsmfStructGrid:
     """
     Create an ESMP Grid
     """
-    def __init__(self, maxIndex, coordSys = ESMP.ESMP_COORDSYS_SPH_DEG, 
+    def __init__(self, coords, staggerloc = ESMP.ESMP_STAGGERLOC_CENTER, 
+                 coordSys = ESMP.ESMP_COORDSYS_SPH_DEG, 
+                 mask = None, 
+                 maskValues = [1],
                  periodicity = 0):
         """
         Constructor ESMP Grid
-        @param maxIndex The dimensions of the grid. numpy array
-        @param coordSys    ESMP.ESMP_COORDSYS_CART              Cartesian
+        @param coords   The coordinates of for the grid. List of numpy arrays
+        @param staggerloc  The stagger location
+                           ESMP.ESMP_STAGGERLOC_CENTER (default)
+                           ESMP.ESMP_STAGGERLOC_CORNER
+        @param coordSys    coordinate system
+                           ESMP.ESMP_COORDSYS_CART              Cartesian
                            ESMP.ESMP_COORDSYS_SPH_DEG (default) Degrees
                            ESMP.ESMP_COORDSYS_SPH_RAD           Radians
+        @param mask numpy array. 1 is invalid by default, but can be 
+                    overridden with the maskValues argument
+        @param maskValues User defined mask values numpy array of type int32
         @param periodicity Does the grid have a periodic coordinate
+                           0 No periodicity
+                           1 Periodic in x axis
+                           2 Periodic in x, y axes
+
+        Note, coord dims in cdms2 are ordered in y, x, but ESMF expect x, y,
+        hence the dimensions are reversed here. If you are receiving unexpected
+        results, try reversing the order of coordinate dimensions.
         """
+        self.grid = None
+        # Note, coord dims in cdms2 are ordered in y, x, but ESMF expect x, y,
+        # hence the reversal in [::-1]
+        self.maxIndex = numpy.array(coords[0].shape[::-1], dtype = numpy.int32)
+        self.maskPtr = None
+        self.maskValues = numpy.array(maskValues, dtype = numpy.int32)
+
         if periodicity == 0:
-            self.grid = ESMP.ESMP_GridCreateNoPeriDim(maxIndex, 
+            self.grid = ESMP.ESMP_GridCreateNoPeriDim(self.maxIndex, 
                                                       coordSys = coordSys)
         elif periodicity == 1:
-            self.grid = ESMP.ESMP_GridCreate1PeriDim(maxIndex, 
+            self.grid = ESMP.ESMP_GridCreate1PeriDim(self.maxIndex, 
                                                      coordSys = coordSys)
         elif periodicity == 2:
-            self.grid = ESMP.ESMP_GridCreate2PeriDim(maxIndex, 
+            self.grid = ESMP.ESMP_GridCreate2PeriDim(self.maxIndex, 
                                                      coordSys = coordSys)
         else:
             raise RegridError, "Periodic dimensions > 2 not permitted."
-        self.maxIndex = maxIndex
+
+        rank = len(coords[0].shape)
+        
+        # Copy the data
+        ESMP.ESMP_GridAddCoord(grid.grid, staggerloc=staggerloc)
+
+        for i in range(rank):
+            ptr = ESMP.ESMP_GridGetCoordPtr(grid.grid, i+1, staggerloc)
+            
+            # Poplulate the grid.grid with coordinates or the bounds as needed
+            # numpy.arrays required since numpy.ma arrays don't support flat
+            ptr[:] = numpy.array(coords[i]).flat
+
+            # Populate the mask on Cell Centers
+            if mask is not None:
+                ESMP.ESMP_GridAddItem(grid.grid, item=ESMP.ESMP_GRIDITEM_MASK)
+                self.maskPtr = ESMP.ESMP_GridGetItem(grid.grid, 
+                                              item=ESMP.ESMP_GRIDITEM_MASK)
+                self.maskPtr[:] = mask.flat
 
     def getMask(self):
         """
@@ -72,192 +105,9 @@ class GridCreate:
 
 
     def __del__(self):
-        pass
-        #ESMP.EMSP_GridDestroy(self)
-    
-class EsmfGridAddCoords:
-    """
-    Create an ESMF structured grid
-    """
-    def __init__(self, grid, coords, staggerloc = ESMP.ESMP_STAGGERLOC_CENTER,
-                 mask = None):
-        """
-        Construct an ESMP Grid object
-        @param grid ESMP grid from GridCreate
-        @param coords tuple or list of coordinates of the grid (lat, lon). 
-                     If conservative regridding, the bounds are the corners
-                     and the coords are the centers
-        @param staggerloc ESMP.ESMP_STAGGERLOC_CORNER
-                          ESMP.ESMP_STAGGERLOC_CENTER
-        @param mask Mask Default is 1 is invalid data 0 valid (numpy definition).
-                    These can be defined as maskValues
-        """
-        rank = len(coords[0].shape)
-        
-        # Copy the data
-        ESMP.ESMP_GridAddCoord(grid.grid, staggerloc=staggerloc)
-
-        for i in range(rank):
-            ptr = ESMP.ESMP_GridGetCoordPtr(grid.grid, i+1, staggerloc)
-            
-            # Poplulate the grid.grid with coordinates or the bounds as needed
-            # numpy.arrays required since numpy.ma arrays don't support flat
-            ptr[:] = numpy.array(coords[i]).flat
-
-            # Populate the mask on Cell Centers
-            self.maskPtr = None
-            if mask is not None:
-                ESMP.ESMP_GridAddItem(grid.grid, item=ESMP.ESMP_GRIDITEM_MASK)
-                self.maskPtr = ESMP.ESMP_GridGetItem(grid.grid, 
-                                              item=ESMP.ESMP_GRIDITEM_MASK)
-                self.maskPtr[:] = mask.flat
-#            ESMP.ESMP_GridAddItem(grid.grid, item = ESMP.ESMP_GRIDITEM_AREA)
-
-class EsmfStructMesh:
-    """
-    Mesh types
-                     3                          4 ---------- 3
-                    / \                         |            |  
-                   /   \                        |            |
-                  /     \                       |            |
-                 /       \                      |            |
-                /         \                     |            |
-               1 --------- 2                    1 ---------- 2
-
-           ESMC_MESHELEMTYPE_TRI            ESMC_MESHELEMTYPE_QUAD
-
-
-
-                                            
-                 3                               8---------------7
-                /|\                             /|              /|
-               / | \                           / |             / |
-              /  |  \                         /  |            /  |
-             /   |   \                       /   |           /   |
-            /    |    \                     5---------------6    |
-           4-----|-----2                    |    |          |    |
-            \    |    /                     |    4----------|----3
-             \   |   /                      |   /           |   /
-              \  |  /                       |  /            |  /
-               \ | /                        | /             | /
-                \|/                         |/              |/
-                 1                          1---------------2
-
-       ESMC_MESHELEMTYPE_TETRA             ESMC_MESHELEMTYPE_HEX  
-
-    Create an ESMP mesh(grid) object.
-    """
-    def __init__(self, coords, meshType = ESMP.ESMP_MESHELEMTYPE_QUAD):
-        """
-        Creator for an ESMF Mesh
-        @param coords list of curvilinear coordinates [xx, yy, ...]
-        @param meshType triangle, quad, cube, tetrahedron. See above
-                        See ESMP docs for details
-        """
-        self.numTopoDims = len(coords[0].shape)
-        self.numSpaceDims = len(coords)
-        self.dimsN = coords[0].shape
-        dimsE = list(self.dimsN)
-        for i in range(len(dimsE)): dimsE[i] = dimsE[i]-1
-        self.dimsE = tuple(dimsE)
-
-        self.numNodes = reduce(operator.mul, self.dimsN)
-        self.nodeIndx = numpy.arange(1, self.numNodes+1, dtype = numpy.int32)
-        self.pes = numpy.zeros((self.numNodes, ), numpy.int32)
-        self.xyz = numpy.zeros((self.numNodes, self.numSpaceDims), numpy.float64)
-
-        for i in range(self.numSpaceDims):
-            self.xyz[:, i] = coords[i].reshape(self.xyz[:, i].shape)
-        self.numCells = reduce(lambda x, y:(x)*(y), self.dimsE)
-        self.cellIndx = numpy.arange(1, self.numCells+1, dtype = numpy.int32)
-        self.cellTyps = meshType * numpy.ones((self.numCells, ), numpy.int32)
-        self.cellConn = numpy.zeros((self.numCells, 2**self.numTopoDims), numpy.int32)
-
-        # Note: The node ordering for connectivity for the conservative case 
-        # must go in counter clockwise order. If you are receiving a rc = 506
-        cellConn = []
-        for k in range(self.numCells):
-            i = k + (k // (self.dimsN[-1] - 1))
-            # cell indexing is 1-based (?)
-            i1 = i + 1
-            genCell = numpy.array([i1, i1+1, i1+1+self.dimsN[-1], i1+self.dimsN[-1]])
-            cellConn.append(genCell)
-
-        self.cellConn = numpy.array(cellConn, numpy.int32)
-        self.grid = ESMP.ESMP_MeshCreate(self.numTopoDims, self.numSpaceDims)
-        ESMP.ESMP_MeshAddNodes(self.grid, self.numNodes, self.nodeIndx,
-                               self.xyz, self.pes)
-        ESMP.ESMP_MeshAddElements(self.grid, self.numCells, self.cellIndx,
-                                  self.cellTyps, self.cellConn)
-
-    def getNodeDims(self):
-        """
-        Get dimensions of the nodal mesh
-        @return array
-        """
-        return self.dimsN
-
-    def getElemDims(self):
-        """
-        Get dimensions of the element (cellualr) mesh
-        @return array
-        """
-        return self.dimsE
-    
-    def writeMesh(self, filename):
-        """
-        Write the mesh out to a VTK file
-        @param filename like it says, the filename
-        """
-        ESMP.ESMP_MeshWrite(self.grid, filename)
-
-    def  __del__(self):
-        ESMP.ESMP_MeshDestroy(self.grid)
+        ESMP.EMSP_GridDestroy(self.grid)
 
 class EsmfStructField:
-    """
-    Create a structured field object
-    """
-    def __init__(self, esmfGrid, name, data, 
-                 meshloc = ESMP.ESMP_MESHLOC_NODE):
-        """
-        Creator for ESMF Field
-        @param esmfGrid instance of an ESMP_Mesh
-        @param name field name
-        @param data numpy ndarray of data
-        @param meshloc ESMP_MESHLOC_NODE for Bilinear interpolation
-                       ESMP_MESHLOC_ELEMENT for Conservative interpolation
-        """
-        if meshloc not in meshlocList:
-            raise cdms2.CDMSError, """
-                  mesh location must be ESMP.ESMP_MESHLOC_NODE
-                                           ESMP.ESMP_MESHLOC_ELEMENT"""
-
-        numpyType2EsmfType = {
-            'float64': ESMP.ESMP_TYPEKIND_R8,
-            'float32': ESMP.ESMP_TYPEKIND_R4,
-            'int64': ESMP.ESMP_TYPEKIND_I8,
-            'int32': ESMP.ESMP_TYPEKIND_I4, }
-        etype = numpyType2EsmfType[str(data.dtype)]
-        self.field = ESMP.ESMP_FieldCreate(esmfGrid.grid, name,
-                        meshloc = meshloc,
-                        typekind = etype)
-        # Copy the data
-        ptr = self.getPointer()
-        ptr[:] = data.flat
-
-    def getPointer(self):
-        """
-        Get the field pointer to the data
-        @return pointer to field data
-        """
-        pe = 0 # (serial)
-        return ESMP.ESMP_FieldGetPtr(self.field, localDe = pe)
-
-    def  __del__(self):
-        ESMP.ESMP_FieldDestroy(self.field)
-
-class EsmfFieldCreate:
     """
     Create a grid field object.
     """

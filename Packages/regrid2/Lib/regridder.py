@@ -58,8 +58,8 @@ def _makeGridList(grid):
 
     # Check the number of coordinates
     if nSpatial < 2:
-        raise RegridError, 'Only one coordinate found. Regridding needs at\n' + \
-                           'least two.'
+        raise RegridError, 'Only one coordinate found. Regridding needs' + \
+                           'at least two.'
     return retGrid, nSpatial
 
 def hasMask(data):
@@ -136,14 +136,14 @@ def _makeCrdsFromBounds(coords = None):
 
         o = _checkBndOrder(bounds[1][0, 0, :])
 
-        newMeshLons[:mnj, :mni] = bounds[1][  :,   :, o[0]]   # Lower Left
-        newMeshLats[:mnj, :mni] = bounds[0][  :,   :, o[0]]   # Lower Left
-        newMeshLons[:mnj,   -1] = bounds[1][  :,  -1, o[1]]   # Right Edge
-        newMeshLats[:mnj,   -1] = bounds[0][  :,  -1, o[1]]   # Right Edge
-        newMeshLons[  -1, :mni] = bounds[1][ -1,   :, o[3]]   # Top Row
-        newMeshLats[  -1, :mni] = bounds[0][ -1,   :, o[3]]   # Top Row
-        newMeshLons[  -1,   -1] = bounds[1][ -1,  -1, o[2]]   # Upper Right corner
-        newMeshLats[  -1,   -1] = bounds[0][ -1,  -1, o[2]]   # Upper Right corner
+        newMeshLons[:mnj, :mni] = bounds[1][  :,   :, o[0]] # Lower Left
+        newMeshLats[:mnj, :mni] = bounds[0][  :,   :, o[0]] # Lower Left
+        newMeshLons[:mnj,   -1] = bounds[1][  :,  -1, o[1]] # Right Edge
+        newMeshLats[:mnj,   -1] = bounds[0][  :,  -1, o[1]] # Right Edge
+        newMeshLons[  -1, :mni] = bounds[1][ -1,   :, o[3]] # Top Row
+        newMeshLats[  -1, :mni] = bounds[0][ -1,   :, o[3]] # Top Row
+        newMeshLons[  -1,   -1] = bounds[1][ -1,  -1, o[2]] # Upper Right corner
+        newMeshLats[  -1,   -1] = bounds[0][ -1,  -1, o[2]] # Upper Right corner
 
         gridDims = (nj, ni)
 
@@ -273,6 +273,13 @@ class Regridder:
         self.dstMaskValue = None
         self.outGrid = copy.copy(outGrid)
         self.toCurvilinear = toCurvilinear
+        self.srcFractionPtr = None
+        self.dstFractionPtr = None
+        self.srcAreaPtr = None
+        self.dstAreaPtr = None
+        self.srcField = None
+        self.dstField = None
+        self.regrid = None          # The ESMP regrid object
 
         if re.match('regrid', rgTool, re.I):
             self.regridObj = regrid2.Horizontal(inGrid, outGrid)
@@ -322,38 +329,38 @@ class Regridder:
                 ESMP.ESMP_STAGGERLOC_CORNER """
                         raise RegridError, string
                 if re.search('coordsys', arg.lower()):
-                    for a in args.keys():
-                        if re.search('cart', args[arg].lower()):
-                            self.coordSys = ESMP.ESMP_COORDSYS_CART
-                        elif re.search('deg', args[arg].lower()):
-                            self.coordSys = ESMP.ESMP_COORDSYS_SPH_DEG
-                        elif re.search('rad', args[arg].lower()):
-                            self.coordSys = ESMP.ESMP_COORDSYS_SPH_RAD
-                        else:
-                            string = """
+                    for arg in args.keys():
+                        if isinstance(args[arg], str):
+                            if re.search('cart', args[arg].lower()):
+                                self.coordSys = ESMP.ESMP_COORDSYS_CART
+                            elif re.search('deg', args[arg].lower()):
+                                self.coordSys = ESMP.ESMP_COORDSYS_SPH_DEG
+                            elif re.search('rad', args[arg].lower()):
+                                self.coordSys = ESMP.ESMP_COORDSYS_SPH_RAD
+                            else:
+                                string = """
             ESMP coordinate systems are:
                 ESMP.ESMP_COORDSYS_SPH_DEG (Default)
                 ESMP.ESMP_COORDSYS_CART
                 ESMP.ESMP_COORDSYS_SPH_DEG"""
-                            raise RegridError, string
+                                raise RegridError, string
 
             # If xxxMaskValues in arguments, set them for later in __call__
             for arg in args.keys():
                 if re.search('srcmaskvalue', arg.lower()):
-                    self.srcMaskValue = numpy.array([args[arg]], dtype = numpy.int32)
+                    self.srcMaskValue = numpy.array([args[arg]], 
+                                                     dtype = numpy.int32)
                 elif not re.search('srcmaskvalue', arg.lower()) and \
                      srcMask is not None:
                     string = 'srcMaskValues must be provided with source mask'
                     #raise RegridError, string
                     self.srcMaskValue = numpy.array([1], dtype = numpy.int32)
                 if re.search('dstmaskvalue', arg.lower()):
-                    self.dstMaskValue = numpy.array([args[arg]], dtype = numpy.int32)
+                    self.dstMaskValue = numpy.array([args[arg]], 
+                                                    dtype = numpy.int32)
                 elif not re.search('dstmaskvalue', arg.lower()) and \
                      dstMask is not None:
-                    string = 'dstMaskValues must be provided with destination mask'
-                    #raise RegridError, string
                     self.dstMaskValue = numpy.array([1], dtype = numpy.int32)
-
 
             # Set the regridding method - Bilinear / Conservative
             if regridMethod is None or regridMethod.lower() == 'bilinear':
@@ -385,7 +392,8 @@ class Regridder:
 # Need to test this. I don't want to check it in just yet
 #                # Check for cyclic coordinates
 #                if makeCyclic:
-#                    srcGridNew, srcDimsNew = gsRegrid.makeCoordsCyclic(srcGrid, srcSpatial)
+#                    srcGridNew, srcDimsNew = 
+#                                gsRegrid.makeCoordsCyclic(srcGrid, srcSpatial)
 #                    if reduce(lambda x, y:x+y, \
 #                            [srcDimsNew[i] - srcSpatial[i] \
 #                                for i in range(self.srcRank)]) > 0:
@@ -416,13 +424,17 @@ class Regridder:
             # Create the ESMP grids
             # ESMP.ESMP_Initialize() must be called outside of regridder
             # X, Y, ... ordering
-            srcMaxIndex = numpy.array(srcGrid[0].shape[::-1], dtype = numpy.int32)
-            dstMaxIndex = numpy.array(dstGrid[0].shape[::-1], dtype = numpy.int32)
+#            srcMaxIndex = numpy.array(srcGrid[0].shape[::-1],
+#                                      dtype = numpy.int32)
+#            dstMaxIndex = numpy.array(dstGrid[0].shape[::-1], 
+#                                      dtype = numpy.int32)
             
-            self.srcGrid = esmf.GridCreate(srcMaxIndex, 
+            self.srcGrid = esmf.GridCreate(srcGrid, 
+                                           staggerloc = self.staggerloc, 
                                            periodicity = self.periodicity,
                                            coordSys = self.coordSys)
-            self.dstGrid = esmf.GridCreate(dstMaxIndex, 
+            self.dstGrid = esmf.GridCreate(dstGrid, 
+                                           staggerloc = self.staggerloc, 
                                            periodicity = self.periodicity,
                                            coordSys = self.coordSys)
             self.dstGrid.maxIndex = dstMaxIndex
@@ -504,7 +516,8 @@ class Regridder:
             if 'order' not in args.keys():
                 order = inData.getOrder()
             #this expects contiguous arrays
-            if isinstance(inData, TransientVariable) and inData.iscontiguous() is False:
+            if isinstance(inData, TransientVariable) and \
+               inData.iscontiguous() is False:
                 inData = inData.ascontiguous()
         else:
             inputIsVariable = 0
@@ -546,26 +559,24 @@ class Regridder:
 
             # Create the ESMF Fields
 
-            self.srcField = esmf.EsmfFieldCreate(self.srcGrid, iid,
+            self.srcField = esmf.EsmfStructField(self.srcGrid, iid,
                                                  numpy.array(inData),
                                                  staggerloc = location)
             # Convert mask y, x
             outShape = self.dstGrid.shape
             outVar = numpy.zeros(outShape, inData.dtype)
-            self.dstField = esmf.EsmfFieldCreate(self.dstGrid, diid,
+            self.dstField = esmf.EsmfStructField(self.dstGrid, diid,
                                                outVar,
                                                staggerloc = location)
 
-            srcFrac = None
-            dstFrac = None
+            srcFrac = esmf.EsmfStructField(self.srcGrid, diid,
+                                 staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
+            dstFrac = esmf.EsmfStructField(self.dstGrid, diid,
+                                 staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
             if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-                srcFrac = esmf.EsmfFieldCreate(self.srcGrid, diid,
+                srcArea = esmf.EsmfStructField(self.srcGrid, diid,
                                  staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
-                dstFrac = esmf.EsmfFieldCreate(self.dstGrid, diid,
-                                 staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
-                srcArea = esmf.EsmfFieldCreate(self.srcGrid, diid,
-                                 staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
-                dstArea = esmf.EsmfFieldCreate(self.dstGrid, diid,
+                dstArea = esmf.EsmfStructField(self.dstGrid, diid,
                                  staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
             if self.regridMethod is not None:
                 method = self.regridMethod
@@ -605,22 +616,24 @@ class Regridder:
                 outMask = self.dstMask
             
             # Get the coordinates
+            self.srcFractionPtr = numpy.ones(inData.shape, dtype = inData.dtype)
+            self.dstFractionPtr = numpy.ones(outShape, dtype = inData.dtype)
+            self.srcFractionPtr.flat = srcFrac.getPointer()
+            self.dstFractionPtr.flat = dstFrac.getPointer()
             if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-                self.srcFractionPtr = numpy.ones(inData.shape, dtype = inData.dtype)
-                self.dstFractionPtr = numpy.ones(outShape, dtype = inData.dtype)
                 self.srcAreaPtr = numpy.ones(inData.shape, dtype = inData.dtype)
                 self.dstAreaPtr = numpy.ones(outShape, dtype = inData.dtype)
 
                 ESMP.ESMP_FieldRegridGetArea(srcArea.field)
                 ESMP.ESMP_FieldRegridGetArea(dstArea.field)
 
-                self.srcFractionPtr.flat = srcFrac.getPointer()
-                self.dstFractionPtr.flat = dstFrac.getPointer()
                 self.srcAreaPtr.flat = srcArea.getPointer()
                 self.dstAreaPtr.flat = dstArea.getPointer()
 
-            lats = numpy.reshape(self.dstGrid.getPointer(1, ESMP.ESMP_STAGGERLOC_CENTER), outVar.shape)
-            lons = numpy.reshape(self.dstGrid.getPointer(2, ESMP.ESMP_STAGGERLOC_CENTER), outVar.shape)
+            lats = numpy.reshape(self.dstGrid.getPointer(1, ESMP.ESMP_STAGGERLOC_CENTER), 
+                                 outVar.shape)
+            lons = numpy.reshape(self.dstGrid.getPointer(2, ESMP.ESMP_STAGGERLOC_CENTER), 
+                                 outVar.shape)
             #if self.srcRank > 2:
             #    levs = numpy.reshape(self.dstGrid.getPointer(3), outVar.shape)
 
@@ -641,7 +654,8 @@ class Regridder:
                 self.regridObj.computeWeights(tolpos = self.tolpos,
                                               nitermax = self.nitermax)
 
-            # Create the result TransientVariable (if input inData is an AbstractVariable)
+            # Create the result TransientVariable 
+            # (if input inData is an AbstractVariable)
             # or masked array
             hasTime = None
             hasLevel = None
@@ -656,7 +670,8 @@ class Regridder:
                     from cdms2.coord import TransientAxis2D as T2D
                     lats = T2D(self.regridObj.dst_coords[index], id = 'lat')
                     lons = T2D(self.regridObj.dst_coords[index+1], id = 'lon')
-                    grid = cdms2.hgrid.TransientCurveGrid(lats, lons, id = 'CurveGrid')
+                    grid = cdms2.hgrid.TransientCurveGrid(lats, lons, 
+                                                          id = 'CurveGrid')
 
                 outShape = grid.shape
                 axisList = list(grid.getAxisList())
@@ -665,10 +680,12 @@ class Regridder:
                 elif inData.rank() == 3:
                     if inData.getTime() is not None:
                         axisList = [inData.getTime()] + list(axisList)
-                        outShape = tuple(list(axisList[0].shape) + list(outShape))
+                        outShape = tuple(list(axisList[0].shape) + \
+                                         list(outShape))
                     else:
                         axisList = [inData.getLevel()] + list(axisList)
-                        outShape = tuple(list(axisList[0].shape) + list(outShape))
+                        outShape = tuple(list(axisList[0].shape) + \
+                                         list(outShape))
                 elif inData.rank() == 4 and inData.getTime() is not None:
                     axisList = [inData.getTime(), inData.getLevel()] + \
                                 list(axisList)
@@ -749,7 +766,8 @@ class Regridder:
             # Combine missing data mask and output grid mask
             # Note: slabMask and outMask are Boolean here
             if self.outMask is not None:
-                outMask = numpy.logical_not(numpy.resize(self.outMask, outShape))
+                outMask = numpy.logical_not(numpy.resize(self.outMask, 
+                                                         outShape))
                 if hasMissing:
                     outMask = numpy.ma.logical_or(outMask, slabMask)
             else:
