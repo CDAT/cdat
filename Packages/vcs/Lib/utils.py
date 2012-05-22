@@ -458,7 +458,6 @@ def generate_time_labels(d1,d2,units,calendar=cdtime.DefaultCalendar):
     if delta<.042: # less than 1 hour
         levs=mkscale(d1,d2)
         for l in levs:
-            print l,units
             dic[l]=str(cdtime.reltime(l,units).tocomp(calendar))
     elif delta<1: # Less than a day put a label every hours
         d1=d1r.torel('hours since 2000').value
