@@ -18,39 +18,24 @@ class EsmfStructGrid:
     """
     Create an ESMP Grid
     """
-    def __init__(self, coords, staggerloc = ESMP.ESMP_STAGGERLOC_CENTER, 
-                 coordSys = ESMP.ESMP_COORDSYS_SPH_DEG, 
-                 mask = None, 
-                 maskValues = [1],
+    def __init__(self, maxIndex, coordSys = ESMP.ESMP_COORDSYS_SPH_DEG, 
                  periodicity = 0):
         """
         Constructor ESMP Grid
-        @param coords   The coordinates of for the grid. List of numpy arrays
-        @param staggerloc  The stagger location
-                           ESMP.ESMP_STAGGERLOC_CENTER (default)
-                           ESMP.ESMP_STAGGERLOC_CORNER
+        @param maxIndex    The indices of the size of the array
         @param coordSys    coordinate system
                            ESMP.ESMP_COORDSYS_CART              Cartesian
                            ESMP.ESMP_COORDSYS_SPH_DEG (default) Degrees
                            ESMP.ESMP_COORDSYS_SPH_RAD           Radians
-        @param mask numpy array. 1 is invalid by default, but can be 
-                    overridden with the maskValues argument
-        @param maskValues User defined mask values numpy array of type int32
         @param periodicity Does the grid have a periodic coordinate
                            0 No periodicity
                            1 Periodic in x axis
                            2 Periodic in x, y axes
 
-        Note, coord dims in cdms2 are ordered in y, x, but ESMF expect x, y,
-        hence the dimensions are reversed here. If you are receiving unexpected
-        results, try reversing the order of coordinate dimensions.
         """
         self.grid = None
-        # Note, coord dims in cdms2 are ordered in y, x, but ESMF expect x, y,
-        # hence the reversal in [::-1]
-        self.maxIndex = numpy.array(coords[0].shape[::-1], dtype = numpy.int32)
-        self.maskPtr = None
-        self.maskValues = numpy.array(maskValues, dtype = numpy.int32)
+        self.maxIndex = maxIndex
+        self.maskValues = None
 
         if periodicity == 0:
             self.grid = ESMP.ESMP_GridCreateNoPeriDim(self.maxIndex, 
@@ -63,33 +48,68 @@ class EsmfStructGrid:
                                                      coordSys = coordSys)
         else:
             raise RegridError, "Periodic dimensions > 2 not permitted."
-
+    
+    def addCoords(self, coords, staggerloc = ESMP.ESMP_STAGGERLOC_CENTER):
+        """
+        Populate the grid with cell centers or corners. The coordinates can be
+        coordinates (centers) or bounds (corners)
+        @param coords   The coordinates of for the grid. List of numpy arrays
+        @param staggerloc  The stagger location
+                           ESMP.ESMP_STAGGERLOC_CENTER (default)
+                           ESMP.ESMP_STAGGERLOC_CORNER
+        Note: coord dims in cdms2 are ordered in y, x, but ESMF expect x, y,
+        hence the dimensions are reversed here. If you are receiving unexpected
+        results, try reversing the order of coordinate dimensions.
+        """
         rank = len(coords[0].shape)
         
         # Copy the data
-        ESMP.ESMP_GridAddCoord(grid.grid, staggerloc=staggerloc)
+        ESMP.ESMP_GridAddCoord(self.grid, staggerloc=staggerloc)
 
         for i in range(rank):
-            ptr = ESMP.ESMP_GridGetCoordPtr(grid.grid, i+1, staggerloc)
+            ptr = ESMP.ESMP_GridGetCoordPtr(self.grid, i+1, staggerloc)
             
-            # Poplulate the grid.grid with coordinates or the bounds as needed
+            # Poplulate the self.grid with coordinates or the bounds as needed
             # numpy.arrays required since numpy.ma arrays don't support flat
             ptr[:] = numpy.array(coords[i]).flat
 
-            # Populate the mask on Cell Centers
-            if mask is not None:
-                ESMP.ESMP_GridAddItem(grid.grid, item=ESMP.ESMP_GRIDITEM_MASK)
-                self.maskPtr = ESMP.ESMP_GridGetItem(grid.grid, 
-                                              item=ESMP.ESMP_GRIDITEM_MASK)
-                self.maskPtr[:] = mask.flat
+    def addArea(self, area):
+        """
+        Add the area
+        @param area numpy array. 
+        """
+        self.areaValues = numpy.array(areaValues, dtype = numpy.int32)
+        ESMP.ESMP_GridAddItem(self.grid, item=ESMP.ESMP_GRIDITEM_AREA)
+        areaPtr = ESMP.ESMP_GridGetItem(self.grid, 
+                                      item=ESMP.ESMP_GRIDITEM_AREA)
+        areaPtr[:] = area.flat
+        
+    def getArea(self):
+        """
+        @return a area pointer
+        """
+        areaPtr = ESMP.ESMP_GridGetItem(self.grid, 
+                                        item = ESMP.ESMP_GRIDITEM_AREA)
+        return numpy.reshape(areaPtr, self.maxIndex)
 
+    def addMask(self, mask):
+        """
+        Add the mask
+        @param mask numpy array. 1 is invalid by default, but can be 
+                    overridden with the maskValues argument
+        """
+        ESMP.ESMP_GridAddItem(self.grid, item=ESMP.ESMP_GRIDITEM_MASK)
+        maskPtr = ESMP.ESMP_GridGetItem(self.grid, 
+                                        item=ESMP.ESMP_GRIDITEM_MASK)
+        maskPtr[:] = mask.flat
+        
     def getMask(self):
         """
         @return a mask pointer
         """
-        self.maskPtr = ESMP.ESMP_GridGetItem(self.grid, 
-                                         item = ESMP.ESMP_GRIDITEM_MASK)
-        return numpy.reshape(self.maskPtr, self.maxIndex)
+        maskPtr = ESMP.ESMP_GridGetItem(self.grid, 
+                                        item = ESMP.ESMP_GRIDITEM_MASK)
+        return numpy.reshape(maskPtr, self.shape)
 
     def getPointer(self, dim, staggerloc):
         """
@@ -105,7 +125,8 @@ class EsmfStructGrid:
 
 
     def __del__(self):
-        ESMP.EMSP_GridDestroy(self.grid)
+        pass
+        #ESMP.EMSP_GridDestroy(self.grid)
 
 class EsmfStructField:
     """

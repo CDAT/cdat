@@ -305,6 +305,8 @@ class Regridder:
             handleCut = False
             srcBounds = None
             dstBounds = None
+            srcMaskValues = None
+            dstMaskValues = None
 
             for arg in args:
                 if re.search('unmappedaction', arg.lower()):
@@ -350,17 +352,13 @@ class Regridder:
                 if re.search('srcmaskvalue', arg.lower()):
                     self.srcMaskValue = numpy.array([args[arg]], 
                                                      dtype = numpy.int32)
-                elif not re.search('srcmaskvalue', arg.lower()) and \
-                     srcMask is not None:
-                    string = 'srcMaskValues must be provided with source mask'
-                    #raise RegridError, string
-                    self.srcMaskValue = numpy.array([1], dtype = numpy.int32)
                 if re.search('dstmaskvalue', arg.lower()):
                     self.dstMaskValue = numpy.array([args[arg]], 
                                                     dtype = numpy.int32)
-                elif not re.search('dstmaskvalue', arg.lower()) and \
-                     dstMask is not None:
-                    self.dstMaskValue = numpy.array([1], dtype = numpy.int32)
+            if srcMask is not None and self.srcMaskValue is None:
+                self.srcMaskValue = [1]
+            if dstMask is not None and self.dstMaskValue is None:
+                self.dstMaskValue = [1]
 
             # Set the regridding method - Bilinear / Conservative
             if regridMethod is None or regridMethod.lower() == 'bilinear':
@@ -424,38 +422,30 @@ class Regridder:
             # Create the ESMP grids
             # ESMP.ESMP_Initialize() must be called outside of regridder
             # X, Y, ... ordering
-#            srcMaxIndex = numpy.array(srcGrid[0].shape[::-1],
-#                                      dtype = numpy.int32)
-#            dstMaxIndex = numpy.array(dstGrid[0].shape[::-1], 
-#                                      dtype = numpy.int32)
+            srcMaxIndex = numpy.array(srcGrid[0].shape[::-1],
+                                      dtype = numpy.int32)
+            dstMaxIndex = numpy.array(dstGrid[0].shape[::-1], 
+                                      dtype = numpy.int32)
             
-            self.srcGrid = esmf.GridCreate(srcGrid, 
-                                           staggerloc = self.staggerloc, 
+            self.srcGrid = esmf.EsmfStructGrid(srcMaxIndex,
+                                        coordSys = self.coordSys,
+                                        periodicity = self.periodicity)
+            self.srcGrid.addCoords(srcGrid, staggerloc = self.staggerloc)
+            self.srcGrid.shape = srcGrid[0].shape
+            if srcMask is not None: self.srcGrid.addMask(srcMask)
+
+            self.dstGrid = esmf.EsmfStructGrid(dstMaxIndex,
                                            periodicity = self.periodicity,
                                            coordSys = self.coordSys)
-            self.dstGrid = esmf.GridCreate(dstGrid, 
-                                           staggerloc = self.staggerloc, 
-                                           periodicity = self.periodicity,
-                                           coordSys = self.coordSys)
-            self.dstGrid.maxIndex = dstMaxIndex
+            self.dstGrid.addCoords(dstGrid, staggerloc = self.staggerloc) 
             self.dstGrid.shape = dstGrid[0].shape
-            # Populate the grid centers. Bilinear and conservative
-            esmf.EsmfGridAddCoords(self.srcGrid,
-                                srcGrid,
-                                staggerloc = self.staggerloc,
-                                mask = srcMask)
-            esmf.EsmfGridAddCoords(self.dstGrid,
-                                dstGrid,
-                                staggerloc = self.staggerloc,
-                                mask = self.dstMask)
+            if dstMask is not None: self.dstGrid.addMask(dstMask)
 
             # Populate the grid corners. Conservative only.
             if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-                esmf.EsmfGridAddCoords(self.srcGrid,
-                                    srcBoundsCurveList,
+                self.srcGrid.addCoords(srcBoundsCurveList,
                                     staggerloc = ESMP.ESMP_STAGGERLOC_CORNER)
-                esmf.EsmfGridAddCoords(self.dstGrid,
-                                    dstBoundsCurveList,
+                self.dstGrid.addCoords(dstBoundsCurveList,
                                     staggerloc = ESMP.ESMP_STAGGERLOC_CORNER)
 
         elif rgTool == 'gsregrid' or rgTool == 'libcf':
