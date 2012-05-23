@@ -387,33 +387,6 @@ class Regridder:
                 if dstBounds is None:
                     dstBoundsCurveList = _makeBoundsCurveList(self.outGrid)
 
-# Need to test this. I don't want to check it in just yet
-#                # Check for cyclic coordinates
-#                if makeCyclic:
-#                    srcGridNew, srcDimsNew = 
-#                                gsRegrid.makeCoordsCyclic(srcGrid, srcSpatial)
-#                    if reduce(lambda x, y:x+y, \
-#                            [srcDimsNew[i] - srcSpatial[i] \
-#                                for i in range(self.srcRank)]) > 0:
-#                        self.extendedGrid = True
-#                    # reset
-#                    srcGrid = srcGridNew
-#                    srcDims = srcDimsNew
-#
-#                # Check the grid for a cut at a pole
-#                if handleCut:
-#                    print 'Checking for cut'
-#                    hasCut = gsRegrid.checkForCoordCut(srcGrid, srcDims)
-#                    if hasCut:
-#                        print 'Yup has a cut'
-#                        tmp = gsRegrid.handleCoordsCut(srcGrid, srcDims,
-#                                                       srcBoundsCurveList) 
-#                        srcGridNew, srcDimsNew, dstIndex = tmp
-#                    # reset
-#                    srcGrid = srcGridNew
-#                    srcDims = srcDimsNew
-
-
             # Use non periodic boundaries unless the user says otherwise
             # not set by the user.
             if self.periodicity is None:
