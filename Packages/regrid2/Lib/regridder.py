@@ -331,21 +331,20 @@ class Regridder:
                 ESMP.ESMP_STAGGERLOC_CORNER """
                         raise RegridError, string
                 if re.search('coordsys', arg.lower()):
-                    for arg in args.keys():
-                        if isinstance(args[arg], str):
-                            if re.search('cart', args[arg].lower()):
-                                self.coordSys = ESMP.ESMP_COORDSYS_CART
-                            elif re.search('deg', args[arg].lower()):
-                                self.coordSys = ESMP.ESMP_COORDSYS_SPH_DEG
-                            elif re.search('rad', args[arg].lower()):
-                                self.coordSys = ESMP.ESMP_COORDSYS_SPH_RAD
-                            else:
-                                string = """
+                    if isinstance(args[arg], str):
+                        if re.search('cart', args[arg].lower()):
+                            self.coordSys = ESMP.ESMP_COORDSYS_CART
+                        elif re.search('deg', args[arg].lower()):
+                            self.coordSys = ESMP.ESMP_COORDSYS_SPH_DEG
+                        elif re.search('rad', args[arg].lower()):
+                            self.coordSys = ESMP.ESMP_COORDSYS_SPH_RAD
+                        else:
+                            string = """
             ESMP coordinate systems are:
                 ESMP.ESMP_COORDSYS_SPH_DEG (Default)
                 ESMP.ESMP_COORDSYS_CART
                 ESMP.ESMP_COORDSYS_SPH_DEG"""
-                                raise RegridError, string
+                            raise RegridError, string
 
             # If xxxMaskValues in arguments, set them for later in __call__
             for arg in args.keys():
@@ -380,7 +379,7 @@ class Regridder:
             srcBoundsCurveList = None
             dstBoundsCurveList = None
             self.location = ESMP.ESMP_STAGGERLOC_CORNER
-            # Dont need them for bilinear
+            # Dont need bounds for bilinear
             if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
                 if srcBounds is None:
                     srcBoundsCurveList = _makeBoundsCurveList(inGrid)
@@ -393,32 +392,25 @@ class Regridder:
                 self.periodicity = 0
 
             # Create the ESMP grids
-            # ESMP.ESMP_Initialize() must be called outside of regridder
-            # X, Y, ... ordering
-            srcMaxIndex = numpy.array(srcGrid[0].shape[::-1],
-                                      dtype = numpy.int32)
-            dstMaxIndex = numpy.array(dstGrid[0].shape[::-1], 
-                                      dtype = numpy.int32)
-            
-            self.srcGrid = esmf.EsmfStructGrid(srcMaxIndex,
+            self.srcGrid = esmf.EsmfStructGrid(srcGrid[0].shape,
                                         coordSys = self.coordSys,
                                         periodicity = self.periodicity)
-            self.srcGrid.addCoords(srcGrid, staggerloc = self.staggerloc)
+            self.srcGrid.setCoords(srcGrid, staggerloc = self.staggerloc)
             self.srcGrid.shape = srcGrid[0].shape
-            if srcMask is not None: self.srcGrid.addMask(srcMask)
+            if srcMask is not None: self.srcGrid.setCellMask(srcMask)
 
-            self.dstGrid = esmf.EsmfStructGrid(dstMaxIndex,
+            self.dstGrid = esmf.EsmfStructGrid(dstGrid[0].shape,
                                            periodicity = self.periodicity,
                                            coordSys = self.coordSys)
-            self.dstGrid.addCoords(dstGrid, staggerloc = self.staggerloc) 
+            self.dstGrid.setCoords(dstGrid, staggerloc = self.staggerloc) 
             self.dstGrid.shape = dstGrid[0].shape
-            if dstMask is not None: self.dstGrid.addMask(dstMask)
+            if dstMask is not None: self.dstGrid.setCellMask(dstMask)
 
             # Populate the grid corners. Conservative only.
             if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-                self.srcGrid.addCoords(srcBoundsCurveList,
+                self.srcGrid.setCoords(srcBoundsCurveList,
                                     staggerloc = ESMP.ESMP_STAGGERLOC_CORNER)
-                self.dstGrid.addCoords(dstBoundsCurveList,
+                self.dstGrid.setCoords(dstBoundsCurveList,
                                     staggerloc = ESMP.ESMP_STAGGERLOC_CORNER)
 
         elif rgTool == 'gsregrid' or rgTool == 'libcf':
@@ -593,12 +585,10 @@ class Regridder:
                 self.srcAreaPtr.flat = srcArea.getPointer()
                 self.dstAreaPtr.flat = dstArea.getPointer()
 
-            lats = numpy.reshape(self.dstGrid.getPointer(1, ESMP.ESMP_STAGGERLOC_CENTER), 
+            lats = numpy.reshape(self.dstGrid.getCoords(0, ESMP.ESMP_STAGGERLOC_CENTER), 
                                  outVar.shape)
-            lons = numpy.reshape(self.dstGrid.getPointer(2, ESMP.ESMP_STAGGERLOC_CENTER), 
+            lons = numpy.reshape(self.dstGrid.getCoords(1, ESMP.ESMP_STAGGERLOC_CENTER), 
                                  outVar.shape)
-            #if self.srcRank > 2:
-            #    levs = numpy.reshape(self.dstGrid.getPointer(3), outVar.shape)
 
         elif self.regridTool == 'gsregrid':
 
