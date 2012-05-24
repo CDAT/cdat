@@ -128,7 +128,7 @@ class EsmfStructGrid:
             return numpy.reshape(gridPtr, self.shapeNode)
 
     def __del__(self):
-        ESMP.EMSP_GridDestroy(self.grid)
+        ESMP.ESMP_GridDestroy(self.grid)
 
 class EsmfStructField:
     """
