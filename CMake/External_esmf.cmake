@@ -35,6 +35,8 @@ if("${emsf_enable_mpi}")
   # other possibilites are "mpich" "mpich2" "intelmpi" "lam" ...
   message("Will build ESMF assuming openmpi")
   set(esmf_comm "openmpi")
+  # on Crays it should be
+  #set(esmf_comm "mpi")
 else()
   message("Will build ESMF serial")
   set(esmf_comm "mpiuni")
