@@ -46,7 +46,7 @@ class EsmfStructGrid:
         """
         # ESMF grid object
         self.grid = None
-        # number of cells in each direction
+        # number of cells in [z,] y, x
         self.shape = shape
 
         # ESMF index order is opposite to C order, we have order
@@ -66,10 +66,30 @@ class EsmfStructGrid:
         else:
             raise RegridError, "Periodic dimensions > 2 not permitted."
 
+    def getLoHiBounds(self, staggerloc):
+        """
+        Get the lo/hi index values for the coordinates 
+                         (hi is not inclusive, lo <= index < hi)
+        @param staggerloc (e.g. ESMP.ESMP_STAGGERLOC_CENTER)
+        @return lo, hi lists
+        """
+        lo, hi = ESMP.ESMP_GridGetCoords(self.grid, staggerloc)
+        # reverse order since ESMF follows fortran order
+        return lo[::-1], hi[::-1]
+
+    def getCoordShape(self, staggerloc):
+        """
+        Get the coordinate shape 
+        @param staggerloc (e.g. ESMP.ESMP_STAGGERLOC_CENTER)
+        @return tuple 
+        """
+        lo, hi = self.getLoHiBounds(staggerloc)
+        ndims = len(self.shape)
+        return tuple( [hi[i] - lo[i] for i in range(ndims)] )
+
     def setCoords(self, coords, staggerloc = ESMP.ESMP_STAGGERLOC_CENTER):
         """
-        Populate the grid with cell centers or corners. The coordinates can be
-        coordinates (centers) or bounds (corners)
+        Populate the grid with staggered coordinates (e.g. corner or center). 
         @param coords   The curvilinear coordinates of the grid. List of numpy arrays
         @param staggerloc  The stagger location
                            ESMP.ESMP_STAGGERLOC_CENTER (default)
@@ -78,17 +98,28 @@ class EsmfStructGrid:
         hence the dimensions are reversed here. If you are receiving unexpected
         results, try reversing the order of coordinate dimensions.
         """
-        rank = len(coords[0].shape)
+        ndims = len(self.shape)
 
         # Copy the data
         ESMP.ESMP_GridAddCoord(self.grid, staggerloc=staggerloc)
 
-        for i in range(rank):
+        for i in range(ndims):
             ptr = ESMP.ESMP_GridGetCoordPtr(self.grid, i+1, staggerloc)
 
             # Populate the self.grid with coordinates or the bounds as needed
             # numpy.arrays required since numpy.ma arrays don't support flat
             ptr[:] = numpy.array(coords[i]).flat
+
+    def getCoords(self, dim, staggerloc):
+        """
+        Return the coordinates for a dimension
+        @param dim desired dimension (zero based indexing)
+        @param staggerloc Stagger location
+        """
+        # esmf uses 1-based indexing
+        gridPtr = ESMP.ESMP_GridGetCoordPtr(self.grid, dim+1, staggerloc)
+        shp = self.getCoordShape(staggerloc)
+        return numpy.reshape(gridPtr, shp)
 
     def setCellAreas(self, areas):
         """
@@ -126,37 +157,33 @@ class EsmfStructGrid:
                                         item = ESMP.ESMP_GRIDITEM_MASK)
         return numpy.reshape(maskPtr, self.shape)
 
-    def getCoords(self, dim, staggerloc):
-        """
-        Return the coordinates for a dimension
-        @param dim desired dimension (zero based indexing)
-        @param staggerloc Stagger location
-        """
-        # esmf uses 1-based indexing
-        lo, hi = ESMP.ESMP_GridGetCoord(self.grid, staggerloc)
-        gridPtr = ESMP.ESMP_GridGetCoordPtr(self.grid, dim+1, staggerloc)
-        ndims = len(self.shape)
-        # order of indices is reverse between esmf and C
-        shp = tuple( [hi[ndims-i-1] - lo[ndims-i-1] for i in range(ndims)] )
-        return numpy.reshape(gridPtr, shp)
-
     def __del__(self):
         ESMP.ESMP_GridDestroy(self.grid)
 
 class EsmfStructField:
     """
-    Create a grid field object.
+    Structured field.
     """
     def __init__(self, esmfGrid, name, data = None,
                  staggerloc = ESMP.ESMP_STAGGERLOC_CENTER):
         """
         Creator for ESMF Field
         @param esmfGrid instance of an ESMP_Grid
-        @param name field name
+        @param name field name (must be unique)
         @param data numpy ndarray of data
         @param staggerloc ESMP_STAGGERLOC_CENTER
                           ESMP_STAGGERLOC_CORNER
         """
+        # field object
+        self.field = None
+        # the local processor rank
+        self.pe = 0
+        # the number of processors
+        self.nprocs = 1
+        
+        vm = ESMP.ESMP_VMGetGlobal()
+        self.pe, self.nprocs = ESMP.ESMP_VMGet(vm)
+
         if staggerloc not in staggerlocList:
             raise cdms2.CDMSError, """
                   Grid staggering must be ESMP.ESMP_STAGGERLOC_CENTER
@@ -180,13 +207,15 @@ class EsmfStructField:
             ptr = self.getPointer()
             ptr[:] = data.flat
 
-    def getPointer(self):
+    def getPointer(self, pe=None):
         """
-        Get the field pointer to the data
-        @return pointer to field data
+        Get field data 
+        @param pe processor rank (None if local)
+        @return pointer
         """
-        pe = 0 # (serial)
-        return ESMP.ESMP_FieldGetPtr(self.field, localDe = pe)
+        if pe is None:
+            pe = self.pe
+        return ESMP.ESMP_FieldGetPtr(self.field, localDe=pe)
 
     def  __del__(self):
         ESMP.ESMP_FieldDestroy(self.field)
@@ -203,8 +232,8 @@ class EsmfRegrid:
                  unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE):
         """
         Regrid
-        @param srcField the source field object
-        @param dstField the destination field object
+        @param srcField the source field object of type EsmfStructField
+        @param dstField the destination field object of type EsmfStructField
 
         Optional:
         @param srcMaskValues Value of masked cells in source
@@ -224,9 +253,8 @@ class EsmfRegrid:
             @param maskValues list or ndarray of mask values
             @return ndarray of dtype = int32, or None if None
             """
-            if maskValues is None:
-                maskValue = None
-            elif isinstance(maskValues, list):
+            maskValue = None
+            if isinstance(maskValues, list):
                 maskValue = numpy.array(srcMaskValues, dtype = numpy.int32)
             elif isinstance(maskValues, numpy.ndarray):
                 maskValue = maskValues.copy()
@@ -253,7 +281,9 @@ class EsmfRegrid:
 
     def getArea(self, areaField):
         """
-        Compare Source mass to Destinatin mass
+        Retrieve areas from regrid object
+        @param areaField an EsmfStructField container
+        @return data pointer
         """
         ESMP.ESMP_FieldRegridGetArea(areaField.field)
         areaPtr = areaField.getPointer()
