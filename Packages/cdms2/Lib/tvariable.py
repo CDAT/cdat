@@ -736,7 +736,8 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
 
     def __getMPIType(self):
         """
-        Return the MPI type of the array
+        Return the MPI type of the array, or None
+        if no match
         """
         typ = None
         dtyp = self.dtype
