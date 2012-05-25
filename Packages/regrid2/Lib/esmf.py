@@ -278,21 +278,13 @@ class EsmfRegrid:
                                      regridmethod = regridMethod,
                                      unmappedaction = unMappedAction)
 
-    def getArea(self, areaField):
-        """
-        Retrieve areas from regrid object
-        @param areaField an EsmfStructField container
-        @return data pointer
-        """
-        ESMP.ESMP_FieldRegridGetArea(areaField.field)
-        areaPtr = areaField.getPointer()
-        return areaPtr
-
     def __call__(self, srcField=None, dstField=None):
         """
         Apply interpolation weights
-        @param srcField source field (or None if src field passed to constructor is to be used)
-        @param dstField destination field (or None if dst field passed to constructor is to be used)
+        @param srcField source field (or None if src field passed to 
+               constructor is to be used)
+        @param dstField destination field (or None if dst field passed 
+               to constructor is to be used)
         """
         if srcField == None:
             srcField = self.srcField
