@@ -9,12 +9,11 @@ modification, are permitted provided that the conditions
 specified in the license file 'license.txt' are met.
 """
 
-import ESMP
-import numpy
 import operator
+import numpy
 import cdms2
-import tables
 from regrid2 import RegridError
+import ESMP
 
 # Global variables
 method = ['bilinear', 'conservative']
@@ -48,6 +47,8 @@ class EsmfStructGrid:
         self.grid = None
         # number of cells in [z,] y, x
         self.shape = shape
+        # number of dimensions 
+        self.ndims = len(self.shape)
 
         # ESMF index order is opposite to C order, we have order
         # y, x whereas ESMF assumes x, y
@@ -65,6 +66,17 @@ class EsmfStructGrid:
                                                      coordSys = coordSys)
         else:
             raise RegridError, "Periodic dimensions > 2 not permitted."
+
+    def getLocalSlab(self, staggerloc):
+        """
+        Get the local slab (ellipsis). You can use this to grab 
+        the data local to this processor
+        @param staggerloc (e.g. ESMP.ESMP_STAGGERLOC_CENTER)
+        @return tuple of slices
+        """
+        lo, hi = self.getLoHiBounds(staggerloc)
+        return tuple([slice(lo[i], hi[i], None) \
+                          for i in range(self.ndims)])
 
     def getLoHiBounds(self, staggerloc):
         """
@@ -84,8 +96,7 @@ class EsmfStructGrid:
         @return tuple 
         """
         lo, hi = self.getLoHiBounds(staggerloc)
-        ndims = len(self.shape)
-        return tuple( [hi[i] - lo[i] for i in range(ndims)] )
+        return tuple( [hi[i] - lo[i] for i in range(self.ndims)] )
 
     def setCoords(self, coords, staggerloc = ESMP.ESMP_STAGGERLOC_CENTER):
         """
@@ -98,15 +109,12 @@ class EsmfStructGrid:
         hence the dimensions are reversed here. If you are receiving unexpected
         results, try reversing the order of coordinate dimensions.
         """
-        ndims = len(self.shape)
-
-        # Copy the data
+        # allocate space for coordinates
         ESMP.ESMP_GridAddCoord(self.grid, staggerloc=staggerloc)
 
-        for i in range(ndims):
+        for i in range(self.ndims):
             ptr = ESMP.ESMP_GridGetCoordPtr(self.grid, i+1, staggerloc)
-
-            # Populate the self.grid with coordinates or the bounds as needed
+            # Populate self.grid with coordinates or the bounds as needed
             # numpy.arrays required since numpy.ma arrays don't support flat
             ptr[:] = numpy.array(coords[i]).flat
 
@@ -376,6 +384,8 @@ def writeVSH5(filename, grid, data):
     @param grid esmf grid object containing xyz coordinates and cell connectivity
     @param data data
     """
+    import tables 
+
     title = 'test'
     h5 = tables.openFile(filename, mode = 'w', title = title)
     pointname = "TestPoints"
