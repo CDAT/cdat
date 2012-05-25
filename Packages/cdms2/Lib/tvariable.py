@@ -754,7 +754,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
             elif dtyp == numpy.int8:
                 typ = MPI.INT8_T
             else:
-                raise NotImplementedError            
+                return None          
         else:
             return typ
 
