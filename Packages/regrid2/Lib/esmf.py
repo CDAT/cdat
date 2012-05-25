@@ -49,6 +49,8 @@ class EsmfStructGrid:
         self.shape = shape
         # number of dimensions 
         self.ndims = len(self.shape)
+        # whether or not cell areas were set
+        self.cellAreasSet = False
 
         # ESMF index order is opposite to C order, we have order
         # y, x whereas ESMF assumes x, y
@@ -138,14 +140,18 @@ class EsmfStructGrid:
         areaPtr = ESMP.ESMP_GridGetItem(self.grid,
                                         item=ESMP.ESMP_GRIDITEM_AREA)
         areaPtr[:] = areas.flat
+        self.cellAreasSet = True
 
     def getCellAreas(self):
         """
-        @return cell areas
+        @return cell areas or None if setCellAreas was not called
         """
-        areaPtr = ESMP.ESMP_GridGetItem(self.grid,
-                                        item = ESMP.ESMP_GRIDITEM_AREA)
-        return numpy.reshape(areaPtr, self.shape)
+        if self.cellAreasSet:
+            areaPtr = ESMP.ESMP_GridGetItem(self.grid,
+                                            item = ESMP.ESMP_GRIDITEM_AREA)
+            return numpy.reshape(areaPtr, self.shape)
+        else:
+            return None
 
     def setCellMask(self, mask):
         """
@@ -188,6 +194,8 @@ class EsmfStructField:
         self.pe = 0
         # the number of processors
         self.nprocs = 1
+        # associated grid
+        self.grid = esmfGrid
         
         vm = ESMP.ESMP_VMGetGlobal()
         self.pe, self.nprocs = ESMP.ESMP_VMGet(vm)
@@ -254,6 +262,7 @@ class EsmfRegrid:
         """
         self.srcField = srcField
         self.dstField = dstField
+        self.regridMethod = regridMethod
 
         srcMaskValueArr = None
         if srcMaskValues is not None:
@@ -277,6 +286,36 @@ class EsmfRegrid:
                                      dstFracField = self.dstFracField,
                                      regridmethod = regridMethod,
                                      unmappedaction = unMappedAction)
+
+    def getSrcAreas(self):
+        """
+        Get the src grid areas as used by conservative interpolation
+        @return numpy array or None if interpolation is not conservative
+        """
+        if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
+            areaFld = EsmfStructField(self.srcField.grid, 
+                                      name = 'source_grid_areas', 
+                                      data = None,
+                                      staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
+            ESMP.ESMP_FieldRegridGetArea(areaFld.field)
+            shp = self.srcField.grid.getCoordShape(staggerloc=ESMP.ESMP_STAGGERLOC_CENTER)
+            return numpy.reshape(areaFld.getPointer(), shp)
+        return None
+
+    def getDstAreas(self):
+        """
+        Get the dst grid areas as used by conservative interpolation
+        @return numpy array or None if interpolation is not conservative
+        """
+        if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
+            areaFld = EsmfStructField(self.dstField.grid, 
+                                      name = 'source_grid_areas', 
+                                      data = None,
+                                      staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
+            ESMP.ESMP_FieldRegridGetArea(areaFld.field)
+            shp = self.dstField.grid.getCoordShape(staggerloc=ESMP.ESMP_STAGGERLOC_CENTER)
+            return numpy.reshape(areaFld.getPointer(), shp)
+        return None
 
     def __call__(self, srcField=None, dstField=None):
         """
