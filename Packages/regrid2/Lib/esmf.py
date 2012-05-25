@@ -73,7 +73,7 @@ class EsmfStructGrid:
         @param staggerloc (e.g. ESMP.ESMP_STAGGERLOC_CENTER)
         @return lo, hi lists
         """
-        lo, hi = ESMP.ESMP_GridGetCoords(self.grid, staggerloc)
+        lo, hi = ESMP.ESMP_GridGetCoord(self.grid, staggerloc)
         # reverse order since ESMF follows fortran order
         return lo[::-1], hi[::-1]
 
@@ -247,23 +247,14 @@ class EsmfRegrid:
         self.srcField = srcField
         self.dstField = dstField
 
-        def checkMaskValues(maskValues):
-            """
-            Check type(maskValues), convert to ndarray, dtype = int32
-            @param maskValues list or ndarray of mask values
-            @return ndarray of dtype = int32, or None if None
-            """
-            maskValue = None
-            if isinstance(maskValues, list):
-                maskValue = numpy.array(srcMaskValues, dtype = numpy.int32)
-            elif isinstance(maskValues, numpy.ndarray):
-                maskValue = maskValues.copy()
-            else:
-                raise RegridError, 'Masked values must be None, a list or numpy array'
-            return maskValue
+        srcMaskValueArr = None
+        if srcMaskValues is not None:
+            srcMaskValueArr = numpy.array(srcMaskValues, dtype=numpy.int32)
 
-        srcMaskValueArr = checkMaskValues(srcMaskValues)
-        dstMaskValueArr = checkMaskValues(dstMaskValues)
+        dstMaskValueArr = None
+        if dstMaskValues is not None:
+            dstMaskValueArr = numpy.array(dstMaskValues, dtype=numpy.int32)
+
         self.srcFracField = None
         self.dstFracField = None
         if srcFrac is not None: self.srcFracField = srcFrac.field
