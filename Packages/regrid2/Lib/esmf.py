@@ -9,20 +9,10 @@ modification, are permitted provided that the conditions
 specified in the license file 'license.txt' are met.
 """
 
-import operator
 import numpy
 import cdms2
 from regrid2 import RegridError
 import ESMP
-
-# Global variables
-method = ['bilinear', 'conservative']
-meshlocList = [ESMP.ESMP_MESHLOC_NODE, ESMP.ESMP_MESHLOC_ELEMENT]
-staggerlocList = [ESMP.ESMP_STAGGERLOC_CENTER, ESMP.ESMP_STAGGERLOC_CORNER]
-regridMethodList = [ESMP.ESMP_REGRIDMETHOD_BILINEAR,
-                    ESMP.ESMP_REGRIDMETHOD_CONSERVE]
-coordSystemsList = [ESMP.ESMP_COORDSYS_CART, ESMP.ESMP_COORDSYS_SPH_DEG,
-                    ESMP.ESMP_COORDSYS_SPH_RAD]
 
 class EsmfStructGrid:
     """
@@ -200,10 +190,6 @@ class EsmfStructField:
         vm = ESMP.ESMP_VMGetGlobal()
         self.pe, self.nprocs = ESMP.ESMP_VMGet(vm)
 
-        if staggerloc not in staggerlocList:
-            raise cdms2.CDMSError, """
-                  Grid staggering must be ESMP.ESMP_STAGGERLOC_CENTER
-                                          ESMP.ESMP_STAGGERLOC_CORNER"""
         if data is not None:
             numpyType2EsmfType = {
                 'float64': ESMP.ESMP_TYPEKIND_R8,
@@ -298,7 +284,8 @@ class EsmfRegrid:
                                       data = None,
                                       staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
             ESMP.ESMP_FieldRegridGetArea(areaFld.field)
-            shp = self.srcField.grid.getCoordShape(staggerloc=ESMP.ESMP_STAGGERLOC_CENTER)
+            staggerloc=ESMP.ESMP_STAGGERLOC_CENTER
+            shp = self.srcField.grid.getCoordShape(staggerloc=staggerloc)
             return numpy.reshape(areaFld.getPointer(), shp)
         return None
 
@@ -313,7 +300,8 @@ class EsmfRegrid:
                                       data = None,
                                       staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
             ESMP.ESMP_FieldRegridGetArea(areaFld.field)
-            shp = self.dstField.grid.getCoordShape(staggerloc=ESMP.ESMP_STAGGERLOC_CENTER)
+            staggerloc = ESMP.ESMP_STAGGERLOC_CENTER
+            shp = self.dstField.grid.getCoordShape(staggerloc=staggerloc)
             return numpy.reshape(areaFld.getPointer(), shp)
         return None
 
@@ -380,7 +368,8 @@ def getTensorProduct(axis, dim, dims):
     return numpy.outer(numpy.outer( numpy.ones(dims[:dim], axis.dtype), axis),
                       numpy.ones(dims[dim+1:], axis.dtype)).reshape(dims)
 
-def createPlot(srcCds, dstCds, data, vmin = 0, vmax = 0, savefig = False, fileName = None):
+def createPlot(srcCds, dstCds, data, vmin = 0, vmax = 0, 
+               savefig = False, fileName = None):
     """
     matplotlib.pylab plots
     @param srcCds list of source coordinates lon-lat order
@@ -425,8 +414,6 @@ def writeVSH5(filename, grid, data):
     xgroup._f_setAttr("vsType", "mesh")
     xgroup._f_setAttr("vsKind", "unstructured")
     xgroup._f_setAttr("vsQuadrilaterals", "quads")
-    carray = h5.createArray("/"+pointname, 'quads', grid.cellConn-1)
-    xarray = h5.createArray("/"+pointname, 'points', grid.xyz)
 
     darray = h5.createArray("/", dataname, data.flat[:])
     darray._f_setAttr("coordinate", "lat lon")
@@ -447,6 +434,11 @@ def testCurviLinearGrid(useMethod, useStagger, writeVTK = False,
     @param writeVTK Write out a vtk file for use in VisIt
     @param doPlot a X plot
     """
+    method = ['bilinear', 'conservative']
+    staggerlocList = [ESMP.ESMP_STAGGERLOC_CENTER, ESMP.ESMP_STAGGERLOC_CORNER]
+    regridMethodList = [ESMP.ESMP_REGRIDMETHOD_BILINEAR,
+                        ESMP.ESMP_REGRIDMETHOD_CONSERVE]
+
     print '\nCurvilinear Coordinates --', method[useMethod]
 
     unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE
@@ -457,10 +449,6 @@ def testCurviLinearGrid(useMethod, useStagger, writeVTK = False,
     snlon, snlat = 20, 10
     dnlon, dnlat = 10,  5
 
-    print ' Source'
-    srcxyz, srcDims, srcCds = _createCLGridFromAxes((-.93750, 359.0625, snlon),
-                                                   (-80.00, 80, snlat),
-                                                   useMethod)
     # Create the grid object
     print srcDims[0]
     srcESMFGrid = EsmfStructGrid(srcDims[0])
@@ -478,11 +466,6 @@ def testCurviLinearGrid(useMethod, useStagger, writeVTK = False,
 
     srcESMFField = EsmfStructField(srcESMFGrid, 'source', srcData,
                        staggerloc = staggerlocList[useStagger])
-
-    print ' Destination'
-    dstxyz, dstDims, dstCds = _createCLGridFromAxes((-.93750, 359.0625, dnlon),
-                                                   (-80.00, 80.00, dnlat),
-                                                   useMethod)
 
     # Create the grid object
     maxIndex = numpy.array(dstDims[0], dtype=numpy.int32)
@@ -521,7 +504,8 @@ def testCurviLinearGrid(useMethod, useStagger, writeVTK = False,
     dstCds = numpy.meshgrid(numpy.linspace(0, 360, dnlon-1),
                          numpy.linspace(-90, 87.712616, dnlat-1))
     if doPlot:
-        fileName = "%s_%s_test.png" % (regridMethodList[useMethod], staggerlocList[useStagger])
+        fileName = "%s_%s_test.png" % (regridMethodList[useMethod], 
+                                       staggerlocList[useStagger])
         createPlot(srcCds, dstCds, (srcData, newSrc,
                    dstData, newDst), fileName = fileName, savefig = savefig)
 
@@ -539,5 +523,6 @@ if __name__ == "__main__":
     These features are off (False) by default.
     """
     ESMP.ESMP_Initialize()
-    testCurviLinearGrid(0, 0,writeVTK = False, doPlot = True, savefig = False)  # Curvilinear world
+    # Curvilinear world
+    testCurviLinearGrid(0, 0, writeVTK = False, doPlot = True, savefig = False)
     ESMP.ESMP_Finalize()
