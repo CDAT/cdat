@@ -1,3 +1,14 @@
+#!/usr/bin/env python
+
+"""
+Copyright (c) 2008-2012, Tech-X Corporation
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the conditions
+specified in the license file 'license.txt' are met.
+"""
+
 import ESMP
 import numpy
 import operator
@@ -58,7 +69,7 @@ class EsmfStructGrid:
         """
         Populate the grid with cell centers or corners. The coordinates can be
         coordinates (centers) or bounds (corners)
-        @param coords   The coordinates of for the grid. List of numpy arrays
+        @param coords   The curvilinear coordinates of the grid. List of numpy arrays
         @param staggerloc  The stagger location
                            ESMP.ESMP_STAGGERLOC_CENTER (default)
                            ESMP.ESMP_STAGGERLOC_CORNER
@@ -74,7 +85,7 @@ class EsmfStructGrid:
         for i in range(rank):
             ptr = ESMP.ESMP_GridGetCoordPtr(self.grid, i+1, staggerloc)
 
-            # Poplulate the self.grid with coordinates or the bounds as needed
+            # Populate the self.grid with coordinates or the bounds as needed
             # numpy.arrays required since numpy.ma arrays don't support flat
             ptr[:] = numpy.array(coords[i]).flat
 
