@@ -44,14 +44,15 @@ class EsmfStructGrid:
                            2 Periodic in x, y axes
 
         """
+        # ESMF grid object
         self.grid = None
+        # number of cells in each direction
         self.shape = shape
+
         # ESMF index order is opposite to C order, we have order
         # y, x whereas ESMF assumes x, y
         maxIndex = numpy.array(shape[::-1], dtype = numpy.int32)
 
-        # Initialize
-        self.maskValues = None
 
         if periodicity == 0:
             self.grid = ESMP.ESMP_GridCreateNoPeriDim(maxIndex,
@@ -132,11 +133,12 @@ class EsmfStructGrid:
         @param staggerloc Stagger location
         """
         # esmf uses 1-based indexing
+        lo, hi = ESMP.ESMP_GridGetCoord(self.grid, staggerloc)
         gridPtr = ESMP.ESMP_GridGetCoordPtr(self.grid, dim+1, staggerloc)
-        if staggerloc == ESMP.ESMP_STAGGERLOC_CENTER:
-            return numpy.reshape(gridPtr, self.shape)
-        elif staggerloc == ESMP.ESMP_STAGGERLOC_CORNER:
-            return numpy.reshape(gridPtr, self.shapeNode)
+        ndims = len(self.shape)
+        # order of indices is reverse between esmf and C
+        shp = tuple( [hi[ndims-i-1] - lo[ndims-i-1] for i in range(ndims)] )
+        return numpy.reshape(gridPtr, shp)
 
     def __del__(self):
         ESMP.ESMP_GridDestroy(self.grid)
