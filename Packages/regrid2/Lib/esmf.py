@@ -110,7 +110,7 @@ class EsmfStructGrid:
             ptr = ESMP.ESMP_GridGetCoordPtr(self.grid, i+1, staggerloc)
             # Populate self.grid with coordinates or the bounds as needed
             # numpy.arrays required since numpy.ma arrays don't support flat
-            ptr[:] = numpy.array(coords[i]).flat
+            ptr[:] = numpy.array(coords[self.ndims-i-1]).flat
 
     def getCoords(self, dim, staggerloc):
         """
