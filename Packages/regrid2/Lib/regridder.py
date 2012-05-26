@@ -4,7 +4,6 @@ import cdms2
 from cdms2 import gsRegrid
 import regrid2
 from regrid2 import RegridError
-import ESMP
 import re
 
 # Test for the presence of esmp.
