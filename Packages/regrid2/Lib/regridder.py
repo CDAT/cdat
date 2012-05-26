@@ -97,7 +97,7 @@ def _checkBndOrder(bnd):
 def _makeCrdsFromBounds(coords = None):
     """
     Need to build a mesh that is nodal for the ESMF regridding to work
-    consevatively. The models use both 1d and 2d axes.
+    conservatively. The models use both 1d and 2d axes.
     @param list of coordinates [lon, lat]
     """
     if coords is None:
@@ -805,14 +805,3 @@ class Regridder:
                                            fill_value = missing)
 
         return result
-
-    def __del__(self):
-        """
-        Destructor
-        """
-        if self.regridTool == 'esmp':
-            pass
-
-            # Why does this fail?
-            # esmf.finalize()
-
