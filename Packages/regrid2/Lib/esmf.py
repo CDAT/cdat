@@ -7,6 +7,8 @@ All rights reserved.
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the conditions
 specified in the license file 'license.txt' are met.
+
+Authors: David Kindig and Alex Pletzer
 """
 
 import numpy

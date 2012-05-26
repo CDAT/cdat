@@ -1,3 +1,16 @@
+#!/usr/bin/env python
+
+"""
+Copyright (c) 2008-2012, Tech-X Corporation
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the conditions
+specified in the license file 'license.txt' are met.
+
+Authors: David Kindig and Alex Pletzer
+"""
+
 import numpy
 import copy
 import cdms2
@@ -6,21 +19,17 @@ import regrid2
 from regrid2 import RegridError
 import re
 
-# Test for the presence of esmp.
-esmfpyImported = False
-esmpImported = False
+# Test for the presence of esmp/esmf.
+ESMP_IMPORTED = False
 try:
     from regrid2 import esmf
-    esmfpyImported = True
     try:
         import ESMP
-        esmpImported = True
+        ESMP_IMPORTED = True
     except:
         pass
 except:
     pass
-
-if esmfpyImported and esmpImported: esmfImported = True
 
 def _setMaskDtype(mask):
     """
@@ -289,10 +298,9 @@ class Regridder:
                 import scrip
                 """
         elif re.match('esm', rgTool):
-            if not esmfImported:
+            if not ESMP_IMPORTED:
                 string = "ESMP is not installed or is unable to be imported"
                 raise RegridError, string
-            self.esmfImported = esmfImported
             self.regridTool = 'esmp'
 
             # Set some required values
@@ -492,7 +500,7 @@ class Regridder:
         elif self.regridTool == 'scrip':
             pass
         elif self.regridTool == 'esmp':
-            if not self.esmfImported:
+            if not ESMP_IMPORTED:
                 string = "ESMP is not installed or is unable to be imported"
                 raise RegridError, string
 
