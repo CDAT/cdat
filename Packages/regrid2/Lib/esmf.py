@@ -16,6 +16,109 @@ import cdms2
 from regrid2 import RegridError
 import ESMP
 
+class EsmfUnstructGrid:
+    """
+    Unstructured grid
+    """
+    def __init__(self, numTopoDims, numSpaceDims):
+        """
+        Constructor
+        @param numTopoDims number of topological dimensions
+        @param numSpaceDims number of space dimensions
+        """
+        # handle to the grid object
+        self.grid = None
+        # whether or not nodes were added
+        self.nodesAdded = False
+        # whether or not cells were added
+        self.cellsAdded = False
+        # the local processor rank
+        self.pe = 0
+        # number of porcessors
+        self.nprocs = 1
+
+        vm = ESMP.ESMP_VMGetGlobal()
+        self.pe, self.nprocs = ESMP.ESMP_VMGet(vm)
+        
+        self.grid = ESMP.ESMP_MeshCreate(numTopoDims, numSpaceDims)
+
+    def setCells(self, cellIndices, cellTypes, connectivity, 
+                 cellMask=None, cellAreas=None):
+        """
+        Set Cell connectivity
+        @param cell indices (0-based)
+        @param cellTypes one of ESMP_MESHELEMTYPE_{TRI,QUAD,TETRA,HEX}
+        @param connectivity node connectivity array, see below for node ordering
+        @param cellMask 
+        @param cellAreas area (volume) of each cell
+
+
+                     3                          4 ---------- 3
+                    / \                         |            |  
+                   /   \                        |            |
+                  /     \                       |            |
+                 /       \                      |            |
+                /         \                     |            |
+               1 --------- 2                    1 ---------- 2
+
+
+                                            
+                 3                               8---------------7
+                /|\                             /|              /|
+               / | \                           / |             / |
+              /  |  \                         /  |            /  |
+             /   |   \                       /   |           /   |
+            /    |    \                     5---------------6    |
+           4-----|-----2                    |    |          |    |
+            \    |    /                     |    4----------|----3
+             \   |   /                      |   /           |   /
+              \  |  /                       |  /            |  /
+               \ | /                        | /             | /
+                \|/                         |/              |/
+                 1                          1---------------2
+
+       ESMP_MESHELEMTYPE_TETRA             ESMP_MESHELEMTYPE_HEX  
+         
+        """
+        n = len(cellIndices)
+        if not self.cellsAdded:
+            # node/cell indices are 1-based in ESMP
+            cellIndices += 1
+            connectivity += 1
+            ESMP.ESMP_MeshAddElements(self.grid, n, cellIndices, cellTypes, 
+                                      connectivity, elementMask=cellMask, 
+                                      elementArea=cellAreas)
+        self.cellsAdded = True
+
+    def setNodes(self, indices, coords, peOwners=None):
+        """
+        Set the nodal coordinates
+        @param indices Ids of the nodes (0-based)
+        @param coords nodal coordinates 
+        @param peOwners processor ranks where the coordinates reside (0-based)
+        """
+        n = len(indices)
+        if not self.nodesAdded:
+            if peOwners is None:
+                peOwners = numpy.ones((n,), numpy.int32) * self.pe
+            # node indices are 1-based
+            indices += 1
+            ESMP.ESMP_MeshAddNodes(self.grid, n, indices, coords, peOwners)
+        self.nodesAdded = True
+
+    def toVTK(self, filename):
+        """
+        Write grid to VTK file format
+        @param filename VTK file name
+        """
+        ESMP.ESMP_MeshWrite(self.grid, filename)
+        
+
+    def __del__(self):
+        ESMP.ESMP_MeshDestroy(self.grid)
+    
+################################################################################
+
 class EsmfStructGrid:
     """
     Structured grid
@@ -43,6 +146,10 @@ class EsmfStructGrid:
         self.ndims = len(self.shape)
         # whether or not cell areas were set
         self.cellAreasSet = False
+        # whether or not nodal coords were set
+        self.nodesSet = False
+        # whether or not cell centered coordinates were set
+        self.centersSet = False
 
         # ESMF index order is opposite to C order, we have order
         # y, x whereas ESMF assumes x, y
@@ -104,7 +211,12 @@ class EsmfStructGrid:
         results, try reversing the order of coordinate dimensions.
         """
         # allocate space for coordinates
-        ESMP.ESMP_GridAddCoord(self.grid, staggerloc=staggerloc)
+        if staggerloc ==  ESMP.ESMP_STAGGERLOC_CENTER and not self.centersSet:
+            ESMP.ESMP_GridAddCoord(self.grid, staggerloc=staggerloc)
+            self.centersSet = True
+        elif staggerloc ==  ESMP.ESMP_STAGGERLOC_CORNER and not self.nodesSet:
+            ESMP.ESMP_GridAddCoord(self.grid, staggerloc=staggerloc)
+            self.nodesSet = True
 
         for i in range(self.ndims):
             ptr = ESMP.ESMP_GridGetCoordPtr(self.grid, i+1, staggerloc)
@@ -166,6 +278,8 @@ class EsmfStructGrid:
     def __del__(self):
         ESMP.ESMP_GridDestroy(self.grid)
 
+################################################################################
+
 class EsmfStructField:
     """
     Structured field.
@@ -223,6 +337,8 @@ class EsmfStructField:
 
     def  __del__(self):
         ESMP.ESMP_FieldDestroy(self.field)
+
+################################################################################
 
 class EsmfRegrid:
     """
