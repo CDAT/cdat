@@ -84,7 +84,9 @@ class EsmfUnstructGrid:
         if not self.cellsAdded:
             # node/cell indices are 1-based in ESMP
             cellIndices += 1
-            connectivity += 1
+            #connectivity += 1 # connectivity is zero-based!
+            print 'cellIndices = ', cellIndices
+            print 'connectivity = ', connectivity
             ESMP.ESMP_MeshAddElements(self.grid, n, cellIndices, cellTypes, 
                                       connectivity, elementMask=cellMask, 
                                       elementArea=cellAreas)
