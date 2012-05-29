@@ -3,12 +3,9 @@ set(esmf_source "${CMAKE_CURRENT_BINARY_DIR}/build/esmf" CACHE INTERNAL "")
 set(esmf_install "${cdat_EXTERNALS}" CACHE INTERNAL "")
 set(esmf_pthreads "OFF")
 
-# Set the os
-if(LINUX)
-  set(esmf_os "Linux")
-elseif(APPLE)
-  set(esmf_os "Darwin")
-endif()
+set(esmf_os "${CDAT_BUILD_ESMF_OS}")
+set(esmf_compiler "${CDAT_BUILD_ESMF_COMPILER}")
+set(esmf_abi "${CDAT_BUILD_ESMF_ABI}")
 
 # check if ESMF should be built in parallel
 set(emsf_enable_mpi FALSE)
@@ -32,11 +29,8 @@ if("${emsf_enable_mpi}" AND "${MPI_C_COMPILER}" STREQUAL "MPI_C_COMPILER_NOTFOUN
   set(emsf_enable_mpi FALSE)
 endif()
 if("${emsf_enable_mpi}")
-  # other possibilites are "mpich" "mpich2" "intelmpi" "lam" ...
-  message("Will build ESMF assuming openmpi")
-  set(esmf_comm "openmpi")
-  # on Crays it should be
-  #set(esmf_comm "mpi")
+  # default is openmpi
+  set(esmf_comm "${CDAT_BUILD_ESMF_COMM}")
 else()
   message("Will build ESMF serial")
   set(esmf_comm "mpiuni")
