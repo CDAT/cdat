@@ -486,6 +486,30 @@ endif(Matplotlib_FOUND)
 add_cdat_package(GEOS)
 add_cdat_package(basemap)
 
+option(CDAT_BUILD_SHAPELY "Build Shapely python module to represent geometric oiobjects and apply predicates and operations on these objects" OFF)
+
+if (CDAT_BUILD_SHAPELY)
+  find_package(Shapely)
+  if (Shapely_FOUND)
+    message("We found Shapely")
+  else (Shapely_FOUND)
+    message("We will build Shapely for you")
+    add_cdat_package(Shapely)
+  endif(Shapely_FOUND)
+endif()
+
+option(CDAT_BUILD_GDAL "Build the Geospatial Data Abstraction Library (GDAL) and python osgeo module " OFF)
+
+if (CDAT_BUILD_GDAL)
+  find_package(Gdal)
+  if (Gdal_FOUND)
+    message("We found GDAL")
+  else (Gdal_FOUND)
+    message("We will build GDAL for you")
+    add_cdat_package(gdal)
+  endif(Gdal_FOUND)
+endif()
+
 add_cdat_package(CMOR)
 add_cdat_package(CDAT)
 add_cdat_package(gui_support)
@@ -668,6 +692,7 @@ set(Matplotlib_DEPENDENCIES ${PyQt_dep} ${Cairo_dep} ${NUMPY_dep} )
 set(Mpi4py_DEPENDENCIES ${NUMPY_dep} )
 
 set(GEOS_DEPENDENCIES ${Matplotlib_dep} )
+set(Shapely_DEPENDENCIES ${GEOS_dep} )
 set(basemap_DEPENDENCIES ${GEOS_dep} )
 set(pyspharm_DEPENDENCIES ${NUMPY_dep})
 
