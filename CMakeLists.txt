@@ -486,8 +486,9 @@ endif(Matplotlib_FOUND)
 add_cdat_package(GEOS)
 add_cdat_package(basemap)
 
-# turn off for the time being (Pletzer)
-if (FALSE)
+option(CDAT_BUILD_SHAPELY "Build Shapely python module to represent geometric oiobjects and apply predicates and operations on these objects" OFF)
+
+if (CDAT_BUILD_SHAPELY)
 find_package(Shapely)
 if (Shapely_FOUND)
   message("We found Shapely")
