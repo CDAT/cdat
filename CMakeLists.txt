@@ -53,6 +53,7 @@ if(APPLE)
 
   if("${CMAKE_OSX_DEPLOYMENT_TARGET}" STREQUAL "")
     set(CMAKE_OSX_ARCHITECTURES "x86_64" CACHE STRING "" FORCE)
+    set(CMAKE_OSX_ARCHITECTURES_M "64" CACHE STRING "" FORCE)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "${OSX_VER_MAJOR}.${OSX_VER_MINOR}" CACHE STRING "" FORCE)
   endif()
 
@@ -205,11 +206,12 @@ endif()
 if(APPLE)
   set(cdat_apple_compiler_args
     -DCMAKE_OSX_ARCHITECTURES:STRING=${CMAKE_OSX_ARCHITECTURES}
+    -DCMAKE_OSX_ARCHITECTURES_M:STRING=${CMAKE_OSX_ARCHITECTURES_M}
     -DCMAKE_OSX_DEPLOYMENT_TARGET:STRING=${CMAKE_OSX_DEPLOYMENT_TARGET}
     -DCMAKE_OSX_SYSROOT:PATH=${CMAKE_OSX_SYSROOT})
 
-  set(cdat_osx_arch_flag "-arch ${CMAKE_OSX_ARCHITECTURES} -Xarch_${CMAKE_OSX_ARCHITECTURES}")
-  set(cdat_osx_arch_flag_fortran "-arch ${CMAKE_OSX_ARCHITECTURES}")
+  set(cdat_osx_arch_flag "-m${CMAKE_OSX_ARCHITECTURES_M}")
+  set(cdat_osx_arch_flag_fortran "-m${CMAKE_OSX_ARCHITECTURES_M}")
   set(cdat_osx_version_flag "-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
   set(cdat_osx_sysroot "-isysroot ${CMAKE_OSX_SYSROOT}")
   set(cdat_osx_flags "${cdat_osx_arch_flag} ${cdat_osx_version_flag} ${cdat_osx_sysroot} -pipe")
