@@ -506,7 +506,7 @@ if (CDAT_BUILD_GDAL)
     message("We found GDAL")
   else (Gdal_FOUND)
     message("We will build GDAL for you")
-    add_cdat_package(Gdal)
+    add_cdat_package(gdal)
   endif(Gdal_FOUND)
 endif()
 
