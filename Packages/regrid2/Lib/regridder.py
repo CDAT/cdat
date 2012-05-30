@@ -96,7 +96,7 @@ def _makeCoordsFromBounds(coords):
     ndims = len(coords)
     # last coordinates can be curvilinear
     shp = coords[-1].shape
-    dimsNodes = [i + 1 for i in shp]
+    dimNodes = [i + 1 for i in shp]
     rank = len(shp)
 
     bounds = []
