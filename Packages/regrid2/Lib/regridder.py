@@ -247,7 +247,7 @@ class Regridder:
                                ESMP is a synonym.
                         scrip - many options but requires a remapping file from
                                 SCRIP
-        @param regridMethod Conservative, Mutlilinear. Some regrid tools use
+        @param regridMethod Conservative, linear. Some regrid tools use
                         only bilinear or multilinear
         @param toCurvilinear Return a curvilinear grid instead of the 
                         input grid
@@ -312,165 +312,186 @@ class Regridder:
             raise RegridError, msg
 
         elif re.match('esm', rgTool):
-            if not ESMP_IMPORTED:
-                msg = 'regridder::Regridder.__init__: '
-                msg += 'ESMP is not installed or is unable to be imported'
-                raise RegridError, msg
-            self.regridTool = 'esmp'
+            self.computeWeightsEsmf(inGrid, outGrid, **args)
 
-            # Set some required values
-            self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE
-            self.staggerloc = ESMP.ESMP_STAGGERLOC_CENTER
-            self.coordSys = ESMP.ESMP_COORDSYS_SPH_DEG
-            self.periodicity = None
-            makeCyclic = False
-            handleCut = False
-            srcBounds = None
-            dstBounds = None
-            srcMaskValues = None
-            dstMaskValues = None
-
-            for arg in args:
-                if re.search('unmappedaction', arg.lower()):
-                    unMappedAction = args[arg]
-                    if re.search('error', unMappedAction):
-                        self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_ERROR
-                if re.search('periodicity', arg.lower()):
-                    self.periodicity = args[arg]
-                if re.search('cycl', arg.lower()):
-                    makeCyclic = True
-                if re.search('handle', arg.lower()):
-                    handleCut = True
-                if re.search('staggerloc', arg.lower()):
-                    if re.search('corner', args[arg].lower()):
-                        self.staggerloc = ESMP.ESMP_STAGGERLOC_CORNER
-                    elif re.search('center', args[arg].lower()):
-                        self.staggerloc = ESMP.ESMP_STAGGERLOC_CENTER
-                    else:
-                        msg = 'regridder::Regridder.__init__: '
-                        msg += 'invalid stagger location ("center" or "corner")'
-                        raise RegridError, msg
-                if re.search('coordsys', arg.lower()):
-                    if isinstance(args[arg], str):
-                        if re.search('cart', args[arg].lower()):
-                            self.coordSys = ESMP.ESMP_COORDSYS_CART
-                        elif re.search('deg', args[arg].lower()):
-                            self.coordSys = ESMP.ESMP_COORDSYS_SPH_DEG
-                        elif re.search('rad', args[arg].lower()):
-                            self.coordSys = ESMP.ESMP_COORDSYS_SPH_RAD
-                        else:
-                            msg = 'regridder::Regridder.__init__: '
-                            msg += 'invalid coordinate system ("cart", "deg", or "rad")'
-                            raise RegridError, msg
-
-            # If xxxMaskValues in arguments, set them for later in __call__
-            for arg in args.keys():
-                if re.search('srcmaskvalue', arg.lower()):
-                    self.srcMaskValue = numpy.array([args[arg]], 
-                                                     dtype = numpy.int32)
-                if re.search('dstmaskvalue', arg.lower()):
-                    self.dstMaskValue = numpy.array([args[arg]], 
-                                                    dtype = numpy.int32)
-            if srcMask is not None and self.srcMaskValue is None:
-                self.srcMaskValue = [1]
-            if dstMask is not None and self.dstMaskValue is None:
-                self.dstMaskValue = [1]
-
-            # Set the regridding method - Bilinear / Conservative
-            if regridMethod is None or regridMethod.lower() == 'bilinear':
-                self.regridMethod = ESMP.ESMP_REGRIDMETHOD_BILINEAR
-            else:
-                self.regridMethod = ESMP.ESMP_REGRIDMETHOD_CONSERVE
-
-            # Want 2D coordinates in a list [lat, lon]
-            # Choices list, TransientAxis2D, TransientRectAxis
-            srcGrid, self.srcRank = _makeGridList(inGrid)
-            if self.srcRank > 1:
-                srcGrid, srcSpatial = cdms2.gsRegrid.makeCurvilinear(srcGrid)
-
-            dstGrid, self.dstRank = _makeGridList(outGrid)
-            if self.dstRank > 1:
-                dstGrid, dstSpatial = cdms2.gsRegrid.makeCurvilinear(dstGrid)
-
-            # Convert bounds to curvilinear grids
-            srcBoundsCurveList = None
-            dstBoundsCurveList = None
-            self.location = ESMP.ESMP_STAGGERLOC_CORNER
-            # Dont need bounds for bilinear
-            if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-                if srcBounds is None:
-                    srcBoundsCurveList = _makeBoundsCurveList(inGrid)
-                if dstBounds is None:
-                    dstBoundsCurveList = _makeBoundsCurveList(self.outGrid)
-
-            # Use non periodic boundaries unless the user says otherwise
-            # not set by the user.
-            if self.periodicity is None:
-                self.periodicity = 0
-
-            # Create the ESMP grids
-            self.srcGrid = esmf.EsmfStructGrid(srcGrid[0].shape,
-                                        coordSys = self.coordSys,
-                                        periodicity = self.periodicity)
-            self.srcGrid.setCoords(srcGrid, staggerloc = self.staggerloc)
-            self.srcGrid.shape = srcGrid[0].shape
-            if srcMask is not None: self.srcGrid.setCellMask(srcMask)
-
-            self.dstGrid = esmf.EsmfStructGrid(dstGrid[0].shape,
-                                           periodicity = self.periodicity,
-                                           coordSys = self.coordSys)
-            self.dstGrid.setCoords(dstGrid, staggerloc = self.staggerloc) 
-            self.dstGrid.shape = dstGrid[0].shape
-            if dstMask is not None: self.dstGrid.setCellMask(dstMask)
-
-            # Populate the grid corners. Conservative only.
-            if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-                self.srcGrid.setCoords(srcBoundsCurveList,
-                                    staggerloc = ESMP.ESMP_STAGGERLOC_CORNER)
-                self.dstGrid.setCoords(dstBoundsCurveList,
-                                    staggerloc = ESMP.ESMP_STAGGERLOC_CORNER)
 
         elif rgTool == 'gsregrid' or rgTool == 'libcf':
-            # Prep in and out grid for gsRegrid!
-            self.srcGrid, self.srcRank = _makeGridList(inGrid)
-            self.dstGrid, self.dstRank = _makeGridList(outGrid)
+            self.computeWeightsLibcf(inGrid, outGrid, **args)
 
-            if self.dstRank != self.srcRank:
-                msg = 'regridder::Regridder.__init__: '
-                msg += 'outGrid rank (%d) != inGrid rank (%d)' % \
-                    (self.dstRank, self.srcRank)
-                raise RegridError, msg
-
-            # Create the regrid object
-            ro = cdms2.gsRegrid.Regrid(self.srcGrid, self.dstGrid)
-
-            # Set the source mask
-            if srcMask is not None:
-
-                if len(srcMask.shape) > 3:
-                    msg = 'regridder:Regridder.__init__: '
-                    msg += 'ranks greater than three are not supported'
-                    raise RegridError, msg
-
-                self.srcMask = numpy.array(srcMask, dtype = numpy.int32)
-                ro.setMask(self.srcMask)
-
-            # Compute the weights
-            self.nitermax = 20
-            self.nlat = self.dstGrid[0].shape[0]
-            self.tolpos = 0.01 * 180. / (self.nlat-1)
-            if 'nitermax' in args.keys():
-                self.nitermax = args['nitermax']
-            if 'tolpos' in args.keys():
-                self.tolpos = args['tolpos']
-            ro.computeWeights(nitermax = self.nitermax,
-                              tolpos   = self.tolpos)
-            self.regridTool = 'gsregrid'
-            self.regridObj = ro
         else:
             msg = 'regridder::Regridder.__init__: '
             msg += 'invalid regrid tool ("regrid2", "gsRegrid", or "esmf")'
             raise RegridError, msg
+
+    def computeWeightsEsmf(self, inGrid, outGrid, **args):
+        """
+        Compute interpolation weights using ESMF
+        @param inGrid cdms2 input grid object
+        @param outGrid cdms2 output grid object
+        @param args optional arguments
+        """
+        if not ESMP_IMPORTED:
+            msg = 'regridder::Regridder.computeWeightsEsmf: '
+            msg += 'ESMP is not installed or is unable to be imported'
+            raise RegridError, msg
+        self.regridTool = 'esmp'
+
+        # Set some required values
+        self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE
+        self.staggerloc = ESMP.ESMP_STAGGERLOC_CENTER
+        self.coordSys = ESMP.ESMP_COORDSYS_SPH_DEG
+        self.periodicity = None
+        makeCyclic = False
+        handleCut = False
+        srcBounds = None
+        dstBounds = None
+        srcMaskValues = None
+        dstMaskValues = None
+
+        for arg in args:
+            if re.search('unmappedaction', arg.lower()):
+                unMappedAction = args[arg]
+                if re.search('error', unMappedAction):
+                    self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_ERROR
+            if re.search('periodicity', arg.lower()):
+                self.periodicity = args[arg]
+            if re.search('cycl', arg.lower()):
+                makeCyclic = True
+            if re.search('handle', arg.lower()):
+                handleCut = True
+            if re.search('staggerloc', arg.lower()):
+                if re.search('corner', args[arg].lower()):
+                    self.staggerloc = ESMP.ESMP_STAGGERLOC_CORNER
+                elif re.search('center', args[arg].lower()):
+                    self.staggerloc = ESMP.ESMP_STAGGERLOC_CENTER
+                else:
+                    msg = 'regridder::Regridder.__init__: '
+                    msg += 'invalid stagger location ("center" or "corner")'
+                    raise RegridError, msg
+            if re.search('coordsys', arg.lower()):
+                if isinstance(args[arg], str):
+                    if re.search('cart', args[arg].lower()):
+                        self.coordSys = ESMP.ESMP_COORDSYS_CART
+                    elif re.search('deg', args[arg].lower()):
+                        self.coordSys = ESMP.ESMP_COORDSYS_SPH_DEG
+                    elif re.search('rad', args[arg].lower()):
+                        self.coordSys = ESMP.ESMP_COORDSYS_SPH_RAD
+                    else:
+                        msg = 'regridder::Regridder.computeWeightsEsmf: '
+                        msg += 'invalid coordinate system ("cart", "deg", or "rad")'
+                        raise RegridError, msg
+
+        # If xxxMaskValues in arguments, set them for later in __call__
+        for arg in args.keys():
+            if re.search('srcmaskvalue', arg.lower()):
+                self.srcMaskValue = numpy.array([args[arg]], 
+                                                 dtype = numpy.int32)
+            if re.search('dstmaskvalue', arg.lower()):
+                self.dstMaskValue = numpy.array([args[arg]], 
+                                                dtype = numpy.int32)
+        if self.srcMask is not None and self.srcMaskValue is None:
+            self.srcMaskValue = [1]
+        if self.dstMask is not None and self.dstMaskValue is None:
+            self.dstMaskValue = [1]
+
+        # Set the regridding method - Bilinear / Conservative
+        if self.regridMethod is None or self.regridMethod.lower() == 'bilinear':
+            self.regridMethod = ESMP.ESMP_REGRIDMETHOD_BILINEAR
+        else:
+            self.regridMethod = ESMP.ESMP_REGRIDMETHOD_CONSERVE
+
+        # Want 2D coordinates in a list [lat, lon]
+        # Choices list, TransientAxis2D, TransientRectAxis
+        srcGrid, self.srcRank = _makeGridList(inGrid)
+        if self.srcRank > 1:
+            srcGrid, srcSpatial = cdms2.gsRegrid.makeCurvilinear(srcGrid)
+
+        dstGrid, self.dstRank = _makeGridList(outGrid)
+        if self.dstRank > 1:
+            dstGrid, dstSpatial = cdms2.gsRegrid.makeCurvilinear(dstGrid)
+
+        # Convert bounds to curvilinear grids
+        srcBoundsCurveList = None
+        dstBoundsCurveList = None
+        self.location = ESMP.ESMP_STAGGERLOC_CORNER
+        # Dont need bounds for bilinear
+        if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
+            if srcBounds is None:
+                srcBoundsCurveList = _makeBoundsCurveList(inGrid)
+            if dstBounds is None:
+                dstBoundsCurveList = _makeBoundsCurveList(self.outGrid)
+
+        # Use non periodic boundaries unless the user says otherwise
+        # not set by the user.
+        if self.periodicity is None:
+            self.periodicity = 0
+
+        # Create the ESMP grids
+        self.srcGrid = esmf.EsmfStructGrid(srcGrid[0].shape,
+                                    coordSys = self.coordSys,
+                                    periodicity = self.periodicity)
+        self.srcGrid.setCoords(srcGrid, staggerloc = self.staggerloc)
+        self.srcGrid.shape = srcGrid[0].shape
+        if self.srcMask is not None: self.srcGrid.setCellMask(self.srcMask)
+
+        self.dstGrid = esmf.EsmfStructGrid(dstGrid[0].shape,
+                                       periodicity = self.periodicity,
+                                       coordSys = self.coordSys)
+        self.dstGrid.setCoords(dstGrid, staggerloc = self.staggerloc) 
+        self.dstGrid.shape = dstGrid[0].shape
+        if self.dstMask is not None: self.dstGrid.setCellMask(self.dstMask)
+
+        # Populate the grid corners. Conservative only.
+        if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
+            self.srcGrid.setCoords(srcBoundsCurveList,
+                                staggerloc = ESMP.ESMP_STAGGERLOC_CORNER)
+            self.dstGrid.setCoords(dstBoundsCurveList,
+                                staggerloc = ESMP.ESMP_STAGGERLOC_CORNER)
+
+    def computeWeightsLibcf(self, inGrid, outGrid, **args):
+        """
+        Compute interpolation weights using ESMF
+        @param inGrid cdms2 input grid object
+        @param outGrid cdms2 output grid object
+        @param args optional arguments
+        """
+        # Prep in and out grid for gsRegrid!
+        self.srcGrid, self.srcRank = _makeGridList(inGrid)
+        self.dstGrid, self.dstRank = _makeGridList(outGrid)
+
+        if self.dstRank != self.srcRank:
+            msg = 'regridder::Regridder.computeWeightsLibcf: '
+            msg += 'outGrid rank (%d) != inGrid rank (%d)' % \
+                (self.dstRank, self.srcRank)
+            raise RegridError, msg
+
+        # Create the regrid object
+        ro = cdms2.gsRegrid.Regrid(self.srcGrid, self.dstGrid)
+
+        # Set the source mask
+        if self.srcMask is not None:
+
+            if len(self.srcMask.shape) > 3:
+                msg = 'regridder:Regridder.computeWeightsLibcf: '
+                msg += 'ranks greater than three are not supported'
+                raise RegridError, msg
+
+            self.srcMask = numpy.array(self.srcMask, dtype = numpy.int32)
+            ro.setMask(self.srcMask)
+
+        # Compute the weights
+        self.nitermax = 20
+        self.nlat = self.dstGrid[0].shape[0]
+        self.tolpos = 0.01 * 180. / (self.nlat-1)
+        if 'nitermax' in args.keys():
+            self.nitermax = args['nitermax']
+        if 'tolpos' in args.keys():
+            self.tolpos = args['tolpos']
+
+        ro.computeWeights(nitermax = self.nitermax, tolpos = self.tolpos)
+
+        self.regridTool = 'gsregrid'
+        self.regridObj = ro
 
     def applyEsmf(self, inData, **args):
         """
