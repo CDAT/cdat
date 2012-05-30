@@ -296,6 +296,11 @@ find_package(Qt4 REQUIRED)
 option(CDAT_BUILD_ESMF_ESMP "Build python version Earth System Modeling Framework" OFF)
 option(CDAT_BUILD_ESMF_PARALLEL "Build parallel version of Earth System Modeling Framework library" OFF)
 
+# the following may need to be adjusted on Crays, otherwise the defaults will likely apply
+set(CDAT_BUILD_ESMF_OS "${CMAKE_SYSTEM_NAME}" CACHE STRING "ESMF_OS env variable, may need to change to Unicos on Crays")
+set(CDAT_BUILD_ESMF_COMPILER "gfortran" CACHE STRING "ESMF_COMPILER env variable, choices are gfortran, intel, pgi, g95, or nag")
+set(CDAT_BUILD_ESMF_COMM "openmpi" CACHE STRING "ESMF_COMM env variable, choices are openmpi, mpiuni, mpi, mpich2, or mvapich2")
+set(CDAT_BUILD_ESMF_ABI "64" CACHE STRING "ESMF_ABI env variable, choices are 32 or 64")
 
 # Attempt to find each package on the system
 
@@ -488,6 +493,30 @@ endif(Matplotlib_FOUND)
 add_cdat_package(GEOS)
 add_cdat_package(basemap)
 
+option(CDAT_BUILD_SHAPELY "Build Shapely python module to represent geometric oiobjects and apply predicates and operations on these objects" OFF)
+
+if (CDAT_BUILD_SHAPELY)
+  find_package(Shapely)
+  if (Shapely_FOUND)
+    message("We found Shapely")
+  else (Shapely_FOUND)
+    message("We will build Shapely for you")
+    add_cdat_package(Shapely)
+  endif(Shapely_FOUND)
+endif()
+
+option(CDAT_BUILD_GDAL "Build the Geospatial Data Abstraction Library (GDAL) and python osgeo module " OFF)
+
+if (CDAT_BUILD_GDAL)
+  find_package(Gdal)
+  if (Gdal_FOUND)
+    message("We found GDAL")
+  else (Gdal_FOUND)
+    message("We will build GDAL for you")
+    add_cdat_package(gdal)
+  endif(Gdal_FOUND)
+endif()
+
 add_cdat_package(CMOR)
 add_cdat_package(CDAT)
 add_cdat_package(gui_support)
@@ -501,22 +530,8 @@ if(CDAT_BUILD_ESMF_ESMP)
     # GNU gfortran must be >= 4.3
     if(${Fortran_MAJOR_VERSION} GREATER 3 AND ${Fortran_MINOR_VERSION} GREATER 2)
       ## On APPLE need to test for -arch as well!
-      if (APPLE)
-         execute_process(COMMAND gfortran dummy.f90 -o dummy_test_gfortran COMMAND  rm dummy_test_gfortran
-    	                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/CMake
- 			 OUTPUT_VARIABLE GFOR_OUT
-			 ERROR_VARIABLE GFOR_ERR 		  
-  			 RESULT_VARIABLE res)
-         if (NOT ${res} EQUAL 0)	  
-      	    message("    gfortran needs to understand -arch to build ESMF\n${GFOR_OUT}\n${GFOR_ERR}\n${res}")
-    	 else (NOT ${res} EQUAL 0)
-            add_cdat_package(esmf)
-      	    add_cdat_package(esmp)
-	 endif (NOT ${res} EQUAL 0)
-      else (APPLE)
          add_cdat_package(esmf)
          add_cdat_package(esmp)
-      endif (APPLE)
     else()
       message("    Skipping ESMF")
       message("    gfortran version needs to be at least 4.3 to install ESMF")
@@ -667,10 +682,12 @@ set(gui_support_DEPENDENCIES ${CDAT_dep})
 #set(VisTrails_DEPENDENCIES ${ParaView_dep} ${CDAT_dep})
 set(Matplotlib_DEPENDENCIES ${PyQt_dep} ${Cairo_dep} ${NUMPY_dep} )
 
-set(Mpi4py_DEPENDENCIES ${NUMPY_dep} )
+set(Mpi4py_DEPENDENCIES ${NUMPY_dep})
 
-set(GEOS_DEPENDENCIES ${Matplotlib_dep} )
-set(basemap_DEPENDENCIES ${GEOS_dep} )
+set(GEOS_DEPENDENCIES ${Matplotlib_dep})
+set(Shapely_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${GEOS_dep})
+set(gdal_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${NetCDF_dep} ${HDF5_dep} ${CURL_dep} ${zlib_dep})
+set(basemap_DEPENDENCIES ${GEOS_dep})
 set(pyspharm_DEPENDENCIES ${NUMPY_dep})
 
 list(REMOVE_DUPLICATES external_packages)

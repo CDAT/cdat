@@ -2,12 +2,12 @@
 include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
 
 set(ENV{ESMF_DIR} @esmf_source@)
-set(ENV{ESMF_OS} @esmf_os@) 
 set(ENV{ESMF_INSTALL_PREFIX} @esmf_install@)
+
+set(ENV{ESMF_OS} @esmf_os@)
+set(ENV{ESMF_COMPILER} @esmf_compiler@)
 set(ENV{ESMF_COMM} @esmf_comm@)
-#set(ENV{ESMF_ABI} 64 or 32}
-# on leadership class facility machines, will need 
-#set(ENV{ESMF_COMPILER} pgi or intel)
+set(ENV{ESMF_ABI} @esmf_abi@)
 
 # make should be detected by CMAKE at some point
 execute_process(
