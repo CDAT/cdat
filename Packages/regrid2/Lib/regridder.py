@@ -73,14 +73,13 @@ def _hasMask(data):
         return True
     return False
 
-def _makeCrdsFromBounds(coords = None):
+def _makeCrdsFromBounds(coords):
     """
-    Need to build a mesh that is nodal for the ESMF regridding to work
-    conservatively. The models use both 1d and 2d axes.
-    @param list of coordinates [lon, lat]
+    Build nodal mesh.
+    @param coords list of coordinates [..., y, x], x, y, ... can be axes or 
+                  curvilinear coordinates.
     """
-    if coords is None:
-        raise RegridError, 'Coordinates required'
+
     if not isinstance(coords, list):
         raise RegridError, 'Coordinates must be a list'
 
