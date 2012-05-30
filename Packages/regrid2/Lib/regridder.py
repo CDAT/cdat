@@ -203,34 +203,10 @@ class Regridder:
     Regridding object. Wrapper class to run all of the different regridding
     tools available within UV-CDAT
 
-    Optional keyword arguments for each type of regridder
-            gsRegrid accepts nitermax and tolpos for computing the weights
-            ESMP accepts src(dst)MaskValue and periodicity
-
-    List of regridTools. cdms2.gsRegrid is the default
-    "Libcf":    LibCF regridder. Handles curvilinear grids and 3D
-    "gsRegrid": Same as libcf
-            Optional args:
-               src_bounds=None, mkCyclic=False, handleCut=False, diagnostics=False 
-
-    "regrid2":  Original horizontal regridder
-            Optional args:
-                missing=None, order=None, mask=None, returnTuple=0
-
-    "ESMF":     Earth System Modelling Framework.
-                For more information
-                http://www.earthsystemmodeling.org/users/python_doc/html/index.html,
-    "ESMP":     Same as ESMF,
-            Optional args:
-                
-
-    "SCRIP":    Not implemented in regridder. Run as stand alone for now
-                SCRIP regridder.
-            Optional Packages. ScripRegridder, ConservativeRegridder, BilinearRegridder
-                               BicubicRegridder, DistwgtRegridder
     """
+
     def __init__(self, inGrid, outGrid, srcMask = None, dstMask = None,
-                 regridTool = "gsRegrid", regridMethod = "bilinear", 
+                 regridTool = "gsRegrid", regridMethod = "linear", 
                  toCurvilinear = False, **args):
         """
         Constructor
@@ -243,12 +219,12 @@ class Regridder:
         @param regridTool Which regridder to use.
                         regrid2 - uses only axis CDAT original regriding tool
                         gsRegrid - curviliner grids - libcf is a synonym
-                        esmf - curvilinear grids, axes, bilinear, conservative.
+                        esmf - curvilinear grids, axes, linear, conservative.
                                ESMP is a synonym.
                         scrip - many options but requires a remapping file from
                                 SCRIP
         @param regridMethod Conservative, linear. Some regrid tools use
-                        only bilinear or multilinear
+                        only linear
         @param toCurvilinear Return a curvilinear grid instead of the 
                         input grid
         @param **args Optional keyword arguments for each type of regridder
@@ -275,13 +251,10 @@ class Regridder:
 
         "SCRIP":    Not implemented in regridder. Run as stand alone for now
                     SCRIP regridder.
-                Optional Packages. ScripRegridder, ConservativeRegridder, BilinearRegridder
-                                   BicubicRegridder, DistwgtRegridder
         """
+
         if regridTool is None:
             regridTool = 'gsregrid'
-        if regridMethod is None:
-            regridMethod = 'bilinear'
         rgTool = regridTool.lower()
         rgMeth = regridMethod.lower()
         self.regridTool = rgTool
@@ -395,7 +368,7 @@ class Regridder:
             self.dstMaskValue = [1]
 
         # Set the regridding method - Bilinear / Conservative
-        if self.regridMethod is None or self.regridMethod.lower() == 'bilinear':
+        if re.search('linear', self.regridMethod.lower()):
             self.regridMethod = ESMP.ESMP_REGRIDMETHOD_BILINEAR
         else:
             self.regridMethod = ESMP.ESMP_REGRIDMETHOD_CONSERVE
