@@ -31,18 +31,12 @@ try:
 except:
     pass
 
-def _setMaskDtype(mask):
-    """
-    Convert a mask to int32
-    @param mask the mask to be converted
-    """
-    if mask.dtype != numpy.int32:
-        if mask.dtype == numpy.bool:
-            mask = numpy.array(mask, numpy.int32)
-        elif mask.dtypye == numpy.bool8:
-            mask = numpy.array(mask, numpy.int32)
-
-    return mask
+MPI_IMPORTED = False
+try:
+    from pi4py import MPI
+    MPI_IMPORTED = True
+except:
+    pass
 
 def _makeGridList(grid):
     """
@@ -437,7 +431,7 @@ class Regridder:
                 if len(srcMask.shape) > 3:
                     raise RegridError, \
                            'Ranks greater than three are not supported'
-                self.srcMask = _setMaskDtype(srcMask)
+                self.srcMask = numpy.array(srcMask, dtype = numpy.int32)
                 ro.setMask(self.srcMask)
 
             # Compute the weights
