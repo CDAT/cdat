@@ -64,16 +64,14 @@ def _makeGridList(grid):
                            'at least two.'
     return retGrid, nSpatial
 
-def hasMask(data):
+def _hasMask(data):
     """
     Does the data provided contain a mask?
     @param data
     """
-    hasMask = False
-    if hasattr(data, 'mask'):
-        if data.mask.size > 1:
-            hasMask = True
-    return hasMask
+    if hasattr(data, 'mask') and data.mask.size > 1:
+        return True
+    return False
 
 def _checkBndOrder(bnd):
     if bnd[0] <= bnd[1] and bnd[1] >= bnd[2]:
@@ -561,7 +559,7 @@ class Regridder:
 
             # Set the output mask if available
             outMask = None
-            if hasMask(inData) or self.outMask is not None:
+            if _hasMask(inData) or self.outMask is not None:
                 attrs = ('missing_value','fill_value',)
                 missing = None
                 for att in attrs:
@@ -595,7 +593,7 @@ class Regridder:
 
             # The data has a mask and the mask has not been set previously
             # If the mask is then set, the weights must be computed...
-            if hasMask(inData) and self.regridObj.maskSet is False:
+            if _hasMask(inData) and self.regridObj.maskSet is False:
                 # Reset the weightsComputed flag since they will be recalculated
                 self.regridObj.weightsComputed = False
                 self.regridObj.setMask(inData.mask)
@@ -706,7 +704,7 @@ class Regridder:
                     
             # Correct the shape of output weights
             amskout = numpy.ma.ones(outVar.shape, numpy.bool8)
-            if hasMask(inData):
+            if _hasMask(inData):
                 if inputIsVariable == 1:
                     if inData.fill_value is not None:
                         amskout = 1 - (outVar == inData.fill_value)
