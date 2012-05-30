@@ -56,12 +56,16 @@ def _makeGridList(grid):
         nSpatial = len(grid)
         retGrid = copy.copy(grid)
     else:
-        raise RegridError, 'Grid must be a list of coordinates or a cdms2 grid'
+        msg = 'regridder::_makeGridList: '
+        msg += 'grid must be a list of coordinates or a cdms2 grid'
+        raise RegridError, msg
 
     # Check the number of coordinates
     if nSpatial < 2:
-        raise RegridError, 'Only one coordinate found. Regridding needs' + \
-                           'at least two.'
+        msg = 'regridder::_makeGridList: '
+        msg += 'only one coordinate found. Regridding needs at least two.'
+        raise RegridError, msg
+
     return retGrid, nSpatial
 
 def _hasMask(data):
@@ -82,13 +86,19 @@ def _makeCoordsFromBounds(coords):
     """
 
     if not isinstance(coords, list):
-        raise RegridError, 'Coordinates must be a list'
+        msg = 'regridder::_makeCoordsFromBounds: '
+        msg += 'coordinates must be a list'
+        raise RegridError, msg
 
     coordNodes = []
     dimNodes = []
 
     ndims = len(coords)
-    rank = len(coords[-1].shape)
+    # last coordinates can be curvilinear
+    shp = coords[-1].shape
+    dimsNodes = [i + 1 for i in shp]
+    rank = len(shp)
+
     bounds = []
     for c in coords:
         if hasattr(c, 'getBounds'):
@@ -96,7 +106,10 @@ def _makeCoordsFromBounds(coords):
         elif hasattr(c, 'genGenericBounds'):
             bounds.append(c.genGenericBounds())
         else:
-            raise RegridError, "Bounds cannot be found or created"
+            msg = 'regridder::_makeCoordsFromBounds: '
+            msg += 'bounds cannot be found or created'
+            raise RegridError, msg
+
 
     if rank == 1:
         
@@ -107,37 +120,56 @@ def _makeCoordsFromBounds(coords):
         for i in range(ndims):
             coordNodes[i][:-1] = bounds[i][ :, 0]
             coordNodes[i][ -1] = bounds[i][-1, 1]
-
-        return coordNodes, dimNodes
              
-    elif rank == 2:
+    elif rank == 2 and ndims == 2:
 
-        # 2-d axes have the same dimensions for each
-        nj = coords[0].shape[0]+1
-        ni = coords[0].shape[1]+1
+        # CF conventions assume counterclockwise ordering of bounds 
+        # starting from the lower left corner
+        coordNodes = [numpy.zeros(dimNodes, numpy.float64) \
+                          for i in range(ndims)]
+        for i in range(ndims):
+            coordNodes[i][:-1, :-1] = bounds[i][ :,  :, 0]
+            coordNodes[i][:-1,  -1] = bounds[i][ :, -1, 1] # right
+            coordNodes[i][ -1,  -1] = bounds[i][-1, -1, 2] # top right corner
+            coordNodes[i][ -1, :-1] = bounds[i][-1,  :, 3] # top
 
-        newMeshLons = numpy.zeros((nj, ni), numpy.float64)
-        newMeshLats = numpy.zeros((nj, ni), numpy.float64)
-        mnj, mni, nnj, nni = nj-1, ni-1, nj-2, ni-2
+    elif rank == 3 and ndims == 3:
 
-        newMeshLons[:mnj, :mni] = bounds[1][  :,   :, 0] # interior
-        newMeshLats[:mnj, :mni] = bounds[0][  :,   :, 0]
+        # 3d curvilinear 
+        coordNodes = [numpy.zeros(dimNodes, numpy.float64) \
+                          for i in range(ndims)]
+        for i in range(ndims):
+            coordNodes[i][:-1, :-1, :-1] = bounds[i][ :,  :,  :, 0]
+            coordNodes[i][:-1, :-1,  -1] = bounds[i][ :,  :, -1, 1]
+            coordNodes[i][:-1,  -1,  -1] = bounds[i][ :, -1, -1, 2]
+            coordNodes[i][:-1,  -1, :-1] = bounds[i][ :, -1,  :, 3]
+            coordNodes[i][ -1, :-1, :-1] = bounds[i][-1,  :,  :, 4]
+            coordNodes[i][ -1, :-1,  -1] = bounds[i][-1,  :, -1, 5]
+            coordNodes[i][ -1,  -1,  -1] = bounds[i][-1, -1, -1, 6]
+            coordNodes[i][ -1,  -1, :-1] = bounds[i][-1, -1,  :, 7]
 
-        newMeshLons[:mnj,   -1] = bounds[1][  :,  -1, 1] # lower
-        newMeshLats[:mnj,   -1] = bounds[0][  :,  -1, 1]
+    elif rank == 2 and ndims == 3:
+        
+        # 2d curvilinear and one vertical axis
+        dimNodes[0] = len(coords[0]) + 1
+        coordNodes = [numpy.zeros([dimNodes[0],], numpy.float64)] \
+            + [numpy.zeros(dimNodes[1:], numpy.float64) \
+                   for i in range(1, ndims)]
 
-        newMeshLons[  -1,   -1] = bounds[1][ -1,  -1, 2] # upper right corner
-        newMeshLats[  -1,   -1] = bounds[0][ -1,  -1, 2]
-
-        newMeshLons[  -1, :mni] = bounds[1][ -1,   :, 3] # upper
-        newMeshLats[  -1, :mni] = bounds[0][ -1,   :, 3]
-
-        gridDims = (nj, ni)
-
+        coordNodes[0][:-1] = bounds[0][ :, 0]
+        coordNodes[0][ -1] = bounds[0][-1, 1]
+        for i in range(1, ndims):
+            coordNodes[i][:-1, :-1] = bounds[i][ :,  :, 0]
+            coordNodes[i][:-1,  -1] = bounds[i][ :, -1, 1] # right
+            coordNodes[i][ -1,  -1] = bounds[i][-1, -1, 2] # top right corner
+            coordNodes[i][ -1, :-1] = bounds[i][-1,  :, 3] # top
+        
     else:
-        raise RegridError, '3D+ interp not supported yet...'
+        msg = 'regridder::_makeCoordsFromBounds: '
+        msg += 'some funky combination of axes and curvilinear coordinates'
+        raise RegridError, msg
 
-    return [newMeshLats, newMeshLons], gridDims
+    return coordNodes, dimNodes
 
 def _makeBoundsCurveList(grid):
     """
@@ -159,8 +191,9 @@ def _makeBoundsCurveList(grid):
         g = [grid.getLatitude(), grid.getLongitude()]
         bounds, newDims = _makeCoordsFromBounds(g)
     else:
-        message = "Input grid must be a list of grids"
-        raise RegridError, message
+        msg = 'regridder::_makeBoundsCurveList: '
+        msg += 'input grid must be a list of grids'
+        raise RegridError, msg
 
     boundsCurve, dims = cdms2.gsRegrid.makeCurvilinear(bounds)
     return boundsCurve
@@ -272,14 +305,15 @@ class Regridder:
             self.regridObj = regrid2.Horizontal(inGrid, outGrid)
             self.regridTool = 'regrid2'
         elif rgTool == 'scrip':
-            raise RegridError, """
-                SCRIP has not yet been implemented in regridder. Use:
-                import scrip
-                """
+            msg = 'regridder::Regridder.__init__: '
+            msg += 'SCRIP has not yet been implemented in Regrid'
+            raise RegridError, msg
+
         elif re.match('esm', rgTool):
             if not ESMP_IMPORTED:
-                string = "ESMP is not installed or is unable to be imported"
-                raise RegridError, string
+                msg = 'regridder::Regridder.__init__: '
+                msg += 'ESMP is not installed or is unable to be imported'
+                raise RegridError, msg
             self.regridTool = 'esmp'
 
             # Set some required values
@@ -311,11 +345,9 @@ class Regridder:
                     elif re.search('center', args[arg].lower()):
                         self.staggerloc = ESMP.ESMP_STAGGERLOC_CENTER
                     else:
-                        string = """
-            ESMP stagger locations are:
-                ESMP.ESMP_STAGGERLOC_CENTER (Default)
-                ESMP.ESMP_STAGGERLOC_CORNER """
-                        raise RegridError, string
+                        msg = 'regridder::Regridder.__init__: '
+                        msg += 'invalid stagger location ("center" or "corner")'
+                        raise RegridError, msg
                 if re.search('coordsys', arg.lower()):
                     if isinstance(args[arg], str):
                         if re.search('cart', args[arg].lower()):
@@ -325,12 +357,9 @@ class Regridder:
                         elif re.search('rad', args[arg].lower()):
                             self.coordSys = ESMP.ESMP_COORDSYS_SPH_RAD
                         else:
-                            string = """
-            ESMP coordinate systems are:
-                ESMP.ESMP_COORDSYS_SPH_DEG (Default)
-                ESMP.ESMP_COORDSYS_CART
-                ESMP.ESMP_COORDSYS_SPH_DEG"""
-                            raise RegridError, string
+                            msg = 'regridder::Regridder.__init__: '
+                            msg += 'invalid coordinate system ("cart", "deg", or "rad")'
+                            raise RegridError, msg
 
             # If xxxMaskValues in arguments, set them for later in __call__
             for arg in args.keys():
@@ -405,17 +434,22 @@ class Regridder:
             self.dstGrid, self.dstRank = _makeGridList(outGrid)
 
             if self.dstRank != self.srcRank:
-                raise RegridError, 'outGrid rank (%d) != inGrid rank (%d)' % \
-                                   (self.dstRank, self.srcRank)
+                msg = 'regridder::Regridder.__init__: '
+                msg += 'outGrid rank (%d) != inGrid rank (%d)' % \
+                    (self.dstRank, self.srcRank)
+                raise RegridError, msg
 
             # Create the regrid object
             ro = cdms2.gsRegrid.Regrid(self.srcGrid, self.dstGrid)
 
             # Set the source mask
             if srcMask is not None:
+
                 if len(srcMask.shape) > 3:
-                    raise RegridError, \
-                           'Ranks greater than three are not supported'
+                    msg = 'regridder:Regridder.__init__: '
+                    msg += 'ranks greater than three are not supported'
+                    raise RegridError, msg
+
                 self.srcMask = numpy.array(srcMask, dtype = numpy.int32)
                 ro.setMask(self.srcMask)
 
@@ -432,9 +466,9 @@ class Regridder:
             self.regridTool = 'gsregrid'
             self.regridObj = ro
         else:
-            raise RegridError, ''' Regrid tools are: regrid2,
-                  (gsRegrid or libcf),
-                  (esmf or esmp)'''
+            msg = 'regridder::Regridder.__init__: '
+            msg += 'invalid regrid tool ("regrid2", "gsRegrid", or "esmf")'
+            raise RegridError, msg
 
     def __call__(self, inData, **args):
         """
@@ -480,8 +514,9 @@ class Regridder:
             pass
         elif self.regridTool == 'esmp':
             if not ESMP_IMPORTED:
-                string = "ESMP is not installed or is unable to be imported"
-                raise RegridError, string
+                msg = 'regridder::Regridder.__call__: '
+                msg += 'ESMP is not installed or is unable to be imported'
+                raise RegridError, msg
 
             if self.location is None:
                 location = ESMP.ESMP_STAGGERLOC_CENTER
@@ -630,8 +665,10 @@ class Regridder:
                                 list(axisList)
                     outShape = inData.shape
                 else:
-                    raise RegridError, \
-                          'Ranks > 4 currently not supported though this API'
+                    msg = 'regridder::Regridder.__call__: '
+                    msg += 'ranks > 4 currently not supported'
+                    raise RegridError, msg
+
                 axisList = tuple(axisList)
             else:
                 outShape = self.regridObj.dst_dims[:]
@@ -646,10 +683,11 @@ class Regridder:
             elif hasattr(inData, 'fill_value'):
                 outVar = outVar * inData.fill_value
             if len(outVar.shape) != len(inData.shape):
-                string = "outVar and inData have different shapes outVar.shape"
-                string = "%s = %s inVar.shape = %s: " % \
+                msg = 'regridder::Regridder.__call__: '
+                msg += 'outVar and inData have different shapes outVar.shape'
+                msg += '%s = %s inVar.shape = %s: ' % \
                              (string, str(outVar.shape), str(inData.shape))
-                raise RegridError, string
+                raise RegridError, msg
 
             # Convert to masked array
             outVar = numpy.ma.array(outVar, mask = self.outMask)
@@ -674,13 +712,16 @@ class Regridder:
                     for iLevel in range(nLevel):
                         self.regridObj(inData[iLevel, ...], outVar[iLevel, ...])
                 else:
-                    raise RegridError, 'Third dimension is not time or level'
+                    msg = 'regridder::Regridder.__call__: '
+                    msg += '3rd most slowly varying dimension is neither time nor level'
+                    raise msg
+
             elif rank == 4:
                 if hasTime is None or hasLevel is None:
-                    string = "regrid2.Regridder can only handle time, lev, lat"
-                    string = string + "\n, lon regridding. Use regrid2.ESMP or"
-                    string = string + "\ncdms2.gsRegrid"
-                    raise RegridError, string
+                    msg = 'regridder::Regridder.__call__: '
+                    msg += 'rank 4 data must have time and level'
+                    raise RegridError, msg
+
                 else:
                     nLevel = len(inData.getLevel())
                     nTime = len(inData.getTime())
