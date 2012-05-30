@@ -694,11 +694,12 @@ set(gui_support_DEPENDENCIES ${CDAT_dep})
 #set(VisTrails_DEPENDENCIES ${ParaView_dep} ${CDAT_dep})
 set(Matplotlib_DEPENDENCIES ${PyQt_dep} ${Cairo_dep} ${NUMPY_dep} )
 
-set(Mpi4py_DEPENDENCIES ${NUMPY_dep} )
+set(Mpi4py_DEPENDENCIES ${NUMPY_dep})
 
-set(GEOS_DEPENDENCIES ${Matplotlib_dep} )
-set(Shapely_DEPENDENCIES ${GEOS_dep} )
-set(basemap_DEPENDENCIES ${GEOS_dep} )
+set(GEOS_DEPENDENCIES ${Matplotlib_dep})
+set(Shapely_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${GEOS_dep})
+set(gdal_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${NetCDF_dep} ${HDF5_dep} ${CURL_dep} ${zlib_dep})
+set(basemap_DEPENDENCIES ${GEOS_dep})
 set(pyspharm_DEPENDENCIES ${NUMPY_dep})
 
 list(REMOVE_DUPLICATES external_packages)
