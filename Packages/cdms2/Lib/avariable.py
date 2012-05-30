@@ -48,7 +48,7 @@ class AbstractVariable(CdmsObj, Slab):
         if variableNode is not None and variableNode.tag !='variable':
             raise CDMSError, 'Node is not a variable node'
         CdmsObj.__init__(self, variableNode)
-        val = self.__cdms_internals__ + ['id','domain',"autoApiInfo"]
+        val = self.__cdms_internals__ + ['id','domain']
         self.___cdms_internals__ = val 
         Slab.__init__(self)
         self.id = None                  # Transient variables key on this to create a default ID
@@ -148,10 +148,10 @@ class AbstractVariable(CdmsObj, Slab):
         return result
 
     def generateGridkey(self, convention, vardict):
-        """ generateGridkey(): Determine if the variable is gridded, and
-        generate ((latname, lonname, order, maskname, class), lat, lon) if
-        gridded, or (None, None, None) if not gridded. vardict is the variable
-        dictionary of the parent """
+        """ generateGridkey(): Determine if the variable is gridded, 
+            and generate ((latname, lonname, order, maskname, class), lat, lon) if gridded,
+            or (None, None, None) if not gridded. vardict is the variable dictionary of the parent"""
+
         lat, nlat = convention.getVarLatId(self, vardict)
         lon, nlon = convention.getVarLonId(self, vardict)
         if (lat is not None) and (lat is lon):
@@ -353,8 +353,8 @@ class AbstractVariable(CdmsObj, Slab):
             pass
         else:
             raise CDMSError, 'Invalid missing value %s'%`value`
-
-        self._missing = value
+        
+        self.missing_value = value
 
 
     def getTime(self):
@@ -876,17 +876,42 @@ class AbstractVariable(CdmsObj, Slab):
             return self
         return MV.transpose (self, permutation)
 
-    def regrid (self, togrid, missing=None, order=None, mask=None):
-        """return self regridded to the new grid. Keyword arguments
-        are as for regrid.Regridder."""
+    def regrid (self, togrid, missing=None, order=None, mask=None, **keywords):
+        """return self regridded to the new grid.  
+        One can use the regrid2.Regridder optional arguments as well.
+
+        Example:
+        new_cdmsVar = cdmsVar.regrid(newGrid)  # Uses gsRegrid (aka: LibCF)
+        new_cdmsVar = cdmsVar.regrid(newGrid, regridTool = 'ESMF', 
+                                     regridMethod = 'Conservative,
+                                     coordSys = 'Cart')
+
+        If you wish to use ESMF, SCRIP or the original regrid2 use for example:
+        from regrid2 import Regridder
+        regridObject = Regridder(sourceGrid, destingGrid, regridTool = 'ESMF')
+        new_cdmsVar = regridObject(sourcecdmsVar)
+
+        @param togrid Desination grid. CDMS grid
+        @param missing Missing values
+        @param order axis order
+        @param mask grid/data mask
+        @param Optional keywords dependent on regridTool
+        @return Regridded variable
+        """
         from regrid2 import Regridder
 
         if togrid is None: 
             return self
         else:
-            fromgrid = self.getGrid()
-            regridf = Regridder(fromgrid, togrid)
-            result = regridf(self, missing=missing, order=order, mask=mask)
+
+            srcMask = None
+            if not numpy.all(self.mask == False):
+                srcMask = self.mask
+            
+            fromgrid = self.getGrid() # returns horizontal grid only
+            regridf = Regridder(fromgrid, togrid, srcMask = srcMask, **keywords)
+            result = regridf(self, missing=missing, order=order, mask=mask, 
+                             **keywords)
             return result
 
     def pressureRegrid (self, newLevel, missing=None, order=None, method="log"):

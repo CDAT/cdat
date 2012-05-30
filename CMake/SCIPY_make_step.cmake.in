@@ -1,0 +1,20 @@
+message("Building SCIPY:\n@SCIPY_binary@")
+set(ENV{@LIBRARY_PATH@} "@CMAKE_INSTALL_PREFIX@/lib:@cdat_EXTERNALS@/lib:$ENV{@LIBRARY_PATH@}")
+set(ENV{VS_UNICODE_OUTPUT} "")
+
+if(APPLE)
+    set(ENV{CFLAGS} "@cdat_osx_arch_flag@ @cdat_osx_version_flag@ @cdat_osx_sysroot@")
+endif()
+
+execute_process(
+  COMMAND "@PYTHON_EXECUTABLE@" setup.py build
+  WORKING_DIRECTORY "@SCIPY_binary@"
+  RESULT_VARIABLE res
+  OUTPUT_VARIABLE SCIPY_OUT
+  OUTPUT_VARIABLE SCIPY_ERR)
+
+if(NOT ${res} EQUAL 0)
+  message("SCIPY Errors detected: \n${SCIPY_OUT}\n${SCIPY_ERR}")
+  message(FATAL_ERROR "Error in config of SCIPY")
+endif()
+message("Scipy build worked.")

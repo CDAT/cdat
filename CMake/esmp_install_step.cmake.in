@@ -8,13 +8,13 @@ foreach( item ${esmp_esmfmkfile})
 endforeach( item ${esmp_esmfmkfile})
 
 execute_process(
-  COMMAND @PYTHON_EXECUTABLE@ configure.py
+  COMMAND @PYTHON_EXECUTABLE@ generateESMP_Config.py
   WORKING_DIRECTORY ""
   OUTPUT_VARIABLE CDAT_OUT
   ERROR_VARIABLE CDAT_ERR
   RESULT_VARIABLE res)
 
-file(INSTALL @esmp_source@ DESTINATION @esmp_install@)
+file(INSTALL @esmp_source@ DESTINATION @PYTHONPATH@)
 
 if(NOT ${res} EQUAL 0)
   message("Install Errors detected: \n${CDAT_OUT}\n${CDAT_ERR}")

@@ -4,7 +4,7 @@ if(NOT APPLE)
 endif()
 
 execute_process(
-  COMMAND ${make}
+  COMMAND make
   WORKING_DIRECTORY "${WORKING_DIR}"
   RESULT_VARIABLE res)
 

@@ -45,8 +45,8 @@
 #include "vcs_canvas.h"
 #include "color_editor.h"
 #include "project.h"
-#include <cairo.h>
-#include <cairo-ft.h>
+#include <cairo/cairo.h>
+#include <cairo/cairo-ft.h>
 
 
 #define PyInit_VCS init_vcs
@@ -19696,9 +19696,9 @@ PyVCS_printer(PyVCScanvas_Object *self, PyObject *args)
 	}
 
 	/* Get the correct UNIX printer command for ATT or BSD */
-        strcpy(printer_type_str, " | lp -d");
+        strcpy(printer_type_str, " | lp -o fit-to-page -d");
         if ((printer_type=(char *)getenv((const char *)"PRINTER"))!=NULL)
-           strcpy(printer_type_str, " | lpr -P");
+           strcpy(printer_type_str, " | lpr -o fit-to-page -P");
 
         /* Set the orientation to portrait. Landscape is the default setting.
          * If orientation is "p" or "P", the set to portrait. Anything else

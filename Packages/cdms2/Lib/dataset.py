@@ -544,7 +544,7 @@ class Dataset(CdmsObj, cuDataset):
                     # but now there _may_ be an additional item before path...
                     for varm1 in varmap:
                         tstart, tend, levstart, levend = varm1[0:4]
-                        if (len(varmap)>=6):
+                        if (len(varm1)>=6):
                             forecast = varm1[4]
                         else:
                             forecast = None
@@ -865,10 +865,13 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
         self._mode_ = mode
         try:
             if mode[0].lower()=="w":
-                os.remove(path)
+                try:
+                    os.remove(path)
+                except:
+                    pass
             _fileobj_ = Cdunif.CdunifFile (path, mode)
-        except:
-            raise CDMSError, 'Cannot open file %s'%path
+        except Exception,err:
+            raise CDMSError, 'Cannot open file %s (%s)'%(path,err)
         self._file_ = _fileobj_   # Cdunif file object
         self.variables = {}
         self.axes = {}

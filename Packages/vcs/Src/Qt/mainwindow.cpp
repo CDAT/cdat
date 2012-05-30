@@ -1,4 +1,4 @@
-#include <cairo.h>
+#include <cairo/cairo.h>
 #include "mainwindow.h"
 #include <Python.h>
 #include <QtCore/QEvent>
@@ -419,7 +419,8 @@ bool MainWindow::event(QEvent *event)
   }
   else if (event->type()==VCS_RESIZE_EVENT) {
     this->resize(static_cast<QVCSEvent *>(event)->geom.size());
-    if ((static_cast<QVCSEvent *>(event)->geom.topLeft()!=this->pos())) {
+    QVCSEvent* vces = static_cast<QVCSEvent *>(event);
+    if (vces->geom.x()>=0 && vces->geom.y()>=0 && vces->geom.topLeft()!=this->pos()) {
       this->move(static_cast<QVCSEvent *>(event)->geom.topLeft());
     }
   }
@@ -597,7 +598,7 @@ void MainWindow::unsetupCairo()
 
 void MainWindow::paintEvent(QPaintEvent *)
 {
-  QPainter painter;
+  QPainter painter;  
   vcs_acquire_update();
   painter.begin(this);
   if (this->image == NULL) {
@@ -629,7 +630,7 @@ void MainWindow::paintEvent(QPaintEvent *)
     }
   }
   else {
-    // painter.fillRect(0,0,this->geometry().width(),this->geometry().height(),Qt::white);
+    painter.fillRect(0,0,this->geometry().width(),this->geometry().height(),Qt::white);
     QPointF origin(0.,0.);
     QImage img ((uchar *)this->image,this->geometry().width(),this->geometry().height(),QImage::Format_ARGB32_Premultiplied);
     painter.drawImage(origin,img);
