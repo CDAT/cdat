@@ -73,19 +73,6 @@ def _hasMask(data):
         return True
     return False
 
-def _checkBndOrder(bnd):
-    if bnd[0] <= bnd[1] and bnd[1] >= bnd[2]:
-        order = (0, 1, 2, 3)
-    elif bnd[0] <= bnd[1] and bnd[1] <= bnd[2]:
-        order = (0, 1, 2, 3)
-    elif bnd[0] >= bnd[1] and bnd[1] <= bnd[2]:
-        order = (2, 3, 0, 1)
-    elif bnd[0] >= bnd[1] and bnd[1] >= bnd[2]:
-        order = (3, 0, 1, 2)
-    else:
-        order = bnd
-    return order
-
 def _makeCrdsFromBounds(coords = None):
     """
     Need to build a mesh that is nodal for the ESMF regridding to work
@@ -134,16 +121,17 @@ def _makeCrdsFromBounds(coords = None):
         newMeshLats = numpy.zeros((nj, ni), numpy.float64)
         mnj, mni, nnj, nni = nj-1, ni-1, nj-2, ni-2
 
-        o = _checkBndOrder(bounds[1][0, 0, :])
+        newMeshLons[:mnj, :mni] = bounds[1][  :,   :, 0] # interior
+        newMeshLats[:mnj, :mni] = bounds[0][  :,   :, 0]
 
-        newMeshLons[:mnj, :mni] = bounds[1][  :,   :, o[0]] # Lower Left
-        newMeshLats[:mnj, :mni] = bounds[0][  :,   :, o[0]] # Lower Left
-        newMeshLons[:mnj,   -1] = bounds[1][  :,  -1, o[1]] # Right Edge
-        newMeshLats[:mnj,   -1] = bounds[0][  :,  -1, o[1]] # Right Edge
-        newMeshLons[  -1, :mni] = bounds[1][ -1,   :, o[3]] # Top Row
-        newMeshLats[  -1, :mni] = bounds[0][ -1,   :, o[3]] # Top Row
-        newMeshLons[  -1,   -1] = bounds[1][ -1,  -1, o[2]] # Upper Right corner
-        newMeshLats[  -1,   -1] = bounds[0][ -1,  -1, o[2]] # Upper Right corner
+        newMeshLons[:mnj,   -1] = bounds[1][  :,  -1, 1] # lower
+        newMeshLats[:mnj,   -1] = bounds[0][  :,  -1, 1]
+
+        newMeshLons[  -1,   -1] = bounds[1][ -1,  -1, 2] # upper right corner
+        newMeshLats[  -1,   -1] = bounds[0][ -1,  -1, 2]
+
+        newMeshLons[  -1, :mni] = bounds[1][ -1,   :, 3] # upper
+        newMeshLats[  -1, :mni] = bounds[0][ -1,   :, 3]
 
         gridDims = (nj, ni)
 
