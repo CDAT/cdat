@@ -73,17 +73,22 @@ def _hasMask(data):
         return True
     return False
 
-def _makeCrdsFromBounds(coords):
+def _makeCoordsFromBounds(coords):
     """
     Build nodal mesh.
     @param coords list of coordinates [..., y, x], x, y, ... can be axes or 
                   curvilinear coordinates.
+    @return [.., yNodes, xNodes], (..., njNodes, niNodes) 
     """
 
     if not isinstance(coords, list):
         raise RegridError, 'Coordinates must be a list'
 
-    rank = len(coords[0].shape)
+    coordNodes = []
+    dimNodes = []
+
+    ndims = len(coords)
+    rank = len(coords[-1].shape)
     bounds = []
     for c in coords:
         if hasattr(c, 'getBounds'):
@@ -94,22 +99,17 @@ def _makeCrdsFromBounds(coords):
             raise RegridError, "Bounds cannot be found or created"
 
     if rank == 1:
+        
+        # list of axes
+        dimNodes = [len(coords[i]) + 1 for i in range(ndims)]
+        coordNodes = [numpy.zeros(dimNodes[i], numpy.float64) \
+                          for i in range(ndims)]
+        for i in range(ndims):
+            coordNodes[i][:-1] = bounds[i][ :, 0]
+            coordNodes[i][ -1] = bounds[i][-1, 1]
 
-        # 1-d axes have different dimensions for each
-        ni = len(coords[1])
-        nj = len(coords[0])
-        newDims = [nj+1, ni+1]
-        newMeshLons = numpy.zeros(newDims[1], numpy.float64)
-        newMeshLats = numpy.zeros(newDims[0], numpy.float64)
-
-        newMeshLons[:ni] = bounds[1][:, 0]
-        newMeshLons[-1] = bounds[1][ni-1, 1]
-        newMeshLats[:nj] = bounds[0][:, 0]
-        newMeshLats[-1] = bounds[0][nj-1, 1]
-        if newMeshLats[0] < -90: newMeshLats[0] = -90
-        if newMeshLats[-1] > 90: newMeshLats[-1] = 90
-        gridDims = newDims
-
+        return coordNodes, dimNodes
+             
     elif rank == 2:
 
         # 2-d axes have the same dimensions for each
@@ -154,10 +154,10 @@ def _makeBoundsCurveList(grid):
                 bn.append(g)
         gridUse = bn
         # Create new grid and replace
-        bounds, newDims = _makeCrdsFromBounds(gridUse)
+        bounds, newDims = _makeCoordsFromBounds(gridUse)
     elif cdms2.isGrid(grid):
         g = [grid.getLatitude(), grid.getLongitude()]
-        bounds, newDims = _makeCrdsFromBounds(g)
+        bounds, newDims = _makeCoordsFromBounds(g)
     else:
         message = "Input grid must be a list of grids"
         raise RegridError, message
