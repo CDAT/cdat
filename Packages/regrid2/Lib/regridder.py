@@ -559,7 +559,7 @@ class Regridder:
         if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
             # gather the cell areas used by the regrid operation
             self.srcAreas = self.regrid.getSrcAreas(rootPe = 0)
-            self.dstAreas = self.regrid.getSrcAreas(rootPe = 0)
+            self.dstAreas = self.regrid.getDstAreas(rootPe = 0)
 
         self.lats = numpy.reshape(self.dstGrid.getCoords(0, 
                                                          ESMP.ESMP_STAGGERLOC_CENTER), 
