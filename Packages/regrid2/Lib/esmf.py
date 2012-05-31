@@ -204,15 +204,15 @@ class EsmfStructGrid:
     def setCoords(self, coords, staggerloc = ESMP.ESMP_STAGGERLOC_CENTER):
         """
         Populate the grid with staggered coordinates (e.g. corner or center). 
-        @param coords   The curvilinear coordinates of the grid. List of numpy arrays
+        @param coords   The curvilinear coordinates of the grid. 
+                        List of numpy arrays. Must exist on all procs.
         @param staggerloc  The stagger location
                            ESMP.ESMP_STAGGERLOC_CENTER (default)
                            ESMP.ESMP_STAGGERLOC_CORNER
-        Note: coord dims in cdms2 are ordered in y, x, but ESMF expect x, y,
-        hence the dimensions are reversed here. If you are receiving unexpected
-        results, try reversing the order of coordinate dimensions.
+        Note: coord dims in cdms2 are ordered in y, x, but ESMF expects x, y,
+        hence the dimensions are reversed here.
         """
-        # allocate space for coordinates
+        # allocate space for coordinates, can only add coordinates once
         if staggerloc ==  ESMP.ESMP_STAGGERLOC_CENTER and not self.centersSet:
             ESMP.ESMP_GridAddCoord(self.grid, staggerloc=staggerloc)
             self.centersSet = True
@@ -222,9 +222,10 @@ class EsmfStructGrid:
 
         for i in range(self.ndims):
             ptr = ESMP.ESMP_GridGetCoordPtr(self.grid, i+1, staggerloc)
+            slab = self.getLocalSlab(staggerloc)
             # Populate self.grid with coordinates or the bounds as needed
             # numpy.arrays required since numpy.ma arrays don't support flat
-            ptr[:] = numpy.array(coords[self.ndims-i-1]).flat
+            ptr[:] = numpy.array(coords[self.ndims-i-1][slab]).flat
 
     def getCoords(self, dim, staggerloc):
         """
@@ -262,12 +263,14 @@ class EsmfStructGrid:
     def setCellMask(self, mask):
         """
         Set cell mask
-        @param mask numpy array. 1 is invalid by default
+        @param mask numpy array. 1 is invalid by default. This array exists
+                    on all procs
         """
         ESMP.ESMP_GridAddItem(self.grid, item=ESMP.ESMP_GRIDITEM_MASK)
         maskPtr = ESMP.ESMP_GridGetItem(self.grid,
                                         item=ESMP.ESMP_GRIDITEM_MASK)
-        maskPtr[:] = mask.flat
+        slab = self.getLocalSlab(ESMP.ESMP_STAGGERLOC_CENTER)
+        maskPtr[:] = mask[slab].flat
 
     def getCellMask(self):
         """
@@ -306,6 +309,14 @@ class EsmfStructField:
         self.grid = esmfGrid
         # staggering
         self.staggerloc = staggerloc
+        # communicator
+        self.comm = None
+
+        try:
+            from mpi4py import MPI
+            self.comm = MPI.COMM_WORLD
+        except:
+            pass
         
         vm = ESMP.ESMP_VMGetGlobal()
         self.pe, self.nprocs = ESMP.ESMP_VMGet(vm)
@@ -327,7 +338,8 @@ class EsmfStructField:
         # Copy the data
         if data is not None:
             ptr = self.getPointer()
-            ptr[:] = data.flat
+            slab = self.grid.getLocalSlab(self.staggerloc)
+            ptr[:] = data[slab].flat
 
     def getPointer(self):
         """
@@ -344,9 +356,9 @@ class EsmfStructField:
                       procs will return None).
         @return numpy array or None
         """
-        ptr = self.GetPointer()
+        ptr = self.getPointer()
         if rootPe is None:
-            shp = self.grd.getGridShape(staggerlog = self.staggerloc)
+            shp = self.grid.getCoordShape(staggerloc = self.staggerloc)
             # local data
             return ptr.reshape(shp)
         else:
