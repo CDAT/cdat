@@ -304,6 +304,8 @@ class EsmfStructField:
         self.nprocs = 1
         # associated grid
         self.grid = esmfGrid
+        # staggering
+        self.staggerloc = staggerloc
         
         vm = ESMP.ESMP_VMGetGlobal()
         self.pe, self.nprocs = ESMP.ESMP_VMGet(vm)
@@ -327,15 +329,49 @@ class EsmfStructField:
             ptr = self.getPointer()
             ptr[:] = data.flat
 
-    def getPointer(self, pe=None):
+    def getPointer(self):
         """
-        Get field data 
-        @param pe processor rank (None if local)
+        Get field data as a flat array
         @return pointer
         """
-        if pe is None:
-            pe = self.pe
-        return ESMP.ESMP_FieldGetPtr(self.field, localDe=pe)
+        return ESMP.ESMP_FieldGetPtr(self.field)
+
+    def getData(self, rootPe = None):
+        """
+        Get field data as a numpy array
+        @param rootPe if None then local data will be fetched, otherwise
+                      gather the data on processor "rootPe" (all other
+                      procs will return None).
+        @return numpy array or None
+        """
+        ptr = self.GetPointer()
+        if rootPe is None:
+            shp = self.grd.getGridShape(staggerlog = self.staggerloc)
+            # local data
+            return ptr.reshape(shp)
+        else:
+            # gather the data on rootPe
+            lo, hi = self.grid.getLoHiBounds(self.staggerloc)
+            los = self.comm.gather(lo, root = rootPe)
+            his = self.comm.gather(hi, root = rootPe)
+            ptrs = self.comm.gather(ptr, root = rootPe)
+            if self.pe == rootPe:
+                # reassemble, find the larges hi indices
+                bigHi = [0 for i in range(self.ndims)]
+                for i in range(self.ndims):
+                    bigHi[i] = reduce(lambda x,y: max(x, y), 
+                                      [his[i][p] for p in range(self.nprocs)])
+                # allocate space to retieve the data
+                bigData = numpy.empty(bigHis, ptr.dtype)
+                for p in range(self.nprocs):
+                    slab = tuple([slice(los[p][i], his[p][i], None) for \
+                                      i in range(self.ndims)])
+                    # copy
+                    bigData[slab][:] = ptr
+                return bigData
+        # rootPe is not None and self.pe != rootPe
+        return None
+                                                               
 
     def  __del__(self):
         ESMP.ESMP_FieldDestroy(self.field)
