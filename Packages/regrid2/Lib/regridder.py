@@ -773,7 +773,7 @@ class Regridder:
         useResult = False
 
         if self.regridTool == 'regrid2':
-            result = self.regridObj(inData, args)
+            result = self.regridObj(inData, **args)
             useResult = True
 
         elif self.regridTool == 'scrip':
