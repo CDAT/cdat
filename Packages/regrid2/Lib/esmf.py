@@ -374,13 +374,13 @@ class EsmfStructField:
                 for i in range(self.grid.ndims):
                     bigHi[i] = reduce(lambda x,y: max(x, y), 
                                       [his[p][i] for p in range(self.nprocs)])
-                # allocate space to retieve the data
+                # allocate space to retrieve the data
                 bigData = numpy.empty(bigHi, ptr.dtype)
                 for p in range(self.nprocs):
                     slab = tuple([slice(los[p][i], his[p][i], None) for \
                                       i in range(self.grid.ndims)])
                     # copy
-                    bigData[slab].flat = ptr
+                    bigData[slab].flat = ptrs[p]
                 return bigData
         # rootPe is not None and self.pe != rootPe
         return None
