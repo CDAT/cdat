@@ -368,11 +368,12 @@ class EsmfStructField:
             his = self.comm.gather(hi, root = rootPe)
             ptrs = self.comm.gather(ptr, root = rootPe)
             if self.pe == rootPe:
-                # reassemble, find the larges hi indices
+                # reassemble, find the larges hi indices to set 
+                # the shape of the data container
                 bigHi = [0 for i in range(self.grid.ndims)]
                 for i in range(self.grid.ndims):
                     bigHi[i] = reduce(lambda x,y: max(x, y), 
-                                      [his[i][p] for p in range(self.nprocs)])
+                                      [his[p][i] for p in range(self.nprocs)])
                 # allocate space to retieve the data
                 bigData = numpy.empty(bigHi, ptr.dtype)
                 for p in range(self.nprocs):
