@@ -429,9 +429,11 @@ class EsmfRegrid:
                                      regridmethod = regridMethod,
                                      unmappedaction = unMappedAction)
 
-    def getSrcAreas(self):
+    def getSrcAreas(self, rootPe = None):
         """
         Get the src grid areas as used by conservative interpolation
+        @param rootPe None is local areas are returned, otherwise
+                      provide rootPe and the data will be gathered
         @return numpy array or None if interpolation is not conservative
         """
         if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
@@ -441,13 +443,14 @@ class EsmfRegrid:
                                       staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
             ESMP.ESMP_FieldRegridGetArea(areaFld.field)
             staggerloc=ESMP.ESMP_STAGGERLOC_CENTER
-            shp = self.srcField.grid.getCoordShape(staggerloc=staggerloc)
-            return numpy.reshape(areaFld.getPointer(), shp)
+            return areaFld.getData(rootPe)
         return None
 
-    def getDstAreas(self):
+    def getDstAreas(self, rootPe = None):
         """
         Get the dst grid areas as used by conservative interpolation
+        @param rootPe None is local areas are returned, otherwise
+                      provide rootPe and the data will be gathered        
         @return numpy array or None if interpolation is not conservative
         """
         if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
@@ -456,9 +459,7 @@ class EsmfRegrid:
                                       data = None,
                                       staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
             ESMP.ESMP_FieldRegridGetArea(areaFld.field)
-            staggerloc = ESMP.ESMP_STAGGERLOC_CENTER
-            shp = self.dstField.grid.getCoordShape(staggerloc=staggerloc)
-            return numpy.reshape(areaFld.getPointer(), shp)
+            return areaFld.getData(rootPe)
         return None
 
     def __call__(self, srcField=None, dstField=None):
