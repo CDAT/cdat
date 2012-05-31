@@ -31,13 +31,6 @@ try:
 except:
     pass
 
-MPI_IMPORTED = False
-try:
-    from pi4py import MPI
-    MPI_IMPORTED = True
-except:
-    pass
-
 def _makeGridList(grid):
     """
     Convert a cdms2 grid to a list of coordinates
@@ -268,8 +261,11 @@ class Regridder:
         self.toCurvilinear = toCurvilinear
         self.srcFractionPtr = None
         self.dstFractionPtr = None
-        self.srcAreaPtr = None
-        self.dstAreaPtr = None
+
+        # cell areas on src and dst grids, will be filled in on proc 0
+        self.srcAreas = []
+        self.dstAreas = []
+
         self.srcField = None
         self.dstField = None
         self.regrid = None  # The ESMP regrid object
@@ -561,14 +557,9 @@ class Regridder:
         self.srcFractionPtr.flat = srcFrac.getPointer()
         self.dstFractionPtr.flat = dstFrac.getPointer()
         if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-            self.srcAreaPtr = numpy.ones(inData.shape, dtype = inData.dtype)
-            self.dstAreaPtr = numpy.ones(outShape, dtype = inData.dtype)
-
-            ESMP.ESMP_FieldRegridGetArea(srcArea.field)
-            ESMP.ESMP_FieldRegridGetArea(dstArea.field)
-
-            self.srcAreaPtr.flat = srcArea.getPointer()
-            self.dstAreaPtr.flat = dstArea.getPointer()
+            # gather the cell areas used by the regrid operation
+            self.srcAreas = self.regrid.getSrcAreas(rootPe = 0)
+            self.dstAreas = self.regrid.getSrcAreas(rootPe = 0)
 
         self.lats = numpy.reshape(self.dstGrid.getCoords(0, 
                                                          ESMP.ESMP_STAGGERLOC_CENTER), 

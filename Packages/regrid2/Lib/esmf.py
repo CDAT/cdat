@@ -364,9 +364,13 @@ class EsmfStructField:
         else:
             # gather the data on rootPe
             lo, hi = self.grid.getLoHiBounds(self.staggerloc)
-            los = self.comm.gather(lo, root = rootPe)
-            his = self.comm.gather(hi, root = rootPe)
-            ptrs = self.comm.gather(ptr, root = rootPe)
+            los = [lo]
+            his = [hi]
+            ptrs = [ptr]
+            if self.comm is not None:
+                los = self.comm.gather(lo, root = rootPe)
+                his = self.comm.gather(hi, root = rootPe)
+                ptrs = self.comm.gather(ptr, root = rootPe)
             if self.pe == rootPe:
                 # reassemble, find the larges hi indices to set 
                 # the shape of the data container
