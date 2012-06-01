@@ -561,20 +561,19 @@ class Regridder:
         elif self.dstMask is None:
             outMask = self.dstMask
 
-        # Get the coordinates
-        self.srcAreaFractions = numpy.ones(inData.shape, dtype = inData.dtype)
-        self.dstAreaFractions = numpy.ones(outShape, dtype = inData.dtype)
-        self.srcAreaFractions.flat = srcFrac.getPointer()
-        self.dstAreaFractions.flat = dstFrac.getPointer()
         if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
+
             self.srcAreas = numpy.ones(inData.shape, dtype = inData.dtype)
             self.dstAreas = numpy.ones(outShape, dtype = inData.dtype)
-
             ESMP.ESMP_FieldRegridGetArea(srcArea.field)
             ESMP.ESMP_FieldRegridGetArea(dstArea.field)
-
             self.srcAreas.flat = srcArea.getPointer()
             self.dstAreas.flat = dstArea.getPointer()
+
+            self.srcAreaFractions = numpy.ones(inData.shape, dtype = inData.dtype)
+            self.dstAreaFractions = numpy.ones(outShape, dtype = inData.dtype)
+            self.srcAreaFractions.flat = srcFrac.getPointer()
+            self.dstAreaFractions.flat = dstFrac.getPointer()
 
         self.lats = numpy.reshape(self.dstGrid.getCoords(0, 
                                                          ESMP.ESMP_STAGGERLOC_CENTER), 
