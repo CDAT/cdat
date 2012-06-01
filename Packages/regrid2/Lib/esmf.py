@@ -221,7 +221,8 @@ class EsmfStructGrid:
             self.nodesSet = True
 
         for i in range(self.ndims):
-            ptr = ESMP.ESMP_GridGetCoordPtr(self.grid, i+1, staggerloc)
+#            ptr = ESMP.ESMP_GridGetCoordPtr(self.grid, i+1, staggerloc)
+            ptr = ESMP.ESMP_GridGetCoordPtr(self.grid, i, staggerloc)
             slab = self.getLocalSlab(staggerloc)
             # Populate self.grid with coordinates or the bounds as needed
             # numpy.arrays required since numpy.ma arrays don't support flat
@@ -234,7 +235,8 @@ class EsmfStructGrid:
         @param staggerloc Stagger location
         """
         # esmf uses 1-based indexing
-        gridPtr = ESMP.ESMP_GridGetCoordPtr(self.grid, dim+1, staggerloc)
+#        gridPtr = ESMP.ESMP_GridGetCoordPtr(self.grid, dim+1, staggerloc)
+        gridPtr = ESMP.ESMP_GridGetCoordPtr(self.grid, dim, staggerloc)
         shp = self.getCoordShape(staggerloc)
         return numpy.reshape(gridPtr, shp)
 

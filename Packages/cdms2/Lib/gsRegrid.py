@@ -606,7 +606,6 @@ class Regrid:
             raise CDMSError, ("ERROR in %s: supplied src_data have wrong shape " \
                                   + "%s != %s") % (__FILE__, str(src_data.shape), \
                                      str(tuple([d for d in self.src_dims])))
-        dst_data
         if reduce(operator.iand, [dst_data.shape[i] == self.dst_dims[i] \
                                  for i in range(self.rank)]) == False:
             raise CDMSError, ("ERROR ins: supplied dst_data have wrong shape " \
