@@ -198,8 +198,8 @@ class Regridder:
 
     """
 
-    def __init__(self, inGrid, outGrid, srcMask = None, dstMask = None,
-                 regridTool = "gsRegrid", regridMethod = "linear", 
+    def __init__(self, inGrid, outGrid, regridMethod = "linear",
+                 regridTool = "gsRegrid", srcMask = None, dstMask = None,
                  toCurvilinear = False, **args):
         """
         Constructor
@@ -248,10 +248,10 @@ class Regridder:
 
         if regridTool is None:
             regridTool = 'gsregrid'
-        rgTool = regridTool.lower()
-        rgMeth = regridMethod.lower()
-        self.regridTool = rgTool
-        self.regridMethod = rgMeth
+        if re.search('conserv', regridMethod.lower()):
+            regridTool = 'esmp'
+        self.regridTool = regridTool.lower()
+        self.regridMethod = regridMethod.lower()
         self.outMask = None
         self.srcMask = srcMask
         self.dstMask = dstMask
@@ -271,19 +271,19 @@ class Regridder:
         self.hasTime = None
         self.hasLevel = None
 
-        if re.match('regrid', rgTool, re.I):
+        if re.match('regrid', self.regridTool, re.I):
             self.regridObj = regrid2.Horizontal(inGrid, outGrid)
             self.regridTool = 'regrid2'
-        elif rgTool == 'scrip':
+        elif self.regridTool == 'scrip':
             msg = 'regridder::Regridder.__init__: '
             msg += 'SCRIP has not yet been implemented in Regrid'
             raise RegridError, msg
 
-        elif re.match('esm', rgTool):
+        elif re.match('esm', self.regridTool):
             self.computeWeightsEsmf(inGrid, outGrid, **args)
 
 
-        elif rgTool == 'gsregrid' or rgTool == 'libcf':
+        elif self.regridTool == 'gsregrid' or self.regridTool == 'libcf':
             self.computeWeightsLibcf(inGrid, outGrid, **args)
 
         else:
@@ -788,7 +788,7 @@ class Regridder:
             msg += 'SCRIP not supported at ths time'
             raise RegridError, msg
 
-        elif self.regridTool == 'esmp':
+        elif self.regridTool == 'esm':
             outVar, outMask, missing = self.applyEsmf(inData, **args)
 
         elif self.regridTool == 'gsregrid':
