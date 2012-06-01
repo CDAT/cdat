@@ -31,13 +31,6 @@ try:
 except:
     pass
 
-MPI_IMPORTED = False
-try:
-    from pi4py import MPI
-    MPI_IMPORTED = True
-except:
-    pass
-
 def _makeGridList(grid):
     """
     Convert a cdms2 grid to a list of coordinates
@@ -266,10 +259,10 @@ class Regridder:
         self.dstMaskValue = None
         self.outGrid = copy.copy(outGrid)
         self.toCurvilinear = toCurvilinear
-        self.srcFractionPtr = None
-        self.dstFractionPtr = None
-        self.srcAreaPtr = None
-        self.dstAreaPtr = None
+        self.srcAreaFractions = None
+        self.dstAreaFractions = None
+        self.srcAreas = None
+        self.dstAreas = None
         self.srcField = None
         self.dstField = None
         self.regrid = None  # The ESMP regrid object
@@ -569,19 +562,19 @@ class Regridder:
             outMask = self.dstMask
 
         # Get the coordinates
-        self.srcFractionPtr = numpy.ones(inData.shape, dtype = inData.dtype)
-        self.dstFractionPtr = numpy.ones(outShape, dtype = inData.dtype)
-        self.srcFractionPtr.flat = srcFrac.getPointer()
-        self.dstFractionPtr.flat = dstFrac.getPointer()
+        self.srcAreaFractions = numpy.ones(inData.shape, dtype = inData.dtype)
+        self.dstAreaFractions = numpy.ones(outShape, dtype = inData.dtype)
+        self.srcAreaFractions.flat = srcFrac.getPointer()
+        self.dstAreaFractions.flat = dstFrac.getPointer()
         if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-            self.srcAreaPtr = numpy.ones(inData.shape, dtype = inData.dtype)
-            self.dstAreaPtr = numpy.ones(outShape, dtype = inData.dtype)
+            self.srcAreas = numpy.ones(inData.shape, dtype = inData.dtype)
+            self.dstAreas = numpy.ones(outShape, dtype = inData.dtype)
 
             ESMP.ESMP_FieldRegridGetArea(srcArea.field)
             ESMP.ESMP_FieldRegridGetArea(dstArea.field)
 
-            self.srcAreaPtr.flat = srcArea.getPointer()
-            self.dstAreaPtr.flat = dstArea.getPointer()
+            self.srcAreas.flat = srcArea.getPointer()
+            self.dstAreas.flat = dstArea.getPointer()
 
         self.lats = numpy.reshape(self.dstGrid.getCoords(0, 
                                                          ESMP.ESMP_STAGGERLOC_CENTER), 
