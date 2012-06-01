@@ -516,14 +516,6 @@ class Regridder:
                                        name = 'dstFrac',
                                        staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
 
-        if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-            srcArea = esmf.EsmfStructField(self.srcGrid, 
-                                           name = 'srcArea',
-                                           staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
-            dstArea = esmf.EsmfStructField(self.dstGrid, 
-                                           'dstArea',
-                                           staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
-
         if self.regridMethod is not None:
             method = self.regridMethod
         else:
@@ -564,10 +556,17 @@ class Regridder:
         if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
 
             self.srcAreas = numpy.ones(inData.shape, dtype = inData.dtype)
-            self.dstAreas = numpy.ones(outShape, dtype = inData.dtype)
+            srcArea = esmf.EsmfStructField(self.srcGrid, 
+                                           name = 'srcArea',
+                                           staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
             ESMP.ESMP_FieldRegridGetArea(srcArea.field)
-            ESMP.ESMP_FieldRegridGetArea(dstArea.field)
             self.srcAreas.flat = srcArea.getPointer()
+
+            self.dstAreas = numpy.ones(outShape, dtype = inData.dtype)
+            dstArea = esmf.EsmfStructField(self.dstGrid, 
+                                           name = 'dstArea',
+                                           staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
+            ESMP.ESMP_FieldRegridGetArea(dstArea.field)
             self.dstAreas.flat = dstArea.getPointer()
 
             self.srcAreaFractions = numpy.ones(inData.shape, dtype = inData.dtype)
