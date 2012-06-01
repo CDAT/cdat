@@ -456,11 +456,10 @@ class EsmfRegrid:
         """
         if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
             areaFld = EsmfStructField(self.srcField.grid, 
-                                      name = 'source_grid_areas', 
+                                      name = 'src_cell_areas', 
                                       data = None,
                                       staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
             ESMP.ESMP_FieldRegridGetArea(areaFld.field)
-            staggerloc=ESMP.ESMP_STAGGERLOC_CENTER
             return areaFld.getData(rootPe)
         return None
 
@@ -473,7 +472,7 @@ class EsmfRegrid:
         """
         if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
             areaFld = EsmfStructField(self.dstField.grid, 
-                                      name = 'source_grid_areas', 
+                                      name = 'dst_cell_areas', 
                                       data = None,
                                       staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
             ESMP.ESMP_FieldRegridGetArea(areaFld.field)
