@@ -495,35 +495,35 @@ class Regridder:
 
         location = ESMP.ESMP_STAGGERLOC_CENTER
 
-        # Make sure we are passing a ndarray
-        try:
-            iid = inData.id
-            diid = inData.id
-        except:
-            iid = "Source_Data"
-            diid = "Desintation_Data"
-
         # Create the ESMF Fields
 
-        self.srcField = esmf.EsmfStructField(self.srcGrid, iid,
-                                             numpy.array(inData),
+        self.srcField = esmf.EsmfStructField(self.srcGrid,
+                                             name = 'srcField',
+                                             data = numpy.array(inData),
                                              staggerloc = location)
         # Convert mask y, x
         outShape = self.dstGrid.shape
         outVar = numpy.zeros(outShape, inData.dtype)
-        self.dstField = esmf.EsmfStructField(self.dstGrid, diid,
-                                           outVar,
-                                           staggerloc = location)
+        self.dstField = esmf.EsmfStructField(self.dstGrid, 
+                                             name = 'dstField',
+                                             data = outVar,
+                                             staggerloc = location)
 
-        srcFrac = esmf.EsmfStructField(self.srcGrid, diid,
-                             staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
-        dstFrac = esmf.EsmfStructField(self.dstGrid, diid,
-                             staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
+        srcFrac = esmf.EsmfStructField(self.srcGrid, 
+                                       name = 'srcFrac',
+                                       staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
+        dstFrac = esmf.EsmfStructField(self.dstGrid, 
+                                       name = 'dstFrac',
+                                       staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
+
         if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-            srcArea = esmf.EsmfStructField(self.srcGrid, diid,
-                             staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
-            dstArea = esmf.EsmfStructField(self.dstGrid, diid,
-                             staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
+            srcArea = esmf.EsmfStructField(self.srcGrid, 
+                                           name = 'srcArea',
+                                           staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
+            dstArea = esmf.EsmfStructField(self.dstGrid, 
+                                           'dstArea',
+                                           staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
+
         if self.regridMethod is not None:
             method = self.regridMethod
         else:
