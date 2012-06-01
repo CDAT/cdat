@@ -509,18 +509,6 @@ class Regridder:
                                              data = outVar,
                                              staggerloc = location)
 
-        center = ESMP.ESMP_STAGGERLOC_CENTER
-        srcFrac = esmf.EsmfStructField(self.srcGrid, 
-                                       name = 'srcFrac',
-                                       data = numpy.ones(self.srcGrid.getCoordShape(center), 
-                                                         numpy.float64),
-                                       staggerloc = center)
-        dstFrac = esmf.EsmfStructField(self.dstGrid, 
-                                       name = 'dstFrac',
-                                       data = numpy.ones(self.dstGrid.getCoordShape(center), 
-                                                         numpy.float64),
-                                       staggerloc = center)
-
         if self.regridMethod is not None:
             method = self.regridMethod
         else:
@@ -533,12 +521,12 @@ class Regridder:
 
         # Regrid
         self.regrid = esmf.EsmfRegrid(self.srcField, self.dstField,
-                            srcFrac = srcFrac,
-                            dstFrac = dstFrac,
-                            srcMaskValues = self.srcMaskValue,
-                            dstMaskValues = self.dstMaskValue,
-                            regridMethod = method,
-                            unMappedAction = unMappedAction)
+                                      srcFrac = None,
+                                      dstFrac = None,
+                                      srcMaskValues = self.srcMaskValue,
+                                      dstMaskValues = self.dstMaskValue,
+                                      regridMethod = method,
+                                      unMappedAction = unMappedAction)
 
         # Call the regrid procedure
         self.regrid()
@@ -560,13 +548,8 @@ class Regridder:
 
         self.srcAreas = self.regrid.getSrcAreas(rootPe = None)
         self.dstAreas = self.regrid.getDstAreas(rootPe = None)
-
-        if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-
-            self.srcAreaFractions = numpy.ones(inData.shape, dtype = inData.dtype)
-            self.dstAreaFractions = numpy.ones(outShape, dtype = inData.dtype)
-            self.srcAreaFractions.flat = srcFrac.getPointer()
-            self.dstAreaFractions.flat = dstFrac.getPointer()
+        self.srcAreaFractions = self.regrid.getSrcAreaFractions(rootPe = None)
+        self.dstAreaFractions = self.regrid.getDstAreaFractions(rootPe = None)
 
         self.lats = numpy.reshape(self.dstGrid.getCoords(0, 
                                                          ESMP.ESMP_STAGGERLOC_CENTER), 
