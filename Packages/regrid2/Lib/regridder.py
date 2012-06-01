@@ -198,8 +198,8 @@ class Regridder:
 
     """
 
-    def __init__(self, inGrid, outGrid, regridMethod = "linear",
-                 regridTool = "gsRegrid", srcMask = None, dstMask = None,
+    def __init__(self, inGrid, outGrid, srcMask = None, dstMask = None,
+                 regridTool = "gsRegrid", regridMethod = "linear", 
                  toCurvilinear = False, **args):
         """
         Constructor
@@ -248,10 +248,10 @@ class Regridder:
 
         if regridTool is None:
             regridTool = 'gsregrid'
-        if re.search('conserv', regridMethod.lower()):
-            regridTool = 'esmp'
-        self.regridTool = regridTool.lower()
-        self.regridMethod = regridMethod.lower()
+        rgTool = regridTool.lower()
+        rgMeth = regridMethod.lower()
+        self.regridTool = rgTool
+        self.regridMethod = rgMeth
         self.outMask = None
         self.srcMask = srcMask
         self.dstMask = dstMask
@@ -271,19 +271,19 @@ class Regridder:
         self.hasTime = None
         self.hasLevel = None
 
-        if re.match('regrid', self.regridTool, re.I):
+        if re.match('regrid', rgTool, re.I):
             self.regridObj = regrid2.Horizontal(inGrid, outGrid)
             self.regridTool = 'regrid2'
-        elif self.regridTool == 'scrip':
+        elif rgTool == 'scrip':
             msg = 'regridder::Regridder.__init__: '
             msg += 'SCRIP has not yet been implemented in Regrid'
             raise RegridError, msg
 
-        elif re.match('esm', self.regridTool):
+        elif re.match('esm', rgTool):
             self.computeWeightsEsmf(inGrid, outGrid, **args)
 
 
-        elif self.regridTool == 'gsregrid' or self.regridTool == 'libcf':
+        elif rgTool == 'gsregrid' or rgTool == 'libcf':
             self.computeWeightsLibcf(inGrid, outGrid, **args)
 
         else:
@@ -569,16 +569,10 @@ class Regridder:
             ESMP.ESMP_FieldRegridGetArea(dstArea.field)
             self.dstAreas.flat = dstArea.getPointer()
 
-            self.srcAreaFractions = srcFrac.getData(rootPe = None)
-            self.dstAreaFractions = dstFrac.getData(rootPe = None)
-            
-            """
             self.srcAreaFractions = numpy.ones(inData.shape, dtype = inData.dtype)
-            self.srcAreaFractions.flat = srcFrac.getPointer()
-
             self.dstAreaFractions = numpy.ones(outShape, dtype = inData.dtype)
+            self.srcAreaFractions.flat = srcFrac.getPointer()
             self.dstAreaFractions.flat = dstFrac.getPointer()
-            """
 
         self.lats = numpy.reshape(self.dstGrid.getCoords(0, 
                                                          ESMP.ESMP_STAGGERLOC_CENTER), 
@@ -794,7 +788,7 @@ class Regridder:
             msg += 'SCRIP not supported at ths time'
             raise RegridError, msg
 
-        elif self.regridTool == 'esm':
+        elif self.regridTool == 'esmp':
             outVar, outMask, missing = self.applyEsmf(inData, **args)
 
         elif self.regridTool == 'gsregrid':
