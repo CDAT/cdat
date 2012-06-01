@@ -4,7 +4,7 @@
 set(ENV{PATH} $ENV{PATH}:@cdat_EXTERNALS@/bin)
 
 EXECUTE_PROCESS(
-  COMMAND sh configure --enable-shared --disable-static --prefix=@ffmpeg_install@
-  WORKING_DIRECTORY "@ffmpeg_source@"
+  COMMAND sh configure --enable-shared --disable-static --prefix=@jasper_install@
+  WORKING_DIRECTORY "@jasper_source@"
   RESULT_VARIABLE rv
   )
