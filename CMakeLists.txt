@@ -668,7 +668,7 @@ set(ZMQ_DEPENDENCIES)
 set(IPYTHON_DEPENDENCIES ${setuptools_dep} ${ZMQ_dep} ${NUMPY_dep})
 
 set(VTK_DEPENDENCIES ${pkgconfig_dep} ${zlib_deb} ${png_dep} ${jpeg_dep} ${xml_dep})
-set(Cairo_DEPENDENCIES ${pkgconfig_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep})
+set(Cairo_DEPENDENCIES ${pkgconfig_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep} ${libXML2_dep})
 set(HDF4_DEPENDENCIES ${pkgconfig_dep} ${zlib_dep} ${jpeg_dep})
 set(HDF5_DEPENDENCIES ${pkgconfig_dep} ${libXML2_dep} ${libXSLT_dep} ${zlib_dep})
 

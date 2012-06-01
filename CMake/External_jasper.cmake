@@ -2,6 +2,10 @@
 set(jasper_source "${CMAKE_CURRENT_BINARY_DIR}/build/jasper")
 set(jasper_install "${cdat_EXTERNALS}")
 
+configure_file(${cdat_CMAKE_SOURCE_DIR}/jasper_configure_step.cmake.in
+    ${cdat_CMAKE_BINARY_DIR}/jasper_configure_step.cmake
+    @ONLY)
+
 ExternalProject_Add(jasper
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
   SOURCE_DIR ${jasper_source}

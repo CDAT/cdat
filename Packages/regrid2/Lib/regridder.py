@@ -569,10 +569,16 @@ class Regridder:
             ESMP.ESMP_FieldRegridGetArea(dstArea.field)
             self.dstAreas.flat = dstArea.getPointer()
 
+            self.srcAreaFractions = srcFrac.getData(rootPe = None)
+            self.dstAreaFractions = dstFrac.getData(rootPe = None)
+            
+            """
             self.srcAreaFractions = numpy.ones(inData.shape, dtype = inData.dtype)
-            self.dstAreaFractions = numpy.ones(outShape, dtype = inData.dtype)
             self.srcAreaFractions.flat = srcFrac.getPointer()
+
+            self.dstAreaFractions = numpy.ones(outShape, dtype = inData.dtype)
             self.dstAreaFractions.flat = dstFrac.getPointer()
+            """
 
         self.lats = numpy.reshape(self.dstGrid.getCoords(0, 
                                                          ESMP.ESMP_STAGGERLOC_CENTER), 
