@@ -775,7 +775,7 @@ class Regridder:
 
         if self.regridTool == 'regrid2':
             result = self.regridObj(inData, **args)
-            useResult = True
+            return result
 
         elif self.regridTool == 'scrip':
             msg = 'regridder::Regridder.__call__: '
