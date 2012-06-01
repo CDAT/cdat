@@ -221,7 +221,6 @@ class EsmfStructGrid:
             self.nodesSet = True
 
         for i in range(self.ndims):
-#            ptr = ESMP.ESMP_GridGetCoordPtr(self.grid, i+1, staggerloc)
             ptr = ESMP.ESMP_GridGetCoordPtr(self.grid, i, staggerloc)
             slab = self.getLocalSlab(staggerloc)
             # Populate self.grid with coordinates or the bounds as needed
