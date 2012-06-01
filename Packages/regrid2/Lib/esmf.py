@@ -194,7 +194,7 @@ class EsmfStructGrid:
 
     def getCoordShape(self, staggerloc):
         """
-        Get the coordinate shape 
+        Get the local coordinate shape (may be different on each processor)
         @param staggerloc (e.g. ESMP.ESMP_STAGGERLOC_CENTER)
         @return tuple 
         """
@@ -360,7 +360,7 @@ class EsmfStructField:
         ptr = self.getPointer()
         if rootPe is None:
             shp = self.grid.getCoordShape(staggerloc = self.staggerloc)
-            # local data
+            # local data, copy
             return ptr.reshape(shp)
         else:
             # gather the data on rootPe
@@ -423,6 +423,8 @@ class EsmfRegrid:
         self.srcField = srcField
         self.dstField = dstField
         self.regridMethod = regridMethod
+        self.srcAreaField = None
+        self.dstAreaField = None
 
         srcMaskValueArr = None
         if srcMaskValues is not None:
@@ -455,12 +457,13 @@ class EsmfRegrid:
         @return numpy array or None if interpolation is not conservative
         """
         if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-            areaFld = EsmfStructField(self.srcField.grid, 
-                                      name = 'src_cell_areas', 
-                                      data = None,
-                                      staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
-            ESMP.ESMP_FieldRegridGetArea(areaFld.field)
-            return areaFld.getData(rootPe)
+            shp = self.srcField.grid.getCoordShape(ESMP.ESMP_STAGGERLOC_CENTER)
+            self.srcAreaField = EsmfStructField(self.srcField.grid, 
+                                                name = 'src_cell_areas', 
+                                                data = numpy.zeros(shp, numpy.float64),
+                                                staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
+            ESMP.ESMP_FieldRegridGetArea(self.srcAreaField.field)
+            return self.srcAreaField.getData(rootPe)
         return None
 
     def getDstAreas(self, rootPe = None):
@@ -471,12 +474,13 @@ class EsmfRegrid:
         @return numpy array or None if interpolation is not conservative
         """
         if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-            areaFld = EsmfStructField(self.dstField.grid, 
-                                      name = 'dst_cell_areas', 
-                                      data = None,
-                                      staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
-            ESMP.ESMP_FieldRegridGetArea(areaFld.field)
-            return areaFld.getData(rootPe)
+            shp = self.dstField.grid.getCoordShape(ESMP.ESMP_STAGGERLOC_CENTER)
+            self.dstAreaField = EsmfStructField(self.dstField.grid, 
+                                                name = 'dst_cell_areas', 
+                                                data = numpy.zeros(shp, numpy.float64),
+                                                staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
+            ESMP.ESMP_FieldRegridGetArea(self.dstAreaField.field)
+            return self.dstAreaField.getData(rootPe)
         return None
 
     def __call__(self, srcField=None, dstField=None):
