@@ -34,7 +34,7 @@ except:
 def _makeGridList(grid):
     """
     Convert a cdms2 grid to a list of coordinates
-    Using this because TransientRectGrids have no AxisList though the method
+    Using this because TransientRectGrids have no axisList though the method
     exists
     @param grid The grid to be converted
     """
@@ -86,11 +86,11 @@ def _makeCoordsFromBounds(coords):
     coordNodes = []
     dimNodes = []
 
-    ndims = len(coords)
+    nCrdDims = len(coords)
     # last coordinates can be curvilinear
     shp = coords[-1].shape
     dimNodes = [i + 1 for i in shp]
-    rank = len(shp)
+    nSpatialDims = len(shp)
 
     bounds = []
     for c in coords:
@@ -104,34 +104,34 @@ def _makeCoordsFromBounds(coords):
             raise RegridError, msg
 
 
-    if rank == 1:
+    if nSpatialDims == 1:
         
         # list of axes
-        dimNodes = [len(coords[i]) + 1 for i in range(ndims)]
+        dimNodes = [len(coords[i]) + 1 for i in range(nCrdDims)]
         coordNodes = [numpy.zeros(dimNodes[i], numpy.float64) \
-                          for i in range(ndims)]
-        for i in range(ndims):
+                          for i in range(nCrdDims)]
+        for i in range(nCrdDims):
             coordNodes[i][:-1] = bounds[i][ :, 0]
             coordNodes[i][ -1] = bounds[i][-1, 1]
              
-    elif rank == 2 and ndims == 2:
+    elif nSpatialDims == 2 and nCrdDims == 2:
 
         # CF conventions assume counterclockwise ordering of bounds 
         # starting from the lower left corner
         coordNodes = [numpy.zeros(dimNodes, numpy.float64) \
-                          for i in range(ndims)]
-        for i in range(ndims):
+                          for i in range(nCrdDims)]
+        for i in range(nCrdDims):
             coordNodes[i][:-1, :-1] = bounds[i][ :,  :, 0]
             coordNodes[i][:-1,  -1] = bounds[i][ :, -1, 1] # right
             coordNodes[i][ -1,  -1] = bounds[i][-1, -1, 2] # top right corner
             coordNodes[i][ -1, :-1] = bounds[i][-1,  :, 3] # top
 
-    elif rank == 3 and ndims == 3:
+    elif nSpatialDims == 3 and nCrdDims == 3:
 
         # 3d curvilinear 
         coordNodes = [numpy.zeros(dimNodes, numpy.float64) \
-                          for i in range(ndims)]
-        for i in range(ndims):
+                          for i in range(nCrdDims)]
+        for i in range(nCrdDims):
             coordNodes[i][:-1, :-1, :-1] = bounds[i][ :,  :,  :, 0]
             coordNodes[i][:-1, :-1,  -1] = bounds[i][ :,  :, -1, 1]
             coordNodes[i][:-1,  -1,  -1] = bounds[i][ :, -1, -1, 2]
@@ -141,17 +141,17 @@ def _makeCoordsFromBounds(coords):
             coordNodes[i][ -1,  -1,  -1] = bounds[i][-1, -1, -1, 6]
             coordNodes[i][ -1,  -1, :-1] = bounds[i][-1, -1,  :, 7]
 
-    elif rank == 2 and ndims == 3:
+    elif nSpatialDims == 2 and nCrdDims == 3:
         
         # 2d curvilinear and one vertical axis
         dimNodes[0] = len(coords[0]) + 1
         coordNodes = [numpy.zeros([dimNodes[0],], numpy.float64)] \
             + [numpy.zeros(dimNodes[1:], numpy.float64) \
-                   for i in range(1, ndims)]
+                   for i in range(1, nCrdDims)]
 
         coordNodes[0][:-1] = bounds[0][ :, 0]
         coordNodes[0][ -1] = bounds[0][-1, 1]
-        for i in range(1, ndims):
+        for i in range(1, nCrdDims):
             coordNodes[i][:-1, :-1] = bounds[i][ :,  :, 0]
             coordNodes[i][:-1,  -1] = bounds[i][ :, -1, 1] # right
             coordNodes[i][ -1,  -1] = bounds[i][-1, -1, 2] # top right corner
@@ -259,18 +259,17 @@ class Regridder:
         self.dstMaskValue = None
         self.outGrid = copy.copy(outGrid)
         self.toCurvilinear = toCurvilinear
-        self.srcFractionPtr = None
-        self.dstFractionPtr = None
-
-        # cell areas on src and dst grids, will be filled in on proc 0
-        self.srcAreas = []
-        self.dstAreas = []
-
+        self.srcAreaFractions = None
+        self.dstAreaFractions = None
+        self.srcAreas = None
+        self.dstAreas = None
         self.srcField = None
         self.dstField = None
         self.regrid = None  # The ESMP regrid object
         self.lats = []
         self.lons = []
+        self.hasTime = None
+        self.hasLevel = None
 
         if re.match('regrid', rgTool, re.I):
             self.regridObj = regrid2.Horizontal(inGrid, outGrid)
@@ -371,12 +370,12 @@ class Regridder:
 
         # Want 2D coordinates in a list [lat, lon]
         # Choices list, TransientAxis2D, TransientRectAxis
-        srcGrid, self.srcRank = _makeGridList(inGrid)
-        if self.srcRank > 1:
+        srcGrid, self.srcNDims = _makeGridList(inGrid)
+        if self.srcNDims > 1:
             srcGrid, srcSpatial = cdms2.gsRegrid.makeCurvilinear(srcGrid)
 
-        dstGrid, self.dstRank = _makeGridList(outGrid)
-        if self.dstRank > 1:
+        dstGrid, self.dstNDims = _makeGridList(outGrid)
+        if self.dstNDims > 1:
             dstGrid, dstSpatial = cdms2.gsRegrid.makeCurvilinear(dstGrid)
 
         # Convert bounds to curvilinear grids
@@ -424,29 +423,40 @@ class Regridder:
         @param outGrid cdms2 output grid object
         @param args optional arguments
         """
+        makeCyclic = False
+        handleCut = False
+        srcBounds = None
         # Prep in and out grid for gsRegrid!
-        self.srcGrid, self.srcRank = _makeGridList(inGrid)
-        self.dstGrid, self.dstRank = _makeGridList(outGrid)
+        self.srcGrid, self.srcNDims = _makeGridList(inGrid)
+        self.dstGrid, self.dstNDims = _makeGridList(outGrid)
 
-        if self.dstRank != self.srcRank:
+        for arg in args.keys():
+            if re.search('cycl', arg.lower()):
+                makeCyclic = True
+            if re.search('handle', arg.lower()):
+                handleCut = True
+                srcBounds = _makeBoundsCurveList(inGrid) 
+
+        if self.dstNDims != self.srcNDims:
             msg = 'regridder::Regridder.computeWeightsLibcf: '
-            msg += 'outGrid rank (%d) != inGrid rank (%d)' % \
-                (self.dstRank, self.srcRank)
+            msg += 'outGrid ndims (%d) != inGrid ndims (%d)' % \
+                (self.dstNDims, self.srcNDims)
             raise RegridError, msg
 
         # Create the regrid object
-        ro = cdms2.gsRegrid.Regrid(self.srcGrid, self.dstGrid)
+        ro = cdms2.gsRegrid.Regrid(self.srcGrid, self.dstGrid, 
+                    src_bounds = srcBounds, 
+                    mkCyclic = makeCyclic, handleCut = handleCut)
 
-        # Set the source mask
-        if self.srcMask is not None:
-
-            if len(self.srcMask.shape) > 3:
-                msg = 'regridder:Regridder.computeWeightsLibcf: '
-                msg += 'ranks greater than three are not supported'
-                raise RegridError, msg
-
-            self.srcMask = numpy.array(self.srcMask, dtype = numpy.int32)
-            ro.setMask(self.srcMask)
+#        # Set the source mask
+#        if self.srcMask is not None:
+#            if len(self.srcMask.shape) > 2:
+#                msg = 'regridder:Regridder.computeWeightsLibcf: '
+#                msg += 'ndims greater than three are not supported'
+#                raise RegridError, msg
+#
+#            self.srcMask = numpy.array(self.srcMask, dtype = numpy.int32)
+#            ro.setMask(self.srcMask)
 
         # Compute the weights
         self.nitermax = 20
@@ -485,35 +495,27 @@ class Regridder:
 
         location = ESMP.ESMP_STAGGERLOC_CENTER
 
-        # Make sure we are passing a ndarray
-        try:
-            iid = inData.id
-            diid = inData.id
-        except:
-            iid = "Source_Data"
-            diid = "Desintation_Data"
-
         # Create the ESMF Fields
 
-        self.srcField = esmf.EsmfStructField(self.srcGrid, iid,
-                                             numpy.array(inData),
+        self.srcField = esmf.EsmfStructField(self.srcGrid,
+                                             name = 'srcField',
+                                             data = numpy.array(inData),
                                              staggerloc = location)
         # Convert mask y, x
         outShape = self.dstGrid.shape
         outVar = numpy.zeros(outShape, inData.dtype)
-        self.dstField = esmf.EsmfStructField(self.dstGrid, diid,
-                                           outVar,
-                                           staggerloc = location)
+        self.dstField = esmf.EsmfStructField(self.dstGrid, 
+                                             name = 'dstField',
+                                             data = outVar,
+                                             staggerloc = location)
 
-        srcFrac = esmf.EsmfStructField(self.srcGrid, diid,
-                             staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
-        dstFrac = esmf.EsmfStructField(self.dstGrid, diid,
-                             staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
-        if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-            srcArea = esmf.EsmfStructField(self.srcGrid, diid,
-                             staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
-            dstArea = esmf.EsmfStructField(self.dstGrid, diid,
-                             staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
+        srcFrac = esmf.EsmfStructField(self.srcGrid, 
+                                       name = 'srcFrac',
+                                       staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
+        dstFrac = esmf.EsmfStructField(self.dstGrid, 
+                                       name = 'dstFrac',
+                                       staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
+
         if self.regridMethod is not None:
             method = self.regridMethod
         else:
@@ -551,15 +553,26 @@ class Regridder:
         elif self.dstMask is None:
             outMask = self.dstMask
 
-        # Get the coordinates
-        self.srcFractionPtr = numpy.ones(inData.shape, dtype = inData.dtype)
-        self.dstFractionPtr = numpy.ones(outShape, dtype = inData.dtype)
-        self.srcFractionPtr.flat = srcFrac.getPointer()
-        self.dstFractionPtr.flat = dstFrac.getPointer()
         if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-            # gather the cell areas used by the regrid operation
-            self.srcAreas = self.regrid.getSrcAreas(rootPe = 0)
-            self.dstAreas = self.regrid.getDstAreas(rootPe = 0)
+
+            self.srcAreas = numpy.ones(inData.shape, dtype = inData.dtype)
+            srcArea = esmf.EsmfStructField(self.srcGrid, 
+                                           name = 'srcArea',
+                                           staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
+            ESMP.ESMP_FieldRegridGetArea(srcArea.field)
+            self.srcAreas.flat = srcArea.getPointer()
+
+            self.dstAreas = numpy.ones(outShape, dtype = inData.dtype)
+            dstArea = esmf.EsmfStructField(self.dstGrid, 
+                                           name = 'dstArea',
+                                           staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
+            ESMP.ESMP_FieldRegridGetArea(dstArea.field)
+            self.dstAreas.flat = dstArea.getPointer()
+
+            self.srcAreaFractions = numpy.ones(inData.shape, dtype = inData.dtype)
+            self.dstAreaFractions = numpy.ones(outShape, dtype = inData.dtype)
+            self.srcAreaFractions.flat = srcFrac.getPointer()
+            self.dstAreaFractions.flat = dstFrac.getPointer()
 
         self.lats = numpy.reshape(self.dstGrid.getCoords(0, 
                                                          ESMP.ESMP_STAGGERLOC_CENTER), 
@@ -585,9 +598,15 @@ class Regridder:
         # The data has a mask and the mask has not been set previously
         # If the mask is then set, the weights must be computed...
         if _hasMask(inData) and self.regridObj.maskSet is False:
+            if len(inData.shape) == 3:
+                mask = inData[0, ...].mask
+            elif len(inData.shape) == 4:
+                mask = inData[0, 0, ...].mask
+            else:
+                mask = inData.mask
             # Reset the weightsComputed flag since they will be recalculated
             self.regridObj.weightsComputed = False
-            self.regridObj.setMask(inData.mask)
+            self.regridObj.setMask(mask)
             # Recompute/Compute the weights taking the mask into account
             self.regridObj.computeWeights(tolpos = self.tolpos,
                                           nitermax = self.nitermax)
@@ -600,11 +619,9 @@ class Regridder:
         # Create the result TransientVariable 
         # (if input inData is an AbstractVariable)
         # or masked array
-        hasTime = None
-        hasLevel = None
         if inputIsVariable:
-            hasTime = inData.getTime()   # None if empty
-            hasLevel = inData.getLevel() # None if empty
+            self.hasTime = inData.getTime()   # None if empty
+            self.hasLevel = inData.getLevel() # None if empty
             if isinstance(self.dstGrid, list):
                 if len(self.dstGrid) == 2:
                     index = 0
@@ -632,10 +649,12 @@ class Regridder:
             elif inData.rank() == 4 and inData.getTime() is not None:
                 axisList = [inData.getTime(), inData.getLevel()] + \
                             list(axisList)
-                outShape = inData.shape
+                outShape = tuple(list(axisList[0].shape) + \
+                                 list(axisList[1].shape) + \
+                                     list(outShape))
             else:
                 msg = 'regridder::Regridder.__call__: '
-                msg += 'ranks > 4 currently not supported'
+                msg += 'var.ranks() > 4 currently not supported'
                 raise RegridError, msg
 
             axisList = tuple(axisList)
@@ -664,18 +683,18 @@ class Regridder:
         # Loop over the time or level variable
         # regridder will regrid in the horizontal axes, while using the 
         # existing time and level information
-        rank = len(inData.shape)
+        nCrdDims = len(inData.shape)
         nTime = 1
-        if rank == 2:
+        if nCrdDims == 2:
             # lat-lon grid
             self.regridObj(inData, outVar)
-        elif rank == 3:
-            if hasTime is not None:
+        elif nCrdDims == 3:
+            if self.hasTime is not None:
                 #Time without Level
                 nTime = len(inData.getTime())
                 for iTime in range(nTime):
                     self.regridObj(inData[iTime, ...], outVar[iTime, ...])
-            elif hasLevel is not None:
+            elif self.hasLevel is not None:
                 # Level without time
                 nLevel = len(inData.getLevel())
                 for iLevel in range(nLevel):
@@ -684,13 +703,11 @@ class Regridder:
                 msg = 'regridder::Regridder.__call__: '
                 msg += '3rd most slowly varying dimension is neither time nor level'
                 raise msg
-
-        elif rank == 4:
-            if hasTime is None or hasLevel is None:
+        elif nCrdDims == 4:
+            if self.hasTime is None or self.hasLevel is None:
                 msg = 'regridder::Regridder.__call__: '
-                msg += 'rank 4 data must have time and level'
+                msg += 'nCrdDims == 4 data must have time and level'
                 raise RegridError, msg
-
             else:
                 nLevel = len(inData.getLevel())
                 nTime = len(inData.getTime())
@@ -723,7 +740,6 @@ class Regridder:
             outMask = slabMask
 
         return outVar, outMask, missing
-
 
     def __call__(self, inData, **args):
         """
@@ -792,46 +808,29 @@ class Regridder:
             attrs = inData.attributes
             grid = None
             if isinstance(self.outGrid, list):
-                axes = self.outGrid
+                axisList = self.outGrid
                 if len(inData.shape) > 2:
                     for a in inData.getOrder():
                         if a == 'z':
-                            axes.insert(0, inData.getLevel())
+                            axisList.insert(0, inData.getLevel())
                         if a == 't':
-                            axes.insert(0, inData.getTime())
+                            axisList.insert(0, inData.getTime())
             elif cdms2.isGrid(self.outGrid):
                 grid = self.outGrid
                 try:
-                    # Method exists but is not always implemented 
-                    # e.g. TransientRectGrid
-                    axes = self.outGrid.getAxisList()
+                    axisList = list(self.outGrid.getAxisList())
                 except:
-                    axes = []
-                    for a in inData.getOrder():
-                        if a == 'x':
-                            axes.append(self.outGrid.getLongitude())
-                        if a == 'y':
-                            axes.append(self.outGrid.getLatitude())
-                        if a == 'z':
-                            axes.append(inData.getLevel())
-                        if a == 't':
-                            axes.append(inData.getTime())
-                    
-                    if len(axes) < 2:
-                        axes = []
-                        for a in grid.getOrder():
-                            if a == 'x':
-                                axes.append(self.outGrid.getLongitude())
-                            if a == 'y':
-                                axes.append(self.outGrid.getLatitude())
-                            if a == 'z':
-                                axes.append(inData.getLevel())
-                            if a == 't':
-                                axes.append(inData.getTime())
+                    axisList = [self.outGrid.getLatitude(), 
+                                self.outGrid.getLongitude()]
+                # Check to be sure the axis letter is set.
+                if self.hasLevel:
+                    axisList.insert(0, inData.getLevel())
+                if self.hasTime:
+                    axisList.insert(0, inData.getTime())
 
             result = cdms2.createVariable(outVar, mask = outMask,
                                           fill_value = inData.fill_value,
-                                          axes = axes,
+                                          axes = axisList,
                                           grid = grid,
                                           attributes = attrs, id = varid)
 

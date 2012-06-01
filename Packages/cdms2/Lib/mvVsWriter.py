@@ -9,6 +9,7 @@ No guarantee is provided whatsoever. Use at your own risk.
 
 import numpy
 import mvBaseWriter
+import re
 
 class VsWriter(mvBaseWriter.BaseWriter):
 
@@ -41,6 +42,9 @@ class VsWriter(mvBaseWriter.BaseWriter):
         dset.attrs.vsMesh = meshid
         # additional attributes
         for a in self.var.attributes:
+            # Skip mpi objects
+            if re.match('mpi',a.lower()):
+                continue
             setattr(dset.attrs, a, getattr(self.var, a))
         # close file
         h5file.close()
