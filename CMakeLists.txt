@@ -670,7 +670,7 @@ set(ZMQ_DEPENDENCIES)
 set(IPYTHON_DEPENDENCIES ${setuptools_dep} ${ZMQ_dep} ${NUMPY_dep})
 
 set(VTK_DEPENDENCIES ${pkgconfig_dep} ${zlib_deb} ${png_dep} ${jpeg_dep} ${xml_dep})
-set(Cairo_DEPENDENCIES ${pkgconfig_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep})
+set(Cairo_DEPENDENCIES ${pkgconfig_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep} ${libXML2_dep})
 set(HDF4_DEPENDENCIES ${pkgconfig_dep} ${zlib_dep} ${jpeg_dep})
 set(HDF5_DEPENDENCIES ${pkgconfig_dep} ${libXML2_dep} ${libXSLT_dep} ${zlib_dep})
 
@@ -688,7 +688,7 @@ set(Mpi4py_DEPENDENCIES ${NUMPY_dep} ${OPENMPI_dep})
 
 set(GEOS_DEPENDENCIES ${Matplotlib_dep})
 set(Shapely_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${GEOS_dep})
-set(gdal_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${NetCDF_dep} ${HDF5_dep} ${CURL_dep} ${zlib_dep})
+set(gdal_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${NetCDF_dep} ${HDF5_dep} ${CURL_dep} ${zlib_dep} ${jasper_dep})
 set(basemap_DEPENDENCIES ${GEOS_dep})
 set(pyspharm_DEPENDENCIES ${NUMPY_dep})
 
