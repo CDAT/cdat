@@ -71,7 +71,7 @@ class Horizontal:
 
         self.londx, self.lonpt, self.wtlon, self.latdx, self.latpt, self.wtlat = _regrid.maparea( self.nloni, self.nlono, self.nlati, self.nlato, bnin, bnout, bsin, bsout, bein, beout, bwin, bwout )
 
-    def __call__(self, ar, missing=None, order=None, mask=None, returnTuple=0):
+    def __call__(self, ar, missing=None, order=None, mask=None, returnTuple=0, **args):
         """
         Call the regridder function.
         @param ar is the input array.
