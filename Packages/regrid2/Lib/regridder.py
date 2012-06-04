@@ -200,7 +200,7 @@ class Regridder:
 
     def __init__(self, inGrid, outGrid, srcMask = None, dstMask = None,
                  regridTool = "gsRegrid", regridMethod = "linear", 
-                 **args):
+                 toCurvilinear = False, **args):
         """
         Constructor
 
@@ -218,6 +218,8 @@ class Regridder:
                                 SCRIP
         @param regridMethod Conservative, linear. Some regrid tools use
                         only linear
+        @param toCurvilinear Return a curvilinear grid instead of the 
+                        input grid
         @param **args Optional keyword arguments for each type of regridder
                         gsRegrid accepts nitermax and tolpos for computing the
                         weights
@@ -256,6 +258,7 @@ class Regridder:
         self.srcMaskValue = None
         self.dstMaskValue = None
         self.outGrid = copy.copy(outGrid)
+        self.toCurvilinear = toCurvilinear
         self.srcAreaFractions = None
         self.dstAreaFractions = None
         self.srcAreas = None
@@ -528,8 +531,8 @@ class Regridder:
         # Call the regrid procedure
         self.regrid()
 
-        # Get the regridded variable, on proc 0
-        outVar = self.dstField.getData(rootPe = 0)
+        # Get the regridded variable
+        outVar = self.dstField.getData(rootPe = None)
 
         # Set the output mask if available
         outMask = None
@@ -548,10 +551,12 @@ class Regridder:
         self.srcAreaFractions = self.regrid.getSrcAreaFractions(rootPe = None)
         self.dstAreaFractions = self.regrid.getDstAreaFractions(rootPe = None)
 
-        center = ESMP.ESMP_STAGGERLOC_CENTER
-        shp = self.dstGrid.getCoordShape(center)
-        self.lats = numpy.reshape(self.dstGrid.getCoords(0, center), shp)
-        self.lons = numpy.reshape(self.dstGrid.getCoords(1, center), shp)
+        self.lats = numpy.reshape(self.dstGrid.getCoords(0, 
+                                                         ESMP.ESMP_STAGGERLOC_CENTER), 
+                                  outVar.shape)
+        self.lons = numpy.reshape(self.dstGrid.getCoords(1, 
+                                                         ESMP.ESMP_STAGGERLOC_CENTER), 
+                                  outVar.shape)
         
         return outVar, outMask, missing
 
@@ -633,7 +638,7 @@ class Regridder:
         else:
             outShape = self.regridObj.dst_dims[:]
 
-        # Create the output data array. Assuming time is first index
+        # Create the output data array. Assuming time in first index
         if len(outShape) != len(inData.shape):
             dd = [d for d in self.regridObj.dst_dims[:]]
             outShape = [inData.shape[0]] + dd
@@ -771,7 +776,11 @@ class Regridder:
         # Return the output variable from ESMP or gsRegrid, or the result from
         # regrid2
         
-        if inputIsVariable:
+        if isinstance(self.outGrid, list):
+            if re.search('transientaxis2d', str(type(self.outGrid[0])).lower()):
+                self.toCurvilinear = True
+            
+        if inputIsVariable and not self.toCurvilinear:
             # Use the output grid
             attrs = inData.attributes
             grid = None
@@ -802,6 +811,16 @@ class Regridder:
                                           grid = grid,
                                           attributes = attrs, id = varid)
 
+        elif self.toCurvilinear:
+            # Make a curvilinear Grid. Overrides inputIsVariable
+            lat = cdms2.coord.TransientAxis2D(self.lats, id = 'lat')
+            lon = cdms2.coord.TransientAxis2D(self.lons, id = 'lon')
+            grid = cdms2.hgrid.TransientCurveGrid(lat, lon, id = 'CurveGrid')
+            result = cdms2.createVariable(outVar, mask = outMask,
+                                          fill_value = inData.fill_value,
+                                          axes = grid.getAxisList(),
+                                          grid = grid,
+                                          attributes = attrs, id = varid)
         elif useResult:
             pass # Place holder
         else:
