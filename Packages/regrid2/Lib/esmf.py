@@ -230,8 +230,6 @@ class EsmfStructGrid:
         @param dim desired dimension (zero based indexing)
         @param staggerloc Stagger location
         """
-        # esmf uses 1-based indexing
-#        gridPtr = ESMP.ESMP_GridGetCoordPtr(self.grid, dim+1, staggerloc)
         gridPtr = ESMP.ESMP_GridGetCoordPtr(self.grid, dim, staggerloc)
         shp = self.getCoordShape(staggerloc)
         return numpy.reshape(gridPtr, shp)
