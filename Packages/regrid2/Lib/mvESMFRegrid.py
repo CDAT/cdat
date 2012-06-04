@@ -40,8 +40,8 @@ class ESMFRegrid(GenericRegrid):
 
         self.srcGrid = None
         self.dstGrid = None
-        self.srcShape = None
-        self.dstShape = None
+        self.srcShape = srcGrid[0].shape
+        self.dstShape = dstGrid[0].shape
         self.staggerloc = ESMP.ESMP_STAGGERLOC_CENTER
         self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE
         self.regridMethod = ESMP.ESMP_REGRIDMETHOD_BILINEAR
@@ -67,8 +67,7 @@ class ESMFRegrid(GenericRegrid):
                 raise RegridError, string
 
         # Source Grid
-        self.shape = srcGrid[0].shape
-        self.srcGrid = esmf.EsmfStructGrid(srcGrid[0].shape, 
+        self.srcGrid = esmf.EsmfStructGrid(self.srcShape, 
                                 coordSys = coordSys,
                                 periodicity = periodicity)
         self.srcGrid.setCoords(srcGrid, staggerloc = self.staggerloc)
@@ -114,13 +113,21 @@ class ESMFRegrid(GenericRegrid):
         if unMappedAction is None: unMappedAction = self.unMappedAction
 
         # Create dummy variables for use in generating the weights
-        sDV = self.srcGrid.getCoords(0, staggerloc = self.staggerloc) * 1.0
-        dDV = self.dstGrid.getCoords(0, staggerloc = self.staggerloc) * -1.0
-        self.srcDummyVar = esmf.EsmfStructField(self.srcGrid, 'srcDummyVar', sDV, 
-                                           staggerloc = self.staggerloc)
-        self.dstDummyVar = esmf.EsmfStructField(self.dstGrid, 'dstDummyVar', dDV, 
-                                           staggerloc = self.staggerloc)
+        #sDV = self.srcGrid.getCoords(0, staggerloc = self.staggerloc) * 1.0
+        #dDV = self.dstGrid.getCoords(0, staggerloc = self.staggerloc) * -1.0
+        #self.srcDummyVar = esmf.EsmfStructField(self.srcGrid, 'srcDummyVar', sDV, 
+        #                                   staggerloc = self.staggerloc)
+        #self.dstDummyVar = esmf.EsmfStructField(self.dstGrid, 'dstDummyVar', dDV, 
+        #                                   staggerloc = self.staggerloc)
 
+#        self.regridObj = esmf.EsmfRegrid(self.srcDummyVar, self.dstDummyVar,
+#                                  srcFrac = self.srcFrac, 
+#                                  dstFrac = self.dstFrac,
+#                                  srcMaskValues = self.srcMaskValues,
+#                                  dstMaskValues = self.dstMaskValues,
+#                                  regridMethod = regridMethod,
+#                                  unMappedAction = unMappedAction)
+#
         if regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
             self.srcFrac = esmf.EsmfStructField(self.srcGrid, 'srcFrac',
                                        self.srcDummyVar,
@@ -130,13 +137,6 @@ class ESMFRegrid(GenericRegrid):
                                        staggerloc = ESMP.ESMP_STAGGERLOC_CORNER)
                                         
         # Compute the weights  
-        self.regridObj = esmf.EsmfRegrid(self.srcDummyVar, self.dstDummyVar,
-                                  srcFrac = self.srcFrac, 
-                                  dstFrac = self.dstFrac,
-                                  srcMaskValues = self.srcMaskValues,
-                                  dstMaskValues = self.dstMaskValues,
-                                  regridMethod = regridMethod,
-                                  unMappedAction = unMappedAction)
 
     def apply(self, srcData, dstData, **args):
         """
@@ -144,6 +144,13 @@ class ESMFRegrid(GenericRegrid):
         @param srcData array
         @param dstData array
         """
+        regridMethod = None
+        unMappedAction = None
+        self.srcMaskValues = None
+        self.dstMaskValues = None
+        self.srcFrac = None
+        self.dstFrac = None
+
         srcName = 'srcData'
         dstName = 'dstData'
         if hasattr(srcData, 'id'): 
@@ -158,12 +165,21 @@ class ESMFRegrid(GenericRegrid):
         self.dstVar = esmf.EsmfStructField(self.dstGrid, dstName, dstData, 
                                       staggerloc = self.staggerloc)
 
+        self.regridObj = esmf.EsmfRegrid(self.srcVar, self.dstVar,
+                                  srcFrac = self.srcFrac, 
+                                  dstFrac = self.dstFrac,
+                                  srcMaskValues = self.srcMaskValues,
+                                  dstMaskValues = self.dstMaskValues,
+                                  regridMethod = regridMethod,
+                                  unMappedAction = unMappedAction)
+
+
         print 'BEG with regridding'
         self.regridObj(self.srcVar, self.dstVar)
         print 'DONE with regridding'
         print 
         dstData = self.dstVar.getData(rootPe = rootPe) 
-        print self.dstVar.reshape(self.dstShape).shape
+        print dstData.reshape(self.dstShape).shape
         print
 
 #        if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
