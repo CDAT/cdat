@@ -42,6 +42,40 @@ def catchError(status, lineno):
         raise CDMSError, "ERROR in %s: status = %d at line %d" \
             % (__FILE__, status, lineno)
 
+def getFillValue(data):
+    """
+    Get the data to the fill_value
+    @param data cdms2 variable
+    @return fill value
+    """
+    fill_value = None
+
+    if data.dtype == numpy.float64:
+        if data.fill_value is not None or \
+           data.missing_value is not None:
+                fill_value = c_double(data.fill_value)
+        else:
+                fill_value = c_double(libCFConfig.NC_FILL_DOUBLE)
+    elif data.dtype == numpy.float32:
+        if data.fill_value is not None or \
+           data.missing_value is not None:
+                fill_value = c_float(data.fill_value)
+        else:
+                fill_value = c_float(libCFConfig.NC_FILL_FLOAT)
+    elif data.dtype == numpy.int32:
+        if data.fill_value is not None or \
+           data.missing_value is not None:
+                fill_value = c_int(data.fill_value)
+        else:
+                fill_value = c_int(libCFConfig.NC_FILL_INT)
+    else:
+        raise CDMSError, "ERROR in %s: getFillValue(data): " + \
+            " unsupported data type %s" \
+            % (__FILE__, str(data.dtype))
+
+    return fill_value
+
+
 def getNetCDFFillValue(dtype):
     """
     Get the NetCDF fill value
@@ -633,46 +667,22 @@ class Regrid:
                                         standard_name, units, time_dimname, \
                                         byref(src_dataid))
         catchError(status, sys._getframe().f_lineno)
-        def setFillValue(data):
-            
-            if not hasattr(data, 'fill_value'):
-                data = numpy.ma.masked_array(data)
-            if data.dtype == numpy.float64:
-                if data.fill_value is not None or \
-                   data.missing_value is not None:
-                        fill_value = c_double(data.fill_value)
-                else:
-                        fill_value = c_double(libCFConfig.NC_FILL_DOUBLE)
-            elif data.dtype == numpy.float32:
-                if data.fill_value is not None or \
-                   data.missing_value is not None:
-                        fill_value = c_float(data.fill_value)
-                else:
-                        fill_value = c_float(libCFConfig.NC_FILL_FLOAT)
-            elif data.dtype == numpy.int32:
-                if data.fill_value is not None or \
-                   data.missing_value is not None:
-                        fill_value = c_int(data.fill_value)
-                else:
-                        fill_value = c_int(libCFConfig.NC_FILL_INT)
-            return fill_value
+
+        if not hasattr(src_data, 'fill_value'):
+            src_data = numpy.ma.masked_array(src_data)
+
+        # only float64 and float32 data types are supported for interpolation
         if src_data.dtype == numpy.float64:
-            fill_value = setFillValue(src_data)
+            fill_value = getFillValue(src_data)
             status = self.lib.nccf_set_data_double(src_dataid,
                                      src_data.ctypes.data_as(POINTER(c_double)),
                                                    save, fill_value)
             catchError(status, sys._getframe().f_lineno)
         elif src_data.dtype == numpy.float32:
-            fill_value = setFillValue(src_data)
+            fill_value = getFillValue(src_data)
             status = self.lib.nccf_set_data_float(src_dataid,
                                      src_data.ctypes.data_as(POINTER(c_float)),
                                                   save, fill_value)
-            catchError(status, sys._getframe().f_lineno)
-        elif src_data.dtype == numpy.int32:
-            fill_value = setFillValue(src_data)
-            status = self.lib.nccf_set_data_int(src_dataid,
-                                     src_data.ctypes.data_as(POINTER(c_int)),
-                                                save, fill_value)
             catchError(status, sys._getframe().f_lineno)
         else:
             raise CDMSError, "ERROR in %s: invalid src_data type = %s" \
@@ -693,12 +703,6 @@ class Regrid:
             status = self.lib.nccf_set_data_float(dst_dataid,
                                                   dst_data.ctypes.data_as(POINTER(c_float)),
                                                   save, fill_value)
-            catchError(status, sys._getframe().f_lineno)
-        elif dst_data.dtype == numpy.int32:
-            fill_value = c_int(libCFConfig.NC_FILL_INT)
-            status = self.lib.nccf_set_data_int(dst_dataid,
-                                                dst_data.ctypes.data_as(POINTER(c_int)),
-                                                save, fill_value)
             catchError(status, sys._getframe().f_lineno)
         else:
             raise CDMSError, "ERROR in %s: invalid dst_data type = %s" \
