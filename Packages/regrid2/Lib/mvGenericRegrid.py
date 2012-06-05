@@ -40,11 +40,11 @@ class GenericRegrid:
         if re.search('libcf', regridTool.lower()) or \
            re.search('gsreg', regridTool.lower()):
             self.tool = regrid2.LibCFRegrid(srcGrid, dstGrid, 
-                 srcMask = None, srcBounds = None)
+                 srcMask = srcMask, srcBounds = srcBounds)
         elif re.search('esm', regridTool.lower()):
             self.tool = regrid2.ESMFRegrid(srcGrid, dstGrid, 
-                 srcMask = None, srcBounds = None, srcAreas = None,
-                 dstMask = None, dstBounds = None, dstAreas = None,
+                 srcMask = srcMask, srcBounds = srcBounds, srcAreas = srcAreas,
+                 dstMask = dstMask, dstBounds = dstBounds, dstAreas = dstAreas,
                  **args)
     
     def setValidMask(self, mask):
@@ -60,13 +60,13 @@ class GenericRegrid:
         """
         self.tool.computeWeights()
 
-    def apply(self, srcData, dstData):
+    def apply(self, srcData, dstData, **args):
         """
         Regrid source to destination
         @param srcData array
         @param dstData array
         """
-        self.tool.apply(srcData, dstData)
+        self.tool.apply(srcData, dstData, **args)
 
 
 

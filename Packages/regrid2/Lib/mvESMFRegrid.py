@@ -13,6 +13,11 @@ Authors: David Kindig and Alex Pletzer
 import ESMP
 from regrid2 import esmf
 from regrid2 import GenericRegrid
+import re
+try:
+    from mpi4py import MPI
+except:
+    pass
 
 class ESMFRegrid(GenericRegrid):
     """
@@ -49,17 +54,41 @@ class ESMFRegrid(GenericRegrid):
         self.dstMaskValues = None
         self.srcFrac = None
         self.dstFrac = None
+        self.pe = 0
+        try:
+            self.pe = MPI.COMM_WORLD.Get_rank()
+        except:
+            pass
 
         coordSys = ESMP.ESMP_COORDSYS_SPH_DEG
-        periodicity = 0
 
         # These are exact
         for arg in args.keys():
-            if arg == 'coordSys': coordSys = args[arg]
+            if arg == 'coordSys': 
+                if re.search('cart', args[arg].lower()): 
+                    coordSys = ESMP.ESMP_COORDSYS_CART
+                if re.search('deg', args[arg].lower()):
+                    coordSys = ESMP.ESMP_COORDSYS_SPH_DEG
+                if re.search('rad', args[arg].lower()):
+                    coordSys = ESMP.ESMP_COORDSYS_SPH_RAD
             elif arg == 'periodicity': periodicity = args[arg]
-            elif arg == 'staggerloc': self.staggerloc = args[arg]
-            elif arg == 'unMappedAction': self.unMappedAction = args[arg]
-            elif arg == 'regridMethod': self.regridMethod = args[arg]
+            elif arg == 'staggerloc': 
+                if re.search('center', args[arg].lower()):
+                    self.staggerloc = ESMP.ESMP_STAGGERLOC_CENTER
+                if re.search('corner', args[arg].lower()):
+                    self.staggerloc = ESMP.ESMP_STAGGERLOC_CORNER
+            elif arg == 'unMappedAction': 
+                if re.search('error', args[arg].lower()):
+                    self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_ERROR
+                if re.search('ignore', args[arg].lower()):
+                    self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE
+            elif arg == 'regridMethod': 
+                if re.search('cons', args[arg].lower()):
+                    self.regridMethod = ESMP.ESMP_REGRIDMETHOD_CONSERVE
+                if re.search('line', args[arg].lower()):
+                    self.regridMethod = ESMP.ESMP_REGRIDMETHOD_BILINEAR
+                if re.search('patch', args[arg].lower()):
+                    self.regridMethod = ESMP.ESMP_REGRIDMETHOD_PATCH
             elif arg == 'srcMaskValues': self.srcMaskValues = args[arg]
             elif arg == 'dstMaskValues': self.dstMaskValues = args[arg]
             else:
@@ -75,10 +104,10 @@ class ESMFRegrid(GenericRegrid):
             self.srcGrid.setCellMask(srcMask)
 
         if srcBounds is not None:
-            # Coords are CENTER (cell) based, bounds are CORNER (node) based
+        # Coords are CENTER (cell) based, bounds are CORNER (node) based
             if self.staggerloc != ESMP.ESMP_STAGGERLOC_CORNER:
                 self.srcGrid.setCoords(srcBounds, 
-                                   staggerloc = ESMP.ESMP_STAGGERLOC_CORNER)
+                               staggerloc = ESMP.ESMP_STAGGERLOC_CORNER)
             elif self.staggerloc == ESMP.ESMP_STAGGERLOC_CORNER:
                 string = "If the stagger location is nodal, can't set the bounds"
                 raise RegridError, string
@@ -145,13 +174,11 @@ class ESMFRegrid(GenericRegrid):
         Regrid source to destination
         @param srcData array
         @param dstData array
+        @param rootPe set to None if dstData is locally filled. Other values
+                      will gather dstData on processor rootPe
         """
-        regridMethod = None
-        unMappedAction = None
-        self.srcMaskValues = None
-        self.dstMaskValues = None
-        self.srcFrac = None
-        self.dstFrac = None
+
+        rootPe = 0
 
         srcName = 'srcData'
         dstName = 'dstData'
@@ -159,34 +186,25 @@ class ESMFRegrid(GenericRegrid):
             srcName = 'src_%s' % srcData.id
             dstName = 'dst_%s' % srcData.id
 
-        rootPe = None
-        if 'rootPe' in args.keys(): rootPe = args['rootPe']
-
         self.srcVar = esmf.EsmfStructField(self.srcGrid, srcName, srcData, 
                                       staggerloc = self.staggerloc)
-        self.dstVar = esmf.EsmfStructField(self.dstGrid, dstName, dstData, 
-                                      staggerloc = self.staggerloc)
+        self.dstVar = esmf.EsmfStructField(self.dstGrid, dstName, dstData,
+                                    staggerloc = self.staggerloc)
 
-#        self.regridObj = esmf.EsmfRegrid(self.srcVar, self.dstVar,
-#                                  srcFrac = self.srcFrac, 
-#                                  dstFrac = self.dstFrac,
-#                                  srcMaskValues = self.srcMaskValues,
-#                                  dstMaskValues = self.dstMaskValues,
-#                                  regridMethod = regridMethod,
-#                                  unMappedAction = unMappedAction)
-
-
-        print 'BEG with regridding'
         self.regridObj(self.srcVar, self.dstVar)
-        print 'DONE with regridding'
-        print 
-        dstData = self.dstVar.getData(rootPe = rootPe) 
-        print dstData.reshape(self.dstShape).shape
-        print
 
-#        if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-#            self.srcAreas = self.regridObj.getSrcAreas(rootPe = rootPe)
-#            self.dstAreas = self.regridObj.getDstAreas(rootPe = rootPe)
-#            self.srcFractions = self.regridObj.getSrcAreaFractions(rootPe = rootPe)
-#            self.dstFractions = self.regridObj.getDstAreaFractions(rootPe = rootPe)
+        if 'rootPe' in args: rootPe = args['rootPe']
 
+        if rootPe is None:
+            slab = self.dstGrid.getLocalSlab()
+            dstData[slab] = self.dstVar.getData(rootPe = rootPe)
+        else:
+            data = self.dstVar.getData(rootPe = rootPe)
+            if self.pe == rootPe:
+                dstData[:] = data
+
+        if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
+            self.srcAreas = self.regridObj.getSrcAreas(rootPe = rootPe)
+            self.dstAreas = self.regridObj.getDstAreas(rootPe = rootPe)
+            self.srcFractions = self.regridObj.getSrcAreaFractions(rootPe = rootPe)
+            self.dstFractions = self.regridObj.getDstAreaFractions(rootPe = rootPe)
