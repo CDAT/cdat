@@ -48,13 +48,6 @@ class GenericRegrid:
                  dstMask = dstMask, dstBounds = dstBounds, dstAreas = dstAreas,
                  **args)
     
-    def setValidMask(self, mask):
-        """
-        Set a valid mask.
-        @param mask 0 - Valid 1 - Invalid (numpy masked array definition)
-        """
-        self.tool.setValidMask(mask)
-
     def computeWeights(self):
         """
         Compute Weights
@@ -82,6 +75,3 @@ class GenericRegrid:
             self.tool.apply(srcData, outdata, **args)
             # fill in
             exec('dstData' + slce + ' = outdata')
-
-
-
