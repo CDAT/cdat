@@ -14,9 +14,9 @@ from scrip import DistwgtRegridder, readRegridder
 from cdms2 import gsRegrid
 from mvGenericRegrid import GenericRegrid
 from mvLibCFRegrid import LibCFRegrid
-from mvESMFRegrid import ESMFRegrid
 try:
     from regrid2 import esmf
     import ESMP
+    from mvESMFRegrid import ESMFRegrid
 except:
     pass

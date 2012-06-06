@@ -12,6 +12,7 @@ Authors: David Kindig and Alex Pletzer
 """
 import regrid2
 import re
+from distarray import MultiArray
 
 class GenericRegrid:
     """
@@ -40,33 +41,37 @@ class GenericRegrid:
         if re.search('libcf', regridTool.lower()) or \
            re.search('gsreg', regridTool.lower()):
             self.tool = regrid2.LibCFRegrid(srcGrid, dstGrid, 
-                 srcMask = None, srcBounds = None)
+                 srcMask = srcMask, srcBounds = srcBounds)
         elif re.search('esm', regridTool.lower()):
             self.tool = regrid2.ESMFRegrid(srcGrid, dstGrid, 
-                 srcMask = None, srcBounds = None, srcAreas = None,
-                 dstMask = None, dstBounds = None, dstAreas = None,
+                 srcMask = srcMask, srcBounds = srcBounds, srcAreas = srcAreas,
+                 dstMask = dstMask, dstBounds = dstBounds, dstAreas = dstAreas,
                  **args)
     
-    def setValidMask(self, mask):
-        """
-        Set a valid mask.
-        @param mask 0 - Valid 1 - Invalid (numpy masked array definition)
-        """
-        self.tool.setValidMask(mask)
-
     def computeWeights(self):
         """
         Compute Weights
         """
         self.tool.computeWeights()
 
-    def apply(self, srcData, dstData):
+    def apply(self, srcData, dstData, srcDataMask = None, **args):
         """
         Regrid source to destination
         @param srcData array
         @param dstData array
+        @param srcDataMask array
         """
-        self.tool.apply(srcData, dstData)
-
-
-
+        nonHorizShape = srcData.shape[:-2]
+        outdata = missing_value * numpy.zeros(dstData.shape[-2:], 
+                                              dstData.dtype)
+        # iterate over all non lat/lon coordinates
+        for it in MultiArrayIter(nonHorizShape):
+            indices = it.getIndices()
+            slce = '[' 
+            slce += reduce(operator.add, ['%d,'%i for i in indices])
+            slce += '...]'
+            indata = eval('srcData' + slce)
+            # interpolate, using the appropriate tool
+            self.tool.apply(srcData, outdata, **args)
+            # fill in
+            exec('dstData' + slce + ' = outdata')
