@@ -13,7 +13,6 @@ Authors: David Kindig and Alex Pletzer
 import regrid2
 import re
 from distarray import MultiArrayIter
-import operator
 
 class GenericRegrid:
     """
@@ -21,8 +20,8 @@ class GenericRegrid:
     """
     def __init__(self, srcGrid, dstGrid, regridMethod = 'Linear', 
                  regridTool = 'LibCF',
-                 srcMask = None, srcBounds = None, srcAreas = None,
-                 dstMask = None, dstBounds = None, dstAreas = None,
+                 srcGridMask = None, srcBounds = None, srcGridAreas = None,
+                 dstGridMask = None, dstBounds = None, dstGridAreas = None,
                  **args):
         """
         Constructor. Grids, [bounds, masks and areas if passed] must be in the 
@@ -31,22 +30,22 @@ class GenericRegrid:
         @param dstGrid array
         @param regridMethod Linear (bi, tri,...) default or Conservative
         @param regridTool LibCF (gsRegrid), ESMP (ESMF)
-        @param srcMask array of same shape as srcGrid
+        @param srcGridMask array of same shape as srcGrid
         @param srcBounds array of same shape as srcGrid
-        @param srcAreas array of same shape as srcGrid
-        @param dstMask array of same shape as dstGrid
+        @param srcGridAreas array of same shape as srcGrid
+        @param dstGridMask array of same shape as dstGrid
         @param dstBounds array of same shape as dstGrid
-        @param dstAreas array of same shape as dstGrid
+        @param dstGridAreas array of same shape as dstGrid
         """
 
         if re.search('libcf', regridTool.lower()) or \
            re.search('gsreg', regridTool.lower()):
             self.tool = regrid2.LibCFRegrid(srcGrid, dstGrid, 
-                 srcMask = srcMask, srcBounds = srcBounds)
+                 srcGridMask = srcGridMask, srcBounds = srcBounds)
         elif re.search('esm', regridTool.lower()):
             self.tool = regrid2.ESMFRegrid(srcGrid, dstGrid, 
-                 srcMask = srcMask, srcBounds = srcBounds, srcAreas = srcAreas,
-                 dstMask = dstMask, dstBounds = dstBounds, dstAreas = dstAreas,
+                 srcGridMask = srcGridMask, srcBounds = srcBounds, srcGridAreas = srcGridAreas,
+                 dstGridMask = dstGridMask, dstBounds = dstBounds, dstGridAreas = dstGridAreas,
                  **args)
     
     def computeWeights(self):
