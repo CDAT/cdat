@@ -13,6 +13,7 @@ Authors: David Kindig and Alex Pletzer
 import regrid2
 import re
 from distarray import MultiArrayIter
+import operator
 
 class GenericRegrid:
     """
