@@ -60,11 +60,12 @@ class GenericRegrid:
         """
         self.tool.computeWeights()
 
-    def apply(self, srcData, dstData, **args):
+    def apply(self, srcData, dstData, srcDataMask = None, **args):
         """
         Regrid source to destination
         @param srcData array
         @param dstData array
+        @param srcDataMask array
         """
         self.tool.apply(srcData, dstData, **args)
 

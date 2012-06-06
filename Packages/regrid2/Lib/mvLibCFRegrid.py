@@ -35,11 +35,19 @@ class LibCFRegrid(GenericRegrid):
         """
         self.regridObj.computeWeights(**args)
 
-    def apply(self, srcData, dstData):
+    def setMask(self, mask):
+        """
+        Set the mask using 0 as unmasked 1 as masked (numpy masked array definition)
+        @param mask array
+        """
+        gsRegrid
+
+    def apply(self, srcData, dstData, srcDataMask = None, **args):
         """
         Regrid source to destination
         @param srcData array
         @param dstData array
+        @param srcDataMask array
         """
         self.regridObj.apply(srcData, dstData)
 
