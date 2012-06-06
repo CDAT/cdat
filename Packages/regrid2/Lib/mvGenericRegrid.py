@@ -22,8 +22,8 @@ class GenericRegrid:
     """
     def __init__(self, srcGrid, dstGrid, regridMethod = 'Linear', 
                  regridTool = 'LibCF',
-                 srcMask = None, srcBounds = None, srcAreas = None,
-                 dstMask = None, dstBounds = None, dstAreas = None,
+                 srcGridMask = None, srcBounds = None, srcGridAreas = None,
+                 dstGridMask = None, dstBounds = None, dstGridAreas = None,
                  **args):
         """
         Constructor. Grids, [bounds, masks and areas if passed] must be in the 
@@ -32,12 +32,12 @@ class GenericRegrid:
         @param dstGrid array
         @param regridMethod Linear (bi, tri,...) default or Conservative
         @param regridTool LibCF (gsRegrid), ESMP (ESMF)
-        @param srcMask array of same shape as srcGrid
+        @param srcGridMask array of same shape as srcGrid
         @param srcBounds array of same shape as srcGrid
-        @param srcAreas array of same shape as srcGrid
-        @param dstMask array of same shape as dstGrid
+        @param srcGridAreas array of same shape as srcGrid
+        @param dstGridMask array of same shape as dstGrid
         @param dstBounds array of same shape as dstGrid
-        @param dstAreas array of same shape as dstGrid
+        @param dstGridAreas array of same shape as dstGrid
         """
 
         self.nGridDims = len(srcGrid)
@@ -46,16 +46,17 @@ class GenericRegrid:
             msg = 'mvgenericRegrid.__init__: mismatch in number of dims'
             msg += ' len(srcGrid) = %d != len(dstGrid) = %d' % \
                 (self.nGridDims, len(dstGrid))
+            raise regrid2.RegridError, msg
 
         # parse the options
         if re.search('libcf', regridTool.lower()) or \
            re.search('gsreg', regridTool.lower()):
             self.tool = regrid2.LibCFRegrid(srcGrid, dstGrid, 
-                 srcMask = srcMask, srcBounds = srcBounds)
+                 srcGridMask = srcGridMask, srcBounds = srcBounds)
         elif re.search('esm', regridTool.lower()):
             self.tool = regrid2.ESMFRegrid(srcGrid, dstGrid, 
-                 srcMask = srcMask, srcBounds = srcBounds, srcAreas = srcAreas,
-                 dstMask = dstMask, dstBounds = dstBounds, dstAreas = dstAreas,
+                 srcGridMask = srcGridMask, srcBounds = srcBounds, srcGridAreas = srcGridAreas,
+                 dstGridMask = dstGridMask, dstBounds = dstBounds, dstGridAreas = dstGridAreas,
                  **args)
     
     def computeWeights(self):
@@ -89,14 +90,14 @@ class GenericRegrid:
                 msg = 'mvGenericRegrid.apply: axes detected '
                 msg += 'but %s != %s ' % (str(nonHorizShape2),
                                           str(nonHorizShape))
-                raise RegridError, msg
+                raise regrid2.RegridError, msg
 
             #
             # iterate over all axes
             #
 
             # create containers to hold input/output values
-            # (a copyis essential here)
+            # (a copy is essential here)
             zros = '[' + ('0,'*len(nonHorizShape)) + '...]'
             indata = numpy.array(eval('srcData' + zros))
             outdata = numpy.array(eval('dstData' + zros))
