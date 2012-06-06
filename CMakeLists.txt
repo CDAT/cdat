@@ -488,6 +488,7 @@ add_cdat_package(basemap)
 add_cdat_package(CMOR)
 add_cdat_package(CDAT)
 add_cdat_package(gui_support)
+#add_cdat_package(PVFileDialog)
 
 # Optional Packages
 
@@ -536,6 +537,7 @@ if(CDAT_BUILD_VISIT)
   add_cdat_package(VisIt)
 endif()
 
+add_cdat_package(PVFileDialog)
 # C. Doutriaux Turning off Vistrails build from within CDAT
 #option(CDAT_BUILD_VISTRAILS "Build VisTrails" OFF)
 #if(CDAT_BUILD_VISTRAILS)
@@ -669,6 +671,8 @@ set(Mpi4py_DEPENDENCIES ${NUMPY_dep} )
 set(GEOS_DEPENDENCIES ${Matplotlib_dep} )
 set(basemap_DEPENDENCIES ${GEOS_dep} )
 set(pyspharm_DEPENDENCIES ${NUMPY_dep})
+
+set(PVFileDialog_DEPENDENCIES ${ParaView_dep})
 
 list(REMOVE_DUPLICATES external_packages)
 foreach(package ${external_packages})
