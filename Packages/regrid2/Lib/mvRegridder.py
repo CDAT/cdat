@@ -13,6 +13,12 @@ Authors: David Kindig and Alex Pletzer
 import re
 from regrid2 import GenericRegrid
 
+def getCDMSVarInfo():
+    pass
+
+def arrayToCDMSVar():
+    pass
+
 class Regridder:
     """
     Regridding switchboard, handles CDMS Variables before handing off to 
@@ -57,19 +63,18 @@ class Regridder:
              re.search('esm', regridTool.lower()): 
 
             self.regridMethod = 'mvGeneric'
+            # ensure grids are a list of curvilinear coordinates in 
+            # lat-lon order
+            self.regridObj = regrid2.mvGenericRegrid( srcGrid, dstGrid, 
+                                  regridMethod = regridMethod, 
+                                  regridTool = regridTool,
+                                  srcGridMask = srcGridMask, srcBounds = srcBounds, 
+                                  srcGridAreas = srcGridAreas,
+                                  dstGridMask = dstGridMask, dstBounds = dstBounds, 
+                                  dstGridAreas = dstGridAreas, **args )
+            self.regridObj.computeWeights(**args)
         else:
             raise RegridError, 'Supported RegridTools are LibCF, ESMF, Regrid2'
-
-        # ensure grids are a list of curvilinear coordinates in 
-        # lat-lon order
-        self.regridObj = regrid2.mvGenericRegrid( srcGrid, dstGrid, 
-                              regridMethod = regridMethod, 
-                              regridTool = regridTool,
-                              srcGridMask = srcGridMask, srcBounds = srcBounds, 
-                              srcGridAreas = srcGridAreas,
-                              dstGridMask = dstGridMask, dstBounds = dstBounds, 
-                              dstGridAreas = dstGridAreas, **args )
-        self.regridObj.computeWeights(**args)
 
     def __call__(self, srcData, **args):
         """
@@ -90,7 +95,7 @@ class Regridder:
             # srcData axes other than its grid
 
             # Loop over additional axes.
-            self.regridObj(srcData, dstData, **args)
+            self.regridObj.apply(srcData, dstData, **args)
 
             # Convert the dstData to a CMDS Variable if srcIsVar
 

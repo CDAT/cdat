@@ -229,22 +229,30 @@ class ESMFRegrid(GenericRegrid):
 
         if rootPe is None:
             slab = self.dstGrid.getLocalSlab()
-            dstTmp = dstVar.getData(rootPe = rootPe)[slab]
-            dstMsk = dstDataMask.getData(rootPe = rootPe)[slab]
-            dstMsk0 = dstMsk == 0
-            dstMsk1 = dstMsk != 0
-            if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_BILINEAR:
-                dstData[slab] = dstTmp * dstMsk0 + missing_value * dstMsk1
-            elif self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-                dstData[slab] = dstTmp * (1 - dstMsk) + (dstMsk1) * missing_value
-
+            dstData[slab] = dstVar.getData(rootPe = rootPe)
         else:
             data = dstVar.getData(rootPe = rootPe)
-            mask = dstDataMask.getData(rootPe = rootPe)
-            mas0 = mask == 0
-            mas1 = mask != 0
             if self.pe == rootPe:
-                if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_BILINEAR:
-                    dstData[:] = data * mas0 + missing_value * mas1
-                elif self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-                    dstData[:] = data * (1-mask) + missing_value * mas1
+                dstData[:] = data
+
+#        if rootPe is None:
+#            slab = self.dstGrid.getLocalSlab()
+#            dstTmp = dstVar.getData(rootPe = rootPe)[slab]
+#            dstMsk = dstDataMask.getData(rootPe = rootPe)
+#            dstMsk0 = dstMsk == 0
+#            dstMsk1 = dstMsk != 0
+#            if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_BILINEAR:
+#                dstData[slab] = dstTmp * dstMsk0 + missing_value * dstMsk1
+#            elif self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
+#                dstData[slab] = dstTmp * (1 - dstMsk) + (dstMsk1) * missing_value
+#
+#        else:
+#            data = dstVar.getData(rootPe = rootPe)
+#            mask = dstDataMask.getData(rootPe = rootPe)
+#            mas0 = mask == 0
+#            mas1 = mask != 0
+#            if self.pe == rootPe:
+#                if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_BILINEAR:
+#                    dstData[:] = data * mas0 + missing_value * mas1
+#                elif self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
+#                    dstData[:] = data * (1-mask) + missing_value * mas1
