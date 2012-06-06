@@ -43,7 +43,7 @@ class GenericRegrid:
         self.nGridDims = len(srcGrid)
 
         if len(srcGrid) != len(dstGrid):
-            msg = 'mvgenericRegrid.__init__: mismatch in number of dims'
+            msg = 'mvGenericRegrid.__init__: mismatch in number of dims'
             msg += ' len(srcGrid) = %d != len(dstGrid) = %d' % \
                 (self.nGridDims, len(dstGrid))
             raise regrid2.RegridError, msg
