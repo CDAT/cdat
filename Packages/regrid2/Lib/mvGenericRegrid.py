@@ -14,6 +14,7 @@ import regrid2
 import re
 from distarray import MultiArrayIter
 import operator
+import numpy
 
 class GenericRegrid:
     """
@@ -39,6 +40,14 @@ class GenericRegrid:
         @param dstAreas array of same shape as dstGrid
         """
 
+        self.nGridDims = len(srcGrid)
+
+        if len(srcGrid) != len(dstGrid):
+            msg = 'mvgenericRegrid.__init__: mismatch in number of dims'
+            msg += ' len(srcGrid) = %d != len(dstGrid) = %d' % \
+                (self.nGridDims, len(dstGrid))
+
+        # parse the options
         if re.search('libcf', regridTool.lower()) or \
            re.search('gsreg', regridTool.lower()):
             self.tool = regrid2.LibCFRegrid(srcGrid, dstGrid, 
@@ -63,30 +72,46 @@ class GenericRegrid:
         @param dstData array (output)
         @param srcDataMask array
         """
-        nonHorizShape = srcData.shape[:-2]
+
+        nonHorizShape = srcData.shape[: -self.nGridDims]
         if len(nonHorizShape) == 0:
+
+            #
+            # no axis... just call apply 
+            #
+
             self.tool.apply(srcData, dstData, **args)
+
         else:
+
+            nonHorizShape2 = dstData.shape[: -self.nGridDims]
+            if not numpy.all(nonHorizShape2 == nonHorizShape):
+                msg = 'mvGenericRegrid.apply: axes detected '
+                msg += 'but %s != %s ' % (str(nonHorizShape2),
+                                          str(nonHorizShape))
+                raise RegridError, msg
 
             #
             # iterate over all axes
             #
 
-            # output data container, initialized to the dstData[0,0,...]
-            # values
-            zros = '[' 
-            zros += reduce(operator.add, ['0,' for i in nonHorizShape])
-            zros += '...]'
-            outdata = eval('dstData' + zros)
+            # create containers to hold input/output values
+            # (a copyis essential here)
+            zros = '[' + ('0,'*len(nonHorizShape)) + '...]'
+            indata = numpy.array(eval('srcData' + zros))
+            outdata = numpy.array(eval('dstData' + zros))
 
-            # iterate over all non lat/lon coordinates
+            # now iterate over all non lat/lon coordinates
             for it in MultiArrayIter(nonHorizShape):
+
                 indices = it.getIndices()
                 slce = '[' 
                 slce += reduce(operator.add, ['%d,'%i for i in indices])
                 slce += '...]'
                 indata = eval('srcData' + slce)
+
                 # interpolate, using the appropriate tool
                 self.tool.apply(indata, outdata, **args)
+
                 # fill in dstData
                 exec('dstData' + slce + ' = outdata')
