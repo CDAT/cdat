@@ -207,7 +207,7 @@ class ESMFRegrid(GenericRegrid):
                                dtype = numpy.int32)
             self.mask = esmf.EsmfStructField(self.srcGrid, 'mask', mask,
                                     staggerloc = self.staggerloc)
-            newField = 
+            #newField = 
 
         self.regridObj(self.srcVar, self.dstVar)
 
