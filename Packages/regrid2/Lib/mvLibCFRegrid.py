@@ -17,31 +17,23 @@ from regrid2 import GenericRegrid
 class LibCFRegrid(GenericRegrid):
     """
     """
-    def __init__(self, srcGrid, dstGrid, srcMask = None, 
+    def __init__(self, srcGrid, dstGrid, srcGridMask = None, 
                  srcBounds = None, **args):
         """
         Constructor
         @param srcGrid array
         @param dstGrid array
         """
+        if srcGridMask is not None: gsRegrid.setValidMask(srcGridMask)
         self.regridObj = gsRegrid.Regrid(srcGrid, dstGrid, 
                                          src_bounds = srcBounds,
                                          **args)
-        if srcMask is not None: 
-            self.regridObj.setMask(srcMask)
 
     def computeWeights(self, **args):
         """
         Compute interpolation weights
         """
         self.regridObj.computeWeights(**args)
-
-    def setMask(self, mask):
-        """
-        Set the mask using 0 as unmasked 1 as masked (numpy masked array definition)
-        @param mask array
-        """
-        gsRegrid
 
     def apply(self, srcData, dstData, srcDataMask = None, **args):
         """
