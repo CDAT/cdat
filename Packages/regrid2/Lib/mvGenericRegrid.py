@@ -54,24 +54,38 @@ class GenericRegrid:
         """
         self.tool.computeWeights()
 
-    def apply(self, srcData, dstData, srcDataMask = None, **args):
+    def apply(self, srcData, dstData, srcDataMask = None, 
+              **args):
         """
         Regrid source to destination
-        @param srcData array
-        @param dstData array
+        @param srcData array (input)
+        @param dstData array (output)
         @param srcDataMask array
         """
         nonHorizShape = srcData.shape[:-2]
-        outdata = missing_value * numpy.zeros(dstData.shape[-2:], 
-                                              dstData.dtype)
-        # iterate over all non lat/lon coordinates
-        for it in MultiArrayIter(nonHorizShape):
-            indices = it.getIndices()
-            slce = '[' 
-            slce += reduce(operator.add, ['%d,'%i for i in indices])
-            slce += '...]'
-            indata = eval('srcData' + slce)
-            # interpolate, using the appropriate tool
-            self.tool.apply(srcData, outdata, **args)
-            # fill in
-            exec('dstData' + slce + ' = outdata')
+        if len(nonHorizShape) == 0:
+            self.tool.apply(srcData, dstData, **args)
+        else:
+
+            #
+            # iterate over all axes
+            #
+
+            # output data container, initialized to the dstData[0,0,...]
+            # values
+            zros = '[' 
+            zros += reduce(operator.add, ['0,' for i in nonHorizShape])
+            zros += '...]'
+            outdata = eval('dstData' + zros)
+
+            # iterate over all non lat/lon coordinates
+            for it in MultiArrayIter(nonHorizShape):
+                indices = it.getIndices()
+                slce = '[' 
+                slce += reduce(operator.add, ['%d,'%i for i in indices])
+                slce += '...]'
+                indata = eval('srcData' + slce)
+                # interpolate, using the appropriate tool
+                self.tool.apply(indata, outdata, **args)
+                # fill in dstData
+                exec('dstData' + slce + ' = outdata')
