@@ -688,7 +688,7 @@ set(Mpi4py_DEPENDENCIES ${NUMPY_dep} ${OPENMPI_dep})
 
 set(GEOS_DEPENDENCIES ${Matplotlib_dep})
 set(Shapely_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${GEOS_dep})
-set(gdal_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${NetCDF_dep} ${HDF5_dep} ${CURL_dep} ${zlib_dep} ${jasper_dep})
+set(gdal_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${NetCDF_dep} ${HDF5_dep} ${CURL_dep} ${zlib_dep} ${jasper_dep} ${setuptools_dep})
 set(basemap_DEPENDENCIES ${GEOS_dep})
 set(pyspharm_DEPENDENCIES ${NUMPY_dep})
 

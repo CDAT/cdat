@@ -424,8 +424,13 @@ class Regridder:
         @param args optional arguments
         """
         makeCyclic = False
+        if hasattr(inGrid, 'getLongitude') and \
+                getattr(inGrid.getLongitude(), 'topology', '') == 'circular':
+            makeCyclic = True
+
         handleCut = False
         srcBounds = None
+
         # Prep in and out grid for gsRegrid!
         self.srcGrid, self.srcNDims = _makeGridList(inGrid)
         self.dstGrid, self.dstNDims = _makeGridList(outGrid)
