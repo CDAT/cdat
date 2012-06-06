@@ -891,8 +891,8 @@ class AbstractVariable(CdmsObj, Slab):
         regridObject = Regridder(sourceGrid, destingGrid, regridTool = 'ESMF')
         new_cdmsVar = regridObject(sourcecdmsVar)
 
-        @param togrid Desination grid. CDMS grid
-        @param missing Missing values
+        @param togrid destination grid. CDMS grid
+        @param missing missing values
         @param order axis order
         @param mask grid/data mask
         @param Optional keywords dependent on regridTool
