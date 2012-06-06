@@ -12,6 +12,7 @@ Authors: David Kindig and Alex Pletzer
 """
 import regrid2
 import re
+from distarray import MultiArray
 
 class GenericRegrid:
     """
@@ -67,7 +68,20 @@ class GenericRegrid:
         @param dstData array
         @param srcDataMask array
         """
-        self.tool.apply(srcData, dstData, **args)
+        nonHorizShape = srcData.shape[:-2]
+        outdata = missing_value * numpy.zeros(dstData.shape[-2:], 
+                                              dstData.dtype)
+        # iterate over all non lat/lon coordinates
+        for it in MultiArrayIter(nonHorizShape):
+            indices = it.getIndices()
+            slce = '[' 
+            slce += reduce(operator.add, ['%d,'%i for i in indices])
+            slce += '...]'
+            indata = eval('srcData' + slce)
+            # interpolate, using the appropriate tool
+            self.tool.apply(srcData, outdata, **args)
+            # fill in
+            exec('dstData' + slce + ' = outdata')
 
 
 
