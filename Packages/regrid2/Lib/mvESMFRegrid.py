@@ -15,6 +15,7 @@ from regrid2 import esmf
 from regrid2 import RegridError
 
 from regrid2 import GenericRegrid
+from regrid2 import RegridError
 import re
 import numpy
 try:
