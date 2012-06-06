@@ -12,7 +12,7 @@ Authors: David Kindig and Alex Pletzer
 """
 import regrid2
 import re
-from distarray import MultiArray
+from distarray import MultiArrayIter
 
 class GenericRegrid:
     """
