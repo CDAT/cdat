@@ -10,18 +10,15 @@ specified in the license file 'license.txt' are met.
 
 Authors: David Kindig and Alex Pletzer
 """
+import types
 import re
+import numpy
+import cdms2
 from regrid2 import GenericRegrid
-
-def getCDMSVarInfo():
-    pass
-
-def arrayToCDMSVar():
-    pass
 
 class Regridder:
     """
-    Regridding switchboard, handles CDMS Variables before handing off to 
+    Regridding switchboard, handles CDMS variables before handing off to 
     regridder. If a multidimensional variable is passed in, the apply step
     loops over the axes above the Lat (Y) -- Lon (X) coordinates
     """
@@ -34,70 +31,143 @@ class Regridder:
         Establish which regridding method to use, handles CDMS Variables before
         handing off to regridder. See specific tool for more information.
 
-        @param srcGrid list of coordinates [[Additional Axes], Lat, Lon]
-                       node based for LibCF,
-                       cell based coordinates for ESMF
-        @param dstGrid list of coordinates [[Additional Axes], Lat, Lon]
-                       node based for LibCF,
-                       cell based coordinates for ESMF
+        @param srcGrid CDMS source grid
+        @param dstGrid CDMS destination grid
         @param regridMethod Linear (all tools - Bi, tri), 
                             Conservative (ESMF Only)
                             Patch (ESMF Only)
-        @param regridTool LibCF, ESMF, regrid2, SCRIP
-		@param srcBounds Source bounds in same order as srcGrid
-		@param srcGridMask array Source mask, tool dependent.
-                      If the data to be regridded is a masked array, the mask
-                      will be set during the __call__ method
-		@param srcGridAreas array Source area, tool dependent
-        @param dstBounds Destination bounds in same order as dstGrid 
-		@param dstGridMask Destination mask, tool dependent
-		@param dstGridAreas Destination area, tool dependent
-        @param **args Tool dependent arguments
+        @param regridTool LibCF, ESMF, ...
+	@param srcBounds source grid cell bounds
+	@param srcGridMask array source mask, interpolation 
+                           coefficients will not be computed for masked
+                           points/cells.
+	@param srcGridAreas array destination cell areas, only needed for 
+                            conservative regridding
+	@param dstBounds destination grid cell bounds
+	@param dstGridMask array destination mask, interpolation 
+                           coefficients will not be computed for masked
+                           points/cells.
+	@param dstGridAreas array destination cell areas, only needed for 
+                            conservative regridding
+        @param **args additional, tool dependent arguments
         """
         
-        if re.search('regrid2', regridTool.lower()):
-            self.regridMethod = 'regrid2'
-            self.regridObj = regrid2.horizontal(srcGrid, dstGrid)
-        elif re.search('gsr', regridTool.lower() or \
-             re.search('libcf', regridTool.lower() or \
-             re.search('esm', regridTool.lower()): 
+        self.srcGrid = srcGrid
+        self.dstGrid = dstGrid
+        self.regridMethod = regridMethod
 
-            self.regridMethod = 'mvGeneric'
-            # ensure grids are a list of curvilinear coordinates in 
-            # lat-lon order
-            self.regridObj = regrid2.mvGenericRegrid( srcGrid, dstGrid, 
-                                  regridMethod = regridMethod, 
-                                  regridTool = regridTool,
-                                  srcGridMask = srcGridMask, srcBounds = srcBounds, 
-                                  srcGridAreas = srcGridAreas,
-                                  dstGridMask = dstGridMask, dstBounds = dstBounds, 
-                                  dstGridAreas = dstGridAreas, **args )
-            self.regridObj.computeWeights(**args)
+        self.regridObj = regrid2.mvGenericRegrid(srcGrid, dstGrid, 
+                                                 regridMethod = regridMethod, 
+                                                 regridTool = regridTool,
+                                                 srcGridMask = srcGridMask, 
+                                                 srcBounds = srcBounds, 
+                                                 srcGridAreas = srcGridAreas,
+                                                 dstGridMask = dstGridMask, 
+                                                 dstBounds = dstBounds, 
+                                                 dstGridAreas = dstGridAreas, 
+                                                 **args )
+        self.regridObj.computeWeights(**args)
+
+    def __call__(self, srcVar, **args):
+        """
+        Interpolate, looping over additional (non-latitude/longitude) axes
+           if need be
+        @param srcVar CDMS variable
+        @param **args Tool dependent arguments
+        @return CDMS interpolated variable 
+        """
+        # initialize
+        dstMask = None
+        missingValue = getattr(srcVar, 'missing_value', None)
+
+        timeAxis = srcVar.getTime()
+        levelAxis = srcVar.getLevel()
+        # shape of dst var
+        dstShape = list(srcVar.shape[:-2]) + list(self.dstGrid.shape())
+
+        srcMaskFArray = None
+        dstMaskFArray = None
+        dstMask = None
+        if missing_value is not None:
+            srcMaskFArray = numpy.ones(self.srcGrid.shape, dtype = srcVar.dtype)
+            dstMaskFArray = numpy.ones(self.dstGrid.shape, dtype = srcVar.dtype)
+            # interpolate the data mask
+            self.regridObj.apply(scrMaskFArray, dstMaskFArray, **args)
+            # set the destination data mask
+            if re.search('linear', self.regridMethod, re.I):
+                # nodal 
+                dstMask = numpy.array(dstMaskFArray > 0.0, dtype = numpy.int32)
+            else:
+                # cell or conservative
+                dstMask = numpy.array(dstMaskFArray == 1.0, dtype = numpy.int32)
+
+        # interpolate the data
+        dstData = numpy.zeros(dstShape, dtype = srcVar.dtype)
+        self.regridObj.apply(srcVar.data, dstVar.data, **args)
+
+        # set masked data values to missing_value
+        if dstMask is not None and missingValue is not None:
+             dstData *= (1 - dstMask)
+             dstData += dstMask * missingValue
+
+        # create axis list
+
+        # harvest all the string attributes from srcVar
+        attrs = {}
+        for a in srcVar.attributes:
+            v = srcVar.attributes[a]
+            if type(v) is types.StringType:
+                attrs[a] = v
+                
+        # harvest the axis list form srcVar, start with all axes other than 
+        # lat/lon
+        dstAxisList = []
+        horizAxes = {}
+        index = 0
+        for a in srcVar.getAxisList():
+            if a.isLatitude():
+                horizAxes['lat_index'] = index
+                dstAxisList.append(None)
+            elif a.isLongitude(): 
+                horizAxes['lon_index'] = index
+                dstAxisList.append(None)
+            else:
+                dstAxisList.append(a)
+            index += 1
+        # fill in the lat axis
+        latShape = self.dstGrid.getLatitude().shape
+        if len(latShape) > 1:
+            # curvilinear, create some fake axes
+            n = latShape[0]
+            if horizAxes['lon_index'] < horizAxes['lat_index']:
+                n = latShape[1]
+            latAxis = createAxis(numpy.array([i for i in range(n)], numpy.float64),
+                                 id = 'lat_index')
+            dstAxisList[horizAxes['lat_index']] = latAxis
         else:
-            raise RegridError, 'Supported RegridTools are LibCF, ESMF, Regrid2'
+            dstAxisList[horizAxes['lat_index']] = self.dstGrid.getLatitude()
+        # fill in the lon axis
+        lonShape = self.dstGrid.getLongitude().shape
+        if len(lonShape) > 1:
+            # curvilinear, create some fake axes
+            n = lonShape[0]
+            if horizAxes['lon_index'] < horizAxes['lon_index']:
+                n = lonShape[1]
+            lonAxis = createAxis(numpy.array([i for i in range(n)], numpy.float64),
+                                 id = 'lon_index')
+            dstAxisList[horizAxes['lon_index']] = lonAxis
+        else:
+            dstAxisList[horizAxes['lon_index']] = self.dstGrid.getLongitude()
 
-    def __call__(self, srcData, **args):
-        """
-        Apply the regridding. Loop over additional axes here.
-        @param srcData CDMS var or array
-        @param dstData array. 
-        @param **args Tool dependent arguments
-        @return CDMS var if srcData is CDMS var, otherwise an array
-        """
+        # create the transient variable
+        dstVar = cdms2.createVariable(dstData, 
+                                      mask = dstMask,
+                                      fill_value = missing_value,
+                                      axes = dstAxisList,
+                                      grid = self.dstGrid,
+                                      attributes = attrs, 
+                                      id = srcVar.id + '_mvRegridder')
         
-        if self.regridMethod == 'regrid2':
-            result = self.regridObj(srcData, **args)
-            return = result
-        elif self.regridMethod == 'mvGeneric':
-            # Handle the variable. Retrieve CDMS information if available
-            
-            # Create Destination array from dstGrid shape and 
-            # srcData axes other than its grid
-
-            # Loop over additional axes.
-            self.regridObj.apply(srcData, dstData, **args)
-
-            # Convert the dstData to a CMDS Variable if srcIsVar
-
-            return dstData
+        
+        return dstVar
 
