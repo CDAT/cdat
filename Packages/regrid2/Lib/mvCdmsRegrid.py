@@ -14,9 +14,82 @@ import types
 import re
 import numpy
 import cdms2
-from regrid2 import GenericRegrid
+import regrid2
 
-class Regridder:
+def _getCoordList(grid):
+    """
+    Return a coordinate list from a CDMS grid
+    """
+    lats = grid.getLatitude()
+    lons = grid.getLongitude()
+    shp = grid.shape
+
+    if grid.getAxis(0).isLatitude():
+        # turn into curvilinear, if need be
+        if len(lats.shape) == 1:
+            lats = cdms2.gsRegrid.getTensorProduct(lats[:], 0, shp)
+        if len(lons.shape) == 1:
+            lons = cdms2.gsRegrid.getTensorProduct(lons[:], 1, shp)
+        return lats, lons
+
+    if len(lats.shape) == 1:
+        lats = cdms2.gsRegrid.getTensorProduct(lats[:], 1, shp)
+    if len(lons.shape) == 1:
+        lons = cdms2.gsRegrid.getTensorProduct(lons[:], 0, shp)
+    return lons, lats
+
+def _getAxisList(srcVar, dstGrid):
+    """
+    Get the list of axes from a variable and a grid
+    @param srcVar the variable from which all axes other than lat/lon 
+                  will be taken from
+    @param dstGrid target, horizontal grid
+    @return variable with non-horizontal axes from srcVar and horizontal axes
+            from dstGrid
+    """
+
+    # harvest the axis list form srcVar, start with all axes other than 
+    # lat/lon
+    dstAxisList = []
+    horizAxes = {}
+    index = 0
+    for a in srcVar.getAxisList():
+        if a.isLatitude():
+            horizAxes['lat_index'] = index
+            dstAxisList.append(None)
+        elif a.isLongitude(): 
+            horizAxes['lon_index'] = index
+            dstAxisList.append(None)
+        else:
+            dstAxisList.append(a)
+        index += 1
+    # fill in the lat axis
+    latShape = dstGrid.getLatitude().shape
+    if len(latShape) > 1:
+        # curvilinear, create some fake axes
+        n = latShape[0]
+        if horizAxes['lon_index'] < horizAxes['lat_index']:
+            n = latShape[1]
+        latAxis = createAxis(numpy.array([i for i in range(n)], numpy.float64),
+                             id = 'lat_index')
+        dstAxisList[horizAxes['lat_index']] = latAxis
+    else:
+        dstAxisList[horizAxes['lat_index']] = dstGrid.getLatitude()
+    # fill in the lon axis
+    lonShape = dstGrid.getLongitude().shape
+    if len(lonShape) > 1:
+        # curvilinear, create some fake axes
+        n = lonShape[0]
+        if horizAxes['lon_index'] < horizAxes['lon_index']:
+            n = lonShape[1]
+        lonAxis = createAxis(numpy.array([i for i in range(n)], numpy.float64),
+                             id = 'lon_index')
+        dstAxisList[horizAxes['lon_index']] = lonAxis
+    else:
+        dstAxisList[horizAxes['lon_index']] = dstGrid.getLongitude()
+
+
+class CdmsRegrid:
     """
     Regridding switchboard, handles CDMS variables before handing off to 
     regridder. If a multidimensional variable is passed in, the apply step
@@ -56,16 +129,19 @@ class Regridder:
         self.dstGrid = dstGrid
         self.regridMethod = regridMethod
 
-        self.regridObj = regrid2.mvGenericRegrid(srcGrid, dstGrid, 
-                                                 regridMethod = regridMethod, 
-                                                 regridTool = regridTool,
-                                                 srcGridMask = srcGridMask, 
-                                                 srcBounds = srcBounds, 
-                                                 srcGridAreas = srcGridAreas,
-                                                 dstGridMask = dstGridMask, 
-                                                 dstBounds = dstBounds, 
-                                                 dstGridAreas = dstGridAreas, 
-                                                 **args )
+        srcCoords = _getCoordList(srcGrid)
+        dstCoords = _getCoordList(dstGrid)
+
+        self.regridObj = regrid2.GenericRegrid(srcCoords, dstCoords, 
+                                               regridMethod = regridMethod, 
+                                               regridTool = regridTool,
+                                               srcGridMask = srcGridMask, 
+                                               srcBounds = srcBounds, 
+                                               srcGridAreas = srcGridAreas,
+                                               dstGridMask = dstGridMask, 
+                                               dstBounds = dstBounds, 
+                                               dstGridAreas = dstGridAreas, 
+                                               **args )
         self.regridObj.computeWeights(**args)
 
     def __call__(self, srcVar, **args):
@@ -83,16 +159,16 @@ class Regridder:
         timeAxis = srcVar.getTime()
         levelAxis = srcVar.getLevel()
         # shape of dst var
-        dstShape = list(srcVar.shape[:-2]) + list(self.dstGrid.shape())
+        dstShape = list(srcVar.shape[:-2]) + list(self.dstGrid.shape)
 
         srcMaskFArray = None
         dstMaskFArray = None
         dstMask = None
-        if missing_value is not None:
+        if missingValue is not None:
             srcMaskFArray = numpy.ones(self.srcGrid.shape, dtype = srcVar.dtype)
             dstMaskFArray = numpy.ones(self.dstGrid.shape, dtype = srcVar.dtype)
             # interpolate the data mask
-            self.regridObj.apply(scrMaskFArray, dstMaskFArray, **args)
+            self.regridObj.apply(srcMaskFArray, dstMaskFArray, **args)
             # set the destination data mask
             if re.search('linear', self.regridMethod, re.I):
                 # nodal 
@@ -103,14 +179,15 @@ class Regridder:
 
         # interpolate the data
         dstData = numpy.zeros(dstShape, dtype = srcVar.dtype)
-        self.regridObj.apply(srcVar.data, dstVar.data, **args)
+        self.regridObj.apply(srcVar.data, dstData, **args)
 
-        # set masked data values to missing_value
+        # set masked data values to missingValue
         if dstMask is not None and missingValue is not None:
              dstData *= (1 - dstMask)
              dstData += dstMask * missingValue
-
-        # create axis list
+             
+        # construct the axis list for dstVar
+        dstAxisList = _getAxisList(srcVar, self.dstGrid)
 
         # harvest all the string attributes from srcVar
         attrs = {}
@@ -118,55 +195,16 @@ class Regridder:
             v = srcVar.attributes[a]
             if type(v) is types.StringType:
                 attrs[a] = v
-                
-        # harvest the axis list form srcVar, start with all axes other than 
-        # lat/lon
-        dstAxisList = []
-        horizAxes = {}
-        index = 0
-        for a in srcVar.getAxisList():
-            if a.isLatitude():
-                horizAxes['lat_index'] = index
-                dstAxisList.append(None)
-            elif a.isLongitude(): 
-                horizAxes['lon_index'] = index
-                dstAxisList.append(None)
-            else:
-                dstAxisList.append(a)
-            index += 1
-        # fill in the lat axis
-        latShape = self.dstGrid.getLatitude().shape
-        if len(latShape) > 1:
-            # curvilinear, create some fake axes
-            n = latShape[0]
-            if horizAxes['lon_index'] < horizAxes['lat_index']:
-                n = latShape[1]
-            latAxis = createAxis(numpy.array([i for i in range(n)], numpy.float64),
-                                 id = 'lat_index')
-            dstAxisList[horizAxes['lat_index']] = latAxis
-        else:
-            dstAxisList[horizAxes['lat_index']] = self.dstGrid.getLatitude()
-        # fill in the lon axis
-        lonShape = self.dstGrid.getLongitude().shape
-        if len(lonShape) > 1:
-            # curvilinear, create some fake axes
-            n = lonShape[0]
-            if horizAxes['lon_index'] < horizAxes['lon_index']:
-                n = lonShape[1]
-            lonAxis = createAxis(numpy.array([i for i in range(n)], numpy.float64),
-                                 id = 'lon_index')
-            dstAxisList[horizAxes['lon_index']] = lonAxis
-        else:
-            dstAxisList[horizAxes['lon_index']] = self.dstGrid.getLongitude()
+
 
         # create the transient variable
         dstVar = cdms2.createVariable(dstData, 
                                       mask = dstMask,
-                                      fill_value = missing_value,
+                                      fill_value = missingValue,
                                       axes = dstAxisList,
                                       grid = self.dstGrid,
                                       attributes = attrs, 
-                                      id = srcVar.id + '_mvRegridder')
+                                      id = srcVar.id + '_CdmsRegrid')
         
         
         return dstVar
