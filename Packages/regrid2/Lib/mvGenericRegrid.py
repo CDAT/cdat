@@ -41,6 +41,7 @@ class GenericRegrid:
         """
 
         self.nGridDims = len(srcGrid)
+        self.regridMethod = regridMethod
 
         if len(srcGrid) != len(dstGrid):
             msg = 'mvGenericRegrid.__init__: mismatch in number of dims'
@@ -65,16 +66,29 @@ class GenericRegrid:
         """
         self.tool.computeWeights()
 
-    def apply(self, srcData, dstData, srcDataMask = None, 
+    def apply(self, srcData, dstData, missingValue = None, 
               **args):
         """
         Regrid source to destination
         @param srcData array (input)
         @param dstData array (output)
-        @param srcDataMask array
+        @param missingValue if not None, then data mask will be interpolated
+                            and data value set to missingValue when masked
         """
 
+        # assuming the axes are the slowly varying indices
+        srcHorizShape = srcData.shape[-self.nGridDims :]
+        dstHorizShape = dstData.shape[-self.nGridDims :]
+    
+        srcDataMaskFloat = None
+        dstDataMaskFloat = None
+        dstMask = None
+        if missingValue is not None:
+            srcDataMaskFloat = numpy.zeros(srcHorizShape, srcData.dtype)
+            dstDataMaskFloat = numpy.zeros(dstHorizShape, dstData.dtype)
+             
         nonHorizShape = srcData.shape[: -self.nGridDims]
+
         if len(nonHorizShape) == 0:
 
             #
@@ -82,6 +96,18 @@ class GenericRegrid:
             #
 
             self.tool.apply(srcData, dstData, **args)
+
+            # adjust for masking
+            if missingValue is not None:
+                srcDataMaskFloat[:] = (srcData == missingValue)
+                # interpolate mask
+                self.tool.apply(srcDataMaskFloat, dstDataMaskFloat, **args)
+                if re.search('conserv', self.regridMethod, re.I):
+                    dstMask = numpy.array( (dstDataMaskFloat == 1), numpy.int32 )
+                else:
+                    dstMask = numpy.array( (dstDataMaskFloat > 0), numpy.int32 )
+                dstData *= (1 - dstMask)
+                dstData += dstMask*missingValue
 
         else:
 
@@ -113,6 +139,20 @@ class GenericRegrid:
 
                 # interpolate, using the appropriate tool
                 self.tool.apply(indata, outdata, **args)
+
+                # adjust for masking
+                if missingValue is not None:
+                    srcDataMaskFloat[:] = (indata == missingValue)
+                    # interpolate mask
+                    self.tool.apply(srcDataMaskFloat, dstDataMaskFloat, **args)
+                    if re.search('conserv', self.regridMethod, re.I):
+                        # cell interpolation
+                        dstMask = numpy.array( (dstDataMaskFloat == 1), numpy.int32 )
+                    else:
+                        # nodal interpolation
+                        dstMask = numpy.array( (dstDataMaskFloat > 0), numpy.int32 )
+                    outdata *= (1 - dstMask)
+                    outdata += dstMask*missingValue
 
                 # fill in dstData
                 exec('dstData' + slce + ' = outdata')

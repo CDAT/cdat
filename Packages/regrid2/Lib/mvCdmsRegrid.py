@@ -127,7 +127,6 @@ class CdmsRegrid:
         
         self.srcGrid = srcGrid
         self.dstGrid = dstGrid
-        self.regridMethod = regridMethod
 
         srcCoords = _getCoordList(srcGrid)
         dstCoords = _getCoordList(dstGrid)
@@ -152,6 +151,7 @@ class CdmsRegrid:
         @param **args Tool dependent arguments
         @return CDMS interpolated variable 
         """
+
         # initialize
         dstMask = None
         missingValue = getattr(srcVar, 'missing_value', None)
@@ -161,31 +161,11 @@ class CdmsRegrid:
         # shape of dst var
         dstShape = list(srcVar.shape[:-2]) + list(self.dstGrid.shape)
 
-        srcMaskFArray = None
-        dstMaskFArray = None
-        dstMask = None
-        if missingValue is not None:
-            srcMaskFArray = numpy.ones(self.srcGrid.shape, dtype = srcVar.dtype)
-            dstMaskFArray = numpy.ones(self.dstGrid.shape, dtype = srcVar.dtype)
-            # interpolate the data mask
-            self.regridObj.apply(srcMaskFArray, dstMaskFArray, **args)
-            # set the destination data mask
-            if re.search('linear', self.regridMethod, re.I):
-                # nodal 
-                dstMask = numpy.array(dstMaskFArray > 0.0, dtype = numpy.int32)
-            else:
-                # cell or conservative
-                dstMask = numpy.array(dstMaskFArray == 1.0, dtype = numpy.int32)
-
         # interpolate the data
         dstData = numpy.zeros(dstShape, dtype = srcVar.dtype)
-        self.regridObj.apply(srcVar.data, dstData, **args)
+        self.regridObj.apply(srcVar.data, dstData, 
+                             missingValue = missingValue, **args)
 
-        # set masked data values to missingValue
-        if dstMask is not None and missingValue is not None:
-             dstData *= (1 - dstMask)
-             dstData += dstMask * missingValue
-             
         # construct the axis list for dstVar
         dstAxisList = _getAxisList(srcVar, self.dstGrid)
 
