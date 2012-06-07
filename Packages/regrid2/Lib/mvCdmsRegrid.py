@@ -110,17 +110,17 @@ class CdmsRegrid:
                             Conservative (ESMF Only)
                             Patch (ESMF Only)
         @param regridTool LibCF, ESMF, ...
-	@param srcBounds source grid cell bounds
-	@param srcGridMask array source mask, interpolation 
+        @param srcBounds source grid cell bounds
+        @param srcGridMask array source mask, interpolation 
                            coefficients will not be computed for masked
                            points/cells.
-	@param srcGridAreas array destination cell areas, only needed for 
+        @param srcGridAreas array destination cell areas, only needed for 
                             conservative regridding
-	@param dstBounds destination grid cell bounds
-	@param dstGridMask array destination mask, interpolation 
+        @param dstBounds destination grid cell bounds
+        @param dstGridMask array destination mask, interpolation 
                            coefficients will not be computed for masked
                            points/cells.
-	@param dstGridAreas array destination cell areas, only needed for 
+        @param dstGridAreas array destination cell areas, only needed for 
                             conservative regridding
         @param **args additional, tool dependent arguments
         """
