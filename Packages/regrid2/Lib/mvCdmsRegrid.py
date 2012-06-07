@@ -19,6 +19,7 @@ import regrid2
 def _getCoordList(grid):
     """
     Return a coordinate list from a CDMS grid
+    @return [lats, lons] 
     """
     lats = grid.getLatitude()
     lons = grid.getLongitude()
@@ -36,7 +37,7 @@ def _getCoordList(grid):
         lats = cdms2.gsRegrid.getTensorProduct(lats[:], 1, shp)
     if len(lons.shape) == 1:
         lons = cdms2.gsRegrid.getTensorProduct(lons[:], 0, shp)
-    return lons, lats
+    return lats, lons
 
 def _getAxisList(srcVar, dstGrid):
     """
@@ -53,6 +54,7 @@ def _getAxisList(srcVar, dstGrid):
     dstAxisList = []
     horizAxes = {}
     index = 0
+
     for a in srcVar.getAxisList():
         if a.isLatitude():
             horizAxes['lat_index'] = index
@@ -63,6 +65,17 @@ def _getAxisList(srcVar, dstGrid):
         else:
             dstAxisList.append(a)
         index += 1
+
+    # Not a solution..., but it works for salinity
+    # If curvilinear coordinates, lat-lon axes do not exist.
+    # I am assuming lat-lon order here.
+    if 'lat_index' not in horizAxes:
+        dstAxisList.insert(0, None)
+        horizAxes['lat_index'] = 1
+    if 'lon_index' not in horizAxes:
+        dstAxisList.insert(0, None)
+        horizAxes['lon_index'] = 0
+        
     # fill in the lat axis
     latShape = dstGrid.getLatitude().shape
     if len(latShape) > 1:
