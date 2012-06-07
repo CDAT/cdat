@@ -185,75 +185,28 @@ class ESMFRegrid(GenericRegrid):
             self.srcFractions = self.regridObj.getSrcAreaFractions(rootPe = rootPe)
             self.dstFractions = self.regridObj.getDstAreaFractions(rootPe = rootPe)
 
-    def apply(self, srcData, dstData, srcDataMaskin = None, **args):
+    def apply(self, srcData, dstData, **args):
         """
         Regrid source to destination
-        @param srcData array
-        @param dstData array
-        @param srcDataMask array
+        @param srcData array Full source data shape
+        @param dstData array Full destination data shape
         @param rootPe set to None if dstData is locally filled. Other values
                       will gather dstData on processor rootPe
         """
 
-        rootPe = 0
+        rootPe = args.get('rootPe', 0)
 
-        srcName = 'srcData'
-        dstName = 'dstData'
-        if hasattr(srcData, 'id'): 
-            srcName = 'src_%s' % srcData.id
-            dstName = 'dst_%s' % srcData.id
+        self.srcDummyFld.setLocalData(srcData, self.staggerloc)
 
-        srcVar = esmf.EsmfStructField(self.srcGrid, srcName, srcData, 
-                                 staggerloc = self.staggerloc)
-        dstVar = esmf.EsmfStructField(self.dstGrid, dstName, dstData,
-                                    staggerloc = self.staggerloc)
+        # Regrid
+        self.regridObj(self.srcDummyFld, self.dstDummyFld)
 
-        # Deal with missing values
-        dDataMask = numpy.ones(self.dstGridShape, dtype = numpy.int32)
-        dstDataMask = esmf.EsmfStructField(self.dstGrid, 'dstdatamask', dDataMask,
-                                    staggerloc = self.staggerloc)
-
-        missing_value = getattr(srcData, 'missing_value', self.missing_value)
-        srcdatamask = numpy.array(srcData == missing_value, 
-                               dtype = numpy.int32)
-        if srcDataMaskin is not None:
-            srdatamask = srcDataMaskin
-
-        srcDataMask = esmf.EsmfStructField(self.srcGrid, 'srcdatamask', 
-                                    srcdatamask,
-                                    staggerloc = self.staggerloc)
-        self.regridObj(srcDataMask, dstDataMask)
-
-        self.regridObj(srcVar, dstVar)
-
-        if 'rootPe' in args: rootPe = args['rootPe']
-
+        # Get the destination data
         if rootPe is None:
-            slab = self.dstGrid.getLocalSlab()
-            dstData[slab] = dstVar.getData(rootPe = rootPe)
+            slab = self.dstGrid.getLocalSlab(staggerloc = self.staggerloc)
+            dstData[slab] = self.dstDummyFld.getData(rootPe = rootPe)
+
         else:
-            data = dstVar.getData(rootPe = rootPe)
+            data = self.dstDummyFld.getData(rootPe = rootPe)
             if self.pe == rootPe:
                 dstData[:] = data
-
-#        if rootPe is None:
-#            slab = self.dstGrid.getLocalSlab()
-#            dstTmp = dstVar.getData(rootPe = rootPe)[slab]
-#            dstMsk = dstDataMask.getData(rootPe = rootPe)
-#            dstMsk0 = dstMsk == 0
-#            dstMsk1 = dstMsk != 0
-#            if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_BILINEAR:
-#                dstData[slab] = dstTmp * dstMsk0 + missing_value * dstMsk1
-#            elif self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-#                dstData[slab] = dstTmp * (1 - dstMsk) + (dstMsk1) * missing_value
-#
-#        else:
-#            data = dstVar.getData(rootPe = rootPe)
-#            mask = dstDataMask.getData(rootPe = rootPe)
-#            mas0 = mask == 0
-#            mas1 = mask != 0
-#            if self.pe == rootPe:
-#                if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_BILINEAR:
-#                    dstData[:] = data * mas0 + missing_value * mas1
-#                elif self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-#                    dstData[:] = data * (1-mask) + missing_value * mas1

@@ -384,7 +384,16 @@ class EsmfStructField:
                 return bigData
         # rootPe is not None and self.pe != rootPe
         return None
-                                                               
+
+    def setLocalData(self, data, staggerloc):
+        """
+        Set local field data
+        @param data numpy array of full data array.
+        @param staggerloc Stagger location of the data
+        """
+        ptr = self.getPointer()
+        slab = self.grid.getLocalSlab(staggerloc)
+        ptr[:] = data[slab].flat
 
     def  __del__(self):
         ESMP.ESMP_FieldDestroy(self.field)
