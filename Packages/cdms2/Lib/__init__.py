@@ -8,7 +8,7 @@ __all__ = ["cdmsobj", "axis", "coord", "grid", "hgrid", "avariable", \
 "sliceut", "error", "variable", "fvariable", "tvariable", "dataset", \
 "database", "cache", "selectors", "MV2", "convention", "bindex", \
 "auxcoord", "gengrid", "gsHost", "gsStaticVariable", "gsTimeVariable", \
-"gsRegrid", "mvBaseWriter", "mvSphereMesh", "mvVsWriter"]
+"mvBaseWriter", "mvSphereMesh", "mvVsWriter"]
 
 # Errors
 from error import CDMSError

@@ -11,7 +11,7 @@ specified in the license file 'license.txt' are met.
 Authors: David Kindig and Alex Pletzer
 """
 
-from cdms2 import gsRegrid
+from regrid2 import gsRegrid
 from regrid2 import GenericRegrid
 
 class LibCFRegrid(GenericRegrid):

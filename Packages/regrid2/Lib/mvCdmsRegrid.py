@@ -27,15 +27,15 @@ def _getCoordList(grid):
     if grid.getAxis(0).isLatitude():
         # turn into curvilinear, if need be
         if len(lats.shape) == 1:
-            lats = cdms2.gsRegrid.getTensorProduct(lats[:], 0, shp)
+            lats = regrid2.gsRegrid.getTensorProduct(lats[:], 0, shp)
         if len(lons.shape) == 1:
-            lons = cdms2.gsRegrid.getTensorProduct(lons[:], 1, shp)
+            lons = regrid2.gsRegrid.getTensorProduct(lons[:], 1, shp)
         return lats, lons
 
     if len(lats.shape) == 1:
-        lats = cdms2.gsRegrid.getTensorProduct(lats[:], 1, shp)
+        lats = regrid2.gsRegrid.getTensorProduct(lats[:], 1, shp)
     if len(lons.shape) == 1:
-        lons = cdms2.gsRegrid.getTensorProduct(lons[:], 0, shp)
+        lons = regrid2.gsRegrid.getTensorProduct(lons[:], 0, shp)
     return lons, lats
 
 def _getAxisList(srcVar, dstGrid):

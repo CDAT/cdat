@@ -2,8 +2,7 @@
 """
 
 __all__ = ["horizontal", "pressure", "crossSection", "scrip", 
-           "gsRegrid", "error", 
-           "mvCdmsRegrid", "mvGenericRegrid",]
+           "error", "mvCdmsRegrid", "mvGenericRegrid",]
 
 from error import RegridError
 from regridder import Regridder
@@ -12,10 +11,11 @@ from pressure import PressureRegridder
 from crossSection import CrossSectionRegridder
 from scrip import ConservativeRegridder, BilinearRegridder, BicubicRegridder 
 from scrip import DistwgtRegridder, readRegridder
-from cdms2 import gsRegrid
+from regrid2 import gsRegrid
 from mvCdmsRegrid import CdmsRegrid
 from mvGenericRegrid import GenericRegrid
 from mvLibCFRegrid import LibCFRegrid
+
 try:
     from regrid2 import esmf
     import ESMP
