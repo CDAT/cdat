@@ -16,6 +16,39 @@ import numpy
 import cdms2
 import regrid2
 
+def _buildBounds(bounds):
+    """
+    Return an array of bounds converted from [x, [y], nDims] -> x+1, [y+1]
+    @param bounds CdmsVar.getBounds()
+    @return ndarrray of bounds
+    """
+
+    bndShape = [s+1 for s in bounds.shape[:-1]]
+    bnd = numpy.ones(bndShape, dtype = bounds.dtype)
+    if len(bndShape) == 1:
+        bnd[:-1] = bounds[..., 0]
+        bnd[ -1] = bounds[ -1, 1]
+    elif len(bndShape) > 1:
+        bnd[:-1, :-1] = bounds[  :,  :, 0]
+        bnd[:-1,  -1] = bounds[  :, -1, 1]
+        bnd[ -1,  -1] = bounds[ -1, -1, 2]
+        bnd[ -1, :-1] = bounds[ -1,  :, 3]
+
+    return bnd
+
+def _getBoundList(coordList):
+    """
+    Return a list of bounds built from a list of coordinates
+    @param coordList coordinate list, should have getBounds()
+    @return [latBounds, lonBounds]
+    """
+    bounds = []
+    for c in coordList:
+        bnds = _buildBounds(c.getBounds()[:])
+        bounds.append(bnds)
+
+    return bounds
+
 def _getCoordList(grid):
     """
     Return a coordinate list from a CDMS grid
@@ -34,9 +67,8 @@ def _getCoordList(grid):
         # looks like order is lats, lons
         # turn into curvilinear, if need be
         if len(lats.shape) == 1:
-            lats = regrid2.gsRegrid.getTensorProduct(lats[:], 0, shp)
-        if len(lons.shape) == 1:
-            lons = regrid2.gsRegrid.getTensorProduct(lons[:], 1, shp)
+            lats = grid.toCurveGrid().getLatitude()
+            lons = grid.toCurveGrid().getLongitude()
         return lats, lons
 
     # looks like order is lons, lats
@@ -73,57 +105,6 @@ def _getAxisList(srcVar, dstGrid):
 
     return svAxisList + dgAxisList
 
-    dstAxisList = []
-    horizAxes = {}
-    index = 0
-
-    for a in srcVar.getAxisList():
-        if a.isLatitude():
-            horizAxes['lat_index'] = index
-            dstAxisList.append(None)
-        elif a.isLongitude(): 
-            horizAxes['lon_index'] = index
-            dstAxisList.append(None)
-        else:
-            dstAxisList.append(a)
-        index += 1
-
-    # Not a solution..., but it works for salinity
-    # If curvilinear coordinates, lat-lon axes do not exist.
-    # I am assuming lat-lon order here.
-    if 'lat_index' not in horizAxes:
-        dstAxisList.insert(0, None)
-        horizAxes['lat_index'] = 1
-    if 'lon_index' not in horizAxes:
-        dstAxisList.insert(0, None)
-        horizAxes['lon_index'] = 0
-        
-    # fill in the lat axis
-    latShape = dstGrid.getLatitude().shape
-    if len(latShape) > 1:
-        # curvilinear, create some fake axes
-        n = latShape[0]
-        if horizAxes['lon_index'] < horizAxes['lat_index']:
-            n = latShape[1]
-        latAxis = createAxis(numpy.array([i for i in range(n)], numpy.float64),
-                             id = 'lat_index')
-        dstAxisList[horizAxes['lat_index']] = latAxis
-    else:
-        dstAxisList[horizAxes['lat_index']] = dstGrid.getLatitude()
-    # fill in the lon axis
-    lonShape = dstGrid.getLongitude().shape
-    if len(lonShape) > 1:
-        # curvilinear, create some fake axes
-        n = lonShape[0]
-        if horizAxes['lon_index'] < horizAxes['lon_index']:
-            n = lonShape[1]
-        lonAxis = createAxis(numpy.array([i for i in range(n)], numpy.float64),
-                             id = 'lon_index')
-        dstAxisList[horizAxes['lon_index']] = lonAxis
-    else:
-        dstAxisList[horizAxes['lon_index']] = dstGrid.getLongitude()
-
-
 class CdmsRegrid:
     """
     Regridding switchboard, handles CDMS variables before handing off to 
@@ -132,8 +113,8 @@ class CdmsRegrid:
     """
     def __init__(self, srcGrid, dstGrid, 
                  regridMethod = 'Linear', regridTool = 'LibCF', 
-                 srcBounds = None, srcGridMask = None, srcGridAreas = None,
-                 dstBounds = None, dstGridMask = None, dstGridAreas = None,
+                 srcGridMask = None, srcGridAreas = None,
+                 dstGridMask = None, dstGridAreas = None,
                  **args):
         """
         Establish which regridding method to use, handles CDMS Variables before
@@ -145,13 +126,11 @@ class CdmsRegrid:
                             Conservative (ESMF Only)
                             Patch (ESMF Only)
         @param regridTool LibCF, ESMF, ...
-        @param srcBounds source grid cell bounds
         @param srcGridMask array source mask, interpolation 
                            coefficients will not be computed for masked
                            points/cells.
         @param srcGridAreas array destination cell areas, only needed for 
                             conservative regridding
-        @param dstBounds destination grid cell bounds
         @param dstGridMask array destination mask, interpolation 
                            coefficients will not be computed for masked
                            points/cells.
@@ -160,11 +139,22 @@ class CdmsRegrid:
         @param **args additional, tool dependent arguments
         """
         
+        srcBounds = None
+        dstBounds = None
+
         self.srcGrid = srcGrid
         self.dstGrid = dstGrid
 
         srcCoords = _getCoordList(srcGrid)
         dstCoords = _getCoordList(dstGrid)
+
+        # retrieve and build a bounds list for conservative from the grids
+        # We can't use the coords lists because if they are converted to 
+        # curvilinear
+        self.regridMethod = regridMethod
+        if re.search( 'conserv', regridMethod.lower()):
+            srcBounds = _getBoundList(srcCoords)
+            dstBounds = _getBoundList(dstCoords)
 
         self.regridObj = regrid2.GenericRegrid(srcCoords, dstCoords, 
                                                regridMethod = regridMethod, 
@@ -178,7 +168,7 @@ class CdmsRegrid:
                                                **args )
         self.regridObj.computeWeights(**args)
 
-    def __call__(self, srcVar, **args):
+    def __call__(self, srcVar, diagnostics = None, **args):
         """
         Interpolate, looping over additional (non-latitude/longitude) axes
            if need be
@@ -198,8 +188,13 @@ class CdmsRegrid:
 
         # interpolate the data
         dstData = numpy.zeros(dstShape, dtype = srcVar.dtype)
+
+        # return a list
+        if diagnostics is not None: diagnostics = []
         self.regridObj.apply(srcVar.data, dstData, 
-                             missingValue = missingValue, **args)
+                             missingValue = missingValue, 
+                             diagnostics = diagnostics,
+                             **args)
 
         # construct the axis list for dstVar
         dstAxisList = _getAxisList(srcVar, self.dstGrid)
@@ -221,6 +216,11 @@ class CdmsRegrid:
                                       attributes = attrs, 
                                       id = srcVar.id + '_CdmsRegrid')
         
-        
+        if re.search(self.regridMethod.lower(), 'conserv'):
+            self.srcGridAreas = self.regridObj.getSrcAreas(rootPe = rootPe)
+            self.dstGridAreas = self.regridObj.getDstAreas(rootPe = rootPe)
+            self.srcFractions = self.regridObj.getSrcAreaFractions(rootPe = rootPe)
+            self.dstFractions = self.regridObj.getDstAreaFractions(rootPe = rootPe)
+
         return dstVar
 

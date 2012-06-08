@@ -10,11 +10,13 @@ specified in the license file 'license.txt' are met.
 
 Authors: David Kindig and Alex Pletzer
 """
+import operator
+import numpy
+import string
+
 import regrid2
 import re
 from distarray import MultiArrayIter
-import operator
-import numpy
 
 class GenericRegrid:
     """
@@ -55,18 +57,21 @@ class GenericRegrid:
             self.tool = regrid2.LibCFRegrid(srcGrid, dstGrid, 
                  srcGridMask = srcGridMask, srcBounds = srcBounds)
         elif re.search('esm', regridTool.lower()):
-            self.tool = regrid2.ESMFRegrid(srcGrid, dstGrid, 
-                 srcGridMask = srcGridMask, srcBounds = srcBounds, srcGridAreas = srcGridAreas,
-                 dstGridMask = dstGridMask, dstBounds = dstBounds, dstGridAreas = dstGridAreas,
-                 **args)
+            self.tool = regrid2.ESMFRegrid(srcGrid, dstGrid,
+                  regridMethod = regridMethod, 
+                  srcGridMask = srcGridMask, srcBounds = srcBounds, 
+                  srcGridAreas = srcGridAreas,
+                  dstGridMask = dstGridMask, dstBounds = dstBounds, 
+                  dstGridAreas = dstGridAreas,
+                  **args)
     
-    def computeWeights(self):
+    def computeWeights(self, **args):
         """
         Compute Weights
         """
         self.tool.computeWeights()
 
-    def apply(self, srcData, dstData, missingValue = None, 
+    def apply(self, srcData, dstData, missingValue = None, diagnostics = None, 
               **args):
         """
         Regrid source to destination
@@ -95,7 +100,7 @@ class GenericRegrid:
             # no axis... just call apply 
             #
 
-            self.tool.apply(srcData, dstData, **args)
+            self.tool.apply(srcData, dstData, diagnostics = diagnostics, **args)
 
             # adjust for masking
             if missingValue is not None:
@@ -129,6 +134,8 @@ class GenericRegrid:
             outdata = numpy.array(eval('dstData' + zros))
 
             # now iterate over all non lat/lon coordinates
+            diags = []
+            diag = 0
             for it in MultiArrayIter(nonHorizShape):
 
                 indices = it.getIndices()
@@ -138,7 +145,7 @@ class GenericRegrid:
                 indata = eval('srcData' + slce)
 
                 # interpolate, using the appropriate tool
-                self.tool.apply(indata, outdata, **args)
+                self.tool.apply(indata, outdata, diagnostics = None, **args)
 
                 # adjust for masking
                 if missingValue is not None:
@@ -156,3 +163,5 @@ class GenericRegrid:
 
                 # fill in dstData
                 exec('dstData' + slce + ' = outdata')
+                if diagnostics is not None:
+                    diagnostics = numpy.array(diagnostics).reshape(nonHorizShape2)

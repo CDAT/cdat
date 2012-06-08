@@ -10,14 +10,16 @@ specified in the license file 'license.txt' are met.
 
 Authors: David Kindig and Alex Pletzer
 """
+import re
+import numpy
+import string
+
 import ESMP
 from regrid2 import esmf
 from regrid2 import RegridError
-
 from regrid2 import GenericRegrid
 from regrid2 import RegridError
-import re
-import numpy
+
 try:
     from mpi4py import MPI
 except:
@@ -27,7 +29,7 @@ class ESMFRegrid(GenericRegrid):
     """
     Regrid class for ESMF
     """
-    def __init__(self, srcGrid, dstGrid, 
+    def __init__(self, srcGrid, dstGrid, regridMethod = 'Linear',
                  srcGridMask = None, srcBounds = None, srcGridAreas = None,
                  dstGridMask = None, dstBounds = None, dstGridAreas = None,
                  **args):
@@ -70,6 +72,12 @@ class ESMFRegrid(GenericRegrid):
 
         coordSys = ESMP.ESMP_COORDSYS_SPH_DEG
         periodicity = 0
+        if re.search('cons', regridMethod.lower()):
+            self.regridMethod = ESMP.ESMP_REGRIDMETHOD_CONSERVE
+        if re.search('line', regridMethod.lower()):
+            self.regridMethod = ESMP.ESMP_REGRIDMETHOD_BILINEAR
+        if re.search('patch', regridMethod.lower()):
+            self.regridMethod = ESMP.ESMP_REGRIDMETHOD_PATCH
 
         # These are exact
         for arg in args.keys():
@@ -91,13 +99,6 @@ class ESMFRegrid(GenericRegrid):
                     self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_ERROR
                 if re.search('ignore', args[arg].lower()):
                     self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE
-            elif arg == 'regridMethod': 
-                if re.search('cons', args[arg].lower()):
-                    self.regridMethod = ESMP.ESMP_REGRIDMETHOD_CONSERVE
-                if re.search('line', args[arg].lower()):
-                    self.regridMethod = ESMP.ESMP_REGRIDMETHOD_BILINEAR
-                if re.search('patch', args[arg].lower()):
-                    self.regridMethod = ESMP.ESMP_REGRIDMETHOD_PATCH
             elif arg == 'srcMaskValues': self.srcMaskValues = args[arg]
             elif arg == 'dstMaskValues': self.dstMaskValues = args[arg]
             else:
@@ -151,15 +152,15 @@ class ESMFRegrid(GenericRegrid):
         # Prepare the fractional area fields for conservative regridding metrics
         if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
             self.srcFracFld = esmf.EsmfStructField(self.srcGrid, 'srcFrac',
-                                       self.srcDummyFld,
+                                       sDV,
                                        staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
             self.dstFracFld = esmf.EsmfStructField(self.dstGrid, 'dstFrac',
-                                       self.dstDummyFld,
+                                       dDV,
                                        staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
                                         
 
     def computeWeights(self, regridMethod = None, unMappedAction = None,
-                  srcMaskValues = None, dstMaskValues = None):
+                  srcMaskValues = None, dstMaskValues = None, **args):
         """
         Compute Weights
         @param regridMethod Bilinear, Conseravative or Patch
@@ -183,12 +184,13 @@ class ESMFRegrid(GenericRegrid):
 
         # Compute the weights  
         if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
+            rootPe = args.get('rootPe', 0)
             self.srcGridAreas = self.regridObj.getSrcAreas(rootPe = rootPe)
             self.dstGridAreas = self.regridObj.getDstAreas(rootPe = rootPe)
             self.srcFractions = self.regridObj.getSrcAreaFractions(rootPe = rootPe)
             self.dstFractions = self.regridObj.getDstAreaFractions(rootPe = rootPe)
 
-    def apply(self, srcData, dstData, **args):
+    def apply(self, srcData, dstData, diagnostics = None, **args):
         """
         Regrid source to destination
         @param srcData array Full source data shape
@@ -213,3 +215,10 @@ class ESMFRegrid(GenericRegrid):
             data = self.dstDummyFld.getData(rootPe = rootPe)
             if self.pe == rootPe:
                 dstData[:] = data
+
+                if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE and \
+                                diagnostics is not None:
+                    srcDiag = self.srcFractions * self.srcGridAreas * srcData
+                    dstDiag = self.dstFractions * self.dstGridAreas * dstData
+                    diagnostics.append(numpy.nansum(srcDiag) - \
+                                         numpy.nansum(dstDiag))
