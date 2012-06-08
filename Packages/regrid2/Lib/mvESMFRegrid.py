@@ -58,8 +58,8 @@ class ESMFRegrid(GenericRegrid):
         self.srcMaskValues = None
         self.dstMaskValues = None
         self.missing_value = 1.e+20
-        self.srcFractions = None
-        self.dstFractions = None
+        self.srcFracFld = None
+        self.dstFracFld = None
         self.srcGridAreas = None
         self.dstGridAreas = None
         self.pe = 0
@@ -69,6 +69,7 @@ class ESMFRegrid(GenericRegrid):
             pass
 
         coordSys = ESMP.ESMP_COORDSYS_SPH_DEG
+        periodicity = 0
 
         # These are exact
         for arg in args.keys():
@@ -139,13 +140,23 @@ class ESMFRegrid(GenericRegrid):
                 raise RegridError, string
 
         # Dummy fields for computing the interpolation weights
-        sDV = srcGrid[0][:] * 0.0
-        dDV = dstGrid[0][:] * -99.0
+        sDV = numpy.array(srcGrid[0][:]) *   0.0
+        dDV = numpy.array(dstGrid[0][:]) * -99.0
         self.srcDummyFld = esmf.EsmfStructField(self.srcGrid, 'srcDummyFld', 
                                            sDV, 
                                            staggerloc = self.staggerloc)
         self.dstDummyFld = esmf.EsmfStructField(self.dstGrid, 'dstDummyFld', dDV, 
                                            staggerloc = self.staggerloc)
+
+        # Prepare the fractional area fields for conservative regridding metrics
+        if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
+            self.srcFracFld = esmf.EsmfStructField(self.srcGrid, 'srcFrac',
+                                       self.srcDummyFld,
+                                       staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
+            self.dstFracFld = esmf.EsmfStructField(self.dstGrid, 'dstFrac',
+                                       self.dstDummyFld,
+                                       staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
+                                        
 
     def computeWeights(self, regridMethod = None, unMappedAction = None,
                   srcMaskValues = None, dstMaskValues = None):
@@ -162,17 +173,9 @@ class ESMFRegrid(GenericRegrid):
 
         # Create dummy variables for use in generating the weights
 
-        if regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-            self.srcFractions = esmf.EsmfStructField(self.srcGrid, 'srcFrac',
-                                       self.srcDummyFld,
-                                       staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
-            self.dstFractions = esmf.EsmfStructField(self.dstGrid, 'dstFrac',
-                                       self.dstDummyFld,
-                                       staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
-                                        
         self.regridObj = esmf.EsmfRegrid(self.srcDummyFld, self.dstDummyFld,
-                                  srcFrac = self.srcFractions, 
-                                  dstFrac = self.dstFractions,
+                                  srcFrac = self.srcFracFld, 
+                                  dstFrac = self.dstFracFld,
                                   srcMaskValues = self.srcMaskValues,
                                   dstMaskValues = self.dstMaskValues,
                                   regridMethod = regridMethod,
