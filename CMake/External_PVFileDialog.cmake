@@ -2,7 +2,6 @@ set(pvfiledialog_source "${CMAKE_CURRENT_BINARY_DIR}/pvdialog")
 set(pvfiledialog_binary "${CMAKE_CURRENT_BINARY_DIR}/pvdialog-build")
 set(pvfiledialog_install "${cdat_EXTERNALS}")
 
-message("ParaView_binary" ${ParaView_binary})
 set(PVFileDialog_install_command "")
 
 ExternalProject_Add(pvfiledialog
@@ -16,6 +15,8 @@ ExternalProject_Add(pvfiledialog
   CMAKE_CACHE_ARGS
     -DParaView_DIR:PATH=${ParaView_binary}
     -DVTK_DIR:PATH=${ParaView_binary}/VTK
+    -DPYTHON_INCLUDE_DIR:PATH=${PYTHON_INCLUDE}
+    -DPYTHON_LIBRARIES:PATH=${PYTHON_LIBRARY}
     -DCMAKE_CXX_FLAGS:STRING=${cdat_tpl_cxx_flags}
     -DCMAKE_C_FLAGS:STRING=${cdat_tpl_c_flags}
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_CFG_INTDIR}
