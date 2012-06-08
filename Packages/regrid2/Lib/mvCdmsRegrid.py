@@ -24,6 +24,11 @@ def _getCoordList(grid):
     lats = grid.getLatitude()
     lons = grid.getLongitude()
     shp = grid.shape
+  
+    # Initial try at dealing with Curvilinear grids.
+    # Assume lat lon Order!
+    if len(lats.shape) > 1:
+        return lats, lons
 
     if grid.getAxis(0).isLatitude():
         # looks like order is lats, lons
@@ -53,6 +58,21 @@ def _getAxisList(srcVar, dstGrid):
 
     # harvest the axis list form srcVar, start with all axes other than 
     # lat/lon
+    
+    # ASSUMING y, x axes are the last two axes.
+    # From the source axis list get every axis up to these.
+    svAxisList = srcVar.getAxisList()[:-2]
+
+    # From the destination grid get the horizontal axes!
+    try:
+        dgAxisList = dstGrid.getAxisList()[-2:]
+    except:
+        print "\n\nWARNING!!!\n" + \
+              "Using [dstGrid.getLatitude(), dstGrid.getLongitude()]\n\n"
+        dgAxisList = [dstGrid.getLatitude(), dstGrid.getLongitude()]
+
+    return svAxisList + dgAxisList
+
     dstAxisList = []
     horizAxes = {}
     index = 0
