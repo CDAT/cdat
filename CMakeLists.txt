@@ -53,6 +53,7 @@ if(APPLE)
 
   if("${CMAKE_OSX_DEPLOYMENT_TARGET}" STREQUAL "")
     set(CMAKE_OSX_ARCHITECTURES "x86_64" CACHE STRING "" FORCE)
+    set(CMAKE_OSX_ARCHITECTURES_M "64" CACHE STRING "" FORCE)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "${OSX_VER_MAJOR}.${OSX_VER_MINOR}" CACHE STRING "" FORCE)
   endif()
 
@@ -205,11 +206,12 @@ endif()
 if(APPLE)
   set(cdat_apple_compiler_args
     -DCMAKE_OSX_ARCHITECTURES:STRING=${CMAKE_OSX_ARCHITECTURES}
+    -DCMAKE_OSX_ARCHITECTURES_M:STRING=${CMAKE_OSX_ARCHITECTURES_M}
     -DCMAKE_OSX_DEPLOYMENT_TARGET:STRING=${CMAKE_OSX_DEPLOYMENT_TARGET}
     -DCMAKE_OSX_SYSROOT:PATH=${CMAKE_OSX_SYSROOT})
 
-  set(cdat_osx_arch_flag "-arch ${CMAKE_OSX_ARCHITECTURES} -Xarch_${CMAKE_OSX_ARCHITECTURES}")
-  set(cdat_osx_arch_flag_fortran "-arch ${CMAKE_OSX_ARCHITECTURES}")
+  set(cdat_osx_arch_flag "-m${CMAKE_OSX_ARCHITECTURES_M}")
+  set(cdat_osx_arch_flag_fortran "-m${CMAKE_OSX_ARCHITECTURES_M}")
   set(cdat_osx_version_flag "-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
   set(cdat_osx_sysroot "-isysroot ${CMAKE_OSX_SYSROOT}")
   set(cdat_osx_flags "${cdat_osx_arch_flag} ${cdat_osx_version_flag} ${cdat_osx_sysroot} -pipe")
@@ -291,7 +293,14 @@ endmacro (add_cdat_package)
 find_package(Qt4 REQUIRED)
 
 # Added by Dave Kindig Tech-X Corp. kindig@txcorp.com
-option(CDAT_BUILD_ESMF_ESMP "Build python version Earth System Modelling Framework" OFF)
+option(CDAT_BUILD_ESMF_ESMP "Build python version Earth System Modeling Framework" OFF)
+option(CDAT_BUILD_ESMF_PARALLEL "Build parallel version of Earth System Modeling Framework library" OFF)
+
+# the following may need to be adjusted on Crays, otherwise the defaults will likely apply
+set(CDAT_BUILD_ESMF_OS "${CMAKE_SYSTEM_NAME}" CACHE STRING "ESMF_OS env variable, may need to change to Unicos on Crays")
+set(CDAT_BUILD_ESMF_COMPILER "gfortran" CACHE STRING "ESMF_COMPILER env variable, choices are gfortran, intel, pgi, g95, or nag")
+set(CDAT_BUILD_ESMF_COMM "openmpi" CACHE STRING "ESMF_COMM env variable, choices are openmpi, mpiuni, mpi, mpich2, or mvapich2")
+set(CDAT_BUILD_ESMF_ABI "64" CACHE STRING "ESMF_ABI env variable, choices are 32 or 64")
 
 # Attempt to find each package on the system
 
@@ -451,18 +460,19 @@ add_cdat_package(NUMPY)
 add_cdat_package(SCIPY)
 #add_cdat_package(ZMQ)
 add_cdat_package(IPYTHON)
+add_cdat_package(OPENMPI)
 
-find_package(MPI)
+#find_package(MPI)
 find_package(Mpi4py)
 if (Mpi4py_FOUND)
   message("We found Mpi4py")
 else (Mpi4py_FOUND)
-  if (MPI_FOUND)
+  #if (MPI_FOUND)
     message("We will build Mpi4py for you")
     add_cdat_package(Mpi4py)
-  else ()
-    message("No MPI installation was found, will not build mpi4py")
-  endif ()
+  #else ()
+  #  message("No MPI installation was found, will not build mpi4py")
+  #endif ()
 endif(Mpi4py_FOUND)
 
 add_cdat_package(Pmw)
@@ -484,6 +494,30 @@ endif(Matplotlib_FOUND)
 add_cdat_package(GEOS)
 add_cdat_package(basemap)
 
+option(CDAT_BUILD_SHAPELY "Build Shapely python module to represent geometric oiobjects and apply predicates and operations on these objects" OFF)
+
+if (CDAT_BUILD_SHAPELY)
+  find_package(Shapely)
+  if (Shapely_FOUND)
+    message("We found Shapely")
+  else (Shapely_FOUND)
+    message("We will build Shapely for you")
+    add_cdat_package(Shapely)
+  endif(Shapely_FOUND)
+endif()
+
+option(CDAT_BUILD_GDAL "Build the Geospatial Data Abstraction Library (GDAL) and python osgeo module " OFF)
+
+if (CDAT_BUILD_GDAL)
+  find_package(Gdal)
+  if (Gdal_FOUND)
+    message("We found GDAL")
+  else (Gdal_FOUND)
+    message("We will build GDAL for you")
+    add_cdat_package(gdal)
+  endif(Gdal_FOUND)
+endif()
+
 add_cdat_package(CMOR)
 add_cdat_package(CDAT)
 add_cdat_package(gui_support)
@@ -497,22 +531,8 @@ if(CDAT_BUILD_ESMF_ESMP)
     # GNU gfortran must be >= 4.3
     if(${Fortran_MAJOR_VERSION} GREATER 3 AND ${Fortran_MINOR_VERSION} GREATER 2)
       ## On APPLE need to test for -arch as well!
-      if (APPLE)
-         execute_process(COMMAND gfortran dummy.f90 -o dummy_test_gfortran COMMAND  rm dummy_test_gfortran
-    	                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/CMake
- 			 OUTPUT_VARIABLE GFOR_OUT
-			 ERROR_VARIABLE GFOR_ERR 		  
-  			 RESULT_VARIABLE res)
-         if (NOT ${res} EQUAL 0)	  
-      	    message("    gfortran needs to understand -arch to build ESMF\n${GFOR_OUT}\n${GFOR_ERR}\n${res}")
-    	 else (NOT ${res} EQUAL 0)
-            add_cdat_package(esmf)
-      	    add_cdat_package(esmp)
-	 endif (NOT ${res} EQUAL 0)
-      else (APPLE)
          add_cdat_package(esmf)
          add_cdat_package(esmp)
-      endif (APPLE)
     else()
       message("    Skipping ESMF")
       message("    gfortran version needs to be at least 4.3 to install ESMF")
@@ -627,7 +647,8 @@ set(PyQt_DEPENDENCIES ${pkgconfig_dep} ${Qt_dep} ${SIP_dep})
 set(Pmw_DEPENDENCIES ${pkgconfig_dep} ${Python_dep})
 set(libcf_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${NetCDF_dep} ${HDF5_dep} ${CURL_dep} ${zlib_dep})
 # Added by Dave Kindig Tech-X Corp. kindig@txcorp.com
-set(esmf_DEPENDENCIES ${pkgconfig_dep})
+set(OPENMPI_DEPENDENCIES ${pkgconfig_dep})
+set(esmf_DEPENDENCIES ${pkgconfig_dep} ${OPENMPI_dep})
 set(esmp_DEPENDENCIES ${pkgconfig_dep} ${NUMPY_dep} ${Python_dep})
 set(Cython_DEPENDENCIES ${pkgconfig_dep} ${Python_dep})
 set(Numexpr_DEPENDENCIES ${pkgconfig_dep} ${NUMPY_dep} ${Python_dep})
@@ -649,7 +670,7 @@ set(ZMQ_DEPENDENCIES)
 set(IPYTHON_DEPENDENCIES ${setuptools_dep} ${ZMQ_dep} ${NUMPY_dep})
 
 set(VTK_DEPENDENCIES ${pkgconfig_dep} ${zlib_deb} ${png_dep} ${jpeg_dep} ${xml_dep})
-set(Cairo_DEPENDENCIES ${pkgconfig_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep})
+set(Cairo_DEPENDENCIES ${pkgconfig_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep} ${libXML2_dep})
 set(HDF4_DEPENDENCIES ${pkgconfig_dep} ${zlib_dep} ${jpeg_dep})
 set(HDF5_DEPENDENCIES ${pkgconfig_dep} ${libXML2_dep} ${libXSLT_dep} ${zlib_dep})
 
@@ -663,10 +684,12 @@ set(gui_support_DEPENDENCIES ${CDAT_dep})
 #set(VisTrails_DEPENDENCIES ${ParaView_dep} ${CDAT_dep})
 set(Matplotlib_DEPENDENCIES ${PyQt_dep} ${Cairo_dep} ${NUMPY_dep} )
 
-set(Mpi4py_DEPENDENCIES ${NUMPY_dep} )
+set(Mpi4py_DEPENDENCIES ${NUMPY_dep} ${OPENMPI_dep})
 
-set(GEOS_DEPENDENCIES ${Matplotlib_dep} )
-set(basemap_DEPENDENCIES ${GEOS_dep} )
+set(GEOS_DEPENDENCIES ${Matplotlib_dep})
+set(Shapely_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${GEOS_dep})
+set(gdal_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${NetCDF_dep} ${HDF5_dep} ${CURL_dep} ${zlib_dep} ${jasper_dep} ${setuptools_dep})
+set(basemap_DEPENDENCIES ${GEOS_dep})
 set(pyspharm_DEPENDENCIES ${NUMPY_dep})
 
 list(REMOVE_DUPLICATES external_packages)
