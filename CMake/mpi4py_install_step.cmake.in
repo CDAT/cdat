@@ -1,0 +1,21 @@
+message("Installing mpi4py:\n@mpi4py_PREFIX_ARGS@")
+set(ENV{@LIBRARY_PATH@} "@CMAKE_INSTALL_PREFIX@/lib:@cdat_EXTERNALS@/lib:$ENV{@LIBRARY_PATH@}")
+set(ENV{VS_UNICODE_OUTPUT} "")
+
+if(APPLE)
+    set(ENV{CFLAGS} "@cdat_osx_arch_flag@ @cdat_osx_version_flag@ @cdat_osx_sysroot@")
+endif()
+
+execute_process(
+  COMMAND env LD_LIBRARY_PATH="@LIBRARY_PATH@" "@PYTHON_EXECUTABLE@" setup.py install @PYTHON_EXTRA_PREFIX@
+  WORKING_DIRECTORY "@mpi4py_binary@"
+  RESULT_VARIABLE res
+  OUTPUT_VARIABLE mpi4py_OUT
+  OUTPUT_VARIABLE mpi4py_ERR
+)
+
+if(NOT ${res} EQUAL 0)
+  message("mpi4py Errors detected: \n${mpi4py_OUT}\n${mpi4py_ERR}")
+  message(FATAL_ERROR "Error in config of mpi4py")
+endif()
+message("Mpi4py install succeeded.")
