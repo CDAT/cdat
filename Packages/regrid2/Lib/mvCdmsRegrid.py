@@ -99,9 +99,9 @@ def _getAxisList(srcVar, dstGrid):
     try:
         dgAxisList = dstGrid.getAxisList()[-2:]
     except:
-        print "\n\nWARNING!!!\n" + \
-              "Using [dstGrid.getLatitude(), dstGrid.getLongitude()]\n\n"
-        dgAxisList = [dstGrid.getLatitude(), dstGrid.getLongitude()]
+        dgAxisList = []
+        dgAxisList.append(dstGrid.getLatitude())
+        dgAxisList.append(dstGrid.getLongitude())
 
     return svAxisList + dgAxisList
 
