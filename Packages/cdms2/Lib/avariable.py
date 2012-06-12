@@ -906,11 +906,6 @@ class AbstractVariable(CdmsObj, Slab):
             return self
         else:
 
-            srcMask = None
-            # Set the source mask if a mask is defined with the source data
-            if not numpy.all(self.mask == False):
-                srcMask = self.mask
-
             fromgrid = self.getGrid() # returns horizontal grid only
             
             # The original cdms2 regridder
@@ -921,6 +916,11 @@ class AbstractVariable(CdmsObj, Slab):
                     result = regridf(self, missing=missing, order=order, 
                                      mask=mask, **keywords)
                     return result
+
+            srcMask = None
+            # Set the source mask if a mask is defined with the source data
+            if not numpy.all(self.mask == False):
+                srcMask = self.mask
 
             # The other methods, LibCF and ESMF
             regridf = CdmsRegrid(fromgrid, togrid, srcGridMask = srcMask, **keywords)
