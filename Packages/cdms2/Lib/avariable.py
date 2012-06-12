@@ -914,8 +914,7 @@ class AbstractVariable(CdmsObj, Slab):
             fromgrid = self.getGrid() # returns horizontal grid only
             
             # The original cdms2 regridder
-            keys = [k.lower() for k in keywords.keys()]
-            if 'regridTool' in keys:
+            if 'regridTool' in keywords.keys():
                 values = [v.lower() for v in keywords.values()]
                 if 'regrid2' in values:
                     regridf = Horizontal(fromgrid, togrid)
