@@ -921,13 +921,11 @@ class AbstractVariable(CdmsObj, Slab):
                     regridf = Horizontal(fromgrid, togrid)
                     result = regridf(self, missing=missing, order=order, 
                                      mask=mask, **keywords)
-                return result
+                    return result
 
-            # The Other methods, LIbCF and ESMF
-#            regridf = Regridder(fromgrid, togrid, srcMask = srcMask, **keywords)
+            # The other methods, LibCF and ESMF
             regridf = CdmsRegrid(fromgrid, togrid, srcGridMask = srcMask, **keywords)
-            result = regridf(self, missing=missing, order=order, mask=mask, 
-                             **keywords)
+            result = regridf(self, **keywords)
             return result
 
     def pressureRegrid (self, newLevel, missing=None, order=None, method="log"):
