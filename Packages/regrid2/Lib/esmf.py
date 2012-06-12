@@ -34,8 +34,10 @@ class EsmfUnstructGrid:
         self.cellsAdded = False
         # the local processor rank
         self.pe = 0
-        # number of porcessors
+        # number of processors
         self.nprocs = 1
+        # communicator
+        self.comm = None
 
         vm = ESMP.ESMP_VMGetGlobal()
         self.pe, self.nprocs = ESMP.ESMP_VMGet(vm)
@@ -288,7 +290,7 @@ class EsmfStructField:
     def __init__(self, esmfGrid, name, data = None,
                  staggerloc = ESMP.ESMP_STAGGERLOC_CENTER):
         """
-        Creator for ESMF Field
+        Creator for structured ESMF Field
         @param esmfGrid instance of an ESMP_Grid
         @param name field name (must be unique)
         @param data numpy ndarray of data
