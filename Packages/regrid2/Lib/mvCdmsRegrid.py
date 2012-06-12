@@ -186,13 +186,15 @@ class CdmsRegrid:
         # shape of dst var
         dstShape = list(srcVar.shape[:-2]) + list(self.dstGrid.shape)
 
-        # interpolate the data
+        # Establish the destination data. Initialize to missing values or 0.
         dstData = numpy.ones(dstShape, dtype = srcVar.dtype)
         if missingValue is not None: dstData[:] = dstData * missingValue
-        else: dstData[:] = dstData * -999
-
+        else: dstData[:] = dstData * 0.0
+        
         # return a list
         if diagnostics is not None: diagnostics = []
+
+        # interpolate the data
         self.regridObj.apply(srcVar.data, dstData, 
                              missingValue = missingValue, 
                              diagnostics = diagnostics,
