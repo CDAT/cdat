@@ -18,9 +18,6 @@ import regrid2
 import re
 from distarray import MultiArrayIter
 
-# how close to one do we define a mask?
-MASK_TOL = 1.e-3
-
 class GenericRegrid:
     """
     Generic Regrid class.
@@ -107,13 +104,13 @@ class GenericRegrid:
 
             # adjust for masking
             if missingValue is not None:
-                srcDataMaskFloat[:] = (numpy.fabs(srcData - missingValue) < MASK_TOL*missingValue)
+                srcDataMaskFloat[:] = (srcData == missingValue)
                 # interpolate mask
                 self.tool.apply(srcDataMaskFloat, dstDataMaskFloat, **args)
                 if re.search('conserv', self.regridMethod, re.I):
-                    dstMask = numpy.array( (dstDataMaskFloat >= 1 - MASK_TOL), numpy.int32 )
+                    dstMask = numpy.array( (dstDataMaskFloat == 1), numpy.int32 )
                 else:
-                    dstMask = numpy.array( (dstDataMaskFloat > 0 + MASK_TOL), numpy.int32 )
+                    dstMask = numpy.array( (dstDataMaskFloat > 0), numpy.int32 )
                 dstData *= (1 - dstMask)
                 dstData += dstMask*missingValue
 
@@ -152,15 +149,15 @@ class GenericRegrid:
 
                 # adjust for masking
                 if missingValue is not None:
-                    srcDataMaskFloat[:] = (numpy.fabs(indata - missingValue) < MASK_TOL*missingValue)
+                    srcDataMaskFloat[:] = (indata == missingValue)
                     # interpolate mask
                     self.tool.apply(srcDataMaskFloat, dstDataMaskFloat, **args)
                     if re.search('conserv', self.regridMethod, re.I):
                         # cell interpolation
-                        dstMask = numpy.array( (dstDataMaskFloat >= 1 - MASK_TOL), numpy.int32 )
+                        dstMask = numpy.array( (dstDataMaskFloat == 1), numpy.int32 )
                     else:
                         # nodal interpolation
-                        dstMask = numpy.array( (dstDataMaskFloat > 0 + MASK_TOL), numpy.int32 )
+                        dstMask = numpy.array( (dstDataMaskFloat > 0), numpy.int32 )
                     outdata *= (1 - dstMask)
                     outdata += dstMask*missingValue
 
