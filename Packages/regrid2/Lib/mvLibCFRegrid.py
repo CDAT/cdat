@@ -24,10 +24,10 @@ class LibCFRegrid(GenericRegrid):
         @param srcGrid array
         @param dstGrid array
         """
-        if srcGridMask is not None: gsRegrid.setValidMask(srcGridMask)
         self.regridObj = gsRegrid.Regrid(srcGrid, dstGrid, 
                                          src_bounds = srcBounds,
                                          **args)
+        if srcGridMask is not None: self.regridObj.setValidMask(srcGridMask)
 
     def computeWeights(self, **args):
         """
