@@ -434,6 +434,7 @@ class EsmfRegrid:
         self.dstAreaField = None
         self.srcFracField = srcFrac
         self.dstFracField = dstFrac
+        self.regridHandle = None
 
         center = ESMP.ESMP_STAGGERLOC_CENTER
 

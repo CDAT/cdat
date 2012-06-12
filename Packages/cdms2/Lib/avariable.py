@@ -14,6 +14,9 @@ from axis import axisMatchIndex, axisMatchAxis, axisMatches, unspecified, Cdtime
 import selectors
 import copy
 # from regrid2 import Regridder, PressureRegridder, CrossSectionRegridder
+from regrid2 import Regridder
+from regrid2 import CdmsRegrid
+from regrid2 import Horizontal
 #import PropertiedClasses
 from convention import CF1
 from grid import AbstractRectGrid
@@ -898,20 +901,30 @@ class AbstractVariable(CdmsObj, Slab):
         @param Optional keywords dependent on regridTool
         @return Regridded variable
         """
-        from regrid2 import Regridder
 
         if togrid is None: 
             return self
         else:
 
+            fromgrid = self.getGrid() # returns horizontal grid only
+            
+            # The original cdms2 regridder
+            if 'regridTool' in keywords.keys():
+                values = [v.lower() for v in keywords.values()]
+                if 'regrid2' in values:
+                    regridf = Horizontal(fromgrid, togrid)
+                    result = regridf(self, missing=missing, order=order, 
+                                     mask=mask, **keywords)
+                    return result
+
             srcMask = None
+            # Set the source mask if a mask is defined with the source data
             if not numpy.all(self.mask == False):
                 srcMask = self.mask
-            
-            fromgrid = self.getGrid() # returns horizontal grid only
-            regridf = Regridder(fromgrid, togrid, srcMask = srcMask, **keywords)
-            result = regridf(self, missing=missing, order=order, mask=mask, 
-                             **keywords)
+
+            # The other methods, LibCF and ESMF
+            regridf = CdmsRegrid(fromgrid, togrid, srcGridMask = srcMask, **keywords)
+            result = regridf(self, **keywords)
             return result
 
     def pressureRegrid (self, newLevel, missing=None, order=None, method="log"):

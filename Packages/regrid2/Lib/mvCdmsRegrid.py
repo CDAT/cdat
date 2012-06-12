@@ -97,7 +97,7 @@ def _getAxisList(srcVar, dstGrid):
 
     # From the destination grid get the horizontal axes!
     try:
-        dgAxisList = dstGrid.getAxisList()[-2:]
+        dgAxisList = list(dstGrid.getAxisList()[-2:])
     except:
         dgAxisList = []
         dgAxisList.append(dstGrid.getLatitude())
@@ -186,11 +186,15 @@ class CdmsRegrid:
         # shape of dst var
         dstShape = list(srcVar.shape[:-2]) + list(self.dstGrid.shape)
 
-        # interpolate the data
-        dstData = numpy.zeros(dstShape, dtype = srcVar.dtype)
-
+        # Establish the destination data. Initialize to missing values or 0.
+        dstData = numpy.ones(dstShape, dtype = srcVar.dtype)
+        if missingValue is not None: dstData[:] = dstData * missingValue
+        else: dstData[:] = dstData * 0.0
+        
         # return a list
         if diagnostics is not None: diagnostics = []
+
+        # interpolate the data
         self.regridObj.apply(srcVar.data, dstData, 
                              missingValue = missingValue, 
                              diagnostics = diagnostics,
@@ -206,6 +210,10 @@ class CdmsRegrid:
             if type(v) is types.StringType:
                 attrs[a] = v
 
+        # If the missing value is present in the destination data, set a 
+        # destination mask
+        if numpy.any(dstData == missingValue): 
+            dstMask = (dstData == missingValue)
 
         # create the transient variable
         dstVar = cdms2.createVariable(dstData, 
