@@ -28,18 +28,21 @@ class GenericRegrid:
                  dstGridMask = None, dstBounds = None, dstGridAreas = None,
                  **args):
         """
-        Constructor. Grids, [bounds, masks and areas if passed] must be in the 
-        correct shape for the selected regridder
+        Constructor. 
         @param srcGrid array
         @param dstGrid array
-        @param regridMethod Linear (bi, tri,...) default or Conservative
-        @param regridTool LibCF (gsRegrid), ESMP (ESMF)
+        @param regridMethod linear (bi, tri,...) default or conservative
+        @param regridTool 'libcf' or 'esmf'
         @param srcGridMask array of same shape as srcGrid
         @param srcBounds array of same shape as srcGrid
         @param srcGridAreas array of same shape as srcGrid
         @param dstGridMask array of same shape as dstGrid
         @param dstBounds array of same shape as dstGrid
         @param dstGridAreas array of same shape as dstGrid
+        @param **args additional arguments to be passed to the 
+                      specific tool
+                      'libcf': mkCyclic={True, False}, handleCut={True,False}
+                      'esmf': .... TO FILL IN
         """
 
         self.nGridDims = len(srcGrid)
@@ -69,7 +72,7 @@ class GenericRegrid:
         """
         Compute Weights
         """
-        self.tool.computeWeights()
+        self.tool.computeWeights(**args)
 
     def apply(self, srcData, dstData, missingValue = None, diagnostics = None, 
               **args):
@@ -165,3 +168,11 @@ class GenericRegrid:
                 exec('dstData' + slce + ' = outdata')
                 if diagnostics is not None:
                     diagnostics = numpy.array(diagnostics).reshape(nonHorizShape2)
+
+    def getDstGrid(self):
+        """
+        Return the destination grid, may be different from the dst grid provided 
+        to the constructor due to padding/domain decomposition
+        @return local grid on this processor
+        """
+        return self.tool.getDstGrid()

@@ -29,7 +29,7 @@ class ESMFRegrid(GenericRegrid):
     """
     Regrid class for ESMF
     """
-    def __init__(self, srcGrid, dstGrid, regridMethod = 'Linear',
+    def __init__(self, srcGrid, dstGrid, regridMethod = 'linear',
                  srcGridMask = None, srcBounds = None, srcGridAreas = None,
                  dstGridMask = None, dstBounds = None, dstGridAreas = None,
                  **args):
@@ -159,17 +159,18 @@ class ESMFRegrid(GenericRegrid):
                                        staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
                                         
 
-    def computeWeights(self, regridMethod = None, unMappedAction = None,
+    def computeWeights(self, unMappedAction = None,
                   srcMaskValues = None, dstMaskValues = None, **args):
         """
         Compute Weights
-        @param regridMethod Bilinear, Conseravative or Patch
-        @param unMappedAction ESMP Behavior on errors
+        @param unMappedAction ESMP behavior on errors
         @param srcMaskValues array of values to be masked out e.g. [1] (Default)
-        @param dstMaskValues array of values to be masked out e.g. [1] (Default)
+        @param dstMaskValues array of values to be masked out e.g. [1] (Default)\
+        @param **args TO DESCRIBE
         """
         
-        if regridMethod is None: regridMethod = self.regridMethod
+        if regridMethod is None: 
+            regridMethod = self.regridMethod
         if unMappedAction is None: unMappedAction = self.unMappedAction
 
         # Create dummy variables for use in generating the weights
@@ -222,3 +223,10 @@ class ESMFRegrid(GenericRegrid):
                     dstDiag = self.dstFractions * self.dstGridAreas * dstData
                     diagnostics.append(numpy.nansum(srcDiag) - \
                                          numpy.nansum(dstDiag))
+
+    def getDstGrid(self):
+        """
+        Get the destination grid on this processor
+        @return grid
+        """
+        raise NotImplementedError, "NEED TO IMPLEMENT"
