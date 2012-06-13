@@ -18,30 +18,50 @@ class LibCFRegrid(GenericRegrid):
     """
     """
     def __init__(self, srcGrid, dstGrid, srcGridMask = None, 
-                 srcBounds = None, **args):
+                 src_bounds = None, **args):
         """
         Constructor
         @param srcGrid array
         @param dstGrid array
+        @param src_bounds cell boundaries
+        @param **args keyword arguments, eg mkCyclic, handleCut, ...
+                      to be passed to gsRegrid
         """
+        mkCyclic = args.get('mkCyclic', False)
+        handleCut = args.get('handleCut', False)
         self.regridObj = gsRegrid.Regrid(srcGrid, dstGrid, 
-                                         src_bounds = srcBounds,
-                                         **args)
-        if srcGridMask is not None: self.regridObj.setValidMask(srcGridMask)
+                                         src_bounds = src_bounds,
+                                         mkCyclic=mkCyclic,
+                                         handleCut=handleCut)
+        if srcGridMask is not None: 
+            self.regridObj.setMask(srcGridMask)
 
     def computeWeights(self, **args):
         """
         Compute interpolation weights
+        @param **args arguments to be passed to gsRegrid, e.g. 
+                      nitermax, tolpos, ...
         """
-        self.regridObj.computeWeights(**args)
+        nitermax = args.get('nitermax', 20)
+        tolpos = args.get('tolpos', 0.01)
+        self.regridObj.computeWeights(nitermax=nitermax, tolpos=tolpos)
 
     def apply(self, srcData, dstData, srcDataMask = None, **args):
         """
         Regrid source to destination
-        @param srcData array
-        @param dstData array
-        @param srcDataMask array
+        @param srcData array (input)
+        @param dstData array (output)
         """
         self.regridObj.apply(srcData, dstData)
+
+    def getDstGrid(self):
+        """
+        Get the grid of the dst data (maybe larger than the 
+        dst grid passed to the constructor due to column/row
+        padding)
+        @return shape
+        """
+        return self.regridObj.getDstGrid()
+        
 
 
