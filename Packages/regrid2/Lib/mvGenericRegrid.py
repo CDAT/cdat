@@ -22,8 +22,9 @@ class GenericRegrid:
     """
     Generic Regrid class.
     """
-    def __init__(self, srcGrid, dstGrid, regridMethod = 'Linear', 
-                 regridTool = 'LibCF',
+    def __init__(self, srcGrid, dstGrid, 
+                 regridMethod, 
+                 regridTool,
                  srcGridMask = None, srcBounds = None, srcGridAreas = None,
                  dstGridMask = None, dstBounds = None, dstGridAreas = None,
                  **args):
@@ -57,16 +58,21 @@ class GenericRegrid:
         # parse the options
         if re.search('libcf', regridTool.lower()) or \
            re.search('gsreg', regridTool.lower()):
+            # LibCF
             self.tool = regrid2.LibCFRegrid(srcGrid, dstGrid, 
                  srcGridMask = srcGridMask, srcBounds = srcBounds)
         elif re.search('esm', regridTool.lower()):
+            # ESMF
+            staggerLoc = args.get('staggerLoc', None)
+            periodicity = args.get('periodicity', 1)
+            coordSys = args.get('coordSys', 'deg')
             self.tool = regrid2.ESMFRegrid(srcGrid, dstGrid,
                   regridMethod = regridMethod, 
-                  srcGridMask = srcGridMask, srcBounds = srcBounds, 
-                  srcGridAreas = srcGridAreas,
-                  dstGridMask = dstGridMask, dstBounds = dstBounds, 
-                  dstGridAreas = dstGridAreas,
-                  **args)
+                  staggerLoc = staggerLoc,
+                  periodicity = periodicity,
+                  coordSys = coordSys,                 
+                  srcGridMask=srcGridMask, srcBounds=srcBounds, srcGridAreas=srcGridAreas,
+                  dstGridMask=dstGridMask, dstBounds=dstBounds, dstGridAreas=dstGridAreas)
     
     def computeWeights(self, **args):
         """
@@ -74,8 +80,7 @@ class GenericRegrid:
         """
         self.tool.computeWeights(**args)
 
-    def apply(self, srcData, dstData, missingValue = None, diagnostics = None, 
-              **args):
+    def apply(self, srcData, dstData, missingValue = None, **args):
         """
         Regrid source to destination
         @param srcData array (input)
@@ -103,7 +108,7 @@ class GenericRegrid:
             # no axis... just call apply 
             #
 
-            self.tool.apply(srcData, dstData, diagnostics = diagnostics, **args)
+            self.tool.apply(srcData, dstData, **args)
 
             # adjust for masking
             if missingValue is not None:
@@ -148,7 +153,7 @@ class GenericRegrid:
                 indata = eval('srcData' + slce)
 
                 # interpolate, using the appropriate tool
-                self.tool.apply(indata, outdata, diagnostics = None, **args)
+                self.tool.apply(indata, outdata, **args)
 
                 # adjust for masking
                 if missingValue is not None:
@@ -166,13 +171,11 @@ class GenericRegrid:
 
                 # fill in dstData
                 exec('dstData' + slce + ' = outdata')
-                if diagnostics is not None:
-                    diagnostics = numpy.array(diagnostics).reshape(nonHorizShape2)
 
     def getDstGrid(self):
         """
         Return the destination grid, may be different from the dst grid provided 
-        to the constructor due to padding/domain decomposition
+        to the constructor due to padding and/or domain decomposition
         @return local grid on this processor
         """
         return self.tool.getDstGrid()

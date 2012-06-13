@@ -10,9 +10,9 @@ specified in the license file 'license.txt' are met.
 
 Authors: David Kindig and Alex Pletzer
 """
+import types
 import re
 import numpy
-import string
 
 import ESMP
 from regrid2 import esmf
@@ -31,43 +31,73 @@ class ESMFRegrid(GenericRegrid):
     """
     Regrid class for ESMF
     """
-    def __init__(self, srcGrid, dstGrid, regridMethod = 'linear',
+    def __init__(self, srcGrid, dstGrid, 
+                 regridMethod, staggerLoc, periodicity, coordSys,
                  srcGridMask = None, srcBounds = None, srcGridAreas = None,
-                 dstGridMask = None, dstBounds = None, dstGridAreas = None,
-                 **args):
+                 dstGridMask = None, dstBounds = None, dstGridAreas = None):
         """
         Constructor
-        @param srcGrid list [x, y,[z]] of arrays in (z,y,x) order
-        @param dstGrid list [x, y,[z]] of arrays in (z,y,x) order
-
-        These are all properties of the grid and can be retrieved 
-        using esmf methods:
-        @param srcGridMask list [x, y,[z]] of arrays in (z,y,x) order
-        @param srcBounds list [x, y,[z]] of arrays in (z,y,x) order
-        @param srcGridAreas list [x, y,[z]] of arrays in (z,y,x) order
-        @param dstGridMask list [x, y,[z]] of arrays in (z,y,x) order
-        @param dstBounds list [x, y,[z]] of arrays in (z,y,x) order
-        @param dstGridAreas list [x, y,[z]] of arrays in (z,y,x) order
-        @param **args staggerloc, coordSys, periodicity,
-                      unMappedAction, srcMaskValues, dstMaskValues
+        @param srcGrid list [[z], y, x] of source grid arrays
+        @param dstGrid list [[z], y, x] of dstination grid arrays
+        @param regridMethod 'linear', 'conserve', or 'patch'
+        @param staggerLoc the staggering of the field, 'center' or 'corner'
+        @param periodicity 0 (no periodicity), 
+                           1 (last coordinate is periodic, 
+                           2 (both coordinates are periodic)
+        @param coordSys 'deg', 'cart', or 'rad'
+        @param srcGridMask list [[z], y, x] of arrays
+        @param srcBounds list [[z], y, x] of arrays
+        @param srcGridAreas list [[z], y, x] of arrays
+        @param dstGridMask list [[z], y, x] of arrays
+        @param dstBounds list [[z], y, x] of arrays
+        @param dstGridAreas list [[z], y, x] of arrays
         """
 
+        # esmf grid objects (tobe constructed)
         self.srcGrid = None
         self.dstGrid = None
-        self.srcGridShape = srcGrid[0].shape
-        self.dstGridShape = dstGrid[0].shape
-        self.ndims = len(self.srcGridShape)
+
+        srcGridShape = srcGrid[0].shape
+        dstGridShape = dstGrid[0].shape
+        self.ndims = len(srcGridShape)
+
+        self.regridMethod = ESMP.ESMP_REGRIDMETHOD_BILINEAR
+        if type(regridMethod) == types.StringType:
+            if re.search('conserv', regridMethod):
+                self.regridMethod = ESMP.ESMP_REGRIDMETHOD_CONSERVE
+            elif re.search('patch', regridMethod):
+                self.regridMethod = ESMP.ESMP_REGRIDMETHOD_PATCH
+
         # data stagger
         self.staggerloc = ESMP.ESMP_STAGGERLOC_CENTER
+        if type(staggerLoc) == types.StringType:
+            if re.search('corner', staggerLoc, re.I) or \
+                    re.search('node', staggerLoc, re.I):
+                self.staggerloc = ESMP.ESMP_STAGGERLOC_CORNER
+        
+        # good for now
         self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE
-        self.regridMethod = ESMP.ESMP_REGRIDMETHOD_BILINEAR
-        self.srcMaskValues = None
-        self.dstMaskValues = None
-        self.missing_value = 1.e+20
+
+        self.coordSys = ESMP.ESMP_COORDSYS_SPH_DEG
+        if re.search('cart', coordSys):
+            self.coordSys = ESMP.ESMP_COORDSYS_CART
+        elif re.search('rad', coordSys):
+            self.coordSys = ESMP.ESMP_COORDSYS_SPH_RAD
+
+        self.periodicity = periodicity
+
+        # masks can take several values in ESMF
+        self.srcMaskValues = numpy.array([1],dtype = numpy.int32)
+        self.dstMaskValues = numpy.array([1],dtype = numpy.int32)
+
+        # provided by user or None
+        self.srcGridAreas = srcGridAreas
+        self.dstGridAreas = dstGridAreas
+
+        # fractional area fields, to be filled in
         self.srcFracFld = None
         self.dstFracFld = None
-        self.srcGridAreas = None
-        self.dstGridAreas = None
+
         # MPI stuff
         self.pe = 0
         self.nprocs = 1
@@ -78,96 +108,64 @@ class ESMFRegrid(GenericRegrid):
             self.nprocs = self.comm.Get_size()
 
         # checks
-        if self.ndims != len(self.dstGridShape):
+        if self.ndims != len(dstGridShape):
             msg = """
-mvESMFRegrid.__init__: mismatch in the number of topological dimensions. 
-len(srcGrid[0].shape) = %d != len(dstGrid[0].shape)""" % (self.ndims, self.dstGridShape)
+mvESMFRegrid.ESMFRegrid.__init__: mismatch in the number of topological 
+dimensions. len(srcGrid[0].shape) = %d != len(dstGrid[0].shape)""" % \
+                (self.ndims, len(dstGridShape))
             raise RegridError, msg
 
-        # parse the input keyword arguments
-        coordSys = ESMP.ESMP_COORDSYS_SPH_DEG
-        periodicity = 0
-        if re.search('conserv', regridMethod.lower()):
-            self.regridMethod = ESMP.ESMP_REGRIDMETHOD_CONSERVE
-        if re.search('line', regridMethod.lower()):
-            self.regridMethod = ESMP.ESMP_REGRIDMETHOD_BILINEAR
-        if re.search('patch', regridMethod.lower()):
-            self.regridMethod = ESMP.ESMP_REGRIDMETHOD_PATCH
-
-        # These are exact
-        for arg in args.keys():
-            if arg == 'coordSys': 
-                if re.search('cart', args[arg].lower()): 
-                    coordSys = ESMP.ESMP_COORDSYS_CART
-                if re.search('deg', args[arg].lower()):
-                    coordSys = ESMP.ESMP_COORDSYS_SPH_DEG
-                if re.search('rad', args[arg].lower()):
-                    coordSys = ESMP.ESMP_COORDSYS_SPH_RAD
-            elif arg == 'periodicity': 
-                periodicity = args[arg]
-            elif arg == 'staggerloc': 
-                if re.search('center', args[arg].lower()):
-                    self.staggerloc = ESMP.ESMP_STAGGERLOC_CENTER
-                if re.search('corner', args[arg].lower()):
-                    self.staggerloc = ESMP.ESMP_STAGGERLOC_CORNER
-            elif arg == 'unMappedAction': 
-                if re.search('error', args[arg].lower()):
-                    self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_ERROR
-                if re.search('ignore', args[arg].lower()):
-                    self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE
-            elif arg == 'srcMaskValues': self.srcMaskValues = args[arg]
-            elif arg == 'dstMaskValues': self.dstMaskValues = args[arg]
-            else:
-                string = 'Unrecognized ESMP argument %s' % arg
-                raise RegridError, string
-
         # create esmf source Grid
-        self.srcGrid = esmf.EsmfStructGrid(self.srcGridShape, 
-                                coordSys = coordSys,
-                                periodicity = periodicity)
+        self.srcGrid = esmf.EsmfStructGrid(srcGridShape, 
+                                coordSys = self.coordSys,
+                                periodicity = self.periodicity)
         self.srcGrid.setCoords(srcGrid, staggerloc = self.staggerloc)
 
         # we only need one value the mask elements can take
         if srcGridMask is not None:
             self.srcGrid.setCellMask(srcGridMask)
-            self.srcMaskValues = numpy.array([1],dtype = numpy.int32)
 
         if srcBounds is not None:
-        # Coords are CENTER (cell) based, bounds are CORNER (node) based
+        # Coords are CENTER (cell) based, bounds are CORNER (nodal)
             if self.staggerloc != ESMP.ESMP_STAGGERLOC_CORNER:
                 self.srcGrid.setCoords(srcBounds, 
                                staggerloc = ESMP.ESMP_STAGGERLOC_CORNER)
             elif self.staggerloc == ESMP.ESMP_STAGGERLOC_CORNER:
-                string = "If the stagger location is nodal, can't set the bounds"
-                raise RegridError, string
+                msg = """
+mvESMFRegrid.ESMFRegrid.__init__: can't set the src bounds for 
+staggerLoc = %s!""" % staggerLoc
+                raise RegridError, msg
 
         # create destination Grid
         self.dstGrid = esmf.EsmfStructGrid(dstGrid[0].shape, 
-                                coordSys = coordSys,
-                                periodicity = periodicity)
+                                coordSys = self.coordSys,
+                                periodicity = self.periodicity)
         self.dstGrid.setCoords(dstGrid, staggerloc = self.staggerloc)
         if dstGridMask is not None:
             self.dstGrid.setCellMask(dstGridMask)
-            self.dstMaskValues = numpy.array([1],dtype = numpy.int32)
+
         if dstBounds is not None:
-            # Coords are CENTER (cell) based, bounds are CORNER (node) based
+            # Coords are CENTER (cell) based, bounds are CORNER (nodal)
             if self.staggerloc != ESMP.ESMP_STAGGERLOC_CORNER:
                 self.dstGrid.setCoords(dstBounds, 
                                    staggerloc = ESMP.ESMP_STAGGERLOC_CORNER)
             elif self.staggerloc == ESMP.ESMP_STAGGERLOC_CORNER:
-                string = "If the stagger location is nodal, can't set the bounds"
-                raise RegridError, string
+                msg = """
+mvESMFRegrid.ESMFRegrid.__init__: can't set the dst bounds for 
+staggerLoc = %s!""" % staggerLoc
+                raise RegridError, msg
 
-        # Dummy fields for computing the interpolation weights
-        sDV = numpy.array(srcGrid[0][:]) *   0.0
-        dDV = numpy.array(dstGrid[0][:]) * -99.0
-        self.srcDummyFld = esmf.EsmfStructField(self.srcGrid, 'srcDummyFld', 
-                                           sDV, 
-                                           staggerloc = self.staggerloc)
-        self.dstDummyFld = esmf.EsmfStructField(self.dstGrid, 'dstDummyFld', dDV, 
-                                           staggerloc = self.staggerloc)
+        # dummy fields required in order to instantiate the regrid object
+        sDV = numpy.array(srcGrid[0][:]) * 0.0
+        dDV = numpy.array(dstGrid[0][:]) * 0.0
+        self.srcFld = esmf.EsmfStructField(self.srcGrid, 'srcFld', 
+                                                sDV, 
+                                                staggerloc = self.staggerloc)
+        self.dstFld = esmf.EsmfStructField(self.dstGrid, 'dstFld', 
+                                                dDV, 
+                                                staggerloc = self.staggerloc)
 
-        # Prepare the fractional area fields for conservative regridding metrics
+        # prepare the fractional area fields for conservativation check
         if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
             self.srcFracFld = esmf.EsmfStructField(self.srcGrid, 'srcFrac',
                                        sDV,
@@ -177,69 +175,45 @@ len(srcGrid[0].shape) = %d != len(dstGrid[0].shape)""" % (self.ndims, self.dstGr
                                        staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
                                         
 
-    def computeWeights(self, unMappedAction = None,
-                  srcMaskValues = None, dstMaskValues = None, **args):
+    def computeWeights(self, **args):
         """
         Compute Weights
-        @param unMappedAction ESMP behavior on errors
-        @param srcMaskValues array of values to be masked out e.g. [1] (Default)
-        @param dstMaskValues array of values to be masked out e.g. [1] (Default)\
-        @param **args TO DESCRIBE
+        @param **args (not used)
         """
-        
-        if unMappedAction is None: 
-            unMappedAction = self.unMappedAction
-
-        # Create dummy variables for use in generating the weights
-
-        self.regridObj = esmf.EsmfRegrid(self.srcDummyFld, self.dstDummyFld,
+        self.regridObj = esmf.EsmfRegrid(self.srcFld, self.dstFld,
                                   srcFrac = self.srcFracFld, 
                                   dstFrac = self.dstFracFld,
                                   srcMaskValues = self.srcMaskValues,
                                   dstMaskValues = self.dstMaskValues,
                                   regridMethod = self.regridMethod,
-                                  unMappedAction = unMappedAction)
+                                  unMappedAction = self.unMappedAction)
 
-        # Compute the weights  
-        if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-            rootPe = args.get('rootPe', 0)
-            self.srcGridAreas = self.regridObj.getSrcAreas(rootPe = rootPe)
-            self.dstGridAreas = self.regridObj.getDstAreas(rootPe = rootPe)
-            self.srcFractions = self.regridObj.getSrcAreaFractions(rootPe = rootPe)
-            self.dstFractions = self.regridObj.getDstAreaFractions(rootPe = rootPe)
-
-    def apply(self, srcData, dstData, diagnostics = None, **args):
+    def apply(self, srcData, dstData, **args):
         """
         Regrid source to destination
         @param srcData array Full source data shape
         @param dstData array Full destination data shape
-        @param rootPe set to None if dstData is locally filled. Other values
-                      will gather dstData on processor rootPe
+        @param **args  expect rootPe keyword argument
+                       rootPe: processor id where data should be gathered
+                               or None if local data are to be returned
         """
 
         rootPe = args.get('rootPe', 0)
 
-        self.srcDummyFld.setLocalData(srcData, self.staggerloc)
+        self.srcFld.setLocalData(srcData, self.staggerloc)
 
         # Regrid
-        self.regridObj(self.srcDummyFld, self.dstDummyFld)
+        self.regridObj(self.srcFld, self.dstFld)
 
         # Get the destination data
         if rootPe is None:
             slab = self.dstGrid.getLocalSlab(staggerloc = self.staggerloc)
-            dstData[slab] = self.dstDummyFld.getData(rootPe = rootPe)
+            dstData[slab] = self.dstFld.getData(rootPe = rootPe)
 
         else:
-            data = self.dstDummyFld.getData(rootPe = rootPe)
+            data = self.dstFld.getData(rootPe = rootPe)
             if self.pe == rootPe:
                 dstData[:] = data
-
-                if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE and \
-                                diagnostics is not None:
-                    srcDiag = self.srcFractions * self.srcGridAreas * srcData
-                    dstDiag = self.dstFractions * self.dstGridAreas * dstData
-                    diagnostics.append(numpy.nansum(srcDiag) - \
-                                         numpy.nansum(dstDiag))
 
     def getDstGrid(self):
         """
@@ -248,3 +222,52 @@ len(srcGrid[0].shape) = %d != len(dstGrid[0].shape)""" % (self.ndims, self.dstGr
         """
         return [self.dstGrid.getCoords(i, staggerloc=self.staggerloc) \
                     for i in range(self.ndims)]
+
+    def getSrcAreas(self, rootPe = None):
+        """
+        Get the source grid cell areas
+        @param rootPe root processor where data should be gathered (or 
+                      None if local areas are to be returned)
+        @return areas or None if non-conservative interpolation
+        """
+        if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
+            return self.regridObj.getSrcAreas(rootPe = rootPe)
+        else:
+            return None
+        
+
+    def getDstAreas(self, rootPe = None):
+        """
+        Get the destination grid cell areas
+        @param rootPe root processor where data should be gathered (or 
+                      None if local areas are to be returned)
+        @return areas or None if non-conservative interpolation
+        """
+        if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
+            return self.regridObj.getDstAreas(rootPe = rootPe)
+        else:
+            return None
+
+    def getSrcAreaFractions(self, rootPe = None):
+        """
+        Get the source grid area fractions
+        @param rootPe root processor where data should be gathered (or 
+                      None if local areas are to be returned)
+        @return fractional areas or None (if non-conservative)
+        """
+        if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
+            return self.regridObj.getSrcAreaFractions(rootPe = rootPe)
+        else:
+            return None
+
+    def getDstAreaFractions(self, rootPe = None):
+        """
+        Get the destination grid area fractions
+        @param rootPe root processor where data should be gathered (or 
+                      None if local areas are to be returned)
+        @return fractional areas or None (if non-conservative)
+        """
+        if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
+            return self.regridObj.getSrcAreaFractions(rootPe = rootPe)
+        else:
+            return None
