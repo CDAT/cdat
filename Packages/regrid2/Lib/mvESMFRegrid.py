@@ -20,8 +20,10 @@ from regrid2 import RegridError
 from regrid2 import GenericRegrid
 from regrid2 import RegridError
 
+HAVE_MPI = False
 try:
     from mpi4py import MPI
+    HAVE_MPI = True
 except:
     pass
 
@@ -54,6 +56,8 @@ class ESMFRegrid(GenericRegrid):
         self.dstGrid = None
         self.srcGridShape = srcGrid[0].shape
         self.dstGridShape = dstGrid[0].shape
+        self.ndims = len(self.srcGridShape)
+        # data stagger
         self.staggerloc = ESMP.ESMP_STAGGERLOC_CENTER
         self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE
         self.regridMethod = ESMP.ESMP_REGRIDMETHOD_BILINEAR
@@ -64,15 +68,26 @@ class ESMFRegrid(GenericRegrid):
         self.dstFracFld = None
         self.srcGridAreas = None
         self.dstGridAreas = None
+        # MPI stuff
         self.pe = 0
-        try:
-            self.pe = MPI.COMM_WORLD.Get_rank()
-        except:
-            pass
+        self.nprocs = 1
+        self.comm = None
+        if HAVE_MPI:
+            self.comm = MPI.COMM_WORLD
+            self.pe = self.comm.Get_rank()
+            self.nprocs = self.comm.Get_size()
 
+        # checks
+        if self.ndims != len(self.dstGridShape):
+            msg = """
+mvESMFRegrid.__init__: mismatch in the number of topological dimensions. 
+len(srcGrid[0].shape) = %d != len(dstGrid[0].shape)""" % (self.ndims, self.dstGridShape)
+            raise RegridError, msg
+
+        # parse the input keyword arguments
         coordSys = ESMP.ESMP_COORDSYS_SPH_DEG
         periodicity = 0
-        if re.search('cons', regridMethod.lower()):
+        if re.search('conserv', regridMethod.lower()):
             self.regridMethod = ESMP.ESMP_REGRIDMETHOD_CONSERVE
         if re.search('line', regridMethod.lower()):
             self.regridMethod = ESMP.ESMP_REGRIDMETHOD_BILINEAR
@@ -88,7 +103,8 @@ class ESMFRegrid(GenericRegrid):
                     coordSys = ESMP.ESMP_COORDSYS_SPH_DEG
                 if re.search('rad', args[arg].lower()):
                     coordSys = ESMP.ESMP_COORDSYS_SPH_RAD
-            elif arg == 'periodicity': periodicity = args[arg]
+            elif arg == 'periodicity': 
+                periodicity = args[arg]
             elif arg == 'staggerloc': 
                 if re.search('center', args[arg].lower()):
                     self.staggerloc = ESMP.ESMP_STAGGERLOC_CENTER
@@ -105,11 +121,13 @@ class ESMFRegrid(GenericRegrid):
                 string = 'Unrecognized ESMP argument %s' % arg
                 raise RegridError, string
 
-        # Source Grid
+        # create esmf source Grid
         self.srcGrid = esmf.EsmfStructGrid(self.srcGridShape, 
                                 coordSys = coordSys,
                                 periodicity = periodicity)
         self.srcGrid.setCoords(srcGrid, staggerloc = self.staggerloc)
+
+        # we only need one value the mask elements can take
         if srcGridMask is not None:
             self.srcGrid.setCellMask(srcGridMask)
             self.srcMaskValues = numpy.array([1],dtype = numpy.int32)
@@ -123,7 +141,7 @@ class ESMFRegrid(GenericRegrid):
                 string = "If the stagger location is nodal, can't set the bounds"
                 raise RegridError, string
 
-        # Destination Grid
+        # create destination Grid
         self.dstGrid = esmf.EsmfStructGrid(dstGrid[0].shape, 
                                 coordSys = coordSys,
                                 periodicity = periodicity)
@@ -228,4 +246,5 @@ class ESMFRegrid(GenericRegrid):
         Get the destination grid on this processor
         @return grid
         """
-        raise NotImplementedError, "NEED TO IMPLEMENT"
+        return [self.dstGrid.getCoords(i, staggerloc=self.staggerloc) \
+                    for i in range(self.ndims)]

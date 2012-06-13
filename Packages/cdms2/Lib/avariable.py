@@ -14,7 +14,6 @@ from axis import axisMatchIndex, axisMatchAxis, axisMatches, unspecified, Cdtime
 import selectors
 import copy
 # from regrid2 import Regridder, PressureRegridder, CrossSectionRegridder
-from regrid2 import Regridder
 from regrid2 import CdmsRegrid
 from regrid2 import Horizontal
 #import PropertiedClasses

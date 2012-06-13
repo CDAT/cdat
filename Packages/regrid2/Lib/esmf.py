@@ -12,7 +12,6 @@ Authors: David Kindig and Alex Pletzer
 """
 
 import numpy
-import cdms2
 from regrid2 import RegridError
 import ESMP
 

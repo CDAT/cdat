@@ -17,7 +17,6 @@ from mvGenericRegrid import GenericRegrid
 from mvLibCFRegrid import LibCFRegrid
 
 try:
-    from regrid2 import esmf
     import ESMP
     from mvESMFRegrid import ESMFRegrid
 except:
