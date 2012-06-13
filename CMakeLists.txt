@@ -672,7 +672,8 @@ set(GEOS_DEPENDENCIES ${Matplotlib_dep} )
 set(basemap_DEPENDENCIES ${GEOS_dep} )
 set(pyspharm_DEPENDENCIES ${NUMPY_dep})
 
-set(PVFileDialog_DEPENDENCIES ${ParaView_dep})
+# Added by Aashish @ Kitware Inc
+set(PVFileDialog_DEPENDENCIES ${ParaView_dep} ${SIP_dep})
 
 list(REMOVE_DUPLICATES external_packages)
 foreach(package ${external_packages})
