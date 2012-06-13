@@ -8,7 +8,7 @@ __all__ = ["cdmsobj", "axis", "coord", "grid", "hgrid", "avariable", \
 "sliceut", "error", "variable", "fvariable", "tvariable", "dataset", \
 "database", "cache", "selectors", "MV2", "convention", "bindex", \
 "auxcoord", "gengrid", "gsHost", "gsStaticVariable", "gsTimeVariable", \
-"mvBaseWriter", "mvSphereMesh", "mvVsWriter"]
+"mvBaseWriter", "mvSphereMesh", "mvVsWriter", "mvCdmsRegrid"]
 
 # Errors
 from error import CDMSError
@@ -42,15 +42,17 @@ from avariable import order2index, orderparse, setNumericCompatibility, getNumer
 # TV
 from tvariable import asVariable, createVariable, isVariable
 
+from mvSphereMesh import SphereMesh
+from mvBaseWriter import BaseWriter
+from mvVsWriter import VsWriter
+from mvVTKSGWriter import VTKSGWriter
+from mvVTKUGWriter import VTKUGWriter
+from mvCdmsRegrid import CdmsRegrid
+
 # Gridspec is not installed by default so just pass on if it isn't installed
 try:
     from gsStaticVariable import StaticFileVariable
     from gsTimeVariable import TimeFileVariable
-    from mvSphereMesh import SphereMesh
-    from mvBaseWriter import BaseWriter
-    from mvVsWriter import VsWriter
-    from mvVTKSGWriter import VTKSGWriter
-    from mvVTKUGWriter import VTKUGWriter
 except:
     pass
 
