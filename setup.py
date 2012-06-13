@@ -595,7 +595,7 @@ if (WM=='QT' or EM=='QT'):
 
     cwd = os.getcwd()
     makefile.LFLAGS.append("-Wl,-rpath,%s/cdatwrap" % cwd)
-    makefile.LFLAGS.append("%s" % vcs_so)
+    makefile.LIBS.append(vcs_so);
 
     # Generate the Makefile itself.
     makefile.generate()
