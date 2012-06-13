@@ -884,15 +884,10 @@ class AbstractVariable(CdmsObj, Slab):
         One can use the regrid2.Regridder optional arguments as well.
 
         Example:
-        new_cdmsVar = cdmsVar.regrid(newGrid)  # Uses gsRegrid (aka: LibCF)
-        new_cdmsVar = cdmsVar.regrid(newGrid, regridTool = 'ESMF', 
-                                     regridMethod = 'Conservative,
-                                     coordSys = 'Cart')
-
-        If you wish to use ESMF, SCRIP or the original regrid2 use for example:
-        from regrid2 import Regridder
-        regridObject = Regridder(sourceGrid, destingGrid, regridTool = 'ESMF')
-        new_cdmsVar = regridObject(sourcecdmsVar)
+        new_cdmsVar = cdmsVar.regrid(newGrid)  # uses libcf
+        new_cdmsVar = cdmsVar.regrid(newGrid, regridTool = 'esmf', 
+                                     regridMethod = 'conserve',
+                                     coordSys = 'cart')
 
         @param togrid destination grid. CDMS grid
         @param missing missing values
@@ -913,7 +908,7 @@ class AbstractVariable(CdmsObj, Slab):
                 del keywords['regridTool'] 
             
             # The original cdms2 regridder
-            if re.search('regrid', regridTool, re.I):
+            if re.search('^regrid', regridTool, re.I):
                 regridf = Horizontal(fromgrid, togrid)
                 return regridf(self, missing=missing, order=order, 
                                      mask=mask, **keywords)
