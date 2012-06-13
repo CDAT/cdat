@@ -901,10 +901,15 @@ class AbstractVariable(CdmsObj, Slab):
         else:
 
             fromgrid = self.getGrid() # returns horizontal grid only
-            regridTool = keywords.get('regridTool', 'libcf')
-            # remove regridTool from keywords
-            if 'regridTool' in keywords:
-                del keywords['regridTool'] 
+            regridTool = 'libcf'
+            if hasattr(keywords, 'regridTool'):
+                regridTool = keywords['regridTool']
+                del keywords['regridTool']
+            else:
+                print """
+avariable.regrid: Warning: the default interpolation method is %s, to recover the old behavior do 
+var.regrid(grid, regridTool='regrid2')
+            """ % regridTool
             
             # The original cdms2 regridder
             if re.search('^regrid', regridTool, re.I):
@@ -918,11 +923,12 @@ class AbstractVariable(CdmsObj, Slab):
                 srcMask = self.mask
 
             # The other methods, LibCF and ESMF
-            regridMethod = keywords.get('regridMethod', 'linear')
-            # remove regridMethod from keywords
-            if 'regridMethod' in keywords:
+            regridMethod = 'linear'
+            if hasattr(keywords, 'regridMethod'):
+                regridMethod = keywords['regridMethod']
                 del keywords['regridMethod']
-            # compute interpolation weights
+
+            # compute the interpolation weights
             ro = CdmsRegrid(fromgrid, togrid,
                             regridMethod = regridMethod,
                             regridTool = regridTool,
