@@ -907,15 +907,16 @@ class AbstractVariable(CdmsObj, Slab):
         else:
 
             fromgrid = self.getGrid() # returns horizontal grid only
+            regridTool = keywords.get('regridTool', 'libcf')
+            # remove regridTool from keywords
+            if 'regridTool' in keywords:
+                del keywords['regridTool'] 
             
             # The original cdms2 regridder
-            if 'regridTool' in keywords.keys():
-                values = [v.lower() for v in keywords.values()]
-                if 'regrid2' in values:
-                    regridf = Horizontal(fromgrid, togrid)
-                    result = regridf(self, missing=missing, order=order, 
+            if re.search('regrid', regridTool, re.I):
+                regridf = Horizontal(fromgrid, togrid)
+                return regridf(self, missing=missing, order=order, 
                                      mask=mask, **keywords)
-                    return result
 
             srcMask = None
             # Set the source mask if a mask is defined with the source data
@@ -923,9 +924,17 @@ class AbstractVariable(CdmsObj, Slab):
                 srcMask = self.mask
 
             # The other methods, LibCF and ESMF
-            regridf = CdmsRegrid(fromgrid, togrid, srcGridMask = srcMask, **keywords)
-            result = regridf(self, **keywords)
-            return result
+            regridMethod = keywords.get('regridMethod', 'linear')
+            # remove regridMethod from keywords
+            if 'regridMethod' in keywords:
+                del keywords['regridMethod']
+            # compute interpolation weights
+            ro = CdmsRegrid(fromgrid, togrid,
+                            regridMethod = regridMethod,
+                            regridTool = regridTool,
+                            srcGridMask = srcMask, **keywords)
+            # now interpolate
+            return ro(self, **keywords)
 
     def pressureRegrid (self, newLevel, missing=None, order=None, method="log"):
         """Return the variable regridded to new pressure levels.

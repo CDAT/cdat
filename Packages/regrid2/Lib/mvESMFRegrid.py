@@ -46,7 +46,7 @@ class ESMFRegrid(GenericRegrid):
         @param dstGridMask list [x, y,[z]] of arrays in (z,y,x) order
         @param dstBounds list [x, y,[z]] of arrays in (z,y,x) order
         @param dstGridAreas list [x, y,[z]] of arrays in (z,y,x) order
-        @param **args staggerloc, coordSys, periodicity, regridMethod, 
+        @param **args staggerloc, coordSys, periodicity,
                       unMappedAction, srcMaskValues, dstMaskValues
         """
 
@@ -169,9 +169,8 @@ class ESMFRegrid(GenericRegrid):
         @param **args TO DESCRIBE
         """
         
-        if regridMethod is None: 
-            regridMethod = self.regridMethod
-        if unMappedAction is None: unMappedAction = self.unMappedAction
+        if unMappedAction is None: 
+            unMappedAction = self.unMappedAction
 
         # Create dummy variables for use in generating the weights
 
@@ -180,7 +179,7 @@ class ESMFRegrid(GenericRegrid):
                                   dstFrac = self.dstFracFld,
                                   srcMaskValues = self.srcMaskValues,
                                   dstMaskValues = self.dstMaskValues,
-                                  regridMethod = regridMethod,
+                                  regridMethod = self.regridMethod,
                                   unMappedAction = unMappedAction)
 
         # Compute the weights  

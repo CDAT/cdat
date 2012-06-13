@@ -112,7 +112,7 @@ class CdmsRegrid:
     loops over the axes above the Lat (Y) -- Lon (X) coordinates
     """
     def __init__(self, srcGrid, dstGrid, 
-                 regridMethod = 'Linear', regridTool = 'LibCF', 
+                 regridMethod = 'linear', regridTool = 'libCF', 
                  srcGridMask = None, srcGridAreas = None,
                  dstGridMask = None, dstGridAreas = None,
                  **args):
@@ -122,9 +122,9 @@ class CdmsRegrid:
 
         @param srcGrid CDMS source grid
         @param dstGrid CDMS destination grid
-        @param regridMethod Linear (all tools - Bi, tri), 
-                            Conservative (ESMF Only)
-                            Patch (ESMF Only)
+        @param regridMethod linear (all tools - bi, tri), 
+                            conserve (ESMF Only)
+                            patch (ESMF Only)
         @param regridTool LibCF, ESMF, ...
         @param srcGridMask array source mask, interpolation 
                            coefficients will not be computed for masked
