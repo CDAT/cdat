@@ -14,7 +14,6 @@ Authors: David Kindig and Alex Pletzer
 import numpy
 import copy
 import cdms2
-from cdms2 import gsRegrid
 import regrid2
 from regrid2 import RegridError
 import re
@@ -188,7 +187,7 @@ def _makeBoundsCurveList(grid):
         msg += 'input grid must be a list of grids'
         raise RegridError, msg
 
-    boundsCurve, dims = cdms2.gsRegrid.makeCurvilinear(bounds)
+    boundsCurve, dims = regrid2.gsRegrid.makeCurvilinear(bounds)
     return boundsCurve
 
 class Regridder:
@@ -372,11 +371,11 @@ class Regridder:
         # Choices list, TransientAxis2D, TransientRectAxis
         srcGrid, self.srcNDims = _makeGridList(inGrid)
         if self.srcNDims > 1:
-            srcGrid, srcSpatial = cdms2.gsRegrid.makeCurvilinear(srcGrid)
+            srcGrid, srcSpatial = regrid2.gsRegrid.makeCurvilinear(srcGrid)
 
         dstGrid, self.dstNDims = _makeGridList(outGrid)
         if self.dstNDims > 1:
-            dstGrid, dstSpatial = cdms2.gsRegrid.makeCurvilinear(dstGrid)
+            dstGrid, dstSpatial = regrid2.gsRegrid.makeCurvilinear(dstGrid)
 
         # Convert bounds to curvilinear grids
         srcBoundsCurveList = None
@@ -449,7 +448,7 @@ class Regridder:
             raise RegridError, msg
 
         # Create the regrid object
-        ro = cdms2.gsRegrid.Regrid(self.srcGrid, self.dstGrid, 
+        ro = regrid2.gsRegrid.Regrid(self.srcGrid, self.dstGrid, 
                     src_bounds = srcBounds, 
                     mkCyclic = makeCyclic, handleCut = handleCut)
 

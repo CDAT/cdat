@@ -14,6 +14,8 @@ from axis import axisMatchIndex, axisMatchAxis, axisMatches, unspecified, Cdtime
 import selectors
 import copy
 # from regrid2 import Regridder, PressureRegridder, CrossSectionRegridder
+from mvCdmsRegrid import CdmsRegrid
+from regrid2 import Horizontal
 #import PropertiedClasses
 from convention import CF1
 from grid import AbstractRectGrid
@@ -881,38 +883,59 @@ class AbstractVariable(CdmsObj, Slab):
         One can use the regrid2.Regridder optional arguments as well.
 
         Example:
-        new_cdmsVar = cdmsVar.regrid(newGrid)  # Uses gsRegrid (aka: LibCF)
-        new_cdmsVar = cdmsVar.regrid(newGrid, regridTool = 'ESMF', 
-                                     regridMethod = 'Conservative,
-                                     coordSys = 'Cart')
+        new_cdmsVar = cdmsVar.regrid(newGrid)  # uses libcf
+        new_cdmsVar = cdmsVar.regrid(newGrid, regridTool = 'esmf', 
+                                     regridMethod = 'conserve',
+                                     coordSys = 'cart')
 
-        If you wish to use ESMF, SCRIP or the original regrid2 use for example:
-        from regrid2 import Regridder
-        regridObject = Regridder(sourceGrid, destingGrid, regridTool = 'ESMF')
-        new_cdmsVar = regridObject(sourcecdmsVar)
-
-        @param togrid Desination grid. CDMS grid
-        @param missing Missing values
+        @param togrid destination grid. CDMS grid
+        @param missing missing values
         @param order axis order
         @param mask grid/data mask
         @param Optional keywords dependent on regridTool
         @return Regridded variable
         """
-        from regrid2 import Regridder
 
         if togrid is None: 
             return self
         else:
 
+            fromgrid = self.getGrid() # returns horizontal grid only
+
+            regridTool = 'libcf' # default
+            if keywords.has_key('regridTool'):
+                regridTool = keywords['regridTool']
+                del keywords['regridTool']
+            else:
+                print """
+avariable.regrid: Warning: the default interpolation method is %s, to recover the old behavior do 
+var.regrid(grid, regridTool='regrid2')
+            """ % regridTool
+            
+            if re.search('^regrid', regridTool, re.I):
+                # the original cdms2 regridder
+                regridf = Horizontal(fromgrid, togrid)
+                return regridf(self, missing=missing, order=order, 
+                                     mask=mask, **keywords)
+
             srcMask = None
+            # Set the source mask if a mask is defined with the source data
             if not numpy.all(self.mask == False):
                 srcMask = self.mask
-            
-            fromgrid = self.getGrid() # returns horizontal grid only
-            regridf = Regridder(fromgrid, togrid, srcMask = srcMask, **keywords)
-            result = regridf(self, missing=missing, order=order, mask=mask, 
-                             **keywords)
-            return result
+
+            # The other methods, LibCF and ESMF
+            regridMethod = 'linear' # default
+            if keywords.has_key('regridMethod'):
+                regridMethod = keywords['regridMethod']
+                del keywords['regridMethod']
+
+            # compute the interpolation weights
+            ro = CdmsRegrid(fromgrid, togrid,
+                            regridMethod = regridMethod,
+                            regridTool = regridTool,
+                            srcGridMask = srcMask, **keywords)
+            # now interpolate
+            return ro(self, **keywords)
 
     def pressureRegrid (self, newLevel, missing=None, order=None, method="log"):
         """Return the variable regridded to new pressure levels.
