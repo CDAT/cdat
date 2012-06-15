@@ -908,8 +908,10 @@ class AbstractVariable(CdmsObj, Slab):
                 del keywords['regridTool']
             else:
                 print """
-avariable.regrid: Warning: the default interpolation method is %s, to recover the old behavior do 
-var.regrid(grid, regridTool='regrid2')
+avariable.regrid: 
+    Warning: the default interpolation method is %s, to recover the old 
+    behavior regridTool = 'regrid2'. e.g.:
+        newVar = var.regrid(grid, regridTool='regrid2')
             """ % regridTool
             
             if re.search('^regrid', regridTool, re.I):
