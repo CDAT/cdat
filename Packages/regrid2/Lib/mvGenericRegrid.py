@@ -63,13 +63,13 @@ class GenericRegrid:
                  srcGridMask = srcGridMask, srcBounds = srcBounds, **args)
         elif re.search('esm', regridTool.lower()):
             # ESMF
-            staggerLoc = args.get('staggerLoc', None) 
+            staggerLoc = args.get('staggerLoc', 'center') 
             if args.has_key('staggerloc'):
                 del args['staggerloc']
-            periodicity = args.get('periodicity', None) 
+            periodicity = args.get('periodicity', 1) 
             if args.has_key('periodicity'):
                 del args['periodicity']
-            coordSys = args.get('coordSys', None) 
+            coordSys = args.get('coordSys', 'deg') 
             if args.has_key('coordSys'):
                 del args['coordSys']
             self.tool = regrid2.ESMFRegrid(srcGrid, dstGrid,
