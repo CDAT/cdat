@@ -156,10 +156,17 @@ class CdmsRegrid:
             srcBounds = _getBoundList(srcCoords)
             dstBounds = _getBoundList(dstCoords)
 
+        # If the srcGridMask has multiple dimensions, pick the first level
+        # of the source mask
+        srcGridMask0 = srcGridMask
+        if srcGridMask is not None:
+            string = "srcGridMask[" + "0,"*(len(srcGridMask.shape)-2)+"...]"
+            srcGridMask0 = eval(string)
+
         self.regridObj = regrid2.GenericRegrid(srcCoords, dstCoords, 
                                                regridMethod = regridMethod, 
                                                regridTool = regridTool,
-                                               srcGridMask = srcGridMask, 
+                                               srcGridMask = srcGridMask0, 
                                                srcBounds = srcBounds, 
                                                srcGridAreas = srcGridAreas,
                                                dstGridMask = dstGridMask, 

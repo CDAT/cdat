@@ -18,7 +18,7 @@ class LibCFRegrid(GenericRegrid):
     """
     """
     def __init__(self, srcGrid, dstGrid, srcGridMask = None, 
-                 src_bounds = None, **args):
+                 srcBounds = None, **args):
         """
         Constructor
         @param srcGrid array
@@ -30,7 +30,7 @@ class LibCFRegrid(GenericRegrid):
         mkCyclic = args.get('mkCyclic', False)
         handleCut = args.get('handleCut', False)
         self.regridObj = gsRegrid.Regrid(srcGrid, dstGrid, 
-                                         src_bounds = src_bounds,
+                                         src_bounds = srcBounds,
                                          mkCyclic=mkCyclic,
                                          handleCut=handleCut)
         if srcGridMask is not None: 

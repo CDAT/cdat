@@ -60,19 +60,28 @@ class GenericRegrid:
            re.search('gsreg', regridTool.lower()):
             # LibCF
             self.tool = regrid2.LibCFRegrid(srcGrid, dstGrid, 
-                 srcGridMask = srcGridMask, srcBounds = srcBounds)
+                 srcGridMask = srcGridMask, srcBounds = srcBounds, **args)
         elif re.search('esm', regridTool.lower()):
             # ESMF
-            staggerLoc = args.get('staggerLoc', None)
-            periodicity = args.get('periodicity', 1)
-            coordSys = args.get('coordSys', 'deg')
+            staggerLoc = args.get('staggerLoc', 'center') 
+            if args.has_key('staggerloc'):
+                del args['staggerloc']
+            periodicity = args.get('periodicity', 1) 
+            if args.has_key('periodicity'):
+                del args['periodicity']
+            coordSys = args.get('coordSys', 'deg') 
+            if args.has_key('coordSys'):
+                del args['coordSys']
             self.tool = regrid2.ESMFRegrid(srcGrid, dstGrid,
                   regridMethod = regridMethod, 
                   staggerLoc = staggerLoc,
                   periodicity = periodicity,
                   coordSys = coordSys,                 
-                  srcGridMask=srcGridMask, srcBounds=srcBounds, srcGridAreas=srcGridAreas,
-                  dstGridMask=dstGridMask, dstBounds=dstBounds, dstGridAreas=dstGridAreas)
+                  srcGridMask=srcGridMask, srcBounds=srcBounds, 
+                  srcGridAreas=srcGridAreas,
+                  dstGridMask=dstGridMask, dstBounds=dstBounds, 
+                  dstGridAreas=dstGridAreas,
+                  **args)
     
     def computeWeights(self, **args):
         """
