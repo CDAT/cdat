@@ -187,11 +187,11 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         self.name = getattr(self, 'name', self.id)
 
         # MPI data members
-        self.mpiComm = None
+        self.__mpiComm = None
         if HAVE_MPI:
-            self.mpiComm = MPI.COMM_WORLD
-        self.mpiWindows = {}
-        self.mpiType = self.__getMPIType()
+            self.__mpiComm = MPI.COMM_WORLD
+        self.__mpiWindows = {}
+        self.__mpiType = self.__getMPIType()
 
 
     def _getmissing(self):
@@ -601,14 +601,14 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         is not available.
         """
         if HAVE_MPI:
-            self.mpiComm = comm
+            self.__mpiComm = comm
 
     def getMPIRank(self):
         """
         Return the MPI rank
         """
         if HAVE_MPI:
-            return self.mpiComm.Get_rank()
+            return self.__mpiComm.Get_rank()
         else:
             return 0
 
@@ -617,7 +617,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         Return the MPI communicator size
         """
         if HAVE_MPI:
-            return self.mpiComm.Get_size()
+            return self.__mpiComm.Get_size()
         else:
             return 1
 
@@ -654,11 +654,11 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
                     # create the MPI window
                     dataSrc = numpy.zeros(self[slab].shape, self.dtype) 
                     dataDst = numpy.zeros(self[slab].shape, self.dtype) 
-                    self.mpiWindows[winId] = {
+                    self.__mpiWindows[winId] = {
                         'slab': slab,
                         'dataSrc': dataSrc,
                         'dataDst': dataDst,
-                        'window': MPI.Win.Create(dataSrc, comm=self.mpiComm),
+                        'window': MPI.Win.Create(dataSrc, comm=self.__mpiComm),
                         }
                 
     def getHaloEllipsis(self, side):
@@ -672,8 +672,8 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
 
         Return none if halo was not exposed (see exposeHalo)
         """
-        if HAVE_MPI and self.mpiWindows.has_key(side):
-            return self.mpiWindows[side]['slab']
+        if HAVE_MPI and self.__mpiWindows.has_key(side):
+            return self.__mpiWindows[side]['slab']
         else:
             return None
 
@@ -693,7 +693,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
                     side, etc. 
         """
         if HAVE_MPI:
-            iw = self.mpiWindows[side]
+            iw = self.__mpiWindows[side]
             slab = iw['slab']
             dataSrc = iw['dataSrc']
             dataDst = iw['dataDst']
@@ -703,7 +703,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
 
             win = iw['window']
             win.Fence() # get the data ready
-            win.Get( [dataDst, self.mpiType], pe )
+            win.Get( [dataDst, self.__mpiType], pe )
             win.Fence() # make sure the communication completed
             return dataDst
         else:
@@ -714,8 +714,8 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         Free the MPI windows attached to the halo. This must be 
         called before MPI_Finalize.
         """
-        for iw in self.mpiWindows:
-            self.mpiWindows[iw]['window'].Free()        
+        for iw in self.__mpiWindows:
+            self.__mpiWindows[iw]['window'].Free()        
 
     def __getSlab(self, dim, slce):
         """
