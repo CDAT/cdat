@@ -509,6 +509,7 @@ endif()
 add_cdat_package(CMOR)
 add_cdat_package(CDAT)
 add_cdat_package(gui_support)
+#add_cdat_package(PVFileDialog)
 
 # Optional Packages
 
@@ -543,6 +544,7 @@ if(CDAT_BUILD_VISIT)
   add_cdat_package(VisIt)
 endif()
 
+add_cdat_package(PVFileDialog)
 # C. Doutriaux Turning off Vistrails build from within CDAT
 #option(CDAT_BUILD_VISTRAILS "Build VisTrails" OFF)
 #if(CDAT_BUILD_VISTRAILS)
@@ -679,6 +681,9 @@ set(Shapely_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${GEOS_dep})
 set(gdal_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${NetCDF_dep} ${HDF5_dep} ${CURL_dep} ${zlib_dep} ${jasper_dep} ${setuptools_dep})
 set(basemap_DEPENDENCIES ${GEOS_dep})
 set(pyspharm_DEPENDENCIES ${NUMPY_dep})
+
+# Added by Aashish @ Kitware Inc
+set(PVFileDialog_DEPENDENCIES ${ParaView_dep} ${SIP_dep})
 
 list(REMOVE_DUPLICATES external_packages)
 foreach(package ${external_packages})
