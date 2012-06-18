@@ -1,0 +1,317 @@
+#!/usr/bin/env bash
+SHELL=bash
+LDFLAGS="@LDFLAGS@"
+CFLAGS="@CFLAGS@"
+CPPFLAGS="@CPPFLAGS@"
+CXXFLAGS="@CXXFLAGS@"
+FC=@FC@
+CC=@CC@
+CPP=@CPP@
+CXX=@CXX@
+EXTERNALS=@EXTERNALS@
+LOCNCCONFIG=@LOCNCCONFIG@
+
+dosetenv = LDFLAGS="@LDFLAGS@"; \
+	export LDFLAGS ; \
+	CPPFLAGS="@CPPFLAGS@" ; \
+	export CPPFLAGS ; \
+	CXXFLAGS="@CXXFLAGS@" ; \
+	export CXXFLAGS ; \
+	CC="@CC@" ; \
+	export CC ;\
+	FC="@FC@" ; \
+	export FC ; \
+	FCFLAGS="@FCFLAGS@" ; \
+	export FCFLAGS ;\
+	FCLIBS="@FCLIBS@" ; \
+	export FCLIBS ; \
+	F77="@F77@" ; \
+	export F77;\
+	FFLAGS="@FFLAGS@" ; \
+	export FFLAGS;\
+	FLIBS="@FLIBS@" ; \
+	export FLIBS ;\
+	CPP="@CPP@"; \
+	export CPP;\
+	CXX="@CXX@"; \
+	export CXX ; \
+	EXTERNALS="@EXTERNALS@"; \
+	export EXTERNALS ; \
+	PKG_CONFIG_PATH=@PKG_CONFIG_PATH@ ; \
+	export PKG_CONFIG_PATH ;\
+	PATH=@PATH@ ; \
+	export PATH; \	echo "cd build;" @KEEPLOGa@ ; \
+	PYTHONPATH="@prefix@/lib/python@PYTHON_MAJOR@.@PYTHON_MINOR@/site-packages:"${PYTHONPATH} ;\
+	export PYTHONPATH ; \
+        LD_LIBRARY_PATH=@prefix@/lib:@EXTERNALS@/lib:${LD_LIBRARY_PATH} ;\
+        export LD_LIBRARY_PATH ; \
+	echo "LDFLAGS=\"@LDFLAGS@\"; export LDFLAGS ; CPPFLAGS=\"@CPPFLAGS@\" ; export CPPFLAGS ; CC=\"@CC@\" ; export CC ; FC=\"@FC@\" ; export FC ; FCFLAGS=\"@FCFLAGS@\" ; export FCFLAGS ;FCLIBS=\"@FCLIBS@\" ; export FCLIBS ; F77=\"@F77@\" ; export F77;FFLAGS=\"@FFLAGS@\" ; export FFLAGS;FLIBS=\"@FLIBS@\" ; export FLIBS ;CPP=\"@CPP@\"; export CPP;CXX=\"@CXX@\"; export CXX ; EXTERNALS=\"@EXTERNALS@\"; export EXTERNALS ; PKG_CONFIG_PATH=@PKG_CONFIG_PATH@ ; export PKG_CONFIG_PATH ;PATH=@PATH@ ; export PATH;" @KEEPLOGa@ ;
+doprolog = rm -rf logs/$(2).LOG ; \
+	echo "rm -rf logs/$(2).LOG;" @KEEPLOG@ ; \
+	echo "cd build;" @KEEPLOGa@ ; \
+	cd build @KEEPLOGa@ ; \
+	echo "../checked_get.sh $(2) $(1)/$(2)"  @KEEPLOGa@ ; \
+	../checked_get.sh $(2) $(1)/$(2)  @KEEPLOGa@ ; \
+	echo "../checked_get.sh $(2) http://uv-cdat.llnl.gov/cdat/resources/$(2)"  @KEEPLOGa@ ; \
+	../checked_get.sh $(2) http://uv-cdat.llnl.gov/cdat/resources/$(2)  @KEEPLOGa@ ; \
+	mycd=`echo $(2)` ; mycd2=`echo $${mycd:0:5}` ; mycd2=`echo $${mycd2%%.*}` ; echo "cd "$${mycd2}* @KEEPLOGa@; cd $${mycd2}*  @KEEPLOGa@;\
+	$(call dosetenv) @KEEPLOGa@
+dobuild_keyed = @$(call doprolog,$(1),$(2))  \
+	echo "CFLAGS=\"@CFLAGS@\";" @KEEPLOGa@; \
+	echo "export CFLAGS;" @KEEPLOGa@ ; \
+	CFLAGS="@CFLAGS@"; \
+	export CFLAGS ; \
+	echo "$(4);" @KEEPLOGa@ ; \
+	$(4)  \
+	echo "env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH="@EXTERNALS@/lib:${LD_LIBRARY_PATH}" ./configure --prefix=$(3) $(5);" @KEEPLOGa@ ;\
+	env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH="@EXTERNALS@/lib:${LD_LIBRARY_PATH}" ./configure --prefix=$(3) $(5) @KEEPLOGa@ ;\
+	echo "env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH=@EXTERNALS@/lib:${LD_LIBRARY_PATH} make -j @NCPUS@;"  @KEEPLOGa@; \
+	env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH=@EXTERNALS@/lib:${LD_LIBRARY_PATH} make -j @NCPUS@ @KEEPLOGa@; \
+	echo "env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH=@EXTERNALS@/lib:${LD_LIBRARY_PATH} make $(6);"  @KEEPLOGa@; \
+	env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH=@EXTERNALS@/lib:${LD_LIBRARY_PATH} make $(6)  @KEEPLOGa@; \
+	echo "cd ../..;"  @KEEPLOGa@ ; \
+	cd ../.. ;
+dobuild = @$(call dobuild_keyed,$(1),$(2),$(3),$(4),$(5),install) 
+dobuildpynotar = @$(3) @KEEPLOGa@  \
+	echo "$(3);" @KEEPLOGa@ ; \
+	echo "env @EXTRAENV@ LOCNCCONFIG="@LOCNCCONFIG@" CXXFLAGS="@CXXFLAGS@" CFLAGS=@CFLAGS@ CPPFLAGS=@CPPFLAGS@ LDFLAGS=@LDFLAGS@ @PYTHON@ setup.py build $(4) --force install @PYTHON_INSTALL_PREFIX@ ;"  @KEEPLOGa@ ;\
+	env @EXTRAENV@ LOCNCCONFIG="@LOCNCCONFIG@" CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" @PYTHON@ setup.py build $(4) --force install @PYTHON_INSTALL_PREFIX@  @KEEPLOGa@ ;
+dobuildpy = @$(call doprolog,$(2),$(3)) \
+        $(1) ; \
+	echo "cp "@MAINDIR@/site.cfg" . ;" @KEEPLOGa@; \
+	cp "@MAINDIR@/site.cfg" . ; \
+	$(call dobuildpynotar,$(4),$(3),$(5),$(6))  \
+	echo "cd ../..; " @KEEPLOGa@; \
+	cd ../.. ;
+install: clean nocleaninstall
+nocleaninstall:
+	git submodule init
+	git submodule update
+	mkdir -p @prefix@/bin
+	mkdir -p @prefix@/lib
+	mkdir -p @EXTERNALS@
+	mkdir -p @EXTERNALS@/lib
+	mkdir -p @EXTERNALS@/bin
+	mkdir -p @EXTERNALS@/include
+	mkdir -p logs 
+	mkdir -p build
+	mkdir -p sources
+ifeq (@DOWGET@,yes)
+	@echo "Couldn't find a working wget, building it"
+	@cd build ; @HASCURL@ @WGET_URL@/@WGET_GZ@ -o ../sources/@WGET_GZ@ ; tar xzf ../sources/@WGET_GZ@ ; cd wget* ; ./configure --prefix=@EXTERNALS@ ; make -j @NCPUS@ ; make install
+endif
+ifeq (@COMPILE_TERMCAP@,yes)
+	@echo "Couldn't find a working termcap, building it"
+	$(call dobuild,@TERMCAP_URL@,@TERMCAP_GZ@,@EXTERNALS@)
+endif
+ifeq (@COMPILE_READLINE@,yes)
+	@echo "Couldn't find a working readline, building it"
+	$(call dobuild,@READLINE_URL@,@READLINE_GZ@,@EXTERNALS@)
+endif
+ifeq (@COMPILE_Z@,yes)
+	@echo "Couldn't find a working zlib, building it"
+	$(call dobuild,@ZLIB_URL@,@ZLIB_GZ@,@EXTERNALS@)
+endif
+ifeq (@COMPILE_PKGCONFIG@,yes)
+	@echo "Building pkg-config"
+	$(call dobuild,@PKG_URL@,@PKG_GZ@,@EXTERNALS@)
+endif
+ifeq (@COMPILE_XML2@,yes)
+	@echo "Building libxml2"
+	$(call dobuild,@XML_URL@,@XML_GZ@,@EXTERNALS@)
+endif
+ifeq (@COMPILE_LIBJPEG@,yes)
+	@echo "Building libjpeg"
+	$(call dobuild,@JPEG_URL@,@JPEG_GZ@,@EXTERNALS@,cd jpeg*;)
+	cp build/jpeg*/lib* @EXTERNALS@/lib
+	cp build/jpeg*/*.h @EXTERNALS@/include
+endif
+ifeq (@COMPILE_CURL@,yes)
+	@echo "Building curl"
+	$(call dobuild,@CURL_URL@,@CURL_GZ@,@EXTERNALS@)
+endif
+ifeq (@COMPILE_XSLT@,yes)
+	@echo "Building libxslt"
+	$(call dobuild,@XSLT_URL@,@XSLT_GZ@,@EXTERNALS@)
+endif
+ifeq (@COMPILE_LIBPNG@,yes)
+	@echo "Building libpng"
+	$(call dobuild,@PNG_URL@,@PNG_GZ@,@EXTERNALS@)
+endif
+ifeq (@COMPILE_FREETYPE@,yes)
+	@echo "Building freetype"
+	$(call dobuild,@FT_URL@,@FT_GZ@,@EXTERNALS@)
+	ln -sf @EXTERNALS@/include/freetype2/freetype @EXTERNALS@/include/freetype
+endif
+ifeq (@COMPILE_PIXMAN@,yes)
+	@echo "Building libpixman"
+	$(call dobuild,@PIX_URL@,@PIX_GZ@,@EXTERNALS@,, --disable-gtk )
+endif
+ifeq (@COMPILE_FONTCONFIG@,yes)
+	@echo "Building fontconfig"
+	$(call dobuild,@FTCFG_URL@,@FTCFG_GZ@,@EXTERNALS@)
+endif
+ifeq (@COMPILE_JASPER@,yes)
+	@echo "Building jasper"
+	$(call dobuild,@JASPER_URL@,@JASPER_GZ@,@EXTERNALS@)
+endif
+ifeq (@COMPILE_G2CLIB@,yes)
+	@echo "Building g2clib"
+	$(call dobuild,@G2CLIB_URL@,@G2CLIB_GZ@,@EXTERNALS@)
+endif
+ifeq (@COMPILE_TCLTK@,yes)
+	echo "Couldn't find a working tcl/tk, building it"
+	$(call dobuild,@TCLTK_URL@,@TCL_GZ@,@EXTERNALS@,cd unix;, )
+	$(call dobuild,@TCLTK_URL@,@TK_GZ@,@EXTERNALS@,cd unix;, )
+endif
+ifeq (@COMPILE_PYTHON@,yes)
+	@echo "Couldn't find a working python, building it"
+	$(call dobuild_keyed,@PYTHON_URL@,@PYTHON_GZ@,@prefix@,@PYADD@ @AQUA_PYTHON@,@PYOPT@,@PYINSTALLKEY@)
+endif
+ifeq (@COMPILE_XGKS@,yes)
+	@echo "Building xgks"
+	$(call dobuild,@XGKS_URL@,@XGKS_GZ@,@EXTERNALS@,FC=""; export FC ; LD_X11=""; export LD_X11 ; )
+	cp -f build/xgks*/port/misc/udposix.h @EXTERNALS@/include
+endif
+ifeq (@HAVE_LIBBLAS@,no)
+	@echo "Building blas"
+	$(call dobuild,@BLAS_URL@,@BLAS_GZ@,@EXTERNALS@,FORTRAN=@FC@;export FORTRAN ; cd BLAS; sed 's/FORTRAN  = g77//g' make.inc > crap && mv -f crap make.inc ; sed 's/LOADER   = g77//g' make.inc > crap && mv -f crap make.inc ; FORTRAN=gfortran;export FORTRAN;)
+	cp build/BLAS/blas_LINUX.a @EXTERNALS@/lib/libblas.a
+endif
+ifeq (@HAVE_LIBLAPACK@,no)
+	@echo "Building lapack"
+	$(call dobuild,@LAPACK_URL@,@LAPACK_GZ@,@EXTERNALS@,FORTRAN=@FC@;export FORTRAN;LOADER=@FC@;export LOADER;sed 's/FORTRAN  = gfortran -fimplicit-none -g//g' make.inc.example > make.inc ; sed 's/LOADER   = gfortran -g//g' make.inc > crap && mv -f crap make.inc ;)
+	cp build/lapack-3.2.1/lapack_LINUX.a @EXTERNALS@/lib/liblapack.a
+endif
+ifeq (@HAVE_LIBLAPACK95@,no)
+	@echo "Building lapack95 (will only work with f90/95)"
+	$(call dobuild,@LAPACK95_URL@,@LAPACK95_GZ@,@EXTERNALS@,cd LAPACK95 ; FORTRAN=@FC@;export FORTRAN;LOADER=@FC@;export LOADER; sed '6s/FC/FC2/g' make.inc > crap && mv -f crap make.inc ;sed 's/FC1      = f95 -fixed//g' make.inc > crap && mv -f crap make.inc ;cd SRC ; )
+	cp build/LAPACK95/lapack95.a @EXTERNALS@/lib/liblapack95.a
+	cp build/LAPACK95/lapack95_modules/* @EXTERNALS@/include
+endif
+ifeq (@DOPBMPLUS@,yes)
+	@echo "Building pbmplus"
+	$(call dobuild,@PBMPLUS_URL@,@PBMPLUS_GZ@,@EXTERNALS@, cp ../../exsrc/src/pbmplus/pbmplus.h . ; cp ../../exsrc/src/pbmplus/libpbm1.c pbm  ;cp ../../exsrc/src/pbmplus/Makefile . ;)
+endif
+ifeq (@GIFSICLE@,no)
+	@echo "Building gifsicle"
+	$(call dobuild,@GIFSICLE_URL@,@GIFSICLE_GZ@,@EXTERNALS@,CFLAGS=${CFLAGS}" @X_CFLAGS@";export CFLAGS; LDFLAGS=${LDFLAGS}" @X_LIBS@";export LDFLAGS;)
+endif
+ifeq (@DOGS@,yes)
+	@echo "Building gs (long)"
+	$(call dobuild,@GS_URL@,@GS_GZ@,@EXTERNALS@,, --with-drivers=PS,BMP )
+endif
+ifeq (@FFMPEG@,no)
+	@echo "Building ffmpeg (long)"
+	$(call dobuild,@FFMPEG_URL@,@FFMPEG_GZ@,@EXTERNALS@)
+endif
+ifeq (@COMPILE_CAIRO@,yes)
+	@echo "Building cairo"
+	$(call dobuild,@CAIRO_URL@,@CAIRO_GZ@,@EXTERNALS@,, --disable-gtk )
+endif
+ifeq (@COMPILE_HDF@,yes)
+	@echo "Building hdf4"
+	$(call dobuild,@HDF4_URL@,@HDF4_GZ@,@EXTERNALS@/HDF)
+endif
+ifeq (@COMPILE_HDF5@,yes)
+	@echo "Building hdf5"
+	$(call dobuild,@HDF5_URL@,@HDF5_GZ@,@EXTERNALS@)
+endif
+ifeq (@COMPILE_UDUNITS2@,yes)
+	@echo "Building udunits2"
+	$(call dobuild,@UDUNITS2_URL@,@UDUNITS2_GZ@,@EXTERNALS@)
+endif
+ifeq (@COMPILE_NC@,yes)
+	@echo "Building netcdf"
+	$(call dobuild,@NC4_URL@,@NC4_GZ@,@EXTERNALS@,@NC_FORTRAN@,  --enable-netcdf-4 --with-hdf5=@HDF5LOC@)
+endif
+ifeq (@COMPILE_LIBCF@,yes)
+	@echo "Building libcf" 
+	$(call dobuildpy,./configure LDFLAGS="-L@NC4LOC@/lib -L=@HDF5LOC@/lib" CPPFLAGS="-I@NC4LOC@/include",@LIBCF_URL@,@LIBCF_GZ@, )
+endif
+ifeq (@COMPILE_PYTABLES@,yes)
+	@echo "Building pytables" 
+	$(call dobuildpy,,@PYTABLES_URL@,@PYTABLES_GZ@,,,--hdf5=@HDF5LOC@)
+endif
+
+ifeq (@COMPILE_R@,yes)
+	@echo "Building R"
+	$(call dobuild,@R_URL@,@R_GZ@,@EXTERNALS@)
+endif
+ifeq (@COMPILE_CMAKE@,yes)
+	@echo "Couldn't find a valid cmake, building it"
+	$(call dobuild,@CMAKE_URL@,@CMAKE_GZ@,@EXTERNALS@, cd Utilities/cmcurl  ; cp ../../../../exsrc/src/cmake/multi.c . ; cd ../..  ,  --parallel=@NCPUS@ )
+endif
+ifeq (@BUILDQT@,yes)
+	@echo "Building Qt (extremely long, several hours, we recommend downloading the binaries from @QT_URL@ !)"
+	$(call dobuild,@QT_URL@,@QT_GZ@,@EXTERNALS@,, @QTCONFIGOPT@ < ../../exsrc/src/o.txt )
+endif
+ifeq (@NUMPY@,yes)
+	@echo "Building numpy"
+	$(call dobuildpy,,@NUMPY_URL@,@NUMPY_GZ@,@prefix@,)
+endif
+ifeq (@BUILDVIS@,yes)
+	@echo "Building SIP, "${PYVER}
+	@echo "Python site-packages are located at: "`@PYTHON@ -c "import numpy ; print '/'.join(numpy.__path__[0].split('/')[:-1])"`
+	$(call dobuild,@SIP_URL@,@SIP_GZ@,@EXTERNALS@, @PYTHON@ configure.py -b @prefix@/bin -d `@PYTHON@ -c "import numpy ; print '/'.join(numpy.__path__[0].split('/')[:-1])"` -e @prefix@/include -v @prefix@/share ;  )
+	@echo "Building PyQt"
+	$(call dobuild,@PyQt_URL@,@PyQt_GZ@,@EXTERNALS@, @PYTHON@ configure.py -b @prefix@/bin -d `@PYTHON@ -c "import numpy ; print '/'.join(numpy.__path__[0].split('/')[:-1])"` -v @prefix@/include -v @prefix@/share -q @QMAKE@ < ../../exsrc/src/yes.txt ;  )
+endif
+ifeq (@COMPILE_VTK@,yes)
+	@echo "Building VTK (long)"
+	mkdir build/VTK;mkdir build/VTK-build;cd build;../checked_get.sh @VTK_GZ@ @VTK_URL@/@VTK_GZ@ ; tar xzf ../sources/vtk-* ; cd VTK-build;cp ../../exsrc/CMakeCache.txt .;env @EXTRAENV@ CXXFLAGS="@CXXFLAGS@" CFLAGS="@CFLAGS@" CPPFLAGS="@CPPFLAGS@" LDFLAGS="@LDFLAGS@" PKG_CONFIG_PATH="@PKG_CONFIG_PATH@" LD_LIBRARY_PATH="@EXTERNALS@/lib:${LD_LIBRARY_PATH}" PATH="@EXTERNALS@/bin:${PATH}" cmake CMakeCache.txt;make;make install
+endif
+ifeq (@SETUPTOOLS@,yes)
+	@echo "Building setuptools"
+	$(call dobuildpy,,@SETUPTOOLS_URL@,@SETUPTOOLS_GZ@,@prefix@,)
+endif
+ifeq (@PyOpenGL@,yes)
+	@echo "Building PyOpenGL"
+	$(call dobuildpy,,@PyOpenGL_URL@,@PyOpenGL_GZ@,@prefix@,)
+endif
+ifeq (@Pmw@,yes)
+	@echo "Building Pmw"
+	$(call dobuildpy,cd src,@PMW_URL@,@PMW_GZ@,@prefix@,unset LDFLAGS;)
+endif
+ifeq (@COMPILE_UUID@,yes)
+	@echo "Building UUID"
+	$(call dobuild,@UUID_URL@,@UUID_GZ@,@EXTERNALS@)
+endif
+ifeq (@DOCMOR@,yes)
+	@echo "Configuring CMOR2"
+	@(cd Packages/cmor ; ./configure --prefix=@EXTERNALS@ --with-netcdf=@NC4LOC@ --with-udunits2=@UDUNITS2LOC@ --with-uuid=@UUIDLOC@ --with-zlib=@EXTERNALS@ --enable-fortran=no; cd ../..) >> @MAINDIR@/logs/cmor_config.LOG 
+endif
+	@echo "Building CDAT"
+	@cp matplotlib.setup.cfg contrib/matplotlib/setup.cfg
+	@XTRA_LD_F2PY@ LOCNCCONFIG="@LOCNCCONFIG@" @PYTHON@ install.py @PYTHON_INSTALL_OPTIONS@
+	@echo "Done building CDAT"
+#	@echo " ... building MyProxyClient"
+#	@env PATH="@MACPATH@:@prefix@/bin:${PATH}:@PKG_CONFIG_PATH@" easy_install MyProxyClient > logs/MyProxyClient.LOG
+#	@echo " ... building PyTables"
+#	@env PATH="@MACPATH@:@prefix@/bin:${PATH}:@PKG_CONFIG_PATH@" easy_install tables > logs/pytables.LOG
+ifeq (@ESG@,yes)
+	@echo "Building ESG dependencies"
+	@echo " ... building gui_support"
+	@$(call dobuildpynotar,@prefix@,guisupport,cd Packages/gui_support)
+# 	@echo " ... building SQLAlchemy"
+# 	@env PATH="@prefix@/bin:${PATH}:@PGCONFIG@" easy_install SQLAlchemy > logs/SQLAlchemy.LOG
+# 	@echo " ... building lxml"
+# 	@env PATH="@prefix@/bin:${PATH}:@PGCONFIG@" easy_install lxml > logs/lxml.LOG
+# 	@echo "Checking out ESGCET repo"
+#	(cd @EXTERNALS@ ; rm -rf esgcet ; svn co http://www-pcmdi.llnl.gov/svn/repository/Esgcet/trunk/esgcet esgcet ; cd esgcet ; @PYTHON@ setup.py --verbose develop  ) > logs/ESGCET.LOG
+	pwd
+endif
+	@curl http://uv-cdat.llnl.gov/UVCDATLogger/`whoami`/`uname`/bldcnf/@GIT_TAG@
+clean:
+	rm -rf build
+	./clean_script all
+distclean: clean
+	rm config.status
+	rm config.log
+	rm Makefile
+	rm -rf sources
+unscipy:
+	rm -rf @prefix@/lib/python*/site-packages/scipy*
+test:
+	@PYTHON@ test_cdat.py -v3 -P > logs/tests.LOG
+	@PYTHON@ test_cdat.py -v3 -C >> logs/tests.LOG
