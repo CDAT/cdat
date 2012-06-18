@@ -1,0 +1,118 @@
+# -*-Mode: indented-text;-*-
+# Makefile:    cddrs test makefile
+#
+# Copyright:   1996, Regents of the University of California
+#	       This software may not be distributed to others without
+#	       permission of the author.
+#
+# Author:      Bob Drach, Lawrence Livermore National Laboratory
+#              drach@llnl.gov
+#
+# Version:     $Id$
+#
+# Revision History:
+#
+# $Log: Makefile.in,v $
+# Revision 1.1.1.1  1997/12/09 18:57:40  drach
+# Copied from cirrus
+#
+# Revision 1.2  1997/09/26  21:46:25  drach
+# - Added HDF
+#
+# Revision 1.1  1996/09/09  18:18:17  drach
+# - New tests, configuration
+#
+#
+# Note: Makefile is generated from Makefile.in by top level configure
+#
+
+# Install prefix for architecture-independent files
+prefix=         @prefix@
+
+# Install prefix for architecture-dependent files
+exec_prefix=    @exec_prefix@
+
+# Expanded directories
+BINDIR=$(exec_prefix)/bin
+INCLUDEDIR=$(prefix)/include
+LIBDIR=$(exec_prefix)/lib
+MANDIR=$(prefix)/man
+PARMDIR=$(prefix)/lib/lats
+
+CC = @CC@
+CFLAGS = $(DEBUG)
+CPPFLAGS = -I../../../include @CPPFLAGS@ @CFLAGS@ -DNO_DECLARE -Dgrads
+DEBUG = -O
+DEFS = @DEFS@
+ENABLE_DRS = @ENABLE_DRS@
+ENABLE_HDF = @ENABLE_HDF@
+FC = @FC@
+FDEBUG=
+FFLAGS = @FFLAGS@ $(FDEBUG)
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+LDFLAGS = -L../../../lib -lcdms @NCOPTS@ @HDFOPTS@ @DRSOPTS@ @LIBS@
+OS = @OS@
+RANLIB = @RANLIB@
+
+# Shell to run make subcommands
+SHELL = /bin/sh
+
+# Do not change values below this line
+#
+LIBRARY		= ../../../lib/libcdms.a
+
+all:		testcdnc testcdgrib testcddrs
+
+test:		testcdnc testcdgrib testcddrs
+		@echo "test DRS emulation: netCDF"
+		@testcdnc
+		@echo "test DRS emulation: GRIB"
+		@testcdgrib
+		if test "X$(ENABLE_DRS)" = "Xyes"; then    \
+		  echo "test DRS emulation: DRS";      \
+		  testcddrs;                           \
+		fi;
+
+.SUFFIXES: .F
+
+.c.o:
+	$(CC) $(CPPFLAGS) $(DEFS) $(CFLAGS) -c $<
+
+.c:
+	case $(OS) in \
+	     aix) \
+		    $(CC) $(CPPFLAGS) $(DEFS) $(CFLAGS) -c $< -o $@.o; \
+		    $(FC) $(FFLAGS) $@.o -o $@ $(LDFLAGS) $(LIBS); \
+		    rm $@.o; \
+		    ;; \
+	     osf*) \
+		    $(CC) $(CPPFLAGS) $(DEFS) $(CFLAGS) -c $< -o $@.o; \
+		    $(FC) -nofor_main $(FFLAGS) $@.o -o $@ $(LDFLAGS) $(LIBS); \
+		    rm $@.o; \
+		    ;; \
+	     *) \
+		    $(CC) $(CPPFLAGS) $(DEFS) $(CFLAGS) -o $@ $< $(LDFLAGS); \
+		    ;; \
+	esac
+
+.F:
+	case $(OS) in \
+	     aix) \
+		    /usr/ccs/lib/cpp -P $(CPPFLAGS) $(INCLUDES) $(DEFS) $< $@.f; \
+		    $(FC) $(FFLAGS) $(LDFLAGS) $(LIBS) $@.f -o $@; \
+		    rm $@.f; \
+		    ;; \
+	     linux) \
+		    $(FC) $(CPPFLAGS) $(INCLUDES) $(FFLAGS) -o $@ $< $(LDFLAGS) $(LIBS); \
+		    ;; \
+	     *) \
+		    $(FC) $(CPPFLAGS) $(INCLUDES) $(DEFS) $(FFLAGS) -o $@ $< $(LDFLAGS) $(LIBS); \
+		    ;; \
+	esac
+
+clean:
+	-rm -f *.o core *.~*~
+
+distclean: clean
+	-rm -f testcdnc testcdgrib testcddrs
