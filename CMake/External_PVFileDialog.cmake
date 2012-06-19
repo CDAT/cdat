@@ -15,6 +15,7 @@ ExternalProject_Add(pvfiledialog
   CMAKE_CACHE_ARGS
     -DParaView_DIR:PATH=${ParaView_binary}
     -DVTK_DIR:PATH=${ParaView_binary}/VTK
+    -DPYTHON_EXECUTABLE:PATH=${PYTHON_EXECUTABLE}
     -DPYTHON_INCLUDE_DIR:PATH=${PYTHON_INCLUDE}
     -DPYTHON_LIBRARIES:PATH=${PYTHON_LIBRARY}
     -DCMAKE_CXX_FLAGS:STRING=${cdat_tpl_cxx_flags}
