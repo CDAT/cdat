@@ -175,7 +175,7 @@ class CdmsRegrid:
                                                **args )
         self.regridObj.computeWeights(**args)
 
-    def __call__(self, srcVar, diagnostics = None, **args):
+    def __call__(self, srcVar, **args):
         """
         Interpolate, looping over additional (non-latitude/longitude) axes
            if need be
@@ -190,21 +190,20 @@ class CdmsRegrid:
 
         timeAxis = srcVar.getTime()
         levelAxis = srcVar.getLevel()
+        
         # shape of dst var
         dstShape = list(srcVar.shape[:-2]) + list(self.dstGrid.shape)
 
-        # Establish the destination data. Initialize to missing values or 0.
+        # establish the destination data. Initialize to missing values or 0.
         dstData = numpy.ones(dstShape, dtype = srcVar.dtype)
-        if missingValue is not None: dstData[:] = dstData * missingValue
-        else: dstData[:] = dstData * 0.0
+        if missingValue is not None: 
+            dstData *= missingValue
+        else: 
+            dstData *= 0.0
         
-        # return a list
-        if diagnostics is not None: diagnostics = []
-
         # interpolate the data
         self.regridObj.apply(srcVar.data, dstData, 
                              missingValue = missingValue, 
-                             diagnostics = diagnostics,
                              **args)
 
         # construct the axis list for dstVar
@@ -217,12 +216,14 @@ class CdmsRegrid:
             if type(v) is types.StringType:
                 attrs[a] = v
 
-        # If the missing value is present in the destination data, set a 
+        # if the missing value is present in the destination data, set a 
         # destination mask
         if numpy.any(dstData == missingValue): 
             dstMask = (dstData == missingValue)
 
-        # create the transient variable
+        # create the transient variable. Note: it is unclear whether 
+        # we should create the variable on the supplied dstGrid or 
+        # the local grid.
         dstVar = cdms2.createVariable(dstData, 
                                       mask = dstMask,
                                       fill_value = missingValue,
@@ -232,10 +233,10 @@ class CdmsRegrid:
                                       id = srcVar.id + '_CdmsRegrid')
         
         if re.search(self.regridMethod.lower(), 'conserv'):
-            self.srcGridAreas = self.regridObj.getSrcAreas(rootPe = rootPe)
-            self.dstGridAreas = self.regridObj.getDstAreas(rootPe = rootPe)
-            self.srcFractions = self.regridObj.getSrcAreaFractions(rootPe = rootPe)
-            self.dstFractions = self.regridObj.getDstAreaFractions(rootPe = rootPe)
+            self.srcGridAreas = self.regridObj.getSrcAreas(rootPe = 0)
+            self.dstGridAreas = self.regridObj.getDstAreas(rootPe = 0)
+            self.srcFractions = self.regridObj.getSrcAreaFractions(rootPe = 0)
+            self.dstFractions = self.regridObj.getDstAreaFractions(rootPe = 0)
 
         return dstVar
 

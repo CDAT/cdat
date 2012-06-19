@@ -46,7 +46,7 @@ class LibCFRegrid(GenericRegrid):
         tolpos = args.get('tolpos', 0.01)
         self.regridObj.computeWeights(nitermax=nitermax, tolpos=tolpos)
 
-    def apply(self, srcData, dstData, srcDataMask = None, **args):
+    def apply(self, srcData, dstData, **args):
         """
         Regrid source to destination
         @param srcData array (input)

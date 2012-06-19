@@ -188,18 +188,15 @@ staggerLoc = %s!""" % staggerLoc
                                   regridMethod = self.regridMethod,
                                   unMappedAction = self.unMappedAction)
 
-    def apply(self, srcData, dstData, **args):
+    def apply(self, srcData, dstData, rootPe = None, **args):
         """
         Regrid source to destination
         @param srcData array Full source data shape
         @param dstData array Full destination data shape
-        @param **args  expect rootPe keyword argument
-                       rootPe: processor id where data should be gathered
-                               or None if local data are to be returned
+        @param rootPe if other than None, then data will be MPI gathered
+                      on the specified rootPe processor
+        @param **args
         """
-
-        rootPe = args.get('rootPe', 0)
-
         self.srcFld.setLocalData(srcData, self.staggerloc)
 
         # Regrid

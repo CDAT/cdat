@@ -892,8 +892,8 @@ class AbstractVariable(CdmsObj, Slab):
         @param missing missing values
         @param order axis order
         @param mask grid/data mask
-        @param Optional keywords dependent on regridTool
-        @return Regridded variable
+        @param keywords optional keyword arguments dependent on regridTool
+        @return regridded variable
         """
 
         if togrid is None: 

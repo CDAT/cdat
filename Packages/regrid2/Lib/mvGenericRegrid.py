@@ -89,13 +89,17 @@ class GenericRegrid:
         """
         self.tool.computeWeights(**args)
 
-    def apply(self, srcData, dstData, missingValue = None, **args):
+    def apply(self, srcData, dstData, 
+              missingValue = None, 
+              rootPe = 0, **args):
         """
         Regrid source to destination
         @param srcData array (input)
         @param dstData array (output)
         @param missingValue if not None, then data mask will be interpolated
                             and data value set to missingValue when masked
+        @param rootPe if other than None, then results will be MPI 
+                      gathered
         """
 
         # assuming the axes are the slowly varying indices
@@ -117,7 +121,7 @@ class GenericRegrid:
             # no axis... just call apply 
             #
 
-            self.tool.apply(srcData, dstData, **args)
+            self.tool.apply(srcData, dstData, rootPe = rootPe, **args)
 
             # adjust for masking
             if missingValue is not None:

@@ -1,4 +1,3 @@
-
 #-----------------------------------------------------------------------------
 cmake_minimum_required(VERSION 2.8.4)
 #-----------------------------------------------------------------------------
@@ -357,6 +356,7 @@ find_package(PKG_CONFIG)
 #if(NOT PKG_CONFIG_FOUND)
   add_cdat_package(pkgconfig)
   set(cdat_PKG_CONFIG_EXECUTABLE ${cdat_EXTERNALS}/bin/pkg-config)
+  set(ENV{PKG_CONFIG} "${cdat_PKG_CONFIG_EXECUTABLE}")
 #  message("DID NOT FIND pkg-config")
 #else()
 #  set(cdat_PKG_CONFIG_EXECUTABLE ${PKG_CONFIG_EXECUTABLE})
