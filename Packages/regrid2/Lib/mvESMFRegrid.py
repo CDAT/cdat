@@ -86,7 +86,8 @@ class ESMFRegrid(GenericRegrid):
 
         self.periodicity = periodicity
 
-        # masks can take several values in ESMF
+        # masks can take several values in ESMF, we'll have just one 
+        # value (1) which means invalid
         self.srcMaskValues = numpy.array([1],dtype = numpy.int32)
         self.dstMaskValues = numpy.array([1],dtype = numpy.int32)
 
@@ -121,20 +122,15 @@ dimensions. len(srcGrid[0].shape) = %d != len(dstGrid[0].shape)""" % \
                                 periodicity = self.periodicity)
         self.srcGrid.setCoords(srcGrid, staggerloc = self.staggerloc)
 
-        # we only need one value the mask elements can take
         if srcGridMask is not None:
-            self.srcGrid.setCellMask(srcGridMask)
+            self.srcGrid.setMask(srcGridMask, staggerloc = self.staggerloc)
 
         if srcBounds is not None:
         # Coords are CENTER (cell) based, bounds are CORNER (nodal)
             if self.staggerloc != ESMP.ESMP_STAGGERLOC_CORNER:
+                # cell field, need to provide the bounds
                 self.srcGrid.setCoords(srcBounds, 
                                staggerloc = ESMP.ESMP_STAGGERLOC_CORNER)
-            elif self.staggerloc == ESMP.ESMP_STAGGERLOC_CORNER:
-                msg = """
-mvESMFRegrid.ESMFRegrid.__init__: can't set the src bounds for 
-staggerLoc = %s!""" % staggerLoc
-                raise RegridError, msg
 
         # create destination Grid
         self.dstGrid = esmf.EsmfStructGrid(dstGrid[0].shape, 

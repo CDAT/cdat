@@ -922,7 +922,7 @@ avariable.regrid:
 
             srcMask = None
             # Set the source mask if a mask is defined with the source data
-            if not numpy.all(self.mask == False):
+            if numpy.any(self.mask == True):
                 srcMask = self.mask
 
             # The other methods, LibCF and ESMF

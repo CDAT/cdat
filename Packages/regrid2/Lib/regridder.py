@@ -399,14 +399,16 @@ class Regridder:
                                     periodicity = self.periodicity)
         self.srcGrid.setCoords(srcGrid, staggerloc = self.staggerloc)
         self.srcGrid.shape = srcGrid[0].shape
-        if self.srcMask is not None: self.srcGrid.setCellMask(self.srcMask)
+        if self.srcMask is not None: 
+            self.srcGrid.setMask(self.srcMask, staggerloc = self.staggerloc)
 
         self.dstGrid = esmf.EsmfStructGrid(dstGrid[0].shape,
                                        periodicity = self.periodicity,
                                        coordSys = self.coordSys)
         self.dstGrid.setCoords(dstGrid, staggerloc = self.staggerloc) 
         self.dstGrid.shape = dstGrid[0].shape
-        if self.dstMask is not None: self.dstGrid.setCellMask(self.dstMask)
+        if self.dstMask is not None: 
+            self.dstGrid.setMask(self.dstMask, staggerloc = self.staggerloc)
 
         # Populate the grid corners. Conservative only.
         if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
