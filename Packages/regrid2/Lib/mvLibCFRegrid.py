@@ -23,7 +23,7 @@ class LibCFRegrid(GenericRegrid):
         Constructor
         @param srcGrid array
         @param dstGrid array
-        @param src_bounds cell boundaries
+        @param srcBounds cell boundaries
         @param **args keyword arguments, eg mkCyclic, handleCut, ...
                       to be passed to gsRegrid
         """
@@ -46,13 +46,15 @@ class LibCFRegrid(GenericRegrid):
         tolpos = args.get('tolpos', 0.01)
         self.regridObj.computeWeights(nitermax=nitermax, tolpos=tolpos)
 
-    def apply(self, srcData, dstData, **args):
+    def apply(self, srcData, dstData, missingValue = None, **args):
         """
         Regrid source to destination
         @param srcData array (input)
         @param dstData array (output)
+        @param missingValue value that should be set for points falling outside the src domain, 
+                            pass None if these should not be touched.        
         """
-        self.regridObj.apply(srcData, dstData)
+        self.regridObj.apply(srcData, dstData, missingValue)
 
     def getDstGrid(self):
         """

@@ -38,59 +38,6 @@ def catchError(status, lineno):
         raise RegridError, "ERROR in %s: status = %d at line %d" \
             % (__FILE__, status, lineno)
 
-def getFillValue(data):
-    """
-    Get the data to the fill_value
-    @param data cdms2 variable
-    @return fill value
-    """
-    fill_value = None
-
-    if data.dtype == numpy.float64:
-        if data.fill_value is not None or \
-           data.missing_value is not None:
-                fill_value = c_double(data.fill_value)
-        else:
-                fill_value = c_double(libCFConfig.NC_FILL_DOUBLE)
-    elif data.dtype == numpy.float32:
-        if data.fill_value is not None or \
-           data.missing_value is not None:
-                fill_value = c_float(data.fill_value)
-        else:
-                fill_value = c_float(libCFConfig.NC_FILL_FLOAT)
-    elif data.dtype == numpy.int32:
-        if data.fill_value is not None or \
-           data.missing_value is not None:
-                fill_value = c_int(data.fill_value)
-        else:
-                fill_value = c_int(libCFConfig.NC_FILL_INT)
-    else:
-        raise RegridError, "ERROR in %s: getFillValue(data): " + \
-            " unsupported data type %s" \
-            % (__FILE__, str(data.dtype))
-
-    return fill_value
-
-
-def getNetCDFFillValue(dtype):
-    """
-    Get the NetCDF fill value
-    @param dtype numpy data type, e.g. numpy.float32
-    """
-    if dtype == numpy.float64:
-        return libCFConfig.NC_FILL_DOUBLE
-    elif dtype == numpy.float32:
-        return libCFConfig.NC_FILL_FLOAT
-    elif dtype == numpy.int32:
-        return libCFConfig.NC_FILL_INT
-    elif dtype == numpy.int16:
-        return libCFConfig.NC_FILL_SHORT
-    elif dtype == numpy.int8:
-        return libCFConfig.NC_FILL_BYTE
-    else:
-        raise RegridError, "ERROR in %s: invalid type %s" \
-            % (__FILE__, str(dtype))
-
 def getTensorProduct(axis, dim, dims):
     """
     Convert an axis into a curvilinear coordinate by applying
@@ -616,14 +563,13 @@ class Regrid:
         catchError(status, sys._getframe().f_lineno)
         self.weightsComputed = True
 
-    def apply(self, src_data_in, dst_data):
+    def apply(self, src_data_in, dst_data, missingValue = None):
         """
         Apply interpolation
         @param src_data data on source grid
         @param dst_data data on destination grid
-        @note destination coordinates falling outside the valid domain
-              of src_data will not be interpoloted, the corresponding
-              dst_data will not be touched.
+        @param missingValue value that should be set for points falling outside the src domain, 
+                            pass None if these should not be touched.
         """
         if not self.weightsComputed:
             raise RegridError, 'Weights must be set before applying the regrid'
@@ -642,30 +588,18 @@ class Regrid:
                 + "%s != %s") % (__FILE__, str(dst_data.shape),
                                  str(self.dst_dims))
 
-        # Create data objects
+        # Create temporary data objects
         src_dataid = c_int(-1)
         dst_dataid = c_int(-1)
         save = 0
         standard_name = ""
         units = ""
         time_dimname = ""
-        if cdms2.isVariable(src_data_in): 
-            if hasattr(src_data_in, 'standard_name'): 
-                standard_name = src_data_in.standard_name
-            if hasattr(src_data_in, 'units'): 
-                units = src_data_in.units
-            order = src_data_in.getOrder()
-            if 't' in order: 
-                t = src_data_in.getTime()
-                time_dimname = t.id
 
         status = self.lib.nccf_def_data(self.src_gridid, "src_data", \
                                         standard_name, units, time_dimname, \
                                         byref(src_dataid))
         catchError(status, sys._getframe().f_lineno)
-
-        if not hasattr(src_data, 'fill_value'):
-            src_data = numpy.ma.masked_array(src_data)
 
         if src_data.dtype != dst_data.dtype:
             raise RegridError, "ERROR in %s: mismatch in src and dst data types (%s vs %s)" \
@@ -673,19 +607,21 @@ class Regrid:
 
         # only float64 and float32 data types are supported for interpolation
         if src_data.dtype == numpy.float64:
-            fill_value = getFillValue(src_data)
-            status = self.lib.nccf_set_data_double(src_dataid,
-                                     src_data.ctypes.data_as(POINTER(c_double)),
-                                                   save, fill_value)
+            fill_value = c_double(libCFConfig.NC_FILL_DOUBLE)
+            if missingValue is not None:
+                fill_value = c_double(missingValue)
+            ptr = src_data.ctypes.data_as(POINTER(c_double))
+            status = self.lib.nccf_set_data_double(src_dataid, ptr, save, fill_value)
             catchError(status, sys._getframe().f_lineno)
         elif src_data.dtype == numpy.float32:
-            fill_value = getFillValue(src_data)
-            status = self.lib.nccf_set_data_float(src_dataid,
-                                     src_data.ctypes.data_as(POINTER(c_float)),
-                                                  save, fill_value)
+            fill_value = c_float(libCFConfig.NC_FILL_FLOAT)
+            if missingValue is not None:
+                fill_value = c_float(missingValue)
+            ptr = src_data.ctypes.data_as(POINTER(c_float))
+            status = self.lib.nccf_set_data_float(src_dataid, ptr, save, fill_value)
             catchError(status, sys._getframe().f_lineno)
         else:
-            raise RegridError, "ERROR in %s: invalid src_data type = %s" \
+            raise RegridError, "ERROR in %s: invalid src_data type %s (neither float nor double)" \
                 % (__FILE__, src_data.dtype)
 
         status = self.lib.nccf_def_data(self.dst_gridid, "dst_data", \
@@ -694,15 +630,19 @@ class Regrid:
         catchError(status, sys._getframe().f_lineno)
         if dst_data.dtype == numpy.float64:
             fill_value = c_double(libCFConfig.NC_FILL_DOUBLE)
-            status = self.lib.nccf_set_data_double(dst_dataid,
-                                                   dst_data.ctypes.data_as(POINTER(c_double)),
-                                                   save, fill_value)
+            if missingValue is not None:
+                fill_value = c_double(missingValue)
+                dst_data[:] = missingValue
+            ptr = dst_data.ctypes.data_as(POINTER(c_double))
+            status = self.lib.nccf_set_data_double(dst_dataid, ptr, save, fill_value)
             catchError(status, sys._getframe().f_lineno)
         elif dst_data.dtype == numpy.float32:
             fill_value = c_float(libCFConfig.NC_FILL_FLOAT)
-            status = self.lib.nccf_set_data_float(dst_dataid,
-                                                  dst_data.ctypes.data_as(POINTER(c_float)),
-                                                  save, fill_value)
+            if missingValue is not None:
+                fill_value = c_float(missingValue)
+                dst_data[:] = missingValue
+            ptr = dst_data.ctypes.data_as(POINTER(c_float))
+            status = self.lib.nccf_set_data_float(dst_dataid, ptr, save, fill_value)
             catchError(status, sys._getframe().f_lineno)
         else:
             raise RegridError, "ERROR in %s: invalid dst_data type = %s" \
@@ -720,16 +660,15 @@ class Regrid:
 
         return dst_data
 
-    def __call__(self, src_data, dst_data):
+    def __call__(self, src_data, dst_data, missingValue = None):
         """
         Apply interpolation (synonymous to apply method)
         @param src_data data on source grid
         @param dst_data data on destination grid
-        @note destination coordinates falling outside the valid domain
-              of src_data will not be interpoloted, the corresponding
-              dst_data will not be touched.
+        @param missingValue value that should be set for points falling outside the src domain, 
+                            pass None if these should not be touched.
         """
-        self.apply(src_data, dst_data)
+        self.apply(src_data, dst_data, missingValue)
 
 
     def getNumValid(self):
