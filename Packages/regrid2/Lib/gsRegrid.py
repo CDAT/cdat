@@ -667,7 +667,6 @@ class Regrid:
         if not hasattr(src_data, 'fill_value'):
             src_data = numpy.ma.masked_array(src_data)
 
-        print '**** src_data.dtype, dst_data.dtype = ', src_data.dtype, dst_data.dtype
         if src_data.dtype != dst_data.dtype:
             raise RegridError, "ERROR in %s: mismatch in src and dst data types (%s vs %s)" \
                 % (__FILE__, src_data.dtype, dst_data.dtype)
