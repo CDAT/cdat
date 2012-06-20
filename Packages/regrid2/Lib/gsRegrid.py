@@ -586,7 +586,7 @@ class Regrid:
 
     def setMask(self, inDataOrMask):
         """
-        Set mask array for grid
+        Set mask array. The mask is defined for nodes
         @param inDataOrMask cdms2 array or flat mask array, 
                                 0 - valid data
                                 1 - invalid data      
