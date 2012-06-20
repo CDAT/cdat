@@ -64,8 +64,8 @@ class GenericRegrid:
         elif re.search('esm', regridTool.lower()):
             # ESMF
             staggerLoc = args.get('staggerLoc', 'center') 
-            if args.has_key('staggerloc'):
-                del args['staggerloc']
+            if args.has_key('staggerLoc'):
+                del args['staggerLoc']
             periodicity = args.get('periodicity', 1) 
             if args.has_key('periodicity'):
                 del args['periodicity']
