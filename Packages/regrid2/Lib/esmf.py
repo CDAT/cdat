@@ -257,17 +257,16 @@ class EsmfStructGrid:
         else:
             return None
 
-    def setMask(self, mask, staggerloc):
+    def setMask(self, mask):
         """
-        Set mask array
+        Set mask array. In ESMF, the mask is applied to cells.
         @param mask numpy array. 1 is invalid by default. This array exists
                     on all procs
-        @param staggerloc stagger location (for instance ESMP_STAGGERLOC_{CENTER,CORNER})
         """
         ESMP.ESMP_GridAddItem(self.grid, item=ESMP.ESMP_GRIDITEM_MASK)
         maskPtr = ESMP.ESMP_GridGetItem(self.grid,
                                         item=ESMP.ESMP_GRIDITEM_MASK)
-        slab = self.getLocalSlab(staggerloc)
+        slab = self.getLocalSlab(ESMP.ESMP_STAGGERLOC_CENTER)
         maskPtr[:] = mask[slab].flat
 
     def __del__(self):

@@ -123,7 +123,7 @@ dimensions. len(srcGrid[0].shape) = %d != len(dstGrid[0].shape)""" % \
         self.srcGrid.setCoords(srcGrid, staggerloc = self.staggerloc)
 
         if srcGridMask is not None:
-            self.srcGrid.setMask(srcGridMask, staggerloc = self.staggerloc)
+            self.srcGrid.setMask(srcGridMask)
 
         if srcBounds is not None:
         # Coords are CENTER (cell) based, bounds are CORNER (nodal)
@@ -138,7 +138,7 @@ dimensions. len(srcGrid[0].shape) = %d != len(dstGrid[0].shape)""" % \
                                 periodicity = self.periodicity)
         self.dstGrid.setCoords(dstGrid, staggerloc = self.staggerloc)
         if dstGridMask is not None:
-            self.dstGrid.setCellMask(dstGridMask)
+            self.dstGrid.setMask(dstGridMask)
 
         if dstBounds is not None:
             # Coords are CENTER (cell) based, bounds are CORNER (nodal)
