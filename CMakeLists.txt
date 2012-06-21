@@ -126,7 +126,8 @@ endif()
 # Attempt to detect if we have a Fortran Compiler available.
 #-----------------------------------------------------------------------------
 
-include(CheckFortran)
+#include(CheckFortran)
+set(CMAKE_Fortran_COMPILER gfortran)
 
 if(CMAKE_Fortran_COMPILER)
   enable_language(Fortran)
@@ -637,7 +638,7 @@ set(libcf_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${NetCDF_dep} ${HDF5_dep} 
 # Added by Dave Kindig Tech-X Corp. kindig@txcorp.com
 set(OPENMPI_DEPENDENCIES ${pkgconfig_dep})
 set(ESMF_DEPENDENCIES ${pkgconfig_dep} ${OPENMPI_dep})
-set(ESMP_DEPENDENCIES ${pkgconfig_dep} ${NUMPY_dep} ${Python_dep} ${ESMP_dep})
+set(ESMP_DEPENDENCIES ${pkgconfig_dep} ${NUMPY_dep} ${Python_dep} ${ESMF_dep})
 set(Cython_DEPENDENCIES ${pkgconfig_dep} ${Python_dep})
 set(Numexpr_DEPENDENCIES ${pkgconfig_dep} ${NUMPY_dep} ${Python_dep})
 set(PyTables_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${Cython_dep} ${Numexpr_dep} ${HDF5_dep} ${libXML2_dep} ${libXSLT_dep} ${zlib_dep})
