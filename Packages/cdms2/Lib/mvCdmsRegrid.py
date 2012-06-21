@@ -192,9 +192,9 @@ class CdmsRegrid:
                              missingValue = missingValue, 
                              **args)
 
- 	# fill in diagnostic data
-	if args.has_key('diag'):
-	    self.regridObj.fillInDiagnosticData(diag = args['diag'], rootPe = 0)
+        # fill in diagnostic data
+        if args.has_key('diag'):
+            self.regridObj.fillInDiagnosticData(diag = args['diag'], rootPe = 0)
 
         # construct the axis list for dstVar
         dstAxisList = _getAxisList(srcVar, self.dstGrid)
