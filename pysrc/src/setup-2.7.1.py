@@ -414,7 +414,7 @@ class PyBuildExt(build_ext):
         # be assumed that no additional -I,-L directives are needed.
         lib_dirs = self.compiler.library_dirs + [
             '/lib64', '/usr/lib64',
-            '/lib', '/usr/lib',
+            '/lib', '/usr/lib', '/usr/lib/x86_64-linux-gnu',
             ]
         inc_dirs = self.compiler.include_dirs + ['/usr/include']
         exts = []
@@ -927,6 +927,7 @@ class PyBuildExt(build_ext):
                 db_dirs_to_check = [
                     db_incdir.replace("include", 'lib64'),
                     db_incdir.replace("include", 'lib'),
+                    db_incdir.replace("include", 'lib/x86_64-linux-gnu')
                 ]
 
                 if sys.platform != 'darwin':
@@ -1039,6 +1040,7 @@ class PyBuildExt(build_ext):
             sqlite_dirs_to_check = [
                 os.path.join(sqlite_incdir, '..', 'lib64'),
                 os.path.join(sqlite_incdir, '..', 'lib'),
+                os.path.join(sqlite_incdir, '..', 'lib/x86_64-linux-gnu'),
                 os.path.join(sqlite_incdir, '..', '..', 'lib64'),
                 os.path.join(sqlite_incdir, '..', '..', 'lib'),
             ]
