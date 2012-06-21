@@ -62,6 +62,11 @@ def _getCoordList(grid):
         cgrid = grid.toCurveGrid()
         lats = cgrid.getLatitude()
         lons = cgrid.getLongitude()
+        if grid.getOrder() == 'xy':
+            # toCurveGrid returns coordinates in the wrong
+            # shape if order is 'xy'
+            lats = lats.transpose()
+            lons = lons.transpose()
 
     # we always want the coordinates in that order
     return lats, lons
@@ -144,17 +149,10 @@ class CdmsRegrid:
             srcBounds = _getBoundList(srcCoords)
             dstBounds = _getBoundList(dstCoords)
 
-        # If the srcGridMask has multiple dimensions, pick the first level
-        # of the source mask
-        srcGridMask0 = srcGridMask
-        if srcGridMask is not None:
-            string = "srcGridMask[" + "0,"*(len(srcGridMask.shape)-2)+"...]"
-            srcGridMask0 = eval(string)
-
         self.regridObj = regrid2.GenericRegrid(srcCoords, dstCoords, 
                                                regridMethod = regridMethod, 
                                                regridTool = regridTool,
-                                               srcGridMask = srcGridMask0, 
+                                               srcGridMask = srcGridMask, 
                                                srcBounds = srcBounds, 
                                                srcGridAreas = srcGridAreas,
                                                dstGridMask = dstGridMask, 
@@ -194,9 +192,9 @@ class CdmsRegrid:
                              missingValue = missingValue, 
                              **args)
 
- 	# fill in diagnostic data
-	if args.has_key('diag'):
-	    self.regridObj.fillInDiagnosticData(diag = args['diag'], rootPe = 0)
+        # fill in diagnostic data
+        if args.has_key('diag'):
+            self.regridObj.fillInDiagnosticData(diag = args['diag'], rootPe = 0)
 
         # construct the axis list for dstVar
         dstAxisList = _getAxisList(srcVar, self.dstGrid)

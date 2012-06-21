@@ -31,6 +31,78 @@ _numeric_compatibility = False          # Backward compatibility with numpy beha
                                         # True:  return 0-D arrays
                                         #        MV axis=1 by default
 
+def getMinHorizontalMask(var):
+    """
+    Get the minimum mask associated with 'x' and 'y' (i.e. with the 
+    min number of ones) across all axes
+    @param var CDMS variable with a mask
+    @return mask array or None if order 'x' and 'y' were not found
+    """
+    from distarray import MultiArrayIter
+
+    if not hasattr(var, 'mask'):
+        return None
+
+    shp = var.shape
+    ndims = len(shp)
+    order = var.getOrder() # e.g. 'zxty-', ndims = 5
+
+    # run a few checks
+    numX = order.count('x')
+    numY = order.count('y')
+    num_ = order.count('-')
+    hasXY = (numX == 1) and (numY == 1)
+    if numX + numY + num_ < 2:
+        msg = """
+Not able to locate the horizontal (y, x) axes for order = %s in getMinHorizontalMask
+        """ % str(order)
+        raise CDMSError, msg
+        
+    
+    ps = [] # index position of x/y, e.g. [1,3]
+    es = [] # end indices, sizes of x/y axes
+    nonHorizShape = []
+    found = False
+    for i in range(ndims-1, -1, -1):
+        # iterate backwards because the horizontal 
+        # axes are more likely to be last
+        o = order[i]
+        # curvilinear coordinates have '-' in place of
+        # x or y, also check for '-' but exit if we think 
+        # we found the x and y coords
+        if not found and (o in 'xy') or (not hasXY and o == '-'):
+            ps = [i,] + ps
+            es = [shp[i],] + es
+            if len(ps) == 2:
+                found = True
+        else:
+            nonHorizShape = [shp[i],] + nonHorizShape
+
+    if len(ps) == 2:
+        # found all the horizontal axes, start with mask 
+        # set to invalid everywhere
+        mask = numpy.ones(es, numpy.bool8)
+        # iterate over all non-horizontal axes, there can be as
+        # many as you want...
+        for it in MultiArrayIter(nonHorizShape):
+            inds = it.getIndices() # (i0, i1, i2)
+            # build the slice operator, there are three parts
+            # (head, middle, and tail), some parts may be 
+            # missing
+            # slce = 'i0,' + ':,'   +   'i1,'  +   ':,' + 'i2,'
+            slce = ('%d,'*ps[0]) % tuple(inds[:ps[0]]) + ':,'            \
+                + ('%d,'*(ps[1]-ps[0]-1)) % tuple(inds[ps[0]:ps[1]-1])   \
+                + ':,' + ('%d,'*(ndims-ps[1]-1)) % tuple(inds[ps[1]-1:])
+            # evaluate the slice for this time, level....
+            mask &= eval('var.mask[' + slce + ']')
+        return mask
+    else:
+        msg = """
+Could not find all the horizontal axes for order = %s in getMinHorizontalMask
+        """ % str(order)
+        raise CDMSError, msg
+    return None  
+
 def setNumericCompatibility(mode):
     global _numeric_compatibility
     if mode==True or mode=='on':
@@ -923,7 +995,7 @@ avariable.regrid:
             srcMask = None
             # Set the source mask if a mask is defined with the source data
             if numpy.any(self.mask == True):
-                srcMask = self.mask
+                srcMask = getMinHorizontalMask(self)
 
             # The other methods, LibCF and ESMF
             regridMethod = 'linear' # default

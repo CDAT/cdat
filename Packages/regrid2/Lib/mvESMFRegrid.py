@@ -275,8 +275,8 @@ staggerLoc = %s!""" % staggerLoc
         @param rootPe root processor where data should be gathered (or 
                       None if local areas are to be returned)
         """
-	for entry in  'srcAreaFractions', 'dstAreaFractions',  'srcAreas', 'dstAreas':
-		if diag.has_key(entry):
-			meth = 'get' + entry[0].upper() + entry[1:]
-			diag[entry] = eval('self.regridObj.' + meth + '(rootPe = rootPe)')
+        for entry in  'srcAreaFractions', 'dstAreaFractions',  'srcAreas', 'dstAreas':
+            if diag.has_key(entry):
+                meth = 'get' + entry[0].upper() + entry[1:]
+                diag[entry] = eval('self.regridObj.' + meth + '(rootPe = rootPe)')
 
