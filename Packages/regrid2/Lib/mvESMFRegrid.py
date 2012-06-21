@@ -34,7 +34,8 @@ class ESMFRegrid(GenericRegrid):
     def __init__(self, srcGrid, dstGrid, 
                  regridMethod, staggerLoc, periodicity, coordSys,
                  srcGridMask = None, srcBounds = None, srcGridAreas = None,
-                 dstGridMask = None, dstBounds = None, dstGridAreas = None):
+                 dstGridMask = None, dstBounds = None, dstGridAreas = None,
+                 **args):
         """
         Constructor
         @param srcGrid list [[z], y, x] of source grid arrays
@@ -86,7 +87,8 @@ class ESMFRegrid(GenericRegrid):
 
         self.periodicity = periodicity
 
-        # masks can take several values in ESMF
+        # masks can take several values in ESMF, we'll have just one 
+        # value (1) which means invalid
         self.srcMaskValues = numpy.array([1],dtype = numpy.int32)
         self.dstMaskValues = numpy.array([1],dtype = numpy.int32)
 
@@ -121,20 +123,15 @@ dimensions. len(srcGrid[0].shape) = %d != len(dstGrid[0].shape)""" % \
                                 periodicity = self.periodicity)
         self.srcGrid.setCoords(srcGrid, staggerloc = self.staggerloc)
 
-        # we only need one value the mask elements can take
         if srcGridMask is not None:
-            self.srcGrid.setCellMask(srcGridMask)
+            self.srcGrid.setMask(srcGridMask)
 
         if srcBounds is not None:
         # Coords are CENTER (cell) based, bounds are CORNER (nodal)
             if self.staggerloc != ESMP.ESMP_STAGGERLOC_CORNER:
+                # cell field, need to provide the bounds
                 self.srcGrid.setCoords(srcBounds, 
                                staggerloc = ESMP.ESMP_STAGGERLOC_CORNER)
-            elif self.staggerloc == ESMP.ESMP_STAGGERLOC_CORNER:
-                msg = """
-mvESMFRegrid.ESMFRegrid.__init__: can't set the src bounds for 
-staggerLoc = %s!""" % staggerLoc
-                raise RegridError, msg
 
         # create destination Grid
         self.dstGrid = esmf.EsmfStructGrid(dstGrid[0].shape, 
@@ -142,7 +139,7 @@ staggerLoc = %s!""" % staggerLoc
                                 periodicity = self.periodicity)
         self.dstGrid.setCoords(dstGrid, staggerloc = self.staggerloc)
         if dstGridMask is not None:
-            self.dstGrid.setCellMask(dstGridMask)
+            self.dstGrid.setMask(dstGridMask)
 
         if dstBounds is not None:
             # Coords are CENTER (cell) based, bounds are CORNER (nodal)
@@ -188,18 +185,15 @@ staggerLoc = %s!""" % staggerLoc
                                   regridMethod = self.regridMethod,
                                   unMappedAction = self.unMappedAction)
 
-    def apply(self, srcData, dstData, **args):
+    def apply(self, srcData, dstData, rootPe = None, **args):
         """
         Regrid source to destination
         @param srcData array Full source data shape
         @param dstData array Full destination data shape
-        @param **args  expect rootPe keyword argument
-                       rootPe: processor id where data should be gathered
-                               or None if local data are to be returned
+        @param rootPe if other than None, then data will be MPI gathered
+                      on the specified rootPe processor
+        @param **args
         """
-
-        rootPe = args.get('rootPe', 0)
-
         self.srcFld.setLocalData(srcData, self.staggerloc)
 
         # Regrid
@@ -270,4 +264,19 @@ staggerLoc = %s!""" % staggerLoc
         if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
             return self.regridObj.getSrcAreaFractions(rootPe = rootPe)
         else:
-            return None
+            return 
+
+    def fillInDiagnosticData(self, diag, rootPe = None):
+        """
+        Fill in diagnostic data
+        @param diag a dictionary whose entries, if present, will be filled
+                    valid entries are: 'srcAreaFractions', 'dstAreaFractions',
+                                       'srcAreas', 'dstAreas'
+        @param rootPe root processor where data should be gathered (or 
+                      None if local areas are to be returned)
+        """
+	for entry in  'srcAreaFractions', 'dstAreaFractions',  'srcAreas', 'dstAreas':
+		if diag.has_key(entry):
+			meth = 'get' + entry[0].upper() + entry[1:]
+			diag[entry] = eval('self.regridObj.' + meth + '(rootPe = rootPe)')
+

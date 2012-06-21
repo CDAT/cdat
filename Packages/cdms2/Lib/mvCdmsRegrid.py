@@ -51,32 +51,20 @@ def _getBoundList(coordList):
 
 def _getCoordList(grid):
     """
-    Return a coordinate list from a CDMS grid
-    @return [lats, lons] 
+    Return a CDMS coordinate list from a CDMS grid
+    @return lats, lons
     """
     lats = grid.getLatitude()
     lons = grid.getLongitude()
-    shp = grid.shape
   
-    # Initial try at dealing with Curvilinear grids.
-    # Assume lat lon Order!
-    if len(lats.shape) > 1:
-        return lats, lons
+    if len(lats.shape) == 1 or len(lats.shape) == 1:
+        # have axes, need to convert to curvilinear grid
+        cgrid = grid.toCurveGrid()
+        lats = cgrid.getLatitude()
+        lons = cgrid.getLongitude()
 
-    if grid.getAxis(0).isLatitude():
-        # looks like order is lats, lons
-        # turn into curvilinear, if need be
-        if len(lats.shape) == 1:
-            lats = grid.toCurveGrid().getLatitude()
-            lons = grid.toCurveGrid().getLongitude()
-        return lats, lons
-
-    # looks like order is lons, lats
-    if len(lats.shape) == 1:
-        lats = regrid2.gsRegrid.getTensorProduct(lats[:], 1, shp)
-    if len(lons.shape) == 1:
-        lons = regrid2.gsRegrid.getTensorProduct(lons[:], 0, shp)
-    return lons, lats
+    # we always want the coordinates in that order
+    return lats, lons
 
 def _getAxisList(srcVar, dstGrid):
     """
@@ -175,7 +163,7 @@ class CdmsRegrid:
                                                **args )
         self.regridObj.computeWeights(**args)
 
-    def __call__(self, srcVar, diagnostics = None, **args):
+    def __call__(self, srcVar, **args):
         """
         Interpolate, looping over additional (non-latitude/longitude) axes
            if need be
@@ -190,22 +178,25 @@ class CdmsRegrid:
 
         timeAxis = srcVar.getTime()
         levelAxis = srcVar.getLevel()
+        
         # shape of dst var
         dstShape = list(srcVar.shape[:-2]) + list(self.dstGrid.shape)
 
-        # Establish the destination data. Initialize to missing values or 0.
+        # establish the destination data. Initialize to missing values or 0.
         dstData = numpy.ones(dstShape, dtype = srcVar.dtype)
-        if missingValue is not None: dstData[:] = dstData * missingValue
-        else: dstData[:] = dstData * 0.0
+        if missingValue is not None: 
+            dstData *= missingValue
+        else: 
+            dstData *= 0.0
         
-        # return a list
-        if diagnostics is not None: diagnostics = []
-
         # interpolate the data
         self.regridObj.apply(srcVar.data, dstData, 
                              missingValue = missingValue, 
-                             diagnostics = diagnostics,
                              **args)
+
+ 	# fill in diagnostic data
+	if args.has_key('diag'):
+	    self.regridObj.fillInDiagnosticData(diag = args['diag'], rootPe = 0)
 
         # construct the axis list for dstVar
         dstAxisList = _getAxisList(srcVar, self.dstGrid)
@@ -217,12 +208,14 @@ class CdmsRegrid:
             if type(v) is types.StringType:
                 attrs[a] = v
 
-        # If the missing value is present in the destination data, set a 
+        # if the missing value is present in the destination data, set 
         # destination mask
         if numpy.any(dstData == missingValue): 
             dstMask = (dstData == missingValue)
 
-        # create the transient variable
+        # create the transient variable. Note: it is unclear whether 
+        # we should create the variable on the supplied dstGrid or 
+        # the local grid.
         dstVar = cdms2.createVariable(dstData, 
                                       mask = dstMask,
                                       fill_value = missingValue,
@@ -232,10 +225,10 @@ class CdmsRegrid:
                                       id = srcVar.id + '_CdmsRegrid')
         
         if re.search(self.regridMethod.lower(), 'conserv'):
-            self.srcGridAreas = self.regridObj.getSrcAreas(rootPe = rootPe)
-            self.dstGridAreas = self.regridObj.getDstAreas(rootPe = rootPe)
-            self.srcFractions = self.regridObj.getSrcAreaFractions(rootPe = rootPe)
-            self.dstFractions = self.regridObj.getDstAreaFractions(rootPe = rootPe)
+            self.srcGridAreas = self.regridObj.getSrcAreas(rootPe = 0)
+            self.dstGridAreas = self.regridObj.getDstAreas(rootPe = 0)
+            self.srcFractions = self.regridObj.getSrcAreaFractions(rootPe = 0)
+            self.dstFractions = self.regridObj.getDstAreaFractions(rootPe = 0)
 
         return dstVar
 

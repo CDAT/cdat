@@ -23,7 +23,7 @@ class LibCFRegrid(GenericRegrid):
         Constructor
         @param srcGrid array
         @param dstGrid array
-        @param src_bounds cell boundaries
+        @param srcBounds cell boundaries
         @param **args keyword arguments, eg mkCyclic, handleCut, ...
                       to be passed to gsRegrid
         """
@@ -46,13 +46,15 @@ class LibCFRegrid(GenericRegrid):
         tolpos = args.get('tolpos', 0.01)
         self.regridObj.computeWeights(nitermax=nitermax, tolpos=tolpos)
 
-    def apply(self, srcData, dstData, srcDataMask = None, **args):
+    def apply(self, srcData, dstData, missingValue = None, **args):
         """
         Regrid source to destination
         @param srcData array (input)
         @param dstData array (output)
+        @param missingValue value that should be set for points falling outside the src domain, 
+                            pass None if these should not be touched.        
         """
-        self.regridObj.apply(srcData, dstData)
+        self.regridObj.apply(srcData, dstData, missingValue)
 
     def getDstGrid(self):
         """
@@ -63,5 +65,25 @@ class LibCFRegrid(GenericRegrid):
         """
         return self.regridObj.getDstGrid()
         
+    def fillInDiagnostic(self, diag):
+	"""
+	Fill in diagnostic data
+	@param diag a dictionary whose entries, if present, will be filled
+	            valid entries are: ''numDstPoints' and 'numValid'
+	"""
+	if diag.has_key('numDstPoints'):
+		diag['numDstPoints'] = self.regridObj.getNumDstPoints()
+	if diag.has_key('numValidPoints'):
+		diag['numValid'] = self.regridObj.getNumValid()
 
-
+    def fillInDiagnosticData(self, diag, rootPe):
+        """
+        Fill in diagnostic data
+        @param diag a dictionary whose entries, if present, will be filled
+                    valid entries are: 'numDstPoints' and 'numValid'
+        @param rootPe not used
+        """
+        for entry in 'numDstPoints', 'numValid':
+                if diag.has_key(entry):
+                        meth = 'get' + entry[0].upper() + entry[1:]
+                        diag[entry] = eval('self.regridObj.' + meth + '()')

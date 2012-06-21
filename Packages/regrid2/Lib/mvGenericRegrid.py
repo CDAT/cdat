@@ -60,12 +60,14 @@ class GenericRegrid:
            re.search('gsreg', regridTool.lower()):
             # LibCF
             self.tool = regrid2.LibCFRegrid(srcGrid, dstGrid, 
-                 srcGridMask = srcGridMask, srcBounds = srcBounds, **args)
+                 srcGridMask = srcGridMask, 
+                 srcBounds = srcBounds, 
+                 **args)
         elif re.search('esm', regridTool.lower()):
             # ESMF
             staggerLoc = args.get('staggerLoc', 'center') 
-            if args.has_key('staggerloc'):
-                del args['staggerloc']
+            if args.has_key('staggerLoc'):
+                del args['staggerLoc']
             periodicity = args.get('periodicity', 1) 
             if args.has_key('periodicity'):
                 del args['periodicity']
@@ -77,10 +79,12 @@ class GenericRegrid:
                   staggerLoc = staggerLoc,
                   periodicity = periodicity,
                   coordSys = coordSys,                 
-                  srcGridMask=srcGridMask, srcBounds=srcBounds, 
-                  srcGridAreas=srcGridAreas,
-                  dstGridMask=dstGridMask, dstBounds=dstBounds, 
-                  dstGridAreas=dstGridAreas,
+                  srcGridMask = srcGridMask, 
+                  srcBounds = srcBounds, 
+                  srcGridAreas = srcGridAreas,
+                  dstGridMask = dstGridMask, 
+                  dstBounds = dstBounds, 
+                  dstGridAreas = dstGridAreas,
                   **args)
     
     def computeWeights(self, **args):
@@ -89,13 +93,17 @@ class GenericRegrid:
         """
         self.tool.computeWeights(**args)
 
-    def apply(self, srcData, dstData, missingValue = None, **args):
+    def apply(self, srcData, dstData, 
+              missingValue = None, 
+              rootPe = 0, **args):
         """
         Regrid source to destination
         @param srcData array (input)
         @param dstData array (output)
         @param missingValue if not None, then data mask will be interpolated
                             and data value set to missingValue when masked
+        @param rootPe if other than None, then results will be MPI 
+                      gathered
         """
 
         # assuming the axes are the slowly varying indices
@@ -117,7 +125,7 @@ class GenericRegrid:
             # no axis... just call apply 
             #
 
-            self.tool.apply(srcData, dstData, **args)
+            self.tool.apply(srcData, dstData, rootPe = rootPe, **args)
 
             # adjust for masking
             if missingValue is not None:
@@ -188,3 +196,14 @@ class GenericRegrid:
         @return local grid on this processor
         """
         return self.tool.getDstGrid()
+
+    def fillInDiagnosticData(self, diag, rootPe = 0):
+        """
+        Fill in diagnostic data
+        @param diag a dictionary whose entries, if present, will be filled
+                    entries are tool dependent
+        @param rootPe root processor where data should be gathered (or 
+                      None if local areas are to be returned)
+        """
+	self.tool.fillInDiagnosticData(diag, rootPe = rootPe)
+

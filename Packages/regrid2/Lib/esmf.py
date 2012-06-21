@@ -257,9 +257,9 @@ class EsmfStructGrid:
         else:
             return None
 
-    def setCellMask(self, mask):
+    def setMask(self, mask):
         """
-        Set cell mask
+        Set mask array. In ESMF, the mask is applied to cells.
         @param mask numpy array. 1 is invalid by default. This array exists
                     on all procs
         """
@@ -268,14 +268,6 @@ class EsmfStructGrid:
                                         item=ESMP.ESMP_GRIDITEM_MASK)
         slab = self.getLocalSlab(ESMP.ESMP_STAGGERLOC_CENTER)
         maskPtr[:] = mask[slab].flat
-
-    def getCellMask(self):
-        """
-        @return a mask pointer
-        """
-        maskPtr = ESMP.ESMP_GridGetItem(self.grid,
-                                        item = ESMP.ESMP_GRIDITEM_MASK)
-        return numpy.reshape(maskPtr, self.shape)
 
     def __del__(self):
         ESMP.ESMP_GridDestroy(self.grid)
@@ -420,11 +412,10 @@ class EsmfRegrid:
         Optional:
         @param srcMaskValues Value of masked cells in source
         @param dstMaskValues Value of masked cells in destination
-                     e.g.
-        @param regridMethod ESMF constanct bilinear, conservative, etc.
-        @param unMappedAction ESMP Constant Error, Ignore, etc.
         @param srcFrac Cell fractions on source grid (type EsmfStructField)
         @param dstFrac Cell fractions on destination grid (type EsmfStructField)
+        @param regridMethod ESMP.ESMP_REGRIDMETHOD_{BILINEAR,CONSERVE,PATCH}
+        @param unMappedAction ESMP.ESMP_UNMAPPEDACTION_{IGNORE,ERROR}
         """
         self.srcField = srcField
         self.dstField = dstField
@@ -437,6 +428,22 @@ class EsmfRegrid:
 
         center = ESMP.ESMP_STAGGERLOC_CENTER
 
+        # create and initialize the cell areas to zero
+        if regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
+            self.srcAreaField = EsmfStructField(self.srcField.grid,
+                                                name = 'src_areas',
+                                                data = None,
+                                                staggerloc = center)
+            dataPtr = self.srcAreaField.getPointer()
+            dataPtr[:] = 0.0
+            self.dstAreaField = EsmfStructField(self.dstField.grid,
+                                                name = 'dst_areas',
+                                                data = None,
+                                                staggerloc = center)
+            dataPtr = self.dstAreaField.getPointer()
+            dataPtr[:] = 0.0
+
+        # initialize fractional areas to 1 (unless supplied)
         if srcFrac is None:
             self.srcFracField = EsmfStructField(self.srcField.grid,
                                                 name = 'src_cell_area_fractions',
@@ -478,14 +485,7 @@ class EsmfRegrid:
                       provide rootPe and the data will be gathered
         @return numpy array or None if interpolation is not conservative
         """
-        center = ESMP.ESMP_STAGGERLOC_CENTER
-        if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-            shp = self.srcField.grid.getCoordShape(center)
-            data = numpy.zeros(shp, numpy.float64)
-            self.srcAreaField = EsmfStructField(self.srcField.grid, 
-                                                name = 'src_cell_areas', 
-                                                data = data,
-                                                staggerloc = center)
+        if self.srcAreaField is not None:
             ESMP.ESMP_FieldRegridGetArea(self.srcAreaField.field)
             return self.srcAreaField.getData(rootPe)
         return None
@@ -497,12 +497,7 @@ class EsmfRegrid:
                       provide rootPe and the data will be gathered        
         @return numpy array or None if interpolation is not conservative
         """
-        if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-            shp = self.dstField.grid.getCoordShape(ESMP.ESMP_STAGGERLOC_CENTER)
-            self.dstAreaField = EsmfStructField(self.dstField.grid, 
-                                                name = 'dst_cell_areas', 
-                                                data = numpy.zeros(shp, numpy.float64),
-                                                staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
+        if self.srcAreaField is not None:
             ESMP.ESMP_FieldRegridGetArea(self.dstAreaField.field)
             return self.dstAreaField.getData(rootPe)
         return None
@@ -514,7 +509,9 @@ class EsmfRegrid:
                       provide rootPe and the data will be gathered
         @return numpy array
         """
-        return self.srcFracField.getData(rootPe)
+        if self.srcFracField is not None:
+            return self.srcFracField.getData(rootPe)
+        return None
 
     def getDstAreaFractions(self, rootPe = None):
         """
@@ -523,8 +520,9 @@ class EsmfRegrid:
                       provide rootPe and the data will be gathered
         @return numpy array
         """
-        return self.dstFracField.getData(rootPe)
-
+        if self.dstFracField is not None:
+            return self.dstFracField.getData(rootPe)
+        return None
 
     def __call__(self, srcField=None, dstField=None):
         """

@@ -19,6 +19,7 @@ import os
 import copy
 import numpy
 import cdms2
+from regrid2 import RegridError
 
 C_DOUBLE_P = POINTER(c_double)
 
@@ -30,70 +31,12 @@ except:
 
 LIBCFDIR  = __path__[0] + "/pylibcf"
 
-try:
-    from error import CDMSError
-except:
-    from cdms2.error import CDMSError
-
 __FILE__ = sys._getframe().f_code.co_filename
 
 def catchError(status, lineno):
     if status != 0:
-        raise CDMSError, "ERROR in %s: status = %d at line %d" \
+        raise RegridError, "ERROR in %s: status = %d at line %d" \
             % (__FILE__, status, lineno)
-
-def getFillValue(data):
-    """
-    Get the data to the fill_value
-    @param data cdms2 variable
-    @return fill value
-    """
-    fill_value = None
-
-    if data.dtype == numpy.float64:
-        if data.fill_value is not None or \
-           data.missing_value is not None:
-                fill_value = c_double(data.fill_value)
-        else:
-                fill_value = c_double(libCFConfig.NC_FILL_DOUBLE)
-    elif data.dtype == numpy.float32:
-        if data.fill_value is not None or \
-           data.missing_value is not None:
-                fill_value = c_float(data.fill_value)
-        else:
-                fill_value = c_float(libCFConfig.NC_FILL_FLOAT)
-    elif data.dtype == numpy.int32:
-        if data.fill_value is not None or \
-           data.missing_value is not None:
-                fill_value = c_int(data.fill_value)
-        else:
-                fill_value = c_int(libCFConfig.NC_FILL_INT)
-    else:
-        raise CDMSError, "ERROR in %s: getFillValue(data): " + \
-            " unsupported data type %s" \
-            % (__FILE__, str(data.dtype))
-
-    return fill_value
-
-
-def getNetCDFFillValue(dtype):
-    """
-    Get the NetCDF fill value
-    @param dtype numpy data type, e.g. numpy.float32
-    """
-    if dtype == numpy.float64:
-        return libCFConfig.NC_FILL_DOUBLE
-    elif dtype == numpy.float32:
-        return libCFConfig.NC_FILL_FLOAT
-    elif dtype == numpy.int32:
-        return libCFConfig.NC_FILL_INT
-    elif dtype == numpy.int16:
-        return libCFConfig.NC_FILL_SHORT
-    elif dtype == numpy.int8:
-        return libCFConfig.NC_FILL_BYTE
-    else:
-        raise CDMSError, "ERROR in %s: invalid type %s" \
-            % (__FILE__, str(dtype))
 
 def getTensorProduct(axis, dim, dims):
     """
@@ -145,7 +88,7 @@ def makeCurvilinear(coords):
             o1 = numpy.ones( (len(coords[0]),), coords[i].dtype )
             coords[i] = numpy.ma.outer(o1, coords[i]).reshape(dims)
         else:
-            raise CDMSError, \
+            raise RegridError, \
                 "ERROR in %s: funky mixture of axes and curvilinear coords %s" \
                 % (__FILE__, str([x.shape for x in coords]))
     return coords, dims
@@ -357,7 +300,7 @@ def handleCoordsCut(coords, dims, bounds):
 class Regrid:
 
     def __init__(self, src_grid, dst_grid, src_bounds=None, mkCyclic=False,
-                 handleCut=False, diagnostics=False):
+                 handleCut=False, verbose=False):
         """
         Constructor
 
@@ -370,7 +313,7 @@ class Regrid:
                a cyclic grid
         @param handleCut Add a row to the top of grid to handle a cut for
                grids such as the tri-polar grid
-        @param diagnostics print diagnostic messages
+        @param verbose print diagnostic messages
         @note the grid coordinates can either be axes (rectilinear grid) or
               n-dimensional for curvilinear grids. Rectilinear grids will
               be converted to curvilinear grids.
@@ -387,7 +330,7 @@ class Regrid:
         self.extendedGrid = False
         self.handleCut = False
         self.dst_Index = []
-        self.diagnostics = diagnostics
+        self.verbose = verbose
         self.weightsComputed = False
         self.maskSet = False
 
@@ -403,20 +346,20 @@ class Regrid:
                     pass
         if self.lib == None:
             if not dynLibFound:
- 	        raise CDMSError, "ERROR in %s: could not find shared library %s.{so,dylib,dll,DLL}" \
+ 	        raise RegridError, "ERROR in %s: could not find shared library %s.{so,dylib,dll,DLL}" \
                 % (__FILE__, LIBCFDIR)
-            raise CDMSError, "ERROR in %s: could not open shared library %s.{so,dylib,dll,DLL}" \
+            raise RegridError, "ERROR in %s: could not open shared library %s.{so,dylib,dll,DLL}" \
                 % (__FILE__, LIBCFDIR)
 
         # Number of space dimensions
         self.rank = len(src_grid)
 
         if len(dst_grid) != self.rank:
-            raise CDMSError, "ERROR in %s: len(dst_grid) = %d != %d" \
+            raise RegridError, "ERROR in %s: len(dst_grid) = %d != %d" \
                 % (__FILE__, len(dst_grid), self.rank)
 
         if self.rank <= 0:
-            raise CDMSError, \
+            raise RegridError, \
                 "ERROR in %s: must have at least one dimension, rank = %d" \
                 % (__FILE__, self.rank)
 
@@ -428,7 +371,7 @@ class Regrid:
         # Make sure coordinates wrap around if mkCyclic is True
         if mkCyclic:
             src_gridNew, src_dimsNew = makeCoordsCyclic(src_grid, src_dims)
-            if self.diagnostics:
+            if self.verbose:
                 aa, bb = str(src_dims), str(src_dimsNew)
                 print '...  src_dims = %s, after making cyclic src_dimsNew = %s' \
                     % (aa, bb)
@@ -459,7 +402,7 @@ class Regrid:
                 else:
                     self.handleCut = False
                     self.extendedGrid = self.extendedGrid
-                if self.diagnostics:
+                if self.verbose:
                     aa, bb = str(src_dims), str(src_dimsNew)
                     print '...  src_dims = %s, after making cyclic src_dimsNew = %s' \
                         % (aa, bb)
@@ -572,7 +515,7 @@ class Regrid:
         mask is a property of the grid (not the data).
         """
         if self.weightsComputed:
-            raise CDMSError, 'Must set mask before computing weights'
+            raise RegridError, 'Must set mask before computing weights'
     
         mask = numpy.array(inMask, dtype = numpy.int32)
     
@@ -586,7 +529,7 @@ class Regrid:
 
     def setMask(self, inDataOrMask):
         """
-        Set mask array for grid
+        Set mask array. The mask is defined for nodes
         @param inDataOrMask cdms2 array or flat mask array, 
                                 0 - valid data
                                 1 - invalid data      
@@ -620,72 +563,65 @@ class Regrid:
         catchError(status, sys._getframe().f_lineno)
         self.weightsComputed = True
 
-    def apply(self, src_data_in, dst_data):
+    def apply(self, src_data_in, dst_data, missingValue = None):
         """
         Apply interpolation
         @param src_data data on source grid
         @param dst_data data on destination grid
-        @note destination coordinates falling outside the valid domain
-              of src_data will not be interpoloted, the corresponding
-              dst_data will not be touched.
+        @param missingValue value that should be set for points falling outside the src domain, 
+                            pass None if these should not be touched.
         """
         if not self.weightsComputed:
-            raise CDMSError, 'Weights must be set before applying the regrid'
+            raise RegridError, 'Weights must be set before applying the regrid'
         # extend src data if grid was made cyclic and or had a cut accounted for
         src_data = self._extend(src_data_in)
 
         # Check
         if reduce(operator.iand, [src_data.shape[i] == self.src_dims[i] \
                                  for i in range(self.rank)]) == False:
-            raise CDMSError, ("ERROR in %s: supplied src_data have wrong shape " \
+            raise RegridError, ("ERROR in %s: supplied src_data have wrong shape " \
                                   + "%s != %s") % (__FILE__, str(src_data.shape), \
                                      str(tuple([d for d in self.src_dims])))
         if reduce(operator.iand, [dst_data.shape[i] == self.dst_dims[i] \
                                  for i in range(self.rank)]) == False:
-            raise CDMSError, ("ERROR ins: supplied dst_data have wrong shape " \
+            raise RegridError, ("ERROR ins: supplied dst_data have wrong shape " \
                 + "%s != %s") % (__FILE__, str(dst_data.shape),
                                  str(self.dst_dims))
 
-        # Create data objects
+        # Create temporary data objects
         src_dataid = c_int(-1)
         dst_dataid = c_int(-1)
         save = 0
         standard_name = ""
         units = ""
         time_dimname = ""
-        if cdms2.isVariable(src_data_in): 
-            if hasattr(src_data_in, 'standard_name'): 
-                standard_name = src_data_in.standard_name
-            if hasattr(src_data_in, 'units'): 
-                units = src_data_in.units
-            order = src_data_in.getOrder()
-            if 't' in order: 
-                t = src_data_in.getTime()
-                time_dimname = t.id
 
         status = self.lib.nccf_def_data(self.src_gridid, "src_data", \
                                         standard_name, units, time_dimname, \
                                         byref(src_dataid))
         catchError(status, sys._getframe().f_lineno)
 
-        if not hasattr(src_data, 'fill_value'):
-            src_data = numpy.ma.masked_array(src_data)
+        if src_data.dtype != dst_data.dtype:
+            raise RegridError, "ERROR in %s: mismatch in src and dst data types (%s vs %s)" \
+                % (__FILE__, src_data.dtype, dst_data.dtype)
 
         # only float64 and float32 data types are supported for interpolation
         if src_data.dtype == numpy.float64:
-            fill_value = getFillValue(src_data)
-            status = self.lib.nccf_set_data_double(src_dataid,
-                                     src_data.ctypes.data_as(POINTER(c_double)),
-                                                   save, fill_value)
+            fill_value = c_double(libCFConfig.NC_FILL_DOUBLE)
+            if missingValue is not None:
+                fill_value = c_double(missingValue)
+            ptr = src_data.ctypes.data_as(POINTER(c_double))
+            status = self.lib.nccf_set_data_double(src_dataid, ptr, save, fill_value)
             catchError(status, sys._getframe().f_lineno)
         elif src_data.dtype == numpy.float32:
-            fill_value = getFillValue(src_data)
-            status = self.lib.nccf_set_data_float(src_dataid,
-                                     src_data.ctypes.data_as(POINTER(c_float)),
-                                                  save, fill_value)
+            fill_value = c_float(libCFConfig.NC_FILL_FLOAT)
+            if missingValue is not None:
+                fill_value = c_float(missingValue)
+            ptr = src_data.ctypes.data_as(POINTER(c_float))
+            status = self.lib.nccf_set_data_float(src_dataid, ptr, save, fill_value)
             catchError(status, sys._getframe().f_lineno)
         else:
-            raise CDMSError, "ERROR in %s: invalid src_data type = %s" \
+            raise RegridError, "ERROR in %s: invalid src_data type %s (neither float nor double)" \
                 % (__FILE__, src_data.dtype)
 
         status = self.lib.nccf_def_data(self.dst_gridid, "dst_data", \
@@ -694,18 +630,22 @@ class Regrid:
         catchError(status, sys._getframe().f_lineno)
         if dst_data.dtype == numpy.float64:
             fill_value = c_double(libCFConfig.NC_FILL_DOUBLE)
-            status = self.lib.nccf_set_data_double(dst_dataid,
-                                                   dst_data.ctypes.data_as(POINTER(c_double)),
-                                                   save, fill_value)
+            if missingValue is not None:
+                fill_value = c_double(missingValue)
+                dst_data[:] = missingValue
+            ptr = dst_data.ctypes.data_as(POINTER(c_double))
+            status = self.lib.nccf_set_data_double(dst_dataid, ptr, save, fill_value)
             catchError(status, sys._getframe().f_lineno)
         elif dst_data.dtype == numpy.float32:
             fill_value = c_float(libCFConfig.NC_FILL_FLOAT)
-            status = self.lib.nccf_set_data_float(dst_dataid,
-                                                  dst_data.ctypes.data_as(POINTER(c_float)),
-                                                  save, fill_value)
+            if missingValue is not None:
+                fill_value = c_float(missingValue)
+                dst_data[:] = missingValue
+            ptr = dst_data.ctypes.data_as(POINTER(c_float))
+            status = self.lib.nccf_set_data_float(dst_dataid, ptr, save, fill_value)
             catchError(status, sys._getframe().f_lineno)
         else:
-            raise CDMSError, "ERROR in %s: invalid dst_data type = %s" \
+            raise RegridError, "ERROR in %s: invalid dst_data type = %s" \
                 % (__FILE__, dst_data.dtype)
 
         # Now apply weights
@@ -720,16 +660,15 @@ class Regrid:
 
         return dst_data
 
-    def __call__(self, src_data, dst_data):
+    def __call__(self, src_data, dst_data, missingValue = None):
         """
         Apply interpolation (synonymous to apply method)
         @param src_data data on source grid
         @param dst_data data on destination grid
-        @note destination coordinates falling outside the valid domain
-              of src_data will not be interpoloted, the corresponding
-              dst_data will not be touched.
+        @param missingValue value that should be set for points falling outside the src domain, 
+                            pass None if these should not be touched.
         """
-        self.apply(src_data, dst_data)
+        self.apply(src_data, dst_data, missingValue)
 
 
     def getNumValid(self):
