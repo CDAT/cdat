@@ -206,6 +206,10 @@ class CdmsRegrid:
                              missingValue = missingValue, 
                              **args)
 
+ 	# fill in diagnostic data
+	if args.has_key('diag'):
+	    self.regridObj.fillInDiagnosticData(diag = args['diag'], rootPe = 0)
+
         # construct the axis list for dstVar
         dstAxisList = _getAxisList(srcVar, self.dstGrid)
 
@@ -216,7 +220,7 @@ class CdmsRegrid:
             if type(v) is types.StringType:
                 attrs[a] = v
 
-        # if the missing value is present in the destination data, set a 
+        # if the missing value is present in the destination data, set 
         # destination mask
         if numpy.any(dstData == missingValue): 
             dstMask = (dstData == missingValue)

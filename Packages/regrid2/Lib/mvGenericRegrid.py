@@ -192,3 +192,14 @@ class GenericRegrid:
         @return local grid on this processor
         """
         return self.tool.getDstGrid()
+
+    def fillInDiagnosticData(self, diag, rootPe = 0):
+        """
+        Fill in diagnostic data
+        @param diag a dictionary whose entries, if present, will be filled
+                    entries are tool dependent
+        @param rootPe root processor where data should be gathered (or 
+                      None if local areas are to be returned)
+        """
+	self.tool.fillInDiagnosticData(diag, rootPe = rootPe)
+

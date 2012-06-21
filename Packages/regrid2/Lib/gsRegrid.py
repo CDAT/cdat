@@ -300,7 +300,7 @@ def handleCoordsCut(coords, dims, bounds):
 class Regrid:
 
     def __init__(self, src_grid, dst_grid, src_bounds=None, mkCyclic=False,
-                 handleCut=False, diagnostics=False):
+                 handleCut=False, verbose=False):
         """
         Constructor
 
@@ -313,7 +313,7 @@ class Regrid:
                a cyclic grid
         @param handleCut Add a row to the top of grid to handle a cut for
                grids such as the tri-polar grid
-        @param diagnostics print diagnostic messages
+        @param verbose print diagnostic messages
         @note the grid coordinates can either be axes (rectilinear grid) or
               n-dimensional for curvilinear grids. Rectilinear grids will
               be converted to curvilinear grids.
@@ -330,7 +330,7 @@ class Regrid:
         self.extendedGrid = False
         self.handleCut = False
         self.dst_Index = []
-        self.diagnostics = diagnostics
+        self.verbose = verbose
         self.weightsComputed = False
         self.maskSet = False
 
@@ -371,7 +371,7 @@ class Regrid:
         # Make sure coordinates wrap around if mkCyclic is True
         if mkCyclic:
             src_gridNew, src_dimsNew = makeCoordsCyclic(src_grid, src_dims)
-            if self.diagnostics:
+            if self.verbose:
                 aa, bb = str(src_dims), str(src_dimsNew)
                 print '...  src_dims = %s, after making cyclic src_dimsNew = %s' \
                     % (aa, bb)
@@ -402,7 +402,7 @@ class Regrid:
                 else:
                     self.handleCut = False
                     self.extendedGrid = self.extendedGrid
-                if self.diagnostics:
+                if self.verbose:
                     aa, bb = str(src_dims), str(src_dimsNew)
                     print '...  src_dims = %s, after making cyclic src_dimsNew = %s' \
                         % (aa, bb)

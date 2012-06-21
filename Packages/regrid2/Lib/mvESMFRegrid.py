@@ -263,4 +263,19 @@ staggerLoc = %s!""" % staggerLoc
         if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
             return self.regridObj.getSrcAreaFractions(rootPe = rootPe)
         else:
-            return None
+            return 
+
+    def fillInDiagnosticData(self, diag, rootPe = None):
+        """
+        Fill in diagnostic data
+        @param diag a dictionary whose entries, if present, will be filled
+                    valid entries are: 'srcAreaFractions', 'dstAreaFractions',
+                                       'srcAreas', 'dstAreas'
+        @param rootPe root processor where data should be gathered (or 
+                      None if local areas are to be returned)
+        """
+	for entry in  'srcAreaFractions', 'dstAreaFractions',  'srcAreas', 'dstAreas':
+		if diag.has_key(entry):
+			meth = 'get' + entry[0].upper() + entry[1:]
+			diag[entry] = eval('self.regridObj.' + meth + '(rootPe = rootPe)')
+
