@@ -51,32 +51,20 @@ def _getBoundList(coordList):
 
 def _getCoordList(grid):
     """
-    Return a coordinate list from a CDMS grid
-    @return [lats, lons] 
+    Return a CDMS coordinate list from a CDMS grid
+    @return lats, lons
     """
     lats = grid.getLatitude()
     lons = grid.getLongitude()
-    shp = grid.shape
   
-    # Initial try at dealing with Curvilinear grids.
-    # Assume lat lon Order!
-    if len(lats.shape) > 1:
-        return lats, lons
+    if len(lats.shape) == 1 or len(lats.shape) == 1:
+        # have axes, need to convert to curvilinear grid
+        cgrid = grid.toCurveGrid()
+        lats = cgrid.getLatitude()
+        lons = cgrid.getLongitude()
 
-    if grid.getAxis(0).isLatitude():
-        # looks like order is lats, lons
-        # turn into curvilinear, if need be
-        if len(lats.shape) == 1:
-            lats = grid.toCurveGrid().getLatitude()
-            lons = grid.toCurveGrid().getLongitude()
-        return lats, lons
-
-    # looks like order is lons, lats
-    if len(lats.shape) == 1:
-        lats = regrid2.gsRegrid.getTensorProduct(lats[:], 1, shp)
-    if len(lons.shape) == 1:
-        lons = regrid2.gsRegrid.getTensorProduct(lons[:], 0, shp)
-    return lons, lats
+    # we always want the coordinates in that order
+    return lats, lons
 
 def _getAxisList(srcVar, dstGrid):
     """
