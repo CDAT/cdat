@@ -62,6 +62,11 @@ def _getCoordList(grid):
         cgrid = grid.toCurveGrid()
         lats = cgrid.getLatitude()
         lons = cgrid.getLongitude()
+        if grid.getOrder() == 'xy':
+            # toCurveGrid returns coordinates in the wrong
+            # shape if order is 'xy'
+            lats = lats.transpose()
+            lons = lons.transpose()
 
     # we always want the coordinates in that order
     return lats, lons
