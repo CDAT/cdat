@@ -434,13 +434,13 @@ class EsmfRegrid:
                                                 name = 'src_areas',
                                                 data = None,
                                                 staggerloc = center)
-            dataPtr = self.srcFracField.getPointer()
+            dataPtr = self.srcAreaField.getPointer()
             dataPtr[:] = 0.0
             self.dstAreaField = EsmfStructField(self.dstField.grid,
                                                 name = 'dst_areas',
                                                 data = None,
                                                 staggerloc = center)
-            dataPtr = self.srcFracField.getPointer()
+            dataPtr = self.dstAreaField.getPointer()
             dataPtr[:] = 0.0
 
         # initialize fractional areas to 1 (unless supplied)
