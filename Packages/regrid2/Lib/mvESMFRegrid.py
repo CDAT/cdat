@@ -34,7 +34,8 @@ class ESMFRegrid(GenericRegrid):
     def __init__(self, srcGrid, dstGrid, 
                  regridMethod, staggerLoc, periodicity, coordSys,
                  srcGridMask = None, srcBounds = None, srcGridAreas = None,
-                 dstGridMask = None, dstBounds = None, dstGridAreas = None):
+                 dstGridMask = None, dstBounds = None, dstGridAreas = None,
+                 **args):
         """
         Constructor
         @param srcGrid list [[z], y, x] of source grid arrays

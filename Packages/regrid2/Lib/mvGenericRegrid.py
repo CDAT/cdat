@@ -60,7 +60,9 @@ class GenericRegrid:
            re.search('gsreg', regridTool.lower()):
             # LibCF
             self.tool = regrid2.LibCFRegrid(srcGrid, dstGrid, 
-                 srcGridMask = srcGridMask, srcBounds = srcBounds, **args)
+                 srcGridMask = srcGridMask, 
+                 srcBounds = srcBounds, 
+                 **args)
         elif re.search('esm', regridTool.lower()):
             # ESMF
             staggerLoc = args.get('staggerLoc', 'center') 
@@ -77,10 +79,12 @@ class GenericRegrid:
                   staggerLoc = staggerLoc,
                   periodicity = periodicity,
                   coordSys = coordSys,                 
-                  srcGridMask=srcGridMask, srcBounds=srcBounds, 
-                  srcGridAreas=srcGridAreas,
-                  dstGridMask=dstGridMask, dstBounds=dstBounds, 
-                  dstGridAreas=dstGridAreas,
+                  srcGridMask = srcGridMask, 
+                  srcBounds = srcBounds, 
+                  srcGridAreas = srcGridAreas,
+                  dstGridMask = dstGridMask, 
+                  dstBounds = dstBounds, 
+                  dstGridAreas = dstGridAreas,
                   **args)
     
     def computeWeights(self, **args):
