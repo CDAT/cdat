@@ -23,7 +23,7 @@ class MultiArrayIter:
         @param rowMajor True if ro major, False if column major
         """
         self.dims = dims
-        self.ntot = reduce(operator.mul, self.dims)
+        self.ntot = reduce(operator.mul, self.dims, 0)
         self.ndims = len(self.dims)
         self.big_index = -1
         self.dimProd = [1 for i in range(self.ndims)]
