@@ -71,6 +71,41 @@ def _getCoordList(grid):
     # we always want the coordinates in that order
     return lats, lons
 
+def _getDstDataShape(srcVar, dstGrid):
+    """
+    Get the shape of the dst data
+    @param srcVar the variable from which all axes other than lat/lon 
+                  will be taken from
+    @param dstGrid target, horizontal grid
+    @return list
+    """
+    
+    shp = srcVar.shape
+    ndims = len(shp)
+    order = srcVar.getOrder()
+    numX = order.count('x')
+    numY = order.count('y')
+    hasXY = (numX == 1) and (numY == 1)
+
+    # fill in the axis list backwards, we're assuming the 
+    # y and x axes are more likely to occur at the end
+    dstDataShape = []
+    found = False
+    j = 2
+    for i in range(ndims-1, -1, -1):
+        o = order[i]
+        if not found and (o in 'xy') or (not hasXY and o == '-'):
+            # add size from dst grid
+            j -= 1
+            dstDataShape = [dstGrid.shape[j],] + dstDataShape
+            if j == 0:
+                found = True
+        else:
+            # add size from src variable
+            dstDataShape = [srcVar.shape[i],] + dstDataShape
+
+    return dstDataShape
+
 def _getAxisList(srcVar, dstGrid):
     """
     Get the list of axes from a variable and a grid
@@ -187,7 +222,7 @@ class CdmsRegrid:
         levelAxis = srcVar.getLevel()
         
         # shape of dst var
-        dstShape = list(srcVar.shape[:-2]) + list(self.dstGrid.shape)
+        dstShape = _getDstDataShape(srcVar, self.dstGrid)
 
         # establish the destination data. Initialize to missing values or 0.
         dstData = numpy.ones(dstShape, dtype = srcVar.dtype)
