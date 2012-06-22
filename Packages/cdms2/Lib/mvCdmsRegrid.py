@@ -148,8 +148,8 @@ class CdmsRegrid:
     regridder. If a multidimensional variable is passed in, the apply step
     loops over the axes above the Lat (Y) -- Lon (X) coordinates
     """
-    def __init__(self, srcGrid, dstGrid, 
-                 regridMethod = 'linear', regridTool = 'libCF', 
+    def __init__(self, srcGrid, dstGrid, dtype, 
+                 regridMethod = 'linear', regridTool = 'libCF',
                  srcGridMask = None, srcGridAreas = None,
                  dstGridMask = None, dstGridAreas = None,
                  **args):
@@ -159,6 +159,7 @@ class CdmsRegrid:
 
         @param srcGrid CDMS source grid
         @param dstGrid CDMS destination grid
+	@param dtype numpy data type for src and dst data
         @param regridMethod linear (all tools - bi, tri), 
                             conserve (ESMF Only)
                             patch (ESMF Only)
@@ -196,6 +197,7 @@ class CdmsRegrid:
         self.regridObj = regrid2.GenericRegrid(srcCoords, dstCoords, 
                                                regridMethod = regridMethod, 
                                                regridTool = regridTool,
+                                               dtype = dtype,
                                                srcGridMask = srcGridMask, 
                                                srcBounds = srcBounds, 
                                                srcGridAreas = srcGridAreas,

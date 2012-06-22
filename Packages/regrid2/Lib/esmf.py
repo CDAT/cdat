@@ -278,7 +278,7 @@ class EsmfStructField:
     """
     Structured field.
     """
-    def __init__(self, esmfGrid, name, data = None,
+    def __init__(self, esmfGrid, name, data,
                  staggerloc = ESMP.ESMP_STAGGERLOC_CENTER):
         """
         Creator for structured ESMF Field
@@ -320,9 +320,10 @@ class EsmfStructField:
         else:
             etype = ESMP.ESMP_TYPEKIND_R8
 
-        self.field = ESMP.ESMP_FieldCreateGrid(esmfGrid.grid, name,
-                        staggerloc = staggerloc,
-                        typekind = etype)
+        self.field = ESMP.ESMP_FieldCreateGrid(esmfGrid.grid, 
+                                               name,
+                                               staggerloc = staggerloc,
+                                               typekind = etype)
 
         # Copy the data
         if data is not None:

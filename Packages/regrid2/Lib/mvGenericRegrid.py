@@ -23,6 +23,7 @@ class GenericRegrid:
     Generic Regrid class.
     """
     def __init__(self, srcGrid, dstGrid, 
+                 dtype,
                  regridMethod, 
                  regridTool,
                  srcGridMask = None, srcBounds = None, srcGridAreas = None,
@@ -32,6 +33,7 @@ class GenericRegrid:
         Constructor. 
         @param srcGrid array
         @param dstGrid array
+	@param dtype numpy data type for src/dst data
         @param regridMethod linear (bi, tri,...) default or conservative
         @param regridTool 'libcf' or 'esmf'
         @param srcGridMask array of same shape as srcGrid
@@ -75,10 +77,11 @@ class GenericRegrid:
             if args.has_key('coordSys'):
                 del args['coordSys']
             self.tool = regrid2.ESMFRegrid(srcGrid, dstGrid,
+                  dtype = dtype,               
                   regridMethod = regridMethod, 
                   staggerLoc = staggerLoc,
                   periodicity = periodicity,
-                  coordSys = coordSys,                 
+                  coordSys = coordSys, 
                   srcGridMask = srcGridMask, 
                   srcBounds = srcBounds, 
                   srcGridAreas = srcGridAreas,
