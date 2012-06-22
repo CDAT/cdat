@@ -80,23 +80,32 @@ def _getAxisList(srcVar, dstGrid):
     @return variable with non-horizontal axes from srcVar and horizontal axes
             from dstGrid
     """
-
-    # harvest the axis list form srcVar, start with all axes other than 
-    # lat/lon
     
-    # ASSUMING y, x axes are the last two axes.
-    # From the source axis list get every axis up to these.
-    svAxisList = srcVar.getAxisList()[:-2]
+    shp = srcVar.shape
+    ndims = len(shp)
+    order = srcVar.getOrder()
+    numX = order.count('x')
+    numY = order.count('y')
+    hasXY = (numX == 1) and (numY == 1)
 
-    # From the destination grid get the horizontal axes!
-    try:
-        dgAxisList = list(dstGrid.getAxisList()[-2:])
-    except:
-        dgAxisList = []
-        dgAxisList.append(dstGrid.getLatitude())
-        dgAxisList.append(dstGrid.getLongitude())
+    # fill in the axis list backwards, we're assuming the 
+    # y and x axes are more likely to occur at the end
+    axisList = []
+    found = False
+    j = 2
+    for i in range(ndims-1, -1, -1):
+        o = order[i]
+        if not found and (o in 'xy') or (not hasXY and o == '-'):
+            # add axis from dst grid
+            j -= 1
+            axisList = [dstGrid.getAxis(j),] + axisList
+            if j == 0:
+                found = True
+        else:
+            # add axis from src variable
+            axisList = [srcVar.getAxis(i),] + axisList
 
-    return svAxisList + dgAxisList
+    return axisList
 
 class CdmsRegrid:
     """
