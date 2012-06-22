@@ -103,7 +103,7 @@ class esgfConnection(object,AutoAPI.AutoAPI):
         while search[0]=="&":
             search=search[1:]
         rqst = "%s/?type=%s&%s" % (self.restPath,searchType,search)
-        #print "REQUEST: %s%s" % (self.host,rqst)
+        print "REQUEST: %s%s" % (self.host,rqst)
         if self.host.find("://")>-1:
             urltype=""
         else:
@@ -169,6 +169,7 @@ class esgfConnection(object,AutoAPI.AutoAPI):
         r=[]
         limit = self["limit"]
         while cont:
+            print "Continuing",limit
             self["offset"]=numFound
             if limit is None or limit>1000:
                 self["limit"]=1000
@@ -186,6 +187,7 @@ class esgfConnection(object,AutoAPI.AutoAPI):
             else:
                 if numFound>=limit:
                     cont=False
+            print "N is:",numFound,n
         self["limit"]=limit
         self["offset"]=0
         return r
@@ -437,12 +439,16 @@ class esgfDataset(esgfConnection):
         stringType=keys.get("stringType",False)
         keys.update(self.originalKeys)
         st=""
-        for k in keys.keys():
+        if not "limit" in keys:
+            keys["limit"]=self["limit"]
+        if not "offset" in keys:
+            keys["offset"]=self["offset"]
+        for k in keys:
             if k in ["searchString","stringType",]:
                 continue
             st+="&%s=%s" % (k,keys[k])
         if self.resp is None:
-            self.resp = self._search("dataset_id=%s&limit=%s&offset=%s%s" % (self["id"],self["limit"],self["offset"],st),stringType=stringType)
+            self.resp = self._search("dataset_id=%s%s" % (self["id"],st),stringType=stringType)
         if stringType:
             return self.resp
         return esgfFiles(self._extractFiles(self.resp,**keys),self)
@@ -494,6 +500,16 @@ class esgfFiles(object,AutoAPI.AutoAPI):
         raise esgfFilesException("You cannot set items")
     def __len__(self):
         return len(self._files)
+    def getMapping(self):
+        if isinstance(self.mapping,genutil.StringConstructor):
+            return self.mapping.template
+        else:
+            return self.mapping
+    def getMappingKeys(self):
+        if isinstance(self.mapping,genutil.StringConstructor):
+            return self.mapping.keys()
+        else:
+            return None
     def setMapping(self,mapping):
         if mapping is None:
             self.mapping=""
