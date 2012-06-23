@@ -66,25 +66,25 @@ class ESMFRegrid(GenericRegrid):
 
         self.regridMethod = ESMP.ESMP_REGRIDMETHOD_BILINEAR
         if type(regridMethod) == types.StringType:
-            if re.search('conserv', regridMethod):
+            if re.search('conserv', regridMethod.lower()):
                 self.regridMethod = ESMP.ESMP_REGRIDMETHOD_CONSERVE
-            elif re.search('patch', regridMethod):
+            elif re.search('patch', regridMethod.lower()):
                 self.regridMethod = ESMP.ESMP_REGRIDMETHOD_PATCH
 
         # data stagger
         self.staggerloc = ESMP.ESMP_STAGGERLOC_CENTER
         if type(staggerLoc) == types.StringType:
-            if re.search('corner', staggerLoc, re.I) or \
-                    re.search('node', staggerLoc, re.I):
+            if re.search('corner', staggerLoc.lower(), re.I) or \
+                    re.search('node', staggerLoc.lower(), re.I):
                 self.staggerloc = ESMP.ESMP_STAGGERLOC_CORNER
         
         # good for now
         self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE
 
         self.coordSys = ESMP.ESMP_COORDSYS_SPH_DEG
-        if re.search('cart', coordSys):
+        if re.search('cart', coordSys.lower()):
             self.coordSys = ESMP.ESMP_COORDSYS_CART
-        elif re.search('rad', coordSys):
+        elif re.search('rad', coordSys.lower()):
             self.coordSys = ESMP.ESMP_COORDSYS_SPH_RAD
 
         self.periodicity = periodicity

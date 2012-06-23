@@ -154,7 +154,7 @@ class CdmsRegrid:
                  dstGridMask = None, dstGridAreas = None,
                  **args):
         """
-        Establish which regridding method to use, handles CDMS Variables before
+        Establish which regridding method to use, handle CDMS variables before
         handing off to regridder. See specific tool for more information.
 
         @param srcGrid CDMS source grid

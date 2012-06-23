@@ -31,16 +31,16 @@ class GenericRegrid:
                  **args):
         """
         Constructor. 
-        @param srcGrid array
-        @param dstGrid array
+        @param srcGrid list of arrays, source horizontal coordinates
+        @param dstGrid list of arrays, destination horizontal coordinates
 	@param dtype numpy data type for src/dst data
         @param regridMethod linear (bi, tri,...) default or conservative
         @param regridTool 'libcf' or 'esmf'
         @param srcGridMask array of same shape as srcGrid
-        @param srcBounds array of same shape as srcGrid
+        @param srcBounds list of arrays of same shape as srcGrid
         @param srcGridAreas array of same shape as srcGrid
         @param dstGridMask array of same shape as dstGrid
-        @param dstBounds array of same shape as dstGrid
+        @param dstBounds list of arrays of same shape as dstGrid
         @param dstGridAreas array of same shape as dstGrid
         @param **args additional arguments to be passed to the 
                       specific tool
@@ -135,7 +135,7 @@ class GenericRegrid:
                 srcDataMaskFloat[:] = (srcData == missingValue)
                 # interpolate mask
                 self.tool.apply(srcDataMaskFloat, dstDataMaskFloat, **args)
-                if re.search('conserv', self.regridMethod, re.I):
+                if re.search('conserv', self.regridMethod.lower(), re.I):
                     dstMask = numpy.array( (dstDataMaskFloat == 1), numpy.int32 )
                 else:
                     dstMask = numpy.array( (dstDataMaskFloat > 0), numpy.int32 )
@@ -180,7 +180,7 @@ class GenericRegrid:
                     srcDataMaskFloat[:] = (indata == missingValue)
                     # interpolate mask
                     self.tool.apply(srcDataMaskFloat, dstDataMaskFloat, **args)
-                    if re.search('conserv', self.regridMethod, re.I):
+                    if re.search('conserv', self.regridMethod.lower(), re.I):
                         # cell interpolation
                         dstMask = numpy.array( (dstDataMaskFloat == 1), numpy.int32 )
                     else:
@@ -208,5 +208,5 @@ class GenericRegrid:
         @param rootPe root processor where data should be gathered (or 
                       None if local areas are to be returned)
         """
-	self.tool.fillInDiagnosticData(diag, rootPe = rootPe)
+        self.tool.fillInDiagnosticData(diag, rootPe = rootPe)
 
