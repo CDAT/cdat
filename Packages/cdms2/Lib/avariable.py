@@ -1004,7 +1004,8 @@ avariable.regrid:
                 del keywords['regridMethod']
 
             # compute the interpolation weights
-            ro = CdmsRegrid(fromgrid, togrid,
+            ro = CdmsRegrid(fromgrid, togrid, 
+                            dtype = self.dtype,
                             regridMethod = regridMethod,
                             regridTool = regridTool,
                             srcGridMask = srcMask, **keywords)

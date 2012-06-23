@@ -31,7 +31,7 @@ class ESMFRegrid(GenericRegrid):
     """
     Regrid class for ESMF
     """
-    def __init__(self, srcGrid, dstGrid, 
+    def __init__(self, srcGrid, dstGrid, dtype,
                  regridMethod, staggerLoc, periodicity, coordSys,
                  srcGridMask = None, srcBounds = None, srcGridAreas = None,
                  dstGridMask = None, dstBounds = None, dstGridAreas = None,
@@ -40,6 +40,7 @@ class ESMFRegrid(GenericRegrid):
         Constructor
         @param srcGrid list [[z], y, x] of source grid arrays
         @param dstGrid list [[z], y, x] of dstination grid arrays
+        @param dtype a valid numpy data type for the src/dst data
         @param regridMethod 'linear', 'conserve', or 'patch'
         @param staggerLoc the staggering of the field, 'center' or 'corner'
         @param periodicity 0 (no periodicity), 
@@ -57,6 +58,7 @@ class ESMFRegrid(GenericRegrid):
         # esmf grid objects (tobe constructed)
         self.srcGrid = None
         self.dstGrid = None
+	self.dtype = dtype
 
         srcGridShape = srcGrid[0].shape
         dstGridShape = dstGrid[0].shape
@@ -64,25 +66,25 @@ class ESMFRegrid(GenericRegrid):
 
         self.regridMethod = ESMP.ESMP_REGRIDMETHOD_BILINEAR
         if type(regridMethod) == types.StringType:
-            if re.search('conserv', regridMethod):
+            if re.search('conserv', regridMethod.lower()):
                 self.regridMethod = ESMP.ESMP_REGRIDMETHOD_CONSERVE
-            elif re.search('patch', regridMethod):
+            elif re.search('patch', regridMethod.lower()):
                 self.regridMethod = ESMP.ESMP_REGRIDMETHOD_PATCH
 
         # data stagger
         self.staggerloc = ESMP.ESMP_STAGGERLOC_CENTER
         if type(staggerLoc) == types.StringType:
-            if re.search('corner', staggerLoc, re.I) or \
-                    re.search('node', staggerLoc, re.I):
+            if re.search('corner', staggerLoc.lower(), re.I) or \
+                    re.search('node', staggerLoc.lower(), re.I):
                 self.staggerloc = ESMP.ESMP_STAGGERLOC_CORNER
         
         # good for now
         self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE
 
         self.coordSys = ESMP.ESMP_COORDSYS_SPH_DEG
-        if re.search('cart', coordSys):
+        if re.search('cart', coordSys.lower()):
             self.coordSys = ESMP.ESMP_COORDSYS_CART
-        elif re.search('rad', coordSys):
+        elif re.search('rad', coordSys.lower()):
             self.coordSys = ESMP.ESMP_COORDSYS_SPH_RAD
 
         self.periodicity = periodicity
@@ -131,12 +133,12 @@ dimensions. len(srcGrid[0].shape) = %d != len(dstGrid[0].shape)""" % \
             if self.staggerloc != ESMP.ESMP_STAGGERLOC_CORNER:
                 # cell field, need to provide the bounds
                 self.srcGrid.setCoords(srcBounds, 
-                               staggerloc = ESMP.ESMP_STAGGERLOC_CORNER)
+                                       staggerloc = ESMP.ESMP_STAGGERLOC_CORNER)
 
         # create destination Grid
         self.dstGrid = esmf.EsmfStructGrid(dstGrid[0].shape, 
-                                coordSys = self.coordSys,
-                                periodicity = self.periodicity)
+                                           coordSys = self.coordSys,
+                                           periodicity = self.periodicity)
         self.dstGrid.setCoords(dstGrid, staggerloc = self.staggerloc)
         if dstGridMask is not None:
             self.dstGrid.setMask(dstGridMask)
@@ -145,7 +147,7 @@ dimensions. len(srcGrid[0].shape) = %d != len(dstGrid[0].shape)""" % \
             # Coords are CENTER (cell) based, bounds are CORNER (nodal)
             if self.staggerloc != ESMP.ESMP_STAGGERLOC_CORNER:
                 self.dstGrid.setCoords(dstBounds, 
-                                   staggerloc = ESMP.ESMP_STAGGERLOC_CORNER)
+                                       staggerloc = ESMP.ESMP_STAGGERLOC_CORNER)
             elif self.staggerloc == ESMP.ESMP_STAGGERLOC_CORNER:
                 msg = """
 mvESMFRegrid.ESMFRegrid.__init__: can't set the dst bounds for 
@@ -153,22 +155,20 @@ staggerLoc = %s!""" % staggerLoc
                 raise RegridError, msg
 
         # dummy fields required in order to instantiate the regrid object
-        sDV = numpy.array(srcGrid[0][:]) * 0.0
-        dDV = numpy.array(dstGrid[0][:]) * 0.0
         self.srcFld = esmf.EsmfStructField(self.srcGrid, 'srcFld', 
-                                                sDV, 
-                                                staggerloc = self.staggerloc)
+                                           numpy.zeros(srcGrid[0].shape, dtype=self.dtype), 
+                                           staggerloc = self.staggerloc)
         self.dstFld = esmf.EsmfStructField(self.dstGrid, 'dstFld', 
-                                                dDV, 
-                                                staggerloc = self.staggerloc)
+                                           numpy.zeros(dstGrid[0].shape, dtype=self.dtype),
+                                           staggerloc = self.staggerloc)
 
         # prepare the fractional area fields for conservativation check
         if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
             self.srcFracFld = esmf.EsmfStructField(self.srcGrid, 'srcFrac',
-                                       sDV,
+                                       numpy.ones(srcGrid[0].shape, dtype=srcGrid[0].dtype),
                                        staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
             self.dstFracFld = esmf.EsmfStructField(self.dstGrid, 'dstFrac',
-                                       dDV,
+                                       numpy.ones(dstGrid[0].shape, dtype=dstGrid[0].dtype),
                                        staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
                                         
 
