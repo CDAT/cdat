@@ -185,7 +185,7 @@ staggerLoc = %s!""" % staggerLoc
                                   regridMethod = self.regridMethod,
                                   unMappedAction = self.unMappedAction)
 
-    def apply(self, srcData, dstData, rootPe = None, **args):
+    def apply(self, srcData, dstData, rootPe, **args):
         """
         Regrid source to destination
         @param srcData array Full source data shape
@@ -217,7 +217,7 @@ staggerLoc = %s!""" % staggerLoc
         return [self.dstGrid.getCoords(i, staggerloc=self.staggerloc) \
                     for i in range(self.ndims)]
 
-    def getSrcAreas(self, rootPe = None):
+    def getSrcAreas(self, rootPe):
         """
         Get the source grid cell areas
         @param rootPe root processor where data should be gathered (or 
@@ -230,7 +230,7 @@ staggerLoc = %s!""" % staggerLoc
             return None
         
 
-    def getDstAreas(self, rootPe = None):
+    def getDstAreas(self, rootPe):
         """
         Get the destination grid cell areas
         @param rootPe root processor where data should be gathered (or 
@@ -242,7 +242,7 @@ staggerLoc = %s!""" % staggerLoc
         else:
             return None
 
-    def getSrcAreaFractions(self, rootPe = None):
+    def getSrcAreaFractions(self, rootPe):
         """
         Get the source grid area fractions
         @param rootPe root processor where data should be gathered (or 
@@ -250,11 +250,11 @@ staggerLoc = %s!""" % staggerLoc
         @return fractional areas or None (if non-conservative)
         """
         if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-            return self.regridObj.getSrcAreaFractions(rootPe = rootPe)
+            return self.regridObj.getSrcAreaFractions(rootPe = rootPe) 
         else:
             return None
 
-    def getDstAreaFractions(self, rootPe = None):
+    def getDstAreaFractions(self, rootPe):
         """
         Get the destination grid area fractions
         @param rootPe root processor where data should be gathered (or 
@@ -266,7 +266,7 @@ staggerLoc = %s!""" % staggerLoc
         else:
             return 
 
-    def fillInDiagnosticData(self, diag, rootPe = None):
+    def fillInDiagnosticData(self, diag, rootPe):
         """
         Fill in diagnostic data
         @param diag a dictionary whose entries, if present, will be filled

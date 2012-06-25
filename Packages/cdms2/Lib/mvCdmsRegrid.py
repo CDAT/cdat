@@ -233,8 +233,9 @@ class CdmsRegrid:
         else: 
             dstData *= 0.0
         
-        # interpolate the data
+        # interpolate the data, MPI gather on processor 0
         self.regridObj.apply(srcVar.data, dstData, 
+                             rootPe = 0, 
                              missingValue = missingValue, 
                              **args)
 
