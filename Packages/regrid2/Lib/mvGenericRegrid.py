@@ -174,13 +174,14 @@ class GenericRegrid:
                 indata = eval('srcData' + slce)
 
                 # interpolate, using the appropriate tool
-                self.tool.apply(indata, outdata, **args)
+                self.tool.apply(indata, outdata, rootPe = rootPe, **args)
 
                 # adjust for masking
                 if missingValue is not None:
                     srcDataMaskFloat[:] = (indata == missingValue)
                     # interpolate mask
-                    self.tool.apply(srcDataMaskFloat, dstDataMaskFloat, **args)
+                    self.tool.apply(srcDataMaskFloat, dstDataMaskFloat, 
+                                    rootPe = rootPe, **args)
                     if re.search('conserv', self.regridMethod.lower(), re.I):
                         # cell interpolation
                         dstMask = numpy.array( (dstDataMaskFloat == 1), numpy.int32 )
