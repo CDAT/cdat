@@ -23,8 +23,8 @@ set(mpiuni @mpiuni@)
 set(ESMF_pthreads @ESMF_pthreads@)
 
 # Store the configuration used to build ESMF
-set(infile @ESMF_source@/set_ESMF_env_ser.sh.in)
-set(outfile @ESMF_source@/set_ESMF_env_ser.sh)
+set(infile @ESMF_source@/set_esmf_env_ser.sh.in)
+set(outfile @ESMF_source@/set_esmf_env_ser.sh)
 configure_file(${infile} ${outfile})
 
 

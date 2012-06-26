@@ -159,7 +159,7 @@ class CdmsRegrid:
 
         @param srcGrid CDMS source grid
         @param dstGrid CDMS destination grid
-	@param dtype numpy data type for src and dst data
+        @param dtype numpy data type for src and dst data
         @param regridMethod linear (all tools - bi, tri), 
                             conserve (ESMF Only)
                             patch (ESMF Only)
@@ -189,10 +189,14 @@ class CdmsRegrid:
         # retrieve and build a bounds list for conservative from the grids
         # We can't use the coords lists because if they are converted to 
         # curvilinear
+        # Set the tool to esmf if conservative selected. This overrides the
+        # regridTool selection
         self.regridMethod = regridMethod
         if re.search( 'conserv', regridMethod.lower()):
             srcBounds = _getBoundList(srcCoords)
             dstBounds = _getBoundList(dstCoords)
+            if not re.search('esmp', regridTool.lower()):
+                regridTool = 'esmf'
 
         self.regridObj = regrid2.GenericRegrid(srcCoords, dstCoords, 
                                                regridMethod = regridMethod, 
@@ -233,8 +237,9 @@ class CdmsRegrid:
         else: 
             dstData *= 0.0
         
-        # interpolate the data
+        # interpolate the data, MPI gather on processor 0
         self.regridObj.apply(srcVar.data, dstData, 
+                             rootPe = 0, 
                              missingValue = missingValue, 
                              **args)
 
@@ -268,11 +273,11 @@ class CdmsRegrid:
                                       attributes = attrs, 
                                       id = srcVar.id + '_CdmsRegrid')
         
-        if re.search(self.regridMethod.lower(), 'conserv'):
-            self.srcGridAreas = self.regridObj.getSrcAreas(rootPe = 0)
-            self.dstGridAreas = self.regridObj.getDstAreas(rootPe = 0)
-            self.srcFractions = self.regridObj.getSrcAreaFractions(rootPe = 0)
-            self.dstFractions = self.regridObj.getDstAreaFractions(rootPe = 0)
+#        if re.search(self.regridMethod.lower(), 'conserv'):
+#            self.srcGridAreas = self.regridObj.tool.getSrcAreas(rootPe = 0)
+#            self.dstGridAreas = self.regridObj.tool.getDstAreas(rootPe = 0)
+#            self.srcFractions = self.regridObj.tool.getSrcAreaFractions(rootPe = 0)
+#            self.dstFractions = self.regridObj.tool.getDstAreaFractions(rootPe = 0)
 
         return dstVar
 

@@ -338,7 +338,7 @@ class EsmfStructField:
         """
         return ESMP.ESMP_FieldGetPtr(self.field)
 
-    def getData(self, rootPe = None):
+    def getData(self, rootPe):
         """
         Get field data as a numpy array
         @param rootPe if None then local data will be fetched, otherwise
@@ -479,7 +479,7 @@ class EsmfRegrid:
                                      regridmethod = regridMethod,
                                      unmappedaction = unMappedAction)
 
-    def getSrcAreas(self, rootPe = None):
+    def getSrcAreas(self, rootPe):
         """
         Get the src grid areas as used by conservative interpolation
         @param rootPe None is local areas are returned, otherwise
@@ -488,10 +488,10 @@ class EsmfRegrid:
         """
         if self.srcAreaField is not None:
             ESMP.ESMP_FieldRegridGetArea(self.srcAreaField.field)
-            return self.srcAreaField.getData(rootPe)
+            return self.srcAreaField.getData(rootPe = rootPe)
         return None
 
-    def getDstAreas(self, rootPe = None):
+    def getDstAreas(self, rootPe):
         """
         Get the dst grid areas as used by conservative interpolation
         @param rootPe None is local areas are returned, otherwise
@@ -500,10 +500,10 @@ class EsmfRegrid:
         """
         if self.srcAreaField is not None:
             ESMP.ESMP_FieldRegridGetArea(self.dstAreaField.field)
-            return self.dstAreaField.getData(rootPe)
+            return self.dstAreaField.getData(rootPe = rootPe)
         return None
 
-    def getSrcAreaFractions(self, rootPe = None):
+    def getSrcAreaFractions(self, rootPe):
         """
         Get the source grid fraction areas as used by conservative interpolation
         @param rootPe None is local areas are returned, otherwise
@@ -511,10 +511,10 @@ class EsmfRegrid:
         @return numpy array
         """
         if self.srcFracField is not None:
-            return self.srcFracField.getData(rootPe)
+            return self.srcFracField.getData(rootPe = rootPe)
         return None
 
-    def getDstAreaFractions(self, rootPe = None):
+    def getDstAreaFractions(self, rootPe):
         """
         Get the destination grid fraction areas as used by conservative interpolation
         @param rootPe None is local areas are returned, otherwise
@@ -522,7 +522,7 @@ class EsmfRegrid:
         @return numpy array
         """
         if self.dstFracField is not None:
-            return self.dstFracField.getData(rootPe)
+            return self.dstFracField.getData(rootPe = rootPe)
         return None
 
     def __call__(self, srcField=None, dstField=None):

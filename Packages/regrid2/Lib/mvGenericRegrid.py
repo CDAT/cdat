@@ -97,16 +97,17 @@ class GenericRegrid:
         self.tool.computeWeights(**args)
 
     def apply(self, srcData, dstData, 
+              rootPe = None,
               missingValue = None, 
-              rootPe = 0, **args):
+              **args):
         """
         Regrid source to destination
         @param srcData array (input)
         @param dstData array (output)
+        @param rootPe if other than None, then results will be MPI
+                      gathered
         @param missingValue if not None, then data mask will be interpolated
                             and data value set to missingValue when masked
-        @param rootPe if other than None, then results will be MPI 
-                      gathered
         """
 
         # assuming the axes are the slowly varying indices
@@ -134,7 +135,7 @@ class GenericRegrid:
             if missingValue is not None:
                 srcDataMaskFloat[:] = (srcData == missingValue)
                 # interpolate mask
-                self.tool.apply(srcDataMaskFloat, dstDataMaskFloat, **args)
+                self.tool.apply(srcDataMaskFloat, dstDataMaskFloat, rootPe = rootPe, **args)
                 if re.search('conserv', self.regridMethod.lower(), re.I):
                     dstMask = numpy.array( (dstDataMaskFloat == 1), numpy.int32 )
                 else:
@@ -173,13 +174,14 @@ class GenericRegrid:
                 indata = eval('srcData' + slce)
 
                 # interpolate, using the appropriate tool
-                self.tool.apply(indata, outdata, **args)
+                self.tool.apply(indata, outdata, rootPe = rootPe, **args)
 
                 # adjust for masking
                 if missingValue is not None:
                     srcDataMaskFloat[:] = (indata == missingValue)
                     # interpolate mask
-                    self.tool.apply(srcDataMaskFloat, dstDataMaskFloat, **args)
+                    self.tool.apply(srcDataMaskFloat, dstDataMaskFloat, 
+                                    rootPe = rootPe, **args)
                     if re.search('conserv', self.regridMethod.lower(), re.I):
                         # cell interpolation
                         dstMask = numpy.array( (dstDataMaskFloat == 1), numpy.int32 )
@@ -200,7 +202,7 @@ class GenericRegrid:
         """
         return self.tool.getDstGrid()
 
-    def fillInDiagnosticData(self, diag, rootPe = 0):
+    def fillInDiagnosticData(self, diag, rootPe = None):
         """
         Fill in diagnostic data
         @param diag a dictionary whose entries, if present, will be filled
