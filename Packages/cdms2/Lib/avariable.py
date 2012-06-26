@@ -992,10 +992,10 @@ avariable.regrid:
                 return regridf(self, missing=missing, order=order, 
                                      mask=mask, **keywords)
 
-            srcMask = None
+            srcGridMask = None
             # Set the source mask if a mask is defined with the source data
             if numpy.any(self.mask == True):
-                srcMask = getMinHorizontalMask(self)
+                srcGridMask = getMinHorizontalMask(self)
 
             # The other methods, LibCF and ESMF
             regridMethod = 'linear' # default
@@ -1008,7 +1008,10 @@ avariable.regrid:
                             dtype = self.dtype,
                             regridMethod = regridMethod,
                             regridTool = regridTool,
-                            srcGridMask = srcMask, **keywords)
+                            srcGridMask = srcGridMask, 
+                            srcGridAreas = None,
+                            dstGridMask = None,
+                            dstGridAreas = None)
             # now interpolate
             return ro(self, **keywords)
 

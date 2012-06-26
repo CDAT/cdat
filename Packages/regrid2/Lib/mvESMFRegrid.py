@@ -171,15 +171,16 @@ staggerLoc = %s!""" % staggerLoc
                                        numpy.ones(dstGrid[0].shape, dtype=dstGrid[0].dtype),
                                        staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
                                         
-
     def computeWeights(self, **args):
         """
-        Compute Weights
+        Compute weights
         @param **args (not used)
         """
+        # Note: passing dstFrac = self.dstFracFld may cause a seg fault when runnning in parallel 
+        # on some machines
         self.regridObj = esmf.EsmfRegrid(self.srcFld, self.dstFld,
                                   srcFrac = self.srcFracFld, 
-                                  dstFrac = self.dstFracFld,
+                                  dstFrac = None,
                                   srcMaskValues = self.srcMaskValues,
                                   dstMaskValues = self.dstMaskValues,
                                   regridMethod = self.regridMethod,
