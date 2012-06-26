@@ -65,17 +65,6 @@ class LibCFRegrid(GenericRegrid):
         """
         return self.regridObj.getDstGrid()
         
-    def fillInDiagnostic(self, diag):
-	"""
-	Fill in diagnostic data
-	@param diag a dictionary whose entries, if present, will be filled
-	            valid entries are: ''numDstPoints' and 'numValid'
-	"""
-	if diag.has_key('numDstPoints'):
-		diag['numDstPoints'] = self.regridObj.getNumDstPoints()
-	if diag.has_key('numValidPoints'):
-		diag['numValid'] = self.regridObj.getNumValid()
-
     def fillInDiagnosticData(self, diag, rootPe):
         """
         Fill in diagnostic data
