@@ -956,8 +956,7 @@ class AbstractVariable(CdmsObj, Slab):
 
         Example:
         new_cdmsVar = cdmsVar.regrid(newGrid)  # uses libcf
-        new_cdmsVar = cdmsVar.regrid(newGrid, regridTool = 'esmf', 
-                                     regridMethod = 'conserve',
+        new_cdmsVar = cdmsVar.regrid(newGrid, regridMethod = 'conserve',
                                      coordSys = 'cart')
 
         @param togrid destination grid. CDMS grid
@@ -974,12 +973,32 @@ class AbstractVariable(CdmsObj, Slab):
 
             fromgrid = self.getGrid() # returns horizontal grid only
 
-            regridTool = 'libcf' # default
-            if keywords.has_key('regridTool'):
-                regridTool = keywords['regridTool']
-                del keywords['regridTool']
+            regridMethod = 'linear' # default
+            if keywords.has_key('regridMethod'):
+                # override with user input
+                regridMethod = keywords['regridMethod']
+                del keywords['regridMethod']
+
+            # the method determines the tool
+            if re.search('conserve', regridMethod, re.I) or \
+                    re.search('patch', regridMethod, re.I):
+                # only esmf can do conservative and patch
+                regridTool = 'emsf'
+                if keywords.has_key('regridTool') and \
+                        re.search(r'esm', keywords['regridTool']) is None:
+                    print """
+avariable.regrid:
+    Warning: conservative/patch interpolation requires regridTool = 'esmf', overriding user input
+                    """
             else:
-                print """
+                # linear
+                regridTool = 'libcf' # default
+                if keywords.has_key('regridTool'):
+                    regridTool = keywords['regridTool']
+                    del keywords['regridTool']
+                else:
+                    # user did not provide regridTool
+                    print """
 avariable.regrid: 
     Warning: the default interpolation method is %s, to recover the old 
     behavior regridTool = 'regrid2'. e.g.:
@@ -992,23 +1011,20 @@ avariable.regrid:
                 return regridf(self, missing=missing, order=order, 
                                      mask=mask, **keywords)
 
-            srcMask = None
+            srcGridMask = None
             # Set the source mask if a mask is defined with the source data
             if numpy.any(self.mask == True):
-                srcMask = getMinHorizontalMask(self)
-
-            # The other methods, LibCF and ESMF
-            regridMethod = 'linear' # default
-            if keywords.has_key('regridMethod'):
-                regridMethod = keywords['regridMethod']
-                del keywords['regridMethod']
+                srcGridMask = getMinHorizontalMask(self)
 
             # compute the interpolation weights
             ro = CdmsRegrid(fromgrid, togrid, 
                             dtype = self.dtype,
                             regridMethod = regridMethod,
                             regridTool = regridTool,
-                            srcGridMask = srcMask, **keywords)
+                            srcGridMask = srcGridMask, 
+                            srcGridAreas = None,
+                            dstGridMask = None,
+                            dstGridAreas = None)
             # now interpolate
             return ro(self, **keywords)
 

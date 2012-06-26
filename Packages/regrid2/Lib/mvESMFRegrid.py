@@ -171,21 +171,22 @@ staggerLoc = %s!""" % staggerLoc
                                        numpy.ones(dstGrid[0].shape, dtype=dstGrid[0].dtype),
                                        staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
                                         
-
     def computeWeights(self, **args):
         """
-        Compute Weights
+        Compute weights
         @param **args (not used)
         """
+        # Note: passing dstFrac = self.dstFracFld may cause a seg fault when runnning in parallel 
+        # on some machines
         self.regridObj = esmf.EsmfRegrid(self.srcFld, self.dstFld,
                                   srcFrac = self.srcFracFld, 
-                                  dstFrac = self.dstFracFld,
+                                  dstFrac = None,
                                   srcMaskValues = self.srcMaskValues,
                                   dstMaskValues = self.dstMaskValues,
                                   regridMethod = self.regridMethod,
                                   unMappedAction = self.unMappedAction)
 
-    def apply(self, srcData, dstData, rootPe = None, **args):
+    def apply(self, srcData, dstData, rootPe, **args):
         """
         Regrid source to destination
         @param srcData array Full source data shape
@@ -217,7 +218,7 @@ staggerLoc = %s!""" % staggerLoc
         return [self.dstGrid.getCoords(i, staggerloc=self.staggerloc) \
                     for i in range(self.ndims)]
 
-    def getSrcAreas(self, rootPe = None):
+    def getSrcAreas(self, rootPe):
         """
         Get the source grid cell areas
         @param rootPe root processor where data should be gathered (or 
@@ -230,7 +231,7 @@ staggerLoc = %s!""" % staggerLoc
             return None
         
 
-    def getDstAreas(self, rootPe = None):
+    def getDstAreas(self, rootPe):
         """
         Get the destination grid cell areas
         @param rootPe root processor where data should be gathered (or 
@@ -242,7 +243,7 @@ staggerLoc = %s!""" % staggerLoc
         else:
             return None
 
-    def getSrcAreaFractions(self, rootPe = None):
+    def getSrcAreaFractions(self, rootPe):
         """
         Get the source grid area fractions
         @param rootPe root processor where data should be gathered (or 
@@ -250,11 +251,11 @@ staggerLoc = %s!""" % staggerLoc
         @return fractional areas or None (if non-conservative)
         """
         if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-            return self.regridObj.getSrcAreaFractions(rootPe = rootPe)
+            return self.regridObj.getSrcAreaFractions(rootPe = rootPe) 
         else:
             return None
 
-    def getDstAreaFractions(self, rootPe = None):
+    def getDstAreaFractions(self, rootPe):
         """
         Get the destination grid area fractions
         @param rootPe root processor where data should be gathered (or 
@@ -266,7 +267,7 @@ staggerLoc = %s!""" % staggerLoc
         else:
             return 
 
-    def fillInDiagnosticData(self, diag, rootPe = None):
+    def fillInDiagnosticData(self, diag, rootPe):
         """
         Fill in diagnostic data
         @param diag a dictionary whose entries, if present, will be filled
