@@ -1,18 +1,18 @@
 
 include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
 
-set(ENV{ESMF_DIR} @esmf_source@)
-set(ENV{ESMF_INSTALL_PREFIX} @esmf_install@)
+set(ENV{ESMF_DIR} @ESMF_source@)
+set(ENV{ESMF_INSTALL_PREFIX} @ESMF_install@)
 
-set(ENV{ESMF_OS} @esmf_os@)
-set(ENV{ESMF_COMPILER} @esmf_compiler@)
-set(ENV{ESMF_COMM} @esmf_comm@)
-set(ENV{ESMF_ABI} @esmf_abi@)
+set(ENV{ESMF_OS} @ESMF_os@)
+set(ENV{ESMF_COMPILER} @ESMF_compiler@)
+set(ENV{ESMF_COMM} @ESMF_comm@)
+set(ENV{ESMF_ABI} @ESMF_abi@)
 
 # make should be detected by CMAKE at some point
 execute_process(
   COMMAND make
-  WORKING_DIRECTORY @esmf_source@
+  WORKING_DIRECTORY @ESMF_source@
   OUTPUT_VARIABLE CDAT_OUT
   ERROR_VARIABLE CDAT_ERR
   RESULT_VARIABLE res)
