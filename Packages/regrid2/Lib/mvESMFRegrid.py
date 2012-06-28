@@ -274,7 +274,20 @@ staggerLoc = %s!""" % staggerLoc
         if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
             return self.regridObj.getSrcAreaFractions(rootPe = rootPe)
         else:
-            return 
+            return
+
+    def getDstCoordShape(self, staggerLoc):
+        """
+        Get the local coordinate shape (may be different on each processor)
+        @param staggerLoc (e.g. 'center' or 'corner')
+        @return tuple 
+        """
+        
+        staggerloc = ESMP.ESMP_STAGGERLOC_CENTER
+        if re.search('corner', staggerLoc, re.I) or \
+                re.search('nod', staggerLoc, re.I):
+            staggerloc = ESMP.ESMP_STAGGERLOC_CORNER
+        return self.dstGrid.getCoordShape(staggerloc)
 
     def fillInDiagnosticData(self, diag, rootPe):
         """
