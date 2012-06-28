@@ -200,7 +200,7 @@ class CdmsRegrid:
                 if c.min() == b.min() or c.max() == b.max():
                     print """   WARNING: Edge bounds are the same. The results
               of conservative regridding are not conserved.
-              coordMin = %f, boundMin = $f, coordMax = %f, boundMax = %f
+              coordMin = %7.2f, boundMin = %7.2f, coordMax = %7.2f, boundMax = %7.2f
               """ % (c.min(), b.min(), c.max(), b.max())
             if srcBounds[0].min() < -90 or srcBounds[0].max() > 90 or \
                dstBounds[0].min() < -90 or dstBounds[0].max() > 90:
