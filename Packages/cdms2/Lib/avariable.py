@@ -1006,6 +1006,11 @@ avariable.regrid:
             """ % regridTool
             
             if re.search('^regrid', regridTool, re.I):
+
+                if keywords.has_key('diag') and \
+                        type(keywords['diag']) == types.DictType:
+                    keywords['diag']['regridTool'] = 'regrid'
+
                 # the original cdms2 regridder
                 if len(fromgrid.getLatitude().shape) > 1 or \
                    len(togrid.getLatitude().shape) > 1:
