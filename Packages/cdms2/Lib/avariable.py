@@ -983,7 +983,7 @@ class AbstractVariable(CdmsObj, Slab):
             if re.search('conserve', regridMethod, re.I) or \
                     re.search('patch', regridMethod, re.I):
                 # only esmf can do conservative and patch
-                regridTool = 'emsf'
+                regridTool = 'esmf'
                 if keywords.has_key('regridTool') and \
                         re.search(r'esm', keywords['regridTool']) is None:
                     print """
