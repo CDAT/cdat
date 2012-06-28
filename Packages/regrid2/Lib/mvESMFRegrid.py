@@ -65,27 +65,36 @@ class ESMFRegrid(GenericRegrid):
         self.ndims = len(srcGridShape)
 
         self.regridMethod = ESMP.ESMP_REGRIDMETHOD_BILINEAR
+        self.regridMethodStr = 'linear'
         if type(regridMethod) == types.StringType:
             if re.search('conserv', regridMethod.lower()):
                 self.regridMethod = ESMP.ESMP_REGRIDMETHOD_CONSERVE
+                self.regridMethodStr = 'conserve'
             elif re.search('patch', regridMethod.lower()):
                 self.regridMethod = ESMP.ESMP_REGRIDMETHOD_PATCH
+                self.regridMethodStr = 'patch'
 
         # data stagger
         self.staggerloc = ESMP.ESMP_STAGGERLOC_CENTER
+        self.staggerlocStr = 'center'
         if type(staggerLoc) == types.StringType:
             if re.search('corner', staggerLoc.lower(), re.I) or \
                     re.search('node', staggerLoc.lower(), re.I):
                 self.staggerloc = ESMP.ESMP_STAGGERLOC_CORNER
+                self.staggerlocStr = 'corner'
+            # there are other staggers we could test here
         
         # good for now
         self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE
 
         self.coordSys = ESMP.ESMP_COORDSYS_SPH_DEG
+        self.coordSysStr = 'deg'
         if re.search('cart', coordSys.lower()):
             self.coordSys = ESMP.ESMP_COORDSYS_CART
+            self.coordSysStr = 'cart'
         elif re.search('rad', coordSys.lower()):
             self.coordSys = ESMP.ESMP_COORDSYS_SPH_RAD
+            self.coordSysStr = 'rad'
 
         self.periodicity = periodicity
 
@@ -280,4 +289,8 @@ staggerLoc = %s!""" % staggerLoc
             if diag.has_key(entry):
                 meth = 'get' + entry[0].upper() + entry[1:]
                 diag[entry] = eval('self.regridObj.' + meth + '(rootPe = rootPe)')
-
+        diag['regridTool'] = 'esmf'
+        diag['regridMethod'] = self.regridMethodStr
+        diag['periodicity'] = self.periodicity
+        diag['coordSys'] = self.coordSysStr
+        diag['staggerLoc'] = self.staggerlocStr

@@ -27,6 +27,7 @@ class LibCFRegrid(GenericRegrid):
         @param **args keyword arguments, eg mkCyclic, handleCut, ...
                       to be passed to gsRegrid
         """
+        self.regridMethodStr = 'linear'
         mkCyclic = args.get('mkCyclic', False)
         handleCut = args.get('handleCut', False)
         self.regridObj = gsRegrid.Regrid(srcGrid, dstGrid, 
@@ -76,3 +77,5 @@ class LibCFRegrid(GenericRegrid):
                 if diag.has_key(entry):
                         meth = 'get' + entry[0].upper() + entry[1:]
                         diag[entry] = eval('self.regridObj.' + meth + '()')
+        diag['regridTool'] = 'libcf'
+        diag['regridMethod'] = self.regridMethodStr
