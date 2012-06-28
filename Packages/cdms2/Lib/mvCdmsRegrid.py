@@ -195,6 +195,16 @@ class CdmsRegrid:
         if re.search( 'conserv', regridMethod.lower()):
             srcBounds = _getBoundList(srcCoords)
             dstBounds = _getBoundList(dstCoords)
+
+            for c, b in zip(srcBounds, srcCoords):
+                if c.min() == b.min() or c.max() == b.max():
+                    print """   WARNING: Edge bounds are the same. The results
+              of conservative regridding are not conserved.
+              coordMin = %f, boundMin = $f, coordMax = %f, boundMax = %f
+              """ % (c.min(), b.min(), c.max(), b.max())
+            if srcBounds[0].min() < -90 or srcBounds[0].max() > 90 or \
+               dstBounds[0].min() < -90 or dstBounds[0].max() > 90:
+                raise regrid2.RegridError, """Bounds exceed +/-90 degree latitude"""
             if not re.search('esmp', regridTool.lower()):
                 regridTool = 'esmf'
 
