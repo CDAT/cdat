@@ -1007,12 +1007,17 @@ avariable.regrid:
             
             if re.search('^regrid', regridTool, re.I):
                 # the original cdms2 regridder
-                regridf = Horizontal(fromgrid, togrid)
-                if keywords.has_key('diag') and \
-                        type(keywords['diag']) == types.DictType:
-                    keywords['diag']['regridTool'] = 'regrid'
-                return regridf(self, missing=missing, order=order, 
-                                     mask=mask, **keywords)
+                if len(fromgrid.getLatitude().shape) > 1 or \
+                   len(togrid.getLatitude().shape) > 1:
+                    print """horizontal can only handle grid with 1D axes. returning self.
+          fromgrid.getLatitude().shape = %s
+            togrid.getLatitude().shape = %s
+                    """ % (str(fromgrid.getLatitude().shape), str(togrid.getLatitude().shape))
+                    return self
+                else:
+                    regridf = Horizontal(fromgrid, togrid)
+                    return regridf(self, missing=missing, order=order, 
+                                   mask=mask, **keywords)
 
             srcGridMask = None
             # Set the source mask if a mask is defined with the source data
