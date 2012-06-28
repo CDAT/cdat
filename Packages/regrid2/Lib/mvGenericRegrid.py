@@ -89,6 +89,10 @@ class GenericRegrid:
                   dstBounds = dstBounds, 
                   dstGridAreas = dstGridAreas,
                   **args)
+        else:
+            msg = """mvGenericRegrid.__init__: ERROR unrecognized tool %s,
+valid choices are: 'libcf', 'esmf'"""% regridTool
+            raise regrid2.RegridError, msg
     
     def computeWeights(self, **args):
         """
