@@ -5072,7 +5072,7 @@ Options:::
                 convertedok = True
             except:
                 convertedok = False
-            if (copy_mthd.xticlabels1=='*' or copy_mthd.xticlabels2=='*') and convertedok:
+            if (copy_mthd.xticlabels1=='*' or copy_mthd.xticlabels2=='*') and convertedok and copy_mthd.g_name not in ["GSp",]:
                 if wasnone:
                     wasnone=0
                     copy_mthd=self.generate_gm(arglist[3],arglist[4])
@@ -5117,9 +5117,12 @@ Options:::
                and copy_mthd.yticlabels2=='*' \
                and copy_mthd.ymtics1 in ['*',''] \
                and copy_mthd.ymtics2 in ['*',''] \
-               and arglist[0].getAxis(-2).isTime() and (arglist[0].rank()>1 or copy_mthd.g_name in ['GXy','GSp']) \
+               and arglist[0].getAxis(-2).isTime() and (arglist[0].rank()>1 or copy_mthd.g_name in ['GXy',]) \
                and not (copy_mthd.g_name=='Gfm' and isinstance(arglist[0].getGrid(), (cdms2.gengrid.AbstractGenericGrid,cdms2.hgrid.AbstractCurveGrid))):
             ax=arglist[0].getAxis(-2).clone()
+            if copy_mthd.g_name in ["GSp",]:
+                ax = arglist[1].getAxis(-2).clone()
+                axes_changed2={}
             ids=arglist[0].getAxisIds()
             for i in range(len(ids)):
                 if ax.id==ids[i]:
@@ -5148,8 +5151,11 @@ Options:::
                     wasnone=0
                     copy_mthd=self.generate_gm(arglist[3],arglist[4])
                 convert_datawc = False
-                for cax in axes_changed.keys():
-                    if axes_changed[cax] == ax:
+                A=axes_changed
+                if copy_mthd.g_name in ["GSp",]:
+                    A=axes_changed2
+                for cax in A.keys():
+                    if A[cax] is ax:
                         convert_datawc = True
                         break
                 if convert_datawc:
@@ -5162,7 +5168,9 @@ Options:::
                         copy_mthd.datawc_y2 = cdtime.reltime(oax[-1],oax.units).tocomp(oax.getCalendar()).torel(copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
                     else:
                         copy_mthd.datawc_y2 = cdtime.reltime(copy_mthd.datawc_y2,oax.units).tocomp(oax.getCalendar()).torel(copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
-                if copy_mthd.yticlabels1=='*' : copy_mthd.yticlabels1=vcs.generate_time_labels(copy_mthd.datawc_y1,copy_mthd.datawc_y2,copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
+                if copy_mthd.yticlabels1=='*' :
+                    print "going in:",copy_mthd
+                    copy_mthd.yticlabels1=vcs.generate_time_labels(copy_mthd.datawc_y1,copy_mthd.datawc_y2,copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
                 if copy_mthd.yticlabels2=='*' : copy_mthd.yticlabels2=vcs.generate_time_labels(copy_mthd.datawc_y1,copy_mthd.datawc_y2,copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
         elif not (getattr(copy_mthd,'g_name','')=='Gfm' and isinstance(arglist[0].getGrid(), (cdms2.gengrid.AbstractGenericGrid,cdms2.hgrid.AbstractCurveGrid))):
             try:
