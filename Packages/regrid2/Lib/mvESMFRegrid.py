@@ -205,6 +205,7 @@ staggerLoc = %s!""" % staggerLoc
         @param **args
         """
         self.srcFld.setLocalData(srcData, self.staggerloc)
+        self.dstFld.setLocalData(dstData, self.staggerloc)
 
         # Regrid
         self.regridObj(self.srcFld, self.dstFld)
