@@ -32,8 +32,8 @@ set(CMAKE_MODULE_PATH
 # CDAT version
 #------------------------------------------------------------------------------
 set(cdat_VERSION_MAJOR 6)
-set(cdat_VERSION_MINOR 0)
-set(cdat_VERSION_PATCH "beta")
+set(cdat_VERSION_MINOR 1)
+set(cdat_VERSION_PATCH 0)
 set(cdat_VERSION ${cdat_VERSION_MAJOR}.${cdat_VERSION_MINOR}.${cdat_VERSION_PATCH})
 
 # configure version file
