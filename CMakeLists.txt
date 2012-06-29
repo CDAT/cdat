@@ -362,7 +362,7 @@ find_package(PKG_CONFIG)
 #else()
 #  set(cdat_PKG_CONFIG_EXECUTABLE ${PKG_CONFIG_EXECUTABLE})
 #endif()
-set(ENV{PKG_CONFIG_PATH} ${cdat_EXTERNALS}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH})
+set(ENV{PKG_CONFIG_PATH} "${cdat_EXTERNALS}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
 set(ENV{PKG_CONFIG} ${cdat_PKG_CONFIG_EXECUTABLE})
 
 set(cdat_configure_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake)
