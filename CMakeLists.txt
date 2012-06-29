@@ -32,8 +32,8 @@ set(CMAKE_MODULE_PATH
 # CDAT version
 #------------------------------------------------------------------------------
 set(cdat_VERSION_MAJOR 6)
-set(cdat_VERSION_MINOR 0)
-set(cdat_VERSION_PATCH "beta")
+set(cdat_VERSION_MINOR 1)
+set(cdat_VERSION_PATCH 0)
 set(cdat_VERSION ${cdat_VERSION_MAJOR}.${cdat_VERSION_MINOR}.${cdat_VERSION_PATCH})
 
 # configure version file
@@ -375,7 +375,10 @@ add_cdat_package(wget)
 add_cdat_package(pkgconfig)
 add_cdat_package(termcap)
 add_cdat_package(readline)
-add_cdat_package(libXML2)
+if (NOT CDAT_USE_SYSTEM_LIBXML2)
+   add_cdat_package(libXML2)
+endif()
+
 add_cdat_package(libXSLT)
 add_cdat_package(zlib)
 add_cdat_package(CURL)
@@ -383,7 +386,9 @@ add_cdat_package(CURL)
 add_cdat_package(YASM)
 add_cdat_package(FFMPEG)
 #add_cdat_package(gifsicle)
-add_cdat_package(png)
+if (NOT CDAT_USE_SYSTEM_LIBPNG)
+   add_cdat_package(png)
+endif()
 add_cdat_package(jpeg)
 add_cdat_package(tiff)
 
@@ -712,4 +717,7 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/setup_cdat.sh.in
   @ONLY)
 configure_file(${cdat_CMAKE_SOURCE_DIR}/setup_cdat.csh.in
   ${CMAKE_INSTALL_PREFIX}/bin/setup_cdat.csh
+  @ONLY)
+configure_file(${cdat_CMAKE_SOURCE_DIR}/uvcdat.in
+  ${CMAKE_INSTALL_PREFIX}/bin/uvcdat
   @ONLY)
