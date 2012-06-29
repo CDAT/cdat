@@ -511,7 +511,6 @@ endif()
 add_cdat_package(CMOR)
 add_cdat_package(CDAT)
 add_cdat_package(gui_support)
-#add_cdat_package(PVFileDialog)
 
 # Optional Packages
 
@@ -546,7 +545,8 @@ if(CDAT_BUILD_VISIT)
   add_cdat_package(VisIt)
 endif()
 
-add_cdat_package(PVFileDialog)
+# Aashish Chaudhary: turning PVFileDialog off until we figure out Mac bug
+#add_cdat_package(PVFileDialog)
 # C. Doutriaux Turning off Vistrails build from within CDAT
 #option(CDAT_BUILD_VISTRAILS "Build VisTrails" OFF)
 #if(CDAT_BUILD_VISTRAILS)
