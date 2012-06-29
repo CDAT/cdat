@@ -713,3 +713,6 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/setup_cdat.sh.in
 configure_file(${cdat_CMAKE_SOURCE_DIR}/setup_cdat.csh.in
   ${CMAKE_INSTALL_PREFIX}/bin/setup_cdat.csh
   @ONLY)
+configure_file(${cdat_CMAKE_SOURCE_DIR}/uvcdat.in
+  ${CMAKE_INSTALL_PREFIX}/bin/uvcdat
+  @ONLY)
