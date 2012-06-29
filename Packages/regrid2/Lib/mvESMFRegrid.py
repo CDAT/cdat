@@ -198,8 +198,10 @@ staggerLoc = %s!""" % staggerLoc
     def apply(self, srcData, dstData, rootPe, **args):
         """
         Regrid source to destination
-        @param srcData array Full source data shape
-        @param dstData array Full destination data shape
+        @param srcData array source data, shape should 
+                       cover entire global index space
+        @param dstData array destination data, shape should 
+                       cover entire global index space
         @param rootPe if other than None, then data will be MPI gathered
                       on the specified rootPe processor
         @param **args
@@ -289,6 +291,19 @@ staggerLoc = %s!""" % staggerLoc
                 re.search('nod', staggerLoc, re.I):
             staggerloc = ESMP.ESMP_STAGGERLOC_CORNER
         return self.dstGrid.getCoordShape(staggerloc)
+
+    def getDstLocalSlab(self, staggerLoc):
+        """
+        Get the destination local slab (ellipsis). You can use 
+        this to grab the data local to this processor
+        @param staggerLoc (e.g. 'center')
+        @return tuple of slices
+        """
+        staggerloc = ESMP.ESMP_STAGGERLOC_CENTER
+        if re.search('corner', staggerLoc, re.I) or \
+                re.search('nod', staggerLoc, re.I):
+            staggerloc = ESMP.ESMP_STAGGERLOC_CORNER
+        return self.dstGrid.getLocalSlab(staggerloc)
 
     def fillInDiagnosticData(self, diag, rootPe):
         """

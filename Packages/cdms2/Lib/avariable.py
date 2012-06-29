@@ -981,15 +981,16 @@ class AbstractVariable(CdmsObj, Slab):
 
             # the method determines the tool
             if re.search('conserve', regridMethod, re.I) or \
-                    re.search('patch', regridMethod, re.I):
+               re.search('patch', regridMethod, re.I):
                 # only esmf can do conservative and patch
                 regridTool = 'esmf'
                 if keywords.has_key('regridTool') and \
-                        re.search(r'esm', keywords['regridTool']) is None:
+                   re.search(r'esm', keywords['regridTool']) is None:
                     print """
 avariable.regrid:
     Warning: conservative/patch interpolation requires regridTool = 'esmf', overriding user input
                     """
+                del keywords['regridTool']
             else:
                 # linear
                 regridTool = 'libcf' # default
@@ -1037,7 +1038,8 @@ avariable.regrid:
                             srcGridMask = srcGridMask, 
                             srcGridAreas = None,
                             dstGridMask = None,
-                            dstGridAreas = None)
+                            dstGridAreas = None,
+                            **keywords)
             # now interpolate
             return ro(self, **keywords)
 
