@@ -3,18 +3,22 @@ if(NOT APPLE)
   set(ENV{@LIBRARY_PATH@} "@CMAKE_INSTALL_PREFIX@/lib:@cdat_EXTERNALS@/lib:$ENV{@LIBRARY_PATH@}")
 endif()
 
-set(ENV{CPPFLAGS} "-I@cdat_EXTERNALS@/include @ADDITIONAL_CPPFLAGS@")
-set(ENV{CXXFLAGS} "-I@cdat_EXTERNALS@/include @ADDITIONAL_CXXFLAGS@")  
-set(ENV{CFLAGS} "-w -I@cdat_EXTERNALS@/include @ADDITIONAL_CFLAGS@")
+set(ENV{CPPFLAGS} "-I@cdat_EXTERNALS@/include -I@cdat_EXTERNALS@/include/cairo @ADDITIONAL_CPPFLAGS@")
+set(ENV{CXXFLAGS} "-I@cdat_EXTERNALS@/include -I@cdat_EXTERNALS@/include/cairo @ADDITIONAL_CXXFLAGS@")
+set(ENV{CFLAGS} "-w -I@cdat_EXTERNALS@/include -I@cdat_EXTERNALS@/include/cairo @ADDITIONAL_CFLAGS@")
 set(ENV{LOCNCCONFIG} "@cdat_EXTERNALS@/bin/nc-config")
 set(ENV{EXTERNALS} "@cdat_EXTERNALS@")
+#set(ENV{PKG_CONFIG_PATH} @cdat_EXTERNALS@/lib/pkgconfig:$ENV{PKG_CONFIG_PATH})
+set(ENV{PATH} "@cdat_EXTERNALS@/bin:$ENV{PATH}")
+
+message("Running cdat install with path: " $ENV{PATH})
 
 if(APPLE)
   set(ENV{MAC_OSX_DEPLOYMENT_TARGET} "@CMAKE_OSX_DEPLOYMENT_TARGET@")
 endif()
 
 execute_process(
-  COMMAND @PYTHON_EXECUTABLE@ install.py @qt_flags@ --enable-pp @PYTHON_EXTRA_PREFIX@
+  COMMAND env PKG_CONFIG_PATH="@cdat_EXTERNALS@/lib/pkgconfig:/usr/lib64/pkgconfig:/usr/ib/pkgconfig:/usr/pkgconfig" @PYTHON_EXECUTABLE@ install.py @qt_flags@ --enable-pp @PYTHON_EXTRA_PREFIX@
   WORKING_DIRECTORY "@WORKING_DIR@"
   RESULT_VARIABLE res)
 

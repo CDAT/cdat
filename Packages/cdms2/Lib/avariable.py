@@ -14,6 +14,8 @@ from axis import axisMatchIndex, axisMatchAxis, axisMatches, unspecified, Cdtime
 import selectors
 import copy
 # from regrid2 import Regridder, PressureRegridder, CrossSectionRegridder
+from mvCdmsRegrid import CdmsRegrid
+from regrid2 import Horizontal
 #import PropertiedClasses
 from convention import CF1
 from grid import AbstractRectGrid
@@ -28,6 +30,78 @@ _numeric_compatibility = False          # Backward compatibility with numpy beha
                                         #        MV axis=None by default
                                         # True:  return 0-D arrays
                                         #        MV axis=1 by default
+
+def getMinHorizontalMask(var):
+    """
+    Get the minimum mask associated with 'x' and 'y' (i.e. with the 
+    min number of ones) across all axes
+    @param var CDMS variable with a mask
+    @return mask array or None if order 'x' and 'y' were not found
+    """
+    from distarray import MultiArrayIter
+
+    if not hasattr(var, 'mask'):
+        return None
+
+    shp = var.shape
+    ndims = len(shp)
+    order = var.getOrder() # e.g. 'zxty-', ndims = 5
+
+    # run a few checks
+    numX = order.count('x')
+    numY = order.count('y')
+    num_ = order.count('-')
+    hasXY = (numX == 1) and (numY == 1)
+    if numX + numY + num_ < 2:
+        msg = """
+Not able to locate the horizontal (y, x) axes for order = %s in getMinHorizontalMask
+        """ % str(order)
+        raise CDMSError, msg
+        
+    
+    ps = [] # index position of x/y, e.g. [1,3]
+    es = [] # end indices, sizes of x/y axes
+    nonHorizShape = []
+    found = False
+    for i in range(ndims-1, -1, -1):
+        # iterate backwards because the horizontal 
+        # axes are more likely to be last
+        o = order[i]
+        # curvilinear coordinates have '-' in place of
+        # x or y, also check for '-' but exit if we think 
+        # we found the x and y coords
+        if not found and (o in 'xy') or (not hasXY and o == '-'):
+            ps = [i,] + ps
+            es = [shp[i],] + es
+            if len(ps) == 2:
+                found = True
+        else:
+            nonHorizShape = [shp[i],] + nonHorizShape
+
+    if len(ps) == 2:
+        # found all the horizontal axes, start with mask 
+        # set to invalid everywhere
+        mask = numpy.ones(es, numpy.bool8)
+        # iterate over all non-horizontal axes, there can be as
+        # many as you want...
+        for it in MultiArrayIter(nonHorizShape):
+            inds = it.getIndices() # (i0, i1, i2)
+            # build the slice operator, there are three parts
+            # (head, middle, and tail), some parts may be 
+            # missing
+            # slce = 'i0,' + ':,'   +   'i1,'  +   ':,' + 'i2,'
+            slce = ('%d,'*ps[0]) % tuple(inds[:ps[0]]) + ':,'            \
+                + ('%d,'*(ps[1]-ps[0]-1)) % tuple(inds[ps[0]:ps[1]-1])   \
+                + ':,' + ('%d,'*(ndims-ps[1]-1)) % tuple(inds[ps[1]-1:])
+            # evaluate the slice for this time, level....
+            mask &= eval('var.mask[' + slce + ']')
+        return mask
+    else:
+        msg = """
+Could not find all the horizontal axes for order = %s in getMinHorizontalMask
+        """ % str(order)
+        raise CDMSError, msg
+    return None  
 
 def setNumericCompatibility(mode):
     global _numeric_compatibility
@@ -876,18 +950,98 @@ class AbstractVariable(CdmsObj, Slab):
             return self
         return MV.transpose (self, permutation)
 
-    def regrid (self, togrid, missing=None, order=None, mask=None):
-        """return self regridded to the new grid. Keyword arguments
-        are as for regrid.Regridder."""
-        from regrid2 import Regridder
+    def regrid (self, togrid, missing=None, order=None, mask=None, **keywords):
+        """return self regridded to the new grid.  
+        One can use the regrid2.Regridder optional arguments as well.
+
+        Example:
+        new_cdmsVar = cdmsVar.regrid(newGrid)  # uses libcf
+        new_cdmsVar = cdmsVar.regrid(newGrid, regridMethod = 'conserve',
+                                     coordSys = 'cart')
+
+        @param togrid destination grid. CDMS grid
+        @param missing missing values
+        @param order axis order
+        @param mask grid/data mask
+        @param keywords optional keyword arguments dependent on regridTool
+        @return regridded variable
+        """
 
         if togrid is None: 
             return self
         else:
+
             fromgrid = self.getGrid() # returns horizontal grid only
-            regridf = Regridder(fromgrid, togrid)
-            result = regridf(self, missing=missing, order=order, mask=mask)
-            return result
+
+            regridMethod = 'linear' # default
+            if keywords.has_key('regridMethod'):
+                # override with user input
+                regridMethod = keywords['regridMethod']
+                del keywords['regridMethod']
+
+            # the method determines the tool
+            if re.search('conserve', regridMethod, re.I) or \
+               re.search('patch', regridMethod, re.I):
+                # only esmf can do conservative and patch
+                regridTool = 'esmf'
+                if keywords.has_key('regridTool') and \
+                   re.search(r'esm', keywords['regridTool']) is None:
+                    print """
+avariable.regrid:
+    Warning: conservative/patch interpolation requires regridTool = 'esmf', overriding user input
+                    """
+                del keywords['regridTool']
+            else:
+                # linear
+                regridTool = 'libcf' # default
+                if keywords.has_key('regridTool'):
+                    regridTool = keywords['regridTool']
+                    del keywords['regridTool']
+                else:
+                    # user did not provide regridTool
+                    print """
+avariable.regrid: 
+    Warning: the default interpolation method is %s, to recover the old 
+    behavior regridTool = 'regrid2'. e.g.:
+        newVar = var.regrid(grid, regridTool='regrid2')
+            """ % regridTool
+            
+            if re.search('^regrid', regridTool, re.I):
+
+                if keywords.has_key('diag') and \
+                        type(keywords['diag']) == types.DictType:
+                    keywords['diag']['regridTool'] = 'regrid'
+
+                # the original cdms2 regridder
+                if len(fromgrid.getLatitude().shape) > 1 or \
+                   len(togrid.getLatitude().shape) > 1:
+                    print """horizontal can only handle grid with 1D axes. returning self.
+          fromgrid.getLatitude().shape = %s
+            togrid.getLatitude().shape = %s
+                    """ % (str(fromgrid.getLatitude().shape), str(togrid.getLatitude().shape))
+                    return self
+                else:
+                    regridf = Horizontal(fromgrid, togrid)
+                    return regridf(self, missing=missing, order=order, 
+                                   mask=mask, **keywords)
+
+            srcGridMask = None
+            # Set the source mask if a mask is defined with the source data
+            if numpy.any(self.mask == True):
+                srcGridMask = getMinHorizontalMask(self)
+
+            # compute the interpolation weights
+            ro = CdmsRegrid(fromgrid, togrid, 
+                            dtype = self.dtype,
+                            regridMethod = regridMethod,
+                            regridTool = regridTool,
+                            srcGridMask = srcGridMask, 
+                            srcGridAreas = None,
+                            dstGridMask = None,
+                            dstGridAreas = None,
+                            **keywords)
+            # now interpolate
+            return ro(self, **keywords)
 
     def pressureRegrid (self, newLevel, missing=None, order=None, method="log"):
         """Return the variable regridded to new pressure levels.

@@ -1,4 +1,3 @@
-
 #-----------------------------------------------------------------------------
 cmake_minimum_required(VERSION 2.8.4)
 #-----------------------------------------------------------------------------
@@ -33,8 +32,8 @@ set(CMAKE_MODULE_PATH
 # CDAT version
 #------------------------------------------------------------------------------
 set(cdat_VERSION_MAJOR 6)
-set(cdat_VERSION_MINOR 0)
-set(cdat_VERSION_PATCH "beta")
+set(cdat_VERSION_MINOR 1)
+set(cdat_VERSION_PATCH 0)
 set(cdat_VERSION ${cdat_VERSION_MAJOR}.${cdat_VERSION_MINOR}.${cdat_VERSION_PATCH})
 
 # configure version file
@@ -53,6 +52,7 @@ if(APPLE)
 
   if("${CMAKE_OSX_DEPLOYMENT_TARGET}" STREQUAL "")
     set(CMAKE_OSX_ARCHITECTURES "x86_64" CACHE STRING "" FORCE)
+    set(CMAKE_OSX_ARCHITECTURES_M "64" CACHE STRING "" FORCE)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "${OSX_VER_MAJOR}.${OSX_VER_MINOR}" CACHE STRING "" FORCE)
   endif()
 
@@ -126,7 +126,8 @@ endif()
 # Attempt to detect if we have a Fortran Compiler available.
 #-----------------------------------------------------------------------------
 
-include(CheckFortran)
+#include(CheckFortran)
+set(CMAKE_Fortran_COMPILER gfortran)
 
 if(CMAKE_Fortran_COMPILER)
   enable_language(Fortran)
@@ -205,11 +206,12 @@ endif()
 if(APPLE)
   set(cdat_apple_compiler_args
     -DCMAKE_OSX_ARCHITECTURES:STRING=${CMAKE_OSX_ARCHITECTURES}
+    -DCMAKE_OSX_ARCHITECTURES_M:STRING=${CMAKE_OSX_ARCHITECTURES_M}
     -DCMAKE_OSX_DEPLOYMENT_TARGET:STRING=${CMAKE_OSX_DEPLOYMENT_TARGET}
     -DCMAKE_OSX_SYSROOT:PATH=${CMAKE_OSX_SYSROOT})
 
-  set(cdat_osx_arch_flag "-arch ${CMAKE_OSX_ARCHITECTURES} -Xarch_${CMAKE_OSX_ARCHITECTURES}")
-  set(cdat_osx_arch_flag_fortran "-arch ${CMAKE_OSX_ARCHITECTURES}")
+  set(cdat_osx_arch_flag "-m${CMAKE_OSX_ARCHITECTURES_M}")
+  set(cdat_osx_arch_flag_fortran "-m${CMAKE_OSX_ARCHITECTURES_M}")
   set(cdat_osx_version_flag "-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
   set(cdat_osx_sysroot "-isysroot ${CMAKE_OSX_SYSROOT}")
   set(cdat_osx_flags "${cdat_osx_arch_flag} ${cdat_osx_version_flag} ${cdat_osx_sysroot} -pipe")
@@ -291,7 +293,14 @@ endmacro (add_cdat_package)
 find_package(Qt4 REQUIRED)
 
 # Added by Dave Kindig Tech-X Corp. kindig@txcorp.com
-option(CDAT_BUILD_ESMF_ESMP "Build python version Earth System Modelling Framework" OFF)
+option(CDAT_BUILD_ESMF_ESMP "Build python version Earth System Modeling Framework" OFF)
+option(CDAT_BUILD_ESMF_PARALLEL "Build parallel version of Earth System Modeling Framework library" OFF)
+
+# the following may need to be adjusted on Crays, otherwise the defaults will likely apply
+set(CDAT_BUILD_ESMF_OS "${CMAKE_SYSTEM_NAME}" CACHE STRING "ESMF_OS env variable, may need to change to Unicos on Crays")
+set(CDAT_BUILD_ESMF_COMPILER "gfortran" CACHE STRING "ESMF_COMPILER env variable, choices are gfortran, intel, pgi, g95, or nag")
+set(CDAT_BUILD_ESMF_COMM "openmpi" CACHE STRING "ESMF_COMM env variable, choices are openmpi, mpiuni, mpi, mpich2, or mvapich2")
+set(CDAT_BUILD_ESMF_ABI "64" CACHE STRING "ESMF_ABI env variable, choices are 32 or 64")
 
 # Attempt to find each package on the system
 
@@ -344,14 +353,17 @@ if(CDAT_USE_SYSTEM_INTROSPECTION)
   #find_package(PMW)
 endif(CDAT_USE_SYSTEM_INTROSPECTION)
 find_package(PKG_CONFIG)
-if(NOT PKG_CONFIG_FOUND)
+#message("PKGCONFIG SAYS:"${PKG_CONFIG_FOUND})
+#if(NOT PKG_CONFIG_FOUND)
   add_cdat_package(pkgconfig)
   set(cdat_PKG_CONFIG_EXECUTABLE ${cdat_EXTERNALS}/bin/pkg-config)
-  message("DID NOT FIND pkg-config")
-else()
-  set(cdat_PKG_CONFIG_EXECUTABLE ${PKG_CONFIG_EXECUTABLE})
-endif()
+  set(ENV{PKG_CONFIG} "${cdat_PKG_CONFIG_EXECUTABLE}")
+#  message("DID NOT FIND pkg-config")
+#else()
+#  set(cdat_PKG_CONFIG_EXECUTABLE ${PKG_CONFIG_EXECUTABLE})
+#endif()
 set(ENV{PKG_CONFIG_PATH} ${cdat_EXTERNALS}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH})
+set(ENV{PKG_CONFIG} ${cdat_PKG_CONFIG_EXECUTABLE})
 
 set(cdat_configure_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake)
 set(cdat_make_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake)
@@ -363,7 +375,10 @@ add_cdat_package(wget)
 add_cdat_package(pkgconfig)
 add_cdat_package(termcap)
 add_cdat_package(readline)
-add_cdat_package(libXML2)
+if (NOT CDAT_USE_SYSTEM_LIBXML2)
+   add_cdat_package(libXML2)
+endif()
+
 add_cdat_package(libXSLT)
 add_cdat_package(zlib)
 add_cdat_package(CURL)
@@ -371,7 +386,9 @@ add_cdat_package(CURL)
 add_cdat_package(YASM)
 add_cdat_package(FFMPEG)
 #add_cdat_package(gifsicle)
-add_cdat_package(png)
+if (NOT CDAT_USE_SYSTEM_LIBPNG)
+   add_cdat_package(png)
+endif()
 add_cdat_package(jpeg)
 add_cdat_package(tiff)
 
@@ -450,19 +467,8 @@ add_cdat_package(NUMPY)
 add_cdat_package(SCIPY)
 #add_cdat_package(ZMQ)
 add_cdat_package(IPYTHON)
-
-find_package(MPI)
-find_package(Mpi4py)
-if (Mpi4py_FOUND)
-  message("We found Mpi4py")
-else (Mpi4py_FOUND)
-  if (MPI_FOUND)
-    message("We will build Mpi4py for you")
-    add_cdat_package(Mpi4py)
-  else ()
-    message("No MPI installation was found, will not build mpi4py")
-  endif ()
-endif(Mpi4py_FOUND)
+add_cdat_package(OPENMPI)
+add_cdat_package(Mpi4py)
 
 add_cdat_package(Pmw)
 add_cdat_package(libcf)
@@ -483,9 +489,34 @@ endif(Matplotlib_FOUND)
 add_cdat_package(GEOS)
 add_cdat_package(basemap)
 
+option(CDAT_BUILD_SHAPELY "Build Shapely python module to represent geometric oiobjects and apply predicates and operations on these objects" OFF)
+
+if (CDAT_BUILD_SHAPELY)
+  find_package(Shapely)
+  if (Shapely_FOUND)
+    message("We found Shapely")
+  else (Shapely_FOUND)
+    message("We will build Shapely for you")
+    add_cdat_package(Shapely)
+  endif(Shapely_FOUND)
+endif()
+
+option(CDAT_BUILD_GDAL "Build the Geospatial Data Abstraction Library (GDAL) and python osgeo module " OFF)
+
+if (CDAT_BUILD_GDAL)
+  find_package(Gdal)
+  if (Gdal_FOUND)
+    message("We found GDAL")
+  else (Gdal_FOUND)
+    message("We will build GDAL for you")
+    add_cdat_package(gdal)
+  endif(Gdal_FOUND)
+endif()
+
 add_cdat_package(CMOR)
 add_cdat_package(CDAT)
 add_cdat_package(gui_support)
+#add_cdat_package(PVFileDialog)
 
 # Optional Packages
 
@@ -496,30 +527,16 @@ if(CDAT_BUILD_ESMF_ESMP)
     # GNU gfortran must be >= 4.3
     if(${Fortran_MAJOR_VERSION} GREATER 3 AND ${Fortran_MINOR_VERSION} GREATER 2)
       ## On APPLE need to test for -arch as well!
-      if (APPLE)
-         execute_process(COMMAND gfortran dummy.f90 -o dummy_test_gfortran COMMAND  rm dummy_test_gfortran
-    	                 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/CMake
- 			 OUTPUT_VARIABLE GFOR_OUT
-			 ERROR_VARIABLE GFOR_ERR 		  
-  			 RESULT_VARIABLE res)
-         if (NOT ${res} EQUAL 0)	  
-      	    message("    gfortran needs to understand -arch to build ESMF\n${GFOR_OUT}\n${GFOR_ERR}\n${res}")
-    	 else (NOT ${res} EQUAL 0)
-            add_cdat_package(esmf)
-      	    add_cdat_package(esmp)
-	 endif (NOT ${res} EQUAL 0)
-      else (APPLE)
-         add_cdat_package(esmf)
-         add_cdat_package(esmp)
-      endif (APPLE)
+         add_cdat_package(ESMF)
+         add_cdat_package(ESMP)
     else()
       message("    Skipping ESMF")
       message("    gfortran version needs to be at least 4.3 to install ESMF")
       message("    You have ${Fortran_VERSION}")
     endif()
   else()
-    add_cdat_package(esmf)
-    add_cdat_package(esmp)
+    add_cdat_package(ESMF)
+    add_cdat_package(ESMP)
     message("Fortran Compiler is: ${CMAKE_Fortran_COMPILER}")
   endif()
 endif()
@@ -534,6 +551,7 @@ if(CDAT_BUILD_VISIT)
   add_cdat_package(VisIt)
 endif()
 
+add_cdat_package(PVFileDialog)
 # C. Doutriaux Turning off Vistrails build from within CDAT
 #option(CDAT_BUILD_VISTRAILS "Build VisTrails" OFF)
 #if(CDAT_BUILD_VISTRAILS)
@@ -626,8 +644,9 @@ set(PyQt_DEPENDENCIES ${pkgconfig_dep} ${Qt_dep} ${SIP_dep})
 set(Pmw_DEPENDENCIES ${pkgconfig_dep} ${Python_dep})
 set(libcf_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${NetCDF_dep} ${HDF5_dep} ${CURL_dep} ${zlib_dep})
 # Added by Dave Kindig Tech-X Corp. kindig@txcorp.com
-set(esmf_DEPENDENCIES ${pkgconfig_dep})
-set(esmp_DEPENDENCIES ${pkgconfig_dep} ${NUMPY_dep} ${Python_dep})
+set(OPENMPI_DEPENDENCIES ${pkgconfig_dep})
+set(ESMF_DEPENDENCIES ${pkgconfig_dep} ${OPENMPI_dep})
+set(ESMP_DEPENDENCIES ${pkgconfig_dep} ${NUMPY_dep} ${Python_dep} ${ESMF_dep})
 set(Cython_DEPENDENCIES ${pkgconfig_dep} ${Python_dep})
 set(Numexpr_DEPENDENCIES ${pkgconfig_dep} ${NUMPY_dep} ${Python_dep})
 set(PyTables_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${Cython_dep} ${Numexpr_dep} ${HDF5_dep} ${libXML2_dep} ${libXSLT_dep} ${zlib_dep})
@@ -648,7 +667,7 @@ set(ZMQ_DEPENDENCIES)
 set(IPYTHON_DEPENDENCIES ${setuptools_dep} ${ZMQ_dep} ${NUMPY_dep})
 
 set(VTK_DEPENDENCIES ${pkgconfig_dep} ${zlib_deb} ${png_dep} ${jpeg_dep} ${xml_dep})
-set(Cairo_DEPENDENCIES ${pkgconfig_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep})
+set(Cairo_DEPENDENCIES ${pkgconfig_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep} ${libXML2_dep})
 set(HDF4_DEPENDENCIES ${pkgconfig_dep} ${zlib_dep} ${jpeg_dep})
 set(HDF5_DEPENDENCIES ${pkgconfig_dep} ${libXML2_dep} ${libXSLT_dep} ${zlib_dep})
 
@@ -662,11 +681,16 @@ set(gui_support_DEPENDENCIES ${CDAT_dep})
 #set(VisTrails_DEPENDENCIES ${ParaView_dep} ${CDAT_dep})
 set(Matplotlib_DEPENDENCIES ${PyQt_dep} ${Cairo_dep} ${NUMPY_dep} )
 
-set(Mpi4py_DEPENDENCIES ${NUMPY_dep} )
+set(Mpi4py_DEPENDENCIES ${NUMPY_dep} ${OPENMPI_dep})
 
-set(GEOS_DEPENDENCIES ${Matplotlib_dep} )
-set(basemap_DEPENDENCIES ${GEOS_dep} )
+set(GEOS_DEPENDENCIES ${Matplotlib_dep})
+set(Shapely_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${GEOS_dep})
+set(gdal_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${NetCDF_dep} ${HDF5_dep} ${CURL_dep} ${zlib_dep} ${jasper_dep} ${setuptools_dep})
+set(basemap_DEPENDENCIES ${GEOS_dep})
 set(pyspharm_DEPENDENCIES ${NUMPY_dep})
+
+# Added by Aashish @ Kitware Inc
+set(PVFileDialog_DEPENDENCIES ${ParaView_dep} ${SIP_dep})
 
 list(REMOVE_DUPLICATES external_packages)
 foreach(package ${external_packages})
@@ -693,4 +717,7 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/setup_cdat.sh.in
   @ONLY)
 configure_file(${cdat_CMAKE_SOURCE_DIR}/setup_cdat.csh.in
   ${CMAKE_INSTALL_PREFIX}/bin/setup_cdat.csh
+  @ONLY)
+configure_file(${cdat_CMAKE_SOURCE_DIR}/uvcdat.in
+  ${CMAKE_INSTALL_PREFIX}/bin/uvcdat
   @ONLY)

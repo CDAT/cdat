@@ -104,16 +104,16 @@ typedef void    *voidp;
 #include "cgm.h"		/* for public, API details */
 #include "cgm_implem.h"		/* for implementation details */
 #include "ps.h"
-#include <cairo.h>
-#include <cairo-ps.h>
-#include <cairo-ft.h>
-#include <cairo-features.h>
-#include <cairo-pdf.h>
-#include <cairo-ps.h>
-#include <cairo-svg.h>
-#include <cairo-xlib.h>
+#include <cairo/cairo.h>
+#include <cairo/cairo-ps.h>
+#include <cairo/cairo-ft.h>
+#include <cairo/cairo-features.h>
+#include <cairo/cairo-pdf.h>
+#include <cairo/cairo-ps.h>
+#include <cairo/cairo-svg.h>
+#include <cairo/cairo-xlib.h>
 
-/*#include <cairo-xlib-xrender.h>*/
+/*#include <cairo/cairo-xlib-xrender.h>*/
 
 
 #ifndef lint

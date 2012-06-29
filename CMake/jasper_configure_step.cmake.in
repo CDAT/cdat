@@ -1,0 +1,10 @@
+# On linux 64, gdal picks the static jasper library, make sure only shared libraries
+# are built (Alex Pletzer) 
+
+set(ENV{PATH} $ENV{PATH}:@cdat_EXTERNALS@/bin)
+
+EXECUTE_PROCESS(
+  COMMAND sh configure --enable-shared --disable-static --prefix=@jasper_install@
+  WORKING_DIRECTORY "@jasper_source@"
+  RESULT_VARIABLE rv
+  )

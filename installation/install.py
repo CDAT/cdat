@@ -585,32 +585,33 @@ def main(arglist):
             os.makedirs(target)
         except:
             pass
-        for df in data_files:
-            sp=df.strip().split()
-            fnm=sp[1]
-            target = os.path.join(target_prefix, 'sample_data', fnm)
-            md5=''
-            tries=0
-            if os.path.exists(target) :
-                data_files=open(target)
-                t=data_files.read()
-                data_files.close()
-                md5=hashlib.md5(t)
-                md5=md5.hexdigest()
-            while md5 != sp[0] and tries<5:
-                print 'Redownloading target: %s' % fnm
-                print 'target: ', target
-                print 'data_source_url', data_source_url
-                print 'fnm', fnm
-                ln = os.popen("%s -O %s %s/%s" % (wget,target,data_source_url,fnm)).readlines()
-                tries+=1
-                data_files=open(target)
-                t=data_files.read()
-                data_files.close()
-                md5=hashlib.md5(t)
-                md5=md5.hexdigest()
-            if md5!=sp[0]:
-                print 'Error downloading:',fnm
+        if 2==1: # not downloading sample data anymore, need to add an option for this
+            for df in data_files:
+                sp=df.strip().split()
+                fnm=sp[1]
+                target = os.path.join(target_prefix, 'sample_data', fnm)
+                md5=''
+                tries=0
+                if os.path.exists(target) :
+                    data_files=open(target)
+                    t=data_files.read()
+                    data_files.close()
+                    md5=hashlib.md5(t)
+                    md5=md5.hexdigest()
+                while md5 != sp[0] and tries<5:
+                    print 'Redownloading target: %s' % fnm
+                    print 'target: ', target
+                    print 'data_source_url', data_source_url
+                    print 'fnm', fnm
+                    ln = os.popen("%s -O %s %s/%s" % (wget,target,data_source_url,fnm)).readlines()
+                    tries+=1
+                    data_files=open(target)
+                    t=data_files.read()
+                    data_files.close()
+                    md5=hashlib.md5(t)
+                    md5=md5.hexdigest()
+                if md5!=sp[0]:
+                    print 'Error downloading:',fnm
         os.chdir(here)
     else:
         import cdat_info
@@ -716,7 +717,7 @@ def _install(file, action):
     if norun:
         r = 0
     else:
-        print '====>executing: ', p
+        #print '====>executing: ', p
         r = os.system(p)
     if r:
         print >>sys.stderr, "Install failed in directory", dirname

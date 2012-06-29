@@ -114,7 +114,9 @@ t.close()
 pkgconfig = os.path.join(externals,'bin','pkg-config')
 if not os.path.exists(pkgconfig):
     pkgconfig="pkg-config"
-    
+print "OK WE ARE USING:",pkgconfig
+print "ENV FOR PKG IS:",os.environ.get("PKG_CONFIG_PATH","NO PKGPATH")
+ 
 freetypelibdir = [ os.path.join(externals,'lib'), ]
 freetypeincdir = [ os.path.join(externals,'include')]
 freetypelibdir = os.popen("%s --libs-only-L freetype2" % pkgconfig).read().strip().split("-L")[1:]
@@ -434,7 +436,10 @@ except:
 #
 ## print "macros:",vcs_macros,"EM:",EM,"WM:",WM
 
-
+try:
+ os.makedirs("Info")
+except:
+ pass
 f=open("Info/__init__.py","w")
 print >> f, "macros = \"",vcs_macros,"EM:",EM,"WM:",WM,"\""
 print >> f, "EM = \"",EM,"\""
@@ -590,7 +595,7 @@ if (WM=='QT' or EM=='QT'):
 
     cwd = os.getcwd()
     makefile.LFLAGS.append("-Wl,-rpath,%s/cdatwrap" % cwd)
-    makefile.LFLAGS.append("%s" % vcs_so)
+    makefile.LIBS.append(vcs_so);
 
     # Generate the Makefile itself.
     makefile.generate()

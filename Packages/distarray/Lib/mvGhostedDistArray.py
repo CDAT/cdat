@@ -9,35 +9,63 @@ modification, are permitted provided that the conditions
 specified in the license file 'license.txt' are met.
 """
 
+import numpy
+
 __version__ = "0.9"
 
 from mvDistArray import DistArray
 
+def ghArray(arry, dtype=None, ghostWidth=1):
+    """
+    ghosted distributed array constructor
+    @param arry numpy-like array
+    @param ghostWidth the number of ghosts (>= 0)
+    """
+    a = numpy.array(arry, dtype)
+    res = GhostedDistArray(a.shape, a.dtype)
+    res[:] = a # copy
+    return res
+
+def ghZeros(shape, dtype=numpy.float, ghostWidth=1):
+    """
+    ghosted distributed array zero constructor
+    @param shape the shape of the array
+    @param dtype the numpy ghta type 
+    @param ghostWidth the number of ghosts (>= 0)
+    """
+    res = GhostedDistArray(shape, dtype)
+    res[:] = numpy.zeros(shape, dtype)
+    return res
+
+def ghOnes(shape, dtype=numpy.float, ghostWidth=1):
+    """
+    ghosted distributed array one constructor
+    @param shape the shape of the array
+    @param dtype the numpy data type
+    @param ghostWidth the number of ghosts (>= 0)
+    """
+    res = GhostedDistArray(shape, dtype)
+    res[:] = numpy.zeros(shape, dtype)
+    return res
+
 class GhostedDistArray(DistArray):
 
-    def getSlab(self, dim, slce):
-        """
-        Get slab. A slab is a multi-dimensional slice extending in
-        all directions except along dim where slce applies
-        @param dim dimension (0=first index, 1=2nd index...)
-        @param slce python slice object along dimension dim
-        @return slab
-        """
-        shape = self.shape
-        ndim = len(shape)
-        
-        slab = [ slice(0, shape[i]) for i in range(dim) ] \
-                    + [slce] + \
-                  [ slice(0, shape[i]) for i in range(dim+1, ndim) ]
-        return slab
+    """
+    Ghosted distributed array. Each process owns data and exposes the 
+    halo region to other processes. These are accessed with tuples 
+    such (1, 0) for north, (-1, 0) for south, etc.
+    """
 
-    def setGhostWidth(self, ghostWidth=1):
+    def __init__(self, shape, dtyp, ghostWidth=1):
         """
-        Set the ghost slab width and expose windows
-        @param ghostWidth a number typically > 0
+        Constructor
+        @param shape shape of the array
+        @param dtyp numpy data type
+        @param ghostWidth the width of the halo 
         """
+        # call the parent Ctor
+        DistArray.__init__(self, shape, dtyp)
 
-        shape = self.shape
         # expose each window to other PE domains
         ndim = len(shape)
         for dim in range(ndim):
@@ -60,6 +88,22 @@ class GhostedDistArray(DistArray):
                 
                 # expose MPI window
                 self.expose(slab, winId)
+
+    def getSlab(self, dim, slce):
+        """
+        Get slab. A slab is a multi-dimensional slice extending in
+        all directions except along dim where slce applies
+        @param dim dimension (0=first index, 1=2nd index...)
+        @param slce python slice object along dimension dim
+        @return slab
+        """
+        shape = self.shape
+        ndim = len(shape)
+        
+        slab = [ slice(0, shape[i]) for i in range(dim) ] \
+                    + [slce] + \
+                  [ slice(0, shape[i]) for i in range(dim+1, ndim) ]
+        return slab
 
 ######################################################################
     

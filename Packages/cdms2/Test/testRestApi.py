@@ -44,10 +44,11 @@ fileids=None
 stringType = True
 mapping = None
 print gateway,mapping,datasetids,restPath
-myGateway = cdms2.esgfConnection(gateway,mapping=mapping,datasetids=datasetids,fileids=fileids,restPath=restPath)
+myGateway = cdms2.esgfConnection(gateway,mapping=mapping,datasetids=datasetids,fileids=fileids,restPath=restPath,limit=50)
 stringType = False
-datasets = myGateway.searchDatasets(stringType=stringType,variable="hus")
-print datasets
+print "running search"
+datasets = myGateway.searchDatasets(stringType=stringType,model="CNRM-CM5",variable="hus",limit=50)
+print datasets,len(datasets)
 #sys.exit()
 if stringType:
     #print datasets
@@ -76,11 +77,19 @@ else:
     print search1
     print len(search1)
     search1.remap()
-    print search1.mapped#["cmip5"]["output1"]["INM"]["inmcm4"]["amip"]["day"]["atmos"]["day"]["r1i1p1"].keys()
-    print search1.mapped["CMIP5"]["output1"]["CNRM-CERFACS"]["CNRM-CM5"]["historical"]["mon"]["atmos"]["Amon"]["r4i1p1"]
-    f1=search1[0]
+    print search1.mapped
+    print search1.getMapping()
+    mapKeys = search1.getMappingKeys()
+    r=search1.mapped
+    for k in mapKeys:
+        v = r.keys()[0]
+        print k,":",v
+        r=r[v]
+    r=r["files"]
+    print r
+    f1=r[0]
     print f1
-    print f1.OPENDAP
+    print "openDAP",f1.OPENDAP
     f=cdms2.open(f1.OPENDAP)
     print f.listvariables()
 #    print search1.mapped['obs4cmip5']['NASA-JPL']['AURA']['MLS']['mon']['files'][0].OPENDAP

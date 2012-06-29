@@ -45,8 +45,8 @@
 #include "vcs_canvas.h"
 #include "color_editor.h"
 #include "project.h"
-#include <cairo.h>
-#include <cairo-ft.h>
+#include <cairo/cairo.h>
+#include <cairo/cairo-ft.h>
 
 
 #define PyInit_VCS init_vcs
