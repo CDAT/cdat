@@ -537,7 +537,15 @@ class EsmfRegrid:
             srcField = self.srcField
         if dstField == None:
             dstField = self.dstField
-        ESMP.ESMP_FieldRegrid(srcField.field, dstField.field, self.regridHandle)
+
+        # default is keep the masked values intact
+        zeroregion = ESMP.ESMP_REGION_SELECT
+        if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
+            zeroregion = None # will initalize to zero
+
+        ESMP.ESMP_FieldRegrid(srcField.field, dstField.field, 
+                              self.regridHandle, 
+                              zeroregion = zeroregion)
 
     def __del__(self):
         if self.regridHandle is not None:
