@@ -13,6 +13,7 @@ from scrip import DistwgtRegridder, readRegridder
 from regrid2 import gsRegrid
 from mvGenericRegrid import GenericRegrid
 from mvLibCFRegrid import LibCFRegrid
+from mvCdmsRegrid import CdmsRegrid
 try:
     import ESMP
     from mvESMFRegrid import ESMFRegrid
