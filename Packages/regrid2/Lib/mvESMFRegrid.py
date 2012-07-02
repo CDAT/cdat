@@ -58,7 +58,7 @@ class ESMFRegrid(GenericRegrid):
         # esmf grid objects (tobe constructed)
         self.srcGrid = None
         self.dstGrid = None
-	self.dtype = dtype
+        self.dtype = dtype
 
         srcGridShape = srcGrid[0].shape
         dstGridShape = dstGrid[0].shape
