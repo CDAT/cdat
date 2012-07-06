@@ -1,12 +1,12 @@
 #/usr/bin/env python
 
 """
-Copyright (c) 2008-2012, Tech-X Corporation
-All rights reserved.
+Distributed array class with ghosts
 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the conditions
-specified in the license file 'license.txt' are met.
+This code is provided with the hope that it will be useful. 
+No guarantee is provided whatsoever. Use at your own risk.
+
+Alex Pletzer, Tech-X Corp. (2012)
 """
 
 import numpy

@@ -1,14 +1,10 @@
 """
 LibCF regridding class
 
-Copyright (c) 2008-2012, Tech-X Corporation
-All rights reserved.
+This code is provided with the hope that it will be useful. 
+No guarantee is provided whatsoever. Use at your own risk.
 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the conditions
-specified in the license file 'license.txt' are met.
-
-Authors: David Kindig and Alex Pletzer
+David Kindig and Alex Pletzer, Tech-X Corp. (2012)
 """
 
 from regrid2 import gsRegrid
