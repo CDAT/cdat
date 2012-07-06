@@ -27,6 +27,13 @@ try:
 except:
     pass
 
+# constants
+CENTER = ESMP.ESMP_STAGGERLOC_CENTER
+CORNER = ESMP.ESMP_STAGGERLOC_CORNER
+CONSERVE = ESMP.ESMP_REGRIDMETHOD_CONSERVE
+PATCH = ESMP.ESMP_REGRIDMETHOD_PATCH
+BILINEAR = ESMP.ESMP_REGRIDMETHOD_BILINEAR
+
 class ESMFRegrid(GenericRegrid):
     """
     Regrid class for ESMF
@@ -64,23 +71,23 @@ class ESMFRegrid(GenericRegrid):
         dstGridShape = dstGrid[0].shape
         self.ndims = len(srcGridShape)
 
-        self.regridMethod = ESMP.ESMP_REGRIDMETHOD_BILINEAR
+        self.regridMethod = BILINEAR
         self.regridMethodStr = 'linear'
         if type(regridMethod) == types.StringType:
             if re.search('conserv', regridMethod.lower()):
-                self.regridMethod = ESMP.ESMP_REGRIDMETHOD_CONSERVE
+                self.regridMethod = CONSERVE
                 self.regridMethodStr = 'conserve'
             elif re.search('patch', regridMethod.lower()):
-                self.regridMethod = ESMP.ESMP_REGRIDMETHOD_PATCH
+                self.regridMethod = PATCH
                 self.regridMethodStr = 'patch'
 
         # data stagger
-        self.staggerloc = ESMP.ESMP_STAGGERLOC_CENTER
+        self.staggerloc = CENTER
         self.staggerlocStr = 'center'
         if type(staggerLoc) == types.StringType:
             if re.search('corner', staggerLoc.lower(), re.I) or \
                     re.search('node', staggerLoc.lower(), re.I):
-                self.staggerloc = ESMP.ESMP_STAGGERLOC_CORNER
+                self.staggerloc = CORNER
                 self.staggerlocStr = 'corner'
             # there are other staggers we could test here
         
@@ -139,10 +146,10 @@ dimensions. len(srcGrid[0].shape) = %d != len(dstGrid[0].shape)""" % \
 
         if srcBounds is not None:
         # Coords are CENTER (cell) based, bounds are CORNER (nodal)
-            if self.staggerloc != ESMP.ESMP_STAGGERLOC_CORNER:
+            if self.staggerloc != CORNER:
                 # cell field, need to provide the bounds
                 self.srcGrid.setCoords(srcBounds, 
-                                       staggerloc = ESMP.ESMP_STAGGERLOC_CORNER)
+                                       staggerloc = CORNER)
 
         # create destination Grid
         self.dstGrid = esmf.EsmfStructGrid(dstGrid[0].shape, 
@@ -154,39 +161,38 @@ dimensions. len(srcGrid[0].shape) = %d != len(dstGrid[0].shape)""" % \
 
         if dstBounds is not None:
             # Coords are CENTER (cell) based, bounds are CORNER (nodal)
-            if self.staggerloc != ESMP.ESMP_STAGGERLOC_CORNER:
+            if self.staggerloc != CORNER:
                 self.dstGrid.setCoords(dstBounds, 
-                                       staggerloc = ESMP.ESMP_STAGGERLOC_CORNER)
-            elif self.staggerloc == ESMP.ESMP_STAGGERLOC_CORNER:
+                                       staggerloc = CORNER)
+            elif self.staggerloc == CORNER:
                 msg = """
 mvESMFRegrid.ESMFRegrid.__init__: can't set the dst bounds for 
 staggerLoc = %s!""" % staggerLoc
                 raise RegridError, msg
 
-        # dummy fields required in order to instantiate the regrid object
         self.srcFld = esmf.EsmfStructField(self.srcGrid, 'srcFld', 
-                                           numpy.zeros(srcGrid[0].shape, dtype=self.dtype), 
+                                           datatype = self.dtype, 
                                            staggerloc = self.staggerloc)
         self.dstFld = esmf.EsmfStructField(self.dstGrid, 'dstFld', 
-                                           numpy.zeros(dstGrid[0].shape, dtype=self.dtype),
+                                           datatype = self.dtype,
                                            staggerloc = self.staggerloc)
 
         # prepare the fractional area fields for conservativation check
-        if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
+        if self.regridMethod == CONSERVE:
             self.srcFracFld = esmf.EsmfStructField(self.srcGrid, 'srcFrac',
-                                       numpy.ones(srcGrid[0].shape, dtype=srcGrid[0].dtype),
-                                       staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
+                                                   datatype = srcGrid[0].dtype,
+                                                   staggerloc = CENTER)
             self.dstFracFld = esmf.EsmfStructField(self.dstGrid, 'dstFrac',
-                                       numpy.ones(dstGrid[0].shape, dtype=dstGrid[0].dtype),
-                                       staggerloc = ESMP.ESMP_STAGGERLOC_CENTER)
+                                                   datatype = dstGrid[0].dtype,
+                                                   staggerloc = CENTER)
                                         
     def computeWeights(self, **args):
         """
-        Compute weights
+        Compute interpolation weights
         @param **args (not used)
         """
-        # Note: passing dstFrac = self.dstFracFld may cause a seg fault when runnning in parallel 
-        # on some machines
+        # Note: passing dstFrac = self.dstFracFld may cause a seg fault 
+        # when runnning in parallel on some machines
         self.regridObj = esmf.EsmfRegrid(self.srcFld, self.dstFld,
                                   srcFrac = self.srcFracFld, 
                                   dstFrac = None,
@@ -237,7 +243,7 @@ staggerLoc = %s!""" % staggerLoc
                       None if local areas are to be returned)
         @return areas or None if non-conservative interpolation
         """
-        if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
+        if self.regridMethod == CONSERVE:
             return self.regridObj.getSrcAreas(rootPe = rootPe)
         else:
             return None
@@ -250,7 +256,7 @@ staggerLoc = %s!""" % staggerLoc
                       None if local areas are to be returned)
         @return areas or None if non-conservative interpolation
         """
-        if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
+        if self.regridMethod == CONSERVE:
             return self.regridObj.getDstAreas(rootPe = rootPe)
         else:
             return None
@@ -262,7 +268,7 @@ staggerLoc = %s!""" % staggerLoc
                       None if local areas are to be returned)
         @return fractional areas or None (if non-conservative)
         """
-        if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
+        if self.regridMethod == CONSERVE:
             return self.regridObj.getSrcAreaFractions(rootPe = rootPe) 
         else:
             return None
@@ -274,7 +280,7 @@ staggerLoc = %s!""" % staggerLoc
                       None if local areas are to be returned)
         @return fractional areas or None (if non-conservative)
         """
-        if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
+        if self.regridMethod == CONSERVE:
             return self.regridObj.getSrcAreaFractions(rootPe = rootPe)
         else:
             return
@@ -286,10 +292,10 @@ staggerLoc = %s!""" % staggerLoc
         @return tuple 
         """
         
-        staggerloc = ESMP.ESMP_STAGGERLOC_CENTER
+        staggerloc = CENTER
         if re.search('corner', staggerLoc, re.I) or \
                 re.search('nod', staggerLoc, re.I):
-            staggerloc = ESMP.ESMP_STAGGERLOC_CORNER
+            staggerloc = CORNER
         return self.dstGrid.getCoordShape(staggerloc)
 
     def getDstLocalSlab(self, staggerLoc):
@@ -299,10 +305,10 @@ staggerLoc = %s!""" % staggerLoc
         @param staggerLoc (e.g. 'center')
         @return tuple of slices
         """
-        staggerloc = ESMP.ESMP_STAGGERLOC_CENTER
+        staggerloc = CENTER
         if re.search('corner', staggerLoc, re.I) or \
                 re.search('nod', staggerLoc, re.I):
-            staggerloc = ESMP.ESMP_STAGGERLOC_CORNER
+            staggerloc = CORNER
         return self.dstGrid.getLocalSlab(staggerloc)
 
     def fillInDiagnosticData(self, diag, rootPe):
