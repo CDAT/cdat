@@ -176,12 +176,10 @@ class EsmfStructGrid:
         elif periodicity == 1:
             self.grid = ESMP.ESMP_GridCreate1PeriDim(maxIndex,
                                                      coordSys = coordSys)
-        elif periodicity == 2:
-            self.grid = ESMP.ESMP_GridCreate2PeriDim(maxIndex,
-                                                     coordSys = coordSys)
         else:
-            msg = 'esmf.EsmfStructGrid.__init__: ERROR periodic dimensions %d > 2 not permitted.' \
-                % periodicity
+            msg = """
+esmf.EsmfStructGrid.__init__: ERROR periodic dimensions %d > 1 not permitted.
+            """ % periodicity
             raise RegridError, msg
 
     def getLocalSlab(self, staggerloc):
