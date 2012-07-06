@@ -122,15 +122,13 @@ def test():
                          (n,m))
 
     # create dist array
-    da = GhostedDistArray(shape=data.shape, dtype=data.dtype)
+    
+    da = GhostedDistArray(data.shape, data.dtype)
 
     # load the data on each PE
     da[:] = data
     print da
 
-    # set the number of ghosts and export slabs
-    da.setGhostWidth(1)
-    
     # this shows how one can access slabs 
     for pe in range(sz):
         winIndex = (-1, 0)
