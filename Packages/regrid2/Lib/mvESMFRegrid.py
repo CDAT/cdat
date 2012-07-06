@@ -127,7 +127,7 @@ class ESMFRegrid(GenericRegrid):
         if self.ndims != len(dstGridShape):
             msg = """
 mvESMFRegrid.ESMFRegrid.__init__: mismatch in the number of topological 
-dimensions. len(srcGrid[0].shape) = %d != len(dstGrid[0].shape)""" % \
+dimensions. len(srcGrid[0].shape) = %d != len(dstGrid[0].shape) = %d""" % \
                 (self.ndims, len(dstGridShape))
             raise RegridError, msg
 
