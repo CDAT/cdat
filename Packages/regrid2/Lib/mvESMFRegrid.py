@@ -1,14 +1,10 @@
 """
 ESMF regridding class
 
-Copyright (c) 2008-2012, Tech-X Corporation
-All rights reserved.
+This code is provided with the hope that it will be useful. 
+No guarantee is provided whatsoever. Use at your own risk.
 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the conditions
-specified in the license file 'license.txt' are met.
-
-Authors: David Kindig and Alex Pletzer
+David Kindig and Alex Pletzer, Tech-X Corp. (2012)
 """
 import types
 import re
@@ -131,7 +127,7 @@ class ESMFRegrid(GenericRegrid):
         if self.ndims != len(dstGridShape):
             msg = """
 mvESMFRegrid.ESMFRegrid.__init__: mismatch in the number of topological 
-dimensions. len(srcGrid[0].shape) = %d != len(dstGrid[0].shape)""" % \
+dimensions. len(srcGrid[0].shape) = %d != len(dstGrid[0].shape) = %d""" % \
                 (self.ndims, len(dstGridShape))
             raise RegridError, msg
 
