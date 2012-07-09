@@ -173,15 +173,6 @@ staggerLoc = %s!""" % staggerLoc
                                            datatype = self.dtype,
                                            staggerloc = self.staggerloc)
 
-        # prepare the fractional area fields for conservativation check
-        if self.regridMethod == CONSERVE:
-            self.srcFracFld = esmf.EsmfStructField(self.srcGrid, 'srcFrac',
-                                                   datatype = srcGrid[0].dtype,
-                                                   staggerloc = CENTER)
-            self.dstFracFld = esmf.EsmfStructField(self.dstGrid, 'dstFrac',
-                                                   datatype = dstGrid[0].dtype,
-                                                   staggerloc = CENTER)
-                                        
     def computeWeights(self, **args):
         """
         Compute interpolation weights
@@ -191,7 +182,7 @@ staggerLoc = %s!""" % staggerLoc
         # when runnning in parallel on some machines
         self.regridObj = esmf.EsmfRegrid(self.srcFld, self.dstFld,
                                   srcFrac = self.srcFracFld, 
-                                  dstFrac = None,
+                                  dstFrac = self.dstFracFld,
                                   srcMaskValues = self.srcMaskValues,
                                   dstMaskValues = self.dstMaskValues,
                                   regridMethod = self.regridMethod,
@@ -231,6 +222,25 @@ staggerLoc = %s!""" % staggerLoc
         """
         return [self.dstGrid.getCoords(i, staggerloc=self.staggerloc) \
                     for i in range(self.ndims)]
+
+    def getSrcLocalSlab(self):
+        """
+        Get the source local slab (ellipsis). Use this to grab the data local 
+        to this processor
+        @return tuple of slices
+        """
+        staggerloc = CENTER
+        return self.srcGrid.getLocalSlab(staggerloc)
+
+    def getSrcCoordShape(self):
+        """
+        Get the local coordinate shape (may be different on each processor)
+        @return tuple 
+        """
+        
+        staggerloc = CENTER
+        return self.srcGrid.getCoordShape(staggerloc)
+
 
     def getSrcAreas(self, rootPe):
         """
@@ -294,17 +304,18 @@ staggerLoc = %s!""" % staggerLoc
             staggerloc = CORNER
         return self.dstGrid.getCoordShape(staggerloc)
 
-    def getDstLocalSlab(self, staggerLoc):
+#    def getDstLocalSlab(self, staggerLoc):
+    def getDstLocalSlab(self):
         """
         Get the destination local slab (ellipsis). You can use 
         this to grab the data local to this processor
-        @param staggerLoc (e.g. 'center')
+#        @param staggerLoc (e.g. 'center')
         @return tuple of slices
         """
         staggerloc = CENTER
-        if re.search('corner', staggerLoc, re.I) or \
-                re.search('nod', staggerLoc, re.I):
-            staggerloc = CORNER
+#        if re.search('corner', staggerLoc, re.I) or \
+#                re.search('nod', staggerLoc, re.I):
+#            staggerloc = CORNER
         return self.dstGrid.getLocalSlab(staggerloc)
 
     def fillInDiagnosticData(self, diag, rootPe):
