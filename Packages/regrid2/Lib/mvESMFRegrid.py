@@ -215,6 +215,14 @@ staggerLoc = %s!""" % staggerLoc
             if self.pe == rootPe:
                 dstData[:] = data
 
+    def getSrcGrid(self):
+        """
+        Get the source grid on this processor
+        @return grid
+        """
+        return [self.srcGrid.getCoords(i, staggerloc=self.staggerloc) \
+                    for i in range(self.ndims)]
+
     def getDstGrid(self):
         """
         Get the destination grid on this processor
@@ -232,6 +240,15 @@ staggerLoc = %s!""" % staggerLoc
         staggerloc = CENTER
         return self.srcGrid.getLocalSlab(staggerloc)
 
+    def getDstLocalSlab(self):
+        """
+        Get the destination local slab (ellipsis). You can use 
+        this to grab the data local to this processor
+        @return tuple of slices
+        """
+        staggerloc = CENTER
+        return self.dstGrid.getLocalSlab(staggerloc)
+
     def getSrcCoordShape(self):
         """
         Get the local coordinate shape (may be different on each processor)
@@ -241,6 +258,14 @@ staggerLoc = %s!""" % staggerLoc
         staggerloc = CENTER
         return self.srcGrid.getCoordShape(staggerloc)
 
+    def getDstCoordShape(self, staggerLoc):
+        """
+        Get the local coordinate shape (may be different on each processor)
+        @return tuple 
+        """
+        
+        staggerloc = CENTER
+        return self.dstGrid.getCoordShape(staggerloc)
 
     def getSrcAreas(self, rootPe):
         """
@@ -290,33 +315,6 @@ staggerLoc = %s!""" % staggerLoc
             return self.regridObj.getSrcAreaFractions(rootPe = rootPe)
         else:
             return
-
-    def getDstCoordShape(self, staggerLoc):
-        """
-        Get the local coordinate shape (may be different on each processor)
-        @param staggerLoc (e.g. 'center' or 'corner')
-        @return tuple 
-        """
-        
-        staggerloc = CENTER
-        if re.search('corner', staggerLoc, re.I) or \
-                re.search('nod', staggerLoc, re.I):
-            staggerloc = CORNER
-        return self.dstGrid.getCoordShape(staggerloc)
-
-#    def getDstLocalSlab(self, staggerLoc):
-    def getDstLocalSlab(self):
-        """
-        Get the destination local slab (ellipsis). You can use 
-        this to grab the data local to this processor
-#        @param staggerLoc (e.g. 'center')
-        @return tuple of slices
-        """
-        staggerloc = CENTER
-#        if re.search('corner', staggerLoc, re.I) or \
-#                re.search('nod', staggerLoc, re.I):
-#            staggerloc = CORNER
-        return self.dstGrid.getLocalSlab(staggerloc)
 
     def fillInDiagnosticData(self, diag, rootPe):
         """
