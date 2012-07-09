@@ -360,19 +360,26 @@ class EsmfStructField:
         """
         ptr = self.getPointer()
         if rootPe is None:
+            print 'getData rootPe is None'
             shp = self.grid.getCoordShape(staggerloc = self.staggerloc)
             # local data, copy
             return ptr.reshape(shp)
         else:
             # gather the data on rootPe
+            print 'getData rootPe is not None'
             lo, hi = self.grid.getLoHiBounds(self.staggerloc)
             los = [lo]
             his = [hi]
             ptrs = [ptr]
-            if self.comm is not None:
-                los = self.comm.gather(lo, root = rootPe)
-                his = self.comm.gather(hi, root = rootPe)
-                ptrs = self.comm.gather(ptr, root = rootPe)
+#            print 'self.comm'
+#            if self.comm is not None:
+#                los = self.comm.gather(lo, root = rootPe)
+#                print 'self.comm los ... done'
+#                his = self.comm.gather(hi, root = rootPe)
+#                print 'self.comm his ... done'
+#                ptrs = self.comm.gather(ptr, root = rootPe)
+#                print 'self.comm gather ... done'
+#            print 'self.comm ... done'
             if self.pe == rootPe:
                 # reassemble, find the larges hi indices to set 
                 # the shape of the data container
@@ -399,8 +406,7 @@ class EsmfStructField:
         @param staggerloc stagger location of the data
         """
         ptr = self.getPointer()
-        slab = self.grid.getLocalSlab(staggerloc)
-        ptr[:] = data[slab].flat
+        ptr[:] = data.flat
 
     def  __del__(self):
         ESMP.ESMP_FieldDestroy(self.field)
@@ -497,7 +503,9 @@ class EsmfRegrid:
         """
         if self.srcAreaField is not None:
             ESMP.ESMP_FieldRegridGetArea(self.srcAreaField.field)
-            return self.srcAreaField.getData(rootPe = rootPe)
+            shape = self.srcAreaField.grid.getCoordShape(CENTER)
+            areas = self.srcAreaField.getPointer() 
+            return numpy.reshape(areas, shape)
         return None
 
     def getDstAreas(self, rootPe):
@@ -509,7 +517,9 @@ class EsmfRegrid:
         """
         if self.srcAreaField is not None:
             ESMP.ESMP_FieldRegridGetArea(self.dstAreaField.field)
-            return self.dstAreaField.getData(rootPe = rootPe)
+            shape = self.dstAreaField.grid.getCoordShape(CENTER)
+            areas = self.dstAreaField.getPointer() 
+            return numpy.reshape(areas, shape)
         return None
 
     def getSrcAreaFractions(self, rootPe):
@@ -520,7 +530,9 @@ class EsmfRegrid:
         @return numpy array
         """
         if self.srcFracField is not None:
-            return self.srcFracField.getData(rootPe = rootPe)
+            shape = self.srcFracField.grid.getCoordShape(CENTER)
+            fracs = self.srcFracField.getPointer() 
+            return numpy.reshape(fracs, shape)
         return None
 
     def getDstAreaFractions(self, rootPe):
@@ -531,7 +543,9 @@ class EsmfRegrid:
         @return numpy array
         """
         if self.dstFracField is not None:
-            return self.dstFracField.getData(rootPe = rootPe)
+            shape = self.dstFracField.grid.getCoordShape(CENTER)
+            fracs = self.dstFracField.getPointer() 
+            return numpy.reshape(fracs, shape)
         return None
 
     def __call__(self, srcField=None, dstField=None):

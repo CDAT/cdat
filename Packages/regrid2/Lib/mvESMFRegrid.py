@@ -209,11 +209,8 @@ staggerLoc = %s!""" % staggerLoc
         if rootPe is None:
             slab = self.dstGrid.getLocalSlab(staggerloc = self.staggerloc)
             dstData[slab] = self.dstFld.getData(rootPe = rootPe)
-
         else:
-            data = self.dstFld.getData(rootPe = rootPe)
-            if self.pe == rootPe:
-                dstData[:] = data
+            dstData[:] = numpy.reshape(self.dstFld.getPointer(), dstData.shape)
 
     def getSrcGrid(self):
         """
