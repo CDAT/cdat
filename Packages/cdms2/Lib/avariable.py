@@ -15,7 +15,6 @@ import selectors
 import copy
 # from regrid2 import Regridder, PressureRegridder, CrossSectionRegridder
 from mvCdmsRegrid import CdmsRegrid
-from regrid2 import Horizontal
 #import PropertiedClasses
 from convention import CF1
 from grid import AbstractRectGrid
@@ -966,6 +965,10 @@ class AbstractVariable(CdmsObj, Slab):
         @param keywords optional keyword arguments dependent on regridTool
         @return regridded variable
         """
+        # there is a circular dependency between cdms2 and regrid2. In 
+        # principle, cdms2 files should not import regrid2, we're bending
+        # rules here...
+        from regrid2 import Horizontal
 
         if togrid is None: 
             return self
