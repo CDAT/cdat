@@ -51,9 +51,10 @@ def _getCoordList(grid):
     lats = grid.getLatitude()
     lons = grid.getLongitude()
   
-    if len(lats.shape) == 1 or len(lats.shape) == 1:
+    if len(lats.shape) == 1 or len(lons.shape) == 1:
         # have axes, need to convert to curvilinear grid
         cgrid = grid.toCurveGrid()
+
         lats = cgrid.getLatitude()
         lons = cgrid.getLongitude()
         if grid.getOrder() == 'xy':

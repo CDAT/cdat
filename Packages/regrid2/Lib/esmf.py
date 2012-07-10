@@ -360,26 +360,19 @@ class EsmfStructField:
         """
         ptr = self.getPointer()
         if rootPe is None:
-            print 'getData rootPe is None'
             shp = self.grid.getCoordShape(staggerloc = self.staggerloc)
             # local data, copy
             return ptr.reshape(shp)
         else:
             # gather the data on rootPe
-            print 'getData rootPe is not None'
             lo, hi = self.grid.getLoHiBounds(self.staggerloc)
             los = [lo]
             his = [hi]
             ptrs = [ptr]
-#            print 'self.comm'
-#            if self.comm is not None:
-#                los = self.comm.gather(lo, root = rootPe)
-#                print 'self.comm los ... done'
-#                his = self.comm.gather(hi, root = rootPe)
-#                print 'self.comm his ... done'
-#                ptrs = self.comm.gather(ptr, root = rootPe)
-#                print 'self.comm gather ... done'
-#            print 'self.comm ... done'
+            if self.comm is not None:
+                los = self.comm.gather(lo, root = rootPe)
+                his = self.comm.gather(hi, root = rootPe)
+                ptrs = self.comm.gather(ptr, root = rootPe)
             if self.pe == rootPe:
                 # reassemble, find the larges hi indices to set 
                 # the shape of the data container
@@ -398,15 +391,22 @@ class EsmfStructField:
         # rootPe is not None and self.pe != rootPe
         return None
 
-    def setLocalData(self, data, staggerloc):
+    def setLocalData(self, data, staggerloc, globalIndexing = True):
         """
         Set local field data
         @param data full numpy array, this method will take care of setting a 
                     the subset of the data that reside on the local processor
         @param staggerloc stagger location of the data
+        @param globalIndexing If True arrays exist over global indices
+                              If False arrays exists locally and slabs are not
+                              generated
         """
         ptr = self.getPointer()
-        ptr[:] = data.flat
+        if globalIndexing:
+            slab = self.grid.getLocalSlab(staggerloc)
+            ptr[:] = data[slab].flat
+        else:
+            ptr[:] = data.flat
 
     def  __del__(self):
         ESMP.ESMP_FieldDestroy(self.field)

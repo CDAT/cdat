@@ -30,6 +30,13 @@ CONSERVE = ESMP.ESMP_REGRIDMETHOD_CONSERVE
 PATCH = ESMP.ESMP_REGRIDMETHOD_PATCH
 BILINEAR = ESMP.ESMP_REGRIDMETHOD_BILINEAR
 
+DIMENSION_MISMATCH_MESSAGE = """
+mvESMFRegrid.ESMFRegrid.__init__: mismatch in the number of topological 
+dimensions. len(srcGrid[0].shape) = %d != len(dstGrid[0].shape) = %d"""
+BOUNDS_MESSAGE = """
+mvESMFRegrid.ESMFRegrid.__init__: can't set the dst bounds for 
+staggerLoc = %s!"""
+
 class ESMFRegrid(GenericRegrid):
     """
     Regrid class for ESMF
@@ -125,10 +132,7 @@ class ESMFRegrid(GenericRegrid):
 
         # checks
         if self.ndims != len(dstGridShape):
-            msg = """
-mvESMFRegrid.ESMFRegrid.__init__: mismatch in the number of topological 
-dimensions. len(srcGrid[0].shape) = %d != len(dstGrid[0].shape) = %d""" % \
-                (self.ndims, len(dstGridShape))
+            msg = DIMENSION_MISMATCH_MESSAGE % (self.ndims, len(dstGridShape))
             raise RegridError, msg
 
         # create esmf source Grid
@@ -161,9 +165,7 @@ dimensions. len(srcGrid[0].shape) = %d != len(dstGrid[0].shape) = %d""" % \
                 self.dstGrid.setCoords(dstBounds, 
                                        staggerloc = CORNER)
             elif self.staggerloc == CORNER:
-                msg = """
-mvESMFRegrid.ESMFRegrid.__init__: can't set the dst bounds for 
-staggerLoc = %s!""" % staggerLoc
+                msg = BOUNDS_MESSAGE % staggerLoc
                 raise RegridError, msg
 
         self.srcFld = esmf.EsmfStructField(self.srcGrid, 'srcFld', 
@@ -188,7 +190,7 @@ staggerLoc = %s!""" % staggerLoc
                                   regridMethod = self.regridMethod,
                                   unMappedAction = self.unMappedAction)
 
-    def apply(self, srcData, dstData, rootPe, **args):
+    def apply(self, srcData, dstData, rootPe, globalIndexing = True, **args):
         """
         Regrid source to destination
         @param srcData array source data, shape should 
@@ -197,20 +199,32 @@ staggerLoc = %s!""" % staggerLoc
                        cover entire global index space
         @param rootPe if other than None, then data will be MPI gathered
                       on the specified rootPe processor
+        @param globalIndexing If True arrays exist over global indices
+                              If False arrays exists locally and slabs are not
+                              generated
         @param **args
         """
-        self.srcFld.setLocalData(srcData, self.staggerloc)
-        self.dstFld.setLocalData(dstData, self.staggerloc)
+        self.srcFld.setLocalData(srcData, self.staggerloc, globalIndexing = globalIndexing)
+        self.dstFld.setLocalData(dstData, self.staggerloc, globalIndexing = globalIndexing)
 
         # Regrid
         self.regridObj(self.srcFld, self.dstFld)
 
         # Get the destination data
         if rootPe is None:
-            slab = self.dstGrid.getLocalSlab(staggerloc = self.staggerloc)
-            dstData[slab] = self.dstFld.getData(rootPe = rootPe)
+            if globalIndexing:
+                slab = self.dstGrid.getLocalSlab(staggerloc = self.staggerloc)
+                dstData[slab] = self.dstFld.getData(rootPe = rootPe)
+            else:
+                dstData[:] = numpy.reshape(self.dstFld.getPointer(), dstData.shape)
+
         else:
-            dstData[:] = numpy.reshape(self.dstFld.getPointer(), dstData.shape)
+            if globalIndexing:
+                data = self.dstFld.getData(rootPe = rootPe)
+                if self.pe == rootPe:
+                    dstData[:] = data
+            else:
+                dstData[:] = numpy.reshape(self.dstFld.getPointer(), dstData.shape)
 
     def getSrcGrid(self):
         """
@@ -264,55 +278,6 @@ staggerLoc = %s!""" % staggerLoc
         staggerloc = CENTER
         return self.dstGrid.getCoordShape(staggerloc)
 
-    def getSrcAreas(self, rootPe):
-        """
-        Get the source grid cell areas
-        @param rootPe root processor where data should be gathered (or 
-                      None if local areas are to be returned)
-        @return areas or None if non-conservative interpolation
-        """
-        if self.regridMethod == CONSERVE:
-            return self.regridObj.getSrcAreas(rootPe = rootPe)
-        else:
-            return None
-        
-
-    def getDstAreas(self, rootPe):
-        """
-        Get the destination grid cell areas
-        @param rootPe root processor where data should be gathered (or 
-                      None if local areas are to be returned)
-        @return areas or None if non-conservative interpolation
-        """
-        if self.regridMethod == CONSERVE:
-            return self.regridObj.getDstAreas(rootPe = rootPe)
-        else:
-            return None
-
-    def getSrcAreaFractions(self, rootPe):
-        """
-        Get the source grid area fractions
-        @param rootPe root processor where data should be gathered (or 
-                      None if local areas are to be returned)
-        @return fractional areas or None (if non-conservative)
-        """
-        if self.regridMethod == CONSERVE:
-            return self.regridObj.getSrcAreaFractions(rootPe = rootPe) 
-        else:
-            return None
-
-    def getDstAreaFractions(self, rootPe):
-        """
-        Get the destination grid area fractions
-        @param rootPe root processor where data should be gathered (or 
-                      None if local areas are to be returned)
-        @return fractional areas or None (if non-conservative)
-        """
-        if self.regridMethod == CONSERVE:
-            return self.regridObj.getSrcAreaFractions(rootPe = rootPe)
-        else:
-            return
-
     def fillInDiagnosticData(self, diag, rootPe):
         """
         Fill in diagnostic data
@@ -325,7 +290,8 @@ staggerLoc = %s!""" % staggerLoc
         for entry in  'srcAreaFractions', 'dstAreaFractions',  'srcAreas', 'dstAreas':
             if diag.has_key(entry):
                 meth = 'get' + entry[0].upper() + entry[1:]
-                diag[entry] = eval('self.regridObj.' + meth + '(rootPe = rootPe)')
+                parenStr = '(rootPe = rootPe)'
+                diag[entry] = eval('self.regridObj.' + meth + parenStr)
         diag['regridTool'] = 'esmf'
         diag['regridMethod'] = self.regridMethodStr
         diag['periodicity'] = self.periodicity
