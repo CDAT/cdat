@@ -391,16 +391,22 @@ class EsmfStructField:
         # rootPe is not None and self.pe != rootPe
         return None
 
-    def setLocalData(self, data, staggerloc):
+    def setLocalData(self, data, staggerloc, globalIndexing = True):
         """
         Set local field data
         @param data full numpy array, this method will take care of setting a 
                     the subset of the data that reside on the local processor
         @param staggerloc stagger location of the data
+        @param globalIndexing If True arrays exist over global indices
+                              If False arrays exists locally and slabs are not
+                              generated
         """
         ptr = self.getPointer()
-        slab = self.grid.getLocalSlab(staggerloc)
-        ptr[:] = data[slab].flat
+        if globalIndexing:
+            slab = self.grid.getLocalSlab(staggerloc)
+            ptr[:] = data[slab].flat
+        else:
+            ptr[:] = data.flat
 
     def  __del__(self):
         ESMP.ESMP_FieldDestroy(self.field)

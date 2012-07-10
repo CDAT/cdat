@@ -188,7 +188,7 @@ staggerLoc = %s!""" % staggerLoc
                                   regridMethod = self.regridMethod,
                                   unMappedAction = self.unMappedAction)
 
-    def apply(self, srcData, dstData, rootPe, **args):
+    def apply(self, srcData, dstData, rootPe, globalIndexing = True, **args):
         """
         Regrid source to destination
         @param srcData array source data, shape should 
@@ -197,23 +197,32 @@ staggerLoc = %s!""" % staggerLoc
                        cover entire global index space
         @param rootPe if other than None, then data will be MPI gathered
                       on the specified rootPe processor
+        @param globalIndexing If True arrays exist over global indices
+                              If False arrays exists locally and slabs are not
+                              generated
         @param **args
         """
-        self.srcFld.setLocalData(srcData, self.staggerloc)
-        self.dstFld.setLocalData(dstData, self.staggerloc)
+        self.srcFld.setLocalData(srcData, self.staggerloc, globalIndexing = globalIndexing)
+        self.dstFld.setLocalData(dstData, self.staggerloc, globalIndexing = globalIndexing)
 
         # Regrid
         self.regridObj(self.srcFld, self.dstFld)
 
         # Get the destination data
         if rootPe is None:
-            slab = self.dstGrid.getLocalSlab(staggerloc = self.staggerloc)
-            dstData[slab] = self.dstFld.getData(rootPe = rootPe)
+            if globalIndexing:
+                slab = self.dstGrid.getLocalSlab(staggerloc = self.staggerloc)
+                dstData[slab] = self.dstFld.getData(rootPe = rootPe)
+            else:
+                dstData[:] = numpy.reshape(self.dstFld.getPointer(), dstData.shape)
 
         else:
-            data = self.dstFld.getData(rootPe = rootPe)
-            if self.pe == rootPe:
-                dstData[:] = data
+            if globalIndexing:
+                data = self.dstFld.getData(rootPe = rootPe)
+                if self.pe == rootPe:
+                    dstData[:] = data
+            else:
+                dstData[:] = numpy.reshape(self.dstFld.getPointer(), dstData.shape)
 
     def getSrcGrid(self):
         """
@@ -328,7 +337,8 @@ staggerLoc = %s!""" % staggerLoc
         for entry in  'srcAreaFractions', 'dstAreaFractions',  'srcAreas', 'dstAreas':
             if diag.has_key(entry):
                 meth = 'get' + entry[0].upper() + entry[1:]
-                diag[entry] = eval('self.regridObj.' + meth + '(rootPe = rootPe)')
+                parenStr = '(rootPe = rootPe)'
+                diag[entry] = eval('self.regridObj.' + meth + parenStr)
         diag['regridTool'] = 'esmf'
         diag['regridMethod'] = self.regridMethodStr
         diag['periodicity'] = self.periodicity
