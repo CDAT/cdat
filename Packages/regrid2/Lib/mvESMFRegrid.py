@@ -30,6 +30,13 @@ CONSERVE = ESMP.ESMP_REGRIDMETHOD_CONSERVE
 PATCH = ESMP.ESMP_REGRIDMETHOD_PATCH
 BILINEAR = ESMP.ESMP_REGRIDMETHOD_BILINEAR
 
+DIMENSION_MISMATCH_MESSAGE = """
+mvESMFRegrid.ESMFRegrid.__init__: mismatch in the number of topological 
+dimensions. len(srcGrid[0].shape) = %d != len(dstGrid[0].shape) = %d"""
+BOUNDS_MESSAGE = """
+mvESMFRegrid.ESMFRegrid.__init__: can't set the dst bounds for 
+staggerLoc = %s!"""
+
 class ESMFRegrid(GenericRegrid):
     """
     Regrid class for ESMF
@@ -125,10 +132,7 @@ class ESMFRegrid(GenericRegrid):
 
         # checks
         if self.ndims != len(dstGridShape):
-            msg = """
-mvESMFRegrid.ESMFRegrid.__init__: mismatch in the number of topological 
-dimensions. len(srcGrid[0].shape) = %d != len(dstGrid[0].shape) = %d""" % \
-                (self.ndims, len(dstGridShape))
+            msg = DIMENSION_MISMATCH_MESSAGE % (self.ndims, len(dstGridShape))
             raise RegridError, msg
 
         # create esmf source Grid
@@ -161,9 +165,7 @@ dimensions. len(srcGrid[0].shape) = %d != len(dstGrid[0].shape) = %d""" % \
                 self.dstGrid.setCoords(dstBounds, 
                                        staggerloc = CORNER)
             elif self.staggerloc == CORNER:
-                msg = """
-mvESMFRegrid.ESMFRegrid.__init__: can't set the dst bounds for 
-staggerLoc = %s!""" % staggerLoc
+                msg = BOUNDS_MESSAGE % staggerLoc
                 raise RegridError, msg
 
         self.srcFld = esmf.EsmfStructField(self.srcGrid, 'srcFld', 
@@ -275,55 +277,6 @@ staggerLoc = %s!""" % staggerLoc
         
         staggerloc = CENTER
         return self.dstGrid.getCoordShape(staggerloc)
-
-    def getSrcAreas(self, rootPe):
-        """
-        Get the source grid cell areas
-        @param rootPe root processor where data should be gathered (or 
-                      None if local areas are to be returned)
-        @return areas or None if non-conservative interpolation
-        """
-        if self.regridMethod == CONSERVE:
-            return self.regridObj.getSrcAreas(rootPe = rootPe)
-        else:
-            return None
-        
-
-    def getDstAreas(self, rootPe):
-        """
-        Get the destination grid cell areas
-        @param rootPe root processor where data should be gathered (or 
-                      None if local areas are to be returned)
-        @return areas or None if non-conservative interpolation
-        """
-        if self.regridMethod == CONSERVE:
-            return self.regridObj.getDstAreas(rootPe = rootPe)
-        else:
-            return None
-
-    def getSrcAreaFractions(self, rootPe):
-        """
-        Get the source grid area fractions
-        @param rootPe root processor where data should be gathered (or 
-                      None if local areas are to be returned)
-        @return fractional areas or None (if non-conservative)
-        """
-        if self.regridMethod == CONSERVE:
-            return self.regridObj.getSrcAreaFractions(rootPe = rootPe) 
-        else:
-            return None
-
-    def getDstAreaFractions(self, rootPe):
-        """
-        Get the destination grid area fractions
-        @param rootPe root processor where data should be gathered (or 
-                      None if local areas are to be returned)
-        @return fractional areas or None (if non-conservative)
-        """
-        if self.regridMethod == CONSERVE:
-            return self.regridObj.getSrcAreaFractions(rootPe = rootPe)
-        else:
-            return
 
     def fillInDiagnosticData(self, diag, rootPe):
         """
