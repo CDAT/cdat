@@ -391,15 +391,16 @@ class EsmfStructField:
         # rootPe is not None and self.pe != rootPe
         return None
 
-    def setLocalData(self, data, staggerloc, globalIndexing = True):
+    def setLocalData(self, data, staggerloc, globalIndexing = False):
         """
         Set local field data
         @param data full numpy array, this method will take care of setting a 
                     the subset of the data that reside on the local processor
         @param staggerloc stagger location of the data
-        @param globalIndexing If True arrays exist over global indices
-                              If False arrays exists locally and slabs are not
-                              generated
+        @param globalIndexing if True array was allocated over global index 
+                              space on the processot, if False then array
+                              was allocated over local index space on this
+                              processor
         """
         ptr = self.getPointer()
         if globalIndexing:

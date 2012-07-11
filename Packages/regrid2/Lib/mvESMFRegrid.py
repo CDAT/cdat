@@ -63,6 +63,7 @@ class ESMFRegrid(GenericRegrid):
         @param dstGridMask list [[z], y, x] of arrays
         @param dstBounds list [[z], y, x] of arrays
         @param dstGridAreas list [[z], y, x] of arrays
+        @param args (not used)
         """
 
         # esmf grid objects (tobe constructed)
@@ -190,7 +191,7 @@ class ESMFRegrid(GenericRegrid):
                                   regridMethod = self.regridMethod,
                                   unMappedAction = self.unMappedAction)
 
-    def apply(self, srcData, dstData, rootPe, globalIndexing = True, **args):
+    def apply(self, srcData, dstData, rootPe, globalIndexing = False, **args):
         """
         Regrid source to destination
         @param srcData array source data, shape should 
@@ -199,10 +200,11 @@ class ESMFRegrid(GenericRegrid):
                        cover entire global index space
         @param rootPe if other than None, then data will be MPI gathered
                       on the specified rootPe processor
-        @param globalIndexing If True arrays exist over global indices
-                              If False arrays exists locally and slabs are not
-                              generated
-        @param **args
+        @param globalIndexing if True array was allocated over global index 
+                              space on the processot, if False then array
+                              was allocated over local index space on this
+                              processor
+        @param **args (not used)
         """
         self.srcFld.setLocalData(srcData, self.staggerloc, globalIndexing = globalIndexing)
         self.dstFld.setLocalData(dstData, self.staggerloc, globalIndexing = globalIndexing)
