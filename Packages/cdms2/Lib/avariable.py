@@ -982,33 +982,29 @@ class AbstractVariable(CdmsObj, Slab):
                 regridMethod = keywords['regridMethod']
                 del keywords['regridMethod']
 
+            regridTool = 'libcf' # default
+            if keywords.has_key('regridTool'):
+                regridTool = keywords['regridTool']
+                del keywords['regridTool']
+            elif regridMethod == 'linear':
+                print """
+avariable.regrid: 
+    Warning: the default interpolation method is %s, to recover the old 
+    behavior regridTool = 'regrid2'. e.g.:
+        newVar = var.regrid(grid, regridTool='regrid2')
+                """ % regridTool
+
             # the method determines the tool
             if re.search('conserve', regridMethod, re.I) or \
                re.search('patch', regridMethod, re.I):
                 # only esmf can do conservative and patch
                 regridTool = 'esmf'
-                if keywords.has_key('regridTool') and \
-                   re.search(r'esm', keywords['regridTool']) is None:
+                if re.search(r'esm', regridTool) is None:
                     print """
 avariable.regrid:
     Warning: conservative/patch interpolation requires regridTool = 'esmf', overriding user input
                     """
-                del keywords['regridTool']
-            else:
-                # linear
-                regridTool = 'libcf' # default
-                if keywords.has_key('regridTool'):
-                    regridTool = keywords['regridTool']
-                    del keywords['regridTool']
-                else:
-                    # user did not provide regridTool
-                    print """
-avariable.regrid: 
-    Warning: the default interpolation method is %s, to recover the old 
-    behavior regridTool = 'regrid2'. e.g.:
-        newVar = var.regrid(grid, regridTool='regrid2')
-            """ % regridTool
-            
+
             if re.search('^regrid', regridTool, re.I):
 
                 if keywords.has_key('diag') and \
@@ -1029,7 +1025,7 @@ avariable.regrid:
                                    mask=mask, **keywords)
 
             srcGridMask = None
-            # Set the source mask if a mask is defined with the source data
+            # set the source mask if a mask is defined with the source data
             if numpy.any(self.mask == True):
                 srcGridMask = getMinHorizontalMask(self)
 
