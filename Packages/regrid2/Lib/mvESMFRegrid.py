@@ -267,7 +267,6 @@ class ESMFRegrid(GenericRegrid):
         Get the local coordinate shape (may be different on each processor)
         @return tuple 
         """
-        
         staggerloc = CENTER
         return self.srcGrid.getCoordShape(staggerloc)
 
@@ -276,7 +275,6 @@ class ESMFRegrid(GenericRegrid):
         Get the local coordinate shape (may be different on each processor)
         @return tuple 
         """
-        
         staggerloc = CENTER
         return self.dstGrid.getCoordShape(staggerloc)
 
