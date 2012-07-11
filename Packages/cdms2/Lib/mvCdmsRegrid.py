@@ -30,7 +30,7 @@ def _buildBounds(bounds):
 
     return bnd
 
-def _getBoundList(coordList):
+def getBoundList(coordList):
     """
     Return a list of bounds built from a list of coordinates
     @param coordList coordinate list, should have getBounds()
@@ -188,8 +188,8 @@ class CdmsRegrid:
         # regridTool selection
         self.regridMethod = regridMethod
         if re.search( 'conserv', regridMethod.lower()):
-            srcBounds = _getBoundList(srcCoords)
-            dstBounds = _getBoundList(dstCoords)
+            srcBounds = getBoundList(srcCoords)
+            dstBounds = getBoundList(dstCoords)
 
             for c, b in zip(srcBounds, srcCoords):
                 if c.min() == b.min() or c.max() == b.max():
