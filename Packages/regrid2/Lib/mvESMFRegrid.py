@@ -175,6 +175,14 @@ class ESMFRegrid(GenericRegrid):
         self.dstFld = esmf.EsmfStructField(self.dstGrid, 'dstFld', 
                                            datatype = self.dtype,
                                            staggerloc = self.staggerloc)
+        # prepare the fractional area fields for conservativation check
+        if self.regridMethod == CONSERVE:
+            self.srcFracFld = esmf.EsmfStructField(self.srcGrid, 'srcFrac',
+                                                   datatype = srcGrid[0].dtype,
+                                                   staggerloc = CENTER)
+            self.dstFracFld = esmf.EsmfStructField(self.dstGrid, 'dstFrac',
+                                                   datatype = dstGrid[0].dtype,
+                                                   staggerloc = CENTER)
 
     def computeWeights(self, **args):
         """

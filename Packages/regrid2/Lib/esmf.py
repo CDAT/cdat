@@ -447,7 +447,21 @@ class EsmfRegrid:
 
         # create and initialize the cell areas to zero
         if regridMethod == CONSERVE:
+            self.srcAreaField = EsmfStructField(self.srcField.grid,
+                                                name = 'src_areas',
+                                                datatype = 'float64',
+                                                staggerloc = CENTER)
+            dataPtr = self.srcAreaField.getPointer()
+            dataPtr[:] = 0.0
+            self.dstAreaField = EsmfStructField(self.dstField.grid,
+                                                name = 'dst_areas',
+                                                datatype = 'float64',
+                                                staggerloc = CENTER)
+            dataPtr = self.dstAreaField.getPointer()
+            dataPtr[:] = 0.0
+
         # initialize fractional areas to 1 (unless supplied)
+        if self.srcFracField is None:
             self.srcFracField = EsmfStructField(self.srcField.grid,
                                                 name = 'src_cell_area_fractions',
                                                 datatype = 'float64',
@@ -455,21 +469,13 @@ class EsmfRegrid:
             dataPtr = self.srcFracField.getPointer()
             dataPtr[:] = 1.0
 
+        if self.dstFracField is None:
             self.dstFracField = EsmfStructField(self.dstField.grid,
                                                 name = 'dst_cell_area_fractions',
                                                 datatype = 'float64',
                                                 staggerloc = CENTER)
             dataPtr = self.dstFracField.getPointer()
             dataPtr[:] = 1.0
-
-        if self.srcFracField is None:
-            sff = None
-        else:
-            sff = self.srcFracField.field
-        if self.dstFracField is None:
-            dff = None
-        else:
-            dff = self.dstFracField.field
 
         srcMaskValueArr = None
         if srcMaskValues is not None:
@@ -484,8 +490,8 @@ class EsmfRegrid:
                                      dstField.field,
                                      srcMaskValues = srcMaskValueArr,
                                      dstMaskValues = dstMaskValueArr,
-                                     srcFracField = sff,
-                                     dstFracField = dff,
+                                     srcFracField = self.srcFracField.field,
+                                     dstFracField = self.dstFracField.field,
                                      regridmethod = regridMethod,
                                      unmappedaction = unMappedAction)
 
@@ -496,13 +502,7 @@ class EsmfRegrid:
                       provide rootPe and the data will be gathered
         @return numpy array or None if interpolation is not conservative
         """
-        if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-            self.srcAreaField = EsmfStructField(self.srcField.grid,
-                                                name = 'src_areas',
-                                                datatype = 'float64',
-                                                staggerloc = CENTER)
-            
-#        if self.srcAreaField is not None:
+        if self.srcAreaField is not None:
             ESMP.ESMP_FieldRegridGetArea(self.srcAreaField.field)
             shape = self.srcAreaField.grid.getCoordShape(CENTER)
             areas = self.srcAreaField.getPointer() 
@@ -516,12 +516,7 @@ class EsmfRegrid:
                       provide rootPe and the data will be gathered        
         @return numpy array or None if interpolation is not conservative
         """
-        if self.regridMethod == ESMP.ESMP_REGRIDMETHOD_CONSERVE:
-            self.dstAreaField = EsmfStructField(self.dstField.grid,
-                                                name = 'dst_areas',
-                                                datatype = 'float64',
-                                                staggerloc = CENTER)
-            
+        if self.srcAreaField is not None:
             ESMP.ESMP_FieldRegridGetArea(self.dstAreaField.field)
             shape = self.dstAreaField.grid.getCoordShape(CENTER)
             areas = self.dstAreaField.getPointer() 
