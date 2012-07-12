@@ -206,10 +206,10 @@ staggerLoc = %s!""" % staggerLoc
                        cover entire global index space
         @param rootPe if other than None, then data will be MPI gathered
                       on the specified rootPe processor
-        @param globalIndexing If True array was allocated over global index 
-                              space on the processot, if False then array
-                              was allocated over local index space on this
-                              processor)
+        @param globalIndexing if True array was allocated over global index 
+                              space, otherwise array was allocated over 
+                              local index space on this processor. This 
+                              is only relevant if rootPe is None
         @param **args
         """
         self.srcFld.setLocalData(srcData, self.staggerloc, 
@@ -217,27 +217,16 @@ staggerLoc = %s!""" % staggerLoc
         self.dstFld.setLocalData(dstData, self.staggerloc, 
                                  globalIndexing = globalIndexing)
 
-        # Regrid
+        # regrid
         self.regridObj(self.srcFld, self.dstFld)
 
-        # Get the destination data
-        if rootPe is None:
-            if globalIndexing:
-                slab = self.dstGrid.getLocalSlab(staggerloc = self.staggerloc)
-                dstData[slab] = self.dstFld.getData(rootPe = rootPe)
-            else:
-                dstData[:] = numpy.reshape(self.dstFld.getPointer(), 
-                                           dstData.shape)
-
+        # fill in dstData
+        if rootPe is None and globalIndexing:
+            # only fill in the relevant portion of the data
+            slab = self.dstGrid.getLocalSlab(staggerloc = self.staggerloc)
+            dstData[slab] = self.dstFld.getData(rootPe = rootPe)
         else:
-            if globalIndexing:
-                data = self.dstFld.getData(rootPe = rootPe)
-                if rootPe == rootPe:
-                    dstData[:] = data
-            else:
-                dstData[:] = numpy.reshape(self.dstFld.getPointer(), 
-                                           dstData.shape)
-                
+            dstData[:] = self.dstFld.getData(rootPe = rootPe)
 
     def getDstGrid(self):
         """
@@ -259,7 +248,6 @@ staggerLoc = %s!""" % staggerLoc
         else:
             return None
         
-
     def getDstAreas(self, rootPe):
         """
         Get the destination grid cell areas
@@ -303,11 +291,11 @@ staggerLoc = %s!""" % staggerLoc
         @return tuple 
         """
         
-        staggerloc = CENTER
+        stgloc = CENTER
         if re.search('corner', staggerLoc, re.I) or \
                 re.search('nod', staggerLoc, re.I):
-            staggerloc = CORNER
-        return self.dstGrid.getCoordShape(staggerloc)
+            stgloc = CORNER
+        return self.dstGrid.getCoordShape(stgloc)
 
     def getSrcLocalSlab(self, staggerLoc):
         """
@@ -316,11 +304,11 @@ staggerLoc = %s!""" % staggerLoc
         @param staggerLoc (e.g. 'center')
         @return tuple of slices
         """
-        staggerloc = CENTER
+        stgloc = CENTER
         if re.search('corner', staggerLoc, re.I) or \
                 re.search('nod', staggerLoc, re.I):
-            staggerloc = CORNER
-        return self.srcGrid.getLocalSlab(staggerloc)
+            stgloc = CORNER
+        return self.srcGrid.getLocalSlab(stgloc)
 
     def getDstLocalSlab(self, staggerLoc):
         """
@@ -329,11 +317,11 @@ staggerLoc = %s!""" % staggerLoc
         @param staggerLoc (e.g. 'center')
         @return tuple of slices
         """
-        staggerloc = CENTER
+        stgloc = CENTER
         if re.search('corner', staggerLoc, re.I) or \
                 re.search('nod', staggerLoc, re.I):
-            staggerloc = CORNER
-        return self.dstGrid.getLocalSlab(staggerloc)
+            stgloc = CORNER
+        return self.dstGrid.getLocalSlab(stgloc)
 
     def fillInDiagnosticData(self, diag, rootPe):
         """
@@ -344,7 +332,8 @@ staggerLoc = %s!""" % staggerLoc
         @param rootPe root processor where data should be gathered (or 
                       None if local areas are to be returned)
         """
-        for entry in  'srcAreaFractions', 'dstAreaFractions',  'srcAreas', 'dstAreas':
+        for entry in  'srcAreaFractions', 'dstAreaFractions',  \
+                'srcAreas', 'dstAreas':
             if diag.has_key(entry):
                 meth = 'get' + entry[0].upper() + entry[1:]
                 diag[entry] = eval('self.regridObj.' + meth + '(rootPe = rootPe)')
