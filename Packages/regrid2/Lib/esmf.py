@@ -397,10 +397,10 @@ class EsmfStructField:
         @param data full numpy array, this method will take care of setting a 
                     the subset of the data that reside on the local processor
         @param staggerloc stagger location of the data
-        @param globalIndexing if True array was allocated over global index 
+        @param globalIndexing If True array was allocated over global index 
                               space on the processot, if False then array
                               was allocated over local index space on this
-                              processor
+                              processor)
         """
         ptr = self.getPointer()
         if globalIndexing:
@@ -461,7 +461,7 @@ class EsmfRegrid:
             dataPtr[:] = 0.0
 
         # initialize fractional areas to 1 (unless supplied)
-        if self.srcFracField is None:
+        if srcFrac is None:
             self.srcFracField = EsmfStructField(self.srcField.grid,
                                                 name = 'src_cell_area_fractions',
                                                 datatype = 'float64',
@@ -469,7 +469,7 @@ class EsmfRegrid:
             dataPtr = self.srcFracField.getPointer()
             dataPtr[:] = 1.0
 
-        if self.dstFracField is None:
+        if dstFrac is None:
             self.dstFracField = EsmfStructField(self.dstField.grid,
                                                 name = 'dst_cell_area_fractions',
                                                 datatype = 'float64',
@@ -504,9 +504,7 @@ class EsmfRegrid:
         """
         if self.srcAreaField is not None:
             ESMP.ESMP_FieldRegridGetArea(self.srcAreaField.field)
-            shape = self.srcAreaField.grid.getCoordShape(CENTER)
-            areas = self.srcAreaField.getPointer() 
-            return numpy.reshape(areas, shape)
+            return self.srcAreaField.getData(rootPe = rootPe)
         return None
 
     def getDstAreas(self, rootPe):
@@ -518,9 +516,7 @@ class EsmfRegrid:
         """
         if self.srcAreaField is not None:
             ESMP.ESMP_FieldRegridGetArea(self.dstAreaField.field)
-            shape = self.dstAreaField.grid.getCoordShape(CENTER)
-            areas = self.dstAreaField.getPointer() 
-            return numpy.reshape(areas, shape)
+            return self.dstAreaField.getData(rootPe = rootPe)
         return None
 
     def getSrcAreaFractions(self, rootPe):
@@ -531,9 +527,7 @@ class EsmfRegrid:
         @return numpy array
         """
         if self.srcFracField is not None:
-            shape = self.srcFracField.grid.getCoordShape(CENTER)
-            fracs = self.srcFracField.getPointer() 
-            return numpy.reshape(fracs, shape)
+            return self.srcFracField.getData(rootPe = rootPe)
         return None
 
     def getDstAreaFractions(self, rootPe):
@@ -544,9 +538,7 @@ class EsmfRegrid:
         @return numpy array
         """
         if self.dstFracField is not None:
-            shape = self.dstFracField.grid.getCoordShape(CENTER)
-            fracs = self.dstFracField.getPointer() 
-            return numpy.reshape(fracs, shape)
+            return self.dstFracField.getData(rootPe = rootPe)
         return None
 
     def __call__(self, srcField=None, dstField=None):
