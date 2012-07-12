@@ -12,6 +12,7 @@ Authors: David Kindig and Alex Pletzer
 """
 
 import re
+import time
 import numpy
 from regrid2 import RegridError
 import ESMP
@@ -397,10 +398,9 @@ class EsmfStructField:
         @param data full numpy array, this method will take care of setting a 
                     the subset of the data that reside on the local processor
         @param staggerloc stagger location of the data
-        @param globalIndexing If True array was allocated over global index 
-                              space on the processot, if False then array
-                              was allocated over local index space on this
-                              processor)
+        @param globalIndexing if True array was allocated over global index 
+                              space, array was allocated over local index 
+                              space (on this processor)
         """
         ptr = self.getPointer()
         if globalIndexing:
@@ -445,16 +445,18 @@ class EsmfRegrid:
         self.dstFracField = dstFrac
         self.regridHandle = None
 
+        timeStamp = re.sub('\.', '', str(time.time()))
+
         # create and initialize the cell areas to zero
         if regridMethod == CONSERVE:
             self.srcAreaField = EsmfStructField(self.srcField.grid,
-                                                name = 'src_areas',
+                                                name = 'src_areas_%s' % timeStamp,
                                                 datatype = 'float64',
                                                 staggerloc = CENTER)
             dataPtr = self.srcAreaField.getPointer()
             dataPtr[:] = 0.0
             self.dstAreaField = EsmfStructField(self.dstField.grid,
-                                                name = 'dst_areas',
+                                                name = 'dst_areas_%s' % timeStamp,
                                                 datatype = 'float64',
                                                 staggerloc = CENTER)
             dataPtr = self.dstAreaField.getPointer()
@@ -463,7 +465,7 @@ class EsmfRegrid:
         # initialize fractional areas to 1 (unless supplied)
         if srcFrac is None:
             self.srcFracField = EsmfStructField(self.srcField.grid,
-                                                name = 'src_cell_area_fractions',
+                                                name = 'src_cell_area_fractions_%s' % timeStamp,
                                                 datatype = 'float64',
                                                 staggerloc = CENTER)
             dataPtr = self.srcFracField.getPointer()
@@ -471,7 +473,7 @@ class EsmfRegrid:
 
         if dstFrac is None:
             self.dstFracField = EsmfStructField(self.dstField.grid,
-                                                name = 'dst_cell_area_fractions',
+                                                name = 'dst_cell_area_fractions_%s' % timeStamp,
                                                 datatype = 'float64',
                                                 staggerloc = CENTER)
             dataPtr = self.dstFracField.getPointer()
