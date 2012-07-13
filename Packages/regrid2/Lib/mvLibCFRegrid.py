@@ -9,7 +9,6 @@ David Kindig and Alex Pletzer, Tech-X Corp. (2012)
 
 from regrid2 import gsRegrid
 from regrid2 import GenericRegrid
-
 class LibCFRegrid(GenericRegrid):
     """
     """
@@ -24,12 +23,12 @@ class LibCFRegrid(GenericRegrid):
                       to be passed to gsRegrid
         """
         self.regridMethodStr = 'linear'
-        mkCyclic = args.get('mkCyclic', False)
-        handleCut = args.get('handleCut', False)
+        self.mkCyclic = args.get('mkCyclic', False)
+        self.handleCut = args.get('handleCut', False)
         self.regridObj = gsRegrid.Regrid(srcGrid, dstGrid, 
                                          src_bounds = srcBounds,
-                                         mkCyclic=mkCyclic,
-                                         handleCut=handleCut)
+                                         mkCyclic = self.mkCyclic,
+                                         handleCut = self.handleCut)
         if srcGridMask is not None: 
             self.regridObj.setMask(srcGridMask)
 
@@ -75,3 +74,5 @@ class LibCFRegrid(GenericRegrid):
                         diag[entry] = eval('self.regridObj.' + meth + '()')
         diag['regridTool'] = 'libcf'
         diag['regridMethod'] = self.regridMethodStr
+        diag['handleCut'] = self.handleCut
+        diag['mkCyclic'] = self.mkCyclic
