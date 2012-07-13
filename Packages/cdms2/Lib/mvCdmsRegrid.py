@@ -48,15 +48,17 @@ def _getCoordList(grid):
     Return a CDMS coordinate list from a CDMS grid
     @return lats, lons
     """
-    lats = grid.getLatitude()
-    lons = grid.getLongitude()
+    lats = numpy.array(grid.getLatitude())
+    lons = numpy.array(grid.getLongitude())
   
     if len(lats.shape) == 1 or len(lons.shape) == 1:
+
         # have axes, need to convert to curvilinear grid
         cgrid = grid.toCurveGrid()
 
-        lats = cgrid.getLatitude()
-        lons = cgrid.getLongitude()
+        lats = numpy.array(cgrid.getLatitude())
+        lons = numpy.array(cgrid.getLongitude())
+
         if grid.getOrder() == 'xy':
             # toCurveGrid returns coordinates in the wrong
             # shape if order is 'xy'
