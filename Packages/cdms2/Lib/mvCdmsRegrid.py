@@ -285,11 +285,5 @@ class CdmsRegrid:
                                       attributes = attrs, 
                                       id = srcVar.id + '_CdmsRegrid')
         
-#        if re.search(self.regridMethod.lower(), 'conserv'):
-#            self.srcGridAreas = self.regridObj.tool.getSrcAreas(rootPe = 0)
-#            self.dstGridAreas = self.regridObj.tool.getDstAreas(rootPe = 0)
-#            self.srcFractions = self.regridObj.tool.getSrcAreaFractions(rootPe = 0)
-#            self.dstFractions = self.regridObj.tool.getDstAreaFractions(rootPe = 0)
-
         return dstVar
 
