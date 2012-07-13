@@ -48,16 +48,17 @@ def _getCoordList(grid):
     Return a CDMS coordinate list from a CDMS grid
     @return lats, lons
     """
-    lats = numpy.array(grid.getLatitude())
-    lons = numpy.array(grid.getLongitude())
+
+    lats = grid.getLatitude()
+    lons = grid.getLongitude()
   
     if len(lats.shape) == 1 or len(lons.shape) == 1:
 
         # have axes, need to convert to curvilinear grid
         cgrid = grid.toCurveGrid()
 
-        lats = numpy.array(cgrid.getLatitude())
-        lons = numpy.array(cgrid.getLongitude())
+        lats = cgrid.getLatitude()
+        lons = cgrid.getLongitude()
 
         if grid.getOrder() == 'xy':
             # toCurveGrid returns coordinates in the wrong
@@ -65,7 +66,8 @@ def _getCoordList(grid):
             lats = lats.transpose()
             lons = lons.transpose()
 
-    # we always want the coordinates in that order
+    # we always want the coordinates in that order, these must 
+    # be cdms2 coordinates so we can inquire about bounds
     return lats, lons
 
 def _getDstDataShape(srcVar, dstGrid):
@@ -205,7 +207,10 @@ class CdmsRegrid:
             if not re.search('esmp', regridTool.lower()):
                 regridTool = 'esmf'
 
-        self.regridObj = regrid2.GenericRegrid(srcCoords, dstCoords, 
+        srcCoordsArrays = [numpy.array(sc) for sc in srcCoords]
+        dstCoordsArrays = [numpy.array(dc) for dc in dstCoords]
+
+        self.regridObj = regrid2.GenericRegrid(srcCoordsArrays, dstCoordsArrays, 
                                                regridMethod = regridMethod, 
                                                regridTool = regridTool,
                                                dtype = dtype,
