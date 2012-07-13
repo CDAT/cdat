@@ -30,7 +30,7 @@ def _buildBounds(bounds):
 
     return bnd
 
-def _getBoundList(coordList):
+def getBoundList(coordList):
     """
     Return a list of bounds built from a list of coordinates
     @param coordList coordinate list, should have getBounds()
@@ -48,21 +48,26 @@ def _getCoordList(grid):
     Return a CDMS coordinate list from a CDMS grid
     @return lats, lons
     """
+
     lats = grid.getLatitude()
     lons = grid.getLongitude()
   
-    if len(lats.shape) == 1 or len(lats.shape) == 1:
+    if len(lats.shape) == 1 or len(lons.shape) == 1:
+
         # have axes, need to convert to curvilinear grid
         cgrid = grid.toCurveGrid()
+
         lats = cgrid.getLatitude()
         lons = cgrid.getLongitude()
+
         if grid.getOrder() == 'xy':
             # toCurveGrid returns coordinates in the wrong
             # shape if order is 'xy'
             lats = lats.transpose()
             lons = lons.transpose()
 
-    # we always want the coordinates in that order
+    # we always want the coordinates in that order, these must 
+    # be cdms2 coordinates so we can inquire about bounds
     return lats, lons
 
 def _getDstDataShape(srcVar, dstGrid):
@@ -187,8 +192,8 @@ class CdmsRegrid:
         # regridTool selection
         self.regridMethod = regridMethod
         if re.search( 'conserv', regridMethod.lower()):
-            srcBounds = _getBoundList(srcCoords)
-            dstBounds = _getBoundList(dstCoords)
+            srcBounds = getBoundList(srcCoords)
+            dstBounds = getBoundList(dstCoords)
 
             for c, b in zip(srcBounds, srcCoords):
                 if c.min() == b.min() or c.max() == b.max():
@@ -202,7 +207,10 @@ class CdmsRegrid:
             if not re.search('esmp', regridTool.lower()):
                 regridTool = 'esmf'
 
-        self.regridObj = regrid2.GenericRegrid(srcCoords, dstCoords, 
+        srcCoordsArrays = [numpy.array(sc) for sc in srcCoords]
+        dstCoordsArrays = [numpy.array(dc) for dc in dstCoords]
+
+        self.regridObj = regrid2.GenericRegrid(srcCoordsArrays, dstCoordsArrays, 
                                                regridMethod = regridMethod, 
                                                regridTool = regridTool,
                                                dtype = dtype,

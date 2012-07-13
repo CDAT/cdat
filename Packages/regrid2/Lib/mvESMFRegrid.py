@@ -61,7 +61,7 @@ class ESMFRegrid(GenericRegrid):
         # esmf grid objects (tobe constructed)
         self.srcGrid = None
         self.dstGrid = None
-	self.dtype = dtype
+        self.dtype = dtype
 
         srcGridShape = srcGrid[0].shape
         dstGridShape = dstGrid[0].shape
@@ -109,10 +109,6 @@ class ESMFRegrid(GenericRegrid):
         # provided by user or None
         self.srcGridAreas = srcGridAreas
         self.dstGridAreas = dstGridAreas
-
-        # fractional area fields, to be filled in
-        self.srcFracFld = None
-        self.dstFracFld = None
 
         # MPI stuff
         self.pe = 0
@@ -172,32 +168,21 @@ staggerLoc = %s!""" % staggerLoc
         self.dstFld = esmf.EsmfStructField(self.dstGrid, 'dstFld', 
                                            datatype = self.dtype,
                                            staggerloc = self.staggerloc)
-
-        # prepare the fractional area fields for conservativation check
-        if self.regridMethod == CONSERVE:
-            self.srcFracFld = esmf.EsmfStructField(self.srcGrid, 'srcFrac',
-                                                   datatype = srcGrid[0].dtype,
-                                                   staggerloc = CENTER)
-            self.dstFracFld = esmf.EsmfStructField(self.dstGrid, 'dstFrac',
-                                                   datatype = dstGrid[0].dtype,
-                                                   staggerloc = CENTER)
                                         
     def computeWeights(self, **args):
         """
         Compute interpolation weights
         @param **args (not used)
         """
-        # Note: passing dstFrac = self.dstFracFld may cause a seg fault 
-        # when runnning in parallel on some machines
         self.regridObj = esmf.EsmfRegrid(self.srcFld, self.dstFld,
-                                  srcFrac = self.srcFracFld, 
+                                  srcFrac = None,
                                   dstFrac = None,
                                   srcMaskValues = self.srcMaskValues,
                                   dstMaskValues = self.dstMaskValues,
                                   regridMethod = self.regridMethod,
                                   unMappedAction = self.unMappedAction)
 
-    def apply(self, srcData, dstData, rootPe, **args):
+    def apply(self, srcData, dstData, rootPe, globalIndexing = False, **args):
         """
         Regrid source to destination
         @param srcData array source data, shape should 
@@ -206,23 +191,27 @@ staggerLoc = %s!""" % staggerLoc
                        cover entire global index space
         @param rootPe if other than None, then data will be MPI gathered
                       on the specified rootPe processor
+        @param globalIndexing if True array was allocated over global index 
+                              space, otherwise array was allocated over 
+                              local index space on this processor. This 
+                              is only relevant if rootPe is None
         @param **args
         """
-        self.srcFld.setLocalData(srcData, self.staggerloc)
-        self.dstFld.setLocalData(dstData, self.staggerloc)
+        self.srcFld.setLocalData(srcData, self.staggerloc, 
+                                 globalIndexing = globalIndexing)
+        self.dstFld.setLocalData(dstData, self.staggerloc, 
+                                 globalIndexing = globalIndexing)
 
-        # Regrid
+        # regrid
         self.regridObj(self.srcFld, self.dstFld)
 
-        # Get the destination data
-        if rootPe is None:
+        # fill in dstData
+        if rootPe is None and globalIndexing:
+            # only fill in the relevant portion of the data
             slab = self.dstGrid.getLocalSlab(staggerloc = self.staggerloc)
             dstData[slab] = self.dstFld.getData(rootPe = rootPe)
-
         else:
-            data = self.dstFld.getData(rootPe = rootPe)
-            if self.pe == rootPe:
-                dstData[:] = data
+            dstData[:] = self.dstFld.getData(rootPe = rootPe)
 
     def getDstGrid(self):
         """
@@ -244,7 +233,6 @@ staggerLoc = %s!""" % staggerLoc
         else:
             return None
         
-
     def getDstAreas(self, rootPe):
         """
         Get the destination grid cell areas
@@ -288,11 +276,24 @@ staggerLoc = %s!""" % staggerLoc
         @return tuple 
         """
         
-        staggerloc = CENTER
+        stgloc = CENTER
         if re.search('corner', staggerLoc, re.I) or \
                 re.search('nod', staggerLoc, re.I):
-            staggerloc = CORNER
-        return self.dstGrid.getCoordShape(staggerloc)
+            stgloc = CORNER
+        return self.dstGrid.getCoordShape(stgloc)
+
+    def getSrcLocalSlab(self, staggerLoc):
+        """
+        Get the destination local slab (ellipsis). You can use 
+        this to grab the data local to this processor
+        @param staggerLoc (e.g. 'center')
+        @return tuple of slices
+        """
+        stgloc = CENTER
+        if re.search('corner', staggerLoc, re.I) or \
+                re.search('nod', staggerLoc, re.I):
+            stgloc = CORNER
+        return self.srcGrid.getLocalSlab(stgloc)
 
     def getDstLocalSlab(self, staggerLoc):
         """
@@ -301,11 +302,11 @@ staggerLoc = %s!""" % staggerLoc
         @param staggerLoc (e.g. 'center')
         @return tuple of slices
         """
-        staggerloc = CENTER
+        stgloc = CENTER
         if re.search('corner', staggerLoc, re.I) or \
                 re.search('nod', staggerLoc, re.I):
-            staggerloc = CORNER
-        return self.dstGrid.getLocalSlab(staggerloc)
+            stgloc = CORNER
+        return self.dstGrid.getLocalSlab(stgloc)
 
     def fillInDiagnosticData(self, diag, rootPe):
         """
@@ -316,7 +317,8 @@ staggerLoc = %s!""" % staggerLoc
         @param rootPe root processor where data should be gathered (or 
                       None if local areas are to be returned)
         """
-        for entry in  'srcAreaFractions', 'dstAreaFractions',  'srcAreas', 'dstAreas':
+        for entry in  'srcAreaFractions', 'dstAreaFractions',  \
+                'srcAreas', 'dstAreas':
             if diag.has_key(entry):
                 meth = 'get' + entry[0].upper() + entry[1:]
                 diag[entry] = eval('self.regridObj.' + meth + '(rootPe = rootPe)')

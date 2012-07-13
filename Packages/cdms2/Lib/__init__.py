@@ -59,3 +59,12 @@ except:
 from restApi import esgfConnection
 
 MV = MV2
+
+ESMP_HAS_BEEN_INITIALIZED = False
+if not ESMP_HAS_BEEN_INITIALIZED:
+    try:
+        import ESMP
+        ESMP.ESMP_Initialize()
+        ESMP_HAS_BEEN_INITIALIZED = True
+    except:
+        pass

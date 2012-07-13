@@ -28,8 +28,8 @@ class GenericRegrid:
         """
         Constructor. 
         @param srcGrid list of arrays, source horizontal coordinates
-        @param dstGrid list of arrays, destination horizontal coordinates
-	@param dtype numpy data type for src/dst data
+        @param dstGrid list of arrays, destination horizontal coordinate
+        @param dtype numpy data type for src/dst data
         @param regridMethod linear (bi, tri,...) default or conservative
         @param regridTool 'libcf' or 'esmf'
         @param srcGridMask array of same shape as srcGrid
@@ -197,7 +197,7 @@ valid choices are: 'libcf', 'esmf'"""% regridTool
     def getDstGrid(self):
         """
         Return the destination grid, may be different from the dst grid provided 
-        to the constructor due to padding and/or domain decomposition
+        to the constructor due to domain decomposition
         @return local grid on this processor
         """
         return self.tool.getDstGrid()
