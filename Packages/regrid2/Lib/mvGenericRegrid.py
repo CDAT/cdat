@@ -197,7 +197,7 @@ valid choices are: 'libcf', 'esmf'"""% regridTool
     def getDstGrid(self):
         """
         Return the destination grid, may be different from the dst grid provided 
-        to the constructor due to padding and/or domain decomposition
+        to the constructor due to domain decomposition
         @return local grid on this processor
         """
         return self.tool.getDstGrid()

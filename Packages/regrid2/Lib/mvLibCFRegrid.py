@@ -7,8 +7,10 @@ No guarantee is provided whatsoever. Use at your own risk.
 David Kindig and Alex Pletzer, Tech-X Corp. (2012)
 """
 
+import numpy
 from regrid2 import gsRegrid
 from regrid2 import GenericRegrid
+
 class LibCFRegrid(GenericRegrid):
     """
     """
@@ -25,6 +27,7 @@ class LibCFRegrid(GenericRegrid):
         self.regridMethodStr = 'linear'
         self.mkCyclic = args.get('mkCyclic', False)
         self.handleCut = args.get('handleCut', False)
+        self.verbose = args.get('verbose', False)
         self.regridObj = gsRegrid.Regrid(srcGrid, dstGrid, 
                                          src_bounds = srcBounds,
                                          mkCyclic = self.mkCyclic,
@@ -50,14 +53,35 @@ class LibCFRegrid(GenericRegrid):
         @param missingValue value that should be set for points falling outside the src domain, 
                             pass None if these should not be touched.        
         """
-        self.regridObj.apply(srcData, dstData, missingValue)
+        gshp = self.getSrcGrid()[0].shape
+        sshp = srcData.shape
+        if not reduce(lambda x,y: x and y, [sshp[i] == gshp[i] for i in range(len(gshp))]) \
+                and self.mkCyclic:
+            # padd the src array
+            sd = numpy.ones( gshp, dstData.dtype )
+            if missingValue is not None:
+                sd *= missingValue
+            else:
+                sd *= 0
+            sd[:, :-1] = srcData
+            sd[:, -1] = sd[0, 0]
+            self.regridObj.apply(sd, dstData, missingValue)
+        else:    
+            self.regridObj.apply(srcData, dstData, missingValue)
+
+    def getSrcGrid(self):
+        """
+        Get the grid of the src data (maybe larger than the 
+        dst grid passed to the constructor due to column/row
+        padding)
+        @return grid
+        """
+        return self.regridObj.getSrcGrid()
 
     def getDstGrid(self):
         """
-        Get the grid of the dst data (maybe larger than the 
-        dst grid passed to the constructor due to column/row
-        padding)
-        @return shape
+        Get the grid of the dst data
+        @return grid
         """
         return self.regridObj.getDstGrid()
         
@@ -76,3 +100,4 @@ class LibCFRegrid(GenericRegrid):
         diag['regridMethod'] = self.regridMethodStr
         diag['handleCut'] = self.handleCut
         diag['mkCyclic'] = self.mkCyclic
+        diag['verbose'] = self.verbose
