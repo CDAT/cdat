@@ -371,11 +371,13 @@ class EsmfStructField:
             his = [hi]
             ptrs = [ptr]
             if self.comm is not None:
-                los = self.comm.gather(lo, root = rootPe)
-                his = self.comm.gather(hi, root = rootPe)
+#                los = self.comm.gather(lo, root = rootPe)
+#                his = self.comm.gather(hi, root = rootPe)
+                los = self.comm.allgather(lo)
+                his = self.comm.allgather(hi)
                 ptrs = self.comm.gather(ptr, root = rootPe)
-            if self.pe == rootPe:
-                # reassemble, find the larges hi indices to set 
+
+                # reassemble, find the largest hi indices to set 
                 # the shape of the data container
                 bigHi = [0 for i in range(self.grid.ndims)]
                 for i in range(self.grid.ndims):
@@ -383,12 +385,21 @@ class EsmfStructField:
                                       [his[p][i] for p in range(self.nprocs)])
                 # allocate space to retrieve the data
                 bigData = numpy.empty(bigHi, ptr.dtype)
+                bigData[:] = 0.0
+
+            # populate the data
+            if self.pe == rootPe:
                 for p in range(self.nprocs):
                     slab = tuple([slice(los[p][i], his[p][i], None) for \
                                       i in range(self.grid.ndims)])
                     # copy
                     bigData[slab].flat = ptrs[p]
-                return bigData
+
+            if self.comm is not None:
+                self.comm.barrier()
+                bigData = self.comm.bcast(obj = bigData, root = rootPe)
+            return bigData
+
         # rootPe is not None and self.pe != rootPe
         return None
 
@@ -403,6 +414,7 @@ class EsmfStructField:
                               space (on this processor)
         """
         ptr = self.getPointer()
+        if ptr.size != data.size: globalIndexing = True
         if globalIndexing:
             slab = self.grid.getLocalSlab(staggerloc)
             ptr[:] = data[slab].flat
