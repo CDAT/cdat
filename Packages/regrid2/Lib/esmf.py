@@ -226,11 +226,10 @@ esmf.EsmfStructGrid.__init__: ERROR periodic dimensions %d > 1 not permitted.
         hence the dimensions are reversed here.
         """
         # allocate space for coordinates, can only add coordinates once
+        ESMP.ESMP_GridAddCoord(self.grid, staggerloc=staggerloc)
         if staggerloc ==  CENTER and not self.centersSet:
-            ESMP.ESMP_GridAddCoord(self.grid, staggerloc=staggerloc)
             self.centersSet = True
         elif staggerloc ==  CORNER and not self.nodesSet:
-            ESMP.ESMP_GridAddCoord(self.grid, staggerloc=staggerloc)
             self.nodesSet = True
 
         for i in range(self.ndims):
