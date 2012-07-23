@@ -544,6 +544,7 @@ endif()
 option(CDAT_BUILD_PARAVIEW "Build ParaView" OFF)
 if(CDAT_BUILD_PARAVIEW)
   add_cdat_package(ParaView)
+  add_cdat_package(PVFileDialog)
 endif()
 
 option(CDAT_BUILD_VISIT "Build VisIt" OFF)
@@ -551,7 +552,6 @@ if(CDAT_BUILD_VISIT)
   add_cdat_package(VisIt)
 endif()
 
-add_cdat_package(PVFileDialog)
 # C. Doutriaux Turning off Vistrails build from within CDAT
 #option(CDAT_BUILD_VISTRAILS "Build VisTrails" OFF)
 #if(CDAT_BUILD_VISTRAILS)
