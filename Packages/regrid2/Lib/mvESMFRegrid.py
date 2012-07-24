@@ -24,9 +24,10 @@ except:
     pass
 
 # constants
-CENTER = ESMP.ESMP_STAGGERLOC_CENTER
+CENTER = ESMP.ESMP_STAGGERLOC_CENTER  # or ESMP.ESMP_STAGGERLOC_CENTER_VCENTER
 CORNER = ESMP.ESMP_STAGGERLOC_CORNER
-VCORNER = ESMP.ESMP_STAGGERLOC_CORNER_VFACE
+VFACE = ESMP.ESMP_STAGGERLOC_CORNER_VFACE
+VCORNER = VFACE
 CONSERVE = ESMP.ESMP_REGRIDMETHOD_CONSERVE
 PATCH = ESMP.ESMP_REGRIDMETHOD_PATCH
 BILINEAR = ESMP.ESMP_REGRIDMETHOD_BILINEAR
@@ -35,15 +36,15 @@ class ESMFRegrid(GenericRegrid):
     """
     Regrid class for ESMF
     """
-    def __init__(self, srcGrid, dstGrid, dtype,
+    def __init__(self, srcGridshape, dstGridshape, dtype,
                  regridMethod, staggerLoc, periodicity, coordSys,
-                 srcGridMask = None, srcBounds = None, srcGridAreas = None,
-                 dstGridMask = None, dstBounds = None, dstGridAreas = None,
+                 srcGridMask = None, srcBoundsShape = None, srcGridAreas = None,
+                 dstGridMask = None, dstBoundsShape = None, dstGridAreas = None,
                  **args):
         """
         Constructor
-        @param srcGrid list [[z], y, x] of source grid arrays
-        @param dstGrid list [[z], y, x] of dstination grid arrays
+        @param srcGridShape tuple source grid shape
+        @param dstGridShape tuple destination grid shape
         @param dtype a valid numpy data type for the src/dst data
         @param regridMethod 'linear', 'conserve', or 'patch'
         @param staggerLoc the staggering of the field, 'center' or 'corner'
@@ -51,12 +52,8 @@ class ESMFRegrid(GenericRegrid):
                            1 (last coordinate is periodic,
                            2 (both coordinates are periodic)
         @param coordSys 'deg', 'cart', or 'rad'
-        @param srcGridMask list [[z], y, x] of arrays
-        @param srcBounds list [[z], y, x] of arrays
-        @param srcGridAreas list [[z], y, x] of arrays
-        @param dstGridMask list [[z], y, x] of arrays
-        @param dstBounds list [[z], y, x] of arrays
-        @param dstGridAreas list [[z], y, x] of arrays
+        @param srcBoundsShape tuple source bounds shape
+        @param dstBoundsShape tuple destination bounds shape
         """
 
         # esmf grid objects (tobe constructed)
@@ -64,9 +61,12 @@ class ESMFRegrid(GenericRegrid):
         self.dstGrid = None
         self.dtype = dtype
 
-        srcGridShape = srcGrid[0].shape
-        dstGridShape = dstGrid[0].shape
-        self.ndims = len(srcGridShape)
+        self.srcGridShape = srcGridshape
+        self.dstGridShape = dstGridshape
+        self.ndims = len(self.srcGridShape)
+
+        self.srcBoundsShape = srcBoundsShape
+        self.dstBoundsShape = dstBoundsShape
 
         self.regridMethod = BILINEAR
         self.regridMethodStr = 'linear'
@@ -124,25 +124,58 @@ class ESMFRegrid(GenericRegrid):
             self.nprocs = self.comm.Get_size()
 
         # checks
-        if self.ndims != len(dstGridShape):
+        if self.ndims != len(self.dstGridShape):
             msg = """
 mvESMFRegrid.ESMFRegrid.__init__: mismatch in the number of topological
-dimensions. len(srcGrid[0].shape) = %d != len(dstGrid[0].shape) = %d""" % \
-                (self.ndims, len(dstGridShape))
+dimensions. len(srcGridshape) = %d != len(dstGridshape) = %d""" % \
+                (self.ndims, len(self.dstGridShape))
             raise RegridError, msg
 
-        # create esmf source Grid
-        self.srcGrid = esmf.EsmfStructGrid(srcGridShape,
+        # Initialize the grids without data.
+        self.srcGrid = esmf.EsmfStructGrid(self.srcGridShape,
                                 coordSys = self.coordSys,
-                                periodicity = self.periodicity)
+                                periodicity = self.periodicity,
+                                staggerloc = self.staggerloc,
+                                boundsShape = self.srcBoundsShape)
+        self.dstGrid = esmf.EsmfStructGrid(dstGridshape,
+                                coordSys = self.coordSys,
+                                periodicity = self.periodicity,
+                                staggerloc = self.staggerloc,
+                                boundsShape = self.dstBoundsShape)
+
+        # Initialize the fields with data.
+        self.srcFld = esmf.EsmfStructField(self.srcGrid, 'srcFld',
+                                           datatype = self.dtype,
+                                           staggerloc = self.staggerloc)
+        self.dstFld = esmf.EsmfStructField(self.dstGrid, 'dstFld',
+                                           datatype = self.dtype,
+                                           staggerloc = self.staggerloc)
+
+    def setCoords(self, srcGrid, dstGrid, 
+                  srcGridMask = None, srcBounds = None, srcGridAreas = None,
+                  dstGridMask = None, dstBounds = None, dstGridAreas = None, 
+                  **args):
+        """
+        Popualtor of grids, bounds and masks
+        @param srcGrid list [[z], y, x] of source grid arrays
+        @param dstGrid list [[z], y, x] of dstination grid arrays
+        @param srcGridMask list [[z], y, x] of arrays
+        @param srcBounds list [[z], y, x] of arrays
+        @param srcGridAreas list [[z], y, x] of arrays
+        @param dstGridMask list [[z], y, x] of arrays
+        @param dstBounds list [[z], y, x] of arrays
+        @param dstGridAreas list [[z], y, x] of arrays
+        """
+
+        # create esmf source Grid
         self.srcGrid.setCoords(srcGrid, staggerloc = self.staggerloc)
 
         if srcGridMask is not None:
             self.srcGrid.setMask(srcGridMask)
 
         if srcBounds is not None:
-        # Coords are CENTER (cell) based, bounds are CORNER (nodal)
-        # VCORNER for 3D
+            # Coords are CENTER (cell) based, bounds are CORNER (nodal)
+            # VCORNER for 3D
             if self.staggerloc != CORNER and self.staggerloc != VCORNER:
                 if self.ndims == 2:
                 # cell field, need to provide the bounds
@@ -159,9 +192,6 @@ staggerLoc = %s!""" % staggerLoc
                 raise RegridError, msg
 
         # create destination Grid
-        self.dstGrid = esmf.EsmfStructGrid(dstGrid[0].shape,
-                                           coordSys = self.coordSys,
-                                           periodicity = self.periodicity)
         self.dstGrid.setCoords(dstGrid, staggerloc = self.staggerloc)
         if dstGridMask is not None:
             self.dstGrid.setMask(dstGridMask)
@@ -180,13 +210,6 @@ staggerLoc = %s!""" % staggerLoc
 mvESMFRegrid.ESMFRegrid.__init__: can't set the dst bounds for
 staggerLoc = %s!""" % staggerLoc
                 raise RegridError, msg
-
-        self.srcFld = esmf.EsmfStructField(self.srcGrid, 'srcFld',
-                                           datatype = self.dtype,
-                                           staggerloc = self.staggerloc)
-        self.dstFld = esmf.EsmfStructField(self.dstGrid, 'dstFld',
-                                           datatype = self.dtype,
-                                           staggerloc = self.staggerloc)
 
     def computeWeights(self, **args):
         """
@@ -296,9 +319,12 @@ staggerLoc = %s!""" % staggerLoc
         """
 
         stgloc = CENTER
-        if re.search('corner', staggerLoc, re.I) or \
-                re.search('nod', staggerLoc, re.I):
+        if re.search('\bcorner', staggerLoc, re.I) or \
+           re.search('nod', staggerLoc, re.I):
             stgloc = CORNER
+        elif re.search('vface', staggerLoc, re.I) or \
+             re.search('vcorner', staggerLoc, re.I):
+            stgloc = VFACE
         return self.dstGrid.getCoordShape(stgloc)
 
     def getSrcLocalSlab(self, staggerLoc):
@@ -309,9 +335,12 @@ staggerLoc = %s!""" % staggerLoc
         @return tuple of slices
         """
         stgloc = CENTER
-        if re.search('corner', staggerLoc, re.I) or \
-                re.search('nod', staggerLoc, re.I):
+        if re.search('\bcorner', staggerLoc, re.I) or \
+           re.search('nod', staggerLoc, re.I):
             stgloc = CORNER
+        elif re.search('vface', staggerLoc, re.I) or \
+             re.search('vcorner', staggerLoc, re.I):
+            stgloc = VFACE
         return self.srcGrid.getLocalSlab(stgloc)
 
     def getDstLocalSlab(self, staggerLoc):
@@ -322,9 +351,12 @@ staggerLoc = %s!""" % staggerLoc
         @return tuple of slices
         """
         stgloc = CENTER
-        if re.search('corner', staggerLoc, re.I) or \
-                re.search('nod', staggerLoc, re.I):
+        if re.search('\bcorner', staggerLoc, re.I) or \
+           re.search('nod', staggerLoc, re.I):
             stgloc = CORNER
+        elif re.search('vface', staggerLoc, re.I) or \
+             re.search('vcorner', staggerLoc, re.I):
+            stgloc = VFACE
         return self.dstGrid.getLocalSlab(stgloc)
 
     def fillInDiagnosticData(self, diag, rootPe):

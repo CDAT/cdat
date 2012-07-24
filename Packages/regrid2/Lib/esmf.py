@@ -22,8 +22,10 @@ R8 = ESMP.ESMP_TYPEKIND_R8
 R4 = ESMP.ESMP_TYPEKIND_R4
 I8 = ESMP.ESMP_TYPEKIND_I8
 I4 = ESMP.ESMP_TYPEKIND_I4
-CENTER = ESMP.ESMP_STAGGERLOC_CENTER
+CENTER = ESMP.ESMP_STAGGERLOC_CENTER # Same as ESMP_STAGGERLOC_CENTER_VCENTER
 CORNER = ESMP.ESMP_STAGGERLOC_CORNER
+VCORNER = ESMP.ESMP_STAGGERLOC_CORNER_VFACE
+VFACE = VCORNER
 CONSERVE = ESMP.ESMP_REGRIDMETHOD_CONSERVE
 PATCH = ESMP.ESMP_REGRIDMETHOD_PATCH
 BILINEAR = ESMP.ESMP_REGRIDMETHOD_BILINEAR
@@ -139,7 +141,8 @@ class EsmfStructGrid:
     Structured grid
     """
     def __init__(self, shape, coordSys = ESMP.ESMP_COORDSYS_SPH_DEG,
-                 periodicity = 0):
+                 periodicity = 0, staggerloc = ESMP.ESMP_STAGGERLOC_CENTER,
+                 boundsShape = None):
         """
         Constructor
         @param shape  Tuple of cell sizes along each axis
@@ -151,7 +154,9 @@ class EsmfStructGrid:
                            0 No periodicity
                            1 Periodic in x (1st) axis
                            2 Periodic in x, y axes
-
+        @param staggerloc ESMP stagger location. ESMP.ESMP_STAGGERLOC_XXXX
+                          See the top for constants based on the stagger
+        @param boundsShape If the grid has bounds, Run AddCoords for the bounds
         """
         # ESMF grid object
         self.grid = None
@@ -170,7 +175,6 @@ class EsmfStructGrid:
         # y, x whereas ESMF assumes x, y
         maxIndex = numpy.array(shape[::-1], dtype = numpy.int32)
 
-
         if periodicity == 0:
             self.grid = ESMP.ESMP_GridCreateNoPeriDim(maxIndex,
                                                       coordSys = coordSys)
@@ -182,6 +186,21 @@ class EsmfStructGrid:
 esmf.EsmfStructGrid.__init__: ERROR periodic dimensions %d > 1 not permitted.
             """ % periodicity
             raise RegridError, msg
+
+        # Grid add coordinates call must go here for parallel runs
+        # This occur before the fields are created, making the fields
+        # parallel aware.
+        ESMP.ESMP_GridAddCoord(self.grid, staggerloc=staggerloc)
+        if staggerloc ==  CENTER and not self.centersSet:
+            self.centersSet = True
+        elif staggerloc ==  CORNER and not self.nodesSet:
+            self.nodesSet = True
+
+        if boundsShape is not None:
+            if self.ndims == 2:
+                ESMP.ESMP_GridAddCoord(self.grid, staggerloc = CORNER)
+            if self.ndims == 3:
+                ESMP.ESMP_GridAddCoord(self.grid, staggerloc = VCORNER)
 
     def getLocalSlab(self, staggerloc):
         """
@@ -214,7 +233,7 @@ esmf.EsmfStructGrid.__init__: ERROR periodic dimensions %d > 1 not permitted.
         lo, hi = self.getLoHiBounds(staggerloc)
         return tuple( [hi[i] - lo[i] for i in range(self.ndims)] )
 
-    def setCoords(self, coords, staggerloc = CENTER):
+    def setCoords(self, coords, staggerloc = CENTER, globalIndexing = False):
         """
         Populate the grid with staggered coordinates (e.g. corner or center).
         @param coords   The curvilinear coordinates of the grid.
@@ -226,18 +245,16 @@ esmf.EsmfStructGrid.__init__: ERROR periodic dimensions %d > 1 not permitted.
         hence the dimensions are reversed here.
         """
         # allocate space for coordinates, can only add coordinates once
-        ESMP.ESMP_GridAddCoord(self.grid, staggerloc=staggerloc)
-        if staggerloc ==  CENTER and not self.centersSet:
-            self.centersSet = True
-        elif staggerloc ==  CORNER and not self.nodesSet:
-            self.nodesSet = True
 
         for i in range(self.ndims):
             ptr = ESMP.ESMP_GridGetCoordPtr(self.grid, i, staggerloc)
-            slab = self.getLocalSlab(staggerloc)
-            # Populate self.grid with coordinates or the bounds as needed
-            # numpy.arrays required since numpy.ma arrays don't support flat
-            ptr[:] = numpy.array(coords[self.ndims-i-1][slab]).flat
+            if globalIndexing:
+                slab = self.getLocalSlab(staggerloc)
+                # Populate self.grid with coordinates or the bounds as needed
+                # numpy.arrays required since numpy.ma arrays don't support flat
+                ptr[:] = numpy.array(coords[self.ndims-i-1][slab]).flat
+            else:
+                ptr[:] = coords[self.ndims-i-1].flat
 
     def getCoords(self, dim, staggerloc):
         """
