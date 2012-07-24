@@ -1,7 +1,7 @@
 """
 Macro regridding class
 David Kindig and Alex Pletzer, Tech-X Corp. (2012)
-This code is provided with the hope that it will be useful. 
+This code is provided with the hope that it will be useful.
 No guarantee is provided whatsoever. Use at your own risk.
 """
 import types
@@ -51,7 +51,7 @@ def _getCoordList(grid):
 
     lats = grid.getLatitude()
     lons = grid.getLongitude()
-  
+
     if len(lats.shape) == 1 or len(lons.shape) == 1:
 
         # have axes, need to convert to curvilinear grid
@@ -66,19 +66,19 @@ def _getCoordList(grid):
             lats = lats.transpose()
             lons = lons.transpose()
 
-    # we always want the coordinates in that order, these must 
+    # we always want the coordinates in that order, these must
     # be cdms2 coordinates so we can inquire about bounds
     return lats, lons
 
 def _getDstDataShape(srcVar, dstGrid):
     """
     Get the shape of the dst data
-    @param srcVar the variable from which all axes other than lat/lon 
+    @param srcVar the variable from which all axes other than lat/lon
                   will be taken from
     @param dstGrid target, horizontal grid
     @return list
     """
-    
+
     shp = srcVar.shape
     ndims = len(shp)
     order = srcVar.getOrder()
@@ -86,7 +86,7 @@ def _getDstDataShape(srcVar, dstGrid):
     numY = order.count('y')
     hasXY = (numX == 1) and (numY == 1)
 
-    # fill in the axis list backwards, we're assuming the 
+    # fill in the axis list backwards, we're assuming the
     # y and x axes are more likely to occur at the end
     dstDataShape = []
     found = False
@@ -108,13 +108,13 @@ def _getDstDataShape(srcVar, dstGrid):
 def _getAxisList(srcVar, dstGrid):
     """
     Get the list of axes from a variable and a grid
-    @param srcVar the variable from which all axes other than lat/lon 
+    @param srcVar the variable from which all axes other than lat/lon
                   will be taken from
     @param dstGrid target, horizontal grid
     @return variable with non-horizontal axes from srcVar and horizontal axes
             from dstGrid
     """
-    
+
     shp = srcVar.shape
     ndims = len(shp)
     order = srcVar.getOrder()
@@ -122,7 +122,7 @@ def _getAxisList(srcVar, dstGrid):
     numY = order.count('y')
     hasXY = (numX == 1) and (numY == 1)
 
-    # fill in the axis list backwards, we're assuming the 
+    # fill in the axis list backwards, we're assuming the
     # y and x axes are more likely to occur at the end
     axisList = []
     found = False
@@ -143,11 +143,11 @@ def _getAxisList(srcVar, dstGrid):
 
 class CdmsRegrid:
     """
-    Regridding switchboard, handles CDMS variables before handing off to 
+    Regridding switchboard, handles CDMS variables before handing off to
     regridder. If a multidimensional variable is passed in, the apply step
     loops over the axes above the Lat (Y) -- Lon (X) coordinates
     """
-    def __init__(self, srcGrid, dstGrid, dtype, 
+    def __init__(self, srcGrid, dstGrid, dtype,
                  regridMethod = 'linear', regridTool = 'libCF',
                  srcGridMask = None, srcGridAreas = None,
                  dstGridMask = None, dstGridAreas = None,
@@ -159,23 +159,23 @@ class CdmsRegrid:
         @param srcGrid CDMS source grid
         @param dstGrid CDMS destination grid
         @param dtype numpy data type for src and dst data
-        @param regridMethod linear (all tools - bi, tri), 
+        @param regridMethod linear (all tools - bi, tri),
                             conserve (ESMF Only)
                             patch (ESMF Only)
         @param regridTool LibCF, ESMF, ...
-        @param srcGridMask array source mask, interpolation 
+        @param srcGridMask array source mask, interpolation
                            coefficients will not be computed for masked
                            points/cells.
-        @param srcGridAreas array destination cell areas, only needed for 
+        @param srcGridAreas array destination cell areas, only needed for
                             conservative regridding
-        @param dstGridMask array destination mask, interpolation 
+        @param dstGridMask array destination mask, interpolation
                            coefficients will not be computed for masked
                            points/cells.
-        @param dstGridAreas array destination cell areas, only needed for 
+        @param dstGridAreas array destination cell areas, only needed for
                             conservative regridding
         @param **args additional, tool dependent arguments
         """
-        
+
         srcBounds = None
         dstBounds = None
 
@@ -186,7 +186,7 @@ class CdmsRegrid:
         dstCoords = _getCoordList(dstGrid)
 
         # retrieve and build a bounds list for conservative from the grids
-        # We can't use the coords lists because if they are converted to 
+        # We can't use the coords lists because if they are converted to
         # curvilinear
         # Set the tool to esmf if conservative selected. This overrides the
         # regridTool selection
@@ -210,16 +210,16 @@ class CdmsRegrid:
         srcCoordsArrays = [numpy.array(sc) for sc in srcCoords]
         dstCoordsArrays = [numpy.array(dc) for dc in dstCoords]
 
-        self.regridObj = regrid2.GenericRegrid(srcCoordsArrays, dstCoordsArrays, 
-                                               regridMethod = regridMethod, 
+        self.regridObj = regrid2.GenericRegrid(srcCoordsArrays, dstCoordsArrays,
+                                               regridMethod = regridMethod,
                                                regridTool = regridTool,
                                                dtype = dtype,
-                                               srcGridMask = srcGridMask, 
-                                               srcBounds = srcBounds, 
+                                               srcGridMask = srcGridMask,
+                                               srcBounds = srcBounds,
                                                srcGridAreas = srcGridAreas,
-                                               dstGridMask = dstGridMask, 
-                                               dstBounds = dstBounds, 
-                                               dstGridAreas = dstGridAreas, 
+                                               dstGridMask = dstGridMask,
+                                               dstBounds = dstBounds,
+                                               dstGridAreas = dstGridAreas,
                                                **args )
         self.regridObj.computeWeights(**args)
 
@@ -229,7 +229,7 @@ class CdmsRegrid:
            if need be
         @param srcVar CDMS variable
         @param **args Tool dependent arguments
-        @return CDMS interpolated variable 
+        @return CDMS interpolated variable
         """
 
         # initialize
@@ -238,21 +238,21 @@ class CdmsRegrid:
 
         timeAxis = srcVar.getTime()
         levelAxis = srcVar.getLevel()
-        
+
         # shape of dst var
         dstShape = _getDstDataShape(srcVar, self.dstGrid)
 
         # establish the destination data. Initialize to missing values or 0.
         dstData = numpy.ones(dstShape, dtype = srcVar.dtype)
-        if missingValue is not None: 
+        if missingValue is not None:
             dstData *= missingValue
-        else: 
+        else:
             dstData *= 0.0
-        
+
         # interpolate the data, MPI gather on processor 0
-        self.regridObj.apply(srcVar.data, dstData, 
-                             rootPe = 0, 
-                             missingValue = missingValue, 
+        self.regridObj.apply(srcVar.data, dstData,
+                             rootPe = 0,
+                             missingValue = missingValue,
                              **args)
 
         # fill in diagnostic data
@@ -269,21 +269,21 @@ class CdmsRegrid:
             if type(v) is types.StringType:
                 attrs[a] = v
 
-        # if the missing value is present in the destination data, set 
+        # if the missing value is present in the destination data, set
         # destination mask
-        if numpy.any(dstData == missingValue): 
+        if numpy.any(dstData == missingValue):
             dstMask = (dstData == missingValue)
 
-        # create the transient variable. Note: it is unclear whether 
-        # we should create the variable on the supplied dstGrid or 
+        # create the transient variable. Note: it is unclear whether
+        # we should create the variable on the supplied dstGrid or
         # the local grid.
-        dstVar = cdms2.createVariable(dstData, 
+        dstVar = cdms2.createVariable(dstData,
                                       mask = dstMask,
                                       fill_value = missingValue,
                                       axes = dstAxisList,
                                       grid = self.dstGrid,
-                                      attributes = attrs, 
+                                      attributes = attrs,
                                       id = srcVar.id + '_CdmsRegrid')
-        
+
         return dstVar
 

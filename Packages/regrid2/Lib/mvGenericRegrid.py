@@ -1,7 +1,7 @@
 """
 Generic Regrid class.
 
-This code is provided with the hope that it will be useful. 
+This code is provided with the hope that it will be useful.
 No guarantee is provided whatsoever. Use at your own risk.
 
 David Kindig and Alex Pletzer, Tech-X Corp. (2012)
@@ -18,15 +18,15 @@ class GenericRegrid:
     """
     Generic Regrid class.
     """
-    def __init__(self, srcGrid, dstGrid, 
+    def __init__(self, srcGrid, dstGrid,
                  dtype,
-                 regridMethod, 
+                 regridMethod,
                  regridTool,
                  srcGridMask = None, srcBounds = None, srcGridAreas = None,
                  dstGridMask = None, dstBounds = None, dstGridAreas = None,
                  **args):
         """
-        Constructor. 
+        Constructor.
         @param srcGrid list of arrays, source horizontal coordinates
         @param dstGrid list of arrays, destination horizontal coordinate
         @param dtype numpy data type for src/dst data
@@ -38,7 +38,7 @@ class GenericRegrid:
         @param dstGridMask array of same shape as dstGrid
         @param dstBounds list of arrays of same shape as dstGrid
         @param dstGridAreas array of same shape as dstGrid
-        @param **args additional arguments to be passed to the 
+        @param **args additional arguments to be passed to the
                       specific tool
                       'libcf': mkCyclic={True, False}, handleCut={True,False}
                       'esmf': .... TO FILL IN
@@ -57,48 +57,48 @@ class GenericRegrid:
         if re.search('libcf', regridTool.lower()) or \
            re.search('gsreg', regridTool.lower()):
             # LibCF
-            self.tool = regrid2.LibCFRegrid(srcGrid, dstGrid, 
-                 srcGridMask = srcGridMask, 
-                 srcBounds = srcBounds, 
+            self.tool = regrid2.LibCFRegrid(srcGrid, dstGrid,
+                 srcGridMask = srcGridMask,
+                 srcBounds = srcBounds,
                  **args)
         elif re.search('esm', regridTool.lower()):
             # ESMF
-            staggerLoc = args.get('staggerLoc', 'center') 
+            staggerLoc = args.get('staggerLoc', 'center')
             if args.has_key('staggerLoc'):
                 del args['staggerLoc']
-            periodicity = args.get('periodicity', 1) 
+            periodicity = args.get('periodicity', 1)
             if args.has_key('periodicity'):
                 del args['periodicity']
-            coordSys = args.get('coordSys', 'deg') 
+            coordSys = args.get('coordSys', 'deg')
             if args.has_key('coordSys'):
                 del args['coordSys']
             self.tool = regrid2.ESMFRegrid(srcGrid, dstGrid,
-                  dtype = dtype,               
-                  regridMethod = regridMethod, 
+                  dtype = dtype,
+                  regridMethod = regridMethod,
                   staggerLoc = staggerLoc,
                   periodicity = periodicity,
-                  coordSys = coordSys, 
-                  srcGridMask = srcGridMask, 
-                  srcBounds = srcBounds, 
+                  coordSys = coordSys,
+                  srcGridMask = srcGridMask,
+                  srcBounds = srcBounds,
                   srcGridAreas = srcGridAreas,
-                  dstGridMask = dstGridMask, 
-                  dstBounds = dstBounds, 
+                  dstGridMask = dstGridMask,
+                  dstBounds = dstBounds,
                   dstGridAreas = dstGridAreas,
                   **args)
         else:
             msg = """mvGenericRegrid.__init__: ERROR unrecognized tool %s,
 valid choices are: 'libcf', 'esmf'"""% regridTool
             raise regrid2.RegridError, msg
-    
+
     def computeWeights(self, **args):
         """
         Compute Weights
         """
         self.tool.computeWeights(**args)
 
-    def apply(self, srcData, dstData, 
+    def apply(self, srcData, dstData,
               rootPe = None,
-              missingValue = None, 
+              missingValue = None,
               **args):
         """
         Regrid source to destination
@@ -113,20 +113,20 @@ valid choices are: 'libcf', 'esmf'"""% regridTool
         # assuming the axes are the slowly varying indices
         srcHorizShape = srcData.shape[-self.nGridDims :]
         dstHorizShape = dstData.shape[-self.nGridDims :]
-    
+
         srcDataMaskFloat = None
         dstDataMaskFloat = None
         dstMask = None
         if missingValue is not None:
             srcDataMaskFloat = numpy.zeros(srcHorizShape, srcData.dtype)
             dstDataMaskFloat = numpy.zeros(dstHorizShape, dstData.dtype)
-             
+
         nonHorizShape = srcData.shape[: -self.nGridDims]
 
         if len(nonHorizShape) == 0:
 
             #
-            # no axis... just call apply 
+            # no axis... just call apply
             #
 
             self.tool.apply(srcData, dstData, rootPe = rootPe, **args)
@@ -168,7 +168,7 @@ valid choices are: 'libcf', 'esmf'"""% regridTool
             for it in MultiArrayIter(nonHorizShape):
 
                 indices = it.getIndices()
-                slce = '[' 
+                slce = '['
                 slce += reduce(operator.add, ['%d,'%i for i in indices])
                 slce += '...]'
                 indata = eval('srcData' + slce)
@@ -180,7 +180,7 @@ valid choices are: 'libcf', 'esmf'"""% regridTool
                 if missingValue is not None:
                     srcDataMaskFloat[:] = (indata == missingValue)
                     # interpolate mask
-                    self.tool.apply(srcDataMaskFloat, dstDataMaskFloat, 
+                    self.tool.apply(srcDataMaskFloat, dstDataMaskFloat,
                                     rootPe = rootPe, **args)
                     if re.search('conserv', self.regridMethod.lower(), re.I):
                         # cell interpolation
@@ -196,7 +196,7 @@ valid choices are: 'libcf', 'esmf'"""% regridTool
 
     def getDstGrid(self):
         """
-        Return the destination grid, may be different from the dst grid provided 
+        Return the destination grid, may be different from the dst grid provided
         to the constructor due to domain decomposition
         @return local grid on this processor
         """
@@ -207,7 +207,7 @@ valid choices are: 'libcf', 'esmf'"""% regridTool
         Fill in diagnostic data
         @param diag a dictionary whose entries, if present, will be filled
                     entries are tool dependent
-        @param rootPe root processor where data should be gathered (or 
+        @param rootPe root processor where data should be gathered (or
                       None if local areas are to be returned)
         """
         self.tool.fillInDiagnosticData(diag, rootPe = rootPe)

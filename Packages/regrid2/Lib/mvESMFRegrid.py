@@ -1,7 +1,7 @@
 """
 ESMF regridding class
 
-This code is provided with the hope that it will be useful. 
+This code is provided with the hope that it will be useful.
 No guarantee is provided whatsoever. Use at your own risk.
 
 David Kindig and Alex Pletzer, Tech-X Corp. (2012)
@@ -26,6 +26,7 @@ except:
 # constants
 CENTER = ESMP.ESMP_STAGGERLOC_CENTER
 CORNER = ESMP.ESMP_STAGGERLOC_CORNER
+VCORNER = ESMP.ESMP_STAGGERLOC_CORNER_VFACE
 CONSERVE = ESMP.ESMP_REGRIDMETHOD_CONSERVE
 PATCH = ESMP.ESMP_REGRIDMETHOD_PATCH
 BILINEAR = ESMP.ESMP_REGRIDMETHOD_BILINEAR
@@ -46,8 +47,8 @@ class ESMFRegrid(GenericRegrid):
         @param dtype a valid numpy data type for the src/dst data
         @param regridMethod 'linear', 'conserve', or 'patch'
         @param staggerLoc the staggering of the field, 'center' or 'corner'
-        @param periodicity 0 (no periodicity), 
-                           1 (last coordinate is periodic, 
+        @param periodicity 0 (no periodicity),
+                           1 (last coordinate is periodic,
                            2 (both coordinates are periodic)
         @param coordSys 'deg', 'cart', or 'rad'
         @param srcGridMask list [[z], y, x] of arrays
@@ -86,9 +87,12 @@ class ESMFRegrid(GenericRegrid):
                 self.staggerloc = CORNER
                 self.staggerlocStr = 'corner'
             # there are other staggers we could test here
-        
+
         # good for now
+        unMappedAction = args.get('unmappedaction', 'ignore')
         self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_IGNORE
+        if re.search('error', unMappedAction.lower()):
+            self.unMappedAction = ESMP.ESMP_UNMAPPEDACTION_ERROR
 
         self.coordSys = ESMP.ESMP_COORDSYS_SPH_DEG
         self.coordSysStr = 'deg'
@@ -101,7 +105,7 @@ class ESMFRegrid(GenericRegrid):
 
         self.periodicity = periodicity
 
-        # masks can take several values in ESMF, we'll have just one 
+        # masks can take several values in ESMF, we'll have just one
         # value (1) which means invalid
         self.srcMaskValues = numpy.array([1],dtype = numpy.int32)
         self.dstMaskValues = numpy.array([1],dtype = numpy.int32)
@@ -122,13 +126,13 @@ class ESMFRegrid(GenericRegrid):
         # checks
         if self.ndims != len(dstGridShape):
             msg = """
-mvESMFRegrid.ESMFRegrid.__init__: mismatch in the number of topological 
+mvESMFRegrid.ESMFRegrid.__init__: mismatch in the number of topological
 dimensions. len(srcGrid[0].shape) = %d != len(dstGrid[0].shape) = %d""" % \
                 (self.ndims, len(dstGridShape))
             raise RegridError, msg
 
         # create esmf source Grid
-        self.srcGrid = esmf.EsmfStructGrid(srcGridShape, 
+        self.srcGrid = esmf.EsmfStructGrid(srcGridShape,
                                 coordSys = self.coordSys,
                                 periodicity = self.periodicity)
         self.srcGrid.setCoords(srcGrid, staggerloc = self.staggerloc)
@@ -138,13 +142,24 @@ dimensions. len(srcGrid[0].shape) = %d != len(dstGrid[0].shape) = %d""" % \
 
         if srcBounds is not None:
         # Coords are CENTER (cell) based, bounds are CORNER (nodal)
-            if self.staggerloc != CORNER:
+        # VCORNER for 3D
+            if self.staggerloc != CORNER and self.staggerloc != VCORNER:
+                if self.ndims == 2:
                 # cell field, need to provide the bounds
-                self.srcGrid.setCoords(srcBounds, 
-                                       staggerloc = CORNER)
+                    self.srcGrid.setCoords(srcBounds,
+                                           staggerloc = CORNER)
+                if self.ndims == 3:
+                # cell field, need to provide the bounds
+                    self.srcGrid.setCoords(srcBounds,
+                                           staggerloc = VCORNER)
+            elif self.staggerloc == CORNER or self.staggerloc == VCORNER:
+                msg = """
+mvESMFRegrid.ESMFRegrid.__init__: can't set the src bounds for
+staggerLoc = %s!""" % staggerLoc
+                raise RegridError, msg
 
         # create destination Grid
-        self.dstGrid = esmf.EsmfStructGrid(dstGrid[0].shape, 
+        self.dstGrid = esmf.EsmfStructGrid(dstGrid[0].shape,
                                            coordSys = self.coordSys,
                                            periodicity = self.periodicity)
         self.dstGrid.setCoords(dstGrid, staggerloc = self.staggerloc)
@@ -153,22 +168,26 @@ dimensions. len(srcGrid[0].shape) = %d != len(dstGrid[0].shape) = %d""" % \
 
         if dstBounds is not None:
             # Coords are CENTER (cell) based, bounds are CORNER (nodal)
-            if self.staggerloc != CORNER:
-                self.dstGrid.setCoords(dstBounds, 
-                                       staggerloc = CORNER)
-            elif self.staggerloc == CORNER:
+            if self.staggerloc != CORNER and self.staggerloc != VCORNER:
+                if self.ndims == 2:
+                    self.dstGrid.setCoords(dstBounds,
+                                           staggerloc = CORNER)
+                if self.ndims == 3:
+                    self.dstGrid.setCoords(dstBounds,
+                                           staggerloc = VCORNER)
+            elif self.staggerloc == CORNER or self.staggerloc == VCORNER:
                 msg = """
-mvESMFRegrid.ESMFRegrid.__init__: can't set the dst bounds for 
+mvESMFRegrid.ESMFRegrid.__init__: can't set the dst bounds for
 staggerLoc = %s!""" % staggerLoc
                 raise RegridError, msg
 
-        self.srcFld = esmf.EsmfStructField(self.srcGrid, 'srcFld', 
-                                           datatype = self.dtype, 
-                                           staggerloc = self.staggerloc)
-        self.dstFld = esmf.EsmfStructField(self.dstGrid, 'dstFld', 
+        self.srcFld = esmf.EsmfStructField(self.srcGrid, 'srcFld',
                                            datatype = self.dtype,
                                            staggerloc = self.staggerloc)
-                                        
+        self.dstFld = esmf.EsmfStructField(self.dstGrid, 'dstFld',
+                                           datatype = self.dtype,
+                                           staggerloc = self.staggerloc)
+
     def computeWeights(self, **args):
         """
         Compute interpolation weights
@@ -185,21 +204,21 @@ staggerLoc = %s!""" % staggerLoc
     def apply(self, srcData, dstData, rootPe, globalIndexing = False, **args):
         """
         Regrid source to destination
-        @param srcData array source data, shape should 
+        @param srcData array source data, shape should
                        cover entire global index space
-        @param dstData array destination data, shape should 
+        @param dstData array destination data, shape should
                        cover entire global index space
         @param rootPe if other than None, then data will be MPI gathered
                       on the specified rootPe processor
-        @param globalIndexing if True array was allocated over global index 
-                              space, otherwise array was allocated over 
-                              local index space on this processor. This 
+        @param globalIndexing if True array was allocated over global index
+                              space, otherwise array was allocated over
+                              local index space on this processor. This
                               is only relevant if rootPe is None
         @param **args
         """
-        self.srcFld.setLocalData(srcData, self.staggerloc, 
+        self.srcFld.setLocalData(srcData, self.staggerloc,
                                  globalIndexing = globalIndexing)
-        self.dstFld.setLocalData(dstData, self.staggerloc, 
+        self.dstFld.setLocalData(dstData, self.staggerloc,
                                  globalIndexing = globalIndexing)
 
         # regrid
@@ -224,7 +243,7 @@ staggerLoc = %s!""" % staggerLoc
     def getSrcAreas(self, rootPe):
         """
         Get the source grid cell areas
-        @param rootPe root processor where data should be gathered (or 
+        @param rootPe root processor where data should be gathered (or
                       None if local areas are to be returned)
         @return areas or None if non-conservative interpolation
         """
@@ -232,11 +251,11 @@ staggerLoc = %s!""" % staggerLoc
             return self.regridObj.getSrcAreas(rootPe = rootPe)
         else:
             return None
-        
+
     def getDstAreas(self, rootPe):
         """
         Get the destination grid cell areas
-        @param rootPe root processor where data should be gathered (or 
+        @param rootPe root processor where data should be gathered (or
                       None if local areas are to be returned)
         @return areas or None if non-conservative interpolation
         """
@@ -248,19 +267,19 @@ staggerLoc = %s!""" % staggerLoc
     def getSrcAreaFractions(self, rootPe):
         """
         Get the source grid area fractions
-        @param rootPe root processor where data should be gathered (or 
+        @param rootPe root processor where data should be gathered (or
                       None if local areas are to be returned)
         @return fractional areas or None (if non-conservative)
         """
         if self.regridMethod == CONSERVE:
-            return self.regridObj.getSrcAreaFractions(rootPe = rootPe) 
+            return self.regridObj.getSrcAreaFractions(rootPe = rootPe)
         else:
             return None
 
     def getDstAreaFractions(self, rootPe):
         """
         Get the destination grid area fractions
-        @param rootPe root processor where data should be gathered (or 
+        @param rootPe root processor where data should be gathered (or
                       None if local areas are to be returned)
         @return fractional areas or None (if non-conservative)
         """
@@ -273,9 +292,9 @@ staggerLoc = %s!""" % staggerLoc
         """
         Get the local coordinate shape (may be different on each processor)
         @param staggerLoc (e.g. 'center' or 'corner')
-        @return tuple 
+        @return tuple
         """
-        
+
         stgloc = CENTER
         if re.search('corner', staggerLoc, re.I) or \
                 re.search('nod', staggerLoc, re.I):
@@ -284,7 +303,7 @@ staggerLoc = %s!""" % staggerLoc
 
     def getSrcLocalSlab(self, staggerLoc):
         """
-        Get the destination local slab (ellipsis). You can use 
+        Get the destination local slab (ellipsis). You can use
         this to grab the data local to this processor
         @param staggerLoc (e.g. 'center')
         @return tuple of slices
@@ -297,7 +316,7 @@ staggerLoc = %s!""" % staggerLoc
 
     def getDstLocalSlab(self, staggerLoc):
         """
-        Get the destination local slab (ellipsis). You can use 
+        Get the destination local slab (ellipsis). You can use
         this to grab the data local to this processor
         @param staggerLoc (e.g. 'center')
         @return tuple of slices
@@ -314,7 +333,7 @@ staggerLoc = %s!""" % staggerLoc
         @param diag a dictionary whose entries, if present, will be filled
                     valid entries are: 'srcAreaFractions', 'dstAreaFractions',
                                        'srcAreas', 'dstAreas'
-        @param rootPe root processor where data should be gathered (or 
+        @param rootPe root processor where data should be gathered (or
                       None if local areas are to be returned)
         """
         for entry in  'srcAreaFractions', 'dstAreaFractions',  \

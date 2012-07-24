@@ -55,22 +55,22 @@ class EsmfUnstructGrid:
 
         vm = ESMP.ESMP_VMGetGlobal()
         self.pe, self.nprocs = ESMP.ESMP_VMGet(vm)
-        
+
         self.grid = ESMP.ESMP_MeshCreate(numTopoDims, numSpaceDims)
 
-    def setCells(self, cellIndices, cellTypes, connectivity, 
+    def setCells(self, cellIndices, cellTypes, connectivity,
                  cellMask=None, cellAreas=None):
         """
         Set Cell connectivity
         @param cell indices (0-based)
         @param cellTypes one of ESMP_MESHELEMTYPE_{TRI,QUAD,TETRA,HEX}
         @param connectivity node connectivity array, see below for node ordering
-        @param cellMask 
+        @param cellMask
         @param cellAreas area (volume) of each cell
 
 
                      3                          4 ---------- 3
-                    / \                         |            |  
+                    / \                         |            |
                    /   \                        |            |
                   /     \                       |            |
                  /       \                      |            |
@@ -78,7 +78,7 @@ class EsmfUnstructGrid:
                1 --------- 2                    1 ---------- 2
 
 
-                                            
+
                  3                               8---------------7
                 /|\                             /|              /|
                / | \                           / |             / |
@@ -93,15 +93,15 @@ class EsmfUnstructGrid:
                 \|/                         |/              |/
                  1                          1---------------2
 
-       ESMP_MESHELEMTYPE_TETRA             ESMP_MESHELEMTYPE_HEX  
-         
+       ESMP_MESHELEMTYPE_TETRA             ESMP_MESHELEMTYPE_HEX
+
         """
         n = len(cellIndices)
         if not self.cellsAdded:
             # node/cell indices are 1-based in ESMP
             cellIndices += 1
-            ESMP.ESMP_MeshAddElements(self.grid, n, cellIndices, cellTypes, 
-                                      connectivity, elementMask=cellMask, 
+            ESMP.ESMP_MeshAddElements(self.grid, n, cellIndices, cellTypes,
+                                      connectivity, elementMask=cellMask,
                                       elementArea=cellAreas)
         self.cellsAdded = True
 
@@ -109,7 +109,7 @@ class EsmfUnstructGrid:
         """
         Set the nodal coordinates
         @param indices Ids of the nodes (0-based)
-        @param coords nodal coordinates 
+        @param coords nodal coordinates
         @param peOwners processor ranks where the coordinates reside (0-based)
         """
         n = len(indices)
@@ -127,11 +127,11 @@ class EsmfUnstructGrid:
         @param filename VTK file name
         """
         ESMP.ESMP_MeshWrite(self.grid, filename)
-        
+
 
     def __del__(self):
         ESMP.ESMP_MeshDestroy(self.grid)
-    
+
 ################################################################################
 
 class EsmfStructGrid:
@@ -157,7 +157,7 @@ class EsmfStructGrid:
         self.grid = None
         # number of cells in [z,] y, x on all processors
         self.shape = shape
-        # number of dimensions 
+        # number of dimensions
         self.ndims = len(self.shape)
         # whether or not cell areas were set
         self.cellAreasSet = False
@@ -185,7 +185,7 @@ esmf.EsmfStructGrid.__init__: ERROR periodic dimensions %d > 1 not permitted.
 
     def getLocalSlab(self, staggerloc):
         """
-        Get the local slab (ellipsis). You can use this to grab 
+        Get the local slab (ellipsis). You can use this to grab
         the data local to this processor
         @param staggerloc (e.g. ESMP.ESMP_STAGGERLOC_CENTER)
         @return tuple of slices
@@ -209,15 +209,15 @@ esmf.EsmfStructGrid.__init__: ERROR periodic dimensions %d > 1 not permitted.
         """
         Get the local coordinate shape (may be different on each processor)
         @param staggerloc (e.g. ESMP.ESMP_STAGGERLOC_CENTER)
-        @return tuple 
+        @return tuple
         """
         lo, hi = self.getLoHiBounds(staggerloc)
         return tuple( [hi[i] - lo[i] for i in range(self.ndims)] )
 
     def setCoords(self, coords, staggerloc = CENTER):
         """
-        Populate the grid with staggered coordinates (e.g. corner or center). 
-        @param coords   The curvilinear coordinates of the grid. 
+        Populate the grid with staggered coordinates (e.g. corner or center).
+        @param coords   The curvilinear coordinates of the grid.
                         List of numpy arrays. Must exist on all procs.
         @param staggerloc  The stagger location
                            ESMP.ESMP_STAGGERLOC_CENTER (default)
@@ -297,7 +297,7 @@ class EsmfStructField:
         Creator for structured ESMF Field
         @param esmfGrid instance of an ESMP_Grid
         @param name field name (must be unique)
-        @param datatype data type, one of 'float64', 'float32', 'int64', or 'int32' 
+        @param datatype data type, one of 'float64', 'float32', 'int64', or 'int32'
                         (or equivalent numpy dtype)
         @param staggerloc ESMP_STAGGERLOC_CENTER
                           ESMP_STAGGERLOC_CORNER
@@ -320,7 +320,7 @@ class EsmfStructField:
             self.comm = MPI.COMM_WORLD
         except:
             pass
-        
+
         vm = ESMP.ESMP_VMGetGlobal()
         self.pe, self.nprocs = ESMP.ESMP_VMGet(vm)
 
@@ -338,7 +338,7 @@ class EsmfStructField:
             msg = 'esmf.EsmfStructField.__init__: ERROR invalid type %s' % datatype
             raise RegridError, msg
 
-        self.field = ESMP.ESMP_FieldCreateGrid(esmfGrid.grid, 
+        self.field = ESMP.ESMP_FieldCreateGrid(esmfGrid.grid,
                                                name,
                                                staggerloc = staggerloc,
                                                typekind = etype)
@@ -376,11 +376,11 @@ class EsmfStructField:
                 his = self.comm.allgather(hi)
                 ptrs = self.comm.gather(ptr, root = rootPe)
 
-                # reassemble, find the largest hi indices to set 
+                # reassemble, find the largest hi indices to set
                 # the shape of the data container
                 bigHi = [0 for i in range(self.grid.ndims)]
                 for i in range(self.grid.ndims):
-                    bigHi[i] = reduce(lambda x,y: max(x, y), 
+                    bigHi[i] = reduce(lambda x,y: max(x, y),
                                       [his[p][i] for p in range(self.nprocs)])
                 # allocate space to retrieve the data
                 bigData = numpy.empty(bigHi, ptr.dtype)
@@ -405,11 +405,11 @@ class EsmfStructField:
     def setLocalData(self, data, staggerloc, globalIndexing = False):
         """
         Set local field data
-        @param data full numpy array, this method will take care of setting a 
+        @param data full numpy array, this method will take care of setting a
                     the subset of the data that reside on the local processor
         @param staggerloc stagger location of the data
-        @param globalIndexing if True array was allocated over global index 
-                              space, array was allocated over local index 
+        @param globalIndexing if True array was allocated over global index
+                              space, array was allocated over local index
                               space (on this processor)
         """
         ptr = self.getPointer()
@@ -430,7 +430,7 @@ class EsmfRegrid:
     Regrid source grid data to destination grid data
     """
     def __init__(self, srcField, dstField,
-                 srcFrac = None, 
+                 srcFrac = None,
                  dstFrac = None,
                  srcMaskValues = None,
                  dstMaskValues = None,
@@ -524,7 +524,7 @@ class EsmfRegrid:
         """
         Get the dst grid areas as used by conservative interpolation
         @param rootPe None is local areas are returned, otherwise
-                      provide rootPe and the data will be gathered        
+                      provide rootPe and the data will be gathered
         @return numpy array or None if interpolation is not conservative
         """
         if self.srcAreaField is not None:
@@ -557,9 +557,9 @@ class EsmfRegrid:
     def __call__(self, srcField=None, dstField=None):
         """
         Apply interpolation weights
-        @param srcField source field (or None if src field passed to 
+        @param srcField source field (or None if src field passed to
                constructor is to be used)
-        @param dstField destination field (or None if dst field passed 
+        @param dstField destination field (or None if dst field passed
                to constructor is to be used)
         """
         if srcField == None:
@@ -572,8 +572,8 @@ class EsmfRegrid:
         if self.regridMethod == CONSERVE:
             zeroregion = None # will initalize to zero
 
-        ESMP.ESMP_FieldRegrid(srcField.field, dstField.field, 
-                              self.regridHandle, 
+        ESMP.ESMP_FieldRegrid(srcField.field, dstField.field,
+                              self.regridHandle,
                               zeroregion = zeroregion)
 
     def __del__(self):
