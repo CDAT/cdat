@@ -1,16 +1,13 @@
 """
 LibCF regridding class
 
-Copyright (c) 2008-2012, Tech-X Corporation
-All rights reserved.
+This code is provided with the hope that it will be useful. 
+No guarantee is provided whatsoever. Use at your own risk.
 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the conditions
-specified in the license file 'license.txt' are met.
-
-Authors: David Kindig and Alex Pletzer
+David Kindig and Alex Pletzer, Tech-X Corp. (2012)
 """
 
+import numpy
 from regrid2 import gsRegrid
 from regrid2 import GenericRegrid
 
@@ -27,12 +24,14 @@ class LibCFRegrid(GenericRegrid):
         @param **args keyword arguments, eg mkCyclic, handleCut, ...
                       to be passed to gsRegrid
         """
-        mkCyclic = args.get('mkCyclic', False)
-        handleCut = args.get('handleCut', False)
+        self.regridMethodStr = 'linear'
+        self.mkCyclic = args.get('mkCyclic', False)
+        self.handleCut = args.get('handleCut', False)
+        self.verbose = args.get('verbose', False)
         self.regridObj = gsRegrid.Regrid(srcGrid, dstGrid, 
                                          src_bounds = srcBounds,
-                                         mkCyclic=mkCyclic,
-                                         handleCut=handleCut)
+                                         mkCyclic = self.mkCyclic,
+                                         handleCut = self.handleCut)
         if srcGridMask is not None: 
             self.regridObj.setMask(srcGridMask)
 
@@ -54,28 +53,38 @@ class LibCFRegrid(GenericRegrid):
         @param missingValue value that should be set for points falling outside the src domain, 
                             pass None if these should not be touched.        
         """
-        self.regridObj.apply(srcData, dstData, missingValue)
+        gshp = self.getSrcGrid()[0].shape
+        sshp = srcData.shape
+        if not reduce(lambda x,y: x and y, [sshp[i] == gshp[i] for i in range(len(gshp))]) \
+                and self.mkCyclic:
+            # padd the src array
+            sd = numpy.ones( gshp, dstData.dtype )
+            if missingValue is not None:
+                sd *= missingValue
+            else:
+                sd *= 0
+            sd[:, :-1] = srcData
+            sd[:, -1] = sd[0, 0]
+            self.regridObj.apply(sd, dstData, missingValue)
+        else:    
+            self.regridObj.apply(srcData, dstData, missingValue)
+
+    def getSrcGrid(self):
+        """
+        Get the grid of the src data (maybe larger than the 
+        dst grid passed to the constructor due to column/row
+        padding)
+        @return grid
+        """
+        return self.regridObj.getSrcGrid()
 
     def getDstGrid(self):
         """
-        Get the grid of the dst data (maybe larger than the 
-        dst grid passed to the constructor due to column/row
-        padding)
-        @return shape
+        Get the grid of the dst data
+        @return grid
         """
         return self.regridObj.getDstGrid()
         
-    def fillInDiagnostic(self, diag):
-	"""
-	Fill in diagnostic data
-	@param diag a dictionary whose entries, if present, will be filled
-	            valid entries are: ''numDstPoints' and 'numValid'
-	"""
-	if diag.has_key('numDstPoints'):
-		diag['numDstPoints'] = self.regridObj.getNumDstPoints()
-	if diag.has_key('numValidPoints'):
-		diag['numValid'] = self.regridObj.getNumValid()
-
     def fillInDiagnosticData(self, diag, rootPe):
         """
         Fill in diagnostic data
@@ -87,3 +96,8 @@ class LibCFRegrid(GenericRegrid):
                 if diag.has_key(entry):
                         meth = 'get' + entry[0].upper() + entry[1:]
                         diag[entry] = eval('self.regridObj.' + meth + '()')
+        diag['regridTool'] = 'libcf'
+        diag['regridMethod'] = self.regridMethodStr
+        diag['handleCut'] = self.handleCut
+        diag['mkCyclic'] = self.mkCyclic
+        diag['verbose'] = self.verbose

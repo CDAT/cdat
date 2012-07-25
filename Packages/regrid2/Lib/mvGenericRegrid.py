@@ -1,14 +1,10 @@
 """
 Generic Regrid class.
 
-Copyright (c) 2008-2012, Tech-X Corporation
-All rights reserved.
+This code is provided with the hope that it will be useful. 
+No guarantee is provided whatsoever. Use at your own risk.
 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the conditions
-specified in the license file 'license.txt' are met.
-
-Authors: David Kindig and Alex Pletzer
+David Kindig and Alex Pletzer, Tech-X Corp. (2012)
 """
 import operator
 import numpy
@@ -23,6 +19,7 @@ class GenericRegrid:
     Generic Regrid class.
     """
     def __init__(self, srcGrid, dstGrid, 
+                 dtype,
                  regridMethod, 
                  regridTool,
                  srcGridMask = None, srcBounds = None, srcGridAreas = None,
@@ -30,15 +27,16 @@ class GenericRegrid:
                  **args):
         """
         Constructor. 
-        @param srcGrid array
-        @param dstGrid array
+        @param srcGrid list of arrays, source horizontal coordinates
+        @param dstGrid list of arrays, destination horizontal coordinate
+        @param dtype numpy data type for src/dst data
         @param regridMethod linear (bi, tri,...) default or conservative
         @param regridTool 'libcf' or 'esmf'
         @param srcGridMask array of same shape as srcGrid
-        @param srcBounds array of same shape as srcGrid
+        @param srcBounds list of arrays of same shape as srcGrid
         @param srcGridAreas array of same shape as srcGrid
         @param dstGridMask array of same shape as dstGrid
-        @param dstBounds array of same shape as dstGrid
+        @param dstBounds list of arrays of same shape as dstGrid
         @param dstGridAreas array of same shape as dstGrid
         @param **args additional arguments to be passed to the 
                       specific tool
@@ -75,10 +73,11 @@ class GenericRegrid:
             if args.has_key('coordSys'):
                 del args['coordSys']
             self.tool = regrid2.ESMFRegrid(srcGrid, dstGrid,
+                  dtype = dtype,               
                   regridMethod = regridMethod, 
                   staggerLoc = staggerLoc,
                   periodicity = periodicity,
-                  coordSys = coordSys,                 
+                  coordSys = coordSys, 
                   srcGridMask = srcGridMask, 
                   srcBounds = srcBounds, 
                   srcGridAreas = srcGridAreas,
@@ -86,6 +85,10 @@ class GenericRegrid:
                   dstBounds = dstBounds, 
                   dstGridAreas = dstGridAreas,
                   **args)
+        else:
+            msg = """mvGenericRegrid.__init__: ERROR unrecognized tool %s,
+valid choices are: 'libcf', 'esmf'"""% regridTool
+            raise regrid2.RegridError, msg
     
     def computeWeights(self, **args):
         """
@@ -94,16 +97,17 @@ class GenericRegrid:
         self.tool.computeWeights(**args)
 
     def apply(self, srcData, dstData, 
+              rootPe = None,
               missingValue = None, 
-              rootPe = 0, **args):
+              **args):
         """
         Regrid source to destination
         @param srcData array (input)
         @param dstData array (output)
+        @param rootPe if other than None, then results will be MPI
+                      gathered
         @param missingValue if not None, then data mask will be interpolated
                             and data value set to missingValue when masked
-        @param rootPe if other than None, then results will be MPI 
-                      gathered
         """
 
         # assuming the axes are the slowly varying indices
@@ -131,8 +135,8 @@ class GenericRegrid:
             if missingValue is not None:
                 srcDataMaskFloat[:] = (srcData == missingValue)
                 # interpolate mask
-                self.tool.apply(srcDataMaskFloat, dstDataMaskFloat, **args)
-                if re.search('conserv', self.regridMethod, re.I):
+                self.tool.apply(srcDataMaskFloat, dstDataMaskFloat, rootPe = rootPe, **args)
+                if re.search('conserv', self.regridMethod.lower(), re.I):
                     dstMask = numpy.array( (dstDataMaskFloat == 1), numpy.int32 )
                 else:
                     dstMask = numpy.array( (dstDataMaskFloat > 0), numpy.int32 )
@@ -170,14 +174,15 @@ class GenericRegrid:
                 indata = eval('srcData' + slce)
 
                 # interpolate, using the appropriate tool
-                self.tool.apply(indata, outdata, **args)
+                self.tool.apply(indata, outdata, rootPe = rootPe, **args)
 
                 # adjust for masking
                 if missingValue is not None:
                     srcDataMaskFloat[:] = (indata == missingValue)
                     # interpolate mask
-                    self.tool.apply(srcDataMaskFloat, dstDataMaskFloat, **args)
-                    if re.search('conserv', self.regridMethod, re.I):
+                    self.tool.apply(srcDataMaskFloat, dstDataMaskFloat, 
+                                    rootPe = rootPe, **args)
+                    if re.search('conserv', self.regridMethod.lower(), re.I):
                         # cell interpolation
                         dstMask = numpy.array( (dstDataMaskFloat == 1), numpy.int32 )
                     else:
@@ -192,12 +197,12 @@ class GenericRegrid:
     def getDstGrid(self):
         """
         Return the destination grid, may be different from the dst grid provided 
-        to the constructor due to padding and/or domain decomposition
+        to the constructor due to domain decomposition
         @return local grid on this processor
         """
         return self.tool.getDstGrid()
 
-    def fillInDiagnosticData(self, diag, rootPe = 0):
+    def fillInDiagnosticData(self, diag, rootPe = None):
         """
         Fill in diagnostic data
         @param diag a dictionary whose entries, if present, will be filled
@@ -205,5 +210,5 @@ class GenericRegrid:
         @param rootPe root processor where data should be gathered (or 
                       None if local areas are to be returned)
         """
-	self.tool.fillInDiagnosticData(diag, rootPe = rootPe)
+        self.tool.fillInDiagnosticData(diag, rootPe = rootPe)
 

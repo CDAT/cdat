@@ -9,7 +9,9 @@ set(ENV{CFLAGS} "-w -I@cdat_EXTERNALS@/include -I@cdat_EXTERNALS@/include/cairo 
 set(ENV{LOCNCCONFIG} "@cdat_EXTERNALS@/bin/nc-config")
 set(ENV{EXTERNALS} "@cdat_EXTERNALS@")
 #set(ENV{PKG_CONFIG_PATH} @cdat_EXTERNALS@/lib/pkgconfig:$ENV{PKG_CONFIG_PATH})
-set(ENV{PATH} "@cdat_EXTERNALS@/bin:$ENV{PATH}")
+#set(ENV{PATH} "@cdat_EXTERNALS@/bin:$ENV{PATH}")
+set(ENV{PKG_CONFIG_PATH} "@cdat_EXTERNALS@/lib/pkgconfig:/usr/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig:$ENV{PKG_CONFIG_PATH}")
+set(ENV{PKG_CONFIG} @cdat_PKG_CONFIG_EXECUTABLE@)
 
 message("Running cdat install with path: " $ENV{PATH})
 
@@ -18,7 +20,7 @@ if(APPLE)
 endif()
 
 execute_process(
-  COMMAND env PKG_CONFIG_PATH="@cdat_EXTERNALS@/lib/pkgconfig:/usr/lib64/pkgconfig:/usr/ib/pkgconfig:/usr/pkgconfig" @PYTHON_EXECUTABLE@ install.py @qt_flags@ --enable-pp @PYTHON_EXTRA_PREFIX@
+  COMMAND  @PYTHON_EXECUTABLE@ install.py @qt_flags@ --enable-pp @PYTHON_EXTRA_PREFIX@
   WORKING_DIRECTORY "@WORKING_DIR@"
   RESULT_VARIABLE res)
 

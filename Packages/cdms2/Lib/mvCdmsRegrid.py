@@ -1,14 +1,8 @@
 """
 Macro regridding class
-
-Copyright (c) 2008-2012, Tech-X Corporation
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the conditions
-specified in the license file 'license.txt' are met.
-
-Authors: David Kindig and Alex Pletzer
+David Kindig and Alex Pletzer, Tech-X Corp. (2012)
+This code is provided with the hope that it will be useful. 
+No guarantee is provided whatsoever. Use at your own risk.
 """
 import types
 import re
@@ -36,7 +30,7 @@ def _buildBounds(bounds):
 
     return bnd
 
-def _getBoundList(coordList):
+def getBoundList(coordList):
     """
     Return a list of bounds built from a list of coordinates
     @param coordList coordinate list, should have getBounds()
@@ -54,22 +48,62 @@ def _getCoordList(grid):
     Return a CDMS coordinate list from a CDMS grid
     @return lats, lons
     """
+
     lats = grid.getLatitude()
     lons = grid.getLongitude()
   
-    if len(lats.shape) == 1 or len(lats.shape) == 1:
+    if len(lats.shape) == 1 or len(lons.shape) == 1:
+
         # have axes, need to convert to curvilinear grid
         cgrid = grid.toCurveGrid()
+
         lats = cgrid.getLatitude()
         lons = cgrid.getLongitude()
+
         if grid.getOrder() == 'xy':
             # toCurveGrid returns coordinates in the wrong
             # shape if order is 'xy'
             lats = lats.transpose()
             lons = lons.transpose()
 
-    # we always want the coordinates in that order
+    # we always want the coordinates in that order, these must 
+    # be cdms2 coordinates so we can inquire about bounds
     return lats, lons
+
+def _getDstDataShape(srcVar, dstGrid):
+    """
+    Get the shape of the dst data
+    @param srcVar the variable from which all axes other than lat/lon 
+                  will be taken from
+    @param dstGrid target, horizontal grid
+    @return list
+    """
+    
+    shp = srcVar.shape
+    ndims = len(shp)
+    order = srcVar.getOrder()
+    numX = order.count('x')
+    numY = order.count('y')
+    hasXY = (numX == 1) and (numY == 1)
+
+    # fill in the axis list backwards, we're assuming the 
+    # y and x axes are more likely to occur at the end
+    dstDataShape = []
+    found = False
+    j = 2
+    for i in range(ndims-1, -1, -1):
+        o = order[i]
+        if not found and (o in 'xy') or (not hasXY and o == '-'):
+            # add size from dst grid
+            j -= 1
+            dstDataShape = [dstGrid.shape[j],] + dstDataShape
+            if j == 0:
+                found = True
+        else:
+            # add size from src variable
+            dstDataShape = [srcVar.shape[i],] + dstDataShape
+
+    return dstDataShape
 
 def _getAxisList(srcVar, dstGrid):
     """
@@ -80,23 +114,32 @@ def _getAxisList(srcVar, dstGrid):
     @return variable with non-horizontal axes from srcVar and horizontal axes
             from dstGrid
     """
-
-    # harvest the axis list form srcVar, start with all axes other than 
-    # lat/lon
     
-    # ASSUMING y, x axes are the last two axes.
-    # From the source axis list get every axis up to these.
-    svAxisList = srcVar.getAxisList()[:-2]
+    shp = srcVar.shape
+    ndims = len(shp)
+    order = srcVar.getOrder()
+    numX = order.count('x')
+    numY = order.count('y')
+    hasXY = (numX == 1) and (numY == 1)
 
-    # From the destination grid get the horizontal axes!
-    try:
-        dgAxisList = list(dstGrid.getAxisList()[-2:])
-    except:
-        dgAxisList = []
-        dgAxisList.append(dstGrid.getLatitude())
-        dgAxisList.append(dstGrid.getLongitude())
+    # fill in the axis list backwards, we're assuming the 
+    # y and x axes are more likely to occur at the end
+    axisList = []
+    found = False
+    j = 2
+    for i in range(ndims-1, -1, -1):
+        o = order[i]
+        if not found and (o in 'xy') or (not hasXY and o == '-'):
+            # add axis from dst grid
+            j -= 1
+            axisList = [dstGrid.getAxis(j),] + axisList
+            if j == 0:
+                found = True
+        else:
+            # add axis from src variable
+            axisList = [srcVar.getAxis(i),] + axisList
 
-    return svAxisList + dgAxisList
+    return axisList
 
 class CdmsRegrid:
     """
@@ -104,17 +147,18 @@ class CdmsRegrid:
     regridder. If a multidimensional variable is passed in, the apply step
     loops over the axes above the Lat (Y) -- Lon (X) coordinates
     """
-    def __init__(self, srcGrid, dstGrid, 
-                 regridMethod = 'linear', regridTool = 'libCF', 
+    def __init__(self, srcGrid, dstGrid, dtype, 
+                 regridMethod = 'linear', regridTool = 'libCF',
                  srcGridMask = None, srcGridAreas = None,
                  dstGridMask = None, dstGridAreas = None,
                  **args):
         """
-        Establish which regridding method to use, handles CDMS Variables before
+        Establish which regridding method to use, handle CDMS variables before
         handing off to regridder. See specific tool for more information.
 
         @param srcGrid CDMS source grid
         @param dstGrid CDMS destination grid
+        @param dtype numpy data type for src and dst data
         @param regridMethod linear (all tools - bi, tri), 
                             conserve (ESMF Only)
                             patch (ESMF Only)
@@ -144,14 +188,32 @@ class CdmsRegrid:
         # retrieve and build a bounds list for conservative from the grids
         # We can't use the coords lists because if they are converted to 
         # curvilinear
+        # Set the tool to esmf if conservative selected. This overrides the
+        # regridTool selection
         self.regridMethod = regridMethod
         if re.search( 'conserv', regridMethod.lower()):
-            srcBounds = _getBoundList(srcCoords)
-            dstBounds = _getBoundList(dstCoords)
+            srcBounds = getBoundList(srcCoords)
+            dstBounds = getBoundList(dstCoords)
 
-        self.regridObj = regrid2.GenericRegrid(srcCoords, dstCoords, 
+            for c, b in zip(srcBounds, srcCoords):
+                if c.min() == b.min() or c.max() == b.max():
+                    print """   WARNING: Edge bounds are the same. The results
+              of conservative regridding are not conserved.
+              coordMin = %7.2f, boundMin = %7.2f, coordMax = %7.2f, boundMax = %7.2f
+              """ % (c.min(), b.min(), c.max(), b.max())
+            if srcBounds[0].min() < -90 or srcBounds[0].max() > 90 or \
+               dstBounds[0].min() < -90 or dstBounds[0].max() > 90:
+                raise regrid2.RegridError, """Bounds exceed +/-90 degree latitude"""
+            if not re.search('esmp', regridTool.lower()):
+                regridTool = 'esmf'
+
+        srcCoordsArrays = [numpy.array(sc) for sc in srcCoords]
+        dstCoordsArrays = [numpy.array(dc) for dc in dstCoords]
+
+        self.regridObj = regrid2.GenericRegrid(srcCoordsArrays, dstCoordsArrays, 
                                                regridMethod = regridMethod, 
                                                regridTool = regridTool,
+                                               dtype = dtype,
                                                srcGridMask = srcGridMask, 
                                                srcBounds = srcBounds, 
                                                srcGridAreas = srcGridAreas,
@@ -178,7 +240,7 @@ class CdmsRegrid:
         levelAxis = srcVar.getLevel()
         
         # shape of dst var
-        dstShape = list(srcVar.shape[:-2]) + list(self.dstGrid.shape)
+        dstShape = _getDstDataShape(srcVar, self.dstGrid)
 
         # establish the destination data. Initialize to missing values or 0.
         dstData = numpy.ones(dstShape, dtype = srcVar.dtype)
@@ -187,8 +249,9 @@ class CdmsRegrid:
         else: 
             dstData *= 0.0
         
-        # interpolate the data
+        # interpolate the data, MPI gather on processor 0
         self.regridObj.apply(srcVar.data, dstData, 
+                             rootPe = 0, 
                              missingValue = missingValue, 
                              **args)
 
@@ -222,11 +285,11 @@ class CdmsRegrid:
                                       attributes = attrs, 
                                       id = srcVar.id + '_CdmsRegrid')
         
-        if re.search(self.regridMethod.lower(), 'conserv'):
-            self.srcGridAreas = self.regridObj.getSrcAreas(rootPe = 0)
-            self.dstGridAreas = self.regridObj.getDstAreas(rootPe = 0)
-            self.srcFractions = self.regridObj.getSrcAreaFractions(rootPe = 0)
-            self.dstFractions = self.regridObj.getDstAreaFractions(rootPe = 0)
+#        if re.search(self.regridMethod.lower(), 'conserv'):
+#            self.srcGridAreas = self.regridObj.tool.getSrcAreas(rootPe = 0)
+#            self.dstGridAreas = self.regridObj.tool.getDstAreas(rootPe = 0)
+#            self.srcFractions = self.regridObj.tool.getSrcAreaFractions(rootPe = 0)
+#            self.dstFractions = self.regridObj.tool.getDstAreaFractions(rootPe = 0)
 
         return dstVar
 
