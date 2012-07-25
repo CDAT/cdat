@@ -7,6 +7,3 @@
 [submodule "contrib/sciMake"]
 	path = contrib/sciMake
 	url = git://github.com/Tech-XCorp/sciMake.git
-[submodule "contrib/windspharm"]
-	path = contrib/windspharm
-	url = git://github.com/ajdawson/windspharm.git
