@@ -142,7 +142,7 @@ class EsmfStructGrid:
     """
     def __init__(self, shape, coordSys = ESMP.ESMP_COORDSYS_SPH_DEG,
                  periodicity = 0, staggerloc = ESMP.ESMP_STAGGERLOC_CENTER,
-                 boundsShape = None):
+                 hasBounds = False):
         """
         Constructor
         @param shape  Tuple of cell sizes along each axis
@@ -155,8 +155,8 @@ class EsmfStructGrid:
                            1 Periodic in x (1st) axis
                            2 Periodic in x, y axes
         @param staggerloc ESMP stagger location. ESMP.ESMP_STAGGERLOC_XXXX
-                          See the top for constants based on the stagger
-        @param boundsShape If the grid has bounds, Run AddCoords for the bounds
+                          The stagger constants are listed at the top
+        @param hasBounds If the grid has bounds, Run AddCoords for the bounds
         """
         # ESMF grid object
         self.grid = None
@@ -196,7 +196,7 @@ esmf.EsmfStructGrid.__init__: ERROR periodic dimensions %d > 1 not permitted.
         elif staggerloc ==  CORNER and not self.nodesSet:
             self.nodesSet = True
 
-        if boundsShape is not None:
+        if hasBounds is not None:
             if self.ndims == 2:
                 ESMP.ESMP_GridAddCoord(self.grid, staggerloc = CORNER)
             if self.ndims == 3:
@@ -241,6 +241,10 @@ esmf.EsmfStructGrid.__init__: ERROR periodic dimensions %d > 1 not permitted.
         @param staggerloc  The stagger location
                            ESMP.ESMP_STAGGERLOC_CENTER (default)
                            ESMP.ESMP_STAGGERLOC_CORNER
+        @param globalIndexing if True array was allocated over global index
+                              space, otherwise array was allocated over
+                              local index space on this processor. This
+                              is only relevant if rootPe is None
         Note: coord dims in cdms2 are ordered in y, x, but ESMF expects x, y,
         hence the dimensions are reversed here.
         """
@@ -251,8 +255,7 @@ esmf.EsmfStructGrid.__init__: ERROR periodic dimensions %d > 1 not permitted.
             if globalIndexing:
                 slab = self.getLocalSlab(staggerloc)
                 # Populate self.grid with coordinates or the bounds as needed
-                # numpy.arrays required since numpy.ma arrays don't support flat
-                ptr[:] = numpy.array(coords[self.ndims-i-1][slab]).flat
+                ptr[:] = coords[self.ndims-i-1][slab].flat
             else:
                 ptr[:] = coords[self.ndims-i-1].flat
 
@@ -387,8 +390,6 @@ class EsmfStructField:
             his = [hi]
             ptrs = [ptr]
             if self.comm is not None:
-#                los = self.comm.gather(lo, root = rootPe)
-#                his = self.comm.gather(hi, root = rootPe)
                 los = self.comm.allgather(lo)
                 his = self.comm.allgather(hi)
                 ptrs = self.comm.gather(ptr, root = rootPe)
@@ -430,7 +431,6 @@ class EsmfStructField:
                               space (on this processor)
         """
         ptr = self.getPointer()
-        if ptr.size != data.size: globalIndexing = True
         if globalIndexing:
             slab = self.grid.getLocalSlab(staggerloc)
             ptr[:] = data[slab].flat

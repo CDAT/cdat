@@ -38,8 +38,8 @@ class ESMFRegrid(GenericRegrid):
     """
     def __init__(self, srcGridshape, dstGridshape, dtype,
                  regridMethod, staggerLoc, periodicity, coordSys,
-                 srcGridMask = None, srcBoundsShape = None, srcGridAreas = None,
-                 dstGridMask = None, dstBoundsShape = None, dstGridAreas = None,
+                 srcGridMask = None, hasSrcBounds = False, srcGridAreas = None,
+                 dstGridMask = None, hasDstBounds = False, dstGridAreas = None,
                  **args):
         """
         Constructor
@@ -52,8 +52,8 @@ class ESMFRegrid(GenericRegrid):
                            1 (last coordinate is periodic,
                            2 (both coordinates are periodic)
         @param coordSys 'deg', 'cart', or 'rad'
-        @param srcBoundsShape tuple source bounds shape
-        @param dstBoundsShape tuple destination bounds shape
+        @param hasSrcBounds tuple source bounds shape
+        @param hasDstBounds tuple destination bounds shape
         """
 
         # esmf grid objects (tobe constructed)
@@ -65,8 +65,8 @@ class ESMFRegrid(GenericRegrid):
         self.dstGridShape = dstGridshape
         self.ndims = len(self.srcGridShape)
 
-        self.srcBoundsShape = srcBoundsShape
-        self.dstBoundsShape = dstBoundsShape
+        self.hasSrcBounds = hasSrcBounds
+        self.hasDstBounds = hasDstBounds
 
         self.regridMethod = BILINEAR
         self.regridMethodStr = 'linear'
@@ -136,12 +136,12 @@ dimensions. len(srcGridshape) = %d != len(dstGridshape) = %d""" % \
                                 coordSys = self.coordSys,
                                 periodicity = self.periodicity,
                                 staggerloc = self.staggerloc,
-                                boundsShape = self.srcBoundsShape)
+                                hasBounds = self.hasSrcBounds)
         self.dstGrid = esmf.EsmfStructGrid(dstGridshape,
                                 coordSys = self.coordSys,
                                 periodicity = self.periodicity,
                                 staggerloc = self.staggerloc,
-                                boundsShape = self.dstBoundsShape)
+                                hasBounds = self.hasDstBounds)
 
         # Initialize the fields with data.
         self.srcFld = esmf.EsmfStructField(self.srcGrid, 'srcFld',
@@ -154,7 +154,7 @@ dimensions. len(srcGridshape) = %d != len(dstGridshape) = %d""" % \
     def setCoords(self, srcGrid, dstGrid, 
                   srcGridMask = None, srcBounds = None, srcGridAreas = None,
                   dstGridMask = None, dstBounds = None, dstGridAreas = None, 
-                  **args):
+                  globalIndexing = False, **args):
         """
         Popualtor of grids, bounds and masks
         @param srcGrid list [[z], y, x] of source grid arrays
@@ -165,10 +165,15 @@ dimensions. len(srcGridshape) = %d != len(dstGridshape) = %d""" % \
         @param dstGridMask list [[z], y, x] of arrays
         @param dstBounds list [[z], y, x] of arrays
         @param dstGridAreas list [[z], y, x] of arrays
+        @param globalIndexing if True array was allocated over global index
+                              space, otherwise array was allocated over
+                              local index space on this processor. This
+                              is only relevant if rootPe is None
         """
 
         # create esmf source Grid
-        self.srcGrid.setCoords(srcGrid, staggerloc = self.staggerloc)
+        self.srcGrid.setCoords(srcGrid, staggerloc = self.staggerloc,
+                               globalIndexing = globalIndexing)
 
         if srcGridMask is not None:
             self.srcGrid.setMask(srcGridMask)
@@ -179,12 +184,13 @@ dimensions. len(srcGridshape) = %d != len(dstGridshape) = %d""" % \
             if self.staggerloc != CORNER and self.staggerloc != VCORNER:
                 if self.ndims == 2:
                 # cell field, need to provide the bounds
-                    self.srcGrid.setCoords(srcBounds,
-                                           staggerloc = CORNER)
+                    self.srcGrid.setCoords(srcBounds, staggerloc = CORNER,
+                                           globalIndexing = globalIndexing)
                 if self.ndims == 3:
                 # cell field, need to provide the bounds
-                    self.srcGrid.setCoords(srcBounds,
-                                           staggerloc = VCORNER)
+                    self.srcGrid.setCoords(srcBounds, staggerloc = VCORNER,
+                                           globalIndexing = globalIndexing)
+
             elif self.staggerloc == CORNER or self.staggerloc == VCORNER:
                 msg = """
 mvESMFRegrid.ESMFRegrid.__init__: can't set the src bounds for
@@ -192,7 +198,8 @@ staggerLoc = %s!""" % staggerLoc
                 raise RegridError, msg
 
         # create destination Grid
-        self.dstGrid.setCoords(dstGrid, staggerloc = self.staggerloc)
+        self.dstGrid.setCoords(dstGrid, staggerloc = self.staggerloc,
+                               globalIndexing = globalIndexing)
         if dstGridMask is not None:
             self.dstGrid.setMask(dstGridMask)
 
@@ -200,11 +207,11 @@ staggerLoc = %s!""" % staggerLoc
             # Coords are CENTER (cell) based, bounds are CORNER (nodal)
             if self.staggerloc != CORNER and self.staggerloc != VCORNER:
                 if self.ndims == 2:
-                    self.dstGrid.setCoords(dstBounds,
-                                           staggerloc = CORNER)
+                    self.dstGrid.setCoords(dstBounds, staggerloc = CORNER,
+                                           globalIndexing = globalIndexing)
                 if self.ndims == 3:
-                    self.dstGrid.setCoords(dstBounds,
-                                           staggerloc = VCORNER)
+                    self.dstGrid.setCoords(dstBounds, staggerloc = VCORNER,
+                                           globalIndexing = globalIndexing)
             elif self.staggerloc == CORNER or self.staggerloc == VCORNER:
                 msg = """
 mvESMFRegrid.ESMFRegrid.__init__: can't set the dst bounds for
@@ -319,7 +326,7 @@ staggerLoc = %s!""" % staggerLoc
         """
 
         stgloc = CENTER
-        if re.search('\bcorner', staggerLoc, re.I) or \
+        if re.match('corner', staggerLoc, re.I) or \
            re.search('nod', staggerLoc, re.I):
             stgloc = CORNER
         elif re.search('vface', staggerLoc, re.I) or \
@@ -335,7 +342,7 @@ staggerLoc = %s!""" % staggerLoc
         @return tuple of slices
         """
         stgloc = CENTER
-        if re.search('\bcorner', staggerLoc, re.I) or \
+        if re.match('corner', staggerLoc, re.I) or \
            re.search('nod', staggerLoc, re.I):
             stgloc = CORNER
         elif re.search('vface', staggerLoc, re.I) or \
@@ -351,7 +358,7 @@ staggerLoc = %s!""" % staggerLoc
         @return tuple of slices
         """
         stgloc = CENTER
-        if re.search('\bcorner', staggerLoc, re.I) or \
+        if re.match('corner', staggerLoc, re.I) or \
            re.search('nod', staggerLoc, re.I):
             stgloc = CORNER
         elif re.search('vface', staggerLoc, re.I) or \

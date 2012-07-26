@@ -27,16 +27,16 @@ class GenericRegrid:
                  **args):
         """
         Constructor.
-        @param srcGrid list of arrays, source horizontal coordinates
-        @param dstGrid list of arrays, destination horizontal coordinate
+        @param srcGrid list of numpy arrays, source horizontal coordinates
+        @param dstGrid list of numpy arrays, destination horizontal coordinate
         @param dtype numpy data type for src/dst data
         @param regridMethod linear (bi, tri,...) default or conservative
         @param regridTool 'libcf' or 'esmf'
         @param srcGridMask array of same shape as srcGrid
-        @param srcBounds list of arrays of same shape as srcGrid
+        @param srcBounds list of numpy arrays of same shape as srcGrid
         @param srcGridAreas array of same shape as srcGrid
         @param dstGridMask array of same shape as dstGrid
-        @param dstBounds list of arrays of same shape as dstGrid
+        @param dstBounds list of numpy arrays of same shape as dstGrid
         @param dstGridAreas array of same shape as dstGrid
         @param **args additional arguments to be passed to the
                       specific tool
@@ -72,18 +72,43 @@ class GenericRegrid:
             coordSys = args.get('coordSys', 'deg')
             if args.has_key('coordSys'):
                 del args['coordSys']
-            self.tool = regrid2.ESMFRegrid(srcGrid, dstGrid,
+
+            # Get the shapes
+            self.srcGridShape = srcGrid[0].shape
+            self.dstGridShape = dstGrid[0].shape
+            self.hasSrcBounds = False
+            self.hasDstBounds = False
+            if srcBounds is not None:
+                self.hasSrcBounds = True
+            if dstBounds is not None:
+                self.hasDstBounds = True
+            self.srcGridAreasShape = None
+            self.dstGridAreasShape = None
+            if srcGridAreas is not None: 
+                self.srcGridAreasShape = srcGridAreas[0].shape
+            if dstGridAreas is not None:
+                self.dstGridAreasShape = dstGridAreas[0].shape
+
+            # Initialize
+            self.tool = regrid2.ESMFRegrid(self.srcGridShape, self.dstGridShape,
                   dtype = dtype,
                   regridMethod = regridMethod,
                   staggerLoc = staggerLoc,
                   periodicity = periodicity,
                   coordSys = coordSys,
+                  hasSrcBounds = self.hasSrcBounds,
+                  hasDstBounds = self.hasDstBounds,
+                  srcGridAreasShape= self.srcGridAreasShape,
+                  dstGridAreasShape = self.dstGridAreasShape,
+                  **args)
+            self.tool.setCoords(srcGrid, dstGrid,
                   srcGridMask = srcGridMask,
                   srcBounds = srcBounds,
                   srcGridAreas = srcGridAreas,
                   dstGridMask = dstGridMask,
                   dstBounds = dstBounds,
                   dstGridAreas = dstGridAreas,
+                  globalIndexing = True,
                   **args)
         else:
             msg = """mvGenericRegrid.__init__: ERROR unrecognized tool %s,
@@ -129,17 +154,19 @@ valid choices are: 'libcf', 'esmf'"""% regridTool
             # no axis... just call apply
             #
 
-            self.tool.apply(srcData, dstData, rootPe = rootPe, **args)
+            self.tool.apply(srcData, dstData, rootPe = rootPe, 
+                            globalIndexing = True, **args)
 
             # adjust for masking
             if missingValue is not None:
                 srcDataMaskFloat[:] = (srcData == missingValue)
                 # interpolate mask
-                self.tool.apply(srcDataMaskFloat, dstDataMaskFloat, rootPe = rootPe, **args)
+                self.tool.apply(srcDataMaskFloat, dstDataMaskFloat,  
+                                rootPe = rootPe, globalIndexing = True, **args)
                 if re.search('conserv', self.regridMethod.lower(), re.I):
-                    dstMask = numpy.array( (dstDataMaskFloat == 1), numpy.int32 )
+                    dstMask = numpy.array((dstDataMaskFloat == 1), numpy.int32)
                 else:
-                    dstMask = numpy.array( (dstDataMaskFloat > 0), numpy.int32 )
+                    dstMask = numpy.array((dstDataMaskFloat > 0), numpy.int32)
                 dstData *= (1 - dstMask)
                 dstData += dstMask*missingValue
 
@@ -174,20 +201,21 @@ valid choices are: 'libcf', 'esmf'"""% regridTool
                 indata = eval('srcData' + slce)
 
                 # interpolate, using the appropriate tool
-                self.tool.apply(indata, outdata, rootPe = rootPe, **args)
+                self.tool.apply(indata, outdata, rootPe = rootPe, 
+                                globalIndexing = True, **args)
 
                 # adjust for masking
                 if missingValue is not None:
                     srcDataMaskFloat[:] = (indata == missingValue)
                     # interpolate mask
                     self.tool.apply(srcDataMaskFloat, dstDataMaskFloat,
-                                    rootPe = rootPe, **args)
+                                    rootPe = rootPe, globalIndexing = True, **args)
                     if re.search('conserv', self.regridMethod.lower(), re.I):
                         # cell interpolation
-                        dstMask = numpy.array( (dstDataMaskFloat == 1), numpy.int32 )
+                        dstMask = numpy.array((dstDataMaskFloat == 1), numpy.int32)
                     else:
                         # nodal interpolation
-                        dstMask = numpy.array( (dstDataMaskFloat > 0), numpy.int32 )
+                        dstMask = numpy.array((dstDataMaskFloat > 0), numpy.int32)
                     outdata *= (1 - dstMask)
                     outdata += dstMask*missingValue
 
