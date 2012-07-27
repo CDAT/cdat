@@ -60,12 +60,6 @@ def _getCoordList(grid):
         lats = cgrid.getLatitude()
         lons = cgrid.getLongitude()
 
-        if grid.getOrder() == 'xy':
-            # toCurveGrid returns coordinates in the wrong
-            # shape if order is 'xy'
-            lats = lats.transpose()
-            lons = lons.transpose()
-
     # we always want the coordinates in that order, these must
     # be cdms2 coordinates so we can inquire about bounds
     return lats, lons
