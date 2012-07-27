@@ -584,9 +584,9 @@ class Regrid:
                                      str(tuple([d for d in self.src_dims])))
         if reduce(operator.iand, [dst_data.shape[i] == self.dst_dims[i] \
                                  for i in range(self.rank)]) == False:
-            raise RegridError, ("ERROR ins: supplied dst_data have wrong shape " \
+            raise RegridError, ("ERROR in %s: supplied dst_data have wrong shape " \
                 + "%s != %s") % (__FILE__, str(dst_data.shape),
-                                 str(self.dst_dims))
+                                 str(tuple([d for d in self.dst_dims])))
 
         # Create temporary data objects
         src_dataid = c_int(-1)
