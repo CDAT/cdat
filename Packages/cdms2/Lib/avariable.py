@@ -1013,22 +1013,25 @@ class AbstractVariable(CdmsObj, Slab):
             if re.search('^regrid', regridTool, re.I) and \
                     len(fromgrid.getLatitude().shape) > 1 or \
                     len(togrid.getLatitude().shape) > 1:
-                warnings.warn( """
+                message = """
 avariable.regrid: regrid2 cannot do curvilinear, will switch to esmf..."
-                """)
+                """
+                warnings.warn(message, Warning)
                 regridTool = 'esmf'
 
             if not userSpecifiesTool:
-                warnings.warn( """
+                message = """
 avariable.regrid: We chose regridTool = %s for you among the following choices:
-                  'regrid2' (old behavior) or 'esmf' (conserve, patch, linear) or 'libcf' (linear)
-                """ % regridTool)
+   Tools ->    'regrid2' (old behavior)
+               'esmf' (conserve, patch, linear) or 
+               'libcf' (linear)""" % regridTool
+                warnings.warn(message, Warning)
 
             if not userSpecifiesMethod:
-                warnings.warn( """
-avariable.regrid: We chose regridMethod = %s for you among the following choices:
-                  'conserve' or 'linear' or 'patch'
-                """ % regridMethod)
+                message = """
+avariable.regrid: We chose regridMethod = %s for you among the following choices: 
+    'conserve' or 'linear' or 'patch'""" % regridMethod
+                warnings.warn(message, Warning)
 
             if re.search('^regrid', regridTool, re.I):
                 if keywords.has_key('diag') and \
