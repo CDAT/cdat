@@ -3,7 +3,10 @@
 
 "CDMS Variable objects, abstract interface"
 import numpy
-import types, string, re
+import types
+import string
+import re
+import warnings
 import cdmsNode
 from cdmsobj import CdmsObj
 import cdms2
@@ -1010,22 +1013,22 @@ class AbstractVariable(CdmsObj, Slab):
             if re.search('^regrid', regridTool, re.I) and \
                     len(fromgrid.getLatitude().shape) > 1 or \
                     len(togrid.getLatitude().shape) > 1:
-                print """
+                warnings.warn( """
 avariable.regrid: regrid2 cannot do curvilinear, will switch to esmf..."
-                """
+                """)
                 regridTool = 'esmf'
 
             if not userSpecifiesTool:
-                print """
+                warnings.warn( """
 avariable.regrid: We chose regridTool = %s for you among the following choices:
                   'regrid2' (old behavior) or 'esmf' (conserve, patch, linear) or 'libcf' (linear)
-                """ % regridTool
+                """ % regridTool)
 
             if not userSpecifiesMethod:
-                print """
+                warnings.warn( """
 avariable.regrid: We chose regridMethod = %s for you among the following choices:
                   'conserve' or 'linear' or 'patch'
-                """ % regridMethod
+                """ % regridMethod)
 
             if re.search('^regrid', regridTool, re.I):
                 if keywords.has_key('diag') and \
