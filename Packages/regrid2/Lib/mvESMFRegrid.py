@@ -156,7 +156,7 @@ dimensions. len(srcGridshape) = %d != len(dstGridshape) = %d""" % \
                   dstGridMask = None, dstBounds = None, dstGridAreas = None, 
                   globalIndexing = False, **args):
         """
-        Popualtor of grids, bounds and masks
+        Populator of grids, bounds and masks
         @param srcGrid list [[z], y, x] of source grid arrays
         @param dstGrid list [[z], y, x] of dstination grid arrays
         @param srcGridMask list [[z], y, x] of arrays
@@ -318,13 +318,29 @@ staggerLoc = %s!""" % staggerLoc
         else:
             return
 
-    def getDstCoordShape(self, staggerLoc):
+    def getSrcCoordShape(self, staggerLoc):
         """
-        Get the local coordinate shape (may be different on each processor)
+        Get the local source coordinate shape 
+        (may be different on each processor)
         @param staggerLoc (e.g. 'center' or 'corner')
         @return tuple
         """
+        stgloc = CENTER
+        if re.match('corner', staggerLoc, re.I) or \
+           re.search('nod', staggerLoc, re.I):
+            stgloc = CORNER
+        elif re.search('vface', staggerLoc, re.I) or \
+             re.search('vcorner', staggerLoc, re.I):
+            stgloc = VFACE
+        return self.srcGrid.getCoordShape(stgloc)
 
+    def getDstCoordShape(self, staggerLoc):
+        """
+        Get the local destination coordinate shape 
+        (may be different on each processor)
+        @param staggerLoc (e.g. 'center' or 'corner')
+        @return tuple
+        """
         stgloc = CENTER
         if re.match('corner', staggerLoc, re.I) or \
            re.search('nod', staggerLoc, re.I):
@@ -338,7 +354,7 @@ staggerLoc = %s!""" % staggerLoc
         """
         Get the destination local slab (ellipsis). You can use
         this to grab the data local to this processor
-        @param staggerLoc (e.g. 'center')
+        @param staggerLoc (e.g. 'center'):
         @return tuple of slices
         """
         stgloc = CENTER
