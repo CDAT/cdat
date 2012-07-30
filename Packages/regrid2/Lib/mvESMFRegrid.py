@@ -318,9 +318,9 @@ staggerLoc = %s!""" % staggerLoc
         else:
             return
 
-    def getSrcCoordShape(self, staggerLoc):
+    def getSrcLocalShape(self, staggerLoc):
         """
-        Get the local source coordinate shape 
+        Get the local source coordinate/data shape 
         (may be different on each processor)
         @param staggerLoc (e.g. 'center' or 'corner')
         @return tuple
@@ -334,9 +334,9 @@ staggerLoc = %s!""" % staggerLoc
             stgloc = VFACE
         return self.srcGrid.getCoordShape(stgloc)
 
-    def getDstCoordShape(self, staggerLoc):
+    def getDstLocalShape(self, staggerLoc):
         """
-        Get the local destination coordinate shape 
+        Get the local destination coordinate/data shape 
         (may be different on each processor)
         @param staggerLoc (e.g. 'center' or 'corner')
         @return tuple
