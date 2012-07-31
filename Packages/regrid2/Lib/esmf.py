@@ -390,10 +390,11 @@ class EsmfStructField:
             his = [hi]
             ptrs = [ptr]
             if self.comm is not None:
-                los = self.comm.allgather(lo)
-                his = self.comm.allgather(hi)
+                los = self.comm.gather(lo)  # Local
+                his = self.comm.gather(hi)  # Local 
                 ptrs = self.comm.gather(ptr, root = rootPe)
 
+            if self.pe == rootPe:    # Local
                 # reassemble, find the largest hi indices to set
                 # the shape of the data container
                 bigHi = [0 for i in range(self.grid.ndims)]
@@ -405,17 +406,12 @@ class EsmfStructField:
                 bigData[:] = 0.0
 
             # populate the data
-            if self.pe == rootPe:
                 for p in range(self.nprocs):
                     slab = tuple([slice(los[p][i], his[p][i], None) for \
                                       i in range(self.grid.ndims)])
                     # copy
                     bigData[slab].flat = ptrs[p]
-
-            if self.comm is not None:
-                self.comm.barrier()
-                bigData = self.comm.bcast(obj = bigData, root = rootPe)
-            return bigData
+                return bigData         # Local
 
         # rootPe is not None and self.pe != rootPe
         return None
