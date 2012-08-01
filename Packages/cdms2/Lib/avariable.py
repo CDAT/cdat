@@ -1004,7 +1004,7 @@ class AbstractVariable(CdmsObj, Slab):
                     userSpecifiesTool = True
 
             # the method determines the tool
-            if re.search('conserve', regridMethod, re.I) or \
+            if re.search('conserv', regridMethod, re.I) or \
                re.search('patch', regridMethod, re.I):
                 # only esmf can do conservative and patch
                 regridTool = 'esmf'
@@ -1018,6 +1018,33 @@ avariable.regrid: regrid2 cannot do curvilinear, will switch to esmf..."
                 """
                 warnings.warn(message, Warning)
                 regridTool = 'esmf'
+
+            if re.search('esmf', regridTool, re.I):
+                # make sure source grids have bounds
+                haveBounds = True
+                for g in fromgrid,:
+                    for c in g.getLatitude(), g.getLongitude():
+                        haveBounds &= (c.getBounds() is not None)
+                if not haveBounds:
+                    message = """
+avariable.regrid: regridTool = 'esmf' requires bounds for source grid, will switch to regridTool = 'libcf'
+                    """
+                    warnings.warn(message, Warning)
+                    regridTool = 'libcf'
+                    regridMethod = 'linear'
+
+            if re.search('conserv', regridMethod, re.I):
+                # make sure destination grid has bounds
+                haveBounds = True
+                for g in togrid,:
+                    for c in g.getLatitude(), g.getLongitude():
+                        haveBounds &= (c.getBounds() is not None)
+                if not haveBounds:
+                    message = """
+avariable.regrid: regridMethod = 'conserve' requires bounds for destination grid, will switch to regridMethod = 'linear'
+                    """
+                    warnings.warn(message, Warning)
+                    regridMethod = 'linear'
 
             if not userSpecifiesTool:
                 message = """
