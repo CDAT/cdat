@@ -1010,9 +1010,9 @@ class AbstractVariable(CdmsObj, Slab):
                 regridTool = 'esmf'
 
             # make sure the tool can do it
-            if re.search('^regrid', regridTool, re.I) and \
-                    len(fromgrid.getLatitude().shape) > 1 or \
-                    len(togrid.getLatitude().shape) > 1:
+            if re.search('^regrid', regridTool, re.I) is not None and \
+                    (  len(fromgrid.getLatitude().shape) > 1 or \
+                         len(togrid.getLatitude().shape) > 1  ):
                 message = """
 avariable.regrid: regrid2 cannot do curvilinear, will switch to esmf..."
                 """
