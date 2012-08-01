@@ -35,6 +35,14 @@ class LibCFRegrid(GenericRegrid):
         if srcGridMask is not None: 
             self.regridObj.setMask(srcGridMask)
 
+        # min resolution, required in order to set the tolerance (tolpos)
+        self.delta = float('inf')
+        for i in range(len(dstGrid)):
+            coordMin = dstGrid[i].min()
+            coordMax = dstGrid[i].max()
+            n = max(dstGrid[i].shape)
+            self.delta = min(self.delta, (coordMax - coordMin)/float(n))
+
     def computeWeights(self, **args):
         """
         Compute interpolation weights
@@ -42,7 +50,8 @@ class LibCFRegrid(GenericRegrid):
                       nitermax, tolpos, ...
         """
         nitermax = args.get('nitermax', 20)
-        tolpos = args.get('tolpos', 0.01)
+        # make tolpos relative to the min cell size
+        tolpos = args.get('tolpos', 0.01) * self.delta
         self.regridObj.computeWeights(nitermax=nitermax, tolpos=tolpos)
 
     def apply(self, srcData, dstData, missingValue = None, **args):
