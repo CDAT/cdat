@@ -233,7 +233,10 @@ staggerLoc = %s!""" % staggerLoc
 
     def apply(self, srcData, dstData, rootPe, globalIndexing = False, **args):
         """
-        Regrid source to destination
+        Regrid source to destination. 
+        When used in parallel, if the processor is not the root processor,
+        the dstData returns None.
+
         @param srcData array source data, shape should
                        cover entire global index space
         @param dstData array destination data, shape should
@@ -260,7 +263,11 @@ staggerLoc = %s!""" % staggerLoc
             slab = self.dstGrid.getLocalSlab(staggerloc = self.staggerloc)
             dstData[slab] = self.dstFld.getData(rootPe = rootPe)
         else:
-            dstData[:] = self.dstFld.getData(rootPe = rootPe)
+            tmp =  self.dstFld.getData(rootPe = rootPe)
+            if tmp is None:
+                dstData = None
+            else:
+                dstData[:] = tmp
 
     def getDstGrid(self):
         """
