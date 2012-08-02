@@ -14,6 +14,25 @@ import regrid2
 import re
 from distarray import MultiArrayIter
 
+def guessPeriodicity(srcBounds):
+    """
+    Guess if a src grid is periodic
+    @param srcBounds the nodal src set of coordinates
+    @return 1 if periodic, warp around, 0 otherwise
+    """
+    res = 0
+    if srcBounds is not None:
+        res = 1
+        # assume longitude to be the last coordinate
+        lonsb = srcBounds[-1]
+        nlon = lonsb.shape[-1]
+        dlon = (lonsb.max() - lonsb.min()) / float(nlon)
+        tol = 1.e-2 * dlon
+        if abs( (lonsb[..., -1] - 360.0 - lonsb[..., 0]).sum()/float(lonsb.size) ) > tol:
+            # looks like a regional model
+            res = 0
+    return res
+
 class GenericRegrid:
     """
     Generic Regrid class.
@@ -31,7 +50,7 @@ class GenericRegrid:
         @param dstGrid list of numpy arrays, destination horizontal coordinate
         @param dtype numpy data type for src/dst data
         @param regridMethod linear (bi, tri,...) default or conservative
-        @param regridTool 'libcf' or 'esmf'
+        @param regridTool currently either 'libcf' or 'esmf'
         @param srcGridMask array of same shape as srcGrid
         @param srcBounds list of numpy arrays of same shape as srcGrid
         @param srcGridAreas array of same shape as srcGrid
@@ -41,7 +60,7 @@ class GenericRegrid:
         @param **args additional arguments to be passed to the
                       specific tool
                       'libcf': mkCyclic={True, False}, handleCut={True,False}
-                      'esmf': .... TO FILL IN
+                      'esmf': periodicity={0,1}, coordSys={'deg', 'cart'}, ...
         """
 
         self.nGridDims = len(srcGrid)
@@ -66,7 +85,8 @@ class GenericRegrid:
             staggerLoc = args.get('staggerLoc', 'center')
             if args.has_key('staggerLoc'):
                 del args['staggerLoc']
-            periodicity = args.get('periodicity', 1)
+            periodicity = args.get('periodicity', 
+                                   guessPeriodicity(srcBounds))
             if args.has_key('periodicity'):
                 del args['periodicity']
             coordSys = args.get('coordSys', 'deg')
