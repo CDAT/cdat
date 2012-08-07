@@ -574,9 +574,16 @@ class AbstractRectGrid(AbstractGrid):
         from hgrid import TransientCurveGrid
 
         lat = self._lataxis_[:]
-        latunits = self._lataxis_.units
         lon = self._lonaxis_[:]
-        lonunits = self._lonaxis_.units
+
+        latunits = ''
+        if hasattr(self._lataxis_, 'units'):
+            latunits = self._lataxis_.units
+
+        lonunits = ''
+        if hasattr(self._lonaxis_, 'units'):
+            lonunits = self._lonaxis_.units
+
         blat, blon = self.getBounds()
         mask = self.getMask()
 
