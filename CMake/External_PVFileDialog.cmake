@@ -9,7 +9,7 @@ ExternalProject_Add(pvfiledialog
   SOURCE_DIR ${pvdialog_source}
   BINARY_DIR ${pvdialog_build}
   INSTALL_DIR ${pvfiledialog_install}
-  GIT_REPOSITORY https://github.com/aashish24/pvfiledialog.git
+  GIT_REPOSITORY git://github.com/aashish24/pvfiledialog.git
   GIT_TAG master
   PATCH_COMMAND ""
   CMAKE_CACHE_ARGS
