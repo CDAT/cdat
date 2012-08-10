@@ -201,6 +201,11 @@ class CdmsRegrid:
             if not re.search('esmp', regridTool.lower()):
                 regridTool = 'esmf'
 
+        # If LibCF handleCut is True, the bounds are needed to extend the grid
+        # close the cut at the top
+        if re.search('LibCF', regridTool, re.I) and args.has_key('handleCut'):
+            if args['handleCut']: srcBounds = getBoundList(srcCoords)
+
         srcCoordsArrays = [numpy.array(sc) for sc in srcCoords]
         dstCoordsArrays = [numpy.array(dc) for dc in dstCoords]
 
