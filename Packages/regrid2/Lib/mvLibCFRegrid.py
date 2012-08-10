@@ -59,24 +59,12 @@ class LibCFRegrid(GenericRegrid):
         Regrid source to destination
         @param srcData array (input)
         @param dstData array (output)
-        @param missingValue value that should be set for points falling outside the src domain, 
-                            pass None if these should not be touched.        
+        @param missingValue value that should be set for points falling outside 
+                            the src domain, pass None if these should not be 
+                            touched.        
         """
-        gshp = self.getSrcGrid()[0].shape
-        sshp = srcData.shape
-        if not reduce(lambda x,y: x and y, [sshp[i] == gshp[i] for i in range(len(gshp))]) \
-                and self.mkCyclic:
-            # padd the src array
-            sd = numpy.ones( gshp, dstData.dtype )
-            if missingValue is not None:
-                sd *= missingValue
-            else:
-                sd *= 0
-            sd[:, :-1] = srcData
-            sd[:, -1] = sd[0, 0]
-            self.regridObj.apply(sd, dstData, missingValue)
-        else:    
-            self.regridObj.apply(srcData, dstData, missingValue)
+        
+        self.regridObj.apply(srcData, dstData, missingValue)
 
     def getSrcGrid(self):
         """
