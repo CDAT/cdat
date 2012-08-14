@@ -3,7 +3,10 @@
 
 "CDMS Variable objects, abstract interface"
 import numpy
-import types, string, re
+import types
+import string
+import re
+import warnings
 import cdmsNode
 from cdmsobj import CdmsObj
 import cdms2
@@ -1001,31 +1004,61 @@ class AbstractVariable(CdmsObj, Slab):
                     userSpecifiesTool = True
 
             # the method determines the tool
-            if re.search('conserve', regridMethod, re.I) or \
+            if re.search('conserv', regridMethod, re.I) or \
                re.search('patch', regridMethod, re.I):
                 # only esmf can do conservative and patch
                 regridTool = 'esmf'
 
             # make sure the tool can do it
-            if re.search('^regrid', regridTool, re.I) and \
-                    len(fromgrid.getLatitude().shape) > 1 or \
-                    len(togrid.getLatitude().shape) > 1:
-                print """
+            if re.search('^regrid', regridTool, re.I) is not None and \
+                    (  len(fromgrid.getLatitude().shape) > 1 or \
+                         len(togrid.getLatitude().shape) > 1  ):
+                message = """
 avariable.regrid: regrid2 cannot do curvilinear, will switch to esmf..."
                 """
+                warnings.warn(message, Warning)
                 regridTool = 'esmf'
 
+            if re.search('esmf', regridTool, re.I):
+                # make sure source grids have bounds
+                haveBounds = True
+                for g in fromgrid,:
+                    for c in g.getLatitude(), g.getLongitude():
+                        haveBounds &= (c.getBounds() is not None)
+                if not haveBounds:
+                    message = """
+avariable.regrid: regridTool = 'esmf' requires bounds for source grid, will switch to regridTool = 'libcf'
+                    """
+                    warnings.warn(message, Warning)
+                    regridTool = 'libcf'
+                    regridMethod = 'linear'
+
+            if re.search('conserv', regridMethod, re.I):
+                # make sure destination grid has bounds
+                haveBounds = True
+                for g in togrid,:
+                    for c in g.getLatitude(), g.getLongitude():
+                        haveBounds &= (c.getBounds() is not None)
+                if not haveBounds:
+                    message = """
+avariable.regrid: regridMethod = 'conserve' requires bounds for destination grid, will switch to regridMethod = 'linear'
+                    """
+                    warnings.warn(message, Warning)
+                    regridMethod = 'linear'
+
             if not userSpecifiesTool:
-                print """
+                message = """
 avariable.regrid: We chose regridTool = %s for you among the following choices:
-                  'regrid2' (old behavior) or 'esmf' (conserve, patch, linear) or 'libcf' (linear)
-                """ % regridTool
+   Tools ->    'regrid2' (old behavior)
+               'esmf' (conserve, patch, linear) or 
+               'libcf' (linear)""" % regridTool
+                warnings.warn(message, Warning)
 
             if not userSpecifiesMethod:
-                print """
-avariable.regrid: We chose regridMethod = %s for you among the following choices:
-                  'conserve' or 'linear' or 'patch'
-                """ % regridMethod
+                message = """
+avariable.regrid: We chose regridMethod = %s for you among the following choices: 
+    'conserve' or 'linear' or 'patch'""" % regridMethod
+                warnings.warn(message, Warning)
 
             if re.search('^regrid', regridTool, re.I):
                 if keywords.has_key('diag') and \
