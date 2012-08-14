@@ -376,6 +376,14 @@ class PyBuildExt(build_ext):
         add_dir_to_list(self.compiler.library_dirs, mylibdir)
         add_dir_to_list(self.compiler.include_dirs, myincdir)
         # end PCMDI change
+	# PCMDI Change
+        # Ensure that place we put tcl/tk/netcdf etc. is always used
+        libbase = os.environ.get('EXTERNALS', os.path.join(sys.prefix,'..','Externals'))
+        mylibdir = os.path.join(libbase,'lib')
+        myincdir = os.path.join(libbase,'include')
+        add_dir_to_list(self.compiler.library_dirs, mylibdir)
+        add_dir_to_list(self.compiler.include_dirs, myincdir)
+        # end PCMDI change
         # Ensure that /usr/local is always used
         add_dir_to_list(self.compiler.library_dirs, '/usr/local/lib')
         add_dir_to_list(self.compiler.include_dirs, '/usr/local/include')
@@ -436,7 +444,7 @@ class PyBuildExt(build_ext):
         # be assumed that no additional -I,-L directives are needed.
         lib_dirs = self.compiler.library_dirs + [
             '/lib64', '/usr/lib64',
-            '/lib', '/usr/lib', '/usr/lib/x86_64-linux-gnu',
+            '/lib', '/usr/lib',
             ]
         inc_dirs = self.compiler.include_dirs + ['/usr/include']
         exts = []
@@ -949,7 +957,6 @@ class PyBuildExt(build_ext):
                 db_dirs_to_check = [
                     db_incdir.replace("include", 'lib64'),
                     db_incdir.replace("include", 'lib'),
-                    db_incdir.replace("include", 'lib/x86_64-linux-gnu')
                 ]
 
                 if sys.platform != 'darwin':
@@ -1062,7 +1069,6 @@ class PyBuildExt(build_ext):
             sqlite_dirs_to_check = [
                 os.path.join(sqlite_incdir, '..', 'lib64'),
                 os.path.join(sqlite_incdir, '..', 'lib'),
-                os.path.join(sqlite_incdir, '..', 'lib/x86_64-linux-gnu'),
                 os.path.join(sqlite_incdir, '..', '..', 'lib64'),
                 os.path.join(sqlite_incdir, '..', '..', 'lib'),
             ]
@@ -1712,12 +1718,9 @@ class PyBuildExt(build_ext):
         # AquaTk is a separate method. Only one Tkinter will be built on
         # Darwin - either AquaTk, if it is found, or X11 based Tk.
         platform = self.get_platform()
-        ## PCMDI changes look for AQUA_CDAT env variable to decide
-        if os.environ.get("AQUA_CDAT","no")=="yes" :
-            if (platform == 'darwin' and
-                self.detect_tkinter_darwin(inc_dirs, lib_dirs)):
-                return
-        ## End of pcmdi changes (we just added the if test
+        if (platform == 'darwin' and
+            self.detect_tkinter_darwin(inc_dirs, lib_dirs)):
+            return
 
         # Assume we haven't found any of the libraries or include files
         # The versions with dots are used on Unix, and the versions without
