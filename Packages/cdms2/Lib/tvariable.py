@@ -663,7 +663,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
                 
     def getHaloEllipsis(self, side):
         """
-        Get the ellipsis for a given halo side
+        Get the ellipsis for a given halo side. 
         
         side - a tuple of zeros and one +1 or -1.  To access
                the "north" side for instance, set side=(1, 0),
