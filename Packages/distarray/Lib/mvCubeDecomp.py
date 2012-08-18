@@ -81,13 +81,14 @@ class CubeDecomp:
                 minCost = cost
         self.decomp = bestDecomp
 
-        # fill in the proc map
+        # fill in the proc to index set map
         procId = 0
         self.proc2IndexSet = {}
+        numCellsPerProc = [self.globalDims[d]//self.decomp[d] for d in range(self.ndims)]
         for it in MultiArrayIter(self.decomp, rowMajor = self.rowMajor):
             nps = it.getIndices()
-            self.proc2IndexSet[procId] = [(nps[d]*self.globalDims[d]//self.decomp[d], \
-                                               (nps[d] + 1)*self.globalDims[d]//self.decomp[d]) \
+            self.proc2IndexSet[procId] = [slice(nps[d]*numCellsPerProc[d], \
+                                               (nps[d] + 1)*numCellsPerProc[d]) \
                                               for d in range(self.ndims)]
             procId += 1
         
@@ -97,7 +98,7 @@ class CubeDecomp:
         """
         Get the start/end indices for given processor rank
         @param procId processor rank
-        @return tuple of slices
+        @return list of slices
         """
         if self.proc2IndexSet:
             return self.proc2IndexSet[procId]
