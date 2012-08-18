@@ -20,7 +20,7 @@ class MultiArrayIter:
         """
         Constructor
         @param dims list of dimensions along each axis
-        @param rowMajor True if ro major, False if column major
+        @param rowMajor True if row major, False if column major
         """
         self.dims = dims
         self.ntot = reduce(operator.mul, self.dims, 1)
