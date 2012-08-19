@@ -703,7 +703,8 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
 
             win = iw['window']
             win.Fence() # get the data ready
-            win.Get( [dataDst, self.__mpiType], pe )
+            if pe is not None:
+                win.Get( [dataDst, self.__mpiType], pe )
             win.Fence() # make sure the communication completed
             return dataDst
         else:
