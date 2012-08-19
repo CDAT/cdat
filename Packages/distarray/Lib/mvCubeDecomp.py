@@ -76,14 +76,20 @@ class CubeDecomp:
         else:
             return []
 
-    def getProcNeighbor(self, proc, offset):
+    def getNeighborProc(self, proc, offset):
         """
         Get the neighbor to a processor 
         @param proc the reference processor rank
         @param offset displacement, e.g. (1, 0) for north, (0, -1) for west,...
+        @note will return None if there is no neighbor
         """
-        inds = [self.getIndicesFromBigIndex(proc[d]) + offset[d] \
+
+        if self.mit is None:
+            return None
+
+        inds = [self.mit.getIndicesFromBigIndex(proc)[d] + offset[d] \
                     for d in range(self.ndims)]
+
         if self.mit.areIndicesValid(inds):
             return self.mit.getBigIndexFromIndices(inds)
         else:
@@ -143,15 +149,27 @@ class CubeDecomp:
 ######################################################################
 
 def test():
+
     dims = (46, 72)
+    ndims = len(dims)
+    offsetN = (1, 0)
+    offsetE = (0, 1)
+    offsetS = (-1, 0)
+    offsetW = (0, -1)
     
     for nprocs in 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 18:
         d = CubeDecomp(nprocs = nprocs, dims = dims)
         print 'nprocs = ', nprocs, ' decomp: ', d.getDecomp()
         for procId in range(nprocs):
-            print ('[%d] start/end indices: ' % procId), d.getSlab(procId)
-    
-
+            print ('[%d] start/end indices %s: ' \
+                       % (procId, str(d.getSlab(procId))))
+            procN = d.getNeighborProc(procId, offsetN)
+            procE = d.getNeighborProc(procId, offsetE)
+            procS = d.getNeighborProc(procId, offsetS)
+            procW = d.getNeighborProc(procId, offsetW)
+            print '      %s     ' % str(procN)
+            print '%s         %s' % (str(procW), str(procE))
+            print '      %s     ' % str(procS)
     
 if __name__ == '__main__':
     test()

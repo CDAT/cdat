@@ -103,7 +103,7 @@ class MultiArrayIter:
         """
         Test if indices are valid
         """
-        return reduce(operator.and_, [inds[d] < self.dims[d] \
+        return reduce(operator.and_, [inds[d] < self.dims[d] and inds[d] >= 0 \
                                          for d in range(self.ndims)], True)
         
 ######################################################################
