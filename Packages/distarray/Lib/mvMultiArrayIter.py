@@ -57,6 +57,7 @@ class MultiArrayIter:
 
     def getBigIndex(self, indices):
         """
+        Get the computed big index from a set of indices
         @param indices 
         @return big index
         """
