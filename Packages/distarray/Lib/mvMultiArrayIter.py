@@ -48,16 +48,31 @@ class MultiArrayIter:
 
     def getIndices(self):
         """
-        @return index set
+        @return current index set
+        """
+        return self.getIndicesFromBigIndex(self.big_index)
+
+    def getBigIndex(self):
+        """
+        @return current big index
+        """
+        return self.big_index
+
+    def getIndicesFromBigIndex(self, bigIndex):
+        """
+        Get index set from given big index
+        @param bigIndex
+        @retunr index set
         """
         indices = [0 for i in range(self.ndims)]
         for i in range(self.ndims):
-            indices[i] = self.big_index // self.dimProd[i] % self.dims[i]
+            indices[i] = bigIndex // self.dimProd[i] % self.dims[i]
         return indices
+        
 
-    def getBigIndex(self, indices):
+    def getBigIndexFromIndices(self, indices):
         """
-        Get the computed big index from a set of indices
+        Get the big index from a given set of indices
         @param indices 
         @return big index
         """
@@ -71,16 +86,16 @@ def testRowMajor():
     print 'row major: dims = ', dims
     for it in MultiArrayIter( (2, 3, 4), rowMajor=True):
         inds = it.getIndices()
-        print inds, it.big_index
-        assert( it.getBigIndex(inds) == it.big_index )
+        print inds, it.getBigIndex()
+        assert( it.getBigIndexFromIndices(inds) == it.getBigIndex() )
 
 def testColMajor():
     dims = (2, 3, 4)
     print 'column major: dims = ', dims
     for it in MultiArrayIter( dims, rowMajor=False):
         inds = it.getIndices()
-        print inds, it.big_index
-        assert( it.getBigIndex(inds) == it.big_index )
+        print inds, it.getBigIndex()
+        assert( it.getBigIndexFromIndices(inds) == it.getBigIndex() )
     
 if __name__ == '__main__':
     testRowMajor()
