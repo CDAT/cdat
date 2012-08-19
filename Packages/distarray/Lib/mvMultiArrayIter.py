@@ -62,7 +62,8 @@ class MultiArrayIter:
         """
         Get index set from given big index
         @param bigIndex
-        @retunr index set
+        @return index set
+        @note no checks are performed to ensure that the returned big index is valid
         """
         indices = [0 for i in range(self.ndims)]
         for i in range(self.ndims):
@@ -74,6 +75,7 @@ class MultiArrayIter:
         Get the big index from a given set of indices
         @param indices 
         @return big index
+        @note no checks are performed to ensure that the returned indices are valid
         """
         return reduce(operator.add, [self.dimProd[i]*indices[i] \
                                          for i in range(self.ndims)], 0)
@@ -83,25 +85,50 @@ class MultiArrayIter:
         Reset big index
         """
         self.big_index = -1
+
+    def getDims(self):
+        """
+        Get the axis dimensions
+        @return list
+        """
+        return self.dims
+
+    def isBigIndexValid(self, bigIndex):
+        """
+        Test if big index is valid
+        """
+        return bigIndex < self.ntot and bigIndex >= 0
+
+    def areIndicesValid(self, inds):
+        """
+        Test if indices are valid
+        """
+        return reduce(operator.and_, [inds[d] < self.dims[d] \
+                                         for d in range(self.ndims)], True)
         
 ######################################################################
 
-def testRowMajor():
+def test(rowMajor):
     dims = (2, 3, 4)
     print 'row major: dims = ', dims
-    for it in MultiArrayIter( (2, 3, 4), rowMajor=True):
+    for it in MultiArrayIter( (2, 3, 4), rowMajor = rowMajor):
         inds = it.getIndices()
-        print inds, it.getBigIndex()
+        bi = it.getBigIndex()
+        print inds, bi
         assert( it.getBigIndexFromIndices(inds) == it.getBigIndex() )
+        inds2 = it.getIndicesFromBigIndex(bi)
+        assert( reduce(operator.and_, \
+                           [inds2[d] == inds[d] for d in range(it.ndims)], True ) )
+        assert( it.isBigIndexValid(bi) )
+        assert( it.areIndicesValid(inds) )
 
-def testColMajor():
-    dims = (2, 3, 4)
-    print 'column major: dims = ', dims
-    for it in MultiArrayIter( dims, rowMajor=False):
-        inds = it.getIndices()
-        print inds, it.getBigIndex()
-        assert( it.getBigIndexFromIndices(inds) == it.getBigIndex() )
-    
+    # check validity
+    assert( not it.isBigIndexValid(-1) )
+    assert( not it.isBigIndexValid( it.ntot ) )
+    assert( not it.areIndicesValid( (2, 2, 3) ) )
+    assert( not it.areIndicesValid( (1, 3, 3) ) )
+    assert( not it.areIndicesValid( (1, 2, 4) ) )
+
 if __name__ == '__main__':
-    testRowMajor()
-    testColMajor()
+    test(rowMajor = True)
+    test(rowMajor = False)
