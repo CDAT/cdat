@@ -69,7 +69,6 @@ class MultiArrayIter:
             indices[i] = bigIndex // self.dimProd[i] % self.dims[i]
         return indices
         
-
     def getBigIndexFromIndices(self, indices):
         """
         Get the big index from a given set of indices
@@ -78,6 +77,12 @@ class MultiArrayIter:
         """
         return reduce(operator.add, [self.dimProd[i]*indices[i] \
                                          for i in range(self.ndims)], 0)
+
+    def reset(self):
+        """
+        Reset big index
+        """
+        self.big_index = -1
         
 ######################################################################
 
