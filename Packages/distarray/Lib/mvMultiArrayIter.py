@@ -96,12 +96,16 @@ class MultiArrayIter:
     def isBigIndexValid(self, bigIndex):
         """
         Test if big index is valid
+        @param bigIndex big index
+        @return True if big index is in range, False otherwise
         """
         return bigIndex < self.ntot and bigIndex >= 0
 
     def areIndicesValid(self, inds):
         """
         Test if indices are valid
+        @param inds index set
+        @return True if valid, False otherwise
         """
         return reduce(operator.and_, [inds[d] < self.dims[d] and inds[d] >= 0 \
                                          for d in range(self.ndims)], True)
