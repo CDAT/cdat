@@ -38,15 +38,58 @@ class CubeDecomp:
         @param nprocs number of sub-domains
         @param dims list of global dimensions along each axis
         @param rowMajor True if row major, False if column major
+               (determines whether the processor ranks are contiguous
+                as the first or last index increases)
         """
         self.ndims = len(dims)
         self.nprocs = nprocs
         self.globalDims = dims
         self.rowMajor = rowMajor
-        self.decomp = [None for i in range(self.ndims)]
+
+        # holds a list of number of procs per axis
+        self.decomp = None
+
+        # maps the processor rank to start/end index sets
         self.proc2IndexSet = {}
 
+        # iterator from one sub-domain to the next
+        self.mit = None
+        
+        self.__computeDecomp()
+
     def getDecomp(self):
+        """
+        Get the decomposition
+        @return list of number of procs per axis, or None if 
+        no decomp exists for this number of processors
+        """
+        return self.decomp
+
+    def getSlab(self, procId):
+        """
+        Get the start/end indices for given processor rank
+        @param procId processor rank
+        @return list of slices (or empty list if no valid decomp)
+        """
+        if self.proc2IndexSet:
+            return self.proc2IndexSet[procId]
+        else:
+            return []
+
+    def getProcNeighbor(self, proc, offset):
+        """
+        Get the neighbor to a processor 
+        @param proc the reference processor rank
+        @param offset displacement, e.g. (1, 0) for north, (0, -1) for west,...
+        """
+        inds = [self.getIndicesFromBigIndex(proc[d]) + offset[d] \
+                    for d in range(self.ndims)]
+        if self.mit.areIndicesValid(inds):
+            return self.mit.getBigIndexFromIndices(inds)
+        else:
+            return None
+
+    def __computeDecomp(self):
         """
         Compute optimal dedomposition, each sub-domain has the 
         same volume in index space. 
@@ -63,7 +106,7 @@ class CubeDecomp:
 
         if len(validDecomps) == 0:
             # no solution
-            return []
+            return
 
         # find the optimal decomp among all valid decomps
         minCost = float('inf')
@@ -81,29 +124,21 @@ class CubeDecomp:
                 minCost = cost
         self.decomp = bestDecomp
 
+        # ok, we have a valid decomp, now build the sub-domain iterator
+        self.mit = MultiArrayIter(self.decomp, rowMajor = self.rowMajor)
+
         # fill in the proc to index set map
         procId = 0
         self.proc2IndexSet = {}
-        numCellsPerProc = [self.globalDims[d]//self.decomp[d] for d in range(self.ndims)]
-        for it in MultiArrayIter(self.decomp, rowMajor = self.rowMajor):
+        numCellsPerProc = [self.globalDims[d]//self.decomp[d] \
+                               for d in range(self.ndims)]
+        for it in self.mit:
             nps = it.getIndices()
             self.proc2IndexSet[procId] = [slice(nps[d]*numCellsPerProc[d], \
                                                (nps[d] + 1)*numCellsPerProc[d]) \
                                               for d in range(self.ndims)]
             procId += 1
-        
-        return self.decomp
-
-    def getSlab(self, procId):
-        """
-        Get the start/end indices for given processor rank
-        @param procId processor rank
-        @return list of slices
-        """
-        if self.proc2IndexSet:
-            return self.proc2IndexSet[procId]
-        else:
-            return []
+                
         
 ######################################################################
 
