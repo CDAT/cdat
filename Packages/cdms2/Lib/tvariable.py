@@ -686,11 +686,15 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         be called by all processes), which involves synchronization
         of data among all processors.
 
-        pe       -  processor owning the halo data
+        pe       -  processor owning the halo data. This is a no
+                    operation when pe is None. 
         side     -  a tuple of zeros and one +1 or -1.  To access
                     the "north" side for instance, set side=(1, 0),
                     (-1, 0) to access the south side, (0, 1) the east
                     side, etc. 
+
+        Note: collective, all procs must invoke this method. If some 
+        processors should not fetch then pass None for pe.
         """
         if HAVE_MPI:
             iw = self.__mpiWindows[side]
