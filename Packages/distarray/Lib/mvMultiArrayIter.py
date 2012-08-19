@@ -54,6 +54,14 @@ class MultiArrayIter:
         for i in range(self.ndims):
             indices[i] = self.big_index // self.dimProd[i] % self.dims[i]
         return indices
+
+    def getBigIndex(self, indices):
+        """
+        @param indices 
+        @return big index
+        """
+        return reduce(operator.add, [self.dimProd[i]*indices[i] \
+                                         for i in range(self.ndims)], 0)
         
 ######################################################################
 
@@ -61,13 +69,17 @@ def testRowMajor():
     dims = (2, 3, 4)
     print 'row major: dims = ', dims
     for it in MultiArrayIter( (2, 3, 4), rowMajor=True):
-        print it.getIndices(), it.big_index
+        inds = it.getIndices()
+        print inds, it.big_index
+        assert( it.getBigIndex(inds) == it.big_index )
 
 def testColMajor():
     dims = (2, 3, 4)
     print 'column major: dims = ', dims
     for it in MultiArrayIter( dims, rowMajor=False):
-        print it.getIndices(), it.big_index
+        inds = it.getIndices()
+        print inds, it.big_index
+        assert( it.getBigIndex(inds) == it.big_index )
     
 if __name__ == '__main__':
     testRowMajor()
