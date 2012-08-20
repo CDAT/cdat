@@ -3,6 +3,7 @@
 
 """CDMS Grid objects"""
 import types
+import re
 from error import CDMSError
 import numpy #, PropertiedClasses, internattr
 # import regrid2._regrid
@@ -573,43 +574,77 @@ class AbstractRectGrid(AbstractGrid):
         from hgrid import TransientCurveGrid
 
         lat = self._lataxis_[:]
-        latunits = self._lataxis_.units
         lon = self._lonaxis_[:]
-        lonunits = self._lonaxis_.units
+
+        latunits = ''
+        if hasattr(self._lataxis_, 'units'):
+            latunits = self._lataxis_.units
+
+        lonunits = ''
+        if hasattr(self._lonaxis_, 'units'):
+            lonunits = self._lonaxis_.units
+
         blat, blon = self.getBounds()
         mask = self.getMask()
 
         nlat = len(lat)
         nlon = len(lon)
-        centerLat = numpy.repeat(lat[:,numpy.newaxis], nlon, axis=1)
-        centerLon = numpy.repeat(lon[numpy.newaxis,:], nlat, axis=0)
 
-        # Create corner latitudes, ensuring counterclockwise direction
-        clat = numpy.zeros((nlat, 4), numpy.float)
-        if (blat[0,0]<= blat[0,1]):
+        order = self.getOrder()
+
+        # Deal with the order of the axes
+        # ax - first index, ay - second index
+        if re.search(order, 'xy', re.I):
+            orderXY = True
+            ax, ay = lat, lon
+            bx, by = blat, blon
+            nx, ny = nlat, nlon
+        else:
+            orderXY = False
+            ax, ay = lon, lat
+            bx, by = blon, blat
+            nx, ny = nlon, nlat
+            
+        centerX = numpy.outer(numpy.ones(ny), ax)
+        centerY = numpy.outer(ay, numpy.ones(nx))
+
+        # Create corner latitudes (in yx order), ensuring counterclockwise direction
+        cy = numpy.zeros((ny, 4), numpy.float)
+        if (by[0,0]<= by[0,1]):
             incr = 1
         else:
             incr = 0
-        clat[:,0] = blat[:,1-incr]
-        clat[:,1] = blat[:,1-incr]
-        clat[:,2] = blat[:,incr]
-        clat[:,3] = blat[:,incr]
-        cornerLat = numpy.repeat(clat[:,numpy.newaxis,:], nlon, axis=1)
+        cy[:,0] = by[:,1-incr]
+        cy[:,1] = by[:,1-incr]
+        cy[:,2] = by[:,incr]
+        cy[:,3] = by[:,incr]
+        cornerY = numpy.repeat(cy[:,numpy.newaxis,:], nx, axis=1)
         
-        # Create corner longitudes, ensuring counterclockwise direction
-        clon = numpy.zeros((nlon, 4), numpy.float)
-        if (blon[0,0]<= blon[0,1]):
+        # Create corner longitudes (in yx order), ensuring counterclockwise direction
+        cx = numpy.zeros((nx, 4), numpy.float)
+        if (bx[0,0]<= bx[0,1]):
             incr = 1
         else:
             incr = 0
-        clon[:,0] = blon[:,1-incr]
-        clon[:,1] = blon[:,incr]
-        clon[:,2] = blon[:,incr]
-        clon[:,3] = blon[:,1-incr]
-        cornerLon = numpy.repeat(clon[numpy.newaxis,:,:], nlat, axis=0)
+        cx[:,0] = bx[:,1-incr]
+        cx[:,1] = bx[:,incr]
+        cx[:,2] = bx[:,incr]
+        cx[:,3] = bx[:,1-incr]
+        cornerX = numpy.repeat(cx[numpy.newaxis,:,:], ny, axis=0)
 
-        iaxis = TransientVirtualAxis("i",nlat)
-        jaxis = TransientVirtualAxis("j",nlon)
+        iaxis = TransientVirtualAxis("i",ny) # First axis
+        jaxis = TransientVirtualAxis("j",nx) # Second axis
+        
+        centerLat = centerY
+        centerLon = centerX
+        cornerLat = cornerY
+        cornerLon = cornerX
+        if orderXY:
+            centerLat = centerX
+            centerLon = centerY
+            cornerLat = cornerX
+            cornerLon = cornerY
+            
 
         lataxis = TransientAxis2D(centerLat, axes=(iaxis, jaxis), bounds=cornerLat,
                                   attributes={'units':latunits}, id="latitude")

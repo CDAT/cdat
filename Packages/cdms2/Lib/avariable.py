@@ -3,7 +3,10 @@
 
 "CDMS Variable objects, abstract interface"
 import numpy
-import types, string, re
+import types
+import string
+import re
+import warnings
 import cdmsNode
 from cdmsobj import CdmsObj
 import cdms2
@@ -15,7 +18,6 @@ import selectors
 import copy
 # from regrid2 import Regridder, PressureRegridder, CrossSectionRegridder
 from mvCdmsRegrid import CdmsRegrid
-from regrid2 import Horizontal
 #import PropertiedClasses
 from convention import CF1
 from grid import AbstractRectGrid
@@ -966,67 +968,112 @@ class AbstractVariable(CdmsObj, Slab):
         @param keywords optional keyword arguments dependent on regridTool
         @return regridded variable
         """
+        # there is a circular dependency between cdms2 and regrid2. In 
+        # principle, cdms2 files should not import regrid2, we're bending
+        # rules here...
+        from regrid2 import Horizontal
 
         if togrid is None: 
             return self
         else:
 
-            fromgrid = self.getGrid() # returns horizontal grid only
+            fromgrid = self.getGrid() # this returns the horizontal grid only
 
-            regridMethod = 'linear' # default
-            if keywords.has_key('regridMethod'):
-                # override with user input
-                regridMethod = keywords['regridMethod']
-                del keywords['regridMethod']
+            # default w/o bounds
+            regridTool = 'libcf'   
+            regridMethod = 'linear'
+
+            # check if there are bounds
+            if fromgrid.getBounds() is not None:
+                regridTool = 'esmf'
+                regridMethod = 'linear'
+
+            # let user override
+            userSpecifiesMethod = False
+            for rm in 'rm', 'method', 'regridmethod', 'regrid_method', 'regridMethod':
+                if keywords.has_key(rm):
+                    regridMethod = keywords[rm]
+                    del keywords[rm]
+                    userSpecifiesMethod = True
+
+            userSpecifiesTool = False
+            for rt in 'rt', 'tool', 'regridtool', 'regrid_tool', 'regridTool':
+                if keywords.has_key(rt):
+                    regridTool = keywords[rt]
+                    del keywords[rt]
+                    userSpecifiesTool = True
 
             # the method determines the tool
-            if re.search('conserve', regridMethod, re.I) or \
+            if re.search('conserv', regridMethod, re.I) or \
                re.search('patch', regridMethod, re.I):
                 # only esmf can do conservative and patch
                 regridTool = 'esmf'
-                if keywords.has_key('regridTool') and \
-                   re.search(r'esm', keywords['regridTool']) is None:
-                    print """
-avariable.regrid:
-    Warning: conservative/patch interpolation requires regridTool = 'esmf', overriding user input
-                    """
-                del keywords['regridTool']
-            else:
-                # linear
-                regridTool = 'libcf' # default
-                if keywords.has_key('regridTool'):
-                    regridTool = keywords['regridTool']
-                    del keywords['regridTool']
-                else:
-                    # user did not provide regridTool
-                    print """
-avariable.regrid: 
-    Warning: the default interpolation method is %s, to recover the old 
-    behavior regridTool = 'regrid2'. e.g.:
-        newVar = var.regrid(grid, regridTool='regrid2')
-            """ % regridTool
-            
-            if re.search('^regrid', regridTool, re.I):
 
+            # make sure the tool can do it
+            if re.search('^regrid', regridTool, re.I) is not None and \
+                    (  len(fromgrid.getLatitude().shape) > 1 or \
+                         len(togrid.getLatitude().shape) > 1  ):
+                message = """
+avariable.regrid: regrid2 cannot do curvilinear, will switch to esmf..."
+                """
+                warnings.warn(message, Warning)
+                regridTool = 'esmf'
+
+            if re.search('esmf', regridTool, re.I):
+                # make sure source grids have bounds
+                haveBounds = True
+                for g in fromgrid,:
+                    for c in g.getLatitude(), g.getLongitude():
+                        haveBounds &= (c.getBounds() is not None)
+                if not haveBounds:
+                    message = """
+avariable.regrid: regridTool = 'esmf' requires bounds for source grid, will switch to regridTool = 'libcf'
+                    """
+                    warnings.warn(message, Warning)
+                    regridTool = 'libcf'
+                    regridMethod = 'linear'
+
+            if re.search('conserv', regridMethod, re.I):
+                # make sure destination grid has bounds
+                haveBounds = True
+                for g in togrid,:
+                    for c in g.getLatitude(), g.getLongitude():
+                        haveBounds &= (c.getBounds() is not None)
+                if not haveBounds:
+                    message = """
+avariable.regrid: regridMethod = 'conserve' requires bounds for destination grid, will switch to regridMethod = 'linear'
+                    """
+                    warnings.warn(message, Warning)
+                    regridMethod = 'linear'
+
+            if not userSpecifiesTool:
+                message = """
+avariable.regrid: We chose regridTool = %s for you among the following choices:
+   Tools ->    'regrid2' (old behavior)
+               'esmf' (conserve, patch, linear) or 
+               'libcf' (linear)""" % regridTool
+                warnings.warn(message, Warning)
+
+            if not userSpecifiesMethod:
+                message = """
+avariable.regrid: We chose regridMethod = %s for you among the following choices: 
+    'conserve' or 'linear' or 'patch'""" % regridMethod
+                warnings.warn(message, Warning)
+
+            if re.search('^regrid', regridTool, re.I):
                 if keywords.has_key('diag') and \
                         type(keywords['diag']) == types.DictType:
                     keywords['diag']['regridTool'] = 'regrid'
 
                 # the original cdms2 regridder
-                if len(fromgrid.getLatitude().shape) > 1 or \
-                   len(togrid.getLatitude().shape) > 1:
-                    print """horizontal can only handle grid with 1D axes. returning self.
-          fromgrid.getLatitude().shape = %s
-            togrid.getLatitude().shape = %s
-                    """ % (str(fromgrid.getLatitude().shape), str(togrid.getLatitude().shape))
-                    return self
-                else:
-                    regridf = Horizontal(fromgrid, togrid)
-                    return regridf(self, missing=missing, order=order, 
-                                   mask=mask, **keywords)
+                regridf = Horizontal(fromgrid, togrid)
+                return regridf(self, missing=missing, order=order, 
+                               mask=mask, **keywords)
+
+            # emsf or libcf...
 
             srcGridMask = None
-            # Set the source mask if a mask is defined with the source data
+            # set the source mask if a mask is defined with the source data
             if numpy.any(self.mask == True):
                 srcGridMask = getMinHorizontalMask(self)
 

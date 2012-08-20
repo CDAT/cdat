@@ -22,9 +22,9 @@ if(NOT APPLE)
     -DZLIB_LIBRARY:FILEPATH=${cdat_EXTERNALS}/lib/libz${_LINK_LIBRARY_SUFFIX}
     # libxml2
     -DVTK_USE_SYSTEM_LIBXML2:BOOL=ON
-    -DLIBXML2_INCLUDE_DIR:PATH=${cdat_EXTERNALS}/include/libxml2
-    -DLIBXML2_LIBRARIES:FILEPATH=${cdat_EXTERNALS}/lib/libxml2${_LINK_LIBRARY_SUFFIX}
-    -DLIBXML2_XMLLINT_EXECUTABLE:FILEPATH=${cdat_EXTERNALS}/bin/xmllint
+    #-DLIBXML2_INCLUDE_DIR:PATH=${cdat_EXTERNALS}/include/libxml2
+    #-DLIBXML2_LIBRARIES:FILEPATH=${cdat_EXTERNALS}/lib/libxml2${_LINK_LIBRARY_SUFFIX}
+    #-DLIBXML2_XMLLINT_EXECUTABLE:FILEPATH=${cdat_EXTERNALS}/bin/xmllint
    )
 endif()
 
@@ -33,8 +33,8 @@ ExternalProject_Add(ParaView
   SOURCE_DIR ${ParaView_source}
   BINARY_DIR ${ParaView_binary}
   INSTALL_DIR ${ParaView_install}
-  URL ${PARAVIEW_URL}/${PARAVIEW_GZ}
-  URL_MD5 ${PARAVIEW_MD5}
+  GIT_REPOSITORY https://github.com/aashish24/paraview-climate-3.11.1.git
+  GIT_TAG master
   PATCH_COMMAND ""
   CMAKE_CACHE_ARGS
     -DBUILD_SHARED_LIBS:BOOL=ON

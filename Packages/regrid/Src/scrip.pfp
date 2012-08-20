@@ -1,8 +1,0 @@
-pyf('scrip.pyf', 
-    sources=['regrid.c'], 
-    python_directory='../Lib', 
-    package_name='regrid', 
-    generate_as='_scrip', 
-    use_c_compiler=1, 
-    freeform=1)
-

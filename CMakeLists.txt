@@ -417,6 +417,7 @@ add_cdat_package(udunits2)
 #add_cdat_package(HDF4) 
 add_cdat_package(HDF5)
 add_cdat_package(NetCDF)
+add_cdat_package(NetCDFPLUS)
 add_cdat_package(Qt)
 add_cdat_package(jasper)
 add_cdat_package(g2clib)
@@ -544,6 +545,7 @@ endif()
 option(CDAT_BUILD_PARAVIEW "Build ParaView" OFF)
 if(CDAT_BUILD_PARAVIEW)
   add_cdat_package(ParaView)
+  add_cdat_package(PVFileDialog)
 endif()
 
 option(CDAT_BUILD_VISIT "Build VisIt" OFF)
@@ -551,7 +553,6 @@ if(CDAT_BUILD_VISIT)
   add_cdat_package(VisIt)
 endif()
 
-add_cdat_package(PVFileDialog)
 # C. Doutriaux Turning off Vistrails build from within CDAT
 #option(CDAT_BUILD_VISTRAILS "Build VisTrails" OFF)
 #if(CDAT_BUILD_VISTRAILS)
@@ -655,6 +656,7 @@ set(YASM_DEPENDENCIES ${pkgconfig_dep})
 set(FFMPEG_DEPENDENCIES ${pkgconfig_dep} ${YASM_dep})
 set(ghostscript_DEPENDENCIES ${pkgconfig_dep} ${zlib_dep} ${jpeg_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep} ${libXSLT_dep} ${libXML2_dep})
 set(NetCDF_DEPENDENCIES ${pkgconfig_dep} ${HDF5_dep} ${CURL_dep} ${zlib_dep})
+set(NetCDFPLUS_DEPENDENCIES ${NetCDF_dep})
 
 set(TclTk_DEPENDENCIES ${pkgconfig_dep} ${libXML2_dep} ${libXSLT_dep} ${jpeg_dep} ${png_dep} ${tiff_dep})
 
@@ -671,8 +673,8 @@ set(Cairo_DEPENDENCIES ${pkgconfig_dep} ${png_dep} ${fontconfig_dep} ${freetype_
 set(HDF4_DEPENDENCIES ${pkgconfig_dep} ${zlib_dep} ${jpeg_dep})
 set(HDF5_DEPENDENCIES ${pkgconfig_dep} ${libXML2_dep} ${libXSLT_dep} ${zlib_dep})
 
-set(ParaView_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${HDF5_dep} ${png_dep} ${jpeg_dep} ${libXML2_dep} ${Qt_dep} ${freetype_dep} ${NetCDF_dep} ${zlib_dep})
-set(VisIt_DEPENDENCIES  ${pkgconfig_dep} ${Python_dep} ${HDF5_dep} ${png_dep} ${jpeg_dep} ${libXML2_dep} ${Qt_dep} ${freetype_dep} ${NetCDF_dep} ${zlib_dep} ${SIP_dep} ${PyQt_dep})
+set(ParaView_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${HDF5_dep} ${png_dep} ${jpeg_dep} ${libXML2_dep} ${Qt_dep} ${freetype_dep} ${NetCDFPLUS_dep} ${zlib_dep})
+set(VisIt_DEPENDENCIES  ${pkgconfig_dep} ${Python_dep} ${HDF5_dep} ${png_dep} ${jpeg_dep} ${libXML2_dep} ${Qt_dep} ${freetype_dep} ${NetCDFPLUS_dep} ${zlib_dep} ${SIP_dep} ${PyQt_dep})
 
 set(CMOR_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${HDF5_dep} ${Cairo_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep} ${NetCDF_dep} ${zlib_dep} ${uuid_dep} ${udunits2_dep})
 set(CDAT_DEPENDENCIES ${wget_dep} ${CMOR_dep} ${Python_dep} ${PyQt_dep} ${NUMPY_dep} ${Pmw_dep} ${jasper_dep} ${g2clib_dep} ${FFMPEG_dep} ${Qt_dep} ${pixman_dep} ${tiff_dep})
