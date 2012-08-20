@@ -98,7 +98,7 @@ def linearInterpolation(A,I,levels=[100000, 92500, 85000, 70000, 60000, 50000, 4
         val=MV2.masked_where(MV2.equal(Ibel,-1.),numpy.ones(Ibel.shape)*lev) # set to missing value if no data below lev if there is
         
         tl=(val-Ibel)/(Iabv-Ibel)*(Aabv-Abel)+Abel # Interpolation
-        if ((Ieq.mask is None) or (Ieq.mask is MV22.nomask)):
+        if ((Ieq.mask is None) or (Ieq.mask is MV2.nomask)):
             tl=Ieq
         else:
             tl=MV2.where(1-Ieq.mask,Ieq,tl)

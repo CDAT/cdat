@@ -1,34 +1,9 @@
 #!/bin/sh
 
-if (test "$1" = "--debug") then
-    D="--debug";
-    OPT=-g; 
-    shift
-else
-    D="";
-    OPT=${OPT:=-O}
-fi
-export OPT
 
 if (test -z "$1") then
     echo "Usage: $0 prefix";
     exit 1
-fi
-
-if (test ! -d build) then
-    # Unpack everything into build
-    mkdir build
-    /bin/cp *.gz build
-    cd build
-    chmod +w *.gz 
-    for x in *.gz; 
-    do 
-        echo "$x"; 
-        gunzip -f $x;
-        tar xf `basename $x .gz`;
-        /bin/rm -f `basename $x .gz`
-    done
-    cd ..
 fi
 
 prefix=`(cd $1;pwd)`
@@ -38,7 +13,6 @@ else
   pyprefix=`(cd $2;pwd)`
 fi
 
-cd build
 echo "Installation to ${prefix}"
 # Make sure /usr/bin/env etc. finds 'ourselves'
 # We hardwire inside this script but Scientific Python
@@ -46,6 +20,5 @@ echo "Installation to ${prefix}"
 PATH="${prefix}/bin:${PATH}"; export PATH
 
 #Sphinx
-(cd Sphinx*; \
-   ${pyprefix}/bin/python setup.py build ${D} install --prefix=${prefix} \
+( ${pyprefix}/bin/easy_install sphinx \
 )
