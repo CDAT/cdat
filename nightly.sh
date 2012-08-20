@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+
 ## script to build automatically (UV-)CDAT
 
 INSTALL_PATH=$1
