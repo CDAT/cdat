@@ -1,5 +1,9 @@
 
-set(ESMF_source "${CMAKE_CURRENT_BINARY_DIR}/build/ESMF" CACHE INTERNAL "")
+set(ESMF_source_dir "${CMAKE_CURRENT_BINARY_DIR}/build/ESMF" CACHE INTERNAL "")
+set(ESMF_source "${CMAKE_CURRENT_BINARY_DIR}/build/ESMF/esmf" CACHE INTERNAL "")
+
+message("esmf source "${ESMF_source})
+
 set(ESMF_install "${cdat_EXTERNALS}" CACHE INTERNAL "")
 set(ESMF_pthreads "OFF")
 
@@ -31,9 +35,17 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/ESMF_install_step.cmake.in
 set(ESMF_build_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/ESMF_make_step.cmake)
 set(ESMF_install_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/ESMF_install_step.cmake)
 
+# ESMF Python interface. Install after ESMF is done.
+set(ESMP_source "${ESMF_source_dir}/ESMP")
+
+configure_file(${cdat_CMAKE_SOURCE_DIR}/ESMP_install_step.cmake.in
+  ${cdat_CMAKE_BINARY_DIR}/ESMP_install_step.cmake
+  @ONLY)
+set(ESMP_install_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/ESMP_install_step.cmake)
+
 ExternalProject_Add(ESMF
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
-  SOURCE_DIR ${ESMF_source}
+  SOURCE_DIR ${ESMF_source_dir}
   INSTALL_DIR ${ESMF_install}
   URL ${ESMF_URL}/${ESMF_GZ}
   URL_MD5 ${ESMF_MD5}
@@ -42,6 +54,7 @@ ExternalProject_Add(ESMF
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ${ESMF_build_command}
   INSTALL_COMMAND ${ESMF_install_command}
+  INSTALL_COMMAND ${ESMP_install_command}
   DEPENDS ${ESMF_DEPENDENCIES}
   ${EP_LOG_OPTIONS}
 )
