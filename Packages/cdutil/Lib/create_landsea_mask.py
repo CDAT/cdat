@@ -76,10 +76,10 @@ def map2four(data,target):
     eo=cdms2.createRectGrid(latse,lonso)
     ee=cdms2.createRectGrid(latse,lonse)
     
-    doo = data.regrid(oo)
-    doe = data.regrid(oe)
-    deo = data.regrid(eo)
-    dee = data.regrid(ee)
+    doo = data.regrid(oo,regridTool='regrid2')
+    doe = data.regrid(oe,regridTool='regrid2')
+    deo = data.regrid(eo,regridTool='regrid2')
+    dee = data.regrid(ee,regridTool='regrid2')
 
     out=MV2.zeros(data.shape,dtype='f')
 
@@ -182,7 +182,7 @@ def generateLandSeaMask(target,source=None,threshold_1 = .2, threshold_2 = .3):
         source = cdms2.open(os.path.join(sys.prefix,'sample_data','navy_land.nc'))('sftlf')
         
     try:
-        navy_frac_t = source.regrid(target)
+        navy_frac_t = source.regrid(target,regridTool='regrid2')
     except Exception,err:
         raise "error, cannot regrid source data to target, got error message: %s" % err
     
