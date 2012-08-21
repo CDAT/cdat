@@ -63,7 +63,7 @@ def create_surrounds(data):
     return UL,UC,UR,ML,MR,LL,LC,LR
 
 
-def map2four(data,target):
+def map2four(data,target,regridTool='regrid2'):
     lons=target.getLongitude()
     lats=target.getLatitude()
     lonso=cdms2.createAxis(lons[::2])
@@ -76,10 +76,10 @@ def map2four(data,target):
     eo=cdms2.createRectGrid(latse,lonso)
     ee=cdms2.createRectGrid(latse,lonse)
     
-    doo = data.regrid(oo,regridTool='regrid2')
-    doe = data.regrid(oe,regridTool='regrid2')
-    deo = data.regrid(eo,regridTool='regrid2')
-    dee = data.regrid(ee,regridTool='regrid2')
+    doo = data.regrid(oo,regridTool=regridTool)
+    doe = data.regrid(oe,regridTool=regridTool)
+    deo = data.regrid(eo,regridTool=regridTool)
+    dee = data.regrid(ee,regridTool=regridTool)
 
     out=MV2.zeros(data.shape,dtype='f')
 
@@ -93,8 +93,8 @@ def map2four(data,target):
 
     return out
 
-def improve(mask,navy_frac_t,threshold_1,threshold_2,UL,UC,UR,ML,MR,LL,LC,LR):
-    mask_approx = map2four(mask,mask.getGrid())
+def improve(mask,navy_frac_t,threshold_1,threshold_2,UL,UC,UR,ML,MR,LL,LC,LR,regridTool='regrid2'):
+    mask_approx = map2four(mask,mask.getGrid(),regridTool=regridTool)
     diff =  navy_frac_t - mask_approx
     ## Land point conversion
     c1 = MV2.greater(diff,threshold_1)
@@ -158,7 +158,7 @@ def improve(mask,navy_frac_t,threshold_1,threshold_2,UL,UC,UR,ML,MR,LL,LC,LR):
     mask2.setAxisList(mask.getAxisList())
     return mask2
 
-def generateLandSeaMask(target,source=None,threshold_1 = .2, threshold_2 = .3):
+def generateLandSeaMask(target,source=None,threshold_1 = .2, threshold_2 = .3,regridTool='regrid2'):
     """ Generates a best guess mask on any rectilinear grid, using the method described in PCMDI's report #58
     see: http://www-pcmdi.llnl.gov/publications/ab58.html
     Input:
@@ -168,6 +168,7 @@ def generateLandSeaMask(target,source=None,threshold_1 = .2, threshold_2 = .3):
                                difference threshold
        threshold_2 (optional): criteria 2 for detecting cells with possible increment see report for detail
                                water/land content threshold
+       regridTool: which cdms2 regridder tool to use, default is regrid2
     Output:
        landsea maks on target grid
     """
@@ -191,7 +192,7 @@ def generateLandSeaMask(target,source=None,threshold_1 = .2, threshold_2 = .3):
     cont = True
     i=0
     while cont:
-        mask2 = improve(mask,navy_frac_t,threshold_1,threshold_2,UL,UC,UR,ML,MR,LL,LC,LR)
+        mask2 = improve(mask,navy_frac_t,threshold_1,threshold_2,UL,UC,UR,ML,MR,LL,LC,LR,regridTool=regridTool)
         if MV2.allequal(mask2,mask) or i>25: # shouldn't be more than 10 at max, 25 is way safe
             cont=False
         mask=mask2
