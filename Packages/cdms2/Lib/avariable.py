@@ -1046,7 +1046,7 @@ avariable.regrid: regridMethod = 'conserve' requires bounds for destination grid
                     warnings.warn(message, Warning)
                     regridMethod = 'linear'
 
-            if not userSpecifiesTool:
+            if not userSpecifiesTool and re.search('^regrid', regridTool, re.I) is None:
                 message = """
 avariable.regrid: We chose regridTool = %s for you among the following choices:
    Tools ->    'regrid2' (old behavior)
@@ -1054,7 +1054,7 @@ avariable.regrid: We chose regridTool = %s for you among the following choices:
                'libcf' (linear)""" % regridTool
                 warnings.warn(message, Warning)
 
-            if not userSpecifiesMethod:
+            if not userSpecifiesMethod and re.search('^regrid', regridTool, re.I) is None:
                 message = """
 avariable.regrid: We chose regridMethod = %s for you among the following choices: 
     'conserve' or 'linear' or 'patch'""" % regridMethod
