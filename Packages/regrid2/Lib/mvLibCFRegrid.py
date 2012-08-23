@@ -35,6 +35,14 @@ class LibCFRegrid(GenericRegrid):
         if srcGridMask is not None: 
             self.regridObj.setMask(srcGridMask)
 
+        # min resolution, required in order to set the tolerance (tolpos)
+        self.delta = float('inf')
+        for i in range(len(dstGrid)):
+            coordMin = dstGrid[i].min()
+            coordMax = dstGrid[i].max()
+            n = max(dstGrid[i].shape)
+            self.delta = min(self.delta, (coordMax - coordMin)/float(n))
+
     def computeWeights(self, **args):
         """
         Compute interpolation weights
@@ -42,7 +50,8 @@ class LibCFRegrid(GenericRegrid):
                       nitermax, tolpos, ...
         """
         nitermax = args.get('nitermax', 20)
-        tolpos = args.get('tolpos', 0.01)
+        # make tolpos relative to the min cell size
+        tolpos = args.get('tolpos', 0.01) * self.delta
         self.regridObj.computeWeights(nitermax=nitermax, tolpos=tolpos)
 
     def apply(self, srcData, dstData, missingValue = None, **args):
@@ -50,24 +59,12 @@ class LibCFRegrid(GenericRegrid):
         Regrid source to destination
         @param srcData array (input)
         @param dstData array (output)
-        @param missingValue value that should be set for points falling outside the src domain, 
-                            pass None if these should not be touched.        
+        @param missingValue value that should be set for points falling outside 
+                            the src domain, pass None if these should not be 
+                            touched.        
         """
-        gshp = self.getSrcGrid()[0].shape
-        sshp = srcData.shape
-        if not reduce(lambda x,y: x and y, [sshp[i] == gshp[i] for i in range(len(gshp))]) \
-                and self.mkCyclic:
-            # padd the src array
-            sd = numpy.ones( gshp, dstData.dtype )
-            if missingValue is not None:
-                sd *= missingValue
-            else:
-                sd *= 0
-            sd[:, :-1] = srcData
-            sd[:, -1] = sd[0, 0]
-            self.regridObj.apply(sd, dstData, missingValue)
-        else:    
-            self.regridObj.apply(srcData, dstData, missingValue)
+        
+        self.regridObj.apply(srcData, dstData, missingValue)
 
     def getSrcGrid(self):
         """

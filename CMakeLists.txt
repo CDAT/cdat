@@ -417,6 +417,7 @@ add_cdat_package(udunits2)
 #add_cdat_package(HDF4) 
 add_cdat_package(HDF5)
 add_cdat_package(NetCDF)
+add_cdat_package(NetCDFPLUS)
 add_cdat_package(Qt)
 add_cdat_package(jasper)
 add_cdat_package(g2clib)
@@ -488,6 +489,10 @@ endif(Matplotlib_FOUND)
 
 add_cdat_package(GEOS)
 add_cdat_package(basemap)
+add_cdat_package(lepl)
+add_cdat_package(lxml)
+add_cdat_package(spyder)
+add_cdat_package(MyProxyClient)
 
 option(CDAT_BUILD_SHAPELY "Build Shapely python module to represent geometric oiobjects and apply predicates and operations on these objects" OFF)
 
@@ -528,7 +533,6 @@ if(CDAT_BUILD_ESMF_ESMP)
     if(${Fortran_MAJOR_VERSION} GREATER 3 AND ${Fortran_MINOR_VERSION} GREATER 2)
       ## On APPLE need to test for -arch as well!
          add_cdat_package(ESMF)
-         add_cdat_package(ESMP)
     else()
       message("    Skipping ESMF")
       message("    gfortran version needs to be at least 4.3 to install ESMF")
@@ -536,7 +540,6 @@ if(CDAT_BUILD_ESMF_ESMP)
     endif()
   else()
     add_cdat_package(ESMF)
-    add_cdat_package(ESMP)
     message("Fortran Compiler is: ${CMAKE_Fortran_COMPILER}")
   endif()
 endif()
@@ -655,6 +658,7 @@ set(YASM_DEPENDENCIES ${pkgconfig_dep})
 set(FFMPEG_DEPENDENCIES ${pkgconfig_dep} ${YASM_dep})
 set(ghostscript_DEPENDENCIES ${pkgconfig_dep} ${zlib_dep} ${jpeg_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep} ${libXSLT_dep} ${libXML2_dep})
 set(NetCDF_DEPENDENCIES ${pkgconfig_dep} ${HDF5_dep} ${CURL_dep} ${zlib_dep})
+set(NetCDFPLUS_DEPENDENCIES ${NetCDF_dep})
 
 set(TclTk_DEPENDENCIES ${pkgconfig_dep} ${libXML2_dep} ${libXSLT_dep} ${jpeg_dep} ${png_dep} ${tiff_dep})
 
@@ -672,8 +676,8 @@ set(HDF4_DEPENDENCIES ${pkgconfig_dep} ${zlib_dep} ${jpeg_dep})
 set(HDF5_DEPENDENCIES ${pkgconfig_dep} ${libXML2_dep} ${libXSLT_dep} ${zlib_dep})
 
 set(R_DEPENDENCIES)
-set(ParaView_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${HDF5_dep} ${png_dep} ${jpeg_dep} ${libXML2_dep} ${Qt_dep} ${freetype_dep} ${NetCDF_dep} ${zlib_dep} ${R_dep})
-set(VisIt_DEPENDENCIES  ${pkgconfig_dep} ${Python_dep} ${HDF5_dep} ${png_dep} ${jpeg_dep} ${libXML2_dep} ${Qt_dep} ${freetype_dep} ${NetCDF_dep} ${zlib_dep} ${SIP_dep} ${PyQt_dep})
+set(ParaView_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${HDF5_dep} ${png_dep} ${jpeg_dep} ${libXML2_dep} ${Qt_dep} ${freetype_dep} ${NetCDFPLUS_dep} ${zlib_dep} ${R_dep})
+set(VisIt_DEPENDENCIES  ${pkgconfig_dep} ${SIP_dep} ${PyQt_dep} ${ParaView_dep})
 
 set(CMOR_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${HDF5_dep} ${Cairo_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep} ${NetCDF_dep} ${zlib_dep} ${uuid_dep} ${udunits2_dep})
 set(CDAT_DEPENDENCIES ${wget_dep} ${CMOR_dep} ${Python_dep} ${PyQt_dep} ${NUMPY_dep} ${Pmw_dep} ${jasper_dep} ${g2clib_dep} ${FFMPEG_dep} ${Qt_dep} ${pixman_dep} ${tiff_dep})
@@ -689,6 +693,10 @@ set(Shapely_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${GEOS_dep})
 set(gdal_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${NetCDF_dep} ${HDF5_dep} ${CURL_dep} ${zlib_dep} ${jasper_dep} ${setuptools_dep})
 set(basemap_DEPENDENCIES ${GEOS_dep})
 set(pyspharm_DEPENDENCIES ${NUMPY_dep})
+set(lepl_DEPENDENCIES ${setuptools_dep})
+set(spyder_DEPENDENCIES ${setuptools_dep} ${PyQt_dep})
+set(lxml_DEPENDENCIES ${setuptools_dep})
+set(MyProxyClient_DEPENDENCIES ${setuptools_dep})
 
 # Added by Aashish @ Kitware Inc
 set(PVFileDialog_DEPENDENCIES ${ParaView_dep} ${SIP_dep})
@@ -711,7 +719,7 @@ configure_file(${cdat_SOURCE_DIR}/checked_get.sh.in
   ${cdat_SOURCE_DIR}/checked_get.sh
   @ONLY)
 
-include(CDATLogger)
+#include(CDATLogger)
 
 configure_file(${cdat_CMAKE_SOURCE_DIR}/setup_cdat.sh.in
   ${CMAKE_INSTALL_PREFIX}/bin/setup_cdat.sh
