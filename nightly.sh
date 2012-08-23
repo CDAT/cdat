@@ -32,9 +32,6 @@ cmake -DCMAKE_INSTALL_PREFIX=${INSTALL_PATH} -DCDAT_BUILD_ESMF_ESMP=ON -DCDAT_BU
 cmake -DCMAKE_INSTALL_PREFIX=${INSTALL_PATH} -DCDAT_BUILD_ESMF_ESMP=ON -DCDAT_BUILD_PARAVIEW=ON  -DCDAT_BUILD_VISIT=ON -DQT_QMAKE_EXECUTABLE=${QMAKE_EXE} ${XTRA_ARGS} ${GIT_PATH} ; \
 pwd ; \
 make -j16 ; \
-source ${INSTALL_PATH}/bin/setup_cdat.sh ; \
-easy_install lepl ; \
-easy_install MyProxyClient ; \
 cd ${INSTALL_PATH} ; \
 git clone --depth=1 git://vistrails.org/vistrails.git ; \
 cd vistrails ; \

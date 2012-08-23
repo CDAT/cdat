@@ -585,7 +585,7 @@ def main(arglist):
             os.makedirs(target)
         except:
             pass
-        if 2==1: # not downloading sample data anymore, need to add an option for this
+        if True: # Turn to False to skip sample_data download, need to add an option to turn this off
             for df in data_files:
                 sp=df.strip().split()
                 fnm=sp[1]
