@@ -4,6 +4,7 @@ import numpy
 import cdms2
 import  _regrid, string, copy
 from error import RegridError
+import warnings
 
 _debug = 0                              # Set to 1 for debug
 
@@ -287,6 +288,12 @@ class Horizontal:
         else:
             return result, amskout
 
+class Regridder(Horizontal):
+    def __init__(self,ingrid,outgrid):
+        print "in there"
+        warnings.warn("While this will work for now, please note that the Regridder class has been renamed Horizontal, the name 'Regridder' will be deprecated in future version. Please edit your code accordingly",Warning)
+        Horizontal.__init__(self,ingrid,outgrid)
+        
 def input_mask(ain, type,  mask, missing = None):
 
     """    #-------------------------------------------------------------------

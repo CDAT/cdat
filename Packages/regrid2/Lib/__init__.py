@@ -5,7 +5,7 @@ __all__ = ["horizontal", "pressure", "crossSection", "scrip",
            "error", "mvGenericRegrid",]
 
 from error import RegridError
-from horizontal import Horizontal
+from horizontal import Horizontal, Regridder
 from pressure import PressureRegridder
 from crossSection import CrossSectionRegridder
 from scrip import ConservativeRegridder, BilinearRegridder, BicubicRegridder 
