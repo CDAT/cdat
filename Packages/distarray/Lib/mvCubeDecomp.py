@@ -54,6 +54,9 @@ class CubeDecomp:
 
         # iterator from one sub-domain to the next
         self.mit = None
+
+        # list of valid number of procs
+        self.validProcs = []
         
         self.__computeDecomp()
 
@@ -111,13 +114,24 @@ class CubeDecomp:
         @return list if successful, empty list if not successful
         """
         primeNumbers = [getPrimeFactors(d) for d in self.globalDims]
+        
         ns = [len(pns) for pns in primeNumbers]
         validDecomps = []
+        self.validProcs = []
         for it in MultiArrayIter(ns):
             inds = it.getIndices()
             decomp = [primeNumbers[d][inds[d]] for d in range(self.ndims)]
+            self.validProcs.append( reduce(operator.mul, decomp, 1) )
             if reduce(operator.mul, decomp, 1) == self.nprocs:
                 validDecomps.append(decomp)
+
+        # sort and remove duplicates
+        self.validProcs.sort()
+        vprocs = []
+        for vp in self.validProcs:
+            if len(vprocs) == 0 or (len(vprocs) >= 1 and vp != vprocs[-1]):
+                vprocs.append(vp)
+        self.validProcs = vprocs
 
         if len(validDecomps) == 0:
             # no solution
@@ -153,6 +167,13 @@ class CubeDecomp:
                                                (nps[d] + 1)*numCellsPerProc[d]) \
                                               for d in range(self.ndims)]
             procId += 1
+
+    def getNumberOfValidProcs(self):
+        """
+        Get the number of valid processor counts
+        @return number
+        """
+        return self.validProcs
                 
         
 ######################################################################
@@ -168,6 +189,8 @@ def test():
     
     for nprocs in 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 18:
         d = CubeDecomp(nprocs = nprocs, dims = dims)
+        if nprocs == 1:
+            print 'valid prcessor counts: ', d.getNumberOfValidProcs()
         print 'nprocs = ', nprocs, ' decomp: ', d.getDecomp()
         for procId in range(nprocs):
             print ('[%d] start/end indices %s: ' \
