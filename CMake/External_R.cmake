@@ -2,6 +2,8 @@
 set(R_source "${CMAKE_CURRENT_BINARY_DIR}/build/R")
 set(R_install "${cdat_EXTERNALS}")
 
+set(ENV{MAKEFLAGS} "-j1")
+
 ExternalProject_Add(R
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
   SOURCE_DIR ${R_source}
