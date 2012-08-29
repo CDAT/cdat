@@ -715,7 +715,7 @@ set(HASWGET ${WGET_EXECUTABLE})
 set(MD5PRG ${MD5_EXECUTABLE})
 set(MD5CNT 1)
 
-configure_file(${cdat_SOURCE_DIR}/checked_get.sh.in
+configure_file(${cdat_CMAKE_SOURCE_DIR}/checked_get.sh.in
   ${cdat_SOURCE_DIR}/checked_get.sh
   @ONLY)
 
