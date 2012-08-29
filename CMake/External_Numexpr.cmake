@@ -2,8 +2,9 @@
 # Numexpr
 #
 set(Numexpr_source "${CMAKE_CURRENT_BINARY_DIR}/build/Numexpr")
-#set(ENV{LD_LIBRARY_PATH} "/usr/common/usg/python/2.7.1/lib:$ENV{LD_LIBRARY_PATH}")
-#message("PYTHON PATH IS"$ENV{PYTHONPATH})
+
+# 
+set(ENV{MAKEFLAGS} "-j1")
 
 ExternalProject_Add(Numexpr
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
