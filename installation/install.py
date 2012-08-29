@@ -355,6 +355,7 @@ def main(arglist):
                         "disable-cairo",
                         "disable-ffmpeg",
                         "disable-freetype",
+                        "disable-sampledata",
                         "enable-ioapi",
                         "enable-R","enable-r",
                         "enable-numpy","disable-numpy",
@@ -404,6 +405,7 @@ def main(arglist):
     qtbin=None
     qt=False
     control_names = ['contrib']
+    sampleData = True
 ##     prefix_target = sys.exec_prefix
     externals = os.environ.get("EXTERNALS",os.path.join(sys.prefix,"Externals"))
     hdf5path = None
@@ -500,6 +502,8 @@ def main(arglist):
 ##             nohdf=1
         elif letter in ["--disable-pp","--disable-PP"]:
             nohdf=1
+        elif letter in ["--disable-sampledata",]:
+            sampleData = False
         elif letter in ["-n", "--norun"]:
             norun = 1
         elif letter in ['--list','-l']:
@@ -585,7 +589,7 @@ def main(arglist):
             os.makedirs(target)
         except:
             pass
-        if True: # Turn to False to skip sample_data download, need to add an option to turn this off
+        if sampleData: # Turn to False to skip sample_data download, need to add an option to turn this off
             for df in data_files:
                 sp=df.strip().split()
                 fnm=sp[1]
