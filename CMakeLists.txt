@@ -477,11 +477,6 @@ endif(Matplotlib_FOUND)
 
 add_cdat_package(GEOS)
 add_cdat_package(basemap)
-add_cdat_package(lepl)
-add_cdat_package(Sphinx)
-add_cdat_package(lxml)
-add_cdat_package(spyder)
-add_cdat_package(MyProxyClient)
 
 option(CDAT_BUILD_SHAPELY "Build Shapely python module to represent geometric oiobjects and apply predicates and operations on these objects" OFF)
 
@@ -567,6 +562,11 @@ if(CDAT_BUILD_VISIT)
 endif()
 
 add_cdat_package(vistrails)
+add_cdat_package(lepl)
+add_cdat_package(Sphinx)
+add_cdat_package(lxml)
+add_cdat_package(spyder)
+add_cdat_package(MyProxyClient)
 
 
 # C. Doutriaux Turning off Vistrails build from within CDAT
@@ -706,7 +706,7 @@ set(Shapely_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${GEOS_dep})
 set(gdal_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${NetCDF_dep} ${HDF5_dep} ${CURL_dep} ${zlib_dep} ${jasper_dep} ${setuptools_dep})
 set(basemap_DEPENDENCIES ${GEOS_dep})
 set(pyspharm_DEPENDENCIES ${NUMPY_dep})
-set(lepl_DEPENDENCIES ${setuptools_dep} ${CDAT_dep} )
+set(lepl_DEPENDENCIES ${CDAT_dep} )
 set(Sphinx_DEPENDENCIES ${lepl_dep})
 set(spyder_DEPENDENCIES ${Sphinx_dep} ${PyQt_dep} )
 set(MyProxyClient_DEPENDENCIES ${spyder_dep})
