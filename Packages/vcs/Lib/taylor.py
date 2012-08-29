@@ -1189,11 +1189,23 @@ class Gtd(object):
             levs=self.xticlabels1
 
         val1=(self.template.xtic2.y1-self.template.data.y1)/delta*90.
-        val2=(self.template.xtic2.y2-self.template.data.y1)/delta*90.
+        val2=(self.template.xtic2.y2-self.template.data.y1)/delta*90      
+
         for v in levs.keys():
             if wc[0]<v<min(wc[3],wc[1]):
-                V=self.convert(v,'x')
-                tx,ty=self.getArc(v,val1=val1,val2=val2)
+                V=self.convert(v,'x')                
+                if v >= 0:
+                    # v is +ve value. So standard deviaton arc should be in 
+                    # 1st quadrant.
+                    tx,ty=self.getArc(v,val1=val1,val2=val2)
+                else:           
+                    # v is -ve value. So standard deviaton arc should be in 
+                    # 2nd quadrant. 
+                    # Here we change the -ve v value into +ve v value, by abs 
+                    # function. And add 90 degree to both val1 and val2.
+                    # i.e. standard deviaton arcs should start from 90 degree
+                    # to 180 degree.
+                    tx,ty=self.getArc(abs(v), val1=val1+90, val2=val2+90)
                 xtic2x.append(tx)
                 xtic2y.append(ty)
                 ticxs.append(V)

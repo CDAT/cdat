@@ -906,12 +906,12 @@ class AbstractAxis(CdmsObj):
             self.calendar = calendarToTag.get(calendar, None)
             self.attributes['calendar']=self.calendar
             if self.calendar is None:
-                raise CDMSError, InvalidCalendar + calendar
+                raise CDMSError, "%s %s" % (InvalidCalendar, calendar)
         else:
             self.__dict__['calendar'] = calendarToTag.get(calendar, None)
             self.attributes['calendar']=self.calendar
             if self.__dict__['calendar'] is None:
-                raise CDMSError, InvalidCalendar + calendar
+                raise CDMSError, "%s %s" % (InvalidCalendar,  calendar)
 
     def getData(self):
         raise CDMSError, MethodNotImplemented
