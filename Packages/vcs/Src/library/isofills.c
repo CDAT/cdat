@@ -386,8 +386,14 @@ int isofills (pD,pGfi,pP,ptab)
 /*DNW - 8/12/04 - if (pA->f != NULL) - Always do this since f is now for the most part always NULL. */
            mmmm(pA->un.data,pA->mask,&pA->xs[0],&pA->xw[0],2,
                         &pA->XC[0],&pA->xv[0],&pA->min,&pA->max,&pA->mean);
+	   if (pA->min==pA->max) {
+		err_warn(1,fperr,
+			 "Error - ISOFILL data min and max are identical.\n");
+		erret++;
+		return 1;
+	}
 
-/*                              Transform the x coordinate axis.         */
+	   //fprintf(stderr,"ok mean,mx,mn: %f, %f, %f\n",pA->mean,pA->min,pA->max);
            if ( ((strcmp("linear",pGfi->xat) != 0) &&
                  (strcmp("",pGfi->xat) != 0)) &&
                  (strcmp("linear",pGfi->proj) == 0) ) {
