@@ -569,7 +569,7 @@ def main(arglist):
             os.unlink(os.path.join('installation','cdat_info.py'))
         print >>sys.stderr, 'Configuring & installing scripts.'
         configure(configuration_files)
-        os.chdir('Scripts')
+        os.chdir('scripts')
         scripts = glob.glob('*')
         for script in scripts:
             if script[-1] == '~': continue
