@@ -1,0 +1,19 @@
+include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
+
+set(ENV{CFLAGS} "-I@cdat_EXTERNALS@/include/libxml2 $ENV{CFLAGS}")
+set(ENV{CXXFLAGS} "-I@cdat_EXTERNALS@/include/libxml2 $ENV{CXXFLAGS}")
+set(ENV{CPPFLAGS} "-I@cdat_EXTERNALS@/include/libxml2 $ENV{CPPFLAGS}")
+
+execute_process(
+  COMMAND "@PYTHON_EXECUTABLE@" setup.py build
+  WORKING_DIRECTORY "@lxml_binary@"
+  RESULT_VARIABLE res
+  OUTPUT_VARIABLE LXML_OUT
+  OUTPUT_VARIABLE LXML_ERR)
+
+if(NOT ${res} EQUAL 0)
+  message("LXML Errors detected: \n${LXML_OUT}\n${LXML_ERR}")
+  message(FATAL_ERROR "Error in config of LXML")
+endif()
+message("lxml build worked.")
+
