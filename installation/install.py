@@ -560,7 +560,7 @@ def main(arglist):
             print p
         sys.exit()
     if force:
-        os.system('./clean_script')
+        os.system('./scripts/clean_script')
 
     sys.path.insert(0,os.path.join(target_prefix,'lib','python%i.%i' % sys.version_info[:2],'site-packages'))
     if do_configure:

@@ -214,11 +214,13 @@ file :: (cdms2.dataset.CdmsFile) (0) file to read from
                         file = gsHost.open(path, mode)
                     else:
                         file = CdmsFile(path, mode, hostObj = hostObj)
+                    file1.close()
                 else:
+                    file1.close()
                     file = CdmsFile(path, mode)
-                file1.close()
                 return file
             else:
+                file1.close()
                 return CdmsFile(path, mode)
     elif scheme in ['http', 'gridftp']:
         
