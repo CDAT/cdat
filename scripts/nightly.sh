@@ -22,8 +22,7 @@ echo "XTRA_ARGS:"${XTRA_ARGS}
 cd ${GIT_PATH} ; \
 git checkout ${GIT_BRANCH} ; \
 git pull ; \
-scripts/clean_script all ; \
-rm -rf ${INSTALL_PATH} ; \
+/bin/rm -rf ${INSTALL_PATH} ; \
 cd ${here} ; \
 rm -rf build_nightly ;\ 
 mkdir build_nightly ;\

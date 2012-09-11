@@ -40,6 +40,11 @@ set(cdat_VERSION ${cdat_VERSION_MAJOR}.${cdat_VERSION_MINOR}.${cdat_VERSION_PATC
 configure_file(${cdat_CMAKE_SOURCE_DIR}/version.in
   ${cdat_SOURCE_DIR}/version
   @ONLY)
+# Cleans all CDAT builds
+execute_process(
+    COMMAND ./clean_script all
+    WORKING_DIRECTORY ${cdat_SOURCE_DIR}/scripts
+  )
 
 ##############################################################################
 # Important: change architecture *before* any enable_language() or project()
