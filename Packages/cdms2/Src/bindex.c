@@ -1,15 +1,23 @@
 /* Functions for bin indexing and intersection of lat/lon regions
    with data on non-rectilinear grids.
  */
+#include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 /* NBINI, NBINJ should match definition in bindex.bindexHorizontalGrid */
-#define NBINI 720			     /* number of bins in the i (longitude) direction */
-#define NBINJ 360			     /* number of bins in the j (latitude) direction */
-#define BINLEN NBINI*NBINJ
+/* #define NBINI 720			     /\* number of bins in the i (longitude) direction *\/ */
+/* #define NBINJ 360			     /\* number of bins in the j (latitude) direction *\/ */
+/* #define BINLEN NBINI*NBINJ */
 #define MAX(a,b) (a)>(b)?(a):(b)
 #define MIN(a,b) (a)<(b)?(a):(b)
-#define XBINI (360.0/((double)NBINI))	     /* width of a longitude bin */
-#define XBINJ (180.0/((double)NBINJ))	     /* width of a latitude bin */
+/* #define XBINI (360.0/((double)NBINI))	     /\* width of a longitude bin *\/ */
+/* #define XBINJ (180.0/((double)NBINJ))	     /\* width of a latitude bin *\/ */
+
+int NBINI = 720;
+int NBINJ = 360;
+long BINLEN = 720*360;
+double XBINI = .5;
+double XBINJ = .5;
 
 /* Index lons, lats into NBINJ*NBINI bins in lat/lon space.
    lats is a 1-D array of latitudes in degrees north, length n.
@@ -18,12 +26,32 @@
    next[i] points to the next lat/lon entry for bin i, or -1 if end-of-list.
      next must be input with length BINLEN.
 */
+
+void setDeltas(double dX, double dY) {
+  NBINI = (int) (360./dX);
+  NBINJ = (int) (180./dY);
+  BINLEN = NBINI*NBINJ;
+  XBINI = (360.0/((double)NBINI));
+  XBINJ = (180.0/((double)NBINJ));
+}
+
+void getLens(int *X, int *Y) {
+  *X=NBINI;
+  *Y=NBINJ;
+}
+
 void bindex(long n, long nbins, double *lats, double *lons, long *head, long *next){
 
+  //fprintf(stderr,"mallcing: %i, %i, %i, %f, %f\n",NBINI,NBINJ,BINLEN,XBINI,XBINJ);
+
     long i, j, oind, ireg;
-    int last[BINLEN];
+    int *last;//[BINLEN];
+
+
     double xbini = XBINI;
     double xbinj = XBINJ;
+
+    last = (int *) malloc(sizeof(int)*BINLEN);
 
 					     /* Initialize head, last values to -1 */
     for (i=0; i<BINLEN; i++){
@@ -54,6 +82,7 @@ void bindex(long n, long nbins, double *lats, double *lons, long *head, long *ne
 	    last[oind] = ireg;
 	}
     }
+    free(last);
 }
 
 /* Same as intersect for the longitude range [0,360).
@@ -100,7 +129,7 @@ long intersect_1(double slat, double slon, double elat, double elon, double lats
 			((lonind0=='c' && slon<=lon) || (lonind0=='o' && slon<lon)) &&
 			((lonind1=='c' && lon<=elon) || (lonind1=='o' && lon<elon))) {
 			if (npoints==ngrid){
-			    printf("Internal error in intersect.\n");
+			    fprintf(stderr,"Internal error in intersect.\n");
 			    return npoints;
 			}
 			points[npoints++] = rind;
@@ -111,7 +140,7 @@ long intersect_1(double slat, double slon, double elat, double elon, double lats
 	    else{
 		while(rind!=-1){
 		    if (npoints==ngrid){
-			printf("Internal error in intersect.\n");
+		        fprintf(stderr,"Internal error in intersect.\n");
 			return npoints;
 		    }
 		    points[npoints++] = rind;
