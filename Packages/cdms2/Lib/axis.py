@@ -38,7 +38,7 @@ forecast_aliases = AliasList([])
 
 FileWasClosed = "File was closed for object: "
 InvalidBoundsArray = "Invalid boundary array: "
-InvalidCalendar = "Invalid calendar: "
+InvalidCalendar = "Invalid calendar: %i"
 MethodNotImplemented = "Method not yet implemented"
 ReadOnlyAxis = "Axis is read-only: "
 
@@ -914,12 +914,12 @@ class AbstractAxis(CdmsObj):
             self.calendar = calendarToTag.get(calendar, None)
             self.attributes['calendar']=self.calendar
             if self.calendar is None:
-                raise CDMSError, InvalidCalendar + calendar
+                raise CDMSError, InvalidCalendar % calendar
         else:
             self.__dict__['calendar'] = calendarToTag.get(calendar, None)
             self.attributes['calendar']=self.calendar
             if self.__dict__['calendar'] is None:
-                raise CDMSError, InvalidCalendar + calendar
+                raise CDMSError, InvalidCalendar % calendar
 
     def getData(self):
         raise CDMSError, MethodNotImplemented

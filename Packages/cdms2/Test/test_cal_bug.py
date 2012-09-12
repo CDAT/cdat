@@ -5,3 +5,9 @@ t.setCalendar(cdtime.ClimCalendar)
 
 print t.calendar
 
+try:
+    t.setCalendar(3421)
+except cdms2.CDMSError:
+    print "Excepted as expected"
+else:
+    raise "Unexpected error"
