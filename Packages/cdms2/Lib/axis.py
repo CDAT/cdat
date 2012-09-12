@@ -55,7 +55,11 @@ calendarToTag = {
     cdtime.NoLeapCalendar : 'noleap',
     cdtime.GregorianCalendar : 'proleptic_gregorian',
     cdtime.JulianCalendar : 'julian',
-    cdtime.Calendar360 : '360_day'
+    cdtime.Calendar360 : '360_day',
+    cdtime.ClimCalendar : 'clim_noncf',
+    cdtime.ClimLeapCalendar : 'climleap_noncf',
+    cdtime.DefaultCalendar : 'gregorian',
+    cdtime.StandardCalendar : 'proleptic_gregorian',
     }
 
 tagToCalendar = {
@@ -67,6 +71,10 @@ tagToCalendar = {
     '360_day' : cdtime.Calendar360,
     '360' : cdtime.Calendar360,
     '365_day' : cdtime.NoLeapCalendar,
+    'clim' : cdtime.ClimCalendar,
+    'clim_noncf' : cdtime.ClimCalendar,
+    'climleap_noncf' : cdtime.ClimLeapCalendar,
+    'climleap' : cdtime.ClimLeapCalendar,
     }
 
 # This is not an error message, it is used to detect which things have
