@@ -293,6 +293,7 @@ endif()
 
 # Added by Charles Doutriaux to build with libdrs support
 option(CDAT_BUILD_WITH_LIBDRS "Build with DRS file format support (needs to be in /usr/local/lib)" OFF)
+MARK_AS_ADVANCED(CDAT_BUILD_WITH_LIBDRS)
 
 # Added by Dave Kindig Tech-X Corp. kindig@txcorp.com
 option(CDAT_BUILD_ESMF_ESMP "Build python version Earth System Modeling Framework" ON)
