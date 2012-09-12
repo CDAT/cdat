@@ -291,6 +291,9 @@ else()
   set(SAMPLE_DATA --disable-sampledata)
 endif()
 
+# Added by Charles Doutriaux to build with libdrs support
+option(CDAT_BUILD_WITH_LIBDRS "Build with DRS file format support (needs to be in /usr/local/lib)" OFF)
+
 # Added by Dave Kindig Tech-X Corp. kindig@txcorp.com
 option(CDAT_BUILD_ESMF_ESMP "Build python version Earth System Modeling Framework" ON)
 option(CDAT_BUILD_ESMF_PARALLEL "Build parallel version of Earth System Modeling Framework library" ON)
