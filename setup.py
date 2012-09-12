@@ -381,7 +381,7 @@ if cdat_info.CDMS_INCLUDE_HDF == "yes":
 # If this effects other platforms put in sys.plotform for Darwin only.        #
 #                                                                             #
 ###############################################################################
-dovcs = False # turn this to off to do simply the sip part
+dovcs = True # turn this to off to do simply the sip part
 try:
    from distutils import sysconfig
    if dovcs:
