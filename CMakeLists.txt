@@ -42,8 +42,8 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/version.in
   @ONLY)
 # Cleans all CDAT builds
 execute_process(
-    COMMAND ./clean_script all
-    WORKING_DIRECTORY ${cdat_SOURCE_DIR}/scripts
+    COMMAND ./scripts/clean_script all
+    WORKING_DIRECTORY ${cdat_SOURCE_DIR}
   )
 
 ##############################################################################
