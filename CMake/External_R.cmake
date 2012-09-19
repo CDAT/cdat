@@ -2,8 +2,6 @@
 set(R_source "${CMAKE_CURRENT_BINARY_DIR}/build/R")
 set(R_install "${cdat_EXTERNALS}")
 
-set(ENV{MAKEFLAGS} "-j1")
-
 ExternalProject_Add(R
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
   SOURCE_DIR ${R_source}
@@ -13,7 +11,8 @@ ExternalProject_Add(R
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
   CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR> LIBnn=lib --without-jpeglib --disable-R-framework --enable-R-shlib --disable-openmp --without-cairo --without-ICU --without-libpng --without-system-xz --without-aqua --without-tcltk --without-readline
-  INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} -j1
+  INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} -j1 install
+  ${EP_LOG_OPTIONS}
 )
 
 set(R_DIR "${R_binary}" CACHE PATH "R binary directory" FORCE)
