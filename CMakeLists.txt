@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-cmake_minimum_required(VERSION 2.8.4)
+cmake_minimum_required(VERSION 2.8.8)
 #-----------------------------------------------------------------------------
 
 project(cdat)
@@ -8,6 +8,8 @@ set(cdat_CMAKE_SOURCE_DIR ${cdat_SOURCE_DIR}/CMake)
 set(cdat_CMAKE_BINARY_DIR ${cdat_BINARY_DIR}/CMake)
 set(cdat_external_patch_dir ${cdat_SOURCE_DIR}/exsrc)
 option(CDAT_USE_SYSTEM_INTROSPECTION "Detect System installed libraries." OFF)
+
+
 
 if("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local")
   get_filename_component(cdat_ROOT_DIR ${cdat_BINARY_DIR} PATH)
@@ -73,6 +75,18 @@ endif()
 #-----------------------------------------------------------------------------
 
 find_package(Git)
+
+set(ZLIB_PATCH_SRC 5 CACHE INTEGER "Version of ZLIB to use")
+MARK_AS_ADVANCED(ZLIB_PATCH_SRC)
+if (ZLIB_PATCH_SRC EQUAL 3)
+  set(ZLIB_MD5 debc62758716a169df9f62e6ab2bc634)
+elseif (ZLIB_PATCH_SRC EQUAL 5)
+  set(ZLIB_MD5 c735eab2d659a96e5a594c9e8541ad63)
+elseif (ZLIB_PATCH_SRC EQUAL 7)
+  set(ZLIB_MD5 60df6a37c56e7c1366cca812414f7b85)
+else ()
+  message(FATAL_ERROR "error: invalid zlib patch number: '${ZLIB_PATCH_SRC}' valid: 3, 5 or 7")
+endif()
 
 if(NOT GIT_PROTOCOL)
   message("Select Either git:// or http:// for checking out git submodules.
@@ -637,6 +651,14 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_install_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/cdat_install_step.cmake
   @ONLY)
 
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cleanenv_configure_step.cmake.in
+    ${cdat_CMAKE_BINARY_DIR}/cleanenv_configure_step.cmake
+    @ONLY)
+
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_configure_step.cmake.in
+    ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
+    @ONLY)
+
 #configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_python_install_step.cmake.in
 #  ${cdat_CMAKE_BINARY_DIR}/cdat_python_install_step.cmake
 #  @ONLY)
@@ -675,7 +697,7 @@ set(OPENMPI_DEPENDENCIES ${pkgconfig_dep})
 set(ESMF_DEPENDENCIES ${pkgconfig_dep} ${OPENMPI_dep})
 set(ESMP_DEPENDENCIES ${pkgconfig_dep} ${NUMPY_dep} ${Python_dep} ${ESMF_dep})
 set(Cython_DEPENDENCIES ${pkgconfig_dep} ${Python_dep})
-set(Numexpr_DEPENDENCIES ${pkgconfig_dep} ${NUMPY_dep} ${Python_dep})
+set(Numexpr_DEPENDENCIES ${pkgconfig_dep} ${NUMPY_dep} ${setuptools_dep})
 set(PyTables_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${Cython_dep} ${Numexpr_dep} ${HDF5_dep} ${libXML2_dep} ${libXSLT_dep} ${zlib_dep})
 set(pixman_DEPENDENCIES ${pkgconfig_dep})
 set(YASM_DEPENDENCIES ${pkgconfig_dep})
@@ -717,11 +739,11 @@ set(Shapely_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${GEOS_dep})
 set(gdal_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${NetCDF_dep} ${HDF5_dep} ${CURL_dep} ${zlib_dep} ${jasper_dep} ${setuptools_dep})
 set(basemap_DEPENDENCIES ${GEOS_dep})
 set(pyspharm_DEPENDENCIES ${NUMPY_dep})
-set(lepl_DEPENDENCIES ${CDAT_dep} )
+set(lepl_DEPENDENCIES ${CDAT_dep} ${Numexpr_dep})
 set(Sphinx_DEPENDENCIES ${lepl_dep})
 set(spyder_DEPENDENCIES ${Sphinx_dep} ${PyQt_dep} )
 set(MyProxyClient_DEPENDENCIES ${spyder_dep})
-set(lxml_DEPENDENCIES ${Python_dep})
+set(lxml_DEPENDENCIES ${Cython_dep} ${setuptools_dep})
 set(vistrails_DEPENDENCIES ${Python_dep})
 
 # Added by Aashish @ Kitware Inc

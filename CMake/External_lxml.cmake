@@ -1,6 +1,6 @@
 # create an external project to install lxml,
 # and configure and build it
-set(LXML_SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/lxml)
+set(LXML_SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/build/lxml)
 set(LXML_BINARY_DIR ${LXML_SOURCE_DIR})
 
 configure_file(${cdat_CMAKE_SOURCE_DIR}/lxml_build_step.cmake.in

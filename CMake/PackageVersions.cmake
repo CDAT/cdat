@@ -273,12 +273,13 @@ set(NC4PLUS_MD5 0b09655cf977d768ced6c0d327dde176)
 
 set(ZLIB_MAJOR_SRC 1)
 set(ZLIB_MINOR_SRC 2)
-set(ZLIB_PATCH_SRC 5)
+#ZLIB_PATH_SRC and md5 is configured in CMakeLists.txt because on some RedHAt system we need to change it 
+#set(ZLIB_PATCH_SRC 3)
 set(ZLIB_VERSION ${ZLIB_MAJOR_SRC}.${ZLIB_MINOR_SRC}.${ZLIB_PATCH_SRC})
 #set(ZLIB_URL http://zlib.net)
 set(ZLIB_URL ${LLNL_URL})
-set(ZLIB_GZ zlib.${ZLIB_VERSION}.tar.gz)
-set(ZLIB_MD5 c735eab2d659a96e5a594c9e8541ad63)
+set(ZLIB_GZ zlib-${ZLIB_VERSION}.tar.gz)
+#set(ZLIB_MD5 debc62758716a169df9f62e6ab2bc634)
 
 set(TCAP_MAJOR_SRC 1)
 set(TCAP_MINOR_SRC 3)
