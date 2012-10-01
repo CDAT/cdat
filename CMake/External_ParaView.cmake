@@ -9,23 +9,44 @@ endif()
 
 set(ParaView_install_command "")
 
-if(NOT APPLE)
+# For some reason, someone previously found out that *nix systems require this to setup
+if(UNIX)
   set(ParaView_install_command make install)
-  set(ParaView_tpl_args 
-    # hdf5
-    -DVTK_USE_SYSTEM_HDF5:BOOL=ON
-    -DHDF5_INCLUDE_DIR:PATH=${cdat_EXTERNALS}/include
-    -DHDF5_LIBRARY:FILEPATH=${cdat_EXTERNALS}/lib/libhdf5${_LINK_LIBRARY_SUFFIX}
-    # zlib
-    -DVTK_USE_SYSTEM_ZLIB:BOOL=ON
+endif()
+
+# Initialize
+set(ParaView_tpl_args)
+
+# Either we use cdat zlib and libxml or system zlib and libxml
+list(APPEND ParaView_tpl_args
+  -DVTK_USE_SYSTEM_ZLIB:BOOL=ON
+  -DVTK_USE_SYSTEM_LIBXML2:BOOL=ON
+  -DVTK_USE_SYSTEM_HDF5:BOOL=ON
+)
+
+# Use cdat zlib
+if(NOT CDAT_USE_SYSTEM_ZLIB)
+  list(APPEND ParaView_tpl_args
     -DZLIB_INCLUDE_DIR:PATH=${cdat_EXTERNALS}/include
     -DZLIB_LIBRARY:FILEPATH=${cdat_EXTERNALS}/lib/libz${_LINK_LIBRARY_SUFFIX}
-    # libxml2
-    -DVTK_USE_SYSTEM_LIBXML2:BOOL=ON
-    #-DLIBXML2_INCLUDE_DIR:PATH=${cdat_EXTERNALS}/include/libxml2
-    #-DLIBXML2_LIBRARIES:FILEPATH=${cdat_EXTERNALS}/lib/libxml2${_LINK_LIBRARY_SUFFIX}
-    #-DLIBXML2_XMLLINT_EXECUTABLE:FILEPATH=${cdat_EXTERNALS}/bin/xmllint
-   )
+  )
+endif()
+
+# Use cdat libxml
+if(NOT CDAT_USE_SYSTEM_LIBXML2)
+  list(APPEND ParaView_tpl_args
+    -DLIBXML2_INCLUDE_DIR:PATH=${cdat_EXTERNALS}/include/libxml2
+    -DLIBXML2_LIBRARIES:FILEPATH=${cdat_EXTERNALS}/lib/libxml2${_LINK_LIBRARY_SUFFIX}
+    -DLIBXML2_XMLLINT_EXECUTABLE:FILEPATH=${cdat_EXTERNALS}/bin/xmllint
+  )
+endif()
+
+# Use cdat hdf5
+if(NOT CDAT_USE_SYSTEM_HDF5)
+  list(APPEND ParaView_tpl_args
+    -DHDF5_INCLUDE_DIR:PATH=${cdat_EXTERNALS}/include
+    -DHDF5_LIBRARY:FILEPATH=${cdat_EXTERNALS}/lib/libhdf5${_LINK_LIBRARY_SUFFIX}
+  )
 endif()
 
 ExternalProject_Add(ParaView
