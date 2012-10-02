@@ -189,5 +189,5 @@ ExternalProject_Add_Step(VisIt InstallVisItModule
 FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/r_ismev_package "r = getOption('repos'); r['CRAN'] = 'http://cran.us.r-project.org'; options(repos = r); rm(r); install.packages('ismev')")
 
 ExternalProject_Add_Step(VisIt AddRDependencies
-  COMMAND ${CMAKE_INSTALL_PREFIX}/bin/Rscript ${CMAKE_CURRENT_BINARY_DIR}/r_ismev_package
+  COMMAND ${cdat_EXTERNALS}/bin/Rscript ${CMAKE_CURRENT_BINARY_DIR}/r_ismev_package
   DEPENDEES install)
