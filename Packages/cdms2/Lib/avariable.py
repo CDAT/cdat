@@ -985,7 +985,8 @@ class AbstractVariable(CdmsObj, Slab):
 
             # linear needs this
             if self.getAxis(-1).attributes['topology'] == 'circular':
-                keywords['periodicity'] = 1
+                keywords['periodicity'] = 1 # for the ESMF regridders
+                keywords['mkCyclic'] = 1    # for LibCF regridder
             elif self.getAxis(-1).attributes['topology'] == 'linear':
                 keywords['periodicity'] = 0
 
