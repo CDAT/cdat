@@ -14,6 +14,9 @@ import regrid2
 import re
 from distarray import MultiArrayIter
 
+# used to locate fully masked cells
+EPS = 10*1.19209e-07
+
 def guessPeriodicity(srcBounds):
     """
     Guess if a src grid is periodic
@@ -174,21 +177,36 @@ valid choices are: 'libcf', 'esmf'"""% regridTool
             # no axis... just call apply
             #
 
-            self.tool.apply(srcData, dstData, rootPe = rootPe, 
-                            globalIndexing = True, **args)
 
             # adjust for masking
             if missingValue is not None:
+
                 srcDataMaskFloat[:] = (srcData == missingValue)
+
+                # set field values to zero where missing, we'll add the mask 
+                # contribution later
+                indata = srcData * (1 - (srcDataMaskFloat == 1))
+
                 # interpolate mask
                 self.tool.apply(srcDataMaskFloat, dstDataMaskFloat,  
                                 rootPe = rootPe, globalIndexing = True, **args)
                 if re.search('conserv', self.regridMethod.lower(), re.I):
-                    dstMask = numpy.array((dstDataMaskFloat == 1), numpy.int32)
+                    dstMask = numpy.array((dstDataMaskFloat > 1 - EPS), numpy.int32)
                 else:
                     dstMask = numpy.array((dstDataMaskFloat > 0), numpy.int32)
+
+                # interpolate the data
+                self.tool.apply(indata, dstData, rootPe = rootPe, 
+                                globalIndexing = True, **args)
+
+                # add missing values
                 dstData *= (1 - dstMask)
                 dstData += dstMask*missingValue
+                
+            else:
+                # no masking, just interpolate the data
+                self.tool.apply(srcData, dstData, rootPe = rootPe, 
+                                globalIndexing = True, **args)              
 
         else:
 
@@ -220,22 +238,33 @@ valid choices are: 'libcf', 'esmf'"""% regridTool
                 slce += '...]'
                 indata = eval('srcData' + slce)
 
-                # interpolate, using the appropriate tool
-                self.tool.apply(indata, outdata, rootPe = rootPe, 
-                                globalIndexing = True, **args)
-
                 # adjust for masking
                 if missingValue is not None:
+
                     srcDataMaskFloat[:] = (indata == missingValue)
+
+                    # set field values to zero where missing, we'll add the mask 
+                    # contribution later
+                    indata *= (1 - (srcDataMaskFloat == 1))
+
                     # interpolate mask
                     self.tool.apply(srcDataMaskFloat, dstDataMaskFloat,
                                     rootPe = rootPe, globalIndexing = True, **args)
+
                     if re.search('conserv', self.regridMethod.lower(), re.I):
                         # cell interpolation
-                        dstMask = numpy.array((dstDataMaskFloat == 1), numpy.int32)
+                        dstMask = numpy.array((dstDataMaskFloat > 1 - EPS), numpy.int32)
                     else:
                         # nodal interpolation
                         dstMask = numpy.array((dstDataMaskFloat > 0), numpy.int32)
+
+                # interpolate the data, using the appropriate tool
+                self.tool.apply(indata, outdata, rootPe = rootPe, 
+                                globalIndexing = True, **args)
+
+                # apply missing value contribution
+                if missingValue is not None:
+                    # add mask contribution
                     outdata *= (1 - dstMask)
                     outdata += dstMask*missingValue
 

@@ -243,7 +243,8 @@ class CdmsRegrid:
 
         # establish the destination data. Initialize to missing values or 0.
         dstData = numpy.ones(dstShape, dtype = srcVar.dtype)
-        if missingValue is not None:
+        if missingValue is not None and \
+                re.search('conserv', self.regridMethod) is None:
             dstData *= missingValue
         else:
             dstData *= 0.0
