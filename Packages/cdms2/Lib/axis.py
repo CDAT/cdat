@@ -774,17 +774,17 @@ class AbstractAxis(CdmsObj):
         return result
 
     def asRelativeTime( self, units=None ):
-        "Array version of cdtime torel. Returns a list of component times."
+        "Array version of cdtime torel. Returns a list of relative times."
+        sunits = getattr(self,'units',None)
+        if sunits==None or sunits=='None':
+            raise CDMSError, "No time units defined"
         if units==None or units=='None':
-            units = getattr(self,'units',None)
-            if units==None or units=='None':
-                raise CDMSError, "No time units defined"
+            units=sunits
         if self.isForecast():
             result = [ forecast.comptime(t).torel(units) for t in self[:] ]
         else:
-            result = []
-            for val in self[:]:
-                result.append( cdtime.reltime( val, units ) )
+            cal = self.getCalendar()
+            result = [ cdtime.reltime(t,sunits).torel(units,cal) for t in self[:] ]
         return result
 
     def toRelativeTime(self, units, calendar=None):
