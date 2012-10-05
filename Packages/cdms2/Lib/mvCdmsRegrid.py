@@ -15,7 +15,7 @@ def _areAreasOk(cornerCoords):
     """
     Check cell corner points (in 2D)
     @param cornerCoords
-    @return True if OK
+    @return None if OK, otherwise return dict containing min/max areas and corresponding indices
 
         3
     +-------+
@@ -31,40 +31,47 @@ def _areAreasOk(cornerCoords):
     if len(cornerCoords) != 2:
         return True # no-op, no check
 
-    xx, yy = cornerCoords[0], cornerCoords[1]
+    yy, xx = cornerCoords[0], cornerCoords[1]
 
-    x1 = xx[:-1, 1:]
-    x1 -= xx[:-1, :-1]
+    x0  = xx[ :-1,  :-1]
+    x5  = xx[1:  , 1:  ]
+    dx1 = xx[ :-1, 1:  ]
+    dx4 = xx[ :-1, 1:  ]
+    dx2 = xx[1:  ,  :-1]
+    dx3 = xx[1:  ,  :-1]
+    dx1 -= x0
+    dx2 -= x0
+    dx3 -= x5
+    dx4 -= x5
 
-    x2 = xx[1:, :-1]
-    x2 -= xx[:-1, :-1]
+    y0  = yy[ :-1,  :-1]
+    y5  = yy[1:  , 1:  ]
+    dy1 = yy[ :-1, 1:  ]
+    dy4 = yy[ :-1, 1:  ]
+    dy2 = yy[1:  ,  :-1]
+    dy3 = yy[1:  ,  :-1]
+    dy1 -= y0
+    dy2 -= y0
+    dy3 -= y5
+    dy4 -= y5
 
-    x3 = xx[1:, :-1]
-    x3 -= xx[1:, 1:]
-
-    x4 = xx[:-1, 1:]
-    x4 -= xx[1:, 1:]
-
-    y1 = yy[:-1, 1:]
-    y1 -= yy[:-1, :-1]
-
-    y2 = yy[1:, :-1]
-    y2 -= yy[:-1, :-1]
-
-    y3 = yy[1:, :-1]
-    y3 -= yy[1:, 1:]
-
-    y4 = yy[:-1, 1:]
-    y4 -= yy[1:, 1:]
-
-    areas = (x1*y2 - x2*y1 + x3*y4 - x4*y3)/2.0
+    areas = (dx1*dy2 - dx2*dy1 + dx3*dy4 - dx4*dy3)/2.0
     minAreas = areas.min()
     maxAreas = areas.max()
 
     if minAreas*maxAreas > 0:
-        return True
+        return None
     else:
-        return False
+        # something wrong
+        return {'minAreas': minAreas, 
+                'maxAreas': maxAreas, 
+                'minAreasIndex': areas.argmin(), 
+                'maxAreasIndex': areas.argmax(),
+                'numZeroAreas': (areas == 0).sum(),
+                'numNegativeAreas': (areas < 0).sum(),
+                'numPositiveAreas': (areas > 0).sum(),
+                'numCells': len(areas.flat),
+                }
 
 def _buildBounds(bounds):
     """
@@ -86,10 +93,11 @@ def _buildBounds(bounds):
 
     return bnd
 
-def getBoundList(coordList):
+def getBoundList(coordList, checkBounds=False):
     """
     Return a list of bounds built from a list of coordinates
     @param coordList coordinate list, should have getBounds()
+    @param checkBounds set to True if you want to check bounds
     @return [latBounds, lonBounds]
     """
     cornerCoords = []
@@ -97,9 +105,18 @@ def getBoundList(coordList):
         cornerC = _buildBounds(c.getBounds()[:])
         cornerCoords.append(cornerC)
         
-    if not _areAreasOk(cornerCoords):
-        raise CDMSError, \
-            """Non-monotonic areas, check bounds"""
+    if checkBounds:
+        res = _areAreasOk(cornerCoords)
+        if res:
+            raise CDMSError, \
+                """Non-monotonic areas, check bounds
+                   min cell area %(minAreas)g at index %(minAreasIndex)d
+                   max cell area %(maxAreas)g at index %(maxAreasIndex)d
+                   number of cells with zero areas %(numZeroAreas)d 
+                   number of cells with negative areas %(numNegativeAreas)d 
+                   number of cells with positive areas %(numPositiveAreas)d
+                   total number of cells %(numCells)d
+                """ % res
 
     return cornerCoords
 
@@ -246,8 +263,8 @@ class CdmsRegrid:
         # regridTool selection
         self.regridMethod = regridMethod
         if re.search( 'conserv', regridMethod.lower()):
-            srcBounds = getBoundList(srcCoords)
-            dstBounds = getBoundList(dstCoords)
+            srcBounds = getBoundList(srcCoords, args.get('checkSrcBounds', False))
+            dstBounds = getBoundList(dstCoords, args.get('checkDstBounds', False))
 
             for c, b in zip(srcBounds, srcCoords):
                 if c.min() == b.min() or c.max() == b.max():
