@@ -185,7 +185,8 @@ valid choices are: 'libcf', 'esmf'"""% regridTool
 
                 # set field values to zero where missing, we'll add the mask 
                 # contribution later
-                indata = srcData * (1 - (srcDataMaskFloat == 1))
+                indata = numpy.array(srcData * (1 - (srcDataMaskFloat == 1)), 
+                                     dtype=srcData.dtype)
 
                 # interpolate mask
                 self.tool.apply(srcDataMaskFloat, dstDataMaskFloat,  
