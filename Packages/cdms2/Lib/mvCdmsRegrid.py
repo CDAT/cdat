@@ -8,7 +8,63 @@ import types
 import re
 import numpy
 import cdms2
+from error import CDMSError
 import regrid2
+
+def _areAreasOk(cornerCoords):
+    """
+    Check cell corner points (in 2D)
+    @param cornerCoords
+    @return True if OK
+
+        3
+    +-------+
+    | \     |
+    |  \    |
+  2 |   \   |4
+    |    \  |
+    |     \ |
+    +-------+
+        1
+    """
+
+    if len(cornerCoords) != 2:
+        return True # no-op, no check
+
+    xx, yy = cornerCoords[0], cornerCoords[1]
+
+    x1 = xx[:-1, 1:]
+    x1 -= xx[:-1, :-1]
+
+    x2 = xx[1:, :-1]
+    x2 -= xx[:-1, :-1]
+
+    x3 = xx[1:, :-1]
+    x3 -= xx[1:, 1:]
+
+    x4 = xx[:-1, 1:]
+    x4 -= xx[1:, 1:]
+
+    y1 = yy[:-1, 1:]
+    y1 -= yy[:-1, :-1]
+
+    y2 = yy[1:, :-1]
+    y2 -= yy[:-1, :-1]
+
+    y3 = yy[1:, :-1]
+    y3 -= yy[1:, 1:]
+
+    y4 = yy[:-1, 1:]
+    y4 -= yy[1:, 1:]
+
+    areas = (x1*y2 - x2*y1 + x3*y4 - x4*y3)/2.0
+    minAreas = areas.min()
+    maxAreas = areas.max()
+
+    if minAreas*maxAreas > 0:
+        return True
+    else:
+        return False
 
 def _buildBounds(bounds):
     """
@@ -36,12 +92,16 @@ def getBoundList(coordList):
     @param coordList coordinate list, should have getBounds()
     @return [latBounds, lonBounds]
     """
-    bounds = []
+    cornerCoords = []
     for c in coordList:
-        bnds = _buildBounds(c.getBounds()[:])
-        bounds.append(bnds)
+        cornerC = _buildBounds(c.getBounds()[:])
+        cornerCoords.append(cornerC)
+        
+    if not _areAreasOk(cornerCoords):
+        raise CDMSError, \
+            """Non-monotonic areas, check bounds"""
 
-    return bounds
+    return cornerCoords
 
 def _getCoordList(grid):
     """
@@ -197,7 +257,7 @@ class CdmsRegrid:
               """ % (c.min(), b.min(), c.max(), b.max())
             if srcBounds[0].min() < -90 or srcBounds[0].max() > 90 or \
                dstBounds[0].min() < -90 or dstBounds[0].max() > 90:
-                raise regrid2.RegridError, """Bounds exceed +/-90 degree latitude"""
+                raise CDMSError, """Bounds exceed +/-90 degree latitude"""
             if not re.search('esmp', regridTool.lower()):
                 regridTool = 'esmf'
 
