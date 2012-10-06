@@ -15,7 +15,7 @@ def _areAreasOk(cornerCoords):
     """
     Check cell corner points (in 2D)
     @param cornerCoords
-    @return None if OK, otherwise return dict containing min/max areas and corresponding indices
+    @return None if OK, otherwise return a dict containing some diagnostics
 
         3
     +-------+
@@ -31,29 +31,15 @@ def _areAreasOk(cornerCoords):
     if len(cornerCoords) != 2:
         return True # no-op, no check
 
-    yy, xx = cornerCoords[0], cornerCoords[1]
+    dy1 = cornerCoords[0][ :-1, 1: ] - cornerCoords[0][ :-1,  :-1]
+    dy2 = cornerCoords[0][1:  , :-1] - cornerCoords[0][ :-1,  :-1]
+    dy3 = cornerCoords[0][1:  , :-1] - cornerCoords[0][1:  , 1:  ]
+    dy4 = cornerCoords[0][ :-1, 1: ] - cornerCoords[0][1:  , 1:  ]
 
-    x0  = xx[ :-1,  :-1]
-    x5  = xx[1:  , 1:  ]
-    dx1 = xx[ :-1, 1:  ]
-    dx4 = xx[ :-1, 1:  ]
-    dx2 = xx[1:  ,  :-1]
-    dx3 = xx[1:  ,  :-1]
-    dx1 -= x0
-    dx2 -= x0
-    dx3 -= x5
-    dx4 -= x5
-
-    y0  = yy[ :-1,  :-1]
-    y5  = yy[1:  , 1:  ]
-    dy1 = yy[ :-1, 1:  ]
-    dy4 = yy[ :-1, 1:  ]
-    dy2 = yy[1:  ,  :-1]
-    dy3 = yy[1:  ,  :-1]
-    dy1 -= y0
-    dy2 -= y0
-    dy3 -= y5
-    dy4 -= y5
+    dx1 = cornerCoords[1][ :-1, 1: ] - cornerCoords[1][ :-1,  :-1]
+    dx2 = cornerCoords[1][1:  , :-1] - cornerCoords[1][ :-1,  :-1]
+    dx3 = cornerCoords[1][1:  , :-1] - cornerCoords[1][1:  , 1:  ]
+    dx4 = cornerCoords[1][ :-1, 1: ] - cornerCoords[1][1:  , 1:  ]
 
     areas = (dx1*dy2 - dx2*dy1 + dx3*dy4 - dx4*dy3)/2.0
     minAreas = areas.min()
@@ -263,8 +249,10 @@ class CdmsRegrid:
         # regridTool selection
         self.regridMethod = regridMethod
         if re.search( 'conserv', regridMethod.lower()):
-            srcBounds = getBoundList(srcCoords, args.get('checkSrcBounds', False))
-            dstBounds = getBoundList(dstCoords, args.get('checkDstBounds', False))
+            srcBounds = getBoundList(srcCoords, 
+                                     args.get('checkSrcBounds', False))
+            dstBounds = getBoundList(dstCoords, 
+                                     args.get('checkDstBounds', False))
 
             for c, b in zip(srcBounds, srcCoords):
                 if c.min() == b.min() or c.max() == b.max():
