@@ -17,47 +17,91 @@ def _areAreasOk(cornerCoords):
     @param cornerCoords
     @return None if OK, otherwise return a dict containing some diagnostics
 
-        3
-    +-------+
+   3         2
+    +-------+ 
     | \     |
     |  \    |
-  2 |   \   |4
+    |   \   |
     |    \  |
     |     \ |
     +-------+
-        1
+   0         1
     """
 
     if len(cornerCoords) != 2:
         return True # no-op, no check
 
-    dy1 = cornerCoords[0][ :-1, 1: ] - cornerCoords[0][ :-1,  :-1]
-    dy2 = cornerCoords[0][1:  , :-1] - cornerCoords[0][ :-1,  :-1]
-    dy3 = cornerCoords[0][1:  , :-1] - cornerCoords[0][1:  , 1:  ]
-    dy4 = cornerCoords[0][ :-1, 1: ] - cornerCoords[0][1:  , 1:  ]
+    def projectToSphere(the, lam):
+        """ @return x, y, z coordinates in Cartesian space"""
+        ct = numpy.cos(the)
+        return ct*numpy.cos(lam), ct*numpy.sin(lam), numpy.sin(the)
 
-    dx1 = cornerCoords[1][ :-1, 1: ] - cornerCoords[1][ :-1,  :-1]
-    dx2 = cornerCoords[1][1:  , :-1] - cornerCoords[1][ :-1,  :-1]
-    dx3 = cornerCoords[1][1:  , :-1] - cornerCoords[1][1:  , 1:  ]
-    dx4 = cornerCoords[1][ :-1, 1: ] - cornerCoords[1][1:  , 1:  ]
+    # compute area elements in Cartesian space
+    the0 = cornerCoords[0][ :-1,  :-1]*numpy.pi/180.
+    the1 = cornerCoords[0][ :-1, 1:  ]*numpy.pi/180.
+    the2 = cornerCoords[0][1:  , 1:  ]*numpy.pi/180.
+    the3 = cornerCoords[0][1:  ,  :-1]*numpy.pi/180.
+    lam0 = cornerCoords[1][ :-1,  :-1]*numpy.pi/180.
+    lam1 = cornerCoords[1][ :-1, 1:  ]*numpy.pi/180.
+    lam2 = cornerCoords[1][1:  , 1:  ]*numpy.pi/180.
+    lam3 = cornerCoords[1][1:  ,  :-1]*numpy.pi/180.
+    
+    x0, y0, z0 = projectToSphere(the0, lam0)
+    x1, y1, z1 = projectToSphere(the1, lam1)
+    x2, y2, z2 = projectToSphere(the2, lam2)
+    x3, y3, z3 = projectToSphere(the3, lam3)
 
-    areas = (dx1*dy2 - dx2*dy1 + dx3*dy4 - dx4*dy3)/2.0
-    minAreas = areas.min()
-    maxAreas = areas.max()
+    dx10 = x1 - x0
+    dy10 = y1 - y0
+    dz10 = z1 - z0
+    dx30 = x3 - x0
+    dy30 = y3 - y0
+    dz30 = z3 - z0
+    dx32 = x3 - x2
+    dy32 = y3 - y2
+    dz32 = z3 - z2
+    dx12 = x1 - x2
+    dy12 = y1 - y2
+    dz12 = z1 - z2
 
-    if minAreas*maxAreas > 0:
-        return None
-    else:
-        # something wrong
-        return {'minAreas': minAreas, 
-                'maxAreas': maxAreas, 
-                'minAreasIndex': areas.argmin(), 
-                'maxAreasIndex': areas.argmax(),
-                'numZeroAreas': (areas == 0).sum(),
-                'numNegativeAreas': (areas < 0).sum(),
-                'numPositiveAreas': (areas > 0).sum(),
-                'numCells': len(areas.flat),
+    area012 = [dy10*dz30 - dy30*dy10,
+               dz10*dx30 - dz30*dx10,
+               dx10*dy30 - dx30*dy10]
+    area231 = [dy32*dz12 - dy12*dy32,
+               dz32*dx12 - dz12*dx32,
+               dx32*dy12 - dx12*dy32]
+    
+
+    # the 2 triangle areas should be aligned
+    area012dotArea231 = reduce(lambda x,y:x+y, [area012[i]*area231[i] for i in range(3)])
+    
+    if numpy.any(area012dotArea231 < 0.):
+        # bad indexing?
+        inds = numpy.where(area012dotArea231 < 0.)
+        badCellIndices = [(inds[0][i], inds[1][i]) for i in range(len(inds[0]))]
+        bcis1 = [(inds[0][i]  , inds[1][i]+1) for i in range(len(inds[0]))]
+        bcis2 = [(inds[0][i]+1, inds[1][i]+1) for i in range(len(inds[0]))]
+        bcis3 = [(inds[0][i]+1, inds[1][i]  ) for i in range(len(inds[0]))]
+        # problems...
+        return {'numCells': len(area012dotArea231.flat),
+                'numBadCells': (area012dotArea231 < 0.).sum(),
+                'badCellIndices': str(badCellIndices),
+                'badCellSphericalAreas012': str([(area012[0][bci], area012[1][bci], area012[2][bci]) \
+                                                     for bci in badCellIndices]),
+                'badCellSphericalAreas231': str([(area231[0][bci], area231[1][bci], area231[2][bci]) \
+                                                     for bci in badCellIndices]),
+                'badCellCornerCoords0': str([(cornerCoords[1][bci], cornerCoords[0][bci]) \
+                                                 for bci in badCellIndices]),
+                'badCellCornerCoords1': str([(cornerCoords[1][bci], cornerCoords[0][bci]) \
+                                                 for bci in bcis1]),
+                'badCellCornerCoords2': str([(cornerCoords[1][bci], cornerCoords[0][bci]) \
+                                                 for bci in bcis2]),
+                'badCellCornerCoords3': str([(cornerCoords[1][bci], cornerCoords[0][bci]) \
+                                                 for bci in bcis3]),
                 }
+    else:
+        # everything is fine
+        return None
 
 def _buildBounds(bounds):
     """
@@ -95,13 +139,18 @@ def getBoundList(coordList, checkBounds=False):
         res = _areAreasOk(cornerCoords)
         if res:
             raise CDMSError, \
-                """Non-monotonic areas, check bounds
-                   min cell area %(minAreas)g at index %(minAreasIndex)d
-                   max cell area %(maxAreas)g at index %(maxAreasIndex)d
-                   number of cells with zero areas %(numZeroAreas)d 
-                   number of cells with negative areas %(numNegativeAreas)d 
-                   number of cells with positive areas %(numPositiveAreas)d
+                """Area checks
                    total number of cells %(numCells)d
+                   number of bad cells %(numBadCells)d
+                   indices of bad cells %(badCellIndices)s
+                   bad cell coordinates:
+                                        %(badCellCornerCoords0)s
+                                        %(badCellCornerCoords1)s
+                                        %(badCellCornerCoords2)s
+                                        %(badCellCornerCoords3)s
+                   bad cell areas:
+                                  %(badCellSphericalAreas012)s
+                                  %(badCellSphericalAreas231)s
                 """ % res
 
     return cornerCoords
