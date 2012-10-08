@@ -9,23 +9,55 @@ endif()
 
 set(ParaView_install_command "")
 
-if(NOT APPLE)
+# For some reason, someone previously found out that *nix systems require this to setup
+if(UNIX)
   set(ParaView_install_command make install)
-  set(ParaView_tpl_args 
-    # hdf5
-    -DVTK_USE_SYSTEM_HDF5:BOOL=ON
-    -DHDF5_INCLUDE_DIR:PATH=${cdat_EXTERNALS}/include
-    -DHDF5_LIBRARY:FILEPATH=${cdat_EXTERNALS}/lib/libhdf5${_LINK_LIBRARY_SUFFIX}
-    # zlib
-    -DVTK_USE_SYSTEM_ZLIB:BOOL=ON
+endif()
+
+# Initialize
+set(ParaView_tpl_args)
+
+# Either we use cdat zlib and libxml or system zlib and libxml
+list(APPEND ParaView_tpl_args
+  -DVTK_USE_SYSTEM_ZLIB:BOOL=ON
+  -DVTK_USE_SYSTEM_LIBXML2:BOOL=ON
+  -DVTK_USE_SYSTEM_HDF5:BOOL=ON
+)
+
+# Use cdat zlib
+if(NOT CDAT_USE_SYSTEM_ZLIB)
+  list(APPEND ParaView_tpl_args
     -DZLIB_INCLUDE_DIR:PATH=${cdat_EXTERNALS}/include
     -DZLIB_LIBRARY:FILEPATH=${cdat_EXTERNALS}/lib/libz${_LINK_LIBRARY_SUFFIX}
-    # libxml2
-    -DVTK_USE_SYSTEM_LIBXML2:BOOL=ON
-    #-DLIBXML2_INCLUDE_DIR:PATH=${cdat_EXTERNALS}/include/libxml2
-    #-DLIBXML2_LIBRARIES:FILEPATH=${cdat_EXTERNALS}/lib/libxml2${_LINK_LIBRARY_SUFFIX}
-    #-DLIBXML2_XMLLINT_EXECUTABLE:FILEPATH=${cdat_EXTERNALS}/bin/xmllint
-   )
+  )
+endif()
+
+# Use cdat libxml
+if(NOT CDAT_USE_SYSTEM_LIBXML2)
+  list(APPEND ParaView_tpl_args
+    -DLIBXML2_INCLUDE_DIR:PATH=${cdat_EXTERNALS}/include/libxml2
+    -DLIBXML2_LIBRARIES:FILEPATH=${cdat_EXTERNALS}/lib/libxml2${_LINK_LIBRARY_SUFFIX}
+    -DLIBXML2_XMLLINT_EXECUTABLE:FILEPATH=${cdat_EXTERNALS}/bin/xmllint
+  )
+endif()
+
+# Use cdat hdf5
+if(NOT CDAT_USE_SYSTEM_HDF5)
+  list(APPEND ParaView_tpl_args
+    -DHDF5_DIR:PATH=${cdat_EXTERNALS}/
+    -DHDF5_C_INCLUDE_DIR:PATH=${cdat_EXTERNALS}/include
+    -DHDF5_INCLUDE_DIR:PATH=${cdat_EXTERNALS}/include
+    -DHDF5_LIBRARY:FILEPATH=${cdat_EXTERNALS}/lib/libhdf5${_LINK_LIBRARY_SUFFIX}
+    -DHDF5_hdf5_LIBRARY:FILEPATH=${cdat_EXTERNALS}/lib/libhdf5${_LINK_LIBRARY_SUFFIX}
+    -DHDF5_hdf5_LIBRARY_RELEASE:FILEPATH=${cdat_EXTERNALS}/lib/libhdf5${_LINK_LIBRARY_SUFFIX}
+  )
+
+  if(NOT CDAT_USE_SYSTEM_ZLIB)
+    list(APPEND ParaView_tpl_args
+      -DHDF5_z_LIBRARY:FILEPATH=${cdat_EXTERNALS}/lib/libz${_LINK_LIBRARY_SUFFIX}
+      -DHDF5_z_LIBRARY_RELEASE:FILEPATH=${cdat_EXTERNALS}/lib/libz${_LINK_LIBRARY_SUFFIX}
+    )
+  endif()
 endif()
 
 ExternalProject_Add(ParaView
@@ -34,18 +66,27 @@ ExternalProject_Add(ParaView
   BINARY_DIR ${ParaView_binary}
   INSTALL_DIR ${ParaView_install}
   GIT_REPOSITORY https://github.com/aashish24/paraview-climate-3.11.1.git
-  GIT_TAG master
+  GIT_TAG r_integration
   PATCH_COMMAND ""
   CMAKE_CACHE_ARGS
     -DBUILD_SHARED_LIBS:BOOL=ON
     -DBUILD_TESTING:BOOL=OFF
-    -DPARAVIEW_DISABLE_VTK_TESTING:BOOL=ON
-    -DPARAVIEW_TESTING_WITH_PYTHON:BOOL=OFF
-    -DPARAVIEW_BUILD_AS_APPLICATION_BUNDLE:BOOL=OFF
+    -DCMAKE_BUILD_TYPE:STRING=${CMAKE_CFG_INTDIR}
     -DCMAKE_CXX_FLAGS:STRING=${cdat_tpl_cxx_flags}
     -DCMAKE_C_FLAGS:STRING=${cdat_tpl_c_flags}
-    -DCMAKE_BUILD_TYPE:STRING=${CMAKE_CFG_INTDIR}
+    -DPARAVIEW_BUILD_AS_APPLICATION_BUNDLE:BOOL=OFF
+    -DPARAVIEW_DISABLE_VTK_TESTING:BOOL=ON
     -DPARAVIEW_INSTALL_THIRD_PARTY_LIBRARIES:BOOL=OFF
+    -DPARAVIEW_TESTING_WITH_PYTHON:BOOL=OFF
+    -DPARAVIEW_USE_GNU_R:BOOL=ON
+    -DR_COMMAND:PATH=${R_install}/bin/R
+    -DR_DIR:PATH=${R_install}/lib/R
+    -DR_INCLUDE_DIR:PATH=${R_install}/lib/R/include
+    -DR_LIBRARY_BASE:PATH=${R_install}/lib/R/lib/libR${_LINK_LIBRARY_SUFFIX}
+    -DR_LIBRARY_BLAS:PATH=${R_install}/lib/R/lib/libRblas${_LINK_LIBRARY_SUFFIX}
+    -DR_LIBRARY_LAPACK:PATH=${R_install}/lib/R/lib/libRlapack${_LINK_LIBRARY_SUFFIX}
+    -DR_LIBRARY_READLINE:PATH=
+    -DVTK_QT_USE_WEBKIT:BOOL=OFF
     ${cdat_compiler_args}
     ${ParaView_tpl_args}
     # Qt

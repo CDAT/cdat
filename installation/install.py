@@ -355,6 +355,7 @@ def main(arglist):
                         "disable-cairo",
                         "disable-ffmpeg",
                         "disable-freetype",
+                        "disable-sampledata",
                         "enable-ioapi",
                         "enable-R","enable-r",
                         "enable-numpy","disable-numpy",
@@ -404,6 +405,7 @@ def main(arglist):
     qtbin=None
     qt=False
     control_names = ['contrib']
+    sampleData = True
 ##     prefix_target = sys.exec_prefix
     externals = os.environ.get("EXTERNALS",os.path.join(sys.prefix,"Externals"))
     hdf5path = None
@@ -500,6 +502,8 @@ def main(arglist):
 ##             nohdf=1
         elif letter in ["--disable-pp","--disable-PP"]:
             nohdf=1
+        elif letter in ["--disable-sampledata",]:
+            sampleData = False
         elif letter in ["-n", "--norun"]:
             norun = 1
         elif letter in ['--list','-l']:
@@ -556,7 +560,7 @@ def main(arglist):
             print p
         sys.exit()
     if force:
-        os.system('./clean_script')
+        os.system('./scripts/clean_script')
 
     sys.path.insert(0,os.path.join(target_prefix,'lib','python%i.%i' % sys.version_info[:2],'site-packages'))
     if do_configure:
@@ -565,7 +569,7 @@ def main(arglist):
             os.unlink(os.path.join('installation','cdat_info.py'))
         print >>sys.stderr, 'Configuring & installing scripts.'
         configure(configuration_files)
-        os.chdir('Scripts')
+        os.chdir('scripts')
         scripts = glob.glob('*')
         for script in scripts:
             if script[-1] == '~': continue
@@ -585,7 +589,7 @@ def main(arglist):
             os.makedirs(target)
         except:
             pass
-        if True: # Turn to False to skip sample_data download, need to add an option to turn this off
+        if sampleData: # Turn to False to skip sample_data download, need to add an option to turn this off
             for df in data_files:
                 sp=df.strip().split()
                 fnm=sp[1]
