@@ -70,21 +70,23 @@ def _areAreasOk(cornerCoords):
     area231 = [dy32*dz12 - dy12*dy32,
                dz32*dx12 - dz12*dx32,
                dx32*dy12 - dx12*dy32]
-    
 
-    # the 2 triangle areas should be aligned
-    area012dotArea231 = reduce(lambda x,y:x+y, [area012[i]*area231[i] for i in range(3)])
+    # the 2 triangle areas should be aligned (the vector areas cannot point in 
+    # opposite directions)
+    area012DotArea231 = reduce(lambda x,y:x+y, [area012[i]*area231[i] for i in range(3)])
+
+    # may want to adjust the tolerance
+    inds = numpy.where(area012DotArea231 < 0.0)
     
-    if numpy.any(area012dotArea231 < 0.):
+    if len(inds[0]) > 0:
         # bad indexing?
-        inds = numpy.where(area012dotArea231 < 0.)
         badCellIndices = [(inds[0][i], inds[1][i]) for i in range(len(inds[0]))]
         bcis1 = [(inds[0][i]  , inds[1][i]+1) for i in range(len(inds[0]))]
         bcis2 = [(inds[0][i]+1, inds[1][i]+1) for i in range(len(inds[0]))]
         bcis3 = [(inds[0][i]+1, inds[1][i]  ) for i in range(len(inds[0]))]
         # problems...
-        return {'numCells': len(area012dotArea231.flat),
-                'numBadCells': (area012dotArea231 < 0.).sum(),
+        return {'numCells': len(area012DotArea231.flat),
+                'numBadCells': len(inds[0]),
                 'badCellIndices': str(badCellIndices),
                 'badCellSphericalAreas012': str([(area012[0][bci], area012[1][bci], area012[2][bci]) \
                                                      for bci in badCellIndices]),
@@ -139,18 +141,25 @@ def getBoundList(coordList, checkBounds=False):
         res = _areAreasOk(cornerCoords)
         if res:
             raise CDMSError, \
-                """Area checks
-                   total number of cells %(numCells)d
-                   number of bad cells %(numBadCells)d
-                   indices of bad cells %(badCellIndices)s
-                   bad cell coordinates:
-                                        %(badCellCornerCoords0)s
-                                        %(badCellCornerCoords1)s
-                                        %(badCellCornerCoords2)s
-                                        %(badCellCornerCoords3)s
-                   bad cell areas:
-                                  %(badCellSphericalAreas012)s
-                                  %(badCellSphericalAreas231)s
+                """
+-----------
+Area checks
+-----------
+total number of cells:             %(numCells)d
+number of bad (butterfly) cells:   %(numBadCells)d
+
+indices of bad cells (based on lower-left dot upper-right dot product of areas):  
+                                   %(badCellIndices)s
+
+bad cell coordinates (coord 0, coord 1, coord 2, and coord 4):
+    coord 0    %(badCellCornerCoords0)s
+    coord 1    %(badCellCornerCoords1)s
+    coord 2    %(badCellCornerCoords2)s
+    coord 3    %(badCellCornerCoords3)s
+
+bad cell areas (3d vector, direction is dependent on indexing order):
+    lower left triangle:  %(badCellSphericalAreas012)s
+    upper right triangle: %(badCellSphericalAreas231)s
                 """ % res
 
     return cornerCoords
@@ -305,9 +314,9 @@ class CdmsRegrid:
 
             for c, b in zip(srcBounds, srcCoords):
                 if c.min() == b.min() or c.max() == b.max():
-                    print """   WARNING: Edge bounds are the same. The results
-              of conservative regridding are not conserved.
-              coordMin = %7.2f, boundMin = %7.2f, coordMax = %7.2f, boundMax = %7.2f
+                    print """   
+WARNING: Edge bounds are the same. The results of conservative regridding will not conserve.
+coordMin = %7.2f, boundMin = %7.2f, coordMax = %7.2f, boundMax = %7.2f
               """ % (c.min(), b.min(), c.max(), b.max())
             if srcBounds[0].min() < -90 or srcBounds[0].max() > 90 or \
                dstBounds[0].min() < -90 or dstBounds[0].max() > 90:
