@@ -1,5 +1,5 @@
 message("Configuring NUMPY:\n@NUMPY_binary@")
-set(ENV{@LIBRARY_PATH@} "@CMAKE_INSTALL_PREFIX@/lib:@cdat_EXTERNALS@/lib:$ENV{@LIBRARY_PATH@}")
+set(ENV{@LIBRARY_PATH@} "@CMAKE_INSTALL_PREFIX@/lib64:@CMAKE_INSTALL_PREFIX@/lib:@cdat_EXTERNALS@/lib64:@cdat_EXTERNALS@/lib:$ENV{@LIBRARY_PATH@}")
 set(ENV{VS_UNICODE_OUTPUT} "")
 
 # As explained in site.cfg.example - See http://projects.scipy.org/numpy/browser/trunk/site.cfg.example
@@ -22,11 +22,11 @@ endif()
 file(WRITE "@NUMPY_binary@/site.cfg"
 "
 [blas]
-library_dirs = @cdat_EXTERNALS@/lib${path_sep}@cdat_EXTERNALS@/lib
+library_dirs = @cdat_EXTERNALS@/lib${path_sep}@cdat_EXTERNALS@/lib64
 libraries = blas,${f2c_libname}
 
 [lapack]
-library_dirs = @cdat_EXTERNALS@/lib
+library_dirs = @cdat_EXTERNALS@/lib${path_sep}@cdat_EXTERNALS@/lib64
 lapack_libs = lapack
 ")
 

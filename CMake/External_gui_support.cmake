@@ -1,6 +1,6 @@
 
 set(gui_support_source ${cdat_SOURCE_DIR}/Packages/gui_support)
-set(runtime_library_path ${CMAKE_INSTALL_PREFIX}/lib:${cdat_EXTERNALS}/lib)
+set(runtime_library_path ${CMAKE_INSTALL_PREFIX}/lib:${cdat_EXTERNALS}/lib:${cdat_EXTERNALS}/lib64)
 
 
 

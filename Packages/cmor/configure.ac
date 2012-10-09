@@ -165,9 +165,9 @@ if [ test ${with_uuidb} != "-yes" ] ; then
   if [ test ${with_uuidb} != "-no" ] ; then
    UUIDFLAGS=" -I${with_uuid}/include"
    if [ test ${RTAG} != "none" ] ; then
-     UUIDLDFLAGS=" -L${with_uuid}/lib  ${RTAG}${with_uuid}/lib -luuid"
+     UUIDLDFLAGS=" -L${with_uuid}/lib  -L${with_uuid}/lib64 ${RTAG}${with_uuid}/lib -luuid"
    else
-     UUIDLDFLAGS=" -L${with_uuid}/lib -luuid"
+     UUIDLDFLAGS=" -L${with_uuid}/lib -L${with_uuid}/lib64 -luuid"
    fi
   else
     UUIDLDFLAGS="-luuid"
@@ -186,9 +186,9 @@ if [ test ${with_udunits2b} != "-yes" ] ; then
   if [ test ${with_udunits2b} != "-no" ] ; then
    UDUNITS2FLAGS=" -I${with_udunits2}/include"
    if [ test ${RTAG} != "none" ] ; then
-     UDUNITS2LDFLAGS=" -L${with_udunits2}/lib  ${RTAG}${with_udunits2}/lib -ludunits2 -lexpat"
+     UDUNITS2LDFLAGS=" -L${with_udunits2}/lib  -L${with_udunits2}/lib64  ${RTAG}${with_udunits2}/lib -ludunits2 -lexpat"
    else
-     UDUNITS2LDFLAGS=" -L${with_udunits2}/lib -ludunits2 -lexpat"
+     UDUNITS2LDFLAGS=" -L${with_udunits2}/lib -L${with_udunits2}/lib64 -ludunits2 -lexpat"
    fi
   else
     UDUNITS2FLAGS="-ludunits2"
@@ -214,9 +214,9 @@ if [ test ${with_netcdfb} != "-yes" ]; then
 #echo "CRAP!"
      NCCFLAGS=" -I${with_netcdf}/include"
      if [ test ${RTAG} != "none" ] ; then
-      NCLDFLAGS=" -L${with_netcdf}/lib  ${RTAG}${with_netcdf}/lib -lnetcdf"
+      NCLDFLAGS=" -L${with_netcdf}/lib  -L${with_netcdf}/lib64 ${RTAG}${with_netcdf}/lib -lnetcdf"
      else
-      NCLDFLAGS=" -L${with_netcdf}/lib -lnetcdf"
+      NCLDFLAGS=" -L${with_netcdf}/lib -L${with_netcdf}/lib64 -lnetcdf"
      fi
     fi
   else

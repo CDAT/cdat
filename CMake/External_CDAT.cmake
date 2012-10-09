@@ -2,7 +2,7 @@
 set(CDAT_source "${cdat_SOURCE_DIR}")
 
 set(RUNTIME_FLAGS ${cdat_EXTERNALS}/lib)
-set(LDFLAGS -L${cdat_EXTERNALS}/lib)
+set(LDFLAGS -L${cdat_EXTERNALS}/lib -L${cdat_EXTERNALS}/lib64)
 
 if(QT_QMAKE_EXECUTABLE)
   get_filename_component(QT_BINARY_DIR ${QT_QMAKE_EXECUTABLE} PATH)

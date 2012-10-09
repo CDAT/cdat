@@ -246,7 +246,7 @@ endif()
 # Here we create several of binary directory subdirectories as often
 # third party install systems do bad things when left to create them.
 
-file(MAKE_DIRECTORY ${cdat_EXTERNALS} ${cdat_EXTERNALS}/lib ${cdat_EXTERNALS}/bin ${cdat_EXTERNALS}/include)
+file(MAKE_DIRECTORY ${cdat_EXTERNALS} ${cdat_EXTERNALS}/lib ${cdat_EXTERNALS}/lib64 ${cdat_EXTERNALS}/bin ${cdat_EXTERNALS}/include)
 
 file(MAKE_DIRECTORY ${cdat_BINARY_DIR}/logs)
 file(MAKE_DIRECTORY ${cdat_SOURCE_DIR}/logs)
@@ -373,7 +373,8 @@ find_package(PKG_CONFIG)
 #else()
 #  set(cdat_PKG_CONFIG_EXECUTABLE ${PKG_CONFIG_EXECUTABLE})
 #endif()
-set(ENV{PKG_CONFIG_PATH} "${cdat_EXTERNALS}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
+#set(ENV{PKG_CONFIG_PATH} "${cdat_EXTERNALS}/lib/pkgconfig:${cdat_EXTERNALS}/lib64/pkgconfig:$ENV{PKG_CONFIG_PATH}")
+set(ENV{PKG_CONFIG_PATH} "@cdat_EXTERNALS@/lib/pkgconfig:@cdat_EXTERNALS@/lib64/pkgconfig:/usr/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig:$ENV{PKG_CONFIG_PATH}")
 set(ENV{PKG_CONFIG} ${cdat_PKG_CONFIG_EXECUTABLE})
 
 set(cdat_configure_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake)
