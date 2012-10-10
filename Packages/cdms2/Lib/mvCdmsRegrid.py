@@ -1,5 +1,6 @@
 """
-Macro regridding class
+Cdms2 interface to multiple regridders
+
 David Kindig and Alex Pletzer, Tech-X Corp. (2012)
 This code is provided with the hope that it will be useful.
 No guarantee is provided whatsoever. Use at your own risk.
@@ -87,7 +88,7 @@ def _areAreasOk(cornerCoords):
         # problems...
         return {'numCells': len(area012DotArea231.flat),
                 'numBadCells': len(inds[0]),
-                'badCellIndices': str(badCellIndices),
+                'badCellIndices': badCellIndices,
                 'badCellSphericalAreas012': str([(area012[0][bci], area012[1][bci], area012[2][bci]) \
                                                      for bci in badCellIndices]),
                 'badCellSphericalAreas231': str([(area231[0][bci], area231[1][bci], area231[2][bci]) \
@@ -107,9 +108,9 @@ def _areAreasOk(cornerCoords):
 
 def _buildBounds(bounds):
     """
-    Return an array of bounds converted from [x, [y], nDims] -> x+1, [y+1]
+    Build corner coordinates from bounds array
     @param bounds CdmsVar.getBounds()
-    @return ndarrray of bounds
+    @return ndarrray of corners
     """
 
     bndShape = [s+1 for s in bounds.shape[:-1]]
@@ -125,11 +126,12 @@ def _buildBounds(bounds):
 
     return bnd
 
-def getBoundList(coordList, checkBounds=False):
+def getBoundList(coordList, checkBounds=False, badCellIndices=[]):
     """
     Return a list of bounds built from a list of coordinates
     @param coordList coordinate list, should have getBounds()
     @param checkBounds set to True if you want to check bounds
+    @param maskCellIndices list of bad cell indices to mask out (output)
     @return [latBounds, lonBounds]
     """
     cornerCoords = []
@@ -140,10 +142,10 @@ def getBoundList(coordList, checkBounds=False):
     if checkBounds:
         res = _areAreasOk(cornerCoords)
         if res:
-            raise CDMSError, \
-                """
+            badCellIndices += res['badCellIndices']
+            print """
 -----------
-Area checks
+WANRING: bad cell areas wer detected
 -----------
 total number of cells:             %(numCells)d
 number of bad (butterfly) cells:   %(numBadCells)d
@@ -307,11 +309,27 @@ class CdmsRegrid:
         # regridTool selection
         self.regridMethod = regridMethod
         if re.search( 'conserv', regridMethod.lower()):
+            srcBadCellIndices = []
             srcBounds = getBoundList(srcCoords, 
-                                     args.get('checkSrcBounds', False))
+                                     args.get('checkSrcBounds', False),
+                                     badCellIndices = srcBadCellIndices)
+            # mask out the bad src cells
+            if len(srcBadCellIndices) > 0:
+                if srcGridMask is None:
+                    srcGridMask = numpy.zeros(srcCoords[0].shape, numpy.bool)
+                for inds in srcBadCellIndices:
+                    srcGridMask[inds] = 1 # True mean invalid      
+            dstBadCellIndices = []
             dstBounds = getBoundList(dstCoords, 
-                                     args.get('checkDstBounds', False))
-
+                                     args.get('checkDstBounds', False),
+                                     badCellIndices = dstBadCellIndices)
+            # mask out the bad dst cells
+            if len(dstBadCellIndices) > 0:
+                if dstGridMask is None:
+                    dstGridMask = numpy.zeros(dstCoords[0].shape, numpy.bool)
+                for inds in dstBadCellIndices:
+                    dstGridMask[inds] = 1 # True means invalid 
+                    
             for c, b in zip(srcBounds, srcCoords):
                 if c.min() == b.min() or c.max() == b.max():
                     print """   
