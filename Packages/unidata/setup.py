@@ -32,7 +32,7 @@ setup (name = "udunits",
                ## 'Src/utscan.c',
                ],
               include_dirs = [os.path.join(externals,'include')],
-              library_dirs = [os.path.join(externals,'lib'),os.path.join(externals,'lib64')],
+              library_dirs = [os.path.join(externals,'lib')],
               libraries=['udunits2','expat']
               )
     ]

@@ -120,8 +120,6 @@ def configure (configuration_files):
                     if l[-3:]!='lib':
                         l+='/lib'
                     dap_lib_dir.append(l[2:])
-                    dap_lib_dir.append(l[2:]+"64")
-        print "DAPLIBDIR:",dap_lib_dir
 
 ##         if enable_netcdf3==True:
 ##             dap_include=[]

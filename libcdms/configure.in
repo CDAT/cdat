@@ -295,7 +295,7 @@ dnl                DAP_LIB_OPTIONS="nc-dap -ldap -lstdc++ -lcurl -lz -lssl -lpth
 dnl                ;;
 dnl   esac
       AC_ARG_WITH([nclib], [--with-nclib=DIR        libnetcdf.a is in DIR (default [NCLIB])],[NCLIB=$withval])
-      NC_LIB_OPTIONS="netcdf -L/scratch/doutriaux/uv-cdat/2012-10-08/Externals/lib64 $(${NCLIB}/../bin/nc-config --libs)"
+      NC_LIB_OPTIONS="netcdf $(${NCLIB}/../bin/nc-config --libs)"
 dnl   PC_CHECK_ARG_LIB(DAPLIB,/usr/local/lib,[daplib],$DAP_LIB_OPTIONS,SDstart,DAPOPTS,dap,libnc-dap.a, dnl
 dnl   [--with-dap=DIR       libnc-dap.a is in DIR (default [DAPLIB])])
 else
