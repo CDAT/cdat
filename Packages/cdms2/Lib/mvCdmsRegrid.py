@@ -65,19 +65,12 @@ def _areAreasOk(cornerCoords):
     dy12 = y1 - y2
     dz12 = z1 - z2
 
-    area012 = [dy10*dz30 - dy30*dy10,
-               dz10*dx30 - dz30*dx10,
-               dx10*dy30 - dx30*dy10]
-    area231 = [dy32*dz12 - dy12*dy32,
-               dz32*dx12 - dz12*dx32,
-               dx32*dy12 - dx12*dy32]
+    areas = numpy.sqrt( (dy10*dz30 - dy30*dy10 + dy32*dz12 - dy12*dy32)**2 \
+                        + (dz10*dx30 - dz30*dx10 + dz32*dx12 - dz12*dx32)**2 \
+                            + (dx10*dy30 - dx30*dy10 + dx32*dy12 - dx12*dy32)**2 )
 
-    # the 2 triangle areas should be aligned (the vector areas cannot point in 
-    # opposite directions)
-    area012DotArea231 = reduce(lambda x,y:x+y, [area012[i]*area231[i] for i in range(3)])
-
-    # may want to adjust the tolerance
-    inds = numpy.where(area012DotArea231 < 0.0)
+    minArea = 1.e-5 * numpy.pi * 2*numpy.pi / float(areas.shape[0]*areas.shape[1])
+    inds = numpy.where(abs(areas) < minArea)
     
     if len(inds[0]) > 0:
         # bad indexing?
@@ -85,23 +78,17 @@ def _areAreasOk(cornerCoords):
         bcis1 = [(inds[0][i]  , inds[1][i]+1) for i in range(len(inds[0]))]
         bcis2 = [(inds[0][i]+1, inds[1][i]+1) for i in range(len(inds[0]))]
         bcis3 = [(inds[0][i]+1, inds[1][i]  ) for i in range(len(inds[0]))]
+        badCellCoords = [[(cornerCoords[0][badCellIndices[i]], cornerCoords[1][badCellIndices[i]]),
+                          (cornerCoords[0][bcis1[i]], cornerCoords[1][bcis1[i]]),
+                          (cornerCoords[0][bcis2[i]], cornerCoords[1][bcis2[i]]),
+                          (cornerCoords[0][bcis3[i]], cornerCoords[1][bcis3[i]])] \
+                             for i in range(len(badCellIndices))]
         # problems...
-        return {'numCells': len(area012DotArea231.flat),
+        return {'numCells': len(areas.flat),
                 'numBadCells': len(inds[0]),
                 'badCellIndices': badCellIndices,
-                'badCellSphericalAreas012': str([(area012[0][bci], area012[1][bci], area012[2][bci]) \
-                                                     for bci in badCellIndices]),
-                'badCellSphericalAreas231': str([(area231[0][bci], area231[1][bci], area231[2][bci]) \
-                                                     for bci in badCellIndices]),
-                'badCellCornerCoords0': str([(cornerCoords[1][bci], cornerCoords[0][bci]) \
-                                                 for bci in badCellIndices]),
-                'badCellCornerCoords1': str([(cornerCoords[1][bci], cornerCoords[0][bci]) \
-                                                 for bci in bcis1]),
-                'badCellCornerCoords2': str([(cornerCoords[1][bci], cornerCoords[0][bci]) \
-                                                 for bci in bcis2]),
-                'badCellCornerCoords3': str([(cornerCoords[1][bci], cornerCoords[0][bci]) \
-                                                 for bci in bcis3]),
-                }
+                'badCellCoords': badCellCoords,
+                 }
     else:
         # everything is fine
         return None
@@ -145,23 +132,16 @@ def getBoundList(coordList, checkBounds=False, badCellIndices=[]):
             badCellIndices += res['badCellIndices']
             print """
 -----------
-WANRING: bad cell areas wer detected
+WANRING: bad cell areas were detected
 -----------
-total number of cells:             %(numCells)d
-number of bad (butterfly) cells:   %(numBadCells)d
+total number of cells:         %(numCells)d
+number of bad (~zero) cells:   %(numBadCells)d
 
-indices of bad cells (based on lower-left dot upper-right dot product of areas):  
-                                   %(badCellIndices)s
+indices of bad cells:  
+                      %(badCellIndices)s
 
-bad cell coordinates (coord 0, coord 1, coord 2, and coord 4):
-    coord 0    %(badCellCornerCoords0)s
-    coord 1    %(badCellCornerCoords1)s
-    coord 2    %(badCellCornerCoords2)s
-    coord 3    %(badCellCornerCoords3)s
-
-bad cell areas (3d vector, direction is dependent on indexing order):
-    lower left triangle:  %(badCellSphericalAreas012)s
-    upper right triangle: %(badCellSphericalAreas231)s
+bad cell coordinates:
+                      %(badCellCoords)s
                 """ % res
 
     return cornerCoords
