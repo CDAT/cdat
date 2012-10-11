@@ -18,6 +18,10 @@ endif()
 
 set(qt_flags "${qt_flags} --with-qt=${QT_ROOT} --with-qt-lib=${QT_LIB_DIR} --with-qt-inc=${QT_INC_DIR}" --with-qt-bin=${QT_BINARY_DIR})
 
+if (CDAT_BUILD_WITH_LIBDRS)
+ set(qt_flags "${qt_flags} -c pcmdi.py")
+endif()
+
 if(CDAT_USE_SYSTEM_QT AND QT_QTCORE_INCLUDE_DIR)
   if(NOT APPLE)
     get_filename_component(QT_INCLUDE_ROOT ${QT_QTCORE_INCLUDE_DIR} PATH)

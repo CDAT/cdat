@@ -10,7 +10,9 @@ ExternalProject_Add(R
   URL_MD5 ${R_MD5}
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
-  CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR>
+  CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR> LIBnn=lib --without-jpeglib --disable-R-framework --enable-R-shlib --disable-openmp --without-cairo --without-ICU --without-libpng --without-system-xz --without-aqua --without-tcltk --without-readline
+  INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} -j1 install
+  ${EP_LOG_OPTIONS}
 )
 
 set(R_DIR "${R_binary}" CACHE PATH "R binary directory" FORCE)

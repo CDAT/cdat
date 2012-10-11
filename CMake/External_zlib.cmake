@@ -29,6 +29,7 @@ else()
 
   set(zlib_source "${CMAKE_CURRENT_BINARY_DIR}/build/zlib")
   set(zlib_install "${cdat_EXTERNALS}")
+  set(CONFIGURE_ARGS --shared)
 
   ExternalProject_Add(zlib
     DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
@@ -38,7 +39,7 @@ else()
     URL_MD5 ${ZLIB_MD5}
     PATCH_COMMAND ${CMAKE_COMMAND} -E remove <SOURCE_DIR>/zconf.h
     BUILD_IN_SOURCE 1
-    CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
+    CONFIGURE_COMMAND ${CMAKE_COMMAND} -DCONFIGURE_ARGS=${CONFIGURE_ARGS} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cleanenv_configure_step.cmake
     DEPENDS ${zlib_DEPENDENCIES}
     ${EP_LOG_OPTIONS}
   )

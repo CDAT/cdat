@@ -394,7 +394,7 @@ def product (a, axis = 0, dtype=None):
     axes, attributes, id, grid = _extractMetadata(a, omit=axis)
     return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id)
 
-def average (a, axis=None, weights=None, returned=0):
+def average (a, axis=None, weights=None, returned=False):
     axis = _conv_axis_arg(axis)
     ta = _makeMaskedArg(a)
     maresult = numpy.ma.average(ta, axis, weights, returned)
