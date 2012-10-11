@@ -12,10 +12,11 @@ import cdms2
 from error import CDMSError
 import regrid2
 
-def _areAreasOk(cornerCoords):
+def _areAreasOk(cornerCoords, mask=None):
     """
     Check cell corner points (in 2D)
     @param cornerCoords
+    @param mask checks will not be performed where mask is 1 (True)
     @return None if OK, otherwise return a dict containing some diagnostics
 
    3         2
@@ -38,14 +39,14 @@ def _areAreasOk(cornerCoords):
         return ct*numpy.cos(lam), ct*numpy.sin(lam), numpy.sin(the)
 
     # compute area elements in Cartesian space
-    the0 = cornerCoords[0][ :-1,  :-1]*numpy.pi/180.
-    the1 = cornerCoords[0][ :-1, 1:  ]*numpy.pi/180.
-    the2 = cornerCoords[0][1:  , 1:  ]*numpy.pi/180.
-    the3 = cornerCoords[0][1:  ,  :-1]*numpy.pi/180.
-    lam0 = cornerCoords[1][ :-1,  :-1]*numpy.pi/180.
-    lam1 = cornerCoords[1][ :-1, 1:  ]*numpy.pi/180.
-    lam2 = cornerCoords[1][1:  , 1:  ]*numpy.pi/180.
-    lam3 = cornerCoords[1][1:  ,  :-1]*numpy.pi/180.
+    the0 = numpy.array(cornerCoords[0][ :-1,  :-1], numpy.float64)*numpy.pi/180.
+    the1 = numpy.array(cornerCoords[0][ :-1, 1:  ], numpy.float64)*numpy.pi/180.
+    the2 = numpy.array(cornerCoords[0][1:  , 1:  ], numpy.float64)*numpy.pi/180.
+    the3 = numpy.array(cornerCoords[0][1:  ,  :-1], numpy.float64)*numpy.pi/180.
+    lam0 = numpy.array(cornerCoords[1][ :-1,  :-1], numpy.float64)*numpy.pi/180.
+    lam1 = numpy.array(cornerCoords[1][ :-1, 1:  ], numpy.float64)*numpy.pi/180.
+    lam2 = numpy.array(cornerCoords[1][1:  , 1:  ], numpy.float64)*numpy.pi/180.
+    lam3 = numpy.array(cornerCoords[1][1:  ,  :-1], numpy.float64)*numpy.pi/180.
     
     x0, y0, z0 = projectToSphere(the0, lam0)
     x1, y1, z1 = projectToSphere(the1, lam1)
@@ -64,13 +65,33 @@ def _areAreasOk(cornerCoords):
     dx12 = x1 - x2
     dy12 = y1 - y2
     dz12 = z1 - z2
+    dx20 = x2 - x0
+    dy20 = y2 - y0
+    dz20 = z2 - z0
 
-    areas = numpy.sqrt( (dy10*dz30 - dy30*dy10 + dy32*dz12 - dy12*dy32)**2 \
-                        + (dz10*dx30 - dz30*dx10 + dz32*dx12 - dz12*dx32)**2 \
-                            + (dx10*dy30 - dx30*dy10 + dx32*dy12 - dx12*dy32)**2 )
+    areas013 = numpy.sqrt( (dy10*dz30 - dy30*dz10)**2 \
+                         + (dz10*dx30 - dz30*dx10)**2 \
+                         + (dx10*dy30 - dx30*dy10)**2 )
+    areas231 = numpy.sqrt( (dy32*dz12 - dy12*dz32)**2 \
+                         + (dz32*dx12 - dz12*dx32)**2 \
+                         + (dx32*dy12 - dx12*dy32)**2 )
+    areas012 = numpy.sqrt( (dy10*dz20 - dy20*dz10)**2 \
+                         + (dz10*dx20 - dz20*dx10)**2 \
+                         + (dx10*dy20 - dx20*dy10)**2 )
+    areas230 = numpy.sqrt( (-dy32*dz20 + dy20*dz32)**2 \
+                         + (-dz32*dx20 + dz20*dx32)**2 \
+                         + (-dx32*dy20 + dx20*dy32)**2 )
+    
 
-    minArea = 1.e-5 * numpy.pi * 2*numpy.pi / float(areas.shape[0]*areas.shape[1])
-    inds = numpy.where(abs(areas) < minArea)
+    areasCriss = areas013 + areas231
+    areasCross = areas012 + areas230
+
+    minArea = 1.e-6 * numpy.pi * 2*numpy.pi / float(areasCross.shape[0]*areasCross.shape[1])
+    if mask is not None:
+        # exclude masked points
+        inds = numpy.where((areasCriss < minArea)*(mask == 0) | (areasCross < minArea)*(mask == 0))
+    else:
+        inds = numpy.where((areasCriss < minArea) | (areasCross < minArea))
     
     if len(inds[0]) > 0:
         # bad indexing?
@@ -84,7 +105,7 @@ def _areAreasOk(cornerCoords):
                           (cornerCoords[0][bcis3[i]], cornerCoords[1][bcis3[i]])] \
                              for i in range(len(badCellIndices))]
         # problems...
-        return {'numCells': len(areas.flat),
+        return {'numCells': len(areasCross.flat),
                 'numBadCells': len(inds[0]),
                 'badCellIndices': badCellIndices,
                 'badCellCoords': badCellCoords,
@@ -113,10 +134,11 @@ def _buildBounds(bounds):
 
     return bnd
 
-def getBoundList(coordList, checkBounds=False, badCellIndices=[]):
+def getBoundList(coordList, mask, checkBounds=False, badCellIndices=[]):
     """
     Return a list of bounds built from a list of coordinates
     @param coordList coordinate list, should have getBounds()
+    @param mask avoid checking areas where mask is one
     @param checkBounds set to True if you want to check bounds
     @param maskCellIndices list of bad cell indices to mask out (output)
     @return [latBounds, lonBounds]
@@ -127,7 +149,7 @@ def getBoundList(coordList, checkBounds=False, badCellIndices=[]):
         cornerCoords.append(cornerC)
         
     if checkBounds:
-        res = _areAreasOk(cornerCoords)
+        res = _areAreasOk(cornerCoords, mask=mask)
         if res:
             badCellIndices += res['badCellIndices']
             print """
@@ -290,7 +312,7 @@ class CdmsRegrid:
         self.regridMethod = regridMethod
         if re.search( 'conserv', regridMethod.lower()):
             srcBadCellIndices = []
-            srcBounds = getBoundList(srcCoords, 
+            srcBounds = getBoundList(srcCoords, srcGridMask,
                                      args.get('checkSrcBounds', False),
                                      badCellIndices = srcBadCellIndices)
             # mask out the bad src cells
@@ -300,7 +322,7 @@ class CdmsRegrid:
                 for inds in srcBadCellIndices:
                     srcGridMask[inds] = 1 # True mean invalid      
             dstBadCellIndices = []
-            dstBounds = getBoundList(dstCoords, 
+            dstBounds = getBoundList(dstCoords, dstGridMask,
                                      args.get('checkDstBounds', False),
                                      badCellIndices = dstBadCellIndices)
             # mask out the bad dst cells
