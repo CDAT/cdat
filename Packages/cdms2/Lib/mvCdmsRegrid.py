@@ -13,7 +13,7 @@ import cdms2
 from error import CDMSError
 import regrid2
 
-def _areAreasOk(cornerCoords, mask=None):
+def _areCellsOk(cornerCoords, mask=None):
     """
     Check cell corner points (in 2D)
     @param cornerCoords
@@ -29,6 +29,8 @@ def _areAreasOk(cornerCoords, mask=None):
     |     \ |
     +-------+
    0         1
+
+    @note assumes cornerCoords are in lat, lon order
     """
 
     if len(cornerCoords) != 2:
@@ -40,10 +42,15 @@ def _areAreasOk(cornerCoords, mask=None):
         return ct*numpy.cos(lam), ct*numpy.sin(lam), numpy.sin(the)
 
     # compute area elements in Cartesian space
-    the0 = numpy.array(cornerCoords[0][ :-1,  :-1], numpy.float64)*numpy.pi/180.
-    the1 = numpy.array(cornerCoords[0][ :-1, 1:  ], numpy.float64)*numpy.pi/180.
-    the2 = numpy.array(cornerCoords[0][1:  , 1:  ], numpy.float64)*numpy.pi/180.
-    the3 = numpy.array(cornerCoords[0][1:  ,  :-1], numpy.float64)*numpy.pi/180.
+    lat0 = numpy.array(cornerCoords[0][ :-1,  :-1], numpy.float64)
+    lat1 = numpy.array(cornerCoords[0][ :-1, 1:  ], numpy.float64)
+    lat2 = numpy.array(cornerCoords[0][1:  , 1:  ], numpy.float64)
+    lat3 = numpy.array(cornerCoords[0][1:  ,  :-1], numpy.float64)
+
+    the0 = lat0*numpy.pi/180.
+    the1 = lat1*numpy.pi/180.
+    the2 = lat2*numpy.pi/180.
+    the3 = lat3*numpy.pi/180.
     lam0 = numpy.array(cornerCoords[1][ :-1,  :-1], numpy.float64)*numpy.pi/180.
     lam1 = numpy.array(cornerCoords[1][ :-1, 1:  ], numpy.float64)*numpy.pi/180.
     lam2 = numpy.array(cornerCoords[1][1:  , 1:  ], numpy.float64)*numpy.pi/180.
@@ -109,7 +116,9 @@ def _areAreasOk(cornerCoords, mask=None):
     bad = (areasCriss < minArea) | \
         (areasCross < minArea) | \
         (areas013DotAreas231 < 0.0) | \
-        (areas012DotAreas230 < 0.0)
+        (areas012DotAreas230 < 0.0) | \
+        (lat0 > 90.) | (lat1 > 90.) | (lat2 > 90.) |  (lat3 > 90.) | \
+        (lat0 <-90.) | (lat1 <-90.) | (lat2 <-90.) |  (lat3 <-90.)
 
     if mask is not None:
         # exclude masked points
@@ -159,12 +168,14 @@ def _buildBounds(bounds):
 
     return bnd
 
-def getBoundList(coordList, mask, checkBounds=False, badCellIndices=[]):
+def getBoundList(coordList, mask, 
+                 removeBadCells=False, badCellIndices=[]):
     """
     Return a list of bounds built from a list of coordinates
     @param coordList coordinate list, should have getBounds()
     @param mask avoid checking areas where mask is one
-    @param checkBounds set to True if you want to check bounds
+    @param removeBadCells set to True if you want to the code to remove  
+                bad cells, ie zero cells, butterfly cells, ...
     @param maskCellIndices list of bad cell indices to mask out (output)
     @return [latBounds, lonBounds]
     """
@@ -173,13 +184,13 @@ def getBoundList(coordList, mask, checkBounds=False, badCellIndices=[]):
         cornerC = _buildBounds(c.getBounds()[:])
         cornerCoords.append(cornerC)
         
-    if checkBounds:
-        res = _areAreasOk(cornerCoords, mask=mask)
+    if removeBadCells:
+        res = _areCellsOk(cornerCoords, mask=mask)
         if res:
             badCellIndices += res['badCellIndices']
             print """
 -----------
-WANRING: bad cell areas were detected
+WARNING: bad cell were detected
 -----------
 total number of cells: %(numCells)d
 number of bad cells:   %(numBadCells)d
@@ -365,7 +376,8 @@ coordMin = %7.2f, boundMin = %7.2f, coordMax = %7.2f, boundMax = %7.2f
               """ % (c.min(), b.min(), c.max(), b.max())
             if srcBounds[0].min() < -90 or srcBounds[0].max() > 90 or \
                dstBounds[0].min() < -90 or dstBounds[0].max() > 90:
-                raise CDMSError, """Bounds exceed +/-90 degree latitude"""
+                print "WARNING: Bounds exceed +/-90 degree latitude: min/max lats = %g/%g" % \
+                     (srcBounds[0].min(), srcBounds[0].max())
             if not re.search('esmp', regridTool.lower()):
                 regridTool = 'esmf'
 
