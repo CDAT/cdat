@@ -168,7 +168,7 @@ def _buildBounds(bounds):
 
     return bnd
 
-def getBoundList(coordList, mask, 
+def getBoundList(coordList, mask=None, 
                  removeBadCells=False, badCellIndices=[]):
     """
     Return a list of bounds built from a list of coordinates
