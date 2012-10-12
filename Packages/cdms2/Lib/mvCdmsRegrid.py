@@ -6,6 +6,7 @@ This code is provided with the hope that it will be useful.
 No guarantee is provided whatsoever. Use at your own risk.
 """
 import types
+import operator
 import re
 import numpy
 import cdms2
@@ -69,32 +70,56 @@ def _areAreasOk(cornerCoords, mask=None):
     dy20 = y2 - y0
     dz20 = z2 - z0
 
-    areas013 = numpy.sqrt( (dy10*dz30 - dy30*dz10)**2 \
-                         + (dz10*dx30 - dz30*dx10)**2 \
-                         + (dx10*dy30 - dx30*dy10)**2 )
-    areas231 = numpy.sqrt( (dy32*dz12 - dy12*dz32)**2 \
-                         + (dz32*dx12 - dz12*dx32)**2 \
-                         + (dx32*dy12 - dx12*dy32)**2 )
-    areas012 = numpy.sqrt( (dy10*dz20 - dy20*dz10)**2 \
-                         + (dz10*dx20 - dz20*dx10)**2 \
-                         + (dx10*dy20 - dx20*dy10)**2 )
-    areas230 = numpy.sqrt( (-dy32*dz20 + dy20*dz32)**2 \
-                         + (-dz32*dx20 + dz20*dx32)**2 \
-                         + (-dx32*dy20 + dx20*dy32)**2 )
+    areas013 = [ (dy10*dz30 - dy30*dz10),
+                 (dz10*dx30 - dz30*dx10),
+                 (dx10*dy30 - dx30*dy10), ]
+    areas231 = [ (dy32*dz12 - dy12*dz32),
+                 (dz32*dx12 - dz12*dx32),
+                 (dx32*dy12 - dx12*dy32), ]
+    areas012 = [ (dy10*dz20 - dy20*dz10),
+                 (dz10*dx20 - dz20*dx10),
+                 (dx10*dy20 - dx20*dy10), ] 
+    areas230 = [ (-dy32*dz20 + dy20*dz32),
+                 (-dz32*dx20 + dz20*dx32),
+                 (-dx32*dy20 + dx20*dy32), ]
+
+    areas013Abs = numpy.sqrt( reduce(operator.add, 
+                                     [areas013[i]**2 for i in range(3)]) )
+    areas231Abs = numpy.sqrt( reduce(operator.add, 
+                                     [areas231[i]**2 for i in range(3)]) )
+    areas012Abs = numpy.sqrt( reduce(operator.add, 
+                                     [areas012[i]**2 for i in range(3)]) )
+    areas230Abs = numpy.sqrt( reduce(operator.add, 
+                                     [areas230[i]**2 for i in range(3)]) )
+
+    areas013DotAreas231 = reduce(operator.add, 
+                                 [areas013[i]*areas231[i] for i in range(3)])
+    areas012DotAreas230 = reduce(operator.add, 
+                                 [areas012[i]*areas230[i] for i in range(3)])
     
+    areasCriss = areas013Abs + areas231Abs
+    areasCross = areas012Abs + areas230Abs
 
-    areasCriss = areas013 + areas231
-    areasCross = areas012 + areas230
+    minArea = 1.e-6 * numpy.pi * 2*numpy.pi / \
+        float(areasCross.shape[0]*areasCross.shape[1])
 
-    minArea = 1.e-6 * numpy.pi * 2*numpy.pi / float(areasCross.shape[0]*areasCross.shape[1])
+    # Check that the cell has some area and check the 
+    # topology
+
+    bad = (areasCriss < minArea) | \
+        (areasCross < minArea) | \
+        (areas013DotAreas231 < 0.0) | \
+        (areas012DotAreas230 < 0.0)
+
     if mask is not None:
         # exclude masked points
-        inds = numpy.where((areasCriss < minArea)*(mask == 0) | (areasCross < minArea)*(mask == 0))
-    else:
-        inds = numpy.where((areasCriss < minArea) | (areasCross < minArea))
+        bad *= (mask == 0)
+
+    # inds contains list of bad cell indices
+    inds = numpy.where(bad)
     
     if len(inds[0]) > 0:
-        # bad indexing?
+        # package the result
         badCellIndices = [(inds[0][i], inds[1][i]) for i in range(len(inds[0]))]
         bcis1 = [(inds[0][i]  , inds[1][i]+1) for i in range(len(inds[0]))]
         bcis2 = [(inds[0][i]+1, inds[1][i]+1) for i in range(len(inds[0]))]
