@@ -117,7 +117,7 @@ def _areCellsOk(cornerCoords, mask=None):
         (areasCross < minArea) | \
         (areas013DotAreas231 < 0.0) | \
         (areas012DotAreas230 < 0.0) | \
-        (cornerCoords[1] > 90.) | (cornerCoords[1] < -90.)
+        (lat0 > 90.) | (lat0 < -90.) | (lat2 > 90.) | (lat2 < -90.)
 
     if mask is not None:
         # exclude masked points
