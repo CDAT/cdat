@@ -181,8 +181,8 @@ def getBoundList(coordList, mask, checkBounds=False, badCellIndices=[]):
 -----------
 WANRING: bad cell areas were detected
 -----------
-total number of cells:         %(numCells)d
-number of bad (~zero) cells:   %(numBadCells)d
+total number of cells: %(numCells)d
+number of bad cells:   %(numBadCells)d
 
 indices of bad cells:  
                       %(badCellIndices)s
@@ -338,7 +338,7 @@ class CdmsRegrid:
         if re.search( 'conserv', regridMethod.lower()):
             srcBadCellIndices = []
             srcBounds = getBoundList(srcCoords, srcGridMask,
-                                     args.get('checkSrcBounds', False),
+                                     args.get('fixSrcBounds', False),
                                      badCellIndices = srcBadCellIndices)
             # mask out the bad src cells
             if len(srcBadCellIndices) > 0:
@@ -348,7 +348,7 @@ class CdmsRegrid:
                     srcGridMask[inds] = 1 # True mean invalid      
             dstBadCellIndices = []
             dstBounds = getBoundList(dstCoords, dstGridMask,
-                                     args.get('checkDstBounds', False),
+                                     args.get('fixDstBounds', False),
                                      badCellIndices = dstBadCellIndices)
             # mask out the bad dst cells
             if len(dstBadCellIndices) > 0:
