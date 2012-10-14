@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-cmake_minimum_required(VERSION 2.8.4)
+cmake_minimum_required(VERSION 2.8.8)
 #-----------------------------------------------------------------------------
 
 project(cdat)
@@ -8,6 +8,8 @@ set(cdat_CMAKE_SOURCE_DIR ${cdat_SOURCE_DIR}/CMake)
 set(cdat_CMAKE_BINARY_DIR ${cdat_BINARY_DIR}/CMake)
 set(cdat_external_patch_dir ${cdat_SOURCE_DIR}/exsrc)
 option(CDAT_USE_SYSTEM_INTROSPECTION "Detect System installed libraries." OFF)
+
+
 
 if("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local")
   get_filename_component(cdat_ROOT_DIR ${cdat_BINARY_DIR} PATH)
@@ -40,6 +42,11 @@ set(cdat_VERSION ${cdat_VERSION_MAJOR}.${cdat_VERSION_MINOR}.${cdat_VERSION_PATC
 configure_file(${cdat_CMAKE_SOURCE_DIR}/version.in
   ${cdat_SOURCE_DIR}/version
   @ONLY)
+# Cleans all CDAT builds
+execute_process(
+    COMMAND ./scripts/clean_script all
+    WORKING_DIRECTORY ${cdat_SOURCE_DIR}
+  )
 
 ##############################################################################
 # Important: change architecture *before* any enable_language() or project()
@@ -68,6 +75,18 @@ endif()
 #-----------------------------------------------------------------------------
 
 find_package(Git)
+
+set(ZLIB_PATCH_SRC 5 CACHE INTEGER "Version of ZLIB to use")
+MARK_AS_ADVANCED(ZLIB_PATCH_SRC)
+if (ZLIB_PATCH_SRC EQUAL 3)
+  set(ZLIB_MD5 debc62758716a169df9f62e6ab2bc634)
+elseif (ZLIB_PATCH_SRC EQUAL 5)
+  set(ZLIB_MD5 c735eab2d659a96e5a594c9e8541ad63)
+elseif (ZLIB_PATCH_SRC EQUAL 7)
+  set(ZLIB_MD5 60df6a37c56e7c1366cca812414f7b85)
+else ()
+  message(FATAL_ERROR "error: invalid zlib patch number: '${ZLIB_PATCH_SRC}' valid: 3, 5 or 7")
+endif()
 
 if(NOT GIT_PROTOCOL)
   message("Select Either git:// or http:// for checking out git submodules.
@@ -126,26 +145,13 @@ endif()
 # Attempt to detect if we have a Fortran Compiler available.
 #-----------------------------------------------------------------------------
 
-#include(CheckFortran)
-set(CMAKE_Fortran_COMPILER gfortran)
+include(CheckFortran)
+#set(CMAKE_Fortran_COMPILER gfortran)
 
 if(CMAKE_Fortran_COMPILER)
   enable_language(Fortran)
   set(CONFIG_SUMMARY ${cdat_SOURCE_DIR}/logs/config.summary)
   include(${CMAKE_ROOT}/Modules/CMakeDetermineFortranCompiler.cmake)
-  if (CDAT_BUILD_ESMF_ESMP)
-    set(TXCMAKE_DIR ${cdat_SOURCE_DIR}/contrib/sciMake)
-    include(${TXCMAKE_DIR}/sciFuncsMacros.cmake)
-    include(${TXCMAKE_DIR}/sciFortranChecks.cmake)
-    if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL GNU)
-      string(REGEX MATCHALL "[0-9]+\\." test_version_list ${Fortran_VERSION})
-      string(SUBSTRING ${Fortran_VERSION} 0 3 Fortran_MAJOR_VERSION)
-      LIST(GET test_version_list 0 Fortran_MAJOR_VERSION)
-      LIST(GET test_version_list 1 Fortran_MINOR_VERSION)
-    else()
-      set(Fortran_MINOR_VERSION "")
-    endif()
-  endif()
 endif(CMAKE_Fortran_COMPILER)
 
 #-----------------------------------------------------------------------------
@@ -291,16 +297,21 @@ macro (add_cdat_package package)
 endmacro (add_cdat_package)
 
 find_package(Qt4 REQUIRED)
+# Do we download the data ?
+option(CDAT_DOWNLOADS_SAMPLE_DATA "Download sample data" ON)
+if (CDAT_DOWNLOADS_SAMPLE_DATA)
+  set(SAMPLE_DATA "")
+else()
+  set(SAMPLE_DATA --disable-sampledata)
+endif()
+
+# Added by Charles Doutriaux to build with libdrs support
+option(CDAT_BUILD_WITH_LIBDRS "Build with DRS file format support (needs to be in /usr/local/lib)" OFF)
+MARK_AS_ADVANCED(CDAT_BUILD_WITH_LIBDRS)
 
 # Added by Dave Kindig Tech-X Corp. kindig@txcorp.com
-option(CDAT_BUILD_ESMF_ESMP "Build python version Earth System Modeling Framework" OFF)
-option(CDAT_BUILD_ESMF_PARALLEL "Build parallel version of Earth System Modeling Framework library" OFF)
-
-# the following may need to be adjusted on Crays, otherwise the defaults will likely apply
-set(CDAT_BUILD_ESMF_OS "${CMAKE_SYSTEM_NAME}" CACHE STRING "ESMF_OS env variable, may need to change to Unicos on Crays")
-set(CDAT_BUILD_ESMF_COMPILER "gfortran" CACHE STRING "ESMF_COMPILER env variable, choices are gfortran, intel, pgi, g95, or nag")
-set(CDAT_BUILD_ESMF_COMM "openmpi" CACHE STRING "ESMF_COMM env variable, choices are openmpi, mpiuni, mpi, mpich2, or mvapich2")
-set(CDAT_BUILD_ESMF_ABI "64" CACHE STRING "ESMF_ABI env variable, choices are 32 or 64")
+option(CDAT_BUILD_ESMF_ESMP "Build python version Earth System Modeling Framework" ON)
+option(CDAT_BUILD_ESMF_PARALLEL "Build parallel version of Earth System Modeling Framework library" ON)
 
 # Attempt to find each package on the system
 
@@ -489,10 +500,6 @@ endif(Matplotlib_FOUND)
 
 add_cdat_package(GEOS)
 add_cdat_package(basemap)
-add_cdat_package(lepl)
-add_cdat_package(lxml)
-add_cdat_package(spyder)
-add_cdat_package(MyProxyClient)
 
 option(CDAT_BUILD_SHAPELY "Build Shapely python module to represent geometric oiobjects and apply predicates and operations on these objects" OFF)
 
@@ -521,39 +528,71 @@ endif()
 add_cdat_package(CMOR)
 add_cdat_package(CDAT)
 add_cdat_package(gui_support)
-#add_cdat_package(PVFileDialog)
+add_cdat_package(R)
 
-# Optional Packages
+add_cdat_package(scikits)
 
 # Earth System Modelling Framework and the Python wrapper.
 # Added by Dave Kindig Tech-X Corp. kindig@txcorp.com
+message(crap ${CMAKE_Fortran_COMPILER_ID} and ${Fortran_MAJOR_VERSION})
 if(CDAT_BUILD_ESMF_ESMP)
-  if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL GNU)
-    # GNU gfortran must be >= 4.3
-    if(${Fortran_MAJOR_VERSION} GREATER 3 AND ${Fortran_MINOR_VERSION} GREATER 2)
-      ## On APPLE need to test for -arch as well!
-         add_cdat_package(ESMF)
-    else()
-      message("    Skipping ESMF")
-      message("    gfortran version needs to be at least 4.3 to install ESMF")
-      message("    You have ${Fortran_VERSION}")
-    endif()
-  else()
-    add_cdat_package(ESMF)
-    message("Fortran Compiler is: ${CMAKE_Fortran_COMPILER}")
-  endif()
+
+ # the following may need to be adjusted on Crays, otherwise the defaults will likely apply
+ set(CDAT_BUILD_ESMF_OS "${CMAKE_SYSTEM_NAME}" CACHE STRING "ESMF_OS env variable, may need to change to Unicos on Crays")
+ set(CDAT_BUILD_ESMF_COMPILER "gfortran" CACHE STRING "ESMF_COMPILER env variable, choices are gfortran, intel, pgi, g95, or nag")
+ set(CDAT_BUILD_ESMF_COMM "openmpi" CACHE STRING "ESMF_COMM env variable, choices are openmpi, mpiuni, mpi, mpich2, or mvapich2")
+ set(CDAT_BUILD_ESMF_ABI "64" CACHE STRING "ESMF_ABI env variable, choices are 32 or 64")
+ 
+ set(TXCMAKE_DIR ${cdat_SOURCE_DIR}/contrib/sciMake)
+ include(${TXCMAKE_DIR}/sciFuncsMacros.cmake)
+ include(${TXCMAKE_DIR}/sciFortranChecks.cmake)
+ if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL GNU)
+   string(REGEX MATCHALL "[0-9]+\\." test_version_list ${Fortran_VERSION})
+   string(SUBSTRING ${Fortran_VERSION} 0 3 Fortran_MAJOR_VERSION)
+   LIST(GET test_version_list 0 Fortran_MAJOR_VERSION)
+   LIST(GET test_version_list 1 Fortran_MINOR_VERSION)
+ else()
+   set(Fortran_MINOR_VERSION "")
+ endif()
+
+ if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL GNU)
+   # GNU gfortran must be >= 4.3
+   if(${Fortran_MAJOR_VERSION} GREATER 3 AND ${Fortran_MINOR_VERSION} GREATER 2)
+     ## On APPLE need to test for -arch as well!
+     add_cdat_package(ESMF)
+   else()
+     message("    Skipping ESMF")
+     message("    gfortran version needs to be at least 4.3 to install ESMF")
+     message("    You have ${Fortran_VERSION}")
+   endif()
+ else()
+   add_cdat_package(ESMF)
+   message("Fortran Compiler is: ${CMAKE_Fortran_COMPILER}")
+ endif()
 endif()
 
-option(CDAT_BUILD_PARAVIEW "Build ParaView" OFF)
+
+# Optional Packages
+
+
+option(CDAT_BUILD_PARAVIEW "Build ParaView" ON)
 if(CDAT_BUILD_PARAVIEW)
   add_cdat_package(ParaView)
   add_cdat_package(PVFileDialog)
 endif()
 
-option(CDAT_BUILD_VISIT "Build VisIt" OFF)
+option(CDAT_BUILD_VISIT "Build VisIt" ON)
 if(CDAT_BUILD_VISIT)
   add_cdat_package(VisIt)
 endif()
+
+add_cdat_package(vistrails)
+add_cdat_package(lepl)
+add_cdat_package(Sphinx)
+add_cdat_package(lxml)
+add_cdat_package(spyder)
+add_cdat_package(MyProxyClient)
+
 
 # C. Doutriaux Turning off Vistrails build from within CDAT
 #option(CDAT_BUILD_VISTRAILS "Build VisTrails" OFF)
@@ -613,6 +652,14 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_install_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/cdat_install_step.cmake
   @ONLY)
 
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cleanenv_configure_step.cmake.in
+    ${cdat_CMAKE_BINARY_DIR}/cleanenv_configure_step.cmake
+    @ONLY)
+
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_configure_step.cmake.in
+    ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
+    @ONLY)
+
 #configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_python_install_step.cmake.in
 #  ${cdat_CMAKE_BINARY_DIR}/cdat_python_install_step.cmake
 #  @ONLY)
@@ -651,7 +698,7 @@ set(OPENMPI_DEPENDENCIES ${pkgconfig_dep})
 set(ESMF_DEPENDENCIES ${pkgconfig_dep} ${OPENMPI_dep})
 set(ESMP_DEPENDENCIES ${pkgconfig_dep} ${NUMPY_dep} ${Python_dep} ${ESMF_dep})
 set(Cython_DEPENDENCIES ${pkgconfig_dep} ${Python_dep})
-set(Numexpr_DEPENDENCIES ${pkgconfig_dep} ${NUMPY_dep} ${Python_dep})
+set(Numexpr_DEPENDENCIES ${pkgconfig_dep} ${NUMPY_dep} ${setuptools_dep})
 set(PyTables_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${Cython_dep} ${Numexpr_dep} ${HDF5_dep} ${libXML2_dep} ${libXSLT_dep} ${zlib_dep})
 set(pixman_DEPENDENCIES ${pkgconfig_dep})
 set(YASM_DEPENDENCIES ${pkgconfig_dep})
@@ -675,8 +722,9 @@ set(Cairo_DEPENDENCIES ${pkgconfig_dep} ${png_dep} ${fontconfig_dep} ${freetype_
 set(HDF4_DEPENDENCIES ${pkgconfig_dep} ${zlib_dep} ${jpeg_dep})
 set(HDF5_DEPENDENCIES ${pkgconfig_dep} ${libXML2_dep} ${libXSLT_dep} ${zlib_dep})
 
-set(ParaView_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${HDF5_dep} ${png_dep} ${jpeg_dep} ${libXML2_dep} ${Qt_dep} ${freetype_dep} ${NetCDFPLUS_dep} ${zlib_dep})
-set(VisIt_DEPENDENCIES  ${pkgconfig_dep} ${Python_dep} ${HDF5_dep} ${png_dep} ${jpeg_dep} ${libXML2_dep} ${Qt_dep} ${freetype_dep} ${NetCDFPLUS_dep} ${zlib_dep} ${SIP_dep} ${PyQt_dep})
+set(R_DEPENDENCIES)
+set(ParaView_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${HDF5_dep} ${png_dep} ${jpeg_dep} ${libXML2_dep} ${Qt_dep} ${freetype_dep} ${NetCDFPLUS_dep} ${zlib_dep} ${R_dep})
+set(VisIt_DEPENDENCIES  ${pkgconfig_dep} ${SIP_dep} ${PyQt_dep} ${ParaView_dep})
 
 set(CMOR_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${HDF5_dep} ${Cairo_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep} ${NetCDF_dep} ${zlib_dep} ${uuid_dep} ${udunits2_dep})
 set(CDAT_DEPENDENCIES ${wget_dep} ${CMOR_dep} ${Python_dep} ${PyQt_dep} ${NUMPY_dep} ${Pmw_dep} ${jasper_dep} ${g2clib_dep} ${FFMPEG_dep} ${Qt_dep} ${pixman_dep} ${tiff_dep})
@@ -692,14 +740,15 @@ set(Shapely_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${GEOS_dep})
 set(gdal_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${NetCDF_dep} ${HDF5_dep} ${CURL_dep} ${zlib_dep} ${jasper_dep} ${setuptools_dep})
 set(basemap_DEPENDENCIES ${GEOS_dep})
 set(pyspharm_DEPENDENCIES ${NUMPY_dep})
-set(lepl_DEPENDENCIES ${setuptools_dep})
-set(spyder_DEPENDENCIES ${setuptools_dep} ${PyQt_dep})
-set(lxml_DEPENDENCIES ${setuptools_dep})
-set(MyProxyClient_DEPENDENCIES ${setuptools_dep})
-
+set(lepl_DEPENDENCIES ${CDAT_dep} ${Numexpr_dep})
+set(Sphinx_DEPENDENCIES ${lepl_dep})
+set(spyder_DEPENDENCIES ${Sphinx_dep} ${PyQt_dep} )
+set(MyProxyClient_DEPENDENCIES ${spyder_dep})
+set(lxml_DEPENDENCIES ${Cython_dep} ${setuptools_dep})
+set(vistrails_DEPENDENCIES ${Python_dep})
+set(scikits_DEPENDENCIES ${setuptools_dep} ${SCIPY_dep})
 # Added by Aashish @ Kitware Inc
 set(PVFileDialog_DEPENDENCIES ${ParaView_dep} ${SIP_dep})
-
 list(REMOVE_DUPLICATES external_packages)
 foreach(package ${external_packages})
   message("Building ${package}")
@@ -714,7 +763,7 @@ set(HASWGET ${WGET_EXECUTABLE})
 set(MD5PRG ${MD5_EXECUTABLE})
 set(MD5CNT 1)
 
-configure_file(${cdat_SOURCE_DIR}/checked_get.sh.in
+configure_file(${cdat_CMAKE_SOURCE_DIR}/checked_get.sh.in
   ${cdat_SOURCE_DIR}/checked_get.sh
   @ONLY)
 

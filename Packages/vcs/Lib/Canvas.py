@@ -930,7 +930,6 @@ class Canvas(object,AutoAPI.AutoAPI):
            try:
                self._scriptrun( os.path.join(*pth))
            except:
-               print 'crap'
                pass
            self._scriptrun( os.path.join(os.environ['HOME'], 'PCMDI_GRAPHICS', 'initial.attributes'))
 	called_initial_attributes_flg = 1

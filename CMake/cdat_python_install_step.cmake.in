@@ -20,7 +20,7 @@ if(APPLE)
 endif()
 
 execute_process(
-  COMMAND  @PYTHON_EXECUTABLE@ install.py @qt_flags@ --enable-pp @PYTHON_EXTRA_PREFIX@
+  COMMAND  @PYTHON_EXECUTABLE@ CMake/install.py @qt_flags@ --enable-pp @SAMPLE_DATA@ @PYTHON_EXTRA_PREFIX@
   WORKING_DIRECTORY "@WORKING_DIR@"
   RESULT_VARIABLE res)
 
