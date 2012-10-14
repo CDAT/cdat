@@ -68,6 +68,11 @@ string(REPLACE "/" "_" PROJECT_BRANCH_DIRECTORY "${PROJECT_BRANCH}") # Replace s
 set(CTEST_BINARY_DIRECTORY "${DASHROOT}/${CTEST_PROJECT_NAME}/builds/${PROJECT_BRANCH_DIRECTORY}/UVCDAT-${PROJECT_BUILD_INTERVAL}-${PROJECT_BUILD_ARCH}")
 set(CTEST_SOURCE_DIRECTORY "${DASHROOT}/${CTEST_PROJECT_NAME}/source/${PROJECT_BRANCH_DIRECTORY}/UVCDAT-${PROJECT_BUILD_INTERVAL}-${PROJECT_BUILD_ARCH}")
 
+# Prepare to do an initial checkout, if necessary
+if(CTEST_UPDATE_COMMAND AND NOT EXISTS "${CTEST_SOURCE_DIRECTORY}")
+  set(CTEST_CHECKOUT_COMMAND "${CTEST_UPDATE_COMMAND} clone -b ${PROJECT_BRANCH} git://uv-cdat.llnl.gov/uv-cdat.git ${CTEST_SOURCE_DIRECTORY}")
+endif()
+
 # On non-continuous or first build of the day, clear the build directory
 if((NOT "${PROJECT_BUILD_INTERVAL}" STREQUAL "Continuous") OR ("$ENV{FIRST_BUILD}" STREQUAL "TRUE"))
   ctest_empty_binary_directory("${CTEST_BINARY_DIRECTORY}")
@@ -79,11 +84,6 @@ if(EXISTS "${CTEST_SCRIPT_DIRECTORY}/${TARGET_CMAKE_FILE}")
   include("${CTEST_SCRIPT_DIRECTORY}/${TARGET_CMAKE_FILE}")
 else()
   message(FATAL_ERROR "[ERROR] "${TARGET_CMAKE_FILE}" does not exist")
-endif()
-
-# Prepare to do an initial checkout, if necessary
-if(CTEST_UPDATE_COMMAND AND NOT EXISTS "${CTEST_SOURCE_DIRECTORY}")
-  set(CTEST_CHECKOUT_COMMAND "${CTEST_UPDATE_COMMAND} clone -b ${PROJECT_BRANCH} git://uv-cdat.llnl.gov/uv-cdat.git ${CTEST_SOURCE_DIRECTORY}")
 endif()
 
 # Perform actual dashboard execution
