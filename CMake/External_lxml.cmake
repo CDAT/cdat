@@ -7,23 +7,12 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/lxml_build_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/lxml_build_step.cmake @ONLY)
 configure_file(${cdat_CMAKE_SOURCE_DIR}/lxml_install_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/lxml_install_step.cmake @ONLY)
-configure_file(${cdat_CMAKE_SOURCE_DIR}/lxml_download_step.cmake.in
-  ${cdat_CMAKE_BINARY_DIR}/lxml_download_step.cmake @ONLY)
 
 set(LXML_BUILD_COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/lxml_build_step.cmake)
 set(LXML_INSTALL_COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/lxml_install_step.cmake)
 
-# FIXME: Workaround as currently (October 14th) when downloaded, connection gets reset
-# by the server and only second time wget gets the correct copy, cmake does not try second
-# time.
-set(LXML_DOWNLOAD_COMMAND "")
-if(NOT WIN32)
-  set(LXML_DOWNLOAD_COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/lxml_download_step.cmake)
-endif()
-
 ExternalProject_Add(lxml
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
-  DOWNLOAD_COMMAND ${LXML_DOWNLOAD_COMMAND}
   SOURCE_DIR ${LXML_SOURCE_DIR}
   URL ${LXML_URL}/${LXML_GZ}
   URL_MD5 ${LXML_MD5}
