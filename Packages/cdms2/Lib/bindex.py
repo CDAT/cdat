@@ -12,8 +12,9 @@ def bindexHorizontalGrid(latlin, lonlin):
 
     Returns the index.
     """
-
-    head = numpy.zeros(720*360,dtype='l')       # This should match NBINI, NBINJ in bindex.c
+    lonlin = numpy.mod(lonlin,360)
+    NI,NJ = _bindex.getLens()
+    head = numpy.zeros(NI*NJ,dtype='l')       # This should match NBINI, NBINJ in bindex.c
     next = numpy.zeros(len(latlin),dtype='l')
     _bindex.bindex(latlin, lonlin, head, next)
     
@@ -30,7 +31,6 @@ def intersectHorizontalGrid(latspecs, lonspecs, latlin, lonlin, index):
     Returns an array of indices, in latlin/lonlin, of the points in
     the intersection.
     """
-    
     points = numpy.zeros(len(latlin),dtype='l')
     if latspecs is None:
         slat = -90.0

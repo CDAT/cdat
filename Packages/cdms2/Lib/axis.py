@@ -38,7 +38,7 @@ forecast_aliases = AliasList([])
 
 FileWasClosed = "File was closed for object: "
 InvalidBoundsArray = "Invalid boundary array: "
-InvalidCalendar = "Invalid calendar: "
+InvalidCalendar = "Invalid calendar: %i"
 MethodNotImplemented = "Method not yet implemented"
 ReadOnlyAxis = "Axis is read-only: "
 
@@ -55,7 +55,11 @@ calendarToTag = {
     cdtime.NoLeapCalendar : 'noleap',
     cdtime.GregorianCalendar : 'proleptic_gregorian',
     cdtime.JulianCalendar : 'julian',
-    cdtime.Calendar360 : '360_day'
+    cdtime.Calendar360 : '360_day',
+    cdtime.ClimCalendar : 'clim_noncf',
+    cdtime.ClimLeapCalendar : 'climleap_noncf',
+    cdtime.DefaultCalendar : 'gregorian',
+    cdtime.StandardCalendar : 'proleptic_gregorian',
     }
 
 tagToCalendar = {
@@ -67,6 +71,10 @@ tagToCalendar = {
     '360_day' : cdtime.Calendar360,
     '360' : cdtime.Calendar360,
     '365_day' : cdtime.NoLeapCalendar,
+    'clim' : cdtime.ClimCalendar,
+    'clim_noncf' : cdtime.ClimCalendar,
+    'climleap_noncf' : cdtime.ClimLeapCalendar,
+    'climleap' : cdtime.ClimLeapCalendar,
     }
 
 # This is not an error message, it is used to detect which things have
@@ -766,17 +774,17 @@ class AbstractAxis(CdmsObj):
         return result
 
     def asRelativeTime( self, units=None ):
-        "Array version of cdtime torel. Returns a list of component times."
+        "Array version of cdtime torel. Returns a list of relative times."
+        sunits = getattr(self,'units',None)
+        if sunits==None or sunits=='None':
+            raise CDMSError, "No time units defined"
         if units==None or units=='None':
-            units = getattr(self,'units',None)
-            if units==None or units=='None':
-                raise CDMSError, "No time units defined"
+            units=sunits
         if self.isForecast():
             result = [ forecast.comptime(t).torel(units) for t in self[:] ]
         else:
-            result = []
-            for val in self[:]:
-                result.append( cdtime.reltime( val, units ) )
+            cal = self.getCalendar()
+            result = [ cdtime.reltime(t,sunits).torel(units,cal) for t in self[:] ]
         return result
 
     def toRelativeTime(self, units, calendar=None):
@@ -906,12 +914,12 @@ class AbstractAxis(CdmsObj):
             self.calendar = calendarToTag.get(calendar, None)
             self.attributes['calendar']=self.calendar
             if self.calendar is None:
-                raise CDMSError, InvalidCalendar + calendar
+                raise CDMSError, InvalidCalendar % calendar
         else:
             self.__dict__['calendar'] = calendarToTag.get(calendar, None)
             self.attributes['calendar']=self.calendar
             if self.__dict__['calendar'] is None:
-                raise CDMSError, InvalidCalendar + calendar
+                raise CDMSError, InvalidCalendar % calendar
 
     def getData(self):
         raise CDMSError, MethodNotImplemented
