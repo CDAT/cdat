@@ -322,6 +322,38 @@ err:
 } 
 /* end of wrapper for bindex */
 
+/* deltas */
+  static char _bindex_setDeltas__doc__[] =
+  "setDeltas(dX,dY)";
+
+  extern void setDeltas(double dX, double dY);
+  
+static PyObject*
+_bindex_setDeltas (PyObject* unused, PyObject* args) {
+  double dX,dY;
+  if(!PyArg_ParseTuple(args, "dd", &dX,&dY)) {
+    return NULL;
+  }
+  setDeltas(dX,dY);
+  Py_INCREF(Py_None);
+  return Py_None;
+}
+  static char _bindex_getLens__doc__[] =
+  "setDeltas(dX,dY)";
+
+  extern void getLens(int *nX, int *nY);
+  
+static PyObject*
+_bindex_getLens (PyObject* unused, PyObject* args) {
+  double dX,dY;
+  if(!PyArg_ParseTuple(args, "")) {
+    return NULL;
+  }
+  int NI,NJ;
+  getLens(&NI,&NJ);
+  return Py_BuildValue("ii",NI,NJ);
+}
+
 /* intersect */
 static char _bindex_intersect__doc__[] =
 "intersect(slat, slon, elat, elon, lats, lons, head, next, points, latind, lonind)";
@@ -462,6 +494,8 @@ err:
 static struct PyMethodDef _bindex_methods[] = {
    {"bindex", (PyCFunction) _bindex_bindex, METH_VARARGS, _bindex_bindex__doc__},
    {"intersect", (PyCFunction) _bindex_intersect, METH_VARARGS, _bindex_intersect__doc__},
+   {"setDeltas", (PyCFunction) _bindex_setDeltas, METH_VARARGS, _bindex_setDeltas__doc__},
+   {"getLens", (PyCFunction) _bindex_getLens, METH_VARARGS, _bindex_getLens__doc__},
    {"set_pyfort_option", (PyCFunction) set_pyfort_option, METH_VARARGS, 
            "set_pyfort_option (value) sets default value of option keyword."},
    {NULL,          NULL, 0, NULL}/* sentinel */

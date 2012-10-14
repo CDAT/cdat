@@ -305,7 +305,7 @@ def combineKeys(dict, typedict, timeIsLinear=0, referenceDelta = None, forecast=
         if prevend is not None and prevend>=i0:
             if prevend>=i1:
                 if verbose:
-                    print 'Warning, file %s, dimension %s contains values in file %s'%(prevpath,name,path)
+                    print >> sys.stderr,  'Warning, file %s, dimension %s contains values in file %s'%(prevpath,name,path)
                 if timeIsLinear:
                     iind = lookupArray(prevvals, values[0])
                     jind = lookupArray(prevvals, values[-1])
@@ -325,7 +325,7 @@ def combineKeys(dict, typedict, timeIsLinear=0, referenceDelta = None, forecast=
                 else:
                     jind = lookupArray(prevvals, i0)
                 if verbose:
-                    print 'Warning, file %s, dimension %s overlaps file %s, value=%f'%(prevpath,name,path,prevvals[jind])
+                    print >> sys.stderr,  'Warning, file %s, dimension %s overlaps file %s, value=%f'%(prevpath,name,path,prevvals[jind])
                 previ, prevj = compressPart[-1]
                 prevj = previ + jind
                 axislist[-1] = prevvals[0:jind]
@@ -357,7 +357,7 @@ def combineKeys(dict, typedict, timeIsLinear=0, referenceDelta = None, forecast=
             badindices = numpy.compress(numpy.not_equal(diffs,referenceDelta),range(len(values)))
             badvalues = numpy.take(values, badindices)
             if verbose:
-                print "Error: Missing values in %s after times: %s. Set delta with the -i option or turn off linear mode with the -j option."%(path,str(badvalues))
+                print >> sys.stderr,  "Error: Missing values in %s after times: %s. Set delta with the -i option or turn off linear mode with the -j option."%(path,str(badvalues))
             errorOccurred = 1
 
         prevvals = values
@@ -491,7 +491,7 @@ def validateAttrs(node):
                         attval = string.atof(attval)
                     except:
                         if verbose:
-                            print "Warning: %s=%s should be a float, id=%s"%(attname,attval,node.id),
+                            print >> sys.stderr,  "Warning: %s=%s should be a float, id=%s"%(attname,attval,node.id),
                         try:
                             attval = string.atoi(attval)
                             attval = float(attval)
@@ -512,7 +512,7 @@ def validateAttrs(node):
                         attval = string.atoi(attval)
                     except:
                         if verbose:
-                            print "Warning: %s=%s should be an integer, id=%s"%(attname,attval,node.id),
+                            print >> sys.stderr,  "Warning: %s=%s should be an integer, id=%s"%(attname,attval,node.id),
                         try:
                             attval = string.atof(attval)
                             attval = int(attval)
@@ -534,7 +534,7 @@ def cloneWithLatCheck(axis):
         if notrimlat==0:
             axisvals = numpy.maximum(-90.0, numpy.minimum(90.0,axisvals))
         if not numpy.ma.allclose(axisvals, origvals) and verbose:
-            print "Warning: resetting latitude values: ",origvals," to: ",axisvals
+            print >> sys.stderr,  "Warning: resetting latitude values: ",origvals," to: ",axisvals
 
     b = axis.getBounds()
     mycopy = cdms2.createAxis(copy.copy(axisvals))
@@ -660,8 +660,8 @@ def main(argv):
             ["include=","include-file=","exclude=","exclude-file=","forecast","time-linear=", \
              "notrim-lat","var-locate=","ignore-open-error" ] )
     except getopt.error:
-        print sys.exc_value
-        print usage
+        print >> sys.stderr,  sys.exc_value
+        print >> sys.stderr,  usage
         sys.exit(0)
 
     calendar = None
@@ -1007,7 +1007,7 @@ def main(argv):
             if not ignoreOpenError:
                 raise RuntimeError,'Error opening file '+path
             else:
-                print 'Warning: cannot open file, skipping: %s'%path
+                print >> sys.stderr,  'Warning: cannot open file, skipping: %s'%path
                 continue
 
         # Add/modify attributes
@@ -1034,7 +1034,7 @@ def main(argv):
         basepath = path[dirlen:]
         if template is not None and template.match(basepath) is None:
             if verbose:
-                print 'Warning: path %s does not match template %s'%(basepath, templatestr)
+                print >> sys.stderr,  'Warning: path %s does not match template %s'%(basepath, templatestr)
 
         # Find time boundary variables
         boundsids = []
@@ -1158,7 +1158,7 @@ def main(argv):
                         vartime = f.axes.get(timeid)
                     else:
                         if verbose:
-                            print 'Warning, time axis %s not found, -t option ignored'%timeid
+                            print >> sys.stderr,  'Warning, time axis %s not found, -t option ignored'%timeid
                 if vartime is None:
                     vartime = var.getTime()
                 if vartime is not None:
@@ -1350,8 +1350,8 @@ def main(argv):
                 try:
                     levproj[(lev0, lev1)] = (path, levname)
                 except:
-                    print 'Cannot hash level %s range (%f,%f)'%(levname,lev0,lev1)
-                    print type(lev0)
+                    print >> sys.stderr,  'Cannot hash level %s range (%f,%f)'%(levname,lev0,lev1)
+                    print >> sys.stderr,  type(lev0)
                     raise
             if fctau0 is not None:
                 fctproj[(fctau0,fctau0)] = (path, 'fctau0')
@@ -1516,10 +1516,10 @@ def main(argv):
         raise RuntimeError, "Variable '%s' is duplicated, and is a function of lat or lon: files %s, %s"%illegalvars[0]
         
     if verbose and len(duplicatevars.values())>0:
-        print 'Duplicate variables:'
+        print >> sys.stderr,  'Duplicate variables:'
         for varlist in duplicatevars.keys():
             path1, path2 = duplicatevars[varlist]
-            print '\t',varlist,'\t',path1,'\t',path2
+            print >> sys.stderr,  '\t',varlist,'\t',path1,'\t',path2
 
     # Generate the cdms_filemap attribute
     cdms_filemap = str(cdms_filemap_list)
@@ -1567,7 +1567,7 @@ def main(argv):
                 if timeWasOverridden==0:
                     print "Overriding values for axis '%s'"%axis.id
                 else:
-                    print 'Warning, overriding more than one time axis (%s)'%axis.id
+                    print >> sys.stderr,  'Warning, overriding more than one time axis (%s)'%axis.id
             timeWasOverridden = 1
 
         # Represent time as linear axis using time values in the file
@@ -1580,8 +1580,8 @@ def main(argv):
                 node.setData(axis[:])
             except cdms2.cdmsNode.NotMonotonicError:
                 if verbose:
-                    print 'Warning: Axis values for axis %s are not monotonic:'%axis.id,axis[:]
-                    print 'Warning: Resetting axis %s values to:'%axis.id, numpy.arange(len(axis))
+                    print >> sys.stderr,  'Warning: Axis values for axis %s are not monotonic:'%axis.id,axis[:]
+                    print >> sys.stderr,  'Warning: Resetting axis %s values to:'%axis.id, numpy.arange(len(axis))
                 node.setData(numpy.arange(len(axis)))
         axisattrs = copyDict(axis.attributes)
 
@@ -1620,7 +1620,7 @@ def main(argv):
             try:
                 elemnode = cdmsNode.DomElemNode(axis.id, 0, length)
             except AttributeError:
-                print 'Axis %s for variable %s does not have attribute "id"'%(`axis`, key)
+                print >> sys.stderr,  'Axis %s for variable %s does not have attribute "id"'%(`axis`, key)
             if hasattr(axis, 'partition_length'):
                 elemnode.setExternalAttr('partition_length',axis.partition_length)
             domainNode.add(elemnode)
