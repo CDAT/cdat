@@ -1,19 +1,15 @@
-
-# Numexpr
-#
-
-
+# create an external project to install Sphinx,
+# and configure and build it
 
 include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
-ExternalProject_Add(Numexpr
+ExternalProject_Add(Sphinx
   DOWNLOAD_COMMAND ""
   WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}
   BUILD_IN_SOURCE 1
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
-  INSTALL_COMMAND ${EASY_INSTALL_BINARY} Numexpr==${NUMEXPR_VERSION}
-  DEPENDS ${Numexpr_DEPENDENCIES}
+  INSTALL_COMMAND ${EASY_INSTALL_BINARY} Sphinx
+  DEPENDS ${Sphinx_DEPENDENCIES}
   ${EP_LOG_OPTIONS}
   )
-
 
