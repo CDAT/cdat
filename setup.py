@@ -485,10 +485,13 @@ ptho = sysconfig.get_python_lib()
 try:
  shutil.rmtree("%s/vcs/Include" % ptho,ignore_errors=True)
  shutil.copytree("Include", "%s/vcs/Include" % ptho)
-except:
+except Exception,err:
  ptho=target_prefix+"/lib/python%i.%i/site-packages/" % sys.version_info[:2]
- shutil.rmtree("%s/vcs/Include" % ptho,ignore_errors=True)
- shutil.copytree("Include", "%s/vcs/Include" % ptho)
+ shutil.rmtree("%s/vcs/Include" % ptho,ignore_errors=False)
+ try:
+   shutil.copytree("Include", "%s/vcs/Include" % ptho)
+ except:
+   pass
 
 print 'Copied the include files to: %s/vcs/Include' % sysconfig.get_python_lib()
 
@@ -505,7 +508,10 @@ if (WM=="QT" or EM=="QT") and sys.platform in ['darwin']:
     if 'install' in sys.argv:
         src = "%s/bin/cdat" % (target_prefix)
         print 'renaming to :',target_prefix
-        shutil.move("build/qpython", src)
+        try:
+         shutil.move("build/qpython", src)
+        except:
+         pass
         if target_prefix.find("Versions")>-1:
             if target_prefix.find("Library/Frameworks")>-1:
                 pth=os.path.sep+os.path.sep.join(target_prefix.split(os.path.sep)[:-5]+['bin','cdat'])
