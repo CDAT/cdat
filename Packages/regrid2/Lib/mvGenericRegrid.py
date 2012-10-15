@@ -1,5 +1,5 @@
 """
-Generic Regrid class.
+Generic interface to multiple regrid classes. No dependence on cdms2 variables.
 
 This code is provided with the hope that it will be useful.
 No guarantee is provided whatsoever. Use at your own risk.
