@@ -7,7 +7,6 @@ project(cdat)
 set(cdat_CMAKE_SOURCE_DIR ${cdat_SOURCE_DIR}/CMake)
 set(cdat_CMAKE_BINARY_DIR ${cdat_BINARY_DIR}/CMake)
 set(cdat_external_patch_dir ${cdat_SOURCE_DIR}/exsrc)
-option(CDAT_USE_SYSTEM_INTROSPECTION "Detect System installed libraries." OFF)
 
 
 
@@ -263,18 +262,22 @@ set(external_packages)
 set(found_system_include_dirs)
 set(found_system_libraries)
 
-macro (add_cdat_package package)
+macro (add_cdat_package package version)
   string(TOUPPER ${package} UC_PACKAGE)
   string(TOLOWER ${package} LC_PACKAGE)
-  if(NOT DEFINED CDAT_USE_SYSTEM_${UC_PACKAGE})
-    if(NOT ${UC_PACKAGE}_FOUND)
-      option(CDAT_USE_SYSTEM_${UC_PACKAGE} "Use system installed ${LC_PACKAGE}" OFF)
-    else()
-      option(CDAT_USE_SYSTEM_${UC_PACKAGE} "Use system installed ${LC_PACKAGE}" ON)
-    endif()
+
+  # Find system package first and if it exits provide an option to use
+  # system package
+  find_package(${UC_PACKAGE})
+  if(${UV_PACKAGE}_FOUND)
+    option(CDAT_USE_SYSTEM_${UC_PACKAGE} "Use system installed ${LC_PACKAGE}" OFF)
   endif()
 
-  if(NOT ${UC_PACKAGE}_FOUND AND NOT ${CDAT_USE_SYSTEM_${UC_PACKAGE}})
+  if(NOT ${UC_PACKAGE}_FOUND AND ${CDAT_USE_SYSTEM_${UC_PACKAGE}})
+    message(FATAL_ERROR "[ERROR] Required system package ${UC_PACKAGE} is not found")
+  endif()  
+	
+  if(NOT ${CDAT_USE_SYSTEM_${UC_PACKAGE}})
     list(APPEND external_packages External_${package})
     set(${package}_dep ${package})
   else()
@@ -313,58 +316,11 @@ MARK_AS_ADVANCED(CDAT_BUILD_WITH_LIBDRS)
 option(CDAT_BUILD_ESMF_ESMP "Build python version Earth System Modeling Framework" ON)
 option(CDAT_BUILD_ESMF_PARALLEL "Build parallel version of Earth System Modeling Framework library" ON)
 
-# Attempt to find each package on the system
-
+# FIXME: This is a hack put together from previous versions.
 find_package(MD5)
 find_package(Wget)
-
-# By default lets build everything but make an exception for Qt.
-if(CDAT_USE_SYSTEM_INTROSPECTION)
-
-  find_package(PkgConfig)
-  set(PKGCONFIG_FOUND ${PKG_CONFIG_FOUND})
-
-  find_package(CURL)
-  find_package(LibXml2)
-  find_package(LibXslt)
-  find_package(FFMPEG)
-  #find_package(gifsicle)
-  #find_package(GS)
-  find_package(TIFF)
-  find_package(JPEG)
-  find_package(BLAS)
-  find_package(LAPACK)
-  find_package(ZLIB)
-  # This will find the png framework which Cairo won't find.
-  if(NOT APPLE)
-    find_package(PNG)
-    find_package(Freetype)
-  endif()
-  #find_package(pixman)
-  #find_package(fontconfig)
-  find_package(Cairo)
-
-  # CMOR doesn't know how to configure with the System frameworks version of uuid
-  if(NOT APPLE)
-    find_package(UUID)
-  endif()
-  #find_package(udunits2)
-  find_package(HDF5)
-  #find_package(NetCDF)
-  #find_package(PythonInterp)
-  #find_package(PythonLibs)
-  ## unix tools
-  find_package(TermCap)
-  find_package(Readline)
-  #find_package(TCL)
-  ## python packages
-  #find_package(setuptools)
-  #find_package(PyOpenGL)
-  #find_package(NUMPY)
-  #find_package(PMW)
-endif(CDAT_USE_SYSTEM_INTROSPECTION)
 find_package(PKG_CONFIG)
-#message("PKGCONFIG SAYS:"${PKG_CONFIG_FOUND})
+
 #if(NOT PKG_CONFIG_FOUND)
   add_cdat_package(pkgconfig)
   set(cdat_PKG_CONFIG_EXECUTABLE ${cdat_EXTERNALS}/bin/pkg-config)
@@ -373,6 +329,7 @@ find_package(PKG_CONFIG)
 #else()
 #  set(cdat_PKG_CONFIG_EXECUTABLE ${PKG_CONFIG_EXECUTABLE})
 #endif()
+
 set(ENV{PKG_CONFIG_PATH} "${cdat_EXTERNALS}/lib/pkgconfig:$ENV{PKG_CONFIG_PATH}")
 set(ENV{PKG_CONFIG} ${cdat_PKG_CONFIG_EXECUTABLE})
 
