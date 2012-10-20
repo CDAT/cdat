@@ -1,47 +1,109 @@
 
 cmake_minimum_required(VERSION 2.8.7)
 
-set(a_deps c)
-set(b_deps c)
-set(c_deps)
+#set(a_deps c)
+#set(b_deps c)
+#set(c_deps)
 
-set(a_parents)
-set(a_children)
-set(b_parents)
-set(b_children)
+#set(a_parents)
+#set(a_children)
+#set(b_parents)
+#set(b_children)
 
-set(already_included)
+#
+# Usage: add_cdat_package(package_name version_string) 
+macro (add_cdat_package package)
+  string(TOUPPER ${package} UC_PACKAGE)
+  string(TOLOWER ${package} LC_PACKAGE)
+  set(VERSION)
+
+  # ARGV1 will be the version string	
+  if(NOT "" STREQUAL "${ARGV1}")
+    set(VERSION "${ARGV1}")
+    message("[INFO] Version ${VERSION} of ${UC_PACKAGE} is required by UVCDAT") 
+  endif()	  
+
+  # Find system package first and if it exits provide an option to use
+  # system package
+  if(DEFINED version)
+    find_package(${UC_PACKAGE} ${VERSION} QUIET)
+  else()
+    find_package(${UC_PACKAGE} QUIET)
+  endif()
+
+  if(${UC_PACKAGE}_FOUND)
+    option(CDAT_USE_SYSTEM_${UC_PACKAGE} "Use system installed ${LC_PACKAGE}" OFF)
+  else()
+    mark_as_advanced(${UC_PACKAGE}_DIR)
+  endif()
+
+  # Check if package is found, if not found or found but user prefers to use cdat package
+  # then use cdat package or else use system package
+  if((DEFINED CDAT_USE_SYSTEM_${UC_PACKAGE} AND NOT CDAT_USE_SYSTEM_${UC_PACKAGE}) OR ${UC_PACKAGE}_NOT_FOUND)
+    message("[INFO] ${UC_PACKAGE} will be build by the UVCDAT-superbuild")
+    list(APPEND external_packages "${package}")
+    set(${package}_dep "${package}")
+  else()
+    if(CDAT_USE_SYSTEM_${UC_PACKAGE} AND ${UC_PACKAGE}_FOUND)
+      message("Debug removing")
+      unset(${package}_dep)
+      if(external_packages)
+        list(REMOVE_ITEM external_packages External_${package})
+      endif()
+
+      if(${UC_PACKAGE}_INCLUDE_DIR)
+        list(APPEND found_system_include_dirs ${${UC_PACKAGE}_INCLUDE_DIR})
+        message("[INFO] Including: ${UC_PACKAGE}_INCLUDE_DIR: ${${UC_PACKAGE}_INCLUDE_DIR}")
+      endif()
+
+      if(${UC_PACKAGE}_LIBRARY)
+        get_filename_component(lib_path ${${UC_PACKAGE}_LIBRARY} PATH)
+        list(APPEND found_system_libraries ${lib_path})
+        message("[INFO]  Linking: ${UC_PACKAGE}_LIBRARY: ${lib_path}")
+      endif()
+
+    endif() # use system package
+
+  endif()
+endmacro(add_cdat_package)
 
 # Check for cycle
-macro(check_for_cycle node ancestors)
-  message("Visited ${node} ${visited}")
+function(check_for_cycle node ancestors visited)
   foreach(parent ${ancestors})
+    set(currently_visited "${visited}")
     list(FIND visited "${parent}" result)
     if(NOT ${result} EQUAL -1)
-      message(FATAL_ERROR "Cycle found")
+      message(FATAL_ERROR "[ERROR] Cycle found when visiting ${parent}")
     endif()
-    list(APPEND visited "${parent}") 
-    check_for_cycle(${node} "${${parent}_parents}")
+
+    list(LENGTH "${parent}_parents" no_of_parents)
+    if(${no_of_parents} EQUAL 0)
+      message("[INFO] No cycle found for ${visited};${parent}")
+    else()
+      list(APPEND visited "${parent}")
+    endif()
+    check_for_cycle(${node} "${${parent}_parents}" "${visited}")
+    set(visited "${currently_visited}")
   endforeach()
-endmacro()
+endfunction()
 
 # Include external package
-macro(include_external_package package)
+macro(sort_external_package package)
   set(visited ${package})
 
   # FIXME: In-efficient algorithm to find cycles
-  check_for_cycle(${package} "${${package}_parents}")
+  check_for_cycle(${package} "${${package}_parents}" "${visited}")
   
   set(visited)
 
   foreach(parent ${${package}_parents})
-    include_external_package("${parent}")
+    sort_external_package("${parent}")
   endforeach()
   
-  list(FIND already_included "${package}" result)
+  list(FIND sorted_external_packages "${package}" result)
   if(${result} EQUAL -1)
-    list(APPEND already_included "${package}")
-    message("Adding ${package}")
+    list(APPEND sorted_external_packages "${package}")
+    message("[INFO] Adding ${package}")
   endif()
 endmacro()
 
@@ -55,22 +117,22 @@ macro(create_graph_node package)
 endmacro()
 
 # Perform operation
-macro(include_external_packages packages)
+macro(sort_external_packages packages)
   foreach(package ${packages})
     create_graph_node("${package}")
   endforeach()
 
   foreach(package ${packages})
-    include_external_package("${package}")
+    sort_external_package("${package}")
   endforeach()
 endmacro()
 
 
-set(packages "a;b;c")
+#set(packages "a;b;c")
 
-include_external_packages("${packages}")
+sort_external_packages("${packages}")
 
-message("a parents ${a_parents}")
-message("a children ${a_children}")
-message("b parents ${b_parents}")
-message("b children ${b_children}")
+#message("a parents ${a_parents}")
+#message("a children ${a_children}")
+#message("b parents ${b_parents}")
+#message("b children ${b_children}")

@@ -1,14 +1,15 @@
 #-----------------------------------------------------------------------------
-cmake_minimum_required(VERSION 2.8.8)
+# Top level description and settings
 #-----------------------------------------------------------------------------
 
+cmake_minimum_required(VERSION 2.8.8)
+
+# Project name
 project(cdat)
 
 set(cdat_CMAKE_SOURCE_DIR ${cdat_SOURCE_DIR}/CMake)
 set(cdat_CMAKE_BINARY_DIR ${cdat_BINARY_DIR}/CMake)
 set(cdat_external_patch_dir ${cdat_SOURCE_DIR}/exsrc)
-
-
 
 if("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local")
   get_filename_component(cdat_ROOT_DIR ${cdat_BINARY_DIR} PATH)
@@ -28,6 +29,8 @@ set(CMAKE_MODULE_PATH
   ${cdat_CMAKE_BINARY_DIR}
   ${CMAKE_MODULE_PATH}
   )
+
+include(cmake_utils)
 
 #-----------------------------------------------------------------------------
 # CDAT version
@@ -254,69 +257,12 @@ file(MAKE_DIRECTORY ${cdat_BINARY_DIR}/build)
 file(MAKE_DIRECTORY ${cdat_BINARY_DIR}/sources)
 
 #-----------------------------------------------------------------------------
-#-----------------------------------------------------------------------------
-
 include(PackageVersions)
 
 set(external_packages)
+set(sorted_external_packages)
 set(found_system_include_dirs)
 set(found_system_libraries)
-
-# Usage: add_cdat_package(package_name version_string) 
-macro (add_cdat_package package)
-  string(TOUPPER ${package} UC_PACKAGE)
-  string(TOLOWER ${package} LC_PACKAGE)
-  set(VERSION)
-
-  # ARGV1 will be the version string	
-  if(NOT "" STREQUAL "${ARGV1}")
-    set(VERSION "${ARGV1}")
-    message("[INFO] Version ${VERSION} of ${UC_PACKAGE} is required by UVCDAT") 
-  endif()	  
-
-  # Find system package first and if it exits provide an option to use
-  # system package
-  if(DEFINED version)
-    find_package(${UC_PACKAGE} ${VERSION} QUIET)
-  else()
-    find_package(${UC_PACKAGE} QUIET)
-  endif()
-
-  if(${UC_PACKAGE}_FOUND)
-    option(CDAT_USE_SYSTEM_${UC_PACKAGE} "Use system installed ${LC_PACKAGE}" OFF)
-  else()
-    mark_as_advanced(${UC_PACKAGE}_DIR)
-  endif()
-
-  # Check if package is found, if not found or found but user prefers to use cdat package
-  # then use cdat package or else use system package
-  if((DEFINED CDAT_USE_SYSTEM_${UC_PACKAGE} AND NOT CDAT_USE_SYSTEM_${UC_PACKAGE}) OR ${UC_PACKAGE}_NOT_FOUND)
-    message("[INFO] ${UC_PACKAGE} will be build by the UVCDAT-superbuild")
-    list(APPEND external_packages External_${package})
-    set(${package}_dep ${package})
-  else()
-    if(CDAT_USE_SYSTEM_${UC_PACKAGE} AND ${UC_PACKAGE}_FOUND)
-      message("Debug removing")
-      unset(${package}_dep)
-      if(external_packages)
-        list(REMOVE_ITEM external_packages External_${package})
-      endif()
-
-      if(${UC_PACKAGE}_INCLUDE_DIR)
-        list(APPEND found_system_include_dirs ${${UC_PACKAGE}_INCLUDE_DIR})
-        message("[INFO] Including: ${UC_PACKAGE}_INCLUDE_DIR: ${${UC_PACKAGE}_INCLUDE_DIR}")
-      endif()
-
-      if(${UC_PACKAGE}_LIBRARY)
-        get_filename_component(lib_path ${${UC_PACKAGE}_LIBRARY} PATH)
-        list(APPEND found_system_libraries ${lib_path})
-        message("[INFO]  Linking: ${UC_PACKAGE}_LIBRARY: ${lib_path}")
-      endif()
-
-    endif() # use system package
-
-  endif()
-endmacro(add_cdat_package)
 
 find_package(Qt4 REQUIRED)
 # Do we download the data ?
@@ -512,13 +458,6 @@ if(CDAT_BUILD_VISIT)
   add_cdat_package(VisIt "")
 endif()
 
-
-# C. Doutriaux Turning off Vistrails build from within CDAT
-#option(CDAT_BUILD_VISTRAILS "Build VisTrails" OFF)
-#if(CDAT_BUILD_VISTRAILS)
-#  add_cdat_package(VisTrails)
-#endif()
-
 #-----------------------------------------------------------------------------
 # Construct Include and Link variables
 #-----------------------------------------------------------------------------
@@ -586,80 +525,82 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_configure_step.cmake.in
 #------------------------------------------------------------------------------
 # Establish Target Dependencies based on Selected Options and find results
 #------------------------------------------------------------------------------
-set(CDAT_DEPENDENCIES ${wget_dep} ${CMOR_dep} ${Python_dep} ${PyQt_dep} ${NUMPY_dep} ${Pmw_dep} ${jasper_dep} ${g2clib_dep} ${FFMPEG_dep} ${Qt_dep} ${pixman_dep} ${tiff_dep})
-set(CLAPACK_DEPENDENCIES ${pkgconfig_dep})
-set(CMOR_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${HDF5_dep} ${Cairo_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep} ${NetCDF_dep} ${zlib_dep} ${uuid_dep} ${udunits2_dep})
-set(CURL_DEPENDENCIES ${pkgconfig_dep} ${libXML2_dep} ${zlib_dep})
-set(Cairo_DEPENDENCIES ${pkgconfig_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep} ${libXML2_dep})
-set(Cython_DEPENDENCIES ${pkgconfig_dep} ${Python_dep})
-set(ESMF_DEPENDENCIES ${pkgconfig_dep} ${OPENMPI_dep})
-set(ESMP_DEPENDENCIES ${pkgconfig_dep} ${NUMPY_dep} ${Python_dep} ${ESMF_dep})
-set(FFMPEG_DEPENDENCIES ${pkgconfig_dep} ${YASM_dep})
-set(GEOS_DEPENDENCIES ${Matplotlib_dep})
-set(HDF4_DEPENDENCIES ${pkgconfig_dep} ${zlib_dep} ${jpeg_dep})
-set(HDF5_DEPENDENCIES ${pkgconfig_dep} ${libXML2_dep} ${libXSLT_dep} ${zlib_dep})
-set(IPYTHON_DEPENDENCIES ${setuptools_dep} ${ZMQ_dep} ${NUMPY_dep})
-set(LAPACK_DEPENDENCIES ${pkgconfig_dep})
-set(Matplotlib_DEPENDENCIES ${PyQt_dep} ${Cairo_dep} ${NUMPY_dep} )
-set(Mpi4py_DEPENDENCIES ${NUMPY_dep} ${OPENMPI_dep})
-set(MyProxyClient_DEPENDENCIES ${spyder_dep})
-set(NUMPY_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${CLAPACK_dep} ${LAPACK_dep})
-set(NetCDFPLUS_DEPENDENCIES ${NetCDF_dep})
-set(NetCDF_DEPENDENCIES ${pkgconfig_dep} ${HDF5_dep} ${CURL_dep} ${zlib_dep})
-set(Numexpr_DEPENDENCIES ${pkgconfig_dep} ${NUMPY_dep} ${setuptools_dep})
-set(OPENMPI_DEPENDENCIES ${pkgconfig_dep})
-set(PVFileDialog_DEPENDENCIES ${ParaView_dep} ${SIP_dep})
-set(ParaView_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${HDF5_dep} ${png_dep} ${jpeg_dep} ${libXML2_dep} ${Qt_dep} ${freetype_dep} ${NetCDFPLUS_dep} ${zlib_dep} ${R_dep})
-set(Pmw_DEPENDENCIES ${pkgconfig_dep} ${Python_dep})
-set(PyQt_DEPENDENCIES ${pkgconfig_dep} ${Qt_dep} ${SIP_dep})
-set(PyTables_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${Cython_dep} ${Numexpr_dep} ${HDF5_dep} ${libXML2_dep} ${libXSLT_dep} ${zlib_dep})
-set(Python_DEPENDENCIES ${pkgconfig_dep} ${termcap_dep} ${readline_dep} ${TclTk_dep} ${libXML2_dep} ${CURL_dep} ${zlib_dep} ${libXSLT_dep} ${png_dep} ${jpeg_dep} ${tiff_dep})
-set(Qt_DEPENDENCIES ${pkgconfig_dep} ${readline_dep} ${libXML2_dep} ${jpeg_dep} ${zlib_dep} ${png_dep} ${tiff_dep} ${fontconfig_dep} ${fontconfig_dep})
-set(R_DEPENDENCIES)
-set(SCIPY_DEPENDENCIES ${NUMPY_dep})
-set(SIP_DEPENDENCIES ${pkgconfig_dep} ${Python_dep})
-set(Shapely_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${GEOS_dep})
-set(Sphinx_DEPENDENCIES ${lepl_dep})
-set(TclTk_DEPENDENCIES ${pkgconfig_dep} ${libXML2_dep} ${libXSLT_dep} ${jpeg_dep} ${png_dep} ${tiff_dep})
-set(VTK_DEPENDENCIES ${pkgconfig_dep} ${zlib_deb} ${png_dep} ${jpeg_dep} ${xml_dep})
-set(VisIt_DEPENDENCIES  ${pkgconfig_dep} ${SIP_dep} ${PyQt_dep} ${ParaView_dep})
-set(YASM_DEPENDENCIES ${pkgconfig_dep})
-set(ZMQ_DEPENDENCIES)
-set(basemap_DEPENDENCIES ${GEOS_dep})
-set(fontconfig_DEPENDENCIES ${pkgconfig_dep} ${libXML2_dep} ${freetype_dep})
-set(freetype_DEPENDENCIES ${pkgconfig_dep} ${png_dep})
-set(g2clib_DEPENDENCIES ${pkgconfig_dep} ${png_dep} ${zlib_dep} ${jasper_dep})
-set(gdal_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${NetCDF_dep} ${HDF5_dep} ${CURL_dep} ${zlib_dep} ${jasper_dep} ${setuptools_dep})
-set(ghostscript_DEPENDENCIES ${pkgconfig_dep} ${zlib_dep} ${jpeg_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep} ${libXSLT_dep} ${libXML2_dep})
-set(gui_support_DEPENDENCIES ${CDAT_dep})
-set(jasper_DEPENDENCIES ${pkgconfig_dep} ${jpeg_dep} ${zlib_dep})
-set(jpeg_DEPENDENCIES ${pkgconfig_dep})
-set(lepl_DEPENDENCIES ${CDAT_dep} ${Numexpr_dep})
-set(libXML2_DEPENDENCIES ${pkgconfig_dep} ${readline_dep})
-set(libXSLT_DEPENDENCIES ${pkgconfig_dep} ${readline_dep} ${libXML2_dep})
-set(libcf_DEPENDENCIES ${pkgconfig_dep} ${Python_dep} ${NetCDF_dep} ${HDF5_dep} ${CURL_dep} ${zlib_dep})
-set(lxml_DEPENDENCIES ${Cython_dep} ${setuptools_dep})
-set(pixman_DEPENDENCIES ${pkgconfig_dep})
+set(CDAT_deps ${wget_dep} ${CMOR_dep} ${Python_dep} ${PyQt_dep} ${NUMPY_dep} ${Pmw_dep} ${jasper_dep} ${g2clib_dep} ${FFMPEG_dep} ${Qt_dep} ${pixman_dep} ${tiff_dep})
+set(CLAPACK_deps ${pkgconfig_dep})
+set(CMOR_deps ${pkgconfig_dep} ${Python_dep} ${HDF5_dep} ${Cairo_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep} ${NetCDF_dep} ${zlib_dep} ${uuid_dep} ${udunits2_dep})
+set(CURL_deps ${pkgconfig_dep} ${libXML2_dep} ${zlib_dep})
+set(Cairo_deps ${pkgconfig_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep} ${libXML2_dep})
+set(Cython_deps ${pkgconfig_dep} ${Python_dep})
+set(ESMF_deps ${pkgconfig_dep} ${OPENMPI_dep})
+set(ESMP_deps ${pkgconfig_dep} ${NUMPY_dep} ${Python_dep} ${ESMF_dep})
+set(FFMPEG_deps ${pkgconfig_dep} ${YASM_dep})
+set(GEOS_deps ${Matplotlib_dep})
+set(HDF4_deps ${pkgconfig_dep} ${zlib_dep} ${jpeg_dep})
+set(HDF5_deps ${pkgconfig_dep} ${libXML2_dep} ${libXSLT_dep} ${zlib_dep})
+set(IPYTHON_deps ${setuptools_dep} ${ZMQ_dep} ${NUMPY_dep})
+set(LAPACK_deps ${pkgconfig_dep})
+set(Matplotlib_deps ${PyQt_dep} ${Cairo_dep} ${NUMPY_dep} )
+set(Mpi4py_deps ${NUMPY_dep} ${OPENMPI_dep})
+set(MyProxyClient_deps ${spyder_dep})
+set(NUMPY_deps ${pkgconfig_dep} ${Python_dep} ${CLAPACK_dep} ${LAPACK_dep})
+set(NetCDFPLUS_deps ${NetCDF_dep})
+set(NetCDF_deps ${pkgconfig_dep} ${HDF5_dep} ${CURL_dep} ${zlib_dep})
+set(Numexpr_deps ${pkgconfig_dep} ${NUMPY_dep} ${setuptools_dep})
+set(OPENMPI_deps ${pkgconfig_dep})
+set(PVFileDialog_deps ${ParaView_dep} ${SIP_dep})
+set(ParaView_deps ${pkgconfig_dep} ${Python_dep} ${HDF5_dep} ${png_dep} ${jpeg_dep} ${libXML2_dep} ${Qt_dep} ${freetype_dep} ${NetCDFPLUS_dep} ${zlib_dep} ${R_dep})
+set(Pmw_deps ${pkgconfig_dep} ${Python_dep})
+set(PyQt_deps ${pkgconfig_dep} ${Qt_dep} ${SIP_dep})
+set(PyTables_deps ${pkgconfig_dep} ${Python_dep} ${Cython_dep} ${Numexpr_dep} ${HDF5_dep} ${libXML2_dep} ${libXSLT_dep} ${zlib_dep})
+set(Python_deps ${pkgconfig_dep} ${termcap_dep} ${readline_dep} ${TclTk_dep} ${libXML2_dep} ${CURL_dep} ${zlib_dep} ${libXSLT_dep} ${png_dep} ${jpeg_dep} ${tiff_dep})
+set(Qt_deps ${pkgconfig_dep} ${readline_dep} ${libXML2_dep} ${jpeg_dep} ${zlib_dep} ${png_dep} ${tiff_dep} ${fontconfig_dep} ${fontconfig_dep})
+set(R_deps)
+set(SCIPY_deps ${NUMPY_dep})
+set(SIP_deps ${pkgconfig_dep} ${Python_dep})
+set(Shapely_deps ${pkgconfig_dep} ${Python_dep} ${GEOS_dep})
+set(Sphinx_deps ${lepl_dep})
+set(TclTk_deps ${pkgconfig_dep} ${libXML2_dep} ${libXSLT_dep} ${jpeg_dep} ${png_dep} ${tiff_dep})
+set(VTK_deps ${pkgconfig_dep} ${zlib_deb} ${png_dep} ${jpeg_dep} ${xml_dep})
+set(VisIt_deps  ${pkgconfig_dep} ${SIP_dep} ${PyQt_dep} ${ParaView_dep})
+set(YASM_deps ${pkgconfig_dep})
+set(ZMQ_deps)
+set(basemap_deps ${GEOS_dep})
+set(fontconfig_deps ${pkgconfig_dep} ${libXML2_dep} ${freetype_dep})
+set(freetype_deps ${pkgconfig_dep} ${png_dep})
+set(g2clib_deps ${pkgconfig_dep} ${png_dep} ${zlib_dep} ${jasper_dep})
+set(gdal_deps ${pkgconfig_dep} ${Python_dep} ${NetCDF_dep} ${HDF5_dep} ${CURL_dep} ${zlib_dep} ${jasper_dep} ${setuptools_dep})
+set(ghostscript_deps ${pkgconfig_dep} ${zlib_dep} ${jpeg_dep} ${png_dep} ${fontconfig_dep} ${freetype_dep} ${pixman_dep} ${libXSLT_dep} ${libXML2_dep})
+set(gui_support_deps ${CDAT_dep})
+set(jasper_deps ${pkgconfig_dep} ${jpeg_dep} ${zlib_dep})
+set(jpeg_deps ${pkgconfig_dep})
+set(lepl_deps ${CDAT_dep} ${Numexpr_dep})
+set(libXML2_deps ${pkgconfig_dep} ${readline_dep})
+set(libXSLT_deps ${pkgconfig_dep} ${readline_dep} ${libXML2_dep})
+set(libcf_deps ${pkgconfig_dep} ${Python_dep} ${NetCDF_dep} ${HDF5_dep} ${CURL_dep} ${zlib_dep})
+set(lxml_deps ${Cython_dep} ${setuptools_dep})
+set(pixman_deps ${pkgconfig_dep})
 set(pkgconfig_DEPDENCIES ${wget_dep})
-set(png_DEPENDENCIES ${pkgconfig_dep} ${zlib_dep})
-set(pyspharm_DEPENDENCIES ${NUMPY_dep})
-set(readline_DEPENDENCIES ${pkgconfig_dep} ${termcap_dep})
-set(scikits_DEPENDENCIES ${setuptools_dep} ${SCIPY_dep})
-set(setuptools_DEPENDENCIES ${pkgconfig_dep} ${Python_dep})
-set(spyder_DEPENDENCIES ${Sphinx_dep} ${PyQt_dep} )
-set(termcap_DEPENDENCIES ${pkgconfig_dep})
-set(tiff_DEPENDENCIES ${pkgconfig_dep} ${jpeg_dep} ${zlib_dep})
-set(udunits2_DEPENDENCIES ${pkgconfig_dep})
-set(uuid_DEPENDENCIES ${pkgconfig_dep})
-set(vistrails_DEPENDENCIES ${Python_dep})
-set(wget_DEPENDENCIES)
-set(zlib_DEPENDENCIES ${pkgconfig_dep})
+set(png_deps ${pkgconfig_dep} ${zlib_dep})
+set(pyspharm_deps ${NUMPY_dep})
+set(readline_deps ${pkgconfig_dep} ${termcap_dep})
+set(scikits_deps ${setuptools_dep} ${SCIPY_dep})
+set(setuptools_deps ${pkgconfig_dep} ${Python_dep})
+set(spyder_deps ${Sphinx_dep} ${PyQt_dep} )
+set(termcap_deps ${pkgconfig_dep})
+set(tiff_deps ${pkgconfig_dep} ${jpeg_dep} ${zlib_dep})
+set(udunits2_deps ${pkgconfig_dep})
+set(uuid_deps ${pkgconfig_dep})
+set(vistrails_deps ${Python_dep})
+set(wget_deps)
+set(zlib_deps ${pkgconfig_dep})
 
+# Sort external packages (less dependant to more)
 message("external_packages ", "${external_packages}") 
 list(REMOVE_DUPLICATES external_packages)
-foreach(package ${external_packages})
+sort_external_packages("${external_packages}")
+foreach(package ${sorted_external_packages})
   message("Building ${package}")
-  include(${package})
+  include("External_${package}")
 endforeach()
 
 #-----------------------------------------------------------------------------
