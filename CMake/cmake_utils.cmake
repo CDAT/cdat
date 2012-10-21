@@ -1,15 +1,6 @@
 
 cmake_minimum_required(VERSION 2.8.7)
 
-#set(a_deps c)
-#set(b_deps c)
-#set(c_deps)
-
-#set(a_parents)
-#set(a_children)
-#set(b_parents)
-#set(b_children)
-
 #
 # Usage: add_cdat_package(package_name version_string) 
 macro (add_cdat_package package)
@@ -42,11 +33,11 @@ macro (add_cdat_package package)
   if(NOT CDAT_USE_SYSTEM_${UC_PACKAGE})
     message("[INFO] ${UC_PACKAGE} will be build by the UVCDAT-superbuild")
     list(APPEND external_packages "${package}")
-    set(${package}_dep "${package}")
+    set(${package}_pkg "${package}")
   else()
     if(CDAT_USE_SYSTEM_${UC_PACKAGE} AND ${UC_PACKAGE}_FOUND)
       message("Debug removing")
-      unset(${package}_dep)
+      unset(${package}_pkg)
       if(external_packages)
         list(REMOVE_ITEM external_packages External_${package})
       endif()
@@ -126,13 +117,3 @@ macro(sort_external_packages packages)
     sort_external_package("${package}")
   endforeach()
 endmacro()
-
-
-#set(packages "a;b;c")
-
-sort_external_packages("${packages}")
-
-#message("a parents ${a_parents}")
-#message("a children ${a_children}")
-#message("b parents ${b_parents}")
-#message("b children ${b_children}")
