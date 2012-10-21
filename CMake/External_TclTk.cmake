@@ -19,7 +19,7 @@ ExternalProject_Add(${proj}
   CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR>/unix -DCONFIGURE_ARGS=${tcltk_configure_args} -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
   BUILD_COMMAND ${CMAKE_COMMAND} -Dmake=$(MAKE) -DWORKING_DIR=<SOURCE_DIR>/unix -P ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake
   INSTALL_COMMAND ${CMAKE_COMMAND} -DWORKING_DIR=<SOURCE_DIR>/unix -P ${cdat_CMAKE_BINARY_DIR}/cdat_install_step.cmake
-  DEPENDS ${TclTk_DEPENDENCIES}
+  DEPENDS ${TclTk_deps}
   ${EP_LOG_OPTIONS}
 )
 

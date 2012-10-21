@@ -8,7 +8,7 @@ ExternalProject_Add(vistrails
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
   INSTALL_COMMAND ${GIT_EXECUTABLE} clone -b ${VISTRAILS_TAG_POINT}  git://vistrails.org/vistrails.git
-  DEPENDS ${vistrails_DEPENDENCIES}
+  DEPENDS ${vistrails_deps}
   ${EP_LOG_OPTIONS}
   )
 

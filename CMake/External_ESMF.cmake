@@ -55,6 +55,6 @@ ExternalProject_Add(ESMF
   BUILD_COMMAND ${ESMF_build_command}
   INSTALL_COMMAND ${ESMF_install_command}
   INSTALL_COMMAND ${ESMP_install_command}
-  DEPENDS ${ESMF_DEPENDENCIES}
+  DEPENDS ${ESMF_deps}
   ${EP_LOG_OPTIONS}
 )

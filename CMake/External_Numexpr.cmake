@@ -12,7 +12,7 @@ ExternalProject_Add(Numexpr
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
   INSTALL_COMMAND ${EASY_INSTALL_BINARY} Numexpr==${NUMEXPR_VERSION}
-  DEPENDS ${Numexpr_DEPENDENCIES}
+  DEPENDS ${Numexpr_deps}
   ${EP_LOG_OPTIONS}
   )
 

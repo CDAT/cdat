@@ -58,7 +58,7 @@ ExternalProject_Add(Qt
   SOURCE_DIR ${qt_source}
   BUILD_IN_SOURCE 1
   CONFIGURE_COMMAND ${qt_configure}
-  DEPENDS ${Qt_DEPENDENCIES}
+  DEPENDS ${Qt_deps}
   )
 
 set(QT_QMAKE_EXECUTABLE "${qt_install_dir}/bin/qmake"

@@ -22,7 +22,7 @@ ExternalProject_Add(FFMPEG
   PATCH_COMMAND ""
   CONFIGURE_COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/ffmpeg_configure_step.cmake
   BUILD_COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/ffmpeg_build_step.cmake
-  DEPENDS ${FFMPEG_DEPENDENCIES}
+  DEPENDS ${FFMPEG_deps}
   ${EP_LOG_OPTIONS}
   )
 

@@ -12,6 +12,6 @@ ExternalProject_Add(Cython
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ${PYTHON_EXECUTABLE} setup.py build
   INSTALL_COMMAND ${PYTHON_EXECUTABLE} setup.py install ${PYTHON_EXTRA_PREFIX}
-  DEPENDS ${Cython_DEPENDENCIES}
+  DEPENDS ${Cython_deps}
   ${EP_LOG_OPTIONS}
   )

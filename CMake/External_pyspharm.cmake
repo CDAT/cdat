@@ -11,6 +11,6 @@ ExternalProject_Add(pyspharm
   CONFIGURE_COMMAND ""
   BUILD_COMMAND env PYTHONPATH=$ENV{PYTHONPATH} ${PYTHON_EXECUTABLE} setup.py build 
   INSTALL_COMMAND env PYTHONPATH=$ENV{PYTHONPATH} ${PYTHON_EXECUTABLE} setup.py install 
-  DEPENDS ${pyspharm_DEPENDENCIES}
+  DEPENDS ${pyspharm_deps}
   ${EP_LOG_OPTIONS}
   )

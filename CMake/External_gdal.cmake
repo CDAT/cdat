@@ -11,6 +11,6 @@ ExternalProject_Add(gdal
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
   CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR> --with-python
-  DEPENDS "${gdal_DEPENDENCIES}"
+  DEPENDS "${gdal_deps}"
   ${EP_LOG_OPTIONS}
 )

@@ -10,6 +10,6 @@ ExternalProject_Add(spyder
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
   INSTALL_COMMAND ${EASY_INSTALL_BINARY} spyder
-  DEPENDS ${spyder_DEPENDENCIES}
+  DEPENDS ${spyder_deps}
   ${EP_LOG_OPTIONS}
   )

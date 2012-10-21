@@ -24,6 +24,6 @@ ExternalProject_Add(libcf
   PATCH_COMMAND ""
   BUILD_COMMAND ${libcf_build_command}
   INSTALL_COMMAND ${libcf_install_command}
-  DEPENDS ${libcf_DEPENDENCIES}
+  DEPENDS ${libcf_deps}
   ${EP_LOG_OPTIONS}
 )

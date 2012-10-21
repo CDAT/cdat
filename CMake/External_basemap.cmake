@@ -34,6 +34,6 @@ ExternalProject_Add(basemap
   UPDATE_COMMAND ""
   INSTALL_COMMAND ${basemap_INSTALL_COMMAND}
   DEPENDS 
-    ${basemap_DEPENDENCIES}
+    ${basemap_deps}
   ${EP_LOG_OPTIONS}
   )

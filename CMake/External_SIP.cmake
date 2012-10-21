@@ -9,7 +9,7 @@ ExternalProject_Add(SIP
   SOURCE_DIR ${cdat_BINARY_DIR}/build/SIP
   BUILD_IN_SOURCE 1
   CONFIGURE_COMMAND ${SIP_configure_command}
-  DEPENDS ${SIP_DEPENDENCIES}
+  DEPENDS ${SIP_deps}
   ${EP_LOG_OPTIONS}
   )
 

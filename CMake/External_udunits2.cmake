@@ -11,7 +11,7 @@ ExternalProject_Add(udunits2
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
   CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
-  DEPENDS ${udunits2_DEPENDENCIES}
+  DEPENDS ${udunits2_deps}
   ${EP_LOG_OPTIONS}
 )
 

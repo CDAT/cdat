@@ -10,6 +10,6 @@ ExternalProject_Add(lepl
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
   INSTALL_COMMAND ${EASY_INSTALL_BINARY} lepl
-  DEPENDS ${lepl_DEPENDENCIES}
+  DEPENDS ${lepl_deps}
   ${EP_LOG_OPTIONS}
   )

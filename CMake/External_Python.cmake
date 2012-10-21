@@ -49,7 +49,7 @@ set(proj Python)
     CONFIGURE_COMMAND ${python_CONFIGURE_COMMAND}
     BUILD_COMMAND ${python_BUILD_COMMAND}
     INSTALL_COMMAND ${python_INSTALL_COMMAND}
-    DEPENDS ${Python_DEPENDENCIES}
+    DEPENDS ${Python_deps}
     ${EP_LOG_OPTIONS}
     )
 

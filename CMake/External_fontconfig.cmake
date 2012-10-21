@@ -12,6 +12,6 @@ ExternalProject_Add(fontconfig
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
   CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -DCONFIGURE_ARGS=--disable-docs^^--enable-libxml2 -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
-  DEPENDS ${fontconfig_DEPENDENCIES}
+  DEPENDS ${fontconfig_deps}
   ${EP_LOG_OPTIONS}
 )

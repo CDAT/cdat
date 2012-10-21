@@ -9,7 +9,7 @@ ExternalProject_Add(Sphinx
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
   INSTALL_COMMAND ${EASY_INSTALL_BINARY} Sphinx
-  DEPENDS ${Sphinx_DEPENDENCIES}
+  DEPENDS ${Sphinx_deps}
   ${EP_LOG_OPTIONS}
   )
 

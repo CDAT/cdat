@@ -29,7 +29,7 @@ ExternalProject_Add(Mpi4py
   UPDATE_COMMAND ""
   INSTALL_COMMAND ${mpi4py_INSTALL_COMMAND}
   DEPENDS 
-    ${Mpi4py_DEPENDENCIES}
+    ${Mpi4py_deps}
   ${EP_LOG_OPTIONS}
   )
 
@@ -45,6 +45,6 @@ ExternalProject_Add(Mpi4py
 #  CONFIGURE_COMMAND ""
 #  BUILD_COMMAND ${PYTHON_EXECUTABLE} setup.py build
 #  INSTALL_COMMAND ${PYTHON_EXECUTABLE} setup.py install ${PYTHON_EXTRA_PREFIX}
-#  DEPENDS ${Mpi4py_DEPENDENCIES}
+#  DEPENDS ${Mpi4py_deps}
 #  ${EP_LOG_OPTIONS}
 #  )

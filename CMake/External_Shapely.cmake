@@ -12,6 +12,6 @@ ExternalProject_Add(Shapely
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ${PYTHON_EXECUTABLE} setup.py build
   INSTALL_COMMAND ${PYTHON_EXECUTABLE} setup.py install ${PYTHON_EXTRA_PREFIX}
-  DEPENDS ${Shapely_DEPENDENCIES}
+  DEPENDS ${Shapely_deps}
   ${EP_LOG_OPTIONS}
   )

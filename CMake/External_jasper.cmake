@@ -15,6 +15,6 @@ ExternalProject_Add(jasper
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
   CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/jasper_configure_step.cmake
-  DEPENDS ${jasper_DEPENDENCIES}
+  DEPENDS ${jasper_deps}
   ${EP_LOG_OPTIONS}
 )

@@ -10,6 +10,6 @@ ExternalProject_Add(MyProxyClient
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
   INSTALL_COMMAND ${EASY_INSTALL_BINARY} MyProxyClient
-  DEPENDS ${MyProxyClient_DEPENDENCIES}
+  DEPENDS ${MyProxyClient_deps}
   ${EP_LOG_OPTIONS}
   )

@@ -102,7 +102,7 @@ ExternalProject_Add(ParaView
     -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
   BUILD_COMMAND ${CMAKE_COMMAND} -DWORKING_DIR=<BINARY_DIR> -Dmake=$(MAKE) -P ${cdat_CMAKE_BINARY_DIR}/cdat_cmake_make_step.cmake
   INSTALL_COMMAND ${ParaView_install_command}
-  DEPENDS ${ParaView_DEPENDENCIES}
+  DEPENDS ${ParaView_deps}
   ${EP_LOG_OPTIONS}
 )
 

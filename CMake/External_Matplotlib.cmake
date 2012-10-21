@@ -12,6 +12,6 @@ ExternalProject_Add(Matplotlib
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ${PYTHON_EXECUTABLE} setup.py build
   INSTALL_COMMAND ${PYTHON_EXECUTABLE} setup.py install ${PYTHON_EXTRA_PREFIX}
-  DEPENDS ${Matplotlib_DEPENDENCIES}
+  DEPENDS ${Matplotlib_deps}
   ${EP_LOG_OPTIONS}
   )

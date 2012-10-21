@@ -45,6 +45,6 @@ ExternalProject_Add(CDAT
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
   INSTALL_COMMAND ${CMAKE_COMMAND} -DPYTHON_INSTALL_ARGS=${qt_flags} -P ${cdat_CMAKE_BINARY_DIR}/cdat_python_install_step.cmake
-  DEPENDS ${CDAT_DEPENDENCIES}
+  DEPENDS ${CDAT_deps}
 )
 

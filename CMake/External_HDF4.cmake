@@ -17,7 +17,7 @@ ExternalProject_Add(HDF4
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
   CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -DCONFIGURE_ARGS=${hdf4_configure_args} -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
-  DEPENDS ${HDF4_DEPENDENCIES}
+  DEPENDS ${HDF4_deps}
 )
 
 set(HDF4_DIR "${HDF4_binary}" CACHE PATH "HDF4 binary directory" FORCE)

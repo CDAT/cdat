@@ -26,6 +26,6 @@ ExternalProject_Add(pvfiledialog
   CMAKE_ARGS
     -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
   INSTALL_COMMAND ${PVFileDialog_install_command}
-  DEPENDS ${PVFileDialog_DEPENDENCIES}
+  DEPENDS ${PVFileDialog_deps}
   ${EP_LOG_OPTIONS}
 )

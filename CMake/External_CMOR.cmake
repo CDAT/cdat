@@ -13,6 +13,6 @@ ExternalProject_Add(CMOR
   CONFIGURE_COMMAND sh configure --prefix=<INSTALL_DIR> ${cmor_configure_args}
   BUILD_COMMAND ""
   INSTALL_COMMAND ""
-  DEPENDS ${CMOR_DEPENDENCIES}
+  DEPENDS ${CMOR_deps}
   ${EP_LOG_OPTIONS}
 )
