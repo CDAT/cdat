@@ -31,15 +31,15 @@ macro (add_cdat_package package)
     find_package(${UC_PACKAGE} QUIET)
   endif()
 
-  if(${UC_PACKAGE}_FOUND)
-    option(CDAT_USE_SYSTEM_${UC_PACKAGE} "Use system installed ${LC_PACKAGE}" OFF)
-  else()
+  option(CDAT_USE_SYSTEM_${UC_PACKAGE} "Use system installed ${LC_PACKAGE}" OFF)
+  if(NOT ${UC_PACKAGE}_FOUND)
     mark_as_advanced(${UC_PACKAGE}_DIR)
+    mark_as_advanced(CDAT_USE_SYSTEM_${UC_PACKAGE})
   endif()
 
   # Check if package is found, if not found or found but user prefers to use cdat package
   # then use cdat package or else use system package
-  if((DEFINED CDAT_USE_SYSTEM_${UC_PACKAGE} AND NOT CDAT_USE_SYSTEM_${UC_PACKAGE}) OR ${UC_PACKAGE}_NOT_FOUND)
+  if(NOT CDAT_USE_SYSTEM_${UC_PACKAGE})
     message("[INFO] ${UC_PACKAGE} will be build by the UVCDAT-superbuild")
     list(APPEND external_packages "${package}")
     set(${package}_dep "${package}")
@@ -78,7 +78,7 @@ function(check_for_cycle node ancestors visited)
 
     list(LENGTH "${parent}_parents" no_of_parents)
     if(${no_of_parents} EQUAL 0)
-      message("[INFO] No cycle found for ${visited};${parent}")
+      #message("[INFO] No cycle found for ${visited};${parent}")
     else()
       list(APPEND visited "${parent}")
     endif()
