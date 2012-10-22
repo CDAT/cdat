@@ -24,3 +24,4 @@ endif
 setenv VISITPLUGINDIR "@CMAKE_INSTALL_PREFIX@/lib/VisIt-@VISIT_VERSION@-plugins"
 setenv R_HOME "@cdat_EXTERNALS@/lib/R"
 
+setenv LIBOVERLAY_SCROLLBAR 0
