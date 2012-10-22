@@ -36,7 +36,7 @@ macro (add_cdat_package package)
     set(${package}_pkg "${package}")
   else()
     if(CDAT_USE_SYSTEM_${UC_PACKAGE} AND ${UC_PACKAGE}_FOUND)
-      message("Debug removing")
+      message("[INFO] Removing external package ${package}")
       unset(${package}_pkg)
       if(external_packages)
         list(REMOVE_ITEM external_packages External_${package})
@@ -59,43 +59,59 @@ macro (add_cdat_package package)
 endmacro(add_cdat_package)
 
 # Check for cycle
-function(check_for_cycle node ancestors visited)
+function(check_for_cycle node ancestors visited acyclic_packages)
   foreach(parent ${ancestors})
     set(currently_visited "${visited}")
+
+    # Check if we already have this parent checked for acyclic condition
+    list(FIND acyclic_packages "${parent}" result)
+    if(${result} EQUAL -1)
+      list(APPEND acyclic_packages "${parent}")
+    endif()
+
     list(FIND visited "${parent}" result)
     if(NOT ${result} EQUAL -1)
       message(FATAL_ERROR "[ERROR] Cycle found when visiting ${parent}")
     endif()
 
     list(LENGTH "${parent}_parents" no_of_parents)
-    if(${no_of_parents} EQUAL 0)
-      #message("[INFO] No cycle found for ${visited};${parent}")
-    else()
+    if(NOT ${no_of_parents} EQUAL 0)
       list(APPEND visited "${parent}")
     endif()
-    check_for_cycle(${node} "${${parent}_parents}" "${visited}")
+    check_for_cycle(${node} "${${parent}_parents}" "${visited}" "${acyclic_packages}")
     set(visited "${currently_visited}")
   endforeach()
+  set(acyclic_packages "${acyclic_packages}" PARENT_SCOPE)
 endfunction()
 
 # Include external package
 macro(sort_external_package package)
   set(visited ${package})
 
-  # FIXME: In-efficient algorithm to find cycles
-  check_for_cycle(${package} "${${package}_parents}" "${visited}")
-  
+  if(NOT DEFINED acyclic_packages)
+    set(acyclic_packages)
+  endif()
+
+  list(FIND acyclic_packages "${package}" result)
+  if(${result} EQUAL -1)
+    check_for_cycle(${package} "${${package}_parents}" "${visited}" "${acyclic_packages}")
+    list(APPEND acyclic_packages "${package}")
+  endif()
+
   set(visited)
 
+  # Sort parents (or add parents first)
   foreach(parent ${${package}_parents})
     sort_external_package("${parent}")
   endforeach()
-  
+ 
+  # Now add the pacakge to the sorted or ordered list 
   list(FIND sorted_external_packages "${package}" result)
   if(${result} EQUAL -1)
     list(APPEND sorted_external_packages "${package}")
     message("[INFO] Adding ${package}")
   endif()
+
 endmacro()
 
 # Create graph nodes so that we can include external packages in
