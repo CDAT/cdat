@@ -589,7 +589,8 @@ endif()
 add_cdat_package(vistrails)
 add_cdat_package(lepl)
 add_cdat_package(Sphinx)
-add_cdat_package(lxml)
+#Comemnting out because file cant seem to download!
+#add_cdat_package(lxml)
 add_cdat_package(spyder)
 add_cdat_package(MyProxyClient)
 
@@ -744,7 +745,7 @@ set(lepl_DEPENDENCIES ${CDAT_dep} ${Numexpr_dep})
 set(Sphinx_DEPENDENCIES ${lepl_dep})
 set(spyder_DEPENDENCIES ${Sphinx_dep} ${PyQt_dep} )
 set(MyProxyClient_DEPENDENCIES ${spyder_dep})
-set(lxml_DEPENDENCIES ${Cython_dep} ${setuptools_dep})
+#set(lxml_DEPENDENCIES ${Cython_dep} ${setuptools_dep})
 set(vistrails_DEPENDENCIES ${Python_dep})
 set(scikits_DEPENDENCIES ${setuptools_dep} ${SCIPY_dep})
 # Added by Aashish @ Kitware Inc
