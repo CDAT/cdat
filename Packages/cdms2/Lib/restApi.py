@@ -104,12 +104,14 @@ class esgfConnection(object,AutoAPI.AutoAPI):
             search=search[1:]
         rqst = "%s/?type=%s&%s" % (self.restPath,searchType,search)
         print "REQUEST: %s%s" % (self.host,rqst)
-        if self.host.find("://")>-1:
+        myhost=str(self.host)
+        myport=str(self.port)
+        if myhost.find("://")>-1:
             urltype=""
         else:
             urltype="http://"
         try:
-            rqst="%s%s:%s/%s" % (urltype,self.host,self.port,rqst)
+            rqst="%s%s:%s/%s" % (urltype,myhost,myport,rqst)
             tmp=rqst[6:].replace("//","/")
             rqst=rqst[:6]+tmp
             #print "Request:%s"%rqst
@@ -282,7 +284,7 @@ class esgfDataset(esgfConnection):
         self.keys = self.params.keys
         self.items = self.params.items
         self.values = self.params.values
-        self.id=self["id"]
+        #self.id=self["id"]
         self.params["limit"]=limit
         self.params["offset"]=offset
         self.mapping=mapping
@@ -447,8 +449,9 @@ class esgfDataset(esgfConnection):
             if k in ["searchString","stringType",]:
                 continue
             st+="&%s=%s" % (k,keys[k])
-        if self.resp is None:
-            self.resp = self._search("dataset_id=%s%s" % (self["id"],st),stringType=stringType)
+        #if self.resp is None:
+            #self.resp = self._search("dataset_id=%s%s" % (self["id"],st),stringType=stringType)
+        self.resp = self._search(st,stringType=stringType)
         if stringType:
             return self.resp
         return esgfFiles(self._extractFiles(self.resp,**keys),self)
@@ -484,6 +487,7 @@ class esgfFiles(object,AutoAPI.AutoAPI):
             mapping=parent.mapping
         self.setMapping(mapping)
         self.remap()
+        self.projects_dict = {"CMIP5": "%(project).%(product).%(institute).%(model).%(experiment).%(time_frequency).%(realm).%(cmor_table).%(ensemble)" }
         
     def __getitem__(self,item):
         if isinstance(item,int):
@@ -517,7 +521,8 @@ class esgfFiles(object,AutoAPI.AutoAPI):
                 self.mapping=self.datasetids
             else:
                 for k in self.parent.keys():
-                    self.mapping+="%%(%s)" % k
+                    if not k in ["limit","offset","text"]:
+                        self.mapping+="%%(%s)" % k
         else:
             self.mapping=mapping
         #print "Stage 1 mapping:",self.mapping
@@ -525,46 +530,57 @@ class esgfFiles(object,AutoAPI.AutoAPI):
             if self.datasetids is not None:
                 self.mapping=self.mapping.replace("%(datasetid)",self.datasetids.template)
             self.mapping = genutil.StringConstructor(self.mapping)
-        #print "Stage 2:",self.mapping.template,self.keys()
+        #print "Stage 2:",self.mapping.template
 
-        vk = self.parent.keys()
-        for k in self.mapping.keys():
-            ok = False
-            if self.datasetids is not None:
-                vk += self.datasetids.keys()
-                if k in self.datasetids.keys():
-                    ok = True
-            if self.fileids is not None:
-                vk+=self.fileids.keys()
-                if k in self.fileids.keys():
-                    ok = True
-            if k in self.parent.keys():
-                ok=True
-            ## Ok second to last hope... Matching to datasetids
-            if isinstance(self.datasetids,genutil.StringConstructor) and ok is False:
-                try:
-                    mapid = self.datasetids.reverse(self.parent.id)
-                    vk+=mapid.keys()
-                    if k in mapid.keys():
-                        ok = True
+        ## vk = self.parent.keys()
+        ## for k in self.mapping.keys():
+        ##     ok = False
+        ##     if self.datasetids is not None:
+        ##         vk += self.datasetids.keys()
+        ##         if k in self.datasetids.keys():
+        ##             ok = True
+        ##     if self.fileids is not None:
+        ##         vk+=self.fileids.keys()
+        ##         if k in self.fileids.keys():
+        ##             ok = True
+        ##     if k in self.parent.keys():
+        ##         ok=True
+        ##     ## Ok second to last hope... Matching to datasetids
+        ##     if isinstance(self.datasetids,genutil.StringConstructor) and ok is False:
+        ##         try:
+        ##             mapid = self.datasetids.reverse(self.parent.id)
+        ##             vk+=mapid.keys()
+        ##             if k in mapid.keys():
+        ##                 ok = True
                         
-                except:
-                    #print "Couldn't map: %s to %s" % (self.parent.id,self.datasetids.template)
-                    pass
-            if ok is False:
-                vk = set(vk)
-                raise self.EsgfObjectException("Invalid mapping key: %s, valid keys are: %s" % (k,sorted(vk)))
+        ##         except:
+        ##             #print "Couldn't map: %s to %s" % (self.parent.id,self.datasetids.template)
+        ##             pass
+        ##     if ok is False:
+        ##         vk = set(vk)
+        ##         raise self.EsgfObjectException("Invalid mapping key: %s, valid keys are: %s" % (k,sorted(vk)))
             
     def remap(self,mapping=None,verbose=False):
         if mapping is None:
             thismapping = self.mapping
+        else:
+            thismapping = mapping
         self.mapped={}
+        savedmapping = thismapping
+        #print "Remap:",self.mapping.template
         ## if verbose: print "################ REMAPPING: %s: %s #############################" % (thismapping.template,repr(thismapping.keys()))
         for f in self._files:
             mappoint=self.mapped
             tabs=""
             nok=0
             nlevels = len(thismapping.keys())
+            #print "This mapping",thismapping.template,nlevels
+            if nlevels == 0:
+                ## ok no mapping, let's try to figure this one out
+                if 'dataset_id_template_' in f.keys():
+                    #print "We are good to go"
+                    ds = f['dataset_id_template_'].replace(")s",")")
+                    thismapping = genutil.StringConstructor(ds)
             for k in thismapping.keys():
                 ## if verbose: print tabs,"keys:",k,"File keys:",f.keys()
                 ## if k == self.mapping.keys()[0]:
