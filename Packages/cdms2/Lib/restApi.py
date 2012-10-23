@@ -621,6 +621,7 @@ class esgfFiles(object,AutoAPI.AutoAPI):
             tmp = mappoint.get("files",[])
             tmp.append(f)
             mappoint["files"] = tmp
+            thismapping = savedmapping
         ## if verbose: print "################ REMAPPED: %s #############################" % (thismapping,)
 
 class esgfFile(object,AutoAPI.AutoAPI):
