@@ -9,26 +9,22 @@ set(proj Python)
   configure_file(${cdat_CMAKE_SOURCE_DIR}/python_patch_step.cmake.in
     ${cdat_CMAKE_BINARY_DIR}/python_patch_step.cmake
     @ONLY)
-    
+
   configure_file(${cdat_CMAKE_SOURCE_DIR}/python_configure_step.cmake.in
     ${cdat_CMAKE_BINARY_DIR}/python_configure_step.cmake
     @ONLY)
-  
+
   configure_file(${cdat_CMAKE_SOURCE_DIR}/python_make_step.cmake.in
     ${cdat_CMAKE_BINARY_DIR}/python_make_step.cmake
     @ONLY)
-    
+
   configure_file(${cdat_CMAKE_SOURCE_DIR}/python_install_step.cmake.in
     ${cdat_CMAKE_BINARY_DIR}/python_install_step.cmake
     @ONLY)
 
-  set(python_PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${cdat_SOURCE_DIR}/pysrc/src/setup-${PYTHON_VERSION}.py ${python_SOURCE_DIR}/setup.py)
-  if(APPLE)
-    #set(library_param --enable-framework=${CMAKE_INSTALL_PREFIX}/Library/Frameworks)
-    #set(python_CONFIGURE_COMMAND unset MAKEFLAGS && env EXTERNALS=${cdat_EXTERNALS} MAC_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET} <SOURCE_DIR>/configure ${library_param} && make && make install)
-    #set(python_BUILD_COMMAND ${CMAKE_COMMAND} -E echo "Fake Python Build step")
-    #set(python_INSTALL_COMMAND ${CMAKE_COMMAND} -E echo "Fake Python Install step")
+  set(python_PATCH_COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/python_patch_step.cmake)
 
+ if(APPLE)
     set(python_CONFIGURE_COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/python_configure_step.cmake)
     set(python_BUILD_COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/python_make_step.cmake)
     set(python_INSTALL_COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/python_install_step.cmake)
@@ -37,7 +33,7 @@ set(proj Python)
     set(python_BUILD_COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/python_make_step.cmake)
     set(python_INSTALL_COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/python_install_step.cmake)
   endif()
-  
+
   ExternalProject_Add(${proj}
     URL ${PYTHON_URL}/${PYTHON_GZ}
     URL_MD5 ${PYTHON_MD5}
