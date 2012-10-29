@@ -65,7 +65,7 @@ ExternalProject_Add(ParaView
   SOURCE_DIR ${ParaView_source}
   BINARY_DIR ${ParaView_binary}
   INSTALL_DIR ${ParaView_install}
-  GIT_REPOSITORY https://github.com/aashish24/paraview-climate-3.11.1.git
+  GIT_REPOSITORY ${GIT_PROTOCOL}github.com/aashish24/paraview-climate-3.11.1.git
   GIT_TAG r_integration
   PATCH_COMMAND ""
   CMAKE_CACHE_ARGS
