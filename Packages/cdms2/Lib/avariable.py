@@ -983,6 +983,11 @@ class AbstractVariable(CdmsObj, Slab):
             regridTool = 'libcf'   
             regridMethod = 'linear'
 
+            if self.getAxis(-1).attributes.has_key('topology'):
+                if self.getAxis(-1).attributes['topology'] == 'circular':
+                    keywords['periodicity'] = 1 # for the ESMF regridders
+                    keywords['mkCyclic'] = 1    # for LibCF regridder
+
             # check if there are bounds
             if fromgrid.getBounds() is not None:
                 regridTool = 'esmf'

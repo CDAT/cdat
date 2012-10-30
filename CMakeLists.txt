@@ -530,7 +530,6 @@ add_cdat_package(CDAT)
 add_cdat_package(gui_support)
 add_cdat_package(R)
 
-add_cdat_package(scikits)
 
 # Earth System Modelling Framework and the Python wrapper.
 # Added by Dave Kindig Tech-X Corp. kindig@txcorp.com
@@ -747,9 +746,10 @@ set(spyder_DEPENDENCIES ${Sphinx_dep} ${PyQt_dep} )
 set(MyProxyClient_DEPENDENCIES ${spyder_dep})
 #set(lxml_DEPENDENCIES ${Cython_dep} ${setuptools_dep})
 set(vistrails_DEPENDENCIES ${Python_dep})
-set(scikits_DEPENDENCIES ${setuptools_dep} ${SCIPY_dep})
+
 # Added by Aashish @ Kitware Inc
 set(PVFileDialog_DEPENDENCIES ${ParaView_dep} ${SIP_dep})
+
 list(REMOVE_DUPLICATES external_packages)
 foreach(package ${external_packages})
   message("Building ${package}")
