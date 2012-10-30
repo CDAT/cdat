@@ -57,7 +57,7 @@
 #    )
 # The *_DIR options specify directories for the project, with default
 # directories computed as follows.
-# If the PREFIX option is given to ExternalProject_Add() or the EP_PREFIX
+# If the PREFIX option is given to ExternalProject_Add() or the ep_prefix
 # directory property is set, then an external project is built and installed
 # under the specified prefix:
 #   TMP_DIR      = <prefix>/tmp
@@ -74,7 +74,7 @@
 #   SOURCE_DIR   = <base>/Source/<name>
 #   BINARY_DIR   = <base>/Build/<name>
 #   INSTALL_DIR  = <base>/Install/<name>
-# If no PREFIX, EP_PREFIX, or EP_BASE is specified then the default
+# If no PREFIX, ep_prefix, or EP_BASE is specified then the default
 # is to set PREFIX to "<name>-prefix".
 # Relative paths are interpreted with respect to the build directory
 # corresponding to the source directory in which ExternalProject_Add is
@@ -236,7 +236,7 @@ define_property(DIRECTORY PROPERTY "EP_BASE" INHERITED
   "ExternalProject module."
   )
 
-define_property(DIRECTORY PROPERTY "EP_PREFIX" INHERITED
+define_property(DIRECTORY PROPERTY "ep_prefix" INHERITED
   BRIEF_DOCS "Top prefix for External Project storage."
   FULL_DOCS
   "See documentation of the ExternalProject_Add() function in the "
@@ -487,9 +487,9 @@ endfunction(_ep_write_extractfile_script)
 
 
 function(_ep_set_directories name)
-  get_property(prefix TARGET ${name} PROPERTY _EP_PREFIX)
+  get_property(prefix TARGET ${name} PROPERTY _ep_prefix)
   if(NOT prefix)
-    get_property(prefix DIRECTORY PROPERTY EP_PREFIX)
+    get_property(prefix DIRECTORY PROPERTY ep_prefix)
     if(NOT prefix)
       get_property(base DIRECTORY PROPERTY EP_BASE)
       if(NOT base)

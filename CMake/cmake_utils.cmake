@@ -1,135 +1,84 @@
+cmake_minimum_required(VERSION 2.8.8)
 
-cmake_minimum_required(VERSION 2.8.7)
+# Usage: add_cdat_package(package_name version_string optional default)
+#-----------------------------------------------------------------------------
+macro (add_cdat_package package_name version_string msg default)
+  string(TOUPPER ${package_name} uc_package)
+  string(TOLOWER ${package_name} lc_package)
+  set(version)
+  set(message)
+  set(option_default)
 
-#
-# Usage: add_cdat_package(package_name version_string) 
-macro (add_cdat_package package)
-  string(TOUPPER ${package} UC_PACKAGE)
-  string(TOLOWER ${package} LC_PACKAGE)
-  set(VERSION)
+  # ARGV1 will be the version string
+  if(NOT "" STREQUAL "${version_string}")
+    set(version "${version_string}")
+    message("[INFO] version ${version} of ${uc_package} is required by UVCDAT")
+  endif()
 
-  # ARGV1 will be the version string	
-  if(NOT "" STREQUAL "${ARGV1}")
-    set(VERSION "${ARGV1}")
-    message("[INFO] Version ${VERSION} of ${UC_PACKAGE} is required by UVCDAT") 
-  endif()	  
+  # ARGV2 (true = 1 or false != 1)
+  if(NOT "" STREQUAL "${msg}")
+    set(message "${msg}")
+  endif()
+
+  # ARGV3 (ON / OFF)
+  if(NOT "" STREQUAL "${default}")
+    set(option_default "${default}")
+    message("[INFO] ${uc_package} is optional")
+  endif()
 
   # Find system package first and if it exits provide an option to use
   # system package
   if(DEFINED version)
-    find_package(${UC_PACKAGE} ${VERSION} QUIET)
+    find_package(${package_name} ${version} QUIET)
   else()
-    find_package(${UC_PACKAGE} QUIET)
+    find_package(${package_name} QUIET)
   endif()
 
-  option(CDAT_USE_SYSTEM_${UC_PACKAGE} "Use system installed ${LC_PACKAGE}" OFF)
-  if(NOT ${UC_PACKAGE}_FOUND)
-    mark_as_advanced(${UC_PACKAGE}_DIR)
-    mark_as_advanced(CDAT_USE_SYSTEM_${UC_PACKAGE})
+  # Check if package is optional, and if yes populate the GUI appropriately
+  if(DEFINED isoptional AND "${isoptional}" STREQUAL "TRUE")
+    option(CDAT_BUILD_${uc_package} ${message} ${option_default})
+  endif()
+
+  option(CDAT_USE_SYSTEM_${uc_package} "Use system installed ${lc_package}" OFF)
+  if(NOT ${uc_package}_FOUND)
+    mark_as_advanced(${uc_package}_DIR)
+    mark_as_advanced(CDAT_USE_SYSTEM_${uc_package})
   endif()
 
   # Check if package is found, if not found or found but user prefers to use cdat package
   # then use cdat package or else use system package
-  if(NOT CDAT_USE_SYSTEM_${UC_PACKAGE})
-    message("[INFO] ${UC_PACKAGE} will be build by the UVCDAT-superbuild")
-    list(APPEND external_packages "${package}")
-    set(${package}_pkg "${package}")
+  if(NOT CDAT_USE_SYSTEM_${uc_package})
+    if(DEFINED CDAT_BUILD_${uc_package} AND CDAT_BUILD_${uc_package})
+      message("[INFO] ${uc_package} will be build by the UVCDAT-superbuild")
+      list(APPEND external_packages "${package_name}")
+      message("external_packages are: ${external_packages}")
+      set(${lc_package}_pkg "${package}")
+    endif()
+    if(NOT DEFINED CDAT_BUILD_${uc_package})
+      message("[INFO] ${uc_package} will be build by the UVCDAT-superbuild")
+      list(APPEND external_packages "${package_name}")
+      set(${lc_package}_pkg "${package_name}")
+    endif()
   else()
-    if(CDAT_USE_SYSTEM_${UC_PACKAGE} AND ${UC_PACKAGE}_FOUND)
-      message("[INFO] Removing external package ${package}")
-      unset(${package}_pkg)
+    if(CDAT_USE_SYSTEM_${uc_package} AND ${uc_package}_FOUND)
+      message("[INFO] Removing external package ${package_name}")
+      unset(${lc_package}_pkg)
       if(external_packages)
-        list(REMOVE_ITEM external_packages External_${package})
+        list(REMOVE_ITEM external_packages ${package_name})
       endif()
 
-      if(${UC_PACKAGE}_INCLUDE_DIR)
-        list(APPEND found_system_include_dirs ${${UC_PACKAGE}_INCLUDE_DIR})
-        message("[INFO] Including: ${UC_PACKAGE}_INCLUDE_DIR: ${${UC_PACKAGE}_INCLUDE_DIR}")
+      if(${uc_package}_INCLUDE_DIR)
+        list(APPEND found_system_include_dirs ${${uc_package}_INCLUDE_DIR})
+        message("[INFO] Including: ${uc_package}_INCLUDE_DIR: ${${uc_package}_INCLUDE_DIR}")
       endif()
 
-      if(${UC_PACKAGE}_LIBRARY)
-        get_filename_component(lib_path ${${UC_PACKAGE}_LIBRARY} PATH)
+      if(${uc_package}_LIBRARY)
+        get_filename_component(lib_path ${${uc_package}_LIBRARY} PATH)
         list(APPEND found_system_libraries ${lib_path})
-        message("[INFO]  Linking: ${UC_PACKAGE}_LIBRARY: ${lib_path}")
+        message("[INFO]  Linking: ${uc_package}_LIBRARY: ${lib_path}")
       endif()
 
     endif() # use system package
 
   endif()
-endmacro(add_cdat_package)
-
-# Check for cycle
-function(check_for_cycle node ancestors visited acyclic_packages)
-  foreach(parent ${ancestors})
-    set(currently_visited "${visited}")
-
-    # Check if we already have this parent checked for acyclic condition
-    list(FIND acyclic_packages "${parent}" result)
-    if(${result} EQUAL -1)
-      list(APPEND acyclic_packages "${parent}")
-    endif()
-
-    list(FIND visited "${parent}" result)
-    if(NOT ${result} EQUAL -1)
-      message(FATAL_ERROR "[ERROR] Cycle found when visiting ${parent}")
-    endif()
-
-    list(LENGTH "${parent}_parents" no_of_parents)
-    if(NOT ${no_of_parents} EQUAL 0)
-      list(APPEND visited "${parent}")
-    endif()
-    check_for_cycle(${node} "${${parent}_parents}" "${visited}" "${acyclic_packages}")
-    set(visited "${currently_visited}")
-  endforeach()
-  set(acyclic_packages "${acyclic_packages}" PARENT_SCOPE)
-endfunction()
-
-# Include external package
-macro(sort_external_package package)
-  set(visited ${package})
-
-  if(NOT DEFINED acyclic_packages)
-    set(acyclic_packages)
-  endif()
-
-  list(FIND acyclic_packages "${package}" result)
-  if(${result} EQUAL -1)
-    check_for_cycle(${package} "${${package}_parents}" "${visited}" "${acyclic_packages}")
-    list(APPEND acyclic_packages "${package}")
-  endif()
-
-  set(visited)
-
-  # Sort parents (or add parents first)
-  foreach(parent ${${package}_parents})
-    sort_external_package("${parent}")
-  endforeach()
- 
-  # Now add the pacakge to the sorted or ordered list 
-  list(FIND sorted_external_packages "${package}" result)
-  if(${result} EQUAL -1)
-    list(APPEND sorted_external_packages "${package}")
-    message("[INFO] Adding ${package}")
-  endif()
-
-endmacro()
-
-# Create graph nodes so that we can include external packages in
-# proper order (less dependent to more) and check for cycles
-macro(create_graph_node package)
-  foreach(dep ${${package}_deps})
-    list(APPEND ${package}_parents ${dep})
-    list(APPEND ${dep}_children ${package})
-  endforeach()
-endmacro()
-
-# Perform operation
-macro(sort_external_packages packages)
-  foreach(package ${packages})
-    create_graph_node("${package}")
-  endforeach()
-
-  foreach(package ${packages})
-    sort_external_package("${package}")
-  endforeach()
 endmacro()
