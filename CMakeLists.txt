@@ -30,6 +30,9 @@ set(CMAKE_MODULE_PATH
   ${CMAKE_MODULE_PATH}
   )
 
+#allow cmake to help create regression tests
+include(CTest)
+
 #-----------------------------------------------------------------------------
 # CDAT version
 #------------------------------------------------------------------------------
@@ -779,3 +782,4 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/setup_cdat.csh.in
 configure_file(${cdat_CMAKE_SOURCE_DIR}/uvcdat.in
   ${CMAKE_INSTALL_PREFIX}/bin/uvcdat
   @ONLY)
+
