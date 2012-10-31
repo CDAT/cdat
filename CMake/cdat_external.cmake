@@ -37,6 +37,8 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_python_install_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/cdat_python_install_step.cmake
   @ONLY)
 
+message("CDAT_deps are ${CDAT_deps}")
+
 ExternalProject_Add(CDAT
   DOWNLOAD_DIR ""
   SOURCE_DIR ${cdat_SOURCE_DIR}

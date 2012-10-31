@@ -1,2 +1,10 @@
+set(PYSPHARM_MAJOR 1)
+set(PYSPHARM_MINOR 0)
+set(PYSPHARM_PATCH 7)
+set(PYSPHARM_VERSION ${PYSPHARM_MAJOR}.${PYSPHARM_MINOR}.${PYSPHARM_PATCH})
+set(PYSPHARM_URL ${LLNL_URL})
+set(PYSPHARM_GZ pyspharm-${PYSPHARM_VERSION}.tar.gz)
+set(PYSPHARM_MD5 e19897ec64d9e861ef6b93bf649a433c)
+
 add_cdat_package(pyspharm "" "" "" "")
 set(pyspharm_deps ${numpy_pkg})

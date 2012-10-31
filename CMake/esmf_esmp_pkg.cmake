@@ -1,3 +1,11 @@
+set(ESMF_MAJOR 5)
+set(ESMF_MINOR 3)
+set(ESMF_PATCH 1._._.05.01)
+set(ESMF_VERSION ${ESMF_MAJOR}.${ESMF_MINOR}.${ESMF_PATCH})
+set(ESMF_URL ${LLNL_URL})
+set(ESMF_GZ esmp.${ESMF_VERSION}.tar.bz2)
+set(ESMF_MD5 4c206ef9413d4a5e6816377e79caf556)
+
 if(CDAT_BUILD_ESMF_ESMP)
  # the following may need to be adjusted on Crays, otherwise the defaults will likely apply
  set(CDAT_BUILD_ESMF_OS "${CMAKE_SYSTEM_NAME}" CACHE STRING "ESMF_OS env variable, may need to change to Unicos on Crays")

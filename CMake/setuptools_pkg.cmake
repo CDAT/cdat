@@ -1,2 +1,10 @@
+set(SETUPTOOLS_MAJOR 0)
+set(SETUPTOOLS_MINOR 6)
+set(SETUPTOOLS_MAJOR_SRC 0)
+set(SETUPTOOLS_MINOR_SRC 6c11)
+set(SETUPTOOLS_URL ${LLNL_URL})
+set(SETUPTOOLS_GZ setuptools-${SETUPTOOLS_MAJOR_SRC}.${SETUPTOOLS_MINOR_SRC}.tar.gz)
+set(SETUPTOOLS_MD5 7df2a529a074f613b509fb44feefe74e)
+
 add_cdat_package(setuptools "" "" "" "")
 set(setuptools_deps ${pkgconfig_pkg} ${python_pkg})

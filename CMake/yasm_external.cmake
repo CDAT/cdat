@@ -1,7 +1,5 @@
-
 set(YASM_source "${CMAKE_CURRENT_BINARY_DIR}/build/YASM")
 set(YASM_install "${cdat_EXTERNALS}")
-
 
 ExternalProject_Add(YASM
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}

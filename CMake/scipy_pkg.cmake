@@ -1,2 +1,12 @@
+set(SCIPY_MAJOR 0)
+set(SCIPY_MINOR 10)
+set(SCIPY_PATCH 0)
+set(SCIPY_MAJOR_SRC 0)
+set(SCIPY_MINOR_SRC 10)
+set(SCIPY_PATCH_SRC 1)
+set(SCIPY_URL ${LLNL_URL})
+set(SCIPY_GZ scipy-${SCIPY_MAJOR_SRC}.${SCIPY_MINOR_SRC}.${SCIPY_PATCH_SRC}.tar.gz)
+set(SCIPY_MD5 6ad976549e22e04ca93e70cf55b70a22)
+
 add_cdat_package(SCIPY "" "" "" "")
 set(SCIPY_deps ${numpy_pkg})

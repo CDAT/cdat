@@ -1,2 +1,12 @@
+set(PIX_MAJOR 0)
+set(PIX_MINOR 22)
+set(PIX_PATCH 2)
+set(PIX_MAJOR_SRC 0)
+set(PIX_MINOR_SRC 26)
+set(PIX_PATCH_SRC 2)
+set(PIX_URL ${LLNL_URL})
+set(PIX_GZ pixman-${PIX_MAJOR_SRC}.${PIX_MINOR_SRC}.${PIX_PATCH_SRC}.tar.gz)
+set(PIX_MD5 1a07c71716aefb11cd1bad5d820b714a )
+
 add_cdat_package(pixman "" "" "" "")
 set(pixman_deps ${pkgconfig_pkg})

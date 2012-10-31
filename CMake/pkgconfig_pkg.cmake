@@ -1,3 +1,14 @@
+set(PKG_MAJOR 0)
+set(PKG_MINOR 9)
+set(PKG_PATCH 0)
+set(PKG_MAJOR_SRC 0)
+set(PKG_MINOR_SRC 23)
+set(PKG_PATCH_SRC 0)
+set(PKG_VERSION ${PKG_MAJOR_SRC}.${PKG_MINOR_SRC}.${PKG_PATCH_SRC})
+set(PKG_URL ${LLNL_URL})
+set(PKG_GZ pkg-config-${PKG_MAJOR_SRC}.${PKG_MINOR_SRC}.tar.gz)
+set(PKG_MD5 d922a88782b64441d06547632fd85744)
+
 add_cdat_package(pkgconfig "" "" "" "")
 
 if(NOT CDAT_USE_SYSTEM_pkgconfig)

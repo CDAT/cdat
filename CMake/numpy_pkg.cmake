@@ -1,2 +1,12 @@
+set(NUMPY_MAJOR 1)
+set(NUMPY_MINOR 5)
+set(NUMPY_PATCH 1)
+set(NUMPY_MAJOR_SRC 1)
+set(NUMPY_MINOR_SRC 5)
+set(NUMPY_PATCH_SRC 1)
+set(NUMPY_URL ${LLNL_URL})
+set(NUMPY_GZ numpy-${NUMPY_MAJOR_SRC}.${NUMPY_MINOR_SRC}.${NUMPY_PATCH_SRC}.tar.gz)
+set(NUMPY_MD5 376ef150df41b5353944ab742145352d)
+
 add_cdat_package(NUMPY "" "" "" "")
 set(NUMPY ${pkgconfig_pkg} ${python_pkg} ${clapack_pkg} ${lapack_pkg})

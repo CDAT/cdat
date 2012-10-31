@@ -1,4 +1,3 @@
-
 # Cython
 #
 set(Cython_source "${CMAKE_CURRENT_BINARY_DIR}/build/Cython")
@@ -14,4 +13,4 @@ ExternalProject_Add(Cython
   INSTALL_COMMAND ${PYTHON_EXECUTABLE} setup.py install ${PYTHON_EXTRA_PREFIX}
   DEPENDS ${Cython_deps}
   ${ep_log_options}
-  )
+)

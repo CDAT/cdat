@@ -6,6 +6,8 @@ project(cdat)
 
 # Set cdat and cmake variables
 #-----------------------------------------------------------------------------
+set(LLNL_URL http://uv-cdat.llnl.gov/cdat/resources)
+
 set(cdat_CMAKE_SOURCE_DIR ${cdat_SOURCE_DIR}/CMake)
 set(cdat_CMAKE_BINARY_DIR ${cdat_BINARY_DIR}/CMake)
 set(cdat_external_patch_dir ${cdat_SOURCE_DIR}/exsrc)
@@ -330,11 +332,16 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_configure_step.cmake.in
 #-----------------------------------------------------------------------------
 include(TopologicalSort)
 message("[DEBUG] packages ${external_packages}")
+foreach(package ${external_packages})
+  string(TOLOWER ${package} lc_package)
+  include("${lc_package}_deps")
+endforeach()
+
 topological_sort(external_packages "" "_deps")
 foreach(package ${external_packages})
   message("[DEBUG] Including package ${package}")
   string(TOLOWER ${package} lc_package)
-  include("external_${lc_package}")
+  include("${lc_package}_external")
 endforeach()
 
 # Construct Include and Link variables

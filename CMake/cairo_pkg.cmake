@@ -1,2 +1,12 @@
+set(CAIRO_MAJOR 1)
+set(CAIRO_MINOR 10)
+set(CAIRO_PATCH 2)
+set(CAIRO_MAJOR_SRC 1)
+set(CAIRO_MINOR_SRC 12)
+set(CAIRO_PATCH_SRC 2)
+set(CAIRO_URL ${LLNL_URL})
+set(CAIRO_GZ cairo-${CAIRO_MAJOR_SRC}.${CAIRO_MINOR_SRC}.${CAIRO_PATCH_SRC}.tar.gz)
+set(CAIRO_MD5 82be826e1da7fefd3e02c84eade864a5)
+
 add_cdat_package(Cairo "" "" "")
 set(Cairo_deps ${pkgconfig_pkg} ${png_pkg} ${fontconfig_pkg} ${freetype_pkg} ${pixman_pkg} ${libxml2_pkg})
