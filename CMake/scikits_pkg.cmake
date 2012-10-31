@@ -5,4 +5,3 @@ set(SCIKITS_GZ scikit-learn-${SCIKITS_MAJOR_SRC}.${SCIKITS_MINOR_SRC}.tar.gz)
 set(SCIKITS_MD5 0e1f6c60b43a4f447bf363583c1fc204 )
 
 add_cdat_package(scikits "" "" "" "")
-set(scikits_deps ${setuptools_pkg} ${scipy_pkg})

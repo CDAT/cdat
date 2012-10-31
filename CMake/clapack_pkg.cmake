@@ -7,5 +7,4 @@ set(CLAPACK_GZ clapack-${CLAPACK_VERSION}-CMAKE.tgz)
 set(CLAPACK_MD5 4fd18eb33f3ff8c5d65a7d43913d661b)
 
 add_cdat_package(CLAPACK "" "" "")
-set(CLAPACK_deps ${pkgconfig_pkg})
 

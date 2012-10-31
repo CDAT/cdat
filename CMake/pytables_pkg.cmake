@@ -7,4 +7,3 @@ set(PYTABLES_GZ tables-${PYTABLES_VERSION}.tar.gz)
 set(PYTABLES_MD5 ec20938fca8b579020c5a4cc567caf7c)
 
 add_cdat_package(PyTables "" "" "" "")
-set(PyTable_deps ${pkgconfig_pkg} ${python_pkg} ${cython_pkg} ${numexpr_pkg} ${hdf5_pkg} ${libxml2_pkg} ${libxslt_pkg} ${zlib_pkg})

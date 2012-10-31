@@ -6,4 +6,3 @@ set(SHAPELY_GZ Shapely-${SHAPELY_MAJOR}.${SHAPELY_MINOR}.${SHAPELY_PATCH}.tar.gz
 set(SHAPELY_MD5 be8efc68e83b3db086ec092a835ae4e5)
 
 add_cdat_package(Shapely "" "" "" "")
-set(Shapely_deps ${pkgconfig_pkg} ${python_pkg} ${geos_pkg})

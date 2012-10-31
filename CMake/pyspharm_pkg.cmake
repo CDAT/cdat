@@ -7,4 +7,3 @@ set(PYSPHARM_GZ pyspharm-${PYSPHARM_VERSION}.tar.gz)
 set(PYSPHARM_MD5 e19897ec64d9e861ef6b93bf649a433c)
 
 add_cdat_package(pyspharm "" "" "" "")
-set(pyspharm_deps ${numpy_pkg})

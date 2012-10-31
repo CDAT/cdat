@@ -8,4 +8,3 @@ set(PMW_GZ Pmw.${PMW_MAJOR_SRC}.${PMW_MINOR_SRC}.${PMW_PATCH_SRC}.tar.gz)
 set(PMW_MD5 7f30886fe9885ab3cf85dac6ce1fbda5)
 
 add_cdat_package(Pmw "" "" "" "")
-set(Pmw_deps ${pkgconfig_pkg} ${python_pkg})

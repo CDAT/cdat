@@ -7,4 +7,3 @@ set(IPYTHON_GZ ipython-${IPYTHON_VERSION}.tar.gz)
 set(IPYTHON_MD5 9f04b590463dfe981e56ff1aebc90e23)
 
 add_cdat_package(IPYTHON "" "" "" "")
-set(IPYTHON_deps ${setuptools_pkg} ${zmq_pkg} ${numpy_pkg})

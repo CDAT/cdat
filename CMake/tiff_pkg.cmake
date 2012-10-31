@@ -6,4 +6,3 @@ set(TIFF_GZ tiff-${TIFF_MAJOR}.${TIFF_MINOR}.${TIFF_PATCH}.tar.gz)
 set(TIFF_MD5 2006c1bdd12644dbf02956955175afd6)
 
 add_cdat_package(tiff "" "" "" "")
-set(tiff_deps ${pkgconfig_pkg} ${jpeg_pkg} ${zlib_pkg})

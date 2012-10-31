@@ -7,4 +7,3 @@ set(SETUPTOOLS_GZ setuptools-${SETUPTOOLS_MAJOR_SRC}.${SETUPTOOLS_MINOR_SRC}.tar
 set(SETUPTOOLS_MD5 7df2a529a074f613b509fb44feefe74e)
 
 add_cdat_package(setuptools "" "" "" "")
-set(setuptools_deps ${pkgconfig_pkg} ${python_pkg})

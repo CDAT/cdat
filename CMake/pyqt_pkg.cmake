@@ -12,4 +12,3 @@ set(PYQT_MD5_APPLE 84726bf9bd5ca697d30c77f3371aa78e )
 set(PYQT_MD5_UNIX 8948ae374501e1bec22154774788fbd9 )
 
 add_cdat_package(PyQt "" "" "" "")
-set(PyQt_deps ${pkgconfig_pkg} ${qt_pkg} ${sip_pkg})

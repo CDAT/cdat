@@ -6,4 +6,3 @@ set(basemap_GZ basemap-${basemap_MAJOR}.${basemap_MINOR}.${basemap_PATCH}.tar.gz
 set(basemap_MD5 089260ea2b3eebb9d63e1783d0b15298 )
 
 add_cdat_package(basemap "" "" "")
-set(basemap_deps ${geos_pkg})

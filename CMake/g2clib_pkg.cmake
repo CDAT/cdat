@@ -7,4 +7,3 @@ set(G2CLIB_GZ g2clib-${G2CLIB_VERSION}.tar.gz)
 set(G2CLIB_MD5 f2b7ea610ec723dc269655b68b6bb7db)
 
 add_cdat_package(g2clib "" "" "")
-set(g2clib_deps  ${pkgconfig_pkg} ${png_pkg} ${zlib_pkg} ${jasper_pkg})

@@ -7,4 +7,3 @@ set(ZMQ_GZ zeromq-${ZMQ_VERSION}.tar.gz)
 set(ZMQ_MD5 05fc17610630e952d29efe7564828888)
 
 add_cdat_package(ZMQ)
-set(ZMQ_deps)

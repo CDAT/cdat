@@ -18,4 +18,3 @@ if(NOT CDAT_USE_SYSTEM_pkgconfig)
   set(ENV{PKG_CONFIG} ${cdat_PKG_CONFIG_EXECUTABLE})
 endif()
 
-set(pkgconfig_deps ${wget_pkg})

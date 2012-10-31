@@ -6,4 +6,3 @@ set(R_GZ R-${R_MAJOR_SRC}.${R_MINOR_SRC}.${R_PATCH_SRC}.tar.gz)
 set(R_MD5 fcdf247e707fdade82b78bcf911a54f1)
 
 add_cdat_package(R "" "" "" "")
-set(R_deps)

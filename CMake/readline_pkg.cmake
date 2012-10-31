@@ -7,4 +7,3 @@ set(READLINE_GZ readline-${RL_MAJOR_SRC}.${RL_MINOR_SRC}.tar.gz)
 set(READLINE_MD5 67948acb2ca081f23359d0256e9a271c)
 
 add_cdat_package(readline "" "" "" "")
-set(readline_deps ${pkgconfig_pkg} ${termcap_pkg})

@@ -10,4 +10,3 @@ set( MATPLOTLIB_GZ matplotlib-${MATPLOTLIB_VERSION}.tar.gz )
 set( MATPLOTLIB_MD5 8cbeaae8ba9da703d926e74c3e7c8a57 )
 
 add_cdat_package(Matplotlib "" "" "" "")
-set(Matplotlib_deps ${pyqt_pkg} ${cairo_pkg} ${numpy_pkg})

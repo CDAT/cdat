@@ -9,4 +9,3 @@ set(TCL_MD5 8512d8db3233041dd68a81476906012a)
 set(TK_MD5 7cdeb9feb61593f58a0ae61f2497580e)
 
 add_cdat_package(TclTk "" "" "" "")
-set(TclTk_deps ${pkgconfig_pkg} ${libxml2_pkg} ${libxslt_pkg} ${jpeg_pkg} ${png_pkg} ${tiff_pkg})

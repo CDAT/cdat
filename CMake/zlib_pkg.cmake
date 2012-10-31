@@ -7,4 +7,3 @@ set(ZLIB_URL ${LLNL_URL})
 set(ZLIB_GZ zlib-${ZLIB_VERSION}.tar.gz)
 
 add_cdat_package(zlib "" "" "")
-set(zlib_deps ${pkgconfig_pkg})

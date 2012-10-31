@@ -7,4 +7,3 @@ set(VISIT_GZ visit${VISIT_VERSION}.tar.gz)
 set(VISIT_MD5 5cac82f543c5c1e5e6462a82a58db725)
 
 add_cdat_package(VisIt "" "" "" "")
-set(VisIt_deps ${pkgconfig_pkg} ${sip_pkg} ${pyqt_pkg} ${paraview_pkg} ${r_pkg})

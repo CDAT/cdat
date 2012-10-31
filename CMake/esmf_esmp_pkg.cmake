@@ -42,4 +42,3 @@ if(CDAT_BUILD_ESMF_ESMP)
  endif()
 endif()
 
-set(ESMF_deps ${pkgconfig_pkg} ${openmpi_pkg})

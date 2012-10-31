@@ -9,4 +9,3 @@ set(CURL_GZ curl-${CURL_MAJOR_SRC}.${CURL_MINOR_SRC}.${CURL_PATCH_SRC}.tar.gz)
 set(CURL_MD5 e8c36126d21c893f085aca233906b5cc)
 
 add_cdat_package(CURL "" "" "")
-set(CURL_deps ${pkgconfig_pkg} ${libXML2_pkg} ${zlib_pkg})
