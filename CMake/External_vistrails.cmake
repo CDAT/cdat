@@ -1,6 +1,7 @@
 # create an external project to clone vistrails,
 # and configure and build it
 
+set(VISTRAILS_TAG_POINT uvcdat-next CACHE STRING "Specify branch of vistrails to be used for UVCDAT")
 set(vistrails_url "${GIT_PROTOCOL}vistrails.org/git/vistrails.git")
 
 ExternalProject_Add(vistrails
