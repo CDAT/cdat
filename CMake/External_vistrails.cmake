@@ -1,12 +1,7 @@
 # create an external project to clone vistrails,
 # and configure and build it
 
-set(vistrails_url "git://vistrails.org/vistrails.git")
-
-# NOTE: vistrails has a different URL for http
-if("${GIT_PROTOCOL}" STREQUAL "http://")
-  set(vistrails_url "http://vistrails.org/git/vistrails.git")
-endif()
+set(vistrails_url "${GIT_PROTOCOL}vistrails.org/git/vistrails.git")
 
 ExternalProject_Add(vistrails
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
