@@ -1,1 +1,1 @@
-set(libXSLT_deps ${pkgconfig_pkg} ${readline_pkg} ${libXML2_pkg})
+set(libXSLT_deps ${pkgconfig_pkg} ${readline_pkg} ${libxml2_pkg})
