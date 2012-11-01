@@ -40,8 +40,8 @@ macro (add_cdat_package package_name version_string msg default)
   endif()
 
   option(CDAT_USE_SYSTEM_${uc_package} "Use system installed ${lc_package}" OFF)
-  if(NOT ${uc_package}_FOUND)
-    mark_as_advanced(${uc_package}_DIR)
+  if(NOT ${package_name}_FOUND)
+    mark_as_advanced(${package_name}_DIR)
     mark_as_advanced(CDAT_USE_SYSTEM_${uc_package})
   endif()
 
