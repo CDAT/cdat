@@ -1,0 +1,5 @@
+- Fix ESMF build
+- Verify individual packages
+- Verify if we can build using system
+- Consistent install and build directories
+- Install headers and lib under their own package name
