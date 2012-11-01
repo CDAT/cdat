@@ -55,7 +55,7 @@ set(CTEST_SITE "${HOSTNAME}")
 set(CTEST_BUILD_NAME "${CTEST_PROJECT_NAME}-${BUILD_NAME}-${PROJECT_BRANCH}")
 
 set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
-set(CTEST_BUILD_COMMAND "/usr/bin/make -j1")
+set(CTEST_BUILD_COMMAND "/usr/bin/make -j4")
 
 set(PERFORM_MEMCHECK FALSE)
 set(PERFORM_COVERAGE FALSE)
@@ -63,7 +63,9 @@ find_program(CTEST_MEMCHECK_COMMAND NAMES valgrind)
 find_program(CTEST_COVERAGE_COMMAND NAMES gcov44 gcov)
 if(CTEST_COVERAGE_COMMAND)
   set(CTEST_COVERAGE_FLAGS "-fprofile-arcs -ftest-coverage")
-  set(ENV{LDFLAGS} "$ENV{LDFLAGS} ${CTEST_COVERAGE_FLAGS}")
+  #Do NOT set LDflags! Breaks NUMPY build
+  #when we want coverage we will need another solution
+  #set(ENV{LDFLAGS} "$ENV{LDFLAGS} ${CTEST_COVERAGE_FLAGS}")
 endif()
 
 set(CTEST_USE_LAUNCHERS 1)
