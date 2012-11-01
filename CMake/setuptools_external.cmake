@@ -1,4 +1,3 @@
-
 set(setuptools_source "${CMAKE_CURRENT_BINARY_DIR}/build/setuptools")
 set(setuptools_install "${cdat_EXTERNALS}")
 

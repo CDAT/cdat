@@ -1,9 +1,3 @@
-
-# Numexpr
-#
-
-
-
 include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
 ExternalProject_Add(Numexpr
   DOWNLOAD_COMMAND ""

@@ -7,4 +7,3 @@ set(NUMEXPR_GZ numexpr-${NUMEXPR_VERSION}.tar.gz)
 set(NUMEXPR_MD5 139115cc196dc57a66b2eb30cd3e80a0 )
 
 add_cdat_package(Numexpr "" "" "" "")
-set(Numexpr ${pkgconfig_pkg} ${numpy_pkg} ${setuptools_pkg})
