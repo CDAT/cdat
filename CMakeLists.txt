@@ -173,6 +173,10 @@ set(EP_LOG_OPTIONS
   LOG_TEST 1
   LOG_INSTALL 1
 )
+if (CDASH_EP_LOG_OPTIONS)
+  #override on dashboards so build results are visible
+  set(EP_LOG_OPTIONS ${CDASH_EP_LOG_OPTIONS})
+endif()
 
 INCLUDE(ExternalProject)
 

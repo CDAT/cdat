@@ -13,10 +13,7 @@ file(
   # Hostname specific library paths
   CDAT_BUILD_ESMF_ESMP:BOOL=OFF
   CDAT_BUILD_ESMF_PARALLEL:BOOL=OFF
-  CDAT_BUILD_PARAVIEW:BOOL=OFF
+  CDAT_BUILD_PARAVIEW:BOOL=ON
   CDAT_BUILD_VISIT:BOOL=OFF
   CDAT_DOWNLOADS_SAMPLE_DATA:BOOL=OFF
 ")
-
-# Perform the actual dashboard execution
-include(execute.cmake)
