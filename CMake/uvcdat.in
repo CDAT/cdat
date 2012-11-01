@@ -1,4 +1,5 @@
 #!/bin/sh
-source @CMAKE_INSTALL_PREFIX@/bin/setup_cdat.sh
+# source is not portable where as . is
+. @CMAKE_INSTALL_PREFIX@/bin/setup_cdat.sh
 @PYTHON_EXECUTABLE@ @CMAKE_INSTALL_PREFIX@/vistrails/vistrails/uvcdat.py $@
 
