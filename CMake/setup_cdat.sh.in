@@ -1,5 +1,4 @@
-#!/bin/bash
-
+#!/bin/sh
 
 PATH=@CMAKE_INSTALL_PREFIX@/bin:${PATH}
 PATH=@CDAT_OS_XTRA_PATH@:${PATH}
