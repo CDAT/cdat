@@ -12,6 +12,9 @@ set(PYVER ${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC})
 
 add_cdat_package(Python 2.7.3 "" "")
 
+# FIXME: Name style
+set(CDAT_OS_XTRA_PATH "")
+
 if (CDAT_USE_SYSTEM_PYTHON)
    include(FindPythonInterp)
    set(PYVER ${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR})
@@ -32,6 +35,11 @@ if (CDAT_USE_SYSTEM_PYTHON)
    set(PYTHON_LIBRARY ${PYTHON_LIBRARIES})
    message("set PYTHON_LIBRARY TO" ${PYTHON_LIBRARY})
    set(PYTHON_INCLUDE ${PYTHON_INCLUDE_DIRS})
+
+   if(APPLE)
+     set(CDAT_OS_XTRA_PATH  ${CMAKE_INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/${PYVER}/bin)
+   endif()
+
 else ()
    set(PYTHON_EXECUTABLE ${CMAKE_INSTALL_PREFIX}/bin/python)
    message("Building you a python at ${PYTHON_EXECUTABLE}")

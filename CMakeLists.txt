@@ -30,6 +30,7 @@ set(CMAKE_MODULE_PATH
 # Include useful cmake scripts
 #-----------------------------------------------------------------------------
 include(cmake_utils)
+include(check_fortran)
 
 # Set cdat version and configure version file
 #-----------------------------------------------------------------------------
@@ -122,9 +123,8 @@ if(GIT_FOUND)
   )
 endif()
 
-# Check if system has fortran compiler
+# Check if system has fortran compiler and act accordingly
 #-----------------------------------------------------------------------------
-include(CheckFortran)
 if(CMAKE_Fortran_COMPILER)
   enable_language(Fortran)
   set(CONFIG_SUMMARY ${cdat_SOURCE_DIR}/logs/config.summary)
