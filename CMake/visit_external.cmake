@@ -1,5 +1,3 @@
-
-
 set(VisIt_source "${CMAKE_CURRENT_BINARY_DIR}/build/VisIt")
 set(VisIt_binary "${CMAKE_CURRENT_BINARY_DIR}/build/VisIt")
 set(VisIt_install "${CMAKE_INSTALL_PREFIX}")
