@@ -22,4 +22,4 @@ ExternalProject_Add(LAPACK
     -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
   DEPENDS ${LAPACK_deps}
   ${ep_log_options}
-  )
+)
