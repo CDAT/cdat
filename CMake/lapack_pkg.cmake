@@ -4,6 +4,6 @@ set(LAPACK_MD5 02d5706ec03ba885fc246e5fa10d8c70)
 
 if(NOT APPLE)
   if(CMAKE_Fortran_COMPILER)
-    add_cdat_package(LAPACK "" "" "" "")
+    add_cdat_package(LAPACK "" "" "")
   endif()
 endif()

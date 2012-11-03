@@ -8,7 +8,7 @@ set(CLAPACK_MD5 4fd18eb33f3ff8c5d65a7d43913d661b)
 
 if(NOT APPLE)
   if(NOT CMAKE_Fortran_COMPILER)
-    add_cdat_package(CLAPACK "" "" "" "")
+    add_cdat_package(CLAPACK "" "" "")
   endif()
 endif()
 

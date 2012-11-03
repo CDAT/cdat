@@ -9,4 +9,4 @@ set(PNG_URL ${LLNL_URL})
 set(PNG_GZ libpng-${PNG_VERSION}.tar.gz)
 set(PNG_MD5 220035f111ea045a51e290906025e8b5)
 
-add_cdat_package(png "" "" "" "")
+add_cdat_package(png "" "" "")

@@ -30,7 +30,7 @@ if(CDAT_BUILD_ESMF_ESMP)
    # GNU gfortran must be >= 4.3
    if(${Fortran_MAJOR_VERSION} GREATER 3 AND ${Fortran_MINOR_VERSION} GREATER 2)
      ## On APPLE need to test for -arch as well!
-     add_cdat_package(ESMF "" "" "" "")
+     add_cdat_package(ESMF "" "" "")
    else()
      message("[INFO] Skipping ESMF")
      message("[INFO] gfortran version needs to be at least 4.3 to install ESMF")

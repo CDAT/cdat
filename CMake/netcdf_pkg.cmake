@@ -8,4 +8,4 @@ set(NC4_URL ${LLNL_URL})
 set(NC4_GZ netcdf-${NC4_MAJOR_SRC}.${NC4_MINOR_SRC}.${NC4_PATCH_SRC}.tar.gz)
 set(NC4_MD5 280f1e75668f63a4ffcbbb0372867f25)
 
-add_cdat_package(NetCDF "" "" "" "")
+add_cdat_package(NetCDF "" "" "")

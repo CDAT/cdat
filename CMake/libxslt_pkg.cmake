@@ -8,5 +8,5 @@ set(XSLT_URL ${LLNL_URL})
 set(XSLT_GZ libxslt-${XSLT_MAJOR_SRC}.${XSLT_MINOR_SRC}.${XSLT_PATCH_SRC}.tar.gz)
 set(XSLT_MD5 e61d0364a30146aaa3001296f853b2b9)
 
-add_cdat_package(libXSLT "" "" "" "")
+add_cdat_package(libXSLT "" "" "")
 

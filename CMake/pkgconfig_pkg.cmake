@@ -9,7 +9,7 @@ set(PKG_URL ${LLNL_URL})
 set(PKG_GZ pkg-config-${PKG_MAJOR_SRC}.${PKG_MINOR_SRC}.tar.gz)
 set(PKG_MD5 d922a88782b64441d06547632fd85744)
 
-add_cdat_package(pkgconfig "" "" "" "")
+add_cdat_package(pkgconfig "" "" "")
 
 if(NOT CDAT_USE_SYSTEM_pkgconfig)
   set(cdat_PKG_CONFIG_EXECUTABLE ${cdat_EXTERNALS}/bin/pkg-config)

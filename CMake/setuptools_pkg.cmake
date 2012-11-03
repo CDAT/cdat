@@ -6,4 +6,4 @@ set(SETUPTOOLS_URL ${LLNL_URL})
 set(SETUPTOOLS_GZ setuptools-${SETUPTOOLS_MAJOR_SRC}.${SETUPTOOLS_MINOR_SRC}.tar.gz)
 set(SETUPTOOLS_MD5 7df2a529a074f613b509fb44feefe74e)
 
-add_cdat_package(setuptools "" "" "" "")
+add_cdat_package(setuptools "" "" "")

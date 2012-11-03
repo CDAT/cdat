@@ -10,5 +10,5 @@ set(SIP_URL ${LLNL_URL})
 set(SIP_GZ sip-${SIP_MAJOR_SRC}.${SIP_MINOR_SRC}.${SIP_PATCH_SRC}.tar.gz)
 set(SIP_MD5 9900fddb73c0c12c88624459f7eca797 )
 
-add_cdat_package(SIP "" "" "" "")
+add_cdat_package(SIP "" "" "")
 
