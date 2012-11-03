@@ -21,16 +21,5 @@ if(NOT ${res} EQUAL 0)
   message(FATAL_ERROR "Error in VTK Python Install")
 endif()
 
-if (APPLE)
- message("We are on a Mac, need to relink all libraries")
- execute_process(
-  COMMAND env PYTHONPATH=@PYTHONPATH@ @PYTHON_EXECUTABLE@ @cdat_CMAKE_SOURCE_DIR@/fixlink.py
-  WORKING_DIRECTORY @WORKING_DIR@
-  OUTPUT_VARIABLE out
-  ERROR_VARIABLE err
-  RESULT_VARIABLE res)
- message("got: "${res})
-endif ()
-
 message("Install succeeded.")
 

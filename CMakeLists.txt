@@ -31,6 +31,7 @@ set(CMAKE_MODULE_PATH
 #-----------------------------------------------------------------------------
 include(cmake_utils)
 include(check_fortran)
+include(CTest)
 
 # Set cdat version and configure version file
 #-----------------------------------------------------------------------------

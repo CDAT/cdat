@@ -94,15 +94,15 @@ echo "./configure  --enable-dap=${CDMS_INCLUDE_DAP} --enable-drs=${CDMS_INCLUDE_
 #./configure  --enable-dap=${CDMS_INCLUDE_DAP} --enable-drs=${CDMS_INCLUDE_DRS} --enable-hdf=${CDMS_INCLUDE_HDF} --enable-pp=${CDMS_INCLUDE_PP} --enable-ql=${CDMS_INCLUDE_QL} --cache-file=/dev/null --prefix=${PREFIX} --with-nclib=${netcdf_library_directory} --with-ncinc=${netcdf_include_directory} --with-daplib=${CDMS_DAP_DIR}/lib --with-dapinc=${CDMS_DAP_DIR}/include --with-hdfinc=${CDMS_HDF_DIR}/include --with-hdflib=${CDMS_HDF_DIR}/lib --with-hdf5lib=${CDMS_LIBRARY_HDF5} --with-grib2lib=${CDMS_GRIB2LIB_DIR}/lib --with-jasperlib=${CDMS_GRIB2LIB_DIR}/lib --with-grib2inc=${CDMS_GRIB2LIB_DIR}/include --enable-grib2 || exit 1
 ./configure  --enable-dap --with-ncinc=${netcdf_include_directory} --enable-drs=${CDMS_INCLUDE_DRS} --enable-hdf=${CDMS_INCLUDE_HDF} --enable-pp=${CDMS_INCLUDE_PP} --enable-ql=${CDMS_INCLUDE_QL} --cache-file=/dev/null --prefix=${PREFIX} --with-nclib=${netcdf_library_directory} --with-hdfinc=${CDMS_HDF_DIR}/include --with-hdflib=${CDMS_HDF_DIR}/lib --with-grib2lib=${CDMS_GRIB2LIB_DIR}/lib --with-jasperlib=${CDMS_GRIB2LIB_DIR}/lib --with-grib2inc=${CDMS_GRIB2LIB_DIR}/include --enable-grib2 || exit 1
 echo "make cdms"
-make cdms || exit 1
+make -j1 cdms || exit 1
 echo "make cddrs"
-make cddrs || exit 1
+make -j1 cddrs || exit 1
 echo "make cdunif"
-make cdunif || exit 1
+make -j1 cdunif || exit 1
 echo "make ${target}"
-make ${target} || exit 1
+make -j1 ${target} || exit 1
 echo "make bininstall"
-make bininstall || exit 1
+make -j1 bininstall || exit 1
 echo /bin/cp lib/libcdms.a ${PREFIX}/lib/libcdms.a
 /bin/cp lib/libcdms.a ${PREFIX}/lib/libcdms.a
 echo /bin/cp -R include ${PREFIX}/include/cdms

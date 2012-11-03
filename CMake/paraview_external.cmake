@@ -65,7 +65,7 @@ ExternalProject_Add(ParaView
   SOURCE_DIR ${ParaView_source}
   BINARY_DIR ${ParaView_binary}
   INSTALL_DIR ${ParaView_install}
-  GIT_REPOSITORY https://github.com/aashish24/paraview-climate-3.11.1.git
+  GIT_REPOSITORY ${GIT_PROTOCOL}github.com/aashish24/paraview-climate-3.11.1.git
   GIT_TAG r_integration
   PATCH_COMMAND ""
   CMAKE_CACHE_ARGS
@@ -100,7 +100,6 @@ ExternalProject_Add(ParaView
     -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=ON
   CMAKE_ARGS
     -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-  BUILD_COMMAND ${CMAKE_COMMAND} -DWORKING_DIR=<BINARY_DIR> -Dmake=$(MAKE) -P ${cdat_CMAKE_BINARY_DIR}/cdat_cmake_make_step.cmake
   INSTALL_COMMAND ${ParaView_install_command}
   DEPENDS ${ParaView_deps}
   ${ep_log_options}
