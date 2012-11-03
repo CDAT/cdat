@@ -20,5 +20,7 @@ else()
   set(WGET_EXECUTABLE ${wget_install}/bin/wget)
 endif()
 
+set(HASWGET ${WGET_EXECUTABLE})
+
 set(wget_DIR "${wget_binary}" CACHE PATH "wget binary directory" FORCE)
 mark_as_advanced(wget_DIR)
