@@ -139,5 +139,5 @@ ExternalProject_Add_Step(ParaView InstallParaViewLibSymlink
   COMMAND ${CMAKE_COMMAND} -E create_symlink ${ParaView_install}/lib/paraview-${PARAVIEW_MAJOR}.${PARAVIEW_MINOR} ${CMAKE_INSTALL_PREFIX}/lib/paraview-${PARAVIEW_MAJOR}.${PARAVIEW_MINOR}
   DEPENDEES InstallVTKPythonModule
   WORKING_DIRECTORY ${cdat_CMAKE_BINARY_DIR}
-  )
+)
 
