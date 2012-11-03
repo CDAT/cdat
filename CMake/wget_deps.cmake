@@ -1,1 +1,1 @@
-
+set(wget_deps)
