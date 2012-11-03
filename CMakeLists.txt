@@ -122,11 +122,19 @@ if(GIT_FOUND)
   )
 endif()
 
+# Check if system has fortran compiler
+#-----------------------------------------------------------------------------
+include(CheckFortran)
+if(CMAKE_Fortran_COMPILER)
+  enable_language(Fortran)
+  set(CONFIG_SUMMARY ${cdat_SOURCE_DIR}/logs/config.summary)
+  include(${CMAKE_ROOT}/Modules/CMakeDetermineFortranCompiler.cmake)
+endif(CMAKE_Fortran_COMPILER)
+
 # Set bulid related properties
 #-----------------------------------------------------------------------------
 # FIXME EP_PREFIX -> ep_prefix
 set(ep_prefix ${cdat_BINARY_DIR}/build/prefix)
-
 # FIXME EP_LOG_DIR -> ep_log_dir
 set_property(DIRECTORY PROPERTY ep_log_dir ${cdat_BINARY_DIR}/logs)
 
