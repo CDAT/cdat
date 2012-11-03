@@ -1,1 +1,1 @@
-set(NUMPY_deps ${pkgconfig_pkg} ${Python_pkg} ${CLAPACK_pkg} ${LAPACK_pkg})
+set(NUMPY_deps ${pkgconfig_pkg} ${python_pkg} ${clapack_pkg} ${lapack_pkg})
