@@ -1,13 +1,12 @@
-
-set(netcdf_source "${CMAKE_CURRENT_BINARY_DIR}/build/netcdf-c++")
-set(netcdf_install "${cdat_EXTERNALS}")
-set(netcdf_configure_args "")
+set(netcdfplus_source "${CMAKE_CURRENT_BINARY_DIR}/build/netcdf-c++")
+set(netcdfplus_install "${cdat_EXTERNALS}")
+set(netcdfplus_configure_args "")
 
 ExternalProject_Add(NetCDFPLUS
   LIST_SEPARATOR ^^
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
-  SOURCE_DIR ${netcdf_source}
-  INSTALL_DIR ${netcdf_install}
+  SOURCE_DIR ${netcdfplus_source}
+  INSTALL_DIR ${netcdfplus_install}
   URL ${NC4PLUS_URL}/${NC4PLUS_GZ}
   URL_MD5 ${NC4PLUS_MD5}
   BUILD_IN_SOURCE 1

@@ -1,1 +1,8 @@
+set(NC4PLUS_MAJOR_SRC 4)
+set(NC4PLUS_MINOR_SRC 2)
+set(NC4PLUS_PATCH_SRC 1.1)
+set(NC4PLUS_URL ${LLNL_URL})
+set(NC4PLUS_GZ netcdf-cxx-${NC4PLUS_MAJOR_SRC}.${NC4PLUS_MINOR_SRC}.tar.gz)
+set(NC4PLUS_MD5 0b09655cf977d768ced6c0d327dde176)
+
 add_cdat_package(NetCDFPLUS "" "" "")
