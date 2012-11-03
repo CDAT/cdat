@@ -1,1 +1,11 @@
+set(FTCFG_MAJOR 2)
+set(FTCFG_MINOR 4)
+set(FTCFG_PATCH 2)
+set(FTCFG_MAJOR_SRC 2)
+set(FTCFG_MINOR_SRC 10)
+set(FTCFG_PATCH_SRC 1)
+set(FTCFG_URL ${LLNL_URL})
+set(FTCFG_GZ fontconfig-${FTCFG_MAJOR_SRC}.${FTCFG_MINOR_SRC}.${FTCFG_PATCH_SRC}.tar.gz)
+set(FTCFG_MD5 43808dd9153cff1c3ac302e94e024814)
+
 add_cdat_package(fontconfig "" "" "")
