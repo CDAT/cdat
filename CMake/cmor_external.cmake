@@ -1,4 +1,3 @@
-
 set(cmor_source "${cdat_SOURCE_DIR}/Packages/cmor")
 set(cmor_install "${cdat_EXTERNALS}")
 
