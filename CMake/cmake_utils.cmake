@@ -15,14 +15,14 @@ macro (add_cdat_package package_name version_string msg default)
     message("[INFO] version ${version} of ${uc_package} is required by UVCDAT")
   endif()
 
-  # ARGV2 (true = 1 or false != 1)
+  # ARGV2
   if(NOT "" STREQUAL "${msg}")
     set(message "${msg}")
   endif()
 
   # ARGV3 (ON / OFF)
   if(NOT "" STREQUAL "${default}")
-    set(option_default "${default}")
+    set(option_default ${default})
     message("[INFO] ${uc_package} is optional")
   endif()
 
@@ -35,7 +35,7 @@ macro (add_cdat_package package_name version_string msg default)
   endif()
 
   # Check if package is optional, and if yes populate the GUI appropriately
-  if(DEFINED isoptional AND "${isoptional}" STREQUAL "TRUE")
+  if(DEFINED option_default)
     option(CDAT_BUILD_${uc_package} ${message} ${option_default})
   endif()
 

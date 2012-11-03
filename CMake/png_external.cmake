@@ -1,6 +1,3 @@
-
-
-
 # If Windows we use CMake otherwise ./configure
 if(WIN32)
 

@@ -1,4 +1,3 @@
-
 set(gdal_source "${CMAKE_CURRENT_BINARY_DIR}/build/gdal")
 set(gdal_install "${cdat_EXTERNALS}")
 
