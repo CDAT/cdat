@@ -11,7 +11,7 @@ endif()
 
 set(VISTRAILS_TAG_POINT ${vistrails_branch} CACHE STRING "Specify branch of vistrails to be used for UVCDAT")
 set(vistrails_url "${GIT_PROTOCOL}vistrails.org/git/vistrails.git")
-option(CDAT_DELETE_VISTRAILS_HISTORY "Delete GIT history of vistrails" ON)
+option(CDAT_DELETE_VISTRAILS_HISTORY "Delete GIT history of vistrails" OFF)
 
 ExternalProject_Add(vistrails
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
