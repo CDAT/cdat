@@ -1,1 +1,1 @@
-set(Mpi4py_deps ${NUMPY_pkg} ${OPENMPI_pkg})
+set(Mpi4py_deps ${numpy_pkg} ${openmpi_pkg})
