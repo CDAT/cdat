@@ -98,6 +98,7 @@ endif()
 if((NOT "${PROJECT_BUILD_INTERVAL}" STREQUAL "Continuous")
     OR
     ("$ENV{FIRST_BUILD}" STREQUAL "TRUE"))
+  file(REMOVE_RECURSE "${CTEST_BINARY_INSTALL_DIRECTORY}")
   ctest_empty_binary_directory("${CTEST_BINARY_DIRECTORY}")
   ctest_empty_binary_directory("${CTEST_BINARY_INSTALL_DIRECTORY}")
 endif()
