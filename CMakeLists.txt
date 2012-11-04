@@ -40,7 +40,7 @@ set(cdat_VERSION_MINOR 1)
 set(cdat_VERSION_PATCH 0)
 set(cdat_VERSION ${cdat_VERSION_MAJOR}.${cdat_VERSION_MINOR}.${cdat_VERSION_PATCH})
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/version.in
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/version.in
   ${cdat_SOURCE_DIR}/version
   @ONLY
 )
@@ -299,37 +299,37 @@ include(zlib_pkg)
 
 # Configure custom configure/build/install step files
 #-----------------------------------------------------------------------------
-configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_common_environment.cmake.in
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/cdat_common_environment.cmake.in
     ${cdat_CMAKE_BINARY_DIR}/cdat_common_environment.cmake
     @ONLY
 )
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_configure_step.cmake.in
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/cdat_configure_step.cmake.in
     ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
     @ONLY
 )
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_make_step.cmake.in
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/cdat_make_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/cdat_make_step.cmake
   @ONLY
 )
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_cmake_make_step.cmake.in
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/cdat_cmake_make_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/cdat_cmake_make_step.cmake
   @ONLY
 )
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_install_step.cmake.in
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/cdat_install_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/cdat_install_step.cmake
   @ONLY
 )
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/cleanenv_configure_step.cmake.in
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/cleanenv_configure_step.cmake.in
     ${cdat_CMAKE_BINARY_DIR}/cleanenv_configure_step.cmake
     @ONLY
 )
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_configure_step.cmake.in
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/cdat_configure_step.cmake.in
     ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
     @ONLY
 )
@@ -375,22 +375,22 @@ message("[INFO] cdat_external_link_directories: ${cdat_external_link_directories
 
 # Configure remaining files
 #-----------------------------------------------------------------------------
-configure_file(${cdat_CMAKE_SOURCE_DIR}/checked_get.sh.in
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/checked_get.sh.in
   ${cdat_SOURCE_DIR}/checked_get.sh
   @ONLY
 )
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/setup_cdat.sh.in
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/setup_cdat.sh.in
   ${CMAKE_INSTALL_PREFIX}/bin/setup_cdat.sh
   @ONLY
 )
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/setup_cdat.csh.in
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/setup_cdat.csh.in
   ${CMAKE_INSTALL_PREFIX}/bin/setup_cdat.csh
   @ONLY
 )
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/uvcdat.in
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/uvcdat.in
   ${CMAKE_INSTALL_PREFIX}/bin/uvcdat
   @ONLY
 )
