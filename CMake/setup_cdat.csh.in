@@ -1,6 +1,5 @@
 #!/bin/csh
 
-
 setenv PATH "@CMAKE_INSTALL_PREFIX@/bin:${PATH}"
 setenv PATH "@CDAT_OS_XTRA_PATH@:${PATH}"
 setenv PATH "@cdat_EXTERNALS@/bin:${PATH}"
