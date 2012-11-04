@@ -23,6 +23,8 @@ message("[INFO] We reset your path to: " $ENV{PATH})
 
 set(CMAKE_MODULE_PATH
   ${cdat_CMAKE_SOURCE_DIR}
+  ${cdat_CMAKE_SOURCE_DIR}/cmake_modules
+  ${cdat_CMAKE_SOURCE_DIR}/cdat_modules
   ${cdat_CMAKE_BINARY_DIR}
   ${CMAKE_MODULE_PATH}
 )
