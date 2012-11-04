@@ -2,7 +2,7 @@
 set(xgks_source "${CMAKE_CURRENT_BINARY_DIR}/build/xgks")
 set(xgks_install "${cdat_EXTERNALS}")
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/xgks_configure_step.cmake.in
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/xgks_configure_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/xgks_configure_step.cmake
   @ONLY)
 

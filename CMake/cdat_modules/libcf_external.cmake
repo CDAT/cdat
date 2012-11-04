@@ -2,11 +2,11 @@
 set(libcf_source "${CMAKE_CURRENT_BINARY_DIR}/build/libcf")
 set(libcf_install "${cdat_EXTERNALS}")
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/libcf_make_step.cmake.in
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/libcf_make_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/libcf_make_step.cmake
   @ONLY)
   
-configure_file(${cdat_CMAKE_SOURCE_DIR}/libcf_install_step.cmake.in
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/libcf_install_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/libcf_install_step.cmake
   @ONLY)
 

@@ -3,9 +3,9 @@
 set(LXML_SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/build/lxml)
 set(LXML_BINARY_DIR ${LXML_SOURCE_DIR})
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/lxml_build_step.cmake.in
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/lxml_build_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/lxml_build_step.cmake @ONLY)
-configure_file(${cdat_CMAKE_SOURCE_DIR}/lxml_install_step.cmake.in
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/lxml_install_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/lxml_install_step.cmake @ONLY)
 
 set(LXML_BUILD_COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/lxml_build_step.cmake)

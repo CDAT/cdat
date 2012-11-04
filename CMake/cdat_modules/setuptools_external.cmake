@@ -3,11 +3,11 @@ set(setuptools_install "${cdat_EXTERNALS}")
 
 # 2012-03-19 C. Doutriaux Commented this out seems to not be able to pick pythonpath and ldlibrarypath
 # Seems to be way too complicated for what's  really needed
-#configure_file(${cdat_CMAKE_SOURCE_DIR}/setuptools_make_step.cmake.in
+#configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/setuptools_make_step.cmake.in
 #  ${cdat_CMAKE_BINARY_DIR}/setuptools_make_step.cmake
 #  @ONLY)
 
-#configure_file(${cdat_CMAKE_SOURCE_DIR}/setuptools_install_step.cmake.in
+#configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/setuptools_install_step.cmake.in
 #  ${cdat_CMAKE_BINARY_DIR}/setuptools_install_step.cmake
 #  @ONLY)
 

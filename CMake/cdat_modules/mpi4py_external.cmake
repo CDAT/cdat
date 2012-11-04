@@ -4,11 +4,11 @@ set(mpi4py_binary "${CMAKE_CURRENT_BINARY_DIR}/build/Mpi4py")
 
 # python can run after it is built on linux
 configure_file(
-  ${cdat_CMAKE_SOURCE_DIR}/mpi4py_make_step.cmake.in
+  ${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/mpi4py_make_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/mpi4py_make_step.cmake @ONLY)
 
 configure_file(
-  ${cdat_CMAKE_SOURCE_DIR}/mpi4py_install_step.cmake.in
+  ${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/mpi4py_install_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/mpi4py_install_step.cmake @ONLY)
 
 set(mpi4py_BUILD_COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/mpi4py_make_step.cmake)

@@ -4,11 +4,11 @@ set(ffmpeg_source "${CMAKE_CURRENT_BINARY_DIR}/build/FFMPEG")
 set(ffmpeg_install "${cdat_EXTERNALS}")
 set(ENV{PATH} $ENV{PATH}:${cdat_EXTERNALS}/bin)
 message("FFMPEG PATH IS"$ENV{PATH})
-configure_file(${cdat_CMAKE_SOURCE_DIR}/ffmpeg_configure_step.cmake.in
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/ffmpeg_configure_step.cmake.in
     ${cdat_CMAKE_BINARY_DIR}/ffmpeg_configure_step.cmake
     @ONLY)
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/ffmpeg_build_step.cmake.in
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/ffmpeg_build_step.cmake.in
     ${cdat_CMAKE_BINARY_DIR}/ffmpeg_build_step.cmake
     @ONLY)
 

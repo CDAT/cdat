@@ -24,11 +24,11 @@ else()
   set(ESMF_comm "mpiuni")
 endif()
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/ESMF_make_step.cmake.in
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/ESMF_make_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/ESMF_make_step.cmake
   @ONLY)
   
-configure_file(${cdat_CMAKE_SOURCE_DIR}/ESMF_install_step.cmake.in
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/ESMF_install_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/ESMF_install_step.cmake
   @ONLY)
 
@@ -38,7 +38,7 @@ set(ESMF_install_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/ESMF_insta
 # ESMF Python interface. Install after ESMF is done.
 set(ESMP_source "${ESMF_source_dir}/ESMP")
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/ESMP_install_step.cmake.in
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/ESMP_install_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/ESMP_install_step.cmake
   @ONLY)
 set(ESMP_install_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/ESMP_install_step.cmake)

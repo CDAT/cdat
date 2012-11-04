@@ -6,19 +6,19 @@ set(proj Python)
 
   set(python_aqua_cdat no)
 
-  configure_file(${cdat_CMAKE_SOURCE_DIR}/python_patch_step.cmake.in
+  configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/python_patch_step.cmake.in
     ${cdat_CMAKE_BINARY_DIR}/python_patch_step.cmake
     @ONLY)
 
-  configure_file(${cdat_CMAKE_SOURCE_DIR}/python_configure_step.cmake.in
+  configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/python_configure_step.cmake.in
     ${cdat_CMAKE_BINARY_DIR}/python_configure_step.cmake
     @ONLY)
 
-  configure_file(${cdat_CMAKE_SOURCE_DIR}/python_make_step.cmake.in
+  configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/python_make_step.cmake.in
     ${cdat_CMAKE_BINARY_DIR}/python_make_step.cmake
     @ONLY)
 
-  configure_file(${cdat_CMAKE_SOURCE_DIR}/python_install_step.cmake.in
+  configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/python_install_step.cmake.in
     ${cdat_CMAKE_BINARY_DIR}/python_install_step.cmake
     @ONLY)
 

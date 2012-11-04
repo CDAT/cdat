@@ -32,7 +32,7 @@ endif()
 
 set(WORKING_DIR ${cdat_SOURCE_DIR})
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_python_install_step.cmake.in
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/cdat_python_install_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/cdat_python_install_step.cmake
   @ONLY)
 

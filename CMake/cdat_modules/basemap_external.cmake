@@ -3,17 +3,17 @@
 set(basemap_binary "${CMAKE_CURRENT_BINARY_DIR}/basemap/")
 
 #configure_file(
-#  ${cdat_CMAKE_SOURCE_DIR}/basemap_configure_step.cmake.in
+#  ${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/basemap_configure_step.cmake.in
 #  ${cdat_CMAKE_BINARY_DIR}/basemap_configure_step.cmake @ONLY)
 # to build we also run a cmake -P script.
 # the script will set LD_LIBRARY_PATH so that 
 # python can run after it is built on linux
 configure_file(
-  ${cdat_CMAKE_SOURCE_DIR}/basemap_make_step.cmake.in
+  ${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/basemap_make_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/basemap_make_step.cmake @ONLY)
 
 configure_file(
-  ${cdat_CMAKE_SOURCE_DIR}/basemap_install_step.cmake.in
+  ${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/basemap_install_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/basemap_install_step.cmake @ONLY)
 
 #set(basemap_CONFIGURE_COMMAND ${CMAKE_COMMAND}

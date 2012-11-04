@@ -14,7 +14,7 @@ if(UNIX AND CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
   set(cdat_tpl_c_flags_LAPACK "-fPIC ${cdat_tpl_c_flags}")
 endif()
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/CLAPACK_install_step.cmake.in
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/CLAPACK_install_step.cmake.in
     ${cdat_CMAKE_BINARY_DIR}/CLAPACK_install_step.cmake
     @ONLY)
 

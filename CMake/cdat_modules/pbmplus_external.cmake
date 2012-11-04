@@ -4,7 +4,7 @@ set(pbmplus_install "${cdat_EXTERNALS}")
 
 #cp ../../exsrc/src/pbmplus/pbmplus.h . ; cp ../../exsrc/src/pbmplus/libpbm1.c pbm  ;cp ../../exsrc/src/pbmplus/Makefile .
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/pbmplus_configure_step.cmake.in
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/pbmplus_configure_step.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/pbmplus_configure_step.cmake
     @ONLY)
 

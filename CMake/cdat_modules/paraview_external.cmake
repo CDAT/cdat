@@ -107,11 +107,11 @@ ExternalProject_Add(ParaView
 
 # Install ParaView and VTK python modules via their setup.py files.
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/vtk_install_python_module.cmake.in
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/vtk_install_python_module.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/vtk_install_python_module.cmake
   @ONLY)
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/paraview_install_python_module.cmake.in
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/paraview_install_python_module.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/paraview_install_python_module.cmake
   @ONLY)
 
