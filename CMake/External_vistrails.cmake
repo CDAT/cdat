@@ -2,6 +2,7 @@
 # and configure and build it
 
 set(vistrails_url "${GIT_PROTOCOL}vistrails.org/git/vistrails.git")
+option(CDAT_DELETE_VISTRAILS_HISTORY "Delete GIT history of vistrails" OFF)
 
 ExternalProject_Add(vistrails
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
@@ -14,8 +15,10 @@ ExternalProject_Add(vistrails
   ${EP_LOG_OPTIONS}
 )
 
-ExternalProject_Add_Step(vistrails after_install
-  COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_INSTALL_PREFIX}/vistrails/.git
-  DEPENDEES install
-  WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/vistrails
-)
+if(CDAT_DELETE_VISTRAILS_HISTORY)
+  ExternalProject_Add_Step(vistrails after_install
+    COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_INSTALL_PREFIX}/vistrails/.git
+    DEPENDEES install
+    WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/vistrails
+  )
+endif()
