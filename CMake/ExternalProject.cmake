@@ -1233,11 +1233,28 @@ function(_ep_add_update_command name)
     if(NOT git_tag)
       set(git_tag "master")
     endif()
-    set(cmd ${GIT_EXECUTABLE} fetch
-      COMMAND ${GIT_EXECUTABLE} checkout ${git_tag}
-      COMMAND ${GIT_EXECUTABLE} submodule update --recursive
-      )
-    set(always 1)
+
+    if(EXISTS ${source_dir})
+      # get reversion of the remote git_tag and store it in _RES1
+      execute_process( COMMAND ${GIT_EXECUTABLE} --git-dir=${source_dir}/.git rev-parse origin/${git_tag} OUTPUT_VARIABLE _RES1)
+      # get reversion of the local git_tag and store it in _RES2
+      execute_process( COMMAND ${GIT_EXECUTABLE} --git-dir=${source_dir}/.git rev-parse ${git_tag} OUTPUT_VARIABLE _RES2)
+    else()
+      set(_RES1 0)
+      set(_RES2 1)
+    endif()
+
+    # if tags match then skip
+    if(${_RES1} MATCHES ${_RES2})
+        set(always 0)
+    else()
+        # tags don't match update
+        set(cmd ${GIT_EXECUTABLE} fetch
+          COMMAND ${GIT_EXECUTABLE} checkout ${git_tag}
+          COMMAND ${GIT_EXECUTABLE} submodule update --recursive
+          )
+        set(always 1)
+    endif()
   endif()
 
   get_property(log TARGET ${name} PROPERTY _EP_LOG_UPDATE)
