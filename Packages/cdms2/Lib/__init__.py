@@ -56,7 +56,7 @@ try:
 except:
     pass
 
-from restApi import esgfConnection
+from restApi import esgfConnection,esgfDataset
 
 MV = MV2
 

@@ -9,8 +9,13 @@ ExternalProject_Add(vistrails
   BUILD_IN_SOURCE 1
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
-  INSTALL_COMMAND ${GIT_EXECUTABLE} clone -b ${VISTRAILS_TAG_POINT}  ${vistrails_url}
+  INSTALL_COMMAND ${GIT_EXECUTABLE} clone --depth 1 -b ${VISTRAILS_TAG_POINT}  ${vistrails_url}
   DEPENDS ${vistrails_DEPENDENCIES}
   ${EP_LOG_OPTIONS}
-  )
+)
 
+ExternalProject_Add_Step(vistrails after_install
+  COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_INSTALL_PREFIX}/vistrails/.git
+  DEPENDEES install
+  WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/vistrails
+)

@@ -30,6 +30,9 @@ set(CMAKE_MODULE_PATH
   ${CMAKE_MODULE_PATH}
   )
 
+#allow cmake to help create regression tests
+include(CTest)
+
 #-----------------------------------------------------------------------------
 # CDAT version
 #------------------------------------------------------------------------------
@@ -170,6 +173,10 @@ set(EP_LOG_OPTIONS
   LOG_TEST 1
   LOG_INSTALL 1
 )
+if (CDASH_EP_LOG_OPTIONS)
+  #override on dashboards so build results are visible
+  set(EP_LOG_OPTIONS ${CDASH_EP_LOG_OPTIONS})
+endif()
 
 INCLUDE(ExternalProject)
 
@@ -530,6 +537,7 @@ add_cdat_package(CDAT)
 add_cdat_package(gui_support)
 add_cdat_package(R)
 
+add_cdat_package(scikits)
 
 # Earth System Modelling Framework and the Python wrapper.
 # Added by Dave Kindig Tech-X Corp. kindig@txcorp.com
@@ -746,10 +754,9 @@ set(spyder_DEPENDENCIES ${Sphinx_dep} ${PyQt_dep} )
 set(MyProxyClient_DEPENDENCIES ${spyder_dep})
 #set(lxml_DEPENDENCIES ${Cython_dep} ${setuptools_dep})
 set(vistrails_DEPENDENCIES ${Python_dep})
-
+set(scikits_DEPENDENCIES ${setuptools_dep} ${SCIPY_dep})
 # Added by Aashish @ Kitware Inc
 set(PVFileDialog_DEPENDENCIES ${ParaView_dep} ${SIP_dep})
-
 list(REMOVE_DUPLICATES external_packages)
 foreach(package ${external_packages})
   message("Building ${package}")
@@ -779,3 +786,4 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/setup_cdat.csh.in
 configure_file(${cdat_CMAKE_SOURCE_DIR}/uvcdat.in
   ${CMAKE_INSTALL_PREFIX}/bin/uvcdat
   @ONLY)
+
