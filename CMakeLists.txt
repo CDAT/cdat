@@ -787,3 +787,6 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/uvcdat.in
   ${CMAKE_INSTALL_PREFIX}/bin/uvcdat
   @ONLY)
 
+if (BUILD_TESTING)
+  add_subdirectory(testing)
+endif()
