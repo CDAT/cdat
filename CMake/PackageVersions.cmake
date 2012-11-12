@@ -379,7 +379,7 @@ set(PARAVIEW_MD5 81565b70093784dea38d2d62e072287b)
 
 set(VISIT_MAJOR 2)
 set(VISIT_MINOR 6)
-set(VISIT_PATCH 0b)
+set(VISIT_PATCH 0)
 set(VISIT_VERSION ${VISIT_MAJOR}.${VISIT_MINOR}.${VISIT_PATCH})
 #set(VISIT_SVN http://portal.nersc.gov/svn/visit/tags/${VISIT_VERSION}/src)
 #set(VISIT_URL http://portal.nersc.gov/svn/visit/trunk/releases/${VISIT_VERSION})
