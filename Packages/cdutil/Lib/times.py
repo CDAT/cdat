@@ -189,13 +189,13 @@ def mergeTime(ds,statusbar=1):
     nt=len(vals)
     # sys.exit()
     # Quick error check (no duplicate)
-    
-    for i in range(nt-1):
+    if len(numpy.unique(vals))!=nt:
+      for i in range(nt-1):
         if vals[i]==vals[i+1] :
             errtime=cdtime.reltime(vals[i],'seconds since 2000').tocomp()
             err='Error in merging process : duplicate time point\n'
-            err=err+str(errtime)+' is duplicated, cannot merge'
-            raise err
+            err=err+str(errtime)+' is duplicated, cannot merge'+str(vals[i-2:i+3])
+            raise Exception,err
 
     # Now create the big array that will be the merged
     sh=list(ds[0].shape)
@@ -230,7 +230,7 @@ def mergeTime(ds,statusbar=1):
                         bnds[v][0]=switchCalendars(bnds[v][0],tim.units,tim.getCalendar(),times[0].units,times[0].getCalendar()).value
                         bnds[v][1]=switchCalendars(bnds[v][1],tim.units,tim.getCalendar(),times[0].units,times[0].getCalendar()).value
                         del(timesleft[i][it])
-                        raise  # to exit the it and i loops
+                        raise Exception  # to exit the it and i loops
                     elif val.value>vals[v]:
                         break
         except:
@@ -389,7 +389,7 @@ class TimeSlicer:
         # Check we have something
         if slices==[] :
             return None
-##             raise 'Error Slicer return nothing for: '+str(slicerarg)
+##             raise Exception,'Error Slicer return nothing for: '+str(slicerarg)
         # How many slices ?
         out=self.average(slab,slices,bounds,norm,criteriaarg,statusbar,weights=weights,sum=sum)
         if weights:
@@ -760,7 +760,7 @@ def dayBasedSlicer(tim,arg=None):
     for i in range(len(arg)):
         subarg=arg[i]
         if type(subarg)!=types.StringType:
-            raise "Error, arguments to dayBasedSlicer must be strings"
+            raise Exception,"Error, arguments to dayBasedSlicer must be strings"
         sp=string.split(subarg,"-")
         if sp[0]==subarg:
             sp=string.split(subarg,'/')
@@ -774,7 +774,7 @@ def dayBasedSlicer(tim,arg=None):
                         t=t.tocomp()
                         subarg=str(t.month)+'-'+str(t.day)
                 except:
-                    raise "Error, dayBasedSlicer args must have '-' or '/' as month/day separator"
+                    raise Exception,"Error, dayBasedSlicer args must have '-' or '/' as month/day separator"
         try:
             day=string.atoi(sp[1])
             try:
@@ -789,7 +789,7 @@ def dayBasedSlicer(tim,arg=None):
                 except:
                     month=string.atoi(sp[1])
             except:
-                raise "Error dayBasedSlicer couldn't understand argument: "+subarg
+                raise Exception,"Error dayBasedSlicer couldn't understand argument: "+subarg
         tupples.append([day,month])
     slices=[]
     bounds=[]
@@ -1240,6 +1240,20 @@ class Seasons(ASeason):
         self.prev=0
         self.title=''
 
+    def month_fix(self,slab):
+        t=slab.getTime()
+        u = t.units
+        if u.split()[0][:5].lower()=="month":
+            tc=cdtime.reltime(t[0],u).tocomp(t.getCalendar())
+            if tc.cmp(cdtime.comptime(tc.year))<1:
+                t.toRelativeTime("months since %i" % (tc.year - 5))
+        return u
+
+    def month_restore(self,slab,u):
+        t=slab.getTime()
+        if t.units!=u:
+            t.toRelativeTime(u)
+            
     def get(self,slab,slicerarg=None,criteriaarg=None,statusbar=None,sum=False):
         '''Get the seasons asked for and return them in chronological order
         i.e. if you asked for DJF and JJA and the first season of your dataset is JJA you will have a JJA first !!!!
@@ -1249,6 +1263,7 @@ class Seasons(ASeason):
         rather than Season(slab,None,None,mycriteriaarguments)
         Now for the original doc of the get function see get2__doc__:
         '''
+        u=self.month_fix(slab)
         s=[]
         i=-1
         missing_seasons = []
@@ -1260,7 +1275,9 @@ class Seasons(ASeason):
                 s.pop(-1)
                 missing_seasons.append(season)
         self.statusbar2(statusbar)
-        return mergeTime(s,statusbar=statusbar)
+        m = mergeTime(s,statusbar=statusbar)
+        self.month_restore(m,u)
+        return m
 
     def departures(self,slab,slicerarg=None,criteriaarg=None,ref=None,statusbar=None,sum=False):
         ''' Return the departures for the list of season you specified, returned in chronological order
@@ -1269,6 +1286,7 @@ class Seasons(ASeason):
         To pass a specific array from which to compute departures, please pass 1 per season (or None if we should compute it)
         for info one default departures see: departures2.__doc__
         '''
+        u=self.month_fix(slab)
         if not cdms2.isVariable(ref) and ref is not None:
             raise RuntimeError,"reference must be a variable (MV2)"
         s=[]
@@ -1306,7 +1324,9 @@ class Seasons(ASeason):
         if not statusbar is None and len(self.seasons)!=1 :
             if type(statusbar) in [type([]),type(())]: statusbar.pop(0)
         # Now merges the stuff
-        return mergeTime(s,statusbar=statusbar)
+        m = mergeTime(s,statusbar=statusbar)
+        self.month_restore(m,u)
+        return m
                                     
     def climatology(self,slab,criteriaarg=None,criteriaargclim=None,statusbar=None,sum=False):
         ''' Compute the climatology from a slab
@@ -1320,6 +1340,7 @@ class Seasons(ASeason):
           i.e if DJF and JJA are asked, the output will have the average DJF first, then the average JJA
           2 criteria can be passed one for the slicing part and one for the climatology part
         '''
+        u=self.month_fix(slab)
         if criteriaargclim is None: criteriaargclim=criteriaarg
         order=slab.getOrder(ids=1)
         initialgrid = slab.getGrid()
@@ -1386,6 +1407,7 @@ class Seasons(ASeason):
         s.setAxisList(ax)
         if initialgrid is not None:
             s.setGrid(initialgrid)
+        self.month_restore(s,u)
 
         if s.getOrder(ids=1)!=order:
             return s(order=order)
