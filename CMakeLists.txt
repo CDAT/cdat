@@ -9,20 +9,16 @@ set(cdat_CMAKE_BINARY_DIR ${cdat_BINARY_DIR}/CMake)
 set(cdat_external_patch_dir ${cdat_SOURCE_DIR}/exsrc)
 option(CDAT_USE_SYSTEM_INTROSPECTION "Detect System installed libraries." OFF)
 
-
-
 if("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local")
   get_filename_component(cdat_ROOT_DIR ${cdat_BINARY_DIR} PATH)
   set(CMAKE_INSTALL_PREFIX ${cdat_ROOT_DIR}/install CACHE STRING "" FORCE)
 endif()
 
-# Check we are not in a subdir of the sources
-# Added C. Doutriaux 2012-11-16
-STRING(REGEX MATCH "${cdat_SOURCE_DIR}"  BUILDINSOURCE  ${cdat_BINARY_DIR} )
+# Disable in source build of any kind
+STRING(REGEX MATCH "${cdat_SOURCE_DIR}"  BUILDINSOURCE  "${cdat_BINARY_DIR}")
 if ("${BUILDINSOURCE}" STREQUAL "${cdat_SOURCE_DIR}")
-   message(FATAL_ERROR "error: You cannot build in a subdirectory of your sources")
+   message(FATAL_ERROR "[ERROR] CDAT requires an out of source Build")
 endif()
-
 
 set(cdat_EXTERNALS ${CMAKE_INSTALL_PREFIX}/Externals)
 set(ENV{PATH} "${cdat_EXTERNALS}/bin:$ENV{PATH}")
