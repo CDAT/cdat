@@ -16,6 +16,14 @@ if("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local")
   set(CMAKE_INSTALL_PREFIX ${cdat_ROOT_DIR}/install CACHE STRING "" FORCE)
 endif()
 
+# Check we are not in a subdir of the sources
+# Added C. Doutriaux 2012-11-16
+STRING(REGEX MATCH ${cdat_ROOT_DIR}  BUILDINSOURCE  ${cdat_SOURCE_DIR})
+if ("${BUILDINSOURCE}" STREQUAL "${cdat_ROOT_DIR}")
+   message(FATAL_ERROR "error: You cannot build in a subdirectory of your sources")
+endif()
+
+
 set(cdat_EXTERNALS ${CMAKE_INSTALL_PREFIX}/Externals)
 set(ENV{PATH} "${cdat_EXTERNALS}/bin:$ENV{PATH}")
 message("We reset your path to: " $ENV{PATH})
