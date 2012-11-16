@@ -18,8 +18,8 @@ endif()
 
 # Check we are not in a subdir of the sources
 # Added C. Doutriaux 2012-11-16
-STRING(REGEX MATCH ${cdat_ROOT_DIR}  BUILDINSOURCE  ${cdat_SOURCE_DIR})
-if ("${BUILDINSOURCE}" STREQUAL "${cdat_ROOT_DIR}")
+STRING(REGEX MATCH "${cdat_SOURCE_DIR}"  BUILDINSOURCE  ${cdat_BINARY_DIR} )
+if ("${BUILDINSOURCE}" STREQUAL "${cdat_SOURCE_DIR}")
    message(FATAL_ERROR "error: You cannot build in a subdirectory of your sources")
 endif()
 
