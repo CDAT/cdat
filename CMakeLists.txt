@@ -346,10 +346,19 @@ foreach(package ${external_packages})
 endforeach()
 
 topological_sort(external_packages "" "_deps")
+
 foreach(package ${external_packages})
-  message("[DEBUG] Including package ${package}")
+  enable_cdat_package_deps(${package})
+endforeach()
+
+foreach(package ${external_packages})
   string(TOLOWER ${package} lc_package)
-  include("${lc_package}_external")
+  string(TOUPPER ${package} uc_package)
+
+  if(CDAT_BUILD_${uc_package})
+    message("[INFO] Package ${package} will be built by superbuild")
+    include("${lc_package}_external")
+  endif()
 endforeach()
 
 # Construct Include and Link variables
