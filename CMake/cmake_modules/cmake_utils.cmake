@@ -82,3 +82,14 @@ macro (add_cdat_package package_name version_string msg default)
 
   endif()
 endmacro()
+
+# Disable a cdat package
+macro(disable_cdat_package package_name)
+  string(TOUPPER ${package_name} uc_package)
+  string(TOLOWER ${package_name} lc_package)
+
+  set(cdat_var CDAT_BUILD_${uc_package})
+  if(DEFINED cdat_var)
+    set(${cdat_var} OFF CACHE BOOL "" FORCE)
+  endif()
+endmacro()
