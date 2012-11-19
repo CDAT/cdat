@@ -13,15 +13,19 @@ set(VISTRAILS_TAG_POINT ${vistrails_branch} CACHE STRING "Specify branch of vist
 set(vistrails_url "${GIT_PROTOCOL}vistrails.org/git/vistrails.git")
 option(CDAT_DELETE_VISTRAILS_HISTORY "Delete GIT history of vistrails" OFF)
 
+# FIXME: Workaround. For some reason just using GIT_* to clone breaks the superbuild.
+set(vistrails_install_command ${GIT_EXECUTABLE} clone --depth 1 -b ${VISTRAILS_TAG_POINT}  ${vistrails_url})
+if(EXISTS ${CMAKE_INSTALL_PREFIX}/vistrails/.git)
+  set(vistrails_install_command ${GIT_EXECUTABLE} pull ${VISTRAILS_TAG_POINT})
+endif()
+
 ExternalProject_Add(vistrails
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
   SOURCE_DIR ${CMAKE_INSTALL_PREFIX}
-  GIT_REPOSITORY ${vistrails_url}
-  GIT_TAG ${VISTRAILS_TAG_POINT}
   BUILD_IN_SOURCE 1
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
-  INSTALL_COMMAND ""
+  INSTALL_COMMAND ${vistrails_install_command}
   DEPENDS ${vistrails_DEPENDENCIES}
   ${EP_LOG_OPTIONS}
 )
