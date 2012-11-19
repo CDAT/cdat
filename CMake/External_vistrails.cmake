@@ -23,7 +23,7 @@ if(EXISTS ${CMAKE_INSTALL_PREFIX}/vistrails/.git)
   endif()
   execute_process(
     COMMAND ${GIT_EXECUTABLE} fetch ${vistrails_url}
-    COMMAND ${GIT_EXECUTABLE} checkout ${VISTRAILS_TAG_POINT}
+    COMMAND ${GIT_EXECUTABLE} checkout -f ${VISTRAILS_TAG_POINT}
     WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/vistrails
   )
 
