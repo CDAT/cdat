@@ -17,6 +17,12 @@ if("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local")
   set(CMAKE_INSTALL_PREFIX ${cdat_ROOT_DIR}/install CACHE STRING "" FORCE)
 endif()
 
+# Disable in source build of any kind
+STRING(REGEX MATCH "${cdat_SOURCE_DIR}"  BUILDINSOURCE  "${cdat_BINARY_DIR}")
+if ("${BUILDINSOURCE}" STREQUAL "${cdat_SOURCE_DIR}")
+   message(FATAL_ERROR "[ERROR] CDAT requires an out of source Build")
+endif()
+
 set(cdat_EXTERNALS ${CMAKE_INSTALL_PREFIX}/Externals)
 set(ENV{PATH} "${cdat_EXTERNALS}/bin:$ENV{PATH}")
 message("[INFO] We reset your path to: " $ENV{PATH})
@@ -65,6 +71,11 @@ if(APPLE)
     set(CMAKE_OSX_ARCHITECTURES "x86_64" CACHE STRING "" FORCE)
     set(CMAKE_OSX_ARCHITECTURES_M "64" CACHE STRING "" FORCE)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "${OSX_VER_MAJOR}.${OSX_VER_MINOR}" CACHE STRING "" FORCE)
+  endif()
+
+  ## Added by C. Doutriaux, cmake 2.8.10 on make sets OSX_SYSROOT to "" leading to error, this fixes it
+  if ("${CMAKE_OSX_SYSROOT}" STREQUAL "")
+    set(CMAKE_OSX_SYSROOT "/Developer/SDKs/MacOSX${OSX_VER_MAJOR}.${OSX_VER_MINOR}.sdk" CACHE STRING "" FORCE)
   endif()
 
   if(NOT "${CMAKE_OSX_SYSROOT}" STREQUAL "")

@@ -1234,7 +1234,7 @@ function(_ep_add_update_command name)
       set(git_tag "master")
     endif()
 
-    if(EXISTS ${source_dir})
+    if(EXISTS ${source_dir}/.git)
       # get reversion of the remote git_tag and store it in _RES1
       execute_process( COMMAND ${GIT_EXECUTABLE} --git-dir=${source_dir}/.git rev-parse origin/${git_tag} OUTPUT_VARIABLE _RES1)
       # get reversion of the local git_tag and store it in _RES2

@@ -1,5 +1,8 @@
 ## Provide information about this project
-cmake_minimum_required(VERSION 2.8.7)
+## This is for a Ubuntu 12 system
+## 16 CPUs , everything uses local png/xml2/xslt
+cmake_minimum_required(VERSION 2.8.8)
+set(CTEST_BUILD_COMMAND "make -j16")
 
 ## Populate CMakeCache with block of initial data
 file(
@@ -12,8 +15,11 @@ file(
 
   # Hostname specific library paths
   CDAT_BUILD_ESMF_ESMP:BOOL=ON
-  CDAT_BUILD_ESMF_PARALLEL:BOOL=OFF
+  CDAT_BUILD_ESMF_PARALLEL:BOOL=ON
   CDAT_BUILD_PARAVIEW:BOOL=ON
   CDAT_BUILD_VISIT:BOOL=ON
   CDAT_DOWNLOADS_SAMPLE_DATA:BOOL=OFF
+  CMAKE_USE_SYSTEM_LIBXML2:BOOL=ON
+  CMAKE_USE_SYSTEM_LIBXSLT:BOOL=ON
+  CMAKE_USE_SYSTEM_PNG:BOOL=ON
 ")
