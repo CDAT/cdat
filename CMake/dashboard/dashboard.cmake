@@ -91,7 +91,7 @@ set(CTEST_SOURCE_DIRECTORY "${DASHROOT}/${CTEST_PROJECT_NAME}/source/${PROJECT_B
 # Prepare to do an initial checkout, if necessary
 if(CTEST_UPDATE_COMMAND AND NOT EXISTS "${CTEST_SOURCE_DIRECTORY}")
   set(CTEST_CHECKOUT_COMMAND
-     "${CTEST_UPDATE_COMMAND} clone --recursive -b ${PROJECT_BRANCH} git://uv-cdat.llnl.gov/uv-cdat.git ${CTEST_SOURCE_DIRECTORY}")
+     "${CTEST_UPDATE_COMMAND} clone --recursive -b ${PROJECT_BRANCH} git://github.com/UV-CDAT/uvcdat.git ${CTEST_SOURCE_DIRECTORY}")
 endif()
 
 # On non-continuous or first build of the day, clear the build directory
