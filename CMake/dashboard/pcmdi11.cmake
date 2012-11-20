@@ -2,6 +2,7 @@
 ## This is for a RH6 with locally installed QT 4.8.0 (in /usr/local/Qt/4.8.0)
 ## 16 CPUs
 ## Building a zlib version that matches what's on the system
+## Uses local png/xml2/xslt
 
 ## env DASHTYPE=Nightly DASHROOT=/export/doutriaux1/dashboard/BUILDS ctest -S /export/doutriaux1/dashboard/uvcdat/CMake/dashboard/dashboard.cmake,"next;crunchy_RedHat_6;crunchy.cmake" -VV
 
