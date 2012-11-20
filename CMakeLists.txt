@@ -70,6 +70,11 @@ if(APPLE)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "${OSX_VER_MAJOR}.${OSX_VER_MINOR}" CACHE STRING "" FORCE)
   endif()
 
+  ## Added by C. Doutriaux, cmake 2.8.10 on make sets OSX_SYSROOT to "" leadoing to error, this fixes it
+  if ("${CMAKE_OSX_SYSROOT}" STREQUAL "")
+    set(CMAKE_OSX_SYSROOT "/Developer/SDKs/MacOSX${OSX_VER_MAJOR}.${OSX_VER_MINOR}.sdk" CACHE STRING "" FORCE)
+  endif()
+
   if(NOT "${CMAKE_OSX_SYSROOT}" STREQUAL "")
     if(NOT EXISTS "${CMAKE_OSX_SYSROOT}")
       message(FATAL_ERROR "error: CMAKE_OSX_SYSROOT='${CMAKE_OSX_SYSROOT}' does not exist")
