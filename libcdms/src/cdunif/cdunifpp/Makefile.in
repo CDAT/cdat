@@ -1,5 +1,15 @@
 # makefile for cdunifpp
 
+# Install prefix for architecture-independent files
+prefix=         @prefix@
+
+# Install prefix for architecture-dependent files
+exec_prefix=    @exec_prefix@
+
+SRDDIR=@srcdir@
+VPATH=@srcdir@
+LIBDIR=$(exec_prefix)/lib
+
 OBJS = \
      cdunifpp.o \
      cdunifpp_attribute.o \
@@ -36,9 +46,9 @@ UNWGDOS_HDRS=../../../include/cdunifpp/crayio.h \
 # set to blank if you don't want to rename symbols in unpacking routines
 
 CC = @CC@
-CFLAGS = -I../../../include/cdunifpp -I@NCINC@ @CFLAGS@ -I../../../include $(DEBUG)
+CFLAGS = -I@srcdir@/../../../include/cdunifpp -I@NCINC@ @CFLAGS@ -I@srcdir@/../../../include $(DEBUG)
 CPPFLAGS = @CPPFLAGS@ @PPOPTS@ -Uhdf
-LIBRARY = ../../../lib/libcdms.a
+LIBRARY = ${LIBDIR}/libcdms.a
 
 all: $(OBJS)
 	ar rv $(LIBRARY) $(OBJS)

@@ -40,10 +40,12 @@ INCLUDEDIR=$(prefix)/include
 LIBDIR=$(exec_prefix)/lib
 MANDIR=$(prefix)/man
 PARMDIR=$(prefix)/lib/lats
+VPATH=@srcdir@
+SRCDIR=@srcdir@
 
 CC = @CC@
 CXX = g++
-CFLAGS = -I../../../include @CFLAGS@ $(DEBUG) -Dgrads
+CFLAGS = -I@srcdir@/../../../include @CFLAGS@ $(DEBUG) -Dgrads
 CXXFLAGS = $(CFLAGS)
 CXX_LDFLAGS=-lcppunit
 CPPFLAGS = @CPPFLAGS@ @PPOPTS@ @GRIB2OPTS@
@@ -53,8 +55,8 @@ FC = @FC@
 FFLAGS = -I../../include @FFLAGS@ $(DEBUG)
 INSTALL = @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
-LDFLAGS = -L/usr/local/HDF5/lib -L../../../lib -lcdms @NCOPTS@ @HDFOPTS@ @DRSOPTS@ @LIBS@ -lnetcdf -lcurl -lhdf5_hl -lhdf5 -lhdf5_hl -lgrib2c -lz -lpng -ljasper
-LDFLAGS = -L../../../lib -lcdms @GRIB2LIB@ @NCOPTS@ @HDFOPTS@ @DRSOPTS@ @LIBS@
+LDFLAGS = -L/usr/local/HDF5/lib -L${LIBDIR} -lcdms @NCOPTS@ @HDFOPTS@ @DRSOPTS@ @LIBS@ -lnetcdf -lcurl -lhdf5_hl -lhdf5 -lhdf5_hl -lgrib2c -lz -lpng -ljasper
+LDFLAGS = -L${LIBDIR} -lcdms @GRIB2LIB@ @NCOPTS@ @HDFOPTS@ @DRSOPTS@ @LIBS@
 OS = @OS@
 RANLIB = @RANLIB@
 
@@ -63,7 +65,7 @@ SHELL = /bin/sh
 
 # Do not change values below this line
 #
-LIBRARY		= ../../../lib/libcdms.a
+LIBRARY		= ${LIBDIR}/libcdms.a
 
 all:		cdfile cudump cuget testnc testdrs testpp
 

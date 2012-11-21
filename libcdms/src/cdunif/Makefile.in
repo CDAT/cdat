@@ -40,11 +40,13 @@ prefix=         @prefix@
 exec_prefix=    @exec_prefix@
 
 # Expanded directories
-BINDIR=$(exec_prefix)/bin
-INCLUDEDIR=$(prefix)/include
-LIBDIR=$(exec_prefix)/lib
-MANDIR=$(prefix)/man
-PARMDIR=$(prefix)/lib/lats
+BINDIR=${exec_prefix}/bin
+INCLUDEDIR=${prefix}/include
+LIBDIR=${exec_prefix}/lib
+MANDIR=${prefix}/man
+PARMDIR=${prefix}/lib/lats
+SRCDIR=@srcdir@
+VPATH=@srcdir@
 
 # Set the compiler flag for the 64-bit Opteron platform
 ARCH=$(shell uname -m)
@@ -54,9 +56,9 @@ else
    CC = @CC@
 endif
 ifneq (@GRIB2INC@,)
- CFLAGS = -I../../include -I"@NCINC@" -I@HDFINC@ -I@DRSINC@ @CFLAGS@ $(DEBUG) -Dgrads -I@GRIB2INC@ @GRIB2OPTS@
+ CFLAGS = -I@srcdir@/../../include -I"@NCINC@" -I@HDFINC@ -I@DRSINC@ @CFLAGS@ $(DEBUG) -Dgrads -I@GRIB2INC@ @GRIB2OPTS@
 else
- CFLAGS = -I../../include -I"@NCINC@" -I@HDFINC@ -I@DRSINC@ @CFLAGS@ $(DEBUG)
+ CFLAGS = -I@srcdir@/../../include -I"@NCINC@" -I@HDFINC@ -I@DRSINC@ @CFLAGS@ $(DEBUG)
 endif
 CPPFLAGS = @CPPFLAGS@ -DSTNDALN=1 -DBYTEORDER=@GRADS_BYTEORDER@ -DGRADS_CRAY=@GRADS_CRAY@ @QLOPTS@ @PPOPTS@ @GRIB2OPTS@
 DEBUG = -O
@@ -74,8 +76,8 @@ SHELL = /bin/sh
 
 # Do not change values below this line
 #
-LIBRARY		= ../../lib/libcdms.a
-OBJS		= cdunif.o cdunifint.o cdunifgen.o cdunifdrs.o cdunifgrads.o cdunifnc.o cdunifhdf.o cdunifslab.o cdunifstub.o cdunifra.o cdrra.o cdsort.o gamach.o gaio.o gaprnt.o gautil.o gaddes.o galloc.o gabufr.o gabufrtbl.o cdunifql.o @GRADS_IEEE2CRAY_OBJECT@
+LIBRARY= ${LIBDIR}/libcdms.a
+OBJS= cdunif.o cdunifint.o cdunifgen.o cdunifdrs.o cdunifgrads.o cdunifnc.o cdunifhdf.o cdunifslab.o cdunifstub.o cdunifra.o cdrra.o cdsort.o gamach.o gaio.o gaprnt.o gautil.o gaddes.o galloc.o gabufr.o gabufrtbl.o cdunifql.o @GRADS_IEEE2CRAY_OBJECT@
 
 all:		$(OBJS) FORCE
 		ar rv $(LIBRARY) $(OBJS)

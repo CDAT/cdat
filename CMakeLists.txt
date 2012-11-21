@@ -49,7 +49,7 @@ set(cdat_VERSION_PATCH 0)
 set(cdat_VERSION ${cdat_VERSION_MAJOR}.${cdat_VERSION_MINOR}.${cdat_VERSION_PATCH})
 
 configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/version.in
-  ${cdat_SOURCE_DIR}/version
+  ${cdat_BINARY_DIR}/version
   @ONLY
 )
 
@@ -141,7 +141,7 @@ endif()
 #-----------------------------------------------------------------------------
 if(CMAKE_Fortran_COMPILER)
   enable_language(Fortran)
-  set(CONFIG_SUMMARY ${cdat_SOURCE_DIR}/logs/config.summary)
+  set(CONFIG_SUMMARY ${cdat_BINARY_DIR}/logs/config.summary)
   include(${CMAKE_ROOT}/Modules/CMakeDetermineFortranCompiler.cmake)
 endif(CMAKE_Fortran_COMPILER)
 

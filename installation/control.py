@@ -14,9 +14,17 @@ echo=0     # Echo installation commands before executing?
 log=1      # Make logs?
 silent = 0 # Report progress?
 
+import os
+current_dir = os.path.dirname(__file__)
+src_dir = os.path.join(current_dir, '..')
+installation_script_dir = os.path.join(src_dir, 'installation')
+
+sys.path.append(src_dir)
+sys.path.append(installation_script_dir)
+
 # Configuration
 do_configure = 1
-if os.path.isfile(os.path.join('installation','cdat_info.py')):
+if os.path.isfile(os.path.join(src_dir,'installation','cdat_info.py')):
     try:
       import cdat_info
       do_configure = 0
