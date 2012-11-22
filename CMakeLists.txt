@@ -41,24 +41,6 @@ include(cmake_utils)
 include(check_fortran)
 include(CTest)
 
-# Set cdat version and configure version file
-#-----------------------------------------------------------------------------
-set(cdat_VERSION_MAJOR 6)
-set(cdat_VERSION_MINOR 1)
-set(cdat_VERSION_PATCH 0)
-set(cdat_VERSION ${cdat_VERSION_MAJOR}.${cdat_VERSION_MINOR}.${cdat_VERSION_PATCH})
-
-configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/version.in
-  ${cdat_BINARY_DIR}/version
-  @ONLY
-)
-
-# Clean all cdat builds
-execute_process(
-    COMMAND ./scripts/clean_script all
-    WORKING_DIRECTORY ${cdat_SOURCE_DIR}
-)
-
 # Change architecture *before* any enable_language() or project()
 # calls so that it's set properly to detect 64-bit-ness...
 #-----------------------------------------------------------------------------
