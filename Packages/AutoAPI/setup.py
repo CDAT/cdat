@@ -12,5 +12,4 @@ setup (name = "AutoAPI",
        url = "http://cdat.sf.net",
        packages = ['AutoAPI'],
        package_dir = {'AutoAPI': 'Lib'},
-       
       )

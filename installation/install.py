@@ -660,6 +660,7 @@ def main(arglist):
     for p in packages:
         h = os.getcwd()
         oldcmd=action["setup.py"]+""
+        action['setup.py'] = action['setup.py'].strip()[:-1]+" build -b "+ os.environ['BUILD_DIR']+"/"+p
         try:
             if p == "Packages/vcs":
                 if qtfw:
