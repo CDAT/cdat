@@ -177,8 +177,9 @@ xml2_libs=c
 vcs_extra_compile_args = []
 # ??? Add code to detect Qt and locaton here
 if WM=="QT" or EM=="QT":
+    moc_mainwindow_path = os.path.join(os.environ['BUILD_DIR'], "moc_mainwindow.cpp")
     print "QT PATH:",QT_PATH_INC,QT_PATH_LIB
-    QT_SOURCES=""" main.cpp mainwindow.cpp moc_mainwindow.cpp qti.cpp """
+    QT_SOURCES=""" main.cpp mainwindow.cpp qti.cpp %s""" % moc_mainwindow_path
     qtsourcelist=QT_SOURCES.split()
     vcsbase_qt = os.path.join(here, 'Src','Qt')
     s10 = map(lambda x: os.path.join(vcsbase_qt,x), qtsourcelist)
@@ -210,12 +211,12 @@ if WM=="QT" or EM=="QT":
         qt_vcs_extra_link_args = ' -L%s -lQtCore%s -lQtGui%s'% (QT_PATH_LIB,QT_LIBS_SFX,QT_LIBS_SFX)
 
     ## Ok here we generate the moc file
-    if os.path.exists("Src/Qt/moc_mainwindow.cpp"):
-       os.remove("Src/Qt/moc_mainwindow.cpp")
-    moccmd = "%s Include/Qt/mainwindow.h > Src/Qt/moc_mainwindow.cpp" % MOC
+    if os.path.exists(moc_mainwindow_path):
+       os.remove(moc_mainwindow_path)
+    moccmd = "%s Include/Qt/mainwindow.h > %s" % (MOC,moc_mainwindow_path)
     print "MOC:",moccmd
     ln = os.popen(moccmd).readlines()
-    if not os.path.exists("Src/Qt/moc_mainwindow.cpp"):
+    if not os.path.exists(moc_mainwindow_path):
         print "".join(ln)
         raise "Error could not generate the moc file"
     vcs_extra_compile_args = ['-c',]+qt_vcs_extra_compile_args.split()
@@ -435,12 +436,12 @@ except:
    pass
 #
 ## print "macros:",vcs_macros,"EM:",EM,"WM:",WM
-
+info_dir = os.path.join(os.environ['BUILD_DIR'], "Info")
 try:
- os.makedirs("Info")
+ os.makedirs(info_dir)
 except:
  pass
-f=open("Info/__init__.py","w")
+f=open(os.path.join(info_dir, "__init__.py"),"w")
 print >> f, "macros = \"",vcs_macros,"EM:",EM,"WM:",WM,"\""
 print >> f, "EM = \"",EM,"\""
 print >> f, "WM = \"",WM,"\""
@@ -460,7 +461,7 @@ if dovcs:
        packages = ['vcs', 'vcs.test','vcs.info'],
        package_dir = {'vcs': 'Lib',
                       'vcs.test': 'Test',
-                      'vcs.info' : 'Info',
+                      'vcs.info' : info_dir,
                      },
        ext_modules = [
     
