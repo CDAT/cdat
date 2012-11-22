@@ -5,6 +5,15 @@ libcdms_dir=$(dirname $0)
 echo "Entering ${BUILD_DIR}"
 cd ${BUILD_DIR}
 
+#
+BUILD_LIB_DIR=${BUILD_DIR}/lib
+echo ${BUILD_LIB_DIR}
+if [ -d "$BUILD_LIB_DIR" ]; then
+ rmdir ${BUILD_LIB_DIR}
+fi
+
+mkdir ${BUILD_LIB_DIR}
+
 msg="Usage: ./install_script targetdir"
 U=`uname`
 if (test "${U}" = "Linux") then
@@ -109,7 +118,7 @@ make -j1 ${target} || exit 1
 echo "make bininstall"
 make -j1 bininstall || exit 1
 echo /bin/cp lib/libcdms.a ${PREFIX}/lib/libcdms.a
-#/bin/cp lib/libcdms.a ${PREFIX}/lib/libcdms.a
+/bin/cp lib/libcdms.a ${PREFIX}/lib/libcdms.a
 echo /bin/cp -R include ${PREFIX}/include/cdms
 /bin/cp -R ${libcdms_dir}/include ${PREFIX}/include/cdms
 echo "Done building the CDMS library."

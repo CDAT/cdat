@@ -76,7 +76,7 @@ SHELL = /bin/sh
 
 # Do not change values below this line
 #
-LIBRARY= ${LIBDIR}/libcdms.a
+LIBRARY= ../../lib/libcdms.a
 OBJS= cdunif.o cdunifint.o cdunifgen.o cdunifdrs.o cdunifgrads.o cdunifnc.o cdunifhdf.o cdunifslab.o cdunifstub.o cdunifra.o cdrra.o cdsort.o gamach.o gaio.o gaprnt.o gautil.o gaddes.o galloc.o gabufr.o gabufrtbl.o cdunifql.o @GRADS_IEEE2CRAY_OBJECT@
 
 all:		$(OBJS) FORCE

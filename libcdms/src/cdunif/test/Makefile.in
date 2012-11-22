@@ -55,8 +55,8 @@ FC = @FC@
 FFLAGS = -I../../include @FFLAGS@ $(DEBUG)
 INSTALL = @INSTALL@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
-LDFLAGS = -L/usr/local/HDF5/lib -L${LIBDIR} -lcdms @NCOPTS@ @HDFOPTS@ @DRSOPTS@ @LIBS@ -lnetcdf -lcurl -lhdf5_hl -lhdf5 -lhdf5_hl -lgrib2c -lz -lpng -ljasper
-LDFLAGS = -L${LIBDIR} -lcdms @GRIB2LIB@ @NCOPTS@ @HDFOPTS@ @DRSOPTS@ @LIBS@
+LDFLAGS = -L/usr/local/HDF5/lib -L../../../lib -lcdms @NCOPTS@ @HDFOPTS@ @DRSOPTS@ @LIBS@ -lnetcdf -lcurl -lhdf5_hl -lhdf5 -lhdf5_hl -lgrib2c -lz -lpng -ljasper
+LDFLAGS = -L../../../lib -lcdms @GRIB2LIB@ @NCOPTS@ @HDFOPTS@ @DRSOPTS@ @LIBS@
 OS = @OS@
 RANLIB = @RANLIB@
 
@@ -65,7 +65,7 @@ SHELL = /bin/sh
 
 # Do not change values below this line
 #
-LIBRARY		= ${LIBDIR}/libcdms.a
+LIBRARY		= ../../../lib/libcdms.a
 
 all:		cdfile cudump cuget testnc testdrs testpp
 

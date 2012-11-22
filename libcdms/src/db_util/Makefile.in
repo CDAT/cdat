@@ -57,7 +57,7 @@ SHELL = /bin/sh
 
 # Do not change values below this line
 #
-LIBRARY		= ${LIBDIR}/libcdms.a
+LIBRARY		= ../../lib/libcdms.a
 OBJS		= cdTimeConv.o timeConv.o timeArith.o reg_trfm.o cdRegTrfm.o \
 		  cdUtil.o
 

@@ -48,7 +48,7 @@ UNWGDOS_HDRS=../../../include/cdunifpp/crayio.h \
 CC = @CC@
 CFLAGS = -I@srcdir@/../../../include/cdunifpp -I@NCINC@ @CFLAGS@ -I@srcdir@/../../../include $(DEBUG)
 CPPFLAGS = @CPPFLAGS@ @PPOPTS@ -Uhdf
-LIBRARY = ${LIBDIR}/libcdms.a
+LIBRARY = ../../../lib/libcdms.a
 
 all: $(OBJS)
 	ar rv $(LIBRARY) $(OBJS)

@@ -65,8 +65,8 @@ SHELL = /bin/sh
 
 # Do not change values below this line
 #
-LIBRARY		= ${LIBDIR}/libcdms.a
-OBJS		= cddrs.o
+LIBRARY = ../../lib/libcdms.a
+OBJSsd = cddrs.o
 
 all:		$(OBJS) FORCE
 		ar rv $(LIBRARY) $(OBJS)

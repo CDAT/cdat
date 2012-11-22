@@ -702,7 +702,6 @@ def main(arglist):
 
 def _install(file, action):
     h = os.getcwd()
-    print 'h ', h
     absfile = os.path.abspath(file)
     print 'absfile ', absfile
     dirname, basename = os.path.split(absfile)
@@ -753,14 +752,13 @@ def _install(file, action):
         r = os.system(p)
     print r
     if r:
-        print 'FFFFFFFFFFFFFFFFFFFFFF'
         print >>sys.stderr, "Install failed in directory", dirname
         print >>sys.stderr, "Log=", logfile
         raise SystemExit, 1
     elif not log and not norun:
         os.unlink(logfile)
-    f = open('rebuild.py', 'w')
-    print 'ffffffffffffffffffffffffffffffff'
+    
+    f = open(os.path.join(build_dir, 'rebuild.py'), 'w')
     print >>f, """
 import os
 j = os.system(%s)
