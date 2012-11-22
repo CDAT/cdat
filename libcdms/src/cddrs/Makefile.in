@@ -72,7 +72,7 @@ all:		$(OBJS) FORCE
 		ar rv $(LIBRARY) $(OBJS)
 		$(RANLIB) $(LIBRARY)
 
-cddrs.o:	cddrs.c @srcdir@/../../include/cdunifint.h @srcdir@/../../include/cdunif.h @srcdir@/../../include/cddrsint.h @srcdir@/../../include/cddrs.h
+cddrs.o:	cddrs.c ../../include/cdunifint.h ../../include/cdunif.h ../../include/cddrsint.h ../../include/cddrs.h
 #cddrswrap.o:	cddrswrap.c ../../include/cddrs.h ../../include/cfortran.h
 
 

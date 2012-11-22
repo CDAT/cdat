@@ -87,13 +87,13 @@ extendlibrary:	$(EXTENDOBJS)
 		ar rv $(LIBRARY) $?
 		$(RANLIB) $(LIBRARY)
 
-cdmlex.o:	${SRCDIR}/cdmlex.c cdml.h ../../include/cdmsint.h ../../include/cdms.h
-cdms.o:		${SRCDIR}/cdms.c ../../include/cdmsint.h ../../include/cdms.h
-cdmsatt.o:	${SRCDIR}/cdmsatt.c ../../include/cdmsint.h ../../include/cdms.h
-cdmsdset.o:	${SRCDIR}/cdmsdset.c ../../include/cdmsint.h ../../include/cdms.h
-cdmsint.o:	${SRCDIR}/cdmsint.c ../../include/cdmsint.h ../../include/cdms.h
+cdmlex.o:   cdmlex.c cdml.h ../../include/cdmsint.h ../../include/cdms.h
+cdms.o:     cdms.c ../../include/cdmsint.h ../../include/cdms.h
+cdmsatt.o:  cdmsatt.c ../../include/cdmsint.h ../../include/cdms.h
+cdmsdset.o: cdmsdset.c ../../include/cdmsint.h ../../include/cdms.h
+cdmsint.o:  cdmsint.c ../../include/cdmsint.h ../../include/cdms.h
 cdmsslab.o: cdmsslab.c @srcdir@/../../include/cdms.h @srcdir@/../../include/cddrsint.h @srcdir@/../../include/cdunifint.h
-cdmyacc.o:	${SRCDIR}/cdmyacc.c ../../include/cdmsint.h ../../include/cdms.h
+cdmyacc.o:  cdmyacc.c ../../include/cdmsint.h ../../include/cdms.h
 
 cdmlex.c: cdml.l
 	$(LEX) cdml.l
