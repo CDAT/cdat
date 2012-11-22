@@ -378,7 +378,7 @@ message("[INFO] cdat_external_link_directories: ${cdat_external_link_directories
 # Configure remaining files
 #-----------------------------------------------------------------------------
 configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/checked_get.sh.in
-  ${cdat_SOURCE_DIR}/checked_get.sh
+  ${cdat_BINARY_DIR}/checked_get.sh
   @ONLY
 )
 

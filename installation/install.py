@@ -307,13 +307,14 @@ externals = %s
     else:
         print >>f, 'enable_aqua = False'
     f.close()
+    cdat_info_path = os.path.join(os.environ['BUILD_DIR'], 'cdat_info')
     if not norun: 
     # Install the configuration
        #would be best to add 'clean' but it gives stupid warning error
         sys.argv[1:]=['-q', 'install', '--prefix=%s' % target_prefix]
         setup (name="cdat_info",
            version="0.0",
-           py_modules=['cdat_info']
+           py_modules=[cdat_info_path]
         )
         os.system('/bin/rm -fr build')
     os.chdir(here)
@@ -604,7 +605,9 @@ def main(arglist):
         dat_dir = os.path.join(src_dir, 'Packages/dat')
         os.chdir(dat_dir)
         target = os.path.join(target_prefix, 'sample_data')
-        wget = os.popen('grep wget ../../checked_get.sh | tr -s " " | cut -d " " -f 2').readlines()[0].strip()
+        command = 'grep wget %s/checked_get.sh' % os.path.join(os.environ['BUILD_DIR'], "..")
+        command = command + ' | tr -s " " | cut -d " " -f 2'
+        wget = os.popen(command).readlines()[0].strip()
         data_source_url = "http://uv-cdat.llnl.gov/cdat/sample_data"
         dfiles=open("files.txt")
         data_files=dfiles.readlines()

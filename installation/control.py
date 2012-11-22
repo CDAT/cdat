@@ -24,13 +24,13 @@ sys.path.append(installation_script_dir)
 
 # Configuration
 do_configure = 1
-if os.path.isfile(os.path.join(src_dir,'installation','cdat_info.py')):
+if os.path.isfile(os.path.join(build_dir,'cdat_info.py')):
     try:
       import cdat_info
       do_configure = 0
     except:
       pass
- 
+
 finish="""
 ******************************************************
 Success! CDAT has been installed in %s .

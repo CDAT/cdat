@@ -53,7 +53,7 @@ fi
 
 if (test ! -e sources/${SCIPY_NAME}) then
     cd build
-    ../../../checked_get.sh ${SCIPY_NAME} ${SCIPY_URL}/${SCIPY_NAME}
+    ${BUILD_DIR}/checked_get.sh ${SCIPY_NAME} ${SCIPY_URL}/${SCIPY_NAME}
     cd ..
 fi
 cd build
@@ -97,7 +97,7 @@ BLAS_GZ=blas.tgz
 LAPACK_URL=http://www.netlib.org/lapack
 LAPACK_GZ=lapack.tgz
 
-(../../../checked_get.sh ${LAPACK_GZ} ${LAPACK_URL}/${LAPACK_GZ} ; \
+(${BUILD_DIR}/checked_get.sh ${LAPACK_GZ} ${LAPACK_URL}/${LAPACK_GZ} ; \
 tar xzf ../sources/${LAPACK_GZ};\
 export LAPACK_SRC='../lapack-3.3.1/SRC' ; \
 export BLAS_SRC='../lapack-3.3.1/BLAS/SRC' ; \
