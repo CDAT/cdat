@@ -1,0 +1,9 @@
+#!/bin/sh
+cd @SOURCE_DIR@
+git fetch origin --prune
+branch_name=$(git symbolic-ref HEAD | sed -e 's,.*\/\(.*\),\1,')
+if [ "${branch_name}" != "@BRANCH@" ]; then
+  git checkout -f @BRANCH@
+fi
+git reset --hard origin/@BRANCH@
+

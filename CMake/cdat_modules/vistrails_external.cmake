@@ -17,22 +17,24 @@ option(CDAT_AUTO_UPDATE_VISTRAILS_TAG_POINT "Delete GIT history of vistrails" ON
 
 # FIXME: Workaround. For some reason just using GIT_* to clone breaks the superbuild.
 set(vistrails_install_command ${GIT_EXECUTABLE} clone --depth 1 -b ${VISTRAILS_TAG_POINT}  ${vistrails_url})
-if(EXISTS ${CMAKE_INSTALL_PREFIX}/vistrails/.git)
+set(SOURCE_DIR "${CMAKE_INSTALL_PREFIX}/vistrails")
+if(EXISTS "${SOURCE_DIR}")
   if(CDAT_AUTO_UPDATE_VISTRAILS_TAG_POINT)
     set(VISTRAILS_TAG_POINT ${vistrails_branch} CACHE STRING "" FORCE)
   endif()
-  execute_process(
-    COMMAND ${GIT_EXECUTABLE} checkout -f ${VISTRAILS_TAG_POINT}
-    WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}/vistrails
+  set(BRANCH ${VISTRAILS_TAG_POINT})
+  configure_file(
+    ${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/git_update.sh.in
+    ${cdat_BINARY_DIR}/git_update_vistrails.sh
+    @ONLY
   )
-
-  set(vistrails_install_command ${GIT_EXECUTABLE} --git-dir=${CMAKE_INSTALL_PREFIX}/vistrails/.git pull)
+  set(vistrails_install_command ${cdat_BINARY_DIR}/git_update_vistrails.sh)
 endif()
 
 ExternalProject_Add(vistrails
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
   SOURCE_DIR ${CMAKE_INSTALL_PREFIX}
-  BUILD_IN_SOURCE 1
+  BUILD_IN_SOURCE 0
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
   INSTALL_COMMAND ${vistrails_install_command}
