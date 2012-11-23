@@ -347,7 +347,7 @@ foreach(package ${external_packages})
   string(TOUPPER ${package} uc_package)
 
   if(CDAT_BUILD_${uc_package})
-    message("[INFO] Package ${package} will be built by superbuild")
+    message("[INFO] Package --- ${package} --- will be built")
     include("${lc_package}_external")
   endif()
 endforeach()
