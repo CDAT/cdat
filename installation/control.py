@@ -14,8 +14,10 @@ echo=0     # Echo installation commands before executing?
 log=1      # Make logs?
 silent = 0 # Report progress?
 
-import os
+import os,sys
 current_dir = os.path.dirname(__file__)
+build_dir = os.getcwd()
+sys.path.append(build_dir)
 src_dir = os.path.join(current_dir, '..')
 installation_script_dir = os.path.join(src_dir, 'installation')
 

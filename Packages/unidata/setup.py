@@ -2,6 +2,7 @@ from numpy.distutils.core import setup, Extension
 import os,sys
 
 try:
+    sys.path.append(os.environ['BUILD_DIR'])
     import cdat_info
     externals = cdat_info.externals
 except:

@@ -2,6 +2,7 @@ from distutils.core import setup, Extension
 import os,sys,string
 import numpy
 try:
+    sys.path.append(os.environ['BUILD_DIR'])
     import cdat_info
     Version=cdat_info.Version
 except:

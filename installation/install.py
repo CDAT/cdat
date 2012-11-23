@@ -17,6 +17,7 @@ installation_script_dir = os.path.join(src_dir, 'installation')
 here = installation_script_dir
 
 sys.path.append(src_dir)
+sys.path.append(build_dir)
 sys.path.append(installation_script_dir)
 
 control_script_path = os.path.join(installation_script_dir, 'control.py')
@@ -218,7 +219,7 @@ Failed to find X11 directories. Please see README.txt for instructions.
     os.chdir(installation_script_dir)
     print 'Version is: ',Version
     f = open(os.path.join(build_dir, 'cdat_info.py'), 'w')
-    sys.path.append(os.path.join(build_dir, 'cdat_info.py'))
+    sys.path.append(build_dir)
     print >> f,"""
 Version = '%s'
 ping = False

@@ -6,6 +6,8 @@
 #
 from numpy.distutils.core import setup, Extension
 import os, sys, string, time, shutil
+
+sys.path.append(os.environ['BUILD_DIR'])
 import cdat_info
 WM = "X11" # or "QT" # Window Manager
 #WM="QT"
