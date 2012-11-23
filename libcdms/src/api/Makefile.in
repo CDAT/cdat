@@ -44,6 +44,8 @@ INCLUDEDIR=$(prefix)/include
 LIBDIR=$(exec_prefix)/lib
 MANDIR=$(prefix)/man
 PARMDIR=$(prefix)/lib/lats
+SRCDIR=@srcdir@
+VPATH=@srcdir@
 
 # Set the compiler flag for the 64-bit Opteron platform
 CC = @CC@
@@ -54,7 +56,7 @@ endif
 ifeq ($(ARCH),x86_64)
    CC = gcc -fPIC -D__x86_64__
 endif
-CFLAGS = -I../../include @CFLAGS@ $(DEBUG) -Dgrads -I@NCINC@
+CFLAGS = -I@srcdir@/../../include @CFLAGS@ $(DEBUG) -Dgrads -I@NCINC@
 CPPFLAGS = @CPPFLAGS@ -DSTNDALN=1 -DBYTEORDER=@GRADS_BYTEORDER@ -DGRADS_CRAY=@GRADS_CRAY@
 DEBUG = -O
 DEFS = @DEFS@
@@ -85,13 +87,13 @@ extendlibrary:	$(EXTENDOBJS)
 		ar rv $(LIBRARY) $?
 		$(RANLIB) $(LIBRARY)
 
-cdmlex.o:	cdmlex.c cdml.h ../../include/cdmsint.h ../../include/cdms.h
-cdms.o:		cdms.c ../../include/cdmsint.h ../../include/cdms.h
-cdmsatt.o:	cdmsatt.c ../../include/cdmsint.h ../../include/cdms.h
-cdmsdset.o:	cdmsdset.c ../../include/cdmsint.h ../../include/cdms.h
-cdmsint.o:	cdmsint.c ../../include/cdmsint.h ../../include/cdms.h
-cdmsslab.o:	cdmsslab.c ../../include/cdms.h ../../include/cddrsint.h ../../include/cdunifint.h
-cdmyacc.o:	cdmyacc.c ../../include/cdmsint.h ../../include/cdms.h
+cdmlex.o:   cdmlex.c cdml.h ../../include/cdmsint.h ../../include/cdms.h
+cdms.o:     cdms.c ../../include/cdmsint.h ../../include/cdms.h
+cdmsatt.o:  cdmsatt.c ../../include/cdmsint.h ../../include/cdms.h
+cdmsdset.o: cdmsdset.c ../../include/cdmsint.h ../../include/cdms.h
+cdmsint.o:  cdmsint.c ../../include/cdmsint.h ../../include/cdms.h
+cdmsslab.o: cdmsslab.c @srcdir@/../../include/cdms.h @srcdir@/../../include/cddrsint.h @srcdir@/../../include/cdunifint.h
+cdmyacc.o:  cdmyacc.c ../../include/cdmsint.h ../../include/cdms.h
 
 cdmlex.c: cdml.l
 	$(LEX) cdml.l

@@ -42,6 +42,9 @@ INCLUDEDIR=$(prefix)/include
 LIBDIR=$(exec_prefix)/lib
 MANDIR=$(prefix)/man
 PARMDIR=$(prefix)/lib/lats
+SRCDIR=@srcdir@
+
+VPATH=@srcdir@
 
 CC = @CC@
 CFLAGS = -I../../include @CFLAGS@ $(DEBUG) -Dgrads -I@GRIB2INC@ @GRIB2OPTS@
@@ -113,29 +116,29 @@ db_util_debug:
 install:	bininstall libinstall maninstall
 
 bininstall:
-	$(INSTALL_PROGRAM) -m 755 src/cdunif/test/cudump $(BINDIR)/cudump
-	$(INSTALL_PROGRAM) -m 755 src/cdunif/test/cuget $(BINDIR)/cuget
-	$(INSTALL_PROGRAM) -m 755 src/cdunif/test/cdfile $(BINDIR)/cdfile
+	$(INSTALL_PROGRAM) -m 755 ./src/cdunif/test/cudump $(BINDIR)/cudump
+	$(INSTALL_PROGRAM) -m 755 ./src/cdunif/test/cuget $(BINDIR)/cuget
+	$(INSTALL_PROGRAM) -m 755 ./src/cdunif/test/cdfile $(BINDIR)/cdfile
 	# $(INSTALL_PROGRAM) -m 755 src/python/cdscan $(BINDIR)/cdscan
-	$(INSTALL_PROGRAM) -m 755 src/python/cddump $(BINDIR)/cddump
-	$(INSTALL_PROGRAM) -m 755 src/python/cdimport $(BINDIR)/cdimport
+	$(INSTALL_PROGRAM) -m 755 ${SRCDIR}/src/python/cddump $(BINDIR)/cddump
+	$(INSTALL_PROGRAM) -m 755 ${SRCDIR}/src/python/cdimport $(BINDIR)/cdimport
 
 libinstall:	
 	$(INSTALL_PROGRAM) -m 644 lib/$(LIBRARY) $(LIBDIR)/$(LIBRARY)
 	(cd $(LIBDIR); $(RANLIB) $(LIBRARY))
-	$(INSTALL_PROGRAM) -m 644 include/cdms.h $(INCLUDEDIR)/cdms.h
-	$(INSTALL_PROGRAM) -m 644 include/cdms.inc $(INCLUDEDIR)/cdms.inc
-	$(INSTALL_PROGRAM) -m 644 include/cddrs.h $(INCLUDEDIR)/cddrs.h
-	$(INSTALL_PROGRAM) -m 644 include/cdunif.h $(INCLUDEDIR)/cdunif.h
-	$(INSTALL_PROGRAM) -m 644 include/fcddrs.h $(INCLUDEDIR)/fcddrs.h
-	$(INSTALL_PROGRAM) -m 644 include/drscdf.h $(INCLUDEDIR)/drscdf.h
+	$(INSTALL_PROGRAM) -m 644 ${SRCDIR}/include/cdms.h $(INCLUDEDIR)/cdms.h
+	$(INSTALL_PROGRAM) -m 644 ${SRCDIR}/include/cdms.inc $(INCLUDEDIR)/cdms.inc
+	$(INSTALL_PROGRAM) -m 644 ${SRCDIR}/include/cddrs.h $(INCLUDEDIR)/cddrs.h
+	$(INSTALL_PROGRAM) -m 644 ${SRCDIR}/include/cdunif.h $(INCLUDEDIR)/cdunif.h
+	$(INSTALL_PROGRAM) -m 644 ${SRCDIR}/include/fcddrs.h $(INCLUDEDIR)/fcddrs.h
+	$(INSTALL_PROGRAM) -m 644 ${SRCDIR}/include/drscdf.h $(INCLUDEDIR)/drscdf.h
 
 maninstall:
-	$(INSTALL_PROGRAM) -m 644 man/man3/cdtime.3 $(MANDIR)/man3/cdtime.3 
-	$(INSTALL_PROGRAM) -m 644 man/man3/fcddrs.3 $(MANDIR)/man3/fcddrs.3 
-	$(INSTALL_PROGRAM) -m 644 man/man3/cdunif.3 $(MANDIR)/man3/cdunif.3 
-	$(INSTALL_PROGRAM) -m 644 man/man3/cddrs.3 $(MANDIR)/man3/cddrs.3 
-	$(INSTALL_PROGRAM) -m 644 man/man3/cdms.3 $(MANDIR)/man3/cdms.3 
+	$(INSTALL_PROGRAM) -m 644 ${SRCDIR}/man/man3/cdtime.3 $(MANDIR)/man3/cdtime.3 
+	$(INSTALL_PROGRAM) -m 644 ${SRCDIR}/man/man3/fcddrs.3 $(MANDIR)/man3/fcddrs.3 
+	$(INSTALL_PROGRAM) -m 644 ${SRCDIR}/man/man3/cdunif.3 $(MANDIR)/man3/cdunif.3 
+	$(INSTALL_PROGRAM) -m 644 ${SRCDIR}/man/man3/cddrs.3 $(MANDIR)/man3/cddrs.3 
+	$(INSTALL_PROGRAM) -m 644 ${SRCDIR}/man/man3/cdms.3 $(MANDIR)/man3/cdms.3 
 
 distinstall:
 	$(INSTALL_PROGRAM) -m 644 $(LIBRARY) $(LIBDIR)/$(LIBRARY)

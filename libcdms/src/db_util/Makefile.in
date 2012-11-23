@@ -36,9 +36,11 @@ INCLUDEDIR=$(prefix)/include
 LIBDIR=$(exec_prefix)/lib
 MANDIR=$(prefix)/man
 PARMDIR=$(prefix)/lib/lats
+SRCDIR=@srcdir@
+VPATH=@srcdir@
 
 CC = @CC@
-CFLAGS = -I../../include @CFLAGS@ $(DEBUG) -Dgrads
+CFLAGS = -I@srcdir@/../../include @CFLAGS@ $(DEBUG) -Dgrads
 CPPFLAGS = @CPPFLAGS@
 DEBUG = -O
 DEFS = @DEFS@

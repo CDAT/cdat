@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from distutils.core import setup, Extension
 import os, sys
+sys.path.append(os.environ['BUILD_DIR'])
 import cdat_info
 
 setup (name = "psql",

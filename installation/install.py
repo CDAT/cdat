@@ -1,9 +1,28 @@
 import sys, getopt, os, shutil, string, glob, tempfile, hashlib
 from distutils.core import setup
-here = os.getcwd()
-logdir = os.path.join(here, 'logs').replace(" ","\ ")
-print logdir
-execfile(os.path.join("installation", "control.py"), globals(), globals())
+
+build_dir = os.getcwd()
+logdir = os.path.join(build_dir, 'logs').replace(" ","\ ")
+
+# Create logs directory if it does not exits
+if not os.path.exists(logdir):
+  os.makedirs(logdir)
+
+base_build_dir = os.path.join(build_dir, '..')
+os.environ['BUILD_DIR'] = build_dir
+
+current_dir = os.path.dirname(__file__)
+src_dir = os.path.join(current_dir, '..')
+installation_script_dir = os.path.join(src_dir, 'installation')
+here = installation_script_dir
+
+sys.path.append(src_dir)
+sys.path.append(build_dir)
+sys.path.append(installation_script_dir)
+
+control_script_path = os.path.join(installation_script_dir, 'control.py')
+execfile(control_script_path, globals(), globals())
+
 global target_prefix
 target_prefix = sys.prefix
 for i in range(len(sys.argv)):
@@ -30,7 +49,8 @@ except Exception,err:
 cdms_include_directory = os.path.join(target_prefix, 'include', 'cdms')
 cdms_library_directory = os.path.join(target_prefix, 'lib')
 
-Version = open("version").read().strip()
+version_file_path = os.path.join(base_build_dir, 'version')
+Version = open(version_file_path).read().strip()
 version = Version.split(".")
 for i in range(len(version)):
     try:
@@ -55,10 +75,10 @@ def testlib (dir, name):
 def configure (configuration_files):
     global action, target_prefix 
     options={}
-    execfile(os.path.join('installation', 'standard.py'), globals(), options)
+    execfile(os.path.join(installation_script_dir, 'standard.py'), globals(), options)
     for file in configuration_files:
         print >>sys.stderr, 'Reading configuration:', file
-        execfile(file, globals(), options)
+        execfile(os.path.join(src_dir, file), globals(), options)
 
     # Retrieve action
     action = options['action']
@@ -195,10 +215,11 @@ Failed to find X11 directories. Please see README.txt for instructions.
         print options
         raise SystemExit, 1
 
-# Write cdat_info.py
-    os.chdir('installation')
+    # Write cdat_info.py
+    os.chdir(installation_script_dir)
     print 'Version is: ',Version
-    f = open('cdat_info.py', 'w')
+    f = open(os.path.join(build_dir, 'cdat_info.py'), 'w')
+    sys.path.append(build_dir)
     print >> f,"""
 Version = '%s'
 ping = False
@@ -287,15 +308,25 @@ externals = %s
     else:
         print >>f, 'enable_aqua = False'
     f.close()
+    cdat_info_path = os.path.join(os.environ['BUILD_DIR'], 'cdat_info')
     if not norun: 
-    # Install the configuration
-       #would be best to add 'clean' but it gives stupid warning error
-        sys.argv[1:]=['-q', 'install', '--prefix=%s' % target_prefix]
-        setup (name="cdat_info",
-           version="0.0",
-           py_modules=['cdat_info']
-        )
-        os.system('/bin/rm -fr build')
+      # Install the configuration
+      #would be best to add 'clean' but it gives stupid warning error
+      sys.argv[1:]=['-q', 'install', '--prefix=%s' % target_prefix]
+      setup (name="cdat_info",
+       version="0.0",
+       py_modules=[cdat_info_path]
+      )
+      os.system('/bin/rm -fr build')
+    
+    py_prefix = os.path.join(target_prefix,'lib','python%i.%i' % sys.version_info[:2],'site-packages')
+    cdat_info_src_path = os.path.join(build_dir, 'cdat_info.py')
+    cdat_info_dst_path = os.path.join(py_prefix, 'cdat_info.py')
+    if os.path.isfile(cdat_info_src_path):
+        shutil.copyfile(cdat_info_src_path, cdat_info_dst_path)
+    else:
+       print>>sys.stderr, 'Failed to copy %s to %s' % (cdat_info_src_path, cdat_info_dst_path)        
+    
     os.chdir(here)
     print >>sys.stderr, 'Configuration installed.'
 
@@ -308,7 +339,7 @@ def usage():
     print '\tDefault Packages'
     print '\t----------------'
     packages.append('\n\tContributed Packages\n\t--------------------')
-    execfile('installation/contrib.py',globals(),globals())
+    #execfile('installation/contrib.py',globals(),globals())
     for p in packages:
         print '\t\t',p
 
@@ -543,6 +574,8 @@ def main(arglist):
             m = os.path.join('installation', n)
         elif os.path.isfile(os.path.join('installation', n + '.py')):
             m = os.path.join('installation', n + '.py')
+        elif os.path.isfile(os.path.join(src_dir, 'installation', n + '.py')):
+            m = os.path.join(src_dir, 'installation', n + '.py')
 
         if m:
             control_files.append(m)
@@ -565,11 +598,12 @@ def main(arglist):
     sys.path.insert(0,os.path.join(target_prefix,'lib','python%i.%i' % sys.version_info[:2],'site-packages'))
     if do_configure:
         force = 1
-        if os.path.isfile(os.path.join('installation','cdat_info.py')):
-            os.unlink(os.path.join('installation','cdat_info.py'))
+        if os.path.isfile(os.path.join(build_dir, 'cdat_info.py')):
+            os.unlink(os.path.join(build_dir, 'cdat_info.py'))
         print >>sys.stderr, 'Configuring & installing scripts.'
         configure(configuration_files)
-        os.chdir('images')
+        images_path = os.path.join(src_dir, 'images')
+        os.chdir(images_path)
         scripts = glob.glob('*')
         for script in scripts:
             if script[-1] == '~': continue
@@ -578,9 +612,12 @@ def main(arglist):
             if os.path.isfile(target): os.unlink(target)
             shutil.copy(script, target)
         os.chdir(here)
-        os.chdir('Packages/dat')
+        dat_dir = os.path.join(src_dir, 'Packages/dat')
+        os.chdir(dat_dir)
         target = os.path.join(target_prefix, 'sample_data')
-        wget = os.popen('grep wget ../../checked_get.sh | tr -s " " | cut -d " " -f 2').readlines()[0].strip()
+        command = 'grep wget %s/checked_get.sh' % os.path.join(os.environ['BUILD_DIR'], "..")
+        command = command + ' | tr -s " " | cut -d " " -f 2'
+        wget = os.popen(command).readlines()[0].strip()
         data_source_url = "http://uv-cdat.llnl.gov/cdat/sample_data"
         dfiles=open("files.txt")
         data_files=dfiles.readlines()
@@ -637,6 +674,7 @@ def main(arglist):
     for p in packages:
         h = os.getcwd()
         oldcmd=action["setup.py"]+""
+        action['setup.py'] = action['setup.py'].strip()[:-1]+" build -b "+ os.environ['BUILD_DIR']+"/"+p
         try:
             if p == "Packages/vcs":
                 if qtfw:
@@ -680,6 +718,7 @@ def main(arglist):
 def _install(file, action):
     h = os.getcwd()
     absfile = os.path.abspath(file)
+    print 'absfile ', absfile
     dirname, basename = os.path.split(absfile)
     dirfinal = os.path.split(dirname)[-1]
     os.chdir(dirname)
@@ -693,10 +732,12 @@ def _install(file, action):
     elif action.has_key(basename):
         p1 = action[basename]
     else:
+        print "Do not know what to do with", file, "in", dirname
         print >>sys.stderr, "Do not know what to do with", file, "in", dirname
         raise SystemExit, 1
-##     print 'p1 is:',p1
-##     print 'log:',log
+    print 'p1 is:',p1
+    print 'log:',log
+
     if log:
         logfile = os.path.join(logdir, dirfinal+".LOG")
         if not silent:
@@ -714,22 +755,25 @@ def _install(file, action):
     if cflags_current.find(add_lib) == -1:
         os.environ["CFLAGS"]="%s %s" % (cflags_current, add_lib)
     p = 'env CFLAGS="%s" %s' % (os.environ["CFLAGS"],p)
-    #print 'p:',p
-    #print 'p1:',p1
+    print 'p:',p
+    print 'p1:',p1
     if echo:
         print >> sys.stderr, p
+    print norun
     if norun:
         r = 0
     else:
         #print '====>executing: ', p
         r = os.system(p)
+    print r
     if r:
         print >>sys.stderr, "Install failed in directory", dirname
         print >>sys.stderr, "Log=", logfile
         raise SystemExit, 1
     elif not log and not norun:
         os.unlink(logfile)
-    f = open('rebuild.py', 'w')
+    
+    f = open(os.path.join(build_dir, 'rebuild.py'), 'w')
     print >>f, """
 import os
 j = os.system(%s)
@@ -743,6 +787,9 @@ if j:
 def install (arg, action):
     arg = os.path.normpath(arg)
     installer = ''
+    print '1'
+    print 'arg is ', arg
+    arg = os.path.join(src_dir, arg)
     if os.path.isdir(arg):
         for x in (glob.glob(os.path.join(arg, '*.pfp')) + \
                  ['autogen.sh',
@@ -752,6 +799,7 @@ def install (arg, action):
                   'Makefile',
                   'makefile'] ):
             name = os.path.join(arg,x)
+            print 'name is ', name
             if os.path.isfile(name):
                 installer = name
                 break
@@ -760,10 +808,15 @@ def install (arg, action):
             raise SystemExit, 1
     elif os.path.isfile(arg):
         installer = arg
+        print '2'
         designator, junk = os.path.split(arg)
     else:
+        print '3'
         print >>sys.stderr, "Cannot find", arg
         raise SystemExit
+
+    print 'installer is ', installer
+    print 'action is ', action
     _install(installer, action)
 
 

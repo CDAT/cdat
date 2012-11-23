@@ -1,5 +1,6 @@
 from distutils.core import setup
 try:
+    sys.path.append(os.environ['BUILD_DIR'])
     import cdat_info
     Version=cdat_info.Version
 except:

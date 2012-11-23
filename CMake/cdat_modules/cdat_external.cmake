@@ -30,7 +30,7 @@ if(CDAT_USE_SYSTEM_QT AND QT_QTCORE_INCLUDE_DIR)
   endif()
 endif()
 
-set(WORKING_DIR ${cdat_SOURCE_DIR})
+set(cdat_build_dir ${CMAKE_CURRENT_BINARY_DIR}/cdat-build)
 
 configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/cdat_python_install_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/cdat_python_install_step.cmake
@@ -39,7 +39,8 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/cdat_python_install_s
 ExternalProject_Add(CDAT
   DOWNLOAD_DIR ""
   SOURCE_DIR ${cdat_SOURCE_DIR}
-  BUILD_IN_SOURCE 1
+  BINARY_DIR ${cdat_build_dir}
+  BUILD_IN_SOURCE 0
   PATCH_COMMAND ""
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""

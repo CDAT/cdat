@@ -40,10 +40,12 @@ INCLUDEDIR=$(prefix)/include
 LIBDIR=$(exec_prefix)/lib
 MANDIR=$(prefix)/man
 PARMDIR=$(prefix)/lib/lats
+VPATH=@srcdir@
+SRCDIR=@srcdir@
 
 CC = @CC@
 CXX = g++
-CFLAGS = -I../../../include @CFLAGS@ $(DEBUG) -Dgrads
+CFLAGS = -I@srcdir@/../../../include @CFLAGS@ $(DEBUG) -Dgrads
 CXXFLAGS = $(CFLAGS)
 CXX_LDFLAGS=-lcppunit
 CPPFLAGS = @CPPFLAGS@ @PPOPTS@ @GRIB2OPTS@

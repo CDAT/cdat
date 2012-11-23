@@ -41,24 +41,6 @@ include(cmake_utils)
 include(check_fortran)
 include(CTest)
 
-# Set cdat version and configure version file
-#-----------------------------------------------------------------------------
-set(cdat_VERSION_MAJOR 6)
-set(cdat_VERSION_MINOR 1)
-set(cdat_VERSION_PATCH 0)
-set(cdat_VERSION ${cdat_VERSION_MAJOR}.${cdat_VERSION_MINOR}.${cdat_VERSION_PATCH})
-
-configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/version.in
-  ${cdat_SOURCE_DIR}/version
-  @ONLY
-)
-
-# Clean all cdat builds
-execute_process(
-    COMMAND ./scripts/clean_script all
-    WORKING_DIRECTORY ${cdat_SOURCE_DIR}
-)
-
 # Change architecture *before* any enable_language() or project()
 # calls so that it's set properly to detect 64-bit-ness...
 #-----------------------------------------------------------------------------
@@ -141,7 +123,7 @@ endif()
 #-----------------------------------------------------------------------------
 if(CMAKE_Fortran_COMPILER)
   enable_language(Fortran)
-  set(CONFIG_SUMMARY ${cdat_SOURCE_DIR}/logs/config.summary)
+  set(CONFIG_SUMMARY ${cdat_BINARY_DIR}/logs/config.summary)
   include(${CMAKE_ROOT}/Modules/CMakeDetermineFortranCompiler.cmake)
 endif(CMAKE_Fortran_COMPILER)
 
@@ -227,8 +209,6 @@ file(MAKE_DIRECTORY ${cdat_EXTERNALS}/lib)
 file(MAKE_DIRECTORY ${cdat_EXTERNALS}/bin)
 file(MAKE_DIRECTORY ${cdat_EXTERNALS}/include)
 file(MAKE_DIRECTORY ${cdat_BINARY_DIR}/logs)
-file(MAKE_DIRECTORY ${cdat_SOURCE_DIR}/logs)
-file(MAKE_DIRECTORY ${cdat_SOURCE_DIR}/libcdms)
 file(MAKE_DIRECTORY ${cdat_BINARY_DIR}/build)
 file(MAKE_DIRECTORY ${cdat_BINARY_DIR}/sources)
 
@@ -398,7 +378,7 @@ message("[INFO] cdat_external_link_directories: ${cdat_external_link_directories
 # Configure remaining files
 #-----------------------------------------------------------------------------
 configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/checked_get.sh.in
-  ${cdat_SOURCE_DIR}/checked_get.sh
+  ${cdat_BINARY_DIR}/checked_get.sh
   @ONLY
 )
 

@@ -36,6 +36,8 @@ INCLUDEDIR=$(prefix)/include
 LIBDIR=$(exec_prefix)/lib
 MANDIR=$(prefix)/man
 PARMDIR=$(prefix)/lib/lats
+SRCDIR=@srcdir@
+VPATH=@srcdir@
 
 # Set the compiler flag for the 64-bit Opteron platform
 CC = @CC@
@@ -46,7 +48,7 @@ endif
 ifeq ($(ARCH),x86_64)
    CC = gcc -fPIC -D__x86_64__
 endif
-CFLAGS = -I../../include -I@NCINC@ -I@HDFINC@ -I@DRSINC@ @CFLAGS@ $(DEBUG) -Dgrads
+CFLAGS = -I@srcdir@/../../include -I@NCINC@ -I@HDFINC@ -I@DRSINC@ @CFLAGS@ $(DEBUG) -Dgrads
 CPPFLAGS = @CPPFLAGS@
 DEBUG = -O
 DEFS = @DEFS@
@@ -63,8 +65,8 @@ SHELL = /bin/sh
 
 # Do not change values below this line
 #
-LIBRARY		= ../../lib/libcdms.a
-OBJS		= cddrs.o
+LIBRARY = ../../lib/libcdms.a
+OBJS = cddrs.o
 
 all:		$(OBJS) FORCE
 		ar rv $(LIBRARY) $(OBJS)

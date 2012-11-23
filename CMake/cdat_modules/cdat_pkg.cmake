@@ -5,7 +5,7 @@ set(cdat_VERSION ${cdat_VERSION_MAJOR}.${cdat_VERSION_MINOR}.${cdat_VERSION_PATC
 
 # configure version file
 configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/version.in
-  ${cdat_SOURCE_DIR}/version
+  ${cdat_BINARY_DIR}/version
   @ONLY
 )
 
