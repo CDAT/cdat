@@ -9,11 +9,5 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/version.in
   @ONLY
 )
 
-# Cleans all CDAT builds
-execute_process(
-  COMMAND ./scripts/clean_script all
-  WORKING_DIRECTORY ${cdat_SOURCE_DIR}
-)
-
 add_cdat_package(CDAT "" "" "")
 
