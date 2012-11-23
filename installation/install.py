@@ -215,7 +215,7 @@ Failed to find X11 directories. Please see README.txt for instructions.
         print options
         raise SystemExit, 1
 
-# Write cdat_info.py
+    # Write cdat_info.py
     os.chdir(installation_script_dir)
     print 'Version is: ',Version
     f = open(os.path.join(build_dir, 'cdat_info.py'), 'w')
@@ -310,14 +310,23 @@ externals = %s
     f.close()
     cdat_info_path = os.path.join(os.environ['BUILD_DIR'], 'cdat_info')
     if not norun: 
-    # Install the configuration
-       #would be best to add 'clean' but it gives stupid warning error
-        sys.argv[1:]=['-q', 'install', '--prefix=%s' % target_prefix]
-        setup (name="cdat_info",
-           version="0.0",
-           py_modules=[cdat_info_path]
-        )
-        os.system('/bin/rm -fr build')
+      # Install the configuration
+      #would be best to add 'clean' but it gives stupid warning error
+      sys.argv[1:]=['-q', 'install', '--prefix=%s' % target_prefix]
+      setup (name="cdat_info",
+       version="0.0",
+       py_modules=[cdat_info_path]
+      )
+      os.system('/bin/rm -fr build')
+    
+    py_prefix = os.path.join(target_prefix,'lib','python%i.%i' % sys.version_info[:2],'site-packages')
+    cdat_info_src_path = os.path.join(build_dir, 'cdat_info.py')
+    cdat_info_dst_path = os.path.join(py_prefix, 'cdat_info.py')
+    if os.path.isfile(cdat_info_src_path):
+        shutil.copyfile(cdat_info_src_path, cdat_info_dst_path)
+    else:
+       print>>sys.stderr, 'Failed to copy %s to %s' % (cdat_info_src_path, cdat_info_dst_path)        
+    
     os.chdir(here)
     print >>sys.stderr, 'Configuration installed.'
 
