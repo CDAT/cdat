@@ -425,7 +425,7 @@ class AbstractVariable(CdmsObj, Slab):
                 value = numpy.array([value], selftype)
             except:                     # Set fill value when ar[i:j] returns a masked value
                 value = numpy.array([numpy.ma.default_fill_value(self)], selftype)
-        elif valuetype is types.StringType and selftype in ['?','c','O','S']: # '?' for Boolean and object
+        elif isinstance(value,(str,numpy.string_,numpy.str,numpy.string0,numpy.str_)) and selftype in ['?','c','O','S']: # '?' for Boolean and object
             pass
         else:
             raise CDMSError, 'Invalid missing value %s'%`value`
