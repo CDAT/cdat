@@ -14,10 +14,12 @@ ExternalProject_Add(Wget
   ${ep_log_options}
 )
 
-if(WIN32)
-  set(WGET_EXECUTABLE ${wget_install}/bin/wget.exe)
-else()
-  set(WGET_EXECUTABLE ${wget_install}/bin/wget)
+if(NOT cdat_Wget_FOUND)
+  if(WIN32)
+    set(WGET_EXECUTABLE ${wget_install}/bin/wget.exe)
+  else()
+    set(WGET_EXECUTABLE ${wget_install}/bin/wget)
+  endif()
 endif()
 
 set(HASWGET ${WGET_EXECUTABLE})
