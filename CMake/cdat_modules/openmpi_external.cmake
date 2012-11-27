@@ -10,7 +10,7 @@ ExternalProject_Add(OPENMPI
   URL_MD5 ${OPENMPI_MD5}
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
-  CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR>
+  CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR> --disable-vt
   DEPENDS ${OPENMPI_deps}
   ${ep_log_options}
 )
