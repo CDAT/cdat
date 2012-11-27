@@ -1,0 +1,4 @@
+configure_file(
+  "@cdat_CMAKE_SOURCE_DIR@/cdat_modules_extra/matplotlib.setup.cfg.in"
+  "@matplotlib_source_dir@/matplotlib.setup.cfg"
+)
