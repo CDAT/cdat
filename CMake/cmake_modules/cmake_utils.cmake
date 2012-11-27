@@ -47,21 +47,21 @@ macro (add_cdat_package package_name version_string msg default)
 
     option(CDAT_USE_SYSTEM_${uc_package} "${use_system_message}" OFF)
 
-    # If system package is found and can force system package then
-    # default option should be use system ON and build package OFF
+    # If system package is found and can cdat build package option is OFF
+    # then cdat use system package should be ON
     if(cdat_${package_name}_FOUND AND NOT CDAT_BUILD_${uc_package})
       set(CDAT_USE_SYSTEM_${uc_package} ON CACHE BOOL "${use_system_message}" FORCE)
       set(CDAT_BUILD_${uc_package} OFF CACHE BOOL "${message}" FORCE)
     endif()
 
-    # If system package is not found then force turn off the
-    # system package option
+    # If system package is not found or cdat build package option is ON
+    # then cdat use system option should be OFF
     if(NOT cdat_${package_name}_FOUND OR CDAT_BUILD_${uc_package})
       set(CDAT_USE_SYSTEM_${uc_package} OFF CACHE BOOL "${use_system_message}" FORCE)
     endif()
 
-    # If system package is used (found earlier) then force turn off the
-    # cdat build package option
+    # If system package is used (found earlier) then cdat build package should
+    # be OFF
     if(CDAT_USE_SYSTEM_${uc_package})
       set(CDAT_BUILD_${uc_package} OFF CACHE BOOL "${message}" FORCE)
     endif()
