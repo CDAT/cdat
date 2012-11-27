@@ -9,26 +9,36 @@ if("${refspec}" STREQUAL "refs/heads/next")
   set(vistrails_branch uvcdat-next)
 endif()
 
-set(VISTRAILS_TAG_POINT ${vistrails_branch} CACHE STRING "Specify branch of vistrails to be used for UVCDAT")
+set(vistrails_tag_point_message "Specify branch of vistrails to be used for UVCDAT")
+set(VISTRAILS_TAG_POINT ${vistrails_branch} CACHE STRING "${vistrails_tag_point_message}")
 set(vistrails_url "${GIT_PROTOCOL}vistrails.org/git/vistrails.git")
+
+if(CDAT_AUTO_UPDATE_VISTRAILS_TAG_POINT)
+  set(VISTRAILS_TAG_POINT ${vistrails_branch} CACHE STRING "${vistrails_tag_point_message}" FORCE)
+endif()
+
+# For configure purposes
+set(SOURCE_DIR "${CMAKE_INSTALL_PREFIX}/vistrails")
+set(BRANCH ${VISTRAILS_TAG_POINT})
+set(GIT_URL "${vistrails_url}")
 
 option(CDAT_DELETE_VISTRAILS_HISTORY "Delete GIT history of vistrails" OFF)
 option(CDAT_AUTO_UPDATE_VISTRAILS_TAG_POINT "Delete GIT history of vistrails" ON)
 
-# FIXME: Workaround. For some reason just using GIT_* to clone breaks the superbuild.
-set(vistrails_install_command ${GIT_EXECUTABLE} clone --depth 1 -b ${VISTRAILS_TAG_POINT}  ${vistrails_url})
-set(SOURCE_DIR "${CMAKE_INSTALL_PREFIX}/vistrails")
+set(vistrails_install_command ${cdat_BINARY_DIR}/git_clone_vistrails.sh)
 if(EXISTS "${SOURCE_DIR}")
-  if(CDAT_AUTO_UPDATE_VISTRAILS_TAG_POINT)
-    set(VISTRAILS_TAG_POINT ${vistrails_branch} CACHE STRING "" FORCE)
-  endif()
-  set(BRANCH ${VISTRAILS_TAG_POINT})
   configure_file(
     ${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/git_update.sh.in
     ${cdat_BINARY_DIR}/git_update_vistrails.sh
     @ONLY
   )
   set(vistrails_install_command ${cdat_BINARY_DIR}/git_update_vistrails.sh)
+else()
+  configure_file(
+    ${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/git_clone.sh.in
+    ${cdat_BINARY_DIR}/git_clone_vistrails.sh
+    @ONLY
+  )
 endif()
 
 ExternalProject_Add(vistrails
