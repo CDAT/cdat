@@ -1,9 +1,7 @@
-#execute_process(
-#  COMMAND
-#  @CMAKE_COMMAND@ -E copy_if_different @cdat_SOURCE_DIR@/pysrc/src/setup-@PYTHON_VERSION@.py @python_SOURCE_DIR@/setup.py
-#  RESULT_VARIABLE res
-#  OUTPUT_VARIABLE cdat_out
-#  OUTPUT_VARIABLE cdat_err)
+execute_process(
+  COMMAND
+  @CMAKE_COMMAND@ -E copy_if_different @cdat_SOURCE_DIR@/pysrc/src/setup-@PYTHON_VERSION@.py @python_SOURCE_DIR@/setup.py
+)
 
 # Refer: http://bugs.python.org/issue14572
 if(NOT WIN32)
