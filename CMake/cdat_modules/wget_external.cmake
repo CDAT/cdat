@@ -1,7 +1,7 @@
 set(wget_source "${CMAKE_CURRENT_BINARY_DIR}/build/wget")
 set(wget_install "${cdat_EXTERNALS}")
 
-ExternalProject_Add(wget
+ExternalProject_Add(Wget
   DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
   SOURCE_DIR ${wget_source}
   INSTALL_DIR ${wget_install}

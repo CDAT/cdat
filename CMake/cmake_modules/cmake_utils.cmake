@@ -7,7 +7,9 @@ macro (add_cdat_package package_name version_string msg default)
   string(TOLOWER ${package_name} lc_package)
   set(version)
   set(message "Build ${package_name}")
+  set(use_system_message "Use system installed ${package_name}")
   set(option_default ON)
+  set(cdat_${package_name}_FOUND OFF)
 
   # ARGV1 will be the version string
   if(NOT "" STREQUAL "${version_string}")
@@ -26,7 +28,7 @@ macro (add_cdat_package package_name version_string msg default)
   endif()
 
   # Check if package is optional, and if yes populate the GUI appropriately
-  option(CDAT_BUILD_${uc_package} ${message} ${option_default})
+  option(CDAT_BUILD_${uc_package} "${message}" ${option_default})
   mark_as_advanced(CDAT_BUILD_${uc_package})
   if(NOT "" STREQUAL "${default}")
     # Find system package first and if it exits provide an option to use
@@ -38,10 +40,35 @@ macro (add_cdat_package package_name version_string msg default)
     endif()
 
     mark_as_advanced(CLEAR CDAT_BUILD_${uc_package})
-    option(CDAT_USE_SYSTEM_${uc_package} "Use system installed ${lc_package}" OFF)
+
+    if(${package_name}_FOUND OR ${uc_package}_FOUND)
+      set(cdat_${package_name}_FOUND ON)
+    endif()
+
+    option(CDAT_USE_SYSTEM_${uc_package} "${use_system_message}" OFF)
+
+    # If system package is found and can force system package then
+    # default option should be use system ON and build package OFF
+    if(cdat_${package_name}_FOUND AND NOT CDAT_BUILD_${uc_package})
+      set(CDAT_USE_SYSTEM_${uc_package} ON CACHE BOOL "${use_system_message}" FORCE)
+      set(CDAT_BUILD_${uc_package} OFF CACHE BOOL "${message}" FORCE)
+    endif()
+
+    # If system package is not found then force turn off the
+    # system package option
+    if(NOT cdat_${package_name}_FOUND OR CDAT_BUILD_${uc_package})
+      set(CDAT_USE_SYSTEM_${uc_package} OFF CACHE BOOL "${use_system_message}" FORCE)
+    endif()
+
+    # If system package is used (found earlier) then force turn off the
+    # cdat build package option
+    if(CDAT_USE_SYSTEM_${uc_package})
+      set(CDAT_BUILD_${uc_package} OFF CACHE BOOL "${message}" FORCE)
+    endif()
+
   endif()
 
-  if(NOT ${package_name}_FOUND)
+  if(NOT cdat_${package_name}_FOUND)
     mark_as_advanced(${package_name}_DIR)
   endif()
 
@@ -51,7 +78,7 @@ macro (add_cdat_package package_name version_string msg default)
       list(APPEND external_packages "${package_name}")
       set(${lc_package}_pkg "${package_name}")
   else()
-    if(CDAT_USE_SYSTEM_${uc_package} AND ${uc_package}_FOUND)
+    if(CDAT_USE_SYSTEM_${uc_package} AND cdat_${package_name}_FOUND)
       message("[INFO] Removing external package ${package_name}")
       unset(${lc_package}_pkg)
       if(external_packages)
