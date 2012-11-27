@@ -8,7 +8,9 @@ set(WGET_MD5 141461b9c04e454dc8933c9d1f2abf83)
 
 add_cdat_package(Wget "" "Build Wget" OFF)
 
-if(NOT cdat_Wget_FOUND)
+message("Value of cdat_Wget_FOUND is ${cdat_Wget_FOUND}")
+
+if(CDAT_BUILD_WGET)
   if(WIN32)
     set(WGET_EXECUTABLE ${wget_install}/bin/wget.exe)
   else()
