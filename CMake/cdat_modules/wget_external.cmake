@@ -14,15 +14,3 @@ ExternalProject_Add(Wget
   ${ep_log_options}
 )
 
-if(NOT cdat_Wget_FOUND)
-  if(WIN32)
-    set(WGET_EXECUTABLE ${wget_install}/bin/wget.exe)
-  else()
-    set(WGET_EXECUTABLE ${wget_install}/bin/wget)
-  endif()
-endif()
-
-set(HASWGET ${WGET_EXECUTABLE})
-
-set(wget_DIR "${wget_binary}" CACHE PATH "wget binary directory" FORCE)
-mark_as_advanced(wget_DIR)

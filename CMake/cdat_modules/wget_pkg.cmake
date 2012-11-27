@@ -7,3 +7,14 @@ set(WGET_GZ wget-${WGET_MAJOR}.${WGET_MINOR}.tar.gz)
 set(WGET_MD5 141461b9c04e454dc8933c9d1f2abf83)
 
 add_cdat_package(Wget "" "Build Wget" OFF)
+
+if(NOT cdat_Wget_FOUND)
+  if(WIN32)
+    set(WGET_EXECUTABLE ${wget_install}/bin/wget.exe)
+  else()
+    set(WGET_EXECUTABLE ${wget_install}/bin/wget)
+  endif()
+endif()
+
+set(HASWGET ${WGET_EXECUTABLE})
+
