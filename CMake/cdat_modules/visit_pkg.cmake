@@ -1,6 +1,6 @@
 set(VISIT_MAJOR 2)
 set(VISIT_MINOR 6)
-set(VISIT_PATCH 0b)
+set(VISIT_PATCH 0)
 set(VISIT_VERSION ${VISIT_MAJOR}.${VISIT_MINOR}.${VISIT_PATCH})
 set(VISIT_URL http://vis.lbl.gov/~visit)
 set(VISIT_GZ visit${VISIT_VERSION}.tar.gz)
