@@ -1,4 +1,9 @@
+set(INSTALL_DIR "@cdat_EXTERNALS@")
+
 configure_file(
-  "@cdat_CMAKE_SOURCE_DIR@/cdat_modules_extra/matplotlib.setup.cfg.in"
-  "@matplotlib_source_dir@/matplotlib.setup.cfg"
+  "@cdat_CMAKE_SOURCE_DIR@/cdat_modules_extra/matplotlib_setup_cfg.in"
+  "@matplotlib_source_dir@/setup.cfg"
+  @ONLY
 )
+
+set(ENV{LD_LIBRARY_PATH} "${INSTALL_DIR}/lib;$ENV{LD_LIBRARY_PATH}")
