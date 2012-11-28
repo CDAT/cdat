@@ -25,7 +25,7 @@ if (APPLE)
  message("We are on a Mac, need to relink all libraries")
  execute_process(
   COMMAND env PYTHONPATH=@PYTHONPATH@ @PYTHON_EXECUTABLE@ @cdat_CMAKE_SOURCE_DIR@/fixlink.py
-  WORKING_DIRECTORY @WORKING_DIR@
+  WORKING_DIRECTORY @cdat_BINARY_DIR@
   OUTPUT_VARIABLE out
   ERROR_VARIABLE err
   RESULT_VARIABLE res)
