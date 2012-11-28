@@ -18,8 +18,8 @@ if("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local")
 endif()
 
 # Disable in source build of any kind
-STRING(REGEX MATCH "${cdat_SOURCE_DIR}"  BUILDINSOURCE  "${cdat_BINARY_DIR}")
-if ("${BUILDINSOURCE}" STREQUAL "${cdat_SOURCE_DIR}")
+STRING(REGEX MATCH "${cdat_SOURCE_DIR}/"  BUILDINSOURCE  "${cdat_BINARY_DIR}")
+if (BUILDINSOURCE)
    message(FATAL_ERROR "[ERROR] CDAT requires an out of source Build")
 endif()
 
