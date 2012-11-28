@@ -334,27 +334,40 @@ function(_ep_write_downloadfile_script script_filename remote local timeout md5)
      dst='${local}'
      timeout='${timeout_msg}'\")
 
-file(DOWNLOAD
-  \"${remote}\"
-  \"${local}\"
-  SHOW_PROGRESS
-  ${md5_args}
-  ${timeout_args}
-  STATUS status
-  LOG log)
+set(attempt_number 1)
+set(success FALSE)
+while(attempt_number LESS 4 AND NOT success)
+  message(\"attempt \${attempt_number}\")
+  math(EXPR attempt_number \"\${attempt_number} + 1\")
 
-list(GET status 0 status_code)
-list(GET status 1 status_string)
+  file(DOWNLOAD
+    \"${remote}\"
+    \"${local}\"
+    SHOW_PROGRESS
+    ${md5_args}
+    ${timeout_args}
+    STATUS status
+    LOG log)
 
-if(NOT status_code EQUAL 0)
-  message(FATAL_ERROR \"error: downloading '${remote}' failed
-  status_code: \${status_code}
-  status_string: \${status_string}
-  log: \${log}
-\")
+  list(GET status 0 status_code)
+  list(GET status 1 status_string)
+
+  if(NOT status_code EQUAL 0)
+    message(FATAL_ERROR \"error: downloading '${remote}' failed
+    status_code: \${status_code}
+    status_string: \${status_string}
+    log: \${log}
+  \")
+  else()
+    set(success TRUE)
+  endif()
+
+endwhile()
+if (success)
+  message(STATUS \"downloading... done\")
+else()
+  message(STATUS \"downloading... FAILED\")
 endif()
-
-message(STATUS \"downloading... done\")
 "
 )
 
