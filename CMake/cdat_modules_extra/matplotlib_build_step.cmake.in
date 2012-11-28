@@ -1,14 +1,4 @@
-set(ENV{PATH} "@cdat_EXTERNALS@/bin:$ENV{PATH}")
-set(ENV{@LIBRARY_PATH@} "@cdat_EXTERNALS@/lib:$ENV{@LIBRARY_PATH@}")
-set(ENV{LDFLAGS} "-L@cdat_EXTERNALS@/lib @cdat_external_link_directories@  @cdat_rpath_flag@@CMAKE_INSTALL_PREFIX@/lib @cdat_rpath_flag@@cdat_EXTERNALS@/lib  @cdat_osx_ld_flags@")
-set(ENV{CFLAGS} "-I@cdat_EXTERNALS@/include -L@cdat_EXTERNALS@/lib @cdat_osx_flags@ @cdat_external_include_directories@  ${ADDITIONAL_CFLAGS}")
-set(ENV{CPPFLAGS} "-I@cdat_EXTERNALS@/include -L@cdat_EXTERNALS@/lib @cdat_osx_flags@ @cdat_external_include_directories@ ${ADDITIONAL_CPPFLAGS}")
-set(ENV{CXXFLAGS} "-I@cdat_EXTERNALS@/include -L@cdat_EXTERNALS@/lib @cdat_osx_flags@ @cdat_external_include_directories@ ${ADDITIONAL_CXXFLAGS}")
-
-set(ENV{PKG_CONFIG_PATH} "@cdat_EXTERNALS@/lib/pkgconfig")
-set(ENV{PKG_CONFIG} "@cdat_PKG_CONFIG_EXECUTABLE@")
-
-set(ENV{EXTERNALS} "@cdat_EXTERNALS@")
+include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
 
 execute_process(
   COMMAND @PYTHON_EXECUTABLE@ setup.py install @PYTHON_EXTRA_PREFIX@
