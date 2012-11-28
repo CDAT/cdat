@@ -51,14 +51,10 @@ else:
 packages = [ 
     "Packages/pydebug",
     "Packages/AutoAPI",
-##     "Packages/Properties",
-##     "Packages/kinds",
     "Packages/cdtime",
     "Packages/demo",
     "Packages/help",
-##     "Packages/regrid",
     "Packages/regrid2",
-##     "Packages/cdms", 
     "Packages/cdms2", 
     "Packages/esg", 
     "Packages/ncml",
@@ -71,7 +67,5 @@ packages = [
     "Packages/Thermo",
     "Packages/WK",
     "Packages/gui_support",
-    "Packages/cmor",
     "Packages/distarray",
-##    "Packages/visus",
     ]
