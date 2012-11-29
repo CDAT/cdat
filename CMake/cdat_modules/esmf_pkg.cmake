@@ -1,10 +1,10 @@
-set(ESMF_MAJOR 5)
-set(ESMF_MINOR 3)
-set(ESMF_PATCH 1._._.05.01)
+set(ESMF_MAJOR 6)
+set(ESMF_MINOR 1)
+set(ESMF_PATCH 0._._.00.01)
 set(ESMF_VERSION ${ESMF_MAJOR}.${ESMF_MINOR}.${ESMF_PATCH})
 set(ESMF_URL ${LLNL_URL})
 set(ESMF_GZ esmp.${ESMF_VERSION}.tar.bz2)
-set(ESMF_MD5 4c206ef9413d4a5e6816377e79caf556)
+set(ESMF_MD5 eb63b1d3c7e191a85a35ed309d7e983e)
 
 option(CDAT_BUILD_ESMF_PARALLEL "Build parallel version of Earth System Modeling Framework library" ON)
 
