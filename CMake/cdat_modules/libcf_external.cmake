@@ -14,7 +14,7 @@ set(libcf_build_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/libcf_make_
 set(libcf_install_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/libcf_install_step.cmake)
 
 ExternalProject_Add(libcf
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${libcf_source}
   INSTALL_DIR ${libcf_install}
   URL ${LIBCF_URL}/${LIBCF_GZ}

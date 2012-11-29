@@ -39,7 +39,7 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/ESMP_install_step.cma
 set(ESMP_install_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/ESMP_install_step.cmake)
 
 ExternalProject_Add(ESMF
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${ESMF_source_dir}
   INSTALL_DIR ${ESMF_install}
   URL ${ESMF_URL}/${ESMF_GZ}

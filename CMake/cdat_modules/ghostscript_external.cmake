@@ -5,7 +5,7 @@ set(ghostscript_install "${cdat_EXTERNALS}")
 set(ghostscripts_args "--with-drivers=PS,BMP --disable-cups")
 
 ExternalProject_Add(ghostscript
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${ghostscript_source}
   INSTALL_DIR ${ghostscript_install}
   URL ${GS_URL}/${GS_GZ}

@@ -4,7 +4,7 @@ set(netcdfplus_configure_args "")
 
 ExternalProject_Add(NetCDFPLUS
   LIST_SEPARATOR ^^
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${netcdfplus_source}
   INSTALL_DIR ${netcdfplus_install}
   URL ${NC4PLUS_URL}/${NC4PLUS_GZ}

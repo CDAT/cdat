@@ -9,7 +9,7 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/jpeg_install_step.cma
 set(jpeg_INSTALL_COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/jpeg_install_step.cmake)
 
 ExternalProject_Add(jpeg
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${jpeg_source}
   INSTALL_DIR ${jpeg_install}
   URL ${JPEG_URL}/${JPEG_GZ}

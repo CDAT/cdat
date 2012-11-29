@@ -10,7 +10,7 @@ set(tcltk_configure_args --enable-shared)
 set(proj tcl-${TCLTK_MAJOR}.${TCLTK_MINOR})
 
 ExternalProject_Add(${proj}
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${tcl_source}
   INSTALL_DIR ${tcltk_install}
   URL ${TCLTK_URL}/${TCL_GZ}
@@ -28,7 +28,7 @@ ExternalProject_Add(${proj}
 set(proj tk-${TCLTK_MAJOR}.${TCLTK_MINOR})
 
 ExternalProject_Add(${proj}
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${tk_source}
   INSTALL_DIR ${tcltk_install}
   URL ${TCLTK_URL}/${TK_GZ}

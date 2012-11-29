@@ -3,7 +3,7 @@ set(curl_source "${CMAKE_CURRENT_BINARY_DIR}/build/CURL")
 set(curl_install "${cdat_EXTERNALS}")
 
 ExternalProject_Add(CURL
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${curl_source}
   INSTALL_DIR ${curl_install}
   URL ${CURL_URL}/${CURL_GZ}

@@ -4,7 +4,7 @@ set(fontconfig_install "${cdat_EXTERNALS}")
 
 ExternalProject_Add(fontconfig
   LIST_SEPARATOR ^^
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${fontconfig_source}
   INSTALL_DIR ${fontconfig_install}
   URL ${FTCFG_URL}/${FTCFG_GZ}

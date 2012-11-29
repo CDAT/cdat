@@ -9,7 +9,7 @@ else()
 endif()
 
 ExternalProject_Add(HDF4
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${HDF4_source}
   INSTALL_DIR ${HDF4_install}
   URL ${HDF4_URL}/${HDF4_GZ}

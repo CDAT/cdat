@@ -3,7 +3,7 @@ set(uuid_source "${CMAKE_CURRENT_BINARY_DIR}/build/uuid")
 set(uuid_install "${cdat_EXTERNALS}")
 
 ExternalProject_Add(uuid
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${uuid_source}
   INSTALL_DIR ${uuid_install}
   URL ${UUID_URL}/${UUID_GZ}

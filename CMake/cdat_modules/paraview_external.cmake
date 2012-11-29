@@ -61,7 +61,7 @@ if(NOT CDAT_USE_SYSTEM_HDF5)
 endif()
 
 ExternalProject_Add(ParaView
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${ParaView_source}
   BINARY_DIR ${ParaView_binary}
   INSTALL_DIR ${ParaView_install}

@@ -52,7 +52,7 @@ else()
 endif()
 
 ExternalProject_Add(Qt
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   URL ${QT_URL}/${QT_GZ}
   URL_MD5 ${QT_MD5}
   SOURCE_DIR ${qt_source}

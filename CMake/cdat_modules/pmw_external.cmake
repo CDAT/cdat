@@ -14,7 +14,7 @@ set(Pmw_build_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/pmw_make_step
 set(Pmw_install_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/pmw_install_step.cmake)
 
 ExternalProject_Add(Pmw
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${Pmw_source}
   INSTALL_DIR ${Pmw_install}
   URL ${PMW_URL}/${PMW_GZ}

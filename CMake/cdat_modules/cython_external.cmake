@@ -3,7 +3,7 @@
 set(Cython_source "${CMAKE_CURRENT_BINARY_DIR}/build/Cython")
 
 ExternalProject_Add(Cython
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${Cython_source}
   URL ${CYTHON_URL}/${CYTHON_GZ}
   URL_MD5 ${CYTHON_MD5}

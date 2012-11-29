@@ -14,7 +14,7 @@ set(PyOpenGL_build_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/pyopengl
 set(PyOpenGL_install_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/pyopengl_install_step.cmake)
 
 ExternalProject_Add(PyOpenGL
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${PyOpenGL_source}
   URL ${PYOPENGL_URL}/${PYOPENGL_GZ}
   URL_MD5 ${PYOPENGL_MD5}

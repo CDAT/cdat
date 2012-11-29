@@ -4,7 +4,7 @@
 set(Shapely_source "${CMAKE_CURRENT_BINARY_DIR}/build/Shapely")
 
 ExternalProject_Add(Shapely
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${Shapely_source}
   URL ${SHAPELY_URL}/${SHAPELY_GZ}
   URL_MD5 ${SHAPELY_MD5}

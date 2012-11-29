@@ -20,7 +20,7 @@ set(setuptools_install "${cdat_EXTERNALS}")
 #  INSTALL_COMMAND ${setuptools_install_command}
 
 ExternalProject_Add(setuptools
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${setuptools_source}
   INSTALL_DIR ${setuptools_install}
   URL ${SETUPTOOLS_URL}/${SETUPTOOLS_GZ}

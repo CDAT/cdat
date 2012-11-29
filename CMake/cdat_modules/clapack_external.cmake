@@ -21,7 +21,7 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/CLAPACK_install_step.
 set(CLAPACK_INSTALL_COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/CLAPACK_install_step.cmake)
 
 ExternalProject_Add(CLAPACK
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${clapack_source}
   BINARY_DIR ${clapack_binary}
   INSTALL_DIR ${clapack_install}

@@ -9,7 +9,7 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/pbmplus_configure_ste
     @ONLY)
 
 ExternalProject_Add(pbmplus
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${pbmplus_source}
   INSTALL_DIR ${pbmplus_install}
   URL ${PBMPLUS_URL}/${PBMPLUS_GZ}

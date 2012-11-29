@@ -3,7 +3,7 @@ set(geos_source "${CMAKE_CURRENT_BINARY_DIR}/build/geos-${GEOS_MAJOR}.${GEOS_MIN
 set(geos_install "${cdat_EXTERNALS}")
 
 ExternalProject_Add(GEOS
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${geos_source}
   INSTALL_DIR ${geos_install}
   URL ${GEOS_URL}/${GEOS_BZ2}

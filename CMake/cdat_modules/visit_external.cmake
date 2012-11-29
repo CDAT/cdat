@@ -68,7 +68,7 @@ SET(VISIT_HOSTNAME "visit-uvcdat-build")
 
 #Add VisIt to ExternalProject
 ExternalProject_Add(VisIt
-  #DOWNLOAD_DIR ${VisIt_source} #${CMAKE_CURRENT_BINARY_DIR}
+  #DOWNLOAD_DIR ${VisIt_source} #${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${VisIt_source}
   BINARY_DIR ${VisIt_binary}
   INSTALL_DIR ${VisIt_install}

@@ -202,6 +202,13 @@ endif()
 # required directories as often third party install systems do bad things
 # when left to create them.
 #-----------------------------------------------------------------------------
+set(CDAT_PACKAGE_CACHE_DIR
+#  ${CMAKE_CURRENT_BINARY_DIR}/../cdat_dependencies"
+  "${CMAKE_CURRENT_BINARY_DIR}"
+  CACHE PATH
+  "Directory where source tar balls of external dependencies are kept"
+)
+
 include(ExternalProject)
 
 file(MAKE_DIRECTORY ${cdat_EXTERNALS})

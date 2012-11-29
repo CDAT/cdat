@@ -7,7 +7,7 @@ if(WIN32)
   set(zlib_install "${cdat_EXTERNALS}")
 
   ExternalProject_Add(zlib
-    DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+    DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
     SOURCE_DIR ${zlib_source}
     BINARY_DIR ${zlib_build}
     INSTALL_DIR ${zlib_install}
@@ -32,7 +32,7 @@ else()
   set(CONFIGURE_ARGS --shared)
 
   ExternalProject_Add(zlib
-    DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+    DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
     SOURCE_DIR ${zlib_source}
     INSTALL_DIR ${zlib_install}
     URL ${ZLIB_URL}/${ZLIB_GZ}

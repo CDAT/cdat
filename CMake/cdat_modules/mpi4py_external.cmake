@@ -19,7 +19,7 @@ set(Mpi4py_source "${CMAKE_CURRENT_BINARY_DIR}/build/Mpi4py")
 # create an external project to download numpy,
 # and configure and build it
 ExternalProject_Add(Mpi4py
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${Mpi4py_source}
   URL ${MPI4PY_URL}/${MPI4PY_GZ}
   URL_MD5 ${MPI4PY_MD5}

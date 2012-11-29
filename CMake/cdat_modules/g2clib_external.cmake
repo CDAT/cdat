@@ -3,7 +3,7 @@ set(g2clib_source "${CMAKE_CURRENT_BINARY_DIR}/build/g2clib")
 set(g2clib_install "${cdat_EXTERNALS}")
 
 ExternalProject_Add(g2clib
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${g2clib_source}
   INSTALL_DIR ${g2clib_install}
   URL ${G2CLIB_URL}/${G2CLIB_GZ}

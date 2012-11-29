@@ -3,7 +3,7 @@ set(freetype_source "${CMAKE_CURRENT_BINARY_DIR}/build/freetype")
 set(freetype_install "${cdat_EXTERNALS}")
 
 ExternalProject_Add(freetype
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${freetype_source}
   INSTALL_DIR ${freetype_install}
   URL ${FT_URL}/${FT_GZ}

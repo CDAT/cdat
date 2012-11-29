@@ -3,7 +3,7 @@ set(gifsicle_source "${CMAKE_CURRENT_BINARY_DIR}/build/gifsicle")
 set(gifsicle_install "${cdat_EXTERNALS}")
 
 ExternalProject_Add(gifsicle
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${gifsicle_source}
   INSTALL_DIR ${gifsicle_install}
   URL ${GIFSICLE_URL}/${GIFSICLE_GZ}

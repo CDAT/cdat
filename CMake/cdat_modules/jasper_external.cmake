@@ -7,7 +7,7 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/jasper_configure_step
     @ONLY)
 
 ExternalProject_Add(jasper
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${jasper_source}
   INSTALL_DIR ${jasper_install}
   URL ${JASPER_URL}/${JASPER_GZ}

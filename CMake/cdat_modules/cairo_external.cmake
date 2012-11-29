@@ -4,7 +4,7 @@ set(Cairo_install "${cdat_EXTERNALS}")
 set(Cairo_conf_args --disable-static)
 
 ExternalProject_Add(Cairo
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${Cairo_source}
   INSTALL_DIR ${Cairo_install}
   URL ${CAIRO_URL}/${CAIRO_GZ}

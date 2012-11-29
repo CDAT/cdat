@@ -3,7 +3,7 @@
 #
 set(pyspharm_source "${CMAKE_CURRENT_BINARY_DIR}/build/pyspharm")
 ExternalProject_Add(pyspharm
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${pyspharm_source}
   URL ${PYSPHARM_URL}/${PYSPHARM_GZ}
   URL_MD5 ${PYSPHARM_MD5}

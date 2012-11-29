@@ -30,7 +30,7 @@ else()
   set(png_install "${cdat_EXTERNALS}")
 
   ExternalProject_Add(png
-    DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+    DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
     SOURCE_DIR ${png_source}
     INSTALL_DIR ${png_install}
     URL ${PNG_URL}/${PNG_GZ}

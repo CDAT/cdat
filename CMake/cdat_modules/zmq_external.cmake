@@ -3,7 +3,7 @@ set(zmq_source "${CMAKE_CURRENT_BINARY_DIR}/build/ZMQ")
 set(zmq_install "${cdat_EXTERNALS}")
 
 ExternalProject_Add(ZMQ
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${zmq_source}
   INSTALL_DIR ${zmq_install}
   URL ${ZMQ_URL}/${ZMQ_GZ}

@@ -6,7 +6,7 @@ set(lapack_install "${cdat_EXTERNALS}")
 set(NUMPY_LAPACK_binary ${lapack_binary})
 
 ExternalProject_Add(LAPACK
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${lapack_source}
   BINARY_DIR ${lapack_binary}
   INSTALL_DIR ${lapack_install}

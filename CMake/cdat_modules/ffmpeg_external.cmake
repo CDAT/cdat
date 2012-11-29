@@ -12,7 +12,7 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/ffmpeg_build_step.cma
     @ONLY)
 
 ExternalProject_Add(FFMPEG
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${ffmpeg_source}
   INSTALL_DIR ${ffmpeg_install}
   URL ${FFMPEG_URL}/${FFMPEG_GZ}

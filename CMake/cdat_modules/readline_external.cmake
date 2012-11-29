@@ -5,7 +5,7 @@ set(readline_install "${cdat_EXTERNALS}")
 set(readline_conf_args --with-curses)
 
 ExternalProject_Add(readline
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${readline_source}
   INSTALL_DIR ${readline_install}
   URL ${READLINE_URL}/${READLINE_GZ}

@@ -5,7 +5,7 @@ set(pvfiledialog_install "${cdat_EXTERNALS}")
 set(PVFileDialog_install_command "")
 
 ExternalProject_Add(pvfiledialog
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${pvdialog_source}
   BINARY_DIR ${pvdialog_build}
   INSTALL_DIR ${pvfiledialog_install}

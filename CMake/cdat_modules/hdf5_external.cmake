@@ -4,7 +4,7 @@ set(HDF5_install "${cdat_EXTERNALS}")
 
 # we disable HDF5 warnings because it has way too many of them.
 ExternalProject_Add(HDF5
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${HDF5_source}
   INSTALL_DIR ${HDF5_install}
   URL ${HDF5_URL}/${HDF5_GZ}

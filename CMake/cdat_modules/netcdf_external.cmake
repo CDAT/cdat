@@ -4,7 +4,7 @@ set(netcdf_configure_args "--enable-netcdf-4")
 
 ExternalProject_Add(NetCDF
   LIST_SEPARATOR ^^
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${netcdf_source}
   INSTALL_DIR ${netcdf_install}
   URL ${NC4_URL}/${NC4_GZ}

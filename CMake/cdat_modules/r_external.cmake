@@ -3,7 +3,7 @@ set(R_source "${CMAKE_CURRENT_BINARY_DIR}/build/R")
 set(R_install "${cdat_EXTERNALS}")
 
 ExternalProject_Add(R
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${R_source}
   INSTALL_DIR ${R_install}
   URL ${R_URL}/${R_GZ}

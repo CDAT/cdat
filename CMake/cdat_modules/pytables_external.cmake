@@ -3,7 +3,7 @@
 #
 set(PyTables_source "${CMAKE_CURRENT_BINARY_DIR}/build/PyTables")
 ExternalProject_Add(PyTables
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${PyTables_source}
   URL ${PYTABLES_URL}/${PYTABLES_GZ}
   URL_MD5 ${PYTABLES_MD5}

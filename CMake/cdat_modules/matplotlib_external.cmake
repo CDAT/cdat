@@ -18,7 +18,7 @@ set(matplotlib_patch_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/matplo
 set(matplotlib_build_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/matplotlib_build_step.cmake)
 
 ExternalProject_Add(Matplotlib
-  DOWNLOAD_DIR ${CMAKE_CURRENT_BINARY_DIR}
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${matplotlib_source_dir}
   URL ${MATPLOTLIB_URL}/${MATPLOTLIB_GZ}
   URL_MD5 ${MATPLOTLIB_MD5}
