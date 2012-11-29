@@ -72,9 +72,9 @@ set(CTEST_USE_LAUNCHERS 1)
 set(PLATFORM_SPECIFIC_CACHE_DATA "
     CMAKE_INSTALL_PREFIX:PATH=/usr/local
     CMAKE_C_COMPILER:STRING=gcc
-    CMAKE_C_FLAGS:STRING=-Wall -Wextra -Wcast-qual ${CTEST_COVERAGE_FLAGS}
+    CMAKE_C_FLAGS:STRING=
     CMAKE_CXX_COMPILER:STRING=g++
-    CMAKE_CXX_FLAGS:STRING=-Wall -Wextra -Wunused -Wcast-qual -Wnon-virtual-dtor ${CTEST_COVERAGE_FLAGS}
+    CMAKE_CXX_FLAGS:STRING=
     CMAKE_LINKER=/usr/bin/ld --no-copy-dt-needed-entries -z defs --no-undefined --no-allow-shlib-undefined
     CTEST_USE_LAUNCHERS:BOOL=${CTEST_USE_LAUNCHERS}
   ")
