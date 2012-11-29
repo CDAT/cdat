@@ -819,7 +819,7 @@ execute_process(
   )
 if(result)
   set(msg \"CTEST_FULL_OUTPUT\")
-  set(msg \"Command failed: \${result}\\n\")
+  set(msg \"\${msg}\\n Command failed: \${result}\\n\")
   foreach(arg IN LISTS command)
     set(msg \"\${msg} '\${arg}'\")
   endforeach(arg)
