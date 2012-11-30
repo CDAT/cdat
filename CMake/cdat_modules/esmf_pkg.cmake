@@ -6,6 +6,7 @@ set(ESMF_URL ${LLNL_URL})
 set(ESMF_GZ esmp.${ESMF_VERSION}.tar.bz2)
 set(ESMF_MD5 eb63b1d3c7e191a85a35ed309d7e983e)
 
+option(CDAT_BUILD_ESMF_ESMP "Build python version Earth System Modeling Framework" ON)
 option(CDAT_BUILD_ESMF_PARALLEL "Build parallel version of Earth System Modeling Framework library" ON)
 
 set(TXCMAKE_DIR ${cdat_SOURCE_DIR}/contrib/sciMake)
