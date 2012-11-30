@@ -6,7 +6,7 @@ set(ESMF_os "${CDAT_BUILD_ESMF_OS}")
 set(ESMF_compiler "${CDAT_BUILD_ESMF_COMPILER}")
 set(ESMF_abi "${CDAT_BUILD_ESMF_ABI}")
 
-# check if ESMF should be built in parallel
+# Check if ESMF should be built in parallel
 set(emsf_enable_mpi FALSE)
 if(CDAT_BUILD_ESMF_PARALLEL)
   set(emsf_enable_mpi TRUE)
@@ -19,13 +19,17 @@ else()
   set(ESMF_comm "mpiuni")
 endif()
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/ESMF_make_step.cmake.in
+configure_file(
+  ${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/ESMF_make_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/ESMF_make_step.cmake
-  @ONLY)
-  
-configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/ESMF_install_step.cmake.in
+  @ONLY
+)
+
+configure_file(
+  ${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/ESMF_install_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/ESMF_install_step.cmake
-  @ONLY)
+  @ONLY
+)
 
 set(ESMF_build_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/ESMF_make_step.cmake)
 set(ESMF_install_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/ESMF_install_step.cmake)
@@ -33,9 +37,12 @@ set(ESMF_install_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/ESMF_insta
 # ESMF Python interface. Install after ESMF is done.
 set(ESMP_source "${ESMF_source_dir}/ESMP")
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/ESMP_install_step.cmake.in
+configure_file(
+  ${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/ESMP_install_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/ESMP_install_step.cmake
-  @ONLY)
+  @ONLY
+)
+
 set(ESMP_install_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/ESMP_install_step.cmake)
 
 ExternalProject_Add(ESMF
