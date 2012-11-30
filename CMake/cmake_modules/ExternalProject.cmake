@@ -340,20 +340,47 @@ while(attempt_number LESS 4 AND NOT success)
   message(\"attempt \${attempt_number}\")
   math(EXPR attempt_number \"\${attempt_number} + 1\")
 
-  file(DOWNLOAD
-    \"${remote}\"
-    \"${local}\"
-    SHOW_PROGRESS
-    ${md5_args}
-    ${timeout_args}
-    STATUS status
-    LOG log)
+  set(MD5saught ${md5})
+  #check if we've got it already
+  set(doDownload FALSE)
+  if (NOT EXISTS ${local})
+    set(doDownload TRUE)
+  else()
+    if (MD5saught)
+      file(MD5 \"${local}\" gotMD5)
+      if (NOT \${gotMD5} STREQUAL \${MD5saught})
+        set(doDownload TRUE)
+      endif()
+    endif()
+  endif()
 
-  list(GET status 0 status_code)
-  list(GET status 1 status_string)
+  set(status_code 0)
+  set(status_string \"Not tried\")
+
+  if(doDownload)
+    #don't let file(DOWNLOAD) check md5 so that we can recover on mismatch
+    file(DOWNLOAD
+      \"${remote}\"
+      \"${local}\"
+      SHOW_PROGRESS
+      ${timeout_args}
+      STATUS status
+      LOG log)
+    list(GET status 0 status_code)
+    list(GET status 1 status_string)
+
+    #file(DOWNLOAD) doesn't report bad status on md5 mismatch so we check manually
+    if(MD5saught AND status_code EQUAL 0)
+      file(MD5 \"${local}\" gotMD5)
+      if(NOT \${gotMD5} STREQUAL \${MD5saught})
+        set(status_code -1)
+        set(status_string \"Bad MD5\")
+      endif()
+    endif()
+  endif()
 
   if(NOT status_code EQUAL 0)
-    message(FATAL_ERROR \"error: downloading '${remote}' failed
+    message(STATUS \"problem downloading '${remote}'
     status_code: \${status_code}
     status_string: \${status_string}
     log: \${log}
@@ -366,7 +393,7 @@ endwhile()
 if (success)
   message(STATUS \"downloading... done\")
 else()
-  message(STATUS \"downloading... FAILED\")
+  message(FATAL_ERROR \"downloading... FAILED\")
 endif()
 "
 )
