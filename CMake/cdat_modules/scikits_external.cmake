@@ -1,7 +1,5 @@
-
 set(scikits_source "${CMAKE_CURRENT_BINARY_DIR}/build/scikits")
 set(scikits_install "${cdat_EXTERNALS}")
-
 
 ExternalProject_Add(scikits
   DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
