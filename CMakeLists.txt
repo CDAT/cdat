@@ -1,8 +1,15 @@
 cmake_minimum_required(VERSION 2.8.8 FATAL_ERROR)
 
-# Project name
+# Project name and initial checks
 #-----------------------------------------------------------------------------
 project(cdat)
+
+# Disable in source build of any kind
+STRING(REGEX MATCH "${cdat_SOURCE_DIR}/" BUILDINSOURCE "${cdat_BINARY_DIR}/")
+message("REGEX IS ${BUILDINSOURCE} ${cdat_BINARY_DIR}")
+if (BUILDINSOURCE)
+   message(FATAL_ERROR "[ERROR] CDAT requires an out of source Build")
+endif()
 
 # Set cdat and cmake variables
 #-----------------------------------------------------------------------------
@@ -15,12 +22,6 @@ set(cdat_external_patch_dir ${cdat_SOURCE_DIR}/exsrc)
 if("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local")
   get_filename_component(cdat_ROOT_DIR ${cdat_BINARY_DIR} PATH)
   set(CMAKE_INSTALL_PREFIX ${cdat_ROOT_DIR}/install CACHE STRING "" FORCE)
-endif()
-
-# Disable in source build of any kind
-STRING(REGEX MATCH "${cdat_SOURCE_DIR}/"  BUILDINSOURCE  "${cdat_BINARY_DIR}")
-if (BUILDINSOURCE)
-   message(FATAL_ERROR "[ERROR] CDAT requires an out of source Build")
 endif()
 
 set(cdat_EXTERNALS ${CMAKE_INSTALL_PREFIX}/Externals)
