@@ -71,8 +71,8 @@ set(CAIRO_MINOR_SRC 12)
 set(CAIRO_PATCH_SRC 8)
 #set(CAIRO_URL http://cairographics.org/releases)
 set(CAIRO_URL ${LLNL_URL})
-set(CAIRO_GZ cairo-${CAIRO_MAJOR_SRC}.${CAIRO_MINOR_SRC}.${CAIRO_PATCH_SRC}.tar.xz)
-set(CAIRO_MD5 8b3dcade859c44fb7e56fc68edfe9a45)
+set(CAIRO_GZ cairo-${CAIRO_MAJOR_SRC}.${CAIRO_MINOR_SRC}.${CAIRO_PATCH_SRC}.tar.gz)
+set(CAIRO_MD5 4009d570160a06fc72ac3b2740b2469b)
 
 
 set(FT_MAJOR 9)
