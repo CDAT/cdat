@@ -795,6 +795,9 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/setup_cdat.csh.in
 configure_file(${cdat_CMAKE_SOURCE_DIR}/uvcdat.in
   ${CMAKE_INSTALL_PREFIX}/bin/uvcdat
   @ONLY)
+configure_file(${cdat_CMAKE_SOURCE_DIR}/runpytest.in
+  ${CMAKE_INSTALL_PREFIX}/bin/runpytest
+  @ONLY)
 
 if (BUILD_TESTING)
   add_subdirectory(testing)

@@ -2,8 +2,16 @@
 add_test(run_uvcdat ${CMAKE_INSTALL_PREFIX}/bin/uvcdat -P -T 2)
 
 #this test verifies that we can open a file and show it
-#we do not yet do any image comparison so we aren't testing that it looks right
 add_test(cdms_test
   ${CMAKE_INSTALL_PREFIX}/bin/uvcdat
-  -b ${cdat_SOURCE_DIR}/testing/uvcdat/cdmf_test.vt:test
-  -a "datafile=${cdat_SOURCE_DIR}/libcdms/src/cdunif/test/testnc.nc")
+  -b ${cdat_SOURCE_DIR}/testing/uvcdat/cdms_test.vt:test
+  -a "datafile=${cdat_SOURCE_DIR}/libcdms/src/cdunif/test/testnc.nc"
+)
+
+#the same as cdms_test but verify result image is correct
+add_test(cdms_verify
+  ${CMAKE_INSTALL_PREFIX}/bin/runpytest
+  ${cdat_SOURCE_DIR}/testing/uvcdat/cdms_test.vt:test
+  "datafile=${cdat_SOURCE_DIR}/libcdms/src/cdunif/test/testnc.nc"
+  cdms_test_4.png
+)

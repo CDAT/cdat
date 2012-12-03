@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# glue script to playback a recorded uvcdat vistrail and compare the result
+# with a known good baseline image.
+# takes three arguments: the name of the vistrail.vt:tagname to playback
+# a set of aliases for that trail (to replace filenames for example)
+# the filename of the image to compare against
+
+# set upuvcdat run time environment
+. @CMAKE_INSTALL_PREFIX@/bin/setup_cdat.sh
+
+# play back the requested vistrail and make an image
+@PYTHON_EXECUTABLE@ \
+  @CMAKE_INSTALL_PREFIX@/vistrails/vistrails/uvcdat.py \
+ -b $1\
+ -a $2\
+ -e @CMAKE_BINARY_DIR@/Testing/Temporary
+
+# compare that image with the baseline(s) for it
+@PYTHON_EXECUTABLE@ \
+ @cdat_SOURCE_DIR@/testing/checkimage.py \
+ @CMAKE_BINARY_DIR@/Testing/Temporary/$3 \
+ @cdat_SOURCE_DIR@/testing/uvcdat/$3
