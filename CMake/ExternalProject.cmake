@@ -834,6 +834,9 @@ endif()
     set(logbase ${base}/${name}-${step})
   endif()
   
+  #sets value of FAIL_EXPRESSIONS and OK_EXPRESSIONS
+  include(ErrorExpressions)
+
   file(WRITE ${script} "
 ${code_cygpath_make}
 set(ENV{VS_UNICODE_OUTPUT} \"\")
@@ -844,7 +847,27 @@ execute_process(
   OUTPUT_FILE \"${logbase}-out.log\"
   ERROR_FILE \"${logbase}-err.log\"
   )
+
+if(NOT result)
+  #grep the logs for patterns that indicate false negatives
+  if (EXISTS ${logbase}-out.log)
+    file(READ ${logbase}-out.log OUTFILE1)
+  endif()
+  if (EXISTS ${logbase}-err.log)
+    file(READ ${logbase}-err.log OUTFILE2)
+  endif()
+  if(OUTFILE1 OR OUTFILE2)
+    string(REGEX REPLACE \"${OK_EXPRESSIONS}\" \"OK\" _safelogs \${OUTFILE1} \${OUTFILE2})
+    string(REGEX MATCH \"${FAIL_EXPRESSIONS}\" _foundError \${_safelogs})
+    if (_foundError)
+      message(\"FOUND \${_foundError}\")
+      set(result \"Found Error String in Log\")
+    endif()
+  endif()
+endif()
+
 if(result)
+  #on failure, output the log to help figure out what went wrong
   set(msg \"Command failed: \${result}\\n\")
   foreach(arg IN LISTS command)
     set(msg \"\${msg} '\${arg}'\")
