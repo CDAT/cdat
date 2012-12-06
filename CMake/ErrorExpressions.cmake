@@ -33,6 +33,7 @@ strappend(OK_EXPRESSIONS "TopologyValidationError") #GEOS
 strappend(OK_EXPRESSIONS "AssertionFailedException") #GEOS
 strappend(OK_EXPRESSIONS "AtlasNotFoundError") #scikits
 strappend(OK_EXPRESSIONS "BlasNotFoundError") #scikits
-strappend(OK_EXPRESSIONS "SWIG_Python_AddErrorMsg") #Visit
+strappend(OK_EXPRESSIONS "SWIG_Python_*ErrorMsg") #Visit
 strappend(OK_EXPRESSIONS "GetPluginErrorsRPC") #Visit
 strappend(OK_EXPRESSIONS "avtMatErrorExpression") #Visit
+strappend(OK_EXPRESSIONS "ComputeError") #Visit
