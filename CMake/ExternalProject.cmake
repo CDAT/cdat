@@ -834,7 +834,7 @@ endif()
     set(logbase ${base}/${name}-${step})
   endif()
   
-  #sets value of FAIL_EXPRESSIONS and OK_EXPRESSIONS
+  #sets value of ENABLE_BUILD_LOG_CHECKS, FAIL_EXPRESSIONS and OK_EXPRESSIONS
   include(ErrorExpressions)
 
   file(WRITE ${script} "
@@ -848,7 +848,7 @@ execute_process(
   ERROR_FILE \"${logbase}-err.log\"
   )
 
-if(NOT result)
+if(NOT result AND ENABLE_BUILD_LOG_CHECKS)
   #grep the logs for patterns that indicate false negatives
   if (EXISTS ${logbase}-out.log)
     file(READ ${logbase}-out.log OUTFILE1)
