@@ -1,3 +1,6 @@
+OPTION(ENABLE_BUILD_LOG_CHECKS
+  "Look through EP build logs to find undetected build failures" ON)
+
 macro(strappend VAR STR)
   set(${VAR} "${${VAR}}|${STR}")
 endmacro()
@@ -10,11 +13,11 @@ strappend(FAIL_EXPRESSIONS "Fail")
 strappend(FAIL_EXPRESSIONS "CRITICAL")
 
 #build up a list of exceptions to the above
-set(OK_EXPRESSIONS "vtk*Error*.cxx") #ParaView
-strappend(OK_EXPRESSIONS "vtk*ErrorMetric") #ParaView
+set(OK_EXPRESSIONS "vtk.*Error*.cxx") #ParaView
+strappend(OK_EXPRESSIONS "vtk.*ErrorMetric") #ParaView
 strappend(OK_EXPRESSIONS "HAVE_GCC_ERROR_RETURN_TYPE") #ParaView
 strappend(OK_EXPRESSIONS "xmlFailures") #libXML2
-strappend(OK_EXPRESSIONS "xml*ErrorFunc") #libXML2
+strappend(OK_EXPRESSIONS "xml.*ErrorFunc") #libXML2
 strappend(OK_EXPRESSIONS "tstLastError") #libXML2
 strappend(OK_EXPRESSIONS "TIFFError.3tiff") #TIFF
 strappend(OK_EXPRESSIONS "Failed to build these modules:") #Python ?real?
@@ -33,7 +36,7 @@ strappend(OK_EXPRESSIONS "TopologyValidationError") #GEOS
 strappend(OK_EXPRESSIONS "AssertionFailedException") #GEOS
 strappend(OK_EXPRESSIONS "AtlasNotFoundError") #scikits
 strappend(OK_EXPRESSIONS "BlasNotFoundError") #scikits
-strappend(OK_EXPRESSIONS "SWIG_Python_*ErrorMsg") #Visit
+strappend(OK_EXPRESSIONS "SWIG_Python_.*ErrorMsg") #Visit
 strappend(OK_EXPRESSIONS "GetPluginErrorsRPC") #Visit
 strappend(OK_EXPRESSIONS "avtMatErrorExpression") #Visit
 strappend(OK_EXPRESSIONS "ComputeError") #Visit
