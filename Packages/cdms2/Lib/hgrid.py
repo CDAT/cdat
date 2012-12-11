@@ -12,7 +12,7 @@ from error import CDMSError
 from grid import AbstractGrid, LongitudeType, LatitudeType, VerticalType, TimeType, CoordTypeToLoc
 from coord import TransientVirtualAxis
 from axis import getAutoBounds, allclose
-import bindex
+import bindex,_bindex
 
 MethodNotImplemented = "Method not yet implemented"
 
@@ -584,8 +584,15 @@ class AbstractCurveGrid(AbstractHorizontalGrid):
     def getIndex(self):
         """Get the grid index"""
         if self._index_ is None:
+            # Trying to stick in Stephane Raynaud's patch for autodetection
+            nj,ni = self._lataxis_.shape
+            dlon = self._lonaxis_.max()-self._lonaxis_.min()
+            dx = max(dlon/ni,dlon/nj)
+            dlat = self._lataxis_.max()-self._lataxis_.min()
+            dy = max(dlat/ni,dlat/nj)
             latlin = numpy.ravel(numpy.ma.filled(self._lataxis_))
             lonlin = numpy.ravel(numpy.ma.filled(self._lonaxis_))
+            _bindex.setDeltas(dx,dy)
             self._index_ = bindex.bindexHorizontalGrid(latlin, lonlin)
 
         return self._index_
