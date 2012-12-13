@@ -5,11 +5,17 @@ f06fc9201004a173c6577a1d233a207f  geo.1deg.ctl
 6cedd4ad5bbdd3626a7fb99d9cd37abe  geo.1deg.grb
 bca482b39bd8b511f05dbe974cec055d  meshfill.nc
 43eabcb0a733e8e158070511033a8446  navy_land.nc
+b3187fe83b60fc4b8f1368f44963918f  rlut_CERES_000001-000012_ac.nc
 9f6d62ea4393522dccfa64e092d8af91  sampleCurveGrid4.nc
 0109b749c3887ee20da962b21d8f669c  sampleGenGrid3.nc
 359aa47bebfa0e189a1ecbd99af23fc2  sftbyrgn.nc
 34642d5985bcb922212caee375bd13e2  sftlf_10x10.nc
 2d8c05f85cf5559cdbf2743495745a49  sftlf_visus.nc
+34db8c8664f5c4588749f32c34892174  so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc
+5b4b604c5538f780a474e74d88519f66  so_Omon_GISS-E2-R_historicalNat_r5i1p1_185001-187512_2timesteps.nc
+a59d19483beec3e4bad06b905e25ed42  so_Omon_HadGEM2-CC_historical_r1i1p1_185912-186911_2timesteps.nc
+1ca2b59d83aa4a46e754627848b73443  so_Omon_MPI-ESM-LR_1pctCO2_r1i1p1_185001-185912_2timesteps.nc
+003edabfdd11377fa374ed7eb61c4ef1  swan.four.nc
 6af2b2e8f8fe468c49d0324d69d83942  ta_ncep_87-6-88-4.nc
 acf9323a1f057415cb6a2e06f3a6050d  tas_ccsr-95a.xml
 4e4648ad9855cb71259926c9d4a1d361  tas_ccsr-95a_1979.01-1979.12.nc
