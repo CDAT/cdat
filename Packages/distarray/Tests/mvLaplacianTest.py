@@ -1,18 +1,18 @@
 #/usr/bin/env python
 
 """
-Copyright (c) 2008-2012, Tech-X Corporation
-All rights reserved.
+Example of distributed array test 
 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the conditions
-specified in the license file 'license.txt' are met.
+This code is provided with the hope that it will be useful. 
+No guarantee is provided whatsoever. Use at your own risk.
+
+Alex Pletzer, Tech-X Corp. (2012)
 """
 
-__version__ = "$Id: $"
+__version__ = "1.0"
 
 import numpy
-from distarray import GhostedDistArray
+import distarray
 import time
 
 class LaplacianTest:
@@ -78,8 +78,7 @@ class LaplacianTest:
                 data[j, i] = self.funct(x, y)
 
         # create MPI windows and attach data
-        inData = GhostedDistArray(shp, numpy.float64)
-        inData.setGhostWidth(1)
+        inData = distarray.ghZeros(shp, numpy.float64, ghostWidth=1)
         # set local domain values
         inData[:] = data
 
