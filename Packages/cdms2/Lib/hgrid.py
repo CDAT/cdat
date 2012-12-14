@@ -586,9 +586,9 @@ class AbstractCurveGrid(AbstractHorizontalGrid):
         if self._index_ is None:
             # Trying to stick in Stephane Raynaud's patch for autodetection
             nj,ni = self._lataxis_.shape
-            dlon = self._lonaxis_.max()-self._lonaxis_.min()
+            dlon = numpy.max(self._lonaxis_)-numpy.min(self._lonaxis_)
             dx = max(dlon/ni,dlon/nj)
-            dlat = self._lataxis_.max()-self._lataxis_.min()
+            dlat = numpy.max(self._lataxis_)-numpy.min(self._lataxis_)
             dy = max(dlat/ni,dlat/nj)
             latlin = numpy.ravel(numpy.ma.filled(self._lataxis_))
             lonlin = numpy.ravel(numpy.ma.filled(self._lonaxis_))
