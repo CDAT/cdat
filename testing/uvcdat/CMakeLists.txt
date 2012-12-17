@@ -11,6 +11,7 @@ add_test(cdms_test
 #the same as cdms_test but verify result image is correct
 add_test(cdms_verify
   ${CMAKE_INSTALL_PREFIX}/bin/runpytest
+  ${CMAKE_BINARY_DIR}/tmp
   ${cdat_SOURCE_DIR}/testing/uvcdat/cdms_test.vt:test
   "datafile=${cdat_SOURCE_DIR}/libcdms/src/cdunif/test/testnc.nc"
   cdms_test_4.png
