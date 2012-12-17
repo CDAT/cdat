@@ -12,12 +12,13 @@
 # play back the requested vistrail and make an image
 @PYTHON_EXECUTABLE@ \
   @CMAKE_INSTALL_PREFIX@/vistrails/vistrails/uvcdat.py \
- -b $1\
- -a $2\
+ -S $1\
+ -b $2\
+ -a $3\
  -e @CMAKE_BINARY_DIR@/Testing/Temporary
 
 # compare that image with the baseline(s) for it
 @PYTHON_EXECUTABLE@ \
  @cdat_SOURCE_DIR@/testing/checkimage.py \
- @CMAKE_BINARY_DIR@/Testing/Temporary/$3 \
- @cdat_SOURCE_DIR@/testing/uvcdat/$3
+ @CMAKE_BINARY_DIR@/Testing/Temporary/$4 \
+ @cdat_SOURCE_DIR@/testing/uvcdat/$4
