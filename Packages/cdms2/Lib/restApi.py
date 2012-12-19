@@ -18,6 +18,64 @@ class esgfFilesException(Exception):
     ##     msg =  "rest API error: %s" % repr(value)
     ##     print msg
     ##     return msg
+
+class FacetConnection(object,AutoAPI.AutoAPI):
+    def __init__(self):
+        self.rqst="http://esg-datanode.jpl.nasa.gov/esg-search/search?facets=*&type=Dataset&limit=1"
+        self.rqst_count="http://esg-datanode.jpl.nasa.gov/esg-search/search?facets=*&type=Dataset&limit=0"
+        self.EsgfObjectException = esgfConnectionException
+    def get_xmlelement(self,facet_param=None):
+        try:
+            rqst=self.rqst
+            if facet_param:
+                rqst=rqst+'&%s'%facet_param        
+            #print rqst
+            url = urllib2.urlopen(rqst)
+        except Exception,msg:
+             raise self.EsgfObjectException(msg)
+        r = url.read()
+        try:
+            e = xml.etree.ElementTree.fromstring(r)
+            return e
+        except Exception,err:
+            raise self.EsgfObjectException("Could not interpret server's results: %s" % err)
+    def make_facet_dict(self,xmlelement):
+        facet_dict={}
+        for lst in xmlelement.findall('lst'):
+            if lst.get('name')=='facet_counts':
+                myelement=lst
+                for node in myelement.findall('lst'):
+                    if node.get('name')=='facet_fields':
+                        for child in node.getchildren():
+                            facet_name=child.get('name')
+                            facet_dict[facet_name]=[]
+                            for grandchild in child.getchildren():
+                                facet_dict[facet_name].append(grandchild.get('name'))
+        return facet_dict
+    def get_xmlelement_count(self,facet_param=None):
+        try:
+            rqst=self.rqst_count
+            if facet_param:
+                rqst=rqst+'&%s'%facet_param        
+                #print rqst
+            url = urllib2.urlopen(rqst)
+        except Exception,msg:
+             raise self.EsgfObjectException(msg)
+        r = url.read()
+        try:
+            e = xml.etree.ElementTree.fromstring(r)
+            return e
+        except Exception,err:
+            raise self.EsgfObjectException("Could not interpret server's results: %s" % err)
+
+    def make_facet_dict_count(self,xmlelement):
+        myelementlist=xmlelement.findall('result')
+        count=None
+        if len(myelementlist) > 0:
+            myelement=myelementlist[0]
+            count=int(myelement.get('numFound'))
+        return count
+
 validSearchTypes =  ["Dataset","File"]#"ById","ByTimeStamp"]
 class esgfConnection(object,AutoAPI.AutoAPI):
     def __init__(self,host,port=80,timeout=15,limit=None,offset=0,mapping=None,datasetids=None,fileids=None,restPath=None):
@@ -103,7 +161,7 @@ class esgfConnection(object,AutoAPI.AutoAPI):
         while search[0]=="&":
             search=search[1:]
         rqst = "%s/?type=%s&%s" % (self.restPath,searchType,search)
-        print "REQUEST: %s%s" % (self.host,rqst)
+        #print "REQUEST: %s%s" % (self.host,rqst)
         myhost=str(self.host)
         myport=str(self.port)
         if myhost.find("://")>-1:
@@ -171,7 +229,7 @@ class esgfConnection(object,AutoAPI.AutoAPI):
         r=[]
         limit = self["limit"]
         while cont:
-            print "Continuing",limit
+            #print "Continuing",limit
             self["offset"]=numFound
             if limit is None or limit>1000:
                 self["limit"]=1000
@@ -189,7 +247,7 @@ class esgfConnection(object,AutoAPI.AutoAPI):
             else:
                 if numFound>=limit:
                     cont=False
-            print "N is:",numFound,n
+            #print "N is:",numFound,n
         self["limit"]=limit
         self["offset"]=0
         return r
