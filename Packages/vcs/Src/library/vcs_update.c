@@ -1410,7 +1410,7 @@ void draw_logo(cairo_t *cr) {
   cairo_surface_t *surface;
   cairo_surface_type_t stype;
   if (cr == NULL) return;
-  return;
+  //return;
   surface = cairo_get_target(cr);
   stype = cairo_surface_get_type(surface);
   if (stype==CAIRO_SURFACE_TYPE_IMAGE) {
