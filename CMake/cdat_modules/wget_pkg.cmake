@@ -10,9 +10,9 @@ add_cdat_package(Wget "" "Build Wget" OFF)
 
 if(CDAT_BUILD_WGET)
   if(WIN32)
-    set(WGET_EXECUTABLE ${wget_install}/bin/wget.exe)
+    set(WGET_EXECUTABLE ${cdat_EXTERNALS}/bin/wget.exe)
   else()
-    set(WGET_EXECUTABLE ${wget_install}/bin/wget)
+    set(WGET_EXECUTABLE ${cdat_EXTERNALS}/bin/wget)
   endif()
 endif()
 
