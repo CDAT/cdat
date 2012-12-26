@@ -49,6 +49,7 @@
        gstxci(pTt->txci);
        gschxp(pTt->txexp);
        gschsp(pTt->txsp);
+       printf("OK HEIGHT is: %i, %f\n",pTo->chh,pTo->chh);
        gschh(pTo->chh);
          vxy.x=sin((3.1415926536/180.0)*pTo->chua);
          vxy.y=cos((3.1415926536/180.0)*pTo->chua);
