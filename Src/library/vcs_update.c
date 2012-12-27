@@ -74,6 +74,44 @@ void vcs_acquire_update();
 void vcs_release_update();
 #endif
 
+
+
+int templateRatio(struct p_tab *pp, int wkst_id, double Rwished) {
+  struct p_tab *pp2;
+  Grectangle xwa,swa;
+  double Rout,Rt,Ra;
+  double delta;
+
+  /* if((pp=(struct p_tab *)malloc(sizeof(struct p_tab)))==NULL) { */
+  /*   err_warn(1,fperr, */
+  /* 	     "Error - memory for getting picture template( gm_template_hold ) not found.\n"); */
+  /*   vcs_release_update(); */
+  /*   return 1; */
+  /* } */
+  
+  /* strcpy( pp->name,"crappy_chuck" ); */
+  /* copyP_attr(pp,pp2); */
+  vcs_Qt_get_window_dimensions_by_id(wkst_id,&xwa.x,&xwa.y,&xwa.width,&xwa.height);
+  printf("dims: %d,%d\n",xwa.width,xwa.height);
+  Rout = (float)xwa.width/(float)xwa.height;
+  Rt = (pp->dsp.y2-pp->dsp.y1)/(pp->dsp.x2-pp->dsp.x1);
+  Ra = Rt/Rout;
+  if (Rwished>Ra) {
+    Ra = Ra/Rwished;
+    delta = .5*(pp->dsp.x2-pp->dsp.x1)*(1-Ra);
+    pp->dsp.x1 = pp->dsp.x1+delta;
+    pp->dsp.x2 = pp->dsp.x2-delta;
+  }
+  else {
+    Ra = Rwished/Ra;
+    delta = .5*(pp->dsp.y2-pp->dsp.y1)*(1-Ra);
+    pp->dsp.y1 = pp->dsp.y1+delta;
+    pp->dsp.y2 = pp->dsp.y2-delta;
+  }
+  return 0;
+};
+
+
 int vcs_canvas_update ( short use_defer_flg )
 {
 
@@ -100,6 +138,7 @@ int vcs_canvas_update ( short use_defer_flg )
 
   int *pi;
 
+  char tmpnm[256];
   int store_Dc;
   extern struct default_continents Dc;
   extern float plnorm(int x_or_y, float value);
@@ -121,6 +160,7 @@ int vcs_canvas_update ( short use_defer_flg )
       vcs_release_update();
       return 1;
     }
+
 
   /*			Search the displays to determine whether
                 they need updating.				*/
@@ -186,12 +226,15 @@ int vcs_canvas_update ( short use_defer_flg )
       if((pp=(struct p_tab *)malloc(sizeof(struct p_tab)))==NULL) {
         err_warn(1,fperr,
                  "Error - memory for getting picture template( gm_template_hold ) not found.\n");
-	vcs_release_update();
+      	vcs_release_update();
         return 1;
       }
 
       strcpy( pp->name,"gm_template_hd" );
       copyP_attr(ppf,pp);
+      //fprintf(stderr,"Ok calling ratio func on: %s, %f,%f,%f,%f\n",pp->name,pp->dsp.x1,pp->dsp.x2,pp->dsp.y1,pp->dsp.y2);
+      templateRatio(pp,1,.25);
+      //fprintf(stderr,"back with on: %s, %f,%f,%f,%f\n",pp->name,pp->dsp.x1,pp->dsp.x2,pp->dsp.y1,pp->dsp.y2);
 
       convertP_to_landscape_portrait( pp );
 
@@ -1396,6 +1439,7 @@ int vcs_canvas_update ( short use_defer_flg )
   /*               guwk(wks,GPERFORM); */
   /*         } */
   vcs_release_update();
+
   if (erret == 0) return 1;
   else
     return 0;
