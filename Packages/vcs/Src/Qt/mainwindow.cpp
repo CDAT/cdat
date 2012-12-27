@@ -16,7 +16,7 @@
 
 QPoint menupos;
 
-extern "C" PyObject *getPyCanvas( PyVCScanvas_Object *self);
+extern "C" PyObject *getPyCanvas( int canvas_id);
 extern "C" float cnorm(PyVCScanvas_Object *self, int x_or_y, float value);
 extern "C" float plnorm(int x_or_y, float value);
 extern "C" int get_data_coords(PyVCScanvas_Object *self,Gpoint point,struct item_list *item,struct data_point *info);
@@ -189,7 +189,7 @@ void MainWindow::actionTriggered(QAction *a) {
   }
   PY_ENTER_THREADS
     PY_GRAB_THREAD
-    canvas = getPyCanvas( this->vcs_obj );
+    canvas = getPyCanvas( this->vcs_obj->canvas_id );
   kargs = PyDict_New();
   if (info.x!=-999.)
     {
@@ -365,7 +365,7 @@ bool MainWindow::event(QEvent *event)
     connect(menu, SIGNAL(triggered(QAction*)), this, SLOT(actionTriggered(QAction*)));
     PY_ENTER_THREADS
       PY_GRAB_THREAD
-      canvas  = getPyCanvas( this->vcs_obj );
+      canvas  = getPyCanvas( this->vcs_obj->canvas_id );
     user_action_name = PyString_FromString("user_actions_names");
     user_act_nms = PyObject_GetAttr(canvas, user_action_name);
     Py_XDECREF(user_action_name);

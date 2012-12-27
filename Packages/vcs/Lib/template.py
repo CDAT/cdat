@@ -1370,7 +1370,7 @@ class P(object):
            t.ratio(2)
          '''
 
-
+         print "Calling ratio:",Rwished,self.data.x1,self.data.x2,self.data.y1,self.data.y2
          x=self.parent
          if isinstance(Rout,str):
               if Rout.lower()=='a4':
@@ -1475,6 +1475,7 @@ class P(object):
               
               
 
+         print "Leaving ratio:",Rwished,self.data.x1,self.data.x2,self.data.y1,self.data.y2
          return
 
          

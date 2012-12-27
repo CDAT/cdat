@@ -100,6 +100,77 @@ extern Gconid_X_drawable connect_id;
 extern struct orientation Page;
 extern FILE *fpin, *fpout, *fperr;/* input, output, and error for scripts */
 
+
+
+/* C. Doutriaux 12-26-2012
+This manipulates the templates ratio
+*/
+
+/* void templateRatio(char *name) { */
+/*   PyObject *pyTemplate; */
+/*   PyObject *canvas; */
+/*   PyObject *res; */
+/*   printf("Ok we ARE actually calling that thing\n"); */
+/*   canvas = getPyCanvas(1); /\* borrowed ref *\/ */
+/*   if (PyErr_Occurred()) { */
+/*     PyErr_Print(); */
+/*     printf("Error getting canvas... doh....\n"); */
+/*   } */
+/*   pyTemplate = PyObject_CallMethod(canvas,"gettemplate","s",name); /\* New ref *\/ */
+/*   if (PyErr_Occurred()) { */
+/*     PyErr_Print(); */
+/*     printf("Error getting template %s... doh....\n",name); */
+/*   } */
+/*   res = PyObject_CallMethod(pyTemplate,"ratio","d",.25); */
+/*   if (PyErr_Occurred()) { */
+/*     PyErr_Print(); */
+/*     printf("Error during template ratio %f... doh....\n",.25); */
+/*   } */
+/*   printf("Looks like we did ok\n"); */
+/*   Py_XDECREF(pyTemplate); */
+/*   Py_XDECREF(res); */
+
+/*   return 0; */
+/* } */
+
+void duplicateTemplate(char *src,char *dst){
+  PyObject *pyTemplate;
+  PyObject *canvas;
+  PyObject *res;
+  printf("Ok we ARE actually calling that thing\n");
+  canvas = getPyCanvas(1); /* borrowed ref */
+  if (PyErr_Occurred()) {
+    PyErr_Print();
+    printf("Error getting canvas... doh....\n");
+  }
+  pyTemplate = PyObject_CallMethod(canvas,"createtemplate","ss",src,dst); /* New ref */
+  if (PyErr_Occurred()) {
+    PyErr_Print();
+    printf("Error creating template %s... doh....\n",src);
+  }
+  Py_XDECREF(pyTemplate);
+}
+
+void deleteTemplate(char *name){
+  PyObject *pyTemplate;
+  PyObject *canvas;
+  PyObject *res;
+  printf("Ok we ARE actually calling that thing\n");
+  canvas = getPyCanvas(1); /* borrowed ref */
+  if (PyErr_Occurred()) {
+    PyErr_Print();
+    printf("Error getting canvas... doh....\n");
+  }
+  pyTemplate = PyObject_CallMethod(canvas,"removeP","s",name); /* New ref */
+  if (PyErr_Occurred()) {
+    PyErr_Print();
+    printf("Error deleting template %s... doh....\n",name);
+  }
+  Py_XDECREF(pyTemplate);
+}
+
+
+
 /*	Shutdown the VCS xgks workstations and close xgks and output
  *	files.
  */
