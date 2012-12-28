@@ -233,6 +233,7 @@
 	   float y1;	/* y NDC position of lower left corner.	*/
 	   float x2;	/* x NDC position of upper right corner.*/
 	   float y2;	/* y NDC position of upper right corner.*/
+	   float ratio; /* user desired aspect ratio */
 	  };
 
 /* The following is the structure for the legend display space.	*/

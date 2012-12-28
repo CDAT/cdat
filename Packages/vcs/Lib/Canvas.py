@@ -4606,7 +4606,9 @@ Options:::
         # Store the origin template. The template used to plot may be changed below by the 
         # _create_random_template function, which copies templates for modifications.
         template_origin = arglist[2]
- 
+        tmptmpl = self.gettemplate(arglist[2])
+        tmptmpl.data._ratio=-999
+        
         copy_mthd=None
         copy_tmpl=None
         if arglist[2] in ['default','default_dud']:
