@@ -5,7 +5,7 @@ include(GetGitRevisionDescription)
 set(vistrails_branch uvcdat-master)
 
 get_git_head_revision(refspec sha)
-if("${refspec}" STREQUAL "refs/heads/next")
+if("${refspec}" STREQUAL "refs/heads/devel-master")
   set(vistrails_branch uvcdat-next)
 endif()
 

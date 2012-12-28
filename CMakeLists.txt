@@ -371,9 +371,9 @@ if(found_system_include_dirs)
     set(cdat_external_include_directories "-I${include_dir} ${cdat_external_include_directories}")
   endforeach()
 endif()
-message("[INFO] cdat_external_include_directories: ${cdat_external_include_directories}")
+message("[INFO] CDAT external include directories: ${cdat_external_include_directories}")
 
-message("[INFO] found_system_libraries ${found_system_libraries}")
+message("[INFO] System libraries: ${found_system_libraries}")
 if(found_system_libraries)
   list(REMOVE_DUPLICATES found_system_libraries)
   list(REMOVE_ITEM found_system_libraries ${CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES})
@@ -382,7 +382,7 @@ if(found_system_libraries)
     set(cdat_external_link_directories "-L${library_dir} ${cdat_external_link_directories}")
   endforeach()
 endif()
-message("[INFO] cdat_external_link_directories: ${cdat_external_link_directories}")
+message("[INFO] CDAT external link directories: ${cdat_external_link_directories}")
 
 # Configure remaining files
 #-----------------------------------------------------------------------------
