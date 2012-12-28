@@ -76,23 +76,19 @@ void vcs_release_update();
 
 
 
-int templateRatio(struct p_tab *pp, int wkst_id, double Rwished) {
+int templateRatio(struct p_tab *pp, int wkst_id) {
   struct p_tab *pp2;
   Grectangle xwa,swa;
-  double Rout,Rt,Ra;
-  double delta;
+  double Rout,Rt,Ra,Rwished;
+  double delta,dX1,dX2,dY1,dY2;
 
-  /* if((pp=(struct p_tab *)malloc(sizeof(struct p_tab)))==NULL) { */
-  /*   err_warn(1,fperr, */
-  /* 	     "Error - memory for getting picture template( gm_template_hold ) not found.\n"); */
-  /*   vcs_release_update(); */
-  /*   return 1; */
-  /* } */
+  if (pp->dsp.ratio==-999) {
+    return 0;
+  }
+
+  Rwished = fabs(pp->dsp.ratio);
   
-  /* strcpy( pp->name,"crappy_chuck" ); */
-  /* copyP_attr(pp,pp2); */
   vcs_Qt_get_window_dimensions_by_id(wkst_id,&xwa.x,&xwa.y,&xwa.width,&xwa.height);
-  printf("dims: %d,%d\n",xwa.width,xwa.height);
   Rout = (float)xwa.width/(float)xwa.height;
   Rt = (pp->dsp.y2-pp->dsp.y1)/(pp->dsp.x2-pp->dsp.x1);
   Ra = Rt/Rout;
@@ -107,6 +103,45 @@ int templateRatio(struct p_tab *pp, int wkst_id, double Rwished) {
     delta = .5*(pp->dsp.y2-pp->dsp.y1)*(1-Ra);
     pp->dsp.y1 = pp->dsp.y1+delta;
     pp->dsp.y2 = pp->dsp.y2-delta;
+  }
+  if (pp->dsp.ratio<0) { /* ok negative means move ticks as well */
+    pp->b1.x1 = pp->dsp.x1;
+    pp->b1.x2 = pp->dsp.x2;
+    pp->b1.y1 = pp->dsp.y1;
+    pp->b1.y2 = pp->dsp.y2;
+    dY1 = pp->xl1.y-pp->xt1.y1;
+    dY2 = pp->xl2.y-pp->xt2.y1;
+    dX1 = pp->yl1.x-pp->yt1.x1;
+    dX2 = pp->yl2.x-pp->yt2.x1;
+    delta = pp->xt1.y2-pp->xt1.y1;
+    pp->xt1.y1 = pp->dsp.y1;
+    pp->xt1.y2 = pp->xt1.y1+delta*Ra;
+    delta = pp->xt2.y2-pp->xt2.y1;
+    pp->xt2.y1 = pp->dsp.y1;
+    pp->xt2.y2 = pp->xt2.y1+delta*Ra;
+    delta = pp->xmta.y2-pp->xmta.y1;
+    pp->xmta.y1=pp->dsp.y1;
+    pp->xmta.y2=pp->xmta.y1+delta*Ra;
+    delta = pp->xmtb.y2-pp->xmtb.y1;
+    pp->xmtb.y1=pp->dsp.y1;
+    pp->xmtb.y2=pp->xmtb.y1+delta*Ra;
+    delta = pp->yt1.x2-pp->yt1.x1;
+    pp->yt1.x1 = pp->dsp.x1;
+    pp->yt1.x2 = pp->yt1.x1+delta*Ra;
+    delta = pp->yt2.x2-pp->yt2.x1;
+    pp->yt2.x1 = pp->dsp.x1;
+    pp->yt2.x2 = pp->yt2.x1+delta*Ra;
+    delta = pp->ymta.x2-pp->ymta.x1;
+    pp->ymta.x1=pp->dsp.x1;
+    pp->ymta.x2=pp->ymta.x1+delta*Ra;
+    delta = pp->ymtb.x2-pp->ymtb.x1;
+    pp->ymtb.x1=pp->dsp.x1;
+    pp->ymtb.x2=pp->ymtb.x1+delta*Ra;
+    pp->xl1.y = pp->xt1.y1 + dY1*Ra;
+    pp->xl2.y = pp->xt2.y1 + dY2*Ra;
+    pp->yl1.x = pp->yt1.x1 + dX1*Ra;
+    pp->yl2.x = pp->yt2.x1 + dX2*Ra;
+    
   }
   return 0;
 };
@@ -232,9 +267,7 @@ int vcs_canvas_update ( short use_defer_flg )
 
       strcpy( pp->name,"gm_template_hd" );
       copyP_attr(ppf,pp);
-      //fprintf(stderr,"Ok calling ratio func on: %s, %f,%f,%f,%f\n",pp->name,pp->dsp.x1,pp->dsp.x2,pp->dsp.y1,pp->dsp.y2);
-      templateRatio(pp,1,.25);
-      //fprintf(stderr,"back with on: %s, %f,%f,%f,%f\n",pp->name,pp->dsp.x1,pp->dsp.x2,pp->dsp.y1,pp->dsp.y2);
+      templateRatio(pp,pd->wkst_id-7);
 
       convertP_to_landscape_portrait( pp );
 

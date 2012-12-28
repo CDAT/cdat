@@ -1639,6 +1639,8 @@ float convert_value(int orientation, float v, int xory)
         pedsp2->y1=pedsp->y1;
         pedsp2->y2=pedsp->y2;
 
+	/* always copy ratio */
+	pedsp2->ratio = pedsp->ratio;
 	return 1;
       }
 

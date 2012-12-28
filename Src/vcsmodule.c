@@ -3436,6 +3436,8 @@ PyVCS_getPdsmember(PyVCScanvas_Object *self, PyObject *args)
               return Py_BuildValue("f",pttab->dsp.x2 = gnorm(0,pttab->dsp.x2,pttab->normalized_flg,pttab->orientation_flg));
            else if (cmpncs(attribute, "y2") == 0)
               return Py_BuildValue("f",pttab->dsp.y2 = gnorm(1,pttab->dsp.y2,pttab->normalized_flg,pttab->orientation_flg));
+           else if (cmpncs(attribute, "_ratio") == 0)
+	     return Py_BuildValue("f",pttab->dsp.ratio);
 	}
 
         /* Return NULL Python Object */
@@ -4707,6 +4709,8 @@ PyVCS_setPdsmember(self, args)
                get_ptab->dsp.x2 = (float) PyFloat_AsDouble(VALUE);
            else if (cmpncs(attribute, "y2") == 0)
                get_ptab->dsp.y2 = (float) PyFloat_AsDouble(VALUE);
+           else if (cmpncs(attribute, "_ratio") == 0)
+               get_ptab->dsp.ratio = (float) PyFloat_AsDouble(VALUE);
 	}
 
         chk_mov_P(get_ptab,1);
@@ -17754,7 +17758,6 @@ an_loop:
               Py_INCREF(Py_None);
               return Py_None;
 	   }
-	   printf("ok we are in the stupid section\n");
            self  = vptr->self;
            slab  = vptr->slab;
            slab2 = vptr->slab2;
@@ -17764,7 +17767,6 @@ an_loop:
 /* DUBOIS - is this right? this is what old code did in effect */
            self->background = NULL; 
 	} else {
-	   printf("ok we are in the ok section\n");
 	   /* Get slab and primary attributes. */
   	   if(!PyArg_ParseTuple(args,"OOssss",
               &hold, &hold2,&template,&type,&graphics,&bgopt)) {
@@ -17846,7 +17848,6 @@ an_loop:
              vptr->next = tptr;
 	   }
 	}
-	fprintf(stderr,"Wuld be ok calling ratio func on: %s, canvasid: %i\n",template2,self->canvas_id);
 heartbeat("template name %s", template2);
 heartbeat("graphics method %s", type2);
 heartbeat("graphics option %s", graphics2);

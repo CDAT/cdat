@@ -1342,7 +1342,8 @@ class P(object):
 
          if (Lon1==Lon2) or (Lat1==Lat2):
               return
-         # ratio of lat over lon, integrated over alt, so that deformation is minimal
+         
+         
          if Rwished is None:
              Rwished=float(2*(numpy.sin(Lat2)-numpy.sin(Lat1))/(Lon2-Lon1)/(1.+(numpy.sin(2*Lat2)-numpy.sin(2*Lat1))/2./(Lat2-Lat1)))
          self.ratio(Rwished,Rout,box_and_ticks)
@@ -1370,7 +1371,6 @@ class P(object):
            t.ratio(2)
          '''
 
-         print "Calling ratio:",Rwished,self.data.x1,self.data.x2,self.data.y1,self.data.y2
          x=self.parent
          if isinstance(Rout,str):
               if Rout.lower()=='a4':
@@ -1472,10 +1472,12 @@ class P(object):
               # Ylabels
               self.ylabel1.x=self.ytic1.x1+dX1
               self.ylabel2.x=self.ytic2.x1+dX2
+              self.data._ratio = -Rwished
+         else:
+              self.data._ratio = Rwished
               
               
 
-         print "Leaving ratio:",Rwished,self.data.x1,self.data.x2,self.data.y1,self.data.y2
          return
 
          

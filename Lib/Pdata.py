@@ -74,7 +74,7 @@ def getPdsmember(self,member,attribute):
 #                                                                           #
 #############################################################################
 class Pds:
-    '''
+    """
  Class:	Pds				# Template text
 
  Description of Pds Class:
@@ -111,7 +111,7 @@ class Pds:
      ln.type='dot'          		# Same as ln.type=2
      ln.type='dash-dot'          	# Same as ln.type=3
      ln.type='long-dash'          	# Same as ln.type=4
-'''
+"""
     #############################################################################
     #                                                                           #
     # Initialize the line attributes.                                           #
@@ -134,6 +134,7 @@ class Pds:
         self.__dict__['y1']=getPdsmember(template,member,'y1')
         self.__dict__['x2']=getPdsmember(template,member,'x2')
         self.__dict__['y2']=getPdsmember(template,member,'y2')
+        self.__dict__['_ratio']=getPdsmember(template,member,'_ratio')
         #                                                         #
         ###########################################################
         # Keep track of the parent and grandparent.               #
@@ -156,26 +157,33 @@ class Pds:
               self.__dict__[name]=value
            else:
               raise ValueError, 'The priority value must be an integer.'
-        if (name == 'x1'):
+        elif (name == 'x1'):
            if (type(value) in (IntType, FloatType)):
               self.__dict__[name]=value
            else:
-              raise ValueError, 'The x value must be an integer or float.'
-        if (name == 'y1'):
+              raise ValueError, 'The x1 value must be an integer or float.'
+        elif (name == 'y1'):
            if (type(value) in (IntType, FloatType)):
               self.__dict__[name]=value
            else:
-              raise ValueError, 'The y value must be an integer or float.'
-        if (name == 'x2'):
+              raise ValueError, 'The y1 value must be an integer or float.'
+        elif (name == 'x2'):
            if (type(value) in (IntType, FloatType)):
               self.__dict__[name]=value
            else:
-              raise ValueError, 'The x value must be an integer or float.'
-        if (name == 'y2'):
+              raise ValueError, 'The x2 value must be an integer or float.'
+        elif (name == 'y2'):
            if (type(value) in (IntType, FloatType)):
               self.__dict__[name]=value
            else:
-              raise ValueError, 'The y value must be an integer or float.'
+              raise ValueError, 'The y2 value must be an integer or float.'
+        elif (name == '_ratio'):
+           if (type(value) in (IntType, FloatType)):
+              self.__dict__[name]=value
+           else:
+              raise ValueError, 'The ratio value must be an integer or float.'
+        else:
+             raise Exception,"Error invalid attribute %s for data member of template" % name
         setPdsmember(self,self.member,name,value) # update the plot
 
 
