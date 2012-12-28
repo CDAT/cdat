@@ -871,7 +871,7 @@ update_end_of_animation( PyVCScanvas_Object *self)
  * Returns the "VCS Canvas Python Object */
 
 PyObject * 
-getPyCanvas( PyVCScanvas_Object *self)
+getPyCanvas( int canvas_id)
 {
   PyObject *main = NULL, *dvalues=NULL, *canvas=NULL;
   PyObject *dvalue=NULL, *dnum=NULL;
@@ -886,7 +886,7 @@ getPyCanvas( PyVCScanvas_Object *self)
     dvalue=PyList_GetItem(dvalues, i); /* borrowed ref */
     dnum = PyObject_CallMethod(dvalue, "canvasid", (char*)0);
     canvas_num = (int) PyInt_AsLong (dnum);
-    if (canvas_num == self->canvas_id) {
+    if (canvas_num == canvas_id) {
       canvas = PyList_GetItem(dvalues, i); /* borrowed ref */
     }
     Py_XDECREF( dnum );
@@ -3436,6 +3436,8 @@ PyVCS_getPdsmember(PyVCScanvas_Object *self, PyObject *args)
               return Py_BuildValue("f",pttab->dsp.x2 = gnorm(0,pttab->dsp.x2,pttab->normalized_flg,pttab->orientation_flg));
            else if (cmpncs(attribute, "y2") == 0)
               return Py_BuildValue("f",pttab->dsp.y2 = gnorm(1,pttab->dsp.y2,pttab->normalized_flg,pttab->orientation_flg));
+           else if (cmpncs(attribute, "_ratio") == 0)
+	     return Py_BuildValue("f",pttab->dsp.ratio);
 	}
 
         /* Return NULL Python Object */
@@ -4707,6 +4709,8 @@ PyVCS_setPdsmember(self, args)
                get_ptab->dsp.x2 = (float) PyFloat_AsDouble(VALUE);
            else if (cmpncs(attribute, "y2") == 0)
                get_ptab->dsp.y2 = (float) PyFloat_AsDouble(VALUE);
+           else if (cmpncs(attribute, "_ratio") == 0)
+               get_ptab->dsp.ratio = (float) PyFloat_AsDouble(VALUE);
 	}
 
         chk_mov_P(get_ptab,1);
@@ -17670,6 +17674,7 @@ void free_animation_list()
         head_canvas_list = NULL;
 }
 
+
 /* 
  * Draw the data (or arrayobject) in the VCS Canvas. If no data is given, 
  * then an error is returned. The template and graphics method are optional.
@@ -17746,7 +17751,7 @@ an_loop:
 	   while (connect_id.drawable != vptr->connect_id.drawable)
                  vptr = vptr->next;
 #else
-	   while (connect_id.cr != vptr->connect_id.cr)
+	   while (connect_id.cr !=  vptr->connect_id.cr)
 	     vptr = vptr->next;
 #endif
            if (vptr == NULL) {

@@ -61,7 +61,6 @@ from restApi import esgfConnection,esgfDataset,FacetConnection
 MV = MV2
 
 ESMP_HAS_BEEN_INITIALIZED = False
-print "Init?",ESMP_HAS_BEEN_INITIALIZED
 if not ESMP_HAS_BEEN_INITIALIZED:
     try:
         import ESMP
