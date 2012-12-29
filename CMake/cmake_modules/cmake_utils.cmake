@@ -7,7 +7,7 @@ macro (add_cdat_package package_name version_string msg default)
   string(TOLOWER ${package_name} lc_package)
   set(version)
   set(message "Build ${package_name}")
-  set(use_system_message "Use system installed ${package_name}")
+  set(use_system_message "Use system ${package_name}")
   set(option_default ON)
   set(cdat_${package_name}_FOUND OFF)
 
@@ -17,7 +17,7 @@ macro (add_cdat_package package_name version_string msg default)
     message("[INFO] version ${version} of ${uc_package} is required by UVCDAT")
   endif()
 
-  # ARGV2
+  # ARGV2 is the build message
   if(NOT "" STREQUAL "${msg}")
     set(message "${msg}")
   endif()
@@ -30,6 +30,8 @@ macro (add_cdat_package package_name version_string msg default)
   # Check if package is optional, and if yes populate the GUI appropriately
   option(CDAT_BUILD_${uc_package} "${message}" ${option_default})
   mark_as_advanced(CDAT_BUILD_${uc_package})
+
+  #  If this is an optional package
   if(NOT "" STREQUAL "${default}")
     # Find system package first and if it exits provide an option to use
     # system package
@@ -51,19 +53,12 @@ macro (add_cdat_package package_name version_string msg default)
     # then cdat use system package should be ON
     if(cdat_${package_name}_FOUND AND NOT CDAT_BUILD_${uc_package})
       set(CDAT_USE_SYSTEM_${uc_package} ON CACHE BOOL "${use_system_message}" FORCE)
-      set(CDAT_BUILD_${uc_package} OFF CACHE BOOL "${message}" FORCE)
     endif()
 
     # If system package is not found or cdat build package option is ON
     # then cdat use system option should be OFF
     if(NOT cdat_${package_name}_FOUND OR CDAT_BUILD_${uc_package})
       set(CDAT_USE_SYSTEM_${uc_package} OFF CACHE BOOL "${use_system_message}" FORCE)
-    endif()
-
-    # If system package is used (found earlier) then cdat build package should
-    # be OFF
-    if(CDAT_USE_SYSTEM_${uc_package})
-      set(CDAT_BUILD_${uc_package} OFF CACHE BOOL "${message}" FORCE)
     endif()
 
   endif()
@@ -75,10 +70,13 @@ macro (add_cdat_package package_name version_string msg default)
   # Check if package is found, if not found or found but user prefers to use cdat package
   # then use cdat package or else use system package
   if(NOT CDAT_USE_SYSTEM_${uc_package})
+
       list(APPEND external_packages "${package_name}")
       set(${lc_package}_pkg "${package_name}")
+
   else()
-    if(CDAT_USE_SYSTEM_${uc_package} AND cdat_${package_name}_FOUND)
+
+    if(CDAT_USE_SYSTEM_${uc_package})
       message("[INFO] Removing external package ${package_name}")
       unset(${lc_package}_pkg)
       if(external_packages)
@@ -96,9 +94,11 @@ macro (add_cdat_package package_name version_string msg default)
         message("[INFO]  Linking: ${uc_package}_LIBRARY: ${lib_path}")
       endif()
     endif() # use system package
+
   endif()
 endmacro()
 
+#-----------------------------------------------------------------------------
 macro(enable_cdat_package_deps package_name)
   string(TOUPPER ${package_name} uc_package)
   string(TOLOWER ${package_name} lc_package)
@@ -118,12 +118,26 @@ macro(enable_cdat_package_deps package_name)
 endmacro()
 
 # Disable a cdat package
+#-----------------------------------------------------------------------------
 macro(disable_cdat_package package_name)
   string(TOUPPER ${package_name} uc_package)
   string(TOLOWER ${package_name} lc_package)
 
   set(cdat_var CDAT_BUILD_${uc_package})
   if(DEFINED cdat_var)
-    set(${cdat_var} OFF CACHE BOOL "" FORCE)
+    set_property(CACHE ${cdat_var} PROPERTY VALUE OFF)
   endif()
+endmacro()
+
+#
+#-----------------------------------------------------------------------------
+include(CMakeDependentOption)
+macro(add_cdat_package_dependent package_name version build_message value dependencies default)
+  string(TOUPPER ${package_name} uc_package)
+  string(TOLOWER ${package_name} lc_package)
+
+  cmake_dependent_option(CDAT_BUILD_${uc_package} "${message}" ${value} "${dependencies}" ${default})
+
+  add_cdat_package("${package_name}" "${version}" "${build_message}" ${CDAT_BUILD_${uc_package}})
+
 endmacro()

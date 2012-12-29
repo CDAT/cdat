@@ -6,7 +6,6 @@ project(cdat)
 
 # Disable in source build of any kind
 STRING(REGEX MATCH "${cdat_SOURCE_DIR}/" BUILDINSOURCE "${cdat_BINARY_DIR}/")
-message("REGEX IS ${BUILDINSOURCE} ${cdat_BINARY_DIR}")
 if (BUILDINSOURCE)
    message(FATAL_ERROR "[ERROR] CDAT requires an out of source Build")
 endif()
@@ -130,12 +129,9 @@ endif(CMAKE_Fortran_COMPILER)
 
 # Set bulid related properties
 #-----------------------------------------------------------------------------
-# FIXME EP_PREFIX -> ep_prefix
+option(CDAT_BUILD_PARALLEL "Build parallel components of CDAT" ON)
 set(ep_prefix ${cdat_BINARY_DIR}/build/prefix)
-# FIXME EP_LOG_DIR -> ep_log_dir
 set_property(DIRECTORY PROPERTY ep_log_dir ${cdat_BINARY_DIR}/logs)
-
-# FIXME EP_LOG_OPTIONS -> ep_log_options
 set(ep_log_options
   LOG_DOWNLOAD 0
   LOG_UPDATE 1

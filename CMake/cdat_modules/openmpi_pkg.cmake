@@ -4,5 +4,5 @@ set(OPENMPI_URL ${LLNL_URL})
 set(OPENMPI_GZ openmpi-${OPENMPI_MAJOR}.${OPENMPI_MINOR}.tar.bz2)
 set(OPENMPI_MD5 dd6f5bd4b3cb14d93bbf530e50e46e60 )
 
-add_cdat_package(OPENMPI "" "Build OpenMPI" ON)
+add_cdat_package_dependent(OPENMPI "" "Bulid OPENMPI" ON "CDAT_BUILD_PARALLEL" OFF)
 
