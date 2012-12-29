@@ -15,7 +15,7 @@ endif()
 if("${emsf_enable_mpi}")
   set(ESMF_comm "${CDAT_BUILD_ESMF_COMM}")
 else()
-  message("Will build ESMF serial")
+  message("[INFO] CDAT will build ESMF serial")
   set(ESMF_comm "mpiuni")
 endif()
 

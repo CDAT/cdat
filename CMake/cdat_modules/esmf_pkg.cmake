@@ -1,3 +1,5 @@
+include(CMakeDependentOption)
+
 set(ESMF_MAJOR 6)
 set(ESMF_MINOR 1)
 set(ESMF_PATCH 0)
@@ -8,7 +10,11 @@ set(ESMF_GZ esmp.ESMF_${ESMF_VERSION}_ESMP_${ESMP_MAJOR}.tar.bz2)
 set(ESMF_MD5 46be9e7331ab7d952da218d30c21238e)
 
 option(CDAT_BUILD_ESMF_ESMP "Build python version Earth System Modeling Framework" ON)
-option(CDAT_BUILD_ESMF_PARALLEL "Build parallel version of Earth System Modeling Framework library" ON)
+
+cmake_dependent_option(CDAT_BUILD_ESMF_PARALLEL
+  "Build parallel version of Earth System Modeling Framework library" ON
+  "CDAT_BUILD_PARALLEL" OFF
+)
 
 set(TXCMAKE_DIR ${cdat_SOURCE_DIR}/contrib/sciMake)
 include(${TXCMAKE_DIR}/sciFuncsMacros.cmake)
