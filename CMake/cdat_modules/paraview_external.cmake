@@ -60,13 +60,21 @@ if(NOT CDAT_USE_SYSTEM_HDF5)
   endif()
 endif()
 
+include(GetGitRevisionDescription)
+set(paraview_branch uvcdat-master)
+
+get_git_head_revision(refspec sha)
+if("${refspec}" STREQUAL "refs/heads/devel-master")
+  set(paraview_branch uvcdat-next)
+endif()
+
 ExternalProject_Add(ParaView
   DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${ParaView_source}
   BINARY_DIR ${ParaView_binary}
   INSTALL_DIR ${ParaView_install}
   GIT_REPOSITORY ${GIT_PROTOCOL}github.com/aashish24/paraview-climate-3.11.1.git
-  GIT_TAG r_integration
+  GIT_TAG ${paraview_branch}
   PATCH_COMMAND ""
   CMAKE_CACHE_ARGS
     -DBUILD_SHARED_LIBS:BOOL=ON
