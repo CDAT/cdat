@@ -18,6 +18,41 @@ class esgfFilesException(Exception):
     ##     msg =  "rest API error: %s" % repr(value)
     ##     print msg
     ##     return msg
+
+class FacetConnection(object,AutoAPI.AutoAPI):
+    def __init__(self):
+        self.rqst="http://esg-datanode.jpl.nasa.gov/esg-search/search?facets=*&type=Dataset&limit=1"
+    def get_xmlelement(self,item_dict=None):
+        try:
+            rqst=self.rqst
+            if item_dict:
+                rqst_str=''
+                for item in item_dict:
+                    rqst_str+='&%s=%s'%(item,item_dict[item])
+                rqst+='%s'%rqst_str        
+            url = urllib2.urlopen(rqst)
+        except Exception,msg:
+             raise self.EsgfObjectException(msg)
+        r = url.read()
+        try:
+            e = xml.etree.ElementTree.fromstring(r)
+            return e
+        except Exception,err:
+            raise self.EsgfObjectException("Could not interpret server's results: %s" % err)
+    def make_facet_dict(self,xmlelement):
+        facet_dict={}
+        for lst in xmlelement.findall('lst'):
+            if lst.get('name')=='facet_counts':
+                myelement=lst
+            for node in myelement.findall('lst'):
+                if node.get('name')=='facet_fields':
+                    for child in node.getchildren():
+                        facet_name=child.get('name')
+                        facet_dict[facet_name]=[]
+                        for grandchild in child.getchildren():
+                            facet_dict[facet_name].append(grandchild.get('name'))
+        return facet_dict
+
 validSearchTypes =  ["Dataset","File"]#"ById","ByTimeStamp"]
 class esgfConnection(object,AutoAPI.AutoAPI):
     def __init__(self,host,port=80,timeout=15,limit=None,offset=0,mapping=None,datasetids=None,fileids=None,restPath=None):
