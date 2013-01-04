@@ -188,6 +188,7 @@ gsetcharexpan(expansion)
 gsetcharheight(height)
     Gfloat          height;
 {
+  float multi;
     /* check for proper gks operating state */
     GKSERROR((xgks_state.gks_state == GGKCL), 8, errgsetcharheight);
 
@@ -195,8 +196,10 @@ gsetcharheight(height)
     GKSERROR((height <= 0.0), 78, errgsetcharheight);
 
     /* Ok to change the current height */
-    xgks_state.gks_chattr.height = height;
-    xgks_state.gks_chattr.chwidth = 0.78*height;
+    /* C. Doutriaux, Dean wants bigger fonts */
+    multi = 1.75;
+    xgks_state.gks_chattr.height = multi*height;
+    xgks_state.gks_chattr.chwidth = multi*0.78*height;
 
     if (MO_OPENED == TRUE)
 	XgksMoSetCharUp();
