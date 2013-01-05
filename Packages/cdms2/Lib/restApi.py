@@ -22,14 +22,14 @@ class esgfFilesException(Exception):
 class FacetConnection(object,AutoAPI.AutoAPI):
     def __init__(self):
         self.rqst="http://esg-datanode.jpl.nasa.gov/esg-search/search?facets=*&type=Dataset&limit=1"
-        self.rqst_count="http://esg-datanode.jpl.nasa.gov/esg-search/search?facets=*&type=Dataset&limit=0"
+        self.rqst_count="http://esg-datanode.jpl.nasa.gov/esg-search/search?facets=*&type=File&limit=0"
         self.EsgfObjectException = esgfConnectionException
     def get_xmlelement(self,facet_param=None):
         try:
             rqst=self.rqst
             if facet_param:
                 rqst=rqst+'&%s'%facet_param        
-            #print rqst
+            print rqst
             url = urllib2.urlopen(rqst)
         except Exception,msg:
              raise self.EsgfObjectException(msg)
@@ -57,7 +57,7 @@ class FacetConnection(object,AutoAPI.AutoAPI):
             rqst=self.rqst_count
             if facet_param:
                 rqst=rqst+'&%s'%facet_param        
-                #print rqst
+                print rqst
             url = urllib2.urlopen(rqst)
         except Exception,msg:
              raise self.EsgfObjectException(msg)
@@ -92,7 +92,8 @@ class esgfConnection(object,AutoAPI.AutoAPI):
                 self.restPath=restPath
         else:
             self.restPath=restPath
-        self.host=host
+        #self.host=host
+        self.host="esg-datanode.jpl.nasa.gov"
         self.defaultSearchType = "Dataset"
         self.EsgfObjectException = esgfConnectionException
         self.validSearchTypes=validSearchTypes
@@ -172,7 +173,7 @@ class esgfConnection(object,AutoAPI.AutoAPI):
             rqst="%s%s:%s/%s" % (urltype,myhost,myport,rqst)
             tmp=rqst[6:].replace("//","/")
             rqst=rqst[:6]+tmp
-            #print "Request:%s"%rqst
+            print "Request:%s"%rqst
             url = urllib2.urlopen(rqst)
         except Exception,msg:
              raise self.EsgfObjectException(msg)
@@ -301,7 +302,8 @@ class esgfDataset(esgfConnection):
     def __init__(self,host=None,port=80,limit=1000,offset=0,mapping=None,datasetids=None,fileids=None,_http=None,restPath=None,keys={},originalKeys={}):
         if host is None:
             raise esgfDatasetException("You need to pass url")
-        self.host=host
+        #self.host=host
+        self.host="esg-datanode.jpl.nasa.gov"
         self.port=port
         self.defaultSearchType="File"
         if restPath is None:
@@ -500,13 +502,15 @@ class esgfDataset(esgfConnection):
         keys.update(self.originalKeys)
         st=""
         if not "limit" in keys:
-            keys["limit"]=self["limit"]
+            keys["limit"]=[self["limit"]]
         if not "offset" in keys:
-            keys["offset"]=self["offset"]
+            keys["offset"]=[self["offset"]]
         for k in keys:
             if k in ["searchString","stringType",]:
                 continue
-            st+="&%s=%s" % (k,keys[k])
+            for v in keys[k]:
+                st+="&%s=%s"%(k,v)    
+            #st+="&%s=%s" % (k,keys[k])
         #if self.resp is None:
             #self.resp = self._search("dataset_id=%s%s" % (self["id"],st),stringType=stringType)
         self.resp = self._search(st,stringType=stringType)
