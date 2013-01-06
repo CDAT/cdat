@@ -29,7 +29,7 @@ class FacetConnection(object,AutoAPI.AutoAPI):
             rqst=self.rqst
             if facet_param:
                 rqst=rqst+'&%s'%facet_param        
-            print rqst
+            #print rqst
             url = urllib2.urlopen(rqst)
         except Exception,msg:
              raise self.EsgfObjectException(msg)
@@ -50,14 +50,14 @@ class FacetConnection(object,AutoAPI.AutoAPI):
                             facet_name=child.get('name')
                             facet_dict[facet_name]=[]
                             for grandchild in child.getchildren():
-                                facet_dict[facet_name].append(grandchild.get('name'))
+                                facet_dict[facet_name].append("%s (%s)"%(str(grandchild.get('name')),str(grandchild.text)))
         return facet_dict
     def get_xmlelement_count(self,facet_param=None):
         try:
             rqst=self.rqst_count
             if facet_param:
                 rqst=rqst+'&%s'%facet_param        
-                print rqst
+                #print rqst
             url = urllib2.urlopen(rqst)
         except Exception,msg:
              raise self.EsgfObjectException(msg)
@@ -173,7 +173,7 @@ class esgfConnection(object,AutoAPI.AutoAPI):
             rqst="%s%s:%s/%s" % (urltype,myhost,myport,rqst)
             tmp=rqst[6:].replace("//","/")
             rqst=rqst[:6]+tmp
-            print "Request:%s"%rqst
+            #print "Request:%s"%rqst
             url = urllib2.urlopen(rqst)
         except Exception,msg:
              raise self.EsgfObjectException(msg)
