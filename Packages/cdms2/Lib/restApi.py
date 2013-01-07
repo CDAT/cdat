@@ -20,9 +20,9 @@ class esgfFilesException(Exception):
     ##     return msg
 
 class FacetConnection(object,AutoAPI.AutoAPI):
-    def __init__(self):
-        self.rqst="http://esg-datanode.jpl.nasa.gov/esg-search/search?facets=*&type=Dataset&limit=1&latest=true"
-        self.rqst_count="http://esg-datanode.jpl.nasa.gov/esg-search/search?facets=*&type=File&limit=0&latest=true"
+    def __init__(self,host='pcmdi9.llnl.gov'):
+        self.rqst="http://%s/esg-search/search?facets=*&type=Dataset&limit=1&latest=true" % host
+        self.rqst_count="http://%s/esg-search/search?facets=*&type=File&limit=0&latest=true" % host
         self.EsgfObjectException = esgfConnectionException
     def get_xmlelement(self,facet_param=None):
         try:
@@ -92,8 +92,8 @@ class esgfConnection(object,AutoAPI.AutoAPI):
                 self.restPath=restPath
         else:
             self.restPath=restPath
-        #self.host=host
-        self.host="esg-datanode.jpl.nasa.gov"
+        self.host=host
+        #self.host="esg-datanode.jpl.nasa.gov"
         self.defaultSearchType = "Dataset"
         self.EsgfObjectException = esgfConnectionException
         self.validSearchTypes=validSearchTypes
@@ -302,8 +302,8 @@ class esgfDataset(esgfConnection):
     def __init__(self,host=None,port=80,limit=1000,offset=0,mapping=None,datasetids=None,fileids=None,_http=None,restPath=None,keys={},originalKeys={}):
         if host is None:
             raise esgfDatasetException("You need to pass url")
-        #self.host=host
-        self.host="esg-datanode.jpl.nasa.gov"
+        self.host=host
+        #self.host="esg-datanode.jpl.nasa.gov"
         self.port=port
         self.defaultSearchType="File"
         if restPath is None:
