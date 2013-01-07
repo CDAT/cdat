@@ -1,4 +1,6 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
+# PJD  7 Jan 2013 - Edits to 'get' function as non-string type missing_value attributes are causing problems (Aquarius data)
+
 import MV2,os,numpy
 
 def inbetween(string,open='(',close=')'):
@@ -32,7 +34,7 @@ class HDF5_Variable:
       sin,sout,serr = os.popen3('%s -h' % self.h5dump)
       err = serr.read()
       if len(err.strip())>0:
-         raise RuntimeError, "h5dump binary cannot be found, HDF5 module will not function w/o it, you can pass its (full) path at init time via h5dump keyword or by setting environement variable H5DUMP"
+         raise RuntimeError, "h5dump binary cannot be found, HDF5 module will not function w/o it, you can pass its (full) path at init time via h5dump keyword or by setting environment variable H5DUMP"
 
       self.file = hdf5file
       if variable in self.file.listvariables()+self.file.listdimension():
@@ -116,7 +118,12 @@ class HDF5_Variable:
       if ielement!=size:
          raise RuntimeError, 'got wrong number of data %s, expected %s' % (ielement,size)
 
-      data = numpy.ma.masked_equal(data,self.missing_value)
+      # In case of quirky missing_value attribute - AQUARIUS data (Paul Durack - 130107)
+      try:
+          data = numpy.ma.masked_equal(data,self.missing_value)
+      except:
+          data = numpy.ma.masked_equal(data,self._attributes['missing_value'])
+          
       # Now also mask very low and very high values
       data = numpy.ma.masked_less(data,-1.E100)
       data = numpy.ma.masked_greater(data,1.E100)
@@ -126,7 +133,12 @@ class HDF5_Variable:
 
       # And sets the attributes back on
       for a in self._attributes:
-         setattr(data,a,getattr(self,a))
+	  # Catch instance where type of missing_value attribute is not string
+          if 'missing_value' in a and type(self._attributes['missing_value']) is not str:
+              setattr(data,a,str(self._attributes['missing_value']))
+	  # Else process attributes as string
+          else:
+              setattr(data,a,getattr(self,a))
       data.id = self.variable
       
       return data
