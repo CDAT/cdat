@@ -21,8 +21,8 @@ class esgfFilesException(Exception):
 
 class FacetConnection(object,AutoAPI.AutoAPI):
     def __init__(self):
-        self.rqst="http://esg-datanode.jpl.nasa.gov/esg-search/search?facets=*&type=Dataset&limit=1"
-        self.rqst_count="http://esg-datanode.jpl.nasa.gov/esg-search/search?facets=*&type=File&limit=0"
+        self.rqst="http://esg-datanode.jpl.nasa.gov/esg-search/search?facets=*&type=Dataset&limit=1&latest=true"
+        self.rqst_count="http://esg-datanode.jpl.nasa.gov/esg-search/search?facets=*&type=File&limit=0&latest=true"
         self.EsgfObjectException = esgfConnectionException
     def get_xmlelement(self,facet_param=None):
         try:
