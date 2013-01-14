@@ -13,6 +13,7 @@ ExternalProject_Add(LAPACK
   URL ${LAPACK_URL}/${LAPACK_GZ}
   URL_MD5 ${LAPACK_MD5}
   CMAKE_ARGS
+    -DCMAKE_Fortran_COMPILER:FILEPATH=${CMAKE_Fortran_COMPILER}
     -DCMAKE_CXX_FLAGS:STRING=${cdat_tpl_cxx_flags}
     -DCMAKE_C_FLAGS:STRING=${cdat_tpl_c_flags}
     -DBUILD_SHARED_LIBS:BOOL=ON
