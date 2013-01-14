@@ -6,7 +6,6 @@ project(cdat)
 
 # Disable in source build of any kind
 STRING(REGEX MATCH "${cdat_SOURCE_DIR}/" BUILDINSOURCE "${cdat_BINARY_DIR}/")
-message("REGEX IS ${BUILDINSOURCE} ${cdat_BINARY_DIR}")
 if (BUILDINSOURCE)
    message(FATAL_ERROR "[ERROR] CDAT requires an out of source Build")
 endif()
@@ -130,12 +129,9 @@ endif(CMAKE_Fortran_COMPILER)
 
 # Set bulid related properties
 #-----------------------------------------------------------------------------
-# FIXME EP_PREFIX -> ep_prefix
+option(CDAT_BUILD_PARALLEL "Build parallel components of CDAT" ON)
 set(ep_prefix ${cdat_BINARY_DIR}/build/prefix)
-# FIXME EP_LOG_DIR -> ep_log_dir
 set_property(DIRECTORY PROPERTY ep_log_dir ${cdat_BINARY_DIR}/logs)
-
-# FIXME EP_LOG_OPTIONS -> ep_log_options
 set(ep_log_options
   LOG_DOWNLOAD 0
   LOG_UPDATE 1
@@ -371,9 +367,9 @@ if(found_system_include_dirs)
     set(cdat_external_include_directories "-I${include_dir} ${cdat_external_include_directories}")
   endforeach()
 endif()
-message("[INFO] cdat_external_include_directories: ${cdat_external_include_directories}")
+message("[INFO] CDAT external include directories: ${cdat_external_include_directories}")
 
-message("[INFO] found_system_libraries ${found_system_libraries}")
+message("[INFO] System libraries: ${found_system_libraries}")
 if(found_system_libraries)
   list(REMOVE_DUPLICATES found_system_libraries)
   list(REMOVE_ITEM found_system_libraries ${CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES})
@@ -382,7 +378,7 @@ if(found_system_libraries)
     set(cdat_external_link_directories "-L${library_dir} ${cdat_external_link_directories}")
   endforeach()
 endif()
-message("[INFO] cdat_external_link_directories: ${cdat_external_link_directories}")
+message("[INFO] CDAT external link directories: ${cdat_external_link_directories}")
 
 # Configure remaining files
 #-----------------------------------------------------------------------------

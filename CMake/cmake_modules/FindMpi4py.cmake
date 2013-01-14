@@ -1,7 +1,7 @@
 execute_process(COMMAND ${PYTHON_EXECUTABLE} -c "import mpi4py" RESULT_VARIABLE res OUTPUT_VARIABLE out ERROR_VARIABLE err)
 
 if ( NOT ${res} EQUAL 0 )
- message("Could not detect mpi4py, ${PYTHON_EXECUTABLE}")
+ message("[INFO] Could not system mpi4py, ${PYTHON_EXECUTABLE}")
  set( Mpi4py_FOUND 0 )
 else ( NOT ${res} EQUAL 0 )
  execute_process(COMMAND @PYTHON_EXECUTABLE@ -c "import mpi4py;print mpi4py.__version__" RESULT_VARIABLE res OUTPUT_VARIABLE out ERROR_VARIABLE err)
