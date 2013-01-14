@@ -501,7 +501,7 @@ int YW = 614;
 			1,0.0,0.0,0.0,0.0,"default",
 					      "defcenter",
 					      "default",/* leg		*/
-			1,0.05,0.26,0.95 ,0.86,		/* dsp		*/
+			1,0.05,0.26,0.95 ,0.86,-999.,		/* dsp		*/
 			NULL	/* pointer to the next entry.		*/
 			};
 	    struct p_tab Pic_tab={
@@ -566,7 +566,7 @@ int YW = 614;
 			1,0.05,0.13,0.95,0.16,"default",
 					      "defcenter",
 					      "default",/* leg		*/
-			1,0.05,0.26,0.95 ,0.86,		/* dsp		*/
+			1,0.05,0.26,0.95 ,0.86,-999,		/* dsp		*/
 			&Pic_tab_dud	/* pointer to the next entry.		*/
 			};
 

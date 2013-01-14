@@ -40,7 +40,7 @@ int launch_py_user_action(PyVCScanvas_Object *self,
     {
       PY_ENTER_THREADS;
       PY_GRAB_THREAD;
-      canvas = getPyCanvas( self );
+      canvas = getPyCanvas( self->canvas_id );
       kargs = PyDict_New();
       if (info.x!=-999.)
 	{
@@ -420,7 +420,7 @@ Window display_info(PyVCScanvas_Object *self,Gpoint point,struct data_point info
 
   PY_ENTER_THREADS
     PY_GRAB_THREAD
-  canvas  = getPyCanvas( self );
+  canvas  = getPyCanvas( self->canvas_id );
   user_action_name = PyString_FromString("user_actions_names");
   user_act_nms = PyObject_GetAttr(canvas,user_action_name);
   Py_XDECREF(user_action_name);
