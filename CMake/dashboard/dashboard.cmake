@@ -36,6 +36,7 @@ set(TOPIC_NAME ${PROJECT_BRANCH})
 if(PROJECT_BRANCH STREQUAL "master")
   set(REPO "git://github.com/UV-CDAT/uvcdat.git")
 else()
+  set(MASTER_REPO "git://github.com/UV-CDAT/uvcdat.git")
   set(REPO "git://github.com/UV-CDAT/uvcdat-devel.git")
   if(PROJECT_BRANCH STREQUAL "next")
     set(TOPIC_NAME "master")
@@ -104,8 +105,11 @@ set(CTEST_SOURCE_DIRECTORY "${DASHROOT}/${CTEST_PROJECT_NAME}/source/${PROJECT_B
 
 # Prepare to do an initial checkout, if necessary
 if(CTEST_UPDATE_COMMAND AND NOT EXISTS "${CTEST_SOURCE_DIRECTORY}")
-  set(CTEST_CHECKOUT_COMMAND
-     "${CTEST_UPDATE_COMMAND} clone --recursive -b ${TOPIC_NAME} ${REPO} ${CTEST_SOURCE_DIRECTORY}")
+  if(PROJECT_BRANCH STREQUAL "master")
+    set(CTEST_CHECKOUT_COMMAND "${CTEST_UPDATE_COMMAND} clone --recursive ${REPO} ${CTEST_SOURCE_DIRECTORY}")
+  else()
+    set(CTEST_CHECKOUT_COMMAND "${CTEST_SCRIPT_DIRECTORY}/next_checkout.sh ${CTEST_UPDATE_COMMAND} ${CTEST_SOURCE_DIRECTORY} ${MASTER_REPO} ${REPO} ${TOPIC_NAME}")
+  endif()
 endif()
 
 # On non-continuous or first build of the day, clear the build directory
