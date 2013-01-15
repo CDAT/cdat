@@ -12,6 +12,7 @@
 # play back the requested vistrail and make an image
 @PYTHON_EXECUTABLE@ \
   @CMAKE_INSTALL_PREFIX@/vistrails/vistrails/uvcdat.py \
+ -R \
  -S $1\
  -b $2\
  -a $3\
