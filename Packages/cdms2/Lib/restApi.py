@@ -20,9 +20,9 @@ class esgfFilesException(Exception):
     ##     return msg
 
 class FacetConnection(object,AutoAPI.AutoAPI):
-    def __init__(self):
-        self.rqst="http://esg-datanode.jpl.nasa.gov/esg-search/search?facets=*&type=Dataset&limit=1"
-        self.rqst_count="http://esg-datanode.jpl.nasa.gov/esg-search/search?facets=*&type=Dataset&limit=0"
+    def __init__(self,host='pcmdi9.llnl.gov'):
+        self.rqst="http://%s/esg-search/search?facets=*&type=Dataset&limit=1&latest=true" % host
+        self.rqst_count="http://%s/esg-search/search?facets=*&type=File&limit=0&latest=true" % host
         self.EsgfObjectException = esgfConnectionException
     def get_xmlelement(self,facet_param=None):
         try:
@@ -50,7 +50,7 @@ class FacetConnection(object,AutoAPI.AutoAPI):
                             facet_name=child.get('name')
                             facet_dict[facet_name]=[]
                             for grandchild in child.getchildren():
-                                facet_dict[facet_name].append(grandchild.get('name'))
+                                facet_dict[facet_name].append("%s (%s)"%(str(grandchild.get('name')),str(grandchild.text)))
         return facet_dict
     def get_xmlelement_count(self,facet_param=None):
         try:
@@ -93,6 +93,7 @@ class esgfConnection(object,AutoAPI.AutoAPI):
         else:
             self.restPath=restPath
         self.host=host
+        #self.host="esg-datanode.jpl.nasa.gov"
         self.defaultSearchType = "Dataset"
         self.EsgfObjectException = esgfConnectionException
         self.validSearchTypes=validSearchTypes
@@ -302,6 +303,7 @@ class esgfDataset(esgfConnection):
         if host is None:
             raise esgfDatasetException("You need to pass url")
         self.host=host
+        #self.host="esg-datanode.jpl.nasa.gov"
         self.port=port
         self.defaultSearchType="File"
         if restPath is None:
@@ -500,13 +502,15 @@ class esgfDataset(esgfConnection):
         keys.update(self.originalKeys)
         st=""
         if not "limit" in keys:
-            keys["limit"]=self["limit"]
+            keys["limit"]=[self["limit"]]
         if not "offset" in keys:
-            keys["offset"]=self["offset"]
+            keys["offset"]=[self["offset"]]
         for k in keys:
             if k in ["searchString","stringType",]:
                 continue
-            st+="&%s=%s" % (k,keys[k])
+            for v in keys[k]:
+                st+="&%s=%s"%(k,v)    
+            #st+="&%s=%s" % (k,keys[k])
         #if self.resp is None:
             #self.resp = self._search("dataset_id=%s%s" % (self["id"],st),stringType=stringType)
         self.resp = self._search(st,stringType=stringType)
