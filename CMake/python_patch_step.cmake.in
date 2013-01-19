@@ -1,0 +1,15 @@
+execute_process(
+  COMMAND
+  @CMAKE_COMMAND@ -E copy_if_different @cdat_SOURCE_DIR@/pysrc/src/setup-@PYTHON_VERSION@.py @python_SOURCE_DIR@/setup.py
+)
+
+# Refer: http://bugs.python.org/issue14572
+if(NOT WIN32)
+  execute_process(
+    WORKING_DIRECTORY @python_SOURCE_DIR@
+    COMMAND patch -p1
+    INPUT_FILE @cdat_CMAKE_SOURCE_DIR@/sqlite3_int64_v2.patch
+  )
+endif()
+
+
