@@ -22,5 +22,5 @@
 @PYTHON_EXECUTABLE@ \
  @cdat_SOURCE_DIR@/testing/checkimage.py \
  @CMAKE_BINARY_DIR@/Testing/Temporary/$4 \
- @cdat_SOURCE_DIR@/testing/uvcdat/$4 \
- $5
+ @cdat_SOURCE_DIR@/testing/$5/$4 \
+ $6
