@@ -15,5 +15,6 @@ add_test(cdms_verify
   ${cdat_SOURCE_DIR}/testing/uvcdat/cdms_test.vt:test
   "datafile=${cdat_SOURCE_DIR}/libcdms/src/cdunif/test/testnc.nc"
   cdms_test_4.png
+  uvcdat
   0.05
 )
