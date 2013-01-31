@@ -95,6 +95,7 @@ ExternalProject_Add(ParaView
     -DR_LIBRARY_LAPACK:PATH=${R_install}/lib/R/lib/libRlapack${_LINK_LIBRARY_SUFFIX}
     -DR_LIBRARY_READLINE:PATH=
     -DVTK_QT_USE_WEBKIT:BOOL=OFF
+    -DINCLUDE_PYTHONHOME_PATHS:BOOL=OFF
     ${cdat_compiler_args}
     ${ParaView_tpl_args}
     # Qt
