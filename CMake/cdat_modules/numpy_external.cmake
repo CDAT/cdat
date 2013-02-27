@@ -1,6 +1,6 @@
 # The Numpy external project 
 
-set(NUMPY_binary "${CMAKE_CURRENT_BINARY_DIR}/NUMPY/")
+set(NUMPY_binary "${CMAKE_CURRENT_BINARY_DIR}/build/NUMPY")
 
 # to configure numpy we run a cmake -P script
 # the script will create a site.cfg file
@@ -34,8 +34,8 @@ ExternalProject_Add(NUMPY
   URL ${NUMPY_URL}/${NUMPY_GZ}
   URL_MD5 ${NUMPY_MD5}
   DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
-  SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/NUMPY
-  BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/NUMPY
+  SOURCE_DIR ${NUMPY_binary}
+  BINARY_DIR ${NUMPY_binary}
   CONFIGURE_COMMAND ${NUMPY_CONFIGURE_COMMAND}
   BUILD_COMMAND ${NUMPY_BUILD_COMMAND}
   UPDATE_COMMAND ""
