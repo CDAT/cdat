@@ -55,6 +55,10 @@ ExternalProject_Add(${proj}
 set(PYTHON_SITE_PACKAGES ${CMAKE_INSTALL_PREFIX}/lib/python${PYVER}/site-packages)
 
 if(APPLE)
+  ExternalProject_Add_Step(${proj} change_plist_name
+    COMMAND ${CMAKE_INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/${PYVER}/bin/python ${cdat_CMAKE_SOURCE_DIR}/fixName.py
+    DEPENDEES install
+  )
   set(PYTHON_INCLUDE ${CMAKE_INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/${PYVER}/Headers)
   set(PYTHON_LIBRARY ${CMAKE_INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/${PYVER}/Python)
   set(PYTHON_LIBRARY_DIR ${CMAKE_INSTALL_PREFIX}/lib)
