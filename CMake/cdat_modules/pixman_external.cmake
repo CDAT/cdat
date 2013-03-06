@@ -1,5 +1,5 @@
 
-set(pixman_source "${CMAKE_CURRENT_BINARY_DIR}/pixman")
+set(pixman_source "${CMAKE_CURRENT_BINARY_DIR}/build/pixman")
 set(pixman_install "${cdat_EXTERNALS}")
 
 ExternalProject_Add(pixman
