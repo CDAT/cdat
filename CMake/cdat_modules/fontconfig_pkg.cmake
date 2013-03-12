@@ -8,4 +8,6 @@ set(FTCFG_URL ${LLNL_URL})
 set(FTCFG_GZ fontconfig-${FTCFG_MAJOR_SRC}.${FTCFG_MINOR_SRC}.${FTCFG_PATCH_SRC}.tar.gz)
 set(FTCFG_MD5 43808dd9153cff1c3ac302e94e024814)
 
-add_cdat_package(fontconfig "" "" "")
+if (CDAT_BUILD_GRAPHICS)
+  add_cdat_package(fontconfig "" "" "")
+endif()

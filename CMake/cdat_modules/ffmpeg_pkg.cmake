@@ -5,4 +5,6 @@ set(FFMPEG_URL ${LLNL_URL})
 set(FFMPEG_GZ ffmpeg-${FFMPEG_MAJOR_SRC}.${FFMPEG_MINOR_SRC}.${FFMPEG_PATCH_SRC}.tar.gz)
 set(FFMPEG_MD5 bded7c1e03c5b11a1d50fa1b5f07c653 )
 
-add_cdat_package(FFMPEG "" "" "")
+if (CDAT_BUILD_GRAPHICS)
+  add_cdat_package(FFMPEG "" "" "")
+endif()

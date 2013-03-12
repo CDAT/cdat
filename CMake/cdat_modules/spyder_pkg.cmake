@@ -1,1 +1,3 @@
-add_cdat_package(spyder "" "" "")
+if (CDAT_BUILD_GUI)
+  add_cdat_package(spyder "" "" "")
+endif()

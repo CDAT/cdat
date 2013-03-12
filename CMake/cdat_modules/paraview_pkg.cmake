@@ -6,4 +6,6 @@ set(PARAVIEW_URL ${LLNL_URL})
 set(PARAVIEW_GZ ParaView-${PARAVIEW_VERSION}c.tar.gz)
 set(PARAVIEW_MD5 81565b70093784dea38d2d62e072287b)
 
-add_cdat_package(ParaView "" "Build ParaView" ON)
+if (CDAT_BUILD_GUI)
+  add_cdat_package(ParaView "" "Build ParaView" ON)
+endif()
