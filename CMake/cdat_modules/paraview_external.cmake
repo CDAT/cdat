@@ -62,7 +62,7 @@ endif()
 
 if(UVCDAT_TESTDATA_LOCATION)
   list(APPEND ParaView_tpl_args
-    -DUVCDAT_TestingData:PATH=${UVCDAT_TESTDATA_LOCATION}
+    -DUVCDAT_TestData:PATH=${UVCDAT_TESTDATA_LOCATION}
     )
 endif()
 
