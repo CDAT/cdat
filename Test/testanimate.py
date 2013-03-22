@@ -40,7 +40,7 @@
 ############################################################################
 
 import vcs,cdms2 as cdms,sys,os,support
-
+support.dogui = True
 if support.dogui:
 
     f=cdms.open(os.path.join(cdms.__path__[0],'..','..','..','..','sample_data','clt.nc'))
@@ -55,17 +55,17 @@ if support.dogui:
 
     x.animate.create(thread_it=0)
 #    x.animate.create()
-    x.animate.run()
-    x.animate.zoom(3)
-    x.animate.horizontal(50)
-    x.animate.vertical(-50)
+#    x.animate.run()
+#    x.animate.zoom(3)
+#    x.animate.horizontal(50)
+#    x.animate.vertical(-50)
 
-    x.animate.gui()
-    x.animate.pause(4)
-    x.animate.stop()
-    x.animate.zoom(1)
-    x.animate.frame(2)
-    x.animate.frame(5)
-    x.animate.close()
+#    x.animate.gui()
+#    x.animate.pause(4)
+#    x.animate.stop()
+#    x.animate.zoom(1)
+#    x.animate.frame(2)
+#    x.animate.frame(5)
+#    x.animate.close()
 else:
-    print 'You need to run this one by hand (turn support.dogui to 1 first)'
+    print 'You need to run this one by hand (turn support.dogui to True first)'
