@@ -970,9 +970,9 @@ CANVASINFO_LINK          	cptr;
 #elif defined QTWM
 	/* 2013-03-22 C. Doutriaux Qt will be handled from Python */
 	fprintf(stderr,"Don't forget to clear window first???\n");
-	/*
+	
 	vcs_Qt_clear_window_by_id(connect_id.wkst_id);
-	*/
+	
 #else
 	fprintf(stderr,"insert here your WM clear func\n");
 #endif
@@ -1183,9 +1183,9 @@ DNW*/
 #elif defined QTWM
 		 /* 2013-03-22 C. Doutriaux, no more display from here */
 		 fprintf(stderr, "used to display zoomed image here\n");
-		 /*
+		 
 		 vcs_Qt_window_put_image_by_id(cptr->connect_id.wkst_id,zoom_ximage);
-		 */
+		 
 
 #else
 		 fprintf(stderr,"insert your put image 1 here\n");
@@ -1199,9 +1199,9 @@ DNW*/
 #elif defined QTWM
 	      /* 2013-03-22 C. Doutriaux, no more display from here */
 	      fprintf(stderr,"We used to plot the image from here!\n");
-	      /*
+	      
 	      vcs_Qt_window_put_image_by_id(cptr->connect_id.wkst_id,iptr->ximage);
-	      */
+	      
 	      
 #else
 		 fprintf(stderr,"insert your put image 2 here\n");
