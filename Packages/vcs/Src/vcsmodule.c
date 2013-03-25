@@ -17722,6 +17722,8 @@ PyVCS_plot(PyVCScanvas_Object *self, PyObject *args)
 #endif
 	extern struct orientation       Page;
 
+	char animbg[4];
+	strcpy(animbg,"bg");
 	/* If the GUI was not stated (i.e., cdatgui), then we need to
 	 * process all the X events before we move on.
 	 */
@@ -17777,6 +17779,11 @@ an_loop:
            } else {
               self->background = NULL;
            }
+	   if (doing_animation==1) {
+	     self->background = animbg;
+	     fprintf("ok we set animbg and bg to: %s, %s\n",animbg,self->background);
+	     sleep(6);
+	   }
            if (hold == Py_None)
               slab = NULL;
 	   else 
