@@ -3,6 +3,7 @@ import MV2
 import genutil
 import cdms2
 import numpy
+import cdat_info
 def reconstructPressureFromHybrid(ps,A,B,Po):
     """
     Reconstruct the Pressure field on sigma levels, from the surface pressure
@@ -22,6 +23,7 @@ def reconstructPressureFromHybrid(ps,A,B,Po):
     P=reconstructPressureFromHybrid(ps,A,B,Po)
     """
     # Compute the pressure for the sigma levels
+    cdat_info.pingPCMDIdb("cdat","cdutil.vertical.reconstructPressureFromHybrid")
     ps,B=genutil.grower(ps,B)
     ps,A=genutil.grower(ps,A)
     p=ps*B
@@ -59,6 +61,7 @@ def linearInterpolation(A,I,levels=[100000, 92500, 85000, 70000, 60000, 50000, 4
     A=interpolate(A,I,levels=[100000, 92500, 85000, 70000, 60000, 50000, 40000, 30000, 25000, 20000, 15000, 10000, 7000, 5000, 3000, 2000, 1000])
     """
     
+    cdat_info.pingPCMDIdb("cdat","cdutil.vertical.linearInterpolation")
     try:
         nlev=len(levels)  # Number of pressure levels
     except:
@@ -147,6 +150,7 @@ def logLinearInterpolation(A,P,levels=[100000, 92500, 85000, 70000, 60000, 50000
     A=logLinearInterpolation(A,P),levels=[100000, 92500, 85000, 70000, 60000, 50000, 40000, 30000, 25000, 20000, 15000, 10000, 7000, 5000, 3000, 2000, 1000])
     """
     
+    cdat_info.pingPCMDIdb("cdat","cdutil.vertical.logLinearInterpolation")
     try:
         nlev=len(levels)  # Number of pressure levels
     except:

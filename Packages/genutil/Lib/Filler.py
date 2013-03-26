@@ -1,3 +1,4 @@
+import cdat_info
 class StringConstructor:
     """ This Class aims at spotting keyword in string and replacing them
     Usage
@@ -29,6 +30,7 @@ class StringConstructor:
     
     """
     def __init__(self,template=None):
+        cdat_info.pingPCMDIdb("cdat","genutil.StringConstructor")
         self.template=template
         ## ok we need to generate the keys and set them to empty it seems like a better idea
         keys = self.keys()

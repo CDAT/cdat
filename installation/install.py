@@ -250,16 +250,53 @@ def get_drs_libs():
 """
 
     print >>f, """\
-ping=False
-def pingPCMDIdb(action,key):
+ping=True
+
+sleep=60 #minutes  (int required)
+
+actions_sent = {}
+
+SOURCE = 'CDAT'
+
+def get_version():
+  return '1.3.0'
+
+def pingPCMDIdb(*args,**kargs):
+    import threading
+    print args,kargs
+    kargs['target']=submitPing
+    kargs['args']=args
+    t = threading.Thread(**kargs)
+    t.start()
+    
+def submitPing(source,action,source_version=None):
   try:
-    import urllib2,sys,os,cdat_info
-    if cdat_info.ping is False:
-      if not "--norecord" in sys.argv:
-        urllib2.urlopen("http://uv-cdat.llnl.gov/UVCDATLogger/%%s/%%s/%%s/%%s" %% (os.getlogin(),sys.platform,action,key),None,1)
-  except:
+    import urllib2,sys,os,cdat_info,hashlib,urllib
+    if source in ['cdat','auto',None]:
+      source = cdat_info.SOURCE
+    if cdat_info.ping:
+      if not source in actions_sent.keys():
+        actions_sent[source]=[]
+      elif action in actions_sent[source]:
+        return
+      else:
+        actions_sent[source].append(action)
+      data={}
+      uname = os.uname()
+      data['platform']=uname[0]
+      data['platform_version']=uname[2]
+      data['hashed_hostname']=hashlib.sha1(uname[1]).hexdigest()
+      data['source']=source
+      if source_version is None:
+        data['source_version']=cdat_info.get_version()
+      else:
+        data['source_version']=source_version
+      data['action']=action
+      data['sleep']=cdat_info.sleep
+      data['hashed_username']=hashlib.sha1(os.getlogin()).hexdigest()
+      urllib2.urlopen('http://uv-cdat.llnl.gov/UVCDATUsage/log/add/',urllib.urlencode(data))
+  except Exception,err:
     pass
-  cdat_info.ping=True
 
 CDMS_INCLUDE_DAP = %s
 CDMS_DAP_DIR = %s

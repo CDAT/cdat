@@ -4,7 +4,7 @@ import numpy.ma,cdms2
 #import genutil
 from grower import grower
 import numpy
-
+import cdat_info
 import arrayindexing,array_indexing_emulate as array_indexing
 
 class StatisticsError (Exception):
@@ -703,6 +703,7 @@ def covariance(x,y,weights=None,axis=0,centered=1,biased=1,max_pct_missing=100.)
             Set to 0. to mask results if any data is masked.
             Set to 100. to calculate result if any data is not masked
     """
+    cdat_info.pingPCMDIdb("cdat","genutil.statistics.covariance")
     if cdms2.isVariable(x) : xatt=x.attributes
     if cdms2.isVariable(y) : yatt=y.attributes
     x,y,weights,axis,ax=__checker(x,y,weights,axis)
@@ -744,6 +745,7 @@ def variance(x,weights=None,axis=0,centered=1,biased=1,max_pct_missing=100.):
             Set to 0. to mask results if any data is masked.
             Set to 100. to calculate result if any data is not masked
     """
+    cdat_info.pingPCMDIdb("cdat","genutil.statistics.variance")
     if cdms2.isVariable(x) : xatt=x.attributes
     x,dum,weights,axis,ax=__checker(x,None,weights,axis)
 
@@ -789,6 +791,7 @@ def std(x,weights=None,axis=0,centered=1,biased=1,max_pct_missing=100.):
             Set to 0. to mask results if any data is masked.
             Set to 100. to calculate result if any data is not masked
     """
+    cdat_info.pingPCMDIdb("cdat","genutil.statistics.std")
     if cdms2.isVariable(x) : xatt=x.attributes
     x,dum,weights,axis,ax=__checker(x,None,weights,axis)
     std=__std(x,weights=weights,centered=centered,biased=biased)
@@ -829,6 +832,7 @@ def correlation(x,y,weights=None,axis=0,centered=1,biased=1,max_pct_missing=100.
             Set to 0. to mask results if any data is masked.
             Set to 100. to calculate result if any data is not masked
     """
+    cdat_info.pingPCMDIdb("cdat","genutil.statistics.corelation")
     x,y,weights,axis,ax=__checker(x,y,weights,axis)
     
     cor=__correlation(x,y,weights=weights,centered=centered,biased=biased)
@@ -869,6 +873,7 @@ def rms(x,y,weights=None,axis=0,centered=0,biased=1,max_pct_missing=100.):
             Set to 0. to mask results if any data is masked.
             Set to 100. to calculate result if any data is not masked
     """
+    cdat_info.pingPCMDIdb("cdat","genutil.statistics.rms")
     if cdms2.isVariable(x) : xatt=x.attributes
     x,y,weights,axis,ax=__checker(x,y,weights,axis)
     rmsans=__rms(x,y,weights=weights,centered=centered,biased=biased)
@@ -915,6 +920,7 @@ def laggedcovariance(x,y,lag=None,axis=0,centered=1,partial=1,noloop=0,max_pct_m
             Set to 0. to mask results if any data is masked.
             Set to 100. to calculate result if any data is not masked
     """
+    cdat_info.pingPCMDIdb("cdat","genutil.statistics.laggedcovariance")
     if cdms2.isVariable(x) : xatt=x.attributes
     if cdms2.isVariable(y) : yatt=y.attributes
     x,y,w,axis,ax=__checker(x,y,None,axis)
@@ -989,6 +995,7 @@ def laggedcorrelation(x,y,lag=None,axis=0,centered=1,partial=1,biased=1,noloop=0
             Set to 0. to mask results if any data is masked.
             Set to 100. to calculate result if any data is not masked
     """
+    cdat_info.pingPCMDIdb("cdat","genutil.statistics.laggedcorrelation")
     x,y,w,axis,ax=__checker(x,y,None,axis)
     if lag is None:
         lags=range(x.shape[0])
@@ -1054,6 +1061,7 @@ def autocovariance(x,lag=None,axis=0,centered=1,partial=1,noloop=0,max_pct_missi
             Set to 0. to mask results if any data is masked.
             Set to 100. to calculate result if any data is not masked
     """
+    cdat_info.pingPCMDIdb("cdat","genutil.statistics.autocovariance")
     if cdms2.isVariable(x) : xatt=x.attributes
     x,dum,dum,axis,ax=__checker(x,None,None,axis)
     if lag is None:
@@ -1122,6 +1130,7 @@ def autocorrelation(x,lag=None,axis=0,centered=1,partial=1,biased=1,noloop=0,max
             Set to 0. to mask results if any data is masked.
             Set to 100. to calculate result if any data is not masked
     """
+    cdat_info.pingPCMDIdb("cdat","genutil.statistics.autocorrelation")
     x,dum,dum,axis,ax=__checker(x,None,None,axis)
     if lag is None:
         lags=range(x.shape[0])
@@ -1179,6 +1188,7 @@ def meanabsdiff(x,y,weights=None,axis=0,centered=1,max_pct_missing=100.):
             Set to 0. to mask results if any data is masked.
             Set to 100. to calculate result if any data is not masked
     """
+    cdat_info.pingPCMDIdb("cdat","genutil.statistics.meanabsdiff")
     if cdms2.isVariable(x) : xatt=x.attributes
     x,y,weights,axis,ax=__checker(x,y,weights,axis)
     mad=__meanabsdiff(x,y,weights=weights,centered=centered)
@@ -1307,6 +1317,7 @@ def linearregression(y,axis=None,x=None,error=None,probability=None,nointercept=
                   linearregression(y, error=2,probability=1,noslope=1)
                   
 """
+    cdat_info.pingPCMDIdb("cdat","genutil.statistics.linearregression")
     yisV=cdms2.isVariable(y)
     if yisV : yatt=y.attributes
     if not axis is None and not x is None:
@@ -1465,6 +1476,7 @@ def geometricmean(x,axis=0,max_pct_missing=100.):
             Set to 0. to mask results if any data is masked.
             Set to 100. to calculate result if any data is not masked
     """
+    cdat_info.pingPCMDIdb("cdat","genutil.statistics.geometricmean")
     if cdms2.isVariable(x) : xatt=x.attributes
     x,dum,weights,axis,ax=__checker(x,None,None,axis)
     gmean=__geometricmean(x)
@@ -1540,6 +1552,7 @@ def percentiles(x,percentiles=[50.],axis=0):
             default value = 0. You can pass the name of the dimension or index
             (integer value 0...n) over which you want to compute the statistic.    
     """
+    cdat_info.pingPCMDIdb("cdat","genutil.statistics.percentiles")
     if cdms2.isVariable(x) : xatt=x.attributes
     x,dum,weights,axis,ax=__checker(x,None,None,axis)
     p=_percentiles(x,percentiles)
@@ -1568,6 +1581,7 @@ def median(x,axis=0):
             default value = 0. You can pass the name of the dimension or index
             (integer value 0...n) over which you want to compute the statistic.            
     """
+    cdat_info.pingPCMDIdb("cdat","genutil.statistics.median")
     tmp=percentiles(x,percentiles=[50.],axis=axis)
     tmp.id='median'
     return tmp
@@ -1591,6 +1605,7 @@ def rank(x,axis=0):
     """
 
     # preprocessing
+    cdat_info.pingPCMDIdb("cdat","genutil.statistics.rank")
     if cdms2.isVariable(x) :
         xatt=x.attributes
         axs=x.getAxisList()

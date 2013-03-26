@@ -1,6 +1,7 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 from cdms2.selectors import SelectorComponent
 import MV2,numpy,cdtime
+import cdat_info
 class PickComponent(SelectorComponent):
     '''
     Let the user pick non contiguous values along an axis
@@ -197,6 +198,7 @@ def picker(*args, **kargs):
     s=f('ta',genutil.picker(time=['1987-7','1988-3',cdtime.comptime(1989,3)],level=[1000,700,850]))
 
     """
+    cdat_info.pingPCMDIdb("cdat","genutil.picker")
     import cdms2 as cdms
     a=cdms.selectors.Selector(PickComponent(*args,**kargs))
     return a

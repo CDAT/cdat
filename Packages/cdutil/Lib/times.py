@@ -1263,6 +1263,7 @@ class Seasons(ASeason):
         rather than Season(slab,None,None,mycriteriaarguments)
         Now for the original doc of the get function see get2__doc__:
         '''
+        cdat_info.pingPCMDIdb("cdat","cdutil.times.Seasons.get -%s-" % self.seasons)
         u=self.month_fix(slab)
         s=[]
         i=-1
@@ -1286,6 +1287,7 @@ class Seasons(ASeason):
         To pass a specific array from which to compute departures, please pass 1 per season (or None if we should compute it)
         for info one default departures see: departures2.__doc__
         '''
+        cdat_info.pingPCMDIdb("cdat","cdutil.times.Seasons.departures -%s-" % self.seasons)
         u=self.month_fix(slab)
         if not cdms2.isVariable(ref) and ref is not None:
             raise RuntimeError,"reference must be a variable (MV2)"
@@ -1340,6 +1342,7 @@ class Seasons(ASeason):
           i.e if DJF and JJA are asked, the output will have the average DJF first, then the average JJA
           2 criteria can be passed one for the slicing part and one for the climatology part
         '''
+        cdat_info.pingPCMDIdb("cdat","cdutil.times.Seasons.climatology -%s-" % self.seasons)
         u=self.month_fix(slab)
         if criteriaargclim is None: criteriaargclim=criteriaarg
         order=slab.getOrder(ids=1)
@@ -1438,5 +1441,4 @@ NOV=Seasons('NOV')
 DEC=Seasons('DEC')
 
 YEAR=Seasons('JFMAMJJASOND')
-
 
