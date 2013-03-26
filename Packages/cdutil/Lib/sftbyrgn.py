@@ -4,6 +4,7 @@ This module contains functions to map an array of "regions" onto a mask
 """
 
 import regrid2,cdutil,MV2,genutil,cdms2,sys,os
+import cdat_info
 
 
 def sumregions(potential_reg,potential):
@@ -56,6 +57,7 @@ def generateSurfaceTypeByRegionMask(mask,sftbyrgn=None,sftbyrgnmask=215,regions 
      mapped : mapped input mask
      found  : ???
     """
+    cdat_info.pingPCMDIdb("cdat","cdutil.generateSurfaceTypeByRegionMask")
     ## OK first determine which regions are available
     ## Must be integer values
     if isinstance(mask, cdms2.grid.TransientRectGrid):

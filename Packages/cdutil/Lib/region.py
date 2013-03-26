@@ -1,5 +1,6 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 from cdms2.selectors import SelectorComponent
+import cdat_info
 class DomainComponent(SelectorComponent):
     '''gets a domain, and by default adjusts the bounds to the domain
     or if exact is set to 0 or None gets all the domain that has
@@ -222,6 +223,7 @@ class DomainComponent(SelectorComponent):
 def domain(*args, **kargs):
     '''construct the selector'''
     import cdms2 as cdms
+    cdat_info.pingPCMDIdb("cdat","cdutil.region.domain")
     a=cdms.selectors.Selector(DomainComponent(*args,**kargs))
     return a
 
