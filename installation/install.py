@@ -263,7 +263,6 @@ def get_version():
 
 def pingPCMDIdb(*args,**kargs):
     import threading
-    print args,kargs
     kargs['target']=submitPing
     kargs['args']=args
     t = threading.Thread(**kargs)
