@@ -293,6 +293,7 @@ include(vistrails_pkg)
 include(wget_pkg)
 include(yasm_pkg)
 include(zlib_pkg)
+include(CDATLogger_pkg)
 
 # Configure custom configure/build/install step files
 #-----------------------------------------------------------------------------
@@ -400,6 +401,7 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/uvcdat.in
   ${CMAKE_INSTALL_PREFIX}/bin/uvcdat
   @ONLY
 )
+
 
 if (BUILD_TESTING)
   configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/runpytest.in
