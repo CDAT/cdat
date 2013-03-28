@@ -41,6 +41,34 @@ include(cmake_utils)
 include(check_fortran)
 include(CTest)
 
+# Set up the test data. If UVCDAT_USE_SYSTEM_TESTDATA is ON and UVCDAT_TESTDATA
+# is not set then we won't use it for testing. Otherwise we'll test either
+# with the system test data or download it ourselves.
+#-----------------------------------------------------------------------------
+if (BUILD_TESTING)
+  set(UVCDAT_USE_SYSTEM_TESTDATA ON CACHE BOOL "Use UV-CDAT's test data from the system")
+  if(UVCDAT_USE_SYSTEM_TESTDATA)
+    set(UVCDAT_TESTDATA "" CACHE PATH "Location of UV-CDAT test data")
+    set(UVCDAT_TESTDATA_LOCATION ${UVCDAT_TESTDATA})
+  else()
+    set(UVCDAT_TestData_GZ boonth-1-22-2013.p94m.tar.gz)
+    set(UVCDAT_TestData_MD5 cf47adb0b6164997fb122ccbc3bd6f92)
+    file(DOWNLOAD ${LLNL_URL}/${UVCDAT_TestData_GZ} ${CMAKE_BINARY_DIR}/${UVCDAT_TestData_GZ}
+      STATUS testdatastatus SHOW_PROGRESS EXPECTED_MD5 ${UVCDAT_TestData_MD5})
+    list(GET testdatastatus 0 actualtestdatastatus)
+    if(actualtestdatastatus)
+      message("[WARNING] Unable to automatically download test data ${testdatastatus}")
+    else()
+      set(UVCDAT_TESTDATA_DIR ${CMAKE_BINARY_DIR}/UVCDAT_TestData)
+      file(MAKE_DIRECTORY ${UVCDAT_TESTDATA_DIR})
+      execute_process(
+        COMMAND ${CMAKE_COMMAND} -E tar xzf ${CMAKE_BINARY_DIR}/${UVCDAT_TestData_GZ}
+        WORKING_DIRECTORY ${UVCDAT_TESTDATA_DIR})
+      set(UVCDAT_TESTDATA_LOCATION ${UVCDAT_TESTDATA_DIR})
+    endif()
+  endif()
+endif()
+
 # Change architecture *before* any enable_language() or project()
 # calls so that it's set properly to detect 64-bit-ness...
 #-----------------------------------------------------------------------------
@@ -408,4 +436,3 @@ if (BUILD_TESTING)
   )
   add_subdirectory(testing)
 endif()
-

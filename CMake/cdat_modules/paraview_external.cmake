@@ -60,6 +60,12 @@ if(NOT CDAT_USE_SYSTEM_HDF5)
   endif()
 endif()
 
+if(UVCDAT_TESTDATA_LOCATION)
+  list(APPEND ParaView_tpl_args
+    -DUVCDAT_TestData:PATH=${UVCDAT_TESTDATA_LOCATION}
+    )
+endif()
+
 include(GetGitRevisionDescription)
 set(paraview_branch uvcdat-master)
 
