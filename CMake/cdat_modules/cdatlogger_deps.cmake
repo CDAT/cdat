@@ -1,2 +1,2 @@
-set (CDATLogger_deps ${CDAT_pkg})
+set (CDATLogger_deps ${cdat_pkg})
 
