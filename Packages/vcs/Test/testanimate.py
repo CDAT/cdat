@@ -48,14 +48,14 @@ if support.dogui:
     s=s[0:12,:]
 
     x=vcs.init()
-    y=vcs.init()
+#    y=vcs.init()
 
     b=x.createboxfill('new')
     x.plot(s,b)
 
-    x.animate.create(thread_it=1)
-    raw_input("press enter")
-#    x.animate.create()
+    #x.animate.create(thread_it=1)
+    #raw_input("press enter")
+    x.animate.create()
     x.animate.run()
 #    x.animate.zoom(3)
 #    x.animate.horizontal(50)
