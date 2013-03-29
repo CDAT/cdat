@@ -5549,7 +5549,7 @@ Options:::
             # Pointer to the plotted slab of data and the VCS Canas display infomation. 
             # This is needed to find the animation min and max values and the number of 
             # displays on the VCS Canvas.
-            self.animate_info.append( (result, arglist[0]) )
+            self.animate_info.append( (result, arglist[:2]) )
             self.animate.update_animate_display_list( )
         else:
             result = dn
@@ -8358,7 +8358,7 @@ def change_date_time(tv, number):
 # Animate wrapper for VCS.                                                  #
 #                                                                           #
 #############################################################################
-class animate_obj:
+class animate_obj_old:
    """
  Function: animate
 
@@ -8919,6 +8919,65 @@ class animate_obj:
          a = _animationgui.create(self, gui_parent, transient)
          return a
 
+class animate_obj(animate_obj_old):
+    ## def __init__(self, vcs_self):
+    ##   self.vcs_self = vcs_self
+    ##   self.gui_popup = 0
+    ##   self.create_flg = 0
+    ##   self.run_flg = 0
+    ##   self.continents_value = 0
+    ##   self.continents_hold_value = 1
+    def create( self, parent=None, min=None, max=None, save_file=None, thread_it = 1, rate=5., bitrate=None, ffmpegoptions='',axis=0 ):
+        print "Creating over axis: ",axis
+        alen = None
+        y=vcs.init()
+        truncated = False
+        print len(self.vcs_self.animate_info)
+        for I in self.vcs_self.animate_info:
+            print I[1][0].shape
+            if alen is None:
+                alen = I[1][0].shape[axis]
+            else:
+                l = I[1][0].shape[axis]
+                print l,alen
+                if l!=alen:
+                    alen = numpy.minimum(alen,l)
+                    truncated = True
+        if truncated:
+            warnings.warn("Because of inconsistent shapes over axis: %i, the animation length will be truncated to: %i\n" % (axis,alen))
+        print "There is: %i frames" % alen
+        for i in range(alen):
+            print i
+            y.clear()
+            for I in self.vcs_self.animate_info:
+                d=I[0]
+                kw={}
+                n = len(I[1][0].shape)
+                for j,id in enumerate(I[1][0].getAxisIds()):
+                    if j!=axis and j<n-2:
+                        kw[id]=slice(0,1)
+                    elif j==axis:
+                        kw[id]=slice(i,i+1)
+                    else:
+                        break
+                args= [I[1][0](**kw),]
+                if I[1][1] is not None:
+                    kw={}
+                    n = len(I[1][1].shape)
+                    for j,id in enumerate(I[1][1].getAxisIds()):
+                        if j!=axis and j<n-2:
+                            kw[id]=slice(0,1)
+                        elif j==axis:
+                            kw[id]=slice(i,i+1)
+                        else:
+                            break
+                    args.append(I[1][1](**kw))
+                args+=[d.template,d.g_type,d.g_name]
+                y.plot(*args,bg=1)
+            y.png("%i" % i)
+    def run(self,*args):
+        print 'running:',args
+        
 ############################################################################
 #        END OF FILE                                                       #
 ############################################################################
