@@ -16,7 +16,7 @@ else:
     OSX=6
 
     compile_line="""
-    gcc  -fno-strict-aliasing -fno-common -dynamic -I/lgm/cdat/uvcdat/Externals/include -L/lgm/cdat/uvcdat/Externals/lib -arch %s -Xarch_%s -mmacosx-version-min=10.%i -isysroot /Developer/SDKs/MacOSX10.%i.sdk -pipe -I/Library/Frameworks/QtCore.framework -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I/Developer/SDKs/MacOSX10.%i.sdk/usr/include
+    gcc  -fno-strict-aliasing -fno-common -dynamic -IInclude -I/lgm/cdat/uvcdat/Externals/include -L/lgm/cdat/uvcdat/Externals/lib -arch %s -Xarch_%s -mmacosx-version-min=10.%i -isysroot /Developer/SDKs/MacOSX10.%i.sdk -pipe -I/Library/Frameworks/QtCore.framework -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I/Developer/SDKs/MacOSX10.%i.sdk/usr/include
     """.strip() % (arch,arch,OSX,OSX,OSX)
 
     opt="""
@@ -32,6 +32,8 @@ files = os.popen('find . -name "*.c*" -print').readlines()
 do = []
 for f in files:
     fnm=f.strip()
+    if fnm[-3:]=="swp":
+        continue
     if fnm.find("cdatwrap")>-1:
         continue
     if fnm.find("qpython")>-1:
@@ -83,9 +85,9 @@ socmd=socmd.replace("/lgm/cdat/uvcdat",prefix_path)
 print "So:",os.popen(socmd).readlines()
 if len(sys.argv)>1: raw_input("soed")
 sipcmd="""cd cdatwrap
-g++ -c -pipe -I/lgm/cdat/uvcdat/Externals/include -I/lgm/cdat/uvcdat%s/Python.framework/Versions/2.7/lib/python2.7/site-packages/vcs/Include -I/lgm/cdat/uvcdat%s/Python.framework/Versions/2.7/include/python2.7/.. -fPIC -O2 -Wall -W -DNDEBUG -DQT_NO_DEBUG -DQT_CORE_LIB -DQT_GUI_LIB -I. -I/lgm/cdat/uvcdat/include -I/lgm/cdat/uvcdat%s/Python.framework/Versions/2.7/include/python2.7 -I/usr/local/Qt4.7/mkspecs/macx-g++ -I/Library/Frameworks/QtCore.framework/Headers -I/Library/Frameworks/QtGui.framework/Headers -I/usr/include -F/Library/Frameworks -o sipcdatguiwrapcmodule.o sipcdatguiwrapcmodule.cpp
-g++ -c -pipe -I/lgm/cdat/uvcdat/Externals/include -I/lgm/cdat/uvcdat%s/Python.framework/Versions/2.7/lib/python2.7/site-packages/vcs/Include -I/lgm/cdat/uvcdat%s/Python.framework/Versions/2.7/include/python2.7/.. -fPIC -O2 -Wall -W -DNDEBUG -DQT_NO_DEBUG -DQT_CORE_LIB -DQT_GUI_LIB -I. -I/lgm/cdat/uvcdat/include -I/lgm/cdat/uvcdat%s/Python.framework/Versions/2.7/include/python2.7 -I/usr/local/Qt4.7/mkspecs/macx-g++ -I/Library/Frameworks/QtCore.framework/Headers -I/Library/Frameworks/QtGui.framework/Headers -I/usr/include -F/Library/Frameworks -o sipcdatguiwrapVCSQtManager.o sipcdatguiwrapVCSQtManager.cpp
-g++ -c -pipe -I/lgm/cdat/uvcdat/Externals/include -I/lgm/cdat/uvcdat%s/Python.framework/Versions/2.7/lib/python2.7/site-packages/vcs/Include -I/lgm/cdat/uvcdat%s/Python.framework/Versions/2.7/include/python2.7/.. -fPIC -O2 -Wall -W -DNDEBUG -DQT_NO_DEBUG -DQT_CORE_LIB -DQT_GUI_LIB -I. -I/lgm/cdat/uvcdat/include -I/lgm/cdat/uvcdat%s/Python.framework/Versions/2.7/include/python2.7 -I/usr/local/Qt4.7/mkspecs/macx-g++ -I/Library/Frameworks/QtCore.framework/Headers -I/Library/Frameworks/QtGui.framework/Headers -I/usr/include -F/Library/Frameworks -o sipcdatguiwrapMainWindow.o sipcdatguiwrapMainWindow.cpp
+g++ -c -pipe -I/lgm/cdat/uvcdat/Externals/include -I/lgm/cdat/uvcdat%s/Python.framework/Versions/2.7/lib/python2.7/site-packages/vcs/Include -I/lgm/cdat/uvcdat%s/Python.framework/Versions/2.7/include -fPIC -O2 -Wall -W -DNDEBUG -DQT_NO_DEBUG -DQT_CORE_LIB -DQT_GUI_LIB -I. -I/lgm/cdat/uvcdat/include -I/lgm/cdat/uvcdat%s/Python.framework/Versions/2.7/include/python2.7 -I/usr/local/Qt4.7/mkspecs/macx-g++ -I/Library/Frameworks/QtCore.framework/Headers -I/Library/Frameworks/QtGui.framework/Headers -I/usr/include -F/Library/Frameworks -o sipcdatguiwrapcmodule.o sipcdatguiwrapcmodule.cpp
+g++ -c -pipe -I/lgm/cdat/uvcdat/Externals/include -I/lgm/cdat/uvcdat%s/Python.framework/Versions/2.7/lib/python2.7/site-packages/vcs/Include -I/lgm/cdat/uvcdat%s/Python.framework/Versions/.7/include -fPIC -O2 -Wall -W -DNDEBUG -DQT_NO_DEBUG -DQT_CORE_LIB -DQT_GUI_LIB -I. -I/lgm/cdat/uvcdat/include -I/lgm/cdat/uvcdat%s/Python.framework/Versions/2.7/include/python2.7 -I/usr/local/Qt4.7/mkspecs/macx-g++ -I/Library/Frameworks/QtCore.framework/Headers -I/Library/Frameworks/QtGui.framework/Headers -I/usr/include -F/Library/Frameworks -o sipcdatguiwrapVCSQtManager.o sipcdatguiwrapVCSQtManager.cpp
+g++ -c -pipe -I/lgm/cdat/uvcdat/Externals/include -I/lgm/cdat/uvcdat%s/Python.framework/Versions/2.7/lib/python2.7/site-packages/vcs/Include -I/lgm/cdat/uvcdat%s/Python.framework/Versions/2.7/include -fPIC -O2 -Wall -W -DNDEBUG -DQT_NO_DEBUG -DQT_CORE_LIB -DQT_GUI_LIB -I. -I/lgm/cdat/uvcdat/include -I/lgm/cdat/uvcdat%s/Python.framework/Versions/2.7/include/python2.7 -I/usr/local/Qt4.7/mkspecs/macx-g++ -I/Library/Frameworks/QtCore.framework/Headers -I/Library/Frameworks/QtGui.framework/Headers -I/usr/include -F/Library/Frameworks -o sipcdatguiwrapMainWindow.o sipcdatguiwrapMainWindow.cpp
 g++ -headerpad_max_install_names /lgm/cdat/uvcdat%s/Python.framework/Versions/2.7/lib/python2.7/site-packages/vcs/_vcs.so -bundle -undefined dynamic_lookup -o cdatguiwrap.so sipcdatguiwrapcmodule.o sipcdatguiwrapVCSQtManager.o sipcdatguiwrapMainWindow.o -F/Library/Frameworks -L/Library/Frameworks -framework QtCore -framework QtGui -framework QtCore
 cp -f cdatguiwrap.so /lgm/cdat/uvcdat%s/Python.framework/Versions/2.7/lib/python2.7/site-packages/cdatguiwrap.so
 echo 'Yep'
@@ -94,11 +96,12 @@ sipcmd=sipcmd.replace("x86_64",arch)
 sipcmd=sipcmd.replace("/lgm/cdat/uvcdat",prefix_path)
 print "sip",os.popen(sipcmd).readlines()
 if len(sys.argv)>1: raw_input("siped")
-qpycmd="""g++ -O3 -c  -pipe -g -gdwarf-2 -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -I. -pipe -g -gdwarf-2 -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -I/usr/include  -IInclude/Qt -IInclude -I//lgm/cdat/uvcdat%s/Python.framework/Versions/2.7/include -o build/qpython.o Src/Qt/qpython.cpp
-g++ -o build/qpython build/qpython.o /lgm/cdat/uvcdat%s/Python.framework/Versions/2.7/lib/python2.7/config/libpython2.7.a  -F/usr/lib -framework QtCore -framework QtGui -lz -lm  -lutil
+qpycmd="""g++ -O3 -c  -pipe -g -gdwarf-2 -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -I. -pipe -g -gdwarf-2 -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -I/usr/include  -IInclude/Qt -IInclude -I//lgm/cdat/uvcdat%s/Python.framework/Versions/2.7/include/python2.7  -o build/qpython.o Src/Qt/qpython.cpp
+g++ -o build/qpython build/qpython.o /lgm/cdat/uvcdat%s/Python.framework/Versions/2.7/lib/python2.7/config/libpython2.7.a  -F/usr/lib -framework QtCore -framework QtGui -lz -lm  -lutil 
 cp build/qpython /lgm/cdat/uvcdat%s/Python.framework/Versions/2.7/bin/cdat
 """ %(xpth,xpth,xpth)
 qpycmd=qpycmd.replace("x86_64",arch)
 qpycmd=qpycmd.replace("/lgm/cdat/uvcdat",prefix_path)
+print "qpython compile cmd:",qpycmd
 print "qpython:",os.popen(qpycmd).readlines()
 if len(sys.argv)>1: raw_input("qpyed")

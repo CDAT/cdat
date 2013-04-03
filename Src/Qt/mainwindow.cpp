@@ -1,5 +1,5 @@
-#include <cairo/cairo.h>
-#include "mainwindow.h"
+# include <cairo/cairo.h>
+#include "Qt/mainwindow.h"
 #include <Python.h>
 #include <QtCore/QEvent>
 #include <QtCore/QMutex>
@@ -8,7 +8,7 @@
 #include <QtGui/QMenu>
 #include <QtGui/QPainter>
 #include <QtGui/QToolTip>
-#include "vcs_events_Qt_mapping.h"
+#include "Qt/vcs_events_Qt_mapping.h"
 #include "vcs_canvas.h"
 #include <QtCore/QString>
 

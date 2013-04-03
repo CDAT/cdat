@@ -8786,7 +8786,7 @@ class animate_obj_old:
          self.vcs_self.canvas.animate_stop()
       elif (self.create_flg == 1):
          self.vcs_self.canvas.animate_stop_create()
-
+	
    ##############################################################################
    # View the specified animation frame                          		#
    ##############################################################################
@@ -8928,7 +8928,6 @@ class animate_obj(animate_obj_old):
     ##   self.continents_value = 0
     ##   self.continents_hold_value = 1
     def create( self, parent=None, min=None, max=None, save_file=None, thread_it = 1, rate=5., bitrate=None, ffmpegoptions='',axis=0 ):
-        print "Creating over axis: ",axis
         alen = None
         y=vcs.init()
         truncated = False
@@ -8945,9 +8944,9 @@ class animate_obj(animate_obj_old):
                     truncated = True
         if truncated:
             warnings.warn("Because of inconsistent shapes over axis: %i, the animation length will be truncated to: %i\n" % (axis,alen))
-        print "There is: %i frames" % alen
+        self.animation_length = alen
         for i in range(alen):
-            print i
+            print i,'of',alen-1
             y.clear()
             for I in self.vcs_self.animate_info:
                 d=I[0]
@@ -8974,9 +8973,16 @@ class animate_obj(animate_obj_old):
                     args.append(I[1][1](**kw))
                 args+=[d.template,d.g_type,d.g_name]
                 y.plot(*args,bg=1)
-            y.png("%i" % i)
+            y.png("%.4i" % i)
     def run(self,*args):
-        print 'running:',args
+        self.animation_length=12
+        for i in range(self.animation_length):
+            print "Opening: %.4i.png"%i
+            self.vcs_self.canvas.put_png_on_canvas("%.4i.png" %i)
+            import time
+            time.sleep(4)
+
+        
         
 ############################################################################
 #        END OF FILE                                                       #
