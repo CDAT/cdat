@@ -1,5 +1,5 @@
-#include "mainwindow.h"
-#include "qti.h"
+#include "Qt/mainwindow.h"
+#include "Qt/qti.h"
 
 #include <QtCore/QEvent>
 #include <QtCore/QWaitCondition>
@@ -10,8 +10,9 @@
 #include <QtGui/QDesktopWidget>
 #include <QtGui/QResizeEvent>
 #include <QtGui/QToolTip>
-#include <QMutex>
-
+#include <QtGui/QLabel>
+#include <QtGui/QDialog>
+#include <QtGui/QLayout>
 #include <stdio.h>
 
 QMutex canvasupdatemutex(QMutex::Recursive);
@@ -173,8 +174,24 @@ extern "C" void vcs_Qt_window_get_image_by_id(int id, void **ximage)
 extern "C" void vcs_Qt_window_put_image_by_id(int id, void *ximage)
 {
   QVCSEvent *event = new QVCSEvent(VCS_PUT_IMAGE_EVENT, true);
+  fprintf(stderr,"Yeah got in created event, id is: %i\n",id);
+  fprintf(stderr,"data are at: %p\n",ximage);
   event->data = ximage;
   VCSQtManager::sendEvent(id, event);
+}
+
+extern "C" void vcs_Qt_put_image_from_png_file(int id, char *fnm) {
+    void *image;
+    fprintf(stderr,"ok we received id and file: %i, %s\n",id,fnm);
+    QImage img0(fnm);
+    fprintf(stderr,"ok readin :%i \n",img0.format());
+    QImage img = img0.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+    fprintf(stderr,"ok converted to: %i\n",img.format());
+    QSize sz = img.size();
+    fprintf(stderr,"Size is: %ix%i\n",sz.width(),sz.height());
+    image = malloc(sz.width()*sz.height()*4);
+    memcpy(image,img.bits(),sz.width()*sz.height()*4);
+    vcs_Qt_window_put_image_by_id(id,image);
 }
 
 extern "C" void vcs_Qt_image_create(void **image, int width, int height)

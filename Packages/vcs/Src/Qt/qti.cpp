@@ -1,5 +1,5 @@
-#include "qti.h"
-#include "mainwindow.h"
+#include "Qt/qti.h"
+#include "Qt/mainwindow.h"
 
 //======================== VCSQtManager ========================
 
