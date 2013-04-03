@@ -20287,6 +20287,19 @@ PyVCS_animate_run(PyVCScanvas_Object *self, PyObject *args)
         return Py_None;
 }
 
+/* put a png onto Canvas - no check for sizes!! */
+static PyObject *
+PyVCS_put_png(PyVCScanvas_Object *self, PyObject *args) {
+    char *fnm;
+#ifdef QTWM
+    //vcs_Qt_open_window_by_id(self->connect_id.wkst_id);
+    if (PyArg_ParseTuple(args,"s",&fnm)) { 
+        printf("ok loading in file: %s\n",fnm);
+       vcs_Qt_put_image_from_png_file(self->connect_id.wkst_id, fnm);
+    }
+#endif
+    return Py_None;
+}
 /* Stop the animation loop */
 static PyObject *
 PyVCS_animate_stop(PyVCScanvas_Object *self, PyObject *args)
@@ -21258,6 +21271,7 @@ static PyMethodDef PyVCScanvas_methods[] =
   {"creating_animation", (PyCFunction)PyVCS_creating_animation, 1},
   {"update_animation_data", (PyCFunction)PyVCS_update_animation_data, 1},
   {"return_dimension_info", (PyCFunction)PyVCS_return_dimension_information, 1},
+  {"put_png_on_canvas",(PyCFunction)PyVCS_put_png,1},
 /* Display plot functions */
   {"getDpmember", (PyCFunction)PyVCS_getDpmember, 1},
   {"setDpmember", (PyCFunction)PyVCS_setDpmember, 1},
