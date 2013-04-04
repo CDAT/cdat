@@ -27,6 +27,10 @@ if(CDAT_DOWNLOAD_SAMPLE_DATA)
     )
 endif()
 
+add_test(NAME ParaViewSpatioTemporalStatistics
+  COMMAND ${CMAKE_CTEST_COMMAND} -R TestMultiBlockTemporalStatistics
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/build/ParaView-build)
+
 # ParaView specific tests that rely on POP test data
 if(UVCDAT_TESTDATA_LOCATION)
   add_test(NAME ParaViewMHTReader
