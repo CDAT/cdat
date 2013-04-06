@@ -1244,16 +1244,22 @@ class Seasons(ASeason):
         t=slab.getTime()
         u = t.units
         if u.split()[0][:5].lower()=="month":
+            slab.__saved_time__=t.units
             tc=cdtime.reltime(t[0],u).tocomp(t.getCalendar())
-            if tc.cmp(cdtime.comptime(tc.year))<1:
-                t.toRelativeTime("months since %i" % (tc.year - 5))
+            relyear = int(u.split()[2].split("-")[0])
+            if tc.cmp(cdtime.comptime(relyear))<1:
+                t.toRelativeTime("months since %i" % (relyear - len(t)/10))
         return u
 
-    def month_restore(self,slab,u):
-        t=slab.getTime()
-        if t.units!=u:
-            t.toRelativeTime(u)
-            
+    def month_restore(self,merged,slab):
+           t = getattr(slab,"__saved_time__",None)
+           if t is not None:
+               T=slab.getTime()
+               T.toRelativeTime(t)
+               T=merged.getTime()
+               T.toRelativeTime(t)
+               del(slab.__saved_time__)
+
     def get(self,slab,slicerarg=None,criteriaarg=None,statusbar=None,sum=False):
         '''Get the seasons asked for and return them in chronological order
         i.e. if you asked for DJF and JJA and the first season of your dataset is JJA you will have a JJA first !!!!
@@ -1276,7 +1282,7 @@ class Seasons(ASeason):
                 missing_seasons.append(season)
         self.statusbar2(statusbar)
         m = mergeTime(s,statusbar=statusbar)
-        self.month_restore(m,u)
+        self.month_restore(m,slab)
         return m
 
     def departures(self,slab,slicerarg=None,criteriaarg=None,ref=None,statusbar=None,sum=False):
@@ -1325,7 +1331,7 @@ class Seasons(ASeason):
             if type(statusbar) in [type([]),type(())]: statusbar.pop(0)
         # Now merges the stuff
         m = mergeTime(s,statusbar=statusbar)
-        self.month_restore(m,u)
+        self.month_restore(m,slab)
         return m
                                     
     def climatology(self,slab,criteriaarg=None,criteriaargclim=None,statusbar=None,sum=False):
@@ -1407,7 +1413,7 @@ class Seasons(ASeason):
         s.setAxisList(ax)
         if initialgrid is not None:
             s.setGrid(initialgrid)
-        self.month_restore(s,u)
+        self.month_restore(s,slab)
 
         if s.getOrder(ids=1)!=order:
             return s(order=order)
