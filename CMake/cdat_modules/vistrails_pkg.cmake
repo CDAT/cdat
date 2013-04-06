@@ -1,5 +1,2 @@
 set(VISTRAILS_TAG_POINT uvcdat)
-
-if (CDAT_BUILD_GUI)
-  add_cdat_package(vistrails "" "" "")
-endif()
+add_cdat_package_dependent(vistrails "" "" ON "CDAT_BUILD_GUI" OFF)
