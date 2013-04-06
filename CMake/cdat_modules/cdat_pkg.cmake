@@ -1,5 +1,5 @@
-set(cdat_VERSION_MAJOR 6)
-set(cdat_VERSION_MINOR 1)
+set(cdat_VERSION_MAJOR 1)
+set(cdat_VERSION_MINOR 3)
 set(cdat_VERSION_PATCH 0)
 set(cdat_VERSION ${cdat_VERSION_MAJOR}.${cdat_VERSION_MINOR}.${cdat_VERSION_PATCH})
 

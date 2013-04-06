@@ -2,6 +2,7 @@
 import numpy
 import MV2
 import cdms2,cdtime,string,types,numpy.ma,sys
+import cdat_info
 
 def centroid(msk,bounds,coords=None):
     ''' Computes the centroid of a bunch of point
