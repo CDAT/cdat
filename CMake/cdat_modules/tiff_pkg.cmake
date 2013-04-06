@@ -5,6 +5,4 @@ set(TIFF_URL ${LLNL_URL})
 set(TIFF_GZ tiff-${TIFF_MAJOR}.${TIFF_MINOR}.${TIFF_PATCH}.tar.gz)
 set(TIFF_MD5 2006c1bdd12644dbf02956955175afd6)
 
-if (CDAT_BUILD_GRAPHICS)
-  add_cdat_package(tiff "" "" "")
-endif()
+add_cdat_package_dependent(tiff "" "" ON "CDAT_BUILD_GRAPHICS" OFF)

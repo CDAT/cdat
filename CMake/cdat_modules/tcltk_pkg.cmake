@@ -8,6 +8,4 @@ set(TK_GZ tk${TCLTK_MAJOR}.${TCLTK_MINOR}.${TCLTK_PATCH}-src.tar.gz)
 set(TCL_MD5 8512d8db3233041dd68a81476906012a)
 set(TK_MD5 7cdeb9feb61593f58a0ae61f2497580e)
 
-if (CDAT_BUILD_GUI)
-  add_cdat_package(TclTk "" "" "")
-endif()
+add_cdat_package_dependent(TclTk "" "" ON "CDAT_BUILD_GUI" OFF)

@@ -141,8 +141,10 @@ macro(add_cdat_package_dependent package_name version build_message value depend
   if (CDAT_BUILD_${uc_package})
     add_cdat_package("${package_name}" "${version}" "${build_message}" ${CDAT_BUILD_${uc_package}})
   else()
-    set_property(CACHE CDAT_USE_SYSTEM_${uc_package} PROPERTY TYPE INTERNAL)
-    set_property(CACHE CDAT_USE_SYSTEM_${uc_package} PROPERTY VALUE OFF)
+    if (DEFINED CDAT_USE_SYSTEM_${uc_package})
+      set_property(CACHE CDAT_USE_SYSTEM_${uc_package} PROPERTY TYPE INTERNAL)
+      set_property(CACHE CDAT_USE_SYSTEM_${uc_package} PROPERTY VALUE OFF)
+    endif()
   endif()
 
 endmacro()

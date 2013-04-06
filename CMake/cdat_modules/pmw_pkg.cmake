@@ -7,6 +7,4 @@ set(PMW_URL ${LLNL_URL})
 set(PMW_GZ Pmw.${PMW_MAJOR_SRC}.${PMW_MINOR_SRC}.${PMW_PATCH_SRC}.tar.gz)
 set(PMW_MD5 7f30886fe9885ab3cf85dac6ce1fbda5)
 
-if (CDAT_BUILD_GRAPHICS)
-  add_cdat_package(Pmw "" "" "")
-endif()
+add_cdat_package_dependent(Pmw "" "" ON "CDAT_BUILD_GRAPHICS" OFF)

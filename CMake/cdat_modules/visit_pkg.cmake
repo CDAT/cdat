@@ -6,6 +6,4 @@ set(VISIT_URL http://vis.lbl.gov/~visit)
 set(VISIT_GZ visit${VISIT_VERSION}.tar.gz)
 set(VISIT_MD5 5cac82f543c5c1e5e6462a82a58db725)
 
-if (CDAT_BUILD_GUI)
-  add_cdat_package(VisIt "" "Build VisIt" ON)
-endif()
+add_cdat_package_dependent(VisIt "" "Build VisIt" ON "CDAT_BUILD_GUI" OFF)

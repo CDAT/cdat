@@ -1,3 +1,1 @@
-if (CDAT_BUILD_GUI)
-  add_cdat_package(gui_support "" "" "")
-endif()
+add_cdat_package_dependent(gui_support "" "" ON "CDAT_BUILD_GUI" OFF)
