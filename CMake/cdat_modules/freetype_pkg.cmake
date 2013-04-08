@@ -8,4 +8,4 @@ set(FT_URL ${LLNL_URL})
 set(FT_GZ freetype-${FT_MAJOR_SRC}.${FT_MINOR_SRC}.${FT_PATCH_SRC}.tar.gz)
 set(FT_MD5 4b1887901730ff2e12562ef30fa521d5)
 
-add_cdat_package(freetype "" "" "")
+add_cdat_package_dependent(freetype "" "" ON "CDAT_BUILD_GRAPHICS" OFF)

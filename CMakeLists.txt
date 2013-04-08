@@ -155,6 +155,15 @@ if(CMAKE_Fortran_COMPILER)
   include(${CMAKE_ROOT}/Modules/CMakeDetermineFortranCompiler.cmake)
 endif(CMAKE_Fortran_COMPILER)
 
+#Options for various types of builds
+option(CDAT_BUILD_GUI "Builds GUI-based dependencies (Vistrails, ParaView, VisIt, R, etc...) " ON)
+option(CDAT_BUILD_GRAPHICS "Build graphics-based dependencies (vcs, pyqt, Vistrails, ParaView, VisIt, R, etc...) " ON)
+
+# if no graphics then no gui as well
+if (NOT CDAT_BUILD_GRAPHICS)
+  set(CDAT_BUILD_GUI OFF)
+endif()
+
 # Set bulid related properties
 #-----------------------------------------------------------------------------
 option(CDAT_BUILD_PARALLEL "Build parallel components of CDAT" ON)

@@ -9,4 +9,5 @@ set(PNG_URL ${LLNL_URL})
 set(PNG_GZ libpng-${PNG_VERSION}.tar.gz)
 set(PNG_MD5 220035f111ea045a51e290906025e8b5)
 
+# Turns out grib2 (therefore cdms2 needs it so dont turn this off
 add_cdat_package(png "" "" "")

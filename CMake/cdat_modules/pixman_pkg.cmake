@@ -8,4 +8,4 @@ set(PIX_URL ${LLNL_URL})
 set(PIX_GZ pixman-${PIX_MAJOR_SRC}.${PIX_MINOR_SRC}.${PIX_PATCH_SRC}.tar.gz)
 set(PIX_MD5 f68916a612921c24e5f94f1eae71d121 )
 
-add_cdat_package(pixman "" "" "")
+add_cdat_package_dependent(pixman "" "" ON "CDAT_BUILD_GRAPHICS" OFF)
