@@ -10,3 +10,6 @@
 [submodule "contrib/windspharm"]
 	path = contrib/windspharm
 	url = git://github.com/ajdawson/windspharm.git
+[submodule "contrib/eofs"]
+	path = contrib/eofs
+	url = git://github.com/ajdawson/eofs.git
