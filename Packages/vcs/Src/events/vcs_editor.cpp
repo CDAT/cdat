@@ -4912,7 +4912,7 @@ int find_color_from_fill_range(struct fill_range *line, float value,float min,fl
 
 
 
-int locator(Gpoint point,struct p_tab *pP,struct display_tab *dtab,struct data_point *info)
+int locator(Gpoint point,struct p_tab *pPin,struct display_tab *dtab,struct data_point *info)
 {
   extern struct project_attr      p_PRJ;
   /*   extern int                      set_projection(char *,struct pe_dsp, float *,float *); */
@@ -4978,7 +4978,7 @@ extern "C" int get_data_coords(PyVCScanvas_Object *self,Gpoint point,struct item
   struct a_tab            	   *atab=NULL,*pb,*pB;
   struct a_attr           	   *pa;
   struct a_attr           	   *pa2;
-  struct p_tab                     *pP;
+  struct p_tab                     *pP,*pP0;
   struct a_attr                    *pmesh,*pdata;
   struct gfm_tab                   *pgfm;
   struct gfm_attr                  *pGfm;
@@ -5042,9 +5042,10 @@ extern "C" int get_data_coords(PyVCScanvas_Object *self,Gpoint point,struct item
 /*   info->x_index = -999; */
 /*   info->y_index = -999; */
 /*   info->color=-999; */
+  extern int templateRatio(struct p_tab *pp, int wkst_id);
+  extern int copyP_attr(struct p_tab *gtab,struct p_tab *ptab);
   xindex=-999;
   yindex=-999;
-
   if (self->dlist != NULL) {
     dptr=self->dlist;
     dtab=&D_tab;
@@ -5054,13 +5055,29 @@ extern "C" int get_data_coords(PyVCScanvas_Object *self,Gpoint point,struct item
     if (dtab == NULL) return 0; /* did not find the correct display */
 
 
-    pP=&Pic_tab;
-    while (pP != NULL )
+    pP0=&Pic_tab;
+    while (pP0 != NULL )
       {
-	if (strcmp(pP->name,dtab->p_name) == 0) break;
-	pP=pP->next;
+	if (strcmp(pP0->name,dtab->p_name) == 0) break;
+	pP0=pP0->next;
       }
-    if (pP == NULL) return 0; /*did not find template */
+    if (pP0 == NULL) return 0; /*did not find template */
+
+
+
+      /*              Create a new table structure and copy to it its new locations base on the 
+                      VCS Canvases page orientation (i.e., landscape or portrait).                */
+
+      if((pP=(struct p_tab *)malloc(sizeof(struct p_tab)))==NULL) {
+        err_warn(1,fperr,
+                 "Error - memory for getting picture template( gm_template_hold ) not found.\n");
+        return 1;
+      }
+
+      strcpy( pP->name,"gm_template_hd" );
+      copyP_attr(pP0,pP);
+      templateRatio(pP,dtab->wkst_id-7);
+    
 
     atab=&A_tab;
     while ((atab != NULL) && (strcmp(atab->name, dtab->a[0]) != 0)) {
