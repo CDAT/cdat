@@ -5533,4 +5533,6 @@ extern "C" int get_data_coords(PyVCScanvas_Object *self,Gpoint point,struct item
       
     }
 
+  extern int killP(struct p_tab *p);
+      killP( pP ); /* Remove the newly created picture template. */
 };
