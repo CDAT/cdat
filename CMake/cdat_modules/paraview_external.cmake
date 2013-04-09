@@ -19,7 +19,8 @@ set(ParaView_tpl_args)
 
 if (CDAT_BUILD_PARALLEL)
   list(APPEND ParaView_tpl_args
-    -DMPIEXEC:PATH=${cdat_EXTERNALS}/bin/mpiexec
+    -DPARAVIEW_USE_MPI:BOOL=ON
+    -DMPIEXEC:PATH=${cdat_EXTERNALS}/bin/mpiexec)
 endif()
 
 # Either we use cdat zlib and libxml or system zlib and libxml
