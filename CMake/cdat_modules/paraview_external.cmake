@@ -22,6 +22,7 @@ if (CDAT_BUILD_PARALLEL)
     -DPARAVIEW_USE_MPI:BOOL=ON)
 
   if(CDAT_BUILD_MPI)
+    set(ENV{LD_LIBRARY_PATH} "${cdat_EXTERNALS}/lib:$ENV{LD_LIBRARY_PATH}")
     list(APPEND ParaView_tpl_args
       -DMPIEXEC:FILEPATH=${cdat_EXTERNALS}/bin/mpiexec
       -DMPI_CXX_COMPILER:FILEPATH=${cdat_EXTERNALS}/bin/mpicxx
