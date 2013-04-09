@@ -1,4 +1,4 @@
-# create an external project to install MyProxyClient,
+# create an external project to install pyzmq,
 # and configure and build it
 
 include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
@@ -10,6 +10,6 @@ ExternalProject_Add(pyzmq
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
   INSTALL_COMMAND ${EASY_INSTALL_BINARY} pyzmq
-  DEPENDS ${MyProxyClient_deps}
+  DEPENDS ${pyzmq_deps}
   ${ep_log_options}
   )

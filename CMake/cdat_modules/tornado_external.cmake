@@ -1,4 +1,4 @@
-# create an external project to install MyProxyClient,
+# create an external project to install tornado,
 # and configure and build it
 
 include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
@@ -10,6 +10,6 @@ ExternalProject_Add(tornado
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
   INSTALL_COMMAND ${EASY_INSTALL_BINARY} tornado
-  DEPENDS ${MyProxyClient_deps}
+  DEPENDS ${tornado_deps}
   ${ep_log_options}
   )
