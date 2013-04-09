@@ -17,6 +17,22 @@ endif()
 # Initialize
 set(ParaView_tpl_args)
 
+if (CDAT_BUILD_PARALLEL)
+  list(APPEND ParaView_tpl_args
+    -DPARAVIEW_USE_MPI:BOOL=ON)
+
+  if(CDAT_BUILD_MPI)
+    set(ENV{LD_LIBRARY_PATH} "${cdat_EXTERNALS}/lib:$ENV{LD_LIBRARY_PATH}")
+    list(APPEND ParaView_tpl_args
+      -DMPIEXEC:FILEPATH=${cdat_EXTERNALS}/bin/mpiexec
+      -DMPI_CXX_COMPILER:FILEPATH=${cdat_EXTERNALS}/bin/mpicxx
+      -DMPI_C_COMPILER:FILEPATH=${cdat_EXTERNALS}/bin/mpicc
+      -DMPI_C_INCLUDE_PATH:PATH=${cdat_EXTERNALS}/include
+      -DMPI_CXX_INCLUDE_PATH:PATH=${cdat_EXTERNALS}/include
+      -DVTK_MPIRUN_EXE:FILEPATH=${cdat_EXTERNALS}/bin/mpiexec)
+  endif()
+endif()
+
 # Either we use cdat zlib and libxml or system zlib and libxml
 list(APPEND ParaView_tpl_args
   -DVTK_USE_SYSTEM_ZLIB:BOOL=ON
