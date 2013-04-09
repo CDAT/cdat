@@ -145,6 +145,16 @@ class Dp(object):
                   "parent",
     ]
 
+
+    def _repr_png_(self):
+         import tempfile
+         tmp = tempfile.mktemp()+".png"
+         self.parent.png(tmp)
+         f=open(tmp)
+         st = f.read()
+         f.close()
+         return st
+#TODO: html,json,jpeg,png,svg,latex
     def _getname(self):
          return self._name
     def _setname(self,value):
