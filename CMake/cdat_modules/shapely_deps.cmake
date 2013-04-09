@@ -1,1 +1,1 @@
-set(Shapely_deps ${pkgconfig_pkg} ${python_pkg} ${geos_pkg})
+set(Shapely_deps ${pkgconfig_pkg} ${setuptools_pkg} ${python_pkg} ${geos_pkg})
