@@ -36,6 +36,7 @@ Clist = [
     ['contrib/ZonalMeans','Package to compute zonal means on any grid (requires f90 compiler)','GNU'],
     ['contrib/HDF5Tools','Package to read HDF5 files into CDAT (requires h5dump binary utility)','GNU'],
     ['contrib/eof2','',''],
+    ['contrib/eofs','',''],
     ['contrib/windspharm','','GNU'],
 ]
 
