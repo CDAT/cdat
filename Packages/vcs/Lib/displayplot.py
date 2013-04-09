@@ -146,10 +146,14 @@ class Dp(object):
     ]
 
 
-    def _repr_svg_(self):
-         self.parent.svg("temp")
-         f=open("temp.svg")
-         return f.read()
+    def _repr_png_(self):
+         import tempfile
+         tmp = tempfile.mktemp()+".png"
+         self.parent.png(tmp)
+         f=open(tmp)
+         st = f.read()
+         f.close()
+         return st
 #TODO: html,json,jpeg,png,svg,latex
     def _getname(self):
          return self._name
