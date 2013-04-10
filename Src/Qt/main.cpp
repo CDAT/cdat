@@ -239,6 +239,11 @@ extern "C" void createVCSCanvases()
 {
   createdMutex.lock();
   if (!VCSQtManager::isCreated()) { // only run the the app once
+    if (!VCSQtManager::app()) {
+      static int argc = 1;
+      static char *argv[]= {"null"};
+      static QPythonApp *app = new QPythonApp(argc, argv);
+    }
     VCSQtManager::createCanvases();
     if (VCSQtManager::owningApp())
       VCSQtManager::executeDeferred(setAppIcon);
