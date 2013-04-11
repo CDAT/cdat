@@ -148,6 +148,9 @@ endif()
 if (NOT CDAT_BUILD_WO_ESGF)
     set(CDAT_BUILD_GRAPHICS OFF)
     set(CDAT_BUILD_PARALLEL OFF)
+    set(CDMS_ONLY --enable-cdms-only)
+else()
+    set(CDMS_ONLY "")
 endif()
 
 # if no graphics then no gui as well
