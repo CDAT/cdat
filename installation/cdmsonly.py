@@ -1,4 +1,5 @@
 packages = [ 
+	    "Packages/AutoAPI",
             "Packages/cdtime",
             "Packages/regrid2",
 #            "Packages/regrid",
