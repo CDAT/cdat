@@ -1,8 +1,9 @@
 #!/bin/csh
 
 setenv PATH "@CMAKE_INSTALL_PREFIX@/bin:${PATH}"
-setenv PATH "@CDAT_OS_XTRA_PATH@:${PATH}"
 setenv PATH "@cdat_EXTERNALS@/bin:${PATH}"
+setenv PATH "@CMAKE_INSTALL_PREFIX@/Library/Frameworks/Python.framework/Versions/@PYVER@/bin:${PATH}"
+
 if $?PYTHONPATH then
   setenv  PYTHONPATH "@CMAKE_INSTALL_PREFIX@/lib/python@PYVER@/site-packages:@cdat_EXTERNALS@/lib:@CMAKE_INSTALL_PREFIX@/lib/VisIt-@VISIT_VERSION@/site-packages:${PYTHONPATH}"
 else

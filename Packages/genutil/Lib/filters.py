@@ -1,6 +1,7 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 import numpy,cdms2,MV2,genutil
+import cdat_info
 
 def custom1D(x,filter,axis=0):
     """
@@ -16,6 +17,7 @@ def custom1D(x,filter,axis=0):
             default value = 0. You can pass the name of the dimension or index
             (integer value 0...n) over which you want to compute the statistic.
     """
+    cdat_info.pingPCMDIdb("cdat","genutil.filters.custom1D")
     isMV2=cdms2.isVariable(x)
     if isMV2: xatt=x.attributes
     filter=MV2.array(filter)
@@ -80,6 +82,7 @@ def smooth121(x,axis=0):
             default value = 0. You can pass the name of the dimension or index
             (integer value 0...n) over which you want to compute the statistic.
     """
+    cdat_info.pingPCMDIdb("cdat","genutil.filters.smooth121")
     return custom1D(x,[1.,2.,1.],axis=axis)
     
 def runningaverage(x,N,axis=0):
@@ -97,4 +100,5 @@ def runningaverage(x,N,axis=0):
             (integer value 0...n) over which you want to compute the statistic.
     """
     filter=numpy.ma.ones((N,),dtype='f')
+    cdat_info.pingPCMDIdb("cdat","genutil.filters.runningaverage(%i)" % N)
     return custom1D(x,filter,axis=axis)

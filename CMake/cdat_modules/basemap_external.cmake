@@ -1,6 +1,6 @@
 # The basemap external project 
 
-set(basemap_binary "${CMAKE_CURRENT_BINARY_DIR}/basemap/")
+set(basemap_binary "${CMAKE_CURRENT_BINARY_DIR}/build/basemap")
 
 #configure_file(
 #  ${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/basemap_configure_step.cmake.in
@@ -27,13 +27,13 @@ ExternalProject_Add(basemap
   URL ${basemap_URL}/${basemap_GZ}
   URL_MD5 ${basemap_MD5}
   DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
-  SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/basemap
-  BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/basemap
+  SOURCE_DIR ${basemap_binary}
+  BINARY_DIR ${basemap_binary}
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ${basemap_BUILD_COMMAND}
   UPDATE_COMMAND ""
   INSTALL_COMMAND ${basemap_INSTALL_COMMAND}
-  DEPENDS 
+  DEPENDS
     ${basemap_deps}
   ${ep_log_options}
-  )
+)

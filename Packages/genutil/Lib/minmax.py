@@ -1,4 +1,5 @@
 import numpy
+import cdat_info
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 def minmax(*data) :
   """
@@ -18,6 +19,7 @@ def minmax(*data) :
   >>> genutil.minmax([[s,s*2],4.,[6.,7.,s]],[5.,-7.,8,(6.,1.)])
   (-7.0, 8.0)
   """
+  cdat_info.pingPCMDIdb("cdat","genutil.minmax")
   mx=numpy.finfo(numpy.float).min
   mn=numpy.finfo(numpy.float).max
   if len(data)==1 : data=data[0]

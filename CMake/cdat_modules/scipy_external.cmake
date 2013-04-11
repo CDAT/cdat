@@ -1,6 +1,6 @@
 # The Scipy external project 
 
-set(SCIPY_binary "${CMAKE_CURRENT_BINARY_DIR}/SCIPY/")
+set(SCIPY_binary "${CMAKE_CURRENT_BINARY_DIR}/build/SCIPY")
 
 # to configure scipy we run a cmake -P script
 # the script will create a site.cfg file
@@ -30,13 +30,13 @@ ExternalProject_Add(SCIPY
   URL ${SCIPY_URL}/${SCIPY_GZ}
   URL_MD5 ${SCIPY_MD5}
   DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
-  SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/SCIPY
-  BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/SCIPY
+  SOURCE_DIR ${SCIPY_binary}
+  BINARY_DIR ${SCIPY_binary}
   CONFIGURE_COMMAND ${SCIPY_CONFIGURE_COMMAND}
   BUILD_COMMAND ${SCIPY_BUILD_COMMAND}
   UPDATE_COMMAND ""
   INSTALL_COMMAND ${SCIPY_INSTALL_COMMAND}
-  DEPENDS 
+  DEPENDS
     ${SCIPY_deps}
   ${ep_log_options}
-  )
+)

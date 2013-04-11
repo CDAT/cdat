@@ -43,10 +43,12 @@ add_test("testSo2TasACCESSFails"
 add_test("testSo2Tas" 
          ${CMAKE_INSTALL_PREFIX}/bin/python 
          ${cdat_SOURCE_DIR}/testing/regrid/testSo2Tas.py)
-add_test("testWrite" 
-         ${CMAKE_INSTALL_PREFIX}/bin/python 
-         ${cdat_SOURCE_DIR}/testing/regrid/testWrite.py
-         ${CMAKE_INSTALL_DIR}/sample_data)
+if(CDAT_DOWNLOAD_SAMPLE_DATA)
+  add_test("testWrite"
+    ${CMAKE_INSTALL_PREFIX}/bin/python
+    ${cdat_SOURCE_DIR}/testing/regrid/testWrite.py
+    ${CMAKE_INSTALL_DIR}/sample_data)
+endif()
 add_test("testMvCdmsRegrid" 
          ${CMAKE_INSTALL_PREFIX}/bin/python 
          ${cdat_SOURCE_DIR}/testing/regrid/testMvCdmsRegrid.py)

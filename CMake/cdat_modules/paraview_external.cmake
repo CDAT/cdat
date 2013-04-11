@@ -17,6 +17,22 @@ endif()
 # Initialize
 set(ParaView_tpl_args)
 
+if (CDAT_BUILD_PARALLEL)
+  list(APPEND ParaView_tpl_args
+    -DPARAVIEW_USE_MPI:BOOL=ON)
+
+  if(CDAT_BUILD_MPI)
+    set(ENV{LD_LIBRARY_PATH} "${cdat_EXTERNALS}/lib:$ENV{LD_LIBRARY_PATH}")
+    list(APPEND ParaView_tpl_args
+      -DMPIEXEC:FILEPATH=${cdat_EXTERNALS}/bin/mpiexec
+      -DMPI_CXX_COMPILER:FILEPATH=${cdat_EXTERNALS}/bin/mpicxx
+      -DMPI_C_COMPILER:FILEPATH=${cdat_EXTERNALS}/bin/mpicc
+      -DMPI_C_INCLUDE_PATH:PATH=${cdat_EXTERNALS}/include
+      -DMPI_CXX_INCLUDE_PATH:PATH=${cdat_EXTERNALS}/include
+      -DVTK_MPIRUN_EXE:FILEPATH=${cdat_EXTERNALS}/bin/mpiexec)
+  endif()
+endif()
+
 # Either we use cdat zlib and libxml or system zlib and libxml
 list(APPEND ParaView_tpl_args
   -DVTK_USE_SYSTEM_ZLIB:BOOL=ON
@@ -60,6 +76,12 @@ if(NOT CDAT_USE_SYSTEM_HDF5)
   endif()
 endif()
 
+if(UVCDAT_TESTDATA_LOCATION)
+  list(APPEND ParaView_tpl_args
+    -DUVCDAT_TestData:PATH=${UVCDAT_TESTDATA_LOCATION}
+    )
+endif()
+
 include(GetGitRevisionDescription)
 set(paraview_branch uvcdat-master)
 
@@ -78,7 +100,7 @@ ExternalProject_Add(ParaView
   PATCH_COMMAND ""
   CMAKE_CACHE_ARGS
     -DBUILD_SHARED_LIBS:BOOL=ON
-    -DBUILD_TESTING:BOOL=OFF
+    -DBUILD_TESTING:BOOL=${BUILD_TESTING}
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_CFG_INTDIR}
     -DCMAKE_CXX_FLAGS:STRING=${cdat_tpl_cxx_flags}
     -DCMAKE_C_FLAGS:STRING=${cdat_tpl_c_flags}
@@ -95,6 +117,7 @@ ExternalProject_Add(ParaView
     -DR_LIBRARY_LAPACK:PATH=${R_install}/lib/R/lib/libRlapack${_LINK_LIBRARY_SUFFIX}
     -DR_LIBRARY_READLINE:PATH=
     -DVTK_QT_USE_WEBKIT:BOOL=OFF
+    -DINCLUDE_PYTHONHOME_PATHS:BOOL=OFF
     ${cdat_compiler_args}
     ${ParaView_tpl_args}
     # Qt
