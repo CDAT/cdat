@@ -9,7 +9,7 @@ ExternalProject_Add(pyzmq
   BUILD_IN_SOURCE 1
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
-  INSTALL_COMMAND ${EASY_INSTALL_BINARY} pyzmq
+  INSTALL_COMMAND ${EASY_INSTALL_BINARY} pyzmq==${PYZMQ_VERSION}
   DEPENDS ${pyzmq_deps}
   ${ep_log_options}
   )
