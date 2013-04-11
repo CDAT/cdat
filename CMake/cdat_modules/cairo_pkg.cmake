@@ -7,5 +7,9 @@ set(CAIRO_PATCH_SRC 8)
 set(CAIRO_URL ${LLNL_URL})
 set(CAIRO_GZ cairo-${CAIRO_MAJOR_SRC}.${CAIRO_MINOR_SRC}.${CAIRO_PATCH_SRC}.tar.gz)
 set(CAIRO_MD5 4009d570160a06fc72ac3b2740b2469b)
+set (nm CAIRO)
+string(TOUPPER ${nm} uc_nm)
+set(${uc_nm}_VERSION ${${nm}_MAJOR}.${${nm}_MINOR}.${${nm}_PATCH})
 
 add_cdat_package_dependent(Cairo "" "" "Build Cairo" ON "CDAT_BUILD_GRAPHICS" OFF)
+

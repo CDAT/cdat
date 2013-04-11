@@ -10,6 +10,9 @@ set(ESMF_GZ esmp.ESMF_${ESMF_VERSION}_ESMP_${ESMP_MAJOR}.tar.bz2)
 set(ESMF_MD5 46be9e7331ab7d952da218d30c21238e)
 
 option(CDAT_BUILD_ESMF_ESMP "Build python version Earth System Modeling Framework" ON)
+if (CDAT_BUILD_ESGF)
+    set(CDAT_BUILD_ESMF_ESMP OFF)
+endif()
 
 cmake_dependent_option(CDAT_BUILD_ESMF_PARALLEL
   "Build parallel version of Earth System Modeling Framework library" ON
@@ -29,26 +32,27 @@ else()
   set(Fortran_MINOR_VERSION "")
 endif()
 
-if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL GNU)
-  # GNU gfortran must be >= 4.3
-  if(${Fortran_MAJOR_VERSION} GREATER 3 AND ${Fortran_MINOR_VERSION} GREATER 2)
-    ## On APPLE need to test for -arch as well!
-    add_cdat_package(ESMF "" "Build ESMF" ON)
-  else()
-    message("[INFO] Skipping ESMF")
-    message("[INFO] gfortran version needs to be at least 4.3 to install ESMF")
-    message("[INFO] You have ${Fortran_VERSION}")
-  endif()
-else()
-  add_cdat_package(ESMF "" "Build ESMF" ON)
-  message("[INFO] Fortran Compiler is: ${CMAKE_Fortran_COMPILER}")
-endif()
-
+message("[INFO] ESGF is: ${CDAT_BUILD_ESGF} AND BUILD ESMF IS: ${CDAT_BUILD_ESMF_ESMP}.")
 if(CDAT_BUILD_ESMF_ESMP)
- # the following may need to be adjusted on Crays, otherwise the defaults will likely apply
- set(CDAT_BUILD_ESMF_OS "${CMAKE_SYSTEM_NAME}" CACHE STRING "ESMF_OS env variable, may need to change to Unicos on Crays")
- set(CDAT_BUILD_ESMF_COMPILER "gfortran" CACHE STRING "ESMF_COMPILER env variable, choices are gfortran, intel, pgi, g95, or nag")
- set(CDAT_BUILD_ESMF_COMM "openmpi" CACHE STRING "ESMF_COMM env variable, choices are openmpi, mpiuni, mpi, mpich2, or mvapich2")
- set(CDAT_BUILD_ESMF_ABI "64" CACHE STRING "ESMF_ABI env variable, choices are 32 or 64")
+    if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL GNU)
+      # GNU gfortran must be >= 4.3
+      if(${Fortran_MAJOR_VERSION} GREATER 3 AND ${Fortran_MINOR_VERSION} GREATER 2)
+        ## On APPLE need to test for -arch as well!
+        add_cdat_package(ESMF "" "Build ESMF" ON)
+      else()
+        message("[INFO] Skipping ESMF")
+        message("[INFO] gfortran version needs to be at least 4.3 to install ESMF")
+        message("[INFO] You have ${Fortran_VERSION}")
+      endif()
+    else()
+      add_cdat_package(ESMF "" "Build ESMF" ON)
+      message("[INFO] Fortran Compiler is: ${CMAKE_Fortran_COMPILER}")
+    endif()
+
+     # the following may need to be adjusted on Crays, otherwise the defaults will likely apply
+     set(CDAT_BUILD_ESMF_OS "${CMAKE_SYSTEM_NAME}" CACHE STRING "ESMF_OS env variable, may need to change to Unicos on Crays")
+     set(CDAT_BUILD_ESMF_COMPILER "gfortran" CACHE STRING "ESMF_COMPILER env variable, choices are gfortran, intel, pgi, g95, or nag")
+     set(CDAT_BUILD_ESMF_COMM "openmpi" CACHE STRING "ESMF_COMM env variable, choices are openmpi, mpiuni, mpi, mpich2, or mvapich2")
+     set(CDAT_BUILD_ESMF_ABI "64" CACHE STRING "ESMF_ABI env variable, choices are 32 or 64")
 endif()
 

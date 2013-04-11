@@ -8,4 +8,9 @@ set(NC4_URL ${LLNL_URL})
 set(NC4_GZ netcdf-${NC4_MAJOR_SRC}.${NC4_MINOR_SRC}.${NC4_PATCH_SRC}.tar.gz)
 set(NC4_MD5 280f1e75668f63a4ffcbbb0372867f25)
 
+set (nm NC4)
+string(TOUPPER ${nm} uc_nm)
+set(${uc_nm}_VERSION ${${nm}_MAJOR_SRC}.${${nm}_MINOR_SRC}.${${nm}_PATCH_SRC})
+set(NETCDF_VERSION ${NC4_VERSION})
+
 add_cdat_package(NetCDF "" "" "")

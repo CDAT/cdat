@@ -5,4 +5,7 @@ set(LXML_URL ${LLNL_URL})
 set(LXML_GZ lxml-${LXML_MAJOR_SRC}.${LXML_MINOR_SRC}.${LXML_PATCH_SRC}.tar.gz)
 set(LXML_MD5 730bb63383528b65eaa099d64ce276cf)
 
+set (nm LXML)
+string(TOUPPER ${nm} uc_nm)
+set(${uc_nm}_VERSION ${${nm}_MAJOR_SRC}.${${nm}_MINOR_SRC}.${${nm}_PATCH_SRC})
 add_cdat_package(lxml "" "" "")

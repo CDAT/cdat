@@ -127,18 +127,27 @@ if(CMAKE_Fortran_COMPILER)
   include(${CMAKE_ROOT}/Modules/CMakeDetermineFortranCompiler.cmake)
 endif(CMAKE_Fortran_COMPILER)
 
+
+# Set bulid related properties
+#-----------------------------------------------------------------------------
+set(PARTS_BUILT_INFO "${cdat_BINARY_DIR}/build_info.txt" CACHE STRING "File where to store build infos" FORCE)
+option(CDAT_BUILD_PARALLEL "Build parallel components of CDAT" ON)
 #Options for various types of builds
 option(CDAT_BUILD_GUI "Builds GUI-based dependencies (Vistrails, ParaView, VisIt, R, etc...) " ON)
 option(CDAT_BUILD_GRAPHICS "Build graphics-based dependencies (vcs, pyqt, Vistrails, ParaView, VisIt, R, etc...) " ON)
+option(CDAT_BUILD_WO_ESGF "Builds a customized version for ESGF (Tkinter, less packages etc..)" ON)
+
+
+#First of all if ESGF then turn OFF GRAPHICS
+if (NOT CDAT_BUILD_WO_ESGF)
+    set(CDAT_BUILD_GRAPHICS OFF)
+    set(CDAT_BUILD_PARALLEL OFF)
+endif()
 
 # if no graphics then no gui as well
 if (NOT CDAT_BUILD_GRAPHICS)
   set(CDAT_BUILD_GUI OFF)
 endif()
-
-# Set bulid related properties
-#-----------------------------------------------------------------------------
-option(CDAT_BUILD_PARALLEL "Build parallel components of CDAT" ON)
 set(ep_prefix ${cdat_BINARY_DIR}/build/prefix)
 set_property(DIRECTORY PROPERTY ep_log_dir ${cdat_BINARY_DIR}/logs)
 set(ep_log_options
@@ -361,10 +370,11 @@ foreach(package ${external_packages})
 
   if(CDAT_BUILD_${uc_package})
     message("[INFO] Package --- ${package} --- will be built")
+    list(APPEND packages_info "${package} ${${uc_package}_VERSION}\n")
     include("${lc_package}_external")
   endif()
 endforeach()
-
+file(WRITE ${PARTS_BUILT_INFO} ${packages_info})
 # Construct Include and Link variables
 #-----------------------------------------------------------------------------
 if(found_system_include_dirs)

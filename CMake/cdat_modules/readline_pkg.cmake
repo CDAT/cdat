@@ -5,5 +5,5 @@ set(RL_MINOR_SRC 2)
 set(READLINE_URL ${LLNL_URL})
 set(READLINE_GZ readline-${RL_MAJOR_SRC}.${RL_MINOR_SRC}.tar.gz)
 set(READLINE_MD5 67948acb2ca081f23359d0256e9a271c)
-
+set(READLINE_VERSION ${RL_MAJOR_SRC}.${RL_MINOR_SRC})
 add_cdat_package(readline "" "" "")

@@ -7,4 +7,7 @@ set(UDUNITS2_URL ${LLNL_URL})
 set(UDUNITS2_GZ udunits-${UDUNITS2_MAJOR_SRC}.${UDUNITS2_MINOR_SRC}.${UDUNITS2_PATCH_SRC}.tar.gz)
 set(UDUNITS2_MD5 17698289a0d6b04551fe6d6a389af41c)
 
-add_cdat_package(udunits2 "" "" "")
+set (nm UDUNITS2)
+string(TOUPPER ${nm} uc_nm)
+set(${uc_nm}_VERSION ${${nm}_MAJOR_SRC}.${${nm}_MINOR_SRC}.${${nm}_PATCH_SRC})
+add_cdat_package_dependent(udunits2 "" "" ON "CDAT_BUILD_WO_ESGF" OFF)
