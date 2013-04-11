@@ -5,4 +5,7 @@ set(R_URL ${LLNL_URL})
 set(R_GZ R-${R_MAJOR_SRC}.${R_MINOR_SRC}.${R_PATCH_SRC}.tar.gz)
 set(R_MD5 fcdf247e707fdade82b78bcf911a54f1)
 
+set (nm R)
+string(TOUPPER ${nm} uc_nm)
+set(${uc_nm}_VERSION ${${nm}_MAJOR_SRC}.${${nm}_MINOR_SRC}.${${nm}_PATCH_SRC})
 add_cdat_package_dependent(R "" "Build R" ON "CDAT_BUILD_GUI" OFF)

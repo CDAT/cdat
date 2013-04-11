@@ -8,6 +8,9 @@ set(WGET_MD5 141461b9c04e454dc8933c9d1f2abf83)
 
 add_cdat_package(Wget "" "Build Wget" OFF)
 
+set (nm WGET)
+string(TOUPPER ${nm} uc_nm)
+set(${uc_nm}_VERSION ${${nm}_MAJOR}.${${nm}_MINOR})
 if(CDAT_BUILD_WGET)
   if(WIN32)
     set(WGET_EXECUTABLE ${cdat_EXTERNALS}/bin/wget.exe)
