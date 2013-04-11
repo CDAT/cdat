@@ -32,7 +32,6 @@ else()
   set(Fortran_MINOR_VERSION "")
 endif()
 
-message("[INFO] ESGF is: ${CDAT_BUILD_ESGF} AND BUILD ESMF IS: ${CDAT_BUILD_ESMF_ESMP}.")
 if(CDAT_BUILD_ESMF_ESMP)
     if("${CMAKE_Fortran_COMPILER_ID}" STREQUAL GNU)
       # GNU gfortran must be >= 4.3
