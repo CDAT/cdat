@@ -135,8 +135,14 @@ option(CDAT_BUILD_PARALLEL "Build parallel components of CDAT" ON)
 #Options for various types of builds
 option(CDAT_BUILD_GUI "Builds GUI-based dependencies (Vistrails, ParaView, VisIt, R, etc...) " ON)
 option(CDAT_BUILD_GRAPHICS "Build graphics-based dependencies (vcs, pyqt, Vistrails, ParaView, VisIt, R, etc...) " ON)
-option(CDAT_BUILD_WO_ESGF "Builds a customized version for ESGF (Tkinter, less packages etc..)" ON)
+option(CDAT_BUILD_ESGF "Builds a customized version for ESGF (Tkinter, less packages etc..)" OFF)
 
+#Flipping the option, Aashish add_cdat_external_dependent seems to need a negative of that
+if (CDAT_BUILD_ESGF)
+    set(CDAT_BUILD_WO_ESGF OFF)
+else()
+    set(CDAT_BUILD_WO_ESGF ON)
+endif()
 
 #First of all if ESGF then turn OFF GRAPHICS
 if (NOT CDAT_BUILD_WO_ESGF)
