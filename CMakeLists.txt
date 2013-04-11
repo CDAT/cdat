@@ -200,8 +200,8 @@ endif()
 
 #First of all if ESGF then turn OFF GRAPHICS
 if (NOT CDAT_BUILD_WO_ESGF)
-    set(CDAT_BUILD_GRAPHICS CACHE OFF FORCE )
-    set(CDAT_BUILD_PARALLEL CACHE OFF FORCE)
+    set(CDAT_BUILD_GRAPHICS OFF)
+    set(CDAT_BUILD_PARALLEL OFF)
     set(CDMS_ONLY --enable-cdms-only)
 else()
     set(CDMS_ONLY "")
