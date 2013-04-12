@@ -771,8 +771,6 @@ def _install(file, action):
         print "Do not know what to do with", file, "in", dirname
         print >>sys.stderr, "Do not know what to do with", file, "in", dirname
         raise SystemExit, 1
-    print 'p1 is:',p1
-    print 'log:',log
 
     if log:
         logfile = os.path.join(logdir, dirfinal+".LOG")
@@ -791,8 +789,6 @@ def _install(file, action):
     if cflags_current.find(add_lib) == -1:
         os.environ["CFLAGS"]="%s %s" % (cflags_current, add_lib)
     p = 'env CFLAGS="%s" %s' % (os.environ["CFLAGS"],p)
-    print 'p:',p
-    print 'p1:',p1
     if echo:
         print >> sys.stderr, p
     print norun
@@ -801,7 +797,6 @@ def _install(file, action):
     else:
         #print '====>executing: ', p
         r = os.system(p)
-    print r
     if r:
         print >>sys.stderr, "Install failed in directory", dirname
         print >>sys.stderr, "Log=", logfile
@@ -823,8 +818,6 @@ if j:
 def install (arg, action):
     arg = os.path.normpath(arg)
     installer = ''
-    print '1'
-    print 'arg is ', arg
     arg = os.path.join(src_dir, arg)
     if os.path.isdir(arg):
         for x in (glob.glob(os.path.join(arg, '*.pfp')) + \
@@ -835,7 +828,6 @@ def install (arg, action):
                   'Makefile',
                   'makefile'] ):
             name = os.path.join(arg,x)
-            print 'name is ', name
             if os.path.isfile(name):
                 installer = name
                 break
@@ -844,15 +836,11 @@ def install (arg, action):
             raise SystemExit, 1
     elif os.path.isfile(arg):
         installer = arg
-        print '2'
         designator, junk = os.path.split(arg)
     else:
-        print '3'
         print >>sys.stderr, "Cannot find", arg
         raise SystemExit
 
-    print 'installer is ', installer
-    print 'action is ', action
     _install(installer, action)
 
 
