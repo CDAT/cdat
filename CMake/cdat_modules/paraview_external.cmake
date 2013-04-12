@@ -22,7 +22,14 @@ if (CDAT_BUILD_PARALLEL)
     -DPARAVIEW_USE_MPI:BOOL=ON)
 
   if(CDAT_BUILD_MPI)
-    set(ENV{LD_LIBRARY_PATH} "${cdat_EXTERNALS}/lib:$ENV{LD_LIBRARY_PATH}")
+    if(UNIX)
+      set(ENV{LD_LIBRARY_PATH} "${cdat_EXTERNALS}/lib:$ENV{LD_LIBRARY_PATH}")
+    elseif(APPLE)
+      set(ENV{DYLD_FALLBACK_LIBRARY_PATH} "${cdat_EXTERNALS}/lib:$ENV{DYLD_FALLBACK_LIBRARY_PATH}")
+      # Mac has issues with MPI4PY of ParaView. Also I don't know if we really need to build it
+      # See this bug: paraview.org/bug/view.php?id=13587
+      list(APPEND ParaView_tpl_args -DENABLE_MPI4PY:BOOL=OFF)
+    endif()
     list(APPEND ParaView_tpl_args
       -DMPIEXEC:FILEPATH=${cdat_EXTERNALS}/bin/mpiexec
       -DMPI_CXX_COMPILER:FILEPATH=${cdat_EXTERNALS}/bin/mpicxx
