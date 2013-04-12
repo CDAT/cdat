@@ -8,4 +8,8 @@ set(SCIPY_URL ${LLNL_URL})
 set(SCIPY_GZ scipy-${SCIPY_MAJOR_SRC}.${SCIPY_MINOR_SRC}.${SCIPY_PATCH_SRC}.tar.gz)
 set(SCIPY_MD5 842c81d35fd63579c41a8ca21a2419b9)
 
-add_cdat_package(SCIPY "" "" "")
+set (nm SCIPY)
+string(TOUPPER ${nm} uc_nm)
+set(${uc_nm}_VERSION ${${nm}_MAJOR_SRC}.${${nm}_MINOR_SRC}.${${nm}_PATCH_SRC})
+
+add_cdat_package_dependent(SCIPY "" "" ON "CDAT_BUILD_WO_ESGF" OFF)

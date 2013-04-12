@@ -82,16 +82,42 @@ if(APPLE)
     set(CMAKE_OSX_ARCHITECTURES_M "64" CACHE STRING "" FORCE)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "${OSX_VER_MAJOR}.${OSX_VER_MINOR}" CACHE STRING "" FORCE)
   endif()
-
-  ## Added by C. Doutriaux, cmake 2.8.10 on make sets OSX_SYSROOT to "" leading to error, this fixes it
-  if ("${CMAKE_OSX_SYSROOT}" STREQUAL "")
-    set(CMAKE_OSX_SYSROOT "/Developer/SDKs/MacOSX${OSX_VER_MAJOR}.${OSX_VER_MINOR}.sdk" CACHE STRING "" FORCE)
+  
+  # Support only 10.5 or higher for now
+  if(IS_DIRECTORY "/Developer/SDKs/MacOSX10.5.sdk")
+    set(HAVE_10_5_SDK TRUE)
+  endif()
+  if(IS_DIRECTORY "/Developer/SDKs/MacOSX10.6.sdk")
+    set(HAVE_10_6_SDK TRUE)
+  endif()
+  if(IS_DIRECTORY "/Developer/SDKs/MacOSX10.7.sdk")
+    set(HAVE_10_7_SDK TRUE)
+  endif()
+  if(IS_DIRECTORY "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk")
+    set(HAVE_10_8_SDK TRUE)
   endif()
 
-  if(NOT "${CMAKE_OSX_SYSROOT}" STREQUAL "")
-    if(NOT EXISTS "${CMAKE_OSX_SYSROOT}")
-      message(FATAL_ERROR "[ERROR] CMAKE_OSX_SYSROOT='${CMAKE_OSX_SYSROOT}' does not exist")
+  # Try for the lowest version SDK we can
+  if(HAVE_10_5_SDK)
+    set(CMAKE_OSX_DEPLOYMENT_TARGET 10.5 CACHE STRING "" FORCE)
+    set(CMAKE_OSX_SYSROOT "/Developer/SDKs/MacOSX10.5.sdk" CACHE PATH "" FORCE)
+  elseif(HAVE_10_6_SDK)
+    set(CMAKE_OSX_DEPLOYMENT_TARGET 10.6 CACHE STRING "" FORCE)
+    set(CMAKE_OSX_SYSROOT "/Developer/SDKs/MacOSX10.6.sdk" CACHE PATH "" FORCE)
+  elseif(HAVE_10_7_SDK)
+    set(CMAKE_OSX_DEPLOYMENT_TARGET 10.7 CACHE STRING "" FORCE)
+    set(CMAKE_OSX_SYSROOT "/Developer/SDKs/MacOSX10.7.sdk" CACHE PATH "" FORCE)
+  elseif(HAVE_10_8_SDK)
+    if(NOT IS_DIRECTORY /opt/X11/include/X11)
+      message(FATAL_ERROR "[ERROR] X11 headers are not found")
     endif()
+    list(APPEND CMAKE_CXX_FLAGS "-I/opt/X11/include/X11")
+    list(APPEND CMAKE_C_FLAGS "-I/opt/X11/include/X11")
+    list(APPEND CMAKE_SHARED_LINKER_FLAGS " -headerpad_max")
+    set(CMAKE_OSX_DEPLOYMENT_TARGET 10.8 CACHE STRING "" FORCE)
+    set(CMAKE_OSX_SYSROOT "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk" CACHE PATH "" FORCE)
+  else()
+    message(FATAL_ERROR "[ERROR] CMAKE_OSX_SYSROOT='${CMAKE_OSX_SYSROOT}' not found. Requires MacOS X 10.5 or higher")
   endif()
 
 endif()
@@ -155,9 +181,36 @@ if(CMAKE_Fortran_COMPILER)
   include(${CMAKE_ROOT}/Modules/CMakeDetermineFortranCompiler.cmake)
 endif(CMAKE_Fortran_COMPILER)
 
+
 # Set bulid related properties
 #-----------------------------------------------------------------------------
+set(PARTS_BUILT_INFO "${cdat_BINARY_DIR}/build_info.txt" CACHE STRING "File where to store build infos" FORCE)
 option(CDAT_BUILD_PARALLEL "Build parallel components of CDAT" ON)
+#Options for various types of builds
+option(CDAT_BUILD_GUI "Builds GUI-based dependencies (Vistrails, ParaView, VisIt, R, etc...) " ON)
+option(CDAT_BUILD_GRAPHICS "Build graphics-based dependencies (vcs, pyqt, Vistrails, ParaView, VisIt, R, etc...) " ON)
+option(CDAT_BUILD_ESGF "Builds a customized version for ESGF (Tkinter, less packages etc..)" OFF)
+
+#Flipping the option, Aashish add_cdat_external_dependent seems to need a negative of that
+if (CDAT_BUILD_ESGF)
+    set(CDAT_BUILD_WO_ESGF OFF)
+else()
+    set(CDAT_BUILD_WO_ESGF ON)
+endif()
+
+#First of all if ESGF then turn OFF GRAPHICS
+if (NOT CDAT_BUILD_WO_ESGF)
+    set(CDAT_BUILD_GRAPHICS OFF)
+    set(CDAT_BUILD_PARALLEL OFF)
+    set(CDMS_ONLY --enable-cdms-only)
+else()
+    set(CDMS_ONLY "")
+endif()
+
+# if no graphics then no gui as well
+if (NOT CDAT_BUILD_GRAPHICS)
+  set(CDAT_BUILD_GUI OFF)
+endif()
 set(ep_prefix ${cdat_BINARY_DIR}/build/prefix)
 set_property(DIRECTORY PROPERTY ep_log_dir ${cdat_BINARY_DIR}/logs)
 set(ep_log_options
@@ -323,6 +376,7 @@ include(vistrails_pkg)
 include(wget_pkg)
 include(yasm_pkg)
 include(zlib_pkg)
+include(cdatlogger_pkg)
 
 # Configure custom configure/build/install step files
 #-----------------------------------------------------------------------------
@@ -382,10 +436,11 @@ foreach(package ${external_packages})
 
   if(CDAT_BUILD_${uc_package})
     message("[INFO] Package --- ${package} --- will be built")
+    list(APPEND packages_info "${package} ${${uc_package}_VERSION}\n")
     include("${lc_package}_external")
   endif()
 endforeach()
-
+file(WRITE ${PARTS_BUILT_INFO} ${packages_info})
 # Construct Include and Link variables
 #-----------------------------------------------------------------------------
 if(found_system_include_dirs)
@@ -430,6 +485,7 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/uvcdat.in
   ${CMAKE_INSTALL_PREFIX}/bin/uvcdat
   @ONLY
 )
+
 
 if (BUILD_TESTING)
   configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/runpytest.in

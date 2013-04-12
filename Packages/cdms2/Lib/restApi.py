@@ -2,7 +2,10 @@ import cdms2
 import urllib2
 import AutoAPI
 import xml.etree.ElementTree
-import genutil
+try:
+    import genutil.StringConstructor
+except:
+    pass
 import os
 #import bz2
 

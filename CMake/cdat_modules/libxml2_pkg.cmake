@@ -8,5 +8,10 @@ set(XML_URL ${LLNL_URL})
 set(XML_GZ libxml2-${XML_MAJOR_SRC}.${XML_MINOR_SRC}.${XML_PATCH_SRC}.tar.gz)
 set(XML_MD5 8127a65e8c3b08856093099b52599c86)
 
+set (nm XML)
+string(TOUPPER ${nm} uc_nm)
+set(${uc_nm}_VERSION ${${nm}_MAJOR_SRC}.${${nm}_MINOR_SRC}.${${nm}_PATCH_SRC})
+set(LIBXML2_VERSION ${XML_VERSION})
+
 add_cdat_package(libXML2 "" "" "")
 

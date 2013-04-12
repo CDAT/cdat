@@ -1,4 +1,5 @@
 import cdms2,MV2,sys,os
+import cdat_info
 
 def create_surrounds(data):
     sh=list(data.shape)
@@ -172,6 +173,7 @@ def generateLandSeaMask(target,source=None,threshold_1 = .2, threshold_2 = .3,re
     Output:
        landsea maks on target grid
     """
+    cdat_info.pingPCMDIdb("cdat","cdutil.generateLandSeaMask")
     if cdms2.isVariable(target):
         target = target.getGrid()
         if target is None:

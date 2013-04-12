@@ -48,3 +48,12 @@ ExternalProject_Add(CDAT
   DEPENDS ${CDAT_deps}
 )
 
+#configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/cdat_installed_pingdb_step.cmake.in
+#  ${cdat_CMAKE_BINARY_DIR}/cdat_installed_pingdb_step.cmake
+#  @ONLY)
+
+#ExternalProject_Add_Step(CDAT PINGDB
+#  COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/cdat_installed_pingdb_step.cmake
+#  DEPENDEES install
+#  WORKING_DIRECTORY ${cdat_CMAKE_BINARY_DIR}
+#  )

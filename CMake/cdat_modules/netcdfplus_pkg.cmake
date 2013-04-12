@@ -5,4 +5,9 @@ set(NC4PLUS_URL ${LLNL_URL})
 set(NC4PLUS_GZ netcdf-cxx-${NC4PLUS_MAJOR_SRC}.${NC4PLUS_MINOR_SRC}.tar.gz)
 set(NC4PLUS_MD5 0b09655cf977d768ced6c0d327dde176)
 
-add_cdat_package(NetCDFPLUS "" "" "")
+set (nm NC4PLUS)
+string(TOUPPER ${nm} uc_nm)
+set(${uc_nm}_VERSION ${${nm}_MAJOR_SRC}.${${nm}_MINOR_SRC}.${${nm}_PATCH_SRC})
+set(NETCDFPLUS_VERSION ${NC4PLUS_VERSION})
+
+add_cdat_package_dependent(NetCDFPLUS "" "" ON "CDAT_BUILD_WO_ESGF" OFF)

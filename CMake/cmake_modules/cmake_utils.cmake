@@ -6,7 +6,7 @@ macro (add_cdat_package package_name version_string msg default)
   string(TOUPPER ${package_name} uc_package)
   string(TOLOWER ${package_name} lc_package)
   set(version)
-  set(message "Build ${package_name}")
+  set(message "Build ${package_name} ${version_string}")
   set(use_system_message "Use system ${package_name}")
   set(option_default ON)
   set(cdat_${package_name}_FOUND OFF)
@@ -138,6 +138,19 @@ macro(add_cdat_package_dependent package_name version build_message value depend
 
   cmake_dependent_option(CDAT_BUILD_${uc_package} "${message}" ${value} "${dependencies}" ${default})
 
-  add_cdat_package("${package_name}" "${version}" "${build_message}" ${CDAT_BUILD_${uc_package}})
+  # We need this internal variable so that we can diffrentiate between the
+  # the case where use has chosen to turn off this packge vs when the packge is
+  # evaluated to turn off by cmake dependent option
+  cmake_dependent_option(cdat_build_internal_${uc_package} "${message}" ${value} "${dependencies}" ${default})
+  set(CACHE cdat_build_internal_${uc_package} PROPERTY TYPE INTERNAL)
+
+  if (cdat_build_internal_${uc_package})
+    add_cdat_package("${package_name}" "${version}" "${build_message}" ${CDAT_BUILD_${uc_package}})
+  else()
+    if (DEFINED CDAT_USE_SYSTEM_${uc_package})
+      set_property(CACHE CDAT_USE_SYSTEM_${uc_package} PROPERTY TYPE INTERNAL)
+      set_property(CACHE CDAT_USE_SYSTEM_${uc_package} PROPERTY VALUE OFF)
+    endif()
+  endif()
 
 endmacro()

@@ -1,6 +1,7 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 import numpy, numpy.ma, cdms2, types, string, MV2, genutil
+import cdat_info
 
 class AveragerError (Exception):
     def __init__ (self, args=None):
@@ -124,6 +125,7 @@ def area_weights(ds,axisoptions=None):
     Returns a masked array of the same dimensions as ds containing area weights
     but masked where ds is masked.
     '''
+    cdat_info.pingPCMDIdb("cdat","genutil.area_weights")
     #
     __DEBUG__ = 0
     #
@@ -823,6 +825,7 @@ Note:
         the 'weighted' keyword appears.
         """
     __DEBUG__ = 0
+    cdat_info.pingPCMDIdb("cdat","genutil.averager")
     #
     # Check the weight = option. This is done for backward compatibility since
     # weights= is the current default syntax.

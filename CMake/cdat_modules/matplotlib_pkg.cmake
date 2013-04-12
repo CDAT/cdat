@@ -9,4 +9,7 @@ set( MATPLOTLIB_URL ${LLNL_URL} )
 set( MATPLOTLIB_GZ matplotlib-${MATPLOTLIB_VERSION}.tar.gz )
 set( MATPLOTLIB_MD5 c52e2c5a09eca910d8d166dcbd2d01ec )
 
-add_cdat_package(Matplotlib "" "" "")
+set (nm MATPLOTLIB)
+string(TOUPPER ${nm} uc_nm)
+set(${uc_nm}_VERSION ${${nm}_MAJOR}.${${nm}_MINOR}.${${nm}_PATCH})
+add_cdat_package_dependent(Matplotlib "" "" ON "CDAT_BUILD_GRAPHICS" OFF)
