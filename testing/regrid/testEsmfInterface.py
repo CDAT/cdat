@@ -21,7 +21,7 @@ HAS_MPI = False
 try:
     from mpi4py import MPI
     HAS_MPI = True
-else:
+except:
     pass
 
 PLOT = False
