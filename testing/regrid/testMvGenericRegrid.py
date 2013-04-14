@@ -9,8 +9,14 @@ import unittest
 import regrid2
 import ESMP
 import matplotlib.pylab as pl
-from mpi4py import MPI
 import sys
+
+HAS_MPI = False
+try:
+    from mpi4py import MPI
+    HAS_MPI =  True
+except:
+    pass
 
 class TestMvGenericRegrid(unittest.TestCase):
     """
@@ -44,9 +50,12 @@ class TestMvGenericRegrid(unittest.TestCase):
         self.soInterp = numpy.array(self.clt) * 0.0 + self.so.missing_value
 
         self.tol = 1e2
-        self.comm = MPI.COMM_WORLD
-        self.rank = self.comm.Get_rank()
-        self.size = self.comm.Get_size()
+        self.rank = 0
+        self.size = 1
+        if HAS_MPI:
+            self.comm = MPI.COMM_WORLD
+            self.rank = self.comm.Get_rank()
+            self.size = self.comm.Get_size()
 
     def test0_mvGeneric_dstMaskFloat_salinity(self):
         """

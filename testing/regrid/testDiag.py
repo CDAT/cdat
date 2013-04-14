@@ -13,7 +13,6 @@ import unittest
 import ESMP
 from regrid2 import esmf
 from matplotlib import pylab
-from mpi4py import MPI
 import types
 from math import pi
 import sys
@@ -22,8 +21,7 @@ import sys
 class Test(unittest.TestCase):
 
     def setUp(self):
-        self.pe = MPI.COMM_WORLD.Get_rank()
-        self.nprocs = MPI.COMM_WORLD.Get_size()
+        pass
  
     def Xtest1_libcf(self):
         srcF = cdms2.open(sys.prefix + \

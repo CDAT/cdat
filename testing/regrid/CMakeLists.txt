@@ -98,16 +98,18 @@ add_test("testEsmfGridToMeshRegridCsrv"
          "${CMAKE_INSTALL_PREFIX}/bin/mpiexec" "-n" "2"
           ${CMAKE_INSTALL_PREFIX}/bin/python 
           ${cdat_SOURCE_DIR}/testing/regrid/testEsmfGridToMeshRegridCsrv.py)
-add_test("testEsmf3DSmallNative" 
+if (CDAT_BUILD_PARALLEL)
+  add_test("testEsmf3DSmallNative" 
           ${CMAKE_INSTALL_PREFIX}/bin/python 
           ${cdat_SOURCE_DIR}/testing/regrid/testEsmf3DSmallNative.py)
-add_test("testEsmf3DSmallesmf" 
-          ${CMAKE_INSTALL_PREFIX}/bin/python 
-          ${cdat_SOURCE_DIR}/testing/regrid/testEsmf3DSmallesmf.py)
-add_test("testEsmf3DSmallNative2Pes" 
+  add_test("testEsmf3DSmallNative2Pes" 
          "${CMAKE_INSTALL_PREFIX}/bin/mpiexec" "-n" "2"
           ${CMAKE_INSTALL_PREFIX}/bin/python 
           ${cdat_SOURCE_DIR}/testing/regrid/testEsmf3DSmallNative.py)
+endif (CDAT_BUILD_PARALLEL)
+add_test("testEsmf3DSmallesmf" 
+          ${CMAKE_INSTALL_PREFIX}/bin/python 
+          ${cdat_SOURCE_DIR}/testing/regrid/testEsmf3DSmallesmf.py)
 add_test("testEsmf3DSmallesmf2Pes" 
          "${CMAKE_INSTALL_PREFIX}/bin/mpiexec" "-n" "2"
           ${CMAKE_INSTALL_PREFIX}/bin/python 
@@ -264,15 +266,9 @@ add_test("testEsmfInterface1"
 add_test("testEsmfGridToMeshRegridCsrv" 
           ${CMAKE_INSTALL_PREFIX}/bin/python 
           ${cdat_SOURCE_DIR}/testing/regrid/testEsmfGridToMeshRegridCsrv.py)
-add_test("testEsmf3DSmallNative" 
-          ${CMAKE_INSTALL_PREFIX}/bin/python 
-          ${cdat_SOURCE_DIR}/testing/regrid/testEsmf3DSmallNative.py)
 add_test("testEsmf3DSmallesmf" 
           ${CMAKE_INSTALL_PREFIX}/bin/python 
           ${cdat_SOURCE_DIR}/testing/regrid/testEsmf3DSmallesmf.py)
-add_test("testEsmf3DSmallNative" 
-          ${CMAKE_INSTALL_PREFIX}/bin/python 
-          ${cdat_SOURCE_DIR}/testing/regrid/testEsmf3DSmallNative.py)
 add_test("testEsmf3DSmallesmf" 
           ${CMAKE_INSTALL_PREFIX}/bin/python 
           ${cdat_SOURCE_DIR}/testing/regrid/testEsmf3DSmallesmf.py)
