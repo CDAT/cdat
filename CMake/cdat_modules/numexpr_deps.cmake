@@ -1,1 +1,1 @@
-set(Numexpr_deps ${pkgconfig_pkg} ${numpy_pkg} ${setuptools_pkg})
+set(Numexpr_deps ${pkgconfig_pkg} ${numpy_pkg} ${myproxyclient_pkg} ${setuptools_pkg})
