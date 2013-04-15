@@ -11,5 +11,5 @@ set (nm CAIRO)
 string(TOUPPER ${nm} uc_nm)
 set(${uc_nm}_VERSION ${${nm}_MAJOR}.${${nm}_MINOR}.${${nm}_PATCH})
 
-add_cdat_package_dependent(Cairo "" "" "Build Cairo" ON "CDAT_BUILD_GRAPHICS" OFF)
+add_cdat_package_dependent(Cairo "" "" ON "CDAT_BUILD_GRAPHICS" OFF)
 
