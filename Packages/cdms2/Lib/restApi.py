@@ -3,7 +3,7 @@ import urllib2
 import AutoAPI
 import xml.etree.ElementTree
 try:
-    import genutil.StringConstructor
+    import genutil
 except:
     pass
 import os
