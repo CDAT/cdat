@@ -8,7 +8,6 @@ import numpy
 import unittest
 import ESMP
 import matplotlib.pylab as pl
-from mpi4py import MPI
 from cdms2 import CdmsRegrid
 import sys
 
@@ -21,10 +20,6 @@ class Test(unittest.TestCase):
         """
         Set up the grids to pass to mvGenericRegrid
         """
-        self.comm = MPI.COMM_WORLD
-        self.rank = self.comm.Get_rank()
-        self.size = self.comm.Get_size()
-
         f = cdms2.open(sys.prefix + \
                            '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
         self.so = f('so')

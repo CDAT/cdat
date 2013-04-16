@@ -3,7 +3,6 @@ import numpy
 import unittest
 from matplotlib import pylab as pl
 from mpl_toolkits.basemap import Basemap as bm
-from mpi4py import MPI
 import sys
 
 PLOT = False
@@ -14,11 +13,8 @@ class TestTasRegrid(unittest.TestCase):
     """
 
     def setUp(self):
-        self.rootPe = 0
-        self.pe = MPI.COMM_WORLD.Get_rank()
+
         self.clt = cdms2.open(sys.prefix + '/sample_data/clt.nc')('clt')[0, ...]
-#        self.tas = cdms2.open(sys.prefix + \
-#                       'tas_ccsr-95a_1979.01-1979.12.nc')('tas')[0, 0,...]
         self.tas = cdms2.open(sys.prefix + \
                                   '/sample_data/tas_ecm_1979.nc')('tas')[0, ...]
 

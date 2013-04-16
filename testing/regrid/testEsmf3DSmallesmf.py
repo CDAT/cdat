@@ -10,7 +10,13 @@ import ESMP
 from regrid2 import esmf
 from regrid2 import ESMFRegrid
 import numpy
-from mpi4py import MPI
+
+HAS_MPI = False
+try:
+        from mpi4py import MPI
+        HAS_MPI = True
+except:
+        pass
 
 import re
 
@@ -56,9 +62,12 @@ class TestESMPRegridderConserve(unittest.TestCase):
         """
         Unit test set up
         """
-        self.pe = MPI.COMM_WORLD.Get_rank()
-        self.np = MPI.COMM_WORLD.Get_size()
         self.rootPe = 0
+        self.pe = 0
+        self.np = 1
+        if HAS_MPI:
+                self.pe = MPI.COMM_WORLD.Get_rank()
+                self.np = MPI.COMM_WORLD.Get_size()
 
     def test1_3D_esmf_Bilinear(self):
         srcDims, srcXYZCenter, srcData, srcBounds = makeGrid(5, 4, 3)
@@ -178,33 +187,7 @@ class TestESMPRegridderConserve(unittest.TestCase):
         soInterp = dstField.getData(rootPe = self.rootPe)
         soInterpInterp = srcFldIn.getData(rootPe = self.rootPe)
 
-#        soInterpSrcAreas = regridOut.getSrcAreas(self.rootPe)
-#        soInterpDstAreas = regridOut.getDstAreas(self.rootPe)
-#        soInterpSrcAreaFractions = regridOut.getSrcAreaFractions(self.rootPe)
-#        soInterpDstAreaFractions = regridOut.getDstAreaFractions(self.rootPe)
-#        soIntIntSrcAreas = regridBck.getSrcAreas(self.rootPe)
-#        soIntIntDstAreas = regridBck.getDstAreas(self.rootPe)
-#        soIntIntSrcAreaFractions = regridBck.getSrcAreaFractions(self.rootPe)
-#        soIntIntDstAreaFractions = regridBck.getDstAreaFractions(self.rootPe)
-#
-#        srcInterpIntegral = (soInterpSrcAreas * srcData).sum()
-#        dstInterpIntegral = (soInterpDstAreas * soInterp).sum()
-#        interpConserve = srcInterpIntegral - dstInterpIntegral
-#
-#        lc1 = MPI.COMM_WORLD.reduce(interpConserve, op = MPI.SUM, root = self.rootPe)
-#
         if self.pe == self.rootPe:
-#            print numpy.histogram(srcData, [0,10.0000, 20.000, 30])
-#            print numpy.histogram(soInterp, [0,10.0000, 20.000, 30])
-#            srcInterpIntegral = (soInterpSrcAreas * srcData).sum()
-#            dstInterpIntegral = (soInterpDstAreas * soInterp).sum()
-#            interpConserve = srcInterpIntegral - dstInterpIntegral
-#            srcIntIntIntegral = (soIntIntSrcAreas * soInterp).sum()
-#            dstIntIntIntegral = (soIntIntDstAreas * soInterpInterp).sum()
-#            intIntConserve = srcIntIntIntegral - dstIntIntIntegral
-#
-#            self.assertLess(lc1, 2.e-6)
-#            self.assertLess(lc2, 2.e-6)
             minlsd, maxlsd = srcData.min(), srcData.max()
             minlsi, maxlsi = soInterp.min(), soInterp.max()
             minlii, maxlii = soInterpInterp.min(), soInterpInterp.max()

@@ -15,8 +15,14 @@ import time
 import ESMP
 import copy
 from matplotlib import pylab
-from mpi4py import MPI
 import sys
+
+HAS_MPI = False
+try:
+    from mpi4py import MPI
+    HAS_MPI = True
+except:
+    pass
 
 PLOT = False
 
@@ -27,7 +33,9 @@ class Test(unittest.TestCase):
 
     def test_2d(self):
 
-        mype = MPI.COMM_WORLD.Get_rank()
+        mype = 0
+        if HAS_MPI:
+            mype = MPI.COMM_WORLD.Get_rank()
 
         f = cdms2.open(sys.prefix + \
                            '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')
@@ -182,7 +190,10 @@ class Test(unittest.TestCase):
         # check gather
         chksumESMP = numpy.sum(soInterpESMP)
         chksumEsmfInterface = numpy.sum(soInterpEsmfInterface)
-        chksumsESMP = MPI.COMM_WORLD.gather(chksumESMP, root=0)
+        if HAS_MPI:
+            chksumsESMP = MPI.COMM_WORLD.gather(chksumESMP, root=0)
+        else:
+            chksumsESMP = chksumESMP
 
         print '[%d] ESMP chksum = %f' % (mype, chksumESMP)
         if mype == 0:
