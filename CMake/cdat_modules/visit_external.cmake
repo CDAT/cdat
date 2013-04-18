@@ -46,7 +46,7 @@ MACRO(DETERMINE_VISIT_ARCHITECTURE ARCH)
                 SET(${ARCH} darwin-i386)
             ENDIF(${_OSX_MAJOR_VERSION} STREQUAL "1")
         ELSE(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "i386")
-            SET(${ARCH} darwin-ppc)
+            SET(${ARCH} darwin-x86_64)
         ENDIF(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "i386")
     ELSEIF(${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
         SET(${ARCH} "freebsd-${CMAKE_SYSTEM_VERSION}")
@@ -66,6 +66,8 @@ ENDMACRO(DETERMINE_VISIT_ARCHITECTURE ARCH)
 DETERMINE_VISIT_ARCHITECTURE(VISIT_INSTALL_PLATFORM)
 SET(VISIT_HOSTNAME "visit-uvcdat-build")
 
+set(VISIT_PATCH_COMMAND sed -i s/\<object.h\>/\"object.h\"/g ${VisIt_source}/databases/DDCMD/avtDDCMDFileFormat.C)
+
 #Add VisIt to ExternalProject
 ExternalProject_Add(VisIt
   #DOWNLOAD_DIR ${VisIt_source} #${CDAT_PACKAGE_CACHE_DIR}
@@ -75,7 +77,7 @@ ExternalProject_Add(VisIt
   #SVN_REPOSITORY ${VISIT_SVN}
   URL ${VISIT_URL}/${VISIT_GZ}
   #URL_MD5 ${VISIT_MD5}
-  PATCH_COMMAND ""
+  PATCH_COMMAND ${VISIT_PATCH_COMMAND}
   #CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
   CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${VisIt_install} -DCMAKE_INSTALL_NAME_DIR=${VisIt_install}/${VISIT_VERSION}/${VISIT_INSTALL_PLATFORM}/lib -DVISIT_CONFIG_SITE:FILEPATH=${VisIt_source}/${VISIT_HOSTNAME}.cmake
@@ -123,6 +125,7 @@ ExternalProject_Add_Step(VisIt BuildVisItPatch_Step1
 #Make symlinks of VisIt's lib, plugins, 
 #move pyqt_pyqtviewer.so and plugin into python site-packages
 ExternalProject_Add_Step(VisIt InstallVisItLibSymLink
+  COMMAND ${CMAKE_COMMAND} -E create_symlink ${VisIt_install}/${VISIT_VERSION}/${VISIT_INSTALL_PLATFORM}/lib ${CMAKE_INSTALL_PREFIX}/lib/VisIt-${VISIT_VERSION}
   COMMAND ${CMAKE_COMMAND} -E create_symlink ${VisIt_install}/${VISIT_VERSION}/${VISIT_INSTALL_PLATFORM}/lib ${CMAKE_INSTALL_PREFIX}/lib/VisIt-${VISIT_VERSION}
   COMMAND ${CMAKE_COMMAND} -E create_symlink ${VisIt_install}/${VISIT_VERSION}/${VISIT_INSTALL_PLATFORM}/plugins ${CMAKE_INSTALL_PREFIX}/lib/VisIt-${VISIT_VERSION}-plugins
   DEPENDEES install
