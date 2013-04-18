@@ -11,7 +11,6 @@ import unittest
 import ESMP
 from regrid2 import esmf
 from matplotlib import pylab as pl
-from mpi4py import MPI
 import types
 import sys
 
@@ -20,8 +19,6 @@ Plot = False
 class Test(unittest.TestCase):
 
     def setUp(self):
-        self.pe = MPI.COMM_WORLD.Get_rank()
-        self.nprocs = MPI.COMM_WORLD.Get_size()
 
         access = cdms2.open(sys.prefix + \
                                 '/sample_data/so_Omon_ACCESS1-0_historical_r1i1p1_185001-185412_2timesteps.nc')

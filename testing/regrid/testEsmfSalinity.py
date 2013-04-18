@@ -14,8 +14,14 @@ import unittest
 import ESMP
 from regrid2 import esmf
 from matplotlib import pylab
-from mpi4py import MPI
 import sys
+
+HAS_MPI = False
+try:
+    from mpi4py import MPI
+    HAS_MPI = True
+except:
+    pass
 
 def _buildCorners(bounds):
     """
@@ -54,8 +60,12 @@ def _getCorners(coordBounds):
 class Test(unittest.TestCase):
 
     def setUp(self):
-        self.pe = MPI.COMM_WORLD.Get_rank()
-        self.nprocs = MPI.COMM_WORLD.Get_size()
+
+        self.pe = 0
+        self.nprocs = 1
+        if HAS_MPI:
+            self.pe = MPI.COMM_WORLD.Get_rank()
+            self.nprocs = MPI.COMM_WORLD.Get_size()
         
     def XXtest0_ESMP(self):
         
@@ -241,7 +251,10 @@ class Test(unittest.TestCase):
         print '[%d] src total area integral: %g dst total area integral: %g diff: %g\n' % \
             (self.pe, srcFldIntegral, dstFldIntegral, lackConservLocal)
 
-        lackConserv = MPI.COMM_WORLD.reduce(lackConservLocal, op=MPI.SUM, root=0)
+        if HAS_MPI:
+            lackConserv = MPI.COMM_WORLD.reduce(lackConservLocal, op=MPI.SUM, root=0)
+        else:
+          lackConserv = lackConservLocal
         
         if self.pe == 0:
             print 'ROOT: total lack of conservation (should be small): %f' % lackConserv

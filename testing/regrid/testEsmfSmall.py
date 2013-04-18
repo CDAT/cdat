@@ -2,7 +2,13 @@ import cdms2
 import ESMP
 import numpy
 import unittest
-from mpi4py import MPI
+
+HAS_MPI = False
+try:
+    from mpi4py import MPI
+    HAS_MPI = True
+except:
+    pass
 
 class TestEsmpSmall(unittest.TestCase):
 
@@ -36,7 +42,9 @@ class TestEsmpSmall(unittest.TestCase):
 
     def test1_ESMP(self):
 
-        rk = MPI.COMM_WORLD.Get_rank()
+        rk = 0
+        if HAS_MPI:
+            rk = MPI.COMM_WORLD.Get_rank()
         
         coordSys = ESMP.ESMP_COORDSYS_CART
         
@@ -220,7 +228,10 @@ class TestEsmpSmall(unittest.TestCase):
         print '[%d] src total area integral: %g dst total area integral: %g diff: %g\n' % \
             (rk, srcFldIntegral, dstFldIntegral, lackConservLocal)
 
-        lackConserv = MPI.COMM_WORLD.reduce(lackConservLocal, op=MPI.SUM, root=0)
+        if HAS_MPI:
+            lackConserv = MPI.COMM_WORLD.reduce(lackConservLocal, op=MPI.SUM, root=0)
+        else:
+            lackConserv = lackConservLocal
         
         if rk == 0:
             print '[0] total lack of conservation (should be small): %f' % lackConserv
