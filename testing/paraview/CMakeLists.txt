@@ -5,7 +5,7 @@ endif()
 
 #test uvcdat's paraview contour representation
 if(CDAT_DOWNLOAD_SAMPLE_DATA)
-  add_test(paraview_contour
+  add_test(uvcdat_paraview_contour_plot
     ${CMAKE_INSTALL_PREFIX}/bin/runpytest
     ${CMAKE_BINARY_DIR}/tmp
     ${cdat_SOURCE_DIR}/testing/paraview/testcontour.vt:pvcontour_example
@@ -16,7 +16,7 @@ if(CDAT_DOWNLOAD_SAMPLE_DATA)
     )
 
   #test uvcdat's paraview slice representation
-  add_test(paraview_slice
+  add_test(uvcdat_paraview_slice_plot
     ${CMAKE_INSTALL_PREFIX}/bin/runpytest
     ${CMAKE_BINARY_DIR}/tmp
     ${cdat_SOURCE_DIR}/testing/paraview/testslice.vt:demonstrat_PVslice
