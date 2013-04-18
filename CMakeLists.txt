@@ -83,10 +83,7 @@ if(APPLE)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "${OSX_VER_MAJOR}.${OSX_VER_MINOR}" CACHE STRING "" FORCE)
   endif()
   
-  # Support only 10.5 or higher for now
-  if(IS_DIRECTORY "/Developer/SDKs/MacOSX10.5.sdk")
-    set(HAVE_10_5_SDK TRUE)
-  endif()
+  # Support only 10.6 or higher for now
   if(IS_DIRECTORY "/Developer/SDKs/MacOSX10.6.sdk")
     set(HAVE_10_6_SDK TRUE)
   endif()
@@ -98,10 +95,7 @@ if(APPLE)
   endif()
 
   # Try for the lowest version SDK we can
-  if(HAVE_10_5_SDK)
-    set(CMAKE_OSX_DEPLOYMENT_TARGET 10.5 CACHE STRING "" FORCE)
-    set(CMAKE_OSX_SYSROOT "/Developer/SDKs/MacOSX10.5.sdk" CACHE PATH "" FORCE)
-  elseif(HAVE_10_6_SDK)
+  if(HAVE_10_6_SDK)
     set(CMAKE_OSX_DEPLOYMENT_TARGET 10.6 CACHE STRING "" FORCE)
     set(CMAKE_OSX_SYSROOT "/Developer/SDKs/MacOSX10.6.sdk" CACHE PATH "" FORCE)
   elseif(HAVE_10_7_SDK)
