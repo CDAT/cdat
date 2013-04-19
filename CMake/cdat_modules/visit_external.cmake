@@ -66,7 +66,13 @@ ENDMACRO(DETERMINE_VISIT_ARCHITECTURE ARCH)
 DETERMINE_VISIT_ARCHITECTURE(VISIT_INSTALL_PLATFORM)
 SET(VISIT_HOSTNAME "visit-uvcdat-build")
 
-set(VISIT_PATCH_COMMAND sed -i "" "s/<object.h>/\"object.h\"/g" ${VisIt_source}/databases/DDCMD/avtDDCMDFileFormat.C)
+set(VISIT_PATCH_COMMAND "")
+
+if (APPLE)
+  set(VISIT_PATCH_COMMAND sed -i "" "s/<object.h>/"object.h"/g" ${VisIt_source}/databases/DDCMD/avtDDCMDFileFormat.C)
+elseif(UNIX)
+  set(VISIT_PATCH_COMMAND sed -i "" "s/<object.h>/\"object.h\"/g" ${VisIt_source}/databases/DDCMD/avtDDCMDFileFormat.C)
+endif()
 
 #Add VisIt to ExternalProject
 ExternalProject_Add(VisIt
