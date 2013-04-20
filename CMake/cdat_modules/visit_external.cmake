@@ -69,7 +69,7 @@ SET(VISIT_HOSTNAME "visit-uvcdat-build")
 set(VISIT_PATCH_COMMAND "")
 
 if (APPLE)
-  set(VISIT_PATCH_COMMAND sed -i "" "s/<object.h>/"object.h"/g" ${VisIt_source}/databases/DDCMD/avtDDCMDFileFormat.C)
+  set(VISIT_PATCH_COMMAND sed -i orig "s/<object.h>/\"object.h\"/g" ${VisIt_source}/databases/DDCMD/avtDDCMDFileFormat.C)
 elseif(UNIX)
   set(VISIT_PATCH_COMMAND sed -i "" "s/<object.h>/\"object.h\"/g" ${VisIt_source}/databases/DDCMD/avtDDCMDFileFormat.C)
 endif()
