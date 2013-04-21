@@ -66,13 +66,6 @@ ENDMACRO(DETERMINE_VISIT_ARCHITECTURE ARCH)
 DETERMINE_VISIT_ARCHITECTURE(VISIT_INSTALL_PLATFORM)
 SET(VISIT_HOSTNAME "visit-uvcdat-build")
 
-set(VISIT_PATCH_COMMAND "")
-
-if (APPLE)
-  set(VISIT_PATCH_COMMAND sed -i orig "s/<object.h>/\"object.h\"/g" ${VisIt_source}/databases/DDCMD/avtDDCMDFileFormat.C)
-elseif(UNIX)
-  set(VISIT_PATCH_COMMAND sed -i "" "s/<object.h>/\"object.h\"/g" ${VisIt_source}/databases/DDCMD/avtDDCMDFileFormat.C)
-endif()
 
 #Add VisIt to ExternalProject
 ExternalProject_Add(VisIt
@@ -83,7 +76,7 @@ ExternalProject_Add(VisIt
   #SVN_REPOSITORY ${VISIT_SVN}
   URL ${VISIT_URL}/${VISIT_GZ}
   #URL_MD5 ${VISIT_MD5}
-  PATCH_COMMAND ${VISIT_PATCH_COMMAND}
+  PATCH_COMMAND ""
   #CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
   CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${VisIt_install} -DCMAKE_INSTALL_NAME_DIR=${VisIt_install}/${VISIT_VERSION}/${VISIT_INSTALL_PLATFORM}/lib -DVISIT_CONFIG_SITE:FILEPATH=${VisIt_source}/${VISIT_HOSTNAME}.cmake
@@ -121,6 +114,8 @@ FILE(APPEND  ${CMAKE_BINARY_DIR}/visit.cmake ${TMP_STR10})
 # Before install step
 #load VisIt installation 
 ExternalProject_Add_Step(VisIt BuildVisItPatch_Step1
+ COMMAND sed -e s/<object.h>/"object.h"/g ${VisIt_source}/databases/DDCMD/avtDDCMDFileFormat.C > ${VisIt_source}/databases/DDCMD/avtDDCMDFileFormat.C_tmp
+ COMMAND mv ${VisIt_source}/databases/DDCMD/avtDDCMDFileFormat.C_tmp ${VisIt_source}/databases/DDCMD/avtDDCMDFileFormat.C
   COMMAND echo yes | svn_bin/build_visit --gpl --console --cc ${VISIT_C_COMPILER} --cxx ${VISIT_CXX_COMPILER} --alt-vtk-dir ${ParaView_binary}/VTK --alt-pyqt-dir ${CMAKE_INSTALL_PREFIX} --alt-R-dir ${cdat_EXTERNALS} --alt-netcdf-dir ${cdat_EXTERNALS} --alt-hdf5-dir ${cdat_EXTERNALS} --thirdparty-path ${CMAKE_CURRENT_BINARY_DIR}/visit-thirdparty --cmake-bin-dir ${CMAKE_PATH_VAR} --alt-python-dir ${CMAKE_INSTALL_PREFIX} --alt-qt-dir ${QT_ROOT} --no-visit --makeflags -j${VISIT_PARALLEL_PROCESSORS} --log-file ${CMAKE_BINARY_DIR}/logs/VisIt-build-out.log --no-mesa --visit-build-hostname ${VisIt_source}/${VISIT_HOSTNAME}.cmake
   COMMAND ${CMAKE_COMMAND} -P ${CMAKE_BINARY_DIR}/visit.cmake 
   DEPENDEES patch
@@ -130,8 +125,11 @@ ExternalProject_Add_Step(VisIt BuildVisItPatch_Step1
 #After installation
 #Make symlinks of VisIt's lib, plugins, 
 #move pyqt_pyqtviewer.so and plugin into python site-packages
+message("COMMAND1: ${CMAKE_COMMAND} -E create_symlink ${VisIt_install}/${VISIT_VERSION}/${VISIT_INSTALL_PLATFORM}/lib ${CMAKE_INSTALL_PREFIX}/lib/VisIt-${VISIT_VERSION}")
+
+message("COMMAND2: ${CMAKE_COMMAND} -E create_symlink ${VisIt_install}/${VISIT_VERSION}/${VISIT_INSTALL_PLATFORM}/plugins ${CMAKE_INSTALL_PREFIX}/lib/VisIt-${VISIT_VERSION}-plugins")
+
 ExternalProject_Add_Step(VisIt InstallVisItLibSymLink
-  COMMAND ${CMAKE_COMMAND} -E create_symlink ${VisIt_install}/${VISIT_VERSION}/${VISIT_INSTALL_PLATFORM}/lib ${CMAKE_INSTALL_PREFIX}/lib/VisIt-${VISIT_VERSION}
   COMMAND ${CMAKE_COMMAND} -E create_symlink ${VisIt_install}/${VISIT_VERSION}/${VISIT_INSTALL_PLATFORM}/lib ${CMAKE_INSTALL_PREFIX}/lib/VisIt-${VISIT_VERSION}
   COMMAND ${CMAKE_COMMAND} -E create_symlink ${VisIt_install}/${VISIT_VERSION}/${VISIT_INSTALL_PLATFORM}/plugins ${CMAKE_INSTALL_PREFIX}/lib/VisIt-${VISIT_VERSION}-plugins
   DEPENDEES install
