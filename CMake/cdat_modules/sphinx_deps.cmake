@@ -1,1 +1,1 @@
-set(Sphinx_deps ${lepl_pkg})
+set(Sphinx_deps ${setuptools_pkg} ${lepl_pkg})
