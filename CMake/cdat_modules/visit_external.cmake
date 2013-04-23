@@ -46,7 +46,7 @@ MACRO(DETERMINE_VISIT_ARCHITECTURE ARCH)
                 SET(${ARCH} darwin-i386)
             ENDIF(${_OSX_MAJOR_VERSION} STREQUAL "1")
         ELSE(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "i386")
-            SET(${ARCH} darwin-ppc)
+            SET(${ARCH} darwin-x86_64)
         ENDIF(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "i386")
     ELSEIF(${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
         SET(${ARCH} "freebsd-${CMAKE_SYSTEM_VERSION}")
@@ -65,6 +65,7 @@ ENDMACRO(DETERMINE_VISIT_ARCHITECTURE ARCH)
 
 DETERMINE_VISIT_ARCHITECTURE(VISIT_INSTALL_PLATFORM)
 SET(VISIT_HOSTNAME "visit-uvcdat-build")
+
 
 #Add VisIt to ExternalProject
 ExternalProject_Add(VisIt
@@ -113,6 +114,8 @@ FILE(APPEND  ${CMAKE_BINARY_DIR}/visit.cmake ${TMP_STR10})
 # Before install step
 #load VisIt installation 
 ExternalProject_Add_Step(VisIt BuildVisItPatch_Step1
+ COMMAND sed -e s/<object.h>/"object.h"/g ${VisIt_source}/databases/DDCMD/avtDDCMDFileFormat.C > ${VisIt_source}/databases/DDCMD/avtDDCMDFileFormat.C_tmp
+ COMMAND mv ${VisIt_source}/databases/DDCMD/avtDDCMDFileFormat.C_tmp ${VisIt_source}/databases/DDCMD/avtDDCMDFileFormat.C
   COMMAND echo yes | svn_bin/build_visit --gpl --console --cc ${VISIT_C_COMPILER} --cxx ${VISIT_CXX_COMPILER} --alt-vtk-dir ${ParaView_binary}/VTK --alt-pyqt-dir ${CMAKE_INSTALL_PREFIX} --alt-R-dir ${cdat_EXTERNALS} --alt-netcdf-dir ${cdat_EXTERNALS} --alt-hdf5-dir ${cdat_EXTERNALS} --thirdparty-path ${CMAKE_CURRENT_BINARY_DIR}/visit-thirdparty --cmake-bin-dir ${CMAKE_PATH_VAR} --alt-python-dir ${CMAKE_INSTALL_PREFIX} --alt-qt-dir ${QT_ROOT} --no-visit --makeflags -j${VISIT_PARALLEL_PROCESSORS} --log-file ${CMAKE_BINARY_DIR}/logs/VisIt-build-out.log --no-mesa --visit-build-hostname ${VisIt_source}/${VISIT_HOSTNAME}.cmake
   COMMAND ${CMAKE_COMMAND} -P ${CMAKE_BINARY_DIR}/visit.cmake 
   DEPENDEES patch
@@ -122,6 +125,10 @@ ExternalProject_Add_Step(VisIt BuildVisItPatch_Step1
 #After installation
 #Make symlinks of VisIt's lib, plugins, 
 #move pyqt_pyqtviewer.so and plugin into python site-packages
+message("COMMAND1: ${CMAKE_COMMAND} -E create_symlink ${VisIt_install}/${VISIT_VERSION}/${VISIT_INSTALL_PLATFORM}/lib ${CMAKE_INSTALL_PREFIX}/lib/VisIt-${VISIT_VERSION}")
+
+message("COMMAND2: ${CMAKE_COMMAND} -E create_symlink ${VisIt_install}/${VISIT_VERSION}/${VISIT_INSTALL_PLATFORM}/plugins ${CMAKE_INSTALL_PREFIX}/lib/VisIt-${VISIT_VERSION}-plugins")
+
 ExternalProject_Add_Step(VisIt InstallVisItLibSymLink
   COMMAND ${CMAKE_COMMAND} -E create_symlink ${VisIt_install}/${VISIT_VERSION}/${VISIT_INSTALL_PLATFORM}/lib ${CMAKE_INSTALL_PREFIX}/lib/VisIt-${VISIT_VERSION}
   COMMAND ${CMAKE_COMMAND} -E create_symlink ${VisIt_install}/${VISIT_VERSION}/${VISIT_INSTALL_PLATFORM}/plugins ${CMAKE_INSTALL_PREFIX}/lib/VisIt-${VISIT_VERSION}-plugins
