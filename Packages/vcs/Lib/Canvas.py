@@ -8927,10 +8927,9 @@ class animate_obj(animate_obj_old):
     ##   self.run_flg = 0
     ##   self.continents_value = 0
     ##   self.continents_hold_value = 1
-    def create( self, parent=None, min=None, max=None, save_file=None, thread_it = 1, rate=5., bitrate=None, ffmpegoptions='', axis=0, saveToFiles=True):
+    def create( self, parent=None, min=None, max=None, save_file=None, thread_it = 1, rate=5., bitrate=None, ffmpegoptions='', axis=0):
         alen = None
-        if saveToFiles:
-            y=vcs.init()
+        y=vcs.init()
         truncated = False
         print len(self.vcs_self.animate_info)
         for I in self.vcs_self.animate_info:
@@ -8945,13 +8944,10 @@ class animate_obj(animate_obj_old):
                     truncated = True
         if truncated:
             warnings.warn("Because of inconsistent shapes over axis: %i, the animation length will be truncated to: %i\n" % (axis,alen))
-        self.animation_args = []
+        self.animation_files = []
         for i in range(alen):
             print i,'of',alen-1
-            if saveToFiles:
-                y.clear()
-            else:
-                allArgs = []
+            y.clear()
             for I in self.vcs_self.animate_info:
                 d=I[0]
                 kw={}
@@ -8963,7 +8959,7 @@ class animate_obj(animate_obj_old):
                         kw[id]=slice(i,i+1)
                     else:
                         break
-                args= [I[1][0](**kw),]
+                args = [I[1][0](**kw),]
                 if I[1][1] is not None:
                     kw={}
                     n = len(I[1][1].shape)
@@ -8975,27 +8971,21 @@ class animate_obj(animate_obj_old):
                         else:
                             break
                     args.append(I[1][1](**kw))
-                args+=[d.template,d.g_type,d.g_name]
-                if saveToFiles:
-                    y.plot(*args,bg=1)
-                else:
-                    allArgs.append(args)
-            if saveToFiles:
-                fn = "%.4i" % i
-                self.animation_args.append(fn)
-                y.png(fn)
-            else:
-                self.animation_args.append(allArgs)
+                args += [d.template,d.g_type,d.g_name]
+                y.plot(*args,bg=1)    
+            fn = "%.4i" % i
+            self.animation_files.append(fn)
+            y.png(fn)
 
     def run(self,*args):
-        for fn in self.animation_args:
+        for fn in self.animation_files:
             print "Opening: %s" % fn
             self.vcs_self.canvas.put_png_on_canvas(fn)
-            #import time
-            #time.sleep(4)
+            import time
+            time.sleep(0.015)
 
     def number_of_frames(self):
-        return len(self.animation_args)
+        return len(self.animation_files)
 
         
         
