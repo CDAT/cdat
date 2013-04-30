@@ -121,7 +121,6 @@ class CFConvention(COARDSConvention):
         return coorddict.keys()
 
     def getDsetnodeAuxAxisIds(self, dsetnode):
-        print 'convention.getDsetnodeAuxAxisIds'
         "Get auxiliary axis IDs from a dataset node"
         coorddict = {}
         dsetdict = dsetnode.getIdDict()
