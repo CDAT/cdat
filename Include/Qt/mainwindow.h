@@ -21,7 +21,8 @@
 #define VCS_INFO_EVENT QEvent::Type(QEvent::User+8)
 #define VCS_HIDE_INFO_EVENT QEvent::Type(QEvent::User+9)
 #define VCS_PUT_IMAGE_EVENT QEvent::Type(QEvent::User+10)
-/* #define VCS_ANIMATION_CREATED_EVENT QEvent::Type(QEvent::User+11) */
+#define VCS_PUT_QIMAGE_EVENT QEvent::Type(QEvent::User+11)
+/* #define VCS_ANIMATION_CREATED_EVENT QEvent::Type(QEvent::User+12) */
 
 #define VCS_UNDEFINED_EVENT_1 QEvent::Type(QEvent::User+101)
 #define VCS_UNDEFINED_EVENT_2 QEvent::Type(QEvent::User+102)
@@ -34,6 +35,7 @@
 #define VCS_UNDEFINED_EVENT_9 QEvent::Type(QEvent::User+109)
 #define VCS_UNDEFINED_EVENT_10 QEvent::Type(QEvent::User+110)
 #define VCS_UNDEFINED_EVENT_11 QEvent::Type(QEvent::User+111)
+#define VCS_UNDEFINED_EVENT_12 QEvent::Type(QEvent::User+112)
 
 class MainWindow : public QMainWindow
 {
@@ -47,7 +49,7 @@ public:
   void setupCairo();
   void unsetupCairo();
   void *image;
-  QImage *images;
+  QImage *qImage;
 public slots:
   void actionTriggered(QAction*);
   /*   void animationCreated(int window); */
