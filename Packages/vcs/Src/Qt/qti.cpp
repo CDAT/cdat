@@ -17,15 +17,7 @@ static void createWindows() {
   }
 }
 
-
 void VCSQtManager::createCanvases() {
-#ifndef __APPLE__
-  if (VCSQtManager::app()==NULL) {
-    static char *argv[] = {"qpython"};
-    VCSSecondaryThread *thrd = new VCSSecondaryThread(1, argv);
-    thrd->start();
-  }
-#endif
   if (VCSQtManager::owningApp()) {
     VCSQtManager::sendEvent(VCSQtManager::app(),
                             new QDeferredExecutionEvent((void*)createWindows));

@@ -180,18 +180,26 @@ extern "C" void vcs_Qt_window_put_image_by_id(int id, void *ximage)
   VCSQtManager::sendEvent(id, event);
 }
 
+extern "C" void vcs_Qt_window_put_qimage_by_id(int id, QImage *qImage)
+{
+  QVCSEvent *event = new QVCSEvent(VCS_PUT_QIMAGE_EVENT, true);
+  event->data = (void*)qImage;
+  VCSQtManager::sendEvent(id, event);
+}
+
 extern "C" void vcs_Qt_put_image_from_png_file(int id, char *fnm) {
     void *image;
     fprintf(stderr,"ok we received id and file: %i, %s\n",id,fnm);
-    QImage img0(fnm);
-    fprintf(stderr,"ok readin :%i \n",img0.format());
-    QImage img = img0.convertToFormat(QImage::Format_ARGB32_Premultiplied);
-    fprintf(stderr,"ok converted to: %i\n",img.format());
-    QSize sz = img.size();
-    fprintf(stderr,"Size is: %ix%i\n",sz.width(),sz.height());
-    image = malloc(sz.width()*sz.height()*4);
-    memcpy(image,img.bits(),sz.width()*sz.height()*4);
-    vcs_Qt_window_put_image_by_id(id,image);
+    vcs_Qt_window_put_qimage_by_id(id, new QImage(fnm));
+    // QImage img0(fnm);
+    // fprintf(stderr,"ok readin :%i \n",img0.format());
+    // QImage img = img0.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+    // fprintf(stderr,"ok converted to: %i\n",img.format());
+    // QSize sz = img.size();
+    // fprintf(stderr,"Size is: %ix%i\n",sz.width(),sz.height());
+    // image = malloc(sz.width()*sz.height()*4);
+    // memcpy(image,img.bits(),sz.width()*sz.height()*4);
+    // vcs_Qt_window_put_image_by_id(id,image);
 }
 
 extern "C" void vcs_Qt_image_create(void **image, int width, int height)
