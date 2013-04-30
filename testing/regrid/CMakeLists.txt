@@ -1,8 +1,12 @@
 
 # regridding tests added by Alex Pletzer, Tech-X, pletzer@txcorp.com
 
-if (EXISTS "${CMAKE_INSTALL_PREFIX}/bin/mpiexec") 
+add_test("test177_regrid_mask"
+         ${CMAKE_INSTALL_PREFIX}/bin/python 
+         ${cdat_SOURCE_DIR}/testing/regrid/test177_regrid_mask.py)
 
+if (EXISTS "${CMAKE_INSTALL_PREFIX}/bin/mpiexec") 
+         
 add_test("testMPIGrid"
          "${CMAKE_INSTALL_PREFIX}/bin/mpiexec" "-n" "1"
           ${CMAKE_INSTALL_PREFIX}/bin/python

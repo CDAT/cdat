@@ -428,8 +428,13 @@ coordMin = %7.2f, boundMin = %7.2f, coordMax = %7.2f, boundMax = %7.2f
         else:
             dstData *= 0.0
 
+        # sometimes the masked values are not set to missing_values,
+        # sorry for the extra copy
+        srcData = srcVar.data*(1 - srcVar.mask)
+        srcData += srcVar.mask * missingValue
+
         # interpolate the data, MPI gather on processor 0
-        self.regridObj.apply(srcVar.data, dstData,
+        self.regridObj.apply(srcData, dstData,
                              rootPe = 0,
                              missingValue = missingValue,
                              **args)
