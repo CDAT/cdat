@@ -8991,6 +8991,12 @@ class animate_obj(animate_obj_old):
         #self.runner()
         self.runthread = thread.start_new_thread(self.runner,())
 
+    def draw(self, frame):
+        self.vcs_self.clear()
+        self.vcs_self.canvas.put_png_on_canvas(self.animation_files[frame],
+                                               self.zoom_factor,self.vertical_factor,self.horizontal_factor)
+        
+
     def number_of_frames(self):
         return len(self.animation_files)
 
