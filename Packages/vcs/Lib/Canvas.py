@@ -9003,6 +9003,12 @@ class animate_obj(animate_obj_old):
 
     def zoom(self,value):
         self.zoom_factor = value
+    def horizontal(self,value):
+        self.horizontal_factor = value
+
+    def vertical(self,value):
+        self.vertical_factor = value
+
     
 ############################################################################
 #        END OF FILE                                                       #

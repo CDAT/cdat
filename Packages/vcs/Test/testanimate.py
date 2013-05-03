@@ -57,13 +57,16 @@ if support.dogui:
     #raw_input("press enter")
     x.animate.create()
     x.animate.run()
-    #x.animate.zoom(3)
-    #x.animate.horizontal(50)
-    #x.animate.vertical(-50)
+    import time
+    time.sleep(2)
+    x.animate.zoom(1.4)
+    time.sleep(2)
+    x.animate.horizontal(50)
+    x.animate.vertical(-50)
     import time
     time.sleep(3)
 #    x.animate.gui()
-    x.animate.pause(4)
+    x.animate.pause(1)
     import time
     time.sleep(9)
     x.animate.stop()
