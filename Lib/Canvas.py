@@ -8974,7 +8974,6 @@ class animate_obj(animate_obj_old):
                     args.append(I[1][1](**kw))
                 args += [d.template,d.g_type,d.g_name]
                 y.plot(*args,bg=1)    
-            fn = "%.4i" % i
             fn = tempfile.mkstemp(suffix=".png")[1]
             self.animation_files.append(fn)
             y.png(fn)
@@ -8985,7 +8984,6 @@ class animate_obj(animate_obj_old):
             for fn in self.animation_files:
                 if not self.runit:
                     break
-                print "Opening: ",fn,self.zoom_factor, self.vertical_factor,self.horizontal_factor
                 self.vcs_self.canvas.put_png_on_canvas(fn,self.zoom_factor,self.vertical_factor,self.horizontal_factor)
                 import time
                 time.sleep(self.pause_value)
