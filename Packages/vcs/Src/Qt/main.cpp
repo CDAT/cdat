@@ -190,10 +190,8 @@ extern "C" void vcs_Qt_put_image_from_png_file(int id, float zoom, int vert, int
     QImage img0(fnm);
     QImage img = img0.convertToFormat(QImage::Format_ARGB32_Premultiplied);
     QSize sz = img.size();
-    fprintf(stderr,"Size is: %ix%i\n",sz.width(),sz.height());
     img = img.scaledToHeight(zoom*sz.height());
     QSize sz2 = img.size();
-    fprintf(stderr, "Ok now scaled img: %ix%i\n",sz2.width(),sz2.height());
     int x1 = ((zoom -1)/2.+float(horiz)/100.)*sz.width();
     int y1 = ((zoom-1)/2.+float(vert)/100.)*sz.height();
     if (x1<0) x1=0;
@@ -201,7 +199,6 @@ extern "C" void vcs_Qt_put_image_from_png_file(int id, float zoom, int vert, int
     if (x1>sz2.width()-sz.width()) x1=sz2.width()-sz.width();
     if (y1>sz2.height()-sz.height()) y1=sz2.height()-sz.height();
 
-    fprintf(stderr,"copying from: (%i,%i)\n",x1,y1);
     QImage *img2 = new QImage(img.copy(x1,y1,sz.width(),sz.height()));
     sz2 = img2->size();
     vcs_Qt_window_put_qimage_by_id(id, img2);
