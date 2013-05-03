@@ -174,8 +174,6 @@ extern "C" void vcs_Qt_window_get_image_by_id(int id, void **ximage)
 extern "C" void vcs_Qt_window_put_image_by_id(int id, void *ximage)
 {
   QVCSEvent *event = new QVCSEvent(VCS_PUT_IMAGE_EVENT, true);
-  fprintf(stderr,"Yeah got in created event, id is: %i\n",id);
-  fprintf(stderr,"data are at: %p\n",ximage);
   event->data = ximage;
   VCSQtManager::sendEvent(id, event);
 }
@@ -184,29 +182,28 @@ extern "C" void vcs_Qt_window_put_qimage_by_id(int id, QImage *qImage)
 {
   QVCSEvent *event = new QVCSEvent(VCS_PUT_QIMAGE_EVENT, true);
   QSize sz = qImage->size();
-  fprintf(stderr,"ok received evt img: %ix%i\n",sz.width(),sz.height());
   event->data = (void*)qImage;
   VCSQtManager::sendEvent(id, event);
 }
 
-extern "C" void vcs_Qt_put_image_from_png_file(int id, char *fnm, float zoom, int vert, int horiz) {
-    fprintf(stderr,"ok we received id and file: %i, %s, %f, %i, %i\n",id,fnm,zoom,vert,horiz);
-    zoom = 2;
+extern "C" void vcs_Qt_put_image_from_png_file(int id, float zoom, int vert, int horiz, char *fnm) {
     QImage img0(fnm);
-    fprintf(stderr,"ok readin :%i \n",img0.format());
     QImage img = img0.convertToFormat(QImage::Format_ARGB32_Premultiplied);
-    fprintf(stderr,"ok converted to: %i\n",img.format());
     QSize sz = img.size();
     fprintf(stderr,"Size is: %ix%i\n",sz.width(),sz.height());
     img = img.scaledToHeight(zoom*sz.height());
     QSize sz2 = img.size();
     fprintf(stderr, "Ok now scaled img: %ix%i\n",sz2.width(),sz2.height());
-    QImage *img2 = new QImage(img.copy((zoom-1)/2.*sz.width()*(1.+float(horiz)/100.),
-                   (zoom-1)/2.*sz.height()*(1.+float(vert)/100.),
-                   sz.width(),
-                   sz.height()));
+    int x1 = ((zoom -1)/2.+float(horiz)/100.)*sz.width();
+    int y1 = ((zoom-1)/2.+float(vert)/100.)*sz.height();
+    if (x1<0) x1=0;
+    if (y1<0) y1=0;
+    if (x1>sz2.width()-sz.width()) x1=sz2.width()-sz.width();
+    if (y1>sz2.height()-sz.height()) y1=sz2.height()-sz.height();
+
+    fprintf(stderr,"copying from: (%i,%i)\n",x1,y1);
+    QImage *img2 = new QImage(img.copy(x1,y1,sz.width(),sz.height()));
     sz2 = img2->size();
-    fprintf(stderr, "Ok now sending img: %ix%i\n",sz2.width(),sz2.height());
     vcs_Qt_window_put_qimage_by_id(id, img2);
 }
 
