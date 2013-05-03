@@ -8975,6 +8975,7 @@ class animate_obj(animate_obj_old):
                 args += [d.template,d.g_type,d.g_name]
                 y.plot(*args,bg=1)    
             fn = "%.4i" % i
+            fn = tempfile.mkstemp(suffix=".png")[1]
             self.animation_files.append(fn)
             y.png(fn)
 
