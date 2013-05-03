@@ -187,19 +187,25 @@ extern "C" void vcs_Qt_window_put_qimage_by_id(int id, QImage *qImage)
   VCSQtManager::sendEvent(id, event);
 }
 
-extern "C" void vcs_Qt_put_image_from_png_file(int id, char *fnm) {
-    void *image;
-    fprintf(stderr,"ok we received id and file: %i, %s\n",id,fnm);
-    vcs_Qt_window_put_qimage_by_id(id, new QImage(fnm));
-    // QImage img0(fnm);
-    // fprintf(stderr,"ok readin :%i \n",img0.format());
-    // QImage img = img0.convertToFormat(QImage::Format_ARGB32_Premultiplied);
-    // fprintf(stderr,"ok converted to: %i\n",img.format());
-    // QSize sz = img.size();
-    // fprintf(stderr,"Size is: %ix%i\n",sz.width(),sz.height());
-    // image = malloc(sz.width()*sz.height()*4);
-    // memcpy(image,img.bits(),sz.width()*sz.height()*4);
-    // vcs_Qt_window_put_image_by_id(id,image);
+extern "C" void vcs_Qt_put_image_from_png_file(int id, char *fnm, float zoom, int vert, int horiz) {
+    fprintf(stderr,"ok we received id and file: %i, %s, %f, %i, %i\n",id,fnm,zoom,vert,horiz);
+    zoom = 2;
+    QImage img0(fnm);
+    fprintf(stderr,"ok readin :%i \n",img0.format());
+    QImage img = img0.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+    fprintf(stderr,"ok converted to: %i\n",img.format());
+    QSize sz = img.size();
+    fprintf(stderr,"Size is: %ix%i\n",sz.width(),sz.height());
+    img = img.scaledToHeight(zoom*sz.height());
+    sz = img.size();
+    fprintf(stderr, "Ok now scaled img: %ix%i\n",sz.width(),sz.height());
+    img = img.copy((zoom-1)/2.*sz.width()*(1.+float(horiz)/100.),
+                   (zoom-1)/2.*sz.height()*(1.+float(vert)/100.),
+                   sz.width(),
+                   sz.height());
+    sz = img.size();
+    fprintf(stderr, "Ok now sending img: %ix%i\n",sz.width(),sz.height());
+    vcs_Qt_window_put_qimage_by_id(id, &img);
 }
 
 extern "C" void vcs_Qt_image_create(void **image, int width, int height)

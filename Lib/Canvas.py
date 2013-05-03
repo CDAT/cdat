@@ -8452,6 +8452,7 @@ class animate_obj_old:
                maxv.append( -1.0e77 )
             for i in range(len(self.vcs_self.animate_info)):
                dpy, slab = self.vcs_self.animate_info[i]
+               print "slab:",slab
                mins, maxs = minmax(slab)
                minv[i] = float(minimum(float(minv[i]), float(mins)))
                maxv[i] = float(maximum(float(maxv[i]), float(maxs)))
@@ -8920,13 +8921,13 @@ class animate_obj_old:
          return a
 
 class animate_obj(animate_obj_old):
-    ## def __init__(self, vcs_self):
-    ##   self.vcs_self = vcs_self
-    ##   self.gui_popup = 0
-    ##   self.create_flg = 0
-    ##   self.run_flg = 0
-    ##   self.continents_value = 0
-    ##   self.continents_hold_value = 1
+    def __init__(self, vcs_self):
+        animate_obj_old.__init__(self,vcs_self)
+        self.pause_value = .1
+        self.zoom_factor = 1.
+        self.vertical_factor = 0
+        self.horizontal_factor = 0
+
     def create( self, parent=None, min=None, max=None, save_file=None, thread_it = 1, rate=5., bitrate=None, ffmpegoptions='', axis=0):
         alen = None
         y=vcs.init()
@@ -8977,18 +8978,32 @@ class animate_obj(animate_obj_old):
             self.animation_files.append(fn)
             y.png(fn)
 
+    def runner(self):
+        self.runit = True
+        while self.runit:
+            for fn in self.animation_files:
+                if not self.runit:
+                    break
+                print "Opening: ",fn,self.zoom_factor, self.vertical_factor,self.horizontal_factor
+                self.vcs_self.canvas.put_png_on_canvas(fn,self.zoom_factor,self.vertical_factor,self.horizontal_factor)
+                import time
+                time.sleep(self.pause_value)
     def run(self,*args):
-        for fn in self.animation_files:
-            print "Opening: %s" % fn
-            self.vcs_self.canvas.put_png_on_canvas(fn)
-            import time
-            time.sleep(0.015)
+        #self.runner()
+        self.runthread = thread.start_new_thread(self.runner,())
 
     def number_of_frames(self):
         return len(self.animation_files)
 
-        
-        
+    def stop(self):
+        print "Stopping"
+        self.runit = False
+    def pause(self,value):
+        self.pause_value = value
+
+    def zoom(self,value):
+        self.zoom_factor = value
+    
 ############################################################################
 #        END OF FILE                                                       #
 ############################################################################

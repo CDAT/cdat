@@ -20291,11 +20291,14 @@ PyVCS_animate_run(PyVCScanvas_Object *self, PyObject *args)
 static PyObject *
 PyVCS_put_png(PyVCScanvas_Object *self, PyObject *args) {
     char *fnm;
+    float zoom;
+    int vert,horiz;
+
 #ifdef QTWM
     //vcs_Qt_open_window_by_id(self->connect_id.wkst_id);
-    if (PyArg_ParseTuple(args,"s",&fnm)) { 
-        printf("ok loading in file: %s\n",fnm);
-       vcs_Qt_put_image_from_png_file(self->connect_id.wkst_id, fnm);
+    if (PyArg_ParseTuple(args,"sfii",&fnm,&zoom,&vert,&horiz)) { 
+        printf("ok loading in file: %s, %f, %i, %i\n",fnm,zoom,vert,horiz);
+       vcs_Qt_put_image_from_png_file(self->connect_id.wkst_id, fnm, zoom, vert, horiz);
     }
 #endif
     return Py_None;
