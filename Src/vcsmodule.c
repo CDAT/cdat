@@ -20299,7 +20299,6 @@ PyVCS_put_png(PyVCScanvas_Object *self, PyObject *args) {
 
     //vcs_Qt_open_window_by_id(self->connect_id.wkst_id);
     if (PyArg_ParseTuple(args,"sfii",&fnm,&zoom,&vert,&horiz)) { 
-        printf("ok loading in file: %s, %f, %i, %i\n",fnm,zoom,vert,horiz);
        vcs_Qt_put_image_from_png_file(self->connect_id.wkst_id, zoom, vert, horiz, fnm);
     }
 #endif
