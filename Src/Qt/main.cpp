@@ -183,6 +183,8 @@ extern "C" void vcs_Qt_window_put_image_by_id(int id, void *ximage)
 extern "C" void vcs_Qt_window_put_qimage_by_id(int id, QImage *qImage)
 {
   QVCSEvent *event = new QVCSEvent(VCS_PUT_QIMAGE_EVENT, true);
+  QSize sz = qImage->size();
+  fprintf(stderr,"ok received evt img: %ix%i\n",sz.width(),sz.height());
   event->data = (void*)qImage;
   VCSQtManager::sendEvent(id, event);
 }
@@ -197,15 +199,15 @@ extern "C" void vcs_Qt_put_image_from_png_file(int id, char *fnm, float zoom, in
     QSize sz = img.size();
     fprintf(stderr,"Size is: %ix%i\n",sz.width(),sz.height());
     img = img.scaledToHeight(zoom*sz.height());
-    sz = img.size();
-    fprintf(stderr, "Ok now scaled img: %ix%i\n",sz.width(),sz.height());
-    img = img.copy((zoom-1)/2.*sz.width()*(1.+float(horiz)/100.),
+    QSize sz2 = img.size();
+    fprintf(stderr, "Ok now scaled img: %ix%i\n",sz2.width(),sz2.height());
+    QImage *img2 = new QImage(img.copy((zoom-1)/2.*sz.width()*(1.+float(horiz)/100.),
                    (zoom-1)/2.*sz.height()*(1.+float(vert)/100.),
                    sz.width(),
-                   sz.height());
-    sz = img.size();
-    fprintf(stderr, "Ok now sending img: %ix%i\n",sz.width(),sz.height());
-    vcs_Qt_window_put_qimage_by_id(id, &img);
+                   sz.height()));
+    sz2 = img2->size();
+    fprintf(stderr, "Ok now sending img: %ix%i\n",sz2.width(),sz2.height());
+    vcs_Qt_window_put_qimage_by_id(id, img2);
 }
 
 extern "C" void vcs_Qt_image_create(void **image, int width, int height)
