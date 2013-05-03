@@ -190,7 +190,9 @@ extern "C" void vcs_Qt_put_image_from_png_file(int id, float zoom, int vert, int
     QImage img0(fnm);
     QImage img = img0.convertToFormat(QImage::Format_ARGB32_Premultiplied);
     QSize sz = img.size();
-    img = img.scaledToHeight(zoom*sz.height());
+    if (zoom != 1.) {
+        img = img.scaledToHeight(zoom*sz.height());
+    }
     QSize sz2 = img.size();
     int x1 = ((zoom -1)/2.+float(horiz)/100.)*sz.width();
     int y1 = ((zoom-1)/2.+float(vert)/100.)*sz.height();
