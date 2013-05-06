@@ -1245,10 +1245,11 @@ class Seasons(ASeason):
         t=slab.getTime()
         u = t.units
         if u.split()[0][:5].lower()=="month":
-            slab.__saved_time__=t.units
             tc=cdtime.reltime(t[0],u).tocomp(t.getCalendar())
+            tc2=cdtime.reltime(t[-1],u).tocomp(t.getCalendar())
             relyear = int(u.split()[2].split("-")[0])
-            if tc.cmp(cdtime.comptime(relyear))<1:
+            if tc.cmp(cdtime.comptime(relyear))<1 and tc2.cmp(cdtime.comptime(relyear))>-1:
+                slab.__saved_time__=t.units
                 t.toRelativeTime("months since %i" % (relyear - len(t)/10))
         return u
 
@@ -1256,9 +1257,9 @@ class Seasons(ASeason):
            t = getattr(slab,"__saved_time__",None)
            if t is not None:
                T=slab.getTime()
-               T.toRelativeTime(t)
+               T.toRelativeTime(t,T.getCalendar())
                T=merged.getTime()
-               T.toRelativeTime(t)
+               T.toRelativeTime(t,T.getCalendar())
                del(slab.__saved_time__)
 
     def get(self,slab,slicerarg=None,criteriaarg=None,statusbar=None,sum=False):
