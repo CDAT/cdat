@@ -1,1 +1,1 @@
-set(spyder_deps ${sphinx_pkg} ${pyqt_pkg})
+set(spyder_deps ${pyzmq_pkg} ${pyqt_pkg})

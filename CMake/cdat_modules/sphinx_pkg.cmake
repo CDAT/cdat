@@ -1,6 +1,6 @@
 set(SPHINX_MAJOR_SRC 1)
-set(SPHINX_MINOR_SRC 1)
-set(SPHINX_PATCH_SRC 3)
+set(SPHINX_MINOR_SRC 2)
+set(SPHINX_PATCH_SRC b1)
 
 set (nm SPHINX)
 string(TOUPPER ${nm} uc_nm)

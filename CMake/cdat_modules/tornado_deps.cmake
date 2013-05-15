@@ -1,1 +1,1 @@
-set(tornado_deps ${pyzmq_pkg} ${setuptools_pkg})
+set(tornado_deps ${spyder_pkg} ${pyzmq_deps} ${pip_pkg})

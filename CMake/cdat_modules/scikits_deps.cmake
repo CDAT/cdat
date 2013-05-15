@@ -1,1 +1,1 @@
-set(scikits_deps ${setuptools_pkg} ${scipy_pkg})
+set(scikits_deps ${pip_pkg} ${scipy_pkg})

@@ -1,1 +1,1 @@
-set(lxml_deps ${cython_pkg} ${setuptools_pkg})
+set(lxml_deps ${cython_pkg} ${pip_pkg})
