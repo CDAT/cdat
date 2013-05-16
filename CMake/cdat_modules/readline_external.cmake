@@ -2,6 +2,7 @@ set(readline_source "${CMAKE_CURRENT_BINARY_DIR}/build/readline")
 set(readline_install "${cdat_EXTERNALS}")
 set(readline_conf_args)
 
+set(readline_conf_args "--with-curses")
 # with -fPIC
 IF(UNIX AND NOT WIN32)
   FIND_PROGRAM(CMAKE_UNAME uname /bin /usr/bin /usr/local/bin )
@@ -10,7 +11,7 @@ IF(UNIX AND NOT WIN32)
     SET(CMAKE_SYSTEM_PROCESSOR ${CMAKE_SYSTEM_PROCESSOR} CACHE INTERNAL
 "processor type (i386 and x86_64)")
     IF(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
-      set(readline_conf_args "--with-curses CFLAGS=-fPIC")
+      set(readline_conf_args "CFLAGS=-fPIC" ${readline_conf_args})
     ENDIF(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
   ENDIF(CMAKE_UNAME)
 ENDIF(UNIX AND NOT WIN32)
