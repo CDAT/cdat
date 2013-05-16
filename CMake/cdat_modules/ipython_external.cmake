@@ -4,7 +4,7 @@ ExternalProject_Add(IPYTHON
   BUILD_IN_SOURCE 1
   CONFIGURE_COMMAND ""
   BUILD_COMMAND  ""
-  INSTALL_COMMAND  ${PIP_BINARY} install ipython==${IPYTHON_VERSION}
+  INSTALL_COMMAND  ${EGG_CMD} ipython==${IPYTHON_VERSION}
   DEPENDS ${IPYTHON_deps}
   ${ep_log_options}
   )

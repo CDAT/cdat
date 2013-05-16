@@ -8,7 +8,7 @@ ExternalProject_Add(Sphinx
   BUILD_IN_SOURCE 1
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
-  INSTALL_COMMAND ${PIP_BINARY} install Sphinx==${SPHINX_VERSION}
+  INSTALL_COMMAND ${EGG_CMD} Sphinx==${SPHINX_VERSION}
   DEPENDS ${Sphinx_deps}
   ${ep_log_options}
   )

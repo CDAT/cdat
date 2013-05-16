@@ -9,7 +9,7 @@ ExternalProject_Add(MyProxyClient
   BUILD_IN_SOURCE 1
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
-  INSTALL_COMMAND ${PIP_BINARY} install MyProxyClient==${MYPROXYCLIENT_VERSION}
+  INSTALL_COMMAND ${EGG_CMD} MyProxyClient==${MYPROXYCLIENT_VERSION}
   DEPENDS ${MyProxyClient_deps}
   ${ep_log_options}
   )

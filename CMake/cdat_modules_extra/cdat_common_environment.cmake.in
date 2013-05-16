@@ -1,4 +1,3 @@
-
 set(ENV{PATH} "@cdat_EXTERNALS@/bin:$ENV{PATH}")
 set(ENV{@LIBRARY_PATH@} "@CMAKE_INSTALL_PREFIX@/lib:@cdat_EXTERNALS@/lib:@cdat_EXTERNALS@/lib/paraview-@PARAVIEW_MAJOR@.@PARAVIEW_MINOR@:$ENV{@LIBRARY_PATH@} @cdat_osx_ld_flags@")
 set(ENV{LDFLAGS} "-L@cdat_EXTERNALS@/lib @cdat_external_link_directories@ @cdat_rpath_flag@@CMAKE_INSTALL_PREFIX@/lib @cdat_rpath_flag@@cdat_EXTERNALS@/lib")
@@ -20,4 +19,14 @@ if(APPLE)
 endif()
 
 set(ENV{EXTERNALS} "@cdat_EXTERNALS@")
+message("PIP CERET:",${PIP_CERTIFICATE})
+
+if ("@EGG_INSTALLER@" STREQUAL "PIP")
+    set(EGG_CMD env @LIBRARY_PATH@=$ENV{@LIBRARY_PATH@} @PIP_BINARY@ install )
+    if (NOT "${PIP_CERTIFICATE}" STREQUAL "")
+        set(EGG_CMD ${EGG_CMD} --cert=${PIP_CERTIFICATE})
+    endif()
+else()
+    set(EGG_CMD env @LD_LIBRARY_PATH@=$ENV{@LIBRARY_PATH@} @EASY_INSTALL_BINARY@ )
+endif()
 

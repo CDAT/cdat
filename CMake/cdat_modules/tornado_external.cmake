@@ -9,7 +9,7 @@ ExternalProject_Add(tornado
   BUILD_IN_SOURCE 1
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
-  INSTALL_COMMAND ${PIP_BINARY} install tornado==${TORNADO_VERSION}
+  INSTALL_COMMAND ${EGG_CMD} tornado==${TORNADO_VERSION}
   DEPENDS ${tornado_deps}
   ${ep_log_options}
   )

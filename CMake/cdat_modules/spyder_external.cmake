@@ -9,7 +9,7 @@ ExternalProject_Add(spyder
   BUILD_IN_SOURCE 1
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
-  INSTALL_COMMAND ${PIP_BINARY} install spyder==${SPYDER_VERSION}
+  INSTALL_COMMAND ${EGG_CMD} spyder==${SPYDER_VERSION}
   DEPENDS ${spyder_deps}
   ${ep_log_options}
   )
