@@ -77,3 +77,5 @@ if support.dogui:
 #    x.animate.close()
 else:
     print 'You need to run this one by hand (turn support.dogui to True first)'
+
+raw_input()

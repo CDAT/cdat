@@ -8976,8 +8976,13 @@ class animate_obj(animate_obj_old):
                 y.plot(*args,bg=1)    
             fn = tempfile.mkstemp(suffix=".png")[1]
             self.animation_files.append(fn)
+            dims = self.vcs_self.canvasinfo()
+            if dims['height']<500:
+                factor = 2
+            else:
+                factor=1
+            y.setbgoutputdimensions(width = dims['width']*factor,height=dims['height']*factor,units='pixel')
             y.png(fn)
-
     def runner(self):
         self.runit = True
         while self.runit:
