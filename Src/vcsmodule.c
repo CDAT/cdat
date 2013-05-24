@@ -17781,7 +17781,7 @@ an_loop:
            }
 	   if (doing_animation==1) {
 	     self->background = animbg;
-	     fprintf("ok we set animbg and bg to: %s, %s\n",animbg,self->background);
+	     fprintf(stderr,"ok we set animbg and bg to: %s, %s\n",animbg,self->background);
 	     sleep(6);
 	   }
            if (hold == Py_None)
@@ -18067,6 +18067,7 @@ heartbeat("Slab2 name set to %s", s_name[0]);
 	  store_display_name(self->connect_id, d_name);
           heartbeat("VCS_plot progress report after store d_name %s", d_name)
         } else {
+            fprintf(stderr,"Ok cgm wkst\n");
           Wkst[0].id = 2; /* cgm workstation */
 	}
 
@@ -18106,6 +18107,7 @@ heartbeat("Slab2 name set to %s", s_name[0]);
          */
 	  
         /* Display the plot on the VCS Canvas */
+            fprintf(stderr,"ok orientation is: %i\n",self->orientation);
         if (self->orientation == 0 ) /* Set the page orientation before plotting */
            strcpy(Page.page_orient,"landscape");
         else
@@ -18144,7 +18146,7 @@ heartbeat("Slab2 name set to %s", s_name[0]);
         }
 /* 	fprintf(stderr,"ok this is where i want to update for now\n"); */
 #elif defined (QTWM)
-	/* vcs_Qt_repaint_window_by_id(self->connect_id.wkst_id); */
+	vcs_Qt_repaint_window_by_id(self->connect_id.wkst_id); 
 
 #else
 	printf("insert here your WM sync and flush functions\n");
@@ -18935,6 +18937,7 @@ PyVCS_setbgoutputdimensions(PyVCScanvas_Object *self, PyObject *args)
 	   PyErr_SetString(PyExc_TypeError, "Must provide a width and a height");
 	   return NULL;
 	}
+        printf("Replacing values (%i,%i) with (%i,%i)",XW,YW,W,H);
 	XW=W;
 	YW=H;
 	/* Return NULL Python Object */
@@ -20802,6 +20805,7 @@ PyVCS_portrait(PyVCScanvas_Object *self, PyObject *args)
         PyObject * 			 PyVCS_clear(PyVCScanvas_Object *self, PyObject *args);
 
         /* Check to see if vcs has been initalized */
+        fprintf(stderr,"OK we actually get here %i, %p\n",self->orientation,self);
         if (self == NULL) {
            PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs.init()).");
            return NULL;
@@ -20886,9 +20890,17 @@ PyVCS_portrait(PyVCScanvas_Object *self, PyObject *args)
 static PyObject *
 PyVCS_return_orientation(PyVCScanvas_Object *self, PyObject *args)
 {
-        extern struct orientation       Page;
+    /* Bellow seems to pick up only canvas 0 */
+  /*      extern struct orientation       Page;
 
   	return Py_BuildValue("s", Page.page_orient);
+*/
+if (self->orientation==0) {
+    return Py_BuildValue("s","landscape");
+}
+else {
+    return Py_BuildValue("s","portrait");
+}
 }
 
 /* Update VCS's page orientation. */
