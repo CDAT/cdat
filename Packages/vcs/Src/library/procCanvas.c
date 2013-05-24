@@ -136,6 +136,7 @@ int procCanvas(char *str, Gconid_X_drawable **connect_id_in, int canvas_id, doub
 	  {
 	   if (connect_id->display == NULL)
 	       connect_id->display=XOpenDisplay(NULL);
+           fprintf(stderr,"YAHOOO! %i, %f\n",connect_id,ratio);
 	   config_canvas(w->id, connect_id, canvas_id,Page.page_orient,gui,ratio);
 	  }
 #endif
