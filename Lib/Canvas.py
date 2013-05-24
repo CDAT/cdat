@@ -6499,6 +6499,7 @@ Options:::
     a.portrait(x=100, y = 200) # Change to portrait and set the x and y screen position
     a.portrait(width = 337, height = 400, x=100, y = 200, clear=1) # Chagne to portrait and give specifications
 """ 
+        print "Portrait is: ",self.orientation()
         if (self.orientation() == 'portrait'): return
 
         if ( ((not isinstance(width, IntType))) or ((not isinstance(height, IntType))) or
@@ -6607,6 +6608,7 @@ Options:::
         H = int(height*dpi*sfactor)
 
         # if portrait then switch
+        print "ISPORTRAIT:",self.isportrait()
         if self.isportrait() and W>H:
             tmp = W
             W= H
@@ -8931,6 +8933,18 @@ class animate_obj(animate_obj_old):
     def create( self, parent=None, min=None, max=None, save_file=None, thread_it = 1, rate=5., bitrate=None, ffmpegoptions='', axis=0):
         alen = None
         y=vcs.init()
+        print "after creating y is:",y.isportrait()
+        dims = self.vcs_self.canvasinfo()
+        print "Dims:",dims
+        if dims['height']<500:
+            factor = 2
+        else:
+            factor=1
+        print "Setting bg dims to: %ix%i" % (dims["width"],dims["height"])
+        if dims["width"]<dims["height"]:
+            print "ok trying to switch to portrait!!!"
+            y.portrait(width=dims["width"],height=dims["height"])
+        y.setbgoutputdimensions(width = dims['width']*factor,height=dims['height']*factor,units='pixel')
         truncated = False
         print len(self.vcs_self.animate_info)
         for I in self.vcs_self.animate_info:
@@ -8976,13 +8990,8 @@ class animate_obj(animate_obj_old):
                 y.plot(*args,bg=1)    
             fn = tempfile.mkstemp(suffix=".png")[1]
             self.animation_files.append(fn)
-            dims = self.vcs_self.canvasinfo()
-            if dims['height']<500:
-                factor = 2
-            else:
-                factor=1
-            y.setbgoutputdimensions(width = dims['width']*factor,height=dims['height']*factor,units='pixel')
             y.png(fn)
+            y.png("sample")
     def runner(self):
         self.runit = True
         while self.runit:
