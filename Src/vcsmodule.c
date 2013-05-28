@@ -18067,7 +18067,6 @@ heartbeat("Slab2 name set to %s", s_name[0]);
 	  store_display_name(self->connect_id, d_name);
           heartbeat("VCS_plot progress report after store d_name %s", d_name)
         } else {
-            fprintf(stderr,"Ok cgm wkst\n");
           Wkst[0].id = 2; /* cgm workstation */
 	}
 
@@ -18107,7 +18106,6 @@ heartbeat("Slab2 name set to %s", s_name[0]);
          */
 	  
         /* Display the plot on the VCS Canvas */
-            fprintf(stderr,"ok orientation is: %i\n",self->orientation);
         if (self->orientation == 0 ) /* Set the page orientation before plotting */
            strcpy(Page.page_orient,"landscape");
         else
