@@ -9010,6 +9010,11 @@ class animate_obj(animate_obj_old):
         self.vcs_self.canvas.put_png_on_canvas(self.animation_files[frame],
                                                self.zoom_factor,self.vertical_factor,self.horizontal_factor)
         
+    def frame(self, frame):
+        self.draw(frame)
+
+    def save(self,movie,bitrate=1024, rate=None, options=''):
+        self.vcs_self.ffmpeg(movie, self.animation_files, bitrate, rate, options)
 
     def number_of_frames(self):
         return len(self.animation_files)
