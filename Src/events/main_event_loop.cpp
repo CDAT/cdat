@@ -1089,7 +1089,7 @@ void event_handler(PyVCScanvas_Object *self,  QEvent *event)
     /*     } /\* BLOCK *\/ */
     
   } /* if */
-  Py_XDECREF(update_args);
+  //Py_XDECREF(update_args);
 }
  
 extern "C" PyObject *
