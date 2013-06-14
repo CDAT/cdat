@@ -130,11 +130,11 @@ endif()
 
 if(GIT_PROTOCOL MATCHES "http://")
   execute_process(
-    COMMAND ${GIT_EXECUTABLE} config --unset url.git://github.com/ajdawson/eof2.git.insteadof http://github.com/ajdawson/eof2.git
+    COMMAND ${GIT_EXECUTABLE} config url.http://github.com/ajdawson/eof2.git.insteadof git://github.com/ajdawson/eof2.git
     WORKING_DIRECTORY ${cdat_SOURCE_DIR}
   )
   execute_process(
-    COMMAND ${GIT_EXECUTABLE} config --unset url.git://github.com/ajdawson/eofs.git.insteadof http://github.com/ajdawson/eofs.git
+    COMMAND ${GIT_EXECUTABLE} config url.http://github.com/ajdawson/eofs.git.insteadof git://github.com/ajdawson/eofs.git
     WORKING_DIRECTORY ${cdat_SOURCE_DIR}
  )
   execute_process(
@@ -142,34 +142,34 @@ if(GIT_PROTOCOL MATCHES "http://")
     WORKING_DIRECTORY ${cdat_SOURCE_DIR}
   )
   execute_process(
-      COMMAND ${GIT_EXECUTABLE} config --unset url.git://github.com/UV-CDAT/scimake.git.insteadof http://github.com/UV-CDAT/scimake.git
+      COMMAND ${GIT_EXECUTABLE} config url.http://github.com/UV-CDAT/scimake.git.insteadof git://github.com/UV-CDAT/scimake.git
     WORKING_DIRECTORY ${cdat_SOURCE_DIR}
     )
   execute_process(
-    COMMAND ${GIT_EXECUTABLE} config --unset url.git://github.com/ajdawson/windspharm.git.insteadof http://github.com/ajdawson/windspharm.git
+    COMMAND ${GIT_EXECUTABLE} config url.http://github.com/ajdawson/windspharm.git.insteadof git://github.com/ajdawson/windspharm.git
     WORKING_DIRECTORY ${cdat_SOURCE_DIR}
  )
 else()
   execute_process(
-    COMMAND ${GIT_EXECUTABLE} config url.git://github.com/ajdawson/eof2.git.insteadOf http://github.com/ajdawson/eof2.git
+    COMMAND ${GIT_EXECUTABLE} config --unset url.http://github.com/ajdawson/eof2.git.insteadof git://github.com/ajdawson/eof2.git
     WORKING_DIRECTORY ${cdat_SOURCE_DIR}
   )
   execute_process(
-    COMMAND ${GIT_EXECUTABLE} config url.git://github.com/ajdawson/eofs.git.insteadOf http://github.com/ajdawson/eofs.git
+    COMMAND ${GIT_EXECUTABLE} config --unset url.http://github.com/ajdawson/eofs.git.insteadof git://github.com/ajdawson/eofs.git
+    WORKING_DIRECTORY ${cdat_SOURCE_DIR}
+ )
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} config url.git://uv-cdat.llnl.gov/windfield.git.insteadof http://uv-cdat.llnl.gov/git/windfield.git
+    WORKING_DIRECTORY ${cdat_SOURCE_DIR}
+  )
+  execute_process(
+      COMMAND ${GIT_EXECUTABLE} config --unset url.http://github.com/UV-CDAT/scimake.git.insteadof git://github.com/UV-CDAT/scimake.git
     WORKING_DIRECTORY ${cdat_SOURCE_DIR}
     )
   execute_process(
-    COMMAND ${GIT_EXECUTABLE} config url.git://uv-cdat.llnl.gov/windfield.git.insteadOf http://uv-cdat.llnl.gov/git/windfield.git
+    COMMAND ${GIT_EXECUTABLE} config --unset url.http://github.com/ajdawson/windspharm.git.insteadof git://github.com/ajdawson/windspharm.git
     WORKING_DIRECTORY ${cdat_SOURCE_DIR}
-  )
-  execute_process(
-      COMMAND ${GIT_EXECUTABLE} config url.git://github.com/UV-CDAT/scmake.git.insteadOf http://github.com/UV-CDAT/scimake.git
-    WORKING_DIRECTORY ${cdat_SOURCE_DIR}
-  )
-  execute_process(
-    COMMAND ${GIT_EXECUTABLE} config url.git://github.com/ajdawson/windspharm.git.insteadOf http://github.com/ajdawson/windspharm.git
-    WORKING_DIRECTORY ${cdat_SOURCE_DIR}
-  )
+ )
 endif()
 
 # Initialize submodules
