@@ -10,6 +10,7 @@ set(CAIRO_MD5 4a55de6dbbd2d22eee9eea78e6bdbbfd )
 set (nm CAIRO)
 string(TOUPPER ${nm} uc_nm)
 set(${uc_nm}_VERSION ${${nm}_MAJOR}.${${nm}_MINOR}.${${nm}_PATCH})
+set(${uc_nm}_SOURCE ${CAIRO_URL}/${CAIRO_GZ})
 
 add_cdat_package_dependent(Cairo "" "" ON "CDAT_BUILD_GRAPHICS" OFF)
 

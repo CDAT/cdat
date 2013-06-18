@@ -12,5 +12,7 @@ set (nm FT)
 string(TOUPPER ${nm} uc_nm)
 set(${uc_nm}_VERSION ${${nm}_MAJOR_SRC}.${${nm}_MINOR_SRC}.${${nm}_PATCH_SRC})
 set(FREETYPE_VERSION ${FT_VERSION})
+set(FREETYPE_SOURCE ${FT_URL}/${FT_GZ})
+
 
 add_cdat_package_dependent(freetype "" "" ON "CDAT_BUILD_GRAPHICS" OFF)

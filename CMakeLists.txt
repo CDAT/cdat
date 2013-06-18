@@ -202,6 +202,14 @@ endif(CMAKE_Fortran_COMPILER)
 # Set build related properties
 #-----------------------------------------------------------------------------
 set(PARTS_BUILT_INFO "${cdat_BINARY_DIR}/build_info.txt" CACHE STRING "File where to store build infos" FORCE)
+
+## The following is to know if we are prepring for an offline installation
+## ON is the default means we can download as we build
+## PREP means with are using this machine as a proxy to download all needed files in order to move them (somehow) to the OFFLINE machine where build will happen
+## OFF the machine has no internet access all files are suppposed to be here, pre-downloaded
+set(INTERNET_ACCESS "ON" CACHE STRING "Is there internet access, are we preping for it?")
+set_property(CACHE INTERNET_ACCESS PROPERTY STRINGS "ON" "PREP" "OFF")
+
 option(CDAT_BUILD_PARALLEL "Build parallel components of CDAT" ON)
 #OPtion to choose between easy_install and pip (crunchy ssl/man in the middle prevents us to use pip here...
 set(EGG_INSTALLER "PIP" CACHE STRING "Which package installer to use") 
@@ -460,7 +468,7 @@ foreach(package ${external_packages})
 
   if(CDAT_BUILD_${uc_package})
     message("[INFO] Package --- ${package} --- will be built")
-    list(APPEND packages_info "${package} ${${uc_package}_VERSION}\n")
+    list(APPEND packages_info "${package} ${${uc_package}_VERSION} ${${uc_package}_SOURCE} ${${uc_package}_MD5}\n")
     include("${lc_package}_external")
   endif()
 endforeach()

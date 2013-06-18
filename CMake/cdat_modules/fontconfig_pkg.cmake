@@ -12,5 +12,6 @@ set (nm FTCFG)
 string(TOUPPER ${nm} uc_nm)
 set(${uc_nm}_VERSION ${${nm}_MAJOR_SRC}.${${nm}_MINOR_SRC}.${${nm}_PATCH_SRC})
 set(FONTCONFIG_VERSION ${FTCFG_VERSION})
+set(FONTCONFIG_SOURCE ${FTCFG_URL}/${FTCFG_GZ})
 
 add_cdat_package_dependent(fontconfig "" "" ON "CDAT_BUILD_GRAPHICS" OFF)
