@@ -1,0 +1,3 @@
+[updated_packages_versions]: Added distribute, added option to choose between ip and easy_install, added option to use cert for pip
+[updated_packages_versions]: Upgraded Packages to latest version
+1.3.1

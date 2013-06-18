@@ -1,1 +1,1 @@
-set(MyProxyClient_deps  ${setuptools_pkg})
+set(MyProxyClient_deps  ${pip_pkg})

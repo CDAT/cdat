@@ -3,7 +3,7 @@ set(ENV{PKG_CONFIG} @cdat_PKG_CONFIG_EXECUTABLE@)
 
 include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
 
-message(CONGIFURE_ARGS IS ${CONFIGURE_ARGS})
+message(CONFIGURE_ARGS IS ${CONFIGURE_ARGS})
 
 execute_process(
   COMMAND sh configure --prefix=${INSTALL_DIR} ${CONFIGURE_ARGS}

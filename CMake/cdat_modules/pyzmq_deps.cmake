@@ -1,1 +1,1 @@
-set(pyzmq_deps ${spyder_pkg} ${setuptools_pkg})
+set(pyzmq_deps ${sphinx_pkg} ${pip_pkg})

@@ -9,7 +9,7 @@ ExternalProject_Add(lepl
   BUILD_IN_SOURCE 1
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
-  INSTALL_COMMAND ${EASY_INSTALL_BINARY} lepl==${LEPL_VERSION}
+  INSTALL_COMMAND ${EGG_CMD} lepl==${LEPL_VERSION}
   DEPENDS ${lepl_deps}
   ${ep_log_options}
   )
