@@ -12,6 +12,8 @@ set (nm XML)
 string(TOUPPER ${nm} uc_nm)
 set(${uc_nm}_VERSION ${${nm}_MAJOR_SRC}.${${nm}_MINOR_SRC}.${${nm}_PATCH_SRC})
 set(LIBXML2_VERSION ${XML_VERSION})
+set(LIBXML2_SOURCE ${XML_URL}/${XML_GZ} )
+set(LIBXML2_MD5 ${XML_MD5})
 
 add_cdat_package(libXML2 "" "" "")
 

@@ -12,6 +12,8 @@ set (nm XSLT)
 string(TOUPPER ${nm} uc_nm)
 set(${uc_nm}_VERSION ${${nm}_MAJOR_SRC}.${${nm}_MINOR_SRC}.${${nm}_PATCH_SRC})
 set(LIBXSLT_VERSION ${XSLT_VERSION})
+set(LIBXSLT_SOURCE ${XSLT_URL}/${XSLT_GZ})
+set(LIBXSLT_MD5 ${XSLT_MD5})
 
 add_cdat_package(libXSLT "" "" "")
 
