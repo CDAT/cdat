@@ -9,6 +9,8 @@ set(SIP_URL http://www.riverbankcomputing.com/static/Downloads/sip${SIP_MAJOR_SR
 set(SIP_URL ${LLNL_URL})
 set(SIP_GZ sip-${SIP_MAJOR_SRC}.${SIP_MINOR_SRC}.${SIP_PATCH_SRC}.tar.gz)
 set(SIP_MD5 d6493b9f0a7911566545f694327314c4 )
+set(SIP_SOURCE ${SIP_URL}/${SIP_GZ})
+
 
 add_cdat_package_dependent(SIP "" "" ON "CDAT_BUILD_GRAPHICS" OFF)
 

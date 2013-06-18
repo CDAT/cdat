@@ -5,5 +5,10 @@ set(SPHINX_PATCH_SRC b1)
 set (nm SPHINX)
 string(TOUPPER ${nm} uc_nm)
 set(${uc_nm}_VERSION ${${nm}_MAJOR_SRC}.${${nm}_MINOR_SRC}.${${nm}_PATCH_SRC})
+set(SPHINX_URL ${LLNL_URL})
+set(SPHINX_GZ sphinx-${SPHINX_VERSION}.tar.gz)
+set(SPHINX_SOURCE ${SPHINX_URL}/${SPHINX_GZ})
+set(SPHINX_MD5 )
+
 add_cdat_package_dependent(Sphinx "" "" ON "CDAT_BUILD_WO_ESGF" OFF)
 

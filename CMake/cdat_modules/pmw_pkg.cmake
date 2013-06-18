@@ -6,6 +6,8 @@ set(PMW_PATCH_SRC 2)
 set(PMW_URL ${LLNL_URL})
 set(PMW_GZ Pmw.${PMW_MAJOR_SRC}.${PMW_MINOR_SRC}.${PMW_PATCH_SRC}.tar.gz)
 set(PMW_MD5 7f30886fe9885ab3cf85dac6ce1fbda5)
+set(PMW_SOURCE ${PMW_URL}/${PMW_GZ})
+
 
 set (nm PMW)
 string(TOUPPER ${nm} uc_nm)

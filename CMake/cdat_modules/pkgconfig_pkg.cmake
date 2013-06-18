@@ -9,6 +9,7 @@ set(PKG_URL ${LLNL_URL})
 set(PKG_GZ pkg-config-${PKG_MAJOR_SRC}.${PKG_MINOR_SRC}.tar.gz)
 set(PKG_MD5 d922a88782b64441d06547632fd85744)
 set(PKGCONFIG_VERSION ${PKG_VERSION})
+set(PKGCONFIG_SOURCE ${PKG_URL}/${PKG_GZ})
 
 add_cdat_package(pkgconfig "" "" "")
 
