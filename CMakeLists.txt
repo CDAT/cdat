@@ -503,6 +503,11 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/checked_get.sh.in
   @ONLY
 )
 
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/predownload.py.in
+  ${cdat_BINARY_DIR}/predownload.py
+  @ONLY
+)
+
 configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/setup_cdat.sh.in
   ${CMAKE_INSTALL_PREFIX}/bin/setup_cdat.sh
   @ONLY
