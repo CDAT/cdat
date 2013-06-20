@@ -4,7 +4,7 @@ import urllib2
 import os
 
 fileName = "@PARTS_BUILT_INFO@"
-fetched_data = "fetched_for_offline"
+fetched_data = "@cdat_BINARY_DIR@/fetched_for_offline"
 try:
     os.makedirs(fetched_data)
 except:
