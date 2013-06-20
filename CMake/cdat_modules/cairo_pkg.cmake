@@ -9,8 +9,9 @@ set(CAIRO_GZ cairo-${CAIRO_MAJOR_SRC}.${CAIRO_MINOR_SRC}.${CAIRO_PATCH_SRC}.tar.
 set(CAIRO_MD5 4a55de6dbbd2d22eee9eea78e6bdbbfd )
 set (nm CAIRO)
 string(TOUPPER ${nm} uc_nm)
-set(${uc_nm}_VERSION ${${nm}_MAJOR_SRC}.${${nm}_MINOR_SRC}.${${nm}_PATCH_SRC})
-set(${uc_nm}_SOURCE ${CAIRO_URL}/${CAIRO_GZ})
+set(CAIRO_SOURCE ${CAIRO_URL}/${CAIRO_GZ})
 
 add_cdat_package_dependent(Cairo "" "" ON "CDAT_BUILD_GRAPHICS" OFF)
+
+set(CAIRO_VERSION ${CAIRO_MAJOR_SRC}.${CAIRO_MINOR_SRC}.${CAIRO_PATCH_SRC})
 

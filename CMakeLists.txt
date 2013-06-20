@@ -467,7 +467,7 @@ foreach(package ${external_packages})
   string(TOUPPER ${package} uc_package)
 
   if(CDAT_BUILD_${uc_package})
-    message("[INFO] Package --- ${package} --- will be built")
+      message("[INFO] Package --- ${package}/${uc_package}/${${uc_package}_VERSION} --- will be built")
     list(APPEND packages_info "${package} ${${uc_package}_VERSION} ${${uc_package}_SOURCE} ${${uc_package}_MD5}\n")
     include("${lc_package}_external")
   endif()
