@@ -67,7 +67,7 @@ def processFile(name):
             md5b = None
         if url=="N/A":
             continue
-        elif url.find("git://")>-1:
+        elif url.find("git://")>-1 or url.strip()[-4:]==".git":
             if md5 is None:
                 md5 = "master"
             nm  = url.split("/")[-1][:-4]
