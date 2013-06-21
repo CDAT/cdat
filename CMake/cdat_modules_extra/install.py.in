@@ -222,7 +222,7 @@ Failed to find X11 directories. Please see README.txt for instructions.
     sys.path.append(build_dir)
     print >> f,"""
 Version = '%s'
-ping = False
+ping = @CDAT_ANONYMOUS_LOG_FLAG@
 def version():
     return %s
 """ % (Version,str(version))
