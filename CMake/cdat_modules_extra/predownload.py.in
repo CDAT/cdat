@@ -75,7 +75,7 @@ def processFile(name):
             subprocess.Popen(shlex.split(cmd))
         elif url is not None:
             fetch(url,md5)
-        elif url2 is not None:
+        if url2 is not None:
             fetch(url2,md5b)
     ## Ok now does the git submodules
     for c in ["eof2","windfield","sciMake","windspharm","eofs"]:
