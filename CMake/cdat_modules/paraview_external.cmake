@@ -96,13 +96,18 @@ get_git_head_revision(refspec sha)
 if("${refspec}" STREQUAL "refs/heads/devel-master")
   set(paraview_branch uvcdat-next)
 endif()
+if (INTERNET_ACCESS STREQUAL "ON")
+    set(GIT_CMD_STR GIT_REPOSITORY ${GIT_PROTOCOL}github.com/aashish24/paraview-climate-3.11.1.git)
+else ()
+    set(GIT_CMD_STR )
+endif()
 
 ExternalProject_Add(ParaView
   DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${ParaView_source}
   BINARY_DIR ${ParaView_binary}
   INSTALL_DIR ${ParaView_install}
-  GIT_REPOSITORY ${GIT_PROTOCOL}github.com/aashish24/paraview-climate-3.11.1.git
+  ${GIT_CMD_STR} 
   GIT_TAG ${paraview_branch}
   UPDATE_COMMAND ""
   PATCH_COMMAND ""
