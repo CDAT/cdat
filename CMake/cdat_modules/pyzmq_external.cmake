@@ -26,10 +26,15 @@ ExternalProject_Add(pyzmq
   URL_MD5 ${PYZMQ_MD5}
   CONFIGURE_COMMAND ${pyzmq_CONFIGURE_COMMAND}
   BUILD_COMMAND ""
+<<<<<<< HEAD
   UPDATE_COMMAND ""
   INSTALL_COMMAND ${pyzmq_INSTALL_COMMAND}
   DEPENDS
     ${pyzmq_deps}
+=======
+  INSTALL_COMMAND ${EGG_CMD} ${EGG_GZ}
+  DEPENDS ${pyzmq_deps}
+>>>>>>> Ok almost there, realizing thx to offline that some missing pkg need to be put in
   ${ep_log_options}
   )
 

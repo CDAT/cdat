@@ -4,7 +4,7 @@
 include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
 
 if (INTERNET_ACCESS STREQUAL "ON") 
-    set(EGG_GZ )
+    set(EGG_GZ tornado==${TORNADO_VERSION} )
 else ()
     set(EGG_GZ ${CDAT_PACKAGE_CACHE_DIR}/${TORNADO_GZ})
 endif()
@@ -15,7 +15,7 @@ ExternalProject_Add(tornado
   BUILD_IN_SOURCE 1
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
-  INSTALL_COMMAND ${EGG_CMD} tornado==${TORNADO_VERSION} ${EGG_GZ}
+  INSTALL_COMMAND ${EGG_CMD} ${EGG_GZ}
   DEPENDS ${tornado_deps}
   ${ep_log_options}
   )
