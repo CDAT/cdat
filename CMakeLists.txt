@@ -498,7 +498,7 @@ message("[INFO] CDAT external link directories: ${cdat_external_link_directories
 # Configure remaining files
 #-----------------------------------------------------------------------------
 configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/install.py.in
-    ${cdat_CMAKE_SOURCE_DIR}/installation/install.py
+    ${cdat_SOURCE_DIR}/installation/install.py
   @ONLY
 )
 
