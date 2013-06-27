@@ -207,7 +207,7 @@ set(PARTS_BUILT_INFO "${cdat_BINARY_DIR}/build_info.txt" CACHE STRING "File wher
 ## ON is the default means we can download as we build
 ## PREP means with are using this machine as a proxy to download all needed files in order to move them (somehow) to the OFFLINE machine where build will happen
 ## OFF the machine has no internet access all files are suppposed to be here, pre-downloaded
-option(INTERNET_ACCESS "Is there internet access, are we preping for it?" ON)
+option(OFFLINE_BUILD "Is there internet access, are we preping for it?" OFF)
 
 option(CDAT_BUILD_PARALLEL "Build parallel components of CDAT" ON)
 #OPtion to choose between easy_install and pip (crunchy ssl/man in the middle prevents us to use pip here...
