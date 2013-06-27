@@ -4,5 +4,5 @@ fetched_data="fetched_for_offline"
 cp ${fetched_data}/*gz ${fetched_data}/*bz2 ${fetched_data}/*zip @cdat_BINARY_DIR@
 cp -r ${fetched_data}/contrib @cdat_SOURCE_DIR@
 cp -rf ${fetched_data}/vistrails @CMAKE_INSTALL_PREFIX@
-cp -rf ${fetched_data}/paraview-* @cdat_BINARY_DIR@/build/ParaView/
+cp -rf ${fetched_data}/paraview-* @cdat_BINARY_DIR@/build/ParaView
 
