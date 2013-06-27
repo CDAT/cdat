@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import shlex
 import subprocess
 import urllib2
