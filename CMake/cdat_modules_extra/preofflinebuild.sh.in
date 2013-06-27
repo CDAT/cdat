@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 fetched_data="fetched_for_offline"
 cp ${fetched_data}/*gz ${fetched_data}/*bz2 ${fetched_data}/*zip @cdat_BINARY_DIR@

@@ -516,8 +516,8 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/setup_cdat.sh.in
   @ONLY
 )
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/preofflinebuild.in
-  ${cdat_BINARY_DIR}/preofflinebuild
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/preofflinebuild.sh.in
+  ${cdat_BINARY_DIR}/preofflinebuild.sh
   @ONLY
 )
 
