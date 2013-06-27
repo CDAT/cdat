@@ -1,5 +1,5 @@
 
-if (INTERNET_ACCESS)
+if (NOT OFFLINE_BUILD)
     set(EGG_GZ ipython==${IPYTHON_VERSION} )
 else ()
     set(EGG_GZ ${CDAT_PACKAGE_CACHE_DIR}/${IPYTHON_GZ})
