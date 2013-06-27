@@ -2,7 +2,7 @@
 # and configure and build it
 
 include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
-if (INTERNET_ACCESS STREQUAL "ON") 
+if (INTERNET_ACCESS)
     set(EGG_GZ lepl==${LEPL_VERSION})
 else ()
     set(EGG_GZ ${CDAT_PACKAGE_CACHE_DIR}/${LEPL_GZ})
