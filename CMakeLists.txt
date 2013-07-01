@@ -211,7 +211,22 @@ set(PIP_CERTIFICATE "" CACHE STRING "Certificate to use for PIP (LLNL issue real
 option(CDAT_BUILD_GUI "Builds GUI-based dependencies (Vistrails, ParaView, VisIt, R, etc...) " ON)
 option(CDAT_BUILD_GRAPHICS "Build graphics-based dependencies (vcs, pyqt, Vistrails, ParaView, VisIt, R, etc...) " ON)
 option(CDAT_BUILD_ESGF "Builds a customized version for ESGF (Tkinter, less packages etc..)" OFF)
-option(CDAT_ANONYMOUS_LOG "Help Improve UV-CDAT by sending back anonymous data usage" ON)
+if (NOT CDAT_ANONYMOUS_LOG)
+    message(FATAL_ERROR "[ERROR] Select Either ON or OFF for CDAT_ANONYMOUS_LOG depending if you wish to help us by collecting ANONYMOUS information on UV-CDAT use")
+    set(CDAT_ANONYMOUS_LOG "PICK" CACHE STRING "Help Improve UV-CDAT by sending back anonymous data usage" FORCE)
+    set_property(CACHE CDAT_ANONYMOUS_LOG PROPERTY STRINGS "ON" "OFF")
+    return()
+endif()
+if (CDAT_ANONYMOUS_LOG MATCHES "ON")
+    #Good nothing to do
+elseif (CDAT_ANONYMOUS_LOG MATCHES "OFF")
+    #Good too
+else ()
+    message(FATAL_ERROR "[ERROR] Select Either ON or OFF for CDAT_ANONYMOUS_LOG depending if you wish to help us by collecting ANONYMOUS information on UV-CDAT use")
+    return(1)
+endif()
+
+
 
 #Flipping the option, Aashish add_cdat_external_dependent seems to need a negative of that
 if (CDAT_BUILD_ESGF)
