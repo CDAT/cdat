@@ -83,6 +83,18 @@ if(NOT CDAT_USE_SYSTEM_HDF5)
   endif()
 endif()
 
+# Check if should build GUI
+if(CDAT_BUILD_GUI)
+  list(APPEND ParaView_tpl_args
+    -DPARAVIEW_BUILD_QT_GUI:BOOL=ON
+    -DVTK_QT_USE_WEBKIT:BOOL=OFF
+    -DQT_QMAKE_EXECUTABLE:FILEPATH=${QT_QMAKE_EXECUTABLE}
+    -DQT_QTUITOOLS_INCLUDE_DIR:PATH=${QT_ROOT}/include/QtUiTools)
+else()
+  list(APPEND ParaView_tpl_args
+    -DPARAVIEW_BUILD_QT_GUI:BOOL=OFF)
+endif()
+
 if(UVCDAT_TESTDATA_LOCATION)
   list(APPEND ParaView_tpl_args
     -DUVCDAT_TestData:PATH=${UVCDAT_TESTDATA_LOCATION}
@@ -133,9 +145,6 @@ ExternalProject_Add(ParaView
     -DINCLUDE_PYTHONHOME_PATHS:BOOL=OFF
     ${cdat_compiler_args}
     ${ParaView_tpl_args}
-    # Qt
-    -DQT_QMAKE_EXECUTABLE:FILEPATH=${QT_QMAKE_EXECUTABLE}
-    -DQT_QTUITOOLS_INCLUDE_DIR:PATH=${QT_ROOT}/include/QtUiTools
     # Python
     -DPARAVIEW_ENABLE_PYTHON:BOOL=ON
     -DPYTHON_EXECUTABLE:FILEPATH=${PYTHON_EXECUTABLE}
