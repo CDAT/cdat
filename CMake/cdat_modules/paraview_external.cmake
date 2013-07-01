@@ -89,7 +89,14 @@ if(CDAT_BUILD_GUI)
     -DPARAVIEW_BUILD_QT_GUI:BOOL=ON
     -DVTK_QT_USE_WEBKIT:BOOL=OFF
     -DQT_QMAKE_EXECUTABLE:FILEPATH=${QT_QMAKE_EXECUTABLE}
-    -DQT_QTUITOOLS_INCLUDE_DIR:PATH=${QT_ROOT}/include/QtUiTools)
+    -DQT_QTUITOOLS_INCLUDE_DIR:PATH=${QT_ROOT}/include/QtUiTools
+    -DR_COMMAND:PATH=${R_install}/bin/R
+    -DR_DIR:PATH=${R_install}/lib/R
+    -DR_INCLUDE_DIR:PATH=${R_install}/lib/R/include
+    -DR_LIBRARY_BASE:PATH=${R_install}/lib/R/lib/libR${_LINK_LIBRARY_SUFFIX}
+    -DR_LIBRARY_BLAS:PATH=${R_install}/lib/R/lib/libRblas${_LINK_LIBRARY_SUFFIX}
+    -DR_LIBRARY_LAPACK:PATH=${R_install}/lib/R/lib/libRlapack${_LINK_LIBRARY_SUFFIX}
+    -DR_LIBRARY_READLINE:PATH=)
 else()
   list(APPEND ParaView_tpl_args
     -DPARAVIEW_BUILD_QT_GUI:BOOL=OFF)
@@ -134,13 +141,6 @@ ExternalProject_Add(ParaView
     -DPARAVIEW_INSTALL_THIRD_PARTY_LIBRARIES:BOOL=OFF
     -DPARAVIEW_TESTING_WITH_PYTHON:BOOL=OFF
     -DPARAVIEW_USE_GNU_R:BOOL=ON
-    -DR_COMMAND:PATH=${R_install}/bin/R
-    -DR_DIR:PATH=${R_install}/lib/R
-    -DR_INCLUDE_DIR:PATH=${R_install}/lib/R/include
-    -DR_LIBRARY_BASE:PATH=${R_install}/lib/R/lib/libR${_LINK_LIBRARY_SUFFIX}
-    -DR_LIBRARY_BLAS:PATH=${R_install}/lib/R/lib/libRblas${_LINK_LIBRARY_SUFFIX}
-    -DR_LIBRARY_LAPACK:PATH=${R_install}/lib/R/lib/libRlapack${_LINK_LIBRARY_SUFFIX}
-    -DR_LIBRARY_READLINE:PATH=
     -DVTK_QT_USE_WEBKIT:BOOL=OFF
     -DINCLUDE_PYTHONHOME_PATHS:BOOL=OFF
     ${cdat_compiler_args}
