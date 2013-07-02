@@ -12,4 +12,4 @@ set(NETCDFPLUS_VERSION ${NC4PLUS_VERSION})
 set(NETCDFPLUS_SOURCE ${NC4PLUS_URL}/${NC4PLUS_GZ})
 set(NETCDFPLUS_MD5 ${NC4PLUS_MD5})
 
-add_cdat_package_dependent(NetCDFPLUS "" "" ON "CDAT_BUILD_WO_ESGF" OFF)
+add_cdat_package_dependent(NetCDFPLUS "" "" ON "CDAT_BUILD_GUI" OFF)
