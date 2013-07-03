@@ -259,7 +259,7 @@ actions_sent = {}
 SOURCE = 'CDAT'
 
 def get_version():
-  return '1.3.0'
+  return Version
 
 def pingPCMDIdb(*args,**kargs):
     import threading
