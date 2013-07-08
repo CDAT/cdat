@@ -18935,7 +18935,6 @@ PyVCS_setbgoutputdimensions(PyVCScanvas_Object *self, PyObject *args)
 	   PyErr_SetString(PyExc_TypeError, "Must provide a width and a height");
 	   return NULL;
 	}
-        printf("Replacing values (%i,%i) with (%i,%i)",XW,YW,W,H);
 	XW=W;
 	YW=H;
 	/* Return NULL Python Object */
