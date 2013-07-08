@@ -5170,7 +5170,6 @@ Options:::
                     else:
                         copy_mthd.datawc_y2 = cdtime.reltime(copy_mthd.datawc_y2,oax.units).tocomp(oax.getCalendar()).torel(copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
                 if copy_mthd.yticlabels1=='*' :
-                    print "going in:",copy_mthd
                     copy_mthd.yticlabels1=vcs.generate_time_labels(copy_mthd.datawc_y1,copy_mthd.datawc_y2,copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
                 if copy_mthd.yticlabels2=='*' : copy_mthd.yticlabels2=vcs.generate_time_labels(copy_mthd.datawc_y1,copy_mthd.datawc_y2,copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
         elif not (getattr(copy_mthd,'g_name','')=='Gfm' and isinstance(arglist[0].getGrid(), (cdms2.gengrid.AbstractGenericGrid,cdms2.hgrid.AbstractCurveGrid))):
@@ -6163,7 +6162,6 @@ Options:::
         elif orientation == 'p':
             cmd = cmd1 + filename + cmd3 + filename[:-2] + 'gif \n'
         else:
-            print 'Unknown orientation'
             cmd = '\n'
         # end if orientation == 'l':
         f=popen(cmd, 'w')
@@ -6499,7 +6497,6 @@ Options:::
     a.portrait(x=100, y = 200) # Change to portrait and set the x and y screen position
     a.portrait(width = 337, height = 400, x=100, y = 200, clear=1) # Chagne to portrait and give specifications
 """ 
-        print "Portrait is: ",self.orientation()
         if (self.orientation() == 'portrait'): return
 
         if ( ((not isinstance(width, IntType))) or ((not isinstance(height, IntType))) or
@@ -6608,7 +6605,6 @@ Options:::
         H = int(height*dpi*sfactor)
 
         # if portrait then switch
-        print "ISPORTRAIT:",self.isportrait()
         if self.isportrait() and W>H:
             tmp = W
             W= H
@@ -6736,7 +6732,6 @@ Options:::
             factor=1./72;
             size = float(width)/float(height)
         except Exception,err:
-            print err
             factor=1.;
             if self.size is None:
                 size = 1.2941176470588236
@@ -8454,7 +8449,6 @@ class animate_obj_old:
                maxv.append( -1.0e77 )
             for i in range(len(self.vcs_self.animate_info)):
                dpy, slab = self.vcs_self.animate_info[i]
-               print "slab:",slab
                mins, maxs = minmax(slab)
                minv[i] = float(minimum(float(minv[i]), float(mins)))
                maxv[i] = float(maximum(float(maxv[i]), float(maxs)))
@@ -8933,27 +8927,20 @@ class animate_obj(animate_obj_old):
     def create( self, parent=None, min=None, max=None, save_file=None, thread_it = 1, rate=5., bitrate=None, ffmpegoptions='', axis=0):
         alen = None
         y=vcs.init()
-        print "after creating y is:",y.isportrait()
         dims = self.vcs_self.canvasinfo()
-        print "Dims:",dims
         if dims['height']<500:
             factor = 2
         else:
             factor=1
-        print "Setting bg dims to: %ix%i" % (dims["width"],dims["height"])
         if dims["width"]<dims["height"]:
-            print "ok trying to switch to portrait!!!"
             y.portrait(width=dims["width"],height=dims["height"])
         y.setbgoutputdimensions(width = dims['width']*factor,height=dims['height']*factor,units='pixel')
         truncated = False
-        print len(self.vcs_self.animate_info)
         for I in self.vcs_self.animate_info:
-            print I[1][0].shape
             if alen is None:
                 alen = I[1][0].shape[axis]
             else:
                 l = I[1][0].shape[axis]
-                print l,alen
                 if l!=alen:
                     alen = numpy.minimum(alen,l)
                     truncated = True
@@ -8961,7 +8948,6 @@ class animate_obj(animate_obj_old):
             warnings.warn("Because of inconsistent shapes over axis: %i, the animation length will be truncated to: %i\n" % (axis,alen))
         self.animation_files = []
         for i in range(alen):
-            print i,'of',alen-1
             y.clear()
             for I in self.vcs_self.animate_info:
                 d=I[0]
@@ -9020,7 +9006,6 @@ class animate_obj(animate_obj_old):
         return len(self.animation_files)
 
     def stop(self):
-        print "Stopping"
         self.runit = False
     def pause(self,value):
         self.pause_value = value
