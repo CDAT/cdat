@@ -8978,6 +8978,13 @@ class animate_obj(animate_obj_old):
             self.animation_files.append(fn)
             y.png(fn)
             y.png("sample")
+        class crp(QtCore.QObject):
+            pass
+        C=crp()
+
+        C.emit(QtCore.SIGNAL("AnimationCreated"),"Hello there")
+        
+        
     def runner(self):
         self.runit = True
         while self.runit:
