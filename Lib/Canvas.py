@@ -8402,6 +8402,7 @@ class animate_obj_old:
       ##from tkMessageBox import showerror
 
       # Cannot "Run" or "Create" an animation while already creating an animation
+      print "Ok minmax:",min,max
       if self.run_flg == 1: return
       if self.vcs_self.canvas.creating_animation() == 1: return
 
@@ -8440,6 +8441,7 @@ class animate_obj_old:
       self.continents_hold_value = self.vcs_self.canvas.getcontinentstype( )
       self.vcs_self.canvas.setcontinentstype( self.continents_value )
 
+      print "do min max:",do_min_max
       if ( do_min_max == 'yes' ):
          minv = []
          maxv=[]
@@ -8711,6 +8713,7 @@ class animate_obj_old:
          if (min != 1e20) and (max !=1e20):
             mean_veloc = float( int( numpy.sqrt( (min**2)+(max**2) ) ) )
          gm.reference = mean_veloc
+      animation_info['gname'][i] = gm.name
 
    ##############################################################################
    # Return the animation min and max values                                    #
@@ -8934,6 +8937,7 @@ class animate_obj(animate_obj_old):
             C=None
             self._actualCreate(parent,min,max,save_file,rate,bitrate,ffmpegoptions,axis)
         return C
+
     def _actualCreate( self, parent=None, min=None, max=None, save_file=None, rate=5., bitrate=None, ffmpegoptions='', axis=0, sender=None):
         alen = None
         y=vcs.init()
@@ -8957,6 +8961,51 @@ class animate_obj(animate_obj_old):
         if truncated:
             warnings.warn("Because of inconsistent shapes over axis: %i, the animation length will be truncated to: %i\n" % (axis,alen))
         self.animation_files = []
+        # Save the min and max values for the graphics methods.
+        # Will need to restore values back when animation is done.
+        self.save_original_min_max()
+        # Note: cannot set the min and max values if the default graphics method is set.
+        do_min_max = 'yes'
+        try:
+           if (parent is not None) and (parent.iso_spacing == 'Log'):
+              do_min_max = 'no'
+        except:
+           pass
+        if ( do_min_max == 'yes' ):
+             minv = []
+             maxv=[]
+             if (min is None) or (max is None):
+                for i in range(len(self.vcs_self.animate_info)):
+                   minv.append( 1.0e77 )
+                   maxv.append( -1.0e77 )
+                for i in range(len(self.vcs_self.animate_info)):
+                   dpy, slab = self.vcs_self.animate_info[i]
+                   mins, maxs = vcs.minmax(slab)
+                   minv[i] = float(numpy.minimum(float(minv[i]), float(mins)))
+                   maxv[i] = float(numpy.maximum(float(maxv[i]), float(maxs)))
+             if ((type(min) == types.ListType) or (type(max) == types.ListType)):
+                for i in range(len(self.vcs_self.animate_info)):
+                   try:
+                      minv.append( min[i] )
+                   except:
+                      minv.append( min[-1] )
+                   try:
+                      maxv.append( max[i] )
+                   except:
+                      maxv.append( max[-1] )
+             else:
+                for i in range(len(self.vcs_self.animate_info)):
+                    minv.append( min )
+                    maxv.append( max )
+             # Set the min an max for each plot in the page. If the same graphics method is used
+             # to display the plots, then the last min and max setting of the data set will be used.
+             print "Minmaxs:",minv,maxv
+             for i in range(len(self.vcs_self.animate_info)):
+                try:
+                   self.set_animation_min_max( minv[i], maxv[i], i )
+                except:
+                   pass # if it is default, then you cannot set the min and max, so pass.
+
         for i in range(alen):
             y.clear()
             for I in self.vcs_self.animate_info:
@@ -8983,11 +9032,14 @@ class animate_obj(animate_obj_old):
                             break
                     args.append(I[1][1](**kw))
                 args += [d.template,d.g_type,d.g_name]
+                b=y.getboxfill(d.g_name)
                 y.plot(*args,bg=1)    
+
             fn = tempfile.mkstemp(suffix=".png")[1]
             self.animation_files.append(fn)
             y.png(fn)
             y.png("sample")
+        self.restore_min_max()
         if sender is not None:
             sender.emit(QtCore.SIGNAL("AnimationCreated"),"Hello there")
         
