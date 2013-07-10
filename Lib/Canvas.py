@@ -8925,6 +8925,16 @@ class animate_obj(animate_obj_old):
         self.horizontal_factor = 0
 
     def create( self, parent=None, min=None, max=None, save_file=None, thread_it = 1, rate=5., bitrate=None, ffmpegoptions='', axis=0):
+        if thread_it:
+            class crp(QtCore.QObject):
+                pass
+            C=crp()
+            thread.start_new_thread(self._actualCreate,(parent,min,max,save_file,rate,bitrate,ffmpegoptions,axis,C))
+        else:
+            C=None
+            self._actualCreate(parent,min,max,save_file,rate,bitrate,ffmpegoptions,axis)
+        return C
+    def _actualCreate( self, parent=None, min=None, max=None, save_file=None, rate=5., bitrate=None, ffmpegoptions='', axis=0, sender=None):
         alen = None
         y=vcs.init()
         dims = self.vcs_self.canvasinfo()
@@ -8978,11 +8988,8 @@ class animate_obj(animate_obj_old):
             self.animation_files.append(fn)
             y.png(fn)
             y.png("sample")
-        class crp(QtCore.QObject):
-            pass
-        C=crp()
-
-        C.emit(QtCore.SIGNAL("AnimationCreated"),"Hello there")
+        if sender is not None:
+            sender.emit(QtCore.SIGNAL("AnimationCreated"),"Hello there")
         
         
     def runner(self):
@@ -8999,6 +9006,7 @@ class animate_obj(animate_obj_old):
         self.runthread = thread.start_new_thread(self.runner,())
 
     def draw(self, frame):
+        print "Clearing!!!!!!"
         self.vcs_self.clear()
         self.vcs_self.canvas.put_png_on_canvas(self.animation_files[frame],
                                                self.zoom_factor,self.vertical_factor,self.horizontal_factor)
