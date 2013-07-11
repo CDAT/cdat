@@ -270,7 +270,9 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         self.__domain = [None]*self.rank()
         if axes is not None:
             flataxes = []
-            if not isinstance(axes, (list, tuple)):
+            try:
+                iter(axes)
+            except TypeError:
                 axes = (axes,)
             for item in axes:
                 if isinstance(item, AbstractAxis) or item is None:
