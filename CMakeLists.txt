@@ -82,7 +82,7 @@ if(APPLE)
     set(CMAKE_OSX_ARCHITECTURES_M "64" CACHE STRING "" FORCE)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "${OSX_VER_MAJOR}.${OSX_VER_MINOR}" CACHE STRING "" FORCE)
   endif()
-  
+
   # Support only 10.6 or higher for now
   if(IS_DIRECTORY "/Developer/SDKs/MacOSX10.6.sdk")
     set(HAVE_10_6_SDK TRUE)
@@ -203,57 +203,45 @@ endif(CMAKE_Fortran_COMPILER)
 #-----------------------------------------------------------------------------
 set(PARTS_BUILT_INFO "${cdat_BINARY_DIR}/build_info.txt" CACHE STRING "File where to store build infos" FORCE)
 option(CDAT_BUILD_PARALLEL "Build parallel components of CDAT" ON)
-#OPtion to choose between easy_install and pip (crunchy ssl/man in the middle prevents us to use pip here...
-set(EGG_INSTALLER "PIP" CACHE STRING "Which package installer to use") 
+
+# Option to choose between easy_install and pip (crunchy ssl/man in the middle prevents us to use pip here...
+set(EGG_INSTALLER "PIP" CACHE STRING "Which package installer to use")
 set_property(CACHE EGG_INSTALLER PROPERTY STRINGS "PIP" "EASY_INSTALL")
 set(PIP_CERTIFICATE "" CACHE STRING "Certificate to use for PIP (LLNL issue really)")
-#Options for various types of builds
+
+# Options for various types of builds
 option(CDAT_BUILD_GUI "Builds GUI-based dependencies (Vistrails, ParaView, VisIt, R, etc...) " ON)
 option(CDAT_BUILD_GRAPHICS "Build graphics-based dependencies (vcs, pyqt, Vistrails, ParaView, VisIt, R, etc...) " ON)
 option(CDAT_BUILD_ESGF "Builds a customized version for ESGF (Tkinter, less packages etc..)" OFF)
-if (NOT CDAT_ANONYMOUS_LOG)
-    if (NOT CDAT_ANONYMOUS_LOG MATCHES "OFF")
-        message(FATAL_ERROR "[ERROR] Select Either ON or OFF for CDAT_ANONYMOUS_LOG depending if you wish to help us by collecting ANONYMOUS information on UV-CDAT use")
-        set(CDAT_ANONYMOUS_LOG "PICK" CACHE STRING "Help Improve UV-CDAT by sending back anonymous data usage" FORCE)
-        set_property(CACHE CDAT_ANONYMOUS_LOG PROPERTY STRINGS "ON" "OFF")
-        return()
-    endif()
+
+if (NOT DEFINED CDAT_ANONYMOUS_LOG)
+    option(CDAT_ANONYMOUS_LOG "Opt in or out if you want UV-CDAT to collect UV-CDAT usage information" OFF)
+    message(FATAL_ERROR "[ERROR] Opt in or out if you want UV-CDAT to collect UV-CDAT usage information")
+    return()
 endif()
-if (CDAT_ANONYMOUS_LOG MATCHES "ON")
-    #Good nothing to do
-elseif (CDAT_ANONYMOUS_LOG MATCHES "OFF")
-    #Good too
-else ()
-    message(FATAL_ERROR "[ERROR] Select Either ON or OFF for CDAT_ANONYMOUS_LOG depending if you wish to help us by collecting ANONYMOUS information on UV-CDAT use")
-    return(1)
-endif()
-
-
-
-#Flipping the option, Aashish add_cdat_external_dependent seems to need a negative of that
-if (CDAT_BUILD_ESGF)
-    set(CDAT_BUILD_WO_ESGF OFF)
-else()
-    set(CDAT_BUILD_WO_ESGF ON)
-endif()
-
-#First of all if ESGF then turn OFF GRAPHICS
-if (NOT CDAT_BUILD_WO_ESGF)
-    set(CDAT_BUILD_GRAPHICS OFF)
-    set(CDAT_BUILD_PARALLEL OFF)
-    set(CDMS_ONLY --enable-cdms-only)
-    set(CDAT_ANONYMOUS_LOG OFF)
-else()
-    set(CDMS_ONLY "")
-endif()
-
 if (CDAT_ANONYMOUS_LOG)
     set(CDAT_ANONYMOUS_LOG_FLAG True)
 else ()
     set(CDAT_ANONYMOUS_LOG_FLAG False)
 endif()
 
-# if no graphics then no gui as well
+# Flipping the option, Aashish add_cdat_external_dependent seems to need a negative of that
+if (CDAT_BUILD_ESGF)
+    set(CDAT_BUILD_WO_ESGF OFF)
+else()
+    set(CDAT_BUILD_WO_ESGF ON)
+endif()
+
+# First of all if ESGF then turn OFF GRAPHICS
+if (NOT CDAT_BUILD_WO_ESGF)
+    set(CDAT_BUILD_GRAPHICS OFF)
+    set(CDAT_BUILD_PARALLEL OFF)
+    set(CDMS_ONLY --enable-cdms-only)
+else()
+    set(CDMS_ONLY "")
+endif()
+
+# If no graphics then no gui as well
 if (NOT CDAT_BUILD_GRAPHICS)
   set(CDAT_BUILD_GUI OFF)
 endif()
