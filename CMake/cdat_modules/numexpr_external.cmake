@@ -1,7 +1,7 @@
 include(${cdat_CMAKE_BINARY_DIR}/cdat_common_environment.cmake)
 
 if (NOT OFFLINE_BUILD) 
-    set(EGG_GZ numpres==${NUMEXPR_VERSION} )
+    set(EGG_GZ numexpr==${NUMEXPR_VERSION} )
 else ()
     set(EGG_GZ ${CDAT_PACKAGE_CACHE_DIR}/${NUMEXPR_GZ})
 endif()
