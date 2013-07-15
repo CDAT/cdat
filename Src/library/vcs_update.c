@@ -87,6 +87,10 @@ int templateRatio(struct p_tab *pp, int wkst_id) {
   }
 
   Rwished = fabs(pp->dsp.ratio);
+
+#if defined (QTWM)
+  extern void vcs_Qt_get_window_dimensions_by_id(int id,int *x, int *y,int *w,int *h);
+#endif
   
   vcs_Qt_get_window_dimensions_by_id(wkst_id,&xwa.x,&xwa.y,&xwa.width,&xwa.height);
   Rout = (float)xwa.width/(float)xwa.height;

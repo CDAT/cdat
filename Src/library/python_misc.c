@@ -500,7 +500,7 @@ int print_template_list(void)
         for(ptab=&Pic_tab;ptab != NULL; ptab=ptab->next) {
            if ((nptr=(NAMELIST_LINK)malloc(sizeof(NAMELIST))) == NULL) {
             err_warn(1,fperr,"Error - Cannot Store any more names in memory!\n");
-            return;
+            return 0;
            }
            strcpy(nptr->name, ptab->name);
            nptr->next = NULL;
@@ -596,7 +596,7 @@ int print_boxfill_list(void)
         for(gfbtab=&Gfb_tab;gfbtab != NULL; gfbtab=gfbtab->next) {
            if ((nptr=(NAMELIST_LINK)malloc(sizeof(NAMELIST))) == NULL) {
             err_warn(1,fperr,"Error - Cannot Store any more names in memory!\n");
-            return;
+            return 0;
            }
            strcpy(nptr->name, gfbtab->name);
            nptr->next = NULL;
@@ -657,7 +657,7 @@ int print_continents_list(void)
         for(gcontab=&Gcon_tab;gcontab != NULL; gcontab=gcontab->next) {
            if ((nptr=(NAMELIST_LINK)malloc(sizeof(NAMELIST))) == NULL) {
             err_warn(1,fperr,"Error - Cannot Store any more names in memory!\n");
-            return;
+            return 0;
            }
            strcpy(nptr->name, gcontab->name);
            nptr->next = NULL;
@@ -719,7 +719,7 @@ int print_isofill_list(void)
         for(gfitab=&Gfi_tab;gfitab != NULL; gfitab=gfitab->next) {
            if ((nptr=(NAMELIST_LINK)malloc(sizeof(NAMELIST))) == NULL) {
             err_warn(1,fperr,"Error - Cannot Store any more names in memory!\n");
-            return;
+            return 0;
            }
            strcpy(nptr->name, gfitab->name);
            nptr->next = NULL;
@@ -780,7 +780,7 @@ int print_meshfill_list(void)
         for(gfmtab=&Gfm_tab;gfmtab != NULL; gfmtab=gfmtab->next) {
            if ((nptr=(NAMELIST_LINK)malloc(sizeof(NAMELIST))) == NULL) {
             err_warn(1,fperr,"Error - Cannot Store any more names in memory!\n");
-            return;
+            return 0;
            }
            strcpy(nptr->name, gfmtab->name);
            nptr->next = NULL;
@@ -865,7 +865,7 @@ int print_isoline_list(void)
         for(gitab=&Gi_tab;gitab != NULL; gitab=gitab->next) {
            if ((nptr=(NAMELIST_LINK)malloc(sizeof(NAMELIST))) == NULL) {
             err_warn(1,fperr,"Error - Cannot Store any more names in memory!\n");
-            return;
+            return 0;
            }
            strcpy(nptr->name, gitab->name);
            nptr->next = NULL;
@@ -926,7 +926,7 @@ int print_outfill_list(void)
         for(gfotab=&Gfo_tab;gfotab != NULL; gfotab=gfotab->next) {
            if ((nptr=(NAMELIST_LINK)malloc(sizeof(NAMELIST))) == NULL) {
             err_warn(1,fperr,"Error - Cannot Store any more names in memory!\n");
-            return;
+            return 0;
            }
            strcpy(nptr->name, gfotab->name);
            nptr->next = NULL;
@@ -987,7 +987,7 @@ int print_outline_list(void)
         for(gotab=&Go_tab;gotab != NULL; gotab=gotab->next) {
            if ((nptr=(NAMELIST_LINK)malloc(sizeof(NAMELIST))) == NULL) {
             err_warn(1,fperr,"Error - Cannot Store any more names in memory!\n");
-            return;
+            return 0;
            }
            strcpy(nptr->name, gotab->name);
            nptr->next = NULL;
@@ -1048,7 +1048,7 @@ int print_scatter_list(void)
         for(gSptab=&GSp_tab;gSptab != NULL; gSptab=gSptab->next) {
            if ((nptr=(NAMELIST_LINK)malloc(sizeof(NAMELIST))) == NULL) {
             err_warn(1,fperr,"Error - Cannot Store any more names in memory!\n");
-            return;
+            return 0;
            }
            strcpy(nptr->name, gSptab->name);
            nptr->next = NULL;
@@ -1109,7 +1109,7 @@ int print_vector_list(void)
         for(gvtab=&Gv_tab;gvtab != NULL; gvtab=gvtab->next) {
            if ((nptr=(NAMELIST_LINK)malloc(sizeof(NAMELIST))) == NULL) {
             err_warn(1,fperr,"Error - Cannot Store any more names in memory!\n");
-            return;
+            return 0;
            }
            strcpy(nptr->name, gvtab->name);
            nptr->next = NULL;
@@ -1170,7 +1170,7 @@ int print_xvsy_list(void)
         for(gXYtab=&GXY_tab;gXYtab != NULL; gXYtab=gXYtab->next) {
            if ((nptr=(NAMELIST_LINK)malloc(sizeof(NAMELIST))) == NULL) {
             err_warn(1,fperr,"Error - Cannot Store any more names in memory!\n");
-            return;
+            return 0;
            }
            strcpy(nptr->name, gXYtab->name);
            nptr->next = NULL;
@@ -1231,7 +1231,7 @@ int print_xyvsy_list(void)
         for(gXytab=&GXy_tab;gXytab != NULL; gXytab=gXytab->next) {
            if ((nptr=(NAMELIST_LINK)malloc(sizeof(NAMELIST))) == NULL) {
             err_warn(1,fperr,"Error - Cannot Store any more names in memory!\n");
-            return;
+            return 0;
            }
            strcpy(nptr->name, gXytab->name);
            nptr->next = NULL;
@@ -1293,7 +1293,7 @@ int print_yxvsx_list(void)
         for(gYxtab=&GYx_tab;gYxtab != NULL; gYxtab=gYxtab->next) {
            if ((nptr=(NAMELIST_LINK)malloc(sizeof(NAMELIST))) == NULL) {
             err_warn(1,fperr,"Error - Cannot Store any more names in memory!\n");
-            return;
+            return 0;
            }
            strcpy(nptr->name, gYxtab->name);
            nptr->next = NULL;
@@ -1354,7 +1354,7 @@ int print_colormap_list(void)
         for(ptab=&C_tab;ptab != NULL; ptab=ptab->next) {
            if ((nptr=(NAMELIST_LINK)malloc(sizeof(NAMELIST))) == NULL) {
             err_warn(1,fperr,"Error - Cannot Store any more names in memory!\n");
-            return;
+            return 0;
            }
            strcpy(nptr->name, ptab->name);
            nptr->next = NULL;
@@ -1415,7 +1415,7 @@ int print_fillarea_list(void)
         for(ptab=&Tf_tab;ptab != NULL; ptab=ptab->next) {
            if ((nptr=(NAMELIST_LINK)malloc(sizeof(NAMELIST))) == NULL) {
             err_warn(1,fperr,"Error - Cannot Store any more names in memory!\n");
-            return;
+            return 0;
            }
            strcpy(nptr->name, ptab->name);
            nptr->next = NULL;
@@ -1476,7 +1476,7 @@ int print_format_list(void)
         for(thtab=&Th_tab;thtab != NULL; thtab=thtab->next) {
            if ((nptr=(NAMELIST_LINK)malloc(sizeof(NAMELIST))) == NULL) {
             err_warn(1,fperr,"Error - Cannot Store any more names in memory!\n");
-            return;
+            return 0;
            }
            strcpy(nptr->name, thtab->name);
            nptr->next = NULL;
@@ -1537,7 +1537,7 @@ int print_line_list(void)
         for(tltab=&Tl_tab;tltab != NULL; tltab=tltab->next) {
            if ((nptr=(NAMELIST_LINK)malloc(sizeof(NAMELIST))) == NULL) {
             err_warn(1,fperr,"Error - Cannot Store any more names in memory!\n");
-            return;
+            return 0;
            }
            strcpy(nptr->name, tltab->name);
            nptr->next = NULL;
@@ -1598,7 +1598,7 @@ int print_list_list(void)
         for(ptab=&L_tab[0];ptab != NULL; ptab=ptab->next) {
            if ((nptr=(NAMELIST_LINK)malloc(sizeof(NAMELIST))) == NULL) {
             err_warn(1,fperr,"Error - Cannot Store any more names in memory!\n");
-            return;
+            return 0;
            }
            strcpy(nptr->name, ptab->name);
            nptr->next = NULL;
@@ -1659,7 +1659,7 @@ int print_marker_list(void)
         for(tmtab=&Tm_tab;tmtab != NULL; tmtab=tmtab->next) {
            if ((nptr=(NAMELIST_LINK)malloc(sizeof(NAMELIST))) == NULL) {
             err_warn(1,fperr,"Error - Cannot Store any more names in memory!\n");
-            return;
+            return 0;
            }
            strcpy(nptr->name, tmtab->name);
            nptr->next = NULL;
@@ -1720,7 +1720,7 @@ int print_text_list(void)
         for(ptab=&Tt_tab;ptab != NULL; ptab=ptab->next) {
            if ((nptr=(NAMELIST_LINK)malloc(sizeof(NAMELIST))) == NULL) {
             err_warn(1,fperr,"Error - Cannot Store any more names in memory!\n");
-            return;
+            return 0;
            }
            strcpy(nptr->name, ptab->name);
            nptr->next = NULL;
@@ -1781,7 +1781,7 @@ int print_texto_list(void)
         for(totab=&To_tab;totab != NULL; totab=totab->next) {
            if ((nptr=(NAMELIST_LINK)malloc(sizeof(NAMELIST))) == NULL) {
             err_warn(1,fperr,"Error - Cannot Store any more names in memory!\n");
-            return;
+            return 0;
            }
            strcpy(nptr->name, totab->name);
            nptr->next = NULL;
@@ -1842,7 +1842,7 @@ int print_plot_list(void)
         for(dtab=&D_tab;dtab != NULL; dtab=dtab->next) {
            if ((nptr=(NAMELIST_LINK)malloc(sizeof(NAMELIST))) == NULL) {
             err_warn(1,fperr,"Error - Cannot Store any more names in memory!\n");
-            return;
+            return 0;
            }
            strcpy(nptr->name, dtab->name);
            nptr->next = NULL;

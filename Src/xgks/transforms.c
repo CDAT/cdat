@@ -588,7 +588,7 @@ XgksUnpendPendingTrans(ws)
 {
     /* step 1: check for nothing to do, return if so */
     if (ws->wsti.wstus == GNOTPENDING)
-	return;
+	return 0;
 
     /* step 2: move the pending transformation to the current transformation. */
     ws->wsti.current.w = ws->wsti.request.w;
@@ -604,7 +604,7 @@ XgksUnpendPendingTrans(ws)
     xXgksUpdateTrans(ws);
     XgksUpdateWsClip(ws, &(xgks_state.cliprec.rec));
 
-    return;
+    return 0;
 }
 
 
@@ -749,7 +749,7 @@ XgksUpdateWsClip(ws, bound)
     Glimit         *bound;
 {
     if (ws->ewstype != X_WIN)
-	return;
+	return 0;
     XgksWsWinInterset(ws, bound, &(ws->clip));
     xXgksUpdateClip(ws);
 }
@@ -772,21 +772,21 @@ XgksWsWinInterset(ws, v, clip)
 
 	/* This probably means two are disjoint */
 	clip->xmin = clip->xmax = clip->ymin = clip->ymax = 0.0;
-	return;
+	return 0;
     }
     if ((w->xmax >= v->xmax) && (w->xmin <= v->xmin) &&
 	    (w->ymax >= v->ymax) && (w->ymin <= v->ymin)) {
 
 	/* This means ws-window encloses NDC-viewport */
 	*(clip) = *v;
-	return;
+	return 0;
     }
     if ((v->xmax >= w->xmax) && (v->xmin <= w->xmin) &&
 	    (v->ymax >= w->ymax) && (v->ymin <= w->ymin)) {
 
 	/* This means NDC-viewport encloses ws-window */
 	*(clip) = *w;
-	return;
+	return 0;
     }
 
     /* Bigger of the two */
@@ -801,7 +801,7 @@ XgksWsWinInterset(ws, v, clip)
     /* Smaller of the two */
     clip->ymax = (w->ymax < v->ymax) ? w->ymax : v->ymax;
 
-    return;
+    return 0;
 }
 
 
