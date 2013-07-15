@@ -1262,7 +1262,7 @@ XgksOutputSeg(ws, seg)
     Glimit          tmp_clip;
 
     if (seg->segattr.vis == GINVISIBLE)
-	return;
+	return 0;
     primi = &(seg->primi_list);
     tmp_clip = ws->clip;			/* save the current clip
 						 * region */
@@ -1455,13 +1455,13 @@ XgksRenameWsSeg(ws, old, new)
     WS_SEG_LIST    *ptr;
 
     if (ws->ewstype == MO)
-	return;
+	return 0;
 
     ptr = ws->seglist;
     while (ptr != NULL) {
 	if (ptr->seg == old) {
 	    ptr->seg = new;
-	    return;
+	    return 0;
 	}
 	ptr = ptr->next;
     }
@@ -2360,7 +2360,7 @@ XgksAppendSegClip()
     seg = XgksFindSeg(xgks_state.gks_open_seg);
     if (seg->primi_insert_pt->pid == CLIP_REC) {
 	seg->primi_insert_pt->primi.clip.rec = xgks_state.cliprec.rec;
-	return;
+	return 0;
     } else {
 	clip = XgksNewPrimi();
 	clip->pid = CLIP_REC;
@@ -2479,7 +2479,7 @@ XgksReDrawSeg(ws, seg_id)
 
 	seg = XgksFindSeg(seg_id);
 	if (seg->segattr.vis == GINVISIBLE)
-	    return;
+	    return 0;
 	primi = &(seg->primi_list);
 	tmp_clip = ws->clip;			/* save the current clip
 						 * region */
