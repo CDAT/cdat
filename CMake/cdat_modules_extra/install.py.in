@@ -222,7 +222,7 @@ Failed to find X11 directories. Please see README.txt for instructions.
     sys.path.append(build_dir)
     print >> f,"""
 Version = '%s'
-ping = False
+ping = @CDAT_ANONYMOUS_LOG_FLAG@
 def version():
     return %s
 """ % (Version,str(version))
@@ -250,7 +250,7 @@ def get_drs_libs():
 """
 
     print >>f, """\
-ping=True
+ping= @CDAT_ANONYMOUS_LOG_FLAG@
 
 sleep=60 #minutes  (int required)
 
@@ -259,15 +259,27 @@ actions_sent = {}
 SOURCE = 'CDAT'
 
 def get_version():
-  return '1.3.0'
+  return Version
 
 def pingPCMDIdb(*args,**kargs):
+    import threading
+    kargs['target']=pingPCMDIdbThread
+    kargs['args']=args
+    t = threading.Thread(**kargs)
+
+def pingPCMDIdbThread(*args,**kargs):
     import threading
     kargs['target']=submitPing
     kargs['args']=args
     t = threading.Thread(**kargs)
     t.start()
-    
+    import time
+    time.sleep(5) # Lets wait 5 seconds top for this ping to work
+    if t.isAlive():
+        try:
+            t._Thread__stop()
+        except:
+            pass
 def submitPing(source,action,source_version=None):
   try:
     import urllib2,sys,os,cdat_info,hashlib,urllib
