@@ -215,8 +215,8 @@ option(CDAT_BUILD_GRAPHICS "Build graphics-based dependencies (vcs, pyqt, Vistra
 option(CDAT_BUILD_ESGF "Builds a customized version for ESGF (Tkinter, less packages etc..)" OFF)
 
 if (NOT DEFINED CDAT_ANONYMOUS_LOG)
-    option(CDAT_ANONYMOUS_LOG "Opt in or out if you want UV-CDAT to collect UV-CDAT usage information" OFF)
-    message(FATAL_ERROR "[ERROR] Opt in or out if you want UV-CDAT to collect UV-CDAT usage information")
+    #option(CDAT_ANONYMOUS_LOG "Opt in or out if you want UV-CDAT to collect UV-CDAT usage information" OFF)
+    message(FATAL_ERROR "[ERROR] Opt in or out if you want UV-CDAT to collect anonymous usage information (CDAT_ANONYMOUS_LOG option)")
     return()
 endif()
 if (CDAT_ANONYMOUS_LOG)
