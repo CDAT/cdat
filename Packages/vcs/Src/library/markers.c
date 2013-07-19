@@ -330,7 +330,6 @@ Gpoint 	*pe;
                break;
 
 	case GMK_HURRICANE: /* hurricane */
-	  gsfais(GSOLID);
 	  for (i=0;i<npts;i++) {
                    x = pe->x;
                    y = pe->y;
@@ -340,24 +339,26 @@ Gpoint 	*pe;
                    while (angle1 <= (2*PI_V) ) {
                        xseg[j].x = x + s*cos(angle1);
                        xseg[j].y = y + s*sin(angle1);
-                       ++j;
+                       j++;
                        angle1 += add_angle;
                    }
                    angle1 = 2*PI_V+add_angle; 
                    while (angle1 >= 0 ) {
                        xseg[j].x = x + s*.58*cos(angle1);
                        xseg[j].y = y + s*.58*sin(angle1);
-                       ++j;
+                       j++;
                        angle1 -= add_angle;
                    }
-                  gfa(j, xseg);
+                  gsfais(GSOLID);
+                  fprintf(stderr,"OK GFAing %i points\n",j);
+                  gfa(j-1, xseg);
 		  j=0;
 		  angle1 = .6*PI_V; 
 		  angle2 = .88*PI_V;
 		  while (angle1 <= angle2 ) {
 		    xseg[j].x = x + 2*s + s*2*cos(angle1);
 		    xseg[j].y = y + s*2*sin(angle1);
-		    ++j;
+		    j++;
                        angle1 += add_angle;
                    }
 		  angle1 = .79*PI_V; 
@@ -365,9 +366,10 @@ Gpoint 	*pe;
 		  while (angle1 >= angle2 ) {
 		    xseg[j].x = x + 2.25*s + s*4*cos(angle1);
 		    xseg[j].y = y - 2*s + s*4*sin(angle1);
-		    ++j;
+		    j++;
 		    angle1 -= add_angle;
                    }
+                  fprintf(stderr,"OK GFAing %i points\n",j);
 		  gfa(j-1,xseg);
 
 		  j=0;
@@ -384,12 +386,14 @@ Gpoint 	*pe;
 		  while (angle1 >= angle2 ) {
 		    xseg[j].x = x - 2.27*s + s*4*cos(angle1);
 		    xseg[j].y = y + 2*s + s*4*sin(angle1);
-		    ++j;
+		    j++;
 		    angle1 -= add_angle;
                    }
+                  fprintf(stderr,"OK GFAing %i points\n",j);
 		  gfa(j-1,xseg);
 		  pe++;
 	  	}
+                fprintf(stderr,"Ok done where the heck is it dyinmg then?");
 		break;
 
            case GMK_w00:
@@ -1064,9 +1068,6 @@ Gpoint 	*pe;
 
 	//w14
 	case GMK_w14:
-
-
-		
 		for (i = 0; i < npts; i++) {
 			x = pe->x;
 			y = pe->y;
@@ -8703,5 +8704,6 @@ case GMK_w56:
                break;
         }
 	/* Set the Line attributes back */
+        fprintf(stderr,"ok finished... why did it crashed\n");
 }
 		
