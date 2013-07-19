@@ -18,3 +18,14 @@ add_test(cdms_verify
   uvcdat
   0.05
 )
+
+#test that clt axis variables can be plot
+add_test(cdms_load_and_plot_axis_variable
+  ${CMAKE_INSTALL_PREFIX}/bin/runpytest
+  ${CMAKE_BINARY_DIR}/tmp
+  ${cdat_SOURCE_DIR}/testing/uvcdat/cdms_test_axis_var.vt:test_plot_axis_var
+  "datafile=${cdat_SOURCE_DIR}/libcdms/src/cdunif/test/testnc.nc"
+  cdms_test_axis_var_5.png
+  uvcdat
+  0.05
+)
