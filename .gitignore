@@ -20,6 +20,8 @@
 TAGS
 .ant-targets-build.xml
 *~
+*swp
+*.png
 *.cache
 *.DS_Store
 *.a

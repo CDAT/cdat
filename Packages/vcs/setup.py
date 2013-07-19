@@ -186,7 +186,8 @@ xml2_libs=c
 vcs_extra_compile_args = []
 # ??? Add code to detect Qt and locaton here
 if WM=="QT" or EM=="QT":
-    moc_mainwindow_path = os.path.join(os.environ['BUILD_DIR'], "moc_mainwindow.cpp")
+    moc_mainwindow_path = os.path.abspath(os.path.join(os.environ['BUILD_DIR'], "moc_mainwindow.cpp"))
+    print "Moc:",moc_mainwindow_path
     print "QT PATH:",QT_PATH_INC,QT_PATH_LIB,QT_PATH_BIN
     QT_SOURCES=""" main.cpp mainwindow.cpp qti.cpp %s""" % moc_mainwindow_path
     qtsourcelist=QT_SOURCES.split()

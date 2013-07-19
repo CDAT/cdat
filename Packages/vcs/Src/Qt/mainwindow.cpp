@@ -1,5 +1,5 @@
-#include <cairo/cairo.h>
-#include "mainwindow.h"
+# include <cairo/cairo.h>
+#include "Qt/mainwindow.h"
 #include <Python.h>
 #include <QtCore/QEvent>
 #include <QtCore/QMutex>
@@ -8,7 +8,7 @@
 #include <QtGui/QMenu>
 #include <QtGui/QPainter>
 #include <QtGui/QToolTip>
-#include "vcs_events_Qt_mapping.h"
+#include "Qt/vcs_events_Qt_mapping.h"
 #include "vcs_canvas.h"
 #include <QtCore/QString>
 
@@ -145,7 +145,7 @@ QString prepare_info(struct data_point info) {
 }
 
 MainWindow::MainWindow(QWidget * parent, Qt::WindowFlags flags):
-    QMainWindow(parent, flags)
+    QMainWindow(parent, flags), qImage(NULL)
 {
   this->setAutoFillBackground(false);
   this->setAttribute(Qt::WA_OpaquePaintEvent);
@@ -345,6 +345,12 @@ bool MainWindow::event(QEvent *event)
   // }
   else if (event->type()==VCS_PUT_IMAGE_EVENT) {
     this->image = ((QVCSEvent *)event)->data;
+    this->qImage = NULL;
+    this->repaint();
+  }
+  else if (event->type()==VCS_PUT_QIMAGE_EVENT) {
+    this->image = NULL;
+    this->qImage = (QImage*)((QVCSEvent *)event)->data;
     this->repaint();
   }
   else if (event->type()==VCS_REPAINT_EVENT) {
@@ -601,7 +607,7 @@ void MainWindow::paintEvent(QPaintEvent *)
   QPainter painter;  
   vcs_acquire_update();
   painter.begin(this);
-  if (this->image == NULL) {
+  if (this->image == NULL && this->qImage==NULL) {
     if (this->vcs_obj == NULL) {
       painter.end();
       vcs_release_update();
@@ -629,12 +635,20 @@ void MainWindow::paintEvent(QPaintEvent *)
       painter.drawImage(origin,cairo_generated_image);
     }
   }
-  else {
+  else if (this->qImage==NULL) {
     painter.fillRect(0,0,this->geometry().width(),this->geometry().height(),Qt::white);
     QPointF origin(0.,0.);
     QImage img ((uchar *)this->image,this->geometry().width(),this->geometry().height(),QImage::Format_ARGB32_Premultiplied);
     painter.drawImage(origin,img);
+    free(this->image);
     this->image = NULL;
+  }
+  else {
+    QRectF viewArea(0,0,this->geometry().width(),this->geometry().height());
+    painter.fillRect(viewArea, Qt::white);
+    painter.drawImage(viewArea, *this->qImage);
+    delete this->qImage;
+    this->qImage = NULL;
   }
   painter.end();
   vcs_release_update();

@@ -44,35 +44,38 @@ support.dogui = True
 if support.dogui:
 
     f=cdms.open(os.path.join(cdms.__path__[0],'..','..','..','..','sample_data','clt.nc'))
-    s=f('clt')
-    s=s[0:12,:]
-
+    u=f('u')
+    v=f("v")
+    s=f("clt")
+    
     x=vcs.init()
 #    y=vcs.init()
 
+    V=x.createvector('new')
     b=x.createboxfill('new')
-    x.plot(s,b)
+
+    print x.listelements("template")
+    t1=x.gettemplate("top_of2")
+    t2=x.gettemplate("bot_of2")
+    x.plot(s[:12],s[:12],t1,V)
+    x.plot(s[:12],t2,b)
 
     #x.animate.create(thread_it=1)
     #raw_input("press enter")
-    x.animate.create()
+    x.animate.create(thread_it=0)
     x.animate.run()
-    import time
-    time.sleep(2)
-    x.animate.zoom(1.4)
-    time.sleep(2)
-    x.animate.horizontal(50)
-    x.animate.vertical(-50)
-    import time
-    time.sleep(3)
+#    x.animate.zoom(3)
+#    x.animate.horizontal(50)
+#    x.animate.vertical(-50)
+
 #    x.animate.gui()
-    x.animate.pause(1)
-    import time
-    time.sleep(9)
-    x.animate.stop()
+#    x.animate.pause(4)
+#    x.animate.stop()
 #    x.animate.zoom(1)
 #    x.animate.frame(2)
 #    x.animate.frame(5)
 #    x.animate.close()
 else:
     print 'You need to run this one by hand (turn support.dogui to True first)'
+
+raw_input()
