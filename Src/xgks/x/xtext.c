@@ -232,8 +232,9 @@ xXgksTextCAIRO(ws, tx)
   cairo_t        *cr;
   cairo_surface_t *surface;
   double dx,dy;
-  XPoint          xp1,xp2;
+  Gpoint          xp1,xp2;
 #ifdef X11WM
+  XPoint          xp1,xp2;
   XWindowAttributes 	xwa;
 #endif
     extern char text_hpath,text_vpath,text_path;

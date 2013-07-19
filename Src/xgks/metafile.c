@@ -1580,7 +1580,7 @@ XgksMoSetGraphicAttr(code, attr)
 #ifdef CAIRODRAW
     if (num_cairomo > 0) {
       CAIROsetGraphAttr(active_cairomo, num_cairomo, code, attr);
-      fprintf(stderr,"ok we sent: %i\n",attr);
+      //fprintf(stderr,"ok we sent: %i\n",attr);
     }
 #endif
     return OK;

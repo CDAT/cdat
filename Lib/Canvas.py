@@ -5170,7 +5170,6 @@ Options:::
                     else:
                         copy_mthd.datawc_y2 = cdtime.reltime(copy_mthd.datawc_y2,oax.units).tocomp(oax.getCalendar()).torel(copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
                 if copy_mthd.yticlabels1=='*' :
-                    print "going in:",copy_mthd
                     copy_mthd.yticlabels1=vcs.generate_time_labels(copy_mthd.datawc_y1,copy_mthd.datawc_y2,copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
                 if copy_mthd.yticlabels2=='*' : copy_mthd.yticlabels2=vcs.generate_time_labels(copy_mthd.datawc_y1,copy_mthd.datawc_y2,copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
         elif not (getattr(copy_mthd,'g_name','')=='Gfm' and isinstance(arglist[0].getGrid(), (cdms2.gengrid.AbstractGenericGrid,cdms2.hgrid.AbstractCurveGrid))):
@@ -5549,7 +5548,7 @@ Options:::
             # Pointer to the plotted slab of data and the VCS Canas display infomation. 
             # This is needed to find the animation min and max values and the number of 
             # displays on the VCS Canvas.
-            self.animate_info.append( (result, arglist[0]) )
+            self.animate_info.append( (result, arglist[:2]) )
             self.animate.update_animate_display_list( )
         else:
             result = dn
@@ -6163,7 +6162,6 @@ Options:::
         elif orientation == 'p':
             cmd = cmd1 + filename + cmd3 + filename[:-2] + 'gif \n'
         else:
-            print 'Unknown orientation'
             cmd = '\n'
         # end if orientation == 'l':
         f=popen(cmd, 'w')
@@ -6734,7 +6732,6 @@ Options:::
             factor=1./72;
             size = float(width)/float(height)
         except Exception,err:
-            print err
             factor=1.;
             if self.size is None:
                 size = 1.2941176470588236
@@ -8358,7 +8355,7 @@ def change_date_time(tv, number):
 # Animate wrapper for VCS.                                                  #
 #                                                                           #
 #############################################################################
-class animate_obj:
+class animate_obj_old:
    """
  Function: animate
 
@@ -8405,6 +8402,7 @@ class animate_obj:
       ##from tkMessageBox import showerror
 
       # Cannot "Run" or "Create" an animation while already creating an animation
+      print "Ok minmax:",min,max
       if self.run_flg == 1: return
       if self.vcs_self.canvas.creating_animation() == 1: return
 
@@ -8443,6 +8441,7 @@ class animate_obj:
       self.continents_hold_value = self.vcs_self.canvas.getcontinentstype( )
       self.vcs_self.canvas.setcontinentstype( self.continents_value )
 
+      print "do min max:",do_min_max
       if ( do_min_max == 'yes' ):
          minv = []
          maxv=[]
@@ -8714,6 +8713,7 @@ class animate_obj:
          if (min != 1e20) and (max !=1e20):
             mean_veloc = float( int( numpy.sqrt( (min**2)+(max**2) ) ) )
          gm.reference = mean_veloc
+      animation_info['gname'][i] = gm.name
 
    ##############################################################################
    # Return the animation min and max values                                    #
@@ -8786,7 +8786,7 @@ class animate_obj:
          self.vcs_self.canvas.animate_stop()
       elif (self.create_flg == 1):
          self.vcs_self.canvas.animate_stop_create()
-
+	
    ##############################################################################
    # View the specified animation frame                          		#
    ##############################################################################
@@ -8919,6 +8919,173 @@ class animate_obj:
          a = _animationgui.create(self, gui_parent, transient)
          return a
 
+class animate_obj(animate_obj_old):
+    def __init__(self, vcs_self):
+        animate_obj_old.__init__(self,vcs_self)
+        self.pause_value = .1
+        self.zoom_factor = 1.
+        self.vertical_factor = 0
+        self.horizontal_factor = 0
+
+    def create( self, parent=None, min=None, max=None, save_file=None, thread_it = 1, rate=5., bitrate=None, ffmpegoptions='', axis=0):
+        if thread_it:
+            class crp(QtCore.QObject):
+                pass
+            C=crp()
+            thread.start_new_thread(self._actualCreate,(parent,min,max,save_file,rate,bitrate,ffmpegoptions,axis,C))
+        else:
+            C=None
+            self._actualCreate(parent,min,max,save_file,rate,bitrate,ffmpegoptions,axis)
+        return C
+
+    def _actualCreate( self, parent=None, min=None, max=None, save_file=None, rate=5., bitrate=None, ffmpegoptions='', axis=0, sender=None):
+        alen = None
+        y=vcs.init()
+        dims = self.vcs_self.canvasinfo()
+        if dims['height']<500:
+            factor = 2
+        else:
+            factor=1
+        if dims["width"]<dims["height"]:
+            y.portrait(width=dims["width"],height=dims["height"])
+        y.setbgoutputdimensions(width = dims['width']*factor,height=dims['height']*factor,units='pixel')
+        truncated = False
+        for I in self.vcs_self.animate_info:
+            if alen is None:
+                alen = I[1][0].shape[axis]
+            else:
+                l = I[1][0].shape[axis]
+                if l!=alen:
+                    alen = numpy.minimum(alen,l)
+                    truncated = True
+        if truncated:
+            warnings.warn("Because of inconsistent shapes over axis: %i, the animation length will be truncated to: %i\n" % (axis,alen))
+        self.animation_files = []
+        # Save the min and max values for the graphics methods.
+        # Will need to restore values back when animation is done.
+        self.save_original_min_max()
+        # Note: cannot set the min and max values if the default graphics method is set.
+        do_min_max = 'yes'
+        try:
+           if (parent is not None) and (parent.iso_spacing == 'Log'):
+              do_min_max = 'no'
+        except:
+           pass
+        if ( do_min_max == 'yes' ):
+             minv = []
+             maxv=[]
+             if (min is None) or (max is None):
+                for i in range(len(self.vcs_self.animate_info)):
+                   minv.append( 1.0e77 )
+                   maxv.append( -1.0e77 )
+                for i in range(len(self.vcs_self.animate_info)):
+                   dpy, slab = self.vcs_self.animate_info[i]
+                   mins, maxs = vcs.minmax(slab)
+                   minv[i] = float(numpy.minimum(float(minv[i]), float(mins)))
+                   maxv[i] = float(numpy.maximum(float(maxv[i]), float(maxs)))
+             if ((type(min) == types.ListType) or (type(max) == types.ListType)):
+                for i in range(len(self.vcs_self.animate_info)):
+                   try:
+                      minv.append( min[i] )
+                   except:
+                      minv.append( min[-1] )
+                   try:
+                      maxv.append( max[i] )
+                   except:
+                      maxv.append( max[-1] )
+             else:
+                for i in range(len(self.vcs_self.animate_info)):
+                    minv.append( min )
+                    maxv.append( max )
+             # Set the min an max for each plot in the page. If the same graphics method is used
+             # to display the plots, then the last min and max setting of the data set will be used.
+             print "Minmaxs:",minv,maxv
+             for i in range(len(self.vcs_self.animate_info)):
+                try:
+                   self.set_animation_min_max( minv[i], maxv[i], i )
+                except:
+                   pass # if it is default, then you cannot set the min and max, so pass.
+
+        for i in range(alen):
+            y.clear()
+            for I in self.vcs_self.animate_info:
+                d=I[0]
+                kw={}
+                n = len(I[1][0].shape)
+                for j,id in enumerate(I[1][0].getAxisIds()):
+                    if j!=axis and j<n-2:
+                        kw[id]=slice(0,1)
+                    elif j==axis:
+                        kw[id]=slice(i,i+1)
+                    else:
+                        break
+                args = [I[1][0](**kw),]
+                if I[1][1] is not None:
+                    kw={}
+                    n = len(I[1][1].shape)
+                    for j,id in enumerate(I[1][1].getAxisIds()):
+                        if j!=axis and j<n-2:
+                            kw[id]=slice(0,1)
+                        elif j==axis:
+                            kw[id]=slice(i,i+1)
+                        else:
+                            break
+                    args.append(I[1][1](**kw))
+                args += [d.template,d.g_type,d.g_name]
+                b=y.getboxfill(d.g_name)
+                y.plot(*args,bg=1)    
+
+            fn = tempfile.mkstemp(suffix=".png")[1]
+            self.animation_files.append(fn)
+            y.png(fn)
+            y.png("sample")
+        self.restore_min_max()
+        if sender is not None:
+            sender.emit(QtCore.SIGNAL("AnimationCreated"),"Hello there")
+        
+        
+    def runner(self):
+        self.runit = True
+        while self.runit:
+            for fn in self.animation_files:
+                if not self.runit:
+                    break
+                self.vcs_self.canvas.put_png_on_canvas(fn,self.zoom_factor,self.vertical_factor,self.horizontal_factor)
+                import time
+                time.sleep(self.pause_value)
+    def run(self,*args):
+        #self.runner()
+        self.runthread = thread.start_new_thread(self.runner,())
+
+    def draw(self, frame):
+        print "Clearing!!!!!!"
+        self.vcs_self.clear()
+        self.vcs_self.canvas.put_png_on_canvas(self.animation_files[frame],
+                                               self.zoom_factor,self.vertical_factor,self.horizontal_factor)
+        
+    def frame(self, frame):
+        self.draw(frame)
+
+    def save(self,movie,bitrate=1024, rate=None, options=''):
+        self.vcs_self.ffmpeg(movie, self.animation_files, bitrate, rate, options)
+
+    def number_of_frames(self):
+        return len(self.animation_files)
+
+    def stop(self):
+        self.runit = False
+    def pause(self,value):
+        self.pause_value = value
+
+    def zoom(self,value):
+        self.zoom_factor = value
+    def horizontal(self,value):
+        self.horizontal_factor = value
+
+    def vertical(self,value):
+        self.vertical_factor = value
+
+    
 ############################################################################
 #        END OF FILE                                                       #
 ############################################################################
