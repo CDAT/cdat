@@ -31,5 +31,5 @@ file(
   CDAT_USE_SYSTEM_ZLIB_PATCH_SRC:STRING=3
   QT_QMAKE_EXECUTABLE:STRING=/usr/local/Qt/4.8.0/bin/qmake
   CDAT_PACKAGE_CACHE_DIR:PATH=${CTEST_BINARY_DIRECTORY}/../cdat_dependencies
-  PIP_CERTIFICATE:STRING=/export/doutriaux1/ca.llnl.gov.pem.cer
+#  PIP_CERTIFICATE:STRING=/export/doutriaux1/ca.llnl.gov.pem.cer
 ")
