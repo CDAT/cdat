@@ -5,49 +5,49 @@
 #include "vcs_marker.h"
 
 /* Get the VCS Marker attribute settings */
-extern struct vcs_marker Vma_tab;
+    extern struct vcs_marker Vma_tab;
 
-extern FILE *fperr;/* input, output, and error for scripts */
+    extern FILE *fperr;/* input, output, and error for scripts */
 
-vgpm (npts, pe)
-int	npts;
-Gpoint 	*pe;
-{
-	int		i, j, k,k1,n, mtype;
-	int 		opwk, *pwk;
-	float   	x, y, s,tempx,tempy,startx,starty;
-	float		PI_V=3.14159265358979323846;
-        float	   	add_angle, angle1, angle2;//,myx[30],myy[30];
-    	Gpoint  	xseg[100],xseg1[100],xseg2[100], xseg3[100],xseg4[100],xseg5[100],xseg6[100],plus1[2], star1[3], cros1[2];
-    	Gpoint  	plus2[2], star2[3], cros2[2];
-    	Gpoint  	star3[3];
-	Gintlist 	wsid;
+    vgpm (npts, pe)
+    int	npts;
+    Gpoint 	*pe;
+    {
+            int		i, j, k,k1,n, mtype;
+            int 		opwk, *pwk;
+            float   	x, y, s,tempx,tempy,startx,starty;
+            float		PI_V=3.14159265358979323846;
+            float	   	add_angle, angle1, angle2;//,myx[30],myy[30];
+            Gpoint  	xseg[8000],xseg1[100],xseg2[100], xseg3[100],xseg4[100],xseg5[100],xseg6[100],plus1[2], star1[3], cros1[2];
+            Gpoint  	plus2[2], star2[3], cros2[2];
+            Gpoint  	star3[3];
+            Gintlist 	wsid;
 
-	float	        x1,y1,xcent,ycent,p,r;
-	
-	/* Get the open workstation *
-        opwk=0;
-        wsid.number = 0;
-        wsid.integers = NULL;
-        gqopwk(&wsid);
-        for (i=0,pwk=wsid.integers;i<wsid.number;i++,pwk++) {
-           if (*pwk != 7) {opwk=*pwk; break;}
-          }
-        if (opwk == 0) {
-           err_warn(0,fperr,"Error - no workstations open.\n");
-          }
-        if (wsid.number > 0 && wsid.integers != NULL)
-            free((char *)wsid.integers);*/
+            float	        x1,y1,xcent,ycent,p,r;
+            
+            /* Get the open workstation *
+            opwk=0;
+            wsid.number = 0;
+            wsid.integers = NULL;
+            gqopwk(&wsid);
+            for (i=0,pwk=wsid.integers;i<wsid.number;i++,pwk++) {
+               if (*pwk != 7) {opwk=*pwk; break;}
+              }
+            if (opwk == 0) {
+               err_warn(0,fperr,"Error - no workstations open.\n");
+              }
+            if (wsid.number > 0 && wsid.integers != NULL)
+                free((char *)wsid.integers);*/
 
-	/* Save the line attributes */
+            /* Save the line attributes */
 
-	/* Set the line attribute settings */
-	gsplci(Vma_tab.colour);	/* set line color */
+            /* Set the line attribute settings */
+            gsplci(Vma_tab.colour);	/* set line color */
 	gsln(1); 		/* set line type */
 	gslwsc(1.); 		/* set line width */
 
 	/* Set the fill color attribute settings */
-	gsfaci(Vma_tab.color);
+	gsfaci(Vma_tab.colour);
 
 	/* Set the fill area type and interior style */
 	mtype = Vma_tab.type;
@@ -333,10 +333,10 @@ Gpoint 	*pe;
 	  for (i=0;i<npts;i++) {
                    x = pe->x;
                    y = pe->y;
-                   add_angle = PI_V/50;
+                   add_angle = PI_V/360.;
                    angle1 = 0; 
                    j = 0;
-                   while (angle1 <= (2*PI_V) ) {
+                   while (angle1 <= (20*PI_V) ) {
                        xseg[j].x = x + s*cos(angle1);
                        xseg[j].y = y + s*sin(angle1);
                        j++;
@@ -368,6 +368,7 @@ Gpoint 	*pe;
 		    j++;
 		    angle1 -= add_angle;
                    }
+                  gsfais(GSOLID);
 		  gfa(j-1,xseg);
 
 		  j=0;
@@ -387,6 +388,7 @@ Gpoint 	*pe;
 		    j++;
 		    angle1 -= add_angle;
                    }
+                  gsfais(GSOLID);
 		  gfa(j-1,xseg);
 		  pe++;
 	  	}
