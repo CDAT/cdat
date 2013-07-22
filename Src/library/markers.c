@@ -333,7 +333,7 @@ Gpoint 	*pe;
 	  for (i=0;i<npts;i++) {
                    x = pe->x;
                    y = pe->y;
-                   add_angle = PI_V/180;
+                   add_angle = PI_V/50;
                    angle1 = 0; 
                    j = 0;
                    while (angle1 <= (2*PI_V) ) {
@@ -350,7 +350,6 @@ Gpoint 	*pe;
                        angle1 -= add_angle;
                    }
                   gsfais(GSOLID);
-                  fprintf(stderr,"OK GFAing %i points\n",j);
                   gfa(j-1, xseg);
 		  j=0;
 		  angle1 = .6*PI_V; 
@@ -369,7 +368,6 @@ Gpoint 	*pe;
 		    j++;
 		    angle1 -= add_angle;
                    }
-                  fprintf(stderr,"OK GFAing %i points\n",j);
 		  gfa(j-1,xseg);
 
 		  j=0;
@@ -389,11 +387,9 @@ Gpoint 	*pe;
 		    j++;
 		    angle1 -= add_angle;
                    }
-                  fprintf(stderr,"OK GFAing %i points\n",j);
 		  gfa(j-1,xseg);
 		  pe++;
 	  	}
-                fprintf(stderr,"Ok done where the heck is it dyinmg then?");
 		break;
 
            case GMK_w00:
@@ -8704,6 +8700,5 @@ case GMK_w56:
                break;
         }
 	/* Set the Line attributes back */
-        fprintf(stderr,"ok finished... why did it crashed\n");
 }
 		
