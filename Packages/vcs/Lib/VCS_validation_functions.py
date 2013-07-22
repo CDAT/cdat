@@ -209,7 +209,6 @@ def checkMarker(self,name,value):
                value=value.name
      else:
          raise ValueError, 'The '+name+' value must be in : %s' % (oks)
-     print "value set to:",value
      return value
 
 def checkMarkersList(self,name,value):
