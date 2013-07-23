@@ -69,7 +69,7 @@
                for (i = 0; i < npts; i++) {
                    x = pe->x;
                    y = pe->y;
-		   add_angle = PI_V/24;
+		   add_angle = PI_V/1000;
 		   angle1 = 0; angle2 = add_angle;
 		   j = 0;
                    while (angle2 <= (2*PI_V) ) {
@@ -81,7 +81,7 @@
 		       angle1 += add_angle;
 		       angle2 += add_angle;
                    }
-                   gfa(48, xseg);
+                   gfa(j, xseg);
                    /*gflush(opwk, GNCLASS, 0);*/
                    pe++;
                }
@@ -154,7 +154,7 @@
                for (i = 0; i < npts; i++) {
                    x = pe->x;
                    y = pe->y;
-                   add_angle = PI_V/24;
+                   add_angle = PI_V/1000;
                    angle1 = 0; angle2 = add_angle;
                    j = 0;
                    while (angle2 <= (2*PI_V+add_angle) ) {
@@ -166,7 +166,7 @@
                        angle1 += add_angle;
                        angle2 += add_angle;
                    }
-                   gpl(49, xseg);
+                   gpl(j, xseg);
                    pe++;
                }
                break;
