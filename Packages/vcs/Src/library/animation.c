@@ -2102,7 +2102,7 @@ void *call_data;
            if ( (fp = fopen(load_file_name, "r")) == NULL) {
               err_warn(1,fperr,
                 "Error - Cannot open the output file (%s).\n", load_file_name);
-              return ;
+              return 0;
            }
 
            /* Step through each raster image in the file */
@@ -2131,14 +2131,14 @@ void *call_data;
                  if (ras_load_colormap(fp, &rh, &map_length, red, green, blue) == -1) {
                      err_warn(1,fperr, "Error - Cannot read colormap data.\n");
                      fclose(fp);
-                     return ;
+                     return 0;
                  }
 
                  /* Create the raster link list */
                  if ((iptr=(ANIMATIONMEMORYLIST_LINK)malloc(sizeof(ANIMATIONMEMORYLIST))) == NULL) {
                      err_warn(1,fperr,
                      "Error - Cannot Store any more images in memory!\n");
-                      return;
+                      return 0;
                  }
 		 if(!use_shared_mem) {
 #ifdef X11WM

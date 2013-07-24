@@ -1502,7 +1502,7 @@ CAIROsetTextRep(Metafile *mf, int num, Gint idx, Gtxbundl *rep)
 /*     return OK; */
 /* #if 0 */
     if (!rep)
-      return;
+      return 0;
 #ifdef CAIRODEBUG
     fprintf(stderr, "CAIROsetTextRep: index %d font prec (%d %d) exp %.6f sp %.6f color %d\n",
 	    idx, rep->fp.font, rep->fp.prec,

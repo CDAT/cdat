@@ -216,10 +216,10 @@ XgksProcessPrimi(primi)
     if (xgks_state.gks_state == GSGOP) {	/* there's opened segment,
 						 * append to it */
 	if ((tmp = XgksAppendSegPrimi(primi)) == NULL)
-	    return;				/* this means do not draw
+	    return 0;				/* this means do not draw
 						 * out, eg segment invisible */
 	XgksOutputToWs(tmp);
-	return;
+	return 0;
     }
     XgksAppendWsPrimi(primi);			/* There's no open segments,
 						 * append to active ws */

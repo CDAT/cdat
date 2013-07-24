@@ -385,14 +385,14 @@ XgksIDevDisable(ws)
     DisCount++;
 
     if (ws->ewstype != X_WIN)
-	return;
+	return 0;
 
 #ifdef IDEVDEBUG
     (void) fprintf(stderr, "XgksIDevDisable() DisCount = %d\n", DisCount);
 #endif
 
     if (DisCount > 1)				/* already done */
-	return;
+	return 0;
 
 #ifdef X11WM
     (void) XgksSIGIO_OFF(ws->dpy);
@@ -487,7 +487,7 @@ XgksIDevEnable(ws)
     DisCount--;
 
     if (ws->ewstype != X_WIN)
-	return;
+	return 0;
 
 #ifdef IDEVDEBUG
     (void) fprintf(stderr, "XgksIDevEnable() DisCount = %d\n", DisCount);
@@ -495,7 +495,7 @@ XgksIDevEnable(ws)
 
     /* only disable on last request */
     if (DisCount > 0)
-	return;
+	return 0;
 
     /* check each active input device for trigger */
     for (idev = ws->in_dev_list; idev != NULL; idev = idev->next) {
