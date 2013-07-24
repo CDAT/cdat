@@ -214,17 +214,6 @@ option(CDAT_BUILD_GUI "Builds GUI-based dependencies (Vistrails, ParaView, VisIt
 option(CDAT_BUILD_GRAPHICS "Build graphics-based dependencies (vcs, pyqt, Vistrails, ParaView, VisIt, R, etc...) " ON)
 option(CDAT_BUILD_ESGF "Builds a customized version for ESGF (Tkinter, less packages etc..)" OFF)
 
-if (NOT DEFINED CDAT_ANONYMOUS_LOG)
-    #option(CDAT_ANONYMOUS_LOG "Opt in or out if you want UV-CDAT to collect UV-CDAT usage information" OFF)
-    message(FATAL_ERROR "[ERROR] Opt in or out if you want UV-CDAT to collect anonymous usage information (CDAT_ANONYMOUS_LOG option)")
-    return()
-endif()
-if (CDAT_ANONYMOUS_LOG)
-    set(CDAT_ANONYMOUS_LOG_FLAG True)
-else ()
-    set(CDAT_ANONYMOUS_LOG_FLAG False)
-endif()
-
 # Flipping the option, Aashish add_cdat_external_dependent seems to need a negative of that
 if (CDAT_BUILD_ESGF)
     set(CDAT_BUILD_WO_ESGF OFF)

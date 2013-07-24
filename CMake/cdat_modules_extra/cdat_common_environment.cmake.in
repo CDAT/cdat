@@ -13,6 +13,7 @@ set(ENV{F77} "")
 set(ENV{FFLAGS} "")
 set(ENV{FLIBS} "")
 set(ENV{LD_X11} "") # for xgks
+set(ENV{UVCDAT_ANONYMOUS_LOG} "True")
 
 if(APPLE)
   set(ENV{MAC_OSX_DEPLOYMENT_TARGET} "@CMAKE_OSX_DEPLOYMENT_TARGET@")
