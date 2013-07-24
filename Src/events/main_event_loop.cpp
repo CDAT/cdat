@@ -524,7 +524,8 @@ void event_handler(PyVCScanvas_Object *self,  QEvent *event)
           }
         }
       }
-      
+     /* Seems to cause threads issues in Vistrails GUI removing for now */
+      /*
       if ((BUTTON == RIGHT_BUTTON ) && ( SCREEN_MODE== DATA)) {
 #ifdef X11WM
         data_window_right = display_menu(self, pointA);
@@ -533,7 +534,8 @@ void event_handler(PyVCScanvas_Object *self,  QEvent *event)
 #else
         printf("insert your WM display menu here you cliked at (%f,%f)\n",pointA.x,pointA.y);
 #endif
-      }
+      }*/
+
       /* 		      else if (BUTTON == 1) { * Initial ZOOM values (x1, y1) * */
       /*                         item = select_item(self, pointA, NULL, NULL, pe_none); */
       /*                         get_data_coords(self, pointA, item, &info); */
@@ -668,40 +670,6 @@ void event_handler(PyVCScanvas_Object *self,  QEvent *event)
       else 
         {
           if (SCREEN_MODE == DATA) {
-            if (BUTTON==RIGHT_BUTTON)
-              {
-                /* Ok we released button 3 we need to call python action linked to it */
-                /* And this before we destroy the window 'cause later wil use it to determine action selected */
-#ifdef X11WM
-//                 extern "C" int launch_py_user_action(PyVCScanvas_Object *self, Window window, XEvent event, struct data_point info, int ipoint[2]);
-                launch_py_user_action(self,data_window_right,event,info,ipointA);
-#else
-                printf("adjust launch_by_user to understand your WM here\n");
-#endif
-                /* Destroy the data and coordinate window */
-#ifdef X11WM
-                if (data_window_right != (Window)NULL) {
-                  XDestroyWindow(self->connect_id.display, data_window_right);
-                  data_window_right = (Window)NULL;
-                  waiting = 0; /* Tell expose event to do its updating when necessary */
-                  if (self->connect_id.canvas_pixmap != (Pixmap)NULL) {
-                    gc = DefaultGC(self->connect_id.display,
-                                   DefaultScreen(self->connect_id.display));
-                    XGetWindowAttributes(self->connect_id.display,
-                                         self->connect_id.drawable, &xwa);
-                    XCopyArea(self->connect_id.display,
-                              self->connect_id.canvas_pixmap,
-                              self->connect_id.drawable,
-                              gc, 0,0, xwa.width, xwa.height, 0, 0);
-
-                  }
-		  
-                }
-
-#else
-                printf("insert your WM destroy data window here \n");
-#endif
-              }
             if (BUTTON==LEFT_BUTTON) 
               {
                 /* Destroy the data and coordinate window */ 
