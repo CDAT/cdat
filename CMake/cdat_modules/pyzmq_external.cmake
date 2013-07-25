@@ -21,8 +21,9 @@ set(pyzmq_source "${CMAKE_CURRENT_BINARY_DIR}/build/pyzmq")
 ExternalProject_Add(pyzmq
   DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${pyzmq_source}
-  GIT_REPOSITORY ${GIT_PROTOCOL}github.com/zeromq/pyzmq.git
-  BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/pyzmq
+  BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/build/pyzmq
+  URL ${PYZMQ_SOURCE}
+  URL_MD5 ${PYZMQ_MD5}
   CONFIGURE_COMMAND ${pyzmq_CONFIGURE_COMMAND}
   BUILD_COMMAND ""
   UPDATE_COMMAND ""
