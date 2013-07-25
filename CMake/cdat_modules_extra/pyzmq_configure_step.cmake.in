@@ -1,4 +1,4 @@
-message("Building Mpi4py:\n@pyzmq_binary@")
+message("Building PyZMQ:\n@pyzmq_binary@")
 include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
 set(ENV{@LIBRARY_PATH@} "@CMAKE_INSTALL_PREFIX@/lib:@cdat_EXTERNALS@/lib:$ENV{@LIBRARY_PATH@}")
 set(ENV{VS_UNICODE_OUTPUT} "")
@@ -14,7 +14,7 @@ execute_process(
   OUTPUT_VARIABLE pyzmq_ERR)
 
 if(NOT ${res} EQUAL 0)
-  message("Mpi4py Errors detected: \n${pyzmq_OUT}\n${pyzmq_ERR}")
+    message("PyZMQ errors detected: \n${pyzmq_OUT}\n${pyzmq_ERR}")
   message(FATAL_ERROR "Error in config of pyzmq")
 endif()
 message("pyzmq build worked.")
