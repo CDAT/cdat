@@ -1,1 +1,1 @@
-set(pyzmq_deps ${sphinx_pkg} ${pip_pkg})
+set(pyzmq_deps ${zmq_pkg} ${cython_pkg})

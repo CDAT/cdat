@@ -1,0 +1,20 @@
+message("Building PyZMQ:\n@pyzmq_binary@")
+include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
+set(ENV{@LIBRARY_PATH@} "@CMAKE_INSTALL_PREFIX@/lib:@cdat_EXTERNALS@/lib:$ENV{@LIBRARY_PATH@}")
+set(ENV{VS_UNICODE_OUTPUT} "")
+if(APPLE)
+    set(ENV{CFLAGS} "@cdat_osx_arch_flag@ @cdat_osx_version_flag@ @cdat_osx_sysroot@")
+endif()
+
+execute_process(
+  COMMAND env  @LIBRARY_PATH@="$ENV{LD_LIBRARY_PATH}" "@PYTHON_EXECUTABLE@" setup.py configure --zmq=${cdat_EXTERNALS}
+  WORKING_DIRECTORY "@pyzmq_binary@"
+  RESULT_VARIABLE res
+  OUTPUT_VARIABLE pyzmq_OUT
+  OUTPUT_VARIABLE pyzmq_ERR)
+
+if(NOT ${res} EQUAL 0)
+    message("PyZMQ errors detected: \n${pyzmq_OUT}\n${pyzmq_ERR}")
+  message(FATAL_ERROR "Error in config of pyzmq")
+endif()
+message("pyzmq build worked.")
