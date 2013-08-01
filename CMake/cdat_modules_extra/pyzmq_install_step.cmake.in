@@ -7,7 +7,7 @@ if(APPLE)
 endif()
 
 execute_process(
-  COMMAND env  @LIBRARY_PATH@="$ENV{LD_LIBRARY_PATH}" "@PYTHON_EXECUTABLE@" setup.py install @PYTHON_EXTRA_PREFIX@
+  COMMAND env  @LIBRARY_PATH@="$ENV{LD_LIBRARY_PATH}" "@PYTHON_EXECUTABLE@" setup.py install --zmq=@cdat_EXTERNALS@
   WORKING_DIRECTORY "@pyzmq_binary@"
   RESULT_VARIABLE res
   OUTPUT_VARIABLE pyzmq_OUT
