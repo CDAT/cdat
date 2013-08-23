@@ -1,5 +1,6 @@
 add_subdirectory(uvcdat)
 add_subdirectory(regrid)
+add_subdirectory(vcs)
 if (CDAT_BUILD_PARAVIEW)
   add_subdirectory(paraview)
 endif()

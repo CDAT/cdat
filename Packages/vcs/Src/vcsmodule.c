@@ -17722,6 +17722,8 @@ PyVCS_plot(PyVCScanvas_Object *self, PyObject *args)
 #endif
 	extern struct orientation       Page;
 
+	char animbg[4];
+	strcpy(animbg,"bg");
 	/* If the GUI was not stated (i.e., cdatgui), then we need to
 	 * process all the X events before we move on.
 	 */
@@ -17777,6 +17779,11 @@ an_loop:
            } else {
               self->background = NULL;
            }
+	   if (doing_animation==1) {
+	     self->background = animbg;
+	     fprintf(stderr,"ok we set animbg and bg to: %s, %s\n",animbg,self->background);
+	     sleep(6);
+	   }
            if (hold == Py_None)
               slab = NULL;
 	   else 
@@ -18137,7 +18144,7 @@ heartbeat("Slab2 name set to %s", s_name[0]);
         }
 /* 	fprintf(stderr,"ok this is where i want to update for now\n"); */
 #elif defined (QTWM)
-	/* vcs_Qt_repaint_window_by_id(self->connect_id.wkst_id); */
+	vcs_Qt_repaint_window_by_id(self->connect_id.wkst_id); 
 
 #else
 	printf("insert here your WM sync and flush functions\n");
@@ -20280,6 +20287,23 @@ PyVCS_animate_run(PyVCScanvas_Object *self, PyObject *args)
         return Py_None;
 }
 
+/* put a png onto Canvas - no check for sizes!! */
+static PyObject *
+PyVCS_put_png(PyVCScanvas_Object *self, PyObject *args) {
+    char *fnm;
+    float zoom;
+    int vert,horiz;
+
+#ifdef QTWM
+    extern vcs_Qt_put_image_from_png_file(int, float, int, int, char *);
+
+    //vcs_Qt_open_window_by_id(self->connect_id.wkst_id);
+    if (PyArg_ParseTuple(args,"sfii",&fnm,&zoom,&vert,&horiz)) { 
+       vcs_Qt_put_image_from_png_file(self->connect_id.wkst_id, zoom, vert, horiz, fnm);
+    }
+#endif
+    return Py_None;
+}
 /* Stop the animation loop */
 static PyObject *
 PyVCS_animate_stop(PyVCScanvas_Object *self, PyObject *args)
@@ -20778,6 +20802,7 @@ PyVCS_portrait(PyVCScanvas_Object *self, PyObject *args)
         PyObject * 			 PyVCS_clear(PyVCScanvas_Object *self, PyObject *args);
 
         /* Check to see if vcs has been initalized */
+        fprintf(stderr,"OK we actually get here %i, %p\n",self->orientation,self);
         if (self == NULL) {
            PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs.init()).");
            return NULL;
@@ -20862,9 +20887,17 @@ PyVCS_portrait(PyVCScanvas_Object *self, PyObject *args)
 static PyObject *
 PyVCS_return_orientation(PyVCScanvas_Object *self, PyObject *args)
 {
-        extern struct orientation       Page;
+    /* Bellow seems to pick up only canvas 0 */
+  /*      extern struct orientation       Page;
 
   	return Py_BuildValue("s", Page.page_orient);
+*/
+if (self->orientation==0) {
+    return Py_BuildValue("s","landscape");
+}
+else {
+    return Py_BuildValue("s","portrait");
+}
 }
 
 /* Update VCS's page orientation. */
@@ -21251,6 +21284,7 @@ static PyMethodDef PyVCScanvas_methods[] =
   {"creating_animation", (PyCFunction)PyVCS_creating_animation, 1},
   {"update_animation_data", (PyCFunction)PyVCS_update_animation_data, 1},
   {"return_dimension_info", (PyCFunction)PyVCS_return_dimension_information, 1},
+  {"put_png_on_canvas",(PyCFunction)PyVCS_put_png,1},
 /* Display plot functions */
   {"getDpmember", (PyCFunction)PyVCS_getDpmember, 1},
   {"setDpmember", (PyCFunction)PyVCS_setDpmember, 1},

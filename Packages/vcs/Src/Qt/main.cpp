@@ -1,5 +1,5 @@
-#include "mainwindow.h"
-#include "qti.h"
+#include "Qt/mainwindow.h"
+#include "Qt/qti.h"
 
 #include <QtCore/QEvent>
 #include <QtCore/QWaitCondition>
@@ -10,8 +10,9 @@
 #include <QtGui/QDesktopWidget>
 #include <QtGui/QResizeEvent>
 #include <QtGui/QToolTip>
-#include <QMutex>
-
+#include <QtGui/QLabel>
+#include <QtGui/QDialog>
+#include <QtGui/QLayout>
 #include <stdio.h>
 
 QMutex canvasupdatemutex(QMutex::Recursive);
@@ -177,6 +178,34 @@ extern "C" void vcs_Qt_window_put_image_by_id(int id, void *ximage)
   VCSQtManager::sendEvent(id, event);
 }
 
+extern "C" void vcs_Qt_window_put_qimage_by_id(int id, QImage *qImage)
+{
+  QVCSEvent *event = new QVCSEvent(VCS_PUT_QIMAGE_EVENT, true);
+  QSize sz = qImage->size();
+  event->data = (void*)qImage;
+  VCSQtManager::sendEvent(id, event);
+}
+
+extern "C" void vcs_Qt_put_image_from_png_file(int id, float zoom, int vert, int horiz, char *fnm) {
+    QImage img0(fnm);
+    QImage img = img0.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+    QSize sz = img.size();
+    if (zoom != 1.) {
+        img = img.scaledToHeight(zoom*sz.height());
+    }
+    QSize sz2 = img.size();
+    int x1 = ((zoom -1)/2.+float(horiz)/100.)*sz.width();
+    int y1 = ((zoom-1)/2.+float(vert)/100.)*sz.height();
+    if (x1<0) x1=0;
+    if (y1<0) y1=0;
+    if (x1>sz2.width()-sz.width()) x1=sz2.width()-sz.width();
+    if (y1>sz2.height()-sz.height()) y1=sz2.height()-sz.height();
+
+    QImage *img2 = new QImage(img.copy(x1,y1,sz.width(),sz.height()));
+    sz2 = img2->size();
+    vcs_Qt_window_put_qimage_by_id(id, img2);
+}
+
 extern "C" void vcs_Qt_image_create(void **image, int width, int height)
 {
   QImage img(width,height,QImage::Format_ARGB32_Premultiplied);
@@ -222,6 +251,11 @@ extern "C" void createVCSCanvases()
 {
   createdMutex.lock();
   if (!VCSQtManager::isCreated()) { // only run the the app once
+    if (!VCSQtManager::app()) {
+      static int argc = 1;
+      static char *argv[]= {"null"};
+      static QPythonApp *app = new QPythonApp(argc, argv);
+    }
     VCSQtManager::createCanvases();
     if (VCSQtManager::owningApp())
       VCSQtManager::executeDeferred(setAppIcon);
