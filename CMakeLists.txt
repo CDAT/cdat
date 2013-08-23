@@ -82,7 +82,7 @@ if(APPLE)
     set(CMAKE_OSX_ARCHITECTURES_M "64" CACHE STRING "" FORCE)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "${OSX_VER_MAJOR}.${OSX_VER_MINOR}" CACHE STRING "" FORCE)
   endif()
-  
+
   # Support only 10.6 or higher for now
   if(IS_DIRECTORY "/Developer/SDKs/MacOSX10.6.sdk")
     set(HAVE_10_6_SDK TRUE)
@@ -203,23 +203,25 @@ endif(CMAKE_Fortran_COMPILER)
 #-----------------------------------------------------------------------------
 set(PARTS_BUILT_INFO "${cdat_BINARY_DIR}/build_info.txt" CACHE STRING "File where to store build infos" FORCE)
 option(CDAT_BUILD_PARALLEL "Build parallel components of CDAT" ON)
-#OPtion to choose between easy_install and pip (crunchy ssl/man in the middle prevents us to use pip here...
-set(EGG_INSTALLER "PIP" CACHE STRING "Which package installer to use") 
+
+# Option to choose between easy_install and pip (crunchy ssl/man in the middle prevents us to use pip here...
+set(EGG_INSTALLER "PIP" CACHE STRING "Which package installer to use")
 set_property(CACHE EGG_INSTALLER PROPERTY STRINGS "PIP" "EASY_INSTALL")
 set(PIP_CERTIFICATE "" CACHE STRING "Certificate to use for PIP (LLNL issue really)")
-#Options for various types of builds
+
+# Options for various types of builds
 option(CDAT_BUILD_GUI "Builds GUI-based dependencies (Vistrails, ParaView, VisIt, R, etc...) " ON)
 option(CDAT_BUILD_GRAPHICS "Build graphics-based dependencies (vcs, pyqt, Vistrails, ParaView, VisIt, R, etc...) " ON)
 option(CDAT_BUILD_ESGF "Builds a customized version for ESGF (Tkinter, less packages etc..)" OFF)
 
-#Flipping the option, Aashish add_cdat_external_dependent seems to need a negative of that
+# Flipping the option, Aashish add_cdat_external_dependent seems to need a negative of that
 if (CDAT_BUILD_ESGF)
     set(CDAT_BUILD_WO_ESGF OFF)
 else()
     set(CDAT_BUILD_WO_ESGF ON)
 endif()
 
-#First of all if ESGF then turn OFF GRAPHICS
+# First of all if ESGF then turn OFF GRAPHICS
 if (NOT CDAT_BUILD_WO_ESGF)
     set(CDAT_BUILD_GRAPHICS OFF)
     set(CDAT_BUILD_PARALLEL OFF)
@@ -228,7 +230,7 @@ else()
     set(CDMS_ONLY "")
 endif()
 
-# if no graphics then no gui as well
+# If no graphics then no gui as well
 if (NOT CDAT_BUILD_GRAPHICS)
   set(CDAT_BUILD_GUI OFF)
 endif()
@@ -490,6 +492,11 @@ message("[INFO] CDAT external link directories: ${cdat_external_link_directories
 
 # Configure remaining files
 #-----------------------------------------------------------------------------
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/install.py.in
+    ${cdat_SOURCE_DIR}/installation/install.py
+  @ONLY
+)
+
 configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/checked_get.sh.in
   ${cdat_BINARY_DIR}/checked_get.sh
   @ONLY
