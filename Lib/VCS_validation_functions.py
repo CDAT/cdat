@@ -155,7 +155,14 @@ def checkFont(self,name,value):
 
 def checkMarker(self,name,value):
      checkName(self,name,value)
-     if ((value in (None, 'dot', 'plus', 'star', 'circle', 'cross', 'diamond', 'triangle_up', 'triangle_down', 'triangle_down', 'triangle_left', 'triangle_right', 'square', 'diamond_fill', 'triangle_up_fill', 'triangle_down_fill', 'triangle_left_fill', 'triangle_right_fill', 'square_fill', 'hurricane', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 ,15, 16, 17, 18)) or (queries.ismarker(value)==1)):
+     oks = [None, 'dot', 'plus', 'star', 'circle', 'cross', 'diamond', 'triangle_up', 'triangle_down', 'triangle_down', 'triangle_left', 'triangle_right', 'square', 'diamond_fill', 'triangle_up_fill', 'triangle_down_fill', 'triangle_left_fill', 'triangle_right_fill', 'square_fill', 'hurricane']
+     for i in range(103):
+         oks.append('w%.2i' % i)
+     for i in range(19):
+         oks.append(i)
+     for i in range(100,203):
+         oks.append(i)
+     if ((value in oks) or (queries.ismarker(value)==1)):
           if value in (None, 0):
                value=None
           elif value in ('dot', 1):
@@ -194,10 +201,14 @@ def checkMarker(self,name,value):
                value='square_fill'
           elif value in ('hurricane', 18):
                value='hurricane'
+          elif isinstance(value,str) and value[0]=="w" and int(value[1:]) in range(103):
+              value = value
+          elif value in range(100,203):
+              value = "w%.2i" % (value-100)
           elif (queries.ismarker(value)==1):
                value=value.name
      else:
-          raise ValueError, 'The '+name+' value can either be (None, "dot", "plus", "star", "circle", "cross", "diamond", "triangle_up", "triangle_down", "triangle_left", "triangle_right", "square", "diamond_fill", "triangle_up_fill", "triangle_down_fill", "triangle_left_fill", "triangle_right_fill", "square_fill", "hurricane") or (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18) or a marker object.'
+         raise ValueError, 'The '+name+' value must be in : %s' % (oks)
      return value
 
 def checkMarkersList(self,name,value):

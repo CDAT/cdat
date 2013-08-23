@@ -35,6 +35,8 @@ def minmax(*data) :
   global myfunction
   
   def myfunction(d,mx,mn):
+    if d is None:
+        return mx,mn
     from numpy.ma import maximum,minimum,masked_where,absolute,greater,count
     try:
       d=masked_where(greater(absolute(d),9.9E19),d)
