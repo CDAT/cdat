@@ -1,22 +1,22 @@
 #############################################################################
 #                                                                           #
-# Create the $HOME/PCMDI_GRAPHICS directory if it is does not exist.        #
+# Create the $HOME/.uvcdat directory if it is does not exist.        #
 # Copy the appropriate files from the $PYTHONHOME/bin directory to the      #
-# user's $HOME/PCMDI_GRAPHICS directory.                                    #
+# user's $HOME/.uvcdat directory.                                    #
 #                                                                           #
 #############################################################################
 def _files():
    import sys, os, shutil,vcs
-
+   dotdir, dotdirenv = vcs.slabapi.getdotdirectory()
    #
-   # Create PCMDI_GRAPHICS directory if it does not exist
+   # Create .uvcdat directory if it does not exist
    try:
-      fn = os.environ['PCMDI_GRAPHICS_DIR']
+      fn = os.environ[dotdirenv]
    except:
       try:
-         fn = '%s/PCMDI_GRAPHICS' % os.environ['HOME']
+         fn = '%s/%s' % (os.environ['HOME'],dotdir)
       except:
-         print "Could not find the $HOME directory or the PCMDI_GRAPHICS_DIR . Set your environment variable 'HOME' or 'PCMDI_GRAPHICS_DIR'"
+         print "Could not find the $HOME directory or the %s . Set your environment variable 'HOME' or '%s'" % (dotdir,dotdirenv)
          print "to your home directory. (e.g., 'setenv HOME /home/user')."
          sys.exit()
    if os.access(fn, os.X_OK) == 0:
@@ -26,13 +26,13 @@ def _files():
          print "Do not have write permission for user's home directory. Must have write permissions."
          sys.exit()
    #
-   # Copy the initial.attributes file to the user's $HOME/PCMDI_GRAPHICS directory
+   # Copy the initial.attributes file to the user's $HOME/.uvcdat directory
    init_file_cp = os.path.join(vcs.__path__[0],'..','..','..','..', 'bin', 'initial.attributes')
    init_file = os.path.join( fn, 'initial.attributes')
    if (os.access(init_file_cp, os.F_OK) == 1)  and (os.path.isfile(init_file) == 0):
       shutil.copyfile(init_file_cp, init_file)
       
-   # Copy the  icon file to the user's $HOME/PCMDI_GRAPHICS directory
+   # Copy the  icon file to the user's $HOME/.uvcdat directory
    icon_file_cp = os.path.join(vcs.__path__[0],'..','..','..','..', 'bin', 'vcs_icon.xbm')
    icon_file = os.path.join( fn, 'vcs_icon.xbm')
 ##    if (os.access(icon_file_cp, os.F_OK) == 1)  and (os.path.isfile(icon_file) == 0):
@@ -40,7 +40,7 @@ def _files():
       
       shutil.copyfile(icon_file_cp, icon_file)
    #
-   # Copy the HARD_COPY file to the user's $HOME/PCMDI_GRAPHICS directory
+   # Copy the HARD_COPY file to the user's $HOME/.uvcdat directory
    hard_copy_cp = os.path.join(vcs.__path__[0],'..','..','..','..', 'bin', 'HARD_COPY')
    hard_copy = os.path.join(fn, 'HARD_COPY')
    if (os.access(hard_copy_cp, os.F_OK) == 1)  and (os.path.isfile(hard_copy) == 0):
@@ -49,31 +49,31 @@ def _files():
       add_gplot_commands()
 
    #
-   # Copy the data_continent_states file to the user's $HOME/PCMDI_GRAPHICS directory
+   # Copy the data_continent_states file to the user's $HOME/.uvcdat directory
    cont_states_cp = os.path.join( vcs.__path__[0],'..','..','..','..', 'bin', 'data_continent_states')
    cont_states = os.path.join( fn, 'data_continent_states')
    if (os.access(cont_states_cp, os.F_OK) == 1)  and (os.path.isfile(cont_states) == 0):
       shutil.copyfile(cont_states_cp, cont_states)
    #
-   # Copy the data_continent_political file to the user's $HOME/PCMDI_GRAPHICS directory
+   # Copy the data_continent_political file to the user's $HOME/.uvcdat directory
    cont_political_cp = os.path.join( vcs.__path__[0],'..','..','..','..', 'bin', 'data_continent_political' )
    cont_political = os.path.join( fn, 'data_continent_political' )
    if (os.access(cont_political_cp, os.F_OK) == 1)  and (os.path.isfile(cont_political) == 0):
       shutil.copyfile(cont_political_cp, cont_political)
    #
-   # Copy the data_continent_river file to the user's $HOME/PCMDI_GRAPHICS directory
+   # Copy the data_continent_river file to the user's $HOME/.uvcdat directory
    cont_river_cp = os.path.join( vcs.__path__[0],'..','..','..','..', 'bin', 'data_continent_river' )
    cont_river = os.path.join( fn, 'data_continent_river' )
    if (os.access(cont_river_cp, os.F_OK) == 1)  and (os.path.isfile(cont_river) == 0):
       shutil.copyfile(cont_river_cp, cont_river)
    #
-   # Copy the data_continent_other7 file to the user's $HOME/PCMDI_GRAPHICS directory
+   # Copy the data_continent_other7 file to the user's $HOME/.uvcdat directory
    cont_other7_cp = os.path.join( vcs.__path__[0],'..','..','..','..', 'bin', 'data_continent_other7' )
    cont_other7 = os.path.join( fn, 'data_continent_other7' )
    if (os.access(cont_other7_cp, os.F_OK) == 1)  and (os.path.isfile(cont_other7) == 0):
       shutil.copyfile(cont_other7_cp, cont_other7)
 
-   # Copy font files to the user's $HOME/PCMDI_GRAPHICS
+   # Copy font files to the user's $HOME/.uvcdat
    for font in ['Adelon_Regular', 'Arabic', 'Athens_Greek', 'AvantGarde-Book_Bold',
                 'Chinese_Generic1', 'Clarendon', 'Courier', 'hebrew', 'HelvMono',
                 'Russian', 'Times_CG_ATT', 'jsMath-wasy10', 'blex', 'blsy', 'jsMath-msam10']:
@@ -95,15 +95,16 @@ def _XGKSFontDir( ):
 #############################################################################
 #                                                                           #
 # Return the list of available printers from the HARD_COPY file. The        #
-# printer list will be located in the user's $HOME/PCMDI_GRAPHICS/HARD_COPY #
+# printer list will be located in the user's $HOME/.uvcdat/HARD_COPY #
 # file.                                                                     #
 #                                                                           #
 #############################################################################
 def list_printers( ):
-   import os
+   import os,vcs
+   dotdir = vcs.slabapi.getdotdirectory()[0]
    plist = []
    try:
-      fn = '%s/PCMDI_GRAPHICS/HARD_COPY' % os.environ['HOME']
+      fn = '%s/%s/HARD_COPY' % (os.environ['HOME'],dotdir)
    except:
       return plist
    try:
@@ -125,15 +126,16 @@ def list_printers( ):
 #############################################################################
 #                                                                           #
 # Add to the list of available printers in  the HARD_COPY file.  The        #
-# printer list will be located in the user's $HOME/PCMDI_GRAPHICS/HARD_COPY #
+# printer list will be located in the user's $HOME/.uvcdat/HARD_COPY #
 # file.                                                                     #
 #                                                                           #
 #############################################################################
 def add_printer( printer_name ):
    import os
    plist = []
+   dotdir = vcs.slabapi.getdotdirectory()[0]
    try:
-      fn = '%s/PCMDI_GRAPHICS/HARD_COPY' % os.environ['HOME']
+      fn = '%s/%s/HARD_COPY' % (os.environ['HOME'],dotdir)
    except:
       return plist
    try:
@@ -148,15 +150,16 @@ def add_printer( printer_name ):
 #############################################################################
 #                                                                           #
 # Remove name from the list of available printers in the HARD_COPY file. The#
-# printer list will be located in the user's $HOME/PCMDI_GRAPHICS/HARD_COPY #
+# printer list will be located in the user's $HOME/.uvcdat/HARD_COPY #
 # file.                                                                     #
 #                                                                           #
 #############################################################################
 def remove_printer( printer_name ):
-   import os, string
+   import os, string,vcs
    plist = []
+   dotdir = vcs.slabapi.getdotdirectory()[0]
    try:
-      fn = '%s/PCMDI_GRAPHICS/HARD_COPY' % os.environ['HOME']
+      fn = '%s/%s/HARD_COPY' % (os.environ['HOME'],dotdir)
    except:
       return plist
    try:
@@ -180,9 +183,10 @@ def remove_printer( printer_name ):
 #############################################################################
 def add_gplot_commands( ):
    import sys, os, string, vcs
+   dotdir = vcs.slabapi.getdotdirectory()[0]
    try:
-      fn = os.path.join(os.environ['HOME'], 'PCMDI_GRAPHICS', 'HARD_COPY')
-      fn2 = os.path.join(os.environ['HOME'], 'PCMDI_GRAPHICS', 'HARD_COPY.tmp')
+      fn = os.path.join(os.environ['HOME'], dotdir, 'HARD_COPY')
+      fn2 = os.path.join(os.environ['HOME'], dotdir, 'HARD_COPY.tmp')
    except:
       return
    try:

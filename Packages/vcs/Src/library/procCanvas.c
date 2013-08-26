@@ -348,15 +348,17 @@ int procCanvas(char *str, Gconid_X_drawable **connect_id_in, int canvas_id, doub
 	  /*
 	   * Find a base directory.
 	   */
-	  if ((base_dir=getenv("PCMDI_GRAPHICS_DIR")) == NULL) {
+	  if ((base_dir=getenv(DIRECTORY_ENV)) == NULL) {
         /* HVO getenv is not thread-safe and somehow this getenv does
            not return a valid pointer */
 /* 	    if ((base_dir=getenv("HOME")) == NULL || strlen(base_dir) ==0) */
         if (1)
-	      strcpy(dirbase,"./PCMDI_GRAPHICS");
+	      strcpy(dirbase,"./");
+              strcat(dirbase,DOT_DIRECTORY);
 	    else {
               strcpy(dirbase,base_dir);
-              strcat(dirbase,"/PCMDI_GRAPHICS");
+              strcat(dirbase,"/");
+              strcat(dirbase,DOT_DIRECTORY);
 	    }
 	  } else 
 	    strcpy(dirbase,base_dir);

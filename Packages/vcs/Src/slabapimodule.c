@@ -271,6 +271,14 @@ slabapi_dimension_is_circular (self, args)
         return Py_BuildValue("i", result);
 }
 
+static PyObject *
+PyVCS_getdotdirectory(self,args)
+  PyVCScanvas_Object *self;
+  PyObject *args;
+{
+    return Py_BuildValue("(%s,%s)",DOT_DIRECTORY_DOT_DIRECTORY_ENV);
+}
+
 
 /* List of methods defined in the module */
 
@@ -289,7 +297,7 @@ static struct PyMethodDef slabapi_methods[] = {
  {"dimension_bounds",	(PyCFunction)slabapi_dimension_bounds,	METH_VARARGS,	slabapi_dimension_bounds__doc__},
  {"dimension_values",	(PyCFunction)slabapi_dimension_values,	METH_VARARGS,	slabapi_dimension_values__doc__},
  {"dimension_is_circular",	(PyCFunction)slabapi_dimension_is_circular,	METH_VARARGS,	slabapi_dimension_is_circular__doc__},
- 
+ {"getdotdirectory", (PyCFunction)PyVCS_getdotdirectory, 1}, 
 	{NULL,	 (PyCFunction)NULL, 0, NULL}		/* sentinel */
 };
 

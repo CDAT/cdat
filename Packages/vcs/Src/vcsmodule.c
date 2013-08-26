@@ -1749,19 +1749,24 @@ PyVCS_saveinitialfile(PyObject *self, PyObject *args)
 	/*
          * Find a base directory.
          */
-        if ((base_dir=getenv("PCMDI_GRAPHICS_DIR")) == NULL) {
+        if ((base_dir=getenv(DOT_DIRECTORY_ENV)) == NULL) {
            if ((base_dir=getenv("HOME")) == NULL || strlen(base_dir) ==0)
-             strcpy(dirbase,"./PCMDI_GRAPHICS");
+             strcpy(dirbase,"./");
+              strcat(dirbase,DOT_DIRECTORY);
            else {
               strcpy(dirbase,base_dir);
-              strcat(dirbase,"/PCMDI_GRAPHICS");
+              strcat(dirbase,"/");
+              strcat(dirbase,DOT_DIRECTORY);
            }
         } else
           strcpy(dirbase,base_dir);
         base_dir=dirbase;
         if (mkdir(base_dir,mode) != 0 && errno != EEXIST)
           {
-           PyErr_SetString(PyExc_ValueError, "Error - you don't have a base directory.\nThe environment variable PCMDI_GRAPHICS_DIR\nor HOME needs to be set!");
+              strcpy(dirbase,"Error - you don't have a base directory.\nThe environment variable ");
+              strcat(dirbase,DOT_DIRECTORY_ENV);
+              strcpy(dirbase,"\nor HOME needs to be set!");
+           PyErr_SetString(PyExc_ValueError, dirbase);
            return NULL;
           }
 
@@ -19568,20 +19573,23 @@ PyVCS_postscript_old(PyVCScanvas_Object *self, PyObject *args)
            PyErr_SetString(PyExc_TypeError, "The user's home directory was not found!");
 	   return NULL;
 	}
-	sprintf(temp_str, "%s/PCMDI_GRAPHICS", home_dir);
+	sprintf(temp_str, "%s/%s", home_dir, DOT_DIRECTORY);
 	ffd = access(temp_str, F_OK);    /* check to see if the */
         rfd = access(temp_str, R_OK);    /* HARD_COPY file exist */
         wfd = access(temp_str, W_OK);    /* HARD_COPY file exist */
 	if (ffd != 0) { /* The file does not exist! */
-           PyErr_SetString(PyExc_TypeError, "The PCMDI_GRAPHICS directory does not exist!");
+           sprintf(temp_str,"The %s directory does not exist!",DOT_DIRECTORY);
+           PyErr_SetString(PyExc_TypeError, temp_str);
            return NULL;
         }
         if (rfd != 0) { /* The file cannot be read! */
-           PyErr_SetString(PyExc_TypeError, "The PCMDI_GRAPHICS directory can not be read!");
+           sprintf(temp_str,"The %s directory cannot be read!",DOT_DIRECTORY);
+           PyErr_SetString(PyExc_TypeError, temp_str);
            return NULL;
         }
         if (wfd != 0) { /* The file does not have write permission! */
-           PyErr_SetString(PyExc_TypeError, "The PCMDI_GRAPHICS directory does not have write permission!");
+           sprintf(temp_str,"The %s directory does not have write permission!",DOT_DIRECTORY);
+           PyErr_SetString(PyExc_TypeError, temp_str);
            return NULL;
         }
 	sprintf(temp_cgm_file, "%s/7eilfyraropmetCGM.cgm", temp_str);
@@ -19729,20 +19737,23 @@ PyVCS_printer(PyVCScanvas_Object *self, PyObject *args)
            PyErr_SetString(PyExc_TypeError, "The user's home directory was not found!");
            return NULL;
         }
-        sprintf(temp_str, "%s/PCMDI_GRAPHICS", home_dir);
+        sprintf(temp_str, "%s/%s", home_dir, DOT_DIRECTORY);
         ffd = access(temp_str, F_OK);    /* check to see if the */
         rfd = access(temp_str, R_OK);    /* HARD_COPY file exist */
         wfd = access(temp_str, W_OK);    /* HARD_COPY file exist */
-        if (ffd != 0) { /* The file does not exist! */
-           PyErr_SetString(PyExc_TypeError, "The PCMDI_GRAPHICS directory does not exist!");
+	if (ffd != 0) { /* The file does not exist! */
+           sprintf(temp_str,"The %s directory does not exist!",DOT_DIRECTORY);
+           PyErr_SetString(PyExc_TypeError, temp_str);
            return NULL;
         }
         if (rfd != 0) { /* The file cannot be read! */
-           PyErr_SetString(PyExc_TypeError, "The PCMDI_GRAPHICS directory can not be read!");
+           sprintf(temp_str,"The %s directory cannot be read!",DOT_DIRECTORY);
+           PyErr_SetString(PyExc_TypeError, temp_str);
            return NULL;
         }
         if (wfd != 0) { /* The file does not have write permission! */
-           PyErr_SetString(PyExc_TypeError, "The PCMDI_GRAPHICS directory does not have write permission!");
+           sprintf(temp_str,"The %s directory does not have write permission!",DOT_DIRECTORY);
+           PyErr_SetString(PyExc_TypeError, temp_str);
            return NULL;
         }
         sprintf(temp_cgm_file, "%s/7eilfyraropmetCGM.ps", temp_str);
@@ -21190,6 +21201,13 @@ PyVCS_startQtApp(self,args)
   Py_INCREF(Py_None);
   return Py_None;
 }
+static PyObject *
+PyVCS_getdotdirectory(self,args)
+  PyVCScanvas_Object *self;
+  PyObject *args;
+{
+    return Py_BuildValue("(%s,%s)",DOT_DIRECTORY_DOT_DIRECTORY_ENV);
+}
 
 static PyMethodDef PyVCScanvas_methods[] =
 {
@@ -21467,6 +21485,7 @@ static PyMethodDef PyVCScanvas_methods[] =
   {"switchfontnumbers", (PyCFunction)PyVCS_switchFontNumbers, 1},
   {"copyfontto", (PyCFunction)PyVCS_copyFontNumber1to2, 1},
   {"gettextextent", (PyCFunction)PyVCS_gettextextent, 1},
+  {"getdotdirectory", (PYCFunction)PyVCS_getdotdirectory,1},
   {0, 0} };
 
 

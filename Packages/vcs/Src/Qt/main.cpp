@@ -229,13 +229,15 @@ extern "C" void vcs_Qt_image_put_pixel(void **image, int width, int height, int 
 
 static void setAppIcon() {
   char *base_dir, dirbase[1024], icon_file[1024];
-  if ((base_dir=getenv("PCMDI_GRAPHICS_DIR")) == NULL) {
+  if ((base_dir=getenv(DOT_DIRECTORY_ENV)) == NULL) {
     base_dir = getenv("HOME");
     if ((base_dir) == NULL || strlen(base_dir) ==0)
-      strcpy(dirbase,"./PCMDI_GRAPHICS");
+      strcpy(dirbase,"./");
+      strcat(dirbase,DOT_DIRECTORY);
     else {
       strcpy(dirbase,base_dir);
-      strcat(dirbase,"/PCMDI_GRAPHICS");
+      strcat(dirbase,"/");
+      strcat(dirbase,DOT_DIRECTORY);
     }
   } else 
     strcpy(dirbase,base_dir);
