@@ -7,6 +7,7 @@
 #include "numpy/arrayobject.h"
 #include <assert.h>
 #include "slabapi.h"
+#include "vcs_names_length"
 static void slabErrorSet (char* message) 
 {
    PyErr_SetString(PyExc_RuntimeError, message);
