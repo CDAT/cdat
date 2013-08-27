@@ -548,7 +548,8 @@ foreach (program ${programs})
     list (APPEND resolved_programs "${res_program}")
 endforeach()
 
-install(FILES ${resolved_programs} DESTINATION uvcdat/bin PERMISSIONS OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE)
+install(FILES ${resolved_programs} DESTINATION uvcdat/bin PERMISSIONS
+  OWNER_READ GROUP_READ WORLD_READ OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE
 install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/Externals DESTINATION uvcdat)
 install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/include DESTINATION uvcdat)
 install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib DESTINATION uvcdat)
