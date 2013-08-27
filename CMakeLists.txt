@@ -20,7 +20,7 @@ set(cdat_external_patch_dir ${cdat_SOURCE_DIR}/exsrc)
 
 if("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local")
   get_filename_component(cdat_ROOT_DIR ${cdat_BINARY_DIR} PATH)
-  set(CMAKE_INSTALL_PREFIX ${cdat_ROOT_DIR}/install CACHE STRING "" FORCE)
+  set(CMAKE_INSTALL_PREFIX ${cdat_BINARY_DIR}/install CACHE STRING "" FORCE)
 endif()
 
 set(cdat_EXTERNALS ${CMAKE_INSTALL_PREFIX}/Externals)
