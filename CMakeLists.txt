@@ -537,7 +537,8 @@ set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "UVCDAT")
 set(CPACK_PACKAGE_VENDOR "UVCDAT")
 set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/docs/README.txt")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/docs/Legal.txt")
-SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Aashish Chaudhary") #required
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Aashish Chaudhary") #required
+
 include(CPack)
 
 file(GLOB_RECURSE programs "${CMAKE_INSTALL_PREFIX}/bin/*")
@@ -547,7 +548,7 @@ foreach (program ${programs})
     list (APPEND resolved_programs "${res_program}")
 endforeach()
 
-install(FILES ${resolved_programs} DESTINATION uvcdat/bin)
+install(FILES ${resolved_programs} DESTINATION uvcdat/bin PERMISSIONS WORLD_EXECUTE)
 install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/Externals DESTINATION uvcdat)
 install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/include DESTINATION uvcdat)
 install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib DESTINATION uvcdat)
