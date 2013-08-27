@@ -1,5 +1,6 @@
 #!/bin/sh
 # source is not portable where as . is
-. @CMAKE_INSTALL_PREFIX@/bin/setup_cdat.sh
-@PYTHON_EXECUTABLE@ @CMAKE_INSTALL_PREFIX@/vistrails/vistrails/uvcdat.py $@
+BASEDIR=$(dirname "$0")
+. $BASEDIR/bin/setup_cdat.sh
+python $BASEDIR/../vistrails/vistrails/uvcdat.py $@
 
