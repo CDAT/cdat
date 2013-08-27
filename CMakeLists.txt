@@ -528,6 +528,11 @@ endif()
 
 # Package UV-CDAT with CPACK
 include(InstallRequiredSystemLibraries)
+
+if (APPLE)
+  set(CPACK_GENERATOR DragNDrop)
+endif()
+
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "UVCDAT")
 set(CPACK_PACKAGE_VENDOR "UVCDAT")
 set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/docs/README.txt")
