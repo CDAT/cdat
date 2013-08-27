@@ -3343,12 +3343,6 @@ lines
 (id=0,priority=1,level=0,increment=1e+20,hilite_ci=0,
 label=*,Tl=default,Tt=default,To=default)
 )
-Gi_P_and_height(
-   projection=linear,xticlabels#1=xticlabels1,xticlabels#2=xticlabels2,
-   yticlabels#1=yticlabels1,yticlabels#2=yticlabels2,
-   datawc(90,1e+20,-90,1e+20),
-   xaxisconvert=linear,
-   yaxisconvert=log10)
 Go_quick(
 projection=linear,xticlabels#1=*,yticlabels#1=*,
 datawc(1e+20,1e+20,1e+20,1e+20),
@@ -3365,16 +3359,6 @@ datawc(1.e20,1.e20,1.e20,1.e20),
 Tl=cont,
 Type=0,
 )
-Gfi_P_and_height(
-   projection=linear,xticlabels#1=xticlabels1,xticlabels#2=xticlabels2,
-   yticlabels#1=yticlabels1,yticlabels#2=yticlabels2,
-   datawc(90,1e+20,-90,1e+20),
-   xaxisconvert=linear,
-   yaxisconvert=log10,
-   missing=1e+20,
-   legend=(),
-   range
-   (id=0,level1=1e+20,level2=1e+20,Tf=default)  )
 Gfi_robinson(
 projection=robinson,xticlabels#1=lon30,yticlabels#1=lat20,
 datawc(1e+20,1e+20,1e+20,1e+20),
@@ -3398,24 +3382,6 @@ projection=polar,
 datawc(1e+20,1e+20,1e+20,1e+20),
 Tf=default,
 outline(1))
-Gfb_b_and_w(
-projection=linear,xticlabels#1=*,yticlabels#1=*,
-datawc(1e+20,1e+20,1e+20,1e+20),
-level_1=1.e20,level_2=1.e20,color_1=51,color_2=54,legend_type=0,
-legend=(),
-ext_1=n,ext_2=n,missing=241)
-Gfb_polar(
-projection=polar,xticlabels#1=lon30,yticlabels#1=lat20,
-datawc(1e+20,1e+20,1e+20,1e+20),
-level_1=1e+20,level_2=1e+20,color_1=16,color_2=239,legend_type=0,
-legend=(),
-ext_1=n,ext_2=n,missing=241)
-Gfb_robinson(
-projection=robinson,xticlabels#1=lon30,yticlabels#1=lat20,
-datawc(1e+20,1e+20,1e+20,1e+20),
-level_1=1e+20,level_2=1e+20,color_1=16,color_2=239,legend_type=0,
-legend=(),
-ext_1=n,ext_2=n,missing=241)
 Gfb_quick(
 projection=linear,xticlabels#1=*,xticlabels#2=*,yticlabels#1=*,
 yticlabels#2=*,
