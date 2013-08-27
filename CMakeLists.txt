@@ -540,7 +540,14 @@ set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/docs/Legal.txt")
 SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Aashish Chaudhary") #required
 include(CPack)
 
-install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin DESTINATION uvcdat)
+file(GLOB_RECURSE programs "${CMAKE_INSTALL_PREFIX}/bin/*")
+set (resolved_programs "")
+foreach (program ${programs})
+    get_filename_component(res_program "${program}" REALPATH)
+    list (APPEND resolved_programs "${res_program}")
+endforeach()
+
+install(FILES ${resolved_programs} DESTINATION uvcdat/bin)
 install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/Externals DESTINATION uvcdat)
 install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/include DESTINATION uvcdat)
 install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib DESTINATION uvcdat)
