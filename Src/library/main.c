@@ -36,6 +36,8 @@
  cairo_surface_t *logo;
 cairo_pattern_t *logo_p;
 
+#include "vcs_names_length.h"
+
     FILE *fpin, *fpout, *fperr; /* input, output, and error files for scripts */
     FILE *fpcgm,*frast;		/* cgm and raster files.		*/
 
@@ -75,8 +77,6 @@ cairo_pattern_t *logo_p;
 #define NFUNC 2
 
 /* Default "dot" directory, used to be PCMDI_GRAPHICS */
-char DOT_DIRECTORY[256] = ".uvcdat";
-char DOT_DIRECTORY_ENV[256] = "UVCDAT_DIR";
 
 /* postscript default margins */
 int MARGINL=.2*72; /* in inches * 72dpi */
@@ -1092,9 +1092,10 @@ int text_color,text_font;
 
 	if ((base_dir=getenv(DOT_DIRECTORY_ENV)) == NULL)
 	  {
-	   if ((base_dir=getenv("HOME")) == NULL || strlen(base_dir) ==0)
+	   if ((base_dir=getenv("HOME")) == NULL || strlen(base_dir) ==0) {
                strcpy(dirbase,"./");
                strcat(dirbase,DOT_DIRECTORY);
+           }
 	   else 
 	     {
 	      strcpy(dirbase,base_dir);

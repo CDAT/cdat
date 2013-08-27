@@ -231,9 +231,10 @@ static void setAppIcon() {
   char *base_dir, dirbase[1024], icon_file[1024];
   if ((base_dir=getenv(DOT_DIRECTORY_ENV)) == NULL) {
     base_dir = getenv("HOME");
-    if ((base_dir) == NULL || strlen(base_dir) ==0)
+    if ((base_dir) == NULL || strlen(base_dir) ==0) {
       strcpy(dirbase,"./");
       strcat(dirbase,DOT_DIRECTORY);
+    }
     else {
       strcpy(dirbase,base_dir);
       strcat(dirbase,"/");

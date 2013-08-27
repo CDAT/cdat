@@ -8,6 +8,7 @@
 #include "numpy/arrayobject.h"
 /* #include <assert.h> */
 #include "slabapi.h"
+#include "vcs_names_length.h"
 
 /* ----------------------------------------------------- */
 /* slabapi module -- for testing the CAPI to slabs */
@@ -273,10 +274,13 @@ slabapi_dimension_is_circular (self, args)
 
 static PyObject *
 PyVCS_getdotdirectory(self,args)
-  PyVCScanvas_Object *self;
+  PyObject *self;
   PyObject *args;
 {
-    return Py_BuildValue("(%s,%s)",DOT_DIRECTORY_DOT_DIRECTORY_ENV);
+    char a[1024],b[1024];
+    strcpy(a,DOT_DIRECTORY);
+    strcpy(b,DOT_DIRECTORY_ENV);
+    return Py_BuildValue("ss",a,b);
 }
 
 

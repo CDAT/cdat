@@ -1750,9 +1750,10 @@ PyVCS_saveinitialfile(PyObject *self, PyObject *args)
          * Find a base directory.
          */
         if ((base_dir=getenv(DOT_DIRECTORY_ENV)) == NULL) {
-           if ((base_dir=getenv("HOME")) == NULL || strlen(base_dir) ==0)
-             strcpy(dirbase,"./");
-              strcat(dirbase,DOT_DIRECTORY);
+           if ((base_dir=getenv("HOME")) == NULL || strlen(base_dir) ==0) {
+               strcpy(dirbase,"./");
+               strcat(dirbase,DOT_DIRECTORY);
+           }
            else {
               strcpy(dirbase,base_dir);
               strcat(dirbase,"/");
@@ -21206,7 +21207,10 @@ PyVCS_getdotdirectory(self,args)
   PyVCScanvas_Object *self;
   PyObject *args;
 {
-    return Py_BuildValue("(%s,%s)",DOT_DIRECTORY_DOT_DIRECTORY_ENV);
+    char a[1024],b[1024];
+    strcpy(a,DOT_DIRECTORY);
+    strcpy(b,DOT_DIRECTORY_ENV);
+    return Py_BuildValue("ss",a,b);
 }
 
 static PyMethodDef PyVCScanvas_methods[] =
@@ -21485,7 +21489,7 @@ static PyMethodDef PyVCScanvas_methods[] =
   {"switchfontnumbers", (PyCFunction)PyVCS_switchFontNumbers, 1},
   {"copyfontto", (PyCFunction)PyVCS_copyFontNumber1to2, 1},
   {"gettextextent", (PyCFunction)PyVCS_gettextextent, 1},
-  {"getdotdirectory", (PYCFunction)PyVCS_getdotdirectory,1},
+  {"getdotdirectory", (PyCFunction)PyVCS_getdotdirectory,1},
   {0, 0} };
 
 
