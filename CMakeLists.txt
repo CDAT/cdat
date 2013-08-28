@@ -542,6 +542,9 @@ set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Aashish Chaudhary") #required
 include(CPack)
 
 file(GLOB_RECURSE programs "${CMAKE_INSTALL_PREFIX}/bin/*")
+file(GLOB programs_images "${CMAKE_INSTALL_PREFIX}/bin/images/*")
+file(GLOB programs_tutorials "${CMAKE_INSTALL_PREFIX}/bin/tutorials/*")
+list(REMOVE_ITEM programs ${programs_images} ${programs_tutorials})
 set (resolved_programs "")
 foreach (program ${programs})
     get_filename_component(res_program "${program}" REALPATH)
@@ -550,6 +553,8 @@ endforeach()
 
 install(FILES ${resolved_programs} DESTINATION uvcdat/bin PERMISSIONS
   OWNER_READ GROUP_READ WORLD_READ OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE)
+install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin/images DESTINATION uvcdat/bin)
+install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin/tutorials DESTINATION uvcdat/bin)
 install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/Externals DESTINATION uvcdat)
 install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/include DESTINATION uvcdat)
 install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib DESTINATION uvcdat)
