@@ -1,0 +1,88 @@
+#!/usr/bin/python
+
+import shlex
+import subprocess
+import urllib2
+import os
+
+fileName = "@PARTS_BUILT_INFO@"
+fetched_data = "@cdat_BINARY_DIR@/fetched_for_offline"
+try:
+    os.makedirs(fetched_data)
+except:
+    pass
+try:
+    os.makedirs(os.path.join(fetched_data,"contrib"))
+except:
+    pass
+
+
+def fetch(url,md5=None):
+    try:
+        import hashlib
+        HAS_HASHLIB=True
+    except:
+        HAS_HASHLIB=False
+    if md5 is None:
+        HAS_HASHLIB=False
+
+    print "Fetching: ",url
+    if HAS_HASHLIB:
+        print "Will control md5"
+    u = urllib2.urlopen(url)
+    nm = os.path.join(fetched_data,url.split("/")[-1])
+    f=open(nm,'w')
+    sz = 65536
+    if HAS_HASHLIB:
+        hsh =hashlib.md5()
+    buf = u.read(sz)
+    while len(buf)>0:
+        f.write(buf)
+        if HAS_HASHLIB:
+            hsh.update(buf)
+        buf=u.read(sz)
+    f.close()
+    if HAS_HASHLIB and hsh.hexdigest()!=md5:
+        raise Exception,"Error downloading file: %s, md5 does not match" % nm
+
+def processFile(name):
+    f=open(name)
+    for ln in f.xreadlines():
+        sp = ln.split()
+        nm = sp[0]
+        ver = sp[1]
+        try:
+            url = sp[2]
+        except:
+            url = None
+        try:
+            md5 = sp[3]
+        except:
+            md5 = None
+        try:
+            url2 = sp[4]
+        except:
+            url2 = None
+        try:
+            md5b = sp[5]
+        except:
+            md5b = None
+        if url=="N/A":
+            continue
+        elif url.find("git://")>-1 or url.strip()[-4:]==".git":
+            if md5 is None:
+                md5 = "master"
+            nm  = url.split("/")[-1][:-4]
+            cmd = "git clone --depth 1 -b %s %s %s/%s " % (md5,url,fetched_data,nm)
+            subprocess.Popen(shlex.split(cmd))
+        elif url is not None:
+            fetch(url,md5)
+        if url2 is not None:
+            fetch(url2,md5b)
+    ## Ok now does the git submodules
+    for c in ["eof2","windfield","sciMake","windspharm","eofs"]:
+        cmd = "cp -rf @cdat_SOURCE_DIR@/contrib/%s %s/contrib" % (c,fetched_data)
+        subprocess.Popen(shlex.split(cmd))
+if __name__ == "__main__":
+    processFile(fileName)
+

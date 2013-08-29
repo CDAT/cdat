@@ -1,1 +1,1 @@
-set(Sphinx_deps ${pip_pkg} ${lepl_pkg})
+set(Sphinx_deps ${pip_pkg} ${docutils_pkg})

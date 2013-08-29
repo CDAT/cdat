@@ -4,6 +4,7 @@ set(R_PATCH_SRC 1)
 set(R_URL ${LLNL_URL})
 set(R_GZ R-${R_MAJOR_SRC}.${R_MINOR_SRC}.${R_PATCH_SRC}.tar.gz)
 set(R_MD5 fcdf247e707fdade82b78bcf911a54f1)
+set(R_SOURCE ${R_URL}/${R_GZ})
 
 set (nm R)
 string(TOUPPER ${nm} uc_nm)

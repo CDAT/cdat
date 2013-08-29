@@ -1,0 +1,11 @@
+#!/bin/sh
+
+fetched_data="fetched_for_offline"
+cp ${fetched_data}/*gz ${fetched_data}/*bz2 ${fetched_data}/*zip @cdat_BINARY_DIR@
+cp -r ${fetched_data}/contrib @cdat_SOURCE_DIR@
+cp -rf ${fetched_data}/vistrails @CMAKE_INSTALL_PREFIX@
+cp -rf ${fetched_data}/paraview-*/* @cdat_BINARY_DIR@/build/ParaView
+tar -xf @cdat_BINARY_DIR@/visit*.gz -C @cdat_BINARY_DIR@
+rm -rf @cdat_BINARY_DIR@/build/VisIt
+mv @cdat_BINARY_DIR@/src @cdat_BINARY_DIR@/build/VisIt
+

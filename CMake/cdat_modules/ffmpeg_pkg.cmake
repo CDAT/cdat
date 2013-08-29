@@ -8,5 +8,7 @@ set(FFMPEG_MD5 bded7c1e03c5b11a1d50fa1b5f07c653 )
 set (nm FFMPEG)
 string(TOUPPER ${nm} uc_nm)
 set(${uc_nm}_VERSION ${${nm}_MAJOR_SRC}.${${nm}_MINOR_SRC}.${${nm}_PATCH_SRC})
+set(FFMPEG_SOURCE ${FFMPEG_URL}/${FFMPEG_GZ})
+
 add_cdat_package_dependent(FFMPEG "" "" ON "CDAT_BUILD_GRAPHICS" OFF)
 

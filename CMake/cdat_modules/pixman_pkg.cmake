@@ -13,5 +13,7 @@ set (nm PIX)
 string(TOUPPER ${nm} uc_nm)
 set(${uc_nm}_VERSION ${${nm}_MAJOR_SRC}.${${nm}_MINOR_SRC}.${${nm}_PATCH_SRC})
 set(PIXMAN_VERSION ${PIX_VERSION})
+set(PIXMAN_SOURCE ${PIX_URL}/${PIX_GZ})
+set(PIXMAN_MD5 ${PIX_MD5})
 
 add_cdat_package_dependent(pixman "" "" ON "CDAT_BUILD_GRAPHICS" OFF)

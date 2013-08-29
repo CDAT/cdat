@@ -8,4 +8,6 @@ set(LXML_MD5 730bb63383528b65eaa099d64ce276cf)
 set (nm LXML)
 string(TOUPPER ${nm} uc_nm)
 set(${uc_nm}_VERSION ${${nm}_MAJOR_SRC}.${${nm}_MINOR_SRC}.${${nm}_PATCH_SRC})
+set(LXML_SOURCE ${LXML_URL}/${LXML_GZ})
+
 add_cdat_package(lxml "" "" "")

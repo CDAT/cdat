@@ -11,7 +11,7 @@ endif()
 
 set(vistrails_tag_point_message "Specify branch of vistrails to be used for UVCDAT")
 set(VISTRAILS_TAG_POINT ${vistrails_branch} CACHE STRING "${vistrails_tag_point_message}")
-set(vistrails_url "${GIT_PROTOCOL}vistrails.org/git/vistrails.git")
+set(vistrails_url "${VISTRAILS_SOURCE}")
 
 if(CDAT_AUTO_UPDATE_VISTRAILS_TAG_POINT)
   set(VISTRAILS_TAG_POINT ${vistrails_branch} CACHE STRING "${vistrails_tag_point_message}" FORCE)

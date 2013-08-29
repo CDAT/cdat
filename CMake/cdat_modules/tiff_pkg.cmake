@@ -4,6 +4,7 @@ set(TIFF_PATCH 4)
 set(TIFF_URL ${LLNL_URL})
 set(TIFF_GZ tiff-${TIFF_MAJOR}.${TIFF_MINOR}.${TIFF_PATCH}.tar.gz)
 set(TIFF_MD5 2006c1bdd12644dbf02956955175afd6)
+set(TIFF_SOURCE ${TIFF_URL}/${TIFF_GZ})
 
 set (nm TIFF)
 string(TOUPPER ${nm} uc_nm)

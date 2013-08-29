@@ -202,6 +202,13 @@ endif(CMAKE_Fortran_COMPILER)
 # Set build related properties
 #-----------------------------------------------------------------------------
 set(PARTS_BUILT_INFO "${cdat_BINARY_DIR}/build_info.txt" CACHE STRING "File where to store build infos" FORCE)
+
+## The following is to know if we are prepring for an offline installation
+## ON is the default means we can download as we build
+## PREP means with are using this machine as a proxy to download all needed files in order to move them (somehow) to the OFFLINE machine where build will happen
+## OFF the machine has no internet access all files are suppposed to be here, pre-downloaded
+option(OFFLINE_BUILD "Is there internet access, are we preping for it?" OFF)
+
 option(CDAT_BUILD_PARALLEL "Build parallel components of CDAT" ON)
 
 # Option to choose between easy_install and pip (crunchy ssl/man in the middle prevents us to use pip here...
@@ -365,6 +372,7 @@ include(libxslt_pkg)
 include(matplotlib_pkg)
 include(md5_pkg)
 include(mpi4py_pkg)
+include(pyopenssl_pkg)
 include(myproxyclient_pkg)
 include(netcdf_pkg)
 include(netcdfplus_pkg)
@@ -390,6 +398,9 @@ include(distribute_pkg)
 include(pip_pkg)
 include(shapely_pkg)
 include(sip_pkg)
+include(pygments_pkg)
+include(jinja2_pkg)
+include(docutils_pkg)
 include(sphinx_pkg)
 include(spyder_pkg)
 include(tcltk_pkg)
@@ -461,8 +472,8 @@ foreach(package ${external_packages})
   string(TOUPPER ${package} uc_package)
 
   if(CDAT_BUILD_${uc_package})
-    message("[INFO] Package --- ${package} --- will be built")
-    list(APPEND packages_info "${package} ${${uc_package}_VERSION}\n")
+      message("[INFO] Package --- ${package}/${uc_package}/${${uc_package}_VERSION} --- will be built")
+    list(APPEND packages_info "${package} ${${uc_package}_VERSION} ${${uc_package}_SOURCE} ${${uc_package}_MD5}\n")
     include("${lc_package}_external")
   endif()
 endforeach()
@@ -502,8 +513,18 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/checked_get.sh.in
   @ONLY
 )
 
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/predownload.py.in
+  ${cdat_BINARY_DIR}/predownload.py
+  @ONLY
+)
+
 configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/setup_cdat.sh.in
   ${CMAKE_INSTALL_PREFIX}/bin/setup_cdat.sh
+  @ONLY
+)
+
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/preofflinebuild.sh.in
+  ${cdat_BINARY_DIR}/preofflinebuild.sh
   @ONLY
 )
 

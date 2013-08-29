@@ -16,6 +16,8 @@ else ()
     set(cdat_VERSION ${ver})
 endif()
 
+set(CDAT_SOURCE N/A)
+
 # configure version file
 set (nm cdat_VERSION)
 string(TOUPPER ${nm} uc_nm)
