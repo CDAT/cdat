@@ -544,7 +544,11 @@ include(CPack)
 file(GLOB_RECURSE programs "${CMAKE_INSTALL_PREFIX}/bin/*")
 file(GLOB programs_images "${CMAKE_INSTALL_PREFIX}/bin/images/*")
 file(GLOB programs_tutorials "${CMAKE_INSTALL_PREFIX}/bin/tutorials/*")
-list(REMOVE_ITEM programs ${programs_images} ${programs_tutorials})
+
+if (NOT "${programs_images}" STREQUAL "" OR NOT "${programs_tutorials}" STREQUAL "")
+  list(REMOVE_ITEM programs ${programs_images} ${programs_tutorials})
+endif()
+
 set (resolved_programs "")
 foreach (program ${programs})
     get_filename_component(res_program "${program}" REALPATH)
@@ -553,10 +557,23 @@ endforeach()
 
 install(FILES ${resolved_programs} DESTINATION uvcdat/bin PERMISSIONS
   OWNER_READ GROUP_READ WORLD_READ OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE)
-install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin/images DESTINATION uvcdat/bin)
-install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin/tutorials DESTINATION uvcdat/bin)
+
+if(EXISTS "${CMAKE_INSTALL_PREFIX}/bin/images" AND IS_DIRECTORY "${CMAKE_INSTALL_PREFIX}/bin/images")
+  install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin/images DESTINATION uvcdat/bin)
+endif()
+
+if(EXISTS "${CMAKE_INSTALL_PREFIX}/bin/tutorials" AND IS_DIRECTORY "${CMAKE_INSTALL_PREFIX}/bin/tutorials")
+  install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin/tutorials DESTINATION uvcdat/bin)
+endif()
+
 install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/Externals DESTINATION uvcdat)
 install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/include DESTINATION uvcdat)
 install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib DESTINATION uvcdat)
-install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/man DESTINATION uvcdat)
-install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/vistrails DESTINATION uvcdat)
+
+if(EXISTS "${CMAKE_INSTALL_PREFIX}/bin/man" AND IS_DIRECTORY "${CMAKE_INSTALL_PREFIX}/bin/man")
+  install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/man DESTINATION uvcdat)
+endif()
+
+if(EXISTS "${CMAKE_INSTALL_PREFIX}/vistrails" AND IS_DIRECTORY "${CMAKE_INSTALL_PREFIX}/vistrails")
+  install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/vistrails DESTINATION uvcdat)
+endif()
