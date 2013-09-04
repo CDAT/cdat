@@ -577,3 +577,6 @@ endif()
 if(EXISTS "${CMAKE_INSTALL_PREFIX}/vistrails" AND IS_DIRECTORY "${CMAKE_INSTALL_PREFIX}/vistrails")
   install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/vistrails DESTINATION uvcdat)
 endif()
+
+# Install UVCDAT
+install(PROGRAM ${CMAKE_INSTALL_PREFIX}/bin/uvcdat DESTINATION uvcdat/bin)
