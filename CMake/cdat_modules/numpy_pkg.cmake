@@ -7,6 +7,7 @@ set(NUMPY_PATCH_SRC 1)
 set(NUMPY_URL ${LLNL_URL})
 set(NUMPY_GZ numpy-${NUMPY_MAJOR_SRC}.${NUMPY_MINOR_SRC}.${NUMPY_PATCH_SRC}.tar.gz)
 set(NUMPY_MD5 0ab72b3b83528a7ae79c6df9042d61c6 )
+set(NUMPY_SOURCE ${NUMPY_URL}/${NUMPY_GZ})
 
 set (nm NUMPY)
 string(TOUPPER ${nm} uc_nm)

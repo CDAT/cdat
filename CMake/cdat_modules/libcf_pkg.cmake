@@ -5,6 +5,7 @@ set(LIBCF_VERSION ${LIBCF_MAJOR}.${LIBCF_MINOR}-${LIBCF_PATCH})
 set(LIBCF_URL ${LLNL_URL})
 set(LIBCF_GZ libcf-${LIBCF_VERSION}.tar.gz)
 set(LIBCF_MD5 aba4896eab79d36c7283fc7b75fb16ee)
+set(LIBCF_SOURCE ${LIBCF_URL}/${LIBCF_GZ})
 
 #add_cdat_package_dependent(libcf "" "" ON "CDAT_BUILD_WO_ESGF" OFF)
 add_cdat_package(libcf "" "" "")

@@ -24,10 +24,10 @@ if(APPLE)
 endif()
 
 set(ENV{EXTERNALS} "@cdat_EXTERNALS@")
-message("PIP CERET:",${PIP_CERTIFICATE})
+message("[INFO] PIP CERT:",${PIP_CERTIFICATE})
 
 if ("@EGG_INSTALLER@" STREQUAL "PIP")
-    set(EGG_CMD env @LIBRARY_PATH@=$ENV{@LIBRARY_PATH@} @PIP_BINARY@ install )
+    set(EGG_CMD env @LIBRARY_PATH@=$ENV{@LIBRARY_PATH@} @PIP_BINARY@ install --download-cache @cdat_BINARY_DIR@ )
     if (NOT "${PIP_CERTIFICATE}" STREQUAL "")
         set(EGG_CMD ${EGG_CMD} --cert=${PIP_CERTIFICATE})
     endif()

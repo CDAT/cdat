@@ -7,6 +7,9 @@ set(TCL_GZ tcl${TCLTK_MAJOR}.${TCLTK_MINOR}.${TCLTK_PATCH}-src.tar.gz)
 set(TK_GZ tk${TCLTK_MAJOR}.${TCLTK_MINOR}.${TCLTK_PATCH}-src.tar.gz)
 set(TCL_MD5 8512d8db3233041dd68a81476906012a)
 set(TK_MD5 7cdeb9feb61593f58a0ae61f2497580e)
+# Two sources here, need to fake it
+set(TCLTK_SOURCE "${TCLTK_URL}/${TCL_GZ} ${TCL_MD5}")
+set(TCLTK_MD5 "${TCLTK_URL}/${TK_GZ} ${TK_MD5}")
 
 if (CDAT_BUILD_ESGF)
     add_cdat_package(TclTk "" "" "")

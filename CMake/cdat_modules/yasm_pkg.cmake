@@ -4,6 +4,7 @@ set(YASM_PATCH_SRC 0)
 set(YASM_URL ${LLNL_URL})
 set(YASM_GZ yasm-${YASM_MAJOR_SRC}.${YASM_MINOR_SRC}.${YASM_PATCH_SRC}.tar.gz)
 set(YASM_MD5 4cfc0686cf5350dd1305c4d905eb55a6)
+set(YASM_SOURCE ${YASM_URL}/${YASM_GZ})
 
 set (nm YASM)
 string(TOUPPER ${nm} uc_nm)

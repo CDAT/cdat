@@ -10,5 +10,7 @@ set(PYQT_GZ_APPLE PyQt-mac-gpl-${PYQT_VERSION}.tar.gz)
 set(PYQT_GZ_UNIX PyQt-x11-gpl-${PYQT_VERSION}.tar.gz)
 set(PYQT_MD5_APPLE f8feb678212cf4f84d5cf5317b1f5bc2 )
 set(PYQT_MD5_UNIX e5973c4ec0b0469f329bc00209d2ad9c )
+set(PYQT_SOURCE ${PYQT_URL}/${PYQT_GZ_${CMAKE_PLATFORM}})
+set(PYQT_MD5 ${PYQT_MD5_${CMAKE_PLATFORM}})
 
 add_cdat_package_dependent(PyQt "" "" ON "CDAT_BUILD_GRAPHICS" OFF)

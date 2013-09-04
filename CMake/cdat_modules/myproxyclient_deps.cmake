@@ -1,1 +1,1 @@
-set(MyProxyClient_deps  ${pip_pkg})
+set(MyProxyClient_deps  ${pyopenssl_pkg} ${pip_pkg})

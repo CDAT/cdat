@@ -1,2 +1,7 @@
-set(TORNADO_VERSION 3.0.1)
+set(TORNADO_VERSION 3.1)
+set(TORNADO_URL ${LLNL_URL})
+set(TORNADO_GZ tornado-${TORNADO_VERSION}.tar.gz)
+set(TORNADO_SOURCE ${TORNADO_URL}/${TORNADO_GZ})
+set(TORNADO_MD5 2348d626095c5675753287e9af0c321f )
+
 add_cdat_package(tornado "" "" "")

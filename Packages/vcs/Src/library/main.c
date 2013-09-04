@@ -36,6 +36,8 @@
  cairo_surface_t *logo;
 cairo_pattern_t *logo_p;
 
+#include "vcs_names_length.h"
+
     FILE *fpin, *fpout, *fperr; /* input, output, and error files for scripts */
     FILE *fpcgm,*frast;		/* cgm and raster files.		*/
 
@@ -74,6 +76,7 @@ cairo_pattern_t *logo_p;
 
 #define NFUNC 2
 
+/* Default "dot" directory, used to be PCMDI_GRAPHICS */
 
 /* postscript default margins */
 int MARGINL=.2*72; /* in inches * 72dpi */
@@ -1087,14 +1090,17 @@ int text_color,text_font;
 
 /*			Find a base directory.				*/
 
-	if ((base_dir=getenv("PCMDI_GRAPHICS_DIR")) == NULL)
+	if ((base_dir=getenv(DOT_DIRECTORY_ENV)) == NULL)
 	  {
-	   if ((base_dir=getenv("HOME")) == NULL || strlen(base_dir) ==0)
-	     strcpy(dirbase,"./PCMDI_GRAPHICS");
+	   if ((base_dir=getenv("HOME")) == NULL || strlen(base_dir) ==0) {
+               strcpy(dirbase,"./");
+               strcat(dirbase,DOT_DIRECTORY);
+           }
 	   else 
 	     {
 	      strcpy(dirbase,base_dir);
-	      strcat(dirbase,"/PCMDI_GRAPHICS");
+	      strcat(dirbase,"/");
+	      strcat(dirbase,DOT_DIRECTORY);
 	     }
 	  }
 	else  strcpy(dirbase,base_dir);
@@ -1103,8 +1109,9 @@ int text_color,text_font;
 	if (mkdir(base_dir,mode) != 0 && errno != EEXIST)
 	  {
 	   printf ("Error - you don't have a base directory.\n");
-	   printf ("The environment variable PCMDI_GRAPHICS_DIR or"
-						" HOME needs to be set!\n");
+	   printf ("The environment variable");
+           printf (DOT_DIRECTORY_ENV);
+	   printf (" or HOME needs to be set!\n");
 	   return 0;
 	  }
 

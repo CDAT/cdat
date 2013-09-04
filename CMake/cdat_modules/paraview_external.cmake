@@ -83,6 +83,26 @@ if(NOT CDAT_USE_SYSTEM_HDF5)
   endif()
 endif()
 
+# Check if should build GUI
+if(CDAT_BUILD_GUI)
+  list(APPEND ParaView_tpl_args
+    -DPARAVIEW_BUILD_QT_GUI:BOOL=ON
+    -DVTK_QT_USE_WEBKIT:BOOL=OFF
+    -DQT_QMAKE_EXECUTABLE:FILEPATH=${QT_QMAKE_EXECUTABLE}
+    -DQT_QTUITOOLS_INCLUDE_DIR:PATH=${QT_ROOT}/include/QtUiTools
+    -DPARAVIEW_USE_GNU_R:BOOL=ON
+    -DR_COMMAND:PATH=${R_install}/bin/R
+    -DR_DIR:PATH=${R_install}/lib/R
+    -DR_INCLUDE_DIR:PATH=${R_install}/lib/R/include
+    -DR_LIBRARY_BASE:PATH=${R_install}/lib/R/lib/libR${_LINK_LIBRARY_SUFFIX}
+    -DR_LIBRARY_BLAS:PATH=${R_install}/lib/R/lib/libRblas${_LINK_LIBRARY_SUFFIX}
+    -DR_LIBRARY_LAPACK:PATH=${R_install}/lib/R/lib/libRlapack${_LINK_LIBRARY_SUFFIX}
+    -DR_LIBRARY_READLINE:PATH=)
+else()
+  list(APPEND ParaView_tpl_args
+    -DPARAVIEW_BUILD_QT_GUI:BOOL=OFF)
+endif()
+
 if(UVCDAT_TESTDATA_LOCATION)
   list(APPEND ParaView_tpl_args
     -DUVCDAT_TestData:PATH=${UVCDAT_TESTDATA_LOCATION}
@@ -96,13 +116,18 @@ get_git_head_revision(refspec sha)
 if("${refspec}" STREQUAL "refs/heads/devel-master")
   set(paraview_branch uvcdat-next)
 endif()
+if (NOT OFFLINE_BUILD)
+    set(GIT_CMD_STR GIT_REPOSITORY ${GIT_PROTOCOL}github.com/aashish24/paraview-climate-3.11.1.git)
+else ()
+    set(GIT_CMD_STR )
+endif()
 
 ExternalProject_Add(ParaView
   DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${ParaView_source}
   BINARY_DIR ${ParaView_binary}
   INSTALL_DIR ${ParaView_install}
-  GIT_REPOSITORY ${GIT_PROTOCOL}github.com/aashish24/paraview-climate-3.11.1.git
+  ${GIT_CMD_STR} 
   GIT_TAG ${paraview_branch}
   UPDATE_COMMAND ""
   PATCH_COMMAND ""
@@ -116,21 +141,9 @@ ExternalProject_Add(ParaView
     -DPARAVIEW_DISABLE_VTK_TESTING:BOOL=ON
     -DPARAVIEW_INSTALL_THIRD_PARTY_LIBRARIES:BOOL=OFF
     -DPARAVIEW_TESTING_WITH_PYTHON:BOOL=OFF
-    -DPARAVIEW_USE_GNU_R:BOOL=ON
-    -DR_COMMAND:PATH=${R_install}/bin/R
-    -DR_DIR:PATH=${R_install}/lib/R
-    -DR_INCLUDE_DIR:PATH=${R_install}/lib/R/include
-    -DR_LIBRARY_BASE:PATH=${R_install}/lib/R/lib/libR${_LINK_LIBRARY_SUFFIX}
-    -DR_LIBRARY_BLAS:PATH=${R_install}/lib/R/lib/libRblas${_LINK_LIBRARY_SUFFIX}
-    -DR_LIBRARY_LAPACK:PATH=${R_install}/lib/R/lib/libRlapack${_LINK_LIBRARY_SUFFIX}
-    -DR_LIBRARY_READLINE:PATH=
-    -DVTK_QT_USE_WEBKIT:BOOL=OFF
     -DINCLUDE_PYTHONHOME_PATHS:BOOL=OFF
     ${cdat_compiler_args}
     ${ParaView_tpl_args}
-    # Qt
-    -DQT_QMAKE_EXECUTABLE:FILEPATH=${QT_QMAKE_EXECUTABLE}
-    -DQT_QTUITOOLS_INCLUDE_DIR:PATH=${QT_ROOT}/include/QtUiTools
     # Python
     -DPARAVIEW_ENABLE_PYTHON:BOOL=ON
     -DPYTHON_EXECUTABLE:FILEPATH=${PYTHON_EXECUTABLE}

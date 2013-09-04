@@ -1154,10 +1154,11 @@ class Template_Editor:
         s.insert('end',
         """Session saved.
         The old script file
-        %s/PCMDI_GRAPHICS/initial.attributes
+        %s/%s/initial.attributes
         has been saved as
-        %s/PCMDI_GRAPHICS/initial.attributes%%.
-        """ % (os.environ['HOME'], os.environ['HOME'])
+        %s/%s/initial.attributes%%.
+        """ % (os.environ['HOME'], self.canvas._dotdir,
+                os.environ['HOME'],self.canvas._dotdir)
                 )
 
     def savescript(self):

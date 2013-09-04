@@ -3,6 +3,7 @@ set(pkgconfig_source "${CMAKE_CURRENT_BINARY_DIR}/build/pkgconfig")
 set(pkgconfig_install "${cdat_EXTERNALS}")
 
 ExternalProject_Add(pkgconfig
+  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   URL ${PKG_URL}/${PKG_GZ}
   URL_MD5 ${PKG_MD5}
   BUILD_IN_SOURCE 1
