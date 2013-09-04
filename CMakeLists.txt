@@ -565,50 +565,53 @@ set(CPACK_DESTINATION_PREFIX_LIBS "uvcdat/lib")
 set(CPACK_DESTINATION_PREFIX_BIN "uvcdat/bin")
 
 if (APPLE)
-  set(CPACK_DESTINATION_PREFIX "uvcdat.app/Contents")
+  set(CPACK_DESTINATION_PREFIX "${CMAKE_INSTALL_PREFIX}/uvcdat.app/Contents")
   set(CPACK_DESTINATION_PREFIX_LIBS "${CPACK_DESTINATION_PREFIX}/Libraries")
   set(CPACK_DESTINATION_PREFIX_BIN "${CPACK_DESTINATION_PREFIX}/MacOS")
 endif()
 
 include(CPack)
 
-file(GLOB_RECURSE programs "${CMAKE_INSTALL_PREFIX}/bin/*")
-file(GLOB programs_images "${CMAKE_INSTALL_PREFIX}/bin/images/*")
-file(GLOB programs_tutorials "${CMAKE_INSTALL_PREFIX}/bin/tutorials/*")
+install(CODE "
+  file(GLOB_RECURSE programs \"${CMAKE_INSTALL_PREFIX}/bin/*\")
+  file(GLOB programs_images \"${CMAKE_INSTALL_PREFIX}/bin/images/*\")
+  file(GLOB programs_tutorials \"${CMAKE_INSTALL_PREFIX}/bin/tutorials/*\")
 
-if (NOT "${programs_images}" STREQUAL "" OR NOT "${programs_tutorials}" STREQUAL "")
-  list(REMOVE_ITEM programs ${programs_images} ${programs_tutorials})
-endif()
+  if (NOT \"${programs_images}\" STREQUAL \"\" OR NOT \"${programs_tutorials}\" STREQUAL \"\")
+    list(REMOVE_ITEM programs ${programs_images} ${programs_tutorials})
+  endif()
 
-set (resolved_programs "")
-foreach (program ${programs})
-    get_filename_component(res_program "${program}" REALPATH)
-    list (APPEND resolved_programs "${res_program}")
-endforeach()
+  set (resolved_programs \"\")
+  foreach (program ${programs})
+    get_filename_component(res_program \"${program}\" REALPATH)
+    list (APPEND resolved_programs \"${res_program}\")
+  endforeach()
 
-install(FILES ${resolved_programs} DESTINATION ${CPACK_DESTINATION_PREFIX_BIN} PERMISSIONS
-  USE_SOURCE_PERMISSIONS TYPE DIRECTORY FILES)
+  file(INSTALL FILES ${resolved_programs} DESTINATION ${CPACK_DESTINATION_PREFIX_BIN} PERMISSIONS
+    USE_SOURCE_PERMISSIONS)
 
-if(EXISTS "${CMAKE_INSTALL_PREFIX}/bin/images" AND IS_DIRECTORY "${CMAKE_INSTALL_PREFIX}/bin/images")
-  install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin/images DESTINATION ${CPACK_DESTINATION_PREFIX_BIN})
-endif()
+  if(EXISTS \"${CMAKE_INSTALL_PREFIX}/bin/images\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/bin/images\")
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/bin/images DESTINATION ${CPACK_DESTINATION_PREFIX_BIN})
+  endif()
 
-if(EXISTS "${CMAKE_INSTALL_PREFIX}/bin/tutorials" AND IS_DIRECTORY "${CMAKE_INSTALL_PREFIX}/bin/tutorials")
-  install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin/tutorials DESTINATION ${CPACK_DESTINATION_PREFIX_BIN})
-endif()
+  if(EXISTS \"${CMAKE_INSTALL_PREFIX}/bin/tutorials\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/bin/tutorials\")
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/bin/tutorials DESTINATION ${CPACK_DESTINATION_PREFIX_BIN})
+  endif()
 
-install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/Externals DESTINATION ${CPACK_DESTINATION_PREFIX})
-install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/include DESTINATION ${CPACK_DESTINATION_PREFIX})
-install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib DESTINATION ${CPACK_DESTINATION_PREFIX_LIBS} PERMISSIONS
-  USE_SOURCE_PERMISSIONS TYPE DIRECTORY FILES)
+  file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/Externals DESTINATION ${CPACK_DESTINATION_PREFIX})
+  file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/include DESTINATION ${CPACK_DESTINATION_PREFIX})
+  file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/lib DESTINATION ${CPACK_DESTINATION_PREFIX_LIBS})
 
-if(EXISTS "${CMAKE_INSTALL_PREFIX}/bin/man" AND IS_DIRECTORY "${CMAKE_INSTALL_PREFIX}/bin/man")
-  install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/man DESTINATION ${CPACK_DESTINATION_PREFIX_BIN})
-endif()
+  if(EXISTS \"${CMAKE_INSTALL_PREFIX}/bin/man\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/bin/man\")
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/man DESTINATION ${CPACK_DESTINATION_PREFIX_BIN})
+  endif()
 
-if(EXISTS "${CMAKE_INSTALL_PREFIX}/vistrails" AND IS_DIRECTORY "${CMAKE_INSTALL_PREFIX}/vistrails")
-  install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/vistrails DESTINATION ${CPACK_DESTINATION_PREFIX})
-endif()
+  if(EXISTS \"${CMAKE_INSTALL_PREFIX}/vistrails\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/vistrails\")
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/vistrails DESTINATION ${CPACK_DESTINATION_PREFIX})
+  endif()
 
-# Install UVCDAT
-install(PROGRAMS ${CMAKE_INSTALL_PREFIX}/bin/uvcdat DESTINATION ${CPACK_DESTINATION_PREFIX_BIN})
+  # Install UVCDAT
+  file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/bin/uvcdat DESTINATION ${CPACK_DESTINATION_PREFIX_BIN}
+    PERMISSIONS USE_SOURCE_PERMISSIONS TYPE FILES)"
+  COMPONENT superbuild
+)
