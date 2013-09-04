@@ -8,6 +8,7 @@
 #include "numpy/arrayobject.h"
 /* #include <assert.h> */
 #include "slabapi.h"
+#include "vcs_names_length.h"
 
 /* ----------------------------------------------------- */
 /* slabapi module -- for testing the CAPI to slabs */
@@ -271,6 +272,17 @@ slabapi_dimension_is_circular (self, args)
         return Py_BuildValue("i", result);
 }
 
+static PyObject *
+PyVCS_getdotdirectory(self,args)
+  PyObject *self;
+  PyObject *args;
+{
+    char a[1024],b[1024];
+    strcpy(a,DOT_DIRECTORY);
+    strcpy(b,DOT_DIRECTORY_ENV);
+    return Py_BuildValue("ss",a,b);
+}
+
 
 /* List of methods defined in the module */
 
@@ -289,7 +301,7 @@ static struct PyMethodDef slabapi_methods[] = {
  {"dimension_bounds",	(PyCFunction)slabapi_dimension_bounds,	METH_VARARGS,	slabapi_dimension_bounds__doc__},
  {"dimension_values",	(PyCFunction)slabapi_dimension_values,	METH_VARARGS,	slabapi_dimension_values__doc__},
  {"dimension_is_circular",	(PyCFunction)slabapi_dimension_is_circular,	METH_VARARGS,	slabapi_dimension_is_circular__doc__},
- 
+ {"getdotdirectory", (PyCFunction)PyVCS_getdotdirectory, 1}, 
 	{NULL,	 (PyCFunction)NULL, 0, NULL}		/* sentinel */
 };
 

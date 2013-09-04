@@ -269,7 +269,7 @@ int animate_module(int canvas_id)
 	   store_animation_list_list[i].xs = -1;
 
         /* Set the Raster Output directory */
-        rfile_home_dir = (char *) getenv("PCMDI_GRAPHICS_DIR");
+        rfile_home_dir = (char *) getenv(DOT_DIRECTORY_ENV);
         if (rfile_home_dir == NULL)
            rfile_home_dir = (char *) getenv("$HOME");
 

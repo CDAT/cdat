@@ -491,6 +491,7 @@ Session Save sets (1), (2), and (4) to (1)
             self._savesession()
 
     def _savesession(self):
+        dotdir=self.canvas.getdotdirectory()[0]
         self.apply()
         self.canvas.saveinitialfile()
         s = Pmw.TextDialog(self.dialog.interior(), title='Session saved.')
@@ -499,10 +500,11 @@ Session Save sets (1), (2), and (4) to (1)
         s.insert('end',
 """Session saved.
 The old script file 
-%s/PCMDI_GRAPHICS/initial.attributes
+%s/%s/initial.attributes
 has been saved as
-%s/PCMDI_GRAPHICS/initial.attributes%%.
-""" % (os.environ['HOME'], os.environ['HOME'])
+%s/%s/initial.attributes%%.
+""" % (os.environ['HOME'], dotdir,
+       os.environ['HOME'], dotdir)
         )
 
     def exit_editor(self):
