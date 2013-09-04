@@ -359,8 +359,8 @@ include(gui_support_pkg)
 include(hdf5_pkg)
 include(zmq_pkg)
 include(pyzmq_pkg)
-include(tornado_pkg)
-include(ipython_pkg)
+#include(tornado_pkg)
+#include(ipython_pkg)
 include(jasper_pkg)
 include(jpeg_pkg)
 include(lapack_pkg)
@@ -546,3 +546,58 @@ if (BUILD_TESTING)
   )
   add_subdirectory(testing)
 endif()
+
+# Package UV-CDAT with CPACK
+include(InstallRequiredSystemLibraries)
+
+if (APPLE)
+  set(CPACK_GENERATOR DragNDrop)
+endif()
+
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "UVCDAT")
+set(CPACK_PACKAGE_VENDOR "UVCDAT")
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/docs/README.txt")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/docs/Legal.txt")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Aashish Chaudhary") #required
+
+include(CPack)
+
+file(GLOB_RECURSE programs "${CMAKE_INSTALL_PREFIX}/bin/*")
+file(GLOB programs_images "${CMAKE_INSTALL_PREFIX}/bin/images/*")
+file(GLOB programs_tutorials "${CMAKE_INSTALL_PREFIX}/bin/tutorials/*")
+
+if (NOT "${programs_images}" STREQUAL "" OR NOT "${programs_tutorials}" STREQUAL "")
+  list(REMOVE_ITEM programs ${programs_images} ${programs_tutorials})
+endif()
+
+set (resolved_programs "")
+foreach (program ${programs})
+    get_filename_component(res_program "${program}" REALPATH)
+    list (APPEND resolved_programs "${res_program}")
+endforeach()
+
+install(FILES ${resolved_programs} DESTINATION uvcdat/bin PERMISSIONS
+  OWNER_READ GROUP_READ WORLD_READ OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE)
+
+if(EXISTS "${CMAKE_INSTALL_PREFIX}/bin/images" AND IS_DIRECTORY "${CMAKE_INSTALL_PREFIX}/bin/images")
+  install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin/images DESTINATION uvcdat/bin)
+endif()
+
+if(EXISTS "${CMAKE_INSTALL_PREFIX}/bin/tutorials" AND IS_DIRECTORY "${CMAKE_INSTALL_PREFIX}/bin/tutorials")
+  install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin/tutorials DESTINATION uvcdat/bin)
+endif()
+
+install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/Externals DESTINATION uvcdat)
+install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/include DESTINATION uvcdat)
+install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib DESTINATION uvcdat)
+
+if(EXISTS "${CMAKE_INSTALL_PREFIX}/bin/man" AND IS_DIRECTORY "${CMAKE_INSTALL_PREFIX}/bin/man")
+  install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/man DESTINATION uvcdat)
+endif()
+
+if(EXISTS "${CMAKE_INSTALL_PREFIX}/vistrails" AND IS_DIRECTORY "${CMAKE_INSTALL_PREFIX}/vistrails")
+  install(DIRECTORY ${CMAKE_INSTALL_PREFIX}/vistrails DESTINATION uvcdat)
+endif()
+
+# Install UVCDAT
+install(PROGRAMS ${CMAKE_INSTALL_PREFIX}/bin/uvcdat DESTINATION uvcdat/bin)
