@@ -275,8 +275,8 @@ def runCheck():
             else:
                 import warnings
                 warnings.warn("UVCDAT logging environment variable UVCDAT_ANONYMOUS_LOG should be set to 'True' or 'False', you have it set to '%%s', will be ignored" %% envanom)
-        if val is None: # No env variable looking in PCMDI_GRAPHICS
-            fanom = os.path.join(os.environ["HOME"],"PCMDI_GRAPHICS",".anonymouslog")
+        if val is None: # No env variable looking in .uvcdat
+            fanom = os.path.join(os.environ["HOME"],".uvcdat",".anonymouslog")
             if os.path.exists(fanom):
                 f=open(fanom)
                 for l in f.readlines():
@@ -300,7 +300,9 @@ def askAnonymous(val):
                 val = False
             if val in [True,False]: # store result for next time
                 try:
-                    fanom = os.path.join(os.environ["HOME"],"PCMDI_GRAPHICS",".anonymouslog")
+                    fanom = os.path.join(os.environ["HOME"],".uvcdat",".anonymouslog")
+                    if not os.path.exists(os.path.join(os.environ["HOME"],".uvcdat")):
+                        os.makedirs(os.path.join(os.environ["HOME"],".uvcdat"))
                     f=open(fanom,"w")
                     print >>f, "#Store information about allowing UVCDAT anonymous logging"
                     print >>f, "# Need sto be True or False"

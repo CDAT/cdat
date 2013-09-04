@@ -931,7 +931,8 @@ class Canvas(object,AutoAPI.AutoAPI):
                self._scriptrun( os.path.join(*pth))
            except:
                pass
-           self._scriptrun( os.path.join(os.environ['HOME'], 'PCMDI_GRAPHICS', 'initial.attributes'))
+           self._dotdir,self._dotdirenv = self._canvas.getdotdirectory()
+           self._scriptrun( os.path.join(os.environ['HOME'], self._dotdir, 'initial.attributes'))
 	called_initial_attributes_flg = 1
         self.animate_info=[]
         self.canvas_template_editor=None
@@ -6968,7 +6969,7 @@ Options:::
  Description of Function:
     Postscript output is another form of vector graphics. It is larger than its CGM output
     counter part, because it is stored out in ASCII format. To save out a postscript file,
-    VCS will first create a cgm file in the user's PCMDI_GRAPHICS directory. Then it will
+    VCS will first create a cgm file in the user's %s directory. Then it will
     use gplot to convert the cgm file to a postscript file in the location the user has
     chosen.
 
@@ -6990,7 +6991,7 @@ Options:::
     a.postscript('example', mode='a')  # Append postscript to an existing file
     a.postscript('example', orientation='r')  # Overwrite an existing file
     a.postscript('example', mode='r', orientation='p')  # Overwrite postscript file with a portrait postscript file
-"""
+""" % self._dotdir
         if orientation is None:
             orientation=self.orientation()[0]
         return apply(self.canvas.postscript_old,(file,mode,orientation))
@@ -7006,7 +7007,7 @@ Options:::
 
  Description of Function:
     To save out a PDF file,
-    VCS will first create a cgm file in the user's PCMDI_GRAPHICS directory. Then it will
+    VCS will first create a cgm file in the user's %s directory. Then it will
     use gplot to convert the cgm file to a postscript file in the location the user has
     chosen. And then convert it pdf using ps2pdf
 
@@ -7020,7 +7021,8 @@ Options:::
     a.pdf('example','p')  # Creates a portrait pdf file
     a.pdf(file='example',orientation='p')  # Creates a portrait pdf file
     a.pdf(file='example',options='-dCompressPages=false')  # Creates a pdf file w/o compressing page, can be any option understood by ps2pdf
-"""
+""" % (self._dotdir)
+
         n=random.randint(0,100000)
         if file[-3:].lower()!='pdf':
             file+='.pdf'
@@ -7043,7 +7045,7 @@ Options:::
  Description of Function:
     This function creates a temporary cgm file and then sends it to the specified
     printer. Once the printer received the information, then the temporary cgm file
-    is deleted. The temporary cgm file is created in the user's PCMDI_GRAPHICS directory.
+    is deleted. The temporary cgm file is created in the user's %s directory.
 
     The PRINTER command is used to send the VCS Canvas plot(s) directly to the printer.
     Orientation can be either: 'l' = landscape, or 'p' = portrait.
@@ -7052,7 +7054,7 @@ Options:::
     file (included with the VCS software) for the home system. The path to the HARD_COPY
     file must be: 
 
-              /$HOME/PCMDI_GRAPHICS/HARD_COPY
+              /$HOME/%s/HARD_COPY
 
     where /$HOME denotes the user's home directory.
 
@@ -7066,7 +7068,7 @@ Options:::
     a.plot(array)
     a.printer('printer_name') # Send plot(s) to postscript printer
     a.printer('printer_name',top_margin=1,units='cm') # Send plot(s) to postscript printer with 1cm margin on top of plot
-"""
+""" % (self._dotdir,self._dotdir)
         if printer is None:
             printer = (os.environ.get('PRINTER'),)
             
@@ -7182,7 +7184,7 @@ Options:::
     If no path/file name is given and no previously created raster file has been
     designated, then file
 
-    /$HOME/PCMDI_GRAPHICS/default.ras
+    /$HOME/%s/default.ras
 
     will be used for storing raster images. However, if a previously created raster
     file is designated, that file will be used for raster output.
@@ -7193,7 +7195,7 @@ Options:::
     a.raster('example','a')   # append raster image to existing file
     a.raster('example','r')   # overwrite existing raster file
     a.raster(file='example',mode='r')   # overwrite existing raster file
-""" 
+"""  % (self._dotdir)
         return apply(self.canvas.raster, (file,mode))
 
     #############################################################################
@@ -7698,7 +7700,7 @@ Options:::
     If no path/file name is given and no previously created gif file has been
     designated, then file
 
-        /$HOME/PCMDI_GRAPHICS/default.gif
+        /$HOME/%s/default.gif
 
     will be used for storing gif images. However, if a previously created gif 
     file is designated, that file will be used for gif output.
@@ -7721,7 +7723,7 @@ Options:::
     a.gif('example',orientation='l') # merge gif image into existing gif file with landscape orientation
     a.gif('example',orientation='p') # merge gif image into existing gif file with portrait orientation
     a.gif('example',geometry='600x500') # merge gif image into existing gif file and set the gif geometry
-"""
+""" % (self._dotdir)
         if orientation is None:
             orientation=self.orientation()[0]
         g = string.split(geometry,'x')
@@ -7751,7 +7753,7 @@ Options:::
     If no path/file name is given and no previously created gs file has been
     designated, then file
 
-        /$HOME/PCMDI_GRAPHICS/default.gs
+        /$HOME/%s/default.gs
 
     will be used for storing gs images. However, if a previously created gs 
     file exist, then this output file will be used for storage.
@@ -7770,7 +7772,7 @@ Options:::
     a.gs(filename='example.tif', device='tiffpack', orientation='l', resolution='800x600')
     a.gs(filename='example.pdf', device='pdfwrite', orientation='l', resolution='200x200')
     a.gs(filename='example.jpg', device='jpeg', orientation='p', resolution='1000x1000')
-"""
+""" % (self._dotdir)
         if orientation is None:
             orientation=self.orientation()[0]
         r = string.split(resolution,'x')
@@ -7873,7 +7875,7 @@ Options:::
         gm=GM.g_name
         key=gm+'_'+nm+'('
         if file is None:
-            file=os.environ['HOME']+'/PCMDI_GRAPHICS/initial.attributes'
+            file=os.path.join(os.environ['HOME'],self._dotdir,'initial.attributes') 
         f=open(file,'r')
         for ln in f.xreadlines():
             if string.find(ln,key)>-1:
@@ -7896,7 +7898,7 @@ Options:::
     predefined settings to aid the beginning user of VCS. The path to
     the file must be:
 
-         /$HOME/PCMDI_GRAPHICS/initial.attributes
+         /$HOME/%s/initial.attributes
 
     The contents of the initial.attributes file can be customized by
     the user.
@@ -7913,11 +7915,11 @@ Options:::
     b.name='MyBoxfill'
 
  # graphic method is now preserved
-"""
+""" % (self._dotdir)
         self.clean_auto_generated_objects()
         msg = _vcs.saveinitialfile()
         # Now adds the taylordiagram stuff
-        fnm=os.environ['HOME']+'/PCMDI_GRAPHICS/initial.attributes'
+        fnm=os.path.join(os.environ['HOME'],self._dotdir,'initial.attributes')
         for td in vcs.taylordiagrams:
             if self.isinfile(td)==0 : td.script(fnm)
 ##         # Now adds the meshfill stuff

@@ -1945,7 +1945,7 @@ void convert_to_upper_case( char *return_str )
         }
 }
 
-/* Open the HARD_COPY file in the user's $HOME/PCMDI_GRAPHICS directory
+/* Open the HARD_COPY file in the user's $HOME/DOT_DIRECTORY directory
  * and return the gplot string. The string indicates the location of gplot.
  */
 #ifndef X11OUT
@@ -1974,7 +1974,9 @@ int read_HARD_COPY(char *gplot_str, int orientation)
         }
 
         strcpy(hardcopy_file, home_dir);
-        strcat(hardcopy_file, "/PCMDI_GRAPHICS/HARD_COPY");
+        strcat(hardcopy_file, "/");
+        strcat(hardcopy_file, DOT_DIRECTORY);
+        strcat(hardcopy_file, "/HARD_COPY");
 
         ffd = access(hardcopy_file, F_OK);    /* check to see if the */
         rfd = access(hardcopy_file, R_OK);    /* HARD_COPY file exist */

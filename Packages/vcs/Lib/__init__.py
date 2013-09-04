@@ -44,8 +44,8 @@ _default_time_units='days since 2000'
 
 #################################################################################
 #                                                                               #
-# Set up the User's PCMDI_GRAPHICS directory if necessary. Copy files from      #
-# $PYTHONHOME/bin to the newly created $HOME/PCMDI_GRAPHICS directory.          #
+# Set up the User's  directory if necessary. Copy files from      #
+# $PYTHONHOME/bin to the newly created $HOME/.uvcdat directory.          #
 #                                                                               #
 #################################################################################
 install_vcs._files()
