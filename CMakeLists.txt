@@ -565,7 +565,7 @@ set(CPACK_DESTINATION_PREFIX_LIBS "uvcdat/lib")
 set(CPACK_DESTINATION_PREFIX_BIN "uvcdat/bin")
 
 if (APPLE)
-  set(CPACK_DESTINATION_PREFIX "${CMAKE_INSTALL_PREFIX}/uvcdat.app/Contents")
+  set(CPACK_DESTINATION_PREFIX "\${CMAKE_INSTALL_PREFIX}/uvcdat.app/Contents")
   set(CPACK_DESTINATION_PREFIX_LIBS "${CPACK_DESTINATION_PREFIX}/Libraries")
   set(CPACK_DESTINATION_PREFIX_BIN "${CPACK_DESTINATION_PREFIX}/MacOS")
 endif()
@@ -577,17 +577,17 @@ install(CODE "
   file(GLOB programs_images \"${CMAKE_INSTALL_PREFIX}/bin/images/*\")
   file(GLOB programs_tutorials \"${CMAKE_INSTALL_PREFIX}/bin/tutorials/*\")
 
-  if (NOT \"${programs_images}\" STREQUAL \"\" OR NOT \"${programs_tutorials}\" STREQUAL \"\")
-    list(REMOVE_ITEM programs ${programs_images} ${programs_tutorials})
+  if (NOT \"\${programs_images}\" STREQUAL \"\" OR NOT \"\${programs_tutorials}\" STREQUAL \"\")
+    list(REMOVE_ITEM programs \${programs_images} \${programs_tutorials})
   endif()
 
   set (resolved_programs \"\")
-  foreach (program ${programs})
-    get_filename_component(res_program \"${program}\" REALPATH)
-    list (APPEND resolved_programs \"${res_program}\")
+  foreach (program \${programs})
+    get_filename_component(res_program \"\${program}\" REALPATH)
+    list (APPEND resolved_programs \"\${res_program}\")
   endforeach()
 
-  file(INSTALL FILES ${resolved_programs} DESTINATION ${CPACK_DESTINATION_PREFIX_BIN} PERMISSIONS
+  file(INSTALL FILES \${resolved_programs} DESTINATION ${CPACK_DESTINATION_PREFIX_BIN} PERMISSIONS
     USE_SOURCE_PERMISSIONS)
 
   if(EXISTS \"${CMAKE_INSTALL_PREFIX}/bin/images\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/bin/images\")
@@ -608,10 +608,7 @@ install(CODE "
 
   if(EXISTS \"${CMAKE_INSTALL_PREFIX}/vistrails\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/vistrails\")
     file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/vistrails DESTINATION ${CPACK_DESTINATION_PREFIX})
-  endif()
+  endif()"
 
-  # Install UVCDAT
-  file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/bin/uvcdat DESTINATION ${CPACK_DESTINATION_PREFIX_BIN}
-    PERMISSIONS USE_SOURCE_PERMISSIONS TYPE FILES)"
   COMPONENT superbuild
 )
