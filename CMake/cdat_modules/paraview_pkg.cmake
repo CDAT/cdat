@@ -7,4 +7,4 @@ set(PARAVIEW_GZ ParaView-${PARAVIEW_VERSION}c.tar.gz)
 set(PARAVIEW_MD5 uvcdat-next)
 set(PARAVIEW_SOURCE ${GIT_PROTOCOL}github.com/aashish24/paraview-climate-3.11.1.git )
 
-add_cdat_package(ParaView "" "Build ParaView" ON)
+add_cdat_package_dependent(ParaView "" "" ON "CDAT_BUILD_GRAPHICS" OFF)
