@@ -72,8 +72,8 @@ set(CTEST_BUILD_NAME "${CTEST_PROJECT_NAME}-${BUILD_NAME}-${PROJECT_BRANCH}")
 set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
 set(CTEST_BUILD_COMMAND "/usr/bin/make -j4")
 
-# For dashboards set the anonymous log to false
-set(ENV{CDAT_ANONYMOUS_LOG} "False")
+# Dashboards should participate in anonymous logging and must not have a confirmation dialog.
+set(ENV{UVCDAT_ANONYMOUS_LOG} "True")
 
 set(PERFORM_MEMCHECK FALSE)
 set(PERFORM_COVERAGE FALSE)
