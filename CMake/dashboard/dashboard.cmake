@@ -124,6 +124,10 @@ if((NOT "${PROJECT_BUILD_INTERVAL}" STREQUAL "Continuous")
   ctest_empty_binary_directory("${CTEST_BINARY_INSTALL_DIRECTORY}")
 endif()
 
+# Prevent pip from using some random directory to do builds in
+# Dashboards do it inside the build tree so that builds will be clean each night
+set(ENV{TMPDIR} "${CTEST_BINARY_DIRECTORY}")
+
 # Populate CMakeCache using host/target specific settings
 if(EXISTS "${CTEST_SCRIPT_DIRECTORY}/${TARGET_CMAKE_FILE}")
   message("[INFO] Including ${CTEST_SCRIPT_DIRECTORY}/${TARGET_CMAKE_FILE}")
