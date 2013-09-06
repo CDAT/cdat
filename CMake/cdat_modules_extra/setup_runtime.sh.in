@@ -3,7 +3,7 @@
 # Find the location of this script and store it for further use
 BASEDIR=$(dirname "$0")
 
-PATH=@SB_BINARY_DIR@:${PATH}i
+PATH=${BASEDIR}:${PATH}
 PATH=@SB_EXTERNALS_DIR@/bin:${PATH}
 PATH=@SB_LIB_DIR@/Frameworks/Python.framework/Versions/@PYVER@/bin:${PATH}
 

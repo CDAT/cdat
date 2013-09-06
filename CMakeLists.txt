@@ -570,7 +570,7 @@ set(CPACK_DESTINATION_PREFIX_BIN "uvcdat/bin")
 
 if (APPLE)
   set(SB_EXTERNALS_DIR "../uvcdat.app/Contents/Externals")
-  set(SB_LIB_DIR "../LIbraries")
+  set(SB_LIB_DIR "../Libraries")
 
   set(CPACK_DESTINATION_PREFIX "\${CMAKE_INSTALL_PREFIX}/uvcdat.app/Contents")
   set(CPACK_DESTINATION_PREFIX_LIBS "${CPACK_DESTINATION_PREFIX}/Libraries")
@@ -580,12 +580,7 @@ endif()
 include(CPack)
 
 install(CODE "
-  configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/uvcdat.in
-    \"\${CMAKE_INSTALL_PREFIX}/bin/uvcdat\"
-    @ONLY
-  )
-
- file(GLOB_RECURSE programs \"${CMAKE_INSTALL_PREFIX}/bin/*\")
+  file(GLOB_RECURSE programs \"${CMAKE_INSTALL_PREFIX}/bin/*\")
   file(GLOB programs_images \"${CMAKE_INSTALL_PREFIX}/bin/images/*\")
   file(GLOB programs_tutorials \"${CMAKE_INSTALL_PREFIX}/bin/tutorials/*\")
 
@@ -620,7 +615,17 @@ install(CODE "
 
   if(EXISTS \"${CMAKE_INSTALL_PREFIX}/vistrails\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/vistrails\")
     file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/vistrails DESTINATION ${CPACK_DESTINATION_PREFIX})
-  endif()"
+  endif()
+
+  configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/setup_runtime.sh.in
+    \${CMAKE_INSTALL_PREFIX}/bin/setup_runtime.sh
+    @ONLY
+  )
+
+  configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/setup_runtime.sh.in
+    \${CMAKE_INSTALL_PREFIX}/bin/setup_runtime.sh
+    @ONLY
+  )"
 
   COMPONENT superbuild
 )
