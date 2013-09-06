@@ -1,6 +1,6 @@
 #!/bin/sh
 # source is not portable where as . is
 BASEDIR=$(dirname "$0")
-. $BASEDIR/setup_cdat.sh
+. $BASEDIR/setup_runtime.sh
 python $BASEDIR/../vistrails/vistrails/uvcdat.py $@
 
