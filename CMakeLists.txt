@@ -580,6 +580,13 @@ endif()
 include(CPack)
 
 install(CODE "
+  set(SB_EXTERNALS_DIR ${SB_EXTERNALS_DIR})
+  set(SB_LIB_DIR ${SB_LIB_DIR})
+  set(PYVER ${PYVER})
+  set(PARAVIEW_MAJOR ${PARAVIEW_MAJOR})
+  set(PARAVIEW_MINOR ${PARAVIEW_MINOR})
+  set(VISIT_VERSION ${VISIT_VERSION})
+
   file(GLOB_RECURSE programs \"${CMAKE_INSTALL_PREFIX}/bin/*\")
   file(GLOB programs_images \"${CMAKE_INSTALL_PREFIX}/bin/images/*\")
   file(GLOB programs_tutorials \"${CMAKE_INSTALL_PREFIX}/bin/tutorials/*\")
@@ -626,12 +633,12 @@ install(CODE "
   endif()
 
   configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/setup_runtime.sh.in
-    \${CMAKE_INSTALL_PREFIX}/bin/setup_runtime.sh
+    ${CPACK_DESTINATION_PREFIX_BIN}/setup_runtime.sh
     @ONLY
   )
 
   configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/setup_runtime.sh.in
-    \${CMAKE_INSTALL_PREFIX}/bin/setup_runtime.sh
+    ${CPACK_DESTINATION_PREFIX_BIN}/setup_runtime.sh
     @ONLY
   )"
 
