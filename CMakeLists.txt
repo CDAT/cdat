@@ -18,6 +18,10 @@ set(cdat_CMAKE_SOURCE_DIR ${cdat_SOURCE_DIR}/CMake)
 set(cdat_CMAKE_BINARY_DIR ${cdat_BINARY_DIR}/CMake)
 set(cdat_external_patch_dir ${cdat_SOURCE_DIR}/exsrc)
 
+# Helper variables to locate programs and libraries
+set(SB_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib")
+set(SB_EXTERNALS_DIR "${CMAKE_INSTALL_PREFIX}/Externals")
+
 if("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local")
   get_filename_component(cdat_ROOT_DIR ${cdat_BINARY_DIR} PATH)
   set(CMAKE_INSTALL_PREFIX ${cdat_BINARY_DIR}/install CACHE STRING "" FORCE)
@@ -565,6 +569,9 @@ set(CPACK_DESTINATION_PREFIX_LIBS "uvcdat/lib")
 set(CPACK_DESTINATION_PREFIX_BIN "uvcdat/bin")
 
 if (APPLE)
+  set(SB_EXTERNALS_DIR "../uvcdat.app/Contents/Externals")
+  set(SB_LIB_DIR "../LIbraries")
+
   set(CPACK_DESTINATION_PREFIX "\${CMAKE_INSTALL_PREFIX}/uvcdat.app/Contents")
   set(CPACK_DESTINATION_PREFIX_LIBS "${CPACK_DESTINATION_PREFIX}/Libraries")
   set(CPACK_DESTINATION_PREFIX_BIN "${CPACK_DESTINATION_PREFIX}/MacOS")
@@ -573,7 +580,12 @@ endif()
 include(CPack)
 
 install(CODE "
-  file(GLOB_RECURSE programs \"${CMAKE_INSTALL_PREFIX}/bin/*\")
+  configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/uvcdat.in
+    \"\${CMAKE_INSTALL_PREFIX}/bin/uvcdat\"
+    @ONLY
+  )
+
+ file(GLOB_RECURSE programs \"${CMAKE_INSTALL_PREFIX}/bin/*\")
   file(GLOB programs_images \"${CMAKE_INSTALL_PREFIX}/bin/images/*\")
   file(GLOB programs_tutorials \"${CMAKE_INSTALL_PREFIX}/bin/tutorials/*\")
 
