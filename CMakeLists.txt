@@ -569,7 +569,7 @@ set(CPACK_DESTINATION_LIB_PREFIX "uvcdat/lib")
 set(CPACK_DESTINATION_BIN_PREFIX "uvcdat/bin")
 
 if (APPLE)
-  set(SB_EXTERNALS_DIR "../uvcdat.app/Contents/Externals")
+  set(SB_EXTERNALS_DIR "../Externals")
   set(SB_LIB_DIR "../Libraries")
 
   set(CPACK_DESTINATION_PREFIX "\${CMAKE_INSTALL_PREFIX}/uvcdat.app/Contents")
