@@ -8928,13 +8928,32 @@ class animate_obj(animate_obj_old):
         self.zoom_factor = 1.
         self.vertical_factor = 0
         self.horizontal_factor = 0
+        self.allArgs = []
+        self.canvas = None
 
     def create( self, parent=None, min=None, max=None, save_file=None, thread_it = 1, rate=5., bitrate=None, ffmpegoptions='', axis=0):
         if thread_it:
-            class crp(QtCore.QObject):
-                pass
-            C=crp()
-            thread.start_new_thread(self._actualCreate,(parent,min,max,save_file,rate,bitrate,ffmpegoptions,axis,C))
+            class crp(QtCore.QObject):                
+                def __init__(self, anim):
+                    QtCore.QObject.__init__(self)
+                    self.animationTimer = QtCore.QBasicTimer()
+                    self.animationFrame = 0
+                    self.anim = anim
+                    self.dialog = QtGui.QProgressDialog("Creating animation...", "Cancel", 0, 0)
+                    
+                def timerEvent(self, event):
+                    self.dialog.setValue(self.animationFrame)
+                    if self.animationFrame>=len(self.anim.allArgs):
+                        self.anim.restore_min_max()
+                        self.anim.canvas = None
+                        self.emit(QtCore.SIGNAL("AnimationCreated"), "Hello there")
+                        return
+                    self.anim.renderFrame(self.animationFrame)
+                    self.animationFrame += 1
+                    self.animationTimer.start(0, self)
+            global C
+            C=crp(self)
+            self._actualCreate(parent,min,max,save_file,rate,bitrate,ffmpegoptions,axis,C)
         else:
             C=None
             self._actualCreate(parent,min,max,save_file,rate,bitrate,ffmpegoptions,axis)
@@ -9008,8 +9027,10 @@ class animate_obj(animate_obj_old):
                 except:
                    pass # if it is default, then you cannot set the min and max, so pass.
 
+        self.allArgs = []
         for i in range(alen):
-            y.clear()
+            #y.clear()
+            frameArgs = []
             for I in self.vcs_self.animate_info:
                 d=I[0]
                 kw={}
@@ -9034,17 +9055,31 @@ class animate_obj(animate_obj_old):
                             break
                     args.append(I[1][1](**kw))
                 args += [d.template,d.g_type,d.g_name]
-                b=y.getboxfill(d.g_name)
-                y.plot(*args,bg=1)    
+                #b=y.getboxfill(d.g_name)
+                #y.plot(*args,bg=1)
+                frameArgs.append(args)
+            self.allArgs.append(frameArgs)
 
-            fn = tempfile.mkstemp(suffix=".png")[1]
-            self.animation_files.append(fn)
-            y.png(fn)
-            y.png("sample")
-        self.restore_min_max()
-        if sender is not None:
-            sender.emit(QtCore.SIGNAL("AnimationCreated"),"Hello there")
-        
+        self.canvas = y
+        if sender is None:
+            for i in xrange(len(self.allArgs)):
+                self.renderFrame(i)
+            self.restore_min_max()
+            self.canvas = None
+        else:
+            sender.animationTimer.start(0, sender)
+            sender.dialog.setRange(0, len(self.allArgs))
+            sender.dialog.show()
+
+    def renderFrame(self, i):
+        frameArgs = self.allArgs[i]
+        fn = tempfile.mkstemp(suffix=".png")[1]
+        self.animation_files.append(fn)
+        self.canvas.clear()
+        for args in frameArgs:
+            self.canvas.plot(*args, bg=1)
+        self.canvas.png(fn)
+        #self.canvas.png("sample")
         
     def runner(self):
         self.runit = True
@@ -9060,7 +9095,7 @@ class animate_obj(animate_obj_old):
         self.runthread = thread.start_new_thread(self.runner,())
 
     def draw(self, frame):
-        print "Clearing!!!!!!"
+        #print "Clearing!!!!!!"
         self.vcs_self.clear()
         self.vcs_self.canvas.put_png_on_canvas(self.animation_files[frame],
                                                self.zoom_factor,self.vertical_factor,self.horizontal_factor)
