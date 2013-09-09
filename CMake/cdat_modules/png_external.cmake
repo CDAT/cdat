@@ -36,7 +36,7 @@ else()
     URL ${PNG_URL}/${PNG_GZ}
     URL_MD5 ${PNG_MD5}
     BUILD_IN_SOURCE 1
-    PATCH_COMMAND ""
+    PATCH_COMMAND ${CMAKE_COMMAND} -E copy_if_different ${cdat_external_patch_dir}/src/png/pngconf.h ${png_source}/pngconf.h
     CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
     DEPENDS ${png_deps}
     ${ep_log_options}
