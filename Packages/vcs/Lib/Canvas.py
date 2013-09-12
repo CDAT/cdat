@@ -5664,6 +5664,10 @@ Options:::
     a.clear()
 
 """
+        self.animate.close()
+        self.animate_info=[]
+        self.animate.update_animate_display_list( )
+
         return apply(self.canvas.clear, args)
 
     #############################################################################
@@ -8961,15 +8965,17 @@ class animate_obj(animate_obj_old):
 
     def _actualCreate( self, parent=None, min=None, max=None, save_file=None, rate=5., bitrate=None, ffmpegoptions='', axis=0, sender=None):
         alen = None
-        y=vcs.init()
+        if self.canvas is None:  
+            self.canvas=vcs.init()
+        self.canvas.clear()
         dims = self.vcs_self.canvasinfo()
         if dims['height']<500:
             factor = 2
         else:
             factor=1
         if dims["width"]<dims["height"]:
-            y.portrait(width=dims["width"],height=dims["height"])
-        y.setbgoutputdimensions(width = dims['width']*factor,height=dims['height']*factor,units='pixel')
+            self.canvas.portrait(width=dims["width"],height=dims["height"])
+        self.canvas.setbgoutputdimensions(width = dims['width']*factor,height=dims['height']*factor,units='pixel')
         truncated = False
         for I in self.vcs_self.animate_info:
             if alen is None:
@@ -9020,7 +9026,6 @@ class animate_obj(animate_obj_old):
                     maxv.append( max )
              # Set the min an max for each plot in the page. If the same graphics method is used
              # to display the plots, then the last min and max setting of the data set will be used.
-             print "Minmaxs:",minv,maxv
              for i in range(len(self.vcs_self.animate_info)):
                 try:
                    self.set_animation_min_max( minv[i], maxv[i], i )
@@ -9060,7 +9065,6 @@ class animate_obj(animate_obj_old):
                 frameArgs.append(args)
             self.allArgs.append(frameArgs)
 
-        self.canvas = y
         if sender is None:
             for i in xrange(len(self.allArgs)):
                 self.renderFrame(i)
