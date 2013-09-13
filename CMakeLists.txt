@@ -569,8 +569,8 @@ set(CPACK_DESTINATION_LIB_PREFIX "uvcdat/lib")
 set(CPACK_DESTINATION_BIN_PREFIX "uvcdat/bin")
 
 if (APPLE)
-  set(SB_EXTERNALS_DIR "../Externals")
-  set(SB_LIB_DIR "../Libraries")
+  set(SB_EXTERNALS_DIR "Externals")
+  set(SB_LIB_DIR "Library/Frameworks/Python.framework/Versions/2.7/lib")
 
   set(CPACK_DESTINATION_PREFIX "\${CMAKE_INSTALL_PREFIX}/uvcdat.app/Contents")
   set(CPACK_DESTINATION_LIB_PREFIX "${CPACK_DESTINATION_PREFIX}/Libraries")
@@ -586,6 +586,7 @@ install(CODE "
   set(PARAVIEW_MAJOR ${PARAVIEW_MAJOR})
   set(PARAVIEW_MINOR ${PARAVIEW_MINOR})
   set(VISIT_VERSION ${VISIT_VERSION})
+  set(CDAT_BUILD_PARAVIEW ${CDAT_BUILD_PARAVIEW})
 
   file(GLOB_RECURSE programs \"${CMAKE_INSTALL_PREFIX}/bin/*\")
   file(GLOB programs_images \"${CMAKE_INSTALL_PREFIX}/bin/images/*\")
@@ -634,6 +635,21 @@ install(CODE "
 
   if(EXISTS \"${CMAKE_INSTALL_PREFIX}/Library\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/Library\")
     file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/Library DESTINATION ${CPACK_DESTINATION_PREFIX})
+  endif()
+
+  if (CDAT_BUILD_PARAVIEW)
+    #configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/vtk_install_python_module.cmake.in
+    #  ${cdat_CMAKE_BINARY_DIR}/vtk_install_python_module_cpack.cmake @ONLY
+    #)
+
+    execute_process(
+      COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/vtk_install_python_module.cmake
+      WORKING_DIRECTORY ${cdat_CMAKE_BINARY_DIR}
+      RESULT_VARIABLE res_var
+      OUTPUT_VARIABLE out_var
+      ERROR_VARIABLE err_var
+    )
+    message(\"FixlinkL \${res_var} \${out_var} \${err_var}\")
   endif()
 
   configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/setup_runtime.sh.in
