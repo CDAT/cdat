@@ -657,10 +657,12 @@ install(CODE "
     @ONLY
   )
 
-  configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/setup_runtime.sh.in
-    ${CPACK_DESTINATION_BIN_PREFIX}/setup_runtime.sh
-    @ONLY
-  )"
+  if (APPLE)
+    configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/uvcdat.mac.in
+      ${CPACK_DESTINATION_BIN_PREFIX}/uvcdat
+      @ONLY
+    )
+  endif()"
 
   COMPONENT superbuild
 )
