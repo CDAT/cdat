@@ -663,8 +663,8 @@ install(CODE "
       @ONLY
     )
     
-    execute_process(COMMAND ${CMAKE_COMMAND} copy ${cdat_CMAKE_SOURCE_DIR}/resources/uvcdat.icns
-      ${CPACK_DESTINATION_PREFIX}/Resources/uvcdat.icns
+    execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory ${cdat_SOURCE_DIR}/resources
+      ${CPACK_DESTINATION_PREFIX}/Resources
     )
   endif()"
 
