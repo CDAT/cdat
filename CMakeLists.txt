@@ -567,7 +567,7 @@ set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Aashish Chaudhary") #required
 set(CPACK_DESTINATION_PREFIX "uvcdat")
 set(CPACK_DESTINATION_LIB_PREFIX "uvcdat/lib")
 set(CPACK_DESTINATION_BIN_PREFIX "uvcdat/bin")
-
+ 
 if (APPLE)
   set(SB_EXTERNALS_DIR "Externals")
   set(SB_LIB_DIR "Library/Frameworks/Python.framework/Versions/2.7/lib")
@@ -661,6 +661,10 @@ install(CODE "
     configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/uvcdat.mac.in
       ${CPACK_DESTINATION_BIN_PREFIX}/uvcdat
       @ONLY
+    )
+    
+    execute_process(COMMAND ${CMAKE_COMMAND} copy ${cdat_CMAKE_SOURCE_DIR}/resources/uvcdat.icns
+      ${CPACK_DESTINATION_PREFIX}/Resources/uvcdat.icns
     )
   endif()"
 
