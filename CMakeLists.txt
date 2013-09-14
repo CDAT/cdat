@@ -666,6 +666,9 @@ install(CODE "
     execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory ${cdat_SOURCE_DIR}/resources
       ${CPACK_DESTINATION_PREFIX}/Resources
     )
+
+    execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${cdat_CMAKE_SOURCE_DIR}/uvcdat.plist
+      ${CPACK_DESTINATION_PREFIX}/Info.plist)
   endif()"
 
   COMPONENT superbuild
