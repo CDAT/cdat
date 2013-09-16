@@ -293,7 +293,7 @@ def runCheck():
 def askAnonymous(val):
         import cdat_info,os
         while cdat_info.ping_checked is False and not val in [True, False]: # couldn't get a valid value from env or file
-            val2 = raw_input("Allow anonymous logging usage to help improve UV-CDAT? [yes/no]")
+            val2 = raw_input("Allow anonymous logging usage to help improve UV-CDAT? (you can also set the environment variable UVCDAT_ANONYMOUS_LOG to yes or     no) [yes/no]")
             if val2.lower() in ['y','yes','ok']:
                 val = True
             elif val2.lower() in ['n','no','not']:
