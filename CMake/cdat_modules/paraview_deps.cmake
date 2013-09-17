@@ -7,8 +7,9 @@ endif()
 if(CDAT_BUILD_PARALLEL)
   list(APPEND ParaView_deps "${mpi_pkg}")
 endif()
+
+# We build ParaView with R support for VisIt
 if(CDAT_BUILD_VISIT)
-    message("Ok Visit so we add r")
     list(APPEND ParaView_deps ${r_pkg})
 endif()
 

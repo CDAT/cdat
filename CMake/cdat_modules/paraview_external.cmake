@@ -89,7 +89,15 @@ if(CDAT_BUILD_GUI)
     -DPARAVIEW_BUILD_QT_GUI:BOOL=ON
     -DVTK_QT_USE_WEBKIT:BOOL=OFF
     -DQT_QMAKE_EXECUTABLE:FILEPATH=${QT_QMAKE_EXECUTABLE}
-    -DQT_QTUITOOLS_INCLUDE_DIR:PATH=${QT_ROOT}/include/QtUiTools
+    -DQT_QTUITOOLS_INCLUDE_DIR:PATH=${QT_ROOT}/includie/QtUiTools)
+else()
+  list(APPEND ParaView_tpl_args
+    -DPARAVIEW_BUILD_QT_GUI:BOOL=OFF)
+endif()
+
+# We bulid ParaView with R only to support VisIt-R work
+if(CDAT_BUILD_VISIT)
+  list(APPEND ParaView_tpl_args
     -DPARAVIEW_USE_GNU_R:BOOL=ON
     -DR_COMMAND:PATH=${R_install}/bin/R
     -DR_DIR:PATH=${R_install}/lib/R
@@ -100,13 +108,12 @@ if(CDAT_BUILD_GUI)
     -DR_LIBRARY_READLINE:PATH=)
 else()
   list(APPEND ParaView_tpl_args
-    -DPARAVIEW_BUILD_QT_GUI:BOOL=OFF)
+    -DPARAVIEW_USE_GNU_R:BOOL=OFF)
 endif()
 
 if(UVCDAT_TESTDATA_LOCATION)
   list(APPEND ParaView_tpl_args
-    -DUVCDAT_TestData:PATH=${UVCDAT_TESTDATA_LOCATION}
-    )
+    -DUVCDAT_TestData:PATH=${UVCDAT_TESTDATA_LOCATION)
 endif()
 
 include(GetGitRevisionDescription)
