@@ -111,7 +111,7 @@ typedef void    *voidp;
 #include <cairo/cairo-pdf.h>
 #include <cairo/cairo-ps.h>
 #include <cairo/cairo-svg.h>
-#include <cairo/cairo-xlib.h>
+//#include <cairo/cairo-xlib.h>
 
 /*#include <cairo/cairo-xlib-xrender.h>*/
 
