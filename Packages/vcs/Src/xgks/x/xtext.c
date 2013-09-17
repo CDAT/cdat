@@ -59,7 +59,7 @@ typedef void    *voidp;
 
 #else
   #include "cairo/cairo.h"
-  #include <cairo/cairo-xlib.h>
+  /*#include <cairo/cairo-xlib.h>*/
   /*#include <cairo/cairo-xlib-xrender.h>*/
   #include "workstations.h"
   extern Gconid_X_drawable connect_id;/*VCS canvas display and drawable id */
@@ -93,9 +93,9 @@ static unsigned int    DCYMAX;
 
 static Gint     FirstTime = TRUE;
 
-static Display        *dpy;
-static Window          win;
-static GC              gc;
+//static Display        *dpy;
+//static Window          win;
+//static GC              gc;
 
 static int      xPlotStrokeChar();
 static Gfloat   xFxMax();

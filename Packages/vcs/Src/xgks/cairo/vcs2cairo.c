@@ -20,7 +20,7 @@ typedef void    *voidp;
 #include <cairo/cairo-pdf.h>
 #include <cairo/cairo-ps.h>
 #include <cairo/cairo-svg.h>
-#include <cairo/cairo-xlib.h>
+//#include <cairo/cairo-xlib.h>
 /*#include <cairo/cairo-xlib-xrender.h>*/
 #include "ttffonts.h"
 
@@ -650,11 +650,11 @@ void cairogqtxx(int wkid,Gpoint pxy,char *str,Gextent *extent)
   cairo_string_def prep;
 #ifdef X11WM
   int screen = DefaultScreen (connect_id.display);
+  XWindowAttributes 	xwa;
 #endif
   extern int XW,YW;
   cairo_t        *cr;
   cairo_surface_t *surface;
-  XWindowAttributes 	xwa;
   float ratio ,angle; 
   float tx,ty;
   int width,height,xoff,yoff;
