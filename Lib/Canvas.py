@@ -5549,9 +5549,12 @@ Options:::
             # Pointer to the plotted slab of data and the VCS Canas display infomation. 
             # This is needed to find the animation min and max values and the number of 
             # displays on the VCS Canvas.
+            print "anim append:",result,arglist[2]
             self.animate_info.append( (result, arglist[:2]) )
+            print "updating list anim"
             self.animate.update_animate_display_list( )
         else:
+            print "In the else?"
             result = dn
             
 
@@ -8574,6 +8577,7 @@ class animate_obj_old:
       self.save_levels = {}
       self.save_mean_veloc = {}
       for i in range(len(self.vcs_self.animate_info)):
+         print "I:",i,animation_info["gtype"]
          gtype = string.lower(animation_info["gtype"][i])
          if gtype == "boxfill":
             gm=self.vcs_self.getboxfill(animation_info['gname'][i])
