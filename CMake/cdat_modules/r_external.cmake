@@ -20,6 +20,17 @@ ExternalProject_Add(R
   INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} -j1 install
   ${ep_log_options}
 )
+if(APPLE)
+    #change id and then change dependencies.. 
+    ExternalProject_Add_Step(R InstallNameToolR 
+        COMMAND install_name_tool -id ${R_install}/lib/R/lib/libR.dylib ${R_install}/lib/R/lib/libR.dylib 
+        COMMAND install_name_tool -id ${R_install}/lib/R/lib/libRblas.dylib ${R_install}/lib/R/lib/libRblas.dylib 
+        COMMAND install_name_tool -id ${R_install}/lib/R/lib/libRlapack.dylib ${R_install}/lib/R/lib/libRlapack.dylib 
+        COMMAND install_name_tool -change libRblas.dylib ${R_install}/lib/R/lib/libRblas.dylib ${R_install}/lib/R/lib/libR.dylib 
+        COMMAND install_name_tool -change libR.dylib ${R_install}/lib/R/lib/libR.dylib -change libRblas.dylib ${R_install}/lib/R/lib/libRblas.dylib ${R_install}//lib/R/lib/libRlapack.dylib 
+        DEPENDEES install 
+        WORKING_DIRECTORY ${cdat_CMAKE_BINARY_DIR}) 
+endif(APPLE)
 
 set(R_DIR "${R_binary}" CACHE PATH "R binary directory" FORCE)
 mark_as_advanced(R_DIR)
