@@ -2,7 +2,7 @@
 set(R_source "${CMAKE_CURRENT_BINARY_DIR}/build/R")
 set(R_install "${cdat_EXTERNALS}")
 if (APPLE)
-    message("ON APPLE WILL NOT BUILD X11")
+    message("[INFO] Building R without X support for MacOS")
     set(WITHX "no")
 else ()
     set(WITHX "yes")
