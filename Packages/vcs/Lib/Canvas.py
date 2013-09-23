@@ -8621,7 +8621,8 @@ class animate_obj_old:
    ##############################################################################
    def restore_min_max( self ):
       animation_info = self.animate_info_from_python()
-      for i in range(len(self.vcs_self.animate_info)):
+      try:
+       for i in range(len(self.vcs_self.animate_info)):
          gtype = string.lower(animation_info["gtype"][i])
          if gtype == "boxfill":
             gm=self.vcs_self.getboxfill(animation_info['gname'][i])
@@ -8648,7 +8649,8 @@ class animate_obj_old:
          elif ( gtype == "vector" ):
             gm=self.vcs_self.getvector(animation_info['gname'][i])
             gm.reference = self.save_mean_veloc[i]
-
+      except:
+          pass
    
    ##############################################################################
    # Set the animation min and max values    					#
