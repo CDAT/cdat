@@ -8972,7 +8972,7 @@ class animate_obj(animate_obj_old):
                     self.animationTimer.start(0, self)
             global C
             C=crp(self)
-       def animate_info(self._actualCreate(parent,min,max,save_file,rate,bitrate,ffmpegoptions,axis,C)
+            self._actualCreate(parent,min,max,save_file,rate,bitrate,ffmpegoptions,axis,C)
         else:
             C=None
             self._actualCreate(parent,min,max,save_file,rate,bitrate,ffmpegoptions,axis)
