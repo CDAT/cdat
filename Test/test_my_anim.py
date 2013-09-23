@@ -7,11 +7,15 @@ print s.shape
 import vcs
 x=vcs.init()
 x.plot(s)
+print "Ok plotted the data"
 x.animate.create()
 raw_input("Creating anim")
 x.animate.close()
+print "Closed anim"
 x.clear()
+print "Cleared image"
 x.plot(s)
+print "replotted"
 x.animate.create()
 raw_input("Creating anim")
 x.animate.run()

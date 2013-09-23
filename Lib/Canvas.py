@@ -8497,7 +8497,7 @@ class animate_obj_old:
               self.vcs_self.canvas.animate_init( save_file )
       else: # ffmpeg stuff
           save_info = self.vcs_self.animate_info
-          animation_info = self.vcs_self.canvas.animate_info()
+          animation_info = self.animate_info_from_python()
           slabs=[]
           templates=[]
           dpys=[]
@@ -8565,12 +8565,23 @@ class animate_obj_old:
 
       self.vcs_self.canvas.UNBLOCK_X_SERVER()
 
-       
+   def animate_info_from_python(self):
+       gtype = []
+       gname = []
+       tmpl = []
+       for i in self.vcs_self.animate_info:
+            d=i[0]
+            tmpl.append(d.template)
+            gtype.append(d.g_type)
+            gname.append(d.g_name)
+       return {"template":tmpl,"gtype":gtype,"gname":gname}
+
    ##############################################################################
    # Save original min and max values    					#
    ##############################################################################
    def save_original_min_max( self ):
-      animation_info = self.vcs_self.canvas.animate_info()
+      animation_info = self.animate_info_from_python()
+      print "AFTER",animation_info
       self.save_min = {}
       self.save_max = {}
       self.save_legend = {}
@@ -8609,7 +8620,7 @@ class animate_obj_old:
    # Restore min and max values                                                 #
    ##############################################################################
    def restore_min_max( self ):
-      animation_info = self.vcs_self.canvas.animate_info()
+      animation_info = self.animate_info_from_python()
       for i in range(len(self.vcs_self.animate_info)):
          gtype = string.lower(animation_info["gtype"][i])
          if gtype == "boxfill":
@@ -8644,7 +8655,7 @@ class animate_obj_old:
    ##############################################################################
    def set_animation_min_max( self, min, max, i ):
       from vcs import mkscale, mklabels
-      animation_info = self.vcs_self.canvas.animate_info()
+      animation_info = self.vcs_self.animate_info_from_python()
       gtype = string.lower(animation_info["gtype"][i])
       if gtype == "boxfill":
          gm=self.vcs_self.getboxfill(animation_info['gname'][i])
@@ -8961,7 +8972,7 @@ class animate_obj(animate_obj_old):
                     self.animationTimer.start(0, self)
             global C
             C=crp(self)
-            self._actualCreate(parent,min,max,save_file,rate,bitrate,ffmpegoptions,axis,C)
+       def animate_info(self._actualCreate(parent,min,max,save_file,rate,bitrate,ffmpegoptions,axis,C)
         else:
             C=None
             self._actualCreate(parent,min,max,save_file,rate,bitrate,ffmpegoptions,axis)
@@ -8970,9 +8981,11 @@ class animate_obj(animate_obj_old):
     def _actualCreate( self, parent=None, min=None, max=None, save_file=None, rate=5., bitrate=None, ffmpegoptions='', axis=0, sender=None):
         alen = None
         if self.canvas is None:  
+            print "Creating a new self.canvas"
             self.canvas=vcs.init()
         self.canvas.clear()
         dims = self.vcs_self.canvasinfo()
+        print "DIMS:",dims,self.vcs_self
         if dims['height']<500:
             factor = 2
         else:
@@ -8982,6 +8995,7 @@ class animate_obj(animate_obj_old):
         self.canvas.setbgoutputdimensions(width = dims['width']*factor,height=dims['height']*factor,units='pixel')
         truncated = False
         for I in self.vcs_self.animate_info:
+            print "I:",I
             if alen is None:
                 alen = I[1][0].shape[axis]
             else:
