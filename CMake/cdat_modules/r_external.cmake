@@ -1,6 +1,12 @@
 
 set(R_source "${CMAKE_CURRENT_BINARY_DIR}/build/R")
 set(R_install "${cdat_EXTERNALS}")
+if (APPLE)
+    message("[INFO] Building R without X support for MacOS")
+    set(WITHX "no")
+else ()
+    set(WITHX "yes")
+endif()
 
 ExternalProject_Add(R
   DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
@@ -10,10 +16,21 @@ ExternalProject_Add(R
   URL_MD5 ${R_MD5}
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
-  CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR> LIBnn=lib --without-jpeglib --disable-R-framework --enable-R-shlib --disable-openmp --without-cairo --without-ICU --without-libpng --without-system-xz --without-aqua --without-tcltk --without-readline
+  CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR> LIBnn=lib --without-jpeglib --disable-R-framework --enable-R-shlib --disable-openmp --without-cairo --without-ICU --without-libpng --without-system-xz --without-aqua --without-tcltk --without-readline --with-x=${WITHX}
   INSTALL_COMMAND ${CMAKE_MAKE_PROGRAM} -j1 install
   ${ep_log_options}
 )
+if(APPLE)
+    #change id and then change dependencies.. 
+    ExternalProject_Add_Step(R InstallNameToolR 
+        COMMAND install_name_tool -id ${R_install}/lib/R/lib/libR.dylib ${R_install}/lib/R/lib/libR.dylib 
+        COMMAND install_name_tool -id ${R_install}/lib/R/lib/libRblas.dylib ${R_install}/lib/R/lib/libRblas.dylib 
+        COMMAND install_name_tool -id ${R_install}/lib/R/lib/libRlapack.dylib ${R_install}/lib/R/lib/libRlapack.dylib 
+        COMMAND install_name_tool -change libRblas.dylib ${R_install}/lib/R/lib/libRblas.dylib ${R_install}/lib/R/lib/libR.dylib 
+        COMMAND install_name_tool -change libR.dylib ${R_install}/lib/R/lib/libR.dylib -change libRblas.dylib ${R_install}/lib/R/lib/libRblas.dylib ${R_install}//lib/R/lib/libRlapack.dylib 
+        DEPENDEES install 
+        WORKING_DIRECTORY ${cdat_CMAKE_BINARY_DIR}) 
+endif(APPLE)
 
 set(R_DIR "${R_binary}" CACHE PATH "R binary directory" FORCE)
 mark_as_advanced(R_DIR)

@@ -15,6 +15,6 @@ ExternalProject_Add(PYOPENSSL
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
   INSTALL_COMMAND ${EGG_CMD} ${EGG_GZ}
-  DEPENDS ${pyopenssl_deps}
+  DEPENDS ${PYOPENSSL_deps}
   ${ep_log_options}
   )

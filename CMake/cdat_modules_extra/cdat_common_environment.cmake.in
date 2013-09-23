@@ -24,7 +24,6 @@ if(APPLE)
 endif()
 
 set(ENV{EXTERNALS} "@cdat_EXTERNALS@")
-message("[INFO] PIP CERT:",${PIP_CERTIFICATE})
 
 if ("@EGG_INSTALLER@" STREQUAL "PIP")
     set(EGG_CMD env @LIBRARY_PATH@=$ENV{@LIBRARY_PATH@} @PIP_BINARY@ install -v --download-cache @CDAT_PACKAGE_CACHE_DIR@ )
