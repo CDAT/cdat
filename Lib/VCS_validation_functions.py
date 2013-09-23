@@ -945,7 +945,7 @@ def getProjType(self):
          9:"transverse mercator",
          10:"stereographic",
          11:"lambert azimuthal",
-         12:"azimutal",
+         12:"azimuthal",
          13:"gnomonic",
          14:"orthographic",
          15:"gen. vert. near per",
