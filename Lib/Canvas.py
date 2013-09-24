@@ -5664,6 +5664,10 @@ Options:::
     a.clear()
 
 """
+        self.animate.close()
+        self.animate_info=[]
+        self.animate.update_animate_display_list( )
+
         return apply(self.canvas.clear, args)
 
     #############################################################################
@@ -8404,7 +8408,6 @@ class animate_obj_old:
       ##from tkMessageBox import showerror
 
       # Cannot "Run" or "Create" an animation while already creating an animation
-      print "Ok minmax:",min,max
       if self.run_flg == 1: return
       if self.vcs_self.canvas.creating_animation() == 1: return
 
@@ -8443,7 +8446,6 @@ class animate_obj_old:
       self.continents_hold_value = self.vcs_self.canvas.getcontinentstype( )
       self.vcs_self.canvas.setcontinentstype( self.continents_value )
 
-      print "do min max:",do_min_max
       if ( do_min_max == 'yes' ):
          minv = []
          maxv=[]
@@ -8490,7 +8492,7 @@ class animate_obj_old:
               self.vcs_self.canvas.animate_init( save_file )
       else: # ffmpeg stuff
           save_info = self.vcs_self.animate_info
-          animation_info = self.vcs_self.canvas.animate_info()
+          animation_info = self.animate_info_from_python()
           slabs=[]
           templates=[]
           dpys=[]
@@ -8558,12 +8560,22 @@ class animate_obj_old:
 
       self.vcs_self.canvas.UNBLOCK_X_SERVER()
 
-       
+   def animate_info_from_python(self):
+       gtype = []
+       gname = []
+       tmpl = []
+       for i in self.vcs_self.animate_info:
+            d=i[0]
+            tmpl.append(d.template)
+            gtype.append(d.g_type)
+            gname.append(d.g_name)
+       return {"template":tmpl,"gtype":gtype,"gname":gname}
+
    ##############################################################################
    # Save original min and max values    					#
    ##############################################################################
    def save_original_min_max( self ):
-      animation_info = self.vcs_self.canvas.animate_info()
+      animation_info = self.animate_info_from_python()
       self.save_min = {}
       self.save_max = {}
       self.save_legend = {}
@@ -8601,8 +8613,9 @@ class animate_obj_old:
    # Restore min and max values                                                 #
    ##############################################################################
    def restore_min_max( self ):
-      animation_info = self.vcs_self.canvas.animate_info()
-      for i in range(len(self.vcs_self.animate_info)):
+      animation_info = self.animate_info_from_python()
+      try:
+       for i in range(len(self.vcs_self.animate_info)):
          gtype = string.lower(animation_info["gtype"][i])
          if gtype == "boxfill":
             gm=self.vcs_self.getboxfill(animation_info['gname'][i])
@@ -8629,14 +8642,15 @@ class animate_obj_old:
          elif ( gtype == "vector" ):
             gm=self.vcs_self.getvector(animation_info['gname'][i])
             gm.reference = self.save_mean_veloc[i]
-
+      except:
+          pass
    
    ##############################################################################
    # Set the animation min and max values    					#
    ##############################################################################
    def set_animation_min_max( self, min, max, i ):
       from vcs import mkscale, mklabels
-      animation_info = self.vcs_self.canvas.animate_info()
+      animation_info = self.vcs_self.animate_info_from_python()
       gtype = string.lower(animation_info["gtype"][i])
       if gtype == "boxfill":
          gm=self.vcs_self.getboxfill(animation_info['gname'][i])
@@ -8928,13 +8942,32 @@ class animate_obj(animate_obj_old):
         self.zoom_factor = 1.
         self.vertical_factor = 0
         self.horizontal_factor = 0
+        self.allArgs = []
+        self.canvas = None
 
     def create( self, parent=None, min=None, max=None, save_file=None, thread_it = 1, rate=5., bitrate=None, ffmpegoptions='', axis=0):
         if thread_it:
-            class crp(QtCore.QObject):
-                pass
-            C=crp()
-            thread.start_new_thread(self._actualCreate,(parent,min,max,save_file,rate,bitrate,ffmpegoptions,axis,C))
+            class crp(QtCore.QObject):                
+                def __init__(self, anim):
+                    QtCore.QObject.__init__(self)
+                    self.animationTimer = QtCore.QBasicTimer()
+                    self.animationFrame = 0
+                    self.anim = anim
+                    self.dialog = QtGui.QProgressDialog("Creating animation...", "Cancel", 0, 0)
+                    
+                def timerEvent(self, event):
+                    self.dialog.setValue(self.animationFrame)
+                    if self.animationFrame>=len(self.anim.allArgs):
+                        self.anim.restore_min_max()
+                        self.anim.canvas = None
+                        self.emit(QtCore.SIGNAL("AnimationCreated"), "Hello there")
+                        return
+                    self.anim.renderFrame(self.animationFrame)
+                    self.animationFrame += 1
+                    self.animationTimer.start(0, self)
+            global C
+            C=crp(self)
+            self._actualCreate(parent,min,max,save_file,rate,bitrate,ffmpegoptions,axis,C)
         else:
             C=None
             self._actualCreate(parent,min,max,save_file,rate,bitrate,ffmpegoptions,axis)
@@ -8942,15 +8975,17 @@ class animate_obj(animate_obj_old):
 
     def _actualCreate( self, parent=None, min=None, max=None, save_file=None, rate=5., bitrate=None, ffmpegoptions='', axis=0, sender=None):
         alen = None
-        y=vcs.init()
+        if self.canvas is None:  
+            self.canvas=vcs.init()
+        self.canvas.clear()
         dims = self.vcs_self.canvasinfo()
         if dims['height']<500:
             factor = 2
         else:
             factor=1
         if dims["width"]<dims["height"]:
-            y.portrait(width=dims["width"],height=dims["height"])
-        y.setbgoutputdimensions(width = dims['width']*factor,height=dims['height']*factor,units='pixel')
+            self.canvas.portrait(width=dims["width"],height=dims["height"])
+        self.canvas.setbgoutputdimensions(width = dims['width']*factor,height=dims['height']*factor,units='pixel')
         truncated = False
         for I in self.vcs_self.animate_info:
             if alen is None:
@@ -9001,15 +9036,16 @@ class animate_obj(animate_obj_old):
                     maxv.append( max )
              # Set the min an max for each plot in the page. If the same graphics method is used
              # to display the plots, then the last min and max setting of the data set will be used.
-             print "Minmaxs:",minv,maxv
              for i in range(len(self.vcs_self.animate_info)):
                 try:
                    self.set_animation_min_max( minv[i], maxv[i], i )
                 except:
                    pass # if it is default, then you cannot set the min and max, so pass.
 
+        self.allArgs = []
         for i in range(alen):
-            y.clear()
+            #y.clear()
+            frameArgs = []
             for I in self.vcs_self.animate_info:
                 d=I[0]
                 kw={}
@@ -9034,17 +9070,30 @@ class animate_obj(animate_obj_old):
                             break
                     args.append(I[1][1](**kw))
                 args += [d.template,d.g_type,d.g_name]
-                b=y.getboxfill(d.g_name)
-                y.plot(*args,bg=1)    
+                #b=y.getboxfill(d.g_name)
+                #y.plot(*args,bg=1)
+                frameArgs.append(args)
+            self.allArgs.append(frameArgs)
 
-            fn = tempfile.mkstemp(suffix=".png")[1]
-            self.animation_files.append(fn)
-            y.png(fn)
-            y.png("sample")
-        self.restore_min_max()
-        if sender is not None:
-            sender.emit(QtCore.SIGNAL("AnimationCreated"),"Hello there")
-        
+        if sender is None:
+            for i in xrange(len(self.allArgs)):
+                self.renderFrame(i)
+            self.restore_min_max()
+            self.canvas = None
+        else:
+            sender.animationTimer.start(0, sender)
+            sender.dialog.setRange(0, len(self.allArgs))
+            sender.dialog.show()
+
+    def renderFrame(self, i):
+        frameArgs = self.allArgs[i]
+        fn = tempfile.mkstemp(suffix=".png")[1]
+        self.animation_files.append(fn)
+        self.canvas.clear()
+        for args in frameArgs:
+            self.canvas.plot(*args, bg=1)
+        self.canvas.png(fn)
+        #self.canvas.png("sample")
         
     def runner(self):
         self.runit = True
@@ -9060,7 +9109,7 @@ class animate_obj(animate_obj_old):
         self.runthread = thread.start_new_thread(self.runner,())
 
     def draw(self, frame):
-        print "Clearing!!!!!!"
+        #print "Clearing!!!!!!"
         self.vcs_self.clear()
         self.vcs_self.canvas.put_png_on_canvas(self.animation_files[frame],
                                                self.zoom_factor,self.vertical_factor,self.horizontal_factor)
