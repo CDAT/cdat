@@ -18,6 +18,10 @@ set(cdat_CMAKE_SOURCE_DIR ${cdat_SOURCE_DIR}/CMake)
 set(cdat_CMAKE_BINARY_DIR ${cdat_BINARY_DIR}/CMake)
 set(cdat_external_patch_dir ${cdat_SOURCE_DIR}/exsrc)
 
+# Helper variables to locate programs and libraries
+set(SB_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib")
+set(SB_EXTERNALS_DIR "${CMAKE_INSTALL_PREFIX}/Externals")
+
 if("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local")
   get_filename_component(cdat_ROOT_DIR ${cdat_BINARY_DIR} PATH)
   set(CMAKE_INSTALL_PREFIX ${cdat_BINARY_DIR}/install CACHE STRING "" FORCE)
@@ -359,8 +363,8 @@ include(gui_support_pkg)
 include(hdf5_pkg)
 include(zmq_pkg)
 include(pyzmq_pkg)
-include(tornado_pkg)
-include(ipython_pkg)
+#include(tornado_pkg)
+#include(ipython_pkg)
 include(jasper_pkg)
 include(jpeg_pkg)
 include(lapack_pkg)
@@ -518,8 +522,8 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/predownload.py.in
   @ONLY
 )
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/setup_cdat.sh.in
-  ${CMAKE_INSTALL_PREFIX}/bin/setup_cdat.sh
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/setup_runtime.sh.in
+  ${CMAKE_INSTALL_PREFIX}/bin/setup_runtime.sh
   @ONLY
 )
 
@@ -528,8 +532,8 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/preofflinebuild.sh.in
   @ONLY
 )
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/setup_cdat.csh.in
-  ${CMAKE_INSTALL_PREFIX}/bin/setup_cdat.csh
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/setup_runtime.csh.in
+  ${CMAKE_INSTALL_PREFIX}/bin/setup_runtime.csh
   @ONLY
 )
 
@@ -546,3 +550,145 @@ if (BUILD_TESTING)
   )
   add_subdirectory(testing)
 endif()
+
+# Package UV-CDAT with CPACK
+include(InstallRequiredSystemLibraries)
+
+if (APPLE)
+  set(CPACK_GENERATOR DragNDrop)
+endif()
+
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "UVCDAT")
+set(CPACK_PACKAGE_VENDOR "UVCDAT")
+set(CPACK_PACKAGE_NAME "uvcdat")
+set(CPACK_PACKAGE_VERSION "1.4.0")
+set(CPACK_PACKAGE_VERSION_MAJOR "1")
+set(CPACK_PACKAGE_VERSION_MINOR "4")
+set(CPACK_PACKAGE_VERSION_PATCH "0")
+set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/docs/README.txt")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/docs/Legal.txt")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Aashish Chaudhary") #required
+set(CPACK_DESTINATION_PREFIX "uvcdat")
+set(CPACK_DESTINATION_LIB_PREFIX "uvcdat/lib")
+set(CPACK_DESTINATION_BIN_PREFIX "uvcdat/bin")
+
+if (APPLE)
+  set(SB_EXTERNALS_DIR "Externals")
+  set(SB_LIB_DIR "Library/Frameworks/Python.framework/Versions/2.7/lib")
+
+  set(CPACK_DESTINATION_PREFIX "\${CMAKE_INSTALL_PREFIX}/uvcdat.app/Contents")
+  set(CPACK_DESTINATION_LIB_PREFIX "${CPACK_DESTINATION_PREFIX}/Libraries")
+  set(CPACK_DESTINATION_BIN_PREFIX "${CPACK_DESTINATION_PREFIX}/MacOS")
+endif()
+
+include(CPack)
+
+install(CODE "
+  set(SB_EXTERNALS_DIR ${SB_EXTERNALS_DIR})
+  set(SB_LIB_DIR ${SB_LIB_DIR})
+  set(PYVER ${PYVER})
+  set(PARAVIEW_MAJOR ${PARAVIEW_MAJOR})
+  set(PARAVIEW_MINOR ${PARAVIEW_MINOR})
+  set(VISIT_VERSION ${VISIT_VERSION})
+  set(CDAT_BUILD_PARAVIEW ${CDAT_BUILD_PARAVIEW})
+
+  file(GLOB_RECURSE programs \"${CMAKE_INSTALL_PREFIX}/bin/*\")
+  file(GLOB programs_images \"${CMAKE_INSTALL_PREFIX}/bin/images/*\")
+  file(GLOB programs_tutorials \"${CMAKE_INSTALL_PREFIX}/bin/tutorials/*\")
+
+  if (NOT \"\${programs_images}\" STREQUAL \"\" OR NOT \"\${programs_tutorials}\" STREQUAL \"\")
+    list(REMOVE_ITEM programs \${programs_images} \${programs_tutorials})
+  endif()
+
+  set (resolved_programs \"\")
+  foreach (program \${programs})
+    get_filename_component(res_program \"\${program}\" REALPATH)
+    list (APPEND resolved_programs \"\${res_program}\")
+  endforeach()
+
+  file(INSTALL FILES \${resolved_programs} DESTINATION ${CPACK_DESTINATION_BIN_PREFIX}
+       PERMISSIONS USE_SOURCE_PERMISSIONS
+  )
+
+  if(EXISTS \"${CMAKE_INSTALL_PREFIX}/bin/images\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/bin/images\")
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/bin/images DESTINATION ${CPACK_DESTINATION_BIN_PREFIX}
+         PERMISSIONS USE_SOURCE_PERMISSIONS
+    )
+  endif()
+
+  if(EXISTS \"${CMAKE_INSTALL_PREFIX}/bin/tutorials\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/bin/tutorials\")
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/bin/tutorials DESTINATION ${CPACK_DESTINATION_BIN_PREFIX}
+         PERMISSIONS USE_SOURCE_PERMISSIONS
+    )
+  endif()
+
+  if(EXISTS \"${CMAKE_INSTALL_PREFIX}/Externals\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/Externals\")
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/Externals DESTINATION ${CPACK_DESTINATION_PREFIX}
+         PERMISSIONS USE_SOURCE_PERMISSIONS
+    )
+  endif()
+
+  if(EXISTS \"${CMAKE_INSTALL_PREFIX}/include\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/include\")
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/include DESTINATION ${CPACK_DESTINATION_PREFIX}
+         PERMISSIONS USE_SOURCE_PERMISSIONS
+    )
+  endif()
+
+  if(EXISTS \"${CMAKE_INSTALL_PREFIX}/lib\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/lib\")
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/lib DESTINATION ${CPACK_DESTINATION_LIB_PREFIX}
+         PERMISSIONS USE_SOURCE_PERMISSIONS
+    )
+  endif()
+
+  if(EXISTS \"${CMAKE_INSTALL_PREFIX}/bin/man\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/bin/man\")
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/man DESTINATION ${CPACK_DESTINATION_BIN_PREFIX}
+         PERMISSIONS USE_SOURCE_PERMISSIONS
+    )
+  endif()
+
+  if(EXISTS \"${CMAKE_INSTALL_PREFIX}/vistrails\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/vistrails\")
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/vistrails DESTINATION ${CPACK_DESTINATION_PREFIX}
+         PERMISSIONS USE_SOURCE_PERMISSIONS
+    )
+  endif()
+
+  if(EXISTS \"${CMAKE_INSTALL_PREFIX}/Library\" AND IS_DIRECTORY \"${CMAKE_INSTALL_PREFIX}/Library\")
+    file(INSTALL FILES ${CMAKE_INSTALL_PREFIX}/Library DESTINATION ${CPACK_DESTINATION_PREFIX}
+         PERMISSIONS USE_SOURCE_PERMISSIONS
+    )
+  endif()
+
+  if (CDAT_BUILD_PARAVIEW)
+    #configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/vtk_install_python_module.cmake.in
+    #  ${cdat_CMAKE_BINARY_DIR}/vtk_install_python_module_cpack.cmake @ONLY
+    #)
+
+    execute_process(
+      COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/vtk_install_python_module.cmake
+      WORKING_DIRECTORY ${cdat_CMAKE_BINARY_DIR}
+      RESULT_VARIABLE res_var
+      OUTPUT_VARIABLE out_var
+      ERROR_VARIABLE err_var
+    )
+    message(\"FixlinkL \${res_var} \${out_var} \${err_var}\")
+  endif()
+
+  configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/setup_runtime.sh.in
+    ${CPACK_DESTINATION_BIN_PREFIX}/setup_runtime.sh
+    @ONLY
+  )
+
+  if (APPLE)
+    configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/uvcdat.mac.in
+      ${CPACK_DESTINATION_BIN_PREFIX}/uvcdat
+      @ONLY
+    )
+    execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory ${cdat_SOURCE_DIR}/resources
+      ${CPACK_DESTINATION_PREFIX}/Resources
+    )
+    execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${cdat_CMAKE_SOURCE_DIR}/uvcdat.plist
+      ${CPACK_DESTINATION_PREFIX}/Info.plist)
+  endif()"
+
+  COMPONENT superbuild
+)

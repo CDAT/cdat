@@ -1,7 +1,8 @@
 # On linux 64, gdal picks the static jasper library, make sure only shared libraries
-# are built (Alex Pletzer) 
+# are built (Alex Pletzer)
 
-set(ENV{PATH} $ENV{PATH}:@cdat_EXTERNALS@/bin)
+# Make sure to pick up image and other libraries built by the superbuild
+include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
 
 EXECUTE_PROCESS(
   COMMAND sh configure --enable-shared --disable-static --prefix=@jasper_install@

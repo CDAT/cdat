@@ -2,5 +2,5 @@
 # source is not portable where as . is
 BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 . $BASEDIR/setup_runtime.sh
-python@PYVER@ $BASEDIR/../vistrails/vistrails/uvcdat.py $@
+python@PYVER@ $BASEDIR/../vistrails/vistrails/uvcdat.py
 
