@@ -560,14 +560,18 @@ endif()
 
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "UVCDAT")
 set(CPACK_PACKAGE_VENDOR "UVCDAT")
+set(CPACK_PACKAGE_NAME "uvcdat")
+set(CPACK_PACKAGE_VERSION "1.4.0")
+set(CPACK_PACKAGE_VERSION_MAJOR "1")
+set(CPACK_PACKAGE_VERSION_MINOR "4")
+set(CPACK_PACKAGE_VERSION_PATCH "0")
 set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/docs/README.txt")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/docs/Legal.txt")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Aashish Chaudhary") #required
-
 set(CPACK_DESTINATION_PREFIX "uvcdat")
 set(CPACK_DESTINATION_LIB_PREFIX "uvcdat/lib")
 set(CPACK_DESTINATION_BIN_PREFIX "uvcdat/bin")
- 
+
 if (APPLE)
   set(SB_EXTERNALS_DIR "Externals")
   set(SB_LIB_DIR "Library/Frameworks/Python.framework/Versions/2.7/lib")
@@ -679,11 +683,9 @@ install(CODE "
       ${CPACK_DESTINATION_BIN_PREFIX}/uvcdat
       @ONLY
     )
-    
     execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory ${cdat_SOURCE_DIR}/resources
       ${CPACK_DESTINATION_PREFIX}/Resources
     )
-
     execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${cdat_CMAKE_SOURCE_DIR}/uvcdat.plist
       ${CPACK_DESTINATION_PREFIX}/Info.plist)
   endif()"
