@@ -658,21 +658,6 @@ install(CODE "
     )
   endif()
 
-  if (CDAT_BUILD_PARAVIEW)
-    #configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/vtk_install_python_module.cmake.in
-    #  ${cdat_CMAKE_BINARY_DIR}/vtk_install_python_module_cpack.cmake @ONLY
-    #)
-
-    execute_process(
-      COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/vtk_install_python_module.cmake
-      WORKING_DIRECTORY ${cdat_CMAKE_BINARY_DIR}
-      RESULT_VARIABLE res_var
-      OUTPUT_VARIABLE out_var
-      ERROR_VARIABLE err_var
-    )
-    message(\"FixlinkL \${res_var} \${out_var} \${err_var}\")
-  endif()
-
   configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/setup_runtime.sh.in
     ${CPACK_DESTINATION_BIN_PREFIX}/setup_runtime.sh
     @ONLY
