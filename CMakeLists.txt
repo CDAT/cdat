@@ -685,9 +685,23 @@ install(CODE "
     )
     execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory ${cdat_SOURCE_DIR}/resources
       ${CPACK_DESTINATION_PREFIX}/Resources
+      OUTPUT_VARIABLE out
+      RESULT_VARIABLE res
+      ERROR_VARIABLE err
     )
+    if(NOT ${res} EQUAL 0)
+      message("Output: ${out}; Result: ${res}; Error: ${err}")
+    endif()
+
     execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${cdat_CMAKE_SOURCE_DIR}/uvcdat.plist
-      ${CPACK_DESTINATION_PREFIX}/Info.plist)
+      ${CPACK_DESTINATION_PREFIX}/Info.plist
+      OUTPUT_VARIABLE out
+      RESULT_VARIABLE res
+      ERROR_VARIABLE err
+    )
+    if(NOT ${res} EQUAL 0)
+      message("Output: ${out}; Result: ${res}; Error: ${err}")
+    endif()
   endif()"
 
   COMPONENT superbuild
