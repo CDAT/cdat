@@ -725,9 +725,10 @@ def main(arglist):
         dat_dir = os.path.join(src_dir, 'Packages/dat')
         os.chdir(dat_dir)
         target = os.path.join(target_prefix, 'sample_data')
-        command = 'grep wget %s/checked_get.sh' % os.path.join(os.environ['BUILD_DIR'], "..")
-        command = command + ' | tr -s " " | cut -d " " -f 2'
-        wget = os.popen(command).readlines()[0].strip()
+        #command = 'grep wget %s/checked_get.sh' % os.path.join(os.environ['BUILD_DIR'], "..")
+        #command = command + ' | tr -s " " | cut -d " " -f 2'
+        #wget = os.popen(command).readlines()[0].strip()
+        wget = "@WGET_EXECUTABLE@"
         data_source_url = "http://uv-cdat.llnl.gov/cdat/sample_data"
         dfiles=open("files.txt")
         data_files=dfiles.readlines()
