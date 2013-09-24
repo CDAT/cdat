@@ -5549,12 +5549,9 @@ Options:::
             # Pointer to the plotted slab of data and the VCS Canas display infomation. 
             # This is needed to find the animation min and max values and the number of 
             # displays on the VCS Canvas.
-            print "anim append:",result,arglist[2]
             self.animate_info.append( (result, arglist[:2]) )
-            print "updating list anim"
             self.animate.update_animate_display_list( )
         else:
-            print "In the else?"
             result = dn
             
 
@@ -8411,7 +8408,6 @@ class animate_obj_old:
       ##from tkMessageBox import showerror
 
       # Cannot "Run" or "Create" an animation while already creating an animation
-      print "Ok minmax:",min,max
       if self.run_flg == 1: return
       if self.vcs_self.canvas.creating_animation() == 1: return
 
@@ -8450,7 +8446,6 @@ class animate_obj_old:
       self.continents_hold_value = self.vcs_self.canvas.getcontinentstype( )
       self.vcs_self.canvas.setcontinentstype( self.continents_value )
 
-      print "do min max:",do_min_max
       if ( do_min_max == 'yes' ):
          minv = []
          maxv=[]
@@ -8581,14 +8576,12 @@ class animate_obj_old:
    ##############################################################################
    def save_original_min_max( self ):
       animation_info = self.animate_info_from_python()
-      print "AFTER",animation_info
       self.save_min = {}
       self.save_max = {}
       self.save_legend = {}
       self.save_levels = {}
       self.save_mean_veloc = {}
       for i in range(len(self.vcs_self.animate_info)):
-         print "I:",i,animation_info["gtype"]
          gtype = string.lower(animation_info["gtype"][i])
          if gtype == "boxfill":
             gm=self.vcs_self.getboxfill(animation_info['gname'][i])
@@ -8983,11 +8976,9 @@ class animate_obj(animate_obj_old):
     def _actualCreate( self, parent=None, min=None, max=None, save_file=None, rate=5., bitrate=None, ffmpegoptions='', axis=0, sender=None):
         alen = None
         if self.canvas is None:  
-            print "Creating a new self.canvas"
             self.canvas=vcs.init()
         self.canvas.clear()
         dims = self.vcs_self.canvasinfo()
-        print "DIMS:",dims,self.vcs_self
         if dims['height']<500:
             factor = 2
         else:
@@ -8997,7 +8988,6 @@ class animate_obj(animate_obj_old):
         self.canvas.setbgoutputdimensions(width = dims['width']*factor,height=dims['height']*factor,units='pixel')
         truncated = False
         for I in self.vcs_self.animate_info:
-            print "I:",I
             if alen is None:
                 alen = I[1][0].shape[axis]
             else:
