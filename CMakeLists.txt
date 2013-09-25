@@ -560,7 +560,7 @@ endif()
 
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "UVCDAT")
 set(CPACK_PACKAGE_VENDOR "UVCDAT")
-set(CPACK_PACKAGE_NAME "uvcdat")
+set(CPACK_PACKAGE_NAME "UVCDAT")
 set(CPACK_PACKAGE_VERSION "1.4.0")
 set(CPACK_PACKAGE_VERSION_MAJOR "1")
 set(CPACK_PACKAGE_VERSION_MINOR "4")
@@ -568,15 +568,15 @@ set(CPACK_PACKAGE_VERSION_PATCH "0")
 set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/docs/README.txt")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/docs/Legal.txt")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Aashish Chaudhary") #required
-set(CPACK_DESTINATION_PREFIX "uvcdat")
-set(CPACK_DESTINATION_LIB_PREFIX "uvcdat/lib")
-set(CPACK_DESTINATION_BIN_PREFIX "uvcdat/bin")
+set(CPACK_DESTINATION_PREFIX "UVCDAT")
+set(CPACK_DESTINATION_LIB_PREFIX "UVCDAT/lib")
+set(CPACK_DESTINATION_BIN_PREFIX "UVCDAT/bin")
 
 if (APPLE)
   set(SB_EXTERNALS_DIR "Externals")
   set(SB_LIB_DIR "Library/Frameworks/Python.framework/Versions/2.7/lib")
 
-  set(CPACK_DESTINATION_PREFIX "\${CMAKE_INSTALL_PREFIX}/uvcdat.app/Contents")
+  set(CPACK_DESTINATION_PREFIX "\${CMAKE_INSTALL_PREFIX}/UVCDAT.app/Contents")
   set(CPACK_DESTINATION_LIB_PREFIX "${CPACK_DESTINATION_PREFIX}/Libraries")
   set(CPACK_DESTINATION_BIN_PREFIX "${CPACK_DESTINATION_PREFIX}/MacOS")
 endif()
@@ -658,21 +658,6 @@ install(CODE "
     )
   endif()
 
-  if (CDAT_BUILD_PARAVIEW)
-    #configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/vtk_install_python_module.cmake.in
-    #  ${cdat_CMAKE_BINARY_DIR}/vtk_install_python_module_cpack.cmake @ONLY
-    #)
-
-    execute_process(
-      COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/vtk_install_python_module.cmake
-      WORKING_DIRECTORY ${cdat_CMAKE_BINARY_DIR}
-      RESULT_VARIABLE res_var
-      OUTPUT_VARIABLE out_var
-      ERROR_VARIABLE err_var
-    )
-    message(\"FixlinkL \${res_var} \${out_var} \${err_var}\")
-  endif()
-
   configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/setup_runtime.sh.in
     ${CPACK_DESTINATION_BIN_PREFIX}/setup_runtime.sh
     @ONLY
@@ -683,11 +668,25 @@ install(CODE "
       ${CPACK_DESTINATION_BIN_PREFIX}/uvcdat
       @ONLY
     )
-    execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory ${cdat_SOURCE_DIR}/resources
+    execute_process(COMMAND \${CMAKE_COMMAND} -E copy_directory ${cdat_SOURCE_DIR}/resources
       ${CPACK_DESTINATION_PREFIX}/Resources
+      OUTPUT_VARIABLE out
+      RESULT_VARIABLE res
+      ERROR_VARIABLE err
     )
-    execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${cdat_CMAKE_SOURCE_DIR}/uvcdat.plist
-      ${CPACK_DESTINATION_PREFIX}/Info.plist)
+    if(NOT \${res} EQUAL 0)
+      message(\"Output: \${out}; Result: \${res}; Error: \${err}\")
+    endif()
+
+    execute_process(COMMAND \${CMAKE_COMMAND} -E copy ${cdat_CMAKE_SOURCE_DIR}/uvcdat.plist
+      ${CPACK_DESTINATION_PREFIX}/Info.plist
+      OUTPUT_VARIABLE out
+      RESULT_VARIABLE res
+      ERROR_VARIABLE err
+    )
+    if(NOT \${res} EQUAL 0)
+      message(\"Output: \${out}; Result: \${res}; Error: \${err}\")
+    endif()
   endif()"
 
   COMPONENT superbuild
