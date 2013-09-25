@@ -668,7 +668,7 @@ install(CODE "
       ${CPACK_DESTINATION_BIN_PREFIX}/uvcdat
       @ONLY
     )
-    execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory ${cdat_SOURCE_DIR}/resources
+    execute_process(COMMAND \${CMAKE_COMMAND} -E copy_directory ${cdat_SOURCE_DIR}/resources
       ${CPACK_DESTINATION_PREFIX}/Resources
       OUTPUT_VARIABLE out
       RESULT_VARIABLE res
@@ -678,7 +678,7 @@ install(CODE "
       message(\"Output: \${out}; Result: \${res}; Error: \${err}\")
     endif()
 
-    execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${cdat_CMAKE_SOURCE_DIR}/uvcdat.plist
+    execute_process(COMMAND \${CMAKE_COMMAND} -E copy ${cdat_CMAKE_SOURCE_DIR}/uvcdat.plist
       ${CPACK_DESTINATION_PREFIX}/Info.plist
       OUTPUT_VARIABLE out
       RESULT_VARIABLE res
