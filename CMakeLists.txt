@@ -674,8 +674,8 @@ install(CODE "
       RESULT_VARIABLE res
       ERROR_VARIABLE err
     )
-    if(NOT ${res} EQUAL 0)
-      message("Output: ${out}; Result: ${res}; Error: ${err}")
+    if(NOT \${res} EQUAL 0)
+      message(\"Output: \${out}; Result: \${res}; Error: \${err}\")
     endif()
 
     execute_process(COMMAND ${CMAKE_COMMAND} -E copy ${cdat_CMAKE_SOURCE_DIR}/uvcdat.plist
@@ -684,8 +684,8 @@ install(CODE "
       RESULT_VARIABLE res
       ERROR_VARIABLE err
     )
-    if(NOT ${res} EQUAL 0)
-      message("Output: ${out}; Result: ${res}; Error: ${err}")
+    if(NOT \${res} EQUAL 0)
+      message(\"Output: \${out}; Result: \${res}; Error: \${err}\")
     endif()
   endif()"
 
