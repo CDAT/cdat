@@ -8961,10 +8961,10 @@ class animate_obj(animate_obj_old):
                         self.anim.restore_min_max()
                         self.anim.canvas = None
                         self.emit(QtCore.SIGNAL("AnimationCreated"), "Hello there")
+                        self.animationTimer.stop()
                         return
                     self.anim.renderFrame(self.animationFrame)
                     self.animationFrame += 1
-                    self.animationTimer.start(0, self)
             global C
             C=crp(self)
             self._actualCreate(parent,min,max,save_file,rate,bitrate,ffmpegoptions,axis,C)
