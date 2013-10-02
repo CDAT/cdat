@@ -425,7 +425,7 @@ externals = %s
       sys.argv[1:]=['-q', 'install', '--prefix=%s' % target_prefix]
       setup (name="cdat_info",
        version="0.0",
-       py_modules=[cdat_info_path]
+       package_dir = { 'cdat_info' : os.path.dirname(cdat_info_path)},
       )
       os.system('/bin/rm -fr build')
     
