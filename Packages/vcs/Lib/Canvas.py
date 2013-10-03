@@ -8478,7 +8478,7 @@ class animate_obj_old:
          for i in range(len(self.vcs_self.animate_info)):
             try:
                self.set_animation_min_max( minv[i], maxv[i], i )
-            except:
+            except Exception,err:
                pass # if it is default, then you cannot set the min and max, so pass.
 
       if save_file is None or save_file.split('.')[-1].lower()=='ras':
@@ -8649,63 +8649,45 @@ class animate_obj_old:
    # Set the animation min and max values    					#
    ##############################################################################
    def set_animation_min_max( self, min, max, i ):
-      from vcs import mkscale, mklabels
-      animation_info = self.vcs_self.animate_info_from_python()
+      from vcs import mkscale, mklabels, getcolors
+      animation_info = self.animate_info_from_python()
       gtype = string.lower(animation_info["gtype"][i])
+      levs = mkscale(min,max)
+      dic = mklabels(levs)
+      cols = getcolors(levs)
       if gtype == "boxfill":
          gm=self.vcs_self.getboxfill(animation_info['gname'][i])
-         gm.level_1=min
-         gm.level_2=max
-         gm.legend=None
+         if gm.boxfill_type == 'custom':
+             gm.fillareacolors = cols
+             gm.levels = levs
+         else:
+             gm.level_1=levs[0]
+             gm.level_2=levs[-1]
+             gm.legend=None
       elif ( gtype == "meshfill" ):
          gm=self.vcs_self.getmeshfill(animation_info['gname'][i])
          if (min == 1e20) and (max ==1e20):
             gm.levels=(1e20,1e20)
          else:
-            l=[]
-            interations = 10.0
-            levels = min
-            delta = (max - min)/ interations
-            for a in range(int(interations)):
-               l.append(levels)
-               levels=levels+delta
-            l.append(levels)
-            gm.levels = l
-            gm.fillareacolors = [16,38,80,103,112,127,158,183,192,207]
+            gm.levels = levs
+            gm.fillareacolors = cols
       elif ( gtype == "isofill" ):
          gm=self.vcs_self.getisofill(animation_info['gname'][i])
          if (min == 1e20) and (max ==1e20):
             gm.levels=(1e20,1e20)
          else:
-            l=[]
-            interations = 10.0
-            levels = min
-            delta = (max - min)/ interations
-            for a in range(int(interations)):
-               l.append(levels)
-               levels=levels+delta
-            l.append(levels)
-            gm.levels = l
-            gm.fillareacolors = [16,38,80,103,112,127,158,183,192,207]
+            gm.levels = levs
+            gm.fillareacolors = cols
       elif ( gtype == "isoline" ):
          gm=self.vcs_self.getisoline(animation_info['gname'][i])
          if (min == 1e20) and (max ==1e20):
             gm.levels=(1e20,1e20)
          else:
-            l=[]
-            interations = 10.0
-            levels = min
-            delta = (max - min)/ interations
-            for a in range(int(interations)):
-               l.append(levels)
-               levels=levels+delta
-            l.append(levels)
-            gm.levels = l
+            gm.levels = levs
+            gm.fillareacolors = cols
       elif ( gtype == "yxvsx" ):
          gm=self.vcs_self.getyxvsx(animation_info['gname'][i])
          if (min != 1e20) and (max !=1e20):
-            levs=vcs.mkscale(min, max)
-            dic=vcs.mklabels(levs)
             gm.yticlabels1=dic
             gm.yticlabels2=dic
             min = levs[0]
@@ -8715,8 +8697,6 @@ class animate_obj_old:
       elif ( gtype == "xyvsy" ):
          gm=self.vcs_self.getxyvsy(animation_info['gname'][i])
          if (min != 1e20) and (max !=1e20):
-            levs=vcs.mkscale(min, max)
-            dic=vcs.mklabels(levs)
             gm.xticlabels1=dic
             gm.xticlabels2=dic
             min = levs[0]
@@ -8735,7 +8715,6 @@ class animate_obj_old:
    # Return the animation min and max values                                    #
    ##############################################################################
    def return_animation_min_max( self ):
-      from vcs import mkscale, mklabels
       dpy, slab = self.vcs_self.animate_info[0]
       return vcs.minmax(slab)
 
@@ -9020,7 +8999,7 @@ class animate_obj(animate_obj_old):
                    mins, maxs = vcs.minmax(slab)
                    minv[i] = float(numpy.minimum(float(minv[i]), float(mins)))
                    maxv[i] = float(numpy.maximum(float(maxv[i]), float(maxs)))
-             if ((type(min) == types.ListType) or (type(max) == types.ListType)):
+             elif ((type(min) == types.ListType) or (type(max) == types.ListType)):
                 for i in range(len(self.vcs_self.animate_info)):
                    try:
                       minv.append( min[i] )
@@ -9039,7 +9018,7 @@ class animate_obj(animate_obj_old):
              for i in range(len(self.vcs_self.animate_info)):
                 try:
                    self.set_animation_min_max( minv[i], maxv[i], i )
-                except:
+                except Exception,err:
                    pass # if it is default, then you cannot set the min and max, so pass.
 
         self.allArgs = []
