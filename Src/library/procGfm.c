@@ -135,7 +135,7 @@
 /*			Find which attribute is being assigned.		*/
 
 	   for (pc=&(pat->proj[0]), i=0;
-		 i < 17 && cmpnbl(strm,Gfm_attr[i]) != 0;
+		 i < 20 && cmpnbl(strm,Gfm_attr[i]) != 0;
 		 pc+=256,i++);
 
 /*			Assign labelling and projection attributes.	*/
@@ -833,8 +833,8 @@
              fprintf (fp,"\n   %s=%i,",Gfm_attr[13],pgi->missing);
              fprintf (fp,"\n   %s=%i,",Gfm_attr[15],pgi->mesh);
 	     if (pgi->timeunits[0] != '\0')
-                fprintf (fp,"\n   %s=%s,",Gfm_attr[15],pgi->timeunits);
-             fprintf (fp,"\n   %s=%d,",Gfm_attr[16],pgi->calendar);
+                fprintf (fp,"\n   %s=%s,",Gfm_attr[17],pgi->timeunits);
+             fprintf (fp,"\n   %s=%d,",Gfm_attr[18],pgi->calendar);
              fprintf (fp,"\n   %s\n   (%g, %g),",Gfm_attr[14],pgi->ywrap,pgi->xwrap);
 
 	     if (pgi->legend == NULL) {
