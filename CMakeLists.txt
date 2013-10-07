@@ -386,7 +386,7 @@ include(mpi_pkg)
 include(paraview_pkg)
 include(pixman_pkg)
 include(pkgconfig_pkg)
-include(pmw_pkg)
+#include(pmw_pkg)
 include(png_pkg)
 include(pyqt_pkg)
 include(pyspharm_pkg)
@@ -658,8 +658,6 @@ install(CODE "
     )
   endif()
 
-  # Unset QT_LIB_DIR as we need to use the one in user's environment
-  set(QT_LIB_DIR)
   configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/setup_runtime.sh.in
     ${CPACK_DESTINATION_BIN_PREFIX}/setup_runtime.sh
     @ONLY
