@@ -6562,19 +6562,30 @@ Options:::
     ALWAYS overwrite output file
 """
         cmd = 'ffmpeg -y '
+
         if rate is not None:
             cmd+=' -r %s ' % rate
         if isinstance(files,(list,tuple)):
-            cmd+='-i '+' -i '.join(files)
+            rnd = "%s/.uvcdat/__uvcdat_%i" % (os.environ["HOME"],numpy.random.randint(60000))
+            Files = []
+            for i,f in enumerate(files):
+                fnm = "%s_%i.png" % (rnd,i)
+                shutil.copy(f,fnm)
+                Files.append(fnm)
+            cmd+='-i %s_%%d.png' % (rnd)
         elif isinstance(files,str):
             cmd+='-i '+files
         if rate is not None:
             cmd+=' -r %s ' % rate
         if bitrate is not None:
-            cmd+=' -b %sk' % bitrate
+            cmd+=' -b:v %sk' % bitrate
         cmd+=' '+options
         cmd+=' '+movie
+        print "COMMANF FFMPEG:",cmd
         o = os.popen(cmd).read()
+        if isinstance(files,(list,tuple)):
+            for f in Files:
+                os.remove(f)
         return o
     ##########################################################################
     #                                                                        #
@@ -8478,7 +8489,7 @@ class animate_obj_old:
          for i in range(len(self.vcs_self.animate_info)):
             try:
                self.set_animation_min_max( minv[i], maxv[i], i )
-            except:
+            except Exception,err:
                pass # if it is default, then you cannot set the min and max, so pass.
 
       if save_file is None or save_file.split('.')[-1].lower()=='ras':
@@ -8649,63 +8660,45 @@ class animate_obj_old:
    # Set the animation min and max values    					#
    ##############################################################################
    def set_animation_min_max( self, min, max, i ):
-      from vcs import mkscale, mklabels
-      animation_info = self.vcs_self.animate_info_from_python()
+      from vcs import mkscale, mklabels, getcolors
+      animation_info = self.animate_info_from_python()
       gtype = string.lower(animation_info["gtype"][i])
+      levs = mkscale(min,max)
+      dic = mklabels(levs)
+      cols = getcolors(levs)
       if gtype == "boxfill":
          gm=self.vcs_self.getboxfill(animation_info['gname'][i])
-         gm.level_1=min
-         gm.level_2=max
-         gm.legend=None
+         if gm.boxfill_type == 'custom':
+             gm.fillareacolors = cols
+             gm.levels = levs
+         else:
+             gm.level_1=levs[0]
+             gm.level_2=levs[-1]
+             gm.legend=None
       elif ( gtype == "meshfill" ):
          gm=self.vcs_self.getmeshfill(animation_info['gname'][i])
          if (min == 1e20) and (max ==1e20):
             gm.levels=(1e20,1e20)
          else:
-            l=[]
-            interations = 10.0
-            levels = min
-            delta = (max - min)/ interations
-            for a in range(int(interations)):
-               l.append(levels)
-               levels=levels+delta
-            l.append(levels)
-            gm.levels = l
-            gm.fillareacolors = [16,38,80,103,112,127,158,183,192,207]
+            gm.levels = levs
+            gm.fillareacolors = cols
       elif ( gtype == "isofill" ):
          gm=self.vcs_self.getisofill(animation_info['gname'][i])
          if (min == 1e20) and (max ==1e20):
             gm.levels=(1e20,1e20)
          else:
-            l=[]
-            interations = 10.0
-            levels = min
-            delta = (max - min)/ interations
-            for a in range(int(interations)):
-               l.append(levels)
-               levels=levels+delta
-            l.append(levels)
-            gm.levels = l
-            gm.fillareacolors = [16,38,80,103,112,127,158,183,192,207]
+            gm.levels = levs
+            gm.fillareacolors = cols
       elif ( gtype == "isoline" ):
          gm=self.vcs_self.getisoline(animation_info['gname'][i])
          if (min == 1e20) and (max ==1e20):
             gm.levels=(1e20,1e20)
          else:
-            l=[]
-            interations = 10.0
-            levels = min
-            delta = (max - min)/ interations
-            for a in range(int(interations)):
-               l.append(levels)
-               levels=levels+delta
-            l.append(levels)
-            gm.levels = l
+            gm.levels = levs
+            gm.fillareacolors = cols
       elif ( gtype == "yxvsx" ):
          gm=self.vcs_self.getyxvsx(animation_info['gname'][i])
          if (min != 1e20) and (max !=1e20):
-            levs=vcs.mkscale(min, max)
-            dic=vcs.mklabels(levs)
             gm.yticlabels1=dic
             gm.yticlabels2=dic
             min = levs[0]
@@ -8715,8 +8708,6 @@ class animate_obj_old:
       elif ( gtype == "xyvsy" ):
          gm=self.vcs_self.getxyvsy(animation_info['gname'][i])
          if (min != 1e20) and (max !=1e20):
-            levs=vcs.mkscale(min, max)
-            dic=vcs.mklabels(levs)
             gm.xticlabels1=dic
             gm.xticlabels2=dic
             min = levs[0]
@@ -8735,7 +8726,6 @@ class animate_obj_old:
    # Return the animation min and max values                                    #
    ##############################################################################
    def return_animation_min_max( self ):
-      from vcs import mkscale, mklabels
       dpy, slab = self.vcs_self.animate_info[0]
       return vcs.minmax(slab)
 
@@ -8944,8 +8934,15 @@ class animate_obj(animate_obj_old):
         self.horizontal_factor = 0
         self.allArgs = []
         self.canvas = None
+        self.animation_seed = None
+        self.animation_files = []
+        self.runTimer = QtCore.QTimer() #used to run the animation
+        self.runTimer.timeout.connect(self.next)
+        self.pause(self.pause_value) #sets runTimer interval
+        self.current_frame = 0
 
     def create( self, parent=None, min=None, max=None, save_file=None, thread_it = 1, rate=5., bitrate=None, ffmpegoptions='', axis=0):
+        self.current_frame = 0
         if thread_it:
             class crp(QtCore.QObject):                
                 def __init__(self, anim):
@@ -8961,10 +8958,10 @@ class animate_obj(animate_obj_old):
                         self.anim.restore_min_max()
                         self.anim.canvas = None
                         self.emit(QtCore.SIGNAL("AnimationCreated"), "Hello there")
+                        self.animationTimer.stop()
                         return
                     self.anim.renderFrame(self.animationFrame)
                     self.animationFrame += 1
-                    self.animationTimer.start(0, self)
             global C
             C=crp(self)
             self._actualCreate(parent,min,max,save_file,rate,bitrate,ffmpegoptions,axis,C)
@@ -8997,6 +8994,11 @@ class animate_obj(animate_obj_old):
                     truncated = True
         if truncated:
             warnings.warn("Because of inconsistent shapes over axis: %i, the animation length will be truncated to: %i\n" % (axis,alen))
+        if self.animation_seed is not None:
+            if self.animation_files != []:
+                for fnm in self.animation_files:
+                    os.remove(fnm)
+        self.animation_seed = None
         self.animation_files = []
         # Save the min and max values for the graphics methods.
         # Will need to restore values back when animation is done.
@@ -9020,7 +9022,7 @@ class animate_obj(animate_obj_old):
                    mins, maxs = vcs.minmax(slab)
                    minv[i] = float(numpy.minimum(float(minv[i]), float(mins)))
                    maxv[i] = float(numpy.maximum(float(maxv[i]), float(maxs)))
-             if ((type(min) == types.ListType) or (type(max) == types.ListType)):
+             elif ((type(min) == types.ListType) or (type(max) == types.ListType)):
                 for i in range(len(self.vcs_self.animate_info)):
                    try:
                       minv.append( min[i] )
@@ -9039,7 +9041,7 @@ class animate_obj(animate_obj_old):
              for i in range(len(self.vcs_self.animate_info)):
                 try:
                    self.set_animation_min_max( minv[i], maxv[i], i )
-                except:
+                except Exception,err:
                    pass # if it is default, then you cannot set the min and max, so pass.
 
         self.allArgs = []
@@ -9080,14 +9082,22 @@ class animate_obj(animate_obj_old):
                 self.renderFrame(i)
             self.restore_min_max()
             self.canvas = None
+            self.animationCreated()
         else:
+            QtCore.QObject.connect(sender, QtCore.SIGNAL("AnimationCreated"),
+                    self.animationCreated)
             sender.animationTimer.start(0, sender)
             sender.dialog.setRange(0, len(self.allArgs))
             sender.dialog.show()
 
+    def animationCreated(self, *args, **kwargs):
+        self.create_flg = 1
+
     def renderFrame(self, i):
+        if self.animation_seed is None:
+            self.animation_seed = numpy.random.randint(10000000)
         frameArgs = self.allArgs[i]
-        fn = tempfile.mkstemp(suffix=".png")[1]
+        fn = os.path.join(os.environ["HOME"],".uvcdat","__uvcdat_%i_%i.png" % (self.animation_seed,i))
         self.animation_files.append(fn)
         self.canvas.clear()
         for args in frameArgs:
@@ -9095,41 +9105,62 @@ class animate_obj(animate_obj_old):
         self.canvas.png(fn)
         #self.canvas.png("sample")
         
-    def runner(self):
-        self.runit = True
-        while self.runit:
-            for fn in self.animation_files:
-                if not self.runit:
-                    break
-                self.vcs_self.canvas.put_png_on_canvas(fn,self.zoom_factor,self.vertical_factor,self.horizontal_factor)
-                import time
-                time.sleep(self.pause_value)
+    # def runner(self):
+    #     self.runit = True
+    #     while self.runit:
+    #         for fn in self.animation_files:
+    #             if not self.runit:
+    #                 self.run_flg = 0
+    #                 break
+    #             self.vcs_self.canvas.put_png_on_canvas(fn,self.zoom_factor,self.vertical_factor,self.horizontal_factor)
+    #             import time
+    #             time.sleep(self.pause_value)
+
+    def next(self):
+        """Draws next frame of animation
+        """
+        if self.current_frame < len(self.animation_files)-1:
+            self.current_frame += 1
+        else:
+            self.current_frame = 0
+        self.vcs_self.canvas.put_png_on_canvas(self.animation_files[self.current_frame],
+                self.zoom_factor, self.vertical_factor, self.horizontal_factor)
+
     def run(self,*args):
-        #self.runner()
-        self.runthread = thread.start_new_thread(self.runner,())
+        if self.run_flg == 0:
+            self.run_flg = 1
+            self.runTimer.start()
 
     def draw(self, frame):
         #print "Clearing!!!!!!"
-        self.vcs_self.clear()
-        self.vcs_self.canvas.put_png_on_canvas(self.animation_files[frame],
-                                               self.zoom_factor,self.vertical_factor,self.horizontal_factor)
+        if self.create_flg == 1:
+            self.vcs_self.clear()
+            self.current_frame = frame
+            self.vcs_self.canvas.put_png_on_canvas(self.animation_files[frame],
+                    self.zoom_factor, self.vertical_factor, self.horizontal_factor)
         
     def frame(self, frame):
         self.draw(frame)
 
     def save(self,movie,bitrate=1024, rate=None, options=''):
-        self.vcs_self.ffmpeg(movie, self.animation_files, bitrate, rate, options)
+        fnms = os.path.join(os.environ["HOME"],".uvcdat","__uvcdat_%i_%%d.png" %      (self.animation_seed))
+        self.vcs_self.ffmpeg(movie, fnms, bitrate, rate, options)
 
     def number_of_frames(self):
         return len(self.animation_files)
 
     def stop(self):
-        self.runit = False
+        self.run_flg = 0
+        self.current_frame = 0
+        self.runTimer.stop()
+
     def pause(self,value):
         self.pause_value = value
+        self.runTimer.setInterval(value*1000)
 
     def zoom(self,value):
         self.zoom_factor = value
+
     def horizontal(self,value):
         self.horizontal_factor = value
 
