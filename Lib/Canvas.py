@@ -6562,19 +6562,30 @@ Options:::
     ALWAYS overwrite output file
 """
         cmd = 'ffmpeg -y '
+
         if rate is not None:
             cmd+=' -r %s ' % rate
         if isinstance(files,(list,tuple)):
-            cmd+='-i '+' -i '.join(files)
+            rnd = "%s/.uvcdat/__uvcdat_%i" % (os.environ["HOME"],numpy.random.randint(60000))
+            Files = []
+            for i,f in enumerate(files):
+                fnm = "%s_%i.png" % (rnd,i)
+                shutil.copy(f,fnm)
+                Files.append(fnm)
+            cmd+='-i %s_%%d.png' % (rnd)
         elif isinstance(files,str):
             cmd+='-i '+files
         if rate is not None:
             cmd+=' -r %s ' % rate
         if bitrate is not None:
-            cmd+=' -b %sk' % bitrate
+            cmd+=' -b:v %sk' % bitrate
         cmd+=' '+options
         cmd+=' '+movie
+        print "COMMANF FFMPEG:",cmd
         o = os.popen(cmd).read()
+        if isinstance(files,(list,tuple)):
+            for f in Files:
+                os.remove(f)
         return o
     ##########################################################################
     #                                                                        #
@@ -8923,6 +8934,8 @@ class animate_obj(animate_obj_old):
         self.horizontal_factor = 0
         self.allArgs = []
         self.canvas = None
+        self.animation_seed = None
+        self.animation_files = []
 
     def create( self, parent=None, min=None, max=None, save_file=None, thread_it = 1, rate=5., bitrate=None, ffmpegoptions='', axis=0):
         if thread_it:
@@ -8976,6 +8989,11 @@ class animate_obj(animate_obj_old):
                     truncated = True
         if truncated:
             warnings.warn("Because of inconsistent shapes over axis: %i, the animation length will be truncated to: %i\n" % (axis,alen))
+        if self.animation_seed is not None:
+            if self.animation_files != []:
+                for fnm in self.animation_files:
+                    os.remove(fnm)
+        self.animation_seed = None
         self.animation_files = []
         # Save the min and max values for the graphics methods.
         # Will need to restore values back when animation is done.
@@ -9065,8 +9083,10 @@ class animate_obj(animate_obj_old):
             sender.dialog.show()
 
     def renderFrame(self, i):
+        if self.animation_seed is None:
+            self.animation_seed = numpy.random.randint(10000000)
         frameArgs = self.allArgs[i]
-        fn = tempfile.mkstemp(suffix=".png")[1]
+        fn = os.path.join(os.environ["HOME"],".uvcdat","__uvcdat_%i_%i.png" % (self.animation_seed,i))
         self.animation_files.append(fn)
         self.canvas.clear()
         for args in frameArgs:
@@ -9097,7 +9117,8 @@ class animate_obj(animate_obj_old):
         self.draw(frame)
 
     def save(self,movie,bitrate=1024, rate=None, options=''):
-        self.vcs_self.ffmpeg(movie, self.animation_files, bitrate, rate, options)
+        fnms = os.path.join(os.environ["HOME"],".uvcdat","__uvcdat_%i_%%d.png" %      (self.animation_seed))
+        self.vcs_self.ffmpeg(movie, fnms, bitrate, rate, options)
 
     def number_of_frames(self):
         return len(self.animation_files)
