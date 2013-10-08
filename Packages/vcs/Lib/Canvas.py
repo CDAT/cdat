@@ -4604,6 +4604,9 @@ Options:::
         if not isinstance(arglist[3],vcsaddons.core.VCSaddon): assert type(arglist[3]) == types.StringType
         assert type(arglist[4]) == types.StringType
 
+        ##reset animation
+        self.animate.create_flg = 0
+
         # Store the origin template. The template used to plot may be changed below by the 
         # _create_random_template function, which copies templates for modifications.
         template_origin = arglist[2]
@@ -8915,6 +8918,15 @@ class animate_obj_old:
          return a
 
 class animate_obj(animate_obj_old):
+
+    class AnimationSignals(QtCore.QObject):
+        """Inner class to hold signals since main object is not a QObject
+        """
+        drew = QtCore.pyqtSignal()
+        created = QtCore.pyqtSignal()
+        canceled = QtCore.pyqtSignal()
+        paused = QtCore.pyqtSignal()
+
     def __init__(self, vcs_self):
         animate_obj_old.__init__(self,vcs_self)
         self.pause_value = .1
@@ -8927,28 +8939,35 @@ class animate_obj(animate_obj_old):
         self.runTimer.timeout.connect(self.next)
         self.pause(self.pause_value) #sets runTimer interval
         self.current_frame = 0
+        self.loop = True
+        self.signals = self.AnimationSignals() #holds signals, since we are not a QObject
 
     def create( self, parent=None, min=None, max=None, save_file=None, thread_it = 1, rate=5., bitrate=None, ffmpegoptions='', axis=0):
         self.current_frame = 0
         if thread_it:
-            class crp(QtCore.QObject):                
+            class crp(QtCore.QObject): 
+
                 def __init__(self, anim):
                     QtCore.QObject.__init__(self)
                     self.animationTimer = QtCore.QBasicTimer()
                     self.animationFrame = 0
                     self.anim = anim
                     self.dialog = QtGui.QProgressDialog("Creating animation...", "Cancel", 0, 0)
+                    self.dialog.canceled.connect(self.dailogCanceled)
                     
                 def timerEvent(self, event):
                     self.dialog.setValue(self.animationFrame)
                     if self.animationFrame>=len(self.anim.allArgs):
-                        self.anim.restore_min_max()
-                        self.anim.canvas = None
-                        self.emit(QtCore.SIGNAL("AnimationCreated"), "Hello there")
                         self.animationTimer.stop()
+                        self.anim.animationCreated()
                         return
                     self.anim.renderFrame(self.animationFrame)
                     self.animationFrame += 1
+
+                def dailogCanceled(self):
+                    self.animationTimer.stop()
+                    self.anim.signals.canceled.emit()
+
             global C
             C=crp(self)
             self._actualCreate(parent,min,max,save_file,rate,bitrate,ffmpegoptions,axis,C)
@@ -9066,14 +9085,15 @@ class animate_obj(animate_obj_old):
             self.canvas = None
             self.animationCreated()
         else:
-            QtCore.QObject.connect(sender, QtCore.SIGNAL("AnimationCreated"),
-                    self.animationCreated)
             sender.animationTimer.start(0, sender)
             sender.dialog.setRange(0, len(self.allArgs))
             sender.dialog.show()
 
-    def animationCreated(self, *args, **kwargs):
+    def animationCreated(self):
         self.create_flg = 1
+        self.restore_min_max()
+        self.canvas = None
+        self.signals.created.emit()
 
     def renderFrame(self, i):
         frameArgs = self.allArgs[i]
@@ -9099,39 +9119,51 @@ class animate_obj(animate_obj_old):
     def next(self):
         """Draws next frame of animation
         """
-        if self.current_frame < len(self.animation_files)-1:
-            self.current_frame += 1
+        if self.create_flg == 1:
+            if self.current_frame < len(self.animation_files)-1:
+                self.current_frame += 1
+            elif self.loop or self.first_run:
+                self.current_frame = 0
+            else:
+                self.pause_run()
+            self.draw(self.current_frame)
         else:
-            self.current_frame = 0
-        self.vcs_self.canvas.put_png_on_canvas(self.animation_files[self.current_frame],
-                self.zoom_factor, self.vertical_factor, self.horizontal_factor)
+            self.pause_run()
+        if self.first_run:
+            self.first_run = False
 
     def run(self,*args):
-        if self.run_flg == 0:
+        if self.create_flg == 1 and self.run_flg == 0:
+            self.first_run = True
             self.run_flg = 1
             self.runTimer.start()
+
+    def pause_run(self):
+        self.run_flg = 0
+        self.runTimer.stop()
+        self.signals.paused.emit()
 
     def draw(self, frame):
         #print "Clearing!!!!!!"
         if self.create_flg == 1:
-            self.vcs_self.clear()
             self.current_frame = frame
             self.vcs_self.canvas.put_png_on_canvas(self.animation_files[frame],
                     self.zoom_factor, self.vertical_factor, self.horizontal_factor)
+            self.signals.drew.emit()
         
     def frame(self, frame):
         self.draw(frame)
 
     def save(self,movie,bitrate=1024, rate=None, options=''):
-        self.vcs_self.ffmpeg(movie, self.animation_files, bitrate, rate, options)
+        if self.create_flg == 1:
+            self.vcs_self.ffmpeg(movie, self.animation_files, bitrate, rate, options)
 
     def number_of_frames(self):
         return len(self.animation_files)
 
     def stop(self):
-        self.run_flg = 0
+        self.pause_run()
         self.current_frame = 0
-        self.runTimer.stop()
 
     def pause(self,value):
         self.pause_value = value
