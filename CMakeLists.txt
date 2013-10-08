@@ -659,6 +659,8 @@ install(CODE "
   endif()
 
   # Unset QT_LIB_DIR as we need to use the one in user's environment
+  # We need to keep in ming that we might need to build Qt on some systems
+  # (e.g. RH6) in which case this might break something
   set(QT_LIB_DIR)
   configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/setup_runtime.sh.in
     ${CPACK_DESTINATION_BIN_PREFIX}/setup_runtime.sh
