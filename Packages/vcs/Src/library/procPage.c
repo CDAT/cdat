@@ -372,7 +372,7 @@
 /*			Shutdown cgm if it's open.		*/
 	  if (*pid == Wkst[1].id)
 	    {
-	     shutdown(Wkst[1].id);
+	      shutdown(connect_id, Wkst[1].id);
 	    }
 	 }
        if (wsid.number > 0 && wsid.integers != NULL) {

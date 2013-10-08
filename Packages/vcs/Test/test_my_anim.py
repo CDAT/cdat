@@ -6,17 +6,9 @@ s=f(var,slice(0,13))
 print s.shape
 import vcs
 x=vcs.init()
-x.plot(s)
+x.plot(s,"default","isofill","default")
 print "Ok plotted the data"
-x.animate.create()
-raw_input("Creating anim")
-x.animate.close()
-print "Closed anim"
-x.clear()
-print "Cleared image"
-x.plot(s)
-print "replotted"
-x.animate.create()
+x.animate.create(min=20,max=80)
 raw_input("Creating anim")
 x.animate.run()
 

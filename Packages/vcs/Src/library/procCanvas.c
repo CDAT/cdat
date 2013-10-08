@@ -99,7 +99,7 @@ int procCanvas(char *str, Gconid_X_drawable **connect_id_in, int canvas_id, doub
 
 	if (c > 0 && cmpncs(strm,"close") == 0)
 	  {
-	   shutdown(w->id);
+	    shutdown(connect_id, w->id);
 	   return 1;
 	  }
 
