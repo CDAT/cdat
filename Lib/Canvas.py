@@ -8936,8 +8936,13 @@ class animate_obj(animate_obj_old):
         self.canvas = None
         self.animation_seed = None
         self.animation_files = []
+        self.runTimer = QtCore.QTimer() #used to run the animation
+        self.runTimer.timeout.connect(self.next)
+        self.pause(self.pause_value) #sets runTimer interval
+        self.current_frame = 0
 
     def create( self, parent=None, min=None, max=None, save_file=None, thread_it = 1, rate=5., bitrate=None, ffmpegoptions='', axis=0):
+        self.current_frame = 0
         if thread_it:
             class crp(QtCore.QObject):                
                 def __init__(self, anim):
@@ -9077,10 +9082,16 @@ class animate_obj(animate_obj_old):
                 self.renderFrame(i)
             self.restore_min_max()
             self.canvas = None
+            self.animationCreated()
         else:
+            QtCore.QObject.connect(sender, QtCore.SIGNAL("AnimationCreated"),
+                    self.animationCreated)
             sender.animationTimer.start(0, sender)
             sender.dialog.setRange(0, len(self.allArgs))
             sender.dialog.show()
+
+    def animationCreated(self, *args, **kwargs):
+        self.create_flg = 1
 
     def renderFrame(self, i):
         if self.animation_seed is None:
@@ -9094,24 +9105,39 @@ class animate_obj(animate_obj_old):
         self.canvas.png(fn)
         #self.canvas.png("sample")
         
-    def runner(self):
-        self.runit = True
-        while self.runit:
-            for fn in self.animation_files:
-                if not self.runit:
-                    break
-                self.vcs_self.canvas.put_png_on_canvas(fn,self.zoom_factor,self.vertical_factor,self.horizontal_factor)
-                import time
-                time.sleep(self.pause_value)
+    # def runner(self):
+    #     self.runit = True
+    #     while self.runit:
+    #         for fn in self.animation_files:
+    #             if not self.runit:
+    #                 self.run_flg = 0
+    #                 break
+    #             self.vcs_self.canvas.put_png_on_canvas(fn,self.zoom_factor,self.vertical_factor,self.horizontal_factor)
+    #             import time
+    #             time.sleep(self.pause_value)
+
+    def next(self):
+        """Draws next frame of animation
+        """
+        if self.current_frame < len(self.animation_files)-1:
+            self.current_frame += 1
+        else:
+            self.current_frame = 0
+        self.vcs_self.canvas.put_png_on_canvas(self.animation_files[self.current_frame],
+                self.zoom_factor, self.vertical_factor, self.horizontal_factor)
+
     def run(self,*args):
-        #self.runner()
-        self.runthread = thread.start_new_thread(self.runner,())
+        if self.run_flg == 0:
+            self.run_flg = 1
+            self.runTimer.start()
 
     def draw(self, frame):
         #print "Clearing!!!!!!"
-        self.vcs_self.clear()
-        self.vcs_self.canvas.put_png_on_canvas(self.animation_files[frame],
-                                               self.zoom_factor,self.vertical_factor,self.horizontal_factor)
+        if self.create_flg == 1:
+            self.vcs_self.clear()
+            self.current_frame = frame
+            self.vcs_self.canvas.put_png_on_canvas(self.animation_files[frame],
+                    self.zoom_factor, self.vertical_factor, self.horizontal_factor)
         
     def frame(self, frame):
         self.draw(frame)
@@ -9124,12 +9150,17 @@ class animate_obj(animate_obj_old):
         return len(self.animation_files)
 
     def stop(self):
-        self.runit = False
+        self.run_flg = 0
+        self.current_frame = 0
+        self.runTimer.stop()
+
     def pause(self,value):
         self.pause_value = value
+        self.runTimer.setInterval(value*1000)
 
     def zoom(self,value):
         self.zoom_factor = value
+
     def horizontal(self,value):
         self.horizontal_factor = value
 
