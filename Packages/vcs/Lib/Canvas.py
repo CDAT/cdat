@@ -9099,6 +9099,7 @@ class animate_obj(animate_obj_old):
         frameArgs = self.allArgs[i]
         fn = tempfile.mkstemp(suffix=".png")[1]
         self.animation_files.append(fn)
+        self.vcs_self.clear()
         self.canvas.clear()
         for args in frameArgs:
             self.canvas.plot(*args, bg=1)
