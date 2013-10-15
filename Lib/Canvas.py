@@ -9099,7 +9099,13 @@ class animate_obj(animate_obj_old):
         frameArgs = self.allArgs[i]
         fn = tempfile.mkstemp(suffix=".png")[1]
         self.animation_files.append(fn)
+
+        #BB: this clearing and replotting somehow fixes vcs internal state
+        # and prevents segfaults when running multiple animations
         self.vcs_self.clear()
+        for args in frameArgs:
+            self.vcs_self.plot(*args)
+
         self.canvas.clear()
         for args in frameArgs:
             self.canvas.plot(*args, bg=1)
