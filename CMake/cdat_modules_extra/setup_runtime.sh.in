@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Find the location of this script and store it for further use
 SB_EXTERNALS_DIR="@SB_EXTERNALS_DIR@"
