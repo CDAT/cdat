@@ -1,4 +1,4 @@
-set(ENV{PKG_CONFIG_PATH} "@cdat_EXTERNALS@/lib/pkgconfig:/usr/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig:$ENV{PKG_CONFIG_PATH}")
+set(ENV{PKG_CONFIG_PATH} "@cdat_EXTERNALS@/lib/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig:$ENV{PKG_CONFIG_PATH}")
 set(ENV{PKG_CONFIG} @cdat_PKG_CONFIG_EXECUTABLE@)
 
 include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
