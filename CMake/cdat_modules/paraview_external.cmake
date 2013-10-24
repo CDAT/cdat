@@ -45,6 +45,7 @@ list(APPEND ParaView_tpl_args
   -DVTK_USE_SYSTEM_ZLIB:BOOL=ON
   -DVTK_USE_SYSTEM_LIBXML2:BOOL=ON
   -DVTK_USE_SYSTEM_HDF5:BOOL=ON
+  -DVTK_USE_SYSTEM_FREETYPE:BOOL=ON
 )
 
 # Use cdat zlib
@@ -111,14 +112,15 @@ if(UVCDAT_TESTDATA_LOCATION)
 endif()
 
 include(GetGitRevisionDescription)
-set(paraview_branch uvcdat-master)
+set(paraview_branch ${PARAVIEW_MD5})
 
 get_git_head_revision(refspec sha)
 if("${refspec}" STREQUAL "refs/heads/devel-master")
   set(paraview_branch uvcdat-next)
 endif()
+
 if (NOT OFFLINE_BUILD)
-    set(GIT_CMD_STR GIT_REPOSITORY ${GIT_PROTOCOL}github.com/aashish24/paraview-climate-3.11.1.git)
+    set(GIT_CMD_STR GIT_REPOSITORY "${PARAVIEW_SOURCE}")
 else ()
     set(GIT_CMD_STR )
 endif()
@@ -138,10 +140,10 @@ ExternalProject_Add(ParaView
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_CFG_INTDIR}
     -DCMAKE_CXX_FLAGS:STRING=${cdat_tpl_cxx_flags}
     -DCMAKE_C_FLAGS:STRING=${cdat_tpl_c_flags}
-    -DPARAVIEW_BUILD_AS_APPLICATION_BUNDLE:BOOL=OFF
-    -DPARAVIEW_DISABLE_VTK_TESTING:BOOL=ON
-    -DPARAVIEW_INSTALL_THIRD_PARTY_LIBRARIES:BOOL=OFF
-    -DPARAVIEW_TESTING_WITH_PYTHON:BOOL=OFF
+#    -DPARAVIEW_BUILD_AS_APPLICATION_BUNDLE:BOOL=OFF
+#    -DPARAVIEW_DISABLE_VTK_TESTING:BOOL=ON
+#    -DPARAVIEW_INSTALL_THIRD_PARTY_LIBRARIES:BOOL=OFF
+ #   -DPARAVIEW_TESTING_WITH_PYTHON:BOOL=OFF
     -DINCLUDE_PYTHONHOME_PATHS:BOOL=OFF
     ${cdat_compiler_args}
     ${ParaView_tpl_args}
