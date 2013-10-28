@@ -6,6 +6,8 @@ SB_LIB_DIR="@SB_LIB_DIR@"
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 INSTALL_PREFIX=`dirname ${DIR}`
 
+_os=$("uname")
+
 if [[ "$SB_LIB_DIR" != /* ]]; then
   SB_LIB_DIR="${INSTALL_PREFIX}/${SB_LIB_DIR}"
 fi
@@ -14,11 +16,15 @@ if [[ "$SB_EXTERNALS_DIR" != /* ]]; then
   SB_EXTERNALS_DIR="${INSTALL_PREFIX}/${SB_EXTERNALS_DIR}"
 fi
 
+if [ ${_os} == "Darwin" ]; then 
+    PATH=${INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/@PYVER@/bin:${PATH}
+fi
+
 export PYTHON_SITEPACKAGES_DIR=${SB_LIB_DIR}/python@PYVER@/site-packages
 
-PATH=${INSTALL_PREFIX}:${DIR}:${PATH}
+PATH=${DIR}:${PATH}
 PATH="${SB_EXTERNALS_DIR}/bin":${PATH}
-PATH=${INSTALL_PREFIX}:${PYTHON_SITEPACKAGES_DIR}:${PATH}
+#PATH=${INSTALL_PREFIX}:${PYTHON_SITEPACKAGES_DIR}:${PATH}
 export PATH
 
 export PYTHONPATH=${PYTHON_SITEPACKAGES_DIR}:${SB_EXTERNALS_DIR}/lib:${SB_LIB_DIR}/VisIt-@VISIT_VERSION@/site-packages/:${PYTHONPATH}
