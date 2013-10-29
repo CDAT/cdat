@@ -646,7 +646,14 @@ void MainWindow::paintEvent(QPaintEvent *)
   else {
     QRectF viewArea(0,0,this->geometry().width(),this->geometry().height());
     painter.fillRect(viewArea, Qt::white);
-    painter.drawImage(viewArea, *this->qImage);
+    QSize sz = *this->qImage.size();
+    double R = *this->geometry().width()/ *this->geometry().height();
+    if (R>1.) {
+        QImage img2 = *this->qImage.scaledToHeigth(sz.height());
+    } else {
+        QImage img2 = *this->qImage.scaledToHeigth(sz.width());
+    };
+    painter.drawImage(viewArea,img2);
     delete this->qImage;
     this->qImage = NULL;
   }
