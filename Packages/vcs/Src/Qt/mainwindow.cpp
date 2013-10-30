@@ -605,6 +605,7 @@ void MainWindow::unsetupCairo()
 void MainWindow::paintEvent(QPaintEvent *)
 {
   QPainter painter;  
+  QImage img2;
   vcs_acquire_update();
   painter.begin(this);
   if (this->image == NULL && this->qImage==NULL) {
@@ -646,14 +647,20 @@ void MainWindow::paintEvent(QPaintEvent *)
   else {
     QRectF viewArea(0,0,this->geometry().width(),this->geometry().height());
     painter.fillRect(viewArea, Qt::white);
-    QSize sz = *this->qImage.size();
-    double R = *this->geometry().width()/ *this->geometry().height();
+    
+    QSize sz = this->qImage->size();
+    double R = this->geometry().width()/ this->geometry().height();
     if (R>1.) {
-        QImage img2 = *this->qImage.scaledToHeigth(sz.height());
+        img2 = this->qImage->scaledToHeight(this->geometry().height());
     } else {
-        QImage img2 = *this->qImage.scaledToHeigth(sz.width());
+        img2 = this->qImage->scaledToWidth(this->geometry().width());
     };
-    painter.drawImage(viewArea,img2);
+
+    //QSize sz2=img2.size();
+    //QRectF viewArea2(0,0,sz2.width(),sz2.height());
+    painter.drawImage(0,0,img2);
+
+    //painter.drawImage(viewArea,*this->qImage);
     delete this->qImage;
     this->qImage = NULL;
   }

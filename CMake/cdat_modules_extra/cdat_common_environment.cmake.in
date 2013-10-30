@@ -4,7 +4,7 @@ set(ENV{LDFLAGS} "-L@cdat_EXTERNALS@/lib @cdat_external_link_directories@ @cdat_
 set(ENV{CFLAGS} "-I@cdat_EXTERNALS@/include @cdat_osx_flags@ @cdat_external_include_directories@ ${ADDITIONAL_CFLAGS}")
 set(ENV{CPPFLAGS} "-I@cdat_EXTERNALS@/include @cdat_osx_flags@ @cdat_external_include_directories@ ${ADDITIONAL_CPPFLAGS}")
 set(ENV{CXXFLAGS} "-I@cdat_EXTERNALS@/include @cdat_osx_flags@ ${ADDITIONAL_CXXFLAGS}")
-set(ENV{PKG_CONFIG_PATH} "@cdat_EXTERNALS@/lib/pkgconfig:/usr/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig:$ENV{PKG_CONFIG_PATH}")
+set(ENV{PKG_CONFIG_PATH} "@cdat_EXTERNALS@/lib/pkgconfig:/usr/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig:$ENV{PKG_CONFIG_PATH}")
 set(ENV{PKG_CONFIG} @cdat_PKG_CONFIG_EXECUTABLE@)
 set(ENV{FC} "")
 set(ENV{FCFLAGS} "")
