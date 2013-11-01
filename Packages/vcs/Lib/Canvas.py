@@ -4308,6 +4308,13 @@ Example of use:
                        'wname','wunits','bg','ratio']
 
 
+
+    def replot(self):
+        """ Clears and plots with last used plot arguments
+        """
+        self.clear()
+        self.plot(*self.__last_plot_actual_args, **self.__last_plot_keyargs)
+
     ###########################################################################
     #                                                                         #
     # Plot wrapper for VCS.                                                   #
@@ -4431,6 +4438,9 @@ Options:::
 ###############################################################################################################
 
 """
+        self.__last_plot_actual_args = actual_args
+        self.__last_plot_keyargs = keyargs
+
         finish_queued_X_server_requests( self )
         passed_var = keyargs.get("variable",None)
         arglist = _determine_arg_list ( None, actual_args )
@@ -8979,7 +8989,7 @@ class animate_obj(animate_obj_old):
 
                 def dailogCanceled(self):
                     self.animationTimer.stop()
-                    self.anim.signals.canceled.emit()
+                    self.anim.animationCanceled()
 
             global C
             C=crp(self)
@@ -9113,6 +9123,11 @@ class animate_obj(animate_obj_old):
         self.canvas = None
         self.signals.created.emit()
 
+    def animationCanceled(self):
+        self.create_flg = 0
+        self.restore_min_max()
+        self.signals.canceled.emit()
+
     def renderFrame(self, i):
         if self.animation_seed is None:
             self.animation_seed = numpy.random.randint(10000000)
@@ -9122,9 +9137,7 @@ class animate_obj(animate_obj_old):
 
         #BB: this clearing and replotting somehow fixes vcs internal state
         # and prevents segfaults when running multiple animations
-        self.vcs_self.clear()
-        for args in frameArgs:
-            self.vcs_self.plot(*args)
+        self.vcs_self.replot()
 
         self.canvas.clear()
         for args in frameArgs:
