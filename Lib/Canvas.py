@@ -8940,7 +8940,6 @@ class animate_obj(animate_obj_old):
 
     def __init__(self, vcs_self):
         animate_obj_old.__init__(self,vcs_self)
-        self.pause_value = .1
         self.zoom_factor = 1.
         self.vertical_factor = 0
         self.horizontal_factor = 0
@@ -8950,7 +8949,7 @@ class animate_obj(animate_obj_old):
         self.animation_files = []
         self.runTimer = QtCore.QTimer() #used to run the animation
         self.runTimer.timeout.connect(self.next)
-        self.pause(self.pause_value) #sets runTimer interval
+        self.fps(10) #sets runTimer interval
         self.current_frame = 0
         self.loop = True
         self.signals = self.AnimationSignals() #holds signals, since we are not a QObject
@@ -9193,9 +9192,8 @@ class animate_obj(animate_obj_old):
         self.pause_run()
         self.current_frame = 0
 
-    def pause(self,value):
-        self.pause_value = value
-        self.runTimer.setInterval(value*1000)
+    def pause(self, value):
+        self.fps(1/value)
 
     def zoom(self,value):
         self.zoom_factor = value
@@ -9205,6 +9203,13 @@ class animate_obj(animate_obj_old):
 
     def vertical(self,value):
         self.vertical_factor = value
+
+    def fps(self, value=None):
+        if value is not None:
+            self.frames_per_second = value
+            self.runTimer.setInterval(1000/value)
+            return self
+        return self.frames_per_second
 
     
 ############################################################################
