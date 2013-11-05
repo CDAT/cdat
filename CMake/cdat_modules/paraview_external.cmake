@@ -48,6 +48,13 @@ list(APPEND ParaView_tpl_args
   -DVTK_USE_SYSTEM_FREETYPE:BOOL=ON
 )
 
+# Turn off testing and other non essential featues
+list(APPEND ParaView_tpl_args
+  -DBUILD_TESTING:BOOL=OFF
+  -DPARAVIEW_BUILD_PLUGIN_MobileRemoteControl:BOOL=OFF
+  -DPQWIDGETS_DISABLE_QTWEBKIT:BOOL=ON
+)
+
 # Use cdat zlib
 if(NOT CDAT_USE_SYSTEM_ZLIB)
   list(APPEND ParaView_tpl_args
