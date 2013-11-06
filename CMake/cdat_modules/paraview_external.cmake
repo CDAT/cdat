@@ -170,25 +170,25 @@ ExternalProject_Add(ParaView
 
 # Install ParaView and VTK python modules via their setup.py files.
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/vtk_install_python_module.cmake.in
-  ${cdat_CMAKE_BINARY_DIR}/vtk_install_python_module.cmake
-  @ONLY)
+#configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/vtk_install_python_module.cmake.in
+#  ${cdat_CMAKE_BINARY_DIR}/vtk_install_python_module.cmake
+#  @ONLY)
 
-configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/paraview_install_python_module.cmake.in
-  ${cdat_CMAKE_BINARY_DIR}/paraview_install_python_module.cmake
-  @ONLY)
+#configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/paraview_install_python_module.cmake.in
+#  ${cdat_CMAKE_BINARY_DIR}/paraview_install_python_module.cmake
+#  @ONLY)
 
-ExternalProject_Add_Step(ParaView InstallParaViewPythonModule
-  COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/paraview_install_python_module.cmake
-  DEPENDEES install
-  WORKING_DIRECTORY ${cdat_CMAKE_BINARY_DIR}
-  )
+#ExternalProject_Add_Step(ParaView InstallParaViewPythonModule
+#  COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/paraview_install_python_module.cmake
+#  DEPENDEES install
+#  WORKING_DIRECTORY ${cdat_CMAKE_BINARY_DIR}
+#  )
 
-ExternalProject_Add_Step(ParaView InstallVTKPythonModule
-  COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/vtk_install_python_module.cmake
-  DEPENDEES InstallParaViewPythonModule
-  WORKING_DIRECTORY ${cdat_CMAKE_BINARY_DIR}
-  )
+#ExternalProject_Add_Step(ParaView InstallVTKPythonModule
+#  COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/vtk_install_python_module.cmake
+#  DEPENDEES install
+#  WORKING_DIRECTORY ${cdat_CMAKE_BINARY_DIR}
+#  )
 
 # symlinks of Externals/bin get placed in prefix/bin so we need to symlink paraview
 # libs into prefix/lib as well for pvserver to work.
@@ -199,7 +199,7 @@ endif()
 
 ExternalProject_Add_Step(ParaView InstallParaViewLibSymlink
   COMMAND ${CMAKE_COMMAND} -E create_symlink ${ParaView_install}/lib/paraview-${PARAVIEW_MAJOR}.${PARAVIEW_MINOR} ${CMAKE_INSTALL_PREFIX}/lib/paraview-${PARAVIEW_MAJOR}.${PARAVIEW_MINOR}
-  DEPENDEES InstallVTKPythonModule
+  DEPENDEES install
   WORKING_DIRECTORY ${cdat_CMAKE_BINARY_DIR}
 )
 
