@@ -53,6 +53,7 @@ list(APPEND ParaView_tpl_args
   -DBUILD_TESTING:BOOL=OFF
   -DPARAVIEW_BUILD_PLUGIN_MobileRemoteControl:BOOL=OFF
   -DPQWIDGETS_DISABLE_QTWEBKIT:BOOL=ON
+  -DModule_vtkIOGeoJSON:BOOL=ON
 )
 
 # Use cdat zlib
