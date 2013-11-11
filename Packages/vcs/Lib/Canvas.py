@@ -8975,6 +8975,7 @@ class animate_obj(animate_obj_old):
                     self.animationFrame = 0
                     self.anim = anim
                     self.dialog = QtGui.QProgressDialog("Creating animation...", "Cancel", 0, 0)
+                    self.dialog.setModal(True)
                     self.dialog.canceled.connect(self.dailogCanceled)
                     
                 def timerEvent(self, event):
