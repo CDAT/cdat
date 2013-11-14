@@ -5,12 +5,8 @@ include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
 
 message(CONFIGURE_ARGS IS ${CONFIGURE_ARGS})
 
-set(WITH_PYTHON)
-get_filename_component(WITH_PYTHON_DIR @PYTHON_EXECUTABLE@ PATH)
-get_filename_component(WITH_PYTHON_DIR ${WITH_PYTHON_DIR} PATH)
-
 execute_process(
-  COMMAND sh configure --prefix=${INSTALL_DIR} ${CONFIGURE_ARGS} --with-python=${WITH_PYTHON_DIR}
+  COMMAND sh configure --prefix=${INSTALL_DIR} ${CONFIGURE_ARGS} --with-python=@PYTHON_EXECUTABLE@
   WORKING_DIRECTORY "${WORKING_DIR}"
   RESULT_VARIABLE res)
 
