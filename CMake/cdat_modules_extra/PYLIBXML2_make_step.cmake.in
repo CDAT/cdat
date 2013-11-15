@@ -1,4 +1,4 @@
-message("Building Mpi4py:\n@PYLIBXML2_binary@")
+message("Building libxml2 python bindings:\n@PYLIBXML2_binary@")
 include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
 set(ENV{@LIBRARY_PATH@} "@CMAKE_INSTALL_PREFIX@/lib:@cdat_EXTERNALS@/lib:$ENV{@LIBRARY_PATH@}")
 set(ENV{VS_UNICODE_OUTPUT} "")
@@ -8,7 +8,7 @@ endif()
 
 execute_process(
   COMMAND env  @LIBRARY_PATH@="$ENV{LD_LIBRARY_PATH}" "@PYTHON_EXECUTABLE@" setup.py build
-  WORKING_DIRECTORY "@PYLIBXML2_binary@"
+  WORKING_DIRECTORY "@PYLIBXML2_binary@/python"
   RESULT_VARIABLE res
   OUTPUT_VARIABLE PYLIBXML2_OUT
   OUTPUT_VARIABLE PYLIBXML2_ERR)
