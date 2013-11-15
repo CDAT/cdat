@@ -70,5 +70,5 @@ macosx = False
 # if you have disabled the relevent extension modules.  Agg will be used
 # by default.
 #
-#backend = Agg
+backend = Qt4Agg
 #

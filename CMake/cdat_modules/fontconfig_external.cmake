@@ -1,3 +1,4 @@
+include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
 
 set(fontconfig_source "${CMAKE_CURRENT_BINARY_DIR}/build/fontconfig")
 set(fontconfig_install "${cdat_EXTERNALS}")
