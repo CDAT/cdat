@@ -6,6 +6,7 @@ TransientVariable (created by createVariable)
 is a child of both AbstractVariable and the masked array class.
 Contains also the write part of the old cu interface.
 """
+import json
 import re
 import types
 import typeconv
@@ -29,6 +30,29 @@ except:
 
 
 id_builtin = id                         # built_in gets clobbered by keyword
+
+def fromJSON(jsn):
+    """ Recreate a TV from a dumped jsn object"""
+    D = json.loads(jsn)
+
+    ## First recreates the axes
+    axes=[]
+    for a in D["_axes"]:
+        ax = createAxis(numpy.array(a["_values"],dtype=a["_dtype"]),id=a["id"])
+        for k,v in a.iteritems():
+            if not k in ["_values","id","_dtype"]:
+                setattr(ax,k,v)
+        axes.append(ax)
+    ## Now prep the variable
+    V= createVariable(D["_values"],id=D["id"],typecode=D["_dtype"])
+    V.setAxisList(axes)
+    for k,v in D.iteritems():
+        if not k in ["id","_values","_axes","_grid","_fill_value","_dtype",]:
+            setattr(V,k,v)
+            print k,v
+    V.set_fill_value(D["_fill_value"])
+    return V
+
 
 class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
     "An in-memory variable."
@@ -175,7 +199,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         # Sync up missing_value attribute and the fill value.
         self.missing_value = fv
         if id is not None:
-            if type(id) is not types.StringType:
+            if not isinstance(id,(unicode,str)): 
                 raise CDMSError, 'id must be a string'
             self.id = id
         elif hasattr(data,'id'):
@@ -479,6 +503,33 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         result = createVariable(self, copy=copyData)
         return result
 
+    def dumps(self,*args,**kargs):
+        ## Probably need something for curv/gen grids
+        """ Dumps Variable to a jason object, args are passed directly to json.dump"""
+        J={}
+        for k,v in self.attributes.iteritems():
+            if k=="autoApiInfo":
+                continue
+            J[k]=v
+        print "JID:",type(self.id)
+        J['id']=self.id
+        axes=[]
+        for a in self.getAxisList():
+            ax={}
+            for A,v in a.attributes.iteritems():
+                ax[A]=v
+            ax['id']=a.id
+            ax["_values"]=a[:].tolist()
+            ax["_dtype"]=a[:].dtype.char
+            axes.append(ax)
+        J["_axes"]=axes
+        J["_values"]=self[:].filled(self.fill_value).tolist()
+        J["_fill_value"]=float(self.fill_value)
+        J["_dtype"]=self.typecode()
+        J["_grid"]=None #self.getGrid()
+        print "ARGS:",args,kargs
+        return json.dumps(J,*args,**kargs)
+
     def isEncoded(self):
         "Transient variables are not encoded"
         return 0
@@ -771,7 +822,11 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
 ## PropertiedClasses.set_property(TransientVariable, 'shape', 
 ##                                nowrite=1, nodelete=1)
 
-createVariable = TransientVariable
+def createVariable(*args,**kargs):
+    if kargs.get("fromJSON",False):
+        return fromJSON(*args)
+    else:
+        return TransientVariable(*args,**kargs)
 
 def isVariable (s):
     "Is s a variable?"
