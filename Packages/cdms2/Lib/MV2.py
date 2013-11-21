@@ -403,6 +403,7 @@ def average (a, axis=None, weights=None, returned=False):
     maresult = numpy.ma.average(ta, axis, weights, returned)
     axes, attributes, id, grid = _extractMetadata(a, omit=axis, omitall=(axis is None))
     if returned: maresult, wresult = maresult
+    F=getattr(a,"fill_value",1.e20)
     r1 = TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id,no_update_from=True, fill_value=F)
     if returned:
         F=getattr(a,"fill_value",1.e20)
