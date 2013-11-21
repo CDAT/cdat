@@ -417,12 +417,8 @@ include(visit_pkg)
 include(vistrails_pkg)
 include(wget_pkg)
 include(yasm_pkg)
-<<<<<<< HEAD
-include(zlib_pkg)
 include(pylibxml2_pkg)
-=======
-#include(zlib_pkg)
->>>>>>> lesser_pip_no_distribute
+include(zlib_pkg)
 include(cdatlogger_pkg)
 
 # Configure custom configure/build/install step files
