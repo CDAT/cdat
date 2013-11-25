@@ -1,5 +1,5 @@
 set(PIP_MAJOR_SRC 1)
-set(PIP_MINOR_SRC 3)
+set(PIP_MINOR_SRC 2)
 set(PIP_PATCH_SRC 1)
 
 set (nm PIP)

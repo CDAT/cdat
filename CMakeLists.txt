@@ -398,7 +398,8 @@ include(r_pkg)
 include(scikits_pkg)
 include(scipy_pkg)
 include(setuptools_pkg)
-include(distribute_pkg)
+## Part of setuptools no need to extra build it
+## include(distribute_pkg)
 include(pip_pkg)
 include(shapely_pkg)
 include(sip_pkg)
@@ -416,7 +417,7 @@ include(visit_pkg)
 include(vistrails_pkg)
 include(wget_pkg)
 include(yasm_pkg)
-include(zlib_pkg)
+#include(zlib_pkg)
 include(cdatlogger_pkg)
 
 # Configure custom configure/build/install step files
