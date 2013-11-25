@@ -419,6 +419,10 @@ include(wget_pkg)
 include(yasm_pkg)
 #include(zlib_pkg)
 include(cdatlogger_pkg)
+if (CDAT_BUILD_ESGF)
+    include(lxml)
+endif()
+
 
 # Configure custom configure/build/install step files
 #-----------------------------------------------------------------------------
