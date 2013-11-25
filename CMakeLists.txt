@@ -419,7 +419,7 @@ include(yasm_pkg)
 include(zlib_pkg)
 include(cdatlogger_pkg)
 if (CDAT_BUILD_ESGF)
-    include(lxml)
+    include(lxml_pkg)
 endif()
 
 
