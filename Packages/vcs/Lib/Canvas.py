@@ -8416,7 +8416,7 @@ class animate_obj_old:
    # This will cause the Python program to wait for the create function		#
    # to finish before moving onto the next command line.			#
    ##############################################################################
-   def create( self, parent=None, min=None, max=None, save_file=None, thread_it = 1, rate=5., bitrate=None, ffmpegoptions='' ):
+   def create( self, parent=None, min=None, max=None, save_file=None, thread_it = 1, rate=None, bitrate=None, ffmpegoptions='' ):
       from vcs import minmax
       from numpy.ma import maximum,minimum
       ##from tkMessageBox import showerror
@@ -9183,6 +9183,8 @@ class animate_obj(animate_obj_old):
     def save(self,movie,bitrate=1024, rate=None, options=''):
         if self.create_flg == 1:
             fnms = os.path.join(os.environ["HOME"],".uvcdat","__uvcdat_%i_%%d.png" %      (self.animation_seed))
+            if rate is None:
+                rate = self.fps()
             self.vcs_self.ffmpeg(movie, fnms, bitrate, rate, options)
 
     def number_of_frames(self):
