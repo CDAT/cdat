@@ -1,0 +1,8 @@
+set(markupsafe_MAJOR_SRC 0)
+set(markupsafe_MINOR_SRC 18)
+set(markupsafe_PATCH_SRC )
+set(MARKUPSAFE_VERSION ${markupsafe_MAJOR_SRC}.${markupsafe_MINOR_SRC})
+set(MARKUPSAFE_GZ MarkupSafe-${MARKUPSAFE_VERSION}.tar.gz)
+set(MARKUPSAFE_SOURCE ${LLNL_URL}/${MARKUPSAFE_GZ})
+set(MARKUPSAFE_MD5 f8d252fd05371e51dec2fe9a36890687)
+add_cdat_package_dependent(markupsafe "" "" ON "CDAT_BUILD_GUI" OFF)
