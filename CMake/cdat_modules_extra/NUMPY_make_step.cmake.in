@@ -1,6 +1,6 @@
-message("Building NUMPY:\n@NUMPY_binary@")
 set(ENV{@LIBRARY_PATH@} "@CMAKE_INSTALL_PREFIX@/lib:@cdat_EXTERNALS@/lib:$ENV{@LIBRARY_PATH@}")
 set(ENV{VS_UNICODE_OUTPUT} "")
+set(ENV{LDFLAGS} "$ENV{LDFLAGS} -shared")
 
 if(APPLE)
     set(ENV{CFLAGS} "@cdat_osx_arch_flag@ @cdat_osx_version_flag@ @cdat_osx_sysroot@")
@@ -14,7 +14,6 @@ execute_process(
   OUTPUT_VARIABLE NUMPY_ERR)
 
 if(NOT ${res} EQUAL 0)
-  message("NUMPY Errors detected: \n${NUMPY_OUT}\n${NUMPY_ERR}")
-  message(FATAL_ERROR "Error in config of NUMPY")
+  message("[ERROR] NUMPY Errors detected: \n${NUMPY_OUT}\n${NUMPY_ERR}")
+  message(FATAL_ERROR "[ERROR] Error in config of NUMPY")
 endif()
-message("Numpy build worked.")
