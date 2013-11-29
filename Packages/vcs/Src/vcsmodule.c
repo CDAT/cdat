@@ -1607,6 +1607,7 @@ PyVCS_canvasinfo(PyVCScanvas_Object *self, PyObject *args)
 	int map_state;
 	int depth;
         unsigned int num_child_windows; /* variable will store the number of child windows of our window */
+        extern int XW,YW;
 
         /* Check to see if vcs has been initalized */
         if (self == NULL) {
@@ -1620,8 +1621,11 @@ PyVCS_canvasinfo(PyVCScanvas_Object *self, PyObject *args)
 #else
 	  if (self->connect_id.cr == NULL) {
 #endif
-           PyErr_SetString(PyExc_TypeError, "Must have VCS Canvas opened before querying window information.");
-           return NULL;
+              /* No Canvas up, will send bg dims instead */
+
+           /* PyErr_SetString(PyExc_TypeError, "Must have VCS Canvas opened before querying window information."); */
+           /* return NULL; */
+            return Py_BuildValue("{s:i, s:i, s:i, s:i, s:i s:i}", "width",XW, "height",YW, "depth",0, "mapstate",0, "x",0, "y",0);
         }
 #ifdef X11WM
         /* query the window's attributes */
