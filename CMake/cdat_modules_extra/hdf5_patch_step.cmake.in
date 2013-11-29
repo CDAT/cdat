@@ -1,0 +1,5 @@
+execute_process(
+  COMMAND
+  @CMAKE_COMMAND@ -E copy_if_different @cdat_SOURCE_DIR@/exsrc/src/h5diff_correct_ansi.c ${WORKING_DIR}/tools/lib/h5diff.c
+)
+
