@@ -8426,7 +8426,7 @@ class animate_obj_old:
    # This will cause the Python program to wait for the create function		#
    # to finish before moving onto the next command line.			#
    ##############################################################################
-   def create( self, parent=None, min=None, max=None, save_file=None, thread_it = 1, rate=5., bitrate=None, ffmpegoptions='' ):
+   def create( self, parent=None, min=None, max=None, save_file=None, thread_it = 1, rate=None, bitrate=None, ffmpegoptions='' ):
       from vcs import minmax
       from numpy.ma import maximum,minimum
       ##from tkMessageBox import showerror
@@ -8950,7 +8950,6 @@ class animate_obj(animate_obj_old):
 
     def __init__(self, vcs_self):
         animate_obj_old.__init__(self,vcs_self)
-        self.pause_value = .1
         self.zoom_factor = 1.
         self.vertical_factor = 0
         self.horizontal_factor = 0
@@ -8960,7 +8959,7 @@ class animate_obj(animate_obj_old):
         self.animation_files = []
         self.runTimer = QtCore.QTimer() #used to run the animation
         self.runTimer.timeout.connect(self.next)
-        self.pause(self.pause_value) #sets runTimer interval
+        self.fps(10) #sets runTimer interval
         self.current_frame = 0
         self.loop = True
         self.signals = self.AnimationSignals() #holds signals, since we are not a QObject
@@ -9197,6 +9196,8 @@ class animate_obj(animate_obj_old):
     def save(self,movie,bitrate=1024, rate=None, options=''):
         if self.create_flg == 1:
             fnms = os.path.join(os.environ["HOME"],".uvcdat","__uvcdat_%i_%%d.png" %      (self.animation_seed))
+            if rate is None:
+                rate = self.fps()
             self.vcs_self.ffmpeg(movie, fnms, bitrate, rate, options)
 
     def number_of_frames(self):
@@ -9206,9 +9207,8 @@ class animate_obj(animate_obj_old):
         self.pause_run()
         self.current_frame = 0
 
-    def pause(self,value):
-        self.pause_value = value
-        self.runTimer.setInterval(value*1000)
+    def pause(self, value):
+        self.fps(1/value)
 
     def zoom(self,value):
         self.zoom_factor = value
@@ -9218,6 +9218,13 @@ class animate_obj(animate_obj_old):
 
     def vertical(self,value):
         self.vertical_factor = value
+
+    def fps(self, value=None):
+        if value is not None:
+            self.frames_per_second = value
+            self.runTimer.setInterval(1000/value)
+            return self
+        return self.frames_per_second
 
     
 ############################################################################
