@@ -1,10 +1,6 @@
 # The python bindings to libxml2 external project 
-
 set(PYLIBXML2_binary "${CMAKE_CURRENT_BINARY_DIR}/build/PYLIBXML2")
 
-# to build numpy we also run a cmake -P script.
-# the script will set LD_LIBRARY_PATH so that 
-# python can run after it is built on linux
 configure_file(
   ${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/PYLIBXML2_make_step.cmake.in
   ${cdat_CMAKE_BINARY_DIR}/PYLIBXML2_make_step.cmake @ONLY
@@ -18,7 +14,7 @@ configure_file(
 set(PYLIBXML2_BUILD_COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/PYLIBXML2_make_step.cmake)
 set(PYLIBXML2_INSTALL_COMMAND ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/PYLIBXML2_install_step.cmake)
 
-# create an external project to download libxml2python bindings,
+# Create an external project to download libxml2python bindings,
 # and configure and build it
 ExternalProject_Add(PYLIBXML2
   URL ${PYLIBXML2_URL}/${PYLIBXML2_GZ}
