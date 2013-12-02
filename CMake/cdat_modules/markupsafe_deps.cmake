@@ -1,1 +1,1 @@
-set(jinja2_deps ${pip_pkg} ${pygments_pkg})
+set(markupsafe_deps ${pip_pkg} ${pygments_pkg})
