@@ -9210,6 +9210,7 @@ class animate_obj(animate_obj_old):
         self.current_frame = 0
 
     def pause(self, value):
+        value = max(value, 0.0001)
         self.fps(1/value)
 
     def zoom(self,value):
@@ -9223,6 +9224,7 @@ class animate_obj(animate_obj_old):
 
     def fps(self, value=None):
         if value is not None:
+            value = max(value, 0.0001)
             self.frames_per_second = value
             self.runTimer.setInterval(1000/value)
             return self
