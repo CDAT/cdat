@@ -1,5 +1,5 @@
 # The python bindings to libxml2 external project 
-set(PYLIBXML2_binary "${CMAKE_CURRENT_BINARY_DIR}/build/PYLIBXML2")
+set(PYLIBXML2_binary "${CMAKE_CURRENT_BINARY_DIR}/build/libxml2")
 
 configure_file(
   ${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/PYLIBXML2_make_step.cmake.in
