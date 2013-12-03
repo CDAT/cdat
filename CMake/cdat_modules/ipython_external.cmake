@@ -1,6 +1,6 @@
 
 # create an external project to install MyProxyClient,
 # and configure and build it
-set(nm ipython)
+set(nm IPYTHON)
 
 include(pipinstaller)
