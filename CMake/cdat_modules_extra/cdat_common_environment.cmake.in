@@ -27,7 +27,7 @@ set(ENV{EXTERNALS} "@cdat_EXTERNALS@")
 
 if ("@EGG_INSTALLER@" STREQUAL "PIP")
     # Set python userbase so that pip install packages locally
-    set(PYTHONUSERBASE @cdat_EXTERNALS@)
+    set(PYTHONUSERBASE @CMAKE_INSTALL_PREFIX@)
     set(EGG_CMD env @LIBRARY_PATH@=$ENV{@LIBRARY_PATH@} PYTHONUSERBASE=${PYTHONUSERBASE} @PIP_BINARY@ install --user -v --download-cache @CDAT_PACKAGE_CACHE_DIR@ )
     if (NOT "${PIP_CERTIFICATE}" STREQUAL "")
         set(EGG_CMD ${EGG_CMD} --cert=${PIP_CERTIFICATE})
