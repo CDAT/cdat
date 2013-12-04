@@ -1,1 +1,1 @@
-set(pixman_deps ${pkgconfig_pkg})
+set(pixman_deps ${pkgconfig_pkg} ${zlib_pkg})
