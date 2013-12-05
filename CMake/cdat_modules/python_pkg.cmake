@@ -18,9 +18,9 @@ set(CDAT_OS_XTRA_PATH "")
 
 set(PYTHON_SITE_PACKAGES ${CMAKE_INSTALL_PREFIX}/lib/python${PYVER}/site-packages)
 if (APPLE)
-  set(PYTHON_SITE_PACKAGES ${CMAKE_INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/${PYVER}/lib/python${PYVER}/site-packages)
+  set(PYTHON_SITE_PACKAGES ${CMAKE_INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/${PYVER})
 endif()
-set(PYTHONPATH ${PYTHON_SITE_PACKAGES})
+set(PYTHONPATH ${PYTHON_SITE_PACKAGES}/lib/python${PYVER}/site-packages:${PYTHON_SITE_PACKAGES}/lib/python/site-packages)
 
 if (CDAT_USE_SYSTEM_PYTHON)
    include(FindPythonInterp)
