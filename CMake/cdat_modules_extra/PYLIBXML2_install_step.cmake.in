@@ -1,0 +1,21 @@
+message("Installing PYLIBXML2:\n@PYLIBXML2_PREFIX_ARGS@")
+include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
+set(ENV{@LIBRARY_PATH@} "@CMAKE_INSTALL_PREFIX@/lib:@cdat_EXTERNALS@/lib:$ENV{@LIBRARY_PATH@}")
+
+if(APPLE)
+    set(ENV{CFLAGS} "@cdat_osx_arch_flag@ @cdat_osx_version_flag@ @cdat_osx_sysroot@")
+endif()
+
+execute_process(
+  COMMAND env  @LIBRARY_PATH@="$ENV{LD_LIBRARY_PATH}" "@PYTHON_EXECUTABLE@" setup.py install @PYTHON_EXTRA_PREFIX@
+  WORKING_DIRECTORY "@PYLIBXML2_binary@/python"
+  RESULT_VARIABLE res
+  OUTPUT_VARIABLE PYLIBXML2_OUT
+  OUTPUT_VARIABLE PYLIBXML2_ERR
+)
+
+if(NOT ${res} EQUAL 0)
+  message("libxml2-python bindings Errors detected: \n${PYLIBXML2_OUT}\n${PYLIBXML2_ERR}")
+  message(FATAL_ERROR "Error in config of PYLIBXML2")
+endif()
+message("libxml2-python bindings install succeeded.")
