@@ -4,6 +4,9 @@ set(ENV{LDFLAGS} "$ENV{LDFLAGS} -shared")
 
 if(APPLE)
     set(ENV{CFLAGS} "@cdat_osx_arch_flag@ @cdat_osx_version_flag@ @cdat_osx_sysroot@")
+    set(ENV{LDFLAGS} "$ENV{LDFLAGS}")
+else()
+    set(ENV{LDFLAGS} "$ENV{LDFLAGS} -shared")
 endif()
 
 execute_process(
