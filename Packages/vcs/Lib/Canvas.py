@@ -4308,6 +4308,13 @@ Example of use:
                        'wname','wunits','bg','ratio']
 
 
+
+    def replot(self):
+        """ Clears and plots with last used plot arguments
+        """
+        self.clear()
+        self.plot(*self.__last_plot_actual_args, **self.__last_plot_keyargs)
+
     ###########################################################################
     #                                                                         #
     # Plot wrapper for VCS.                                                   #
@@ -4431,6 +4438,9 @@ Options:::
 ###############################################################################################################
 
 """
+        self.__last_plot_actual_args = actual_args
+        self.__last_plot_keyargs = keyargs
+
         finish_queued_X_server_requests( self )
         passed_var = keyargs.get("variable",None)
         arglist = _determine_arg_list ( None, actual_args )
@@ -8416,7 +8426,7 @@ class animate_obj_old:
    # This will cause the Python program to wait for the create function		#
    # to finish before moving onto the next command line.			#
    ##############################################################################
-   def create( self, parent=None, min=None, max=None, save_file=None, thread_it = 1, rate=5., bitrate=None, ffmpegoptions='' ):
+   def create( self, parent=None, min=None, max=None, save_file=None, thread_it = 1, rate=None, bitrate=None, ffmpegoptions='' ):
       from vcs import minmax
       from numpy.ma import maximum,minimum
       ##from tkMessageBox import showerror
@@ -8940,7 +8950,6 @@ class animate_obj(animate_obj_old):
 
     def __init__(self, vcs_self):
         animate_obj_old.__init__(self,vcs_self)
-        self.pause_value = .1
         self.zoom_factor = 1.
         self.vertical_factor = 0
         self.horizontal_factor = 0
@@ -8950,7 +8959,7 @@ class animate_obj(animate_obj_old):
         self.animation_files = []
         self.runTimer = QtCore.QTimer() #used to run the animation
         self.runTimer.timeout.connect(self.next)
-        self.pause(self.pause_value) #sets runTimer interval
+        self.fps(10) #sets runTimer interval
         self.current_frame = 0
         self.loop = True
         self.signals = self.AnimationSignals() #holds signals, since we are not a QObject
@@ -8966,6 +8975,7 @@ class animate_obj(animate_obj_old):
                     self.animationFrame = 0
                     self.anim = anim
                     self.dialog = QtGui.QProgressDialog("Creating animation...", "Cancel", 0, 0)
+                    self.dialog.setModal(True)
                     self.dialog.canceled.connect(self.dailogCanceled)
                     
                 def timerEvent(self, event):
@@ -8979,7 +8989,7 @@ class animate_obj(animate_obj_old):
 
                 def dailogCanceled(self):
                     self.animationTimer.stop()
-                    self.anim.signals.canceled.emit()
+                    self.anim.animationCanceled()
 
             global C
             C=crp(self)
@@ -9113,6 +9123,11 @@ class animate_obj(animate_obj_old):
         self.canvas = None
         self.signals.created.emit()
 
+    def animationCanceled(self):
+        self.create_flg = 0
+        self.restore_min_max()
+        self.signals.canceled.emit()
+
     def renderFrame(self, i):
         if self.animation_seed is None:
             self.animation_seed = numpy.random.randint(10000000)
@@ -9122,9 +9137,8 @@ class animate_obj(animate_obj_old):
 
         #BB: this clearing and replotting somehow fixes vcs internal state
         # and prevents segfaults when running multiple animations
-        self.vcs_self.clear()
-        for args in frameArgs:
-            self.vcs_self.plot(*args)
+        self.vcs_self.replot()
+
 
         self.canvas.clear()
         for args in frameArgs:
@@ -9184,6 +9198,8 @@ class animate_obj(animate_obj_old):
     def save(self,movie,bitrate=1024, rate=None, options=''):
         if self.create_flg == 1:
             fnms = os.path.join(os.environ["HOME"],".uvcdat","__uvcdat_%i_%%d.png" %      (self.animation_seed))
+            if rate is None:
+                rate = self.fps()
             self.vcs_self.ffmpeg(movie, fnms, bitrate, rate, options)
 
     def number_of_frames(self):
@@ -9193,9 +9209,8 @@ class animate_obj(animate_obj_old):
         self.pause_run()
         self.current_frame = 0
 
-    def pause(self,value):
-        self.pause_value = value
-        self.runTimer.setInterval(value*1000)
+    def pause(self, value):
+        self.fps(1/value)
 
     def zoom(self,value):
         self.zoom_factor = value
@@ -9205,6 +9220,13 @@ class animate_obj(animate_obj_old):
 
     def vertical(self,value):
         self.vertical_factor = value
+
+    def fps(self, value=None):
+        if value is not None:
+            self.frames_per_second = value
+            self.runTimer.setInterval(1000/value)
+            return self
+        return self.frames_per_second
 
     
 ############################################################################

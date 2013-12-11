@@ -141,7 +141,7 @@ def isMonthly(s):
     return monthly
 
 
-def mergeTime(ds,statusbar=1):
+def mergeTime(ds,statusbar=1,fill_value=1.e20):
     '''
     Merge chronologically a bunch of slab
     Version 1.0
@@ -245,8 +245,9 @@ def mergeTime(ds,statusbar=1):
     t.units=times[0].units
     t.setCalendar(times[0].getCalendar())
     ax[0]=t
-    out=cdms2.createVariable(out,id=ds[0].id,copy=0)
+    out=cdms2.createVariable(out,id=ds[0].id,copy=0,fill_value=fill_value)
     out.setAxisList(ax)
+    out.set_fill_value(fill_value)
     if initialgrid is not None:
         out.setGrid(initialgrid)
     if out.getOrder(ids=1)!=order0:
@@ -1215,7 +1216,7 @@ def insert_monthly_seasons(data,seasons):
             adds.append(tmp)
     if adds!=[]:
         adds.insert(0,data)
-        return mergeTime(adds,statusbar=None)
+        return mergeTime(adds,statusbar=None,fill_value=getattr(data,'fill_value',1.e20))
     return data
     
 class ASeason(TimeSlicer):
@@ -1284,7 +1285,7 @@ class Seasons(ASeason):
                 s.pop(-1)
                 missing_seasons.append(season)
         self.statusbar2(statusbar)
-        m = mergeTime(s,statusbar=statusbar)
+        m = mergeTime(s,statusbar=statusbar,fill_value=getattr(slab,'fill_value',1.e20))
         self.month_restore(m,slab)
         return m
 
@@ -1334,7 +1335,7 @@ class Seasons(ASeason):
         if not statusbar is None and len(self.seasons)!=1 :
             if type(statusbar) in [type([]),type(())]: statusbar.pop(0)
         # Now merges the stuff
-        m = mergeTime(s,statusbar=statusbar)
+        m = mergeTime(s,statusbar=statusbar,fill_value=getattr(slab,'fill_value',1.e20))
         self.month_restore(m,slab)
         return m
                                     
@@ -1414,7 +1415,7 @@ class Seasons(ASeason):
         t.setCalendar(tim.getCalendar())
         ax=slab.getAxisList()
         ax[0]=t
-        s=cdms2.createVariable(s,id=slab.id,copy=0)
+        s=cdms2.createVariable(s,id=slab.id,copy=0,fill_value=getattr(slab,'fill_value',1.e20))
         s.setAxisList(ax)
         if initialgrid is not None:
             s.setGrid(initialgrid)

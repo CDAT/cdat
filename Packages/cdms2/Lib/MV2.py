@@ -377,7 +377,8 @@ def count (a, axis = None):
         ta = _makeMaskedArg(a)
         maresult = numpy.ma.count(ta,axis)
         axes, attributes, id, grid = _extractMetadata(a,omit=axis)
-        return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id)
+        F=getattr(a,"fill_value",1.e20)
+        return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id, fill_value=F)
 
 def sum (a, axis = None, fill_value=0, dtype=None):
     "Sum of elements along a certain axis."
@@ -385,14 +386,16 @@ def sum (a, axis = None, fill_value=0, dtype=None):
     ta = _makeMaskedArg(a)
     maresult = numpy.ma.sum(ta, axis, dtype=dtype)
     axes, attributes, id, grid = _extractMetadata(a, omit=axis, omitall=(axis is None))
-    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id)
+    F=getattr(a,"fill_value",1.e20)
+    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id, fill_value=F)
 
 def product (a, axis = 0, dtype=None):
     "Product of elements along axis."
     ta = _makeMaskedArg(a)
     maresult = numpy.ma.product(ta, axis, dtype=dtype)
     axes, attributes, id, grid = _extractMetadata(a, omit=axis)
-    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id)
+    F=getattr(a,"fill_value",1.e20)
+    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id, fill_value=F)
 
 def average (a, axis=None, weights=None, returned=False):
     axis = _conv_axis_arg(axis)
@@ -400,9 +403,11 @@ def average (a, axis=None, weights=None, returned=False):
     maresult = numpy.ma.average(ta, axis, weights, returned)
     axes, attributes, id, grid = _extractMetadata(a, omit=axis, omitall=(axis is None))
     if returned: maresult, wresult = maresult
-    r1 = TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id,no_update_from=True)
+    F=getattr(a,"fill_value",1.e20)
+    r1 = TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id,no_update_from=True, fill_value=F)
     if returned:
-        w1 = TransientVariable(wresult, axes=axes, grid=grid, id=id,no_update_from=True)
+        F=getattr(a,"fill_value",1.e20)
+        w1 = TransientVariable(wresult, axes=axes, grid=grid, id=id,no_update_from=True, fill_value=F)
         return r1, w1
     else:
         return r1
@@ -413,7 +418,8 @@ def max (a, axis=None):
     ta = _makeMaskedArg(a)
     maresult = numpy.ma.max(ta, axis)
     axes, attributes, id, grid = _extractMetadata(a, omit=axis, omitall=(axis is None))
-    r1 = TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id,no_update_from=True)
+    F=getattr(a,"fill_value",1.e20)
+    r1 = TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id,no_update_from=True, fill_value=F)
     return r1
 max.__doc__ = numpy.ma.max.__doc__
 def min (a, axis=None):
@@ -421,7 +427,8 @@ def min (a, axis=None):
     ta = _makeMaskedArg(a)
     maresult = numpy.ma.min(ta, axis)
     axes, attributes, id, grid = _extractMetadata(a, omit=axis, omitall=(axis is None))
-    r1 = TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id,no_update_from=True)
+    F=getattr(a,"fill_value",1.e20)
+    r1 = TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id,no_update_from=True, fill_value=F)
     return r1
 min.__doc__ = numpy.ma.min.__doc__
 
@@ -433,7 +440,8 @@ def sort (a, axis=-1):
     if (grid is not None) and (sortaxis in grid.getAxisList()):
         grid = None
     axes[axis] = TransientAxis(numpy.arange(len(sortaxis)))
-    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id)
+    F=getattr(a,"fill_value",1.e20)
+    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id, fill_value=F)
 sort.__doc__ = numpy.ma.sort.__doc__ + "The sort axis is replaced with a dummy axis."
 
 def choose (indices, t):
@@ -445,7 +453,8 @@ def choose (indices, t):
       The result has only the default axes.
     """
     maresult = numpy.ma.choose(indices, map(_makeMaskedArg, t))
-    return TransientVariable(maresult)
+    F=getattr(t,"fill_value",1.e20)
+    return TransientVariable(maresult, fill_value=F)
 
 def where (condition, x, y):
     "where(condition, x, y) is x where condition is true, y otherwise" 
@@ -453,7 +462,8 @@ def where (condition, x, y):
 ##    grid = commonGrid(x,y,axes)
     maresult = numpy.ma.where(condition, _makeMaskedArg(x), _makeMaskedArg(y))
     axes, attributes, id, grid = _extractMetadata(condition)
-    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id)
+    F=getattr(x,"fill_value",1.e20)
+    return TransientVariable(maresult, axes=axes, attributes=attributes, grid=grid, id=id, fill_value=F)
 
 def masked_where(condition, x, copy=1):
     """Return x as an array masked where condition is true. 
@@ -463,42 +473,49 @@ def masked_where(condition, x, copy=1):
     tcondition = _makeMaskedArg(condition)
     maresult = numpy.ma.masked_where(tcondition, tx, copy)
     axes, attributes, id, grid = _extractMetadata(x)
-    return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid)
+    F=getattr(x,"fill_value",1.e20)
+    return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid, fill_value=F)
 
 def masked_greater(x, value):
     "masked_greater(x, value) = x masked where x > value"
     tx = _makeMaskedArg(x)
     maresult = numpy.ma.masked_greater(tx, value)
     axes, attributes, id, grid = _extractMetadata(x)
-    return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid)
+    F=getattr(x,"fill_value",1.e20)
+    return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid, fill_value=F)
+
 
 def masked_greater_equal(x, value):
     "masked_greater_equal(x, value) = x masked where x >= value"
     tx = _makeMaskedArg(x)
     maresult = numpy.ma.masked_greater_equal(tx, value)
     axes, attributes, id, grid = _extractMetadata(x)
-    return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid)
+    F=getattr(x,"fill_value",1.e20)
+    return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid, fill_value=F)
 
 def masked_less(x, value):
     "masked_less(x, value) = x masked where x < value"
     tx = _makeMaskedArg(x)
     maresult = numpy.ma.masked_less(tx, value)
     axes, attributes, id, grid = _extractMetadata(x)
-    return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid)
+    F=getattr(x,"fill_value",1.e20)
+    return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid, fill_value=F)
 
 def masked_less_equal(x, value):
     "masked_less_equal(x, value) = x masked where x <= value"
     tx = _makeMaskedArg(x)
     maresult = numpy.ma.masked_less_equal(tx, value)
     axes, attributes, id, grid = _extractMetadata(x)
-    return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid)
+    F=getattr(x,"fill_value",1.e20)
+    return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid, fill_value=F)
 
 def masked_not_equal(x, value):
     "masked_not_equal(x, value) = x masked where x != value"
     tx = _makeMaskedArg(x)
     maresult = numpy.ma.masked_not_equal(tx, value)
     axes, attributes, id, grid = _extractMetadata(x)
-    return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid)
+    F=getattr(x,"fill_value",1.e20)
+    return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid, fill_value=F)
 
 def masked_equal(x, value):
     """masked_equal(x, value) = x masked where x == value
@@ -507,21 +524,24 @@ def masked_equal(x, value):
     tx = _makeMaskedArg(x)
     maresult = numpy.ma.masked_equal(tx, value)
     axes, attributes, id, grid = _extractMetadata(x)
-    return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid)
+    F=getattr(x,"fill_value",1.e20)
+    return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid, fill_value=F)
 
 def masked_outside(x, v1, v2):
     "x with mask of all values of x that are outside [v1,v2]"
     tx = _makeMaskedArg(x)
     maresult = numpy.ma.masked_outside(tx, v1, v2)
     axes, attributes, id, grid = _extractMetadata(x)
-    return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid)
+    F=getattr(x,"fill_value",1.e20)
+    return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid, fill_value=F)
 
 def masked_inside(x, v1, v2):
     "x with mask of all values of x that are inside [v1,v2]"
     tx = _makeMaskedArg(x)
     maresult = numpy.ma.masked_inside(tx, v1, v2)
     axes, attributes, id, grid = _extractMetadata(x)
-    return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid)
+    F=getattr(x,"fill_value",1.e20)
+    return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid, fill_value=F)
 
 def concatenate (arrays, axis=0, axisid=None, axisattributes=None):
     """Concatenate the arrays along the given axis. Give the extended axis the id and
@@ -572,7 +592,8 @@ def concatenate (arrays, axis=0, axisid=None, axisattributes=None):
         for item in grid.getAxisList():
             if item not in axes:
                 grid = None
-    return TransientVariable(maresult, axes=axes, attributes=varattributes,id=varid,grid=grid)
+    F=getattr(arrays[0],"fill_value",1.e20)
+    return TransientVariable(maresult, axes=axes, attributes=varattributes,id=varid,grid=grid, fill_value=F)
 
 def take (a, indices, axis=None):
     "take(a, indices, axis=None) returns selection of items from a."
@@ -588,7 +609,8 @@ def take (a, indices, axis=None):
         grid = None
     if axes is not None:
         axes[axis] = axisTake(axes[axis], indices)
-    return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid)
+    F=getattr(a,"fill_value",1.e20)
+    return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid, fill_value=F)
 
 def transpose(a, axes=None):
     "transpose(a, axes=None) reorder dimensions per tuple axes"
@@ -601,7 +623,8 @@ def transpose(a, axes=None):
     newaxes = None
     if oldaxes is not None:
         newaxes = [oldaxes[i] for i in axes]
-    return TransientVariable(maresult, axes=newaxes, attributes=attributes, id=id, grid=grid, copy=1)
+    F=getattr(a,"fill_value",1.e20)
+    return TransientVariable(maresult, axes=newaxes, attributes=attributes, id=id, grid=grid, copy=1, fill_value=F)
 
 class _minimum_operation:
     "Object to calculate minima"
@@ -723,7 +746,8 @@ def asarray(data, typecode=None, dtype=None):
     if isinstance(data, AbstractVariable) and (dtype is None or sctype2char(dtype) == data.dtype.char):
         return data
     else:
-        return TransientVariable(data, dtype=dtype, copy=0)
+        F=getattr(data,"fill_value",1.e20)
+        return TransientVariable(data, dtype=dtype, copy=0, fill_value=F)
 
 def arrayrange(start, stop=None, step=1, typecode=None, axis=None, attributes=None, id=None, dtype=None):
     """Just like range() except it returns a variable whose type can be specfied
@@ -760,7 +784,8 @@ def outerproduct(a, b):
     tb = asVariable(b,writeable=1)
     maresult = numpy.ma.outerproduct(ta,tb)
     axes = (ta.getAxis(0),tb.getAxis(0))
-    return TransientVariable(maresult, axes=axes)
+    F=getattr(a,"fill_value",1.e20)
+    return TransientVariable(maresult, axes=axes, fill_value=F)
 
 def argsort (x, axis = -1, fill_value=None):
     """Treating masked values as if they have the value fill_value,
@@ -770,7 +795,8 @@ def argsort (x, axis = -1, fill_value=None):
     tx = _makeMaskedArg(x)
     maresult = numpy.ma.argsort(tx,axis=axis,fill_value=fill_value)
     axes, attributes, id, grid = _extractMetadata(x)
-    return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid)
+    F=getattr(x,"fill_value",1.e20)
+    return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid, fill_value=F)
 
 array = TransientVariable
 
@@ -787,7 +813,8 @@ def repeat(a, repeats, axis=None):
         grid = None
     if axes is not None:
         axes[axis] = None
-    return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid, no_update_from=True)
+    F=getattr(a,"fill_value",1.e20)
+    return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid, no_update_from=True, fill_value=F)
 
 def reshape (a, newshape, axes=None, attributes=None, id=None, grid=None):
     ignore, attributes, id, ignore = _extractMetadata(a, axes, attributes, id)
@@ -797,7 +824,8 @@ def reshape (a, newshape, axes=None, attributes=None, id=None, grid=None):
             raise CDMSError, 'axes must be shaped %s'%`newshape`
     ta = _makeMaskedArg(a)
     maresult = numpy.ma.reshape(ta, newshape)
-    return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid, no_update_from=True)
+    F=getattr(a,"fill_value",1.e20)
+    return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid, no_update_from=True, fill_value=F)
 reshape.__doc__="numpy doc: %s\naxes/attributes/grid are applied onto the new variable" % numpy.reshape.__doc__
 
 def resize (a, new_shape, axes=None, attributes=None, id=None, grid=None):
@@ -810,7 +838,8 @@ def resize (a, new_shape, axes=None, attributes=None, id=None, grid=None):
             raise CDMSError, 'axes must be shaped %s'%`newshape`
     ta = _makeMaskedArg(a)
     maresult = numpy.ma.resize(ta, new_shape)
-    return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid)
+    F=getattr(a,"fill_value",1.e20)
+    return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid, fill_value=F)
 
 def masked_array (a, mask=None, fill_value=None, axes=None, attributes=None, id=None):
     """masked_array(a, mask=None) = 
@@ -819,7 +848,8 @@ def masked_array (a, mask=None, fill_value=None, axes=None, attributes=None, id=
     """
     maresult = numpy.ma.masked_array(_makeMaskedArg(a), mask=mask, fill_value=fill_value)
     axes, attributes, id, grid = _extractMetadata(a, axes, attributes, id)
-    return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid)
+    F=getattr(a,"fill_value",1.e20)
+    return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid, fill_value=F)
 
 def masked_values (data, value, rtol=1.e-5, atol=1.e-8, copy=1,
     savespace=0, axes=None, attributes=None, id=None): 
@@ -831,13 +861,15 @@ def masked_values (data, value, rtol=1.e-5, atol=1.e-8, copy=1,
     """
     maresult = numpy.ma.masked_values(_makeMaskedArg(data), value, rtol=rtol, atol=atol, copy=copy)
     axes, attributes, id, grid = _extractMetadata(data, axes, attributes, id)
-    return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid)
+    F=getattr(data,"fill_value",1.e20)
+    return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid, fill_value=F)
 
 def masked_object (data, value, copy=1, savespace=0, axes=None, attributes=None, id=None):
     "Create array masked where exactly data equal to value"
     maresult = numpy.ma.masked_object(_makeMaskedArg(data), value, copy=copy)
     axes, attributes, id, grid = _extractMetadata(data, axes, attributes, id)
-    return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid)
+    F=getattr(data,"fill_value",1.e20)
+    return TransientVariable(maresult, axes=axes, attributes=attributes, id=id, grid=grid, fill_value=F)
     
 def isMaskedVariable (x):
     "Is x a masked variable, that is, an instance of AbstractVariable?"
@@ -867,8 +899,9 @@ def diagonal (a, offset = 0, axis1=0, axis2 = 1):
     """diagonal(a, offset=0, axis1=0, axis2 = 1) returns the given 
        diagonals defined by the two dimensions of the array.
     """
+    F=getattr(data,"fill_value",1.e20)
     return TransientVariable(numpy.ma.diagonal(_makeMaskedArg(a), 
-            offset, axis1, axis2))
+            offset, axis1, axis2), fill_value=F)
 
 def fromstring (s, t):
     """Construct a masked array from a string. Result will have no mask.

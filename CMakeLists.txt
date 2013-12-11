@@ -419,7 +419,12 @@ include(vistrails_pkg)
 include(wget_pkg)
 include(yasm_pkg)
 include(zlib_pkg)
+include(pylibxml2_pkg)
 include(cdatlogger_pkg)
+if (CDAT_BUILD_ESGF)
+    include(lxml_pkg)
+endif()
+
 
 # Configure custom configure/build/install step files
 #-----------------------------------------------------------------------------
