@@ -39,4 +39,4 @@ ExternalProject_Add(${nm}
 )
 
 # Reset it
-set(GIT_CMD_STR )
+unset(GIT_CMD_STR )
