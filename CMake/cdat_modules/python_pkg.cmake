@@ -16,7 +16,7 @@ add_cdat_package(Python ${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.${PYTHON_PATCH_S
 # FIXME: Name style
 set(CDAT_OS_XTRA_PATH "")
 
-set(PYTHON_SITE_PACKAGES ${CMAKE_INSTALL_PREFIX}/lib/python${PYVER}/site-packages)
+set(PYTHON_SITE_PACKAGES ${CMAKE_INSTALL_PREFIX})
 if (APPLE)
   set(PYTHON_SITE_PACKAGES ${CMAKE_INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/${PYVER})
 endif()
