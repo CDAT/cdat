@@ -9,7 +9,7 @@ ExternalProject_Add(gdal
   URL_MD5 ${GDAL_MD5}
   BUILD_IN_SOURCE 1
   PATCH_COMMAND ""
-  CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR> --with-python
+  CONFIGURE_COMMAND <SOURCE_DIR>/configure --prefix=<INSTALL_DIR>
   DEPENDS "${gdal_deps}"
   ${ep_log_options}
 )

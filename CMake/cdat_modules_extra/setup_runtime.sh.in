@@ -20,7 +20,7 @@ if [ ${_os} == "Darwin" ]; then
     PATH=${INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/@PYVER@/bin:${PATH}
 fi
 
-export PYTHON_SITEPACKAGES_DIR=${SB_LIB_DIR}/python@PYVER@/site-packages
+export PYTHON_SITEPACKAGES_DIR=${SB_LIB_DIR}/python@PYVER@/site-packages:${SB_EXTERNALS_DIR}/lib/python/site-packages
 
 PATH=${DIR}:${PATH}
 PATH="${SB_EXTERNALS_DIR}/bin":${PATH}

@@ -1,1 +1,1 @@
-set(pip_deps  ${distribute_pkg})
+set(pip_deps  ${setuptools_pkg})
