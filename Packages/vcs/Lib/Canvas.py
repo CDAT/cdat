@@ -9140,7 +9140,10 @@ class animate_obj(animate_obj_old):
         self.vcs_self.replot()
 
 
+
         self.canvas.clear()
+        self.vcs_self.plot(*frameArgs[0],bg=1)
+        self.vcs_self.clear()
         for args in frameArgs:
             self.canvas.plot(*args, bg=1)
         self.canvas.png(fn)
