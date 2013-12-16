@@ -6645,7 +6645,7 @@ Options:::
     # png wrapper for VCS.                                                   #
     #                                                                        #
     ##########################################################################
-    def png(self, file, width=None,height=None,units=None):
+    def png(self, file, width=None,height=None,units=None,draw_white_background = 0):
         """
  Function: png
 
@@ -6668,7 +6668,7 @@ Options:::
             
         if not file.split('.')[-1].lower() in ['png']:
             file+='.png'
-        return apply(self.canvas.png,(file,))
+        return apply(self.canvas.png,(file,draw_white_background))
     #############################################################################
     #                                                                           #
     # pdf wrapper for VCS.                                               #
@@ -9143,7 +9143,7 @@ class animate_obj(animate_obj_old):
         self.canvas.clear()
         for args in frameArgs:
             self.canvas.plot(*args, bg=1)
-        self.canvas.png(fn)
+        self.canvas.png(fn,draw_white_background=1)
         #self.canvas.png("sample")
         
     # def runner(self):
