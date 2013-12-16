@@ -15,5 +15,5 @@ set(LIBXSLT_VERSION ${XSLT_VERSION})
 set(LIBXSLT_SOURCE ${XSLT_URL}/${XSLT_GZ})
 set(LIBXSLT_MD5 ${XSLT_MD5})
 
-add_cdat_package(libXSLT "" "" "")
+add_cdat_package(libXSLT "" "Build xslt" ON)
 
