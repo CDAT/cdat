@@ -25,7 +25,7 @@ typedef void    *voidp;
 extern struct orientation       Page;
 extern int XW ;
 extern int YW ;
-extern bool draw_white_background;
+extern int draw_white_background;
 
 extern cairo_status_t stream_cairo_write();
 
@@ -53,8 +53,8 @@ PNGmoOpen(WS_STATE_PTR ws)
           
  
 #ifdef CAIRODRAW     
-      if (draw_white_background) {
-          ws->cr = cairo_create (surface);
+      ws->cr = cairo_create (surface);
+      if (draw_white_background==1) {
           cairo_rectangle(ws->cr,0.0,0.0,XW,YW);
           cairo_set_source_rgb(ws->cr,1.0,1.0,1.0);
           cairo_fill(ws->cr);

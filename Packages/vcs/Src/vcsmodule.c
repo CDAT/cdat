@@ -18964,7 +18964,7 @@ PyVCS_png(PyVCScanvas_Object *self, PyObject *args)
 	/* extern int XW ; */
 	/* extern int YW ; */
 	int ier,draw_white_bg;
-        extern bool draw_white_background;
+        extern int draw_white_background;
 	extern int trimbl();
 	extern int out_meta();
 	extern char meta_type[5];
@@ -19011,12 +19011,7 @@ PyVCS_png(PyVCScanvas_Object *self, PyObject *args)
 	   return NULL;
 	}
 
-        if (draw_white_bg == 0 ) {
-            draw_white_background = false;
-        }
-        else {
-            draw_white_background = true;
-        }
+        draw_white_background = draw_white_bg;
 
 	/* XW = W; */
 	/* YW = H; */
