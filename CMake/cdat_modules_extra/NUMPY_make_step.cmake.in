@@ -1,6 +1,5 @@
 set(ENV{@LIBRARY_PATH@} "@CMAKE_INSTALL_PREFIX@/lib:@cdat_EXTERNALS@/lib:$ENV{@LIBRARY_PATH@}")
 set(ENV{VS_UNICODE_OUTPUT} "")
-set(ENV{LDFLAGS} "$ENV{LDFLAGS} -shared")
 
 if(APPLE)
     set(ENV{CFLAGS} "@cdat_osx_arch_flag@ @cdat_osx_version_flag@ @cdat_osx_sysroot@")
