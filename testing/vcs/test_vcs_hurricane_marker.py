@@ -12,7 +12,8 @@ m.y=[.5]
 m.type=18
 m.size = 24
 m.color=242
-x.plot(m)
+x.plot(m,bg=1)
+x.setbgoutputdimensions(1200,1091,units="pixels")
 x.png("test_vcs_hurricane_marker")
 
 ret = checkimage.check_result_image("test_vcs_hurricane_marker.png",src,0.05)
