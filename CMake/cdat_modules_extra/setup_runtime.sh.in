@@ -25,6 +25,12 @@ export PYTHON_SITEPACKAGES_DIR=${SB_LIB_DIR}/python@PYVER@/site-packages:${SB_EX
 PATH=${DIR}:${PATH}
 PATH="${SB_EXTERNALS_DIR}/bin":${PATH}
 #PATH=${INSTALL_PREFIX}:${PYTHON_SITEPACKAGES_DIR}:${PATH}
+
+if [ ${_os} == "Darwin" ]; then
+ PATH=${SB_EXTERNALS_DIR}/paraview.app/Contents/bin:${PATH}
+ PYTHONPATH=${SB_EXTERNALS_DIR}/paraview.app/Contents/Python:${PYTHONPATH}
+fi
+
 export PATH
 
 export PYTHONPATH=${PYTHON_SITEPACKAGES_DIR}:${SB_EXTERNALS_DIR}/lib:${SB_LIB_DIR}/VisIt-@VISIT_VERSION@/site-packages/:${PYTHONPATH}
