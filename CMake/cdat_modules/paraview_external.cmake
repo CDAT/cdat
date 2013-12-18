@@ -14,6 +14,10 @@ if(UNIX)
   set(ParaView_install_command make install)
 endif()
 
+if(APPLE)
+  set(MACOSX_APP_INSTALL_PREFIX "${SB_EXTERNALS_DIR}") 
+endif()
+
 # Initialize
 set(ParaView_tpl_args)
 
@@ -36,6 +40,7 @@ if (CDAT_BUILD_PARALLEL)
       -DMPI_C_COMPILER:FILEPATH=${cdat_EXTERNALS}/bin/mpicc
       -DMPI_C_INCLUDE_PATH:PATH=${cdat_EXTERNALS}/include
       -DMPI_CXX_INCLUDE_PATH:PATH=${cdat_EXTERNALS}/include
+      -DMACOSX_APP_INSTALL_PREFIX:PATH=${MACOSX_APP_INSTALL_PREFIX}
       -DVTK_MPIRUN_EXE:FILEPATH=${cdat_EXTERNALS}/bin/mpiexec)
   endif()
 endif()
@@ -198,9 +203,9 @@ if(NOT EXISTS ${CMAKE_INSTALL_PREFIX}/lib)
   file(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib)
 endif()
 
-ExternalProject_Add_Step(ParaView InstallParaViewLibSymlink
-  COMMAND ${CMAKE_COMMAND} -E create_symlink ${ParaView_install}/lib/paraview-${PARAVIEW_MAJOR}.${PARAVIEW_MINOR} ${CMAKE_INSTALL_PREFIX}/lib/paraview-${PARAVIEW_MAJOR}.${PARAVIEW_MINOR}
-  DEPENDEES install
-  WORKING_DIRECTORY ${cdat_CMAKE_BINARY_DIR}
-)
+#ExternalProject_Add_Step(ParaView InstallParaViewLibSymlink
+#  COMMAND ${CMAKE_COMMAND} -E create_symlink ${ParaView_install}/lib/paraview-${PARAVIEW_MAJOR}.${PARAVIEW_MINOR} ${CMAKE_INSTALL_PREFIX}/lib/paraview-${PARAVIEW_MAJOR}.${PARAVIEW_MINOR}
+#  DEPENDEES install
+#  WORKING_DIRECTORY ${cdat_CMAKE_BINARY_DIR}
+#)
 
