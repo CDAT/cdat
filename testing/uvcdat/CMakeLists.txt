@@ -25,7 +25,7 @@ add_test(cdms_load_and_plot_axis_variable
   ${CMAKE_BINARY_DIR}/tmp
   ${cdat_SOURCE_DIR}/testing/uvcdat/cdms_test_axis_var.vt:test_plot_axis_var
   "datafile=${cdat_SOURCE_DIR}/libcdms/src/cdunif/test/testnc.nc"
-  cdms_test_axis_var_5.png
+  cdms_test_axis_var_4.png
   uvcdat
   0.05
 )

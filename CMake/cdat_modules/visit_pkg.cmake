@@ -7,4 +7,4 @@ set(VISIT_GZ visit${VISIT_VERSION}.tar.gz)
 set(VISIT_MD5 cb7ff3e7d6e487a11786644a3b49331e )
 set(VISIT_SOURCE ${VISIT_URL}/${VISIT_GZ})
 
-add_cdat_package_dependent(VisIt "" "Build VisIt" ON "CDAT_BUILD_GUI" OFF)
+add_cdat_package_dependent(VisIt "" "Build VisIt" OFF "CDAT_BUILD_GUI" OFF)

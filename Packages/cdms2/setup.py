@@ -12,7 +12,8 @@ for i in range(len(sys.argv)):
         print 'Target is:',target_prefix
 sys.path.insert(0,os.path.join(target_prefix,'lib','python%i.%i' % sys.version_info[:2],'site-packages')) 
 
-sys.path.append(os.environ['BUILD_DIR'])
+sys.path.append(os.environ.get('BUILD_DIR',"build"))
+
 import cdat_info
 import numpy
 

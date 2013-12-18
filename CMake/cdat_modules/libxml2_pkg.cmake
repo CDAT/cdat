@@ -15,5 +15,5 @@ set(LIBXML2_VERSION ${XML_VERSION})
 set(LIBXML2_SOURCE ${XML_URL}/${XML_GZ} )
 set(LIBXML2_MD5 ${XML_MD5})
 
-add_cdat_package(libXML2 "" "" "")
+add_cdat_package(libXML2 "" "Bulid libxml2" ON)
 

@@ -208,4 +208,5 @@ endif()
 #  DEPENDEES install
 #  WORKING_DIRECTORY ${cdat_CMAKE_BINARY_DIR}
 #)
+unset(GIT_CMD_STR)
 

@@ -1,18 +1,5 @@
-set(scikits_source "${CMAKE_CURRENT_BINARY_DIR}/build/scikits")
-set(scikits_install "${cdat_EXTERNALS}")
+# create an external project to install MyProxyClient,
+# and configure and build it
+set(nm scikits)
 
-ExternalProject_Add(scikits
-  DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
-  SOURCE_DIR ${scikits_source}
-  INSTALL_DIR ${scikits_install}
-  URL ${SCIKITS_URL}/${SCIKITS_GZ}
-  URL_MD5 ${SCIKITS_MD5}
-  BUILD_IN_SOURCE 1
-  PATCH_COMMAND ""
-  CONFIGURE_COMMAND ""
-  BUILD_COMMAND env PYTHONPATH=$ENV{PYTHONPATH} LD_LIBRARY_PATH=$ENV{LD_LIBRARY_PATH} ${PYTHON_EXECUTABLE} setup.py build
-  INSTALL_COMMAND env PYTHONPATH=$ENV{PYTHONPATH} LD_LIBRARY_PATH=$ENV{LD_LIBRARY_PATH} ${PYTHON_EXECUTABLE} setup.py install ${PYTHON_EXTRA_PREFIX}
-  DEPENDS ${scikits_deps}
-  ${ep_log_options}
-)
-
+include(pipinstaller)

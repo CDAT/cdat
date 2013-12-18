@@ -404,6 +404,7 @@ include(pip_pkg)
 include(shapely_pkg)
 include(sip_pkg)
 include(pygments_pkg)
+include(markupsafe_pkg)
 include(jinja2_pkg)
 include(docutils_pkg)
 include(sphinx_pkg)
@@ -420,6 +421,10 @@ include(yasm_pkg)
 include(pylibxml2_pkg)
 include(zlib_pkg)
 include(cdatlogger_pkg)
+if (CDAT_BUILD_ESGF)
+    include(lxml_pkg)
+endif()
+
 
 # Configure custom configure/build/install step files
 #-----------------------------------------------------------------------------
