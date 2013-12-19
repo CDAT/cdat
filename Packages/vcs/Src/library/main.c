@@ -85,6 +85,7 @@ int MARGINR=.2*72; /* in inches * 72dpi */
 int MARGINB=.2*72;
 int XW = 806;
 int YW = 614;
+int draw_white_background = 0;
 
     struct func_list
       {
