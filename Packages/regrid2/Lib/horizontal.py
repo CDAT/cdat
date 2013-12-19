@@ -290,7 +290,6 @@ class Horizontal:
 
 class Regridder(Horizontal):
     def __init__(self,ingrid,outgrid):
-        print "in there"
         warnings.warn("While this will work for now, please note that the Regridder class has been renamed Horizontal, the name 'Regridder' will be deprecated in future version. Please edit your code accordingly",Warning)
         Horizontal.__init__(self,ingrid,outgrid)
         

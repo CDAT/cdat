@@ -24,17 +24,17 @@ except:
     markError('Grid shape')
 
 regridf = Regridder(ingrid, outgrid)
-newu = regridf(u, regridTool="regrid2")
+newu = regridf(u)
 
 if (abs(newu[0,0,-1]-488.4763488) > 1.e-3): markError('regrid',newu[0,0,-1])
-newu = u.regrid(outgrid)
+newu = u.regrid(outgrid,regridTool='regrid2')
 if (abs(newu[0,0,-1]-488.4763488) > 1.e-3): markError('regrid',newu[0,0,-1])
 
 # Regrid TV
 tv = u.subSlice(0)
 newtv = regridf(tv)
 if (abs(newtv[0,0,-1]-488.4763488) > 1.e-3): markError('regrid tv',newtv[0,0,-1])
-newtv = tv.regrid(outgrid)
+newtv = tv.regrid(outgrid,regridTool='regrid2')
 if (abs(newtv[0,0,-1]-488.4763488) > 1.e-3): markError('regrid tv',newtv[0,0,-1])
 
 # Regrid numpy.ma
@@ -70,7 +70,7 @@ newar = regridf2(numar)
 if (abs(newar[0][-1]-488.4763488) > 1.e-3): markError('regrid numpy array with grid input mask',newar[0][-1])
 
 # Dataset
-g = cdms2.open(os.path.join(sys.prefix,'sample_data','test.xml'))
+g = cdms2.open(os.path.join(pth,'test.xml'))
 u = g.variables['u']
 outgrid = cdms2.createGaussianGrid(24)
 regridf3 = Regridder(u.getGrid(), outgrid)
