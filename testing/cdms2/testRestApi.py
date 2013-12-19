@@ -57,7 +57,7 @@ else:
     ## for f in dataset[-1].files:
     ##     print f
     
-    print datasets[0].id
+    print datasets[0]
     print myGateway.keys()
 
     ## print datasets[0].files

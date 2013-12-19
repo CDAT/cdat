@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+<!DOCTYPE dataset SYSTEM "http://www-pcmdi.llnl.gov/software/cdms/cdml.dtd">
+<dataset
+	cdms_filemap	="[[[bounds_lat,bounds_lon,lat,lon,sample],[[-,-,-,-,sampleCurveGrid4.nc]]]]"
+	institution	="Program for Climate Model Diagnosis and Intercomparison (PCMDI)"
+	directory	=""
+	Conventions	="CF-1.0"
+	id	="none"
+	history	="[2003-9-9 14:55:26] genSampleCgrid4.py
+[2003-9-10 21:31:3] /idoru/cdat/dev/bin/cdscan -x cdtest13.xml sampleCurveGrid4.nc"
+	>
+	<attr datatype="String" name="source">Analytic data</attr>
+	<attr datatype="String" name="title">Sample data on a curvilinear grid</attr>
+	<axis
+		datatype	="Float"
+		units	=""
+		length	="4"
+		id	="nvert"
+		>
+		[ 0.  1.  2.  3.]
+		</axis>
+	<axis
+		datatype	="Float"
+		units	=""
+		length	="48"
+		id	="x"
+		>
+		[  0.   1.   2.   3.   4.   5.   6.   7.   8.   9.  10.  11.  12.  13.  14.
+       15.  16.  17.  18.  19.  20.  21.  22.  23.  24.  25.  26.  27.  28.
+       29.  30.  31.  32.  33.  34.  35.  36.  37.  38.  39.  40.  41.  42.
+       43.  44.  45.  46.  47.]
+		</axis>
+	<axis
+		datatype	="Float"
+		units	=""
+		length	="32"
+		id	="y"
+		>
+		[  0.   1.   2.   3.   4.   5.   6.   7.   8.   9.  10.  11.  12.  13.  14.
+       15.  16.  17.  18.  19.  20.  21.  22.  23.  24.  25.  26.  27.  28.
+       29.  30.  31.]
+		</axis>
+	<variable
+		datatype	="Double"
+		id	="bounds_lat"
+		>
+		<domain
+			>
+			<domElem start="0" length="32" name="y"/>
+			<domElem start="0" length="48" name="x"/>
+			<domElem start="0" length="4" name="nvert"/>
+			</domain>
+		</variable>
+	<variable
+		datatype	="Double"
+		id	="bounds_lon"
+		>
+		<domain
+			>
+			<domElem start="0" length="32" name="y"/>
+			<domElem start="0" length="48" name="x"/>
+			<domElem start="0" length="4" name="nvert"/>
+			</domain>
+		</variable>
+	<variable
+		datatype	="Double"
+		units	="degrees_north"
+		id	="lat"
+		long_name	="latitude"
+		>
+		<attr datatype="String" name="bounds">bounds_lat</attr>
+		<domain
+			>
+			<domElem start="0" length="32" name="y"/>
+			<domElem start="0" length="48" name="x"/>
+			</domain>
+		</variable>
+	<variable
+		datatype	="Double"
+		units	="degrees_east"
+		id	="lon"
+		long_name	="longitude"
+		>
+		<attr datatype="String" name="bounds">bounds_lon</attr>
+		<domain
+			>
+			<domElem start="0" length="32" name="y"/>
+			<domElem start="0" length="48" name="x"/>
+			</domain>
+		</variable>
+	<variable
+		datatype	="Double"
+		units	="m/s"
+		id	="sample"
+		long_name	="Sample variable"
+		>
+		<attr datatype="String" name="coordinates">lon lat</attr>
+		<domain
+			>
+			<domElem start="0" length="32" name="y"/>
+			<domElem start="0" length="48" name="x"/>
+			</domain>
+		</variable>
+	</dataset>

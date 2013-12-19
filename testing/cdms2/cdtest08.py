@@ -14,7 +14,8 @@ print 'Test 8: Regridding ...',
 ## outgrid = cdms2.createRectGrid(lat,lon,'yx','gaussian')
 outgrid = cdms2.createGaussianGrid(32)
 
-f = cdms2.openDataset(os.path.join(sys.prefix,'sample_data','readonly.nc'))
+pth = os.path.dirname(os.path.abspath(__file__))
+f = cdms2.open(os.path.join(pth,'readonly.nc'))
 u = f.variables['u']
 ingrid = u.getGrid()
 try:
@@ -23,7 +24,7 @@ except:
     markError('Grid shape')
 
 regridf = Regridder(ingrid, outgrid)
-newu = regridf(u)
+newu = regridf(u, regridTool="regrid2")
 
 if (abs(newu[0,0,-1]-488.4763488) > 1.e-3): markError('regrid',newu[0,0,-1])
 newu = u.regrid(outgrid)

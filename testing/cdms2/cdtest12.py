@@ -25,7 +25,9 @@ def testwrap(lon,coord,index):
     if result!=index:
         markError("%s ==> %s, not %s"%(`coord`,`result`,`index`))
 
-f = cdms2.open(os.path.join(sys.prefix,'sample_data','test.xml'))
+pth = os.path.dirname(os.path.abspath(__file__))
+
+f = cdms2.open(os.path.join(pth,'test.xml'))
 lon = f['longitude']
 lat = f['latitude']
 rlat = cdms2.createAxis(lat[::-1], id='latitude')

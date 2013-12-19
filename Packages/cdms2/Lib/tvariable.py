@@ -49,7 +49,6 @@ def fromJSON(jsn):
     for k,v in D.iteritems():
         if not k in ["id","_values","_axes","_grid","_fill_value","_dtype",]:
             setattr(V,k,v)
-            print k,v
     V.set_fill_value(D["_fill_value"])
     return V
 
@@ -511,7 +510,6 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
             if k=="autoApiInfo":
                 continue
             J[k]=v
-        print "JID:",type(self.id)
         J['id']=self.id
         axes=[]
         for a in self.getAxisList():
@@ -527,7 +525,6 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         J["_fill_value"]=float(self.fill_value)
         J["_dtype"]=self.typecode()
         J["_grid"]=None #self.getGrid()
-        print "ARGS:",args,kargs
         return json.dumps(J,*args,**kargs)
 
     def isEncoded(self):
