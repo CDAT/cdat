@@ -2,11 +2,12 @@
 
 #!/usr/bin/env python
 
-import numpy, cdms2, os, cdtime, sys
+import numpy, cdms2, os, cdtime, sys,shutil
 from markError import clearError,markError,reportError
 clearError()
 
 print 'Test 10: Dataset (filemap) ...',
+pth = os.path.dirname(os.path.abspath(__file__))
 
 NYR = 6
 NMO = 12
@@ -53,6 +54,7 @@ os.unlink('cdtest10_uv_2005.nc')
 
 # Test filemap access ...
 try:
+    shutil.copy2(os.path.join(pth,"cdtest10.xml"),"cdtest10.xml")
     f = cdms2.open('cdtest10.xml')
 except Exception,err:
     print err
