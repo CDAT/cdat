@@ -1,7 +1,7 @@
 # Forecast test
 
 print 'Test 19: Forecast I/O ... ',
-
+import sys
 import cdms2, os, numpy
 import cdms2.forecast
 import cdms2.tvariable
@@ -42,7 +42,7 @@ f1.close()
 f2.close()
 f3.close()
 
-os.system("../Script/cdscan -q --forecast -x 'test_fc.xml' test_fc?")
+os.system(sys.prefix+"/bin/cdscan -q --forecast -x 'test_fc.xml' test_fc?")
 
 # Read in the data.
 
@@ -58,8 +58,11 @@ if not vin.id == v1.id : markError("wrong variable ID")
 if not numpy.alltrue( vin[0,:,:]==v1[:,:] ) : markError("wrong variable data for fc1")
 if not numpy.alltrue( vin[1,:,:]==v2[:,:] ) : markError("wrong variable data for fc2")
 if not vin.shape == (2,2,2) : markError("wrong variable shape")
-if not numpy.alltrue( tinaxis._data_ == taxis._data_ ) : markError( "wrong t axis data" )
-if not numpy.alltrue( xinaxis._data_ == xaxis._data_ ) : markError( "wrong x axis data" )
+if not numpy.allclose( tinaxis._data_ , taxis._data_ ) : markError( "wrong t axis data" )
+if not numpy.allclose( xinaxis._data_ , xaxis._data_ ) : markError( "wrong x axis data" )
+tinaxis=vin.getAxis(1)
+print tinaxis
+print tinaxis.isTime()
 if not tinaxis.isTime()==True : markError( "time axis isn't time" )
 if not xinaxis.isTime()==False : markError( "non-time axis is time" )
 if not fcaxis.isTime()==False : markError( "forecast axis is time" )

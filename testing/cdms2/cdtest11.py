@@ -9,14 +9,16 @@ print 'Test 11: MV module (transient variable arithmetic) ... ',
 from markError import NTIME,NLAT,NLON,x,clearError,markError,reportError
 clearError()
 
-d = cdms2.open(os.path.join(sys.prefix,'sample_data','test.xml'))
+pth = os.path.dirname(os.path.abspath(__file__))
+
+d = cdms2.open(os.path.join(pth,'test.xml'))
 ud = d['u']
 vd = d['v']
 udat = ud[:]
 vdat = vd[:]
 ulat = ud.getLatitude()
 if not isinstance(udat, TV): markError('Slice does not return TV')
-f = cdms2.open(os.path.join(sys.prefix,'sample_data','u_2000.nc'))
+f = cdms2.open(os.path.join(pth,'u_2000.nc'))
 uf = f['u']
 
 vel = MV2.sqrt(ud*ud + vd*vd)
