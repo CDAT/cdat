@@ -11,8 +11,9 @@ from cdms2.variable import WriteNotImplemented
 from cdms2.avariable import NotImplemented
 from markError import NTIME,NLAT,NLON,x,clearError,markError,reportError
 clearError()
+pth = os.path.dirname(os.path.abspath(__file__))
 
-f = cdms2.open(os.path.join(sys.prefix,'sample_data','test.xml'))
+f = cdms2.open(os.path.join(pth,'test.xml'))
 if f.id!='test': markError('File id',f.id)
 u = f.variables['u']
 try:

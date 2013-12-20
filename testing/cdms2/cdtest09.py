@@ -6,7 +6,8 @@ except:
     sys.exit()
 from markError import clearError,markError,reportError
 clearError()
-f = cu.open(os.path.join(sys.prefix,'sample_data','test.xml'))
+pth = os.path.dirname(os.path.abspath(__file__))
+f = cu.open(os.path.join(pth,'test.xml'))
 c = f.getslab('u')
 c1 = f.getslab('u', 2.0, 390.0)
 c.createattribute('flavor', 'chocolate')
@@ -20,7 +21,7 @@ assert 'flavor' in c.listattributes()
 c.setdimattribute(0, 'nice', 1)
 assert 'nice' in c.listdimattributes(0)
 assert c.getAxis(0).nice == 1
-g = cdms2.open(os.path.join(sys.prefix,'sample_data','test.xml'))
+g = cdms2.open(os.path.join(pth,'test.xml'))
 gc = g.variables['u']
 assert numpy.ma.allclose(c[...], gc[...])
 assert numpy.ma.allclose(c1[...], gc.getRegion(time=cu.dimensionrange(2.0,390.0)))

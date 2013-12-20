@@ -1,5 +1,7 @@
 import numpy
 import cdms2
+import os
+
 from markError import clearError,markError,reportError
 clearError()
 
@@ -15,6 +17,7 @@ for t in [numpy.byte,numpy.short,numpy.int,numpy.int32,numpy.float,numpy.float32
     f=cdms2.open('test_%s.nc'%data.dtype.char)
     s=f("test")
     f.close()
+    os.unlink("test_%s.nc" % data.dtype.char)
 
 print 'Done'
 cdms2.setNetcdfShuffleFlag(0)
@@ -24,9 +27,9 @@ var = cdms2.createVariable(numpy.array([0], dtype=numpy.int64))
 f = cdms2.open('test.nc', 'w')
 try:
     f.write(var, id='test')
+except Exception,err:
     markError("Writing Netcdf4 type to NetCDF3 format")
-except:
-    pass
+os.unlink("test.nc")
 f.close()
 reportError()
 

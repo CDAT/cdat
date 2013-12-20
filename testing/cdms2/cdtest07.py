@@ -1002,7 +1002,8 @@ if __name__ == '__main__':
 
     argv = string.split('cdtest07.py -q -d test -x junk.xml u_2000.nc u_2001.nc u_2002.nc v_2000.nc v_2001.nc v_2002.nc')
 
-    os.chdir(os.path.join(sys.prefix,'sample_data'))
+    pth = os.path.dirname(os.path.abspath(__file__))
+    os.chdir(pth)
     
     try:
         main(argv)

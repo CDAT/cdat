@@ -9,7 +9,9 @@ clearError()
 
 print 'Test 5: get/sub, time functions ...',
 
-f = cdms2.open(os.path.join(sys.prefix,'sample_data','test.xml'))
+pth = os.path.dirname(os.path.abspath(__file__))
+
+f = cdms2.open(os.path.join(pth,'test.xml'))
 v = f.variables['v']
 vp = x[1,1:,4:12,8:24]
 wp = x[1,2,4:12]
@@ -47,7 +49,7 @@ except IndexError:
      markError('subRegion squeeze option failed')
 
 # mf 20010308 subRegion - extended wrap
-fw = cdms2.open(os.path.join(sys.prefix,'sample_data','ps.wrap.test.0E.nc'))
+fw = cdms2.open(os.path.join(pth,'ps.wrap.test.0E.nc'))
 ps = fw.getVariable('ps')
 ps1 = ps[:,:,36:]
 ps2 = ps[:,:,:37]
@@ -64,7 +66,7 @@ su = u.subRegion(lon=(90,450,'co'))
 if not numpy.ma.allequal(ucat,su): markError('subRegion wrap, test 2')
 
 # negative strides
-fc = cdms2.Cdunif.CdunifFile(os.path.join(sys.prefix,'sample_data','ps.wrap.test.0E.nc'))
+fc = cdms2.Cdunif.CdunifFile(os.path.join(pth,'ps.wrap.test.0E.nc'))
 psc = fc.variables['ps']
 psb = psc[:]
 s3c = psb[0,::-1]

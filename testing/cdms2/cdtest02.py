@@ -9,7 +9,8 @@ from numpy.ma import masked
 from markError import NTIME,NLAT,NLON,x,clearError,markError,reportError
 clearError()
 
-f = cdms2.open(os.path.join(sys.prefix,'sample_data','readonly.nc'))
+pth = os.path.dirname(os.path.abspath(__file__))
+f = cdms2.open(os.path.join(pth,'readonly.nc'))
 u = f.variables['u']
 umasked = f.variables['umasked']
 

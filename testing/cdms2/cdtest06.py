@@ -9,7 +9,9 @@ clearError()
 
 print 'Test 6: TransientVariables ...',
 
-f = cdms2.open(os.path.join(sys.prefix,'sample_data','test.xml'))
+pth = os.path.dirname(os.path.abspath(__file__))
+f = cdms2.open(os.path.join(pth,'test.xml'))
+
 v = f.variables['v']
 vp = x[1,1:,4:12,8:25]
 vp2 = vp[1,1:-1,1:]

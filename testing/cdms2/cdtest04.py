@@ -15,7 +15,8 @@ timestr = ['2000','2001','2002']
 u = x[0]
 
 f = cdms2.createDataset('readwrite.nc')
-h = cdms2.open(os.path.join(sys.prefix,'sample_data','readonly.nc'))
+pth = os.path.dirname(os.path.abspath(__file__))
+h = cdms2.open(os.path.join(pth,'readonly.nc'))
 tobj = f.createAxis('time',numpy.ma.array([time[1]]))
 tobj.units = 'days since 2000-1-1'
 latobj = f.createAxis('latitude',lat)

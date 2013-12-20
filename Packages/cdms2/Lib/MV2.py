@@ -899,7 +899,7 @@ def diagonal (a, offset = 0, axis1=0, axis2 = 1):
     """diagonal(a, offset=0, axis1=0, axis2 = 1) returns the given 
        diagonals defined by the two dimensions of the array.
     """
-    F=getattr(data,"fill_value",1.e20)
+    F=getattr(a,"fill_value",1.e20)
     return TransientVariable(numpy.ma.diagonal(_makeMaskedArg(a), 
             offset, axis1, axis2), fill_value=F)
 
