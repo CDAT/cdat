@@ -277,7 +277,11 @@ set(cdat_cxx_flags ${CMAKE_CXX_FLAGS})
 set(cdat_c_flags ${CMAKE_C_FLAGS})
 
 if(APPLE)
-  set(cdat_rpath_flag -R)
+  if("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang" AND ${CMAKE_C_COMPILER_VERSION} VERSION_GREATER 4.2)
+    set(cdat_rpath_flag -Wl,-rpath,)
+  else()
+    set(cdat_rpath_flag -R)
+  endif()
   set(cdat_apple_compiler_args
     -DCMAKE_OSX_ARCHITECTURES:STRING=${CMAKE_OSX_ARCHITECTURES}
     -DCMAKE_OSX_ARCHITECTURES_M:STRING=${CMAKE_OSX_ARCHITECTURES_M}
