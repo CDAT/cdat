@@ -469,6 +469,11 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/cdat_configure_step.c
     @ONLY
 )
 
+configure_file(${cdat_CMAKE_SOURCE_DIR}/fix_install_name.py.in
+    ${cdat_CMAKE_BINARY_DIR}/fix_install_name.py
+    @ONLY
+)
+
 # Now sort and include external packages
 #-----------------------------------------------------------------------------
 include(TopologicalSort)
@@ -705,7 +710,7 @@ install(CODE "
       message(\"Output: \${out}; Result: \${res}; Error: \${err}\")
     endif()
 
-    execute_process(COMMAND ${PYTHON_EXECUTABLE} ${cdat_SOURCE_DIR}/CMake/fix_install_name.py
+    execute_process(COMMAND ${PYTHON_EXECUTABLE} ${cdat_CMAKE_BINARY_DIR}/fix_install_name.py
       ${CPACK_DESTINATION_PREFIX}
       OUTPUT_VARIABLE out
       RESULT_VARIABLE res
