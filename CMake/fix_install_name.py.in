@@ -1,0 +1,33 @@
+import os
+import sys
+import fnmatch
+
+def find_files(directory, pattern):
+    for root, dirs, files in os.walk(directory):
+        for basename in files:
+            if fnmatch.fnmatch(basename, pattern):
+                filename = os.path.join(root, basename)
+                yield filename
+
+exts = ['*.dylib', '*.so']
+
+# Find all the modules and shared libraries and replace the path contained 
+# if referencing the built ones
+for pattern in exts:
+  for library in find_files("./", pattern):
+    print library
+    cmd = 'otool -L %s' % library
+    print "library is", library
+    deps = os.popen(cmd).readlines()
+    for dep in deps[1:]:
+      dep_name = os.path.split(dep)[1]
+      dep_name = dep_name.split()[0]
+      dep = dep.split()[0]
+      # Replace the ones that are built by us
+      if fnmatch.fnmatch(dep_name, "*.dylib") and fnmatch.fnmatch(dep, "@CMAKE_INSTALL_PREFIX@*"):
+        print 'dep fullpath ', dep
+        print 'dep name', dep_name
+        cmd = "install_name_tool -change %s %s %s" % (dep, "@rpath/"+"".join(dep_name), library)
+        print 'change cmd is ', cmd
+        lns = os.popen(cmd)
+        print "\t"+"".join(lns)
