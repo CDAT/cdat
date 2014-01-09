@@ -5,6 +5,14 @@ set(ESMF_pthreads "OFF")
 set(ESMF_os "${CDAT_BUILD_ESMF_OS}")
 set(ESMF_compiler "${CDAT_BUILD_ESMF_COMPILER}")
 set(ESMF_abi "${CDAT_BUILD_ESMF_ABI}")
+set(ESMF_openmp "ON")
+
+if(APPLE)
+  if("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang" AND ${CMAKE_C_COMPILER_VERSION} VERSION_GREATER 4.2)
+    # xcode 5 clang does not support openmp
+    set(ESMF_openmp "OFF")
+  endif()
+endif()
 
 # Check if ESMF should be built in parallel
 set(emsf_enable_mpi FALSE)

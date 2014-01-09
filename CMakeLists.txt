@@ -45,6 +45,8 @@ include(cmake_utils)
 include(check_fortran)
 include(CTest)
 
+set(CMAKE_MACOSX_RPATH 1)
+
 # Set up the test data. If UVCDAT_USE_SYSTEM_TESTDATA is ON and UVCDAT_TESTDATA
 # is not set then we won't use it for testing. Otherwise we'll test either
 # with the system test data or download it ourselves.
@@ -467,6 +469,11 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/cdat_configure_step.c
     @ONLY
 )
 
+configure_file(${cdat_CMAKE_SOURCE_DIR}/fix_install_name.py.in
+    ${cdat_CMAKE_BINARY_DIR}/fix_install_name.py
+    @ONLY
+)
+
 # Now sort and include external packages
 #-----------------------------------------------------------------------------
 include(TopologicalSort)
@@ -702,6 +709,16 @@ install(CODE "
     if(NOT \${res} EQUAL 0)
       message(\"Output: \${out}; Result: \${res}; Error: \${err}\")
     endif()
+
+    execute_process(COMMAND ${PYTHON_EXECUTABLE} ${cdat_CMAKE_BINARY_DIR}/fix_install_name.py
+      ${CPACK_DESTINATION_PREFIX}
+      OUTPUT_VARIABLE out
+      RESULT_VARIABLE res
+      ERROR_VARIABLE err
+    )
+    if(NOT \${res} EQUAL 0)
+      message(\"Output: \${out}; Result: \${res}; Error: \${err}\")
+    endif()  
   endif()"
 
   COMPONENT superbuild
