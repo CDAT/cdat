@@ -1,11 +1,12 @@
 #!/bin/csh
 
 # Find the location of this script and store it for further use
-set SB_EXTERNALS_DIR "@SB_EXTERNALS_DIR@"
-set SB_LIB_DIR "@SB_LIB_DIR@"
-set SCRIPT `readlink -f "$0"`
-set DIR `dirname "$SCRIPT"`
-set INSTALL_PREFIX `dirname ${DIR}`
+set sourced=($_)
+set SB_EXTERNALS_DIR="@SB_EXTERNALS_DIR@"
+set SB_LIB_DIR="@SB_LIB_DIR@"
+set DIR=`dirname $sourced[2]`
+set INSTALL_PREFIX=`dirname ${DIR}`
+set _os=`uname`
 
 if (! -d $SB_LIB_DIR) then
   set SB_LIB_DIR "${INSTALL_PREFIX}/${SB_LIB_DIR}"
@@ -15,12 +16,15 @@ if (! -d $SB_EXTERNALS_DIR) then
   set SB_EXTERNALS_DIR "${INSTALL_PREFIX}/${SB_EXTERNALS_DIR}"
 endif
 
-setenv PATH ${INSTALL_PREFIX}:${DIR}:${PATH}
+if ( "$_os" == "Darwin" ) then
+   setenv PATH ${INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/@PYVER@/bin:${PATH}
+endif
+
+setenv PATH ${DIR}:${PATH}
 setenv PATH "${SB_EXTERNALS_DIR}/bin":${PATH}
-setenv PATH ${INSTALL_PREFIX}/${SB_LIB_DIR}/Library/Frameworks/Python.framework/Versions/@PYVER@/bin:${PATH}
 
 # Set PYTHONPATH
-set SB_PYTHONPATH ${SB_LIB_DIR}/python@PYVER@/site-packages:${SB_EXTERNALS_DIR}/lib:${SB_LIB_DIR}/VisIt-@VISIT_VERSION@/site-packages/
+set SB_PYTHONPATH=${SB_LIB_DIR}/python@PYVER@/site-packages:${SB_EXTERNALS_DIR}/lib:${SB_LIB_DIR}/VisIt-@VISIT_VERSION@/site-packages/
 if $?PYTHONPATH then
   setenv PYTHONPATH ${SB_PYTHONPATH}:${PYTHONPATH}
 else
@@ -29,20 +33,22 @@ endif
 
 
 # Set LD_LIBRARY_PATH
-set SB_LD_LIBRARY_PATH ${SB_LIB_DIR}/paraview-@PARAVIEW_MAJOR@.@PARAVIEW_MINOR@:${SB_EXTERNALS_DIR}/lib:${SB_EXTERNALS_DIR}/lib/R/lib:${SB_LIB_DIR}:${SB_LIB_DIR}/VisIt-@VISIT_VERSION@:@QT_LIB_DIR@
+set SB_LD_LIBRARY_PATH=${SB_LIB_DIR}/paraview-@PARAVIEW_MAJOR@.@PARAVIEW_MINOR@:${SB_EXTERNALS_DIR}/lib:${SB_EXTERNALS_DIR}/lib/R/lib:${SB_LIB_DIR}:${SB_LIB_DIR}/VisIt-@VISIT_VERSION@:@QT_LIB_DIR@
 if $?LD_LIBRARY_PATH then
   setenv LD_LIBRARY_PATH ${SB_LD_LIBRARY_PATH}:${LD_LIBRARY_PATH}
 else
   setenv LD_LIBRARY_PATH ${SB_LD_LIBRARY_PATH}
 endif
 
-# Set DYLD_FALLBACK_LIBRARY_PATH
-set SB_DYLD_FALLBACK_LIBRARY_PATH ${SB_LD_LIBRARY_PATH}:${SB_LIB_DIR}/python@PYVER@/site-packages/vcs
 
-if $?DYLD_FALLBACK_LIBRARY_PATH then
-  setenv DYLD_FALLBACK_LIBRARY_PATH ${SB_DYLD_FALLBACK_LIBRARY_PATH}:${DYLD_FALLBACK_LIBRARY_PATH}
-else
-  setenv DYLD_FALLBACK_LIBRARY_PATH ${SB_DYLD_FALLBACK_LIBRARY_PATH}
+if ( "$_os" == "Darwin" ) then
+    # Set DYLD_FALLBACK_LIBRARY_PATH
+    set SB_DYLD_FALLBACK_LIBRARY_PATH=${SB_LD_LIBRARY_PATH}:${SB_LIB_DIR}/python@PYVER@/site-packages/vcs
+    if $?DYLD_FALLBACK_LIBRARY_PATH then
+      setenv DYLD_FALLBACK_LIBRARY_PATH ${SB_DYLD_FALLBACK_LIBRARY_PATH}:${DYLD_FALLBACK_LIBRARY_PATH}
+    else
+      setenv DYLD_FALLBACK_LIBRARY_PATH ${SB_DYLD_FALLBACK_LIBRARY_PATH}
+    endif
 endif
 
 setenv VISITPLUGINDIR ${SB_LIB_DIR}/VisIt-@VISIT_VERSION@-plugins

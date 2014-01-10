@@ -281,7 +281,11 @@ set(cdat_cxx_flags ${CMAKE_CXX_FLAGS})
 set(cdat_c_flags ${CMAKE_C_FLAGS})
 
 if(APPLE)
-  set(cdat_rpath_flag -R)
+  if("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang" AND ${CMAKE_C_COMPILER_VERSION} VERSION_GREATER 4.2)
+    set(cdat_rpath_flag -Wl,-rpath,)
+  else()
+    set(cdat_rpath_flag -R)
+  endif()
   set(cdat_apple_compiler_args
     -DCMAKE_OSX_ARCHITECTURES:STRING=${CMAKE_OSX_ARCHITECTURES}
     -DCMAKE_OSX_ARCHITECTURES_M:STRING=${CMAKE_OSX_ARCHITECTURES_M}
@@ -403,11 +407,13 @@ include(r_pkg)
 include(scikits_pkg)
 include(scipy_pkg)
 include(setuptools_pkg)
-include(distribute_pkg)
+## Part of setuptools no need to extra build it
+## include(distribute_pkg)
 include(pip_pkg)
 include(shapely_pkg)
 include(sip_pkg)
 include(pygments_pkg)
+include(markupsafe_pkg)
 include(jinja2_pkg)
 include(docutils_pkg)
 include(sphinx_pkg)
@@ -427,7 +433,12 @@ include(vistrails_pkg)
 include(wget_pkg)
 include(yasm_pkg)
 include(zlib_pkg)
+include(pylibxml2_pkg)
 include(cdatlogger_pkg)
+if (CDAT_BUILD_ESGF)
+    include(lxml_pkg)
+endif()
+
 
 # Configure custom configure/build/install step files
 #-----------------------------------------------------------------------------
@@ -463,6 +474,11 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/cleanenv_configure_st
 
 configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/cdat_configure_step.cmake.in
     ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
+    @ONLY
+)
+
+configure_file(${cdat_CMAKE_SOURCE_DIR}/fix_install_name.py.in
+    ${cdat_CMAKE_BINARY_DIR}/fix_install_name.py
     @ONLY
 )
 
@@ -701,6 +717,16 @@ install(CODE "
     if(NOT \${res} EQUAL 0)
       message(\"Output: \${out}; Result: \${res}; Error: \${err}\")
     endif()
+
+    execute_process(COMMAND ${PYTHON_EXECUTABLE} ${cdat_CMAKE_BINARY_DIR}/fix_install_name.py
+      ${CPACK_DESTINATION_PREFIX}
+      OUTPUT_VARIABLE out
+      RESULT_VARIABLE res
+      ERROR_VARIABLE err
+    )
+    if(NOT \${res} EQUAL 0)
+      message(\"Output: \${out}; Result: \${res}; Error: \${err}\")
+    endif()  
   endif()"
 
   COMPONENT superbuild

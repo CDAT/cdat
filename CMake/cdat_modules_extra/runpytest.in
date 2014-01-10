@@ -7,7 +7,7 @@
 # the filename of the image to compare against
 
 # set upuvcdat run time environment
-. @CMAKE_INSTALL_PREFIX@/bin/setup_cdat.sh
+. @CMAKE_INSTALL_PREFIX@/bin/setup_runtime.sh
 
 # play back the requested vistrail and make an image
 @PYTHON_EXECUTABLE@ \

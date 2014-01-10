@@ -1972,8 +1972,8 @@ class FileAxis(AbstractAxis):
 
     def isUnlimited(self):
         "Return true iff the axis is 'Unlimited' (extensible)"
-        if self.parent is not None and self.parent.dimensions.has_key(self.id):
-            return (self.parent.dimensions[self.id] is None)
+        if self.parent is not None and self.parent._file_.dimensions.has_key(self.id):
+            return (self.parent._file_.dimensions[self.id] is None)
         else:
             return False
 ## PropertiedClasses.set_property (FileAxis, 'units', 

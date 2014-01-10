@@ -1607,6 +1607,7 @@ PyVCS_canvasinfo(PyVCScanvas_Object *self, PyObject *args)
 	int map_state;
 	int depth;
         unsigned int num_child_windows; /* variable will store the number of child windows of our window */
+        extern int XW,YW;
 
         /* Check to see if vcs has been initalized */
         if (self == NULL) {
@@ -1620,8 +1621,11 @@ PyVCS_canvasinfo(PyVCScanvas_Object *self, PyObject *args)
 #else
 	  if (self->connect_id.cr == NULL) {
 #endif
-           PyErr_SetString(PyExc_TypeError, "Must have VCS Canvas opened before querying window information.");
-           return NULL;
+              /* No Canvas up, will send bg dims instead */
+
+           /* PyErr_SetString(PyExc_TypeError, "Must have VCS Canvas opened before querying window information."); */
+           /* return NULL; */
+            return Py_BuildValue("{s:i, s:i, s:i, s:i, s:i s:i}", "width",XW, "height",YW, "depth",0, "mapstate",0, "x",0, "y",0);
         }
 #ifdef X11WM
         /* query the window's attributes */
@@ -18959,7 +18963,8 @@ PyVCS_png(PyVCScanvas_Object *self, PyObject *args)
 	/* int W,H; */
 	/* extern int XW ; */
 	/* extern int YW ; */
-	int ier;
+	int ier,draw_white_bg;
+        extern int draw_white_background;
 	extern int trimbl();
 	extern int out_meta();
 	extern char meta_type[5];
@@ -18990,7 +18995,7 @@ PyVCS_png(PyVCScanvas_Object *self, PyObject *args)
         }
 #endif
 
-	if (!PyArg_ParseTuple(args, "s", &ps_name)) {
+	if (!PyArg_ParseTuple(args, "si", &ps_name,&draw_white_bg)) {
 	   PyErr_SetString(PyExc_TypeError, "Must provide an output png name");
 	   return NULL;
 	}
@@ -19000,6 +19005,13 @@ PyVCS_png(PyVCScanvas_Object *self, PyObject *args)
 	   PyErr_SetString(PyExc_TypeError, "Must provide an output png name.");
 	   return NULL;
 	}
+
+        if (draw_white_bg>1) { /* white bg is either 0 or 1 */
+	   PyErr_SetString(PyExc_TypeError, "White bg must be 0 or 1.");
+	   return NULL;
+	}
+
+        draw_white_background = draw_white_bg;
 
 	/* XW = W; */
 	/* YW = H; */

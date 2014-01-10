@@ -141,6 +141,25 @@ ExternalProject_Add_Step(VisIt InstallVisItLibSymLink
   DEPENDEES install
   WORKING_DIRECTORY ${cdat_CMAKE_BINARY_DIR})
 
+FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/visit_install_patch "MESSAGE(STATUS \"Executing VisIt post installation steps\")\n")
+FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/visit_install_patch "file(GLOB hdf5_files ${HDF5_install}/lib/libhdf5*${_LINK_LIBRARY_SUFFIX}*)\n")
+FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/visit_install_patch "file(COPY \${hdf5_files} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/VisIt-${VISIT_VERSION}/)\n")
+
+FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/visit_install_patch "file(GLOB netcdf_files ${netcdf_install}/lib/libnetcdf*${_LINK_LIBRARY_SUFFIX}*)\n")
+FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/visit_install_patch "file(COPY \${netcdf_files} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/VisIt-${VISIT_VERSION}/)\n")
+
+FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/visit_install_patch "file(GLOB z_files ${zlib_install}/lib/libz*${_LINK_LIBRARY_SUFFIX}*)\n")
+FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/visit_install_patch "file(COPY \${z_files} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/VisIt-${VISIT_VERSION}/)\n")
+
+FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/visit_install_patch "file(GLOB curl_files ${curl_install}/lib/libcurl*${_LINK_LIBRARY_SUFFIX}*)\n")
+FILE(APPEND ${CMAKE_CURRENT_BINARY_DIR}/visit_install_patch "file(COPY \${curl_files} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/VisIt-${VISIT_VERSION}/)\n")
+
+ExternalProject_Add_Step(VisIt InstallVisItExternalLibraries
+  COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/visit_install_patch
+  DEPENDEES InstallVisItLibSymLink
+  WORKING_DIRECTORY ${cdat_CMAKE_BINARY_DIR}
+  )
+
 # clean up un-necessary database readers
 ExternalProject_Add_Step(VisIt RemoveUnnecessaryDatabaseReaders
   COMMAND find . ! \( -iname "*netcdf*" -o -iname "*image*" -o -iname "*hdf5*" -o -iname "*pixie*" -o -iname "*vtk*" -o -iname "*mtk*" -o -iname "*xdmf*" \) -type f -delete
