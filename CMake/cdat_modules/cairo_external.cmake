@@ -1,7 +1,7 @@
 
 set(Cairo_source "${CMAKE_CURRENT_BINARY_DIR}/build/Cairo")
 set(Cairo_install "${cdat_EXTERNALS}")
-set(Cairo_conf_args --disable-static^^--enable-xlib=no^^--enable-xcb=no^^--enable-qt=no^^--enable-quartz=no^^--enable-win32=no^^--enable-skia=no^^--enable-os2=no^^--enable-beos=no^^--enable-drm=no^^--enable-gallium=no^^--enable-gl=no^^--enable-glesv2=no^^--enable-cogl=no^^--enable-directfb=no^^--enable-vg=no)
+set(Cairo_conf_args --disable-static^^--enable-quartz=no^^--enable-win32=no^^--enable-skia=no^^--enable-os2=no^^--enable-beos=no^^--enable-drm=no^^--enable-gallium=no^^--enable-cogl=no)
 
 ExternalProject_Add(Cairo
   LIST_SEPARATOR ^^
