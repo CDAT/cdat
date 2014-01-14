@@ -2,7 +2,16 @@
 include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
 
 file(GLOB_RECURSE ESMP_esmfmkfile "@cdat_EXTERNALS@/lib/libO/*.mk")
-set(ENV{ESMFMKFILE} ${ESMP_esmfmkfile})
+# Find module used to load the config
+file(GLOB_RECURSE _ESMP_LoadESMF FOLLOW_SYMLINKS "@CMAKE_INSTALL_PREFIX@/ESMP_LoadESMF.py")
+# Module will appear twice (because of directory symlink) so get first element
+list(GET _ESMP_LoadESMF 0 _tmp)
+# Get the directory
+get_filename_component(_dir ${_tmp} PATH)
+# Get the relative path
+file(RELATIVE_PATH _rel_path ${_dir} ${ESMP_esmfmkfile})
+
+set(ENV{ESMFMKFILE} ${_rel_path})
 foreach( item ${ESMP_esmfmkfile})
   message("item " ${item})
 endforeach( item ${ESMP_esmfmkfile})
