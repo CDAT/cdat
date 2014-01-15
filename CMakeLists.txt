@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 2.8.8 FATAL_ERROR)
 
+if ("${CMAKE_VERSION}" VERSION_LESS "2.8.12")
+  message(WARNING "Your CMake version is ${CMAKE_VERSION} which is depreciated for UV-CDAT. The recommended minimum CMake version is 2.8.12. Using older versions can result in build errors particularly with Xcode 5")
+endif()
+
 # Project name and initial checks
 #-----------------------------------------------------------------------------
 project(cdat)
