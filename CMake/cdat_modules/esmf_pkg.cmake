@@ -10,9 +10,10 @@ set(ESMF_GZ esmp.ESMF_${ESMF_VERSION}_ESMP_${ESMP_MAJOR}.tar.bz2)
 set(ESMF_MD5 46be9e7331ab7d952da218d30c21238e)
 set(ESMF_SOURCE ${ESMF_URL}/${ESMF_GZ})
 
-option(CDAT_BUILD_ESMF_ESMP "Build python version Earth System Modeling Framework" ON)
 if (NOT CDAT_BUILD_WO_ESGF)
-    set(CDAT_BUILD_ESMF_ESMP OFF)
+    option(CDAT_BUILD_ESMF_ESMP "Build python version Earth System Modeling Framework" OFF)
+else ()
+    option(CDAT_BUILD_ESMF_ESMP "Build python version Earth System Modeling Framework" ON)
 endif()
 
 cmake_dependent_option(CDAT_BUILD_ESMF_PARALLEL
