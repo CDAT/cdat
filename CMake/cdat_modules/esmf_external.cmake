@@ -51,7 +51,14 @@ configure_file(
   @ONLY
 )
 
+configure_file(
+  ${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/ESMP_patch_step.cmake.in
+  ${cdat_CMAKE_BINARY_DIR}/ESMP_patch_step.cmake
+  @ONLY
+)
+
 set(ESMP_install_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/ESMP_install_step.cmake)
+set(ESMP_patch_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/ESMP_patch_step.cmake)
 
 ExternalProject_Add(ESMF
   DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
@@ -65,6 +72,7 @@ ExternalProject_Add(ESMF
   BUILD_COMMAND ${ESMF_build_command}
   INSTALL_COMMAND ${ESMF_install_command}
   INSTALL_COMMAND ${ESMP_install_command}
+  PATCH_COMMAND ${ESMP_patch_command}
   DEPENDS ${ESMF_deps}
   ${ep_log_options}
 )
