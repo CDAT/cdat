@@ -1,0 +1,9 @@
+# Patch ESMP_LoadESMF.py to allow relative loading of config file
+if(NOT WIN32)
+  execute_process(
+    WORKING_DIRECTORY @ESMP_source@/src
+    COMMAND patch -p1 
+    INPUT_FILE @cdat_CMAKE_SOURCE_DIR@/ESMP.patch
+  )
+endif()
+

@@ -1,0 +1,17 @@
+--- a/ESMP_LoadESMF.py	2014-01-14 10:00:22.000000000 -0500
++++ b/ESMP_LoadESMF.py	2014-01-14 10:40:57.000000000 -0500
+@@ -64,6 +64,14 @@
+ #      esmfmk = c[2]
+ 
+   try:
++
++    # If we are not dealing with an absolute path treat it a relative to the
++    # current Python module.
++    if not os.path.isabs(esmfmk):
++      # Get the directory for this module
++      rel_dir = os.path.dirname(os.path.realpath(__file__))
++      esmfmk = os.path.join(rel_dir, esmfmk)
++
+     MKFILE = open(esmfmk, 'r')
+   except:
+     raise IOError("File not found\n  %s") % esmfmk
