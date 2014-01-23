@@ -1249,9 +1249,12 @@ class Seasons(ASeason):
             tc=cdtime.reltime(t[0],u).tocomp(t.getCalendar())
             tc2=cdtime.reltime(t[-1],u).tocomp(t.getCalendar())
             relyear = int(u.split()[2].split("-")[0])
-            if tc.cmp(cdtime.comptime(relyear))<1 and tc2.cmp(cdtime.comptime(relyear))>-1:
-                slab.__saved_time__=t.units
-                t.toRelativeTime("months since %i" % (relyear - len(t)/10))
+            #if tc.cmp(cdtime.comptime(relyear))<1 and tc2.cmp(cdtime.comptime(relyear))>-1:
+                #slab.__saved_time__=t.units
+                #t.toRelativeTime("months since %i" % (relyear - len(t)/10))
+                #t.toRelativeTime("months since 1")# % (relyear - len(t)/10))
+            slab.__saved_time__ = t.units
+            t.toRelativeTime("months since "+str(tc))
         return u
 
     def month_restore(self,merged,slab):
