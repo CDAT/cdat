@@ -322,6 +322,13 @@ def pingPCMDIdb(*args,**kargs):
     while cdat_info.check_in_progress:
        reload(cdat_info)
     val = cdat_info.runCheck()
+    if val is False:
+      return
+    try:
+      if not cdat_info.ping:
+        return
+    except:
+      pass
     cdat_info.askAnonymous(val)
     import threading
     kargs['target']=pingPCMDIdbThread
