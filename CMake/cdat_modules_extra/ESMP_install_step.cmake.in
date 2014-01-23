@@ -2,7 +2,9 @@
 include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
 
 file(GLOB_RECURSE ESMP_esmfmkfile "@cdat_EXTERNALS@/lib/libO/*.mk")
-set(ENV{ESMFMKFILE} ${ESMP_esmfmkfile})
+file(RELATIVE_PATH _rel_path @PYTHON_SITE_PACKAGES@/ESMP/src ${ESMP_esmfmkfile})
+
+set(ENV{ESMFMKFILE} ${_rel_path})
 foreach( item ${ESMP_esmfmkfile})
   message("item " ${item})
 endforeach( item ${ESMP_esmfmkfile})

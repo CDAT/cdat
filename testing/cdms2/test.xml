@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<!DOCTYPE dataset SYSTEM "http://www-pcmdi.llnl.gov/software/cdms/cdml.dtd">
+<dataset
+	directory	=""
+	calendar	="gregorian"
+	cdms_filemap	="[[[u],[[0,1,-,-,u_2000.nc],[1,2,-,-,u_2001.nc],[2,3,-,-,u_2002.nc]]],[[v],[[0,1,-,-,v_2000.nc],[1,2,-,-,v_2001.nc],[2,3,-,-,v_2002.nc]]]]"
+	id	="test"
+	Conventions	="CF-1.0"
+	>
+	<axis
+		datatype	="Double"
+		units	="degrees_north"
+		length	="16"
+		id	="latitude"
+		>
+		[-90. -78. -66. -54. -42. -30. -18.  -6.   6.  18.  30.  42.  54.  66.  78.
+  90.]
+		</axis>
+	<axis
+		datatype	="Double"
+		units	="degrees_east"
+		length	="32"
+		id	="longitude"
+		>
+		[   0.     11.25   22.5    33.75   45.     56.25   67.5    78.75   90.
+  101.25  112.5   123.75  135.    146.25  157.5   168.75  180.    191.25
+  202.5   213.75  225.    236.25  247.5   258.75  270.    281.25  292.5
+  303.75  315.    326.25  337.5   348.75]
+		</axis>
+	<axis
+		name_in_file	="time"
+		datatype	="Double"
+		partition	="[0 1 1 2 2 3]"
+		length	="3"
+		units	="days since 2000-1-1"
+		id	="time"
+		>
+		[   0.  366.  731.]
+		</axis>
+	<variable
+		datatype	="Double"
+		units	="m/s"
+		missing_value	="-99.9"
+		id	="u"
+		>
+		<domain
+			>
+			<domElem start="0" length="3" name="time"/>
+			<domElem start="0" length="16" name="latitude"/>
+			<domElem start="0" length="32" name="longitude"/>
+			</domain>
+		</variable>
+	<variable
+		datatype	="Double"
+		units	="m/s"
+		missing_value	="-99.9"
+		id	="v"
+		>
+		<domain
+			>
+			<domElem start="0" length="3" name="time"/>
+			<domElem start="0" length="16" name="latitude"/>
+			<domElem start="0" length="32" name="longitude"/>
+			</domain>
+		</variable>
+	</dataset>

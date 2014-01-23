@@ -5,6 +5,14 @@ set(ESMF_pthreads "OFF")
 set(ESMF_os "${CDAT_BUILD_ESMF_OS}")
 set(ESMF_compiler "${CDAT_BUILD_ESMF_COMPILER}")
 set(ESMF_abi "${CDAT_BUILD_ESMF_ABI}")
+set(ESMF_openmp "ON")
+
+if(APPLE)
+  if("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang" AND ${CMAKE_C_COMPILER_VERSION} VERSION_GREATER 4.2)
+    # xcode 5 clang does not support openmp
+    set(ESMF_openmp "OFF")
+  endif()
+endif()
 
 # Check if ESMF should be built in parallel
 set(emsf_enable_mpi FALSE)
@@ -43,7 +51,14 @@ configure_file(
   @ONLY
 )
 
+configure_file(
+  ${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/ESMP_patch_step.cmake.in
+  ${cdat_CMAKE_BINARY_DIR}/ESMP_patch_step.cmake
+  @ONLY
+)
+
 set(ESMP_install_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/ESMP_install_step.cmake)
+set(ESMP_patch_command ${CMAKE_COMMAND} -P ${cdat_CMAKE_BINARY_DIR}/ESMP_patch_step.cmake)
 
 ExternalProject_Add(ESMF
   DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
@@ -57,6 +72,7 @@ ExternalProject_Add(ESMF
   BUILD_COMMAND ${ESMF_build_command}
   INSTALL_COMMAND ${ESMF_install_command}
   INSTALL_COMMAND ${ESMP_install_command}
+  PATCH_COMMAND ${ESMP_patch_command}
   DEPENDS ${ESMF_deps}
   ${ep_log_options}
 )

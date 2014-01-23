@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 2.8.8 FATAL_ERROR)
 
+if ("${CMAKE_VERSION}" VERSION_LESS "2.8.12")
+  message(WARNING "Your CMake version is ${CMAKE_VERSION} which is depreciated for UV-CDAT. The recommended minimum CMake version is 2.8.12. Using older versions can result in build errors particularly with Xcode 5")
+endif()
+
 # Project name and initial checks
 #-----------------------------------------------------------------------------
 project(cdat)
@@ -277,7 +281,11 @@ set(cdat_cxx_flags ${CMAKE_CXX_FLAGS})
 set(cdat_c_flags ${CMAKE_C_FLAGS})
 
 if(APPLE)
-  set(cdat_rpath_flag -R)
+  if("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang" AND ${CMAKE_C_COMPILER_VERSION} VERSION_GREATER 4.2)
+    set(cdat_rpath_flag -Wl,-rpath,)
+  else()
+    set(cdat_rpath_flag -R)
+  endif()
   set(cdat_apple_compiler_args
     -DCMAKE_OSX_ARCHITECTURES:STRING=${CMAKE_OSX_ARCHITECTURES}
     -DCMAKE_OSX_ARCHITECTURES_M:STRING=${CMAKE_OSX_ARCHITECTURES_M}
@@ -421,6 +429,8 @@ include(yasm_pkg)
 include(pylibxml2_pkg)
 include(zlib_pkg)
 include(cdatlogger_pkg)
+include(pyclimate_pkg)
+include(scientificpython_pkg)
 if (CDAT_BUILD_ESGF)
     include(lxml_pkg)
 endif()
@@ -460,6 +470,11 @@ configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/cleanenv_configure_st
 
 configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/cdat_configure_step.cmake.in
     ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
+    @ONLY
+)
+
+configure_file(${cdat_CMAKE_SOURCE_DIR}/fix_install_name.py.in
+    ${cdat_CMAKE_BINARY_DIR}/fix_install_name.py
     @ONLY
 )
 
@@ -698,6 +713,16 @@ install(CODE "
     if(NOT \${res} EQUAL 0)
       message(\"Output: \${out}; Result: \${res}; Error: \${err}\")
     endif()
+
+    execute_process(COMMAND ${PYTHON_EXECUTABLE} ${cdat_CMAKE_BINARY_DIR}/fix_install_name.py
+      ${CPACK_DESTINATION_PREFIX}
+      OUTPUT_VARIABLE out
+      RESULT_VARIABLE res
+      ERROR_VARIABLE err
+    )
+    if(NOT \${res} EQUAL 0)
+      message(\"Output: \${out}; Result: \${res}; Error: \${err}\")
+    endif()  
   endif()"
 
   COMPONENT superbuild
