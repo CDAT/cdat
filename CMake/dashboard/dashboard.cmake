@@ -33,7 +33,7 @@ endif()
 # this silly dance is because we use separate repos to write protect the master branch
 # and use the branch name of master on both the master and devel repos
 set(TOPIC_NAME ${PROJECT_BRANCH})
-if(PROJECT_BRANCH STREQUAL "master")
+if(PROJECT_BRANCH STREQUAL "master" OR PROJECT_BRANCH STREQUAL "release")
   set(REPO "git://github.com/UV-CDAT/uvcdat.git")
 else()
   set(MASTER_REPO "git://github.com/UV-CDAT/uvcdat.git")
@@ -108,8 +108,8 @@ set(CTEST_SOURCE_DIRECTORY "${DASHROOT}/${CTEST_PROJECT_NAME}/source/${PROJECT_B
 
 # Prepare to do an initial checkout, if necessary
 if(CTEST_UPDATE_COMMAND AND NOT EXISTS "${CTEST_SOURCE_DIRECTORY}")
-  if(PROJECT_BRANCH STREQUAL "master")
-    set(CTEST_CHECKOUT_COMMAND "${CTEST_UPDATE_COMMAND} clone --recursive ${REPO} ${CTEST_SOURCE_DIRECTORY}")
+  if(PROJECT_BRANCH STREQUAL "master" OR PROJECT_BRANCH STREQUAL "release")
+    set(CTEST_CHECKOUT_COMMAND "${CTEST_SCRIPT_DIRECTORY}/checkout.sh ${CTEST_UPDATE_COMMAND} ${REPO} ${CTEST_SOURCE_DIRECTORY} ${PROJECT_BRANCH}")
   else()
     set(CTEST_CHECKOUT_COMMAND "${CTEST_SCRIPT_DIRECTORY}/next_checkout.sh ${CTEST_UPDATE_COMMAND} ${CTEST_SOURCE_DIRECTORY} ${MASTER_REPO} ${REPO} ${TOPIC_NAME}")
   endif()
