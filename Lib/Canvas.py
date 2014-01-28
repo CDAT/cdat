@@ -1749,6 +1749,9 @@ Options:::
                     ticks[k]=ticks[k]+"N"
                 else:
                     ticks[0]="Eq"
+        if axis=="latitude":
+          ticks[-90]="90S"
+          ticks[90]="90N"
         return ticks
     
     def setTicksandLabels(self,gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
@@ -1810,6 +1813,7 @@ Options:::
         #yticklabels1
         if gm.yticlabels1 is None or gm.yticlabels1=='*':
             ticks=vcs.mkscale(datawc_y1,datawc_y2)
+            print "TICKS come back as:",ticks
             ticks=self.prettifyAxisLabels(vcs.mklabels(ticks),y)
             ## for k in ticks.keys() : # make sure you're in the range
             ##     if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
@@ -5328,6 +5332,7 @@ Options:::
         except:
             pass
         try:
+            print "prettyfiying with ",datawc_y1,datawc_y2
             dic = self.setTicksandLabels(copy_mthd,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=x,y=y)
         except:
             pass
