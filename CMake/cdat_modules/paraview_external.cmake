@@ -7,13 +7,6 @@ if(QT_QMAKE_EXECUTABLE)
   get_filename_component(QT_ROOT ${QT_BINARY_DIR} PATH)
 endif()
 
-set(ParaView_install_command "")
-
-# For some reason, someone previously found out that *nix systems require this to setup
-if(UNIX)
-  set(ParaView_install_command make install)
-endif()
-
 if(APPLE)
   set(MACOSX_APP_INSTALL_PREFIX "${SB_EXTERNALS_DIR}") 
 endif()
@@ -172,7 +165,6 @@ ExternalProject_Add(ParaView
     -DPARAVIEW_DO_UNIX_STYLE_INSTALLS:BOOL=ON
   CMAKE_ARGS
     -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-  INSTALL_COMMAND ${ParaView_install_command}
   DEPENDS ${ParaView_deps}
   ${ep_log_options}
 )
