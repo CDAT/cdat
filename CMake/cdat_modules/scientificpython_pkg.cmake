@@ -4,4 +4,4 @@ set(SCIENTIFICPYTHON_GZ ScientificPython-${SCIENTIFICPYTHON_VERSION}.tar.gz)
 set(SCIENTIFICPYTHON_SOURCE ${SCIENTIFICPYTHON_URL}/${SCIENTIFICPYTHON_GZ})
 set(SCIENTIFICPYTHON_MD5 b87dd2b2c4be6b5421d906d39bcc59a7 )
 
-add_cdat_package(scientificpython "" "" "")
+add_cdat_package_dependent(scientificpython "" "" ON "CDAT_BUILD_WO_ESGF" OFF)

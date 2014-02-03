@@ -10,4 +10,4 @@ string(TOUPPER ${nm} uc_nm)
 set(${uc_nm}_VERSION ${${nm}_MAJOR_SRC}.${${nm}_MINOR_SRC}.${${nm}_PATCH_SRC})
 set(LXML_SOURCE ${LXML_URL}/${LXML_GZ})
 
-add_cdat_package(lxml "" "" "")
+add_cdat_package_dependent(lxml "" "" ON "CDAT_BUILD_WO_ESGF" OFF)
