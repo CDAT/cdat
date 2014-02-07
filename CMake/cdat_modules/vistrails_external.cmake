@@ -5,6 +5,18 @@ include(GetGitRevisionDescription)
 set(vistrails_branch uvcdat-master)
 
 get_git_head_revision(refspec sha)
+git_remote_url("origin" _url)
+
+if(_url MATCHES "^.*uvcdat.git")
+  if(refspec STREQUAL "refs/heads/master")
+    set(vistrails_branch uvcdat-master)  
+  elseif(refspec STREQUAL "refs/heads/release")
+    set(vistrails_branch uvcdat-release)
+  endif()
+elseif(_url MATCHES "^.*uvcdat-devel.git")
+  set(vistrails_branch uvcdat-next)
+endif()
+
 if("${refspec}" STREQUAL "refs/heads/devel-master")
   set(vistrails_branch uvcdat-next)
 endif()
