@@ -1749,9 +1749,6 @@ Options:::
                     ticks[k]=ticks[k]+"N"
                 else:
                     ticks[0]="Eq"
-        if axis=="latitude":
-          ticks[-90]="90S"
-          ticks[90]="90N"
         return ticks
     
     def setTicksandLabels(self,gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
@@ -1769,7 +1766,7 @@ Options:::
             dic[i]=False
         #xticklabels1
         if gm.xticlabels1 is None or gm.xticlabels1=='*':
-            ticks=vcs.mkscale(datawc_x1,datawc_x2)
+            ticks=vcs.mkscale(datawc_x1,datawc_x2,ends=True,nc=10)
             ticks=self.prettifyAxisLabels(vcs.mklabels(ticks),x)
             ## for k in ticks.keys() : # make sure you're in the range
             ##     if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
@@ -1778,7 +1775,7 @@ Options:::
             dic['xticlabels1']=True
         #xmtics1
         if gm.xmtics1 is None or gm.xmtics1=='*':
-            ticks=vcs.mkscale(datawc_x1,datawc_x2)
+            ticks=vcs.mkscale(datawc_x1,datawc_x2,ends=True,nc=10)
             tick2=[]
             for i in range(len(ticks)-1):
                 tick2.append((ticks[i]+ticks[i+1])/2.)
@@ -1790,7 +1787,7 @@ Options:::
             dic['xmtics1']=True
         #xticklabels2
         if  hasattr(gm,"xticlabels2") and (gm.xticlabels2 is None or gm.xticlabels2=='*'):
-            ticks=vcs.mkscale(datawc_x1,datawc_x2)
+            ticks=vcs.mkscale(datawc_x1,datawc_x2,ends=True,nc=10)
             ticks=self.prettifyAxisLabels(vcs.mklabels(ticks),x)
             ## for k in ticks.keys():
             ##     ticks[k]=''
@@ -1800,7 +1797,7 @@ Options:::
             dic['xticlabels2']=True
         #xmtics2
         if hasattr(gm,"xmtics2") and (gm.xmtics2 is None or gm.xmtics2=='*'):
-            ticks=vcs.mkscale(datawc_x1,datawc_x2)
+            ticks=vcs.mkscale(datawc_x1,datawc_x2,ends=True,nc=10)
             tick2=[]
             for i in range(len(ticks)-1):
                 tick2.append((ticks[i]+ticks[i+1])/2.)
@@ -1812,8 +1809,7 @@ Options:::
             dic['xmtics2']=True
         #yticklabels1
         if gm.yticlabels1 is None or gm.yticlabels1=='*':
-            ticks=vcs.mkscale(datawc_y1,datawc_y2)
-            print "TICKS come back as:",ticks
+            ticks=vcs.mkscale(datawc_y1,datawc_y2,ends=True)
             ticks=self.prettifyAxisLabels(vcs.mklabels(ticks),y)
             ## for k in ticks.keys() : # make sure you're in the range
             ##     if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
@@ -1822,7 +1818,7 @@ Options:::
             dic['yticlabels1']=True
         #ymtics1
         if gm.ymtics1 is None or gm.ymtics1=='*':
-            ticks=vcs.mkscale(datawc_y1,datawc_y2)
+            ticks=vcs.mkscale(datawc_y1,datawc_y2,ends=True)
             tick2=[]
             for i in range(len(ticks)-1):
                 tick2.append((ticks[i]+ticks[i+1])/2.)
@@ -1834,7 +1830,7 @@ Options:::
             dic['ymtics1']=True
         #yticklabels2
         if hasattr(gm,"yticlabels2") and (gm.yticlabels2 is None or gm.yticlabels2=='*'):
-            ticks=vcs.mkscale(datawc_y1,datawc_y2)
+            ticks=vcs.mkscale(datawc_y1,datawc_y2,ends=True)
             ticks=self.prettifyAxisLabels(vcs.mklabels(ticks),y)
             ## for k in ticks.keys():
             ##     ticks[k]=''
@@ -1844,7 +1840,7 @@ Options:::
             dic['yticlabels2']=True
         #ymtics2
         if hasattr(gm,"ymtics2") and (gm.ymtics2 is None or gm.ymtics2=='*'):
-            ticks=vcs.mkscale(datawc_y1,datawc_y2)
+            ticks=vcs.mkscale(datawc_y1,datawc_y2,ends=True)
             tick2=[]
             for i in range(len(ticks)-1):
                 tick2.append((ticks[i]+ticks[i+1])/2.)
@@ -5311,7 +5307,19 @@ Options:::
                 datawc_x2=MV2.maximum(arglist[0])
                 x=None
             else:            
+              try:
+                if arglist[0].getAxis(-1).isCircularAxis():
+                  datawc_x1=arglist[0].getAxis(-1)[0]
+                else:
+                  datawc_x1=arglist[0].getAxis(-1).getBounds()[0][0]
+              except:
                 datawc_x1=arglist[0].getAxis(-1)[0]
+              try:
+                if arglist[0].getAxis(-1).isCircularAxis():
+                  datawc_x2=arglist[0].getAxis(-1)[-1]
+                else:
+                  datawc_x2=arglist[0].getAxis(-1).getBounds()[-1][1]
+              except:
                 datawc_x2=arglist[0].getAxis(-1)[-1]
             if arglist[0].getAxis(-2).isLongitude():
                 y="longitude"
@@ -5327,12 +5335,17 @@ Options:::
                 datawc_y2=MV2.maximum(arglist[1])
                 y=None
             else:
-                datawc_y1=arglist[0].getAxis(-2)[0]
-                datawc_y2=arglist[0].getAxis(-2)[-1]
+                try:
+                  datawc_y1=arglist[0].getAxis(-2).getBounds()[0][0]
+                except:
+                  datawc_y1=arglist[0].getAxis(-2)[0]
+                try:
+                  datawc_y2=arglist[0].getAxis(-2).getBounds()[-1][1]
+                except:
+                  datawc_y2=arglist[0].getAxis(-2)[-1]
         except:
             pass
         try:
-            print "prettyfiying with ",datawc_y1,datawc_y2
             dic = self.setTicksandLabels(copy_mthd,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=x,y=y)
         except:
             pass
