@@ -74,7 +74,7 @@ def mkevenlevels(n1,n2,nlev=10):
     lev=lev+n1
     return list(lev)
 
-def mkscale(n1,n2,nc=12,zero=1):
+def mkscale(n1,n2,nc=12,zero=1,ends=False):
   '''
   Function: mkscale
 
@@ -88,6 +88,7 @@ def mkscale(n1,n2,nc=12,zero=1):
           0: let the function decide # NOT IMPLEMENTED
           1: zero CAN be a contour  (default)
           2: zero MUST be a contour
+  ends # True/False force the 2 values to be part of the returned labels
   Examples of Use:
   >>> vcs.mkscale(0,100)
   [0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0]
@@ -142,7 +143,11 @@ def mkscale(n1,n2,nc=12,zero=1):
     first=numpy.floor(min/delta)-1.5
     
 
-  scvals=delta*(numpy.arange(2*nc)+first)
+  if ends:
+    scvals=n1+delta*numpy.arange(2*nc)
+  else:
+    scvals=delta*(numpy.arange(2*nc)+first)
+    
   a=0
   for j in range(len(scvals)):
     if scvals[j]>min :
