@@ -100,6 +100,29 @@ function(git_describe _var)
 	set(${_var} "${out}" PARENT_SCOPE)
 endfunction()
 
+function(git_remote_url _remote _url)
+        if(NOT GIT_FOUND)
+                find_package(Git QUIET)
+        endif()
+        
+        if(NOT _remote)
+                set(${_url} "REMOTE-NOT-FOUND" PARENT_SCOPE)
+                return()
+        endif()
+        
+        execute_process(COMMAND "${GIT_EXECUTABLE}" config --get "remote.${_remote}.url"
+                WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+                RESULT_VARIABLE res
+                OUTPUT_VARIABLE out
+                ERROR_QUIET
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+        if(NOT res EQUAL 0)
+                set(out "${out}-${res}-NOTFOUND")
+        endif()
+
+        set(${_url} "${out}" PARENT_SCOPE)
+endfunction()
+
 function(git_get_exact_tag _var)
 	git_describe(out --exact-match ${ARGN})
 	set(${_var} "${out}" PARENT_SCOPE)
