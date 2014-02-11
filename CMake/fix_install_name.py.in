@@ -24,7 +24,7 @@ for pattern in exts:
       dep_name = dep_name.split()[0]
       dep = dep.split()[0]
       # Replace the ones that are built by us
-      if fnmatch.fnmatch(dep_name, "*.dylib") and fnmatch.fnmatch(dep, "@CMAKE_INSTALL_PREFIX@*"):
+      if fnmatch.fnmatch(dep_name, pattern) and fnmatch.fnmatch(dep, "@CMAKE_INSTALL_PREFIX@*"):
         print 'dep fullpath ', dep
         print 'dep name', dep_name
         cmd = "install_name_tool -change %s %s %s" % (dep, "@rpath/"+"".join(dep_name), library)
