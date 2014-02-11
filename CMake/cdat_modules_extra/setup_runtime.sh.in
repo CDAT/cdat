@@ -34,6 +34,7 @@ export SB_LD_LIBRARY_PATH=${SB_EXTERNALS_DIR}/lib/paraview-@PARAVIEW_MAJOR@.@PAR
 export SB_LD_LIBRARY_PATH=${SB_LD_LIBRARY_PATH}:{SB_LIB_DIR}:${SB_LIB_DIR}/VisIt-@VISIT_VERSION@:@QT_LIB_DIR@
 export LD_LIBRARY_PATH=${SB_LD_LIBRARY_PATH}:${LD_LIBRARY_PATH}
 if [ ${_os} == "Darwin" ]; then 
+    export SB_LD_LIBRARY_PATH=${SB_LD_LIBRARY_PATH}:${INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/@PYVER@/lib/python@PYVER@/site-packages/vcs
     export DYLD_FALLBACK_LIBRARY_PATH=${SB_LD_LIBRARY_PATH}:${SB_LIB_DIR}/python@PYVER@/site-packages:${SB_LIB_DIR}/python@PYVER@/site-packages/vcs:${DYLD_FALLBACK_LIBRARY_PATH}
 fi
 
