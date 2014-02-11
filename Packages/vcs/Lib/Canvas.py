@@ -1738,10 +1738,22 @@ Options:::
             if len(ticks[k])==0:
                 continue
             if axis=="longitude":
-                if k<0:
-                    ticks[k]=ticks[k][1:]+"W"
-                elif k>0:
-                    ticks[k]=ticks[k]+"E"
+                K = k % 360
+                if K>180:
+                    if int(K)==float(K):
+                      ticks[k]="%iW" % (360-K)
+                    else:
+                      ticks[k]="%fW" % (360-K)
+                elif K<180:
+                    if int(K)==float(K):
+                      ticks[k]="%iE" % (K)
+                    else:
+                      ticks[k]="%wE" % (K)
+                else:
+                  if k==-180.:
+                    ticks[k]="180W"
+                  else:
+                    ticks[k]="180E"
             elif axis=="latitude":
                 if k<0:
                     ticks[k]=ticks[k][1:]+"S"
