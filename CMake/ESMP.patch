@@ -10,8 +10,24 @@
 +    if not os.path.isabs(esmfmk):
 +      # Get the directory for this module
 +      rel_dir = os.path.dirname(os.path.realpath(__file__))
-+      esmfmk = os.path.join(rel_dir, esmfmk)
++      esmfmk = os.path.abspath(os.path.join(rel_dir, esmfmk))
 +
      MKFILE = open(esmfmk, 'r')
    except:
      raise IOError("File not found\n  %s") % esmfmk
+@@ -72,11 +80,12 @@
+   libsdir = 0
+   esmfos = 0
+   esmfabi = 0
++
++  libsdir = os.path.dirname(esmfmk)
++
+ #  MKFILE = open(esmfmk,'r')
+   for line in MKFILE:
+-    if 'ESMF_LIBSDIR' in line:
+-      libsdir = line.split("=")[1]
+-    elif 'ESMF_OS:' in line:
++    if 'ESMF_OS:' in line:
+       esmfos = line.split(":")[1]
+     elif 'ESMF_ABI:' in line:
+       esmfabi = line.split(":")[1]
