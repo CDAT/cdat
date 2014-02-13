@@ -1743,12 +1743,14 @@ Options:::
                     if int(K)==float(K):
                       ticks[k]="%iW" % (360-K)
                     else:
-                      ticks[k]="%fW" % (360-K)
+                      ticks[k]="%.2fW" % (360-K)
                 elif K<180:
-                    if int(K)==float(K):
+                    if numpy.allclose(K,0.):
+                      ticks[k]="0"
+                    elif int(K)==float(K):
                       ticks[k]="%iE" % (K)
                     else:
-                      ticks[k]="%wE" % (K)
+                      ticks[k]="%.2fE" % (K)
                 else:
                   if k==-180.:
                     ticks[k]="180W"
@@ -1756,8 +1758,14 @@ Options:::
                     ticks[k]="180E"
             elif axis=="latitude":
                 if k<0:
-                    ticks[k]=ticks[k][1:]+"S"
+                    if len(ticks[k])>4:
+                      ticks[k]="%.1f" % eval(ticks[k][1:])+"S"
+                    else:
+                      ticks[k]=ticks[k][1:]+"S"
                 elif k>0:
+                  if len(ticks[k])>4:
+                    ticks[k]="%.1f" % eval(ticks[k])+"N"
+                  else:
                     ticks[k]=ticks[k]+"N"
                 else:
                     ticks[0]="Eq"
