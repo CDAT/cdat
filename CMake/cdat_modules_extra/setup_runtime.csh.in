@@ -18,6 +18,8 @@ endif
 
 if ( "$_os" == "Darwin" ) then
    setenv PATH ${INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/@PYVER@/bin:${PATH}
+   setenv PATH ${SB_EXTERNALS_DIR}/paraview.app/Contents/bin:${PATH}
+   setenv PYTHONPATH ${SB_EXTERNALS_DIR}/paraview.app/Contents/Python:${PYTHONPATH}
 endif
 
 setenv PATH ${DIR}:${PATH}
