@@ -69,3 +69,7 @@ packages = [
     "Packages/gui_support",
     "Packages/distarray",
     ]
+
+if "--enable-vcs-legacy" in sys.argv:
+  packages.append("Packages/vcs_legacy")
+

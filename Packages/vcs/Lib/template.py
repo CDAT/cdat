@@ -22,13 +22,7 @@
 #
 #
 #
-###############################################################################
-#                                                                             #
-# Import: VCS C extension module and VCS template class objects written in    #
-#         Python.							      #
-#                                                                             #
-###############################################################################
-import _vcs, copy, vcs, numpy
+import copy, vcs, numpy
 from Ptext import *
 from Pformat import *
 from Pxtickmarks import *

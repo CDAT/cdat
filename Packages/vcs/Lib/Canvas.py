@@ -26,7 +26,7 @@
 Normally, created by vcs.init()
 Contains the method plot.
 """
-import _vcs, string, types, signal, warnings
+import warnings
 import tempfile
 #import Tkinter
 from pauser import pause
@@ -56,7 +56,6 @@ import random
 import genutil
 from cdms2.grid import AbstractRectGrid
 import shutil
-from types import *
 import VCS_validation_functions
 import AutoAPI
 from xmldocs import plot_keywords_doc,graphics_method_core,axesconvert,xaxisconvert,yaxisconvert, plot_1D_input, plot_2D_input, plot_output, plot_2_1D_input, create_GM_input, get_GM_input, boxfill_output, isofill_output, isoline_output, yxvsx_output, xyvsy_output, xvsy_output, scatter_output, outfill_output, outline_output, plot_2_1D_options
@@ -109,9 +108,9 @@ def _determine_arg_list(g_name, actual_args):
     args = actual_args
     found_slabs = 0
     for i in range(len(args)):
-       if (type(args[i]) == types.StringType):
+      if isinstance(args[i],str):
           argstring.append(args[i])
-       else:
+      else:
           try:
              possible_slab = cdms2.asVariable (args[i], 0)
              if not possible_slab.iscontiguous():
@@ -1330,7 +1329,7 @@ class Canvas(object,AutoAPI.AutoAPI):
     templt2=a.gettemplate('quick')      # templt2 contains 'quick' template
 """
         # Check to make sure the argument passed in is a STRING
-        if (type(Pt_name_src) != types.StringType):
+        if not isinstance(Pt_name_src,str):
            raise vcsError, 'The argument must be a string.'
 
         Pt_name = None
@@ -1390,7 +1389,7 @@ class Canvas(object,AutoAPI.AutoAPI):
 """
 
         # Check to make sure the argument passed in is a STRING
-        if (type(Proj_name_src) != types.StringType):
+        if not isinstance(Proj_name_src,str):
            raise vcsError, 'The argument must be a string.'
 
         Proj_name = None
@@ -1489,7 +1488,7 @@ Options:::
 """
 
         # Check to make sure the argument passed in is a STRING
-        if (type(Gfb_name_src) != types.StringType):
+        if not isinstance(Gfb_name_src,str):
            raise vcsError, 'The argument must be a string.'
 
         Gfb_name = None
@@ -1635,7 +1634,7 @@ Options:::
         
         
         # Check to make sure the argument passed in is a STRING
-        if (type(Gtd_name_src) != types.StringType):
+        if not isinstance(Gtd_name_src,str):
             raise vcsError, 'The argument must be a string.'
         
         for m in vcs.taylordiagrams:
@@ -1725,7 +1724,7 @@ Options:::
 """
 
         # Check to make sure the argument passed in is a STRING
-        if (type(Gfm_name_src) != types.StringType):
+        if not isinstance(Gfm_name_src,str):
            raise vcsError, 'The argument must be a string.'
 
         Gfm_name = None
@@ -2003,7 +2002,7 @@ Options:::
 """
 
         # Check to make sure the argument passed in is a STRING
-        if (type(Gfi_name_src) != types.StringType):
+        if not instance(Gfi_name_src,str):
            raise vcsError, 'The argument must be a string.'
 
         Gfi_name = None
@@ -2145,7 +2144,7 @@ Options:::
 """
 
         # Check to make sure the argument passed in is a STRING
-        if (type(Gi_name_src) != types.StringType):
+        if not isinstance(Gi_name_src,str):
            raise vcsError, 'The argument must be a string.'
 
         Gi_name = None
@@ -2288,7 +2287,7 @@ Options:::
 """
 
         # Check to make sure the argument passed in is a STRING
-        if (type(Go_name_src) != types.StringType):
+        if not isinstance(Go_name_src,str):
            raise vcsError, 'The argument must be a string.'
 
         Go_name = None
@@ -2432,7 +2431,7 @@ Options:::
 """
 
         # Check to make sure the argument passed in is a STRING
-        if (type(Gfo_name_src) != types.StringType):
+        if not isinstance(Gfo_name_src,str):
            raise vcsError, 'The argument must be a string.'
 
         Gfo_name = None
@@ -2575,7 +2574,7 @@ Options:::
 """
 
         # Check to make sure the argument passed in is a STRING
-        if (type(GXy_name_src) != types.StringType):
+        if not isinstance(GXy_name_src,str):
            raise vcsError, 'The argument must be a string.'
 
         GXy_name = None
@@ -2718,7 +2717,7 @@ Options:::
 """
 
         # Check to make sure the argument passed in is a STRING
-        if (type(GYx_name_src) != types.StringType):
+        if not isinstance(GYx_name_src,str):
            raise vcsError, 'The argument must be a string.'
 
         GYx_name = None
@@ -2861,7 +2860,7 @@ Options:::
 """
 
         # Check to make sure the argument passed in is a STRING
-        if (type(GXY_name_src) != types.StringType):
+        if not isinstance(GXY_name_src,str):
            raise vcsError, 'The argument must be a string.'
 
         GXY_name = None
@@ -2963,7 +2962,7 @@ Options:::
 """
 
         # Check to make sure the argument passed in is a STRING
-        if (type(Gv_name_src) != types.StringType):
+        if not isinstance(Gv_name_src,str):
            raise vcsError, 'The argument must be a string.'
 
         Gv_name = None
@@ -3085,7 +3084,7 @@ Options:::
 """
 
         # Check to make sure the argument passed in is a STRING
-        if (type(GSp_name_src) != types.StringType):
+        if not isinstance(GSp_name_src,str):
            raise vcsError, 'The argument must be a string.'
 
         GSp_name = None
@@ -3190,7 +3189,7 @@ Options:::
 """
 
         # Check to make sure the argument passed in is a STRING
-        if (type(Gcon_name_src) != types.StringType):
+        if not isinstance(Gcon_name_src,str):
            raise vcsError, 'The argument must be a string.'
 
         Gcon_name = None
@@ -3314,7 +3313,7 @@ Options:::
 """
 
         # Check to make sure the argument passed in is a STRING
-        if (type(name) != types.StringType):
+        if not isinstance(name,str):
            raise vcsError, 'The argument must be a string.'
 
         Tl_name = None
@@ -3412,7 +3411,7 @@ Options:::
                   y=[0,10,20,30,40,50] )      # Create instance of line object 'red'
     a.line(ln)                          # Plot using specified line object
 """
-        if (name is None) or (type(name) != types.StringType):
+        if (name is None) or (not isinstance(name,str)):
             raise vcsError, 'Must provide string name for the line.'
         else:
             lo = self.listelements('line')
@@ -3530,7 +3529,7 @@ Options:::
 """
 
         # Check to make sure the argument passed in is a STRING
-        if (type(name) != types.StringType):
+        if not isinstance(name,str):
            raise vcsError, 'The argument must be a string.'
 
         Tm_name = None
@@ -3595,7 +3594,7 @@ Options:::
                   y=[0,10,20,30,40,50] )      # Create instance of marker object 'red'
     a.marker(mrk)                          # Plot using specified marker object
 """
-        if (name is None) or (type(name) != types.StringType):
+        if (name is None) or (not isinstance(name,str)):
             raise vcsError, 'Must provide string name for the marker.'
         else:
             lo = self.listelements('marker')
@@ -3712,7 +3711,7 @@ Options:::
 """
 
         # Check to make sure the argument passed in is a STRING
-        if (type(name) != types.StringType):
+        if not isinstance(name,str):
            raise vcsError, 'The argument must be a string.'
 
         Tf_name = None
@@ -3778,7 +3777,7 @@ Options:::
                   y=[0,10,20,30,40,50] )      # Create instance of fillarea object 'red'
     a.fillarea(fa)                          # Plot using specified fillarea object
 """
-        if (name is None) or (type(name) != types.StringType):
+        if (name is None) or (not isinstance(name,str)):
             raise vcsError, 'Must provide string name for the fillarea.'
         else:
             lo = self.listelements('fillarea')
@@ -3901,7 +3900,7 @@ Options:::
 """
 
         # Check to make sure the argument passed in is a STRING
-        if (type(name) != types.StringType):
+        if not isinstance(name,str):
            raise vcsError, 'The argument must be a string.'
 
         Tt_name = None
@@ -3992,7 +3991,7 @@ Options:::
 """
 
         # Check to make sure the argument passed in is a STRING
-        if (type(To_name_src) != types.StringType):
+        if not isinstance(To_name_src,str):
            raise vcsError, 'The argument must be a string.'
 
         To_name = None
@@ -4103,9 +4102,9 @@ Example of Use:
 
 
         # Check to make sure the arguments passed in are a STRINGS
-        if (type(Tt_name_src) != types.StringType):
+        if not isinstance(Tt_name_src,str):
             raise vcsError, 'The first argument must be a string.'
-        if (type(To_name_src) != types.StringType):
+        if not isinstance(To_name_src,str):
             raise vcsError, 'The second argument must be a string.'
         
         Tt_name = None
@@ -4286,7 +4285,7 @@ Example of use:
                   y=[0,10,20,30,40,50] )      # Create instance of texttable object 'red'
     a.texttable(tt)                          # Plot using specified texttable object
 """
-        if (Tt_name is None) or (type(Tt_name) != types.StringType):
+        if (Tt_name is None) or (not isinstance(Tt_name,str)):
             raise vcsError, 'Must provide string name for the texttable.'
         else:
             lot = self.listelements('texttable')
@@ -4636,9 +4635,9 @@ Options:::
                 keyargs[k]=xtrakw[k]
         assert arglist[0] is None or cdms2.isVariable (arglist[0])
         assert arglist[1] is None or cdms2.isVariable (arglist[1])
-        assert type(arglist[2]) == types.StringType
-        if not isinstance(arglist[3],vcsaddons.core.VCSaddon): assert type(arglist[3]) == types.StringType
-        assert type(arglist[4]) == types.StringType
+        assert isinstance(arglist[2],str)
+        if not isinstance(arglist[3],vcsaddons.core.VCSaddon): assert isinstance(arglist[3],str)
+        assert isinstance(arglist[4],str)
 
         ##reset animation
         self.animate.create_flg = 0
@@ -8526,7 +8525,7 @@ class animate_obj_old:
                mins, maxs = minmax(slab)
                minv[i] = float(minimum(float(minv[i]), float(mins)))
                maxv[i] = float(maximum(float(maxv[i]), float(maxs)))
-         if ((type(min) == types.ListType) or (type(max) == types.ListType)):
+         if isinstance(min,list) or isinstance(max,list):
             for i in range(len(self.vcs_self.animate_info)):
                try:
                   minv.append( min[i] )
@@ -8869,7 +8868,7 @@ class animate_obj_old:
    # Value ranges from 0 to 100                                                 #
    ##############################################################################
    def pause( self, value=1 ):
-      if (((not isinstance(value, types.IntType))) or (value not in range(0, 101))):
+      if (((not isinstance(value, int))) or (value not in range(0, 101))):
          raise vcsError, "Pause value must be between an integer between 0 and 100."
 
       if (self.create_flg == 1) and (self.run_flg == 1):
@@ -8880,7 +8879,7 @@ class animate_obj_old:
    # Value ranges from 0 to 20                                                  #
    ##############################################################################
    def zoom( self, value=1 ):
-      if (((not isinstance(value, types.IntType))) or (value not in range(1, 21))):
+      if (((not isinstance(value, int))) or (value not in range(1, 21))):
          raise vcsError, "Zoom value must be between an integer between 1 and 20."
 
       if self.vcs_self.canvas.creating_animation() == 1: return
@@ -8893,7 +8892,7 @@ class animate_obj_old:
    # Value ranges from -100 to 100						#
    ##############################################################################
    def horizontal( self, value=0 ):
-      if (((not isinstance(value, types.IntType))) or (value not in range(-100, 101))):
+      if (((not isinstance(value, int))) or (value not in range(-100, 101))):
          raise vcsError, "Horizontal pan value must be between an integer between -100 and 100."
 
       if self.vcs_self.canvas.creating_animation() == 1: return
@@ -8906,7 +8905,7 @@ class animate_obj_old:
    # Value ranges from -100 to 100						#
    ##############################################################################
    def vertical( self, value=0 ):
-      if (((not isinstance(value, types.IntType))) or (value not in range(-100, 101))):
+      if (((not isinstance(value, int))) or (value not in range(-100, 101))):
          raise vcsError, "Vertical pan value must be between an integer between -100 and 100."
 
       if self.vcs_self.canvas.creating_animation() == 1: return
@@ -8919,7 +8918,7 @@ class animate_obj_old:
    # Value 1 -> forward, 2 -> backward       	                                #
    ##############################################################################
    def direction( self, value=1 ):
-      if (((not isinstance(value, types.IntType))) or (value not in range(1, 3))):
+      if (((not isinstance(value, int))) or (value not in range(1, 3))):
          raise vcsError, "Direction value must be between either 1='forward' or 2='backward'."
 
       if self.vcs_self.canvas.creating_animation() == 1: return
@@ -8932,7 +8931,7 @@ class animate_obj_old:
    # Value: 1 -> cycle, 2 -> animate once, and 3 -> forth and back              #
    ##############################################################################
    def mode( self, value=1 ):
-      if (((not isinstance(value, types.IntType))) or (value not in [1, 3])):
+      if (((not isinstance(value, int))) or (value not in [1, 3])):
          raise vcsError, "Mode value must be between either 1 or 3."
 
       if value == 2:
@@ -9095,7 +9094,7 @@ class animate_obj(animate_obj_old):
                    mins, maxs = vcs.minmax(slab)
                    minv[i] = float(numpy.minimum(float(minv[i]), float(mins)))
                    maxv[i] = float(numpy.maximum(float(maxv[i]), float(maxs)))
-             elif ((type(min) == types.ListType) or (type(max) == types.ListType)):
+             elif isinstance(min,list) or isinstance(max,list):
                 for i in range(len(self.vcs_self.animate_info)):
                    try:
                       minv.append( min[i] )

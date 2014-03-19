@@ -21,12 +21,6 @@
 #
 #
 #
-###############################################################################
-#                                                                             #
-# Import: VCS C extension module.                                             #
-#                                                                             #
-###############################################################################
-import _vcs
 import Canvas
 import VCS_validation_functions
 import AutoAPI

@@ -7,7 +7,7 @@
 #                                                                               #
 # Authors:      PCMDI Software Team                                             #
 #               support@pcmdi.llnl.gov                                          #
-#               http://cdat.sf.net/cdat                                        # 
+#               http://cdat.sf.net/cdat                                         # 
 #                                                                               #
 # Description:  Python command wrapper for VCS's functionality. VCS is computer #
 #               software for the selection, manipulation, and display of        #
@@ -16,16 +16,17 @@
 #               virtually complete control of the appearance of the data        #
 #               display and associated text and animation.                      #
 #                                                                               #
+# Upgrade to VTK:                                                               #
+# Author: Charles Doutriaux                                                     #
+# Description: Took out all C code and used VTK's python bindings instead       #
+#                                                                               #
 #################################################################################
 """
-import vcs.info
 import sys
 if sys.executable[-4:]!='cdat' and sys.platform in ['darwin'] and (vcs.info.WM=='QT' or vcs.info.EM=='QT'):
     raise ImportError,"if you are going to use vcs you need to run this as 'cdat' not %s" % sys.executable
 import cdat_info
 cdat_info.pingPCMDIdb("cdat","vcs")
-import slabapi # to make sure it is initialized
-import _vcs
 import thread
 import time
 import Canvas

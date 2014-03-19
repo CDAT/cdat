@@ -1,5 +1,4 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
-import _vcs
 import vcs,cdtime,queries
 import numpy
 
