@@ -33,7 +33,6 @@ import texttable
 import textorientation
 from types import *
 import VCS_validation_functions
-import _vcs
 
 #############################################################################
 #                                                                           #

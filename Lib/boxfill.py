@@ -26,7 +26,6 @@
 # Import: VCS C extension module.                                             #
 #                                                                             #
 ###############################################################################
-import _vcs
 import vcs
 import Canvas
 import isofill
