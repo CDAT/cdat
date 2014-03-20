@@ -102,7 +102,24 @@ def init(gui = 0, mode=1, pause_time=0, call_from_gui=0, size=None):
     return canvas
     
 def initQt():
-    _vcs.startQtApp()
+    #_vcs.startQtApp()
+    return
+
+elements = { "boxfill" : {},
+             "isofill" : {},
+             "isoline" : {},
+             "meshfill" : {},
+             "outfill": {},
+             "outline" : {},
+             "template" : {},
+             "taylordiagram" :{},
+             "vector":{},
+             "yxvsx":{},
+             "xyvsy":{},
+             "yvsx" :{},
+             "scatter" :{},
+             }
+boxfill.Gfb("default")
 
 taylordiagrams=[taylor.Gtd()]
 canvaslist = []

@@ -41,7 +41,7 @@ from types import *
 #                                                                               #
 #################################################################################
 def setPtmember(self,member,attribute,value):
-     _vcs.setPtmember(self.parent, member, attribute, value, self.template_parent.mode)
+    setattr(getattr(self,member),"_%s" % attribute,value)
 
 #################################################################################
 #                                                                               #
@@ -60,7 +60,7 @@ def setPtmember(self,member,attribute,value):
 #                                                                               #
 #################################################################################
 def getPtmember(self,member,attribute):
-     return _vcs.getPtmember(self,member,attribute)
+     return getattr(getattr(self,member),"_%s" % attribute)
 
 #############################################################################
 #                                                                           #

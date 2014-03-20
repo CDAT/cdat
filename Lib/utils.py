@@ -1,6 +1,23 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 import numpy
 import cdtime
+import warnings
+import vcs
+
+
+def listelements(typ):
+  return vcs.elements[typ].keys()
+
+def scriptrun(script):
+  warnings.warn("PLEASE IMPLEMENT scriptrun!!!! (in utils.py)")
+  return
+
+def return_display_names():
+  warnings.warn("PLEASE IMPLEMENT return_display_names!!!! (in utils.py)")
+  return [""],[""]
+
+def getdotdirectory():
+  return ".uvcdat","UVCDAT_DIR"
 
 class VCSUtilsError (Exception):
     def __init__ (self, args=None):

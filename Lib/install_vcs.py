@@ -7,7 +7,7 @@
 #############################################################################
 def _files():
    import sys, os, shutil,vcs
-   dotdir, dotdirenv = vcs.slabapi.getdotdirectory()
+   dotdir, dotdirenv = vcs.getdotdirectory()
    #
    # Create .uvcdat directory if it does not exist
    try:

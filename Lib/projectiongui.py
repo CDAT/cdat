@@ -128,7 +128,7 @@ class ProjGUI:
         
 ##         self.ftype=Tkinter.Frame(parent)
 ##         self.ftype.pack(side='top')
-        projs=self.canvas.listelements('projection')
+        projs=vcs.listelements('projection')
         projs.sort()
 
         self.projections=Pmw.OptionMenu(parent,
@@ -239,7 +239,7 @@ class ProjGUI:
         self.dialog.destroy()
 
 ##     def evt_loadproj(self):
-##         names = self.canvas.listelements('projection')
+##         names = vcs.listelements('projection')
 ##         names.sort()
 ##         name=self.projection.name
 ##         self.loaddialog = Pmw.ComboBoxDialog( self.gui_parent,
@@ -266,7 +266,7 @@ class ProjGUI:
         
     def setgui(self,*crap):
         Proj_color=gui_support.gui_color.Proj_color
-        projs=self.canvas.listelements('projection')
+        projs=vcs.listelements('projection')
         projs.sort()
         a=self.projection.name
         self.projections.setitems(projs)
