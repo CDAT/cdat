@@ -31,13 +31,13 @@
 #                                                                          #
 ############################################################################
 def test():
-   import vcs,cdms2 as cdms,time,os,sys,support                 # import vcs and cu
+   import vcs_legacy,cdms2 as cdms,time,os,sys,support                 # import vcs_legacy and cu
 
    bg=support.bg
    
    f=cdms.open(os.path.join(cdms.__path__[0],'..','..','..','..','sample_data','clt.nc'))
    s=f('clt')                           # get slab clt
-   x=vcs.init()                         # construct vcs canvas
+   x=vcs_legacy.init()                         # construct vcs_legacy canvas
 
    x.plot(s,'default','isofill','quick',bg=bg)# plot slab the old way
    support.check_plot(x)
@@ -92,10 +92,10 @@ def test():
    objs = x.listelements('colormap')                      	# show the list of line secondary objects
    c2=x.getcolormap()             	# get 'default' colormap object
    c=x.getcolormap('AMIP')             # get 'quick' colormap object
-   if not vcs.issecondaryobject(c):           # check to see if it is a secondary object
+   if not vcs_legacy.issecondaryobject(c):           # check to see if it is a secondary object
       raise Exception,"Error did not get colormap as secondary obj"
    else:
-      if not vcs.iscolormap(c):                  	# check to see if it is a line
+      if not vcs_legacy.iscolormap(c):                  	# check to see if it is a line
          raise Exception, "Error object created is not colormap"
 
    a = x.listelements('colormap')                      # show list of xyvsy

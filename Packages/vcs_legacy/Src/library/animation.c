@@ -45,7 +45,7 @@
 *****************************************************************************/
 #include "Python.h"
 #include "workstations.h"
-#include "vcs_canvas.h"
+#include "vcs_legacy_canvas.h"
 #include "animation.h"
 #include "color_editor.h"
 #include "array.h"
@@ -151,7 +151,7 @@ Boolean				anot_stop, quit_animation, zoom_animation=False, stop_from_tog;
 Boolean				use_shared_mem;
 Boolean				stored_afirst_alast=FALSE;
 Boolean                		modified_first_last;
-Boolean				vcs_be_quiet;
+Boolean				vcs_legacy_be_quiet;
 char 				ani_file[1024]="";
 int				selected_dim_panel;
 char           			selected_data[MAX_PATH_LEN];
@@ -206,7 +206,7 @@ int animate_module(int canvas_id)
 	/* Make sure there is no other window in front of the VCS Canvas */
 	XMapRaised(connect_id.display, connect_id.drawable);
 #elif defined QTWM
-	vcs_Qt_open_window_by_id(connect_id.wkst_id);
+	vcs_legacy_Qt_open_window_by_id(connect_id.wkst_id);
 #else
 	fprintf(stderr,"insert here your WM map raise\n");
 #endif
@@ -897,7 +897,7 @@ XtPointer call_data;
 #ifdef X11WM
 	   XClearWindow(connect_id.display,connect_id.drawable);
 #elif defined QTWM
-	   vcs_Qt_clear_window_by_id(connect_id.wkst_id);
+	   vcs_legacy_Qt_clear_window_by_id(connect_id.wkst_id);
 #else
 	   fprintf(stderr,"insert here your clear win func\n");
 #endif
@@ -971,7 +971,7 @@ CANVASINFO_LINK          	cptr;
 	/* 2013-03-22 C. Doutriaux Qt will be handled from Python */
 	fprintf(stderr,"Don't forget to clear window first???\n");
 	
-	vcs_Qt_clear_window_by_id(connect_id.wkst_id);
+	vcs_legacy_Qt_clear_window_by_id(connect_id.wkst_id);
 	
 #else
 	fprintf(stderr,"insert here your WM clear func\n");
@@ -1102,7 +1102,7 @@ DNW*/
 	   /* 2013-03-22 No more drawing for now */
 	   fprintf(stderr,"Resize function was here\n");
 	   /*
-           vcs_Qt_resize_window(connect_id.wkst_id,-1,-1,last_width, last_height);
+           vcs_legacy_Qt_resize_window(connect_id.wkst_id,-1,-1,last_width, last_height);
 	   */
 #endif
 	   /* Show the image in the canvas */
@@ -1133,7 +1133,7 @@ DNW*/
                  return ;
 	      }
 #elif defined QTWM
-	      vcs_Qt_image_create(&zoom_ximage,last_width,last_height);
+	      vcs_legacy_Qt_image_create(&zoom_ximage,last_width,last_height);
 #else 
 	      fprintf(stderr,"insert here your create zoom image func\n");
 #endif        
@@ -1151,7 +1151,7 @@ DNW*/
 #ifdef X11WM
                        pixel = XGetPixel(iptr->ximage, i,j);
 #elif defined QTWM
-		       vcs_Qt_image_get_pixel(iptr->ximage,last_width, last_height,i,j,&pixel);
+		       vcs_legacy_Qt_image_get_pixel(iptr->ximage,last_width, last_height,i,j,&pixel);
 #else
 		       fprintf(stderr,"insert here your get pixel func\n");
 #endif
@@ -1163,7 +1163,7 @@ DNW*/
 #ifdef X11WM
                           XPutPixel(zoom_ximage, (x_val+k), (y_val+l), pixel);
 #elif defined QTWM
-			  vcs_Qt_image_put_pixel(&zoom_ximage, last_width, last_height, (x_val+k), (y_val+l), pixel);
+			  vcs_legacy_Qt_image_put_pixel(&zoom_ximage, last_width, last_height, (x_val+k), (y_val+l), pixel);
 #else
 			  fprintf(stderr,"insert here your put pixel func\n");
 #endif
@@ -1184,7 +1184,7 @@ DNW*/
 		 /* 2013-03-22 C. Doutriaux, no more display from here */
 		 fprintf(stderr, "used to display zoomed image here\n");
 		 
-		 vcs_Qt_window_put_image_by_id(cptr->connect_id.wkst_id,zoom_ximage);
+		 vcs_legacy_Qt_window_put_image_by_id(cptr->connect_id.wkst_id,zoom_ximage);
 		 
 
 #else
@@ -1200,7 +1200,7 @@ DNW*/
 	      /* 2013-03-22 C. Doutriaux, no more display from here */
 	      fprintf(stderr,"We used to plot the image from here!\n");
 	      
-	      vcs_Qt_window_put_image_by_id(cptr->connect_id.wkst_id,iptr->ximage);
+	      vcs_legacy_Qt_window_put_image_by_id(cptr->connect_id.wkst_id,iptr->ximage);
 	      
 	      
 #else
@@ -1291,7 +1291,7 @@ stopa:  Py_END_ALLOW_THREADS
 	   /* 2013-03-22 No more drawing from here */
 	   fprintf(stderr,"We used to clear here again\n");
 	   /*
-	   vcs_Qt_clear_window_by_id(cptr->connect_id.wkst_id);
+	   vcs_legacy_Qt_clear_window_by_id(cptr->connect_id.wkst_id);
 	   */
 #else
 	   fprintf(stderr,"insert your WM clear func here\n");
@@ -1313,7 +1313,7 @@ stopa:  Py_END_ALLOW_THREADS
 	   /* 2013-03-22 No more drawing from here */
 	   fprintf(stderr,"We used to clear from here as well\n");
 	   /*
-	   vcs_Qt_clear_window_by_id(tcptr->connect_id.wkst_id);
+	   vcs_legacy_Qt_clear_window_by_id(tcptr->connect_id.wkst_id);
 	   */
 #else
 	   fprintf(stderr,"insert your WM clear func here\n");
@@ -1419,7 +1419,7 @@ CANVASINFO_LINK                 cptr;
 #ifdef X11WM
 	XClearWindow(cptr->connect_id.display, cptr->connect_id.drawable);
 #elif defined QTWM
-	vcs_Qt_clear_window_by_id(cptr->connect_id.wkst_id);
+	vcs_legacy_Qt_clear_window_by_id(cptr->connect_id.wkst_id);
 #else
 	fprintf(stderr,"insert your clear func here\n");
 #endif
@@ -1524,7 +1524,7 @@ CANVASINFO_LINK                 cptr;
 	            XClearWindow(cptr->connect_id.display, 
                                  cptr->connect_id.drawable);
 #elif defined QTWM
-		    vcs_Qt_clear_window_by_id(cptr->connect_id.wkst_id);
+		    vcs_legacy_Qt_clear_window_by_id(cptr->connect_id.wkst_id);
 #else
 		    fprintf(stderr,"insert your cler func here\n");
 #endif
@@ -1982,8 +1982,8 @@ cvsptr: for (cptr=head_canvas_info; cptr != NULL; cptr=cptr->next) {
                  return ;
               }
 #elif defined QTWM
-	      vcs_Qt_get_window_dimensions_by_id(connect_id.wkst_id,&xwa.x,&xwa.y,&xwa.width,&xwa.height);
-	      vcs_Qt_image_create(&zoom_ximage,xwa.width,xwa.height);
+	      vcs_legacy_Qt_get_window_dimensions_by_id(connect_id.wkst_id,&xwa.x,&xwa.y,&xwa.width,&xwa.height);
+	      vcs_legacy_Qt_image_create(&zoom_ximage,xwa.width,xwa.height);
 #else
 	      fprintf(stderr,"insert your create zoom img here\n");
 #endif
@@ -2002,7 +2002,7 @@ cvsptr: for (cptr=head_canvas_info; cptr != NULL; cptr=cptr->next) {
 #ifdef X11WM
                     pixel = XGetPixel(iptr->ximage, i,j);
 #elif defined QTWM
-		    vcs_Qt_image_get_pixel(iptr->ximage,xwa.width, xwa.height,i,j,&pixel);
+		    vcs_legacy_Qt_image_get_pixel(iptr->ximage,xwa.width, xwa.height,i,j,&pixel);
 #else
 		    fprintf(stderr,"insert here your WM get pix func \n");
 #endif
@@ -2011,7 +2011,7 @@ cvsptr: for (cptr=head_canvas_info; cptr != NULL; cptr=cptr->next) {
 #ifdef X11WM
                           XPutPixel(zoom_ximage, (x_val+k), (y_val+l), pixel);
 #elif defined QTWM
-			  vcs_Qt_image_put_pixel(&zoom_ximage, xwa.width, xwa.height, (x_val+k), (y_val+l), pixel);
+			  vcs_legacy_Qt_image_put_pixel(&zoom_ximage, xwa.width, xwa.height, (x_val+k), (y_val+l), pixel);
 #else
 			  fprintf(stderr,"insert here your WM put pix func \n");
 #endif
@@ -2032,7 +2032,7 @@ cvsptr: for (cptr=head_canvas_info; cptr != NULL; cptr=cptr->next) {
                  XDestroyImage(zoom_ximage);
 #elif defined QTWM
               if (iptr != NULL)
-		vcs_Qt_window_put_image_by_id(connect_id.wkst_id,zoom_ximage);
+		vcs_legacy_Qt_window_put_image_by_id(connect_id.wkst_id,zoom_ximage);
               //if (zoom_ximage != NULL) {free(zoom_ximage);zoom_ximage=NULL;};
 #else
 		    fprintf(stderr,"insert here your WM put img func \n");
@@ -2043,7 +2043,7 @@ cvsptr: for (cptr=head_canvas_info; cptr != NULL; cptr=cptr->next) {
 	        XPutImage(connect_id.display, connect_id.drawable,
 			  gc,iptr->ximage,0,0,0,0,iptr->ras_width,iptr->ras_height);
 #elif defined QTWM
-		vcs_Qt_window_put_image_by_id(connect_id.wkst_id,iptr->ximage);
+		vcs_legacy_Qt_window_put_image_by_id(connect_id.wkst_id,iptr->ximage);
 #else
 	      fprintf(stderr,"insert here your WM put img func \n");
 #endif
@@ -2256,7 +2256,7 @@ void *call_data;
 #ifdef X11WM
          XResizeWindow(connect_id.display, connect_id.drawable, iptr->ras_width, iptr->ras_height);
 #elif defined QTWM
-	 vcs_Qt_resize_window(connect_id.wkst_id);
+	 vcs_legacy_Qt_resize_window(connect_id.wkst_id);
 #else
 	 fprintf(stderr,"insert your rszi WM func here\n");
 #endif
@@ -3616,17 +3616,17 @@ DNW*/
 	/* Clear the canvas of any image */
         XClearWindow(connect_id.display, connect_id.drawable);
 #elif defined QTWM
-	vcs_Qt_clear_window_by_id(connect_id.wkst_id);
+	vcs_legacy_Qt_clear_window_by_id(connect_id.wkst_id);
 #else
 	fprintf(stderr,"insert here your clear func\n");
 #endif
 
 	/* Ring bell to let user know when done creating images */
-        if ((ierr) && (!vcs_be_quiet))
+        if ((ierr) && (!vcs_legacy_be_quiet))
 #ifdef X11WM
            XBell(connect_id.display, 100);
 #elif defined QTWM
-	vcs_Qt_window_bell();
+	vcs_legacy_Qt_window_bell();
 #else
 	fprintf(stderr,"insert here your bell ring func\n");
 #endif
@@ -3670,7 +3670,7 @@ int				initialize;
         XGetWindowAttributes(cptr->connect_id.display,
                              cptr->connect_id.drawable, &xwa);
 #elif defined QTWM
-	vcs_Qt_get_window_dimensions_by_id(cptr->connect_id.wkst_id,&xwa.x,&xwa.y,&xwa.width,&xwa.height);
+	vcs_legacy_Qt_get_window_dimensions_by_id(cptr->connect_id.wkst_id,&xwa.x,&xwa.y,&xwa.width,&xwa.height);
 #else
 	fprintf(stderr,"insert here your WM getgeom\n");
 #endif

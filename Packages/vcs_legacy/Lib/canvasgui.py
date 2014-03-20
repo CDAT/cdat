@@ -3,7 +3,7 @@ import sys, os, time
 import __main__
 sys.path[:0] = ['../../..']
 
-import Tkinter, Pmw, cdms2, vcs, sys, os, string, types
+import Tkinter, Pmw, cdms2, vcs_legacy, sys, os, string, types
 import Tkinter, Pmw, tkFileDialog
 from tkMessageBox import showerror
 from gui_support import gui_color
@@ -47,7 +47,7 @@ class CanvasGUI:
 
         self.top_parent = top_parent
         self.called_from_vcdat = 1
-        try : self.top_parent.menu.vcs_canvas_gui_settings_flg
+        try : self.top_parent.menu.vcs_legacy_canvas_gui_settings_flg
         except: self.called_from_vcdat = 0
         self.canvas = canvas
 
@@ -66,7 +66,7 @@ class CanvasGUI:
         self.lastcommand = ""
 
         # Set data, template, and graphics method selections for VCDAT; the actural 
-        # values are set in ../../browser/vcs_function.py
+        # values are set in ../../browser/vcs_legacy_function.py
         self.slab1 = None
 	self.slab2 = None
 	self.template = None
@@ -231,32 +231,32 @@ class CanvasGUI:
            frame3b = Tkinter.Frame( frame3, background = winColor, borderwidth = 1, relief = 'sunken' )
            frame3b.pack(side='top', padx=0, pady=2)
 
-           zoom_img = Tkinter.PhotoImage( master = frame3b, file = os.path.join(vcs.__path__[0],'..','..','..','..', 'bin', 'viewmag+.gif') )
+           zoom_img = Tkinter.PhotoImage( master = frame3b, file = os.path.join(vcs_legacy.__path__[0],'..','..','..','..', 'bin', 'viewmag+.gif') )
 	   self.zoom_btn = Tkinter.Button(frame3b, image = zoom_img, command=gui_control.Command(self.evt_zoom, parent, canvas, 1))
            self.zoom_btn.pack(side='left', fill='x', expand=1, padx=0, pady=0 )
            gui_support.balloon.bind( self.zoom_btn, "Zoom In")
 
-           unzoom_img = Tkinter.PhotoImage( master = frame3b, file = os.path.join(vcs.__path__[0],'..','..','..','..', 'bin', 'viewmag-.gif') )
+           unzoom_img = Tkinter.PhotoImage( master = frame3b, file = os.path.join(vcs_legacy.__path__[0],'..','..','..','..', 'bin', 'viewmag-.gif') )
 	   self.unzoom_btn = Tkinter.Button(frame3b, image = unzoom_img, command=gui_control.Command(self.evt_zoom, parent, canvas, -1))
            self.unzoom_btn.pack(side='left', fill='x', expand=1, padx=0, pady=0 )
            gui_support.balloon.bind( self.unzoom_btn, "Zoom Out")
 
-           panup_img = Tkinter.PhotoImage( master = frame3b, file = os.path.join(vcs.__path__[0],'..','..','..','..', 'bin', 'pan_up.gif') )
+           panup_img = Tkinter.PhotoImage( master = frame3b, file = os.path.join(vcs_legacy.__path__[0],'..','..','..','..', 'bin', 'pan_up.gif') )
 	   self.panup_btn = Tkinter.Button(frame3b, image = panup_img, command=gui_control.Command(self.evt_pan_vert, parent, canvas, 20))
            self.panup_btn.pack(side='left', fill='x', expand=1, padx=0, pady=0 )
            gui_support.balloon.bind( self.panup_btn, "Pan Up")
 
-           pandown_img = Tkinter.PhotoImage( master = frame3b, file = os.path.join(vcs.__path__[0],'..','..','..','..', 'bin', 'pan_down.gif') )
+           pandown_img = Tkinter.PhotoImage( master = frame3b, file = os.path.join(vcs_legacy.__path__[0],'..','..','..','..', 'bin', 'pan_down.gif') )
 	   self.pandown_btn = Tkinter.Button(frame3b, image = pandown_img, command=gui_control.Command(self.evt_pan_vert, parent, canvas, -20))
            self.pandown_btn.pack(side='left', fill='x', expand=1, padx=0, pady=0 )
            gui_support.balloon.bind( self.pandown_btn, "Pan Down")
 
-           panleft_img = Tkinter.PhotoImage( master = frame3b, file = os.path.join(vcs.__path__[0],'..','..','..','..', 'bin', 'pan_left.gif') )
+           panleft_img = Tkinter.PhotoImage( master = frame3b, file = os.path.join(vcs_legacy.__path__[0],'..','..','..','..', 'bin', 'pan_left.gif') )
 	   self.panleft_btn = Tkinter.Button(frame3b, image = panleft_img, command=gui_control.Command(self.evt_pan_hori, parent, canvas, -20))
            self.panleft_btn.pack(side='left', fill='x', expand=1, padx=0, pady=0 )
            gui_support.balloon.bind( self.panleft_btn, "Pan Left")
 
-           panright_img = Tkinter.PhotoImage( master = frame3b, file = os.path.join(vcs.__path__[0],'..','..','..','..', 'bin', 'pan_right.gif') )
+           panright_img = Tkinter.PhotoImage( master = frame3b, file = os.path.join(vcs_legacy.__path__[0],'..','..','..','..', 'bin', 'pan_right.gif') )
 	   self.panright_btn = Tkinter.Button(frame3b, image = panright_img, command=gui_control.Command(self.evt_pan_hori, parent, canvas, 20))
            self.panright_btn.pack(side='left', fill='x', expand=1, padx=0, pady=0 )
            gui_support.balloon.bind( self.panright_btn, "Pan Right")
@@ -264,44 +264,44 @@ class CanvasGUI:
            frame2 = Tkinter.Frame(page )
            frame2.pack(side='top', fill='x', expand=1)
 
-           img1 = Tkinter.PhotoImage( master = frame2, file = os.path.join(vcs.__path__[0],'..','..','..','..', 'bin', '2leftarrow.gif') )
+           img1 = Tkinter.PhotoImage( master = frame2, file = os.path.join(vcs_legacy.__path__[0],'..','..','..','..', 'bin', '2leftarrow.gif') )
 	   self.firstframe = Tkinter.Button(frame2, image = img1, command=gui_control.Command(self.evt_firstframe, parent, canvas))
            self.firstframe.pack(side='left', fill='x', expand=1, padx=5, pady=5 )
            gui_support.balloon.bind( self.firstframe, "First")
            self.firstframe.configure(state = 'disabled')
    
-           img2 = Tkinter.PhotoImage( file = os.path.join(vcs.__path__[0],'..','..','..','..', 'bin', 'player_start.gif') )
+           img2 = Tkinter.PhotoImage( file = os.path.join(vcs_legacy.__path__[0],'..','..','..','..', 'bin', 'player_start.gif') )
 	   self.stepback = Tkinter.Button(frame2, image = img2, command=gui_control.Command(self.evt_stepback, parent, canvas))
            self.stepback.pack(side='left', fill='x', expand=1,  padx=5, pady=5 )
            gui_support.balloon.bind( self.stepback, "Step Back")
            self.stepback.configure(state = 'disabled')
    
-           img3 = Tkinter.PhotoImage( file = os.path.join(vcs.__path__[0],'..','..','..','..', 'bin', 'player_rev.gif') )
+           img3 = Tkinter.PhotoImage( file = os.path.join(vcs_legacy.__path__[0],'..','..','..','..', 'bin', 'player_rev.gif') )
 	   self.playback = Tkinter.Button(frame2, image = img3, command=gui_control.Command(self.evt_play, parent, canvas, 2))
            self.playback.pack(side='left',  fill='x', expand=1, padx=5, pady=5 )
            gui_support.balloon.bind( self.playback, "Play Back")
    
-           self.img4 = Tkinter.PhotoImage( file = os.path.join(vcs.__path__[0],'..','..','..','..', 'bin', 'player_stop.gif') )
+           self.img4 = Tkinter.PhotoImage( file = os.path.join(vcs_legacy.__path__[0],'..','..','..','..', 'bin', 'player_stop.gif') )
 	   self.pause = Tkinter.Button(frame2, image = self.img4, command=gui_control.Command(self.evt_stop, parent, canvas, 0))
            self.pause.pack(side='left',  fill='x', expand=1, padx=5, pady=5 )
            gui_support.balloon.bind( self.pause, "Stop/Pause")
-           self.img4a = Tkinter.PhotoImage( file = os.path.join(vcs.__path__[0],'..','..','..','..', 'bin', 'player_pause.gif') )
+           self.img4a = Tkinter.PhotoImage( file = os.path.join(vcs_legacy.__path__[0],'..','..','..','..', 'bin', 'player_pause.gif') )
 #	self.pause = Tkinter.Button(frame2, image = img4, command=gui_control.Command(self.evt_pause, parent, canvas))
 #        self.pause.pack(side='left',  fill='x', expand=1, padx=5, pady=5 )
 #        self.pause.configure(state = 'disabled')
 
-           img5 = Tkinter.PhotoImage( file = os.path.join(vcs.__path__[0],'..','..','..','..', 'bin', 'player_play.gif') )
+           img5 = Tkinter.PhotoImage( file = os.path.join(vcs_legacy.__path__[0],'..','..','..','..', 'bin', 'player_play.gif') )
 	   self.playforward = Tkinter.Button(frame2, image = img5, command=gui_control.Command(self.evt_play, parent, canvas, 1))
            self.playforward.pack(side='left',  fill='x', expand=1, padx=5, pady=5 )
            gui_support.balloon.bind( self.playforward, "Play Forward")
 
-           img6 = Tkinter.PhotoImage( file = os.path.join(vcs.__path__[0],'..','..','..','..', 'bin', 'player_end2.gif') )
+           img6 = Tkinter.PhotoImage( file = os.path.join(vcs_legacy.__path__[0],'..','..','..','..', 'bin', 'player_end2.gif') )
 	   self.stepforward = Tkinter.Button(frame2, image = img6, command=gui_control.Command(self.evt_stepforward, parent, canvas))
            self.stepforward.pack(side='left',  fill='x', expand=1, padx=5, pady=5 )
            gui_support.balloon.bind( self.stepforward, "Step Forward")
            self.stepforward.configure(state = 'disabled')
 
-           img7 = Tkinter.PhotoImage( file = os.path.join(vcs.__path__[0],'..','..','..','..', 'bin', '2rightarrow.gif') )
+           img7 = Tkinter.PhotoImage( file = os.path.join(vcs_legacy.__path__[0],'..','..','..','..', 'bin', '2rightarrow.gif') )
 	   self.lastframe = Tkinter.Button(frame2, image = img7, command=gui_control.Command(self.evt_lastframe, parent, canvas))
            self.lastframe.pack(side='left',  fill='x', expand=1, padx=5, pady=5 )
            gui_support.balloon.bind( self.lastframe, "Last")
@@ -357,10 +357,10 @@ class CanvasGUI:
     #
     def evt_page_orientation( self, parent, canvas, orientation ):
         import thread
-        vcs.Canvas.finish_queued_X_server_requests( self.canvas )
+        vcs_legacy.Canvas.finish_queued_X_server_requests( self.canvas )
   
         self.canvas.BLOCK_X_SERVER()
-        vcs.Canvas.finish_queued_X_server_requests( self.canvas )
+        vcs_legacy.Canvas.finish_queued_X_server_requests( self.canvas )
         if orientation == 'portrait':
            w2 = int(self.top_parent.winfo_screenwidth()*.44); h2 = int(self.top_parent.winfo_screenheight()*0.77)
            self.frame.configure( width=w2, height=h2)
@@ -396,8 +396,8 @@ class CanvasGUI:
 
            # Get existing display plot info
            #plt=canvas.getplot('dpy_plot_1')
-           vcs_dpy = canvas.return_display_names()
-           for d in vcs_dpy:
+           vcs_legacy_dpy = canvas.return_display_names()
+           for d in vcs_legacy_dpy:
               plt = canvas.getplot( d )
 
            self.top_parent.busyWidgets = ( parent, self.animation_speed.component('entry') )
@@ -521,8 +521,8 @@ class CanvasGUI:
       slab1 = None
       slab2 = None
       aa = __main__.__dict__
-      vcs_dpy = canvas.return_display_names()
-      for d in vcs_dpy:
+      vcs_legacy_dpy = canvas.return_display_names()
+      for d in vcs_legacy_dpy:
           dpy_plot = canvas.getplot( d )
       try:
          if (self.called_from_vcdat == 1): # Must be from VCDAT
@@ -653,8 +653,8 @@ class CanvasGUI:
              pass
     
           # View the display and plot information
-          vcs_dpy = canvas.return_display_names()
-          for d in vcs_dpy:
+          vcs_legacy_dpy = canvas.return_display_names()
+          for d in vcs_legacy_dpy:
              dpy_plot = canvas.getplot( d )
 
           plot_list = []
@@ -1244,8 +1244,8 @@ def graphics_method_tab_gui( self, page, parent, canvas ):
 #----------------------------------------------------------------------------------
 def evt_change_graphics_method( self, parent, canvas ):
       # Get the display names
-      vcs_dpy = canvas.return_display_names() 
-      for d in vcs_dpy:
+      vcs_legacy_dpy = canvas.return_display_names() 
+      for d in vcs_legacy_dpy:
          dpy_plot = canvas.getplot( d )
 
       # Show the graphics method's type and names
@@ -1269,8 +1269,8 @@ def evt_change_graphics_method( self, parent, canvas ):
 #----------------------------------------------------------------------------------
 def show_graphics_method ( self, parent, canvas ):
       canvas._SCREEN_GM_FLAG()
-      vcs_dpy = canvas.return_display_names() 
-      for d in vcs_dpy:
+      vcs_legacy_dpy = canvas.return_display_names() 
+      for d in vcs_legacy_dpy:
            dpy_plot = canvas.getplot( d )
       g_type = string.capitalize( dpy_plot.g_type )
       self.new_gm = dpy_plot.g_type
@@ -1292,8 +1292,8 @@ def show_graphics_method ( self, parent, canvas ):
 # Change the Graphics Method name and replot
 #----------------------------------------------------------------------------------
 def evt_change_gm_name( self, parent, canvas ):
-      vcs_dpy = canvas.return_display_names()
-      for d in vcs_dpy:
+      vcs_legacy_dpy = canvas.return_display_names()
+      for d in vcs_legacy_dpy:
          dpy_plot = canvas.getplot( d )
       #print "dpy_plot = ", dpy_plot
 
@@ -1338,7 +1338,7 @@ def evt_change_gm_name( self, parent, canvas ):
          self.select_gm_name.configure( label_text = 'Select Graphics Method name\nSelected name: ' + self.gm_name);
          selected_display = canvas.get_selected_display()
          if selected_display is None:
-             selected_display = vcs_dpy[0]
+             selected_display = vcs_legacy_dpy[0]
          # New way to do this, simply tells it what to update
          canvas.change_display_graphic_method(selected_display,self.new_gm,gm_name)
          # Clear the canvas and replot with updated data
@@ -1347,7 +1347,7 @@ def evt_change_gm_name( self, parent, canvas ):
 ##          if ( (self.new_gm in ['Vector', 'Scatter', 'Xvsy']) and (slab2 is None)):
 ##             showerror( "Error Message to User", "Must have two variables to plot %s." % self.new_gm)
 ##             return     
-##          print 'New graphic method:',gm_name,template,self.new_gm,vcs_dpy[0]
+##          print 'New graphic method:',gm_name,template,self.new_gm,vcs_legacy_dpy[0]
 ##          if slab2 is None: canvas.plot(slab1, template, self.new_gm, gm_name, sal=0)
 ##          else: canvas.plot(slab1, slab2, template, self.new_gm, gm_name, sal=0)
          #if slab2 is None: canvas.plot(slab1, template, self.new_gm, gm_name, plot_kw)
@@ -1487,7 +1487,7 @@ def rename_graphics_method(self, parent, canvas):
 
       # Redisplay the graphics method list
       self.select_gm_name.setlist( canvas.listelements( self.new_gm ) )
-#      gm_list = parent.vcs[ parent.vcs_id ].listelements( self.gm_name )
+#      gm_list = parent.vcs_legacy[ parent.vcs_legacy_id ].listelements( self.gm_name )
 #      self.gm_listbox.setlist( gm_list )
 #      name_index = gm_list.index( new_name )
 #      parent.panelDV.gm_listbox.select_set( name_index )

@@ -15,7 +15,7 @@
 #                                                                             #
 ###############################################################################
 
-import vcs
+import vcs_legacy
 import Tkinter,Pmw,tkFileDialog
 from browser import gui_control
 import string,browser
@@ -49,7 +49,7 @@ class FontGUI:
         if canvas is None:
 ##             import Canvas
 ##             self.canvas = Canvas.Canvas()
-            self.canvas=vcs.init()
+            self.canvas=vcs_legacy.init()
         else:
             self.canvas=canvas
 
@@ -498,8 +498,8 @@ class FontGUI:
     # Save VCS projection as a new name
     #
     def evt_save_table_as( self, master=None):
-##    def __init__(self, eself, parent, vcs, type, title, text, entry_str = ''):
-##       create_entry_popup(eself, parent, vcs, 'sa',('Save VCS colormap ( %s ) as:' % vcs.getcolormapname()),'Enter the new name of the colormap:\n\tFor example:\n\t\tnewcolormapname')
+##    def __init__(self, eself, parent, vcs_legacy, type, title, text, entry_str = ''):
+##       create_entry_popup(eself, parent, vcs_legacy, 'sa',('Save VCS colormap ( %s ) as:' % vcs_legacy.getcolormapname()),'Enter the new name of the colormap:\n\tFor example:\n\t\tnewcolormapname')
         self.savedialog = Pmw.Dialog( master=master,
             title = 'Save VCS Table ( %s ) as:' % self.text.Tt_name,
             buttons = ('OK', 'Dismiss'),
@@ -532,8 +532,8 @@ class FontGUI:
     # Save VCS projection as a new name
     #
     def evt_save_orientation_as( self, master=None):
-##    def __init__(self, eself, parent, vcs, type, title, text, entry_str = ''):
-##       create_entry_popup(eself, parent, vcs, 'sa',('Save VCS colormap ( %s ) as:' % vcs.getcolormapname()),'Enter the new name of the colormap:\n\tFor example:\n\t\tnewcolormapname')
+##    def __init__(self, eself, parent, vcs_legacy, type, title, text, entry_str = ''):
+##       create_entry_popup(eself, parent, vcs_legacy, 'sa',('Save VCS colormap ( %s ) as:' % vcs_legacy.getcolormapname()),'Enter the new name of the colormap:\n\tFor example:\n\t\tnewcolormapname')
         self.savedialog = Pmw.Dialog( master=master,
             title = 'Save VCS TextOrientation ( %s ) as:' % self.text.To_name,
             buttons = ('OK', 'Dismiss'),
@@ -564,8 +564,8 @@ class FontGUI:
         self.savedialog.activate(geometry= "+%d+%d" % (d1, d2) )
 
     def evt_save_as( self, master=None):
-##    def __init__(self, eself, parent, vcs, type, title, text, entry_str = ''):
-##       create_entry_popup(eself, parent, vcs, 'sa',('Save VCS colormap ( %s ) as:' % vcs.getcolormapname()),'Enter the new name of the colormap:\n\tFor example:\n\t\tnewcolormapname')
+##    def __init__(self, eself, parent, vcs_legacy, type, title, text, entry_str = ''):
+##       create_entry_popup(eself, parent, vcs_legacy, 'sa',('Save VCS colormap ( %s ) as:' % vcs_legacy.getcolormapname()),'Enter the new name of the colormap:\n\tFor example:\n\t\tnewcolormapname')
         self.savedialog = Pmw.Dialog( master=master,
             title = 'Save VCS TextObject ( %s ) as:' % self.text.Tt_name,
             buttons = ('OK', 'Dismiss'),
@@ -701,8 +701,8 @@ class FontGUI:
                 print 'Error:',err,'--------------------------------------'
 
 if __name__=='__main__':
-    import vcs,cdms2 as cdms
-    x=vcs.init()
+    import vcs_legacy,cdms2 as cdms
+    x=vcs_legacy.init()
     tt=x.gettext('std','7left')
     tt.string=['Hello']
     tt.x=[.5]

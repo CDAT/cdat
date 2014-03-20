@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import vcs,cdms2,os,sys,support
+import vcs_legacy,cdms2,os,sys,support
 bg=support.bg
 lon1=-120.
 lon2=-20.
@@ -23,7 +23,7 @@ proj='mollweide'
 proj='robinson'
 proj='mercator'
 proj='lambert'
-x=vcs.init()
+x=vcs_legacy.init()
 
 t=x.createtemplate('new')
 t.scale(.9)

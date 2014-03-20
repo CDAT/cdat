@@ -4,8 +4,8 @@ var="clt"
 f=cdms2.open(fnm)
 s=f(var,slice(0,13))
 print s.shape
-import vcs
-x=vcs.init()
+import vcs_legacy
+x=vcs_legacy.init()
 x.plot(s,"default","isofill","default")
 print "Ok plotted the data"
 x.animate.create(min=20,max=80)

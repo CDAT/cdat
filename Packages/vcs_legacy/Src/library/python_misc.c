@@ -68,9 +68,9 @@
 #include "workstations.h"
 #include "run.h"
 #include "cddrs.h"
-#include "vcs_marker.h"
+#include "vcs_legacy_marker.h"
 #include "my_access_mode.h"
-#include "vcs_canvas.h"
+#include "vcs_legacy_canvas.h"
 
 #define  MAX_PATH_LEN 1028
 /****************************************************************************
@@ -208,7 +208,7 @@ python_colormap(char *str)
         extern struct color_table C_tab;
         extern int setXcolormap();
         extern int set_active_colors();
-	extern int vcs_canvas_update();
+	extern int vcs_legacy_canvas_update();
         extern Gconid_X_drawable 	connect_id;
 #ifdef USEX11
 	extern Visual                   *visual;
@@ -235,7 +235,7 @@ python_colormap(char *str)
               if (visual->class == PseudoColor) /* change the color on the screen now! */
                  ier = setXcolormap(ptab); /* set colormap for the display */
 	     /* Update the VCS Canvas with the new colormap. */
-	     if (ier == 1) vcs_canvas_update(0);
+	     if (ier == 1) vcs_legacy_canvas_update(0);
 
 	     if (ier == 1)
 	        return NULL;
@@ -274,7 +274,7 @@ python_setcolorcell(int cell, int R, int G, int B)
 #endif
         extern Gconid_X_drawable 	connect_id;
 	extern char 			active_colors[17];
-	extern int 			vcs_canvas_update();
+	extern int 			vcs_legacy_canvas_update();
 
 
 	if (cmpncs(active_colors, "default") == 0) {
@@ -318,7 +318,7 @@ python_setcolorcell(int cell, int R, int G, int B)
               if (visual->class == PseudoColor) /* change the color on the screen now! */
 	         XStoreColor (connect_id.display,n_cmap,&xc);
               else /* Update the VCS Canvas with the new colormap. */
-	         vcs_canvas_update(0);
+	         vcs_legacy_canvas_update(0);
 #endif
 	}
 
@@ -1899,7 +1899,7 @@ int python_display(char *a_name[17], char *template, char *type, char *graphics,
 /* char d_name[]; */
 {
         extern int update_ind;
-	extern int vcs_canvas_update();
+	extern int vcs_legacy_canvas_update();
         extern Gconid_X_drawable 	connect_id;
         extern void draw_logo(cairo_t *cr);
 
@@ -1913,10 +1913,10 @@ int python_display(char *a_name[17], char *template, char *type, char *graphics,
 	/* Draw the plot in the VCS Canvas window */
         if ((cmpncs(type,"line") == 0) || (cmpncs(type,"marker") == 0) ||
             (cmpncs(type,"fillarea") == 0) || (cmpncs(type,"text") == 0)) {
-	   vcs_draw_primatives( d_name );
+	   vcs_legacy_draw_primatives( d_name );
 	   draw_logo(connect_id.cr);
         } else {
-	  vcs_canvas_update(0);
+	  vcs_legacy_canvas_update(0);
 	}
 	return 1;
 
@@ -2082,7 +2082,7 @@ plnorm(int x_or_y, float value)
         XWindowAttributes       	xwa;
         Dimension                       xwidth, yheight;
 #else
-	extern void vcs_Qt_get_window_dimensions_by_id(int id,int *x, int *y,int *w,int *h);
+	extern void vcs_legacy_Qt_get_window_dimensions_by_id(int id,int *x, int *y,int *w,int *h);
         Gint                       xwidth, yheight;
 	Grectangle                      xwa;
 	int x,y,w,h;
@@ -2100,7 +2100,7 @@ plnorm(int x_or_y, float value)
            XGetWindowAttributes(connect_id.display,
                                 connect_id.drawable, &xwa);
 #elif defined (QTWM)
-	   vcs_Qt_get_window_dimensions_by_id(connect_id.wkst_id,&x,&y,&w,&h);
+	   vcs_legacy_Qt_get_window_dimensions_by_id(connect_id.wkst_id,&x,&y,&w,&h);
 	   xwa.height=h;
 	   xwa.width=w;
 #else
@@ -2179,7 +2179,7 @@ glnorm(int x_or_y, float value, int normalized_flg, int orientation)
         Gint                       xwidth, yheight;
 	Grectangle                      xwa;
 	int x,y,w,h;
-	extern void vcs_Qt_get_window_dimensions_by_id(int id,int *x, int *y,int *w,int *h);
+	extern void vcs_legacy_Qt_get_window_dimensions_by_id(int id,int *x, int *y,int *w,int *h);
 #endif
 /*      if normalized flag is 0 then return value. Done...              */
         if (normalized_flg == 0) return value;
@@ -2197,7 +2197,7 @@ glnorm(int x_or_y, float value, int normalized_flg, int orientation)
            XGetWindowAttributes(connect_id.display,
                                 connect_id.drawable, &xwa);
 #elif defined (QTWM)
-	   vcs_Qt_get_window_dimensions_by_id(connect_id.wkst_id,&x,&y,&w,&h);
+	   vcs_legacy_Qt_get_window_dimensions_by_id(connect_id.wkst_id,&x,&y,&w,&h);
 	   xwa.height=h;
 	   xwa.width=w;
 #else

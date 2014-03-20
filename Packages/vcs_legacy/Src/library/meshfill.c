@@ -10,7 +10,7 @@
 #include "graph.h"
 #include "display.h"
 #include "workstations.h"
-#include "vcs_marker.h"
+#include "vcs_legacy_marker.h"
 #include "gks.h"
 #include "gksshort.h"
 

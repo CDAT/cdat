@@ -6,7 +6,7 @@
 #include "picture.h"
 #include "display.h"
 #include "graph.h"
-#include "vcs_names_length.h"
+#include "vcs_legacy_names_length.h"
 
 #define TRUE 1
 #define FALSE 0
@@ -125,7 +125,7 @@
            if (i < 6)
               sscanf (strm,"%f",&v);
 	   if (i==6) {
-	     /* C.Doutriaux, code to read in the old vcs attribute  files, vs ones with fillin color */
+	     /* C.Doutriaux, code to read in the old vcs_legacy attribute  files, vs ones with fillin color */
 	     if ((strcmp(strm,"projection")==0) ||
 	     (strcmp(strm,"vp")==0) ||
 		 (strcmp(strm,"wc")==0) ||

@@ -15,7 +15,7 @@
 #                                                                             #
 ###############################################################################
 
-import vcs
+import vcs_legacy
 import Tkinter,Pmw,tkFileDialog
 import string,browser
 import os
@@ -44,7 +44,7 @@ class ProjGUI:
         if canvas is None:
 ##             import Canvas
 ##             self.canvas = Canvas.Canvas()
-            self.canvas=vcs.init()
+            self.canvas=vcs_legacy.init()
         else:
             self.canvas=canvas
             
@@ -505,8 +505,8 @@ class ProjGUI:
     # Save VCS projection as a new name
     #
     def evt_save_as( self):
-##    def __init__(self, eself, parent, vcs, type, title, text, entry_str = ''):
-##       create_entry_popup(eself, parent, vcs, 'sa',('Save VCS colormap ( %s ) as:' % vcs.getcolormapname()),'Enter the new name of the colormap:\n\tFor example:\n\t\tnewcolormapname')
+##    def __init__(self, eself, parent, vcs_legacy, type, title, text, entry_str = ''):
+##       create_entry_popup(eself, parent, vcs_legacy, 'sa',('Save VCS colormap ( %s ) as:' % vcs_legacy.getcolormapname()),'Enter the new name of the colormap:\n\tFor example:\n\t\tnewcolormapname')
         self.savedialog = Pmw.Dialog( self.gui_parent,
             title = 'Save VCS Projection ( %s ) as:' % self.projection.name,
             buttons = ('OK', 'Dismiss'),

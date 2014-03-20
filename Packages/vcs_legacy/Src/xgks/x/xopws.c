@@ -251,8 +251,8 @@ xXgksOpenCanvasWs(wk)
 #elif defined (QTWM)
 	sscanf(conn_str,"%i",&iwkstid);
 	//fprintf(stderr,"in xgks opeing id: %i, new: %i\n",wk->ws_id -7,iwkstid);
-	vcs_Qt_open_window_by_id(iwkstid); /* make sure the window is shown */
-	vcs_Qt_get_window_dimensions_by_id(iwkstid,&qx,&qy,&qw,&qh); /*ok grabs geom */
+	vcs_legacy_Qt_open_window_by_id(iwkstid); /* make sure the window is shown */
+	vcs_legacy_Qt_get_window_dimensions_by_id(iwkstid,&qx,&qy,&qw,&qh); /*ok grabs geom */
 	wk->wbound.x = wk->size.x = qw;
 	wk->wbound.y = wk->size.y = qh;
 	wk->soft_clipping_on=0;

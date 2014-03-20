@@ -1,6 +1,6 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
-import _vcs
-import vcs,cdtime,queries
+import _vcs_legacy
+import vcs_legacy,cdtime,queries
 import numpy
 
 class PPE(Exception):
@@ -17,9 +17,9 @@ class PPE(Exception):
 ##           return 0
 
 
-def color2vcs(col):
+def color2vcs_legacy(col):
    if isinstance(col,str):
-       r,g,b=vcs.colors.str2rgb(col)
+       r,g,b=vcs_legacy.colors.str2rgb(col)
        if r is None :
             r,g,b=[0,0,0] # black by default
 
@@ -33,7 +33,7 @@ def matchVcsColor(r,g,b):
    rmsmin=100000000.
    color=None
    for i in range(256):
-       r2,g2,b2=_vcs.getcolorcell(i)
+       r2,g2,b2=_vcs_legacy.getcolorcell(i)
        rms=numpy.sqrt((r2-r)**2+(g2-g)**2+(b2-b)**2)
        if rms<rmsmin :
            rmsmin=rms
@@ -56,17 +56,17 @@ def checkContType(self,name,value):
      return value
 def checkLine(self,name,value):
      checkName(self,name,value)
-     if not isinstance(value,(str,vcs.line.Tl)):
+     if not isinstance(value,(str,vcs_legacy.line.Tl)):
           raise ValueError, name+' must be an line primitive or the name of an exiting one.'
      if isinstance(value,str):
-          if not value in _vcs.listelements('line'):
+          if not value in _vcs_legacy.listelements('line'):
                raise ValueError, name+' is not an existing line primitive'
           value=self.x.getline(value)
      return value
 
 ## def checkIsoline(self,name,value):
 ##      checkName(self,name,value)
-##      if not isinstance(value,(str,vcs.isoline.Gi)):
+##      if not isinstance(value,(str,vcs_legacy.isoline.Gi)):
 ##           raise ValueError, name+' must be an isoline graphic method or the name of an exiting one.'
 ##      if isinstance(value,str):
 ##           if not value in self.x.listelements('isoline'):
@@ -76,7 +76,7 @@ def checkLine(self,name,value):
 
 ## def checkIsofill(self,name,value):
 ##      checkName(self,name,value)
-##      if not isinstance(value,(str,vcs.isofill.Gfi)):
+##      if not isinstance(value,(str,vcs_legacy.isofill.Gfi)):
 ##           raise ValueError, name+' must be an isofill graphic method or the name of an exiting one.'
 ##      if isinstance(value,str):
 ##           if not value in self.x.listelements('isofill'):
@@ -144,11 +144,11 @@ def checkFont(self,name,value):
      elif isNumber(value,min=1):
           value=int(value)
           # try to see if font exists
-          nm = _vcs.getfontname(value)
+          nm = _vcs_legacy.getfontname(value)
      elif isinstance(value,str):
-          value = _vcs.getfontnumber(value)
+          value = _vcs_legacy.getfontnumber(value)
      else:
-          nms = _vcs.listelements("font")
+          nms = _vcs_legacy.listelements("font")
           raise ValueError, 'Error for attribute %s: The font attribute values must be a valid font number or a valid font name. valid names are: %s' % (name,', '.join(nms))
      return value
 
@@ -398,7 +398,7 @@ def checkListTuple(self,name,value):
 def checkColor(self,name,value):
      checkName(self,name,value)
      if isinstance(value,str):
-          value = color2vcs(value)
+          value = color2vcs_legacy(value)
      if isinstance(value,int) and value in range(0,256):
           return value
      else:
@@ -503,7 +503,7 @@ def checkTextTable(self,name,value):
      if isinstance(value,str):
           if not value in self.parent.parent.listelements("texttable"):
                raise ValueError,"Error : not a valid texttable"
-     elif not isinstance(value,vcs.texttable.Tt):
+     elif not isinstance(value,vcs_legacy.texttable.Tt):
           raise ValueError,"Error you must pass a texttable objector a texttable name"
      else:
           return value.name
@@ -513,7 +513,7 @@ def checkTextOrientation(self,name,value):
      if isinstance(value,str):
           if not value in self.parent.parent.listelements("textorientation"):
                raise ValueError,"Error : not a valid textorientation"
-     elif not isinstance(value,vcs.textorientation.To):
+     elif not isinstance(value,vcs_legacy.textorientation.To):
           raise ValueError,"Error you must pass a textorientation objector a textorientation name"
      else:
           return value.name
@@ -596,10 +596,10 @@ def checkExt(self,name,value):
      
 def checkProjection(self,name,value):
      checkName(self,name,value)
-     if isinstance(value,vcs.projection.Proj):
+     if isinstance(value,vcs_legacy.projection.Proj):
           value=value.name
      if isinstance(value,str):
-          if (_vcs.checkProj(value)):
+          if (_vcs_legacy.checkProj(value)):
                return value
           else:
                raise ValueError, 'The '+value+' projection does not exist'

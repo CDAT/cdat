@@ -21,7 +21,7 @@ import Tkinter, Pmw
 from tkMessageBox import showerror, showinfo, askyesno
 from tkSimpleDialog import askstring
 import os, string, sys
-from error import vcsError
+from error import vcs_legacyError
 import Ptext, Pformat, Pxtickmarks, Pytickmarks, Pboxeslines
 import Plegend, Pdata, Pxlabels, Pylabels
 import gui_support
@@ -335,7 +335,7 @@ Session Save sets (1), (2), and (4) to (1)
                 elif v.__class__ is Pylabels.Pyl:
                     members = ['x','textorientation','texttable']
                 else:
-                    raise vcsError, 'Internal error in template editor gui.'
+                    raise vcs_legacyError, 'Internal error in template editor gui.'
                 e = TemplateAttributeEditor(f, self, v, members)
                 e.grid(row=rows, column=c, padx=2, sticky='nw')
                 editors.append(e)

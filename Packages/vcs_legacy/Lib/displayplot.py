@@ -28,7 +28,7 @@
 # Import: VCS C extension module.                                             #
 #                                                                             #
 ###############################################################################
-import _vcs
+import _vcs_legacy
 import VCS_validation_functions
 
 ###############################################################################
@@ -48,7 +48,7 @@ import VCS_validation_functions
 #                                                                             #
 ###############################################################################
 def setDpmember(self,member,value):
-     out = _vcs.setDpmember(self, member, value, self.parent.mode)
+     out = _vcs_legacy.setDpmember(self, member, value, self.parent.mode)
      self.parent.backing_store()
      return out
 setmember = setDpmember
@@ -69,7 +69,7 @@ setmember = setDpmember
 #                                                                             #
 ###############################################################################
 def getDpmember(self,member):
-     return _vcs.getDpmember(self,member)
+     return _vcs_legacy.getDpmember(self,member)
 getmember = getDpmember
 ###############################################################################
 #                                                                             #
@@ -87,7 +87,7 @@ getmember = getDpmember
 #                                                                             #
 ###############################################################################
 def renameDp(self, old_name, new_name):
-     return _vcs.renameDp(old_name, new_name)
+     return _vcs_legacy.renameDp(old_name, new_name)
 #############################################################################
 #                                                                           #
 # Display Plot (Dp) Class.                                                  #
@@ -106,7 +106,7 @@ class Dp(object):
     existing display plot table entry.
 
  Other Useful Functions:
- 	     a=vcs.init()		# Constructor
+ 	     a=vcs_legacy.init()		# Constructor
 	     a.show('plot')		# Show display plot objects
              a.update()               	# Updates the VCS Canvas at user's request
              a.mode=1, or 0           	# If 1, then automatic update, else if
@@ -114,7 +114,7 @@ class Dp(object):
                                           update the VCS Canvas.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     To Create a new instance of line use:
      p1=a.plot(s) 			# Create a plot object
 
@@ -246,7 +246,7 @@ class Dp(object):
            if (Dp_name == None):
               raise ValueError, 'Must provide a display plot name.'
            else:
-              _vcs.copyD(Dp_name_src, Dp_name)
+              _vcs_legacy.copyD(Dp_name_src, Dp_name)
               self.name = Dp_name
         else:
               self._name=Dp_name_src
@@ -360,7 +360,7 @@ class Dp(object):
     #############################################################################
     def script(self, script_filename=None, mode=None):
         '''
- Function:     script                           # Calls _vcs.scriptDp
+ Function:     script                           # Calls _vcs_legacy.scriptDp
 
  Description of Function:
        Saves out a display plot object in VCS or Python script form to a
@@ -376,7 +376,7 @@ class Dp(object):
                     produce a VCS script. If neither extensions are give, then by
                     default a Python script will be produced.
 
-    a=vcs.init()
+    a=vcs_legacy.init()
     ln=a.createboxfill('temp')
     ln.script('filename.py')         # Append to a Python file "filename.py"
     ln.script('filename.scr')        # Append to a VCS file "filename.scr"
@@ -393,7 +393,7 @@ class Dp(object):
         # By default, save file in python script mode
         scr_type = script_filename[len(script_filename)-4:len(script_filename)]
         if (scr_type == '.scr'):
-           print _vcs.scriptDp(self.name,script_filename,mode)
+           print _vcs_legacy.scriptDp(self.name,script_filename,mode)
         else:
            mode = mode + '+'
            py_type = script_filename[len(script_filename)-3:len(script_filename)]
@@ -408,8 +408,8 @@ class Dp(object):
               fp.write("# Import and Initialize VCS     #\n")
               fp.write("#                             #\n")
               fp.write("#############################\n")
-              fp.write("import vcs\n")
-              fp.write("v=vcs.init()\n\n")
+              fp.write("import vcs_legacy\n")
+              fp.write("v=vcs_legacy.init()\n\n")
 
            unique_name = '__Dp__' + self.name
            fp.write("#----------Display Plot (Dp) member (attribute) listings ----------\n")

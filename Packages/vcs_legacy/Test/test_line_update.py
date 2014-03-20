@@ -1,7 +1,7 @@
-import vcs,os,support
+import vcs_legacy,os,support
 bg=support.bg
 
-tp = vcs.init()
+tp = vcs_legacy.init()
 tp.portrait()
 
 lin = tp.createline('lin')

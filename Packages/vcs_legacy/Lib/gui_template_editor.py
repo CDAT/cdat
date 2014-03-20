@@ -47,8 +47,8 @@ import Tkinter,Pmw, tkFileDialog
 from browser import gui_control, gui_message, gui_busy
 import Canvas
 import cdms2 as cdms
-import vcs
-import _vcs
+import vcs_legacy
+import _vcs_legacy
 import __main__
 import sys, os, string
 import gui_support
@@ -70,7 +70,7 @@ def get_slab_info(parent, canvas, attr_name, label_type):
      attr_str = " "
      aa = __main__.__dict__
      try:
-        if (parent.menu.vcs_canvas_gui_settings_flg == 1): # Must be from VCDAT
+        if (parent.menu.vcs_legacy_canvas_gui_settings_flg == 1): # Must be from VCDAT
            slab1 = canvas.varglist[0] = canvas.canvas_gui.slab1
            slab2 = canvas.varglist[1] = canvas.canvas_gui.slab2
            template = canvas.canvas_gui.template
@@ -256,18 +256,18 @@ class Template_Editor:
         #        self.canvas.flush()
         #        self.canvas.backing_store()
 
-        self.vcssavedialog = Pmw.Dialog(self.dialog.interior(),
+        self.vcs_legacysavedialog = Pmw.Dialog(self.dialog.interior(),
                                         title = 'Save changes?',
                                         buttons = ('Save', 'Discard'),
                                         command = gui_control.Command(self._ask_save))
-        Tkinter.Label(self.vcssavedialog.interior(),
+        Tkinter.Label(self.vcs_legacysavedialog.interior(),
                       text = 'Changes have been made to the template.\n Do you want to save your changes?').pack(expand = 1, fill = 'x', padx = 10, pady = 10)
         
-        self.askagain = Pmw.RadioSelect(self.vcssavedialog.interior(),
+        self.askagain = Pmw.RadioSelect(self.vcs_legacysavedialog.interior(),
                                         buttontype = 'checkbutton',)
         self.askagain.add('Do not ask me again')
         self.askagain.pack()
-        self.vcssavedialog.withdraw()
+        self.vcs_legacysavedialog.withdraw()
         
         ####        self.dialog.dialog.lift()
         
@@ -1040,7 +1040,7 @@ class Template_Editor:
 
     # Prompt user to save changes if they are trying to close the template
     #  editor and changes have been made.
-    def ask_save_from_vcs(self):
+    def ask_save_from_vcs_legacy(self):
          ## window to save template or not while editing and changing template
          ## need to set a vcdat flag to not popup if user wants automatic mode
          if self.nopopupswitch:
@@ -1052,8 +1052,8 @@ class Template_Editor:
          h = canvasinfo['height']
          d1 = canvasinfo['x']+w/2
          d2 = canvasinfo['y']+h/2
-         self.vcssavedialog.geometry( "+%d+%d" % (d1, d2) )
-         result = self.vcssavedialog.show()
+         self.vcs_legacysavedialog.geometry( "+%d+%d" % (d1, d2) )
+         result = self.vcs_legacysavedialog.show()
          while self.answered_question is None:
               pass
          return self.answered_question
@@ -1069,7 +1069,7 @@ class Template_Editor:
               else:
                    self.main_menu.popup_toggle[2].set(1)
 
-         self.vcssavedialog.withdraw()
+         self.vcs_legacysavedialog.withdraw()
          self.answered_question = args[0]
 
     def save(self,template_name=None):

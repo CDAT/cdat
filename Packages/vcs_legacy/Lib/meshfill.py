@@ -26,7 +26,7 @@
 # Import: VCS C extension module.                                             #
 #                                                                             #
 ###############################################################################
-import _vcs
+import _vcs_legacy
 import Canvas
 import VCS_validation_functions
 import AutoAPI
@@ -59,7 +59,7 @@ def setGfmmember(self,member,value):
         self.parent.canvas.BLOCK_X_SERVER()
         self.parent.canvasraised()
 
-     _vcs.setGfmmember(self, member, value, self.parent.mode)
+     _vcs_legacy.setGfmmember(self, member, value, self.parent.mode)
 
      # If the VCS Canvas is displayed, then update the backing store
      if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()):
@@ -87,7 +87,7 @@ def setGfmmember(self,member,value):
 setmember=setGfmmember
      
 def getGfmmember(self,member):
-     return _vcs.getGfmmember(self,member)
+     return _vcs_legacy.getGfmmember(self,member)
 
 getmember=getGfmmember
 
@@ -107,7 +107,7 @@ getmember=getGfmmember
 #                                                                               #
 ################################################################################
 def renameGfm(self, old_name, new_name):
-     return _vcs.renameGfm(old_name, new_name)
+     return _vcs_legacy.renameGfm(old_name, new_name)
 
 
 #################################################################################
@@ -232,7 +232,7 @@ Class:	Gfm                       	# Meshfill
     meshfill table entry
     .                                 
  Other Useful Functions:                    
-               a=vcs.init()             # Constructor                       
+               a=vcs_legacy.init()             # Constructor                       
                a.show('meshfill')        # Show predefined meshfill graphics methods
                a.setcolormap("AMIP")    # Change the VCS color map
                a.meshfill(s,b,'default') # Plot data 's' with meshfill 'b' and 
@@ -243,7 +243,7 @@ Class:	Gfm                       	# Meshfill
                                           update the VCS Canvas.   
                                                               
  Example of Use:                                               
-    a=vcs.init()                                              
+    a=vcs_legacy.init()                                              
     To Create a new instance of meshfill use:                   
      mesh=a.createmeshfill('new','quick') # Copies content of 'quick' to 'new' 
      mesh=a.createmeshfill('new') 	# Copies content of 'default' to 'new'  
@@ -647,7 +647,7 @@ Class:	Gfm                       	# Meshfill
            if (Gfm_name == None):
               raise ValueError, 'Must provide a meshfill name.'
            else:
-              _vcs.copyGfm(Gfm_name_src, Gfm_name)
+              _vcs_legacy.copyGfm(Gfm_name_src, Gfm_name)
               self._name = Gfm_name
         else:
               self._name=Gfm_name_src
@@ -819,7 +819,7 @@ Class:	Gfm                       	# Meshfill
     def script(self, script_filename, mode='a'):
          """
          %s
-         Function:     script				# Calls _vcs.scriptGfm
+         Function:     script				# Calls _vcs_legacy.scriptGfm
 
          Description of Function:                                                      
               Saves out a meshfill graphics method in Python or VCS script form to a
@@ -835,7 +835,7 @@ Class:	Gfm                       	# Meshfill
                         produce a VCS script. If neither extensions are give, then by
                         default a Python script will be produced.
 
-              a=vcs.init()
+              a=vcs_legacy.init()
               mesh=a.createmeshfill('temp')
               mesh.script('filename.py')         # Append to a Python file 'filename.py'
               mesh.script('filename.scr')        # Append to a VCS file 'filename.scr'
@@ -852,7 +852,7 @@ Class:	Gfm                       	# Meshfill
          # By default, save file in python script mode
          scr_type = script_filename[len(script_filename)-4:len(script_filename)]
          if (scr_type == '.scr'):
-              print _vcs.scriptGfm(self.name,script_filename,mode)
+              print _vcs_legacy.scriptGfm(self.name,script_filename,mode)
          else:
               mode = mode + '+'
               py_type = script_filename[len(script_filename)-3:len(script_filename)]
@@ -867,8 +867,8 @@ Class:	Gfm                       	# Meshfill
                    fp.write("# Import and Initialize VCS     #\n")
                    fp.write("#                             #\n")
                    fp.write("#############################\n")
-                   fp.write("import vcs\n")
-                   fp.write("v=vcs.init()\n\n")
+                   fp.write("import vcs_legacy\n")
+                   fp.write("v=vcs_legacy.init()\n\n")
 
               unique_name = '__Gfm__' + self.name
               fp.write("#----------Meshfill (Gfm) member (attribute) listings ----------\n")

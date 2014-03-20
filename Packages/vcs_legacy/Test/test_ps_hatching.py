@@ -1,8 +1,8 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
-import cdms2 as cdms,vcs,sys,time,support,os
+import cdms2 as cdms,vcs_legacy,sys,time,support,os
 bg=support.bg
 
-x=vcs.init()
+x=vcs_legacy.init()
 x.portrait()
 #x.setdefaultfont(2)
 f=cdms.open(os.path.join(cdms.__path__[0],'..','..','..','..','sample_data','clt.nc'))
@@ -11,7 +11,7 @@ iso = x.createisofill('my')
 
 levs = range(0,95,5)
 #print len(levs)
-colors = vcs.getcolors(levs)
+colors = vcs_legacy.getcolors(levs)
 hatch = []
 
 iso.levels=levs

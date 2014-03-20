@@ -1,6 +1,6 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
-import vcs,cdms2 as cdms,os,sys,support
-tp = vcs.init()
+import vcs_legacy,cdms2 as cdms,os,sys,support
+tp = vcs_legacy.init()
 bg=support.bg
 tp.portrait()
 

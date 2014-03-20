@@ -43,7 +43,7 @@ class AnimationGui:
         self.max = None
         self.animation = animation
         title = "%d. - VCS's Canvas Animation Editor" % \
-                animation.vcs_self.canvasid() 
+                animation.vcs_legacy_self.canvasid() 
 
         self.dialog = gui_support.VcsDialog(title=title,
                                  buttons=(),
@@ -72,27 +72,27 @@ class AnimationGui:
         #-------------------------------------------
         # menu 3 -- 'Options'
         #-------------------------------------------
-        if animation.vcs_self._canvas_gui is None:
+        if animation.vcs_legacy_self._canvas_gui is None:
            create_animation_options_menu(self,self.amain_menu,parent,animation,tear_it)
 
         #-------------------------------------------
         # menu 4 -- 'Help'
         #-------------------------------------------
-        if animation.vcs_self._canvas_gui is None:
+        if animation.vcs_legacy_self._canvas_gui is None:
            self.create_help_menu( gui_parent, self.amain_menu, tear_it)
 
 
         #-------------------------------------------
         # File Controls -- 'Create and load'
         #-------------------------------------------
-        if animation.vcs_self._canvas_gui is None:
+        if animation.vcs_legacy_self._canvas_gui is None:
            create_animation_file_controls ( self, parent, gui_parent, animation )
 
         #-------------------------------------------
         # Button Controls -- 'Create, Run, and Stop Buttons'
         #-------------------------------------------
         create_animation_control_buttons ( self, parent, gui_parent, animation )
-        if animation.vcs_self._canvas_gui is not None:
+        if animation.vcs_legacy_self._canvas_gui is not None:
            self.start_btn.configure(state = 'disabled')
 
         #-------------------------------------------
@@ -120,7 +120,7 @@ class AnimationGui:
         self.dialog.dialog.deiconify()
 
     def execute (self, parent, event):
-        if self.animation.vcs_self._canvas_gui is not None:
+        if self.animation.vcs_legacy_self._canvas_gui is not None:
            self.dialog.dialog.withdraw()
            return
         self.destroy_close_animation( parent )
@@ -158,7 +158,7 @@ class AnimationGui:
     def destroy_close_animation(self, gui_parent=None):
         self.animation.stop( )        # Stop the animation if it is running
         self.animation.close( )	# Close the animation procedure
-        self.animation.vcs_self.clear( ) # Clear the VCS window
+        self.animation.vcs_legacy_self.clear( ) # Clear the VCS window
         self.animation.gui_popup = 0	 # Reset the animation GUI popup flag
         self.dialog.destroy()
 
@@ -268,7 +268,7 @@ class create_animation_options_menu:
          self.mode_toggle_1.set( 0 )
 #         self.mode_toggle_2.set( 0 )
          self.mode_toggle_3.set( 1 )
-      animation.vcs_self.animate.mode( number )
+      animation.vcs_legacy_self.animate.mode( number )
 
 
    ####### event to set the animation direction 
@@ -280,7 +280,7 @@ class create_animation_options_menu:
       elif number == 2:       # Move backward through frames
          self.direction_toggle_1.set( 0 )
          self.direction_toggle_2.set( 1 )
-      animation.vcs_self.animate.direction( number )
+      animation.vcs_legacy_self.animate.direction( number )
 
    ####### event to set the animation direction
    #
@@ -308,7 +308,7 @@ class create_animation_options_menu:
 	# No longer need to update the display at this point.
         # animation.update_animate_display_list( ) # make sure the list is updated
 
-        if len(animation.vcs_self.animate_info) < 2:
+        if len(animation.vcs_legacy_self.animate_info) < 2:
 	   for text in ('Animation sets min and max', 'User sets min and max', 'Turn off animation min and max'):
 	       self.radiobuttons.add(text)
 	   self.radiobuttons.invoke('Animation sets min and max')
@@ -324,7 +324,7 @@ class create_animation_options_menu:
 		modifiedcommand = A_Command(self.set_toggle_flg, animation)
                 )
 	self.min.pack(side = 'top', expand = 1, padx = 10, pady = 10)
-        if len(animation.vcs_self.animate_info) < 2:
+        if len(animation.vcs_legacy_self.animate_info) < 2:
            gui_support.balloon.bind( self.min, "Enter the minimum value for the data set")
         else:
            gui_support.balloon.bind( self.min, "Enter the minimum value for each data set (e.g., 10, 20, 30, 40).")
@@ -336,7 +336,7 @@ class create_animation_options_menu:
 		modifiedcommand = A_Command(self.set_toggle_flg, animation)
                 )
 	self.max.pack(side = 'left', expand = 1, padx = 10, pady = 10)
-        if len(animation.vcs_self.animate_info) < 2:
+        if len(animation.vcs_legacy_self.animate_info) < 2:
            gui_support.balloon.bind( self.max, "Enter the maximum value for the data set")
         else:
            gui_support.balloon.bind( self.max, "Enter the maximum value for each data set (e.g., 60, 70, 80, 90).")
@@ -352,7 +352,7 @@ class create_animation_options_menu:
    ####### event to set radio button              
    #
    def set_toggle_flg(self, animation):
-        if len(animation.vcs_self.animate_info) < 2:
+        if len(animation.vcs_legacy_self.animate_info) < 2:
            self.radiobuttons.invoke('User sets min and max')
         else:
            self.radiobuttons.invoke('User sets min and max for each data set')
@@ -552,8 +552,8 @@ def evt_change_save_color( self, parent, event ):
  
 def evt_enter_save_file( self, parent, animation, who_called, event ):
          # If creating or running an animation, then exit
-         if animation.vcs_self.animate.creating_animation_flg() == 1: return
-         if animation.vcs_self.animate.run_animation_flg() == 1: return
+         if animation.vcs_legacy_self.animate.creating_animation_flg() == 1: return
+         if animation.vcs_legacy_self.animate.run_animation_flg() == 1: return
 
          # change backgound color to white
          self.eny1.configure( entry_background = 'white' )
@@ -599,8 +599,8 @@ def evt_change_load_color( self, parent, event ):
 
 def evt_enter_load_file( self, parent, gui_parent, animation, who_called, event ):
          # If creating or running an animation, then exit
-         if animation.vcs_self.animate.creating_animation_flg() == 1: return
-         if animation.vcs_self.animate.run_animation_flg() == 1: return
+         if animation.vcs_legacy_self.animate.creating_animation_flg() == 1: return
+         if animation.vcs_legacy_self.animate.run_animation_flg() == 1: return
 
          # change backgound color to white
          self.eny2.configure( entry_background = 'white' )
@@ -626,7 +626,7 @@ def evt_enter_load_file( self, parent, gui_parent, animation, who_called, event 
          self.eny2.setentry( lfile )
 
          # Load the animation into memory
-         animation.vcs_self.animate.load_from_file( parent=gui_parent, load_file=lfile )
+         animation.vcs_legacy_self.animate.load_from_file( parent=gui_parent, load_file=lfile )
 
          # Re-initialize the Pan and Zoom settings
          self.zoom_scl.set( 1 )
@@ -655,7 +655,7 @@ def create_animation_control_buttons( self, parent, gui_parent, animation ):
 	self.start_btn = Tkinter.Button(self.start_lbl.interior(), 
                          text='Create\nImages',
                          background='green',
-                         #command = A_Command(animation.vcs_self.animate.create)
+                         #command = A_Command(animation.vcs_legacy_self.animate.create)
                          command = A_Command(create_control_images, self, parent, gui_parent, animation )
                         )
 	self.start_btn.pack(padx=10, pady=10, expand='yes', fill='both')
@@ -669,7 +669,7 @@ def create_animation_control_buttons( self, parent, gui_parent, animation ):
 	self.runanim_btn = Tkinter.Button(self.runanim_lbl.interior(),
                     text='Run\nAnimation',
                     background='cyan',
-                    command = A_Command(animation.vcs_self.animate.run)
+                    command = A_Command(animation.vcs_legacy_self.animate.run)
                     )
 	self.runanim_btn.pack(padx=10, pady=10, expand='yes', fill='both')
 	self.runanim_lbl.pack(side='left', padx = 10)
@@ -682,8 +682,8 @@ def create_animation_control_buttons( self, parent, gui_parent, animation ):
 	self.run_btn = Tkinter.Button(self.run_lbl.interior(),
                     text='Stop Creation\n Stop Animation',
                     background='orange',
-                    command = A_Command(evt_stop_animate, animation.vcs_self)
-                    #command = A_Command(animation.vcs_self.animate.stop)
+                    command = A_Command(evt_stop_animate, animation.vcs_legacy_self)
+                    #command = A_Command(animation.vcs_legacy_self.animate.stop)
                     )
 	self.run_btn.pack(padx=10, pady=10, expand='yes', fill='both')
 	self.run_lbl.pack(side='left', padx = 10)
@@ -729,7 +729,7 @@ def create_control_images( self, parent, gui_parent, animation ):
 
 
         self.cntrl_nxt_int.setentry('1')
-        animation.vcs_self.animate.create( parent=gui_parent, min=self.min, max=self.max, save_file=save_file, rate=rate )
+        animation.vcs_legacy_self.animate.create( parent=gui_parent, min=self.min, max=self.max, save_file=save_file, rate=rate )
         if self.animate_type.getvalue() == 'mp4':
             print 'got mp4 animation'
             self.execute(gui_parent,None)
@@ -827,7 +827,7 @@ def evt_cntrl_slw_cnt( self ):
 # Slow the animate speed                                                            #
 #####################################################################################
 def evt_cntrl_slw_scl( self, animation, event ):
-      animation.vcs_self.animate.pause( string.atoi(event) )
+      animation.vcs_legacy_self.animate.pause( string.atoi(event) )
       self.cntrl_slw_int.setentry( event )
 
 #####################################################################################
@@ -843,7 +843,7 @@ def evt_cntrl_nxt_cnt( self ):
 # Show the appropriate frame requested by the user                                  #
 #####################################################################################
 def evt_cntrl_nxt_scl( self, animation, event ):
-      num_frames = animation.vcs_self.animate.number_of_frames() # Get the number of frames
+      num_frames = animation.vcs_legacy_self.animate.number_of_frames() # Get the number of frames
 
       # Reset the max values of the "Next frame" Counter and Scale widgets
       if ((num_frames is not None) and (self.next_scl.max != num_frames)):
@@ -853,7 +853,7 @@ def evt_cntrl_nxt_scl( self, animation, event ):
                         'min' : 1, 'max' : num_frames})
 
       # Reset to the requested frame and indicate the visiable frame number
-      animation.vcs_self.animate.frame( string.atoi(event) )
+      animation.vcs_legacy_self.animate.frame( string.atoi(event) )
       self.cntrl_nxt_int.setentry( event )
 
 #----------------------------------------------------------------------------------------
@@ -991,7 +991,7 @@ def evt_zoom_image_cmb( self, event ):
 # Zoom in on the animation frame(s)                                                 #
 #####################################################################################
 def evt_zoom_image_scl( self, animation, event ):
-      animation.vcs_self.animate.zoom( string.atoi(event) )
+      animation.vcs_legacy_self.animate.zoom( string.atoi(event) )
       self.zoom_comb.setentry( event )
 
 #####################################################################################
@@ -1004,7 +1004,7 @@ def evt_change_hor_cmb( self, event ):
 # Pan image frames in the x direction                                               #
 #####################################################################################
 def evt_change_hor_scl( self, animation, event ):
-      animation.vcs_self.animate.horizontal( string.atoi(event) )
+      animation.vcs_legacy_self.animate.horizontal( string.atoi(event) )
       self.pan_hor_comb.setentry( event )
 
 #####################################################################################
@@ -1017,7 +1017,7 @@ def evt_change_ver_cmb( self, event ):
 # Pan image frames in the y direction                                               #
 #####################################################################################
 def evt_change_ver_scl( self, animation, event ):
-      animation.vcs_self.animate.vertical( string.atoi(event) )
+      animation.vcs_legacy_self.animate.vertical( string.atoi(event) )
       self.pan_ver_comb.setentry( event )
 
 ###########################################################################################

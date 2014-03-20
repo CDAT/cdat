@@ -21,7 +21,7 @@
 #include "workstations.h"
 #include "run.h"
 #include "cddrs.h"
-#include "vcs_marker.h"
+#include "vcs_legacy_marker.h"
 #include <ft2build.h>
 #include <cairo/cairo.h>
 #include <cairo/cairo-ft.h>
@@ -36,7 +36,7 @@
  cairo_surface_t *logo;
 cairo_pattern_t *logo_p;
 
-#include "vcs_names_length.h"
+#include "vcs_legacy_names_length.h"
 
     FILE *fpin, *fpout, *fperr; /* input, output, and error files for scripts */
     FILE *fpcgm,*frast;		/* cgm and raster files.		*/
@@ -46,7 +46,7 @@ cairo_pattern_t *logo_p;
     struct workstations Wkst[7]={1,"X_WIN",2,"CGM",3,"CAIRO",0,'\0'};
 
 /*  		Set the VCS marker defaults				*/
-    struct vcs_marker   Vma_tab={1,1,1};
+    struct vcs_legacy_marker   Vma_tab={1,1,1};
 
 
 /*		The display definition structure.			*/
@@ -1043,7 +1043,7 @@ int text_color,text_font;
          FT_Library ft_library;    
 
     int 
-    vcs_main()
+    vcs_legacy_main()
 	/*int argc;   No longer needed for Python interface
 	char *argv[];*/
       {

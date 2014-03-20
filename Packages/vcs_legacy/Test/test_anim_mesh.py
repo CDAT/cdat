@@ -1,8 +1,8 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
-import cdms2 as cdms,vcs,sys,os,support
+import cdms2 as cdms,vcs_legacy,sys,os,support
 
 if support.dogui:
-    x=vcs.init()
+    x=vcs_legacy.init()
 
     f=cdms.open(os.path.join(cdms.__path__[0],'..','..','..','..','sample_data','test_anim.nc'))
     s=f('variable_6')

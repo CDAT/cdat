@@ -1,12 +1,12 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
-import vcs,cdms2 as cdms,support
+import vcs_legacy,cdms2 as cdms,support
 bg=support.bg
 
 
 f=cdms.open("test_mesh.nc")
 data = f("variable_227")
 mesh = f("variable_226")
-x=vcs.init()
+x=vcs_legacy.init()
 
 elts = x.listelements("meshfill")
 

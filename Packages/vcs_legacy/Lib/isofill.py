@@ -26,7 +26,7 @@
 # Import: VCS C extension module.                                             #
 #                                                                             #
 ###############################################################################
-import _vcs, vcs, VCS_validation_functions, cdtime
+import _vcs_legacy, vcs_legacy, VCS_validation_functions, cdtime
 import Canvas
 from types import *
 import AutoAPI
@@ -56,7 +56,7 @@ def setGfimember(self,member,value):
         self.parent.canvas.BLOCK_X_SERVER()
         self.parent.canvasraised()
 
-     _vcs.setGfimember(self, member, value, self.parent.mode)
+     _vcs_legacy.setGfimember(self, member, value, self.parent.mode)
 
      # If the VCS Canvas is displayed, then update the backing store
      if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()):
@@ -83,7 +83,7 @@ setmember=setGfimember
 #                                                                             #
 ###############################################################################
 def getGfimember(self,member):
-     return _vcs.getGfimember(self,member)
+     return _vcs_legacy.getGfimember(self,member)
 getmember=getGfimember
 
 ###############################################################################
@@ -102,7 +102,7 @@ getmember=getGfimember
 #                                                                             #
 ###############################################################################
 def renameGfi(self, old_name, new_name):
-     return _vcs.renameGfi(old_name, new_name)
+     return _vcs_legacy.renameGfi(old_name, new_name)
 
 ###############################################################################
 #                                                                             #
@@ -215,7 +215,7 @@ Class: Gfi				# Isofill
     existing isofill table entry.
 
  Other Useful Functions:
- 	     a=vcs.init()		# Constructor
+ 	     a=vcs_legacy.init()		# Constructor
 	     a.show('isofill')		# Show predefined isofill graphics methods
 	     a.show('fillarea')		# Show predefined fillarea objects
 	     a.show('template')		# Show predefined fillarea objects
@@ -232,7 +232,7 @@ Class: Gfi				# Isofill
                                           update the VCS Canvas.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     To Create a new instance of isofill use:
      iso=a.createisofill('new','quick') # Copies content of 'quick' to 'new'
      iso=a.createisofill('new') 	# Copies content of 'default' to 'new'
@@ -644,7 +644,7 @@ Class: Gfi				# Isofill
            if (Gfi_name == None):
               raise ValueError, 'Must provide a isofill name.'
            else:
-              _vcs.copyGfi(Gfi_name_src, Gfi_name)
+              _vcs_legacy.copyGfi(Gfi_name_src, Gfi_name)
               self._name = Gfi_name
         else:
               self._name = Gfi_name_src
@@ -802,7 +802,7 @@ Class: Gfi				# Isofill
     def script(self, script_filename, mode='a'):
         """
 %s
-Function:     script                           # Calls _vcs.scriptGfi
+Function:     script                           # Calls _vcs_legacy.scriptGfi
 
  Description of Function:
        Saves out a isofill graphics method in Python or VCS script form to
@@ -818,7 +818,7 @@ Function:     script                           # Calls _vcs.scriptGfi
                     produce a VCS script. If neither extensions are give, then by
                     default a Python script will be produced.
 
-    a=vcs.init()
+    a=vcs_legacy.init()
     iso=a.createisofill('temp')
     iso.script('filename.py')         # Append to a Python file "filename.py"
     iso.script('filename.scr')        # Append to a VCS file "filename.scr"
@@ -835,7 +835,7 @@ Function:     script                           # Calls _vcs.scriptGfi
         # By default, save file in python script mode
         scr_type = script_filename[len(script_filename)-4:len(script_filename)]
         if (scr_type == '.scr'):
-           print _vcs.scriptGfi(self.name,script_filename,mode)
+           print _vcs_legacy.scriptGfi(self.name,script_filename,mode)
         else:
            mode = mode + '+'
            py_type = script_filename[len(script_filename)-3:len(script_filename)]
@@ -850,8 +850,8 @@ Function:     script                           # Calls _vcs.scriptGfi
               fp.write("# Import and Initialize VCS     #\n")
               fp.write("#                             #\n")
               fp.write("#############################\n")
-              fp.write("import vcs\n")
-              fp.write("v=vcs.init()\n\n")
+              fp.write("import vcs_legacy\n")
+              fp.write("v=vcs_legacy.init()\n\n")
 
            unique_name = '__Gfi__' + self.name
            fp.write("#----------Isofill (Gfi) member (attribute) listings ----------\n")

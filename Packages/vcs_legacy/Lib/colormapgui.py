@@ -25,8 +25,8 @@ import Tkinter, Pmw, tkFileDialog
 import os, types, string, sys
 import colormap
 import gui_support
-from browser import vcs_function
-from error import vcsError
+from browser import vcs_legacy_function
+from error import vcs_legacyError
 from browser import gui_control
 
 # Maximum intensity value for R,G,B or C,M,Y color index values
@@ -36,16 +36,16 @@ psz = 100.0
 # Create the Tkinter/Pmw Colormap editor interface
 #
 class ColormapGui:
-    def __init__( self, vcs=None, gui_parent=None, transient=0):
-        if vcs is None:
+    def __init__( self, vcs_legacy=None, gui_parent=None, transient=0):
+        if vcs_legacy is None:
             import Canvas
-            vcs = Canvas.Canvas()
+            vcs_legacy = Canvas.Canvas()
         # initialize the color index list and the copy buffer list
         self.color_indices = []
         self.copy_buffer = []
 
         # create the colormap main toplevel menu
-        title = "VCS's Colormap Editor: Editing -- " + vcs.canvas.getcolormapname()
+        title = "VCS's Colormap Editor: Editing -- " + vcs_legacy.canvas.getcolormapname()
         self.dialog = gui_support.VcsDialog(title=title,
                                             buttons=(),
                                             )
@@ -74,17 +74,17 @@ class ColormapGui:
         #-------------------------------------------
         # menu 1 -- 'File'
         #-------------------------------------------
-        create_colormap_file_menu( self.cmain_menu, self, parent, root, vcs, tear_it )
+        create_colormap_file_menu( self.cmain_menu, self, parent, root, vcs_legacy, tear_it )
 
         #-------------------------------------------
         # menu 2 -- 'Edit'
         #-------------------------------------------
-        create_edit_menu( self, self.cmain_menu, parent, vcs, tear_it )
+        create_edit_menu( self, self.cmain_menu, parent, vcs_legacy, tear_it )
 
         #-------------------------------------------
         # menu 3 -- 'Options'
         #-------------------------------------------
-        create_options_menu( self, self.cmain_menu, parent, vcs, tear_it )
+        create_options_menu( self, self.cmain_menu, parent, vcs_legacy, tear_it )
 
 
         #-------------------------------------------
@@ -111,7 +111,7 @@ class ColormapGui:
 		label_text = 'View color indices:',
 		entry_width = 5,
                 entry_font = font,
-		command = E_Command(self.get_color_indices, vcs)
+		command = E_Command(self.get_color_indices, vcs_legacy)
                 )
         gui_support.balloon.bind( self.numColors, 'View color map color indices by provide index ranges or individual color indices. For example: \n\t0:255\n\t16,32,48,64,80,96\n\t16:32,50,60,70,80,90,160:200' )
         self.numColors.setentry( '0:255' )
@@ -131,7 +131,7 @@ class ColormapGui:
 		width = self.width, height = self.height)
         gui_support.balloon.bind( self.canvas, 'With the left mouse button:\n\tselect once to set the first index range;\n\tmove the pointer to another index and select again for the second index range;\n\tuse the menu "Edit" options to blend, copy, and paste selection.\n\nUse the Red, Green, and Blue (or Cyan, Magenta, Yellow) (or Hue, Saturation, Value)\nrows below to alter the selected color index.\n\nNote: Index 0 controls the background color of the VCS Canvas. Indices 240 through 255\nare reserved colors.' )
         self.canvas.pack( side='left',  fill = 'both' )
-        self.canvas.bind( '<1>', E_Command( self.select_color_index_left, vcs ) )
+        self.canvas.bind( '<1>', E_Command( self.select_color_index_left, vcs_legacy ) )
 
 	self.canvas2 = Tkinter.Canvas(framea, borderwidth=1, relief = 'raised',
 		width = self.width2, height = self.height)
@@ -157,7 +157,7 @@ class ColormapGui:
            entry_width = 10,
            entry_background = 'red',
            entry_foreground = 'black',
-           selectioncommand = E_Command( self.evt_change_color, vcs, 1 )
+           selectioncommand = E_Command( self.evt_change_color, vcs_legacy, 1 )
            )
         gui_support.balloon.bind( self.red_comb, 'Enter or select values ranging from 0 to %d, or use the slider to set the red (or cyan) intensity value.'% psz )
         self.red_comb.component( 'arrowbutton' ).configure( background = 'red' )
@@ -171,7 +171,7 @@ class ColormapGui:
            troughcolor      = 'red',
            from_            = 0,
            to               = psz,
-           command          = E_Command( self.evt_change_color, vcs, 2 )
+           command          = E_Command( self.evt_change_color, vcs_legacy, 2 )
           )
         gui_support.balloon.bind( self.red_scl, 'Enter or select values ranging from 0 to %d, or use the slider to set the red (or cyan) intensity value.' % psz)
         self.red_scl.pack( side='left' )
@@ -186,7 +186,7 @@ class ColormapGui:
            entry_width = 10,
            entry_background = 'green',
            entry_foreground = 'black',
-           selectioncommand = E_Command( self.evt_change_color, vcs, 1 )
+           selectioncommand = E_Command( self.evt_change_color, vcs_legacy, 1 )
            )
         gui_support.balloon.bind( self.green_comb, 'Enter or select values ranging from 0 to %d, or use the slider to set the green (or magenta) intensity value.' % psz )
         self.green_comb.component( 'arrowbutton' ).configure( background = 'green' )
@@ -200,7 +200,7 @@ class ColormapGui:
            troughcolor      = 'green',
            from_            = 0,
            to               = psz,
-           command          = E_Command( self.evt_change_color, vcs, 2 )
+           command          = E_Command( self.evt_change_color, vcs_legacy, 2 )
           )
         gui_support.balloon.bind( self.green_scl, 'Enter or select values ranging from 0 to %d, or use the slider to set the green (or magenta) intensity value.' % psz )
         self.green_scl.pack( side='left' )
@@ -215,7 +215,7 @@ class ColormapGui:
            entry_width = 10,
            entry_background = 'blue',
            entry_foreground = 'white',
-           selectioncommand = E_Command( self.evt_change_color, vcs, 1 )
+           selectioncommand = E_Command( self.evt_change_color, vcs_legacy, 1 )
            )
         gui_support.balloon.bind( self.blue_comb, 'Enter or select values ranging from 0 to %d, or use the slider to set the blue (or yellow) intensity value.' % psz )
         self.blue_comb.component( 'arrowbutton' ).configure( background = 'blue' )
@@ -229,7 +229,7 @@ class ColormapGui:
            troughcolor      = 'blue',
            from_            = 0,
            to               = psz,
-           command          = E_Command( self.evt_change_color, vcs, 2 )
+           command          = E_Command( self.evt_change_color, vcs_legacy, 2 )
           )
         gui_support.balloon.bind( self.blue_scl, 'Enter or select values ranging from 0 to %d, or use the slider to set the blue (or yellow) intensity value.' % psz )
         self.blue_scl.pack( side='left' )
@@ -246,7 +246,7 @@ class ColormapGui:
                         'min' : '-0.01', 'max' : '360.0',
                         'separator' : '.'},
                 increment = 0.1,
-                entryfield_modifiedcommand = E_Command( self.evt_change_color, vcs, 3, None )
+                entryfield_modifiedcommand = E_Command( self.evt_change_color, vcs_legacy, 3, None )
                 )
         gui_support.balloon.bind( self.hue, 'Hue or H is a measure of the angle around the vertical axis in the hexcone color model.' )
         self.hue.pack( side='left', fill='both' ) 
@@ -263,7 +263,7 @@ class ColormapGui:
                         'min' : '0.0', 'max' : '1.0',
                         'separator' : '.'},
                 increment = 0.01,
-                entryfield_modifiedcommand = E_Command( self.evt_change_color, vcs, 3, None )
+                entryfield_modifiedcommand = E_Command( self.evt_change_color, vcs_legacy, 3, None )
                 )
         self.saturation.pack( side='left', fill='both' )
         gui_support.balloon.bind( self.saturation, 'Saturation is a measure relative to the color gamut of the hexcone color model.' )
@@ -280,7 +280,7 @@ class ColormapGui:
                         'min' : '0.0', 'max' : '1.0',
                         'separator' : '.'},
                 increment = 0.01,
-                entryfield_modifiedcommand = E_Command( self.evt_change_color, vcs, 3, None )
+                entryfield_modifiedcommand = E_Command( self.evt_change_color, vcs_legacy, 3, None )
                 )
         self.value.pack( side='left', fill='both' )
         gui_support.balloon.bind( self.value, "Value represents the hexcone's height with the apex at the origin. The apex value of 0 is black." )
@@ -302,7 +302,7 @@ class ColormapGui:
 		width = 65, height = 65)
         self.canvas3.create_polygon(8, 8, 85, 8, 85, 85, 8, 85 )
 #                                   fill = 'red', outline = 'red')
-        self.canvas3.bind( '<1>', E_Command( self.evt_select_similiar_color, self, parent, vcs ))
+        self.canvas3.bind( '<1>', E_Command( self.evt_select_similiar_color, self, parent, vcs_legacy ))
         gui_support.balloon.bind( self.canvas3, 'Select enlarged color index to\nview and select similiar alterative\ncolors.' )
         font = apply(Pmw.logicalfont, ('Helvetica', 5), {'weight' : 'bold'})
         self.canvas3.create_text(43, 45, anchor = 'center',
@@ -317,8 +317,8 @@ class ColormapGui:
         #-------------------------------------------
 	# Set initial values for all entries.
         #-------------------------------------------
-        vcs.canvas.flush()
-        self.get_VCS_colormap( vcs )
+        vcs_legacy.canvas.flush()
+        self.get_VCS_colormap( vcs_legacy )
 	self.execute( )
 
         #-------------------------------------------
@@ -360,7 +360,7 @@ class ColormapGui:
     # Retrieve the appropriate color indices via the user's requests.           #
     #                                                                           #
     #############################################################################
-    def get_color_indices(self, vcs):
+    def get_color_indices(self, vcs_legacy):
         if self.numColors.get( ) != '':
             str = string.replace( self.numColors.get( ), ' ', ',' )
             while string.find(str,',,',0) != -1: str=string.replace(str,',,',',')
@@ -395,7 +395,7 @@ class ColormapGui:
     # Select the color index by outlining the box and showing its R,G,B values. #
     #                                                                           #
     #############################################################################
-    def select_color_index_left( self, vcs, event):
+    def select_color_index_left( self, vcs_legacy, event):
 
         # Get the color index
         x = self.canvas.canvasx(event.x)
@@ -506,7 +506,7 @@ class ColormapGui:
     # Change the color index to user specified entry.                           #
     #                                                                           #
     #############################################################################
-    def evt_change_color( self, vcs, called_from, event):
+    def evt_change_color( self, vcs_legacy, called_from, event):
         if called_from == 1:
            rv = int( self.red_comb.get () )
            if rv > psz: rv = psz
@@ -599,7 +599,7 @@ class ColormapGui:
     # Get color that is similiar to selected color. Popup yet another GUI.      #
     #                                                                           #
     #############################################################################
-    def evt_select_similiar_color( self, eself, parent, vcs, event):
+    def evt_select_similiar_color( self, eself, parent, vcs_legacy, event):
         # Initialize variables
         color_index = eself.canvas.selected_color_index
         color = eself.colorList[color_index]
@@ -612,7 +612,7 @@ class ColormapGui:
             buttons = ('OK', 'Apply', 'Dismiss'),
             defaultbutton = 'OK',
             title = "Select a Similiar Color",
-            command = E_Command(self.execute_similiar_color, eself, vcs) )
+            command = E_Command(self.execute_similiar_color, eself, vcs_legacy) )
 
 	# Create and pack a RadioSelect widget, with radiobuttons.
         framea = Tkinter.Frame( self.dialog2.interior() )
@@ -622,7 +622,7 @@ class ColormapGui:
 		buttontype = 'radiobutton',
 		orient = 'horizontal',
 		labelpos = 'w',
-		command = E_Command(self.toggle_callback, eself, parent, vcs, width, height, borderwidth, color, color_index, font),
+		command = E_Command(self.toggle_callback, eself, parent, vcs_legacy, width, height, borderwidth, color, color_index, font),
 		label_text = 'Viewing Style:',
 		hull_borderwidth = 2,
 		hull_relief = 'ridge',
@@ -665,15 +665,15 @@ class ColormapGui:
                 entry_width = 3,
                 entry_state = 'normal',
                 entryfield_value = r1,
-        #        entryfield_command = E_Command(self.update_color, eself, parent, vcs, width, height, borderwidth, color, color_index, font, "R", 0),
+        #        entryfield_command = E_Command(self.update_color, eself, parent, vcs_legacy, width, height, borderwidth, color, color_index, font, "R", 0),
                 entryfield_validate = {'validator' : 'integer',
                         'min' : 0, 'max' : psz}
                )
         self.R.pack(side='left', padx=5, pady=5)
         gui_support.balloon.bind( self.R, 'The red intensity value of the color ranging from\n0 to %d.' % psz )
-        #self.R.component('entryfield').bind('<Return>', E_Command(self.update_color, eself, parent, vcs, width, height, borderwidth, color, color_index, font, "R", 0))
-        self.R.component('uparrow').bind('<1>', E_Command(self.update_color, eself, parent, vcs, width, height, borderwidth, color, color_index, font, "R", 1))
-        self.R.component('downarrow').bind('<1>', E_Command(self.update_color, eself, parent, vcs, width, height, borderwidth, color, color_index, font, "R", -1))
+        #self.R.component('entryfield').bind('<Return>', E_Command(self.update_color, eself, parent, vcs_legacy, width, height, borderwidth, color, color_index, font, "R", 0))
+        self.R.component('uparrow').bind('<1>', E_Command(self.update_color, eself, parent, vcs_legacy, width, height, borderwidth, color, color_index, font, "R", 1))
+        self.R.component('downarrow').bind('<1>', E_Command(self.update_color, eself, parent, vcs_legacy, width, height, borderwidth, color, color_index, font, "R", -1))
         self.G = Pmw.Counter( frameba,
                 labelpos = 'w',
                 label_text = 'G:',
@@ -687,9 +687,9 @@ class ColormapGui:
                )
         self.G.pack(side='left', padx=5, pady=5)
         gui_support.balloon.bind( self.G, 'The green intensity value of the color ranging from\n0 to %d.' %psz )
-        #self.G.component('entry').bind('<Return>', E_Command(self.update_color, eself, parent, vcs, width, height, borderwidth, color, color_index, font, "G", 0))
-        self.G.component('uparrow').bind('<1>', E_Command(self.update_color, eself, parent, vcs, width, height, borderwidth, color, color_index, font, "G", 1))
-        self.G.component('downarrow').bind('<1>', E_Command(self.update_color, eself, parent, vcs, width, height, borderwidth, color, color_index, font, "G", -1))
+        #self.G.component('entry').bind('<Return>', E_Command(self.update_color, eself, parent, vcs_legacy, width, height, borderwidth, color, color_index, font, "G", 0))
+        self.G.component('uparrow').bind('<1>', E_Command(self.update_color, eself, parent, vcs_legacy, width, height, borderwidth, color, color_index, font, "G", 1))
+        self.G.component('downarrow').bind('<1>', E_Command(self.update_color, eself, parent, vcs_legacy, width, height, borderwidth, color, color_index, font, "G", -1))
         self.B = Pmw.Counter( frameba,
                 labelpos = 'w',
                 label_text = 'B:',
@@ -704,9 +704,9 @@ class ColormapGui:
                )
         self.B.pack(side='left', padx=5, pady=5)
         gui_support.balloon.bind( self.B, 'The blue intensity value of the color ranging from\n0 to %d.' %psz )
-        #self.B.component('entry').bind('<Return>', E_Command(self.update_color, eself, parent, vcs, width, height, borderwidth, color, color_index, font, "B", 0))
-        self.B.component('uparrow').bind('<1>', E_Command(self.update_color, eself, parent, vcs, width, height, borderwidth, color, color_index, font, "B", 1))
-        self.B.component('downarrow').bind('<1>', E_Command(self.update_color, eself, parent, vcs, width, height, borderwidth, color, color_index, font, "B", -1))
+        #self.B.component('entry').bind('<Return>', E_Command(self.update_color, eself, parent, vcs_legacy, width, height, borderwidth, color, color_index, font, "B", 0))
+        self.B.component('uparrow').bind('<1>', E_Command(self.update_color, eself, parent, vcs_legacy, width, height, borderwidth, color, color_index, font, "B", 1))
+        self.B.component('downarrow').bind('<1>', E_Command(self.update_color, eself, parent, vcs_legacy, width, height, borderwidth, color, color_index, font, "B", -1))
 
         framebb = Tkinter.Frame( frameb.interior() )
         framebb.pack(side='top')
@@ -721,9 +721,9 @@ class ColormapGui:
                )
         self.rows.pack(side='left', padx=0, pady=5)
         gui_support.balloon.bind( self.rows, 'Reset the number of columns from 1 to 16.' )
-        #self.rows.component('entry').bind('<Return>', E_Command(self.update_row, eself, parent, vcs, width, height, borderwidth, color, color_index, font, 0))
-        self.rows.component('uparrow').bind('<1>', E_Command(self.update_row, eself, parent, vcs, width, height, borderwidth, color, color_index, font, 1))
-        self.rows.component('downarrow').bind('<1>', E_Command(self.update_row, eself, parent, vcs, width, height, borderwidth, color, color_index, font, -1))
+        #self.rows.component('entry').bind('<Return>', E_Command(self.update_row, eself, parent, vcs_legacy, width, height, borderwidth, color, color_index, font, 0))
+        self.rows.component('uparrow').bind('<1>', E_Command(self.update_row, eself, parent, vcs_legacy, width, height, borderwidth, color, color_index, font, 1))
+        self.rows.component('downarrow').bind('<1>', E_Command(self.update_row, eself, parent, vcs_legacy, width, height, borderwidth, color, color_index, font, -1))
 
         self.cols = Pmw.Counter( framebb,
                 labelpos = 'w',
@@ -736,15 +736,15 @@ class ColormapGui:
                )
         self.cols.pack(side='left', padx=10, pady=5)
         gui_support.balloon.bind( self.cols, 'Reset the number of rows from 1 to 16.' )
-        #self.cols.component('entry').bind('<Return>', E_Command(self.update_col, eself, parent, vcs, width, height, borderwidth, color, color_index, font, 0))
-        self.cols.component('uparrow').bind('<1>', E_Command(self.update_col, eself, parent, vcs, width, height, borderwidth, color, color_index, font, 1))
-        self.cols.component('downarrow').bind('<1>', E_Command(self.update_col, eself, parent, vcs, width, height, borderwidth, color, color_index, font, -1))
+        #self.cols.component('entry').bind('<Return>', E_Command(self.update_col, eself, parent, vcs_legacy, width, height, borderwidth, color, color_index, font, 0))
+        self.cols.component('uparrow').bind('<1>', E_Command(self.update_col, eself, parent, vcs_legacy, width, height, borderwidth, color, color_index, font, 1))
+        self.cols.component('downarrow').bind('<1>', E_Command(self.update_col, eself, parent, vcs_legacy, width, height, borderwidth, color, color_index, font, -1))
 
 	self.canvas4 = Tkinter.Canvas(self.dialog2.interior(),
                       borderwidth=borderwidth, relief = 'raised',
 		      width = width, height = height)
         self.canvas4.pack( expand = 1, fill = 'both', padx=10, pady=5 )
-        self.canvas4.bind( '<1>', E_Command( self.select_color_index_left2, eself, parent, vcs, width, height, borderwidth, color, color_index, font ) )
+        self.canvas4.bind( '<1>', E_Command( self.select_color_index_left2, eself, parent, vcs_legacy, width, height, borderwidth, color, color_index, font ) )
         self.canvas4.selected_color_index = 0
 
         gui_support.balloon.bind( self.canvas4, 'With the left mouse button select a desired color.' )
@@ -766,7 +766,7 @@ class ColormapGui:
     # Get color the toggle preference.                                          #
     #                                                                           #
     #############################################################################
-    def toggle_callback(self, eself, parent, vcs, width, height, borderwidth, color, color_index, font, tag):
+    def toggle_callback(self, eself, parent, vcs_legacy, width, height, borderwidth, color, color_index, font, tag):
 #        print 'tag = ', tag
         if tag == 'RGB':
            eself.dred   = 1
@@ -787,7 +787,7 @@ class ColormapGui:
 
         # Update the color map
         color_index = eself.canvas4.selected_color_index
-        eself.execute2(eself, parent, vcs, width, height, borderwidth, color, color_index, font)
+        eself.execute2(eself, parent, vcs_legacy, width, height, borderwidth, color, color_index, font)
 
         eself.canvas4.selected_color_index = color_index
 
@@ -797,7 +797,7 @@ class ColormapGui:
     # Select the color index with the left mouse button.                        #
     #                                                                           #
     #############################################################################
-    def select_color_index_left2(self, eself, parent, vcs, width, height, borderwidth, color, color_index, font, event):
+    def select_color_index_left2(self, eself, parent, vcs_legacy, width, height, borderwidth, color, color_index, font, event):
         x = self.canvas4.canvasx(event.x)
         y = self.canvas4.canvasy(event.y)
 
@@ -813,7 +813,7 @@ class ColormapGui:
         if color_index is None: return
 
         # Update the color map
-        eself.execute2(eself, parent, vcs, width, height, borderwidth, color, color_index, font)
+        eself.execute2(eself, parent, vcs_legacy, width, height, borderwidth, color, color_index, font)
 
         r, g, b = self.root.winfo_rgb(self.canvas4.bbx[ color_index ][1])
         r =  r/256; g = g/256; b = b/256
@@ -824,7 +824,7 @@ class ColormapGui:
 
         self.canvas4.selected_color_index = color_index
 
-    def update_color(self, eself, parent, vcs, width, height, borderwidth, color, color_index, font, color_type, num, event):
+    def update_color(self, eself, parent, vcs_legacy, width, height, borderwidth, color, color_index, font, color_type, num, event):
        if (color_type == "R"):
           Rsize=string.atoi( self.R.get() ) + num
           self.R.setentry( Rsize )
@@ -836,7 +836,7 @@ class ColormapGui:
           self.B.setentry( Bsize )
 
        # Update the color map
-       eself.execute2(eself, parent, vcs, width, height, borderwidth, color, color_index, font)
+       eself.execute2(eself, parent, vcs_legacy, width, height, borderwidth, color, color_index, font)
 
        return "break"
 
@@ -846,12 +846,12 @@ class ColormapGui:
     # Change the number of rows visible in the popup color selection.           #
     #                                                                           #
     #############################################################################
-    def update_row(self, eself, parent, vcs, width, height, borderwidth, color, color_index, font, num, event):
+    def update_row(self, eself, parent, vcs_legacy, width, height, borderwidth, color, color_index, font, num, event):
        wsize=string.atoi( self.rows.get() ) + num
        self.rows.setentry( wsize )
 
        # Update the color map
-       eself.execute2(eself, parent, vcs, width, height, borderwidth, color, color_index, font)
+       eself.execute2(eself, parent, vcs_legacy, width, height, borderwidth, color, color_index, font)
 
        return "break"
 
@@ -861,12 +861,12 @@ class ColormapGui:
     # Change the number of columns visible in the popup color selection.        #
     #                                                                           #
     #############################################################################
-    def update_col(self, eself, parent, vcs, width, height, borderwidth, color, color_index, font, num, event):
+    def update_col(self, eself, parent, vcs_legacy, width, height, borderwidth, color, color_index, font, num, event):
        hsize=string.atoi( self.cols.get() ) + num
        self.cols.setentry( hsize )
 
        # Update the color map
-       eself.execute2(eself, parent, vcs, width, height, borderwidth, color, color_index, font)
+       eself.execute2(eself, parent, vcs_legacy, width, height, borderwidth, color, color_index, font)
 
        return "break"
 
@@ -876,7 +876,7 @@ class ColormapGui:
     # Show the requested similiar colors                                        #
     #                                                                           #
     #############################################################################
-    def execute2(self, eself, parent, vcs, width, height, borderwidth, color, color_index, font):
+    def execute2(self, eself, parent, vcs_legacy, width, height, borderwidth, color, color_index, font):
         wsize=string.atoi( self.rows.get() )
         hsize=string.atoi( self.cols.get() )
         numIndices = wsize * hsize
@@ -977,7 +977,7 @@ class ColormapGui:
     # Show the requested similiar colors                                        #
     #                                                                           #
     #############################################################################
-    def execute_similiar_color( self, eself, vcs, result):
+    def execute_similiar_color( self, eself, vcs_legacy, result):
         save_color_index = eself.canvas.selected_color_index
         if (result == 'Apply') or (result == 'OK'):
            new_color = self.canvas4.bbx[ self.canvas4.selected_color_index ][ 1 ]
@@ -1022,10 +1022,10 @@ class ColormapGui:
     # Get the VCS colormap values and convert to Hex value names                #
     #                                                                           #
     #############################################################################
-    def get_VCS_colormap( self, vcs ):
+    def get_VCS_colormap( self, vcs_legacy ):
         # Get the VCS colormap name and colormap, then create the color list for each index
-        cname = vcs.getcolormapname()
-        cmap  = vcs.getcolormap( cname )
+        cname = vcs_legacy.getcolormapname()
+        cmap  = vcs_legacy.getcolormap( cname )
         self.colorList = []
         for i in range(0,256):
            self.colorList.append( "#%02x%02x%02x" % ( (cmap.index[i][0]*2.55),
@@ -1035,8 +1035,8 @@ class ColormapGui:
         # Only do the following if called from the command-line
         # and not in 8-bit pseudo-color mode
         if ((self.top_parent is None) and (self.parent.winfo_depth() != 8)):
-           vcs.canvas.flush()
-           vcs.canvas.backing_store()
+           vcs_legacy.canvas.flush()
+           vcs_legacy.canvas.backing_store()
 
         # Update the Editor's frame title
         title = "VCS's Colormap Editor: Editing -- " + cname
@@ -1189,7 +1189,7 @@ def HSV_to_RGB(H, S, V):
       if H is None:              # Achromatic color: There is no hue
          R = V; G = V; B = V
       else:
-         raise vcsError,  "Cannot convert HSV color space to RGB."
+         raise vcs_legacyError,  "Cannot convert HSV color space to RGB."
    else:
       if H == 360: H = 0         # 360 degrees is eqqivalent to 0 degrees
       H = H/60                   # H is now in [0,6]
@@ -1231,7 +1231,7 @@ class E_Command:
 # Create the colormap File menu and its menu items
 #----------------------------------------------------------------------------------------
 class create_colormap_file_menu:
-   def __init__( self, main_menu, eself, parent, root, vcs, tear_it ):
+   def __init__( self, main_menu, eself, parent, root, vcs_legacy, tear_it ):
       file_name = 'File'
       if ((sys.platform == 'darwin') and (gui_control.do_aqua == 1)): file_name = 'File '
       main_menu.addmenu(file_name, 'Open/Save VCS Colormap', tearoff = tear_it)
@@ -1239,7 +1239,7 @@ class create_colormap_file_menu:
       # Create the "Open File" menu item
       main_menu.addmenuitem(file_name, 'command', 'Open colormap file',
                          label = 'Open Colormap File',
-                         command = E_Command(self.evt_open_file, parent, vcs)
+                         command = E_Command(self.evt_open_file, parent, vcs_legacy)
                         )
 
       main_menu.addmenuitem(file_name, 'separator')
@@ -1248,15 +1248,15 @@ class create_colormap_file_menu:
       # Create the cascade "Save Colormap" menu and its items
       main_menu.addmenuitem(file_name, 'command', 'Open colormap file',
                          label = 'Save (i.e., Apply Changes)',
-                         command = E_Command(self.evt_save_colormap, eself, parent, vcs)
+                         command = E_Command(self.evt_save_colormap, eself, parent, vcs_legacy)
                         )
       main_menu.addmenuitem(file_name, 'command', 'Open colormap file',
                          label = 'Save As...',
-                         command = E_Command(self.evt_save_as, eself, parent, vcs)
+                         command = E_Command(self.evt_save_as, eself, parent, vcs_legacy)
                         )
       main_menu.addmenuitem(file_name, 'command', 'Open colormap file',
                          label = 'Save To File',
-                         command = E_Command(self.evt_save_to_file, eself, parent, vcs)
+                         command = E_Command(self.evt_save_to_file, eself, parent, vcs_legacy)
                         )
 
       # Create the cascade "Exit" menu
@@ -1268,7 +1268,7 @@ class create_colormap_file_menu:
 
    # Open VCS file
    #
-   def evt_open_file( self, parent, vcs ):
+   def evt_open_file( self, parent, vcs_legacy ):
       # search for the following files
       filetypes = [
         ("VCS script files", "*.scr"),
@@ -1285,51 +1285,51 @@ class create_colormap_file_menu:
 
       # Run VCS script
       if len(dirfilename) > 0:
-         vcs.scriptrun(dirfilename)
+         vcs_legacy.scriptrun(dirfilename)
 
    # Save VCS colormap under the same name
    #
-   def evt_save_colormap( self, eself, parent, vcs ):
-      mode = vcs.mode
-      vcs.mode = 0
-      c_name = vcs.getcolormapname()
+   def evt_save_colormap( self, eself, parent, vcs_legacy ):
+      mode = vcs_legacy.mode
+      vcs_legacy.mode = 0
+      c_name = vcs_legacy.getcolormapname()
       if c_name == 'default':
-         raise vcsError,  "Cannot modify the default colormap."
+         raise vcs_legacyError,  "Cannot modify the default colormap."
       for i in range(len(eself.colorList)):
         if i>239: break # only save first 239 colors, the last row are reserved
         r, g, b = eself.root.winfo_rgb( eself.colorList[ i ] )
         R = int(r/256./255.*psz)
         G = int(g/256./255.*psz)
         B = int(b/256./255.*psz)
-        vcs.setcolorcell( i, R, G, B )
+        vcs_legacy.setcolorcell( i, R, G, B )
       colormap.copyCp( c_name, c_name )
-      if (mode == 1): vcs.update()
-      vcs.mode = mode
+      if (mode == 1): vcs_legacy.update()
+      vcs_legacy.mode = mode
 
       if parent.winfo_depth() == 8: # for pseudo-color only
-         vcs.setcolormap( c_name )
+         vcs_legacy.setcolormap( c_name )
       else:
-         vcs.canvas.BLOCK_X_SERVER()
-         vcs.canvas.flush()
-         eself.get_VCS_colormap( vcs )
+         vcs_legacy.canvas.BLOCK_X_SERVER()
+         vcs_legacy.canvas.flush()
+         eself.get_VCS_colormap( vcs_legacy )
          eself.execute( )
-         vcs.canvas.UNBLOCK_X_SERVER()
+         vcs_legacy.canvas.UNBLOCK_X_SERVER()
  
          try:
             if ( (eself.top_parent is not None) and
                  (eself.top_parent.panelDM.var3 is not None)):
-               vcs_function.re_plot( eself.top_parent, 0 )
+               vcs_legacy_function.re_plot( eself.top_parent, 0 )
          except:
             pass
 
    # Save VCS colormap as a new name
    #
-   def evt_save_as( self, eself, parent, vcs ):
-      create_entry_popup(eself, parent, vcs, 'sa',('Save VCS colormap ( %s ) as:' % vcs.getcolormapname()),'Enter the new name of the colormap:\n\tFor example:\n\t\tnewcolormapname')
+   def evt_save_as( self, eself, parent, vcs_legacy ):
+      create_entry_popup(eself, parent, vcs_legacy, 'sa',('Save VCS colormap ( %s ) as:' % vcs_legacy.getcolormapname()),'Enter the new name of the colormap:\n\tFor example:\n\t\tnewcolormapname')
 
    # Save VCS Color map to a file
    #
-   def evt_save_to_file( self, eself, parent, vcs ):
+   def evt_save_to_file( self, eself, parent, vcs_legacy ):
       filetypes = [ ("VCS Script File", ".scr") ]
       # Show the popup directory dialog
       sfile = tkFileDialog.asksaveasfilename( master=parent, filetypes = filetypes,
@@ -1339,7 +1339,7 @@ class create_colormap_file_menu:
 
       try:
          fp = open( sfile, 'w')
-         fp.write( 'C_%s(\n' % vcs.getcolormapname() )
+         fp.write( 'C_%s(\n' % vcs_legacy.getcolormapname() )
          for i in range(len(eself.colorList)):
             if i>239: break # only save first 239 colors, last row are reserved
             if i>0: fp.write( ',\n' )
@@ -1359,14 +1359,14 @@ class create_colormap_file_menu:
 # a new colormap
 #----------------------------------------------------------------------------------------
 class create_entry_popup:
-   def __init__(self, eself, parent, vcs, type, title, text, entry_str = ''):
+   def __init__(self, eself, parent, vcs_legacy, type, title, text, entry_str = ''):
         self.parent = parent
         self.type = type
         self.dialog = Pmw.Dialog( parent,
             title = title,
             buttons = ('OK', 'Dismiss'),
             defaultbutton = 'OK',
-            command = E_Command(self.execute, eself, parent, vcs) )
+            command = E_Command(self.execute, eself, parent, vcs_legacy) )
 
         self.dialog.transient( self.parent ) # draw widget on top of its parent
 
@@ -1395,7 +1395,7 @@ class create_entry_popup:
 
    # Save, copy, and write colormap to a file
    #
-   def execute(self, eself, parent, vcs, result):
+   def execute(self, eself, parent, vcs_legacy, result):
       R = []; G = []; B = []
       if result == 'OK':
          if self.eny1.get( ) == '':
@@ -1408,16 +1408,16 @@ class create_entry_popup:
                  R.append( int(r/256./255.*psz) )
                  G.append( int(g/256./255.*psz) )
                  B.append( int(b/256./255.*psz) )
-               colormap.copyCp( vcs.getcolormapname(), self.eny1.get( ) )
-               vcs.canvas.flush()
-               vcs.setcolormap( self.eny1.get() )
-               eself.get_VCS_colormap( vcs )
-               vcs.setcolormap( self.eny1.get() )
+               colormap.copyCp( vcs_legacy.getcolormapname(), self.eny1.get( ) )
+               vcs_legacy.canvas.flush()
+               vcs_legacy.setcolormap( self.eny1.get() )
+               eself.get_VCS_colormap( vcs_legacy )
+               vcs_legacy.setcolormap( self.eny1.get() )
                for i in range(len(eself.colorList)):
                  if i>239: break # only save first 239 colors, the last row are reserved
-                 vcs.setcolorcell( i, R[i], G[i], B[i] )
+                 vcs_legacy.setcolorcell( i, R[i], G[i], B[i] )
                  eself.colorList[i] = "#%02x%02x%02x" % ( R[i]*2.55, G[i]*2.55, B[i]*2.55 )
-               vcs.update()
+               vcs_legacy.update()
 
       self.dialog.destroy()
 
@@ -1426,7 +1426,7 @@ class create_entry_popup:
 # Create the Colormap Edit menu and its menu items
 #----------------------------------------------------------------------------------------
 class create_edit_menu:
-   def __init__( self, eself, main_menu, parent, vcs, tear_it ):
+   def __init__( self, eself, main_menu, parent, vcs_legacy, tear_it ):
       edit_name = 'Edit'
       if ((sys.platform == 'darwin') and (gui_control.do_aqua == 1)): edit_name = 'Edit '
       # Initialize the Edit pull down:
@@ -1434,22 +1434,22 @@ class create_edit_menu:
 
       main_menu.addmenuitem(edit_name, 'command', 'copy color indices',
                        label = 'Blend Colors',
-                       command = E_Command(self.evt_blend_colors, eself, parent, vcs)
+                       command = E_Command(self.evt_blend_colors, eself, parent, vcs_legacy)
                       )
 
       main_menu.addmenuitem(edit_name, 'separator')
 
       main_menu.addmenuitem(edit_name, 'command', 'copy color indices',
                        label = 'Copy',
-                       command = E_Command(self.evt_copy_selected_colors, eself, parent, vcs)
+                       command = E_Command(self.evt_copy_selected_colors, eself, parent, vcs_legacy)
                       )
 
       main_menu.addmenuitem(edit_name, 'command', 'paste color indices',
                        label = 'Paste',
-                       command = E_Command(self.evt_paste_selected_indices, eself, parent, vcs)
+                       command = E_Command(self.evt_paste_selected_indices, eself, parent, vcs_legacy)
                       )
 
-   def evt_blend_colors( self, eself, parent, vcs ):
+   def evt_blend_colors( self, eself, parent, vcs_legacy ):
       numIndices = len(eself.canvas.clip_board)
       if numIndices <= 1: return
 
@@ -1520,7 +1520,7 @@ class create_edit_menu:
       eself.execute( )
           
 
-   def evt_copy_selected_colors( self, eself, parent, vcs ):
+   def evt_copy_selected_colors( self, eself, parent, vcs_legacy ):
       numIndices = len(eself.canvas.clip_board)
 
       eself.copy_buffer = []
@@ -1530,7 +1530,7 @@ class create_edit_menu:
       # Update the color map
       eself.execute( )
 
-   def evt_paste_selected_indices( self, eself, parent, vcs ):
+   def evt_paste_selected_indices( self, eself, parent, vcs_legacy ):
       numIndices = len( eself.copy_buffer )
       start_index = eself.canvas.clip_board[0][0]
       for i in range( numIndices ):
@@ -1543,7 +1543,7 @@ class create_edit_menu:
 # Create the Colormap Options menu and its menu items
 #----------------------------------------------------------------------------------------
 class create_options_menu:
-   def __init__( self, eself, main_menu, parent, vcs, tear_it ):
+   def __init__( self, eself, main_menu, parent, vcs_legacy, tear_it ):
       opt_name = 'Options'
       if ((sys.platform == 'darwin') and (gui_control.do_aqua == 1)): opt_name = 'Options   '
       main_menu.addmenu(opt_name, 'Set VCS Colormap Preferences', tearoff = tear_it)
@@ -1583,15 +1583,15 @@ class create_options_menu:
 
       main_menu.addmenuitem(opt_name, 'command', 'view colormap values',
                        label = 'Select Colormap',
-                       command = E_Command(self.evt_select_colormap, eself, parent, vcs)
+                       command = E_Command(self.evt_select_colormap, eself, parent, vcs_legacy)
                       )
       main_menu.addmenuitem(opt_name, 'command', 'view colormap values',
                        label = 'Delete Colormap',
-                       command = E_Command(self.evt_delete_colormap, eself, parent, vcs)
+                       command = E_Command(self.evt_delete_colormap, eself, parent, vcs_legacy)
                       )
       main_menu.addmenuitem(opt_name, 'command', 'view colormap values',
                        label = 'View Colormap Values',
-                       command = E_Command(self.evt_view_colormap_values, eself, parent, vcs)
+                       command = E_Command(self.evt_view_colormap_values, eself, parent, vcs_legacy)
                       )
 
    # Update the color model look and feel
@@ -1703,10 +1703,10 @@ class create_options_menu:
          eself.value.setentry( v )
 
    # Set to a new colormap
-   def evt_select_colormap ( self, eself, parent, vcs ):
-      c_names = vcs.listelements('colormap')
+   def evt_select_colormap ( self, eself, parent, vcs_legacy ):
+      c_names = vcs_legacy.listelements('colormap')
       c_names.sort()
-      cname = vcs.getcolormapname()
+      cname = vcs_legacy.getcolormapname()
 
       # Create the dialog.
       self.dialog = Pmw.ComboBoxDialog( eself.root,
@@ -1718,7 +1718,7 @@ class create_options_menu:
             entry_foreground = 'black',
 	    label_text = 'Enter or Select VCS Colormap:',
 	    scrolledlist_items = c_names,
-            command = E_Command(self.execute_colormap_selection, eself, vcs) )
+            command = E_Command(self.execute_colormap_selection, eself, vcs_legacy) )
       self.dialog.setentry( cname )
 
       self.dialog.transient( eself.root ) # draw widget on top of its parent
@@ -1731,19 +1731,19 @@ class create_options_menu:
       self.dialog.geometry( "+%d+%d" % (d1, d2) )
 
    # Set the colormap selection
-   def execute_colormap_selection ( self, eself, vcs, result ):
+   def execute_colormap_selection ( self, eself, vcs_legacy, result ):
       if (result == 'OK') or (result == 'Apply'):
-         vcs.canvas.BLOCK_X_SERVER()
-         vcs.canvas.flush()
-         vcs.setcolormap( self.dialog.get() )
-         eself.get_VCS_colormap( vcs )
+         vcs_legacy.canvas.BLOCK_X_SERVER()
+         vcs_legacy.canvas.flush()
+         vcs_legacy.setcolormap( self.dialog.get() )
+         eself.get_VCS_colormap( vcs_legacy )
          eself.execute( )
-         vcs.canvas.UNBLOCK_X_SERVER()
+         vcs_legacy.canvas.UNBLOCK_X_SERVER()
          try:
             if ( (eself.top_parent is not None) and
                  (eself.top_parent.panelDM.var3 is not None)):
                eself.top_parent.panelGC.evt_plot( eself.top_parent )
-               #vcs_function.re_plot( eself.top_parent, 0 )
+               #vcs_legacy_function.re_plot( eself.top_parent, 0 )
          except:
             pass
       if result == 'OK':
@@ -1754,10 +1754,10 @@ class create_options_menu:
          self.dialog.destroy()
 
    # Delete colormap
-   def evt_delete_colormap ( self, eself, parent, vcs ):
-      c_names = vcs.listelements('colormap')
+   def evt_delete_colormap ( self, eself, parent, vcs_legacy ):
+      c_names = vcs_legacy.listelements('colormap')
       c_names.sort()
-      cname = vcs.getcolormapname()
+      cname = vcs_legacy.getcolormapname()
 
       # Create the dialog.
       self.dialog = Pmw.ComboBoxDialog( eself.root,
@@ -1769,7 +1769,7 @@ class create_options_menu:
             entry_foreground = 'black',
             label_text = 'Enter or Select VCS Colormap to be Deleted:',
             scrolledlist_items = c_names,
-            command = E_Command(self.execute_colormap_deletion, eself, vcs) )
+            command = E_Command(self.execute_colormap_deletion, eself, vcs_legacy) )
       self.dialog.setentry( cname )
 
       # Position dialog popup
@@ -1780,14 +1780,14 @@ class create_options_menu:
       self.dialog.geometry( "+%d+%d" % (d1, d2) )
 
    # Remove the colormap
-   def execute_colormap_deletion ( self, eself, vcs, result ):
+   def execute_colormap_deletion ( self, eself, vcs_legacy, result ):
       if (result == 'OK') or (result == 'Apply'):
          if self.dialog.get() == 'default':
-            raise vcsError,  "Cannot remove the default colormap."
-         elif self.dialog.get() == vcs.getcolormapname():
-            raise vcsError,  "Cannot remove the currently used colormap."
+            raise vcs_legacyError,  "Cannot remove the default colormap."
+         elif self.dialog.get() == vcs_legacy.getcolormapname():
+            raise vcs_legacyError,  "Cannot remove the currently used colormap."
          colormap.removeCp( self.dialog.get() )
-         c_names = vcs.listelements('colormap')
+         c_names = vcs_legacy.listelements('colormap')
          c_names.sort()
          self.dialog.setlist( c_names )
 
@@ -1799,8 +1799,8 @@ class create_options_menu:
          self.dialog.destroy()
 
    # View colormap values
-   def evt_view_colormap_values ( self, eself, parent, vcs ):
-      cname = vcs.getcolormapname()
+   def evt_view_colormap_values ( self, eself, parent, vcs_legacy ):
+      cname = vcs_legacy.getcolormapname()
 
       # Create the dialog text widget
       dialog = Pmw.TextDialog(eself.root, scrolledtext_labelpos = 'n',
@@ -1826,7 +1826,7 @@ class create_options_menu:
 
 
       # Get the VCS colormap name and colormap, then create the color list for each index
-      cmap  = vcs.getcolormap( cname )
+      cmap  = vcs_legacy.getcolormap( cname )
       for i in range(0,256):
          r_cmap = (cmap.index[i][0])/100.*psz; g_cmap = (cmap.index[i][1])/100.*psz; b_cmap = (cmap.index[i][2])/100.*psz
          if eself.cmain_menu.color_mode == 0:

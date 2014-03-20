@@ -45,7 +45,7 @@ class LineGUI:
 
         self.line=self.canvas.getline(name)
         if self.line is None:
-            if not name in self.canvas.listelements('line'):
+            if not name in vcs.listelements('line'):
                 raise 'Error '+t_name+' is not a valid line name'
             else:
                 raise 'Weird unkwnown error but no line object returned....'
@@ -129,7 +129,7 @@ class LineGUI:
         self.tprop.pack(expand='yes',fill='both')
         self.tproperties=self.tprop.interior()
         self.tproperties.configure(bg=L_color)
-        lines=self.canvas.listelements('line')
+        lines=vcs.listelements('line')
         lines.sort()
 
         labels=[]
@@ -259,7 +259,7 @@ class LineGUI:
         self.type.setvalue(self.line.type[0])
         self.width.set(self.line.width[0])
         self.Color.set(self.line.color[0])
-        lines=self.canvas.listelements('line')
+        lines=vcs.listelements('line')
         lines.sort()
         self.Line.setitems(lines)
         if self.line.name=='default':

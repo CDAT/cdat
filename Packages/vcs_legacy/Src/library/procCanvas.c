@@ -45,7 +45,7 @@ int clearCanvas(Gconid_X_drawable connect_id)
 	     (connect_id.drawable != 0))
 	    XClearWindow(connect_id.display,connect_id.drawable);
 #elif defined QTWM
-	  vcs_Qt_clear_window_by_id(connect_id.wkst_id);
+	  vcs_legacy_Qt_clear_window_by_id(connect_id.wkst_id);
 #else
 	  fprintf(stderr,"insert your WM clear function here\n");
 #endif
@@ -66,7 +66,7 @@ int procCanvas(char *str, Gconid_X_drawable **connect_id_in, int canvas_id, doub
 	int c=1;
 	char strm[256];
 #ifdef QTWM
-	extern  void vcs_Qt_open_window(Gconid_X_drawable *connect_id);
+	extern  void vcs_legacy_Qt_open_window(Gconid_X_drawable *connect_id);
 #endif
       connect_id = (Gconid_X_drawable *)connect_id_in;
       if (*tok != -99) {
@@ -123,7 +123,7 @@ int procCanvas(char *str, Gconid_X_drawable **connect_id_in, int canvas_id, doub
 	       connect_id->display=XOpenDisplay(NULL);
 #elif defined(QTWM)
 /* 	fprintf(stderr,"proc open first, id: %i, %i\n",connect_id,connect_id->wkst_id); */
-	vcs_Qt_open_window_by_id(connect_id->wkst_id);
+	vcs_legacy_Qt_open_window_by_id(connect_id->wkst_id);
 #else
 	fprintf(stderr,"insert your WM open win function here\n");
 #endif
@@ -195,13 +195,13 @@ int procCanvas(char *str, Gconid_X_drawable **connect_id_in, int canvas_id, doub
        int visualsMatched;
        int parent_win;
 
-       extern void vcs_canvas_module();  /* setup the VCS Canvas */
+       extern void vcs_legacy_canvas_module();  /* setup the VCS Canvas */
        char geom[100];
 #ifdef QTWM
-       extern  void vcs_Qt_open_window(Gconid_X_drawable *connect_id);
-       extern void vcs_Qt_get_desktop_dimensions(int index,int *x, int *y, int *w,int *h);
-       extern void vcs_Qt_set_window_properties(int index, int minWidth, int minHeight, int maxWidth,int maxWeight, char *icon, char *title);
-       extern void vcs_Qt_resize_window(int index,int x,int y,int w, int h);
+       extern  void vcs_legacy_Qt_open_window(Gconid_X_drawable *connect_id);
+       extern void vcs_legacy_Qt_get_desktop_dimensions(int index,int *x, int *y, int *w,int *h);
+       extern void vcs_legacy_Qt_set_window_properties(int index, int minWidth, int minHeight, int maxWidth,int maxWeight, char *icon, char *title);
+       extern void vcs_legacy_Qt_resize_window(int index,int x,int y,int w, int h);
 #endif
       connect_id = (Gconid_X_drawable *)connect_id_in;
 #ifdef X11WM
@@ -280,7 +280,7 @@ int procCanvas(char *str, Gconid_X_drawable **connect_id_in, int canvas_id, doub
        height=DisplayHeight(connect_id->display,screen_num);
        width=DisplayWidth(connect_id->display,screen_num);	
 #elif defined (QTWM)
-      vcs_Qt_get_desktop_dimensions(connect_id->wkst_id,&x,&y,&width,&height);
+      vcs_legacy_Qt_get_desktop_dimensions(connect_id->wkst_id,&x,&y,&width,&height);
 /*       printf("back in C dims are: %ix%i, at (%i,%i)\n",width,height,x,y); */
       fg = 0;
       bg=1; /* ??? Need to put code to figure out bg color here */
@@ -326,16 +326,16 @@ int procCanvas(char *str, Gconid_X_drawable **connect_id_in, int canvas_id, doub
           XChangeProperty(connect_id->display, connect_id->drawable,
                   proto, XA_ATOM, 32, PropModeReplace, (unsigned char *) &delwin, 1);
        } else {
-	  /* Bring up the vcs canvas via a popup window */
+	  /* Bring up the vcs_legacy canvas via a popup window */
 	  sprintf(geom, "%dx%d+%d+%d", x, y, 2,height-y-30);
-	  /*vcs_canvas_module(connect_id->app_shell, canvas_id, geom);*/
+	  /*vcs_legacy_canvas_module(connect_id->app_shell, canvas_id, geom);*/
        }
 
        XSync( connect_id->display, FALSE );
        XFlush(connect_id->display);
 #elif defined(QTWM)
-       vcs_Qt_resize_window(connect_id->wkst_id,2,height-y-30,x,y);
-       vcs_Qt_open_window_by_id(connect_id->wkst_id);
+       vcs_legacy_Qt_resize_window(connect_id->wkst_id,2,height-y-30,x,y);
+       vcs_legacy_Qt_open_window_by_id(connect_id->wkst_id);
 #else
        fprintf(stderr,"insert your WM window open/resize here\n");
 #endif
@@ -365,7 +365,7 @@ int procCanvas(char *str, Gconid_X_drawable **connect_id_in, int canvas_id, doub
               strcpy(dirbase,base_dir);
           base_dir=dirbase;
           strcpy(icon_file, base_dir);
-	  strcat(icon_file, "/vcs_icon.xbm");
+	  strcat(icon_file, "/vcs_legacy_icon.xbm");
 
 #ifdef X11WM
        /* Initialize size hints for window manager */
@@ -391,7 +391,7 @@ int procCanvas(char *str, Gconid_X_drawable **connect_id_in, int canvas_id, doub
             hints.max_aspect.y=y;*/
 
           XSetStandardProperties(connect_id->display,connect_id->drawable,
-	                         buf, "vcs", None,0,0,&hints);
+	                         buf, "vcs_legacy", None,0,0,&hints);
 
 	  wmhints.flags=IconPixmapHint;
 	  itmp=XReadBitmapFile(connect_id->display,connect_id->drawable,icon_file,&wr,&hr,&iconpixmap,&xhr,&yhr);
@@ -410,7 +410,7 @@ int procCanvas(char *str, Gconid_X_drawable **connect_id_in, int canvas_id, doub
        sprintf (conec,formid,connect_id->drawable,connect_id->display,connect_id->n_cmap);
 #elif defined (QTWM)
        sprintf(conec,"%i",connect_id->wkst_id);
-       vcs_Qt_set_window_properties(connect_id->wkst_id,-1,-1,width,height,icon_file,buf);
+       vcs_legacy_Qt_set_window_properties(connect_id->wkst_id,-1,-1,width,height,icon_file,buf);
 #else
        fprintf(stderr,"insert here your WM properties manager here\n");
 #endif
@@ -588,7 +588,7 @@ int shutdown (Gconid_X_drawable connect_id, int wks)
        int i;
        Gintlist wsid;
        int *pid;
-       extern void vcs_canvas_quit_cb();
+       extern void vcs_legacy_canvas_quit_cb();
 
        wsid.number = 0;
        wsid.integers = NULL;
@@ -643,9 +643,9 @@ fprintf(stderr,"shutiing down a wkst\n");
 		    connect_id.drawable = (XID) NULL;
 		    /*XFreeColormap(connect_id.display,connect_id.n_cmap);		*
 		      XCloseDisplay(XtDisplay(connect_id.drawable));*/
-		    /*vcs_canvas_quit_cb(NULL, NULL, NULL);*/
+		    /*vcs_legacy_canvas_quit_cb(NULL, NULL, NULL);*/
 #elif defined (QTWM)
-		    vcs_Qt_destroy_window(connect_id.wkst_id);
+		    vcs_legacy_Qt_destroy_window(connect_id.wkst_id);
 #else
 		    fprintf(stderr,"insert your WM destroy win here\n");
 #endif

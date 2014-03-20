@@ -16,7 +16,7 @@
 #include "project.h"
 #include "display.h"
 #include "workstations.h"
-#include "vcs_marker.h"
+#include "vcs_legacy_marker.h"
 
 #define NMAX 1000
 
@@ -30,7 +30,7 @@
 
     extern struct display_tab D_tab;
 
-    extern struct vcs_marker Vma_tab;
+    extern struct vcs_legacy_marker Vma_tab;
 
     extern struct project_attr p_PRJ;
 

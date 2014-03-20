@@ -28,13 +28,13 @@
 #                                                                          #
 ############################################################################
 def test():
-   import vcs,cdms2 as cdms,time,os,sys,support          # import vcs and cu
+   import vcs_legacy,cdms2 as cdms,time,os,sys,support          # import vcs_legacy and cu
    bg=support.bg
    
    f=cdms.open(os.path.join(cdms.__path__[0],'..','..','..','..','sample_data','clt.nc')) # open clt file
    u=f.getslab('u',':',':',-10.,0.,0,10)# get slab u
    v=f.getslab('v',':',':',-10.,0.,0,10)# get slab v
-   x=vcs.init()                         # construct vcs canvas
+   x=vcs_legacy.init()                         # construct vcs_legacy canvas
    
    x.plot(u, v, 'default','vector','quick',bg=bg)	# plot slab the old way
    support.check_plot(x)
@@ -44,10 +44,10 @@ def test():
       support.check_plot(x)
    
    a=x.getvector('quick')		# get 'quick' vector
-   if not vcs.isgraphicsmethod(a):            # test object 'a' for graphics method
+   if not vcs_legacy.isgraphicsmethod(a):            # test object 'a' for graphics method
       raise Exception, "Error did not retrieve the gm"
    else:
-      if not vcs.isvector(a):                 # test object 'a' if vector
+      if not vcs_legacy.isvector(a):                 # test object 'a' if vector
          raise Exception, "Error gm is not right type"
    
    a.script('test','w')                 # save 'quick' vector as a Python script
@@ -156,7 +156,7 @@ def test():
    
    objs =x.listelements('template')                   # get the list of templates
    t=x.createtemplate('test')           # create template 'test' from 'default' template
-   if not vcs.istemplate(t):                  # test whether 't' is a template or not
+   if not vcs_legacy.istemplate(t):                  # test whether 't' is a template or not
       raise Exception,"Error template not created"
    else:
       a2 =x.listelements('template')                   # get the list of templates
@@ -171,10 +171,10 @@ def test():
    support.check_plot(x)
    
    l=x.getline('red')                	# get line 'red'
-   if not vcs.issecondaryobject(l):           # check to see if it is a secondary object
+   if not vcs_legacy.issecondaryobject(l):           # check to see if it is a secondary object
       raise Exception,"Error did not get line"
    else:
-      if not vcs.isline(l):                  	# check to see if it is a line
+      if not vcs_legacy.isline(l):                  	# check to see if it is a line
          raise Exception, "Error object created is not line"
    
    ###########################################################################

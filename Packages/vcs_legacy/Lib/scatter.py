@@ -25,7 +25,7 @@
 # Import: VCS C extension module.                                             #
 #                                                                             #
 ###############################################################################
-import _vcs, queries,VCS_validation_functions,cdtime
+import _vcs_legacy, queries,VCS_validation_functions,cdtime
 import Canvas
 from types import *
 import AutoAPI
@@ -55,7 +55,7 @@ def setGSpmember(self,member,value):
         self.parent.canvas.BLOCK_X_SERVER()
         self.parent.canvasraised()
 
-     _vcs.setGSpmember(self, member, value, self.parent.mode)
+     _vcs_legacy.setGSpmember(self, member, value, self.parent.mode)
 
      # If the VCS Canvas is displayed, then update the backing store
      if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()):
@@ -81,7 +81,7 @@ setmember=setGSpmember
 #                                                                             #
 ###############################################################################
 def getGSpmember(self,member):
-     return _vcs.getGSpmember(self,member)
+     return _vcs_legacy.getGSpmember(self,member)
 getmember=getGSpmember
 
 ###############################################################################
@@ -100,7 +100,7 @@ getmember=getGSpmember
 #                                                                             #
 ###############################################################################
 def renameGSp(self, old_name, new_name):
-     return _vcs.renameGSp(old_name, new_name)
+     return _vcs_legacy.renameGSp(old_name, new_name)
 
 ###############################################################################
 #                                                                             #
@@ -126,7 +126,7 @@ class GSp(object,AutoAPI.AutoAPI):
     table entry.
 
  Other Useful Functions:
-	a=vcs.init()			# Constructor
+	a=vcs_legacy.init()			# Constructor
 	a.show('scatter')		# Show predefined scatter graphics methods
 	a.show('marker')		# Show predefined marker objects
 	a.setcolormap("AMIP")		# Change the VCS color map
@@ -138,7 +138,7 @@ class GSp(object,AutoAPI.AutoAPI):
 				 	  update the VCS Canvas.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     To Create a new instance of scatter use:
      sr=a.createscatter('new','quick') # copies content of 'quick' to 'new'
      sr=a.createscatter('new') # copies content of 'default' to 'new'
@@ -454,7 +454,7 @@ class GSp(object,AutoAPI.AutoAPI):
            if (GSp_name == None):
               raise ValueError, 'Must provide a scatter name.'
            else:
-              _vcs.copyGSp(GSp_name_src, GSp_name)
+              _vcs_legacy.copyGSp(GSp_name_src, GSp_name)
               self._name = GSp_name
         else:
               self._name = GSp_name_src
@@ -579,7 +579,7 @@ class GSp(object,AutoAPI.AutoAPI):
     def script(self, script_filename, mode='a'):
         """
 %s
- Function:     script                           # Calls _vcs.scriptGSp
+ Function:     script                           # Calls _vcs_legacy.scriptGSp
 
  Description of Function:
        Saves out a scatter graphics method in Python or VCS script form to a
@@ -595,7 +595,7 @@ class GSp(object,AutoAPI.AutoAPI):
                     produce a VCS script. If neither extensions are give, then by
                     default a Python script will be produced.
 
-    a=vcs.init()
+    a=vcs_legacy.init()
     scr=a.createboxfill('temp')
     scr.script('filename.py')         # Append to a Python file "filename.py"
     scr.script('filename.scr')        # Append to a VCS file "filename.scr"
@@ -612,7 +612,7 @@ class GSp(object,AutoAPI.AutoAPI):
         # By default, save file in python script mode
         scr_type = script_filename[len(script_filename)-4:len(script_filename)]
         if (scr_type == '.scr'):
-           print _vcs.scriptGSp(self.name,script_filename,mode)
+           print _vcs_legacy.scriptGSp(self.name,script_filename,mode)
         else:
            mode = mode + '+'
            py_type = script_filename[len(script_filename)-3:len(script_filename)]
@@ -627,8 +627,8 @@ class GSp(object,AutoAPI.AutoAPI):
               fp.write("# Import and Initialize VCS     #\n")
               fp.write("#                             #\n")
               fp.write("#############################\n")
-              fp.write("import vcs\n")
-              fp.write("v=vcs.init()\n\n")
+              fp.write("import vcs_legacy\n")
+              fp.write("v=vcs_legacy.init()\n\n")
 
            unique_name = '__GSp__' + self.name
            fp.write("#----------Scatter (GSp) member (attribute) listings ----------\n")

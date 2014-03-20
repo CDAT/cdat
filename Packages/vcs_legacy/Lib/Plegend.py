@@ -27,7 +27,7 @@
 # Import: VCS C extension module.                                               #
 #                                                                               #
 #################################################################################
-import _vcs, queries
+import _vcs_legacy, queries
 from types import *
 #################################################################################
 #                                                                               #
@@ -46,8 +46,8 @@ from types import *
 #                                                                               #
 #################################################################################
 def setPlsmember(self,member,attribute,value):
-     _vcs.setPlsmember(self.parent, member, attribute, value, self.template_parent.mode)
-#     _vcs.setPlsmember(self, member, value, self.parent.mode)
+     _vcs_legacy.setPlsmember(self.parent, member, attribute, value, self.template_parent.mode)
+#     _vcs_legacy.setPlsmember(self, member, value, self.parent.mode)
 
 #################################################################################
 #                                                                               #
@@ -66,7 +66,7 @@ def setPlsmember(self,member,attribute,value):
 #                                                                               #
 #################################################################################
 def getPlsmember(self,member,attribute):
-     return _vcs.getPlsmember(self,member,attribute)
+     return _vcs_legacy.getPlsmember(self,member,attribute)
 
 #############################################################################
 #                                                                           #
@@ -85,7 +85,7 @@ class Pls:
     existing line table entry.
 
  Other Useful Functions:
- 	     a=vcs.init()		# Constructor
+ 	     a=vcs_legacy.init()		# Constructor
 	     a.show('line')		# Show predefined line objects
              a.update()               	# Updates the VCS Canvas at user's request
              a.mode=1, or 0           	# If 1, then automatic update, else if
@@ -93,7 +93,7 @@ class Pls:
                                           update the VCS Canvas.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     To Create a new instance of line use:
      ln=a.createline('new','red') 	# Copies content of 'red' to 'new'
      ln=a.createline('new') 		# Copies content of 'default' to 'new'

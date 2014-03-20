@@ -864,7 +864,7 @@ class Canvas(object,AutoAPI.AutoAPI):
         import time
 ##         from tkMessageBox import showerror
 
-        is_canvas = len(_vcs.return_display_names()[0])
+        is_canvas = len(vcs.return_display_names()[0])
 
         if gui_canvas_closed == 1:
            showerror( "Error Message to User", "There can only be one VCS Canvas GUI opened at any given time and the VCS Canvas GUI cannot operate with other VCS Canvases.")
@@ -908,7 +908,7 @@ class Canvas(object,AutoAPI.AutoAPI):
 
         self.mode = mode
         self.pause_time = pause_time
-        self._canvas =_vcs.init( self.winfo_id,psize ) # connect the canvas to the GUI
+        self._canvas = vcs
         self.viewport =[0,1,0,1]
         self.worldcoordinate = [0,1,0,1]
         self._animate = animate_obj( self )
@@ -930,8 +930,9 @@ class Canvas(object,AutoAPI.AutoAPI):
                self._scriptrun( os.path.join(*pth))
            except:
                pass
-           self._dotdir,self._dotdirenv = self._canvas.getdotdirectory()
-           self._scriptrun( os.path.join(os.environ['HOME'], self._dotdir, 'initial.attributes'))
+           self._dotdir,self._dotdirenv = vcs.getdotdirectory()
+           warnings.warn("Please reimplement reading of initial_attirubtes in Canvas.py circa line 7345")
+           #self._scriptrun( os.path.join(os.environ['HOME'], self._dotdir, 'initial.attributes'))
 	called_initial_attributes_flg = 1
         self.animate_info=[]
         self.canvas_template_editor=None
@@ -1261,8 +1262,6 @@ class Canvas(object,AutoAPI.AutoAPI):
                 name = '__%s_%i' % (type[:4],rnd)
         if not isinstance(name,str):
             raise vcsError, '%s object name must be a string or %s name' % (type,type)
-        elif len(name)>16:
-                raise vcsError,'%s object name must be at most 16 character long' % (type)
 
         if not isinstance(source,str):
             exec("ok = vcs.is%s(source)" % (type,))
@@ -1445,7 +1444,7 @@ Options:::
 """
 
         name,source = self.check_name_source(name,source,'boxfill')
-        return boxfill.Gfb(self, name, source, 0)
+        return boxfill.Gfb(name, source)
     createboxfill.__doc__ = createboxfill.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert, create_GM_input, boxfill_output) 
 
     def getboxfill(self,Gfb_name_src='default'):
@@ -1644,7 +1643,9 @@ Options:::
                 #vcs.taylordiagrams.append(n)
                 n.Marker.equalize()
                 return n
-        raise vcsError,'Error, taylordiagram \"'+Gtd_name_src+'\" does not exist'
+        warnings.warn("Possible implementation issue here trying to access %s" % (Gtd_name_src))
+        return 
+        #raise vcsError,'Error, taylordiagram \"'+Gtd_name_src+'\" does not exist'
     
     def taylordiagram(self, *args, **parms):
         """
@@ -6412,12 +6413,12 @@ Options:::
     a=vcs.init()
     a.listelements()
 """
-        if args != () and string.lower( args[0] ) =='taylordiagram':
+        if args != () and args[0].lower() =='taylordiagram':
             L = []
             for t in vcs.taylordiagrams:
                 L.append(t.name)
         else:
-            L = apply(self.canvas.listelements, args)
+            L = apply(vcs.listelements, args)
 
         L.sort()
 
@@ -7316,7 +7317,7 @@ Options:::
 ##             if l[:4]=='Gmf_':
 ##                 ifound=2
             if ifound == 1:
-                i=string.find(l,')')
+                i=l.find(')')
                 if i==-1:  # not found the end,i.e ')'
                     s=s+l[:-1] # we dont want the trail carriage return
                 else:
@@ -7324,23 +7325,23 @@ Options:::
                     s=s+l[:i+1]
                     # Now break the string
                     # now gets the name and prepare the graphics method
-                    sp=string.split(s,'(')
-                    name=string.join(string.split(sp[0],'_')[1:],'_')
+                    sp=s.split('(')
+                    name="_".join(sp[0].split('_')[1:])
                     if name!='default' : # we cannot change default
                         try:
                             td=self.createtaylordiagram(name)
                         except Exception,err:
                             td=self.gettaylordiagram(name)
-                        sp=string.split(sp[1],';') # breaks the thing into different attributes
+                        sp=sp[1].split(';') # breaks the thing into different attributes
                         imark=0
                         for a in sp : # the last one is ')'
-                            sp2=string.split(a,'=')
-                            if string.strip(sp2[0])=='Marker' : imark=1
+                            sp2=a.split('=')
+                            if sp2[0].strip()=='Marker' : imark=1
                             if len(sp2)==2:
                                 if imark:
-                                    setattr(td.Marker,string.strip(sp2[0]),eval(sp2[1]))
+                                    setattr(td.Marker,sp2[0].strip(),eval(sp2[1]))
                                 else:
-                                    setattr(td,string.strip(sp2[0]),eval(sp2[1]))
+                                    setattr(td,sp2[0].strip(),eval(sp2[1]))
 ##             elif ifound == 2:
 ##                 i=string.find(l,')')
 ##                 if i==-1:  # not found the end,i.e ')'
@@ -7394,18 +7395,18 @@ Options:::
            # Loop through all lines and determine when a VCS command line
            # begins and ends. That is, get only one VCS command at a time
            scr_str = l[i]
-           lt_paren_ct = string.count(l[i], '(')
-           rt_paren_ct = string.count(l[i], ')')
+           lt_paren_ct = l[i].count('(')
+           rt_paren_ct = l[i].count(')')
            while lt_paren_ct > rt_paren_ct:
               i += 1
               scr_str += l[i]
-              lt_paren_ct += string.count(l[i], '(')
-              rt_paren_ct += string.count(l[i], ')')
+              lt_paren_ct += l[i].count(l[i], '(')
+              rt_paren_ct += l[i].count(l[i], ')')
            i += 1
-           scr_str = string.strip( scr_str )
+           scr_str = scr_str.strip()
         
            # Get the VCS command
-           vcs_cmd = string.split(string.split(scr_str, '(')[0], '_')[0]
+           vcs_cmd = scr_str.split('(')[0].split('_')[0]
         
            function = source = name = units = title = lon_name = lat_name = ''
            comment1 = comment2 = comment3 = comment4 = ''
@@ -7413,35 +7414,35 @@ Options:::
               # Get the data via CDMS. That is, retrieve that data as a
               # _TransientVariable. But first, get the source, name, title,
               # etc. of the file.
-              slab_name = string.split(scr_str, '(')[0][2:]
-              a=string.split(scr_str,'",')
+              slab_name = scr_str.split('(')[0][2:]
+              a=scr_str.split('",')
               for j in range(len(a)):
                  b=string.split(a[j],'="')
-                 if string.lower(b[0][-4:]) == 'file':
+                 if b[0][-4:].lower() == 'file':
                     fcdms=cdms2.open(b[1])                       # Open CDMS file
-                 elif string.lower(b[0][-8:]) == 'function':
+                 elif b[0][-8:].lower() == 'function':
                     function =b[1]                              # Get function
-                 elif string.lower(b[0]) == 'source':
+                 elif b[0].lower() == 'source':
                     source = b[1]
-                 elif ( (string.lower(b[0][-4:]) == 'name') and
-                        (string.lower(b[0][-5:]) != 'xname') and
-                        (string.lower(b[0][-5:]) != 'yname') ):
-                    name = string.split( b[1], '")')[0]
-                 elif string.lower(b[0]) == 'units':
-                    units = string.split( b[1], '")')[0]
-                 elif string.lower(b[0][-5:]) == 'title':
-                    title = string.split( b[1], '")')[0]
-                 elif string.lower(b[0][-5:]) == 'xname':
-                    lon_name = string.strip(string.split( b[1], '")')[0])
-                 elif string.lower(b[0][-5:]) == 'yname':
-                    lat_name = string.strip(string.split( b[1], '")')[0])
-                 elif string.lower(b[0][-9:]) == 'comment#1':
+                 elif ( (b[0][-4:].lower() == 'name') and
+                        (b[0][-5:].lower() != 'xname') and
+                        (b[0][-5:].lower() != 'yname') ):
+                    name = b[1].split('")')[0]
+                 elif b[0].lower() == 'units':
+                    units = b[1].split('")')[0]
+                 elif b[0][-5:].lower() == 'title':
+                    title = b[1].split('")')[0]
+                 elif b[0][-5:].lower() == 'xname':
+                    lon_name = b[1].split('")')[0].strip()
+                 elif b[0][-5:].lower() == 'yname':
+                    lat_name = b[1].split('")')[0].strip()
+                 elif b[0][-9:].lower() == 'comment#1':
                     comment1 = b[1]
-                 elif string.lower(b[0][-9:]) == 'comment#2':
+                 elif b[0][-9:].lower() == 'comment#2':
                     comment2 = b[1]
-                 elif string.lower(b[0][-9:]) == 'comment#3':
+                 elif b[0][-9:].lower() == 'comment#3':
                     comment3 = b[1]
-                 elif string.lower(b[0][-9:]) == 'comment#4':
+                 elif b[0][-9:].lower() == 'comment#4':
                     comment4 = b[1]
 ## Comented out by C. Doutriaux, shouldn't print anything
 ##               print 'function = ', function
@@ -7457,9 +7458,9 @@ Options:::
 ##               print 'comment4 = ', comment4
 
               if function != '':
-                 b=string.split(function, '(')
+                 b=function.split('(')
                  ftype=b[0]
-                 V=string.split(b[1],',')[0]
+                 V=b[1].split(',')[0]
 ## Comented out by C. Doutriaux, shouldn't print anything
 ##                  print 'ftype = ', ftype
 ##                  print 'V = ', V
@@ -7471,21 +7472,21 @@ Options:::
                  continue
 
 
-              a=string.split(scr_str,',')
+              a=scr_str.split(',')
               
               # Now get the coordinate values
               x1 = x2 = y1 = y2 = None
               for j in range(len(a)):
-                 c=string.split(a[j], ',')[0]
-                 b=string.split(c, '=')
-                 if string.lower(b[0]) == 'xfirst':
-                    x1 = string.atof( string.split(b[1], ')')[0] )
-                 elif string.lower(b[0]) == 'xlast':
-                    x2 = string.atof( string.split(b[1], ')')[0] )
-                 elif string.lower(b[0][-6:]) == 'yfirst':
-                    y1 = string.atof( string.split(b[1], ')')[0] )
-                 elif string.lower(b[0]) == 'ylast':
-                    y2 = string.atof( string.split(b[1], ')')[0] )
+                 c=a[j].split(',')[0]
+                 b=c.split('=')
+                 if b[0].lower() == 'xfirst':
+                    x1 = float( b[1].split(')')[0] )
+                 elif b[0].lower() == 'xlast':
+                    x2 = float( b[1].split(')')[0] )
+                 elif b[0][-6:].lower() == 'yfirst':
+                    y1 = float( b[1].split(')')[0] )
+                 elif b[0].lower() == 'ylast':
+                    y2 = float( b[1].split(')')[0] )
 
               # Get the variable from the CDMS opened file
               V=fcdms.variables[name]
@@ -7493,7 +7494,7 @@ Options:::
               # Check for the order of the variable and re-order dimensions
               # if necessary
               Order = '(%s)(%s)' % (lat_name,lon_name)
-              Order = string.strip( string.replace( Order, '()', '' ) )
+              Order = Order.strip().replace('()', '' )
               if Order == '': Order = None
               axis_ids = V.getAxisIds()
               re_order_dimension = 'no'
@@ -7505,7 +7506,7 @@ Options:::
 
               # Must have the remaining dimension names in the Order list
               if Order is not None:
-                 O_ct = string.count(Order,'(')
+                 O_ct = Order.count('(')
                  V_ct = len( V.getAxisIds() )
                  for j in range(O_ct, V_ct):
                     Order = ('(%s)' % axis_ids[V_ct-j-1]) + Order
@@ -7544,24 +7545,24 @@ Options:::
               fcdms.close()                                     # Close CDMS file
            elif vcs_cmd == 'D':
               # plot the data with the appropriate graphics method and template
-              a=string.split(scr_str,',')
+              a=scr_str.split(',')
               a_name = b_name = None
               for j in range(len(a)):
-                 b=string.split(a[j],'=')
-                 if string.lower(b[0][-3:]) == 'off':
-                    off = string.atoi( b[1] )
-                 elif string.lower(b[0]) == 'priority':
-                    priority = string.atoi( b[1] )
-                 elif string.lower(b[0]) == 'type':
+                 b=a[j].split('=')
+                 if b[0][-3:].lower() == 'off':
+                    off = int( b[1] )
+                 elif b[0].lower() == 'priority':
+                    priority = int( b[1] )
+                 elif b[0].lower() == 'type':
                     graphics_type = b[1]
-                 elif string.lower(b[0]) == 'template':
+                 elif b[0].lower() == 'template':
                     template = b[1]
-                 elif string.lower(b[0]) == 'graph':
+                 elif b[0].lower() == 'graph':
                     graphics_name = b[1]
-                 elif string.lower(b[0]) == 'a':
-                    a_name = string.split(b[1],')')[0]
-                 elif string.lower(b[0]) == 'b':
-                    b_name = string.split(b[1],')')[0]
+                 elif b[0].lower() == 'a':
+                    a_name = b[1].split(')')[0]
+                 elif b[0].lower() == 'b':
+                    b_name = b[1].split(')')[0]
 
               arglist=[]
             
@@ -7798,8 +7799,8 @@ Options:::
         if orientation is None:
             orientation=self.orientation()[0]
         g = string.split(geometry,'x')
-        f1 = f1=string.atof(g[0]) / 1100.0 * 100.0
-        f2 = f2=string.atof(g[1]) / 849.85 * 100.0
+        f1 = f1=float(g[0]) / 1100.0 * 100.0
+        f2 = f2=float(g[1]) / 849.85 * 100.0
         geometry = "%4.1fx%4.1f" % (f2,f1)
         nargs = ('gif', filename, merge, orientation, geometry)
         return apply(self.canvas.gif_or_eps, nargs)
@@ -7847,8 +7848,8 @@ Options:::
         if orientation is None:
             orientation=self.orientation()[0]
         r = string.split(resolution,'x')
-        f1 = f1=string.atof(r[0]) / 1100.0 * 100.0
-        f2 = f2=string.atof(r[1]) / 849.85 * 100.0
+        f1 = f1=float(r[0]) / 1100.0 * 100.0
+        f2 = f2=float(r[1]) / 849.85 * 100.0
         resolution = "%4.1fx%4.1f" % (f2,f1)
         nargs = (filename, device, orientation, resolution)
         return apply(self.canvas.gs, nargs)
@@ -7912,7 +7913,7 @@ Options:::
     a.show('marker')
     a.show('text')
 """
-        if args != () and string.lower(args[0]) == 'taylordiagram':
+        if args != () and args[0].lower() == 'taylordiagram':
             ln=[]
             ln.append('*******************Taylor Diagrams Names List**********************')
             nms=[]
@@ -7949,7 +7950,7 @@ Options:::
             file=os.path.join(os.environ['HOME'],self._dotdir,'initial.attributes') 
         f=open(file,'r')
         for ln in f.xreadlines():
-            if string.find(ln,key)>-1:
+            if ln.find(key)>-1:
                 f.close()
                 return 1
         return 0
@@ -8610,7 +8611,7 @@ class animate_obj_old:
               for i in range(len(save_info)):
                   slab=slabs[i]
                   template=templates[i]
-                  gtype = string.lower(animation_info["gtype"][i])
+                  gtype = animation_info["gtype"][i].lower()
                   gname = animation_info["gname"][i]
                   exec("gm = new_vcs.get%s('%s')" % (gtype,gname))
                   for j in index:
@@ -8649,7 +8650,7 @@ class animate_obj_old:
       self.save_levels = {}
       self.save_mean_veloc = {}
       for i in range(len(self.vcs_self.animate_info)):
-         gtype = string.lower(animation_info["gtype"][i])
+         gtype = animation_info["gtype"][i].lower()
          if gtype == "boxfill":
             gm=self.vcs_self.getboxfill(animation_info['gname'][i])
             self.save_min[i] = gm.level_1
@@ -8683,7 +8684,7 @@ class animate_obj_old:
       animation_info = self.animate_info_from_python()
       try:
        for i in range(len(self.vcs_self.animate_info)):
-         gtype = string.lower(animation_info["gtype"][i])
+         gtype = animation_info["gtype"][i].lower()
          if gtype == "boxfill":
             gm=self.vcs_self.getboxfill(animation_info['gname'][i])
             gm.level_1 = self.save_min[i]
@@ -8718,7 +8719,7 @@ class animate_obj_old:
    def set_animation_min_max( self, min, max, i ):
       from vcs import mkscale, mklabels, getcolors
       animation_info = self.animate_info_from_python()
-      gtype = string.lower(animation_info["gtype"][i])
+      gtype = animation_info["gtype"][i].lower()
       levs = mkscale(min,max)
       dic = mklabels(levs)
       cols = getcolors(levs)

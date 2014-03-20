@@ -23,13 +23,13 @@
 #---------------------------------------------------------------------
 import Tkinter, Pmw, tkFileDialog
 from tkMessageBox import showerror
-import vcs
+import vcs_legacy
 import os, string, sys
 from queries import graphicsmethodlist
 import browser
 from browser import gui_message
 from gui_support import gui_color
-from error import vcsError
+from error import vcs_legacyError
 import gui_support
 from browser import gui_control
 import projectiongui
@@ -39,11 +39,11 @@ import projectiongui
 _entry_width = 44
 
 class GraphicsMethodGui:
-    def __init__( self, vcs=None, gm_type='boxfill', gm_name='default',
+    def __init__( self, vcs_legacy=None, gm_type='boxfill', gm_name='default',
                  gui_parent=None):
-        if vcs is None:
+        if vcs_legacy is None:
             import Canvas
-            vcs = Canvas.Canvas()
+            vcs_legacy = Canvas.Canvas()
            
         gm_type = string.lower( gm_type )
         self.gm_name = gm_name
@@ -51,7 +51,7 @@ class GraphicsMethodGui:
         if ( gm_type not in graphicsmethodlist() ):
            str = "The graphics method type (%s) does not exist!" % (gm_type)
            showerror( "Error Message to User", str )
-        elif ( gm_name not in vcs.listelements( gm_type ) ):
+        elif ( gm_name not in vcs_legacy.listelements( gm_type ) ):
            str = "The %s graphics method name (%s) does not exist!" % (gm_type2, gm_name)
            showerror( "Error Message to User", str )
    
@@ -73,7 +73,7 @@ class GraphicsMethodGui:
            gui_parent_updated=gui_parent
         parent = self.dialog.interior()
         self.parent = parent
-        self.vcs = vcs
+        self.vcs_legacy = vcs_legacy
         # initialize the color index list and the copy buffer list
         self.color_indices = []
         self.copy_buffer = []
@@ -108,8 +108,8 @@ class GraphicsMethodGui:
            page = notebook.add('Boxfill Settings')
            notebook.tab('Boxfill Settings').focus_set()
            gui_support.balloon.bind( notebook.tab('Boxfill Settings'), 'The Boxfill graphics method displays a two-dimensional data\narray by surrounding each data value with a colored grid box.' )
-##            gm = self.set_gm_entries(gm_type, gm_name, vcs )
-           gm = vcs.getboxfill(gm_name)
+##            gm = self.set_gm_entries(gm_type, gm_name, vcs_legacy )
+           gm = vcs_legacy.getboxfill(gm_name)
            self.GM=self.boxfill_attributes = browser.gui_set_graphics_methods.boxfill_attributes( page, gui_parent_updated, re_plot_flag=0,gm=gm )
         elif (gm_type in [ 'isofill', 'isoline' ]):
            if gm_type == 'isofill': contour_type = 'Isofill Settings'
@@ -118,45 +118,45 @@ class GraphicsMethodGui:
            notebook.tab(contour_type).focus_set()
            if gm_type == 'isofill':
               gui_support.balloon.bind( notebook.tab(contour_type), "The Isofill graphics method fills the area between\nselected isolevels (levels of constant value) of a\ntwo-dimensional array; the manner of filling the\narea is determined by the named fill area attributes." )
-              gm = vcs.getisofill(gm_name)
+              gm = vcs_legacy.getisofill(gm_name)
            elif gm_type == 'isoline':
               gui_support.balloon.bind( notebook.tab(contour_type), "The Isoline graphics method draws lines of constant\nvalue at specified levels to graphically represent\nthe values of a two-dimensional array; labels also\ncan be displayed on the isolines." )
-              gm = vcs.getisoline(gm_name)
-##            gm = self.set_gm_entries(gm_type, gm_name, vcs )
+              gm = vcs_legacy.getisoline(gm_name)
+##            gm = self.set_gm_entries(gm_type, gm_name, vcs_legacy )
            self.GM=self.isofill_attributes = browser.gui_set_graphics_methods.contour_levels( page, gui_parent_updated, re_plot_flag=0, gm=gm )
         elif (gm_type in [ 'meshfill', ]):
            page = notebook.add('Meshfill Settings')
            notebook.tab('Meshfill Settings').focus_set()
            gui_support.balloon.bind( notebook.tab('Meshfill Settings'), "The Meshfill graphics method draws data on irregular grid (or 'mesh')at specified levels to graphically represent\nthe values of a one-dimensional array;\nUnless the irregular grid is supported by cdms, a mesh array must be passed as well" )
-           gm = vcs.getmeshfill(gm_name)
+           gm = vcs_legacy.getmeshfill(gm_name)
            self.GM=self.meshfill_attributes = browser.gui_set_graphics_methods.meshfill_attributes( page, gui_parent_updated, re_plot_flag=0, gm=gm )
         elif (gm_type in [ 'outfill', 'outline' ]):
            if gm_type == 'outfill':
                contour_type = 'Outfill Settings'
-               gm=vcs.getoutfill(gm_name)
+               gm=vcs_legacy.getoutfill(gm_name)
            elif gm_type == 'outline':
                contour_type = 'Outline Settings'
-               gm=vcs.getoutline(gm_name)
+               gm=vcs_legacy.getoutline(gm_name)
            page = notebook.add(contour_type)
            notebook.tab(contour_type).focus_set()
            if gm_type == 'outfill':
               gui_support.balloon.bind( notebook.tab(contour_type), "The primary purpose of the Outfill graphics method\nis to display filled continents or sea ice using\na surface type array that indicates land, ocean,\nand sea ice points. In general, however, this\ngraphics method can be used to fill a set of integer\nvalues for any array. " )
-##               gm = self.set_gm_entries(gm_type, gm_name, vcs )
+##               gm = self.set_gm_entries(gm_type, gm_name, vcs_legacy )
               self.GM=self.outfill_attributes=browser.gui_set_graphics_methods.outfill_attributes( page, gui_parent_updated, re_plot_flag=0,gm=gm )
            elif gm_type == 'outline':
               gui_support.balloon.bind( notebook.tab(contour_type), "The primary purpose of the Outline graphics method\nis to display outlined continents or sea ice using\na surface type array that indicates land, ocean,\nand sea ice points. In general, however, this\ngraphics method can be used to outline a set of\ninteger values for any array. " )
-##               gm = self.set_gm_entries(gm_type, gm_name, vcs )
+##               gm = self.set_gm_entries(gm_type, gm_name, vcs_legacy )
               self.GM=self.outline_attributes=browser.gui_set_graphics_methods.outline_attributes( page, gui_parent_updated, re_plot_flag=0, gm=gm )
         elif (gm_type in ['xvsy', 'xyvsy', 'yxvsx'] ):
            if gm_type == 'xvsy':
                oneD_type = 'XvsY Settings'
-               gm=vcs.getxvsy(gm_name)
+               gm=vcs_legacy.getxvsy(gm_name)
            elif gm_type == 'xyvsy':
                oneD_type = 'Xyvsy Settings'
-               gm=vcs.getxyvsy(gm_name)
+               gm=vcs_legacy.getxyvsy(gm_name)
            elif gm_type == 'yxvsx':
                oneD_type = 'Yxvsx Settings'
-               gm=vcs.getyxvsx(gm_name)
+               gm=vcs_legacy.getyxvsx(gm_name)
            page = notebook.add(oneD_type)
            notebook.tab(oneD_type).focus_set()
            if gm_type == 'xvsy':
@@ -166,35 +166,35 @@ class GraphicsMethodGui:
            elif gm_type == 'yxvsx':
               gui_support.balloon.bind( notebook.tab(oneD_type), "The Yxvsx graphics method displays a line plot from\na 1D data array, that is Y(x), where y represents\nthe 1D coordinate values." )
 
-##            gm = self.set_gm_entries(gm_type, gm_name, vcs )
+##            gm = self.set_gm_entries(gm_type, gm_name, vcs_legacy )
            self.GM=self.oneD_attributes = browser.gui_set_graphics_methods.oneD_attributes( page, gui_parent_updated, re_plot_flag=0, gm=gm )
         elif (gm_type == 'scatter'):
            page = notebook.add('Scatter Settings')
            notebook.tab('Scatter Settings').focus_set()
            gui_support.balloon.bind( notebook.tab('Scatter Settings'), "The Scatter graphics method displays a a scatter\nplot of two data arrays A(x, y, z, t) and B(x, y,\nz, t). " )
-           gm=vcs.getscatter(gm_name)
-##            gm = self.set_gm_entries(gm_type, gm_name, vcs )
+           gm=vcs_legacy.getscatter(gm_name)
+##            gm = self.set_gm_entries(gm_type, gm_name, vcs_legacy )
            self.GM=self.scatter_attributes=browser.gui_set_graphics_methods.scatter_attributes( page, gui_parent_updated, re_plot_flag=0 , gm=gm)
         elif (gm_type == 'taylordiagram'):
            page = notebook.add('Taylordiagram Settings')
            notebook.tab('Taylordiagram Settings').focus_set()
            gui_support.balloon.bind( notebook.tab('Taylordiagram Settings'), "The Taylor diagrams provide a way of graphically\nsummarizing how well patterns match each other in terms of their correlation, their root-mean-square\ndifference and the amplitude of their variations\n(as quantified by their standard deviations)." )
-           gm=vcs.gettaylordiagram(gm_name)
-##            gm = self.set_gm_entries(gm_type, gm_name, vcs )
-           self.GM=self.taylordiagram_attributes = browser.gui_set_graphics_methods.taylor_attributes( page, vcs, vcs=vcs, gm_name=gm.name )
+           gm=vcs_legacy.gettaylordiagram(gm_name)
+##            gm = self.set_gm_entries(gm_type, gm_name, vcs_legacy )
+           self.GM=self.taylordiagram_attributes = browser.gui_set_graphics_methods.taylor_attributes( page, vcs_legacy, vcs_legacy=vcs_legacy, gm_name=gm.name )
         elif (gm_type == 'vector'):
            page = notebook.add('Vector Settings')
            notebook.tab('Vector Settings').focus_set()
            gui_support.balloon.bind( notebook.tab('Vector Settings'), "The Vector graphics method displays a vector plot\nof a two-dimensional field. Vectors are located at\nthe coordinate locations and point in the direction\nof the data vector field. Vector magnitudes are the\nproduct of data vector field lengths and a scaling\nfactor." )
-           gm=vcs.getvector(gm_name)
-##            gm = self.set_gm_entries(gm_type, gm_name, vcs )
+           gm=vcs_legacy.getvector(gm_name)
+##            gm = self.set_gm_entries(gm_type, gm_name, vcs_legacy )
            self.GM=self.vector_attributes = browser.gui_set_graphics_methods.vector_attributes( page, gui_parent_updated, re_plot_flag=0, gm=gm )
         elif (gm_type == 'continents'):
            page = notebook.add('Continents Settings')
            notebook.tab('Continents Settings').focus_set()
            gui_support.balloon.bind( notebook.tab('Continents Settings'), "The primary purpose of the Continents graphics method\nis to display a predefined, generic set of continental\noutlines in a longitude x latitude space." )
-           gm=vcs.getcontinents(gm_name)
-##            gm = self.set_gm_entries(gm_type, gm_name, vcs )
+           gm=vcs_legacy.getcontinents(gm_name)
+##            gm = self.set_gm_entries(gm_type, gm_name, vcs_legacy )
            self.GM=self.continents_attributes = browser.gui_set_graphics_methods.continents_attributes( page, gui_parent_updated, re_plot_flag=0 , gm=gm)
 
         #----------------------------------------------------------------------
@@ -203,11 +203,11 @@ class GraphicsMethodGui:
         if gm_type != 'taylordiagram':
            page = notebook.add('X Ticks and Labels')
            gui_support.balloon.bind( notebook.tab('X Ticks and Labels'), 'The X labels and tick marks are defined by a VCS list. Each\nlist value defines a position with respect to the real-world\ndimension coordinates and a string for display.' )
-           self.x_attributes = x_attributes( page, gui_parent_updated, gm, vcs )
+           self.x_attributes = x_attributes( page, gui_parent_updated, gm, vcs_legacy )
 
            page = notebook.add('Y Ticks and Labels')
            gui_support.balloon.bind( notebook.tab('Y Ticks and Labels'), 'The Y labels and tick marks are defined by a VCS list. Each\nlist value defines a position with respect to the real-world\ndimension coordinates and a string for display.' )
-           self.y_attributes = y_attributes( page, gui_parent_updated, gm, vcs )
+           self.y_attributes = y_attributes( page, gui_parent_updated, gm, vcs_legacy )
 
            page = notebook.add('World Coordinates')
            gui_support.balloon.bind( notebook.tab('World Coordinates'), "The data space defined in the VCS picture template, expressed\nin normalized device coordinates, is mapped to the real-world\ncoordinates given in 'datawc'." )
@@ -217,7 +217,7 @@ class GraphicsMethodGui:
            gui_support.balloon.bind( notebook.tab('Projection and Axis'), "Change, Alter or Create VCS Projection\nAlso, the X- and Y-Axis representation can be altered." )
            notebook.setnaturalsize()
 
-           self.pa_attributes = pa_attributes( page, gui_parent_updated, gm, gm_type, vcs, gui_parent )
+           self.pa_attributes = pa_attributes( page, gui_parent_updated, gm, gm_type, vcs_legacy, gui_parent )
         
         # Hold the original value settings. This is needed for Reset and Cancel
         self.gm = gm
@@ -574,8 +574,8 @@ class GraphicsMethodGui:
         # Automatic update of the display if necessary. Only update if it is called from VCDAT.
         if gui_parent is not None:
            for i in gui_parent.pl.form.keys():
-               gm_type = vcs.graphicsmethodtype( self.gm )
-#               dfj = self.vcs.getisofill('ASD')
+               gm_type = vcs_legacy.graphicsmethodtype( self.gm )
+#               dfj = self.vcs_legacy.getisofill('ASD')
                fm_label = string.lower( gui_parent.pl.form[i].gm.type )
                if (gui_parent.pl.form[i].gm.get() == self.gm.name) and (gm_type == fm_label):
                    gui_parent.pl.evt_replace_gm( 1, i, gui_parent, None)
@@ -685,47 +685,47 @@ def execute_new_selection( eself, gui_parent, hold, result ):
          gm_name = eself.gm_name
          if (eself.gm_type != string.lower(gm_type)):
             gm_name = 'default'
-         if new_name in eself.vcs.listelements( gm_type ):
+         if new_name in eself.vcs_legacy.listelements( gm_type ):
             gui_message.error( 'Error occurred while trying to create the new %s graphics method %s from %s. Make sure the new graphics method name does not already exist.' % (gm_type, new_name, gm_name) )
             return
          try:
             if string.lower( gm_type ) == 'boxfill':
-               eself.vcs.createboxfill(new_name, gm_name)
+               eself.vcs_legacy.createboxfill(new_name, gm_name)
             elif string.lower( gm_type ) == 'meshfill':
-               eself.vcs.createmeshfill(new_name, gm_name)
+               eself.vcs_legacy.createmeshfill(new_name, gm_name)
             elif string.lower( gm_type ) == 'isofill':
-               eself.vcs.createisofill(new_name, gm_name)
+               eself.vcs_legacy.createisofill(new_name, gm_name)
             elif string.lower( gm_type ) == 'isoline':
-               eself.vcs.createisoline(new_name, gm_name)
+               eself.vcs_legacy.createisoline(new_name, gm_name)
             elif string.lower( gm_type ) == 'outfill':
-               eself.vcs.createoutfill(new_name, gm_name)
+               eself.vcs_legacy.createoutfill(new_name, gm_name)
             elif string.lower( gm_type ) == 'outline':
-               eself.vcs.createoutline(new_name, gm_name)
+               eself.vcs_legacy.createoutline(new_name, gm_name)
             elif string.lower( gm_type ) == 'vector':
-               eself.vcs.createvector(new_name, gm_name)
+               eself.vcs_legacy.createvector(new_name, gm_name)
             elif string.lower( gm_type ) == 'scatter':
-               eself.vcs.createscatter(new_name, gm_name)
+               eself.vcs_legacy.createscatter(new_name, gm_name)
             elif string.lower( gm_type ) == 'taylordiagram':
-               eself.vcs.createtaylordiagram(new_name, gm_name)
+               eself.vcs_legacy.createtaylordiagram(new_name, gm_name)
             elif string.lower( gm_type ) == 'xvsy':
-               eself.vcs.createxvsy(new_name, gm_name)
+               eself.vcs_legacy.createxvsy(new_name, gm_name)
             elif string.lower( gm_type ) == 'xyvsy':
-               eself.vcs.createxyvsy(new_name, gm_name)
+               eself.vcs_legacy.createxyvsy(new_name, gm_name)
             elif string.lower( gm_type ) == 'yxvsx':
-               eself.vcs.createyxvsx(new_name, gm_name)
+               eself.vcs_legacy.createyxvsx(new_name, gm_name)
             elif string.lower( gm_type ) == 'continents':
-               eself.vcs.createcontinents(new_name, gm_name)
+               eself.vcs_legacy.createcontinents(new_name, gm_name)
          except:
             gui_message.error( 'Error occurred while trying to create the new %s graphics method %s from %s. Make sure the new graphics method name does not already exist.' % (gm_type, new_name, gm_name) )
             return
 
          # Popup new graphics method gui
-         eself.vcs.graphicsmethodgui(gm_type, new_name, gui_parent = gui_parent)
+         eself.vcs_legacy.graphicsmethodgui(gm_type, new_name, gui_parent = gui_parent)
 
          # Update the graphics method window
          if (gui_parent != None) and (gui_parent.panelDV.gm_name == gm_type):
                # Redisplay the graphics method list
-               gm_list = eself.vcs.listelements( eself.gm_type )
+               gm_list = eself.vcs_legacy.listelements( eself.gm_type )
                gui_parent.panelDV.gm_listbox.setlist( gm_list )
                name_index = gm_list.index( new_name )
                gui_parent.panelDV.gm_listbox.select_set( name_index )
@@ -746,7 +746,7 @@ def evt_edit_graphics_methods( eself, gui_parent ):
             defaultbutton = 'OK',
             combobox_labelpos = 'n',
             label_text = 'Enter or Select %s Name:' % string.capitalize( eself.gm_type ),
-            scrolledlist_items = eself.vcs.listelements( eself.gm_type ),
+            scrolledlist_items = eself.vcs_legacy.listelements( eself.gm_type ),
             command = G_Command(execute_load_selection, eself, gui_parent)
       )
 
@@ -776,17 +776,17 @@ def evt_edit_graphics_methods( eself, gui_parent ):
 def evt_which_edit_graphics_method( eself, dialog, event ):
       eself.gm_type = dialog.text_opt2.get()
       dialog.configure(label_text='Enter New %s Name:' % string.capitalize( eself.gm_type ))
-      dialog.setlist( eself.vcs.listelements( eself.gm_type ) )
+      dialog.setlist( eself.vcs_legacy.listelements( eself.gm_type ) )
 
 def execute_load_selection( eself, gui_parent, result ):
      if result == 'OK':
         new_name = eself.dialog_tmp.get()
-        if new_name in eself.vcs.listelements( eself.gm_type ):
+        if new_name in eself.vcs_legacy.listelements( eself.gm_type ):
            # Popup new graphics method gui
-           eself.vcs.graphicsmethodgui(eself.gm_type, new_name, gui_parent = gui_parent)
+           eself.vcs_legacy.graphicsmethodgui(eself.gm_type, new_name, gui_parent = gui_parent)
         else:
            gui_message.error( 'Error occurred while trying to load %s graphics method %s. Make sure the graphics method name exist.' % (eself.gm_type, new_name) )
-           eself.dialog_tmp.setlist( eself.vcs.listelements( eself.gm_type ) )
+           eself.dialog_tmp.setlist( eself.vcs_legacy.listelements( eself.gm_type ) )
            return
 
      eself.dialog_tmp.destroy()
@@ -815,36 +815,36 @@ def execute_rename_selection( eself, gui_parent, hold, result ):
       dialog = hold.dialog
       if result == 'OK':
          new_name = dialog.component('entry').get()
-         if new_name in eself.vcs.listelements( eself.gm_type ):
+         if new_name in eself.vcs_legacy.listelements( eself.gm_type ):
             gui_message.error( 'An error occurred while trying to rename the %s graphics method %s to %s. Make sure the new graphics method name does not already exist.' % (eself.gm_type, eself.gm_name, new_name) )
             return
          try:
             if string.lower( eself.gm_type ) == 'boxfill':
-               r = eself.vcs.getboxfill( eself.gm_name )
+               r = eself.vcs_legacy.getboxfill( eself.gm_name )
             elif string.lower( eself.gm_type ) == 'meshfill':
-               r = eself.vcs.getmeshfill( eself.gm_name )
+               r = eself.vcs_legacy.getmeshfill( eself.gm_name )
             elif string.lower( eself.gm_type ) == 'isofill':
-               r = eself.vcs.getisofill( eself.gm_name )
+               r = eself.vcs_legacy.getisofill( eself.gm_name )
             elif string.lower( eself.gm_type ) == 'isoline':
-               r = eself.vcs.getisoline( eself.gm_name )
+               r = eself.vcs_legacy.getisoline( eself.gm_name )
             elif string.lower( eself.gm_type ) == 'outfill':
-               r = eself.vcs.getoutfill( eself.gm_name )
+               r = eself.vcs_legacy.getoutfill( eself.gm_name )
             elif string.lower( eself.gm_type ) == 'outline':
-               r = eself.vcs.getoutline( eself.gm_name )
+               r = eself.vcs_legacy.getoutline( eself.gm_name )
             elif string.lower( eself.gm_type ) == 'vector':
-               r = eself.vcs.getvector( eself.gm_name )
+               r = eself.vcs_legacy.getvector( eself.gm_name )
             elif string.lower( eself.gm_type ) == 'scatter':
-               r = eself.vcs.getscatter( eself.gm_name )
+               r = eself.vcs_legacy.getscatter( eself.gm_name )
             elif string.lower( eself.gm_type ) == 'taylordiagram':
-               r = eself.vcs.gettaylordiagram( eself.gm_name )
+               r = eself.vcs_legacy.gettaylordiagram( eself.gm_name )
             elif string.lower( eself.gm_type ) == 'xvsy':
-               r = eself.vcs.getxvsy( eself.gm_name )
+               r = eself.vcs_legacy.getxvsy( eself.gm_name )
             elif string.lower( eself.gm_type ) == 'xyvsy':
-               r = eself.vcs.getxyvsy( eself.gm_name )
+               r = eself.vcs_legacy.getxyvsy( eself.gm_name )
             elif string.lower( eself.gm_type ) == 'yxvsx':
-               r = eself.vcs.getyxvsx( eself.gm_name )
+               r = eself.vcs_legacy.getyxvsx( eself.gm_name )
             elif string.lower( eself.gm_type ) == 'continents':
-               r = eself.vcs.getcontinents( eself.gm_name )
+               r = eself.vcs_legacy.getcontinents( eself.gm_name )
          except:
             gui_message.error( 'An error occurred while trying to rename the %s graphics method %s to %s. Make sure the new graphics method name does not already exist.' % (eself.gm_type, eself.gm_name, new_name) )
             return
@@ -856,7 +856,7 @@ def execute_rename_selection( eself, gui_parent, hold, result ):
          # Update the graphics method window
          if gui_parent != None:
             # Redisplay the graphics method list
-            gm_list = eself.vcs.listelements( eself.gm_type )
+            gm_list = eself.vcs_legacy.listelements( eself.gm_type )
             gui_parent.panelDV.gm_listbox.setlist( gm_list )
             name_index = gm_list.index( new_name )
             gui_parent.panelDV.gm_listbox.select_set( name_index )
@@ -876,34 +876,34 @@ def evt_savescript_graphics_methods( eself, gui_parent ):
       if (save_dialog[-3:] != '.py') and (save_dialog[-4:] != '.scr'): save_dialog += '.py'
 
       if string.lower( eself.gm_type ) == 'boxfill':
-         r = eself.vcs.getboxfill( eself.gm_name )
+         r = eself.vcs_legacy.getboxfill( eself.gm_name )
       elif string.lower( eself.gm_type ) == 'meshfill':
-         r = eself.vcs.getmeshfill( eself.gm_name )
+         r = eself.vcs_legacy.getmeshfill( eself.gm_name )
       elif string.lower( eself.gm_type ) == 'isofill':
-         r = eself.vcs.getisofill( eself.gm_name )
+         r = eself.vcs_legacy.getisofill( eself.gm_name )
       elif string.lower( eself.gm_type ) == 'isoline':
-         r = eself.vcs.getisoline( eself.gm_name )
+         r = eself.vcs_legacy.getisoline( eself.gm_name )
       elif string.lower( eself.gm_type ) == 'outfill':
-         r = eself.vcs.getoutfill( eself.gm_name )
+         r = eself.vcs_legacy.getoutfill( eself.gm_name )
       elif string.lower( eself.gm_type ) == 'outline':
-         r = eself.vcs.getoutline( eself.gm_name )
+         r = eself.vcs_legacy.getoutline( eself.gm_name )
       elif string.lower( eself.gm_type ) == 'vector':
-         r = eself.vcs.getvector( eself.gm_name )
+         r = eself.vcs_legacy.getvector( eself.gm_name )
       elif string.lower( eself.gm_type ) == 'scatter':
-         r = eself.vcs.getscatter( eself.gm_name )
+         r = eself.vcs_legacy.getscatter( eself.gm_name )
       elif string.lower( eself.gm_type ) == 'taylordiagram':
-         r = eself.vcs.gettaylordiagram( eself.gm_name )
+         r = eself.vcs_legacy.gettaylordiagram( eself.gm_name )
       elif string.lower( eself.gm_type ) == 'xvsy':
-         r = eself.vcs.getxvsy( eself.gm_name )
+         r = eself.vcs_legacy.getxvsy( eself.gm_name )
       elif string.lower( eself.gm_type ) == 'xyvsy':
-         r = eself.vcs.getxyvsy( eself.gm_name )
+         r = eself.vcs_legacy.getxyvsy( eself.gm_name )
       elif string.lower( eself.gm_type ) == 'yxvsx':
-         r = eself.vcs.getyxvsx( eself.gm_name )
+         r = eself.vcs_legacy.getyxvsx( eself.gm_name )
       elif string.lower( eself.gm_type ) == 'continents':
-         r = eself.vcs.getcontinents( eself.gm_name )
+         r = eself.vcs_legacy.getcontinents( eself.gm_name )
 
       # Script the graphics method selected in the list
-      eself.vcs.scriptobject( r, save_dialog, mode = 'w' )
+      eself.vcs_legacy.scriptobject( r, save_dialog, mode = 'w' )
 
 #----------------------------------------------------------------------------------------
 # Create the graphicsmethod Help menu and its menu items
@@ -938,7 +938,7 @@ Lawrence Livermore National Laboratory Livermore, CA 94550 """)
 # Create the general graphics method attributes
 #----------------------------------------------------------------------------------------
 class x_attributes:
-    def __init__(self, page, parent, gm, vcs):
+    def __init__(self, page, parent, gm, vcs_legacy):
         self.gm=gm
         self.parent = parent
 
@@ -949,8 +949,8 @@ class x_attributes:
         scl_Frame.pack(fill = 'both', expand = 1,side='top')
         page=scl_Frame.interior()
 
-        vcslist = vcs.listelements('list')
-        vcslist.insert(0,'*')
+        vcs_legacylist = vcs_legacy.listelements('list')
+        vcs_legacylist.insert(0,'*')
         group1 = Pmw.Group( page, tag_text = 'X Major Ticks and Labels' )
         group1.pack( side = 'top', fill = 'both', expand = 1, padx = 5, pady = 20 )
         self.xtic1=Pmw.ComboBox( group1.interior(),
@@ -960,7 +960,7 @@ class x_attributes:
             entry_background = 'white',
             entry_foreground = 'black',
             entry_width =  _entry_width,
-            scrolledlist_items=vcslist
+            scrolledlist_items=vcs_legacylist
             )
         self.xtic1.pack( expand = 1, fill = 'x', padx=20, pady=5 )
         gui_support.balloon.bind( self.xtic1, "Specify a predefine VCS list name (i.e., lon20, lon30,\np_levels etc.). Or allow VCS to generate the xticlabels#1 by\nentering '*'. Or create a Python dictionary. For example:\n{10:'10', 20:'20', 30:'30'} or {0:'text', 10:'more text'}.\n\nNote: if the Python dictionary is not correct, then no\nxticlabels#1 will be plotted." )
@@ -970,7 +970,7 @@ class x_attributes:
             entry_background = 'white',
             entry_foreground = 'black',
             entry_width =  _entry_width,
-            scrolledlist_items=vcslist
+            scrolledlist_items=vcs_legacylist
             )
         self.xtic2.pack( expand = 1, fill = 'x', padx=20, pady=5 )
         gui_support.balloon.bind( self.xtic2, "Specify a predefine VCS list name (i.e., lon20, lon30,\np_levels etc.). Or allow VCS to generate the xticlabels#2 by\nentering '*'. Or create a Python dictionary. For example:\n{10:'10', 20:'20', 30:'30'} or {0:'text', 10:'more text'}.\n\nNote: if the Python dictionary is not correct, then no\nxticlabels#2 will be plotted." )
@@ -983,7 +983,7 @@ class x_attributes:
             entry_background = 'white',
             entry_foreground = 'black',
             entry_width =  _entry_width,
-            scrolledlist_items=vcslist
+            scrolledlist_items=vcs_legacylist
             )
         self.xmtic1.pack( expand = 1, fill = 'x', padx=20, pady=5 )
         gui_support.balloon.bind( self.xmtic1, "Specify a predefine VCS list name (i.e., lon20, lon30,\np_levels etc.). Or allow VCS to generate the xmtics#1 by\nentering '*'. Or create a Python dictionary. For example:\n{10:'10', 20:'20', 30:'30'} or {0:'text', 10:'more text'}.\n\nNote: if the Python dictionary is not correct, then no\nxmtics#1 will be plotted." )
@@ -993,7 +993,7 @@ class x_attributes:
             entry_background = 'white',
             entry_foreground = 'black',
             entry_width =  _entry_width,
-            scrolledlist_items=vcslist
+            scrolledlist_items=vcs_legacylist
             )
         self.xmtic2.pack( expand = 1, fill = 'x', padx=20, pady=5 )
         gui_support.balloon.bind( self.xmtic2, "Specify a predefine VCS list name (i.e., lon20, lon30,\np_levels etc.). Or allow VCS to generate the xmtics#2 by\nentering '*'. Or create a Python dictionary. For example:\n{10:'10', 20:'20', 30:'30'} or {0:'text', 10:'more text'}.\n\nNote: if the Python dictionary is not correct, then no\nxmtics#2 will be plotted." )
@@ -1025,7 +1025,7 @@ class x_attributes:
         except: self.gm.xmtics2=self.xmtic2.get()
         
 class y_attributes:
-    def __init__(self, page, parent, gm, vcs):
+    def __init__(self, page, parent, gm, vcs_legacy):
         self.parent = parent
         self.gm=gm
         
@@ -1036,8 +1036,8 @@ class y_attributes:
         scl_Frame.pack(fill = 'both', expand = 1,side='top')
         page=scl_Frame.interior()
 
-        vcslist = vcs.listelements('list')
-        vcslist.insert(0,'*')
+        vcs_legacylist = vcs_legacy.listelements('list')
+        vcs_legacylist.insert(0,'*')
         group1 = Pmw.Group( page, tag_text = 'X Major Ticks and Labels' )
         group3 = Pmw.Group( page, tag_text = 'Y Major Ticks and Labels' )
         group3.pack( side = 'top', fill = 'both', expand = 1, padx = 5, pady = 20 )
@@ -1047,7 +1047,7 @@ class y_attributes:
             entry_background = 'white',
             entry_foreground = 'black',
             entry_width =  _entry_width,
-            scrolledlist_items=vcslist
+            scrolledlist_items=vcs_legacylist
             )
         self.ytic1.pack( expand = 1, fill = 'x', padx=20, pady=5 )
         gui_support.balloon.bind( self.ytic1, "Specify a predefine VCS list name (i.e., lon20, lon30,\np_levels etc.). Or allow VCS to generate the yticlabels#1 by\nentering '*'. Or create a Python dictionary. For example:\n{10:'10', 20:'20', 30:'30'} or {0:'text', 10:'more text'}.\n\nNote: if the Python dictionary is not correct, then no\nyticlabels#1 will be plotted." )
@@ -1057,7 +1057,7 @@ class y_attributes:
             entry_background = 'white',
             entry_foreground = 'black',
             entry_width =  _entry_width,
-            scrolledlist_items=vcslist
+            scrolledlist_items=vcs_legacylist
             )
         self.ytic2.pack( expand = 1, fill = 'x', padx=20, pady=5 )
         gui_support.balloon.bind( self.ytic2, "Specify a predefine VCS list name (i.e., lon20, lon30,\np_levels etc.). Or allow VCS to generate the yticlabels#2 by\nentering '*'. Or create a Python dictionary. For example:\n{10:'10', 20:'20', 30:'30'} or {0:'text', 10:'more text'}.\n\nNote: if the Python dictionary is not correct, then no\nyticlabels#2 will be plotted." )
@@ -1070,7 +1070,7 @@ class y_attributes:
             entry_background = 'white',
             entry_foreground = 'black',
             entry_width =  _entry_width,
-            scrolledlist_items=vcslist
+            scrolledlist_items=vcs_legacylist
             )
         self.ymtic1.pack( expand = 1, fill = 'x', padx=20, pady=5 )
         gui_support.balloon.bind( self.ymtic1, "Specify a predefine VCS list name (i.e., lon20, lon30,\np_levels etc.). Or allow VCS to generate the ymtics#1 by\nentering '*'. Or create a Python dictionary. For example:\n{10:'10', 20:'20', 30:'30'} or {0:'text', 10:'more text'}.\n\nNote: if the Python dictionary is not correct, then no\nymtics#1 will be plotted." )
@@ -1080,7 +1080,7 @@ class y_attributes:
             entry_background = 'white',
             entry_foreground = 'black',
             entry_width =  _entry_width,
-            scrolledlist_items=vcslist
+            scrolledlist_items=vcs_legacylist
             )
         self.ymtic2.pack( expand = 1, fill = 'x', padx=20, pady=5 )
         gui_support.balloon.bind( self.ymtic2, "Specify a predefine VCS list name (i.e., lon20, lon30,\np_levels etc.). Or allow VCS to generate the ymtics#2 by\nentering '*'. Or create a Python dictionary. For example:\n{10:'10', 20:'20', 30:'30'} or {0:'text', 10:'more text'}.\n\nNote: if the Python dictionary is not correct, then no\nymtics#2 will be plotted." )

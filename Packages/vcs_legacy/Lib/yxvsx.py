@@ -27,7 +27,7 @@
 # Import: VCS C extension module.                                             #
 #                                                                             #
 ###############################################################################
-import _vcs, VCS_validation_functions, cdtime
+import _vcs_legacy, VCS_validation_functions, cdtime
 import Canvas
 from types import *
 import AutoAPI
@@ -57,7 +57,7 @@ def setGYxmember(self,member,value):
         self.parent.canvas.BLOCK_X_SERVER()
         self.parent.canvasraised()
 
-     _vcs.setGYxmember(self, member, value, self.parent.mode)
+     _vcs_legacy.setGYxmember(self, member, value, self.parent.mode)
 
      # If the VCS Canvas is displayed, then update the backing store
      if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()):
@@ -82,7 +82,7 @@ setmember=setGYxmember
 #                                                                             #
 ###############################################################################
 def getGYxmember(self,member):
-     return _vcs.getGYxmember(self,member)
+     return _vcs_legacy.getGYxmember(self,member)
 getmember=getGYxmember
 ###############################################################################
 #                                                                             #
@@ -100,7 +100,7 @@ getmember=getGYxmember
 #                                                                             #
 ###############################################################################
 def renameGYx(self, old_name, new_name):
-     return _vcs.renameGYx(old_name, new_name)
+     return _vcs_legacy.renameGYx(old_name, new_name)
 
 class GYx(object,AutoAPI.AutoAPI):
     """
@@ -122,7 +122,7 @@ class GYx(object,AutoAPI.AutoAPI):
     entry.
 
  Other Useful Functions:
-          a=vcs.init()                  # Constructor
+          a=vcs_legacy.init()                  # Constructor
           a.show('yxvsx')               # Show predefined Yxvsx graphics methonds
           a.show('line')                # Show predefined VCS line objects
           a.show('marker')              # Show predefined VCS marker objects
@@ -134,7 +134,7 @@ class GYx(object,AutoAPI.AutoAPI):
                                           0, then use update function to
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     To Create a new instance of Yxvsx use:
      yxx=a.createxyvsy('new','quick')    # Copies content of 'quick' to 'new'
      yxx=a.createxyvsy('new')            # Copies content of 'default' to 'new'
@@ -488,7 +488,7 @@ class GYx(object,AutoAPI.AutoAPI):
            if (GYx_name == None):
               raise ValueError, 'Must provide a Yxvsx name.'
            else:
-              _vcs.copyGYx(GYx_name_src, GYx_name)
+              _vcs_legacy.copyGYx(GYx_name_src, GYx_name)
               self._name = GYx_name
         else:
               self._name=GYx_name_src
@@ -611,7 +611,7 @@ class GYx(object,AutoAPI.AutoAPI):
     def script(self, script_filename, mode='a'):
         """
  %s
- Function:     script                           # Calls _vcs.scriptGYx
+ Function:     script                           # Calls _vcs_legacy.scriptGYx
 
  Description of Function:
        Saves out a boxfill graphics method in Python or VCS script form to a
@@ -627,7 +627,7 @@ class GYx(object,AutoAPI.AutoAPI):
                     produce a VCS script. If neither extensions are give, then by
                     default a Python script will be produced.
 
-    a=vcs.init()
+    a=vcs_legacy.init()
     Yx=a.createboxfill('temp')
     Yx.script('filename.py')         # Append to a Python file "filename.py"
     Yx.script('filename.scr')        # Append to a VCS file "filename.scr"
@@ -644,7 +644,7 @@ class GYx(object,AutoAPI.AutoAPI):
         # By default, save file in python script mode
         scr_type = script_filename[len(script_filename)-4:len(script_filename)]
         if (scr_type == '.scr'):
-           print _vcs.scriptGYx(self.name,script_filename,mode)
+           print _vcs_legacy.scriptGYx(self.name,script_filename,mode)
         else:
            mode = mode + '+'
            py_type = script_filename[len(script_filename)-3:len(script_filename)]
@@ -659,8 +659,8 @@ class GYx(object,AutoAPI.AutoAPI):
               fp.write("# Import and Initialize VCS     #\n")
               fp.write("#                             #\n")
               fp.write("#############################\n")
-              fp.write("import vcs\n")
-              fp.write("v=vcs.init()\n\n")
+              fp.write("import vcs_legacy\n")
+              fp.write("v=vcs_legacy.init()\n\n")
 
            unique_name = '__GYx__' + self.name
            fp.write("#----------Yxvsx (GYx) member (attribute) listings ----------\n")

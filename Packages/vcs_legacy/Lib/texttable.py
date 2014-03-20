@@ -27,7 +27,7 @@
 # Import: VCS C extension module.                                             #
 #                                                                             #
 ###############################################################################
-import _vcs
+import _vcs_legacy
 import Canvas
 from types import *
 import VCS_validation_functions
@@ -56,7 +56,7 @@ def setTtmember(self,member,value):
         self.parent.canvas.BLOCK_X_SERVER()
         self.parent.canvasraised()
 
-     _vcs.setTtmember(self, member, value, self.parent.mode)
+     _vcs_legacy.setTtmember(self, member, value, self.parent.mode)
 
      # If the VCS Canvas is displayed, then update the backing store
      if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()):
@@ -82,7 +82,7 @@ setmember = setTtmember
 #                                                                             #
 ###############################################################################
 def getTtmember(self,member):
-     return _vcs.getTtmember(self,member)
+     return _vcs_legacy.getTtmember(self,member)
 getmember = getTtmember
 
 ###############################################################################
@@ -101,7 +101,7 @@ getmember = getTtmember
 #                                                                             #
 ###############################################################################
 def renameTt(self, old_name, new_name):
-     return _vcs.renameTt(old_name, new_name)
+     return _vcs_legacy.renameTt(old_name, new_name)
 
 #############################################################################
 #                                                                           #
@@ -121,7 +121,7 @@ class Tt(object):
     existing text table table entry.
 
  Other Useful Functions:
- 	     a=vcs.init()		# Constructor
+ 	     a=vcs_legacy.init()		# Constructor
 	     a.show('texttable')	# Show predefined text table objects
              a.update()               	# Updates the VCS Canvas at user's request
              a.mode=1, or 0           	# If 1, then automatic update, else if
@@ -129,7 +129,7 @@ class Tt(object):
                                           update the VCS Canvas.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     To Create a new instance of text table use:
      tt=a.createtexttable('new','std')	# Copies content of 'std' to 'new'
      tt=a.createtexttable('new') 	# Copies content of 'default' to 'new'
@@ -326,7 +326,7 @@ class Tt(object):
            if (Tt_name == None):
               raise ValueError, 'Must provide a text table name.'
            else:
-              _vcs.copyTt(Tt_name_src, Tt_name)
+              _vcs_legacy.copyTt(Tt_name_src, Tt_name)
               self._name = Tt_name
         else:
               self._name = Tt_name_src
@@ -536,7 +536,7 @@ class Tt(object):
     #############################################################################
     def script(self, script_filename=None, mode=None):
         '''
- Function:     script                           # Calls _vcs.scriptTt
+ Function:     script                           # Calls _vcs_legacy.scriptTt
 
  Description of Function:
        Saves out a text table graphics method in VCS Python or script form to
@@ -552,7 +552,7 @@ class Tt(object):
                     produce a VCS script. If neither extensions are give, then by
                     default a Python script will be produced.
 
-    a=vcs.init()
+    a=vcs_legacy.init()
     tt=a.createtexttable('temp')
     tt.script('filename.py')         # Append to a Python file "filename.py"
     tt.script('filename.scr')        # Append to a VCS file "filename.scr"
@@ -569,7 +569,7 @@ class Tt(object):
         # By default, save file in python script mode
         scr_type = script_filename[len(script_filename)-4:len(script_filename)]
         if (scr_type == '.scr'):
-           print _vcs.scriptTt(self.name,script_filename,mode)
+           print _vcs_legacy.scriptTt(self.name,script_filename,mode)
         else:
            mode = mode + '+'
            py_type = script_filename[len(script_filename)-3:len(script_filename)]
@@ -584,8 +584,8 @@ class Tt(object):
               fp.write("# Import and Initialize VCS     #\n")
               fp.write("#                             #\n")
               fp.write("#############################\n")
-              fp.write("import vcs\n")
-              fp.write("v=vcs.init()\n\n")
+              fp.write("import vcs_legacy\n")
+              fp.write("v=vcs_legacy.init()\n\n")
 
            unique_name = '__Tt__' + self.name
            fp.write("#----------Text Table (Tt) member (attribute) listings ----------\n")

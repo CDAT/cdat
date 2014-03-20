@@ -12,7 +12,7 @@
 #               Lawrence Livermore NationalLaboratory:                          #
 #               support@pcmdi.llnl.gov                                          #
 #                                                                               #
-# Description:  Functions which get information about vcs graphics objects      #
+# Description:  Functions which get information about vcs_legacy graphics objects      #
 #               such as graphics methods and templates.                         #
 #                                                                               #
 # Version:      4.0                                                             #
@@ -22,7 +22,7 @@
 """
 ###########################################################################################
 #                                                                                         #
-# Functions which get information about vcs graphics objects such as graphics methods.    #
+# Functions which get information about vcs_legacy graphics objects such as graphics methods.    #
 #                                                                                         #
 ###########################################################################################
 """
@@ -30,10 +30,10 @@ import boxfill, isofill, isoline, outfill, outline, taylor, meshfill
 import xyvsy, yxvsx, xvsy, vector, scatter, continents, line, marker, fillarea
 import texttable, textorientation, textcombined, template
 import displayplot, projection
-import vcs
-import vcsaddons
+import vcs_legacy
+import vcs_legacyaddons
 
-from error import vcsError
+from error import vcs_legacyError
 
 def isgraphicsmethod(gobj):
         """
@@ -48,11 +48,11 @@ def isgraphicsmethod(gobj):
     Otherwise, it will return a 0, indicating false.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     box=a.getboxfill('quick')  # To Modify an existing boxfill use:
     ...
 
-    if vcs.isgraphicsmethod(box):
+    if vcs_legacy.isgraphicsmethod(box):
        box.list()
 """
         if (isinstance(gobj,boxfill.Gfb)):
@@ -81,7 +81,7 @@ def isgraphicsmethod(gobj):
             return 1
         elif (isinstance(gobj,meshfill.Gfm)):
             return 1
-	elif isinstance(gobj,vcsaddons.core.VCSaddon):
+	elif isinstance(gobj,vcs_legacyaddons.core.VCSaddon):
 	    return 1
         else:
            return 0
@@ -96,7 +96,7 @@ ill,
         outline, continents, scatter, vector, xvsy, xyvsy, yxvsx, taylordiagram ).
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     gm_list=a.graphicsmethodlist()  # Return graphics method list
 """
         return [ 'boxfill',  'isofill',  'isoline',  'meshfill', 'outfill', 'outline', 'continents', 'scatter', 'vector', 'xvsy', 'xyvsy', 'yxvsx', 'taylordiagram' ]
@@ -112,15 +112,15 @@ def graphicsmethodtype(gobj):
         Returns a None if the object is not a graphics method.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     box=a.getboxfill('quick')  # Get an existing boxfill graphics method in VCS
     iso=a.getisofill('quick')  # Get an existing isofill graphics method in VCS
     ln=a.getline('quick')      # Get an existing line element in VCS
     ...
 
-    print vcs.graphicsmethodtype(box)         # Will print 'boxfill'
-    print vcs.graphicsmethodtype(iso)         # Will print 'isofill'
-    print vcs.graphicsmethodtype(ln)          # Will print None, because ln is not a
+    print vcs_legacy.graphicsmethodtype(box)         # Will print 'boxfill'
+    print vcs_legacy.graphicsmethodtype(iso)         # Will print 'isofill'
+    print vcs_legacy.graphicsmethodtype(ln)          # Will print None, because ln is not a
                                               #         graphics method
 """
         if (isinstance(gobj,boxfill.Gfb)):
@@ -149,10 +149,10 @@ def graphicsmethodtype(gobj):
             return 'taylordiagram'
         elif (isinstance(gobj,meshfill.Gfm)):
             return 'meshfill'
-	elif isinstance(gobj,vcsaddons.core.VCSaddon):
+	elif isinstance(gobj,vcs_legacyaddons.core.VCSaddon):
 	    return gobj
         else:
-           raise vcsError, 'The object passed is not a graphics method object.'
+           raise vcs_legacyError, 'The object passed is not a graphics method object.'
 
 #############################################################################
 #                                                                           #
@@ -171,7 +171,7 @@ def isplot(pobj):
     Otherwise, it will return a 0, indicating false.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     ...
     a.show('plot')			# show all the plot objects on the VCS Canvas
     p1=a.getplot('dpy_plot_1')  	# Get an existing plot object named 'dpy_plot_1'
@@ -199,7 +199,7 @@ def iscolormap(obj):
     Check to see if this object is a VCS secondary colormap.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     ln=a.getcolormap("quick")  # To Modify an existing colormap object
     ...
 
@@ -207,7 +207,7 @@ def iscolormap(obj):
        ln.list()
 
 """
-    if (isinstance(obj,vcs.colormap.Cp)):
+    if (isinstance(obj,vcs_legacy.colormap.Cp)):
         return 1
     else:
         return 0
@@ -223,11 +223,11 @@ def istemplate(gobj):
     Otherwise, it will return a 0, indicating false.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     templt=a.gettemplate('quick')  # Modify an existing template named 'quick'
     ...
 
-    if vcs.istemplate(templt):
+    if vcs_legacy.istemplate(templt):
        templt.list()               # If it is a template then list its members
 """
     if (isinstance(gobj, template.P)):
@@ -261,7 +261,7 @@ elements or (secondary class elements):
 
 
  Example of Use:
-a=vcs.init()
+a=vcs_legacy.init()
 line=a.getline('red')  # To Modify an existing line object
 ...
 
@@ -284,7 +284,7 @@ if queries.issecondaryobject(line):
         return 1
     elif (isinstance(sobj,projection.Proj)):
         return 1
-    elif (isinstance(sobj,vcs.colormap.Cp)):
+    elif (isinstance(sobj,vcs_legacy.colormap.Cp)):
         return 1
     else:
        return 0
@@ -302,7 +302,7 @@ def isprojection(obj):
 Check to see if this object is a VCS secondary projection graphic object .
 
  Example of Use:
-a=vcs.init()
+a=vcs_legacy.init()
 p=a.getprojection("default")  # To Modify an existing taylor object
 ...
 
@@ -327,7 +327,7 @@ def istaylordiagram(obj):
 Check to see if this object is a VCS primary taylordiagram graphics method.
 
  Example of Use:
-a=vcs.init()
+a=vcs_legacy.init()
 td=a.gettaylordiagram("default")  # To get an existing taylor object
 ...
 
@@ -352,7 +352,7 @@ def ismeshfill(obj):
 Check to see if this object is a VCS primary meshfill graphics method.
 
  Example of Use:
-a=vcs.init()
+a=vcs_legacy.init()
 mesh=a.getmeshfill("quick")  # To Modify an existing taylor object
 ...
 
@@ -377,7 +377,7 @@ def isboxfill(obj):
 Check to see if this object is a VCS primary boxfill graphics method.
 
  Example of Use:
-a=vcs.init()
+a=vcs_legacy.init()
 box=a.getboxfill("quick")  # To Modify an existing boxfill object
 ...
 
@@ -404,7 +404,7 @@ def isisofill(obj):
 Check to see if this object is a VCS primary isofill graphics method.
 
  Example of Use:
-a=vcs.init()
+a=vcs_legacy.init()
 iso=a.getisofill("quick")  # To Modify an existing isofill object
 ...
 
@@ -430,7 +430,7 @@ def isisoline(obj):
 Check to see if this object is a VCS primary isoline graphics method.
 
  Example of Use:
-a=vcs.init()
+a=vcs_legacy.init()
 iso=a.getisoline("quick")  # To Modify an existing isoline object
 ...
 
@@ -456,7 +456,7 @@ def isoutfill(obj):
 Check to see if this object is a VCS primary outfill graphics method.
 
  Example of Use:
-a=vcs.init()
+a=vcs_legacy.init()
 out=a.getoutfill("quick")  # To Modify an existing outfill object
 ...
 
@@ -482,7 +482,7 @@ def isoutline(obj):
 Check to see if this object is a VCS primary outline graphics method.
 
  Example of Use:
-a=vcs.init()
+a=vcs_legacy.init()
 out=a.getoutline("quick")  # To Modify an existing outline object
 ...
 
@@ -508,7 +508,7 @@ def isscatter(obj):
 Check to see if this object is a VCS primary scatter graphics method.
 
  Example of Use:
-a=vcs.init()
+a=vcs_legacy.init()
 scr=a.getscatter("quick")  # To Modify an existing scatter object
 ...
 
@@ -534,7 +534,7 @@ def isxyvsy(obj):
 Check to see if this object is a VCS primary Xyvsy graphics method.
 
  Example of Use:
-a=vcs.init()
+a=vcs_legacy.init()
 xyy=a.getxyvsy("quick")  # To Modify an existing Xyvsy object
 ...
 
@@ -560,7 +560,7 @@ def isyxvsx(obj):
 Check to see if this object is a VCS primary yxvsx graphics method.
 
  Example of Use:
-a=vcs.init()
+a=vcs_legacy.init()
 yxx=a.getyxvsx("quick")  # To Modify an existing yxvsx object
 ...
 
@@ -586,7 +586,7 @@ def isxvsy(obj):
 Check to see if this object is a VCS primary xvsy graphics method.
 
  Example of Use:
-a=vcs.init()
+a=vcs_legacy.init()
 xy=a.getxvsy("quick")  # To Modify an existing xvsy object
 ...
 
@@ -612,7 +612,7 @@ def iscontinents(obj):
 Check to see if this object is a VCS primary continents graphics method.
 
  Example of Use:
-a=vcs.init()
+a=vcs_legacy.init()
 con=a.getcontinents("quick")  # To Modify an existing continents object
 ...
 
@@ -638,7 +638,7 @@ def isvector(obj):
 Check to see if this object is a VCS primary vector graphics method.
 
  Example of Use:
-a=vcs.init()
+a=vcs_legacy.init()
 vec=a.getvector("quick")  # To Modify an existing vector object
 ...
 
@@ -664,7 +664,7 @@ def isline(obj):
 Check to see if this object is a VCS secondary line.
 
  Example of Use:
-a=vcs.init()
+a=vcs_legacy.init()
 ln=a.getline("red")  # To Modify an existing line object
 ...
 
@@ -690,7 +690,7 @@ def ismarker(obj):
 Check to see if this object is a VCS secondary marker.
 
  Example of Use:
-a=vcs.init()
+a=vcs_legacy.init()
 mk=a.getmarker("red")  # To Modify an existing marker object
 ...
 
@@ -716,7 +716,7 @@ def isfillarea(obj):
 Check to see if this object is a VCS secondary fillarea.
 
  Example of Use:
-a=vcs.init()
+a=vcs_legacy.init()
 fa=a.getfillarea("def37")  # To Modify an existing fillarea object
 ...
 
@@ -742,7 +742,7 @@ def istexttable(obj):
 Check to see if this object is a VCS secondary text table.
 
  Example of Use:
-a=vcs.init()
+a=vcs_legacy.init()
 tt=a.gettexttable("std")  # To Modify an existing text table object
 ...
 
@@ -768,7 +768,7 @@ def istextorientation(obj):
 Check to see if this object is a VCS secondary text orientation.
 
  Example of Use:
-a=vcs.init()
+a=vcs_legacy.init()
 to=a.gettextorientation("7left")  # To Modify an existing text orientation object
 ...
 
@@ -794,7 +794,7 @@ def istextcombined(obj):
 Check to see if this object is a VCS secondary text combined.
 
  Example of Use:
-a=vcs.init()
+a=vcs_legacy.init()
 tc=a.gettextcombined("std", "7left")  # To Modify existing text table and orientation objects
 ...
 

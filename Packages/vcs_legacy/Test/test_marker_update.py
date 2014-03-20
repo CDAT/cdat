@@ -1,7 +1,7 @@
-import vcs,sys,os,support
+import vcs_legacy,sys,os,support
 bg=support.bg
 
-tp = vcs.init()
+tp = vcs_legacy.init()
 tp.portrait()
 
 mark = tp.createmarker('mark')

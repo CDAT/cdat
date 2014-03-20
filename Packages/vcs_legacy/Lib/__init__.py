@@ -3,7 +3,7 @@
 #
 #################################################################################
 #                                                                               #
-# Module:       vcs module                                                      #
+# Module:       vcs_legacy module                                                      #
 #                                                                               #
 # Authors:      PCMDI Software Team                                             #
 #               support@pcmdi.llnl.gov                                          #
@@ -18,29 +18,29 @@
 #                                                                               #
 #################################################################################
 """
-import vcs.info
+import vcs_legacy.info
 import sys
-if sys.executable[-4:]!='cdat' and sys.platform in ['darwin'] and (vcs.info.WM=='QT' or vcs.info.EM=='QT'):
-    raise ImportError,"if you are going to use vcs you need to run this as 'cdat' not %s" % sys.executable
+if sys.executable[-4:]!='cdat' and sys.platform in ['darwin'] and (vcs_legacy.info.WM=='QT' or vcs_legacy.info.EM=='QT'):
+    raise ImportError,"if you are going to use vcs_legacy you need to run this as 'cdat' not %s" % sys.executable
 import cdat_info
-cdat_info.pingPCMDIdb("cdat","vcs_legacy")
+cdat_info.pingPCMDIdb("cdat","vcs_legacy_legacy")
 import slabapi # to make sure it is initialized
-import _vcs
+import _vcs_legacy
 import thread
 import time
 import Canvas
-from vcshelp import *
+from vcs_legacyhelp import *
 from queries import *
 from pauser import pause
 from utils import *
-import install_vcs
-from install_vcs import list_printers, add_printer, remove_printer
-from Canvas import dictionarytovcslist
+import install_vcs_legacy
+from install_vcs_legacy import list_printers, add_printer, remove_printer
+from Canvas import dictionarytovcs_legacylist
 
 _default_time_units='days since 2000'
 
-#from _vcs import polygons
-#from vcs import Meshes
+#from _vcs_legacy import polygons
+#from vcs_legacy import Meshes
 
 #################################################################################
 #                                                                               #
@@ -48,14 +48,14 @@ _default_time_units='days since 2000'
 # $PYTHONHOME/bin to the newly created $HOME/.uvcdat directory.          #
 #                                                                               #
 #################################################################################
-install_vcs._files()
+install_vcs_legacy._files()
 
 #################################################################################
 #                                                                               #
 # Set the user's XGKSFontDir environment variable.                              #
 #                                                                               #
 #################################################################################
-install_vcs._XGKSFontDir()
+install_vcs_legacy._XGKSFontDir()
 
 #################################################################################
 #                                                                               #
@@ -78,19 +78,19 @@ def init(gui = 0, mode=1, pause_time=0, call_from_gui=0, size=None):
                          (Default setting is *not* to display GUI controls)
 
  Example of Use:
-    import vcs,cu
+    import vcs_legacy,cu
 
     file=cu.open('filename.nc')
     slab=file.getslab('variable')
-    a=vcs.init()                        # This examples constructs 4 VCS Canvas 
+    a=vcs_legacy.init()                        # This examples constructs 4 VCS Canvas 
     a.plot(slab)                        # Plot slab using default settings
-    b=vcs.init()                        # Construct VCS object
+    b=vcs_legacy.init()                        # Construct VCS object
     template=b.gettemplate('AMIP')      # Get 'example' template object
     b.plot(slab,template)               # Plot slab using template 'AMIP'
-    c=vcs.init()                        # Construct new VCS object
+    c=vcs_legacy.init()                        # Construct new VCS object
     isofill=c.getisofill('quick')       # Get 'quick' isofill graphics method
     c.plot(slab,template,isofill)       # Plot slab using template and isofill objects
-    d=vcs.init()                        # Construct new VCS object
+    d=vcs_legacy.init()                        # Construct new VCS object
     isoline=c.getisoline('quick')       # Get 'quick' isoline graphics method
     c.plot(isoline,slab,template)       # Plot slab using isoline and template objects
 '''
@@ -101,7 +101,7 @@ def init(gui = 0, mode=1, pause_time=0, call_from_gui=0, size=None):
     return canvas
     
 def initQt():
-    _vcs.startQtApp()
+    _vcs_legacy.startQtApp()
 
 taylordiagrams=[taylor.Gtd()]
 canvaslist = []

@@ -55,7 +55,7 @@ graphics_method_core_notime = """
     xticlabels2 :: (str/{float:str}) ('*') values for labels on 2nd side of x axis
     yticlabels1 :: (str/{float:str}) ('*') values for labels on 1st side of y axis
     yticlabels2 :: (str/{float:str}) ('*') values for labels on 2nd side of y axis
-    projection :: (str/vcs.projection.Proj) ('default') projection to use, name or object
+    projection :: (str/vcs_legacy.projection.Proj) ('default') projection to use, name or object
     datawc_x1 :: (float) (1.E20) first value of xaxis on plot
     datawc_x2 :: (float) (1.E20) second value of xaxis on plot
     datawc_y1 :: (float) (1.E20) first value of yaxis on plot
@@ -141,22 +141,22 @@ fillareadoc ="""
     fillareaindex :: (int) (None) pattern to use when filling a level and using pattern/hatch
 """
 
-linesdoc ="""    line :: ([str,...]/[vcs.line.Tl,...]/[int,...]) (['solid',]) line type to use for each isoline, can also pass a line object or line object name
+linesdoc ="""    line :: ([str,...]/[vcs_legacy.line.Tl,...]/[int,...]) (['solid',]) line type to use for each isoline, can also pass a line object or line object name
     linecolors :: ([int,...]) ([241]) colors to use for each isoline
     linewidths :: ([float,...]) ([1.0]) list of width for each isoline
     """
-linedoc ="""    line :: ([str,...]/[vcs.line.Tl,...]/[int,...]) (['solid',]) line type to use for each isoline, can also pass a line object or line object name
+linedoc ="""    line :: ([str,...]/[vcs_legacy.line.Tl,...]/[int,...]) (['solid',]) line type to use for each isoline, can also pass a line object or line object name
     linecolor :: (int) (241) colors to use for each isoline
     linewidth :: (float) (1.0) list of width for each isoline
     """
 
 textsdoc = """
-    text :: (None/[vcs.textcombined.Tc,...]) (None) text objects or text objects names to use for each countour labels
+    text :: (None/[vcs_legacy.textcombined.Tc,...]) (None) text objects or text objects names to use for each countour labels
     textcolors :: (None/[int,...]) (None) colors to use for each countour labels
 """
 
 markerdoc = """
-    marker :: (None/int/str/vcs.marker.Tm) (None) markers type to use
+    marker :: (None/int/str/vcs_legacy.marker.Tm) (None) markers type to use
     markercolor :: (None/int) (None) color to use for markers
     markersize :: (None/int) (None) size of markers
 """
@@ -185,12 +185,12 @@ plot_2D_input = """
 """
 
 plot_2_1D_input = """
-       slab_or_primary_object :: (cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list/vcs.fillarea.Tf/vcs.line.Tl/vcs.marker.Tm/vcs.textcombined.Tc) (None) Data at least 1D, last dimension(s) will be plotted, or primary vcs object
+       slab_or_primary_object :: (cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list/vcs_legacy.fillarea.Tf/vcs_legacy.line.Tl/vcs_legacy.marker.Tm/vcs_legacy.textcombined.Tc) (None) Data at least 1D, last dimension(s) will be plotted, or primary vcs_legacy object
 """
 plot_2_1D_options = """
        slab2 :: (cdms2.tvariable.TransientVariable/numpy.core.ma.MaskedArray/numpy.ndarray/list) (None) Data at least 1D, last dimension(s) will be plotted
-       template :: (str/vcs.template.P) ('default') vcs template
-       gm :: (str/vcs.boxfill.Gfb/vcs.isofill.Gfi/vcs.isoline.Gi/vcs.meshfill.Gfm/vcs.vector.Gv/vcs.scatter.GSp/vcs.outline.Go/vcs.outline.Gfo/vcs.taylor.Gtd/vcs.xvsy.GXY/vcs.xyvsy.GXy/vcs.yxvsx.GYx/vcsaddons.core.VCSaddon/vcs.continents.Gcon) ('default') graphic method to use
+       template :: (str/vcs_legacy.template.P) ('default') vcs_legacy template
+       gm :: (str/vcs_legacy.boxfill.Gfb/vcs_legacy.isofill.Gfi/vcs_legacy.isoline.Gi/vcs_legacy.meshfill.Gfm/vcs_legacy.vector.Gv/vcs_legacy.scatter.GSp/vcs_legacy.outline.Go/vcs_legacy.outline.Gfo/vcs_legacy.taylor.Gtd/vcs_legacy.xvsy.GXY/vcs_legacy.xyvsy.GXy/vcs_legacy.yxvsx.GYx/vcs_legacyaddons.core.VCSaddon/vcs_legacy.continents.Gcon) ('default') graphic method to use
 """
 #############################################################################
 #                                                                           #
@@ -198,41 +198,41 @@ plot_2_1D_options = """
 #                                                                           #
 #############################################################################
 plot_output = """
-       display ::  (vcs.displayplot.Dp) (0) no default
+       display ::  (vcs_legacy.displayplot.Dp) (0) no default
 """
 
 boxfill_output = """
-       boxfill ::  (vcs.boxfill.Gfb) (0) no default
+       boxfill ::  (vcs_legacy.boxfill.Gfb) (0) no default
 """
 
 isofill_output = """
-       isofill ::  (vcs.isofill.Gfi) (0) no default
+       isofill ::  (vcs_legacy.isofill.Gfi) (0) no default
 """
 
 isoline_output = """
-       isoline ::  (vcs.isoline.Gi) (0) no default
+       isoline ::  (vcs_legacy.isoline.Gi) (0) no default
 """
 
 yxvsx_output = """
-       yxvsx ::  (vcs.yxvsx.GYx) (0) no default
+       yxvsx ::  (vcs_legacy.yxvsx.GYx) (0) no default
 """
 
 xyvsy_output = """
-       xyvsy ::  (vcs.xyvsy.GXy) (0) no default
+       xyvsy ::  (vcs_legacy.xyvsy.GXy) (0) no default
 """
 
 xvsy_output = """
-       xvsy ::  (vcs.xvsy.GXY) (0) no default
+       xvsy ::  (vcs_legacy.xvsy.GXY) (0) no default
 """
 
 scatter_output = """
-       scatter ::  (vcs.scatter.GSp) (0) no default
+       scatter ::  (vcs_legacy.scatter.GSp) (0) no default
 """
 
 outfill_output = """
-       outfill ::  (vcs.outfill.Gfo) (0) no default
+       outfill ::  (vcs_legacy.outfill.Gfo) (0) no default
 """
 
 outline_output = """
-       outline ::  (vcs.outline.Go) (0) no default
+       outline ::  (vcs_legacy.outline.Go) (0) no default
 """

@@ -1,5 +1,5 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
-import sys,cdms2,vcs,cdtime,MV2,support,os
+import sys,cdms2,vcs_legacy,cdtime,MV2,support,os
 
 bg=support.bg
 
@@ -9,7 +9,7 @@ f=cdms2.open(os.path.join(cdms2.__path__[0],'..','..','..','..','sample_data','t
 
 s=f('ta',latitude=slice(5,6),level=slice(0,1),squeeze=1)
 ## s.info()
-x=vcs.init()
+x=vcs_legacy.init()
 
 
 b=x.createboxfill('new2')

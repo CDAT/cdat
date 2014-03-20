@@ -65,7 +65,7 @@ int     map_length;
 }
 #endif
 
-int save_gif_image_vcs (FILE *file)
+int save_gif_image_vcs_legacy (FILE *file)
 {
 	int 		x_loc,y_loc;
 #ifdef USEX11

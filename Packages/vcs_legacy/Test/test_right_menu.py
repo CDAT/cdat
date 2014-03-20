@@ -1,5 +1,5 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
-import vcs, cdms2 as cdms, EzTemplate, sys, genutil,support
+import vcs_legacy, cdms2 as cdms, EzTemplate, sys, genutil,support
 
 def clear(*args,**kargs):
     x = kargs['canvas']
@@ -33,9 +33,9 @@ def plot_lon_time(*args,**kargs):
     x.plot(ts,t2)
 if support.dogui:
 
-    x=vcs.init()
+    x=vcs_legacy.init()
     x.portrait()
-    y=vcs.init()
+    y=vcs_legacy.init()
     y.open()
     y.portrait()
 

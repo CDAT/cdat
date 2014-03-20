@@ -28,13 +28,13 @@
 #                                                                          #
 ############################################################################
 def test():
-   import vcs,cdms2 as cdms,time,os,sys,support          # import vcs and cdms
+   import vcs_legacy,cdms2 as cdms,time,os,sys,support          # import vcs_legacy and cdms
 
    bg=support.bg
 
    f=cdms.open(os.path.join(cdms.__path__[0],'..','..','..','..','sample_data','clt.nc')) # open clt file
    u=f('u')  			        # get slab u
-   x=vcs.init()                         # construct vcs canvas
+   x=vcs_legacy.init()                         # construct vcs_legacy canvas
    
    x.plot(u, 'default','yxvsx','ASD7',bg=bg)	# plot slab the old way
    support.check_plot(x)
@@ -44,10 +44,10 @@ def test():
       support.check_plot(x)
    
    a=x.getyxvsx('ASD7')		    	# get 'ASD7' yxvsx
-   if not vcs.isgraphicsmethod(a):            # test object 'a' for graphics method
+   if not vcs_legacy.isgraphicsmethod(a):            # test object 'a' for graphics method
       raise Exception, "Error not a gm"
    else:
-      if not vcs.isyxvsx(a):                  # test object 'a' if yxvsx
+      if not vcs_legacy.isyxvsx(a):                  # test object 'a' if yxvsx
          raise Exception,"Error wrong type of gm"
    
    a.script('test','w')                 # save 'ASD7' yxvsx as a Python script
@@ -167,7 +167,7 @@ def test():
    
    objs = x.listelements('template')                   # show the list of templates
    t=x.createtemplate('test')           # create template 'test' from 'default' template
-   if not vcs.istemplate(t):                  # test whether 't' is a template or not
+   if not vcs_legacy.istemplate(t):                  # test whether 't' is a template or not
       raise Exception,"Error creating tmeplate"
    
    x.clear()                            # clear the VCS Canvas
@@ -179,10 +179,10 @@ def test():
    
    objs = x.listelements('line')                      	# show the list of line secondary objects
    l=x.getline('red')                	# get line 'red'
-   if not vcs.issecondaryobject(l):           # check to see if it is a secondary object
+   if not vcs_legacy.issecondaryobject(l):           # check to see if it is a secondary object
       raise Exception,"Error did not get line"
    else:
-      if not vcs.isline(l):                  	# check to see if it is a line
+      if not vcs_legacy.isline(l):                  	# check to see if it is a line
          raise Exception, "Error object created is not line"
    
    ###########################################################################
@@ -199,10 +199,10 @@ def test():
    
    objs = x.listelements('marker')                     # show the list of marker secondary objects
    m=x.getmarker('red')                 # get marker 'red'
-   if not vcs.issecondaryobject(m):           # check to see if it is a secondary object
+   if not vcs_legacy.issecondaryobject(m):           # check to see if it is a secondary object
       raise Exception,"Error did not get marker"
    else:
-      if not vcs.ismarker(m):                  	# check to see if it is a line
+      if not vcs_legacy.ismarker(m):                  	# check to see if it is a line
          raise Exception, "Error object created is not marker"
    
    ###########################################################################

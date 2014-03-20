@@ -8,8 +8,8 @@
 #include <QtGui/QMenu>
 #include <QtGui/QPainter>
 #include <QtGui/QToolTip>
-#include "Qt/vcs_events_Qt_mapping.h"
-#include "vcs_canvas.h"
+#include "Qt/vcs_legacy_events_Qt_mapping.h"
+#include "vcs_legacy_canvas.h"
 #include <QtCore/QString>
 
 #include <stdio.h>
@@ -24,13 +24,13 @@ extern PyInterpreterState * mainInterpreterState;
 extern PyThreadState * mainThreadState;
 extern PyThreadState * myThreadState;
 
-QMutex globalvcsmutex(QMutex::Recursive);
+QMutex globalvcs_legacymutex(QMutex::Recursive);
 
 void acquire_global_lock() {
-  globalvcsmutex.lock();
+  globalvcs_legacymutex.lock();
 }
 void release_global_lock() {
-  globalvcsmutex.unlock();
+  globalvcs_legacymutex.unlock();
 }
 
 // extern "C" int QtWorking = 0;
@@ -39,8 +39,8 @@ static int cairoIsSetup = -1;
 QMutex mutex;
 extern "C" Gconid_X_drawable connect_id;
 
-// extern QWaitCondition vcsthreaddone;
-// extern int vcs_working;
+// extern QWaitCondition vcs_legacythreaddone;
+// extern int vcs_legacy_working;
 
 QString prepare_info(struct data_point info) {
   char final[1024] = {};
@@ -161,10 +161,10 @@ void MainWindow::actionTriggered(QAction *a) {
 
   pointA.x = menupos.x();
   pointA.y = menupos.y();
-  pointA.x = cnorm(this->vcs_obj, 0,(float)menupos.x());
-  pointA.y = cnorm(this->vcs_obj, 1,(float)menupos.y());
+  pointA.x = cnorm(this->vcs_legacy_obj, 0,(float)menupos.x());
+  pointA.y = cnorm(this->vcs_legacy_obj, 1,(float)menupos.y());
 
-  item = select_item(this->vcs_obj, pointA, NULL, NULL, pe_none);
+  item = select_item(this->vcs_legacy_obj, pointA, NULL, NULL, pe_none);
   /* Initialize info struct */
   info.x=-999.;
   info.y=-999.;
@@ -184,12 +184,12 @@ void MainWindow::actionTriggered(QAction *a) {
     extent.ul.y = plnorm(1,item->data.pedsp->y2);
     //           printextent(extent);
     if (within(pointA,extent)) {
-      get_data_coords(this->vcs_obj, pointA, item, &info);
+      get_data_coords(this->vcs_legacy_obj, pointA, item, &info);
     }
   }
   PY_ENTER_THREADS
     PY_GRAB_THREAD
-    canvas = getPyCanvas( this->vcs_obj->canvas_id );
+    canvas = getPyCanvas( this->vcs_legacy_obj->canvas_id );
   kargs = PyDict_New();
   if (info.x!=-999.)
     {
@@ -340,8 +340,8 @@ bool MainWindow::event(QEvent *event)
     this->show();
   }
   // else if (event->type()==VCS_ANIMATION_CREATED_EVENT) {
-  //   fprintf(stderr,"Ok we are done with anim on canvas: %i, %i\n",this->vcs_obj->canvas_id,this->vcs_obj->wkst_id);
-  //   this->animationCreated(this->vcs_obj->canvas_id);
+  //   fprintf(stderr,"Ok we are done with anim on canvas: %i, %i\n",this->vcs_legacy_obj->canvas_id,this->vcs_legacy_obj->wkst_id);
+  //   this->animationCreated(this->vcs_legacy_obj->canvas_id);
   // }
   else if (event->type()==VCS_PUT_IMAGE_EVENT) {
     this->image = ((QVCSEvent *)event)->data;
@@ -357,7 +357,7 @@ bool MainWindow::event(QEvent *event)
     this->repaint();
   }
   else if (event->type() == VCS_DIM_EVENT) {
-    //     printf("getting geom %d\n", vcs_working);
+    //     printf("getting geom %d\n", vcs_legacy_working);
     ((QVCSEvent *)event)->geom = this->geometry();
     //     printf("got geom\n");
   }
@@ -371,7 +371,7 @@ bool MainWindow::event(QEvent *event)
     connect(menu, SIGNAL(triggered(QAction*)), this, SLOT(actionTriggered(QAction*)));
     PY_ENTER_THREADS
       PY_GRAB_THREAD
-      canvas  = getPyCanvas( this->vcs_obj->canvas_id );
+      canvas  = getPyCanvas( this->vcs_legacy_obj->canvas_id );
     user_action_name = PyString_FromString("user_actions_names");
     user_act_nms = PyObject_GetAttr(canvas, user_action_name);
     Py_XDECREF(user_action_name);
@@ -432,9 +432,9 @@ bool MainWindow::event(QEvent *event)
   }
   else if (event->type()==QEvent::Type(QEvent::Resize)) {
     //printf("here ? \n");
-    vcs_acquire_update();
+    vcs_legacy_acquire_update();
     this->setupCairo();
-    vcs_release_update();
+    vcs_legacy_release_update();
 
   }
   else if (event->type() == VCS_INFO_EVENT) {
@@ -446,7 +446,7 @@ bool MainWindow::event(QEvent *event)
   }
 
   // int button_is_pressed = 0;
-  // /* Events that are vcs mainloop */
+  // /* Events that are vcs_legacy mainloop */
   // switch (etype) {
   // case VCS_ButtonPress:
   //   button_is_pressed = 1;
@@ -481,24 +481,24 @@ bool MainWindow::event(QEvent *event)
   case VCS_UnmapNotify:
   case VCS_RESIZE_EVENT:
   case QEvent::Type(QEvent::Resize):
-    if (this->vcs_obj!=NULL) {
-      if (this->vcs_obj->havexmainloop == 1) {
+    if (this->vcs_legacy_obj!=NULL) {
+      if (this->vcs_legacy_obj->havexmainloop == 1) {
         acquire_global_lock();
-        //         printf("sending event type %i to vcs, vs %i\n",event->type(),VCS_Expose);
+        //         printf("sending event type %i to vcs_legacy, vs %i\n",event->type(),VCS_Expose);
         /* only do this if the xmainloop has been started by python */
-        //         if (event->type() == VCS_ButtonPress) printf("vcs BP\n");
-        //         if (event->type() == VCS_ButtonRelease) printf("vcs BR\n");
-        event_handler(this->vcs_obj,event);
+        //         if (event->type() == VCS_ButtonPress) printf("vcs_legacy BP\n");
+        //         if (event->type() == VCS_ButtonRelease) printf("vcs_legacy BR\n");
+        event_handler(this->vcs_legacy_obj,event);
         release_global_lock();
-        //         if (event->type() == VCS_ButtonPress) printf("back from vcs BP\n");
-        //         if (event->type() == VCS_ButtonRelease) printf("back from vcs BR\n");
+        //         if (event->type() == VCS_ButtonPress) printf("back from vcs_legacy BP\n");
+        //         if (event->type() == VCS_ButtonRelease) printf("back from vcs_legacy BR\n");
       }
     }
   break;
   default:
     break;
   }
-  //   vcsthreaddone.wakeAll();
+  //   vcs_legacythreaddone.wakeAll();
   if (etype==VCS_ButtonPress || etype==VCS_ButtonRelease)
     res = true;
   else
@@ -506,7 +506,7 @@ bool MainWindow::event(QEvent *event)
 
   //   if ( (etype==VCS_SHOW_EVENT) || (etype==VCS_DIM_EVENT) || (etype==VCS_DESKDIM_EVENT) || (etype==VCS_RESIZE_EVENT)|| (etype==VCS_PROP_EVENT) || (etype==VCS_INFO_EVENT) || (etype==VCS_HIDE_EVENT) || (etype==VCS_REPAINT_EVENT)) {
   //     ((MyThread *)((QVCSEvent *)event)->mythread)->done=true;
-  //     vcs_working--;
+  //     vcs_legacy_working--;
   //   }
   if (dynamic_cast<QVCSBaseEvent*>(event)) {
     QVCSBaseEvent *ve = (QVCSBaseEvent *)event;
@@ -527,110 +527,110 @@ extern "C" void VCS2CAIRO_setrgb(cairo_t *cr,int color);
 void MainWindow::setupCairo()
 {
   CANVASINFO_LINK         cptr; /* connection ID pointers */
-  //   while((updating>0)) {}; /* wait until vcs and Qt are done */
-  vcs_acquire_update();
+  //   while((updating>0)) {}; /* wait until vcs_legacy and Qt are done */
+  vcs_legacy_acquire_update();
   QSize qs = this->size();
-  /* first test if vcs is setup */
-  if (this->vcs_obj==NULL) {
-    vcs_release_update();
+  /* first test if vcs_legacy is setup */
+  if (this->vcs_legacy_obj==NULL) {
+    vcs_legacy_release_update();
     return;
   }
 
 
   if (head_canvas_info!=NULL) {
     cptr = head_canvas_info;
-    while ((cptr != NULL) && cptr->connect_id.cr != this->vcs_obj->connect_id.cr) {
+    while ((cptr != NULL) && cptr->connect_id.cr != this->vcs_legacy_obj->connect_id.cr) {
       cptr = cptr->next;
     }
     if (cptr == NULL ) {
-      vcs_release_update();
+      vcs_legacy_release_update();
       return;
     }
   }
   else {
-    vcs_release_update();
+    vcs_legacy_release_update();
     return;
   }
 
-  if (&(this->vcs_obj->connect_id) == NULL) {
-    vcs_release_update();
+  if (&(this->vcs_legacy_obj->connect_id) == NULL) {
+    vcs_legacy_release_update();
     return;
   }
 
-  if (this->vcs_obj->connect_id.cr!=NULL) {
+  if (this->vcs_legacy_obj->connect_id.cr!=NULL) {
     this->unsetupCairo();
   }
   /* only do this if it is not done yet */
-  this->vcs_obj->connect_id.surface =   cairo_image_surface_create(CAIRO_FORMAT_ARGB32,qs.width(),qs.height());
-  this->vcs_obj->connect_id.cr = cairo_create(this->vcs_obj->connect_id.surface);
-  //fprintf(stderr,"ok surface and cairo setup as: %p, %p, on %i, size: %ix%i\n",this->vcs_obj->connect_id.surface,this->vcs_obj->connect_id.cr,this->vcs_obj->connect_id.wkst_id,qs.width(),qs.height());
+  this->vcs_legacy_obj->connect_id.surface =   cairo_image_surface_create(CAIRO_FORMAT_ARGB32,qs.width(),qs.height());
+  this->vcs_legacy_obj->connect_id.cr = cairo_create(this->vcs_legacy_obj->connect_id.surface);
+  //fprintf(stderr,"ok surface and cairo setup as: %p, %p, on %i, size: %ix%i\n",this->vcs_legacy_obj->connect_id.surface,this->vcs_legacy_obj->connect_id.cr,this->vcs_legacy_obj->connect_id.wkst_id,qs.width(),qs.height());
 #ifdef GENCAIRO
   fprintf(stderr,"surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32,%i,%i);\n",qs.width(),qs.height());
   fprintf(stderr,"cr = cairo_create(surface);\n");
 #endif
-  VCS2CAIRO_setrgb(this->vcs_obj->connect_id.cr,0);
-  cairo_paint(this->vcs_obj->connect_id.cr);
+  VCS2CAIRO_setrgb(this->vcs_legacy_obj->connect_id.cr,0);
+  cairo_paint(this->vcs_legacy_obj->connect_id.cr);
 #ifdef GENCAIRO
   fprintf(stderr,"cr = cairo_paint(cr);\n");
 #endif
 
   if (head_canvas_info!=NULL) {
-    cptr->connect_id.cr = this->vcs_obj->connect_id.cr;
+    cptr->connect_id.cr = this->vcs_legacy_obj->connect_id.cr;
   }
-  connect_id=this->vcs_obj->connect_id;
-  vcs_release_update();
+  connect_id=this->vcs_legacy_obj->connect_id;
+  vcs_legacy_release_update();
   cairoIsSetup = 1;
 }
 
 void MainWindow::unsetupCairo()
 {
   cairoIsSetup = 0;
-  //   while((updating>0)) {}; /* wait until vcs and Qt are done */
-  if (this->vcs_obj->connect_id.cr==NULL) {
+  //   while((updating>0)) {}; /* wait until vcs_legacy and Qt are done */
+  if (this->vcs_legacy_obj->connect_id.cr==NULL) {
     /* nothing to be done it is not here */
-    vcs_release_update();
+    vcs_legacy_release_update();
     return;
   }
-  cairo_destroy(this->vcs_obj->connect_id.cr);
-  cairo_surface_destroy(this->vcs_obj->connect_id.surface);
+  cairo_destroy(this->vcs_legacy_obj->connect_id.cr);
+  cairo_surface_destroy(this->vcs_legacy_obj->connect_id.surface);
 #ifdef GENCAIRO
   fprintf(stderr,"cairo_destroy(cr);\n");
   fprintf(stderr,"cairo_surface_destroy(surface);\n");
 #endif
-  //   printf("ok destroyed a cairo status is: %s\n",cairo_status_to_string(cairo_status(this->vcs_obj->connect_id.cr)));
-  this->vcs_obj->connect_id.cr=NULL;
-  this->vcs_obj->connect_id.surface=NULL;
+  //   printf("ok destroyed a cairo status is: %s\n",cairo_status_to_string(cairo_status(this->vcs_legacy_obj->connect_id.cr)));
+  this->vcs_legacy_obj->connect_id.cr=NULL;
+  this->vcs_legacy_obj->connect_id.surface=NULL;
 }
 
 void MainWindow::paintEvent(QPaintEvent *)
 {
   QPainter painter;  
   QImage img2;
-  vcs_acquire_update();
+  vcs_legacy_acquire_update();
   painter.begin(this);
   if (this->image == NULL && this->qImage==NULL) {
-    if (this->vcs_obj == NULL) {
+    if (this->vcs_legacy_obj == NULL) {
       painter.end();
-      vcs_release_update();
+      vcs_legacy_release_update();
       return;
     };
-    if (this->vcs_obj->connect_id.cr == NULL) {
+    if (this->vcs_legacy_obj->connect_id.cr == NULL) {
       painter.end();
-      vcs_release_update();
+      vcs_legacy_release_update();
       return;
     };
     QSize qs = this->size();
-    if (this->vcs_obj->connect_id.cr!=NULL) {
+    if (this->vcs_legacy_obj->connect_id.cr!=NULL) {
       
       /* Making sure we have the right dims */
-      if (this->width()!=cairo_image_surface_get_width (this->vcs_obj->connect_id.surface)) {
+      if (this->width()!=cairo_image_surface_get_width (this->vcs_legacy_obj->connect_id.surface)) {
         painter.end();
-        vcs_release_update();
+        vcs_legacy_release_update();
         return;
       }
-      QImage cairo_generated_image( cairo_image_surface_get_data (this->vcs_obj->connect_id.surface),
-                                    cairo_image_surface_get_width (this->vcs_obj->connect_id.surface) , 
-                                    cairo_image_surface_get_height (this->vcs_obj->connect_id.surface),
+      QImage cairo_generated_image( cairo_image_surface_get_data (this->vcs_legacy_obj->connect_id.surface),
+                                    cairo_image_surface_get_width (this->vcs_legacy_obj->connect_id.surface) , 
+                                    cairo_image_surface_get_height (this->vcs_legacy_obj->connect_id.surface),
                                     QImage::Format_ARGB32_Premultiplied);
       QPointF origin(0.,0.);
       painter.drawImage(origin,cairo_generated_image);
@@ -665,7 +665,7 @@ void MainWindow::paintEvent(QPaintEvent *)
     this->qImage = NULL;
   }
   painter.end();
-  vcs_release_update();
+  vcs_legacy_release_update();
 }
 
 

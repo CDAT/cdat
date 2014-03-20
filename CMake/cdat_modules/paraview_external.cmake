@@ -14,6 +14,14 @@ endif()
 # Initialize
 set(ParaView_tpl_args)
 
+# VCS needs projections from GeoVis
+list(APPEND ParaView_tpl_args
+  -DModule_vtkViewsGeovis:BOOL=ON
+)
+list(APPEND ParaView_tpl_args
+  -DModule_vtklibproj4:BOOL=ON
+)
+
 if (CDAT_BUILD_PARALLEL)
   list(APPEND ParaView_tpl_args
     -DPARAVIEW_USE_MPI:BOOL=ON)

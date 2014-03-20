@@ -1,4 +1,4 @@
-#include "vcs_names_length.h"
+#include "vcs_legacy_names_length.h"
 /* Defines he default time untis */
 #define VCS_DEFAULT_TIME_UNITS "days since 2000\0"
 #define VCS_DEFAULT_CALENDAR 135441

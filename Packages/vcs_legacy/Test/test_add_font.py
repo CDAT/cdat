@@ -1,9 +1,9 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
-import vcs,support,os
+import vcs_legacy,support,os
 bg=support.bg
 
 
-x=vcs.init()
+x=vcs_legacy.init()
 
 #x.addfont("/home/doutriaux1/Fonts/CheeseAndMouse/Cheese and Mouse.ttf","1")
 #x.addfont("/home/doutriaux1/Fonts")

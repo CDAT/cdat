@@ -1,5 +1,5 @@
-import vcs,sys
-x=vcs.init()
+import vcs_legacy,sys
+x=vcs_legacy.init()
 fonts=[]
 if len(sys.argv)>1 and not '-extended' in sys.argv:
     for font_file in sys.argv[1:]:

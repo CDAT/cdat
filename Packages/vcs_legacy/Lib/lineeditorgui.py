@@ -15,7 +15,7 @@
 #                                                                             #
 ###############################################################################
 
-import vcs
+import vcs_legacy
 import Tkinter,Pmw,tkFileDialog
 import string,browser
 import os
@@ -39,7 +39,7 @@ class LineGUI:
     def __init__(self, canvas=None, gui_parent=None, dialog_parent=None, master=None, name='default',Parent=None):
         self.gui_parent=gui_parent
         if canvas is None:
-            self.canvas=vcs.init()
+            self.canvas=vcs_legacy.init()
         else:
             self.canvas=canvas
 
@@ -299,8 +299,8 @@ class LineGUI:
     # Save VCS projection as a new name
     #
     def evt_save_line_as( self):
-##    def __init__(self, eself, parent, vcs, type, title, text, entry_str = ''):
-##       create_entry_popup(eself, parent, vcs, 'sa',('Save VCS colormap ( %s ) as:' % vcs.getcolormapname()),'Enter the new name of the colormap:\n\tFor example:\n\t\tnewcolormapname')
+##    def __init__(self, eself, parent, vcs_legacy, type, title, text, entry_str = ''):
+##       create_entry_popup(eself, parent, vcs_legacy, 'sa',('Save VCS colormap ( %s ) as:' % vcs_legacy.getcolormapname()),'Enter the new name of the colormap:\n\tFor example:\n\t\tnewcolormapname')
         self.savedialog = Pmw.Dialog( 
             title = 'Save VCS Line ( %s ) as:' % self.line.name,
             buttons = ('OK', 'Dismiss'),
@@ -422,8 +422,8 @@ class LineGUI:
                 print 'Error:',err,'--------------------------------------'
 
 if __name__=='__main__':
-    import vcs,cdms2 as cdms
-    x=vcs.init()
+    import vcs_legacy,cdms2 as cdms
+    x=vcs_legacy.init()
     tt=x.getline('cyan')
     tt.x=[.5,.8]
     tt.y=[.5,.8]

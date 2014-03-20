@@ -1,7 +1,7 @@
-import vcs,vcs.test.support
-bg=vcs.test.support.bg
+import vcs_legacy,vcs_legacy.test.support
+bg=vcs_legacy.test.support.bg
 #bg=0
-x=vcs.init()
+x=vcs_legacy.init()
 #raw_input('x ready press enter')
 t=x.createtext()
 l1=x.createline()
@@ -49,7 +49,7 @@ for path in paths:
 ##                 l3.x=[ex[0][0],ex[1][0],ex[2][0],ex[3][0],(ex[0][0]+ex[1][0])/2.]
 ##                 l3.y=[ex[0][1],ex[1][1],ex[2][1],ex[3][1],(ex[0][1]+ex[3][1])/2.]
 ##                 x.plot(l3,bg=bg)
-                vcs.test.support.check_plot(x)
+                vcs_legacy.test.support.check_plot(x)
 ##                 else:
 ##                     x.png("crap")
 ##                     import os

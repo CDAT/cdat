@@ -156,7 +156,7 @@
 	  }
 	else
 	  {
-	   save_gif_image_vcs(frast);
+	   save_gif_image_vcs_legacy(frast);
 	   fclose (frast);
 	   frast=NULL;
 	  }

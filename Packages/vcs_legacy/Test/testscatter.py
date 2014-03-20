@@ -28,12 +28,12 @@
 #                                                                          #
 ############################################################################
 def test():
-   import vcs,cdms2,time,os,sys,support                # import vcs and cu
+   import vcs_legacy,cdms2,time,os,sys,support                # import vcs_legacy and cu
    bg=support.bg
    f=cdms2.open(os.path.join(cdms2.__path__[0],'..','..','..','..','sample_data','clt.nc'))
    u=f('u')                             # get slab u
    v=f('v')                             # get slab v
-   x=vcs.init()                         # construct vcs canvas
+   x=vcs_legacy.init()                         # construct vcs_legacy canvas
    
    x.plot(u, v, 'default','scatter','quick',bg=bg)	# plot slab the old way
    support.check_plot(x)
@@ -45,10 +45,10 @@ def test():
 
    
    a=x.getscatter('quick')		# get 'quick' scatter
-   if not vcs.isgraphicsmethod(a):            # test object 'a' for graphics method
+   if not vcs_legacy.isgraphicsmethod(a):            # test object 'a' for graphics method
       raise Exception, "Error did not retrieve the gm"
    else:
-      if not vcs.isscatter(a):                # test object 'a' if scatter
+      if not vcs_legacy.isscatter(a):                # test object 'a' if scatter
          raise Exception, "Error gm is not right type"
    
    a.script('test','w')                 # save 'quick' scatter as a Python script
@@ -149,8 +149,8 @@ def test():
    support.check_plot(x)
    
    m=x.getmarker('red')                	# get marker 'red'
-   if vcs.issecondaryobject(m):           # check to see if it is a secondary object
-      if not vcs.ismarker(m):                 # check to see if it is a fill area
+   if vcs_legacy.issecondaryobject(m):           # check to see if it is a secondary object
+      if not vcs_legacy.ismarker(m):                 # check to see if it is a fill area
          raise Exception, "Error: this is not a marker object."
    else:
       raise Exception, "Error: this is not a sceondary object."

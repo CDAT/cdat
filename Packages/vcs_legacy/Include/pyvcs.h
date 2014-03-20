@@ -15,11 +15,11 @@ typedef struct {                	/* File */
   char *template_name;			/* Template attribute name */
   char *graphics_name;			/* Graphics method attribute name */
   char graphics_type[20];		/* Type of graphics method */
-  double vcs_min;			/* VCS plot minimum value */
-  double vcs_max;			/* VCS plot maximum value */
-  int vcs_ext1;				/* Show on plot the underflow arrow */
-  int vcs_ext2;				/* Show on plot the overflow arrow */
-  int vcs_gui;		 		/* Tell if old VCS (2.7) GUI is used */
+  double vcs_legacy_min;			/* VCS plot minimum value */
+  double vcs_legacy_max;			/* VCS plot maximum value */
+  int vcs_legacy_ext1;				/* Show on plot the underflow arrow */
+  int vcs_legacy_ext2;				/* Show on plot the overflow arrow */
+  int vcs_legacy_gui;		 		/* Tell if old VCS (2.7) GUI is used */
   int stopxmainloop;			/* X server flag, stop X main loop */
   int havexmainloop;			/* X server flag, doing X main loop */
   int number_of_frames;	 		/* Number of animation frames */

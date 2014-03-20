@@ -8,7 +8,7 @@
 #include "numpy/arrayobject.h"
 /* #include <assert.h> */
 #include "slabapi.h"
-#include "vcs_names_length.h"
+#include "vcs_legacy_names_length.h"
 
 /* ----------------------------------------------------- */
 /* slabapi module -- for testing the CAPI to slabs */

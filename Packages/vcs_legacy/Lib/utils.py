@@ -22,11 +22,11 @@ def minmax(*data) :
     
   Examples of Use
   >>> s=range(7)
-  >>> vcs.minmax(s)
+  >>> vcs_legacy.minmax(s)
   (0.0, 6.0)
-  >>> vcs.minmax([s,s])
+  >>> vcs_legacy.minmax([s,s])
   (0.0, 6.0)
-  >>> vcs.minmax([[s,s*2],4.,[6.,7.,s]],[5.,-7.,8,(6.,1.)])
+  >>> vcs_legacy.minmax([[s,s*2],4.,[6.,7.,s]],[5.,-7.,8,(6.,1.)])
   (-7.0, 8.0)
   '''
   mx=-1.E77
@@ -60,11 +60,11 @@ def mkevenlevels(n1,n2,nlev=10):
     by default 10 intervals will be produced
 
   Examples of use:
-    >>> vcs.mkevenlevels(0,100)
+    >>> vcs_legacy.mkevenlevels(0,100)
     [0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0]
-    >>> vcs.mkevenlevels(0,100,nlev=5)
+    >>> vcs_legacy.mkevenlevels(0,100,nlev=5)
     [0.0, 20.0, 40.0, 60.0, 80.0, 100.0]
-    >>> vcs.mkevenlevels(100,0,nlev=5)
+    >>> vcs_legacy.mkevenlevels(100,0,nlev=5)
     [100.0, 80.0, 60.0, 40.0, 20.0, 0.0]
   '''
     import numpy.ma
@@ -90,17 +90,17 @@ def mkscale(n1,n2,nc=12,zero=1,ends=False):
           2: zero MUST be a contour
   ends # True/False force the 2 values to be part of the returned labels
   Examples of Use:
-  >>> vcs.mkscale(0,100)
+  >>> vcs_legacy.mkscale(0,100)
   [0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0]
-  >>> vcs.mkscale(0,100,nc=5)
+  >>> vcs_legacy.mkscale(0,100,nc=5)
   [0.0, 20.0, 40.0, 60.0, 80.0, 100.0]
-  >>> vcs.mkscale(-10,100,nc=5)
+  >>> vcs_legacy.mkscale(-10,100,nc=5)
   [-25.0, 0.0, 25.0, 50.0, 75.0, 100.0]
-  >>> vcs.mkscale(-10,100,nc=5,zero=-1)
+  >>> vcs_legacy.mkscale(-10,100,nc=5,zero=-1)
   [-20.0, 20.0, 60.0, 100.0]
-  >>> vcs.mkscale(2,20)
+  >>> vcs_legacy.mkscale(2,20)
   [2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0]
-  >>> vcs.mkscale(2,20,zero=2)
+  >>> vcs_legacy.mkscale(2,20,zero=2)
   [0.0, 2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0]
   '''
   if n1==n2 : return [n1]
@@ -191,14 +191,14 @@ def mklabels(vals,output='dict'):
     This function gets levels and output strings for nice display of the levels values, returns a dictionary unless output="list" specified
 
   Examples of use:
-  >>> a=vcs.mkscale(2,20,zero=2)
-  >>> vcs.mklabels (a)
+  >>> a=vcs_legacy.mkscale(2,20,zero=2)
+  >>> vcs_legacy.mklabels (a)
   {20.0: '20', 18.0: '18', 16.0: '16', 14.0: '14', 12.0: '12', 10.0: '10', 8.0: '8', 6.0: '6', 4.0: '4', 2.0: '2', 0.0: '0'}
-  >>> vcs.mklabels ( [5,.005])
+  >>> vcs_legacy.mklabels ( [5,.005])
   {0.0050000000000000001: '0.005', 5.0: '5.000'}
-  >>> vcs.mklabels ( [.00002,.00005])
+  >>> vcs_legacy.mklabels ( [.00002,.00005])
   {2.0000000000000002e-05: '2E-5', 5.0000000000000002e-05: '5E-5'}
-  >>> vcs.mklabels ( [.00002,.00005],output='list')
+  >>> vcs_legacy.mklabels ( [.00002,.00005],output='list')
   ['2E-5', '5E-5']
   '''
   import string,numpy.ma
@@ -308,16 +308,16 @@ def getcolors(levs,colors=range(16,240),split=1,white=240):
    
    Examples of Use:
    >>> a=[0.0, 2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0]
-   >>> vcs.getcolors (a)
+   >>> vcs_legacy.getcolors (a)
    [16, 41, 66, 90, 115, 140, 165, 189, 214, 239] 
-   >>> vcs.getcolors (a,colors=range(16,200))
+   >>> vcs_legacy.getcolors (a,colors=range(16,200))
    [16, 36, 57, 77, 97, 118, 138, 158, 179, 199]
-   >>> vcs.getcolors(a,colors=[16,25,15,56,35,234,12,11,19,32,132,17])
+   >>> vcs_legacy.getcolors(a,colors=[16,25,15,56,35,234,12,11,19,32,132,17])
    [16, 25, 15, 35, 234, 12, 11, 32, 132, 17]
    >>> a=[-6.0, -2.0, 2.0, 6.0, 10.0, 14.0, 18.0, 22.0, 26.0]
-   >>> vcs.getcolors (a,white=241)
+   >>> vcs_legacy.getcolors (a,white=241)
    [72, 241, 128, 150, 172, 195, 217, 239]
-   >>> vcs.getcolors (a,white=241,split=0)
+   >>> vcs_legacy.getcolors (a,white=241,split=0)
    [16, 48, 80, 112, 143, 175, 207, 239] 
 '''
 

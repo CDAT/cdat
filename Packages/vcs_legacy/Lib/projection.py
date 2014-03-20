@@ -23,7 +23,7 @@
 # Import: VCS C extension module.                                             #
 #                                                                             #
 ###############################################################################
-import _vcs
+import _vcs_legacy
 from types import *
 import VCS_validation_functions
 #### from gm_core import * No need to import
@@ -47,7 +47,7 @@ import VCS_validation_functions
 #                                                                             #
 ###############################################################################
 def setProjmember(self,member,value):
-     _vcs.setProjmember(self, member, value, self.parent.mode)
+     _vcs_legacy.setProjmember(self, member, value, self.parent.mode)
 
 ###############################################################################
 #                                                                             #
@@ -69,7 +69,7 @@ def setProjmember(self,member,value):
 setmember=setProjmember
      
 def getProjmember(self,member):
-     return _vcs.getProjmember(self,member)
+     return _vcs_legacy.getProjmember(self,member)
 
 #################################################################################
 #                                                                               #
@@ -87,7 +87,7 @@ def getProjmember(self,member):
 #                                                                               #
 ################################################################################
 def renameProj(self, old_name, new_name):
-     return _vcs.renameProj(old_name, new_name)
+     return _vcs_legacy.renameProj(old_name, new_name)
 
 #############################################################################
 #                                                                           #
@@ -279,13 +279,13 @@ class Proj(object):
       Parameter 9   98.884119
       Parameter 10  0.5201613
 
- Note: In vcs angles can be entered either in DDDMMMSSS or regular angle format.
+ Note: In vcs_legacy angles can be entered either in DDDMMMSSS or regular angle format.
 
  Other Useful Functions:                    
-               a=vcs.init()             # Constructor                       
+               a=vcs_legacy.init()             # Constructor                       
                a.show('projection')        # Show predefined projection secondary methods
  Example of Use:                                               
-    a=vcs.init()                                              
+    a=vcs_legacy.init()                                              
     To Create a new instance of projection use:                   
      p=a.createprojection('new','quick') # Copies content of 'quick' to 'new' 
      p=a.createprojection('new') 	# Copies content of 'default' to 'new'  
@@ -322,7 +322,7 @@ class Proj(object):
            if (Proj_name == None):
               raise ValueError, 'Must provide a projection name.'
            else:
-              _vcs.copyProj(Proj_name_src, Proj_name)
+              _vcs_legacy.copyProj(Proj_name_src, Proj_name)
               self._name = Proj_name
         else:
               self._name = Proj_name_src
@@ -502,7 +502,7 @@ class Proj(object):
     #############################################################################
     def script(self, script_filename=None, mode=None):
          """
-         Function:     script				# Calls _vcs.scriptProj
+         Function:     script				# Calls _vcs_legacy.scriptProj
          
          Description of Function:                                                      
          Saves out a projection secondary method in Python form to a
@@ -514,7 +514,7 @@ class Proj(object):
          mode is either "w" for replace or "a" for append.
          
          
-         a=vcs.init()
+         a=vcs_legacy.init()
          p=a.createprojection('temp')
          p.script('filename.py')         # Append to a file "filename.py"
          p.script('filename','w')
@@ -538,7 +538,7 @@ class Proj(object):
               raise ValueError, 'Error - Mode can only be "w" for replace or "a" for append.'
     
          if (scr_type == '.scr'):
-              print _vcs.scriptProj(self.name,script_filename,mode)
+              print _vcs_legacy.scriptProj(self.name,script_filename,mode)
          else:
               mode = mode + '+'
               py_type = script_filename[len(script_filename)-3:len(script_filename)]
@@ -553,8 +553,8 @@ class Proj(object):
                    fp.write("# Import and Initialize VCS     #\n")
                    fp.write("#                             #\n")
                    fp.write("#############################\n")
-                   fp.write("import vcs\n")
-                   fp.write("v=vcs.init()\n\n")
+                   fp.write("import vcs_legacy\n")
+                   fp.write("v=vcs_legacy.init()\n\n")
 
               unique_name = '__Proj__' + self.name
               fp.write("#----------Projection (Proj) member (attribute) listings ----------\n")

@@ -1,5 +1,5 @@
-import sys,cdms2,vcs
-x=vcs.init()
+import sys,cdms2,vcs_legacy
+x=vcs_legacy.init()
 f=cdms2.open(sys.prefix+"/sample_data/clt.nc")
 s=f("clt",time=slice(0,3))
 

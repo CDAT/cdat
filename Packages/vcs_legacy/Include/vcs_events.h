@@ -5,7 +5,7 @@
 #include "array.h"
 #include "picture.h"
 #include "graph.h"
-#include "pyvcs.h"
+#include "pyvcs_legacy.h"
 
 /* Begin section added by Jenny */
 #ifdef __cplusplus

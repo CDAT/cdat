@@ -13,7 +13,7 @@
  *                                                                      *
  *      Date: 04/05/97                                                  *
  *                                                                      *
- *      File name: vcs_canvas.c                                         *
+ *      File name: vcs_legacy_canvas.c                                         *
  *                                                                      *
  *                                                                      *
  *      Langague: ANSI C                                                *
@@ -47,7 +47,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "workstations.h"
-#include "vcs_canvas.h"
+#include "vcs_legacy_canvas.h"
 #include "color_editor.h"
 #include "animation.h"
 #include "gks.h"
@@ -103,7 +103,7 @@ char canvas_translations[] =
 *****************************************************************************/
 
 
-void store_vcs_connection_information(Gconid_X_drawable connect_id,int wkst_id) /* XGKS workstation ID number,  VCS canvas info ID */
+void store_vcs_legacy_connection_information(Gconid_X_drawable connect_id,int wkst_id) /* XGKS workstation ID number,  VCS canvas info ID */
 {
         CANVASINFO_LINK		cptr, tcptr; /* connection ID pointers */
 
@@ -129,7 +129,7 @@ void store_vcs_connection_information(Gconid_X_drawable connect_id,int wkst_id) 
 	}
 }
 
-void remove_vcs_connection_information(connect_id, wkst_id)
+void remove_vcs_legacy_connection_information(connect_id, wkst_id)
 Gconid_X_drawable connect_id;           /* VCS canvas info ID */
 int wkst_id;                            /* XGKS workstation ID number */
 {
@@ -184,7 +184,7 @@ int wkst_id;                            /* XGKS workstation ID number */
         free((char *) cptr);
 }
 
-void update_vcs_connection_information(connect_id, animate_popup)
+void update_vcs_legacy_connection_information(connect_id, animate_popup)
 Gconid_X_drawable connect_id;           /* VCS canvas info ID */
 int animate_popup;                   /* animation popup */
 {
@@ -355,7 +355,7 @@ Gconid_X_drawable connect_id;           /* VCS canvas info ID */
         return NULL;
 }
 
-void vcs_canvas_open_cb( Gconid_X_drawable connect_id ) /* VCS canvas drawable id */
+void vcs_legacy_canvas_open_cb( Gconid_X_drawable connect_id ) /* VCS canvas drawable id */
 {
         /*
          * Manage VCS Canvas window, this function will map the 
@@ -365,12 +365,12 @@ void vcs_canvas_open_cb( Gconid_X_drawable connect_id ) /* VCS canvas drawable i
         XMapRaised( connect_id.display, connect_id.drawable );
 #endif
 #ifdef QTWM
-	fprintf(stderr,"opening from vcs_canvas: %i\n",connect_id.wkst_id);
-	vcs_Qt_open_window_by_id(connect_id.wkst_id);
+	fprintf(stderr,"opening from vcs_legacy_canvas: %i\n",connect_id.wkst_id);
+	vcs_legacy_Qt_open_window_by_id(connect_id.wkst_id);
 #endif
 }
 
-void vcs_canvas_quit_cb( Gconid_X_drawable connect_id) /* VCS canvas drawable id */
+void vcs_legacy_canvas_quit_cb( Gconid_X_drawable connect_id) /* VCS canvas drawable id */
 {
 
         /*
@@ -380,8 +380,8 @@ void vcs_canvas_quit_cb( Gconid_X_drawable connect_id) /* VCS canvas drawable id
 #ifdef X11WM
         XUnmapWindow( connect_id.display, connect_id.drawable );
 #elif defined QTWM
-	extern void vcs_Qt_destroy_window(int index);
-	vcs_Qt_destroy_window(connect_id.wkst_id);
+	extern void vcs_legacy_Qt_destroy_window(int index);
+	vcs_legacy_Qt_destroy_window(connect_id.wkst_id);
 #else
 	fprintf(stderr,"insert your WM unmap func here\n");
 #endif
@@ -398,8 +398,8 @@ void reset_canvas_geometry(Gconid_X_drawable connect_id, int width, int height, 
 
 	XMapRaised( connect_id.display, connect_id.drawable );
 #elif defined QTWM
-	extern  void vcs_Qt_resize_window(int index,int x,int y,int w, int h);
-	vcs_Qt_resize_window(connect_id.wkst_id,xpos,ypos,width,height);
+	extern  void vcs_legacy_Qt_resize_window(int index,int x,int y,int w, int h);
+	vcs_legacy_Qt_resize_window(connect_id.wkst_id,xpos,ypos,width,height);
 #else
 	fprintf(stderr,"insert your WM resize here\n");
 #endif
@@ -426,7 +426,7 @@ void return_canvas_geometry(Gconid_X_drawable connect_id, int *width, int *heigh
 	*width  = (int) rwidth;
 	*height = (int) rheight;
 #elif defined QTWM
-	vcs_Qt_get_window_dimensions_by_id(connect_id.wkst_id,&rxpos,&rypos,&w,&h);
+	vcs_legacy_Qt_get_window_dimensions_by_id(connect_id.wkst_id,&rxpos,&rypos,&w,&h);
 	*width  = (int) w;
 	*height = (int) h;
 #else
@@ -678,7 +678,7 @@ void setup_the_magnify_table()
 #ifdef X11WM
         XGetWindowAttributes(connect_id.display, connect_id.drawable, &xwa);
 #elif defined QTWM
-	vcs_Qt_get_window_dimensions_by_id(connect_id.wkst_id,&xwa.x, &xwa.y, &xwa.width, &xwa.height);
+	vcs_legacy_Qt_get_window_dimensions_by_id(connect_id.wkst_id,&xwa.x, &xwa.y, &xwa.width, &xwa.height);
 #else
 	fprintf(stderr,"insert your WM get geom call here\n");
 #endif

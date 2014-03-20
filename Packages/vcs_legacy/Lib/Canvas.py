@@ -22,11 +22,11 @@
 #                                                                             #
 ###############################################################################
 
-"""Canvas: the class representing a vcs drawing window
-Normally, created by vcs.init()
+"""Canvas: the class representing a vcs_legacy drawing window
+Normally, created by vcs_legacy.init()
 Contains the method plot.
 """
-import _vcs, string, types, signal, warnings
+import _vcs_legacy, string, types, signal, warnings
 import tempfile
 #import Tkinter
 from pauser import pause
@@ -46,10 +46,10 @@ import displayplot
 #import gui_template_editor as _gui_template_editor
 #import pagegui as _pagegui
 #import projectiongui as _projectiongui
-from error import vcsError
+from error import vcs_legacyError
 import cdms2
 import copy
-import cdtime,vcs
+import cdtime,vcs_legacy
 import os
 import sys
 import random
@@ -65,7 +65,7 @@ called_initial_attributes_flg = 0
 gui_canvas_closed = 0
 canvas_closed = 0
 #import Pmw
-import vcsaddons
+import vcs_legacyaddons
 
 from PyQt4 import QtGui,QtCore
 ## class QAnimThread(QtCore.QThread):
@@ -81,11 +81,11 @@ def showerror(msg):
     d.showMessage(msg)
     d.exec_()
 
-def dictionarytovcslist(dictionary,name):
+def dictionarytovcs_legacylist(dictionary,name):
     for k in dictionary.keys():
         if not isinstance(k,(float,int,long)):
-            raise Exception,'Error, vcs list must have numbers only as keys'
-    _vcs.dictionarytovcslist(dictionary,name)
+            raise Exception,'Error, vcs_legacy list must have numbers only as keys'
+    _vcs_legacy.dictionarytovcs_legacylist(dictionary,name)
     return None
 
 def _determine_arg_list(g_name, actual_args):
@@ -118,7 +118,7 @@ def _determine_arg_list(g_name, actual_args):
                  possible_slab = possible_slab.ascontiguousarray()
              arglist[found_slabs] = possible_slab
              if found_slabs == 2:
-                 raise vcsError, "Too many slab arguments."
+                 raise vcs_legacyError, "Too many slab arguments."
              found_slabs = found_slabs + 1
           except cdms2.CDMSError:
               arghold.append(args[i])
@@ -132,7 +132,7 @@ def _determine_arg_list(g_name, actual_args):
     for i in range(len(args)):
        if (istemplate(args[i])):
           if found_template:
-             raise vcsError, 'You can only specify one template object.'
+             raise vcs_legacyError, 'You can only specify one template object.'
           arglist[itemplate_name] = args[i].name
           found_template = found_template + 1
        else:
@@ -146,44 +146,44 @@ def _determine_arg_list(g_name, actual_args):
     for i in range(len(args)):
         if (isgraphicsmethod(args[i])):
             if found_graphics_method:
-                raise vcsError,'You can only specify one graphics method.'
+                raise vcs_legacyError,'You can only specify one graphics method.'
             arglist[igraphics_method] = graphicsmethodtype(args[i])
             arglist[igraphics_option] = args[i].name
             found_graphics_method = found_graphics_method + 1
         elif (isline(args[i])):
             if found_graphics_method:
-                raise vcsError,'You can only specify one graphics method.'
+                raise vcs_legacyError,'You can only specify one graphics method.'
             arglist[igraphics_method] = 'line'
             arglist[igraphics_option] = args[i].name
             found_graphics_method = found_graphics_method + 1
         elif (ismarker(args[i])):
             if found_graphics_method:
-                raise vcsError,'You can only specify one graphics method.'
+                raise vcs_legacyError,'You can only specify one graphics method.'
             arglist[igraphics_method] = 'marker'
             arglist[igraphics_option] = args[i].name
             found_graphics_method = found_graphics_method + 1
         elif (isfillarea(args[i])):
             if found_graphics_method:
-                raise vcsError,'You can only specify one graphics method.'
+                raise vcs_legacyError,'You can only specify one graphics method.'
             arglist[igraphics_method] = 'fillarea'
             arglist[igraphics_option] = args[i].name
             found_graphics_method = found_graphics_method + 1
         elif (istext(args[i])):
             if found_graphics_method:
-                raise vcsError,'You can only specify one graphics method.'
+                raise vcs_legacyError,'You can only specify one graphics method.'
             arglist[igraphics_method] = 'text'
             arglist[igraphics_option] = args[i].Tt_name + ':::' + args[i].To_name
             found_graphics_method = found_graphics_method + 1
         elif (isprojection(args[i])):
             arglist[5]['projection']=args[i].name
-        elif isinstance(args[i],vcsaddons.core.VCSaddon):
+        elif isinstance(args[i],vcs_legacyaddons.core.VCSaddon):
             if found_graphics_method:
-                raise vcsError,'You can only specify one graphics method.'
+                raise vcs_legacyError,'You can only specify one graphics method.'
             arglist[igraphics_method] = graphicsmethodtype(args[i])
             arglist[igraphics_option] = args[i].name
             found_graphics_method = found_graphics_method + 1            
         else:
-            raise vcsError, "Unknown type %s of argument to plotting command." %\
+            raise vcs_legacyError, "Unknown type %s of argument to plotting command." %\
                                         type(args[i])
     if g_name is not None:
         arglist[igraphics_method] = g_name
@@ -205,36 +205,36 @@ def _determine_arg_list(g_name, actual_args):
 
     if len(argstring) > 0:
         if g_name is None:
-            raise vcsError, "Error in argument list for vcs plot command."
+            raise vcs_legacyError, "Error in argument list for vcs_legacy plot command."
         else:
-            raise vcsError, "Error in argument list for vcs %s  command." % g_name
+            raise vcs_legacyError, "Error in argument list for vcs_legacy %s  command." % g_name
            
-    if isinstance(arglist[igraphics_method],vcsaddons.core.VCSaddon):
+    if isinstance(arglist[igraphics_method],vcs_legacyaddons.core.VCSaddon):
         if found_slabs!=arglist[igraphics_method].g_nslabs:
-            raise vcsError, "%s requires %i slab(s)" % (arglist[igraphics_method].g_name,arglist[igraphics_method].g_nslabs)
+            raise vcs_legacyError, "%s requires %i slab(s)" % (arglist[igraphics_method].g_name,arglist[igraphics_method].g_nslabs)
     else:
         if (string.lower(arglist[igraphics_method]) in ('scatter','vector','xvsy')):
             if found_slabs != 2:
-                raise vcsError, "Graphics method requires 2 slabs."
+                raise vcs_legacyError, "Graphics method requires 2 slabs."
         elif arglist[igraphics_method].lower() == 'meshfill':
             if found_slabs == 0:
-                raise vcsError, "Graphics method requires at least 1 slab."
+                raise vcs_legacyError, "Graphics method requires at least 1 slab."
             elif found_slabs == 1:
                 g=arglist[0].getGrid()
                 if not isinstance(g, (cdms2.gengrid.AbstractGenericGrid,cdms2.hgrid.AbstractCurveGrid,cdms2.grid.TransientRectGrid)):
-                    raise vcsError, "Meshfill requires 2 slab if first slab doesn't have a Rectilinear, Curvilinear or Generic Grid type"                
+                    raise vcs_legacyError, "Meshfill requires 2 slab if first slab doesn't have a Rectilinear, Curvilinear or Generic Grid type"                
         elif ((arglist[igraphics_method] == 'continents') or
               (arglist[igraphics_method] == 'line') or
               (arglist[igraphics_method] == 'marker') or
               (arglist[igraphics_method] == 'fillarea') or
               (arglist[igraphics_method] == 'text')):
             if found_slabs != 0:
-                raise vcsError, "Continents or low-level primative methods requires 0 slabs."
+                raise vcs_legacyError, "Continents or low-level primative methods requires 0 slabs."
         elif string.lower(arglist[igraphics_method])=='default':
             pass                            # Check later
         else:
             if found_slabs != 1:
-                raise vcsError, "Graphics method requires 1 slab."
+                raise vcs_legacyError, "Graphics method requires 1 slab."
     if isinstance(arglist[3],str): arglist[3]=arglist[3].lower()
     return arglist
 
@@ -282,7 +282,7 @@ class Canvas(object,AutoAPI.AutoAPI):
     Canvases open at any given time.
     
  Example of Use:
-    a=vcs.Canvas()                    # This examples constructs a VCS Canvas
+    a=vcs_legacy.Canvas()                    # This examples constructs a VCS Canvas
 """
     #############################################################################
     #                                                                           #
@@ -368,13 +368,13 @@ class Canvas(object,AutoAPI.AutoAPI):
     canvas_gui = property(_getcanvas_gui,_setcanvas_gui)
 
     def _setcanvas(self,value):
-        raise vcsError, "Error, canvas is not an attribute you can set"
+        raise vcs_legacyError, "Error, canvas is not an attribute you can set"
     def _getcanvas(self):
         return self._canvas
     canvas = property(_getcanvas,_setcanvas)
     
     def _setanimate(self,value):
-        raise vcsError, "Error, animate is not an attribute you can set"
+        raise vcs_legacyError, "Error, animate is not an attribute you can set"
     def _getanimate(self):
         return self._animate
     animate = property(_getanimate,_setanimate)
@@ -388,10 +388,10 @@ class Canvas(object,AutoAPI.AutoAPI):
 
     def _setviewport(self,value):
         if not isinstance(value,list) and not len(value)==4:
-            raise vcsError,  "viewport must be of type list and have four values ranging between [0,1]."
+            raise vcs_legacyError,  "viewport must be of type list and have four values ranging between [0,1]."
         for v in range(4):
             if not 0.<=value[v]<=1.:
-                raise vcsError,  "viewport must be of type list and have four values ranging between [0,1]."
+                raise vcs_legacyError,  "viewport must be of type list and have four values ranging between [0,1]."
         self._viewport=value
     def _getviewport(self):
         return self._viewport
@@ -399,7 +399,7 @@ class Canvas(object,AutoAPI.AutoAPI):
     
     def _setworldcoordinate(self,value):
         if not isinstance(value,list) and not len(value)==4:
-            raise vcsError,  "worldcoordinate must be of type list and have four values ranging between [0,1]."
+            raise vcs_legacyError,  "worldcoordinate must be of type list and have four values ranging between [0,1]."
         self._worldcoordinate=value
     def _getworldcoordinate(self):
         return self._worldcoordinate
@@ -413,7 +413,7 @@ class Canvas(object,AutoAPI.AutoAPI):
     
     def _setisplottinggridded(self,value):
         if not isinstance(value,bool):
-            raise vcsError,  "isplottinggridded must be boolean"
+            raise vcs_legacyError,  "isplottinggridded must be boolean"
         self._isplottinggridded=value # No check on this!
     def _getisplottinggridded(self):
         return self._isplottinggridded
@@ -432,31 +432,31 @@ class Canvas(object,AutoAPI.AutoAPI):
 ##               if (isinstance(value, types.IntType)) and (value in range(2)):
 ##                  self.__dict__['mode']=value
 ##               else:
-##                  raise vcsError, "canvas setting mode failed, value = " + str(value)
+##                  raise vcs_legacyError, "canvas setting mode failed, value = " + str(value)
 ##            except:
-##               raise vcsError,  "canvas, " + name + ' must be 0 or 1.'
+##               raise vcs_legacyError,  "canvas, " + name + ' must be 0 or 1.'
 ##               raise
 ##         elif (name == 'pause_time'):
 ##            if (not isinstance(value, types.IntType)):
-##                raise vcsError, "Canvas' pause time must be integer."
+##                raise vcs_legacyError, "Canvas' pause time must be integer."
 ##            self.__dict__['pause_time'] = value
 ##         elif (name == 'viewport'):
 ##            try:
 ##               if ((type(value) == types.ListType) and (len(value) == 4)):
 ##                  self.__dict__['viewport'] = value
 ##               else:
-##                  raise vcsError,  "viewport must be of type list and have four values ranging between [0,1]."
+##                  raise vcs_legacyError,  "viewport must be of type list and have four values ranging between [0,1]."
 ##            except:
-##               raise vcsError,  "viewport must be of type list and have four values ranging between [0,1]."
+##               raise vcs_legacyError,  "viewport must be of type list and have four values ranging between [0,1]."
 ##               raise
 ##         elif (name == 'worldcoordinate'):
 ##            try:
 ##               if ((type(value) == types.ListType) and (len(value) == 4)):
 ##                  self.__dict__['worldcoordinate'] = value
 ##               else:
-##                  raise vcsError,  "worldcoordinate must be of type list and have four ranging values."
+##                  raise vcs_legacyError,  "worldcoordinate must be of type list and have four ranging values."
 ##            except:
-##               raise vcsError,  "worldcoordinate must be of type list and have four ranging values."
+##               raise vcs_legacyError,  "worldcoordinate must be of type list and have four ranging values."
 ##               raise
 ##         elif (name == 'animate_info'):
 ##            self.__dict__['animate_info'] = value
@@ -467,7 +467,7 @@ class Canvas(object,AutoAPI.AutoAPI):
 ##         elif (name == 'ratio'):
 ##            self.__dict__['ratio'] = value
 ##         else:
-##            raise vcsError, 'Invalid member for setattr in VCS canvas.'
+##            raise vcs_legacyError, 'Invalid member for setattr in VCS canvas.'
     def _datawc_tv(self, tv, arglist):
         """The graphics method's data world coordinates (i.e., datawc_x1, datawc_x2,
         datawc_y1, and datawc_y2) will override the incoming variable's coordinates.
@@ -639,7 +639,7 @@ class Canvas(object,AutoAPI.AutoAPI):
                     if not isinstance(grid,cdms2.hgrid.AbstractCurveGrid):
                         # Plug in 'points' graphics method here, with:
                         #   arglist[GRAPHICS_METHOD] = 'points'
-                        raise vcsError, "Cell boundary data is missing, cannot plot nonrectangular gridded data."
+                        raise vcs_legacyError, "Cell boundary data is missing, cannot plot nonrectangular gridded data."
                     else:
                         arglist[GRAPHICS_METHOD] = 'boxfill'
                 else:
@@ -709,7 +709,7 @@ class Canvas(object,AutoAPI.AutoAPI):
             xdim=ydim
             self.isplottinggridded=True
             if (tv.shape[-1] != arglist[ARRAY_2].shape[-3]):
-                raise vcsError, "Mesh length = %d, does not match variable shape: %s"%(arglist[ARRAY_2].shape[-3], `tvshape`)
+                raise vcs_legacyError, "Mesh length = %d, does not match variable shape: %s"%(arglist[ARRAY_2].shape[-3], `tvshape`)
         else:
             if isgridded and (arglist[GRAPHICS_METHOD]=='meshfill'):
                 if grid.shape[-1]==arglist[ARRAY_2].shape[-3]:
@@ -796,7 +796,7 @@ class Canvas(object,AutoAPI.AutoAPI):
     Print out information on the VCS object. See example below on its use.
     
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
 
     ln=a.getline('red')                 # Get a VCS line object
     a.objecthelp(ln)                    # This will print out information on how to use ln
@@ -816,13 +816,13 @@ class Canvas(object,AutoAPI.AutoAPI):
         #                                                                           #
         # The two Tkinter calls were needed for earlier versions of CDAT using      #
         # tcl/tk 8.3 and Python 2.2. In these earlier version of CDAT, Tkinter must #
-        # be called before "_vcs.init()", which uses threads. That is,              #
-        # "_vcs.init()" calls "XInitThreads()" which causes Tkinter keyboard events #
+        # be called before "_vcs_legacy.init()", which uses threads. That is,              #
+        # "_vcs_legacy.init()" calls "XInitThreads()" which causes Tkinter keyboard events #
         # to hang. By calling Tkinter.Tk() first solves the problem.                #
         #                                                                           #
         # The code must have "XInitThreads()". Without this function, Xlib produces #
         # asynchronous errors. This X thread function can be found in the           #
-        # vcsmodule.c file located in the "initialize_X routine.                    #
+        # vcs_legacymodule.c file located in the "initialize_X routine.                    #
         #                                                                           #
         # Graphics User Interface Mode:                                             #
         #        gui = 0|1    if ==1, create the canvas with GUI controls           #
@@ -865,7 +865,7 @@ class Canvas(object,AutoAPI.AutoAPI):
         import time
 ##         from tkMessageBox import showerror
 
-        is_canvas = len(_vcs.return_display_names()[0])
+        is_canvas = len(_vcs_legacy.return_display_names()[0])
 
         if gui_canvas_closed == 1:
            showerror( "Error Message to User", "There can only be one VCS Canvas GUI opened at any given time and the VCS Canvas GUI cannot operate with other VCS Canvases.")
@@ -909,7 +909,7 @@ class Canvas(object,AutoAPI.AutoAPI):
 
         self.mode = mode
         self.pause_time = pause_time
-        self._canvas =_vcs.init( self.winfo_id,psize ) # connect the canvas to the GUI
+        self._canvas =_vcs_legacy.init( self.winfo_id,psize ) # connect the canvas to the GUI
         self.viewport =[0,1,0,1]
         self.worldcoordinate = [0,1,0,1]
         self._animate = animate_obj( self )
@@ -924,7 +924,7 @@ class Canvas(object,AutoAPI.AutoAPI):
 #  purposes....                                                                           #
 ###########################################################################################
         if called_initial_attributes_flg == 0:
-           pth = vcs.__path__[0].split(os.path.sep)
+           pth = vcs_legacy.__path__[0].split(os.path.sep)
            pth=pth[:-4] # Maybe need to make sure on none framework config
            pth=['/']+pth+['bin', 'initial.attributes']
            try:
@@ -957,7 +957,7 @@ class Canvas(object,AutoAPI.AutoAPI):
  Example of Use:
     ...
 
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.plot(s,'default','boxfill','quick')
     a.mode = 0                             # Go to manual mode
     box=x.getboxfill('quick')
@@ -1025,7 +1025,7 @@ class Canvas(object,AutoAPI.AutoAPI):
           different name can be saved as a script file.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     l=a.getline('red')         # To Modify an existing line object
     i=x.createisoline('dean')  # Create an instance of default isoline object
     ...
@@ -1104,7 +1104,7 @@ class Canvas(object,AutoAPI.AutoAPI):
     object.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     line=a.getline('red')       # To Modify an existing line object
     iso=x.createisoline('dean') # Create an instance of an isoline object
     ...
@@ -1114,83 +1114,83 @@ class Canvas(object,AutoAPI.AutoAPI):
     del iso             # Destroy instance "iso", garbage collection
 """
         if istemplate(obj):
-           msg =  _vcs.removeP(obj.name)
+           msg =  _vcs_legacy.removeP(obj.name)
            obj.__dict__['name'] =  obj.__dict__['p_name'] = '__removed_from_VCS__'
         elif isgraphicsmethod(obj):
            if (obj.g_name == 'Gfb'):
-              msg =  _vcs.removeGfb(obj.name)
+              msg =  _vcs_legacy.removeGfb(obj.name)
               obj.name =  obj.g_name = '__removed_from_VCS__'
            elif (obj.g_name == 'Gfi'):
-              msg =  _vcs.removeGfi(obj.name)
+              msg =  _vcs_legacy.removeGfi(obj.name)
               obj.name =  obj.g_name = '__removed_from_VCS__'
            elif (obj.g_name == 'Gi'):
-              msg =  _vcs.removeGi(obj.name)
+              msg =  _vcs_legacy.removeGi(obj.name)
               obj.name =  obj.g_name = '__removed_from_VCS__'
            elif (obj.g_name == 'Go'):
-              msg =  _vcs.removeGo(obj.name)
+              msg =  _vcs_legacy.removeGo(obj.name)
               obj.name =  obj.g_name = '__removed_from_VCS__'
            elif (obj.g_name == 'Gfo'):
-              msg =  _vcs.removeGfo(obj.name)
+              msg =  _vcs_legacy.removeGfo(obj.name)
               obj.name =  obj.g_name = '__removed_from_VCS__'
            elif (obj.g_name == 'GXy'):
-              msg =  _vcs.removeGXy(obj.name)
+              msg =  _vcs_legacy.removeGXy(obj.name)
               obj.name =  obj.g_name = '__removed_from_VCS__'
            elif (obj.g_name == 'GYx'):
-              msg =  _vcs.removeGYx(obj.name)
+              msg =  _vcs_legacy.removeGYx(obj.name)
               obj.name =  obj.g_name = '__removed_from_VCS__'
            elif (obj.g_name == 'GXY'):
-              msg =  _vcs.removeGXY(obj.name)
+              msg =  _vcs_legacy.removeGXY(obj.name)
               obj.name =  obj.g_name = '__removed_from_VCS__'
            elif (obj.g_name == 'Gv'):
-              msg =  _vcs.removeGv(obj.name)
+              msg =  _vcs_legacy.removeGv(obj.name)
               obj.name =  obj.g_name = '__removed_from_VCS__'
            elif (obj.g_name == 'GSp'):
-              msg =  _vcs.removeGSp(obj.name)
+              msg =  _vcs_legacy.removeGSp(obj.name)
               obj.name =  obj.g_name = '__removed_from_VCS__'
            elif (obj.g_name == 'Gcon'):
-              msg =  _vcs.removeGcon(obj.name)
+              msg =  _vcs_legacy.removeGcon(obj.name)
               obj.name =  obj.g_name = '__removed_from_VCS__'
            elif (obj.g_name == 'Gfm'):
-              msg =  _vcs.removeGfm(obj.name)
+              msg =  _vcs_legacy.removeGfm(obj.name)
               obj.name =  obj.g_name = '__removed_from_VCS__'
            elif (obj.g_name == 'Gtd'):
-               n=len(vcs.taylordiagrams)
+               n=len(vcs_legacy.taylordiagrams)
                ndel=0
                for i in range(n):
-                   t=vcs.taylordiagrams[i-ndel]
+                   t=vcs_legacy.taylordiagrams[i-ndel]
                    if t.name==obj.name:
                        msg =  'Removed Taylordiagram graphics method: '+t.name
-                       a=vcs.taylordiagrams.pop(i-ndel)
+                       a=vcs_legacy.taylordiagrams.pop(i-ndel)
                        ndel=ndel+1
                        del(a)
            else:
               msg = 'Could not find the correct graphics class object.'
         elif issecondaryobject(obj):
            if (obj.s_name == 'Tl'):
-              msg =  _vcs.removeTl(obj.name)
+              msg =  _vcs_legacy.removeTl(obj.name)
               obj.name =  obj.s_name = '__removed_from_VCS__'
            elif (obj.s_name == 'Tm'):
-              msg =  _vcs.removeTm(obj.name)
+              msg =  _vcs_legacy.removeTm(obj.name)
               obj.name =  obj.s_name = '__removed_from_VCS__'
            elif (obj.s_name == 'Tf'):
-              msg =  _vcs.removeTf(obj.name)
+              msg =  _vcs_legacy.removeTf(obj.name)
               obj.name =  obj.s_name = '__removed_from_VCS__'
            elif (obj.s_name == 'Tt'):
-              msg =  _vcs.removeTt(obj.name)
+              msg =  _vcs_legacy.removeTt(obj.name)
               obj.name =  obj.s_name = '__removed_from_VCS__'
            elif (obj.s_name == 'To'):
-              msg =  _vcs.removeTo(obj.name)
+              msg =  _vcs_legacy.removeTo(obj.name)
               obj.name =  obj.s_name = '__removed_from_VCS__'
            elif (obj.s_name == 'Tc'):
-              msg =  _vcs.removeTt(obj.Tt_name)
-              msg +=  _vcs.removeTo(obj.To_name)
+              msg =  _vcs_legacy.removeTt(obj.Tt_name)
+              msg +=  _vcs_legacy.removeTo(obj.To_name)
               obj.Tt_name =  obj.s_name = '__removed_from_VCS__'
               obj.To_name =  obj.s_name = '__removed_from_VCS__'
            elif (obj.s_name == 'Proj'):
-              msg =  _vcs.removeProj(obj.name)
+              msg =  _vcs_legacy.removeProj(obj.name)
               obj.name =  obj.s_name = '__removed_from_VCS__'
            elif (obj.s_name == 'Cp'):
-              msg =  _vcs.removeCp(obj.name)
+              msg =  _vcs_legacy.removeCp(obj.name)
               obj.s_name =  obj.__dict__['name'] = '__removed_from_VCS__'
            else:
               msg =  'Could not find the correct secondary class object.'
@@ -1211,10 +1211,10 @@ class Canvas(object,AutoAPI.AutoAPI):
 
 
     def clean_auto_generated_objects(self,type=None):
-        """ cleans all self/auto genrated objects in vcs, only if they're not in use
+        """ cleans all self/auto genrated objects in vcs_legacy, only if they're not in use
         Example:
-        import vcs
-        x=vcs.init()
+        import vcs_legacy
+        x=vcs_legacy.init()
         x.clean_auto_generated_objects() # cleans everything
         x.clean_auto_generated_objects('template') # cleans template objects
         """
@@ -1247,7 +1247,7 @@ class Canvas(object,AutoAPI.AutoAPI):
 ##                             print 'gone'
                     except Exception,err:
 ##                         print 'Error for:',o.name,err
-##                         raise vcsError,err
+##                         raise vcs_legacyError,err
                         pass
                         
         return
@@ -1261,23 +1261,23 @@ class Canvas(object,AutoAPI.AutoAPI):
                 rnd = random.randint(0,100000)
                 name = '__%s_%i' % (type[:4],rnd)
         if not isinstance(name,str):
-            raise vcsError, '%s object name must be a string or %s name' % (type,type)
+            raise vcs_legacyError, '%s object name must be a string or %s name' % (type,type)
         elif len(name)>16:
-                raise vcsError,'%s object name must be at most 16 character long' % (type)
+                raise vcs_legacyError,'%s object name must be at most 16 character long' % (type)
 
         if not isinstance(source,str):
-            exec("ok = vcs.is%s(source)" % (type,))
+            exec("ok = vcs_legacy.is%s(source)" % (type,))
         else:
             ok=0
         if (not isinstance(source,str)) and ok==0:
-            raise vcsError,'Error %s object source must be a string or a %s object' % (type,type)
+            raise vcs_legacyError,'Error %s object source must be a string or a %s object' % (type,type)
         elif ok:
             source=source.name
 
         if name in elts:
-            raise vcsError, "Error %s object named %s already exists" % (type,name)
+            raise vcs_legacyError, "Error %s object named %s already exists" % (type,name)
         if not source in elts:
-            raise vcsError, "Error source %s object (%s) does not exist!" % (type,name)
+            raise vcs_legacyError, "Error source %s object (%s) does not exist!" % (type,name)
         return name,source
     
     #############################################################################
@@ -1299,7 +1299,7 @@ class Canvas(object,AutoAPI.AutoAPI):
     names must be unique.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('template')                       # Show all the existing templates
     con=a.createtemplate('example1') # create 'example1' template from 'default' template 
     a.show('template')                       # Show all the existing templates
@@ -1324,14 +1324,14 @@ class Canvas(object,AutoAPI.AutoAPI):
     different name can be modified. (See the createtemplate function.)
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('template')                  # Show all the existing templates
     templt=a.gettemplate()              # templt instance of 'default' template
     templt2=a.gettemplate('quick')      # templt2 contains 'quick' template
 """
         # Check to make sure the argument passed in is a STRING
         if (type(Pt_name_src) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
+           raise vcs_legacyError, 'The argument must be a string.'
 
         Pt_name = None
         return template.P(self, Pt_name, Pt_name_src, 1)
@@ -1356,7 +1356,7 @@ class Canvas(object,AutoAPI.AutoAPI):
     method names must be unique.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('projection')
     p=a.createprojection('example1',)
     a.show('projection')
@@ -1381,7 +1381,7 @@ class Canvas(object,AutoAPI.AutoAPI):
     different name can be modified. (See the createprojection function.)
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('projection')                   # Show all the existing projection methods
     box=a.getprojection()                  # box instance of 'default' projection
                                         # method
@@ -1391,7 +1391,7 @@ class Canvas(object,AutoAPI.AutoAPI):
 
         # Check to make sure the argument passed in is a STRING
         if (type(Proj_name_src) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
+           raise vcs_legacyError, 'The argument must be a string.'
 
         Proj_name = None
         p=projection.Proj(self, Proj_name, Proj_name_src, 1)
@@ -1430,7 +1430,7 @@ Options:::
     method names must be unique.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('boxfill')
     box=a.createboxfill('example1',)
     a.show('boxfill')
@@ -1474,7 +1474,7 @@ Options:::
     different name can be modified. (See the createboxfill function.)
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('boxfill')                   # Show all the existing boxfill graphics methods
     box=a.getboxfill()                  # box instance of 'default' boxfill graphics
                                         # method
@@ -1490,7 +1490,7 @@ Options:::
 
         # Check to make sure the argument passed in is a STRING
         if (type(Gfb_name_src) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
+           raise vcs_legacyError, 'The argument must be a string.'
 
         Gfb_name = None
         return boxfill.Gfb(self, Gfb_name, Gfb_name_src, 1)
@@ -1520,7 +1520,7 @@ Options:::
     then the 'default' template is used.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('boxfill')                        # Show all the existing boxfill graphics methods
     box=a.getboxfill('quick')                # Create instance of 'quick'
     a.boxfill(array,box)                # Plot array using specified box and default 
@@ -1566,7 +1566,7 @@ Options:::
     method names must be unique.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('taylordiagram')
     td=a.createtaylordiagram('example1',)
     a.show('taylordiagram')
@@ -1576,16 +1576,16 @@ Options:::
         
         name,source = self.check_name_source(name,source,'taylordiagram')
         srcfound=0
-        for m in vcs.taylordiagrams:
+        for m in vcs_legacy.taylordiagrams:
             if m.name==name :
-                raise vcsError, 'Error creating taylordiagram graphic method: '+Gtd_name+' already exist'
+                raise vcs_legacyError, 'Error creating taylordiagram graphic method: '+Gtd_name+' already exist'
             if m.name==source:
                 srcfound=1
         if not srcfound:
-            raise vcsError, 'Error creating taylordiagram graphic method '+Gtd_name_src+' does not exist'
-        n=vcs.taylor.Gtd()
+            raise vcs_legacyError, 'Error creating taylordiagram graphic method '+Gtd_name_src+' does not exist'
+        n=vcs_legacy.taylor.Gtd()
         n._name=name
-        for m in vcs.taylordiagrams:
+        for m in vcs_legacy.taylordiagrams:
             if m.name==source :
                 n.max=m.max
                 n.quadrans=m.quadrans
@@ -1607,7 +1607,7 @@ Options:::
                 n.cmtics1=m.xmtics1
                 
                 break
-        vcs.taylordiagrams.append(n)
+        vcs_legacy.taylordiagrams.append(n)
         n.Marker.equalize()
         return n
 
@@ -1625,7 +1625,7 @@ Options:::
     different name can be modified. (See the createboxfill function.)
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('taylordiagram')                    # Show all the existing taylordiagram graphics methods
     td=a.gettaylordiagram()                    # td instance of 'default' taylordiagram graphics
                                                # method
@@ -1636,16 +1636,16 @@ Options:::
         
         # Check to make sure the argument passed in is a STRING
         if (type(Gtd_name_src) != types.StringType):
-            raise vcsError, 'The argument must be a string.'
+            raise vcs_legacyError, 'The argument must be a string.'
         
-        for m in vcs.taylordiagrams:
+        for m in vcs_legacy.taylordiagrams:
             if m.name==Gtd_name_src:
 ##                 n=copy.copy(m)
                 n=m
-                #vcs.taylordiagrams.append(n)
+                #vcs_legacy.taylordiagrams.append(n)
                 n.Marker.equalize()
                 return n
-        raise vcsError,'Error, taylordiagram \"'+Gtd_name_src+'\" does not exist'
+        raise vcs_legacyError,'Error, taylordiagram \"'+Gtd_name_src+'\" does not exist'
     
     def taylordiagram(self, *args, **parms):
         """
@@ -1658,7 +1658,7 @@ Options:::
     then the 'default' template is used.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('taylordiagram')                   # Show all the existing taylordiagram graphics methods
     td=a.gettaylordiagram()                   # Create instance of 'default'
     a.taylordiagram(array,td)                 # Plot array using specified iso and default 
@@ -1691,7 +1691,7 @@ Options:::
     method names must be unique.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('meshfill')
     mesh=a.createmeshfill('example1',)
     a.show('meshfill')
@@ -1716,7 +1716,7 @@ Options:::
     different name can be modified. (See the createmeshfill function.)
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('meshfill')                   # Show all the existing meshfill graphics methods
     mesh=a.getmeshfill()                  # mesh instance of 'default' meshfill graphics
                                         # method
@@ -1726,7 +1726,7 @@ Options:::
 
         # Check to make sure the argument passed in is a STRING
         if (type(Gfm_name_src) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
+           raise vcs_legacyError, 'The argument must be a string.'
 
         Gfm_name = None
         return meshfill.Gfm(self, Gfm_name, Gfm_name_src, 1)
@@ -1777,7 +1777,7 @@ Options:::
         datawc are world coordinates
         
         """
-        if isinstance(gm,vcs.taylor.Gtd):
+        if isinstance(gm,vcs_legacy.taylor.Gtd):
             return
         # Now the template stuff
         # first create the dictionary to remember which ones are changed
@@ -1789,8 +1789,8 @@ Options:::
             if x=="longitude" and abs(datawc_x2-datawc_x1)>30:
               ticks="lon30"
             else:
-              ticks=vcs.mkscale(datawc_x1,datawc_x2)
-              ticks=self.prettifyAxisLabels(vcs.mklabels(ticks),x)
+              ticks=vcs_legacy.mkscale(datawc_x1,datawc_x2)
+              ticks=self.prettifyAxisLabels(vcs_legacy.mklabels(ticks),x)
             ## for k in ticks.keys() : # make sure you're in the range
             ##     if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
             ##         del(ticks[k])
@@ -1798,11 +1798,11 @@ Options:::
             dic['xticlabels1']=True
         #xmtics1
         if gm.xmtics1 is None or gm.xmtics1=='*':
-            ticks=vcs.mkscale(datawc_x1,datawc_x2)
+            ticks=vcs_legacy.mkscale(datawc_x1,datawc_x2)
             tick2=[]
             for i in range(len(ticks)-1):
                 tick2.append((ticks[i]+ticks[i+1])/2.)
-            ticks=self.prettifyAxisLabels(vcs.mklabels(tick2),x)
+            ticks=self.prettifyAxisLabels(vcs_legacy.mklabels(tick2),x)
             ## for k in ticks.keys() : # make sure you're in the range
             ##     if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
             ##         del(ticks[k])
@@ -1810,8 +1810,8 @@ Options:::
             dic['xmtics1']=True
         #xticklabels2
         if  hasattr(gm,"xticlabels2") and (gm.xticlabels2 is None or gm.xticlabels2=='*'):
-            ticks=vcs.mkscale(datawc_x1,datawc_x2)
-            ticks=self.prettifyAxisLabels(vcs.mklabels(ticks),x)
+            ticks=vcs_legacy.mkscale(datawc_x1,datawc_x2)
+            ticks=self.prettifyAxisLabels(vcs_legacy.mklabels(ticks),x)
             ## for k in ticks.keys():
             ##     ticks[k]=''
             ##     if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
@@ -1820,11 +1820,11 @@ Options:::
             dic['xticlabels2']=True
         #xmtics2
         if hasattr(gm,"xmtics2") and (gm.xmtics2 is None or gm.xmtics2=='*'):
-            ticks=vcs.mkscale(datawc_x1,datawc_x2)
+            ticks=vcs_legacy.mkscale(datawc_x1,datawc_x2)
             tick2=[]
             for i in range(len(ticks)-1):
                 tick2.append((ticks[i]+ticks[i+1])/2.)
-            ticks=self.prettifyAxisLabels(vcs.mklabels(tick2),x)
+            ticks=self.prettifyAxisLabels(vcs_legacy.mklabels(tick2),x)
             ## for k in ticks.keys() : # make sure you're in the range
             ##     if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
             ##         del(ticks[k])
@@ -1835,8 +1835,8 @@ Options:::
             if y=="latitude" and abs(datawc_y2-datawc_y1)>20:
               ticks="lat20"
             else:
-              ticks=vcs.mkscale(datawc_y1,datawc_y2)
-              ticks=self.prettifyAxisLabels(vcs.mklabels(ticks),y)
+              ticks=vcs_legacy.mkscale(datawc_y1,datawc_y2)
+              ticks=self.prettifyAxisLabels(vcs_legacy.mklabels(ticks),y)
             ## for k in ticks.keys() : # make sure you're in the range
             ##     if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
             ##         del(ticks[k])
@@ -1844,11 +1844,11 @@ Options:::
             dic['yticlabels1']=True
         #ymtics1
         if gm.ymtics1 is None or gm.ymtics1=='*':
-            ticks=vcs.mkscale(datawc_y1,datawc_y2)
+            ticks=vcs_legacy.mkscale(datawc_y1,datawc_y2)
             tick2=[]
             for i in range(len(ticks)-1):
                 tick2.append((ticks[i]+ticks[i+1])/2.)
-            ticks=self.prettifyAxisLabels(vcs.mklabels(tick2),y)
+            ticks=self.prettifyAxisLabels(vcs_legacy.mklabels(tick2),y)
             ## for k in ticks.keys() : # make sure you're in the range
             ##     if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
             ##         del(ticks[k])
@@ -1856,8 +1856,8 @@ Options:::
             dic['ymtics1']=True
         #yticklabels2
         if hasattr(gm,"yticlabels2") and (gm.yticlabels2 is None or gm.yticlabels2=='*'):
-            ticks=vcs.mkscale(datawc_y1,datawc_y2)
-            ticks=self.prettifyAxisLabels(vcs.mklabels(ticks),y)
+            ticks=vcs_legacy.mkscale(datawc_y1,datawc_y2)
+            ticks=self.prettifyAxisLabels(vcs_legacy.mklabels(ticks),y)
             ## for k in ticks.keys():
             ##     ticks[k]=''
             ##     if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
@@ -1866,11 +1866,11 @@ Options:::
             dic['yticlabels2']=True
         #ymtics2
         if hasattr(gm,"ymtics2") and (gm.ymtics2 is None or gm.ymtics2=='*'):
-            ticks=vcs.mkscale(datawc_y1,datawc_y2)
+            ticks=vcs_legacy.mkscale(datawc_y1,datawc_y2)
             tick2=[]
             for i in range(len(ticks)-1):
                 tick2.append((ticks[i]+ticks[i+1])/2.)
-            ticks=self.prettifyAxisLabels(vcs.mklabels(tick2),y)
+            ticks=self.prettifyAxisLabels(vcs_legacy.mklabels(tick2),y)
             ## for k in ticks.keys() : # make sure you're in the range
             ##     if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
             ##         del(ticks[k])
@@ -1899,7 +1899,7 @@ Options:::
     mesh.shape=(10000,2,4)
     
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('meshfill')                   # Show all the existing meshfill graphics methods
     mesh=a.getmeshfill()                 # Create instance of 'default'
     a.meshfill(array,mesh)               # Plot array using specified mesh and default 
@@ -1942,7 +1942,7 @@ Options:::
     method names must be unique.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('isofill')
     iso=a.createisofill('example1',)
     a.show('isofill')
@@ -1988,7 +1988,7 @@ Options:::
     different name can be modified. (See the createisofill function.)
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('isofill')                   # Show all the existing isofill graphics methods
     iso=a.getisofill()                  # iso instance of 'default' isofill graphics
                                         #       method
@@ -2004,7 +2004,7 @@ Options:::
 
         # Check to make sure the argument passed in is a STRING
         if (type(Gfi_name_src) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
+           raise vcs_legacyError, 'The argument must be a string.'
 
         Gfi_name = None
         return isofill.Gfi(self, Gfi_name, Gfi_name_src, 1)
@@ -2033,7 +2033,7 @@ Options:::
     then the 'default' template is used.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('isofill')                   # Show all the existing isofill graphics methods
     iso=a.getisofill('quick')           # Create instance of 'quick'
     a.isofill(array,iso)                # Plot array using specified iso and default 
@@ -2086,7 +2086,7 @@ Options:::
 
  Example of Use:
 
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('isoline')
     iso=a.createisoline('example1',)
     a.show('isoline')
@@ -2131,7 +2131,7 @@ Options:::
     different name can be modified. (See the createisoline function.)
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('isoline')                   # Show all the existing isoline graphics methods
     iso=a.getisoline()                  # iso instance of 'default' isoline graphics
                                         #       method
@@ -2146,7 +2146,7 @@ Options:::
 
         # Check to make sure the argument passed in is a STRING
         if (type(Gi_name_src) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
+           raise vcs_legacyError, 'The argument must be a string.'
 
         Gi_name = None
         return isoline.Gi(self, Gi_name, Gi_name_src, 1)
@@ -2175,7 +2175,7 @@ Options:::
     then the 'default' template is used.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('isoline')                   # Show all the existing isoline graphics methods
     iso=a.getisoline('quick')           # Create instance of 'quick'
     a.isoline(array,iso)                # Plot array using specified iso and default 
@@ -2227,7 +2227,7 @@ Options:::
 
  Example of Use:
 
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('outline')
     out=a.createoutline('example1',)
     a.show('outline')
@@ -2273,7 +2273,7 @@ Options:::
     different name can be modified. (See the createoutline function.)
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('outline')                   # Show all the existing outline graphics methods
     out=a.getoutline()                  # out instance of 'default' outline graphics
                                         #       method
@@ -2289,7 +2289,7 @@ Options:::
 
         # Check to make sure the argument passed in is a STRING
         if (type(Go_name_src) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
+           raise vcs_legacyError, 'The argument must be a string.'
 
         Go_name = None
         return outline.Go(self, Go_name, Go_name_src, 1)
@@ -2318,7 +2318,7 @@ Options:::
     then the 'default' template is used.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('outline')                   # Show all the existing outline graphics methods
     out=a.getoutline('quick')           # Create instance of 'quick'
     a.outline(array,out)                # Plot array using specified out and default 
@@ -2370,7 +2370,7 @@ Options:::
 
  Example of Use:
 
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('outfill')
     out=a.createoutfill('example1',)
     a.show('outfill')
@@ -2416,7 +2416,7 @@ Options:::
     different name can be modified. (See the createoutfill function.)
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('outfill')                   # Show all the existing outfill graphics methods
     out=a.getoutfill()                  # out instance of 'default' outfill graphics
                                         #       method
@@ -2433,7 +2433,7 @@ Options:::
 
         # Check to make sure the argument passed in is a STRING
         if (type(Gfo_name_src) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
+           raise vcs_legacyError, 'The argument must be a string.'
 
         Gfo_name = None
         return outfill.Gfo(self, Gfo_name, Gfo_name_src, 1)
@@ -2462,7 +2462,7 @@ Options:::
     then the 'default' template is used.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('outfill')                   # Show all the existing outfill graphics methods
     out=a.getoutfill('quick')           # Create instance of 'quick'
     a.outfill(array,out)                # Plot array using specified out and default 
@@ -2514,7 +2514,7 @@ Options:::
 
  Example of Use:
 
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('xyvsy')
     xyy=a.createxyvsy('example1',)
     a.show('xyvsy')
@@ -2560,7 +2560,7 @@ Options:::
     different name can be modified. (See the createxyvsy function.)
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('xyvsy')                     # Show all the existing Xyvsy graphics methods
     xyy=a.getxyvsy()                    # xyy instance of 'default' Xyvsy graphics
                                         #       method
@@ -2576,7 +2576,7 @@ Options:::
 
         # Check to make sure the argument passed in is a STRING
         if (type(GXy_name_src) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
+           raise vcs_legacyError, 'The argument must be a string.'
 
         GXy_name = None
         return xyvsy.GXy(self, GXy_name, GXy_name_src, 1)
@@ -2605,7 +2605,7 @@ Options:::
     then the 'default' template is used.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('xyvsy')                   # Show all the existing Xyvsy graphics methods
     xyy=a.getxyvsy('quick')           # Create instance of 'quick'
     a.xyvsy(array,xyy)                # Plot array using specified xyy and default 
@@ -2657,7 +2657,7 @@ Options:::
 
  Example of Use:
 
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('yxvsx')
     yxx=a.createyxvsx('example1',)
     a.show('yxvsx')
@@ -2703,7 +2703,7 @@ Options:::
     different name can be modified. (See the createyxvsx function.)
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('yxvsx')                     # Show all the existing Yxvsx graphics methods
     yxx=a.getyxvsx()                    # yxx instance of 'default' Yxvsx graphics
                                         #       method
@@ -2719,7 +2719,7 @@ Options:::
 
         # Check to make sure the argument passed in is a STRING
         if (type(GYx_name_src) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
+           raise vcs_legacyError, 'The argument must be a string.'
 
         GYx_name = None
         return yxvsx.GYx(self, GYx_name, GYx_name_src, 1)
@@ -2748,7 +2748,7 @@ Options:::
     then the 'default' template is used.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('yxvsx')                   # Show all the existing Yxvsx graphics methods
     yxx=a.getyxvsx('quick')           # Create instance of 'quick'
     a.yxvsx(array,yxx)                # Plot array using specified yxx and default
@@ -2799,7 +2799,7 @@ Options:::
     method names must be unique.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('xvsy')
     xy=a.createxvsy('example1',)
     a.show('xvsy')
@@ -2845,7 +2845,7 @@ Options:::
     different name can be modified. (See the createxvsy function.)
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('xvsy')                      # Show all the existing XvsY graphics methods
     xy=a.getxvsy()                      # xy instance of 'default' XvsY graphics
                                         #       method
@@ -2862,7 +2862,7 @@ Options:::
 
         # Check to make sure the argument passed in is a STRING
         if (type(GXY_name_src) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
+           raise vcs_legacyError, 'The argument must be a string.'
 
         GXY_name = None
         return xvsy.GXY(self, GXY_name, GXY_name_src, 1)
@@ -2889,7 +2889,7 @@ Options:::
     then the 'default' template is used.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('xvsy')                   # Show all the existing XvsY graphics methods
     xy=a.getxvsy('quick')            # Create instance of 'quick'
     a.xvsy(array,xy)                 # Plot array using specified xy and default 
@@ -2928,7 +2928,7 @@ Options:::
     method names must be unique.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('vector')
     vec=a.createvector('example1',)
     a.show('vector')
@@ -2954,7 +2954,7 @@ Options:::
     different name can be modified. (See the createvector function.)
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('vector')                   # Show all the existing vector graphics methods
     vec=a.getvector()                  # vec instance of 'default' vector graphics
                                         #       method
@@ -2964,7 +2964,7 @@ Options:::
 
         # Check to make sure the argument passed in is a STRING
         if (type(Gv_name_src) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
+           raise vcs_legacyError, 'The argument must be a string.'
 
         Gv_name = None
         return vector.Gv(self, Gv_name, Gv_name_src, 1)
@@ -2980,7 +2980,7 @@ Options:::
     then the 'default' template is used.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('vector')                   # Show all the existing vector graphics methods
     vec=a.getvector('quick')           # Create instance of 'quick'
     a.vector(array,vec)                # Plot array using specified vec and default 
@@ -3023,7 +3023,7 @@ Options:::
     method names must be unique.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('scatter')
     sct=a.createscatter('example1',)
     a.show('scatter')
@@ -3069,7 +3069,7 @@ Options:::
     different name can be modified. (See the createscatter function.)
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('scatter')                   # Show all the existing scatter graphics methods
     sct=a.getscatter()                  # sct instance of 'default' scatter graphics
                                         #       method
@@ -3086,7 +3086,7 @@ Options:::
 
         # Check to make sure the argument passed in is a STRING
         if (type(GSp_name_src) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
+           raise vcs_legacyError, 'The argument must be a string.'
 
         GSp_name = None
         return scatter.GSp(self, GSp_name, GSp_name_src, 1)
@@ -3113,7 +3113,7 @@ Options:::
     then the 'default' template is used.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('scatter')                   # Show all the existing scatter graphics methods
     sct=a.getscatter('quick')           # Create instance of 'quick'
     a.scatter(array,sct)                # Plot array using specified sct and default 
@@ -3154,7 +3154,7 @@ Options:::
     method names must be unique.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('continents')
     con=a.createcontinents('example1',)
     a.show('continents')
@@ -3180,7 +3180,7 @@ Options:::
     different name can be modified. (See the createcontinents function.)
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('continents')              # Show all the existing continents graphics
                                       # methods
     con=a.getcontinents()               # con instance of 'default' continents graphics
@@ -3191,7 +3191,7 @@ Options:::
 
         # Check to make sure the argument passed in is a STRING
         if (type(Gcon_name_src) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
+           raise vcs_legacyError, 'The argument must be a string.'
 
         Gcon_name = None
         return continents.Gcon(self, Gcon_name, Gcon_name_src, 1)
@@ -3207,7 +3207,7 @@ Options:::
     then the 'default' template is used.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('continents')                # Show all the existing continents graphics
                                         # methods
     con=a.getcontinents('quick')        # Create instance of 'quick'
@@ -3242,7 +3242,7 @@ Options:::
     Secondary method names must be unique.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('line')
     ln=a.createline('example1',)
     a.show('line')
@@ -3299,7 +3299,7 @@ Options:::
     different name can be modified. (See the createline function.)
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('line')                   # Show all the existing line secondary methods
     ln=a.getline()                   # ln instance of 'default' line secondary
                                      #       method
@@ -3315,7 +3315,7 @@ Options:::
 
         # Check to make sure the argument passed in is a STRING
         if (type(name) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
+           raise vcs_legacyError, 'The argument must be a string.'
 
         Tl_name = None
         ln = line.Tl(self, Tl_name, name, 1)
@@ -3379,7 +3379,7 @@ Options:::
     object is given, then an error will be returned.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('line')                      # Show all the existing line objects
     ln=a.getline('red')                 # Create instance of 'red'
     ln.width=4                          # Set the line width
@@ -3403,7 +3403,7 @@ Options:::
     Generate and draw a line object on the VCS Canvas.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('line')                      # Show all the existing line objects
     ln=a.drawline(name='red', ltype='dash', width=2,
                   color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
@@ -3413,7 +3413,7 @@ Options:::
     a.line(ln)                          # Plot using specified line object
 """
         if (name is None) or (type(name) != types.StringType):
-            raise vcsError, 'Must provide string name for the line.'
+            raise vcs_legacyError, 'Must provide string name for the line.'
         else:
             lo = self.listelements('line')
             if name in lo:
@@ -3457,7 +3457,7 @@ Options:::
     Secondary method names must be unique.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('marker')
     mrk=a.createmarker('example1',)
     a.show('marker')
@@ -3515,7 +3515,7 @@ Options:::
     different name can be modified. (See the createmarker function.)
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('marker')                    # Show all the existing marker secondary methods
     mrk=a.getmarker()                   # mrk instance of 'default' marker secondary
                                         #       method
@@ -3531,7 +3531,7 @@ Options:::
 
         # Check to make sure the argument passed in is a STRING
         if (type(name) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
+           raise vcs_legacyError, 'The argument must be a string.'
 
         Tm_name = None
         mrk = marker.Tm(self, Tm_name, name, 1)
@@ -3562,7 +3562,7 @@ Options:::
     object is given, then an error will be returned.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('marker')                     # Show all the existing marker objects
     mrk=a.getmarker('red')               # Create instance of 'red'
     mrk.size=4                           # Set the marker size
@@ -3586,7 +3586,7 @@ Options:::
     Generate and draw a marker object on the VCS Canvas.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('marker')                      # Show all the existing marker objects
     mrk=a.drawmarker(name='red', mtype='dash', size=2,
                   color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
@@ -3596,7 +3596,7 @@ Options:::
     a.marker(mrk)                          # Plot using specified marker object
 """
         if (name is None) or (type(name) != types.StringType):
-            raise vcsError, 'Must provide string name for the marker.'
+            raise vcs_legacyError, 'Must provide string name for the marker.'
         else:
             lo = self.listelements('marker')
             if name in lo:
@@ -3639,7 +3639,7 @@ Options:::
     Secondary method names must be unique.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('fillarea')
     fa=a.createfillarea('example1',)
     a.show('fillarea')
@@ -3697,7 +3697,7 @@ Options:::
     different name can be modified. (See the createfillarea function.)
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('fillarea')                 # Show all the existing fillarea secondary methods
     fa=a.getfillarea()                 # fa instance of 'default' fillarea secondary
                                        #       method
@@ -3713,7 +3713,7 @@ Options:::
 
         # Check to make sure the argument passed in is a STRING
         if (type(name) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
+           raise vcs_legacyError, 'The argument must be a string.'
 
         Tf_name = None
         fa = fillarea.Tf(self, Tf_name, name, 1)
@@ -3744,7 +3744,7 @@ Options:::
     object is given, then an error will be returned.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('fillarea')                  # Show all the existing fillarea objects
     fa=a.getfillarea('red')             # Create instance of 'red'
     fa.style=1                          # Set the fillarea style
@@ -3769,7 +3769,7 @@ Options:::
     Generate and draw a fillarea object on the VCS Canvas.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('fillarea')                      # Show all the existing fillarea objects
     fa=a.drawfillarea(name='red', mtype='dash', size=2,
                   color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
@@ -3779,7 +3779,7 @@ Options:::
     a.fillarea(fa)                          # Plot using specified fillarea object
 """
         if (name is None) or (type(name) != types.StringType):
-            raise vcsError, 'Must provide string name for the fillarea.'
+            raise vcs_legacyError, 'Must provide string name for the fillarea.'
         else:
             lo = self.listelements('fillarea')
             if name in lo:
@@ -3822,7 +3822,7 @@ Options:::
     Secondary method names must be unique.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('texttable')
     tt=a.createtexttable('example1',)
     a.show('texttable')
@@ -3886,7 +3886,7 @@ Options:::
     different name can be modified. (See the createtexttable function.)
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('texttable')              # Show all the existing texttable secondary methods
     tt=a.gettexttable()              # tt instance of 'default' texttable secondary
                                      #       method
@@ -3902,7 +3902,7 @@ Options:::
 
         # Check to make sure the argument passed in is a STRING
         if (type(name) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
+           raise vcs_legacyError, 'The argument must be a string.'
 
         Tt_name = None
         return texttable.Tt(self, Tt_name, name, 1 )
@@ -3956,7 +3956,7 @@ Options:::
     Secondary method names must be unique.
     
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('textorientation')
     to=a.createtextorientation('example1',)
     a.show('textorientation')
@@ -3983,7 +3983,7 @@ Options:::
     different name can be modified. (See the createtextorientation function.)
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('textorientation')    # Show all the existing textorientation secondary methods
     to=a.gettextorientation()    # to instance of 'default' textorientation secondary
                                  #       method
@@ -3993,7 +3993,7 @@ Options:::
 
         # Check to make sure the argument passed in is a STRING
         if (type(To_name_src) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
+           raise vcs_legacyError, 'The argument must be a string.'
 
         To_name = None
         return textorientation.To(self, To_name, To_name_src, 1)
@@ -4019,7 +4019,7 @@ Options:::
     Secondary method names must be unique.
     
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('texttable')
     a.show('textorientation')
     tc=a.createtextcombined('example1','std','example1','7left')
@@ -4092,7 +4092,7 @@ Options:::
     different name can be modified. (See the createtextcombined function.)
 
 Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('texttable')                  # Show all the existing texttable secondary methods
     a.show('textorientation')            # Show all the existing textorientation secondary methods
     tc=a.gettextcombined()               # Use 'default' for texttable and textorientation
@@ -4104,9 +4104,9 @@ Example of Use:
 
         # Check to make sure the arguments passed in are a STRINGS
         if (type(Tt_name_src) != types.StringType):
-            raise vcsError, 'The first argument must be a string.'
+            raise vcs_legacyError, 'The first argument must be a string.'
         if (type(To_name_src) != types.StringType):
-            raise vcsError, 'The second argument must be a string.'
+            raise vcs_legacyError, 'The second argument must be a string.'
         
         Tt_name = None
         To_name = None
@@ -4156,7 +4156,7 @@ Example of Use:
         object is given, then an error will be returned.
         
         Example of Use:
-        a=vcs.init()
+        a=vcs_legacy.init()
         a.show('texttable')                 # Show all the existing texttable objects
         a.show('textorientation')           # Show all the existing textorientation objects
         tt=a.gettext('std','7left')         # Create instance of 'std' and '7left'
@@ -4177,7 +4177,7 @@ Example of Use:
             if type(parms['color'])==type(''):
                 parms['color']=self.match_color(parms['color'])
                 
-        if not isinstance(args[0],vcs.textcombined.Tc):
+        if not isinstance(args[0],vcs_legacy.textcombined.Tc):
             args=list(args)
             ## Ok we have a user passed text object let's first create a random text combined
 ##             icont=1
@@ -4206,7 +4206,7 @@ Example of Use:
     def gettextextent(self,textobject):
         """Returns the coordinate of the box surrounding a text object once printed
         Example:
-        x=vcs.init()
+        x=vcs_legacy.init()
         t=x.createtext()
         t.x=[.5]
         t.y=[.5]
@@ -4214,8 +4214,8 @@ Example of Use:
         extent = x.gettextextent(t)
         print extent
         """
-        if not vcs.istext(textobject):
-            raise vcsError,'You must pass a text object'
+        if not vcs_legacy.istext(textobject):
+            raise vcs_legacyError,'You must pass a text object'
         To = textobject.To_name
         Tt = textobject.Tt_name
         return apply(self.canvas.gettextextent,(Tt,To))
@@ -4230,7 +4230,7 @@ Description of Function:
            (using rms difference between rgb values)
            if colormap is not map use the currently used colormap
 Example of use:
-           a=vcs.init()
+           a=vcs_legacy.init()
            print a.match_color('salmon')
            print a.match_color('red')
            print a.match_color([0,0,100],'defaullt') # closest color from blue
@@ -4277,7 +4277,7 @@ Example of use:
     Generate and draw a texttable object on the VCS Canvas.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('texttable')                      # Show all the existing texttable objects
     tt=a.drawtexttable(Tt_name = 'red', To_name='7left', mtype='dash', size=2,
                   color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
@@ -4287,7 +4287,7 @@ Example of use:
     a.texttable(tt)                          # Plot using specified texttable object
 """
         if (Tt_name is None) or (type(Tt_name) != types.StringType):
-            raise vcsError, 'Must provide string name for the texttable.'
+            raise vcs_legacyError, 'Must provide string name for the texttable.'
         else:
             lot = self.listelements('texttable')
             if Tt_name not in lot:
@@ -4446,7 +4446,7 @@ Options:::
     over the x-axis of grid.
 
  Example of Use:
-    x=vcs.init()        # x is an instance of the VCS class object (constructor)
+    x=vcs_legacy.init()        # x is an instance of the VCS class object (constructor)
     x.plot(array)       # this call will use default settings for template and boxfill
     x.plot(array, 'AMIP', 'isofill','AMIP_psl') # this is specifying the template and 
                                                   graphics method
@@ -4482,7 +4482,7 @@ Options:::
             sal = 1
 
         try:
-            if (self.canvas_gui.top_parent.menu.vcs_canvas_gui_settings_flg == 1): # Must be from VCDAT
+            if (self.canvas_gui.top_parent.menu.vcs_legacy_canvas_gui_settings_flg == 1): # Must be from VCDAT
                self.canvas_gui.dialog.dialog.configure( title = ("Visualization and Control System (VCS) GUI"))
         except: 
             # Connect the VCS Canvas to the GUI
@@ -4490,7 +4490,7 @@ Options:::
                #####################################################################################################
                # Charles and Dean - This command will only allow one plot on a page for the VCS Canvas GUI.        #
                # It is committed out so that there can be two or more plots on a page. Must keep a watch to see    #
-               # what other problems occur without this command. See vcsmodule.c: PyVCS_connect_gui_and_canvas.    #
+               # what other problems occur without this command. See vcs_legacymodule.c: PyVCS_connect_gui_and_canvas.    #
                #                                                                                                   #
                # self._connect_gui_and_canvas( self.winfo_id )                                                     #
                #####################################################################################################
@@ -4583,7 +4583,7 @@ Options:::
             func=self.getoutline
         elif type=='taylordiagram':
             func=self.gettaylordiagram
-        elif isinstance(type,vcsaddons.core.VCSaddon):
+        elif isinstance(type,vcs_legacyaddons.core.VCSaddon):
             func = type.getgm
         else:
             return None
@@ -4615,7 +4615,7 @@ Options:::
             func=self.createoutline
         elif type=='taylordiagram':
             func=self.createtaylordiagram
-        elif isinstance(type,vcsaddons.core.VCSaddon):
+        elif isinstance(type,vcs_legacyaddons.core.VCSaddon):
             func = type.creategm
         else:
             return None
@@ -4631,13 +4631,13 @@ Options:::
         xtrakw=arglist.pop(5)
         for k in xtrakw.keys():
             if k in keyargs.keys():
-                raise vcsError,'Multiple Definition for '+str(k)
+                raise vcs_legacyError,'Multiple Definition for '+str(k)
             else:
                 keyargs[k]=xtrakw[k]
         assert arglist[0] is None or cdms2.isVariable (arglist[0])
         assert arglist[1] is None or cdms2.isVariable (arglist[1])
         assert type(arglist[2]) == types.StringType
-        if not isinstance(arglist[3],vcsaddons.core.VCSaddon): assert type(arglist[3]) == types.StringType
+        if not isinstance(arglist[3],vcs_legacyaddons.core.VCSaddon): assert type(arglist[3]) == types.StringType
         assert type(arglist[4]) == types.StringType
 
         ##reset animation
@@ -4743,14 +4743,14 @@ Options:::
                     isboxfilllegend=1
                 elif len(k)==5:
                     if not type(k[4]) in [type({}),type(0),type(0.)]:
-                        raise vcsError, "Error, at-plotting-time argument 'legend' is ambiguous in this context\nCannot determine if it is template or boxfill keyword,\n tips to solve that:\n\tif you aim at boxfill keyword, pass legend as a dictionary, \n\tif your aim at template, add {'priority':1} at the end of the list\nCurrently legend is passed as:"+repr(k)
+                        raise vcs_legacyError, "Error, at-plotting-time argument 'legend' is ambiguous in this context\nCannot determine if it is template or boxfill keyword,\n tips to solve that:\n\tif you aim at boxfill keyword, pass legend as a dictionary, \n\tif your aim at template, add {'priority':1} at the end of the list\nCurrently legend is passed as:"+repr(k)
                     elif type(k[4])!=type({}):
                         isboxfilllegend=1
                 else:
                     # ok it's length 4, now the only hope left is that not all values are between 0 and 1
                     for i in range(4):
                         if k[i]>1. or k[i]<0. : isboxfilllegend=1
-                    if isboxfilllegend==0: raise vcsError, "Error, at-plotting-time argument 'legend' is ambiguous in this context\nCannot determine if it is template or boxfill keyword,\n tips to solve that:\n\tif you aim at boxfill keyword, pass legend as a dictionary, \n\tif your aim at template, add {'priority':1} at the end of the list\nCurrently legend is passed as:"+repr(k)
+                    if isboxfilllegend==0: raise vcs_legacyError, "Error, at-plotting-time argument 'legend' is ambiguous in this context\nCannot determine if it is template or boxfill keyword,\n tips to solve that:\n\tif you aim at boxfill keyword, pass legend as a dictionary, \n\tif your aim at template, add {'priority':1} at the end of the list\nCurrently legend is passed as:"+repr(k)
 
             # ok it is for the boxfill let's do it        
             if isboxfilllegend:
@@ -4835,7 +4835,7 @@ Options:::
                 'worldcoordinate',
                 ]:
                 if copy_mthd is None: copy_mthd=self.generate_gm(arglist[3],arglist[4])
-                if copy_mthd is None: raise vcsError, 'Error, at-plotting-time option: '+p+' is not available for graphic method type:'+arglist[3]
+                if copy_mthd is None: raise vcs_legacyError, 'Error, at-plotting-time option: '+p+' is not available for graphic method type:'+arglist[3]
                 if not p in ['worldcoordinate',]: # not a special keywords
                     setattr(copy_mthd,p,keyargs[p])
                 elif p=='worldcoordinate':
@@ -5134,8 +5134,8 @@ Options:::
                             copy_mthd.datawc_x2 = cdtime.reltime(oax[-1],oax.units).tocomp(oax.getCalendar()).torel(copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
                         else:
                             copy_mthd.datawc_x2 = cdtime.reltime(copy_mthd.datawc_x2,oax.units).tocomp(oax.getCalendar()).torel(copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
-                if copy_mthd.xticlabels1=='*' : copy_mthd.xticlabels1=vcs.generate_time_labels(copy_mthd.datawc_x1,copy_mthd.datawc_x2,copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
-                if copy_mthd.xticlabels2=='*' : copy_mthd.xticlabels2=vcs.generate_time_labels(copy_mthd.datawc_x1,copy_mthd.datawc_x2,copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
+                if copy_mthd.xticlabels1=='*' : copy_mthd.xticlabels1=vcs_legacy.generate_time_labels(copy_mthd.datawc_x1,copy_mthd.datawc_x2,copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
+                if copy_mthd.xticlabels2=='*' : copy_mthd.xticlabels2=vcs_legacy.generate_time_labels(copy_mthd.datawc_x1,copy_mthd.datawc_x2,copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
         elif not (getattr(copy_mthd,'g_name','')=='Gfm' and isinstance(arglist[0].getGrid(), (cdms2.gengrid.AbstractGenericGrid,cdms2.hgrid.AbstractCurveGrid))):
             try:
                 if arglist[0].getAxis(-1).isTime():
@@ -5149,7 +5149,7 @@ Options:::
                         calendar=t.getCalendar()
                         t0=cdtime.reltime(t[0],timeunits)
                         t1=cdtime.reltime(t[-1],timeunits)
-                        copy_mthd.xticlabels1=vcs.generate_time_labels(t0,t1,timeunits,calendar)
+                        copy_mthd.xticlabels1=vcs_legacy.generate_time_labels(t0,t1,timeunits,calendar)
             except:
                 pass
 
@@ -5210,8 +5210,8 @@ Options:::
                     else:
                         copy_mthd.datawc_y2 = cdtime.reltime(copy_mthd.datawc_y2,oax.units).tocomp(oax.getCalendar()).torel(copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
                 if copy_mthd.yticlabels1=='*' :
-                    copy_mthd.yticlabels1=vcs.generate_time_labels(copy_mthd.datawc_y1,copy_mthd.datawc_y2,copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
-                if copy_mthd.yticlabels2=='*' : copy_mthd.yticlabels2=vcs.generate_time_labels(copy_mthd.datawc_y1,copy_mthd.datawc_y2,copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
+                    copy_mthd.yticlabels1=vcs_legacy.generate_time_labels(copy_mthd.datawc_y1,copy_mthd.datawc_y2,copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
+                if copy_mthd.yticlabels2=='*' : copy_mthd.yticlabels2=vcs_legacy.generate_time_labels(copy_mthd.datawc_y1,copy_mthd.datawc_y2,copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
         elif not (getattr(copy_mthd,'g_name','')=='Gfm' and isinstance(arglist[0].getGrid(), (cdms2.gengrid.AbstractGenericGrid,cdms2.hgrid.AbstractCurveGrid))):
             try:
                 if arglist[0].getAxis(-2).isTime() and arglist[0].rank()>1 and copy_mthd.g_name not in ['GYx','GXy','GXY','GSp']:
@@ -5225,7 +5225,7 @@ Options:::
                         calendar=t.getCalendar()
                         t0=cdtime.reltime(t[0],timeunits)
                         t1=cdtime.reltime(t[-1],timeunits)
-                        copy_mthd.yticlabels1=vcs.generate_time_labels(t0,t1,timeunits,calendar)
+                        copy_mthd.yticlabels1=vcs_legacy.generate_time_labels(t0,t1,timeunits,calendar)
             except:
                 pass
 
@@ -5265,9 +5265,9 @@ Options:::
                     vals.append(func(v*numpy.pi/180.))
                 else:
                     vals.append(func(v))                    
-            min,max=vcs.minmax(vals)
-            levs=vcs.mkscale(min,max)
-##             levs=vcs.mkevenlevels(min,max)
+            min,max=vcs_legacy.minmax(vals)
+            levs=vcs_legacy.mkscale(min,max)
+##             levs=vcs_legacy.mkevenlevels(min,max)
             vals=[]
             for l in levs:
                 if method=='log10':
@@ -5277,7 +5277,7 @@ Options:::
                 else:
                     v=func2(l)
                 vals.append(clean_val(v))
-            dic=vcs.mklabels(vals)
+            dic=vcs_legacy.mklabels(vals)
             dic2={}
             for k in dic.keys():
                 try:
@@ -5402,7 +5402,7 @@ Options:::
                     arglist[2]=keyargs[k]
                     del(keyargs[k])
             # look through the available taylordiagram methods and use the plot function
-            for t in vcs.taylordiagrams:
+            for t in vcs_legacy.taylordiagrams:
                 if t.name==arglist[4]:
                     t.plot(arglist[0],canvas=self,template=arglist[2],**keyargs)
                     result = self.getplot(self.return_display_names()[-1], arglist[2])
@@ -5419,11 +5419,11 @@ Options:::
                             
                     return result
 ##                     return self.getplot(dn, template_origin)
-            raise vcsError, 'Error taylordiagram method: '+arglist[4]+' not found'
+            raise vcs_legacyError, 'Error taylordiagram method: '+arglist[4]+' not found'
         else:
             for keyarg in keyargs.keys():
                 if not keyarg in self.__class__._plot_keywords_:
-                     raise vcsError, 'Invalid keyword: %s'%keyarg
+                     raise vcs_legacyError, 'Invalid keyword: %s'%keyarg
 
             if (arglist[0] is not None or keyargs.has_key('variable')):
                 arglist[0] = self._reconstruct_tv(arglist, keyargs)
@@ -5450,7 +5450,7 @@ Options:::
 ##             if (len(arglist[0].shape) < 2) and (arglist[3] in ['boxfill', 'isofill', 'isoline', 'outfill', 'outline', 'vector', 'scatter']):
             ## Flipping the order to avoid the tv not exist problem
             if (arglist[3] in ['boxfill', 'isofill', 'isoline', 'outfill', 'outline', 'vector']) and (len(arglist[0].shape) < 2 ):
-                raise vcsError, 'Invalid number of dimensions for %s' % arglist[3]
+                raise vcs_legacyError, 'Invalid number of dimensions for %s' % arglist[3]
 
 
             ## Ok now does the linear projection for lat/lon ratio stuff
@@ -5490,7 +5490,7 @@ Options:::
                         arglist[4] = p.Tt_name+':::'+p.To_name
                     else:
                         arglist[4]=p.name
-            elif (arglist[3] in ['boxfill','isofill','isoline','outfill','outline','vector','meshfill'] or isinstance(arglist[3],vcsaddons.core.VCSaddon)) and doratio in ['auto','autot'] and not (doratio=='auto' and arglist[2]=='ASD'):
+            elif (arglist[3] in ['boxfill','isofill','isoline','outfill','outline','vector','meshfill'] or isinstance(arglist[3],vcs_legacyaddons.core.VCSaddon)) and doratio in ['auto','autot'] and not (doratio=='auto' and arglist[2]=='ASD'):
                 box_and_ticks=0
                 if doratio[-1]=='t' or template_origin=='default':
                     box_and_ticks=1
@@ -5509,7 +5509,7 @@ Options:::
                     func=self.getoutfill
                 elif arglist[3]=='outline':
                     func=self.getoutline
-                if isinstance(arglist[3],vcsaddons.core.VCSaddon):
+                if isinstance(arglist[3],vcs_legacyaddons.core.VCSaddon):
                     gm= arglist[3]
                 else:
                     gm=func(arglist[4])
@@ -5517,8 +5517,8 @@ Options:::
                 if p.type == 'linear':
                     if gm.g_name =='Gfm':
                         if self.isplottinggridded:
-                            lon1,lon2=vcs.minmax(arglist[1][...,:,1,:])
-                            lat1,lat2=vcs.minmax(arglist[1][...,:,0,:])
+                            lon1,lon2=vcs_legacy.minmax(arglist[1][...,:,1,:])
+                            lat1,lat2=vcs_legacy.minmax(arglist[1][...,:,0,:])
                             if lon2-lon1>360:
                                 lon1,lon2=0.,360.
                             if gm.datawc_x1<9.99E19:
@@ -5581,11 +5581,11 @@ Options:::
                 arglist.append('fg')
             if arglist[3]=='scatter':
                 if not (numpy.equal(arglist[0].getAxis(-1)[:],arglist[1].getAxis(-1)[:]).all()):
-                    raise vcsError, 'Error - ScatterPlot requires X and Y defined in the same place'
+                    raise vcs_legacyError, 'Error - ScatterPlot requires X and Y defined in the same place'
             if arglist[3]=='vector':
                 if not (numpy.equal(arglist[0].getAxis(-1)[:],arglist[1].getAxis(-1)[:]).all()) or not(numpy.equal(arglist[0].getAxis(-2)[:],arglist[1].getAxis(-2)[:]).all()):
-                    raise vcsError, 'Error - VECTOR components must be on the same grid.'
-            if isinstance(arglist[3],vcsaddons.core.VCSaddon):
+                    raise vcs_legacyError, 'Error - VECTOR components must be on the same grid.'
+            if isinstance(arglist[3],vcs_legacyaddons.core.VCSaddon):
                 if arglist[1] is None:
                     dn = arglist[3].plot(arglist[0],template=arglist[2],bg=bg,x=self)
                 else:
@@ -5691,7 +5691,7 @@ Options:::
     The default mode is to overwrite an existing cgm file (i.e. mode (r)).
  
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.plot(array,'default','isofill','quick')
     a.cgm(o)
     a.cgm('example')           # by default a cgm file will overwrite an existing file
@@ -5716,7 +5716,7 @@ Options:::
     will clear all the VCS displays on a page (i.e., the VCS Canvas object).
  
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.plot(array,'default','isofill','quick')
     a.clear()
 
@@ -5741,7 +5741,7 @@ Options:::
     To deallocate the VCS Canvas, use the destroy method.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.plot(array,'default','isofill','quick')
     a.close()
 
@@ -5778,7 +5778,7 @@ Options:::
     Destroy the VCS Canvas. It will deallocate the VCS Canvas object.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.plot(array,'default','isofill','quick')
     a.destory()
 
@@ -5819,7 +5819,7 @@ Options:::
     is used to select, create, change, or remove colormaps.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.colormapgui()
     a.colormapgui(max_intensity = 255)
 '''
@@ -5845,7 +5845,7 @@ Options:::
     is used to select, create, change, or remove projections.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.projectiongui()
 '''
         import warnings
@@ -5898,7 +5898,7 @@ Options:::
     The interface is used to alter existing graphics method attributes.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.graphicsmethodgui('boxfill', 'quick')
 '''
         import warnings
@@ -5924,7 +5924,7 @@ Options:::
     The interface is used to alter templates.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.templateeditor('AMIP2')
 '''
         send_canvas = canvas
@@ -6057,7 +6057,7 @@ Options:::
     The interface is used to design canvases.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.pageieditor()
 '''
         #_pagegui.create(canvas=self, gui_parent=gui_parent)
@@ -6077,7 +6077,7 @@ Options:::
     The flush command executes all buffered X events in the que.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.plot(array,'default','isofill','quick')
     a.flush()
 
@@ -6129,7 +6129,7 @@ Options:::
     The geometry command is used to set the size and position of the VCS canvas.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.plot(array,'default','isofill','quick')
     a.geometry(450,337)
 
@@ -6155,7 +6155,7 @@ Options:::
     Obtain the current attributes of the VCS Canvas window.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.plot(array,'default','isofill','quick')
     a.canvasinfo()
 
@@ -6176,7 +6176,7 @@ Options:::
     0 and 11.
 
  Example of Use:
-     a=vcs.init()
+     a=vcs_legacy.init()
      cont_type = a.getcontinentstype() # Get the continents type
 """
         return apply(self.canvas.getcontinentstype, args)
@@ -6196,7 +6196,7 @@ Options:::
      routine allows the user to convert a postscript file to a gif file.
  
   Example of Use:
-     a=vcs.init()
+     a=vcs_legacy.init()
      a.plot(array)
      a.pstogif('filename.ps')       # convert the postscript file to a gif file (l=landscape)
      a.pstogif('filename.ps','l')   # convert the postscript file to a gif file (l=landscape)
@@ -6249,7 +6249,7 @@ Options:::
 #    file is designated, that file will be used for gif output.
 #
 # Example of Use:
-#    a=vcs.init()
+#    a=vcs_legacy.init()
 #    a.plot(array)
 #    a.gif('example')           # overwrite existing gif file
 #    a.gif(s,a,t,'example')     # overwrite existing gif file
@@ -6318,7 +6318,7 @@ Options:::
  
  
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.grid(12,12,0,71,0,45)
 """ 
         finish_queued_X_server_requests( self )
@@ -6354,7 +6354,7 @@ Options:::
                 to keep up with the demands of the X client.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.plot(array)
     a.landscape() # Change the VCS Canvas orientation and set object flag to landscape
     a.landscape(clear=1) # Change the VCS Canvas to landscape and clear the page
@@ -6410,12 +6410,12 @@ Options:::
     'line', 'list', 'marker', 'text']
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.listelements()
 """
         if args != () and string.lower( args[0] ) =='taylordiagram':
             L = []
-            for t in vcs.taylordiagrams:
+            for t in vcs_legacy.taylordiagrams:
                 L.append(t.name)
         else:
             L = apply(self.canvas.listelements, args)
@@ -6432,7 +6432,7 @@ Options:::
     def updateorientation(self, *args):
         """
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     x.updateorientation()
 """
         finish_queued_X_server_requests( self )
@@ -6457,7 +6457,7 @@ Options:::
     popup the VCS Canvas for viewing. It can be used to display the VCS Canvas.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.open()    
 """
         a = apply(self.canvas.open, args)
@@ -6483,7 +6483,7 @@ Options:::
     as part of its title.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.open()
     id = a.canvasid()
 '''
@@ -6514,7 +6514,7 @@ Options:::
     permitted.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.plot(array)
     a.page()      # Change the VCS Canvas orientation and set object flag to portrait
 """
@@ -6551,7 +6551,7 @@ Options:::
                 to keep up with the demands of the X client.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.plot(array)
     a.portrait()      # Change the VCS Canvas orientation and set object flag to portrait
     a.portrait(clear=1) # Change the VCS Canvas to portrait and clear the page
@@ -6602,7 +6602,7 @@ Options:::
     Note that ffmpeg is smart enough to output to more than just mpeg format
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     #... code to generate png files ...
     # here is dummy example
     files =[]
@@ -6657,7 +6657,7 @@ Options:::
     Sets dimensions for output in bg mode.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.setbgoutputdimensions(width=11.5, height= 8.5)  # US Legal
     a.setbgoutputdimensions(width=21, height=29.7, units='cm')  # A4
 """
@@ -6697,7 +6697,7 @@ Options:::
     PNG output, dimensions set via setbgoutputdimensions
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.plot(array)
     a.png('example')       # Overwrite a png file
 """
@@ -6726,7 +6726,7 @@ Options:::
     SVG output is another form of vector graphics.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.plot(array)
     a.png('example')       # Overwrite a postscript file
     a.png('example', width=11.5, height= 8.5)  # US Legal
@@ -6765,7 +6765,7 @@ Options:::
     SVG output is another form of vector graphics.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.plot(array)
     a.svg('example')       # Overwrite a postscript file
     a.svg('example', width=11.5, height= 8.5)  # US Legal
@@ -6967,7 +6967,7 @@ Options:::
 
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.plot(array)
     a.postscript('example')       # Overwrite a postscript file
     a.postscript('example', 'a')  # Append postscript to an existing file
@@ -7054,7 +7054,7 @@ Options:::
     or 'p' = portrait. The default is the current orientation of your canvas.
  
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.plot(array)
     a.postscript('example')       # Overwrite a postscript file
     a.postscript('example', 'a')  # Append postscript to an existing file
@@ -7087,7 +7087,7 @@ Options:::
     or 'p' = portrait. The default is landscape.
  
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.plot(array)
     a.pdf('example')      # Creates a landscape pdf file
     a.pdf('example','p')  # Creates a portrait pdf file
@@ -7133,10 +7133,10 @@ Options:::
 
     For more information on the HARD_COPY file, see URL:
 
-    http://www-pcmdi.llnl.gov/software/vcs/vcs_guidetoc.html#1.Setup
+    http://www-pcmdi.llnl.gov/software/vcs_legacy/vcs_legacy_guidetoc.html#1.Setup
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.plot(array)
     a.printer('printer_name') # Send plot(s) to postscript printer
     a.printer('printer_name',top_margin=1,units='cm') # Send plot(s) to postscript printer with 1cm margin on top of plot
@@ -7191,7 +7191,7 @@ Options:::
     the frame buffer to the VCS Canvas, where the graphics can be viewed by the user.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.plot(array, bg=1)
     x.showbg()
 """
@@ -7217,7 +7217,7 @@ Options:::
     This function creates a backing store pixmap for the VCS Canvas.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.backing_store()
 """
         return apply(self.canvas.backing_store, args)
@@ -7262,7 +7262,7 @@ Options:::
     file is designated, that file will be used for raster output.
  
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.plot(array)
     a.raster('example','a')   # append raster image to existing file
     a.raster('example','r')   # overwrite existing raster file
@@ -7406,11 +7406,11 @@ Options:::
            scr_str = string.strip( scr_str )
         
            # Get the VCS command
-           vcs_cmd = string.split(string.split(scr_str, '(')[0], '_')[0]
+           vcs_legacy_cmd = string.split(string.split(scr_str, '(')[0], '_')[0]
         
            function = source = name = units = title = lon_name = lat_name = ''
            comment1 = comment2 = comment3 = comment4 = ''
-           if vcs_cmd == 'A':
+           if vcs_legacy_cmd == 'A':
               # Get the data via CDMS. That is, retrieve that data as a
               # _TransientVariable. But first, get the source, name, title,
               # etc. of the file.
@@ -7543,7 +7543,7 @@ Options:::
               __main__.__dict__[ slab_name ] = apply(V, (), data_dict)
 
               fcdms.close()                                     # Close CDMS file
-           elif vcs_cmd == 'D':
+           elif vcs_legacy_cmd == 'D':
               # plot the data with the appropriate graphics method and template
               a=string.split(scr_str,',')
               a_name = b_name = None
@@ -7588,11 +7588,11 @@ Options:::
               # Unblock the (thread) execution of the X main loop (if it is running).
               self.canvas.UNBLOCK_X_SERVER()
 
-           elif string.lower( vcs_cmd ) == 'canvas':
+           elif string.lower( vcs_legacy_cmd ) == 'canvas':
               apply(self.canvas.open, args)
               if ( self.canvas.THREADED() == 0 ):
                  thread.start_new_thread( self.canvas.startxmainloop, ( ) )
-           elif string.lower( vcs_cmd ) == 'page':
+           elif string.lower( vcs_legacy_cmd ) == 'page':
               orientation = string.lower( string.split(scr_str,'(')[1][:-1] )
               finish_queued_X_server_requests( self )
               self.canvas.BLOCK_X_SERVER()
@@ -7629,7 +7629,7 @@ Options:::
     is to be displayed. Note, the data cannot be set with this function.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.set('isofill','quick') # Changes the default graphics method to Isofill: 'quick'
     a.plot(array)
 """
@@ -7666,7 +7666,7 @@ Options:::
     of the VCS Canvas is made evertime the colormap is changed.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.plot(array,'default','isofill','quick')
     a.setcolormap("AMIP")
 """
@@ -7679,7 +7679,7 @@ Options:::
            updateVCSsegments_flag = 1
         a=apply(self.canvas.setcolormap, args)
         if updateVCSsegments_flag == 1:
-           self.canvas.updateVCSsegments(self.mode) # pass down self and mode to _vcs module
+           self.canvas.updateVCSsegments(self.mode) # pass down self and mode to _vcs_legacy module
         self.flush() # update the canvas by processing all the X events
         return a
 
@@ -7704,7 +7704,7 @@ Options:::
     and 100 is the greatest color intensity.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.plot(array,'default','isofill','quick')
     a.setcolormap("AMIP")
     a.setcolorcell(11,0,0,0)
@@ -7717,7 +7717,7 @@ Options:::
 """
 
         a=apply(self.canvas.setcolorcell, args)
-        self.canvas.updateVCSsegments(self.mode) # pass down self and mode to _vcs module
+        self.canvas.updateVCSsegments(self.mode) # pass down self and mode to _vcs_legacy module
         self.flush() # update the canvas by processing all the X events
         return a
 
@@ -7748,7 +7748,7 @@ Options:::
     data_continent_other7 through data_continent_other12. 
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.setcontinentstype(3)
     a.plot(array,'default','isofill','quick')
 """
@@ -7786,7 +7786,7 @@ Options:::
     The default mode is to overwrite an existing gif file (i.e. mode (r)).
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.plot(array)
     a.gif(filename='example.gif', merge='a', orientation='l', geometry='800x600')
     a.gif('example')         # overwrite existing gif file (default is merge='r')
@@ -7838,7 +7838,7 @@ Options:::
     can use other tools to append separate image files.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.plot(array)
     a.gs('example') #defaults: device='png256', orientation='l' and resolution='792x612'
     a.gs(filename='example.tif', device='tiffpack', orientation='l', resolution='800x600')
@@ -7872,7 +7872,7 @@ Options:::
         
         
         Example of Use:
-        a=vcs.init()
+        a=vcs_legacy.init()
         a.plot(array)
         a.postscript('example')       # Overwrite a postscript file
         a.postscript('example', 'a')  # Append postscript to an existing file
@@ -7886,7 +7886,7 @@ Options:::
         if ext.lower()!='eps':
             file=file+'.eps'
         num = numpy.random.randint(10000000)
-        tmpfile = "/tmp/vcs_tmp_eps_file_%i.ps" % num
+        tmpfile = "/tmp/vcs_legacy_tmp_eps_file_%i.ps" % num
         if mode=='a' and os.path.exists(file):
             os.rename(file,tmpfile)
         self.postscript(tmpfile,mode,orientation,width,height,units,left_margin,right_margin,top_margin,bottom_margin)
@@ -7906,7 +7906,7 @@ Options:::
     Show the list of VCS primary and secondary class objects.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('boxfill')
     a.show('isofill')
     a.show('line')
@@ -7919,7 +7919,7 @@ Options:::
             nms=[]
             i=0
             ln.append('')
-            for t in vcs.taylordiagrams:
+            for t in vcs_legacy.taylordiagrams:
                 if i%3==0 :
                    ln[-1]=ln[-1]+'(%4s):' % str(i+1)
                 ln[-1]=ln[-1]+'%20s' % t.name
@@ -7976,7 +7976,7 @@ Options:::
     the user.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     ...
 
     a.saveinitialfile()
@@ -7989,13 +7989,13 @@ Options:::
  # graphic method is now preserved
 """ % (self._dotdir)
         self.clean_auto_generated_objects()
-        msg = _vcs.saveinitialfile()
+        msg = _vcs_legacy.saveinitialfile()
         # Now adds the taylordiagram stuff
         fnm=os.path.join(os.environ['HOME'],self._dotdir,'initial.attributes')
-        for td in vcs.taylordiagrams:
+        for td in vcs_legacy.taylordiagrams:
             if self.isinfile(td)==0 : td.script(fnm)
 ##         # Now adds the meshfill stuff
-##         for mesh in vcs.meshfills:
+##         for mesh in vcs_legacy.meshfills:
 ##             if self.isinfile(mesh)==0 : mesh.script(fnm)
         return msg
         
@@ -8016,14 +8016,14 @@ Options:::
     of interactive operations for replay; or to recover from a system failure.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     ...
 
     a.scriptstate(script_filename)
 """
-        msg = _vcs.scriptstate(script_name)
+        msg = _vcs_legacy.scriptstate(script_name)
         # Now adds the taylordiagram stuff
-        for td in vcs.taylordiagrams:
+        for td in vcs_legacy.taylordiagrams:
             td.script(script_name)
         return msg
 
@@ -8041,7 +8041,7 @@ Options:::
     positions the window at the top of the stack of its siblings.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     ...
 
     a.canvasraised()
@@ -8064,7 +8064,7 @@ Options:::
     no VCS Canvas is displayed on the screen.
     
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     ...
     
     a.iscanvasdisplayed()
@@ -8088,7 +8088,7 @@ Options:::
     Otherwise, it will return a 0, indicating false (not in landscape mode).
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     ...
 
     if a.islandscape():
@@ -8115,7 +8115,7 @@ Options:::
     Otherwise, it will return a 0, indicating false (not in portrait mode).
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     ...
 
     if a.isportrait():
@@ -8140,7 +8140,7 @@ Options:::
     is given, then None is returned.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('template')                  # Show all the existing templates
     plot1=a.getplot('dpy_plot_1')       # plot1 instance of 'dpy_plot_1' display plot
 """
@@ -8173,7 +8173,7 @@ Options:::
     Secondary method names must be unique.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     cp=a.createcolormap('example1',)
     a.show('colormap')
     cp=a.createcolormap('example2','AMIP')
@@ -8202,7 +8202,7 @@ Options:::
     different name can be modified. (See the createcolormap function.)
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.show('colormap')                      # Show all the existing colormap secondary methods
     cp=a.getcolormap()                      # cp instance of 'default' colormap secondary
                                             #       method
@@ -8249,7 +8249,7 @@ Options:::
             fnm,name = f
             nms.append(apply(self.canvas.addfont,(fnm,name)))
         if len(nms)==0:
-            raise vcsError,'No font Loaded'
+            raise vcs_legacyError,'No font Loaded'
         elif len(nms)>1:
             return nms
         else:
@@ -8262,7 +8262,7 @@ Options:::
         """
         nb = apply(self.canvas.getfontnumber,(name,))
         if nb==-1:
-            raise vcsError,"Font name not existing! %s" % name
+            raise vcs_legacyError,"Font name not existing! %s" % name
         return nb
     
     def getfontname(self, number):
@@ -8271,7 +8271,7 @@ Options:::
         """
         nm = apply(self.canvas.getfontname,(number,))
         if nm=="":
-            raise vcsError,"Error font number not existing %i" % number
+            raise vcs_legacyError,"Error font number not existing %i" % number
         return nm
     
     def getfont(self, font):
@@ -8283,7 +8283,7 @@ Options:::
         elif isinstance(font,str):
             return self.getfontnumber(font)
         else:
-            raise vcsError,"Error you must pass a string or int"
+            raise vcs_legacyError,"Error you must pass a string or int"
         
     def switchfonts(self,font1,font2):
         """ Switch 2 font indexes, you can pass either the font names or indexes """
@@ -8293,14 +8293,14 @@ Options:::
             index1 = int(font1)
             nm = self.getfont(index1) # make sure font exists
         else:
-            raise vcsError,"Error you must pass either a number or font name!, you passed for font 1: %s" % font1
+            raise vcs_legacyError,"Error you must pass either a number or font name!, you passed for font 1: %s" % font1
         if isinstance(font2,str):
             index2 = self.getfont(font2)
         elif isinstance(font2,(int,float)):
             index2 = int(font2)
             nm = self.getfont(index2) # make sure font exists
         else:
-            raise vcsError,"Error you must pass either a number or font name!, you passed for font 2: %s" % font2
+            raise vcs_legacyError,"Error you must pass either a number or font name!, you passed for font 2: %s" % font2
         
         return apply(self.canvas.switchfontnumbers,(index1,index2))
     
@@ -8312,18 +8312,18 @@ Options:::
             index1 = int(font1)
             nm = self.getfont(index1) # make sure font exists
         else:
-            raise vcsError,"Error you must pass either a number or font name!, you passed for font 1: %s" % font1
+            raise vcs_legacyError,"Error you must pass either a number or font name!, you passed for font 1: %s" % font1
         if isinstance(font2,str):
             index2 = self.getfont(font2)
         elif isinstance(font2,(int,float)):
             index2 = int(font2)
             nm = self.getfont(index2) # make sure font exists
         else:
-            raise vcsError,"Error you must pass either a number or font name!, you passed for font 2: %s" % font2
+            raise vcs_legacyError,"Error you must pass either a number or font name!, you passed for font 2: %s" % font2
         return apply(self.canvas.copyfontto,(index1,index2))
     
     def setdefaultfont(self,font):
-        """Sets the passed font as the default font for vcs"""
+        """Sets the passed font as the default font for vcs_legacy"""
         if isinstance(font,str):
             font = self.getfont(font)
         return self.copyfontto(font,1)
@@ -8341,7 +8341,7 @@ Options:::
     Return VCS's orientation. Will return either Portrait or Landscape.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.orientation()      # Return either "landscape" or "portrait"
 """ 
         return apply(self.canvas.orientation, args)
@@ -8367,7 +8367,7 @@ Options:::
     and 100 is the greatest color intensity.
  
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.plot(array,'default','isofill','quick')
     a.setcolormap("AMIP")
     a.getcolorcell(11,0,0,0)
@@ -8395,7 +8395,7 @@ Options:::
 
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.plot(array,'default','isofill','quick')
     a.getcolormapname()
 """
@@ -8438,10 +8438,10 @@ class animate_obj_old:
     the animation GUI. (See VCDAT for more details.)
  
     See the animation GUI documenation located at URL:
-        http://www-pcmdi.llnl.gov/software/vcs
+        http://www-pcmdi.llnl.gov/software/vcs_legacy
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     a.plot(array,'default','isofill','quick')
     a.animate()
 
@@ -8450,8 +8450,8 @@ class animate_obj_old:
    ##############################################################################
    # Initialize the animation flags						#
    ##############################################################################
-   def __init__(self, vcs_self):
-      self.vcs_self = vcs_self
+   def __init__(self, vcs_legacy_self):
+      self.vcs_legacy_self = vcs_legacy_self
       self.gui_popup = 0
       self.create_flg = 0
       self.run_flg = 0
@@ -8471,27 +8471,27 @@ class animate_obj_old:
    # to finish before moving onto the next command line.			#
    ##############################################################################
    def create( self, parent=None, min=None, max=None, save_file=None, thread_it = 1, rate=None, bitrate=None, ffmpegoptions='' ):
-      from vcs import minmax
+      from vcs_legacy import minmax
       from numpy.ma import maximum,minimum
       ##from tkMessageBox import showerror
 
       # Cannot "Run" or "Create" an animation while already creating an animation
       if self.run_flg == 1: return
-      if self.vcs_self.canvas.creating_animation() == 1: return
+      if self.vcs_legacy_self.canvas.creating_animation() == 1: return
 
-      if self.vcs_self.animate_info == []:
+      if self.vcs_legacy_self.animate_info == []:
          str = "No data found!"
          showerror( "Error Message to User", str )
          return
-      finish_queued_X_server_requests( self.vcs_self )
-      self.vcs_self.canvas.BLOCK_X_SERVER()
+      finish_queued_X_server_requests( self.vcs_legacy_self )
+      self.vcs_legacy_self.canvas.BLOCK_X_SERVER()
 
       # Stop the (thread) execution of the X main loop (if it is running).
-      self.vcs_self.canvas.stopxmainloop( )
+      self.vcs_legacy_self.canvas.stopxmainloop( )
 
       # Force VCS to update its orientation, needed when the user changes the
       # VCS Canvas size.
-      self.vcs_self.canvas.updateorientation()
+      self.vcs_legacy_self.canvas.updateorientation()
 
       # Make sure the animate information is up-to-date for creating images
       if ((self.gui_popup == 1) and (self.create_flg == 0)):
@@ -8511,23 +8511,23 @@ class animate_obj_old:
          pass
 
       # Draw specified continental outlines if needed.
-      self.continents_hold_value = self.vcs_self.canvas.getcontinentstype( )
-      self.vcs_self.canvas.setcontinentstype( self.continents_value )
+      self.continents_hold_value = self.vcs_legacy_self.canvas.getcontinentstype( )
+      self.vcs_legacy_self.canvas.setcontinentstype( self.continents_value )
 
       if ( do_min_max == 'yes' ):
          minv = []
          maxv=[]
          if (min is None) or (max is None):
-            for i in range(len(self.vcs_self.animate_info)):
+            for i in range(len(self.vcs_legacy_self.animate_info)):
                minv.append( 1.0e77 )
                maxv.append( -1.0e77 )
-            for i in range(len(self.vcs_self.animate_info)):
-               dpy, slab = self.vcs_self.animate_info[i]
+            for i in range(len(self.vcs_legacy_self.animate_info)):
+               dpy, slab = self.vcs_legacy_self.animate_info[i]
                mins, maxs = minmax(slab)
                minv[i] = float(minimum(float(minv[i]), float(mins)))
                maxv[i] = float(maximum(float(maxv[i]), float(maxs)))
          if ((type(min) == types.ListType) or (type(max) == types.ListType)):
-            for i in range(len(self.vcs_self.animate_info)):
+            for i in range(len(self.vcs_legacy_self.animate_info)):
                try:
                   minv.append( min[i] )
                except:
@@ -8537,13 +8537,13 @@ class animate_obj_old:
                except:
                   maxv.append( max[-1] )
          else:
-            for i in range(len(self.vcs_self.animate_info)):
+            for i in range(len(self.vcs_legacy_self.animate_info)):
                 minv.append( min )
                 maxv.append( max )
 
          # Set the min an max for each plot in the page. If the same graphics method is used
          # to display the plots, then the last min and max setting of the data set will be used.
-         for i in range(len(self.vcs_self.animate_info)):
+         for i in range(len(self.vcs_legacy_self.animate_info)):
             try:
                self.set_animation_min_max( minv[i], maxv[i], i )
             except Exception,err:
@@ -8551,21 +8551,21 @@ class animate_obj_old:
 
       if save_file is None or save_file.split('.')[-1].lower()=='ras':
           if thread_it == 1:
-              thread.start_new_thread( self.vcs_self.canvas.animate_init, (save_file,) )
+              thread.start_new_thread( self.vcs_legacy_self.canvas.animate_init, (save_file,) )
               ## from cdatguiwrap import VCSQtManager
               ## w = VCSQtManager.window(0)
-              #self.mythread=QAnimThread(None,self.vcs_self.canvas.animate_init,save_file)
+              #self.mythread=QAnimThread(None,self.vcs_legacy_self.canvas.animate_init,save_file)
               #self.mythread.start()
           else:
-              self.vcs_self.canvas.animate_init( save_file )
+              self.vcs_legacy_self.canvas.animate_init( save_file )
       else: # ffmpeg stuff
-          save_info = self.vcs_self.animate_info
+          save_info = self.vcs_legacy_self.animate_info
           animation_info = self.animate_info_from_python()
           slabs=[]
           templates=[]
           dpys=[]
-          for i in range(len(self.vcs_self.animate_info)):
-              dpy, slab = self.vcs_self.animate_info[i]
+          for i in range(len(self.vcs_legacy_self.animate_info)):
+              dpy, slab = self.vcs_legacy_self.animate_info[i]
               slabs.append(slab)
               dpys.append(dpy)
               templates.append(dpy.template)
@@ -8590,14 +8590,14 @@ class animate_obj_old:
                           tmp.append(tmp2)
                   indices=tmp
           count=1
-          white_square=self.vcs_self.createfillarea()
+          white_square=self.vcs_legacy_self.createfillarea()
           white_square.color=240
           white_square.x=[0,1,1,0]
           white_square.y=[0,0,1,1]
-          new_vcs=vcs.init()
-          if self.vcs_self.orientation()=='portrait':
-              new_vcs.portrait()
-          #self.vcs_self.close()
+          new_vcs_legacy=vcs_legacy.init()
+          if self.vcs_legacy_self.orientation()=='portrait':
+              new_vcs_legacy.portrait()
+          #self.vcs_legacy_self.close()
 
           d = Pmw.Dialog(title="Creating Frames")
           d.geometry("200x150+0+0")
@@ -8606,33 +8606,33 @@ class animate_obj_old:
           n=float(len(indices))/100.
           for index in indices:
               S.show(count/n)
-              new_vcs.clear()
-              new_vcs.plot(white_square,bg=1)
+              new_vcs_legacy.clear()
+              new_vcs_legacy.plot(white_square,bg=1)
               for i in range(len(save_info)):
                   slab=slabs[i]
                   template=templates[i]
                   gtype = string.lower(animation_info["gtype"][i])
                   gname = animation_info["gname"][i]
-                  exec("gm = new_vcs.get%s('%s')" % (gtype,gname))
+                  exec("gm = new_vcs_legacy.get%s('%s')" % (gtype,gname))
                   for j in index:
                       slab=slab[j]
-                  new_vcs.plot(slab,gm,new_vcs.gettemplate(template),bg=1)
-              new_vcs.png("tmp_anim_%i" % count)
+                  new_vcs_legacy.plot(slab,gm,new_vcs_legacy.gettemplate(template),bg=1)
+              new_vcs_legacy.png("tmp_anim_%i" % count)
               count+=1
-          new_vcs.ffmpeg(save_file,"tmp_anim_%d.png",bitrate=bitrate,rate=rate,options=ffmpegoptions)
+          new_vcs_legacy.ffmpeg(save_file,"tmp_anim_%d.png",bitrate=bitrate,rate=rate,options=ffmpegoptions)
           for i in range(count-1):
               os.remove("tmp_anim_%i.png" % (i+1))
           d.destroy()
-          del(new_vcs)
+          del(new_vcs_legacy)
       self.create_flg = 1
 
-      self.vcs_self.canvas.UNBLOCK_X_SERVER()
+      self.vcs_legacy_self.canvas.UNBLOCK_X_SERVER()
 
    def animate_info_from_python(self):
        gtype = []
        gname = []
        tmpl = []
-       for i in self.vcs_self.animate_info:
+       for i in self.vcs_legacy_self.animate_info:
             d=i[0]
             tmpl.append(d.template)
             gtype.append(d.g_type)
@@ -8649,32 +8649,32 @@ class animate_obj_old:
       self.save_legend = {}
       self.save_levels = {}
       self.save_mean_veloc = {}
-      for i in range(len(self.vcs_self.animate_info)):
+      for i in range(len(self.vcs_legacy_self.animate_info)):
          gtype = string.lower(animation_info["gtype"][i])
          if gtype == "boxfill":
-            gm=self.vcs_self.getboxfill(animation_info['gname'][i])
+            gm=self.vcs_legacy_self.getboxfill(animation_info['gname'][i])
             self.save_min[i] = gm.level_1
             self.save_max[i] = gm.level_2
 #            self.save_legend[i] = gm.legend
          elif ( gtype == "meshfill" ):
-            gm=self.vcs_self.getmeshfill(animation_info['gname'][i])
+            gm=self.vcs_legacy_self.getmeshfill(animation_info['gname'][i])
             self.save_levels[i] = gm.levels
          elif ( gtype == "isofill" ):
-            gm=self.vcs_self.getisofill(animation_info['gname'][i])
+            gm=self.vcs_legacy_self.getisofill(animation_info['gname'][i])
             self.save_levels[i] = gm.levels
          elif ( gtype == "isoline" ):
-            gm=self.vcs_self.getisoline(animation_info['gname'][i])
+            gm=self.vcs_legacy_self.getisoline(animation_info['gname'][i])
             self.save_levels[i] = gm.levels
          elif ( gtype == "yxvsx" ):
-            gm=self.vcs_self.getyxvsx(animation_info['gname'][i])
+            gm=self.vcs_legacy_self.getyxvsx(animation_info['gname'][i])
             self.save_min[i] = gm.datawc_y1
             self.save_max[i] = gm.datawc_y2
          elif ( gtype == "xyvsy" ):
-            gm=self.vcs_self.getxyvsy(animation_info['gname'][i])
+            gm=self.vcs_legacy_self.getxyvsy(animation_info['gname'][i])
             self.save_min[i] = gm.datawc_x1
             self.save_max[i] = gm.datawc_x2
          elif ( gtype == "vector" ):
-            gm=self.vcs_self.getvector(animation_info['gname'][i])
+            gm=self.vcs_legacy_self.getvector(animation_info['gname'][i])
             self.save_mean_veloc[i] = gm.reference
 
    ##############################################################################
@@ -8683,32 +8683,32 @@ class animate_obj_old:
    def restore_min_max( self ):
       animation_info = self.animate_info_from_python()
       try:
-       for i in range(len(self.vcs_self.animate_info)):
+       for i in range(len(self.vcs_legacy_self.animate_info)):
          gtype = string.lower(animation_info["gtype"][i])
          if gtype == "boxfill":
-            gm=self.vcs_self.getboxfill(animation_info['gname'][i])
+            gm=self.vcs_legacy_self.getboxfill(animation_info['gname'][i])
             gm.level_1 = self.save_min[i]
             gm.level_2 = self.save_max[i]
 #            gm.legend = self.save_legend[i]
          elif ( gtype == "meshfill" ):
-            gm=self.vcs_self.getmeshfill(animation_info['gname'][i])
+            gm=self.vcs_legacy_self.getmeshfill(animation_info['gname'][i])
             gm.levels = self.save_levels[i]
          elif ( gtype == "isofill" ):
-            gm=self.vcs_self.getisofill(animation_info['gname'][i])
+            gm=self.vcs_legacy_self.getisofill(animation_info['gname'][i])
             gm.levels = self.save_levels[i]
          elif ( gtype == "isoline" ):
-            gm=self.vcs_self.getisoline(animation_info['gname'][i])
+            gm=self.vcs_legacy_self.getisoline(animation_info['gname'][i])
             gm.levels = self.save_levels[i]
          elif ( gtype == "yxvsx" ):
-            gm=self.vcs_self.getyxvsx(animation_info['gname'][i])
+            gm=self.vcs_legacy_self.getyxvsx(animation_info['gname'][i])
             gm.datawc_y1 = self.save_min[i]
             gm.datawc_y2 = self.save_max[i]
          elif ( gtype == "xyvsy" ):
-            gm=self.vcs_self.getxyvsy(animation_info['gname'][i])
+            gm=self.vcs_legacy_self.getxyvsy(animation_info['gname'][i])
             gm.datawc_x1 = self.save_min[i]
             gm.datawc_x2 = self.save_max[i]
          elif ( gtype == "vector" ):
-            gm=self.vcs_self.getvector(animation_info['gname'][i])
+            gm=self.vcs_legacy_self.getvector(animation_info['gname'][i])
             gm.reference = self.save_mean_veloc[i]
       except:
           pass
@@ -8717,14 +8717,14 @@ class animate_obj_old:
    # Set the animation min and max values    					#
    ##############################################################################
    def set_animation_min_max( self, min, max, i ):
-      from vcs import mkscale, mklabels, getcolors
+      from vcs_legacy import mkscale, mklabels, getcolors
       animation_info = self.animate_info_from_python()
       gtype = string.lower(animation_info["gtype"][i])
       levs = mkscale(min,max)
       dic = mklabels(levs)
       cols = getcolors(levs)
       if gtype == "boxfill":
-         gm=self.vcs_self.getboxfill(animation_info['gname'][i])
+         gm=self.vcs_legacy_self.getboxfill(animation_info['gname'][i])
          if gm.boxfill_type == 'custom':
              gm.fillareacolors = cols
              gm.levels = levs
@@ -8733,28 +8733,28 @@ class animate_obj_old:
              gm.level_2=levs[-1]
              gm.legend=None
       elif ( gtype == "meshfill" ):
-         gm=self.vcs_self.getmeshfill(animation_info['gname'][i])
+         gm=self.vcs_legacy_self.getmeshfill(animation_info['gname'][i])
          if (min == 1e20) and (max ==1e20):
             gm.levels=(1e20,1e20)
          else:
             gm.levels = levs
             gm.fillareacolors = cols
       elif ( gtype == "isofill" ):
-         gm=self.vcs_self.getisofill(animation_info['gname'][i])
+         gm=self.vcs_legacy_self.getisofill(animation_info['gname'][i])
          if (min == 1e20) and (max ==1e20):
             gm.levels=(1e20,1e20)
          else:
             gm.levels = levs
             gm.fillareacolors = cols
       elif ( gtype == "isoline" ):
-         gm=self.vcs_self.getisoline(animation_info['gname'][i])
+         gm=self.vcs_legacy_self.getisoline(animation_info['gname'][i])
          if (min == 1e20) and (max ==1e20):
             gm.levels=(1e20,1e20)
          else:
             gm.levels = levs
             gm.fillareacolors = cols
       elif ( gtype == "yxvsx" ):
-         gm=self.vcs_self.getyxvsx(animation_info['gname'][i])
+         gm=self.vcs_legacy_self.getyxvsx(animation_info['gname'][i])
          if (min != 1e20) and (max !=1e20):
             gm.yticlabels1=dic
             gm.yticlabels2=dic
@@ -8763,7 +8763,7 @@ class animate_obj_old:
          gm.datawc_y1 = min
          gm.datawc_y2 = max
       elif ( gtype == "xyvsy" ):
-         gm=self.vcs_self.getxyvsy(animation_info['gname'][i])
+         gm=self.vcs_legacy_self.getxyvsy(animation_info['gname'][i])
          if (min != 1e20) and (max !=1e20):
             gm.xticlabels1=dic
             gm.xticlabels2=dic
@@ -8772,7 +8772,7 @@ class animate_obj_old:
          gm.datawc_x1 = min
          gm.datawc_x2 = max
       elif ( gtype == "vector" ):
-         gm=self.vcs_self.getvector(animation_info['gname'][i])
+         gm=self.vcs_legacy_self.getvector(animation_info['gname'][i])
          mean_veloc = 1e20
          if (min != 1e20) and (max !=1e20):
             mean_veloc = float( int( numpy.sqrt( (min**2)+(max**2) ) ) )
@@ -8783,8 +8783,8 @@ class animate_obj_old:
    # Return the animation min and max values                                    #
    ##############################################################################
    def return_animation_min_max( self ):
-      dpy, slab = self.vcs_self.animate_info[0]
-      return vcs.minmax(slab)
+      dpy, slab = self.vcs_legacy_self.animate_info[0]
+      return vcs_legacy.minmax(slab)
 
    ##############################################################################
    # Load animation from a stored Raster file.   				#
@@ -8795,25 +8795,25 @@ class animate_obj_old:
          showerror( "Error Message to the User", "The specfied file does not have read permission or does not exist. Please check the availability of the file.")
          return
 
-      finish_queued_X_server_requests( self.vcs_self )
-      self.vcs_self.canvas.BLOCK_X_SERVER()
+      finish_queued_X_server_requests( self.vcs_legacy_self )
+      self.vcs_legacy_self.canvas.BLOCK_X_SERVER()
 
       # Stop the (thread) execution of the X main loop (if it is running).
-      self.vcs_self.canvas.stopxmainloop( )
+      self.vcs_legacy_self.canvas.stopxmainloop( )
 
       if thread_it == 1:
-          thread.start_new_thread( self.vcs_self.canvas.animate_load, (load_file,) )
+          thread.start_new_thread( self.vcs_legacy_self.canvas.animate_load, (load_file,) )
       else:
-          self.vcs_self.canvas.animate_init( load_file )
+          self.vcs_legacy_self.canvas.animate_init( load_file )
       self.create_flg = 1
 
-      self.vcs_self.canvas.UNBLOCK_X_SERVER()
+      self.vcs_legacy_self.canvas.UNBLOCK_X_SERVER()
 
    ##############################################################################
    # Creating animation flag                 					#
    ##############################################################################
    def creating_animation_flg( self ):
-      return self.vcs_self.canvas.creating_animation()
+      return self.vcs_legacy_self.canvas.creating_animation()
 
    ##############################################################################
    # Run animation flag                 					#
@@ -8826,19 +8826,19 @@ class animate_obj_old:
    ##############################################################################
    def run( self ):
       # Cannot "Create" an animation while running an animation.
-      if self.vcs_self.canvas.creating_animation() == 1: return
+      if self.vcs_legacy_self.canvas.creating_animation() == 1: return
 
       if ((self.create_flg == 1) and (self.run_flg == 0)):
          self.run_flg = 1
-         #thread.start_new_thread( self.vcs_self.canvas.animate_run,( ) )
-         self.vcs_self.canvas.animate_run()
+         #thread.start_new_thread( self.vcs_legacy_self.canvas.animate_run,( ) )
+         self.vcs_legacy_self.canvas.animate_run()
 
    ##############################################################################
    # Stop the animation creation                                                #
    ##############################################################################
    def stop_create( self ):
       if (self.create_flg == 1):
-         self.vcs_self.canvas.animate_stop_create()
+         self.vcs_legacy_self.canvas.animate_stop_create()
 
    ##############################################################################
    # Stop the animation                                 			#
@@ -8846,23 +8846,23 @@ class animate_obj_old:
    def stop( self ):
       if (self.create_flg == 1) and (self.run_flg == 1):
          self.run_flg = 0
-         self.vcs_self.canvas.animate_stop()
+         self.vcs_legacy_self.canvas.animate_stop()
       elif (self.create_flg == 1):
-         self.vcs_self.canvas.animate_stop_create()
+         self.vcs_legacy_self.canvas.animate_stop_create()
 	
    ##############################################################################
    # View the specified animation frame                          		#
    ##############################################################################
    def frame( self, value=1 ):
       if (self.create_flg == 1) and (self.run_flg == 0):
-         self.vcs_self.canvas.animate_frame( value )
+         self.vcs_legacy_self.canvas.animate_frame( value )
 
    ##############################################################################
    # Return the number of animate frames                                    	#
    ##############################################################################
    def number_of_frames( self ):
       if self.create_flg == 1:
-         return self.vcs_self.canvas.animate_number_of_frames( )
+         return self.vcs_legacy_self.canvas.animate_number_of_frames( )
 
    ##############################################################################
    # Pause the animation loop                                               	#
@@ -8870,10 +8870,10 @@ class animate_obj_old:
    ##############################################################################
    def pause( self, value=1 ):
       if (((not isinstance(value, types.IntType))) or (value not in range(0, 101))):
-         raise vcsError, "Pause value must be between an integer between 0 and 100."
+         raise vcs_legacyError, "Pause value must be between an integer between 0 and 100."
 
       if (self.create_flg == 1) and (self.run_flg == 1):
-         self.vcs_self.canvas.animate_pause( value )
+         self.vcs_legacy_self.canvas.animate_pause( value )
 
    ##############################################################################
    # Zoom in on the animation                                               	#
@@ -8881,12 +8881,12 @@ class animate_obj_old:
    ##############################################################################
    def zoom( self, value=1 ):
       if (((not isinstance(value, types.IntType))) or (value not in range(1, 21))):
-         raise vcsError, "Zoom value must be between an integer between 1 and 20."
+         raise vcs_legacyError, "Zoom value must be between an integer between 1 and 20."
 
-      if self.vcs_self.canvas.creating_animation() == 1: return
+      if self.vcs_legacy_self.canvas.creating_animation() == 1: return
 
       if self.create_flg == 1:
-         self.vcs_self.canvas.animate_zoom( value )
+         self.vcs_legacy_self.canvas.animate_zoom( value )
 
    ##############################################################################
    # Pan the zoomed animation or frame in the x (or horizontal) direction   	#
@@ -8894,12 +8894,12 @@ class animate_obj_old:
    ##############################################################################
    def horizontal( self, value=0 ):
       if (((not isinstance(value, types.IntType))) or (value not in range(-100, 101))):
-         raise vcsError, "Horizontal pan value must be between an integer between -100 and 100."
+         raise vcs_legacyError, "Horizontal pan value must be between an integer between -100 and 100."
 
-      if self.vcs_self.canvas.creating_animation() == 1: return
+      if self.vcs_legacy_self.canvas.creating_animation() == 1: return
 
       if self.create_flg == 1:
-         self.vcs_self.canvas.animate_horizontal( value )
+         self.vcs_legacy_self.canvas.animate_horizontal( value )
 
    ##############################################################################
    # Pan the zoomed animation or frame in the y (or vertical) direction   	#
@@ -8907,12 +8907,12 @@ class animate_obj_old:
    ##############################################################################
    def vertical( self, value=0 ):
       if (((not isinstance(value, types.IntType))) or (value not in range(-100, 101))):
-         raise vcsError, "Vertical pan value must be between an integer between -100 and 100."
+         raise vcs_legacyError, "Vertical pan value must be between an integer between -100 and 100."
 
-      if self.vcs_self.canvas.creating_animation() == 1: return
+      if self.vcs_legacy_self.canvas.creating_animation() == 1: return
 
       if self.create_flg == 1:
-         self.vcs_self.canvas.animate_vertical( value )
+         self.vcs_legacy_self.canvas.animate_vertical( value )
 
    ##############################################################################
    # Set the direction of the animation:                                        #
@@ -8920,12 +8920,12 @@ class animate_obj_old:
    ##############################################################################
    def direction( self, value=1 ):
       if (((not isinstance(value, types.IntType))) or (value not in range(1, 3))):
-         raise vcsError, "Direction value must be between either 1='forward' or 2='backward'."
+         raise vcs_legacyError, "Direction value must be between either 1='forward' or 2='backward'."
 
-      if self.vcs_self.canvas.creating_animation() == 1: return
+      if self.vcs_legacy_self.canvas.creating_animation() == 1: return
 
       if self.create_flg == 1:
-         self.vcs_self.canvas.animate_direction( value )
+         self.vcs_legacy_self.canvas.animate_direction( value )
 
    ##############################################################################
    # Mode sets the cycle, forth and back, or animate once                   	#
@@ -8933,42 +8933,42 @@ class animate_obj_old:
    ##############################################################################
    def mode( self, value=1 ):
       if (((not isinstance(value, types.IntType))) or (value not in [1, 3])):
-         raise vcsError, "Mode value must be between either 1 or 3."
+         raise vcs_legacyError, "Mode value must be between either 1 or 3."
 
       if value == 2:
          self.run_flg = 0
 
-      if self.vcs_self.canvas.creating_animation() == 1: return
+      if self.vcs_legacy_self.canvas.creating_animation() == 1: return
 
       if self.create_flg == 1:
-         self.vcs_self.canvas.animate_mode( value )
+         self.vcs_legacy_self.canvas.animate_mode( value )
 
    ##############################################################################
    # Update the animation display list                                      	#
    ##############################################################################
    def update_animate_display_list( self ):
-        current_display_list = self.vcs_self.return_display_names()
+        current_display_list = self.vcs_legacy_self.return_display_names()
          
         temp_list = []
-        for i in range(len(self.vcs_self.animate_info)):
-           if self.vcs_self.animate_info[i][0].name in current_display_list:
-              temp_list.append( (self.vcs_self.animate_info[i][0],
-                                self.vcs_self.animate_info[i][1]) )
-        self.vcs_self.animate_info = temp_list
+        for i in range(len(self.vcs_legacy_self.animate_info)):
+           if self.vcs_legacy_self.animate_info[i][0].name in current_display_list:
+              temp_list.append( (self.vcs_legacy_self.animate_info[i][0],
+                                self.vcs_legacy_self.animate_info[i][1]) )
+        self.vcs_legacy_self.animate_info = temp_list
 
    ##############################################################################
    # Close the animate session                                              	#
    ##############################################################################
    def close( self ):
       if self.create_flg == 1:
-         self.vcs_self.canvas.animate_close()
+         self.vcs_legacy_self.canvas.animate_close()
          self.gui_popup = 0
          self.create_flg = 0
          self.run_flg = 0
-         self.vcs_self.canvas.getcontinentstype( self.continents_hold_value )
+         self.vcs_legacy_self.canvas.getcontinentstype( self.continents_hold_value )
          self.continents_value = 0
          self.continents_hold_value = 1
-      self.vcs_self.animate_info = []
+      self.vcs_legacy_self.animate_info = []
 
       # Now that the animation is completed, restore the graphics methods min and max values.
       self.restore_min_max()
@@ -8992,8 +8992,8 @@ class animate_obj(animate_obj_old):
         canceled = QtCore.pyqtSignal()
         paused = QtCore.pyqtSignal()
 
-    def __init__(self, vcs_self):
-        animate_obj_old.__init__(self,vcs_self)
+    def __init__(self, vcs_legacy_self):
+        animate_obj_old.__init__(self,vcs_legacy_self)
         self.zoom_factor = 1.
         self.vertical_factor = 0
         self.horizontal_factor = 0
@@ -9046,9 +9046,9 @@ class animate_obj(animate_obj_old):
     def _actualCreate( self, parent=None, min=None, max=None, save_file=None, rate=5., bitrate=None, ffmpegoptions='', axis=0, sender=None):
         alen = None
         if self.canvas is None:  
-            self.canvas=vcs.init()
+            self.canvas=vcs_legacy.init()
         self.canvas.clear()
-        dims = self.vcs_self.canvasinfo()
+        dims = self.vcs_legacy_self.canvasinfo()
         if dims['height']<500:
             factor = 2
         else:
@@ -9057,7 +9057,7 @@ class animate_obj(animate_obj_old):
             self.canvas.portrait(width=dims["width"],height=dims["height"])
         self.canvas.setbgoutputdimensions(width = dims['width']*factor,height=dims['height']*factor,units='pixel')
         truncated = False
-        for I in self.vcs_self.animate_info:
+        for I in self.vcs_legacy_self.animate_info:
             if alen is None:
                 alen = I[1][0].shape[axis]
             else:
@@ -9087,16 +9087,16 @@ class animate_obj(animate_obj_old):
              minv = []
              maxv=[]
              if (min is None) or (max is None):
-                for i in range(len(self.vcs_self.animate_info)):
+                for i in range(len(self.vcs_legacy_self.animate_info)):
                    minv.append( 1.0e77 )
                    maxv.append( -1.0e77 )
-                for i in range(len(self.vcs_self.animate_info)):
-                   dpy, slab = self.vcs_self.animate_info[i]
-                   mins, maxs = vcs.minmax(slab)
+                for i in range(len(self.vcs_legacy_self.animate_info)):
+                   dpy, slab = self.vcs_legacy_self.animate_info[i]
+                   mins, maxs = vcs_legacy.minmax(slab)
                    minv[i] = float(numpy.minimum(float(minv[i]), float(mins)))
                    maxv[i] = float(numpy.maximum(float(maxv[i]), float(maxs)))
              elif ((type(min) == types.ListType) or (type(max) == types.ListType)):
-                for i in range(len(self.vcs_self.animate_info)):
+                for i in range(len(self.vcs_legacy_self.animate_info)):
                    try:
                       minv.append( min[i] )
                    except:
@@ -9106,12 +9106,12 @@ class animate_obj(animate_obj_old):
                    except:
                       maxv.append( max[-1] )
              else:
-                for i in range(len(self.vcs_self.animate_info)):
+                for i in range(len(self.vcs_legacy_self.animate_info)):
                     minv.append( min )
                     maxv.append( max )
              # Set the min an max for each plot in the page. If the same graphics method is used
              # to display the plots, then the last min and max setting of the data set will be used.
-             for i in range(len(self.vcs_self.animate_info)):
+             for i in range(len(self.vcs_legacy_self.animate_info)):
                 try:
                    self.set_animation_min_max( minv[i], maxv[i], i )
                 except Exception,err:
@@ -9121,7 +9121,7 @@ class animate_obj(animate_obj_old):
         for i in range(alen):
             #y.clear()
             frameArgs = []
-            for I in self.vcs_self.animate_info:
+            for I in self.vcs_legacy_self.animate_info:
                 d=I[0]
                 kw={}
                 n = len(I[1][0].shape)
@@ -9179,15 +9179,15 @@ class animate_obj(animate_obj_old):
         fn = os.path.join(os.environ["HOME"],".uvcdat","__uvcdat_%i_%i.png" % (self.animation_seed,i))
         self.animation_files.append(fn)
 
-        #BB: this clearing and replotting somehow fixes vcs internal state
+        #BB: this clearing and replotting somehow fixes vcs_legacy internal state
         # and prevents segfaults when running multiple animations
-        self.vcs_self.replot()
+        self.vcs_legacy_self.replot()
 
 
 
         self.canvas.clear()
-        self.vcs_self.plot(*frameArgs[0],bg=1)
-        self.vcs_self.clear()
+        self.vcs_legacy_self.plot(*frameArgs[0],bg=1)
+        self.vcs_legacy_self.clear()
         for args in frameArgs:
             self.canvas.plot(*args, bg=1)
         self.canvas.png(fn,draw_white_background=1)
@@ -9200,7 +9200,7 @@ class animate_obj(animate_obj_old):
     #             if not self.runit:
     #                 self.run_flg = 0
     #                 break
-    #             self.vcs_self.canvas.put_png_on_canvas(fn,self.zoom_factor,self.vertical_factor,self.horizontal_factor)
+    #             self.vcs_legacy_self.canvas.put_png_on_canvas(fn,self.zoom_factor,self.vertical_factor,self.horizontal_factor)
     #             import time
     #             time.sleep(self.pause_value)
 
@@ -9235,7 +9235,7 @@ class animate_obj(animate_obj_old):
         #print "Clearing!!!!!!"
         if self.create_flg == 1:
             self.current_frame = frame
-            self.vcs_self.canvas.put_png_on_canvas(self.animation_files[frame],
+            self.vcs_legacy_self.canvas.put_png_on_canvas(self.animation_files[frame],
                     self.zoom_factor, self.vertical_factor, self.horizontal_factor)
             self.signals.drew.emit()
         
@@ -9247,7 +9247,7 @@ class animate_obj(animate_obj_old):
             fnms = os.path.join(os.environ["HOME"],".uvcdat","__uvcdat_%i_%%d.png" %      (self.animation_seed))
             if rate is None:
                 rate = self.fps()
-            self.vcs_self.ffmpeg(movie, fnms, bitrate, rate, options)
+            self.vcs_legacy_self.ffmpeg(movie, fnms, bitrate, rate, options)
 
     def number_of_frames(self):
         return len(self.animation_files)

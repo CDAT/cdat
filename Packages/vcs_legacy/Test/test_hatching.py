@@ -1,7 +1,7 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
-import cdms2 as cdms,vcs,sys,support
+import cdms2 as cdms,vcs_legacy,sys,support
 bg=support.bg
-x=vcs.init()
+x=vcs_legacy.init()
 
 f=x.createfillarea('test')
 f.x=[.2,.2,.8,.8]

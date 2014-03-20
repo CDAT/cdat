@@ -30,10 +30,10 @@
 #                                                                          #
 ############################################################################
 def test():
-   import vcs,time,support,sys,os                      # import vcs and cu
+   import vcs_legacy,time,support,sys,os                      # import vcs_legacy and cu
    bg=support.bg
    
-   x=vcs.init()                         # construct vcs canvas
+   x=vcs_legacy.init()                         # construct vcs_legacy canvas
    
    x.plot('default','continents','ASD',bg=bg)# plot slab the old way
    support.check_plot(x)
@@ -46,10 +46,10 @@ def test():
    
    obj = x.listelements('continents')                 # show list of continents
    a=x.createcontinents('quick')         	# get 'quick' continents
-   if not vcs.isgraphicsmethod(a):            # test object 'a' for graphics method
+   if not vcs_legacy.isgraphicsmethod(a):            # test object 'a' for graphics method
       raise Exception, "Error not a gm"
    else:
-      if not vcs.iscontinents(a):             # test object 'a' if continents
+      if not vcs_legacy.iscontinents(a):             # test object 'a' if continents
          raise Exception,"Error wrong type of gm"
    x.clear()
    x.plot(a,bg=bg)
@@ -105,7 +105,7 @@ def test():
    
    objs =x.listelements('template')                   # get the list of templates
    t=x.createtemplate('test')           # create template 'test' from 'default' template
-   if not vcs.istemplate(t):                  # test whether 't' is a template or not
+   if not vcs_legacy.istemplate(t):                  # test whether 't' is a template or not
       raise Exception,"Error template not created"
    else:
       a2 =x.listelements('template')                   # get the list of templates
@@ -124,10 +124,10 @@ def test():
    #########################################################################
    objs = x.listelements('line')                      	# show the list of line secondary objects
    l=x.getline('red')                	# get line 'red'
-   if not vcs.issecondaryobject(l):           # check to see if it is a secondary object
+   if not vcs_legacy.issecondaryobject(l):           # check to see if it is a secondary object
       raise Exception,"Error did not get line"
    else:
-      if not vcs.isline(l):                  	# check to see if it is a line
+      if not vcs_legacy.isline(l):                  	# check to see if it is a line
          raise Exception, "Error object created is not line"
    
    #########################################################################

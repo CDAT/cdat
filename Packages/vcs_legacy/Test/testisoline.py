@@ -28,12 +28,12 @@
 #                                                                          #
 ############################################################################
 def test():
-   import vcs,cdms2 as cdms,time,os,sys,support          # import vcs and cu
+   import vcs_legacy,cdms2 as cdms,time,os,sys,support          # import vcs_legacy and cu
    bg=support.bg
    
    f=cdms.open(os.path.join(cdms.__path__[0],'..','..','..','..','sample_data','clt.nc')) # open clt file
    s=f('clt')                   	# get slab clt
-   x=vcs.init()                         # construct vcs canvas
+   x=vcs_legacy.init()                         # construct vcs_legacy canvas
    
    x.plot(s,'default','isoline','quick',bg=support.bg)# plot slab the old way
    support.check_plot(x)
@@ -47,10 +47,10 @@ def test():
 
    
    a=x.getisoline('quick') 		# get 'quick' isoline graphics method
-   if not vcs.isgraphicsmethod(a):            # test object 'a' for graphics method
+   if not vcs_legacy.isgraphicsmethod(a):            # test object 'a' for graphics method
       raise Exception, "Error did not retrieve the gm"
    else:
-      if not vcs.isisoline(a):		# check for isoline
+      if not vcs_legacy.isisoline(a):		# check for isoline
          raise Exception, "Error gm is not right type"
    
    a.script('test','w')                 # save 'quick' isoline as a Python script
@@ -149,7 +149,7 @@ def test():
    #########################################################################
    objs =x.listelements('template')                   # get the list of templates
    t=x.createtemplate('test')           # create template 'test' from 'default' template
-   if not vcs.istemplate(t):                  # test whether 't' is a template or not
+   if not vcs_legacy.istemplate(t):                  # test whether 't' is a template or not
       raise Exception,"Error template not created"
    else:
       a2 =x.listelements('template')                   # get the list of templates
@@ -161,10 +161,10 @@ def test():
    #########################################################################
    l=x.createline('test')
    objs = x.listelements('line')                      	# show the list of line secondary objects
-   if not vcs.issecondaryobject(l):           # check to see if it is a secondary object
+   if not vcs_legacy.issecondaryobject(l):           # check to see if it is a secondary object
       raise Exception,"Error did not get line"
    else:
-      if not vcs.isline(l):                  	# check to see if it is a line
+      if not vcs_legacy.isline(l):                  	# check to see if it is a line
          raise Exception, "Error object created is not line"
    
    x.clear()                            # clear the VCS Canvas
@@ -194,15 +194,15 @@ def test():
    # Create the three types of text objects                                #
    #########################################################################
    tc = x.createtextcombined('testc','std', 'testc','7left')
-   if not vcs.istextcombined(tc):
+   if not vcs_legacy.istextcombined(tc):
       raise Exception,"Error not textcombined!"
    
    tt = x.createtexttable('testt', 'default')
-   if not vcs.istexttable(tt):
+   if not vcs_legacy.istexttable(tt):
       raise Exception,"Error not texttable"
    
    to = x.createtextorientation('testo')
-   if not vcs.istextorientation(to):
+   if not vcs_legacy.istextorientation(to):
       raise Exception,"Error not textorientation"
    
    #########################################################################

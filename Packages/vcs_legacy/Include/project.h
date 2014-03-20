@@ -1,5 +1,5 @@
 #define PRJ_TYPES 4	/* Total number of projection types modelled.	*/
-#include "vcs_names_length.h"
+#include "vcs_legacy_names_length.h"
 	/*	Projection parameters are defined in the following structures.	*/
 
 	struct projection_attr

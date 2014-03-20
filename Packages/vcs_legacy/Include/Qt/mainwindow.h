@@ -6,9 +6,9 @@
 #include <QtCore/QThread>
 #include <QtCore/QWaitCondition>
 #include <QtGui/QMainWindow>
-#include <pyvcs.h>
+#include <pyvcs_legacy.h>
 #include "xgks.h"
-#include "vcs_events.h"
+#include "vcs_legacy_events.h"
 #include "qti.h"
 
 #define VCS_SHOW_EVENT QEvent::Type(QEvent::User+1)
@@ -45,7 +45,7 @@ public:
   
   void paintEvent(QPaintEvent *);
   virtual bool event(QEvent *);
-  PyVCScanvas_Object *vcs_obj;
+  PyVCScanvas_Object *vcs_legacy_obj;
   void setupCairo();
   void unsetupCairo();
   void *image;
@@ -74,9 +74,9 @@ public:
   void *data;
 };
 
-extern "C" void vcs_acquire_update();
+extern "C" void vcs_legacy_acquire_update();
 
-extern "C" void vcs_release_update();
+extern "C" void vcs_legacy_release_update();
 
 
 #endif

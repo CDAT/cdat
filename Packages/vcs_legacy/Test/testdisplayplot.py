@@ -28,7 +28,7 @@
 #                                                                          #
 ############################################################################
 def test():
-   import vcs,cdms2 as cdms,time,os,sys,support			# import vcs and cdms
+   import vcs_legacy,cdms2 as cdms,time,os,sys,support			# import vcs_legacy and cdms
 
    bg=support.bg
    
@@ -36,7 +36,7 @@ def test():
    s1=f.getslab('clt')			# get slab clt
    s2=f.getslab('clt',4,4,-45,45,-90,90)
    s3=f.getslab('clt',6,6,0,90,0,180)
-   x=vcs.init()				# construct vcs canvas
+   x=vcs_legacy.init()				# construct vcs_legacy canvas
    
    p1=x.plot(s1,bg=bg)			# plot slab the old way
    support.check_plot(x)
@@ -45,7 +45,7 @@ def test():
    
    p2=x.getplot('dpy_plot_2')		# get display plot s2
 
-   if not vcs.queries.isplot(p1):			# check for display plot object
+   if not vcs_legacy.queries.isplot(p1):			# check for display plot object
       raise exception, "Error, p1 not a display!"
 
 

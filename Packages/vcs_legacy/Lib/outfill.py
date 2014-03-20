@@ -26,7 +26,7 @@
 # Import: VCS C extension module.                                             #
 #                                                                             #
 ###############################################################################
-import _vcs, queries, vcs, VCS_validation_functions, cdtime
+import _vcs_legacy, queries, vcs_legacy, VCS_validation_functions, cdtime
 import Canvas
 from types import *
 import AutoAPI
@@ -56,7 +56,7 @@ def setGfomember(self,member,value):
         self.parent.canvas.BLOCK_X_SERVER()
         self.parent.canvasraised()
 
-     _vcs.setGfomember(self, member, value, self.parent.mode)
+     _vcs_legacy.setGfomember(self, member, value, self.parent.mode)
 
      # If the VCS Canvas is displayed, then update the backing store
      if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()):
@@ -82,7 +82,7 @@ setmember = setGfomember
 #                                                                             #
 ###############################################################################
 def getGfomember(self,member):
-     return _vcs.getGfomember(self,member)
+     return _vcs_legacy.getGfomember(self,member)
 getmember = getGfomember
 
 ###############################################################################
@@ -101,7 +101,7 @@ getmember = getGfomember
 #                                                                             #
 ###############################################################################
 def renameGfo(self, old_name, new_name):
-     return _vcs.renameGfo(old_name, new_name)
+     return _vcs_legacy.renameGfo(old_name, new_name)
 
 class Gfo(object,AutoAPI.AutoAPI):
     """
@@ -121,7 +121,7 @@ class Gfo(object,AutoAPI.AutoAPI):
     Fillarea and outfill attributes.
 
  Other Useful Functions:
-	    a=vcs.init()		# Constructor
+	    a=vcs_legacy.init()		# Constructor
 	    a.show('outfill')		# Show predefined outfill graphics methods
 	    a.show('line')		# Show predefined VCS line objects
 	    a.setcolormap("AMIP")	# Change the VCS color map
@@ -133,7 +133,7 @@ class Gfo(object,AutoAPI.AutoAPI):
 				          update the VCS Canvas.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     To Create a new instance of outfill use:
      out=a.createoutfill('new','quick') # Copies content of 'quick' to 'new'
      out=a.createoutfill('new') 	# Copies content of 'default' to 'new'
@@ -446,7 +446,7 @@ class Gfo(object,AutoAPI.AutoAPI):
            if (Gfo_name == None):
               raise ValueError, 'Must provide a outfill name.'
            else:
-              _vcs.copyGfo(Gfo_name_src, Gfo_name)
+              _vcs_legacy.copyGfo(Gfo_name_src, Gfo_name)
               self._name = Gfo_name
         else:
               self._name = Gfo_name_src
@@ -570,7 +570,7 @@ class Gfo(object,AutoAPI.AutoAPI):
     def script(self, script_filename, mode='a'):
         """
 %s
- Function:     script                           # Calls _vcs.scriptGfo
+ Function:     script                           # Calls _vcs_legacy.scriptGfo
 
  Description of Function:
        Saves out a outfill graphics method in Python or VCS script form to a
@@ -586,7 +586,7 @@ class Gfo(object,AutoAPI.AutoAPI):
                     produce a VCS script. If neither extensions are give, then by
                     default a Python script will be produced.
 
-    a=vcs.init()
+    a=vcs_legacy.init()
     out=a.createoutfill('temp')
     out.script('filename.py')         # Append to a Python file "filename.py"
     out.script('filename.scr')        # Append to a VCS file "filename.scr"
@@ -603,7 +603,7 @@ class Gfo(object,AutoAPI.AutoAPI):
         # By default, save file in python script mode
         scr_type = script_filename[len(script_filename)-4:len(script_filename)]
         if (scr_type == '.scr'):
-           print _vcs.scriptGfo(self.name,script_filename,mode)
+           print _vcs_legacy.scriptGfo(self.name,script_filename,mode)
         else:
            mode = mode + '+'
            py_type = script_filename[len(script_filename)-3:len(script_filename)]
@@ -618,8 +618,8 @@ class Gfo(object,AutoAPI.AutoAPI):
               fp.write("# Import and Initialize VCS     #\n")
               fp.write("#                             #\n")
               fp.write("#############################\n")
-              fp.write("import vcs\n")
-              fp.write("v=vcs.init()\n\n")
+              fp.write("import vcs_legacy\n")
+              fp.write("v=vcs_legacy.init()\n\n")
 
            unique_name = '__Gfo__' + self.name
            fp.write("#----------Outfill (Gfo) member (attribute) listings ----------\n")

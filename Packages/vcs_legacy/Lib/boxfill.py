@@ -26,8 +26,8 @@
 # Import: VCS C extension module.                                             #
 #                                                                             #
 ###############################################################################
-import _vcs
-import vcs
+import _vcs_legacy
+import vcs_legacy
 import Canvas
 import isofill
 import cdtime
@@ -61,7 +61,7 @@ def setGfbmember(self,member,value):
         self.parent.canvas.BLOCK_X_SERVER()
         self.parent.canvasraised()
 
-     _vcs.setGfbmember(self, member, value, self.parent.mode)
+     _vcs_legacy.setGfbmember(self, member, value, self.parent.mode)
 
      # If the VCS Canvas is displayed, then update the backing store
      if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()): 
@@ -88,7 +88,7 @@ setmember=setGfbmember
 #                                                                             #
 ###############################################################################
 def getGfbmember(self,member):
-     return _vcs.getGfbmember(self,member)
+     return _vcs_legacy.getGfbmember(self,member)
 
 ###############################################################################
 #                                                                             #
@@ -106,7 +106,7 @@ def getGfbmember(self,member):
 #                                                                             #
 ###############################################################################
 def renameGfb(self, old_name, new_name):
-     return _vcs.renameGfb(old_name, new_name)
+     return _vcs_legacy.renameGfb(old_name, new_name)
 
 #############################################################################
 #                                                                           #
@@ -141,7 +141,7 @@ class Gfb(object,AutoAPI.AutoAPI):
     boxfill table entry.                                 
 
  Other Useful Functions:                    
-               a=vcs.init()             # Constructor                       
+               a=vcs_legacy.init()             # Constructor                       
                a.show('boxfill')        # Show predefined boxfill graphics methods
                a.setcolormap("AMIP")    # Change the VCS color map
                a.boxfill(s,b,'default') # Plot data 's' with boxfill 'b' and 
@@ -152,7 +152,7 @@ class Gfb(object,AutoAPI.AutoAPI):
                                           update the VCS Canvas.   
                                                               
  Example of Use:                                               
-    a=vcs.init()                                              
+    a=vcs_legacy.init()                                              
     To Create a new instance of boxfill use:                   
      box=a.createboxfill('new','quick') # Copies content of 'quick' to 'new' 
      box=a.createboxfill('new') 	# Copies content of 'default' to 'new'  
@@ -330,7 +330,7 @@ class Gfb(object,AutoAPI.AutoAPI):
            if (Gfb_name == None):
               raise ValueError, 'Must provide a boxfill name.'
            else:
-              _vcs.copyGfb(Gfb_name_src, Gfb_name)
+              _vcs_legacy.copyGfb(Gfb_name_src, Gfb_name)
               self._name = Gfb_name
         else:
               self._name=Gfb_name_src
@@ -813,7 +813,7 @@ class Gfb(object,AutoAPI.AutoAPI):
     def script(self, script_filename, mode='a'):
         """
 %s
- Function:     script				# Calls _vcs.scriptGfb
+ Function:     script				# Calls _vcs_legacy.scriptGfb
 
  Description of Function:                                                      
        Saves out a boxfill graphics method in Python or VCS script form to a
@@ -829,7 +829,7 @@ class Gfb(object,AutoAPI.AutoAPI):
                     produce a VCS script. If neither extensions are give, then by
                     default a Python script will be produced.
 
-    a=vcs.init()
+    a=vcs_legacy.init()
     box=a.createboxfill('temp')
     box.script('filename.py')         # Append to a Python file "filename.py"
     box.script('filename.scr')        # Append to a VCS file "filename.scr"
@@ -846,7 +846,7 @@ class Gfb(object,AutoAPI.AutoAPI):
         # By default, save file in python script mode
         scr_type = script_filename[len(script_filename)-4:len(script_filename)]
         if (scr_type == '.scr'):
-           print _vcs.scriptGfb(self.name,script_filename,mode)
+           print _vcs_legacy.scriptGfb(self.name,script_filename,mode)
         else:
            mode = mode + '+'
            py_type = script_filename[len(script_filename)-3:len(script_filename)]
@@ -861,8 +861,8 @@ class Gfb(object,AutoAPI.AutoAPI):
               fp.write("# Import and Initialize VCS     #\n")
               fp.write("#                             #\n")
               fp.write("#############################\n")
-              fp.write("import vcs\n")
-              fp.write("v=vcs.init()\n\n")
+              fp.write("import vcs_legacy\n")
+              fp.write("v=vcs_legacy.init()\n\n")
 
            unique_name = '__Gfb__' + self.name
            fp.write("#----------Boxfill (Gfb) member (attribute) listings ----------\n")

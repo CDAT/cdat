@@ -12,7 +12,7 @@ bool VCSQtManager::isCreated() {
 static void createWindows() {
   for (size_t i=0; i<sizeof(pMainWindows)/sizeof(MainWindow*); i++) {
     pMainWindows[i] = new MainWindow();
-    pMainWindows[i]->vcs_obj = NULL;
+    pMainWindows[i]->vcs_legacy_obj = NULL;
     pMainWindows[i]->image = NULL;
   }
 }

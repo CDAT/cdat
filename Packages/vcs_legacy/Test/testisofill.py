@@ -27,19 +27,19 @@
 #                                                                          #
 ############################################################################
 def test():
-   import vcs,cdms2 as cdms,time,os,sys,support                      # import vcs and cdms
+   import vcs_legacy,cdms2 as cdms,time,os,sys,support                      # import vcs_legacy and cdms
 
    bg = support.bg
 
    f=cdms.open(os.path.join(cdms.__path__[0],'..','..','..','..','sample_data','clt.nc'))
    s=f('clt')                           # get slab clt
-   x=vcs.init()                         # construct vcs canvas
+   x=vcs_legacy.init()                         # construct vcs_legacy canvas
    
    x.plot(s,'default','isofill','quick',bg=bg)# plot slab the old way
    support.check_plot(x)
 
    # Check the legend
-   g=x.createisofill('vcsmoduletest')
+   g=x.createisofill('vcs_legacymoduletest')
    x.clear()				# clear the VCS Canvas
    x.plot(s,g,bg=bg)				# plot slab the new way
    support.check_plot(x)
@@ -63,10 +63,10 @@ def test():
    support.check_plot(x)
    
    a=x.getisofill('quick') 		# get 'quick' isofill graphics method
-   if not vcs.isgraphicsmethod(a):            # test object 'a' for graphics method
+   if not vcs_legacy.isgraphicsmethod(a):            # test object 'a' for graphics method
       raise Exception, "Error did not retrieve the gm"
    else:
-      if not vcs.isisofill(a):		# check for isofill
+      if not vcs_legacy.isisofill(a):		# check for isofill
          raise Exception, "Error gm is not right type"
    
    a.script('test','w')			# save 'quick' isofill as a Python script
@@ -154,7 +154,7 @@ def test():
    
    objs =x.listelements('template')                   # get the list of templates
    t=x.createtemplate('test')           # create template 'test' from 'default' template
-   if not vcs.istemplate(t):                  # test whether 't' is a template or not
+   if not vcs_legacy.istemplate(t):                  # test whether 't' is a template or not
       raise Exception,"Error template not created"
    else:
       a2 =x.listelements('template')                   # get the list of templates
@@ -163,10 +163,10 @@ def test():
    
    objs = x.listelements('fillarea')                      	# show the list of fillarea secondary objects
    f=x.getfillarea('AuTo_1')                	# get fillarea 'red'
-   if not vcs.issecondaryobject(f):           # check to see if it is a secondary object
+   if not vcs_legacy.issecondaryobject(f):           # check to see if it is a secondary object
       raise Exception,"Error did not get fillarea"
    else:
-      if not vcs.isfillarea(f):                  	# check to see if it is a fillarea
+      if not vcs_legacy.isfillarea(f):                  	# check to see if it is a fillarea
          raise Exception, "Error object created is not fillarea"
    
    a.levels=(220,225,230,235,240,250,260,270,280,290,300,310)	# change the isofill levels

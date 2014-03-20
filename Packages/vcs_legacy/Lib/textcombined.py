@@ -33,7 +33,7 @@ import texttable
 import textorientation
 from types import *
 import VCS_validation_functions
-import _vcs
+import _vcs_legacy
 
 #############################################################################
 #                                                                           #
@@ -54,7 +54,7 @@ class Tc(object):
     entry used in VCS.
 
  Other Useful Functions:
-	     a=vcs.init()               # Constructor
+	     a=vcs_legacy.init()               # Constructor
              a.show('texttable')        # Show predefined text table objects
              a.show('textorientation')  # Show predefined text orientation objects
              a.update()                 # Updates the VCS Canvas at user's request
@@ -62,7 +62,7 @@ class Tc(object):
                                           0, then use update function to
                                           update the VCS Canvas.
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     To Create a new instance of text table use:
      tc=a.createtextcombined('new_tt','std','new_to','7left')  # Copies content of 
                                         # 'std' to 'new_tt' and '7left' to 'new_to'
@@ -266,7 +266,7 @@ class Tc(object):
     #                                                                           #
     #############################################################################
     def __init__(self, parent, Tt_name=None, Tt_name_src='default', To_name=None, To_name_src='default', createTc=0):
-        import vcs
+        import vcs_legacy
         if (createTc == 0):
            if (Tt_name == None):
               raise ValueError, 'Must provide a text table name.'
@@ -570,7 +570,7 @@ class Tc(object):
     #############################################################################
     def script(self, script_filename=None,mode=None):
         '''
- Function:     script                           # Calls _vcs.scripTo
+ Function:     script                           # Calls _vcs_legacy.scripTo
 
  Description of Function:
        Saves out a text table and text orientation graphics method in Python or
@@ -586,13 +586,13 @@ class Tc(object):
 		    produce a VCS script. If neither extensions are give, then by
 		    default a Python script will be produced.
 
-    a=vcs.init()
+    a=vcs_legacy.init()
     tc=a.createtextcombined('new_tt','std','new_to','7left')
     tc.script('filename.py')	     # Append to a Python file "filename.py"
     tc.script('filename.scr')	     # Append to a VCS file "filename.scr"
     tc.script('filename','w')	     # Create or overwrite to a Python file "filename.py"
 '''
-        import _vcs
+        import _vcs_legacy
  
         if (script_filename == None):
           raise ValueError, 'Error - Must provide an output script file name.'
@@ -605,8 +605,8 @@ class Tc(object):
         # By default, save file in python script mode
         scr_type = script_filename[len(script_filename)-4:len(script_filename)]
         if (scr_type == '.scr'):
-           _vcs.scriptTt(self.Tt_name,script_filename,mode)
-           print _vcs.scriptTo(self.To_name,script_filename,"a")
+           _vcs_legacy.scriptTt(self.Tt_name,script_filename,mode)
+           print _vcs_legacy.scriptTo(self.To_name,script_filename,"a")
         else:
            mode = mode + '+'
            py_type = script_filename[len(script_filename)-3:len(script_filename)]
@@ -621,8 +621,8 @@ class Tc(object):
               fp.write("# Import and Initialize VCS     #\n")
               fp.write("#                             #\n")
               fp.write("#############################\n")
-              fp.write("import vcs\n")
-              fp.write("v=vcs.init()\n\n")
+              fp.write("import vcs_legacy\n")
+              fp.write("v=vcs_legacy.init()\n\n")
 
            unique_name = '__Tt__' + self.Tt_name
            fp.write("#----------Text Table (Tt) member (attribute) listings ----------\n")

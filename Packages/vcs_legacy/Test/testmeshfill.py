@@ -33,7 +33,7 @@
 #                                                                          #
 ############################################################################
 
-import vcs
+import vcs_legacy
 import cdms2 as cdms
 import sys
 import os
@@ -43,22 +43,22 @@ f=cdms.open(os.path.join(cdms.__path__[0],'..','..','..','..','sample_data','mes
 M=f('Mesh')
 s=f('Data')
 
-x=vcs.init()
+x=vcs_legacy.init()
 x.scriptrun(os.path.join(cdms.__path__[0],'..','..','..','..','bin','ASD.scr'))
 m=x.getmeshfill('ASD')
 m.wrap=[0,360]
 m.mesh='y'
-#mn,mx=vcs.minmax(s)
-levs=vcs.mkscale(-10,30)
+#mn,mx=vcs_legacy.minmax(s)
+levs=vcs_legacy.mkscale(-10,30)
 #print levs
-levs=vcs.mkevenlevels(levs[0],levs[-1],256)
+levs=vcs_legacy.mkevenlevels(levs[0],levs[-1],256)
 levs2=levs[::25]
 if levs2[-1]!=levs[-1]: levs2.append(levs[-1])
-lbls=vcs.mklabels(levs2)
+lbls=vcs_legacy.mklabels(levs2)
 #print levs
 m.legend=lbls
 m.levels=levs[::-1]
-m.fillareacolors=vcs.getcolors(levs)
+m.fillareacolors=vcs_legacy.getcolors(levs)
 ## m.list()
 x.plot(s,M,m,bg=support.bg)
 support.check_plot(x)

@@ -9,7 +9,7 @@
 #endif
 
 #include "workstations.h"
-#include "vcs_canvas.h"
+#include "vcs_legacy_canvas.h"
 #include "color.h"
 
 #ifdef INTERFACE
@@ -114,7 +114,7 @@ int save_image (FILE *file)
 		           connect_id.drawable,
                            0, 0, width, height, XAllPlanes(), ZPixmap);
 #elif defined QTWM
-	vcs_Qt_window_get_image_by_id(connect_id.wkst_id,&ximage);
+	vcs_legacy_Qt_window_get_image_by_id(connect_id.wkst_id,&ximage);
 #else
 	fprintf(stderr,"insert here your WM to get image\n");
 #endif
@@ -256,8 +256,8 @@ int	image_ct;
         if (ximage->depth == 8)
            convert_gks_color(r, g, b); /* Convert X colors to u_char arrays */
 #elif defined QTWM
-	vcs_Qt_window_get_image_by_id(connect_id.wkst_id,&ximage);
-	vcs_Qt_get_window_dimensions_by_id(connect_id.wkst_id,&x_loc,&y_loc,&width,&height);
+	vcs_legacy_Qt_window_get_image_by_id(connect_id.wkst_id,&ximage);
+	vcs_legacy_Qt_get_window_dimensions_by_id(connect_id.wkst_id,&x_loc,&y_loc,&width,&height);
 #else
 	fprintf(stderr,"insert here your get image func\n");
 #endif

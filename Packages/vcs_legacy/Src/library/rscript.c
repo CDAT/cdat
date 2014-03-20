@@ -255,7 +255,7 @@
 		 return 0;
 		}
 	     }
-	   vcs_canvas_update(0);
+	   vcs_legacy_canvas_update(0);
 	  } while (c != EOF && c != 0 &&
 		(c=getsttk(str,&tok)) != EOF && tok != EOF);
 	if (c == EOF) c=1;

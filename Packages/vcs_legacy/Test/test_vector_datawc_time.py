@@ -1,5 +1,5 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
-import sys,cdms2 as cdms,vcs,cdtime,support,os
+import sys,cdms2 as cdms,vcs_legacy,cdtime,support,os
 bg=support.bg
 
 t0=cdtime.comptime(1999)
@@ -13,8 +13,8 @@ s4=s2()
 
 t3=s3.getTime()
 t3.units='days since 2001'
-x=vcs.init()
-y=vcs.init()
+x=vcs_legacy.init()
+y=vcs_legacy.init()
 
 b=x.createvector('new2')
 b.datawc_y1=t0

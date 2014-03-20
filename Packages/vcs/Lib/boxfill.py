@@ -36,77 +36,6 @@ import AutoAPI
 import xmldocs
 #### from gm_core import * No need to import
 
-###############################################################################
-#                                                                             #
-# Function:	setGfbmember                                                  #
-#                                                                             #
-# Description of Function:                                                    #
-# 	Private function to update the VCS canvas plot. If the canvas mode is #
-#       set to 0, then this function does nothing.              	      #
-#                                                                             #
-#                                                                             #
-# Example of Use:                                                             #
-#      setGfbmember(self,name,value)					      #
-#              where: self is the class (e.g., Gfb)                           #
-#                     name is the name of the member that is being changed    #
-#                     value is the new value of the member (or attribute)     #
-#                                                                             #
-###############################################################################
-def setGfbmember(self,member,value):
-     # If the VCS Canvas is displayed, then bring the canvas to the front before 
-     # redisplaying the updated contents.
-     if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()): 
-        Canvas.finish_queued_X_server_requests( self.parent )
-        self.parent.canvas.BLOCK_X_SERVER()
-        self.parent.canvasraised()
-
-     _vcs.setGfbmember(self, member, value, self.parent.mode)
-
-     # If the VCS Canvas is displayed, then update the backing store
-     if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()): 
-        self.parent.flush()
-        self.parent.backing_store()
-        self.parent.canvas.UNBLOCK_X_SERVER()
-
-setmember=setGfbmember
-
-###############################################################################
-#                                                                             #
-# Function:     getGfbmember                                                  #
-#                                                                             #
-# Description of Function:                                                    #
-#       Private function that retrieves the boxfill members from the C        #
-#       structure and passes it back to Python.                               #
-#                                                                             #
-#                                                                             #
-# Example of Use:                                                             #
-#      return_value =							      #
-#      getGfbmember(self,name)                                                #
-#              where: self is the class (e.g., Gfb)                           #
-#                     name is the name of the member that is being found      #
-#                                                                             #
-###############################################################################
-def getGfbmember(self,member):
-     return _vcs.getGfbmember(self,member)
-
-###############################################################################
-#                                                                             #
-# Function:     renameGfb                                                     #
-#                                                                             #
-# Description of Function:                                                    #
-#       Private function that renames the name of an existing boxfill         #
-#       graphics method.                                                      #
-#                                                                             #
-#                                                                             #
-# Example of Use:                                                             #
-#      renameGfb(old_name, new_name)                                          #
-#              where: old_name is the current name of boxfill graphics method #
-#                     new_name is the new name for the boxfill graphics method#
-#                                                                             #
-###############################################################################
-def renameGfb(self, old_name, new_name):
-     return _vcs.renameGfb(old_name, new_name)
-
 #############################################################################
 #                                                                           #
 # Boxfill (Gfb) graphics method Class.                                      #
@@ -236,10 +165,21 @@ class Gfb(object,AutoAPI.AutoAPI):
                 fill.color=241                           # change color
                 fill.index=3                             # change style index
 """
-    rename=renameGfb # Alias for VCS_Validation_Functions
+    def rename(self,newname):
+      if newname == "default":
+        raise Exception,"You cannot overwrite the default boxfill graphic method"
+      if newname in vcs.elements["boxfill"].keys():
+        raise Exception,"Sorry %s boxfill graphic method already exists" % newname
+      vcs.elements["boxfill"][newname]=vcs.elements["boxfill"][self.name]
+      if self.name=="default":
+        warnings.warn("You were trying to rename the 'deafult' boxfill method, it was merely copied not renamed")
+      else:
+        del(vcs.elements["boxfill"][self.name])
+      self = vcs.elements["boxfill"][newname]
+      return
+
     __slots__=[
          '__doc__',
-         'parent',
          'name',
          'g_name',
          'xaxisconvert',
@@ -315,76 +255,84 @@ class Gfb(object,AutoAPI.AutoAPI):
     # Initialize the boxfill attributes.                                      #
     #                                                                         #
     ###########################################################################
-    def __init__(self, parent, Gfb_name=None, Gfb_name_src='default', createGfb=0):
+    def __init__(self, Gfb_name=None, Gfb_name_src='default'):
 	#                                                         #
-        ###########################################################
-	# Initialize the boxfill class and its members            #
-        #							  #
-	# The getGfbmember function retrieves the values of the   #
-        # boxfill members in the C structure and passes back the  #
-	# appropriate Python Object.                              #
-        ###########################################################
-	#                                                         #
-        if (createGfb == 0):
-           if (Gfb_name == None):
-              raise ValueError, 'Must provide a boxfill name.'
-           else:
-              _vcs.copyGfb(Gfb_name_src, Gfb_name)
-              self._name = Gfb_name
-        else:
-              self._name=Gfb_name_src
-	#                                                         #
-        ###########################################################
-        # Inherits core graphics method attributes.		  #
-        ###########################################################
-	#                                                         #
-        self._projection=getGfbmember(self, 'projection')
-        self._xticlabels1=getGfbmember(self, 'xticlabels1')
-        self._xticlabels2=getGfbmember(self, 'xticlabels2')
-        self._xmtics1=getGfbmember(self, 'xmtics1')
-        self._xmtics2=getGfbmember(self, 'xmtics2')
-        self._yticlabels1=getGfbmember(self, 'yticlabels1')
-        self._yticlabels2=getGfbmember(self, 'yticlabels2')
-        self._ymtics1=getGfbmember(self, 'ymtics1')
-        self._ymtics2=getGfbmember(self, 'ymtics2')
-        self._datawc_y1=getGfbmember(self, 'datawc_y1')
-        self._datawc_y2=getGfbmember(self, 'datawc_y2')
-        self._datawc_x1=getGfbmember(self, 'datawc_x1')
-        self._datawc_x2=getGfbmember(self, 'datawc_x2')
-	# End Core Graphics Method attributes
+        if isinstance(Gfb_name_src,Gfb):
+          Gfb_name_src=Gfb_name_src.name
+        if Gfb_name=="default" and Gfb_name_src!="default":
+          raise "You can not alter the 'default' boxfill method"
+        self._name = "default"
         self.g_name='Gfb'
-        self._xaxisconvert=getGfbmember(self, 'xaxisconvert')
-        self._yaxisconvert=getGfbmember(self, 'yaxisconvert')
-        self._ext_1='n'
-        self._ext_2='n'
-        self._missing=getGfbmember(self, 'missing')
-        self._fillareastyle='solid'
-        self._fillareaindices=None
-        self._fillareacolors=None
-        self._levels=getGfbmember(self, 'levels')
-        self._level_1=getGfbmember(self, 'level_1')
-        self._level_2=getGfbmember(self, 'level_2')
-        self._color_1=getGfbmember(self, 'color_1')
-        self._color_2=getGfbmember(self, 'color_2')
-        self._boxfill_type=getGfbmember(self, 'boxfill_type')
-        self._datawc_timeunits=None
-        self._datawc_calendar=cdtime.DefaultCalendar
-        self._legend=getGfbmember(self, 'legend')
-        self._datawc_timeunits=getGfbmember(self, 'datawc_timeunits')
-        self._datawc_calendar=getGfbmember(self, 'datawc_calendar')
-        #                                                         #
-        ###########################################################
-        # Find and set the boxfill structure in VCS C pointer     #
-        # list. If the boxfill name does not exist, then use      #
-        # default boxfill.                                        #
-        ###########################################################
-        #                                                         #
-        self.parent=parent
+
+        if Gfb_name=="default":
+          self._projection="default"
+          self._xticlabels1="*"
+          self._xticlabels2="*"
+          self._xmtics1=""
+          self._xmtics2=""
+          self._yticlabels1="*"
+          self._yticlabels2="*"
+          self._ymtics1=""
+          self._ymtics2=""
+          self._datawc_y1=1.e20
+          self._datawc_y2=1.e20
+          self._datawc_x1=1.e20
+          self._datawc_x2=1.e20
+      # End Core Graphics Method attributes
+          self._xaxisconvert="linear"
+          self._yaxisconvert="linear"
+          self._ext_1='n'
+          self._ext_2='n'
+          self._missing=1
+          self._fillareastyle='solid'
+          self._fillareaindices=None
+          self._fillareacolors=None
+          self._levels=([1.e20,1.e20])
+          self._level_1=1.e20
+          self._level_2=1.e20
+          self._color_1=16
+          self._color_2=239
+          self._boxfill_type="linear"
+          self._datawc_timeunits=None
+          self._datawc_calendar=cdtime.DefaultCalendar
+          self._legend=None
+        else:
+          src = vcs.elements["boxfill"][Gfb_name_src]
+          self._projection=src.projection
+          self._xticlabels1=src.xticlabels1
+          self._xticlabels2=src.xticlabels2
+          self._xmtics1=src.xmtics1
+          self._xmtics2=src.xmtics2
+          self._yticlabels1=src.yticlabels1
+          self._yticlabels2=src.yticlabels2
+          self._ymtics1=src.ymtics1
+          self._ymtics2=src.ymtics2
+          self._datawc_y1=src.datawc_y1
+          self._datawc_y2=src.datawc_y2
+          self._datawc_x1=src.datawc_x1
+          self._datawc_x2=src.datawc_x2
+      # End Core Graphics Method attributes
+          self._xaxisconvert=src.xaxisconvert
+          self._yaxisconvert=src.yaxisconvert
+          self._ext_1=src.ext_1
+          self._ext_2=src.ext_2
+          self._missing=src.missing
+          self._fillareastyle=src.fillareastyle
+          self._fillareaindices=src.fillareaindices
+          self._fillareacolors=src.fillareacolors
+          self._levels=src.levels
+          self._level_1=src.level_1
+          self._level_2=src.level_2
+          self._color_1=src.color_1
+          self._color_2=src.color_2
+          self._boxfill_type=src.boxfill_type
+          self._datawc_timeunits=src.datawc_timeunits
+          self._datawc_calendar=src.datawc_calendar
+          self._legend=src.legend
         self.info=AutoAPI.Info(self)
         self.info.expose=['ALL']
-        self.info.hide+=["fillareastyle","fillareaindices"]
         self.__doc__ = self.__doc__ % xmldocs.graphics_method_core
-
+        vcs.elements["boxfill"][Gfb_name]=self
 
     ###########################################################################
     #                                                                         #

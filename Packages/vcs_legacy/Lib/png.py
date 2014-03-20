@@ -27,7 +27,7 @@
 # Import: VCS C extension module.                                              #
 #                                                                              #
 ################################################################################
-import _vcs
+import _vcs_legacy
 import Canvas
 import VCS_validation_functions
 
@@ -55,7 +55,7 @@ def setTimember(self,member,value):
         self.parent.canvas.BLOCK_X_SERVER()
         self.parent.canvasraised()
 
-     _vcs.setifmember(self, member, value, self.parent.mode)
+     _vcs_legacy.setifmember(self, member, value, self.parent.mode)
 
      # If the VCS Canvas is displayed, then update the backing store
      if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()):
@@ -81,7 +81,7 @@ setmember = setTimember # for validation functions...
 #                                                                               #
 #################################################################################
 def getTimember(self,member):
-     return _vcs.getTimember(self,member)
+     return _vcs_legacy.getTimember(self,member)
 getmember=getTimember
 
 #################################################################################
@@ -100,7 +100,7 @@ getmember=getTimember
 #                                                                               #
 #################################################################################
 def renameTi(self, old_name, new_name):
-     return _vcs.renameTi(old_name, new_name)
+     return _vcs_legacy.renameTi(old_name, new_name)
 
 #############################################################################
 #                                                                           #
@@ -120,7 +120,7 @@ class Ti(object):
     existing fillarea table entry.
 
  Other Useful Functions:
- 	     a=vcs.init()		# Constructor
+ 	     a=vcs_legacy.init()		# Constructor
 	     a.show('fillarea')		# Show predefined fillarea objects
              a.update()               	# Updates the VCS Canvas at user's request
              a.mode=1, or 0           	# If 1, then automatic update, else if
@@ -128,7 +128,7 @@ class Ti(object):
                                           update the VCS Canvas.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     To Create a new instance of fillarea use:
      fa=a.createfillarea('new','def37')	# Copies content of 'def37' to 'new'
      fa=a.createfillarea('new') 	# Copies content of 'default' to 'new'
@@ -285,7 +285,7 @@ class Ti(object):
            if (Ti_name == None):
               raise ValueError, 'Must provide a fillarea name.'
            else:
-              _vcs.copyTi(Ti_name_src, Ti_name)
+              _vcs_legacy.copyTi(Ti_name_src, Ti_name)
               self._name = Ti_name
         else:
               self._name = Ti_name_src
@@ -322,7 +322,7 @@ class Ti(object):
     #############################################################################
     def script(self, script_filename=None, mode=None):
         """
- Function:     script                           # Calls _vcs.scriptTf
+ Function:     script                           # Calls _vcs_legacy.scriptTf
 
  Description of Function:
        Saves out a fillarea graphics method in Python or VCS script form to a
@@ -338,7 +338,7 @@ class Ti(object):
                     produce a VCS script. If neither extensions are give, then by
                     default a Python script will be produced.
 
-    a=vcs.init()
+    a=vcs_legacy.init()
     fa=a.createfillarea('temp')
     fa.script('filename.py')         # Append to a Python file "filename.py"
     fa.script('filename.scr')        # Append to a VCS file "filename.scr"
@@ -355,7 +355,7 @@ class Ti(object):
         # By default, save file in python script mode
         scr_type = script_filename[len(script_filename)-4:len(script_filename)]
         if (scr_type == '.scr'):
-           print _vcs.scriptTf(self.name,script_filename,mode)
+           print _vcs_legacy.scriptTf(self.name,script_filename,mode)
         else:
            mode = mode + '+'
            py_type = script_filename[len(script_filename)-3:len(script_filename)]
@@ -370,8 +370,8 @@ class Ti(object):
               fp.write("# Import and Initialize VCS     #\n")
               fp.write("#                             #\n")
               fp.write("#############################\n")
-              fp.write("import vcs\n")
-              fp.write("v=vcs.init()\n\n")
+              fp.write("import vcs_legacy\n")
+              fp.write("v=vcs_legacy.init()\n\n")
 
            unique_name = '__Tf__' + self.name
            fp.write("#----------Fillarea (Tf) member (attribute) listings ----------\n")

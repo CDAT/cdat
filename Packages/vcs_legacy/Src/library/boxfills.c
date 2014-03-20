@@ -39,7 +39,7 @@
 
     int nicedf(float a,float b,float *dr,int *pw10,float *center);
 
-    int vcs_compute_legend_values(int horiz, S_boxfill *regis,
+    int vcs_legacy_compute_legend_values(int horiz, S_boxfill *regis,
                                   struct pe_leg pe, float vch,
                                   struct table_line *pTl, 
                                   int num, int l1, int l2, int boxfill_type);
@@ -1260,7 +1260,7 @@
 /* 		VCS will compute the legend values.			*/
 	     else if ((ptgfb->pGfb_attr->boxfill_type == 0) ||
 	         (ptgfb->pGfb_attr->boxfill_type == 2))
-	       ier = vcs_compute_legend_values(horiz, regis, pe, vch, pTl,
+	       ier = vcs_legacy_compute_legend_values(horiz, regis, pe, vch, pTl,
 			     num, l1, l2, ptgfb->pGfb_attr->boxfill_type);
 	     else if    (ptgfb->pGfb_attr->boxfill_type == 3)
                if (ptgfb->pGfb_attr->ext_1 == 'y') regis[0].l1 = regis_store_1;   /* restore the regis values */
@@ -1750,7 +1750,7 @@ void show_legend_numbers(int horiz, S_boxfill *regis, struct pe_leg pe,
 }
 
 /* 		VCS will compute the legend values			*/
-int vcs_compute_legend_values(int horiz, S_boxfill *regis, struct pe_leg pe, 
+int vcs_legacy_compute_legend_values(int horiz, S_boxfill *regis, struct pe_leg pe, 
                               float vch, struct table_line *pTl, int num,
 			      int l1, int l2, int boxfill_type)
 {

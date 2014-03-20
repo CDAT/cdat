@@ -360,7 +360,7 @@
 
 #include "cddrs.h"
 
-      struct data_flo *compile_vcs (struct a_tab *ptab);
+      struct data_flo *compile_vcs_legacy (struct a_tab *ptab);
 
 
     int checkA_attr(struct a_tab *ptab)
@@ -401,7 +401,7 @@
 	if (pa->f != NULL)
 	  {
 
-	   if ((pd=compile_vcs(ptab)) == NULL)
+	   if ((pd=compile_vcs_legacy(ptab)) == NULL)
 	     {
 	      err_warn(1,fperr,"Error - compiling assignment for A_%s.\n",
 									a_name);

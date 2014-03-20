@@ -27,10 +27,10 @@
 ############################################################################
 def test():
 
-   import vcs,support,sys
+   import vcs_legacy,support,sys
    bg=support.bg
    
-   x=vcs.init()
+   x=vcs_legacy.init()
    
    # For plotting of each test case, set the pause time to 1.
    x.pause_time=1

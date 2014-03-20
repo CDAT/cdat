@@ -1,4 +1,4 @@
-#include "vcs_events.h"
+#include "vcs_legacy_events.h"
 #include "display.h"
 #include "cdms.h"
 #include "project.h"
@@ -53,7 +53,7 @@ extern "C" int format (char *s_name,char *s_units,double r,char *fmt_set,char st
 extern "C" int cmpncs(char *s1,char *s2);
 extern "C" int draw_selected(struct item_list *selected_items, int shadow);
 extern "C" int chk_mov_To(struct table_chorn *pt);
-extern "C" int vcs_canvas_update ( short use_defer_flg );
+extern "C" int vcs_legacy_canvas_update ( short use_defer_flg );
 
 /* Python Calls */
 /* Global Python theads variables and macros. Used primarily for the template editor update. */
@@ -126,7 +126,7 @@ extern "C" void change_graphic_method(char *dname,char *gtype,char *gname)
       strcpy(dtab->g_name,gname);
       dtab->dsp_seg[3]=1; /* tells it to redraw */
       update_ind=1;
-      vcs_canvas_update(1);
+      vcs_legacy_canvas_update(1);
     }
     dtab=dtab->next;
   }
@@ -197,7 +197,7 @@ extern "C" int within_buffer(Gpoint point, Gextent extent, float buffer)
 
 /* This is an embedded Python function call. It is the Python command
  * that updates the Template Editor's entry windows with the changed
- * values. In the vcs/Lib directory, see the Canvas.py and 
+ * values. In the vcs_legacy/Lib directory, see the Canvas.py and 
  * gui_template_edit.py files to get a look at how the template
  * editor is threaded.
  */
@@ -254,7 +254,7 @@ update_template_gui( PyVCScanvas_Object *self)
 
 /* This is an embedded Python function call. It is the Python command
  * that updates the Template Editor's entry windows with the changed
- * values. In the vcs/Lib directory, see the Canvas.py and 
+ * values. In the vcs_legacy/Lib directory, see the Canvas.py and 
  * gui_template_edit.py files to get a look at how the template
  * editor is threaded.
 int draw_selected(selected_items,shadow)
@@ -480,9 +480,9 @@ PyVCS_select_all(PyVCScanvas_Object *self, PyObject *args)
 	PyObject 	*update_args;
         Gpoint 		pointA, pointB;
 
-	/* Check to see if vcs has been initalized */
+	/* Check to see if vcs_legacy has been initalized */
 	if (self == NULL) {
-           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs.init()).");
+           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs_legacy.init()).");
   	   return NULL;
 	}
         template_select_all_flg = 1; /* if set to 1, then select all */
@@ -516,9 +516,9 @@ PyVCS_unselect_all(PyVCScanvas_Object *self, PyObject *args)
 {
 	PyObject 			*update_args;
 
-	/* Check to see if vcs has been initalized */
+	/* Check to see if vcs_legacy has been initalized */
 	if (self == NULL) {
-           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs.init()).");
+           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs_legacy.init()).");
   	   return NULL;
 	}
         template_select_all_flg = 2; /* if set to 2, then unselect all */
@@ -629,7 +629,7 @@ switch_templates( PyVCScanvas_Object *self, struct item_list *selected_items)
         struct item_list *current = selected_items;
 	char *tname;
 	char *tname_tmp;
-	char *ask_from_vcs;
+	char *ask_from_vcs_legacy;
 	char *tname_orig;
 
 	extern struct p_tab    Pic_tab;
@@ -678,10 +678,10 @@ switch_templates( PyVCScanvas_Object *self, struct item_list *selected_items)
         }
 	if (switched==1)
 	  {
- 	    result = PyObject_CallMethod(tattribute, "ask_save_from_vcs", (char*)0); /* ok no idea why but nothing works w/o this... */
-	    ask_from_vcs = PyString_AsString(result); 
+ 	    result = PyObject_CallMethod(tattribute, "ask_save_from_vcs_legacy", (char*)0); /* ok no idea why but nothing works w/o this... */
+	    ask_from_vcs_legacy = PyString_AsString(result); 
 	    save = 0;
-	    if (strcmp(ask_from_vcs,"Save")==0) save = 1;
+	    if (strcmp(ask_from_vcs_legacy,"Save")==0) save = 1;
 	    Py_XDECREF( result );
 	    result=NULL;
 	    if (save==1)
@@ -2996,7 +2996,7 @@ extern "C" void resize_or_move(PyVCScanvas_Object *self,
 #define TRUE 1
 #endif
     update_ind =TRUE;
-    vcs_canvas_update(1);
+    vcs_legacy_canvas_update(1);
   PY_RELEASE_THREAD
     PY_LEAVE_THREADS
 }

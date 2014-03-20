@@ -12,7 +12,7 @@
 #include "graph.h"
 #include "display.h"
 #include "workstations.h"
-#include "vcs_marker.h"
+#include "vcs_legacy_marker.h"
 
 #define STRMAX 256
 
@@ -56,7 +56,7 @@ extern     int err_warn (int beep,FILE *fp,char *fmt,...);
 extern int XW,YW;
 #ifdef USEX11
 int updating =0;
-void vcs_acquire_update(){
+void vcs_legacy_acquire_update(){
   //fprintf(stderr,"acquiring : %i\n",updating);
   updating++;
   while (updating!=1)
@@ -65,13 +65,13 @@ void vcs_acquire_update(){
       /* 	    printf("updating none zero:%i\n",updating); */
     }
 }
-void vcs_release_update() {
+void vcs_legacy_release_update() {
   //fprintf(stderr,"releasing : %i\n",updating);
   updating--;
 }
 #else
-void vcs_acquire_update();
-void vcs_release_update();
+void vcs_legacy_acquire_update();
+void vcs_legacy_release_update();
 #endif
 
 
@@ -89,10 +89,10 @@ int templateRatio(struct p_tab *pp, int wkst_id) {
   Rwished = fabs(pp->dsp.ratio);
 
 #if defined (QTWM)
-  extern void vcs_Qt_get_window_dimensions_by_id(int id,int *x, int *y,int *w,int *h);
+  extern void vcs_legacy_Qt_get_window_dimensions_by_id(int id,int *x, int *y,int *w,int *h);
 #endif
   
-  vcs_Qt_get_window_dimensions_by_id(wkst_id,&xwa.x,&xwa.y,&xwa.width,&xwa.height);
+  vcs_legacy_Qt_get_window_dimensions_by_id(wkst_id,&xwa.x,&xwa.y,&xwa.width,&xwa.height);
   Rout = (float)xwa.width/(float)xwa.height;
   Rt = (pp->dsp.y2-pp->dsp.y1)/(pp->dsp.x2-pp->dsp.x1);
   Ra = Rt/Rout;
@@ -151,7 +151,7 @@ int templateRatio(struct p_tab *pp, int wkst_id) {
 };
 
 
-int vcs_canvas_update ( short use_defer_flg )
+int vcs_legacy_canvas_update ( short use_defer_flg )
 {
 
   int i,j,k;
@@ -184,11 +184,11 @@ int vcs_canvas_update ( short use_defer_flg )
   extern int killP(struct p_tab *p);
   /*         static int updating = 0; */
   //fprintf(stderr,"in canvas_update, acquiring\n");
-   vcs_acquire_update();
+   vcs_legacy_acquire_update();
 
   erret=0;
   //printf("updating is: %i\n",update_ind);
-/*   if (!update_ind) {vcs_release_update(); return 1;} */
+/*   if (!update_ind) {vcs_legacy_release_update(); return 1;} */
   //	printf("actually doing something\n");
   update_ind=0;
 
@@ -196,7 +196,7 @@ int vcs_canvas_update ( short use_defer_flg )
 
   if (D_tab.name[0] == '\0') 
     {
-      vcs_release_update();
+      vcs_legacy_release_update();
       return 1;
     }
 
@@ -265,7 +265,7 @@ int vcs_canvas_update ( short use_defer_flg )
       if((pp=(struct p_tab *)malloc(sizeof(struct p_tab)))==NULL) {
         err_warn(1,fperr,
                  "Error - memory for getting picture template( gm_template_hold ) not found.\n");
-      	vcs_release_update();
+      	vcs_legacy_release_update();
         return 1;
       }
 
@@ -296,7 +296,7 @@ int vcs_canvas_update ( short use_defer_flg )
 /*                 change=1; */
                 if (change==1)
                   {
-                    vcs_draw_primatives(pd->name);
+                    vcs_legacy_draw_primatives(pd->name);
                   }
               }
               /*			Handle an ISOLINE display.			*/
@@ -1475,7 +1475,7 @@ int vcs_canvas_update ( short use_defer_flg )
   /*            else if ((Inactive==0) && (user_defer_update==0)) */
   /*               guwk(wks,GPERFORM); */
   /*         } */
-  vcs_release_update();
+  vcs_legacy_release_update();
 
   if (erret == 0) return 1;
   else
@@ -1533,7 +1533,7 @@ void set_viewport_and_worldcoordinate (
 #ifdef X11WM
   XWindowAttributes 		xwa;
 #elif defined (QTWM)
-  extern void vcs_Qt_get_window_dimensions_by_id(int id,int *x, int *y,int *w,int *h);
+  extern void vcs_legacy_Qt_get_window_dimensions_by_id(int id,int *x, int *y,int *w,int *h);
 #endif
   int w,h,xoff,yoff;
   float 				wc[4];
@@ -1585,7 +1585,7 @@ void set_viewport_and_worldcoordinate (
       w=xwa.width;
       h=xwa.height;
 #elif defined(QTWM)
-      vcs_Qt_get_window_dimensions_by_id(connect_id.wkst_id,&xoff,&yoff,&w,&h);
+      vcs_legacy_Qt_get_window_dimensions_by_id(connect_id.wkst_id,&xoff,&yoff,&w,&h);
 #else
       fprintf(stderr,"insert here your WM getgeometry function\n");
 #endif
@@ -1646,7 +1646,7 @@ void set_viewport_and_worldcoordinate (
     gsclip(GCLIP);
   }
 
-  int vcs_draw_primatives( char * d_name)
+  int vcs_legacy_draw_primatives( char * d_name)
   {
     /*C.Doutriaux 2009-08-26 changed from one because default dispalys prio is 0 and 1 would cause primi to be on top always! */
     int				i,j,temp_priority=0; 
@@ -1670,7 +1670,7 @@ void set_viewport_and_worldcoordinate (
     extern struct table_text        Tt_tab;
     extern struct table_chorn       To_tab;
     extern struct project_attr 	p_PRJ;
-    extern struct vcs_marker 	Vma_tab;
+    extern struct vcs_legacy_marker 	Vma_tab;
 	char                            proj[256];
 	Glimit                          pvp;
     struct project_attr *pj;
@@ -1682,7 +1682,7 @@ void set_viewport_and_worldcoordinate (
     			to be drawn on the VCS Canvas                          	*/
 #ifdef QTWM
     //fprintf(stderr,"in draw_prima, acquiring\n");
-    vcs_acquire_update();
+    vcs_legacy_acquire_update();
 #endif
 	wks=check_canvas_defer();
 
@@ -1695,7 +1695,7 @@ void set_viewport_and_worldcoordinate (
 
     if (pd == NULL) {
 #ifdef QTWM
-      vcs_release_update(); 
+      vcs_legacy_release_update(); 
 #endif
       return 0;
     };		/* nothing to plot */
@@ -1708,13 +1708,13 @@ void set_viewport_and_worldcoordinate (
       }
       if (tltab->priority == 0) {
 #ifdef QTWM
-	vcs_release_update() ;
+	vcs_legacy_release_update() ;
 #endif
 	return 1;
       } /* do nothing */
       if ((tltab->lx == NULL) || (tltab->ly == NULL)) {
         err_warn(1,fperr, "Error - invalid X/Y points.");
-        vcs_release_update();
+        vcs_legacy_release_update();
         return 0;
       } else if ( ((tltab->lvp[0] > 1) || (tltab->lvp[0] < 0)) ||
                   ((tltab->lvp[1] > 1) || (tltab->lvp[1] < 0)) ||
@@ -1722,7 +1722,7 @@ void set_viewport_and_worldcoordinate (
                   ((tltab->lvp[3] > 1) || (tltab->lvp[3] < 0)) ) {
         err_warn(1,fperr, "Error - invalid viewport values.");
 #ifdef QTWM
-        vcs_release_update();
+        vcs_legacy_release_update();
 #endif
         return 0;
       } else {
@@ -1752,7 +1752,7 @@ void set_viewport_and_worldcoordinate (
           if ((pxy=(Gpoint *)malloc(xpts->npts*sizeof(Gpoint)))==NULL) {
             err_warn(1,fperr,"Error: Memory overflow in line segment.\n");
 #ifdef QTWM
-            vcs_release_update();
+            vcs_legacy_release_update();
 #endif
             return 0;
           }
@@ -1786,14 +1786,14 @@ void set_viewport_and_worldcoordinate (
       }
       if (tmtab->priority == 0) {
 #ifdef QTWM
-	vcs_release_update();
+	vcs_legacy_release_update();
 #endif
 	return 1;
       } /* do nothing */
       if ((tmtab->mx == NULL) || (tmtab->my == NULL)) {
         err_warn(1,fperr, "Error - invalid X/Y points.");
 #ifdef QTWM
-        vcs_release_update();
+        vcs_legacy_release_update();
 #endif
         return 0;
       } else if ( ((tmtab->mvp[0] > 1) || (tmtab->mvp[0] < 0)) ||
@@ -1802,7 +1802,7 @@ void set_viewport_and_worldcoordinate (
                   ((tmtab->mvp[3] > 1) || (tmtab->mvp[3] < 0)) ) {
         err_warn(1,fperr, "Error - invalid viewport values.");
 #ifdef QTWM
-        vcs_release_update();
+        vcs_legacy_release_update();
 #endif
         return 0;
       } else {
@@ -1834,7 +1834,7 @@ void set_viewport_and_worldcoordinate (
 	      if ((pxy=(Gpoint *)malloc(xpts->npts*sizeof(Gpoint)))==NULL) {
             err_warn(1,fperr,"Error: Memory overflow in marker segment.\n");
 #ifdef QTWM
-            vcs_release_update();
+            vcs_legacy_release_update();
 #endif
             return 0;
 	      }
@@ -1868,14 +1868,14 @@ void set_viewport_and_worldcoordinate (
       }
       if (tftab->priority == 0) {
 #ifdef QTWM
-	vcs_release_update();
+	vcs_legacy_release_update();
 #endif
 	return 1;
     } /* do nothing */
       if ((tftab->fx == NULL) || (tftab->fy == NULL)) {
         err_warn(1,fperr, "Error - invalid X/Y points.");
 #ifdef QTWM
-        vcs_release_update();
+        vcs_legacy_release_update();
 #endif
         return 0;
       } else if ( ((tftab->fvp[0] > 1) || (tftab->fvp[0] < 0)) ||
@@ -1884,7 +1884,7 @@ void set_viewport_and_worldcoordinate (
                   ((tftab->fvp[3] > 1) || (tftab->fvp[3] < 0)) ) {
         err_warn(1,fperr, "Error - invalid viewport values.");
 #ifdef QTWM
-        vcs_release_update();
+        vcs_legacy_release_update();
 #endif
         return 0;
       }
@@ -1917,7 +1917,7 @@ void set_viewport_and_worldcoordinate (
 	      if ((pxy=(Gpoint *)malloc(xpts->npts*sizeof(Gpoint)))==NULL) {
             err_warn(1,fperr,"Error: Memory overflow in fill area segment.\n");
 #ifdef QTWM
-            vcs_release_update();
+            vcs_legacy_release_update();
 #endif
             return 0;
 	      }
@@ -1956,12 +1956,12 @@ void set_viewport_and_worldcoordinate (
       }
       if (tttab->priority == 0) {
 #ifdef QTWM
-	vcs_release_update();
+	vcs_legacy_release_update();
 #endif
 	return 1;} /* do nothing */
       if (tttab->ts == NULL) {
 #ifdef QTWM
-	vcs_release_update();
+	vcs_legacy_release_update();
 #endif
 	return 1;}    /* do nothing */
 
@@ -1974,7 +1974,7 @@ void set_viewport_and_worldcoordinate (
       if ((tttab->tx == NULL) || (tttab->ty == NULL)) {
         err_warn(1,fperr, "Error - invalid X/Y points.");
 #ifdef QTWM
-        vcs_release_update();
+        vcs_legacy_release_update();
 #endif
         return 0;
       } else if ( ((tttab->tvp[0] > 1) || (tttab->tvp[0] < 0)) ||
@@ -1983,7 +1983,7 @@ void set_viewport_and_worldcoordinate (
                   ((tttab->tvp[3] > 1) || (tttab->tvp[3] < 0)) ) {
         err_warn(1,fperr, "Error - invalid viewport values.");
 #ifdef QTWM
-        vcs_release_update();
+        vcs_legacy_release_update();
 #endif
         return 0;
       } else {
@@ -2017,7 +2017,7 @@ void set_viewport_and_worldcoordinate (
 	      if ((pxy=(Gpoint *)malloc(xpts->npts*sizeof(Gpoint)))==NULL) {
             err_warn(1,fperr,"Error: Memory overflow in text segment.\n");
 #ifdef QTWM
-            vcs_release_update();
+            vcs_legacy_release_update();
 #endif
             return 0;
 	      }
@@ -2055,7 +2055,7 @@ void set_viewport_and_worldcoordinate (
     }
 
 #ifdef QTWM
-    vcs_release_update();
+    vcs_legacy_release_update();
 #endif
 	return 1;
   }

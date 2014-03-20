@@ -1,11 +1,11 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
-import vcs,cdms2 as cdms,sys,support,os
+import vcs_legacy,cdms2 as cdms,sys,support,os
 bg=support.bg
 
 f=cdms.open(os.path.join(cdms.__path__[0],'..','..','..','..','sample_data','sampleCurveGrid4.nc'))
 s=f('sample')
 
-x=vcs.init()
+x=vcs_legacy.init()
 t=x.createtemplate('jj')
 m=x.createmeshfill('hh')
 m.mesh='y'

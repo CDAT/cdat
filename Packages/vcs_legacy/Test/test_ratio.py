@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 
-import cdms2 as cdms,vcs,sys,os,support
+import cdms2 as cdms,vcs_legacy,sys,os,support
 bg=support.bg
 
-x=vcs.init()
+x=vcs_legacy.init()
 
 fnmirr = os.path.join(cdms.__path__[0],'..','..','..','..','sample_data','sampleGenGrid3.nc')
 

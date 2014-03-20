@@ -27,7 +27,7 @@
 # Import: VCS C extension module.                                             #
 #                                                                             #
 ###############################################################################
-import _vcs
+import _vcs_legacy
 import Canvas
 import VCS_validation_functions
 from types import *
@@ -56,7 +56,7 @@ def setTmmember(self,member,value):
         self.parent.canvas.BLOCK_X_SERVER()
         self.parent.canvasraised()
 
-     _vcs.setTmmember(self, member, value, self.parent.mode)
+     _vcs_legacy.setTmmember(self, member, value, self.parent.mode)
 
      # If the VCS Canvas is displayed, then update the backing store
      if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()):
@@ -82,7 +82,7 @@ setmember = setTmmember
 #                                                                             #
 ###############################################################################
 def getTmmember(self,member):
-     return _vcs.getTmmember(self,member)
+     return _vcs_legacy.getTmmember(self,member)
 getmember = getTmmember
 
 ###############################################################################
@@ -101,7 +101,7 @@ getmember = getTmmember
 #                                                                             #
 ###############################################################################
 def renameTm(self, old_name, new_name):
-     return _vcs.renameTm(old_name, new_name)
+     return _vcs_legacy.renameTm(old_name, new_name)
 
 #############################################################################
 #                                                                           #
@@ -120,7 +120,7 @@ class Tm(object):
     existing marker table entry.
 
  Other Useful Functions:
- 	     a=vcs.init()		# Constructor
+ 	     a=vcs_legacy.init()		# Constructor
 	     a.show('marker')		# Show predefined marker objects
              a.update()               	# Updates the VCS Canvas at user's request
              a.mode=1, or 0           	# If 1, then automatic update, else if
@@ -128,7 +128,7 @@ class Tm(object):
                                           update the VCS Canvas.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     To Create a new instance of marker use:
      mk=a.createmarker('new','red') 	# Copies content of 'red' to 'new'
      mk=a.createmarker('new') 		# Copies content of 'default' to 'new'
@@ -307,7 +307,7 @@ class Tm(object):
            if (Tm_name == None):
               raise ValueError, 'Must provide a marker name.'
            else:
-              _vcs.copyTm(Tm_name_src, Tm_name)
+              _vcs_legacy.copyTm(Tm_name_src, Tm_name)
               self._name = Tm_name
         else:
               self._name = Tm_name_src
@@ -583,7 +583,7 @@ class Tm(object):
     #############################################################################
     def script(self, script_filename=None, mode=None):
         """
- Function:     script                           # Calls _vcs.scriptTm
+ Function:     script                           # Calls _vcs_legacy.scriptTm
 
  Description of Function:
        Saves out a marker graphics method in Python or VCS script form to a
@@ -599,7 +599,7 @@ class Tm(object):
                     produce a VCS script. If neither extensions are give, then by
                     default a Python script will be produced.
 
-    a=vcs.init()
+    a=vcs_legacy.init()
     mrk=a.createboxfill('temp')
     mrk.script('filename.py')         # Append to a Python file "filename.py"
     mrk.script('filename.scr')        # Append to a VCS file "filename.scr"
@@ -616,7 +616,7 @@ class Tm(object):
         # By default, save file in python script mode
         scr_type = script_filename[len(script_filename)-4:len(script_filename)]
         if (scr_type == '.scr'):
-           print _vcs.scriptTm(self.name,script_filename,mode)
+           print _vcs_legacy.scriptTm(self.name,script_filename,mode)
         else:
            mode = mode + '+'
            py_type = script_filename[len(script_filename)-3:len(script_filename)]
@@ -631,8 +631,8 @@ class Tm(object):
               fp.write("# Import and Initialize VCS     #\n")
               fp.write("#                             #\n")
               fp.write("#############################\n")
-              fp.write("import vcs\n")
-              fp.write("v=vcs.init()\n\n")
+              fp.write("import vcs_legacy\n")
+              fp.write("v=vcs_legacy.init()\n\n")
 
            unique_name = '__Tm__' + self.name
            fp.write("#----------Marker (Tm) member (attribute) listings ----------\n")

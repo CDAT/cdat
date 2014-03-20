@@ -1,4 +1,4 @@
-#include "vcs_names_length.h"
+#include "vcs_legacy_names_length.h"
 /*  The following is a table of format sets.				*/
 
     struct form

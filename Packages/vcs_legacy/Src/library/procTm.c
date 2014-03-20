@@ -6,7 +6,7 @@
 #include "picture.h"
 #include "display.h"
 #include "graph.h"
-#include "vcs_names_length.h"
+#include "vcs_legacy_names_length.h"
 
 #define FALSE 0
 #define TRUE 1

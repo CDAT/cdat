@@ -26,7 +26,7 @@
 # Import: VCS C extension module.                                               #
 #                                                                               #
 #################################################################################
-import _vcs, queries, vcs, VCS_validation_functions, cdtime
+import _vcs_legacy, queries, vcs_legacy, VCS_validation_functions, cdtime
 import Canvas
 from types import *
 import AutoAPI
@@ -56,7 +56,7 @@ def setGomember(self,member,value):
         self.parent.canvas.BLOCK_X_SERVER()
         self.parent.canvasraised()
 
-     _vcs.setGomember(self, member, value, self.parent.mode)
+     _vcs_legacy.setGomember(self, member, value, self.parent.mode)
 
      # If the VCS Canvas is displayed, then update the backing store
      if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()):
@@ -81,7 +81,7 @@ setmember=setGomember
 #                                                                               #
 #################################################################################
 def getGomember(self,member):
-     return _vcs.getGomember(self,member)
+     return _vcs_legacy.getGomember(self,member)
 getmember=getGomember
 
 #################################################################################
@@ -100,7 +100,7 @@ getmember=getGomember
 #                                                                               #
 #################################################################################
 def renameGo(self, old_name, new_name):
-     return _vcs.renameGo(old_name, new_name)
+     return _vcs_legacy.renameGo(old_name, new_name)
 
 class Go(object,AutoAPI.AutoAPI):
     """
@@ -119,7 +119,7 @@ class Go(object,AutoAPI.AutoAPI):
     shows how to change such an outline by modifying its attributes.
 
  Other Useful Functions:
-            a=vcs.init()                # Constructor
+            a=vcs_legacy.init()                # Constructor
             a.show('outline')           # Show predefined outline graphics methods
             a.show('line')              # Show predefined VCS line objects
             a.setcolormap("AMIP")       # Change the VCS color map
@@ -131,7 +131,7 @@ class Go(object,AutoAPI.AutoAPI):
                                           update the VCS Canvas.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     To Create a new instance of outline use:
      out=a.createoutline('new','quick') # Copies content of 'quick' to 'new'
      out=a.createoutline('new')         # Copies content of 'default' to 'new'
@@ -457,7 +457,7 @@ class Go(object,AutoAPI.AutoAPI):
            if (Go_name == None):
               raise ValueError, 'Must provide a outline name.'
            else:
-              _vcs.copyGo(Go_name_src, Go_name)
+              _vcs_legacy.copyGo(Go_name_src, Go_name)
               self._name = Go_name
         else:
               self._name = Go_name_src
@@ -582,7 +582,7 @@ class Go(object,AutoAPI.AutoAPI):
     def script(self, script_filename, mode='a'):
         """
 %s
- Function:     script                           # Calls _vcs.scriptGo
+ Function:     script                           # Calls _vcs_legacy.scriptGo
 
  Description of Function:
        Saves out a outline graphics method in Python or VCS script form to a
@@ -598,7 +598,7 @@ class Go(object,AutoAPI.AutoAPI):
                     produce a VCS script. If neither extensions are give, then by
                     default a Python script will be produced.
 
-    a=vcs.init()
+    a=vcs_legacy.init()
     out=a.createboxfill('temp')
     out.script('filename.py')         # Append to a Python file "filename.py"
     out.script('filename.scr')        # Append to a VCS file "filename.scr"
@@ -615,7 +615,7 @@ class Go(object,AutoAPI.AutoAPI):
         # By default, save file in python script mode
         scr_type = script_filename[len(script_filename)-4:len(script_filename)]
         if (scr_type == '.scr'):
-           print _vcs.scriptGo(self.name,script_filename,mode)
+           print _vcs_legacy.scriptGo(self.name,script_filename,mode)
         else:
            mode = mode + '+'
            py_type = script_filename[len(script_filename)-3:len(script_filename)]
@@ -630,8 +630,8 @@ class Go(object,AutoAPI.AutoAPI):
               fp.write("# Import and Initialize VCS     #\n")
               fp.write("#                             #\n")
               fp.write("#############################\n")
-              fp.write("import vcs\n")
-              fp.write("v=vcs.init()\n\n")
+              fp.write("import vcs_legacy\n")
+              fp.write("v=vcs_legacy.init()\n\n")
 
            unique_name = '__Go__' + self.name
            fp.write("#----------Outline (Go) member (attribute) listings ----------\n")

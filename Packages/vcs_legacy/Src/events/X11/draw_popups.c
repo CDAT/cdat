@@ -1,6 +1,6 @@
-#include "vcs_events.h"
+#include "vcs_legacy_events.h"
 #include "display.h"
-#include "vcs_events_X11_mapping.h"
+#include "vcs_legacy_events_X11_mapping.h"
 
 extern PyInterpreterState * mainInterpreterState;
 extern PyThreadState * mainThreadState;
@@ -30,7 +30,7 @@ int launch_py_user_action(PyVCScanvas_Object *self,
 #ifdef X11WM
   XGetGeometry(self->connect_id.display,window,&parent,&x,&y,&w,&h,&bw,&dpth) ;
 #elif defined (QTWM)
-  vcs_Qt_get_window_dimensions_by_id(self->connect_id.wkst_id,&x,&y,&w,&h);
+  vcs_legacy_Qt_get_window_dimensions_by_id(self->connect_id.wkst_id,&x,&y,&w,&h);
 #else
   fprintf(stderr,"insert here your WM getgeometry function\n");
 #endif

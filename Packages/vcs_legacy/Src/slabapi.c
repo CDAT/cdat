@@ -415,21 +415,21 @@ slabDimensionIsCircular (PyObject* slab, int idim)
 void
 slabDateAndTime (PyObject* slab, int count)
 {
-     PyObject *vcsmodule=NULL;
+     PyObject *vcs_legacymodule=NULL;
      PyObject *dict=NULL;
      PyObject *date_time=NULL;
 
-     vcsmodule = PyImport_ImportModule("vcs.Canvas");
-     if(!vcsmodule) goto err;
-     if(!PyModule_Check(vcsmodule)) goto err;
-     dict = PyModule_GetDict(vcsmodule); /* borrowed ref */
+     vcs_legacymodule = PyImport_ImportModule("vcs_legacy.Canvas");
+     if(!vcs_legacymodule) goto err;
+     if(!PyModule_Check(vcs_legacymodule)) goto err;
+     dict = PyModule_GetDict(vcs_legacymodule); /* borrowed ref */
      if(!dict) goto err;
      if(!PyDict_Check(dict)) goto err;
      date_time = PyDict_GetItemString(dict, "change_date_time"); /* borrowed ref */
      if(PyErr_Occurred()) goto err;
      PyObject_CallFunction (date_time, "Oi", slab, count);
      if(PyErr_Occurred()) goto err;
-     Py_DECREF(vcsmodule);
+     Py_DECREF(vcs_legacymodule);
 /*DNW - 8/22/02 - This DECREF causes memory problems for Python if the
 	user chooses to generate more than 140 GIFs in a Python loop.
 	That is, needed memory is removed then overwritten, which causes
@@ -438,7 +438,7 @@ slabDateAndTime (PyObject* slab, int count)
      Py_DECREF(dict);*/
      return;
 err:
-     Py_XDECREF( vcsmodule );
+     Py_XDECREF( vcs_legacymodule );
      Py_XDECREF( dict );
      Py_XDECREF( date_time );
 }

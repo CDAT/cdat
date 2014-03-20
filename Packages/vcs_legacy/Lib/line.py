@@ -27,7 +27,7 @@
 # Import: VCS C extension module.                                             #
 #                                                                             #
 ###############################################################################
-import _vcs
+import _vcs_legacy
 import Canvas
 import VCS_validation_functions
 
@@ -55,7 +55,7 @@ def setTlmember(self,member,value):
         self.parent.canvas.BLOCK_X_SERVER()
         self.parent.canvasraised()
 
-     _vcs.setTlmember(self, member, value, self.parent.mode)
+     _vcs_legacy.setTlmember(self, member, value, self.parent.mode)
 
      # If the VCS Canvas is displayed, then update the backing store
      if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()):
@@ -80,7 +80,7 @@ setmember = setTlmember
 #                                                                             #
 ###############################################################################
 def getTlmember(self,member):
-     return _vcs.getTlmember(self,member)
+     return _vcs_legacy.getTlmember(self,member)
 getmember=getTlmember
 
 ###############################################################################
@@ -99,7 +99,7 @@ getmember=getTlmember
 #                                                                             #
 ###############################################################################
 def renameTl(self, old_name, new_name):
-     return _vcs.renameTl(old_name, new_name)
+     return _vcs_legacy.renameTl(old_name, new_name)
 
 ###############################################################################
 #                                                                             #
@@ -119,7 +119,7 @@ class Tl(object):
     existing line table entry.
 
  Other Useful Functions:
- 	     a=vcs.init()		# Constructor
+ 	     a=vcs_legacy.init()		# Constructor
 	     a.show('line')		# Show predefined line objects
              a.update()               	# Updates the VCS Canvas at user's request
              a.mode=1, or 0           	# If 1, then automatic update, else if
@@ -127,7 +127,7 @@ class Tl(object):
                                           update the VCS Canvas.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     To Create a new instance of line use:
      ln=a.createline('new','red') 	# Copies content of 'red' to 'new'
      ln=a.createline('new') 		# Copies content of 'default' to 'new'
@@ -294,7 +294,7 @@ class Tl(object):
            if (Tl_name == None):
               raise ValueError, 'Must provide a line name.'
            else:
-              _vcs.copyTl(Tl_name_src, Tl_name)
+              _vcs_legacy.copyTl(Tl_name_src, Tl_name)
               self._name = Tl_name
         else:
               self._name=Tl_name_src
@@ -518,7 +518,7 @@ class Tl(object):
     #############################################################################
     def script(self, script_filename=None, mode=None):
         """
- Function:     script                           # Calls _vcs.scriptTl
+ Function:     script                           # Calls _vcs_legacy.scriptTl
 
  Description of Function:
        Saves out a line graphics method in VCS or Python script form to a
@@ -534,7 +534,7 @@ class Tl(object):
                     produce a VCS script. If neither extensions are give, then by
                     default a Python script will be produced.
 
-    a=vcs.init()
+    a=vcs_legacy.init()
     ln=a.createboxfill('temp')
     ln.script('filename.py')         # Append to a Python file "filename.py"
     ln.script('filename.scr')        # Append to a VCS file "filename.scr"
@@ -551,7 +551,7 @@ class Tl(object):
         # By default, save file in python script mode
         scr_type = script_filename[len(script_filename)-4:len(script_filename)]
         if (scr_type == '.scr'):
-           print _vcs.scriptTl(self.name,script_filename,mode)
+           print _vcs_legacy.scriptTl(self.name,script_filename,mode)
         else:
            mode = mode + '+'
            py_type = script_filename[len(script_filename)-3:len(script_filename)]
@@ -566,8 +566,8 @@ class Tl(object):
               fp.write("# Import and Initialize VCS     #\n")
               fp.write("#                             #\n")
               fp.write("#############################\n")
-              fp.write("import vcs\n")
-              fp.write("v=vcs.init()\n\n")
+              fp.write("import vcs_legacy\n")
+              fp.write("v=vcs_legacy.init()\n\n")
 
            unique_name = '__Tl__' + self.name
            fp.write("#----------Line (Tl) member (attribute) listings ----------\n")

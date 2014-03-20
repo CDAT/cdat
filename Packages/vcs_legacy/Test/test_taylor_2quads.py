@@ -1,5 +1,5 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
-import vcs, MV2 as MV, support
+import vcs_legacy, MV2 as MV, support
 
 
 bg=support.bg
@@ -14,7 +14,7 @@ data = MV.array([[-0.50428531,-0.8505522 ,],
  [ 0.85760801,-0.08336641,],
  [ 1.14083397,-0.78326507,]])
 
-x=vcs.init()
+x=vcs_legacy.init()
 
 td=x.createtaylordiagram('new')
 

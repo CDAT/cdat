@@ -27,7 +27,7 @@
 # Import: VCS C extension module.                                               #
 #                                                                               #
 #################################################################################
-import _vcs, queries,VCS_validation_functions
+import _vcs_legacy, queries,VCS_validation_functions
 import Canvas
 from types import *
 import AutoAPI
@@ -57,7 +57,7 @@ def setGconmember(self,member,value):
         self.parent.canvas.BLOCK_X_SERVER()
         self.parent.canvasraised()
 
-     _vcs.setGconmember(self, member, value, self.parent.mode)
+     _vcs_legacy.setGconmember(self, member, value, self.parent.mode)
 
      # If the VCS Canvas is displayed, then update the backing store
      if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()):
@@ -83,7 +83,7 @@ setmember = setGconmember
 #                                                                               #
 #################################################################################
 def getGconmember(self,member):
-     return _vcs.getGconmember(self,member)
+     return _vcs_legacy.getGconmember(self,member)
 
 #################################################################################
 #                                                                               #
@@ -103,7 +103,7 @@ def getGconmember(self,member):
 getmember = getGconmember
 
 def renameGcon(self, old_name, new_name):
-     return _vcs.renameGcon(old_name, new_name)
+     return _vcs_legacy.renameGcon(old_name, new_name)
 rename = renameGcon
 
 class Gcon(object,AutoAPI.AutoAPI):
@@ -123,7 +123,7 @@ class Gcon(object,AutoAPI.AutoAPI):
     existing continents table entry.
 	
  Other Useful Functions:
-		a=vcs.init()		  # Constructor
+		a=vcs_legacy.init()		  # Constructor
 		a.show('continents')	  # Show predefined boxfill graphics methods
 		a.show('line')		  # Show predefined line class objects
 		a.setcolormap("AMIP")     # Change the VCS color map
@@ -135,7 +135,7 @@ class Gcon(object,AutoAPI.AutoAPI):
 					    update the VCS Canvas.
                
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     To Create a new instance of continents use:
      con=a.createcontinents('new','quick')#copies content of 'quick' to 'new'
      con=a.createcontinents('new') # copies content of 'default' to 'new'
@@ -384,7 +384,7 @@ class Gcon(object,AutoAPI.AutoAPI):
            if (Gcon_name == None):
               raise ValueError, 'Must provide a continents name.'
            else:
-              _vcs.copyGcon(Gcon_name_src, Gcon_name)
+              _vcs_legacy.copyGcon(Gcon_name_src, Gcon_name)
               self._name = Gcon_name
         else:
               self._name = Gcon_name_src
@@ -649,7 +649,7 @@ class Gcon(object,AutoAPI.AutoAPI):
     def script(self, script_filename, mode='a'):
         """
         %s
- Function:     script                           # Calls _vcs.scriptGcon
+ Function:     script                           # Calls _vcs_legacy.scriptGcon
 
  Description of Function:
        Saves out a continents graphics method in Python or VCS script form to a
@@ -665,7 +665,7 @@ class Gcon(object,AutoAPI.AutoAPI):
                     produce a VCS script. If neither extensions are give, then by
                     default a Python script will be produced.
 
-    a=vcs.init()
+    a=vcs_legacy.init()
     con=a.createcontinents('temp')
     con.script('filename.py')         # Append to a Python file "filename.py"
     con.script('filename.scr')        # Append to a VCS file "filename.scr"
@@ -682,7 +682,7 @@ class Gcon(object,AutoAPI.AutoAPI):
         # By default, save file in python script mode
         scr_type = script_filename[len(script_filename)-4:len(script_filename)]
         if (scr_type == '.scr'):
-           print _vcs.scriptGcon(self.name,script_filename,mode)
+           print _vcs_legacy.scriptGcon(self.name,script_filename,mode)
         else:
            mode = mode + '+'
            py_type = script_filename[len(script_filename)-3:len(script_filename)]
@@ -697,8 +697,8 @@ class Gcon(object,AutoAPI.AutoAPI):
               fp.write("# Import and Initialize VCS     #\n")
               fp.write("#                             #\n")
               fp.write("#############################\n")
-              fp.write("import vcs\n")
-              fp.write("v=vcs.init()\n\n")
+              fp.write("import vcs_legacy\n")
+              fp.write("v=vcs_legacy.init()\n\n")
 
            unique_name = '__Gcon__' + self.name
            fp.write("#----------Continents (Gcon) member (attribute) listings ----------\n")

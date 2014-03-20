@@ -162,7 +162,7 @@ inline void VCSQtManager::executeDeferred(VoidFunction *function) {
   if (VCSQtManager::owningApp()) {
     VCSQtManager::sendEvent((QObject*)(VCSQtManager::app()), new QDeferredExecutionEvent((void*)function));
   } else {
-    fprintf(stderr, "CDAT: Cannot perform deferred execution for QApplication created by modules other than vcs\n");
+    fprintf(stderr, "CDAT: Cannot perform deferred execution for QApplication created by modules other than vcs_legacy\n");
   }
 }
 

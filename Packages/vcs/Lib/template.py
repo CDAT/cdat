@@ -175,7 +175,7 @@ class P(object):
         #################################################
 	# The following initializes the template's TEXT #
         #################################################
-        self.__dict__['orientation']=_vcs.getPomember(self)
+        self.__dict__['orientation']=0
         self.__dict__['file']=Pt(self, self.parent, 'file')
         self.__dict__['function']=Pt(self, self.parent, 'function')
         self.__dict__['logicalmask']=Pt(self, self.parent, 'logicalmask')

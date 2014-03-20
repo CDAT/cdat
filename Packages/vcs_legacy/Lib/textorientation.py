@@ -27,7 +27,7 @@
 # Import: VCS C extension module.                                               #
 #                                                                               #
 #################################################################################
-import _vcs
+import _vcs_legacy
 import Canvas
 from types import *
 import VCS_validation_functions
@@ -56,7 +56,7 @@ def setTomember(self,member,value):
         self.parent.canvas.BLOCK_X_SERVER()
         self.parent.canvasraised()
 
-     _vcs.setTomember(self, member, value, self.parent.mode)
+     _vcs_legacy.setTomember(self, member, value, self.parent.mode)
 
      # If the VCS Canvas is displayed, then update the backing store
      if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()):
@@ -82,7 +82,7 @@ setmember = setTomember
 #                                                                               #
 #################################################################################
 def getTomember(self,member):
-     return _vcs.getTomember(self,member)
+     return _vcs_legacy.getTomember(self,member)
 getmember = getTomember
 
 #################################################################################
@@ -101,7 +101,7 @@ getmember = getTomember
 #                                                                               #
 #################################################################################
 def renameTo(self, old_name, new_name):
-     return _vcs.renameTo(old_name, new_name)
+     return _vcs_legacy.renameTo(old_name, new_name)
 
 #############################################################################
 #                                                                           #
@@ -121,7 +121,7 @@ class To(object):
     existing text orientation table entry.
 
  Other Useful Functions:
- 	     a=vcs.init()		# Constructor
+ 	     a=vcs_legacy.init()		# Constructor
 	     a.show('textorientation')	# Show predefined text orientation objects
              a.update()               	# Updates the VCS Canvas at user's request
              a.mode=1, or 0           	# If 1, then automatic update, else if
@@ -129,7 +129,7 @@ class To(object):
                                           update the VCS Canvas.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     To Create a new instance of text orientation use:
      to=a.createtextorientation('new','7left')	# Copies content of '7left' to 'new'
      to=a.createtextorientation('new') 	# Copies content of 'default' to 'new'
@@ -241,7 +241,7 @@ class To(object):
            if (To_name == None):
               raise ValueError, 'Must provide a text orientation name.'
            else:
-              _vcs.copyTo(To_name_src, To_name)
+              _vcs_legacy.copyTo(To_name_src, To_name)
               self._name = To_name
         else:
               self._name = To_name_src
@@ -370,7 +370,7 @@ class To(object):
     #############################################################################
     def script(self, script_filename=None, mode=None):
         '''
- Function:     script                           # Calls _vcs.scripTo
+ Function:     script                           # Calls _vcs_legacy.scripTo
 
  Description of Function:
        Saves out a text orientation graphics method in Python or VCS script form
@@ -386,7 +386,7 @@ class To(object):
                     produce a VCS script. If neither extensions are give, then by
                     default a Python script will be produced.
 
-    a=vcs.init()
+    a=vcs_legacy.init()
     to=a.createtextorientation('temp')
     to.script('filename.py')         # Append to a Python file "filename.py"
     to.script('filename.scr')        # Append to a VCS file "filename.scr"
@@ -403,7 +403,7 @@ class To(object):
         # By default, save file in python script mode
         scr_type = script_filename[len(script_filename)-4:len(script_filename)]
         if (scr_type == '.scr'):
-           print _vcs.scriptTo(self.name,script_filename,mode)
+           print _vcs_legacy.scriptTo(self.name,script_filename,mode)
         else:
            mode = mode + '+'
            py_type = script_filename[len(script_filename)-3:len(script_filename)]
@@ -418,8 +418,8 @@ class To(object):
               fp.write("# Import and Initialize VCS     #\n")
               fp.write("#                             #\n")
               fp.write("#############################\n")
-              fp.write("import vcs\n")
-              fp.write("v=vcs.init()\n\n")
+              fp.write("import vcs_legacy\n")
+              fp.write("v=vcs_legacy.init()\n\n")
 
            unique_name = '__To__' + self.name
            fp.write("#----------Text Orientation (To) member (attribute) listings ----------\n")

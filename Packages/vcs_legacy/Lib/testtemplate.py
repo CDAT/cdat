@@ -27,11 +27,11 @@
 #                                                                          #
 ############################################################################
 def test():
-   import vcs,cu                        # import vcs and cu
+   import vcs_legacy,cu                        # import vcs_legacy and cu
 
    f=cu.open('clt.nc')                  # open clt file
    s=f.getslab('clt')                   # get slab clt
-   x=vcs.init()                         # construct vcs canvas
+   x=vcs_legacy.init()                         # construct vcs_legacy canvas
 
    x.show('template')                   # show the list of templates
    t=x.createtemplate('test','AMIP')    # create template 'test' from AMIP

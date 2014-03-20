@@ -28,14 +28,14 @@
 #                                                                          #
 ############################################################################
 def test():
-   import vcs,cdms2,time,os,sys,support          # import vcs and cdms
+   import vcs_legacy,cdms2,time,os,sys,support          # import vcs_legacy and cdms
 
    # In the initial.attribute file the page orientation is set to
    # portrait. The test is to convert from portrait to landscape.
    # See your initial.attribute file and set "Page(portrait)".
    # This should be located at the top of the initial.attribute
    # file.
-   x=vcs.init()
+   x=vcs_legacy.init()
    x.pause_time = 2
    
    # Check for the canvas orientation, which should be by default 'landscape'
@@ -70,7 +70,7 @@ def test():
    #
    f=cdms2.open(os.path.join(cdms2.__path__[0],'..','..','..','..','sample_data','clt.nc'))
    s=f('clt')
-   x=vcs.init()
+   x=vcs_legacy.init()
    t=x.createtemplate('new')
    to=x.createtextorientation('test')
    to.height = 30

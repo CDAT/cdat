@@ -28,11 +28,11 @@
 #                                                                          #
 ############################################################################
 def test():
-   import vcs,cdms2 as cdms,os,sys               # import vcs and cu
+   import vcs_legacy,cdms2 as cdms,os,sys               # import vcs_legacy and cu
 
    f=cdms.open(os.path.join(cdms.__path__[0],'..','..','..','..','sample_data','clt.nc'))
    s=f.getslab('clt')                   # get slab clt
-   x=vcs.init()                         # construct vcs canvas
+   x=vcs_legacy.init()                         # construct vcs_legacy canvas
 
    x.plot(s,'default','isofill','quick', bg=1) # plot slab the old way, but in background
    x.gif('test')			# generate gif file

@@ -48,7 +48,7 @@ struct interpolate
 
 /*			Prototype compile function.			*/
 
-    struct data_flo *compile_vcs (struct a_tab *ptab);
+    struct data_flo *compile_vcs_legacy (struct a_tab *ptab);
     struct data_flo *logicomp (struct a_tab *ptab);
     int compu_log(struct data_flo **pd,struct a_attr *pa);
 
@@ -168,7 +168,7 @@ struct interpolate
 	  {
 	   if (pA->un.data!=NULL) {free((char *)pA->un.data); pA->un.data=NULL;}
 	   if (pA->mask != NULL) {free((char *)pA->mask); pA->mask=NULL;}
-	   if ( (pd=compile_vcs(ptab)) == NULL)
+	   if ( (pd=compile_vcs_legacy(ptab)) == NULL)
 	     {
 	      err_warn(1,fperr,"Error - function for (A_%s) won't compile.\n",
 			ptab->name);

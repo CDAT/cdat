@@ -39,7 +39,7 @@
 #                                                                          #
 ############################################################################
 
-import vcs,cdms2 as cdms,sys,os,support
+import vcs_legacy,cdms2 as cdms,sys,os,support
 support.dogui = True
 if support.dogui:
 
@@ -48,8 +48,8 @@ if support.dogui:
     v=f("v")
     s=f("clt")
     
-    x=vcs.init()
-#    y=vcs.init()
+    x=vcs_legacy.init()
+#    y=vcs_legacy.init()
 
     V=x.createvector('new')
     b=x.createboxfill('new')

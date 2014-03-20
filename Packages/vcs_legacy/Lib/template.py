@@ -28,7 +28,7 @@
 #         Python.							      #
 #                                                                             #
 ###############################################################################
-import _vcs, copy, vcs, numpy
+import _vcs_legacy, copy, vcs_legacy, numpy
 from Ptext import *
 from Pformat import *
 from Pxtickmarks import *
@@ -58,7 +58,7 @@ import inspect
 #                                                                             #
 ###############################################################################
 def setPmember(self,member,value):
-     _vcs.setPmember(self, member, value, self.parent.mode)
+     _vcs_legacy.setPmember(self, member, value, self.parent.mode)
 
 ###############################################################################
 #                                                                             #
@@ -77,7 +77,7 @@ def setPmember(self,member,value):
 #                                                                             #
 ###############################################################################
 def getPmember(self,member):
-     return _vcs.getPmember(self,member)
+     return _vcs_legacy.getPmember(self,member)
 
 ###############################################################################
 #                                                                             #
@@ -95,7 +95,7 @@ def getPmember(self,member):
 #                                                                             #
 ###############################################################################
 def renameP(self, old_name, new_name):
-     return _vcs.renameP(old_name, new_name)
+     return _vcs_legacy.renameP(old_name, new_name)
 
 #############################################################################
 #                                                                           #
@@ -123,7 +123,7 @@ class P(object):
                                           update the VCS Canvas.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     To Create a new instance of boxfill use:
      box=a.createboxfill('new','quick') # Copies content of 'quick' to 'new'
      box=a.createboxfill('new')         # Copies content of 'default' to 'new'
@@ -159,14 +159,14 @@ class P(object):
            else:
               if len(Pic_name)>16:
                    raise ValueError, 'Template name must be 16 characters maximum in length'
-              _vcs.copyP(Pic_name_src, Pic_name)
+              _vcs_legacy.copyP(Pic_name_src, Pic_name)
               self.__dict__['name'] = Pic_name
               ####################################################
 	      # Set the template normalization flag to 1,        #
               # only if the copy templates flag is 0             #
               ####################################################
-              if _vcs._return_normalized_flag( Pic_name_src ) == 1:
-                 _vcs._set_normalized_flag( Pic_name )
+              if _vcs_legacy._return_normalized_flag( Pic_name_src ) == 1:
+                 _vcs_legacy._set_normalized_flag( Pic_name )
         else:
              if Pic_name is not None and len(Pic_name)>16:
                   raise ValueError, 'Template name must be 16 characters maximum in length'
@@ -181,7 +181,7 @@ class P(object):
         #################################################
 	# The following initializes the template's TEXT #
         #################################################
-        self.__dict__['orientation']=_vcs.getPomember(self)
+        self.__dict__['orientation']=_vcs_legacy.getPomember(self)
         self.__dict__['file']=Pt(self, self.parent, 'file')
         self.__dict__['function']=Pt(self, self.parent, 'function')
         self.__dict__['logicalmask']=Pt(self, self.parent, 'logicalmask')
@@ -260,7 +260,7 @@ class P(object):
         #######################################################
 	# Set the template normalization flag to 1            #
         #######################################################
-        _vcs._set_normalized_flag(self.__dict__['name'])
+        _vcs_legacy._set_normalized_flag(self.__dict__['name'])
 
     def __setattr__(self, name, value):
         if (self.name == '__removed_from_VCS__'):
@@ -276,7 +276,7 @@ class P(object):
         if (name == 'orientation'):
            if (isinstance(value, IntType)):
               if value in [0,1]:
-                 _vcs.setPomember(self,value)
+                 _vcs_legacy.setPomember(self,value)
                  self.__dict__[name]=value
               else:
                  raise ValueError, 'The orientation attribute must be an integer (i.e., 0 = landscape, 1 = portrait).'
@@ -520,7 +520,7 @@ class P(object):
     ###########################################################################
     def script(self, script_filename=None, mode=None):
         '''
- Function:     script                           # Calls _vcs.scriptP
+ Function:     script                           # Calls _vcs_legacy.scriptP
 
  Description of Function:
        Saves out a template object in VCS or Python script form to a designated
@@ -536,7 +536,7 @@ class P(object):
                     produce a VCS script. If neither extensions are give, then by
                     default a Python script will be produced.
 
-    a=vcs.init()
+    a=vcs_legacy.init()
     templt=a.createtemplate('temp')   # create a template object
     templt.script('filename.py')      # Append to a Python file "filename.py"
     templt.script('filename.scr')     # Append to a VCS file "filename.scr"
@@ -553,7 +553,7 @@ class P(object):
         # By default, save file in python script mode
         scr_type = script_filename[len(script_filename)-4:len(script_filename)]
         if (scr_type == '.scr'):
-           print _vcs.scriptP(self.name,script_filename,mode)
+           print _vcs_legacy.scriptP(self.name,script_filename,mode)
         else:
            mode = mode + '+'
            py_type = script_filename[len(script_filename)-3:len(script_filename)]
@@ -568,8 +568,8 @@ class P(object):
               fp.write("# Import and Initialize VCS     #\n")
               fp.write("#                             #\n")
               fp.write("#############################\n")
-              fp.write("import vcs\n")
-              fp.write("v=vcs.init()\n\n")
+              fp.write("import vcs_legacy\n")
+              fp.write("v=vcs_legacy.init()\n\n")
 
            unique_name = '__P__' + self.name
            fp.write("#----------Template (P) member (attribute) listings ----------\n")
@@ -714,8 +714,8 @@ class P(object):
                  ax=slab.getAxis(-2)                 
             x2=ax[-1]
             x1=ax[0]
-            loc=vcs.mkscale(ax[0],ax[-1])
-            loc=vcs.mklabels(loc)
+            loc=vcs_legacy.mkscale(ax[0],ax[-1])
+            loc=vcs_legacy.mklabels(loc)
             if number == '2':
                 for t in loc.keys():
                     loc[t]=''
@@ -767,7 +767,7 @@ class P(object):
         # set the x/y/text values
         for l in loc.keys():
           if axis=='x':
-               mn,mx = vcs.minmax(wc[0],wc[1])
+               mn,mx = vcs_legacy.minmax(wc[0],wc[1])
                if mn<=l<=mx:
                     xs.append([(l-wc[0])/dx+vp[0],(l-wc[0])/dx+vp[0]])
                     ys.append([obj.y1,obj.y2])
@@ -775,7 +775,7 @@ class P(object):
                     tys.append(objlabl.y)
                     tstring.append(loc[l])
           elif axis=='y':
-               mn,mx = vcs.minmax(wc[2],wc[3])
+               mn,mx = vcs_legacy.minmax(wc[2],wc[3])
                if mn<=l<=mx:
                     ys.append([(l-wc[2])/dy+vp[2],(l-wc[2])/dy+vp[2]])
                     xs.append([obj.x1,obj.x2])
@@ -787,13 +787,13 @@ class P(object):
             for l in getattr(gm,axis+'mtics'+number).keys():
                 a=getattr(gm,axis+'mtics'+number)[l]
                 if axis=='x':
-                    mn,mx = vcs.minmax(wc[0],wc[1])
+                    mn,mx = vcs_legacy.minmax(wc[0],wc[1])
                     if mn<=l<=mx:
                          xs.append([(l-wc[0])/dx+vp[0],(l-wc[0])/dx+vp[0]])
                          ys.append([obj.y1,obj.y2])
                          tstring.append(a)
                 elif axis=='y':
-                    mn,mx = vcs.minmax(wc[2],wc[3])
+                    mn,mx = vcs_legacy.minmax(wc[2],wc[3])
                     if mn<=l<=mx:
                          ys.append([(l-wc[2])/dy+vp[2],(l-wc[2])/dy+vp[2]])
                          xs.append([obj.x1,obj.x2])
@@ -822,7 +822,7 @@ class P(object):
          reset(sub_name,v1,v2,ov1=None,ov2=None)
          Example:
               t.reset('x',x1,x2,t.data.x1,t.data.x2)
-              #where t is a vcs template object
+              #where t is a vcs_legacy template object
          """
          savedmode=self.parent.mode
          self.parent.mode=0
@@ -928,7 +928,7 @@ class P(object):
                      1: means scale the fonts
                     -1: means do not scale the fonts unless axis='xy'
          Example:
-         x=vcs.init()
+         x=vcs_legacy.init()
          t=x.createtemplate('a_template')
          t.scale(.5)  # halves the template size
          t.scale(1.2) # upsize everything to 20% more than the original size
@@ -964,7 +964,7 @@ class P(object):
          scalefont(scale)
          
          Example:
-         x=vcs.init()
+         x=vcs_legacy.init()
          t=x.createtemplate('a_template')
          t.scalefont(.5) # reduces the fonts size by 2
          """
@@ -999,7 +999,7 @@ class P(object):
         x.mode=0 # this should disable the replot but it doesn't work....
         # figures out the min and max and set them as atributes...
         if min is None or max is None:
-             mn,mx=vcs.minmax(slab)
+             mn,mx=vcs_legacy.minmax(slab)
         else:
              mn,mx=min,max
         try:
@@ -1135,7 +1135,7 @@ class P(object):
          #
          # Create legend
          #
-         # First make sure we have an vcs canvas
+         # First make sure we have an vcs_legacy canvas
          if x is None:
               x=self.parent
 
@@ -1259,16 +1259,16 @@ class P(object):
          Ll.append([startlong      , startlong+dD      , startlong+dD      , startlong      , startlong])
          # Now make sure we have a legend
          if legend is None:
-              legend=vcs.mklabels(levels)
+              legend=vcs_legacy.mklabels(levels)
          if levels[0]<levels[1]:
               ecompfunc=numpy.less_equal
               compfunc=numpy.less             
          else:
               ecompfunc=numpy.greater_equal
               compfunc=numpy.greater
-##          legend[levels[0]]=vcs.mklabels([levels[0]],output='list')[0]
-##          legend[levels[-1]]=vcs.mklabels([levels[-1]],output='list')[0]
-##          legend=vcs.mklabels(legend.keys())
+##          legend[levels[0]]=vcs_legacy.mklabels([levels[0]],output='list')[0]
+##          legend[levels[-1]]=vcs_legacy.mklabels([levels[-1]],output='list')[0]
+##          legend=vcs_legacy.mklabels(legend.keys())
          for l in legend.keys():
               if not compfunc(l,levels[0]) and not compfunc(levels[-1],l):
                    for i in range(len(levels)-1):
@@ -1326,7 +1326,7 @@ class P(object):
                  Also you can pass a string: "A4","US LETTER", "X"/"SCREEN", the latest uses the window information
            box_and_ticks: Also redefine box and ticks to the new region
          Returned:
-           vcs template object
+           vcs_legacy template object
 
          Usage example:
            ## USA
@@ -1364,7 +1364,7 @@ class P(object):
                  Also you can pass a string: "A4","US LETTER", "X"/"SCREEN", the latest uses the window information
            box_and_ticks: Also redefine box and ticks to the new region
          Returned:
-           vcs template object
+           vcs_legacy template object
 
          Usage example:
            ## y is twice x

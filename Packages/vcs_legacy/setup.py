@@ -108,8 +108,8 @@ sys.path.insert(0,os.path.join(target_prefix,'lib','python%i.%i' % sys.version_i
 os.environ['PKG_CONFIG_PATH']=os.path.join(externals,'lib','pkgconfig')+':'+os.environ.get("PKG_CONFIG_PATH","")
 
 here = os.getcwd().replace(" ","\ ")
-vcsbase = os.path.join(here, 'Src','library')
-vcsbase_proj = os.path.join(here,'Src','gctpc')
+vcs_legacybase = os.path.join(here, 'Src','library')
+vcs_legacybase_proj = os.path.join(here,'Src','gctpc')
 # cdatbase = os.path.join(sys.prefix,'include')
 cdatbase = os.path.join(target_prefix,'include')
 xgksroot = os.path.join(here,'Src', 'xgks')
@@ -183,7 +183,7 @@ for e in xml2_libs:
     c.append(e.strip())
 xml2_libs=c
 
-vcs_extra_compile_args = []
+vcs_legacy_extra_compile_args = []
 # ??? Add code to detect Qt and locaton here
 if WM=="QT" or EM=="QT":
     moc_mainwindow_path = os.path.abspath(os.path.join(os.environ['BUILD_DIR'], "moc_mainwindow.cpp"))
@@ -191,8 +191,8 @@ if WM=="QT" or EM=="QT":
     print "QT PATH:",QT_PATH_INC,QT_PATH_LIB,QT_PATH_BIN
     QT_SOURCES=""" main.cpp mainwindow.cpp qti.cpp %s""" % moc_mainwindow_path
     qtsourcelist=QT_SOURCES.split()
-    vcsbase_qt = os.path.join(here, 'Src','Qt')
-    s10 = map(lambda x: os.path.join(vcsbase_qt,x), qtsourcelist)
+    vcs_legacybase_qt = os.path.join(here, 'Src','Qt')
+    s10 = map(lambda x: os.path.join(vcs_legacybase_qt,x), qtsourcelist)
 
     qt_include_dirs=[os.path.join(here, 'Include','Qt'),]
 ## Generic non framework thing
@@ -202,8 +202,8 @@ if WM=="QT" or EM=="QT":
         MOC = os.path.join(QT_PATH_BIN,"moc-qt4")
     if not os.path.exists(MOC):
         raise Exception,"Error could not find moc executable"
-##    qt_vcs_extra_compile_args = ' -pipe -g -gdwarf-2 -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -I. -I%s -I%s/QtCore -I%s/QtGui '%(QT_PATH_INC,QT_PATH_INC,QT_PATH_INC)
-    qt_vcs_extra_compile_args = ' -pipe -g -gdwarf-2 -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -I.'
+##    qt_vcs_legacy_extra_compile_args = ' -pipe -g -gdwarf-2 -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -I. -I%s -I%s/QtCore -I%s/QtGui '%(QT_PATH_INC,QT_PATH_INC,QT_PATH_INC)
+    qt_vcs_legacy_extra_compile_args = ' -pipe -g -gdwarf-2 -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -I.'
 #     MOC = os.path.join(QT_PATH_BIN,"moc")
 #     qt_include_dirs = [ '%s' % QT_PATH_INC,
 #                             '%s/Qt' % QT_PATH_INC,
@@ -214,12 +214,12 @@ if WM=="QT" or EM=="QT":
     if USE_FRAMEWORK:
         #MOC = "/usr/bin/moc"
 ### Framework stuff
-        qt_vcs_extra_compile_args += ' -pipe -g -gdwarf-2 -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -I%s -F%s -I%s/QtCore.framework/Headers -I%s/QtGui.framework/Headers' % (QT_PATH_INC,QT_PATH_LIB,QT_PATH_LIB,QT_PATH_LIB)
-#        vcs_extra_compile_args = ' -c -pipe -g -gdwarf-2 -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -F/Library/Frameworks  -I. -I%s -I%s/QtCore -I%s/QtGui '%(QT_PATH_INC,QT_PATH_INC,QT_PATH_INC)
-        qt_vcs_extra_link_args = ' -F%s -framework QtCore -framework QtGui -lz -lm ' % (QT_PATH_LIB)
+        qt_vcs_legacy_extra_compile_args += ' -pipe -g -gdwarf-2 -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -I%s -F%s -I%s/QtCore.framework/Headers -I%s/QtGui.framework/Headers' % (QT_PATH_INC,QT_PATH_LIB,QT_PATH_LIB,QT_PATH_LIB)
+#        vcs_legacy_extra_compile_args = ' -c -pipe -g -gdwarf-2 -Wall -W -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED -F/Library/Frameworks  -I. -I%s -I%s/QtCore -I%s/QtGui '%(QT_PATH_INC,QT_PATH_INC,QT_PATH_INC)
+        qt_vcs_legacy_extra_link_args = ' -F%s -framework QtCore -framework QtGui -lz -lm ' % (QT_PATH_LIB)
     else:
-        qt_vcs_extra_compile_args += ' -I%s -I%s/QtCore -I%s/QtGui '%(QT_PATH_INC,QT_PATH_INC,QT_PATH_INC)
-        qt_vcs_extra_link_args = ' -L%s -lQtCore%s -lQtGui%s'% (QT_PATH_LIB,QT_LIBS_SFX,QT_LIBS_SFX)
+        qt_vcs_legacy_extra_compile_args += ' -I%s -I%s/QtCore -I%s/QtGui '%(QT_PATH_INC,QT_PATH_INC,QT_PATH_INC)
+        qt_vcs_legacy_extra_link_args = ' -L%s -lQtCore%s -lQtGui%s'% (QT_PATH_LIB,QT_LIBS_SFX,QT_LIBS_SFX)
 
     ## Ok here we generate the moc file
     if os.path.exists(moc_mainwindow_path):
@@ -230,11 +230,11 @@ if WM=="QT" or EM=="QT":
     if not os.path.exists(moc_mainwindow_path):
         print "".join(ln)
         raise "Error could not generate the moc file"
-    vcs_extra_compile_args = ['-c',]+qt_vcs_extra_compile_args.split()
-    vcs_extra_link_args = [qt_vcs_extra_link_args,]
+    vcs_legacy_extra_compile_args = ['-c',]+qt_vcs_legacy_extra_compile_args.split()
+    vcs_legacy_extra_link_args = [qt_vcs_legacy_extra_link_args,]
 else:
     s10=[]
-    vcs_extra_link_args = []
+    vcs_legacy_extra_link_args = []
     qt_include_dirs=[]
 
 if WM=="X11" or EM=="X11" or DRAW=="X11":
@@ -248,21 +248,21 @@ else:
 
 s11 = ['Src/events/main_event_loop.cpp','Src/events/vcs_editor.cpp']
 if EM == "QT":
-    vcs_extra_compile_args+=["-DQTEM","-DUSEQT"]
+    vcs_legacy_extra_compile_args+=["-DQTEM","-DUSEQT"]
 else:
-    vcs_extra_compile_args+=["-DX11EM","-DUSEX11"]
+    vcs_legacy_extra_compile_args+=["-DX11EM","-DUSEX11"]
     s11+=['Src/events/X11/draw_popups.c',]
     
 if WM == "QT":
-    vcs_extra_compile_args+=["-DQTWM","-DUSEQT"]
+    vcs_legacy_extra_compile_args+=["-DQTWM","-DUSEQT"]
 else:
-    vcs_extra_compile_args+=["-DX11WM","-DUSEX11",]
+    vcs_legacy_extra_compile_args+=["-DX11WM","-DUSEX11",]
 
 s5 = [
       ]
 
 if DRAW=="CAIRO":
-    vcs_extra_compile_args+=["-DCAIRODRAW",]
+    vcs_legacy_extra_compile_args+=["-DCAIRODRAW",]
     CAIRO_SOURCELIST="""
     vcs2cairo.c meta2cairo.c cairoXemulator.c
     """
@@ -272,7 +272,7 @@ if DRAW=="CAIRO":
              os.path.join(xgksroot,'png','png.c'),
              ]
 else:
-    vcs_extra_compile_args+=["-DX11DRAW","-DUSEX11"]
+    vcs_legacy_extra_compile_args+=["-DX11DRAW","-DUSEX11"]
     CAIRO_SOURCELIST = ""
     s5 = [  ]
     
@@ -280,15 +280,15 @@ else:
     # Define X11 location for Opteron platform x86_64
     if (os.uname()[4] in ['x86_64']): x11libdir.insert(0,'/usr/X11R6/lib64')
 
-    #print >>sys.stderr, "vcs using these X11 directories: %s %s" %(x11include, x11libdir) 
+    #print >>sys.stderr, "vcs_legacy using these X11 directories: %s %s" %(x11include, x11libdir) 
 
 ## print 'QT_INCLUDE_DIRS', qt_include_dirs 
-vcs_include_dirs = ['Include'] + \
+vcs_legacy_include_dirs = ['Include'] + \
 			[os.path.join(externals,'include'),] + \
                      cairoincdir +\
 		     freetypeincdir +\
                      xml2incdir +\
-                   [ vcsbase_proj ] + \
+                   [ vcs_legacybase_proj ] + \
                    [ cdatbase ] + \
                    cdat_info.cdunif_include_directories +\
                    x11include + \
@@ -297,8 +297,8 @@ vcs_include_dirs = ['Include'] + \
 		['/usr/include','/usr/local/include',   ] + \
                 qt_include_dirs
 
-vcs_library_dirs = [os.path.join(externals,'lib'),] + cairolibdir + freetypelibdir + xml2libdir + cdat_info.cdunif_library_directories + x11libdir + ['/usr/lib','/usr/local/lib']
-vcs_libraries= x_libraries + cdat_info.cdunif_libraries
+vcs_legacy_library_dirs = [os.path.join(externals,'lib'),] + cairolibdir + freetypelibdir + xml2libdir + cdat_info.cdunif_library_directories + x11libdir + ['/usr/lib','/usr/local/lib']
+vcs_legacy_libraries= x_libraries + cdat_info.cdunif_libraries
 
 SOURCES_SCRIPTC ="""
 main.c rscript.c misc.c getp.c procA.c procL.c procC.c procTt.c procTo.c procTl.c procTf.c procTm.c procP.c procGi.c procCOMM.c procDisp.c 
@@ -315,7 +315,7 @@ meshfill.c procGfm.c removeGfm.c getGfm.c procProj.c removeProj.c  getProj.c
 procMETA.c
 """
 sourcelist=string.split(SOURCES_SCRIPTC)
-s1 = map(lambda x: os.path.join(vcsbase,x), sourcelist)
+s1 = map(lambda x: os.path.join(vcs_legacybase,x), sourcelist)
 
 XGKSSOURCES ="""
 act_ws.c aspect_flags.c cellarray.c choice.c colours.c 
@@ -356,7 +356,7 @@ robfor.c    sterfor.c   utmfor.c    wviiinv.c   br_gctp.c   gctp.c      hamfor.c
 molwinv.c   paksz.c     robinv.c    sterinv.c   utminv.c
 """
 s7list=string.split(PROJECTIONS_SOURCES)
-s7=map(lambda x: os.path.join(vcsbase_proj, x), s7list)
+s7=map(lambda x: os.path.join(vcs_legacybase_proj, x), s7list)
 
 TTF_SOURCELIST="""
   ttf2vcs.c
@@ -367,11 +367,11 @@ s8=map(lambda x: os.path.join(xgksroot,'ttf', x), s8list)
 s9list=string.split(CAIRO_SOURCELIST)
 s9=map(lambda x: os.path.join(xgksroot,'cairo', x), s9list)
 
-vcs_library_include_dirs=[
+vcs_legacy_library_include_dirs=[
              ]
 os_name = os.uname()[0]
 if os_name in ['CYGWIN_NT-5.1']: os_name = os_name[:-4]
-vcs_macros = [ (os_name, None),
+vcs_legacy_macros = [ (os_name, None),
                ('CDCOMPAT', None),
                ('PYTHON', None),
                ('incxws', None),
@@ -381,9 +381,9 @@ vcs_macros = [ (os_name, None),
 	#       ('DOUBLE',None),
              ]
 if cdat_info.CDMS_INCLUDE_DRS == "yes":
-    vcs_macros.append(('DRS', None))
+    vcs_legacy_macros.append(('DRS', None))
 if cdat_info.CDMS_INCLUDE_HDF == "yes":
-    vcs_macros.append(('HDF', None))
+    vcs_legacy_macros.append(('HDF', None))
 #
 ###############################################################################
 #                                                                             #
@@ -393,12 +393,12 @@ if cdat_info.CDMS_INCLUDE_HDF == "yes":
 # If this effects other platforms put in sys.plotform for Darwin only.        #
 #                                                                             #
 ###############################################################################
-dovcs = True # turn this to off to do simply the sip part
+dovcs_legacy = True # turn this to off to do simply the sip part
 try:
    from distutils import sysconfig
-   if dovcs:
-    vcs_so = '%s/vcs/_vcs.so' % sysconfig.get_python_lib()
-    os.remove(vcs_so)
+   if dovcs_legacy:
+    vcs_legacy_so = '%s/vcs_legacy/_vcs_legacy.so' % sysconfig.get_python_lib()
+    os.remove(vcs_legacy_so)
    sysconfig.get_config_vars('OPT')
    cflg= sysconfig._config_vars['OPT'].split()
    cflg2=[]
@@ -409,23 +409,23 @@ try:
 except:
    pass
 #
-## print "macros:",vcs_macros,"EM:",EM,"WM:",WM
+## print "macros:",vcs_legacy_macros,"EM:",EM,"WM:",WM
 
 
 
 ## Testing extra args for Vistrails
 
-if dovcs:
- setup (name = "vcs",
+if dovcs_legacy:
+ setup (name = "vcs_legacy",
        version=cdat_info.Version,
        description = "Visualization and Control System",
        url = "http://www-pcmdi.llnl.gov/software",
-       packages = ['vcs', 'vcs.test',],
-       package_dir = {'vcs': 'Lib',
-                      'vcs.test': 'Test',
+       packages = ['vcs_legacy', 'vcs_legacy.test',],
+       package_dir = {'vcs_legacy': 'Lib',
+                      'vcs_legacy.test': 'Test',
                      },
        ext_modules = [
-                      Extension('vcs.slabapi',
+                      Extension('vcs_legacy.slabapi',
                                ['Src/slabapimodule.c',
                                 'Src/slabapi.c',
                                ],
@@ -438,22 +438,22 @@ if dovcs:
 #raw_input("ok first one done")
 print 'slabapi done'
 try:
-    for dflt,rpl in [["-bundle","-dynamiclib -install_name %s/vcs/_vcs.so" % sysconfig.get_python_lib()],]:
-## rpl = "-dynamiclib -Wl,-rpath,/lgm/cdat/VT/Python.framework/Versions/2.6/lib/python2.6/site-packages/vcs "
+    for dflt,rpl in [["-bundle","-dynamiclib -install_name %s/vcs_legacy/_vcs_legacy.so" % sysconfig.get_python_lib()],]:
+## rpl = "-dynamiclib -Wl,-rpath,/lgm/cdat/VT/Python.framework/Versions/2.6/lib/python2.6/site-packages/vcs_legacy "
 ## rpl = "-bundle"
         sysconfig._config_vars['LDSHARED'] = sysconfig._config_vars['LDSHARED'].replace(dflt,rpl)
         sysconfig._config_vars['BLDSHARED'] = sysconfig._config_vars['BLDSHARED'].replace(dflt,rpl)
 except:
    pass
 #
-## print "macros:",vcs_macros,"EM:",EM,"WM:",WM
+## print "macros:",vcs_legacy_macros,"EM:",EM,"WM:",WM
 info_dir = os.path.join(os.environ['BUILD_DIR'], "Info")
 try:
  os.makedirs(info_dir)
 except:
  pass
 f=open(os.path.join(info_dir, "__init__.py"),"w")
-print >> f, "macros = \"",vcs_macros,"EM:",EM,"WM:",WM,"\""
+print >> f, "macros = \"",vcs_legacy_macros,"EM:",EM,"WM:",WM,"\""
 print >> f, "EM = \"",EM,"\""
 print >> f, "WM = \"",WM,"\""
 print >> f, "QT_PATH_LIB = \"",QT_PATH_LIB,"\""
@@ -464,29 +464,29 @@ f.close()
 
 ## Testing extra args for Vistrails
 
-if dovcs:
- setup (name = "vcs",
+if dovcs_legacy:
+ setup (name = "vcs_legacy",
        version=cdat_info.Version,
        description = "Visualization and Control System",
        url = "http://www-pcmdi.llnl.gov/software",
-       packages = ['vcs', 'vcs.test','vcs.info'],
-       package_dir = {'vcs': 'Lib',
-                      'vcs.test': 'Test',
-                      'vcs.info' : info_dir,
+       packages = ['vcs_legacy', 'vcs_legacy.test','vcs_legacy.info'],
+       package_dir = {'vcs_legacy': 'Lib',
+                      'vcs_legacy.test': 'Test',
+                      'vcs_legacy.info' : info_dir,
                      },
        ext_modules = [
     
-                      Extension('vcs._vcs',
+                      Extension('vcs_legacy._vcs_legacy',
                                 ['Src/vcsmodule.c',
                                  'Src/slabapi.c',
                                  'Src/f2c_lite.c',
                                  ] + s1 + s2 + s3 + s4 + s5 + s6 + s7 + s8 + s9 + s10 + s11,
-                                define_macros = vcs_macros,
-                                include_dirs = vcs_include_dirs,
-                                library_dirs = vcs_library_dirs,
-                                libraries = vcs_libraries,
-                                extra_compile_args = vcs_extra_compile_args,
-                                extra_link_args = vcs_extra_link_args,
+                                define_macros = vcs_legacy_macros,
+                                include_dirs = vcs_legacy_include_dirs,
+                                library_dirs = vcs_legacy_library_dirs,
+                                libraries = vcs_legacy_libraries,
+                                extra_compile_args = vcs_legacy_extra_compile_args,
+                                extra_link_args = vcs_legacy_extra_link_args,
                                 ),
                       ]
        )
@@ -495,26 +495,26 @@ if dovcs:
 import shutil
 ptho = sysconfig.get_python_lib()
 try:
- shutil.rmtree("%s/vcs/Include" % ptho,ignore_errors=True)
- shutil.copytree("Include", "%s/vcs/Include" % ptho)
+ shutil.rmtree("%s/vcs_legacy/Include" % ptho,ignore_errors=True)
+ shutil.copytree("Include", "%s/vcs_legacy/Include" % ptho)
 except Exception,err:
  ptho=target_prefix+"/lib/python%i.%i/site-packages/" % sys.version_info[:2]
- shutil.rmtree("%s/vcs/Include" % ptho,ignore_errors=False)
+ shutil.rmtree("%s/vcs_legacy/Include" % ptho,ignore_errors=False)
  try:
-   shutil.copytree("Include", "%s/vcs/Include" % ptho)
+   shutil.copytree("Include", "%s/vcs_legacy/Include" % ptho)
  except:
    pass
 
-print 'Copied the include files to: %s/vcs/Include' % sysconfig.get_python_lib()
+print 'Copied the include files to: %s/vcs_legacy/Include' % sysconfig.get_python_lib()
 
 if (WM=="QT" or EM=="QT") and sys.platform in ['darwin']:
     pref = sys.prefix
     ver = ".".join(sys.version.split(' ')[0].split(".")[:2])
-    ccCmd = 'g++ -O3 -c %s -IInclude/Qt -IInclude -I/%s/include -I%s -o build/qpython.o Src/Qt/qpython.cpp' % (qt_vcs_extra_compile_args,pref,sysconfig.get_python_inc())
+    ccCmd = 'g++ -O3 -c %s -IInclude/Qt -IInclude -I/%s/include -I%s -o build/qpython.o Src/Qt/qpython.cpp' % (qt_vcs_legacy_extra_compile_args,pref,sysconfig.get_python_inc())
     print 'Running: ', ccCmd
     os.system(ccCmd)
-    qt_vcs_extra_link_args = '%s/lib/python%s/config/libpython%s.a ' % (pref, ver, ver) + qt_vcs_extra_link_args
-    ldCmd = 'g++ -o build/qpython build/qpython.o %s -lutil' % (qt_vcs_extra_link_args)
+    qt_vcs_legacy_extra_link_args = '%s/lib/python%s/config/libpython%s.a ' % (pref, ver, ver) + qt_vcs_legacy_extra_link_args
+    ldCmd = 'g++ -o build/qpython build/qpython.o %s -lutil' % (qt_vcs_legacy_extra_link_args)
     print 'Running: ', ldCmd
     os.system(ldCmd)
     if 'install' in sys.argv:
@@ -545,7 +545,7 @@ os.symlink(src,pth)
 #filedds = os.popen("find build/temp* -name '*.o'").readlines()
 #ofiles=' '.join(files).replace('\n',' ')
 #print ofiles
-#ldCmd = 'g++ -o libvcs.dylib %s %s ' % (vcs_extra_link_args,ofiles)
+#ldCmd = 'g++ -o libvcs_legacy.dylib %s %s ' % (vcs_legacy_extra_link_args,ofiles)
 #os.system(ldCmd)
 
 if (WM=='QT' or EM=='QT'):
@@ -555,13 +555,13 @@ if (WM=='QT' or EM=='QT'):
 
     from distutils import sysconfig
 
-    vcs_so = '%s/vcs/_vcs.so' % sysconfig.get_python_lib()
-    vcs_inc = '%s/vcs/Include' % sysconfig.get_python_lib()
+    vcs_legacy_so = '%s/vcs_legacy/_vcs_legacy.so' % sysconfig.get_python_lib()
+    vcs_legacy_inc = '%s/vcs_legacy/Include' % sysconfig.get_python_lib()
 
-    ## vcs_so = '/Users/hvo/src/uvcdat/cdatBuild/lib/python2.7/site-packages/vcs/_vcs.so'
-    ## vcs_inc = '/Users/hvo/src/uvcdat/cdat/Packages/vcs/Include'
+    ## vcs_legacy_so = '/Users/hvo/src/uvcdat/cdatBuild/lib/python2.7/site-packages/vcs_legacy/_vcs_legacy.so'
+    ## vcs_legacy_inc = '/Users/hvo/src/uvcdat/cdat/Packages/vcs_legacy/Include'
 
-    print "so is at:",vcs_so,vcs_inc
+    print "so is at:",vcs_legacy_so,vcs_legacy_inc
 
     # Get the PyQt configuration information.
     config = pyqtconfig.Configuration()
@@ -605,19 +605,19 @@ if (WM=='QT' or EM=='QT'):
     # Add the library we are wrapping.  The name doesn't include any platform
     # specific prefixes or extensions (e.g. the "lib" prefix on UNIX, or the
     # ".dll" extension on Windows).
-    #makefile.extra_libs = ["vcs"]
+    #makefile.extra_libs = ["vcs_legacy"]
     import cdat_info
     makefile.CFLAGS.append("-I%s/include" % cdat_info.externals)
-    makefile.CFLAGS.append("-I%s" % vcs_inc)
+    makefile.CFLAGS.append("-I%s" % vcs_legacy_inc)
     makefile.CFLAGS.append("-I%s/.." % sysconfig.get_python_inc())
 
     makefile.CXXFLAGS.append("-I%s/include" % cdat_info.externals)
-    makefile.CXXFLAGS.append("-I%s" % vcs_inc)
+    makefile.CXXFLAGS.append("-I%s" % vcs_legacy_inc)
     makefile.CXXFLAGS.append("-I%s/.." % sysconfig.get_python_inc())
 
     cwd = os.getcwd()
     makefile.LFLAGS.append("-Wl,-rpath,%s/cdatwrap" % cwd)
-    makefile.LIBS.append(vcs_so);
+    makefile.LIBS.append(vcs_legacy_so);
 
     # Generate the Makefile itself.
     makefile.generate()

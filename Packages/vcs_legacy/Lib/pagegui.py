@@ -47,7 +47,7 @@ class PageDescriptionEditor:
             import Canvas
             canvas = Canvas.Canvas()
         canvas.clear()
-        self.vcs = canvas
+        self.vcs_legacy = canvas
         self.continents = continents
         title = "VCS Canvas Page Layout Editor"
         self.dialog= gui_support.VcsDialog( title = title, buttons = ())
@@ -101,7 +101,7 @@ class PageDescriptionEditor:
         #-------------------------------------------
         # Page Layout Panel -- 'Default Page Form'
         #-------------------------------------------
-        self.pd.create_form( 'default', 'Boxfill', 'default', None, vcs=self.vcs)
+        self.pd.create_form( 'default', 'Boxfill', 'default', None, vcs_legacy=self.vcs_legacy)
 
         #------------------------------------------------------------
         # Group the Template, Graphics Method and Data Scroll Lists
@@ -117,9 +117,9 @@ class PageDescriptionEditor:
         #------------------------------------------------------------
         # Show the Template, Graphics Method, and Data lists
         #------------------------------------------------------------
-        self.bins.template( self.vcs )
-        self.bins.graphics_method( self.vcs, 'Boxfill' )
-        self.bins.data( self.vcs )
+        self.bins.template( self.vcs_legacy )
+        self.bins.graphics_method( self.vcs_legacy, 'Boxfill' )
+        self.bins.data( self.vcs_legacy )
         # Decide where to put it on the screen
         if gui_parent is None:
             d=[max_w/4,
@@ -195,7 +195,7 @@ class create_pd_options_menu:
 #        print 'id_num = ', id_num
 
         eself.pd.create_form( 'default', 'Boxfill', 'default', None, id = id_num, 
-                              vcs=eself.vcs )
+                              vcs_legacy=eself.vcs_legacy )
 
    def evt_remove_pd_form( self, eself ):
 #        print 'eself.pd.form 1= ', eself.pd.form
@@ -233,7 +233,7 @@ class create_page_description_panel:
         self.form={}
 
    # Create page description form
-   def create_form( self, template='default', graphics_method='Boxfill', graphics_name='default', data1=None, data2=None, data3=None, id = 1, vcs=None ):
+   def create_form( self, template='default', graphics_method='Boxfill', graphics_name='default', data1=None, data2=None, data3=None, id = 1, vcs_legacy=None ):
 
         form = Form()
         self.form[id] = form
@@ -250,7 +250,7 @@ class create_page_description_panel:
                     label_text = 'Canvas')
         form.lblc.pack( side='left', padx = 5 )
         form.lbln = Tkinter.Label(form.lblc.interior(),
-                text = '%d.' % vcs.canvasid())
+                text = '%d.' % vcs_legacy.canvasid())
         form.lbln.pack(fill='x', expand=1, padx=10, pady=5)
         gui_support.balloon.bind(form.lblc, "Set VCS Canvas ID from main VCDAT 'Plot Output\nDestination' choice button.")
 
@@ -397,11 +397,11 @@ class create_page_description_panel:
                 else:
                     contout = 0
             if (xdim>=0 and ydim>=0 and (contout>=1) and (contout<12)):
-                self.eself.vcs.setcontinentstype( contout )
+                self.eself.vcs_legacy.setcontinentstype( contout )
             else:
-                self.eself.vcs.setcontinentstype( 0 )
+                self.eself.vcs_legacy.setcontinentstype( 0 )
 
-         vcs = self.eself.vcs.update()
+         vcs_legacy = self.eself.vcs_legacy.update()
       
 
    def evt_replace_template( self, pe, id, event ):
@@ -433,19 +433,19 @@ class create_page_description_panel:
    def evt_remove_form( self, id ):
       if self.form[id].display is not None:
          self.form[id].display.off = 1
-         vcs = self.eself.vcs.update()
+         vcs_legacy = self.eself.vcs_legacy.update()
       self.form[id].line.destroy()
       self.form[id].separator.destroy()
       del self.form[id]
 
    def do_plot( self, id ):
-       vcs = None
+       vcs_legacy = None
        priority = 0
        data1=None
        template=None
        gm_type=None
        gm=None
-       vcs = self.eself.vcs
+       vcs_legacy = self.eself.vcs_legacy
        continents = self.eself.continents
        data1 = self.form[id].data1.get()
        template = self.form[id].template.get()
@@ -466,7 +466,7 @@ class create_page_description_panel:
           if data_size < gm_min_size:
             gui_message.error( "The variable's number of dimensions must be greater than %d." % (gm_min_size-1) )
             self.form[id].data1.setentry( '' )
-            vcs.clear()
+            vcs_legacy.clear()
             self.form[id].btn.configure( background = 'red')
             self.form[id].lbl.configure( label_text = 'Err' )
             if (self.form[id].display is not None):
@@ -477,7 +477,7 @@ class create_page_description_panel:
            pass
 
        plot_flg = 0
-       if (vcs is not None): plot_flg += 1
+       if (vcs_legacy is not None): plot_flg += 1
        if (len(data1) > 0): plot_flg += 1
        if (len(template) > 0): plot_flg += 1
        if (len(gm_type) > 0): plot_flg += 1
@@ -486,7 +486,7 @@ class create_page_description_panel:
           if self.form[id].display != None:
             self.form[id].display.off = 1
             self.form[id].display.priority = priority
-          self.form[id].display = vcs.plot( __main__.__dict__[ data1 ], template, gm_type, gm, continents=continents)
+          self.form[id].display = vcs_legacy.plot( __main__.__dict__[ data1 ], template, gm_type, gm, continents=continents)
           self.form[id].btn.configure( background = gui_color.seven)
           self.form[id].lbl.configure( label_text = 'On' )
 #          print 'display = ', dir(self.form[id].display)
@@ -515,7 +515,7 @@ class show_bin:
       self.bin_name = None
       self.dialog = dialog
 
-   def template( self, vcs ):
+   def template( self, vcs_legacy ):
       #
       framet = Tkinter.Frame(self.fm)
       framet.pack(side='left', expand=1, fill='both')
@@ -523,12 +523,12 @@ class show_bin:
                 text = 'Template',
                 relief = 'raised',
                 borderwidth = 2,
-                command = P_Command(self.edit_template, vcs)
+                command = P_Command(self.edit_template, vcs_legacy)
                 )
       self.template_button.pack(side='top', fill='both', expand = 1)
       gui_support.balloon.bind(self.template_button, 'Click to edit a template')
       #
-      template_list = vcs.listelements('template')
+      template_list = vcs_legacy.listelements('template')
       self.template_listbox = Pmw.ScrolledListBox(framet,
                 label_text = 'Select Template:',
                 labelpos = 'nw',
@@ -540,7 +540,7 @@ class show_bin:
       self.template_listbox.pack(side='top', fill = 'both', expand=1)
       gui_support.balloon.bind(self.template_listbox, "Select 'Template' name with the left mouse button.\nMove pointer to the green 'Template' area of the\n'Page Layout Form' and depress the left mouse\nbutton. The new template name will replace the\nold name.")
 
-   def graphics_method( self, vcs, gm_name ):
+   def graphics_method( self, vcs_legacy, gm_name ):
       frameg=Tkinter.Frame(self.fm)
       frameg.pack(side='left', fill ='both', padx = 5)
       self.gm_name = gm_name
@@ -562,13 +562,13 @@ class show_bin:
       for x in graphics_method_list:
          self.gmain_menu.addmenuitem('Select Graphics Method', 'command','View graphics methods',
                           label = x,
-                          command = P_Command(self.evt_select_graphics_method, x, vcs)
+                          command = P_Command(self.evt_select_graphics_method, x, vcs_legacy)
                          )
       self.gmain_menu.addmenuitem('Graphics Method        ', 'command', 'rename',
                           label = "Edit",
-                          command = P_Command(self.edit_graphics_method, vcs)
+                          command = P_Command(self.edit_graphics_method, vcs_legacy)
                          )
-      gm_list = vcs.listelements( self.gm_name )
+      gm_list = vcs_legacy.listelements( self.gm_name )
       self.gm_name_obj = Tkinter.StringVar()
       self.gm_name_obj.set( 'Select ' + self.gm_name + ':' )
       self.gm_listbox = Pmw.ScrolledListBox(frameg,
@@ -583,7 +583,7 @@ class show_bin:
       self.gm_listbox.pack(side='top', fill = 'both', expand=1)
       gui_support.balloon.bind(self.gm_listbox, "Select 'Graphics Method' name with the left mouse\nbutton. Move pointer to the blue 'Graphics Method'\narea of the 'Page Layout Form' and depress the\nleft mouse button. The new graphics method name\nwill replace the old name.")
 
-   def data( self, vcs ):
+   def data( self, vcs_legacy ):
       framed=Tkinter.Frame(self.fm)
       framed.pack(side='left', fill ='both', padx = 5)
 
@@ -650,27 +650,27 @@ class show_bin:
        except:
           pass
 
-   def evt_select_graphics_method(self, gm_name, vcs):
+   def evt_select_graphics_method(self, gm_name, vcs_legacy):
        self.gm_name = gm_name
        self.gm_name_obj.set( 'Select ' + self.gm_name + ':' )
-       gm_list = vcs.listelements( self.gm_name )
+       gm_list = vcs_legacy.listelements( self.gm_name )
        self.gm_listbox.setlist( gm_list )
 
-   def edit_graphics_method(self, vcs):
+   def edit_graphics_method(self, vcs_legacy):
       try:
          gm_selected = self.gm_listbox.getcurselection()[0]
       except:
          gui_message.error( 'Must select a %s graphics method from the list below.' % self.gm_name )
          return
-      vcs.graphicsmethodgui(self.gm_name, gm_selected,
+      vcs_legacy.graphicsmethodgui(self.gm_name, gm_selected,
             gui_parent = self.dialog.dialog) # popup the graphics method gui
 
-   def edit_template (self, vcs):
+   def edit_template (self, vcs_legacy):
       s = self.template_listbox.getcurselection()
       template_selected = ''
       if len(s) > 0:
           template_selected = s[0]
-      vcs.templateeditor(template_selected, gui_parent=self.dialog.dialog)
+      vcs_legacy.templateeditor(template_selected, gui_parent=self.dialog.dialog)
 
    def update_data_list(self):
       self.data_listbox.setlist( return_defined_data_list() )

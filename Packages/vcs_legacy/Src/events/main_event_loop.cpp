@@ -3,7 +3,7 @@
 #include <X11/Xlibint.h>
 #include <X11/cursorfont.h>
 #include <X11/keysym.h>
-#include "vcs_events_X11_mapping.h"
+#include "vcs_legacy_events_X11_mapping.h"
 #ifdef CAIRODRAW
 #include <cairo-xlib.h>
 #endif
@@ -11,16 +11,16 @@
 
 #ifdef QTEM
 #include "Qt/mainwindow.h"
-#include "Qt/vcs_events_Qt_mapping.h"
+#include "Qt/vcs_legacy_events_Qt_mapping.h"
 #include <QtCore/QEvent>
 #include "mainwindow.h"
 #endif
 
 #include "display.h"
 #include "workstations.h"
-#include "pyvcs.h"
+#include "pyvcs_legacy.h"
 
-#include "vcs_events.h"
+#include "vcs_legacy_events.h"
 
 extern Gconid_X_drawable connect_id; /* VCS canvas drawable id */
 float       BUFFER=.005;
@@ -41,10 +41,10 @@ extern "C" int launch_py_user_action(PyVCScanvas_Object *self, Window window, XE
 #endif
 
 #ifdef QTWM
-extern "C" void vcs_Qt_open_window_by_id(int index);
-extern "C" void vcs_Qt_repaint_window_by_id(int id);
-extern "C" void vcs_Qt_get_window_dimensions_by_id(int id,int *x, int *y,int *w,int *h);
-extern "C" void vcs_Qt_window_set_cursor_by_id(int id, QCursor *cursor);
+extern "C" void vcs_legacy_Qt_open_window_by_id(int index);
+extern "C" void vcs_legacy_Qt_repaint_window_by_id(int id);
+extern "C" void vcs_legacy_Qt_get_window_dimensions_by_id(int id,int *x, int *y,int *w,int *h);
+extern "C" void vcs_legacy_Qt_window_set_cursor_by_id(int id, QCursor *cursor);
 #endif
 extern "C" PyObject *PyVCS_close(PyVCScanvas_Object *self, PyObject *args);
 extern "C" PyObject *PyVCS_clear(PyVCScanvas_Object *self, PyObject *args);
@@ -83,9 +83,9 @@ extern "C"     void set_viewport_and_worldcoordinate (
 						      char proj[256]
 						       );
 extern "C" int in_range(Gpoint position,Gextent extent);
-extern "C" void vcs_acquire_update(void);
-extern "C" void vcs_release_update(void);
-extern "C" int vcs_canvas_update ( short use_defer_flg );
+extern "C" void vcs_legacy_acquire_update(void);
+extern "C" void vcs_legacy_release_update(void);
+extern "C" int vcs_legacy_canvas_update ( short use_defer_flg );
 extern "C" void setup_canvas_globals(PyVCScanvas_Object *self);
 /* Stop the X main loop */
 extern "C" PyObject *
@@ -222,7 +222,7 @@ void set_cursor(PyVCScanvas_Object *self,
 #ifdef X11WM
                 XDefineCursor(self->connect_id.display,self->connect_id.drawable,cursor[i]);
 #elif defined (QTWM)
-		vcs_Qt_window_set_cursor_by_id(self->wkst_id,&cursor[i]);
+		vcs_legacy_Qt_window_set_cursor_by_id(self->wkst_id,&cursor[i]);
 #else
 		fprintf(stderr,"insert here your WM set cursor function\n");
 #endif
@@ -288,7 +288,7 @@ void set_cursor(PyVCScanvas_Object *self,
 #ifdef X11WM
 		    XDefineCursor(self->connect_id.display,self->connect_id.drawable,cursor[10]);
 #elif defined (QTWM)
-		    vcs_Qt_window_set_cursor_by_id(self->wkst_id,&cursor[10]);
+		    vcs_legacy_Qt_window_set_cursor_by_id(self->wkst_id,&cursor[10]);
 #else
 		    fprintf(stderr,"insert here your WM set cursor function\n");
 #endif
@@ -309,7 +309,7 @@ void set_cursor(PyVCScanvas_Object *self,
 #ifdef X11WM
 	    XDefineCursor(self->connect_id.display,self->connect_id.drawable,cursor[0]);
 #elif defined (QTWM)
-	    vcs_Qt_window_set_cursor_by_id(self->wkst_id,&cursor[0]);
+	    vcs_legacy_Qt_window_set_cursor_by_id(self->wkst_id,&cursor[0]);
 #else
 	    fprintf(stderr,"insert here your WM set cursor function\n");
 #endif
@@ -323,7 +323,7 @@ void set_cursor(PyVCScanvas_Object *self,
 #ifdef X11WM
       XUndefineCursor(self->connect_id.display,self->connect_id.drawable);
 #elif defined (QTWM)
-      vcs_Qt_window_set_cursor_by_id(self->wkst_id,NULL);
+      vcs_legacy_Qt_window_set_cursor_by_id(self->wkst_id,NULL);
 #else
       fprintf(stderr,"insert here your WM unset cursor function\n");
 #endif
@@ -348,9 +348,9 @@ extern "C" Window display_info(PyVCScanvas_Object *self,Gpoint point,struct data
 extern "C" Window display_menu(PyVCScanvas_Object *self,Gpoint point);
 void event_handler(PyVCScanvas_Object *self,  XEvent event)
 #elif defined (QTEM)
-  extern "C" void vcs_Qt_display_info(int id, Gpoint pointA, struct data_point info);
-  extern "C" void vcs_Qt_hide_info(int id);
-extern "C" void vcs_Qt_display_menu(int id, float x, float y);
+  extern "C" void vcs_legacy_Qt_display_info(int id, Gpoint pointA, struct data_point info);
+  extern "C" void vcs_legacy_Qt_hide_info(int id);
+extern "C" void vcs_legacy_Qt_display_menu(int id, float x, float y);
 void event_handler(PyVCScanvas_Object *self,  QEvent *event)
 #else
   void event_handler(PyVCScanvas_Object *self,  void *event)
@@ -516,7 +516,7 @@ void event_handler(PyVCScanvas_Object *self,  QEvent *event)
 #ifdef X11WM
                 data_window = display_info(self, pointA, info);
 #elif defined (QTWM)
-              vcs_Qt_display_info(connect_id.wkst_id,pointA,info);
+              vcs_legacy_Qt_display_info(connect_id.wkst_id,pointA,info);
 #else
               printf("insert your WM... data_window generator here, you clicked at: (%f,%f)\n",pointA.x,pointA.y);
 #endif
@@ -530,7 +530,7 @@ void event_handler(PyVCScanvas_Object *self,  QEvent *event)
 #ifdef X11WM
         data_window_right = display_menu(self, pointA);
 #elif defined (QTWM)
-	vcs_Qt_display_menu(connect_id.wkst_id,(float)BUTTON_X,(float)BUTTON_Y);
+	vcs_legacy_Qt_display_menu(connect_id.wkst_id,(float)BUTTON_X,(float)BUTTON_Y);
 #else
         printf("insert your WM display menu here you cliked at (%f,%f)\n",pointA.x,pointA.y);
 #endif
@@ -690,7 +690,7 @@ void event_handler(PyVCScanvas_Object *self,  QEvent *event)
                   }
                 }
 #elif defined QTWM
-                vcs_Qt_hide_info(self->connect_id.wkst_id);
+                vcs_legacy_Qt_hide_info(self->connect_id.wkst_id);
 #else
                 printf("insert here your WM Calls to remove data/coord window\n");
 #endif
@@ -729,7 +729,7 @@ void event_handler(PyVCScanvas_Object *self,  QEvent *event)
         XRaiseWindow(self->connect_id.display, self->connect_id.drawable);
 #elif defined(QTWM)
       if ((self->gui == 1) && (self->connect_id.cr!=NULL)) {
-        vcs_Qt_open_window_by_id(self->connect_id.wkst_id);
+        vcs_legacy_Qt_open_window_by_id(self->connect_id.wkst_id);
       }
 #else
       fprintf(stderr,"insert your WM raise func here \n");
@@ -752,7 +752,7 @@ void event_handler(PyVCScanvas_Object *self,  QEvent *event)
 #ifdef CAIRODRAW
       if (self->connect_id.cr != NULL) {
 // 	fprintf(stderr,"need to create a new win\n");
-	vcs_acquire_update();
+	vcs_legacy_acquire_update();
 	cairo_destroy(self->connect_id.cr);
 	cairo_surface_destroy(self->connect_id.surface);
 // 	fprintf(stderr,"ok created a new cairo surface with the good dims %ix%i and visual: %p\n",width,height,self->connect_id.visual);
@@ -764,11 +764,11 @@ void event_handler(PyVCScanvas_Object *self,  QEvent *event)
 // 	fprintf(stderr,"in event loop created image surface to cairo surface, status: %s\n",cairo_status_to_string(cairo_surface_status(self->connect_id.surface)));
 	cairo_surface_mark_dirty(self->connect_id.surface);
         self->connect_id.cr = cairo_create(self->connect_id.surface);
-	vcs_release_update();
+	vcs_legacy_release_update();
       }
 #endif
 #elif defined(QTWM)
-      vcs_Qt_get_window_dimensions_by_id(self->connect_id.wkst_id,&rxpos,&rypos,&width,&height);
+      vcs_legacy_Qt_get_window_dimensions_by_id(self->connect_id.wkst_id,&rxpos,&rypos,&width,&height);
 #else
       printf("insert your WM getwin geom hre\n");
 #endif
@@ -893,7 +893,7 @@ void event_handler(PyVCScanvas_Object *self,  QEvent *event)
                     gc, 0,0, xwa.width, xwa.height, 0, 0);
         }
 #elif defined(QTEM)
-        vcs_Qt_repaint_window_by_id(self->wkst_id);
+        vcs_legacy_Qt_repaint_window_by_id(self->wkst_id);
 #else
         fprintf(stderr,"insert your WM call here\n");
 #endif
@@ -1000,7 +1000,7 @@ void event_handler(PyVCScanvas_Object *self,  QEvent *event)
                           gc, 0,0, xwa.width, xwa.height, 0, 0);
               }
 #elif defined (QTWM)
-	      vcs_Qt_repaint_window_by_id(self->wkst_id);
+	      vcs_legacy_Qt_repaint_window_by_id(self->wkst_id);
 #else
               fprintf(stderr,"insert your WM backing store thingy here\n");
 #endif

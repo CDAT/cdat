@@ -7,7 +7,7 @@
 #include <errno.h>
 #include "project.h"
 #include "picture.h"
-#include "vcs_marker.h"
+#include "vcs_legacy_marker.h"
 
 #define V(C,z) (C.c0 + z * (C.c1 + z * (C.c2 + z * C.c3)))
 #define DV(C,z) (C.c1 + z * (C.c2 + C.c2 + z * 3. * C.c3))
@@ -70,7 +70,7 @@ Y[] = {
 
     extern struct project_attr p_PRJ;
 
-    extern struct vcs_marker Vma_tab;
+    extern struct vcs_legacy_marker Vma_tab;
 
     extern char PRJ_names[PRJ_TYPES][17];
 
@@ -898,8 +898,8 @@ int gctp_conv( double xin, double yin,double *xout, double *yout,int revert)
 
   pj=&p_PRJ;
   /* Now a simple test of gctp do nothing goes from geo to geo ! */
-  strcpy(fn27,"/work/proj/Packages/vcs/Src/library/projections/nad1927.dat");
-  strcpy(fn83,"/work/proj/Packages/vcs/Src/library/projections/nad1983.dat");
+  strcpy(fn27,"/work/proj/Packages/vcs_legacy/Src/library/projections/nad1927.dat");
+  strcpy(fn83,"/work/proj/Packages/vcs_legacy/Src/library/projections/nad1983.dat");
   strcpy(efile,"gctp_err_msg.txt");
   strcpy(pfile,"gctp_proj_err_msg.txt");
   insys=0;

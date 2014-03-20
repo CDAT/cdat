@@ -1,7 +1,7 @@
 /* Structures to hold/load freetype fonts for VCS */
 
 /* Created by Charles Doutriaux on May 8th, 2007 */
-#include "vcs_names_length.h"
+#include "vcs_legacy_names_length.h"
 /* #ifdef USEX11
 #include "udposix.h"
 #else

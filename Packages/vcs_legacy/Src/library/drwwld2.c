@@ -87,12 +87,12 @@ real *x1, *x2, *y1, *y2;
 /*      4        CONTINENTAL AND INTERNATIONAL POLITICAL BOUNDARIES. */
     ngrp = 0;
 
-/*C      OPEN(1,FILE='/data1/vcs_release2_5/vcs_script/data',STATUS='OLD')
+/*C      OPEN(1,FILE='/data1/vcs_legacy_release2_5/vcs_legacy_script/data',STATUS='OLD')
 */
     o__1.oerr = 0;
     o__1.ounit = *lun;
     o__1.ofnmlen = 37;
-    o__1.ofnm = "/data1/vcs_release2_5/vcs_script/data";
+    o__1.ofnm = "/data1/vcs_legacy_release2_5/vcs_legacy_script/data";
     o__1.orl = 0;
     o__1.osta = "OLD";
     o__1.oacc = 0;

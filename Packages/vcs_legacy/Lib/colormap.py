@@ -26,7 +26,7 @@
 # Import: VCS C extension module.                                               #
 #                                                                               #
 #################################################################################
-import _vcs
+import _vcs_legacy
 from types import *
 
 #################################################################################
@@ -47,7 +47,7 @@ from types import *
 #                                                                               #
 #################################################################################
 def setCpmember(self,member,key,value):
-     _vcs.setCpmember(self.parent.canvas, self, member, key, value, self.parent.mode)
+     _vcs_legacy.setCpmember(self.parent.canvas, self, member, key, value, self.parent.mode)
 
 #################################################################################
 #                                                                               #
@@ -66,7 +66,7 @@ def setCpmember(self,member,key,value):
 #                                                                               #
 #################################################################################
 def getCpmember(self,member):
-     return _vcs.getCpmember(self,member)
+     return _vcs_legacy.getCpmember(self,member)
 
 #################################################################################
 #                                                                               #
@@ -84,7 +84,7 @@ def getCpmember(self,member):
 #                                                                               #
 #################################################################################
 def renameCp(self, old_name, new_name):
-     return _vcs.renameCp(old_name, new_name)
+     return _vcs_legacy.renameCp(old_name, new_name)
 
 #################################################################################
 #                                                                               #
@@ -101,7 +101,7 @@ def renameCp(self, old_name, new_name):
 #                                                                               #
 #################################################################################
 def copyCp(old_name, new_name):
-     return _vcs.copyCp(old_name, new_name)
+     return _vcs_legacy.copyCp(old_name, new_name)
 
 #################################################################################
 #                                                                               #
@@ -117,7 +117,7 @@ def copyCp(old_name, new_name):
 #                                                                               #
 #################################################################################
 def removeCp(name):
-     return _vcs.removeCp(name)
+     return _vcs_legacy.removeCp(name)
 
 #
 #############################################################################
@@ -182,7 +182,7 @@ class Cp:
     existing colormap table entry.
 
  Other Useful Functions:
-             a=vcs.init()               # Constructor
+             a=vcs_legacy.init()               # Constructor
              a.show('colormap')         # Show predefined colormap objects
              a.update()                 # Updates the VCS Canvas at user's request
              a.mode=1, or 0             # If 1, then automatic update, else if
@@ -190,7 +190,7 @@ class Cp:
                                           update the VCS Canvas.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     To Create a new instance of colormap use:
      cp=a.createcolormap('new','quick') # Copies content of 'red' to 'new'
      cp=a.createcolormap('new')         # Copies content of 'default' to 'new'
@@ -225,7 +225,7 @@ class Cp:
            if (Cp_name == None):
               raise ValueError, 'Must provide a colormap name.'
            else:
-              _vcs.copyCp(Cp_name_src, Cp_name)
+              _vcs_legacy.copyCp(Cp_name_src, Cp_name)
               self.__dict__['name'] = Cp_name
         else:
               self.__dict__['name']=Cp_name_src
@@ -275,7 +275,7 @@ class Cp:
     #############################################################################
     def script(self, script_filename=None, mode=None):
         '''
- Function:     script                           # Calls _vcs.scriptCp
+ Function:     script                           # Calls _vcs_legacy.scriptCp
 
  Description of Function:
        Saves out a colormap graphics method in VCS or Python script form to a
@@ -291,7 +291,7 @@ class Cp:
                     produce a VCS script. If neither extensions are give, then by
                     default a Python script will be produced.
 
-    a=vcs.init()
+    a=vcs_legacy.init()
     cp=a.createcolormap('temp')
     cp.script('filename.py')         # Append to a Python file "filename.py"
     cp.script('filename.scr')        # Append to a VCS file "filename.scr"
@@ -308,7 +308,7 @@ class Cp:
         # By default, save file in python script mode
         scr_type = script_filename[len(script_filename)-4:len(script_filename)]
         if (scr_type == '.scr'):
-           print _vcs.scriptCp(self.name,script_filename,mode)
+           print _vcs_legacy.scriptCp(self.name,script_filename,mode)
         else:
            mode = mode + '+'
            py_type = script_filename[len(script_filename)-3:len(script_filename)]
@@ -323,8 +323,8 @@ class Cp:
               fp.write("# Import and Initialize VCS     #\n")
               fp.write("#                             #\n")
               fp.write("#############################\n")
-              fp.write("import vcs\n")
-              fp.write("v=vcs.init()\n\n")
+              fp.write("import vcs_legacy\n")
+              fp.write("v=vcs_legacy.init()\n\n")
 
            unique_name = '__Cp__' + self.name
            fp.write("#----------Colormap (Cp) member (attribute) listings ----------\n")

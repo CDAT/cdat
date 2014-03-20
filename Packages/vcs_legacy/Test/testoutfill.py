@@ -28,12 +28,12 @@
 #                                                                          #
 ############################################################################
 def test():
-   import vcs,cdms2 as cdms,time,os,sys,support          # import vcs and cdms
+   import vcs_legacy,cdms2 as cdms,time,os,sys,support          # import vcs_legacy and cdms
 
    bg=support.bg
    f=cdms.open(os.path.join(cdms.__path__[0],'..','..','..','..','sample_data','clt.nc')) # open clt file
    s=f('clt')                           # get slab clt
-   x=vcs.init()                         # construct vcs canvas
+   x=vcs_legacy.init()                         # construct vcs_legacy canvas
    
 
    x.plot(s,'default','outfill','ASD_map',bg=bg)# plot slab the old way
@@ -51,10 +51,10 @@ def test():
    support.check_plot(x)
    
    a=x.createoutfill('quick')		# create 'quick' outfill
-   if not vcs.isgraphicsmethod(a):            # test object 'a' for graphics method
+   if not vcs_legacy.isgraphicsmethod(a):            # test object 'a' for graphics method
       raise Exception, "Error did not retrieve the gm"
    else:
-      if not vcs.isoutfill(a):		# check for isofill
+      if not vcs_legacy.isoutfill(a):		# check for isofill
          raise Exception, "Error gm is not right type"
    
    a.script('test','w')			# save 'quick' outfill as a Python script
@@ -113,7 +113,7 @@ def test():
    
    objs =x.listelements('template')                   # get the list of templates
    t=x.createtemplate('test')           # create template 'test' from 'default' template
-   if not vcs.istemplate(t):                  # test whether 't' is a template or not
+   if not vcs_legacy.istemplate(t):                  # test whether 't' is a template or not
       raise Exception,"Error template not created"
    else:
       a2 =x.listelements('template')                   # get the list of templates
@@ -129,10 +129,10 @@ def test():
    
    objs = x.listelements('fillarea')                      	# show the list of fillarea secondary objects
    f=x.getfillarea('AuTo_1')                	# get fillarea 'red'
-   if not vcs.issecondaryobject(f):           # check to see if it is a secondary object
+   if not vcs_legacy.issecondaryobject(f):           # check to see if it is a secondary object
       raise Exception,"Error did not get fillarea"
    else:
-      if not vcs.isfillarea(f):                  	# check to see if it is a fillarea
+      if not vcs_legacy.isfillarea(f):                  	# check to see if it is a fillarea
          raise Exception, "Error object created is not fillarea"
    a.fillareastyle=f
    support.check_plot(x)

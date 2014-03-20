@@ -1,4 +1,4 @@
-/* Charles functions for truetype fonts and vcs */
+/* Charles functions for truetype fonts and vcs_legacy */
 /* #include <stdio.h> */
 
 #ifdef USEX11
@@ -296,7 +296,7 @@ int isClockwise( v,n )
 /*   return 0; */
 /* } */
 
-#include "vcs_names_length.h"
+#include "vcs_legacy_names_length.h"
     extern FILE *fpin, *fpout, *fperr;/* input, output, and error for scripts */
 extern FT_Library ft_library;
 

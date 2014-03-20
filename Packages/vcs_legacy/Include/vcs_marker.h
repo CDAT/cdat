@@ -132,7 +132,7 @@
 /*		A structure for VCS marker attributes.	*/
 /*		Values are initialized in main.				*/
 
-  struct vcs_marker
+  struct vcs_legacy_marker
     {
      int type;			/* The marker type.			*/
      float size;		/* The size of the marker.		*/

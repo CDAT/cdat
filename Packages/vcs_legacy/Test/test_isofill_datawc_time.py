@@ -1,5 +1,5 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
-import sys,cdms2 as cdms,vcs,cdtime,support,os
+import sys,cdms2 as cdms,vcs_legacy,cdtime,support,os
 bg=support.bg
 t0=cdtime.comptime(1987,8)
 t1=cdtime.comptime(1987,12)
@@ -11,8 +11,8 @@ s2=s()
 ## print s.shape
 t2=s2.getTime()
 t2.units='months since 1949-2'
-x=vcs.init()
-y=vcs.init()
+x=vcs_legacy.init()
+y=vcs_legacy.init()
 
 b=x.createisofill('new2')
 b.datawc_y1=t0

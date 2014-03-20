@@ -1,8 +1,8 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
-import vcs,MV2 as MV,support
+import vcs_legacy,MV2 as MV,support
 bg=support.bg
 
-x=vcs.init()
+x=vcs_legacy.init()
 if bg==0:
     x.open()
 ## Create a template from the default taylor diagram

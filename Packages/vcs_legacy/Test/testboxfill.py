@@ -37,12 +37,12 @@
 #                                                                          #
 ############################################################################
 def test():
-   import vcs,cdms2 as cdms,time,os,sys,support		# import vcs and cdms
+   import vcs_legacy,cdms2 as cdms,time,os,sys,support		# import vcs_legacy and cdms
    bg=support.bg
 
    f=cdms.open(os.path.join(cdms.__path__[0],'..','..','..','..','sample_data','clt.nc'))
    s=f('clt')			        # get slab clt
-   x=vcs.init()				# construct vcs canvas
+   x=vcs_legacy.init()				# construct vcs_legacy canvas
    
    x.plot(s,'default','boxfill','quick',bg=bg)# plot slab the old way
    #support.check_plot(x)
@@ -52,10 +52,10 @@ def test():
       #support.check_plot(x)
    
    a=x.getboxfill('quick') 		# get 'quick' boxfill graphics method
-   if not vcs.isgraphicsmethod(a):            # test object 'a' for graphics method
+   if not vcs_legacy.isgraphicsmethod(a):            # test object 'a' for graphics method
       raise Exception, "Error did not retrieve the gm"
    else:
-      if not vcs.isboxfill(a):		# check for boxfill
+      if not vcs_legacy.isboxfill(a):		# check for boxfill
          raise Exception, "Error gm is not right type"
 
    # Change boxfill's legend
@@ -155,7 +155,7 @@ def test():
    
    objs =x.listelements('template')                   # get the list of templates
    t=x.createtemplate('test')           # create template 'test' from 'default' template
-   if not vcs.istemplate(t):                  # test whether 't' is a template or not
+   if not vcs_legacy.istemplate(t):                  # test whether 't' is a template or not
       raise Exception,"Error template not created"
    else:
       a2 =x.listelements('template')                   # get the list of templates

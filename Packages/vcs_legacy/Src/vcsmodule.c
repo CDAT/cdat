@@ -1,7 +1,7 @@
 /*
 ###############################################################################
 #                                                                             #
-# Module:       vcsmodule.c                                                   #
+# Module:       vcs_legacymodule.c                                                   #
 #                                                                             #
 # Copyright:    "See file Legal.htm for copyright information."               #
 #                                                                             #
@@ -42,14 +42,14 @@
 #include <unistd.h>  /* Includes math functions (e.g., sin, cos, etc.). */
 #include <math.h>
 /* #include "clui_output.h" */
-#include "vcs_canvas.h"
+#include "vcs_legacy_canvas.h"
 #include "color_editor.h"
 #include "project.h"
 #include <cairo/cairo.h>
 #include <cairo/cairo-ft.h>
 
 
-#define PyInit_VCS init_vcs
+#define PyInit_VCS init_vcs_legacy
 #define MAX_NAME 1024
 
 #define heartbeat(s, t) ;
@@ -63,7 +63,7 @@ static PyObject *VCS_Error; /*DUBOIS*/
 /* Set the global start and end index for the hyperslab */
 extern int index_s[], index_e[];
 
-int	vcs_open_ct=0;
+int	vcs_legacy_open_ct=0;
 int     canvas_workstation_id=8;
 
 /* XGKS initialization */
@@ -76,7 +76,7 @@ GC gc;                           /* graphics context */
 extern Colormap n_cmap;                 /* virtual normal colormap */
 #endif
 int not_using_gui;		 /* FLAG to determine if GUI is used */
-int vcs_gui=0;		 	 /* FLAG to determine if VCS GUI is used */
+int vcs_legacy_gui=0;		 	 /* FLAG to determine if VCS GUI is used */
 int namecount=1;		 /* Used for unique plot names */
 
 
@@ -110,7 +110,7 @@ typedef struct graphics_method_list {  /* Store the graphics methods names */
   struct graphics_method_list *next;   /* Pointer to the next structure */
 } graphics_method_list;
 
-#include "pyvcs.h"
+#include "pyvcs_legacy.h"
 
 
 /* C. DOUTRIAUX June 16th, 2009 */
@@ -139,7 +139,7 @@ staticforward PyTypeObject PyVCScanvas_Type;
  * This is needed for animation on the specified
  * canvas.
  */
-struct vcscanvas_list {
+struct vcs_legacycanvas_list {
 	PyVCScanvas_Object 	*self;        /* Hold the canvas information */
 	PyObject 		*slab;	      /* Hold slab information */
 	PyObject 		*slab2;	      /* Hold slab information */
@@ -148,9 +148,9 @@ struct vcscanvas_list {
 	char			graphics[50]; /* Hold the VCS graphics */
 	char			type[50];     /* Hold the VCS type */
 	char			d_name[MAX_NAME]; /* Hold the display name */
-        struct vcscanvas_list    *next;
+        struct vcs_legacycanvas_list    *next;
 };
-typedef struct vcscanvas_list  	VCSCANVASLIST;
+typedef struct vcs_legacycanvas_list  	VCSCANVASLIST;
 typedef VCSCANVASLIST        	*VCSCANVASLIST_LINK;
 
 VCSCANVASLIST_LINK	        head_canvas_list=NULL;
@@ -162,7 +162,7 @@ VCSCANVASLIST_LINK	        head_canvas_list=NULL;
 /* Check for the type of screen Visual that the X server can support.
  * In order for VCS to work, the X server must support the PseudoColor
  * class for 8 bpp mode and DirectColor class for 24 bpp or 32 bpp mode.
- * If either of these two visuals are not supported then the vcs module
+ * If either of these two visuals are not supported then the vcs_legacy module
  * will error exit.
  */
 static char *visual_class[] = {
@@ -240,7 +240,7 @@ PyVCScanvas_Dealloc(PyVCScanvas_Object *self)
 	canvas_display_list 		*dptr, *tdptr;
 	static PyVCScanvas_Object 	*save_self=NULL;
         PyObject * 			PyVCS_clear(PyVCScanvas_Object *self, PyObject *args);
-	extern void 			remove_vcs_connection_information(Gconid_X_drawable connect_id, int wkst_id);
+	extern void 			remove_vcs_legacy_connection_information(Gconid_X_drawable connect_id, int wkst_id);
 	extern int 			shutdown(Gconid_X_drawable connect_id, int wks);
 /* 	extern int 			animating(); */
 /* 	extern void			view_all_animation_panels(); */
@@ -284,7 +284,7 @@ DNW*/
 	PyVCS_clear(self,NULL);*/
 
 	/* Shut down the xgks workstation *
-	if ((self->vcs_gui != 1) && (self->connect_id.drawable != 0)) {
+	if ((self->vcs_legacy_gui != 1) && (self->connect_id.drawable != 0)) {
 	   XDestroyWindow(self->connect_id.display,self->connect_id.drawable);
 	   self->connect_id.drawable = (XID) NULL;
 	   shutdown(self->connect_id, self->wkst_id);
@@ -318,19 +318,19 @@ DNW*/
          * popup descendants and widgets. Then free all resources associated
 	 * with the VCS Canvas popup window and its descendants.
 	 */
-	if ((self->vcs_gui != 1) && (self->connect_id.drawable != 0)) {
+	if ((self->vcs_legacy_gui != 1) && (self->connect_id.drawable != 0)) {
 	   self->connect_id.drawable = (XID) NULL;
 	   shutdown(self->connect_id, self->wkst_id);
 	}
 #endif
 	/* Free the connection information used in the VCS library */
-	if (self->vcs_gui != 1)
-	   remove_vcs_connection_information(self->connect_id,self->wkst_id);
+	if (self->vcs_legacy_gui != 1)
+	   remove_vcs_legacy_connection_information(self->connect_id,self->wkst_id);
 
 	/* Keep track of how many VCS Canvases that are opened. There can
 	 * only be (at most) 8 opened at any given time. Decrement the 
-         * vcs open counter.
-  	--vcs_open_ct;
+         * vcs_legacy open counter.
+  	--vcs_legacy_open_ct;
 	 */
         --canvas_workstation_id;
 
@@ -338,7 +338,7 @@ DNW*/
         /* Disconnect the X server */
         XCloseDisplay( self->connect_id.display );
 #elif defined QTWM
-	vcs_Qt_destroy_window(self->connect_id.wkst_id);
+	vcs_legacy_Qt_destroy_window(self->connect_id.wkst_id);
 #else
 	fprintf(stderr,"insert here your close win fnc\n")
 #endif
@@ -348,7 +348,7 @@ DNW*/
 
 
 /*	pyoutput("The VCS Canvas has been garbage collected!", 1);*/
-	if (self->vcs_gui == 1) /* Check for VCS canvas */
+	if (self->vcs_legacy_gui == 1) /* Check for VCS canvas */
 	  pyoutput("\nYou have just garbage collected the main VCS Canvas. \nTo reuse the main VCS Canvas from CDAT, you must restart VCS.\n", 1);
 
 	/* Delete VCS Canvas object */
@@ -493,7 +493,7 @@ void normal_cmap_emulate_default2(void/* ARGS UNUSED */)
 static PyObject *
 PyVCS_init(PyObject *self, PyObject *args)
 {
-  	PyVCScanvas_Object 		*vcscanvas;
+  	PyVCScanvas_Object 		*vcs_legacycanvas;
 /* 	Gintlist 			wsid; */
 /* 	int				ctid=0, *pid; */
         int                             winfo_id;
@@ -504,7 +504,7 @@ PyVCS_init(PyObject *self, PyObject *args)
 	static int canvas_workstation_id=8;
          */
 #ifdef USEQT
-	extern int vcs_Qt_init_window(PyVCScanvas_Object *vcscanvas);
+	extern int vcs_legacy_Qt_init_window(PyVCScanvas_Object *vcs_legacycanvas);
 #endif
 
 /*   	char buf[MAX_NAME]; */
@@ -526,7 +526,7 @@ PyVCS_init(PyObject *self, PyObject *args)
 	      return NULL;
 	}
 	/* Initialize the VCS canvas as a new Python object */
-  	vcscanvas = PyObject_NEW(PyVCScanvas_Object, &PyVCScanvas_Type);
+  	vcs_legacycanvas = PyObject_NEW(PyVCScanvas_Object, &PyVCScanvas_Type);
 
   	/* Set the VCS initialization flag to 0 (not initialized) *
         wsid.number = 0;
@@ -541,7 +541,7 @@ PyVCS_init(PyObject *self, PyObject *args)
 	if (ctid == 1) canvas_workstation_id = 8;
 	*/
 
-        vcscanvas->wkst_id = canvas_workstation_id;
+        vcs_legacycanvas->wkst_id = canvas_workstation_id;
         ++canvas_workstation_id;
 
 	/* In VCS, the workstation ID 7 represents the Workstation 
@@ -553,101 +553,101 @@ PyVCS_init(PyObject *self, PyObject *args)
 	*/
 
 	/* Initialize the VCS Canvas to 0. It has not been displayed yet. */
-	vcscanvas->virgin = 0;
+	vcs_legacycanvas->virgin = 0;
 
 	/* Initialize the  VCS Canvas animation to 1. The canvas has not
          * yet done an animation.
          */
-  	vcscanvas->virgin_animation = 1;
+  	vcs_legacycanvas->virgin_animation = 1;
 
 	/* Set the orientation flag to landscape=0 */
-	vcscanvas->orientation = 0;
+	vcs_legacycanvas->orientation = 0;
 
 	/* Initialize the canvas counter */
-	vcscanvas->vcs_min = 1e20; vcscanvas->vcs_max = -1e20;
-	vcscanvas->vcs_ext1 = 0, vcscanvas->vcs_ext2 = 0;
+	vcs_legacycanvas->vcs_legacy_min = 1e20; vcs_legacycanvas->vcs_legacy_max = -1e20;
+	vcs_legacycanvas->vcs_legacy_ext1 = 0, vcs_legacycanvas->vcs_legacy_ext2 = 0;
 
-        if ((vcscanvas->template_name =
+        if ((vcs_legacycanvas->template_name =
            (char *) malloc((strlen("default")+1)*sizeof(char)+1)) == NULL) {
            PyErr_SetString(PyExc_TypeError, "No memory for the template name.");
            return NULL;
         }/* else {
-           strcpy(vcscanvas->template_name, "default");
+           strcpy(vcs_legacycanvas->template_name, "default");
 	   sprintf(buf, "'Template' is currently set to P_%s.", 
-                   vcscanvas->template_name);
+                   vcs_legacycanvas->template_name);
            pyoutput(buf, 1);
         }*/
 	
-        if ((vcscanvas->graphics_name =
+        if ((vcs_legacycanvas->graphics_name =
             (char *) malloc((strlen("default")+1)*sizeof(char)+1)) == NULL) {
            PyErr_SetString(PyExc_TypeError, "No memory for the graphics name.");
            return NULL;
         }/* else {
-           strcpy(vcscanvas->graphics_name, "default");
-           strcpy(vcscanvas->graphics_type, "Boxfill");
-	   sprintf(buf,"Graphics method 'Boxfill' is currently set to Gfb_%s.", vcscanvas->graphics_name);
+           strcpy(vcs_legacycanvas->graphics_name, "default");
+           strcpy(vcs_legacycanvas->graphics_type, "Boxfill");
+	   sprintf(buf,"Graphics method 'Boxfill' is currently set to Gfb_%s.", vcs_legacycanvas->graphics_name);
            pyoutput(buf, 0);
         }*/
 
 	
 
 	/* Initialize to NULL */
-        vcscanvas->gui = 0;
-	vcscanvas->connect_id = connect_id;
-	vcscanvas->connect_id.cr = NULL;
-	vcscanvas->connect_id.surface=NULL;
+        vcs_legacycanvas->gui = 0;
+	vcs_legacycanvas->connect_id = connect_id;
+	vcs_legacycanvas->connect_id.cr = NULL;
+	vcs_legacycanvas->connect_id.surface=NULL;
 #ifdef USEX11
-	vcscanvas->connect_id.display = connect_id.display;
-        vcscanvas->connect_id.drawable = (XID) NULL;
+	vcs_legacycanvas->connect_id.display = connect_id.display;
+        vcs_legacycanvas->connect_id.drawable = (XID) NULL;
 #endif
         if(PyArg_ParseTuple(args,"|id", &winfo_id, &size)) {
            if ( winfo_id != -99) {
-                 vcscanvas->gui = 1;
+                 vcs_legacycanvas->gui = 1;
                  /*connect_id.drawable = (XID) winfo_id;*/
-                 /*vcscanvas->connect_id.drawable = (XID) winfo_id;*/
+                 /*vcs_legacycanvas->connect_id.drawable = (XID) winfo_id;*/
 #ifdef X11DRAW
-                 vcscanvas->gui_drawable = (XID) winfo_id; /* must set the drawable in PyVCS_open */
+                 vcs_legacycanvas->gui_drawable = (XID) winfo_id; /* must set the drawable in PyVCS_open */
 #endif
            }
         }
 #ifdef USEX11
-	vcscanvas->connect_id.canvas_popup = 0;
-	vcscanvas->connect_id.canvas_drawable = 0;
-	vcscanvas->connect_id.animate_popup = 0;
-        vcscanvas->connect_id.canvas_pixmap = (Pixmap)NULL;  /*used as the backing store*/
-        vcscanvas->connect_id.app_context = 0;
-        vcscanvas->connect_id.app_shell = 0;
-        vcscanvas->connect_id.cf_io_text = 0;
-        vcscanvas->connect_id.n_cmap = connect_id.n_cmap;
-        vcscanvas->connect_id.visual = NULL;
+	vcs_legacycanvas->connect_id.canvas_popup = 0;
+	vcs_legacycanvas->connect_id.canvas_drawable = 0;
+	vcs_legacycanvas->connect_id.animate_popup = 0;
+        vcs_legacycanvas->connect_id.canvas_pixmap = (Pixmap)NULL;  /*used as the backing store*/
+        vcs_legacycanvas->connect_id.app_context = 0;
+        vcs_legacycanvas->connect_id.app_shell = 0;
+        vcs_legacycanvas->connect_id.cf_io_text = 0;
+        vcs_legacycanvas->connect_id.n_cmap = connect_id.n_cmap;
+        vcs_legacycanvas->connect_id.visual = NULL;
 #endif
-	vcscanvas->dlist = NULL;
-	vcscanvas->glist = NULL;
-        vcscanvas->stopxmainloop = 0;
-	vcscanvas->havexmainloop = 0;
-        vcscanvas->number_of_frames = 0;
-        vcscanvas->frame_count = 0;
-        vcscanvas->savecontinents = -999;
-        vcscanvas->background = NULL;
-	vcscanvas->canvas_id = vcscanvas->wkst_id - 7; /* canvas is closeed */
-	connect_id.wkst_id = vcscanvas->canvas_id;
-	vcscanvas->connect_id.wkst_id = vcscanvas->canvas_id;
-	vcscanvas->orig_ratio = size;
-/*        fprintf(stderr, "INIT 1: canvas_pixmap %d = %d\n", vcscanvas->canvas_id, vcscanvas->connect_id.canvas_pixmap);*/
-        ++vcs_open_ct; /* Increment the VCS open counter */
-        vcscanvas->canvas_id = vcs_open_ct;
+	vcs_legacycanvas->dlist = NULL;
+	vcs_legacycanvas->glist = NULL;
+        vcs_legacycanvas->stopxmainloop = 0;
+	vcs_legacycanvas->havexmainloop = 0;
+        vcs_legacycanvas->number_of_frames = 0;
+        vcs_legacycanvas->frame_count = 0;
+        vcs_legacycanvas->savecontinents = -999;
+        vcs_legacycanvas->background = NULL;
+	vcs_legacycanvas->canvas_id = vcs_legacycanvas->wkst_id - 7; /* canvas is closeed */
+	connect_id.wkst_id = vcs_legacycanvas->canvas_id;
+	vcs_legacycanvas->connect_id.wkst_id = vcs_legacycanvas->canvas_id;
+	vcs_legacycanvas->orig_ratio = size;
+/*        fprintf(stderr, "INIT 1: canvas_pixmap %d = %d\n", vcs_legacycanvas->canvas_id, vcs_legacycanvas->connect_id.canvas_pixmap);*/
+        ++vcs_legacy_open_ct; /* Increment the VCS open counter */
+        vcs_legacycanvas->canvas_id = vcs_legacy_open_ct;
 
 	/* Set the VCS GUI flag */
-	if (vcs_gui == 0)
-	   vcscanvas->vcs_gui = 0;
+	if (vcs_legacy_gui == 0)
+	   vcs_legacycanvas->vcs_legacy_gui = 0;
 	else
-	   vcscanvas->vcs_gui = vcs_gui++;
+	   vcs_legacycanvas->vcs_legacy_gui = vcs_legacy_gui++;
 
 #ifdef QTWM
-       vcs_Qt_init_window(vcscanvas);
+       vcs_legacy_Qt_init_window(vcs_legacycanvas);
 #endif
   	/* return the VCS canvas object to python */
-  	return (PyObject *)vcscanvas;
+  	return (PyObject *)vcs_legacycanvas;
 }
 
 /* Open VCS Canvas object. This routine really just manages the
@@ -668,8 +668,8 @@ PyVCS_open(PyVCScanvas_Object *self, PyObject *args)
 #ifdef X11WM
 	extern Pixmap create_pixmap(Gconid_X_drawable connect_id);
 #endif
-	extern void vcs_canvas_open_cb(Gconid_X_drawable connect_id);
-	extern void store_vcs_connection_information(Gconid_X_drawable connect_id,int wkst_id);
+	extern void vcs_legacy_canvas_open_cb(Gconid_X_drawable connect_id);
+	extern void store_vcs_legacy_connection_information(Gconid_X_drawable connect_id,int wkst_id);
 	extern struct orientation       Page;
 	/* If the GUI was not stated (i.e., cdatgui), then we need to
 	 * process all the X events before we move on.
@@ -682,9 +682,9 @@ PyVCS_open(PyVCScanvas_Object *self, PyObject *args)
         else
            strcpy(Page.page_orient,"portrait");
 
-	/* Check to see if vcs has been initalized */
+	/* Check to see if vcs_legacy has been initalized */
 	if (self == NULL) {
-           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs.init()).");
+           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs_legacy.init()).");
   	   return NULL;
 	}
 
@@ -694,9 +694,9 @@ PyVCS_open(PyVCScanvas_Object *self, PyObject *args)
          * any given time. The user must close an already existing
          * VCS Canvas.
          */
-/*	if (vcs_open_ct > 8) {
+/*	if (vcs_legacy_open_ct > 8) {
            pyoutput("Error - There can be a maximum 8 VCS Canvases.\n       CDAT cannot exceed this number. Please try reusing one\n       of the existing VCS Canvases.",1);
-	   --vcs_open_ct; * Decrement the VCS open counter back to 8 *
+	   --vcs_legacy_open_ct; * Decrement the VCS open counter back to 8 *
 	   *Py_INCREF ((PyObject *)Py_None);
            return Py_None;*
 	}*/
@@ -707,23 +707,23 @@ PyVCS_open(PyVCScanvas_Object *self, PyObject *args)
 	/* CD put it back on for background plots only */
 	if (self->wkst_id==8) Wkst[0].id = 8;
 	if (self->virgin==0) {
-	   if (self->vcs_gui != 1)
+	   if (self->vcs_legacy_gui != 1)
 #ifdef X11WM
 	     if (self->gui == 1) self->connect_id.drawable = self->gui_drawable; /* set to the Tk drawable */
 #endif
 #ifdef QTWM
-           store_vcs_connection_information(self->connect_id, Wkst[0].id);
+           store_vcs_legacy_connection_information(self->connect_id, Wkst[0].id);
 #endif
               ier = procCanvas("open", &self->connect_id, self->canvas_id, self->orig_ratio,self->gui, &tmp); /* Open the VCS Canvas */
-           store_vcs_connection_information(self->connect_id, Wkst[0].id);
+           store_vcs_legacy_connection_information(self->connect_id, Wkst[0].id);
            setup_canvas_globals(self);
            //self->connect_id = connect_id; /* Set the connect_id */
 	   /* Set up the VCS Canvas and XGKS workstation */
 	} else {
 	   /* Set up the VCS Canvas and XGKS workstation */
            setup_canvas_globals(self);
-	   if (self->vcs_gui != 1) /* Popup VCS canvas */
-	      vcs_canvas_open_cb(self->connect_id);
+	   if (self->vcs_legacy_gui != 1) /* Popup VCS canvas */
+	      vcs_legacy_canvas_open_cb(self->connect_id);
 	}
 
 	/* The VCS Canvas has been opened and displayed on the screen */
@@ -878,7 +878,7 @@ getPyCanvas( int canvas_id)
   int i, dsize;
   int canvas_num=0;
       
-  main = PyImport_ImportModule("vcs");
+  main = PyImport_ImportModule("vcs_legacy");
   dvalues = PyObject_GetAttrString(main, "canvaslist");
   dsize = PyList_Size( dvalues );
   
@@ -922,7 +922,7 @@ int undisplay_resize_plot(PyVCScanvas_Object *self)
 {
         char                            *display_name;
         extern int                     	update_ind;
-        extern int                      vcs_canvas_update();
+        extern int                      vcs_legacy_canvas_update();
         struct display_tab      	*pd;
 	extern struct display_tab 	D_tab;
         extern char *                   return_display_name();
@@ -942,7 +942,7 @@ int undisplay_resize_plot(PyVCScanvas_Object *self)
 
         /* Update the display if needed */
 /*         update_ind = 1;  */
-/*         vcs_canvas_update(0); */
+/*         vcs_legacy_canvas_update(0); */
 
 #ifdef X11WM
         /* Remove the backing store pixmap */
@@ -956,8 +956,8 @@ int undisplay_resize_plot(PyVCScanvas_Object *self)
               self->connect_id.canvas_pixmap = (Pixmap) NULL;
         }
 #elif defined (QTWM)
-	extern  void vcs_Qt_clear_window_by_id(int id);
-	vcs_Qt_clear_window_by_id(self->connect_id.wkst_id);
+	extern  void vcs_legacy_Qt_clear_window_by_id(int id);
+	vcs_legacy_Qt_clear_window_by_id(self->connect_id.wkst_id);
 #else
 	fprintf(stderr,"insert here your WM clear and remove backing store pxmap\n");
 #endif
@@ -989,7 +989,7 @@ void display_resize_plot(PyVCScanvas_Object *self, int off)
         int				 *pi;
         char                            *display_name;
         extern int                     	update_ind;
-        extern int                      vcs_canvas_update();
+        extern int                      vcs_legacy_canvas_update();
         struct display_tab      	*pd;
 	extern struct display_tab 	D_tab;
 #ifdef X11WM
@@ -1021,8 +1021,8 @@ void display_resize_plot(PyVCScanvas_Object *self, int off)
 
         /* Update the display if needed */
         update_ind = 1; 
-        vcs_canvas_update(1);
-/*         vcs_canvas_update(0); */
+        vcs_legacy_canvas_update(1);
+/*         vcs_legacy_canvas_update(0); */
 
 #ifdef X11WM
         /* Copy the current VCS canvas to the pixmap (i.e., backing_store) */
@@ -1087,25 +1087,25 @@ PyObject *PyVCS_close(PyVCScanvas_Object *self, PyObject *args)
 	int 				i,gnarray,ier, tmp = -99;
         char 				a_name[6][17];
 	int 				graphics_num_of_arrays();
-	extern void 			remove_vcs_connection_information(Gconid_X_drawable connect_id, int wkst_id);
+	extern void 			remove_vcs_legacy_connection_information(Gconid_X_drawable connect_id, int wkst_id);
 	extern int 			removeA(char *a_name);
 	extern int              	removeGfb_name();
 	extern int 			clear_display();
 	extern int 			shutdown(Gconid_X_drawable connect_id, int wks);
-	extern void 			vcs_canvas_quit_cb();
+	extern void 			vcs_legacy_canvas_quit_cb();
         extern void		        dispatch_the_next_event();
 	extern Gint gdacwk(Gint ws_id);
 	extern void gclwk( Gint ws_id );
 
 #ifdef VCSQT
-	extern int vcs_close_Qt_window(int index);
+	extern int vcs_legacy_close_Qt_window(int index);
 #endif
         /* Keep track of how many VCS Canvases that are opened. There can
          * only be (at most) 8 opened at any given time. Decrement the 
-         * vcs open counter.
+         * vcs_legacy open counter.
          */
-        --vcs_open_ct;
-        if (vcs_open_ct < 0) vcs_open_ct = 0;
+        --vcs_legacy_open_ct;
+        if (vcs_legacy_open_ct < 0) vcs_legacy_open_ct = 0;
 
         /* If the VCS Canvas is not open, then return. */
 #ifdef USEX11
@@ -1119,9 +1119,9 @@ PyObject *PyVCS_close(PyVCScanvas_Object *self, PyObject *args)
 	}
 
 	/* Set up the VCS Canvas and XGKS workstation */
-	/* Check to see if vcs has been initalized */
+	/* Check to see if vcs_legacy has been initalized */
 	if (self == NULL) {
-           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs.init()).");
+           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs_legacy.init()).");
   	   return NULL;
 	}
 
@@ -1135,13 +1135,13 @@ PyObject *PyVCS_close(PyVCScanvas_Object *self, PyObject *args)
         setup_canvas_globals(self);
 
         /* Popdown VCS canvas and free the connection information used for animation */
-	if (self->vcs_gui != 1) {
-	   vcs_canvas_quit_cb(self->connect_id);
-	   remove_vcs_connection_information(self->connect_id,self->wkst_id);
+	if (self->vcs_legacy_gui != 1) {
+	   vcs_legacy_canvas_quit_cb(self->connect_id);
+	   remove_vcs_legacy_connection_information(self->connect_id,self->wkst_id);
         }
 
 #ifdef VCSQT
-	vcs_close_Qt_window(self->wkst_id);
+	vcs_legacy_close_Qt_window(self->wkst_id);
 #endif
 
 	/* Remove the display from the VCS picture form and
@@ -1206,7 +1206,7 @@ PyObject *PyVCS_close(PyVCScanvas_Object *self, PyObject *args)
 	 * with the VCS Canvas popup window and its descendants.
 	 */
 	        /* Shut down the xgks workstation */
-        if (self->vcs_gui != 1) {
+        if (self->vcs_legacy_gui != 1) {
 #ifdef X11WM
 	  if (self->connect_id.drawable != 0) {
 	    self->connect_id.drawable = (XID) NULL;
@@ -1249,7 +1249,7 @@ PyObject *PyVCS_close(PyVCScanvas_Object *self, PyObject *args)
         struct a_tab            		*ptab;
         extern struct a_tab     		A_tab;
         extern int                     	 	update_ind;
-        extern int                      	vcs_canvas_update();
+        extern int                      	vcs_legacy_canvas_update();
 #ifdef X11WM
 	extern Pixmap 				copy_pixmap(Gconid_X_drawable connect_id,int canvas_id);
 #endif
@@ -1357,7 +1357,7 @@ PyObject *PyVCS_close(PyVCScanvas_Object *self, PyObject *args)
                  /* Update the display if needed */
                  in_process = 1;      /* set the flag to stop this function from processing from another part of the code. This is a threads issue */
                  update_ind = MODE; 
-	         vcs_canvas_update(0);
+	         vcs_legacy_canvas_update(0);
                  in_process = 0;
 
                  Dc.selected = hold_continents; /* Restore Continent's flag */
@@ -1392,9 +1392,9 @@ PyVCS_orientation(PyVCScanvas_Object *self, PyObject *args)
 	extern void 			 set_up_canvas();
 	extern int change_orientation(char *type, Gconid_X_drawable **connect_id_in, int where_from);
 
-	/* Check to see if vcs has been initalized */
+	/* Check to see if vcs_legacy has been initalized */
 	if (self == NULL) {
-           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs.init()).");
+           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs_legacy.init()).");
   	   return NULL;
 	}
 
@@ -1408,7 +1408,7 @@ PyVCS_orientation(PyVCScanvas_Object *self, PyObject *args)
            return NULL;
         }
 
-	if (self->vcs_gui == 1) {  /* Check for VCS canvas */
+	if (self->vcs_legacy_gui == 1) {  /* Check for VCS canvas */
            PyErr_SetString(PyExc_TypeError, "Can not change page orientation for main VCS Canvas.");
   	   return NULL;
 	}
@@ -1430,7 +1430,7 @@ PyVCS_orientation(PyVCScanvas_Object *self, PyObject *args)
            XRaiseWindow(self->connect_id.display, self->connect_id.drawable);
 #elif defined QTWM
 	if (self->connect_id.cr!=NULL)
-	  vcs_Qt_open_window_by_id(self->connect_id.wkst_id);
+	  vcs_legacy_Qt_open_window_by_id(self->connect_id.wkst_id);
 #else
 	fprintf(stderr,"insert here your raise win func\n");
 #endif
@@ -1471,7 +1471,7 @@ PyVCS_geometry( PyVCScanvas_Object *self, PyObject *args)
 	extern void     reset_canvas_geometry();
 	extern void	return_canvas_geometry();
 
-	if (self->vcs_gui == 1) {  /* Check for VCS canvas */
+	if (self->vcs_legacy_gui == 1) {  /* Check for VCS canvas */
            PyErr_SetString(PyExc_TypeError, "Can not change geometry for main VCS Canvas.");
   	   return NULL;
 	}
@@ -1482,9 +1482,9 @@ PyVCS_geometry( PyVCScanvas_Object *self, PyObject *args)
         if (not_using_gui)
            process_cdat_events();
 
-	/* Check to see if vcs has been initalized */
+	/* Check to see if vcs_legacy has been initalized */
 	if (self == NULL) {
-           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs.init()).");
+           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs_legacy.init()).");
   	   return NULL;
 	}
 
@@ -1506,8 +1506,8 @@ PyVCS_geometry( PyVCScanvas_Object *self, PyObject *args)
         height=y=DisplayHeight(self->connect_id.display,screen_num);
         width=DisplayWidth(self->connect_id.display,screen_num);
 #elif defined QTWM
-	extern  void vcs_Qt_get_desktop_dimensions(int index,int *x, int *y, int *w,int *h);
-	vcs_Qt_get_desktop_dimensions(self->connect_id.wkst_id,&xpos, &ypos, &width,&height);
+	extern  void vcs_legacy_Qt_get_desktop_dimensions(int index,int *x, int *y, int *w,int *h);
+	vcs_legacy_Qt_get_desktop_dimensions(self->connect_id.wkst_id,&xpos, &ypos, &width,&height);
 	y=height;
 #else
 	fprintf(stderr,"insert here your WM get desktop dims\n");
@@ -1609,9 +1609,9 @@ PyVCS_canvasinfo(PyVCScanvas_Object *self, PyObject *args)
         unsigned int num_child_windows; /* variable will store the number of child windows of our window */
         extern int XW,YW;
 
-        /* Check to see if vcs has been initalized */
+        /* Check to see if vcs_legacy has been initalized */
         if (self == NULL) {
-           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs.init()).");
+           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs_legacy.init()).");
            return NULL;
         }
 
@@ -1654,10 +1654,10 @@ PyVCS_canvasinfo(PyVCScanvas_Object *self, PyObject *args)
 	depth = xwa.depth;
 	map_state = xwa.map_state;
 #elif defined QTWM
-	vcs_Qt_get_window_dimensions_by_id(self->connect_id.wkst_id,&xwa.x,&xwa.y,&xwa.width,&xwa.height);
-	vcs_Qt_get_window_visibility_by_id(self->connect_id.wkst_id,&map_state);
-	extern  void vcs_Qt_get_desktop_dimensions(int index,int *x, int *y, int *w,int *h);
-	vcs_Qt_get_desktop_dimensions(self->connect_id.wkst_id,&swa.x,&swa.y,&screen_x,&screen_y);
+	vcs_legacy_Qt_get_window_dimensions_by_id(self->connect_id.wkst_id,&xwa.x,&xwa.y,&xwa.width,&xwa.height);
+	vcs_legacy_Qt_get_window_visibility_by_id(self->connect_id.wkst_id,&map_state);
+	extern  void vcs_legacy_Qt_get_desktop_dimensions(int index,int *x, int *y, int *w,int *h);
+	vcs_legacy_Qt_get_desktop_dimensions(self->connect_id.wkst_id,&swa.x,&swa.y,&screen_x,&screen_y);
 #ifdef CAIRODRAW
 	if (cairo_surface_get_type(self->connect_id.surface) == CAIRO_SURFACE_TYPE_IMAGE) {
 	  cairofmt = cairo_image_surface_get_format(self->connect_id.surface);
@@ -1885,7 +1885,7 @@ PyVCS_canvasraised(PyVCScanvas_Object *self, PyObject *args)
            XSync( connect_id.display, FALSE );
         }
 #elif defined QTWM
-	vcs_Qt_open_window_by_id(self->connect_id.wkst_id);
+	vcs_legacy_Qt_open_window_by_id(self->connect_id.wkst_id);
 #else
 	fprintf(stderr,"insert here your win raise func\n");
 #endif
@@ -2063,7 +2063,7 @@ PyVCS_setDpmember(PyObject *self, PyObject *args)
 	extern int              	update_ind;
 	/*extern int              	chk_mov_Dp();*/
 	void 				put_slab_in_VCS_data_struct();
-	extern int 			vcs_canvas_update();
+	extern int 			vcs_legacy_canvas_update();
         PyObject			*cuslab_name_obj;
         char				*cuslab_name;
 
@@ -2166,7 +2166,7 @@ PyVCS_setDpmember(PyObject *self, PyObject *args)
 	      }
 	    }
 	    update_ind = MODE; /* Update the display if needed */
-	    vcs_canvas_update(0);
+	    vcs_legacy_canvas_update(0);
 	  }
 	if (b_list == NULL) {
            /* Return NULL Python Object */
@@ -3569,7 +3569,7 @@ PyVCS_setPtmember(self, args)
         extern struct p_tab     Pic_tab;
         extern struct p_tab     *getP(); 
 	extern int              update_ind;
-        extern int              vcs_canvas_update();
+        extern int              vcs_legacy_canvas_update();
 	extern int              chk_mov_P();
 
         if(PyArg_ParseTuple(args,"|OOOOi",&PT,&MEMBER,&ATTRIBUTE,&VALUE,&MODE)) {
@@ -3856,7 +3856,7 @@ PyVCS_setPtmember(self, args)
 
         chk_mov_P(get_ptab,1);
         update_ind = MODE; /* Update the display if needed */
-        vcs_canvas_update(0);
+        vcs_legacy_canvas_update(0);
 
         /* Return NULL Python Object */
         Py_INCREF(Py_None);
@@ -3878,7 +3878,7 @@ PyVCS_setPfmember(self, args)
         extern struct p_tab     Pic_tab;
         extern struct p_tab     *getP();
         extern int              update_ind;
-        extern int              vcs_canvas_update();
+        extern int              vcs_legacy_canvas_update();
         extern int              chk_mov_P();
 
         if(PyArg_ParseTuple(args,"|OOOOi",&PF,&MEMBER,&ATTRIBUTE,&VALUE,&MODE)) {
@@ -4014,7 +4014,7 @@ PyVCS_setPfmember(self, args)
 
         chk_mov_P(get_ptab,1);
         update_ind = MODE; /* Update the display if needed */
-        vcs_canvas_update(0);
+        vcs_legacy_canvas_update(0);
 
         /* Return NULL Python Object */
         Py_INCREF(Py_None);
@@ -4036,7 +4036,7 @@ PyVCS_setPxtmember(self, args)
         extern struct p_tab     Pic_tab;
         extern struct p_tab     *getP();
         extern int              update_ind;
-        extern int              vcs_canvas_update();
+        extern int              vcs_legacy_canvas_update();
         extern int              chk_mov_P();
 
         if(PyArg_ParseTuple(args,"|OOOOi",&PXT,&MEMBER,&ATTRIBUTE,&VALUE,&MODE)) {
@@ -4117,7 +4117,7 @@ PyVCS_setPxtmember(self, args)
 
         chk_mov_P(get_ptab,1);
         update_ind = MODE; /* Update the display if needed */
-        vcs_canvas_update(0);
+        vcs_legacy_canvas_update(0);
 
         /* Return NULL Python Object */
         Py_INCREF(Py_None);
@@ -4139,7 +4139,7 @@ PyVCS_setPytmember(self, args)
         extern struct p_tab     Pic_tab;
         extern struct p_tab     *getP();
         extern int              update_ind;
-        extern int              vcs_canvas_update();
+        extern int              vcs_legacy_canvas_update();
         extern int              chk_mov_P();
 
         if(PyArg_ParseTuple(args,"|OOOOi",&PYT,&MEMBER,&ATTRIBUTE,&VALUE,&MODE)) {
@@ -4220,7 +4220,7 @@ PyVCS_setPytmember(self, args)
 
         chk_mov_P(get_ptab,1);
         update_ind = MODE; /* Update the display if needed */
-        vcs_canvas_update(0);
+        vcs_legacy_canvas_update(0);
 
         /* Return NULL Python Object */
         Py_INCREF(Py_None);
@@ -4242,7 +4242,7 @@ PyVCS_setPxlmember(self, args)
         extern struct p_tab     Pic_tab;
         extern struct p_tab     *getP();
         extern int              update_ind;
-        extern int              vcs_canvas_update();
+        extern int              vcs_legacy_canvas_update();
         extern int              chk_mov_P();
 
         if(PyArg_ParseTuple(args,"|OOOOi",&PXL,&MEMBER,&ATTRIBUTE,&VALUE,&MODE)) {
@@ -4305,7 +4305,7 @@ PyVCS_setPxlmember(self, args)
 
         chk_mov_P(get_ptab,1);
         update_ind = MODE; /* Update the display if needed */
-        vcs_canvas_update(0);
+        vcs_legacy_canvas_update(0);
 
         /* Return NULL Python Object */
         Py_INCREF(Py_None);
@@ -4327,7 +4327,7 @@ PyVCS_setPylmember(self, args)
         extern struct p_tab     Pic_tab;
         extern struct p_tab     *getP();
         extern int              update_ind;
-        extern int              vcs_canvas_update();
+        extern int              vcs_legacy_canvas_update();
         extern int              chk_mov_P();
 
         if(PyArg_ParseTuple(args,"|OOOOi",&PYL,&MEMBER,&ATTRIBUTE,&VALUE,&MODE)) {
@@ -4390,7 +4390,7 @@ PyVCS_setPylmember(self, args)
 
         chk_mov_P(get_ptab,1);
         update_ind = MODE; /* Update the display if needed */
-        vcs_canvas_update(0);
+        vcs_legacy_canvas_update(0);
 
         /* Return NULL Python Object */
         Py_INCREF(Py_None);
@@ -4412,7 +4412,7 @@ PyVCS_setPblmember(self, args)
         extern struct p_tab     Pic_tab;
         extern struct p_tab     *getP();
         extern int              update_ind;
-        extern int              vcs_canvas_update();
+        extern int              vcs_legacy_canvas_update();
         extern int              chk_mov_P();
 
         if(PyArg_ParseTuple(args,"|OOOOi",&PBL,&MEMBER,&ATTRIBUTE,&VALUE,&MODE)) {
@@ -4561,7 +4561,7 @@ PyVCS_setPblmember(self, args)
 
         chk_mov_P(get_ptab,1);
         update_ind = MODE; /* Update the display if needed */
-        vcs_canvas_update(0);
+        vcs_legacy_canvas_update(0);
 
         /* Return NULL Python Object */
         Py_INCREF(Py_None);
@@ -4583,7 +4583,7 @@ PyVCS_setPlsmember(self, args)
         extern struct p_tab     Pic_tab;
         extern struct p_tab     *getP();
         extern int              update_ind;
-        extern int              vcs_canvas_update();
+        extern int              vcs_legacy_canvas_update();
         extern int              chk_mov_P();
 
         if(PyArg_ParseTuple(args,"|OOOOi",&PLS,&MEMBER,&ATTRIBUTE,&VALUE,&MODE)) {
@@ -4645,7 +4645,7 @@ PyVCS_setPlsmember(self, args)
 
         chk_mov_P(get_ptab,1);
         update_ind = MODE; /* Update the display if needed */
-        vcs_canvas_update(0);
+        vcs_legacy_canvas_update(0);
 
         /* Return NULL Python Object */
         Py_INCREF(Py_None);
@@ -4667,7 +4667,7 @@ PyVCS_setPdsmember(self, args)
         extern struct p_tab     Pic_tab;
         extern struct p_tab     *getP();
         extern int              update_ind;
-        extern int              vcs_canvas_update();
+        extern int              vcs_legacy_canvas_update();
         extern int              chk_mov_P();
 
         if(PyArg_ParseTuple(args,"|OOOOi",&PDS,&MEMBER,&ATTRIBUTE,&VALUE,&MODE)) {
@@ -4725,7 +4725,7 @@ PyVCS_setPdsmember(self, args)
 
         chk_mov_P(get_ptab,1);
         update_ind = MODE; /* Update the display if needed */
-        vcs_canvas_update(0);
+        vcs_legacy_canvas_update(0);
 
         /* Return NULL Python Object */
         Py_INCREF(Py_None);
@@ -4821,7 +4821,7 @@ PyVCS_copyP(self, args)
  * string values. Return the new VCS list name.
  */
 char *
-return_vcs_list(VALUE, member)
+return_vcs_legacy_list(VALUE, member)
 PyObject *VALUE;
 char	 *member;
 {
@@ -4915,10 +4915,10 @@ char	 *member;
 }
 
 /* 
- * Creates a vcs internal list from an existing dictionary 
+ * Creates a vcs_legacy internal list from an existing dictionary 
  */
 static PyObject *
-PyVCS_dictionarytovcslist(PyVCScanvas_Object *self, PyObject *args)
+PyVCS_dictionarytovcs_legacylist(PyVCScanvas_Object *self, PyObject *args)
 {
 	char *name=NULL;
 	PyObject  *Pydic=NULL;
@@ -4934,7 +4934,7 @@ PyVCS_dictionarytovcslist(PyVCScanvas_Object *self, PyObject *args)
                  PyErr_SetString(PyExc_TypeError, "Not correct object type, should be a dictionary.");
                  return NULL;
            }
-	name = return_vcs_list(Pydic,name);
+	name = return_vcs_legacy_list(Pydic,name);
         /* Return NULL Python Object */
         Py_INCREF(Py_None);
         return Py_None;
@@ -5491,7 +5491,7 @@ PyVCS_setGfbmember(self, args)
         extern struct gfb_tab   Gfb_tab;
 	extern struct gfb_tab   *getGfb();
 	extern int              chk_mov_Gfb();
-	extern int 		vcs_canvas_update();
+	extern int 		vcs_legacy_canvas_update();
 	char * 			return_new_fillarea_attribute();
 
         if(PyArg_ParseTuple(args,"|OOOi", &GFB, &MEMBER, &VALUE, &MODE)) {
@@ -5535,7 +5535,7 @@ PyVCS_setGfbmember(self, args)
 /*	      sprintf(buf, "print 'value = %g'", value_double);
               PyRun_SimpleString(buf);*/
 	   } else if (PyDict_Check(VALUE)) { /*check for dictionary*/
-	      value_str = return_vcs_list(VALUE, member);
+	      value_str = return_vcs_legacy_list(VALUE, member);
 	   }
 	}
 
@@ -5783,7 +5783,7 @@ PyVCS_setGfbmember(self, args)
 
 	chk_mov_Gfb(get_gfbtab);
         update_ind = MODE; /* Update the display if needed */
-	vcs_canvas_update(0);
+	vcs_legacy_canvas_update(0);
 
 	/* 
 	 * Call the Set_Member function to assign the data
@@ -6113,7 +6113,7 @@ PyVCS_setGfimember(self, args)
         extern struct gfi_tab   Gfi_tab;
 	extern struct gfi_tab   *getGfi();
 	extern int              chk_mov_Gfi();
-	extern int 		vcs_canvas_update();
+	extern int 		vcs_legacy_canvas_update();
 
         if(PyArg_ParseTuple(args,"|OOOi", &GFI, &MEMBER, &VALUE, &MODE)) {
            if (GFI == NULL) {
@@ -6146,7 +6146,7 @@ PyVCS_setGfimember(self, args)
 	   } else if (PyFloat_Check(VALUE)) { /*check for double*/
               value_double = PyFloat_AsDouble(VALUE);
 	   } else if (PyDict_Check(VALUE)) { /*check for dictionary*/
-	      value_str = return_vcs_list(VALUE, member);
+	      value_str = return_vcs_legacy_list(VALUE, member);
 	   }
 	}
 
@@ -6373,7 +6373,7 @@ PyVCS_setGfimember(self, args)
 
 	chk_mov_Gfi(get_gfitab);
         update_ind = MODE; /* Update the display if needed */
-	vcs_canvas_update(0);
+	vcs_legacy_canvas_update(0);
 
 	/* 
 	 * Call the Set_Member function to assign the data
@@ -7086,7 +7086,7 @@ PyVCS_setGfmmember(self, args)
         extern struct gfm_tab   Gfm_tab;
 	extern struct gfm_tab   *getGfm();
 	extern int              chk_mov_Gfm();
-	extern int 		vcs_canvas_update();
+	extern int 		vcs_legacy_canvas_update();
 
         if(PyArg_ParseTuple(args,"|OOOi", &GFM, &MEMBER, &VALUE, &MODE)) {
            if (GFM == NULL) {
@@ -7119,7 +7119,7 @@ PyVCS_setGfmmember(self, args)
 	   } else if (PyFloat_Check(VALUE)) { /*check for double*/
               value_double = PyFloat_AsDouble(VALUE);
 	   } else if (PyDict_Check(VALUE)) { /*check for dictionary*/
-	      value_str = return_vcs_list(VALUE, member);
+	      value_str = return_vcs_legacy_list(VALUE, member);
 	   }
 	}
 
@@ -7369,7 +7369,7 @@ PyVCS_setGfmmember(self, args)
 
 	chk_mov_Gfm(get_gfmtab);
         update_ind = MODE; /* Update the display if needed */
-	vcs_canvas_update(0);
+	vcs_legacy_canvas_update(0);
 
 	/* 
 	 * Call the Set_Member function to assign the data
@@ -7674,7 +7674,7 @@ PyVCS_setProjmember(self, args)
         struct projection_attr        *projtab;
         extern struct projection_attr  p_PRJ_list;
 	extern int              chk_mov_Proj();
-	extern int 		vcs_canvas_update();
+	extern int 		vcs_legacy_canvas_update();
 
         if(PyArg_ParseTuple(args,"|OOOi", &PROJ, &MEMBER, &VALUE, &MODE)) {
            if (PROJ == NULL) {
@@ -7723,7 +7723,7 @@ PyVCS_setProjmember(self, args)
 
 /* 	chk_mov_Proj(projtab); */
         update_ind = MODE; /* Update the display if needed */
-	vcs_canvas_update(0);
+	vcs_legacy_canvas_update(0);
 
         /* Return NULL Python Object */
         Py_INCREF(Py_None);
@@ -8105,7 +8105,7 @@ int  color_index;
 
         /* Set the new structure in the list */
         chk_mov_Tt (pt);
-	vcs_canvas_update(0);
+	vcs_legacy_canvas_update(0);
 
         return text_name;
 }
@@ -8143,7 +8143,7 @@ PyVCS_setGimember(self, args)
         extern struct gi_tab    Gi_tab;
 	extern struct gi_tab    *getGi();
 	extern int              chk_mov_Gi();
-	extern int 		vcs_canvas_update();
+	extern int 		vcs_legacy_canvas_update();
 
         if(PyArg_ParseTuple(args,"|OOOi", &GI, &MEMBER, &VALUE, &MODE)) {
            if (GI == NULL) {
@@ -8173,7 +8173,7 @@ PyVCS_setGimember(self, args)
 	   } else if (PyFloat_Check(VALUE)) { /*check for double*/
               value_double = PyFloat_AsDouble(VALUE);
 	   } else if (PyDict_Check(VALUE)) { /*check for dictionary*/
-              value_str = return_vcs_list(VALUE, member);
+              value_str = return_vcs_legacy_list(VALUE, member);
 	   }
 	}
 
@@ -8406,7 +8406,7 @@ PyVCS_setGimember(self, args)
 
 	chk_mov_Gi(get_gitab);
         update_ind = MODE; /* Update the display if needed */
-	vcs_canvas_update(0);
+	vcs_legacy_canvas_update(0);
 
         /* Return NULL Python Object */
         Py_INCREF(Py_None);
@@ -8711,7 +8711,7 @@ PyVCS_setGomember(self, args)
         extern struct go_tab    Go_tab;
 	extern struct go_tab    *getGo();
 	extern int              chk_mov_Go();
-	extern int 		vcs_canvas_update();
+	extern int 		vcs_legacy_canvas_update();
 
         if(PyArg_ParseTuple(args,"|OOOi", &GO, &MEMBER, &VALUE, &MODE)) {
            if (GO == NULL) {
@@ -8741,7 +8741,7 @@ PyVCS_setGomember(self, args)
 	   } else if (PyFloat_Check(VALUE)) { /*check for double*/
               value_double = PyFloat_AsDouble(VALUE);
 	   } else if (PyDict_Check(VALUE)) { /*check for dictionary*/
-              value_str = return_vcs_list(VALUE, member);
+              value_str = return_vcs_legacy_list(VALUE, member);
 	   }
 	}
 
@@ -8855,7 +8855,7 @@ PyVCS_setGomember(self, args)
 
 	chk_mov_Go(get_gotab);
         update_ind = MODE; /* Update the display if needed */
-	vcs_canvas_update(0);
+	vcs_legacy_canvas_update(0);
 
         /* Return NULL Python Object */
         Py_INCREF(Py_None);
@@ -9162,7 +9162,7 @@ PyVCS_setGfomember(self, args)
         extern struct gfo_tab   Gfo_tab;
 	extern struct gfo_tab   *getGfo();
 	extern int              chk_mov_Gfo();
-	extern int 		vcs_canvas_update();
+	extern int 		vcs_legacy_canvas_update();
 
         if(PyArg_ParseTuple(args,"|OOOi", &GFO, &MEMBER, &VALUE, &MODE)) {
            if (GFO == NULL) {
@@ -9192,7 +9192,7 @@ PyVCS_setGfomember(self, args)
 	   } else if (PyFloat_Check(VALUE)) { /*check for double*/
               value_double = PyFloat_AsDouble(VALUE);
 	   } else if (PyDict_Check(VALUE)) { /*check for dictionary*/
-              value_str = return_vcs_list(VALUE, member);
+              value_str = return_vcs_legacy_list(VALUE, member);
 	   }
 	}
 
@@ -9289,7 +9289,7 @@ PyVCS_setGfomember(self, args)
 
 	chk_mov_Gfo(get_gfotab);
         update_ind = MODE; /* Update the display if needed */
-	vcs_canvas_update(0);
+	vcs_legacy_canvas_update(0);
 
         /* Return NULL Python Object */
         Py_INCREF(Py_None);
@@ -9586,7 +9586,7 @@ PyVCS_setGXymember(self, args)
         extern struct gXy_tab   GXy_tab;
 	extern struct gXy_tab   *getGXy();
 	extern int              chk_mov_GXy();
-	extern int 		vcs_canvas_update();
+	extern int 		vcs_legacy_canvas_update();
 
         if(PyArg_ParseTuple(args,"|OOOi", &GXY, &MEMBER, &VALUE, &MODE)) {
            if (GXY == NULL) {
@@ -9616,7 +9616,7 @@ PyVCS_setGXymember(self, args)
 	   } else if (PyFloat_Check(VALUE)) { /*check for double*/
               value_double = PyFloat_AsDouble(VALUE);
 	   } else if (PyDict_Check(VALUE)) { /*check for dictionary*/
-              value_str = return_vcs_list(VALUE, member);
+              value_str = return_vcs_legacy_list(VALUE, member);
 	   }
 	}
 
@@ -9999,7 +9999,7 @@ PyVCS_setGXymember(self, args)
 
 	chk_mov_GXy(get_gXytab);
         update_ind = MODE; /* Update the display if needed */
-	vcs_canvas_update(0);
+	vcs_legacy_canvas_update(0);
 
         /* Return NULL Python Object */
         Py_INCREF(Py_None);
@@ -10297,7 +10297,7 @@ PyVCS_setGYxmember(self, args)
         extern struct gYx_tab   GYx_tab;
 	extern struct gYx_tab   *getGYx();
 	extern int              chk_mov_GYx();
-	extern int 		vcs_canvas_update();
+	extern int 		vcs_legacy_canvas_update();
 
         if(PyArg_ParseTuple(args,"|OOOi", &GYX, &MEMBER, &VALUE, &MODE)) {
            if (GYX == NULL) {
@@ -10327,7 +10327,7 @@ PyVCS_setGYxmember(self, args)
 	   } else if (PyFloat_Check(VALUE)) { /*check for double*/
               value_double = PyFloat_AsDouble(VALUE);
 	   } else if (PyDict_Check(VALUE)) { /*check for dictionary*/
-              value_str = return_vcs_list(VALUE, member);
+              value_str = return_vcs_legacy_list(VALUE, member);
 	   }
 	}
 
@@ -10710,7 +10710,7 @@ PyVCS_setGYxmember(self, args)
 
 	chk_mov_GYx(get_gYxtab);
         update_ind = MODE; /* Update the display if needed */
-	vcs_canvas_update(0);
+	vcs_legacy_canvas_update(0);
 
         /* Return NULL Python Object */
         Py_INCREF(Py_None);
@@ -11008,7 +11008,7 @@ PyVCS_setGXYmember(self, args)
         extern struct gXY_tab   GXY_tab;
 	extern struct gXY_tab   *getGXY();
 	extern int              chk_mov_GXY();
-	extern int 		vcs_canvas_update();
+	extern int 		vcs_legacy_canvas_update();
 
         if(PyArg_ParseTuple(args,"|OOOi", &GXY, &MEMBER, &VALUE, &MODE)) {
            if (GXY == NULL) {
@@ -11038,7 +11038,7 @@ PyVCS_setGXYmember(self, args)
 	   } else if (PyFloat_Check(VALUE)) { /*check for double*/
               value_double = PyFloat_AsDouble(VALUE);
 	   } else if (PyDict_Check(VALUE)) { /*check for dictionary*/
-              value_str = return_vcs_list(VALUE, member);
+              value_str = return_vcs_legacy_list(VALUE, member);
 	   }
 	}
 
@@ -11421,7 +11421,7 @@ PyVCS_setGXYmember(self, args)
 
 	chk_mov_GXY(get_gXYtab);
         update_ind = MODE; /* Update the display if needed */
-	vcs_canvas_update(0);
+	vcs_legacy_canvas_update(0);
 
         /* Return NULL Python Object */
         Py_INCREF(Py_None);
@@ -11740,7 +11740,7 @@ PyVCS_setGvmember(self, args)
         extern struct gv_tab   Gv_tab;
 	extern struct gv_tab   *getGv();
 	extern int              chk_mov_Gv();
-	extern int 		vcs_canvas_update();
+	extern int 		vcs_legacy_canvas_update();
 
         if(PyArg_ParseTuple(args,"|OOOi", &GV, &MEMBER, &VALUE, &MODE)) {
            if (GV == NULL) {
@@ -11770,7 +11770,7 @@ PyVCS_setGvmember(self, args)
 	   } else if (PyFloat_Check(VALUE)) { /*check for double*/
               value_double = PyFloat_AsDouble(VALUE);
 	   } else if (PyDict_Check(VALUE)) { /*check for dictionary*/
-              value_str = return_vcs_list(VALUE, member);
+              value_str = return_vcs_legacy_list(VALUE, member);
 	   }
 	}
 
@@ -11893,7 +11893,7 @@ PyVCS_setGvmember(self, args)
 
 	chk_mov_Gv(get_gvtab);
         update_ind = MODE; /* Update the display if needed */
-	vcs_canvas_update(0);
+	vcs_legacy_canvas_update(0);
 
         /* Return NULL Python Object */
         Py_INCREF(Py_None);
@@ -12186,7 +12186,7 @@ PyVCS_setGSpmember(self, args)
         extern struct gSp_tab   GSp_tab;
 	extern struct gSp_tab   *getGSp();
 	extern int              chk_mov_GSp();
-	extern int 		vcs_canvas_update();
+	extern int 		vcs_legacy_canvas_update();
 
         if(PyArg_ParseTuple(args,"|OOOi", &GSP, &MEMBER, &VALUE, &MODE)) {
            if (GSP == NULL) {
@@ -12216,7 +12216,7 @@ PyVCS_setGSpmember(self, args)
 	   } else if (PyFloat_Check(VALUE)) { /*check for double*/
               value_double = PyFloat_AsDouble(VALUE);
 	   } else if (PyDict_Check(VALUE)) { /*check for dictionary*/
-              value_str = return_vcs_list(VALUE, member);
+              value_str = return_vcs_legacy_list(VALUE, member);
 	   }
 	}
 
@@ -12553,7 +12553,7 @@ PyVCS_setGSpmember(self, args)
 
 	chk_mov_GSp(get_gSptab);
         update_ind = MODE; /* Update the display if needed */
-	vcs_canvas_update(0);
+	vcs_legacy_canvas_update(0);
 
         /* Return NULL Python Object */
         Py_INCREF(Py_None);
@@ -12842,7 +12842,7 @@ PyVCS_setGconmember(self, args)
         extern struct gcon_tab  Gcon_tab;
 	extern struct gcon_tab  *getGcon();
 	extern int              chk_mov_Gcon();
-	extern int 		vcs_canvas_update();
+	extern int 		vcs_legacy_canvas_update();
 
         if(PyArg_ParseTuple(args,"|OOOi", &GCON, &MEMBER, &VALUE, &MODE)) {
            if (GCON == NULL) {
@@ -12872,7 +12872,7 @@ PyVCS_setGconmember(self, args)
 	   } else if (PyFloat_Check(VALUE)) { /*check for double*/
               value_double = PyFloat_AsDouble(VALUE);
 	   } else if (PyDict_Check(VALUE)) { /*check for dictionary*/
-              value_str = return_vcs_list(VALUE, member);
+              value_str = return_vcs_legacy_list(VALUE, member);
 	   }
 	}
 
@@ -12990,7 +12990,7 @@ PyVCS_setGconmember(self, args)
 
 	chk_mov_Gcon(get_gcontab);
         update_ind = MODE; /* Update the display if needed */
-	vcs_canvas_update(0);
+	vcs_legacy_canvas_update(0);
 
         /* Return NULL Python Object */
         Py_INCREF(Py_None);
@@ -13266,7 +13266,7 @@ PyVCS_setCpmember(self, args)
         extern struct color_table       C_tab;
         extern int                      update_ind;
         extern int                      set_active_colors();
-	extern int 			vcs_canvas_update();
+	extern int 			vcs_legacy_canvas_update();
 
         if(PyArg_ParseTuple(args,"|OOOiOi", &CANVAS, &CP, &MEMBER, &KEY, &VALUE, &MODE)) {
            if (CP == NULL) {
@@ -13316,7 +13316,7 @@ PyVCS_setCpmember(self, args)
 	if ((cmpncs(active_colors, Cp_name) == 0) && (MODE == 1)) {
 	   PyVCS_updateVCSsegments(CANVAS, NULL);
            update_ind = MODE; /* Update the display if needed */
-	   vcs_canvas_update(0);
+	   vcs_legacy_canvas_update(0);
         }
 
         /* Return NULL Python Object */
@@ -13725,7 +13725,7 @@ PyVCS_setTlmember(self, args)
 	struct table_line    		*Tltab;
 	extern int              	update_ind;
 	extern int              	chk_mov_Tl();
-	extern int 			vcs_canvas_update();
+	extern int 			vcs_legacy_canvas_update();
 	extern void			free_points();
 
         if(PyArg_ParseTuple(args,"|OOOi", &TL, &MEMBER, &VALUE, &MODE)) {
@@ -13912,7 +13912,7 @@ PyVCS_setTlmember(self, args)
 
 	chk_mov_Tl(get_Tltab);
         update_ind = MODE; /* Update the display if needed */
-	vcs_canvas_update(0);
+	vcs_legacy_canvas_update(0);
 
         /* Return NULL Python Object */
         Py_INCREF(Py_None);
@@ -14477,7 +14477,7 @@ PyVCS_setTmmember(self, args)
 	struct table_mark    		*Tmtab;
 	extern int              	update_ind;
 	extern int              	chk_mov_Tm();
-	extern int 			vcs_canvas_update();
+	extern int 			vcs_legacy_canvas_update();
         extern void                     free_points();
 
         if(PyArg_ParseTuple(args,"|OOOi", &TM, &MEMBER, &VALUE, &MODE)) {
@@ -14896,7 +14896,7 @@ PyVCS_setTmmember(self, args)
 
 	chk_mov_Tm(get_Tmtab);
         update_ind = MODE; /* Update the display if needed */
-	vcs_canvas_update(0);
+	vcs_legacy_canvas_update(0);
 
         /* Return NULL Python Object */
         Py_INCREF(Py_None);
@@ -15221,7 +15221,7 @@ PyVCS_setTfmember(self, args)
 	struct table_fill    		*Tftab;
 	extern int              	update_ind;
 	extern int              	chk_mov_Tf();
-	extern int 			vcs_canvas_update();
+	extern int 			vcs_legacy_canvas_update();
         extern void                     free_points();
 
         if(PyArg_ParseTuple(args,"|OOOi", &TF, &MEMBER, &VALUE, &MODE)) {
@@ -15405,7 +15405,7 @@ PyVCS_setTfmember(self, args)
 
 	chk_mov_Tf(get_Tftab);
         update_ind = MODE; /* Update the display if needed */
-	vcs_canvas_update(0);
+	vcs_legacy_canvas_update(0);
 
         /* Return NULL Python Object */
         Py_INCREF(Py_None);
@@ -15722,7 +15722,7 @@ PyVCS_setTtmember(self, args)
 	struct table_text    		*Tttab;
 	extern int              	update_ind;
 	extern int              	chk_mov_Tt();
-	extern int 			vcs_canvas_update();
+	extern int 			vcs_legacy_canvas_update();
         extern void                     free_points();
 
         if(PyArg_ParseTuple(args,"|OOOi", &TT, &MEMBER, &VALUE, &MODE)) {
@@ -15915,7 +15915,7 @@ PyVCS_setTtmember(self, args)
 	chk_mov_Tt(get_Tttab);
 /* 	printf("Update_ind is after ch_tt: %d\n",update_ind); */
         update_ind = MODE; /* Update the display if needed */
-	vcs_canvas_update(0);
+	vcs_legacy_canvas_update(0);
 
         /* Return NULL Python Object */
         Py_INCREF(Py_None);
@@ -16182,7 +16182,7 @@ PyVCS_setTomember(self, args)
 	struct table_chorn   		*Totab;
 	extern int              	update_ind;
 	extern int              	chk_mov_To();
-	extern int 			vcs_canvas_update();
+	extern int 			vcs_legacy_canvas_update();
 
         if(PyArg_ParseTuple(args,"|OOOi", &TO, &MEMBER, &VALUE, &MODE)) {
            if (TO == NULL) {
@@ -16261,7 +16261,7 @@ PyVCS_setTomember(self, args)
 	chk_mov_To(get_Totab);
 /* 	printf("after check To update_ind is: %d\n",update_ind); */
         update_ind = MODE; /* Update the display if needed */
-	vcs_canvas_update(0);
+	vcs_legacy_canvas_update(0);
 
         /* Return NULL Python Object */
         Py_INCREF(Py_None);
@@ -16442,7 +16442,7 @@ static PyObject *
 PyVCS_updatecanvas(PyVCScanvas_Object *self, PyObject *args)
 {
 	extern int              update_ind;
-	extern int 		vcs_canvas_update();
+	extern int 		vcs_legacy_canvas_update();
 
         /*
          * Make sure the Canvas is in front.
@@ -16452,12 +16452,12 @@ PyVCS_updatecanvas(PyVCScanvas_Object *self, PyObject *args)
            XRaiseWindow(self->connect_id.display, self->connect_id.drawable);
 #elif defined QTWM
         if (self->connect_id.cr != NULL)
-	  vcs_Qt_open_window_by_id(self->connect_id.wkst_id);
+	  vcs_legacy_Qt_open_window_by_id(self->connect_id.wkst_id);
 #else
 	fprintf(stderr,"insert here your raise func\n");
 #endif
         update_ind = 1; /* Update the display if needed */
-	vcs_canvas_update(0);
+	vcs_legacy_canvas_update(0);
 
         /* Return NULL Python Object */
         Py_INCREF(Py_None);
@@ -16481,7 +16481,7 @@ PyVCS_updatecanvas_continents(PyVCScanvas_Object *self, PyObject *args)
         struct a_tab            		*ptab;
         extern struct a_tab     		A_tab;
         extern int                     	 	update_ind;
-        extern int                      	vcs_canvas_update();
+        extern int                      	vcs_legacy_canvas_update();
 	extern struct default_continents 	Dc;
 
         /*
@@ -16493,7 +16493,7 @@ PyVCS_updatecanvas_continents(PyVCScanvas_Object *self, PyObject *args)
            XRaiseWindow(self->connect_id.display, self->connect_id.drawable);
 #elif defined QTWM
         if (self->connect_id.cr != NULL)
-	  vcs_Qt_open_window_by_id(self->connect_id.wkst_id);
+	  vcs_legacy_Qt_open_window_by_id(self->connect_id.wkst_id);
 #else
 	fprintf(stderr,"insert here your raise func\n");
 #endif
@@ -16521,7 +16521,7 @@ PyVCS_updatecanvas_continents(PyVCScanvas_Object *self, PyObject *args)
 
         /* Update the display if needed */
         update_ind = 1;
-	vcs_canvas_update(0);
+	vcs_legacy_canvas_update(0);
 
         Dc.selected = hold_continents; /* Restore Continent's flag */
 
@@ -17229,9 +17229,9 @@ PyVCS_set(PyVCScanvas_Object *self, PyObject *args)
         if (not_using_gui)
            process_cdat_events();
 
-	/* Check to see if vcs has been initalized */
+	/* Check to see if vcs_legacy has been initalized */
 	if (self == NULL) {
-           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs.init()).");
+           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs_legacy.init()).");
   	   return NULL;
 	}
 
@@ -17813,7 +17813,7 @@ an_loop:
 	   } 
 
 	   if (self == NULL) {
-		 PyErr_SetString(VCS_Error, "Must first initialize VCS (i.e., x=vcs.init()).");
+		 PyErr_SetString(VCS_Error, "Must first initialize VCS (i.e., x=vcs_legacy.init()).");
                  return NULL;
 	   }
 
@@ -18154,7 +18154,7 @@ heartbeat("Slab2 name set to %s", s_name[0]);
         }
 /* 	fprintf(stderr,"ok this is where i want to update for now\n"); */
 #elif defined (QTWM)
-	vcs_Qt_repaint_window_by_id(self->connect_id.wkst_id); 
+	vcs_legacy_Qt_repaint_window_by_id(self->connect_id.wkst_id); 
 
 #else
 	printf("insert here your WM sync and flush functions\n");
@@ -18204,7 +18204,7 @@ heartbeat("Slab2 name set to %s", s_name[0]);
            XFlush(self->connect_id.display);
         }
 #elif defined (QTWM)
-	vcs_Qt_repaint_window_by_id(self->connect_id.wkst_id);
+	vcs_legacy_Qt_repaint_window_by_id(self->connect_id.wkst_id);
 
 #else
 	printf("insert here your WM sync and flush functions\n");
@@ -18292,14 +18292,14 @@ PyVCS_setminmax(PyVCScanvas_Object *self, PyObject *args)
         if (not_using_gui)
            process_cdat_events();
 
-	/* Check to see if vcs has been initalized */
+	/* Check to see if vcs_legacy has been initalized */
 	if (self == NULL) {
-           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs.init()).");
+           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs_legacy.init()).");
   	   return NULL;
 	}
 
-	self->vcs_min = 1e20; self->vcs_max = -1e20;
-	self->vcs_ext1 = 0, self->vcs_ext2 = 0;
+	self->vcs_legacy_min = 1e20; self->vcs_legacy_max = -1e20;
+	self->vcs_legacy_ext1 = 0, self->vcs_legacy_ext2 = 0;
   	/* Parse the input argument string */
   	if (args == NULL) { /* check for no input */
               sprintf(buf, "Info - No arguments given. %d - VCS Canvas wil use\n        minimum and maximum values obtained from the data.", self->canvas_id);
@@ -18323,22 +18323,22 @@ PyVCS_setminmax(PyVCScanvas_Object *self, PyObject *args)
 	       obj = PyTuple_GetItem (args, i); /* get argument */
                if(PyInt_Check(obj)) { /* check for integer */
                   if (i == 0)
-                     self->vcs_min = (double) PyInt_AsLong(obj);
+                     self->vcs_legacy_min = (double) PyInt_AsLong(obj);
                   else if (i == 1)
-                     self->vcs_max = (double) PyInt_AsLong(obj);
+                     self->vcs_legacy_max = (double) PyInt_AsLong(obj);
                   else if (i == 2)
-                     self->vcs_ext1 = (int) PyInt_AsLong(obj);
+                     self->vcs_legacy_ext1 = (int) PyInt_AsLong(obj);
                   else if (i == 3)
-                     self->vcs_ext2 = (int) PyInt_AsLong(obj);
+                     self->vcs_legacy_ext2 = (int) PyInt_AsLong(obj);
                } else if(PyFloat_Check(obj)) { /* check for float */
                   if (i == 0)
-                     self->vcs_min = (double) PyFloat_AsDouble(obj);
+                     self->vcs_legacy_min = (double) PyFloat_AsDouble(obj);
                   else if (i == 1)
-                     self->vcs_max = (double) PyFloat_AsDouble(obj);
+                     self->vcs_legacy_max = (double) PyFloat_AsDouble(obj);
                   else if (i == 2)
-                     self->vcs_ext1 = (int) PyFloat_AsDouble(obj);
+                     self->vcs_legacy_ext1 = (int) PyFloat_AsDouble(obj);
                   else if (i == 3)
-                     self->vcs_ext2 = (int) PyFloat_AsDouble(obj);
+                     self->vcs_legacy_ext2 = (int) PyFloat_AsDouble(obj);
                } else {
                   if (i == 0)
                      sprintf(buf, "Error - Incorrect minimum argument. Using minimum value from data.");
@@ -18352,26 +18352,26 @@ PyVCS_setminmax(PyVCScanvas_Object *self, PyObject *args)
 	       }
 	   }
 	}
-	if (self->vcs_min == 1e20)
+	if (self->vcs_legacy_min == 1e20)
            sprintf(buf, 
              "Info - %d. - VCS Canvas default minimum value will be set by the data.", self->canvas_id);
 	else
-           sprintf(buf, "Info - %d. - VCS Canvas default minimum value is set to %g.", self->canvas_id, self->vcs_min);
+           sprintf(buf, "Info - %d. - VCS Canvas default minimum value is set to %g.", self->canvas_id, self->vcs_legacy_min);
         pyoutput(buf, 1);
-	if (self->vcs_max == -1e20)
+	if (self->vcs_legacy_max == -1e20)
            sprintf(buf, 
              "Info - %d. - VCS Canvas default maximum value will be set by the data.", self->canvas_id);
 	else
-           sprintf(buf, "Info - %d. - VCS Canvas default maximum value is set to %g.", self->canvas_id, self->vcs_max);
+           sprintf(buf, "Info - %d. - VCS Canvas default maximum value is set to %g.", self->canvas_id, self->vcs_legacy_max);
         pyoutput(buf, 1);
-	if (self->vcs_ext1 == 0)
+	if (self->vcs_legacy_ext1 == 0)
            sprintf(buf,
                  "Info - %d. - VCS Canvas underflow extension is not set.", self->canvas_id);
 	else
            sprintf(buf,
                  "Info - %d. - VCS Canvas underflow arrow will be displayed.", self->canvas_id);
         pyoutput(buf, 1);
-	if (self->vcs_ext2 == 0)
+	if (self->vcs_legacy_ext2 == 0)
            sprintf(buf, 
                  "Info - %d. - VCS Canvas overflow extension is not set.", self->canvas_id);
 	else
@@ -18390,7 +18390,7 @@ PyVCS_setminmax(PyVCScanvas_Object *self, PyObject *args)
 static PyObject *
 PyVCS_scriptrun(PyVCScanvas_Object *self, PyObject *args)
 {
-	char *vcs_script=NULL;
+	char *vcs_legacy_script=NULL;
 	char buf[1024];
 	int tmp = -99, ier;
 	extern int procRun();
@@ -18401,13 +18401,13 @@ PyVCS_scriptrun(PyVCScanvas_Object *self, PyObject *args)
         if (not_using_gui)
            process_cdat_events();
 
-  	if(PyArg_ParseTuple(args, "|s", &vcs_script)) {
-	   if ((vcs_script == NULL) || (vcs_script[0] == '\0')) {
+  	if(PyArg_ParseTuple(args, "|s", &vcs_legacy_script)) {
+	   if ((vcs_legacy_script == NULL) || (vcs_legacy_script[0] == '\0')) {
 	      PyErr_SetString(PyExc_TypeError, "No VCS script name given.");
               return NULL;
 	   } else {
-	      procRun(vcs_script, &tmp);
-/*              sprintf(buf, "Read VCS script %s.",vcs_script);
+	      procRun(vcs_legacy_script, &tmp);
+/*              sprintf(buf, "Read VCS script %s.",vcs_legacy_script);
  	      pyoutput(buf, 1);*/
 	   }
 	}
@@ -18447,14 +18447,14 @@ PyVCS_clear(PyVCScanvas_Object *self, PyObject *args)
         if (not_using_gui)
            process_cdat_events();
 
-	/* Check to see if vcs has been initalized */
+	/* Check to see if vcs_legacy has been initalized */
 	if (self == NULL) {
-           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs.init()).");
+           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs_legacy.init()).");
   	   return NULL;
 	}
 
 	/* DNW - June 1, 2000, this function re-sets the global connect_id which 
-		causes a problem when "x=vcs.init()" is called back-to-back. Also
+		causes a problem when "x=vcs_legacy.init()" is called back-to-back. Also
 		causes problems when "x.clear()" is called before "x.plot(s)". In
 		fact, "self" has its own connect_id, so removing the global set to
 		connect_id is okay. I'll keep watch!
@@ -18555,8 +18555,8 @@ PyVCS_clear(PyVCScanvas_Object *self, PyObject *args)
               /*printf("CLEAR 2: canvas_pixmap %d = %d\n", self->canvas_id, self->connect_id.canvas_pixmap);*/
         }
 #elif defined QTWM
-	extern  void vcs_Qt_clear_window_by_id(int id);
-	vcs_Qt_clear_window_by_id(self->connect_id.wkst_id);
+	extern  void vcs_legacy_Qt_clear_window_by_id(int id);
+	vcs_legacy_Qt_clear_window_by_id(self->connect_id.wkst_id);
 #else
 	printf("insert here your WM clear and pixamp backing store removal func\n");
 #endif
@@ -18823,9 +18823,9 @@ PyVCS_cgm(PyVCScanvas_Object *self, PyObject *args)
         if (not_using_gui)
            process_cdat_events();
 
-	/* Check to see if vcs has been initalized */
+	/* Check to see if vcs_legacy has been initalized */
 	if (self == NULL) {
-           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs.init()).");
+           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs_legacy.init()).");
   	   return NULL;
 	}
 
@@ -18887,9 +18887,9 @@ PyVCS_svg(PyVCScanvas_Object *self, PyObject *args)
         if (not_using_gui)
            process_cdat_events();
 
-	/* Check to see if vcs has been initalized */
+	/* Check to see if vcs_legacy has been initalized */
 	if (self == NULL) {
-           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs.init()).");
+           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs_legacy.init()).");
   	   return NULL;
 	}
 
@@ -18936,9 +18936,9 @@ PyVCS_setbgoutputdimensions(PyVCScanvas_Object *self, PyObject *args)
 	int W,H;
 	extern int XW ;
 	extern int YW ;
-	/* Check to see if vcs has been initalized */
+	/* Check to see if vcs_legacy has been initalized */
 	if (self == NULL) {
-           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs.init()).");
+           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs_legacy.init()).");
   	   return NULL;
 	}
 	if (!PyArg_ParseTuple(args, "ii", &W,&H)) {
@@ -18976,9 +18976,9 @@ PyVCS_png(PyVCScanvas_Object *self, PyObject *args)
         if (not_using_gui)
            process_cdat_events();
 
-	/* Check to see if vcs has been initalized */
+	/* Check to see if vcs_legacy has been initalized */
 	if (self == NULL) {
-           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs.init()).");
+           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs_legacy.init()).");
   	   return NULL;
 	}
 
@@ -19046,9 +19046,9 @@ PyVCS_pdf(PyVCScanvas_Object *self, PyObject *args)
         if (not_using_gui)
            process_cdat_events();
 
-	/* Check to see if vcs has been initalized */
+	/* Check to see if vcs_legacy has been initalized */
 	if (self == NULL) {
-           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs.init()).");
+           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs_legacy.init()).");
   	   return NULL;
 	}
 
@@ -19115,9 +19115,9 @@ PyVCS_postscript(PyVCScanvas_Object *self, PyObject *args)
         if (not_using_gui)
            process_cdat_events();
 
-	/* Check to see if vcs has been initalized */
+	/* Check to see if vcs_legacy has been initalized */
 	if (self == NULL) {
-           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs.init()).");
+           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs_legacy.init()).");
   	   return NULL;
 	}
 
@@ -19155,7 +19155,7 @@ PyVCS_postscript(PyVCScanvas_Object *self, PyObject *args)
 	//MARGINT = T;
 	//MARGINB = B;
 
-/* 	printf("in ps vcs i got %i,%i,%i,%i,%i,%i\n",W,H,L,R,T,B); */
+/* 	printf("in ps vcs_legacy i got %i,%i,%i,%i,%i,%i\n",W,H,L,R,T,B); */
 	strcpy(meta_type,"ps");
 	trimbl(ps_name,256);
 	ier = out_meta(ps_name,app, self->connect_id, self->dlist); /* Append or replace svg file */
@@ -19184,9 +19184,9 @@ PyVCS_raster(PyVCScanvas_Object *self, PyObject *args)
         if (not_using_gui)
            process_cdat_events();
 
-	/* Check to see if vcs has been initalized */
+	/* Check to see if vcs_legacy has been initalized */
 	if (self == NULL) {
-           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs.init()).");
+           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs_legacy.init()).");
   	   return NULL;
 	}
 
@@ -19257,9 +19257,9 @@ PyVCS_gs(PyVCScanvas_Object *self, PyObject *args)
         if (not_using_gui)
            process_cdat_events();
 
-	/* Check to see if vcs has been initalized */
+	/* Check to see if vcs_legacy has been initalized */
 	if (self == NULL) {
-           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs.init()).");
+           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs_legacy.init()).");
   	   return NULL;
 	}
 
@@ -19345,9 +19345,9 @@ PyVCS_gif_or_eps(PyVCScanvas_Object *self, PyObject *args)
         if (not_using_gui)
            process_cdat_events();
 
-	/* Check to see if vcs has been initalized */
+	/* Check to see if vcs_legacy has been initalized */
 	if (self == NULL) {
-           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs.init()).");
+           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs_legacy.init()).");
   	   return NULL;
 	}
 
@@ -19525,9 +19525,9 @@ PyVCS_postscript_old(PyVCScanvas_Object *self, PyObject *args)
         if (not_using_gui)
            process_cdat_events();
 
-	/* Check to see if vcs has been initalized */
+	/* Check to see if vcs_legacy has been initalized */
 	if (self == NULL) {
-           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs.init()).");
+           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs_legacy.init()).");
   	   return NULL;
 	}
 
@@ -19702,9 +19702,9 @@ PyVCS_printer(PyVCScanvas_Object *self, PyObject *args)
         if (not_using_gui)
            process_cdat_events();
 
-	/* Check to see if vcs has been initalized */
+	/* Check to see if vcs_legacy has been initalized */
 	if (self == NULL) {
-           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs.init()).");
+           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs_legacy.init()).");
   	   return NULL;
 	}
 
@@ -19896,9 +19896,9 @@ PyObject *PyVCS_showbg(PyVCScanvas_Object *self, PyObject *args)
        self->connect_id.canvas_pixmap = copy_pixmap(self->connect_id, self->canvas_id);
 #elif defined (QTWM)
        /* fprintf(stderr,"workstation: %i, %i\n",self->wkst_id,self->connect_id.wkst_id); */
-       vcs_Qt_repaint_window_by_id(self->connect_id.wkst_id);
+       vcs_legacy_Qt_repaint_window_by_id(self->connect_id.wkst_id);
 #else
-       fprintf(stderr,"insert here your WM copy vcs to backing store pixmap\n");
+       fprintf(stderr,"insert here your WM copy vcs_legacy to backing store pixmap\n");
 #endif
         /* Return null python object */
         Py_INCREF (Py_None);
@@ -19920,7 +19920,7 @@ PyObject *PyVCS_showbg(PyVCScanvas_Object *self, PyObject *args)
         }
         self->connect_id.canvas_pixmap = copy_pixmap(self->connect_id, self->canvas_id);
 #elif defined (QTWM)
-	//vcs_Qt_repaint_window_by_id(self->wkst_id);
+	//vcs_legacy_Qt_repaint_window_by_id(self->wkst_id);
 #else
 	printf("insert hre your WM create backing store image\n");
 #endif 
@@ -19943,13 +19943,13 @@ PyObject *PyVCS_showbg(PyVCScanvas_Object *self, PyObject *args)
 /* 	int		update_value; */
 /* 	extern int 	user_defer_update; */
 
-/* 	/\* Check to see if vcs has been initalized *\/ */
+/* 	/\* Check to see if vcs_legacy has been initalized *\/ */
 /* 	if (self == NULL) { */
-/*            PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs.init())."); */
+/*            PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs_legacy.init())."); */
 /*   	   return NULL; */
 /* 	} */
 
-/* 	if (self->vcs_gui != 0) {  /\* Check for VCS canvas *\/ */
+/* 	if (self->vcs_legacy_gui != 0) {  /\* Check for VCS canvas *\/ */
 /*            PyErr_SetString(PyExc_TypeError, "Use the 'Update' mechanism provided in VCS."); */
 /*   	   return NULL; */
 /* 	} */
@@ -19988,13 +19988,13 @@ PyObject *PyVCS_showbg(PyVCScanvas_Object *self, PyObject *args)
 /* 	extern int 	user_defer_update; */
 /* 	extern void	call_guwk_update(); */
 
-/* 	/\* Check to see if vcs has been initalized *\/ */
+/* 	/\* Check to see if vcs_legacy has been initalized *\/ */
 /* 	if (self == NULL) { */
-/*            PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs.init())."); */
+/*            PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs_legacy.init())."); */
 /*   	   return NULL; */
 /* 	} */
 
-/* 	if (self->vcs_gui != 0) {  /\* Check for VCS canvas *\/ */
+/* 	if (self->vcs_legacy_gui != 0) {  /\* Check for VCS canvas *\/ */
 /*            PyErr_SetString(PyExc_TypeError, "Use the 'Update' mechanism provided in VCS."); */
 /*   	   return NULL; */
 /* 	} */
@@ -20014,13 +20014,13 @@ PyObject *PyVCS_showbg(PyVCScanvas_Object *self, PyObject *args)
 static PyObject *
 PyVCS_flush(PyVCScanvas_Object *self, PyObject *args)
 {
-	/* Check to see if vcs has been initalized */
+	/* Check to see if vcs_legacy has been initalized */
 	if (self == NULL) {
-           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs.init()).");
+           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs_legacy.init()).");
   	   return NULL;
 	}
 
-	if (self->vcs_gui != 0) {  /* Check for VCS canvas */
+	if (self->vcs_legacy_gui != 0) {  /* Check for VCS canvas */
            PyErr_SetString(PyExc_TypeError, "Use the 'Update' mechanism provided in VCS.");
   	   return NULL;
 	}
@@ -20033,7 +20033,7 @@ PyVCS_flush(PyVCScanvas_Object *self, PyObject *args)
            XRaiseWindow(self->connect_id.display, self->connect_id.drawable);
 #elif defined QTWM
 	if (self->connect_id.cr != NULL)
-	  vcs_Qt_open_window_by_id(self->connect_id.wkst_id);
+	  vcs_legacy_Qt_open_window_by_id(self->connect_id.wkst_id);
 #else
 	fprintf(stderr,"insert your raise func here\n");
 #endif
@@ -20152,10 +20152,10 @@ PyVCS_animate_init(PyVCScanvas_Object *self, PyObject *args)
 {
         VCSCANVASLIST_LINK 	vptr=head_canvas_list;
 	char 			*save_file=NULL, afile[MAX_PATH_LEN];
-	extern void 		update_vcs_connection_information();
+	extern void 		update_vcs_legacy_connection_information();
         extern int		create_image_toggle_cb();
 	extern int 		animate_module();
-	/* extern void vcs_Qt_animation_created(); */
+	/* extern void vcs_legacy_Qt_animation_created(); */
 	/* Check for animation file name */
 	afile[0] = '\0';
   	if(PyArg_ParseTuple(args, "|s", &save_file)) {
@@ -20163,13 +20163,13 @@ PyVCS_animate_init(PyVCScanvas_Object *self, PyObject *args)
 		strcpy(afile, save_file);
 	}
 
-	/* Check to see if vcs has been initalized */
+	/* Check to see if vcs_legacy has been initalized */
 	if (self == NULL) {
-           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs.init()).");
+           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs_legacy.init()).");
   	   return NULL;
 	}
 
-	if (self->vcs_gui != 0) {  /* Check for VCS canvas */
+	if (self->vcs_legacy_gui != 0) {  /* Check for VCS canvas */
            PyErr_SetString(PyExc_TypeError, "Use the 'Animation Control Panel' provided in VCS.");
   	   return NULL;
 	}
@@ -20197,14 +20197,14 @@ PyVCS_animate_init(PyVCScanvas_Object *self, PyObject *args)
 
         animate_module(self->canvas_id);
         self->connect_id.animate_popup = (int )self->canvas_id;
-	update_vcs_connection_information(self->connect_id, self->canvas_id);
+	update_vcs_legacy_connection_information(self->connect_id, self->canvas_id);
 	self->virgin_animation = 0;
         self->frame_count = 0;
         self->number_of_frames = create_image_toggle_cb(self->canvas_id, afile, NULL);
         if (self->gui == 1) {
              update_end_of_animation( self );
         }
-	/* vcs_Qt_animation_created(self->canvas_id); */
+	/* vcs_legacy_Qt_animation_created(self->canvas_id); */
         /* Return NULL Python Object */
         Py_INCREF (Py_None);
         return Py_None;
@@ -20216,7 +20216,7 @@ static PyObject *
 PyVCS_animate_load(PyVCScanvas_Object *self, PyObject *args)
 {
 	char 			*load_file=NULL, lfile[MAX_PATH_LEN];
-	extern void 		update_vcs_connection_information();
+	extern void 		update_vcs_legacy_connection_information();
         extern int		load_from_disk();
 	extern int 		animate_module();
 
@@ -20238,7 +20238,7 @@ PyVCS_animate_load(PyVCScanvas_Object *self, PyObject *args)
 
         animate_module(self->canvas_id);
         self->connect_id.animate_popup = (int )self->canvas_id;
-	update_vcs_connection_information(self->connect_id, self->canvas_id);
+	update_vcs_legacy_connection_information(self->connect_id, self->canvas_id);
 	self->virgin_animation = 0;
         self->frame_count = 0;
         self->number_of_frames = load_from_disk(self->canvas_id, lfile, NULL);
@@ -20304,7 +20304,7 @@ PyVCS_animate_run(PyVCScanvas_Object *self, PyObject *args)
 	extern void  RunAnimation();
 
 #ifdef QTWM
-	     vcs_Qt_open_window_by_id(self->connect_id.wkst_id);
+	     vcs_legacy_Qt_open_window_by_id(self->connect_id.wkst_id);
 #endif
         RunAnimation(self->canvas_id, NULL, NULL);
         /* Return NULL Python Object */
@@ -20320,11 +20320,11 @@ PyVCS_put_png(PyVCScanvas_Object *self, PyObject *args) {
     int vert,horiz;
 
 #ifdef QTWM
-    extern vcs_Qt_put_image_from_png_file(int, float, int, int, char *);
+    extern vcs_legacy_Qt_put_image_from_png_file(int, float, int, int, char *);
 
-    //vcs_Qt_open_window_by_id(self->connect_id.wkst_id);
+    //vcs_legacy_Qt_open_window_by_id(self->connect_id.wkst_id);
     if (PyArg_ParseTuple(args,"sfii",&fnm,&zoom,&vert,&horiz)) { 
-       vcs_Qt_put_image_from_png_file(self->connect_id.wkst_id, zoom, vert, horiz, fnm);
+       vcs_legacy_Qt_put_image_from_png_file(self->connect_id.wkst_id, zoom, vert, horiz, fnm);
     }
 #endif
     return Py_None;
@@ -20393,7 +20393,7 @@ PyVCS_animate_frame(PyVCScanvas_Object *self, PyObject *args)
         if ((args != NULL) && PyArg_ParseTuple(args,"|i", &value)) {
            if (value > 0) {
 #ifdef QTWM
-	     vcs_Qt_open_window_by_id(self->connect_id.wkst_id);
+	     vcs_legacy_Qt_open_window_by_id(self->connect_id.wkst_id);
 #endif
                ScalePosition(self->canvas_id, value, NULL);
            }
@@ -20415,7 +20415,7 @@ PyVCS_animate_pause(PyVCScanvas_Object *self, PyObject *args)
         if ((args != NULL) && PyArg_ParseTuple(args,"|i", &value)) {
            if ((value >= 0) && (value <= 100)) {
 #ifdef QTWM
-	     vcs_Qt_open_window_by_id(self->connect_id.wkst_id);
+	     vcs_legacy_Qt_open_window_by_id(self->connect_id.wkst_id);
 #endif
                ScaleSpeed(self->canvas_id, value, NULL);
            }
@@ -20437,7 +20437,7 @@ PyVCS_animate_zoom(PyVCScanvas_Object *self, PyObject *args)
         if ((args != NULL) && PyArg_ParseTuple(args,"|i", &value)) {
            if ((value != -99) && (value > 0)) {
 #ifdef QTWM
-	     vcs_Qt_open_window_by_id(self->connect_id.wkst_id);
+	     vcs_legacy_Qt_open_window_by_id(self->connect_id.wkst_id);
 #endif
                ScaleZoom(self->canvas_id, value, NULL);
            }
@@ -20458,7 +20458,7 @@ PyVCS_animate_horizontal(PyVCScanvas_Object *self, PyObject *args)
         if ((args != NULL) && PyArg_ParseTuple(args,"|i", &value)) {
            if ((value > -101) && (value < 101)) {
 #ifdef QTWM
-	     vcs_Qt_open_window_by_id(self->connect_id.wkst_id);
+	     vcs_legacy_Qt_open_window_by_id(self->connect_id.wkst_id);
 #endif
                ScaleHori(self->canvas_id, value, NULL);
            }
@@ -20479,7 +20479,7 @@ PyVCS_animate_vertical(PyVCScanvas_Object *self, PyObject *args)
         if ((args != NULL) && PyArg_ParseTuple(args,"|i", &value)) {
            if ((value > -101) && (value < 101)) {
  #ifdef QTWM
-	     vcs_Qt_open_window_by_id(self->connect_id.wkst_id);
+	     vcs_legacy_Qt_open_window_by_id(self->connect_id.wkst_id);
 #endif
               ScaleVert(self->canvas_id, value, NULL);
            }
@@ -20500,7 +20500,7 @@ PyVCS_animate_direction(PyVCScanvas_Object *self, PyObject *args)
         if ((args != NULL) && PyArg_ParseTuple(args,"|i", &value)) {
            if ((value > 0) && (value < 3)) {
 #ifdef QTWM
-	     vcs_Qt_open_window_by_id(self->connect_id.wkst_id);
+	     vcs_legacy_Qt_open_window_by_id(self->connect_id.wkst_id);
 #endif
                animate_direction_cb(self->canvas_id, value);
            }
@@ -20521,7 +20521,7 @@ PyVCS_animate_mode(PyVCScanvas_Object *self, PyObject *args)
         if ((args != NULL) && PyArg_ParseTuple(args,"|i", &value)) {
            if ((value > 0) && (value < 4)) {
 #ifdef QTWM
-	     vcs_Qt_open_window_by_id(self->connect_id.wkst_id);
+	     vcs_legacy_Qt_open_window_by_id(self->connect_id.wkst_id);
 #endif
                animate_mode_cb(self->canvas_id, value);
            }
@@ -20730,9 +20730,9 @@ PyVCS_landscape(PyVCScanvas_Object *self, PyObject *args)
 	extern struct default_continents Dc;
         PyObject * 			PyVCS_clear(PyVCScanvas_Object *self, PyObject *args);
 
-        /* Check to see if vcs has been initalized */
+        /* Check to see if vcs_legacy has been initalized */
         if (self == NULL) {
-           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs.init()).");
+           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs_legacy.init()).");
            return NULL;
         }
 
@@ -20755,7 +20755,7 @@ PyVCS_landscape(PyVCScanvas_Object *self, PyObject *args)
            if ((CLEAR == 0)) clear_canvas = 0;
         }
 
-        if (self->vcs_gui == 1) {  /* Check for main VCS canvas */
+        if (self->vcs_legacy_gui == 1) {  /* Check for main VCS canvas */
            PyErr_SetString(PyExc_TypeError, "Can not change page orientation for main VCS Canvas.");
            return NULL;
         }
@@ -20791,7 +20791,7 @@ PyVCS_landscape(PyVCScanvas_Object *self, PyObject *args)
            XRaiseWindow(self->connect_id.display, self->connect_id.drawable);
 #elif defined QTWM
         if ( self->connect_id.cr != NULL) 
-	  vcs_Qt_open_window_by_id(self->connect_id.wkst_id);
+	  vcs_legacy_Qt_open_window_by_id(self->connect_id.wkst_id);
 #else
 	fprintf(stderr,"insert here your raise func\n");
 #endif
@@ -20826,10 +20826,10 @@ PyVCS_portrait(PyVCScanvas_Object *self, PyObject *args)
 	extern struct default_continents Dc;
         PyObject * 			 PyVCS_clear(PyVCScanvas_Object *self, PyObject *args);
 
-        /* Check to see if vcs has been initalized */
+        /* Check to see if vcs_legacy has been initalized */
         fprintf(stderr,"OK we actually get here %i, %p\n",self->orientation,self);
         if (self == NULL) {
-           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs.init()).");
+           PyErr_SetString(PyExc_TypeError, "Must first initialize VCS (i.e., x=vcs_legacy.init()).");
            return NULL;
         }
 
@@ -20852,7 +20852,7 @@ PyVCS_portrait(PyVCScanvas_Object *self, PyObject *args)
            if ((CLEAR == 0)) clear_canvas = 0;
         }
 
-        if (self->vcs_gui == 1) {  /* Check for main VCS canvas */
+        if (self->vcs_legacy_gui == 1) {  /* Check for main VCS canvas */
            PyErr_SetString(PyExc_TypeError, "Can not change page orientation for main VCS Canvas.");
            return NULL;
         }
@@ -20888,7 +20888,7 @@ PyVCS_portrait(PyVCScanvas_Object *self, PyObject *args)
            XRaiseWindow(self->connect_id.display, self->connect_id.drawable);
 #elif defined QTWM
         if ( self->connect_id.cr != NULL) 
-	  vcs_Qt_open_window_by_id(self->connect_id.wkst_id);
+	  vcs_legacy_Qt_open_window_by_id(self->connect_id.wkst_id);
 #else
 	fprintf(stderr,"insert here your raise func\n");
 #endif
@@ -21282,7 +21282,7 @@ static PyMethodDef PyVCScanvas_methods[] =
   {"scriptstate", (PyCFunction)PyVCS_scriptstate,1},
   {"canvasraised", (PyCFunction)PyVCS_canvasraised,1},
   {"iscanvasdisplayed", (PyCFunction)PyVCS_iscanvasdisplayed,1},
-  {"dictionarytovcslist",(PyCFunction)PyVCS_dictionarytovcslist,1},
+  {"dictionarytovcs_legacylist",(PyCFunction)PyVCS_dictionarytovcs_legacylist,1},
 /* X server functions */
   {"startxmainloop", (PyCFunction)PyVCS_startxmainloop,1},
   {"stopxmainloop", (PyCFunction)PyVCS_stopxmainloop,1},
@@ -21555,10 +21555,10 @@ PyInit_VCS()
         /* Initialize type object headers */
         PyVCScanvas_Type.ob_type = &PyType_Type;
 
-  	m = Py_InitModule("_vcs", PyVCScanvas_methods);
+  	m = Py_InitModule("_vcs_legacy", PyVCScanvas_methods);
     
   	d = PyModule_GetDict(m);
-  	PyVCS_Error = Py_BuildValue("s", "vcs.error");
+  	PyVCS_Error = Py_BuildValue("s", "vcs_legacy.error");
   	PyDict_SetItemString(d,"error", PyVCS_Error);
 
  	/* Initials the default plot region */
@@ -21569,7 +21569,7 @@ PyInit_VCS()
 }
 
 
-/* These are versions of the ones in vcs itself (mmm and immm) but
+/* These are versions of the ones in vcs_legacy itself (mmm and immm) but
    they don't set the missing data mask, they use it.
    Assume max number of dimensions is 4.
 
@@ -21857,7 +21857,7 @@ heartbeat("cmt4=%s", cmt4);
 	ok_selection = select_A(s_name, NULL, NULL, NULL, NULL,
                                 NULL, "CDAT");
 	if (ok_selection == 0) {
-           PyErr_SetString(VCS_Error, "vcs plot, select_A call failed.");
+           PyErr_SetString(VCS_Error, "vcs_legacy plot, select_A call failed.");
 	   return;
         }
 
@@ -21881,25 +21881,25 @@ heartbeat("cmt4=%s", cmt4);
         for (i=0; i<slabrank; ++i) {
           if (pa->xi[i] == NULL &&
               (pa->xi[i]=(int *)malloc(sizeof(int))) == NULL) {
-              PyErr_SetString(VCS_Error, "vcs: out of memory!");
+              PyErr_SetString(VCS_Error, "vcs_legacy: out of memory!");
               return;
           }
 	  pa->xi[i][0] = 0;
           if (pa->xj[i] == NULL &&
               (pa->xj[i]=(int *)malloc(sizeof(int))) == NULL) {
-              PyErr_SetString(VCS_Error, "vcs: out of memory!"); 
+              PyErr_SetString(VCS_Error, "vcs_legacy: out of memory!"); 
               return;
           }
 	  pa->xj[i][0] = 1;
           if (pa->XS[i] == NULL &&
               (pa->XS[i]=(int *)malloc(sizeof(int))) == NULL) {
-              PyErr_SetString(VCS_Error, "vcs: out of memory!"); 
+              PyErr_SetString(VCS_Error, "vcs_legacy: out of memory!"); 
               return;
           }
 	  pa->XS[i][0] = actual_dimsize[i] = slabDimensionLength(slab, slabrank-1-i);
           if (pa->XK[i] == NULL &&
               (pa->XK[i]=(int *)malloc(2*sizeof(int))) == NULL) {
-              PyErr_SetString(VCS_Error, "vcs: out of memory!"); 
+              PyErr_SetString(VCS_Error, "vcs_legacy: out of memory!"); 
               return;
           }
 	  pa->XK[i][0] = 0;
@@ -21973,7 +21973,7 @@ heartbeat("cmt4=%s", cmt4);
 	      }
 	    if ((pa->mask=(short *)malloc(nelems*sizeof(short))) == NULL) 
 	      {
-		PyErr_SetString(VCS_Error, "vcs: Not enough memory to store mask.");
+		PyErr_SetString(VCS_Error, "vcs_legacy: Not enough memory to store mask.");
 		return;
 	      }
 	    heartbeat("%s", "Starting mask.");
@@ -22388,21 +22388,21 @@ heartbeat("cmt4=%s", cmt4);
 	      {
 		if ((pa->aXF[i]=(char *)malloc(20)) == NULL) 
 		  {
-		    PyErr_SetString(VCS_Error, "vcs: out of memory!"); 
+		    PyErr_SetString(VCS_Error, "vcs_legacy: out of memory!"); 
 		    return;
 		  }
 		sprintf(pa->aXF[i],"%g", dimarray[0]);
 		
 		if ((pa->aXL[i]=(char *)malloc(20)) == NULL) 
 		  {
-		    PyErr_SetString(VCS_Error, "vcs: out of memory!"); 
+		    PyErr_SetString(VCS_Error, "vcs_legacy: out of memory!"); 
 		    return;
 		  }
 		sprintf(pa->aXL[i],"%g", dimarray[dimlen-1]);
 		
 		if ((pa->aXC[i]=(char *)malloc(20)) == NULL) 
 		  {
-		    PyErr_SetString(VCS_Error, "vcs: out of memory!"); 
+		    PyErr_SetString(VCS_Error, "vcs_legacy: out of memory!"); 
 		    return;
 		  }
 		sprintf(pa->aXC[i],"%f", ftemp);
@@ -22416,12 +22416,12 @@ heartbeat("cmt4=%s", cmt4);
 	    
 	    if ((pa->XV[i]=(float *)malloc((pa->XS[i][0])*sizeof(float))) == NULL) 
 	      {
-		PyErr_SetString(VCS_Error, "vcs: out of memory!"); 
+		PyErr_SetString(VCS_Error, "vcs_legacy: out of memory!"); 
 		return;
 	      }
 	    if ((pa->xv[i]=(float *)malloc(itemp*sizeof(float))) == NULL) 
 	      {
-		PyErr_SetString(VCS_Error, "vcs: out of memory!"); 
+		PyErr_SetString(VCS_Error, "vcs_legacy: out of memory!"); 
 		return;
 	      }
 	    heartbeat("%s", "Ready to set dimension data");
@@ -22434,12 +22434,12 @@ heartbeat("cmt4=%s", cmt4);
 	    heartbeat("%s", "Starting bounds.");
 	    if ((pa->XB[i]=(float *)malloc(((pa->XS[i][0])+2)*sizeof(float))) == NULL) 
 	      {
-		PyErr_SetString(VCS_Error, "vcs: out of memory!"); 
+		PyErr_SetString(VCS_Error, "vcs_legacy: out of memory!"); 
 		return;
 	      }
 	    if ((pa->xb[i]=(float *)malloc((itemp+2)*sizeof(float)))==NULL) 
 	      {
-		PyErr_SetString(VCS_Error, "vcs: out of memory!"); 
+		PyErr_SetString(VCS_Error, "vcs_legacy: out of memory!"); 
 		return;
 	      }
 	    bounds = slabDimensionBounds(slab, slabrank-1-i);
@@ -22458,12 +22458,12 @@ heartbeat("cmt4=%s", cmt4);
 	    heartbeat("%s", "Starting weights.");
 	    if ((pa->XW[i]=(float *)malloc((pa->XS[i][0])*sizeof(float))) == NULL) 
 	      {
-		PyErr_SetString(VCS_Error, "vcs: out of memory!"); 
+		PyErr_SetString(VCS_Error, "vcs_legacy: out of memory!"); 
 		return;
 	      }
 	    if ((pa->xw[i]=(float *)malloc(itemp*sizeof(float))) == NULL) 
 	      {
-		PyErr_SetString(VCS_Error, "vcs: out of memory!"); 
+		PyErr_SetString(VCS_Error, "vcs_legacy: out of memory!"); 
 		return;
 	      }
 	    weightsraw = slabDimensionWeights(slab, slabrank-1-i);
@@ -22663,7 +22663,7 @@ void    **mask_data;             /* Return hyperslab mask data */
         }
 
       	if ((mask=(short *)malloc((*nelems)*sizeof(short))) == NULL) {
-           PyErr_SetString(VCS_Error, "vcs: Not enough memory to store mask.");
+           PyErr_SetString(VCS_Error, "vcs_legacy: Not enough memory to store mask.");
            return;
         }
         for (i=0; i < *nelems; ++i) {
@@ -23034,7 +23034,7 @@ int	plot_ct;
 	extern int      	copy_GXy_name();
 
 	/* Check to see if the minimum and maximum values need to be set. */
-	if ((self->vcs_min == 1e20) && (self->vcs_max == -1e20)) {
+	if ((self->vcs_legacy_min == 1e20) && (self->vcs_legacy_max == -1e20)) {
 	  return (0);
 	}
 
@@ -23092,11 +23092,11 @@ int	plot_ct;
 	   pgfb=gfbtab->pGfb_attr;
 
 	  /* Set the minimum, maximum and underflow overflow values */
-	  pgfb->lev1  = self->vcs_min;
-	  pgfb->lev2  = self->vcs_max;
-	  if (self->vcs_ext1 == 1)
+	  pgfb->lev1  = self->vcs_legacy_min;
+	  pgfb->lev2  = self->vcs_legacy_max;
+	  if (self->vcs_legacy_ext1 == 1)
 	     pgfb->ext_1 = 121;
-	  if (self->vcs_ext2 == 1)
+	  if (self->vcs_legacy_ext2 == 1)
 	     pgfb->ext_2 = 121;
 	} else if (strcmp(type, "Xyvsy") == 0) {
            /* Copy the graphics method to new space */
@@ -23114,8 +23114,8 @@ int	plot_ct;
            pgXy=gXytab->pGXy_attr;
 
           /* Set the minimum and maximum */
-          pgXy->dsp[0]=self->vcs_min;
-          pgXy->dsp[2]=self->vcs_max;
+          pgXy->dsp[0]=self->vcs_legacy_min;
+          pgXy->dsp[2]=self->vcs_legacy_max;
         } else if (strcmp(type, "Yxvsx") == 0) {
 	   /* Copy the graphics method to new space */
 	   ierr = copy_GYx_name(graphics, gname);
@@ -23132,8 +23132,8 @@ int	plot_ct;
 	   pgYx=gYxtab->pGYx_attr;
 
 	  /* Set the minimum and maximum */
-	  pgYx->dsp[1]=self->vcs_min;
-	  pgYx->dsp[3]=self->vcs_max;
+	  pgYx->dsp[1]=self->vcs_legacy_min;
+	  pgYx->dsp[3]=self->vcs_legacy_max;
 	}
 
         strcpy(graphics, gname); 
@@ -23214,7 +23214,7 @@ int initialize_X(void)
     printf("*** Vendor Release = %d\n", VendorRelease(display));
     printf("*** Connection Number = %d\n", ConnectionNumber(display));
   */
-  ier = vcs_main(0,NULL);/*Initialize the VCS module*/
+  ier = vcs_legacy_main(0,NULL);/*Initialize the VCS module*/
 #ifdef USEX11
   VIS_DEPTH = visual_find();
   screen = DefaultScreen(display); /* Set to the default screen */
@@ -23240,7 +23240,7 @@ int initialize_X(void)
     } else
     screen = DefaultScreen(display); * Set to the default screen *
     
-    ier = vcs_main(0,NULL);*Initialize the VCS module*
+    ier = vcs_legacy_main(0,NULL);*Initialize the VCS module*
     if (ier == 1) {
     PyErr_SetString(PyExc_TypeError, "Error initializing VCS! The VCS Canvas object was not created.\n");
     return 0;
@@ -23325,7 +23325,7 @@ cnorm(PyVCScanvas_Object *self, int x_or_y, float value)
 	w = xwa.width;
 	h=xwa.height;
 #elif defined (QTWM)
-	vcs_Qt_get_window_dimensions_by_id(self->connect_id.wkst_id,&qx,&qy,&w,&h);
+	vcs_legacy_Qt_get_window_dimensions_by_id(self->connect_id.wkst_id,&qx,&qy,&w,&h);
 #else
 	fprintf(stderr,"insert your WM getgeom func here\n");
 #endif

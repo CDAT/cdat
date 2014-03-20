@@ -8,7 +8,7 @@
 #include "display.h"
 #if defined(INTERFACE) || defined(PYTHON)
 #include "workstations.h"
-#include "vcs_canvas.h"
+#include "vcs_legacy_canvas.h"
 #include "animation.h" 
 #include "cdunif.h"
 
@@ -197,7 +197,7 @@
 		 if (check_index(Ia,Ja,Ka,La,Ma,Na) != 0)
 		   {
 		    update_ind=1;
-		    /*vcs_canvas_update(0);*/
+		    /*vcs_legacy_canvas_update(0);*/
 		    get_new_display(cptr, nd, gnd, Ia,Ja,Ka,La,Ma,Na);
 		    if (psf[0] != '\0') cgmeta(psf,1);
 		    if (rasf[0] != '\0') raster_dump(rasf,1);
@@ -408,8 +408,8 @@ CANVASINFO_LINK    cptr; /* connection ID info */
 #endif
         
 #if USEQT
-      extern void vcs_Qt_clear_window_by_id_without_repaint(int);
-      vcs_Qt_clear_window_by_id_without_repaint(cptr->connect_id.wkst_id);
+      extern void vcs_legacy_Qt_clear_window_by_id_without_repaint(int);
+      vcs_legacy_Qt_clear_window_by_id_without_repaint(cptr->connect_id.wkst_id);
 #else
       clearCanvas(cptr->connect_id); /* blank the VCS Canvas */
 #endif

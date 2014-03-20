@@ -14,7 +14,7 @@
 #include "display.h"
 #include "workstations.h"
 #include "my_access_mode.h"
-#include "vcs_canvas.h"
+#include "vcs_legacy_canvas.h"
 
     extern FILE *fpin,*fpout,*fperr;
     extern FILE *fpmeta;

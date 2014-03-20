@@ -1,7 +1,7 @@
-import vcs,vcs.test.support
+import vcs_legacy,vcs_legacy.test.support
 
-x=vcs.init()
-bg=vcs.test.support.bg
+x=vcs_legacy.init()
+bg=vcs_legacy.test.support.bg
 p0 = x.createfillarea()
 p1 = x.createmarker()
 p2 = x.createline()
@@ -19,6 +19,6 @@ for p in [p0,p1,p2,p3]:
     p.x=[-175,-175,175,175]
     p.y=[-88,88,88,-88]
     x.plot(p,ratio=1,bg=bg)
-    vcs.test.support.check_plot(x)
+    vcs_legacy.test.support.check_plot(x)
     x.clear()
 

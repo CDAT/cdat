@@ -26,7 +26,7 @@
 # Import: VCS C extension module.                                               #
 #                                                                               #
 #################################################################################
-import _vcs, queries,VCS_validation_functions,cdtime
+import _vcs_legacy, queries,VCS_validation_functions,cdtime
 import Canvas
 from types import *
 import AutoAPI
@@ -56,7 +56,7 @@ def setGXYmember(self,member,value):
         self.parent.canvas.BLOCK_X_SERVER()
         self.parent.canvasraised()
 
-     _vcs.setGXYmember(self, member, value, self.parent.mode)
+     _vcs_legacy.setGXYmember(self, member, value, self.parent.mode)
 
      # If the VCS Canvas is displayed, then update the backing store
      if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()):
@@ -82,7 +82,7 @@ setmember=setGXYmember
 #                                                                               #
 #################################################################################
 def getGXYmember(self,member):
-     return _vcs.getGXYmember(self,member)
+     return _vcs_legacy.getGXYmember(self,member)
 getmember=getGXYmember
 
 #################################################################################
@@ -101,7 +101,7 @@ getmember=getGXYmember
 #                                                                               #
 #################################################################################
 def renameGXY(self, old_name, new_name):
-     return _vcs.renameGXY(old_name, new_name)
+     return _vcs_legacy.renameGXY(old_name, new_name)
 
 class GXY(object,AutoAPI.AutoAPI):
     """
@@ -123,7 +123,7 @@ class GXY(object,AutoAPI.AutoAPI):
     entry.
 
  Other Useful Functions:
-	  a=vcs.init()			# Constructor
+	  a=vcs_legacy.init()			# Constructor
 	  a.show('xvsy')		# Show predefined XvsY graphics methonds
 	  a.show('line')		# Show predefined VCS line objects
 	  a.show('marker')		# Show predefined VCS marker objects
@@ -136,7 +136,7 @@ class GXY(object,AutoAPI.AutoAPI):
  	  	                          Update the VCS Canvas.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     To Create a new instance of XvsY use:
      xy=a.createxvsy('new','quick') 	# Copies content of 'quick' to 'new'
      xy=a.createxvsy('new') 		# Copies content of 'default' to 'new'
@@ -500,7 +500,7 @@ class GXY(object,AutoAPI.AutoAPI):
            if (GXY_name == None):
               raise ValueError, 'Must provide a XvsY name.'
            else:
-              _vcs.copyGXY(GXY_name_src, GXY_name)
+              _vcs_legacy.copyGXY(GXY_name_src, GXY_name)
               self._name = GXY_name
         else:
               self._name = GXY_name_src
@@ -623,7 +623,7 @@ class GXY(object,AutoAPI.AutoAPI):
     def script(self, script_filename, mode='a'):
         """
         %s
- Function:     script                           # Calls _vcs.scriptGXY
+ Function:     script                           # Calls _vcs_legacy.scriptGXY
 
  Description of Function:
        Saves out a XvsY graphics method in Python or VCS script form to a
@@ -639,7 +639,7 @@ class GXY(object,AutoAPI.AutoAPI):
                     produce a VCS script. If neither extensions are give, then by
                     default a Python script will be produced.
 
-    a=vcs.init()
+    a=vcs_legacy.init()
     XY=a.createboxfill('temp')
     XY.script('filename.py')         # Append to a Python file "filename.py"
     XY.script('filename.scr')        # Append to a VCS file "filename.scr"
@@ -656,7 +656,7 @@ class GXY(object,AutoAPI.AutoAPI):
         # By default, save file in python script mode
         scr_type = script_filename[len(script_filename)-4:len(script_filename)]
         if (scr_type == '.scr'):
-           print _vcs.scriptGXY(self.name,script_filename,mode)
+           print _vcs_legacy.scriptGXY(self.name,script_filename,mode)
         else:
            mode = mode + '+'
            py_type = script_filename[len(script_filename)-3:len(script_filename)]
@@ -671,8 +671,8 @@ class GXY(object,AutoAPI.AutoAPI):
               fp.write("# Import and Initialize VCS     #\n")
               fp.write("#                             #\n")
               fp.write("#############################\n")
-              fp.write("import vcs\n")
-              fp.write("v=vcs.init()\n\n")
+              fp.write("import vcs_legacy\n")
+              fp.write("v=vcs_legacy.init()\n\n")
 
            unique_name = '__GXY__' + self.name
            fp.write("#----------XvsY (GXY) member (attribute) listings ----------\n")

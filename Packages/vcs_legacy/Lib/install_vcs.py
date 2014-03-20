@@ -6,8 +6,8 @@
 #                                                                           #
 #############################################################################
 def _files():
-   import sys, os, shutil,vcs
-   dotdir, dotdirenv = vcs.slabapi.getdotdirectory()
+   import sys, os, shutil,vcs_legacy
+   dotdir, dotdirenv = vcs_legacy.slabapi.getdotdirectory()
    #
    # Create .uvcdat directory if it does not exist
    try:
@@ -27,21 +27,21 @@ def _files():
          sys.exit()
    #
    # Copy the initial.attributes file to the user's $HOME/.uvcdat directory
-   init_file_cp = os.path.join(vcs.__path__[0],'..','..','..','..', 'bin', 'initial.attributes')
+   init_file_cp = os.path.join(vcs_legacy.__path__[0],'..','..','..','..', 'bin', 'initial.attributes')
    init_file = os.path.join( fn, 'initial.attributes')
    if (os.access(init_file_cp, os.F_OK) == 1)  and (os.path.isfile(init_file) == 0):
       shutil.copyfile(init_file_cp, init_file)
       
    # Copy the  icon file to the user's $HOME/.uvcdat directory
-   icon_file_cp = os.path.join(vcs.__path__[0],'..','..','..','..', 'bin', 'vcs_icon.xbm')
-   icon_file = os.path.join( fn, 'vcs_icon.xbm')
+   icon_file_cp = os.path.join(vcs_legacy.__path__[0],'..','..','..','..', 'bin', 'vcs_legacy_icon.xbm')
+   icon_file = os.path.join( fn, 'vcs_legacy_icon.xbm')
 ##    if (os.access(icon_file_cp, os.F_OK) == 1)  and (os.path.isfile(icon_file) == 0):
    if (os.access(icon_file_cp, os.F_OK) == 1):
       
       shutil.copyfile(icon_file_cp, icon_file)
    #
    # Copy the HARD_COPY file to the user's $HOME/.uvcdat directory
-   hard_copy_cp = os.path.join(vcs.__path__[0],'..','..','..','..', 'bin', 'HARD_COPY')
+   hard_copy_cp = os.path.join(vcs_legacy.__path__[0],'..','..','..','..', 'bin', 'HARD_COPY')
    hard_copy = os.path.join(fn, 'HARD_COPY')
    if (os.access(hard_copy_cp, os.F_OK) == 1)  and (os.path.isfile(hard_copy) == 0):
       shutil.copyfile(hard_copy_cp, hard_copy)
@@ -50,25 +50,25 @@ def _files():
 
    #
    # Copy the data_continent_states file to the user's $HOME/.uvcdat directory
-   cont_states_cp = os.path.join( vcs.__path__[0],'..','..','..','..', 'bin', 'data_continent_states')
+   cont_states_cp = os.path.join( vcs_legacy.__path__[0],'..','..','..','..', 'bin', 'data_continent_states')
    cont_states = os.path.join( fn, 'data_continent_states')
    if (os.access(cont_states_cp, os.F_OK) == 1)  and (os.path.isfile(cont_states) == 0):
       shutil.copyfile(cont_states_cp, cont_states)
    #
    # Copy the data_continent_political file to the user's $HOME/.uvcdat directory
-   cont_political_cp = os.path.join( vcs.__path__[0],'..','..','..','..', 'bin', 'data_continent_political' )
+   cont_political_cp = os.path.join( vcs_legacy.__path__[0],'..','..','..','..', 'bin', 'data_continent_political' )
    cont_political = os.path.join( fn, 'data_continent_political' )
    if (os.access(cont_political_cp, os.F_OK) == 1)  and (os.path.isfile(cont_political) == 0):
       shutil.copyfile(cont_political_cp, cont_political)
    #
    # Copy the data_continent_river file to the user's $HOME/.uvcdat directory
-   cont_river_cp = os.path.join( vcs.__path__[0],'..','..','..','..', 'bin', 'data_continent_river' )
+   cont_river_cp = os.path.join( vcs_legacy.__path__[0],'..','..','..','..', 'bin', 'data_continent_river' )
    cont_river = os.path.join( fn, 'data_continent_river' )
    if (os.access(cont_river_cp, os.F_OK) == 1)  and (os.path.isfile(cont_river) == 0):
       shutil.copyfile(cont_river_cp, cont_river)
    #
    # Copy the data_continent_other7 file to the user's $HOME/.uvcdat directory
-   cont_other7_cp = os.path.join( vcs.__path__[0],'..','..','..','..', 'bin', 'data_continent_other7' )
+   cont_other7_cp = os.path.join( vcs_legacy.__path__[0],'..','..','..','..', 'bin', 'data_continent_other7' )
    cont_other7 = os.path.join( fn, 'data_continent_other7' )
    if (os.access(cont_other7_cp, os.F_OK) == 1)  and (os.path.isfile(cont_other7) == 0):
       shutil.copyfile(cont_other7_cp, cont_other7)
@@ -77,7 +77,7 @@ def _files():
    for font in ['Adelon_Regular', 'Arabic', 'Athens_Greek', 'AvantGarde-Book_Bold',
                 'Chinese_Generic1', 'Clarendon', 'Courier', 'hebrew', 'HelvMono',
                 'Russian', 'Times_CG_ATT', 'jsMath-wasy10', 'blex', 'blsy', 'jsMath-msam10']:
-      fnm_cp = os.path.join( vcs.__path__[0],'..','..','..','..', 'bin', font+'.ttf' )
+      fnm_cp = os.path.join( vcs_legacy.__path__[0],'..','..','..','..', 'bin', font+'.ttf' )
       fnm = os.path.join( fn, font+'.ttf')
       if (os.access(fnm_cp, os.F_OK) == 1)  and (os.path.isfile(fnm) == 0):
          shutil.copyfile(fnm_cp, fnm)
@@ -88,8 +88,8 @@ def _files():
 #                                                                           #
 #############################################################################
 def _XGKSFontDir( ):
-   import sys, os, vcs
-   xgks_env = os.path.join(vcs.__path__[0],'..','..','..','..', 'lib', 'xgksfonts')
+   import sys, os, vcs_legacy
+   xgks_env = os.path.join(vcs_legacy.__path__[0],'..','..','..','..', 'lib', 'xgksfonts')
    os.environ['XGKSFontDir'] = xgks_env
 
 #############################################################################
@@ -100,8 +100,8 @@ def _XGKSFontDir( ):
 #                                                                           #
 #############################################################################
 def list_printers( ):
-   import os,vcs
-   dotdir = vcs.slabapi.getdotdirectory()[0]
+   import os,vcs_legacy
+   dotdir = vcs_legacy.slabapi.getdotdirectory()[0]
    plist = []
    try:
       fn = '%s/%s/HARD_COPY' % (os.environ['HOME'],dotdir)
@@ -133,7 +133,7 @@ def list_printers( ):
 def add_printer( printer_name ):
    import os
    plist = []
-   dotdir = vcs.slabapi.getdotdirectory()[0]
+   dotdir = vcs_legacy.slabapi.getdotdirectory()[0]
    try:
       fn = '%s/%s/HARD_COPY' % (os.environ['HOME'],dotdir)
    except:
@@ -155,9 +155,9 @@ def add_printer( printer_name ):
 #                                                                           #
 #############################################################################
 def remove_printer( printer_name ):
-   import os, string,vcs
+   import os, string,vcs_legacy
    plist = []
-   dotdir = vcs.slabapi.getdotdirectory()[0]
+   dotdir = vcs_legacy.slabapi.getdotdirectory()[0]
    try:
       fn = '%s/%s/HARD_COPY' % (os.environ['HOME'],dotdir)
    except:
@@ -182,8 +182,8 @@ def remove_printer( printer_name ):
 #                                                                           #
 #############################################################################
 def add_gplot_commands( ):
-   import sys, os, string, vcs
-   dotdir = vcs.slabapi.getdotdirectory()[0]
+   import sys, os, string, vcs_legacy
+   dotdir = vcs_legacy.slabapi.getdotdirectory()[0]
    try:
       fn = os.path.join(os.environ['HOME'], dotdir, 'HARD_COPY')
       fn2 = os.path.join(os.environ['HOME'], dotdir, 'HARD_COPY.tmp')
@@ -205,7 +205,7 @@ def add_gplot_commands( ):
       lp = f.tell()
       ln = f.readline()
    f.seek( lp )
-   landscape = 'landscape = ' + os.path.join(vcs.__path__[0],'..','..','..','..') + '/bin/gplot -dPSC -r90 -x-1.75 -D -X12.5 -Y10\n\n'
+   landscape = 'landscape = ' + os.path.join(vcs_legacy.__path__[0],'..','..','..','..') + '/bin/gplot -dPSC -r90 -x-1.75 -D -X12.5 -Y10\n\n'
    f2.write( landscape ) 
 
    # Replace the Portrait command string in the file
@@ -220,7 +220,7 @@ def add_gplot_commands( ):
       lp = f.tell()
       ln = f.readline()
    f.seek( lp )
-   portrait = 'portrait = ' + os.path.join(vcs.__path__[0],'..','..','..','..') + '/bin/gplot -dPSC -D -X10 -Y12.5\n\n'
+   portrait = 'portrait = ' + os.path.join(vcs_legacy.__path__[0],'..','..','..','..') + '/bin/gplot -dPSC -D -X10 -Y12.5\n\n'
    f2.write( portrait ) 
 
    ln = f.readline()

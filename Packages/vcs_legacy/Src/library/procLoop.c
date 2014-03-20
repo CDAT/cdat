@@ -188,7 +188,7 @@
 	int Na,Ma,La,Ka,Ja,Ia;
 	int error;
 	FILE *fpsave;
-	extern int store_image_in_memory_vcs();
+	extern int store_image_in_memory_vcs_legacy();
 
 	i=I; j=J; k=K; l=L; m=M; n=N;
 	if (a[0] <= 0 && a[1] <= 0) a[0]=a[1]=I;
@@ -273,7 +273,7 @@
 		 if (check_index(Ia,Ja,Ka,La,Ma,Na) != 0)
 		   {
 		    update_ind=1;
-		    vcs_canvas_update(0);
+		    vcs_legacy_canvas_update(0);
 		    if (psf[0] != '\0') cgmeta(psf,1);
 		    if (rasf[0] != '\0') raster_dump(rasf,1);
 		    if (netcdff[0] != '\0') storenetCDF(aname,netcdff,1);
@@ -283,7 +283,7 @@
 #ifdef DRS
 		    if (drsf[0] != '\0') storeDRS(aname,drsf,1);
 #endif
-		    if (msf[0] != '\0')error=store_image_in_memory_vcs(++memory_ct);
+		    if (msf[0] != '\0')error=store_image_in_memory_vcs_legacy(++memory_ct);
 		    if (!error) return 0;
 
 		    dispatch_the_next_event();
@@ -406,7 +406,7 @@ exit_loop:	loop_exit = 0;
 	if (check_index(Ia,Ja,Ka,La,Ma,Na) != 0)
 	  {
 	   update_ind=1;
-	   vcs_canvas_update(0);
+	   vcs_legacy_canvas_update(0);
 	   if (fpout != NULL && !Inactive) prtInd(fpout);
 	   if (psf[0] != '\0')
 	     {

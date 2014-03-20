@@ -34,8 +34,8 @@ def objecthelp(*arg):
        Prints a blank line if no documentation.
                                                                                
  Example of Use:                                                               
-        import vcs                                                             
-       vcs.objecthelp(object)  #  where: object is the Python object          
+        import vcs_legacy                                                             
+       vcs_legacy.objecthelp(object)  #  where: object is the Python object          
 """                                                                           
     for x in arg:
         print getattr(x, "__doc__", "")
@@ -45,7 +45,7 @@ def objecthelp(*arg):
 # Import: VCS and query module.                                               #
 #                                                                             #
 ###############################################################################
-import vcs, queries
+import vcs_legacy, queries
 
 def help(*arg):
 
@@ -87,7 +87,7 @@ def help(*arg):
                'mklabels', 'mkscale', 'mode', 'objecthelp', 'open', 'orientation',
                'page', 'pause', 'portrait', 'postscript', 'printer', 'pstogif',
                'raster', 'set', 'setcolorcell', 'setcolormap',
-               'setcontinentstype', 'show', 'update', 'vcsError']
+               'setcontinentstype', 'show', 'update', 'vcs_legacyError']
 
           s = ['scriptobject', 'scriptrun', 'scriptstate', 'saveinitialfile']
 
@@ -142,90 +142,90 @@ def help(*arg):
           print '               ', f[30],f[31],f[32],f[33],f[34],f[35]
 
           print '\n--- Examples Using Help ---'
-          print "vcs.help()             - prints VCS Model and Primary and Secondary Object list"
-          print "vcs.help('init')       - prints boxfill description and example of use"
-          print "vcs.help('plot')       - prints boxfill description and example of use"
-          print "vcs.help('lineobject') - prints boxfill description and example of use"
-          print "vcs.help('init','plot) - prints both descriptions and example of use"
+          print "vcs_legacy.help()             - prints VCS Model and Primary and Secondary Object list"
+          print "vcs_legacy.help('init')       - prints boxfill description and example of use"
+          print "vcs_legacy.help('plot')       - prints boxfill description and example of use"
+          print "vcs_legacy.help('lineobject') - prints boxfill description and example of use"
+          print "vcs_legacy.help('init','plot) - prints both descriptions and example of use"
         else:
           for i in range(len(arg)):
              # Template Objects
              if (arg[i] == 'templateobject'):
-                print vcs.template.P.__doc__
+                print vcs_legacy.template.P.__doc__
              # Primary Objects
              elif (arg[i] == 'boxfillobject'):
-                print vcs.boxfill.Gfb.__doc__
+                print vcs_legacy.boxfill.Gfb.__doc__
              elif (arg[i] == 'isofillobject'):
-                print vcs.isofill.Gfi.__doc__
+                print vcs_legacy.isofill.Gfi.__doc__
              elif (arg[i] == 'isolineobject'):
-                print vcs.isoline.Gi.__doc__
+                print vcs_legacy.isoline.Gi.__doc__
              elif (arg[i] == 'continentsobject'):
-                print vcs.continents.Gcon.__doc__
+                print vcs_legacy.continents.Gcon.__doc__
              elif (arg[i] == 'meshfillobject'):
-                print vcs.meshfill.Gfm.__doc__
+                print vcs_legacy.meshfill.Gfm.__doc__
              elif (arg[i] == 'outfillobject'):
-                print vcs.outfill.Gfo.__doc__
+                print vcs_legacy.outfill.Gfo.__doc__
              elif (arg[i] == 'outlineobject'):
-                print vcs.outline.Go.__doc__
+                print vcs_legacy.outline.Go.__doc__
              elif (arg[i] == 'scatterobject'):
-                print vcs.scatter.GSp.__doc__
+                print vcs_legacy.scatter.GSp.__doc__
              elif (arg[i] == 'vectorobject'):
-                print vcs.vector.Gv.__doc__
+                print vcs_legacy.vector.Gv.__doc__
              elif (arg[i] == 'xvsyobject'):
-                print vcs.xvsy.GXY.__doc__
+                print vcs_legacy.xvsy.GXY.__doc__
              elif (arg[i] == 'xyvsyobject'):
-                print vcs.xyvsy.GXy.__doc__
+                print vcs_legacy.xyvsy.GXy.__doc__
              elif (arg[i] == 'yxvsxobject'):
-                print vcs.yxvsx.GYx.__doc__
+                print vcs_legacy.yxvsx.GYx.__doc__
              # Secondary Objects
              elif (arg[i] == 'lineobject'):
-                print vcs.line.Tl.__doc__
+                print vcs_legacy.line.Tl.__doc__
              elif (arg[i] == 'markerobject'):
-                print vcs.marker.Tm.__doc__
+                print vcs_legacy.marker.Tm.__doc__
              elif (arg[i] == 'fillareaobject'):
-                print vcs.fillarea.Tf.__doc__
+                print vcs_legacy.fillarea.Tf.__doc__
              elif (arg[i] == 'texttableobject'):
-                print vcs.texttable.Tt.__doc__
+                print vcs_legacy.texttable.Tt.__doc__
              elif (arg[i] == 'textorientationobject'):
-                print vcs.textorientation.To.__doc__
+                print vcs_legacy.textorientation.To.__doc__
              elif (arg[i] == 'textcombinedobject'):
-                print vcs.textcombined.Tc.__doc__
+                print vcs_legacy.textcombined.Tc.__doc__
              elif (arg[i] == 'projectionobject'):
-                print vcs.projection.Proj.__doc__
+                print vcs_legacy.projection.Proj.__doc__
              elif (arg[i] == 'init'):
-                print vcs.init.__doc__
+                print vcs_legacy.init.__doc__
              elif (arg[i] == 'plot'):
-                print vcs.Canvas.Canvas.plot.__doc__
+                print vcs_legacy.Canvas.Canvas.plot.__doc__
              elif (arg[i] == 'boxfill'):
-                print vcs.Canvas.Canvas.boxfill.__doc__
+                print vcs_legacy.Canvas.Canvas.boxfill.__doc__
              elif (arg[i] == 'clear'):
-                print vcs.Canvas.Canvas.clear.__doc__
+                print vcs_legacy.Canvas.Canvas.clear.__doc__
              elif (arg[i] == 'close'):
-                print vcs.Canvas.Canvas.close.__doc__
+                print vcs_legacy.Canvas.Canvas.close.__doc__
              elif (arg[i] == 'cgm'):
-                print vcs.Canvas.Canvas.cgm.__doc__
+                print vcs_legacy.Canvas.Canvas.cgm.__doc__
              elif (arg[i] == 'meshfill'):
-                print vcs.Canvas.Canvas.meshfill.__doc__
+                print vcs_legacy.Canvas.Canvas.meshfill.__doc__
              elif (arg[i] == 'isofill'):
-                print vcs.Canvas.Canvas.isofill.__doc__
+                print vcs_legacy.Canvas.Canvas.isofill.__doc__
              elif (arg[i] == 'isoline'):
-                print vcs.Canvas.Canvas.isoline.__doc__
+                print vcs_legacy.Canvas.Canvas.isoline.__doc__
              elif (arg[i] == 'continents'):
-                print vcs.Canvas.Canvas.continents.__doc__
+                print vcs_legacy.Canvas.Canvas.continents.__doc__
              elif (arg[i] == 'outfill'):
-                print vcs.Canvas.Canvas.outfill.__doc__
+                print vcs_legacy.Canvas.Canvas.outfill.__doc__
              elif (arg[i] == 'outline'):
-                print vcs.Canvas.Canvas.outline.__doc__
+                print vcs_legacy.Canvas.Canvas.outline.__doc__
              elif (arg[i] == 'scatter'):
-                print vcs.Canvas.Canvas.scatter.__doc__
+                print vcs_legacy.Canvas.Canvas.scatter.__doc__
              elif (arg[i] == 'vector'):
-                print vcs.Canvas.Canvas.vector.__doc__
+                print vcs_legacy.Canvas.Canvas.vector.__doc__
              elif (arg[i] == 'xvsy'):
-                print vcs.Canvas.Canvas.xvsy.__doc__
+                print vcs_legacy.Canvas.Canvas.xvsy.__doc__
              elif (arg[i] == 'xyvsy'):
-                print vcs.Canvas.Canvas.xyvsy.__doc__
+                print vcs_legacy.Canvas.Canvas.xyvsy.__doc__
              elif (arg[i] == 'yxvsx'):
-                print vcs.Canvas.Canvas.yxvsx.__doc__
+                print vcs_legacy.Canvas.Canvas.yxvsx.__doc__
              elif (arg[i] == 'isboxfill'):
                 print queries.isboxfill.__doc__
              elif (arg[i] == 'iscontinents'):
@@ -245,9 +245,9 @@ def help(*arg):
              elif (arg[i] == 'isplot'):
                 print queries.isplot.__doc__
              elif (arg[i] == 'isportrait'):
-                print vcs.Canvas.Canvas.isportrait.__doc__
+                print vcs_legacy.Canvas.Canvas.isportrait.__doc__
              elif (arg[i] == 'islandscape'):
-                print vcs.Canvas.Canvas.islandscape.__doc__
+                print vcs_legacy.Canvas.Canvas.islandscape.__doc__
              elif (arg[i] == 'isline'):
                 print queries.isline.__doc__
              elif (arg[i] == 'isprojection'):
@@ -281,194 +281,194 @@ def help(*arg):
              elif (arg[i] == 'isyxvsx'):
                 print queries.isyxvsx.__doc__
              elif (arg[i] == 'colormapgui'):
-                print vcs.Canvas.Canvas.colormapgui.__doc__
+                print vcs_legacy.Canvas.Canvas.colormapgui.__doc__
              elif (arg[i] == 'eps'):
-                print vcs.Canvas.Canvas.eps.__doc__
+                print vcs_legacy.Canvas.Canvas.eps.__doc__
              elif (arg[i] == 'createboxfill'):
-                print vcs.Canvas.Canvas.createboxfill.__doc__
+                print vcs_legacy.Canvas.Canvas.createboxfill.__doc__
              elif (arg[i] == 'createcolormap'):
-                print vcs.Canvas.Canvas.createcolormap.__doc__
+                print vcs_legacy.Canvas.Canvas.createcolormap.__doc__
              elif (arg[i] == 'createcontinents'):
-                print vcs.Canvas.Canvas.createcontinents.__doc__
+                print vcs_legacy.Canvas.Canvas.createcontinents.__doc__
              elif (arg[i] == 'createfillarea'):
-                print vcs.Canvas.Canvas.createfillarea.__doc__
+                print vcs_legacy.Canvas.Canvas.createfillarea.__doc__
              elif (arg[i] == 'createmeshfill'):
-                print vcs.Canvas.Canvas.createmeshfill.__doc__
+                print vcs_legacy.Canvas.Canvas.createmeshfill.__doc__
              elif (arg[i] == 'createprojection'):
-                print vcs.Canvas.Canvas.createprojection.__doc__
+                print vcs_legacy.Canvas.Canvas.createprojection.__doc__
              elif (arg[i] == 'createisofill'):
-                print vcs.Canvas.Canvas.createisofill.__doc__
+                print vcs_legacy.Canvas.Canvas.createisofill.__doc__
              elif (arg[i] == 'createisoline'):
-                print vcs.Canvas.Canvas.createisoline.__doc__
+                print vcs_legacy.Canvas.Canvas.createisoline.__doc__
              elif (arg[i] == 'createline'):
-                print vcs.Canvas.Canvas.createline.__doc__
+                print vcs_legacy.Canvas.Canvas.createline.__doc__
              elif (arg[i] == 'createmarker'):
-                print vcs.Canvas.Canvas.createmarker.__doc__
+                print vcs_legacy.Canvas.Canvas.createmarker.__doc__
              elif (arg[i] == 'createoutfill'):
-                print vcs.Canvas.Canvas.createoutfill.__doc__
+                print vcs_legacy.Canvas.Canvas.createoutfill.__doc__
              elif (arg[i] == 'createoutline'):
-                print vcs.Canvas.Canvas.createoutline.__doc__
+                print vcs_legacy.Canvas.Canvas.createoutline.__doc__
              elif (arg[i] == 'createscatter'):
-                print vcs.Canvas.Canvas.createscatter.__doc__
+                print vcs_legacy.Canvas.Canvas.createscatter.__doc__
              elif (arg[i] == 'createtemplate'):
-                print vcs.Canvas.Canvas.createtemplate.__doc__
+                print vcs_legacy.Canvas.Canvas.createtemplate.__doc__
              elif (arg[i] == 'createtextcombined'):
-                print vcs.Canvas.Canvas.createtextcombined.__doc__
+                print vcs_legacy.Canvas.Canvas.createtextcombined.__doc__
              elif (arg[i] == 'createtextorientation'):
-                print vcs.Canvas.Canvas.createtextorientation.__doc__
+                print vcs_legacy.Canvas.Canvas.createtextorientation.__doc__
              elif (arg[i] == 'createtexttable'):
-                print vcs.Canvas.Canvas.createtexttable.__doc__
+                print vcs_legacy.Canvas.Canvas.createtexttable.__doc__
              elif (arg[i] == 'createvector'):
-                print vcs.Canvas.Canvas.createvector.__doc__
+                print vcs_legacy.Canvas.Canvas.createvector.__doc__
              elif (arg[i] == 'createxvsy'):
-                print vcs.Canvas.Canvas.createxvsy.__doc__
+                print vcs_legacy.Canvas.Canvas.createxvsy.__doc__
              elif (arg[i] == 'createxyvsy'):
-                print vcs.Canvas.Canvas.createxyvsy.__doc__
+                print vcs_legacy.Canvas.Canvas.createxyvsy.__doc__
              elif (arg[i] == 'createyxvsx'):
-                print vcs.Canvas.Canvas.createyxvsx.__doc__
+                print vcs_legacy.Canvas.Canvas.createyxvsx.__doc__
              elif (arg[i] == 'getboxfill'):
-                print vcs.Canvas.Canvas.getboxfill.__doc__
+                print vcs_legacy.Canvas.Canvas.getboxfill.__doc__
              elif (arg[i] == 'getcolormap'):
-                print vcs.Canvas.Canvas.getcolormap.__doc__
+                print vcs_legacy.Canvas.Canvas.getcolormap.__doc__
              elif (arg[i] == 'getcolormapname'):
-                print vcs.Canvas.Canvas.getcolormapname.__doc__
+                print vcs_legacy.Canvas.Canvas.getcolormapname.__doc__
              elif (arg[i] == 'getcolorcell'):
-                print vcs.Canvas.Canvas.getcolorcell.__doc__
+                print vcs_legacy.Canvas.Canvas.getcolorcell.__doc__
              elif (arg[i] == 'getcolors'):
-                print vcs.getcolors.__doc__
+                print vcs_legacy.getcolors.__doc__
              elif (arg[i] == 'getcontinents'):
-                print vcs.Canvas.Canvas.getcontinents.__doc__
+                print vcs_legacy.Canvas.Canvas.getcontinents.__doc__
              elif (arg[i] == 'getcontinentstype'):
-                print vcs.Canvas.Canvas.getcontinentstype.__doc__
+                print vcs_legacy.Canvas.Canvas.getcontinentstype.__doc__
              elif (arg[i] == 'getfillarea'):
-                print vcs.Canvas.Canvas.getfillarea.__doc__
+                print vcs_legacy.Canvas.Canvas.getfillarea.__doc__
              elif (arg[i] == 'getmeshfill'):
-                print vcs.Canvas.Canvas.getmeshfill.__doc__
+                print vcs_legacy.Canvas.Canvas.getmeshfill.__doc__
              elif (arg[i] == 'getprojection'):
-                print vcs.Canvas.Canvas.getprojection.__doc__
+                print vcs_legacy.Canvas.Canvas.getprojection.__doc__
              elif (arg[i] == 'getisofill'):
-                print vcs.Canvas.Canvas.getisofill.__doc__
+                print vcs_legacy.Canvas.Canvas.getisofill.__doc__
              elif (arg[i] == 'getisoline'):
-                print vcs.Canvas.Canvas.getisoline.__doc__
+                print vcs_legacy.Canvas.Canvas.getisoline.__doc__
              elif (arg[i] == 'getline'):
-                print vcs.Canvas.Canvas.getline.__doc__
+                print vcs_legacy.Canvas.Canvas.getline.__doc__
              elif (arg[i] == 'getmarker'):
-                print vcs.Canvas.Canvas.getmarker.__doc__
+                print vcs_legacy.Canvas.Canvas.getmarker.__doc__
              elif (arg[i] == 'getoutfill'):
-                print vcs.Canvas.Canvas.getoutfill.__doc__
+                print vcs_legacy.Canvas.Canvas.getoutfill.__doc__
              elif (arg[i] == 'getoutline'):
-                print vcs.Canvas.Canvas.getoutline.__doc__
+                print vcs_legacy.Canvas.Canvas.getoutline.__doc__
              elif (arg[i] == 'getplot'):
-                print vcs.Canvas.Canvas.getplot.__doc__
+                print vcs_legacy.Canvas.Canvas.getplot.__doc__
              elif (arg[i] == 'getscatter'):
-                print vcs.Canvas.Canvas.getscatter.__doc__
+                print vcs_legacy.Canvas.Canvas.getscatter.__doc__
              elif (arg[i] == 'gettemplate'):
-                print vcs.Canvas.Canvas.gettemplate.__doc__
+                print vcs_legacy.Canvas.Canvas.gettemplate.__doc__
              elif (arg[i] == 'gettextcombined'):
-                print vcs.Canvas.Canvas.gettextcombined.__doc__
+                print vcs_legacy.Canvas.Canvas.gettextcombined.__doc__
              elif (arg[i] == 'gettext'):
-                print vcs.Canvas.Canvas.gettextcombined.__doc__
+                print vcs_legacy.Canvas.Canvas.gettextcombined.__doc__
              elif (arg[i] == 'gettextorientation'):
-                print vcs.Canvas.Canvas.gettextorientation.__doc__
+                print vcs_legacy.Canvas.Canvas.gettextorientation.__doc__
              elif (arg[i] == 'gettexttable'):
-                print vcs.Canvas.Canvas.gettexttable.__doc__
+                print vcs_legacy.Canvas.Canvas.gettexttable.__doc__
              elif (arg[i] == 'getvector'):
-                print vcs.Canvas.Canvas.getvector.__doc__
+                print vcs_legacy.Canvas.Canvas.getvector.__doc__
              elif (arg[i] == 'getxvsy'):
-                print vcs.Canvas.Canvas.getxvsy.__doc__
+                print vcs_legacy.Canvas.Canvas.getxvsy.__doc__
              elif (arg[i] == 'getxyvsy'):
-                print vcs.Canvas.Canvas.getxyvsy.__doc__
+                print vcs_legacy.Canvas.Canvas.getxyvsy.__doc__
              elif (arg[i] == 'getyxvsx'):
-                print vcs.Canvas.Canvas.getyxvsx.__doc__
+                print vcs_legacy.Canvas.Canvas.getyxvsx.__doc__
              elif (arg[i] == 'removeobject'):
-                print vcs.Canvas.Canvas.removeobject.__doc__
+                print vcs_legacy.Canvas.Canvas.removeobject.__doc__
              elif (arg[i] == 'saveinitialfile'):
-                print vcs.Canvas.Canvas.saveinitialfile.__doc__
+                print vcs_legacy.Canvas.Canvas.saveinitialfile.__doc__
              elif (arg[i] == 'scriptobject'):
-                print vcs.Canvas.Canvas.scriptobject.__doc__
+                print vcs_legacy.Canvas.Canvas.scriptobject.__doc__
              elif (arg[i] == 'scriptrun'):
-                print vcs.Canvas.Canvas.scriptrun.__doc__
+                print vcs_legacy.Canvas.Canvas.scriptrun.__doc__
              elif (arg[i] == 'scriptstate'):
-                print vcs.Canvas.Canvas.scriptstate.__doc__
+                print vcs_legacy.Canvas.Canvas.scriptstate.__doc__
              elif (arg[i] == 'animate'):
-                print vcs.Canvas.animate_obj.__doc__
+                print vcs_legacy.Canvas.animate_obj.__doc__
              elif (arg[i] == 'flush'):
-                print vcs.Canvas.Canvas.flush.__doc__
+                print vcs_legacy.Canvas.Canvas.flush.__doc__
              elif (arg[i] == 'flushcanvas'):
-                print vcs.Canvas.Canvas.flushcanvas.__doc__
+                print vcs_legacy.Canvas.Canvas.flushcanvas.__doc__
              elif (arg[i] == 'geometry'):
-                print vcs.Canvas.Canvas.geometry.__doc__
+                print vcs_legacy.Canvas.Canvas.geometry.__doc__
 #             elif (arg[i] == 'get'):
-#                print vcs.Canvas.Canvas.get.__doc__
+#                print vcs_legacy.Canvas.Canvas.get.__doc__
              elif (arg[i] == 'gif'):
-                print vcs.Canvas.Canvas.gif.__doc__
+                print vcs_legacy.Canvas.Canvas.gif.__doc__
              elif (arg[i] == 'graphicsmethodtype'):
-                print vcs.Canvas.graphicsmethodtype.__doc__
+                print vcs_legacy.Canvas.graphicsmethodtype.__doc__
              elif (arg[i] == 'gs'):
-                print vcs.Canvas.Canvas.gs.__doc__
+                print vcs_legacy.Canvas.Canvas.gs.__doc__
              elif (arg[i] == 'help'):
                 help__doc__()
 #             elif (arg[i] == 'grid'):
-#                print vcs.Canvas.Canvas.grid.__doc__
+#                print vcs_legacy.Canvas.Canvas.grid.__doc__
              elif (arg[i] == 'landscape'):
-                print vcs.Canvas.Canvas.landscape.__doc__
+                print vcs_legacy.Canvas.Canvas.landscape.__doc__
              elif (arg[i] == 'listelements'):
-                print vcs.Canvas.Canvas.listelements.__doc__
+                print vcs_legacy.Canvas.Canvas.listelements.__doc__
              elif (arg[i] == 'mkevenlevels'):
-                print vcs.mkevenlevels.__doc__
+                print vcs_legacy.mkevenlevels.__doc__
              elif (arg[i] == 'mklabels'):
-                print vcs.mklabels.__doc__
+                print vcs_legacy.mklabels.__doc__
              elif (arg[i] == 'mkscale'):
-                print vcs.mkscale.__doc__
+                print vcs_legacy.mkscale.__doc__
              elif (arg[i] == 'mode'):
                 mode__doc__()
              elif (arg[i] == 'objecthelp'):
                 print objecthelp.__doc__
              elif (arg[i] == 'open'):
-                print vcs.Canvas.Canvas.open.__doc__
+                print vcs_legacy.Canvas.Canvas.open.__doc__
              elif (arg[i] == 'orientation'):
-                print vcs.Canvas.Canvas.orientation.__doc__
+                print vcs_legacy.Canvas.Canvas.orientation.__doc__
              elif (arg[i] == 'page'):
-                print vcs.Canvas.Canvas.page.__doc__
+                print vcs_legacy.Canvas.Canvas.page.__doc__
              elif (arg[i] == 'pause'):
-                print vcs.pause.__doc__
+                print vcs_legacy.pause.__doc__
              elif (arg[i] == 'portrait'):
-                print vcs.Canvas.Canvas.portrait.__doc__
+                print vcs_legacy.Canvas.Canvas.portrait.__doc__
              elif (arg[i] == 'postscript'):
-                print vcs.Canvas.Canvas.postscript.__doc__
+                print vcs_legacy.Canvas.Canvas.postscript.__doc__
              elif (arg[i] == 'printer'):
-                print vcs.Canvas.Canvas.printer.__doc__
+                print vcs_legacy.Canvas.Canvas.printer.__doc__
              elif (arg[i] == 'pstogif'):
-                print vcs.Canvas.Canvas.pstogif.__doc__
+                print vcs_legacy.Canvas.Canvas.pstogif.__doc__
 #             elif (arg[i] == 'put'):
-#                print vcs.Canvas.Canvas.put.__doc__
+#                print vcs_legacy.Canvas.Canvas.put.__doc__
              elif (arg[i] == 'raster'):
-                print vcs.Canvas.Canvas.raster.__doc__
+                print vcs_legacy.Canvas.Canvas.raster.__doc__
              elif (arg[i] == 'refreshcanvas'):
-                print vcs.Canvas.Canvas.refreshcanvas.__doc__
+                print vcs_legacy.Canvas.Canvas.refreshcanvas.__doc__
              elif (arg[i] == 'resetgrid'):
-                print vcs.Canvas.Canvas.resetgrid.__doc__
+                print vcs_legacy.Canvas.Canvas.resetgrid.__doc__
              elif (arg[i] == 'set'):
-                print vcs.Canvas.Canvas.set.__doc__
+                print vcs_legacy.Canvas.Canvas.set.__doc__
              elif (arg[i] == 'setcolorcell'):
-                print vcs.Canvas.Canvas.setcolorcell.__doc__
+                print vcs_legacy.Canvas.Canvas.setcolorcell.__doc__
              elif (arg[i] == 'setcolormap'):
-                print vcs.Canvas.Canvas.setcolormap.__doc__
+                print vcs_legacy.Canvas.Canvas.setcolormap.__doc__
              elif (arg[i] == 'setcontinentstype'):
-                print vcs.Canvas.Canvas.setcontinentstype.__doc__
+                print vcs_legacy.Canvas.Canvas.setcontinentstype.__doc__
 #             elif (arg[i] == 'setminmax'):
-#                print vcs.Canvas.Canvas.setminmax.__doc__
+#                print vcs_legacy.Canvas.Canvas.setminmax.__doc__
              elif (arg[i] == 'show'):
-                print vcs.Canvas.Canvas.show.__doc__
+                print vcs_legacy.Canvas.Canvas.show.__doc__
              elif (arg[i] == 'update'):
-                print vcs.Canvas.Canvas.update.__doc__
-             elif (arg[i] == 'vcsError'):
-                print vcs.vcsError.__doc__
+                print vcs_legacy.Canvas.Canvas.update.__doc__
+             elif (arg[i] == 'vcs_legacyError'):
+                print vcs_legacy.vcs_legacyError.__doc__
              elif (arg[i] == 'projection'):
-                 print vcs.Canvas.projection.Proj.__doc__
+                 print vcs_legacy.Canvas.projection.Proj.__doc__
              else:
                 print 'Error - VCS does not have the command (%s).' % arg[i]
-                raise ValueError, "Try using vcs.objecthelp(pass_object)"
+                raise ValueError, "Try using vcs_legacy.objecthelp(pass_object)"
 
 def mode__doc__():
     print " Function: mode                         # Update the VCS Canvas."
@@ -488,7 +488,7 @@ def mode__doc__():
     print " Example of Use:"
     print "    ..."
     print ""
-    print "    a=vcs.init()"
+    print "    a=vcs_legacy.init()"
     print "    a.mode=0                                    # Set updating to manual mode"
     print "    a.plot(s,'default','boxfill','quick')"
     print ""
@@ -506,7 +506,7 @@ def help__doc__():
     print ""
     print "  Description of Function:"
     print "    Prints brief descriptions of VCS commands."
-    print "    Type: 'vcs.help()' for more information."
+    print "    Type: 'vcs_legacy.help()' for more information."
     print ""
 
 

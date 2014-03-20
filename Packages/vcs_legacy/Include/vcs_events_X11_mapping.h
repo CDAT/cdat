@@ -1,5 +1,5 @@
 #ifndef VCS_EVENT_X11_MAPPING_H
-/* mapping from X values to generic vcs values */
+/* mapping from X values to generic vcs_legacy values */
 #define VCS_EVENT_X11_MAPPING_H
 
 #define EVENT_TYPE event.type

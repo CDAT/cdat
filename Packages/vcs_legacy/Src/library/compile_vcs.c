@@ -70,7 +70,7 @@
 /*			Compile an assignment statement into a linked
 			data-flo path.					*/
 
-    struct data_flo *compile_vcs (struct a_tab *ptab)
+    struct data_flo *compile_vcs_legacy (struct a_tab *ptab)
 
       {
        int k;

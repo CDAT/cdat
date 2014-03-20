@@ -16,7 +16,7 @@
 #include "display.h"
 #include "workstations.h"
 #ifdef PYTHON
-#include "vcs_canvas.h"
+#include "vcs_legacy_canvas.h"
 #endif
 
     extern FILE *fpin,*fpout,*fperr;
@@ -99,7 +99,7 @@
        extern struct display_tab D_tab;
        extern char     	*formid;
        extern int       update_ind;
-       extern void   	vcs_canvas_update();
+       extern void   	vcs_legacy_canvas_update();
 #ifdef X11WM
        extern Colormap	n_cmap;
 #endif
@@ -154,7 +154,7 @@
 		 XSync(connect_id->display,FALSE);
 		 XFlush(connect_id->display);
 #elif defined (QTWM)
-/*          vcs_Qt_repaint_window(connect_id); */
+/*          vcs_legacy_Qt_repaint_window(connect_id); */
 #else
 		 printf("insert your WM flush here\n");
 #endif
@@ -216,7 +216,7 @@
                 dx=(float) xwa.width;
                 dy=(float) xwa.height;
 #elif defined (QTWM)
-		vcs_Qt_get_window_dimensions_by_id(connect_id->wkst_id,&qx,&qy,&qw,&qh);
+		vcs_legacy_Qt_get_window_dimensions_by_id(connect_id->wkst_id,&qx,&qy,&qw,&qh);
 		dx = (float) qw;
 		dy = (float) qh;
 #else
@@ -325,16 +325,16 @@
 		 
                /* update the VCS Canvas display */
 /*                 update_ind = 1; */
-/*                 vcs_canvas_update(0); */
+/*                 vcs_legacy_canvas_update(0); */
 #ifdef X11WM
 		 XSync(connect_id->display,FALSE);
 		 XFlush(connect_id->display);
 #elif defined (QTWM)
-/* 		 vcs_acquire_update(); */
+/* 		 vcs_legacy_acquire_update(); */
 /* 		 cairo_set_source_rgb(connect_id->cr,1.,1.,1.); */
 /* 		 cairo_paint(connect_id->cr); */
-/* 		 vcs_release_update(); */
-/* 		 vcs_Qt_repaint_window_by_id(connect_id->wkst_id); */
+/* 		 vcs_legacy_release_update(); */
+/* 		 vcs_legacy_Qt_repaint_window_by_id(connect_id->wkst_id); */
 #else
 		 printf("insert your WM sync/flush here\n");
 #endif
@@ -421,7 +421,7 @@ char *type;
         canvas_width  = xwa.width;
         canvas_height = xwa.height;
 #elif defined (QTWM)
-	vcs_Qt_get_window_dimensions_by_id(connect_id.wkst_id,&x_pos,&y_pos,&canvas_width,&canvas_height);
+	vcs_legacy_Qt_get_window_dimensions_by_id(connect_id.wkst_id,&x_pos,&y_pos,&canvas_width,&canvas_height);
 #else
 	printf("insert your WM getgeom func here\n");
 #endif
@@ -433,7 +433,7 @@ char *type;
         width=DisplayWidth(connect_id.display,
                              DefaultScreen(connect_id.display));
 #elif defined (QTWM)
-	vcs_Qt_get_desktop_dimensions(connect_id.wkst_id,&x_pos,&y_pos,&width,&height);
+	vcs_legacy_Qt_get_desktop_dimensions(connect_id.wkst_id,&x_pos,&y_pos,&width,&height);
 #else
 	printf("insert your WM get screen dims func here\n");
 #endif
@@ -479,9 +479,9 @@ char *type;
         XFlush( connect_id.display );
         XSync( connect_id.display, TRUE );
 #elif defined QTWM
-	extern void vcs_Qt_resize_window(int index,int x,int y,int w, int h);
-	vcs_Qt_resize_window(connect_id.wkst_id,x_pos,y_pos,canvas_width,canvas_height);
-	/* vcs_Qt_repaint_window_by_id(connect_id.wkst_id); */
+	extern void vcs_legacy_Qt_resize_window(int index,int x,int y,int w, int h);
+	vcs_legacy_Qt_resize_window(connect_id.wkst_id,x_pos,y_pos,canvas_width,canvas_height);
+	/* vcs_legacy_Qt_repaint_window_by_id(connect_id.wkst_id); */
 #else
 	printf("insert your WM move func here\n");
 	printf("insert your WM sync/flush here\n");

@@ -28,20 +28,20 @@
 #                                                                          #
 ############################################################################
 def test():
-   import vcs,cdms2 as cdms,time,os,sys,support          # import vcs and cu
+   import vcs_legacy,cdms2 as cdms,time,os,sys,support          # import vcs_legacy and cu
 
    bg= support.bg
    
    f=cdms.open(os.path.join(cdms.__path__[0],'..','..','..','..','sample_data','clt.nc')) # open clt file
    s=f('clt')                           # get slab clt
-   x=vcs.init()                         # construct vcs canvas
+   x=vcs_legacy.init()                         # construct vcs_legacy canvas
    
 
    a=x.createoutline('test')           # create 'test' outline
-   if not vcs.isgraphicsmethod(a):            # test object 'a' for graphics method
+   if not vcs_legacy.isgraphicsmethod(a):            # test object 'a' for graphics method
       raise Exception, "Error did not retrieve the gm"
    else:
-      if not vcs.isoutline(a):		# check for outline
+      if not vcs_legacy.isoutline(a):		# check for outline
          raise Exception, "Error gm is not right type"
 
    x.plot(s,'default','outline','test',bg=bg)# plot slab the old way
@@ -119,7 +119,7 @@ def test():
    
    objs =x.listelements('template')                   # get the list of templates
    t=x.createtemplate('test')           # create template 'test' from 'default' template
-   if not vcs.istemplate(t):                  # test whether 't' is a template or not
+   if not vcs_legacy.istemplate(t):                  # test whether 't' is a template or not
       raise Exception,"Error template not created"
    else:
       a2 =x.listelements('template')                   # get the list of templates
@@ -139,10 +139,10 @@ def test():
    #########################################################################
    objs = x.listelements('line')                      	# show the list of line secondary objects
    l=x.createline('test')
-   if not vcs.issecondaryobject(l):           # check to see if it is a secondary object
+   if not vcs_legacy.issecondaryobject(l):           # check to see if it is a secondary object
       raise Exception,"Error did not get line"
    else:
-      if not vcs.isline(l):                  	# check to see if it is a line
+      if not vcs_legacy.isline(l):                  	# check to see if it is a line
          raise Exception, "Error object created is not line"
    
    #########################################################################

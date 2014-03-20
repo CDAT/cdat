@@ -1,4 +1,4 @@
-/* Charles functions for truetype fonts and vcs */
+/* Charles functions for truetype fonts and vcs_legacy */
 /* #include <stdio.h> */
 
 #include <math.h>
@@ -36,7 +36,7 @@ extern struct orientation Page;
 
 extern Gconid_X_drawable connect_id;/*VCS canvas display and drawable id */
 
-#include "vcs_names_length.h"
+#include "vcs_legacy_names_length.h"
 extern FILE *fpin, *fpout, *fperr;/* input, output, and error for scripts */
 #include "color.h"
 extern struct color_table C_tab;
@@ -314,9 +314,9 @@ double yoffset(factor,preped,font_extents,alpha,delta,pass)
   }
 #elif defined (QTWM)
   if (cairo_surface_get_type(cairo_get_target(cr))==CAIRO_FORMAT_ARGB32) {
-    vcs_Qt_get_window_visibility_by_id(connect_id.wkst_id,&qtx);
+    vcs_legacy_Qt_get_window_visibility_by_id(connect_id.wkst_id,&qtx);
     if (qtx==1) {
-      vcs_Qt_get_window_dimensions_by_id(connect_id.wkst_id,&qtx,&qty,&qtw,&qth);
+      vcs_legacy_Qt_get_window_dimensions_by_id(connect_id.wkst_id,&qtx,&qty,&qtw,&qth);
       multiplier = (float)qth;
     }
     else {
@@ -676,7 +676,7 @@ void cairogqtxx(int wkid,Gpoint pxy,char *str,Gextent *extent)
 /* 							    width, height);  */
 #elif defined (QTWM)
 /*     printf("getting dims\n"); */
-    vcs_Qt_get_window_dimensions_by_id(connect_id.wkst_id,&xoff,&yoff,&width,&height);
+    vcs_legacy_Qt_get_window_dimensions_by_id(connect_id.wkst_id,&xoff,&yoff,&width,&height);
 /*     printf("back %i, %i\n",width,height); */
 #else
     printf("insert here your WM getgeom\n");

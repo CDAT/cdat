@@ -1,4 +1,4 @@
-"""Tests for vcs:
+"""Tests for vcs_legacy:
 testanimate
 test_anim_mesh
 testboxfill

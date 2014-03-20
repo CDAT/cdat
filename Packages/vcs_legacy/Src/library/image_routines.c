@@ -147,7 +147,7 @@ int		app_y_pos;
                      connect_id.drawable, &canvas_root_win,
 	   	     &x1, &y1, &width, &height, &border_width, &depth);
 #elif defined QTWM
-	   vcs_Qt_get_window_dimensions_by_id(connect_id.wkst_id,&x1,&y1,&width,&height);
+	   vcs_legacy_Qt_get_window_dimensions_by_id(connect_id.wkst_id,&x1,&y1,&width,&height);
 #else
 	   fprintf(stderr,"insert here you WM getgeom\n");
 #endif
@@ -157,7 +157,7 @@ int		app_y_pos;
 	XGetGeometry(canvas_display, xwin, &canvas_root_win,
 	   	    &x1, &y1, &width, &height, &border_width, &depth);
 #elif defined QTWM
-	   vcs_Qt_get_window_dimensions_by_id(connect_id.wkst_id,&x1,&y1,&width,&height);
+	   vcs_legacy_Qt_get_window_dimensions_by_id(connect_id.wkst_id,&x1,&y1,&width,&height);
 #else
 	   fprintf(stderr,"insert here your wm get dims\n");
 #endif
@@ -189,7 +189,7 @@ int		app_y_pos;
 		   RootWindowOfScreen(DefaultScreenOfDisplay(canvas_display)),
                    x_loc, y_loc, width, height, XAllPlanes(), ZPixmap);
 #elif defined QTWM
-	vcs_Qt_window_get_image_by_id(connect_id.wkst_id,&ximage);
+	vcs_legacy_Qt_window_get_image_by_id(connect_id.wkst_id,&ximage);
 #else
 	fprintf(stderr,"insert your getimg here\n");
 #endif

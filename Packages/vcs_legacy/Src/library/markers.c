@@ -2,10 +2,10 @@
 #include "gks.h"
 #include "gksshort.h"
 #include <math.h>
-#include "vcs_marker.h"
+#include "vcs_legacy_marker.h"
 
 /* Get the VCS Marker attribute settings */
-    extern struct vcs_marker Vma_tab;
+    extern struct vcs_legacy_marker Vma_tab;
 
     extern FILE *fperr;/* input, output, and error for scripts */
 

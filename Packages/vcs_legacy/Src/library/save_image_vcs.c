@@ -1,5 +1,5 @@
 #include "workstations.h"
-#include "vcs_canvas.h"
+#include "vcs_legacy_canvas.h"
 #include "gks.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,7 +23,7 @@ extern char active_colors[];
 extern struct c_val std_color[16];
 extern struct color_table C_tab;
 
-int save_image_vcs (FILE *file)
+int save_image_vcs_legacy (FILE *file)
 {
 	int 		x_loc,y_loc;
 #ifdef USEX11
@@ -50,7 +50,7 @@ int save_image_vcs (FILE *file)
 #ifdef USEX11
 	XRaiseWindow(connect_id.display,connect_id.drawable);
 #else
-	fprintf(stderr,"in save_image_vcs need a raise window\n");
+	fprintf(stderr,"in save_image_vcs_legacy need a raise window\n");
 #endif
 
 #ifdef USEX11
@@ -65,7 +65,7 @@ int save_image_vcs (FILE *file)
 	   return 0;
 	  }
 #else
-	fprintf(stderr,"in save_image_vcs need a get geom window\n");
+	fprintf(stderr,"in save_image_vcs_legacy need a get geom window\n");
 #endif
 	width = x_width;
 	height = y_height;
@@ -110,7 +110,7 @@ int save_image_vcs (FILE *file)
 	   return 0;
 	  }
 #else
-	fprintf(stderr,"need a getimage in save_vcs\n");
+	fprintf(stderr,"need a getimage in save_vcs_legacy\n");
 #endif
 
 	/* If display has 8 bit color */
@@ -140,7 +140,7 @@ int save_image_vcs (FILE *file)
 	return 1;
 }
 
-int store_image_in_memory_vcs(image_ct)
+int store_image_in_memory_vcs_legacy(image_ct)
 int	image_ct;
 {
         ANIMATIONMEMORYLIST_LINK        iptr, tiptr;
@@ -189,7 +189,7 @@ int	image_ct;
            return 0;
           }
 #else
-	fprintf(stderr,"need a getgeon in sv_img_vcs\n");
+	fprintf(stderr,"need a getgeon in sv_img_vcs_legacy\n");
 #endif
         width = x_width;
         height = y_height;
@@ -240,7 +240,7 @@ int	image_ct;
         if (ximage->depth == 8)
            convert_gks_color(r, g, b); /* Convert X colors to u_char arrays */
 #else
-	fprintf(stderr,"need a getimg in sv_img_vcs\n");
+	fprintf(stderr,"need a getimg in sv_img_vcs_legacy\n");
 #endif
         /* Create the raster link list */
         if ((iptr=(ANIMATIONMEMORYLIST_LINK)

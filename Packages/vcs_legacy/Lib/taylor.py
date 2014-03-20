@@ -1,8 +1,8 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
-import vcs,numpy.ma,sys,string,colors,numpy,cdms2,types,VCS_validation_functions
+import vcs_legacy,numpy.ma,sys,string,colors,numpy,cdms2,types,VCS_validation_functions
 import MV2
 
-def createnewvcsobj(canvas,type,basenm,src='default',src2='default'):
+def createnewvcs_legacyobj(canvas,type,basenm,src='default',src2='default'):
     ii=0
     nm=basenm+str(ii)
     if type!='text':
@@ -681,13 +681,13 @@ class Gtd(object):
                 if 0<std<self.stdmax:
                     cor=x/std
                     a[j,i]=function(std,cor)
-        iso=createnewvcsobj(canvas,'isoline','td_new_')
+        iso=createnewvcs_legacyobj(canvas,'isoline','td_new_')
         cols=[]
-        c=VCS_validation_functions.color2vcs(color)
+        c=VCS_validation_functions.color2vcs_legacy(color)
         for i in range(len(values)):
             cols.append(c)
 
-        ttt=createnewvcsobj(canvas,'text','sktay')
+        ttt=createnewvcs_legacyobj(canvas,'text','sktay')
 ##         else:
 ##             ttt=canvas.gettext('skilltaylor','skilltaylor')
         ttt.color=c
@@ -707,7 +707,7 @@ class Gtd(object):
         a.setAxis(0,av2)
         a.setAxis(1,av)
         
-        self.__dict__['tmpl']=createnewvcsobj(canvas,'template','tdtempl','deftaylor')
+        self.__dict__['tmpl']=createnewvcs_legacyobj(canvas,'template','tdtempl','deftaylor')
                 
         self.__mkblk(self.tmpl)
         self.tmpl.data.priority=1
@@ -807,14 +807,14 @@ class Gtd(object):
                 
             s=int(self.Marker.size[i])
             t=self.Marker.symbol[i]
-            c=VCS_validation_functions.color2vcs(self.Marker.color[i])
-            m=createnewvcsobj(canvas,'marker','TD_')
+            c=VCS_validation_functions.color2vcs_legacy(self.Marker.color[i])
+            m=createnewvcs_legacyobj(canvas,'marker','TD_')
             m.worldcoordinate=self.worldcoordinate
             m.viewport=self.viewport
             markers.append(m)
             markers[-1].size=s
             markers[-1].type=t
-            markers[-1].color=VCS_validation_functions.color2vcs(c)
+            markers[-1].color=VCS_validation_functions.color2vcs_legacy(c)
             markers[-1].x=[d0*d1,]
             markers[-1].y=[float(d0*numpy.ma.sin(numpy.ma.arccos(d1))),]
 
@@ -834,14 +834,14 @@ class Gtd(object):
                 d1=float(data[i][1])
 
             if self.Marker.id[i]!='' and self.Marker.id[i]!='None':
-                t=createnewvcsobj(canvas,'text','id')
+                t=createnewvcs_legacyobj(canvas,'text','id')
                 t.worldcoordinate=self.worldcoordinate
                 t.viewport=self.viewport
                 t.string=self.Marker.id[i]
                 t.height=int(self.Marker.id_size[i])
                 t.halign='center'
                 t.priority=4
-                t.color=VCS_validation_functions.color2vcs(self.Marker.id_color[i])
+                t.color=VCS_validation_functions.color2vcs_legacy(self.Marker.id_color[i])
                 t.font=self.Marker.id_font[i]
 ##                 t.x=[d1*(d0+self.stdmax*self.Marker.xoffset[i]/100.)]
                 t.x=[d1*d0+self.stdmax*self.Marker.xoffset[i]/100.,]
@@ -850,7 +850,7 @@ class Gtd(object):
                 self.displays.append(canvas.plot(t,bg=self.bg))
 
             if not self.Marker.line[i] is None:
-                l=createnewvcsobj(canvas,'line','TD_li')
+                l=createnewvcs_legacyobj(canvas,'line','TD_li')
                 l.worldcoordinate=self.worldcoordinate
                 l.viewport=self.viewport
                 x1=d1*d0
@@ -871,7 +871,7 @@ class Gtd(object):
                     l.y=[y1,y2]
                 l.type=self.Marker.line_type[i]
                 l.width=int(self.Marker.line_size[i])
-                l.color=VCS_validation_functions.color2vcs(self.Marker.line_color[i])
+                l.color=VCS_validation_functions.color2vcs_legacy(self.Marker.line_color[i])
                 if self.Marker.line[i]=='tail':
                     self.drawarrow(canvas,x1,y1,x1,y1,x2,y2,l.color)
                 elif self.Marker.line[i]=='head':
@@ -884,7 +884,7 @@ class Gtd(object):
                     except:
                         dd0=float(data[i-1][0])
                     
-                    self.drawarrow(canvas,x1,y1,dd1*dd0,numpy.ma.sin(numpy.ma.arccos(dd1))*dd0,x1,y1,VCS_validation_functions.color2vcs(self.Marker.line_color[i-1]))
+                    self.drawarrow(canvas,x1,y1,dd1*dd0,numpy.ma.sin(numpy.ma.arccos(dd1))*dd0,x1,y1,VCS_validation_functions.color2vcs_legacy(self.Marker.line_color[i-1]))
                 self.displays.append(canvas.plot(l,bg=self.bg))
 
     def drawarrow(self,canvas,xloc,yloc,x1,y1,x2,y2,color):
@@ -928,7 +928,7 @@ class Gtd(object):
             xx=xloc+self.arrowlength*numpy.cos(Alpha)*self.outtervalue
         xs.append(xx)
         ys.append(yx)
-        f=createnewvcsobj(canvas,'fillarea','tdfill')
+        f=createnewvcs_legacyobj(canvas,'fillarea','tdfill')
         f.worldcoordinate=self.worldcoordinate
         f.viewport=self.viewport
         f.priority=3
@@ -1001,18 +1001,18 @@ class Gtd(object):
             else:   # ys are bigger
                 self.worldcoordinate=[wc[0],wc[1],
                                         wc[2],wc[2]+(wc[3]-wc[2])/r]
-        O=createnewvcsobj(canvas,'line','tdiag_',self.template.line2.line)
-        frame=createnewvcsobj(canvas,'line','tdiag_f',self.template.line1.line)
-        xtic1=createnewvcsobj(canvas,'line','tdgxt1',self.template.xtic1.line)
-        xtic2=createnewvcsobj(canvas,'line','tdgxt2',self.template.xtic2.line)
-        ytic1=createnewvcsobj(canvas,'line','tdgxt2',self.template.ytic1.line)
-        ytic2=createnewvcsobj(canvas,'line','tdgyt2',self.template.ytic2.line)
-        xmtic1=createnewvcsobj(canvas,'line','tdxt1',self.template.xmintic1.line)
-        ymtic1=createnewvcsobj(canvas,'line','tdxt2',self.template.ymintic1.line)
-        ymtic2=createnewvcsobj(canvas,'line','tdyt2',self.template.ymintic2.line)
-        xmtic2=createnewvcsobj(canvas,'line','tdxt2',self.template.xmintic2.line)
-        stdticks=createnewvcsobj(canvas,'text','tic',self.template.xlabel1.texttable,self.template.xlabel1.textorientation)
-        stdticks2=createnewvcsobj(canvas,'text','tc2',self.template.ylabel1.texttable,self.template.ylabel1.textorientation)
+        O=createnewvcs_legacyobj(canvas,'line','tdiag_',self.template.line2.line)
+        frame=createnewvcs_legacyobj(canvas,'line','tdiag_f',self.template.line1.line)
+        xtic1=createnewvcs_legacyobj(canvas,'line','tdgxt1',self.template.xtic1.line)
+        xtic2=createnewvcs_legacyobj(canvas,'line','tdgxt2',self.template.xtic2.line)
+        ytic1=createnewvcs_legacyobj(canvas,'line','tdgxt2',self.template.ytic1.line)
+        ytic2=createnewvcs_legacyobj(canvas,'line','tdgyt2',self.template.ytic2.line)
+        xmtic1=createnewvcs_legacyobj(canvas,'line','tdxt1',self.template.xmintic1.line)
+        ymtic1=createnewvcs_legacyobj(canvas,'line','tdxt2',self.template.ymintic1.line)
+        ymtic2=createnewvcs_legacyobj(canvas,'line','tdyt2',self.template.ymintic2.line)
+        xmtic2=createnewvcs_legacyobj(canvas,'line','tdxt2',self.template.xmintic2.line)
+        stdticks=createnewvcs_legacyobj(canvas,'text','tic',self.template.xlabel1.texttable,self.template.xlabel1.textorientation)
+        stdticks2=createnewvcs_legacyobj(canvas,'text','tc2',self.template.ylabel1.texttable,self.template.ylabel1.textorientation)
 
 
         O.priority=self.template.line1.priority
@@ -1030,7 +1030,7 @@ class Gtd(object):
 
 
 ##         if type(self.referencecolor) == types.StringType:
-##             O.color=self.color2vcs(canvas,self.referencecolor)
+##             O.color=self.color2vcs_legacy(canvas,self.referencecolor)
 ##         else:
 ##             O.color=self.referencecolor
 ##         else:
@@ -1096,10 +1096,10 @@ class Gtd(object):
         sticklength=ticklength/2.
         ## Ok figures out if we have defined the labels/tics
         if isinstance(self.yticlabels1,str): # Ok we want automatic
-            vals=vcs.mkscale(0,self.outtervalue,20)
+            vals=vcs_legacy.mkscale(0,self.outtervalue,20)
             tmp=vals[::2]
             if tmp[-1]!=vals[-1]: tmp.append(vals[-1])
-            levs=vcs.mklabels(tmp)
+            levs=vcs_legacy.mklabels(tmp)
         else:
             levs=self.yticlabels1
         for v in levs.keys():
@@ -1117,8 +1117,8 @@ class Gtd(object):
 ##                 fx.append([0.,ticklength])
 ##                 fy.append([v,v])
         if isinstance(self.ymtics1,str): # Ok we want automatic
-            vals=vcs.mkscale(0.,self.outtervalue,20)[1:-1:2]
-            levs=vcs.mklabels(vals)
+            vals=vcs_legacy.mkscale(0.,self.outtervalue,20)[1:-1:2]
+            levs=vcs_legacy.mklabels(vals)
         else:
             levs=self.ymtics1
         for v in levs.keys():
@@ -1132,14 +1132,14 @@ class Gtd(object):
             self.displays.append(canvas.plot(ymtic1,bg=self.bg))
 
         if isinstance(self.xmtics1,str): # Ok we want automatic
-            vals=vcs.mkscale(0.,self.outtervalue,20)[1:-1:2]
+            vals=vcs_legacy.mkscale(0.,self.outtervalue,20)[1:-1:2]
             if self.quadrans==2:
                 tmp=vals
                 vals=[]
                 for v in tmp:
                     vals.append(v)
                     vals.insert(0,-v)
-            levs=vcs.mklabels(vals)
+            levs=vcs_legacy.mklabels(vals)
             # ok need to remove potential negative values, std is always >0
             for k in levs.keys():
                 if k<0:
@@ -1169,7 +1169,7 @@ class Gtd(object):
             self.displays.append(canvas.plot(xmtic2,bg=self.bg))
             
         if isinstance(self.xticlabels1,str): # Ok we want automatic
-            vals=vcs.mkscale(0,self.outtervalue,20)
+            vals=vcs_legacy.mkscale(0,self.outtervalue,20)
             tmp=vals[::2]
             if tmp[-1]!=vals[-1]: tmp.append(vals[-1])
             if self.quadrans==2:
@@ -1178,7 +1178,7 @@ class Gtd(object):
                     vals.append(v)
                     vals.insert(0,-v)
                 tmp=vals
-            levs=vcs.mklabels(tmp)
+            levs=vcs_legacy.mklabels(tmp)
             # ok need to remove potential negative values, std is always >0
             for k in levs.keys():
                 if k<0:
@@ -1251,7 +1251,7 @@ class Gtd(object):
             if 0.<=v<=1. or (-1.<=v and self.quadrans==2):
                 x1=v
                 y1=numpy.sin(numpy.arccos(x1))
-                tic=createnewvcsobj(canvas,'text','cor_',self.template.ylabel2.texttable,self.template.ylabel2.textorientation)
+                tic=createnewvcs_legacyobj(canvas,'text','cor_',self.template.ylabel2.texttable,self.template.ylabel2.textorientation)
                 tic.priority=self.template.ylabel2.priority
                 dx=1.+self.template.ylabel2.x-self.template.data.x2 # How far from data.x2 ?
                 tic.x=[self.convert(x1*min(wc[1],wc[3])*dx,axis='x')]
@@ -1309,7 +1309,7 @@ class Gtd(object):
 
         x1=numpy.cos(45/180.*numpy.pi)
         y1=numpy.sin(numpy.arccos(x1))
-        tic=createnewvcsobj(canvas,'text','cor__',self.template.yname.texttable,self.template.yname.textorientation)
+        tic=createnewvcs_legacyobj(canvas,'text','cor__',self.template.yname.texttable,self.template.yname.textorientation)
         tic.priority=self.template.yname.priority
         ddx=1.+self.template.yname.x-self.template.data.x1 # How far are we from yaxis ?
         tic.x=[self.convert(x1*self.outtervalue*ddx,axis='x')]
@@ -1323,7 +1323,7 @@ class Gtd(object):
 ##         canvas.removeobject(tic)
         frame.x=fx
         frame.y=fy
-        stdaxis=createnewvcsobj(canvas,'text','stax',self.template.xname.texttable,self.template.xname.textorientation)
+        stdaxis=createnewvcs_legacyobj(canvas,'text','stax',self.template.xname.texttable,self.template.xname.textorientation)
 ##         stdaxis.worldcoordinate=self.worldcoordinate
 ##         stdaxis.viewport=self.viewport
 ##         stdaxis.list()
@@ -1342,7 +1342,7 @@ class Gtd(object):
 ##         stdaxis.valign='top'
 ##         stdaxis.height=int(40.*self.stdmax)+1
         
-        xstdaxis=createnewvcsobj(canvas,'text','xstax',self.template.xname.texttable,self.template.xname.textorientation)
+        xstdaxis=createnewvcs_legacyobj(canvas,'text','xstax',self.template.xname.texttable,self.template.xname.textorientation)
 ##         xstdaxis.worldcoordinate=self.worldcoordinate
 ##         xstdaxis.viewport=self.viewport
         xstdaxis.y=[self.template.xname.y]
@@ -1375,13 +1375,13 @@ class Gtd(object):
         self.__dict__['bg']=bg
         self.displays=[]
         if canvas is None:
-            canvas=vcs.init()
+            canvas=vcs_legacy.init()
             
         savedmode=canvas.mode
         canvas.mode=0
         if isinstance(template,str):
             self.__dict__['template']=canvas.gettemplate(template)
-        elif vcs.istemplate(template):
+        elif vcs_legacy.istemplate(template):
             self.__dict__['template']=template
         else:
             raise Exception,'Error you passed an invalid template'

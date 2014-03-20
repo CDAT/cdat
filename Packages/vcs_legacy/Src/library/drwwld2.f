@@ -44,8 +44,8 @@ C               BOUNDARIES (USES 2 WHERE IT OVERLAPS 1).
 C      4        CONTINENTAL AND INTERNATIONAL POLITICAL BOUNDARIES.
       NGRP=0
 C
-CC      OPEN(1,FILE='/data1/vcs_release2_5/vcs_script/data',STATUS='OLD')
-      OPEN (UNIT=LUN,FILE='/data1/vcs_release2_5/vcs_script/data',
+CC      OPEN(1,FILE='/data1/vcs_legacy_release2_5/vcs_legacy_script/data',STATUS='OLD')
+      OPEN (UNIT=LUN,FILE='/data1/vcs_legacy_release2_5/vcs_legacy_script/data',
      *      STATUS='OLD',FORM='UNFORMATTED')
     5 NLINE=0
       NGRP=NGRP+1

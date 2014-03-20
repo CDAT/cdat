@@ -15,7 +15,7 @@
  *                                                                      *
  *                                                                      *
  *                                                                      *
- *      File name: vcs_canvas.h                                         *
+ *      File name: vcs_legacy_canvas.h                                         *
  *                                                                      *
  *                                                                      *
  *      Langague: ANSI C                                                *

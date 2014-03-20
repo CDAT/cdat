@@ -2,7 +2,7 @@
     a graphics description structure, and data array structures.  It contains
     status of each display segment.						*/
 #define NTYPES 16
-#include "vcs_names_length.h"
+#include "vcs_legacy_names_length.h"
 
      struct display_tab
        {

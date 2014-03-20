@@ -26,7 +26,7 @@
 # Import: VCS C extension module.                                               #
 #                                                                               #
 #################################################################################
-import _vcs, queries, vcs, VCS_validation_functions, cdtime
+import _vcs_legacy, queries, vcs_legacy, VCS_validation_functions, cdtime
 import Canvas
 from types import ListType, TupleType, StringType, IntType, FloatType, DictType
 import AutoAPI
@@ -56,7 +56,7 @@ def setGimember(self,member,value):
         self.parent.canvas.BLOCK_X_SERVER()
         self.parent.canvasraised()
 
-     _vcs.setGimember(self, member, value, self.parent.mode)
+     _vcs_legacy.setGimember(self, member, value, self.parent.mode)
 
      # If the VCS Canvas is displayed, then update the backing store
      if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()):
@@ -82,7 +82,7 @@ setmember=setGimember
 #                                                                               #
 #################################################################################
 def getGimember(self,member):
-     return _vcs.getGimember(self,member)
+     return _vcs_legacy.getGimember(self,member)
 getmember=getGimember
 
 #################################################################################
@@ -101,7 +101,7 @@ getmember=getGimember
 #                                                                               #
 #################################################################################
 def renameGi(self, old_name, new_name):
-     return _vcs.renameGi(old_name, new_name)
+     return _vcs_legacy.renameGi(old_name, new_name)
 
 
 class Gi(object,AutoAPI.AutoAPI):
@@ -132,7 +132,7 @@ class Gi(object,AutoAPI.AutoAPI):
     table entry.
 
  Other Useful Functions:
-	    a=vcs.init()		# Constructor
+	    a=vcs_legacy.init()		# Constructor
 	    a.show('isoline')		# Show predefined isoline graphics methods
 	    a.show('line')		# Show predefined VCS line objects
 	    a.setcolormap("AMIP")	# Change the VCS color map
@@ -144,7 +144,7 @@ class Gi(object,AutoAPI.AutoAPI):
 				   	  update the VCS Canvas.
 
  Example of Use:
-    a=vcs.init()
+    a=vcs_legacy.init()
     To Create a new instance of isoline use:
      iso=a.createisoline('new','quick') # Copies content of 'quick' to 'new'
      iso=a.createisoline('new') 	# Copies content of 'default' to 'new'
@@ -565,7 +565,7 @@ class Gi(object,AutoAPI.AutoAPI):
            if (Gi_name == None):
               raise ValueError, 'Must provide a isoline name.'
            else:
-              _vcs.copyGi(Gi_name_src, Gi_name)
+              _vcs_legacy.copyGi(Gi_name_src, Gi_name)
               self._name = Gi_name
         else:
               self._name = Gi_name_src
@@ -712,7 +712,7 @@ class Gi(object,AutoAPI.AutoAPI):
     def script(self, script_filename, mode='a'):
         """
  %s
- Function:     script                           # Calls _vcs.scriptGi
+ Function:     script                           # Calls _vcs_legacy.scriptGi
 
  Description of Function:
        Saves out a isoline graphics method in Python and VCS script form to a
@@ -728,7 +728,7 @@ class Gi(object,AutoAPI.AutoAPI):
                     produce a VCS script. If neither extensions are give, then by
                     default a Python script will be produced.
 
-    a=vcs.init()
+    a=vcs_legacy.init()
     iso=a.createisoline('temp')
     iso.script('filename.py')         # Append to a Python file "filename.py"
     iso.script('filename.scr')        # Append to a VCS file "filename.scr"
@@ -745,7 +745,7 @@ class Gi(object,AutoAPI.AutoAPI):
         # By default, save file in python script mode
         scr_type = script_filename[len(script_filename)-4:len(script_filename)]
         if (scr_type == '.scr'):
-           print _vcs.scriptGi(self.name,script_filename,mode)
+           print _vcs_legacy.scriptGi(self.name,script_filename,mode)
         else:
            mode = mode + '+'
            py_type = script_filename[len(script_filename)-3:len(script_filename)]
@@ -760,8 +760,8 @@ class Gi(object,AutoAPI.AutoAPI):
               fp.write("# Import and Initialize VCS     #\n")
               fp.write("#                             #\n")
               fp.write("#############################\n")
-              fp.write("import vcs\n")
-              fp.write("v=vcs.init()\n\n")
+              fp.write("import vcs_legacy\n")
+              fp.write("v=vcs_legacy.init()\n\n")
 
            unique_name = '__Gi__' + self.name
            fp.write("#----------Isoline (Gi) member (attribute) listings ----------\n")
