@@ -3,9 +3,34 @@ import numpy
 import cdtime
 import warnings
 import vcs
+import boxfill
+import taylor
 
+def process_src_element(code):
+  i = code.find("_")
+  typ = code[:i]
+  code=code[i+1:]
+  i = code.find("(")
+  nm=code[:i]
+  code=code[i+1:-1]
+  try:
+    if typ == "Gfb":
+      boxfill.process_src(nm,code)
+    elif typ == "L":
+      dic = {}
+      sp = code.split(",")
+      for i in range(0,len(sp),2):
+        dic[eval(sp[i])]=eval(sp[i+1])
+      vcs.elements["list"][nm]=dic
+    elif typ == "Gtd":
+      taylor.process_src(nm,code)
+      print "Need to process taylordiagram:",code
+  except Exception,err:
+    print "Processing error for %s,%s: %s" % (nm,typ,err)
 
 def listelements(typ):
+  if not typ in vcs.elements.keys():
+    raise Exception,"Error: '%s' is not a valid vcs element\nValid vcs elements are: %s" % (typ,vcs.elements.keys())
   return vcs.elements[typ].keys()
 
 def scriptrun(script):

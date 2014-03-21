@@ -36,6 +36,33 @@ import AutoAPI
 import xmldocs
 #### from gm_core import * No need to import
 
+def process_src(nm,code):
+  """Takes VCS script code (string) as input and generates boxfill gm from it"""
+  print "Gfb:",nm,code
+  try:
+    gm = Gfb(nm)
+  except:
+    gm = vcs.elements["boxfill"][nm]
+  ## process attributes with = as assignement
+  for att in ["projection",
+      "xticlabels#1","xticlabels#2",
+      "yticlabels#1","yticlabels#2",
+      "xaxisconvert","yaxisconvert",
+      "datawc_tunits",
+      "boxfill_type",
+      "level_1","level_2",
+      "color_1","color_2",
+      "legend",
+      "ext_1","ext_2",
+      "missing",
+      "datawc_calendar"]:
+    i = code.find(att)
+    if i==-1:
+      continue
+    j = code.find(code[i:],",")+i
+    scode = code[i:j]
+    sp = scode.split("=")
+
 #############################################################################
 #                                                                           #
 # Boxfill (Gfb) graphics method Class.                                      #
@@ -261,6 +288,8 @@ class Gfb(object,AutoAPI.AutoAPI):
           Gfb_name_src=Gfb_name_src.name
         if Gfb_name=="default" and Gfb_name_src!="default":
           raise "You can not alter the 'default' boxfill method"
+        if Gfb_name in vcs.elements["boxfill"].keys():
+          raise Exception,"Error boxfill method '%s' already exists" % Gfb_name
         self._name = "default"
         self.g_name='Gfb'
 
@@ -592,10 +621,7 @@ class Gfb(object,AutoAPI.AutoAPI):
     ymtics2=property(_getymtics2,_setymtics2)
 
     def _getdatawc_x1(self):
-         if getGfbmember(self,'_tdatawc_x1') :
-              return cdtime.reltime(self._datawc_x1,self.datawc_timeunits).tocomp(self.datawc_calendar)
-         else:
-              return self._datawc_x1
+          return self._datawc_x1
     def _setdatawc_x1(self,value):
          value=VCS_validation_functions.checkDatawc(self,'datawc_x1',value)
          self._datawc_x1=value[0]
@@ -604,10 +630,7 @@ class Gfb(object,AutoAPI.AutoAPI):
     datawc_x1=property(_getdatawc_x1,_setdatawc_x1)
 
     def _getdatawc_x2(self):
-         if getGfbmember(self,'_tdatawc_x2') :
-              return cdtime.reltime(self._datawc_x2,self.datawc_timeunits).tocomp(self.datawc_calendar)
-         else:
-              return self._datawc_x2
+          return self._datawc_x2
     def _setdatawc_x2(self,value):
          value=VCS_validation_functions.checkDatawc(self,'datawc_x2',value)
          self._datawc_x2=value[0]
@@ -616,10 +639,7 @@ class Gfb(object,AutoAPI.AutoAPI):
     datawc_x2=property(_getdatawc_x2,_setdatawc_x2)
     
     def _getdatawc_y1(self):
-         if getGfbmember(self,'_tdatawc_y1') :
-              return cdtime.reltime(self._datawc_y1,self.datawc_timeunits).tocomp(self.datawc_calendar)
-         else:
-              return self._datawc_y1
+          return self._datawc_y1
     def _setdatawc_y1(self,value):
          value=VCS_validation_functions.checkDatawc(self,'datawc_y1',value)
          self._datawc_y1=value[0]
@@ -628,10 +648,7 @@ class Gfb(object,AutoAPI.AutoAPI):
     datawc_y1=property(_getdatawc_y1,_setdatawc_y1)
 
     def _getdatawc_y2(self):
-         if getGfbmember(self,'_tdatawc_y2') :
-              return cdtime.reltime(self._datawc_y2,self.datawc_timeunits).tocomp(self.datawc_calendar)
-         else:
-              return self._datawc_y2
+          return self._datawc_y2
     def _setdatawc_y2(self,value):
          value=VCS_validation_functions.checkDatawc(self,'datawc_y2',value)
          self._datawc_y2=value[0]
@@ -640,71 +657,47 @@ class Gfb(object,AutoAPI.AutoAPI):
     datawc_y2=property(_getdatawc_y2,_setdatawc_y2)
     
     def colors(self, color1=16, color2=239):
-        mode=self.parent.mode
-        self.parent.mode=0
         self.color_1= color1
         self.color_2=color2
-        self.parent.mode=mode
     colors.__doc__ = xmldocs.colorsdoc
     
     def exts(self, ext1='n', ext2='y'):
-        mode=self.parent.mode
-        self.parent.mode=0
         self.ext_1=ext1
         self.ext_2=ext2
-        self.parent.mode=mode
     exts.__doc__ = xmldocs.extsdoc
 # 
 # Doesn't make sense to inherit. This would mean more coding in C.
 # I put this code back.                                 
 #
     def xticlabels(self, xtl1='', xtl2=''):
-        mode=self.parent.mode
-        self.parent.mode=0
         self.xticlabels1 = xtl1
-        self.parent.mode=mode
         self.xticlabels2 = xtl2
     xticlabels.__doc__ = xmldocs.xticlabelsdoc
     
     def xmtics(self,xmt1='', xmt2=''):
-        mode=self.parent.mode
-        self.parent.mode=0
         self.xmtics1 = xmt1
-        self.parent.mode=mode
 	self.xmtics2 = xmt2
     xmtics.__doc__ = xmldocs.xmticsdoc
     
     def yticlabels(self, ytl1='', ytl2=''):
-        mode=self.parent.mode
-        self.parent.mode=0
         self.yticlabels1 = ytl1
-        self.parent.mode=mode
         self.yticlabels2 = ytl2
     yticlabels.__doc__ = xmldocs.yticlabelsdoc
 
     def ymtics(self, ymt1='', ymt2=''):
-        mode=self.parent.mode
-        self.parent.mode=0
         self.ymtics1 = ymt1
-        self.parent.mode=mode
         self.ymtics2 = ymt2
     ymtics.__doc__ = xmldocs.ymticsdoc
 
     def datawc(self, dsp1=1e20, dsp2=1e20, dsp3=1e20, dsp4=1e20):
-        mode=self.parent.mode
-        self.parent.mode=0
         self.datawc_y1 = dsp1
         self.datawc_y2 = dsp2
         self.datawc_x1 = dsp3
-        self.parent.mode=mode
         self.datawc_x2 = dsp4
     datawc.__doc__ = xmldocs.datawcdoc
 
     def xyscale(self, xat='linear', yat='linear'):
-        mode=self.parent.mode
-        self.parent.mode=0
         self.xaxisconvert = xat
-        self.parent.mode=mode
         self.yaxisconvert = yat
     xyscale.__doc__= xmldocs.xyscaledoc
     
@@ -718,7 +711,6 @@ class Gfb(object,AutoAPI.AutoAPI):
         if (self.name == '__removed_from_VCS__'):
            raise ValueError, 'This instance has been removed from VCS.'
         print "","----------Boxfill (Gfb) member (attribute) listings ----------"
-        print 'Canvas Mode =',self.parent.mode
         print "graphics method =", self.g_name
         print "name =", self.name
         print "projection =", self.projection

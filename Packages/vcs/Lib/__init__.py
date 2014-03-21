@@ -22,9 +22,6 @@
 #                                                                               #
 #################################################################################
 """
-import sys
-if sys.executable[-4:]!='cdat' and sys.platform in ['darwin'] and (vcs.info.WM=='QT' or vcs.info.EM=='QT'):
-    raise ImportError,"if you are going to use vcs you need to run this as 'cdat' not %s" % sys.executable
 import cdat_info
 cdat_info.pingPCMDIdb("cdat","vcs")
 import thread
@@ -118,6 +115,7 @@ elements = { "boxfill" : {},
              "xyvsy":{},
              "yvsx" :{},
              "scatter" :{},
+             "list": {},
              }
 boxfill.Gfb("default")
 
