@@ -7302,67 +7302,26 @@ Options:::
  Example of Use:
     x._scriptrun('script_filename.scr')
 """
-        # First reads the C stuff
-        apply(self.canvas.scriptrun, args)
         # Now does the python Graphic methods
         f=open(args[0],'r')
-        ln=f.readlines()
-        f.close()
         # browse through the file to look for taylordiagram/python graphics methods
-        ifound=0 # found a taylor graphic method
-        for l in ln:
-            if ifound==0 : s=''
-            if l[:4]=='Gtd_':
-                ifound=1
-##             if l[:4]=='Gmf_':
-##                 ifound=2
-            if ifound == 1:
-                i=l.find(')')
-                if i==-1:  # not found the end,i.e ')'
-                    s=s+l[:-1] # we dont want the trail carriage return
-                else:
-                    ifound=0
-                    s=s+l[:i+1]
-                    # Now break the string
-                    # now gets the name and prepare the graphics method
-                    sp=s.split('(')
-                    name="_".join(sp[0].split('_')[1:])
-                    if name!='default' : # we cannot change default
-                        try:
-                            td=self.createtaylordiagram(name)
-                        except Exception,err:
-                            td=self.gettaylordiagram(name)
-                        sp=sp[1].split(';') # breaks the thing into different attributes
-                        imark=0
-                        for a in sp : # the last one is ')'
-                            sp2=a.split('=')
-                            if sp2[0].strip()=='Marker' : imark=1
-                            if len(sp2)==2:
-                                if imark:
-                                    setattr(td.Marker,sp2[0].strip(),eval(sp2[1]))
-                                else:
-                                    setattr(td,sp2[0].strip(),eval(sp2[1]))
-##             elif ifound == 2:
-##                 i=string.find(l,')')
-##                 if i==-1:  # not found the end,i.e ')'
-##                     s=s+l[:-1] # we dont want the trail carriage return
-##                 else:
-##                     ifound=0
-##                     s=s+l[:i+1]
-##                     # Now break the string
-##                     # now gets the name and prepare the graphics method
-##                     sp=string.split(s,'(')
-##                     name=string.join(string.split(sp[0],'_')[1:],'_')
-##                     if name!='default' : # we cannot change default
-##                         try:
-##                             mesh=self.createmeshfill(name)
-##                         except:
-##                             mesh=self.getmeshfill(name)
-##                         sp=string.split(sp[1],';') # breaks the thing into different attributes
-##                         for a in sp : # the last one is ')'
-##                             sp2=string.split(a,'=')
-##                             if len(sp2)==2:
-##                                 setattr(mesh,string.strip(sp2[0]),eval(sp2[1]))
+        processing=False # found a taylor graphic method
+        for l in f.xreadlines():
+          if l[:4] in ['Gtd_','Gfb_'] or l[:2] in ["L_",]:
+            #We found a graphic method
+            processing = True
+            opened = 0
+            closed = 0
+            s=""
+          if processing:
+            s+=l.strip()
+            opened+=l.count("(")
+            closed+=l.count(")")
+            if closed == opened:
+              # ok we read the whole Graphic method
+              vcs.process_src_element(s)
+              processing = False
+        f.close()
                                 
     #############################################################################
     #                                                                           #
@@ -7578,29 +7537,14 @@ Options:::
               arglist.append(graphics_type)
               arglist.append(graphics_name)
 
-              # flush and block the X main loop
-              finish_queued_X_server_requests( self )
-              self.canvas.BLOCK_X_SERVER()
-
               if (a_name is not None) and (graphics_type != 'continents'):
                  dn = self.__plot(arglist, {'bg':0})
 
-              # Unblock the (thread) execution of the X main loop (if it is running).
-              self.canvas.UNBLOCK_X_SERVER()
-
            elif string.lower( vcs_cmd ) == 'canvas':
-              apply(self.canvas.open, args)
-              if ( self.canvas.THREADED() == 0 ):
-                 thread.start_new_thread( self.canvas.startxmainloop, ( ) )
+             warnings.warn("Please implement vcs 'canvas' function")
            elif string.lower( vcs_cmd ) == 'page':
               orientation = string.lower( string.split(scr_str,'(')[1][:-1] )
-              finish_queued_X_server_requests( self )
-              self.canvas.BLOCK_X_SERVER()
-              if orientation == 'portrait':
-                 apply(self.canvas.portrait, args)
-              else:
-                 apply(self.canvas.landscape, args)
-              self.canvas.UNBLOCK_X_SERVER()
+              warnings.warn("Please implement vcs 'page' function")
            else: # Send command to VCS interpreter
               if (len(scr_str) > 1) and (scr_str[0] != '#'):
                  # Save command to a temporary file first, then read script command
