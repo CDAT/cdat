@@ -1491,8 +1491,9 @@ Options:::
         if not isinstance(Gfb_name_src,str):
            raise vcsError, 'The argument must be a string.'
 
-        Gfb_name = None
-        return boxfill.Gfb(self, Gfb_name, Gfb_name_src, 1)
+        if not Gfb_name_src in vcs.elements["boxfill"].keys():
+          raise "The boxfill method: '%s' does not seem to exist"
+        return vcs.elements["boxfill"][Gfb_name_src]
     getboxfill.__doc__ = getboxfill.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert, get_GM_input, boxfill_output) 
    
 
@@ -7299,7 +7300,7 @@ Options:::
         # browse through the file to look for taylordiagram/python graphics methods
         processing=False # found a taylor graphic method
         for l in f.xreadlines():
-          if l[:4] in ['Gtd_','Gfb_'] or l[:2] in ["L_",]:
+          if l[:4] in ['Gtd_','Gfb_'] or l[:2] in ["L_",] or l[:5] in ["Proj_",]:
             #We found a graphic method
             processing = True
             opened = 0

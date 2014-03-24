@@ -75,7 +75,47 @@ def process_src(nm,code):
       except Exception,err:
         # strings
         setattr(gm,nm,sp[1])
-
+    #Datawc
+    idwc = code.find(" datawc(")
+    if idwc>-1:
+      jdwc = code[idwc:].find(")")+idwc
+      cd = code[idwc+8:jdwc]
+      vals = cd.split(",")
+      gm.datawc_x1 = float(vals[0])
+      gm.datawc_y1 = float(vals[1])
+      gm.datawc_x2 = float(vals[2])
+      gm.datawc_y2 = float(vals[3])
+    irg=code.find("range")
+    if irg>-1:
+      lines=code[irg:].split("\n")
+      i=0
+      levs=[]
+      fac=[]
+      fai=[]
+      fas=[]
+      badfa = True
+      for l in lines:
+       if l.find("(id=")>-1:
+        sp=lines[i].split(",")
+        levs.append([float(sp[1][7:]),float(sp[2][7:])])
+        fa = sp[-1][3:]
+        fa=fa[:fa.find(")")]
+        if not fa in vcs.elements["fillarea"].keys():
+          badfa=True
+          fai.append(fa)
+        else:
+          fa = vcs.elements["fillarea"][fa]
+          fac.append(fa.color[0])
+          fai.append(fa.index[0])
+          fas.append(fa.style[0])
+        i+=1
+      gm.levels = levs
+      if badfa:
+        gm._fillareaindices = fai
+      else:
+        gm.fillareacolor = fac
+        gm.fillareaindices = fai
+        gm.fillareastyle = fas[0]
 #############################################################################
 #                                                                           #
 # Boxfill (Gfb) graphics method Class.                                      #
