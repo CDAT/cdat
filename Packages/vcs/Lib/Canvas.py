@@ -926,13 +926,14 @@ class Canvas(object,AutoAPI.AutoAPI):
            pth = vcs.__path__[0].split(os.path.sep)
            pth=pth[:-4] # Maybe need to make sure on none framework config
            pth=['/']+pth+['bin', 'initial.attributes']
-           try:
+           #try:
+           if 1:
                self._scriptrun( os.path.join(*pth))
-           except:
-               pass
+           #except:
+           #    pass
            self._dotdir,self._dotdirenv = vcs.getdotdirectory()
-           warnings.warn("Please reimplement reading of initial_attirubtes in Canvas.py circa line 7345")
-           #self._scriptrun( os.path.join(os.environ['HOME'], self._dotdir, 'initial.attributes'))
+           #warnings.warn("Please reimplement reading of initial_attirubtes in Canvas.py circa line 7345")
+           self._scriptrun( os.path.join(os.environ['HOME'], self._dotdir, 'initial.attributes'))
 	called_initial_attributes_flg = 1
         self.animate_info=[]
         self.canvas_template_editor=None
@@ -1573,39 +1574,33 @@ Options:::
 """
         
         name,source = self.check_name_source(name,source,'taylordiagram')
-        srcfound=0
-        for m in vcs.taylordiagrams:
-            if m.name==name :
-                raise vcsError, 'Error creating taylordiagram graphic method: '+Gtd_name+' already exist'
-            if m.name==source:
-                srcfound=1
-        if not srcfound:
-            raise vcsError, 'Error creating taylordiagram graphic method '+Gtd_name_src+' does not exist'
+        if name in vcs.elements["taylordiagram"].keys():
+          raise vcsError, 'Error creating taylordiagram graphic method: '+Gtd_name+' already exist'
+        if not source in vcs.elements["taylordiagram"].keys():
+          raise vcsError, 'Error creating taylordiagram graphic method '+Gtd_name_src+' does not exist'
         n=vcs.taylor.Gtd()
         n._name=name
-        for m in vcs.taylordiagrams:
-            if m.name==source :
-                n.max=m.max
-                n.quadrans=m.quadrans
-                n.skillValues=m.skillValues
-                n.skillColor=m.skillColor
-                n.skillDrawLabels=m.skillDrawLabels
-                n.skillCoefficient=m.skillCoefficient
-                n.detail=m.detail
-                n.referencevalue=m.referencevalue
-                n.Marker=copy.deepcopy(m.Marker)
-                n.arrowlength=m.arrowlength
-                n.arrowangle=m.arrowangle
-                n.arrowbase=m.arrowbase
-                n.xticlabels1=m.xticlabels1
-                n.xmtics1=m.xmtics1
-                n.yticlabels1=m.yticlabels1
-                n.ymtics1=m.xmtics1
-                n.cticlabels1=m.cticlabels1
-                n.cmtics1=m.xmtics1
+        m = vcs.elements["taylordiagram"][source]
+        n.max=m.max
+        n.quadrans=m.quadrans
+        n.skillValues=m.skillValues
+        n.skillColor=m.skillColor
+        n.skillDrawLabels=m.skillDrawLabels
+        n.skillCoefficient=m.skillCoefficient
+        n.detail=m.detail
+        n.referencevalue=m.referencevalue
+        n.Marker=copy.deepcopy(m.Marker)
+        n.arrowlength=m.arrowlength
+        n.arrowangle=m.arrowangle
+        n.arrowbase=m.arrowbase
+        n.xticlabels1=m.xticlabels1
+        n.xmtics1=m.xmtics1
+        n.yticlabels1=m.yticlabels1
+        n.ymtics1=m.xmtics1
+        n.cticlabels1=m.cticlabels1
+        n.cmtics1=m.xmtics1
                 
-                break
-        vcs.taylordiagrams.append(n)
+        vcs.elements["taylordiagram"][name]=n
         n.Marker.equalize()
         return n
 
@@ -5824,7 +5819,6 @@ Options:::
     a.colormapgui(max_intensity = 255)
 '''
         
-        import warnings
         warnings.warn("The colormap gui has been removed from CDAT, you can access it via the UV-CDAT GUI.", Warning)
         return
 ##         _colormapgui.create(self, gui_parent=gui_parent, transient=transient, max_intensity=max_intensity)
@@ -5848,7 +5842,6 @@ Options:::
     a=vcs.init()
     a.projectiongui()
 '''
-        import warnings
         warnings.warn("The projection gui has been removed from CDAT, you can access it via the UV-CDAT GUI.", Warning)
         return
         ## _projectiongui.create(gui_parent=gui_parent,canvas=self,projection=projection)
@@ -5901,7 +5894,6 @@ Options:::
     a=vcs.init()
     a.graphicsmethodgui('boxfill', 'quick')
 '''
-        import warnings
         warnings.warn("The graphics method gui has been removed from CDAT, you can access it via the UV-CDAT GUI.", Warning)
         return
     ## _graphicsmethodgui.create( self, gm_type=gm_type, gm_name=gm_name,

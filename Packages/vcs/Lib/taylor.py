@@ -7,8 +7,10 @@ def process_src(name,code):
   # now gets the name and prepare the graphics method
   if name!='default' : # we cannot change default
       try:
-          td=Gtd(name)
+          td=Gtd()
+          td._name = name
       except Exception,err:
+          print "Err:",err
           td=vcs.elements["taylordiagram"][name]
       sp=code.split(';') # breaks the thing into different attributes
       imark=0

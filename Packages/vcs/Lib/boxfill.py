@@ -38,7 +38,6 @@ import xmldocs
 
 def process_src(nm,code):
   """Takes VCS script code (string) as input and generates boxfill gm from it"""
-  print "Gfb:",nm,code
   try:
     gm = Gfb(nm)
   except:
@@ -46,7 +45,9 @@ def process_src(nm,code):
   ## process attributes with = as assignement
   for att in ["projection",
       "xticlabels#1","xticlabels#2",
+      "xmtics#1","xmtics#2",
       "yticlabels#1","yticlabels#2",
+      "ymtics#1","ymtics#2",
       "xaxisconvert","yaxisconvert",
       "datawc_tunits",
       "boxfill_type",
@@ -59,9 +60,21 @@ def process_src(nm,code):
     i = code.find(att)
     if i==-1:
       continue
-    j = code.find(code[i:],",")+i
+    j = code[i:].find(",")+i
     scode = code[i:j]
     sp = scode.split("=")
+    nm = sp[0].strip()
+    nm=nm.replace("#","")
+    try:
+      #int will be converted
+      setattr(gm,nm,int(sp[1]))
+    except Exception,err:
+      try:
+        #int and floats will be converted
+        setattr(gm,nm,eval(sp[1]))
+      except Exception,err:
+        # strings
+        setattr(gm,nm,sp[1])
 
 #############################################################################
 #                                                                           #
@@ -290,7 +303,7 @@ class Gfb(object,AutoAPI.AutoAPI):
           raise "You can not alter the 'default' boxfill method"
         if Gfb_name in vcs.elements["boxfill"].keys():
           raise Exception,"Error boxfill method '%s' already exists" % Gfb_name
-        self._name = "default"
+        self._name = Gfb_name
         self.g_name='Gfb'
 
         if Gfb_name=="default":
@@ -373,7 +386,6 @@ class Gfb(object,AutoAPI.AutoAPI):
          return self._datawc_calendar
     def _setcalendar(self,value):
          value=VCS_validation_functions.checkCalendar(self,'datawc_calendar',value)
-         setGfbmember(self,'datawc_calendar',value)
          self._datawc_calendar=value
     datawc_calendar=property(_getcalendar,_setcalendar)
 
@@ -381,7 +393,6 @@ class Gfb(object,AutoAPI.AutoAPI):
          return self._datawc_timeunits
     def _settimeunits(self,value):
          value=VCS_validation_functions.checkTimeUnits(self,'datawc_timeunits',value)
-         setGfbmember(self,'datawc_timeunits',value)
          self._datawc_timeunits=value
     datawc_timeunits=property(_gettimeunits,_settimeunits)
     
@@ -389,7 +400,6 @@ class Gfb(object,AutoAPI.AutoAPI):
          return self._boxfill_type
     def _setboxfilltype(self,value):
          value=VCS_validation_functions.checkBoxfillType(self,'boxfill_type',value)
-         setGfbmember(self,'boxfill_type',value)
          self._boxfill_type=value
     boxfill_type=property(_getboxfilltype,_setboxfilltype)
          
@@ -397,7 +407,6 @@ class Gfb(object,AutoAPI.AutoAPI):
          return self._level_1
     def _setlevel_1(self,value):
          value=VCS_validation_functions.checkIntFloat(self,'level_1',value)
-         setGfbmember(self,'level_1',value)
          self._level_1=value
     level_1=property(_getlevel_1,_setlevel_1)
     
@@ -405,7 +414,6 @@ class Gfb(object,AutoAPI.AutoAPI):
          return self._level_2
     def _setlevel_2(self,value):
          value=VCS_validation_functions.checkIntFloat(self,'level_2',value)
-         setGfbmember(self,'level_2',value)
          self._level_2=value
     level_2=property(_getlevel_2,_setlevel_2)
     
@@ -413,7 +421,6 @@ class Gfb(object,AutoAPI.AutoAPI):
          return self._color_1
     def _setcolor_1(self,value):
          value=VCS_validation_functions.checkColor(self,'color_1',value)
-         setGfbmember(self,'color_1',value)
          self._color_1=value
     color_1=property(_getcolor_1,_setcolor_1)
     
@@ -421,7 +428,6 @@ class Gfb(object,AutoAPI.AutoAPI):
          return self._color_2
     def _setcolor_2(self,value):
          value=VCS_validation_functions.checkColor(self,'color_2',value)
-         setGfbmember(self,'color_2',value)
          self._color_2=value
     color_2=property(_getcolor_2,_setcolor_2)
     
@@ -439,7 +445,6 @@ class Gfb(object,AutoAPI.AutoAPI):
          else:
             self._ext_2='n'
          self._levels=tuple(value)
-         setmember(self,'levels',self._levels)
     levels=property(_getlevels,_setlevels)
 
     def _getfillareacolors(self):
@@ -448,7 +453,6 @@ class Gfb(object,AutoAPI.AutoAPI):
          if not value is None:
               value = VCS_validation_functions.checkColorList(self,'fillareacolors',value)
          self._fillareacolors=value
-         setmember(self,'levels',self.levels)
     fillareacolors=property(_getfillareacolors,_setfillareacolors)
 
     def _getfillareaindices(self):
@@ -457,7 +461,6 @@ class Gfb(object,AutoAPI.AutoAPI):
          if value is not None:
               value = VCS_validation_functions.checkIndicesList(self,'fillareaindices',value)
          self._fillareaindices=value
-         setmember(self,'levels',self.levels)
     fillareaindices=property(_getfillareaindices,_setfillareaindices)
 
     def _getfillareastyle(self):
@@ -465,7 +468,6 @@ class Gfb(object,AutoAPI.AutoAPI):
     def _setfillareastyle(self,value):
          value=VCS_validation_functions.checkFillAreaStyle(self,'fillareastyle',value)
          self._fillareastyle=value
-         setmember(self,'levels',self.levels)
     fillareastyle=property(_getfillareastyle,_setfillareastyle)
     
     def _getext_1(self):
@@ -480,12 +482,6 @@ class Gfb(object,AutoAPI.AutoAPI):
                       levs=isofill.add_level_ext_1(self, 'y')
                    self.levels=levs
               self._ext_1=value
-         if value=='n':
-              setmember(self,'ext_1',110)
-         else:
-              setmember(self,'ext_1',121)
-              
-    
     ext_1=property(_getext_1,_setext_1)
 
     def _getext_2(self):
@@ -500,11 +496,6 @@ class Gfb(object,AutoAPI.AutoAPI):
                       levs=isofill.add_level_ext_2(self, 'y')
                    self.levels=levs
               self._ext_2=value
-         if value=='n':
-              setmember(self,'ext_2',110)
-         else:
-              setmember(self,'ext_2',121)
-              
     ext_2=property(_getext_2,_setext_2)
 
     def _getmissing(self):
@@ -512,7 +503,6 @@ class Gfb(object,AutoAPI.AutoAPI):
     def _setmissing(self,value):
          value=VCS_validation_functions.checkColor(self,'missing',value)
          self._missing=value
-         setmember(self,'missing',value)
     missing=property(_getmissing,_setmissing)
     
     def _getlegend(self):
@@ -520,7 +510,6 @@ class Gfb(object,AutoAPI.AutoAPI):
     def _setlegend(self,value):
          value=VCS_validation_functions.checkLegend(self,'legend',value)
          self._legend=value
-         setmember(self,'legend',value)
     legend=property(_getlegend,_setlegend)
     
     def _getname(self):
@@ -528,7 +517,6 @@ class Gfb(object,AutoAPI.AutoAPI):
     def _setname(self,value):
          value=VCS_validation_functions.checkname(self,'name',value)
          if value is not None:
-              setmember(self,'name',value)
               self._name=value
     name=property(_getname,_setname)
 
@@ -537,7 +525,6 @@ class Gfb(object,AutoAPI.AutoAPI):
     def _setxaxisconvert(self,value):
          value=VCS_validation_functions.checkAxisConvert(self,'xaxisconvert',value)
          self._xaxisconvert=value
-         setmember(self,'xaxisconvert',value)
     xaxisconvert=property(_getxaxisconvert,_setxaxisconvert)
 
     def _getyaxisconvert(self):
@@ -545,7 +532,6 @@ class Gfb(object,AutoAPI.AutoAPI):
     def _setyaxisconvert(self,value):
          value=VCS_validation_functions.checkAxisConvert(self,'yaxisconvert',value)
          self._yaxisconvert=value
-         setmember(self,'yaxisconvert',value)
     yaxisconvert=property(_getyaxisconvert,_setyaxisconvert)
     
     def _getprojection(self):
@@ -553,7 +539,6 @@ class Gfb(object,AutoAPI.AutoAPI):
     def _setprojection(self,value):
          value=VCS_validation_functions.checkProjection(self,'projection',value)
          self._projection=value
-         setmember(self,'projection',value)
     projection=property(_getprojection,_setprojection)
 
     def _getxticlabels1(self):
@@ -561,7 +546,6 @@ class Gfb(object,AutoAPI.AutoAPI):
     def _setxticlabels1(self,value):
          value=VCS_validation_functions.checkStringDictionary(self,'xticlabels1',value)
          self._xticlabels1=value
-         setmember(self,'xticlabels1',value)
     xticlabels1=property(_getxticlabels1,_setxticlabels1)
 
     def _getxticlabels2(self):
@@ -569,7 +553,6 @@ class Gfb(object,AutoAPI.AutoAPI):
     def _setxticlabels2(self,value):
          value=VCS_validation_functions.checkStringDictionary(self,'xticlabels2',value)
          self._xticlabels2=value
-         setmember(self,'xticlabels2',value)
     xticlabels2=property(_getxticlabels2,_setxticlabels2)
 
     def _getyticlabels1(self):
@@ -577,7 +560,6 @@ class Gfb(object,AutoAPI.AutoAPI):
     def _setyticlabels1(self,value):
          value=VCS_validation_functions.checkStringDictionary(self,'yticlabels1',value)
          self._yticlabels1=value
-         setmember(self,'yticlabels1',value)
     yticlabels1=property(_getyticlabels1,_setyticlabels1,None,"haha")
 
     def _getyticlabels2(self):
@@ -585,7 +567,6 @@ class Gfb(object,AutoAPI.AutoAPI):
     def _setyticlabels2(self,value):
          value=VCS_validation_functions.checkStringDictionary(self,'yticlabels2',value)
          self._yticlabels2=value
-         setmember(self,'yticlabels2',value)
     yticlabels2=property(_getyticlabels2,_setyticlabels2)
 
     def _getxmtics1(self):
@@ -593,7 +574,6 @@ class Gfb(object,AutoAPI.AutoAPI):
     def _setxmtics1(self,value):
          value=VCS_validation_functions.checkStringDictionary(self,'xmtics1',value)
          self._xmtics1=value
-         setmember(self,'xmtics1',value)
     xmtics1=property(_getxmtics1,_setxmtics1)
 
     def _getxmtics2(self):
@@ -601,7 +581,6 @@ class Gfb(object,AutoAPI.AutoAPI):
     def _setxmtics2(self,value):
          value=VCS_validation_functions.checkStringDictionary(self,'xmtics2',value)
          self._xmtics2=value
-         setmember(self,'xmtics2',value)
     xmtics2=property(_getxmtics2,_setxmtics2)
 
     def _getymtics1(self):
@@ -609,7 +588,6 @@ class Gfb(object,AutoAPI.AutoAPI):
     def _setymtics1(self,value):
          value=VCS_validation_functions.checkStringDictionary(self,'ymtics1',value)
          self._ymtics1=value
-         setmember(self,'ymtics1',value)
     ymtics1=property(_getymtics1,_setymtics1)
 
     def _getymtics2(self):
@@ -617,7 +595,6 @@ class Gfb(object,AutoAPI.AutoAPI):
     def _setymtics2(self,value):
          value=VCS_validation_functions.checkStringDictionary(self,'ymtics2',value)
          self._ymtics2=value
-         setmember(self,'ymtics2',value)
     ymtics2=property(_getymtics2,_setymtics2)
 
     def _getdatawc_x1(self):
@@ -625,8 +602,6 @@ class Gfb(object,AutoAPI.AutoAPI):
     def _setdatawc_x1(self,value):
          value=VCS_validation_functions.checkDatawc(self,'datawc_x1',value)
          self._datawc_x1=value[0]
-         setmember(self,'datawc_x1',value[0])
-         setmember(self,'_tdatawc_x1',value[1])
     datawc_x1=property(_getdatawc_x1,_setdatawc_x1)
 
     def _getdatawc_x2(self):
@@ -634,8 +609,6 @@ class Gfb(object,AutoAPI.AutoAPI):
     def _setdatawc_x2(self,value):
          value=VCS_validation_functions.checkDatawc(self,'datawc_x2',value)
          self._datawc_x2=value[0]
-         setmember(self,'datawc_x2',value[0])
-         setmember(self,'_tdatawc_x2',value[1])
     datawc_x2=property(_getdatawc_x2,_setdatawc_x2)
     
     def _getdatawc_y1(self):
@@ -643,8 +616,6 @@ class Gfb(object,AutoAPI.AutoAPI):
     def _setdatawc_y1(self,value):
          value=VCS_validation_functions.checkDatawc(self,'datawc_y1',value)
          self._datawc_y1=value[0]
-         setmember(self,'datawc_y1',value[0])
-         setmember(self,'_tdatawc_y1',value[1])
     datawc_y1=property(_getdatawc_y1,_setdatawc_y1)
 
     def _getdatawc_y2(self):
@@ -652,8 +623,6 @@ class Gfb(object,AutoAPI.AutoAPI):
     def _setdatawc_y2(self,value):
          value=VCS_validation_functions.checkDatawc(self,'datawc_y2',value)
          self._datawc_y2=value[0]
-         setmember(self,'datawc_y2',value[0])
-         setmember(self,'_tdatawc_y2',value[1])
     datawc_y2=property(_getdatawc_y2,_setdatawc_y2)
     
     def colors(self, color1=16, color2=239):
