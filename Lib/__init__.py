@@ -116,7 +116,9 @@ elements = { "boxfill" : {},
              "yvsx" :{},
              "scatter" :{},
              "list": {},
+             "projection": {"linear":None,"mercator":None,"robinson":None,"mollweide":None},
              }
+warnings.warn("Dont forget to fix the projection")
 boxfill.Gfb("default")
 
 taylordiagrams=[taylor.Gtd()]

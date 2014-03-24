@@ -305,6 +305,8 @@ def checkBoxfillType(self,name,value):
      checkName(self,name,value)
      if isinstance(value,str) and (value.lower() in ('linear', 'log10', 'custom')):
           return value.lower()
+     elif value in [0,1,2]:
+       return ["linear","log10","custom"][value]
      else:
           raise ValueError, 'The '+name+' attribute must be either: linear, log10 or custom'
      
@@ -598,10 +600,9 @@ def checkProjection(self,name,value):
      if isinstance(value,vcs.projection.Proj):
           value=value.name
      if isinstance(value,str):
-          if (_vcs.checkProj(value)):
-               return value
-          else:
-               raise ValueError, 'The '+value+' projection does not exist'
+        if not value in vcs.elements["projection"].keys():
+           raise ValueError, 'The '+value+' projection does not exist'
+        return value
 
 def checkStringDictionary(self,name,value):
      checkName(self,name,value)

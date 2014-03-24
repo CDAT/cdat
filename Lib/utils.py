@@ -24,7 +24,6 @@ def process_src_element(code):
       vcs.elements["list"][nm]=dic
     elif typ == "Gtd":
       taylor.process_src(nm,code)
-      print "Need to process taylordiagram:",code
   except Exception,err:
     print "Processing error for %s,%s: %s" % (nm,typ,err)
 
