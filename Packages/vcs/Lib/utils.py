@@ -5,6 +5,7 @@ import warnings
 import vcs
 import boxfill
 import taylor
+import projection
 
 def process_src_element(code):
   i = code.find("_")
@@ -24,6 +25,8 @@ def process_src_element(code):
       vcs.elements["list"][nm]=dic
     elif typ == "Gtd":
       taylor.process_src(nm,code)
+    elif typ=="Proj":
+      projection.process_src(nm,code)
   except Exception,err:
     print "Processing error for %s,%s: %s" % (nm,typ,err)
 

@@ -116,10 +116,17 @@ elements = { "boxfill" : {},
              "yvsx" :{},
              "scatter" :{},
              "list": {},
-             "projection": {"linear":None,"mercator":None,"robinson":None,"mollweide":None},
+             "projection": {},
+             "fillarea":{},
              }
-warnings.warn("Dont forget to fix the projection")
 boxfill.Gfb("default")
+p=projection.Proj("default")
+print "P:",p.type
+p = projection.Proj("linear")
+for nm in ["mercator","orthographic","lambert","polar","polyconic","robinson",
+    "mollweide",]:
+  p = projection.Proj(nm)
+  p.type=nm
 
 taylordiagrams=[taylor.Gtd()]
 canvaslist = []

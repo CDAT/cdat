@@ -18,70 +18,22 @@
 # Version:      4.0							      #
 #									      #
 ###############################################################################
-from types import *
 import VCS_validation_functions
-#### from gm_core import * No need to import
+import vcs
 
-## Settable parameters names:
-
-###############################################################################
-#                                                                             #
-# Function:	setProjmember                                                 #
-#                                                                             #
-# Description of Function:                                                    #
-# 	Private function to update the VCS canvas plot. If the canvas mode is #
-#       set to 0, then this function does nothing.              	      #
-#                                                                             #
-#                                                                             #
-# Example of Use:                                                             #
-#      setProjmember(self,name,value)				      	      #
-#              where: self is the class (e.g., Proj)                          #
-#                     name is the name of the member that is being changed    #
-#                     value is the new value of the member (or attribute)     #
-#                                                                             #
-###############################################################################
-def setProjmember(self,member,value):
-     _vcs.setProjmember(self, member, value, self.parent.mode)
-
-###############################################################################
-#                                                                             #
-# Function:     getProjmember                                                 #
-#                                                                             #
-# Description of Function:                                                    #
-#       Private function that retrieves the projection members from the C     #
-#       structure and passes it back to Python.                               #
-#                                                                             #
-#                                                                             #
-# Example of Use:                                                             #
-#      return_value =							      #
-#      getProjmember(self,name)                                               #
-#              where: self is the class (e.g., Proj)                          #
-#                     name is the name of the member that is being found      #
-#                                                                             #
-###############################################################################
-
-setmember=setProjmember
-     
-def getProjmember(self,member):
-     return _vcs.getProjmember(self,member)
-
-#################################################################################
-#                                                                               #
-# Function:     renameProj                                                       #
-#                                                                               #
-# Description of Function:                                                      #
-#       Private function that renames the name of an existing projection           #
-#       secondary method.                                                        #
-#                                                                               #
-#                                                                               #
-# Example of Use:                                                               #
-#      renameProj(old_name, new_name)                                            #
-#              where: old_name is the current name of projection secondary method   #
-#                     new_name is the new name for the projection secondary method  #
-#                                                                               #
-################################################################################
-def renameProj(self, old_name, new_name):
-     return _vcs.renameProj(old_name, new_name)
+def process_src(nm,code):
+  try:
+    gm = Proj(nm)
+  except Exception,err:
+    gm = vcs.elements["projection"][nm]
+  i=code.find("(")
+  j=code.find(")")
+  params=[]
+  for v in code[i+1:j].split(","):
+    params.append(float(v))
+  i=code.find("=")
+  gm.type=int(code[i+1:].split()[0])
+  gm.parameters=params
 
 #############################################################################
 #                                                                           #
@@ -296,30 +248,31 @@ class Proj(object):
     iso.projection='lambert'
     
 """
-    rename=renameProj # Alias for VCS_Validation_Functions
     #############################################################################
     #                                                                           #
     # Initialize the projection attributes.                                        #
     #                                                                           #
     #############################################################################
-    def __init__(self, parent, Proj_name=None, Proj_name_src='default', createProj=0):
+    def __init__(self, Proj_name=None, Proj_name_src='default'):
 	#                                                         #
-        ###########################################################
+    ###########################################################
 	# Initialize the projection class and its members            #
-        #							  #
+    #							  #
 	# The getProjmember function retrieves the values of the   #
-        # projection members in the C structure and passes back the  #
+    # projection members in the C structure and passes back the  #
 	# appropriate Python Object.                              #
-        ###########################################################
-	#                                                         #
-        if (createProj == 0):
-           if (Proj_name == None):
-              raise ValueError, 'Must provide a projection name.'
-           else:
-              _vcs.copyProj(Proj_name_src, Proj_name)
-              self._name = Proj_name
+    ###########################################################
+        if isinstance(Proj_name_src,Proj):
+          Proj_name_src==Proj_name_src.name
+        if Proj_name_src!="default" and not Proj_name_src in vcs.elements["projection"].keys():
+          raise ValueError, "Projection '%s' does not exists" % Proj_name_src
+        if (Proj_name == None):
+          raise ValueError, 'Must provide a projection name.'
         else:
-              self._name = Proj_name_src
+          if Proj_name in vcs.elements["projection"].keys():
+            raise ValueError, "The projection '%s' already exists, use getprojection instead" % Proj_name
+        self._name = Proj_name
+        self.s_name = 'Proj'
 	#                                                         #
         ###########################################################
         # Inherits core secondary method attributes.		  #
@@ -327,19 +280,14 @@ class Proj(object):
 	#                                                         #
 	# graphics_secondary method_core.__init__(self, parent)
         # Doesn't make sense to inherit. This would mean writing more code
-        self.s_name = 'Proj'
-        self._type = getProjmember(self, 'type')
-        self._parameters = getProjmember(self, 'parameters')
-        #                                                         #
-        ###########################################################
-        # Find and set the projection structure in VCS C pointer     #
-        # list. If the projection name does not exist, then use      #
-        # default projection.                                        #
-        ###########################################################
-        #                                                         #
-        self.parent=parent
-        self.setmember=setmember
-         
+        self._type = 0
+        self._parameters = [1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20]
+        if Proj_name != "default":
+          src = vcs.elements["projection"][Proj_name_src]
+          self.type = src.type
+          self.parameters = src.parameters
+        vcs.elements["projection"][Proj_name]=self
+
     #############################################################################
     #                                                                           #
     # List out projection secondary method members (attributes).                    #
@@ -563,7 +511,6 @@ class Proj(object):
               pass
     __slots__=[
          's_name',
-         'setmember',
          'smajor',
          'sminor',
          'centralmeridian',
@@ -641,10 +588,6 @@ class Proj(object):
     def checkPP(self,name,value):
          value=VCS_validation_functions.setProjParameter(self,name,value)
          setattr(self,'_'+name,value)
-         if name in ['type','name']:
-              setmember(self,name,value)
-         else:
-              setmember(self,'parameters',self.parameters)
 
     def _getsmajor(self):
          return self._smajor
@@ -843,13 +786,11 @@ class Proj(object):
     def _setname(self,value):
          value=VCS_validation_functions.checkname(self,'name',value)
          self._name=value
-         setmember(self,'name',value)
     name=property(_getname,_setname)
     
     def _settype(self,value):
          value=VCS_validation_functions.checkProjType(self,'type',value)
          self._type=value
-         setmember(self,'type',value)
          
     def _gettype(self):
          return VCS_validation_functions.getProjType(self)
