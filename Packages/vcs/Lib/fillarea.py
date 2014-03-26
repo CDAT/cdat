@@ -177,10 +177,14 @@ class Tf(object):
     def _getfillareacolors(self):
          return getmember(self,'color')
     def _setfillareacolors(self,value):
-         if isinstance(value,int):
+         if isinstance(value,Tf):
+           value = value.color
+         if isinstance(value,(str,int)):
               value=[value,]
          if not value is None:
               value = VCS_validation_functions.checkColorList(self,'color',value)
+         else:
+           value = [241]
          self._color=value
     color=property(_getfillareacolors,_setfillareacolors)
 
@@ -191,6 +195,8 @@ class Tf(object):
               value=[value,]
          if value is not None:
               value = VCS_validation_functions.checkIndicesList(self,'index',value)
+         if value in [ (), []]:
+           raise ValueError, "You cannot set fillarea index to an empty list"
          self._index = value
     index=property(_getfillareaindices,_setfillareaindices)
 
@@ -198,12 +204,14 @@ class Tf(object):
          return getmember(self,'style')
     
     def _setfillareastyle(self,value):
-         if isinstance(value,(str,int)):
+         if isinstance(value,(str,int,Tf)):
               value=[value,]
          vals=[]
          for v in value:
               v=VCS_validation_functions.checkFillAreaStyle(self,'style',v)
               vals.append(v)
+         if vals == []:
+            raise ValueError, "fillareastyle cannot be empty list"
          value=vals
          self._style= value
     style=property(_getfillareastyle,_setfillareastyle)
