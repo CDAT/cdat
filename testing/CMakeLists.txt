@@ -1,5 +1,8 @@
 add_subdirectory(uvcdat)
 add_subdirectory(regrid)
+if (CDAT_BUILD_VCS_LEGACY)
+  add_subdirectory(vcs_legacy)
+endif()
 add_subdirectory(vcs)
 add_subdirectory(cdutil)
 add_subdirectory(cdms2)

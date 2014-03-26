@@ -128,6 +128,8 @@ for nm in ["mercator","orthographic","lambert","polar","polyconic","robinson",
   p = projection.Proj(nm)
   p.type=nm
 
+fillarea.Tf("default")
 taylordiagrams=[taylor.Gtd()]
+
 canvaslist = []
 #meshfills=[meshfill.Gfm()]

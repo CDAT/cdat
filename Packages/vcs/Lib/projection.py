@@ -263,7 +263,7 @@ class Proj(object):
 	# appropriate Python Object.                              #
     ###########################################################
         if isinstance(Proj_name_src,Proj):
-          Proj_name_src==Proj_name_src.name
+          Proj_name_src=Proj_name_src.name
         if Proj_name_src!="default" and not Proj_name_src in vcs.elements["projection"].keys():
           raise ValueError, "Projection '%s' does not exists" % Proj_name_src
         if (Proj_name == None):

@@ -1,5 +1,5 @@
-import vcs
-x=vcs.init()
+import vcs_legacy
+x=vcs_legacy.init()
 import sys,os
 src = sys.argv[1]
 pth = os.path.join(os.path.dirname(src),"..")
@@ -14,7 +14,7 @@ m.size = 24
 m.color=242
 x.plot(m,bg=1)
 x.setbgoutputdimensions(1200,1091,units="pixels")
-x.png("test_vcs_hurricane_marker")
+x.png("test_vcs_legacy_hurricane_marker")
 
-ret = checkimage.check_result_image("test_vcs_hurricane_marker.png",src,0.05)
+ret = checkimage.check_result_image("test_vcs_legacy_hurricane_marker.png",src,0.05)
 sys.exit(ret)

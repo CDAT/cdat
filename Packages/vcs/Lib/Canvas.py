@@ -1364,7 +1364,7 @@ class Canvas(object,AutoAPI.AutoAPI):
 """
 
         name,source = self.check_name_source(name,source,'projection')
-        return projection.Proj(self, name, source, 0)
+        return projection.Proj(name, source)
 
     def getprojection(self,Proj_name_src='default'):
         """
@@ -3651,7 +3651,7 @@ Options:::
 
         name,source = self.check_name_source(name,source,'fillarea')
 
-        fa = fillarea.Tf(self, name, source, 0)
+        fa = fillarea.Tf(name, source)
         if (style is not None):
             fa.style = style
         if (index is not None):
@@ -3710,9 +3710,10 @@ Options:::
         # Check to make sure the argument passed in is a STRING
         if not isinstance(name,str):
            raise vcsError, 'The argument must be a string.'
+        if not name in vcs.elements["fillarea"].keys():
+            raise vcsError,"Fillarea '%s' doe not exists" % (name)
 
-        Tf_name = None
-        fa = fillarea.Tf(self, Tf_name, name, 1)
+        fa = vcs.elements["fillarea"][name]
         if (style is not None) and (fa.name != "default"):
             fa.style = style
         if (index is not None) and (fa.name != "default"):
@@ -7300,7 +7301,7 @@ Options:::
         # browse through the file to look for taylordiagram/python graphics methods
         processing=False # found a taylor graphic method
         for l in f.xreadlines():
-          if l[:4] in ['Gtd_','Gfb_'] or l[:2] in ["L_",] or l[:5] in ["Proj_",]:
+          if l[:3] in ["Tf_",] or l[:4] in ['Gtd_','Gfb_'] or l[:2] in ["L_",] or l[:5] in ["Proj_",]:
             #We found a graphic method
             processing = True
             opened = 0

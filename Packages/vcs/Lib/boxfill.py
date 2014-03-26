@@ -347,7 +347,7 @@ class Gfb(object,AutoAPI.AutoAPI):
         self.g_name='Gfb'
 
         if Gfb_name=="default":
-          self._projection="default"
+          self._projection="linear"
           self._xticlabels1="*"
           self._xticlabels2="*"
           self._xmtics1=""
@@ -363,8 +363,8 @@ class Gfb(object,AutoAPI.AutoAPI):
       # End Core Graphics Method attributes
           self._xaxisconvert="linear"
           self._yaxisconvert="linear"
-          self._ext_1='n'
-          self._ext_2='n'
+          self._ext_1=False
+          self._ext_2=False
           self._missing=1
           self._fillareastyle='solid'
           self._fillareaindices=None
@@ -375,7 +375,7 @@ class Gfb(object,AutoAPI.AutoAPI):
           self._color_1=16
           self._color_2=239
           self._boxfill_type="linear"
-          self._datawc_timeunits=None
+          self._datawc_timeunits='days since 2000'
           self._datawc_calendar=cdtime.DefaultCalendar
           self._legend=None
         else:
@@ -475,16 +475,17 @@ class Gfb(object,AutoAPI.AutoAPI):
          return self._levels
     def _setlevels(self,value):
          value=list(VCS_validation_functions.checkListTuple(self,'levels',value))
-         if (value[0]<-9.9E19):
-             self._ext_1='y'
-         else:
-             self._ext_1='n'
-
-         if (value[-1]>9.9E19):
-            self._ext_2='y'
-         else:
-            self._ext_2='n'
-         self._levels=tuple(value)
+         if len(value)==0:
+           raise ValueError, "levels cannot be empty list"
+         for i,v in enumerate(value):
+           if isinstance(v,(list,tuple)):
+             if len(v)>2:
+               raise ValueError,"level tuples must be of length 2"
+             v[0]=VCS_validation_functions.checkNumber(self,"levels",v[0])
+             v[1]=VCS_validation_functions.checkNumber(self,"levels",v[1])
+           else:
+             value[i] = VCS_validation_functions.checkNumber(self,"levels",v)
+         self._levels=value
     levels=property(_getlevels,_setlevels)
 
     def _getfillareacolors(self):
@@ -513,29 +514,13 @@ class Gfb(object,AutoAPI.AutoAPI):
     def _getext_1(self):
          return self._ext_1
     def _setext_1(self,value):
-         do = VCS_validation_functions.checkExt(self,'ext_1',value)
-         if do:
-              if self.levels!=(1.0000000200408773e+20, 1.0000000200408773e+20) or self.boxfill_type=='custom':
-                   if (self.levels[0] in [-1e20, 1e20]):
-                      levs=isofill.add_level_ext_1(self, 'n')
-                   else:
-                      levs=isofill.add_level_ext_1(self, 'y')
-                   self.levels=levs
-              self._ext_1=value
+         self._ext_1 = VCS_validation_functions.checkExt(self,'ext_1',value)
     ext_1=property(_getext_1,_setext_1)
 
     def _getext_2(self):
          return self._ext_2
     def _setext_2(self,value):
-         do = VCS_validation_functions.checkExt(self,'ext_2',value)
-         if do:
-              if self.levels!=(1.0000000200408773e+20, 1.0000000200408773e+20) or self.boxfill_type=='custom':
-                   if (self.levels[-1] in [-1e20, 1e20]):
-                      levs=isofill.add_level_ext_2(self, 'n')
-                   else:
-                      levs=isofill.add_level_ext_2(self, 'y')
-                   self.levels=levs
-              self._ext_2=value
+         self._ext_2 = VCS_validation_functions.checkExt(self,'ext_1',value)
     ext_2=property(_getext_2,_setext_2)
 
     def _getmissing(self):
@@ -584,56 +569,56 @@ class Gfb(object,AutoAPI.AutoAPI):
     def _getxticlabels1(self):
          return self._xticlabels1
     def _setxticlabels1(self,value):
-         value=VCS_validation_functions.checkStringDictionary(self,'xticlabels1',value)
+         value=VCS_validation_functions.checkTicks(self,'xticlabels1',value)
          self._xticlabels1=value
     xticlabels1=property(_getxticlabels1,_setxticlabels1)
 
     def _getxticlabels2(self):
          return self._xticlabels2
     def _setxticlabels2(self,value):
-         value=VCS_validation_functions.checkStringDictionary(self,'xticlabels2',value)
+         value=VCS_validation_functions.checkTicks(self,'xticlabels2',value)
          self._xticlabels2=value
     xticlabels2=property(_getxticlabels2,_setxticlabels2)
 
     def _getyticlabels1(self):
          return self._yticlabels1
     def _setyticlabels1(self,value):
-         value=VCS_validation_functions.checkStringDictionary(self,'yticlabels1',value)
+         value=VCS_validation_functions.checkTicks(self,'yticlabels1',value)
          self._yticlabels1=value
     yticlabels1=property(_getyticlabels1,_setyticlabels1,None,"haha")
 
     def _getyticlabels2(self):
          return self._yticlabels2
     def _setyticlabels2(self,value):
-         value=VCS_validation_functions.checkStringDictionary(self,'yticlabels2',value)
+         value=VCS_validation_functions.checkTicks(self,'yticlabels2',value)
          self._yticlabels2=value
     yticlabels2=property(_getyticlabels2,_setyticlabels2)
 
     def _getxmtics1(self):
          return self._xmtics1
     def _setxmtics1(self,value):
-         value=VCS_validation_functions.checkStringDictionary(self,'xmtics1',value)
+         value=VCS_validation_functions.checkTicks(self,'xmtics1',value)
          self._xmtics1=value
     xmtics1=property(_getxmtics1,_setxmtics1)
 
     def _getxmtics2(self):
          return self._xmtics2
     def _setxmtics2(self,value):
-         value=VCS_validation_functions.checkStringDictionary(self,'xmtics2',value)
+         value=VCS_validation_functions.checkTicks(self,'xmtics2',value)
          self._xmtics2=value
     xmtics2=property(_getxmtics2,_setxmtics2)
 
     def _getymtics1(self):
          return self._ymtics1
     def _setymtics1(self,value):
-         value=VCS_validation_functions.checkStringDictionary(self,'ymtics1',value)
+         value=VCS_validation_functions.checkTicks(self,'ymtics1',value)
          self._ymtics1=value
     ymtics1=property(_getymtics1,_setymtics1)
 
     def _getymtics2(self):
          return self._ymtics2
     def _setymtics2(self,value):
-         value=VCS_validation_functions.checkStringDictionary(self,'ymtics2',value)
+         value=VCS_validation_functions.checkTicks(self,'ymtics2',value)
          self._ymtics2=value
     ymtics2=property(_getymtics2,_setymtics2)
 
