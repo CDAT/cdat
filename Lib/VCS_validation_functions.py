@@ -1063,3 +1063,4 @@ def setProjParameter(self,name,value):
                self.parameters=param
                return value
      raise PPE(name,'Unknow error...')
+
