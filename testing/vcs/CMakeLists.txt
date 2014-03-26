@@ -7,3 +7,11 @@ add_test(vcs_verify_init
   ${CMAKE_INSTALL_PREFIX}/bin/python
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_init.py
 )
+add_test(vcs_verify_boxfill_basics
+  ${CMAKE_INSTALL_PREFIX}/bin/python
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_basics_no_plot.py
+)
+add_test(vcs_verify_proj_basics
+  ${CMAKE_INSTALL_PREFIX}/bin/python
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_projection_basics_no_plot.py
+)

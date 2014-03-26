@@ -1,4 +1,4 @@
-def test_values_setting(gm,attributes,good_values,bad_values):
+def test_values_setting(gm,attributes,good_values=[],bad_values=[]):
   if isinstance(attributes,str):
     attributes=[attributes,]
   for att in attributes:
@@ -12,6 +12,6 @@ def test_values_setting(gm,attributes,good_values,bad_values):
         success = False
       else:
         if success:
-          print "************************************************************************************************",att,val
-          raise Exception,"Should not be able to set %s attribute '%s' to %s" % (gm.g_name,att,repr(val))
+          nm = getattr(gm,"g_name",getattr(gm,"s_name"))
+          raise Exception,"Should not be able to set %s attribute '%s' to %s" % (nm,att,repr(val))
           sys.exit(1)

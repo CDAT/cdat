@@ -765,8 +765,10 @@ def checkInStringsListInt(self,name,value,values):
 def checkProjType(self,name,value):
     """set the projection type """
     checkName(self,name,value)
+    if vcs.queries.isprojection(value):
+      value = value.type
     if isinstance(value,str):
-         value=value.lower()
+         value=value.strip().lower()
          if value in ['utm','state plane']:
               raise ValueError, "Projection Type: "+value+" not supported yet"
     if -3<=value<0:
@@ -994,44 +996,45 @@ def getProjType(self):
     elif value==-3:
          return "polar (non gctp)"
                           
+proj_ok_parameters={
+    'smajor':[[3,4,5,6,7,8,9,20,22,23],0,[]],
+    'sminor':[[3,4,5,6,7,8,9,20,22,23],1,[]],
+    'sphere':[[10,11,12,13,14,15,16,17,18,19,21,24,25,26,27,28,29,30],0,[]],
+    'centralmeridian':[[3,4,5,7,8,9,16,17,18,19,21,25,27,28,29],4,[]],
+    'centerlongitude':[[6,10,11,12,13,14,15,30],4,[]],
+    'standardparallel1':[[3,4,8],2,[]],
+    'standardparallel2':[[3,4,8],3,[]],
+    'originlatitude':[[3,4,7,8,9,19,20],5,[]],
+    'falseeasting':[[3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,25,27,28,29,30],6,[]],
+    'falsenorthing':[[3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,25,27,28,29,30],7,[]],          
+    'truescale':[[5,6,17,],5,[]],
+    'standardparallel':[[8,],2,[]],
+    'factor':[[9,20,],2,[]],
+    'centerlatitude':[[10,11,12,13,14,15,30],5,[]],
+    'height':[[15,],2,[]],
+    'azimuthalangle':[[20,],3,[]],
+    'azimuthallongitude':[[20,],4,[]],
+    'orbitinclination':[[22,],3,[]],
+    'orbitlongitude':[[22,],4,[]],
+    'satelliterevolutionperiod':[[22,],8,[]],
+    'landsatcompensationratio':[[22,],9,[]],
+    'pathflag':[[22,],10,[]],
+    'path':[[22,],3,[]],
+    'satellite':[[22,],2,[]],
+    'shapem':[[30,],2,[]],
+    'shapen':[[30,],3,[]],
+    'subtype':[[8,20,22,],12,[]],
+    'longitude1':[[20,],8,[]],
+    'latitude1':[[20,],9,[]],
+    'longitude2':[[20,],10,[]],
+    'latitude2':[[20,],11,[]],
+    'angle':[[30,],8,[]],
+    }
 def setProjParameter(self,name,value):
      """ Set an individual paramater for a projection """
      checkName(self,name,value)
      param=self.parameters
-     ok={
-          'smajor':[[3,4,5,6,7,8,9,20,22,23],0,[]],
-          'sminor':[[3,4,5,6,7,8,9,20,22,23],1,[]],
-          'sphere':[[10,11,12,13,14,15,16,17,18,19,21,24,25,26,27,28,29,30],0,[]],
-          'centralmeridian':[[3,4,5,7,8,9,16,17,18,19,21,25,27,28,29],4,[]],
-          'centerlongitude':[[6,10,11,12,13,14,15,30],4,[]],
-          'standardparallel1':[[3,4,8],2,[]],
-          'standardparallel2':[[3,4,8],3,[]],
-          'originlatitude':[[3,4,7,8,9,19,20],5,[]],
-          'falseeasting':[[3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,25,27,28,29,30],6,[]],
-          'falsenorthing':[[3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,25,27,28,29,30],7,[]],          
-          'truescale':[[5,6,17,],5,[]],
-          'standardparallel':[[8,],2,[]],
-          'factor':[[9,20,],2,[]],
-          'centerlatitude':[[10,11,12,13,14,15,30],5,[]],
-          'height':[[15,],2,[]],
-          'azimuthalangle':[[20,],3,[]],
-          'azimuthallongitude':[[20,],4,[]],
-          'orbitinclination':[[22,],3,[]],
-          'orbitlongitude':[[22,],4,[]],
-          'satelliterevolutionperiod':[[22,],8,[]],
-          'landsatcompensationratio':[[22,],9,[]],
-          'pathflag':[[22,],10,[]],
-          'path':[[22,],3,[]],
-          'satellite':[[22,],2,[]],
-          'shapem':[[30,],2,[]],
-          'shapen':[[30,],3,[]],
-          'subtype':[[8,20,22,],12,[]],
-          'longitude1':[[20,],8,[]],
-          'latitude1':[[20,],9,[]],
-          'longitude2':[[20,],10,[]],
-          'latitude2':[[20,],11,[]],
-          'angle':[[30,],8,[]],
-          }
+     ok = proj_ok_parameters
      for nm in ok.keys():
           vals=ok[nm]
           oktypes=vals[0]
