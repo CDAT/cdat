@@ -6,6 +6,7 @@ import vcs
 import boxfill
 import taylor
 import projection
+import fillarea
 
 def process_src_element(code):
   i = code.find("_")
@@ -14,7 +15,8 @@ def process_src_element(code):
   i = code.find("(")
   nm=code[:i]
   code=code[i+1:-1]
-  try:
+  #try:
+  if 1:
     if typ == "Gfb":
       boxfill.process_src(nm,code)
     elif typ == "L":
@@ -27,8 +29,10 @@ def process_src_element(code):
       taylor.process_src(nm,code)
     elif typ=="Proj":
       projection.process_src(nm,code)
-  except Exception,err:
-    print "Processing error for %s,%s: %s" % (nm,typ,err)
+    elif typ=="Tf":
+      fillarea.process_src(nm,code)
+  #except Exception,err:
+  #  print "Processing error for %s,%s: %s" % (nm,typ,err)
 
 def listelements(typ):
   if not typ in vcs.elements.keys():

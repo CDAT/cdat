@@ -1,6 +1,7 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 import vcs,cdtime,queries
 import numpy
+import warnings
 
 class PPE(Exception):
      def __init__ (self, parameter,type):
@@ -20,7 +21,8 @@ def color2vcs(col):
    if isinstance(col,str):
        r,g,b=vcs.colors.str2rgb(col)
        if r is None :
-            r,g,b=[0,0,0] # black by default
+         raise ValueError,"Invalid color: %s" % col
+            #r,g,b=[0,0,0] # black by default
 
             # Now calls the function that matches the closest color in the the colormap
        color=matchVcsColor(r/2.55,g/2.55,b/2.55)
@@ -29,15 +31,17 @@ def color2vcs(col):
    return color
 
 def matchVcsColor(r,g,b):
-   rmsmin=100000000.
-   color=None
-   for i in range(256):
-       r2,g2,b2=_vcs.getcolorcell(i)
-       rms=numpy.sqrt((r2-r)**2+(g2-g)**2+(b2-b)**2)
-       if rms<rmsmin :
-           rmsmin=rms
-           color=i
-   return color
+   warnings.warn("Please reimplement matchVCSColor in VCS_validation_functions circa line 32")
+   return 242
+#   rmsmin=100000000.
+#   color=None
+#   for i in range(256):
+#       r2,g2,b2=_vcs.getcolorcell(i)
+#       rms=numpy.sqrt((r2-r)**2+(g2-g)**2+(b2-b)**2)
+#       if rms<rmsmin :
+#           rmsmin=rms
+#           color=i
+#   return color
 
 def checkElements(self,name,value,function):
    if not isinstance(value,list):
@@ -584,16 +588,22 @@ def checkLegend(self,name,value):
 def checkExt(self,name,value):
      checkName(self,name,value)
      if isinstance(value,str):
-          if (value in ('n', 'y')):
-               if ( ((value == 'n') and (getattr(self,'_'+name) == 'n')) or
-                    ((value == 'y') and (getattr(self,'_'+name) == 'y')) ): # do nothing
-                    return
-               else:
-                    return 1
+          if value.strip().lower() in ('y', "yes",):
+              return True
+          elif value.strip().lower() in ('n', "no",):
+              return False
           else:
-               raise ValueError, 'The ext_1 attribute must be either n or y.'
+               raise ValueError, "The '%s' attribute must be either n or y." % name
+     elif value is None:
+       return False
+     elif value in [True,False]:
+       return value
+     elif value==0:
+       return False
+     elif value==1:
+       return True
      else:
-          raise ValueError, 'The '+name+' attribute must be a string'
+          raise ValueError, 'The '+name+' attribute must be a "yes"/"no" string or one of 0,1,True,False'
      
 def checkProjection(self,name,value):
      checkName(self,name,value)
@@ -604,6 +614,15 @@ def checkProjection(self,name,value):
            raise ValueError, 'The '+value+' projection does not exist'
         return value
 
+def checkTicks(self,name,value):
+  value = checkStringDictionary(self,name,value)
+  if isinstance(value,str):
+    if value.strip() in ["","*"]:
+      return value.strip()
+    if not value in vcs.elements["list"]:
+      raise ValueError, "You are trying to use the vcs list: '%s' which does not exist" % value
+  else:
+    return value
 def checkStringDictionary(self,name,value):
      checkName(self,name,value)
      if isinstance(value,str) or isinstance(value,dict):
