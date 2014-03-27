@@ -57,4 +57,6 @@ del(a.axis)
 assert(not a.isLevel())
 a.positive="up"
 assert(a.isLevel())
+a.positive="positive"
+assert(not a.isLevel())
 

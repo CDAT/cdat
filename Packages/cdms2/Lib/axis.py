@@ -675,7 +675,7 @@ class AbstractAxis(CdmsObj):
     def isLevel(self):
         id = self.id.strip().lower()
         if (hasattr(self,'axis') and self.axis=='Z'): return 1
-        if hasattr(self,"positive"):
+        if getattr(self,"positive","").strip().lower() in ["up","down"]:
           return 1
         try:
           #Ok let's see if this thing as pressure units
