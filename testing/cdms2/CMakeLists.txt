@@ -100,6 +100,10 @@ add_test("CDMS_Test_setting_bad_cal"
     ${CMAKE_INSTALL_PREFIX}/bin/python 
     ${cdat_SOURCE_DIR}/testing/cdms2/test_cal_bug.py)
 
+add_test("CDMS_Test_pack"
+    ${CMAKE_INSTALL_PREFIX}/bin/python 
+    ${cdat_SOURCE_DIR}/testing/cdms2/test_pack_data.py)
+
 # Tests which should fail
 # set_tests_properties(testSo2TasACCESSFails PROPERTIES PASS_REGULAR_EXPRESSION "FAILED")
 
