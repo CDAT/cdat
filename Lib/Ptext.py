@@ -24,50 +24,12 @@
 #
 import queries
 from types import *
-#################################################################################
-#                                                                               #
-# Function:	setPtmember                                                     #
-#                                                                               #
-# Description of Function:                                                      #
-# 	Private function to update the VCS canvas plot. If the canvas mode is   #
-#       set to 0, then this function does nothing.              		#
-#                                                                               #
-#                                                                               #
-# Example of Use:                                                               #
-#      setPtmember(self,name,value)						#
-#              where: self is the class (e.g., Pt)                              #
-#                     name is the name of the member that is being changed      #
-#                     value is the new value of the member (or attribute)       #
-#                                                                               #
-#################################################################################
-def setPtmember(self,member,attribute,value):
-    setattr(getattr(self,member),"_%s" % attribute,value)
-
-#################################################################################
-#                                                                               #
-# Function:     getPtmember                                                     #
-#                                                                               #
-# Description of Function:                                                      #
-#       Private function that retrieves the line members from the C             #
-#       structure and passes it back to Python.                                 #
-#                                                                               #
-#                                                                               #
-# Example of Use:                                                               #
-#      return_value =								#
-#      getPtmember(self,name)                                                   #
-#              where: self is the class (e.g., Pt)                              #
-#                     name is the name of the member that is being found        #
-#                                                                               #
-#################################################################################
-def getPtmember(self,member,attribute):
-     return getattr(getattr(self,member),"_%s" % attribute)
-
 #############################################################################
 #                                                                           #
 # Template text (Pt) Class.                                                 #
 #                                                                           #
 #############################################################################
-class Pt:
+class Pt(object):
     '''
  Class:	Pt				# Template text
 
@@ -111,7 +73,8 @@ class Pt:
     # Initialize the line attributes.                                           #
     #                                                                           #
     #############################################################################
-    def __init__(self, template, template_parent, member=None):
+    __slots__ = ["priority","x","y","texttable","textorientation","member"]
+    def __init__(self,member):
 	#                                                         #
         ###########################################################
 	# Initialize the line class and its members               #
@@ -121,19 +84,81 @@ class Pt:
 	# appropriate Python Object.                              #
         ###########################################################
 	#                                                         #
-        self.__dict__['member']=member
-        self.__dict__['priority']=getPtmember(template,member,'priority')
-        self.__dict__['x']=getPtmember(template,member,'x')
-        self.__dict__['y']=getPtmember(template,member,'y')
-        self.__dict__['texttable']=getPtmember(template,member,'texttable')
-        self.__dict__['textorientation']=getPtmember(template,member,'textorientation')
+        self.priority=1
+        self.texttable="default"
+        self.textorientation="default"
+        if member=="file":
+          self.x = 0.0500000007451
+          self.y = 0.0130000002682
+        elif member == "function":
+          self.x = 0.0500000007451
+          self.y = 0.0130000002682
+        elif member == "logicalmask":
+          self.x = 0.0500000007451
+          self.y = 0.0329999998212
+        elif member == "transformation":
+          self.x = 0.0500000007451
+          self.y = 0.0529999993742
+        elif member == "source":
+          self.x = 0.0500000007451
+          self.y = 0.941999971867
+        elif member == "dataname":
+          self.x = 0.0500000007451
+          self.y = 0.922999978065
+        elif member == "title":
+          self.x = 0.15000000596
+          self.y = 0.922999978065
+        elif member == "units":
+          self.x = 0.670000016689
+          self.y = 0.922999978065
+        elif member == "crdate":
+          self.x = 0.75
+          self.y = 0.922999978065
+        elif member == "crtime":
+          self.x = 0.850000023842
+          self.y = 0.922999978065
+        elif member == "comment1":
+          self.x = 0.10000000149
+          self.y = 0.954999983311
+        elif member == "comment2":
+          self.x = 0.10000000149
+          self.y = 0.975000023842
+        elif member == "comment3":
+          self.x = 0.10000000149
+          self.y = 0.995000004768
+        elif member == "comment4":
+          self.x = 0.10000000149
+          self.y = 0.999000012875
+        elif member == "xname":
+          self.x = .5
+          self.y = 0.277000010014
+        elif member == "yname":
+          self.x = 0.0168999992311
+          self.y = 0.420033991337
+        elif member == "zname":
+          self.x = 0.
+          self.y = 0.995000004768
+        elif member == "tname":
+          self.x = 0.
+          self.y = 0.995000004768
+        elif member == "xunits":
+          self.x = 0.600000023842
+          self.y = 0.277000010014
+        elif member == "yunits":
+          self.x = 0.019999999553
+          self.y = 0.658999979496
+        elif member == "zunits":
+          self.x = 0.
+          self.y = 0.995000004768
+        elif member == "tunits":
+          self.x = 0.
+          self.y = 0.995000004768
+        self.member = member
         #                                                         #
         ###########################################################
         # Keep track of the parent and grandparent.               #
         ###########################################################
         #                                                         #
-        self.__dict__['parent']=template
-        self.__dict__['template_parent']=template_parent
 
     #############################################################################
     #                                                                           #
@@ -141,8 +166,6 @@ class Pt:
     #                                                                           #
     #############################################################################
     def __setattr__(self, name, value):
-        if (self.parent.name == '__removed_from_VCS__'):
-           raise ValueError, 'This instance has been removed from VCS.'
         if (name == 'priority'):
            if (isinstance(value, IntType)):
               self.__dict__[name]=value
@@ -180,7 +203,13 @@ class Pt:
               self.__dict__[name]=value
            else:
               raise ValueError, 'The texttable value must be a textorientation.'
-        setPtmember(self,self.member,name,value) # update the plot
+        elif (name == "member"):
+          if isinstance(value,str):
+            self.__dict__["member"]=value
+          else:
+            raise ValueError,"'member' must be a string"
+        else:
+          raise ValueError,"BAD ATTRIBUTE: %s" % name
 
     #############################################################################
     #                                                                           #
@@ -188,8 +217,6 @@ class Pt:
     #                                                                           #
     #############################################################################
     def list(self):
-        if (self.parent.name == '__removed_from_VCS__'):
-           raise ValueError, 'This instance has been removed from VCS.'
         print "member = ", self.member
         print "     priority =", self.priority
         print "     x =", self.x

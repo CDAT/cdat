@@ -24,51 +24,13 @@
 #
 import queries
 from types import *
-#################################################################################
-#                                                                               #
-# Function:	setPxtmember                                                    #
-#                                                                               #
-# Description of Function:                                                      #
-# 	Private function to update the VCS canvas plot. If the canvas mode is   #
-#       set to 0, then this function does nothing.              		#
-#                                                                               #
-#                                                                               #
-# Example of Use:                                                               #
-#      setPxtmember(self,name,value)						#
-#              where: self is the class (e.g., Pxt)                              #
-#                     name is the name of the member that is being changed      #
-#                     value is the new value of the member (or attribute)       #
-#                                                                               #
-#################################################################################
-def setPxtmember(self,member,attribute,value):
-     _vcs.setPxtmember(self.parent, member, attribute, value, self.template_parent.mode)
-#     _vcs.setPxtmember(self, member, value, self.parent.mode)
-
-#################################################################################
-#                                                                               #
-# Function:     getPxtmember                                                     #
-#                                                                               #
-# Description of Function:                                                      #
-#       Private function that retrieves the line members from the C             #
-#       structure and passes it back to Python.                                 #
-#                                                                               #
-#                                                                               #
-# Example of Use:                                                               #
-#      return_value =								#
-#      getPxtmember(self,name)                                                   #
-#              where: self is the class (e.g., Pxt)                              #
-#                     name is the name of the member that is being found        #
-#                                                                               #
-#################################################################################
-def getPxtmember(self,member,attribute):
-     return _vcs.getPxtmember(self,member,attribute)
 
 #############################################################################
 #                                                                           #
 # Template text (Pxt) Class.                                                 #
 #                                                                           #
 #############################################################################
-class Pxt:
+class Pxt(object):
     '''
  Class:	Pxt				# Template text
 
@@ -107,12 +69,13 @@ class Pxt:
      ln.type='dash-dot'          	# Same as ln.type=3
      ln.type='long-dash'          	# Same as ln.type=4
 '''
-    #############################################################################
+    __slots__ = ["line","priority","y1","y2","member"]
+######################################
     #                                                                           #
     # Initialize the line attributes.                                           #
     #                                                                           #
     #############################################################################
-    def __init__(self, template, template_parent, member=None):
+    def __init__(self, member):
 #    def __init__(self, template, member=None):
 	#                                                         #
         ###########################################################
@@ -123,19 +86,23 @@ class Pxt:
 	# appropriate Python Object.                              #
         ###########################################################
 	#                                                         #
-        self.__dict__['member']=member
-        self.__dict__['priority']=getPxtmember(template,member,'priority')
-        self.__dict__['y1']=getPxtmember(template,member,'y1')
-        self.__dict__['y2']=getPxtmember(template,member,'y2')
-        self.__dict__['line']=getPxtmember(template,member,'line')
-        #                                                         #
-        ###########################################################
-        # Keep track of the parent and grandparent.               #
-        ###########################################################
-        #                                                         #
-        self.__dict__['parent']=template
-        self.__dict__['template_parent']=template_parent
-
+        self.membe=member
+        self.priority=1
+        if member == "xtic1":
+          self.y1 = 0.259999990463
+          self.y2 = 0.24699999392
+        elif member = "xtic2"
+          self.y1 = 0.860000014305
+          self.y2 = 0.871999979019
+        elif member == "xmintic1":
+          self.priority=0
+          self.y1 = 0.259999990463
+          self.y2 = 0.256999999285
+        elif member = "xmintic2"
+          self.priority=0
+          self.y1 = 0.860000014305
+          self.y2 = 0.860000014305
+        self.line= "default"
 
     #############################################################################
     #                                                                           #
@@ -143,8 +110,6 @@ class Pxt:
     #                                                                           #
     #############################################################################
     def __setattr__(self, name, value):
-        if (self.parent.name == '__removed_from_VCS__'):
-           raise ValueError, 'This instance has been removed from VCS.'
         if (name == 'priority'):
            if (isinstance(value, IntType)):
               self.__dict__[name]=value
@@ -168,7 +133,13 @@ class Pxt:
                self.__dict__[name]=value
            else:
                raise ValueError, 'The line value must be a line object.'
-        setPxtmember(self,self.member,name,value) # update the plot
+        elif name == "member":
+          if isinstance(value,str):
+            self.__dict__["member"]=value
+          else:
+            raise ValueError,"'member' must be a string"
+        else:
+          raise ValueError,"BAD ATTRIBUTE: %s" % name
 
 
     #############################################################################
@@ -177,8 +148,6 @@ class Pxt:
     #                                                                           #
     #############################################################################
     def list(self):
-        if (self.parent.name == '__removed_from_VCS__'):
-           raise ValueError, 'This instance has been removed from VCS.'
         print "member = ", self.member
         print "     priority =", self.priority
         print "     y1 =", self.y1

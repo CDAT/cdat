@@ -24,51 +24,12 @@
 #
 import queries
 from types import *
-#################################################################################
-#                                                                               #
-# Function:	setPylmember                                                    #
-#                                                                               #
-# Description of Function:                                                      #
-# 	Private function to update the VCS canvas plot. If the canvas mode is   #
-#       set to 0, then this function does nothing.              		#
-#                                                                               #
-#                                                                               #
-# Example of Use:                                                               #
-#      setPylmember(self,name,value)						#
-#              where: self is the class (e.g., Pyl)                             #
-#                     name is the name of the member that is being changed      #
-#                     value is the new value of the member (or attribute)       #
-#                                                                               #
-#################################################################################
-def setPylmember(self,member,attribute,value):
-     _vcs.setPylmember(self.parent, member, attribute, value, self.template_parent.mode)
-#     _vcs.setPylmember(self, member, value, self.parent.mode)
-
-#################################################################################
-#                                                                               #
-# Function:     getPylmember                                                    #
-#                                                                               #
-# Description of Function:                                                      #
-#       Private function that retrieves the line members from the C             #
-#       structure and passes it back to Python.                                 #
-#                                                                               #
-#                                                                               #
-# Example of Use:                                                               #
-#      return_value =								#
-#      getPylmember(self,name)                                                  #
-#              where: self is the class (e.g., Pyl)                             #
-#                     name is the name of the member that is being found        #
-#                                                                               #
-#################################################################################
-def getPylmember(self,member,attribute):
-     return _vcs.getPylmember(self,member,attribute)
-
 #############################################################################
 #                                                                           #
 # Template text (Pyl) Class.                                                #
 #                                                                           #
 #############################################################################
-class Pyl:
+class Pyl(object):
     """
  Class:	Pyl				# Template text
 
@@ -112,7 +73,8 @@ class Pyl:
     # Initialize the line attributes.                                           #
     #                                                                           #
     #############################################################################
-    def __init__(self, template, template_parent, member=None):
+    __slots__ = ["priority","x","texttable","textorientation","member"]
+    def __init__(self, member):
 #    def __init__(self, template, member=None):
 	#                                                         #
         ###########################################################
@@ -123,11 +85,16 @@ class Pyl:
 	# appropriate Python Object.                              #
         ###########################################################
 	#                                                         #
-        self.__dict__['member']=member
-        self.__dict__['priority']=getPylmember(template,member,'priority')
-        self.__dict__['x']=getPylmember(template,member,'x')
-        self.__dict__['texttable']=getPylmember(template,member,'texttable')
-        self.__dict__['textorientation']=getPylmember(template,member,'textorientation')
+        self.member=member
+        self.priority = 1
+        self.texttable= "default"
+        self.textorientation= "defright"
+        if member == "ylabel1":
+          self.x = 0.0399999991059
+        elif member == "ylabel2":
+          self.x = 0.959999978542
+          self.priority = 0
+          self.textorientation = "default"
         #                                                         #
         ###########################################################
         # Keep track of the parent and grandparent.               #
@@ -143,8 +110,6 @@ class Pyl:
     #                                                                           #
     #############################################################################
     def __setattr__(self, name, value):
-        if (self.parent.name == '__removed_from_VCS__'):
-           raise ValueError, 'This instance has been removed from VCS.'
         if (name == 'priority'):
            if (isinstance(value, IntType)):
               self.__dict__[name]=value
@@ -177,7 +142,13 @@ class Pyl:
               self.__dict__[name]=value
            else:
               raise ValueError, 'The texttable value must be a textorientation.'
-        setPylmember(self,self.member,name,value) # update the plot
+        elif name == "member":
+          if isinstance(value,str):
+            self.__dict__["member"]=value
+          else:
+            raise ValueError,"'member' must be a string"
+        else:
+          raise ValueError,"BAD ATTRIBUTE: %s" % name
 
 
     #############################################################################
@@ -186,8 +157,6 @@ class Pyl:
     #                                                                           #
     #############################################################################
     def list(self):
-        if (self.parent.name == '__removed_from_VCS__'):
-           raise ValueError, 'This instance has been removed from VCS.'
         print "member = ", self.member
         print "     priority =", self.priority
         print "     x =", self.x

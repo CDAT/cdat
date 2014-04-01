@@ -35,61 +35,6 @@ from Pdata import *
 from types import *
 import inspect
 
-###############################################################################
-#                                                                             #
-# Function:     setPmember                                                    #
-#                                                                             #
-# Description of Function:                                                    #
-#       Private function to update the VCS canvas plot. If the canvas mode is #
-#       set to 0, then this function does nothing.                            #
-#                                                                             #
-#                                                                             #
-# Example of Use:                                                             #
-#      setPmember(self,name,value)                                            #
-#              where: self is the class (e.g., P)                             #
-#                     name is the name of the member that is being changed    #
-#                     value is the new value of the member (or attribute)     #
-#                                                                             #
-###############################################################################
-def setPmember(self,member,value):
-     _vcs.setPmember(self, member, value, self.parent.mode)
-
-###############################################################################
-#                                                                             #
-# Function:     getPmember                                                    #
-#                                                                             #
-# Description of Function:                                                    #
-#       Private function that retrieves the template members from the C       #
-#       structure and passes it back to Python.                               #
-#                                                                             #
-#                                                                             #
-# Example of Use:                                                             #
-#      return_value =                                                         #
-#      getPmember(self,name)                                                  #
-#              where: self is the class (e.g., P)                             #
-#                     name is the name of the member that is being found      #
-#                                                                             #
-###############################################################################
-def getPmember(self,member):
-     return _vcs.getPmember(self,member)
-
-###############################################################################
-#                                                                             #
-# Function:     renameP                                                       #
-#                                                                             #
-# Description of Function:                                                    #
-#       Private function that renames the name of an existing template        #
-#       graphics method.                                                      #
-#                                                                             #
-#                                                                             #
-# Example of Use:                                                             #
-#      renameP(old_name, new_name)                                            #
-#              where: old_name is the current name of template graphics method#
-#                     new_name is the new name for the template graphics method
-#                                                                             #
-###############################################################################
-def renameP(self, old_name, new_name):
-     return _vcs.renameP(old_name, new_name)
 
 #############################################################################
 #                                                                           #
@@ -132,12 +77,20 @@ class P(object):
     To Modify an existing template use:
      tpl=a.gettemplate('AMIP')
 """
+    __slots__ = ["name","_name","_p_name","p_name","_orientation","_orientation","_file","file",
+        "_function","function","_logicalmask","logicalmask","_transformation","transformation",
+        "source","_source","dataname","_dataname","title","_title","units","_units","_crdate","crdate",
+        "crtime","_crtime","_comment1","comment1","_comment2","_comment2","_comment3","comment3",
+        "_comment4","comment4","xname","yname","zname","tname","xunits","yunits","zunits","tunits",
+        "xvalue","zvalue","yvalue","tvalue","mean","min","max","xtic1","xtic2","xmintic1","xminttic2",
+        "ytic1","ytic2","ymintic1","ymintic2","xlabel1","xlabel2","box1","box2","box3","box4",
+        "ylable1","ylabel2","line1","line2","line3","line4","legend","data"]
     ###########################################################################
     #                                                                         #
     # Initialize the template attributes.                                     #
     #                                                                         #
     ###########################################################################
-    def __init__(self, parent, Pic_name=None, Pic_name_src='default', createP=0):
+    def __init__(self, Pic_name=None, Pic_name_src='default'):
         #                                                         #
         ###########################################################
         # Initialize the template class and its members           #
@@ -147,119 +100,184 @@ class P(object):
         # appropriate Python Object.                              #
         ###########################################################
         #                                                         #
-        if (createP == 0):
-           if (Pic_name == None):
+        if (Pic_name == None):
               raise ValueError, 'Must provide a template name.'
-           else:
-              if len(Pic_name)>16:
-                   raise ValueError, 'Template name must be 16 characters maximum in length'
-              _vcs.copyP(Pic_name_src, Pic_name)
-              self.__dict__['name'] = Pic_name
-              ####################################################
-	      # Set the template normalization flag to 1,        #
-              # only if the copy templates flag is 0             #
-              ####################################################
-              if _vcs._return_normalized_flag( Pic_name_src ) == 1:
-                 _vcs._set_normalized_flag( Pic_name )
-        else:
-             if Pic_name is not None and len(Pic_name)>16:
-                  raise ValueError, 'Template name must be 16 characters maximum in length'
-             self.__dict__['name']=Pic_name_src
-        self.__dict__['p_name']='P'
+        if Pic_name_src!="default" and Pic_name_src not in vcs.elements["template"]:
+          raise ValueError,"Source template: '%s' does not exists" % Pic_name_src
+
+        self._name=Pic_name
+        self._p_name='P'
         #                                                         #
         ###########################################################
         # Keep track of the template's parent.                    #
         ###########################################################
         #                                                         #
-        self.__dict__['parent']=parent
         #################################################
 	# The following initializes the template's TEXT #
         #################################################
-        self.__dict__['orientation']=0
-        self.__dict__['file']=Pt(self, self.parent, 'file')
-        self.__dict__['function']=Pt(self, self.parent, 'function')
-        self.__dict__['logicalmask']=Pt(self, self.parent, 'logicalmask')
-        self.__dict__['transformation']=Pt(self, self.parent, 'transformation')
-        self.__dict__['source']=Pt(self, self.parent, 'source')
-        self.__dict__['dataname']=Pt(self, self.parent, 'dataname')
-        self.__dict__['title']=Pt(self, self.parent, 'title')
-        self.__dict__['units']=Pt(self, self.parent, 'units')
-        self.__dict__['crdate']=Pt(self, self.parent, 'crdate')
-        self.__dict__['crtime']=Pt(self, self.parent, 'crtime')
-        self.__dict__['comment1']=Pt(self, self.parent, 'comment1')
-        self.__dict__['comment2']=Pt(self, self.parent, 'comment2')
-        self.__dict__['comment3']=Pt(self, self.parent, 'comment3')
-        self.__dict__['comment4']=Pt(self, self.parent, 'comment4')
-        self.__dict__['xname']=Pt(self, self.parent, 'xname')
-        self.__dict__['yname']=Pt(self, self.parent, 'yname')
-        self.__dict__['zname']=Pt(self, self.parent, 'zname')
-        self.__dict__['tname']=Pt(self, self.parent, 'tname')
-        self.__dict__['xunits']=Pt(self, self.parent, 'xunits')
-        self.__dict__['yunits']=Pt(self, self.parent, 'yunits')
-        self.__dict__['zunits']=Pt(self, self.parent, 'zunits')
-        self.__dict__['tunits']=Pt(self, self.parent, 'tunits')
-        ####################################################
-	# The following initializes the template's FORMATS #
-        ####################################################
-        self.__dict__['xvalue']=Pf(self, self.parent, 'xvalue')
-        self.__dict__['yvalue']=Pf(self, self.parent, 'yvalue')
-        self.__dict__['zvalue']=Pf(self, self.parent, 'zvalue')
-        self.__dict__['tvalue']=Pf(self, self.parent, 'tvalue')
-        self.__dict__['mean']=Pf(self, self.parent, 'mean')
-        self.__dict__['min']=Pf(self, self.parent, 'min')
-        self.__dict__['max']=Pf(self, self.parent, 'max')
-        #########################################################
-	# The following initializes the template's X-TICK MARKS #
-        #########################################################
-        self.__dict__['xtic1']=Pxt(self, self.parent, 'xtic1')
-        self.__dict__['xtic2']=Pxt(self, self.parent, 'xtic2')
-        self.__dict__['xmintic1']=Pxt(self, self.parent, 'xmintic1')
-        self.__dict__['xmintic2']=Pxt(self, self.parent, 'xmintic2')
-        #########################################################
-	# The following initializes the template's Y-TICK MARKS #
-        #########################################################
-        self.__dict__['ytic1']=Pyt(self, self.parent, 'ytic1')
-        self.__dict__['ytic2']=Pyt(self, self.parent, 'ytic2')
-        self.__dict__['ymintic1']=Pyt(self, self.parent, 'ymintic1')
-        self.__dict__['ymintic2']=Pyt(self, self.parent, 'ymintic2')
-        #####################################################
-	# The following initializes the template's X-LABELS #
-        #####################################################
-        self.__dict__['xlabel1']=Pxl(self, self.parent, 'xlabel1')
-        self.__dict__['xlabel2']=Pxl(self, self.parent, 'xlabel2')
-        #####################################################
-	# The following initializes the template's Y-LABELS #
-        #####################################################
-        self.__dict__['ylabel1']=Pyl(self, self.parent, 'ylabel1')
-        self.__dict__['ylabel2']=Pyl(self, self.parent, 'ylabel2')
-        ############################################################
-	# The following initializes the template's BOXES and LINES #
-        ############################################################
-        self.__dict__['box1']=Pbl(self, self.parent, 'box1')
-        self.__dict__['box2']=Pbl(self, self.parent, 'box2')
-        self.__dict__['box3']=Pbl(self, self.parent, 'box3')
-        self.__dict__['box4']=Pbl(self, self.parent, 'box4')
-        self.__dict__['line1']=Pbl(self, self.parent, 'line1')
-        self.__dict__['line2']=Pbl(self, self.parent, 'line2')
-        self.__dict__['line3']=Pbl(self, self.parent, 'line3')
-        self.__dict__['line4']=Pbl(self, self.parent, 'line4')
-        #########################################################
-	# The following initializes the template's LEGEND SPACE #
-        #########################################################
-        self.__dict__['legend']=Pls(self, self.parent, 'legend')
-        #######################################################
-	# The following initializes the template's DATA SPACE #
-        #######################################################
-        self.__dict__['data']=Pds(self, self.parent, 'data')
-        #######################################################
-	# Set the template normalization flag to 1            #
-        #######################################################
-        _vcs._set_normalized_flag(self.__dict__['name'])
+        if Pic_name == "default":
+          self._orientation=0
+          self._file=Pt('file')
+          self._function=Pt('function')
+          self._logicalmask=Pt('logicalmask')
+          self._transformation=Pt('transformation')
+          self._source=Pt('source')
+          self._dataname=Pt('dataname')
+          self._title=Pt('title')
+          self._units=Pt('units')
+          self._crdate=Pt('crdate')
+          self._crtime=Pt('crtime')
+          self._comment1=Pt('comment1')
+          self._comment2=Pt('comment2')
+          self._comment3=Pt('comment3')
+          self._comment4=Pt('comment4')
+          self._xname=Pt('xname')
+          self._yname=Pt('yname')
+          self._zname=Pt('zname')
+          self._tname=Pt('tname')
+          self._xunits=Pt('xunits')
+          self._yunits=Pt('yunits')
+          self._zunits=Pt('zunits')
+          self._tunits=Pt('tunits')
+          ####################################################
+      # The following initializes the template's FORMATS #
+          ####################################################
+          self._xvalue=Pf('xvalue')
+          self._yvalue=Pf('yvalue')
+          self._zvalue=Pf('zvalue')
+          self._tvalue=Pf('tvalue')
+          self._mean=Pf('mean')
+          self._min=Pf('min')
+          self._max=Pf('max')
+          #########################################################
+      # The following initializes the template's X-TICK MARKS #
+          #########################################################
+          self._xtic1=Pxt('xtic1')
+          self._xtic2=Pxt('xtic2')
+          self._xmintic1=Pxt('xmintic1')
+          self._xmintic2=Pxt('xmintic2')
+          #########################################################
+      # The following initializes the template's Y-TICK MARKS #
+          #########################################################
+          self._ytic1=Pyt('ytic1')
+          self._ytic2=Pyt('ytic2')
+          self._ymintic1=Pyt('ymintic1')
+          self._ymintic2=Pyt('ymintic2')
+          #####################################################
+      # The following initializes the template's X-LABELS #
+          #####################################################
+          self._xlabel1=Pxl('xlabel1')
+          self._xlabel2=Pxl('xlabel2')
+          #####################################################
+      # The following initializes the template's Y-LABELS #
+          #####################################################
+          self._ylabel1=Pyl('ylabel1')
+          self._ylabel2=Pyl('ylabel2')
+          ############################################################
+      # The following initializes the template's BOXES and LINES #
+          ############################################################
+          self._box1=Pbl('box1')
+          self._box2=Pbl('box2')
+          self._box3=Pbl('box3')
+          self._box4=Pbl('box4')
+          self._line1=Pbl('line1')
+          self._line2=Pbl('line2')
+          self._line3=Pbl('line3')
+          self._line4=Pbl('line4')
+          #########################################################
+      # The following initializes the template's LEGEND SPACE #
+          #########################################################
+          self._legend=Pls('legend')
+          #######################################################
+      # The following initializes the template's DATA SPACE #
+          #######################################################
+          self._data=Pds('data')
+        else:
+          if isinstance(Pic_name_src,P):
+            Pic_name_src = P.name
+          if not Pic_name_src in vcs.elements["template"].keys():
+            raise ValueError, "The source template '%s' does not seem to exists" % Pic_name_src
+          src = vcs.eleements["template"][Pic_name_src]
+          self.orientation=src.orientation
+          self.file=copy.copy(src.file)
+          self.function=copy.copy(src.function)
+          self.logicalmask=copy.copy(src.logicalmask)
+          self.transformation=copy.copy(src.transformation)
+          self.source=copy.copy(src.source)
+          self.dataname=copy.copy(src.dataname)
+          self.title=copy.copy(src.title)
+          self.units=copy.copy(src.units)
+          self.crdate=copy.copy(src.crdate)
+          self.crtime=copy.copy(src.crtime)
+          self.comment1=copy.copy(src.comment1)
+          self.comment2=copy.copy(src.comment2)
+          self.comment3=copy.copy(src.comment3)
+          self.comment4=copy.copy(src.comment4)
+          self.xname=copy.copy(src.xname)
+          self.yname=copy.copy(src.yname)
+          self.zname=copy.copy(src.zname)
+          self.tname=copy.copy(src.tname)
+          self.xunits=copy.copy(src.xunits)
+          self.yunits=copy.copy(src.yunits)
+          self.zunits=copy.copy(src.zunits)
+          self.tunits=copy.copy(src.tunits)
+          ###################################################
+      # The following initializes the template's FORMATS #
+          ####################################################
+          self.xvalue=copy.copy(src.xvalue)
+          self.yvalue=copy.copy(src.yvalue)
+          self.zvalue=copy.copy(src.zvalue)
+          self.tvalue=copy.copy(src.tvalue)
+          self.mean=copy.copy(src.mean)
+          self.min=copy.copy(src.min)
+          self.max=copy.copy(src.max)
+          ########################################################
+      # The folowing initializes the template's X-TICK MARKS #
+          ########################################################
+          self.xtic1=copy.copy(src.xtic1)
+          self.xtic2=copy.copy(src.xtic2)
+          self.xmintic1=copy.copy(src.xmintic1)
+          self.xmintic2=copy.copy(src.xmintic2)
+          ########################################################
+      # The folowing initializes the template's Y-TICK MARKS #
+          ########################################################
+          self.ytic1=copy.copy(src.ytic1)
+          self.ytic2=copy.copy(src.ytic2)
+          self.ymintic1=copy.copy(src.ymintic1)
+          self.ymintic2=copy.copy(src.ymintic2)
+          ####################################################
+      # The folowing initializes the template's X-LABELS #
+          ####################################################
+          self.xlabel1=copy.copy(src.xlabel1)
+          self.xlabel2=copy.copy(src.xlabel2)
+          ####################################################
+      # The folowing initializes the template's Y-LABELS #
+          ####################################################
+          self.ylabel1=copy.copy(src.ylabel1)
+          self.ylabel2=copy.copy(src.ylabel2)
+          ###########################################################
+      # The folowing initializes the template's BOXES and LINES #
+          ###########################################################
+          self.box1=copy.copy(src.box1)
+          self.box2=copy.copy(src.box2)
+          self.box3=copy.copy(src.box3)
+          self.box4=copy.copy(src.box4)
+          self.line1=copy.copy(src.line1)
+          self.line2=copy.copy(src.line2)
+          self.line3=copy.copy(src.line3)
+          self.line4=copy.copy(src.line4)
+          ########################################################
+      # The folowing initializes the template's LEGEND SPACE #
+          ########################################################
+          self.legend=copy.copy(src.legend)
+          ######################################################
+      # The folowing initializes the template's DATA SPACE #
+          #######################################################
+          self.data=copy.copy(src.data)
 
-    def __setattr__(self, name, value):
-        if (self.name == '__removed_from_VCS__'):
-           raise ValueError, 'This instance has been removed from VCS.'
-        if (self.name == 'default'):
+        vcs.elements["template"][Pic_name]=self
+      def __setattr__(self, name, value):
+          if (self.name == 'default'):
            raise ValueError, 'You cannot modify the default template.'
         if (name == 'name'):
            if (type(value) == StringType):

@@ -40,6 +40,8 @@ import texttable, textorientation, textcombined, template, colormap
 #import colormapgui as _colormapgui
 #import canvasgui as _canvasgui
 import displayplot
+from VTKPlots import vtkplot
+
 #import animationgui as _animationgui
 #import graphicsmethodgui as _graphicsmethodgui
 #import templateeditorgui as _templateeditorgui
@@ -212,7 +214,7 @@ def _determine_arg_list(g_name, actual_args):
         if found_slabs!=arglist[igraphics_method].g_nslabs:
             raise vcsError, "%s requires %i slab(s)" % (arglist[igraphics_method].g_name,arglist[igraphics_method].g_nslabs)
     else:
-        if (string.lower(arglist[igraphics_method]) in ('scatter','vector','xvsy')):
+        if arglist[igraphics_method].lower() in ('scatter','vector','xvsy'):
             if found_slabs != 2:
                 raise vcsError, "Graphics method requires 2 slabs."
         elif arglist[igraphics_method].lower() == 'meshfill':
@@ -229,7 +231,7 @@ def _determine_arg_list(g_name, actual_args):
               (arglist[igraphics_method] == 'text')):
             if found_slabs != 0:
                 raise vcsError, "Continents or low-level primative methods requires 0 slabs."
-        elif string.lower(arglist[igraphics_method])=='default':
+        elif arglist[igraphics_method].lower()=='default':
             pass                            # Check later
         else:
             if found_slabs != 1:
@@ -4464,12 +4466,10 @@ Options:::
         self.__last_plot_actual_args = actual_args
         self.__last_plot_keyargs = keyargs
 
-        finish_queued_X_server_requests( self )
         passed_var = keyargs.get("variable",None)
         arglist = _determine_arg_list ( None, actual_args )
         if passed_var is not None:
             arglist[0] = cdms2.asVariable(passed_var)
-        self.canvas.BLOCK_X_SERVER()
 
         # Prevent the varglist from duplicating its contents if the GUI Canvas is in use  
         try:  
@@ -5588,7 +5588,7 @@ Options:::
                 else:
                     dn = arglist[3].plot(arglist[0],arglist[1],template=arglist[2],bg=bg,x=self)
             else:
-                dn = apply(self.canvas.plot, tuple(arglist))
+                dn = apply(vtkplot, tuple(arglist))
             if self.mode!=0 : self.update()
             #if not bg: pause(self.pause_time)
 

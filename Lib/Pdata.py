@@ -23,51 +23,7 @@
 #
 #
 from types import *
-#################################################################################
-#                                                                               #
-# Function:	setPdsmember                                                    #
-#                                                                               #
-# Description of Function:                                                      #
-# 	Private function to update the VCS canvas plot. If the canvas mode is   #
-#       set to 0, then this function does nothing.              		#
-#                                                                               #
-#                                                                               #
-# Example of Use:                                                               #
-#      setPdsmember(self,name,value)						#
-#              where: self is the class (e.g., Pds)                             #
-#                     name is the name of the member that is being changed      #
-#                     value is the new value of the member (or attribute)       #
-#                                                                               #
-#################################################################################
-def setPdsmember(self,member,attribute,value):
-     _vcs.setPdsmember(self.parent, member, attribute, value, self.template_parent.mode)
-#     _vcs.setPdsmember(self, member, value, self.parent.mode)
-
-#################################################################################
-#                                                                               #
-# Function:     getPdsmember                                                    #
-#                                                                               #
-# Description of Function:                                                      #
-#       Private function that retrieves the line members from the C             #
-#       structure and passes it back to Python.                                 #
-#                                                                               #
-#                                                                               #
-# Example of Use:                                                               #
-#      return_value =								#
-#      getPdsmember(self,name)                                                  #
-#              where: self is the class (e.g., Pds)                             #
-#                     name is the name of the member that is being found        #
-#                                                                               #
-#################################################################################
-def getPdsmember(self,member,attribute):
-     return _vcs.getPdsmember(self,member,attribute)
-
-#############################################################################
-#                                                                           #
-# Template text (Pds) Class.                                                 #
-#                                                                           #
-#############################################################################
-class Pds:
+class Pds(object):
     """
  Class:	Pds				# Template text
 
@@ -122,20 +78,13 @@ class Pds:
 	# appropriate Python Object.                              #
         ###########################################################
 	#                                                         #
-        self.__dict__['member']=member
-        self.__dict__['priority']=getPdsmember(template,member,'priority')
-        self.__dict__['x1']=getPdsmember(template,member,'x1')
-        self.__dict__['y1']=getPdsmember(template,member,'y1')
-        self.__dict__['x2']=getPdsmember(template,member,'x2')
-        self.__dict__['y2']=getPdsmember(template,member,'y2')
-        self.__dict__['_ratio']=getPdsmember(template,member,'_ratio')
-        #                                                         #
-        ###########################################################
-        # Keep track of the parent and grandparent.               #
-        ###########################################################
-        #                                                         #
-        self.__dict__['parent']=template
-        self.__dict__['template_parent']=template_parent
+        self.priority= 1 
+        self.x1=0.0500000007451
+        self.y1=0.259999990463
+        self.x2=0.949999988079
+        self.y2=0.860000014305
+        self.ratio = -999
+        self.member = member
 
 
     #############################################################################
@@ -144,8 +93,6 @@ class Pds:
     #                                                                           #
     #############################################################################
     def __setattr__(self, name, value):
-        if (self.parent.name == '__removed_from_VCS__'):
-           raise ValueError, 'This instance has been removed from VCS.'
         if (name == 'priority'):
            if (isinstance(value, IntType)):
               self.__dict__[name]=value
@@ -178,7 +125,13 @@ class Pds:
               raise ValueError, 'The ratio value must be an integer or float.'
         else:
              raise Exception,"Error invalid attribute %s for data member of template" % name
-        setPdsmember(self,self.member,name,value) # update the plot
+        elif name == "member":
+          if isinstance(value,str):
+            self.__dict__["member"]=value
+          else:
+            raise ValueError,"'member' must be a string"
+        else:
+          raise ValueError,"BAD ATTRIBUTE: %s" % name
 
 
     #############################################################################
@@ -187,8 +140,6 @@ class Pds:
     #                                                                           #
     #############################################################################
     def list(self):
-        if (self.parent.name == '__removed_from_VCS__'):
-           raise ValueError, 'This instance has been removed from VCS.'
         print "member = ", self.member
         print "     priority =", self.priority
         print "     x1 =", self.x1

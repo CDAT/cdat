@@ -24,51 +24,12 @@
 #
 import queries
 from types import *
-#################################################################################
-#                                                                               #
-# Function:	setPxlmember                                                    #
-#                                                                               #
-# Description of Function:                                                      #
-# 	Private function to update the VCS canvas plot. If the canvas mode is   #
-#       set to 0, then this function does nothing.              		#
-#                                                                               #
-#                                                                               #
-# Example of Use:                                                               #
-#      setPxlmember(self,name,value)						#
-#              where: self is the class (e.g., Pxl)                             #
-#                     name is the name of the member that is being changed      #
-#                     value is the new value of the member (or attribute)       #
-#                                                                               #
-#################################################################################
-def setPxlmember(self,member,attribute,value):
-     _vcs.setPxlmember(self.parent, member, attribute, value, self.template_parent.mode)
-#     _vcs.setPxlmember(self, member, value, self.parent.mode)
-
-#################################################################################
-#                                                                               #
-# Function:     getPxlmember                                                    #
-#                                                                               #
-# Description of Function:                                                      #
-#       Private function that retrieves the line members from the C             #
-#       structure and passes it back to Python.                                 #
-#                                                                               #
-#                                                                               #
-# Example of Use:                                                               #
-#      return_value =								#
-#      getPxlmember(self,name)                                                  #
-#              where: self is the class (e.g., Pxl)                             #
-#                     name is the name of the member that is being found        #
-#                                                                               #
-#################################################################################
-def getPxlmember(self,member,attribute):
-     return _vcs.getPxlmember(self,member,attribute)
-
 #############################################################################
 #                                                                           #
 # Template text (Pxl) Class.                                                #
 #                                                                           #
 #############################################################################
-class Pxl:
+class Pxl(object):
     '''
  Class:	Pxl				# Template text
 
@@ -112,7 +73,8 @@ class Pxl:
     # Initialize the line attributes.                                           #
     #                                                                           #
     #############################################################################
-    def __init__(self, template, template_parent, member=None):
+    __slots__ = ["priority","y","texttable","textorientation","member"]
+    def __init__(self, member):
 #    def __init__(self, template, member=None):
 	#                                                         #
         ###########################################################
@@ -123,18 +85,20 @@ class Pxl:
 	# appropriate Python Object.                              #
         ###########################################################
 	#                                                         #
-        self.__dict__['member']=member
-        self.__dict__['priority']=getPxlmember(template,member,'priority')
-        self.__dict__['y']=getPxlmember(template,member,'y')
-        self.__dict__['texttable']=getPxlmember(template,member,'texttable')
-        self.__dict__['textorientation']=getPxlmember(template,member,'textorientation')
+        self.member=member
+        self.priority = 1
+        self.texttable= "default"
+        self.textorientation= "defcenter"
+        if member == "xlabel1":
+          self.y = 0.234999999404
+        elif member == "xlabel2":
+          self.y = 0.870000004768
+          self.priority = 0
         #                                                         #
         ###########################################################
         # Keep track of the parent and grandparent.               #
         ###########################################################
         #                                                         #
-        self.__dict__['parent']=template
-        self.__dict__['template_parent']=template_parent
 
 
     #############################################################################
@@ -143,8 +107,6 @@ class Pxl:
     #                                                                           #
     #############################################################################
     def __setattr__(self, name, value):
-        if (self.parent.name == '__removed_from_VCS__'):
-           raise ValueError, 'This instance has been removed from VCS.'
         if (name == 'priority'):
            if (isinstance(value, IntType)):
               self.__dict__[name]=value
@@ -177,7 +139,13 @@ class Pxl:
               self.__dict__[name]=value
            else:
               raise ValueError, 'The texttable value must be a textorientation.'
-        setPxlmember(self,self.member,name,value) # update the plot
+        elif name == "member":
+          if isinstance(value,str):
+            self.__dict__["member"]=value
+          else:
+            raise ValueError,"'member' must be a string"
+        else:
+          raise ValueError,"BAD ATTRIBUTE: %s" % name
 
 
     #############################################################################
@@ -186,8 +154,6 @@ class Pxl:
     #                                                                           #
     #############################################################################
     def list(self):
-        if (self.parent.name == '__removed_from_VCS__'):
-           raise ValueError, 'This instance has been removed from VCS.'
         print "member = ", self.member
         print "     priority =", self.priority
         print "     y =", self.y
