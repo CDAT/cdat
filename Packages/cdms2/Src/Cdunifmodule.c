@@ -1159,7 +1159,7 @@ PyCdunifFile_Open(char *filename, char *mode)
     ncmode = NC_CLOBBER;
 #ifndef NONC4
     if ((cdms_shuffle!=0) || (cdms_deflate!=0)) {
-      ncmode = NC_CLOBBER|NC_NETCDF4;
+      ncmode = NC_CLOBBER|NC_NETCDF4|NC_CLASSIC_MODEL;
     }
 #endif
     self->id = nccreate(filename, ncmode);
@@ -1182,7 +1182,7 @@ PyCdunifFile_Open(char *filename, char *mode)
     ncmode = NC_NOCLOBBER;
 #ifndef NONC4
     if ((cdms_shuffle!=0) || (cdms_deflate!=0)) {
-      ncmode = NC_NOCLOBBER|NC_NETCDF4;
+      ncmode = NC_NOCLOBBER|NC_NETCDF4|NC_CLASSIC_MODEL;
     }
 #endif
       self->id = nccreate(filename, ncmode);
