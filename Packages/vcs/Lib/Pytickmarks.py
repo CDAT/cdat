@@ -23,6 +23,7 @@
 #
 #
 import queries
+import VCS_validation_functions
 from types import *
 #############################################################################
 #                                                                           #
@@ -73,7 +74,7 @@ class Pyt(object):
     # Initialize the line attributes.                                           #
     #                                                                           #
     #############################################################################
-    __slots__ = ["line","priority","x1","x2","member"]
+    __slots__ = ["line","priority","x1","x2","member","_line","_priority","_x1","_x2"]
     def __init__(self, member):
 #    def __init__(self, template, member=None):
 	#                                                         #
@@ -103,54 +104,11 @@ class Pyt(object):
           self.x1 = 0.949999988079
           self.x2 = 0.954999983311
         self.line = "default"
-        #                                                         #
-        ###########################################################
-        # Keep track of the parent and grandparent.               #
-        ###########################################################
-        #                                                         #
-        self.__dict__['parent']=template
-        self.__dict__['template_parent']=template_parent
 
-
-    #############################################################################
-    #                                                                           #
-    # Set template text  attributes.                                            #
-    #                                                                           #
-    #############################################################################
-    def __setattr__(self, name, value):
-        if (self.parent.name == '__removed_from_VCS__'):
-           raise ValueError, 'This instance has been removed from VCS.'
-        if (name == 'priority'):
-           if (isinstance(value, IntType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The priority value must be an integer.'
-        if (name == 'x1'):
-           if (type(value) in (IntType, FloatType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The x value must be an integer or float.'
-        if (name == 'x2'):
-           if (type(value) in (IntType, FloatType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The x value must be an integer or float.'
-        elif (name == 'line'):
-           if (queries.isline(value)==1):
-              self.__dict__[name]=value.name
-              value = value.name
-           elif (type(value) == StringType):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The line value must be a line object.'
-        elif name == "member":
-          if isinstance(value,str):
-            self.__dict__["member"]=value
-          else:
-            raise ValueError,"'member' must be a string"
-        else:
-          raise ValueError,"BAD ATTRIBUTE: %s" % name
-
+    priority = VCS_validation_functions.priority
+    x1 = VCS_validation_functions.x1
+    x2 = VCS_validation_functions.x2
+    line = VCS_validation_functions.line
 
     #############################################################################
     #                                                                           #

@@ -22,7 +22,7 @@
 #
 #
 #
-from types import *
+import VCS_validation_functions
 class Pds(object):
     """
  Class:	Pds				# Template text
@@ -67,7 +67,8 @@ class Pds(object):
     # Initialize the line attributes.                                           #
     #                                                                           #
     #############################################################################
-    def __init__(self, template, template_parent, member=None):
+    __slots__ = ["priority","x1","x2","y1","y2","ratio","member","_priority","_x1","_x2","_y1","_y2","_ratio"]
+    def __init__(self, member):
 #    def __init__(self, template, member=None):
 	#                                                         #
         ###########################################################
@@ -92,47 +93,11 @@ class Pds(object):
     # Set template text  attributes.                                            #
     #                                                                           #
     #############################################################################
-    def __setattr__(self, name, value):
-        if (name == 'priority'):
-           if (isinstance(value, IntType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The priority value must be an integer.'
-        elif (name == 'x1'):
-           if (type(value) in (IntType, FloatType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The x1 value must be an integer or float.'
-        elif (name == 'y1'):
-           if (type(value) in (IntType, FloatType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The y1 value must be an integer or float.'
-        elif (name == 'x2'):
-           if (type(value) in (IntType, FloatType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The x2 value must be an integer or float.'
-        elif (name == 'y2'):
-           if (type(value) in (IntType, FloatType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The y2 value must be an integer or float.'
-        elif (name == '_ratio'):
-           if (type(value) in (IntType, FloatType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The ratio value must be an integer or float.'
-        else:
-             raise Exception,"Error invalid attribute %s for data member of template" % name
-        elif name == "member":
-          if isinstance(value,str):
-            self.__dict__["member"]=value
-          else:
-            raise ValueError,"'member' must be a string"
-        else:
-          raise ValueError,"BAD ATTRIBUTE: %s" % name
-
+    priority = VCS_validation_functions.priority
+    x1 = VCS_validation_functions.x1
+    x2 = VCS_validation_functions.x2
+    y1 = VCS_validation_functions.y1
+    y2 = VCS_validation_functions.y2
 
     #############################################################################
     #                                                                           #

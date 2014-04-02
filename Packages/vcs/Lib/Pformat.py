@@ -23,6 +23,7 @@
 #
 #
 import queries
+import VCS_validation_functions
 from types import *
 #############################################################################
 #                                                                           #
@@ -68,7 +69,7 @@ class Pf(object):
      ln.type='dash-dot'          	# Same as ln.type=3
      ln.type='long-dash'          	# Same as ln.type=4
 """
-    __slots__ = ["format","priority","x","y","texttable","textorientation","member"]
+    __slots__ = ["format","priority","x","y","texttable","textorientation","member","_format","_priority","_x","_y","_texttable","_textorientation"]
     #############################################################################
     #                                                                           #
     # Initialize the line attributes.                                           #
@@ -118,52 +119,16 @@ class Pf(object):
     # Set template text  attributes.                                            #
     #                                                                           #
     #############################################################################
-    def __setattr__(self, name, value):
-        if (name == 'priority'):
-           if (isinstance(value, IntType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The priority value must be an integer.'
-        if (name == 'x'):
-           if (type(value) in (IntType, FloatType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The x value must be an integer or float.'
-        if (name == 'y'):
-           if (type(value) in (IntType, FloatType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The y value must be an integer or float.'
-        elif (name == 'texttable'):
-           if (queries.istexttable(value)==1):
-              self.__dict__[name]=value.name
-              value = value.name
-           elif (queries.istextcombined(value)==1):
-              self.__dict__[name]=value.Tt_name
-              value = value.name
-           elif (type(value) == StringType):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The texttable value must be a texttable.'
-        elif (name == 'textorientation'):
-           if (queries.istextorientation(value)==1):
-              self.__dict__[name]=value.name
-              value = value.name
-           elif (queries.istextcombined(value)==1):
-              self.__dict__[name]=value.To_name
-              value = value.name
-           elif (type(value) == StringType):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The texttable value must be a textorientation.'
-        elif name == "member":
-          if isinstance(value,str):
-            self.__dict__["member"]=value
-          else:
-            raise ValueError,"'member' must be a string"
-        else:
-          raise ValueError,"BAD ATTRIBUTE: %s" % name
-
+    priority = VCS_validation_functions.priority
+    x = VCS_validation_functions.x
+    y = VCS_validation_functions.y
+    texttable = VCS_validation_functions.texttable
+    textorientation = VCS_validation_functions.textorientation
+    def _getformat(self):
+      return self._format
+    def _setformat(self,value):
+      self._format = VCS_validation_functions.checkString(self,"format",value)
+    format = property(_getformat,_setformat)
 
     #############################################################################
     #                                                                           #
