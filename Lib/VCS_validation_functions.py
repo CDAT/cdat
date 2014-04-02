@@ -62,10 +62,12 @@ def checkLine(self,name,value):
      if not isinstance(value,(str,vcs.line.Tl)):
           raise ValueError, name+' must be an line primitive or the name of an exiting one.'
      if isinstance(value,str):
-          if not value in _vcs.listelements('line'):
+          if not value in vcs.listelements('line'):
                raise ValueError, name+' is not an existing line primitive'
-          value=self.x.getline(value)
-     return value
+          return value
+     else:
+       return value.name
+
 
 ## def checkIsoline(self,name,value):
 ##      checkName(self,name,value)
@@ -506,7 +508,7 @@ def checkLinesList(self,name,value):
 def checkTextTable(self,name,value):
      checkName(self,name,value)
      if isinstance(value,str):
-          if not value in self.parent.parent.listelements("texttable"):
+          if not value in vcs.listelements("texttable"):
                raise ValueError,"Error : not a valid texttable"
      elif not isinstance(value,vcs.texttable.Tt):
           raise ValueError,"Error you must pass a texttable objector a texttable name"
@@ -516,7 +518,7 @@ def checkTextTable(self,name,value):
 def checkTextOrientation(self,name,value):
      checkName(self,name,value)
      if isinstance(value,str):
-          if not value in self.parent.parent.listelements("textorientation"):
+          if not value in vcs.listelements("textorientation"):
                raise ValueError,"Error : not a valid textorientation"
      elif not isinstance(value,vcs.textorientation.To):
           raise ValueError,"Error you must pass a textorientation objector a textorientation name"
@@ -1064,3 +1066,53 @@ def setProjParameter(self,name,value):
                return value
      raise PPE(name,'Unknow error...')
 
+def _getpriority(self):
+  return self._priority
+def _setpriority(self,value):
+  self._priority = checkInt(self,"priority",value)
+priority = property(_getpriority,_setpriority)
+def _getX1(self):
+  return self._x1
+def _setX1(self,value):
+  self._x1 = checkNumber(self,"x1",value,0.,1.)
+x1 = property(_getX1,_setX1,"x1 position in % of page")
+def _getX2(self):
+  return self._x2
+def _setX2(self,value):
+  self._x2 = checkNumber(self,"x2",value,0.,1.)
+x2 = property(_getX2,_setX2,"x position in % of page")
+def _getX(self):
+  return self._x
+def _setX(self,value):
+  self._x = checkNumber(self,"x",value,0.,1.)
+x = property(_getX,_setX,"x position in % of page")
+def _getY1(self):
+  return self._y1
+def _setY1(self,value):
+  self._y1 = checkNumber(self,"y1",value,0.,1.)
+y1 = property(_getY1,_setY1,"y1 position in % of page")
+def _getY2(self):
+  return self._y2
+def _setY2(self,value):
+  self._y2 = checkNumber(self,"y2",value,0.,1.)
+y2 = property(_getY2,_setY2,"y2 position in % of page")
+def _getY(self):
+  return self._y
+def _setY(self,value):
+  self._y = checkNumber(self,"y",value,0.,1.)
+y = property(_getY,_setY,"y position in % of page")
+def _gettexttable(self):
+  return self._texttable
+def _settextable(self,value):
+  self._texttable = checkTextTable(self,"textable",value)
+texttable = property(_gettexttable,_settextable,"texttable")
+def _gettextorientation(self):
+  return self._textorientation
+def _settexorientation(self,value):
+  self._textorientation = checkTextOrientation(self,"texorientation",value)
+textorientation = property(_gettextorientation,_settexorientation,"textorientation")
+def _getLine(self):
+  return self._line
+def _setLine(self,value):
+  self._line = checkLine(self,"line",value)
+line = property(_getLine,_setLine,"line properties")

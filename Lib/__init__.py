@@ -118,10 +118,15 @@ elements = { "boxfill" : {},
              "list": {},
              "projection": {},
              "fillarea":{},
+             "texttable":{"default":None},
+             "textorientation":{"default":None,"defcenter":None,"defright":None},
+             "line":{"default":None},
              }
+warnings.warn("Please edit textable for vcs.elements")
+warnings.warn("Please edit textorintation for vcs.elements")
+warnings.warn("Please edit line for vcs.elements")
 boxfill.Gfb("default")
 p=projection.Proj("default")
-print "P:",p.type
 p = projection.Proj("linear")
 for nm in ["mercator","orthographic","lambert","polar","polyconic","robinson",
     "mollweide",]:
@@ -129,6 +134,8 @@ for nm in ["mercator","orthographic","lambert","polar","polyconic","robinson",
   p.type=nm
 
 fillarea.Tf("default")
+template.P("default")
+
 taylordiagrams=[taylor.Gtd()]
 
 canvaslist = []

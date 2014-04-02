@@ -1309,7 +1309,7 @@ class Canvas(object,AutoAPI.AutoAPI):
 """
         name,source = self.check_name_source(name,source,'template')
 
-        return template.P(self, name, source, 0)
+        return template.P(name, source)
 
     def gettemplate(self, Pt_name_src='default'):
         """

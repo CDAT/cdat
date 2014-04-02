@@ -35,6 +35,18 @@ from Pdata import *
 from types import *
 import inspect
 
+## Following for class properties
+def _getgen(self,name):
+    return getattr(self,"_%s" % name)
+def _setgen(self,name,cls,value):
+    if self.name == "default":
+      raise ValueError, "You cannot modify the default template"
+    if not isinstance(value,cls):
+      raise ValueError, "template attribute '%s' must be of type %s" % (name,cls)
+    setattr(self,"_%s" % name, value)
+
+
+
 
 #############################################################################
 #                                                                           #
@@ -80,11 +92,31 @@ class P(object):
     __slots__ = ["name","_name","_p_name","p_name","_orientation","_orientation","_file","file",
         "_function","function","_logicalmask","logicalmask","_transformation","transformation",
         "source","_source","dataname","_dataname","title","_title","units","_units","_crdate","crdate",
-        "crtime","_crtime","_comment1","comment1","_comment2","_comment2","_comment3","comment3",
-        "_comment4","comment4","xname","yname","zname","tname","xunits","yunits","zunits","tunits",
-        "xvalue","zvalue","yvalue","tvalue","mean","min","max","xtic1","xtic2","xmintic1","xminttic2",
+        "crtime","_crtime","_comment1","comment1","comment2","_comment2","_comment3","comment3",
+        "_comment4","comment4",
+        "xname","yname","zname","tname","xunits","yunits","zunits","tunits",
+        "xvalue","zvalue","yvalue","tvalue","mean","min","max","xtic1","xtic2","xmintic1","xmintic2",
         "ytic1","ytic2","ymintic1","ymintic2","xlabel1","xlabel2","box1","box2","box3","box4",
-        "ylable1","ylabel2","line1","line2","line3","line4","legend","data"]
+        "ylabel1","ylabel2","line1","line2","line3","line4","legend","data",
+        "_xname","_yname","_zname","_tname","_xunits","_yunits","_zunits","_tunits",
+        "_xvalue","_zvalue","_yvalue","_tvalue","_mean","_min","_max","_xtic1","_xtic2","_xmintic1","_xmintic2",
+        "_ytic1","_ytic2","_ymintic1","_ymintic2","_xlabel1","_xlabel2","_box1","_box2","_box3","_box4",
+        "_ylabel1","_ylabel2","_line1","_line2","_line3","_line4","_legend","_data"]
+
+    def _getName(self):
+      return self._name
+    name = property(_getName)
+    def _getOrientation(self):
+      return self._orientation
+    def _setOrientation(self,value):
+      if self.name == "default":
+        raise ValueError, "You cannot change the default template"
+      value = VCS_validation_functions.checkInt(self,"orientation",value)
+      if not value in [0,1]:
+        raise ValueError,"The orientation attribute must be an integer (i.e., 0 = landscape, 1 = portrait)."
+      self._orientation = value
+    orientation = property(_getOrientation,_setOrientation,"The orientation attribute must be an integer (i.e., 0 = landscape, 1 = portrait).")
+
     ###########################################################################
     #                                                                         #
     # Initialize the template attributes.                                     #
@@ -103,10 +135,117 @@ class P(object):
         if (Pic_name == None):
               raise ValueError, 'Must provide a template name.'
         if Pic_name_src!="default" and Pic_name_src not in vcs.elements["template"]:
-          raise ValueError,"Source template: '%s' does not exists" % Pic_name_src
+          raise "Invalid source template: %s" % Pic_name_src
+        if isinstance(Pic_name_src,P):
+          Pic_name_src = Pic_name_src.name
+        if Pic_name in vcs.elements["template"].keys():
+          raise ValueError, "Template %s already exists" % Pic_name
 
         self._name=Pic_name
-        self._p_name='P'
+        self.p_name='P'
+        ## properties
+        self.__class__.file=property(lambda x: _getgen(x,"file"),
+                                  lambda x,v: _setgen(x,"file",Pt,v))
+        self.__class__.function=property(lambda x: _getgen(x,"function"),
+                                  lambda x,v: _setgen(x,"function",Pt,v))
+        self.__class__.logicalmask=property(lambda x: _getgen(x,"logicalmask"),
+                                  lambda x,v: _setgen(x,"logicalmask",Pt,v))
+        self.__class__.transformation=property(lambda x: _getgen(x,"transformation"),
+                                  lambda x,v: _setgen(x,"transformation",Pt,v))
+        self.__class__.source=property(lambda x: _getgen(x,"source"),
+                                  lambda x,v: _setgen(x,"source",Pt,v))
+        self.__class__.dataname=property(lambda x: _getgen(x,"dataname"),
+                                  lambda x,v: _setgen(x,"dataname",Pt,v))
+        self.__class__.title=property(lambda x: _getgen(x,"title"),
+                                  lambda x,v: _setgen(x,"title",Pt,v))
+        self.__class__.units=property(lambda x: _getgen(x,"units"),
+                                  lambda x,v: _setgen(x,"units",Pt,v))
+        self.__class__.crdate=property(lambda x: _getgen(x,"crdate"),
+                                  lambda x,v: _setgen(x,"crdate",Pt,v))
+        self.__class__.crtime=property(lambda x: _getgen(x,"crtime"),
+                                  lambda x,v: _setgen(x,"crtime",Pt,v))
+        self.__class__.comment1=property(lambda x: _getgen(x,"comment1"),
+                                  lambda x,v: _setgen(x,"comment1",Pt,v))
+        self.__class__.comment2=property(lambda x: _getgen(x,"comment2"),
+                                  lambda x,v: _setgen(x,"comment2",Pt,v))
+        self.__class__.comment3=property(lambda x: _getgen(x,"comment3"),
+                                  lambda x,v: _setgen(x,"comment3",Pt,v))
+        self.__class__.comment4=property(lambda x: _getgen(x,"comment4"),
+                                  lambda x,v: _setgen(x,"comment4",Pt,v))
+        self.__class__.xname=property(lambda x: _getgen(x,"xname"),
+                                  lambda x,v: _setgen(x,"xname",Pt,v))
+        self.__class__.yname=property(lambda x: _getgen(x,"yname"),
+                                  lambda x,v: _setgen(x,"yname",Pt,v))
+        self.__class__.zname=property(lambda x: _getgen(x,"zname"),
+                                  lambda x,v: _setgen(x,"zname",Pt,v))
+        self.__class__.tname=property(lambda x: _getgen(x,"tname"),
+                                  lambda x,v: _setgen(x,"tname",Pt,v))
+        self.__class__.xunits=property(lambda x: _getgen(x,"xunits"),
+                                  lambda x,v: _setgen(x,"xunits",Pt,v))
+        self.__class__.yunits=property(lambda x: _getgen(x,"yunits"),
+                                  lambda x,v: _setgen(x,"yunits",Pt,v))
+        self.__class__.zunits=property(lambda x: _getgen(x,"zunits"),
+                                  lambda x,v: _setgen(x,"zunits",Pt,v))
+        self.__class__.tunits=property(lambda x: _getgen(x,"tunits"),
+                                  lambda x,v: _setgen(x,"tunits",Pt,v))
+        self.__class__.xvalue=property(lambda x: _getgen(x,"xvalue"),
+                                  lambda x,v: _setgen(x,"xvalue",Pf,v))
+        self.__class__.yvalue=property(lambda x: _getgen(x,"yvalue"),
+                                  lambda x,v: _setgen(x,"yvalue",Pf,v))
+        self.__class__.zvalue=property(lambda x: _getgen(x,"zvalue"),
+                                  lambda x,v: _setgen(x,"zvalue",Pf,v))
+        self.__class__.tvalue=property(lambda x: _getgen(x,"tvalue"),
+                                  lambda x,v: _setgen(x,"tvalue",Pf,v))
+        self.__class__.mean=property(lambda x: _getgen(x,"mean"),
+                                  lambda x,v: _setgen(x,"mean",Pf,v))
+        self.__class__.min=property(lambda x: _getgen(x,"min"),
+                                  lambda x,v: _setgen(x,"min",Pf,v))
+        self.__class__.max=property(lambda x: _getgen(x,"max"),
+                                  lambda x,v: _setgen(x,"max",Pf,v))
+        self.__class__.xtic1=property(lambda x: _getgen(x,"xtic1"),
+                                  lambda x,v: _setgen(x,"xtic1",Pxt,v))
+        self.__class__.xtic2=property(lambda x: _getgen(x,"xtic2"),
+                                  lambda x,v: _setgen(x,"xtic2",Pxt,v))
+        self.__class__.xmintic1=property(lambda x: _getgen(x,"xmintic1"),
+                                  lambda x,v: _setgen(x,"xmintic1",Pxt,v))
+        self.__class__.xmintic2=property(lambda x: _getgen(x,"xmintic2"),
+                                  lambda x,v: _setgen(x,"xmintic2",Pxt,v))
+        self.__class__.ytic1=property(lambda x: _getgen(x,"ytic1"),
+                                  lambda x,v: _setgen(x,"ytic1",Pyt,v))
+        self.__class__.ytic2=property(lambda x: _getgen(x,"ytic2"),
+                                  lambda x,v: _setgen(x,"ytic2",Pyt,v))
+        self.__class__.ymintic1=property(lambda x: _getgen(x,"ymintic1"),
+                                  lambda x,v: _setgen(x,"ymintic1",Pyt,v))
+        self.__class__.ymintic2=property(lambda x: _getgen(x,"ymintic2"),
+                                  lambda x,v: _setgen(x,"ymintic2",Pyt,v))
+        self.__class__.xlabel1=property(lambda x: _getgen(x,"xlabel1"),
+                                  lambda x,v: _setgen(x,"xlabel1",Pxl,v))
+        self.__class__.xlabel2=property(lambda x: _getgen(x,"xlabel2"),
+                                  lambda x,v: _setgen(x,"xlabel2",Pxl,v))
+        self.__class__.ylabel1=property(lambda x: _getgen(x,"ylabel1"),
+                                  lambda x,v: _setgen(x,"ylabel1",Pyl,v))
+        self.__class__.ylabel2=property(lambda x: _getgen(x,"ylabel2"),
+                                  lambda x,v: _setgen(x,"ylabel2",Pyl,v))
+        self.__class__.box1=property(lambda x: _getgen(x,"box1"),
+                                  lambda x,v: _setgen(x,"box1",Pbl,v))
+        self.__class__.box2=property(lambda x: _getgen(x,"box2"),
+                                  lambda x,v: _setgen(x,"box2",Pbl,v))
+        self.__class__.box3=property(lambda x: _getgen(x,"box3"),
+                                  lambda x,v: _setgen(x,"box3",Pbl,v))
+        self.__class__.box4=property(lambda x: _getgen(x,"box4"),
+                                  lambda x,v: _setgen(x,"box4",Pbl,v))
+        self.__class__.line1=property(lambda x: _getgen(x,"line1"),
+                                  lambda x,v: _setgen(x,"line1",Pbl,v))
+        self.__class__.line2=property(lambda x: _getgen(x,"line2"),
+                                  lambda x,v: _setgen(x,"line2",Pbl,v))
+        self.__class__.line3=property(lambda x: _getgen(x,"line3"),
+                                  lambda x,v: _setgen(x,"line3",Pbl,v))
+        self.__class__.line4=property(lambda x: _getgen(x,"line4"),
+                                  lambda x,v: _setgen(x,"line4",Pbl,v))
+        self.__class__.legend=property(lambda x: _getgen(x,"legend"),
+                                  lambda x,v: _setgen(x,"legend",Pls,v))
+        self.__class__.data=property(lambda x: _getgen(x,"data"),
+                                  lambda x,v: _setgen(x,"data",Pds,v))
         #                                                         #
         ###########################################################
         # Keep track of the template's parent.                    #
@@ -197,7 +336,7 @@ class P(object):
             Pic_name_src = P.name
           if not Pic_name_src in vcs.elements["template"].keys():
             raise ValueError, "The source template '%s' does not seem to exists" % Pic_name_src
-          src = vcs.eleements["template"][Pic_name_src]
+          src = vcs.elements["template"][Pic_name_src]
           self.orientation=src.orientation
           self.file=copy.copy(src.file)
           self.function=copy.copy(src.function)
@@ -275,26 +414,8 @@ class P(object):
           #######################################################
           self.data=copy.copy(src.data)
 
-        vcs.elements["template"][Pic_name]=self
-      def __setattr__(self, name, value):
-          if (self.name == 'default'):
-           raise ValueError, 'You cannot modify the default template.'
-        if (name == 'name'):
-           if (type(value) == StringType):
-              renameP(self,self.name, value)
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The name attribute must be a string.'
-        if (name == 'orientation'):
-           if (isinstance(value, IntType)):
-              if value in [0,1]:
-                 _vcs.setPomember(self,value)
-                 self.__dict__[name]=value
-              else:
-                 raise ValueError, 'The orientation attribute must be an integer (i.e., 0 = landscape, 1 = portrait).'
-           else:
-              raise ValueError, 'The orientation attribute must be an integer (i.e., 0 = landscape, 1 = portrait).'
 
+        vcs.elements["template"][Pic_name]=self
 
     ###########################################################################
     #                                                                         #
@@ -307,7 +428,7 @@ class P(object):
 
         if (single == None):
            print "","----------Template (P) member (attribute) listings ----------"
-           print 'Canvas Mode =',self.parent.mode
+           #print 'Canvas Mode =',self.mode
            print "method =", self.p_name
            print "name =", self.name
            print "orientation =", self.orientation

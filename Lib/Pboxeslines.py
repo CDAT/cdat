@@ -24,6 +24,7 @@
 #
 #
 import queries
+import VCS_validation_functions
 from types import *
 
 #############################################################################
@@ -75,8 +76,8 @@ class Pbl:
     # Initialize the line attributes.                                           #
     #                                                                           #
     #############################################################################
-    __slots__ = ["priority","x1","x2","y1","y2","line","member"]
-    def __init__(self, template, template_parent, member=None):
+    __slots__ = ["priority","x1","x2","y1","y2","line","member","_priority","_x1","_x2","_y1","_y2","_line"]
+    def __init__(self, member):
 #    def __init__(self, template, member=None):
 	#                                                         #
         ###########################################################
@@ -137,47 +138,12 @@ class Pbl:
     # Set template text  attributes.                                            #
     #                                                                           #
     #############################################################################
-    def __setattr__(self, name, value):
-        if (name == 'priority'):
-           if (isinstance(value, IntType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The priority value must be an integer.'
-        if (name == 'x1'):
-           if (type(value) in (IntType, FloatType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The x value must be an integer or float.'
-        if (name == 'y1'):
-           if (type(value) in (IntType, FloatType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The y value must be an integer or float.'
-        if (name == 'x2'):
-           if (type(value) in (IntType, FloatType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The x value must be an integer or float.'
-        if (name == 'y2'):
-           if (type(value) in (IntType, FloatType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The y value must be an integer or float.'
-        elif (name == 'line'):
-           if (queries.isline(value)==1):
-              self.__dict__[name]=value.name
-              value = value.name
-           elif (type(value) == StringType):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The line value must be a line object.'
-        elif name == "member":
-          if isinstance(value,str):
-            self.__dict__["member"]=value
-          else:
-            raise ValueError,"'member' must be a string"
-        else:
-          raise ValueError,"BAD ATTRIBUTE: %s" % name
+    priority = VCS_validation_functions.priority
+    x1 = VCS_validation_functions.x1
+    x2 = VCS_validation_functions.x2
+    y1 = VCS_validation_functions.y1
+    y2 = VCS_validation_functions.y2
+    line = VCS_validation_functions.line
 
     #############################################################################
     #                                                                           #

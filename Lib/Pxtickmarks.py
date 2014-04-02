@@ -23,6 +23,7 @@
 #
 #
 import queries
+import VCS_validation_functions
 from types import *
 
 #############################################################################
@@ -69,7 +70,7 @@ class Pxt(object):
      ln.type='dash-dot'          	# Same as ln.type=3
      ln.type='long-dash'          	# Same as ln.type=4
 '''
-    __slots__ = ["line","priority","y1","y2","member"]
+    __slots__ = ["line","priority","y1","y2","member","_line","_priority","_y1","_y2"]
 ######################################
     #                                                                           #
     # Initialize the line attributes.                                           #
@@ -86,19 +87,19 @@ class Pxt(object):
 	# appropriate Python Object.                              #
         ###########################################################
 	#                                                         #
-        self.membe=member
+        self.member=member
         self.priority=1
         if member == "xtic1":
           self.y1 = 0.259999990463
           self.y2 = 0.24699999392
-        elif member = "xtic2"
+        elif member == "xtic2":
           self.y1 = 0.860000014305
           self.y2 = 0.871999979019
         elif member == "xmintic1":
           self.priority=0
           self.y1 = 0.259999990463
           self.y2 = 0.256999999285
-        elif member = "xmintic2"
+        elif member == "xmintic2":
           self.priority=0
           self.y1 = 0.860000014305
           self.y2 = 0.860000014305
@@ -109,38 +110,10 @@ class Pxt(object):
     # Set template text  attributes.                                            #
     #                                                                           #
     #############################################################################
-    def __setattr__(self, name, value):
-        if (name == 'priority'):
-           if (isinstance(value, IntType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The priority value must be an integer.'
-        if (name == 'y1'):
-           if (type(value) in (IntType, FloatType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The y value must be an integer or float.'
-        if (name == 'y2'):
-           if (type(value) in (IntType, FloatType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The y value must be an integer or float.'
-        elif (name == 'line'):
-           if (queries.isline(value)==1):
-               self.__dict__[name]=value.name
-               value = value.name
-           elif (type(value) == StringType):
-               self.__dict__[name]=value
-           else:
-               raise ValueError, 'The line value must be a line object.'
-        elif name == "member":
-          if isinstance(value,str):
-            self.__dict__["member"]=value
-          else:
-            raise ValueError,"'member' must be a string"
-        else:
-          raise ValueError,"BAD ATTRIBUTE: %s" % name
-
+    priority = VCS_validation_functions.priority
+    y1 = VCS_validation_functions.y1
+    y2 = VCS_validation_functions.y2
+    line = VCS_validation_functions.line
 
     #############################################################################
     #                                                                           #

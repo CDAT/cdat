@@ -23,6 +23,7 @@
 #
 #
 import queries
+import VCS_validation_functions
 from types import *
 #############################################################################
 #                                                                           #
@@ -73,7 +74,7 @@ class Pxl(object):
     # Initialize the line attributes.                                           #
     #                                                                           #
     #############################################################################
-    __slots__ = ["priority","y","texttable","textorientation","member"]
+    __slots__ = ["priority","y","texttable","textorientation","member","_priority","_y","_texttable","_textorientation"]
     def __init__(self, member):
 #    def __init__(self, template, member=None):
 	#                                                         #
@@ -94,11 +95,6 @@ class Pxl(object):
         elif member == "xlabel2":
           self.y = 0.870000004768
           self.priority = 0
-        #                                                         #
-        ###########################################################
-        # Keep track of the parent and grandparent.               #
-        ###########################################################
-        #                                                         #
 
 
     #############################################################################
@@ -106,46 +102,10 @@ class Pxl(object):
     # Set template text  attributes.                                            #
     #                                                                           #
     #############################################################################
-    def __setattr__(self, name, value):
-        if (name == 'priority'):
-           if (isinstance(value, IntType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The priority value must be an integer.'
-        if (name == 'y'):
-           if (type(value) in (IntType, FloatType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The y value must be an integer or float.'
-        elif (name == 'texttable'):
-           if (queries.istexttable(value)==1):
-              self.__dict__[name]=value.name
-              value = value.name
-           elif (queries.istextcombined(value)==1):
-              self.__dict__[name]=value.Tt_name
-              value = value.name
-           elif (type(value) == StringType):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The texttable value must be a texttable.'
-        elif (name == 'textorientation'):
-           if (queries.istextorientation(value)==1):
-              self.__dict__[name]=value.name
-              value = value.name
-           elif (queries.istextcombined(value)==1):
-              self.__dict__[name]=value.To_name
-              value = value.name
-           elif (type(value) == StringType):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The texttable value must be a textorientation.'
-        elif name == "member":
-          if isinstance(value,str):
-            self.__dict__["member"]=value
-          else:
-            raise ValueError,"'member' must be a string"
-        else:
-          raise ValueError,"BAD ATTRIBUTE: %s" % name
+    priority = VCS_validation_functions.priority
+    y = VCS_validation_functions.y
+    texttable = VCS_validation_functions.texttable
+    textorientation = VCS_validation_functions.textorientation
 
 
     #############################################################################
