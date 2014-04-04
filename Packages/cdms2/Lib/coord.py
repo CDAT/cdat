@@ -4,6 +4,7 @@
 """
 CDMS CoordinateAxis objects
 """
+import sys
 import cdmsNode
 import cdtime
 import copy
