@@ -60,8 +60,9 @@ def process_src(nm,code):
     f.x = atts.get('x',f.x)
     f.y = atts.get('y',f.y)
     i = code.find("projection=")
-    j=code[i:].find(",")+i
-    f.projection = code[i+11:j]
+    if i>-1:
+      j=code[i:].find(",")+i
+      f.projection = code[i+11:j]
     if 0:
         for b in vcs.elements["boxfill"]:
           for i,v in b.fillareaindices:

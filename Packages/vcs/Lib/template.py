@@ -46,6 +46,59 @@ def _setgen(self,name,cls,value):
     setattr(self,"_%s" % name, value)
 
 
+## read .scr file
+def process_src(nm,code):
+  """Takes VCS script code (string) as input and generates boxfill gm from it"""
+  try:
+    t = P(nm)
+  except Exception,err:
+    t = vcs.elements["template"][nm]
+  for sub in ["File","Function","LogicalMask","Transform","name","title","units","crdate","crtime","comment#1",
+      "comment#2","comment#3","comment#4","xname","yname","zname","tname","xvalue","yvalue","zvalue","tvalue","xunits",
+      "yunits","zunits","tunits","mean","min","max","xtic#1","xtic#2","xmintic#a","xmintic#b",
+      "ytic#1","ytic#2","ymintic#a","ymintic#b","xlabel#1","xlabel#2","ylabel#1","ylabel#2",
+      "box#1","box#2","box#3","box#4","line#1","line#2","line#3","line#4","legend","data"]:
+    #isolate that segment
+    i = code.find("%s(" % sub)
+    if i==-1:
+      #not set in this case
+      continue
+    sc=code[i+len(sub)+1:]
+    j = sc.find(")")
+    sc=sc[:j]
+    #name on template object
+    tnm=sub.lower().replace("#","")
+    if tnm == "name":
+      tnm="dataname"
+    elif tnm [-4:]=="tica":
+      tnm=tnm[:-4]+"tic1"
+    elif tnm [-4:]=="ticb":
+      tnm=tnm[:-4]+"tic2"
+    elif tnm == "transform":
+      tnm = "transformation"
+    for S in sc.split(","): # all attributes are comman separated
+      nm,val = S.split("=") # nm=val
+      if nm=="p":
+        nm="priority"
+      elif nm=="Tl":
+        nm="line"
+      elif nm=="Tt":
+        nm="texttable"
+      elif nm=="To":
+        nm = "textorientation"
+      elif nm == "Th":
+        nm = "format"
+      tatt = getattr(t,tnm)
+      try:
+        setattr(tatt,nm,eval(val)) # int float should be ok here
+      except:
+        try:
+          setattr(tatt,nm,val) # strings here
+        except:
+          #print "COULD NOT SET %s.%s.%s to %s" % (t.name,tnm,nm,val)
+          pass
+  i = code.find("Orientation(")
+  t.orientation = int(code[i+12])
 
 
 #############################################################################

@@ -3837,7 +3837,7 @@ Options:::
 
         name,source = self.check_name_source(name,source,'texttable')
 
-        tt = texttable.Tt(self, name, source, 0)
+        tt = texttable.Tt(name, source)
         try:
            if (font is not None):
               tt.font = font
@@ -7297,11 +7297,12 @@ Options:::
     x._scriptrun('script_filename.scr')
 """
         # Now does the python Graphic methods
+        print "SCRIPT READ:",args[0],"********************************************************************"
         f=open(args[0],'r')
         # browse through the file to look for taylordiagram/python graphics methods
         processing=False # found a taylor graphic method
         for l in f.xreadlines():
-          if l[:3] in ["Tf_",] or l[:4] in ['Gtd_','Gfb_'] or l[:2] in ["L_",] or l[:5] in ["Proj_",]:
+          if l[:2] in ["P_",] or l[:3] in ["Tf_",] or l[:4] in ['Gtd_','Gfb_'] or l[:2] in ["L_",] or l[:5] in ["Proj_",]:
             #We found a graphic method
             processing = True
             opened = 0

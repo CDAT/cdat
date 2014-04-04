@@ -118,11 +118,11 @@ elements = { "boxfill" : {},
              "list": {},
              "projection": {},
              "fillarea":{},
-             "texttable":{"default":None},
-             "textorientation":{"default":None,"defcenter":None,"defright":None},
+             "texttable":{},
+             "textorientation":{"default":None,"defcenter":None,"defright":None,"defcentup":None},
              "line":{"default":None},
              }
-warnings.warn("Please edit textable for vcs.elements")
+texttable.Tt("default")
 warnings.warn("Please edit textorintation for vcs.elements")
 warnings.warn("Please edit line for vcs.elements")
 boxfill.Gfb("default")
