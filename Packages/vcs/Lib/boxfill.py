@@ -64,9 +64,8 @@ def process_src(nm,code):
     if j-i==-1: # last one no comma
       j=None
     scode = code[i:j]
-    print scode
     sp = scode.split("=")
-    print att,sp
+    print "*************************************************************************"
     nm = sp[0].strip()
     nm=nm.replace("#","")
     try:

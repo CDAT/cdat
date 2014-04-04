@@ -5,16 +5,16 @@ b=x.createboxfill()
 print x.listelements("boxfill")
 b=x.getboxfill("quick")
 #b.list()
-print x.listelements("projection")
+#print x.listelements("projection")
 f=x.getfillarea("GEN_seaice_7")
-print f.list()
+#print f.list()
 
 t=x.createtemplate()
 #t.list()
-print x.listelements("template")
+#print x.listelements("template")
 
 tt = x.createtexttable()
-tt.list()
+#tt.list()
 print x.listelements("texttable")
 
 
