@@ -285,7 +285,6 @@ class Tt(object):
           self.color=src.color
           self.fillincolor=src.fillincolor
           self.priority=src.priority
-          print "SRC VIEWPORT:",type(src.viewport)
           self.viewport=src.viewport
           self.worldcoordinate=src.worldcoordinate
           self.x=src.x
