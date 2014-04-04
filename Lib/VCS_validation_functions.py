@@ -149,11 +149,12 @@ def checkFont(self,name,value):
      elif isNumber(value,min=1):
           value=int(value)
           # try to see if font exists
-          nm = _vcs.getfontname(value)
+          warnings.warn("Please reimplement chckefontname in VCS_validation functions")
+          #nm = vcs.getfontname(value)
      elif isinstance(value,str):
-          value = _vcs.getfontnumber(value)
+          value = vcs.getfontnumber(value)
      else:
-          nms = _vcs.listelements("font")
+          nms = vcs.listelements("font")
           raise ValueError, 'Error for attribute %s: The font attribute values must be a valid font number or a valid font name. valid names are: %s' % (name,', '.join(nms))
      return value
 

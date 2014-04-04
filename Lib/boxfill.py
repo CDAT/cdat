@@ -61,8 +61,12 @@ def process_src(nm,code):
     if i==-1:
       continue
     j = code[i:].find(",")+i
+    if j-i==-1: # last one no comma
+      j=None
     scode = code[i:j]
+    print scode
     sp = scode.split("=")
+    print att,sp
     nm = sp[0].strip()
     nm=nm.replace("#","")
     try:
@@ -74,7 +78,10 @@ def process_src(nm,code):
         setattr(gm,nm,eval(sp[1]))
       except Exception,err:
         # strings
-        setattr(gm,nm,sp[1])
+        try:
+          setattr(gm,nm,sp[1])
+        except:
+          pass # oh well we stick to default value
     #Datawc
     idwc = code.find(" datawc(")
     if idwc>-1:

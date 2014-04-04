@@ -7,6 +7,7 @@ import boxfill
 import taylor
 import projection
 import fillarea
+import template
 
 def process_src_element(code):
   i = code.find("_")
@@ -31,6 +32,8 @@ def process_src_element(code):
       projection.process_src(nm,code)
     elif typ=="Tf":
       fillarea.process_src(nm,code)
+    elif typ=="P":
+      template.process_src(nm,code)
   #except Exception,err:
   #  print "Processing error for %s,%s: %s" % (nm,typ,err)
 
