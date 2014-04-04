@@ -16,11 +16,12 @@ add_cdat_package(Python ${PYTHON_MAJOR_SRC}.${PYTHON_MINOR_SRC}.${PYTHON_PATCH_S
 # FIXME: Name style
 set(CDAT_OS_XTRA_PATH "")
 
-set(PYTHON_SITE_PACKAGES ${CMAKE_INSTALL_PREFIX})
+set(PYTHON_SITE_PACKAGES_PREFIX ${CMAKE_INSTALL_PREFIX})
+set(PYTHON_SITE_PACKAGES ${PYTHON_SITE_PACKAGES_PREFIX}/lib/python${PYVER}/site-packages)
 if (APPLE)
-  set(PYTHON_SITE_PACKAGES ${CMAKE_INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/${PYVER})
+  set(PYTHON_SITE_PACKAGES ${PYTHON_SITE_PACKAGES_PREFIX}/Library/Frameworks/Python.framework/Versions/${PYVER})
 endif()
-set(PYTHONPATH ${PYTHON_SITE_PACKAGES}/lib/python${PYVER}/site-packages:${PYTHON_SITE_PACKAGES}/lib/python/site-packages)
+set(PYTHONPATH ${PYTHON_SITE_PACKAGES})
 
 if (CDAT_USE_SYSTEM_PYTHON)
    include(FindPythonInterp)
@@ -30,6 +31,7 @@ if (CDAT_USE_SYSTEM_PYTHON)
    # a system might have python version 2.6 and 2.7 both installed.
    set(Python_ADDITIONAL_VERSIONS ${PYVER})
    include(FindPythonLibs)
+   set(PYTHON_SITE_PACKAGES ${CMAKE_INSTALL_PREFIX}/lib/python${PYVER}/site-packages)
    message("[INFO] Using system python ${PYTHON_EXECUTABLE}")
    message("[INFO] Putting packages in directory ${PYTHON_SITE_PACKAGES}")
    set(PYTHON_EXTRA_PREFIX "--prefix=${CMAKE_INSTALL_PREFIX}")
