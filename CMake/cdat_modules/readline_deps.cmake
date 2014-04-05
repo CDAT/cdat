@@ -1,1 +1,1 @@
-set(readline_deps ${pkgconfig_pkg} ${termcap_pkg})
+set(readline_deps ${pkgconfig_pkg} ${ncurses_pkg})
