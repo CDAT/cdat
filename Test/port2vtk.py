@@ -3,7 +3,6 @@ x=vcs.init()
 b=x.createboxfill()
 #b.list()
 print x.listelements("boxfill")
-b=x.getboxfill("quick")
 #b.list()
 #print x.listelements("projection")
 f=x.getfillarea("GEN_seaice_7")
@@ -17,9 +16,17 @@ tt = x.createtexttable()
 #tt.list()
 print x.listelements("texttable")
 
+to = x.createtextorientation()
+to.list()
+print x.listelements("textorientation")
 
-#import sys,cdms2
-#f=cdms2.open(sys.prefix+"/sample_data/clt.nc")
-#s=f("clt")
-#x.plot(s,b)
+
+l = x.createline()
+l.list()
+print x.listelements("line")
+
+import sys,cdms2
+f=cdms2.open(sys.prefix+"/sample_data/clt.nc")
+s=f("clt")
+x.plot(s,b)
 

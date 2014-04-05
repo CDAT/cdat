@@ -65,7 +65,6 @@ def process_src(nm,code):
       j=None
     scode = code[i:j]
     sp = scode.split("=")
-    print "*************************************************************************"
     nm = sp[0].strip()
     nm=nm.replace("#","")
     try:

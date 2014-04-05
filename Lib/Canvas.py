@@ -3256,7 +3256,7 @@ Options:::
 
         name,source = self.check_name_source(name,source,'line')
 
-        ln = line.Tl(self, name, source, 0)
+        ln = line.Tl(name, source)
         if (ltype is not None):
             ln.type = ltype
         if (width is not None):
@@ -3965,7 +3965,7 @@ Options:::
 
         name,source = self.check_name_source(name,source,'textorientation')
 
-        return textorientation.To(self, name, source, 0)
+        return textorientation.To(name, source)
 
     def gettextorientation(self,To_name_src='default'):
         """
@@ -7302,7 +7302,7 @@ Options:::
         # browse through the file to look for taylordiagram/python graphics methods
         processing=False # found a taylor graphic method
         for l in f.xreadlines():
-          if l[:2] in ["P_",] or l[:3] in ["Tt_","Tf_",] or l[:4] in ['Gtd_','Gfb_'] or l[:2] in ["L_",] or l[:5] in ["Proj_",]:
+          if l[:2] in ["P_",] or l[:3] in ["Tl_","To_","Tt_","Tf_",] or l[:4] in ['Gtd_','Gfb_'] or l[:2] in ["L_",] or l[:5] in ["Proj_",]:
             #We found a graphic method
             processing = True
             opened = 0
