@@ -119,15 +119,22 @@ elements = { "boxfill" : {},
              "projection": {},
              "fillarea":{},
              "texttable":{},
-             "textorientation":{"default":None,"defcenter":None,"defright":None,"defcentup":None},
-             "line":{"default":None},
+             "textorientation":{},
+             "line":{},
              }
-texttable.Tt("default")
-warnings.warn("Please edit textorintation for vcs.elements")
-warnings.warn("Please edit line for vcs.elements")
-boxfill.Gfb("default")
 p=projection.Proj("default")
 p = projection.Proj("linear")
+line.Tl("default")
+line.Tl("deftaylordot")
+line.type=["dot"]
+texttable.Tt("default")
+textorientation.To("default")
+to = textorientation.To("defcenter")
+to.halign = "center"
+to = textorientation.To("defright")
+to.path = "right"
+warnings.warn("Please edit line for vcs.elements")
+boxfill.Gfb("default")
 for nm in ["mercator","orthographic","lambert","polar","polyconic","robinson",
     "mollweide",]:
   p = projection.Proj(nm)

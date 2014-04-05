@@ -8,6 +8,9 @@ import taylor
 import projection
 import fillarea
 import template
+import texttable
+import textorientation
+import line
 
 def process_src_element(code):
   i = code.find("_")
@@ -34,6 +37,12 @@ def process_src_element(code):
       fillarea.process_src(nm,code)
     elif typ=="P":
       template.process_src(nm,code)
+    elif typ=="Tt":
+      texttable.process_src(nm,code)
+    elif typ=="To":
+      textorientation.process_src(nm,code)
+    elif typ=="Tl":
+      line.process_src(nm,code)
   #except Exception,err:
   #  print "Processing error for %s,%s: %s" % (nm,typ,err)
 

@@ -25,6 +25,45 @@
 import Canvas
 import VCS_validation_functions
 import vcs
+import genutil
+
+def process_src(nm,code):
+  """Takes VCS script code (string) as input and generates boxfill gm from it"""
+  try:
+    tt = Tt(nm)
+  except:
+    tt = vcs.elements["texttable"][nm]
+  ## process attributes with = as assignement
+  atts={}
+  for a in ["string","vp","wc","x","y"]:
+    i = code.find(a+"(")
+    v=genutil.get_parenthesis_content(code[i:])
+    #print nm,a,v
+    if v!="":
+      vals = []
+      for V in v.split(","):
+        try:
+          vals.append(int(V))
+        except:
+          vals.append(float(V))
+      atts[a]=vals
+    tt.viewport = atts.get("vp",tt.viewport)
+    tt.worldcoordinate = atts.get("wc",tt.worldcoordinate)
+    tt.string = atts.get("string",tt.string)
+    tt.x = atts.get("x",tt.x)
+    tt.y = atts.get("y",tt.y)
+    i = code.find("projection=")
+    if i>-1:
+      j=code[i:].find(",")+i
+      tt.projection = code[i+11:j]
+    #rest of attributes
+    sp = code.split(",")
+    tt.font = int(sp[0])
+    tt.expansion = int(float(sp[2])*100.)
+    tt.spacing = int(float(sp[3])*10.)
+    tt.color = int(sp[4])
+    tt.priority = int(sp[5])
+    tt.fillincolor = int(sp[6])
 
 #############################################################################
 #                                                                           #

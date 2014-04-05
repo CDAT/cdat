@@ -24,76 +24,39 @@
 #
 import Canvas
 import VCS_validation_functions
+import vcs
+import genutil
 
-###############################################################################
-#                                                                             #
-# Function:	setTlmember                                                   #
-#                                                                             #
-# Description of Function:                                                    #
-# 	Private function to update the VCS canvas plot. If the canvas mode is #
-#       set to 0, then this function does nothing.                            #
-#                                                                             #
-#                                                                             #
-# Example of Use:                                                             #
-#      setTlmember(self,name,value)                                           #
-#              where: self is the class (e.g., Tl)                            #
-#                     name is the name of the member that is being changed    #
-#                     value is the new value of the member (or attribute)     #
-#                                                                             #
-###############################################################################
-def setTlmember(self,member,value):
-     # If the VCS Canvas is displayed, then bring the canvas to the front before 
-     # redisplaying the updated contents.
-     if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()):
-        Canvas.finish_queued_X_server_requests( self.parent )
-        self.parent.canvas.BLOCK_X_SERVER()
-        self.parent.canvasraised()
-
-     _vcs.setTlmember(self, member, value, self.parent.mode)
-
-     # If the VCS Canvas is displayed, then update the backing store
-     if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()):
-        self.parent.flush()
-        self.parent.backing_store()
-        self.parent.canvas.UNBLOCK_X_SERVER()
-setmember = setTlmember
-###############################################################################
-#                                                                             #
-# Function:     getTlmember                                                   #
-#                                                                             #
-# Description of Function:                                                    #
-#       Private function that retrieves the line members from the C           #
-#       structure and passes it back to Python.                               #
-#                                                                             #
-#                                                                             #
-# Example of Use:                                                             #
-#      return_value =                                                         #
-#      getTlmember(self,name)                                                 #
-#              where: self is the class (e.g., Tl)                            #
-#                     name is the name of the member that is being found      #
-#                                                                             #
-###############################################################################
-def getTlmember(self,member):
-     return _vcs.getTlmember(self,member)
-getmember=getTlmember
-
-###############################################################################
-#                                                                             #
-# Function:     renameTl                                                      #
-#                                                                             #
-# Description of Function:                                                    #
-#       Private function that renames the name of an existing line            #
-#       graphics method.                                                      #
-#                                                                             #
-#                                                                             #
-# Example of Use:                                                             #
-#      renameTl(old_name, new_name)                                           #
-#              where: old_name is the current name of line graphics method    #
-#                     new_name is the new name for the line graphics method   #
-#                                                                             #
-###############################################################################
-def renameTl(self, old_name, new_name):
-     return _vcs.renameTl(old_name, new_name)
+def process_src(nm,code):
+  try:
+    f = Tl(nm)
+  except Exception,err:
+    #print "No good:",err
+    f=vcs.elements["line"][nm]
+  atts={}
+  for a in ["ltyp","lwsf","lci","vp","wc","x","y"]:
+    i = code.find(a+"(")
+    v=genutil.get_parenthesis_content(code[i:])
+    #print nm,a,v
+    if v!="":
+      vals = []
+      for V in v.split(","):
+        try:
+          vals.append(int(V))
+        except:
+          vals.append(float(V))
+      atts[a]=vals
+    f.color = atts.get("lci",f.color)
+    f.width = atts.get("lwsf",f.width)
+    f.type = atts.get("ltyp",f.type)
+    f.viewport = atts.get("vp",f.viewport)
+    f.worldcoordinate = atts.get("wc",f.worldcoordinate)
+    f.x = atts.get('x',f.x)
+    f.y = atts.get('y',f.y)
+    i = code.find("projection=")
+    if i>-1:
+      j=code[i:].find(",")+i
+      f.projection = code[i+11:j]
 
 ###############################################################################
 #                                                                             #
@@ -148,10 +111,8 @@ class Tl(object):
     ln.y=[[.5,.4,.3], [.2,.1,0]]	# List of FloatTypes
 """
     __slots__ = [
-         'setmember',
-         'parent',
-         'name',
          's_name',
+         'name',
          'color',
          'priority',
          'type',
@@ -161,79 +122,78 @@ class Tl(object):
          'x',
          'y',
          'projection',
+         '_color',
+         '_priority',
+         '_type',
+         '_width',
+         '_viewport',
+         '_worldcoordinate',
+         '_x',
+         '_y',
+         '_projection',
          '_name',
          ]
     def _getname(self):
          return self._name
     def _setname(self,value):
          value=VCS_validation_functions.checkname(self,'name',value)
-         if value is not None:
-              self._name=value
-              setmember(self,'name',value)
+         self._name=value
     name=property(_getname,_setname)
     
     def _getfillareacolors(self):
-         return getmember(self,'color')
+         return self._color
     def _setfillareacolors(self,value):
          if isinstance(value,int):
               value=[value,]
-         if not value is None:
-              value = VCS_validation_functions.checkColorList(self,'color',value)
-         setmember(self,'color',value)
+         self._color = VCS_validation_functions.checkColorList(self,'color',value)
     color=property(_getfillareacolors,_setfillareacolors)
 
     def _gettype(self):
-         return getmember(self,'type')
+         return self._type
     def _settype(self,value):
          if isinstance(value,(str,int)):
               value=[value,]
-         if value is not None:
-              value = VCS_validation_functions.checkLinesList(self,'index',value)
-         setmember(self,'type',value)
+         self._type = VCS_validation_functions.checkLinesList(self,'index',value)
     type=property(_gettype,_settype)
 
     def _getwidth(self):
-         return getmember(self,'width')
+         return self._width
     def _setwidth(self,value):
          if isinstance(value,(int,float)):
               value=[value,]
-         if value is not None:
-              value = VCS_validation_functions.checkListOfNumbers(self,'width',value,minvalue=1,maxvalue=300)
-         setmember(self,'width',value)
+         self._width = VCS_validation_functions.checkListOfNumbers(self,'width',value,minvalue=1,maxvalue=300)
     width=property(_getwidth,_setwidth)
 
-    
     def _getpriority(self):
-         return getmember(self,'priority')
+         return self._priority
     def _setpriority(self,value):
-         value = VCS_validation_functions.checkInt(self,'priority',value,minvalue=0)
-         setmember(self,'priority',value)
+         self._priority = VCS_validation_functions.checkInt(self,'priority',value,minvalue=0)
     priority = property(_getpriority,_setpriority)
 
     def _getprojection(self):
-         return getmember(self,'projection')
+         return self._projection
     def _setprojection(self,value):
-         value=VCS_validation_functions.checkProjection(self,'projection',value)
-         setmember(self,'projection',value)
+         self._projection = VCS_validation_functions.checkProjection(self,'projection',value)
     projection=property(_getprojection,_setprojection)
     
     def _getwc(self):
-         return getmember(self,'worldcoordinate')
+         return self._worldcoordinate
     def _setwc(self,value):
-         value = VCS_validation_functions.checkListOfNumbers(self,'worldcoordinate',value,maxelements=4)
-         setmember(self,'worldcoordinate',value)
+         self._worldcoordinate = VCS_validation_functions.checkListOfNumbers(self,'worldcoordinate',value,maxelements=4)
     worldcoordinate=property(_getwc,_setwc)
     
     def _getvp(self):
-         return getmember(self,'viewport')
+         return self._viewport
     def _setvp(self,value):
-         value = VCS_validation_functions.checkListOfNumbers(self,'viewport',value,maxelements=4,minvalue=0.,maxvalue=1.)
-         setmember(self,'viewport',value)
+         self._viewport = VCS_validation_functions.checkListOfNumbers(self,'viewport',value,maxelements=4,minvalue=0.,maxvalue=1.)
     viewport=property(_getvp,_setvp)
 
     def _getx(self):
-         return getmember(self,'x')
+         return self._x
     def _setx(self,value):
+         if value is None:
+           self._x=None
+           return
          if not isinstance(value,(list,tuple)):
               raise ValueError, '%s must be a tuple or list of values.'
          try:
@@ -247,12 +207,15 @@ class Tl(object):
                    val.append(tmp)
               value=val
          # ok it worked
-         setmember(self,'x',value)
+         self._x = value
     x = property(_getx,_setx)
     
     def _gety(self):
-         return getmember(self,'y')
+         return self._y
     def _sety(self,value):
+         if value is None:
+           self._y=None
+           return
          if not isinstance(value,(list,tuple)):
               raise ValueError, '%s must be a tuple or list of values.'
          try:
@@ -266,7 +229,7 @@ class Tl(object):
                    val.append(tmp)
               value=val
          # ok it worked
-         setmember(self,'y',value)
+         self._y = value
     y = property(_gety,_sety)
 
     #############################################################################
@@ -274,7 +237,7 @@ class Tl(object):
     # Initialize the line attributes.                                           #
     #                                                                           #
     #############################################################################
-    def __init__(self, parent, Tl_name=None, Tl_name_src='default', createTl=0):
+    def __init__(self, Tl_name, Tl_name_src='default'):
 	#                                                         #
         ###########################################################
 	# Initialize the line class and its members               #
@@ -284,204 +247,36 @@ class Tl(object):
 	# appropriate Python Object.                              #
         ###########################################################
 	#                                                         #
-        if (createTl == 0):
-           if (Tl_name == None):
-              raise ValueError, 'Must provide a line name.'
-           else:
-              _vcs.copyTl(Tl_name_src, Tl_name)
-              self._name = Tl_name
-        else:
-              self._name=Tl_name_src
+        if Tl_name in vcs.elements["line"].keys():
+          raise ValueError,"lineobject '%' already exists" % Tl_name
+        self._name = Tl_name
+        if isinstance(Tl_name_src ,Tl):
+              Tl_name_src = Tl_name_src.name
         self.s_name='Tl'
-##         self.__dict__['type']=getTlmember(self, 'type')
-##         self.__dict__['projection']=getTlmember(self, 'projection')
-##         self.__dict__['width']=getTlmember(self, 'width')
-##         self.__dict__['color']=getTlmember(self, 'color')
-##         self.__dict__['priority']=getTlmember(self, 'priority')
-##         self.__dict__['viewport']=getTlmember(self, 'viewport')
-##         self.__dict__['worldcoordinate']=getTlmember(self, 'worldcoordinate')
-##         self.__dict__['x']=getTlmember(self, 'x')
-##         self.__dict__['y']=getTlmember(self, 'y')
-        #                                                         #
-        ###########################################################
-        # Find and set the line structure in VCS C pointer        #
-        # list. If the line name does not exist, then use         #
-        # default line.                                           #
-        ###########################################################
-        #                                                         #
-        self.parent = parent
-
-##     #############################################################################
-##     #                                                                           #
-##     # Set line attributes.                                                      #
-##     #                                                                           #
-##     #############################################################################
-##     def __setattr__(self, name, value):
-##         if (self.name == '__removed_from_VCS__'):
-##            raise ValueError, 'This instance has been removed from VCS.'
-##         if (self.name == 'default'):
-##            raise ValueError, 'You cannot modify the default line.'
-##         if (name == 'name'):
-##            if (type(value) == StringType):
-##               renameTl(self,self.name, value)
-##               self.__dict__['name']=value
-##            else:
-##               raise ValueError, 'The name attribute must be a string.'
-##         elif (name == 'type'):
-##            if (value == None):
-##               self.__dict__['type']=None
-##               setTlmember(self,'type',self.type) # update the plot
-##            elif (value in ('solid', 'dash', 'dot', 'dash-dot', 'long-dash', 0, 1, 2, 3, 4)):
-##               if value in ('solid', 0):
-##                  value='solid'
-##               elif value in ('dash', 1):
-##                  value='dash'
-##               elif value in ('dot', 2):
-##                  value='dot'
-##               elif value in ('dash-dot', 3):
-##                  value='dash-dot'
-##               elif value in ('long-dash', 4):
-##                  value='long-dash'
-##               l=[] 
-##               l.append(value)
-##               self.__dict__['type']=l
-##               setTlmember(self,name,l) # update the plot
-##            elif (type(value) in (ListType, TupleType)):
-##               if (type(value) == TupleType): value = list(value)  # must have a list
-##               nvalue = []
-##               for x in value:
-##                  if (x not in ('solid', 'dash', 'dot', 'dash-dot', 'long-dash', 0, 1, 2, 3, 4)):
-##                     raise ValueError, 'The line value can either be ("solid", "dash", "dot", "dash-dot", "long-dash") or (0, 1, 2, 3, 4)'
-##                  else:
-##                     if x in ('solid', 0):
-##                        nvalue.append('solid')
-##                     elif x in ('dash', 1):
-##                        nvalue.append('dash')
-##                     elif x in ('dot', 2):
-##                        nvalue.append('dot')
-##                     elif x in ('dash-dot', 3):
-##                        nvalue.append('dash-dot')
-##                     elif x in ('long-dash', 4):
-##                        nvalue.append('long-dash')
-##               self.__dict__[name]=nvalue
-##               setTlmember(self,name,nvalue) # update the plot
-##            else:
-##               raise ValueError, 'The line value can either be ("solid", "dash", "dot", "dash-dot", "long-dash") or (0, 1, 2, 3, 4)'
-##         elif (name == 'width'):
-##            if (value == None):
-##               self.__dict__['width']=None
-##               setTlmember(self,'width',self.width) # update the plot
-##            elif (type(value) in (IntType,FloatType)):
-##               if (value < 1) or (value > 300): # must be an integer or float
-##                  raise ValueError, 'The width value must be in the range 1 to 300.'
-##               else:
-##                  l=[] 
-##                  l.append(value)
-##                  self.__dict__[name]=l
-##                  setTlmember(self,name,self.width) # update the plot
-##            elif (type(value) in (ListType, TupleType)):
-##               if (type(value) == TupleType): value = list(value)  # must have a list
-##               for x in value:
-##                  if ((type(x) not in (IntType, FloatType)) or (x < 1) or (x > 300)):
-##                    raise ValueError, 'The width value must be in the range 1 to 300.'
-##               self.__dict__[name]=value
-##               setTlmember(self,name,value) # update the plot
-##            else:
-##               raise ValueError, 'The indices attribute values must be integer and stored in either a list or a tuple.'
-##         elif (name == 'color'):
-##            if (value == None):
-##               self.__dict__['color']=None
-##               setTlmember(self,'color',self.color) # update the plot
-##            elif (isinstance(value, IntType)):
-##               if value not in range(0,256): # must be an integer
-##                  raise ValueError, 'The line color value must be in the range 0 to 255.'
-##               else:
-##                  l=[] 
-##                  l.append(value)
-##                  self.__dict__['color']=l
-##                  setTlmember(self,'color',self.color) # update the plot
-##            elif (type(value) in (ListType, TupleType)):
-##               if (type(value) == TupleType): value = list(value)  # must have a list
-##               for x in value:
-##                  if ((type(x) != IntType) or (x not in range(0,256))):
-##                     raise ValueError, 'The line color values must be in the range 0 to 255.'
-##               self.__dict__[name]=value
-##               setTlmember(self,name,value) # update the plot
-##            else:
-##               raise ValueError, 'The color attribute value must be an integer in the range 0 to 255.'
-##         elif (name == 'priority'):
-##            if (value == None):
-##               self.__dict__['priority']=None
-##               setTlmember(self,'priority',self.priority) # update the plot
-##            elif (isinstance(value, IntType)):
-##               self.__dict__['priority']=value
-##               setTlmember(self,'priority',self.priority) # update the plot
-##            else:
-##               raise ValueError, 'The priority attribute value must be an integer.'
-##         elif (name == 'viewport'):
-##            if (value == None):
-##              self.__dict__[name]= [0.0, 1.0, 0.0, 1.0]
-##              setTlmember(self,name,[0.0, 1.0, 0.0, 1.0]) # update the plot
-##            else:
-##              if (type(value) in (ListType, TupleType)):
-##               value = list(value)  # make sure that values list is a list
-##               if len(value) != 4:
-##                  self.__dict__[name]= [0.0, 1.0, 0.0, 1.0]
-##                  raise ValueError, 'Viewport must contain 4 integer or float values.'
-##               else:
-##                  self.__dict__[name]=value
-##                  setTlmember(self,name,value) # update the plot
-##              else:
-##               raise ValueError, 'The viewport attribute must be a tuple or list of values.'
-##         elif (name == 'worldcoordinate'):
-##            if (value == None):
-##              self.__dict__[name]= [0.0, 1.0, 0.0, 1.0]
-##              setTlmember(self,name,[0.0, 1.0, 0.0, 1.0]) # update the plot
-##            else:
-##              if (type(value) in (ListType, TupleType)):
-##               value = list(value)  # make sure that values list is a list
-##               if len(value) != 4:
-##                  self.__dict__[name]= [0.0, 1.0, 0.0, 1.0]
-##                  raise ValueError, 'World coordinates must contain 4 integer or float values.'
-##               else:
-##                  self.__dict__[name]=value
-##                  setTlmember(self,name,value) # update the plot
-##              else:
-##               raise ValueError, 'The world coordinates attribute must be a tuple or list of values.'
-##         elif (name == 'x'):
-##            if (value == None) or (value==[]):
-##              self.__dict__[name] = None
-##              setTlmember(self,name,None) # update the plot
-##            else:
-##              if isinstance(value, numpy.ndarray): value = value.tolist()
-##              if (type(value) in (ListType, TupleType)):
-##                 value = list(value)  # make sure that values list is a list
-##                 for i in range(len(value)):
-##                     if isinstance(value[i], numpy.ndarray): value[i]=value[i].tolist()
-##                     elif type(value[i]) is TupleType: value[i] = list( value[i] )
-##                 self.__dict__[name]=value
-##                 setTlmember(self,name,value) # update the plot
-##              else:
-##               raise ValueError, 'The x attribute must be a tuple or list of values.'
-##         elif (name == 'y'):
-##            if (value == None) or (value==None):
-##              self.__dict__[name] = None
-##              setTlmember(self,name,None) # update the plot
-##            else:
-##              if isinstance(value, numpy.ndarray): value = value.tolist()
-##              if (type(value) in (ListType, TupleType)):
-##                 value = list(value)  # make sure that values list is a list
-##                 for i in range(len(value)):
-##                     if isinstance(value[i], numpy.ndarray): value[i]=value[i].tolist()
-##                     elif type(value[i]) is TupleType: value[i] = list( value[i] )
-##                 self.__dict__[name]=value
-##                 setTlmember(self,name,value) # update the plot
-##              else:
-##               raise ValueError, 'The y attribute must be a tuple or list of values.'
-##         elif (name == 'projection'):
-##              value=VCS_validation_functions.checkProjection(self,'projection',value)
-##              self.__dict__[name]=value
-##              setTlmember(self,name,value) # update the plot
+        if Tl_name == "default":
+          self._type = ['solid',]
+          self._projection = "default"
+          self._width = [1.0,]
+          self._color = [1,]
+          self._priority = 1
+          self._viewport = [0.,1.,0.,1.]
+          self._worldcoordinate = [0.,1.,0.,1.]
+          self._x = None
+          self._y = None
+        else:
+          if not Tl_name_src in vcs.elements["line"].keys():
+            raise ValueError, "The line source '%s' does not exists" % Tl_name_src
+          src = vcs.elements["line"][Tl_name_src]
+          self.type =src.type
+          self.projection = src.projection
+          self.width = src.width
+          self.color = src.color
+          self.priority = src.priority
+          self.viewport = src.viewport
+          self.worldcoordinate = src.worldcoordinate
+          self.x = src.x
+          self.y = src.y
+        vcs.elements["line"][Tl_name] = self
 
     #############################################################################
     #                                                                           #
@@ -492,7 +287,6 @@ class Tl(object):
         if (self.name == '__removed_from_VCS__'):
            raise ValueError, 'This instance has been removed from VCS.'
         print "","----------Line (Tl) member (attribute) listings ----------"
-        print 'Canvas Mode =',self.parent.mode
         print "secondary method =", self.s_name
         print "name =", self.name
         print "type =", self.type
