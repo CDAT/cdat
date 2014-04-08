@@ -2,7 +2,7 @@ set(readline_source "${CMAKE_CURRENT_BINARY_DIR}/build/readline")
 set(readline_install "${cdat_EXTERNALS}")
 set(readline_conf_args)
 
-set(readline_conf_args "--with-curses")
+set(readline_conf_args "--with-curses --disable-static --enable-shared")
 # with -fPIC
 IF(UNIX AND NOT WIN32)
   FIND_PROGRAM(CMAKE_UNAME uname /bin /usr/bin /usr/local/bin )
