@@ -23,6 +23,8 @@ def process_src_element(code):
   if 1:
     if typ == "Gfb":
       boxfill.process_src(nm,code)
+    elif typ == "Gfi":
+      isofill.process_src(nm,code)
     elif typ == "L":
       dic = {}
       sp = code.split(",")

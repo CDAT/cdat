@@ -63,7 +63,8 @@ def process_src(nm,code):
     tt.spacing = int(float(sp[3])*10.)
     tt.color = int(sp[4])
     tt.priority = int(sp[5])
-    tt.fillincolor = int(sp[6])
+    if len(sp)!=14:
+      tt.fillincolor = int(sp[6])
 
 #############################################################################
 #                                                                           #

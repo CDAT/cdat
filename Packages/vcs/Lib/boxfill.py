@@ -90,6 +90,20 @@ def process_src(nm,code):
       gm.datawc_y1 = float(vals[1])
       gm.datawc_x2 = float(vals[2])
       gm.datawc_y2 = float(vals[3])
+    #idatawc
+    idwc = code.find("idatawc(")
+    if idwc>-1:
+      jdwc = code[idwc:].find(")")+idwc
+      cd = code[idwc+8:jdwc]
+      vals = cd.split(",")
+      if int(vals[0]==1:
+        g.datawc_x1 = cdtime.reltime(gm.datawc_x1,g.datawc_timeunits).tocomp(g.datawc_calendar)
+      if int(vals[1]==1:
+        g.datawc_y1 = cdtime.reltime(gm.datawc_x2,g.datawc_timeunits).tocomp(g.datawc_calendar)
+      if int(vals[2]==1:
+        g.datawc_x2 = cdtime.reltime(gm.datawc_y1,g.datawc_timeunits).tocomp(g.datawc_calendar)
+      if int(vals[3]==1:
+        g.datawc_y2 = cdtime.reltime(gm.datawc_y2,g.datawc_timeunits).tocomp(g.datawc_calendar)
     irg=code.find("range")
     if irg>-1:
       lines=code[irg:].split("\n")
