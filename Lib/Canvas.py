@@ -745,12 +745,13 @@ class Canvas(object,AutoAPI.AutoAPI):
                 contout = 1
             else:
                 contout = 0
-        if (isinstance(arglist[GRAPHICS_METHOD],str) and (arglist[GRAPHICS_METHOD]) == 'meshfill') or ((xdim>=0 and ydim>=0 and (contout>=1) and (contout<12))):
-            self.canvas.setcontinentstype(contout)
-            self.canvas.savecontinentstype(contout)
-        else:
-            self.canvas.setcontinentstype(0)
-            self.canvas.savecontinentstype(0)
+        warnings.warn("please fix setcontinettype/savecontinenttype")
+        #if (isinstance(arglist[GRAPHICS_METHOD],str) and (arglist[GRAPHICS_METHOD]) == 'meshfill') or ((xdim>=0 and ydim>=0 and (contout>=1) and (contout<12))):
+        #    self.canvas.setcontinentstype(contout)
+        #    self.canvas.savecontinentstype(contout)
+        #else:
+        #    self.canvas.setcontinentstype(0)
+        #    self.canvas.savecontinentstype(0)
 
         # Reverse axis direction if necessary
         xrev = keyargs.get('xrev',0)
@@ -973,16 +974,8 @@ class Canvas(object,AutoAPI.AutoAPI):
     a.update()                             # Update the changes manually
 """
 
-        finish_queued_X_server_requests( self )
-        self.canvas.BLOCK_X_SERVER()
-
-        a = apply(self.canvas.updatecanvas, args)
-        self.flush() # update the canvas by processing all the X events
-        self.backing_store()
-        pause (self.pause_time)
-
-        self.canvas.UNBLOCK_X_SERVER()
-        return a
+        warnings.warn("Need to reimplement x.update Canvas.py circa 977 ????")
+        return
 
     #############################################################################
     #                                                                           #
@@ -1334,8 +1327,9 @@ class Canvas(object,AutoAPI.AutoAPI):
         if not isinstance(Pt_name_src,str):
            raise vcsError, 'The argument must be a string.'
 
-        Pt_name = None
-        return template.P(self, Pt_name, Pt_name_src, 1)
+        if not Pt_name_src in vcs.elements["template"].keys():
+          raise ValueError, "template '%s' does not exists" % Pt_name_src
+        return vcs.elements["template"][Pt_name_src]
 
     #############################################################################
     #                                                                           #
@@ -1955,9 +1949,7 @@ Options:::
 
 """
 
-        name,source = self.check_name_source(name,source,'isofill')
-
-        return isofill.Gfi(self, name, source, 0)
+        return isofill.Gfi(name, source)
     createisofill.__doc__ = createisofill.__doc__ % (plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, isofill_output)
 
     def getisofill(self,Gfi_name_src='default'):
@@ -5382,7 +5374,8 @@ Options:::
         bg = keyargs.get('bg', 0)
 
         # line added by Charles Doutriaux to plugin the taylordiagram and bypass the C code for graphic methods
-        hold_cont_type = self.canvas.getcontinentstype()
+        warnings.warn("Do something about hold_continent type circa line 5386 in Canvas.py")
+        #hold_cont_type = self.canvas.getcontinentstype()
         if isinstance(arglist[3],str) and arglist[3].lower()=='taylordiagram':
             for p in slab_changed_attributes.keys():
                 if hasattr(arglist[0],p):
@@ -5569,7 +5562,8 @@ Options:::
                             
             if hasattr(self,'_isplottinggridded') : del(self._isplottinggridded)
             # Get the continents for animation generation
-            self.animate.continents_value = self.canvas.getcontinentstype()
+            warnings.warn("aninamte setcontinettype disabled")
+            #self.animate.continents_value = self.canvas.getcontinentstype()
 
             # Get the option for doing graphics in the background.
             if bg:
@@ -7302,7 +7296,7 @@ Options:::
         # browse through the file to look for taylordiagram/python graphics methods
         processing=False # found a taylor graphic method
         for l in f.xreadlines():
-          if l[:2] in ["P_",] or l[:3] in ["Tl_","To_","Tt_","Tf_",] or l[:4] in ['Gtd_','Gfb_'] or l[:2] in ["L_",] or l[:5] in ["Proj_",]:
+          if l[:2] in ["P_",] or l[:3] in ["Tl_","To_","Tt_","Tf_",] or l[:4] in ['Gtd_','Gfb_',"Gfi_"] or l[:2] in ["L_",] or l[:5] in ["Proj_",]:
             #We found a graphic method
             processing = True
             opened = 0

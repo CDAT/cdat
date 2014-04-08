@@ -17,16 +17,21 @@ tt = x.createtexttable()
 print x.listelements("texttable")
 
 to = x.createtextorientation()
-to.list()
+#to.list()
 print x.listelements("textorientation")
 
 
 l = x.createline()
-l.list()
+#l.list()
 print x.listelements("line")
 
-import sys,cdms2
-f=cdms2.open(sys.prefix+"/sample_data/clt.nc")
-s=f("clt")
-x.plot(s,b)
+isof = x.createisofill()
+isof.list()
+print x.listelements("isofill")
+
+
+#import sys,cdms2
+#f=cdms2.open(sys.prefix+"/sample_data/clt.nc")
+#s=f("clt")
+#x.plot(s,b)
 

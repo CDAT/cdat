@@ -63,13 +63,20 @@ def process_src(nm,code):
     if i>-1:
       j=code[i:].find(",")+i
       f.projection = code[i+11:j]
-    if 0:
-        for b in vcs.elements["boxfill"]:
-          for i,v in b.fillareaindices:
-            if isinstance(v,str) and v==nm:
-              b._fillareaindices[i]=self.index
-              b._fillareacolor[i]=self.color
-              b._fillareastyle = self.style
+    for b in vcs.elements["boxfill"]:
+      B = vcs.elements["boxfill"][b]
+      for i,v in B.fillareaindices:
+        if isinstance(v,str) and v==nm:
+          B._fillareaindices[i]=self.index
+          B._fillareacolor[i]=self.color
+          B._fillareastyle = self.style
+    for b in vcs.elements["isofill"]:
+      B = vcs.elements["isofill"][b]
+      for i,v in B.fillareaindices:
+        if isinstance(v,str) and v==nm:
+          B._fillareaindices[i]=self.index
+          B._fillareacolor[i]=self.color
+          B._fillareastyle = self.style
 
 #############################################################################
 #                                                                           #
