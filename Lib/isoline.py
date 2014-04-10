@@ -28,82 +28,145 @@
 #################################################################################
 import queries, vcs, VCS_validation_functions, cdtime
 import Canvas
-from types import ListType, TupleType, StringType, IntType, FloatType, DictType
 import AutoAPI
 import xmldocs
+import genutil
+def get_att_from_sub(code,att):
+  i = code.find(att)
+  if i>-1:
+    j = code[i:].find(',')
+    if j!=-1:
+      j+=i
+    sp= code[i:j].split("=")
+    try:
+      return int(sp[1])
+    except:
+      try:
+        return float(sp[1])
+      except:
+        return sp[1]
 
-#################################################################################
-#                                                                               #
-# Function:	setGimember                                                     #
-#                                                                               #
-# Description of Function:                                                      #
-# 	Private function to update the VCS canvas plot. If the canvas mode is   #
-#       set to 0, then this function does nothing.              		#
-#                                                                               #
-#                                                                               #
-# Example of Use:                                                               #
-#      setGimember(self,name,value)						#
-#              where: self is the class (e.g., Gi)                             	#
-#                     name is the name of the member that is being changed      #
-#                     value is the new value of the member (or attribute)       #
-#                                                                               #
-#################################################################################
-def setGimember(self,member,value):
-     # If the VCS Canvas is displayed, then bring the canvas to the front before 
-     # redisplaying the updated contents.
-     if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()):
-        Canvas.finish_queued_X_server_requests( self.parent )
-        self.parent.canvas.BLOCK_X_SERVER()
-        self.parent.canvasraised()
+def process_src(nm,code):
+  """Takes VCS script code (string) as input and generates isoline gm from it"""
+  try:
+    g = Gi(nm)
+  except Exception,err:
+    print err
+    g = vcs.elements["isoline"][nm]
+  ## process attributes with = as assignement
+  for att in ["projection",
+      "xticlabels#1","xticlabels#2",
+      "xmtics#1","xmtics#2",
+      "yticlabels#1","yticlabels#2",
+      "ymtics#1","ymtics#2",
+      "xaxisconvert","yaxisconvert",
+      "datawc_tunits",
+      "boxfill_type",
+      "legend",
+      "ext_1","ext_2",
+      "missing",
+      "datawc_calendar","make_labels"]:
+    i = code.find(att)
+    if i==-1:
+      continue
+    j = code[i:].find(",")+i
+    if j-i==-1: # last one no comma
+      j=None
+    scode = code[i:j]
+    sp = scode.split("=")
+    nm = sp[0].strip()
+    nm=nm.replace("#","")
+    if nm=="make_labels":
+      nm="label"
+    try:
+      #int will be converted
+      setattr(g,nm,int(sp[1]))
+    except Exception,err:
+      try:
+        #int and floats will be converted
+        setattr(g,nm,eval(sp[1]))
+      except Exception,err:
+        # strings
+        try:
+          setattr(g,nm,sp[1])
+        except:
+          pass # oh well we stick to default value
+    #Datawc
+    idwc = code.find(" datawc(")
+    if idwc>-1:
+      jdwc = code[idwc:].find(")")+idwc
+      cd = code[idwc+8:jdwc]
+      vals = cd.split(",")
+      g.datawc_x1 = float(vals[0])
+      g.datawc_y1 = float(vals[1])
+      g.datawc_x2 = float(vals[2])
+      g.datawc_y2 = float(vals[3])
+    #idatawc
+    idwc = code.find("idatawc(")
+    if idwc>-1:
+      jdwc = code[idwc:].find(")")+idwc
+      cd = code[idwc+8:jdwc]
+      vals = cd.split(",")
+      if int(vals[0])==1:
+        g.datawc_x1 = cdtime.reltime(gm.datawc_x1,g.datawc_timeunits).tocomp(g.datawc_calendar)
+      if int(vals[1])==1:
+        g.datawc_y1 = cdtime.reltime(gm.datawc_x2,g.datawc_timeunits).tocomp(g.datawc_calendar)
+      if int(vals[2])==1:
+        g.datawc_x2 = cdtime.reltime(gm.datawc_y1,g.datawc_timeunits).tocomp(g.datawc_calendar)
+      if int(vals[3])==1:
+        g.datawc_y2 = cdtime.reltime(gm.datawc_y2,g.datawc_timeunits).tocomp(g.datawc_calendar)
+    irg=code.find("lines")
+    if irg>-1:
+      scode = code[irg:]
+      label = 'n'
+      tl=[]
+      tt=[]
+      to=[]
+      clock = []
+      scales = []
+      angles =[]
+      spacing = []
+      levs=[]
+      while scode.find("id=")>-1:
+        sub = genutil.get_parenthesis_content(code[irg:])
+        if get_att_from_sub(sub,"label") not in ["*",None]:
+          g.label='y'
+        levs.append(get_att_from_sub(sub,"level"))
+        tl.append(get_att_from_sub(sub,"Tl"))
+        to.append(get_att_from_sub(sub,"To"))
+        tt.append(get_att_from_sub(sub,"Tt"))
+        clock.append(get_att_from_sub(sub,"clockwise"))
+        scales.append(get_att_from_sub(sub,"length"))
+        angles.append(get_att_from_sub(sub,"angle"))
+        spacing.append(get_att_from_sub(sub,"spacing"))
+        scode = scode[scode.find(sub)+len(sub):]
+      g.level = levs
+      try:
+        g.line = tl
+      except:
+        g._line = tl
+      try:
+        g.text = to
+      except:
+        g._text= to
+      try:
+        g.textcolor = tt
+      except:
+        g._textcolor = tt
 
-     _vcs.setGimember(self, member, value, self.parent.mode)
-
-     # If the VCS Canvas is displayed, then update the backing store
-     if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()):
-        self.parent.flush()
-        self.parent.backing_store()
-        self.parent.canvas.UNBLOCK_X_SERVER()
-setmember=setGimember
-
-#################################################################################
-#                                                                               #
-# Function:     getGimember                                                     #
-#                                                                               #
-# Description of Function:                                                      #
-#       Private function that retrieves the isoline members from the C          #
-#       structure and passes it back to Python.                                 #
-#                                                                               #
-#                                                                               #
-# Example of Use:                                                               #
-#      return_value =								#
-#      getGimember(self,name)                                                   #
-#              where: self is the class (e.g., Gi)                              #
-#                     name is the name of the member that is being found        #
-#                                                                               #
-#################################################################################
-def getGimember(self,member):
-     return _vcs.getGimember(self,member)
-getmember=getGimember
-
-#################################################################################
-#                                                                               #
-# Function:     renameGi                                                        #
-#                                                                               #
-# Description of Function:                                                      #
-#       Private function that renames the name of an existing isoline           #
-#       graphics method.                                                        #
-#                                                                               #
-#                                                                               #
-# Example of Use:                                                               #
-#      renameGi(old_name, new_name)                                             #
-#              where: old_name is the current name of isoline graphics method   #
-#                     new_name is the new name for the isoline graphics method  #
-#                                                                               #
-#################################################################################
-def renameGi(self, old_name, new_name):
-     return _vcs.renameGi(old_name, new_name)
-
-
+      gd=vcs.elements["isoline"]["default"]
+      try:
+        g.scale = scales
+      except:
+        g.scale = gd.scale
+      try:
+        g.angle = angles
+      except:
+        g.angle=gd.angle
+      try:
+        g.clockwise = clock
+      except:
+        g.clockwise = gd.clockwise
 class Gi(object,AutoAPI.AutoAPI):
     """
     Options:::
@@ -229,7 +292,6 @@ class Gi(object,AutoAPI.AutoAPI):
 	iso.textcolors=(16,19,33,44)
 	iso.textcolors=None	        	# Turns off the text color index
 """
-    rename=renameGi # Alias for VCS_Validation_Functions
     __slots__=[
          '__doc__',
          'parent',
@@ -300,16 +362,13 @@ class Gi(object,AutoAPI.AutoAPI):
          return self._name
     def _setname(self,value):
          value=VCS_validation_functions.checkname(self,'name',value)
-         if value is not None:
-              self._name=value
-              setmember(self,'name',value)
+         self._name=value
     name=property(_getname,_setname)
 
     def _getcalendar(self):
          return self._datawc_calendar
     def _setcalendar(self,value):
          value=VCS_validation_functions.checkCalendar(self,'datawc_calendar',value)
-         setmember(self,'datawc_calendar',value)
          self._datawc_calendar=value
     datawc_calendar=property(_getcalendar,_setcalendar)
 
@@ -317,7 +376,6 @@ class Gi(object,AutoAPI.AutoAPI):
          return self._datawc_timeunits
     def _settimeunits(self,value):
          value=VCS_validation_functions.checkTimeUnits(self,'datawc_timeunits',value)
-         setmember(self,'datawc_timeunits',value)
          self._datawc_timeunits=value
     datawc_timeunits=property(_gettimeunits,_settimeunits)
 
@@ -326,7 +384,6 @@ class Gi(object,AutoAPI.AutoAPI):
     def _setxaxisconvert(self,value):
          value=VCS_validation_functions.checkAxisConvert(self,'xaxisconvert',value)
          self._xaxisconvert=value
-         setmember(self,'xaxisconvert',value)
     xaxisconvert=property(_getxaxisconvert,_setxaxisconvert)
 
     def _getyaxisconvert(self):
@@ -334,7 +391,6 @@ class Gi(object,AutoAPI.AutoAPI):
     def _setyaxisconvert(self,value):
          value=VCS_validation_functions.checkAxisConvert(self,'yaxisconvert',value)
          self._yaxisconvert=value
-         setmember(self,'yaxisconvert',value)
     yaxisconvert=property(_getyaxisconvert,_setyaxisconvert)
 
     def _getlevels(self):
@@ -342,7 +398,6 @@ class Gi(object,AutoAPI.AutoAPI):
     def _setlevels(self,value):
          value=VCS_validation_functions.checkIsolineLevels(self,'levels',value)
          self._level=value
-         setmember(self,'level',value)
     level=property(_getlevels,_setlevels)
     levels=property(_getlevels,_setlevels)
 
@@ -351,7 +406,6 @@ class Gi(object,AutoAPI.AutoAPI):
     def _setprojection(self,value):
          value=VCS_validation_functions.checkProjection(self,'projection',value)
          self._projection=value
-         setmember(self,'projection',value)
     projection=property(_getprojection,_setprojection)
 
     def _getxticlabels1(self):
@@ -359,7 +413,6 @@ class Gi(object,AutoAPI.AutoAPI):
     def _setxticlabels1(self,value):
          value=VCS_validation_functions.checkStringDictionary(self,'xticlabels1',value)
          self._xticlabels1=value
-         setmember(self,'xticlabels1',value)
     xticlabels1=property(_getxticlabels1,_setxticlabels1)
 
     def _getxticlabels2(self):
@@ -367,7 +420,6 @@ class Gi(object,AutoAPI.AutoAPI):
     def _setxticlabels2(self,value):
          value=VCS_validation_functions.checkStringDictionary(self,'xticlabels2',value)
          self._xticlabels2=value
-         setmember(self,'xticlabels2',value)
     xticlabels2=property(_getxticlabels2,_setxticlabels2)
 
     def _getyticlabels1(self):
@@ -375,7 +427,6 @@ class Gi(object,AutoAPI.AutoAPI):
     def _setyticlabels1(self,value):
          value=VCS_validation_functions.checkStringDictionary(self,'yticlabels1',value)
          self._yticlabels1=value
-         setmember(self,'yticlabels1',value)
     yticlabels1=property(_getyticlabels1,_setyticlabels1)
 
     def _getyticlabels2(self):
@@ -383,7 +434,6 @@ class Gi(object,AutoAPI.AutoAPI):
     def _setyticlabels2(self,value):
          value=VCS_validation_functions.checkStringDictionary(self,'yticlabels2',value)
          self._yticlabels2=value
-         setmember(self,'yticlabels2',value)
     yticlabels2=property(_getyticlabels2,_setyticlabels2)
 
     def _getxmtics1(self):
@@ -391,7 +441,6 @@ class Gi(object,AutoAPI.AutoAPI):
     def _setxmtics1(self,value):
          value=VCS_validation_functions.checkStringDictionary(self,'xmtics1',value)
          self._xmtics1=value
-         setmember(self,'xmtics1',value)
     xmtics1=property(_getxmtics1,_setxmtics1)
 
     def _getxmtics2(self):
@@ -399,7 +448,6 @@ class Gi(object,AutoAPI.AutoAPI):
     def _setxmtics2(self,value):
          value=VCS_validation_functions.checkStringDictionary(self,'xmtics2',value)
          self._xmtics2=value
-         setmember(self,'xmtics2',value)
     xmtics2=property(_getxmtics2,_setxmtics2)
 
     def _getymtics1(self):
@@ -407,7 +455,6 @@ class Gi(object,AutoAPI.AutoAPI):
     def _setymtics1(self,value):
          value=VCS_validation_functions.checkStringDictionary(self,'ymtics1',value)
          self._ymtics1=value
-         setmember(self,'ymtics1',value)
     ymtics1=property(_getymtics1,_setymtics1)
 
     def _getymtics2(self):
@@ -415,55 +462,34 @@ class Gi(object,AutoAPI.AutoAPI):
     def _setymtics2(self,value):
          value=VCS_validation_functions.checkStringDictionary(self,'ymtics2',value)
          self._ymtics2=value
-         setmember(self,'ymtics2',value)
     ymtics2=property(_getymtics2,_setymtics2)
 
     def _getdatawc_x1(self):
-         if getmember(self,'_tdatawc_x1') :
-              return cdtime.reltime(self._datawc_x1,self.datawc_timeunits).tocomp(self.datawc_calendar)
-         else:
-              return self._datawc_x1
+          return self._datawc_x1
     def _setdatawc_x1(self,value):
-         value=VCS_validation_functions.checkDatawc(self,'datawc_x1',value)
-         self._datawc_x1=value[0]
-         setmember(self,'datawc_x1',value[0])
-         setmember(self,'_tdatawc_x1',value[1])
+         value2=VCS_validation_functions.checkDatawc(self,'datawc_x1',value)
+         self._datawc_x1=value
     datawc_x1=property(_getdatawc_x1,_setdatawc_x1)
 
     def _getdatawc_x2(self):
-         if getmember(self,'_tdatawc_x2') :
-              return cdtime.reltime(self._datawc_x2,self.datawc_timeunits).tocomp(self.datawc_calendar)
-         else:
               return self._datawc_x2
     def _setdatawc_x2(self,value):
-         value=VCS_validation_functions.checkDatawc(self,'datawc_x2',value)
-         self._datawc_x2=value[0]
-         setmember(self,'datawc_x2',value[0])
-         setmember(self,'_tdatawc_x2',value[1])
+         value2=VCS_validation_functions.checkDatawc(self,'datawc_x2',value)
+         self._datawc_x2=value
     datawc_x2=property(_getdatawc_x2,_setdatawc_x2)
     
     def _getdatawc_y1(self):
-         if getmember(self,'_tdatawc_y1') :
-              return cdtime.reltime(self._datawc_y1,self.datawc_timeunits).tocomp(self.datawc_calendar)
-         else:
               return self._datawc_y1
     def _setdatawc_y1(self,value):
-         value=VCS_validation_functions.checkDatawc(self,'datawc_y1',value)
-         self._datawc_y1=value[0]
-         setmember(self,'datawc_y1',value[0])
-         setmember(self,'_tdatawc_y1',value[1])
+         value2=VCS_validation_functions.checkDatawc(self,'datawc_y1',value)
+         self._datawc_y1=value
     datawc_y1=property(_getdatawc_y1,_setdatawc_y1)
 
     def _getdatawc_y2(self):
-         if getmember(self,'_tdatawc_y2') :
-              return cdtime.reltime(self._datawc_y2,self.datawc_timeunits).tocomp(self.datawc_calendar)
-         else:
               return self._datawc_y2
     def _setdatawc_y2(self,value):
-         value=VCS_validation_functions.checkDatawc(self,'datawc_y2',value)
-         self._datawc_y2=value[0]
-         setmember(self,'datawc_y2',value[0])
-         setmember(self,'_tdatawc_y2',value[1])
+         value2=VCS_validation_functions.checkDatawc(self,'datawc_y2',value)
+         self._datawc_y2=value
     datawc_y2=property(_getdatawc_y2,_setdatawc_y2)
     
     def _getlinewidths(self):
@@ -472,7 +498,6 @@ class Gi(object,AutoAPI.AutoAPI):
          if not value is None:
               value = VCS_validation_functions.checkListOfNumbers(self,'linewidths',value,0,300)
          self._linewidths=value
-         setmember(self,'level',self.level)
     linewidths=property(_getlinewidths,_setlinewidths)
     
     def _getlinecolors(self):
@@ -481,7 +506,6 @@ class Gi(object,AutoAPI.AutoAPI):
          if not value is None:
               value = VCS_validation_functions.checkColorList(self,'linecolors',value)
          self._linecolors=value
-         setmember(self,'level',self.level)
     linecolors=property(_getlinecolors,_setlinecolors)
     
     def _getline(self):
@@ -490,7 +514,6 @@ class Gi(object,AutoAPI.AutoAPI):
          if not value is None:
               value = VCS_validation_functions.checkLinesList(self,'line',value)
          self._line=value
-         setmember(self,'level',self.level)
     line=property(_getline,_setline)
     
     def _gettext(self):
@@ -499,7 +522,6 @@ class Gi(object,AutoAPI.AutoAPI):
          if not value is None:
               value = VCS_validation_functions.checkTextsList(self,'text',value)
          self._text=value
-         setmember(self,'level',self.level)
     text=property(_gettext,_settext)
 
     def _gettextcolors(self):
@@ -508,7 +530,6 @@ class Gi(object,AutoAPI.AutoAPI):
          if not value is None:
               value = VCS_validation_functions.checkColorList(self,'textcolors',value)
          self._textcolors=value
-         setmember(self,'level',self.level)
     textcolors=property(_gettextcolors,_settextcolors)
 
     def _getlabel(self):
@@ -516,7 +537,6 @@ class Gi(object,AutoAPI.AutoAPI):
     def _setlabel(self,value):
          value = VCS_validation_functions.checkYesNo(self,'label',value)
          self._label=value
-         setmember(self,'label',value)
     label=property(_getlabel,_setlabel)
 
     def _getspacing(self):
@@ -525,7 +545,6 @@ class Gi(object,AutoAPI.AutoAPI):
          if not value is None:
               value = VCS_validation_functions.checkListOfNumbers(self,'spacing',value,0.)
          self._spacing=value
-         setmember(self,'level',self.level)
     spacing=property(_getspacing,_setspacing)
     def _getangle(self):
          return self._angle
@@ -533,7 +552,6 @@ class Gi(object,AutoAPI.AutoAPI):
          if not value is None:
               value = VCS_validation_functions.checkListOfNumbers(self,'angle',value,0.,90.)
          self._angle=value
-         setmember(self,'level',self.level)
     angle=property(_getangle,_setangle)
     def _getscale(self):
          return self._scale
@@ -541,7 +559,6 @@ class Gi(object,AutoAPI.AutoAPI):
          if not value is None:
               value = VCS_validation_functions.checkListOfNumbers(self,'scale',value,0.)
          self._scale=value
-         setmember(self,'level',self.level)
     scale=property(_getscale,_setscale)
     def _getclockwise(self):
          return self._clockwise
@@ -549,9 +566,8 @@ class Gi(object,AutoAPI.AutoAPI):
          if not value is None:
               value = VCS_validation_functions.checkListOfNumbers(self,'clockwise',value,-3,3,ints=True)
          self._clockwise=value
-         setmember(self,'level',self.level)
     clockwise=property(_getclockwise,_setclockwise)
-    def __init__(self, parent, Gi_name=None, Gi_name_src='default', createGi=0):
+    def __init__(self, Gi_name, Gi_name_src='default'):
 	#                                                         #
         ###########################################################
 	# Initialize the isoline class and its members            #
@@ -561,56 +577,54 @@ class Gi(object,AutoAPI.AutoAPI):
 	# appropriate Python Object.                              #
         ###########################################################
 	#                                                         #
-        if (createGi == 0):
-           if (Gi_name == None):
-              raise ValueError, 'Must provide a isoline name.'
-           else:
-              _vcs.copyGi(Gi_name_src, Gi_name)
-              self._name = Gi_name
-        else:
-              self._name = Gi_name_src
-        self._projection=getmember(self, 'projection')
-        self._xticlabels1=getmember(self, 'xticlabels1')
-        self._xticlabels2=getmember(self, 'xticlabels2')
-        self._xmtics1=getmember(self, 'xmtics1')
-        self._xmtics2=getmember(self, 'xmtics2')
-        self._yticlabels1=getmember(self, 'yticlabels1')
-        self._yticlabels2=getmember(self, 'yticlabels2')
-        self._ymtics1=getmember(self, 'ymtics1')
-        self._ymtics2=getmember(self, 'ymtics2')
-        self._datawc_y1=getmember(self, 'datawc_y1')
-        self._datawc_y2=getmember(self, 'datawc_y2')
-        self._datawc_x1=getmember(self, 'datawc_x1')
-        self._datawc_x2=getmember(self, 'datawc_x2')
+        if not isinstance(Gi_name,str):
+          raise ValueError,"Isoline name must be a string"
+        if Gi_name in vcs.elements["isoline"].keys():
+          raise ValueError,"isoline graphic method '%s' already exists" % Gi_name
+        self._name = Gi_name
         self.g_name='Gi'
-        self._xaxisconvert=getmember(self, 'xaxisconvert')
-        self._yaxisconvert=getmember(self, 'yaxisconvert')
-        self._label=getmember(self, 'label')
-        self._line=getmember(self, 'line')
-        self._linecolors=getmember(self, 'linecolors')
-        self._linewidths=getmember(self, 'linewidths')
-        self._text=None
-        self._textcolors=None
-        self._level=getmember(self, 'level')
-        self._datawc_timeunits=getmember(self, 'datawc_timeunits')
-        self._datawc_calendar=getmember(self, 'datawc_calendar')
-        self._clockwise=getmember(self, 'clockwise')
-        self._scale=getmember(self, 'scale')
-        self._angle=getmember(self, 'angle')
-        self._spacing=getmember(self, 'spacing')
+        if Gi_name=="default": 
+          self._projection="linear"
+          self._xticlabels1="*"
+          self._xticlabels2="*"
+          self._xmtics1=""
+          self._xmtics2=""
+          self._yticlabels1="*"
+          self._yticlabels2="*"
+          self._ymtics1=""
+          self._ymtics2=""
+          self._datawc_y1=1.e20
+          self._datawc_y2=1.e20
+          self._datawc_x1=1.e20
+          self._datawc_x2=1.e20
+          self._xaxisconvert='linear'
+          self._yaxisconvert='linear'
+          self._line = ['solid',]
+          self._linecolors = [1,]
+          self._linewidths = [1.,]
+          self._text = None
+          self._textcolors = None
+          self._level=[[0., 1.0000000200408773e+20],]
+          self._datawc_timeunits="days since 2000"
+          self._datawc_calendar=135441
+          self._clockwise = [0,]
+          self._scale = [1.,]
+          self._angle = [35.]
+          self._spacing = [1.]
+          self._label = 'n'
+        else:
+          if isinstance(Gi_name_src,Gi):
+            Gi_name_src=Gi_name_src.name
+          if not Gi_name_src in vcs.elements["isoline"].keys():
+            raise ValueError,"Isoline method '%s' does not exists" % Gi_name_src
+          src =vcs.elements["isoline"][Gi_name_src]
+          for att in ['label','projection' ,'xticlabels1' ,'xticlabels2' ,'xmtics1' ,'xmtics2' ,'yticlabels1' ,'yticlabels2' ,'ymtics1' ,'ymtics2' ,'datawc_y1' ,'datawc_y2' ,'datawc_x1' ,'datawc_x2' ,'xaxisconvert' ,'yaxisconvert' ,'level' ,'datawc_timeunits' ,'datawc_calendar',"line","linecolors","linewidths","text","textcolors","clockwise","scale","angle","spacing"]:
+            setattr(self,att,getattr(src,att))
         self.info=AutoAPI.Info(self)
         self.info.expose=['ALL']
         #self.info.hide+=["fillareastyle","fillareaindices"]
         self.__doc__ = self.__doc__ % (xmldocs.graphics_method_core,xmldocs.linesdoc,xmldocs.textsdoc)
-        #                                                         #
-        ###########################################################
-        # Find and set the isoline structure in VCS C pointer     #
-        # list. If the isoline name does not exist, then use      #
-        # default isoline.                                        #
-        ###########################################################
-        #                                                         #
-        self.parent=parent
-
+        vcs.elements["isoline"][Gi_name] = self
 
 # 
 # Doesn't make sense to inherit. This would mean more coding in C.
@@ -618,52 +632,34 @@ class Gi(object,AutoAPI.AutoAPI):
 #
     def xticlabels(self, xtl1='', xtl2=''):
 ##          specific_options_doc 
-         mode=self.parent.mode
-         self.parent.mode=0
          self.xticlabels1= xtl1
-         self.parent.mode=mode
          self.xticlabels2= xtl2
     xticlabels.__doc__ = xmldocs.xticlabelsdoc
 
     def xmtics(self,xmt1='', xmt2=''):
-        mode=self.parent.mode
-        self.parent.mode=0
         self.xmtics1= xmt1
-        self.parent.mode=mode
         self.xmtics2= xmt2
     xmtics.__doc__ = xmldocs.xmticsdoc
 
     def yticlabels(self, ytl1='', ytl2=''):
-        mode=self.parent.mode
-        self.parent.mode=0
         self.yticlabels1= ytl1
-        self.parent.mode=mode
         self.yticlabels2= ytl2
     yticlabels.__doc__ = xmldocs.yticlabelsdoc
 
     def ymtics(self, ymt1='', ymt2=''):
-        mode=self.parent.mode
-        self.parent.mode=0
         self.ymtics1= ymt1
-        self.parent.mode=mode
         self.ymtics2= ymt2
     ymtics.__doc__ = xmldocs.ymticsdoc
 
     def datawc(self, dsp1=1e20, dsp2=1e20, dsp3=1e20, dsp4=1e20):
-        mode=self.parent.mode
-        self.parent.mode=0
         self.datawc_y1= dsp1
         self.datawc_y2= dsp2
         self.datawc_x1= dsp3
-        self.parent.mode=mode
         self.datawc_x2= dsp4
     datawc.__doc__ = xmldocs.datawcdoc
 
     def xyscale(self, xat='', yat=''):
-        mode=self.parent.mode
-        self.parent.mode=0
         self.xaxisconvert= xat
-        self.parent.mode=mode
         self.yaxisconvert= yat
     xyscale.__doc__= xmldocs.xyscaledoc
 
@@ -671,7 +667,6 @@ class Gi(object,AutoAPI.AutoAPI):
         if (self.name == '__removed_from_VCS__'):
            raise ValueError, 'This instance has been removed from VCS.'
         print "","----------Isoline (Gi) member (attribute) listings ----------"
-        print 'Canvas Mode =',self.parent.mode
         print "graphics method =", self.g_name
         print "name =", self.name
         print "projection =", self.projection

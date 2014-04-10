@@ -334,6 +334,13 @@ def checkIntFloat(self,name,value):
 ##      else:
 ##           raise ValueError, 'The '+name+' attribute must be either an integer or a float value.'
      
+def checkTrueFalse(self,name,value):
+  checkName(self,name,value)
+  if value in [True,False,1,0]:
+    return value==True
+  else:
+    raise ValueError, "The '%s' attribute must be True or False" % name
+
 def checkOnOff(self,name,value,return_string=0):
      checkName(self,name,value)
      if value is None:

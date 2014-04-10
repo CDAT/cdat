@@ -31,7 +31,7 @@ import AutoAPI
 import xmldocs
 
 def process_src(nm,code):
-  """Takes VCS script code (string) as input and generates boxfill gm from it"""
+  """Takes VCS script code (string) as input and generates isofill gm from it"""
   try:
     g = Gfi(nm)
   except:
@@ -88,13 +88,13 @@ def process_src(nm,code):
       jdwc = code[idwc:].find(")")+idwc
       cd = code[idwc+8:jdwc]
       vals = cd.split(",")
-      if int(vals[0]==1:
+      if int(vals[0])==1:
         g.datawc_x1 = cdtime.reltime(gm.datawc_x1,g.datawc_timeunits).tocomp(g.datawc_calendar)
-      if int(vals[1]==1:
+      if int(vals[1])==1:
         g.datawc_y1 = cdtime.reltime(gm.datawc_x2,g.datawc_timeunits).tocomp(g.datawc_calendar)
-      if int(vals[2]==1:
+      if int(vals[2])==1:
         g.datawc_x2 = cdtime.reltime(gm.datawc_y1,g.datawc_timeunits).tocomp(g.datawc_calendar)
-      if int(vals[3]==1:
+      if int(vals[3])==1:
         g.datawc_y2 = cdtime.reltime(gm.datawc_y2,g.datawc_timeunits).tocomp(g.datawc_calendar)
     irg=code.find("range")
     if irg>-1:
@@ -568,30 +568,29 @@ Class: Gfi				# Isofill
     def _getdatawc_x1(self):
           return self._datawc_x1
     def _setdatawc_x1(self,value):
-         value=VCS_validation_functions.checkDatawc(self,'datawc_x1',value)
-         self._datawc_x1=value[0]
+         value2=VCS_validation_functions.checkDatawc(self,'datawc_x1',value)
+         self._datawc_x1=value
     datawc_x1=property(_getdatawc_x1,_setdatawc_x1)
 
     def _getdatawc_x2(self):
       return self._datawc_x2
     def _setdatawc_x2(self,value):
-         value=VCS_validation_functions.checkDatawc(self,'datawc_x2',value)
-         self._datawc_x2=value[0]
+         value2=VCS_validation_functions.checkDatawc(self,'datawc_x2',value)
+         self._datawc_x2=value
     datawc_x2=property(_getdatawc_x2,_setdatawc_x2)
     
     def _getdatawc_y1(self):
       return self._datawc_y1
     def _setdatawc_y1(self,value):
-         value=VCS_validation_functions.checkDatawc(self,'datawc_y1',value)
-         self._datawc_y1=value[0]
+         value2=VCS_validation_functions.checkDatawc(self,'datawc_y1',value)
+         self._datawc_y1=value
     datawc_y1=property(_getdatawc_y1,_setdatawc_y1)
 
     def _getdatawc_y2(self):
       return self._datawc_y2
     def _setdatawc_y2(self,value):
-         value=VCS_validation_functions.checkDatawc(self,'datawc_y2',value)
-         self._datawc_y2=value[0]
-         self._tdatawc_y2=value[1]
+         value2=VCS_validation_functions.checkDatawc(self,'datawc_y2',value)
+         self._datawc_y2=value
     datawc_y2=property(_getdatawc_y2,_setdatawc_y2)
 
 
@@ -605,6 +604,8 @@ Class: Gfi				# Isofill
 	# appropriate Python Object.                              #
         ###########################################################
 	#                                                         #
+        if not isinstance(Gfi_name,str):
+          raise ValueError,"Isofill name must be a string"
         if Gfi_name in vcs.elements["isofill"].keys():
           raise ValueError,"isofill graphic method '%s' already exists" % Gfi_name
         self._name = Gfi_name
