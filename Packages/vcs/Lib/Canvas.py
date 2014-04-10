@@ -92,7 +92,6 @@ def dictionarytovcslist(dictionary,name):
 def _determine_arg_list(g_name, actual_args):
     "Determine what is in the argument list for plotting graphics methods" 
 
-##     print 'IN Determine arglist:',actual_args
     itemplate_name = 2
     igraphics_method = 3
     igraphics_option = 4
@@ -1949,6 +1948,7 @@ Options:::
 
 """
 
+        name,source = self.check_name_source(name,source,'isofill')
         return isofill.Gfi(name, source)
     createisofill.__doc__ = createisofill.__doc__ % (plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, isofill_output)
 
@@ -2092,7 +2092,7 @@ Options:::
 """
 
         name,source = self.check_name_source(name,source,'isoline')
-        return isoline.Gi(self, name, source, 0)
+        return isoline.Gi(name, source)
     createisoline.__doc__ = createisoline.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert, create_GM_input, isoline_output)
 
     def getisoline(self,Gi_name_src='default'):
@@ -7296,7 +7296,7 @@ Options:::
         # browse through the file to look for taylordiagram/python graphics methods
         processing=False # found a taylor graphic method
         for l in f.xreadlines():
-          if l[:2] in ["P_",] or l[:3] in ["Tl_","To_","Tt_","Tf_",] or l[:4] in ['Gtd_','Gfb_',"Gfi_"] or l[:2] in ["L_",] or l[:5] in ["Proj_",]:
+          if l[:2] in ["P_",] or l[:3] in ["Gi_","Tl_","To_","Tt_","Tf_",] or l[:4] in ['Gtd_','Gfb_',"Gfi_"] or l[:2] in ["L_",] or l[:5] in ["Proj_",]:
             #We found a graphic method
             processing = True
             opened = 0
@@ -7311,6 +7311,42 @@ Options:::
               vcs.process_src_element(s)
               processing = False
         f.close()
+        ## Ok now we need to double check the isolines
+        gd = vcs.elements["isoline"]["default"]
+        for g in vcs.elements["isoline"].values():
+          if g.name == "default":
+            continue
+          for att in ["line","textcolors","text"]:
+            try:
+              setattr(g,att,getattr(g,att))
+            except Exception,err:
+              lst = []
+              if att == "line":
+                for e in g.line:
+                  if e in vcs.elements["line"]:
+                    lst.append(vcs.elements["line"][e])
+                  else:
+                    lst.append(e)
+              elif att == "text":
+                for e in g.line:
+                  if e in vcs.elements["textorientation"]:
+                    lst.append(vcs.elements["line"][e])
+                  elif e in vcs.elements["text"]:
+                    lst.append(vcs.elements["line"][e])
+                  else:
+                    lst.append(e)
+              elif att == "textcolors":
+                for e in g.line:
+                  if e in vcs.elements["texttable"]:
+                    lst.append(vcs.elements["line"][e])
+                  elif e in vcs.elements["text"]:
+                    lst.append(vcs.elements["line"][e])
+                  else:
+                    lst.append(e)
+              try:
+                setattr(g,att,lst)
+              except Exception,err:
+                setattr(g,att,getattr(gd,att))
                                 
     #############################################################################
     #                                                                           #
@@ -8336,7 +8372,6 @@ Options:::
         return a
     
     def dummy_user_action(self,*args,**kargs):
-##         print 'In dummy baby!'
         print 'Arguments:',args
         print 'Keywords:',kargs
         return None
@@ -9165,7 +9200,6 @@ class animate_obj(animate_obj_old):
         self.signals.paused.emit()
 
     def draw(self, frame):
-        #print "Clearing!!!!!!"
         if self.create_flg == 1:
             self.current_frame = frame
             self.vcs_self.canvas.put_png_on_canvas(self.animation_files[frame],

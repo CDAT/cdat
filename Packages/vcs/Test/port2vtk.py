@@ -29,6 +29,10 @@ isof = x.createisofill()
 isof.list()
 print x.listelements("isofill")
 
+iso = x.createisoline()
+iso.list()
+print x.listelements("isoline")
+
 
 #import sys,cdms2
 #f=cdms2.open(sys.prefix+"/sample_data/clt.nc")

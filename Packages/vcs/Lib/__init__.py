@@ -136,6 +136,7 @@ to.path = "right"
 warnings.warn("Please edit line for vcs.elements")
 boxfill.Gfb("default")
 isofill.Gfi("default")
+isoline.Gi("default")
 
 for nm in ["mercator","orthographic","lambert","polar","polyconic","robinson",
     "mollweide",]:

@@ -4,6 +4,8 @@ import cdtime
 import warnings
 import vcs
 import boxfill
+import isofill
+import isoline
 import taylor
 import projection
 import fillarea
@@ -25,6 +27,8 @@ def process_src_element(code):
       boxfill.process_src(nm,code)
     elif typ == "Gfi":
       isofill.process_src(nm,code)
+    elif typ == "Gi":
+      isoline.process_src(nm,code)
     elif typ == "L":
       dic = {}
       sp = code.split(",")
