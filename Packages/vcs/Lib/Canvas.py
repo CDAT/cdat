@@ -35,8 +35,9 @@ import numpy.ma, MV2
 import numpy, cdutil
 from queries import *
 import boxfill, isofill, isoline, outfill, outline, taylor, meshfill, projection
-import xyvsy, yxvsx, xvsy, vector, scatter, continents, line, marker, fillarea
+import vector, continents, line, marker, fillarea
 import texttable, textorientation, textcombined, template, colormap
+import unified1D
 #import colormapgui as _colormapgui
 #import canvasgui as _canvasgui
 import displayplot
@@ -2471,6 +2472,19 @@ Options:::
         return self.__plot(arglist, parms)
     outfill.__doc__ = outfill.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert,plot_2D_input, plot_output)
 
+    def createoneD(self,name=None,source='default'):
+        name,source = self.check_name_source(name,source,'oneD')
+        return unified1D.G1d(name,source)
+    def getoneD(self,name):
+        # Check to make sure the argument passed in is a STRING
+        if not isinstance(name,str):
+           raise vcsError, 'The argument must be a string.'
+
+        if not name in vcs.elements["oneD"]:
+          raise ValueError,"The oneD '%s' graphics method does not exists" % name
+        return vcs.elements["oneD"][name]
+
+    
     #############################################################################
     #                                                                           #
     # Xyvsy functions for VCS.                                                  #
@@ -2519,9 +2533,13 @@ Options:::
 
 """
 
+        warnings.warn("the createxyvsy method is now obsolete, 1D graphics method have been unified, to avoid your code breaking in the future please change it to use: createoneD and set the 'flip' option to True")
         name,source = self.check_name_source(name,source,'xyvsy')
 
-        return xyvsy.GXy(self, name, source, 0)
+        gm = unified1D.G1d(name+"_xyvsy", source+"_xyvsy")
+        gm.flip = True
+        vcs.elements["xyvsy"][name]=gm
+        return gm
     createxyvsy.__doc__ = createxyvsy.__doc__ % (plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, xyvsy_output) 
 
     def getxyvsy(self,GXy_name_src='default'):
@@ -2568,8 +2586,9 @@ Options:::
         if not isinstance(GXy_name_src,str):
            raise vcsError, 'The argument must be a string.'
 
-        GXy_name = None
-        return xyvsy.GXy(self, GXy_name, GXy_name_src, 1)
+        if not GXy_name_src in vcs.elements["xyvsy"]:
+          raise ValueError,"The xyvsy '%s' graphics method does not exists" % GXy_name_src
+        return vcs.elements["xyvsy"][GXy_name_src]
     getxyvsy.__doc__ = getxyvsy.__doc__ % (plot_keywords_doc, graphics_method_core, axesconvert, get_GM_input, xyvsy_output) 
 
     def xyvsy(self, *args, **parms):
@@ -2662,9 +2681,13 @@ Options:::
 
 """
 
+        warnings.warn("the createyxvsx method is now obsolete, 1D graphics method have been unified,to avoid your code breaking in the future please change it to use: createoneD")
         name,source = self.check_name_source(name,source,'yxvsx')
 
-        return yxvsx.GYx(self, name, source, 0)
+        gm = unified1D.G1d(name+"_yxvsx", source+"_yxvsx")
+        vcs.elements["yxvsx"][name]=gm
+        return gm
+
     createyxvsx.__doc__ = createyxvsx.__doc__ % (plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, yxvsx_output) 
 
     def getyxvsx(self,GYx_name_src='default'):
@@ -2710,9 +2733,10 @@ Options:::
         # Check to make sure the argument passed in is a STRING
         if not isinstance(GYx_name_src,str):
            raise vcsError, 'The argument must be a string.'
+        if not GYx_name_Src in vcs.elements["yxvsx"]:
+          raise ValueError,"The Yxvsx '%s' graphics method does not exists" % GYx_name_Src
 
-        GYx_name = None
-        return yxvsx.GYx(self, GYx_name, GYx_name_src, 1)
+        return vcs.elements["yxvsx"][GYx_name_src]
     getyxvsx.__doc__ = getyxvsx.__doc__ % (plot_keywords_doc, graphics_method_core, axesconvert, get_GM_input, yxvsx_output) 
 
     def yxvsx(self, *args, **parms):
@@ -2804,9 +2828,12 @@ Options:::
 
 """
 
+        warnings.warn("the createxvsy method is now obsolete, 1D graphics method have been unified,to avoid your code breaking in the future please change it to use: createoneD")
         name,source = self.check_name_source(name,source,'xvsy')
+        gm = unified1D.G1d(name+"_xvsy", source+"_xvsy")
+        vcs.elements["xvsy"][name]=gm
+        return gm
 
-        return xvsy.GXY(self, name, source, 0)
     createxvsy.__doc__ = createxvsy.__doc__ % (plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, xvsy_output) 
 
     def getxvsy(self,GXY_name_src='default'):
@@ -2853,9 +2880,11 @@ Options:::
         # Check to make sure the argument passed in is a STRING
         if not isinstance(GXY_name_src,str):
            raise vcsError, 'The argument must be a string.'
+        if not GXY_name_Src in vcs.elements["xvsy"]:
+          raise ValueError,"The xvsy '%s' graphics method does not exists" % GXY_name_Src
 
-        GXY_name = None
-        return xvsy.GXY(self, GXY_name, GXY_name_src, 1)
+        return vcs.elements["xvsy"][GYx_name_src]
+
     getxvsy.__doc__ = getxvsy.__doc__ % (plot_keywords_doc, graphics_method_core, axesconvert, get_GM_input, xvsy_output) 
 
     def xvsy(self, *args, **parms):
@@ -3028,9 +3057,12 @@ Options:::
 
 """
 
+        warnings.warn("the createscatter method is now obsolete, 1D graphics method have been unified,to avoid your code breaking in the future please change it to use: createoneD")
         name,source = self.check_name_source(name,source,'scatter')
 
-        return scatter.GSp(self, name, source, 0)
+        gm = unified1D.G1d(name+"_scatter", source+"_scatter")
+        vcs.elements["scatter"][name]=gm
+        return gm
     createscatter.__doc__ = createscatter.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert, create_GM_input, scatter_output)
 
     def getscatter(self,GSp_name_src='default'):
@@ -3078,8 +3110,9 @@ Options:::
         if not isinstance(GSp_name_src,str):
            raise vcsError, 'The argument must be a string.'
 
-        GSp_name = None
-        return scatter.GSp(self, GSp_name, GSp_name_src, 1)
+        if not GSp_name_src in vcs.elements["scatter"]:
+          raise ValueError,"The scatter '%s' graphics method does not exists" % GSp_name_src
+        return vcs.elements["scatter"][GSp_name_src]
     getscatter.__doc__ = getscatter.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert, get_GM_input, scatter_output)
 
     def scatter(self, *args, **parms):
@@ -7296,7 +7329,7 @@ Options:::
         # browse through the file to look for taylordiagram/python graphics methods
         processing=False # found a taylor graphic method
         for l in f.xreadlines():
-          if l[:2] in ["P_",] or l[:3] in ["Gi_","Tl_","To_","Tt_","Tf_",] or l[:4] in ['Gtd_','Gfb_',"Gfi_"] or l[:2] in ["L_",] or l[:5] in ["Proj_",]:
+          if l[:2] in ["P_",] or l[:3] in ["Gi_","Tl_","To_","Tt_","Tf_",] or l[:4] in ['GXy_','GYx_','GXY_','GSp_','Gtd_','Gfb_',"Gfi_"] or l[:2] in ["L_",] or l[:5] in ["Proj_",]:
             #We found a graphic method
             processing = True
             opened = 0

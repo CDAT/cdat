@@ -13,6 +13,8 @@ import template
 import texttable
 import textorientation
 import line
+import unified1D
+
 
 def process_src_element(code):
   i = code.find("_")
@@ -49,6 +51,8 @@ def process_src_element(code):
       textorientation.process_src(nm,code)
     elif typ=="Tl":
       line.process_src(nm,code)
+    elif typ in ["GXy","GYx","GXY","GSp"]:
+      unified1D.process_src(nm,code,typ)
   #except Exception,err:
   #  print "Processing error for %s,%s: %s" % (nm,typ,err)
 
