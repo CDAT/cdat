@@ -492,7 +492,7 @@ class G1d(object,AutoAPI.AutoAPI):
             self._datawc_calendar=135441
         else:
           if isinstance(name_src,G1d):
-            name_src=G1d.name
+            name_src=name_src.name
           if not name_src in vcs.elements['oneD']:
             raise ValueError, "The oneD method '%s' does not exists" % name_src
           src = vcs.elements["oneD"][name_src]
