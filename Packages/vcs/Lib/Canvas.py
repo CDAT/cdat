@@ -1994,11 +1994,12 @@ Options:::
 """
 
         # Check to make sure the argument passed in is a STRING
-        if not instance(Gfi_name_src,str):
+        if not isinstance(Gfi_name_src,str):
            raise vcsError, 'The argument must be a string.'
 
-        Gfi_name = None
-        return isofill.Gfi(self, Gfi_name, Gfi_name_src, 1)
+        if not Gfi_name_src in vcs.elements["isofill"]:
+          raise ValueError,"The isofill '%s' does not exists" % Gfi_name_src
+        return vcs.elements["isofill"][Gfi_name_src]
     getisofill.__doc__ = getisofill.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert, get_GM_input, isofill_output)
 
     def isofill(self, *args, **parms):
@@ -2139,8 +2140,10 @@ Options:::
         if not isinstance(Gi_name_src,str):
            raise vcsError, 'The argument must be a string.'
 
-        Gi_name = None
-        return isoline.Gi(self, Gi_name, Gi_name_src, 1)
+        if not Gi_name_src in vcs.elements["isoline"]:
+           raise ValueError,"The isoline '%s' does not exists" % Gi_name_src
+
+        return vcs.elements["isoline"][Gi_name_src]
     getisoline.__doc__ = getisoline.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert, get_GM_input, isoline_output)
 
     def isoline(self, *args, **parms):
@@ -2733,8 +2736,8 @@ Options:::
         # Check to make sure the argument passed in is a STRING
         if not isinstance(GYx_name_src,str):
            raise vcsError, 'The argument must be a string.'
-        if not GYx_name_Src in vcs.elements["yxvsx"]:
-          raise ValueError,"The Yxvsx '%s' graphics method does not exists" % GYx_name_Src
+        if not GYx_name_src in vcs.elements["yxvsx"]:
+          raise ValueError,"The Yxvsx '%s' graphics method does not exists" % GYx_name_src
 
         return vcs.elements["yxvsx"][GYx_name_src]
     getyxvsx.__doc__ = getyxvsx.__doc__ % (plot_keywords_doc, graphics_method_core, axesconvert, get_GM_input, yxvsx_output) 
@@ -2880,10 +2883,10 @@ Options:::
         # Check to make sure the argument passed in is a STRING
         if not isinstance(GXY_name_src,str):
            raise vcsError, 'The argument must be a string.'
-        if not GXY_name_Src in vcs.elements["xvsy"]:
-          raise ValueError,"The xvsy '%s' graphics method does not exists" % GXY_name_Src
+        if not GXY_name_src in vcs.elements["xvsy"]:
+          raise ValueError,"The xvsy '%s' graphics method does not exists" % GXY_name_src
 
-        return vcs.elements["xvsy"][GYx_name_src]
+        return vcs.elements["xvsy"][GXY_name_src]
 
     getxvsy.__doc__ = getxvsy.__doc__ % (plot_keywords_doc, graphics_method_core, axesconvert, get_GM_input, xvsy_output) 
 
@@ -2957,7 +2960,7 @@ Options:::
 
         name,source = self.check_name_source(name,source,'vector')
 
-        return vector.Gv(self, name, source, 0)
+        return vector.Gv(name, source)
 
     def getvector(self,Gv_name_src='default'):
         """
@@ -2984,9 +2987,9 @@ Options:::
         # Check to make sure the argument passed in is a STRING
         if not isinstance(Gv_name_src,str):
            raise vcsError, 'The argument must be a string.'
-
-        Gv_name = None
-        return vector.Gv(self, Gv_name, Gv_name_src, 1)
+        if not Gv_name_src in vcs.elements["vector"]:
+          raise ValueError, "The vector '%s' does not exist" % Gv_name_src
+        return vcs.elements["vector"][Gv_name_src]
  
     def vector(self, *args, **parms):
         """
@@ -3340,8 +3343,9 @@ Options:::
         if not isinstance(name,str):
            raise vcsError, 'The argument must be a string.'
 
-        Tl_name = None
-        ln = line.Tl(self, Tl_name, name, 1)
+        if not name in vcs.elements["line"]:
+          raise ValueError,"The line '%s' does not exists" % name
+        ln = vcs.elements["line"][name]
         if ltype is not None and ln.name!='default':
             ln.type=ltype
         if width is not None and ln.name!='default':
@@ -3928,8 +3932,9 @@ Options:::
         if not isinstance(name,str):
            raise vcsError, 'The argument must be a string.'
 
-        Tt_name = None
-        return texttable.Tt(self, Tt_name, name, 1 )
+        if not name in vcs.elements["texttable"]:
+          raise ValueError,"The texttable '%s' does not exists" % name
+        return vcs.elements["texttable"][name]
 ##         try:
 ##            tt = texttable.Tt(self, Tt_name, name, 1)
 ##            if (font is not None) and (tt.name != "default"):
@@ -4019,8 +4024,10 @@ Options:::
         if not isinstance(To_name_src,str):
            raise vcsError, 'The argument must be a string.'
 
-        To_name = None
-        return textorientation.To(self, To_name, To_name_src, 1)
+        if not To_name_src in vcs.elements["textorientation"]:
+          raise ValueError,"The textorientation '%s' does not exists" % To_name_src
+        return vcs.elements["textorientation"][To_name_src]
+
 
     #############################################################################
     #                                                                           #
@@ -7329,7 +7336,7 @@ Options:::
         # browse through the file to look for taylordiagram/python graphics methods
         processing=False # found a taylor graphic method
         for l in f.xreadlines():
-          if l[:2] in ["P_",] or l[:3] in ["Gi_","Tl_","To_","Tt_","Tf_",] or l[:4] in ['GXy_','GYx_','GXY_','GSp_','Gtd_','Gfb_',"Gfi_"] or l[:2] in ["L_",] or l[:5] in ["Proj_",]:
+          if l[:2] in ["P_","L_"] or l[:3] in ["Gv_","Gi_","Tl_","To_","Tt_","Tf_",] or l[:4] in ['GXy_','GYx_','GXY_','GSp_','Gtd_','Gfb_',"Gfi_"] or l[:5] in ["Proj_",]:
             #We found a graphic method
             processing = True
             opened = 0

@@ -14,6 +14,7 @@ import texttable
 import textorientation
 import line
 import unified1D
+import vector
 
 
 def process_src_element(code):
@@ -53,6 +54,8 @@ def process_src_element(code):
       line.process_src(nm,code)
     elif typ in ["GXy","GYx","GXY","GSp"]:
       unified1D.process_src(nm,code,typ)
+    elif typ=="Gv":
+      vector.process_src(nm,code)
   #except Exception,err:
   #  print "Processing error for %s,%s: %s" % (nm,typ,err)
 
