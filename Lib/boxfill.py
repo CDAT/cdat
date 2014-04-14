@@ -56,6 +56,7 @@ def process_src(nm,code):
       "legend",
       "ext_1","ext_2",
       "missing",
+      "datawc_tunits",
       "datawc_calendar"]:
     i = code.find(att)
     if i==-1:

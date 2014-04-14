@@ -27,7 +27,7 @@
 ###########################################################################################
 """
 import boxfill, isofill, isoline, outfill, outline, taylor, meshfill
-import xyvsy, yxvsx, xvsy, vector, scatter, continents, line, marker, fillarea
+import unified1D, vector, continents, line, marker, fillarea
 import texttable, textorientation, textcombined, template
 import displayplot, projection
 import vcs
@@ -71,7 +71,7 @@ def isgraphicsmethod(gobj):
             return 1
         elif (isinstance(gobj,vector.Gv)):
             return 1
-        elif (isinstance(gobj,xvsy.GXY)):
+        elif (isinstance(gobj,unified1D.G1d)):
             return 1
         elif (isinstance(gobj,xyvsy.GXy)):
             return 1
@@ -99,7 +99,7 @@ ill,
     a=vcs.init()
     gm_list=a.graphicsmethodlist()  # Return graphics method list
 """
-        return [ 'boxfill',  'isofill',  'isoline',  'meshfill', 'outfill', 'outline', 'continents', 'scatter', 'vector', 'xvsy', 'xyvsy', 'yxvsx', 'taylordiagram' ]
+        return [ 'boxfill',  'isofill',  'isoline',  'meshfill', 'outfill', 'outline', 'continents', 'scatter', 'vector', 'xvsy', 'xyvsy', 'yxvsx', 'taylordiagram', 'oneD' ]
 
 def graphicsmethodtype(gobj):
         """
@@ -135,16 +135,22 @@ def graphicsmethodtype(gobj):
             return 'outline'
         elif (isinstance(gobj,continents.Gcon)):
             return 'continents'
-        elif (isinstance(gobj,scatter.GSp)):
-            return 'scatter'
         elif (isinstance(gobj,vector.Gv)):
             return 'vector'
-        elif (isinstance(gobj,xvsy.GXY)):
-            return 'xvsy'
-        elif (isinstance(gobj,xyvsy.GXy)):
-            return 'xyvsy'
-        elif (isinstance(gobj,yxvsx.GYx)):
-            return 'yxvsx'
+        elif (isinstance(gobj,unified1D.G1d)):
+          nm = gobj.name.split("_")[-1]
+          if nm in ["yxvsx","xvsy","xyvsy","scatter"]:
+            nm = "_".join(gobj.name.split("_")[:-1])
+            if nm in vcs.elements["scatter"]: 
+                return 'scatter'
+            elif nm in vcs.elements["xvsy"]: 
+                return 'xvsy'
+            elif nm in vcs.elements["xyvsy"]: 
+                return 'xyvsy'
+            elif nm in vcs.elements["yxvsx"]: 
+                return 'yxvsx'
+          else:
+            return "oneD"
         elif (isinstance(gobj,taylor.Gtd)):
             return 'taylordiagram'
         elif (isinstance(gobj,meshfill.Gfm)):
@@ -516,7 +522,7 @@ if queries.isscatter(scr):
    scr.list()
 
 """
-    if (isinstance(obj,scatter.GSp)):
+    if (isinstance(obj,unified1D.G1d)) and obj.name.split("_")[-1]=="scatter" and "_".join(obj.name.split("_")[:-1]) in vcs.elements["scatter"]:
         return 1
     else:
        return 0
@@ -542,7 +548,7 @@ if queries.isxyvsy(xyy):
    xyy.list()
 
 """
-    if (isinstance(obj,xyvsy.GXy)):
+    if (isinstance(obj,unified1D.G1d)) and obj.name.split("_")[-1]=="xyvsy" and "_".join(obj.name.split("_")[:-1]) in vcs.elements["xyvsy"]:
         return 1
     else:
        return 0
@@ -568,7 +574,7 @@ if queries.isyxvsx(yxx):
    yxx.list()
 
 """
-    if (isinstance(obj,yxvsx.GYx)):
+    if (isinstance(obj,unified1D.G1d)) and obj.name.split("_")[-1]=="yxvsx" and "_".join(obj.name.split("_")[:-1]) in vcs.elements["yxvsx"]:
         return 1
     else:
        return 0
@@ -594,7 +600,33 @@ if queries.isxvsy(xy):
    xy.list()
 
 """
-    if (isinstance(obj,xvsy.GXY)):
+    if (isinstance(obj,unified1D.G1d)) and obj.name.split("_")[-1]=="xvsy" and "_".join(obj.name.split("_")[:-1]) in vcs.elements["xvsy"]:
+        return 1
+    else:
+       return 0
+
+#############################################################################
+#                                                                           #
+# Is this a primary oneD graphics method in VCS?                            #
+#                                                                           #
+#############################################################################
+def isoneD(obj):
+    """
+ Function: isxvsy
+
+ Description of Function:
+Check to see if this object is a VCS primary xvsy graphics method.
+
+ Example of Use:
+a=vcs.init()
+xy=a.getxvsy("quick")  # To Modify an existing xvsy object
+...
+
+if queries.isxvsy(xy):
+   xy.list()
+
+"""
+    if (isinstance(obj,unified1D.G1d)):
         return 1
     else:
        return 0

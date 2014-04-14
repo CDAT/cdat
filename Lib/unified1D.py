@@ -1,6 +1,5 @@
-# Adapted for numpy/ma/cdms2 by convertcdms.py
 """
-# Yxvsx (GYx) module
+# Unification of all 1D gms
 """
 ###############################################################################
 #                                                                             #
@@ -23,12 +22,99 @@
 #
 #
 import VCS_validation_functions, cdtime
-import Canvas
-from types import *
 import AutoAPI
 import xmldocs
+import vcs
 
-class GYx(object,AutoAPI.AutoAPI):
+def process_src(nm,code,typ):
+  """Takes VCS script code (string) as input and generates oneD gm from it"""
+  onm = nm+""
+  if typ=="GYx":
+    nm+="_yxvsx"
+  elif typ == "GXY":
+    nm+="_xvsy"
+  elif typ == "GXy":
+    nm+="_xyvsy"
+  elif typ == "GSp":
+    nm+="_scatter"
+  try:
+    gm = G1d(nm)
+  except:
+    gm = vcs.elements["oneD"][nm]
+  ## process attributes with = as assignement
+  for att in ["projection",
+      "xticlabels#1","xticlabels#2",
+      "xmtics#1","xmtics#2",
+      "yticlabels#1","yticlabels#2",
+      "ymtics#1","ymtics#2",
+      "xaxisconvert","yaxisconvert",
+      "datawc_tunits",
+      "Tl",
+      "Tm",
+      "datawc_tunits",
+      "datawc_calendar"]:
+    i = code.find(att)
+    if i==-1:
+      continue
+    j = code[i:].find(",")+i
+    if j-i==-1: # last one no comma
+      j=None
+    scode = code[i:j]
+    sp = scode.split("=")
+    nm = sp[0].strip()
+    nm=nm.replace("#","")
+    if nm=="Tl":
+      nm="line"
+    elif nm=="Tm":
+      nm="marker"
+    try:
+      #int will be converted
+      setattr(gm,nm,int(sp[1]))
+    except Exception,err:
+      try:
+        #int and floats will be converted
+        setattr(gm,nm,eval(sp[1]))
+      except Exception,err:
+        # strings
+        try:
+          setattr(gm,nm,sp[1])
+        except:
+          pass # oh well we stick to default value
+    #Datawc
+    idwc = code.find(" datawc(")
+    if idwc>-1:
+      jdwc = code[idwc:].find(")")+idwc
+      cd = code[idwc+8:jdwc]
+      vals = cd.split(",")
+      gm.datawc_x1 = float(vals[0])
+      gm.datawc_y1 = float(vals[1])
+      gm.datawc_x2 = float(vals[2])
+      gm.datawc_y2 = float(vals[3])
+    #idatawc
+    idwc = code.find("idatawc(")
+    if idwc>-1:
+      jdwc = code[idwc:].find(")")+idwc
+      cd = code[idwc+8:jdwc]
+      vals = cd.split(",")
+      if int(vals[0])==1:
+        gm.datawc_x1 = cdtime.reltime(gm.datawc_x1,gm.datawc_timeunits).tocomp(gm.datawc_calendar)
+      if int(vals[1])==1:
+        gm.datawc_y1 = cdtime.reltime(gm.datawc_x2,gm.datawc_timeunits).tocomp(gm.datawc_calendar)
+      if int(vals[2])==1:
+        gm.datawc_x2 = cdtime.reltime(gm.datawc_y1,gm.datawc_timeunits).tocomp(gm.datawc_calendar)
+      if int(vals[3])==1:
+        gm.datawc_y2 = cdtime.reltime(gm.datawc_y2,gm.datawc_timeunits).tocomp(gm.datawc_calendar)
+  if typ=="GYx":
+    vcs.elements["yxvsx"][onm]=gm
+  elif typ == "GXY":
+    vcs.elements["xvsy"][onm]=gm
+  elif typ == "GXy":
+    gm.flip = True
+    vcs.elements["xyvsy"][onm]=gm
+  elif typ == "GSp":
+    vcs.elements["scatter"][onm]=gm
+
+class G1d(object,AutoAPI.AutoAPI):
     """
     Options:::
 %s
@@ -36,37 +122,26 @@ class GYx(object,AutoAPI.AutoAPI):
 %s
 %s
 :::
- Class:	GYx			# Yxvsx
+ Class:	G1d			# General 1D plots 
 
- Description of GYx Class:
-    The Yxvsx graphics method displays a line plot from a 1D data array (i.e. a
-    plot of Y(x), where y represents the 1D coordinate values). The example below
+ Description of G1d Class:
+    This graphics method displays a line plot from 1D data array (i.e. a
+    plot of Y(x), where y represents the 1D coordinate values, and x can be either Y's axis or another 1D arrays).
+    The example below
     shows how to change line and marker attributes for the Yxvsx graphics method.
 
     This class is used to define an Yxvsx table entry used in VCS, or it can be
     used to change some or all of the Yxvsx attributes in an existing Yxvsx table
     entry.
 
- Other Useful Functions:
-          a=vcs.init()                  # Constructor
-          a.show('yxvsx')               # Show predefined Yxvsx graphics methonds
-          a.show('line')                # Show predefined VCS line objects
-          a.show('marker')              # Show predefined VCS marker objects
-          a.setcolormap("AMIP")         # Change the VCS color map
-          a.yxvsx(s, x, 'default')       # Plot data 's' with Yxvsx 'x'
-                                           and 'default' template
-          a.update()                    # Updates the VCS Canvas at user's request
-          a.mode=1, or 0                  If 1, then automatic update, else if
-                                          0, then use update function to
-
  Example of Use:
     a=vcs.init()
     To Create a new instance of Yxvsx use:
-     yxx=a.createxyvsy('new','quick')    # Copies content of 'quick' to 'new'
-     yxx=a.createxyvsy('new')            # Copies content of 'default' to 'new'
+     yxx=a.create1D('new','quick')    # Copies content of 'quick' to 'new'
+     yxx=a.create1D('new')            # Copies content of 'default' to 'new'
 
     To Modify an existing Yxvsx use:
-     yxx=a.getxyvsy('AMIP_psl')
+     yxx=a.get1D('AMIP_psl')
 
     yxx.list()                          # Will list all the Yxvsx attribute values
     yxx.projection='linear'             # Can only be 'linear'
@@ -165,6 +240,7 @@ class GYx(object,AutoAPI.AutoAPI):
          'datawc_y2',
          'datawc_timeunits',
          'datawc_calendar',
+         'flip',
          '_name',
          '_xaxisconvert',
          '_yaxisconvert',
@@ -189,7 +265,7 @@ class GYx(object,AutoAPI.AutoAPI):
          '_datawc_y2',
          '_datawc_timeunits',
          '_datawc_calendar',
-         "_type",
+         '_flip',
          ]
     def _getname(self):
          return self._name
@@ -221,11 +297,11 @@ class GYx(object,AutoAPI.AutoAPI):
     xaxisconvert=property(_getxaxisconvert,_setxaxisconvert)
 
     def _getyaxisconvert(self):
-         return self._xaxisconvert
+         return self._yaxisconvert
     def _setyaxisconvert(self,value):
-         value=VCS_validation_functions.checkAxisConvert(self,'xaxisconvert',value)
-         self._xaxisconvert=value
-    xaxisconvert=property(_getxaxisconvert,_setxaxisconvert)
+         value=VCS_validation_functions.checkAxisConvert(self,'yaxisconvert',value)
+         self._yaxisconvert=value
+    yaxisconvert=property(_getyaxisconvert,_setyaxisconvert)
 
     def _getprojection(self):
          return self._projection
@@ -302,7 +378,6 @@ class GYx(object,AutoAPI.AutoAPI):
     def _setdatawc_x2(self,value):
          value=VCS_validation_functions.checkDatawc(self,'datawc_x2',value)
          self._datawc_x2=value[0]
-         setmember(self,'_tdatawc_x2',value[1])
     datawc_x2=property(_getdatawc_x2,_setdatawc_x2)
     
     def _getdatawc_y1(self):
@@ -366,53 +441,65 @@ class GYx(object,AutoAPI.AutoAPI):
               value = VCS_validation_functions.checkColor(self,'markercolor',value)
          self._markercolor=value
     markercolor=property(_getmarkercolor,_setmarkercolor)
+    def _getflip(self):
+      return self._flip
+    def _setflip(self,value):
+      value = VCS_validation_functions.checkTrueFalse(self,'flip',value)
+      self._flip = value
+    flip=property(_getflip,_setflip)
 
-    def __init__(self, GYx_name, GYx_name_src='default',type="yxvsx"):
-	#                                                         #
+    def __init__(self, name, name_src='default'):
+        #                                                         #
         ###########################################################
-	# Initialize the Yxvsx class and its members              #
-        #							  #
-	# The getGYxmember function retrieves the values of the   #
+	    # Initialize the Yxvsx class and its members              #
+        #							                              #
+	    # The getGYxmember function retrieves the values of the   #
         # Yxvsx members in the C structure and passes back the    #
-	# appropriate Python Object.                              #
+	    # appropriate Python Object.                              #
         ###########################################################
-	#                                                         #
+	    #                                                         #
         self.info=AutoAPI.Info(self)
         self.info.expose=['ALL']
         self.__doc__ = self.__doc__ % (xmldocs.graphics_method_core,xmldocs.xaxisconvert,xmldocs.linedoc,xmldocs.markerdoc)
-        self.parent=parent
-        if (createGYx == 0):
-           if (GYx_name == None):
-              raise ValueError, 'Must provide a Yxvsx name.'
-           else:
-              _vcs.copyGYx(GYx_name_src, GYx_name)
-              self._name = GYx_name
+        if name in vcs.elements["oneD"]:
+          raise ValueError,"The 1D method '%s' already exists"
+        self.g_name='G1d'
+        self._name = name
+        if name == 'default':
+            self._flip = False
+            self._projection="linear"
+            self._xticlabels1="*"
+            self._xticlabels2="*"
+            self._xmtics1=""
+            self._xmtics2=""
+            self._yticlabels1="*"
+            self._yticlabels2="*"
+            self._ymtics1=""
+            self._ymtics2=""
+            self._datawc_y1=1.e20
+            self._datawc_y2=1.e20
+            self._datawc_x1=1.e20
+            self._datawc_x2=1.e20
+            self._xaxisconvert="linear"
+            self._yaxisconvert="linear"
+            self._line='solid'
+            self._linecolor=241
+            self._linewidth=1
+            self._marker='dot'
+            self._markercolor=241
+            self._markersize=1
+            self._datawc_timeunits="days since 2000"
+            self._datawc_calendar=135441
         else:
-              self._name=GYx_name_src
-        self._projection=getGYxmember(self, 'projection')
-        self._xticlabels1=getGYxmember(self, 'xticlabels1')
-        self._xticlabels2=getGYxmember(self, 'xticlabels2')
-        self._xmtics1=getGYxmember(self, 'xmtics1')
-        self._xmtics2=getGYxmember(self, 'xmtics2')
-        self._yticlabels1=getGYxmember(self, 'yticlabels1')
-        self._yticlabels2=getGYxmember(self, 'yticlabels2')
-        self._ymtics1=getGYxmember(self, 'ymtics1')
-        self._ymtics2=getGYxmember(self, 'ymtics2')
-        self._datawc_y1=getGYxmember(self, 'datawc_y1')
-        self._datawc_y2=getGYxmember(self, 'datawc_y2')
-        self._datawc_x1=getGYxmember(self, 'datawc_x1')
-        self._datawc_x2=getGYxmember(self, 'datawc_x2')
-        self.g_name='GYx'
-        self._xaxisconvert=getGYxmember(self, 'xaxisconvert')
-#        self._['yaxisconvert=getGYxmember(self, 'yaxisconvert')
-        self._line='solid'
-        self._linecolor=241
-        self._linewidth=1
-        self._marker='dot'
-        self._markercolor=241
-        self._markersize=1
-        self._datawc_timeunits=getmember(self, 'datawc_timeunits')
-        self._datawc_calendar=getmember(self, 'datawc_calendar')
+          if isinstance(name_src,G1d):
+            name_src=G1d.name
+          if not name_src in vcs.elements['oneD']:
+            raise ValueError, "The oneD method '%s' does not exists" % name_src
+          src = vcs.elements["oneD"][name_src]
+          for att in ['projection' ,'xticlabels1' ,'xticlabels2' ,'xmtics1' ,'xmtics2' ,'yticlabels1' ,'yticlabels2' ,'ymtics1' ,'ymtics2' ,'datawc_y1' ,'datawc_y2' ,'datawc_x1' ,'datawc_x2' ,'xaxisconvert' ,'yaxisconvert' ,'line' ,'linecolor' ,'linewidth' ,'marker' ,'markercolor' ,'markersize' ,'datawc_timeunits' ,'datawc_calendar' ,'flip' ]:
+           setattr(self,att,getattr(src,att)) 
+        #Ok now we need to stick in the elements
+        vcs.elements["oneD"][name]=self
         #                                                         #
         ###########################################################
         # Find and set the Yxvsx structure in VCS C pointer       #
@@ -426,44 +513,29 @@ class GYx(object,AutoAPI.AutoAPI):
 # I put this code back.                                 
 #
     def xticlabels(self, xtl1='', xtl2=''):
-        mode=self.parent.mode
-        self.parent.mode=0
         self.xticlabels1= xtl1
-        self.parent.mode=mode
         self.xticlabels2= xtl2
     xticlabels.__doc__ = xmldocs.xticlabelsdoc
 
     def xmtics(self,xmt1='', xmt2=''):
-        mode=self.parent.mode
-        self.parent.mode=0
         self.xmtics1= xmt1
-        self.parent.mode=mode
         self.xmtics2= xmt2
     xmtics.__doc__ = xmldocs.xmticsdoc
 
     def yticlabels(self, ytl1='', ytl2=''):
-        mode=self.parent.mode
-        self.parent.mode=0
         self.yticlabels1= ytl1
-        self.parent.mode=mode
         self.yticlabels2= ytl2
     yticlabels.__doc__ = xmldocs.yticlabelsdoc
 
     def ymtics(self, ymt1='', ymt2=''):
-        mode=self.parent.mode
-        self.parent.mode=0
         self.ymtics1= ymt1
-        self.parent.mode=mode
         self.ymtics2= ymt2
     ymtics.__doc__ = xmldocs.ymticsdoc
 
     def datawc(self, dsp1=1e20, dsp2=1e20, dsp3=1e20, dsp4=1e20):
-        mode=self.parent.mode
-        self.parent.mode=0
         self.datawc_y1= dsp1
         self.datawc_y2= dsp2
         self.datawc_x1= dsp3
-        self.parent.mode=mode
         self.datawc_x2= dsp4
     datawc.__doc__ = xmldocs.datawcdoc
 
@@ -472,7 +544,6 @@ class GYx(object,AutoAPI.AutoAPI):
         if (self.name == '__removed_from_VCS__'):
            raise ValueError, 'This instance has been removed from VCS.'
         print "","----------Yxvsx (GYx) member (attribute) listings ----------"
-        print 'Canvas Mode =',self.parent.mode
         print "graphics method =", self.g_name
         print "name =", self.name
         print "projection =", self.projection
@@ -491,13 +562,14 @@ class GYx(object,AutoAPI.AutoAPI):
         print "datawc_timeunits = ", self.datawc_timeunits
         print "datawc_calendar = ", self.datawc_calendar
         print "xaxisconvert = ", self.xaxisconvert
-#        print "yaxisconvert = ", self.yaxisconvert
+        print "yaxisconvert = ", self.yaxisconvert
         print "line = ", self.line
         print "linecolor = ", self.linecolor
         print "linewidth = ", self.linewidth
         print "marker = ", self.marker
         print "markercolor = ", self.markercolor
         print "markersize = ", self.markersize
+        print "flip = ",self.flip
     list.__doc__ = xmldocs.listdoc
 
     ###########################################################################
@@ -595,7 +667,7 @@ class GYx(object,AutoAPI.AutoAPI):
            fp.write("%s.datawc_calendar = %g\n" % (unique_name, self.datawc_calendar))
            fp.write("%s.datawc_timeunits = '%s'\n\n" % (unique_name, self.datawc_timeunits))
            fp.write("%s.xaxisconvert = '%s'\n" % (unique_name, self.xaxisconvert))
-#           fp.write("%s.yaxisconvert = '%s'\n" % (unique_name, self.yaxisconvert))
+           fp.write("%s.yaxisconvert = '%s'\n" % (unique_name, self.yaxisconvert))
            # Unique attribute for yxvsx
            fp.write("%s.line = %s\n" % (unique_name, self.line))
            fp.write("%s.linecolor = %s\n" % (unique_name, self.linecolor))

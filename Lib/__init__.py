@@ -110,10 +110,11 @@ elements = { "boxfill" : {},
              "outline" : {},
              "template" : {},
              "taylordiagram" :{},
+             "oneD":{},
              "vector":{},
              "yxvsx":{},
              "xyvsy":{},
-             "yvsx" :{},
+             "xvsy" :{},
              "scatter" :{},
              "list": {},
              "projection": {},
@@ -137,6 +138,18 @@ warnings.warn("Please edit line for vcs.elements")
 boxfill.Gfb("default")
 isofill.Gfi("default")
 isoline.Gi("default")
+unified1D.G1d("default")
+yx = unified1D.G1d("default_yxvsx")
+vcs.elements["yxvsx"]["default"]=yx
+xy = unified1D.G1d("default_xyvsy")
+xy.flip = True
+vcs.elements["xyvsy"]["default"]=xy
+sc = unified1D.G1d("default_scatter")
+vcs.elements["scatter"]["default"]=sc
+xvy = unified1D.G1d("default_xvsy")
+vcs.elements["xvsy"]["default"]=xvy
+
+
 
 for nm in ["mercator","orthographic","lambert","polar","polyconic","robinson",
     "mollweide",]:
