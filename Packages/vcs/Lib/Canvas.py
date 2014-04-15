@@ -1250,6 +1250,8 @@ class Canvas(object,AutoAPI.AutoAPI):
     
     def check_name_source(self,name,source,type):
         elts = self.listelements(type)
+        print "Source:",source
+        print elts
         if name is None:
             rnd = random.randint(0,100000)
             name = '__%s_%i' % (type[:4],rnd)
@@ -1692,7 +1694,7 @@ Options:::
 """
 
         name,source = self.check_name_source(name,source,'meshfill')
-        return meshfill.Gfm(self, name, source, 0)
+        return meshfill.Gfm(name, source)
 
     def getmeshfill(self,Gfm_name_src='default'):
         """
@@ -1720,8 +1722,10 @@ Options:::
         if not isinstance(Gfm_name_src,str):
            raise vcsError, 'The argument must be a string.'
 
-        Gfm_name = None
-        return meshfill.Gfm(self, Gfm_name, Gfm_name_src, 1)
+        if not Gfm_name_src in vcs.elements["meshfill"]:
+          raise ValueError,"meshfill '%s' does not exists" % Gfm_name_src
+
+        return vcs.elements["meshfill"][Gfm_name_src]
 
    
 
@@ -3500,7 +3504,7 @@ Options:::
 
         name,source = self.check_name_source(name,source,'marker')
 
-        mrk = marker.Tm(self, name, source, 0)
+        mrk = marker.Tm(name, source)
         if (mtype is not None):
             mrk.type = mtype
         if (size is not None):
@@ -3560,8 +3564,9 @@ Options:::
         if not isinstance(name,str):
            raise vcsError, 'The argument must be a string.'
 
-        Tm_name = None
-        mrk = marker.Tm(self, Tm_name, name, 1)
+        if not name in vcs.elements["marker"]:
+          raise ValueError,"The marker object '%s' does not exists"
+        mrk = vcs.elements["marker"][name]
         if (mtype is not None) and (mrk.name != "default"):
             mrk.type = mtype
         if (size is not None) and (mrk.name != "default"):
@@ -7336,7 +7341,7 @@ Options:::
         # browse through the file to look for taylordiagram/python graphics methods
         processing=False # found a taylor graphic method
         for l in f.xreadlines():
-          if l[:2] in ["P_","L_"] or l[:3] in ["Gv_","Gi_","Tl_","To_","Tt_","Tf_",] or l[:4] in ['GXy_','GYx_','GXY_','GSp_','Gtd_','Gfb_',"Gfi_"] or l[:5] in ["Proj_",]:
+          if l[:2] in ["P_","L_"] or l[:3] in ["Tm_","Gv_","Gi_","Tl_","To_","Tt_","Tf_",] or l[:4] in ['GXy_','GYx_','GXY_','GSp_','Gtd_','Gfb_',"Gfm_","Gfi_"] or l[:5] in ["Proj_",]:
             #We found a graphic method
             processing = True
             opened = 0
@@ -7424,8 +7429,8 @@ Options:::
            while lt_paren_ct > rt_paren_ct:
               i += 1
               scr_str += l[i]
-              lt_paren_ct += l[i].count(l[i], '(')
-              rt_paren_ct += l[i].count(l[i], ')')
+              lt_paren_ct += l[i].count('(')
+              rt_paren_ct += l[i].count(')')
            i += 1
            scr_str = scr_str.strip()
         
@@ -7605,10 +7610,10 @@ Options:::
               if (a_name is not None) and (graphics_type != 'continents'):
                  dn = self.__plot(arglist, {'bg':0})
 
-           elif string.lower( vcs_cmd ) == 'canvas':
+           elif vcs_cmd.lower() == 'canvas':
              warnings.warn("Please implement vcs 'canvas' function")
-           elif string.lower( vcs_cmd ) == 'page':
-              orientation = string.lower( string.split(scr_str,'(')[1][:-1] )
+           elif vcs_cmd.lower() == 'page':
+              orientation = scr_str.split('(')[1][:-1].lower()
               warnings.warn("Please implement vcs 'page' function")
            else: # Send command to VCS interpreter
               if (len(scr_str) > 1) and (scr_str[0] != '#'):

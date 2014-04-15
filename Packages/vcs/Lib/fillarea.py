@@ -63,7 +63,7 @@ def process_src(nm,code):
     if i>-1:
       j=code[i:].find(",")+i
       f.projection = code[i+11:j]
-    for b in vcs.elements["boxfill"].values()+vcs.elements["isofill"].values():
+    for b in vcs.elements["boxfill"].values()+vcs.elements["isofill"].values()+vcs.elements["meshfill"].values():
       if b.fillareaindices is not None:
        for i,v in enumerate(b.fillareaindices):
         if isinstance(v,str) and v==nm:

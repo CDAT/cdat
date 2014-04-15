@@ -26,83 +26,107 @@ import VCS_validation_functions
 import AutoAPI
 import xmldocs
 import cdtime
-from types import *
-#### from gm_core import * No need to import
+import vcs
 
-###############################################################################
-#                                                                             #
-# Function:	setGfmmember                                                  #
-#                                                                             #
-# Description of Function:                                                    #
-# 	Private function to update the VCS canvas plot. If the canvas mode is #
-#       set to 0, then this function does nothing.              	      #
-#                                                                             #
-#                                                                             #
-# Example of Use:                                                             #
-#      setGfmmember(self,name,value)					      #
-#              where: self is the class (e.g., Gfm)                           #
-#                     name is the name of the member that is being changed    #
-#                     value is the new value of the member (or attribute)     #
-#                                                                             #
-###############################################################################
-def setGfmmember(self,member,value):
-     # If the VCS Canvas is displayed, then bring the canvas to the front before 
-     # redisplaying the updated contents.
-     if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()):
-        Canvas.finish_queued_X_server_requests( self.parent )
-        self.parent.canvas.BLOCK_X_SERVER()
-        self.parent.canvasraised()
 
-     _vcs.setGfmmember(self, member, value, self.parent.mode)
-
-     # If the VCS Canvas is displayed, then update the backing store
-     if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()):
-        self.parent.flush()
-        self.parent.backing_store()
-        self.parent.canvas.UNBLOCK_X_SERVER()
-
-#################################################################################
-#                                                                               #
-# Function:     getGfmmember                                                    #
-#                                                                               #
-# Description of Function:                                                      #
-#       Private function that retrieves the meshfill members from the C         #
-#       structure and passes it back to Python.                                 #
-#                                                                               #
-#                                                                               #
-# Example of Use:                                                               #
-#      return_value =								#
-#      getGfmmember(self,name)                                                  #
-#              where: self is the class (e.g., Gfm)                             #
-#                     name is the name of the member that is being found        #
-#                                                                               #
-#################################################################################
-
-setmember=setGfmmember
-     
-def getGfmmember(self,member):
-     return _vcs.getGfmmember(self,member)
-
-getmember=getGfmmember
-
-#################################################################################
-#                                                                               #
-# Function:     renameGfm                                                       #
-#                                                                               #
-# Description of Function:                                                      #
-#       Private function that renames the name of an existing meshfill           #
-#       graphics method.                                                        #
-#                                                                               #
-#                                                                               #
-# Example of Use:                                                               #
-#      renameGfm(old_name, new_name)                                            #
-#              where: old_name is the current name of meshfill graphics method   #
-#                     new_name is the new name for the meshfill graphics method  #
-#                                                                               #
-################################################################################
-def renameGfm(self, old_name, new_name):
-     return _vcs.renameGfm(old_name, new_name)
-
+def process_src(nm,code):
+  """Takes VCS script code (string) as input and generates meshfill gm from it"""
+  try:
+    g = Gfm(nm)
+  except:
+    g = vcs.elements["meshfill"][nm]
+  ## process attributes with = as assignement
+  print code
+  for att in ["projection",
+      "xticlabels#1","xticlabels#2",
+      "xmtics#1","xmtics#2",
+      "yticlabels#1","yticlabels#2",
+      "ymtics#1","ymtics#2",
+      "xaxisconvert","yaxisconvert",
+      "datawc_tunits",
+      "boxfill_type",
+      "legend",
+      "ext_1","ext_2",
+      "missing","mesh",
+      "datawc_calendar"]:
+    i = code.find(att)
+    if i==-1:
+      continue
+    j = code[i:].find(",")+i
+    if j-i==-1: # last one no comma
+      j=None
+    scode = code[i:j]
+    sp = scode.split("=")
+    nm = sp[0].strip()
+    nm=nm.replace("#","")
+    try:
+      #int will be converted
+      setattr(g,nm,int(sp[1]))
+    except Exception,err:
+      try:
+        #int and floats will be converted
+        setattr(g,nm,eval(sp[1]))
+      except Exception,err:
+        # strings
+        try:
+          setattr(g,nm,sp[1])
+        except:
+          pass # oh well we stick to default value
+    #Datawc
+    idwc = code.find(" datawc(")
+    if idwc>-1:
+      jdwc = code[idwc:].find(")")+idwc
+      cd = code[idwc+8:jdwc]
+      vals = cd.split(",")
+      g.datawc_x1 = float(vals[0])
+      g.datawc_y1 = float(vals[1])
+      g.datawc_x2 = float(vals[2])
+      g.datawc_y2 = float(vals[3])
+    #idatawc
+    idwc = code.find("idatawc(")
+    if idwc>-1:
+      jdwc = code[idwc:].find(")")+idwc
+      cd = code[idwc+8:jdwc]
+      vals = cd.split(",")
+      if int(vals[0])==1:
+        g.datawc_x1 = cdtime.reltime(gm.datawc_x1,g.datawc_timeunits).tocomp(g.datawc_calendar)
+      if int(vals[1])==1:
+        g.datawc_y1 = cdtime.reltime(gm.datawc_x2,g.datawc_timeunits).tocomp(g.datawc_calendar)
+      if int(vals[2])==1:
+        g.datawc_x2 = cdtime.reltime(gm.datawc_y1,g.datawc_timeunits).tocomp(g.datawc_calendar)
+      if int(vals[3])==1:
+        g.datawc_y2 = cdtime.reltime(gm.datawc_y2,g.datawc_timeunits).tocomp(g.datawc_calendar)
+    irg=code.find("range")
+    if irg>-1:
+      lines=code[irg:].split("\n")
+      i=0
+      levs=[]
+      fac=[]
+      fai=[]
+      fas=[]
+      badfa = True
+      for l in lines:
+       if l.find("(id=")>-1:
+        sp=lines[i].split(",")
+        levs.append([float(sp[1][7:]),float(sp[2][7:])])
+        fa = sp[-1][3:]
+        fa=fa[:fa.find(")")]
+        if not fa in vcs.elements["fillarea"].keys():
+          badfa=True
+          fai.append(fa)
+        else:
+          fa = vcs.elements["fillarea"][fa]
+          fac.append(fa.color[0])
+          fai.append(fa.index[0])
+          fas.append(fa.style[0])
+        i+=1
+      g.levels = levs
+      if badfa:
+        g._fillareaindices = fai
+      else:
+        g.fillareacolor = fac
+        g.fillareaindices = fai
+        g.fillareastyle = fas[0]
 
 #################################################################################
 #                                                                               #
@@ -115,7 +139,7 @@ def renameGfm(self, old_name, new_name):
 #                                                                               #
 # Example of Use:                                                               #
 #      add_level_ext_1(self, ext_value)                                         #
-#              where: self is the class (e.g., Gfi)                             #
+#              where: self is the class (e.g., Gfm)                             #
 #                     ext_value is either 'n' to remove the triangle on the     #
 #		     	legend or 'y' to show the triangle on the triangle      #
 #                                                                               #
@@ -161,7 +185,7 @@ def add_level_ext_1(self, ext_value):
 #                                                                               #
 # Example of Use:                                                               #
 #      add_level_ext_2(self, ext_value)                                         #
-#              where: self is the class (e.g., Gfi)                             #
+#              where: self is the class (e.g., Gfm)                             #
 #                     ext_value is either 'n' to remove the triangle on the     # 
 #                       legend or 'y' to show the triangle on the triangle      #
 #                                                                               #
@@ -310,7 +334,6 @@ Class:	Gfm                       	# Meshfill
     mesh.exts('n', 'y' )  		# Will set them both
     missing=241                         # Color index value range 0 to 255
 """
-    rename=renameGfm # Alias for VCS_Validation_Functions
     #############################################################################
     #                                                                           #
     # Initialize the meshfill attributes.                                        #
@@ -318,8 +341,6 @@ Class:	Gfm                       	# Meshfill
     #############################################################################
     __slots__=[
          '__doc__',
-         'setmember',
-         'parent',
          'name',
          'g_name',
          'xaxisconvert',
@@ -385,7 +406,6 @@ Class:	Gfm                       	# Meshfill
          value=VCS_validation_functions.checkname(self,'name',value)
          if value is not None:
               self._name=value
-              setmember(self,'name',value)
     name=property(_getname,_setname)
 
     def _getxaxisconvert(self):
@@ -393,7 +413,6 @@ Class:	Gfm                       	# Meshfill
     def _setxaxisconvert(self,value):
          value=VCS_validation_functions.checkAxisConvert(self,'xaxisconvert',value)
          self._xaxisconvert=value
-         setmember(self,'xaxisconvert',value)
     xaxisconvert=property(_getxaxisconvert,_setxaxisconvert)
 
     def _getyaxisconvert(self):
@@ -401,7 +420,6 @@ Class:	Gfm                       	# Meshfill
     def _setyaxisconvert(self,value):
          value=VCS_validation_functions.checkAxisConvert(self,'yaxisconvert',value)
          self._yaxisconvert=value
-         setmember(self,'yaxisconvert',value)
     yaxisconvert=property(_getyaxisconvert,_setyaxisconvert)
 
     def _getlevels(self):
@@ -409,7 +427,6 @@ Class:	Gfm                       	# Meshfill
     def _setlevels(self,value):
          value=VCS_validation_functions.checkListTuple(self,'levels',value)
          self._levels=tuple(value)
-         setmember(self,'levels',self._levels)
     levels=property(_getlevels,_setlevels)
 
     def _getfillareacolors(self):
@@ -418,7 +435,6 @@ Class:	Gfm                       	# Meshfill
          if not value is None:
               value = list(VCS_validation_functions.checkListTuple(self,'fillareacolors',value))
          self._fillareacolors=value
-         setmember(self,'levels',self.levels)
     fillareacolors=property(_getfillareacolors,_setfillareacolors)
 
     def _getfillareaindices(self):
@@ -427,7 +443,6 @@ Class:	Gfm                       	# Meshfill
          if value is not None:
               value = VCS_validation_functions.checkIndicesList(self,'fillareaindices',value)
          self._fillareaindices=value
-         setmember(self,'levels',self.levels)
     fillareaindices=property(_getfillareaindices,_setfillareaindices)
 
     def _getfillareastyle(self):
@@ -435,7 +450,6 @@ Class:	Gfm                       	# Meshfill
     def _setfillareastyle(self,value):
          value=VCS_validation_functions.checkFillAreaStyle(self,'fillareastyle',value)
          self._fillareastyle=value
-         setmember(self,'levels',self.levels)
     fillareastyle=property(_getfillareastyle,_setfillareastyle)
 
     def _getext_1(self):
@@ -444,7 +458,7 @@ Class:	Gfm                       	# Meshfill
          do = VCS_validation_functions.checkExt(self,'ext_1',value)
          if do:
               add_level_ext_1(self, value)
-              self._ext_1=value
+         self._ext_1=value
     
     ext_1=property(_getext_1,_setext_1)
 
@@ -454,7 +468,7 @@ Class:	Gfm                       	# Meshfill
          do = VCS_validation_functions.checkExt(self,'ext_2',value)
          if do:
               add_level_ext_2(self, value)
-              self._ext_2=value
+         self._ext_2=value
     ext_2=property(_getext_2,_setext_2)
 
     def _getmissing(self):
@@ -462,7 +476,6 @@ Class:	Gfm                       	# Meshfill
     def _setmissing(self,value):
          value=VCS_validation_functions.checkColor(self,'missing',value)
          self._missing=value
-         setmember(self,'missing',value)
     missing=property(_getmissing,_setmissing)
 
     def _getmesh(self):
@@ -470,7 +483,6 @@ Class:	Gfm                       	# Meshfill
     def _setmesh(self,value):
          value=VCS_validation_functions.checkOnOff(self,'mesh',value)
          self._mesh=value
-         setmember(self,'mesh',value)
     mesh=property(_getmesh,_setmesh)
 
     def _getlegend(self):
@@ -478,7 +490,6 @@ Class:	Gfm                       	# Meshfill
     def _setlegend(self,value):
          value=VCS_validation_functions.checkLegend(self,'legend',value)
          self._legend=value
-         setmember(self,'legend',value)
     legend=property(_getlegend,_setlegend)
 
     def _getprojection(self):
@@ -486,7 +497,6 @@ Class:	Gfm                       	# Meshfill
     def _setprojection(self,value):
          value=VCS_validation_functions.checkProjection(self,'projection',value)
          self._projection=value
-         setmember(self,'projection',value)
     projection=property(_getprojection,_setprojection)
 
     def _getxticlabels1(self):
@@ -494,7 +504,6 @@ Class:	Gfm                       	# Meshfill
     def _setxticlabels1(self,value):
          value=VCS_validation_functions.checkStringDictionary(self,'xticlabels1',value)
          self._xticlabels1=value
-         setmember(self,'xticlabels1',value)
     xticlabels1=property(_getxticlabels1,_setxticlabels1)
 
     def _getxticlabels2(self):
@@ -502,7 +511,6 @@ Class:	Gfm                       	# Meshfill
     def _setxticlabels2(self,value):
          value=VCS_validation_functions.checkStringDictionary(self,'xticlabels2',value)
          self._xticlabels2=value
-         setmember(self,'xticlabels2',value)
     xticlabels2=property(_getxticlabels2,_setxticlabels2)
 
     def _getyticlabels1(self):
@@ -510,7 +518,6 @@ Class:	Gfm                       	# Meshfill
     def _setyticlabels1(self,value):
          value=VCS_validation_functions.checkStringDictionary(self,'yticlabels1',value)
          self._yticlabels1=value
-         setmember(self,'yticlabels1',value)
     yticlabels1=property(_getyticlabels1,_setyticlabels1)
 
     def _getyticlabels2(self):
@@ -518,7 +525,6 @@ Class:	Gfm                       	# Meshfill
     def _setyticlabels2(self,value):
          value=VCS_validation_functions.checkStringDictionary(self,'yticlabels2',value)
          self._yticlabels2=value
-         setmember(self,'yticlabels2',value)
     yticlabels2=property(_getyticlabels2,_setyticlabels2)
 
     def _getxmtics1(self):
@@ -526,7 +532,6 @@ Class:	Gfm                       	# Meshfill
     def _setxmtics1(self,value):
          value=VCS_validation_functions.checkStringDictionary(self,'xmtics1',value)
          self._xmtics1=value
-         setmember(self,'xmtics1',value)
     xmtics1=property(_getxmtics1,_setxmtics1)
 
     def _getxmtics2(self):
@@ -534,7 +539,6 @@ Class:	Gfm                       	# Meshfill
     def _setxmtics2(self,value):
          value=VCS_validation_functions.checkStringDictionary(self,'xmtics2',value)
          self._xmtics2=value
-         setmember(self,'xmtics2',value)
     xmtics2=property(_getxmtics2,_setxmtics2)
 
     def _getymtics1(self):
@@ -542,7 +546,6 @@ Class:	Gfm                       	# Meshfill
     def _setymtics1(self,value):
          value=VCS_validation_functions.checkStringDictionary(self,'ymtics1',value)
          self._ymtics1=value
-         setmember(self,'ymtics1',value)
     ymtics1=property(_getymtics1,_setymtics1)
 
     def _getymtics2(self):
@@ -550,62 +553,40 @@ Class:	Gfm                       	# Meshfill
     def _setymtics2(self,value):
          value=VCS_validation_functions.checkStringDictionary(self,'ymtics2',value)
          self._ymtics2=value
-         setmember(self,'ymtics2',value)
     ymtics2=property(_getymtics2,_setymtics2)
 
     def _getdatawc_x1(self):
-         if getmember(self,'_tdatawc_x1') :
-              return cdtime.reltime(self._datawc_x1,self.datawc_timeunits).tocomp(self.datawc_calendar)
-         else:
               return self._datawc_x1
     def _setdatawc_x1(self,value):
-         value=VCS_validation_functions.checkDatawc(self,'datawc_x1',value)
-         self._datawc_x1=value[0]
-         setmember(self,'datawc_x1',value[0])
-         setmember(self,'_tdatawc_x1',value[1])
+         value2=VCS_validation_functions.checkDatawc(self,'datawc_x1',value)
+         self._datawc_x1=value
     datawc_x1=property(_getdatawc_x1,_setdatawc_x1)
 
     def _getdatawc_x2(self):
-         if getmember(self,'_tdatawc_x2') :
-              return cdtime.reltime(self._datawc_x2,self.datawc_timeunits).tocomp(self.datawc_calendar)
-         else:
               return self._datawc_x2
     def _setdatawc_x2(self,value):
-         value=VCS_validation_functions.checkDatawc(self,'datawc_x2',value)
-         self._datawc_x2=value[0]
-         setmember(self,'datawc_x2',value[0])
-         setmember(self,'_tdatawc_x2',value[1])
+         value2=VCS_validation_functions.checkDatawc(self,'datawc_x2',value)
+         self._datawc_x2=value
     datawc_x2=property(_getdatawc_x2,_setdatawc_x2)
     
     def _getdatawc_y1(self):
-         if getmember(self,'_tdatawc_y1') :
-              return cdtime.reltime(self._datawc_y1,self.datawc_timeunits).tocomp(self.datawc_calendar)
-         else:
               return self._datawc_y1
     def _setdatawc_y1(self,value):
-         value=VCS_validation_functions.checkDatawc(self,'datawc_y1',value)
-         self._datawc_y1=value[0]
-         setmember(self,'datawc_y1',value[0])
-         setmember(self,'_tdatawc_y1',value[1])
+         value2=VCS_validation_functions.checkDatawc(self,'datawc_y1',value)
+         self._datawc_y1=value
     datawc_y1=property(_getdatawc_y1,_setdatawc_y1)
 
     def _getdatawc_y2(self):
-         if getmember(self,'_tdatawc_y2') :
-              return cdtime.reltime(self._datawc_y2,self.datawc_timeunits).tocomp(self.datawc_calendar)
-         else:
               return self._datawc_y2
     def _setdatawc_y2(self,value):
-         value=VCS_validation_functions.checkDatawc(self,'datawc_y2',value)
-         self._datawc_y2=value[0]
-         setmember(self,'datawc_y2',value[0])
-         setmember(self,'_tdatawc_y2',value[1])
+         value2=VCS_validation_functions.checkDatawc(self,'datawc_y2',value)
+         self._datawc_y2=value
     datawc_y2=property(_getdatawc_y2,_setdatawc_y2)
 
     def _getcalendar(self):
          return self._datawc_calendar
     def _setcalendar(self,value):
          value=VCS_validation_functions.checkCalendar(self,'datawc_calendar',value)
-         setmember(self,'datawc_calendar',value)
          self._datawc_calendar=value
     datawc_calendar=property(_getcalendar,_setcalendar)
 
@@ -613,7 +594,6 @@ Class:	Gfm                       	# Meshfill
          return self._datawc_timeunits
     def _settimeunits(self,value):
          value=VCS_validation_functions.checkTimeUnits(self,'datawc_timeunits',value)
-         setmember(self,'datawc_timeunits',value)
          self._datawc_timeunits=value
     datawc_timeunits=property(_gettimeunits,_settimeunits)
 
@@ -622,10 +602,9 @@ Class:	Gfm                       	# Meshfill
     def _setwrap(self,value):
          value=VCS_validation_functions.checkWrap(self,'wrap',value)
          self._wrap=value
-         setmember(self,'wrap',value)         
     wrap=property(_getwrap,_setwrap)
     
-    def __init__(self, parent, Gfm_name=None, Gfm_name_src='default', createGfm=0):
+    def __init__(self, Gfm_name, Gfm_name_src='default'):
 	#                                                         #
         ###########################################################
 	# Initialize the meshfill class and its members            #
@@ -634,79 +613,63 @@ Class:	Gfm                       	# Meshfill
         # meshfill members in the C structure and passes back the  #
 	# appropriate Python Object.                              #
         ###########################################################
-	#                                                         #
-        self.setmember=setmember
-        self.parent=parent
-        if (createGfm == 0):
-           if (Gfm_name == None):
-              raise ValueError, 'Must provide a meshfill name.'
-           else:
-              _vcs.copyGfm(Gfm_name_src, Gfm_name)
-              self._name = Gfm_name
-        else:
-              self._name=Gfm_name_src
-	#                                                         #
-        ###########################################################
-        # Inherits core graphics method attributes.		  #
-        ###########################################################
-	#                                                         #
-	# graphics_method_core.__init__(self, parent)
-        # Doesn't make sense to inherit. This would mean writing more code
-        self._projection=getGfmmember(self, 'projection')
-        self._xticlabels1=getGfmmember(self, 'xticlabels1')
-        self._xticlabels2=getGfmmember(self, 'xticlabels2')
-        self._xmtics1=getGfmmember(self, 'xmtics1')
-        self._xmtics2=getGfmmember(self, 'xmtics2')
-        self._yticlabels1=getGfmmember(self, 'yticlabels1')
-        self._yticlabels2=getGfmmember(self, 'yticlabels2')
-        self._ymtics1=getGfmmember(self, 'ymtics1')
-        self._ymtics2=getGfmmember(self, 'ymtics2')
-        self._datawc_y1=getGfmmember(self, 'datawc_y1')
-        self._datawc_y2=getGfmmember(self, 'datawc_y2')
-        self._datawc_x1=getGfmmember(self, 'datawc_x1')
-        self._datawc_x2=getGfmmember(self, 'datawc_x2')
-	# End Core Graphics Method attributes
+
+
+        if not isinstance(Gfm_name,str):
+          raise ValueError,"meshfill name must be a string"
+        if Gfm_name in vcs.elements["meshfill"].keys():
+          raise ValueError,"meshfill graphic method '%s' already exists" % Gfm_name
+        self._name = Gfm_name
         self.g_name='Gfm'
-        self._xaxisconvert=getGfmmember(self, 'xaxisconvert')
-        self._yaxisconvert=getGfmmember(self, 'yaxisconvert')
-        self._fillareastyle='solid'
-        self._fillareaindices=None
-        self._fillareacolors=None
-##         self._levels=tuple(getGfmmember(self, 'levels'))
-        self._levels=getGfmmember(self, 'levels')
-        self._ext_1='n'
-        self._ext_2='n'
-        self._missing=getGfmmember(self, 'missing')
-        self._wrap=getGfmmember(self, 'wrap')
-        self._mesh=getGfmmember(self, 'mesh')
-        self._legend=getGfmmember(self, 'legend')
-        self._datawc_timeunits=getGfmmember(self, 'datawc_timeunits')
-        self._datawc_calendar=getGfmmember(self, 'datawc_calendar')
-        self.info=AutoAPI.Info(self)
-        self.info.expose=['ALL']
-        #self.info.hide+=["fillareastyle","fillareaindices"]
-        self.__doc__ = self.__doc__ % (xmldocs.graphics_method_core,xmldocs.isofill_doc)
-        #                                                         #
-        ###########################################################
-        # Find and set the meshfill structure in VCS C pointer     #
-        # list. If the meshfill name does not exist, then use      #
-        # default meshfill.                                        #
-        ###########################################################
-        #                                                         #
+            
+
+        if Gfm_name=="default": 
+          self._projection="linear"
+          self._xticlabels1="*"
+          self._xticlabels2="*"
+          self._xmtics1=""
+          self._xmtics2=""
+          self._yticlabels1="*"
+          self._yticlabels2="*"
+          self._ymtics1=""
+          self._ymtics2=""
+          self._datawc_y1=1.e20
+          self._datawc_y2=1.e20
+          self._datawc_x1=1.e20
+          self._datawc_x2=1.e20
+          self._xaxisconvert='linear'
+          self._yaxisconvert='linear'
+          self._missing=241
+          self._ext_1='n'
+          self._ext_2='n'
+          self._fillareastyle='solid'
+          self._fillareaindices=None
+          self._fillareacolors=[1,]
+          self._levels=([1.0000000200408773e+20, 1.0000000200408773e+20],)
+          self._legend=None
+          self._mesh = 0
+          self._wrap = [0.,0.]
+          self._datawc_timeunits="days since 2000"
+          self._datawc_calendar=135441
+        else:
+          if isinstance(Gfm_name_src,Gfm):
+            Gfm_name_src=Gfm_name_src.name
+          if not Gfm_name_src in vcs.elements["meshfill"].keys():
+            raise ValueError,"meshfill method '%s' does not exisits" % Gfm_name_src
+          src =vcs.elements["meshfill"][Gfm_name_src]
+          for att in ['mesh','wrap','projection' ,'xticlabels1' ,'xticlabels2' ,'xmtics1' ,'xmtics2' ,'yticlabels1' ,'yticlabels2' ,'ymtics1' ,'ymtics2' ,'datawc_y1' ,'datawc_y2' ,'datawc_x1' ,'datawc_x2' ,'xaxisconvert' ,'yaxisconvert' ,'missing' ,'ext_1' ,'ext_2' ,'fillareastyle' ,'fillareaindices' ,'fillareacolors' ,'levels' ,'legend' ,'datawc_timeunits' ,'datawc_calendar']:
+            print "Setting: %s to %s" % (att,getattr(src,att))
+            setattr(self,att,getattr(src,att))
+        vcs.elements["meshfill"][Gfm_name]=self
+
 
     def colors(self, color1=16, color2=239):
-        mode=self.parent.mode
-        self.parent.mode=0
         self.fillareacolors=range(color1,color2)
-        self.parent.mode=mode
     colors.__doc__ = xmldocs.colorsdoc
 
     def exts(self, ext1='n', ext2='y'):
-        mode=self.parent.mode
-        self.parent.mode=0
         self.ext_1=ext1
         self.ext_2=ext2
-        self.parent.mode=mode
     exts.__doc__ = xmldocs.extsdoc
 
 # 
@@ -714,53 +677,35 @@ Class:	Gfm                       	# Meshfill
 # I put this code back.                                 
 #
     def xticlabels(self, xtl1='', xtl2=''):
-        mode=self.parent.mode
-        self.parent.mode=0
         self.xticlabels1=xtl1
         self.xticlabels2=xtl2
-        self.parent.mode=mode
     xticlabels.__doc__ = xmldocs.xticlabelsdoc
 
     def xmtics(self,xmt1='', xmt2=''):
-        mode=self.parent.mode
-        self.parent.mode=0
         self.xmtics1=xmt1
         self.xmtics2=xmt2
-        self.parent.mode=mode
     xmtics.__doc__ = xmldocs.xmticsdoc
 
     def yticlabels(self, ytl1='', ytl2=''):
-        mode=self.parent.mode
-        self.parent.mode=0
         self.yticlabels1=ytl1
         self.yticlabels2=ytl2
-        self.parent.mode=mode
     yticlabels.__doc__ = xmldocs.yticlabelsdoc
 
     def ymtics(self, ymt1='', ymt2=''):
-        mode=self.parent.mode
-        self.parent.mode=0
         self.ymtics1=ymt1
         self.ymtics2=ymt2
-        self.parent.mode=mode
     ymtics.__doc__ = xmldocs.ymticsdoc
 
     def datawc(self, dsp1=1e20, dsp2=1e20, dsp3=1e20, dsp4=1e20):
-        mode=self.parent.mode
-        self.parent.mode=0
         self.datawc_y1=dsp1
         self.datawc_y2=dsp2
         self.datawc_x1=dsp3
         self.datawc_x2=dsp4
-        self.parent.mode=mode
     datawc.__doc__ = xmldocs.datawcdoc
 
     def xyscale(self, xat='', yat=''):
-        mode=self.parent.mode
-        self.parent.mode=0
         self.xaxisconvert=xat
         self.yaxisconvert=yat
-        self.parent.mode=mode
     xyscale.__doc__= xmldocs.xyscaledoc
 
     #############################################################################
