@@ -15,7 +15,7 @@ import textorientation
 import line
 import unified1D
 import vector
-
+import marker
 
 def process_src_element(code):
   i = code.find("_")
@@ -56,6 +56,8 @@ def process_src_element(code):
       unified1D.process_src(nm,code,typ)
     elif typ=="Gv":
       vector.process_src(nm,code)
+    elif typ=="Tm":
+      marker.process_src(nm,code)
   #except Exception,err:
   #  print "Processing error for %s,%s: %s" % (nm,typ,err)
 

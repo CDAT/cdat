@@ -92,6 +92,22 @@ print e
 e = x.getvector(e[-1])
 print e
 
+m=x.createmarker()
+m.list()
+e=x.listelements("marker")
+print e
+e=x.getmarker(e[-1])
+x.scriptrun("Test/marker.scr")
+print x.listelements("marker")
+m=x.getmarker('__mark_57568')
+m.list()
+
+m=x.createmeshfill()
+m.list()
+e=x.listelements("meshfill")
+print e
+e=x.getmeshfill(e[-1])
+e.list()
 
 
 #import sys,cdms2

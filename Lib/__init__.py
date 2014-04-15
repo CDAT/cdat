@@ -122,6 +122,7 @@ elements = { "boxfill" : {},
              "texttable":{},
              "textorientation":{},
              "line":{},
+             "marker":{},
              }
 p=projection.Proj("default")
 p = projection.Proj("linear")
@@ -149,8 +150,8 @@ vcs.elements["scatter"]["default"]=sc
 xvy = unified1D.G1d("default_xvsy")
 vcs.elements["xvsy"]["default"]=xvy
 vector.Gv("default")
-
-
+marker.Tm("default")
+meshfill.Gfm("default")
 
 for nm in ["mercator","orthographic","lambert","polar","polyconic","robinson",
     "mollweide",]:
