@@ -16,7 +16,12 @@ set(ENV{LD_X11} "") # for xgks
 set(ENV{PYTHONPATH} @PYTHONPATH@)
 
 if (DEFINED ENV{UVCDAT_ANONYMOUS_LOG})
-  message("[INFO] Using UVCDAT_ANONYMOUS_LOG found in ${UVCDAT_ANONYMOUS_LOG}")
+  if ($ENV{UVCDAT_ANONYMOUS_LOG} STREQUAL "")
+    message("[INFO] Found empty UVCDAT_ANONYMOUS_LOG in environment setting to 'True'")
+    set(ENV{UVCDAT_ANONYMOUS_LOG} "True")
+  else ()
+    message("[INFO] Using UVCDAT_ANONYMOUS_LOG found in environment which is set to: '$ENV{UVCDAT_ANONYMOUS_LOG}'")
+  endif()
 else()
   set(ENV{UVCDAT_ANONYMOUS_LOG} "True")
 endif()
