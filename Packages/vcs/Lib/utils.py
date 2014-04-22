@@ -16,6 +16,7 @@ import line
 import unified1D
 import vector
 import marker
+import colormap
 
 def process_src_element(code):
   i = code.find("_")
@@ -58,6 +59,9 @@ def process_src_element(code):
       vector.process_src(nm,code)
     elif typ=="Tm":
       marker.process_src(nm,code)
+    elif typ=="C":
+      colormap.process_src(nm,code)
+
   #except Exception,err:
   #  print "Processing error for %s,%s: %s" % (nm,typ,err)
 

@@ -41,7 +41,7 @@ import unified1D
 #import colormapgui as _colormapgui
 #import canvasgui as _canvasgui
 import displayplot
-from VTKPlots import vtkplot
+from VTKPlots import VTKVCSBackend
 
 #import animationgui as _animationgui
 #import graphicsmethodgui as _graphicsmethodgui
@@ -813,7 +813,7 @@ class Canvas(object,AutoAPI.AutoAPI):
     # using the "update" function.                                              #
     #                                                                           #
     #############################################################################
-    def __init__(self, gui = 0, mode = 1, pause_time=0, call_from_gui=0, size=None):
+    def __init__(self, gui = 0, mode = 1, pause_time=0, call_from_gui=0, size=None, backend = "vtk"):
         #############################################################################
         #                                                                           #
         # The two Tkinter calls were needed for earlier versions of CDAT using      #
@@ -907,7 +907,7 @@ class Canvas(object,AutoAPI.AutoAPI):
         else:
             raise Exception, 'Unknown size: %s' % size
 
-        self.size = size
+        self.size = psize
 
         self.mode = mode
         self.pause_time = pause_time
@@ -916,7 +916,8 @@ class Canvas(object,AutoAPI.AutoAPI):
         self.worldcoordinate = [0,1,0,1]
         self._animate = animate_obj( self )
         if ( (is_canvas == 0) and (gui == 1) and (gui_canvas_closed == 0) ): gui_canvas_closed = 1
-
+        if backend == "vtk":
+          self.backend = VTKVCSBackend(self)
 ## Initial.attributes is being called in main.c, so it is not needed here!
 ## Actually it is for taylordiagram graphic methods....
 ###########################################################################################
@@ -1250,8 +1251,6 @@ class Canvas(object,AutoAPI.AutoAPI):
     
     def check_name_source(self,name,source,type):
         elts = self.listelements(type)
-        print "Source:",source
-        print elts
         if name is None:
             rnd = random.randint(0,100000)
             name = '__%s_%i' % (type[:4],rnd)
@@ -4537,13 +4536,12 @@ Options:::
         if (sal == 0): arglist = []
 
         for x in arglist: self.varglist.append( x ) # save the plot argument list
-        self.canvas.UNBLOCK_X_SERVER()
 
-        if self.canvas_gui is not None:
-            self.canvas_gui.dialog.dialog.deiconify()
+#        if self.canvas_gui is not None:
+#            self.canvas_gui.dialog.dialog.deiconify()
             # This command makes sure that the VCS Canvas Gui is in front of the VCDAT window.
 #            self.canvas_gui.dialog.dialog.transient( self.canvas_gui.top_parent )
-            self.canvas_gui.show_data_plot_info( self.canvas_gui.parent, self )
+#            self.canvas_gui.show_data_plot_info( self.canvas_gui.parent, self )
         return a
     plot.__doc__ = plot.__doc__ % (plot_2_1D_options, plot_keywords_doc,graphics_method_core,axesconvert,plot_2_1D_input, plot_output)
 
@@ -5612,9 +5610,9 @@ Options:::
 
             # Get the option for doing graphics in the background.
             if bg:
-                arglist.append('bg')
+                arglist.append(True)
             else:
-                arglist.append('fg')
+                arglist.append(False)
             if arglist[3]=='scatter':
                 if not (numpy.equal(arglist[0].getAxis(-1)[:],arglist[1].getAxis(-1)[:]).all()):
                     raise vcsError, 'Error - ScatterPlot requires X and Y defined in the same place'
@@ -5627,7 +5625,7 @@ Options:::
                 else:
                     dn = arglist[3].plot(arglist[0],arglist[1],template=arglist[2],bg=bg,x=self)
             else:
-                dn = apply(vtkplot, tuple(arglist))
+                dn = apply(self.backend.plot, tuple(arglist))
             if self.mode!=0 : self.update()
             #if not bg: pause(self.pause_time)
 
@@ -5637,21 +5635,24 @@ Options:::
 
 
         if isinstance(arglist[3],str):
-            result = self.getplot(dn, template_origin)
+            warnings.warn("please restore getplot functionality in Canvas.py circa 5640")
+            result = dn
+#            result = self.getplot(dn, template_origin)
             #self.canvas.setcontinentstype(hold_cont_type)
             # Pointer to the plotted slab of data and the VCS Canas display infomation. 
             # This is needed to find the animation min and max values and the number of 
             # displays on the VCS Canvas.
-            self.animate_info.append( (result, arglist[:2]) )
-            self.animate.update_animate_display_list( )
+            warnings.warn("animate info needed in Canvas.py circa 5646")
+#            self.animate_info.append( (result, arglist[:2]) )
+#            self.animate.update_animate_display_list( )
         else:
             result = dn
             
 
         # Make sure xmainloop is started. This is needed to check for X events
         # (such as, Canvas Exposer, button or key press and release, etc.)
-        if ( (self.canvas.THREADED() == 0) and (bg == 0) ):
-            thread.start_new_thread( self.canvas.startxmainloop, ( ) )
+        #if ( (self.canvas.THREADED() == 0) and (bg == 0) ):
+        #    thread.start_new_thread( self.canvas.startxmainloop, ( ) )
 
         # Now executes output commands
         for cc in cmds.keys():
@@ -7336,12 +7337,11 @@ Options:::
     x._scriptrun('script_filename.scr')
 """
         # Now does the python Graphic methods
-        print "SCRIPT READ:",args[0],"********************************************************************"
         f=open(args[0],'r')
         # browse through the file to look for taylordiagram/python graphics methods
         processing=False # found a taylor graphic method
         for l in f.xreadlines():
-          if l[:2] in ["P_","L_"] or l[:3] in ["Tm_","Gv_","Gi_","Tl_","To_","Tt_","Tf_",] or l[:4] in ['GXy_','GYx_','GXY_','GSp_','Gtd_','Gfb_',"Gfm_","Gfi_"] or l[:5] in ["Proj_",]:
+          if l[:2] in ["P_","L_","C_"] or l[:3] in ["Tm_","Gv_","Gi_","Tl_","To_","Tt_","Tf_",] or l[:4] in ['GXy_','GYx_','GXY_','GSp_','Gtd_','Gfb_',"Gfm_","Gfi_"] or l[:5] in ["Proj_",]:
             #We found a graphic method
             processing = True
             opened = 0
@@ -8195,12 +8195,14 @@ Options:::
 
 """
         # Check to make sure the arguments passed in are STRINGS
-        if (type(Cp_name) != StringType):
+        if not isinstance(Cp_name,str):
            raise ValueError, 'Error -  The first argument must be a string.'
-        if (type(Cp_name_src) != StringType):
+        if not isinstance(Cp_name_src,str):
            raise ValueError, 'Error -  The second argument must be a string.'
 
-        return colormap.Cp(self, Cp_name, Cp_name_src, 0)
+        if Cp_name in vcs.elements["colormap"]:
+          raise Exception,"The colrmap '%s' already exists" % Cp_name
+        return colormap.Cp(Cp_name, Cp_name_src)
 
     def getcolormap(self,Cp_name_src='default'):
         """
@@ -8224,11 +8226,10 @@ Options:::
                                             #       secondary method
 """
         # Check to make sure the argument passed in is a STRING
-        if (type(Cp_name_src) != StringType):
+        if not isinstance(Cp_name_src,str):
            raise ValueError, 'Error -  The argument must be a string.'
 
-        Cp_name = None
-        return colormap.Cp(self, Cp_name, Cp_name_src, 1)
+        return vcs.elements["colormap"][Cp_name_src]
 
     #############################################################################
     #                                                                           #

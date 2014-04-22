@@ -211,11 +211,14 @@ class G1d(object,AutoAPI.AutoAPI):
      yxx.markersize=None
 
 """
+    colormap = VCS_validation_functions.colormap
     __slots__=[
          '__doc__',
          'parent',
          'name',
          'info',
+         'colormap',
+         '_colormap',
          'g_name',
          'xaxisconvert',
          'yaxisconvert',

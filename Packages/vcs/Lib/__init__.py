@@ -123,6 +123,7 @@ elements = { "boxfill" : {},
              "textorientation":{},
              "line":{},
              "marker":{},
+             "colormap":{},
              }
 p=projection.Proj("default")
 p = projection.Proj("linear")
@@ -135,7 +136,6 @@ to = textorientation.To("defcenter")
 to.halign = "center"
 to = textorientation.To("defright")
 to.path = "right"
-warnings.warn("Please edit line for vcs.elements")
 boxfill.Gfb("default")
 isofill.Gfi("default")
 isoline.Gi("default")
@@ -152,6 +152,7 @@ vcs.elements["xvsy"]["default"]=xvy
 vector.Gv("default")
 marker.Tm("default")
 meshfill.Gfm("default")
+colormap.Cp("default")
 
 for nm in ["mercator","orthographic","lambert","polar","polyconic","robinson",
     "mollweide",]:
