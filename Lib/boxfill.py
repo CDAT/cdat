@@ -279,6 +279,8 @@ class Gfb(object,AutoAPI.AutoAPI):
       return
 
     __slots__=[
+         'colormap',
+         '_colormap',
          '__doc__',
          'name',
          'g_name',
@@ -346,7 +348,7 @@ class Gfb(object,AutoAPI.AutoAPI):
          '_datawc_calendar',
          'info',
          ]
-
+    colormap = VCS_validation_functions.colormap
 ### Removed from doc string
 ##     box.levels(10, 90)  		# Will set them both		
 

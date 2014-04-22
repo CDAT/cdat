@@ -339,9 +339,11 @@ Class:	Gfm                       	# Meshfill
     # Initialize the meshfill attributes.                                        #
     #                                                                           #
     #############################################################################
+    colormap = VCS_validation_functions.colormap
     __slots__=[
          '__doc__',
          'name',
+         'colormap','_colormap',
          'g_name',
          'xaxisconvert',
          'yaxisconvert',

@@ -319,9 +319,12 @@ Class: Gfi				# Isofill
     ext_2='y'
     iso.exts('n', 'y' )  		# Will set them both
 """
+    colormap = VCS_validation_functions.colormap
     __slots__=[
          '__doc__',
          'setmember',
+         'colormap',
+         '_colormap',
          'parent',
          'name',
          'g_name',
@@ -417,6 +420,10 @@ Class: Gfi				# Isofill
     def _getlevels(self):
          return self._levels
     def _setlevels(self,value):
+         if value ==  ([1.0000000200408773e+20, 1.0000000200408773e+20],):
+          self._levels = value
+          return
+
          value=list(VCS_validation_functions.checkListTuple(self,'levels',value))
 
          if (value[0]<-9.9E19):
@@ -469,6 +476,8 @@ Class: Gfi				# Isofill
                  self._setlevels(returned_levels)
               else:
                  self._ext_1=value
+         else:
+            self._ext_1=value
     ext_1=property(_getext_1,_setext_1)
 
     def _getext_2(self):
@@ -486,6 +495,8 @@ Class: Gfi				# Isofill
                  self._setlevels(returned_levels)
               else:
                  self._ext_2=value
+         else:
+            self._ext_2=value
     ext_2=property(_getext_2,_setext_2)
 
     def _getmissing(self):
@@ -641,7 +652,7 @@ Class: Gfi				# Isofill
           if isinstance(Gfi_name_src,Gfi):
             Gfi_name_src=Gfi_name_src.name
           if not Gfi_name_src in vcs.elements["isofill"].keys():
-            raise ValueError,"Isofill method '%s' does not exisits" % Gfi_name_src
+            raise ValueError,"Isofill method '%s' does not exists" % Gfi_name_src
           src =vcs.elements["isofill"][Gfi_name_src]
           for att in ['projection' ,'xticlabels1' ,'xticlabels2' ,'xmtics1' ,'xmtics2' ,'yticlabels1' ,'yticlabels2' ,'ymtics1' ,'ymtics2' ,'datawc_y1' ,'datawc_y2' ,'datawc_x1' ,'datawc_x2' ,'xaxisconvert' ,'yaxisconvert' ,'missing' ,'ext_1' ,'ext_2' ,'fillareastyle' ,'fillareaindices' ,'fillareacolors' ,'levels' ,'legend' ,'datawc_timeunits' ,'datawc_calendar']:
             setattr(self,att,getattr(src,att))

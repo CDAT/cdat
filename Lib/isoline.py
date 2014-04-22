@@ -51,7 +51,6 @@ def process_src(nm,code):
   try:
     g = Gi(nm)
   except Exception,err:
-    print err
     g = vcs.elements["isoline"][nm]
   ## process attributes with = as assignement
   for att in ["projection",
@@ -292,9 +291,12 @@ class Gi(object,AutoAPI.AutoAPI):
 	iso.textcolors=(16,19,33,44)
 	iso.textcolors=None	        	# Turns off the text color index
 """
+    colormap = VCS_validation_functions.colormap
     __slots__=[
          '__doc__',
          'parent',
+         'colormap',
+         '_colormap',
          'name',
          'g_name',
          'xaxisconvert',

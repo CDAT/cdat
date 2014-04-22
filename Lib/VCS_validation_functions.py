@@ -30,18 +30,17 @@ def color2vcs(col):
         color = col
    return color
 
-def matchVcsColor(r,g,b):
-   warnings.warn("Please reimplement matchVCSColor in VCS_validation_functions circa line 32")
-   return 242
-#   rmsmin=100000000.
-#   color=None
-#   for i in range(256):
-#       r2,g2,b2=_vcs.getcolorcell(i)
-#       rms=numpy.sqrt((r2-r)**2+(g2-g)**2+(b2-b)**2)
-#       if rms<rmsmin :
-#           rmsmin=rms
-#           color=i
-#   return color
+def matchVcsColor(r,g,b,colormap="default"):
+   rmsmin=100000000.
+   color=None
+   cmap = vcs.elements["colormap"][colormap]
+   for i in range(256):
+       r2,g2,b2 = cmap.index[i]
+       rms=numpy.sqrt((r2-r)**2+(g2-g)**2+(b2-b)**2)
+       if rms<rmsmin :
+           rmsmin=rms
+           color=i
+   return color
 
 def checkElements(self,name,value,function):
    if not isinstance(value,list):
@@ -1124,3 +1123,19 @@ def _getLine(self):
 def _setLine(self,value):
   self._line = checkLine(self,"line",value)
 line = property(_getLine,_setLine,"line properties")
+
+def _getcolormap(self):
+  return self._colormap
+def _setcolormap(self,value):
+  if value is None:
+    self._colormap = None
+    return
+  if isinstance(value,colormap.Cp):
+    value = value.name
+  if not isinstance(value,str):
+    raise "colormap attribute must be a colormap object or a string"
+  if not value in vcs.elements["colormap"]:
+    raise "The colormap '%s' does not exists" % value
+  self._colormap = value
+colormap = property(_getcolormap,_setcolormap)
+
