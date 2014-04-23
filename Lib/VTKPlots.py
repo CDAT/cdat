@@ -45,6 +45,11 @@ class VTKVCSBackend(object):
     continents = False
     try: #First try to see if we can get a mesh out of this
       m=data1.getGrid().getMesh()
+      xm = m[:,1].min()
+      xM = m[:,1].max()
+      ym = m[:,0].min()
+      yM = m[:,0].max()
+
       N=m.shape[0]
       #For vtk we need to reorder things
       m2 = numpy.ascontiguousarray(numpy.transpose(m,(0,2,1)))
@@ -72,6 +77,10 @@ class VTKVCSBackend(object):
           continents = True
         x=data1.getAxis(-1)
         y=data1.getAxis(-2)
+        xm=x.min()
+        xM=x.max()
+        ym=y.min()
+        yM=y.max()
         # make it 2D
         x = x[numpy.newaxis,:]*numpy.ones(y.shape)[:,numpy.newaxis]
         y = y[:,numpy.newaxis]*numpy.ones(x.shape)[numpy.newaxis,:]
