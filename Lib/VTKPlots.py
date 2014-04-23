@@ -10,6 +10,7 @@ class VTKVCSBackend(object):
   def __init__(self,canvas):
     self.canvas = canvas
     self.renWin = None
+    self.debug = True
   def plot(self,data1,data2,template,gtype,gname,bg,*args,**kargs):
     print "OK VTK RECEIVED:",data1.id, data2, template,gtype,gname
     print "OK VTK BG:",bg
@@ -27,6 +28,7 @@ class VTKVCSBackend(object):
         screenSize = self.renWin.GetScreenSize()
         self.renWin.SetSize(814,606)
     ren = vtk.vtkRenderer()
+    ren.SetBackground(1,1,1)
     self.renWin.AddRenderer(ren)
     #screenSize = self.renWin.GetScreenSize()
     data1 = self.trimData(data1) # Ok get only the last 2 dims
@@ -116,6 +118,8 @@ class VTKVCSBackend(object):
       ug.InsertNextCell(vtk.VTK_QUAD,lst)
 
     ug.GetCellData().SetScalars(data)
+    if self.debug:
+      vcs2vtk.dump2VTK(ug)
 
     #Ok now we have grid and data let's use the mapper
     mapper = vtk.vtkDataSetMapper()
@@ -126,18 +130,26 @@ class VTKVCSBackend(object):
       c2p = vtk.vtkCellDataToPointData()
       c2p.SetInputData(ug)
       c2p.Update()
+      if self.debug:
+        vcs2vtk.dump2VTK(c2p)
       #For contouring duplicate points seem to confuse it
       cln = vtk.vtkCleanUnstructuredGrid()
       cln.SetInputConnection(c2p.GetOutputPort())
+      if self.debug:
+        vcs2vtk.dump2VTK(cln)
       #Now this filter seems to create the good polydata
       sFilter = vtk.vtkDataSetSurfaceFilter()
       sFilter.SetInputConnection(cln.GetOutputPort())
       sFilter.Update()
+      if self.debug:
+        vcs2vtk.dump2VTK(sFilter)
       if isinstance(gm,isoline.Gi):
         cot = vtk.vtkContourFilter()
       else:
         cot = vtk.vtkBandedPolyDataContourFilter()
       cot.SetInputData(sFilter.GetOutput())
+      if self.debug:
+        vcs2vtk.dump2VTK(cot)
 
 
       ## Following assumes contiguous levels for now
@@ -199,6 +211,8 @@ class VTKVCSBackend(object):
     else: #end isoline/isofill/boxfill-custom
       mapper.SetInputData(ug)
     mapper.SetScalarRange(levs[0],levs[-1])
+    if self.debug:
+      vcs2vtk.dump2VTK(cot,"cot")
 
     # And now we need actors to actually render this thing
     act = vtk.vtkActor()
@@ -206,6 +220,17 @@ class VTKVCSBackend(object):
 
     # Trying to do some positioning here
     ren.SetViewport(tmpl.data.x1,tmpl.data.y1,tmpl.data.x2,tmpl.data.y2)
+    ren.AddActor(act)
+    # Also need to make sure it fills the whole space
+    if not numpy.allclose([gm.datawc_x1,gm.datawc_x2],1.e20):
+      x1,x2 = gm.datawc_x1,gm.datawc_x2
+    else:
+      x1,x2 = xM,xm
+    if not numpy.allclose([gm.datawc_y1,gm.datawc_y2],1.e20):
+      y1,y2 = gm.datawc_y1,gm.datawc_y2
+    else:
+      y1,y2 = yM,ym
+
     
     self.renderTemplate(data1,tmpl,mapper)
     if not self.bg:
@@ -248,5 +273,26 @@ class VTKVCSBackend(object):
           op.append(slice(0,1))
         return data[op]
 
+  def png(self, file, width=None,height=None,units=None,draw_white_background = 0):
+        
+        if self.renWin is None:
+          raise Exception,"Nothing to dump aborting"
+            
+        if not file.split('.')[-1].lower() in ['png']:
+            file+='.png'
 
+        try:
+          os.remove(file)
+        except:
+          pass
+
+        imgfiltr = vtk.vtkWindowToImageFilter()
+        imgfiltr.SetInput(self.renWin)
+#        imgfiltr.SetMagnification(3)
+        imgfiltr.SetInputBufferTypeToRGBA()
+        imgfiltr.Update()
+        writer = vtk.vtkPNGWriter()
+        writer.SetInputConnection(imgfiltr.GetOutputPort())
+        writer.SetFileName(file)
+        writer.Write()
 

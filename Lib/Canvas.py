@@ -6735,18 +6735,8 @@ Options:::
     a.plot(array)
     a.png('example')       # Overwrite a png file
 """
-        if units is not None or width is not None or height is not None:
-            if self.iscanvasdisplayed():
-                warnings.warn("Dimensions cannot be set once canvas is opened, window dims will be used, use bg=1 when plotting to control output dimesnsions")
-            else:
-                warnings.warn("Dimensions must be set apriori (before plotting in bg mode) via setbgoutputdimensions function")
-        if self.iscanvasdisplayed():
-            info=self.canvasinfo()
-            self.setbgoutputdimensions(info["width"],info["height"],"pixels")
-            
-        if not file.split('.')[-1].lower() in ['png']:
-            file+='.png'
-        return apply(self.canvas.png,(file,draw_white_background))
+        return self.backend.png(file,width,height,units,draw_white_background)
+
     #############################################################################
     #                                                                           #
     # pdf wrapper for VCS.                                               #

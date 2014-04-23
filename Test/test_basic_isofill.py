@@ -6,3 +6,5 @@ s=f("clt")
 x=vcs.init()
 iso=x.createisofill()
 x.plot(s,iso)
+x.png("test_iso")
+
