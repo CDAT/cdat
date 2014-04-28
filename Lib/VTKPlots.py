@@ -11,6 +11,7 @@ class VTKVCSBackend(object):
     self.canvas = canvas
     self.renWin = None
     self.debug = True
+    self.bg = None
   def plot(self,data1,data2,template,gtype,gname,bg,*args,**kargs):
     print "OK VTK RECEIVED:",data1.id, data2, template,gtype,gname
     print "OK VTK BG:",bg
@@ -20,6 +21,7 @@ class VTKVCSBackend(object):
       # Create the usual rendering stuff.
       self.renWin = vtk.vtkRenderWindow()
       self.renWin.SetWindowName("VCS Canvas")
+    if self.bg is None:
       if "bg" in kargs:
         self.bg= True
         self.renWin.SetOffScreenRendering(True)
@@ -87,6 +89,7 @@ class VTKVCSBackend(object):
         z = numpy.zeros(x.shape)
         m3=numpy.concatenate((x,y,z),axis=1)
 
+    continents = False
     if continents:
         contData = vcs2vtk.continentsVCS2VTK(os.environ["HOME"]+"/.uvcdat/data_continent_political")
         contMapper = vtk.vtkPolyDataMapper()
@@ -130,11 +133,16 @@ class VTKVCSBackend(object):
     if self.debug:
       vcs2vtk.dump2VTK(ug)
 
+    lut = vtk.vtkLookupTable()
+    #lut.SetTableRange(0,Nlevs)
+    ## Following assumes contiguous levels for now
+    mn,mx=vcs.minmax(data1)
     #Ok now we have grid and data let's use the mapper
     mapper = vtk.vtkDataSetMapper()
-    if isinstance(gm,(isofill.Gfi,isoline.Gi)) or \
+    if isinstance(gm,(isofill.Gfi,isoline.Gi,meshfill.Gfm)) or \
         (isinstance(gm,boxfill.Gfb) and gm.boxfill_type=="custom"):
       
+      print "isofill/line/boxfill"
       # Sets data to point instead of just cells
       c2p = vtk.vtkCellDataToPointData()
       c2p.SetInputData(ug)
@@ -153,6 +161,7 @@ class VTKVCSBackend(object):
       if self.debug:
         vcs2vtk.dump2VTK(sFilter)
       if isinstance(gm,isoline.Gi):
+        print "contour filter"
         cot = vtk.vtkContourFilter()
       else:
         cot = vtk.vtkBandedPolyDataContourFilter()
@@ -161,13 +170,9 @@ class VTKVCSBackend(object):
         vcs2vtk.dump2VTK(cot)
 
 
-      ## Following assumes contiguous levels for now
-      if gm.levels[0]==[0.,1.e20] or numpy.allclose(gm.levels,1.e20):
-        mn,mx=vcs.minmax(data1)
+      if (isinstance(gm,isoline.Gi) and numpy.allclose( gm.levels[0],[0.,1.e20])) or numpy.allclose(gm.levels,1.e20):
         levs = vcs.mkscale(mn,mx)
-        Nlevs = len(levs)
       else:
-        Nlevs = len(gm.levels)
         if isinstance(gm.levels[0],(list,tuple)):
           if isinstance(gm,isoline.Gi):
             levs = [x[0] for x in gm.levels]
@@ -175,6 +180,9 @@ class VTKVCSBackend(object):
             raise Exception, "Cannot handle non contiguous levels yet: %s" % gm.levels
         else:
           levs=gm.levels
+          if numpy.allclose(levs[0],1.e20):
+            levs[0]=-1.e20
+      Nlevs=len(levs)
       ## Figure out colors
       if isinstance(gm,boxfill.Gfb):
         cols = gm.fillareacolors 
@@ -182,54 +190,62 @@ class VTKVCSBackend(object):
           cols = vcs.getcolors(levs)
       elif isinstance(gm,isofill.Gfi):
         cols = gm.fillareacolors
-        print "COLORS FROM GM:",cols
         if cols==[1,]:
           cols = vcs.getcolors(levs)
       elif isinstance(gm,isoline.Gi):
         cols = gm.linecolors
-        if cols==[1,]:
-          cols = vcs.getcolors(levs)
-
-      # make sure length match
-      while len(cols)<len(levs):
-        cols.append(cols[-1])
-      
-      ##Now sets up the colors
-
 
       cot.SetNumberOfContours(Nlevs+1)
-      #At that point let's try to tweak color table
-      lut = vtk.vtkLookupTable()
-      lut.SetNumberOfTableValues(Nlevs)
-      #lut.SetTableRange(0,Nlevs)
-      try:
-        cmap = vcs.elements["colormap"][cmap]
-      except:
-        cmap = self.canvas.getcolormap()
-
       if levs[0]==1.e20:
         levs[0]=-1.e20
       for i in range(Nlevs):
         cot.SetValue(i,levs[i])
-        r,g,b = cmap.index[cols[i]]
-        lut.SetTableValue(i,r/100.,g/100.,b/100.)
       cot.SetValue(Nlevs,levs[-1])
       cot.Update()
+      if self.debug:
+        vcs2vtk.dump2VTK(cot,"cot")
       mapper.SetInputConnection(cot.GetOutputPort())
-      mapper.SetLookupTable(lut)
-    else: #end isoline/isofill/boxfill-custom
+    else: #Boxfill/Meshfill
       mapper.SetInputData(ug)
+      if isinstance(gm,boxfill.Gfb):
+        if numpy.allclose(gm.level_1,1.e20) or numpy.allclose(gm.level_2,1.e20):
+          levs = vcs.mkscale(mn,mx)
+        else:
+          levs = numpy.arange(gm.level_1,gm.level_2,(gm.level_2-gm.level_1)/(gm.color_2-gm.color_1+1))
+        cols = vcs.getcolors(levs,range(gm.color_1,gm.color_2+1))
+      else:
+        if numpy.allclose(gm.levels,1.e20):
+          levs = vcs.mkscale(mn,mx)
+        else:
+          levs = gm.levels
+          if numpy.allclose(levs[0],1.e20):
+            levs[0]=-1.e20
+        cols = gm.fillareacolors
+        if cols==[1,]:
+          cols = vcs.getcolors(levs)
+      Nlevs = len(levs)
+
+    ## Colortable bit
+    # make sure length match
+    while len(cols)<Nlevs:
+      cols.append(cols[-1])
+    
+    try:
+      cmap = vcs.elements["colormap"][cmap]
+    except:
+      cmap = self.canvas.getcolormap()
+    lut.SetNumberOfTableValues(Nlevs)
+    for i in range(Nlevs):
+      r,g,b = cmap.index[cols[i]]
+      lut.SetTableValue(i,r/100.,g/100.,b/100.)
+
+    mapper.SetLookupTable(lut)
     mapper.SetScalarRange(levs[0],levs[-1])
-    if self.debug:
-      vcs2vtk.dump2VTK(cot,"cot")
 
     # And now we need actors to actually render this thing
     act = vtk.vtkActor()
     act.SetMapper(mapper)
 
-    # Trying to do some positioning here
-    ren.SetViewport(tmpl.data.x1,tmpl.data.y1,tmpl.data.x2,tmpl.data.y2)
-    ren.AddActor(act)
     # Also need to make sure it fills the whole space
     if not numpy.allclose([gm.datawc_x1,gm.datawc_x2],1.e20):
       x1,x2 = gm.datawc_x1,gm.datawc_x2
@@ -241,7 +257,11 @@ class VTKVCSBackend(object):
       y1,y2 = yM,ym
 
     
-    self.renderTemplate(data1,tmpl,mapper)
+    #self.renderTemplate(data1,tmpl,mapper)
+    # Trying to do some positioning here
+    #ren.SetViewport(tmpl.data.x1,tmpl.data.y1,tmpl.data.x2,tmpl.data.y2)
+    ren.AddActor(act)
+
     if not self.bg:
       self.renWin.Render()
 
@@ -249,14 +269,22 @@ class VTKVCSBackend(object):
     if tmpl.legend.priority>0:
       #Now let's have colorbar
       ## ??? different renderer for this one? so it doesn't zoo in/out
+      ren = vtk.vtkRenderer()
+      #ren.SetViewport(tmpl.legend.x1,tmpl.legend.y1,tmpl.legend.x2,tmpl.legend.y2)
       clr = vtk.vtkScalarBarActor()
+      ## clr.SetLabelTextProperty()
       clr.SetLookupTable(mapper.GetLookupTable())
-      clr.SetTitle(data1.id)
+      #clr.SetTitle(data1.id)
       clr.GetPositionCoordinate().SetCoordinateSystemToNormalizedViewport()
       clr.GetPositionCoordinate().SetValue(.1,.01)
       clr.SetOrientationToHorizontal()
-      clr.SetWidth(tmpl.data.x2-tmpl.data.x1)
-      clr.SetHeight(tmpl.data.y2-tmpl.data.y2)
+      #clr.SetWidth(tmpl.legend.x2-tmpl.legend.x1)
+      #clr.SetHeight(tmpl.legend.y2-tmpl.legend.y2)
+      #clr.SetWidth(1.)
+      #clr.SetHeight(1.)
+      ren.AddActor(clr)
+      ren.SetBackground(1.,1.,1.)
+      self.renWin.AddRenderer(ren)
     pass
 
   #ok now trying to figure the actual data to plot
