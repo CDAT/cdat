@@ -67,15 +67,9 @@ def isgraphicsmethod(gobj):
             return 1
         elif (isinstance(gobj,continents.Gcon)):
             return 1
-        elif (isinstance(gobj,scatter.GSp)):
-            return 1
         elif (isinstance(gobj,vector.Gv)):
             return 1
         elif (isinstance(gobj,unified1D.G1d)):
-            return 1
-        elif (isinstance(gobj,xyvsy.GXy)):
-            return 1
-        elif (isinstance(gobj,yxvsx.GYx)):
             return 1
         elif (isinstance(gobj,taylor.Gtd)):
             return 1

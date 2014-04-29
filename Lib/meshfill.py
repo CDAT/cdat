@@ -653,14 +653,14 @@ Class:	Gfm                       	# Meshfill
           self._wrap = [0.,0.]
           self._datawc_timeunits="days since 2000"
           self._datawc_calendar=135441
+          self._colormap = None
         else:
           if isinstance(Gfm_name_src,Gfm):
             Gfm_name_src=Gfm_name_src.name
           if not Gfm_name_src in vcs.elements["meshfill"].keys():
             raise ValueError,"meshfill method '%s' does not exisits" % Gfm_name_src
           src =vcs.elements["meshfill"][Gfm_name_src]
-          for att in ['mesh','wrap','projection' ,'xticlabels1' ,'xticlabels2' ,'xmtics1' ,'xmtics2' ,'yticlabels1' ,'yticlabels2' ,'ymtics1' ,'ymtics2' ,'datawc_y1' ,'datawc_y2' ,'datawc_x1' ,'datawc_x2' ,'xaxisconvert' ,'yaxisconvert' ,'missing' ,'ext_1' ,'ext_2' ,'fillareastyle' ,'fillareaindices' ,'fillareacolors' ,'levels' ,'legend' ,'datawc_timeunits' ,'datawc_calendar']:
-            print "Setting: %s to %s" % (att,getattr(src,att))
+          for att in ['mesh','colormap','wrap','projection' ,'xticlabels1' ,'xticlabels2' ,'xmtics1' ,'xmtics2' ,'yticlabels1' ,'yticlabels2' ,'ymtics1' ,'ymtics2' ,'datawc_y1' ,'datawc_y2' ,'datawc_x1' ,'datawc_x2' ,'xaxisconvert' ,'yaxisconvert' ,'missing' ,'ext_1' ,'ext_2' ,'fillareastyle' ,'fillareaindices' ,'fillareacolors' ,'levels' ,'legend' ,'datawc_timeunits' ,'datawc_calendar']:
             setattr(self,att,getattr(src,att))
         vcs.elements["meshfill"][Gfm_name]=self
 
@@ -748,6 +748,7 @@ Class:	Gfm                       	# Meshfill
         print 'missing =',self.missing
         print 'mesh =',self.mesh
         print 'wrap =',self.wrap
+        print 'colormap = ',self.colormap
         return
     list.__doc__ = xmldocs.listdoc
 
