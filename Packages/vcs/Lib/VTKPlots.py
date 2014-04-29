@@ -45,8 +45,10 @@ class VTKVCSBackend(object):
     
   def plot2D(self,data1,data2,tmpl,gm,ren):
     continents = False
+    wrap = None
     try: #First try to see if we can get a mesh out of this
-      m=data1.getGrid().getMesh()
+      g=data1.getGrid()
+      m=g.getMesh()
       xm = m[:,1].min()
       xM = m[:,1].max()
       ym = m[:,0].min()
@@ -60,6 +62,7 @@ class VTKVCSBackend(object):
       # here we add dummy levels, might want to reconsider converting "trimData" to "reOrderData" and use actual levels?
       m3=numpy.concatenate((m2,numpy.zeros((m2.shape[0],1))),axis=1)
       continents = True
+      wrap = [0.,360.]
     except Exception,err: # Ok no mesh on file, will do with lat/lon
       ## Could still be meshfill with mesh data
       if isinstance(gm,meshfill.Gfm) and data2 is not None:
@@ -71,12 +74,14 @@ class VTKVCSBackend(object):
         m3=numpy.concatenate((m2,numpy.zeros((m2.shape[0],1))),axis=1)
         if gm.wrap[1]==360.:
           continents = True
+        wrap = gm.wrap
       else:
         data1=cdms2.asVariable(data1)
         #Ok no mesh info
         # first lat/lon case
         if data1.getLatitude() is not None and data1.getLongitude() is not None and data1.getAxis(-1).isLongitude():
           continents = True
+          wrap = [0.,360.]
         x=data1.getAxis(-1)
         y=data1.getAxis(-2)
         xm=x.min()
@@ -89,7 +94,6 @@ class VTKVCSBackend(object):
         z = numpy.zeros(x.shape)
         m3=numpy.concatenate((x,y,z),axis=1)
 
-    continents = False
     if continents:
         contData = vcs2vtk.continentsVCS2VTK(os.environ["HOME"]+"/.uvcdat/data_continent_political")
         contMapper = vtk.vtkPolyDataMapper()
@@ -117,7 +121,7 @@ class VTKVCSBackend(object):
       cpts = contData.GetPoints()
       gcpts = vcs2vtk.project(cpts,projection)
       contData.SetPoints(gcpts)
-      ren.AddActor(contActor)
+      ren.AddActor(vcs2vtk.doWrap(contMapper,contActor,gm,wrap))
 
     #Now applies the actual data on each cell
     data = VN.numpy_to_vtk(data1.filled().flat,deep=True)
@@ -260,7 +264,7 @@ class VTKVCSBackend(object):
     #self.renderTemplate(data1,tmpl,mapper)
     # Trying to do some positioning here
     #ren.SetViewport(tmpl.data.x1,tmpl.data.y1,tmpl.data.x2,tmpl.data.y2)
-    ren.AddActor(act)
+    ren.AddActor(vcs2vtk.doWrap(mapper,act,gm,wrap))
 
     if not self.bg:
       self.renWin.Render()
