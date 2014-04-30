@@ -148,8 +148,7 @@ def checkFont(self,name,value):
      elif isNumber(value,min=1):
           value=int(value)
           # try to see if font exists
-          warnings.warn("Please reimplement chckefontname in VCS_validation functions")
-          #nm = vcs.getfontname(value)
+          nm = vcs.getfontname(value)
      elif isinstance(value,str):
           value = vcs.getfontnumber(value)
      else:
