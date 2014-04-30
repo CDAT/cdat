@@ -70,97 +70,103 @@ def dump2VTK(obj,fnm=None):
 
   dsw.Write()
 
-def doClip(Actor):
-    # We have the actor, do clipping
-    mapper2 = vtk.vtkDataSetMapper()
-    clpf = vtk.vtkPlane()
-    clpf.SetOrigin(0,0,0)
-    clpf.SetNormal(1,0,0)
-    clp = vtk.vtkClipPolyData()
-    clp.SetClipFunction(clpf)
-    clp.SetInputData(Actor.GetMapper().GetInput())
-    clp.Update()
-    mapper2.SetInputConnection(clp.GetOutputPort())
-    return mapper2
+
 #Wrapping around
 def doWrap(Act,gm,wrap=[0.,360]):
   Mapper = Act.GetMapper()
-  if wrap is None or numpy.allclose(wrap,0.):
-    A = Act
-  else:
-    A = vtk.vtkAssembly()
-    A.AddPart(Act)
-    mn=min(gm.datawc_x1,gm.datawc_x2)
-    mx=max(gm.datawc_x1,gm.datawc_x2)
-    print "XMIN XMAX:",mn,mx
-    if numpy.allclose(mn,1.e20) or numpy.allclose(mx,1.e20):
-      mx = abs(wrap[1])
-      mn = -wrap[1]
-    print "XMIN XMAX:",mn,mx
-    if wrap[1]!=0.:
-      i=0
-      while A.GetXRange()[0]>mn:
-        i+=1
-        print A.GetXRange(),"left"
-        act_left = vtk.vtkActor()
-        act_left.SetProperty(Act.GetProperty())
-        Tpf = vtk.vtkTransformPolyDataFilter()
-        Tpf.SetInputData(Act.GetMapper().GetInput())
-        T=vtk.vtkTransform()
-        T.Translate(-i*wrap[1],0,0)
-        Tpf.SetTransform(T)
-        Tpf.Update()
-        Mapper2 = vtk.vtkDataSetMapper()
-        Mapper2.SetInputData(Tpf.GetOutput())
-        Mapper2.SetLookupTable(Mapper.GetLookupTable())
-        Mapper2.SetScalarRange(Mapper.GetScalarRange())
-        act_left.SetMapper(Mapper2)
-        A.AddPart(act_left)
-      i=0
-      while A.GetXRange()[1]<mx:
-        i+=1
-        print A.GetXRange(),"right"
-        act_right = vtk.vtkActor()
-        Tpf = vtk.vtkTransformPolyDataFilter()
-        Tpf.SetInputData(Act.GetMapper().GetInput())
-        T = vtk.vtkTransform()
-        T.Translate(i*wrap[1],0,0)
-        Tpf.SetTransform(T)
-        Tpf.Update()
-        Mapper2 = vtk.vtkDataSetMapper()
-        Mapper2.SetInputData(Tpf.GetOutput())
-        Mapper2.SetLookupTable(Mapper.GetLookupTable())
-        Mapper2.SetScalarRange(Mapper.GetScalarRange())
-        act_right.SetMapper(Mapper2)
-        act_right.SetProperty(Act.GetProperty())
-        A.AddPart(act_right)
-    mn=min(gm.datawc_y1,gm.datawc_y2)
-    mx=max(gm.datawc_y1,gm.datawc_y2)
-    if numpy.allclose(mn,1.e20) or numpy.allclose(mx,1.e20):
-      mx = abs(wrap[0])
-      mn = -wrap[0]
-    if wrap[0]!=0.:
-      i=0
-      while A.GetYrange()[0]>mn:
-        i+=1
-        act_up = vtk.vtkActor()
-        act_up.SetMapper(doClip(Act))
-        T = vtk.vtkTransform()
-        T.Translate(0,i*wrap[0],0)
-        act_up.SetUserTransform(T)
-        act_up.SetProperty(Act.GetProperty())
-        A.AddPart(act_up)
-      i=0
-      while A.GetYrange()[1]<mx:
-        i+=1
-        act_down = vtk.vtkActor()
-        act_down.SetMapper(doClip(Act))
-        T = vtk.vtkTransform()
-        T.Translate(0,-i*wrap[0],0)
-        act_down.SetUserTransform(T)
-        act_down.SetProperty(Act.GetProperty())
-        A.AddPart(act_down)
-    return A
+  MB = vtk.vtkMultiBlockDataSet()
+  mn=min(gm.datawc_x1,gm.datawc_x2)
+  mx=max(gm.datawc_x1,gm.datawc_x2)
+  MB.SetBlock(0,doClip(Mapper.GetInput(),mn,mx,0))
+  Amn,Amx = Act.GetXRange()
+  if numpy.allclose(mn,1.e20) or numpy.allclose(mx,1.e20):
+    mx = abs(wrap[1])
+    mn = -wrap[1]
+  print "XMIN XMAX:",mn,mx
+  if wrap[1]!=0.:
+    i=0
+    while Amn>mn:
+      i+=1
+      Amn-=wrap[1]
+      print "left:",Amn
+      Tpf = vtk.vtkTransformPolyDataFilter()
+      Tpf.SetInputData(Act.GetMapper().GetInput())
+      T=vtk.vtkTransform()
+      T.Translate(-i*wrap[1],0,0)
+      Tpf.SetTransform(T)
+      Tpf.Update()
+      out = doClip(Tpf.GetOutput(),mn,mx,0)
+      MB.SetBlock(MB.GetNumberOfBlocks(),out)
+    i=0
+    while Amx<mx:
+      i+=1
+      Amx+=wrap[1]
+      print Amx,"right"
+      Tpf = vtk.vtkTransformPolyDataFilter()
+      Tpf.SetInputData(Act.GetMapper().GetInput())
+      T = vtk.vtkTransform()
+      T.Translate(i*wrap[1],0,0)
+      Tpf.SetTransform(T)
+      Tpf.Update()
+      MB.SetBlock(MB.GetNumberOfBlocks(),doClip(Tpf.GetOutput(),mn,mx,0))
+  mn=min(gm.datawc_y1,gm.datawc_y2)
+  mx=max(gm.datawc_y1,gm.datawc_y2)
+  Amn,Amx = Act.GetYRange()
+  if numpy.allclose(mn,1.e20) or numpy.allclose(mx,1.e20):
+    mx = abs(wrap[0])
+    mn = -wrap[0]
+  if wrap[0]!=0.:
+    i=0
+    while Amn>mn:
+      i+=1
+      Amn-=wrap[0]
+      Tpf = vtk.vtkTransformPolyDataFilter()
+      Tpf.SetInputData(Act.GetMapper().GetInput())
+      T = vtk.vtkTransform()
+      T.Translate(0,i*wrap[0],0)
+      Tpf.SetTransform(T)
+      Tpf.Update()
+      MB.SetBlock(MB.GetNumberOfBlocks(),doClip(Tpf.GetOutput()))
+    i=0
+    while Amx<mx:
+      i+=1
+      Amx+=wrap[0]
+      Tpf = vtk.vtkTransformPolyDataFilter()
+      Tpf.SetInputData(Act.GetMapper().GetInput())
+      T = vtk.vtkTransform()
+      T.Translate(0,-i*wrap[0],0)
+      Tpf.SetTransform(T)
+      Tpf.Update()
+      MB.SetBlock(MB.GetNumberOfBlocks(),doClip(Tpf.GetOutput()))
+  #data = doClip(MB)
+  Actor = vtk.vtkActor()
+  Actor.SetProperty(Act.GetProperty())
+  Mapper2 = vtk.vtkDataSetMapper()
+  Mapper2 = vtk.vtkCompositePolyDataMapper()
+  Mapper2.SetInputDataObject(MB)
+  Mapper2.SetLookupTable(Mapper.GetLookupTable())
+  Mapper2.SetScalarRange(Mapper.GetScalarRange())
+  Actor.SetMapper(Mapper2)
+  #print "Returning :",Actor,MB.GetNumberOfBlocks()
+  return Actor
+
+def doClip(data,mn,mx,axis=0):
+  minClip = doClip1(data,mn,1,0)
+  minAndMaxClip = doClip1(minClip,mx,-1,0)
+  return minAndMaxClip
+
+def doClip1(data,value,normal,axis=0):
+    # We have the actor, do clipping
+    clpf = vtk.vtkPlane()
+    print "Clipping:",value,normal,axis
+    if axis == 0:
+      clpf.SetOrigin(value,0,0)
+      clpf.SetNormal(normal,0,0)
+    clp = vtk.vtkClipPolyData()
+    clp.SetClipFunction(clpf)
+    clp.SetInputData(data)
+    clp.Update()
+    return clp.GetOutput()
 
 def genTextActor(string,x=.5,y=.5,to='default',tt='default',cmap='default'):
   t = vtk.vtkTextActor()
