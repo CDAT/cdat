@@ -8252,7 +8252,9 @@ Options:::
         nms = []
         for f in files:
             fnm,name = f
-            nms.append(apply(self.canvas.addfont,(fnm,name)))
+            i = max(vcs.elements["fontNumber"].keys())+1
+            vcs.elements["font"][name]=fnm
+            vcs.elements["fontNumber"][i]=name
         if len(nms)==0:
             raise vcsError,'No font Loaded'
         elif len(nms)>1:
@@ -8265,19 +8267,13 @@ Options:::
         """
         get the font number associated with a font name
         """
-        nb = apply(self.canvas.getfontnumber,(name,))
-        if nb==-1:
-            raise vcsError,"Font name not existing! %s" % name
-        return nb
+        return vcs.getfontnumber(name)
     
     def getfontname(self, number):
         """
         get the font name associated with a font number
         """
-        nm = apply(self.canvas.getfontname,(number,))
-        if nm=="":
-            raise vcsError,"Error font number not existing %i" % number
-        return nm
+        return vcs.getfontnumber(number)
     
     def getfont(self, font):
         """

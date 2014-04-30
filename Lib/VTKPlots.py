@@ -32,6 +32,7 @@ class VTKVCSBackend(object):
     ren = vtk.vtkRenderer()
     ren.SetBackground(1,1,1)
     self.renWin.AddRenderer(ren)
+
     #screenSize = self.renWin.GetScreenSize()
     data1 = self.trimData(data1) # Ok get only the last 2 dims
     data2 = self.trimData(data2)
@@ -121,7 +122,7 @@ class VTKVCSBackend(object):
       cpts = contData.GetPoints()
       gcpts = vcs2vtk.project(cpts,projection)
       contData.SetPoints(gcpts)
-      ren.AddActor(vcs2vtk.doWrap(contMapper,contActor,gm,wrap))
+      ren.AddActor(vcs2vtk.doWrap(contActor,gm,wrap))
 
     #Now applies the actual data on each cell
     data = VN.numpy_to_vtk(data1.filled().flat,deep=True)
@@ -208,7 +209,7 @@ class VTKVCSBackend(object):
       cot.Update()
       if self.debug:
         vcs2vtk.dump2VTK(cot,"cot")
-      mapper.SetInputConnection(cot.GetOutputPort())
+        mapper.SetInputConnection(cot.GetOutputPort())
     else: #Boxfill/Meshfill
       mapper.SetInputData(ug)
       if isinstance(gm,boxfill.Gfb):
@@ -260,11 +261,10 @@ class VTKVCSBackend(object):
     else:
       y1,y2 = yM,ym
 
-    
     #self.renderTemplate(data1,tmpl,mapper)
     # Trying to do some positioning here
     #ren.SetViewport(tmpl.data.x1,tmpl.data.y1,tmpl.data.x2,tmpl.data.y2)
-    ren.AddActor(vcs2vtk.doWrap(mapper,act,gm,wrap))
+    ren.AddActor(vcs2vtk.doWrap(act,gm,wrap))
 
     if not self.bg:
       self.renWin.Render()
@@ -290,6 +290,7 @@ class VTKVCSBackend(object):
       ren.SetBackground(1.,1.,1.)
       self.renWin.AddRenderer(ren)
     pass
+
 
   #ok now trying to figure the actual data to plot
   def trimData(self,data):

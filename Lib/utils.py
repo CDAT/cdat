@@ -18,6 +18,17 @@ import vector
 import marker
 import colormap
 
+def getfontname(number):
+  if not number in vcs.elements["fontNumber"]:
+    raise vcsError,"Error font number not existing %i" % number
+  return vcs.elements["fontNumber"][number]
+
+def getfontnumber(name):
+  for i in vcs.elements["fontNumber"]:
+    if vcs.elements["fontNumber"][i]==name:
+      return i
+  raise vcsError,"Font name not existing! %s" % name
+
 def process_src_element(code):
   i = code.find("_")
   typ = code[:i]

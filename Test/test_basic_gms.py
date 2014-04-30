@@ -15,8 +15,8 @@ s=f("sample")
 x=vcs.init()
 x.backend.renWin = renWin
 gm=x.createisofill()
-gm.datawc_x1=-900
-gm.datawc_x2=500
+gm.datawc_x1=-180
+gm.datawc_x2=180
 #gm=x.createisoline()
 #gm=x.createboxfill()
 x.plot(s,gm)

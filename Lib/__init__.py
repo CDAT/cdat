@@ -34,6 +34,7 @@ from utils import *
 import install_vcs
 from install_vcs import list_printers, add_printer, remove_printer
 from Canvas import dictionarytovcslist
+import os
 
 _default_time_units='days since 2000'
 
@@ -124,7 +125,40 @@ elements = { "boxfill" : {},
              "line":{},
              "marker":{},
              "colormap":{},
+             "font":{},
+             "fontNumber":{},
              }
+
+d,e = vcs.getdotdirectory()
+i=0
+for nm,fnt in [    
+    ("default","AvantGarde-Book_Bold.ttf"),
+    ("Clarendon","Clarendon.ttf"),
+    ("Courier","Courier.ttf"),
+    ("Helvetica","HelvMono.ttf"),
+    ("Adelon","Adelon_Regular.ttf"),
+    ("Times","Times_CG_ATT.ttf"),
+    ("Arabic","Arabic.ttf"),
+    ("Chinese","Chinese_Generic1.ttf"),
+    ("Greek","Athens_Greek.ttf"),
+    ("Hebrew","hebrew.ttf"),
+    ("Russian","Russian.ttf"),
+    ("Maths1","jsMath-msam10.ttf"),
+    ("Maths2","blex.ttf"),
+    ("Maths3","jsMath-wasy10.ttf"),
+    ("Maths4","blsy.ttf"),
+    ("AvantGarde","AvantGarde-Book_Bold.ttf"),
+    ]:
+  i+=1
+  pth  = os.path.join(os.environ["HOME"],d,fnt)
+  pthe = os.path.join(os.environ.get(e,""),fnt)
+  if os.path.exists(pth):
+    vcs.elements["font"][nm]=pth
+    vcs.elements["fontNumber"][i]=nm
+  elif os.path.exists(pthe):
+    vcs.elements["font"][nm]=pthe
+    vcs.elements["fontNumber"][i]=nm
+
 p=projection.Proj("default")
 p = projection.Proj("linear")
 line.Tl("default")
@@ -162,6 +196,7 @@ for nm in ["mercator","orthographic","lambert","polar","polyconic","robinson",
 fillarea.Tf("default")
 template.P("default")
 
+  
 taylordiagrams=[taylor.Gtd()]
 
 canvaslist = []
