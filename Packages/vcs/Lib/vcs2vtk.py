@@ -74,50 +74,52 @@ def dump2VTK(obj,fnm=None):
 #Wrapping around
 def doWrap(Act,gm,wrap=[0.,360]):
   Mapper = Act.GetMapper()
+  xmn=min(gm.datawc_x1,gm.datawc_x2)
+  xmx=max(gm.datawc_x1,gm.datawc_x2)
+  if numpy.allclose(xmn,1.e20) or numpy.allclose(xmx,1.e20):
+    xmx = abs(wrap[1])
+    xmn = -wrap[1]
+  ymn=min(gm.datawc_y1,gm.datawc_y2)
+  ymx=max(gm.datawc_y1,gm.datawc_y2)
+  if numpy.allclose(ymn,1.e20) or numpy.allclose(ymx,1.e20):
+    ymx = abs(wrap[0])
+    ymn = -wrap[0]
+  
+  ## Prepare MultiBlock and puts in oriinal data
   MB = vtk.vtkMultiBlockDataSet()
-  mn=min(gm.datawc_x1,gm.datawc_x2)
-  mx=max(gm.datawc_x1,gm.datawc_x2)
-  MB.SetBlock(0,doClip(Mapper.GetInput(),mn,mx,0))
+  MB.SetBlock(0,doClip(Mapper.GetInput(),xmn,xmx,ymn,ymx))
+  ## X axis wrappping
   Amn,Amx = Act.GetXRange()
-  if numpy.allclose(mn,1.e20) or numpy.allclose(mx,1.e20):
-    mx = abs(wrap[1])
-    mn = -wrap[1]
-  print "XMIN XMAX:",mn,mx
   if wrap[1]!=0.:
     i=0
-    while Amn>mn:
+    while Amn>xmn:
       i+=1
       Amn-=wrap[1]
-      print "left:",Amn
       Tpf = vtk.vtkTransformPolyDataFilter()
       Tpf.SetInputData(Act.GetMapper().GetInput())
       T=vtk.vtkTransform()
       T.Translate(-i*wrap[1],0,0)
       Tpf.SetTransform(T)
       Tpf.Update()
-      out = doClip(Tpf.GetOutput(),mn,mx,0)
+      out = doClip(Tpf.GetOutput(),xmn,xmx,ymn,ymx)
       MB.SetBlock(MB.GetNumberOfBlocks(),out)
     i=0
-    while Amx<mx:
+    while Amx<xmx:
       i+=1
       Amx+=wrap[1]
-      print Amx,"right"
       Tpf = vtk.vtkTransformPolyDataFilter()
       Tpf.SetInputData(Act.GetMapper().GetInput())
       T = vtk.vtkTransform()
       T.Translate(i*wrap[1],0,0)
       Tpf.SetTransform(T)
       Tpf.Update()
-      MB.SetBlock(MB.GetNumberOfBlocks(),doClip(Tpf.GetOutput(),mn,mx,0))
-  mn=min(gm.datawc_y1,gm.datawc_y2)
-  mx=max(gm.datawc_y1,gm.datawc_y2)
+      MB.SetBlock(MB.GetNumberOfBlocks(),doClip(Tpf.GetOutput(),xmn,xmx,ymn,ymx))
+
+  # Y axis wrapping
   Amn,Amx = Act.GetYRange()
-  if numpy.allclose(mn,1.e20) or numpy.allclose(mx,1.e20):
-    mx = abs(wrap[0])
-    mn = -wrap[0]
   if wrap[0]!=0.:
     i=0
-    while Amn>mn:
+    while Amn>ymn:
       i+=1
       Amn-=wrap[0]
       Tpf = vtk.vtkTransformPolyDataFilter()
@@ -126,9 +128,9 @@ def doWrap(Act,gm,wrap=[0.,360]):
       T.Translate(0,i*wrap[0],0)
       Tpf.SetTransform(T)
       Tpf.Update()
-      MB.SetBlock(MB.GetNumberOfBlocks(),doClip(Tpf.GetOutput()))
+      MB.SetBlock(MB.GetNumberOfBlocks(),doClip(Tpf.GetOutput(),xmn,xmx,ymn,ymx))
     i=0
-    while Amx<mx:
+    while Amx<ymx:
       i+=1
       Amx+=wrap[0]
       Tpf = vtk.vtkTransformPolyDataFilter()
@@ -137,8 +139,7 @@ def doWrap(Act,gm,wrap=[0.,360]):
       T.Translate(0,-i*wrap[0],0)
       Tpf.SetTransform(T)
       Tpf.Update()
-      MB.SetBlock(MB.GetNumberOfBlocks(),doClip(Tpf.GetOutput()))
-  #data = doClip(MB)
+      MB.SetBlock(MB.GetNumberOfBlocks(),doClip(Tpf.GetOutput(),xmn,xmx,ymn,ymx))
   Actor = vtk.vtkActor()
   Actor.SetProperty(Act.GetProperty())
   Mapper2 = vtk.vtkDataSetMapper()
@@ -147,21 +148,30 @@ def doWrap(Act,gm,wrap=[0.,360]):
   Mapper2.SetLookupTable(Mapper.GetLookupTable())
   Mapper2.SetScalarRange(Mapper.GetScalarRange())
   Actor.SetMapper(Mapper2)
-  #print "Returning :",Actor,MB.GetNumberOfBlocks()
   return Actor
 
-def doClip(data,mn,mx,axis=0):
-  minClip = doClip1(data,mn,1,0)
-  minAndMaxClip = doClip1(minClip,mx,-1,0)
-  return minAndMaxClip
+def doClip(data,xmin,xmax,ymin,ymax):
+  if xmin!=xmax:
+    xminClip = doClip1(data,xmin,1,0)
+    xfullClip = doClip1(xminClip,xmax,-1,0)
+  else:
+    xfullClip = data
+  if ymin!=ymax:
+    yminClip  = doClip1(xfullClip,ymin,1,1)
+    xyClip  = doClip1(yminClip,ymax,-1,1)
+  else:
+    xyClip = xfullClip
+  return xyClip
 
 def doClip1(data,value,normal,axis=0):
     # We have the actor, do clipping
     clpf = vtk.vtkPlane()
-    print "Clipping:",value,normal,axis
     if axis == 0:
       clpf.SetOrigin(value,0,0)
       clpf.SetNormal(normal,0,0)
+    else:
+      clpf.SetOrigin(0,value,0)
+      clpf.SetNormal(0,normal,0)
     clp = vtk.vtkClipPolyData()
     clp.SetClipFunction(clpf)
     clp.SetInputData(data)
