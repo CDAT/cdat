@@ -191,7 +191,7 @@ def genTextActor(renderer,string,x=.5,y=.5,to='default',tt='default',cmap='defau
   if isinstance(cmap,str):
     cmap = vcs.elements["colormap"][cmap]
   c=cmap.index[tt.color]
-  p.SetColor([x/100. for x in c])
+  p.SetColor([C/100. for C in c])
 
   if to.halign=="left":
     p.SetJustificationToLeft()
@@ -231,6 +231,8 @@ def world2RendererWorld(ren,x,y,vp,wc):
   origin,opposite = getRendererCorners(ren,vp)
   X = origin[0]+ (opposite[0]-origin[0] )*(x-wc[0])/(wc[1]-wc[0])
   Y = origin[1]+ (opposite[1]-origin[1] )*(y-wc[2])/(wc[3]-wc[2])
+  print "Got:",x,y
+  print "Now:",X,Y
   return X,Y
 
 def C2World(ren,x,y):
@@ -243,6 +245,7 @@ def C2World(ren,x,y):
   return wp
 
 def fitToViewport(Actor,Renderer,vp):
+  #renwin.Render()
   Xrg = Actor.GetXRange()
   Yrg = Actor.GetYRange()
   XcenterData = (Xrg[1]+Xrg[0])/2.
