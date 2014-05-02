@@ -274,12 +274,10 @@ class VTKVCSBackend(object):
     tmp = vcs2vtk.fitToViewport(act,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2])
     ren.RemoveActor(act)
     ren.AddActor(tmp)
-
-
-    #text = vcs2vtk.genTextActor(ren,"Hello Aashish",.5,.8)
-    #ren.AddActor(text)
-#    vcs2vtk.fitToViewport(text,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[0,1,0,1])
-
+    
+    ren.AddActor2D(vcs2vtk.genTextActor(ren,"Hello Aashish",.5,.9))
+    if not self.bg:
+      self.renWin.Render()
 
   def renderTemplate(self,data1,tmpl,mapper):
     if tmpl.legend.priority>0:
