@@ -22,6 +22,12 @@ list(APPEND ParaView_tpl_args
   -DModule_vtklibproj4:BOOL=ON
 )
 
+# We would like to see CGM as well
+list(APPEND ParaView_tpl_args
+  -DModule_vtkIOCGM:BOOL=ON
+  )
+
+
 if (CDAT_BUILD_PARALLEL)
   list(APPEND ParaView_tpl_args
     -DPARAVIEW_USE_MPI:BOOL=ON)

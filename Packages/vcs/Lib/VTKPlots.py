@@ -13,7 +13,7 @@ class VTKVCSBackend(object):
     self.debug = True
     self.bg = None
   def plot(self,data1,data2,template,gtype,gname,bg,*args,**kargs):
-    print "OK VTK RECEIVED:",data1.id, data2, template,gtype,gname
+    print "OK VTK RECEIVED:",data1, data2, template,gtype,gname
     print "OK VTK BG:",bg
     print "OK VTK RECEIVED ARG:",args
     print "OK VTK RECEIVED KARG:",kargs
@@ -41,6 +41,7 @@ class VTKVCSBackend(object):
     # ok for now let's assume it is 2D...
     if gtype in ["boxfill","meshfill","isofill","isoline"]:
       self.plot2D(data1,data2,tpl,gm,ren)
+      #tpl.plot(self.canvas,data1,gm,bg=self.bg)
     else:
       raise Exception,"Graphic type: '%s' not re-implemented yet" % gtype
     
@@ -122,7 +123,12 @@ class VTKVCSBackend(object):
       cpts = contData.GetPoints()
       gcpts = vcs2vtk.project(cpts,projection)
       contData.SetPoints(gcpts)
-      ren.AddActor(vcs2vtk.doWrap(contActor,gm,wrap))
+      contActor = vcs2vtk.doWrap(contActor,gm,wrap)
+      ren.AddActor(contActor)
+      self.renWin.Render()
+      tmp = vcs2vtk.fitToViewport(contActor,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2])
+      ren.RemoveActor(contActor)
+      ren.AddActor(tmp)
 
     #Now applies the actual data on each cell
     data = VN.numpy_to_vtk(data1.filled().flat,deep=True)
@@ -147,7 +153,6 @@ class VTKVCSBackend(object):
     if isinstance(gm,(isofill.Gfi,isoline.Gi,meshfill.Gfm)) or \
         (isinstance(gm,boxfill.Gfb) and gm.boxfill_type=="custom"):
       
-      print "isofill/line/boxfill"
       # Sets data to point instead of just cells
       c2p = vtk.vtkCellDataToPointData()
       c2p.SetInputData(ug)
@@ -166,7 +171,6 @@ class VTKVCSBackend(object):
       if self.debug:
         vcs2vtk.dump2VTK(sFilter)
       if isinstance(gm,isoline.Gi):
-        print "contour filter"
         cot = vtk.vtkContourFilter()
       else:
         cot = vtk.vtkBandedPolyDataContourFilter()
@@ -264,10 +268,18 @@ class VTKVCSBackend(object):
     #self.renderTemplate(data1,tmpl,mapper)
     # Trying to do some positioning here
     #ren.SetViewport(tmpl.data.x1,tmpl.data.y1,tmpl.data.x2,tmpl.data.y2)
-    ren.AddActor(vcs2vtk.doWrap(act,gm,wrap))
+    act = vcs2vtk.doWrap(act,gm,wrap)
+    ren.AddActor(act)
+    self.renWin.Render()
+    tmp = vcs2vtk.fitToViewport(act,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2])
+    ren.RemoveActor(act)
+    ren.AddActor(tmp)
 
-    if not self.bg:
-      self.renWin.Render()
+
+    #text = vcs2vtk.genTextActor(ren,"Hello Aashish",.5,.8)
+    #ren.AddActor(text)
+#    vcs2vtk.fitToViewport(text,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[0,1,0,1])
+
 
   def renderTemplate(self,data1,tmpl,mapper):
     if tmpl.legend.priority>0:
@@ -337,4 +349,31 @@ class VTKVCSBackend(object):
         writer.SetInputConnection(imgfiltr.GetOutputPort())
         writer.SetFileName(file)
         writer.Write()
+
+  def cgm(self,file):
+        if self.renWin is None:
+          raise Exception,"Nothing to dump aborting"
+            
+        if not file.split('.')[-1].lower() in ['cgm']:
+            file+='.cgm'
+
+        try:
+          os.remove(file)
+        except:
+          pass
+
+        writer = vtk.vtkIOCGM.vtkCGMWriter()
+        writer.SetFileName(file)
+        R = self.renWin.GetRenderers()
+        r=R.GetFirstRenderer()
+        A = r.GetActors()
+        A.InitTraversal()
+        a = A.GetNextActor()
+        while a is not None:
+          m = a.GetMapper()
+          m.Update()
+          writer.SetInputData(m.GetInput())
+          writer.Write()
+          a=A.GetNextActor()
+
 

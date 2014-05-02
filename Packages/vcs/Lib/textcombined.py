@@ -280,8 +280,8 @@ class Tc(object):
         # Inherits texttable and textorientation secondary sub-classes.   #
         ###################################################################
         #                                                                 #
-        self.Tt = texttable.Tt(parent, Tt_name, Tt_name_src, createTc)
-        self.To = textorientation.To(parent, To_name, To_name_src, createTc)
+        self.Tt = texttable.Tt(Tt_name, Tt_name_src)
+        self.To = textorientation.To(To_name, To_name_src)
         self.name = ''
         self.s_name = 'Tc'
         #                                                         #
@@ -289,7 +289,6 @@ class Tc(object):
         # Save the parent class.                                  #
         ###########################################################
         #                                                         #
-        self.parent = parent
 
 ##     #############################################################################
 ##     #                                                                           #
@@ -538,7 +537,6 @@ class Tc(object):
             (self.To_name == '__removed_from_VCS__')):
            raise ValueError, 'This instance has been removed from VCS.'
         print "","----------Text combined (Tc) member (attribute) listings ----------"
-        print 'Canvas Mode =',self.parent.mode
         print "secondary method =", self.s_name
         print "","----------Text Table (Tt) member (attribute) listings ----------"
         print "Tt_name =",self.Tt_name

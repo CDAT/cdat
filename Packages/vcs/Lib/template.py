@@ -1169,12 +1169,10 @@ class P(object):
          self.parent.mode=savedmode
          self.parent.update()
          
-    def plot(self,slab,gm,bg=0,min=None,max=None):
+    def plot(self,x,slab,gm,bg=0,min=None,max=None):
         """ This plots the template stuff on the Canvas, it needs a slab and a graphic method
         returns a list containing all the displays used"""
         displays = []
-        # first makes sure there is a Canvas
-        x=self.parent
         # now remembers the viewport and worldcoordinates in order to reset them later
         vp=x.viewport
         wc=x.worldcoordinate

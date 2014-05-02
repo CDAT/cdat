@@ -1389,10 +1389,9 @@ class Canvas(object,AutoAPI.AutoAPI):
         if not isinstance(Proj_name_src,str):
            raise vcsError, 'The argument must be a string.'
 
-        Proj_name = None
-        p=projection.Proj(self, Proj_name, Proj_name_src, 1)
-        if Proj_name_src!='default' : p.type=p.type
-        return p
+        if not Proj_name_src in vcs.elements["projection"]:
+          raise vcsError,"No such projection '%s'" % Proj_name_src
+        return vcs.elements["projection"][Proj_name_src]
 
     #############################################################################
     #                                                                           #
@@ -5737,7 +5736,9 @@ Options:::
     a.cgm('example',mode='r')  # 'r' will instruct cgm to overwrite an existing file
 
 """
-        return apply(self.canvas.cgm, (file,mode))
+        if mode!='r':
+          warnings.warn("cgm only supports 'r' mode ignoring your mode ('%s')" % mode)
+        return self.backend.cgm(file)
 
     #############################################################################
     #                                                                           #
@@ -9276,7 +9277,7 @@ class animate_obj(animate_obj_old):
             return self
         return self.frames_per_second
 
-    
+      
 ############################################################################
 #        END OF FILE                                                       #
 ############################################################################
