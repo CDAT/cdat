@@ -275,7 +275,7 @@ class Tt(object):
                    tmp = VCS_validation_functions.checkListOfNumbers(self,'x',v)
                    val.append(tmp)
               value=val
-         self.y=value
+         self._y=value
     y = property(_gety,_sety)
     
     #############################################################################
