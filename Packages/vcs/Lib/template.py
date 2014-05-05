@@ -868,7 +868,7 @@ class P(object):
            
     ## Adding the drawing functionnality to plot all these attributes on the Canvas
 
-    def drawTicks(self,slab,gm,x,axis,number,vp,wc,bg=0):
+    def drawTicks(self,slab,gm,x,axis,number,vp,wc,bg=0,**kargs):
         """Draws the ticks for the axis x number number
         using the label passed by the graphic  method
         vp and wc are from the actual canvas, they have been reset when they get here...
@@ -877,12 +877,20 @@ class P(object):
         # compute the spanning in x and y, and adjust for the viewport
         if gm.datawc_x1 > 9.E19 :
              wc[0]=slab.getAxis(-1)[0]
+        else:
+          wc[0] = gm.datawc_x1
         if gm.datawc_x2 > 9.E19 :
              wc[1]=slab.getAxis(-1)[-1]
+        else:
+          wc[1] = gm.datawc_x2
         if gm.datawc_y1 > 9.E19 :
              wc[2]=slab.getAxis(-2)[0]
+        else:
+          wc[2] = gm.datawc_y1
         if gm.datawc_y2 > 9.E19 :
              wc[3]=slab.getAxis(-2)[-1]
+        else:
+          wc[3] = gm.datawc_y2
 
         vp=[self.data.x1,self.data.x2,self.data.y1,self.data.y2]
         dx=wc[1]-wc[0]
@@ -905,6 +913,8 @@ class P(object):
             if number == '2':
                 for t in loc.keys():
                     loc[t]=''
+        if isinstance(loc,str):
+          loc = vcs.elements["list"].get(loc,{})
         # Make sure the label passed are not outside the world coordinates
         dw1=1.E20
         dw2=1.E20
@@ -950,7 +960,11 @@ class P(object):
         loc=getattr(gm,axis+'ticlabels'+number)
         if loc == '*' or loc is None:
              loc=loc2
+        if isinstance(loc,str):
+          loc = vcs.elements["list"].get(loc,{})
         # set the x/y/text values
+        print "LOC IS:",loc
+        print "AXIS:",axis,wc
         for l in loc.keys():
           if axis=='x':
                mn,mx = vcs.minmax(wc[0],wc[1])
@@ -967,6 +981,7 @@ class P(object):
                     xs.append([obj.x1,obj.x2])
                     tys.append((l-wc[2])/dy+vp[2])
                     txs.append(objlabl.x)
+                    tstring.append(loc[l])
         # now does the mini ticks
         if getattr(gm,axis+'mtics'+number)!='':
             obj=getattr(self,axis+'mintic'+number)
@@ -985,15 +1000,16 @@ class P(object):
                          xs.append([obj.x1,obj.x2])
                          tstring.append(a)
 
+        print "TSTRING:",tstring
         if txs!=[]:
              tt.string=tstring
              tt.x=txs
              tt.y=tys
-             displays.append(x.text(tt,bg=bg))
+             displays.append(x.text(tt,bg=bg,**kargs))
         if xs!=[]:
              ticks.x=xs
              ticks.y=ys
-             displays.append(x.line(ticks,bg=bg))
+             displays.append(x.line(ticks,bg=bg,**kargs))
         return displays
    
 
@@ -1169,18 +1185,18 @@ class P(object):
          self.parent.mode=savedmode
          self.parent.update()
          
-    def plot(self,x,slab,gm,bg=0,min=None,max=None):
+    def plot(self,x,slab,gm,bg=0,min=None,max=None,**kargs):
         """ This plots the template stuff on the Canvas, it needs a slab and a graphic method
         returns a list containing all the displays used"""
         displays = []
         # now remembers the viewport and worldcoordinates in order to reset them later
         vp=x.viewport
         wc=x.worldcoordinate
-        m=x.mode
+        #m=x.mode
         # and resets everything to [0,1]
         x.viewport=[0,1,0,1]
         x.worldcoordinate=[0,1,0,1]
-        x.mode=0 # this should disable the replot but it doesn't work....
+        #x.mode=0 # this should disable the replot but it doesn't work....
         # figures out the min and max and set them as atributes...
         if min is None or max is None:
              mn,mx=vcs.minmax(slab)
@@ -1206,7 +1222,9 @@ class P(object):
                     sub=self.dataname
                 else:
                     sub=getattr(self,s)
+                print "CREATING TEXT:",sub.texttable,sub.textorientation
                 tt=x.createtext(None,sub.texttable,None,sub.textorientation)
+
                 # Now for the min/max/mean add the name in front
                 if s=='min':
                     tt.string='Min '+str(getattr(slab,s))
@@ -1222,15 +1240,15 @@ class P(object):
                 tt.x=[sub.x]
                 tt.y=[sub.y]
                 tt.priority=sub.priority
-                displays.append(x.text(tt,bg=bg))
+                displays.append(x.text(tt,bg=bg,**kargs))
 
 
         # Do the tickmarks/labels
         if gm!='taylordiagram':
-             displays+=self.drawTicks(slab,gm,x,axis='x',number='1',vp=vp,wc=wc,bg=bg)
-             displays+=self.drawTicks(slab,gm,x,axis='x',number='2',vp=vp,wc=wc,bg=bg)
-             displays+=self.drawTicks(slab,gm,x,axis='y',number='1',vp=vp,wc=wc,bg=bg)
-             displays+=self.drawTicks(slab,gm,x,axis='y',number='2',vp=vp,wc=wc,bg=bg)
+             displays+=self.drawTicks(slab,gm,x,axis='x',number='1',vp=vp,wc=wc,bg=bg,**kargs)
+             displays+=self.drawTicks(slab,gm,x,axis='x',number='2',vp=vp,wc=wc,bg=bg,**kargs)
+             displays+=self.drawTicks(slab,gm,x,axis='y',number='1',vp=vp,wc=wc,bg=bg,**kargs)
+             displays+=self.drawTicks(slab,gm,x,axis='y',number='2',vp=vp,wc=wc,bg=bg,**kargs)
 
         # Do the boxes and lines
         b=self.box1
@@ -1239,7 +1257,7 @@ class P(object):
              l.x=[b.x1,b.x2,b.x2,b.x1,b.x1]
              l.y=[b.y1,b.y1,b.y2,b.y2,b.y1]
              l.priority=b.priority
-             displays.append(x.line(l,bg=bg))
+             displays.append(x.line(l,bg=bg,**kargs))
 
         b=self.box2
         if b.priority!=0:
@@ -1247,7 +1265,7 @@ class P(object):
              l.x=[b.x1,b.x2,b.x2,b.x1,b.x1]
              l.y=[b.y1,b.y1,b.y2,b.y2,b.y1]
              l.priority=b.priority
-             displays.append(x.line(l,bg=bg))
+             displays.append(x.line(l,bg=bg,**kargs))
 
         b=self.box3
         if b.priority!=0:
@@ -1255,7 +1273,7 @@ class P(object):
              l.x=[b.x1,b.x2,b.x2,b.x1,b.x1]
              l.y=[b.y1,b.y1,b.y2,b.y2,b.y1]
              l.priority=b.priority
-             displays.append(x.line(l,bg=bg))
+             displays.append(x.line(l,bg=bg,**kargs))
 
         b=self.box4
         if b.priority!=0:
@@ -1263,7 +1281,7 @@ class P(object):
              l.x=[b.x1,b.x2,b.x2,b.x1,b.x1]
              l.y=[b.y1,b.y1,b.y2,b.y2,b.y1]
              l.priority=b.priority
-             displays.append(x.line(l,bg=bg))
+             displays.append(x.line(l,bg=bg,**kargs))
 
         b=self.line1
         if b.priority!=0:
@@ -1271,7 +1289,7 @@ class P(object):
              l.x=[b.x1,b.x2]
              l.y=[b.y1,b.y2]
              l.priority=b.priority
-             displays.append(x.line(l,bg=bg))
+             displays.append(x.line(l,bg=bg,**kargs))
 
         b=self.line2
         if b.priority!=0:
@@ -1279,7 +1297,7 @@ class P(object):
              l.x=[b.x1,b.x2]
              l.y=[b.y1,b.y2]
              l.priority=b.priority
-             displays.append(x.line(l,bg=bg))
+             displays.append(x.line(l,bg=bg,**kargs))
 
         b=self.line3
         if b.priority!=0:
@@ -1287,7 +1305,7 @@ class P(object):
              l.x=[b.x1,b.x2]
              l.y=[b.y1,b.y2]
              l.priority=b.priority
-             displays.append(x.line(l,bg=bg))
+             displays.append(x.line(l,bg=bg,**kargs))
 
         b=self.line4
         if b.priority!=0:
@@ -1295,8 +1313,8 @@ class P(object):
              l.x=[b.x1,b.x2]
              l.y=[b.y1,b.y2]
              l.priority=b.priority
-             displays.append(x.line(l,bg=bg))
-        x.mode=m
+             displays.append(x.line(l,bg=bg,**kargs))
+        #x.mode=m
         # I think i have to use dict here because it's a valid value
         # (obviously since i got it from the object itself and didn't touch it
         # but Dean doesn't allow to set it back to some of these values (None)!
@@ -1406,7 +1424,7 @@ class P(object):
               fa.x=S
               fa.y=L
 ##          fa.list()
-         displays.append(x.fillarea(fa,bg=bg))
+         displays.append(x.fillarea(fa,bg=bg,**kargs))
          # Now draws the legend
          # Fisrt of all make sure we draw the arrows
          Sl=[]
@@ -1487,8 +1505,8 @@ class P(object):
               txt.y=Lt
          
          # Now reset the viewport and worldcoordiantes
-         displays.append(x.line(ln,bg=bg))
-         displays.append(x.text(txt,bg=bg))
+         displays.append(x.line(ln,bg=bg,**kargs))
+         displays.append(x.text(txt,bg=bg,**kargs))
          x.viewport=vp
          x.worldcoordinate=wc
          return displays

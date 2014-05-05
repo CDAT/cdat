@@ -850,6 +850,7 @@ class Canvas(object,AutoAPI.AutoAPI):
         #                                                                           #
         #############################################################################
 
+        self.colormap = "default"
         self.info = AutoAPI.Info(self)
         self.info.expose=["plot", "boxfill", "isofill", "isoline", "outfill", "outline", "scatter", "xvsy", "xyvsy", "yxvsx", "createboxfill", "getboxfill", "createisofill", "getisofill", "createisoline", "getisoline", "createyxvsx", "getyxvsx", "createxyvsy", "getxyvsy", "createxvsy", "getxvsy", "createscatter", "getscatter", "createoutfill", "getoutfill", "createoutline", "getoutline"]
         ospath = os.environ["PATH"]
@@ -4067,7 +4068,7 @@ Options:::
         Tt_name,Tt_source = self.check_name_source(Tt_name,Tt_source,'texttable')
         To_name,To_source = self.check_name_source(To_name,To_source,'textorientation')
 
-        tc = textcombined.Tc(self, Tt_name, Tt_source, To_name, To_source, 0)
+        tc = textcombined.Tc(Tt_name, Tt_source, To_name, To_source)
         if (font is not None):
             tc.font = font
         if (spacing is not None):
@@ -4142,9 +4143,11 @@ Example of Use:
         if not isinstance(To_name_src,str):
             raise vcsError, 'The second argument must be a string.'
         
-        Tt_name = None
-        To_name = None
-        tc = textcombined.Tc(self,Tt_name,Tt_name_src,To_name,To_name_src,1)
+        tc = vcs.elements["textcombined"].get("%s:::%s" % (Tt_name_src,To_name_src),None)
+        if tc is None:
+          raise Exception,"No usch text combined: %s:::%s" % (Tt_name_src,To_name_src)
+
+
         if (string is not None) and (tc.Tt_name != "default"):
             tc.string = string
         if (font is not None) and (tc.Tt_name != "default"):
@@ -5454,8 +5457,8 @@ Options:::
             raise vcsError, 'Error taylordiagram method: '+arglist[4]+' not found'
         else:
             for keyarg in keyargs.keys():
-                if not keyarg in self.__class__._plot_keywords_:
-                     raise vcsError, 'Invalid keyword: %s'%keyarg
+                if not keyarg in self.__class__._plot_keywords_+self.backend._plot_keywords:
+                     warnings.warn('Unrecognized vcs plot keyword: %s, assuming backend (%s) keyword'%(keyarg,self.backend.type))
 
             if (arglist[0] is not None or keyargs.has_key('variable')):
                 arglist[0] = self._reconstruct_tv(arglist, keyargs)
@@ -5618,13 +5621,15 @@ Options:::
             if arglist[3]=='vector':
                 if not (numpy.equal(arglist[0].getAxis(-1)[:],arglist[1].getAxis(-1)[:]).all()) or not(numpy.equal(arglist[0].getAxis(-2)[:],arglist[1].getAxis(-2)[:]).all()):
                     raise vcsError, 'Error - VECTOR components must be on the same grid.'
+            if keyargs.has_key("bg"):
+              del(keyargs["bg"])
             if isinstance(arglist[3],vcsaddons.core.VCSaddon):
                 if arglist[1] is None:
-                    dn = arglist[3].plot(arglist[0],template=arglist[2],bg=bg,x=self)
+                    dn = arglist[3].plot(arglist[0],template=arglist[2],bg=bg,x=self,**keyargs)
                 else:
-                    dn = arglist[3].plot(arglist[0],arglist[1],template=arglist[2],bg=bg,x=self)
+                    dn = arglist[3].plot(arglist[0],arglist[1],template=arglist[2],bg=bg,x=self,**keyargs)
             else:
-                dn = apply(self.backend.plot, tuple(arglist))
+                dn = self.backend.plot(*arglist,**keyargs)
             if self.mode!=0 : self.update()
             #if not bg: pause(self.pause_time)
 
@@ -7332,7 +7337,9 @@ Options:::
         # browse through the file to look for taylordiagram/python graphics methods
         processing=False # found a taylor graphic method
         for l in f.xreadlines():
-          if l[:2] in ["P_","L_","C_"] or l[:3] in ["Tm_","Gv_","Gi_","Tl_","To_","Tt_","Tf_",] or l[:4] in ['GXy_','GYx_','GXY_','GSp_','Gtd_','Gfb_',"Gfm_","Gfi_"] or l[:5] in ["Proj_",]:
+          if l[:6]=="color(":
+            self.setcolormap(l.strip()[6:-1])
+          elif l[:2] in ["P_","L_","C_"] or l[:3] in ["Tm_","Gv_","Gi_","Tl_","To_","Tt_","Tf_",] or l[:4] in ['GXy_','GYx_','GXY_','GSp_','Gtd_','Gfb_',"Gfm_","Gfi_"] or l[:5] in ["Proj_",] :
             #We found a graphic method
             processing = True
             opened = 0
@@ -7659,7 +7666,7 @@ Options:::
     # Set VCS color map wrapper for VCS.                                        #
     #                                                                           #
     #############################################################################
-    def setcolormap(self, *args):
+    def setcolormap(self, name):
         """
  Function: setcolormap
 
@@ -7678,15 +7685,13 @@ Options:::
         # Don't update the VCS segment if there is no Canvas. This condition
         # happens in the initalize function for VCDAT only. This will cause a
         # core dump is not checked.
-        try:
-           updateVCSsegments_flag = args[1]
-        except:
-           updateVCSsegments_flag = 1
-        a=apply(self.canvas.setcolormap, args)
-        if updateVCSsegments_flag == 1:
-           self.canvas.updateVCSsegments(self.mode) # pass down self and mode to _vcs module
-        self.flush() # update the canvas by processing all the X events
-        return a
+        #try:
+        #   updateVCSsegments_flag = args[1]
+        #except:
+        #   updateVCSsegments_flag = 1
+        self.colormap = name
+        warnings.warn("need to implemeent code to redraw vcs after colormap change")
+        return
 
     #############################################################################
     #                                                                           #
@@ -8401,8 +8406,7 @@ Options:::
     a.plot(array,'default','isofill','quick')
     a.getcolormapname()
 """
-        a=apply(self.canvas.getcolormapname, args)
-        return a
+        return self.colormap
     
     def dummy_user_action(self,*args,**kargs):
         print 'Arguments:',args

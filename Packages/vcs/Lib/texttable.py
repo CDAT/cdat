@@ -31,7 +31,7 @@ def process_src(nm,code):
   """Takes VCS script code (string) as input and generates boxfill gm from it"""
   try:
     tt = Tt(nm)
-  except:
+  except Exception,err:
     tt = vcs.elements["texttable"][nm]
   ## process attributes with = as assignement
   atts={}
