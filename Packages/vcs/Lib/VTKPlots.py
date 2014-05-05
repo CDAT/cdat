@@ -13,7 +13,7 @@ class VTKVCSBackend(object):
     self.debug = True
     self.bg = None
   def plot(self,data1,data2,template,gtype,gname,bg,*args,**kargs):
-    print "OK VTK RECEIVED:",data1, data2, template,gtype,gname
+    print "OK VTK RECEIVED:",template,gtype,gname
     print "OK VTK BG:",bg
     print "OK VTK RECEIVED ARG:",args
     print "OK VTK RECEIVED KARG:",kargs
@@ -22,15 +22,20 @@ class VTKVCSBackend(object):
       self.renWin = vtk.vtkRenderWindow()
       self.renWin.SetWindowName("VCS Canvas")
     if self.bg is None:
-      if "bg" in kargs:
+      if bg:
         self.bg= True
         self.renWin.SetOffScreenRendering(True)
+        self.renWin.SetSize(814,606)
+        print "OFFSCREEN"
       else:
         self.bg= False
         screenSize = self.renWin.GetScreenSize()
         self.renWin.SetSize(814,606)
-    ren = vtk.vtkRenderer()
-    ren.SetBackground(1,1,1)
+    if kargs.get("renderer",None) is None:
+      ren = vtk.vtkRenderer()
+      ren.SetBackground(1,1,1)
+    else:
+      ren = kargs["renderer"]
     self.renWin.AddRenderer(ren)
 
     #screenSize = self.renWin.GetScreenSize()
@@ -41,7 +46,9 @@ class VTKVCSBackend(object):
     # ok for now let's assume it is 2D...
     if gtype in ["boxfill","meshfill","isofill","isoline"]:
       self.plot2D(data1,data2,tpl,gm,ren)
-      #tpl.plot(self.canvas,data1,gm,bg=self.bg)
+    elif gtype in ["text"]:
+      print "HERE?"
+      vcs2vtk.genTextActor(ren,"hi",.5,.8)
     else:
       raise Exception,"Graphic type: '%s' not re-implemented yet" % gtype
     
@@ -265,9 +272,8 @@ class VTKVCSBackend(object):
     else:
       y1,y2 = yM,ym
 
-    #self.renderTemplate(data1,tmpl,mapper)
-    # Trying to do some positioning here
-    #ren.SetViewport(tmpl.data.x1,tmpl.data.y1,tmpl.data.x2,tmpl.data.y2)
+    self.renderTemplate(ren,mapper,tmpl,data1)
+
     act = vcs2vtk.doWrap(act,gm,wrap)
     ren.AddActor(act)
     self.renWin.Render()
@@ -275,30 +281,34 @@ class VTKVCSBackend(object):
     ren.RemoveActor(act)
     ren.AddActor(tmp)
     
-    ren.AddActor2D(vcs2vtk.genTextActor(ren,"Hello Aashish",.5,.9))
-    if not self.bg:
-      self.renWin.Render()
+    self.renWin.Render()
 
-  def renderTemplate(self,data1,tmpl,mapper):
+  def renderTemplate(self,ren,mapper,tmpl,data):
     if tmpl.legend.priority>0:
       #Now let's have colorbar
-      ## ??? different renderer for this one? so it doesn't zoo in/out
-      ren = vtk.vtkRenderer()
-      #ren.SetViewport(tmpl.legend.x1,tmpl.legend.y1,tmpl.legend.x2,tmpl.legend.y2)
       clr = vtk.vtkScalarBarActor()
-      ## clr.SetLabelTextProperty()
-      clr.SetLookupTable(mapper.GetLookupTable())
-      #clr.SetTitle(data1.id)
+      lut = mapper.GetLookupTable()
+      n = lut.GetNumberOfTableValues()
+      clr.SetNumberOfLabels(n)
+      clr.SetLookupTable(lut)
+      clr.SetTitle("")
       clr.GetPositionCoordinate().SetCoordinateSystemToNormalizedViewport()
-      clr.GetPositionCoordinate().SetValue(.1,.01)
       clr.SetOrientationToHorizontal()
-      #clr.SetWidth(tmpl.legend.x2-tmpl.legend.x1)
-      #clr.SetHeight(tmpl.legend.y2-tmpl.legend.y2)
-      #clr.SetWidth(1.)
-      #clr.SetHeight(1.)
+      p = clr.GetLabelTextProperty()
+      vcs2vtk.prepTextProperty(p,to=tmpl.legend.textorientation,tt=tmpl.legend.texttable,cmap="default")
+      X = tmpl.legend.x1
+      Y=tmpl.legend.y1
+      clr.SetPosition(X,Y)
+      print clr.GetPosition()
+      w = tmpl.legend.x2-tmpl.legend.x1
+      h = tmpl.legend.y2-tmpl.legend.y1
+      #h = 1.
+      #w=1.
+      clr.SetWidth(w)
+      clr.SetHeight(1.8*h)
+      print clr.GetBounds()
       ren.AddActor(clr)
-      ren.SetBackground(1.,1.,1.)
-      self.renWin.AddRenderer(ren)
+      self.renWin.Render()
     pass
 
 
@@ -338,6 +348,9 @@ class VTKVCSBackend(object):
         except:
           pass
 
+        if width is not None and height is not None:
+          self.renWin.SetSize(width,height)
+          self.renWin.Render()
         imgfiltr = vtk.vtkWindowToImageFilter()
         imgfiltr.SetInput(self.renWin)
 #        imgfiltr.SetMagnification(3)
