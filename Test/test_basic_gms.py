@@ -17,15 +17,17 @@ s=f("clt")
 x=vcs.init()
 if interact:
   x.backend.renWin = renWin
+x.setcolormap("rainbow")
 gm=x.createisofill()
-gm.datawc_x1=30
+gm.datawc_x1=-130
 gm.datawc_x2=140
-gm.datawc_y1=-35
-gm.datawc_y2=35
+gm.datawc_y1=-85
+gm.datawc_y2=85
 #gm=x.createisoline()
 #gm=x.createboxfill()
 bg = False
 #bg = True
+gm.levels = range(-20,135,10)
 x.plot(s,gm,bg=bg)
 #x.cgm("cgm_test")
 x.png("test")#,width=2000,height=1000)

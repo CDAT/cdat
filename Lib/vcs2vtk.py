@@ -220,11 +220,12 @@ def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cm
     tt = vcs.elements["texttable"][tt]
   if string is None:
     string = tt.string
+  print "STRING SHOULD BE:",string
   if x is None:
     x = tt.x
   if y is None:
-    x = tt.y
-  if x is None or y is None or string == ['',]:
+    y = tt.y
+  if x is None or y is None or string in [['',],[]]:
     return
   
   n = max(len(x),len(y),len(string))
@@ -236,8 +237,8 @@ def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cm
     t = vtk.vtkTextActor()
     p=t.GetTextProperty()
     prepTextProperty(p,to,tt,cmap)
-    t.SetInput(string)
-    X,Y = world2RendererWorld(renderer,x,y,tt.viewport,tt.worldcoordinate)
+    t.SetInput(string[i])
+    X,Y = world2RendererWorld(renderer,x[i],y[i],tt.viewport,tt.worldcoordinate)
     t.SetPosition(X,Y)
     renderer.AddActor(t)
   return t

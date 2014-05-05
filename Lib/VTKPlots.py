@@ -1,3 +1,4 @@
+import warnings
 import vtk
 import vcs
 import vcs2vtk
@@ -12,11 +13,14 @@ class VTKVCSBackend(object):
     self.renWin = None
     self.debug = True
     self.bg = None
+    self.type = "vtk"
+    self._plot_keywords = []
+
   def plot(self,data1,data2,template,gtype,gname,bg,*args,**kargs):
-    print "OK VTK RECEIVED:",template,gtype,gname
-    print "OK VTK BG:",bg
-    print "OK VTK RECEIVED ARG:",args
-    print "OK VTK RECEIVED KARG:",kargs
+    #print "OK VTK RECEIVED:",template,gtype,gname
+    #print "OK VTK BG:",bg
+    #print "OK VTK RECEIVED ARG:",args
+    #print "OK VTK RECEIVED KARG:",kargs
     if self.renWin is None:
       # Create the usual rendering stuff.
       self.renWin = vtk.vtkRenderWindow()
@@ -26,12 +30,12 @@ class VTKVCSBackend(object):
         self.bg= True
         self.renWin.SetOffScreenRendering(True)
         self.renWin.SetSize(814,606)
-        print "OFFSCREEN"
       else:
         self.bg= False
         screenSize = self.renWin.GetScreenSize()
         self.renWin.SetSize(814,606)
     if kargs.get("renderer",None) is None:
+      print "NEW RENDERER!!!!!"
       ren = vtk.vtkRenderer()
       ren.SetBackground(1,1,1)
     else:
@@ -41,14 +45,20 @@ class VTKVCSBackend(object):
     #screenSize = self.renWin.GetScreenSize()
     data1 = self.trimData(data1) # Ok get only the last 2 dims
     data2 = self.trimData(data2)
-    gm = vcs.elements[gtype][gname]
+    if gtype == "text":
+      tt,to = gname.split(":::")
+      tt = vcs.elements["texttable"][tt]
+      to = vcs.elements["textorientation"][to]
+    else:
+      gm = vcs.elements[gtype][gname]
     tpl = vcs.elements["template"][template]
     # ok for now let's assume it is 2D...
     if gtype in ["boxfill","meshfill","isofill","isoline"]:
       self.plot2D(data1,data2,tpl,gm,ren)
     elif gtype in ["text"]:
-      print "HERE?"
-      vcs2vtk.genTextActor(ren,"hi",.5,.8)
+      vcs2vtk.genTextActor(ren,to=to,tt=tt)
+    elif gtype=="line":
+      warnings.warn("Please implement line prmary objects in vtk backend")
     else:
       raise Exception,"Graphic type: '%s' not re-implemented yet" % gtype
     
@@ -186,7 +196,9 @@ class VTKVCSBackend(object):
         vcs2vtk.dump2VTK(cot)
 
 
-      if (isinstance(gm,isoline.Gi) and numpy.allclose( gm.levels[0],[0.,1.e20])) or numpy.allclose(gm.levels,1.e20):
+      levs = gm.levels
+      if (isinstance(gm,isoline.Gi) and numpy.allclose( levs[0],[0.,1.e20])) or numpy.allclose(levs,1.e20):
+        print "Autogen:",levs
         levs = vcs.mkscale(mn,mx)
       else:
         if isinstance(gm.levels[0],(list,tuple)):
@@ -196,6 +208,7 @@ class VTKVCSBackend(object):
             raise Exception, "Cannot handle non contiguous levels yet: %s" % gm.levels
         else:
           levs=gm.levels
+          print "Came back with:",levs
           if numpy.allclose(levs[0],1.e20):
             levs[0]=-1.e20
       Nlevs=len(levs)
@@ -203,11 +216,11 @@ class VTKVCSBackend(object):
       if isinstance(gm,boxfill.Gfb):
         cols = gm.fillareacolors 
         if cols is None:
-          cols = vcs.getcolors(levs)
+          cols = vcs.getcolors(levs,split=0)
       elif isinstance(gm,isofill.Gfi):
         cols = gm.fillareacolors
         if cols==[1,]:
-          cols = vcs.getcolors(levs)
+          cols = vcs.getcolors(levs,split=0)
       elif isinstance(gm,isoline.Gi):
         cols = gm.linecolors
 
@@ -222,7 +235,12 @@ class VTKVCSBackend(object):
         vcs2vtk.dump2VTK(cot,"cot")
         mapper.SetInputConnection(cot.GetOutputPort())
     else: #Boxfill/Meshfill
-      mapper.SetInputData(ug)
+      c2p = vtk.vtkCellDataToPointData()
+      c2p.SetInputData(ug)
+      c2p.Update()
+      sFilter = vtk.vtkDataSetSurfaceFilter()
+      sFilter.SetInputDataObject(ug)
+      mapper.SetInputData(sFilter.GetOutput())
       if isinstance(gm,boxfill.Gfb):
         if numpy.allclose(gm.level_1,1.e20) or numpy.allclose(gm.level_2,1.e20):
           levs = vcs.mkscale(mn,mx)
@@ -249,7 +267,8 @@ class VTKVCSBackend(object):
     try:
       cmap = vcs.elements["colormap"][cmap]
     except:
-      cmap = self.canvas.getcolormap()
+      print "COLORMAP:",self.canvas.getcolormapname()
+      cmap = vcs.elements["colormap"][self.canvas.getcolormapname()]
     lut.SetNumberOfTableValues(Nlevs)
     for i in range(Nlevs):
       r,g,b = cmap.index[cols[i]]
@@ -272,7 +291,6 @@ class VTKVCSBackend(object):
     else:
       y1,y2 = yM,ym
 
-    self.renderTemplate(ren,mapper,tmpl,data1)
 
     act = vcs2vtk.doWrap(act,gm,wrap)
     ren.AddActor(act)
@@ -281,9 +299,14 @@ class VTKVCSBackend(object):
     ren.RemoveActor(act)
     ren.AddActor(tmp)
     
+    self.renderTemplate(ren,tmpl,data1,gm)
+    self.renderColorBar(ren,mapper,tmpl,data1)
+
     self.renWin.Render()
 
-  def renderTemplate(self,ren,mapper,tmpl,data):
+  def renderTemplate(self,ren,tmpl,data,gm):
+    tmpl.plot(self.canvas,data,gm,bg=self.bg,renderer=ren)
+  def renderColorBar(self,ren,mapper,tmpl,data):
     if tmpl.legend.priority>0:
       #Now let's have colorbar
       clr = vtk.vtkScalarBarActor()

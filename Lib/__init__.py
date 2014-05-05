@@ -26,11 +26,11 @@ import cdat_info
 cdat_info.pingPCMDIdb("cdat","vcs")
 import thread
 import time
+from utils import *
 import Canvas
 from vcshelp import *
 from queries import *
 from pauser import pause
-from utils import *
 import install_vcs
 from install_vcs import list_printers, add_printer, remove_printer
 from Canvas import dictionarytovcslist
@@ -122,12 +122,34 @@ elements = { "boxfill" : {},
              "fillarea":{},
              "texttable":{},
              "textorientation":{},
+             "textcombined":{},
              "line":{},
              "marker":{},
              "colormap":{},
              "font":{},
              "fontNumber":{},
              }
+
+dic  = {}
+for i in range(5):
+  for j in range(-170,181,30):
+    if j<0:
+      dic[i*360+j]="%iW" % (-j)
+    elif j > 0:
+      dic[i*360+j] = "%iE" % j
+    else:
+      dic[i*360] = "0"
+vcs.elements["list"]["lon30"]=dic
+
+dic={}
+for j in range(-80,81,20):
+  if j<0:
+    dic[j]="%iS" % (-j)
+  elif j > 0:
+    dic[j] = "%iN" % j
+  else:
+    dic[0] = "Eq"
+vcs.elements["list"]["lat20"]=dic
 
 d,e = vcs.getdotdirectory()
 i=0
@@ -158,6 +180,7 @@ for nm,fnt in [
   elif os.path.exists(pthe):
     vcs.elements["font"][nm]=pthe
     vcs.elements["fontNumber"][i]=nm
+print "DID FONTS!!!!!!!",vcs.elements["fontNumber"]
 
 p=projection.Proj("default")
 p = projection.Proj("linear")

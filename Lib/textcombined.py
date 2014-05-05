@@ -264,17 +264,17 @@ class Tc(object):
     # Initialize the text combine attributes.                                   #
     #                                                                           #
     #############################################################################
-    def __init__(self, parent, Tt_name=None, Tt_name_src='default', To_name=None, To_name_src='default', createTc=0):
+    def __init__(self, Tt_name=None, Tt_name_src='default', To_name=None, To_name_src='default'):
         import vcs
-        if (createTc == 0):
-           if (Tt_name == None):
-              raise ValueError, 'Must provide a text table name.'
-           if (To_name == None):
-##               raise ValueError, 'Must provide a text orientation name.'
-               To_name = Tt_name # Uses the same name than Tt
-        else:
-              Tt_name = Tt_name_src
-              To_name = To_name_src
+        if (Tt_name == None):
+           raise ValueError, 'Must provide a text table name.'
+        if (To_name == None):
+            To_name = Tt_name # Uses the same name than Tt
+
+        if Tt_name in vcs.elements["texttable"]:
+          raise Exception,"Error texttable object: '%s' already exists" % Tt_name
+        if To_name in vcs.elements["textorientation"]:
+          raise Exception,"Error textorientation object: '%s' already exists" % To_name
         #                                                                 #
         ###################################################################
         # Inherits texttable and textorientation secondary sub-classes.   #
@@ -282,8 +282,9 @@ class Tc(object):
         #                                                                 #
         self.Tt = texttable.Tt(Tt_name, Tt_name_src)
         self.To = textorientation.To(To_name, To_name_src)
-        self.name = ''
+        self.name = "%s:::%s" % (Tt_name,To_name)
         self.s_name = 'Tc'
+        vcs.elements["textcombined"][self.name] = self
         #                                                         #
         ###########################################################
         # Save the parent class.                                  #

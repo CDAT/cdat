@@ -20,7 +20,7 @@ import colormap
 
 def getfontname(number):
   if not number in vcs.elements["fontNumber"]:
-    raise vcsError,"Error font number not existing %i" % number
+    raise Exception,"Error font number not existing %i" % number
   return vcs.elements["fontNumber"][number]
 
 def getfontnumber(name):
