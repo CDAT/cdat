@@ -180,19 +180,16 @@ def doClip1(data,value,normal,axis=0):
     clp.Update()
     return clp.GetOutput()
 
-def genTextActor(renderer,string,x=.5,y=.5,to='default',tt='default',cmap='default'):
-  t = vtk.vtkTextActor()
-  p=t.GetTextProperty()
-  t.SetInput(string)
+def prepTextProperty(p,to="default",tt="default",cmap="default"):
   if isinstance(to,str):
     to = vcs.elements["textorientation"][to]
   if isinstance(tt,str):
     tt = vcs.elements["texttable"][tt]
+
   if isinstance(cmap,str):
     cmap = vcs.elements["colormap"][cmap]
   c=cmap.index[tt.color]
   p.SetColor([C/100. for C in c])
-
   if to.halign=="left":
     p.SetJustificationToLeft()
   elif to.halign =="right":
@@ -212,12 +209,37 @@ def genTextActor(renderer,string,x=.5,y=.5,to='default',tt='default',cmap='defau
   elif to.valign=='base':
     warnings.warn("VTK does not support 'base' align, using 'bottom'")
     p.SetVerticalJustificationToBottom()
-
   p.SetOrientation(-to.angle)
   p.SetFontFamily(vtk.VTK_FONT_FILE)
   p.SetFontFile(vcs.elements["font"][vcs.elements["fontNumber"][tt.font]])
-  X,Y = world2RendererWorld(renderer,x,y,tt.viewport,tt.worldcoordinate)
-  t.SetPosition(X,Y)
+
+def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cmap='default'):
+  if isinstance(to,str):
+    to = vcs.elements["textorientation"][to]
+  if isinstance(tt,str):
+    tt = vcs.elements["texttable"][tt]
+  if string is None:
+    string = tt.string
+  if x is None:
+    x = tt.x
+  if y is None:
+    x = tt.y
+  if x is None or y is None or string == ['',]:
+    return
+  
+  n = max(len(x),len(y),len(string))
+  for a in [x,y,string]:
+    while len(a)<n:
+      a.append(a[-1])
+
+  for i in range(n):
+    t = vtk.vtkTextActor()
+    p=t.GetTextProperty()
+    prepTextProperty(p,to,tt,cmap)
+    t.SetInput(string)
+    X,Y = world2RendererWorld(renderer,x,y,tt.viewport,tt.worldcoordinate)
+    t.SetPosition(X,Y)
+    renderer.AddActor(t)
   return t
 
 def getRendererCorners(Renderer,vp=[0.,1.,0.,1.]):
@@ -227,12 +249,10 @@ def getRendererCorners(Renderer,vp=[0.,1.,0.,1.]):
   origin = origin[0]+sz[0]*vp[0],origin[1]+sz[1]*vp[2]
   return origin,opposite
 
-def world2RendererWorld(ren,x,y,vp,wc):
+def world2RendererWorld(ren,x,y,vp=[0.,1.,0.,1.],wc=[0.,1.,0.,1.]):
   origin,opposite = getRendererCorners(ren,vp)
   X = origin[0]+ (opposite[0]-origin[0] )*(x-wc[0])/(wc[1]-wc[0])
   Y = origin[1]+ (opposite[1]-origin[1] )*(y-wc[2])/(wc[3]-wc[2])
-  print "Got:",x,y
-  print "Now:",X,Y
   return X,Y
 
 def C2World(ren,x,y):
