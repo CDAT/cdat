@@ -218,9 +218,10 @@ def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cm
     to = vcs.elements["textorientation"][to]
   if isinstance(tt,str):
     tt = vcs.elements["texttable"][tt]
+  if tt.priority==0:
+    return
   if string is None:
     string = tt.string
-  print "STRING SHOULD BE:",string
   if x is None:
     x = tt.x
   if y is None:

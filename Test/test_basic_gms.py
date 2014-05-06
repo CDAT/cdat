@@ -16,10 +16,10 @@ s=f("clt")
 #s=f("sample")
 x=vcs.init()
 tmpl = x.createtemplate()
-tmpl.data.x1=.001
-tmpl.data.x2=.5
-tmpl.data.y1=.0001
-tmpl.data.y2=.25
+#tmpl.data.x1=.001
+#tmpl.data.x2=.5
+#tmpl.data.y1=.0001
+#tmpl.data.y2=.25
 if interact:
   x.backend.renWin = renWin
 x.setcolormap("rainbow")
