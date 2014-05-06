@@ -132,7 +132,10 @@ class Tl(object):
          '_y',
          '_projection',
          '_name',
+         'colormap',
+         '_colormap',
          ]
+    colormap = VCS_validation_functions.colormap
     def _getname(self):
          return self._name
     def _setname(self,value):
@@ -263,6 +266,7 @@ class Tl(object):
           self._worldcoordinate = [0.,1.,0.,1.]
           self._x = None
           self._y = None
+          self._colormap=None
         else:
           if not Tl_name_src in vcs.elements["line"].keys():
             raise ValueError, "The line source '%s' does not exists" % Tl_name_src
@@ -276,6 +280,7 @@ class Tl(object):
           self.worldcoordinate = src.worldcoordinate
           self.x = src.x
           self.y = src.y
+          self.colormap = src.colormap
         vcs.elements["line"][Tl_name] = self
 
     #############################################################################

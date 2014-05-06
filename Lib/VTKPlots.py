@@ -35,7 +35,6 @@ class VTKVCSBackend(object):
         screenSize = self.renWin.GetScreenSize()
         self.renWin.SetSize(814,606)
     if kargs.get("renderer",None) is None:
-      print "NEW RENDERER!!!!!"
       ren = vtk.vtkRenderer()
       ren.SetBackground(1,1,1)
     else:
@@ -58,9 +57,10 @@ class VTKVCSBackend(object):
     elif gtype in ["text"]:
       vcs2vtk.genTextActor(ren,to=to,tt=tt)
     elif gtype=="line":
-      warnings.warn("Please implement line prmary objects in vtk backend")
+      vcs2vtk.lineVCS2VTK(ren,gm)
     else:
       raise Exception,"Graphic type: '%s' not re-implemented yet" % gtype
+    self.renWin.Render()
     
   def plot2D(self,data1,data2,tmpl,gm,ren):
     continents = False
@@ -199,7 +199,6 @@ class VTKVCSBackend(object):
 
       levs = gm.levels
       if (isinstance(gm,isoline.Gi) and numpy.allclose( levs[0],[0.,1.e20])) or numpy.allclose(levs,1.e20):
-        print "Autogen:",levs
         levs = vcs.mkscale(mn,mx)
       else:
         if isinstance(gm.levels[0],(list,tuple)):
@@ -209,7 +208,6 @@ class VTKVCSBackend(object):
             raise Exception, "Cannot handle non contiguous levels yet: %s" % gm.levels
         else:
           levs=gm.levels
-          print "Came back with:",levs
           if numpy.allclose(levs[0],1.e20):
             levs[0]=-1.e20
       Nlevs=len(levs)
@@ -266,7 +264,6 @@ class VTKVCSBackend(object):
     try:
       cmap = vcs.elements["colormap"][cmap]
     except:
-      print "COLORMAP:",self.canvas.getcolormapname()
       cmap = vcs.elements["colormap"][self.canvas.getcolormapname()]
     lut.SetNumberOfTableValues(Nlevs)
     for i in range(Nlevs):
@@ -301,8 +298,6 @@ class VTKVCSBackend(object):
     self.renderTemplate(ren,tmpl,data1,gm)
     self.renderColorBar(ren,mapper,tmpl,data1)
 
-    self.renWin.Render()
-
   def renderTemplate(self,ren,tmpl,data,gm):
     tmpl.plot(self.canvas,data,gm,bg=self.bg,renderer=ren)
   def renderColorBar(self,ren,mapper,tmpl,data):
@@ -321,14 +316,12 @@ class VTKVCSBackend(object):
       X = tmpl.legend.x1
       Y=tmpl.legend.y1
       clr.SetPosition(X,Y)
-      print clr.GetPosition()
       w = tmpl.legend.x2-tmpl.legend.x1
       h = tmpl.legend.y2-tmpl.legend.y1
       #h = 1.
       #w=1.
       clr.SetWidth(w)
       clr.SetHeight(1.8*h)
-      print clr.GetBounds()
       ren.AddActor(clr)
       self.renWin.Render()
     pass
