@@ -298,8 +298,8 @@ class VTKVCSBackend(object):
     ren.RemoveActor(act)
     ren.AddActor(tmp)
     
-    #self.renderTemplate(ren,tmpl,data1,gm)
-    #self.renderColorBar(ren,mapper,tmpl,data1)
+    self.renderTemplate(ren,tmpl,data1,gm)
+    self.renderColorBar(ren,mapper,tmpl,data1)
 
     self.renWin.Render()
 
