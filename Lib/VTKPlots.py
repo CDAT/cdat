@@ -166,7 +166,8 @@ class VTKVCSBackend(object):
     ## Following assumes contiguous levels for now
     mn,mx=vcs.minmax(data1)
     #Ok now we have grid and data let's use the mapper
-    mapper = vtk.vtkDataSetMapper()
+    #mapper = vtk.vtkDataSetMapper()
+    mapper = vtk.vtkPolyDataMapper()
     if isinstance(gm,(isofill.Gfi,isoline.Gi,meshfill.Gfm)) or \
         (isinstance(gm,boxfill.Gfb) and gm.boxfill_type=="custom"):
       
@@ -235,12 +236,10 @@ class VTKVCSBackend(object):
         vcs2vtk.dump2VTK(cot,"cot")
         mapper.SetInputConnection(cot.GetOutputPort())
     else: #Boxfill/Meshfill
-      c2p = vtk.vtkCellDataToPointData()
-      c2p.SetInputData(ug)
-      c2p.Update()
-      sFilter = vtk.vtkDataSetSurfaceFilter()
-      sFilter.SetInputDataObject(ug)
-      mapper.SetInputData(sFilter.GetOutput())
+      geoFilter = vtk.vtkGeometryFilter()
+      geoFilter.SetInputData(ug)
+      geoFilter.Update()
+      mapper.SetInputData(geoFilter.GetOutput())
       if isinstance(gm,boxfill.Gfb):
         if numpy.allclose(gm.level_1,1.e20) or numpy.allclose(gm.level_2,1.e20):
           levs = vcs.mkscale(mn,mx)
@@ -299,8 +298,8 @@ class VTKVCSBackend(object):
     ren.RemoveActor(act)
     ren.AddActor(tmp)
     
-    self.renderTemplate(ren,tmpl,data1,gm)
-    self.renderColorBar(ren,mapper,tmpl,data1)
+    #self.renderTemplate(ren,tmpl,data1,gm)
+    #self.renderColorBar(ren,mapper,tmpl,data1)
 
     self.renWin.Render()
 
