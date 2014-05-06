@@ -238,7 +238,7 @@ def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cm
     p=t.GetTextProperty()
     prepTextProperty(p,to,tt,cmap)
     t.SetInput(string[i])
-    X,Y = world2RendererWorld(renderer,x[i],y[i],tt.viewport,tt.worldcoordinate)
+    X,Y = world2Renderer(renderer,x[i],y[i],tt.viewport,tt.worldcoordinate)
     t.SetPosition(X,Y)
     renderer.AddActor(t)
   return t
@@ -247,17 +247,19 @@ def getRendererCorners(Renderer,vp=[0.,1.,0.,1.]):
   sz = Renderer.GetSize()
   origin = Renderer.GetOrigin()
   opposite = origin[0]+sz[0]*vp[1],origin[1]+sz[1]*vp[3]
-  origin = origin[0]+sz[0]*vp[0],origin[1]+sz[1]*vp[2]
-  return origin,opposite
+  origin2 = origin[0]+sz[0]*vp[0],origin[1]+sz[1]*vp[2]
+  print "Render origin,opposite:",origin2,opposite
+  return origin2,opposite
 
-def world2RendererWorld(ren,x,y,vp=[0.,1.,0.,1.],wc=[0.,1.,0.,1.]):
+def world2Renderer(ren,x,y,vp=[0.,1.,0.,1.],wc=[0.,1.,0.,1.]):
   origin,opposite = getRendererCorners(ren,vp)
   X = origin[0]+ (opposite[0]-origin[0] )*(x-wc[0])/(wc[1]-wc[0])
   Y = origin[1]+ (opposite[1]-origin[1] )*(y-wc[2])/(wc[3]-wc[2])
+  print "Accounting for vp/wc",x,y,"in Render are:",X,Y
   return X,Y
 
-def C2World(ren,x,y):
-  """Converts display's x/y to WorldCoordinate for a given Renderer"""
+def R2World(ren,x,y):
+  """Converts renderer's x/y to WorldCoordinate for a given Renderer"""
   #print "ok X and Y:",x,y
   ren.SetDisplayPoint(x,y,0)
   ren.DisplayToWorld()
@@ -265,21 +267,50 @@ def C2World(ren,x,y):
   wp = ren.GetWorldPoint()
   return wp
 
+def vtkWorld2Renderer(ren,x,y):
+  ren.SetWorldPoint(x,y,0,0)
+  ren.WorldToDisplay()
+  renpts = ren.GetDisplayPoint()
+  print "World:",x,y,"is:",renpts
+  return renpts
+
 def fitToViewport(Actor,Renderer,vp):
-  #renwin.Render()
+  ## Data range in World Coordinates
   Xrg = Actor.GetXRange()
   Yrg = Actor.GetYRange()
   XcenterData = (Xrg[1]+Xrg[0])/2.
   YcenterData = (Yrg[1]+Yrg[0])/2.
+
+  ## Where they are in term of pixels
+  oll = vtkWorld2Renderer(Renderer,Xrg[0],Yrg[0])
+  our = vtkWorld2Renderer(Renderer,Xrg[1],Yrg[1])
+
+  # Where they should be in term of pixel
+  ll = world2Renderer(Renderer,Xrg[0],Yrg[0],
+      vp,
+      [Xrg[0],Xrg[1],Yrg[0],Yrg[1]])
+  ur = world2Renderer(Renderer,Xrg[1],Yrg[1],
+      vp,
+      [Xrg[0],Xrg[1],Yrg[0],Yrg[1]])
+  
+  # How much does it needs to be scaled by?
+  xScale = (ur[0]-ll[0])/(our[0]-oll[0])
+  yScale = (ur[1]-ll[1])/(our[1]-oll[1])
+
+  #World coordinates of where they need to be
+  LL = R2World(Renderer,*ll)
+  UR = R2World(Renderer, *ur)
+  print "LL,UR:",LL,UR
+  #xScale = (ur[0]-ll[0])/(Xrg[1]-Xrg[0])
+  #yScale = (ur[1]-ll[1])/(Yrg[1]-Yrg[0])
+  dX = LL[0]-Xrg[0]
+  dY = LL[1]-Yrg[0]
   T = vtk.vtkTransform()
-  T.Translate(XcenterData,YcenterData,0)
-  origin,opposite = getRendererCorners(Renderer,vp)
-  ll = C2World(Renderer,*origin)
-  ur = C2World(Renderer,*opposite)
-  xScale = (ur[0]-ll[0])/(Xrg[1]-Xrg[0])
-  yScale = (ur[1]-ll[1])/(Yrg[1]-Yrg[0])
+  T.Translate(LL[0]*(1.-xScale),LL[1]*(1.-yScale),0)
   T.Scale(xScale,yScale,1)
-  T.Translate(-XcenterData,-YcenterData,0)
+  T.Translate(dX,dY,0)
+  print "TRANSLATE:",-XcenterData,-YcenterData
+  #T.Translate(-XcenterData,-YcenterData,0)
   Actor.SetUserTransform(T)
   return Actor
 
