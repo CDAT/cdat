@@ -963,8 +963,6 @@ class P(object):
         if isinstance(loc,str):
           loc = vcs.elements["list"].get(loc,{})
         # set the x/y/text values
-        print "LOC IS:",loc
-        print "AXIS:",axis,wc
         for l in loc.keys():
           if axis=='x':
                mn,mx = vcs.minmax(wc[0],wc[1])
@@ -1000,7 +998,6 @@ class P(object):
                          xs.append([obj.x1,obj.x2])
                          tstring.append(a)
 
-        print "TSTRING:",tstring
         if txs!=[]:
              tt.string=tstring
              tt.x=txs
@@ -1222,7 +1219,6 @@ class P(object):
                     sub=self.dataname
                 else:
                     sub=getattr(self,s)
-                print "CREATING TEXT:",sub.texttable,sub.textorientation
                 tt=x.createtext(None,sub.texttable,None,sub.textorientation)
 
                 # Now for the min/max/mean add the name in front

@@ -180,12 +180,17 @@ def doClip1(data,value,normal,axis=0):
     clp.Update()
     return clp.GetOutput()
 
-def prepTextProperty(p,to="default",tt="default",cmap="default"):
+def prepTextProperty(p,to="default",tt="default",cmap=None):
   if isinstance(to,str):
     to = vcs.elements["textorientation"][to]
   if isinstance(tt,str):
     tt = vcs.elements["texttable"][tt]
-
+  
+  if cmap is None:
+    if tt.colormap is not None:
+      cmap = tt.colormap
+    else:
+      cmap = 'default'
   if isinstance(cmap,str):
     cmap = vcs.elements["colormap"][cmap]
   c=cmap.index[tt.color]
@@ -213,7 +218,7 @@ def prepTextProperty(p,to="default",tt="default",cmap="default"):
   p.SetFontFamily(vtk.VTK_FONT_FILE)
   p.SetFontFile(vcs.elements["font"][vcs.elements["fontNumber"][tt.font]])
 
-def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cmap='default'):
+def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cmap=None):
   if isinstance(to,str):
     to = vcs.elements["textorientation"][to]
   if isinstance(tt,str):
@@ -244,19 +249,93 @@ def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cm
     renderer.AddActor(t)
   return t
 
+def lineVCS2VTK(ren,line,cmap=None):
+  if line.x is None or line.y is None:
+    return
+  if not isinstance(line.x[0],(list,tuple)):
+    line.x = [line.x,]
+  if not isinstance(line.y[0],(list,tuple)):
+    line.y = [line.y,]
+  n = max(len(line.type),len(line.x),len(line.y),len(line.color),len(line.width))
+  for a in ["x","y","color","width","type"]:
+    v = getattr(line,a)
+    while len(v)<n:
+      v.append(v[-1])
+    setattr(line,a,v)
+  for i in range(n):
+    l = vtk.vtkLine()
+    lines = vtk.vtkCellArray()
+    x = line.x[i]
+    y=line.y[i]
+    c=line.color[i]
+    w=line.width[i]
+    w = 10
+    t=line.type[i]
+    N = max(len(x),len(y))
+    for a in [x,y]:
+      while len(a)<n:
+        a.append(a[-1])
+    pts = vtk.vtkPoints()
+    for j in range(N):
+      pts.InsertNextPoint(x[j],y[j],0.)
+    for j in range(N-1):
+      l.GetPointIds().SetId(0,j)
+      l.GetPointIds().SetId(1,j+1)
+      lines.InsertNextCell(l)
+    linesPoly = vtk.vtkPolyData()
+    linesPoly.SetPoints(pts)
+    linesPoly.SetLines(lines)
+    a = vtk.vtkActor()
+    m = vtk.vtkPolyDataMapper()
+    m.SetInputData(linesPoly)
+    a.SetMapper(m)
+    p = a.GetProperty()
+    p.SetLineWidth(w)
+   
+    if cmap is None:
+      if line.colormap is not None:
+        cmap = line.colormap
+      else:
+        cmap = 'default'
+    if isinstance(cmap,str):
+      cmap = vcs.elements["colormap"][cmap]
+    color = cmap.index[c]
+    p.SetColor([C/100. for C in color])
+    # stipple
+    if t == 'long-dash':
+      p.SetLineStipplePattern(int('1111111100000000',2))
+      p.SetLineStippleRepeatFactor(1)
+    elif t == 'dot':
+      p.SetLineStipplePattern(int('1010101010101010',2))
+      p.SetLineStippleRepeatFactor(1)
+    elif t == 'dash':
+      p.SetLineStipplePattern(int('1111000011110000',2))
+      p.SetLineStippleRepeatFactor(1)
+    elif t == 'dash-dot':
+      p.SetLineStipplePattern(int('0011110000110011',2))
+      p.SetLineStippleRepeatFactor(1)
+    elif t == 'solid':
+      p.SetLineStipplePattern(int('1111111111111111',2))
+      p.SetLineStippleRepeatFactor(1)
+    else:
+      raise Exception,"Unkonw line type: '%s'" % t
+
+    ren.Render()
+    a = fitToViewport(a,ren,line.viewport,line.worldcoordinate)
+    ren.AddActor(a)
+  return 
+
 def getRendererCorners(Renderer,vp=[0.,1.,0.,1.]):
   sz = Renderer.GetSize()
   origin = Renderer.GetOrigin()
   opposite = origin[0]+sz[0]*vp[1],origin[1]+sz[1]*vp[3]
   origin2 = origin[0]+sz[0]*vp[0],origin[1]+sz[1]*vp[2]
-  print "Render origin,opposite:",origin2,opposite
   return origin2,opposite
 
 def world2Renderer(ren,x,y,vp=[0.,1.,0.,1.],wc=[0.,1.,0.,1.]):
   origin,opposite = getRendererCorners(ren,vp)
   X = origin[0]+ (opposite[0]-origin[0] )*(x-wc[0])/(wc[1]-wc[0])
   Y = origin[1]+ (opposite[1]-origin[1] )*(y-wc[2])/(wc[3]-wc[2])
-  print "Accounting for vp/wc",x,y,"in Render are:",X,Y
   return X,Y
 
 def R2World(ren,x,y):
@@ -272,20 +351,24 @@ def vtkWorld2Renderer(ren,x,y):
   ren.SetWorldPoint(x,y,0,0)
   ren.WorldToDisplay()
   renpts = ren.GetDisplayPoint()
-  print "World:",x,y,"is:",renpts
   return renpts
 
-def fitToViewport(Actor,Renderer,vp):
+def fitToViewport(Actor,Renderer,vp,wc=None):
   ## Data range in World Coordinates
-  Xrg = Actor.GetXRange()
-  Yrg = Actor.GetYRange()
-  XcenterData = (Xrg[1]+Xrg[0])/2.
-  YcenterData = (Yrg[1]+Yrg[0])/2.
-
+  if wc is None:
+    Xrg = Actor.GetXRange()
+    Yrg = Actor.GetYRange()
+  else:
+    Xrg=float(wc[0]),float(wc[1])
+    Yrg=float(wc[2]),float(wc[3])
+  
+  print "VIEWPORT:",vp
+  print "XrgYrg:",Xrg,Yrg
   ## Where they are in term of pixels
   oll = vtkWorld2Renderer(Renderer,Xrg[0],Yrg[0])
   our = vtkWorld2Renderer(Renderer,Xrg[1],Yrg[1])
-
+  
+  print "oll,our:",oll,our
   # Where they should be in term of pixel
   ll = world2Renderer(Renderer,Xrg[0],Yrg[0],
       vp,
@@ -294,24 +377,29 @@ def fitToViewport(Actor,Renderer,vp):
       vp,
       [Xrg[0],Xrg[1],Yrg[0],Yrg[1]])
   
+  print "ll,ur:",ll,ur
   # How much does it needs to be scaled by?
   xScale = (ur[0]-ll[0])/(our[0]-oll[0])
   yScale = (ur[1]-ll[1])/(our[1]-oll[1])
+  print xScale,yScale
 
   #World coordinates of where they need to be
   LL = R2World(Renderer,*ll)
-  UR = R2World(Renderer, *ur)
-  print "LL,UR:",LL,UR
-  #xScale = (ur[0]-ll[0])/(Xrg[1]-Xrg[0])
-  #yScale = (ur[1]-ll[1])/(Yrg[1]-Yrg[0])
+
+  # Move it to the correct bottom left corner
   dX = LL[0]-Xrg[0]
   dY = LL[1]-Yrg[0]
+
+
+  # transformation are applied in reverse order
   T = vtk.vtkTransform()
+  ## After scaling move it back to lower left corner
   T.Translate(LL[0]*(1.-xScale),LL[1]*(1.-yScale),0)
+  ## scale
   T.Scale(xScale,yScale,1)
+  # Move it to the correct bottom left corner
   T.Translate(dX,dY,0)
-  print "TRANSLATE:",-XcenterData,-YcenterData
-  #T.Translate(-XcenterData,-YcenterData,0)
+
   Actor.SetUserTransform(T)
   return Actor
 
