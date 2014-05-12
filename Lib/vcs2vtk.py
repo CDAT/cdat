@@ -201,23 +201,24 @@ def prepTextProperty(p,to="default",tt="default",cmap=None):
     cmap = vcs.elements["colormap"][cmap]
   c=cmap.index[tt.color]
   p.SetColor([C/100. for C in c])
-  if to.halign=="left":
+  if to.halign==0:
     p.SetJustificationToLeft()
-  elif to.halign =="right":
+  elif to.halign ==2:
     p.SetJustificationToRight()
-  elif to.halign=="center":
+  elif to.halign==1:
     p.SetJustificationToCentered()
 
-  if to.valign=='top':
+  print to.valign
+  if to.valign==0:
     p.SetVerticalJustificationToTop()
-  elif to.valign=='half':
+  elif to.valign==2:
     p.SetVerticalJustificationToCentered()
-  elif to.valign=='bottom':
+  elif to.valign==4:
     p.SetVerticalJustificationToBottom()
-  elif to.valign=='cap':
+  elif to.valign==1:
     warnings.warn("VTK does not support 'cap' align, using 'top'")
     p.SetVerticalJustificationToTop()
-  elif to.valign=='base':
+  elif to.valign==3:
     warnings.warn("VTK does not support 'base' align, using 'bottom'")
     p.SetVerticalJustificationToBottom()
   p.SetOrientation(-to.angle)
@@ -275,7 +276,6 @@ def lineVCS2VTK(ren,line,cmap=None):
     y=line.y[i]
     c=line.color[i]
     w=line.width[i]
-    w = 10
     t=line.type[i]
     N = max(len(x),len(y))
     for a in [x,y]:
