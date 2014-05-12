@@ -8,11 +8,11 @@ import meshfill,boxfill,isofill,isoline
 import os
 
 class VTKVCSBackend(object):
-  def __init__(self,canvas):
+  def __init__(self,canvas,renWin=None, debug=False,bg=None):
     self.canvas = canvas
-    self.renWin = None
-    self.debug = True
-    self.bg = None
+    self.renWin = renWin
+    self.debug = debug
+    self.bg = bg
     self.type = "vtk"
     self._plot_keywords = []
 

@@ -137,6 +137,7 @@ class Tt(object):
          'x',
          'y',
          'projection',
+         'colormap',
          '_name',
          '_color',
          '_fillincolor',
@@ -150,7 +151,9 @@ class Tt(object):
          '_x',
          '_y',
          '_projection',
+         '_colormap',
          ]
+    colormap = VCS_validation_functions.colormap
     def _getname(self):
          return self._name
     def _setname(self,value):
@@ -312,6 +315,7 @@ class Tt(object):
           self._x=None
           self._y=None
           self._projection="default"
+          self._colormap = None
         else:
           if isinstance(Tt_name_src,Tt):
             Tt_name_src = Tt_name_src.name
@@ -330,6 +334,7 @@ class Tt(object):
           self.x=src.x
           self.y=src.y
           self.projection=src.projection
+          self.colormap = src.colormap
         vcs.elements["texttable"][Tt_name]=self
 
     #############################################################################
@@ -354,6 +359,7 @@ class Tt(object):
         print "worldcoordinate =", self.worldcoordinate
         print "x =", self.x
         print "y =", self.y
+        print 'colormap =',self.colormap
 
     #############################################################################
     #                                                                           #

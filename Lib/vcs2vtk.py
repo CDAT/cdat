@@ -55,12 +55,18 @@ def project(pts,projection):
 
 
 #Vtk dump
-dumps=0
+dumps={}
 def dump2VTK(obj,fnm=None):
   global dumps
+  if fnm[:-4].lower()!=".vtk":
+    fnm+=".vtk"
   if fnm is None:
-    fnm="foo%.3i.vtk" % dumps
-    dumps+=1
+    fnm="foo.vtk" % dumps
+  if fnm in dumps:
+    dumps[fnm]+=1
+    fnm=fnm[:-4]+"%.3i.vtk" % dumps[fnm]
+  else:
+    dumps[fnm]=0
   dsw = vtk.vtkDataSetWriter()
   dsw.SetFileName(fnm)
   try:
@@ -319,7 +325,6 @@ def lineVCS2VTK(ren,line,cmap=None):
       p.SetLineStippleRepeatFactor(1)
     else:
       raise Exception,"Unkonw line type: '%s'" % t
-
     ren.Render()
     a = fitToViewport(a,ren,line.viewport,line.worldcoordinate)
     ren.AddActor(a)
@@ -385,10 +390,12 @@ def fitToViewport(Actor,Renderer,vp,wc=None):
 
   #World coordinates of where they need to be
   LL = R2World(Renderer,*ll)
+  print "LL:",LL
 
   # Move it to the correct bottom left corner
   dX = LL[0]-Xrg[0]
   dY = LL[1]-Yrg[0]
+  print "dX,dY:",dX,dY
 
 
   # transformation are applied in reverse order
@@ -401,5 +408,16 @@ def fitToViewport(Actor,Renderer,vp,wc=None):
   T.Translate(dX,dY,0)
 
   Actor.SetUserTransform(T)
+  Renderer.Render()
+  print "oll,our:",oll,our
+  # Where they should be in term of pixel
+  ll = world2Renderer(Renderer,Xrg[0],Yrg[0],
+      vp,
+      [Xrg[0],Xrg[1],Yrg[0],Yrg[1]])
+  print "ll,ur:",ll,ur
+  #World coordinates of where they need to be
+  LL = R2World(Renderer,*ll)
+  print "LL2:",LL
+
   return Actor
 
