@@ -41,6 +41,7 @@ import unified1D
 #import colormapgui as _colormapgui
 #import canvasgui as _canvasgui
 import displayplot
+import vtk
 from VTKPlots import VTKVCSBackend
 
 #import animationgui as _animationgui
@@ -919,6 +920,11 @@ class Canvas(object,AutoAPI.AutoAPI):
         if ( (is_canvas == 0) and (gui == 1) and (gui_canvas_closed == 0) ): gui_canvas_closed = 1
         if backend == "vtk":
           self.backend = VTKVCSBackend(self)
+        elif isinstance(backend,vtk.vtkRenderWindow):
+          self.backend = VTKVCSBackend(self, renWin = backend)
+        else:
+          warnings.warn("Unknown backend type: '%s'\nAssiging 'as is' to backend, no warranty about anything working from this point on" % backend)
+          self.backend=backend
 ## Initial.attributes is being called in main.c, so it is not needed here!
 ## Actually it is for taylordiagram graphic methods....
 ###########################################################################################

@@ -64,7 +64,7 @@ install_vcs._XGKSFontDir()
 
 # Initialize the list of taylor diagrams objects
 
-def init(gui = 0, mode=1, pause_time=0, call_from_gui=0, size=None):
+def init(gui = 0, mode=1, pause_time=0, call_from_gui=0, size=None, backend="vtk"):
     '''
  Function: init                 # Initialize, Construct a VCS Canvas Object
 
@@ -93,8 +93,7 @@ def init(gui = 0, mode=1, pause_time=0, call_from_gui=0, size=None):
     isoline=c.getisoline('quick')       # Get 'quick' isoline graphics method
     c.plot(isoline,slab,template)       # Plot slab using isoline and template objects
 '''
-    initQt()
-    canvas = Canvas.Canvas(gui=gui, mode=mode, pause_time=pause_time, call_from_gui=call_from_gui, size=size)
+    canvas = Canvas.Canvas(gui=gui, mode=mode, pause_time=pause_time, call_from_gui=call_from_gui, size=size, backend=backend)
     global canvaslist
     canvaslist.append(canvas)
     return canvas
