@@ -256,7 +256,7 @@ def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cm
     renderer.AddActor(t)
   return t
 
-def fillareaVCS2VTK(ren,farea,cmap=None):
+def fillareaVCS2VTK(renWin,ren,farea,cmap=None):
   if farea.x is None or farea.y is None:
     return
   if not isinstance(farea.x[0],(list,tuple)):
@@ -312,12 +312,16 @@ def fillareaVCS2VTK(ren,farea,cmap=None):
       cmap = vcs.elements["colormap"][cmap]
     color = cmap.index[c]
     p.SetColor([C/100. for C in color])
-    ren.Render()
-    a = fitToViewport(a,ren,farea.viewport,farea.worldcoordinate)
-    ren.AddActor(a)
+    if i==0:
+      ren.AddActor(a)
+      renWin.Render()
+    b = fitToViewport(a,ren,farea.viewport,farea.worldcoordinate)
+    if i==0:
+      ren.RemoveActor(a)
+    ren.AddActor(b)
   return 
 
-def markerVCS2VTK(ren,marker,cmap=None):
+def markerVCS2VTK(renWin,ren,marker,cmap=None):
   if marker.x is None or marker.y is None:
     return
   if not isinstance(marker.x[0],(list,tuple)):
@@ -330,7 +334,6 @@ def markerVCS2VTK(ren,marker,cmap=None):
     while len(v)<n:
       v.append(v[-1])
     setattr(marker,a,v)
-  actors = []
   for i in range(n):
     print "I:",i,n
     ## Creates the glyph
@@ -411,13 +414,16 @@ def markerVCS2VTK(ren,marker,cmap=None):
       cmap = vcs.elements["colormap"][cmap]
     color = cmap.index[c]
     p.SetColor([C/100. for C in color])
-    #a = fitToViewport(a,ren,marker.viewport,marker.worldcoordinate)
-    actors.append(a)
-  for a in actors:
-    ren.AddActor(a)
+    if i==0:
+      ren.AddActor(a)
+      renWin.Render()
+    b = fitToViewport(a,ren,marker.viewport,marker.worldcoordinate)
+    if i==0:
+      ren.RemoveActor(a)
+    ren.AddActor(b)
   return 
 
-def lineVCS2VTK(ren,line,cmap=None):
+def lineVCS2VTK(renWin,ren,line,cmap=None):
   if line.x is None or line.y is None:
     return
   if not isinstance(line.x[0],(list,tuple)):
@@ -487,83 +493,13 @@ def lineVCS2VTK(ren,line,cmap=None):
       p.SetLineStippleRepeatFactor(1)
     else:
       raise Exception,"Unkonw line type: '%s'" % t
-    ren.Render()
-    a = fitToViewport(a,ren,line.viewport,line.worldcoordinate)
-    ren.AddActor(a)
-  return 
-def lineVCS2VTK(ren,line,cmap=None):
-  if line.x is None or line.y is None:
-    return
-  if not isinstance(line.x[0],(list,tuple)):
-    line.x = [line.x,]
-  if not isinstance(line.y[0],(list,tuple)):
-    line.y = [line.y,]
-  n = max(len(line.type),len(line.x),len(line.y),len(line.color),len(line.width))
-  for a in ["x","y","color","width","type"]:
-    v = getattr(line,a)
-    while len(v)<n:
-      v.append(v[-1])
-    setattr(line,a,v)
-  for i in range(n):
-    l = vtk.vtkLine()
-    lines = vtk.vtkCellArray()
-    x = line.x[i]
-    y=line.y[i]
-    c=line.color[i]
-    w=line.width[i]
-    t=line.type[i]
-    N = max(len(x),len(y))
-    for a in [x,y]:
-      while len(a)<n:
-        a.append(a[-1])
-    pts = vtk.vtkPoints()
-    for j in range(N):
-      pts.InsertNextPoint(x[j],y[j],0.)
-    for j in range(N-1):
-      l.GetPointIds().SetId(0,j)
-      l.GetPointIds().SetId(1,j+1)
-      lines.InsertNextCell(l)
-    linesPoly = vtk.vtkPolyData()
-    linesPoly.SetPoints(pts)
-    linesPoly.SetLines(lines)
-    dump2VTK(linesPoly,"linesPoly")
-    a = vtk.vtkActor()
-    m = vtk.vtkPolyDataMapper()
-    m.SetInputData(linesPoly)
-    a.SetMapper(m)
-    p = a.GetProperty()
-    p.SetLineWidth(w)
-   
-    if cmap is None:
-      if line.colormap is not None:
-        cmap = line.colormap
-      else:
-        cmap = 'default'
-    if isinstance(cmap,str):
-      cmap = vcs.elements["colormap"][cmap]
-    color = cmap.index[c]
-    p.SetColor([C/100. for C in color])
-    # stipple
-    if t == 'long-dash':
-      p.SetLineStipplePattern(int('1111111100000000',2))
-      p.SetLineStippleRepeatFactor(1)
-    elif t == 'dot':
-      p.SetLineStipplePattern(int('1010101010101010',2))
-      p.SetLineStippleRepeatFactor(1)
-    elif t == 'dash':
-      p.SetLineStipplePattern(int('1111000011110000',2))
-      p.SetLineStippleRepeatFactor(1)
-    elif t == 'dash-dot':
-      p.SetLineStipplePattern(int('0011110000110011',2))
-      p.SetLineStippleRepeatFactor(1)
-    elif t == 'solid':
-      p.SetLineStipplePattern(int('1111111111111111',2))
-      p.SetLineStippleRepeatFactor(1)
-    else:
-      raise Exception,"Unkonw line type: '%s'" % t
-    ren.Render()
-    a = fitToViewport(a,ren,line.viewport,line.worldcoordinate)
-    ren.AddActor(a)
+    if i==0:
+      ren.AddActor(a)
+      renWin.Render()
+    b = fitToViewport(a,ren,line.viewport,line.worldcoordinate)
+    if i==0:
+      ren.RemoveActor(a)
+    ren.AddActor(b)
   return 
 
 def getRendererCorners(Renderer,vp=[0.,1.,0.,1.]):
