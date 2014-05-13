@@ -173,6 +173,7 @@ class Tm(object):
          'worldcoordinate',
          'x',
          'y',
+         'colormap',
          '_name',
          '_color',
          '_priority',
@@ -183,7 +184,9 @@ class Tm(object):
          '_x',
          '_y',
          '_projection',
+         '_colormap',
          ]
+    colormap = VCS_validation_functions.colormap
     def _getname(self):
          return self._name
     def _setname(self,value):
@@ -324,13 +327,14 @@ class Tm(object):
            self._x = None
            self._y = None
            self._projection="default"
+           self._colormap=None
          else:
           if isinstance(Tm_name_src,Tm):
             Tm_name_src=Tm_name_src.name
           if not Tm_name_src in vcs.elements['marker']:
             raise ValueError, "The marker object '%s' does not exists" % Tm_name_src
           src = vcs.elements["marker"][Tm_name_src]
-          for att in ['projection' ,'color' ,'size' ,'type' ,'viewport','worldcoordinate','priority','x','y' ]:
+          for att in ['colormap','projection' ,'color' ,'size' ,'type' ,'viewport','worldcoordinate','priority','x','y' ]:
            setattr(self,att,getattr(src,att)) 
          #Ok now we need to stick in the elements
          vcs.elements["marker"][Tm_name]=self
@@ -355,6 +359,7 @@ class Tm(object):
         print "x =", self.x
         print "y =", self.y
         print "projection =", self.projection
+        print "colormap =",self.colormap
 
     #############################################################################
     #                                                                           #

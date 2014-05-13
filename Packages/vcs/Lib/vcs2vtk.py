@@ -256,6 +256,106 @@ def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cm
     renderer.AddActor(t)
   return t
 
+def markerVCS2VTK(ren,marker,cmap=None):
+  if marker.x is None or marker.y is None:
+    return
+  if not isinstance(marker.x[0],(list,tuple)):
+    marker.x = [marker.x,]
+  if not isinstance(marker.y[0],(list,tuple)):
+    marker.y = [marker.y,]
+  n = max(len(marker.type),len(marker.x),len(marker.y),len(marker.color),len(marker.size))
+  for a in ["x","y","color","size","type"]:
+    v = getattr(marker,a)
+    while len(v)<n:
+      v.append(v[-1])
+    setattr(marker,a,v)
+  actors = []
+  for i in range(n):
+    print "I:",i,n
+    ## Creates the glyph
+    g = vtk.vtkGlyph2D()
+    markers = vtk.vtkPolyData()
+    x = marker.x[i]
+    y=marker.y[i]
+    c=marker.color[i]
+    s=marker.size[i]
+    t=marker.type[i]
+    N = max(len(x),len(y))
+    for a in [x,y]:
+      while len(a)<n:
+        a.append(a[-1])
+    pts = vtk.vtkPoints()
+    for j in range(N):
+      pts.InsertNextPoint(x[j],y[j],0.)
+    markers.SetPoints(pts)
+
+    #  Type
+    ## Ok at this point generates the source for glpyh
+    ### TODO Need to add custom glyphs from vcs ones
+    gs = vtk.vtkGlyphSource2D()
+    if t=='dot':
+      gs.SetGlyphTypeToCircle()
+      gs.FilledOn()
+    elif t=='circle':
+      gs.SetGlyphTypeToCircle()
+      gs.FilledOff()
+    elif t=='plus':
+      gs.SetGlyphTypeToCross()
+      gs.FilledOff()
+    elif t=='cross':
+      gs.SetGlyphTypeToCross()
+      gs.SetRotationAngle(45)
+      gs.FilledOff()
+    elif t[:6]=='square':
+      gs.SetGlyphTypeToSquare()
+      gs.FilledOff()
+    elif t[:7]=='diamond':
+      gs.SetGlyphTypeToDiamond()
+      gs.FilledOff()
+    elif t[:8]=='triangle':
+      gs.SetGlyphTypeToTriangle()
+      if t[9]=="d":
+        gs.SetRotationAngle(180)
+      elif t[9]=="l":
+        gs.SetRotationAngle(90)
+      elif t[9]=="r":
+        gs.SetRotationAngle(-90)
+      elif t[9]=="u":
+        gs.SetRotationAngle(0)
+    else:
+      warnings.warn("unknown marker type: %s, using dot" % t)
+      gs.SetGlyphTypeToCircle()
+      gs.FilledOn()
+    if t[-5:]=="_fill":
+      gs.FilledOn()
+    gs.SetScale(s/100.)
+
+
+    g.SetSourceConnection(gs.GetOutputPort())
+    g.SetInputData(markers)
+
+    a = vtk.vtkActor()
+    m = vtk.vtkPolyDataMapper()
+    m.SetInputConnection(g.GetOutputPort())
+    m.Update()
+    a.SetMapper(m)
+    p = a.GetProperty()
+    #Color
+    if cmap is None:
+      if marker.colormap is not None:
+        cmap = marker.colormap
+      else:
+        cmap = 'default'
+    if isinstance(cmap,str):
+      cmap = vcs.elements["colormap"][cmap]
+    color = cmap.index[c]
+    p.SetColor([C/100. for C in color])
+    #a = fitToViewport(a,ren,marker.viewport,marker.worldcoordinate)
+    actors.append(a)
+  for a in actors:
+    ren.AddActor(a)
+  return 
+
 def lineVCS2VTK(ren,line,cmap=None):
   if line.x is None or line.y is None:
     return
@@ -291,6 +391,7 @@ def lineVCS2VTK(ren,line,cmap=None):
     linesPoly = vtk.vtkPolyData()
     linesPoly.SetPoints(pts)
     linesPoly.SetLines(lines)
+    dump2VTK(linesPoly,"linesPoly")
     a = vtk.vtkActor()
     m = vtk.vtkPolyDataMapper()
     m.SetInputData(linesPoly)

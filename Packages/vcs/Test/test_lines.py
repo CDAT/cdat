@@ -23,6 +23,7 @@ l.width = 5
 #l.type='dot'
 
 x.plot(l)
+x.png("test_lines")
 if interact:
   i.Start()
 else:
