@@ -155,6 +155,7 @@ class Tf(object):
          'x',
          'y',
          'projection',
+         'colormap',
          '_name',
          '_color',
          '_priority',
@@ -165,8 +166,10 @@ class Tf(object):
          '_x',
          '_y',
          '_projection',
+         '_colormap',
          ]
 
+    colormap = VCS_validation_functions.colormap
     def _getname(self):
          return self._name
     def _setname(self,value):
@@ -324,6 +327,7 @@ class Tf(object):
           self._x=None
           self._y=None
           self._projection="default"
+          self._colormap = None
         else:
           src = vcs.elements["fillarea"][Tf_name_src]
           self.style=src.style
@@ -335,6 +339,7 @@ class Tf(object):
           self.x=src.x
           self.y=src.y
           self.projection=src.projection
+          self.colormap = src.colormap
 
         vcs.elements["fillarea"][Tf_name] = self
 
@@ -359,6 +364,7 @@ class Tf(object):
         print "x =", self.x
         print "y =", self.y
         print "projection =", self.projection
+        print "colormap =",self.colormap
 
     #############################################################################
     #                                                                           #
