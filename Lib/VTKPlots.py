@@ -60,6 +60,8 @@ class VTKVCSBackend(object):
       vcs2vtk.lineVCS2VTK(ren,gm)
     elif gtype=="marker":
       vcs2vtk.markerVCS2VTK(ren,gm)
+    elif gtype=="fillarea":
+      vcs2vtk.fillareaVCS2VTK(ren,gm)
     else:
       raise Exception,"Graphic type: '%s' not re-implemented yet" % gtype
     self.renWin.Render()
