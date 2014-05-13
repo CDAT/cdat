@@ -57,11 +57,11 @@ class VTKVCSBackend(object):
     elif gtype in ["text"]:
       vcs2vtk.genTextActor(ren,to=to,tt=tt)
     elif gtype=="line":
-      vcs2vtk.lineVCS2VTK(ren,gm)
+      vcs2vtk.lineVCS2VTK(self.renWin,ren,gm)
     elif gtype=="marker":
-      vcs2vtk.markerVCS2VTK(ren,gm)
+      vcs2vtk.markerVCS2VTK(self.renWin,ren,gm)
     elif gtype=="fillarea":
-      vcs2vtk.fillareaVCS2VTK(ren,gm)
+      vcs2vtk.fillareaVCS2VTK(self.renWin,ren,gm)
     else:
       raise Exception,"Graphic type: '%s' not re-implemented yet" % gtype
     self.renWin.Render()
