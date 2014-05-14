@@ -57,11 +57,11 @@ class VTKVCSBackend(object):
     elif gtype in ["text"]:
       vcs2vtk.genTextActor(ren,to=to,tt=tt)
     elif gtype=="line":
-      vcs2vtk.lineVCS2VTK(self.renWin,ren,gm)
+      vcs2vtk.prepLine(self.renWin,ren,gm)
     elif gtype=="marker":
-      vcs2vtk.markerVCS2VTK(self.renWin,ren,gm)
+      vcs2vtk.prepMarker(self.renWin,ren,gm)
     elif gtype=="fillarea":
-      vcs2vtk.fillareaVCS2VTK(self.renWin,ren,gm)
+      vcs2vtk.prepFillarea(self.renWin,ren,gm)
     else:
       raise Exception,"Graphic type: '%s' not re-implemented yet" % gtype
     self.renWin.Render()
@@ -118,7 +118,7 @@ class VTKVCSBackend(object):
         m3=numpy.concatenate((x,y,z),axis=1)
 
     if continents:
-        contData = vcs2vtk.continentsVCS2VTK(os.environ["HOME"]+"/.uvcdat/data_continent_political")
+        contData = vcs2vtk.prepContinents(os.environ["HOME"]+"/.uvcdat/data_continent_political")
         contMapper = vtk.vtkPolyDataMapper()
         contMapper.SetInputData(contData)
         contActor = vtk.vtkActor()
@@ -300,36 +300,14 @@ class VTKVCSBackend(object):
     ren.AddActor(tmp)
     
     self.renderTemplate(ren,tmpl,data1,gm)
-    self.renderColorBar(ren,mapper,tmpl,data1)
+    self.renderColorBar(ren,tmpl,levs,cols)
 
-  def renderTemplate(self,ren,tmpl,data,gm):
-    tmpl.plot(self.canvas,data,gm,bg=self.bg,renderer=ren)
-  def renderColorBar(self,ren,mapper,tmpl,data):
+  def renderTemplate(self,renderer,tmpl,data,gm):
+    tmpl.plot(self.canvas,data,gm,bg=self.bg,renderer=renderer)
+
+  def renderColorBar(self,renderer,tmpl,levels,colors):
     if tmpl.legend.priority>0:
-      #Now let's have colorbar
-      clr = vtk.vtkScalarBarActor()
-      lut = mapper.GetLookupTable()
-      n = lut.GetNumberOfTableValues()
-      clr.SetNumberOfLabels(n)
-      clr.SetLookupTable(lut)
-      clr.SetTitle("")
-      clr.GetPositionCoordinate().SetCoordinateSystemToNormalizedViewport()
-      clr.SetOrientationToHorizontal()
-      p = clr.GetLabelTextProperty()
-      vcs2vtk.prepTextProperty(p,to=tmpl.legend.textorientation,tt=tmpl.legend.texttable,cmap="default")
-      X = tmpl.legend.x1
-      Y=tmpl.legend.y1
-      clr.SetPosition(X,Y)
-      w = tmpl.legend.x2-tmpl.legend.x1
-      h = tmpl.legend.y2-tmpl.legend.y1
-      #h = 1.
-      #w=1.
-      clr.SetWidth(w)
-      clr.SetHeight(1.8*h)
-      ren.AddActor(clr)
-      self.renWin.Render()
-    pass
-
+      tmpl.drawColorBar(colors,levels,x=self.canvas,renderer=renderer)
 
   #ok now trying to figure the actual data to plot
   def trimData(self,data):
