@@ -5,7 +5,7 @@ import numpy
 ## This module contains some convenience function from vcs2vtk
 
 ## Continents first
-def continentsVCS2VTK(fnm):
+def prepContinents(fnm):
   """ This converts vcs continents files to vtkpolydata
   Author: Charles Doutriaux
   Input: vcs continent file name
@@ -201,24 +201,23 @@ def prepTextProperty(p,to="default",tt="default",cmap=None):
     cmap = vcs.elements["colormap"][cmap]
   c=cmap.index[tt.color]
   p.SetColor([C/100. for C in c])
-  if to.halign==0:
+  if to.halign in [0, 'left']:
     p.SetJustificationToLeft()
-  elif to.halign ==2:
+  elif to.halign in [2, 'right']:
     p.SetJustificationToRight()
-  elif to.halign==1:
+  elif to.halign in [1,'center']:
     p.SetJustificationToCentered()
 
-  print to.valign
-  if to.valign==0:
+  if to.valign in [0,'top']:
     p.SetVerticalJustificationToTop()
-  elif to.valign==2:
+  elif to.valign in [2, 'half']:
     p.SetVerticalJustificationToCentered()
-  elif to.valign==4:
+  elif to.valign in [4,'bottom']:
     p.SetVerticalJustificationToBottom()
-  elif to.valign==1:
+  elif to.valign in [1,'cap']:
     warnings.warn("VTK does not support 'cap' align, using 'top'")
     p.SetVerticalJustificationToTop()
-  elif to.valign==3:
+  elif to.valign in [3,'base']:
     warnings.warn("VTK does not support 'base' align, using 'bottom'")
     p.SetVerticalJustificationToBottom()
   p.SetOrientation(-to.angle)
@@ -256,20 +255,33 @@ def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cm
     renderer.AddActor(t)
   return t
 
-def fillareaVCS2VTK(renWin,ren,farea,cmap=None):
-  if farea.x is None or farea.y is None:
-    return
-  if not isinstance(farea.x[0],(list,tuple)):
-    farea.x = [farea.x,]
-  if not isinstance(farea.y[0],(list,tuple)):
-    farea.y = [farea.y,]
-  n = max(len(farea.style),len(farea.x),len(farea.y),len(farea.color),len(farea.index))
-  for a in ["x","y","color","style","index"]:
-    v = getattr(farea,a)
+def prepPrimitive(prim):
+  if prim.x is None or prim.y is None:
+    return 0
+  if not isinstance(prim.x[0],(list,tuple)):
+    prim.x = [prim.x,]
+  if not isinstance(prim.y[0],(list,tuple)):
+    prim.y = [prim.y,]
+  if vcs.isfillarea(prim):
+    atts = ["x","y","color","style","index"]
+  elif vcs.ismarker(prim):
+    atts = ["x","y","color","size","type"]
+  elif vcs.isline(prim):
+    atts = ["x","y","color","width","type"]
+  n=0
+  for a in atts:
+    n = max(n,len(getattr(prim,a)))
+  for a in atts:
+    v = getattr(prim,a)
     while len(v)<n:
       v.append(v[-1])
-    setattr(farea,a,v)
+    setattr(prim,a,v)
+  return n
 
+def prepFillarea(renWin,ren,farea,cmap=None):
+  n = prepPrimitive(farea)
+  if n==0:
+    return
   for i in range(n):
     x   = farea.x[i]
     y   = farea.y[i]
@@ -321,21 +333,11 @@ def fillareaVCS2VTK(renWin,ren,farea,cmap=None):
     ren.AddActor(b)
   return 
 
-def markerVCS2VTK(renWin,ren,marker,cmap=None):
-  if marker.x is None or marker.y is None:
+def prepMarker(renWin,ren,marker,cmap=None):
+  n=prepPrimitive(marker)
+  if n==0:
     return
-  if not isinstance(marker.x[0],(list,tuple)):
-    marker.x = [marker.x,]
-  if not isinstance(marker.y[0],(list,tuple)):
-    marker.y = [marker.y,]
-  n = max(len(marker.type),len(marker.x),len(marker.y),len(marker.color),len(marker.size))
-  for a in ["x","y","color","size","type"]:
-    v = getattr(marker,a)
-    while len(v)<n:
-      v.append(v[-1])
-    setattr(marker,a,v)
   for i in range(n):
-    print "I:",i,n
     ## Creates the glyph
     g = vtk.vtkGlyph2D()
     markers = vtk.vtkPolyData()
@@ -423,19 +425,10 @@ def markerVCS2VTK(renWin,ren,marker,cmap=None):
     ren.AddActor(b)
   return 
 
-def lineVCS2VTK(renWin,ren,line,cmap=None):
-  if line.x is None or line.y is None:
+def prepLine(renWin,ren,line,cmap=None):
+  n = prepPrimitive(line)
+  if n==0:
     return
-  if not isinstance(line.x[0],(list,tuple)):
-    line.x = [line.x,]
-  if not isinstance(line.y[0],(list,tuple)):
-    line.y = [line.y,]
-  n = max(len(line.type),len(line.x),len(line.y),len(line.color),len(line.width))
-  for a in ["x","y","color","width","type"]:
-    v = getattr(line,a)
-    while len(v)<n:
-      v.append(v[-1])
-    setattr(line,a,v)
   for i in range(n):
     l = vtk.vtkLine()
     lines = vtk.vtkCellArray()
@@ -539,13 +532,13 @@ def fitToViewport(Actor,Renderer,vp,wc=None):
     Xrg=float(wc[0]),float(wc[1])
     Yrg=float(wc[2]),float(wc[3])
   
-  print "VIEWPORT:",vp
-  print "XrgYrg:",Xrg,Yrg
+  #print "VIEWPORT:",vp
+  #print "XrgYrg:",Xrg,Yrg
   ## Where they are in term of pixels
   oll = vtkWorld2Renderer(Renderer,Xrg[0],Yrg[0])
   our = vtkWorld2Renderer(Renderer,Xrg[1],Yrg[1])
   
-  print "oll,our:",oll,our
+  #print "oll,our:",oll,our
   # Where they should be in term of pixel
   ll = world2Renderer(Renderer,Xrg[0],Yrg[0],
       vp,
@@ -554,20 +547,20 @@ def fitToViewport(Actor,Renderer,vp,wc=None):
       vp,
       [Xrg[0],Xrg[1],Yrg[0],Yrg[1]])
   
-  print "ll,ur:",ll,ur
+  #print "ll,ur:",ll,ur
   # How much does it needs to be scaled by?
   xScale = (ur[0]-ll[0])/(our[0]-oll[0])
   yScale = (ur[1]-ll[1])/(our[1]-oll[1])
-  print xScale,yScale
+  #print xScale,yScale
 
   #World coordinates of where they need to be
   LL = R2World(Renderer,*ll)
-  print "LL:",LL
+  #print "LL:",LL
 
   # Move it to the correct bottom left corner
   dX = LL[0]-Xrg[0]
   dY = LL[1]-Yrg[0]
-  print "dX,dY:",dX,dY
+  #print "dX,dY:",dX,dY
 
 
   # transformation are applied in reverse order
@@ -580,16 +573,5 @@ def fitToViewport(Actor,Renderer,vp,wc=None):
   T.Translate(dX,dY,0)
 
   Actor.SetUserTransform(T)
-  Renderer.Render()
-  print "oll,our:",oll,our
-  # Where they should be in term of pixel
-  ll = world2Renderer(Renderer,Xrg[0],Yrg[0],
-      vp,
-      [Xrg[0],Xrg[1],Yrg[0],Yrg[1]])
-  print "ll,ur:",ll,ur
-  #World coordinates of where they need to be
-  LL = R2World(Renderer,*ll)
-  print "LL2:",LL
-
   return Actor
 

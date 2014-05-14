@@ -191,7 +191,7 @@ textorientation.To("default")
 to = textorientation.To("defcenter")
 to.halign = "center"
 to = textorientation.To("defright")
-to.path = "right"
+to.halign = "right"
 boxfill.Gfb("default")
 isofill.Gfi("default")
 isoline.Gi("default")

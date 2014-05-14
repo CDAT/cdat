@@ -1318,7 +1318,7 @@ class P(object):
         x.worldcoordinate=wc
         return displays
 
-    def drawColorBar(self,colors,levels,legend=None,ext_1='n',ext_2='n',x=None,bg=0,priority=None):
+    def drawColorBar(self,colors,levels,legend=None,ext_1='n',ext_2='n',x=None,bg=0,priority=None,**kargs):
          """
          This function, draws the colorbar, it needs:
          colors : The colors to be plotted
@@ -1333,9 +1333,6 @@ class P(object):
          #
          # Create legend
          #
-         # First make sure we have an vcs canvas
-         if x is None:
-              x=self.parent
 
          # Now sets the priority value
          if priority is None:
@@ -1489,6 +1486,7 @@ class P(object):
          ln.priority=priority+1
          txt.priority=priority+1
          txt.string=Tt
+         print "TEXT:",txt.halign
          if isH:
               ln.x=Ll
               ln.y=Sl
