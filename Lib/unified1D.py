@@ -40,7 +40,7 @@ def process_src(nm,code,typ):
   try:
     gm = G1d(nm)
   except:
-    gm = vcs.elements["oneD"][nm]
+    gm = vcs.elements["oned"][nm]
   ## process attributes with = as assignement
   for att in ["projection",
       "xticlabels#1","xticlabels#2",
@@ -244,6 +244,7 @@ class G1d(object,AutoAPI.AutoAPI):
          'datawc_timeunits',
          'datawc_calendar',
          'flip',
+         'smooth',
          '_name',
          '_xaxisconvert',
          '_yaxisconvert',
@@ -269,6 +270,7 @@ class G1d(object,AutoAPI.AutoAPI):
          '_datawc_timeunits',
          '_datawc_calendar',
          '_flip',
+         '_smooth',
          ]
     def _getname(self):
          return self._name
@@ -450,6 +452,13 @@ class G1d(object,AutoAPI.AutoAPI):
       value = VCS_validation_functions.checkTrueFalse(self,'flip',value)
       self._flip = value
     flip=property(_getflip,_setflip)
+    def _getsmooth(self):
+      return self._smooth
+    def _setsmooth(self,value):
+      if value is not None:
+        value = VCS_validation_functions.checkInt(self,"smooth",value,1)
+      self._smooth=value
+    smooth=property(_getsmooth,_setsmooth,None,"beta parameter for kaiser smoothing")
 
     def __init__(self, name, name_src='default'):
         #                                                         #
@@ -464,11 +473,12 @@ class G1d(object,AutoAPI.AutoAPI):
         self.info=AutoAPI.Info(self)
         self.info.expose=['ALL']
         self.__doc__ = self.__doc__ % (xmldocs.graphics_method_core,xmldocs.xaxisconvert,xmldocs.linedoc,xmldocs.markerdoc)
-        if name in vcs.elements["oneD"]:
+        if name in vcs.elements["oned"]:
           raise ValueError,"The 1D method '%s' already exists"
         self.g_name='G1d'
         self._name = name
         if name == 'default':
+            self._smooth=None
             self._flip = False
             self._projection="linear"
             self._xticlabels1="*"
@@ -496,13 +506,13 @@ class G1d(object,AutoAPI.AutoAPI):
         else:
           if isinstance(name_src,G1d):
             name_src=name_src.name
-          if not name_src in vcs.elements['oneD']:
+          if not name_src in vcs.elements['oned']:
             raise ValueError, "The oneD method '%s' does not exists" % name_src
-          src = vcs.elements["oneD"][name_src]
-          for att in ['projection' ,'xticlabels1' ,'xticlabels2' ,'xmtics1' ,'xmtics2' ,'yticlabels1' ,'yticlabels2' ,'ymtics1' ,'ymtics2' ,'datawc_y1' ,'datawc_y2' ,'datawc_x1' ,'datawc_x2' ,'xaxisconvert' ,'yaxisconvert' ,'line' ,'linecolor' ,'linewidth' ,'marker' ,'markercolor' ,'markersize' ,'datawc_timeunits' ,'datawc_calendar' ,'flip' ]:
+          src = vcs.elements["oned"][name_src]
+          for att in ['projection' ,'xticlabels1' ,'xticlabels2' ,'xmtics1' ,'xmtics2' ,'yticlabels1' ,'yticlabels2' ,'ymtics1' ,'ymtics2' ,'datawc_y1' ,'datawc_y2' ,'datawc_x1' ,'datawc_x2' ,'xaxisconvert' ,'yaxisconvert' ,'line' ,'linecolor' ,'linewidth' ,'marker' ,'markercolor' ,'markersize' ,'datawc_timeunits' ,'datawc_calendar' ,'smooth', 'flip' ]:
            setattr(self,att,getattr(src,att)) 
         #Ok now we need to stick in the elements
-        vcs.elements["oneD"][name]=self
+        vcs.elements["oned"][name]=self
         #                                                         #
         ###########################################################
         # Find and set the Yxvsx structure in VCS C pointer       #

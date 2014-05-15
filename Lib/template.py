@@ -868,27 +868,31 @@ class P(object):
            
     ## Adding the drawing functionnality to plot all these attributes on the Canvas
 
-    def drawTicks(self,slab,gm,x,axis,number,vp,wc,bg=0,**kargs):
+    def drawTicks(self,slab,gm,x,axis,number,vp,wc,bg=0,X=None,Y=None,**kargs):
         """Draws the ticks for the axis x number number
         using the label passed by the graphic  method
         vp and wc are from the actual canvas, they have been reset when they get here...
         """
+        if X is None:
+          X=slab.getAxis(-1)
+        if Y is None:
+          Y=slab.getAxis(-2)
         displays = []
         # compute the spanning in x and y, and adjust for the viewport
         if gm.datawc_x1 > 9.E19 :
-             wc[0]=slab.getAxis(-1)[0]
+             wc[0]=X[0]
         else:
           wc[0] = gm.datawc_x1
         if gm.datawc_x2 > 9.E19 :
-             wc[1]=slab.getAxis(-1)[-1]
+             wc[1]=X[-1]
         else:
           wc[1] = gm.datawc_x2
         if gm.datawc_y1 > 9.E19 :
-             wc[2]=slab.getAxis(-2)[0]
+             wc[2]=Y[0]
         else:
           wc[2] = gm.datawc_y1
         if gm.datawc_y2 > 9.E19 :
-             wc[3]=slab.getAxis(-2)[-1]
+             wc[3]=Y[-1]
         else:
           wc[3] = gm.datawc_y2
 
@@ -903,9 +907,9 @@ class P(object):
         if (loc is None or loc=='*'):
             # well i guess we have to do it !
             if axis=='x':
-                 ax=slab.getAxis(-1)
+                 ax=X
             else:
-                 ax=slab.getAxis(-2)                 
+                 ax=Y
             x2=ax[-1]
             x1=ax[0]
             loc=vcs.mkscale(ax[0],ax[-1])
@@ -1182,7 +1186,7 @@ class P(object):
          self.parent.mode=savedmode
          self.parent.update()
          
-    def plot(self,x,slab,gm,bg=0,min=None,max=None,**kargs):
+    def plot(self,x,slab,gm,bg=0,min=None,max=None,X=None,Y=None,**kargs):
         """ This plots the template stuff on the Canvas, it needs a slab and a graphic method
         returns a list containing all the displays used"""
         displays = []
@@ -1241,10 +1245,10 @@ class P(object):
 
         # Do the tickmarks/labels
         if gm!='taylordiagram':
-             displays+=self.drawTicks(slab,gm,x,axis='x',number='1',vp=vp,wc=wc,bg=bg,**kargs)
-             displays+=self.drawTicks(slab,gm,x,axis='x',number='2',vp=vp,wc=wc,bg=bg,**kargs)
-             displays+=self.drawTicks(slab,gm,x,axis='y',number='1',vp=vp,wc=wc,bg=bg,**kargs)
-             displays+=self.drawTicks(slab,gm,x,axis='y',number='2',vp=vp,wc=wc,bg=bg,**kargs)
+             displays+=self.drawTicks(slab,gm,x,axis='x',number='1',vp=vp,wc=wc,bg=bg,X=X,Y=Y,**kargs)
+             displays+=self.drawTicks(slab,gm,x,axis='x',number='2',vp=vp,wc=wc,bg=bg,X=X,Y=Y,**kargs)
+             displays+=self.drawTicks(slab,gm,x,axis='y',number='1',vp=vp,wc=wc,bg=bg,X=X,Y=Y,**kargs)
+             displays+=self.drawTicks(slab,gm,x,axis='y',number='2',vp=vp,wc=wc,bg=bg,X=X,Y=Y,**kargs)
 
         # Do the boxes and lines
         b=self.box1
@@ -1486,7 +1490,6 @@ class P(object):
          ln.priority=priority+1
          txt.priority=priority+1
          txt.string=Tt
-         print "TEXT:",txt.halign
          if isH:
               ln.x=Ll
               ln.y=Sl

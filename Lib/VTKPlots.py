@@ -6,6 +6,17 @@ import numpy
 from vtk.util import numpy_support as VN
 import meshfill,boxfill,isofill,isoline
 import os
+import cdms2
+
+   
+def smooth(x,beta,window_len=11):
+   """ kaiser window smoothing """
+   # extending the data at beginning and at the end
+   # to apply the window at the borders
+   s = numpy.r_[x[window_len-1:0:-1],x,x[-1:-window_len:-1]]
+   w = numpy.kaiser(window_len,beta)
+   y = numpy.convolve(w/w.sum(),s,mode='valid')
+   return y[(window_len/2):-(window_len/2)]
 
 class VTKVCSBackend(object):
   def __init__(self,canvas,renWin=None, debug=False,bg=None):
@@ -42,8 +53,13 @@ class VTKVCSBackend(object):
     self.renWin.AddRenderer(ren)
 
     #screenSize = self.renWin.GetScreenSize()
-    data1 = self.trimData(data1) # Ok get only the last 2 dims
-    data2 = self.trimData(data2)
+    if gtype in ["boxfill","meshfill","isoline","isofill","vector"]:
+      data1 = self.trimData2D(data1) # Ok get only the last 2 dims
+      data2 = self.trimData2D(data2)
+    #elif vcs.isgraphicsmethod(vcs.elements[gtype][gname]):
+      ## oneD
+    #  data1 = self.trimData1D(data1)
+    #  data2 = self.trimData1D(data2)
     if gtype == "text":
       tt,to = gname.split(":::")
       tt = vcs.elements["texttable"][tt]
@@ -62,10 +78,76 @@ class VTKVCSBackend(object):
       vcs2vtk.prepMarker(self.renWin,ren,gm)
     elif gtype=="fillarea":
       vcs2vtk.prepFillarea(self.renWin,ren,gm)
+    elif gtype=="oned":
+      self.plot1D(data1,data2,tpl,gm,ren)
     else:
       raise Exception,"Graphic type: '%s' not re-implemented yet" % gtype
     self.renWin.Render()
+
+  def plot1D(self,data1,data2,tmpl,gm,ren):
+    gm.list()
+    Y = data1
+    if data2 is None:
+      X=Y.getAxis(0)[:]
+    else:
+      X=data2
+
+    if gm.flip:
+      tmp = Y
+      Y = X
+      X = tmp
+
+    if gm.smooth is not None:
+        Y = smooth(Y,gm.smooth)
+    l = self.canvas.createline()
+    l.x = X.tolist()
+    l.y = Y.tolist()
+    l.color=gm.linecolor
+    l.width = gm.linewidth
+    l.type = gm.line
+    l.viewport = [tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2]
+    # Also need to make sure it fills the whole space
+    if not numpy.allclose([gm.datawc_x1,gm.datawc_x2],1.e20):
+      x1,x2 = gm.datawc_x1,gm.datawc_x2
+    else:
+      x1,x2 = X.min(),X.max()
+    if not numpy.allclose([gm.datawc_y1,gm.datawc_y2],1.e20):
+      y1,y2 = gm.datawc_y1,gm.datawc_y2
+    else:
+      y1,y2 = Y.min(),Y.max()
+    l.worldcoordinate = [x1,x2,y1,y2]
+
+    m=self.canvas.createmarker()
+    m.type = gm.marker
+    m.color = gm.markercolor
+    m.size = gm.markersize
+    m.x = l.x
+    m.y=l.y
+    m.viewport=l.viewport
+    m.worldcoordinate = l.worldcoordinate
+
+    self.canvas.plot(l,renderer=ren)
+    self.canvas.plot(m,renderer=ren)
+    tmpl.plot(self.canvas,data1,gm,bg=self.bg,renderer=ren,X=X,Y=Y)
     
+    legd = self.canvas.createline()
+    legd.x = [tmpl.legend.x1, tmpl.legend.x2]
+    legd.y = [tmpl.legend.y1, tmpl.legend.y1]
+    legd.color = l.color
+    legd.width = l.width
+    legd.type  = l.type
+
+
+    t=self.canvas.createtext(To_source=tmpl.legend.textorientation,Tt_source=tmpl.legend.texttable)
+    t.x=tmpl.legend.x2
+    t.y=tmpl.legend.y2
+    t.string=data1.id
+    self.canvas.plot(t,renderer=ren)
+    print "plotting legend",legd.name,legd.worldcoordinate
+    self.canvas.plot(legd,renderer=ren)
+    legd.list()
+  
+
   def plot2D(self,data1,data2,tmpl,gm,ren):
     continents = False
     wrap = None
@@ -309,8 +391,15 @@ class VTKVCSBackend(object):
     if tmpl.legend.priority>0:
       tmpl.drawColorBar(colors,levels,x=self.canvas,renderer=renderer)
 
+  def trimData1D(self,data):
+    if data is None:
+      return None
+    while len(data.shape)>1:
+      data = data[0]
+    return data
+
   #ok now trying to figure the actual data to plot
-  def trimData(self,data):
+  def trimData2D(self,data):
     if data is None:
       return None
     try:

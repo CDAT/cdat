@@ -2485,16 +2485,16 @@ Options:::
     outfill.__doc__ = outfill.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert,plot_2D_input, plot_output)
 
     def createoneD(self,name=None,source='default'):
-        name,source = self.check_name_source(name,source,'oneD')
+        name,source = self.check_name_source(name,source,'oned')
         return unified1D.G1d(name,source)
     def getoneD(self,name):
         # Check to make sure the argument passed in is a STRING
         if not isinstance(name,str):
            raise vcsError, 'The argument must be a string.'
 
-        if not name in vcs.elements["oneD"]:
+        if not name in vcs.elements["oned"]:
           raise ValueError,"The oneD '%s' graphics method does not exists" % name
-        return vcs.elements["oneD"][name]
+        return vcs.elements["oned"][name]
 
     
     #############################################################################
@@ -3308,8 +3308,9 @@ Options:::
             ln.viewport = self.viewport
         if (worldcoordinate is not None):
             ln.worldcoordinate = worldcoordinate
-        elif source=='default':
-            ln.worldcoordinate = self.worldcoordinate
+    # C. Doutriaux commented out the following seems too dangerous, let the user pass it
+    #    elif source=='default':
+    #        ln.worldcoordinate = self.worldcoordinate
         if (x is not None):
             ln.x = x
         if (y is not None):

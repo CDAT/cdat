@@ -122,6 +122,7 @@ class Tl(object):
          'x',
          'y',
          'projection',
+         'colormap',
          '_color',
          '_priority',
          '_type',
@@ -132,7 +133,6 @@ class Tl(object):
          '_y',
          '_projection',
          '_name',
-         'colormap',
          '_colormap',
          ]
     colormap = VCS_validation_functions.colormap

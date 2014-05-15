@@ -35,6 +35,7 @@ gm.levels = range(-20,135,10)
 x.plot(s,tmpl,gm,bg=bg)
 #x.cgm("cgm_test")
 x.png("test")#,width=2000,height=1000)
+x.cgm("testing")
 if interact:
   i.Start()
 else:
