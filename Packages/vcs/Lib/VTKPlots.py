@@ -199,13 +199,6 @@ class VTKVCSBackend(object):
         z = numpy.zeros(x.shape)
         m3=numpy.concatenate((x,y,z),axis=1)
 
-    if continents:
-        contData = vcs2vtk.prepContinents(os.environ["HOME"]+"/.uvcdat/data_continent_political")
-        contMapper = vtk.vtkPolyDataMapper()
-        contMapper.SetInputData(contData)
-        contActor = vtk.vtkActor()
-        contActor.SetMapper(contMapper)
-        contActor.GetProperty().SetColor(0.,0.,0.)
 
 
     #Create unstructured grid points
@@ -242,7 +235,6 @@ class VTKVCSBackend(object):
     ## Following assumes contiguous levels for now
     mn,mx=vcs.minmax(data1)
     #Ok now we have grid and data let's use the mapper
-    #mapper = vtk.vtkDataSetMapper()
     mapper = vtk.vtkPolyDataMapper()
     if isinstance(gm,(isofill.Gfi,isoline.Gi,meshfill.Gfm)) or \
         (isinstance(gm,boxfill.Gfb) and gm.boxfill_type=="custom"):
@@ -308,7 +300,7 @@ class VTKVCSBackend(object):
       cot.Update()
       if self.debug:
         vcs2vtk.dump2VTK(cot,"cot")
-        mapper.SetInputConnection(cot.GetOutputPort())
+      mapper.SetInputConnection(cot.GetOutputPort())
     else: #Boxfill/Meshfill
       geoFilter = vtk.vtkGeometryFilter()
       geoFilter.SetInputData(ug)
@@ -363,7 +355,6 @@ class VTKVCSBackend(object):
     else:
       y1,y2 = ym,yM
 
-
     act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
     ren.AddActor(act)
     self.renWin.Render()
@@ -375,14 +366,17 @@ class VTKVCSBackend(object):
     self.renderTemplate(ren,tmpl,data1,gm)
     self.renderColorBar(ren,tmpl,levs,cols)
     if continents:
+      contData = vcs2vtk.prepContinents(os.environ["HOME"]+"/.uvcdat/data_continent_political")
+      contMapper = vtk.vtkPolyDataMapper()
+      contMapper.SetInputData(contData)
+      contActor = vtk.vtkActor()
+      contActor.SetMapper(contMapper)
+      contActor.GetProperty().SetColor(0.,0.,0.)
       cpts = contData.GetPoints()
       gcpts = vcs2vtk.project(cpts,projection)
       contData.SetPoints(gcpts)
       contActor = vcs2vtk.doWrap(contActor,[x1,x2,y1,y2],wrap)
-    #  ren.AddActor(contActor)
-    #  self.renWin.Render()
       tmp = vcs2vtk.fitToViewport(contActor,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2])
-    #  ren.RemoveActor(contActor)
       ren.AddActor(tmp)
 
   def renderTemplate(self,renderer,tmpl,data,gm):
