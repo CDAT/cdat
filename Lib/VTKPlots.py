@@ -50,7 +50,8 @@ class VTKVCSBackend(object):
     if kargs.get("renderer",None) is None:
       if self.ren is None:
         ren = vtk.vtkRenderer()
-        ren.SetBackground(.7,.7,.7)
+        r,g,b = self.canvas.backgroundcolor
+        ren.SetBackground(r/255.,g/255.,b/255.)
         self.ren = ren
       else:
         ren = self.ren
