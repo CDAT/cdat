@@ -78,16 +78,16 @@ def dump2VTK(obj,fnm=None):
 
 
 #Wrapping around
-def doWrap(Act,gm,wrap=[0.,360]):
+def doWrap(Act,wc,wrap=[0.,360]):
   Mapper = Act.GetMapper()
   data = Mapper.GetInput()
-  xmn=min(gm.datawc_x1,gm.datawc_x2)
-  xmx=max(gm.datawc_x1,gm.datawc_x2)
+  xmn=min(wc[0],wc[1])
+  xmx=max(wc[0],wc[1])
   if numpy.allclose(xmn,1.e20) or numpy.allclose(xmx,1.e20):
     xmx = abs(wrap[1])
     xmn = -wrap[1]
-  ymn=min(gm.datawc_y1,gm.datawc_y2)
-  ymx=max(gm.datawc_y1,gm.datawc_y2)
+  ymn=min(wc[2],wc[3])
+  ymx=max(wc[2],wc[3])
   if numpy.allclose(ymn,1.e20) or numpy.allclose(ymx,1.e20):
     ymx = abs(wrap[0])
     ymn = -wrap[0]
@@ -451,7 +451,6 @@ def prepLine(renWin,ren,line,cmap=None):
     linesPoly = vtk.vtkPolyData()
     linesPoly.SetPoints(pts)
     linesPoly.SetLines(lines)
-    dump2VTK(linesPoly,"linesPoly")
     a = vtk.vtkActor()
     m = vtk.vtkPolyDataMapper()
     m.SetInputData(linesPoly)

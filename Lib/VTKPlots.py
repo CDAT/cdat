@@ -222,16 +222,6 @@ class VTKVCSBackend(object):
     geopts = vcs2vtk.project(pts,projection)
     ## Sets the vertics into the grid
     ug.SetPoints(geopts)
-    if continents:
-      cpts = contData.GetPoints()
-      gcpts = vcs2vtk.project(cpts,projection)
-      contData.SetPoints(gcpts)
-      contActor = vcs2vtk.doWrap(contActor,gm,wrap)
-      ren.AddActor(contActor)
-      self.renWin.Render()
-      tmp = vcs2vtk.fitToViewport(contActor,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2])
-      ren.RemoveActor(contActor)
-      ren.AddActor(tmp)
 
     #Now applies the actual data on each cell
     data = VN.numpy_to_vtk(data1.filled().flat,deep=True)
@@ -367,22 +357,33 @@ class VTKVCSBackend(object):
     if not numpy.allclose([gm.datawc_x1,gm.datawc_x2],1.e20):
       x1,x2 = gm.datawc_x1,gm.datawc_x2
     else:
-      x1,x2 = xM,xm
+      x1,x2 = xm,xM
     if not numpy.allclose([gm.datawc_y1,gm.datawc_y2],1.e20):
       y1,y2 = gm.datawc_y1,gm.datawc_y2
     else:
-      y1,y2 = yM,ym
+      y1,y2 = ym,yM
 
 
-    act = vcs2vtk.doWrap(act,gm,wrap)
+    act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
     ren.AddActor(act)
     self.renWin.Render()
-    tmp = vcs2vtk.fitToViewport(act,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2])
+    print "x1,x2,y1,y2",x1,x2,y1,y2
+    tmp = vcs2vtk.fitToViewport(act,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2])
     ren.RemoveActor(act)
     ren.AddActor(tmp)
     
     self.renderTemplate(ren,tmpl,data1,gm)
     self.renderColorBar(ren,tmpl,levs,cols)
+    if continents:
+      cpts = contData.GetPoints()
+      gcpts = vcs2vtk.project(cpts,projection)
+      contData.SetPoints(gcpts)
+      contActor = vcs2vtk.doWrap(contActor,[x1,x2,y1,y2],wrap)
+    #  ren.AddActor(contActor)
+    #  self.renWin.Render()
+      tmp = vcs2vtk.fitToViewport(contActor,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2])
+    #  ren.RemoveActor(contActor)
+      ren.AddActor(tmp)
 
   def renderTemplate(self,renderer,tmpl,data,gm):
     tmpl.plot(self.canvas,data,gm,bg=self.bg,renderer=renderer)
@@ -412,7 +413,9 @@ class VTKVCSBackend(object):
       else:
         # Ok just return the last two dims
         return data(*(slice(0,1),)*(len(daxes)-2))
-    except: # ok no grid info
+    except Exception,err: # ok no grid info
+      print "Got exception",err
+      daxes=list(data.getAxisList())
       if cdms2.isVariable(data):
         return data(*(slice(0,1),)*(len(daxes)-2))
       else: #numpy arrays are not callable
