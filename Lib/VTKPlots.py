@@ -28,6 +28,18 @@ class VTKVCSBackend(object):
     self._plot_keywords = []
     self.ren = None
 
+  def clear(self):
+    if self.renWin is None:
+      return
+    renderers = self.renWin.GetRenderers()
+    ren = renderers.GetFirstRenderer()
+    while ren is not None:
+      ren.RemoveAllViewProps()
+      ren.Render()
+      self.renWin.RemoveRenderer(ren)
+      ren = renderers.GetNextItem()
+    self.renWin.Render()
+
   def plot(self,data1,data2,template,gtype,gname,bg,*args,**kargs):
     #print "OK VTK RECEIVED:",template,gtype,gname
     #print "OK VTK BG:",bg
