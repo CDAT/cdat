@@ -26,6 +26,7 @@ class VTKVCSBackend(object):
     self.bg = bg
     self.type = "vtk"
     self._plot_keywords = []
+    self.ren = None
 
   def plot(self,data1,data2,template,gtype,gname,bg,*args,**kargs):
     #print "OK VTK RECEIVED:",template,gtype,gname
@@ -36,6 +37,10 @@ class VTKVCSBackend(object):
       # Create the usual rendering stuff.
       self.renWin = vtk.vtkRenderWindow()
       self.renWin.SetWindowName("VCS Canvas")
+      self.renWin.SetAlphaBitPlanes(1)
+      newRenWin = True
+    else:
+      newRenWin = False
     if self.bg is None:
       if bg:
         self.bg= True
@@ -46,8 +51,12 @@ class VTKVCSBackend(object):
         screenSize = self.renWin.GetScreenSize()
         self.renWin.SetSize(814,606)
     if kargs.get("renderer",None) is None:
-      ren = vtk.vtkRenderer()
-      ren.SetBackground(1,1,1)
+      if newRenWin:
+        ren = vtk.vtkRenderer()
+        ren.SetBackground(1,1,1)
+        self.ren = ren
+      else:
+        ren = self.ren
     else:
       ren = kargs["renderer"]
     self.renWin.AddRenderer(ren)
