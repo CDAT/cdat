@@ -25,17 +25,15 @@ if interact:
 x.setcolormap("rainbow")
 #gm=x.createisoline()
 gm=x.createboxfill()
-gm.datawc_x1=-130
-gm.datawc_x2=140
-gm.datawc_y1=-85
-gm.datawc_y2=85
+#gm.datawc_x1=0
+#gm.datawc_x2=40
+#gm.datawc_y1=-40
+#gm.datawc_y2=40
 bg = False
 #bg = True
 gm.levels = range(-20,135,10)
 x.plot(s,tmpl,gm,bg=bg)
-#x.cgm("cgm_test")
 x.png("test")#,width=2000,height=1000)
-x.cgm("testing")
 if interact:
   i.Start()
 else:
