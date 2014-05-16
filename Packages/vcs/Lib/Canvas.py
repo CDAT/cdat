@@ -5775,8 +5775,8 @@ Options:::
         self.animate.close()
         self.animate_info=[]
         self.animate.update_animate_display_list( )
-
-        return apply(self.canvas.clear, args)
+        self.backend.clear()
+        return 
 
     #############################################################################
     #                                                                           #
