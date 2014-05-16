@@ -12,6 +12,7 @@ if interact:
   i.Initialize()
 f=cdms2.open(os.path.join(sys.prefix,'sample_data','clt.nc'))
 s=f("clt")
+s2 = f("u")
 #f=cdms2.open(os.path.join(sys.prefix,"sample_data","sampleCurveGrid4.nc"))
 #s=f("sample")
 x=vcs.init()
@@ -39,7 +40,7 @@ bg = False
 isof.levels = range(-20,135,10)
 isol.levels = range(-20,135,10)
 x.plot(s,tmpl,isof,bg=bg)
-x.plot(s,tmpl,isol,bg=bg)
+x.plot(s2,tmpl,isol,bg=bg)
 x.png("test")#,width=2000,height=1000)
 if interact:
   i.Start()

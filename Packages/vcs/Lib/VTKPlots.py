@@ -38,9 +38,6 @@ class VTKVCSBackend(object):
       self.renWin = vtk.vtkRenderWindow()
       self.renWin.SetWindowName("VCS Canvas")
       self.renWin.SetAlphaBitPlanes(1)
-      newRenWin = True
-    else:
-      newRenWin = False
     if self.bg is None:
       if bg:
         self.bg= True
@@ -51,9 +48,9 @@ class VTKVCSBackend(object):
         screenSize = self.renWin.GetScreenSize()
         self.renWin.SetSize(814,606)
     if kargs.get("renderer",None) is None:
-      if newRenWin:
+      if self.ren is None:
         ren = vtk.vtkRenderer()
-        ren.SetBackground(1,1,1)
+        ren.SetBackground(.7,.7,.7)
         self.ren = ren
       else:
         ren = self.ren
@@ -367,13 +364,13 @@ class VTKVCSBackend(object):
     act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
     ren.AddActor(act)
     self.renWin.Render()
-    print "x1,x2,y1,y2",x1,x2,y1,y2
     tmp = vcs2vtk.fitToViewport(act,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2])
     ren.RemoveActor(act)
     ren.AddActor(tmp)
     
     self.renderTemplate(ren,tmpl,data1,gm)
-    self.renderColorBar(ren,tmpl,levs,cols)
+    if isinstance(gm,(isofill.Gfi,meshfill.Gfm,boxfill.Gfb)):
+      self.renderColorBar(ren,tmpl,levs,cols)
     if continents:
       contData = vcs2vtk.prepContinents(os.environ["HOME"]+"/.uvcdat/data_continent_political")
       contMapper = vtk.vtkPolyDataMapper()
