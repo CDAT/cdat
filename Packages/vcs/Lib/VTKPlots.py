@@ -49,7 +49,6 @@ class VTKVCSBackend(object):
       ren = vtk.vtkRenderer()
       r,g,b = self.canvas.backgroundcolor
       ren.SetBackground(r/255.,g/255.,b/255.)
-      print "BACKGROUND IS SET TO RGB"
       self.renWin.AddRenderer(ren)
       return True
     else:
