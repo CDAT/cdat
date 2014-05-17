@@ -26,7 +26,7 @@ class VTKVCSBackend(object):
     self.bg = bg
     self.type = "vtk"
     self._plot_keywords = []
-    self.ren = None
+    self.numberOfPlotCalls = 0 
 
   def clear(self):
     if self.renWin is None:
@@ -40,16 +40,38 @@ class VTKVCSBackend(object):
       ren = renderers.GetNextItem()
     self.renWin.Render()
 
-  def plot(self,data1,data2,template,gtype,gname,bg,*args,**kargs):
-    #print "OK VTK RECEIVED:",template,gtype,gname
-    #print "OK VTK BG:",bg
-    #print "OK VTK RECEIVED ARG:",args
-    #print "OK VTK RECEIVED KARG:",kargs
+  def createRenWin(self,*args,**kargs):
     if self.renWin is None:
       # Create the usual rendering stuff.
       self.renWin = vtk.vtkRenderWindow()
       self.renWin.SetWindowName("VCS Canvas")
       self.renWin.SetAlphaBitPlanes(1)
+      ren = vtk.vtkRenderer()
+      r,g,b = self.canvas.backgroundcolor
+      ren.SetBackground(r/255.,g/255.,b/255.)
+      print "BACKGROUND IS SET TO RGB"
+      self.renWin.AddRenderer(ren)
+      return True
+    else:
+      return False
+    
+  def initialSize(self):
+      #screenSize = self.renWin.GetScreenSize()
+      self.renWin.SetSize(814,606)
+
+  def open(self):
+    if self.createRenWin():
+      self.initialSize()
+    self.renWin.Render()
+
+  def close(self):
+    if self.renWin is None:
+      return
+    pass
+
+  def plot(self,data1,data2,template,gtype,gname,bg,*args,**kargs):
+    self.numberOfPlotCalls+=1
+    created = self.createRenWin(**kargs)
     if self.bg is None:
       if bg:
         self.bg= True
@@ -57,16 +79,11 @@ class VTKVCSBackend(object):
         self.renWin.SetSize(814,606)
       else:
         self.bg= False
-        screenSize = self.renWin.GetScreenSize()
-        self.renWin.SetSize(814,606)
+        if created:
+          self.initialSize()
     if kargs.get("renderer",None) is None:
-      if self.ren is None:
         ren = vtk.vtkRenderer()
-        r,g,b = self.canvas.backgroundcolor
-        ren.SetBackground(r/255.,g/255.,b/255.)
-        self.ren = ren
-      else:
-        ren = self.ren
+        ren.SetPreserveDepthBuffer(True)
     else:
       ren = kargs["renderer"]
     self.renWin.AddRenderer(ren)
@@ -90,13 +107,21 @@ class VTKVCSBackend(object):
     if gtype in ["boxfill","meshfill","isofill","isoline"]:
       self.plot2D(data1,data2,tpl,gm,ren)
     elif gtype in ["text"]:
-      vcs2vtk.genTextActor(ren,to=to,tt=tt)
+      if tt.priority!=0:
+        self.setLayer(ren,tt.priority)
+        vcs2vtk.genTextActor(ren,to=to,tt=tt)
     elif gtype=="line":
-      vcs2vtk.prepLine(self.renWin,ren,gm)
+      if gm.priority!=0:
+        self.setLayer(ren,gm.priority)
+        vcs2vtk.prepLine(self.renWin,ren,gm)
     elif gtype=="marker":
-      vcs2vtk.prepMarker(self.renWin,ren,gm)
+      if gm.priority!=0:
+        self.setLayer(ren,gm.priority)
+        vcs2vtk.prepMarker(self.renWin,ren,gm)
     elif gtype=="fillarea":
-      vcs2vtk.prepFillarea(self.renWin,ren,gm)
+      if gm.priority!=0:
+        self.setLayer(ren,gm.priority)
+        vcs2vtk.prepFillarea(self.renWin,ren,gm)
     elif gtype=="oned":
       self.plot1D(data1,data2,tpl,gm,ren)
     else:
@@ -104,7 +129,7 @@ class VTKVCSBackend(object):
     self.renWin.Render()
 
   def plot1D(self,data1,data2,tmpl,gm,ren):
-    gm.list()
+    self.setLayer(ren,tmpl.data.priority)
     Y = data1
     if data2 is None:
       X=Y.getAxis(0)[:]
@@ -162,12 +187,18 @@ class VTKVCSBackend(object):
     t.y=tmpl.legend.y2
     t.string=data1.id
     self.canvas.plot(t,renderer=ren)
-    print "plotting legend",legd.name,legd.worldcoordinate
     self.canvas.plot(legd,renderer=ren)
     legd.list()
   
+  def setLayer(self,renderer,priority):
+    n = self.numberOfPlotCalls + (priority-1)*1000000 
+    nMax = max(self.renWin.GetNumberOfLayers(),n+1)
+    self.renWin.SetNumberOfLayers(nMax)
+    renderer.SetLayer(n)
+    pass
 
   def plot2D(self,data1,data2,tmpl,gm,ren):
+    self.setLayer(ren,tmpl.data.priority)
     continents = False
     wrap = None
     try: #First try to see if we can get a mesh out of this
@@ -375,11 +406,12 @@ class VTKVCSBackend(object):
       y1,y2 = ym,yM
 
     act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
-    ren.AddActor(act)
-    self.renWin.Render()
-    tmp = vcs2vtk.fitToViewport(act,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2])
-    ren.RemoveActor(act)
-    ren.AddActor(tmp)
+    if tmpl.data.priority != 0:
+      ren.AddActor(act)
+      self.renWin.Render()
+      tmp = vcs2vtk.fitToViewport(act,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2])
+      ren.RemoveActor(act)
+      ren.AddActor(tmp)
     
     self.renderTemplate(ren,tmpl,data1,gm)
     if isinstance(gm,(isofill.Gfi,meshfill.Gfm,boxfill.Gfb)):
@@ -396,7 +428,8 @@ class VTKVCSBackend(object):
       contData.SetPoints(gcpts)
       contActor = vcs2vtk.doWrap(contActor,[x1,x2,y1,y2],wrap)
       tmp = vcs2vtk.fitToViewport(contActor,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2])
-      ren.AddActor(tmp)
+      if tmpl.data.priority!=0:
+        ren.AddActor(tmp)
 
   def renderTemplate(self,renderer,tmpl,data,gm):
     tmpl.plot(self.canvas,data,gm,bg=self.bg,renderer=renderer)
