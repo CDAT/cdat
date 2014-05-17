@@ -253,7 +253,7 @@ def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cm
     X,Y = world2Renderer(renderer,x[i],y[i],tt.viewport,tt.worldcoordinate)
     t.SetPosition(X,Y)
     renderer.AddActor(t)
-  return t
+  return 
 
 def prepPrimitive(prim):
   if prim.x is None or prim.y is None:

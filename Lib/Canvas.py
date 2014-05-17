@@ -5775,7 +5775,7 @@ Options:::
         self.animate.close()
         self.animate_info=[]
         self.animate.update_animate_display_list( )
-        self.backend.clear()
+        self.backend.clear(*args,**kargs)
         return 
 
     #############################################################################
@@ -5797,22 +5797,22 @@ Options:::
     a.close()
 
 """
-        global gui_canvas_closed
+        #global gui_canvas_closed
 
-        finish_queued_X_server_requests( self )
-        self.canvas.BLOCK_X_SERVER()
+        #finish_queued_X_server_requests( self )
+        #self.canvas.BLOCK_X_SERVER()
 
         #   Hide the GUI
-        if (self.canvas_gui is not None):
-           self.canvas_gui.dialog.dialog.withdraw() # just withdraw the GUI for later
-           gui_canvas_closed = 0
+        #if (self.canvas_gui is not None):
+        #   self.canvas_gui.dialog.dialog.withdraw() # just withdraw the GUI for later
+        #   gui_canvas_closed = 0
 
         # Close the VCS Canvas
-        a = apply( self.canvas.close, args )
+        a = self.backend.close(*args,**kargs)
 
         # Stop the (thread) execution of the X main loop (if it is running).
-        self.canvas.stopxmainloop( )
-        self.canvas.UNBLOCK_X_SERVER()
+        #self.canvas.stopxmainloop( )
+        #self.canvas.UNBLOCK_X_SERVER()
 
         return a
 
@@ -6496,7 +6496,7 @@ Options:::
     # Open VCS Canvas wrapper for VCS.                                          #
     #                                                                           #
     #############################################################################
-    def open(self, *args):
+    def open(self, *args, **kargs):
         """
  Function: open
 
@@ -6508,12 +6508,13 @@ Options:::
     a=vcs.init()
     a.open()    
 """
-        a = apply(self.canvas.open, args)
+
+        a = self.backend.open(*args,**kargs)
 
         # Make sure xmainloop is started. This is needed to check for X events
         # (such as, Canvas Exposer, button or key press and release, etc.)
-        if ( self.canvas.THREADED() == 0 ):
-          thread.start_new_thread( self.canvas.startxmainloop, ( ) )
+        #if ( self.canvas.THREADED() == 0 ):
+        #  thread.start_new_thread( self.canvas.startxmainloop, ( ) )
 
         return a
 
