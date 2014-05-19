@@ -66,7 +66,7 @@ class VTKVCSBackend(object):
   def close(self):
     if self.renWin is None:
       return
-    pass
+    self.renWin.Finalize()
 
   def plot(self,data1,data2,template,gtype,gname,bg,*args,**kargs):
     self.numberOfPlotCalls+=1
