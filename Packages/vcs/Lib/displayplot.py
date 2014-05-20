@@ -24,6 +24,7 @@
 #
 #
 import VCS_validation_functions
+import vcs
 
 class Dp(object):
     """
@@ -154,13 +155,8 @@ class Dp(object):
     def _setg_type(self,value):
          value = VCS_validation_functions.checkString(self,'g_type',value)
          value=value.lower()
-         gms = []
-         for tp in vcs.elements:
-           d = tp["default"]
-           if hasattr(d,"g_name"):
-             gms.add(tp)
-         if not value in gms:
-              raise ValueError,"g_type must be one of: %s " % gms
+         if not value in vcs.elements and value!="text":
+           raise ValueError,"invalid g_type '%s' must be one of: %s " % (value,vcs.elements.keys())
          self._g_type=value
     g_type = property(_getg_type,_setg_type)
 
@@ -184,14 +180,25 @@ class Dp(object):
         self.s_name='Dp'
         if self._name == "default":
           self._off = 0
-          self.priority=0
+          self._priority=0
           self._template="default"
           self.__template_origin="default"
           self._g_type = "boxfill"
           self._g_name = "default"
           self._array=[]
           self._continents = -1
+        else:
+          src=vcs.elements["display"][Dp_name_src]
+          self.off = src.off
+          self.array = src.array
+          self.template=src.template
+          self._template_origin = src._template_origin
+          self.g_type=src.g_type
+          self.g_name=src.g_name
+          self.continents=src.continents
+          self.priority=src.priority
 
+        vcs.elements["display"][self._name]=self
     #############################################################################
     #                                                                           #
     # List out display plot members (attributes).                               #
