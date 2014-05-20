@@ -34,5 +34,5 @@ bg = False
 #bg = True
 gm.levels = range(-20,135,10)
 x.plot(s,tmpl,gm,bg=bg)
-x.animate.create()
+x.animate.create(thread_it=False)
 raw_input("Press enter")

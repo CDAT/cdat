@@ -179,7 +179,6 @@ for nm,fnt in [
   elif os.path.exists(pthe):
     vcs.elements["font"][nm]=pthe
     vcs.elements["fontNumber"][i]=nm
-print "DID FONTS!!!!!!!",vcs.elements["fontNumber"]
 
 p=projection.Proj("default")
 p = projection.Proj("linear")

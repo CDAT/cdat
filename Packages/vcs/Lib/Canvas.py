@@ -70,7 +70,7 @@ canvas_closed = 0
 #import Pmw
 import vcsaddons
 
-from PyQt4 import QtGui,QtCore
+#from PyQt4 import QtGui,QtCore
 ## class QAnimThread(QtCore.QThread):
 ##     def __init__(self,parent,func,*args):
 ##         QtCore.QThread.__init__(self,parent)
@@ -853,6 +853,9 @@ class Canvas(object,AutoAPI.AutoAPI):
 
         self.colormap = "default"
         self.backgroundcolor = 255,255,255
+        ## default size for bg
+        self.bgX = 814
+        self.bgY = 606
         self.info = AutoAPI.Info(self)
         self.info.expose=["plot", "boxfill", "isofill", "isoline", "outfill", "outline", "scatter", "xvsy", "xyvsy", "yxvsx", "createboxfill", "getboxfill", "createisofill", "getisofill", "createisoline", "getisoline", "createyxvsx", "getyxvsx", "createxyvsy", "getxyvsy", "createxvsy", "getxvsy", "createscatter", "getscatter", "createoutfill", "getoutfill", "createoutline", "getoutline"]
         ospath = os.environ["PATH"]
@@ -958,7 +961,7 @@ class Canvas(object,AutoAPI.AutoAPI):
     # Update wrapper function for VCS.                                          #
     #                                                                           #
     #############################################################################
-    def update(self, *args):
+    def update(self, *args, **kargs):
         """
  Function: update                   # Update the VCS Canvas.
 
@@ -983,8 +986,8 @@ class Canvas(object,AutoAPI.AutoAPI):
     a.update()                             # Update the changes manually
 """
 
-        warnings.warn("Need to reimplement x.update Canvas.py circa 977 ????")
-        return
+        
+        return self.backend.update(*args,**kargs)
 
     #############################################################################
     #                                                                           #
@@ -5637,6 +5640,7 @@ Options:::
                 else:
                     dn = arglist[3].plot(arglist[0],arglist[1],template=arglist[2],bg=bg,x=self,**keyargs)
             else:
+                print "ARGLIST:",arglist[2:]
                 dn = self.backend.plot(*arglist,**keyargs)
             if self.mode!=0 : self.update()
             #if not bg: pause(self.pause_time)
@@ -5655,7 +5659,7 @@ Options:::
             # This is needed to find the animation min and max values and the number of 
             # displays on the VCS Canvas.
             warnings.warn("animate info needed in Canvas.py circa 5646")
-#            self.animate_info.append( (result, arglist[:2]) )
+            self.animate_info.append( (result, arglist[:2]) )
 #            self.animate.update_animate_display_list( )
         else:
             result = dn
@@ -5709,7 +5713,7 @@ Options:::
     #                                                                           #
     #############################################################################
     def return_display_names(self, *args):
-        return apply(self.canvas.return_display_names, args)
+        return self.display_names
 
     #############################################################################
     #                                                                           #
@@ -6195,7 +6199,7 @@ Options:::
     # VCS Canvas Information wrapper.                                           #
     #                                                                           #
     #############################################################################
-    def canvasinfo(self, *args):
+    def canvasinfo(self, *args,**kargs):
         """
  Function: canvasinfo
 
@@ -6208,7 +6212,7 @@ Options:::
     a.canvasinfo()
 
 """
-        return apply(self.canvas.canvasinfo, args)
+        return self.backend.canvasinfo(*args,**kargs)
 
     #############################################################################
     #                                                                           #
@@ -6731,8 +6735,10 @@ Options:::
             tmp = W
             W= H
             H = tmp
-            
-        return apply(self.canvas.setbgoutputdimensions,(W,H))
+        #in pixels?
+        self.bgX = W
+        self.bgY = H
+        return 
     ##########################################################################
     #                                                                        #
     # png wrapper for VCS.                                                   #
@@ -8349,7 +8355,7 @@ Options:::
     # Orientation VCS Canvas orientation wrapper for VCS.                       #
     #                                                                           #
     #############################################################################
-    def orientation(self, *args):
+    def orientation(self, *args, **kargs):
         """
  Function: orientation
 
@@ -8360,7 +8366,7 @@ Options:::
     a=vcs.init()
     a.orientation()      # Return either "landscape" or "portrait"
 """ 
-        return apply(self.canvas.orientation, args)
+        return self.backend.orientation(*args,**kargs)
 
     #############################################################################
     #                                                                           #
@@ -8443,7 +8449,7 @@ def change_date_time(tv, number):
 # Animate wrapper for VCS.                                                  #
 #                                                                           #
 #############################################################################
-class animate_obj_old:
+class animate_obj_old(object):
    """
  Function: animate
 
@@ -8998,13 +9004,13 @@ class animate_obj_old:
 
 class animate_obj(animate_obj_old):
 
-    class AnimationSignals(QtCore.QObject):
-        """Inner class to hold signals since main object is not a QObject
-        """
-        drew = QtCore.pyqtSignal()
-        created = QtCore.pyqtSignal()
-        canceled = QtCore.pyqtSignal()
-        paused = QtCore.pyqtSignal()
+    #class AnimationSignals(QtCore.QObject):
+    #    """Inner class to hold signals since main object is not a QObject
+    #    """
+    #    drew = QtCore.pyqtSignal()
+    #    created = QtCore.pyqtSignal()
+    #    canceled = QtCore.pyqtSignal()
+    #    paused = QtCore.pyqtSignal()
 
     def __init__(self, vcs_self):
         animate_obj_old.__init__(self,vcs_self)
@@ -9012,19 +9018,21 @@ class animate_obj(animate_obj_old):
         self.vertical_factor = 0
         self.horizontal_factor = 0
         self.allArgs = []
-        self.canvas = None
+        self.canvas = vcs_self
         self.animation_seed = None
         self.animation_files = []
-        self.runTimer = QtCore.QTimer() #used to run the animation
-        self.runTimer.timeout.connect(self.next)
-        self.fps(10) #sets runTimer interval
+        #self.runTimer = QtCore.QTimer() #used to run the animation
+        #self.runTimer.timeout.connect(self.next)
+        #self.fps(10) #sets runTimer interval
         self.current_frame = 0
         self.loop = True
-        self.signals = self.AnimationSignals() #holds signals, since we are not a QObject
+        #self.signals = self.AnimationSignals() #holds signals, since we are not a QObject
 
     def create( self, parent=None, min=None, max=None, save_file=None, thread_it = 1, rate=5., bitrate=None, ffmpegoptions='', axis=0):
         self.current_frame = 0
         if thread_it:
+          warnings.warn("Thread not implemented yet, trying to avoid use of Qt")
+          if 0:
             class crp(QtCore.QObject): 
 
                 def __init__(self, anim):
@@ -9286,7 +9294,7 @@ class animate_obj(animate_obj_old):
         if value is not None:
             value = max(value, 0.0001)
             self.frames_per_second = value
-            self.runTimer.setInterval(1000/value)
+            #self.runTimer.setInterval(1000/value)
             return self
         return self.frames_per_second
 
