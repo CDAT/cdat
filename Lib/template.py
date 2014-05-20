@@ -873,6 +873,7 @@ class P(object):
         using the label passed by the graphic  method
         vp and wc are from the actual canvas, they have been reset when they get here...
         """
+        kargs["donotstoredisplay"]=True
         if X is None:
           X=slab.getAxis(-1)
         if Y is None:
@@ -1190,6 +1191,7 @@ class P(object):
         """ This plots the template stuff on the Canvas, it needs a slab and a graphic method
         returns a list containing all the displays used"""
         displays = []
+        kargs["donotstoredisplay"]=True
         # now remembers the viewport and worldcoordinates in order to reset them later
         vp=x.viewport
         wc=x.worldcoordinate
@@ -1333,6 +1335,7 @@ class P(object):
          bg: background mode ?
          returns a list of displays used
          """
+         kargs["donotstoredisplay"]=True
          displays=[]
          #
          # Create legend

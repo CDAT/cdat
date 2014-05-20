@@ -25,20 +25,23 @@ class VTKVCSBackend(object):
     self.debug = debug
     self.bg = bg
     self.type = "vtk"
-    self._plot_keywords = []
+    self._plot_keywords = ['renderer',]
     self.numberOfPlotCalls = 0 
 
   def clear(self):
     if self.renWin is None:
+      print "NO RENWIN!!!"
       return
     renderers = self.renWin.GetRenderers()
     ren = renderers.GetFirstRenderer()
     while ren is not None:
+      print "REN:",ren
       ren.RemoveAllViewProps()
       ren.Render()
       self.renWin.RemoveRenderer(ren)
       ren = renderers.GetNextItem()
     self.renWin.Render()
+    raw_input("Cleared in VTK!!!!")
 
   def createRenWin(self,*args,**kargs):
     if self.renWin is None:
@@ -67,10 +70,16 @@ class VTKVCSBackend(object):
       x=0
       y=0
     else:
-      mapstate = self.renWin.GetWindowCreated()
+      try: #mac but not linux
+        mapstate = self.renWin.GetWindowCreated()
+      except:
+        mapstate = True
       width, height = self.renWin.GetSize()
       depth=self.renWin.GetDepthBufferSize()
-      x,y = self.renWin.GetPosition()
+      try: #mac not linux
+        x,y = self.renWin.GetPosition()
+      except:
+        x,y = 0,0
     info = {
         "mapstate":mapstate,
         "height":height,
@@ -105,6 +114,7 @@ class VTKVCSBackend(object):
     self.renWin.Finalize()
 
   def plot(self,data1,data2,template,gtype,gname,bg,*args,**kargs):
+    kargs["donotstoredisplay"]=True
     self.numberOfPlotCalls+=1
     created = self.createRenWin(**kargs)
     if self.bg is None:
@@ -205,8 +215,8 @@ class VTKVCSBackend(object):
     m.viewport=l.viewport
     m.worldcoordinate = l.worldcoordinate
 
-    self.canvas.plot(l,renderer=ren)
-    self.canvas.plot(m,renderer=ren)
+    self.canvas.plot(l,renderer=ren,donotstoredisplay=True)
+    self.canvas.plot(m,renderer=ren,donotstoredisplay=True)
     tmpl.plot(self.canvas,data1,gm,bg=self.bg,renderer=ren,X=X,Y=Y)
     
     legd = self.canvas.createline()
@@ -221,8 +231,8 @@ class VTKVCSBackend(object):
     t.x=tmpl.legend.x2
     t.y=tmpl.legend.y2
     t.string=data1.id
-    self.canvas.plot(t,renderer=ren)
-    self.canvas.plot(legd,renderer=ren)
+    self.canvas.plot(t,renderer=ren,donotstoredisplay=True)
+    self.canvas.plot(legd,renderer=ren,donotstoredisplay=True)
     legd.list()
   
   def setLayer(self,renderer,priority):

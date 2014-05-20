@@ -127,6 +127,7 @@ elements = { "boxfill" : {},
              "colormap":{},
              "font":{},
              "fontNumber":{},
+             "display":{},
              }
 
 dic  = {}
@@ -208,6 +209,7 @@ vector.Gv("default")
 marker.Tm("default")
 meshfill.Gfm("default")
 colormap.Cp("default")
+displayplot.Dp("default")
 
 for nm in ["mercator","orthographic","lambert","polar","polyconic","robinson",
     "mollweide",]:

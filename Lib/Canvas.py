@@ -70,19 +70,29 @@ canvas_closed = 0
 #import Pmw
 import vcsaddons
 
-#from PyQt4 import QtGui,QtCore
-## class QAnimThread(QtCore.QThread):
-##     def __init__(self,parent,func,*args):
-##         QtCore.QThread.__init__(self,parent)
-##         self.func=func
-##         self.args=args
-##     def run(self):
-##         self.func(*self.args)
+try:
+  from PyQt4 import QtGui,QtCore
+  hasPyQt = True
+  cl_parent = QtCore.QThread
+except:
+  hasPyQt = False
+  cl_parent = object
+class QAnimThread(cl_parent):
+    def __init__(self,parent,func,*args):
+      if hasPyQt:
+        QtCore.QThread.__init__(self,parent)
+      self.func=func
+      self.args=args
+    def run(self):
+        self.func(*self.args)
         
 def showerror(msg):
+  if hasPyQt:
     d=QtGui.QErrorMessage()
     d.showMessage(msg)
     d.exec_()
+  else:
+    raise Exception,msg
 
 def dictionarytovcslist(dictionary,name):
     for k in dictionary.keys():
@@ -856,6 +866,8 @@ class Canvas(object,AutoAPI.AutoAPI):
         ## default size for bg
         self.bgX = 814
         self.bgY = 606
+        ## displays plotted
+        self.display_names = []
         self.info = AutoAPI.Info(self)
         self.info.expose=["plot", "boxfill", "isofill", "isoline", "outfill", "outline", "scatter", "xvsy", "xyvsy", "yxvsx", "createboxfill", "getboxfill", "createisofill", "getisofill", "createisoline", "getisoline", "createyxvsx", "getyxvsx", "createxyvsy", "getxyvsy", "createxvsy", "getxvsy", "createscatter", "getscatter", "createoutfill", "getoutfill", "createoutline", "getoutline"]
         ospath = os.environ["PATH"]
@@ -916,6 +928,7 @@ class Canvas(object,AutoAPI.AutoAPI):
         self.size = psize
 
         self.mode = mode
+        self._animate_info=[]
         self.pause_time = pause_time
         self._canvas = vcs
         self.viewport =[0,1,0,1]
@@ -950,7 +963,6 @@ class Canvas(object,AutoAPI.AutoAPI):
            #warnings.warn("Please reimplement reading of initial_attirubtes in Canvas.py circa line 7345")
            self._scriptrun( os.path.join(os.environ['HOME'], self._dotdir, 'initial.attributes'))
 	called_initial_attributes_flg = 1
-        self.animate_info=[]
         self.canvas_template_editor=None
         self.ratio=0
         self._user_actions_names=['Clear Canvas','Close Canvas','Show arguments passsed to user action']
@@ -1260,30 +1272,30 @@ class Canvas(object,AutoAPI.AutoAPI):
                         
         return
     
-    def check_name_source(self,name,source,type):
-        elts = self.listelements(type)
+    def check_name_source(self,name,source,typ):
+        elts = self.listelements(typ)
         if name is None:
-            rnd = random.randint(0,100000)
-            name = '__%s_%i' % (type[:4],rnd)
+            rnd = random.randint(0,1000000000000000)
+            name = '__%s_%i' % (typ,rnd)
             while name in elts:
-                rnd = random.randint(0,100000)
-                name = '__%s_%i' % (type[:4],rnd)
+                rnd = random.randint(0,1000000000000000)
+                name = '__%s_%i' % (typ,rnd)
         if not isinstance(name,str):
-            raise vcsError, '%s object name must be a string or %s name' % (type,type)
+            raise vcsError, '%s object name must be a string or %s name' % (typ,typ)
 
         if not isinstance(source,str):
-            exec("ok = vcs.is%s(source)" % (type,))
+            exec("ok = vcs.is%s(source)" % (typ,))
         else:
             ok=0
         if (not isinstance(source,str)) and ok==0:
-            raise vcsError,'Error %s object source must be a string or a %s object' % (type,type)
+            raise vcsError,'Error %s object source must be a string or a %s object' % (typ,typ)
         elif ok:
             source=source.name
 
         if name in elts:
-            raise vcsError, "Error %s object named %s already exists" % (type,name)
-        if not source in elts:
-            raise vcsError, "Error source %s object (%s) does not exist!" % (type,name)
+            raise vcsError, "Error %s object named %s already exists" % (typ,name)
+        if not source in elts and typ!="display":
+            raise vcsError, "Error source %s object (%s) does not exist!" % (typ,name)
         return name,source
     
     #############################################################################
@@ -4379,15 +4391,15 @@ Example of use:
                        'xbounds','ybounds','xname','yname','xunits','yunits','xweights','yweights',
                        'comment1','comment2','comment3','comment4','hms','long_name','zaxis',
                        'zarray','zname','zunits','taxis','tarray','tname','tunits','waxis','warray',
-                       'wname','wunits','bg','ratio']
+                       'wname','wunits','bg','ratio','donotstoredisplay']
 
 
 
-    def replot(self):
-        """ Clears and plots with last used plot arguments
-        """
-        self.clear()
-        self.plot(*self.__last_plot_actual_args, **self.__last_plot_keyargs)
+    #def replot(self):
+    #    """ Clears and plots with last used plot arguments
+    #    """
+    #    self.clear()
+    #    self.plot(*self.__last_plot_actual_args, **self.__last_plot_keyargs)
 
     ###########################################################################
     #                                                                         #
@@ -4527,28 +4539,28 @@ Options:::
         except:
             sal = 1
 
-        try:
-            if (self.canvas_gui.top_parent.menu.vcs_canvas_gui_settings_flg == 1): # Must be from VCDAT
-               self.canvas_gui.dialog.dialog.configure( title = ("Visualization and Control System (VCS) GUI"))
-        except: 
-            # Connect the VCS Canvas to the GUI
-            if (self.canvas_gui is not None) and (sal == 1):
-               #####################################################################################################
-               # Charles and Dean - This command will only allow one plot on a page for the VCS Canvas GUI.        #
-               # It is committed out so that there can be two or more plots on a page. Must keep a watch to see    #
-               # what other problems occur without this command. See vcsmodule.c: PyVCS_connect_gui_and_canvas.    #
-               #                                                                                                   #
-               # self._connect_gui_and_canvas( self.winfo_id )                                                     #
-               #####################################################################################################
-               self.canvas_gui.dialog.dialog.configure( title = ("%i. Visualization and Control System (VCS)" % self.canvasid()))
+    #    try:
+    #        if (self.canvas_gui.top_parent.menu.vcs_canvas_gui_settings_flg == 1): # Must be from VCDAT
+    #           self.canvas_gui.dialog.dialog.configure( title = ("Visualization and Control System (VCS) GUI"))
+    #    except: 
+    #        # Connect the VCS Canvas to the GUI
+    #        if (self.canvas_gui is not None) and (sal == 1):
+    #           #####################################################################################################
+    #           # Charles and Dean - This command will only allow one plot on a page for the VCS Canvas GUI.        #
+    #           # It is committed out so that there can be two or more plots on a page. Must keep a watch to see    #
+    #           # what other problems occur without this command. See vcsmodule.c: PyVCS_connect_gui_and_canvas.    #
+    #           #                                                                                                   #
+    #           # self._connect_gui_and_canvas( self.winfo_id )                                                     #
+    #           #####################################################################################################
+    #           self.canvas_gui.dialog.dialog.configure( title = ("%i. Visualization and Control System (VCS)" % self.canvasid()))
 
         # Plot the data
         a = self.__plot( arglist, keyargs )
 
         # Continuation to remove arglist from duplicating its contents
-        if (sal == 0): arglist = []
+        #if (sal == 0): arglist = []
 
-        for x in arglist: self.varglist.append( x ) # save the plot argument list
+        #for x in arglist: self.varglist.append( x ) # save the plot argument list
 
 #        if self.canvas_gui is not None:
 #            self.canvas_gui.dialog.dialog.deiconify()
@@ -5640,8 +5652,19 @@ Options:::
                 else:
                     dn = arglist[3].plot(arglist[0],arglist[1],template=arglist[2],bg=bg,x=self,**keyargs)
             else:
-                print "ARGLIST:",arglist[2:]
-                dn = self.backend.plot(*arglist,**keyargs)
+                self.backend.plot(*arglist,**keyargs)
+                if not keyargs.get("donotstoredisplay",False):
+                  nm,src = self.check_name_source(None,"default","display")
+                  dn = displayplot.Dp(nm)
+                  dn.template = arglist[2]
+                  dn.g_type = arglist[3]
+                  dn.g_name = arglist[4]
+                  dn.array = arglist[:2]
+                else:
+                  dn = None
+        
+            if dn is not None:
+              dn._template_origin = template_origin
             if self.mode!=0 : self.update()
             #if not bg: pause(self.pause_time)
 
@@ -5650,19 +5673,17 @@ Options:::
 ##             self.plot_filledcontinents(arglist[0],arglist[2],arglist[3],arglist[4],bg,doratio)
 
 
+        result = dn
         if isinstance(arglist[3],str):
             warnings.warn("please restore getplot functionality in Canvas.py circa 5640")
-            result = dn
 #            result = self.getplot(dn, template_origin)
             #self.canvas.setcontinentstype(hold_cont_type)
             # Pointer to the plotted slab of data and the VCS Canas display infomation. 
             # This is needed to find the animation min and max values and the number of 
             # displays on the VCS Canvas.
-            warnings.warn("animate info needed in Canvas.py circa 5646")
-            self.animate_info.append( (result, arglist[:2]) )
+            if dn is not None:
+              self.animate_info.append( (result, arglist[:2]) )
 #            self.animate.update_animate_display_list( )
-        else:
-            result = dn
             
 
         # Make sure xmainloop is started. This is needed to check for X events
@@ -5697,6 +5718,8 @@ Options:::
                 delattr(arglist[0],p)
             else:
                 setattr(arglist[0],p,tmp)
+        if dn is not None:
+          self.display_names.append(result.name)
         return result
 
     #############################################################################
@@ -5780,6 +5803,9 @@ Options:::
         self.animate_info=[]
         self.animate.update_animate_display_list( )
         self.backend.clear(*args,**kargs)
+        for nm in self.display_names:
+          del(vcs.elements["display"][nm])
+        self.display_names=[]
         return 
 
     #############################################################################
@@ -6676,7 +6702,7 @@ Options:::
         if rate is not None:
             cmd+=' -r %s ' % rate
         if isinstance(files,(list,tuple)):
-            rnd = "%s/.uvcdat/__uvcdat_%i" % (os.environ["HOME"],numpy.random.randint(60000))
+            rnd = "%s/.uvcdat/__uvcdat_%i" % (os.environ["HOME"],numpy.random.randint(600000000))
             Files = []
             for i,f in enumerate(files):
                 fnm = "%s_%i.png" % (rnd,i)
@@ -7060,7 +7086,7 @@ Options:::
         if mode=='r':
             return apply(self.canvas.postscript,(file,W,H,R,L,T,B))
         else:
-            n=random.randint(0,100000)
+            n=random.randint(0,10000000000000)
             psnm='/tmp/'+'__VCS__tmp__'+str(n)+'.ps'
             apply(self.canvas.postscript,(psnm,W,H,R,L,T,B))
             if os.path.exists(file):
@@ -7140,7 +7166,7 @@ Options:::
     a.pdf(file='example',options='-dCompressPages=false')  # Creates a pdf file w/o compressing page, can be any option understood by ps2pdf
 """ % (self._dotdir)
 
-        n=random.randint(0,100000)
+        n=random.randint(0,100000000000)
         if file[-3:].lower()!='pdf':
             file+='.pdf'
         psnm='/tmp/'+'__VCS__tmp__'+str(n)+'.ps'
@@ -7910,7 +7936,7 @@ Options:::
         ext = file.split(".")[-1]
         if ext.lower()!='eps':
             file=file+'.eps'
-        num = numpy.random.randint(10000000)
+        num = numpy.random.randint(100000000000)
         tmpfile = "/tmp/vcs_tmp_eps_file_%i.ps" % num
         if mode=='a' and os.path.exists(file):
             os.rename(file,tmpfile)
@@ -8572,10 +8598,8 @@ class animate_obj_old(object):
       if save_file is None or save_file.split('.')[-1].lower()=='ras':
           if thread_it == 1:
               thread.start_new_thread( self.vcs_self.canvas.animate_init, (save_file,) )
-              ## from cdatguiwrap import VCSQtManager
-              ## w = VCSQtManager.window(0)
-              #self.mythread=QAnimThread(None,self.vcs_self.canvas.animate_init,save_file)
-              #self.mythread.start()
+              self.mythread=QAnimThread(None,self.vcs_self.canvas.animate_init,save_file)
+              self.mythread.start()
           else:
               self.vcs_self.canvas.animate_init( save_file )
       else: # ffmpeg stuff
@@ -9027,35 +9051,40 @@ class animate_obj(animate_obj_old):
         self.current_frame = 0
         self.loop = True
         #self.signals = self.AnimationSignals() #holds signals, since we are not a QObject
+        print "OK VCS SELF IS:",vcs_self,self.vcs_self
+        print "ANIMATE INOF IS:",self.vcs_self.animate_info
+
 
     def create( self, parent=None, min=None, max=None, save_file=None, thread_it = 1, rate=5., bitrate=None, ffmpegoptions='', axis=0):
         self.current_frame = 0
         if thread_it:
-          warnings.warn("Thread not implemented yet, trying to avoid use of Qt")
-          if 0:
-            class crp(QtCore.QObject): 
+            class crp(cl_parent): 
 
                 def __init__(self, anim):
+                  if hasPyQt:
                     QtCore.QObject.__init__(self)
-                    self.animationTimer = QtCore.QBasicTimer()
-                    self.animationFrame = 0
-                    self.anim = anim
                     self.dialog = QtGui.QProgressDialog("Creating animation...", "Cancel", 0, 0)
                     self.dialog.setModal(True)
-                    self.dialog.canceled.connect(self.dailogCanceled)
+                    self.dialog.canceled.connect(self.dialogCanceled)
+                    self.animationTimer = QtCore.QBasicTimer()
+                  self.animationFrame = 0
+                  self.anim = anim
                     
                 def timerEvent(self, event):
+                  if hasPyQt:
                     self.dialog.setValue(self.animationFrame)
-                    if self.animationFrame>=len(self.anim.allArgs):
+                  if self.animationFrame>=len(self.anim.allArgs):
+                    if hasPyQt:
                         self.animationTimer.stop()
-                        self.anim.animationCreated()
-                        return
-                    self.anim.renderFrame(self.animationFrame)
-                    self.animationFrame += 1
+                    self.anim.animationCreated()
+                    return
+                  self.anim.renderFrame(self.animationFrame)
+                  self.animationFrame += 1
 
-                def dailogCanceled(self):
+                def dialogCanceled(self):
+                  if hasPyQt:
                     self.animationTimer.stop()
-                    self.anim.animationCanceled()
+                  self.anim.animationCanceled()
 
             global C
             C=crp(self)
@@ -9069,7 +9098,7 @@ class animate_obj(animate_obj_old):
         alen = None
         if self.canvas is None:  
             self.canvas=vcs.init()
-        self.canvas.clear()
+        #self.canvas.clear()
         dims = self.vcs_self.canvasinfo()
         if dims['height']<500:
             factor = 2
@@ -9079,7 +9108,9 @@ class animate_obj(animate_obj_old):
             self.canvas.portrait(width=dims["width"],height=dims["height"])
         self.canvas.setbgoutputdimensions(width = dims['width']*factor,height=dims['height']*factor,units='pixel')
         truncated = False
-        for I in self.vcs_self.animate_info:
+        vcs_ai = list(self.vcs_self.animate_info)
+        self.vcs_self.clear()
+        for I in vcs_ai:
             if alen is None:
                 alen = I[1][0].shape[axis]
             else:
@@ -9143,7 +9174,7 @@ class animate_obj(animate_obj_old):
         for i in range(alen):
             #y.clear()
             frameArgs = []
-            for I in self.vcs_self.animate_info:
+            for I in vcs_ai:
                 d=I[0]
                 kw={}
                 n = len(I[1][0].shape)
@@ -9196,21 +9227,23 @@ class animate_obj(animate_obj_old):
 
     def renderFrame(self, i):
         if self.animation_seed is None:
-            self.animation_seed = numpy.random.randint(10000000)
+            self.animation_seed = numpy.random.randint(10000000000)
         frameArgs = self.allArgs[i]
         fn = os.path.join(os.environ["HOME"],".uvcdat","__uvcdat_%i_%i.png" % (self.animation_seed,i))
         self.animation_files.append(fn)
 
         #BB: this clearing and replotting somehow fixes vcs internal state
         # and prevents segfaults when running multiple animations
-        self.vcs_self.replot()
+        #self.vcs_self.replot()
 
 
 
-        self.canvas.clear()
-        self.vcs_self.plot(*frameArgs[0],bg=1)
+        #self.canvas.clear()
+        #self.vcs_self.plot(*frameArgs[0],bg=1)
         self.vcs_self.clear()
+        print "REplotting ???",frameArgs
         for args in frameArgs:
+            print "Frame args:",args
             self.canvas.plot(*args, bg=1)
         self.canvas.png(fn,draw_white_background=1)
         #self.canvas.png("sample")
