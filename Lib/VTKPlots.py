@@ -53,10 +53,46 @@ class VTKVCSBackend(object):
       return True
     else:
       return False
-    
+
+  def update(self, *args, **kargs):
+    if self.renWin is not None:
+      self.renWin.Render()
+
+  def canvasinfo(self):
+    if self.renWin is None:
+      mapstate = False
+      height = self.canvas.bgX
+      width = self.canvas.bgY
+      depth = None
+      x=0
+      y=0
+    else:
+      mapstate = self.renWin.GetWindowCreated()
+      width, height = self.renWin.GetSize()
+      depth=self.renWin.GetDepthBufferSize()
+      x,y = self.renWin.GetPosition()
+    info = {
+        "mapstate":mapstate,
+        "height":height,
+        "width":width,
+        "depth":depth,
+        "x":x,
+        "y":y,
+        }
+    return info
+
+  def orientation(self,*args,**kargs):
+    if self.renWin is None:
+      return "landscape"
+    w,h = self.renWin.GetSize()
+    if w>h:
+      return "landscape"
+    else:
+      return "portrait"
+
   def initialSize(self):
       #screenSize = self.renWin.GetScreenSize()
-      self.renWin.SetSize(814,606)
+      self.renWin.SetSize(self.canvas.bgX,self.canvas.bgY)
 
   def open(self):
     if self.createRenWin():
@@ -75,7 +111,7 @@ class VTKVCSBackend(object):
       if bg:
         self.bg= True
         self.renWin.SetOffScreenRendering(True)
-        self.renWin.SetSize(814,606)
+        self.renWin.SetSize(self.canvas.bgX,self.canvas.bgY)
       else:
         self.bg= False
         if created:
