@@ -24,7 +24,7 @@ if interact:
   x.backend.renWin = renWin
 x.setcolormap("rainbow")
 gm=x.createisoline()
-#gm=x.createboxfill()
+gm=x.createboxfill()
 #gm=x.createisofill()
 gm.datawc_x1=0
 gm.datawc_x2=40

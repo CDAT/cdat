@@ -11,7 +11,7 @@ if interact:
   i.SetRenderWindow(renWin)
   i.Initialize()
 f=cdms2.open(os.path.join(sys.prefix,'sample_data','clt.nc'))
-s=f("clt")
+s=f("clt")[:3]
 #f=cdms2.open(os.path.join(sys.prefix,"sample_data","sampleCurveGrid4.nc"))
 #s=f("sample")
 x=vcs.init()
@@ -35,4 +35,5 @@ bg = False
 gm.levels = range(-20,135,10)
 x.plot(s,tmpl,gm,bg=bg)
 x.animate.create(thread_it=False)
+x.animate.run()
 raw_input("Press enter")

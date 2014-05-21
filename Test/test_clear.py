@@ -10,5 +10,6 @@ x=vcs.init()
 bg = False
 #bg = True
 x.plot(s,bg=bg)
+raw_input("Press enter")
 x.clear()
 raw_input("Press enter")
