@@ -388,6 +388,27 @@ def prepMarker(renWin,ren,marker,cmap=None):
         gs.SetRotationAngle(-90)
       elif t[9]=="u":
         gs.SetRotationAngle(0)
+    elif t == "hurricane":
+      print "WE ARE HERE"
+      pts = vtk.vtkPoints()
+      pts.InsertNextPoint(0,0,0)
+      pts.InsertNextPoint(1,0,0)
+      pts.InsertNextPoint(0.5,1,0)
+      #polygon = vtk.vtkPolygon()
+      polygons = vtk.vtkCellArray()
+      line = vtk.vtkPolyLine()
+      #pid = polygon.GetPointIds()
+      pid = line.GetPointIds()
+      pid.SetNumberOfIds(3)
+      for j in range(3):
+        pid.SetId(j,j)
+      #polygons.InsertNextCell(polygon)
+      polygons.InsertNextCell(line)
+      pd = vtk.vtkPolyData()
+      pd.SetPoints(pts)
+      pd.SetLines(polygons)
+      #pd.SetPolys(polygons)
+      g.SetSourceData(pd)
     else:
       warnings.warn("unknown marker type: %s, using dot" % t)
       gs.SetGlyphTypeToCircle()
@@ -397,7 +418,7 @@ def prepMarker(renWin,ren,marker,cmap=None):
     gs.SetScale(s/100.)
 
 
-    g.SetSourceConnection(gs.GetOutputPort())
+    #g.SetSourceConnection(gs.GetOutputPort())
     g.SetInputData(markers)
 
     a = vtk.vtkActor()

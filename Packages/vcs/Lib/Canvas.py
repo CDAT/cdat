@@ -43,6 +43,7 @@ import unified1D
 import displayplot
 import vtk
 from VTKPlots import VTKVCSBackend
+import time
 
 #import animationgui as _animationgui
 #import graphicsmethodgui as _graphicsmethodgui
@@ -71,7 +72,7 @@ canvas_closed = 0
 import vcsaddons
 
 try:
-  from PyQt4 import QtGui,QtCore
+  from PyQt44 import QtGui,QtCore
   hasPyQt = True
   cl_parent = QtCore.QThread
 except:
@@ -6765,6 +6766,10 @@ Options:::
         self.bgX = W
         self.bgY = H
         return 
+    # display ping
+    def put_png_on_canvas(self,filename,zoom=1,xOffset=0,yOffset=0,*args,**kargs):
+      self.backend.put_png_on_canvas(filename,zoom,xOffset,yOffset,*args,**kargs)
+
     ##########################################################################
     #                                                                        #
     # png wrapper for VCS.                                                   #
@@ -9026,15 +9031,16 @@ class animate_obj_old(object):
          a = _animationgui.create(self, gui_parent, transient)
          return a
 
-class animate_obj(animate_obj_old):
+if hasPyQt:
+  class AnimationSignals(QtCore.QObject):
+      """Inner class to hold signals since main object is not a QObject
+      """
+      drew = QtCore.pyqtSignal()
+      created = QtCore.pyqtSignal()
+      canceled = QtCore.pyqtSignal()
+      paused = QtCore.pyqtSignal()
 
-    #class AnimationSignals(QtCore.QObject):
-    #    """Inner class to hold signals since main object is not a QObject
-    #    """
-    #    drew = QtCore.pyqtSignal()
-    #    created = QtCore.pyqtSignal()
-    #    canceled = QtCore.pyqtSignal()
-    #    paused = QtCore.pyqtSignal()
+class animate_obj(animate_obj_old):
 
     def __init__(self, vcs_self):
         animate_obj_old.__init__(self,vcs_self)
@@ -9042,20 +9048,34 @@ class animate_obj(animate_obj_old):
         self.vertical_factor = 0
         self.horizontal_factor = 0
         self.allArgs = []
-        self.canvas = vcs_self
+        self.canvas = None
         self.animation_seed = None
         self.animation_files = []
-        #self.runTimer = QtCore.QTimer() #used to run the animation
-        #self.runTimer.timeout.connect(self.next)
-        #self.fps(10) #sets runTimer interval
+        if hasPyQt:
+          self.runTimer = QtCore.QTimer() #used to run the animation
+          self.runTimer.timeout.connect(self.next)
+          self.fps(10) #sets runTimer interval
+          self.signals = AnimationSignals() #holds signals, since we are not a QObject
+        else:
+          class RT:
+            def __init__(self,nextFunc):
+              self.next = nextFunc
+              self.running = True
+            def start(self):
+              self.runnnig= True
+              while self.running:
+                self.next()
+                time.sleep(1)
+            def stop(self):
+              self.running = False
+          self.runTimer = RT(self.next)
         self.current_frame = 0
         self.loop = True
-        #self.signals = self.AnimationSignals() #holds signals, since we are not a QObject
-        print "OK VCS SELF IS:",vcs_self,self.vcs_self
-        print "ANIMATE INOF IS:",self.vcs_self.animate_info
 
 
     def create( self, parent=None, min=None, max=None, save_file=None, thread_it = 1, rate=5., bitrate=None, ffmpegoptions='', axis=0):
+        if self.canvas is None:
+          self.canvas = vcs.init()
         self.current_frame = 0
         if thread_it:
             class crp(cl_parent): 
@@ -9096,9 +9116,6 @@ class animate_obj(animate_obj_old):
 
     def _actualCreate( self, parent=None, min=None, max=None, save_file=None, rate=5., bitrate=None, ffmpegoptions='', axis=0, sender=None):
         alen = None
-        if self.canvas is None:  
-            self.canvas=vcs.init()
-        #self.canvas.clear()
         dims = self.vcs_self.canvasinfo()
         if dims['height']<500:
             factor = 2
@@ -9207,7 +9224,6 @@ class animate_obj(animate_obj_old):
             for i in xrange(len(self.allArgs)):
                 self.renderFrame(i)
             self.restore_min_max()
-            self.canvas = None
             self.animationCreated()
         else:
             sender.animationTimer.start(0, sender)
@@ -9217,13 +9233,14 @@ class animate_obj(animate_obj_old):
     def animationCreated(self):
         self.create_flg = 1
         self.restore_min_max()
-        self.canvas = None
-        self.signals.created.emit()
+        if hasPyQt:
+          self.signals.created.emit()
 
     def animationCanceled(self):
         self.create_flg = 0
         self.restore_min_max()
-        self.signals.canceled.emit()
+        if hasPyQt:
+          self.signals.canceled.emit()
 
     def renderFrame(self, i):
         if self.animation_seed is None:
@@ -9240,10 +9257,9 @@ class animate_obj(animate_obj_old):
 
         #self.canvas.clear()
         #self.vcs_self.plot(*frameArgs[0],bg=1)
-        self.vcs_self.clear()
-        print "REplotting ???",frameArgs
+        self.canvas.clear()
         for args in frameArgs:
-            print "Frame args:",args
+            print "BG IS 1 !!!!!!!!"
             self.canvas.plot(*args, bg=1)
         self.canvas.png(fn,draw_white_background=1)
         #self.canvas.png("sample")
@@ -9276,6 +9292,7 @@ class animate_obj(animate_obj_old):
             self.first_run = False
 
     def run(self,*args):
+        self.vcs_self.open()
         if self.create_flg == 1 and self.run_flg == 0:
             self.first_run = True
             self.run_flg = 1
@@ -9284,14 +9301,16 @@ class animate_obj(animate_obj_old):
     def pause_run(self):
         self.run_flg = 0
         self.runTimer.stop()
-        self.signals.paused.emit()
+        if hasPyQt:
+          self.signals.paused.emit()
 
     def draw(self, frame):
         if self.create_flg == 1:
             self.current_frame = frame
-            self.vcs_self.canvas.put_png_on_canvas(self.animation_files[frame],
+            self.vcs_self.put_png_on_canvas(self.animation_files[frame],
                     self.zoom_factor, self.vertical_factor, self.horizontal_factor)
-            self.signals.drew.emit()
+            if hasPyQt:
+              self.signals.drew.emit()
         
     def frame(self, frame):
         self.draw(frame)

@@ -30,18 +30,16 @@ class VTKVCSBackend(object):
 
   def clear(self):
     if self.renWin is None:
-      print "NO RENWIN!!!"
       return
     renderers = self.renWin.GetRenderers()
-    ren = renderers.GetFirstRenderer()
+    renderers.InitTraversal()
+    ren = renderers.GetNextItem()
     while ren is not None:
-      print "REN:",ren
       ren.RemoveAllViewProps()
       ren.Render()
       self.renWin.RemoveRenderer(ren)
       ren = renderers.GetNextItem()
     self.renWin.Render()
-    raw_input("Cleared in VTK!!!!")
 
   def createRenWin(self,*args,**kargs):
     if self.renWin is None:
@@ -119,13 +117,16 @@ class VTKVCSBackend(object):
     created = self.createRenWin(**kargs)
     if self.bg is None:
       if bg:
+        print "Doing bg!"
         self.bg= True
-        self.renWin.SetOffScreenRendering(True)
-        self.renWin.SetSize(self.canvas.bgX,self.canvas.bgY)
       else:
         self.bg= False
         if created:
           self.initialSize()
+    if bg:
+        self.renWin.SetOffScreenRendering(True)
+        self.renWin.SetSize(self.canvas.bgX,self.canvas.bgY)
+    self.renWin.Render()
     if kargs.get("renderer",None) is None:
         ren = vtk.vtkRenderer()
         ren.SetPreserveDepthBuffer(True)
@@ -452,6 +453,7 @@ class VTKVCSBackend(object):
 
     act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
     if tmpl.data.priority != 0:
+      #act.SetVisibility(False)
       ren.AddActor(act)
       self.renWin.Render()
       tmp = vcs2vtk.fitToViewport(act,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2])
@@ -514,6 +516,29 @@ class VTKVCSBackend(object):
         for i in range(numpy.rank(data)-2):
           op.append(slice(0,1))
         return data[op]
+
+  def put_png_on_canvas(self,filename,zoom=1,xOffset=0,yOffset=0,*args,**kargs):
+      return self.put_img_on_canvas(filename,zoom,xOffset,yOffset,*args,**kargs)
+  def put_img_on_canvas(self,filename,zoom=1,xOffset=0,yOffset=0,*args,**kargs):
+    readerFactory = vtk.vtkImageReader2Factory()
+    reader = readerFactory.CreateImageReader2(filename)
+    reader.SetFileName(filename)
+    reader.Update()
+    a = vtk.vtkImageActor()
+    a.GetMapper().SetInputConnection(reader.GetOutputPort())
+    ren = vtk.vtkRenderer()
+    ren.SetBackground(1,1,1)
+    
+    self.renWin.AddRenderer(ren)
+    ren.AddActor(a)
+    #self.renWin.SetOffScreenRendering(True)
+    self.renWin.Render()
+    #self.renWin.SetOffScreenRendering(False)
+    tmp = vcs2vtk.fitToViewport(a,ren,[0,1,0,1])
+    ren.RemoveActor(a)
+    ren.AddActor(tmp)
+    self.renWin.Render()
+    return
 
   def png(self, file, width=None,height=None,units=None,draw_white_background = 0):
         
