@@ -359,6 +359,7 @@ def prepMarker(renWin,ren,marker,cmap=None):
     ## Ok at this point generates the source for glpyh
     ### TODO Need to add custom glyphs from vcs ones
     gs = vtk.vtkGlyphSource2D()
+    pd = None
     if t=='dot':
       gs.SetGlyphTypeToCircle()
       gs.FilledOn()
@@ -389,18 +390,18 @@ def prepMarker(renWin,ren,marker,cmap=None):
       elif t[9]=="u":
         gs.SetRotationAngle(0)
     elif t == "hurricane":
-      print "WE ARE HERE"
       pts = vtk.vtkPoints()
       pts.InsertNextPoint(0,0,0)
       pts.InsertNextPoint(1,0,0)
       pts.InsertNextPoint(0.5,1,0)
+      pts.InsertNextPoint(0,0,0)
       #polygon = vtk.vtkPolygon()
       polygons = vtk.vtkCellArray()
       line = vtk.vtkPolyLine()
       #pid = polygon.GetPointIds()
       pid = line.GetPointIds()
-      pid.SetNumberOfIds(3)
-      for j in range(3):
+      pid.SetNumberOfIds(4)
+      for j in range(4):
         pid.SetId(j,j)
       #polygons.InsertNextCell(polygon)
       polygons.InsertNextCell(line)
@@ -418,8 +419,10 @@ def prepMarker(renWin,ren,marker,cmap=None):
     gs.SetScale(s/100.)
 
 
-    #g.SetSourceConnection(gs.GetOutputPort())
-    g.SetInputData(markers)
+    if pd is None:
+      g.SetSourceConnection(gs.GetOutputPort())
+    else:
+      g.SetInputData(markers)
 
     a = vtk.vtkActor()
     m = vtk.vtkPolyDataMapper()
