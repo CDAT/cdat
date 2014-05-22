@@ -1,3 +1,4 @@
+import animate_helper
 import warnings
 import vtk
 import vcs
@@ -591,5 +592,8 @@ class VTKVCSBackend(object):
           writer.SetInputData(m.GetInput())
           writer.Write()
           a=A.GetNextActor()
+  def Animate(self,*args,**kargs):
+    return VTKAnimate(*args,**kargs)
 
-
+class VTKAnimate(animate_helper.animate_obj):
+  pass

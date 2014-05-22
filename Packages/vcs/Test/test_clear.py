@@ -1,4 +1,5 @@
 import vcs
+print dir(vcs)
 import sys
 import cdms2
 import vtk
