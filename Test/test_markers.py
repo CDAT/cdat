@@ -3,8 +3,9 @@ import vcs
 x=vcs.init()
 
 m = x.createmarker()
-m.x=[[0.,],[.5,],[1.,]]
-m.y=[[0.,],[.5,],[1.,]]
+m.x=[[0.,],[5,],[10.,]]
+m.y=[[0.,],[5,],[10.,]]
+m.worldcoordinate=[0,10,0,10]
 #m.worldcoordinate=[-10,10,0,10]
 m.type=['plus','diamond','square_fill']
 m.type=['hurricane',]

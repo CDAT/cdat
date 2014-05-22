@@ -332,6 +332,22 @@ def prepFillarea(renWin,ren,farea,cmap=None):
       ren.RemoveActor(a)
     ren.AddActor(b)
   return 
+def genPoly(coords,pts,filled=True):
+  N = pts.GetNumberOfPoints()
+  if filled:
+    poly = vtk.vtkPolygon()
+  else:
+    poly = vtk.vtkPolyLine()
+  pid = poly.GetPointIds()
+  n = len(coords)
+  pid.SetNumberOfIds(n)
+  for j in range(n):
+    c = coords[j]
+    if len(c)==2:
+      c.append(0)
+    pts.InsertNextPoint(*c)
+    pid.SetId(j,j+N)
+  return poly
 
 def prepMarker(renWin,ren,marker,cmap=None):
   n=prepPrimitive(marker)
@@ -390,25 +406,53 @@ def prepMarker(renWin,ren,marker,cmap=None):
       elif t[9]=="u":
         gs.SetRotationAngle(0)
     elif t == "hurricane":
+      s =s/100.
       pts = vtk.vtkPoints()
-      pts.InsertNextPoint(0,0,0)
-      pts.InsertNextPoint(1,0,0)
-      pts.InsertNextPoint(0.5,1,0)
-      pts.InsertNextPoint(0,0,0)
-      #polygon = vtk.vtkPolygon()
-      polygons = vtk.vtkCellArray()
-      line = vtk.vtkPolyLine()
-      #pid = polygon.GetPointIds()
-      pid = line.GetPointIds()
-      pid.SetNumberOfIds(4)
-      for j in range(4):
-        pid.SetId(j,j)
-      #polygons.InsertNextCell(polygon)
-      polygons.InsertNextCell(line)
       pd = vtk.vtkPolyData()
+      polygons = vtk.vtkCellArray()
+      add_angle = numpy.pi/360.
+      angle1=0.
+      coords=[]
+      coords.append([.58*s*numpy.cos(angle1), .58*s*numpy.sin(angle1)])
+      while angle1<=2.*numpy.pi:
+          coords.append([s*numpy.cos(angle1), s*numpy.sin(angle1)])
+          angle1+=add_angle
+      angle1 = 2.*numpy.pi#+add_angle
+      coords.append([s*numpy.cos(angle1), s*numpy.sin(angle1)])
+      while angle1>=0.:
+          coords.append([.58*s*numpy.cos(angle1), .58*s*numpy.sin(angle1)])
+          angle1-=add_angle
+      poly = genPoly(coords,pts,filled=True)
+      polygons.InsertNextCell(poly)
+      coords = []
+      angle1 = .6*numpy.pi
+      angle2 = .88*numpy.pi
+      while angle1<=angle2:
+        coords.append([s*2+2*s*numpy.cos(angle1),2*s*numpy.sin(angle1)])
+        angle1+=add_angle
+      angle1=.79*numpy.pi
+      angle2=.6*numpy.pi
+      while angle1>=angle2:
+        coords.append([s*2.25+s*4*numpy.cos(angle1),-s*2+s*4*numpy.sin(angle1)])
+        angle1-=add_angle
+      poly = genPoly(coords,pts,filled=True)
+      polygons.InsertNextCell(poly)
+      coords=[]
+      angle1 = 1.6*numpy.pi
+      angle2 = 1.9*numpy.pi
+      while angle1 <= angle2:
+        coords.append( [- s*2 + s*2*numpy.cos(angle1),s*2*numpy.sin(angle1)])
+        angle1 += add_angle
+      angle1 = 1.8*numpy.pi
+      angle2 = 1.6*numpy.pi
+      while angle1 >= angle2:
+        coords.append( [- s*2.27 + s*4*numpy.cos(angle1), s*2 + s*4*numpy.sin(angle1)])
+        angle1 -= add_angle
+      poly = genPoly(coords,pts,filled=True)
+      polygons.InsertNextCell(poly)
       pd.SetPoints(pts)
-      pd.SetLines(polygons)
-      #pd.SetPolys(polygons)
+      #pd.SetLines(polygons)
+      pd.SetPolys(polygons)
       g.SetSourceData(pd)
     else:
       warnings.warn("unknown marker type: %s, using dot" % t)
@@ -416,7 +460,7 @@ def prepMarker(renWin,ren,marker,cmap=None):
       gs.FilledOn()
     if t[-5:]=="_fill":
       gs.FilledOn()
-    gs.SetScale(s/100.)
+    gs.SetScale(s)
 
 
     if pd is None:
