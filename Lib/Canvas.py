@@ -8301,7 +8301,7 @@ Options:::
         """
         get the font name associated with a font number
         """
-        return vcs.getfontnumber(number)
+        return vcs.getfontname(number)
     
     def getfont(self, font):
         """
