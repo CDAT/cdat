@@ -4,7 +4,7 @@ import os
 import time
 
 try:
-  from PyQt44 import QtGui,QtCore
+  from PyQt4 import QtGui,QtCore
   hasPyQt = True
   cl_parent = QtCore.QThread
 except:
@@ -433,6 +433,7 @@ class animate_obj_old(object):
       if ((self.create_flg == 1) and (self.run_flg == 0)):
          self.run_flg = 1
          #thread.start_new_thread( self.vcs_self.canvas.animate_run,( ) )
+         print self.vcs_self.canvas.animate_run
          self.vcs_self.canvas.animate_run()
 
    ##############################################################################

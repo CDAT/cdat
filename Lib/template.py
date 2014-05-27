@@ -299,13 +299,8 @@ class P(object):
                                   lambda x,v: _setgen(x,"legend",Pls,v))
         self.__class__.data=property(lambda x: _getgen(x,"data"),
                                   lambda x,v: _setgen(x,"data",Pds,v))
-        #                                                         #
-        ###########################################################
-        # Keep track of the template's parent.                    #
-        ###########################################################
-        #                                                         #
         #################################################
-	# The following initializes the template's TEXT #
+        # The following initializes the template's TEXT #
         #################################################
         if Pic_name == "default":
           self._orientation=0
@@ -1028,9 +1023,12 @@ class P(object):
               t.reset('x',x1,x2,t.data.x1,t.data.x2)
               #where t is a vcs template object
          """
-         savedmode=self.parent.mode
-         self.parent.mode=0
-         attr=vars(self).keys()
+         #attr=vars(self).keys()
+         Attr = dir(self)
+         attr = []
+         for a in Attr:
+           if a[0]!="_":
+             attr.append(a)
          n=len(sub_name)
          # computes the ratio
          if ov1 is not None:
@@ -1068,7 +1066,6 @@ class P(object):
               except Exception,err:
                    #print err
                    pass
-         self.parent.mode=savedmode
 
     def move(self,p,axis):
          """ move a template by p% along the axis 'x' or 'y'
@@ -1081,8 +1078,6 @@ class P(object):
          t.move(.2,'x') # move everything right by 20%
          t.move(.2,'y') # move everything down by 20%
          """
-         saved_mode=self.parent.mode
-         self.parent.mode=0
          if not axis in ['x','y']:
               raise 'Error you can move the template only the x or y axis'
          #p/=100.
@@ -1091,8 +1086,6 @@ class P(object):
          v1=ov1+p
          v2=ov2+p
          self.reset(axis,v1,v2,ov1,ov2)
-         self.parent.update()
-         self.parent.mode=saved_mode
          
     def moveto(self,x,y):
          """ move a template along the axis 'x' or 'y' to p
@@ -1102,8 +1095,6 @@ class P(object):
          example:
          t.moveto(.2,.2) # move everything so that data.x1=.2and data.y1=.2
          """
-         saved_mode=self.parent.mode
-         self.parent.mode=0
          #p/=100.
          ov1=getattr(self.data,'x1')
          ov2=getattr(self.data,'x2')
@@ -1115,8 +1106,6 @@ class P(object):
          v1=y
          v2=(ov2-ov1)+y
          self.reset('y',v1,v2,ov1,ov2)
-         self.parent.update()
-         self.parent.mode=saved_mode
          
     def scale(self,scale,axis='xy',font=-1):
          """ scale a template along the axis 'x' or 'y' by scale
@@ -1141,8 +1130,6 @@ class P(object):
          reference is t.data.x1/y1
  
          """
-         saved_mode=self.parent.mode
-         self.parent.mode=0
          if not axis in ['x','y','xy']:
               raise 'Error you can move the template only the x or y axis'
          #p/=100.
@@ -1158,8 +1145,6 @@ class P(object):
               self.reset(ax,v1,v2,ov1,ov2)
          if font==1 or (font==-1 and axis==['x','y']):
               self.scalefont(scale)
-         self.parent.update()
-         self.parent.mode=saved_mode
               
     def scalefont(self,scale):
          """
@@ -1172,20 +1157,17 @@ class P(object):
          t=x.createtemplate('a_template')
          t.scalefont(.5) # reduces the fonts size by 2
          """
-         savedmode=self.parent.mode
-         self.parent.mode=0
          attr=vars(self).keys()
          for a in attr:
               v=getattr(self,a)
               try:
                    to=getattr(v,'textorientation')
-                   to=self.parent.createtextorientation(source=to)
+                   tmp = vcs.init()
+                   to=tmp.createtextorientation(source=to)
                    to.height=to.height*scale
                    setattr(v,'textorientation',to)
               except:
                    pass        
-         self.parent.mode=savedmode
-         self.parent.update()
          
     def plot(self,x,slab,gm,bg=0,min=None,max=None,X=None,Y=None,**kargs):
         """ This plots the template stuff on the Canvas, it needs a slab and a graphic method
@@ -1511,7 +1493,7 @@ class P(object):
          x.worldcoordinate=wc
          return displays
 
-    def ratio_linear_projection(self,lon1,lon2,lat1,lat2,Rwished=None,Rout=None,box_and_ticks=0):
+    def ratio_linear_projection(self,lon1,lon2,lat1,lat2,Rwished=None,Rout=None,box_and_ticks=0,x=None):
          '''
          Computes ratio to shrink the data area of a template in order that the overall area
          has the least possible deformation in linear projection
@@ -1522,6 +1504,7 @@ class P(object):
          Necessary arguments:
            lon1, lon2: in degrees_east  : Longitude spanned by plot
            lat1, lat2: in degrees_north : Latitude  spanned by plot
+
          Optional arguments:
            Rwished: Ratio y/x wished, None=automagic
            Rout: Ratio of output (default is US Letter=11./8.5)
@@ -1548,11 +1531,11 @@ class P(object):
          
          if Rwished is None:
              Rwished=float(2*(numpy.sin(Lat2)-numpy.sin(Lat1))/(Lon2-Lon1)/(1.+(numpy.sin(2*Lat2)-numpy.sin(2*Lat1))/2./(Lat2-Lat1)))
-         self.ratio(Rwished,Rout,box_and_ticks)
+         self.ratio(Rwished,Rout,box_and_ticks,x)
          return
 
     
-    def ratio(self,Rwished,Rout=None,box_and_ticks=0):
+    def ratio(self,Rwished,Rout=None,box_and_ticks=0,x=None):
          '''
          Computes ratio to shrink the data area of a template to have an y/x ratio of Rwished
          has the least possible deformation in linear projection
@@ -1572,8 +1555,8 @@ class P(object):
            ## y is twice x
            t.ratio(2)
          '''
-
-         x=self.parent
+         if x is None:
+           x=vcs.init()
          if isinstance(Rout,str):
               if Rout.lower()=='a4':
                    Rout=29.7/21.

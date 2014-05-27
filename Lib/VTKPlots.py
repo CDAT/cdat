@@ -30,6 +30,7 @@ class VTKVCSBackend(object):
     self.numberOfPlotCalls = 0 
 
   def clear(self):
+    self.numberOfPlotCalls = 0
     if self.renWin is None:
       return
     sz = self.renWin.GetSize()
@@ -62,7 +63,7 @@ class VTKVCSBackend(object):
     if self.renWin is None:
       # Create the usual rendering stuff.
       self.renWin = vtk.vtkRenderWindow()
-      self.renWin.SetWindowName("VCS Canvas")
+      self.renWin.SetWindowName("VCS Canvas %i" % self.canvas._canvas_id)
       self.renWin.SetAlphaBitPlanes(1)
       ren = vtk.vtkRenderer()
       r,g,b = self.canvas.backgroundcolor
@@ -254,7 +255,7 @@ class VTKVCSBackend(object):
     legd.list()
   
   def setLayer(self,renderer,priority):
-    n = self.numberOfPlotCalls + (priority-1)*1000000 
+    n = self.numberOfPlotCalls + (priority-1)*10000 
     nMax = max(self.renWin.GetNumberOfLayers(),n+1)
     self.renWin.SetNumberOfLayers(nMax)
     renderer.SetLayer(n)
@@ -544,7 +545,12 @@ class VTKVCSBackend(object):
     a = vtk.vtkImageActor()
     a.GetMapper().SetInputConnection(reader.GetOutputPort())
     ren = vtk.vtkRenderer()
-    ren.SetBackground(1,1,1)
+    #ren.SetBackground(1,1,1)
+    N=self.renWin.GetNumberOfLayers()
+    if N > 1.e18:
+      N=2
+    print "N:",N
+    self.setLayer(ren,N)
     
     if not kargs.has_key("noblink"):
       self.renWin.AddRenderer(ren)
@@ -557,7 +563,9 @@ class VTKVCSBackend(object):
       ren.AddActor(tmp)
       ## We need to remember the Transform to avoid further blinking
       self._userTransform = tmp.GetUserTransform()
+      print "Fiurst time:",self._userTransform
     else:
+      print "In no blink",self._userTransform
       a.SetUserTransform(self._userTransform)
       ren.AddActor(a)
     self.renWin.Render()
@@ -630,7 +638,7 @@ class VTKAnimate(animate_helper.animate_obj):
           kargs["noblink"]=True
         else:
           self._initial_blink_done = True
-        self.vcs_self.backend.clear_broken()
+        #self.vcs_self.backend.clear()
         self.vcs_self.put_png_on_canvas(self.animation_files[frame],
                 self.zoom_factor, self.vertical_factor, self.horizontal_factor,**kargs)
         if animate_helper.hasPyQt:

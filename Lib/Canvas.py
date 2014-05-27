@@ -838,6 +838,8 @@ class Canvas(object,AutoAPI.AutoAPI):
         #                                                                           #
         #############################################################################
 
+        self._canvas_id = vcs.next_canvas_id
+        vcs.next_canvas_id+=1
         self.colormap = "default"
         self.backgroundcolor = 255,255,255
         ## default size for bg
@@ -5587,7 +5589,7 @@ Options:::
                             lat2=gm.datawc_y2
                         else:
                             lat2=max(arglist[0].getAxis(-2))
-                        copy_tmpl.ratio_linear_projection(lon1,lon2,lat1,lat2,None,box_and_ticks=box_and_ticks)
+                        copy_tmpl.ratio_linear_projection(lon1,lon2,lat1,lat2,None,box_and_ticks=box_and_ticks,x=self)
                         arglist[2]=copy_tmpl.name
             elif not (doratio in ['0','off','none','auto','autot']) or  (arglist[3] in ['boxfill','isofill','isoline','outfill','outline','vector','meshfill'] and str(doratio).lower() in ['auto','autot']) and arglist[2]!='ASD' :
                 box_and_ticks=0
@@ -5602,7 +5604,7 @@ Options:::
                 if copy_tmpl is None:
                     copy_tmpl=self._create_random_template(arglist[2])
                     arglist[2]=copy_tmpl.name
-                copy_tmpl.ratio(Ratio,box_and_ticks=box_and_ticks)
+                copy_tmpl.ratio(Ratio,box_and_ticks=box_and_ticks,x=self)
                             
                             
             if hasattr(self,'_isplottinggridded') : del(self._isplottinggridded)
@@ -6543,7 +6545,7 @@ Options:::
     a.open()
     id = a.canvasid()
 '''
-        return apply(self.canvas.canvasid, args)
+        return self._canvas_id
 
     #############################################################################
     #                                                                           #
