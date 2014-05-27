@@ -1,3 +1,8 @@
+import vcs
+import numpy
+import os
+import time
+
 try:
   from PyQt44 import QtGui,QtCore
   hasPyQt = True
@@ -808,8 +813,9 @@ class animate_obj(animate_obj_old):
         self.canvas.clear()
         for args in frameArgs:
             print "BG IS 1 !!!!!!!!"
-            self.canvas.plot(*args, bg=1)
+            self.canvas.plot(*args, bg=0)
         self.canvas.png(fn,draw_white_background=1)
+        print "Dumped to:",fn
         #self.canvas.png("sample")
         
     # def runner(self):

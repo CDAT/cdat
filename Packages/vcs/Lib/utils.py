@@ -27,7 +27,7 @@ def getfontnumber(name):
   for i in vcs.elements["fontNumber"]:
     if vcs.elements["fontNumber"][i]==name:
       return i
-  raise vcsError,"Font name not existing! %s" % name
+  raise Exception,"Font name not existing! %s" % name
 
 def process_src_element(code):
   i = code.find("_")

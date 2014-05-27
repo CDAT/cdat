@@ -32,10 +32,26 @@ class VTKVCSBackend(object):
   def clear(self):
     if self.renWin is None:
       return
+    sz = self.renWin.GetSize()
+    self.renWin = None
+    self.createRenWin()
+    self.renWin.SetSize(*sz)
+
+    return
+  def clear_broken(self):
+    if self.renWin is None:
+      return
     renderers = self.renWin.GetRenderers()
     renderers.InitTraversal()
     ren = renderers.GetNextItem()
     while ren is not None:
+      ac = ren.GetActors()
+      ac.InitTraversal()
+      a = ac.GetNextItem()
+      while a is not None:
+        ren.RemoveActor(a)
+        ren.Render()
+        a = ac.GetNextItem()
       ren.RemoveAllViewProps()
       ren.Render()
       self.renWin.RemoveRenderer(ren)
@@ -530,14 +546,20 @@ class VTKVCSBackend(object):
     ren = vtk.vtkRenderer()
     ren.SetBackground(1,1,1)
     
-    self.renWin.AddRenderer(ren)
-    ren.AddActor(a)
-    #self.renWin.SetOffScreenRendering(True)
-    self.renWin.Render()
-    #self.renWin.SetOffScreenRendering(False)
-    tmp = vcs2vtk.fitToViewport(a,ren,[0,1,0,1])
-    ren.RemoveActor(a)
-    ren.AddActor(tmp)
+    if not kargs.has_key("noblink"):
+      self.renWin.AddRenderer(ren)
+      ren.AddActor(a)
+      #self.renWin.SetOffScreenRendering(True)
+      self.renWin.Render()
+      #self.renWin.SetOffScreenRendering(False)
+      tmp = vcs2vtk.fitToViewport(a,ren,[0,1,0,1])
+      ren.RemoveActor(a)
+      ren.AddActor(tmp)
+      ## We need to remember the Transform to avoid further blinking
+      self._userTransform = tmp.GetUserTransform()
+    else:
+      a.SetUserTransform(self._userTransform)
+      ren.AddActor(a)
     self.renWin.Render()
     return
 
@@ -596,4 +618,21 @@ class VTKVCSBackend(object):
     return VTKAnimate(*args,**kargs)
 
 class VTKAnimate(animate_helper.animate_obj):
-  pass
+  def __init__(self,*args,**kargs):
+    animate_helper.animate_obj.__init__(self,*args,**kargs)
+    self._initial_blink_done = False
+  def draw(self,frame):
+    print "Rendering frame:",frame
+    if self.create_flg == 1:
+        self.current_frame = frame
+        kargs = {}
+        if self._initial_blink_done:
+          kargs["noblink"]=True
+        else:
+          self._initial_blink_done = True
+        self.vcs_self.backend.clear_broken()
+        self.vcs_self.put_png_on_canvas(self.animation_files[frame],
+                self.zoom_factor, self.vertical_factor, self.horizontal_factor,**kargs)
+        if animate_helper.hasPyQt:
+          self.signals.drew.emit()
+
