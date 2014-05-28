@@ -19,13 +19,24 @@ def smooth(x,beta,window_len=11):
    y = numpy.convolve(w/w.sum(),s,mode='valid')
    return y[(window_len/2):-(window_len/2)]
 
-class VCSInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
+class VCSInteractorStyle(vtk.vtkInteractorStyle):
   def __init__(self,parent=None):
+    print "We do come here though!"
     self.AddObserver("LeftButtonPressEvent",self.leftButtonPressEvent)
+    self.AddObserver("ConfigureEvent",self.ConfigureEvent)
+    self.parent = parent
+    self.parentA = parent
+    print "PARENT:",self
+
   def leftButtonPressEvent(self,obj,event):
     print "You pressed the left button"
     print event
     self.OnLeftButtonDown()
+  def ConfigureEvent(self,obj,ev):
+    print "Configure event",self,obj
+
+
+
 
 class VTKVCSBackend(object):
   def __init__(self,canvas,renWin=None, debug=False,bg=None):
@@ -84,7 +95,7 @@ class VTKVCSBackend(object):
       self.renWin.AddRenderer(ren)
       print "creating interactor"
       self.interactor = vtk.vtkRenderWindowInteractor()
-      self.interactor.SetInteractorStyle(VCSInteractorStyle())
+      self.interactor.SetInteractorStyle(VCSInteractorStyle(parent=self.canvas))
       self.interactor.SetRenderWindow(self.renWin)
       return True
     else:
