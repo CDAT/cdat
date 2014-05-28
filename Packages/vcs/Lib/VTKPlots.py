@@ -19,6 +19,14 @@ def smooth(x,beta,window_len=11):
    y = numpy.convolve(w/w.sum(),s,mode='valid')
    return y[(window_len/2):-(window_len/2)]
 
+class VCSInteractorStyle(vtk.vtkInteractorStyleTrackballCamera):
+  def __init__(self,parent=None):
+    self.AddObserver("LeftButtonPressEvent",self.leftButtonPressEvent)
+  def leftButtonPressEvent(self,obj,event):
+    print "You pressed the left button"
+    print event
+    self.OnLeftButtonDown()
+
 class VTKVCSBackend(object):
   def __init__(self,canvas,renWin=None, debug=False,bg=None):
     self.canvas = canvas
@@ -29,7 +37,7 @@ class VTKVCSBackend(object):
     self._plot_keywords = ['renderer',]
     self.numberOfPlotCalls = 0 
 
-  def clear(self):
+  def clear_badway(self):
     self.numberOfPlotCalls = 0
     if self.renWin is None:
       return
@@ -39,6 +47,11 @@ class VTKVCSBackend(object):
     self.renWin.SetSize(*sz)
 
     return
+
+  def clear(self):
+    print "WE CLEAR!!!!!"
+    self.clear_broken()
+
   def clear_broken(self):
     if self.renWin is None:
       return
@@ -69,6 +82,10 @@ class VTKVCSBackend(object):
       r,g,b = self.canvas.backgroundcolor
       ren.SetBackground(r/255.,g/255.,b/255.)
       self.renWin.AddRenderer(ren)
+      print "creating interactor"
+      self.interactor = vtk.vtkRenderWindowInteractor()
+      self.interactor.SetInteractorStyle(VCSInteractorStyle())
+      self.interactor.SetRenderWindow(self.renWin)
       return True
     else:
       return False
@@ -117,6 +134,7 @@ class VTKVCSBackend(object):
 
   def initialSize(self):
       #screenSize = self.renWin.GetScreenSize()
+      print "Initialize!"
       self.renWin.SetSize(self.canvas.bgX,self.canvas.bgY)
 
   def open(self):
