@@ -21,20 +21,14 @@ def smooth(x,beta,window_len=11):
 
 class VCSInteractorStyle(vtk.vtkInteractorStyle):
   def __init__(self,parent=None):
-    print "We do come here though!"
     self._foo = parent
     self.AddObserver("LeftButtonPressEvent",self.leftButtonPressEvent)
     self.AddObserver("ConfigureEvent",self.ConfigureEvent)
-    print "PARENT:",self
 
   def leftButtonPressEvent(self,obj,event):
-    print "You pressed the left button"
-    print event
     self.OnLeftButtonDown()
   def ConfigureEvent(self,obj,ev):
     self._foo = parent
-    print "Configure event",self,obj
-    print "PARENT FOO:",self._foo
 
 
 
@@ -72,7 +66,6 @@ class VTKVCSBackend(object):
       r,g,b = self.canvas.backgroundcolor
       ren.SetBackground(r/255.,g/255.,b/255.)
       self.renWin.AddRenderer(ren)
-      print "creating interactor"
       self.interactor = vtk.vtkRenderWindowInteractor()
       self.interactor.SetInteractorStyle(VCSInteractorStyle(parent=self.canvas))
       self.interactor.SetRenderWindow(self.renWin)
@@ -82,8 +75,8 @@ class VTKVCSBackend(object):
 
   def update(self, *args, **kargs):
     if self.renWin is not None:
-      print "UPDATING!"
       #self.renWin.Render()
+      pass
 
   def canvasinfo(self):
     if self.renWin is None:
@@ -139,12 +132,10 @@ class VTKVCSBackend(object):
     self.renWin.Finalize()
 
   def plot(self,data1,data2,template,gtype,gname,bg,*args,**kargs):
-    kargs["donotstoredisplay"]=True
     self.numberOfPlotCalls+=1
     created = self.createRenWin(**kargs)
     if self.bg is None:
       if bg:
-        print "Doing bg!"
         self.bg= True
       else:
         self.bg= False
@@ -159,7 +150,6 @@ class VTKVCSBackend(object):
         #ren.SetPreserveDepthBuffer(True)
     else:
       ren = kargs["renderer"]
-    self.renWin.AddRenderer(ren)
 
     #screenSize = self.renWin.GetScreenSize()
     if gtype in ["boxfill","meshfill","isoline","isofill","vector"]:
@@ -178,28 +168,35 @@ class VTKVCSBackend(object):
     tpl = vcs.elements["template"][template]
     # ok for now let's assume it is 2D...
     if gtype in ["boxfill","meshfill","isofill","isoline"]:
+      self.renWin.AddRenderer(ren)
       self.plot2D(data1,data2,tpl,gm,ren)
     elif gtype in ["text"]:
       if tt.priority!=0:
+        self.renWin.AddRenderer(ren)
         self.setLayer(ren,tt.priority)
         vcs2vtk.genTextActor(ren,to=to,tt=tt)
     elif gtype=="line":
       if gm.priority!=0:
+        self.renWin.AddRenderer(ren)
         self.setLayer(ren,gm.priority)
         vcs2vtk.prepLine(self.renWin,ren,gm)
     elif gtype=="marker":
       if gm.priority!=0:
+        self.renWin.AddRenderer(ren)
         self.setLayer(ren,gm.priority)
         vcs2vtk.prepMarker(self.renWin,ren,gm)
     elif gtype=="fillarea":
       if gm.priority!=0:
+        self.renWin.AddRenderer(ren)
         self.setLayer(ren,gm.priority)
         vcs2vtk.prepFillarea(self.renWin,ren,gm)
     elif gtype=="oned":
+      self.renWin.AddRenderer(ren)
       self.plot1D(data1,data2,tpl,gm,ren)
     else:
       raise Exception,"Graphic type: '%s' not re-implemented yet" % gtype
-    self.renWin.Render()
+    if not kargs.get("donotstoredisplay",False):
+      self.renWin.Render()
 
   def plot1D(self,data1,data2,tmpl,gm,ren):
     self.setLayer(ren,tmpl.data.priority)
@@ -554,7 +551,6 @@ class VTKVCSBackend(object):
     a = vtk.vtkImageActor()
     a.GetMapper().SetInputConnection(reader.GetOutputPort())
     ren = vtk.vtkRenderer()
-    #ren.SetBackground(1,1,1)
     N=self.renWin.GetNumberOfLayers()
     if N > 1.e18:
       N=2
