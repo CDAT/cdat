@@ -59,7 +59,7 @@ class VTKVCSBackend(object):
       if not ren.GetLayer()==0:
         self.renWin.RemoveRenderer(ren)
       ren = renderers.GetNextItem()
-    self.renWin.Render()
+    #self.renWin.Render()
     self.numberOfPlotCalls = 0 
 
   def createRenWin(self,*args,**kargs):
@@ -82,7 +82,8 @@ class VTKVCSBackend(object):
 
   def update(self, *args, **kargs):
     if self.renWin is not None:
-      self.renWin.Render()
+      print "UPDATING!"
+      #self.renWin.Render()
 
   def canvasinfo(self):
     if self.renWin is None:
@@ -130,7 +131,7 @@ class VTKVCSBackend(object):
   def open(self):
     if self.createRenWin():
       self.initialSize()
-    self.renWin.Render()
+    #self.renWin.Render()
 
   def close(self):
     if self.renWin is None:
@@ -152,7 +153,7 @@ class VTKVCSBackend(object):
     if bg:
         self.renWin.SetOffScreenRendering(True)
         self.renWin.SetSize(self.canvas.bgX,self.canvas.bgY)
-    self.renWin.Render()
+    #self.renWin.Render()
     if kargs.get("renderer",None) is None:
         ren = vtk.vtkRenderer()
         #ren.SetPreserveDepthBuffer(True)
@@ -481,15 +482,15 @@ class VTKVCSBackend(object):
     if tmpl.data.priority != 0:
       #act.SetVisibility(False)
       ren.AddActor(act)
-      self.renWin.Render()
-      tmp = vcs2vtk.fitToViewport(act,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2])
-      ren.RemoveActor(act)
-      ren.AddActor(tmp)
+      #self.renWin.Render()
+      vcs2vtk.fitToViewport(act,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2])
+      #ren.RemoveActor(act)
+      #ren.AddActor(tmp)
     
-    #self.renderTemplate(ren,tmpl,data1,gm)
-    #if isinstance(gm,(isofill.Gfi,meshfill.Gfm,boxfill.Gfb)):
-    #  self.renderColorBar(ren,tmpl,levs,cols)
-    if continents==8:
+    self.renderTemplate(ren,tmpl,data1,gm)
+    if isinstance(gm,(isofill.Gfi,meshfill.Gfm,boxfill.Gfb)):
+      self.renderColorBar(ren,tmpl,levs,cols)
+    if continents:
       contData = vcs2vtk.prepContinents(os.environ["HOME"]+"/.uvcdat/data_continent_political")
       contMapper = vtk.vtkPolyDataMapper()
       contMapper.SetInputData(contData)
@@ -500,16 +501,16 @@ class VTKVCSBackend(object):
       gcpts = vcs2vtk.project(cpts,projection)
       contData.SetPoints(gcpts)
       contActor = vcs2vtk.doWrap(contActor,[x1,x2,y1,y2],wrap)
-      tmp = vcs2vtk.fitToViewport(contActor,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2])
+      vcs2vtk.fitToViewport(contActor,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2])
       if tmpl.data.priority!=0:
-        ren.AddActor(tmp)
+        ren.AddActor(contActor)
 
   def renderTemplate(self,renderer,tmpl,data,gm):
-    tmpl.plot(self.canvas,data,gm,bg=self.bg,renderer=renderer)
+    tmpl.plot(self.canvas,data,gm,bg=self.bg)
 
   def renderColorBar(self,renderer,tmpl,levels,colors):
     if tmpl.legend.priority>0:
-      tmpl.drawColorBar(colors,levels,x=self.canvas,renderer=renderer)
+      tmpl.drawColorBar(colors,levels,x=self.canvas)
 
   def trimData1D(self,data):
     if data is None:
@@ -564,7 +565,7 @@ class VTKVCSBackend(object):
       self.renWin.AddRenderer(ren)
       ren.AddActor(a)
       #self.renWin.SetOffScreenRendering(True)
-      self.renWin.Render()
+      #self.renWin.Render()
       #self.renWin.SetOffScreenRendering(False)
       tmp = vcs2vtk.fitToViewport(a,ren,[0,1,0,1])
       ren.RemoveActor(a)
@@ -576,7 +577,7 @@ class VTKVCSBackend(object):
       print "In no blink",self._userTransform
       a.SetUserTransform(self._userTransform)
       ren.AddActor(a)
-    self.renWin.Render()
+    #self.renWin.Render()
     return
 
   def png(self, file, width=None,height=None,units=None,draw_white_background = 0):
@@ -594,7 +595,7 @@ class VTKVCSBackend(object):
 
         if width is not None and height is not None:
           self.renWin.SetSize(width,height)
-          self.renWin.Render()
+          #self.renWin.Render()
         imgfiltr = vtk.vtkWindowToImageFilter()
         imgfiltr.SetInput(self.renWin)
 #        imgfiltr.SetMagnification(3)
