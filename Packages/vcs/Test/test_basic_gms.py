@@ -15,6 +15,7 @@ s=f("clt")
 #f=cdms2.open(os.path.join(sys.prefix,"sample_data","sampleCurveGrid4.nc"))
 #s=f("sample")
 x=vcs.init()
+x.open()
 tmpl = x.createtemplate()
 #tmpl.data.x1=.001
 #tmpl.data.x2=.5

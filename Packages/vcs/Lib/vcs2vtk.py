@@ -324,13 +324,8 @@ def prepFillarea(renWin,ren,farea,cmap=None):
       cmap = vcs.elements["colormap"][cmap]
     color = cmap.index[c]
     p.SetColor([C/100. for C in color])
-    if i==0:
-      ren.AddActor(a)
-      renWin.Render()
-    b = fitToViewport(a,ren,farea.viewport,farea.worldcoordinate)
-    if i==0:
-      ren.RemoveActor(a)
-    ren.AddActor(b)
+    ren.AddActor(a)
+    fitToViewport(a,ren,farea.viewport,farea.worldcoordinate)
   return 
 def genPoly(coords,pts,filled=True):
   N = pts.GetNumberOfPoints()
@@ -484,13 +479,8 @@ def prepMarker(renWin,ren,marker,cmap=None):
       cmap = vcs.elements["colormap"][cmap]
     color = cmap.index[c]
     p.SetColor([C/100. for C in color])
-    if i==0:
-      ren.AddActor(a)
-      renWin.Render()
-    b = fitToViewport(a,ren,marker.viewport,marker.worldcoordinate)
-    if i==0:
-      ren.RemoveActor(a)
-    ren.AddActor(b)
+    ren.AddActor(a)
+    fitToViewport(a,ren,marker.viewport,marker.worldcoordinate)
   return 
 
 def prepLine(renWin,ren,line,cmap=None):
@@ -553,13 +543,8 @@ def prepLine(renWin,ren,line,cmap=None):
       p.SetLineStippleRepeatFactor(1)
     else:
       raise Exception,"Unkonw line type: '%s'" % t
-    if i==0:
-      ren.AddActor(a)
-      renWin.Render()
-    b = fitToViewport(a,ren,line.viewport,line.worldcoordinate)
-    if i==0:
-      ren.RemoveActor(a)
-    ren.AddActor(b)
+    ren.AddActor(a)
+    fitToViewport(a,ren,line.viewport,line.worldcoordinate)
   return 
 
 def getRendererCorners(Renderer,vp=[0.,1.,0.,1.]):
@@ -591,6 +576,61 @@ def vtkWorld2Renderer(ren,x,y):
   return renpts
 
 def fitToViewport(Actor,Renderer,vp,wc=None):
+  return fitToViewportNew(Actor,Renderer,vp,wc)
+
+def fitToViewportNew(Actor,Renderer,vp,wc=None):
+  ## Data range in World Coordinates
+  if wc is None:
+    Xrg = Actor.GetXRange()
+    Yrg = Actor.GetYRange()
+  else:
+    Xrg=float(wc[0]),float(wc[1])
+    Yrg=float(wc[2]),float(wc[3])
+
+  #vp = [0,1,.5,1.]
+  print "viewport:",vp
+  Renderer.SetBackground(1,0,0)
+  Renderer.SetViewport(vp[0],vp[2],vp[1],vp[3])
+  rw = Renderer.GetRenderWindow()
+  sc = rw.GetSize()
+  wRatio = float(sc[0])/float(sc[1])
+  dRatio = (Xrg[1]-Xrg[0])/(Yrg[1]-Yrg[0])
+  vRatio = float(vp[1]-vp[0])/float(vp[3]-vp[2])
+
+  #print "XRange:",Xrg
+  #print "YRange:",Yrg
+  #print "Win ratio:",wRatio
+  #print "data Ratio:",dRatio
+  #print xc,yc
+  if wRatio>1.: #landscape orientated window
+    if dRatio>1.: #data is ladscaped too
+      pass
+    else: # data are portrait like
+      yScale = 1.
+      xScale = vRatio*wRatio/dRatio
+      yTrans = 0.
+      xTrans = -Xrg[0]
+
+
+  T = vtk.vtkTransform()
+  T.Scale(xScale,yScale,1.)
+
+  Actor.SetUserTransform(T)
+
+  Xrg = Actor.GetXRange()
+  Yrg = Actor.GetYRange()
+
+  xc = (Xrg[1]+Xrg[0])/2.
+  yc = (Yrg[1]+Yrg[0])/2.
+  yd = (Yrg[1]-Yrg[0])/2.
+  cam = Renderer.GetActiveCamera()
+  cam.ParallelProjectionOn()
+  cam.SetParallelScale(yd)
+  cam.SetPosition(xc,yc,cam.GetDistance())
+  cam.SetFocalPoint(xc,yc,0.)
+
+
+def fitToViewportSlow(Actor,Renderer,vp,wc=None):
   ## Data range in World Coordinates
   if wc is None:
     Xrg = Actor.GetXRange()
