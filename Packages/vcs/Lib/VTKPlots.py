@@ -32,6 +32,7 @@ class VCSInteractorStyle(vtk.vtkInteractorStyle):
     print event
     self.OnLeftButtonDown()
   def ConfigureEvent(self,obj,ev):
+    self._foo = parent
     print "Configure event",self,obj
     print "PARENT FOO:",self._foo
 
@@ -48,46 +49,18 @@ class VTKVCSBackend(object):
     self._plot_keywords = ['renderer',]
     self.numberOfPlotCalls = 0 
 
-  def clear_badway(self):
-    self.numberOfPlotCalls = 0
-    if self.renWin is None:
-      return
-    sz = self.renWin.GetSize()
-    self.renWin = None
-    self.createRenWin()
-    self.renWin.SetSize(*sz)
-
-    return
-
   def clear(self):
-    print "WE CLEAR!!!!!"
-    self.clear_broken()
-
-  def clear_broken(self):
-    if self.renWin is None:
-      return
-
     renderers = self.renWin.GetRenderers()
     renderers.InitTraversal()
     ren = renderers.GetNextItem()
     while ren is not None:
       ren.RemoveAllViewProps()
-      ren.Clear()
-      self.renWin.Render()
+      #ren.Clear()
+      if not ren.GetLayer()==0:
+        self.renWin.RemoveRenderer(ren)
       ren = renderers.GetNextItem()
-
-    renderers = self.renWin.GetRenderers()
-    renderers.RemoveAllItems()
-    return
-    renderers.InitTraversal()
-    while renderers.GetNumberOfItems()>0:
-      print renderers.GetNumberOfItems()
-      r = renderers.GetFirstRenderer()
-      self.renWin.RemoveRenderer(r)
-      renderers = self.renWin.GetRenderers()
-      renderers.InitTraversal()
-
-
+    self.renWin.Render()
+    self.numberOfPlotCalls = 0 
 
   def createRenWin(self,*args,**kargs):
     if self.renWin is None:
@@ -182,7 +155,7 @@ class VTKVCSBackend(object):
     self.renWin.Render()
     if kargs.get("renderer",None) is None:
         ren = vtk.vtkRenderer()
-        ren.SetPreserveDepthBuffer(True)
+        #ren.SetPreserveDepthBuffer(True)
     else:
       ren = kargs["renderer"]
     self.renWin.AddRenderer(ren)
@@ -513,10 +486,10 @@ class VTKVCSBackend(object):
       ren.RemoveActor(act)
       ren.AddActor(tmp)
     
-    self.renderTemplate(ren,tmpl,data1,gm)
-    if isinstance(gm,(isofill.Gfi,meshfill.Gfm,boxfill.Gfb)):
-      self.renderColorBar(ren,tmpl,levs,cols)
-    if continents:
+    #self.renderTemplate(ren,tmpl,data1,gm)
+    #if isinstance(gm,(isofill.Gfi,meshfill.Gfm,boxfill.Gfb)):
+    #  self.renderColorBar(ren,tmpl,levs,cols)
+    if continents==8:
       contData = vcs2vtk.prepContinents(os.environ["HOME"]+"/.uvcdat/data_continent_political")
       contMapper = vtk.vtkPolyDataMapper()
       contMapper.SetInputData(contData)
@@ -673,7 +646,7 @@ class VTKAnimate(animate_helper.animate_obj):
           kargs["noblink"]=True
         else:
           self._initial_blink_done = True
-        #self.vcs_self.backend.clear()
+        self.vcs_self.backend.clear()
         self.vcs_self.put_png_on_canvas(self.animation_files[frame],
                 self.zoom_factor, self.vertical_factor, self.horizontal_factor,**kargs)
         if animate_helper.hasPyQt:
