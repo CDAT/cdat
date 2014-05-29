@@ -22,10 +22,9 @@ def smooth(x,beta,window_len=11):
 class VCSInteractorStyle(vtk.vtkInteractorStyle):
   def __init__(self,parent=None):
     print "We do come here though!"
+    self._foo = parent
     self.AddObserver("LeftButtonPressEvent",self.leftButtonPressEvent)
     self.AddObserver("ConfigureEvent",self.ConfigureEvent)
-    self.parent = parent
-    self.parentA = parent
     print "PARENT:",self
 
   def leftButtonPressEvent(self,obj,event):
@@ -34,6 +33,7 @@ class VCSInteractorStyle(vtk.vtkInteractorStyle):
     self.OnLeftButtonDown()
   def ConfigureEvent(self,obj,ev):
     print "Configure event",self,obj
+    print "PARENT FOO:",self._foo
 
 
 
@@ -66,29 +66,35 @@ class VTKVCSBackend(object):
   def clear_broken(self):
     if self.renWin is None:
       return
+
     renderers = self.renWin.GetRenderers()
     renderers.InitTraversal()
     ren = renderers.GetNextItem()
     while ren is not None:
-      ac = ren.GetActors()
-      ac.InitTraversal()
-      a = ac.GetNextItem()
-      while a is not None:
-        ren.RemoveActor(a)
-        ren.Render()
-        a = ac.GetNextItem()
       ren.RemoveAllViewProps()
-      ren.Render()
-      self.renWin.RemoveRenderer(ren)
+      ren.Clear()
+      self.renWin.Render()
       ren = renderers.GetNextItem()
-    self.renWin.Render()
+
+    renderers = self.renWin.GetRenderers()
+    renderers.RemoveAllItems()
+    return
+    renderers.InitTraversal()
+    while renderers.GetNumberOfItems()>0:
+      print renderers.GetNumberOfItems()
+      r = renderers.GetFirstRenderer()
+      self.renWin.RemoveRenderer(r)
+      renderers = self.renWin.GetRenderers()
+      renderers.InitTraversal()
+
+
 
   def createRenWin(self,*args,**kargs):
     if self.renWin is None:
       # Create the usual rendering stuff.
       self.renWin = vtk.vtkRenderWindow()
       self.renWin.SetWindowName("VCS Canvas %i" % self.canvas._canvas_id)
-      self.renWin.SetAlphaBitPlanes(1)
+      #self.renWin.SetAlphaBitPlanes(1)
       ren = vtk.vtkRenderer()
       r,g,b = self.canvas.backgroundcolor
       ren.SetBackground(r/255.,g/255.,b/255.)
