@@ -587,9 +587,6 @@ def fitToViewportNew(Actor,Renderer,vp,wc=None):
     Xrg=float(wc[0]),float(wc[1])
     Yrg=float(wc[2]),float(wc[3])
 
-  #vp = [0,1,.5,1.]
-  print "viewport:",vp
-  Renderer.SetBackground(1,0,0)
   Renderer.SetViewport(vp[0],vp[2],vp[1],vp[3])
   rw = Renderer.GetRenderWindow()
   sc = rw.GetSize()
@@ -597,19 +594,10 @@ def fitToViewportNew(Actor,Renderer,vp,wc=None):
   dRatio = (Xrg[1]-Xrg[0])/(Yrg[1]-Yrg[0])
   vRatio = float(vp[1]-vp[0])/float(vp[3]-vp[2])
 
-  #print "XRange:",Xrg
-  #print "YRange:",Yrg
-  #print "Win ratio:",wRatio
-  #print "data Ratio:",dRatio
-  #print xc,yc
+
   if wRatio>1.: #landscape orientated window
-    if dRatio>1.: #data is ladscaped too
-      pass
-    else: # data are portrait like
       yScale = 1.
       xScale = vRatio*wRatio/dRatio
-      yTrans = 0.
-      xTrans = -Xrg[0]
 
 
   T = vtk.vtkTransform()
@@ -617,16 +605,16 @@ def fitToViewportNew(Actor,Renderer,vp,wc=None):
 
   Actor.SetUserTransform(T)
 
-  Xrg = Actor.GetXRange()
-  Yrg = Actor.GetYRange()
 
-  xc = (Xrg[1]+Xrg[0])/2.
-  yc = (Yrg[1]+Yrg[0])/2.
-  yd = (Yrg[1]-Yrg[0])/2.
+  xc = xScale*float(Xrg[1]+Xrg[0])/2.
+  yc = yScale*float(Yrg[1]+Yrg[0])/2.
+  xd = xScale*float(Xrg[1]-Xrg[0])/2.
+  yd = yScale*float(Yrg[1]-Yrg[0])/2.
   cam = Renderer.GetActiveCamera()
   cam.ParallelProjectionOn()
   cam.SetParallelScale(yd)
-  cam.SetPosition(xc,yc,cam.GetDistance())
+  cd = cam.GetDistance()
+  cam.SetPosition(xc,yc,cd)
   cam.SetFocalPoint(xc,yc,0.)
 
 

@@ -15,7 +15,6 @@ s=f("clt")
 #f=cdms2.open(os.path.join(sys.prefix,"sample_data","sampleCurveGrid4.nc"))
 #s=f("sample")
 x=vcs.init()
-x.open()
 tmpl = x.createtemplate()
 #tmpl.data.x1=.001
 #tmpl.data.x2=.5
@@ -31,6 +30,11 @@ gm.datawc_x1=0
 gm.datawc_x2=40
 gm.datawc_y1=-40
 gm.datawc_y2=40
+
+gm.datawc_x1=-180.
+gm.datawc_x2=180.
+gm.datawc_y1=-90
+gm.datawc_y2=90
 bg = False
 #bg = True
 gm.levels = range(-20,135,10)
