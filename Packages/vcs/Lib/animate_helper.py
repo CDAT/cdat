@@ -196,7 +196,7 @@ class animate_obj_old(object):
           white_square.color=240
           white_square.x=[0,1,1,0]
           white_square.y=[0,0,1,1]
-          new_vcs=vcs.init()
+          new_vcs=self.vcs_self
           if self.vcs_self.orientation()=='portrait':
               new_vcs.portrait()
           #self.vcs_self.close()
@@ -629,7 +629,8 @@ class animate_obj(animate_obj_old):
 
     def create( self, parent=None, min=None, max=None, save_file=None, thread_it = 1, rate=5., bitrate=None, ffmpegoptions='', axis=0):
         if self.canvas is None:
-          self.canvas = vcs.init()
+          #self.canvas = vcs.init()
+          self.canvas = self.vcs_self
         self.current_frame = 0
         if thread_it:
             class crp(cl_parent): 
