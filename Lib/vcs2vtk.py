@@ -327,6 +327,7 @@ def prepFillarea(renWin,ren,farea,cmap=None):
     ren.AddActor(a)
     fitToViewport(a,ren,farea.viewport,farea.worldcoordinate)
   return 
+
 def genPoly(coords,pts,filled=True):
   N = pts.GetNumberOfPoints()
   if filled:
@@ -402,23 +403,21 @@ def prepMarker(renWin,ren,marker,cmap=None):
         gs.SetRotationAngle(0)
     elif t == "hurricane":
       s =s/100.
+      ds = vtk.vtkDiskSource()
+      ds.SetInnerRadius(.55*s)
+      ds.SetOuterRadius(1.01*s)
+      ds.SetCircumferentialResolution(90)
+      ds.SetRadialResolution(30)
+      gf = vtk.vtkGeometryFilter()
+      gf.SetInputConnection(ds.GetOutputPort())
+      gf.Update()
+      pd1 = gf.GetOutput()
+      apd = vtk.vtkAppendPolyData()
+      apd.AddInputData(pd1)
       pts = vtk.vtkPoints()
       pd = vtk.vtkPolyData()
       polygons = vtk.vtkCellArray()
       add_angle = numpy.pi/360.
-      angle1=0.
-      coords=[]
-      coords.append([.58*s*numpy.cos(angle1), .58*s*numpy.sin(angle1)])
-      while angle1<=2.*numpy.pi:
-          coords.append([s*numpy.cos(angle1), s*numpy.sin(angle1)])
-          angle1+=add_angle
-      angle1 = 2.*numpy.pi#+add_angle
-      coords.append([s*numpy.cos(angle1), s*numpy.sin(angle1)])
-      while angle1>=0.:
-          coords.append([.58*s*numpy.cos(angle1), .58*s*numpy.sin(angle1)])
-          angle1-=add_angle
-      poly = genPoly(coords,pts,filled=True)
-      polygons.InsertNextCell(poly)
       coords = []
       angle1 = .6*numpy.pi
       angle2 = .88*numpy.pi
@@ -448,7 +447,9 @@ def prepMarker(renWin,ren,marker,cmap=None):
       pd.SetPoints(pts)
       #pd.SetLines(polygons)
       pd.SetPolys(polygons)
-      g.SetSourceData(pd)
+      apd.AddInputData(pd)
+      apd.Update()
+      g.SetSourceData(apd.GetOutput())
     else:
       warnings.warn("unknown marker type: %s, using dot" % t)
       gs.SetGlyphTypeToCircle()
