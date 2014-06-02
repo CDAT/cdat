@@ -26,5 +26,6 @@ setup (name = "vcs",
        packages = ['vcs', ],
        package_dir = {'vcs': 'Lib',
                      },
+       data_files = [('share/vcs',('Share/wmo_symbols.json',)),],
        )
 
