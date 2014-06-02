@@ -548,32 +548,25 @@ class VTKVCSBackend(object):
     reader = readerFactory.CreateImageReader2(filename)
     reader.SetFileName(filename)
     reader.Update()
+    imageData = reader.GetOutput()
     a = vtk.vtkImageActor()
     a.GetMapper().SetInputConnection(reader.GetOutputPort())
+    origin = imageData.GetOrigin()
+    spc = imageData.GetSpacing()
+    ext = imageData.GetExtent()
     ren = vtk.vtkRenderer()
-    N=self.renWin.GetNumberOfLayers()
-    if N > 1.e18:
-      N=2
-    print "N:",N
-    self.setLayer(ren,N)
-    
-    if not kargs.has_key("noblink"):
-      self.renWin.AddRenderer(ren)
-      ren.AddActor(a)
-      #self.renWin.SetOffScreenRendering(True)
-      #self.renWin.Render()
-      #self.renWin.SetOffScreenRendering(False)
-      tmp = vcs2vtk.fitToViewport(a,ren,[0,1,0,1])
-      ren.RemoveActor(a)
-      ren.AddActor(tmp)
-      ## We need to remember the Transform to avoid further blinking
-      self._userTransform = tmp.GetUserTransform()
-      print "Fiurst time:",self._userTransform
-    else:
-      print "In no blink",self._userTransform
-      a.SetUserTransform(self._userTransform)
-      ren.AddActor(a)
-    #self.renWin.Render()
+    cam = ren.GetActiveCamera()
+    cam.ParallelProjectionOn()
+    xc  = origin[0] + .5*(ext[0]+ext[1])*spc[0]
+    yc  = origin[1] + .5*(ext[2]+ext[3])*spc[1]
+    yd = (ext[3]-ext[2])*spc[1]
+    d = cam.GetDistance()
+    cam.SetParallelScale(.5*yd/zoom)
+    cam.SetFocalPoint(xc,yc,0.)
+    cam.SetPosition(xc,yc,d)
+    ren.AddActor(a)
+    self.renWin.AddRenderer(ren)
+    self.renWin.Render()
     return
 
   def png(self, file, width=None,height=None,units=None,draw_white_background = 0):
@@ -634,8 +627,7 @@ class VTKAnimate(animate_helper.animate_obj):
   def __init__(self,*args,**kargs):
     animate_helper.animate_obj.__init__(self,*args,**kargs)
     self._initial_blink_done = False
-  def draw(self,frame):
-    print "Rendering frame:",frame
+  def draw2(self,frame):
     if self.create_flg == 1:
         self.current_frame = frame
         kargs = {}
