@@ -137,9 +137,9 @@ include(GetGitRevisionDescription)
 set(paraview_branch ${PARAVIEW_MD5})
 
 get_git_head_revision(refspec sha)
-if("${refspec}" STREQUAL "refs/heads/devel-master")
-  set(paraview_branch uvcdat-next)
-endif()
+#if("${refspec}" STREQUAL "refs/heads/devel-master")
+#  set(paraview_branch uvcdat-next)
+#endif()
 
 if (NOT OFFLINE_BUILD)
     set(GIT_CMD_STR GIT_REPOSITORY "${PARAVIEW_SOURCE}")
