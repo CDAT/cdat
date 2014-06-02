@@ -343,7 +343,7 @@ def genPoly(coords,pts,filled=True):
   n = len(coords)
   pid.SetNumberOfIds(n)
   for j in range(n):
-    c = coords[j]
+    c = list(coords[j])
     if len(c)==2:
       c.append(0)
     pts.InsertNextPoint(*c)
