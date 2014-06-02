@@ -2,30 +2,10 @@ import vcs
 import numpy
 import os
 import time
+import thread
 
-try:
-  from PyQt44 import QtGui,QtCore
-  hasPyQt = True
-  cl_parent = QtCore.QThread
-except:
-  hasPyQt = False
-  cl_parent = object
-class QAnimThread(cl_parent):
-    def __init__(self,parent,func,*args):
-      if hasPyQt:
-        QtCore.QThread.__init__(self,parent)
-      self.func=func
-      self.args=args
-    def run(self):
-        self.func(*self.args)
-        
 def showerror(msg):
-  if hasPyQt:
-    d=QtGui.QErrorMessage()
-    d.showMessage(msg)
-    d.exec_()
-  else:
-    raise Exception,msg
+  raise Exception,msg
 
 
 #############################################################################
@@ -585,14 +565,18 @@ class animate_obj_old(object):
          a = _animationgui.create(self, gui_parent, transient)
          return a
 
-if hasPyQt:
-  class AnimationSignals(QtCore.QObject):
-      """Inner class to hold signals since main object is not a QObject
-      """
-      drew = QtCore.pyqtSignal()
-      created = QtCore.pyqtSignal()
-      canceled = QtCore.pyqtSignal()
-      paused = QtCore.pyqtSignal()
+class RT:
+  def __init__(self,nextFunc,parent):
+    self.next = nextFunc
+    self.running = True
+    self.parent = parent
+  def start(self):
+    self.runnnig= True
+    while self.running:
+      self.next()
+      time.sleep(1./self.parent.frames_per_second)
+  def stop(self):
+    self.running = False
 
 class animate_obj(animate_obj_old):
 
@@ -607,25 +591,8 @@ class animate_obj(animate_obj_old):
         self.animation_files = []
         self.frames_per_second = 100.
         self.creating_animation = False
-        if hasPyQt:
-          self.runTimer = QtCore.QTimer() #used to run the animation
-          self.runTimer.timeout.connect(self.next)
-          self.fps(10) #sets runTimer interval
-          self.signals = AnimationSignals() #holds signals, since we are not a QObject
-        else:
-          class RT:
-            def __init__(self,nextFunc,parent):
-              self.next = nextFunc
-              self.running = True
-              self.parent = parent
-            def start(self):
-              self.runnnig= True
-              while self.running:
-                self.next()
-                time.sleep(1./self.parent.frames_per_second)
-            def stop(self):
-              self.running = False
-          self.runTimer = RT(self.next,self)
+        self.fps(100) #sets runTimer interval
+        self.runTimer = RT(self.next,self)
         self.current_frame = 0
         self.loop = True
 
@@ -637,57 +604,13 @@ class animate_obj(animate_obj_old):
         self.current_frame = 0
         self.creating_animation = True
         if thread_it:
-            class crp(cl_parent): 
-
-                def __init__(self, anim):
-                  if hasPyQt:
-                    QtCore.QObject.__init__(self)
-                    self.dialog = QtGui.QProgressDialog("Creating animation...", "Cancel", 0, 0)
-                    self.dialog.setModal(True)
-                    self.dialog.canceled.connect(self.dialogCanceled)
-                    self.animationTimer = QtCore.QBasicTimer()
-                  else:
-                    class VCSTimer():
-                      def start(self,sleep,*args):
-                        # sleep 
-                        time.sleep(sleep/1000.)
-                    self.animationTimer= VCSTimer()
-                    class Dialog:
-                      def __init__(self):
-                        self.min = 0
-                        self.max = 100
-                      def setRange(self,min,max):
-                        self.min = min
-                        self.max = max
-                      def show(self):
-                        pass
-                  self.dialog = Dialog()
-                  self.animationFrame = 0
-                  self.anim = anim
-                    
-                def timerEvent(self, event):
-                  if hasPyQt:
-                    self.dialog.setValue(self.animationFrame)
-                  if self.animationFrame>=len(self.anim.allArgs):
-                    if hasPyQt:
-                        self.animationTimer.stop()
-                    self.anim.animationCreated()
-                    return
-                  self.anim.renderFrame(self.animationFrame)
-                  self.animationFrame += 1
-
-                def dialogCanceled(self):
-                  if hasPyQt:
-                    self.animationTimer.stop()
-                  self.anim.animationCanceled()
-
-            global C
-            C=crp(self)
-            self._actualCreate(parent,min,max,save_file,rate,bitrate,ffmpegoptions,axis,C)
+          self.thread = thread.start_new_thread(self._actualCreate,
+                (parent,min,max,save_file,rate,bitrate,ffmpegoptions,axis)
+                )
         else:
-            C=None
-            self._actualCreate(parent,min,max,save_file,rate,bitrate,ffmpegoptions,axis)
-        return C
+          self.thread = None
+          self._actualCreate(parent,min,max,save_file,rate,bitrate,ffmpegoptions,axis)
+        return 
 
     def _actualCreate( self, parent=None, min=None, max=None, save_file=None, rate=5., bitrate=None, ffmpegoptions='', axis=0, sender=None):
         alen = None
@@ -804,19 +727,15 @@ class animate_obj(animate_obj_old):
             sender.animationTimer.start(0, sender)
             sender.dialog.setRange(0, len(self.allArgs))
             sender.dialog.show()
-        self.creatingAnimation = False
+        self.creating_animation = False
 
     def animationCreated(self):
         self.create_flg = 1
         self.restore_min_max()
-        if hasPyQt:
-          self.signals.created.emit()
 
     def animationCanceled(self):
         self.create_flg = 0
         self.restore_min_max()
-        if hasPyQt:
-          self.signals.canceled.emit()
 
     def renderFrame(self, i):
         if self.animation_seed is None:
@@ -878,8 +797,6 @@ class animate_obj(animate_obj_old):
     def pause_run(self):
         self.run_flg = 0
         self.runTimer.stop()
-        if hasPyQt:
-          self.signals.paused.emit()
 
     def draw(self, frame):
         if self.create_flg == 1:
@@ -887,8 +804,6 @@ class animate_obj(animate_obj_old):
             self.vcs_self.backend.clear()
             self.vcs_self.put_png_on_canvas(self.animation_files[frame],
                     self.zoom_factor, self.vertical_factor, self.horizontal_factor)
-            if hasPyQt:
-              self.signals.drew.emit()
         
     def frame(self, frame):
         self.draw(frame)
