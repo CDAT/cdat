@@ -4,7 +4,7 @@ import os
 import time
 
 try:
-  from PyQt4 import QtGui,QtCore
+  from PyQt44 import QtGui,QtCore
   hasPyQt = True
   cl_parent = QtCore.QThread
 except:
@@ -605,6 +605,8 @@ class animate_obj(animate_obj_old):
         self.canvas = None
         self.animation_seed = None
         self.animation_files = []
+        self.frames_per_second = 100.
+        self.creating_animation = False
         if hasPyQt:
           self.runTimer = QtCore.QTimer() #used to run the animation
           self.runTimer.timeout.connect(self.next)
@@ -612,17 +614,18 @@ class animate_obj(animate_obj_old):
           self.signals = AnimationSignals() #holds signals, since we are not a QObject
         else:
           class RT:
-            def __init__(self,nextFunc):
+            def __init__(self,nextFunc,parent):
               self.next = nextFunc
               self.running = True
+              self.parent = parent
             def start(self):
               self.runnnig= True
               while self.running:
                 self.next()
-                time.sleep(1)
+                time.sleep(1./self.parent.frames_per_second)
             def stop(self):
               self.running = False
-          self.runTimer = RT(self.next)
+          self.runTimer = RT(self.next,self)
         self.current_frame = 0
         self.loop = True
 
@@ -632,6 +635,7 @@ class animate_obj(animate_obj_old):
           #self.canvas = vcs.init()
           self.canvas = self.vcs_self
         self.current_frame = 0
+        self.creating_animation = True
         if thread_it:
             class crp(cl_parent): 
 
@@ -642,6 +646,22 @@ class animate_obj(animate_obj_old):
                     self.dialog.setModal(True)
                     self.dialog.canceled.connect(self.dialogCanceled)
                     self.animationTimer = QtCore.QBasicTimer()
+                  else:
+                    class VCSTimer():
+                      def start(self,sleep,*args):
+                        # sleep 
+                        time.sleep(sleep/1000.)
+                    self.animationTimer= VCSTimer()
+                    class Dialog:
+                      def __init__(self):
+                        self.min = 0
+                        self.max = 100
+                      def setRange(self,min,max):
+                        self.min = min
+                        self.max = max
+                      def show(self):
+                        pass
+                  self.dialog = Dialog()
                   self.animationFrame = 0
                   self.anim = anim
                     
@@ -784,6 +804,7 @@ class animate_obj(animate_obj_old):
             sender.animationTimer.start(0, sender)
             sender.dialog.setRange(0, len(self.allArgs))
             sender.dialog.show()
+        self.creatingAnimation = False
 
     def animationCreated(self):
         self.create_flg = 1
@@ -814,10 +835,8 @@ class animate_obj(animate_obj_old):
         #self.vcs_self.plot(*frameArgs[0],bg=1)
         self.canvas.clear()
         for args in frameArgs:
-            print "BG IS 1 !!!!!!!!"
             self.canvas.plot(*args, bg=0)
         self.canvas.png(fn,draw_white_background=1)
-        print "Dumped to:",fn
         #self.canvas.png("sample")
         
     # def runner(self):
@@ -849,6 +868,8 @@ class animate_obj(animate_obj_old):
 
     def run(self,*args):
         self.vcs_self.open()
+        while self.create_flg == 0:
+          pass
         if self.create_flg == 1 and self.run_flg == 0:
             self.first_run = True
             self.run_flg = 1
@@ -863,6 +884,7 @@ class animate_obj(animate_obj_old):
     def draw(self, frame):
         if self.create_flg == 1:
             self.current_frame = frame
+            self.vcs_self.backend.clear()
             self.vcs_self.put_png_on_canvas(self.animation_files[frame],
                     self.zoom_factor, self.vertical_factor, self.horizontal_factor)
             if hasPyQt:
