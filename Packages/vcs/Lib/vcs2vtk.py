@@ -1,8 +1,13 @@
+## This module contains some convenience function from vcs2vtk
 import vcs
 import vtk
 import numpy
+import sys
+import json
+import os
+f = open(os.path.join(sys.prefix,"share","vcs","wmo_symbols.json"))
+wmo = json.load(f)
 
-## This module contains some convenience function from vcs2vtk
 
 ## Continents first
 def prepContinents(fnm):
@@ -446,8 +451,25 @@ def prepMarker(renWin,ren,marker,cmap=None):
       poly = genPoly(coords,pts,filled=True)
       polygons.InsertNextCell(poly)
       pd.SetPoints(pts)
-      #pd.SetLines(polygons)
       pd.SetPolys(polygons)
+      g.SetSourceData(pd)
+    elif t in ["w%.2i" % x for x in range(203)]:
+      ## WMO marker
+      params = wmo[t]
+      pts = vtk.vtkPoints()
+      pd = vtk.vtkPolyData()
+      polys = vtk.vtkCellArray()
+      lines = vtk.vtkCellArray()
+      #Lines first
+      for l in params["line"]:
+        line = genPoly(zip(*l),pts,filled=False)
+        lines.InsertNextCell(line)
+      for l in params["poly"]:
+        line = genPoly(zip(*l),pts,filled=True)
+        polys.InsertNextCell(line)
+      pd.SetPoints(pts)
+      pd.SetPolys(polys)
+      pd.SetLines(lines)
       g.SetSourceData(pd)
     else:
       warnings.warn("unknown marker type: %s, using dot" % t)
