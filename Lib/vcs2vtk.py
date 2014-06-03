@@ -467,7 +467,8 @@ def prepMarker(renWin,ren,marker,cmap=None):
         line = genPoly(coords.tolist(),pts,filled=False)
         lines.InsertNextCell(line)
       for l in params["poly"]:
-        line = genPoly(zip(*l),pts,filled=True)
+        coords = numpy.array(zip(*l))*s/30.
+        line = genPoly(coords.tolist(),pts,filled=True)
         polys.InsertNextCell(line)
       pd.SetPoints(pts)
       pd.SetPolys(polys)
