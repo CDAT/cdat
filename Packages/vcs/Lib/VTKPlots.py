@@ -559,9 +559,8 @@ class VTKVCSBackend(object):
     cam.ParallelProjectionOn()
     width = (ext[1]-ext[0])*spc[0]
     height = (ext[3]-ext[2])*spc[1]
-    xoff = width*xOffset/zoom/100.
-    yoff = height*yOffset/zoom/100.
-    print xoff,yoff
+    xoff = width*xOffset/zoom/200.
+    yoff = height*yOffset/zoom/200.
     xc  = origin[0] + .5*(ext[0]+ext[1])*spc[0]
     yc  = origin[1] + .5*(ext[2]+ext[3])*spc[1]
     yd = (ext[3]-ext[2])*spc[1]

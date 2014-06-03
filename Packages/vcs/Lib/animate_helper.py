@@ -785,63 +785,88 @@ class animate_obj(animate_obj_old):
         if self.first_run:
             self.first_run = False
 
-    def run(self,*args):
-        self.vcs_self.open()
-        while self.create_flg == 0:
-          pass
-        if self.create_flg == 1 and self.run_flg == 0:
-            self.first_run = True
-            self.run_flg = 1
-            self.runTimer.start()
+    def run(self,*args,**kargs):
+      """Runs the animation"""
+      thread.start_new_thread(self._run,args,kargs)
+      
+    def _run(self,*args):
+      """Runs the animation"""
+      self.vcs_self.open()
+      while self.create_flg == 0:
+        pass
+      if self.create_flg == 1 and self.run_flg == 0:
+          self.first_run = True
+          self.run_flg = 1
+          self.runTimer.start()
 
     def pause_run(self):
-        self.run_flg = 0
-        self.runTimer.stop()
+      """ Pauses the animation """
+      self.run_flg = 0
+      self.runTimer.stop()
 
     def draw(self, frame):
-        if self.create_flg == 1:
-            self.current_frame = frame
-            self.vcs_self.backend.clear()
-            self.vcs_self.put_png_on_canvas(self.animation_files[frame],
-                    self.zoom_factor, self.vertical_factor, self.horizontal_factor)
+      """Render a specific Frame"""
+      if self.create_flg == 1:
+          self.current_frame = frame
+          self.vcs_self.backend.clear()
+          self.vcs_self.put_png_on_canvas(self.animation_files[frame],
+                  self.zoom_factor, self.vertical_factor, self.horizontal_factor)
         
     def frame(self, frame):
-        self.draw(frame)
+      """Render a specific Frame"""
+      self.draw(frame)
 
     def save(self,movie,bitrate=1024, rate=None, options=''):
-        if self.create_flg == 1:
-            fnms = os.path.join(os.environ["HOME"],".uvcdat","__uvcdat_%i_%%d.png" %      (self.animation_seed))
-            if rate is None:
-                rate = self.fps()
-            self.vcs_self.ffmpeg(movie, fnms, bitrate, rate, options)
+      """Save animation to a file"""
+      if self.create_flg == 1:
+          fnms = os.path.join(os.environ["HOME"],".uvcdat","__uvcdat_%i_%%d.png" %      (self.animation_seed))
+          if rate is None:
+              rate = self.fps()
+          self.vcs_self.ffmpeg(movie, fnms, bitrate, rate, options)
 
     def number_of_frames(self):
-        return len(self.animation_files)
+      """Returns the number of frames"""
+      return len(self.animation_files)
 
     def stop(self):
-        self.pause_run()
-        self.current_frame = 0
+      """Stop animation when runnning"""
+      self.pause_run()
+      self.current_frame = 0
 
     def pause(self, value):
-        value = max(value, 0.0001)
-        self.fps(1/value)
+      """Time between frames when animating"""
+      value = max(value, 0.0001)
+      self.fps(1/value)
 
     def zoom(self,value):
-        self.zoom_factor = value
+      """Zoom factor for the animation"""
+      self.zoom_factor = value
 
     def horizontal(self,value):
-        self.horizontal_factor = value
+      """ Pan the window horizontaly (when zoomed). 100% means move so you can see the furthest right part of the picture"
+      """
+      if value>100.:
+        raise Exception("Horizontal Factor cannot be greater than 100%")
+      if value<-100.:
+        raise Exception("Horizontal Factor cannot be less than 100%")
+      self.horizontal_factor = value
 
     def vertical(self,value):
-        self.vertical_factor = value
+      """ Pan the window verticaly (when zoomed). 100% means move so you can see the top part of the picture"
+      """
+      if value>100.:
+        raise Exception("Vertical Factor cannot be greater than 100%")
+      if value<-100.:
+        raise Exception("Vertical Factor cannot be less than 100%")
+      self.vertical_factor = value
 
     def fps(self, value=None):
-        if value is not None:
-            value = max(value, 0.0001)
-            self.frames_per_second = value
-            #self.runTimer.setInterval(1000/value)
-            return self
-        return self.frames_per_second
+      """ Animation desired number of frame per seconds (might not be achievable depending on your system)"""
+      if value is not None:
+          value = max(value, 0.0001)
+          self.frames_per_second = value
+          return self
+      return self.frames_per_second
 
       
 ############################################################################
