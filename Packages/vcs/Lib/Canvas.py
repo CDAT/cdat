@@ -7750,7 +7750,6 @@ Options:::
 
 """
 
-        print "WE ARE HERE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
         a=apply(self.canvas.setcolorcell, args)
         self.canvas.updateVCSsegments(self.mode) # pass down self and mode to _vcs module
         self.flush() # update the canvas by processing all the X events
