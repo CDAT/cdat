@@ -463,7 +463,8 @@ def prepMarker(renWin,ren,marker,cmap=None):
       lines = vtk.vtkCellArray()
       #Lines first
       for l in params["line"]:
-        line = genPoly(zip(*l),pts,filled=False)
+        coords = numpy.array(zip(*l))*s/30.
+        line = genPoly(coords.tolist(),pts,filled=False)
         lines.InsertNextCell(line)
       for l in params["poly"]:
         line = genPoly(zip(*l),pts,filled=True)
