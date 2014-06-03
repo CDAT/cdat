@@ -30,7 +30,9 @@ def process_src(nm,code):
   numbers = eval(code)
   d= {}
   for i in range(255):
-    d[i] = numbers[i*3:i*3+3]
+    val = numbers[i*3:i*3+3]
+    if val!=():
+      d[i]=list(val)
   cp =  Cp(nm)
   cp.index.data.update(d)
 
@@ -143,6 +145,7 @@ class Cp:
     To Create a new instance of colormap use:
      cp=a.createcolormap('new','quick') # Copies content of 'red' to 'new'
      cp=a.createcolormap('new')         # Copies content of 'default' to 'new'
+        print "Now our index is :",self.index[242],self
 
     To Modify an existing colormap use:
      cp=a.getcolormap('quick')

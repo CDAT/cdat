@@ -453,8 +453,13 @@ class VTKVCSBackend(object):
       cmap = vcs.elements["colormap"][cmap]
     except:
       cmap = vcs.elements["colormap"][self.canvas.getcolormapname()]
+    print cmap.name
+    print cmap.index
     lut.SetNumberOfTableValues(Nlevs)
     for i in range(Nlevs):
+      print "i:",i
+      print "color:",cols[i]
+      print cmap.index[cols[i]]
       r,g,b = cmap.index[cols[i]]
       lut.SetTableValue(i,r/100.,g/100.,b/100.)
 

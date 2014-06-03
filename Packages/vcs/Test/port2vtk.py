@@ -80,7 +80,7 @@ print e
 e = x.getxvsy(e[-1])
 print e
 
-e = x.listelements("oneD")
+e = x.listelements("oned")
 print e
 e = x.getoneD(e[-1])
 print e
