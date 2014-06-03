@@ -557,13 +557,18 @@ class VTKVCSBackend(object):
     ren = vtk.vtkRenderer()
     cam = ren.GetActiveCamera()
     cam.ParallelProjectionOn()
+    width = (ext[1]-ext[0])*spc[0]
+    height = (ext[3]-ext[2])*spc[1]
+    xoff = width*xOffset/zoom/100.
+    yoff = height*yOffset/zoom/100.
+    print xoff,yoff
     xc  = origin[0] + .5*(ext[0]+ext[1])*spc[0]
     yc  = origin[1] + .5*(ext[2]+ext[3])*spc[1]
     yd = (ext[3]-ext[2])*spc[1]
     d = cam.GetDistance()
     cam.SetParallelScale(.5*yd/zoom)
-    cam.SetFocalPoint(xc,yc,0.)
-    cam.SetPosition(xc,yc,d)
+    cam.SetFocalPoint(xc+xoff,yc+yoff,0.)
+    cam.SetPosition(xc+xoff,yc+yoff,d)
     ren.AddActor(a)
     self.renWin.AddRenderer(ren)
     self.renWin.Render()
