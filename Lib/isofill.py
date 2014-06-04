@@ -654,7 +654,7 @@ Class: Gfi				# Isofill
           if not Gfi_name_src in vcs.elements["isofill"].keys():
             raise ValueError,"Isofill method '%s' does not exists" % Gfi_name_src
           src =vcs.elements["isofill"][Gfi_name_src]
-          for att in ['projection' ,'xticlabels1' ,'xticlabels2' ,'xmtics1' ,'xmtics2' ,'yticlabels1' ,'yticlabels2' ,'ymtics1' ,'ymtics2' ,'datawc_y1' ,'datawc_y2' ,'datawc_x1' ,'datawc_x2' ,'xaxisconvert' ,'yaxisconvert' ,'missing' ,'ext_1' ,'ext_2' ,'fillareastyle' ,'fillareaindices' ,'fillareacolors' ,'levels' ,'legend' ,'datawc_timeunits' ,'datawc_calendar']:
+          for att in ['projection' ,'xticlabels1' ,'xticlabels2' ,'xmtics1' ,'xmtics2' ,'yticlabels1' ,'yticlabels2' ,'ymtics1' ,'ymtics2' ,'datawc_y1' ,'datawc_y2' ,'datawc_x1' ,'datawc_x2' ,'levels','xaxisconvert' ,'yaxisconvert' ,'missing' ,'ext_1' ,'ext_2' ,'fillareastyle' ,'fillareaindices' ,'fillareacolors'  ,'legend' ,'datawc_timeunits' ,'datawc_calendar']:
             setattr(self,att,getattr(src,att))
 
         self.info = AutoAPI.Info(self)

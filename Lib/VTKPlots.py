@@ -350,6 +350,10 @@ class VTKVCSBackend(object):
     if self.debug:
       vcs2vtk.dump2VTK(ug)
 
+    try:
+      cmap = vcs.elements["colormap"][cmap]
+    except:
+      cmap = vcs.elements["colormap"][self.canvas.getcolormapname()]
     lut = vtk.vtkLookupTable()
     #lut.SetTableRange(0,Nlevs)
     ## Following assumes contiguous levels for now
@@ -378,11 +382,7 @@ class VTKVCSBackend(object):
         vcs2vtk.dump2VTK(sFilter)
       if isinstance(gm,isoline.Gi):
         cot = vtk.vtkContourFilter()
-      else:
-        cot = vtk.vtkBandedPolyDataContourFilter()
-      cot.SetInputData(sFilter.GetOutput())
-      if self.debug:
-        vcs2vtk.dump2VTK(cot)
+        cot.SetInputData(sFilter.GetOutput())
 
 
       levs = gm.levels
@@ -393,35 +393,72 @@ class VTKVCSBackend(object):
           if isinstance(gm,isoline.Gi):
             levs = [x[0] for x in gm.levels]
           else:
-            raise Exception, "Cannot handle non contiguous levels yet: %s" % gm.levels
+            levs = gm.levels
         else:
-          levs=gm.levels
-          if numpy.allclose(levs[0],1.e20):
-            levs[0]=-1.e20
+          print "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+          levs = [] 
+          levs2=gm.levels
+          if numpy.allclose(levs2[0],1.e20):
+            levs2[0]=-1.e20
+          for i in range(len(levs2)-1):
+            levs.append([levs2[i],levs2[i+1]])
+          if isinstance(gm,isoline.Gi):
+            levs = levs2
       Nlevs=len(levs)
       ## Figure out colors
       if isinstance(gm,boxfill.Gfb):
         cols = gm.fillareacolors 
         if cols is None:
-          cols = vcs.getcolors(levs,split=0)
+          cols = vcs.getcolors(levs2,split=0)
       elif isinstance(gm,isofill.Gfi):
         cols = gm.fillareacolors
         if cols==[1,]:
-          cols = vcs.getcolors(levs,split=0)
+          cols = vcs.getcolors(levs2,split=0)
       elif isinstance(gm,isoline.Gi):
         cols = gm.linecolors
 
-      cot.SetNumberOfContours(Nlevs+1)
-      if levs[0]==1.e20:
-        levs[0]=-1.e20
-      for i in range(Nlevs):
-        cot.SetValue(i,levs[i])
-      cot.SetValue(Nlevs,levs[-1])
-      cot.Update()
-      if self.debug:
-        vcs2vtk.dump2VTK(cot,"cot")
-      mapper.SetInputConnection(cot.GetOutputPort())
+      if isinstance(gm,isoline.Gi):
+        cot.SetNumberOfContours(Nlevs)
+        if levs[0]==1.e20:
+          levs[0]=-1.e20
+        for i in range(Nlevs):
+          cot.SetValue(i,levs[i])
+        cot.SetValue(Nlevs,levs[-1])
+        cot.Update()
+        mapper.SetInputConnection(cot.GetOutputPort())
+        mappers = []
+      else:
+        mappers = []
+        print "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY",levs
+        for i,l in enumerate(levs):
+          print "LEV:",l
+          mapper = vtk.vtkPolyDataMapper()
+          cot = vtk.vtkBandedPolyDataContourFilter()
+          #cot.ClippedDataOn()
+          cot.SetInputData(sFilter.GetOutput())
+          cot.SetNumberOfContours(2)
+          cot.SetValue(0,l[0])
+          cot.SetValue(1,l[1])
+          cot.Update()
+          mapper.SetInputConnection(cot.GetOutputPort())
+          lut = vtk.vtkLookupTable()
+          lut.SetNumberOfTableValues(1)
+          r,g,b = cmap.index[cols[i]]      
+          lut.SetTableValue(0,r/100.,g/100.,b/100.)
+          mapper.SetLookupTable(lut)
+          if numpy.allclose(l[0],-1.e20):
+            lmn = mn-1.
+          else:
+            lmn= l[0]
+          if numpy.allclose(l[-1],1.e20):
+            lmx = mx+1.
+          else:
+            lmx= l[-1]
+          mapper.SetScalarRange(lmn,lmx)
+          mappers.append(mapper)
+
     else: #Boxfill/Meshfill
+      mappers=[]
       geoFilter = vtk.vtkGeometryFilter()
       geoFilter.SetInputData(ug)
       geoFilter.Update()
@@ -443,27 +480,31 @@ class VTKVCSBackend(object):
         if cols==[1,]:
           cols = vcs.getcolors(levs)
       Nlevs = len(levs)
+      Ncolors = Nlevs-1
 
-    ## Colortable bit
-    # make sure length match
-    while len(cols)<Nlevs:
-      cols.append(cols[-1])
-    
-    try:
-      cmap = vcs.elements["colormap"][cmap]
-    except:
-      cmap = vcs.elements["colormap"][self.canvas.getcolormapname()]
-    lut.SetNumberOfTableValues(Nlevs)
-    for i in range(Nlevs):
-      r,g,b = cmap.index[cols[i]]
-      lut.SetTableValue(i,r/100.,g/100.,b/100.)
+    if mappers == []: # ok didn't need to have special banded contours
+      mappers=[mapper,]
+      ## Colortable bit
+      # make sure length match
+      while len(cols)<Ncolors:
+        cols.append(cols[-1])
+      
+      lut.SetNumberOfTableValues(Nlevs)
+      for i in range(Ncolors):
+        r,g,b = cmap.index[cols[i]]
+        lut.SetTableValue(i,r/100.,g/100.,b/100.)
 
-    mapper.SetLookupTable(lut)
-    mapper.SetScalarRange(levs[0],levs[-1])
+      mapper.SetLookupTable(lut)
+      if numpy.allclose(levs[0],-1.e20):
+        lmn = mn-1.
+      else:
+        lmn= levs[0]
+      if numpy.allclose(levs[-1],1.e20):
+        lmx = mx+1.
+      else:
+        lmx= levs[-1]
+      mapper.SetScalarRange(lmn,lmx)
 
-    # And now we need actors to actually render this thing
-    act = vtk.vtkActor()
-    act.SetMapper(mapper)
 
     # Also need to make sure it fills the whole space
     if not numpy.allclose([gm.datawc_x1,gm.datawc_x2],1.e20):
@@ -475,18 +516,18 @@ class VTKVCSBackend(object):
     else:
       y1,y2 = ym,yM
 
-    act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
     if tmpl.data.priority != 0:
-      #act.SetVisibility(False)
-      ren.AddActor(act)
-      #self.renWin.Render()
-      vcs2vtk.fitToViewport(act,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2])
-      #ren.RemoveActor(act)
-      #ren.AddActor(tmp)
-    
+      # And now we need actors to actually render this thing
+      for mapper in mappers:
+        act = vtk.vtkActor()
+        act.SetMapper(mapper)
+        act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
+        ren.AddActor(act)
+        vcs2vtk.fitToViewport(act,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2])
+
     self.renderTemplate(ren,tmpl,data1,gm)
-    if isinstance(gm,(isofill.Gfi,meshfill.Gfm,boxfill.Gfb)):
-      self.renderColorBar(ren,tmpl,levs,cols)
+    #if isinstance(gm,(isofill.Gfi,meshfill.Gfm,boxfill.Gfb)):
+    #  self.renderColorBar(ren,tmpl,levs,cols)
     if continents:
       contData = vcs2vtk.prepContinents(os.environ["HOME"]+"/.uvcdat/data_continent_political")
       contMapper = vtk.vtkPolyDataMapper()
