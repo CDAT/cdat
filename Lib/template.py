@@ -1335,9 +1335,15 @@ class P(object):
          dX=self.legend.x2-self.legend.x1
          dY=self.legend.y2-self.legend.y1
          nbox=len(colors)
-         if levels[0]<-1.e19:
+         if isinstance(levels[0],list):
+           l0 = levels[0][0]
+           l1 = levels[-1][1]
+         else:
+           l0 = levels[0]
+           l1 = levels[-1]
+         if l0<-1.e19:
            ext_1='y'
-         if levels[-1]>1.e19:
+         if l1>1.e19:
            ext_2='y'
          levels=list(levels)
          # Now figure out the typical length of a box
@@ -1361,7 +1367,6 @@ class P(object):
          # computes the fillarea coordinates
          iext=0 # To know if we changed the dims
          minarrow=.02 # % of the legend that the arrow must use (at least)
-         print ext_1,ext_2,dlong,minarrow*dLong
          if (ext_1=='y' or ext_2=='y' ) and dlong<minarrow*dLong:
               iext=1 # one mins changed ext_1
               if ext_1=='y' and ext_2=='y':
@@ -1448,39 +1453,64 @@ class P(object):
          Sl.append([startshrt      , startshrt         , startshrt+dshrt   , startshrt+dshrt, startshrt])
          Ll.append([startlong      , startlong+dD      , startlong+dD      , startlong      , startlong])
          # Now make sure we have a legend
-         if legend is None:
-              legend=vcs.mklabels(levels)
-         if levels[0]<levels[1]:
-              ecompfunc=numpy.less_equal
-              compfunc=numpy.less             
+         if isinstance(levels[0],list):
+           ## Ok these are nono contiguous levels, we will use legend only if it's a perfect match
+           for i,l in enumerate(levels):
+             lt = l[0]
+             lb = l[1]
+             loc = i*dlong + startlong
+             Ll.append([loc,loc])
+             Sl.append([startshrt,startshrt+dshrt])
+             if legend is not None:
+               lt=legend.get(lt,None)
+               lb=legend.get(lb,None)
+             if lt is not None:
+               loct = startlong + (i+.5)*dlong
+               Tt.append(str(lt)) 
+               Lt.append(loct)
+               St.append(startshrt+dshrt*1.4)
+             if lb is not None:
+               loct = startlong + (i+.5)*dlong
+               Tt.append(str(lb)) 
+               Lt.append(loct)
+               St.append(startshrt-dshrt*.6)
+
          else:
-              ecompfunc=numpy.greater_equal
-              compfunc=numpy.greater
-##          legend[levels[0]]=vcs.mklabels([levels[0]],output='list')[0]
-##          legend[levels[-1]]=vcs.mklabels([levels[-1]],output='list')[0]
-##          legend=vcs.mklabels(legend.keys())
-         for l in legend.keys():
-              if not compfunc(l,levels[0]) and not compfunc(levels[-1],l):
-                   for i in range(len(levels)-1):
-                        if ecompfunc(levels[i],l) and ecompfunc(l,levels[i+1]):
-                             # Ok we're between 2 levels, let's add the legend
-                             # first let's figure out where to put it
-                             loc=i*dlong # position at beginnig of level
-                             loc+=(l-levels[i])/(levels[i+1]-levels[i])*dlong # Adds the distance from beginnig of level box
-                             loc+=startlong ## Figures out the begining
-##                              loc=((l-levels[0])/(levels[-1]-levels[0]))*dD+startlong
-                             Ll.append([loc,loc])
-                             Sl.append([startshrt,startshrt+dshrt])
-                             Lt.append(loc)
-                             St.append(startshrt+dshrt*1.4)
-                             Tt.append(legend[l])
-                             break
+           if legend is None:
+                legend=vcs.mklabels(levels)
+           if levels[0]<levels[1]:
+                ecompfunc=numpy.less_equal
+                compfunc=numpy.less             
+           else:
+                ecompfunc=numpy.greater_equal
+                compfunc=numpy.greater
+           for l in legend.keys():
+                if not compfunc(l,levels[0]) and not compfunc(levels[-1],l):
+                     for i in range(len(levels)-1):
+                          if ecompfunc(levels[i],l) and ecompfunc(l,levels[i+1]):
+                               # Ok we're between 2 levels, let's add the legend
+                               # first let's figure out where to put it
+                               loc=i*dlong # position at beginnig of level
+                               loc+=(l-levels[i])/(levels[i+1]-levels[i])*dlong # Adds the distance from beginnig of level box
+                               loc+=startlong ## Figures out the begining
+  ##                              loc=((l-levels[0])/(levels[-1]-levels[0]))*dD+startlong
+                               Ll.append([loc,loc])
+                               Sl.append([startshrt,startshrt+dshrt])
+                               Lt.append(loc)
+                               St.append(startshrt+dshrt*1.4)
+                               Tt.append(legend[l])
+                               break
          # ok now creates the line object and text object
          ln=x.createline(source=self.legend.line)
          txt=x.createtext(To_source=self.legend.textorientation,Tt_source=self.legend.texttable)
          ln.priority=priority+1
          txt.priority=priority+1
          txt.string=Tt
+         if isinstance(legend,list):
+           if isH:
+             txt.halign = "center"
+           else:
+             txt.valign = "half"
          if isH:
               ln.x=Ll
               ln.y=Sl
