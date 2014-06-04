@@ -21,17 +21,8 @@ def smooth(x,beta,window_len=11):
 
 class VCSInteractorStyle(vtk.vtkInteractorStyle):
   def __init__(self,parent=None):
-    self._foo = parent
-    self.AddObserver("LeftButtonPressEvent",self.leftButtonPressEvent)
-    self.AddObserver("ConfigureEvent",self.ConfigureEvent)
-
-  def leftButtonPressEvent(self,obj,event):
-    self.OnLeftButtonDown()
-  def ConfigureEvent(self,obj,ev):
-    self._foo = parent
-
-
-
+    self.AddObserver("LeftButtonPressEvent",parent.leftButtonPressEvent)
+    self.AddObserver("ConfigureEvent",parent.ConfigureEvent)
 
 class VTKVCSBackend(object):
   def __init__(self,canvas,renWin=None, debug=False,bg=None):
@@ -42,6 +33,29 @@ class VTKVCSBackend(object):
     self.type = "vtk"
     self._plot_keywords = ['renderer',]
     self.numberOfPlotCalls = 0 
+
+  def interact(self,*args,**kargs):
+    self.interactor.Start()
+
+  def leftButtonPressEvent(self,obj,event):
+    print event
+    print "left click"
+  def ConfigureEvent(self,obj,ev):
+    print "Configure Event!"
+    plots_args = []
+    for dnm in self.canvas.display_names:
+      d=vcs.elements["display"][dnm]
+      parg = []
+      for a in d.array:
+        if a is not None:
+          parg.append(a)
+      parg.append(d._template_origin)
+      parg.append(d.g_type)
+      parg.append(d.g_name)
+      plots_args.append(parg)
+    self.canvas.clear()
+    for pargs in plots_args:
+      self.canvas.plot(*pargs)
 
   def clear(self):
     renderers = self.renWin.GetRenderers()
@@ -67,7 +81,7 @@ class VTKVCSBackend(object):
       ren.SetBackground(r/255.,g/255.,b/255.)
       self.renWin.AddRenderer(ren)
       self.interactor = vtk.vtkRenderWindowInteractor()
-      self.interactor.SetInteractorStyle(VCSInteractorStyle(parent=self.canvas))
+      self.interactor.SetInteractorStyle(VCSInteractorStyle(parent=self))
       self.interactor.SetRenderWindow(self.renWin)
       return True
     else:

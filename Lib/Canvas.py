@@ -415,48 +415,9 @@ class Canvas(object,AutoAPI.AutoAPI):
     animate_info =property(_getanimate_info,_setanimate_info)
     
         
-##     def __setattr__(self, name, value):
-##         if (name == 'mode'):
-##            try:
-##               if (isinstance(value, types.IntType)) and (value in range(2)):
-##                  self.__dict__['mode']=value
-##               else:
-##                  raise vcsError, "canvas setting mode failed, value = " + str(value)
-##            except:
-##               raise vcsError,  "canvas, " + name + ' must be 0 or 1.'
-##               raise
-##         elif (name == 'pause_time'):
-##            if (not isinstance(value, types.IntType)):
-##                raise vcsError, "Canvas' pause time must be integer."
-##            self.__dict__['pause_time'] = value
-##         elif (name == 'viewport'):
-##            try:
-##               if ((type(value) == types.ListType) and (len(value) == 4)):
-##                  self.__dict__['viewport'] = value
-##               else:
-##                  raise vcsError,  "viewport must be of type list and have four values ranging between [0,1]."
-##            except:
-##               raise vcsError,  "viewport must be of type list and have four values ranging between [0,1]."
-##               raise
-##         elif (name == 'worldcoordinate'):
-##            try:
-##               if ((type(value) == types.ListType) and (len(value) == 4)):
-##                  self.__dict__['worldcoordinate'] = value
-##               else:
-##                  raise vcsError,  "worldcoordinate must be of type list and have four ranging values."
-##            except:
-##               raise vcsError,  "worldcoordinate must be of type list and have four ranging values."
-##               raise
-##         elif (name == 'animate_info'):
-##            self.__dict__['animate_info'] = value
-##         elif (name == 'canvas_template_editor'):
-##            self.__dict__['canvas_template_editor'] = value
-##         elif (name == 'isplottinggridded'):
-##            self.__dict__['isplottinggridded'] = value
-##         elif (name == 'ratio'):
-##            self.__dict__['ratio'] = value
-##         else:
-##            raise vcsError, 'Invalid member for setattr in VCS canvas.'
+    def interact(self,*args,**kargs):
+      self.backend.interact(*args,**kargs)
+
     def _datawc_tv(self, tv, arglist):
         """The graphics method's data world coordinates (i.e., datawc_x1, datawc_x2,
         datawc_y1, and datawc_y2) will override the incoming variable's coordinates.
