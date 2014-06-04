@@ -1334,8 +1334,13 @@ class P(object):
          # Ok first determine the orientation of the legend (bottom to top  or left to right)
          dX=self.legend.x2-self.legend.x1
          dY=self.legend.y2-self.legend.y1
-        # Now figure out the typical length of a box
          nbox=len(colors)
+         if levels[0]<-1.e19:
+           ext_1='y'
+         if levels[-1]>1.e19:
+           ext_2='y'
+         levels=list(levels)
+         # Now figure out the typical length of a box
          if abs(dX)>=abs(dY):
               isH=1
               dLong=dX
@@ -1356,6 +1361,7 @@ class P(object):
          # computes the fillarea coordinates
          iext=0 # To know if we changed the dims
          minarrow=.02 # % of the legend that the arrow must use (at least)
+         print ext_1,ext_2,dlong,minarrow*dLong
          if (ext_1=='y' or ext_2=='y' ) and dlong<minarrow*dLong:
               iext=1 # one mins changed ext_1
               if ext_1=='y' and ext_2=='y':
