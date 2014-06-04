@@ -429,9 +429,7 @@ class VTKVCSBackend(object):
         mappers = []
       else:
         mappers = []
-        print "YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY",levs
         for i,l in enumerate(levs):
-          print "LEV:",l
           mapper = vtk.vtkPolyDataMapper()
           cot = vtk.vtkBandedPolyDataContourFilter()
           cot.ClippingOn()
@@ -441,10 +439,10 @@ class VTKVCSBackend(object):
           cot.SetValue(1,l[1])
           cot.Update()
           mapper.SetInputConnection(cot.GetOutputPort())
+          #mapper.SetInputData(cot.GetOutput())
           lut = vtk.vtkLookupTable()
           lut.SetNumberOfTableValues(1)
           r,g,b = cmap.index[cols[i]]      
-          print "\t RGb:",r,g,b
           lut.SetTableValue(0,r/100.,g/100.,b/100.)
           mapper.SetLookupTable(lut)
           if numpy.allclose(l[0],-1.e20):
@@ -456,7 +454,11 @@ class VTKVCSBackend(object):
           else:
             lmx= l[-1]
           mapper.SetScalarRange(lmn,lmx)
-          mappers.append(mapper)
+          png = vtk.vtkPNGReader()
+          png.SetFileName("/git/uvcdat/Packages/vcs/Share/uvcdat_texture.png")
+          T=vtk.vtkTexture()
+          T.SetInputConnection(png.GetOutputPort())
+          mappers.append([mapper,T])
 
     else: #Boxfill/Meshfill
       mappers=[]
@@ -521,14 +523,21 @@ class VTKVCSBackend(object):
       # And now we need actors to actually render this thing
       for mapper in mappers:
         act = vtk.vtkActor()
-        act.SetMapper(mapper)
+        if isinstance(mapper,list):
+          act.SetMapper(mapper[0])
+        else:
+          act.SetMapper(mapper)
         act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
+        if isinstance(mapper,list):
+          #act.GetMapper().ScalarVisibilityOff()
+          #act.SetTexture(mapper[1])
+          pass
         ren.AddActor(act)
         vcs2vtk.fitToViewport(act,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2])
 
     self.renderTemplate(ren,tmpl,data1,gm)
-    #if isinstance(gm,(isofill.Gfi,meshfill.Gfm,boxfill.Gfb)):
-    #  self.renderColorBar(ren,tmpl,levs,cols)
+    if isinstance(gm,(isofill.Gfi,meshfill.Gfm,boxfill.Gfb)):
+      self.renderColorBar(ren,tmpl,levs,cols,gm.legend)
     if continents:
       contData = vcs2vtk.prepContinents(os.environ["HOME"]+"/.uvcdat/data_continent_political")
       contMapper = vtk.vtkPolyDataMapper()
@@ -547,9 +556,9 @@ class VTKVCSBackend(object):
   def renderTemplate(self,renderer,tmpl,data,gm):
     tmpl.plot(self.canvas,data,gm,bg=self.bg)
 
-  def renderColorBar(self,renderer,tmpl,levels,colors):
+  def renderColorBar(self,renderer,tmpl,levels,colors,legend):
     if tmpl.legend.priority>0:
-      tmpl.drawColorBar(colors,levels,x=self.canvas)
+      tmpl.drawColorBar(colors,levels,x=self.canvas,legend=legend)
 
   def trimData1D(self,data):
     if data is None:

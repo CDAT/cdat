@@ -18,10 +18,13 @@ iso=x.createisofill()
 #iso=x.createisoline()
 
 #iso.levels=[0,33,50,66,100]
-levs=[-1.e20,10,20,30,40,50,60,70,80,90,1.e20]
+#levs=[-1.e20,10,50,60,70,80,90,1.e20]
+levs = [[10,40],[60,65],[65,80],[90,100]]
 cols=vcs.getcolors(levs)
 iso.levels=levs
 iso.fillareacolors = cols
+#iso.legend = {60:"SIXTY",80:"EIGHTY"}
+iso.ext_2='n'
 #iso.linecolors = [242,243,244,245,246]
 iso.list()
 x.plot(s,iso)
