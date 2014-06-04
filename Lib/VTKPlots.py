@@ -434,7 +434,7 @@ class VTKVCSBackend(object):
           print "LEV:",l
           mapper = vtk.vtkPolyDataMapper()
           cot = vtk.vtkBandedPolyDataContourFilter()
-          #cot.ClippedDataOn()
+          cot.ClippingOn()
           cot.SetInputData(sFilter.GetOutput())
           cot.SetNumberOfContours(2)
           cot.SetValue(0,l[0])
@@ -444,6 +444,7 @@ class VTKVCSBackend(object):
           lut = vtk.vtkLookupTable()
           lut.SetNumberOfTableValues(1)
           r,g,b = cmap.index[cols[i]]      
+          print "\t RGb:",r,g,b
           lut.SetTableValue(0,r/100.,g/100.,b/100.)
           mapper.SetLookupTable(lut)
           if numpy.allclose(l[0],-1.e20):

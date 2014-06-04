@@ -25,7 +25,7 @@ iso.fillareacolors = cols
 #iso.linecolors = [242,243,244,245,246]
 iso.list()
 x.plot(s,iso)
-
+x.png("contours")
 raw_input("Press Enter")
 
 
