@@ -1324,20 +1324,20 @@ class P(object):
          #
 
          ## Are levs contiguous?
-         levs2=[]
-         cont = True
-         print "levels are:",levels, len(levels)
-         for i in range(len(levels)-1):
-           if levels[i][1] == levels[i+1][0]:
-             levs2.append(levels[i][0])
-           else: # Ok not contiguous
-             print "failed on:",levels[i],levels[i+1]
-             cont = False
-             break
-         if cont:
-           levs2.append(levels[-1][0])
-           levs2.append(levels[-1][1])
-           levels = levs2
+         if isinstance(levels[0],(list,tuple)):
+           levs2=[]
+           cont = True
+           print "levels are:",levels, len(levels)
+           for i in range(len(levels)-1):
+             if levels[i][1] == levels[i+1][0]:
+               levs2.append(levels[i][0])
+             else: # Ok not contiguous
+               cont = False
+               break
+           if cont:
+             levs2.append(levels[-1][0])
+             levs2.append(levels[-1][1])
+             levels = levs2
 
          # Now sets the priority value
          if priority is None:
@@ -1467,7 +1467,6 @@ class P(object):
          Sl.append([startshrt      , startshrt         , startshrt+dshrt   , startshrt+dshrt, startshrt])
          Ll.append([startlong      , startlong+dD      , startlong+dD      , startlong      , startlong])
          # Now make sure we have a legend
-         print "ok levels to draw are:",levels,levs2,cont
          if isinstance(levels[0],list):
            ## Ok these are nono contiguous levels, we will use legend only if it's a perfect match
            for i,l in enumerate(levels):

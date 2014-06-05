@@ -30,9 +30,9 @@ gm.datawc_y1=-90
 gm.datawc_y2=90
 bg = False
 #bg = True
-levs = range(-20,135,10)
-gm.levels = levs
-gm.fillareacolors = vcs.getcolors(levs)
+#levs = range(-20,135,10)
+#gm.levels = levs
+#gm.fillareacolors = vcs.getcolors(levs)
 x.plot(s,tmpl,gm,bg=bg)
 x.png("test")#,width=2000,height=1000)
 if interact:
