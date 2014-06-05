@@ -1129,7 +1129,7 @@ def _setcolormap(self,value):
   if value is None:
     self._colormap = None
     return
-  if isinstance(value,colormap.Cp):
+  if isinstance(value,vcs.colormap.Cp):
     value = value.name
   if not isinstance(value,str):
     raise "colormap attribute must be a colormap object or a string"

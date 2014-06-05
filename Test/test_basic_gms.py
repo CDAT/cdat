@@ -4,12 +4,7 @@ import cdms2
 import vtk
 import os
 
-interact = False
-if interact:
-  renWin = vtk.vtkRenderWindow()
-  i = vtk.vtkRenderWindowInteractor()
-  i.SetRenderWindow(renWin)
-  i.Initialize()
+interact = True
 f=cdms2.open(os.path.join(sys.prefix,'sample_data','clt.nc'))
 s=f("clt")
 #f=cdms2.open(os.path.join(sys.prefix,"sample_data","sampleCurveGrid4.nc"))
@@ -20,12 +15,10 @@ tmpl = x.createtemplate()
 #tmpl.data.x2=.5
 #tmpl.data.y1=.0001
 #tmpl.data.y2=.25
-if interact:
-  x.backend.renWin = renWin
 x.setcolormap("rainbow")
 gm=x.createisoline()
 gm=x.createboxfill()
-#gm=x.createisofill()
+gm=x.createisofill()
 gm.datawc_x1=0
 gm.datawc_x2=40
 gm.datawc_y1=-40
@@ -37,10 +30,15 @@ gm.datawc_y1=-90
 gm.datawc_y2=90
 bg = False
 #bg = True
-gm.levels = range(-20,135,10)
+levs = range(-20,135,10)
+gm.levels = levs
+gm.fillareacolors = vcs.getcolors(levs)
 x.plot(s,tmpl,gm,bg=bg)
 x.png("test")#,width=2000,height=1000)
 if interact:
-  i.Start()
+  try:
+    x.interact()
+  except: # ok using old vcs
+    raw_input("Press enter")
 else:
   raw_input("Press enter")
