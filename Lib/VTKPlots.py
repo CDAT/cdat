@@ -22,7 +22,8 @@ def smooth(x,beta,window_len=11):
 class VCSInteractorStyle(vtk.vtkInteractorStyle):
   def __init__(self,parent=None):
     self.AddObserver("LeftButtonPressEvent",parent.leftButtonPressEvent)
-    self.AddObserver("ConfigureEvent",parent.ConfigureEvent)
+    self.AddObserver("LeftButtonReleaseEvent",parent.leftButtonReleaseEvent)
+    self.AddObserver("ConfigureEvent",parent.configureEvent)
 
 class VTKVCSBackend(object):
   def __init__(self,canvas,renWin=None, debug=False,bg=None):
@@ -33,14 +34,78 @@ class VTKVCSBackend(object):
     self.type = "vtk"
     self._plot_keywords = ['renderer',]
     self.numberOfPlotCalls = 0 
+    self.interactors = []
+
 
   def interact(self,*args,**kargs):
-    self.interactor.Start()
+    for i in self.interactors:
+      i.Start()
 
   def leftButtonPressEvent(self,obj,event):
-    print event
-    print "left click"
-  def ConfigureEvent(self,obj,ev):
+    xy = self.defaultInteractor.GetEventPosition()
+    sz = self.renWin.GetSize()
+    x = float(xy[0])/sz[0]
+    y = float(xy[1])/sz[1]
+    st = ""
+    for dnm in self.canvas.display_names:
+      d=vcs.elements["display"][dnm]
+      if d.array[0] is None:
+        continue
+      t=vcs.elements["template"][d.template]
+      gm = vcs.elements[d.g_type][d.g_name]
+      if t.data.x1<=x<=t.data.x2 and t.data.y1<=y<=t.data.y2:
+        ## Ok we clicked within template
+        if numpy.allclose(gm.datawc_x1,1.e20):
+          x1 = d.array[0].getAxis(-1)[0]
+        else:
+          x1 = gm.datawc_x1
+        if numpy.allclose(gm.datawc_x2,1.e20):
+          x2 = d.array[0].getAxis(-1)[-1]
+        else:
+          x2 = gm.datawc_x2
+        if numpy.allclose(gm.datawc_y1,1.e20):
+          y1 = d.array[0].getAxis(-2)[0]
+        else:
+          y1 = gm.datawc_y1
+        if numpy.allclose(gm.datawc_y2,1.e20):
+          y2 = d.array[0].getAxis(-2)[-1]
+        else:
+          y2 = gm.datawc_y2
+
+        X = (x-t.data.x1)/(t.data.x2-t.data.x1)*(x2-x1)+x1
+        Y = (y-t.data.y1)/(t.data.y2-t.data.y1)*(y2-y1)+y1
+        # Ok we now have the X/Y values we need to figure out the indices
+        I = d.array[0].getAxis(-1).mapInterval((X,X,'cob'))[0]
+        J = d.array[0].getAxis(-2).mapInterval((Y,Y,'cob'))[0]
+        # Values at that point
+        V = d.array[0][...,J,I]
+        if isinstance(V,numpy.ndarray):
+          V=V.flat[0]
+        st+="Var: %s\nX[%i] = %g\nY[%i] = %g\nValue: %g" % (d.array[0].id,I,X,J,Y,V)
+    a=vtk.vtkTextActor()
+    a.SetInput(st)
+    #a.SetPosition(xy[0],xy[1])
+    p=a.GetProperty()
+    p.SetColor(0,0,0)
+    ren = vtk.vtkRenderer()
+    #ren.SetLayer(1)
+    ren.AddActor(a)
+    ren.SetBackground(.96,.96,.86)
+    ren.SetViewport(x,y,min(x+.2,1.),min(y+.2,1))
+    ren.SetLayer(self.renWin.GetNumberOfLayers()-1)
+    self.clickRenderer= ren
+    self.renWin.AddRenderer(ren)
+    self.renWin.Render()
+
+
+  def leftButtonReleaseEvent(self,obj,event):
+    print "Released LEft button"
+    self.clickRenderer.RemoveAllViewProps()
+    self.clickRenderer.Render()
+    self.renWin.RemoveRenderer(self.clickRenderer)
+    self.renWin.Render()
+
+  def configureEvent(self,obj,ev):
     print "Configure Event!"
     plots_args = []
     for dnm in self.canvas.display_names:
@@ -75,14 +140,15 @@ class VTKVCSBackend(object):
       # Create the usual rendering stuff.
       self.renWin = vtk.vtkRenderWindow()
       self.renWin.SetWindowName("VCS Canvas %i" % self.canvas._canvas_id)
-      #self.renWin.SetAlphaBitPlanes(1)
+      self.renWin.SetAlphaBitPlanes(1)
       ren = vtk.vtkRenderer()
       r,g,b = self.canvas.backgroundcolor
       ren.SetBackground(r/255.,g/255.,b/255.)
       self.renWin.AddRenderer(ren)
-      self.interactor = vtk.vtkRenderWindowInteractor()
-      self.interactor.SetInteractorStyle(VCSInteractorStyle(parent=self))
-      self.interactor.SetRenderWindow(self.renWin)
+      self.defaultInteractor = vtk.vtkRenderWindowInteractor()
+      self.defaultInteractor.SetInteractorStyle(VCSInteractorStyle(parent=self))
+      self.defaultInteractor.SetRenderWindow(self.renWin)
+      self.interactors.append(self.defaultInteractor)
       return True
     else:
       return False
