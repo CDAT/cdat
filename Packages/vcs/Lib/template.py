@@ -1306,7 +1306,7 @@ class P(object):
         x.worldcoordinate=wc
         return displays
 
-    def drawColorBar(self,colors,levels,legend=None,ext_1='n',ext_2='n',x=None,bg=0,priority=None,**kargs):
+    def drawColorBar(self,colors,levels,legend=None,ext_1='n',ext_2='n',x=None,bg=0,priority=None,cmap=None,**kargs):
          """
          This function, draws the colorbar, it needs:
          colors : The colors to be plotted
@@ -1322,6 +1322,22 @@ class P(object):
          #
          # Create legend
          #
+
+         ## Are levs contiguous?
+         levs2=[]
+         cont = True
+         print "levels are:",levels, len(levels)
+         for i in range(len(levels)-1):
+           if levels[i][1] == levels[i+1][0]:
+             levs2.append(levels[i][0])
+           else: # Ok not contiguous
+             print "failed on:",levels[i],levels[i+1]
+             cont = False
+             break
+         if cont:
+           levs2.append(levels[-1][0])
+           levs2.append(levels[-1][1])
+           levels = levs2
 
          # Now sets the priority value
          if priority is None:
@@ -1402,14 +1418,12 @@ class P(object):
                    L.append([startlong+dlong*i, startlong+dlong*(i+1), startlong+dlong*(i+1), startlong+dlong*i])
                    S.append([startshrt        , startshrt            , startshrt+dshrt      , startshrt+dshrt])
                     
-         try:
-              fa=x.createfillarea('__leg')
-         except:
-              pass
-         fa=x.getfillarea('__leg')
+         fa=x.createfillarea()
          fa.color=colors
          fa.style='solid'
          fa.priority=priority
+         if cmap is not None:
+           fa.colormap = cmap
          if isH:
               fa.x=L
               fa.y=S
@@ -1453,6 +1467,7 @@ class P(object):
          Sl.append([startshrt      , startshrt         , startshrt+dshrt   , startshrt+dshrt, startshrt])
          Ll.append([startlong      , startlong+dD      , startlong+dD      , startlong      , startlong])
          # Now make sure we have a legend
+         print "ok levels to draw are:",levels,levs2,cont
          if isinstance(levels[0],list):
            ## Ok these are nono contiguous levels, we will use legend only if it's a perfect match
            for i,l in enumerate(levels):

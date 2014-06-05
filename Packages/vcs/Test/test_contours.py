@@ -11,7 +11,7 @@ print s.shape
 #s[23:,:36] = 100.
 x=vcs.init()
 cmap = x.getcolormap("rainbow")
-
+x.setcolormap("rainbow")
 iso=x.createisofill()
 #iso=x.createboxfill()
 #iso.boxfill_type = "custom"
@@ -21,10 +21,10 @@ iso=x.createisofill()
 #levs=[-1.e20,10,50,60,70,80,90,1.e20]
 levs = [[10,40],[60,65],[65,80],[90,100]]
 cols=vcs.getcolors(levs)
+print cols
 iso.levels=levs
 iso.fillareacolors = cols
 #iso.legend = {60:"SIXTY",80:"EIGHTY"}
-iso.ext_2='n'
 #iso.linecolors = [242,243,244,245,246]
 iso.list()
 x.plot(s,iso)

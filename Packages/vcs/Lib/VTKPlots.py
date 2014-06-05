@@ -198,7 +198,6 @@ class VTKVCSBackend(object):
 
   def initialSize(self):
       #screenSize = self.renWin.GetScreenSize()
-      print "Initialize!"
       self.renWin.SetSize(self.canvas.bgX,self.canvas.bgY)
 
   def open(self):
@@ -440,6 +439,7 @@ class VTKVCSBackend(object):
     mn,mx=vcs.minmax(data1)
     #Ok now we have grid and data let's use the mapper
     mapper = vtk.vtkPolyDataMapper()
+    legend = None
     if isinstance(gm,(isofill.Gfi,isoline.Gi,meshfill.Gfm)) or \
         (isinstance(gm,boxfill.Gfb) and gm.boxfill_type=="custom"):
       
@@ -475,7 +475,6 @@ class VTKVCSBackend(object):
           else:
             levs = gm.levels
         else:
-          print "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
           levs = [] 
           levs2=gm.levels
           if numpy.allclose(levs2[0],1.e20):
@@ -549,9 +548,14 @@ class VTKVCSBackend(object):
       if isinstance(gm,boxfill.Gfb):
         if numpy.allclose(gm.level_1,1.e20) or numpy.allclose(gm.level_2,1.e20):
           levs = vcs.mkscale(mn,mx)
+          legend = vcs.mklabels(levs)
+          dx = (levs[-1]-levs[0])/(gm.color_2-gm.color_1+1)
+          levs = numpy.arange(levs[0],levs[-1]+dx,dx)
         else:
+          levs = vcs.mkscale(gm.level_1,gm.level_2)
+          legend = vcs.mklabels(levs)
           levs = numpy.arange(gm.level_1,gm.level_2,(gm.level_2-gm.level_1)/(gm.color_2-gm.color_1+1))
-        cols = vcs.getcolors(levs,range(gm.color_1,gm.color_2+1))
+        cols = range(gm.color_1,gm.color_2+1)
       else:
         if numpy.allclose(gm.levels,1.e20):
           levs = vcs.mkscale(mn,mx)
@@ -563,6 +567,8 @@ class VTKVCSBackend(object):
         if cols==[1,]:
           cols = vcs.getcolors(levs)
       Nlevs = len(levs)
+      print "NLEVS:",Nlevs
+      print "Ncolors:",len(cols)
       Ncolors = Nlevs-1
 
     if mappers == []: # ok didn't need to have special banded contours
@@ -572,7 +578,7 @@ class VTKVCSBackend(object):
       while len(cols)<Ncolors:
         cols.append(cols[-1])
       
-      lut.SetNumberOfTableValues(Nlevs)
+      lut.SetNumberOfTableValues(Ncolors)
       for i in range(Ncolors):
         r,g,b = cmap.index[cols[i]]
         lut.SetTableValue(i,r/100.,g/100.,b/100.)
@@ -586,6 +592,7 @@ class VTKVCSBackend(object):
         lmx = mx+1.
       else:
         lmx= levs[-1]
+      print "lmn,lmx:",lmn,lmx
       mapper.SetScalarRange(lmn,lmx)
 
 
@@ -617,7 +624,9 @@ class VTKVCSBackend(object):
 
     self.renderTemplate(ren,tmpl,data1,gm)
     if isinstance(gm,(isofill.Gfi,meshfill.Gfm,boxfill.Gfb)):
-      self.renderColorBar(ren,tmpl,levs,cols,gm.legend)
+      if getattr(gm,"legend",None) is not None:
+        legend = gm.legend
+      self.renderColorBar(ren,tmpl,levs,cols,legend,cmap)
     if continents:
       contData = vcs2vtk.prepContinents(os.environ["HOME"]+"/.uvcdat/data_continent_political")
       contMapper = vtk.vtkPolyDataMapper()
@@ -636,9 +645,9 @@ class VTKVCSBackend(object):
   def renderTemplate(self,renderer,tmpl,data,gm):
     tmpl.plot(self.canvas,data,gm,bg=self.bg)
 
-  def renderColorBar(self,renderer,tmpl,levels,colors,legend):
+  def renderColorBar(self,renderer,tmpl,levels,colors,legend,cmap):
     if tmpl.legend.priority>0:
-      tmpl.drawColorBar(colors,levels,x=self.canvas,legend=legend)
+      tmpl.drawColorBar(colors,levels,x=self.canvas,legend=legend,cmap=cmap)
 
   def trimData1D(self,data):
     if data is None:
