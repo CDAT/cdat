@@ -19,10 +19,10 @@ x.setcolormap("rainbow")
 gm=x.createisoline()
 gm=x.createboxfill()
 gm=x.createisofill()
-gm.datawc_x1=0
-gm.datawc_x2=40
-gm.datawc_y1=-40
-gm.datawc_y2=40
+gm.datawc_x1=-180
+gm.datawc_x2=0
+gm.datawc_y1=60
+gm.datawc_y2=65
 
 gm.datawc_x1=-180.
 gm.datawc_x2=180.
