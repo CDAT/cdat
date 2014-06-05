@@ -33,7 +33,7 @@ bg = False
 #levs = range(-20,135,10)
 #gm.levels = levs
 #gm.fillareacolors = vcs.getcolors(levs)
-x.plot(s,tmpl,gm,bg=bg)
+x.plot(s,tmpl,gm,bg=bg,continents=1)
 x.png("test")#,width=2000,height=1000)
 if interact:
   try:

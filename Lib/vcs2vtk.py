@@ -28,11 +28,27 @@ def prepContinents(fnm):
     npts = pts.GetNumberOfPoints()
     while n<N:
         ln=f.readline()
-        while len(ln)>2:
-          l,L=float(ln[:8]),float(ln[8:16])
-          pts.InsertNextPoint(L,l,0.0001)
-          ln=ln[16:]
-          n+=2
+        sp=ln.split()
+        sn = len(sp)
+        didIt = False
+        if sn%2 == 0:
+          try:
+            spts = []
+            for i in range(sn/2):
+              l,L = float(sp[i*2]),float(sp[i*2+1])
+              spts.append([l,L])
+            for p in spts:
+              pts.InsertNextPoint(p[1],p[0],0.0001)
+            n+=sn
+            didIt = True
+          except:
+            didIt = False
+        if didIt is False: 
+          while len(ln)>2:
+            l,L=float(ln[:8]),float(ln[8:16])
+            pts.InsertNextPoint(L,l,0.0001)
+            ln=ln[16:]
+            n+=2
     ln = vtk.vtkPolyLine()
     ln.GetPointIds().SetNumberOfIds(N/2)
     for i in range(N/2): ln.GetPointIds().SetId(i,i+npts)

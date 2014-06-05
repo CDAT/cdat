@@ -483,6 +483,9 @@ class Canvas(object,AutoAPI.AutoAPI):
 
         return tv
 
+    def savecontinentstype(self,value):
+      self._savedcontinentstype = value
+
     def _reconstruct_tv(self, arglist, keyargs):
         """Reconstruct a transient variable from the keyword arguments.
         Also select the default graphics method, depending on the grid type
@@ -694,13 +697,12 @@ class Canvas(object,AutoAPI.AutoAPI):
                 contout = 1
             else:
                 contout = 0
-        warnings.warn("please fix setcontinettype/savecontinenttype")
-        #if (isinstance(arglist[GRAPHICS_METHOD],str) and (arglist[GRAPHICS_METHOD]) == 'meshfill') or ((xdim>=0 and ydim>=0 and (contout>=1) and (contout<12))):
-        #    self.canvas.setcontinentstype(contout)
-        #    self.canvas.savecontinentstype(contout)
-        #else:
-        #    self.canvas.setcontinentstype(0)
-        #    self.canvas.savecontinentstype(0)
+        if (isinstance(arglist[GRAPHICS_METHOD],str) and (arglist[GRAPHICS_METHOD]) == 'meshfill') or ((xdim>=0 and ydim>=0 and (contout>=1) and (contout<12))):
+            self.setcontinentstype(contout)
+            self.savecontinentstype(contout)
+        else:
+            self.setcontinentstype(0)
+            self.savecontinentstype(0)
 
         # Reverse axis direction if necessary
         xrev = keyargs.get('xrev',0)
@@ -7721,8 +7723,8 @@ Options:::
     # Set continents type wrapper for VCS.                           		#
     #                                                                           #
     #############################################################################
-    def setcontinentstype(self, *args):
-        """
+    def setcontinentstype(self, value):
+      """
  Function: setcontinentstype
 
  Description of Function:
@@ -7742,12 +7744,33 @@ Options:::
     Values 6 through 11 signify the line type defined by the files
     data_continent_other7 through data_continent_other12. 
 
+    You can also pass a file
+
  Example of Use:
     a=vcs.init()
     a.setcontinentstype(3)
+    #a.setcontinentstype(os.environ["HOME"]+"/.uvcdat/data_continents_states")
     a.plot(array,'default','isofill','quick')
 """
-        return apply(self.canvas.setcontinentstype, args)
+      nms = ["fine","coarse","states","political","river","other6","other7","other8","other9","other10","other11","other12"]
+      if isinstance(value,int):
+        if value == 0:
+          self._continents = None
+        elif 0<value<12:
+          self._continents = os.path.join(os.environ.get("HOME",""),os.environ.get(vcs.getdotdirectory()[1],vcs.getdotdirectory()[0]),"data_continent_%s" % nms[value-1])
+          if not os.path.exists(self._continents):
+            #fallback on installed with system one
+            self._continents = os.path.join(sys.prefix,"share","vcs","data_continent_%s" % nms[value-1])
+        else:
+          raise Exception("Error continents value must be file or int < 12")
+      elif isinstance(value,str):
+        self._continents = value
+      if not os.path.exists(self._continents):
+        warnings.warn("Continents file not found: %s, substituing with coarse continents" % self._continents)
+        self._continents = os.path.join(os.environ.get("HOME",""),os.environ.get(vcs.getdotdirectory()[1],vcs.getdotdirectory()[0]),"data_continent_coarse")
+        if not  os.path.exists(self._continent):
+          self._continents = os.path.join(sys.prefix,"share","vcs","data_continent_coarse")
+        return
 
     #############################################################################
     #                                                                           #
