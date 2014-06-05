@@ -468,6 +468,12 @@ class VTKVCSBackend(object):
       levs = gm.levels
       if (isinstance(gm,isoline.Gi) and numpy.allclose( levs[0],[0.,1.e20])) or numpy.allclose(levs,1.e20):
         levs = vcs.mkscale(mn,mx)
+        Ncolors = len(levs)
+        if isinstance(gm,(isofill.Gfi,meshfill.Gfm)):
+          levs2 = vcs.mkscale(mn,mx)
+          levs=[]
+          for i in range(len(levs2)-1):
+            levs.append([levs2[i],levs2[i+1]])
       else:
         if isinstance(gm.levels[0],(list,tuple)):
           if isinstance(gm,isoline.Gi):
@@ -524,15 +530,15 @@ class VTKVCSBackend(object):
           r,g,b = cmap.index[cols[i]]      
           lut.SetTableValue(0,r/100.,g/100.,b/100.)
           mapper.SetLookupTable(lut)
-          if numpy.allclose(l[0],-1.e20):
-            lmn = mn-1.
-          else:
-            lmn= l[0]
-          if numpy.allclose(l[-1],1.e20):
-            lmx = mx+1.
-          else:
-            lmx= l[-1]
-          mapper.SetScalarRange(lmn,lmx)
+          #if numpy.allclose(l[0],-1.e20):
+          #  lmn = mn-1.
+          #else:
+          #  lmn= l[0]
+          #if numpy.allclose(l[-1],1.e20):
+          #  lmx = mx+1.
+          #else:
+          #  lmx= l[-1]
+          #mapper.SetScalarRange(lmn,lmx)
           png = vtk.vtkPNGReader()
           png.SetFileName("/git/uvcdat/Packages/vcs/Share/uvcdat_texture.png")
           T=vtk.vtkTexture()
@@ -567,8 +573,6 @@ class VTKVCSBackend(object):
         if cols==[1,]:
           cols = vcs.getcolors(levs)
       Nlevs = len(levs)
-      print "NLEVS:",Nlevs
-      print "Ncolors:",len(cols)
       Ncolors = Nlevs-1
 
     if mappers == []: # ok didn't need to have special banded contours
@@ -592,7 +596,6 @@ class VTKVCSBackend(object):
         lmx = mx+1.
       else:
         lmx= levs[-1]
-      print "lmn,lmx:",lmn,lmx
       mapper.SetScalarRange(lmn,lmx)
 
 
