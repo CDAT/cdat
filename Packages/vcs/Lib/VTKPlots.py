@@ -630,8 +630,10 @@ class VTKVCSBackend(object):
       if getattr(gm,"legend",None) is not None:
         legend = gm.legend
       self.renderColorBar(ren,tmpl,levs,cols,legend,cmap)
+    if self.canvas._continents is None:
+      continents = False
     if continents:
-      contData = vcs2vtk.prepContinents(os.environ["HOME"]+"/.uvcdat/data_continent_political")
+      contData = vcs2vtk.prepContinents(self.canvas._continents)
       contMapper = vtk.vtkPolyDataMapper()
       contMapper.SetInputData(contData)
       contActor = vtk.vtkActor()
