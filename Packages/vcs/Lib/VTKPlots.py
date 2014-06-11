@@ -34,15 +34,18 @@ class VTKVCSBackend(object):
     self.type = "vtk"
     self._plot_keywords = ['renderer',]
     self.numberOfPlotCalls = 0 
-    self.interactors = []
+    if renWin is not None:
+      self.renWin = renWin
+      if renWin.GetInteractor() is None:
+        print "Creating a default interactor"
+        self.createDefaultInteractor()
 
 
   def interact(self,*args,**kargs):
-    for i in self.interactors:
-      i.Start()
+      self.renWin.GetInteractor().Start()
 
   def leftButtonPressEvent(self,obj,event):
-    xy = self.defaultInteractor.GetEventPosition()
+    xy = self.renWin.GetInteractor().GetEventPosition()
     sz = self.renWin.GetSize()
     x = float(xy[0])/sz[0]
     y = float(xy[1])/sz[1]
@@ -135,6 +138,11 @@ class VTKVCSBackend(object):
     #self.renWin.Render()
     self.numberOfPlotCalls = 0 
 
+  def createDefaultInteractor(self):
+      defaultInteractor = vtk.vtkRenderWindowInteractor()
+      defaultInteractor.SetInteractorStyle(VCSInteractorStyle(parent=self))
+      defaultInteractor.SetRenderWindow(self.renWin)
+
   def createRenWin(self,*args,**kargs):
     if self.renWin is None:
       # Create the usual rendering stuff.
@@ -144,11 +152,8 @@ class VTKVCSBackend(object):
       ren = vtk.vtkRenderer()
       r,g,b = self.canvas.backgroundcolor
       ren.SetBackground(r/255.,g/255.,b/255.)
+      self.createDefaultInteractor()
       self.renWin.AddRenderer(ren)
-      self.defaultInteractor = vtk.vtkRenderWindowInteractor()
-      self.defaultInteractor.SetInteractorStyle(VCSInteractorStyle(parent=self))
-      self.defaultInteractor.SetRenderWindow(self.renWin)
-      self.interactors.append(self.defaultInteractor)
       return True
     else:
       return False
