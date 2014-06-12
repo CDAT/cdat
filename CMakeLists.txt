@@ -11,7 +11,9 @@ project(cdat)
 # Disable in source build of any kind
 STRING(REGEX MATCH "${cdat_SOURCE_DIR}/" BUILDINSOURCE "${cdat_BINARY_DIR}/")
 if (BUILDINSOURCE)
-   message(FATAL_ERROR "[ERROR] CDAT requires an out of source Build")
+   set(msg "[ERROR] CDAT requires an out of source Build.")
+   set(msg "${msg} Run 'git clean -dfx' to restore source dir.")
+   message(FATAL_ERROR "${msg}")
 endif()
 
 # Set cdat and cmake variables
