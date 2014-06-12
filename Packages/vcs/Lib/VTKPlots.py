@@ -19,7 +19,7 @@ def smooth(x,beta,window_len=11):
    y = numpy.convolve(w/w.sum(),s,mode='valid')
    return y[(window_len/2):-(window_len/2)]
 
-class VCSInteractorStyle(vtk.vtkInteractorStyle):
+class VCSInteractorStyle(vtk.vtkInteractorStyleUser):
   def __init__(self,parent=None):
     self.AddObserver("LeftButtonPressEvent",parent.leftButtonPressEvent)
     self.AddObserver("LeftButtonReleaseEvent",parent.leftButtonReleaseEvent)
@@ -46,6 +46,7 @@ class VTKVCSBackend(object):
 
   def leftButtonPressEvent(self,obj,event):
     xy = self.renWin.GetInteractor().GetEventPosition()
+    print "left mouse button pressed"
     sz = self.renWin.GetSize()
     x = float(xy[0])/sz[0]
     y = float(xy[1])/sz[1]
@@ -138,10 +139,28 @@ class VTKVCSBackend(object):
     #self.renWin.Render()
     self.numberOfPlotCalls = 0 
 
-  def createDefaultInteractor(self):
+  def createDefaultInteractor(self,style=vtk.vtkInteractorStyleUser()):
+    defaultInteractor = self.renWin.GetInteractor()
+    if defaultInteractor is None:
       defaultInteractor = vtk.vtkRenderWindowInteractor()
-      defaultInteractor.SetInteractorStyle(VCSInteractorStyle(parent=self))
-      defaultInteractor.SetRenderWindow(self.renWin)
+    if style is not None:
+      defaultInteractor.SetInteractorStyle(style)
+    try:
+      defaultInteractor.RemoveObservers("LeftButtonPressEvent")
+    except:
+      pass
+    try:
+      defaultInteractor.RemoveObservers("LeftButtonReleaseEvent")
+    except:
+      pass
+    try:
+      defaultInteractor.RemoveObservers("ConfigureEvent")
+    except:
+      pass
+    defaultInteractor.AddObserver("LeftButtonPressEvent",self.leftButtonPressEvent)
+    defaultInteractor.AddObserver("LeftButtonReleaseEvent",self.leftButtonReleaseEvent)
+    defaultInteractor.AddObserver("ConfigureEvent",self.configureEvent)
+    defaultInteractor.SetRenderWindow(self.renWin)
 
   def createRenWin(self,*args,**kargs):
     if self.renWin is None:
