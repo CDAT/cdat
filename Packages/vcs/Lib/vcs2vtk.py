@@ -639,6 +639,9 @@ def fitToViewportNew(Actor,Renderer,vp,wc=None):
   if wRatio>1.: #landscape orientated window
       yScale = 1.
       xScale = vRatio*wRatio/dRatio
+  else:
+      xScale = 1.
+      yScale = dRatio/(vRatio*wRatio)
 
 
   T = vtk.vtkTransform()
