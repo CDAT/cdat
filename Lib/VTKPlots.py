@@ -162,6 +162,13 @@ class VTKVCSBackend(object):
       defaultInteractor.RemoveObservers("ConfigureEvent")
     except:
       pass
+    # Configure not picked up on MAc so using ModifiedEvent (same trick as vistrails)
+    if os.uname()[0] == "Darwin":
+      try:
+        defaultInteractor.RemoveObservers("ModifiedEvent")
+      except:
+        pass
+      defaultInteractor.AddObserver("ModifiedEvent",self.configureEvent)
     defaultInteractor.AddObserver("LeftButtonPressEvent",self.leftButtonPressEvent)
     defaultInteractor.AddObserver("LeftButtonReleaseEvent",self.leftButtonReleaseEvent)
     defaultInteractor.AddObserver("ConfigureEvent",self.configureEvent)
