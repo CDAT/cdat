@@ -27,6 +27,7 @@ class VCSInteractorStyle(vtk.vtkInteractorStyleUser):
 
 class VTKVCSBackend(object):
   def __init__(self,canvas,renWin=None, debug=False,bg=None):
+    self._lastSize = None
     self.canvas = canvas
     self.renWin = renWin
     self.debug = debug
@@ -46,7 +47,6 @@ class VTKVCSBackend(object):
 
   def leftButtonPressEvent(self,obj,event):
     xy = self.renWin.GetInteractor().GetEventPosition()
-    print "left mouse button pressed"
     sz = self.renWin.GetSize()
     x = float(xy[0])/sz[0]
     y = float(xy[1])/sz[1]
@@ -103,14 +103,19 @@ class VTKVCSBackend(object):
 
 
   def leftButtonReleaseEvent(self,obj,event):
-    print "Released LEft button"
     self.clickRenderer.RemoveAllViewProps()
     self.clickRenderer.Render()
     self.renWin.RemoveRenderer(self.clickRenderer)
     self.renWin.Render()
 
   def configureEvent(self,obj,ev):
-    print "Configure Event!"
+    sz = self.renWin.GetSize()
+    if self._lastSize == sz:
+      # We really only care about resize event
+      # this is mainly to avoid segfault vwith Vistraisl which does
+      # not catch configure Events but only modifiedEvents....
+      return
+    self._lastSize = sz
     plots_args = []
     for dnm in self.canvas.display_names:
       d=vcs.elements["display"][dnm]
