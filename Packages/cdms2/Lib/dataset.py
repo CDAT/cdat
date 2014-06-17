@@ -1665,7 +1665,7 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
         return newvar
 
     def write(self, var, attributes=None, axes=None, extbounds=None, id=None, \
-              extend=None, fill_value=None, index=None, typecode=None, dtype=None):
+              extend=None, fill_value=None, index=None, typecode=None, dtype=None, pack=False):
         """Write var to the file. If the variable is not yet defined in the file,
         a definition is created. By default, the time dimension of the variable is defined as the
         'extended dimension' of the file. The function returns the corresponding file variable.
@@ -1698,6 +1698,7 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
         index :: (None/int) the extended dimension index to write to. The default index is determined by lookup relative to the existing extended dimension
         typecode :: (None/str) (None) typdecode to write the variable as
         dtype :: (None/numpy.dtype) type to write the variable as; overwrites typecode
+        pack :: (False/True/numpy/numpy.int8/numpy.int16/numpy.int32/numpy.int64) pack the data to save up space
         :::
         Output:::
         variable :: (cdms2.fvariable.FileVariable) (0) file variable
@@ -1722,15 +1723,24 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
         else:
             varid = id
         if self.variables.has_key(varid):
+            if pack:
+              raise CDMSError, "You cannot pack an existing variable %s " % varid
             v = self.variables[varid]
         else:
-            v = self.createVariableCopy(var, attributes=attributes, axes=axes, extbounds=extbounds,
-                                           id=varid, extend=extend, fill_value=fill_value, index=index)
+          if pack is not False:
+              typ = numpy.int16
+              n = 16
+          else:
+            typ = var.dtype
+          v = self.createVariableCopy(var.astype(typ), attributes=attributes, axes=axes, extbounds=extbounds,
+              id=varid, extend=extend, fill_value=fill_value, index=index)
+
+
 
         # If var has typecode numpy.int, and v is created from var, then v will have
         # typecode numpy.int32. (This is a Cdunif 'feature'). This causes a downcast error
         # for numpy versions 23+, so make the downcast explicit.
-        if var.typecode()==numpy.int and v.typecode()==numpy.int32:
+        if var.typecode()==numpy.int and v.typecode()==numpy.int32 and pack is False:
             var = var.astype(numpy.int32)
 
         # Write
@@ -1747,7 +1757,10 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
             
         if extend==0 or (extend is None and not vec1.isTime()):
             if vrank>0:
-                v[:] = var.astype(v.dtype)
+                if pack is not False:
+                  v[:] = numpy.zeros(var.shape,typ)
+                else:
+                  v[:] = var.astype(v.dtype)
             else:
                 v.assignValue(var.getValue())
         else:
@@ -1769,6 +1782,26 @@ class CdmsFile(CdmsObj, cuDataset, AutoAPI.AutoAPI):
             else:
                 raise CDMSError,'Cannot write variable %s: the values of dimension %s=%s, do not overlap the extended dimension %s values: %s'%(varid, vec1.id,`vec1[:]`,vec2.id,`vec2[:]`)
 
+        # pack implementation source: https://www.unidata.ucar.edu/software/netcdf/docs/BestPractices.html
+        if pack:
+          M = var.max()
+          m = var.min()
+          scale_factor = (M-m)/(pow(2,n)-2)
+          add_offset = (M+m)/2.
+          missing = -pow(2,n-1)
+          v.setMissing(-pow(2,n-1))
+          scale_factor = scale_factor.astype(var.dtype)
+          add_offset = add_offset.astype(var.dtype)
+          tmp = (var-add_offset)/scale_factor
+          tmp= numpy.round(tmp)
+          tmp=tmp.astype(typ)
+          v[:] = tmp.filled()
+          v.scale_factor = scale_factor.astype(var.dtype)
+          v.add_offset = add_offset.astype(var.dtype)
+          if not hasattr(var,"valid_min"):
+            v.valid_min = m.astype(var.dtype)
+          if not hasattr(var,"valid_max"):
+            v.valid_max = M.astype(var.dtype)
         return v
 
     def write_it_yourself( self, obj ):
