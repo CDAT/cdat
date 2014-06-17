@@ -38,11 +38,11 @@ class VTKVCSBackend(object):
     if renWin is not None:
       self.renWin = renWin
       if renWin.GetInteractor() is None:
-        print "Creating a default interactor"
         self.createDefaultInteractor()
 
 
   def interact(self,*args,**kargs):
+      warnings.warn("Press 'Q' to exit interactive mode and continue script execution")
       self.renWin.GetInteractor().Start()
 
   def leftButtonPressEvent(self,obj,event):
@@ -110,7 +110,7 @@ class VTKVCSBackend(object):
 
   def configureEvent(self,obj,ev):
     sz = self.renWin.GetSize()
-    if self._lastSize == sz or (self._lastSize is None and not hasattr(self,"fromVistrails")):
+    if self._lastSize == sz: # or (self._lastSize is None and hasattr(self,"fromVistrails")):
       # We really only care about resize event
       # this is mainly to avoid segfault vwith Vistraisl which does
       # not catch configure Events but only modifiedEvents....
@@ -162,13 +162,12 @@ class VTKVCSBackend(object):
       defaultInteractor.RemoveObservers("ConfigureEvent")
     except:
       pass
-    # Configure not picked up on MAc so using ModifiedEvent (same trick as vistrails)
-    if os.uname()[0] == "Darwin":
-      try:
+    # Configure not picked up on MAc and Ubuntu 14 so using ModifiedEvent (same trick as vistrails)
+    try:
         defaultInteractor.RemoveObservers("ModifiedEvent")
-      except:
+    except:
         pass
-      defaultInteractor.AddObserver("ModifiedEvent",self.configureEvent)
+    defaultInteractor.AddObserver("ModifiedEvent",self.configureEvent)
     defaultInteractor.AddObserver("LeftButtonPressEvent",self.leftButtonPressEvent)
     defaultInteractor.AddObserver("LeftButtonReleaseEvent",self.leftButtonReleaseEvent)
     defaultInteractor.AddObserver("ConfigureEvent",self.configureEvent)
