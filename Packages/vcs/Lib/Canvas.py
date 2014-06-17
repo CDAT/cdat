@@ -875,7 +875,6 @@ class Canvas(object,AutoAPI.AutoAPI):
         self._canvas = vcs
         self.viewport =[0,1,0,1]
         self.worldcoordinate = [0,1,0,1]
-        self._animate = animate_obj( self )
         self._dotdir,self._dotdirenv = self._canvas.getdotdirectory()
         if ( (is_canvas == 0) and (gui == 1) and (gui_canvas_closed == 0) ): gui_canvas_closed = 1
         if backend == "vtk":
