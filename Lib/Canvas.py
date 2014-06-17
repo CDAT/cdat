@@ -875,6 +875,8 @@ class Canvas(object,AutoAPI.AutoAPI):
         self._canvas = vcs
         self.viewport =[0,1,0,1]
         self.worldcoordinate = [0,1,0,1]
+        self._animate = animate_obj( self )
+        self._dotdir,self._dotdirenv = self._canvas.getdotdirectory()
         if ( (is_canvas == 0) and (gui == 1) and (gui_canvas_closed == 0) ): gui_canvas_closed = 1
         if backend == "vtk":
           self.backend = VTKVCSBackend(self)
@@ -896,13 +898,11 @@ class Canvas(object,AutoAPI.AutoAPI):
            pth = vcs.__path__[0].split(os.path.sep)
            pth=pth[:-4] # Maybe need to make sure on none framework config
            pth=['/']+pth+['bin', 'initial.attributes']
-           #try:
-           if 1:
+           try:
                self._scriptrun( os.path.join(*pth))
-           #except:
-           #    pass
+           except:
+               pass
            self._dotdir,self._dotdirenv = vcs.getdotdirectory()
-           #warnings.warn("Please reimplement reading of initial_attirubtes in Canvas.py circa line 7345")
            self._scriptrun( os.path.join(os.environ['HOME'], self._dotdir, 'initial.attributes'))
 	called_initial_attributes_flg = 1
         self.canvas_template_editor=None
