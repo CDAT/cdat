@@ -1,0 +1,5 @@
+# File generated with: md5sum `ls -a */*nc ` > md5s.txt
+6d86e5edd0a92931226ac99d13167980  acme_lores_atm_climo/F1850.g37_bench_ANN_climo.nc
+f3c5c5a4d91d6e3e0cc4d2df362b0503  acme_lores_atm_climo/F1850.g37_bench_DJF_climo.nc
+578dcbfb4979cd3cbee2bde42a52d5c7  obs/NCEP_ANN_climo.nc
+78c01194a72dc3da7b25c1ce402dfe7b  obs/NCEP_DJF_climo.nc
