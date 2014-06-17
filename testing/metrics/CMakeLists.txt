@@ -10,5 +10,5 @@
 #    ${cdat_SOURCE_DIR}/testing/cdms2/cdtest01.py)
 add_test("diags_test_01"
   ${CMAKE_INSTALL_PREFIX}/bin/python
-  ${metrics_SOURCE_DIR}/testing/metrics/diagtest01.py
-  ${metrics_DATA_DIR} )
+  ${cdat_SOURCE_DIR}/testing/metrics/diagtest01.py
+  ${UVCMETRICS_TEST_DATA_DIRECTORY} )
