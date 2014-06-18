@@ -35,7 +35,7 @@ import numpy.ma, MV2
 import numpy, cdutil
 from queries import *
 import boxfill, isofill, isoline, outfill, outline, taylor, meshfill, projection
-import vector, continents, line, marker, fillarea
+import vector, continents, line, marker, fillarea, dv3d
 import texttable, textorientation, textcombined, template, colormap
 import unified1D
 #import colormapgui as _colormapgui
@@ -1689,7 +1689,59 @@ Options:::
 
         return vcs.elements["meshfill"][Gfm_name_src]
 
+    def getdv3d(self,Gfdv3d_name_src='default'):
+        """
+ Function: getdv3d                        # Construct a new dv3d graphics method
+
+ Description of Function:
+    VCS contains a list of graphics methods. This function will create a
+    dv3d class object from an existing VCS dv3d graphics method. If
+    no dv3d name is given, then dv3d 'default' will be used.
+
+    Note, VCS does not allow the modification of `default' attribute
+    sets. However, a `default' attribute set that has been copied under a 
+    different name can be modified. (See the createdv3d function.)
+
+ Example of Use:
+    a=vcs.init()
+    a.show('dv3d')                   # Show all the existing dv3d graphics methods
+    plot=a.getdv3d()                  # plot instance of 'default' dv3d graphics
+                                        # method
+    plot2=a.getdv3d('quick')          # plot2 instance of existing 'quick' dv3d
+                                        #         graphics method
+"""
+
+        # Check to make sure the argument passed in is a STRING
+        if not isinstance(Gfdv3d_name_src,str):
+            raise vcsError, 'The argument must be a string.'
+
+        if not Gfdv3d_name_src in vcs.elements["dv3d"]:
+            raise ValueError,"dv3d '%s' does not exists" % Gfdv3d_name_src
+
+        return vcs.elements["dv3d"][Gfdv3d_name_src]
+
    
+    def createdv3d(self,name=None, source='default'):
+        """
+ Function: createdv3d                # Construct a new dv3d graphics method
+
+ Description of Function:
+    Create a new dv3d graphics method given the the name and the existing
+    dv3d graphics method to copy the attributes from. If no existing
+    dv3d graphics method name is given, then the default dv3d graphics
+    method will be used as the graphics method to which the attributes will
+    be copied from.
+
+    If the name provided already exists, then a error will be returned. Graphics
+    method names must be unique.
+
+ Example of Use:
+    a=vcs.init()
+    a.show('dv3d')
+    plot=a.createdv3d()
+"""
+        name,source = self.check_name_source(name,source,'dv3d')
+        return dv3d.Gfdv3d(name, source)
 
     def prettifyAxisLabels(self,ticks,axis):
         for k in ticks.keys():
