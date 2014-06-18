@@ -284,6 +284,9 @@ class VTKVCSBackend(object):
     if gtype in ["boxfill","meshfill","isofill","isoline"]:
       self.renWin.AddRenderer(ren)
       self.plot2D(data1,data2,tpl,gm,ren)
+    elif gtype in ["dv3d"]:
+      self.renWin.AddRenderer(ren)
+      self.plot3D(data1,data2,tpl,gm,ren)
     elif gtype in ["text"]:
       if tt.priority!=0:
         self.renWin.AddRenderer(ren)
@@ -381,6 +384,9 @@ class VTKVCSBackend(object):
     renderer.SetLayer(n)
     pass
 
+  def plot3D(self,data1,data2,tmpl,gm,ren):
+      pass
+      
   def plot2D(self,data1,data2,tmpl,gm,ren):
     self.setLayer(ren,tmpl.data.priority)
     continents = False
