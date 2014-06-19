@@ -9,7 +9,7 @@ import sys
 import os
 
 f = cdms2.open( os.path.join( sys.prefix, "sample_data", "geos5-sample.nc") )
-u = f["uwnd"]
+u = f["uwnd"] 
 
 x = vcs.init()
 dv3d = x.createdv3d()

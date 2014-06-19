@@ -120,7 +120,7 @@ class PlotType:
     @classmethod
     def getPointsLayout( cls, grid ):
         if grid <> None:
-            if (grid.__class__.__name__ in ( "RectGrid", "FileRectGrid") ): 
+            if (grid.__class__.__name__ in ( "RectGrid", "TransientRectGrid", "FileRectGrid") ): 
                 return cls.Grid
         return cls.List  
 
