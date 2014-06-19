@@ -476,20 +476,18 @@ class DV3DPlot():
         renWin = args.get( 'renwin', None ) 
         if renWin == None:
             renWin = vtk.vtkRenderWindow()
-            self.renderer = vtk.vtkRenderer()
-            renWin.AddRenderer( self.renderer )
-            self.renderWindowInteractor = vtk.vtkRenderWindowInteractor() if blocking else vtk.vtkGenericRenderWindowInteractor()
-            self.renderWindowInteractor.SetRenderWindow(renWin)  
-            
-            irenStyle = vtk.vtkInteractorStyleTrackballCamera( )
-            self.renderWindowInteractor.SetInteractorStyle( irenStyle )
-            irenStyle.KeyPressActivationOff( )
-            irenStyle.SetEnabled(1)
-             
-        else: 
-            rens = renWin.GetRenderers()
-            self.renderer = rens.GetFirstRenderer()
-            self.renderWindowInteractor = renWin.GetInteractor()
+            rendWinInteractor = vtk.vtkRenderWindowInteractor() if blocking else vtk.vtkGenericRenderWindowInteractor()
+            renWin.SetInteractor( rendWinInteractor )
+            rendWinInteractor.SetRenderWindow(renWin)  
+                        
+        self.renderer = vtk.vtkRenderer()
+        renWin.AddRenderer( self.renderer )
+        self.renderWindowInteractor = renWin.GetInteractor()
+
+        irenStyle = vtk.vtkInteractorStyleTrackballCamera( )
+        self.renderWindowInteractor.SetInteractorStyle( irenStyle )
+        irenStyle.KeyPressActivationOff( )
+        irenStyle.SetEnabled(1)
                      
         if self.useDepthPeeling:
             self.renderer.UseDepthPeelingOn( )

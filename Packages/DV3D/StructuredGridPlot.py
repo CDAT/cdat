@@ -569,11 +569,22 @@ class StructuredGridPlot(DV3DPlot):
         init_args = args[ 'init' ]      
         n_cores = args.get( 'n_cores', 32 )    
         lut = self.getLUT()
-        self.variable_reader = StructuredDataReader( init_args )
+        self.variable_reader = StructuredDataReader( init_specs=init_args, **args )
         self.variable_reader.execute( )       
         self.createRenderer( **args )
         self.initCamera()
         interface = init_args[2]
+        self.execute( )
+        self.initializePlots()
+        self.start()
+
+    def gminit( self, var1, var2, **args ): 
+        var_list = [ var1 ]
+        if id(var2) <> id(None): var_list.append( var2 )
+        self.variable_reader = StructuredDataReader( vars=var_list, **args )
+        self.variable_reader.execute( )       
+        self.createRenderer( **args )
+        self.initCamera()
         self.execute( )
         self.initializePlots()
         self.start()

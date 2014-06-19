@@ -8,6 +8,7 @@ from vtk.util import numpy_support as VN
 import meshfill,boxfill,isofill,isoline
 import os
 import cdms2
+import DV3D
 
    
 def smooth(x,beta,window_len=11):
@@ -385,15 +386,16 @@ class VTKVCSBackend(object):
     pass
 
   def plot3D(self,data1,data2,tmpl,gm,ren):
-      from dv3d.Application import DV3D
-      g = DV3D() 
+      from DV3D.Application import DV3DApp
+      if ( data1 == None ) or not isinstance(data1, cdms2.fvariable.FileVariable ):
+          raise Exception, "Error, must pass a FileVariable as the first input to the dv3d gm"
+      g = DV3DApp() 
       n_overview_points = 500000
       grid_coords = ( None, None, None, None )
       var_proc_op = None
       interface = None
       roi = None # ( 0, 0, 50, 50 )
-      axes = 'xyz'
-      g.init( init_var = ( data1, data2, roi, axes  ), n_overview_points=n_overview_points, renwin=ren.GetRenderWindow()  ) #, plot_type = PlotType.List  ) 
+      g.gminit( data1, data2, roi=roi, axes=gm.axes, n_overview_points=n_overview_points, renwin=ren.GetRenderWindow()  ) #, plot_type = PlotType.List  ) 
 
       
   def plot2D(self,data1,data2,tmpl,gm,ren):

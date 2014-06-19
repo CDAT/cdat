@@ -1212,7 +1212,8 @@ class shapeFileReader:
         polygon.SetPoints(points)
         polygon.SetLines(lines)
         polygonMapper = vtk.vtkPolyDataMapper()
-        polygonMapper.SetInputConnection(polygon.GetProducerPort())
+        if vtk.VTK_MAJOR_VERSION <= 5:  polygonMapper.SetInput(polygon)
+        else:                           polygonMapper.SetInputData(polygon)        
         polygonActor = vtk.vtkActor()
         polygonActor.SetMapper(polygonMapper)
         

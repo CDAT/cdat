@@ -1231,7 +1231,8 @@ class CPCPlot( DV3DPlot ):
         self.getPointCloud().setPointSize( point_size )    
       
     def init(self, **args ):
-        init_args = args[ 'init' ]      
+        init_args = args.get( 'init', None )
+        init_vars = args.get( 'init_var', None )                    
         n_overview_points = args.get( 'n_overview_points', 500000 )    
         n_subproc_points = args.get( 'n_subproc_points', 500000 )  
         n_cores = args.get( 'n_cores', multiprocessing.cpu_count() )    
@@ -1244,7 +1245,6 @@ class CPCPlot( DV3DPlot ):
         nCollections = min( nPartitions, n_cores-1 )
         print " Init PCViewer, nInputPoints = %d, n_overview_points = %d, n_subproc_points = %d, nCollections = %d, overview skip index = %s" % ( nInputPoints, n_overview_points, n_subproc_points, nCollections, self.point_cloud_overview.getSkipIndex() )
         self.initCollections( nCollections, init_args, lut = lut, maxStageHeight=self.maxStageHeight  )
-        interface = init_args[2]
         self.defvar =  init_args[3]
         self.vertVar = None
         self.initializeConfiguration()       

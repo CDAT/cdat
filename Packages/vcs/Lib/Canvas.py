@@ -103,8 +103,9 @@ def _determine_arg_list(g_name, actual_args):
       else:
           try:
              possible_slab = cdms2.asVariable (args[i], 0)
-             if not possible_slab.iscontiguous():
-                 possible_slab = possible_slab.ascontiguousarray()
+             if hasattr( possible_slab, 'iscontiguous' ):
+                 if not possible_slab.iscontiguous():
+                     possible_slab = possible_slab.ascontiguousarray()
              arglist[found_slabs] = possible_slab
              if found_slabs == 2:
                  raise vcsError, "Too many slab arguments."
@@ -5476,7 +5477,8 @@ Options:::
                 if not keyarg in self.__class__._plot_keywords_+self.backend._plot_keywords:
                      warnings.warn('Unrecognized vcs plot keyword: %s, assuming backend (%s) keyword'%(keyarg,self.backend.type))
 
-            if (arglist[0] is not None or keyargs.has_key('variable')):
+            isFileVar = (arglist[0] is not None) and isinstance( arglist[0], cdms2.fvariable.FileVariable )
+            if ( not isFileVar ) and (arglist[0] is not None or keyargs.has_key('variable')):
                 arglist[0] = self._reconstruct_tv(arglist, keyargs)
                 # Check data's dimension size (VCS cannot take variables with
                 # with dimensions larger than 4D, below makes sure the variable

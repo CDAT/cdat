@@ -10,6 +10,16 @@ PortDataVersion = 0
 from ConfigurationFunctions import *
 from StructuredDataset import *
  
+def getVarName( var ):
+    if hasattr( var,'outvar'): return var.outvar.name 
+    if hasattr( var,'name'): return var.name 
+    if hasattr( var,'name_in_file'): return var.name_in_file 
+    if hasattr( var,'id'): return var.id 
+
+def getRoiSize( roi ):
+    if roi == None: return 0
+    return abs((roi[2]-roi[0])*(roi[3]-roi[1]))
+
 class OutputRecManager: 
     
     sep = ';#:|!'   
@@ -79,12 +89,25 @@ class StructuredDataReader:
     dataCache = {}
     imageDataCache = {}
     
-    def __init__(self, init_specs, **args):
-        self.datasetId = init_specs[1]
-        self.fileSpecs = init_specs[1]
-        self.varSpecs = init_specs[3]
-        self.gridSpecs = init_specs[4]
-        self.subSpace = init_specs[7]
+    def __init__(self, **args):
+        init_specs = args.get( 'init_specs', None )
+        if init_specs <> None:
+            self.datasetId = init_specs[1]
+            self.fileSpecs = init_specs[1]
+            self.varSpecs = init_specs[3]
+            self.gridSpecs = init_specs[4]
+            self.subSpace = init_specs[7]
+            self.df = cdms2.open( self.fileSpecs ) 
+            self.vars =  [ self.df[ varSpec ] for varSpec in self.varSpecs ]
+        else:
+            self.vars =  args.get( 'vars', None )
+            if self.vars <> None:
+                dfile = self.vars[0].parent
+                self.datasetId = dfile.Title if hasattr( dfile, 'Title' ) else dfile.id
+                self.fileSpecs = dfile.id
+                self.varSpecs = [ self.vars[0].name_in_file ]
+                self.subSpace = args.get( 'axes', 'xyz' )
+                self.df = cdms2.open( self.fileSpecs ) 
         self.referenceTimeUnits = None
         self.parameters = {}
         self.currentTime = 0
@@ -94,8 +117,6 @@ class StructuredDataReader:
         self.useTimeIndex = False
         self.timeAxis = None
         self.fieldData = None
-        self.df = cdms2.open( self.fileSpecs ) 
-        self.vars =  [ self.df( varSpec ) for varSpec in self.varSpecs ]
         self.outputType = CDMSDataType.Hoffmuller if ( self.subSpace == 'xyt' ) else CDMSDataType.Volume 
 # #        memoryLogger.log("Init CDMSDataReader")
 #         if self.outputType == CDMSDataType.Hoffmuller:
@@ -680,7 +701,7 @@ class StructuredDataReader:
     def getIntersectedRoi( self, var, current_roi ):   
         try:
             newRoi = [ 0.0 ] * 4
-            varname = var.outvar.name if hasattr( var,'outvar') else var.name
+            varname = getVarName( var )
             tvar = self.cdmsDataset.getTransientVariable( varname )
             if id( tvar ) == id( None ): return current_roi
             current_roi_size = getRoiSize( current_roi )
@@ -755,7 +776,7 @@ class StructuredDataReader:
             gridBounds[ 2 ] = gridBounds[ 3 ]
             gridBounds[ 3 ] = tmp
         gridSpecs = {}
-        md = { 'datasetId' : self.datasetId,  'bounds':gridBounds, 'lat':self.lat, 'lon':self.lon, 'lev':self.lev, 'time': self.timeAxis }
+        md = { 'datasetId' : self.datasetId,  'bounds':gridBounds } # , 'lat':self.lat, 'lon':self.lon, 'lev':self.lev, 'time': self.timeAxis }
         gridSpecs['gridOrigin'] = gridOrigin
         gridSpecs['outputOrigin'] = outputOrigin
         gridSpecs['gridBounds'] = gridBounds
