@@ -385,7 +385,16 @@ class VTKVCSBackend(object):
     pass
 
   def plot3D(self,data1,data2,tmpl,gm,ren):
-      pass
+      from dv3d.Application import DV3D
+      g = DV3D() 
+      n_overview_points = 500000
+      grid_coords = ( None, None, None, None )
+      var_proc_op = None
+      interface = None
+      roi = None # ( 0, 0, 50, 50 )
+      axes = 'xyz'
+      g.init( init_var = ( data1, data2, roi, axes  ), n_overview_points=n_overview_points, renwin=ren.GetRenderWindow()  ) #, plot_type = PlotType.List  ) 
+
       
   def plot2D(self,data1,data2,tmpl,gm,ren):
     self.setLayer(ren,tmpl.data.priority)

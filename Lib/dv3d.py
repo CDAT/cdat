@@ -57,8 +57,6 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
             self._axes="xyz"
         elif Gfdv3d_name=="hovmuller": 
             self._axes="xyt"
-        else:
-            raise ValueError,"Unknown DV3D plot type: '%s'" % Gfdv3d_name
             
         vcs.elements["dv3d"][Gfdv3d_name]=self
 
