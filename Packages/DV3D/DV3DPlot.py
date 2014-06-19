@@ -471,6 +471,9 @@ class DV3DPlot():
             target.RemoveAllObservers()
         self.observerTargets.clear()
 
+    def printInteractionStyle(self, msg ):
+        print "%s: InteractionStyle = %s " % ( msg,  self.renderWindowInteractor.GetInteractorStyle().__class__.__name__ ) 
+
     def createRenderWindow( self, **args ):
         blocking = args.get( 'blocking', False )
         renWin = args.get( 'renwin', None ) 
