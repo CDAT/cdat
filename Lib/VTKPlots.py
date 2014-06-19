@@ -22,9 +22,9 @@ def smooth(x,beta,window_len=11):
 
 class VCSInteractorStyle(vtk.vtkInteractorStyleUser):
   def __init__(self,parent=None):
-    self.AddObserver("LeftButtonPressEvent",parent.leftButtonPressEvent)
-    self.AddObserver("LeftButtonReleaseEvent",parent.leftButtonReleaseEvent)
-    self.AddObserver("ConfigureEvent",parent.configureEvent)
+    self.AddObserver("LeftButtonPressEvent",parent.leftButtonPressEvt )
+    self.AddObserver("LeftButtonReleaseEvent",parent.leftButtonReleaseEvt )
+    self.AddObserver("ConfigureEvent",parent.configureEvt )
 
 class VTKVCSBackend(object):
   def __init__(self,canvas,renWin=None, debug=False,bg=None):
@@ -41,11 +41,13 @@ class VTKVCSBackend(object):
       if renWin.GetInteractor() is None:
         self.createDefaultInteractor()
 
-
   def interact(self,*args,**kargs):
       warnings.warn("Press 'Q' to exit interactive mode and continue script execution")
       self.renWin.GetInteractor().Start()
 
+  def leftButtonPressEvt(self):
+      return self.leftButtonPressEvent( self.renWin.GetInteractor(),'LeftButtonPressEvent' )
+  
   def leftButtonPressEvent(self,obj,event):
     xy = self.renWin.GetInteractor().GetEventPosition()
     sz = self.renWin.GetSize()
@@ -103,11 +105,17 @@ class VTKVCSBackend(object):
     self.renWin.Render()
 
 
+  def leftButtonReleaseEvt(self):
+      return self.leftButtonReleaseEvent( self.renWin.GetInteractor(), 'LeftButtonReleaseEvent' )
+
   def leftButtonReleaseEvent(self,obj,event):
     self.clickRenderer.RemoveAllViewProps()
     self.clickRenderer.Render()
     self.renWin.RemoveRenderer(self.clickRenderer)
     self.renWin.Render()
+
+  def configureEvt(self):
+      return self.configureEvent( self.renWin.GetInteractor(), 'ConfigureEvent' )
 
   def configureEvent(self,obj,ev):
     sz = self.renWin.GetSize()
@@ -145,12 +153,12 @@ class VTKVCSBackend(object):
     #self.renWin.Render()
     self.numberOfPlotCalls = 0 
 
-  def createDefaultInteractor(self,style=vtk.vtkInteractorStyleUser()):
+  def createDefaultInteractor( self ):
     defaultInteractor = self.renWin.GetInteractor()
     if defaultInteractor is None:
       defaultInteractor = vtk.vtkRenderWindowInteractor()
-    if style is not None:
-      defaultInteractor.SetInteractorStyle(style)
+    self.vcsInteractorStyle = VCSInteractorStyle(self)
+    defaultInteractor.SetInteractorStyle( self.vcsInteractorStyle )
     try:
       defaultInteractor.RemoveObservers("LeftButtonPressEvent")
     except:
@@ -168,10 +176,10 @@ class VTKVCSBackend(object):
         defaultInteractor.RemoveObservers("ModifiedEvent")
     except:
         pass
-    defaultInteractor.AddObserver("ModifiedEvent",self.configureEvent)
-    defaultInteractor.AddObserver("LeftButtonPressEvent",self.leftButtonPressEvent)
-    defaultInteractor.AddObserver("LeftButtonReleaseEvent",self.leftButtonReleaseEvent)
-    defaultInteractor.AddObserver("ConfigureEvent",self.configureEvent)
+#     defaultInteractor.AddObserver("ModifiedEvent",self.configureEvent)
+#     defaultInteractor.AddObserver("LeftButtonPressEvent",self.leftButtonPressEvent)
+#     defaultInteractor.AddObserver("LeftButtonReleaseEvent",self.leftButtonReleaseEvent)
+#     defaultInteractor.AddObserver("ConfigureEvent",self.configureEvent)
     defaultInteractor.SetRenderWindow(self.renWin)
 
   def createRenWin(self,*args,**kargs):
