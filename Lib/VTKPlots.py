@@ -395,7 +395,8 @@ class VTKVCSBackend(object):
 
   def plot3D(self,data1,data2,tmpl,gm,ren):
       from DV3D.Application import DV3DApp
-      if ( id(data1) == id(None) ) or not isinstance(data1, cdms2.fvariable.FileVariable ):
+      requiresFileVariable = True
+      if ( data1 is None ) or ( requiresFileVariable and not isinstance(data1, cdms2.fvariable.FileVariable ) ):
           raise Exception, "Error, must pass a FileVariable as the first input to the dv3d gm"
       g = DV3DApp() 
       n_overview_points = 500000
