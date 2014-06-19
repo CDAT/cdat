@@ -1721,7 +1721,7 @@ Options:::
         return vcs.elements["dv3d"][Gfdv3d_name_src]
 
    
-    def createdv3d(self,name=None, source='default'):
+    def createdv3d(self,name='default', source='default'):
         """
  Function: createdv3d                # Construct a new dv3d graphics method
 
@@ -1740,7 +1740,7 @@ Options:::
     a.show('dv3d')
     plot=a.createdv3d()
 """
-        name,source = self.check_name_source(name,source,'dv3d')
+#        name,source = self.check_name_source(name,source,'dv3d')
         return dv3d.Gfdv3d(name, source)
 
     def prettifyAxisLabels(self,ticks,axis):
@@ -6491,7 +6491,8 @@ Options:::
             for t in vcs.taylordiagrams:
                 L.append(t.name)
         else:
-            L = apply(vcs.listelements, args)
+            f = vcs.listelements
+            L = apply(f, args)
 
         L.sort()
 

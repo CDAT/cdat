@@ -5,7 +5,7 @@ Created on Aug 29, 2013
 '''
 
 import sys, cdms2
-import os.path, traceback, threading
+import os.path, traceback, threading, multiprocessing
 import vtk, time
 from DistributedPointCollections import vtkPartitionedPointCloud, vtkLocalPointCloud, ScalarRangeType
 from ConfigurationFunctions import *
@@ -1234,7 +1234,7 @@ class CPCPlot( DV3DPlot ):
         init_args = args[ 'init' ]      
         n_overview_points = args.get( 'n_overview_points', 500000 )    
         n_subproc_points = args.get( 'n_subproc_points', 500000 )  
-        n_cores = args.get( 'n_cores', 32 )    
+        n_cores = args.get( 'n_cores', multiprocessing.cpu_count() )    
         self.point_cloud_overview = vtkLocalPointCloud( 0, max_points=n_overview_points ) 
         lut = self.getLUT()
         self.point_cloud_overview.initialize( init_args, lut = lut, maxStageHeight=self.maxStageHeight  )
