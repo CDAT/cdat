@@ -213,7 +213,8 @@ class ImagePlaneWidget:
     def SetInteractor( self, iren ):
         if ( iren <> None ):
             if ( iren <> self.Interactor ):
-                self.Interactor = iren  
+                self.Interactor = iren 
+                istyle = self.Interactor.GetInteractorStyle () 
                 self.Interactor.AddObserver( 'LeftButtonPressEvent', self.OnLeftButtonDown )
                 self.Interactor.AddObserver( 'LeftButtonReleaseEvent', self.OnLeftButtonUp )
                 self.Interactor.AddObserver( 'RightButtonReleaseEvent', self.OnRightButtonUp )
@@ -425,11 +426,13 @@ class ImagePlaneWidget:
 
     def HaltNavigationInteraction(self): 
         print " IPW-> HaltNavigationInteraction"
-        self.Interactor.Off() 
+        istyle = self.Interactor.GetInteractorStyle ()
+        istyle.Off()
 
     def ResetNavigationInteraction(self):   
         print " IPW-> ResetNavigationInteraction"
-        self.Interactor.On()  
+        istyle = self.Interactor.GetInteractorStyle ()
+        istyle.On()
 
 #----------------------------------------------------------------------------
 

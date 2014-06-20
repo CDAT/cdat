@@ -510,9 +510,7 @@ class RectGridPlot(StructuredGridPlot):
                         break
         return found
 
-    def onLeftButtonPress( self, caller, event ):
-        shift = caller.GetShiftKey()
-        
+    def onLeftButtonPress( self, caller, event ):        
         if False: # self.surfacePicker and not shift: 
             if self.state == self.Outside:
                 self.stopCursor()

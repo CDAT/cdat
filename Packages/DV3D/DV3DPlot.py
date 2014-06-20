@@ -176,9 +176,10 @@ class DV3DPlot():
 #        print "TimerEvent: %d %d %d " % (  id0, id1, id2 )
         
     def setInteractionState(self, caller, event):
-        key = caller.GetKeyCode() 
-        keysym = caller.GetKeySym()
-        shift = caller.GetShiftKey()
+        interactor = caller.GetInteractor()
+        key = interactor.GetKeyCode() 
+        keysym = interactor.GetKeySym()
+        shift = interactor.GetShiftKey()
 #        print " setInteractionState -- Key Press: %c ( %d: %s ), event = %s " % ( key, ord(key), str(keysym), str( event ) )
         alt = ( keysym <> None) and keysym.startswith("Alt")
         if alt:
@@ -188,8 +189,9 @@ class DV3DPlot():
         return 0
 
     def processKeyEvent( self, key, caller=None, event=None, **args ):
-        keysym = caller.GetKeySym() if caller else key
-        ctrl = caller.GetControlKey() if caller else args.get( 'ctrl', 0 )
+        interactor = caller.GetInteractor()
+        keysym = interactor.GetKeySym() if caller else key
+        ctrl = interactor.GetControlKey() if caller else args.get( 'ctrl', 0 )
         self.onKeyEvent( [ key, keysym, ctrl ] ) 
         return 0       
 #         
@@ -287,7 +289,6 @@ class DV3DPlot():
     def createRenderer(self, **args ):
         background_color = args.get( 'background_color', VTK_BACKGROUND_COLOR )
         self.renderer.SetBackground(*background_color)   
-        self.renderWindowInteractor.AddObserver( 'RightButtonPressEvent', self.onRightButtonPress )  
         self.textDisplayMgr = TextDisplayMgr( self.renderer )             
         self.pointPicker = vtk.vtkPointPicker()
         self.pointPicker.PickFromListOn()   
@@ -349,12 +350,12 @@ class DV3DPlot():
     def activateEvent( self, caller, event ):
         if not self.activated:
 #            self.addObserver( self.renderWindowInteractor, 'InteractorEvent', self.displayEventType )                   
-            self.addObserver( self.renderWindowInteractor, 'CharEvent', self.setInteractionState )                   
+            self.addObserver( self.interactorStyle, 'CharEvent', self.setInteractionState )                   
             self.addObserver( self.renderWindowInteractor, 'TimerEvent', self.processTimerEvent )                   
 #            self.addObserver( self.renderWindowInteractor, 'MouseMoveEvent', self.updateLevelingEvent )
-            self.addObserver( self.renderWindowInteractor, 'KeyReleaseEvent', self.onKeyRelease )
+            self.addObserver( self.interactorStyle, 'KeyReleaseEvent', self.onKeyRelease )
             self.addObserver( self.renderWindowInteractor, 'LeftButtonPressEvent', self.onLeftButtonPress )            
-            self.addObserver( self.renderWindowInteractor, 'ModifiedEvent', self.onModified )
+            self.addObserver( self.interactorStyle, 'ModifiedEvent', self.onModified )
             self.addObserver( self.renderWindowInteractor, 'RenderEvent', self.onRender )                   
             self.addObserver( self.renderWindowInteractor, 'LeftButtonReleaseEvent', self.onLeftButtonRelease )
             self.addObserver( self.renderWindowInteractor, 'RightButtonReleaseEvent', self.onRightButtonRelease )
@@ -487,10 +488,10 @@ class DV3DPlot():
         renWin.AddRenderer( self.renderer )
         self.renderWindowInteractor = renWin.GetInteractor()
 
-        irenStyle = vtk.vtkInteractorStyleTrackballCamera( )
-        self.renderWindowInteractor.SetInteractorStyle( irenStyle )
-        irenStyle.KeyPressActivationOff( )
-        irenStyle.SetEnabled(1)
+        self.interactorStyle = vtk.vtkInteractorStyleTrackballCamera( )
+        self.renderWindowInteractor.SetInteractorStyle( self.interactorStyle )
+        self.interactorStyle.KeyPressActivationOff( )
+        self.interactorStyle.SetEnabled(1)
                      
         if self.useDepthPeeling:
             self.renderer.UseDepthPeelingOn( )
@@ -594,8 +595,7 @@ class DV3DPlot():
         self.renderWindowInteractor.Initialize()
         self.showConfigurationButton()
         self.renderWindow.Render()
-        if block: 
-            self.renderWindowInteractor.Start()
+        if block:  self.renderWindowInteractor.Start()
          
     def invalidate(self):
         self.isValid = False
