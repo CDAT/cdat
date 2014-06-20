@@ -294,6 +294,7 @@ class ButtonBarWidget:
         return offset_location
             
     def processStateChangeEvent( self, button_id, key, state ):
+        print " processStateChangeEvent: ", str( [ button_id, key, state ] )
         self.StateChangedSignal( button_id, key, state )
         if state > 0: 
             self.updateInteractionState( button_id, state  ) 
@@ -515,7 +516,7 @@ class ButtonBarWidget:
                     if self.InteractionState <> None: self.endInteraction()
                     self.InteractionState = interaction_state
                     self.process_mode = process_mode
-                    print "Change Interaction State: %s %d " % ( self.InteractionState, self.process_mode )
+#                    print "Change Interaction State: %s %d " % ( self.InteractionState, self.process_mode )
                 return item[0]
         return None
             
@@ -542,12 +543,15 @@ class ButtonBarWidget:
 
     def haltNavigationInteraction(self):
         print " ----------------------BBW haltNavigationInteraction -------------------------- "
-        if self.interactor: self.interactor.Off()  
+        if self.interactor: 
+            istyle = self.interactor.GetInteractorStyle () 
+            istyle.Off()  
     
     def resetNavigation(self):
         print " ----------------------BBW resetNavigation -------------------------- "
         if self.interactor:
-            self.interactor.On()
+            istyle = self.interactor.GetInteractorStyle () 
+            istyle.On()  
             self.enableVisualizationInteraction()
 
     def getInteractionState( self, key ):
@@ -566,7 +570,7 @@ class ButtonBarWidget:
                 if configFunct.name <> config_state:
                     configFunct.close()                 
             configFunct = self.configurableFunctions.get( config_state, None )
-#                print " UpdateInteractionState, config_state = %s, cf = %s " % ( config_state, str(configFunct) )
+            print " UpdateInteractionState, config_state = %s, cf = %s " % ( config_state, configFunct.key )
             if configFunct:
                 child_activations = []
                 if configFunct.type <> 'slider': 

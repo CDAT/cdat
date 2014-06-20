@@ -3,7 +3,7 @@ Created on May 13, 2014
 
 @author: tpmaxwel
 '''
-import cdms2
+import cdms2, sys
 from PointCloudViewer import CPCPlot
 #from VolumeViewer import VolumePlot
 from SliceViewer import SlicePlot
@@ -24,9 +24,7 @@ class DV3DApp:
             df = cdms2.open( data_file )       
             var = df[ varnames[0] ]
         else:
-            init_var = args.get( 'init_var', None )
-            if init_var:
-                ( var, var1,  roi, axes  ) = init_var
+            print>>sys.stderr, "Error, this method requires an init_args argument"
             
         if id(var) <> id(None):
             grid_metadata = var.getGrid()
@@ -58,5 +56,9 @@ class DV3DApp:
         return self.plot.onKeyEvent( eventArgs )               
 
     def terminate( self ): 
-        return self.plot.terminate( )               
+        return self.plot.terminate( ) 
+    
+    def start(self): 
+        iren = self.plot.renderWindow.GetInteractor() 
+        iren.Start()        
         

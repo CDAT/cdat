@@ -13,7 +13,7 @@ from ConfigurationFunctions import PlotType
 parser = argparse.ArgumentParser(description='DV3D Point Cloud Viewer')
 parser.add_argument( 'PATH' )
 parser.add_argument( '-d', '--data_dir', dest='data_dir', nargs='?', default="~/data", help='input data dir')
-parser.add_argument( '-t', '--data_type', dest='data_type', nargs='?', default="CAM", help='input data type')
+parser.add_argument( '-t', '--data_type', dest='data_type', nargs='?', default="GEOS5", help='input data type')
 ns = parser.parse_args( sys.argv )
 
 kill_all_zombies()
@@ -23,7 +23,7 @@ grid_coords = ( None, None, None, None )
 data_dir = os.path.expanduser( ns.data_dir )
 height_varnames = []
 var_proc_op = None
-interface = InterfaceType.ClimatePointCloud
+interface = None
 roi = None # ( 0, 0, 50, 50 )
 
 
@@ -71,6 +71,8 @@ g.init( init = ( grid_file, data_file, interface, varnames, grid_coords, var_pro
 
 rw = g.getRenderWindow() 
 print "Got render window" ; sys.stdout.flush() 
+
+g.start()
 
 
      

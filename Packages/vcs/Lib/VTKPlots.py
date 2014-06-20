@@ -26,6 +26,7 @@ class VCSInteractorStyle(vtk.vtkInteractorStyleUser):
       self.parent = parent
       self.AddObserver("LeftButtonPressEvent", parent.leftButtonPressEvent )
       self.AddObserver("LeftButtonReleaseEvent", parent.leftButtonReleaseEvent )
+      self.AddObserver( "ModifiedEvent", parent.configureEvent )
       
 #  def onAnyEvent( self, obj, event ):
 #      print " VCSInteractorStyle Event: ", event 
@@ -134,6 +135,7 @@ class VTKVCSBackend(object):
       # this is mainly to avoid segfault vwith Vistraisl which does
       # not catch configure Events but only modifiedEvents....
       return
+    print " $$$$$$$$$$$$$$$$$$$$$$$$$$$$$ VCS Conf Event $$$$$$$$$$$$$$$$$$$$$$$$$$$$$ "
     self._lastSize = sz
     plots_args = []
     for dnm in self.canvas.display_names:
@@ -190,7 +192,6 @@ class VTKVCSBackend(object):
 # #     defaultInteractor.AddObserver("ModifiedEvent",self.configureEvent)
 #    defaultInteractor.AddObserver("LeftButtonPressEvent",self.leftButtonPressTest)
 #     defaultInteractor.AddObserver("LeftButtonReleaseEvent",self.leftButtonReleaseEvent)
-    defaultInteractor.AddObserver( "ModifiedEvent", self.configureEvent )
     defaultInteractor.SetRenderWindow(self.renWin)
     self.vcsInteractorStyle.On()
 

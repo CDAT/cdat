@@ -278,6 +278,7 @@ class RectGridPlot(StructuredGridPlot):
     def processSlicingCommand( self, args, config_function = None ):
         plane_index, plane_widget = self.getPlaneWidget( config_function.key )
         slicePosition = config_function.value
+#        print " ProcessSlicingCommand: args = %s, plane = %d, cf = %s" % ( str( args ), plane_index, config_function.key )
         if args and args[0] == "StartConfig":
             pass
         elif args and args[0] == "Init":
