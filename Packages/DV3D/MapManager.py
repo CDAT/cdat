@@ -254,6 +254,7 @@ class MapManager:
             extent = list( baseExtent )         
             extent[0:2] = [ x0, x0 + sliceCoord - 1 ]
             clip0 = vtk.vtkImageClip()
+            clip0.ClipDataOn()
             clip0.SetInput( baseImage )
             clip0.SetOutputWholeExtent( extent[0], extent[1], vertExtent[0], vertExtent[1], extent[4], extent[5] )
             size0 = extent[1] - extent[0] + 1
@@ -264,6 +265,7 @@ class MapManager:
             sliceCoord = int( round( x0 + sliceSize) )       
             extent[0:2] = [ x0 + sliceCoord, x1 ]
             clip1 = vtk.vtkImageClip()
+            clip1.ClipDataOn()
             if vtk.VTK_MAJOR_VERSION <= 5:  clip1.SetInput( baseImage )
             else:                           clip1.SetInputData( baseImage )
             clip1.SetOutputWholeExtent( extent[0], extent[1], vertExtent[0], vertExtent[1], extent[4], extent[5] )
@@ -292,12 +294,13 @@ class MapManager:
             sliceCoord = int( round( x0 + sliceSize) )       
             extent[1] = x0 + sliceCoord
             clip = vtk.vtkImageClip()
+            clip.ClipDataOn()
             if vtk.VTK_MAJOR_VERSION <= 5:  clip.SetInput( baseImage )
             else:                           clip.SetInputData( baseImage )
             clip.SetOutputWholeExtent( extent[0], extent[1], vertExtent[0], vertExtent[1], extent[4], extent[5] )
             bounded_dims = ( extent[1] - extent[0] + 1, vertExtent[1] - vertExtent[0] + 1 )
 #            print "Set Corner pos: %s, dataXLoc: %s " % ( str(self.x0), str( (dataXLoc, selectionDim[0]) ) )
-
+            clip.Update()
             imageInfo.SetInputConnection( clip.GetOutputPort() ) 
                        
         imageInfo.SetOutputOrigin( 0.0, 0.0, 0.0 )

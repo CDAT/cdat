@@ -402,6 +402,9 @@ class StructuredGridPlot(DV3DPlot):
         self.baseMapActor.SetOrientation( 0.0, 0.0, 0.0 )
         self.baseMapActor.SetOpacity( self.map_opacity[0] )
         mapCorner = [ self.x0, self.y0 ]
+#         self.xcenter = self.x0 
+#         self.ycenter = self.y0
+#         self.initCamera()
                 
         self.baseMapActor.SetPosition( mapCorner[0], mapCorner[1], 0.1 )
         if vtk.VTK_MAJOR_VERSION <= 5:  self.baseMapActor.SetInput(baseImage)
