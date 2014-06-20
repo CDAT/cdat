@@ -135,7 +135,6 @@ class VTKVCSBackend(object):
       # this is mainly to avoid segfault vwith Vistraisl which does
       # not catch configure Events but only modifiedEvents....
       return
-    print " $$$$$$$$$$$$$$$$$$$$$$$$$$$$$ VCS Conf Event $$$$$$$$$$$$$$$$$$$$$$$$$$$$$ "
     self._lastSize = sz
     plots_args = []
     for dnm in self.canvas.display_names:
