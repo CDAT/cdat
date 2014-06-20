@@ -26,6 +26,7 @@ class VCSInteractorStyle(vtk.vtkInteractorStyleUser):
       self.parent = parent
       
   def OnLeftButtonDown(self):
+      print " OnLeftButtonDown "
       self.parent.leftButtonPressEvent( self, "LeftButtonPressEvent" )
 
   def OnLeftButtonUp(self):
@@ -49,9 +50,6 @@ class VTKVCSBackend(object):
       if renWin.GetInteractor() is None:
         self.createDefaultInteractor()
         
-  def start(self):
-      self.renWin.GetInteractor().Start()
-
   def interact(self,*args,**kargs):
       warnings.warn("Press 'Q' to exit interactive mode and continue script execution")
       self.renWin.GetInteractor().Start()

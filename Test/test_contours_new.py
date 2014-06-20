@@ -8,7 +8,7 @@ s=f("clt",time=slice(0,1),squeeze=1)
 x=vcs.init()
 iso=x.createisofill()
 x.plot(s,iso)
-x.start()
+x.interact()
 
 
 
