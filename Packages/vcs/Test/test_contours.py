@@ -29,6 +29,7 @@ iso.fillareacolors = cols
 iso.list()
 x.plot(s,iso)
 x.png("contours")
-raw_input("Press Enter")
+x.start()
+#raw_input("Press Enter")
 
 

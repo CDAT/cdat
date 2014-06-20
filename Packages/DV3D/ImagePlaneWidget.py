@@ -1135,7 +1135,6 @@ class ImagePlaneWidget:
         # up to date already, this call doesn't cost very much.  If we don't make
         # this call and the data is not up to date, the GetScalar... call will
         # cause a segfault.
-        self.ImageData.Update()
         
         self.PlanePicker.Pick(X,Y,0.0,self.CurrentRenderer)
         self.CurrentImageValue = vtk.VTK_DOUBLE_MAX
