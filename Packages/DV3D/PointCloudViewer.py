@@ -1228,36 +1228,25 @@ class CPCPlot( DV3DPlot ):
                 point_cloud.terminate()  
           
     def setPointSize( self, point_size ) :  
-        self.getPointCloud().setPointSize( point_size )    
+        self.getPointCloud().setPointSize( point_size ) 
+        
+    def getInitArgs(self, var1, var2, **args ):
+        interface = None
+        dfile = var1.parent
+        data_file = dfile.id
+        varnames = [ var1.name_in_file ]
+        if not var2 is None: varnames.append( var2.name_in_file )
+        subSpace = args.get( 'axes', 'xyz' )
+        grd_coords = [ None ]*5
+        var_proc_op = None
+        grid_file = None  
+        ROI = None       
+        return [ grid_file, data_file, interface, varnames, grd_coords, var_proc_op, ROI, subSpace ] 
 
     def gminit(self, var1, var2, **args  ):
-        var_list = [ var1 ]
-        if id(var2) <> id(None): var_list.append( var2 )
-        n_overview_points = args.get( 'n_overview_points', 500000 )    
-        n_subproc_points = args.get( 'n_subproc_points', 500000 )  
-        n_cores = args.get( 'n_cores', multiprocessing.cpu_count() )    
-        self.point_cloud_overview = vtkLocalPointCloud( 0, max_points=n_overview_points ) 
-        lut = self.getLUT()
-        self.point_cloud_overview.initialize( init_args, lut = lut, maxStageHeight=self.maxStageHeight  )
-        nInputPoints = self.point_cloud_overview.getNumberOfInputPoints()
-        if ( n_subproc_points > nInputPoints ): n_subproc_points = nInputPoints
-        nPartitions = int( round( min( nInputPoints / n_subproc_points, 10  ) ) )
-        nCollections = min( nPartitions, n_cores-1 )
-        print " Init PCViewer, nInputPoints = %d, n_overview_points = %d, n_subproc_points = %d, nCollections = %d, overview skip index = %s" % ( nInputPoints, n_overview_points, n_subproc_points, nCollections, self.point_cloud_overview.getSkipIndex() )
-        self.initCollections( nCollections, init_args, lut = lut, maxStageHeight=self.maxStageHeight  )
-        self.defvar =  var1.id
-        self.vertVar = None
-        self.initializeConfiguration()       
-        ConfigurableFunction.activate()
-        self.initializePlots()
-             
-#             pc = self.point_cloud_overview.getPointCollection()
-#             cfgInterface = ConfigurationInterface( metadata=pc.getMetadata(), defvar=pc.var.id, callback=self.processConfigCmd  )
-#             cfgInterface.build()
-#             cfgInterface.activate()
-            
-        self.start() 
-      
+        init_args = self.getInitArgs( var1, var2, **args )
+        self.init( init=init_args, **args )
+
     def init(self, **args ):
         init_args = args.get( 'init', None )                  
         n_overview_points = args.get( 'n_overview_points', 500000 )    
