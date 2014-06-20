@@ -414,7 +414,9 @@ class Canvas(object,AutoAPI.AutoAPI):
     def _getanimate_info(self):
         return self._animate_info
     animate_info =property(_getanimate_info,_setanimate_info)
-    
+
+    def start(self,*args,**kargs): 
+        self.interact(*args,**kargs)   
         
     def interact(self,*args,**kargs):
       self.backend.interact(*args,**kargs)
@@ -736,9 +738,6 @@ class Canvas(object,AutoAPI.AutoAPI):
 #     an eye opened for the errors concerning datawc in the VCS module.
 #        tv = self._datawc_tv( tv, arglist )
         return tv
-
-    def start(self):
-        self.backend.start()
         
     #############################################################################
     #                                                                           #

@@ -590,11 +590,12 @@ class DV3DPlot():
         colormapManager = self.getColormapManager( index=cmap_index )
         return [ colormapManager.colormapName, colormapManager.invertColormap, self.stereoEnabled ]
 
-    def start(self):
+    def start( self, block = False ):
         self.renderWindowInteractor.Initialize()
         self.showConfigurationButton()
         self.renderWindow.Render()
-        self.renderWindowInteractor.Start()
+        if block: 
+            self.renderWindowInteractor.Start()
          
     def invalidate(self):
         self.isValid = False

@@ -14,3 +14,4 @@ u = f["uwnd"]
 x = vcs.init()
 dv3d = x.createdv3d()
 x.plot( u, dv3d )
+x.interact()
