@@ -48,6 +48,9 @@ class VTKVCSBackend(object):
       self.renWin = renWin
       if renWin.GetInteractor() is None:
         self.createDefaultInteractor()
+        
+  def start(self):
+      self.renWin.GetInteractor().Start()
 
   def interact(self,*args,**kargs):
       warnings.warn("Press 'Q' to exit interactive mode and continue script execution")
@@ -123,7 +126,8 @@ class VTKVCSBackend(object):
 
   def configureEvent(self,obj,ev):
     sz = self.renWin.GetSize()
-    if self._lastSize == sz: # or (self._lastSize is None and hasattr(self,"fromVistrails")):
+    if self._lastSize == sz:
+#    if self._lastSize == sz: # or (self._lastSize is None and hasattr(self,"fromVistrails")):
       # We really only care about resize event
       # this is mainly to avoid segfault vwith Vistraisl which does
       # not catch configure Events but only modifiedEvents....
@@ -182,7 +186,7 @@ class VTKVCSBackend(object):
     except:
         pass
 #     defaultInteractor.AddObserver("ModifiedEvent",self.configureEvent)
-    defaultInteractor.AddObserver("LeftButtonPressEvent",self.leftButtonPressTest)
+#    defaultInteractor.AddObserver("LeftButtonPressEvent",self.leftButtonPressTest)
 #     defaultInteractor.AddObserver("LeftButtonReleaseEvent",self.leftButtonReleaseEvent)
 #     defaultInteractor.AddObserver("ConfigureEvent",self.configureEvent)
     defaultInteractor.SetRenderWindow(self.renWin)

@@ -737,6 +737,9 @@ class Canvas(object,AutoAPI.AutoAPI):
 #        tv = self._datawc_tv( tv, arglist )
         return tv
 
+    def start(self):
+        self.backend.start()
+        
     #############################################################################
     #                                                                           #
     # Print out the object's doc string.                                        #
