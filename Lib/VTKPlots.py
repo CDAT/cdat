@@ -24,16 +24,23 @@ class VCSInteractorStyle(vtk.vtkInteractorStyleUser):
     
   def __init__(self,parent=None):
       self.parent = parent
+      self.AddObserver("LeftButtonPressEvent", parent.leftButtonPressEvent )
+      self.AddObserver("LeftButtonReleaseEvent", parent.leftButtonReleaseEvent )
       
-  def OnLeftButtonDown(self):
-      print " OnLeftButtonDown "
-      self.parent.leftButtonPressEvent( self, "LeftButtonPressEvent" )
-
-  def OnLeftButtonUp(self):
-      self.parent.leftButtonReleaseEvent( self, "LeftButtonReleaseEvent" )
-
-  def OnConfigure(self):
-      self.parent.configureEvent( self, "ConfigureEvent" )
+#  def onAnyEvent( self, obj, event ):
+#      print " VCSInteractorStyle Event: ", event 
+#       self.AddObserver("LeftButtonPressEvent",parent.leftButtonPressEvent)
+#       self.AddObserver("LeftButtonReleaseEvent",parent.leftButtonReleaseEvent)
+#       
+#   def OnLeftButtonDown(self):
+#       print " OnLeftButtonDown "
+#       self.parent.leftButtonPressEvent( self, "LeftButtonPressEvent" )
+#  
+#   def OnLeftButtonUp(self):
+#       self.parent.leftButtonReleaseEvent( self, "LeftButtonReleaseEvent" )
+# 
+#   def OnConfigure(self):
+#       self.parent.configureEvent( self, "ConfigureEvent" )
 
 class VTKVCSBackend(object):
   def __init__(self,canvas,renWin=None, debug=False,bg=None):
@@ -59,8 +66,6 @@ class VTKVCSBackend(object):
       print 'LeftButtonPressTest: istyle = ', str(istyle)
   
   def leftButtonPressEvent(self,obj,event):
-    istyle = obj.GetInteractorStyle()
-    print 'LeftButtonPressEvent: istyle = ', str(istyle)
     xy = self.renWin.GetInteractor().GetEventPosition()
     sz = self.renWin.GetSize()
     x = float(xy[0])/sz[0]
@@ -124,8 +129,7 @@ class VTKVCSBackend(object):
 
   def configureEvent(self,obj,ev):
     sz = self.renWin.GetSize()
-    if self._lastSize == sz:
-#    if self._lastSize == sz: # or (self._lastSize is None and hasattr(self,"fromVistrails")):
+    if self._lastSize == sz: # or (self._lastSize is None and hasattr(self,"fromVistrails")):
       # We really only care about resize event
       # this is mainly to avoid segfault vwith Vistraisl which does
       # not catch configure Events but only modifiedEvents....
@@ -166,27 +170,27 @@ class VTKVCSBackend(object):
     self.vcsInteractorStyle = VCSInteractorStyle(self)
     if ren: self.vcsInteractorStyle.SetCurrentRenderer( ren )
     defaultInteractor.SetInteractorStyle( self.vcsInteractorStyle )
-    try:
-      defaultInteractor.RemoveObservers("LeftButtonPressEvent")
-    except:
-      pass
-    try:
-      defaultInteractor.RemoveObservers("LeftButtonReleaseEvent")
-    except:
-      pass
-    try:
-      defaultInteractor.RemoveObservers("ConfigureEvent")
-    except:
-      pass
-    # Configure not picked up on MAc and Ubuntu 14 so using ModifiedEvent (same trick as vistrails)
-    try:
-        defaultInteractor.RemoveObservers("ModifiedEvent")
-    except:
-        pass
-#     defaultInteractor.AddObserver("ModifiedEvent",self.configureEvent)
+#     try:
+#       defaultInteractor.RemoveObservers("LeftButtonPressEvent")
+#     except:
+#       pass
+#     try:
+#       defaultInteractor.RemoveObservers("LeftButtonReleaseEvent")
+#     except:
+#       pass
+#     try:
+#       defaultInteractor.RemoveObservers("ConfigureEvent")
+#     except:
+#       pass
+#     # Configure not picked up on MAc and Ubuntu 14 so using ModifiedEvent (same trick as vistrails)
+#     try:
+#         defaultInteractor.RemoveObservers("ModifiedEvent")
+#     except:
+#         pass
+# #     defaultInteractor.AddObserver("ModifiedEvent",self.configureEvent)
 #    defaultInteractor.AddObserver("LeftButtonPressEvent",self.leftButtonPressTest)
 #     defaultInteractor.AddObserver("LeftButtonReleaseEvent",self.leftButtonReleaseEvent)
-#     defaultInteractor.AddObserver("ConfigureEvent",self.configureEvent)
+    defaultInteractor.AddObserver( "ModifiedEvent", self.configureEvent )
     defaultInteractor.SetRenderWindow(self.renWin)
     self.vcsInteractorStyle.On()
 
@@ -204,7 +208,7 @@ class VTKVCSBackend(object):
       return True
     else:
       return False
-
+      
   def update(self, *args, **kargs):
     if self.renWin is not None:
       #self.renWin.Render()
