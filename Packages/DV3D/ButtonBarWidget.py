@@ -269,6 +269,7 @@ class ButtonBarWidget:
         return self.getOffsetScreenPosition( size, position )
            
     def getScreenPosition(self, normalized_display_position, buffered = True, **args ):
+        print " GetScreenPosition [",  self.name, "], position = ", str( normalized_display_position )
         self.vtk_coord.SetValue(  normalized_display_position[0], normalized_display_position[1] )
         screen_pos = self.vtk_coord.GetComputedDisplayValue( self.getRenderer() )
         position_offset = args.get( 'offset', [ 0, 0 ] )

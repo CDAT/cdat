@@ -1564,6 +1564,7 @@ class RectGridPlot(StructuredGridPlot):
             colormapManager.setScale( imageRange, ctf_data )
             if self.contourLineMapperer: 
                 self.contourLineMapperer.Modified()
+            self.updatingColormap( cmap_index, colormapManager )
             ispec.addMetadata( { 'colormap' : self.getColormapSpec(), 'orientation' : self.iOrientation } )
 #            print '-'*50
 #            print " Volume Slicer[%d]: Scale Colormap: ( %.4g, %.4g ) " % ( self.moduleID, ctf_data[0], ctf_data[1] )

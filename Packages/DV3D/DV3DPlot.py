@@ -403,13 +403,15 @@ class DV3DPlot():
             self.toggleVolumeVisibility( args, config_function )  
     
     def fetchPlotButtons( self, show = False ):
-        bbar_name = 'Plot'
-        bbar = ButtonBarWidget.getButtonBar( bbar_name )
-        if bbar == None: self.buildPlotButtons()
+        bbar1 = ButtonBarWidget.getButtonBar( 'Plot' )
+        if bbar1 == None: self.buildPlotButtons()
         if show:
-            bbar.show()
+            bbar1.show()
             self.showInteractionButtons()
-        return bbar
+        else:
+            bbar2 = ButtonBarWidget.getButtonBar( 'Interaction' )
+            bbar2.build()
+        return bbar1
     
     def getPlotButtons( self, names ):
         bbar = self.fetchPlotButtons()
@@ -567,6 +569,7 @@ class DV3DPlot():
             cmap_pos = [ 0.9, 0.2 ] if (cmap_index==0) else [ 0.02, 0.2 ]
             self.renderer.AddActor( colormapManager.createActor( pos=cmap_pos, title=cm_title ) )
 #        colormapManager.setColorbarVisibility( show_colorBar )
+        self.updatingColormap( cmap_index, colormapManager )
         self.render() 
         return True
         return False 
