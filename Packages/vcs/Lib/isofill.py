@@ -322,10 +322,8 @@ Class: Gfi				# Isofill
     colormap = VCS_validation_functions.colormap
     __slots__=[
          '__doc__',
-         'setmember',
          'colormap',
          '_colormap',
-         'parent',
          'name',
          'g_name',
          'xaxisconvert',
@@ -648,13 +646,14 @@ Class: Gfi				# Isofill
           self._legend=None
           self._datawc_timeunits="days since 2000"
           self._datawc_calendar=135441
+          self._colormap = None
         else:
           if isinstance(Gfi_name_src,Gfi):
             Gfi_name_src=Gfi_name_src.name
           if not Gfi_name_src in vcs.elements["isofill"].keys():
             raise ValueError,"Isofill method '%s' does not exists" % Gfi_name_src
           src =vcs.elements["isofill"][Gfi_name_src]
-          for att in ['projection' ,'xticlabels1' ,'xticlabels2' ,'xmtics1' ,'xmtics2' ,'yticlabels1' ,'yticlabels2' ,'ymtics1' ,'ymtics2' ,'datawc_y1' ,'datawc_y2' ,'datawc_x1' ,'datawc_x2' ,'levels','xaxisconvert' ,'yaxisconvert' ,'missing' ,'ext_1' ,'ext_2' ,'fillareastyle' ,'fillareaindices' ,'fillareacolors'  ,'legend' ,'datawc_timeunits' ,'datawc_calendar']:
+          for att in ['projection' ,'colormap','xticlabels1' ,'xticlabels2' ,'xmtics1' ,'xmtics2' ,'yticlabels1' ,'yticlabels2' ,'ymtics1' ,'ymtics2' ,'datawc_y1' ,'datawc_y2' ,'datawc_x1' ,'datawc_x2' ,'levels','xaxisconvert' ,'yaxisconvert' ,'missing' ,'ext_1' ,'ext_2' ,'fillareastyle' ,'fillareaindices' ,'fillareacolors'  ,'legend' ,'datawc_timeunits' ,'datawc_calendar']:
             setattr(self,att,getattr(src,att))
 
         self.info = AutoAPI.Info(self)
@@ -784,11 +783,17 @@ Function:     script                           # Calls _vcs.scriptGfi
         elif (mode not in ('w', 'a')):
           raise ValueError, 'Error - Mode can only be "w" for replace or "a" for append.'
 
-        # By default, save file in python script mode
-        scr_type = script_filename[len(script_filename)-4:len(script_filename)]
-        if (scr_type == '.scr'):
-           print _vcs.scriptGfi(self.name,script_filename,mode)
+        # By default, save file in json
+        scr_type = script_filename.split(".")
+        if len(scr_type)==1 or len(scr_type[-1])>5:
+          scr_type= "json"
+          if script_filename!="initial.attributes":
+            script_filename+=".json"
         else:
+          scr_type = scr_type[-1]
+        if scr_type == '.scr':
+           raise DeprecationWarning("scr script are no longer generated")
+        elif scr_type == "py":
            mode = mode + '+'
            py_type = script_filename[len(script_filename)-3:len(script_filename)]
            if (py_type != '.py'):
@@ -851,6 +856,13 @@ Function:     script                           # Calls _vcs.scriptGfi
            fp.write("%s.fillareacolors = %s\n" % (unique_name, self.fillareacolors))
            fp.write("%s.levels = %s\n" % (unique_name, self.levels))
            fp.write("%s.legend = %s\n" % (unique_name, self.legend))
+           fp.write("%s.colormap = '%s'\n\n" % (unique_name, repr(self.colormap)))
+        else:
+          #Json type
+          mode+="+"
+          f = open(script_filename,mode)
+          vcs.utils.dumpToJson(self,f)
+          f.close()
     script.__doc__ = script.__doc__ % xmldocs.scriptdoc
 
 

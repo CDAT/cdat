@@ -400,6 +400,7 @@ class Gfb(object,AutoAPI.AutoAPI):
           self._datawc_timeunits='days since 2000'
           self._datawc_calendar=cdtime.DefaultCalendar
           self._legend=None
+          self._colormap = None
         else:
           src = vcs.elements["boxfill"][Gfb_name_src]
           self._projection=src.projection
@@ -433,6 +434,7 @@ class Gfb(object,AutoAPI.AutoAPI):
           self._datawc_timeunits=src.datawc_timeunits
           self._datawc_calendar=src.datawc_calendar
           self._legend=src.legend
+          self._colormap = src.colormap
         self.info=AutoAPI.Info(self)
         self.info.expose=['ALL']
         self.__doc__ = self.__doc__ % xmldocs.graphics_method_core
@@ -798,11 +800,17 @@ class Gfb(object,AutoAPI.AutoAPI):
         elif (mode not in ('w', 'a')):
           raise ValueError, 'Error - Mode can only be "w" for replace or "a" for append.'
 
-        # By default, save file in python script mode
-        scr_type = script_filename[len(script_filename)-4:len(script_filename)]
-        if (scr_type == '.scr'):
-           print _vcs.scriptGfb(self.name,script_filename,mode)
+        # By default, save file in json
+        scr_type = script_filename.split(".")
+        if len(scr_type)==1 or len(scr_type[-1])>5:
+          scr_type= "json"
+          if script_filename!="initial.attributes":
+            script_filename+=".json"
         else:
+          scr_type = scr_type[-1]
+        if scr_type == '.scr':
+           raise DeprecationWarning("scr script are no longer generated")
+        elif scr_type == "py":
            mode = mode + '+'
            py_type = script_filename[len(script_filename)-3:len(script_filename)]
            if (py_type != '.py'):
@@ -862,14 +870,21 @@ class Gfb(object,AutoAPI.AutoAPI):
            fp.write("%s.color_1 = %g\n" % (unique_name, self.color_1))
            fp.write("%s.color_2 = %g\n" % (unique_name, self.color_2))
            fp.write("%s.fillareacolors = %s\n" % (unique_name, self.fillareacolors))
+           fp.write("%s.fillareastyle = '%s'\n" % (unique_name, self.fillareastyle))
+           fp.write("%s.fillareaindices = %s\n" % (unique_name, self.fillareaindices))
            fp.write("%s.legend = %s\n" % (unique_name, self.legend))
            fp.write("%s.ext_1 = '%s'\n" % (unique_name, self.ext_1))
            fp.write("%s.ext_2 = '%s'\n" % (unique_name, self.ext_2))
            fp.write("%s.missing = %g\n" % (unique_name, self.missing))
            fp.write("%s.datawc_calendar = %g\n" % (unique_name, self.datawc_calendar))
            fp.write("%s.datawc_timeunits = '%s'\n\n" % (unique_name, self.datawc_timeunits))
-#           fp.write("%s.fillareastyle = '%s'\n" % (unique_name, self.fillareastyle))
-#           fp.write("%s.fillareaindices = %s\n" % (unique_name, self.fillareaindices))
+           fp.write("%s.colormap = '%s'\n\n" % (unique_name, repr(self.colormap)))
+        else:
+          #Json type
+          mode+="+"
+          f = open(script_filename,mode)
+          vcs.utils.dumpToJson(self,f)
+          f.close()
     script.__doc__ = script.__doc__ % xmldocs.scriptdoc
 ###############################################################################
 #        END OF FILE							      #

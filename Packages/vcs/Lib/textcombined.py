@@ -1,3 +1,5 @@
+import vcs
+
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 """
 # Text Combined (Tc) module
@@ -143,7 +145,6 @@ class Tc(object):
         'path',
         'halign',
         'valign',
-        'parent',
         ]
     
     def _getTtname(self):
@@ -560,6 +561,7 @@ class Tc(object):
         print "path =", self.path
         print "halign =", self.halign
         print "valign =", self.valign
+        print "colormap =", self.colormap
 
     #############################################################################
     #                                                                           #
@@ -590,8 +592,6 @@ class Tc(object):
     tc.script('filename.scr')	     # Append to a VCS file "filename.scr"
     tc.script('filename','w')	     # Create or overwrite to a Python file "filename.py"
 '''
-        import _vcs
- 
         if (script_filename == None):
           raise ValueError, 'Error - Must provide an output script file name.'
 
@@ -600,12 +600,17 @@ class Tc(object):
         elif (mode not in ('w', 'a')):
           raise ValueError, 'Error - Mode can only be "w" for replace or "a" for append.'
 
-        # By default, save file in python script mode
-        scr_type = script_filename[len(script_filename)-4:len(script_filename)]
-        if (scr_type == '.scr'):
-           _vcs.scriptTt(self.Tt_name,script_filename,mode)
-           print _vcs.scriptTo(self.To_name,script_filename,"a")
+        # By default, save file in json
+        scr_type = script_filename.split(".")
+        if len(scr_type)==1 or len(scr_type[-1])>5:
+          scr_type= "json"
+          if script_filename!="initial.attributes":
+            script_filename+=".json"
         else:
+          scr_type = scr_type[-1]
+        if scr_type == '.scr':
+           raise DeprecationWarning("scr script are no longer generated")
+        elif scr_type == "py":
            mode = mode + '+'
            py_type = script_filename[len(script_filename)-3:len(script_filename)]
            if (py_type != '.py'):
@@ -653,7 +658,17 @@ class Tc(object):
            fp.write("%s.path = '%s'\n" % (unique_name, self.path))
            fp.write("%s.halign = '%s'\n" % (unique_name, self.halign))
            fp.write("%s.valign = '%s'\n\n" % (unique_name, self.valign))
+           fp.write("%s.colormap = '%s'\n\n" % (unique_name, repr(self.colormap)))
            fp.close()
+        else:
+          #Json type
+          mode+="+"
+          f = open(script_filename,mode)
+          vcs.utils.dumpToJson(self.To,f)
+          f.close()
+          f = open(script_filename,'a+')
+          vcs.utils.dumpToJson(self.Tt,f)
+          f.close()
 
 #################################################################################
 #        END OF FILE                                                            #
