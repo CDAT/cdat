@@ -294,7 +294,6 @@ class Gi(object,AutoAPI.AutoAPI):
     colormap = VCS_validation_functions.colormap
     __slots__=[
          '__doc__',
-         'parent',
          'colormap',
          '_colormap',
          'name',
@@ -614,13 +613,14 @@ class Gi(object,AutoAPI.AutoAPI):
           self._angle = [35.]
           self._spacing = [1.]
           self._label = 'n'
+          self._colormap = None
         else:
           if isinstance(Gi_name_src,Gi):
             Gi_name_src=Gi_name_src.name
           if not Gi_name_src in vcs.elements["isoline"].keys():
             raise ValueError,"Isoline method '%s' does not exists" % Gi_name_src
           src =vcs.elements["isoline"][Gi_name_src]
-          for att in ['label','projection' ,'xticlabels1' ,'xticlabels2' ,'xmtics1' ,'xmtics2' ,'yticlabels1' ,'yticlabels2' ,'ymtics1' ,'ymtics2' ,'datawc_y1' ,'datawc_y2' ,'datawc_x1' ,'datawc_x2' ,'xaxisconvert' ,'yaxisconvert' ,'level' ,'datawc_timeunits' ,'datawc_calendar',"line","linecolors","linewidths","text","textcolors","clockwise","scale","angle","spacing"]:
+          for att in ['label','colormap', 'projection' ,'xticlabels1' ,'xticlabels2' ,'xmtics1' ,'xmtics2' ,'yticlabels1' ,'yticlabels2' ,'ymtics1' ,'ymtics2' ,'datawc_y1' ,'datawc_y2' ,'datawc_x1' ,'datawc_x2' ,'xaxisconvert' ,'yaxisconvert' ,'level' ,'datawc_timeunits' ,'datawc_calendar',"line","linecolors","linewidths","text","textcolors","clockwise","scale","angle","spacing"]:
             setattr(self,att,getattr(src,att))
         self.info=AutoAPI.Info(self)
         self.info.expose=['ALL']
@@ -739,11 +739,17 @@ class Gi(object,AutoAPI.AutoAPI):
         elif (mode not in ('w', 'a')):
           raise ValueError, 'Error - Mode can only be "w" for replace or "a" for append.'
 
-        # By default, save file in python script mode
-        scr_type = script_filename[len(script_filename)-4:len(script_filename)]
-        if (scr_type == '.scr'):
-           print _vcs.scriptGi(self.name,script_filename,mode)
+        # By default, save file in json
+        scr_type = script_filename.split(".")
+        if len(scr_type)==1 or len(scr_type[-1])>5:
+          scr_type= "json"
+          if script_filename!="initial.attributes":
+            script_filename+=".json"
         else:
+          scr_type = scr_type[-1]
+        if scr_type == '.scr':
+           raise DeprecationWarning("scr script are no longer generated")
+        elif scr_type == "py":
            mode = mode + '+'
            py_type = script_filename[len(script_filename)-3:len(script_filename)]
            if (py_type != '.py'):
@@ -810,6 +816,13 @@ class Gi(object,AutoAPI.AutoAPI):
            fp.write("%s.scale =  '%s'\n" % (unique_name,self.scale))
            fp.write("%s.angle =  '%s'\n" % (unique_name,self.angle))
            fp.write("%s.spacing =  '%s'\n" % (unique_name,self.spacing))
+           fp.write("%s.colormap = '%s'\n\n" % (unique_name, repr(self.colormap)))
+        else:
+          #Json type
+          mode+="+"
+          f = open(script_filename,mode)
+          vcs.utils.dumpToJson(self,f)
+          f.close()
     script.__doc__ = script.__doc__ % xmldocs.scriptdoc
 
 #################################################################################

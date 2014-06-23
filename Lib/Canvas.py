@@ -6660,7 +6660,6 @@ Options:::
             cmd+=' -b:v %sk' % bitrate
         cmd+=' '+options
         cmd+=' '+movie
-        print "COMMANF FFMPEG:",cmd
         o = os.popen(cmd).read()
         if isinstance(files,(list,tuple)):
             for f in Files:

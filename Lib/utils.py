@@ -17,6 +17,49 @@ import unified1D
 import vector
 import marker
 import colormap
+import json
+
+def dumpToDict(obj,skipped=["info",],must=[]):
+  dic = {}
+  for a in obj.__slots__:
+    if (not a in skipped) and (a[0]!="_" or a in must):
+      val = getattr(obj,a)
+      if not isinstance(val,(str,tuple,list,int,long,float)) and val is not None:
+        val = dumpToDict(val,skipped,must)
+      dic[a] = val
+  return dic
+
+def dumpToJson(obj,fileout,skipped = ["info"], must = []):
+  dic = dumpToDict(obj,skipped,must)
+  if fileout is not None:
+    if isinstance(fileout,str):
+      f=open(fileout,"a+")
+    else:
+      f = fileout
+      fileout = f.name
+    try:
+      D = json.load(f)
+    except Exception,err:
+      print "Error reading json:",fileout,err
+      D = {}
+    f.close()
+    f=open(fileout,"w")
+    if dic.has_key("g_name"):
+      nm = dic["g_name"]
+      del(dic["g_name"])
+    elif dic.has_key("s_name"):
+      nm = dic["s_name"]
+      del(dic["s_name"])
+    d = D.get(nm,{})
+    nm2 = dic["name"]
+    del(dic["name"])
+    d[nm2]=dic
+    D[nm]=d
+    json.dump(D,f,sort_keys=True)
+    if isinstance(fileout,str):
+      f.close()
+  else:
+    return json.dumps(dic,sort_keys=True)
 
 def getfontname(number):
   if not number in vcs.elements["fontNumber"]:
@@ -81,8 +124,76 @@ def listelements(typ):
     raise Exception,"Error: '%s' is not a valid vcs element\nValid vcs elements are: %s" % (typ,vcs.elements.keys())
   return vcs.elements[typ].keys()
 
+def script_run_src(script,canvas=None):
+  # Now does the python Graphic methods
+  f=open(script,'r')
+  # browse through the file to look for taylordiagram/python graphics methods
+  processing=False # found a taylor graphic method
+  for l in f.xreadlines():
+    if l[:6]=="color(" and canvas is not None:
+      canvas.setcolormap(l.strip()[6:-1])
+    elif l[:2] in ["P_","L_","C_"] or l[:3] in ["Tm_","Gv_","Gi_","Tl_","To_","Tt_","Tf_",] or l[:4] in ['GXy_','GYx_','GXY_','GSp_','Gtd_','Gfb_',"Gfm_","Gfi_"] or l[:5] in ["Proj_",] :
+      #We found a graphic method
+      processing = True
+      opened = 0
+      closed = 0
+      s=""
+    if processing:
+      s+=l.strip()
+      opened+=l.count("(")
+      closed+=l.count(")")
+      if closed == opened:
+        # ok we read the whole Graphic method
+        vcs.process_src_element(s)
+        processing = False
+  f.close()
+  ## Ok now we need to double check the isolines
+  gd = vcs.elements["isoline"]["default"]
+  for g in vcs.elements["isoline"].values():
+    if g.name == "default":
+      continue
+    for att in ["line","textcolors","text"]:
+      try:
+        setattr(g,att,getattr(g,att))
+      except Exception,err:
+        lst = []
+        if att == "line":
+          for e in g.line:
+            if e in vcs.elements["line"]:
+              lst.append(vcs.elements["line"][e])
+            else:
+              lst.append(e)
+        elif att == "text":
+          for e in g.line:
+            if e in vcs.elements["textorientation"]:
+              lst.append(vcs.elements["line"][e])
+            elif e in vcs.elements["text"]:
+              lst.append(vcs.elements["line"][e])
+            else:
+              lst.append(e)
+        elif att == "textcolors":
+          for e in g.line:
+            if e in vcs.elements["texttable"]:
+              lst.append(vcs.elements["line"][e])
+            elif e in vcs.elements["text"]:
+              lst.append(vcs.elements["line"][e])
+            else:
+              lst.append(e)
+        try:
+          setattr(g,att,lst)
+        except Exception,err:
+          setattr(g,att,getattr(gd,att))
+                          
+#############################################################################
+#                                                                           #
+# Import old VCS file script commands into CDAT.                            
 def scriptrun(script):
-  warnings.warn("PLEASE IMPLEMENT scriptrun!!!! (in utils.py)")
+  if script.split(".")[-1] == "scr":
+    script_run_scr(script) 
+  elif script.split(".")[-1] == "py":
+    execfile(script)
+  else:
+    pass  
   return
 
 def return_display_names():

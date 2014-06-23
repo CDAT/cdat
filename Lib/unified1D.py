@@ -214,7 +214,6 @@ class G1d(object,AutoAPI.AutoAPI):
     colormap = VCS_validation_functions.colormap
     __slots__=[
          '__doc__',
-         'parent',
          'name',
          'info',
          'colormap',
@@ -503,13 +502,14 @@ class G1d(object,AutoAPI.AutoAPI):
             self._markersize=1
             self._datawc_timeunits="days since 2000"
             self._datawc_calendar=135441
+            self._colormap = None
         else:
           if isinstance(name_src,G1d):
             name_src=name_src.name
           if not name_src in vcs.elements['oned']:
             raise ValueError, "The oneD method '%s' does not exists" % name_src
           src = vcs.elements["oned"][name_src]
-          for att in ['projection' ,'xticlabels1' ,'xticlabels2' ,'xmtics1' ,'xmtics2' ,'yticlabels1' ,'yticlabels2' ,'ymtics1' ,'ymtics2' ,'datawc_y1' ,'datawc_y2' ,'datawc_x1' ,'datawc_x2' ,'xaxisconvert' ,'yaxisconvert' ,'line' ,'linecolor' ,'linewidth' ,'marker' ,'markercolor' ,'markersize' ,'datawc_timeunits' ,'datawc_calendar' ,'smooth', 'flip' ]:
+          for att in ['projection' , 'colormap', 'xticlabels1' ,'xticlabels2' ,'xmtics1' ,'xmtics2' ,'yticlabels1' ,'yticlabels2' ,'ymtics1' ,'ymtics2' ,'datawc_y1' ,'datawc_y2' ,'datawc_x1' ,'datawc_x2' ,'xaxisconvert' ,'yaxisconvert' ,'line' ,'linecolor' ,'linewidth' ,'marker' ,'markercolor' ,'markersize' ,'datawc_timeunits' ,'datawc_calendar' ,'smooth', 'flip' ]:
            setattr(self,att,getattr(src,att)) 
         #Ok now we need to stick in the elements
         vcs.elements["oned"][name]=self
@@ -623,11 +623,17 @@ class G1d(object,AutoAPI.AutoAPI):
         elif (mode not in ('w', 'a')):
           raise ValueError, 'Error - Mode can only be "w" for replace or "a" for append.'
 
-        # By default, save file in python script mode
-        scr_type = script_filename[len(script_filename)-4:len(script_filename)]
-        if (scr_type == '.scr'):
-           print _vcs.scriptGYx(self.name,script_filename,mode)
+        # By default, save file in json
+        scr_type = script_filename.split(".")
+        if len(scr_type)==1 or len(scr_type[-1])>5:
+          scr_type= "json"
+          if script_filename!="initial.attributes":
+            script_filename+=".json"
         else:
+          scr_type = scr_type[-1]
+        if scr_type == '.scr':
+           raise DeprecationWarning("scr script are no longer generated")
+        elif scr_type == "py":
            mode = mode + '+'
            py_type = script_filename[len(script_filename)-3:len(script_filename)]
            if (py_type != '.py'):
@@ -644,13 +650,13 @@ class G1d(object,AutoAPI.AutoAPI):
               fp.write("import vcs\n")
               fp.write("v=vcs.init()\n\n")
 
-           unique_name = '__GYx__' + self.name
-           fp.write("#----------Yxvsx (GYx) member (attribute) listings ----------\n")
-           fp.write("gyx_list=v.listelements('yxvsx')\n")
-           fp.write("if ('%s' in gyx_list):\n" % self.name)
-           fp.write("   %s = v.getyxvsx('%s')\n" % (unique_name, self.name))
+           unique_name = '__OneD__' + self.name
+           fp.write("#----------OneD (GOneD) member (attribute) listings ----------\n")
+           fp.write("oned_list=v.listelements('oned')\n")
+           fp.write("if ('%s' in oned_list):\n" % self.name)
+           fp.write("   %s = v.getoned('%s')\n" % (unique_name, self.name))
            fp.write("else:\n")
-           fp.write("   %s = v.createyxvsx('%s')\n" % (unique_name, self.name))
+           fp.write("   %s = v.createoneD('%s')\n" % (unique_name, self.name))
            # Common core graphics method attributes
            fp.write("%s.projection = '%s'\n" % (unique_name, self.projection))
            fp.write("%s.xticlabels1 = '%s'\n" % (unique_name, self.xticlabels1))
@@ -688,6 +694,14 @@ class G1d(object,AutoAPI.AutoAPI):
            fp.write("%s.marker = %s\n" % (unique_name, self.marker))
            fp.write("%s.markercolor = %s\n" % (unique_name, self.markercolor))
            fp.write("%s.markersize = %s\n\n" % (unique_name, self.markersize))
+           fp.write("%s.flip = '%s'\n\n" % (unique_name, repr(self.flip)))
+           fp.write("%s.colormap = '%s'\n\n" % (unique_name, repr(self.colormap)))
+        else:
+          #Json type
+          mode+="+"
+          f = open(script_filename,mode)
+          vcs.utils.dumpToJson(self,f)
+          f.close()
     script.__doc__ = script.__doc__ % xmldocs.scriptdoc
 
 
