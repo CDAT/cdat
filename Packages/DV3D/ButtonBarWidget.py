@@ -308,6 +308,7 @@ class ButtonBarWidget:
                 position_index = configFunct.getPosition() if configFunct else None
                 self.releaseSlider( position_index ) 
                 configFunct.processInteractionEvent( [ "InitConfig", 0, False, self ] )
+                self.recoverInteractionState()    
 #        config_function = self.configurableFunctions.get( button_id, None )
 #        if config_function: config_function.processStateChangeEvent( state )
 #        button = self.buttons.get( button_id, None )
@@ -558,7 +559,12 @@ class ButtonBarWidget:
     def getInteractionState( self, key ):
         for configFunct in self.configurableFunctions.values():
             if configFunct.matches( key ): return ( configFunct.name, configFunct.persisted, self )
-        return ( None, None, None )    
+        return ( None, None, None )  
+    
+    def recoverInteractionState(self): 
+        if self.LastInteractionState <> None:
+            self.updateInteractionState( self.LastInteractionState, 1 ) 
+            self.LastInteractionState = None
 
     def updateInteractionState( self, config_state, button_state, **args ):    
         rcf = None
@@ -578,7 +584,8 @@ class ButtonBarWidget:
                     self.releaseSliders() 
                 configFunct.open( config_state )
                 self.InteractionState = config_state                   
-                self.LastInteractionState = self.InteractionState
+                if button_state: 
+                    self.LastInteractionState = self.InteractionState
                 self.disableVisualizationInteraction()
                 initialize_config_state = ( configFunct.label <> ButtonBarWidget.current_configuration_mode )               
                 configFunct.processInteractionEvent( [ "InitConfig", button_state, initialize_config_state, self ] )

@@ -214,7 +214,7 @@ class ImagePlaneWidget:
         if ( iren <> None ):
             if ( iren <> self.Interactor ):
                 self.Interactor = iren 
-                istyle = self.Interactor.GetInteractorStyle () 
+                istyle = self.Interactor.GetInteractorStyle() 
                 self.Interactor.AddObserver( 'LeftButtonPressEvent', self.OnLeftButtonDown )
                 self.Interactor.AddObserver( 'LeftButtonReleaseEvent', self.OnLeftButtonUp )
                 self.Interactor.AddObserver( 'RightButtonReleaseEvent', self.OnRightButtonUp )
@@ -362,33 +362,35 @@ class ImagePlaneWidget:
 #----------------------------------------------------------------------------
 
     def OnLeftButtonDown(self, caller, event ):
-        shift = caller.GetShiftKey()
-        if self.VisualizationInteractionEnabled and not shift:
-            self.CurrentButton = self.LeftButtonDown
-            self.StartCursor()
-
+        pass
 #----------------------------------------------------------------------------
 
     def OnLeftButtonUp( self, caller, event ):
+        pass
 #        print " ImagePlaneWidget: LeftButtonRelease "
-        if self.VisualizationInteractionEnabled and (self.CurrentButton <> self.NoButtonDown):
-            self.StopCursor()
-            self.CurrentButton = self.NoButtonDown
+#         if self.VisualizationInteractionEnabled and (self.CurrentButton <> self.NoButtonDown):
+#             self.StopCursor()
+#             self.CurrentButton = self.NoButtonDown
         
 #----------------------------------------------------------------------------
 
     def OnRightButtonUp( self, caller, event ):
-        if self.VisualizationInteractionEnabled and (self.CurrentButton <> self.NoButtonDown):
-            self.StopSliceMotion()
-            self.CurrentButton = self.NoButtonDown
+        pass
+#         if self.VisualizationInteractionEnabled and (self.CurrentButton <> self.NoButtonDown):
+#             self.StopSliceMotion()
+#             self.CurrentButton = self.NoButtonDown
 
 #----------------------------------------------------------------------------
 
     def OnRightButtonDown(self, caller, event ):
         shift = caller.GetShiftKey()
-        if self.VisualizationInteractionEnabled and not shift:
-            self.CurrentButton = self.RightButtonDown
-            self.StartSliceMotion()
+        if self.VisualizationInteractionEnabled and shift:
+            self.ExecutePick()
+
+#         shift = caller.GetShiftKey()
+#         if self.VisualizationInteractionEnabled and not shift:
+#             self.CurrentButton = self.RightButtonDown
+#             self.StartSliceMotion()
         
 #----------------------------------------------------------------------------
 
@@ -411,6 +413,29 @@ class ImagePlaneWidget:
             self.UpdateCursor(X,Y)
             self.StartInteraction()
             self.ProcessEvent( self.InteractionStartEvent )
+            self.Interactor.Render()       
+        else:
+            self.State  = ImagePlaneWidget.Outside
+            self.HighlightPlane(0)
+            self.ActivateCursor(0)
+
+    def ExecutePick(self):    
+        X = self.Interactor.GetEventPosition()[0]
+        Y = self.Interactor.GetEventPosition()[1]
+        self.CurrentScreenPosition = [ X, Y ]
+
+        # Okay, make sure that the pick is in the current renderer
+        if ( not self.CurrentRenderer or  not self.CurrentRenderer.IsInViewport(X, Y)):        
+            self.State  = ImagePlaneWidget.Outside
+            return
+        
+        if self.DoPick( X, Y ): 
+            self.State  = ImagePlaneWidget.Cursoring     
+            self.HighlightPlane(1)
+            self.ActivateCursor(1)
+            self.UpdateCursor(X,Y)
+#            self.StartInteraction()
+            self.ProcessEvent( self.InteractionUpdateEvent )
             self.Interactor.Render()       
         else:
             self.State  = ImagePlaneWidget.Outside
@@ -534,32 +559,33 @@ class ImagePlaneWidget:
         pass
 
     def OnUpdateInteraction(self, caller, event ):
+        pass
     
-        if ( self.State == ImagePlaneWidget.Outside or self.State == ImagePlaneWidget.Start ): return        
-        X = self.Interactor.GetEventPosition()[0]
-        Y = self.Interactor.GetEventPosition()[1]
-        self.CurrentScreenPosition = [ X, Y ]
-
-        camera = self.CurrentRenderer.GetActiveCamera()
-        if (  not camera ): return
-                          
-        if ( self.State == ImagePlaneWidget.Pushing ):
-            # Compute the two points defining the motion vector
-            #
-            focalPoint = self.ComputeWorldToDisplay( self.LastPickPosition[0],  self.LastPickPosition[1],  self.LastPickPosition[2] )
-            z = focalPoint[2]
-            
-            prevPickPoint = self.ComputeDisplayToWorld( float(self.Interactor.GetLastEventPosition()[0]), float(self.Interactor.GetLastEventPosition()[1]), z )        
-            pickPoint = self.ComputeDisplayToWorld( float(X), float(Y), z )
-          
-            self.Push( prevPickPoint, pickPoint )
-            self.UpdatePlane()
-            self.BuildRepresentation()
-          
-        elif ( self.State == ImagePlaneWidget.Cursoring ):          
-            self.UpdateCursor(X,Y)
-          
-        self.Interactor.Render()
+#         if ( self.State == ImagePlaneWidget.Outside or self.State == ImagePlaneWidget.Start ): return        
+#         X = self.Interactor.GetEventPosition()[0]
+#         Y = self.Interactor.GetEventPosition()[1]
+#         self.CurrentScreenPosition = [ X, Y ]
+# 
+#         camera = self.CurrentRenderer.GetActiveCamera()
+#         if (  not camera ): return
+#                           
+#         if ( self.State == ImagePlaneWidget.Pushing ):
+#             # Compute the two points defining the motion vector
+#             #
+#             focalPoint = self.ComputeWorldToDisplay( self.LastPickPosition[0],  self.LastPickPosition[1],  self.LastPickPosition[2] )
+#             z = focalPoint[2]
+#             
+#             prevPickPoint = self.ComputeDisplayToWorld( float(self.Interactor.GetLastEventPosition()[0]), float(self.Interactor.GetLastEventPosition()[1]), z )        
+#             pickPoint = self.ComputeDisplayToWorld( float(X), float(Y), z )
+#           
+#             self.Push( prevPickPoint, pickPoint )
+#             self.UpdatePlane()
+#             self.BuildRepresentation()
+#           
+#         elif ( self.State == ImagePlaneWidget.Cursoring ):          
+#             self.UpdateCursor(X,Y)
+#           
+#         self.Interactor.Render()
 
 #----------------------------------------------------------------------------
 

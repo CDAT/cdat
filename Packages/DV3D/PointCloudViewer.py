@@ -1180,7 +1180,7 @@ class CPCPlot( DV3DPlot ):
         self.mapManager = MapManager( roi = self.point_cloud_overview.getBounds() )
         self.renderer.AddActor( self.mapManager.getBaseMapActor() )
         self.renderer.AddActor( self.mapManager.getSphericalMap() )
-        self.initCamera( )
+        self.adjustCamera( self.mapManager.mapCenter, self.mapManager.width )
         
     def reset( self, pcIndex ):
         if not self.isValid and ( self.partitioned_point_cloud <> None ):

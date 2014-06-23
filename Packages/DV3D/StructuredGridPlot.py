@@ -362,7 +362,9 @@ class StructuredGridPlot(DV3DPlot):
         self.world_cut =  -1 
         if  (self.roi <> None): 
             roi_size = [ self.roi[1] - self.roi[0], self.roi[3] - self.roi[2] ] 
-            map_cut_size = [ roi_size[0] + 2*map_border_size, roi_size[1] + 2*map_border_size ]
+            scale = (self.roi[1] - self.roi[0])/300.0
+            border_size = map_border_size * scale
+            map_cut_size = [ roi_size[0] + 2*border_size, roi_size[1] + 2*border_size ]
             if map_cut_size[0] > 360.0: map_cut_size[0] = 360.0
             if map_cut_size[1] > 180.0: map_cut_size[1] = 180.0
         else:
@@ -393,7 +395,7 @@ class StructuredGridPlot(DV3DPlot):
             new_dims = baseImage.GetDimensions()
             scale = [ 360.0/new_dims[0], 180.0/new_dims[1], 1 ]
         else:                       
-            baseImage, new_dims = self.getBoundedMap( baseImage, dataPosition, map_cut_size, map_border_size )             
+            baseImage, new_dims = self.getBoundedMap( baseImage, dataPosition, map_cut_size, border_size )             
             scale = [ map_cut_size[0]/new_dims[0], map_cut_size[1]/new_dims[1], 1 ]
                           
         self.baseMapActor = vtk.vtkImageActor()
@@ -404,7 +406,7 @@ class StructuredGridPlot(DV3DPlot):
         mapCorner = [ self.x0, self.y0 ]
 #         self.xcenter = self.x0 
 #         self.ycenter = self.y0
-#         self.initCamera()
+#        self.adjustCamera( baseImage )
                 
         self.baseMapActor.SetPosition( mapCorner[0], mapCorner[1], 0.1 )
         if vtk.VTK_MAJOR_VERSION <= 5:  self.baseMapActor.SetInput(baseImage)

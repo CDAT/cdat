@@ -98,7 +98,9 @@ class MapManager:
                 self.map_cut = world_map[1]
             
             roi_size = [ self.roi[1] - self.roi[0], self.roi[3] - self.roi[2] ] 
-            map_cut_size = [ roi_size[0] + 2*self.map_border_size, roi_size[1] + 2*self.map_border_size ]
+            scale = (self.roi[1] - self.roi[0])/300.0
+            border_size = self.map_border_size * scale
+            map_cut_size = [ roi_size[0] + 2*border_size, roi_size[1] + 2*border_size ]
             if map_cut_size[0] > 360.0: map_cut_size[0] = 360.0
             if map_cut_size[1] > 180.0: map_cut_size[1] = 180.0
 #            data_origin = self.input().GetOrigin() if self.input() else [ 0, 0, 0 ]
@@ -124,9 +126,11 @@ class MapManager:
                 self.baseImage = self.RollMap( world_image ) 
                 new_dims = self.baseImage.GetDimensions()
                 scale = [ 360.0/new_dims[0], 180.0/new_dims[1], 1 ]
+                self.width = 360.0
             else:                       
-                self.baseImage, new_dims = self.getBoundedMap( world_image, dataPosition, map_cut_size, self.map_border_size )             
+                self.baseImage, new_dims = self.getBoundedMap( world_image, dataPosition, map_cut_size, border_size ) 
                 scale = [ map_cut_size[0]/new_dims[0], map_cut_size[1]/new_dims[1], 1 ]
+                self.width = map_cut_size[0]          
                               
             self.baseMapActor = vtk.vtkImageActor()
             self.baseMapActor.SetOrigin( 0.0, 0.0, 0.0 )

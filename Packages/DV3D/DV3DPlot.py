@@ -621,11 +621,16 @@ class DV3DPlot():
         else:
             self.renderer.ResetCamera( self.getBounds() )
             
-    def initCamera(self):
-        self.renderer.GetActiveCamera().SetPosition( self.xcenter, self.ycenter, 400.0 )
+    def initCamera(self, d = 400.0 ):
+        self.renderer.GetActiveCamera().SetPosition( self.xcenter, self.ycenter, d )
         self.renderer.GetActiveCamera().SetFocalPoint( self.xcenter, self.ycenter, 0.0 )
         self.renderer.GetActiveCamera().SetViewUp( 0, 1, 0 )  
-        self.renderer.ResetCameraClippingRange()     
+        self.renderer.ResetCameraClippingRange() 
+        
+    def adjustCamera( self, center, distance ): 
+        self.xcenter = center[0]
+        self.ycenter = center[1]
+        self.initCamera( distance )
             
     def getCamera(self):
         return self.renderer.GetActiveCamera()
