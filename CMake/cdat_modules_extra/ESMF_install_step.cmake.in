@@ -11,7 +11,7 @@ set(ENV{ESMF_COMM} @ESMF_comm@)
 set(ENV{ESMF_ABI} @ESMF_abi@)
 set(ENV{ESMF_OPENMP} @ESMF_openmp@)
 set(ENV{CFLAGS} ${cdat_osx_flags_fortran})
-set(ENV{CXXFLAGS} ${cdat_osx_flags_fortran})
+set(ENV{CXXFLAGS} ${cdat_osx_cxxflags_fortran})
 set(ENV{CPPFLAGS} ${cdat_osx_flags_fortran})
 set(ENV{FFLAGS} ${cdat_osx_flags_fortran})
 
