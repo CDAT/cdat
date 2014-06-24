@@ -28,7 +28,7 @@
 """
 import boxfill, isofill, isoline, outfill, outline, taylor, meshfill
 import unified1D, vector, continents, line, marker, fillarea
-import texttable, textorientation, textcombined, template
+import texttable, textorientation, textcombined, template, dv3d
 import displayplot, projection
 import vcs
 import vcsaddons
@@ -58,6 +58,8 @@ def isgraphicsmethod(gobj):
         if (isinstance(gobj,boxfill.Gfb)):
             return 1
         elif (isinstance(gobj,isofill.Gfi)):
+            return 1
+        elif (isinstance(gobj,dv3d.Gfdv3d)):
             return 1
         elif (isinstance(gobj,isoline.Gi)):
             return 1
@@ -121,6 +123,8 @@ def graphicsmethodtype(gobj):
             return 'boxfill'
         elif (isinstance(gobj,isofill.Gfi)):
             return 'isofill'
+        elif (isinstance(gobj,dv3d.Gfdv3d)):
+            return 'dv3d'
         elif (isinstance(gobj,isoline.Gi)):
             return 'isoline'
         elif (isinstance(gobj,outfill.Gfo)):

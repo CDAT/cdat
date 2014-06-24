@@ -35,7 +35,7 @@ import numpy.ma, MV2
 import numpy, cdutil
 from queries import *
 import boxfill, isofill, isoline, outfill, outline, taylor, meshfill, projection
-import vector, continents, line, marker, fillarea
+import vector, continents, line, marker, fillarea, dv3d
 import texttable, textorientation, textcombined, template, colormap
 import unified1D
 #import colormapgui as _colormapgui
@@ -103,8 +103,9 @@ def _determine_arg_list(g_name, actual_args):
       else:
           try:
              possible_slab = cdms2.asVariable (args[i], 0)
-             if not possible_slab.iscontiguous():
-                 possible_slab = possible_slab.ascontiguousarray()
+             if hasattr( possible_slab, 'iscontiguous' ):
+                 if not possible_slab.iscontiguous():
+                     possible_slab = possible_slab.ascontiguousarray()
              arglist[found_slabs] = possible_slab
              if found_slabs == 2:
                  raise vcsError, "Too many slab arguments."
@@ -413,7 +414,9 @@ class Canvas(object,AutoAPI.AutoAPI):
     def _getanimate_info(self):
         return self._animate_info
     animate_info =property(_getanimate_info,_setanimate_info)
-    
+
+    def start(self,*args,**kargs): 
+        self.interact(*args,**kargs)   
         
     def interact(self,*args,**kargs):
       self.backend.interact(*args,**kargs)
@@ -735,7 +738,7 @@ class Canvas(object,AutoAPI.AutoAPI):
 #     an eye opened for the errors concerning datawc in the VCS module.
 #        tv = self._datawc_tv( tv, arglist )
         return tv
-
+        
     #############################################################################
     #                                                                           #
     # Print out the object's doc string.                                        #
@@ -1689,7 +1692,59 @@ Options:::
 
         return vcs.elements["meshfill"][Gfm_name_src]
 
+    def getdv3d(self,Gfdv3d_name_src='default'):
+        """
+ Function: getdv3d                        # Construct a new dv3d graphics method
+
+ Description of Function:
+    VCS contains a list of graphics methods. This function will create a
+    dv3d class object from an existing VCS dv3d graphics method. If
+    no dv3d name is given, then dv3d 'default' will be used.
+
+    Note, VCS does not allow the modification of `default' attribute
+    sets. However, a `default' attribute set that has been copied under a 
+    different name can be modified. (See the createdv3d function.)
+
+ Example of Use:
+    a=vcs.init()
+    a.show('dv3d')                   # Show all the existing dv3d graphics methods
+    plot=a.getdv3d()                  # plot instance of 'default' dv3d graphics
+                                        # method
+    plot2=a.getdv3d('quick')          # plot2 instance of existing 'quick' dv3d
+                                        #         graphics method
+"""
+
+        # Check to make sure the argument passed in is a STRING
+        if not isinstance(Gfdv3d_name_src,str):
+            raise vcsError, 'The argument must be a string.'
+
+        if not Gfdv3d_name_src in vcs.elements["dv3d"]:
+            raise ValueError,"dv3d '%s' does not exists" % Gfdv3d_name_src
+
+        return vcs.elements["dv3d"][Gfdv3d_name_src]
+
    
+    def createdv3d(self,name='default', source='default'):
+        """
+ Function: createdv3d                # Construct a new dv3d graphics method
+
+ Description of Function:
+    Create a new dv3d graphics method given the the name and the existing
+    dv3d graphics method to copy the attributes from. If no existing
+    dv3d graphics method name is given, then the default dv3d graphics
+    method will be used as the graphics method to which the attributes will
+    be copied from.
+
+    If the name provided already exists, then a error will be returned. Graphics
+    method names must be unique.
+
+ Example of Use:
+    a=vcs.init()
+    a.show('dv3d')
+    plot=a.createdv3d()
+"""
+#        name,source = self.check_name_source(name,source,'dv3d')
+        return dv3d.Gfdv3d(name, source)
 
     def prettifyAxisLabels(self,ticks,axis):
         for k in ticks.keys():
@@ -5424,7 +5479,8 @@ Options:::
                 if not keyarg in self.__class__._plot_keywords_+self.backend._plot_keywords:
                      warnings.warn('Unrecognized vcs plot keyword: %s, assuming backend (%s) keyword'%(keyarg,self.backend.type))
 
-            if (arglist[0] is not None or keyargs.has_key('variable')):
+            isFileVar = (arglist[0] is not None) and isinstance( arglist[0], cdms2.fvariable.FileVariable )
+            if ( not isFileVar ) and (arglist[0] is not None or keyargs.has_key('variable')):
                 arglist[0] = self._reconstruct_tv(arglist, keyargs)
                 # Check data's dimension size (VCS cannot take variables with
                 # with dimensions larger than 4D, below makes sure the variable
@@ -6439,7 +6495,8 @@ Options:::
             for t in vcs.taylordiagrams:
                 L.append(t.name)
         else:
-            L = apply(vcs.listelements, args)
+            f = vcs.listelements
+            L = apply(f, args)
 
         L.sort()
 
