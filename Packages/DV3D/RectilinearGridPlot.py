@@ -1058,6 +1058,9 @@ class RectGridPlot(StructuredGridPlot):
         range_min, range_max = rangeBounds[0], rangeBounds[1]
 #        self.vthresh = opacity_data[0]*(self.seriesScalarRange[1]-self.seriesScalarRange[0])*0.02
         self.updateOTF()
+        cmap_index=0
+        colormapManager = self.getColormapManager( index=cmap_index )
+        self.updatingColormap( cmap_index, colormapManager )
 #        printArgs( "adjustOpacity", irange=self._range,  max_opacity=self.max_opacity, opacity_data=opacity_data, vthresh=vthresh, ithresh=self._range[3] )   
 
     def generateOTF( self, otf_data=None, **args ): 
@@ -1236,9 +1239,10 @@ class RectGridPlot(StructuredGridPlot):
             if not self.planeWidgetX.MatchesBounds( bounds ):
                 self.planeWidgetX.PlaceWidget( bounds )        
                 self.planeWidgetY.PlaceWidget( bounds ) 
-#         cf = self.getConfigFunction( 'zSlider' )
-#         if cf: 
-#             cf.scaleRange( zscale_data[0] )
+        plotButtons = self.fetchPlotButtons()
+        cf = plotButtons.getConfigFunction('ZSlider')
+        if cf: 
+            cf.scaleRange( zscale_data[0] )
         self.render()               
 
     def setInputZScale( self, zscale_data, **args  ):
