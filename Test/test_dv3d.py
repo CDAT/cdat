@@ -38,6 +38,7 @@ else:
 x = vcs.init()
 dv3d = x.createdv3d()
 x.plot( u, dv3d )
+dv3d.VerticalScaling = 0.02
 x.interact()
 
 
