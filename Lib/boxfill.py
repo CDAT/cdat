@@ -68,6 +68,8 @@ def process_src(nm,code):
     sp = scode.split("=")
     nm = sp[0].strip()
     nm=nm.replace("#","")
+    if nm=="datawc_tunits":
+      nm = "datawc_timeunits"
     try:
       #int will be converted
       setattr(gm,nm,int(sp[1]))
@@ -82,10 +84,10 @@ def process_src(nm,code):
         except:
           pass # oh well we stick to default value
     #Datawc
-    idwc = code.find(" datawc(")
+    idwc = code.find("datawc(")
     if idwc>-1:
       jdwc = code[idwc:].find(")")+idwc
-      cd = code[idwc+8:jdwc]
+      cd = code[idwc+7:jdwc]
       vals = cd.split(",")
       gm.datawc_x1 = float(vals[0])
       gm.datawc_y1 = float(vals[1])

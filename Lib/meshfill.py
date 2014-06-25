@@ -59,6 +59,8 @@ def process_src(nm,code):
     sp = scode.split("=")
     nm = sp[0].strip()
     nm=nm.replace("#","")
+    if nm=="datawc_tunits":
+      nm = "datawc_timeunits"
     try:
       #int will be converted
       setattr(g,nm,int(sp[1]))

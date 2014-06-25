@@ -67,6 +67,8 @@ def process_src(nm,code,typ):
       nm="line"
     elif nm=="Tm":
       nm="marker"
+    elif nm=="datawc_tunits":
+      nm = "datawc_timeunits"
     try:
       #int will be converted
       setattr(gm,nm,int(sp[1]))
@@ -78,32 +80,32 @@ def process_src(nm,code,typ):
         # strings
         try:
           setattr(gm,nm,sp[1])
-        except:
+        except Exception,err:
           pass # oh well we stick to default value
-    #Datawc
-    idwc = code.find(" datawc(")
-    if idwc>-1:
-      jdwc = code[idwc:].find(")")+idwc
-      cd = code[idwc+8:jdwc]
-      vals = cd.split(",")
-      gm.datawc_x1 = float(vals[0])
-      gm.datawc_y1 = float(vals[1])
-      gm.datawc_x2 = float(vals[2])
-      gm.datawc_y2 = float(vals[3])
-    #idatawc
-    idwc = code.find("idatawc(")
-    if idwc>-1:
-      jdwc = code[idwc:].find(")")+idwc
-      cd = code[idwc+8:jdwc]
-      vals = cd.split(",")
-      if int(vals[0])==1:
-        gm.datawc_x1 = cdtime.reltime(gm.datawc_x1,gm.datawc_timeunits).tocomp(gm.datawc_calendar)
-      if int(vals[1])==1:
-        gm.datawc_y1 = cdtime.reltime(gm.datawc_x2,gm.datawc_timeunits).tocomp(gm.datawc_calendar)
-      if int(vals[2])==1:
-        gm.datawc_x2 = cdtime.reltime(gm.datawc_y1,gm.datawc_timeunits).tocomp(gm.datawc_calendar)
-      if int(vals[3])==1:
-        gm.datawc_y2 = cdtime.reltime(gm.datawc_y2,gm.datawc_timeunits).tocomp(gm.datawc_calendar)
+  #Datawc
+  idwc = code.find("datawc(")
+  if idwc>-1:
+    jdwc = code[idwc:].find(")")+idwc
+    cd = code[idwc+7:jdwc]
+    vals = cd.split(",")
+    gm.datawc_x1 = float(vals[0])
+    gm.datawc_y1 = float(vals[1])
+    gm.datawc_x2 = float(vals[2])
+    gm.datawc_y2 = float(vals[3])
+  #idatawc
+  idwc = code.find("idatawc(")
+  if idwc>-1:
+    jdwc = code[idwc:].find(")")+idwc
+    cd = code[idwc+8:jdwc]
+    vals = cd.split(",")
+    if int(vals[0])==1:
+      gm.datawc_x1 = cdtime.reltime(gm.datawc_x1,gm.datawc_timeunits).tocomp(gm.datawc_calendar)
+    if int(vals[1])==1:
+      gm.datawc_y1 = cdtime.reltime(gm.datawc_x2,gm.datawc_timeunits).tocomp(gm.datawc_calendar)
+    if int(vals[2])==1:
+      gm.datawc_x2 = cdtime.reltime(gm.datawc_y1,gm.datawc_timeunits).tocomp(gm.datawc_calendar)
+    if int(vals[3])==1:
+      gm.datawc_y2 = cdtime.reltime(gm.datawc_y2,gm.datawc_timeunits).tocomp(gm.datawc_calendar)
   if typ=="GYx":
     vcs.elements["yxvsx"][onm]=gm
   elif typ == "GXY":
