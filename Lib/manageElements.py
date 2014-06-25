@@ -1697,7 +1697,7 @@ plot2=vcs.getdv3d('quick')          # plot2 instance of existing 'quick' dv3d
     return vcs.elements["dv3d"][Gfdv3d_name_src]
 
 
-def createdv3d(name='default', source='default'):
+def createdv3d(name=None, source='default'):
     """
 Function: createdv3d                # Construct a new dv3d graphics method
 
@@ -1716,5 +1716,5 @@ a=vcs.init()
 a.show('dv3d')
 plot=a.createdv3d()
 """
-#        name,source = check_name_source(name,source,'dv3d')
+    name,source = check_name_source(name,source,'dv3d')
     return dv3d.Gfdv3d(name, source)

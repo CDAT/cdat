@@ -213,6 +213,7 @@ marker.Tm("default")
 meshfill.Gfm("default")
 colormap.Cp("default")
 displayplot.Dp("default")
+dv3d.Gfdv3d("default")
 
 for nm in ["mercator","orthographic","lambert","polar","polyconic","robinson",
     "mollweide",]:
