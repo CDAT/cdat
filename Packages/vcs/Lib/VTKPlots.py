@@ -807,6 +807,9 @@ class VTKVCSBackend(object):
   def Animate(self,*args,**kargs):
     return VTKAnimate(*args,**kargs)
 
+  def gettextextent(self,textorientation,texttable):
+      warnings.warn("Please implement gettextextent for VTK Backend")
+
 class VTKAnimate(animate_helper.animate_obj):
   def __init__(self,*args,**kargs):
     animate_helper.animate_obj.__init__(self,*args,**kargs)

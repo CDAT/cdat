@@ -1,16 +1,15 @@
 import vcs
 
-x=vcs.init()
-
-#b = x.createboxfill("Charles.Doutriaux")
-#b = x.createisofill("Charles.Doutriaux")
-#b = x.createisoline("Charles.Doutriaux")
-#b = x.createmeshfill("Charles.Doutriaux")
-#b = x.createoneD("Charles.Doutriaux")
-#b = x.createfillarea("Charles.Doutriaux")
-#b = x.createtext("Charles.Doutriaux")
-#b = x.createline("Charles.Doutriaux")
-b = x.createmarker("Charles.Doutriaux")
-
+b = vcs.createboxfill("Charles.Doutriaux")
+b = vcs.createisofill("Charles.Doutriaux")
+b = vcs.createisoline("Charles.Doutriaux")
+b = vcs.createmeshfill("Charles.Doutriaux")
+b = vcs.createoneD("Charles.Doutriaux")
+b = vcs.createfillarea("Charles.Doutriaux")
+b = vcs.createtext("Charles.Doutriaux")
+b = vcs.createline("Charles.Doutriaux")
+b = vcs.createmarker("Charles.Doutriaux")
+b = vcs.createtemplate("Charles.Doutriaux")
+b = vcs.createprojection("Charles.Doutriaux")
 b.script("box","a")
 
