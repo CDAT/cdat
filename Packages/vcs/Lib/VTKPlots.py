@@ -377,27 +377,26 @@ class VTKVCSBackend(object):
     m.viewport=l.viewport
     m.worldcoordinate = l.worldcoordinate
     
-    print "-----------------------------------------------------------------------------------------------------------------------------------"
-    #self.canvas.plot(l,renderer=ren,donotstoredisplay=True)
-    print "-----------------------------------------------------------------------------------------------------------------------------------"
+    self.canvas.plot(l,renderer=ren,donotstoredisplay=True)
     self.canvas.plot(m,renderer=ren,donotstoredisplay=True)
-    print "-----------------------------------------------------------------------------------------------------------------------------------"
-    #tmpl.plot(self.canvas,data1,gm,bg=self.bg,renderer=ren,X=X,Y=Y)
+    ren2 = vtk.vtkRenderer()
+    tmpl.plot(self.canvas,data1,gm,bg=self.bg,renderer=ren2,X=X,Y=Y)
     
-    legd = self.canvas.createline()
-    legd.x = [tmpl.legend.x1, tmpl.legend.x2]
-    legd.y = [tmpl.legend.y1, tmpl.legend.y1]
-    legd.color = l.color
-    legd.width = l.width
-    legd.type  = l.type
-
-
-    t=self.canvas.createtext(To_source=tmpl.legend.textorientation,Tt_source=tmpl.legend.texttable)
-    t.x=tmpl.legend.x2
-    t.y=tmpl.legend.y2
-    t.string=data1.id
-    #self.canvas.plot(t,renderer=ren,donotstoredisplay=True)
-    #self.canvas.plot(legd,renderer=ren,donotstoredisplay=True)
+    if tmpl.legend.priority>0:
+        ren2 = vtk.vtkRenderer()
+        self.setLayer(ren2,tmpl.legend.priority)
+        legd = self.canvas.createline()
+        legd.x = [tmpl.legend.x1, tmpl.legend.x2]
+        legd.y = [tmpl.legend.y1, tmpl.legend.y1]
+        legd.color = l.color
+        legd.width = l.width
+        legd.type  = l.type
+        t=self.canvas.createtext(To_source=tmpl.legend.textorientation,Tt_source=tmpl.legend.texttable)
+        t.x=tmpl.legend.x2
+        t.y=tmpl.legend.y2
+        t.string=data1.id
+        self.canvas.plot(t,renderer=ren2,donotstoredisplay=True)
+        self.canvas.plot(legd,renderer=ren2,donotstoredisplay=True)
   
   def setLayer(self,renderer,priority):
     n = self.numberOfPlotCalls + (priority-1)*10000 
