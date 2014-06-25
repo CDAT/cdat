@@ -1339,7 +1339,6 @@ class P(object):
          if isinstance(levels[0],(list,tuple)):
            levs2=[]
            cont = True
-           print "levels are:",levels, len(levels)
            for i in range(len(levels)-1):
              if levels[i][1] == levels[i+1][0]:
                levs2.append(levels[i][0])

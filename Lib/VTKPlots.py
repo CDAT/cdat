@@ -22,27 +22,12 @@ def smooth(x,beta,window_len=11):
 
 class VCSInteractorStyle(vtk.vtkInteractorStyleUser):
     
-  def __init__(self,parent=None):
-      self.parent = parent
+  def __init__(self,parent):
       self.AddObserver("LeftButtonPressEvent", parent.leftButtonPressEvent )
       self.AddObserver("LeftButtonReleaseEvent", parent.leftButtonReleaseEvent )
       self.AddObserver( "ModifiedEvent", parent.configureEvent )
+      self.AddObserver( "ConfigureEvent", parent.configureEvent )
       
-#  def onAnyEvent( self, obj, event ):
-#      print " VCSInteractorStyle Event: ", event 
-#       self.AddObserver("LeftButtonPressEvent",parent.leftButtonPressEvent)
-#       self.AddObserver("LeftButtonReleaseEvent",parent.leftButtonReleaseEvent)
-#       
-#   def OnLeftButtonDown(self):
-#       print " OnLeftButtonDown "
-#       self.parent.leftButtonPressEvent( self, "LeftButtonPressEvent" )
-#  
-#   def OnLeftButtonUp(self):
-#       self.parent.leftButtonReleaseEvent( self, "LeftButtonReleaseEvent" )
-# 
-#   def OnConfigure(self):
-#       self.parent.configureEvent( self, "ConfigureEvent" )
-
 class VTKVCSBackend(object):
   def __init__(self,canvas,renWin=None, debug=False,bg=None):
     self._lastSize = None
@@ -62,10 +47,6 @@ class VTKVCSBackend(object):
       warnings.warn("Press 'Q' to exit interactive mode and continue script execution")
       self.renWin.GetInteractor().Start()
 
-  def leftButtonPressTest(self,obj,event):
-      istyle = obj.GetInteractorStyle()
-      print 'LeftButtonPressTest: istyle = ', str(istyle)
-  
   def leftButtonPressEvent(self,obj,event):
     xy = self.renWin.GetInteractor().GetEventPosition()
     sz = self.renWin.GetSize()
@@ -75,6 +56,7 @@ class VTKVCSBackend(object):
     for dnm in self.canvas.display_names:
       d=vcs.elements["display"][dnm]
       if d.array[0] is None:
+        print "Nope no array[0]"
         continue
       t=vcs.elements["template"][d.template]
       gm = vcs.elements[d.g_type][d.g_name]
@@ -100,13 +82,22 @@ class VTKVCSBackend(object):
         X = (x-t.data.x1)/(t.data.x2-t.data.x1)*(x2-x1)+x1
         Y = (y-t.data.y1)/(t.data.y2-t.data.y1)*(y2-y1)+y1
         # Ok we now have the X/Y values we need to figure out the indices
-        I = d.array[0].getAxis(-1).mapInterval((X,X,'cob'))[0]
-        J = d.array[0].getAxis(-2).mapInterval((Y,Y,'cob'))[0]
-        # Values at that point
-        V = d.array[0][...,J,I]
-        if isinstance(V,numpy.ndarray):
-          V=V.flat[0]
-        st+="Var: %s\nX[%i] = %g\nY[%i] = %g\nValue: %g" % (d.array[0].id,I,X,J,Y,V)
+        try:
+            I = d.array[0].getAxis(-1).mapInterval((X,X,'cob'))[0]
+            try:
+                J = d.array[0].getAxis(-2).mapInterval((Y,Y,'cob'))[0]
+                # Values at that point
+                V = d.array[0][...,J,I]
+            except:
+                V = d.array[0][...,I]
+            if isinstance(V,numpy.ndarray):
+              V=V.flat[0]
+            try:
+                st+="Var: %s\nX[%i] = %g\nY[%i] = %g\nValue: %g" % (d.array[0].id,I,X,J,Y,V)
+            except:
+                st+="Var: %s\nX = %g\nY[%i] = %g\nValue: %g" % (d.array[0].id,X,I,Y,V)
+        except:
+            st+="Var: %s\nX=%g\nY=%g\nValue = N/A" % (d.array[0].id,X,Y)
     a=vtk.vtkTextActor()
     a.SetInput(st)
     #a.SetPosition(xy[0],xy[1])
@@ -167,30 +158,11 @@ class VTKVCSBackend(object):
   def createDefaultInteractor( self, ren=None ):
     defaultInteractor = self.renWin.GetInteractor()
     if defaultInteractor is None:
+      #defaultInteractor = vtk.vtkGenericRenderWindowInteractor()
       defaultInteractor = vtk.vtkRenderWindowInteractor()
     self.vcsInteractorStyle = VCSInteractorStyle(self)
     if ren: self.vcsInteractorStyle.SetCurrentRenderer( ren )
     defaultInteractor.SetInteractorStyle( self.vcsInteractorStyle )
-#     try:
-#       defaultInteractor.RemoveObservers("LeftButtonPressEvent")
-#     except:
-#       pass
-#     try:
-#       defaultInteractor.RemoveObservers("LeftButtonReleaseEvent")
-#     except:
-#       pass
-#     try:
-#       defaultInteractor.RemoveObservers("ConfigureEvent")
-#     except:
-#       pass
-#     # Configure not picked up on MAc and Ubuntu 14 so using ModifiedEvent (same trick as vistrails)
-#     try:
-#         defaultInteractor.RemoveObservers("ModifiedEvent")
-#     except:
-#         pass
-# #     defaultInteractor.AddObserver("ModifiedEvent",self.configureEvent)
-#    defaultInteractor.AddObserver("LeftButtonPressEvent",self.leftButtonPressTest)
-#     defaultInteractor.AddObserver("LeftButtonReleaseEvent",self.leftButtonReleaseEvent)
     defaultInteractor.SetRenderWindow(self.renWin)
     self.vcsInteractorStyle.On()
 
