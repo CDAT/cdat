@@ -58,6 +58,7 @@ packages = [
     "Packages/cdms2", 
     "Packages/esg", 
     "Packages/ncml",
+    "Packages/DV3D",
     "Packages/vcs", 
     "Packages/vcsaddons",
     "Packages/cdutil",
