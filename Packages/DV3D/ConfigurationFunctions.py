@@ -417,9 +417,16 @@ class ConfigurableFunction:
         self.initial_value = makeList( args.get( 'initValue', None ), self.getValueLength() )
 #        self.group = args.get( 'group', ConfigGroup.Display )  
         self.active = args.get( 'active', True )
+        self.group = args.get( 'group', None )
         self._persisted = True
         self.interactionHandler = args.get( 'interactionHandler', None )
-        
+     
+    def sameGroup( self, config_fn ): 
+        if id( self ) == id( config_fn ): return False
+        if self.name == config_fn.name: return True
+        if (self.group <> None)  and (self.group == config_fn.group): return True
+        return False
+          
     def getPosition(self):
         return None
         
