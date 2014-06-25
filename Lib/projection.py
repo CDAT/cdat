@@ -479,9 +479,17 @@ class Proj(object):
          elif (mode not in ('w', 'a')):
               raise ValueError, 'Error - Mode can only be "w" for replace or "a" for append.'
     
-         if (scr_type == '.scr'):
-              print _vcs.scriptProj(self.name,script_filename,mode)
+         # By default, save file in json
+         scr_type = script_filename.split(".")
+         if len(scr_type)==1 or len(scr_type[-1])>5:
+           scr_type= "json"
+           if script_filename!="initial.attributes":
+             script_filename+=".json"
          else:
+           scr_type = scr_type[-1]
+         if scr_type == '.scr':
+            raise DeprecationWarning("scr script are no longer generated")
+         elif scr_type == "py":
               mode = mode + '+'
               py_type = script_filename[len(script_filename)-3:len(script_filename)]
               if (py_type != '.py'):
@@ -508,7 +516,12 @@ class Proj(object):
               # Common core secondary method attributes
               fp.write("%s.type = '%s'\n" % (unique_name, self.type))
               fp.write("%s.parameters = '%s'\n" % (unique_name, self.parameters))
-              pass
+         else:
+          #Json type
+          mode+="+"
+          f = open(script_filename,mode)
+          vcs.utils.dumpToJson(self,f)
+          f.close()
     __slots__=[
          's_name',
          'smajor',

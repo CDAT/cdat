@@ -36,6 +36,7 @@ import install_vcs
 from install_vcs import list_printers, add_printer, remove_printer
 from Canvas import dictionarytovcslist
 import os
+from manageElements import *
 
 _default_time_units='days since 2000'
 
@@ -197,14 +198,14 @@ boxfill.Gfb("default")
 isofill.Gfi("default")
 isoline.Gi("default")
 unified1D.G1d("default")
-yx = unified1D.G1d("default_yxvsx")
+yx = unified1D.G1d("default_yxvsx_")
 vcs.elements["yxvsx"]["default"]=yx
-xy = unified1D.G1d("default_xyvsy")
+xy = unified1D.G1d("default_xyvsy_")
 xy.flip = True
 vcs.elements["xyvsy"]["default"]=xy
-sc = unified1D.G1d("default_scatter")
+sc = unified1D.G1d("default_scatter_")
 vcs.elements["scatter"]["default"]=sc
-xvy = unified1D.G1d("default_xvsy")
+xvy = unified1D.G1d("default_xvsy_")
 vcs.elements["xvsy"]["default"]=xvy
 vector.Gv("default")
 marker.Tm("default")

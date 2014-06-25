@@ -19,17 +19,20 @@ import marker
 import colormap
 import json
 
-def dumpToDict(obj,skipped=["info",],must=[]):
+def dumpToDict(obj,skipped,must):
   dic = {}
   for a in obj.__slots__:
     if (not a in skipped) and (a[0]!="_" or a in must):
-      val = getattr(obj,a)
+      try:
+        val = getattr(obj,a)
+      except:
+        continue
       if not isinstance(val,(str,tuple,list,int,long,float)) and val is not None:
         val = dumpToDict(val,skipped,must)
       dic[a] = val
   return dic
 
-def dumpToJson(obj,fileout,skipped = ["info"], must = []):
+def dumpToJson(obj,fileout,skipped = ["info","member"], must = []):
   dic = dumpToDict(obj,skipped,must)
   if fileout is not None:
     if isinstance(fileout,str):
@@ -44,12 +47,11 @@ def dumpToJson(obj,fileout,skipped = ["info"], must = []):
       D = {}
     f.close()
     f=open(fileout,"w")
-    if dic.has_key("g_name"):
-      nm = dic["g_name"]
-      del(dic["g_name"])
-    elif dic.has_key("s_name"):
-      nm = dic["s_name"]
-      del(dic["s_name"])
+    for N in ["g_name","s_name","p_name"]:
+      if dic.has_key(N):
+        nm = dic[N]
+        del(dic[N])
+        break
     d = D.get(nm,{})
     nm2 = dic["name"]
     del(dic["name"])
@@ -618,7 +620,7 @@ def getcolors(levs,colors=range(16,240),split=1,white=240):
 
 
 def generate_time_labels(d1,d2,units,calendar=cdtime.DefaultCalendar):
-    """ generate_time_labels(self,d1,d2,units,calendar=cdtime.DefaultCalendar)
+    """ generate_time_labels(d1,d2,units,calendar=cdtime.DefaultCalendar)
     returns a dictionary of time labels for an interval of time, in a user defined units system
     d1 and d2 must be cdtime object, if not they will be assumed to be in "units"
 
@@ -726,3 +728,190 @@ def generate_time_labels(d1,d2,units,calendar=cdtime.DefaultCalendar):
             tr=t.torel(units,calendar)
             dic[tr.value]=str(t).split('-')[0]
     return dic
+
+def prettifyAxisLabels(ticks,axis):
+    for k in ticks.keys():
+        if len(ticks[k])==0:
+            continue
+        if axis=="longitude":
+            K = k % 360
+            if K>180:
+                if int(K)==float(K):
+                  ticks[k]="%iW" % (360-K)
+                else:
+                  ticks[k]="%.2fW" % (360-K)
+            elif K<180:
+                if numpy.allclose(K,0.):
+                  ticks[k]="0"
+                elif int(K)==float(K):
+                  ticks[k]="%iE" % (K)
+                else:
+                  ticks[k]="%.2fE" % (K)
+            else:
+              if k==-180.:
+                ticks[k]="180W"
+              else:
+                ticks[k]="180E"
+        elif axis=="latitude":
+            if k<0:
+                if len(ticks[k])>4:
+                  ticks[k]="%.1f" % eval(ticks[k][1:])+"S"
+                else:
+                  ticks[k]=ticks[k][1:]+"S"
+            elif k>0:
+              if len(ticks[k])>4:
+                ticks[k]="%.1f" % eval(ticks[k])+"N"
+              else:
+                ticks[k]=ticks[k]+"N"
+            else:
+                ticks[0]="Eq"
+    return ticks
+
+def setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
+    """ Sets the labels and ticks for a graphics method made in python
+    Usage setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None)
+    datawc are world coordinates
+    
+    """
+    if isinstance(gm,vcs.taylor.Gtd):
+        return
+    # Now the template stuff
+    # first create the dictionary to remember which ones are changed
+    dic={}
+    for i in ('xticlabels1','xmtics1','xticlabels2','xmtics2','yticlabels1','ymtics1','yticlabels2','ymtics2'):
+        dic[i]=False
+    #xticklabels1
+    if gm.xticlabels1 is None or gm.xticlabels1=='*':
+        if x=="longitude" and abs(datawc_x2-datawc_x1)>30:
+          ticks="lon30"
+        else:
+          ticks=vcs.mkscale(datawc_x1,datawc_x2)
+          ticks=prettifyAxisLabels(vcs.mklabels(ticks),x)
+        ## for k in ticks.keys() : # make sure you're in the range
+        ##     if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
+        ##         del(ticks[k])
+        setattr(gm,'xticlabels1',ticks)
+        dic['xticlabels1']=True
+    #xmtics1
+    if gm.xmtics1 is None or gm.xmtics1=='*':
+        ticks=vcs.mkscale(datawc_x1,datawc_x2)
+        tick2=[]
+        for i in range(len(ticks)-1):
+            tick2.append((ticks[i]+ticks[i+1])/2.)
+        ticks=prettifyAxisLabels(vcs.mklabels(tick2),x)
+        ## for k in ticks.keys() : # make sure you're in the range
+        ##     if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
+        ##         del(ticks[k])
+        setattr(gm,'xmtics1',ticks)
+        dic['xmtics1']=True
+    #xticklabels2
+    if  hasattr(gm,"xticlabels2") and (gm.xticlabels2 is None or gm.xticlabels2=='*'):
+        ticks=vcs.mkscale(datawc_x1,datawc_x2)
+        ticks=prettifyAxisLabels(vcs.mklabels(ticks),x)
+        ## for k in ticks.keys():
+        ##     ticks[k]=''
+        ##     if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
+        ##         del(ticks[k])
+        setattr(gm,'xticlabels2',ticks)
+        dic['xticlabels2']=True
+    #xmtics2
+    if hasattr(gm,"xmtics2") and (gm.xmtics2 is None or gm.xmtics2=='*'):
+        ticks=vcs.mkscale(datawc_x1,datawc_x2)
+        tick2=[]
+        for i in range(len(ticks)-1):
+            tick2.append((ticks[i]+ticks[i+1])/2.)
+        ticks=prettifyAxisLabels(vcs.mklabels(tick2),x)
+        ## for k in ticks.keys() : # make sure you're in the range
+        ##     if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
+        ##         del(ticks[k])
+        setattr(gm,'xmtics2',ticks)
+        dic['xmtics2']=True
+    #yticklabels1
+    if gm.yticlabels1 is None or gm.yticlabels1=='*':
+        if y=="latitude" and abs(datawc_y2-datawc_y1)>20:
+          ticks="lat20"
+        else:
+          ticks=vcs.mkscale(datawc_y1,datawc_y2)
+          ticks=prettifyAxisLabels(vcs.mklabels(ticks),y)
+        ## for k in ticks.keys() : # make sure you're in the range
+        ##     if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
+        ##         del(ticks[k])
+        setattr(gm,'yticlabels1',ticks)
+        dic['yticlabels1']=True
+    #ymtics1
+    if gm.ymtics1 is None or gm.ymtics1=='*':
+        ticks=vcs.mkscale(datawc_y1,datawc_y2)
+        tick2=[]
+        for i in range(len(ticks)-1):
+            tick2.append((ticks[i]+ticks[i+1])/2.)
+        ticks=prettifyAxisLabels(vcs.mklabels(tick2),y)
+        ## for k in ticks.keys() : # make sure you're in the range
+        ##     if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
+        ##         del(ticks[k])
+        setattr(gm,'ymtics1',ticks)
+        dic['ymtics1']=True
+    #yticklabels2
+    if hasattr(gm,"yticlabels2") and (gm.yticlabels2 is None or gm.yticlabels2=='*'):
+        ticks=vcs.mkscale(datawc_y1,datawc_y2)
+        ticks=prettifyAxisLabels(vcs.mklabels(ticks),y)
+        ## for k in ticks.keys():
+        ##     ticks[k]=''
+        ##     if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
+        ##         del(ticks[k])
+        setattr(gm,'yticlabels2',ticks)
+        dic['yticlabels2']=True
+    #ymtics2
+    if hasattr(gm,"ymtics2") and (gm.ymtics2 is None or gm.ymtics2=='*'):
+        ticks=vcs.mkscale(datawc_y1,datawc_y2)
+        tick2=[]
+        for i in range(len(ticks)-1):
+            tick2.append((ticks[i]+ticks[i+1])/2.)
+        ticks=prettifyAxisLabels(vcs.mklabels(tick2),y)
+        ## for k in ticks.keys() : # make sure you're in the range
+        ##     if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
+        ##         del(ticks[k])
+        setattr(gm,'ymtics2',ticks)
+        dic['ymtics2']=True
+    return dic
+
+def match_color(color,colormap=None):
+    """
+Function: cmatch_color                          # Returns the color in the colormap that is closet from the required color
+Description of Function:
+       Given a color (defined as rgb values -0/100 range- or a string name) and optionally a colormap name,
+       returns the color number that is closet from the requested color
+       (using rms difference between rgb values)
+       if colormap is not map use the currently used colormap
+Example of use:
+       a=vcs.init()
+       print vcs.match_color('salmon')
+       print vcs.match_color('red')
+       print vcs.match_color([0,0,100],'defaullt') # closest color from blue
+
+"""
+    # First gets the rgb values 
+    if type(color)==type(''):
+        vals=genutil.colors.str2rgb(color)
+        vals[0]/=2.55
+        vals[1]/=2.55
+        vals[2]/=2.55
+    else:
+        vals=color
+
+    # Now gets the colormap to look in
+    if colormap is None: colormap=vcs.getcolormapname()
+    cmap=vcs.getcolormap(colormap)
+
+    # Now tries determines the min rms diff
+    rmsmin=2.E40
+    match=None
+    for i in cmap.index.keys():
+        col=cmap.index[i]
+        rms=numpy.sqrt((vals[0]-col[0])**2+\
+                         (vals[1]-col[1])**2+\
+                         (vals[2]-col[2])**2 \
+                         )
+        if rms<rmsmin:
+            rmsmin=rms
+            match=i
+    return match
