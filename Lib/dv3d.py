@@ -52,11 +52,11 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
             raise ValueError,"DV3D graphic method '%s' already exists" % Gfdv3d_name
         self._name = Gfdv3d_name
         self.g_name='Gfdv3d'
-            
-        if Gfdv3d_name=="default": 
-            self._axes="xyz"
-        elif Gfdv3d_name=="hovmuller": 
+                        
+        if Gfdv3d_name=="hovmuller": 
             self._axes="xyt"
+        else:
+            self._axes="xyz"
             
         self.addParameters()
             
