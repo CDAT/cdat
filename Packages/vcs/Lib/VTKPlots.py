@@ -368,7 +368,6 @@ class VTKVCSBackend(object):
     else:
       y1,y2 = Y.min(),Y.max()
     l.worldcoordinate = [x1,x2,y1,y2]
-
     m=self.canvas.createmarker()
     m.type = gm.marker
     m.color = gm.markercolor
@@ -377,10 +376,13 @@ class VTKVCSBackend(object):
     m.y=l.y
     m.viewport=l.viewport
     m.worldcoordinate = l.worldcoordinate
-
-    self.canvas.plot(l,renderer=ren,donotstoredisplay=True)
+    
+    print "-----------------------------------------------------------------------------------------------------------------------------------"
+    #self.canvas.plot(l,renderer=ren,donotstoredisplay=True)
+    print "-----------------------------------------------------------------------------------------------------------------------------------"
     self.canvas.plot(m,renderer=ren,donotstoredisplay=True)
-    tmpl.plot(self.canvas,data1,gm,bg=self.bg,renderer=ren,X=X,Y=Y)
+    print "-----------------------------------------------------------------------------------------------------------------------------------"
+    #tmpl.plot(self.canvas,data1,gm,bg=self.bg,renderer=ren,X=X,Y=Y)
     
     legd = self.canvas.createline()
     legd.x = [tmpl.legend.x1, tmpl.legend.x2]
@@ -394,9 +396,8 @@ class VTKVCSBackend(object):
     t.x=tmpl.legend.x2
     t.y=tmpl.legend.y2
     t.string=data1.id
-    self.canvas.plot(t,renderer=ren,donotstoredisplay=True)
-    self.canvas.plot(legd,renderer=ren,donotstoredisplay=True)
-    legd.list()
+    #self.canvas.plot(t,renderer=ren,donotstoredisplay=True)
+    #self.canvas.plot(legd,renderer=ren,donotstoredisplay=True)
   
   def setLayer(self,renderer,priority):
     n = self.numberOfPlotCalls + (priority-1)*10000 

@@ -390,10 +390,11 @@ def prepMarker(renWin,ren,marker,cmap=None):
 
     #  Type
     ## Ok at this point generates the source for glpyh
-    ### TODO Need to add custom glyphs from vcs ones
     gs = vtk.vtkGlyphSource2D()
     pd = None
+    print "TYPE:",t
     if t=='dot':
+      print "ok good type"
       gs.SetGlyphTypeToCircle()
       gs.FilledOn()
     elif t=='circle':
@@ -496,10 +497,14 @@ def prepMarker(renWin,ren,marker,cmap=None):
       gs.FilledOn()
     if t[-5:]=="_fill":
       gs.FilledOn()
+    print "Scale:",s
     gs.SetScale(s)
+    gs.Update()
 
 
+    print "PD IS:",pd
     if pd is None:
+      print "ok setting source connection",gs
       g.SetSourceConnection(gs.GetOutputPort())
     else:
       g.SetInputData(markers)
