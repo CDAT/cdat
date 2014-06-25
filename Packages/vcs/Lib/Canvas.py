@@ -35,7 +35,7 @@ import numpy.ma, MV2
 import numpy, cdutil
 from queries import *
 import boxfill, isofill, isoline, outfill, outline, taylor, meshfill, projection
-import vector, continents, line, marker, fillarea
+import vector, continents, line, marker, fillarea, dv3d
 import texttable, textorientation, textcombined, template, colormap
 import unified1D
 #import colormapgui as _colormapgui
@@ -105,8 +105,9 @@ def _determine_arg_list(g_name, actual_args):
       else:
           try:
              possible_slab = cdms2.asVariable (args[i], 0)
-             if not possible_slab.iscontiguous():
-                 possible_slab = possible_slab.ascontiguousarray()
+             if hasattr( possible_slab, 'iscontiguous' ):
+                 if not possible_slab.iscontiguous():
+                     possible_slab = possible_slab.ascontiguousarray()
              arglist[found_slabs] = possible_slab
              if found_slabs == 2:
                  raise vcsError, "Too many slab arguments."
@@ -415,7 +416,9 @@ class Canvas(object,AutoAPI.AutoAPI):
     def _getanimate_info(self):
         return self._animate_info
     animate_info =property(_getanimate_info,_setanimate_info)
-    
+
+    def start(self,*args,**kargs): 
+        self.interact(*args,**kargs)   
         
     def interact(self,*args,**kargs):
       self.backend.interact(*args,**kargs)
@@ -737,7 +740,7 @@ class Canvas(object,AutoAPI.AutoAPI):
 #     an eye opened for the errors concerning datawc in the VCS module.
 #        tv = self._datawc_tv( tv, arglist )
         return tv
-
+        
     #############################################################################
     #                                                                           #
     # Print out the object's doc string.                                        #
@@ -1358,6 +1361,7 @@ Options:::
         return vcs.getmeshfill(Gfm_name_src)
     getmeshfill.__doc__ = vcs.manageElements.getmeshfill.__doc__
 
+
     def meshfill(self,*args, **parms):
         """
  Function: meshfill               # Generate an meshfill plot
@@ -1389,6 +1393,14 @@ Options:::
         arglist=_determine_arg_list('meshfill',args)
         return self.__plot(arglist, parms)
 
+    #############################################################################
+    #                                                                           #
+    # DV3D functions for VCS.                                                #
+    #                                                                           #
+    #############################################################################
+    def getdv3d(Gfdv3d_name_src='default'):
+      return vcs.getdv3d(Gfdv3d_name_src)
+    getdv3d.__doc__ = vcs.manageElements.getdv3d.__doc__
     #############################################################################
     #                                                                           #
     # Isofill functions for VCS.                                                #
@@ -3392,7 +3404,8 @@ Options:::
                 if not keyarg in self.__class__._plot_keywords_+self.backend._plot_keywords:
                      warnings.warn('Unrecognized vcs plot keyword: %s, assuming backend (%s) keyword'%(keyarg,self.backend.type))
 
-            if (arglist[0] is not None or keyargs.has_key('variable')):
+            isFileVar = (arglist[0] is not None) and isinstance( arglist[0], cdms2.fvariable.FileVariable )
+            if ( not isFileVar ) and (arglist[0] is not None or keyargs.has_key('variable')):
                 arglist[0] = self._reconstruct_tv(arglist, keyargs)
                 # Check data's dimension size (VCS cannot take variables with
                 # with dimensions larger than 4D, below makes sure the variable
@@ -4407,7 +4420,8 @@ Options:::
             for t in vcs.taylordiagrams:
                 L.append(t.name)
         else:
-            L = apply(vcs.listelements, args)
+            f = vcs.listelements
+            L = apply(f, args)
 
         L.sort()
 
