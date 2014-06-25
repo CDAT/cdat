@@ -69,6 +69,8 @@ def process_src(nm,code):
       nm="reference"
     elif nm=="vector_type":
       nm="type"
+    elif nm=="datawc_tunits":
+      nm = "datawc_timeunits"
     try:
       #int will be converted
       setattr(gm,nm,int(sp[1]))

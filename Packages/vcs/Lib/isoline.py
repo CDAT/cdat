@@ -77,6 +77,8 @@ def process_src(nm,code):
     nm=nm.replace("#","")
     if nm=="make_labels":
       nm="label"
+    elif nm=="datawc_tunits":
+      nm = "datawc_timeunits"
     try:
       #int will be converted
       setattr(g,nm,int(sp[1]))

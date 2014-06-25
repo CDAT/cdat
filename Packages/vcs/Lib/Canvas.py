@@ -27,7 +27,6 @@ Normally, created by vcs.init()
 Contains the method plot.
 """
 import warnings
-import tempfile
 #import Tkinter
 from pauser import pause
 import thread
@@ -903,11 +902,11 @@ class Canvas(object,AutoAPI.AutoAPI):
            pth=pth[:-4] # Maybe need to make sure on none framework config
            pth=['/']+pth+['bin', 'initial.attributes']
            try:
-               self._scriptrun( os.path.join(*pth))
+               vcs.scriptrun( os.path.join(*pth))
            except:
                pass
            self._dotdir,self._dotdirenv = vcs.getdotdirectory()
-           self._scriptrun( os.path.join(os.environ['HOME'], self._dotdir, 'initial.attributes'))
+           vcs.scriptrun( os.path.join(os.environ['HOME'], self._dotdir, 'initial.attributes'))
 	called_initial_attributes_flg = 1
         self.canvas_template_editor=None
         self.ratio=0
@@ -4235,78 +4234,6 @@ Options:::
         f.close()
         return
  
-#    def gif(self, gif_name):
-#        """
-# Function: gif
-#
-# Description of Function:
-#    In some cases, the user may want to save the plot out as a gif image. This
-#    routine allows the user to save the VCS canvas output as a SUN gif file.
-#    This file can be converted to other gif formats with the aid of xv and other
-#    such imaging tools found freely on the web.
-#
-#    If no path/file name is given and no previously created gif file has been
-#    designated, then file
-#
-#        /$HOME/PCMDI_GRAPHICS/default.gif
-#
-#    will be used for storing gif images. However, if a previously created gif 
-#    file is designated, that file will be used for gif output.
-#
-# Example of Use:
-#    a=vcs.init()
-#    a.plot(array)
-#    a.gif('example')           # overwrite existing gif file
-#    a.gif(s,a,t,'example')     # overwrite existing gif file
-#""" 
-#       import os,sys,tempfile
-#
-#       # get name filename
-#       extension = gif_name[-4:]
-#       if (extension == '.gif'):
-#          name = gif_name[:-4]
-#       else:
-#          name = gif_name
-#
-#       # Generate the VCS postscript file
-#        ps_name = name + '.ps'
-#       self.postscript(ps_name, 'r')
-#
-#       # Use temporary files for: ppm_name, ppm_cropname, ppm_cropname, & ppm_rotatename
-#       # Convert the VCS postscript file to a ppm file using GhostScript (gs)
-#       ppm_name= tempfile.mktemp()
-#        pid = os.fork()
-#        if pid == 0:   # must be the child!
-#            try:
-#                # This whole thing is within a try block to make sure
-#                # the child can't escape.
-#                out_name = "-sOutputFile=" + ppm_name
-#                arglist=[ "-q", "-dNOPAUSE", "-dNO_PAUSE", "-dSAFER", "-sDEVICE=ppmraw", "-dBATCH", out_name, ps_name]
-#                os.execvp("gs", arglist) # execute the gs command
-#            except:
-#                sys.stderr.write('Unexpected exception in child!\n')
-#                os._exit(2) # exit child but not parent
-# 
-#        # Stop the parent until the child is finished! Alway wait on children.
-#        os.wait()
-#
-## Crop ppm file using pnmcrop
-#        ppm_cropname= tempfile.mktemp()
-#        os_command = 'pnmcrop %s > %s' % (ppm_name,ppm_cropname)
-#        os.system(os_command)
-#        os.remove(ppm_name)
-#
-#        # Rotate ppm file using pnmrotate
-#        ppm_rotatename= tempfile.mktemp()
-#        os_command = 'pnmrotate -noantialias -90 %s > %s' % (ppm_cropname,ppm_rotatename)
-#        os.system(os_command)
-#        os.remove(ppm_cropname)
-#
-#        # Fiinally, generate GIF file using ppmtogif
-##        os_command = 'ppmtogif %s > %s.gif' % (ppm_rotatename,name)
-#        os.system(os_command)
-#        os.remove(ppm_rotatename)
-
     #############################################################################
     #                                                                           #
     # Grid wrapper for VCS.                                                     #
@@ -5295,309 +5222,10 @@ Options:::
     #                                                                           #
     #############################################################################
     def _scriptrun(self, *args):
-        """
- Function: _scriptrun
+      return vcs._scriptrun(*args)
 
- Description of Function:
-    Run VCS script file.
-   
- Example of Use:
-    x._scriptrun('script_filename.scr')
-"""
-        # Now does the python Graphic methods
-        f=open(args[0],'r')
-        # browse through the file to look for taylordiagram/python graphics methods
-        processing=False # found a taylor graphic method
-        for l in f.xreadlines():
-          if l[:6]=="color(":
-            self.setcolormap(l.strip()[6:-1])
-          elif l[:2] in ["P_","L_","C_"] or l[:3] in ["Tm_","Gv_","Gi_","Tl_","To_","Tt_","Tf_",] or l[:4] in ['GXy_','GYx_','GXY_','GSp_','Gtd_','Gfb_',"Gfm_","Gfi_"] or l[:5] in ["Proj_",] :
-            #We found a graphic method
-            processing = True
-            opened = 0
-            closed = 0
-            s=""
-          if processing:
-            s+=l.strip()
-            opened+=l.count("(")
-            closed+=l.count(")")
-            if closed == opened:
-              # ok we read the whole Graphic method
-              vcs.process_src_element(s)
-              processing = False
-        f.close()
-        ## Ok now we need to double check the isolines
-        gd = vcs.elements["isoline"]["default"]
-        for g in vcs.elements["isoline"].values():
-          if g.name == "default":
-            continue
-          for att in ["line","textcolors","text"]:
-            try:
-              setattr(g,att,getattr(g,att))
-            except Exception,err:
-              lst = []
-              if att == "line":
-                for e in g.line:
-                  if e in vcs.elements["line"]:
-                    lst.append(vcs.elements["line"][e])
-                  else:
-                    lst.append(e)
-              elif att == "text":
-                for e in g.line:
-                  if e in vcs.elements["textorientation"]:
-                    lst.append(vcs.elements["line"][e])
-                  elif e in vcs.elements["text"]:
-                    lst.append(vcs.elements["line"][e])
-                  else:
-                    lst.append(e)
-              elif att == "textcolors":
-                for e in g.line:
-                  if e in vcs.elements["texttable"]:
-                    lst.append(vcs.elements["line"][e])
-                  elif e in vcs.elements["text"]:
-                    lst.append(vcs.elements["line"][e])
-                  else:
-                    lst.append(e)
-              try:
-                setattr(g,att,lst)
-              except Exception,err:
-                setattr(g,att,getattr(gd,att))
-                    
     def scriptrun(self, aFile, *args, **kargs):
-      pass
-    #############################################################################
-    #                                                                           #
-    # Import old VCS file script commands into CDAT.                            #
-    #                                                                           #
-    #############################################################################
-    def scriptrun_scr(self, *args):
-        import __main__
-        ## Following comented by C. Doutriaux seems to be useless
-        ## from cdms2.selectors import Selector
-
-        # Open VCS script file for reading and read all lines into a Python list
-        fin = open(args[0], 'r')
-        l=fin.readlines()
-        line_ct = len(l)
-        i = 0
-
-        # Check to see if it is a VCS generated Python script file. If it is, then simply
-        # call the execfile function to execute the script and close the file.
-        if ( (l[0][0:37] == "#####################################") and
-             (l[1][0:35] == "#                                 #") and
-             (l[2][0:33] == "# Import and Initialize VCS     #") and
-             (l[3][0:31] == "#                             #") and
-             (l[4][0:29] == "#############################") ):
-            fin.close()
-            execfile( args[0], __main__.__dict__ )
-            return
-
-        while i < line_ct:                          
-           # Loop through all lines and determine when a VCS command line
-           # begins and ends. That is, get only one VCS command at a time
-           scr_str = l[i]
-           lt_paren_ct = l[i].count('(')
-           rt_paren_ct = l[i].count(')')
-           while lt_paren_ct > rt_paren_ct:
-              i += 1
-              scr_str += l[i]
-              lt_paren_ct += l[i].count('(')
-              rt_paren_ct += l[i].count(')')
-           i += 1
-           scr_str = scr_str.strip()
-        
-           # Get the VCS command
-           vcs_cmd = scr_str.split('(')[0].split('_')[0]
-        
-           function = source = name = units = title = lon_name = lat_name = ''
-           comment1 = comment2 = comment3 = comment4 = ''
-           if vcs_cmd == 'A':
-              # Get the data via CDMS. That is, retrieve that data as a
-              # _TransientVariable. But first, get the source, name, title,
-              # etc. of the file.
-              slab_name = scr_str.split('(')[0][2:]
-              a=scr_str.split('",')
-              for j in range(len(a)):
-                 b=string.split(a[j],'="')
-                 if b[0][-4:].lower() == 'file':
-                    fcdms=cdms2.open(b[1])                       # Open CDMS file
-                 elif b[0][-8:].lower() == 'function':
-                    function =b[1]                              # Get function
-                 elif b[0].lower() == 'source':
-                    source = b[1]
-                 elif ( (b[0][-4:].lower() == 'name') and
-                        (b[0][-5:].lower() != 'xname') and
-                        (b[0][-5:].lower() != 'yname') ):
-                    name = b[1].split('")')[0]
-                 elif b[0].lower() == 'units':
-                    units = b[1].split('")')[0]
-                 elif b[0][-5:].lower() == 'title':
-                    title = b[1].split('")')[0]
-                 elif b[0][-5:].lower() == 'xname':
-                    lon_name = b[1].split('")')[0].strip()
-                 elif b[0][-5:].lower() == 'yname':
-                    lat_name = b[1].split('")')[0].strip()
-                 elif b[0][-9:].lower() == 'comment#1':
-                    comment1 = b[1]
-                 elif b[0][-9:].lower() == 'comment#2':
-                    comment2 = b[1]
-                 elif b[0][-9:].lower() == 'comment#3':
-                    comment3 = b[1]
-                 elif b[0][-9:].lower() == 'comment#4':
-                    comment4 = b[1]
-## Comented out by C. Doutriaux, shouldn't print anything
-##               print 'function = ', function
-##               print 'source = ', source
-##               print 'name = ', name
-##               print 'units = ', units
-##               print 'title = ', title
-##               print 'lon_name = ', lon_name
-##               print 'lat_name = ', lat_name
-##               print 'comment1 = ', comment1
-##               print 'comment2 = ', comment2
-##               print 'comment3 = ', comment3
-##               print 'comment4 = ', comment4
-
-              if function != '':
-                 b=function.split('(')
-                 ftype=b[0]
-                 V=b[1].split(',')[0]
-## Comented out by C. Doutriaux, shouldn't print anything
-##                  print 'ftype = ', ftype
-##                  print 'V = ', V
-##                  print 'slab_name = ', slab_name
-                 __main__.__dict__[ slab_name ] = __main__.__dict__[ V ] * 1000.
-#                 __main__.__dict__[ slab_name ] = cdutil.averager(
-#                    __main__.__dict__[ V ], axis='( %s )' % 'zeros_ones_dim_1',
-#                       weight='equal')
-                 continue
-
-
-              a=scr_str.split(',')
-              
-              # Now get the coordinate values
-              x1 = x2 = y1 = y2 = None
-              for j in range(len(a)):
-                 c=a[j].split(',')[0]
-                 b=c.split('=')
-                 if b[0].lower() == 'xfirst':
-                    x1 = float( b[1].split(')')[0] )
-                 elif b[0].lower() == 'xlast':
-                    x2 = float( b[1].split(')')[0] )
-                 elif b[0][-6:].lower() == 'yfirst':
-                    y1 = float( b[1].split(')')[0] )
-                 elif b[0].lower() == 'ylast':
-                    y2 = float( b[1].split(')')[0] )
-
-              # Get the variable from the CDMS opened file
-              V=fcdms.variables[name]
-
-              # Check for the order of the variable and re-order dimensions
-              # if necessary
-              Order = '(%s)(%s)' % (lat_name,lon_name)
-              Order = Order.strip().replace('()', '' )
-              if Order == '': Order = None
-              axis_ids = V.getAxisIds()
-              re_order_dimension = 'no'
-              try:                 # only re-order on two or more dimensions
-                 if (axis_ids[-1] != lon_name) and (axis_ids[-2] != lat_name):
-                    re_order_dimension = 'yes'
-              except:
-                 pass
-
-              # Must have the remaining dimension names in the Order list
-              if Order is not None:
-                 O_ct = Order.count('(')
-                 V_ct = len( V.getAxisIds() )
-                 for j in range(O_ct, V_ct):
-                    Order = ('(%s)' % axis_ids[V_ct-j-1]) + Order
-
-              # Set the data dictionary up to retrieve the dat from CDMS
-              if re_order_dimension == 'no':
-                 if ( (x1 is not None) and (x2 is not None) and
-                    (y1 is not None) and (y2 is not None) ):
-                    data_dict = {lon_name:(x1,x2) ,lat_name:(y1,y2), 'order':Order}
-                 elif ( (x1 is not None) and (x2 is not None) and
-                    (y1 is None) and (y2 is None) ):
-                    data_dict = {lon_name:(x1,x2), 'order':Order}
-                 elif ( (x1 is None) and (x2 is None) and
-                    (y1 is not None) and (y2 is not None) ):
-                    data_dict = {lat_name:(y1,y2), 'order':Order}
-                 elif ( (x1 is None) and (x2 is None) and
-                    (y1 is None) and (y2 is None) ):
-                    data_dict = {}
-              else:
-                 if ( (x1 is not None) and (x2 is not None) and
-                    (y1 is not None) and (y2 is not None) ):
-                    data_dict = {lat_name:(x1,x2) ,lon_name:(y1,y2), 'order':Order}
-                 elif ( (x1 is not None) and (x2 is not None) and
-                    (y1 is None) and (y2 is None) ):
-                    data_dict = {lon_name:(x1,x2), 'order':Order}
-                 elif ( (x1 is None) and (x2 is None) and
-                    (y1 is not None) and (y2 is not None) ):
-                    data_dict = {lat_name:(y1,y2), 'order':Order}
-                 elif ( (x1 is None) and (x2 is None) and
-                    (y1 is None) and (y2 is None) ):
-                    data_dict = {}
-
-              # Now store the _TransientVariable in the main dictionary for use later
-              __main__.__dict__[ slab_name ] = apply(V, (), data_dict)
-
-              fcdms.close()                                     # Close CDMS file
-           elif vcs_cmd == 'D':
-              # plot the data with the appropriate graphics method and template
-              a=scr_str.split(',')
-              a_name = b_name = None
-              for j in range(len(a)):
-                 b=a[j].split('=')
-                 if b[0][-3:].lower() == 'off':
-                    off = int( b[1] )
-                 elif b[0].lower() == 'priority':
-                    priority = int( b[1] )
-                 elif b[0].lower() == 'type':
-                    graphics_type = b[1]
-                 elif b[0].lower() == 'template':
-                    template = b[1]
-                 elif b[0].lower() == 'graph':
-                    graphics_name = b[1]
-                 elif b[0].lower() == 'a':
-                    a_name = b[1].split(')')[0]
-                 elif b[0].lower() == 'b':
-                    b_name = b[1].split(')')[0]
-
-              arglist=[]
-            
-              if a_name is not None:
-                 arglist.append(__main__.__dict__[ a_name ])
-              else:
-                 arglist.append( None )
-              if b_name is not None:
-                 arglist.append(__main__.__dict__[ b_name ])
-              else:
-                 arglist.append( None )
-              arglist.append(template)
-              arglist.append(graphics_type)
-              arglist.append(graphics_name)
-
-              if (a_name is not None) and (graphics_type != 'continents'):
-                 dn = self.__plot(arglist, {'bg':0})
-
-           elif vcs_cmd.lower() == 'canvas':
-             warnings.warn("Please implement vcs 'canvas' function")
-           elif vcs_cmd.lower() == 'page':
-              orientation = scr_str.split('(')[1][:-1].lower()
-              warnings.warn("Please implement vcs 'page' function")
-           else: # Send command to VCS interpreter
-              if (len(scr_str) > 1) and (scr_str[0] != '#'):
-                 # Save command to a temporary file first, then read script command
-                 # This is the best solution. Aviods rewriting C code that I know works!
-                 temporary_file_name = tempfile.mktemp('.scr')
-                 fout = open(temporary_file_name, 'w')
-                 fout.writelines( scr_str )
-                 fout.close()
-                 self._scriptrun(temporary_file_name)
-                 os.remove(temporary_file_name)
-        fin.close()
+      vcs.scriptrun(aFile,*args,**kargs)
 
     #############################################################################
     #                                                                           #
@@ -5947,7 +5575,7 @@ Options:::
     #############################################################################
     def isinfile(self,GM,file=None):
         """ Checks if a graphic method is stored in a file
-        if no file name is passed then looks into the initial.attribute file"""
+        if no file name is passed then looks into the initial.attributes file"""
         nm=GM.name
         gm=GM.g_name
         key=gm+'_'+nm+'('
