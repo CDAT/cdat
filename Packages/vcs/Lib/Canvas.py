@@ -1398,7 +1398,10 @@ Options:::
     # DV3D functions for VCS.                                                #
     #                                                                           #
     #############################################################################
-    def getdv3d(Gfdv3d_name_src='default'):
+    def createdv3d(self,name=None,source='default'):
+      return vcs.createdv3d(name,source)
+    createdv3d.__doc__ = vcs.manageElements.createdv3d.__doc__
+    def getdv3d(self,Gfdv3d_name_src='default'):
       return vcs.getdv3d(Gfdv3d_name_src)
     getdv3d.__doc__ = vcs.manageElements.getdv3d.__doc__
     #############################################################################
