@@ -35,7 +35,7 @@ import numpy.ma, MV2
 import numpy, cdutil
 from queries import *
 import boxfill, isofill, isoline, outfill, outline, taylor, meshfill, projection
-import vector, continents, line, marker, fillarea, dv3d
+import vector, continents, line, marker, fillarea
 import texttable, textorientation, textcombined, template, colormap
 import unified1D
 #import colormapgui as _colormapgui
@@ -5749,7 +5749,7 @@ Options:::
           raise Exception("Error continents value must be file or int < 12")
       elif isinstance(value,str):
         self._continents = value
-      if not os.path.exists(self._continents):
+      if self._continents is not None and not os.path.exists(self._continents):
         warnings.warn("Continents file not found: %s, substituing with coarse continents" % self._continents)
         self._continents = os.path.join(os.environ.get("HOME",""),os.environ.get(vcs.getdotdirectory()[1],vcs.getdotdirectory()[0]),"data_continent_coarse")
         if not  os.path.exists(self._continent):
