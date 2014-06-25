@@ -139,6 +139,7 @@ class RectGridPlot(StructuredGridPlot):
         self.volRenderConfig = [ 'Default', 'False' ]
         self.transFunctGraphVisible = False
         self.transferFunctionConfig = None
+        self.volumeMapper = None
         interactionButtons = self.getInteractionButtons()
         interactionButtons.addSliderButton( names=['ScaleColormap'], key='C', toggle=True, label='Colormap Scale', interactionHandler=self.processColorScaleCommand )
         interactionButtons.addSliderButton( names=['ScaleTransferFunction'], key='T', toggle=True, parents=['ToggleVolumePlot'], label='Transfer Function Range', interactionHandler=self.processThresholdRangeCommand )
@@ -327,7 +328,7 @@ class RectGridPlot(StructuredGridPlot):
             origin = self.input().GetOrigin() 
             for ib in [4,5]: 
                 self.cropRegion[ib] = ( origin[int(ib/2)] + new_spacing[int(ib/2)]*extent[ib-4] ) 
-            if self.volumeMapper.GetCropping():
+            if (self.volumeMapper <> None) and self.volumeMapper.GetCropping():
                 self.cropVolume( False ) 
 #         self.volume.Modified()
 #         self.updateModule()
