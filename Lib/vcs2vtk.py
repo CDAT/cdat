@@ -377,7 +377,7 @@ def prepMarker(renWin,ren,marker,cmap=None):
     x = marker.x[i]
     y=marker.y[i]
     c=marker.color[i]
-    s=marker.size[i]
+    s=marker.size[i]/float(max(marker.worldcoordinate))*10.
     t=marker.type[i]
     N = max(len(x),len(y))
     for a in [x,y]:
@@ -392,9 +392,7 @@ def prepMarker(renWin,ren,marker,cmap=None):
     ## Ok at this point generates the source for glpyh
     gs = vtk.vtkGlyphSource2D()
     pd = None
-    print "TYPE:",t
     if t=='dot':
-      print "ok good type"
       gs.SetGlyphTypeToCircle()
       gs.FilledOn()
     elif t=='circle':
@@ -497,17 +495,13 @@ def prepMarker(renWin,ren,marker,cmap=None):
       gs.FilledOn()
     if t[-5:]=="_fill":
       gs.FilledOn()
-    print "Scale:",s
     gs.SetScale(s)
     gs.Update()
 
 
-    print "PD IS:",pd
     if pd is None:
-      print "ok setting source connection",gs
       g.SetSourceConnection(gs.GetOutputPort())
-    else:
-      g.SetInputData(markers)
+    g.SetInputData(markers)
 
     a = vtk.vtkActor()
     m = vtk.vtkPolyDataMapper()
