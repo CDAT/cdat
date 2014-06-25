@@ -1195,15 +1195,11 @@ class P(object):
         x.worldcoordinate=[0,1,0,1]
         #x.mode=0 # this should disable the replot but it doesn't work....
         # figures out the min and max and set them as atributes...
+        smn,smx=vcs.minmax(slab)
         if min is None or max is None:
-             mn,mx=vcs.minmax(slab)
+             mn,mx = smn,smx
         else:
              mn,mx=min,max
-        try:
-            setattr(slab,'min',mn)
-            setattr(slab,'max',mx)
-        except:
-             pass
 
         attributes=['file','function','logicalmask','transformation',
                     'source','id','title','units','crdate','crtime',
@@ -1223,9 +1219,9 @@ class P(object):
 
                 # Now for the min/max/mean add the name in front
                 if s=='min':
-                    tt.string='Min '+str(getattr(slab,s))
+                  tt.string='Min %g' % (smn)
                 elif s=='max':
-                    tt.string='Max '+str(getattr(slab,s))
+                  tt.string='Max %g' % smx
                 elif s=='mean':
                     if not inspect.ismethod(getattr(slab,'mean')):
                          tt.string='Mean '+str(getattr(slab,s))
