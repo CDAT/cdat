@@ -378,7 +378,7 @@ mesh2=a.getmeshfill('quick')          # mesh2 instance of existing 'quick' meshf
 
     return vcs.elements["meshfill"][Gfm_name_src]
 
-def createisofill(self,name=None, source='default'):
+def createisofill(name=None, source='default'):
     """
 Options:::
 %s
@@ -1716,5 +1716,5 @@ a=vcs.init()
 a.show('dv3d')
 plot=a.createdv3d()
 """
-#        name,source = self.check_name_source(name,source,'dv3d')
+#        name,source = check_name_source(name,source,'dv3d')
     return dv3d.Gfdv3d(name, source)
