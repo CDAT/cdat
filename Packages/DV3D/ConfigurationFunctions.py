@@ -185,6 +185,7 @@ class ConfigManager:
     def __init__( self,  **args ): 
         self.ConfigCmd = SIGNAL("ConfigCmd")
         self.cfgFile = os.path.join( DataDir, 'parameters.txt' )
+        self.stateFile = os.path.join( DataDir, 'state.txt' )
         self.config_params = {}
         self.iCatIndex = 0
         self.cats = {}
@@ -273,7 +274,35 @@ class ConfigManager:
 
         except Exception, err:
             print>>sys.stderr, "Can't save parameter metadata: ", str(err)
-              
+            
+    def saveState(self):
+        try:
+            state_file = open( self.stateFile, "w")
+            for cf in self.configurableFunctions.values():
+                state_data = cf.serializeState()
+                if state_data:
+                    state_file.write( state_data + '\n' )        
+            state_file.close()
+            print " saved state data to file ", state_file
+
+        except Exception, err:
+            print>>sys.stderr, "Can't save state data: ", str(err)
+
+    def restoreState( self ):
+        try:
+            state_file = open( self.stateFile, "r")
+            while True:
+                line = state_file.readline()
+                if line == "": break
+                serializedState = line.split('=')
+                cf = self.configurableFunctions.get( serializedState[0], None )
+                if cf <> None: cf.restoreState( serializedState[1] )
+   
+            state_file.close()
+
+        except Exception, err:
+            print>>sys.stderr, "Can't read state data: ", str(err)
+                  
     def getParameterMetadata( self ):
         try:
             parameter_mdata = [ ]
@@ -338,14 +367,26 @@ class ConfigParameter:
         self.ptype = args.get( 'ptype', name ) 
         self.values = args
         self.valueKeyList = list( args.keys() )
+        self.stateKeyList = []
 #        self.scaling_bounds = None
-     
+
+    def serializeState( self ):
+        if len( self.stateKeyList ) == 0:
+            return None
+        state_parms = {}
+        for key in self.stateKeyList:
+            state_parms[key] = self.values[key]
+        return str( state_parms ) 
+
+    def restoreState( self, stateData ) :
+        self.values.update( eval( stateData ) )
+                                    
     def __str__(self):
         return " ConfigParameter[%s]: %s " % ( self.name, str( self.values ) )
    
     def addValueKey( self, key ):
-        if not (key in self.valueKeyList):
-            self.valueKeyList.append( key ) 
+        if not (key in self.stateKeyList) or (key in self.valueKeyList):
+            self.stateKeyList.append( key ) 
                                 
     def pack( self ):
         try:
@@ -485,6 +526,13 @@ class ConfigurableFunction:
         self.group = args.get( 'group', None )
         self._persisted = True
         self.interactionHandler = args.get( 'interactionHandler', None )
+        
+    def serializeState(self):
+        state_data = self.value.serializeState() 
+        return None if (state_data == None) else "=".join( [ self.name, state_data ] ) 
+
+    def restoreState( self, stateData ):
+        self.value.restoreState( stateData )
      
     def sameGroup( self, config_fn ): 
         if id( self ) == id( config_fn ): return False

@@ -52,8 +52,8 @@ class DV3DApp:
     def getRenderWindow(self):
         return self.plot.renderWindow 
     
-    def onKeyEvent( self, eventArgs ): 
-        return self.plot.onKeyEvent( eventArgs )               
+#     def onKeyEvent( self, eventArgs ): 
+#         return self.plot.onKeyEvent( eventArgs )               
 
     def terminate( self ): 
         return self.plot.terminate( ) 

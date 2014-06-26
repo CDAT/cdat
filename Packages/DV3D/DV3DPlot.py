@@ -106,12 +106,36 @@ class DV3DPlot():
         self.colormapManagers= {}
         self.colormapWidget = None 
         self.colormapWindowSize = None
+        self.keyPressHandlers = {}
         interactionButtons = self.getInteractionButtons()
         interactionButtons.addSliderButton( names=['VerticalScaling'], key='Z', toggle=True, label='Vertical Scaling', sliderLabels='Vertical Scale', interactionHandler=self.processVerticalScalingCommand, range_bounds=[ 0.1, 10.0 ], initValue= 1.0 )
         interactionButtons.addConfigButton( names=['ChooseColormap'], key='m', toggle=True, interactionHandler=self.processChooseColormapCommand, initValue=[ 'jet', False, False ]  )
         interactionButtons.addConfigButton( names=['ToggleClipping'], key='X', toggle=True, parents=['ToggleVolumePlot', 'ToggleSurfacePlot'], interactionHandler=self.processToggleClippingCommand  )
         interactionButtons.addConfigButton( names=['Colorbar'], key='b', toggle=True, label='Show Colorbar', interactionHandler=self.processShowColorbarCommand )
+        self.addKeyPressHandler( 'r', self.resetCamera )
+        self.addKeyPressHandler( 'q',  self.quit )
+        self.addKeyPressHandler( 'Q',  self.quit )
+        self.addKeyPressHandler( 's',  self.saveState )
+        
+    def addKeyPressHandler( self, key, handler ):
+        handlers = self.keyPressHandlers.setdefault( key, [] )
+        handlers.append( handler )
+        
+    def quit( self, **args ):
+        eventArgs = args.get( 'args', None )
+        if eventArgs and ( eventArgs[1] == 'Q' ):
+            self.saveState()
+        self.renderWindowInteractor.TerminateApp() 
+            
+    def saveState(self, **args): 
+        print "Save State" 
+        CfgManager.saveState()
 
+    def processKeyPressHandler( self, key, eventArgs ):
+        handlers = self.keyPressHandlers.get( key, [] )
+        for handler in handlers: handler( args=eventArgs )
+        return len( handlers )
+            
     def processVerticalScalingCommand( self, args, config_function ):
         pass 
     
@@ -192,8 +216,12 @@ class DV3DPlot():
         interactor = caller.GetInteractor()
         keysym = interactor.GetKeySym() if caller else key
         ctrl = interactor.GetControlKey() if caller else args.get( 'ctrl', 0 )
-        self.onKeyEvent( [ key, keysym, ctrl ] ) 
-        return 0       
+        eventArgs = [ key, keysym, ctrl ] 
+        if self.processKeyPressHandler( key, eventArgs ): 
+            return 1
+        else: 
+            return self.onKeyEvent( ) 
+     
 #         
 #         if self.onKeyEvent( [ key, keysym, ctrl ] ):
 #             pass
@@ -610,7 +638,7 @@ class DV3DPlot():
         c = self.renderer.GetActiveCamera()
         self.cameraOrientation[ self.topo ] = ( c.GetPosition(), c.GetFocalPoint(), c.GetViewUp() )
 
-    def resetCamera( self, pts = None ):
+    def resetCamera( self, pts = None, **args ):
         cdata = self.cameraOrientation.get( self.topo, None )
         if cdata:
             self.renderer.GetActiveCamera().SetPosition( *cdata[0] )

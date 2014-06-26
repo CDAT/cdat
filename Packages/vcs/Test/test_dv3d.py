@@ -37,6 +37,7 @@ else:
 
 dv3d = vcs.createdv3d()
 dv3d.XSlider = 100.0
+dv3d.restoreState()
 
 x = vcs.init()
 x.plot( u, dv3d )

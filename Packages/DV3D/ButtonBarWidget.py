@@ -688,13 +688,13 @@ class ButtonBarWidget:
 #                for child_button in child_activations: 
 #                    child_button.setButtonState(1)
             self.render()                     
-        elif config_state == 'reset':
-            self.resetCamera()              
-            if  len(self.persistedParameters):
-                pname = self.persistedParameters.pop()
-                configFunct = self.configurableFunctions[pname]
-                param_value = configFunct.reset() 
-                if param_value: self.persistParameterList( [ (configFunct.name, param_value), ], update=True, list=False )                                      
+#         elif config_state == 'reset':
+#             self.resetCamera()              
+#             if  len(self.persistedParameters):
+#                 pname = self.persistedParameters.pop()
+#                 configFunct = self.configurableFunctions[pname]
+#                 param_value = configFunct.reset() 
+#                 if param_value: self.persistParameterList( [ (configFunct.name, param_value), ], update=True, list=False )                                      
         return configFunct
 
     def enableVisualizationInteraction(self): 

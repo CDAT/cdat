@@ -316,7 +316,7 @@ class RectGridPlot(StructuredGridPlot):
             self.ProcessIPWAction( plane_widget, ImagePlaneWidget.InteractionUpdateEvent, action = ImagePlaneWidget.Pushing )
 
  
-    def resetCamera(self):
+    def resetCamera(self, **args):
         self.cropRegion = self.getVolumeBounds()
         self.cropZextent = None
         self.cropVolume( False ) 
@@ -993,16 +993,16 @@ class RectGridPlot(StructuredGridPlot):
 #        print "  --- Volume Input Extent: %s " % str( self.input().GetWholeExtent() )
         pass          
 
-    def onKeyEvent(self, eventArgs ):
-        key = eventArgs[0]
-        ctrl = eventArgs[2]
-        if (  ( key == 'W' ) and ctrl        ): 
-            bbar = self.getInteractionButtons()  
-            bbar.releaseSliders() 
-            for index in range(3):  self.modifySlicePlaneVisibility( index, "xyz"[index], False )              
-        else:                   
-            return StructuredGridPlot.onKeyEvent( self, eventArgs )
-        return 1 
+#     def onKeyEvent(self, eventArgs ):
+#         key = eventArgs[0]
+#         ctrl = eventArgs[2]
+#         if (  ( key == 'W' ) and ctrl        ): 
+#             bbar = self.getInteractionButtons()  
+#             bbar.releaseSliders() 
+#             for index in range(3):  self.modifySlicePlaneVisibility( index, "xyz"[index], False )              
+#         else:                   
+#             return StructuredGridPlot.onKeyEvent( self, eventArgs )
+#         return 1 
         
     def showConfigureButton(self):                                                                                      
         config_button = self.getButton( names=['Configure'] ) # names=['ScaleColormap'] ) Configure

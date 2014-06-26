@@ -82,7 +82,10 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
 
     def setParameter(self, param_name, data, **args ):
         CfgManager.setParameter( param_name, data, **args )
-
+        
+    def restoreState(self):
+        CfgManager.restoreState()
+        
     def list(self):
         print ' ---------- DV3D (Gfdv3d) member (attribute) listings ---------'
         print 'name =',self.name

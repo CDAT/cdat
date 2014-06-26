@@ -64,17 +64,17 @@ class StructuredGridPlot(DV3DPlot):
                 self.setZScale( vscale )
                 verticalScale.setValues( vscale )
 
-    def onKeyEvent(self, eventArgs ):
-        key = eventArgs[0]
-        md = self.getInputSpec().getMetadata()
-        if (  key == 'r'  ):
-            self.resetCamera()              
-        elif ( md and ( md.get('plotType','')=='xyz' ) and ( key == 't' )  ):
-            self.showInteractiveLens = not self.showInteractiveLens 
-            self.render() 
-        else:
-            return DV3DPlot.onKeyEvent( self, eventArgs )
-        return 1
+#     def onKeyEvent(self, eventArgs ):
+#         key = eventArgs[0]
+#         md = self.getInputSpec().getMetadata()
+#         if (  key == 'r'  ):
+#             self.resetCamera()              
+#         elif ( md and ( md.get('plotType','')=='xyz' ) and ( key == 't' )  ):
+#             self.showInteractiveLens = not self.showInteractiveLens 
+#             self.render() 
+#         else:
+#             return DV3DPlot.onKeyEvent( self, eventArgs )
+#         return 1
 
     def getRangeBounds( self, input_index = 0 ):
         ispec = self.inputSpecs[ input_index ] 
