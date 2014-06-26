@@ -1,7 +1,7 @@
 from distutils.core import setup
 import os, sys
 
-package_data = {'DV3D': ['data/earth2k.jpg', 'data/colormaps.pkl', 'data/buttons/*', 'data/coastline/index.txt', 'data/coastline/low/*', 'data/coastline/medium/*', 'data/coastline/high/*']}
+package_data = {'DV3D': ['data/earth2k.jpg', 'data/colormaps.pkl', 'data/parameters.txt', 'data/buttons/*', 'data/coastline/index.txt', 'data/coastline/low/*', 'data/coastline/medium/*', 'data/coastline/high/*']}
 
 setup (name = "DV3D",
        description = "Climate Data Interactive Visualization System",

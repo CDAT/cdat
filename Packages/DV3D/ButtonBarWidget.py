@@ -11,7 +11,6 @@ from ConfigurationFunctions import *
 PackagePath = os.path.dirname( __file__ )  
 DataDir = os.path.join( PackagePath, 'data' )
 ButtonDir = os.path.join( DataDir, 'buttons' )
-parameter_file_path = os.path.join( DataDir, 'parameters.txt' )
 
 class OriginPosition:
     Upper_Left = [ 0, 1 ] 
@@ -235,35 +234,6 @@ class ButtonBarWidget:
     def getButtonBar( cls, name ):
         return cls.button_bars.get( name, None )
     
-    @classmethod   
-    def saveParameterMetadata( cls ):
-        try:
-            parameter_file = open( parameter_file_path, "w")
-            for bbar in cls.button_bars.values():
-                for cf in bbar.configurableFunctions.values():
-                    parameter_file.write( cf.getParameterMetadata() + '\n' )        
-            parameter_file.close()
-            print " saved Parameter Metadata to file ", parameter_file_path
-
-        except Exception, err:
-            print>>sys.stderr, "Can't save parameter metadata: ", str(err)
-            
-    @classmethod   
-    def getParameterMetadata( cls ):
-        try:
-            parameter_mdata = [ ]
-            parameter_file = open( parameter_file_path, "r")
-            while True:
-                line = parameter_file.readline()
-                if line == "": break
-                parameter_mdata.append( line.split(','))
-   
-            parameter_file.close()
-
-        except Exception, err:
-            print>>sys.stderr, "Can't save parameter metadata: ", str(err)
-            
-        return parameter_mdata
         
     @classmethod   
     def broadcastButtonState( cls, type, name,  **args ):
@@ -450,10 +420,10 @@ class ButtonBarWidget:
         return rw.GetRenderers().GetFirstRenderer ()
 
     def addConfigurableFunction(self, name, **args):
-        self.configurableFunctions[name] = ConfigurableFunction( name, **args )
+        self.configurableFunctions[name] = CfgManager.getConfigurableFunction( name, **args )
 
     def addConfigurableSliderFunction(self, name, **args):
-        self.configurableFunctions[name] = ConfigurableSliderFunction( name, **args )
+        self.configurableFunctions[name] = CfgManager.getConfigurableFunction( name, type = ConfigurableFunction.Slider, **args )
 
     def getConfigFunction( self, name ):
         return self.configurableFunctions.get(name,None)

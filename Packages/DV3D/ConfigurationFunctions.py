@@ -12,8 +12,9 @@ from weakref import WeakSet, WeakKeyDictionary
 SLICE_WIDTH_LR_COMP = [ 'xlrwidth', 'ylrwidth', 'zlrwidth' ]
 SLICE_WIDTH_HR_COMP = [ 'xhrwidth', 'yhrwidth', 'zhrwidth' ]
 
-packagePath = os.path.dirname( __file__ )  
-defaultMapDir = os.path.join( packagePath, 'data' )
+packagePath = os.path.dirname( __file__ ) 
+DataDir = os.path.join( packagePath, 'data' ) 
+defaultMapDir = DataDir 
 defaultOutlineMapFile = os.path.join( defaultMapDir,  'political_map.png' )
 
 packagePath = os.path.dirname( __file__ )  
@@ -180,14 +181,25 @@ class SIGNAL(object):
 
 class ConfigManager:
     
+    
     def __init__( self,  **args ): 
         self.ConfigCmd = SIGNAL("ConfigCmd")
-        self.cfgFile = None
-        self.cfgDir = None
+        self.cfgFile = os.path.join( DataDir, 'parameters.txt' )
         self.config_params = {}
         self.iCatIndex = 0
         self.cats = {}
         self.metadata = args
+        self.configurableFunctions = {}
+        
+    def getConfigurableFunction(self, name, **args ):
+        type = args.get( 'type', ConfigurableFunction.Default )
+        if type == ConfigurableFunction.Default:  rv = ConfigurableFunction( name, **args )
+        elif type == ConfigurableFunction.Slider: rv = ConfigurableSliderFunction( name, **args )
+        else:
+            print>>sys.stderr, "Error, Unknown Configurable Function Type: ", str(type)
+            return None
+        self.configurableFunctions[name] = rv
+        return rv
         
     def getMetadata(self, key=None ):
         return self.metadata.get( key, None ) if key else self.metadata
@@ -228,6 +240,33 @@ class ConfigManager:
                 if parm: parm.initialize( cfg_tok[1] )
         except IOError:
             print>>sys.stderr, "Can't open config file: %s" % self.cfgFile                       
+
+    def saveParameterMetadata( self ):
+        try:
+            parameter_file = open( self.cfgFile, "w")
+            for cf in self.configurableFunctions.values():
+                parameter_file.write( cf.getParameterMetadata() + '\n' )        
+            parameter_file.close()
+            print " saved Parameter Metadata to file ", self.cfgFile
+
+        except Exception, err:
+            print>>sys.stderr, "Can't save parameter metadata: ", str(err)
+              
+    def getParameterMetadata( self ):
+        try:
+            parameter_mdata = [ ]
+            parameter_file = open( self.cfgFile, "r")
+            while True:
+                line = parameter_file.readline()
+                if line == "": break
+                parameter_mdata.append( line.split(','))
+   
+            parameter_file.close()
+
+        except Exception, err:
+            print>>sys.stderr, "Can't read parameter metadata: ", str(err)
+            
+        return parameter_mdata
         
     def initParameters(self):
         if not self.cfgDir:
@@ -399,15 +438,18 @@ class ConfigParameter:
     def getRange( self ):
         return ( self.rmin, self.rmax )
 
+CfgManager = ConfigManager() 
+
 class ConfigurableFunction:
-    
-    CfgManager = ConfigManager() 
+
+    Default = 0
+    Slider = 1    
     ConfigurableFunctions = {}    
     
     def __init__( self, name, **args ):
         self.name = name
         self.persist = args.get( 'persist', True )
-        self.value = self.CfgManager.addParameter( name, **args )
+        self.value = CfgManager.addParameter( name, **args )
         self.type = 'generic'
         self.kwargs = args
         self.label = args.get( 'label', self.name )
@@ -436,7 +478,7 @@ class ConfigurableFunction:
 
     @classmethod
     def activate( cls ):
-        cls.CfgManager.initParameters()
+        CfgManager.initParameters()
         
     def getValueLength(self):
         return 1
