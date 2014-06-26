@@ -4,7 +4,7 @@ set(SPHINX_PATCH_SRC 2)
 
 set (nm SPHINX)
 string(TOUPPER ${nm} uc_nm)
-set(${uc_nm}_VERSION ${${nm}_MAJOR_SRC}.${${nm}_MINOR_SRC}${${nm}_PATCH_SRC})
+set(${uc_nm}_VERSION ${${nm}_MAJOR_SRC}.${${nm}_MINOR_SRC}.${${nm}_PATCH_SRC})
 set(SPHINX_URL ${LLNL_URL})
 set(SPHINX_GZ Sphinx-${SPHINX_VERSION}.tar.gz)
 set(SPHINX_SOURCE ${SPHINX_URL}/${SPHINX_GZ})
