@@ -69,8 +69,8 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
 
                 
     def addParameters(self):
-        from DV3D.ButtonBarWidget import ButtonBarWidget
-        parameterMetadata = ButtonBarWidget.getParameterMetadata()
+        from DV3D.ConfigurationFunctions import CfgManager
+        parameterMetadata = CfgManager.getParameterMetadata()
         self.parameter_names = []
         for mdata in parameterMetadata:
             self.add_property( mdata[0] )
