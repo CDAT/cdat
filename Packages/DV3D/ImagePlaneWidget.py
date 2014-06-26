@@ -60,7 +60,7 @@ class ImagePlaneWidget:
             
         # Represent the resliced image plane
         #
-        self.ColorMap = vtk.vtkImageMapToColors()
+        self.ColorMap = None
 #        self.ContourFilter = vtk.vtkContourFilter
         self.Reslice = vtk.vtkImageReslice()
         self.Reslice.TransformInputSamplingOff()
@@ -787,22 +787,14 @@ class ImagePlaneWidget:
         self.ImageData = inputData
         self.ImageData2 = inputData2
         
-        if(  not self.ImageData ):       
-            # If None is passed, remove any reference that Reslice had
-            # on the old ImageData
-            if vtk.VTK_MAJOR_VERSION <= 5:  self.Reslice.SetInput(None)
-            else:                           self.Reslice.SetInputData(None)                         
-            return
-                   
+        if not self.UpdateInputs(): return
+                  
         scalar_range = self.ImageData.GetScalarRange()
         
         if (  not self.UserControlledLookupTable ):       
             self.LookupTable.SetTableRange( scalar_range[0], scalar_range[1] )
             self.LookupTable.Build()
             
-        if vtk.VTK_MAJOR_VERSION <= 5:  self.Reslice.SetInput(self.ImageData)
-        else:                           self.Reslice.SetInputData(self.ImageData)                         
-        self.Reslice.Modified()
         dims = self.ImageData.GetDimensions()
         self.InputDims = 3 if ( ( len(dims) > 2 ) and ( dims[2] > 1 ) ) else 2
              
@@ -812,19 +804,42 @@ class ImagePlaneWidget:
 
         self.Texture.SetInterpolate(self.TextureInterpolate)
         
-        self.UpdateSlice()
-
+        self.TexturePlaneActor.GetMapper().Update()  
+        
+        if self.Reslice2:           
+            self.Reslice2.Update() 
+            
     def UpdateInputs(self):
+        
+        if(  not self.ImageData ):       
+            if vtk.VTK_MAJOR_VERSION <= 5:  self.Reslice.SetInput(None)
+            else:                           self.Reslice.SetInputData(None)                         
+            return False
+        
+        if vtk.VTK_MAJOR_VERSION <= 5:  self.Reslice.SetInput(self.ImageData)
+        else:                           self.Reslice.SetInputData(self.ImageData) 
+                                
+        self.Reslice.Modified()        
         self.Reslice.Update()
+        
+        if self.ColorMap == None:
+            self.ColorMap = vtk.vtkImageMapToColors()
+            self.ColorMap.SetOutputFormatToRGBA()
+            self.ColorMap.PassAlphaToOutputOn()
+                         
         if vtk.VTK_MAJOR_VERSION <= 5:  self.ColorMap.SetInput(self.Reslice.GetOutput())
-        else:                           self.ColorMap.SetInputData(self.Reslice.GetOutput())                   
-        self.ColorMap.Update()        
+        else:                           self.ColorMap.SetInputData(self.Reslice.GetOutput()) 
+        self.ColorMap.SetLookupTable(self.LookupTable)    
+        self.ColorMap.Update()  
+              
         if vtk.VTK_MAJOR_VERSION <= 5:  self.Texture.SetInput(self.ColorMap.GetOutput())
-        else:                           self.Texture.SetInputData(self.ColorMap.GetOutput())              
+        else:                           self.Texture.SetInputData(self.ColorMap.GetOutput())  
+        
+        return True            
 
     def UpdateSlice(self):
         self.UpdateInputs()
-        self.Texture.Update() 
+#        self.Texture.Update() 
         self.TexturePlaneActor.GetMapper().Update()  
         
         if self.Reslice2:           
@@ -1013,7 +1028,6 @@ class ImagePlaneWidget:
 #            self.LookupTable.AddObserver( 'AnyEvent', self.LookupTableObserver )
 #            print " Image Plane Widget %x: SetLookupTable: %x " % ( id(self), id( self.LookupTable ) )
                
-        self.ColorMap.SetLookupTable(self.LookupTable)
         self.Texture.SetLookupTable(self.LookupTable)
         
         if( self.ImageData and  not self.UserControlledLookupTable):       
@@ -1384,12 +1398,7 @@ class ImagePlaneWidget:
         self.LookupTable = self.CreateDefaultLookupTable()
         
         self.UpdateInputs()
-        
-        self.ColorMap.SetLookupTable(self.LookupTable)
-        self.ColorMap.SetOutputFormatToRGBA()
-        self.ColorMap.PassAlphaToOutputOn()
-        self.ColorMap.Update()
-        
+                
         texturePlaneMapper  = vtk.vtkPolyDataMapper()
         if vtk.VTK_MAJOR_VERSION <= 5:  texturePlaneMapper.SetInput( self.PlaneSource.GetOutput() )
         else:                           texturePlaneMapper.SetInputData( self.PlaneSource.GetOutput() ) 

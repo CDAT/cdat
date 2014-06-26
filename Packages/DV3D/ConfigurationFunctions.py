@@ -190,15 +190,37 @@ class ConfigManager:
         self.cats = {}
         self.metadata = args
         self.configurableFunctions = {}
+        self.parameters = {}
+
+    def getParameter( self, param_name, **args ):
+        cparm = self.parameters.get( param_name, None )
+        if cparm == None:
+            ctype = args.get('ctype') 
+            cparm = ConfigParameter( param_name, **args )
+            self.parameters[ param_name ] = cparm
+        return cparm
+            
+        
+    def setParameter(self, param_name, data, **args ):
+        param = self.getParameter( param_name, **args )
+#        pdata = data if hasattr( data, '__iter__' ) else [ data ]
+        param.setValue( 'init', data )
+#        print '  <<---------------------------------------------------->> Set Parameter: ', param_name, " = ", str( data )
+
+    def getParameterValue(self, param_name, **args ):
+        param = self.getParameter( param_name, **args )
+        return None if ( param == None ) else param.getValues()
         
     def getConfigurableFunction(self, name, **args ):
-        type = args.get( 'type', ConfigurableFunction.Default )
-        if type == ConfigurableFunction.Default:  rv = ConfigurableFunction( name, **args )
-        elif type == ConfigurableFunction.Slider: rv = ConfigurableSliderFunction( name, **args )
-        else:
-            print>>sys.stderr, "Error, Unknown Configurable Function Type: ", str(type)
-            return None
-        self.configurableFunctions[name] = rv
+        rv = self.configurableFunctions.get( name, None )
+        if rv == None:
+            type = args.get( 'type', ConfigurableFunction.Default )
+            if type == ConfigurableFunction.Default:  rv = ConfigurableFunction( name, **args )
+            elif type == ConfigurableFunction.Slider: rv = ConfigurableSliderFunction( name, **args )
+            else:
+                print>>sys.stderr, "Error, Unknown Configurable Function Type: ", str(type)
+                return None
+            self.configurableFunctions[name] = rv
         return rv
         
     def getMetadata(self, key=None ):
@@ -219,7 +241,7 @@ class ConfigManager:
             print>>sys.stderr, "Can't open config file: %s" % self.cfgFile
 
     def addParameter( self, config_name, **args ):
-        cparm = ConfigParameter.getParameter( config_name, **args )
+        cparm = self.getParameter( config_name, **args )
         categoryName = args.get('category', None )
         varname = args.get('varname', None )
         key_tok = [] 
@@ -317,11 +339,6 @@ class ConfigParameter:
         self.values = args
         self.valueKeyList = list( args.keys() )
 #        self.scaling_bounds = None
-
-    @staticmethod
-    def getParameter( config_name, **args ):
-        ctype = args.get('ctype') 
-        return ConfigParameter( config_name, **args )
      
     def __str__(self):
         return " ConfigParameter[%s]: %s " % ( self.name, str( self.values ) )
@@ -449,6 +466,8 @@ class ConfigurableFunction:
     def __init__( self, name, **args ):
         self.name = name
         self.persist = args.get( 'persist', True )
+#         if name == 'XSlider':
+#             print "."
         self.value = CfgManager.addParameter( name, **args )
         self.type = 'generic'
         self.kwargs = args
@@ -456,7 +475,11 @@ class ConfigurableFunction:
         self.units = args.get( 'units', '' ).strip().lower()
         self.key = args.get( 'key', None )
         self.state = None
-        self.initial_value = makeList( args.get( 'initValue', None ), self.getValueLength() )
+        ival = self.value.getValue( 'init' )
+        if ival <> None:
+            self.initial_value = ival if hasattr( ival, '__iter__' ) else [ ival ]
+        else:    
+            self.initial_value = makeList( args.get( 'initValue', None ), self.getValueLength() )
 #        self.group = args.get( 'group', ConfigGroup.Display )  
         self.active = args.get( 'active', True )
         self.group = args.get( 'group', None )

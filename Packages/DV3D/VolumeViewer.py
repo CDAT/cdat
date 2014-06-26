@@ -390,7 +390,7 @@ class VolumePlot(StructuredGridPlot):
             io2 = int(i/2)
             bounds[i] = origin[io2] + spacing[io2]*extent[i] 
             
-        print " @@@VolumeRenderer@@@   Data Type = %s, range = (%f,%f), max_scalar = %s" % ( dataType, rangeBounds[0], rangeBounds[1], self._max_scalar_value )
+        print " --VolumeRenderer--   Data Type = %s, range = (%f,%f), max_scalar = %s" % ( dataType, rangeBounds[0], rangeBounds[1], self._max_scalar_value )
         print "Extent: %s " % str( self.input().GetWholeExtent() )
         print "Spacing: %s " % str( spacing )
         print "Origin: %s " % str( origin )

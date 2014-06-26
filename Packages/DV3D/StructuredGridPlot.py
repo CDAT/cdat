@@ -459,18 +459,11 @@ class StructuredGridPlot(DV3DPlot):
         else:                           clip1.SetInputData( baseImage )                
         clip1.SetOutputWholeExtent( extent[0], extent[1], extent[2], extent[3], extent[4], extent[5] )
         
-        clip0.Update()
-        clip1.Update()
         append = vtk.vtkImageAppend()
         append.SetAppendAxis( 0 )
-        if vtk.VTK_MAJOR_VERSION <= 5:
-            append.AddInput( clip1.GetOutput() )          
-            append.AddInput( clip0.GetOutput() )
-        else:
-            append.SetInputData (0, clip1.GetOutput() )
-            append.SetInputData (1, clip0.GetOutput() )
-           
-        append.Update()
+        append.SetInputConnection ( clip1.GetOutputPort() )
+        append.AddInputConnection ( clip0.GetOutputPort() )           
+        
         imageInfo = vtk.vtkImageChangeInformation()
         imageInfo.SetInputConnection( append.GetOutputPort() ) 
         imageInfo.SetOutputOrigin( 0.0, 0.0, 0.0 )

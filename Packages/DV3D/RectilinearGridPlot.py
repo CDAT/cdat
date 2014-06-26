@@ -286,10 +286,11 @@ class RectGridPlot(StructuredGridPlot):
             primaryInput = self.input()
             bounds = list( primaryInput.GetBounds() ) 
             init_range = [ bounds[2*plane_index], bounds[2*plane_index+1] ]
-            config_function.setRangeBounds( init_range )    
-            config_function.initial_value = init_range[0] 
-            slicePosition.setValues( init_range ) 
-            plane_widget.SetSlicePosition( config_function.initial_value )
+            config_function.setRangeBounds( init_range ) 
+            if config_function.initial_value == None:
+                config_function.initial_value = init_range
+            slicePosition.setValues( [ config_function.initial_value[0] ] ) 
+            plane_widget.SetSlicePosition( config_function.initial_value[0] )
             if config_function.key == 'z':
                 self.ProcessIPWAction( plane_widget, ImagePlaneWidget.InteractionUpdateEvent, action = ImagePlaneWidget.Pushing )
         elif args and args[0] == "EndConfig":

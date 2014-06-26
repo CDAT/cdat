@@ -130,7 +130,7 @@ class DV3DPlot():
         bbar = ButtonBarWidget.getButtonBar( 'Plot' )
         button = bbar.getButton( 'XSlider' ) 
         button.setButtonState( 1 ) 
-        bbar.centerSlider(0)  
+        bbar.initializeSliderPosition(0)  
         self.render()
         
     def processChooseColormapCommand( self, args, config_function ):

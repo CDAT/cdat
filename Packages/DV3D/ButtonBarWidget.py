@@ -209,7 +209,7 @@ class ButtonBarWidget:
 
     @classmethod   
     def restoreInteractionState(cls): 
-        print "  ----------------------------- restoreInteractionState ----------------------------- " 
+#        print "  ----------------------------- restoreInteractionState ----------------------------- " 
         bbar = cls.getButtonBar( 'Plot' ) 
         bbar.InteractionState = None
         current_config_function = None
@@ -303,7 +303,7 @@ class ButtonBarWidget:
         return self.getOffsetScreenPosition( size, position )
            
     def getScreenPosition(self, normalized_display_position, buffered = True, **args ):
-        print " GetScreenPosition [",  self.name, "], position = ", str( normalized_display_position )
+#        print " GetScreenPosition [",  self.name, "], position = ", str( normalized_display_position )
         self.vtk_coord.SetValue(  normalized_display_position[0], normalized_display_position[1] )
         screen_pos = self.vtk_coord.GetComputedDisplayValue( self.getRenderer() )
         position_offset = args.get( 'offset', [ 0, 0 ] )
@@ -340,7 +340,7 @@ class ButtonBarWidget:
     def processStateChangeEvent( self, button_id, key, state ):
         b = self.getButton( button_id )
         if (b.state <> state) or not b.toggle:
-            print " processStateChangeEvent: ", str( [ button_id, key, state ] )
+#            print " processStateChangeEvent: ", str( [ button_id, key, state ] )
             self.StateChangedSignal( button_id, key, state )
             b.state = state
             if state > 0: 
@@ -445,11 +445,12 @@ class ButtonBarWidget:
             srep = swidget.GetRepresentation( )   
             srep.SetValue( value  )
             
-    def centerSlider( self, index ):
+    def initializeSliderPosition( self, index ):
         ( process_mode, interaction_state, swidget ) = self.currentSliders.get( index, ( None, None, None ) )
         if swidget:
-            srep = swidget.GetRepresentation( )  
-            value = ( srep.GetMinimumValue() + srep.GetMaximumValue() ) / 2.0 
+            srep = swidget.GetRepresentation( ) 
+            values = CfgManager.getParameterValue( interaction_state )
+            value = ( ( srep.GetMinimumValue() + srep.GetMaximumValue() ) / 2.0 )  if ( values == None ) else values[0]
             srep.SetValue( value  ) 
                     
     def createSliderWidget( self, index ): 
@@ -522,7 +523,7 @@ class ButtonBarWidget:
         ( process_mode, interaction_state, swidget ) = self.currentSliders.get( index, ( None, None, None ) )  
         if swidget: 
             swidget.SetEnabled( 0 ) 
-            print "Releasing slider[%d]: %s " % ( index, interaction_state )
+#            print "Releasing slider[%d]: %s " % ( index, interaction_state )
 
     def getSliderEnabled( self, index ):        
         ( process_mode, interaction_state, swidget ) = self.currentSliders.get( index, ( None, None, None ) )  
@@ -608,7 +609,7 @@ class ButtonBarWidget:
             istyle.Off()  
     
     def resetNavigation(self):
-        print " ----------------------BBW resetNavigation -------------------------- "
+#        print " ----------------------BBW resetNavigation -------------------------- "
         if self.interactor:
             istyle = self.interactor.GetInteractorStyle () 
             istyle.On()  
@@ -631,7 +632,7 @@ class ButtonBarWidget:
             sameGroup = prevConfigFunct.sameGroup( configFunct )
             if not sameGroup: prevConfigFunct.close()  
         else: sameGroup = False               
-        print " UpdateInteractionState, config_state = %s, cf = %s " % ( config_state, configFunct.key )
+#        print " UpdateInteractionState, config_state = %s, cf = %s " % ( config_state, configFunct.key )
         if configFunct:
 #            child_activations = []
 #                if configFunct.type <> 'slider': 
