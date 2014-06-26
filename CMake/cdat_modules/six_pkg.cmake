@@ -1,0 +1,10 @@
+set(SIX_MAJOR_SRC 1)
+set(SIX_MINOR_SRC 7)
+set(SIX_PATCH_SRC 2)
+
+set(SIX_VERSION ${SIX_MAJOR_SRC}.${SIX_MINOR_SRC}.${SIX_PATCH_SRC})
+set(SIX_GZ six-${SIX_VERSION}.tar.gz)
+set(SIX_SOURCE ${LLNL_URL}/${SIX_GZ})
+set(SIX_MD5 4c26276583b01dfc73474cb32327af91)
+
+add_cdat_package_dependent(SIX "" "" ON "CDAT_BUILD_WO_ESGF" OFF)
