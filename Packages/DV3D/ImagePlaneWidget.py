@@ -814,14 +814,16 @@ class ImagePlaneWidget:
         
         self.UpdateSlice()
 
-
-    def UpdateSlice(self):
+    def UpdateInputs(self):
         self.Reslice.Update()
         if vtk.VTK_MAJOR_VERSION <= 5:  self.ColorMap.SetInput(self.Reslice.GetOutput())
         else:                           self.ColorMap.SetInputData(self.Reslice.GetOutput())                   
         self.ColorMap.Update()        
         if vtk.VTK_MAJOR_VERSION <= 5:  self.Texture.SetInput(self.ColorMap.GetOutput())
         else:                           self.Texture.SetInputData(self.ColorMap.GetOutput())              
+
+    def UpdateSlice(self):
+        self.UpdateInputs()
         self.Texture.Update() 
         self.TexturePlaneActor.GetMapper().Update()  
         
@@ -1380,6 +1382,8 @@ class ImagePlaneWidget:
 
         self.SetResliceInterpolate(self.ResliceInterpolate)       
         self.LookupTable = self.CreateDefaultLookupTable()
+        
+        self.UpdateInputs()
         
         self.ColorMap.SetLookupTable(self.LookupTable)
         self.ColorMap.SetOutputFormatToRGBA()
