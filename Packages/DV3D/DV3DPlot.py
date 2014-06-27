@@ -151,10 +151,12 @@ class DV3DPlot():
             self.render() 
 
     def initializePlots(self):
+#         bbar = ButtonBarWidget.getButtonBar( 'Plot' )
+#         button = bbar.getButton( 'XSlider' ) 
+#         button.setButtonState( 1 ) 
+#         bbar.initializeSliderPosition(0)  
         bbar = ButtonBarWidget.getButtonBar( 'Plot' )
-        button = bbar.getButton( 'XSlider' ) 
-        button.setButtonState( 1 ) 
-        bbar.initializeSliderPosition(0)  
+        bbar.initializeState()
         self.render()
         
     def processChooseColormapCommand( self, args, config_function ):
@@ -403,7 +405,7 @@ class DV3DPlot():
         bbar = ButtonBarWidget.getButtonBar( bbar_name )
         if bbar == None:
             bbar = ButtonBarWidget( bbar_name, self.renderWindowInteractor )
-            config_button = bbar.addConfigButton( names=['Configure'], id='Configure', key='g', toggle=True, interactionHandler=self.processConfigurationToggle )
+            config_button = bbar.addConfigButton( names=['Configure'], id='Configure', key='g', toggle=True, persist=False, interactionHandler=self.processConfigurationToggle )
 #            config_button.StateChangedSignal.connect( self.togglePlotButtons )
             bbar.build()
         bbar.show()
@@ -458,7 +460,7 @@ class DV3DPlot():
             name = config_function.name
             bbar = ButtonBarWidget.getButtonBar( name )
             button = bbar.getButton( name )
-            self.toggleCongurationButtons( button.state)
+            self.toggleCongurationButtons( button.getState() )
          
     def processSlicingCommand( self, args, config_function = None ):
         pass
@@ -584,22 +586,25 @@ class DV3DPlot():
         return cmap_mgr
         
     def setColormap( self, data, **args ):
-        colormapName = str(data[0])
-        invertColormap = getBool( data[1] ) 
-        cmap_index = args.get( 'index', 0 )
-        metadata = self.getMetadata()
-        var_name = metadata.get( 'var_name', '')
-        var_units = metadata.get( 'var_units', '')
-#        self.updateStereo( enableStereo )
-        colormapManager = self.getColormapManager( name=colormapName, invert=invertColormap, index=cmap_index, units=var_units )
-        if( colormapManager.colorBarActor == None ): 
-            cm_title = str.replace( "%s (%s)" % ( var_name, var_units ), " ", "\n" )
-            cmap_pos = [ 0.9, 0.2 ] if (cmap_index==0) else [ 0.02, 0.2 ]
-            self.renderer.AddActor( colormapManager.createActor( pos=cmap_pos, title=cm_title ) )
-#        colormapManager.setColorbarVisibility( show_colorBar )
-        self.updatingColormap( cmap_index, colormapManager )
-        self.render() 
-        return True
+        try:
+            colormapName = str(data[0])
+            invertColormap = getBool( data[1] ) 
+            cmap_index = args.get( 'index', 0 )
+            metadata = self.getMetadata()
+            var_name = metadata.get( 'var_name', '')
+            var_units = metadata.get( 'var_units', '')
+    #        self.updateStereo( enableStereo )
+            colormapManager = self.getColormapManager( name=colormapName, invert=invertColormap, index=cmap_index, units=var_units )
+            if( colormapManager.colorBarActor == None ): 
+                cm_title = str.replace( "%s (%s)" % ( var_name, var_units ), " ", "\n" )
+                cmap_pos = [ 0.9, 0.2 ] if (cmap_index==0) else [ 0.02, 0.2 ]
+                self.renderer.AddActor( colormapManager.createActor( pos=cmap_pos, title=cm_title ) )
+    #        colormapManager.setColorbarVisibility( show_colorBar )
+            self.updatingColormap( cmap_index, colormapManager )
+            self.render() 
+            return True
+        except Exception, err:
+            print>>sys.stderr, "Error setting colormap: ", str(err)
         return False 
     
     def getUnits(self, var_index ):

@@ -48,7 +48,8 @@ class ImagePlaneWidget:
         self.ResliceAxes   = vtk.vtkMatrix4x4()   
         self.ResliceAxes2   = vtk.vtkMatrix4x4()   
         self.ContourInputDims = 0;     
-        self.InputDims = 0;     
+        self.InputDims = 0
+        self.CurrentPosition = 0.0    
                         
         # Represent the plane's outline
         #
@@ -190,11 +191,11 @@ class ImagePlaneWidget:
 
     def SetRenderer( self, value ):
         self.CurrentRenderer = value
-        if self.CurrentRenderer: self.CurrentRenderer.AddObserver( 'ModifiedEvent', self.ActivateEvent )
+#        if self.CurrentRenderer: self.CurrentRenderer.AddObserver( 'ModifiedEvent', self.ActivateEvent )
 
 #----------------------------------------------------------------------------
 
-    def ActivateEvent( self, caller, event ):
+    def ActivateEvent( self, caller=None, event=None ):
         if self.Interactor == None: 
             if self.CurrentRenderer:
                 self.RenderWindow = self.CurrentRenderer.GetRenderWindow( )
@@ -252,6 +253,7 @@ class ImagePlaneWidget:
     
         self.CurrentRenderer.AddViewProp(self.PlaneOutlineActor)
         self.PlaneOutlineActor.SetProperty(self.PlaneProperty)
+        self.ActivateEvent()
     
         #add the TexturePlaneActor
         if (self.TextureVisibility):  
@@ -683,26 +685,27 @@ class ImagePlaneWidget:
         
         if ( self.PlaneOrientation == 1 ):
 #            pt1 = self.PlaneSource.GetPoint1()
-            y0 = center[1] # pt1[1] # center[1]       
+            y0 = self.CurrentPosition    
             self.PlaneSource.SetOrigin(bounds[0],y0,bounds[4])
             self.PlaneSource.SetPoint1(bounds[1],y0,bounds[4])
             self.PlaneSource.SetPoint2(bounds[0],y0,bounds[5])
             
         elif ( self.PlaneOrientation == 2 ):
-            
-            self.PlaneSource.SetOrigin(bounds[0],bounds[2],center[2])
-            self.PlaneSource.SetPoint1(bounds[1],bounds[2],center[2])
-            self.PlaneSource.SetPoint2(bounds[0],bounds[3],center[2])
+            z0 = self.CurrentPosition
+            self.PlaneSource.SetOrigin(bounds[0],bounds[2],z0)
+            self.PlaneSource.SetPoint1(bounds[1],bounds[2],z0)
+            self.PlaneSource.SetPoint2(bounds[0],bounds[3],z0)
             
         else: #default or x-normal
 #            pt1 = self.PlaneSource.GetPoint1()
-            x0 = center[0] # pt1[0] # center[0]
+            x0 = self.CurrentPosition
             self.PlaneSource.SetOrigin(x0,bounds[2],bounds[4])
             self.PlaneSource.SetPoint1(x0,bounds[3],bounds[4])
             self.PlaneSource.SetPoint2(x0,bounds[2],bounds[5])
                    
         self.UpdatePlane()
         self.BuildRepresentation()
+        self.ActivateEvent()
 
 #----------------------------------------------------------------------------
 
@@ -1038,6 +1041,7 @@ class ImagePlaneWidget:
 #----------------------------------------------------------------------------
 
     def SetSlicePosition( self, position ):
+        self.CurrentPosition = position
         planeOrigin = list( self.PlaneSource.GetOrigin() )    
         planeOrigin[ self.PlaneOrientation ] = position                      
         point1 = list( self.PlaneSource.GetPoint1() )    
@@ -1051,25 +1055,25 @@ class ImagePlaneWidget:
         self.BuildRepresentation()
         self.Modified()
 
-    def PushSlicePosition( self, position ):
-    
-        amount = 0.0
-        planeOrigin = self.PlaneSource.GetOrigin()
-        
-        if ( self.PlaneOrientation == 2 ): # z axis        
-            amount = position - planeOrigin[2]       
-        elif ( self.PlaneOrientation == 0 ): # x axis        
-            amount = position - planeOrigin[0]        
-        elif ( self.PlaneOrientation == 1 ):  #y axis       
-            amount = position - planeOrigin[1]
-                
-#        print " >+++++++++> ImagePlaneWidget[%d].SetSlice: Push=%.2f " % ( self.PlaneIndex, amount )
-        planeOrigin = self.PlaneSource.GetOrigin()
-        self.PlaneSource.Push( amount )
-        planeOrigin = self.PlaneSource.GetOrigin()
-        self.UpdatePlane()
-        self.BuildRepresentation()
-        self.Modified()
+#     def PushSlicePosition( self, position ):
+#     
+#         amount = 0.0
+#         planeOrigin = self.PlaneSource.GetOrigin()
+#         
+#         if ( self.PlaneOrientation == 2 ): # z axis        
+#             amount = position - planeOrigin[2]       
+#         elif ( self.PlaneOrientation == 0 ): # x axis        
+#             amount = position - planeOrigin[0]        
+#         elif ( self.PlaneOrientation == 1 ):  #y axis       
+#             amount = position - planeOrigin[1]
+#                 
+# #        print " >+++++++++> ImagePlaneWidget[%d].SetSlice: Push=%.2f " % ( self.PlaneIndex, amount )
+#         planeOrigin = self.PlaneSource.GetOrigin()
+#         self.PlaneSource.Push( amount )
+#         planeOrigin = self.PlaneSource.GetOrigin()
+#         self.UpdatePlane()
+#         self.BuildRepresentation()
+#         self.Modified()
 
 #----------------------------------------------------------------------------
     def GetSlicePosition(self):
@@ -1111,18 +1115,21 @@ class ImagePlaneWidget:
             planeOrigin[2] = origin[2] + index*spacing[2]
             pt1[2] = planeOrigin[2]
             pt2[2] = planeOrigin[2]
+            self.CurrentPosition = planeOrigin[2]
         
         elif ( self.PlaneOrientation == 1 ):
         
             planeOrigin[1] = origin[1] + index*spacing[1] 
             pt1[1] = planeOrigin[1]
             pt2[1] = planeOrigin[1]
+            self.CurrentPosition = planeOrigin[1]
         
         elif ( self.PlaneOrientation == 0 ):
         
             planeOrigin[0] = origin[0] + index*spacing[0] 
             pt1[0] = planeOrigin[0]
             pt2[0] = planeOrigin[0]
+            self.CurrentPosition = planeOrigin[0]
         
         
 #        if self.PlaneIndex == 0: 

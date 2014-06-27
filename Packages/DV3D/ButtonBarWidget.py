@@ -36,7 +36,8 @@ class Button:
     FuncToggleStateOff = 2
         
     def __init__( self, iren, **args ):
-        self.StateChangedSignal = SIGNAL('StateChanged')
+        self.PublicStateChangedSignal = SIGNAL('PublicStateChangedSignal')
+        self.PrivateStateChangedSignal = SIGNAL('PrivateStateChangedSignal')
         self.invokingEvent = False
         self.active = True
         self.renderWindowInteractor = iren
@@ -58,14 +59,15 @@ class Button:
         self.buttonWidget.AddObserver( 'StateChangedEvent', self.processStateChangeEvent )
         self.buttonRepresentation.Highlight( self._state )
 
-    @property
-    def state(self):
+    def getState(self):
         return self._state
 
-    @state.setter
-    def state(self, value):
+    def setState(self, value):
         self._state = value
-        print " Setting state[%s] = %s " % ( self.id, str(value) )
+        self.PrivateStateChangedSignal( value )
+
+
+#        print " Setting state[%s] = %s " % ( self.id, str(value) )
         
     def getFunctionMapKey (self, key, ctrl ):
         return "c-%c" % key if ctrl else "%c" % key
@@ -110,10 +112,10 @@ class Button:
     def setToggleProps(self, state = None ):
         if self.toggle:
             prop = self.buttonRepresentation.GetProperty()
-            prop.SetOpacity( 0.4 if ( self.state == 0 ) else 1.0 )
+            prop.SetOpacity( 0.4 if ( self.getState() == 0 ) else 1.0 )
             self.buttonRepresentation.SetProperty(prop)
             prop = self.buttonRepresentation.GetHoveringProperty()
-            prop.SetOpacity( 0.7 if ( self.state == 0 ) else 1.0 )
+            prop.SetOpacity( 0.7 if ( self.getState() == 0 ) else 1.0 )
             self.buttonRepresentation.SetHoveringProperty(prop)
             self.buttonRepresentation.Modified()
             self.buttonRepresentation.NeedToRenderOn()
@@ -129,25 +131,30 @@ class Button:
         return False
     
     def setToggleState( self, state ):
-        self.state = state
+        self.setState(state)
         self.setToggleProps()       
 
     def processStateChangeEvent( self, obj, event, indirect = False ):
         self.invokingEvent = True 
-        self.setButtonState( ( self.state + 1 ) % self.numberOfStates, indirect )      
+        self.setButtonState( ( self.getState() + 1 ) % self.numberOfStates, indirect )      
         self.invokingEvent = False
         
+    def refreshButtonState(self):
+        state = self.getState()
+        self.broadcastState( state )
+        self.setToggleProps()
+        
     def setButtonState( self, state, indirect = False ):
-        if (state <> self.state) or not self.toggle:
+        if (state <> self.getState()) or not self.toggle:
             self.broadcastState( state )
-            self.state = state
+            self.setState(state)
     #         if (self.key <> None) and not indirect:
     #             self.renderWindowInteractor.SetKeyEventInformation( 0, 0, self.key, 1, self.key )
     #             self.renderWindowInteractor.InvokeEvent( 'CharEvent' )
             self.setToggleProps()
         
     def broadcastState(self, state ):
-        self.StateChangedSignal( self.id, self.key, state )
+        self.PublicStateChangedSignal( self.id, self.key, state )
         
     def place( self, bounds ):
         self.buttonRepresentation.PlaceWidget( bounds )
@@ -157,17 +164,21 @@ class Button:
     
     def On(self):
         if self.active: 
+            print "Button %s ON" % self.id
             self.buttonWidget.On()
 
     def Off(self):
+        print "Button %s OFF" % self.id
         self.buttonWidget.Off()
         
     def activate(self):
         self.active = True
+        print "Button %s Activated-ON" % self.id
         self.buttonWidget.On()
 
     def deactivate(self):
         self.active = False
+        print "Button %s Deactivated-OFF" % self.id
         self.buttonWidget.Off()
 
 class ButtonBarWidget:
@@ -204,8 +215,14 @@ class ButtonBarWidget:
         current_button_id = args.get( 'current', None )
         for b in self.buttons:
             if ( current_button_id == None ) or ( b.id <> current_button_id ):
-                if b.state <> 0:
+                if b.getState() <> 0:
                     b.setButtonState( 0 )
+                    
+    def initializeState(self):
+        for ib in self.buttons:
+            if ib.getState() > 0:
+                ib.refreshButtonState()
+                self.processStateChangeEvent( ib.id, ib.key, ib.getState(), True )
 
     @classmethod   
     def restoreInteractionState(cls): 
@@ -216,7 +233,7 @@ class ButtonBarWidget:
         for configFunct in bbar.configurableFunctions.values():
             if ( configFunct.type == 'slider' ) and ( configFunct.position <> None ):
                 b = bbar.getButton( configFunct.name )
-                if b.state:
+                if b.getState():
                     if current_config_function == None:
                         current_config_function = configFunct
                     else:
@@ -337,12 +354,12 @@ class ButtonBarWidget:
             ib.setButtonState(state)           
             if is_child and ( new_state == 0 ): ib.deactivate()
                     
-    def processStateChangeEvent( self, button_id, key, state ):
+    def processStateChangeEvent( self, button_id, key, state, force = False ):
         b = self.getButton( button_id )
-        if (b.state <> state) or not b.toggle:
+        if (b.getState() <> state) or (not b.toggle) or force:
 #            print " processStateChangeEvent: ", str( [ button_id, key, state ] )
             self.StateChangedSignal( button_id, key, state )
-            b.state = state
+            b.setState(state)
             if state > 0: 
                 self.updateInteractionState( button_id, state  ) 
             else:
@@ -392,12 +409,20 @@ class ButtonBarWidget:
 
     def addSliderButton( self, **args ):
         button = self.addButton( **args )
-        self.addConfigurableSliderFunction( button.id, **args)
+        if button.id == 'YSlider':
+            print "."
+        cf = self.addConfigurableSliderFunction( button.id, **args)
+        button.PrivateStateChangedSignal.connect( cf.setState )
+        cf_state = cf.getState()
+        if cf_state <> None: button.setState( cf_state )
         return button
         
     def addConfigButton( self, **args ):
         button = self.addButton( **args )
-        self.addConfigurableFunction( button.id, **args)
+        cf = self.addConfigurableFunction( button.id, **args)
+        button.PrivateStateChangedSignal.connect( cf.setState )
+        cf_state = cf.getState()
+        if cf_state <> None: button.setState( cf_state )
         return button
 
     def getButton(self, name ): 
@@ -407,7 +432,7 @@ class ButtonBarWidget:
 
     def addButton( self, **args ):
         button = Button( self.interactor, **args )
-        button.StateChangedSignal.connect( self.processStateChangeEvent )
+        button.PublicStateChangedSignal.connect( self.processStateChangeEvent )
         self.buttons.append( button )
         roundRobin = args.get( 'group', None )
         if roundRobin:
@@ -420,10 +445,14 @@ class ButtonBarWidget:
         return rw.GetRenderers().GetFirstRenderer ()
 
     def addConfigurableFunction(self, name, **args):
-        self.configurableFunctions[name] = CfgManager.getConfigurableFunction( name, **args )
+        cf = CfgManager.getConfigurableFunction( name, **args )
+        self.configurableFunctions[name] = cf
+        return cf
 
     def addConfigurableSliderFunction(self, name, **args):
-        self.configurableFunctions[name] = CfgManager.getConfigurableFunction( name, type = ConfigurableFunction.Slider, **args )
+        cf = CfgManager.getConfigurableFunction( name, type = ConfigurableFunction.Slider, **args )
+        self.configurableFunctions[name] = cf
+        return cf
 
     def getConfigFunction( self, name ):
         return self.configurableFunctions.get(name,None)
@@ -506,6 +535,7 @@ class ButtonBarWidget:
         sliderRep.NeedToRenderOn()
                         
     def commandeerSlider(self, index, label, bounds, value ): 
+        print " CommandeerSlider[%d]: ('%s') %s: %s in %s " % ( index, label, self.InteractionState, str(value), str(bounds) )
         widget_item = self.currentSliders.get( index, None )
         if widget_item == None: 
             swidget = self.createSliderWidget(index) 
@@ -646,7 +676,8 @@ class ButtonBarWidget:
             configFunct.processInteractionEvent( [ "InitConfig", button_state, initialize_config_state, self ] )
             if initialize_config_state:
                 bbar = ButtonBarWidget.getButtonBar( 'Interaction' )
-                child_activations = bbar.initConfigState( active_button=configFunct.name )
+                active_button = configFunct.name if ( self.name == bbar.name ) else None
+                child_activations = bbar.initConfigState( active_button=active_button )
                 if self.name == "Plot": self.resetInteractionButtons( self.getButton( config_state ), 1 )
             
             if (configFunct.type == 'slider'):
@@ -729,8 +760,8 @@ class ButtonBarWidget:
             if ( parent_name in child_button.parents ):
                 parent_button = ButtonBarWidget.findButton( parent_name )
                 if parent_button <> None: 
-                    if parent_button.state:     
-                        child_button.activate() 
+                    if parent_button.getState(): 
+                        if self.visible: child_button.activate() 
                         if child_button.id in parent_button.children:
                             return True
                     else:                       
@@ -742,6 +773,8 @@ class ButtonBarWidget:
         active_button = args.get( 'active_button', '' )
         child_activations = [ ]
         for button in self.buttons:
+            if (active_button == None) and (button.getState() > 0):
+                active_button = button.id 
             if self.updateChildState( button, active_button ):
                 child_activations.append( button )
             else:
@@ -754,7 +787,7 @@ class ButtonBarWidget:
             configFunct.init( **args )
         for button in self.buttons:
             if button.toggle:
-                button.broadcastState( button.state )
+                button.broadcastState( button.getState() )
                 
     def initializeChildren( self, **args ):
         for button in self.buttons:

@@ -1,0 +1,12 @@
+ToggleVolumePlot={'state': 1}
+VerticalScaling={0: 4.312486170312861, 'count': 1, 'state': 0}
+ScaleColormap={0: -19.638512382912836, 1: 58.27923915218682, 2: 1, 'state': 0}
+ChooseColormap={0: 'hsv', 1: 0, 'state': 1}
+ScaleOpacity={0: 1.0, 1: 1.0, 'state': 0}
+Colorbar={'state': 1}
+ToggleClipping={'state': 0}
+ZSlider={0: 24.334411669222245, 'state': 1}
+IsosurfaceValue={0: [[15.39311408996582]], 'state': 0}
+YSlider={0: 49.85053552284114, 'state': 1}
+ScaleTransferFunction={0: 34.24334707900583, 1: 76.746857, 2: 1, 'state': 0}
+XSlider={0: 244.20459060259086, 'init': [244.20459060259086], 'state': 1}

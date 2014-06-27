@@ -79,6 +79,26 @@ def deserialize_value( sval ):
         except ValueError:
             return sval
 
+def deserialize_str( sval ):
+    try:
+        return int(sval)
+    except ValueError:
+        try:
+            return float(sval)
+        except ValueError:
+            return sval
+
+def deserialize( data_obj ):
+    if isinstance( data_obj, tuple ) or isinstance( data_obj, list ):
+        return [ deserialize(item) for item in data_obj ]
+    if isinstance( data_obj, dict ):
+        rv = {}
+        for item in data_obj.items(): rv[ deserialize(item[0]) ] = deserialize(item[0])
+        return rv
+    if isinstance( data_obj, str ):
+        return deserialize_str( data_obj )
+    return data_obj
+
 def get_value_decl( val ):
     if isinstance( val, bool ): return "bool"
     if isinstance( val, int ): return "int"
@@ -196,7 +216,6 @@ class ConfigManager:
     def getParameter( self, param_name, **args ):
         cparm = self.parameters.get( param_name, None )
         if cparm == None:
-            ctype = args.get('ctype') 
             cparm = ConfigParameter( param_name, **args )
             self.parameters[ param_name ] = cparm
         return cparm
@@ -295,8 +314,8 @@ class ConfigManager:
                 line = state_file.readline()
                 if line == "": break
                 serializedState = line.split('=')
-                cf = self.configurableFunctions.get( serializedState[0], None )
-                if cf <> None: cf.restoreState( serializedState[1] )
+                cp = self.getParameter( serializedState[0] )
+                cp.restoreState( serializedState[1].strip() )
    
             state_file.close()
 
@@ -369,17 +388,21 @@ class ConfigParameter:
         self.valueKeyList = list( args.keys() )
         self.stateKeyList = []
 #        self.scaling_bounds = None
-
-    def serializeState( self ):
+            
+    def serializeState( self, **args ):
         if len( self.stateKeyList ) == 0:
             return None
         state_parms = {}
         for key in self.stateKeyList:
             state_parms[key] = self.values[key]
+        state_parms.update( **args )
         return str( state_parms ) 
 
     def restoreState( self, stateData ) :
-        self.values.update( eval( stateData ) )
+        state = eval( stateData )
+        self.values.update( state )
+        self.values[ 'init' ] = self.getValues()
+        print " --> Restore state [%s] : %s " % ( self.name, stateData )
                                     
     def __str__(self):
         return " ConfigParameter[%s]: %s " % ( self.name, str( self.values ) )
@@ -512,10 +535,11 @@ class ConfigurableFunction:
         self.value = CfgManager.addParameter( name, **args )
         self.type = 'generic'
         self.kwargs = args
+        self.cfg_state = None
         self.label = args.get( 'label', self.name )
         self.units = args.get( 'units', '' ).strip().lower()
+        self.persist = bool( args.get( 'persist', True ) )
         self.key = args.get( 'key', None )
-        self.state = None
         ival = self.value.getValue( 'init' )
         if ival <> None:
             self.initial_value = ival if hasattr( ival, '__iter__' ) else [ ival ]
@@ -527,9 +551,15 @@ class ConfigurableFunction:
         self._persisted = True
         self.interactionHandler = args.get( 'interactionHandler', None )
         
+    def getState(self):
+        return self.value.getValue('state')
+
+    def setState(self,value):
+        return self.value.setValue('state',value)
+        
     def serializeState(self):
         state_data = self.value.serializeState() 
-        return None if (state_data == None) else "=".join( [ self.name, state_data ] ) 
+        return None if ( (state_data == None) or not self.persist ) else "=".join( [ self.name, state_data ] ) 
 
     def restoreState( self, stateData ):
         self.value.restoreState( stateData )
@@ -554,8 +584,8 @@ class ConfigurableFunction:
     def getValueLength(self):
         return 1
         
-    def open(self, state ):
-        self.state = state
+    def open(self, cfg_state ):
+        self.cfg_state = cfg_state
 
     def start( self, interactionState, x, y ) :
         pass

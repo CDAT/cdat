@@ -171,6 +171,8 @@ class RectGridPlot(StructuredGridPlot):
         if args and args[0] == "StartConfig":
             pass
         elif args and args[0] == "Init":
+            if config_function.initial_value == None:       
+                config_function.initial_value = [ 1.0, 1.0 ]  
             self.setOpacity( config_function.initial_value )
             self.adjustOpacity( config_function.initial_value )
         elif args and args[0] == "EndConfig":
@@ -196,10 +198,11 @@ class RectGridPlot(StructuredGridPlot):
             pass
         elif args and args[0] == "Init":
             init_range = self.getDataRangeBounds()
-            config_function.setRangeBounds( init_range )  
-            config_function.initial_value = init_range  
-            self.scaleColormap( init_range )
-            self.generateCTF( init_range )
+            config_function.setRangeBounds( init_range ) 
+            if config_function.initial_value == None:       
+                config_function.initial_value = init_range  
+            self.scaleColormap( config_function.initial_value )
+            self.generateCTF( config_function.initial_value )
             colorScaleRange.setValues( init_range )
         elif args and args[0] == "EndConfig":
             pass
@@ -229,11 +232,12 @@ class RectGridPlot(StructuredGridPlot):
             pass
         elif args and args[0] == "Init":
             init_range = self.getSgnRangeBounds()
-            config_function.setRangeBounds( init_range )   
-            config_function.initial_value = init_range 
-            init_value = (init_range[0]+init_range[1])/2.0 
-            self.setIsosurfaceLevel( init_value ) 
-            isosurfaceValue.setValues( [ init_value ] )
+            config_function.setRangeBounds( init_range )
+            if config_function.initial_value == None:
+                init_value = (init_range[0]+init_range[1])/2.0          
+                config_function.initial_value = init_value             
+            self.setIsosurfaceLevel( config_function.initial_value ) 
+            isosurfaceValue.setValues( [ config_function.initial_value ] )
         elif args and args[0] == "EndConfig":
             pass
         elif args and args[0] == "InitConfig":
@@ -255,10 +259,11 @@ class RectGridPlot(StructuredGridPlot):
             pass
         elif args and args[0] == "Init":
             init_range = self.getSgnRangeBounds()
-            config_function.setRangeBounds( init_range )   
-            config_function.initial_value = init_range  
-            self.generateOTF( init_range )
-            volumeThresholdRange.setValues( init_range )
+            config_function.setRangeBounds( init_range )
+            if config_function.initial_value == None:      
+                config_function.initial_value = init_range   
+            self.generateOTF( config_function.initial_value )
+            volumeThresholdRange.setValues( config_function.initial_value )
         elif args and args[0] == "EndConfig":
             pass
         elif args and args[0] == "InitConfig":
