@@ -1,3 +1,15 @@
+2013-12-03 : Tagging 2.9.1 for official release
+2012-12-14 : Tagging 2.9.0
+2013-11-20 : Merged Jamie's branch fixes #4
+2013-11-20 : Make sure -lm is in C test compile line
+2013-06-09 : Fixed Jamie's bug for limited area
+2013-06-05 : Fixed time gap
+2013-06-05 : Fixed free issue (thx Jamie for patch)
+2013-06-05 : Fixed first/last_bound issue with appending files and store_with
+2012-12-14 : Tagging 2.8.2
+2012-12-14 : Fixed a bug in py wrapper where some list object where decref where they shouldn't leading to memory leaks, thanks Jamie and al. for this bug fix
+2012-01-30 : Tagging 2.8.1
+2012-01-30 : climatological files now end wirh -clim.nc instead of _clim.nc
 2011-11-08 : Tagging 2.8.0
 2011-11-08 : Realized there was a difference in calendar names between cdtime and the CF conventions. CMOR now maps correctly the CF names to the cdtime names for correct internal processing.
 2011-10-24 : Removed the treatlon in case 'X' axis has units not in degrees

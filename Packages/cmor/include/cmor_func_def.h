@@ -100,4 +100,6 @@ extern int cmor_set_dataset_att(cmor_table_t *table, char att[CMOR_MAX_STRING],c
 extern int cmor_set_table(int table);
 extern int cmor_load_table(char table[CMOR_MAX_STRING], int *table_id);
 extern int cmor_time_varying_grid_coordinate(int *coord_grid_id, int  grid_id, char *name, char *units, char type, void *missing, int *coordinate_type);
+extern void cmor_cat_unique_string (char* dest, char* src);
+extern int cmor_stringinstring (char* dest, char* src);
 #endif

@@ -71,6 +71,7 @@ def test_mode(mode,i,suffix=''):
                               missing_value = -99
                               )
         print 'suffix is:',suffix
+        print "Sending time bounds:",[[i,i+1]]
         cmor.write(varid, values, time_vals = [i], time_bnds = [ [i,i+1] ],file_suffix=suffix)
 
     fnm = cmor.close(varid,file_name=True)
