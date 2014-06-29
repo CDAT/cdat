@@ -539,6 +539,7 @@ if(found_system_libraries)
   endforeach()
 endif()
 message("[INFO] CDAT external link directories: ${cdat_external_link_directories}")
+message("[INFO] WGET EXEC: ${WGET_EXECUTABLE}")
 
 # Configure remaining files
 #-----------------------------------------------------------------------------
