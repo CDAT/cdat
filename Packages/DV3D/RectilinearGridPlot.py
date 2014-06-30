@@ -335,9 +335,9 @@ class RectGridPlot(StructuredGridPlot):
             for ib in [4,5]: 
                 self.cropRegion[ib] = ( origin[int(ib/2)] + new_spacing[int(ib/2)]*extent[ib-4] ) 
             if (self.volumeMapper <> None) and self.volumeMapper.GetCropping():
-                self.cropVolume( False ) 
-#         self.volume.Modified()
-#         self.updateModule()
+                self.cropVolume( False )                 
+        if self.planeWidgetZ.IsVisible():      
+            self.planeWidgetZ.UpdateInputs()
          
     def activateEvent( self, caller, event ):
         StructuredGridPlot.activateEvent( self, caller, event )

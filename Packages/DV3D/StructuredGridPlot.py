@@ -135,6 +135,7 @@ class StructuredGridPlot(DV3DPlot):
 
     def processScaleChange( self, old_spacing, new_spacing ):
         pass
+#        self.updateModule()
 
     def onSlicerRightButtonPress( self, caller, event ):
         self.currentButton = self.RIGHT_BUTTON
