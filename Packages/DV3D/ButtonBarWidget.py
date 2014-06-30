@@ -173,12 +173,14 @@ class Button:
         
     def activate(self):
         self.active = True
-        print "Button %s Activated-ON" % self.id
+        if self.id == "ScaleTransferFunction":
+            print "Button %s Activated-ON" % self.id
         self.buttonWidget.On()
 
     def deactivate(self):
         self.active = False
-        print "Button %s Deactivated-OFF" % self.id
+        if self.id == "ScaleTransferFunction":
+            print "Button %s Deactivated-OFF" % self.id
         self.buttonWidget.Off()
 
 class ButtonBarWidget:
@@ -350,9 +352,13 @@ class ButtonBarWidget:
         for ib in ibbar.buttons:
             is_child = ib.id in current_button.children
             state = new_state if is_child else 0
+            if ib.id == "ScaleTransferFunction":
+                print " Set button state %s: %d" % ( ib.id, state )
  #           ibbar.processStateChangeEvent( ib.id, ib.key, state )
             ib.setButtonState(state)           
-            if is_child and ( new_state == 0 ): ib.deactivate()
+            if is_child:
+                 if ( new_state == 0 ): ib.deactivate()
+                 else: ib.activate()
                     
     def processStateChangeEvent( self, button_id, key, state, force = False ):
         b = self.getButton( button_id )
@@ -761,11 +767,14 @@ class ButtonBarWidget:
                 parent_button = ButtonBarWidget.findButton( parent_name )
                 if parent_button <> None: 
                     if parent_button.getState(): 
-                        if self.visible: child_button.activate() 
+                        if self.visible: 
+                            child_button.activate() 
+                            print "Activate child: ", child_button.id
                         if child_button.id in parent_button.children:
                             return True
                     else:                       
                         child_button.deactivate()
+                        print "Dectivate child: ", child_button.id
         return False
                 
     

@@ -175,8 +175,8 @@ class CPCPlot( DV3DPlot ):
         interactionButtons.addSliderButton( names=['ScaleTransferFunction'], key='T', toggle=True, parents=['ToggleVolumePlot'], label='Transfer Function Range', interactionHandler=self.processThresholdRangeCommand )
         interactionButtons.addSliderButton( names=['ScaleOpacity'], key='o', toggle=True, label='Opacity Scale', range_bounds=[ 0.0, 1.0 ], initValue=[ 1.0, 1.0 ], interactionHandler=self.processOpacityScalingCommand )
 #        interactionButtons.addSliderButton( names=['IsosurfaceValue'], key='L', toggle=True, parents=['ToggleSurfacePlot'], sliderLabels='Isosurface Value', label='Positioning Isosurface', interactionHandler=self.processIsosurfaceValueCommand )
-        interactionButtons.addSliderButton( names=['PointSize'], key='P', label='Point Size', sliderLabels=['Low Resolution', 'High Resolution' ], interactionHandler=self.processPointSizeCommand, range_bounds=[ 1, 12 ], initValue=[ 5, 1 ] )
-        interactionButtons.addSliderButton( names=['SliceThickness'], key='w', label='Slice Thickness', sliderLabels=['Low Resolution', 'High Resolution' ], interactionHandler=self.processSlicePropertiesCommand, range_bounds=[  0.001, 0.01], initValue=[ 0.0025, 0.005 ] )
+        interactionButtons.addSliderButton( names=['PointSize'], key='P', toggle=True, label='Point Size', sliderLabels=['Low Resolution', 'High Resolution' ], interactionHandler=self.processPointSizeCommand, range_bounds=[ 1, 12 ], initValue=[ 5, 1 ] )
+        interactionButtons.addSliderButton( names=['SliceThickness'], key='w', toggle=True, label='Slice Thickness', sliderLabels=['Low Resolution', 'High Resolution' ], interactionHandler=self.processSlicePropertiesCommand, range_bounds=[  0.001, 0.01], initValue=[ 0.0025, 0.005 ] )
         interactionButtons.addConfigButton( names=['ToggleSphericalProj'], key='s', toggle=True, interactionHandler=self.processProjectionCommand )
         plotButtons = self.fetchPlotButtons()
   
@@ -298,6 +298,7 @@ class CPCPlot( DV3DPlot ):
         shift = caller.GetShiftKey()
         if not shift: return
         x, y = caller.GetEventPosition()
+        print "Executing pick."
         picker = caller.GetPicker()
         picker.Pick( x, y, 0, self.renderer )
         actor = picker.GetActor()

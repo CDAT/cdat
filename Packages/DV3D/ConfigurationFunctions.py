@@ -209,6 +209,7 @@ class ConfigManager:
         self.config_params = {}
         self.iCatIndex = 0
         self.cats = {}
+        self.cfgDir = None
         self.metadata = args
         self.configurableFunctions = {}
         self.parameters = {}
