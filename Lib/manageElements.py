@@ -21,6 +21,8 @@ def check_name_source(name,source,typ):
       while name in elts:
           rnd = random.randint(0,1000000000000000)
           name = '__%s_%i' % (typ,rnd)
+  if isinstance(name,unicode):
+      name = str(name)
   if not isinstance(name,str):
       raise vcsError, '%s object name must be a string or %s name' % (typ,typ)
 

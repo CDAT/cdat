@@ -24,6 +24,9 @@
 import queries, vcs, VCS_validation_functions, cdtime
 import Canvas
 
+def load(nm,json_dict = {}):
+  return
+
 def process_src(nm,code):
   """Takes VCS script code (string) as input and generates vector gm from it"""
   try:
