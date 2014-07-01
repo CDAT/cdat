@@ -1,3 +1,4 @@
+include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
 
 set(curl_source "${CMAKE_CURRENT_BINARY_DIR}/build/CURL")
 set(curl_install "${cdat_EXTERNALS}")
