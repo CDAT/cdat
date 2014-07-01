@@ -324,8 +324,28 @@ class VTKVCSBackend(object):
     if gm.smooth is not None:
         Y = smooth(Y,gm.smooth)
     l = self.canvas.createline()
-    l.x = X.tolist()
-    l.y = Y.tolist()
+    Xs = X.tolist()
+    Ys = Y.tolist()
+    xs = []
+    ys = []
+    prev = None
+    for i,v in enumerate(Ys):
+        if v is not None: # Valid data
+            if prev is None:
+                prev=[]
+                prev2 = []
+            prev.append(Xs[i])
+            prev2.append(v)
+        else:
+            if prev is not None:
+                xs.append(prev)
+                ys.append(prev2)
+                prev = None
+    if prev is not None:
+        xs.append(prev)
+        ys.append(prev2)
+    l.x = xs
+    l.y = ys 
     l.color=gm.linecolor
     l.width = gm.linewidth
     l.type = gm.line
