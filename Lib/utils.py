@@ -29,7 +29,7 @@ def dumpToDict(obj,skipped,must):
         val = getattr(obj,a)
       except:
         continue
-      if not isinstance(val,(str,tuple,list,int,long,float)) and val is not None:
+      if not isinstance(val,(str,tuple,list,int,long,float,dict)) and val is not None:
         val = dumpToDict(val,skipped,must)
       dic[a] = val
   return dic
@@ -421,9 +421,24 @@ def scriptrun_scr(*args):
              _scriptrun(temporary_file_name)
              os.remove(temporary_file_name)
     fin.close()
+
+def saveinitialattributes():
+    _dotdir,_dotdirenv = vcs.getdotdirectory()
+    fnm = os.path.join(os.environ['HOME'], _dotdir, 'initial.attributes')
+    if os.path.exists(fnm):
+      os.remove(fnm)
+    for k,e in vcs.elements.iteritems():
+      if k in ["font","fontNumber","list"]:
+        continue
+      for nm,g in e.iteritems():
+        if nm!="default":
+          g.script(fnm)
+    
 #############################################################################
 #                                                                           #
 # Import old VCS file script commands into CDAT.                            
+#                                                                           #
+#############################################################################
 def scriptrun(script):
   if script.split(".")[-1] == "scr":
     scriptrun_scr(script) 
@@ -461,7 +476,6 @@ def scriptrun(script):
   return
 
 def loadTemplate(nm,vals):
-  print "loading template:",nm,vals
   try:
     t = vcs.gettemplate(nm)
   except:

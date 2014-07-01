@@ -879,7 +879,7 @@ class Canvas(object,AutoAPI.AutoAPI):
         self._canvas = vcs
         self.viewport =[0,1,0,1]
         self.worldcoordinate = [0,1,0,1]
-        self._dotdir,self._dotdirenv = self._canvas.getdotdirectory()
+        self._dotdir,self._dotdirenv = vcs.getdotdirectory()
         if ( (is_canvas == 0) and (gui == 1) and (gui_canvas_closed == 0) ): gui_canvas_closed = 1
         if backend == "vtk":
           self.backend = VTKVCSBackend(self)
@@ -5622,15 +5622,7 @@ Options:::
  # graphic method is now preserved
 """ % (self._dotdir)
         self.clean_auto_generated_objects()
-        msg = _vcs.saveinitialfile()
-        # Now adds the taylordiagram stuff
-        fnm=os.path.join(os.environ['HOME'],self._dotdir,'initial.attributes')
-        for td in vcs.taylordiagrams:
-            if self.isinfile(td)==0 : td.script(fnm)
-##         # Now adds the meshfill stuff
-##         for mesh in vcs.meshfills:
-##             if self.isinfile(mesh)==0 : mesh.script(fnm)
-        return msg
+        return vcs.saveinitialfile()
         
 
     #############################################################################
