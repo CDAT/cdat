@@ -433,8 +433,58 @@ def scriptrun(script):
     print "FOR NOW STILL READING IN OLD WAY"
     _scriptrun(script)
   else:
-    pass  
+    loader = { "P":'template',
+        "Gfb":'boxfill',
+        "Gfi":'isofill',
+        "Gi":'isoline',
+        "Gvp":'vector',
+        "Gfm":'meshfill',
+        "G1d":'oneD',
+        "Tf":'fillarea',
+        "Tt":"texttable",
+        "To":"textorientation",
+        "Tm":"marker",
+        "Tl":"line",
+        "Gfdv3d":"dvd3d",
+        "Proj":"projection",
+        "Gtd":"taylordiagram",
+        }
+    f=open(script)
+    jsn = json.load(f)
+    for typ in jsn.keys():
+      for nm,v in jsn[typ].iteritems():
+        if typ=="P":
+          loadTemplate(nm,v)
+        else:
+          #print "Reading in a:",typ,"named",nm
+          loadVCSItem(loader[typ],nm,v)
   return
+
+def loadTemplate(nm,vals):
+  print "loading template:",nm,vals
+  try:
+    t = vcs.gettemplate(nm)
+  except:
+    t = vcs.createtemplate(nm)
+  for k,v in vals.iteritems():
+    A = getattr(t,k)
+    for a,v in v.iteritems():
+      setattr(A,a,v)
+
+def loadVCSItem(typ,nm,json_dict = {}):
+  if typ=="oneD":
+    tp = "oned"
+  else:
+    tp = typ
+  if vcs.elements[tp].has_key(nm):
+    gm = vcs.elements[tp][nm]
+  else:
+    cmd = "gm = vcs.create%s('%s')" % (typ,nm)
+    exec(cmd)
+  for a,v in json_dict.iteritems():
+    #print "Setting:",a,"to",v
+    setattr(gm,a,v)
+  return gm
 
 def return_display_names():
   warnings.warn("PLEASE IMPLEMENT return_display_names!!!! (in utils.py)")

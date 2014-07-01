@@ -18,6 +18,8 @@ class PPE(Exception):
 
 
 def color2vcs(col):
+   if isinstance(col,unicode):
+     col = str(value)
    if isinstance(col,str):
        r,g,b=vcs.colors.str2rgb(col)
        if r is None :
@@ -58,6 +60,8 @@ def checkContType(self,name,value):
      return value
 def checkLine(self,name,value):
      checkName(self,name,value)
+     if isinstance(value,unicode):
+          value = str(value)
      if not isinstance(value,(str,vcs.line.Tl)):
           raise ValueError, name+' must be an line primitive or the name of an exiting one.'
      if isinstance(value,str):
@@ -264,6 +268,8 @@ def checkString(self,name,value):
      checkName(self,name,value)
      if isinstance(value,str):
           return value
+     elif isinstance(value,unicode):
+          return str(value)
      else:
           raise ValueError, 'The '+name+' attribute must be a string.'
      
@@ -301,6 +307,8 @@ def checkFillAreaStyle(self,name,value):
      
 def checkAxisConvert(self,name,value):
      checkName(self,name,value)
+     if isinstance(value,unicode):
+       value = str(value)
      if isinstance(value,str) and (value.lower() in ('linear', 'log10', 'ln','exp','area_wt')):
           return value.lower()
      else:
@@ -308,6 +316,8 @@ def checkAxisConvert(self,name,value):
      
 def checkBoxfillType(self,name,value):
      checkName(self,name,value)
+     if isinstance(value,unicode):
+       value = str(value)
      if isinstance(value,str) and (value.lower() in ('linear', 'log10', 'custom')):
           return value.lower()
      elif value in [0,1,2]:
@@ -341,6 +351,8 @@ def checkTrueFalse(self,name,value):
 
 def checkOnOff(self,name,value,return_string=0):
      checkName(self,name,value)
+     if isinstance(value,unicode):
+       value = str(value)
      if value is None:
           value = 0
      elif isinstance(value,str):
@@ -372,6 +384,8 @@ def checkOnOff(self,name,value,return_string=0):
      
 def checkYesNo(self,name,value):
      checkName(self,name,value)
+     if isinstance(value,unicode):
+       value = str(value)
      if value is None:
           value = 'n'
      elif isinstance(value,str):
@@ -410,6 +424,8 @@ def checkListTuple(self,name,value):
      
 def checkColor(self,name,value):
      checkName(self,name,value)
+     if isinstance(value,unicode):
+       value = str(value)
      if isinstance(value,str):
           value = color2vcs(value)
      if isinstance(value,int) and value in range(0,256):
@@ -513,6 +529,8 @@ def checkLinesList(self,name,value):
 
 def checkTextTable(self,name,value):
      checkName(self,name,value)
+     if isinstance(value,unicode):
+       value = str(value)
      if isinstance(value,str):
           if not value in vcs.listelements("texttable"):
                raise ValueError,"Error : not a valid texttable"
@@ -523,6 +541,8 @@ def checkTextTable(self,name,value):
      return value
 def checkTextOrientation(self,name,value):
      checkName(self,name,value)
+     if isinstance(value,unicode):
+       value = str(value)
      if isinstance(value,str):
           if not value in vcs.listelements("textorientation"):
                raise ValueError,"Error : not a valid textorientation"
@@ -595,6 +615,8 @@ def checkLegend(self,name,value):
   
 def checkExt(self,name,value):
      checkName(self,name,value)
+     if isinstance(value,unicode):
+       value = str(value)
      if isinstance(value,str):
           if value.strip().lower() in ('y', "yes",):
               return True
@@ -633,7 +655,9 @@ def checkTicks(self,name,value):
     return value
 def checkStringDictionary(self,name,value):
      checkName(self,name,value)
-     if isinstance(value,str) or isinstance(value,dict):
+     if isinstance(value,unicode):
+       return str(value)
+     elif isinstance(value,str) or isinstance(value,dict):
           return value
      else:
           raise ValueError, 'The '+name+' attribute must be either a string or a dictionary'
@@ -698,6 +722,8 @@ def checkCalendar(self,name,value):
 
 def checkTimeUnits(self,name,value):
      checkName(self,name,value)
+     if isinstance(value,unicode):
+       value = str(value)
      if not isinstance(value,str):
           raise ValueError, 'time units must be a string'
      a=cdtime.reltime(1,'days since 1900')
@@ -749,6 +775,8 @@ def checkInStringsListInt(self,name,value,values):
                     str1=str1+"'"+v+"', "
                i=i+1
      err=str1[:-2]+')'+str2[:-2]+')'
+     if isinstance(value,unicode):
+       value = str(value)
      if isinstance(value,str):
           value=value.lower()
           if not value in val:
@@ -775,6 +803,8 @@ def checkProjType(self,name,value):
     checkName(self,name,value)
     if vcs.queries.isprojection(value):
       value = value.type
+    if isinstance(value,unicode):
+      value = str(value)
     if isinstance(value,str):
          value=value.strip().lower()
          if value in ['utm','state plane']:
@@ -1131,6 +1161,8 @@ def _setcolormap(self,value):
     return
   if isinstance(value,vcs.colormap.Cp):
     value = value.name
+  if isinstance(value,unicode):
+    value = str(value)
   if not isinstance(value,str):
     raise "colormap attribute must be a colormap object or a string"
   if not value in vcs.elements["colormap"]:

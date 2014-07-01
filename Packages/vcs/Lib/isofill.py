@@ -30,6 +30,9 @@ import vcs, VCS_validation_functions, cdtime
 import AutoAPI
 import xmldocs
 
+def load(nm,json_dict = {}):
+  return
+
 def process_src(nm,code):
   """Takes VCS script code (string) as input and generates isofill gm from it"""
   try:

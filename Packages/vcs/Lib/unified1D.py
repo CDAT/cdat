@@ -26,6 +26,9 @@ import AutoAPI
 import xmldocs
 import vcs
 
+def load(nm,json_dict = {}):
+  return
+
 def process_src(nm,code,typ):
   """Takes VCS script code (string) as input and generates oneD gm from it"""
   onm = nm+""
