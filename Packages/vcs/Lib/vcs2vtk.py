@@ -7,6 +7,7 @@ import json
 import os
 import meshfill
 from vtk.util import numpy_support as VN
+import cdms2
 
 f = open(os.path.join(sys.prefix,"share","vcs","wmo_symbols.json"))
 wmo = json.load(f)
