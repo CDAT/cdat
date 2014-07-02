@@ -1170,3 +1170,25 @@ def _setcolormap(self,value):
   self._colormap = value
 colormap = property(_getcolormap,_setcolormap)
 
+def _getlevels(self):
+     return self._levels
+def _setlevels(self,value):
+     if value ==  ([1.0000000200408773e+20, 1.0000000200408773e+20],):
+      self._levels = value
+      return
+
+     value=list(checkListTuple(self,'levels',value))
+     if len(value)==1 and isinstance(value[0],(list,tuple)) and len(value[0])>2:
+       value = list(value[0])
+
+     if (value[0]<-9.9E19):
+         self._ext_1='y'
+     else:
+         self._ext_1='n'
+
+     if (value[-1]>9.9E19):
+        self._ext_2='y'
+     else:
+        self._ext_2='n'
+     self._levels=tuple(value)
+levels=property(_getlevels,_setlevels)

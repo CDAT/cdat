@@ -420,27 +420,6 @@ Class: Gfi				# Isofill
          self._yaxisconvert=value
     yaxisconvert=property(_getyaxisconvert,_setyaxisconvert)
 
-    def _getlevels(self):
-         return self._levels
-    def _setlevels(self,value):
-         if value ==  ([1.0000000200408773e+20, 1.0000000200408773e+20],):
-          self._levels = value
-          return
-
-         value=list(VCS_validation_functions.checkListTuple(self,'levels',value))
-
-         if (value[0]<-9.9E19):
-             self._ext_1='y'
-         else:
-             self._ext_1='n'
-
-         if (value[-1]>9.9E19):
-            self._ext_2='y'
-         else:
-            self._ext_2='n'
-         self._levels=tuple(value)
-    levels=property(_getlevels,_setlevels)
-
     def _getfillareacolors(self):
          return self._fillareacolors
     def _setfillareacolors(self,value):
@@ -607,6 +586,7 @@ Class: Gfi				# Isofill
          self._datawc_y2=value
     datawc_y2=property(_getdatawc_y2,_setdatawc_y2)
 
+    levels = VCS_validation_functions.levels
 
     def __init__(self, Gfi_name, Gfi_name_src='default'):
 	#                                                         #
