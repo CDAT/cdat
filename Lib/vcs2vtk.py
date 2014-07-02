@@ -52,8 +52,8 @@ def genUnstructuredGrid(data1,data2,gm):
       if data1.getLatitude() is not None and data1.getLongitude() is not None and data1.getAxis(-1).isLongitude():
         continents = True
         wrap = [0.,360.]
-      x=data1.getAxis(-1)
-      y=data1.getAxis(-2)
+      x=data1.getAxis(-1)[:]
+      y=data1.getAxis(-2)[:]
       xm=x.min()
       xM=x.max()
       ym=y.min()
