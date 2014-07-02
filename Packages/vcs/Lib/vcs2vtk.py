@@ -5,9 +5,99 @@ import numpy
 import sys
 import json
 import os
+import meshfill
+from vtk.util import numpy_support as VN
+
 f = open(os.path.join(sys.prefix,"share","vcs","wmo_symbols.json"))
 wmo = json.load(f)
 
+
+def genUnstructuredGrid(data1,data2,gm):
+  continents = False
+  wrap = None
+  try: #First try to see if we can get a mesh out of this
+    g=data1.getGrid()
+    m=g.getMesh()
+    xm = m[:,1].min()
+    xM = m[:,1].max()
+    ym = m[:,0].min()
+    yM = m[:,0].max()
+
+    N=m.shape[0]
+    #For vtk we need to reorder things
+    m2 = numpy.ascontiguousarray(numpy.transpose(m,(0,2,1)))
+    m2.resize((m2.shape[0]*m2.shape[1],m2.shape[2]))
+    m2=m2[...,::-1]
+    # here we add dummy levels, might want to reconsider converting "trimData" to "reOrderData" and use actual levels?
+    m3=numpy.concatenate((m2,numpy.zeros((m2.shape[0],1))),axis=1)
+    continents = True
+    wrap = [0.,360.]
+  except Exception,err: # Ok no mesh on file, will do with lat/lon
+    ## Could still be meshfill with mesh data
+    if isinstance(gm,meshfill.Gfm) and data2 is not None:
+      N = data2.shape[0]
+      m2 = numpy.ascontiguousarray(numpy.transpose(data2,(0,2,1)))
+      m2.resize((m2.shape[0]*m2.shape[1],m2.shape[2]))
+      m2=m2[...,::-1]
+      # here we add dummy levels, might want to reconsider converting "trimData" to "reOrderData" and use actual levels?
+      m3=numpy.concatenate((m2,numpy.zeros((m2.shape[0],1))),axis=1)
+      if gm.wrap[1]==360.:
+        continents = True
+      wrap = gm.wrap
+    else:
+      data1=cdms2.asVariable(data1)
+      #Ok no mesh info
+      # first lat/lon case
+      if data1.getLatitude() is not None and data1.getLongitude() is not None and data1.getAxis(-1).isLongitude():
+        continents = True
+        wrap = [0.,360.]
+      x=data1.getAxis(-1)
+      y=data1.getAxis(-2)
+      xm=x.min()
+      xM=x.max()
+      ym=y.min()
+      yM=y.max()
+      # make it 2D
+      x = x[numpy.newaxis,:]*numpy.ones(y.shape)[:,numpy.newaxis]
+      y = y[:,numpy.newaxis]*numpy.ones(x.shape)[numpy.newaxis,:]
+      z = numpy.zeros(x.shape)
+      m3=numpy.concatenate((x,y,z),axis=1)
+  #Create unstructured grid points
+  ug = vtk.vtkUnstructuredGrid()
+
+  # First create the points/vertices (in vcs terms)
+  deep = True
+  pts = vtk.vtkPoints()
+  ## Convert nupmy array to vtk ones
+  ppV = VN.numpy_to_vtk(m3,deep=deep)
+  pts.SetData(ppV)
+
+  projection = vcs.elements["projection"][gm.projection]
+  geopts = project(pts,projection)
+  ## Sets the vertics into the grid
+  ug.SetPoints(geopts)
+
+
+  for i in range(N):
+    lst = vtk.vtkIdList()
+    for j in range(4):
+      lst.InsertNextId(i*4+j)
+    ## ??? TODO ??? when 3D use CUBE?
+    ug.InsertNextCell(vtk.VTK_QUAD,lst)
+
+  return ug,xm,xM,ym,yM,continents,wrap
+
+def getRange(gm,xm,xM,ym,yM):
+    # Also need to make sure it fills the whole space
+    if not numpy.allclose([gm.datawc_x1,gm.datawc_x2],1.e20):
+      x1,x2 = gm.datawc_x1,gm.datawc_x2
+    else:
+      x1,x2 = xm,xM
+    if not numpy.allclose([gm.datawc_y1,gm.datawc_y2],1.e20):
+      y1,y2 = gm.datawc_y1,gm.datawc_y2
+    else:
+      y1,y2 = ym,yM
+    return x1,x2,y1,y2
 
 ## Continents first
 def prepContinents(fnm):

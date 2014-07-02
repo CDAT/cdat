@@ -259,7 +259,7 @@ class VTKVCSBackend(object):
       ren = kargs["renderer"]
 
     #screenSize = self.renWin.GetScreenSize()
-    if gtype in ["boxfill","meshfill","isoline","isofill","vector"]:
+    if gtype in ["boxfill","meshfill","isoline","isofill"]:
       data1 = self.trimData2D(data1) # Ok get only the last 2 dims
       data2 = self.trimData2D(data2)
     #elif vcs.isgraphicsmethod(vcs.elements[gtype][gname]):
@@ -303,6 +303,9 @@ class VTKVCSBackend(object):
     elif gtype=="oned":
       self.renWin.AddRenderer(ren)
       self.plot1D(data1,data2,tpl,gm,ren)
+    elif gtype=="vector":
+      self.renWin.AddRenderer(ren)
+      self.plotVector(data1,data2,tpl,gm,ren)
     else:
       raise Exception,"Graphic type: '%s' not re-implemented yet" % gtype
     if not kargs.get("donotstoredisplay",False):
@@ -411,88 +414,58 @@ class VTKVCSBackend(object):
       g.gminit( data1, data2, roi=roi, axes=gm.axes, n_overview_points=n_overview_points, renwin=ren.GetRenderWindow()  ) #, plot_type = PlotType.List  ) 
 
       
+
+  def plotVector(self,data1,data2,tmpl,gm,ren):
+    self.setLayer(ren,tmpl.data.priority)
+    ug,xm,xM,ym,yM,continents,wrap = vcs2vtk.genUnstructuredGrid(data1,data2,gm)
+    print "Got ug"
+    u=numpy.ravel(data1)
+    v=numpy.ravel(data2)
+    sh = list(u.shape)
+    sh.append(1)
+    u = numpy.reshape(u,sh)
+    v = numpy.reshape(v,sh)
+    z = numpy.zeros(u.shape)
+    w = numpy.concatenate((u,v),axis=1)
+    w = numpy.concatenate((w,z),axis=1)
+    w = VN.numpy_to_vtk(w,deep=True)
+    w.SetName("vectors")
+    ug.GetPointData().AddArray(w)
+    ## Vector attempt
+    arrow = vtk.vtkArrowSource()
+    arrow.Update()
+    glyphFilter = vtk.vtkGlyph2D()
+    glyphFilter.SetSourceConnection(arrow.GetOutputPort())
+    glyphFilter.OrientOn()
+    glyphFilter.SetVectorModeToUseVector()
+    glyphFilter.SetInputArrayToProcess(1,0,0,0,"vectors")
+    print "Setting uh"
+    glyphFilter.SetInputData(ug)
+
+    mapper = vtk.vtkPolyDataMapper()
+    mapper.SetInputConnection(glyphFilter.GetOutputPort())
+    act = vtk.vtkActor()
+    act.SetMapper(mapper)
+    x1,x2,y1,y2 = vcs2vtk.getRange(gm,xm,xM,ym,yM)
+    #act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
+    #vcs2vtk.fitToViewport(act,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2])
+    if tmpl.data.priority!=0:
+        ren.AddActor(act)
+    self.renderTemplate(ren,tmpl,data1,gm)
+    if self.canvas._continents is None:
+      continents = False
+    if continents:
+        projection = vcs.elements["projection"][gm.projection]
+        self.plotContinents(x1,x2,y1,y2,projection,wrap,ren,tmpl)
+    print "Done!"
+
+
   def plot2D(self,data1,data2,tmpl,gm,ren):
     self.setLayer(ren,tmpl.data.priority)
-    continents = False
-    wrap = None
-    try: #First try to see if we can get a mesh out of this
-      g=data1.getGrid()
-      m=g.getMesh()
-      xm = m[:,1].min()
-      xM = m[:,1].max()
-      ym = m[:,0].min()
-      yM = m[:,0].max()
-
-      N=m.shape[0]
-      #For vtk we need to reorder things
-      m2 = numpy.ascontiguousarray(numpy.transpose(m,(0,2,1)))
-      m2.resize((m2.shape[0]*m2.shape[1],m2.shape[2]))
-      m2=m2[...,::-1]
-      # here we add dummy levels, might want to reconsider converting "trimData" to "reOrderData" and use actual levels?
-      m3=numpy.concatenate((m2,numpy.zeros((m2.shape[0],1))),axis=1)
-      continents = True
-      wrap = [0.,360.]
-    except Exception,err: # Ok no mesh on file, will do with lat/lon
-      ## Could still be meshfill with mesh data
-      if isinstance(gm,meshfill.Gfm) and data2 is not None:
-        N = data2.shape[0]
-        m2 = numpy.ascontiguousarray(numpy.transpose(data2,(0,2,1)))
-        m2.resize((m2.shape[0]*m2.shape[1],m2.shape[2]))
-        m2=m2[...,::-1]
-        # here we add dummy levels, might want to reconsider converting "trimData" to "reOrderData" and use actual levels?
-        m3=numpy.concatenate((m2,numpy.zeros((m2.shape[0],1))),axis=1)
-        if gm.wrap[1]==360.:
-          continents = True
-        wrap = gm.wrap
-      else:
-        data1=cdms2.asVariable(data1)
-        #Ok no mesh info
-        # first lat/lon case
-        if data1.getLatitude() is not None and data1.getLongitude() is not None and data1.getAxis(-1).isLongitude():
-          continents = True
-          wrap = [0.,360.]
-        x=data1.getAxis(-1)
-        y=data1.getAxis(-2)
-        xm=x.min()
-        xM=x.max()
-        ym=y.min()
-        yM=y.max()
-        # make it 2D
-        x = x[numpy.newaxis,:]*numpy.ones(y.shape)[:,numpy.newaxis]
-        y = y[:,numpy.newaxis]*numpy.ones(x.shape)[numpy.newaxis,:]
-        z = numpy.zeros(x.shape)
-        m3=numpy.concatenate((x,y,z),axis=1)
-
-
-
-    #Create unstructured grid points
-    ug = vtk.vtkUnstructuredGrid()
-
-    # First create the points/vertices (in vcs terms)
-    deep = False
-    pts = vtk.vtkPoints()
-    ## Convert nupmy array to vtk ones
-    ppV = VN.numpy_to_vtk(m3,deep=deep)
-    pts.SetData(ppV)
-
-    projection = vcs.elements["projection"][gm.projection]
-    geopts = vcs2vtk.project(pts,projection)
-    ## Sets the vertics into the grid
-    ug.SetPoints(geopts)
-
+    ug,xm,xM,ym,yM,continents,wrap = vcs2vtk.genUnstructuredGrid(data1,data2,gm)
     #Now applies the actual data on each cell
     data = VN.numpy_to_vtk(data1.filled().flat,deep=True)
-
-    for i in range(N):
-      lst = vtk.vtkIdList()
-      for j in range(4):
-        lst.InsertNextId(i*4+j)
-      ## ??? TODO ??? when 3D use CUBE?
-      ug.InsertNextCell(vtk.VTK_QUAD,lst)
-
     ug.GetCellData().SetScalars(data)
-    if self.debug:
-      vcs2vtk.dump2VTK(ug)
 
     try:
       cmap = vcs.elements["colormap"][cmap]
@@ -663,16 +636,7 @@ class VTKVCSBackend(object):
         lmx= levs[-1]
       mapper.SetScalarRange(lmn,lmx)
 
-
-    # Also need to make sure it fills the whole space
-    if not numpy.allclose([gm.datawc_x1,gm.datawc_x2],1.e20):
-      x1,x2 = gm.datawc_x1,gm.datawc_x2
-    else:
-      x1,x2 = xm,xM
-    if not numpy.allclose([gm.datawc_y1,gm.datawc_y2],1.e20):
-      y1,y2 = gm.datawc_y1,gm.datawc_y2
-    else:
-      y1,y2 = ym,yM
+    x1,x2,y1,y2 = vcs2vtk.getRange(gm,xm,xM,ym,yM)
 
     if tmpl.data.priority != 0:
       # And now we need actors to actually render this thing
@@ -698,6 +662,10 @@ class VTKVCSBackend(object):
     if self.canvas._continents is None:
       continents = False
     if continents:
+        projection = vcs.elements["projection"][gm.projection]
+        self.plotContinents(x1,x2,y1,y2,projection,wrap,ren,tmpl)
+
+  def plotContinents(self,x1,x2,y1,y2,projection,wrap,ren,tmpl):
       contData = vcs2vtk.prepContinents(self.canvas._continents)
       contMapper = vtk.vtkPolyDataMapper()
       contMapper.SetInputData(contData)

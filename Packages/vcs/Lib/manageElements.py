@@ -5,8 +5,12 @@
 ## b=x.createboxfill()
 import vcs
 import boxfill,meshfill,isofill,isoline,unified1D,template,projection
-import fillarea,marker,line,texttable,textorientation,textcombined
-from xmldocs import plot_keywords_doc,graphics_method_core,axesconvert,xaxisconvert,yaxisconvert, plot_1D_input, plot_2D_input, plot_output, plot_2_1D_input, create_GM_input, get_GM_input, boxfill_output, isofill_output, isoline_output, yxvsx_output, xyvsy_output, xvsy_output, scatter_output, outfill_output, outline_output, plot_2_1D_options
+import fillarea,marker,line,texttable,textorientation,textcombined,vector
+from xmldocs import plot_keywords_doc,graphics_method_core,axesconvert,\
+    xaxisconvert,yaxisconvert, plot_1D_input, plot_2D_input, plot_output,\
+    plot_2_1D_input, create_GM_input, get_GM_input, boxfill_output, \
+    isofill_output, isoline_output, yxvsx_output, xyvsy_output, xvsy_output,\
+    scatter_output, outfill_output, outline_output, plot_2_1D_options
 import random
 import warnings
 from error import vcsError

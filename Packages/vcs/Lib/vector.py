@@ -291,14 +291,6 @@ class Gv(object):
          self._yaxisconvert=value
     yaxisconvert=property(_getyaxisconvert,_setyaxisconvert)
 
-    def _getlevels(self):
-         return self._level
-    def _setlevels(self,value):
-         value=VCS_validation_functions.checkIsolineLevels(self,'levels',value)
-         self._level=value
-    level=property(_getlevels,_setlevels)
-    levels=property(_getlevels,_setlevels)
-
     def _getprojection(self):
          return self._projection
     def _setprojection(self,value):
