@@ -266,7 +266,7 @@ class TransientVariable(AbstractVariable,numpy.ma.MaskedArray):
         self = numpy.ma.MaskedArray.__new__(cls, data, dtype = dtype,
                                       copy = ncopy,
                                       mask = mask,
-                                      fill_value = fill_value,
+                                      fill_value = numpy.array(fill_value).astype(dtype),
                                       subok = False,
                                       order = order)
 
