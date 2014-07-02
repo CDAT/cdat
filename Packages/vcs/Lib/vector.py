@@ -24,6 +24,9 @@
 import queries, vcs, VCS_validation_functions, cdtime
 import Canvas
 
+def load(nm,json_dict = {}):
+  return
+
 def process_src(nm,code):
   """Takes VCS script code (string) as input and generates vector gm from it"""
   try:
@@ -287,14 +290,6 @@ class Gv(object):
          value=VCS_validation_functions.checkAxisConvert(self,'yaxisconvert',value)
          self._yaxisconvert=value
     yaxisconvert=property(_getyaxisconvert,_setyaxisconvert)
-
-    def _getlevels(self):
-         return self._level
-    def _setlevels(self,value):
-         value=VCS_validation_functions.checkIsolineLevels(self,'levels',value)
-         self._level=value
-    level=property(_getlevels,_setlevels)
-    levels=property(_getlevels,_setlevels)
 
     def _getprojection(self):
          return self._projection

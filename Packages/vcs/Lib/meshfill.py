@@ -28,6 +28,8 @@ import xmldocs
 import cdtime
 import vcs
 
+def load(nm,json_dict = {}):
+  return
 
 def process_src(nm,code):
   """Takes VCS script code (string) as input and generates meshfill gm from it"""

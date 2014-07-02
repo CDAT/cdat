@@ -31,6 +31,8 @@ import Canvas
 import AutoAPI
 import xmldocs
 import genutil
+def load(nm,json_dict = {}):
+  return
 def get_att_from_sub(code,att):
   i = code.find(att)
   if i>-1:

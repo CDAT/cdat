@@ -9,25 +9,24 @@ f=cdms2.open(os.path.join(sys.prefix,'sample_data','clt.nc'))
 s=f("clt")
 #f=cdms2.open(os.path.join(sys.prefix,"sample_data","sampleCurveGrid4.nc"))
 #s=f("sample")
-x=vcs.init()
-tmpl = x.createtemplate()
+tmpl = vcs.createtemplate()
 #tmpl.data.x1=.001
 #tmpl.data.x2=.5
 #tmpl.data.y1=.0001
 #tmpl.data.y2=.25
-x.setcolormap("rainbow")
-gm=x.createisoline()
-gm=x.createboxfill()
-gm=x.createisofill()
-gm.datawc_x1=-180
-gm.datawc_x2=0
-gm.datawc_y1=60
-gm.datawc_y2=65
-
+gm=vcs.createisoline()
+gm=vcs.createboxfill()
+gm=vcs.createisofill()
+#gm.datawc_x1=-180
+#gm.datawc_x2=0
+#gm.datawc_y1=60
+#gm.datawc_y2=65
 gm.datawc_x1=-180.
 gm.datawc_x2=180.
 gm.datawc_y1=-90
 gm.datawc_y2=90
+x=vcs.init()
+x.setcolormap("rainbow")
 bg = False
 #bg = True
 #levs = range(-20,135,10)

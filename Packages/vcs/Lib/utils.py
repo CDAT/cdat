@@ -29,7 +29,7 @@ def dumpToDict(obj,skipped,must):
         val = getattr(obj,a)
       except:
         continue
-      if not isinstance(val,(str,tuple,list,int,long,float)) and val is not None:
+      if not isinstance(val,(str,tuple,list,int,long,float,dict)) and val is not None:
         val = dumpToDict(val,skipped,must)
       dic[a] = val
   return dic
@@ -421,9 +421,24 @@ def scriptrun_scr(*args):
              _scriptrun(temporary_file_name)
              os.remove(temporary_file_name)
     fin.close()
+
+def saveinitialattributes():
+    _dotdir,_dotdirenv = vcs.getdotdirectory()
+    fnm = os.path.join(os.environ['HOME'], _dotdir, 'initial.attributes')
+    if os.path.exists(fnm):
+      os.remove(fnm)
+    for k,e in vcs.elements.iteritems():
+      if k in ["font","fontNumber","list"]:
+        continue
+      for nm,g in e.iteritems():
+        if nm!="default":
+          g.script(fnm)
+    
 #############################################################################
 #                                                                           #
 # Import old VCS file script commands into CDAT.                            
+#                                                                           #
+#############################################################################
 def scriptrun(script):
   if script.split(".")[-1] == "scr":
     scriptrun_scr(script) 
@@ -433,8 +448,57 @@ def scriptrun(script):
     print "FOR NOW STILL READING IN OLD WAY"
     _scriptrun(script)
   else:
-    pass  
+    loader = { "P":'template',
+        "Gfb":'boxfill',
+        "Gfi":'isofill',
+        "Gi":'isoline',
+        "Gvp":'vector',
+        "Gfm":'meshfill',
+        "G1d":'oneD',
+        "Tf":'fillarea',
+        "Tt":"texttable",
+        "To":"textorientation",
+        "Tm":"marker",
+        "Tl":"line",
+        "Gfdv3d":"dvd3d",
+        "Proj":"projection",
+        "Gtd":"taylordiagram",
+        }
+    f=open(script)
+    jsn = json.load(f)
+    for typ in jsn.keys():
+      for nm,v in jsn[typ].iteritems():
+        if typ=="P":
+          loadTemplate(nm,v)
+        else:
+          #print "Reading in a:",typ,"named",nm
+          loadVCSItem(loader[typ],nm,v)
   return
+
+def loadTemplate(nm,vals):
+  try:
+    t = vcs.gettemplate(nm)
+  except:
+    t = vcs.createtemplate(nm)
+  for k,v in vals.iteritems():
+    A = getattr(t,k)
+    for a,v in v.iteritems():
+      setattr(A,a,v)
+
+def loadVCSItem(typ,nm,json_dict = {}):
+  if typ=="oneD":
+    tp = "oned"
+  else:
+    tp = typ
+  if vcs.elements[tp].has_key(nm):
+    gm = vcs.elements[tp][nm]
+  else:
+    cmd = "gm = vcs.create%s('%s')" % (typ,nm)
+    exec(cmd)
+  for a,v in json_dict.iteritems():
+    #print "Setting:",a,"to",v
+    setattr(gm,a,v)
+  return gm
 
 def return_display_names():
   warnings.warn("PLEASE IMPLEMENT return_display_names!!!! (in utils.py)")
