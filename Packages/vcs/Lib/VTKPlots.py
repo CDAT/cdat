@@ -254,6 +254,8 @@ class VTKVCSBackend(object):
     #self.renWin.Render()
     if kargs.get("renderer",None) is None:
         ren = vtk.vtkRenderer()
+        r,g,b = self.canvas.backgroundcolor
+        ren.SetBackground(r/255.,g/255.,b/255.)
         #ren.SetPreserveDepthBuffer(True)
     else:
       ren = kargs["renderer"]
