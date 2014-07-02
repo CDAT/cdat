@@ -3,12 +3,15 @@ import sys
 import cdms2
 import vtk
 import os
+import MV2
+
 x=vcs.init()
 x.setcolormap("rainbow")
 
 interact = True
 f=cdms2.open(os.path.join(sys.prefix,'sample_data','clt.nc'))
 s=f("clt")
+s=MV2.masked_greater(s,67.)
 #f=cdms2.open(os.path.join(sys.prefix,"sample_data","sampleCurveGrid4.nc"))
 #s=f("sample")
 tmpl = vcs.createtemplate()

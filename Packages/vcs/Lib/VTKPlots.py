@@ -441,7 +441,7 @@ class VTKVCSBackend(object):
     glyphFilter.OrientOn()
     glyphFilter.SetVectorModeToUseVector()
     glyphFilter.SetInputArrayToProcess(1,0,0,0,"vectors")
-    print "Setting uh"
+    glyphFilter.SetScaleFactor(5.)
     glyphFilter.SetInputData(ug)
 
     mapper = vtk.vtkPolyDataMapper()
