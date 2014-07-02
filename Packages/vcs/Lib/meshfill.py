@@ -428,12 +428,7 @@ Class:	Gfm                       	# Meshfill
          self._yaxisconvert=value
     yaxisconvert=property(_getyaxisconvert,_setyaxisconvert)
 
-    def _getlevels(self):
-         return self._levels
-    def _setlevels(self,value):
-         value=VCS_validation_functions.checkListTuple(self,'levels',value)
-         self._levels=tuple(value)
-    levels=property(_getlevels,_setlevels)
+    levels = VCS_validation_functions.levels
 
     def _getfillareacolors(self):
          return self._fillareacolors

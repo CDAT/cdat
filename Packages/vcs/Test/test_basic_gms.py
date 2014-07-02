@@ -3,6 +3,8 @@ import sys
 import cdms2
 import vtk
 import os
+x=vcs.init()
+x.setcolormap("rainbow")
 
 interact = True
 f=cdms2.open(os.path.join(sys.prefix,'sample_data','clt.nc'))
@@ -25,8 +27,9 @@ gm.datawc_x1=-180.
 gm.datawc_x2=180.
 gm.datawc_y1=-90
 gm.datawc_y2=90
-x=vcs.init()
-x.setcolormap("rainbow")
+levels = range(0,110,10)
+print "LEVELS:",levels
+gm.levels = (levels,)
 bg = False
 #bg = True
 #levs = range(-20,135,10)
