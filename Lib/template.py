@@ -888,19 +888,19 @@ class P(object):
         displays = []
         # compute the spanning in x and y, and adjust for the viewport
         if gm.datawc_x1 > 9.E19 :
-             wc[0]=X[0]
+             wc[0]=X.min()
         else:
           wc[0] = gm.datawc_x1
         if gm.datawc_x2 > 9.E19 :
-             wc[1]=X[-1]
+             wc[1]=X.max()
         else:
           wc[1] = gm.datawc_x2
         if gm.datawc_y1 > 9.E19 :
-             wc[2]=Y[0]
+             wc[2]=Y.min()
         else:
           wc[2] = gm.datawc_y1
         if gm.datawc_y2 > 9.E19 :
-             wc[3]=Y[-1]
+             wc[3]=Y.max()
         else:
           wc[3] = gm.datawc_y2
 
@@ -915,12 +915,12 @@ class P(object):
         if (loc is None or loc=='*'):
             # well i guess we have to do it !
             if axis=='x':
-                 ax=X
+                 x1 = wc[0]
+                 x2 = wc[1]
             else:
-                 ax=Y
-            x2=ax[-1]
-            x1=ax[0]
-            loc=vcs.mkscale(ax[0],ax[-1])
+                 x1 = wc[2]
+                 x2 = wc[3]
+            loc=vcs.mkscale(x1,x2)
             loc=vcs.mklabels(loc)
             if number == '2':
                 for t in loc.keys():
