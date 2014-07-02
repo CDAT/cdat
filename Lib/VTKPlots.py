@@ -568,20 +568,20 @@ class VTKVCSBackend(object):
           r,g,b = cmap.index[cols[i]]      
           lut.SetTableValue(0,r/100.,g/100.,b/100.)
           mapper.SetLookupTable(lut)
-          #if numpy.allclose(l[0],-1.e20):
-          #  lmn = mn-1.
-          #else:
-          #  lmn= l[0]
-          #if numpy.allclose(l[-1],1.e20):
-          #  lmx = mx+1.
-          #else:
-          #  lmx= l[-1]
-          #mapper.SetScalarRange(lmn,lmx)
-          png = vtk.vtkPNGReader()
-          png.SetFileName("/git/uvcdat/Packages/vcs/Share/uvcdat_texture.png")
-          T=vtk.vtkTexture()
-          T.SetInputConnection(png.GetOutputPort())
-          mappers.append([mapper,T])
+          if numpy.allclose(l[0],-1.e20):
+            lmn = mn-1.
+          else:
+            lmn= l[0]
+          if numpy.allclose(l[-1],1.e20):
+            lmx = mx+1.
+          else:
+            lmx= l[-1]
+          mapper.SetScalarRange(lmn,lmx)
+          #png = vtk.vtkPNGReader()
+          #png.SetFileName("/git/uvcdat/Packages/vcs/Share/uvcdat_texture.png")
+          #T=vtk.vtkTexture()
+          #T.SetInputConnection(png.GetOutputPort())
+          mappers.append([mapper,])
 
     else: #Boxfill/Meshfill
       mappers=[]
