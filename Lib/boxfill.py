@@ -497,22 +497,7 @@ class Gfb(object,AutoAPI.AutoAPI):
          self._color_2=value
     color_2=property(_getcolor_2,_setcolor_2)
     
-    def _getlevels(self):
-         return self._levels
-    def _setlevels(self,value):
-         value=list(VCS_validation_functions.checkListTuple(self,'levels',value))
-         if len(value)==0:
-           raise ValueError, "levels cannot be empty list"
-         for i,v in enumerate(value):
-           if isinstance(v,(list,tuple)):
-             if len(v)>2:
-               raise ValueError,"level tuples must be of length 2"
-             v[0]=VCS_validation_functions.checkNumber(self,"levels",v[0])
-             v[1]=VCS_validation_functions.checkNumber(self,"levels",v[1])
-           else:
-             value[i] = VCS_validation_functions.checkNumber(self,"levels",v)
-         self._levels=value
-    levels=property(_getlevels,_setlevels)
+    levels = VCS_validation_functions.levels
 
     def _getfillareacolors(self):
          return self._fillareacolors
