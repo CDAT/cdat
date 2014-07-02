@@ -9,8 +9,9 @@
 #define DLL_NETCDF
 #endif
 
+/*#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION*/
 #include "Python.h"
-#include "numpy/arrayobject.h"
+#include "numpy/ndarrayobject.h"
 #include "netcdf.h"
 
 #define _CDUNIF_MODULE
@@ -24,6 +25,7 @@ int nc_def_var_deflate(int i,int j,int k,int l, int m) {return 0;};
 int nc_def_var_chunking(int i,int j,int k,size_t *l) {return 0;};
 #endif
 
+int cdms_classic = 1;
 int cdms_shuffle = 0 ;
 int cdms_deflate = 1 ;
 int cdms_deflate_level = 1 ;
@@ -1159,7 +1161,10 @@ PyCdunifFile_Open(char *filename, char *mode)
     ncmode = NC_CLOBBER;
 #ifndef NONC4
     if ((cdms_shuffle!=0) || (cdms_deflate!=0)) {
-      ncmode = NC_CLOBBER|NC_NETCDF4|NC_CLASSIC_MODEL;
+      ncmode = NC_CLOBBER|NC_NETCDF4;
+    }
+    if (cdms_classic==1) {
+      ncmode = ncmode | NC_CLASSIC_MODEL;
     }
 #endif
     self->id = nccreate(filename, ncmode);
@@ -1182,7 +1187,10 @@ PyCdunifFile_Open(char *filename, char *mode)
     ncmode = NC_NOCLOBBER;
 #ifndef NONC4
     if ((cdms_shuffle!=0) || (cdms_deflate!=0)) {
-      ncmode = NC_NOCLOBBER|NC_NETCDF4|NC_CLASSIC_MODEL;
+      ncmode = NC_NOCLOBBER|NC_NETCDF4;
+    }
+    if (cdms_classic==1) {
+      ncmode = ncmode | NC_CLASSIC_MODEL;
     }
 #endif
       self->id = nccreate(filename, ncmode);
@@ -2843,8 +2851,16 @@ PyCdunif_setncflags(PyObject *self, PyObject *args) {
   int flagval;
   if (!PyArg_ParseTuple(args, "si", &flagname,&flagval))
     return NULL;
-  if (strcmp(flagname,"shuffle") == 0) {
-    if (flagval>2) {
+  if (strcmp(flagname,"classic") == 0) {
+    if (flagval>1) {
+      sprintf(msg,"invalid flag for necdf classic mode: '%i' valid flags are: 0 or 1",flagval);
+      PyErr_SetString(PyExc_TypeError, msg);
+      return NULL;      
+    }
+    cdms_classic = flagval;
+  }
+  else if (strcmp(flagname,"shuffle") == 0) {
+    if (flagval>1) {
       sprintf(msg,"invalid shuffle flag: '%i' valid flags are: 0 or 1",flagval);
       PyErr_SetString(PyExc_TypeError, msg);
       return NULL;      
@@ -2882,7 +2898,10 @@ PyCdunif_getncflags(PyObject *self, PyObject *args) {
   int flagval;
   if (!PyArg_ParseTuple(args, "s", &flagname))
     return NULL;
-  if (strcmp(flagname,"shuffle") == 0) {
+  if (strcmp(flagname,"classic") == 0) {
+      return Py_BuildValue("i",cdms_classic);      
+  }
+  else if (strcmp(flagname,"shuffle") == 0) {
       return Py_BuildValue("i",cdms_shuffle);      
   }
   else if (strcmp(flagname,"deflate")==0) {

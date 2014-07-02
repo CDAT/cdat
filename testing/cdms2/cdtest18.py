@@ -4,6 +4,7 @@ import os
 
 from markError import clearError,markError,reportError
 clearError()
+cdms2.setNetcdfClassicFlag(0)
 
 print 'Test 18: numpy types with NetCDF4 ...',
 
