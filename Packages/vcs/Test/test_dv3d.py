@@ -13,7 +13,7 @@ class DataType:
    STRUCTURED = 0
    UNSTRUCTURED = 1                           
 
-data_type = DataType.UNSTRUCTURED
+data_type = DataType.STRUCTURED
 
 if data_type == DataType.UNSTRUCTURED:
     
@@ -36,7 +36,7 @@ else:
     u = f["uwnd"] 
 
 dv3d = vcs.createdv3d()
-# dv3d.restoreState()
+dv3d.restoreState()
 
 x = vcs.init()
 x.plot( u, dv3d )
