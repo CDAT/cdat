@@ -105,7 +105,7 @@ class StructuredDataReader:
                 dfile = self.vars[0].parent
                 self.datasetId = dfile.Title if hasattr( dfile, 'Title' ) else dfile.id
                 self.fileSpecs = dfile.id
-                self.varSpecs = [ self.vars[0].name_in_file ]
+                self.varSpecs = [ var.name_in_file for var in self.vars ]
                 self.subSpace = args.get( 'axes', 'xyz' )
                 self.df = cdms2.open( self.fileSpecs ) 
         self.referenceTimeUnits = None

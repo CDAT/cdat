@@ -5,6 +5,10 @@ VTK_NEAREST_RESLICE = 0
 VTK_LINEAR_RESLICE  = 1
 VTK_CUBIC_RESLICE   = 2
 
+class DisplayMode:
+    Scalar= 0
+    VectorLIC = 1
+
 class ImagePlaneWidget:  
     
     InteractionStartEvent = 0
@@ -49,7 +53,8 @@ class ImagePlaneWidget:
         self.ResliceAxes2   = vtk.vtkMatrix4x4()   
         self.ContourInputDims = 0;     
         self.InputDims = 0
-        self.CurrentPosition = 0.0    
+        self.CurrentPosition = 0.0   
+        self.displayMode = DisplayMode.Scalar 
                         
         # Represent the plane's outline
         #
@@ -110,6 +115,8 @@ class ImagePlaneWidget:
         print " **************************************** Deleting ImagePlaneWidget module, id = %d  **************************************** " % id(self)
         sys.stdout.flush()
 
+    def setDisplayMode(self, dMode ):
+        self.displayMode = dMode 
 #----------------------------------------------------------------------------
     def LookupTableObserver( self, caller=None, event = None ):
         table_range = self.LookupTable.GetTableRange()
@@ -825,18 +832,29 @@ class ImagePlaneWidget:
         self.Reslice.Modified()        
         self.Reslice.Update()
         
-        if self.ColorMap == None:
-            self.ColorMap = vtk.vtkImageMapToColors()
-            self.ColorMap.SetOutputFormatToRGBA()
-            self.ColorMap.PassAlphaToOutputOn()
-                         
-        if vtk.VTK_MAJOR_VERSION <= 5:  self.ColorMap.SetInput(self.Reslice.GetOutput())
-        else:                           self.ColorMap.SetInputData(self.Reslice.GetOutput()) 
-        self.ColorMap.SetLookupTable(self.LookupTable)    
-        self.ColorMap.Update()  
-              
-        if vtk.VTK_MAJOR_VERSION <= 5:  self.Texture.SetInput(self.ColorMap.GetOutput())
-        else:                           self.Texture.SetInputData(self.ColorMap.GetOutput())  
+        if self.displayMode == DisplayMode.Scalar:
+        
+            if self.ColorMap == None:
+                self.ColorMap = vtk.vtkImageMapToColors()
+                self.ColorMap.SetOutputFormatToRGBA()
+                self.ColorMap.PassAlphaToOutputOn()
+                             
+            if vtk.VTK_MAJOR_VERSION <= 5:  self.ColorMap.SetInput(self.Reslice.GetOutput())
+            else:                           self.ColorMap.SetInputData(self.Reslice.GetOutput()) 
+            self.ColorMap.SetLookupTable(self.LookupTable)    
+            self.ColorMap.Update()  
+                  
+            if vtk.VTK_MAJOR_VERSION <= 5:  self.Texture.SetInput(self.ColorMap.GetOutput())
+            else:                           self.Texture.SetInputData(self.ColorMap.GetOutput())  
+            
+        elif  self.displayMode == DisplayMode.VectorLIC:
+            
+            self.LICFilter = vtk.vtkImageDataLIC2D()
+            self.LICFilter.SetInputConnection(self.Reslice.GetOutputPort())   
+            self.LICFilter.SetSteps( 1 ) 
+            self.LICFilter.SetStepSize( 1.0 )    
+         
+            self.Texture.SetInputConnection(self.LICFilter.GetOutputPort())  
         
         return True            
 
@@ -1354,11 +1372,6 @@ class ImagePlaneWidget:
         o =  self.PlaneSource.GetOrigin()
         v2 = [  p2[0] - o[0], p2[1] - o[1], p2[2] - o[2] ]
         return v2
-
-#----------------------------------------------------------------------------
-    
-    def GetResliceOutputPort(self):       
-        return self.Reslice.GetOutputPort()
     
 #----------------------------------------------------------------------------
 
