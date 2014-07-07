@@ -261,7 +261,7 @@ class VTKVCSBackend(object):
       ren = kargs["renderer"]
 
     #screenSize = self.renWin.GetScreenSize()
-    if gtype in ["boxfill","meshfill","isoline","isofill"]:
+    if gtype in ["boxfill","meshfill","isoline","isofill","vector"]:
       data1 = self.trimData2D(data1) # Ok get only the last 2 dims
       data2 = self.trimData2D(data2)
     #elif vcs.isgraphicsmethod(vcs.elements[gtype][gname]):
@@ -420,9 +420,9 @@ class VTKVCSBackend(object):
   def plotVector(self,data1,data2,tmpl,gm,ren):
     self.setLayer(ren,tmpl.data.priority)
     ug,xm,xM,ym,yM,continents,wrap = vcs2vtk.genUnstructuredGrid(data1,data2,gm)
-    print "Got ug"
-    u=numpy.ravel(data1)
-    v=numpy.ravel(data2)
+    print "Got ug",data1.shape
+    u=numpy.ravel(numpy.ma.masked_greater_equal(data1,600).filled(0.))
+    v=numpy.ravel(numpy.ma.masked_greater_equal(data2,600).filled(0.))
     sh = list(u.shape)
     sh.append(1)
     u = numpy.reshape(u,sh)
