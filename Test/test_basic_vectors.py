@@ -11,8 +11,8 @@ V=vcs.createvector()
 V.list()
 
 x=vcs.init()
-x.plot(u,v,V)
+x.plot(v,u,V)
 
-
+x.png("vectors_bad")
 x.interact()
 
