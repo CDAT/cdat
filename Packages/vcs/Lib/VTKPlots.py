@@ -264,6 +264,7 @@ class VTKVCSBackend(object):
     if gtype in ["boxfill","meshfill","isoline","isofill","vector"]:
       data1 = self.trimData2D(data1) # Ok get only the last 2 dims
       data2 = self.trimData2D(data2)
+      print data1.shape,type(data1)
     #elif vcs.isgraphicsmethod(vcs.elements[gtype][gname]):
       ## oneD
     #  data1 = self.trimData1D(data1)
@@ -420,6 +421,13 @@ class VTKVCSBackend(object):
   def plotVector(self,data1,data2,tmpl,gm,ren):
     self.setLayer(ren,tmpl.data.priority)
     ug,xm,xM,ym,yM,continents,wrap = vcs2vtk.genUnstructuredGrid(data1,data2,gm)
+    c2p = vtk.vtkCellDataToPointData()
+    c2p.SetInputData(ug)
+    c2p.Update()
+    #For contouring duplicate points seem to confuse it
+    cln = vtk.vtkCleanUnstructuredGrid()
+    cln.SetInputConnection(c2p.GetOutputPort())
+
     print "Got ug",data1.shape
     u=numpy.ravel(numpy.ma.masked_greater_equal(data1,600).filled(0.))
     v=numpy.ravel(numpy.ma.masked_greater_equal(data2,600).filled(0.))
@@ -442,7 +450,7 @@ class VTKVCSBackend(object):
     glyphFilter.SetVectorModeToUseVector()
     glyphFilter.SetInputArrayToProcess(1,0,0,0,"vectors")
     glyphFilter.SetScaleFactor(2.)
-    glyphFilter.SetInputData(ug)
+    glyphFilter.SetInputConnection(cln.GetOutputPort())
 
     mapper = vtk.vtkPolyDataMapper()
     mapper.SetInputConnection(glyphFilter.GetOutputPort())
