@@ -117,7 +117,11 @@ class StructuredDataReader:
         self.useTimeIndex = False
         self.timeAxis = None
         self.fieldData = None
-        self.outputType = CDMSDataType.Hoffmuller if ( self.subSpace == 'xyt' ) else CDMSDataType.Volume 
+        otype = args.get( 'otype', 'default' )
+        if otype == 'vector':
+            self.outputType = CDMSDataType.Vector
+        else:
+            self.outputType = CDMSDataType.Hoffmuller if ( self.subSpace == 'xyt' ) else CDMSDataType.Volume 
 # #        memoryLogger.log("Init CDMSDataReader")
 #         if self.outputType == CDMSDataType.Hoffmuller:
 #             self.addUVCDATConfigGuiFunction( 'chooseLevel', LevelConfigurationDialog, 'L', label='Choose Level' ) 
@@ -311,10 +315,15 @@ class StructuredDataReader:
 #            print " VolumeReader->generateOutput, varSpecs: ", str(varRecs)
             oRecMgr = OutputRecManager() 
 #            varCombo = QComboBox()
-            for var in varRecs: 
-                otype = 'volume'
-                orec = OutputRec( otype, ndim=3, varList=[var] )   
-                oRecMgr.addOutputRec( self.datasetId, orec ) 
+            if self.outputType == CDMSDataType.Vector:
+                otype = 'vector'
+                orec = OutputRec( otype, ndim=3, varList=varRecs )   
+                oRecMgr.addOutputRec( self.datasetId, orec )                 
+            else:
+                for var in varRecs: 
+                    otype = 'volume'
+                    orec = OutputRec( otype, ndim=3, varList=[var] )   
+                    oRecMgr.addOutputRec( self.datasetId, orec ) 
         else:
             portData = self.getPortData()
             if portData:
@@ -621,7 +630,7 @@ class StructuredDataReader:
         try:                           
             if (self.outputType == CDMSDataType.Vector ): 
                 vtkdata = getNewVtkDataArray( scalar_dtype )
-                vtkdata.SetNumberOfComponents( 3 )
+                vtkdata.SetNumberOfComponents( len(vars) )
                 vtkdata.SetNumberOfTuples( nTup )
                 iComp = 0
                 for varName in vars:

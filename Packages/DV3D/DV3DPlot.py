@@ -84,6 +84,7 @@ class DV3DPlot():
     sliceAxes = [ 'x', 'y', 'z' ]       
  
     def __init__( self,  **args ):
+        self.type = args.get( 'gmname', 'default').lower()
         self.useDepthPeeling = False
         self.labelBuff = ""
         self.textDisplayMgr = None
@@ -413,15 +414,18 @@ class DV3DPlot():
     def buildPlotButtons(self):
         bbar_name = 'Plot'
         bbar = ButtonBarWidget( bbar_name, self.renderWindowInteractor, position=( 0.0, 0.96) )
-        b = bbar.addConfigButton( names=['SliceRoundRobin'],  key='p', interactionHandler=bbar.sliceRoundRobin )
-        b = bbar.addSliderButton( names=['XSlider'],  key='x', toggle=True, group='SliceRoundRobin', sliderLabels='X Slice Position', label="Slicing", position=[0,3], interactionHandler=self.processSlicingCommand )
-        b.addFunctionKey( 'W', 1, Button.FuncToggleStateOff )
-        b = bbar.addSliderButton( names=['YSlider'],  key='y', toggle=True, group='SliceRoundRobin', sliderLabels='Y Slice Position', label="Slicing", position=[1,3], interactionHandler=self.processSlicingCommand )
-        b.addFunctionKey( 'W', 1, Button.FuncToggleStateOff )
-        b = bbar.addSliderButton( names=['ZSlider'],  key='z', toggle=True, group='SliceRoundRobin', sliderLabels='Z Slice Position', label="Slicing", position=[2,3], interactionHandler=self.processSlicingCommand )
-        b.addFunctionKey( 'W', 1, Button.FuncToggleStateOff )
-        b = bbar.addConfigButton( names=['ToggleSurfacePlot'],  key='S', children=['IsosurfaceValue'], toggle=True, interactionHandler=self.processSurfacePlotCommand )
-        b = bbar.addConfigButton( names=['ToggleVolumePlot'], key='v', children=['ScaleTransferFunction'], toggle=True, interactionHandler=self.processVolumePlotCommand )
+        if self.type == 'vector':
+            b = bbar.addSliderButton( names=['ZSlider'],  key='z', toggle=True, sliderLabels='Slice Position', label="Slicing", state = 1, interactionHandler=self.processSlicingCommand )            
+        else:
+            b = bbar.addConfigButton( names=['SliceRoundRobin'],  key='p', interactionHandler=bbar.sliceRoundRobin )
+            b = bbar.addSliderButton( names=['XSlider'],  key='x', toggle=True, group='SliceRoundRobin', sliderLabels='X Slice Position', label="Slicing", position=[0,3], interactionHandler=self.processSlicingCommand )
+            b.addFunctionKey( 'W', 1, Button.FuncToggleStateOff )
+            b = bbar.addSliderButton( names=['YSlider'],  key='y', toggle=True, group='SliceRoundRobin', sliderLabels='Y Slice Position', label="Slicing", position=[1,3], interactionHandler=self.processSlicingCommand )
+            b.addFunctionKey( 'W', 1, Button.FuncToggleStateOff )
+            b = bbar.addSliderButton( names=['ZSlider'],  key='z', toggle=True, group='SliceRoundRobin', sliderLabels='Z Slice Position', label="Slicing", position=[2,3], interactionHandler=self.processSlicingCommand )
+            b.addFunctionKey( 'W', 1, Button.FuncToggleStateOff )
+            b = bbar.addConfigButton( names=['ToggleSurfacePlot'],  key='S', children=['IsosurfaceValue'], toggle=True, interactionHandler=self.processSurfacePlotCommand )
+            b = bbar.addConfigButton( names=['ToggleVolumePlot'], key='v', children=['ScaleTransferFunction'], toggle=True, interactionHandler=self.processVolumePlotCommand )
         bbar.build()
  
     def processSurfacePlotCommand( self, args, config_function = None ):

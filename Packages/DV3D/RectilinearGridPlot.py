@@ -7,7 +7,7 @@ Created on Apr 29, 2014
 import sys, vtk, cdms2, traceback, os, cdtime, math 
 from ColorMapManager import *  
 from Shapefile import shapeFileReader   
-from ImagePlaneWidget import ImagePlaneWidget  
+from ImagePlaneWidget import ImagePlaneWidget, DisplayMode  
 from DistributedPointCollections import kill_all_zombies
 from StructuredGridPlot import  *
 from StructuredDataset import *
@@ -115,7 +115,6 @@ class RectGridPlot(StructuredGridPlot):
         self.contours = None
         self.NumContours = 10.0
         self.showOutlineMap = True
-        self.zincSkipIndex = 1
         self.state = self.Start
         self.volume = None
         self.probeFilter = None
@@ -180,7 +179,7 @@ class RectGridPlot(StructuredGridPlot):
         elif args and args[0] == "InitConfig":
             self.updateTextDisplay( config_function.label )
             bbar = self.getInteractionButtons()
-            bbar.slidersVisible = [ ( islider < len(config_function.sliderLabels) ) for islider in range(4)]
+            for islider in range(4): bbar.setSliderVisibility( islider, islider < len(config_function.sliderLabels) )
         elif args and args[0] == "Open":
             pass
         elif args and args[0] == "Close":
@@ -209,7 +208,7 @@ class RectGridPlot(StructuredGridPlot):
         elif args and args[0] == "InitConfig":
             self.updateTextDisplay( config_function.label )
             bbar = self.getInteractionButtons()
-            bbar.slidersVisible = [ ( islider < len(config_function.sliderLabels) ) for islider in range(4)]
+            for islider in range(4): bbar.setSliderVisibility(  islider, islider < len(config_function.sliderLabels) )
         elif args and args[0] == "Open":
             pass
         elif args and args[0] == "Close":
@@ -243,7 +242,7 @@ class RectGridPlot(StructuredGridPlot):
         elif args and args[0] == "InitConfig":
             self.updateTextDisplay( config_function.label )
             bbar = self.getInteractionButtons()
-            bbar.slidersVisible = [ ( islider < len(config_function.sliderLabels) ) for islider in range(4)]
+            for islider in range(4): bbar.setSliderVisibility(  islider, islider < len(config_function.sliderLabels) )
         elif args and args[0] == "Open":
             pass
         elif args and args[0] == "Close":
@@ -269,7 +268,7 @@ class RectGridPlot(StructuredGridPlot):
         elif args and args[0] == "InitConfig":
             self.updateTextDisplay( config_function.label )
             bbar = self.getInteractionButtons()
-            bbar.slidersVisible = [ ( islider < len(config_function.sliderLabels) ) for islider in range(4)]
+            for islider in range(4): bbar.setSliderVisibility(  islider, islider < len(config_function.sliderLabels) )
         elif args and args[0] == "Open":
             pass
         elif args and args[0] == "Close":
@@ -289,6 +288,7 @@ class RectGridPlot(StructuredGridPlot):
             pass
         elif args and args[0] == "Init":
             primaryInput = self.input()
+            slicePosition.setValue( 'count', 1 )
             bounds = list( primaryInput.GetBounds() ) 
             init_range = [ bounds[2*plane_index], bounds[2*plane_index+1] ]
             config_function.setRangeBounds( init_range ) 
@@ -301,6 +301,7 @@ class RectGridPlot(StructuredGridPlot):
         elif args and args[0] == "EndConfig":
             pass
         elif args and args[0] == "InitConfig":
+            self.skipIndex = 4
             if (len(args) > 2) and args[2]: 
                 for index in range(3):  self.modifySlicePlaneVisibility( index, "xyz"[index], False ) 
                 self.updateTextDisplay( config_function.label ) 
@@ -315,10 +316,12 @@ class RectGridPlot(StructuredGridPlot):
         elif args and args[0] == "Close":
             pass
         elif args and args[0] == "UpdateConfig":
-            value = args[2].GetValue()
-            plane_widget.SetSlicePosition( value )
-            slicePosition.setValues( [ value ] )
-            self.ProcessIPWAction( plane_widget, ImagePlaneWidget.InteractionUpdateEvent, action = ImagePlaneWidget.Pushing )
+            count = slicePosition.incrementValue( 'count' )
+            if count % self.skipIndex == 0:
+                value = args[2].GetValue()
+                plane_widget.SetSlicePosition( value )
+                slicePosition.setValues( [ value ] )
+                self.ProcessIPWAction( plane_widget, ImagePlaneWidget.InteractionUpdateEvent, action = ImagePlaneWidget.Pushing )
 
  
     def resetCamera(self, **args):
@@ -841,6 +844,9 @@ class RectGridPlot(StructuredGridPlot):
         if self.planeWidgetZ == None:
             self.planeWidgetZ = ImagePlaneWidget( self, picker, 2 )  
             self.planeWidgetZ.SetRenderer( self.renderer )
+            if self.type == 'vector':
+                self.planeWidgetZ.setDisplayMode( DisplayMode.VectorGlyph )
+            self.planeWidgetZ.SetRenderer( self.renderer )
 #            self.observerTargets.add( self.planeWidgetZ )
             prop3 = self.planeWidgetZ.GetPlaneProperty()
             prop3.SetColor(0, 0, 1)
@@ -855,6 +861,8 @@ class RectGridPlot(StructuredGridPlot):
             if (self.planeWidgetX == None): 
                 self.planeWidgetX = ImagePlaneWidget( self, picker, 0 )
 #               self.observerTargets.add( self.planeWidgetX )
+                if self.type == 'vector':
+                    self.planeWidgetZ.setDisplayMode( DisplayMode.VectorGlyph )
                 self.planeWidgetX.SetRenderer( self.renderer )
                 prop1 = self.planeWidgetX.GetPlaneProperty()
                 prop1.SetColor(1, 0, 0)
@@ -869,6 +877,8 @@ class RectGridPlot(StructuredGridPlot):
                 self.planeWidgetY = ImagePlaneWidget( self, picker, 1)
                 self.planeWidgetY.SetRenderer( self.renderer )
                 self.planeWidgetY.SetUserControlledLookupTable(1)
+                if self.type == 'vector':
+                    self.planeWidgetZ.setDisplayMode( DisplayMode.VectorGlyph )
 #                self.observerTargets.add( self.planeWidgetY )
                 prop2 = self.planeWidgetY.GetPlaneProperty()
                 prop2.SetColor(1, 1, 0)
@@ -1320,9 +1330,9 @@ class RectGridPlot(StructuredGridPlot):
         plane_index, plane_widget = self.getPlaneWidget( plane )
         bbar = self.getInteractionButtons()
         if make_visible == None:  
-            make_visible = bbar.slidersVisible[ slider_index ] 
+            make_visible = bbar.isSliderVisible( slider_index )
         else:
-            bbar.slidersVisible[ slider_index ] = make_visible
+            bbar.setSliderVisibility( slider_index, make_visible )
         if make_visible:   
             plane_widget.VisibilityOn()
             if plane == 'z': 

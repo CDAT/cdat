@@ -29,7 +29,7 @@ class StructuredGridPlot(DV3DPlot):
         self.baseMapActor = None
         self.enableBasemap = True
         self.map_opacity = [ 0.4, 0.4 ]
-        self.zincSkipIndex = 5
+        self.skipIndex = 1
         self.roi = None
         self.shapefilePolylineActors = {}
         self.basemapLineSpecs = {}
@@ -50,14 +50,15 @@ class StructuredGridPlot(DV3DPlot):
         elif args and args[0] == "InitConfig":
             self.updateTextDisplay( config_function.label )
             bbar = self.getInteractionButtons()
-            bbar.slidersVisible = [ ( islider < len(config_function.sliderLabels) ) for islider in range(4) ]
+            self.skipIndex = 5
+            for islider in range(4): bbar.setSliderVisibility(  islider, islider < len(config_function.sliderLabels)  )
         elif args and args[0] == "Open":
             pass
         elif args and args[0] == "Close":
             pass
         elif args and args[0] == "UpdateConfig":
             count = verticalScale.incrementValue( 'count' )
-            if count % self.zincSkipIndex == 0:
+            if count % self.skipIndex == 0:
                 value = args[2].GetValue()
                 vscale = verticalScale.getValues()
                 vscale[ args[1] ] = value
@@ -580,7 +581,7 @@ class StructuredGridPlot(DV3DPlot):
     def gminit( self, var1, var2, **args ): 
         var_list = [ var1 ]
         if id(var2) <> id(None): var_list.append( var2 )
-        self.variable_reader = StructuredDataReader( vars=var_list, **args )
+        self.variable_reader = StructuredDataReader( vars=var_list, otype=self.type, **args )
         self.variable_reader.execute( )       
         self.createRenderer( **args )
         self.initCamera()

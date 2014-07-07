@@ -12,6 +12,11 @@ PackagePath = os.path.dirname( __file__ )
 DataDir = os.path.join( PackagePath, 'data' )
 ButtonDir = os.path.join( DataDir, 'buttons' )
 
+def get_scalar_value( tvals ):
+    if hasattr( tvals, '__iter__' ):
+        return get_scalar_value( tvals[0] )
+    else: return tvals
+
 class OriginPosition:
     Upper_Left = [ 0, 1 ] 
     Upper_Right = [ 1, 1 ]  
@@ -195,7 +200,7 @@ class ButtonBarWidget:
         self.process_mode = ProcessMode.Default
         self.currentSliders = {}
         self.slider_postions = [ [ [ 0.25, 0.75 ] ], [ [0.01,0.48], [0.52, 0.99 ] ], [ [0.01,0.3], [0.35,0.7], [0.75, 0.99 ] ], [ [0.01,0.24], [0.26,0.49], [0.51,0.74], [0.76, 0.99 ] ]    ]
-        self.slidersVisible = [ True, False, False, False ]
+        self._slidersVisible = [ False, False, False, False ]
         self.interactor = interactor
         self.InteractionState = None
         self.LastInteractionState = None
@@ -212,6 +217,14 @@ class ButtonBarWidget:
         self.configurableFunctions = collections.OrderedDict()
         ButtonBarWidget.button_bars[ name ] = self
         self.updateWindowSize()
+        
+    def isSliderVisible( self, islider ):
+        return self._slidersVisible[ islider ]
+
+    def setSliderVisibility( self, islider, isVisible ):
+        self._slidersVisible[ islider ] = isVisible
+        if islider == 2: 
+            print " setSliderVisibility[%d] = %s " % ( islider, str(isVisible))
         
     def clear( self, **args ):
         current_button_id = args.get( 'current', None )
@@ -248,6 +261,8 @@ class ButtonBarWidget:
                     tvals = configFunct.value.getValues()               
                     bbar.commandeerSlider( position_index, configFunct.sliderLabels[0], configFunct.getRangeBounds(), tvals[0]  )
                     bbar.positionSlider( position_index, n_active_sliders )
+                    ButtonBarWidget.current_configuration_mode = configFunct.label
+                    print " ButtonBarWidget: restore current_configuration_mode = ", configFunct.label
      
     @classmethod   
     def getButtonBar( cls, name ):
@@ -363,7 +378,7 @@ class ButtonBarWidget:
     def processStateChangeEvent( self, button_id, key, state, force = False ):
         b = self.getButton( button_id )
         if (b.getState() <> state) or (not b.toggle) or force:
-#            print " processStateChangeEvent: ", str( [ button_id, key, state ] )
+            print " processStateChangeEvent: ", str( [ button_id, key, state ] )
             self.StateChangedSignal( button_id, key, state )
             b.setState(state)
             if state > 0: 
@@ -540,7 +555,8 @@ class ButtonBarWidget:
         swidget.Modified()    
         sliderRep.NeedToRenderOn()
                         
-    def commandeerSlider(self, index, label, bounds, value ): 
+    def commandeerSlider(self, index, label, bounds, tvals ): 
+        value = get_scalar_value( tvals )
         print " CommandeerSlider[%d]: ('%s') %s: %s in %s " % ( index, label, self.InteractionState, str(value), str(bounds) )
         widget_item = self.currentSliders.get( index, None )
         if widget_item == None: 
@@ -699,28 +715,29 @@ class ButtonBarWidget:
                     position_index = configFunct.position[0]
                     
                     if initialize_config_state:
-                        self.slidersVisible = [ ( iSlice == position_index ) for iSlice in range(4)  ] 
+                        for iSlice in range(4): self.setSliderVisibility( iSlice, iSlice == position_index ) 
                     else:
-                        self.slidersVisible[ position_index ] = button_state
+                        self.setSliderVisibility( position_index, button_state )
                         
 #                        slicePosition = configFunct.value
 #                        self.setSliderValue( position_index, slicePosition.getValue() )  
                                            
-                    if self.slidersVisible[ position_index ] or force_enable:
+                    if self.isSliderVisible( position_index ) or force_enable:
                         self.commandeerSlider( position_index, configFunct.sliderLabels[0], configFunct.getRangeBounds(), tvals[0]  )
                         self.positionSlider( position_index, n_active_sliders )
-                        self.slidersVisible[ position_index ] = True
+                        self.setSliderVisibility( position_index, True )
                     else: self.releaseSlider( position_index )
                 else:
                     n_active_sliders = len( configFunct.sliderLabels )
-                    self.slidersVisible = [ ( slider_index < n_active_sliders ) for slider_index in range(4) ]
+                    for slider_index in range(4): self.setSliderVisibility( slider_index, slider_index < n_active_sliders )
                     for slider_index in range(4):
-                        if self.slidersVisible[ slider_index ] and ( len(tvals) > slider_index ):
+                        if self.isSliderVisible( slider_index ) and ( len(tvals) > slider_index ):
                             self.commandeerSlider( slider_index, configFunct.sliderLabels[slider_index], configFunct.getRangeBounds(), tvals[slider_index]  )
                             self.positionSlider( slider_index, n_active_sliders )
                         else:
                             self.releaseSlider( slider_index )
                 ButtonBarWidget.current_configuration_mode = configFunct.label
+                print " ButtonBarWidget.current_configuration_mode = ", configFunct.label
                 configFunct.processInteractionEvent( [ "ProcessSliderInit" ] )
 #                for child_button in child_activations: 
 #                    child_button.setButtonState(1)
