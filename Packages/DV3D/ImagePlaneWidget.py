@@ -1692,3 +1692,109 @@ class VectorSliceWidget(ImagePlaneWidget):
         self.glyphMapper.SetLookupTable( colormapManager.lut )
         self.Interactor.Render()
 
+
+class LICSliceWidget(ImagePlaneWidget): 
+
+    def __init__( self, actionHandler, picker, planeIndex, **args ): 
+        self.LICFilter = None
+        ImagePlaneWidget.__init__( self, actionHandler, picker, planeIndex, **args ) 
+ 
+    def UpdateCut(self): 
+        self.cutter.SetCutFunction ( self.plane  )
+        self.LICFilter.Update()
+        if self.Interactor <> None:
+            z, units = self.getPlaneHeightCoord()
+            textDisplay = "Level: %.2f %s" % ( z, units )
+            self.updateTextDisplay( textDisplay ) 
+            self.Interactor.Render()
+            
+    def SetPicker( self, picker):
+        pass
+                    
+    def initLICFilter(self):
+        if self.LICFilter == None: 
+            pointData = self.ImageData.GetPointData()     
+            vectorsArray = pointData.GetVectors()               
+            self.resample = vtk.vtkExtractVOI()
+            if vtk.VTK_MAJOR_VERSION <= 5:  self.resample.SetInput(self.ImageData)
+            else:                           self.resample.SetInputData(self.ImageData) 
+            self.resample.SetVOI( self.initialExtent )
+            
+            self.plane.SetOrigin( *self.PlaneSource.GetOrigin() )
+            self.LookupTable.SetVectorModeToMagnitude()
+            
+            self.cutter = vtk.vtkCutter()
+            self.cutter.SetInputConnection( self.resample.GetOutputPort()  )        
+            self.cutter.SetGenerateCutScalars(0)
+
+            self.LICFilter = vtk.vtkImageDataLIC2D()            
+            self.LICFilter.SetInputConnection( self.cutter.GetOutputPort() )
+             
+#            if vtk.VTK_MAJOR_VERSION <= 5:  self.LICFilter.SetInput(self.cutter.GetOutput())
+#            else:                           self.LICFilter.SetInputData(self.cutter.GetOutput()) 
+ 
+            self.LICFilter.SetSteps( 1 ) 
+            self.LICFilter.SetStepSize( 1.0 )            
+            self.LICFilter.Update() 
+             
+            if vtk.VTK_MAJOR_VERSION <= 5:  self.Texture.SetInput(self.LICFilter.GetOutput())
+            else:                           self.Texture.SetInputData(self.LICFilter.GetOutput()) 
+                   
+            
+    def UpdateInputs(self):
+        if not ImagePlaneWidget.UpdateInputs(self):
+            return False
+        self.initLICFilter()           
+        return True            
+
+    def processLICScaleCommand( self, args, config_function = None ):
+        LICScale = config_function.value
+        if args and args[0] == "StartConfig":
+            pass
+        elif args and args[0] == "Init":
+            config_function.setRangeBounds( self.glyphScaleBounds )
+            if config_function.initial_value == None:      
+                config_function.initial_value = self.glyphScale  
+            LICScale.setValue( 0, config_function.initial_value )
+            self.updateScaling( True )
+        elif args and args[0] == "EndConfig":
+            pass
+        elif args and args[0] == "InitConfig":
+            pass
+        elif args and args[0] == "Open":
+            pass
+        elif args and args[0] == "Close":
+            pass
+        elif args and args[0] == "UpdateConfig":
+            value = args[2].GetValue() 
+            LICScale.setValue( 0, value )
+            self.updateScaling( True )
+
+    def processLICDensityCommand( self, args, config_function = None ):
+        LICDensity = config_function.value
+        if args and args[0] == "StartConfig":
+            pass
+        elif args and args[0] == "Init":
+            config_function.setRangeBounds( self.glyphDecimationFactorBounds )
+            if config_function.initial_value == None:      
+                config_function.initial_value = self.glyphDecimationFactor   
+            LICDensity.setValue( 0, config_function.initial_value )
+            self.ApplyLICDecimationFactor()
+        elif args and args[0] == "EndConfig":
+            pass
+        elif args and args[0] == "InitConfig":
+            pass
+        elif args and args[0] == "Open":
+            pass
+        elif args and args[0] == "Close":
+            pass
+        elif args and args[0] == "UpdateConfig":
+            value = args[2].GetValue() 
+            LICDensity.setValue( 0, value )
+#            self.glyphDecimationFactor = value
+#            self.ApplyGlyphDecimationFactor()
+        
+    def updateScaling( self, render = False ):
+        if render:     
+            self.Interactor.Render()
+
