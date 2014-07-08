@@ -242,7 +242,7 @@ class ButtonBarWidget:
 
     @classmethod   
     def restoreInteractionState(cls): 
-        print "  ----------------------------- restoreInteractionState ----------------------------- " 
+#        print "  ----------------------------- restoreInteractionState ----------------------------- " 
         bbar = cls.getButtonBar( 'Plot' ) 
         bbar.InteractionState = None
         current_config_function = None
@@ -263,7 +263,7 @@ class ButtonBarWidget:
                     bbar.commandeerSlider( position_index, configFunct.sliderLabels[0], configFunct.getRangeBounds(), tvals[0]  )
                     bbar.positionSlider( position_index, n_active_sliders )
                     ButtonBarWidget.current_configuration_mode = configFunct.label
-                    print " ButtonBarWidget: restore current_configuration_mode = ", configFunct.label
+#                    print " ButtonBarWidget: restore current_configuration_mode = ", configFunct.label
      
     @classmethod   
     def getButtonBar( cls, name ):

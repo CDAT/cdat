@@ -1506,10 +1506,11 @@ class VectorSliceWidget(ImagePlaneWidget):
     def __init__( self, actionHandler, picker, planeIndex, **args ): 
         self.glyphMapper = None
         ImagePlaneWidget.__init__( self, actionHandler, picker, planeIndex, **args ) 
-        self.glyphScale = 4.0 
+        self.glyphScale = 0.3 
         self.glyphDecimationFactorBounds = [ 1.0, 20.0 ] 
-        self.glyphScaleBounds = [ 1.0, 20.0 ] 
+        self.glyphScaleBounds = [ 0.1, 1.0 ] 
         self.glyphDecimationFactor = 3.0
+        self.scaleByMag = True
 
     def UpdateCut(self): 
         self.cutter.SetCutFunction ( self.plane  )
@@ -1533,18 +1534,22 @@ class VectorSliceWidget(ImagePlaneWidget):
             self.resample.SetVOI( self.initialExtent )
             
             self.plane.SetOrigin( *self.PlaneSource.GetOrigin() )
+            self.LookupTable.SetVectorModeToMagnitude()
             
             self.cutter = vtk.vtkCutter()
             self.cutter.SetInputConnection( self.resample.GetOutputPort()  )        
             self.cutter.SetGenerateCutScalars(0)
             self.glyphMapper = vtk.vtkGlyph3DMapper() 
-#            self.glyphMapper.SetScaleModeToScaleByMagnitude()
-
-            self.glyphMapper.SetScaleModeToNoDataScaling()   
+#            
+            if self.scaleByMag: self.glyphMapper.SetScaleModeToScaleByMagnitude()
+            else:               self.glyphMapper.SetScaleModeToNoDataScaling() 
+            self.glyphMapper.ScalingOn()     
             self.glyphMapper.SetUseLookupTableScalarRange(1)
-            self.glyphMapper.SetOrient( 1 ) 
-            self.glyphMapper.ClampingOff()
-            self.glyphMapper.SourceIndexingOn()
+            self.glyphMapper.OrientOn () 
+#            self.glyphMapper.ClampingOn()
+            self.glyphMapper.SourceIndexingOff()
+            self.glyphMapper.NestedDisplayListsOff()
+            self.glyphMapper.UseSelectionIdsOff()
             self.glyphMapper.SetInputConnection( self.cutter.GetOutputPort() )
             self.glyphMapper.SetLookupTable( self.LookupTable )
             self.glyphMapper.ScalarVisibilityOn()            

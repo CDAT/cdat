@@ -862,7 +862,7 @@ class RectGridPlot(StructuredGridPlot):
         self.planeWidgetZ.SetPlaneOrientationToZAxes()
         self.planeWidgetZ.PlaceWidget( bounds )
        
-        if self.planeWidgetZ.HasThirdDimension(): 
+        if self.planeWidgetZ.HasThirdDimension() and ( self.type <> 'vector' ): 
             if (self.planeWidgetX == None): 
                 self.planeWidgetX = ScalarSliceWidget( self, picker, 0 )
 #               self.observerTargets.add( self.planeWidgetX )
@@ -913,9 +913,9 @@ class RectGridPlot(StructuredGridPlot):
             self.setBasemapCoastlineLineSpecs( [ 1, 1 ] )
             self.setBasemapCountriesLineSpecs( [ 0, 1 ] )
          
-        self.modifySlicePlaneVisibility( 0, 'x', False )   
-        self.modifySlicePlaneVisibility( 1, 'y', False )   
-        self.modifySlicePlaneVisibility( 2, 'z', False )  
+        if (self.planeWidgetX <> None): self.modifySlicePlaneVisibility( 0, 'x', False )   
+        if (self.planeWidgetY <> None): self.modifySlicePlaneVisibility( 1, 'y', False )   
+        if (self.planeWidgetZ <> None): self.modifySlicePlaneVisibility( 2, 'z', False )  
 
       
     def clipObserver( self, caller=None, event=None ):
@@ -1329,31 +1329,32 @@ class RectGridPlot(StructuredGridPlot):
 #TODO:    
     def modifySlicePlaneVisibility( self, slider_index, plane, make_visible=None ):
         plane_index, plane_widget = self.getPlaneWidget( plane )
-        bbar = self.getInteractionButtons()
-        if make_visible == None:  
-            make_visible = bbar.isSliderVisible( slider_index )
-        else:
-            bbar.setSliderVisibility( slider_index, make_visible )
-        if make_visible:   
-            plane_widget.VisibilityOn()
-            if plane == 'z': 
-                if self.generateContours:
-                    self.setContourVisibility( slider_index, True ) 
-                else: 
-                    self.basemapLinesVisibilityOn()
+        if plane_widget <> None:
+            bbar = self.getInteractionButtons()
+            if make_visible == None:  
+                make_visible = bbar.isSliderVisible( slider_index )
             else:
-                self.setContourVisibility( slider_index, True )
-        else:               
-            plane_widget.VisibilityOff()
-            if plane == 'z': 
-                if self.generateContours:
-                    self.setContourVisibility( slider_index, False ) 
-                else: 
-                    self.basemapLinesVisibilityOff()
-            else:
-                self.setContourVisibility( slider_index, False )
-                
-                                                                        
+                bbar.setSliderVisibility( slider_index, make_visible )
+            if make_visible:   
+                plane_widget.VisibilityOn()
+                if plane == 'z': 
+                    if self.generateContours:
+                        self.setContourVisibility( slider_index, True ) 
+                    else: 
+                        self.basemapLinesVisibilityOn()
+                else:
+                    self.setContourVisibility( slider_index, True )
+            else:               
+                plane_widget.VisibilityOff()
+                if plane == 'z': 
+                    if self.generateContours:
+                        self.setContourVisibility( slider_index, False ) 
+                    else: 
+                        self.basemapLinesVisibilityOff()
+                else:
+                    self.setContourVisibility( slider_index, False )
+                    
+                                                                            
 
 #        self.set3DOutput() 
 
