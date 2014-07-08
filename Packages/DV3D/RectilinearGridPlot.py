@@ -7,7 +7,7 @@ Created on Apr 29, 2014
 import sys, vtk, cdms2, traceback, os, cdtime, math 
 from ColorMapManager import *  
 from Shapefile import shapeFileReader   
-from ImagePlaneWidget import ImagePlaneWidget, DisplayMode  
+from ImagePlaneWidget import *  
 from DistributedPointCollections import kill_all_zombies
 from StructuredGridPlot import  *
 from StructuredDataset import *
@@ -840,12 +840,17 @@ class RectGridPlot(StructuredGridPlot):
         lut = self.getLut()
         picker = vtk.vtkCellPicker()
         picker.SetTolerance(0.005) 
+        interactionButtons = self.getInteractionButtons()
                 
         if self.planeWidgetZ == None:
-            self.planeWidgetZ = ImagePlaneWidget( self, picker, 2 )  
-            self.planeWidgetZ.SetRenderer( self.renderer )
             if self.type == 'vector':
-                self.planeWidgetZ.setDisplayMode( DisplayMode.VectorGlyph )
+                self.planeWidgetZ = VectorSliceWidget( self, picker, 0 )
+                interactionButtons.addSliderButton( names=['GlyphDensity'], key='g', toggle=True, sliderLabels='Density Value', label='Glyph Density', interactionHandler=self.planeWidgetZ.processGlyphDensityCommand )
+                interactionButtons.addSliderButton( names=['GlyphSize'], key='G', toggle=True, sliderLabels=[ 'Scale Value', 'Range Value'], label='Glyph Size', interactionHandler=self.planeWidgetZ.processGlyphScaleCommand )
+                interactionButtons.build()
+            else:
+                self.planeWidgetZ = ScalarSliceWidget( self, picker, 0 )
+            self.planeWidgetZ.SetRenderer( self.renderer )
             self.planeWidgetZ.SetRenderer( self.renderer )
 #            self.observerTargets.add( self.planeWidgetZ )
             prop3 = self.planeWidgetZ.GetPlaneProperty()
@@ -859,10 +864,8 @@ class RectGridPlot(StructuredGridPlot):
        
         if self.planeWidgetZ.HasThirdDimension(): 
             if (self.planeWidgetX == None): 
-                self.planeWidgetX = ImagePlaneWidget( self, picker, 0 )
+                self.planeWidgetX = ScalarSliceWidget( self, picker, 0 )
 #               self.observerTargets.add( self.planeWidgetX )
-                if self.type == 'vector':
-                    self.planeWidgetZ.setDisplayMode( DisplayMode.VectorGlyph )
                 self.planeWidgetX.SetRenderer( self.renderer )
                 prop1 = self.planeWidgetX.GetPlaneProperty()
                 prop1.SetColor(1, 0, 0)
@@ -874,11 +877,9 @@ class RectGridPlot(StructuredGridPlot):
             self.planeWidgetX.PlaceWidget( bounds )     
                     
             if self.planeWidgetY == None: 
-                self.planeWidgetY = ImagePlaneWidget( self, picker, 1)
+                self.planeWidgetY = ScalarSliceWidget( self, picker, 1)
                 self.planeWidgetY.SetRenderer( self.renderer )
                 self.planeWidgetY.SetUserControlledLookupTable(1)
-                if self.type == 'vector':
-                    self.planeWidgetZ.setDisplayMode( DisplayMode.VectorGlyph )
 #                self.observerTargets.add( self.planeWidgetY )
                 prop2 = self.planeWidgetY.GetPlaneProperty()
                 prop2.SetColor(1, 1, 0)

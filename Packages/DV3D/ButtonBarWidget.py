@@ -192,6 +192,7 @@ class ButtonBarWidget:
     
     current_configuration_mode = None
     button_bars = {}
+    DefaultGroup = None
     
     def __init__( self, name, interactor, **args ):
         self.vtk_coord = vtk.vtkCoordinate()
@@ -241,12 +242,12 @@ class ButtonBarWidget:
 
     @classmethod   
     def restoreInteractionState(cls): 
-#        print "  ----------------------------- restoreInteractionState ----------------------------- " 
+        print "  ----------------------------- restoreInteractionState ----------------------------- " 
         bbar = cls.getButtonBar( 'Plot' ) 
         bbar.InteractionState = None
         current_config_function = None
         for configFunct in bbar.configurableFunctions.values():
-            if ( configFunct.type == 'slider' ) and ( configFunct.position <> None ):
+            if ( configFunct.type == 'slider' ) and ( configFunct.active ) and ( configFunct.group == cls.DefaultGroup ):
                 b = bbar.getButton( configFunct.name )
                 if b.getState():
                     if current_config_function == None:
@@ -256,8 +257,8 @@ class ButtonBarWidget:
                             print>>sys.stderr, "Error, interaction state conflict: %s vs %s " % ( configFunct.name, bbar.InteractionState) 
                             return
                     bbar.InteractionState = configFunct.name 
-                    n_active_sliders = configFunct.position[1]
-                    position_index = configFunct.position[0]
+                    n_active_sliders = configFunct.position[1] if configFunct.position else 1
+                    position_index = configFunct.position[0] if configFunct.position else 0
                     tvals = configFunct.value.getValues()               
                     bbar.commandeerSlider( position_index, configFunct.sliderLabels[0], configFunct.getRangeBounds(), tvals[0]  )
                     bbar.positionSlider( position_index, n_active_sliders )
@@ -369,11 +370,11 @@ class ButtonBarWidget:
             state = new_state if is_child else 0
             if ib.id == "ScaleTransferFunction":
                 print " Set button state %s: %d" % ( ib.id, state )
- #           ibbar.processStateChangeEvent( ib.id, ib.key, state )
+#           ibbar.processStateChangeEvent( ib.id, ib.key, state )
             ib.setButtonState(state)           
             if is_child:
-                 if ( new_state == 0 ): ib.deactivate()
-                 else: ib.activate()
+                if ( new_state == 0 ): ib.deactivate()
+                else: ib.activate()
                     
     def processStateChangeEvent( self, button_id, key, state, force = False ):
         b = self.getButton( button_id )
@@ -406,8 +407,9 @@ class ButtonBarWidget:
         bds[3] = pos[1] if self.origin[1] else pos[1] + size[1]
         return bds
     
-    def show(self):
+    def show( self, **args ):
         self.visible = True
+        self.initializeChildren( **args )
         for button in self.buttons: button.On()
         
     def processKeyEvent( self, key, ctrl = 0 ):
@@ -782,16 +784,15 @@ class ButtonBarWidget:
         if len( child_button.parents ):
             if ( parent_name in child_button.parents ):
                 parent_button = ButtonBarWidget.findButton( parent_name )
-                if parent_button <> None: 
-                    if parent_button.getState(): 
-                        if self.visible: 
-                            child_button.activate() 
-                            print "Activate child: ", child_button.id
-                        if child_button.id in parent_button.children:
-                            return True
-                    else:                       
-                        child_button.deactivate()
-                        print "Dectivate child: ", child_button.id
+                if (parent_button <> None) and parent_button.getState(): 
+                    if self.visible: 
+                        child_button.activate() 
+                        print "Activate child: ", child_button.id
+                    if child_button.id in parent_button.children:
+                        return True
+                else:                       
+                    child_button.deactivate()
+                    print "Dectivate child: ", child_button.id
         return False
                 
     
