@@ -1,17 +1,17 @@
-
-# If Windows we use CMake otherwise ./configure
-
-set(vtk_source "${CMAKE_CURRENT_BINARY_DIR}/vtk")
-set(vtk_binary "${CMAKE_CURRENT_BINARY_DIR}/vtk-build")
+set(vtk_source "${CMAKE_CURRENT_BINARY_DIR}/build/VTK")
+set(vtk_binary "${CMAKE_CURRENT_BINARY_DIR}/build/VTK-build")
 set(vtk_install "${cdat_EXTERNALS}")
 
-ExternalProject_Add(vtk
+set(GIT_CMD_STR GIT_REPOSITORY "${VTK_SOURCE}")
+
+ExternalProject_Add(VTK
   DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${vtk_source}
-  BINARY_DIR ${vtk_build}
+  BINARY_DIR ${vtk_binary}
   INSTALL_DIR ${vtk_install}
-  URL ${VTK_URL}/${VTK_GZ}
-  URL_MD5 ${VTK_MD5}
+  ${GIT_CMD_STR}
+  GIT_TAG uvcdat-master
+  UPDATE_COMMAND ""
   PATCH_COMMAND ""
   CMAKE_CACHE_ARGS
     -DBUILD_SHARED_LIBS:BOOL=ON
@@ -20,10 +20,14 @@ ExternalProject_Add(vtk
     -DCMAKE_C_FLAGS:STRING=${cdat_tpl_c_flags}
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_CFG_INTDIR}
     ${cdat_compiler_args}
-    -DWRAP_VTK_PYTHON:BOOL=ON
-    -DVTK_LEGACY_SILENT:BOOL=ON
+    -DVTK_WRAP_PYTHON:BOOL=ON
+    -DPYTHON_EXECUTABLE:FILEPATH=${PYTHON_EXECUTABLE}
+    -DPYTHON_INCLUDE_DIR:PATH=${PYTHON_INCLUDE}
+    -DPYTHON_LIBRARY:FILEPATH=${PYTHON_LIBRARY}
   CMAKE_ARGS
     -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
   DEPENDS ${vtk_deps}
   ${ep_log_options}
 )
+
+unset(GIT_CMD_STR)
