@@ -38,6 +38,8 @@ else:
     v = f["vwnd"] 
 
 dv3d = vcs.createdv3d('vector')
+dv3d.ScaleGlyphsByMagnitude = False
+
 x = vcs.init()
 x.plot( u, v, dv3d )
 x.interact()

@@ -1,5 +1,6 @@
 
 import vtk, sys, gc
+from ConfigurationFunctions import CfgManager
 
 VTK_NEAREST_RESLICE = 0
 VTK_LINEAR_RESLICE  = 1
@@ -1506,11 +1507,8 @@ class VectorSliceWidget(ImagePlaneWidget):
     def __init__( self, actionHandler, picker, planeIndex, **args ): 
         self.glyphMapper = None
         ImagePlaneWidget.__init__( self, actionHandler, picker, planeIndex, **args ) 
-        self.glyphScale = 0.3 
         self.glyphDecimationFactorBounds = [ 1.0, 20.0 ] 
-        self.glyphScaleBounds = [ 0.1, 1.0 ] 
         self.glyphDecimationFactor = 3.0
-        self.scaleByMag = True
 
     def UpdateCut(self): 
         self.cutter.SetCutFunction ( self.plane  )
@@ -1526,6 +1524,9 @@ class VectorSliceWidget(ImagePlaneWidget):
                     
     def initGlyphMapper(self):
         if self.glyphMapper == None: 
+            scaleGlyphsByMagnitudeCF = CfgManager.getParameter( 'ScaleGlyphsByMagnitude' )
+            self.scaleByMag = scaleGlyphsByMagnitudeCF.getInitValue( True )
+            
             pointData = self.ImageData.GetPointData()     
             vectorsArray = pointData.GetVectors()               
             self.resample = vtk.vtkExtractVOI()
@@ -1541,8 +1542,14 @@ class VectorSliceWidget(ImagePlaneWidget):
             self.cutter.SetGenerateCutScalars(0)
             self.glyphMapper = vtk.vtkGlyph3DMapper() 
 #            
-            if self.scaleByMag: self.glyphMapper.SetScaleModeToScaleByMagnitude()
-            else:               self.glyphMapper.SetScaleModeToNoDataScaling() 
+            if self.scaleByMag: 
+                self.glyphMapper.SetScaleModeToScaleByMagnitude()
+                self.glyphScaleBounds = [ 0.1, 1.0 ] 
+                self.glyphScale = 0.3 
+            else:               
+                self.glyphMapper.SetScaleModeToNoDataScaling() 
+                self.glyphScaleBounds = [ 1.0, 10.0 ] 
+                self.glyphScale = 3.0 
             self.glyphMapper.ScalingOn()     
             self.glyphMapper.SetUseLookupTableScalarRange(1)
             self.glyphMapper.OrientOn () 

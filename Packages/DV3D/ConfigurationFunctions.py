@@ -221,11 +221,11 @@ class ConfigManager:
             self.parameters[ param_name ] = cparm
         return cparm
             
-        
+      
     def setParameter(self, param_name, data, **args ):
         param = self.getParameter( param_name, **args )
 #        pdata = data if hasattr( data, '__iter__' ) else [ data ]
-        param.setValue( 'init', data )
+        param.setInitValue( data )
 #        print '  <<---------------------------------------------------->> Set Parameter: ', param_name, " = ", str( data )
 
     def getParameterValue(self, param_name, **args ):
@@ -463,6 +463,12 @@ class ConfigParameter:
     def getValue( self, key=0, default_value=None ):
         return self.values.get( key, default_value )
 
+    def getInitValue( self, default_value=None ):
+        return self.values.get( 'init', default_value )
+
+    def setInitValue( self, value, update = False ):
+        self.setValue( 'init', value, update )
+
     def setValue( self, key, val, update=False  ):
         self.values[ key ] = val
         self.addValueKey( key )
@@ -521,7 +527,7 @@ class ConfigParameter:
         return ( self.rmin, self.rmax )
 
 CfgManager = ConfigManager() 
-
+  
 class ConfigurableFunction:
 
     Default = 0
