@@ -421,14 +421,14 @@ class VTKVCSBackend(object):
   def plotVector(self,data1,data2,tmpl,gm,ren):
     self.setLayer(ren,tmpl.data.priority)
     ug,xm,xM,ym,yM,continents,wrap = vcs2vtk.genUnstructuredGrid(data1,data2,gm)
-    c2p = vtk.vtkCellDataToPointData()
-    c2p.SetInputData(ug)
-    c2p.Update()
-    #For contouring duplicate points seem to confuse it
-    cln = vtk.vtkCleanUnstructuredGrid()
-    cln.SetInputConnection(c2p.GetOutputPort())
+    if ug.IsA("vtkUnstructuredGrid"):
+        c2p = vtk.vtkCellDataToPointData()
+        c2p.SetInputData(ug)
+        c2p.Update()
+        #For contouring duplicate points seem to confuse it
+        cln = vtk.vtkCleanUnstructuredGrid()
+        cln.SetInputConnection(c2p.GetOutputPort())
 
-    print "Got ug",data1.shape
     u=numpy.ravel(numpy.ma.masked_greater_equal(data1,600).filled(0.))
     v=numpy.ravel(numpy.ma.masked_greater_equal(data2,600).filled(0.))
     sh = list(u.shape)
@@ -450,7 +450,10 @@ class VTKVCSBackend(object):
     glyphFilter.SetVectorModeToUseVector()
     glyphFilter.SetInputArrayToProcess(1,0,0,0,"vectors")
     glyphFilter.SetScaleFactor(2.)
-    glyphFilter.SetInputConnection(cln.GetOutputPort())
+    if ug.IsA("vtkUnstructuredGrid"):
+        glyphFilter.SetInputConnection(cln.GetOutputPort())
+    else:
+        glyphFilter.SetInputData(ug)
 
     mapper = vtk.vtkPolyDataMapper()
     mapper.SetInputConnection(glyphFilter.GetOutputPort())
@@ -468,16 +471,27 @@ class VTKVCSBackend(object):
     if continents:
         projection = vcs.elements["projection"][gm.projection]
         self.plotContinents(x1,x2,y1,y2,projection,wrap,ren,tmpl)
-    print "Done!"
 
 
   def plot2D(self,data1,data2,tmpl,gm,ren):
     self.setLayer(ren,tmpl.data.priority)
     ug,xm,xM,ym,yM,continents,wrap = vcs2vtk.genUnstructuredGrid(data1,data2,gm)
     #Now applies the actual data on each cell
-    data = VN.numpy_to_vtk(data1.filled().flat,deep=True)
-    ug.GetCellData().SetScalars(data)
+    data = VN.numpy_to_vtk(data1.filled(0.).flat,deep=True)
+    if ug.IsA("vtkUnstructuredGrid"):
+        ug.GetCellData().SetScalars(data)
+    else:
+        ug.GetPointData().SetScalars(data)
 
+
+    #Ok now looking 
+    msk = data1.mask
+    if msk is not numpy.ma.nomask:
+        msk =  VN.numpy_to_vtk(numpy.logical_not(msk).astype(numpy.uint8).flat,deep=True)
+        #msk = msk.SafeDownCast(vtk.vtkUnsignedCharArray())
+        if ug.IsA("vtkStructuredGrid"):
+            ug.SetPointVisibilityArray(msk)
+        
     try:
       cmap = vcs.elements["colormap"][cmap]
     except:
@@ -492,26 +506,33 @@ class VTKVCSBackend(object):
     if isinstance(gm,(isofill.Gfi,isoline.Gi,meshfill.Gfm)) or \
         (isinstance(gm,boxfill.Gfb) and gm.boxfill_type=="custom"):
       
-      # Sets data to point instead of just cells
-      c2p = vtk.vtkCellDataToPointData()
-      c2p.SetInputData(ug)
-      c2p.Update()
-      if self.debug:
-        vcs2vtk.dump2VTK(c2p)
-      #For contouring duplicate points seem to confuse it
-      cln = vtk.vtkCleanUnstructuredGrid()
-      cln.SetInputConnection(c2p.GetOutputPort())
-      if self.debug:
-        vcs2vtk.dump2VTK(cln)
+      if ug.IsA("vtkUnstructuredGrid"):
+          # Sets data to point instead of just cells
+          c2p = vtk.vtkCellDataToPointData()
+          c2p.SetInputData(ug)
+          c2p.Update()
+          if self.debug:
+            vcs2vtk.dump2VTK(c2p)
+          #For contouring duplicate points seem to confuse it
+          cln = vtk.vtkCleanUnstructuredGrid()
+          cln.SetInputConnection(c2p.GetOutputPort())
+          if self.debug:
+            vcs2vtk.dump2VTK(cln)
       #Now this filter seems to create the good polydata
       sFilter = vtk.vtkDataSetSurfaceFilter()
-      sFilter.SetInputConnection(cln.GetOutputPort())
+      if ug.IsA("vtkUnstructuredGrid"):
+        sFilter.SetInputConnection(cln.GetOutputPort())
+      else:
+        sFilter.SetInputData(ug)
       sFilter.Update()
       if self.debug:
         vcs2vtk.dump2VTK(sFilter)
       if isinstance(gm,isoline.Gi):
         cot = vtk.vtkContourFilter()
-        cot.SetInputData(sFilter.GetOutput())
+        if ug.IsA("vtkUnstructuredGrid"):
+          cot.SetInputData(sFilter.GetOutput())
+        else:
+          cot.SetInputData(ug.GetOutput())
 
 
       levs = gm.levels
@@ -597,7 +618,13 @@ class VTKVCSBackend(object):
     else: #Boxfill/Meshfill
       mappers=[]
       geoFilter = vtk.vtkGeometryFilter()
-      geoFilter.SetInputData(ug)
+      if ug.IsA("vtkUnstructuredGrid"):
+        geoFilter.SetInputData(ug)
+      else:
+          p2c = vtk.vtkPointDataToCellData()
+          p2c.SetInputData(ug)
+          geoFilter = vtk.vtkDataSetSurfaceFilter()
+          geoFilter.SetInputConnection(p2c.GetOutputPort())
       geoFilter.Update()
       mapper.SetInputData(geoFilter.GetOutput())
       if isinstance(gm,boxfill.Gfb):
