@@ -1,5 +1,5 @@
 set(ESMF_source_dir "${CMAKE_CURRENT_BINARY_DIR}/build/ESMF" CACHE INTERNAL "")
-set(ESMF_source "${CMAKE_CURRENT_BINARY_DIR}/build/ESMF/esmf" CACHE INTERNAL "")
+set(ESMF_source "${CMAKE_CURRENT_BINARY_DIR}/build/ESMF" CACHE INTERNAL "")
 set(ESMF_install "${cdat_EXTERNALS}" CACHE INTERNAL "")
 set(ESMF_pthreads "OFF")
 set(ESMF_os "${CDAT_BUILD_ESMF_OS}")
