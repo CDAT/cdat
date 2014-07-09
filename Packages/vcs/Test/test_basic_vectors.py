@@ -13,6 +13,6 @@ V.list()
 x=vcs.init()
 x.plot(u,v,V)
 
-
+x.png("vectors_bad")
 x.interact()
 
