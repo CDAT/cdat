@@ -37,16 +37,6 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
     axes=property(_getaxes,_setaxes)
     
     def __init__(self, Gfdv3d_name, Gfdv3d_name_src='default'):
-    #                                                         #
-        ###########################################################
-    # Initialize the meshfill class and its members            #
-        #                              #
-    # The getGfmmember function retrieves the values of the   #
-        # meshfill members in the C structure and passes back the  #
-    # appropriate Python Object.                              #
-        ###########################################################
-
-
         if not isinstance(Gfdv3d_name,str):
             raise ValueError,"DV3D name must be a string"
         if Gfdv3d_name in vcs.elements["dv3d"].keys():
