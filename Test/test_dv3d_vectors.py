@@ -38,7 +38,8 @@ else:
     v = f["vwnd"] 
 
 dv3d = vcs.createdv3d('vector')
-dv3d.ScaleGlyphsByMagnitude = False
+#dv3d.ScaleGlyphsByMagnitude = False
+dv3d.VectorDisplay = "stream"
 
 x = vcs.init()
 x.plot( u, v, dv3d )
