@@ -12,6 +12,42 @@ import cdms2
 f = open(os.path.join(sys.prefix,"share","vcs","wmo_symbols.json"))
 wmo = json.load(f)
 
+def putMaskOnVTKGrid(data,grid,actorColor=None):
+  #Ok now looking 
+  msk = data.mask
+  imsk =  VN.numpy_to_vtk(msk.astype(numpy.int).flat,deep=True)
+  mapper = None
+  if msk is not numpy.ma.nomask:
+      msk =  VN.numpy_to_vtk(numpy.logical_not(msk).astype(numpy.uint8).flat,deep=True)
+      if actorColor is not None:
+          grid2 = vtk.vtkStructuredGrid()
+          grid2.CopyStructure(grid)
+          geoFilter = vtk.vtkDataSetSurfaceFilter()
+          if grid.IsA("vtkStructuredGrid"):
+              grid2.GetPointData().SetScalars(imsk)
+              #grid2.SetCellVisibilityArray(imsk)
+              p2c = vtk.vtkPointDataToCellData()
+              p2c.SetInputData(grid2)
+              geoFilter.SetInputConnection(p2c.GetOutputPort())
+          else:
+              grid2.GetCellData().SetScalars(imsk)
+              geoFilter.SetInputData(grid)
+          geoFilter.Update()
+          mapper = vtk.vtkPolyDataMapper()
+          mapper.SetInputData(geoFilter.GetOutput())
+          lut = vtk.vtkLookupTable()
+          lut.SetNumberOfTableValues(1)
+          r,g,b = actorColor
+          lut.SetNumberOfTableValues(2)
+          lut.SetTableValue(0,r/100.,g/100.,b/100.)
+          lut.SetTableValue(1,r/100.,g/100.,b/100.)
+          print "RANGE:",grid2.GetPointData().GetScalars().GetRange()
+          mapper.SetLookupTable(lut)
+          mapper.SetScalarRange(1,1)
+      if grid.IsA("vtkStructuredGrid"):
+          #grid.SetPointVisibilityArray(msk)
+          grid.SetCellVisibilityArray(msk)
+  return mapper
 
 def genUnstructuredGrid(data1,data2,gm):
   continents = False
