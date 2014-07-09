@@ -285,7 +285,7 @@ class RectGridPlot(StructuredGridPlot):
         slicePosition = config_function.value
 #        print " ProcessSlicingCommand: args = %s, plane = %d, cf = %s" % ( str( args ), plane_index, config_function.key )
         if args and args[0] == "StartConfig":
-            pass
+            plane_widget.beginSlicing()
         elif args and args[0] == "Init":
             primaryInput = self.input()
             slicePosition.setValue( 'count', 1 )
@@ -299,7 +299,7 @@ class RectGridPlot(StructuredGridPlot):
             if config_function.key == 'z':
                 self.ProcessIPWAction( plane_widget, ImagePlaneWidget.InteractionUpdateEvent, action = ImagePlaneWidget.Pushing )
         elif args and args[0] == "EndConfig":
-            pass
+            plane_widget.endSlicing()
         elif args and args[0] == "InitConfig":
             self.skipIndex = 4
             if (len(args) > 2) and args[2]: 
@@ -844,10 +844,20 @@ class RectGridPlot(StructuredGridPlot):
                 
         if self.planeWidgetZ == None:
             if self.type == 'vector':
-                self.planeWidgetZ = VectorSliceWidget( self, picker, 0 )
-                interactionButtons.addSliderButton( names=['GlyphDensity'], key='g', toggle=True, sliderLabels='Density Value', label='Glyph Density', interactionHandler=self.planeWidgetZ.processGlyphDensityCommand )
-                interactionButtons.addSliderButton( names=['GlyphSize'], key='G', toggle=True, sliderLabels=[ 'Scale Value', 'Range Value'], label='Glyph Size', interactionHandler=self.planeWidgetZ.processGlyphScaleCommand )
-                interactionButtons.build()
+                vectorDisplayCF = CfgManager.getParameter( 'VectorDisplay' )
+                vectorDisplay = vectorDisplayCF.getInitValue( 'default' ).lower()
+                if vectorDisplay == 'lic':                    
+                    self.planeWidgetZ = LICSliceWidget( self, picker, 0 )  
+                if vectorDisplay == 'stream':
+                    self.planeWidgetZ = StreamlineSliceWidget( self, picker, 0 )  
+                    interactionButtons.addSliderButton( names=['StreamlineDensity'], key='g', toggle=True, sliderLabels='Streamline Spacing', label='Streamline Density', interactionHandler=self.planeWidgetZ.processStreamDensityCommand )
+                    interactionButtons.addSliderButton( names=['StreamlineLength'], key='G', toggle=True, sliderLabels='Scale Value', label='Streamline Length', interactionHandler=self.planeWidgetZ.processStreamScaleCommand )
+                    interactionButtons.build()                   
+                else:         
+                    self.planeWidgetZ = VectorSliceWidget( self, picker, 0 )
+                    interactionButtons.addSliderButton( names=['GlyphDensity'], key='g', toggle=True, sliderLabels='Glyph Spacing', label='Glyph Density', interactionHandler=self.planeWidgetZ.processGlyphDensityCommand )
+                    interactionButtons.addSliderButton( names=['GlyphSize'], key='G', toggle=True, sliderLabels=[ 'Scale Value', 'Range Value'], label='Glyph Size', interactionHandler=self.planeWidgetZ.processGlyphScaleCommand )
+                    interactionButtons.build()
             else:
                 self.planeWidgetZ = ScalarSliceWidget( self, picker, 0 )
             self.planeWidgetZ.SetRenderer( self.renderer )

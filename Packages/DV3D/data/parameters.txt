@@ -15,4 +15,5 @@ PointSize,0
 SliceThickness,0
 ToggleSphericalProj,0
 IsosurfaceValue,0
-ScaleGlyphsByMagnitude,1
+ScaleGlyphsByMagnitude,0
+VectorDisplay,0
