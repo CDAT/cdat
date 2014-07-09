@@ -482,20 +482,16 @@ class VTKVCSBackend(object):
         ug.GetCellData().SetScalars(data)
     else:
         ug.GetPointData().SetScalars(data)
-
-
-    #Ok now looking 
-    msk = data1.mask
-    if msk is not numpy.ma.nomask:
-        msk =  VN.numpy_to_vtk(numpy.logical_not(msk).astype(numpy.uint8).flat,deep=True)
-        #msk = msk.SafeDownCast(vtk.vtkUnsignedCharArray())
-        if ug.IsA("vtkStructuredGrid"):
-            ug.SetPointVisibilityArray(msk)
-        
+    
     try:
       cmap = vcs.elements["colormap"][cmap]
     except:
       cmap = vcs.elements["colormap"][self.canvas.getcolormapname()]
+
+    color = getattr(gm,"missing",None)
+    if color is not None:
+        color = cmap.index[color]
+    missingMapper = vcs2vtk.putMaskOnVTKGrid(data1,ug,color)
     lut = vtk.vtkLookupTable()
     #lut.SetTableRange(0,Nlevs)
     ## Following assumes contiguous levels for now
@@ -651,6 +647,7 @@ class VTKVCSBackend(object):
       Nlevs = len(levs)
       Ncolors = Nlevs-1
 
+
     if mappers == []: # ok didn't need to have special banded contours
       mappers=[mapper,]
       ## Colortable bit
@@ -673,6 +670,9 @@ class VTKVCSBackend(object):
       else:
         lmx= levs[-1]
       mapper.SetScalarRange(lmn,lmx)
+
+    if missingMapper is not None:
+        mappers.insert(0,missingMapper)
 
     x1,x2,y1,y2 = vcs2vtk.getRange(gm,xm,xM,ym,yM)
 
