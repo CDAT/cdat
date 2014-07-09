@@ -16,23 +16,25 @@ wmo = json.load(f)
 def genUnstructuredGrid(data1,data2,gm):
   continents = False
   wrap = None
+  m3 = None
+  g = None
   try: #First try to see if we can get a mesh out of this
     g=data1.getGrid()
-    m=g.getMesh()
-    xm = m[:,1].min()
-    xM = m[:,1].max()
-    ym = m[:,0].min()
-    yM = m[:,0].max()
-
-    N=m.shape[0]
-    #For vtk we need to reorder things
-    m2 = numpy.ascontiguousarray(numpy.transpose(m,(0,2,1)))
-    m2.resize((m2.shape[0]*m2.shape[1],m2.shape[2]))
-    m2=m2[...,::-1]
-    # here we add dummy levels, might want to reconsider converting "trimData" to "reOrderData" and use actual levels?
-    m3=numpy.concatenate((m2,numpy.zeros((m2.shape[0],1))),axis=1)
-    continents = True
-    wrap = [0.,360.]
+    if isinstance(g,cdms2.gengrid.AbstractGenericGrid): # Ok need unstrctured grid
+      m=g.getMesh()
+      xm = m[:,1].min()
+      xM = m[:,1].max()
+      ym = m[:,0].min()
+      yM = m[:,0].max()
+      N=m.shape[0]
+      #For vtk we need to reorder things
+      m2 = numpy.ascontiguousarray(numpy.transpose(m,(0,2,1)))
+      m2.resize((m2.shape[0]*m2.shape[1],m2.shape[2]))
+      m2=m2[...,::-1]
+      # here we add dummy levels, might want to reconsider converting "trimData" to "reOrderData" and use actual levels?
+      m3=numpy.concatenate((m2,numpy.zeros((m2.shape[0],1))),axis=1)
+      continents = True
+      wrap = [0.,360.]
   except Exception,err: # Ok no mesh on file, will do with lat/lon
     ## Could still be meshfill with mesh data
     if isinstance(gm,meshfill.Gfm) and data2 is not None:
@@ -45,27 +47,47 @@ def genUnstructuredGrid(data1,data2,gm):
       if gm.wrap[1]==360.:
         continents = True
       wrap = gm.wrap
+  if m3 is not None:
+    #Create unstructured grid points
+    vg = vtk.vtkUnstructuredGrid()
+    for i in range(N):
+      lst = vtk.vtkIdList()
+      for j in range(4):
+        lst.InsertNextId(i*4+j)
+      ## ??? TODO ??? when 3D use CUBE?
+      vg.InsertNextCell(vtk.VTK_QUAD,lst)
+  else:
+    #Ok a simple structured grid is enough
+    vg = vtk.vtkStructuredGrid()
+    if g is not None:
+      # Ok we have grid
+      lat = g.getLatitude()
+      lon = g.getLongitude()
+      continents = True
+      wrap = [0.,360.]
+      if not isinstance(g,cdms2.hgrid.AbstractCurveGrid):
+        lat = lat[:,numpy.newaxis]*numpy.ones(lon.shape)[numpy.newaxis,:]
+        lon = lon[numpy.newaxis,:]*numpy.ones(lat.shape)[:,numpy.newaxis]
     else:
       data1=cdms2.asVariable(data1)
-      #Ok no mesh info
-      # first lat/lon case
-      if data1.getLatitude() is not None and data1.getLongitude() is not None and data1.getAxis(-1).isLongitude():
-        continents = True
-        wrap = [0.,360.]
-      x=data1.getAxis(-1)[:]
-      y=data1.getAxis(-2)[:]
-      xm=x.min()
-      xM=x.max()
-      ym=y.min()
-      yM=y.max()
-      # make it 2D
-      x = x[numpy.newaxis,:]*numpy.ones(y.shape)[:,numpy.newaxis]
-      y = y[:,numpy.newaxis]*numpy.ones(x.shape)[numpy.newaxis,:]
-      z = numpy.zeros(x.shape)
-      m3=numpy.concatenate((x,y,z),axis=1)
-  #Create unstructured grid points
-  ug = vtk.vtkUnstructuredGrid()
-
+      lon=data1.getAxis(-1)[:]
+      lat=data1.getAxis(-2)[:]
+      lat = lat[:,numpy.newaxis]*numpy.ones(lon.shape)[numpy.newaxis,:]
+      lon = lon[numpy.newaxis,:]*numpy.ones(lat.shape)[:,numpy.newaxis]
+    vg.SetDimensions(lat.shape[1],lat.shape[0],1)
+    lon = numpy.ma.ravel(lon)
+    lat = numpy.ma.ravel(lat)
+    sh = list(lat.shape)
+    sh.append(1)
+    lon = numpy.ma.reshape(lon,sh)
+    lat = numpy.ma.reshape(lat,sh)
+    z = numpy.zeros(lon.shape)
+    m3 = numpy.concatenate((lon,lat),axis=1)
+    m3 = numpy.concatenate((m3,z),axis=1)
+    xm=lon.min()
+    xM=lon.max()
+    ym=lat.min()
+    yM=lat.max()
   # First create the points/vertices (in vcs terms)
   deep = True
   pts = vtk.vtkPoints()
@@ -76,17 +98,11 @@ def genUnstructuredGrid(data1,data2,gm):
   projection = vcs.elements["projection"][gm.projection]
   geopts = project(pts,projection)
   ## Sets the vertics into the grid
-  ug.SetPoints(geopts)
+  vg.SetPoints(geopts)
 
 
-  for i in range(N):
-    lst = vtk.vtkIdList()
-    for j in range(4):
-      lst.InsertNextId(i*4+j)
-    ## ??? TODO ??? when 3D use CUBE?
-    ug.InsertNextCell(vtk.VTK_QUAD,lst)
 
-  return ug,xm,xM,ym,yM,continents,wrap
+  return vg,xm,xM,ym,yM,continents,wrap
 
 def getRange(gm,xm,xM,ym,yM):
     # Also need to make sure it fills the whole space
