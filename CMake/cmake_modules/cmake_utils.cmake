@@ -145,13 +145,13 @@ macro(add_cdat_package_dependent package_name version build_message value depend
   cmake_dependent_option(cdat_build_internal_${uc_package} "${message}" ${value} "${dependencies}" ${default})
   set(CACHE cdat_build_internal_${uc_package} PROPERTY TYPE INTERNAL)
 
-  if (cdat_build_internal_${uc_package})
+#  if (cdat_build_internal_${uc_package})
     add_cdat_package("${package_name}" "${version}" "${build_message}" ${CDAT_BUILD_${uc_package}})
-  else()
+#  else()
     if (DEFINED CDAT_USE_SYSTEM_${uc_package})
       set_property(CACHE CDAT_USE_SYSTEM_${uc_package} PROPERTY TYPE INTERNAL)
       set_property(CACHE CDAT_USE_SYSTEM_${uc_package} PROPERTY VALUE OFF)
     endif()
-  endif()
+#  endif()
 
 endmacro()
