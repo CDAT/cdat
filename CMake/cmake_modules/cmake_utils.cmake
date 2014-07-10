@@ -135,6 +135,7 @@ include(CMakeDependentOption)
 macro(add_cdat_package_dependent package_name version build_message value dependencies default)
   string(TOUPPER ${package_name} uc_package)
   string(TOLOWER ${package_name} lc_package)
+  set(${lc_package}_pkg "${package_name}")
 
   cmake_dependent_option(CDAT_BUILD_${uc_package} "${message}" ${value} "${dependencies}" ${default})
 
