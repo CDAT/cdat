@@ -15,6 +15,6 @@ set(LAPACK_SOURCE ${LAPACK_URL}/${LAPACK_GZ})
 
 if(NOT APPLE)
   if(CMAKE_Fortran_COMPILER)
-    add_cdat_package(LAPACK "" "" "")
+    add_cdat_package(LAPACK "" "" OFF)
   endif()
 endif()

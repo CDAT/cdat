@@ -15,4 +15,4 @@ set(NETCDF_VERSION ${NC4_VERSION})
 set(NETCDF_SOURCE ${NC4_URL}/${NC4_GZ})
 set(NETCDF_MD5 ${NC4_MD5})
 
-add_cdat_package(NetCDF "" "" "")
+add_cdat_package(NetCDF "" "" OFF)

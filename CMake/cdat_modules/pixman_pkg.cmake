@@ -16,4 +16,4 @@ set(PIXMAN_VERSION ${PIX_VERSION})
 set(PIXMAN_SOURCE ${PIX_URL}/${PIX_GZ})
 set(PIXMAN_MD5 ${PIX_MD5})
 
-add_cdat_package_dependent(pixman "" "" ON "CDAT_BUILD_GRAPHICS" OFF)
+add_cdat_package_dependent(pixman "" "" OFF "CDAT_BUILD_GRAPHICS" OFF)

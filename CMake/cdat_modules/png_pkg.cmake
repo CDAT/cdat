@@ -12,4 +12,4 @@ set(PNG_SOURCE ${PNG_URL}/${PNG_GZ})
 
 
 # Turns out grib2 (therefore cdms2 needs it so dont turn this off
-add_cdat_package(png "" "" "")
+add_cdat_package(png "" "" OFF)

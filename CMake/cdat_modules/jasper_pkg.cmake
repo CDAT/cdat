@@ -8,5 +8,5 @@ set(JASPER_MD5 b5ae85050d034555790a3ccbc2522860)
 set(JASPER_SOURCE ${JASPER_URL}/${JASPER_GZ})
 
 
-add_cdat_package(jasper "" "" "")
+add_cdat_package(jasper "" "" OFF)
 

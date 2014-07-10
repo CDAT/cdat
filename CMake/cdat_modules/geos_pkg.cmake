@@ -10,4 +10,4 @@ string(TOUPPER ${nm} uc_nm)
 set(${uc_nm}_VERSION ${${nm}_MAJOR}.${${nm}_MINOR}.${${nm}_PATCH})
 set(GEOS_SOURCE ${GEOS_URL}/${GEOS_BZ2})
 
-add_cdat_package_dependent(GEOS "" "" ON "CDAT_BUILD_GRAPHICS" OFF)
+add_cdat_package_dependent(GEOS "" "" OFF "CDAT_BUILD_GRAPHICS" OFF)
