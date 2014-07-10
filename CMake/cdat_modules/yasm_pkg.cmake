@@ -9,5 +9,5 @@ set(YASM_SOURCE ${YASM_URL}/${YASM_GZ})
 set (nm YASM)
 string(TOUPPER ${nm} uc_nm)
 set(${uc_nm}_VERSION ${${nm}_MAJOR_SRC}.${${nm}_MINOR_SRC}.${${nm}_PATCH_SRC})
-add_cdat_package(YASM "" "" "")
+add_cdat_package(YASM "" "" OFF)
 

@@ -8,4 +8,4 @@ set(G2CLIB_MD5 f2b7ea610ec723dc269655b68b6bb7db)
 set(G2CLIB_SOURCE ${G2CLIB_URL}/${G2CLIB_GZ})
 
 
-add_cdat_package(g2clib "" "" "")
+add_cdat_package(g2clib "" "" OFF)

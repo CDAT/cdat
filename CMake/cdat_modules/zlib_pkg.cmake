@@ -19,4 +19,4 @@ set(ZLIB_URL ${LLNL_URL})
 set(ZLIB_GZ zlib-${ZLIB_VERSION}.tar.gz)
 set(ZLIB_SOURCE ${ZLIB_URL}/${ZLIB_GZ})
 
-add_cdat_package(zlib "" "" "")
+add_cdat_package(zlib "" "" OFF)

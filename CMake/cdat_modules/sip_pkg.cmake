@@ -1,3 +1,4 @@
+message("SIPPING ...")
 set(SIP_MAJOR 4)
 set(SIP_MINOR 12)
 set(SIP_PATCH 1)
@@ -12,5 +13,5 @@ set(SIP_MD5 d6493b9f0a7911566545f694327314c4 )
 set(SIP_SOURCE ${SIP_URL}/${SIP_GZ})
 
 
-add_cdat_package_dependent(SIP "" "" ON "CDAT_BUILD_GRAPHICS" OFF)
-
+add_cdat_package_dependent(SIP "" "" OFF "CDAT_BUILD_GRAPHICS" OFF)
+message("name: ${sip_pkg}")

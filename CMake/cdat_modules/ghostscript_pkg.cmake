@@ -1,2 +1,2 @@
-add_cdat_package(ghostscript "" "" "")
+add_cdat_package(ghostscript "" "" OFF)
 

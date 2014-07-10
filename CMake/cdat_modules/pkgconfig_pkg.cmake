@@ -11,7 +11,7 @@ set(PKG_MD5 aa3c86e67551adc3ac865160e34a2a0d)
 set(PKGCONFIG_VERSION ${PKG_VERSION})
 set(PKGCONFIG_SOURCE ${PKG_URL}/${PKG_GZ})
 
-add_cdat_package(pkgconfig "" "" "")
+add_cdat_package(pkgconfig "" "" OFF)
 
 if(NOT CDAT_USE_SYSTEM_pkgconfig)
   set(cdat_PKG_CONFIG_EXECUTABLE ${cdat_EXTERNALS}/bin/pkg-config)

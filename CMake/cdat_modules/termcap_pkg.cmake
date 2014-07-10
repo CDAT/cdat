@@ -12,5 +12,5 @@ string(TOUPPER ${nm} uc_nm)
 set(${uc_nm}_VERSION ${${nm}_MAJOR_SRC}.${${nm}_MINOR_SRC}.${${nm}_PATCH_SRC})
 set(TERMCAP_VERSION ${TCAP_VERSION})
 
-add_cdat_package(termcap "" "" "")
+add_cdat_package(termcap "" "" OFF)
 

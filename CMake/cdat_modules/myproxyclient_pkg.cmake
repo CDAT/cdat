@@ -9,4 +9,4 @@ set(MYPROXYCLIENT_GZ MyProxyClient-${MYPROXYCLIENT_VERSION}.tar.gz)
 set(MYPROXYCLIENT_SOURCE ${LLNL_URL}/${MYPROXYCLIENT_GZ})
 set(MYPROXYCLIENT_MD5 829a299157f91f8ff8a6e5bc8ec1c09c )
 
-add_cdat_package_dependent(MyProxyClient "" "" ON "CDAT_BUILD_WO_ESGF" OFF)
+add_cdat_package_dependent(MyProxyClient "" "" OFF "CDAT_BUILD_WO_ESGF" OFF)

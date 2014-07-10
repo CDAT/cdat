@@ -7,6 +7,6 @@ set(JPEG_SOURCE ${JPEG_URL}/${JPEG_GZ})
 
 #grib2/jasper need this therefore cdms2 can't turn off
 #if (CDAT_BUILD_GRAPHICS)
-add_cdat_package(jpeg "" "" "")
+add_cdat_package(jpeg "" "" OFF)
 #endif()
 
