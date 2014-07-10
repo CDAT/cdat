@@ -429,8 +429,10 @@ class VTKVCSBackend(object):
         cln = vtk.vtkCleanUnstructuredGrid()
         cln.SetInputConnection(c2p.GetOutputPort())
 
-    u=numpy.ravel(numpy.ma.masked_greater_equal(data1,600).filled(0.))
-    v=numpy.ravel(numpy.ma.masked_greater_equal(data2,600).filled(0.))
+    missingMapper = vcs2vtk.putMaskOnVTKGrid(data1,ug,None)
+
+    u=numpy.ma.ravel(data1)
+    v=numpy.ma.ravel(data2)
     sh = list(u.shape)
     sh.append(1)
     u = numpy.reshape(u,sh)
@@ -443,13 +445,33 @@ class VTKVCSBackend(object):
     ug.GetPointData().AddArray(w)
     ## Vector attempt
     arrow = vtk.vtkArrowSource()
+    l = gm.line
+    if l is None:
+        l = "default"
+    try:
+      l = vcs.getline(l)
+      lwidth = l.width[0]
+      lcolor = l.color[0]
+      lstyle = l.type[0]
+    except:
+      lstyle = "solid"
+      lwidth = 1.
+      lcolor = 0
+    if gm.linewidth is not None:
+        lwidth = gm.linewidth
+    if gm.linecolor is not None:
+        lcolor = gm.linecolor
+
+
+    arrow.SetTipRadius(.1*lwidth)
+    arrow.SetShaftRadius(.03*lwidth)
     arrow.Update()
     glyphFilter = vtk.vtkGlyph2D()
     glyphFilter.SetSourceConnection(arrow.GetOutputPort())
     glyphFilter.OrientOn()
     glyphFilter.SetVectorModeToUseVector()
     glyphFilter.SetInputArrayToProcess(1,0,0,0,"vectors")
-    glyphFilter.SetScaleFactor(2.)
+    glyphFilter.SetScaleFactor(2.*gm.scale)
     if ug.IsA("vtkUnstructuredGrid"):
         glyphFilter.SetInputConnection(cln.GetOutputPort())
     else:
@@ -459,7 +481,13 @@ class VTKVCSBackend(object):
     mapper.SetInputConnection(glyphFilter.GetOutputPort())
     act = vtk.vtkActor()
     act.SetMapper(mapper)
-    act.GetProperty().SetColor(0.,0.,0.)
+    try:
+      cmap = vcs.elements["colormap"][cmap]
+    except:
+      cmap = vcs.elements["colormap"][self.canvas.getcolormapname()]
+    print "LCOLOR:",lcolor
+    r,g,b = cmap.index[lcolor]
+    act.GetProperty().SetColor(r/100.,g/100.,b/100.)
     x1,x2,y1,y2 = vcs2vtk.getRange(gm,xm,xM,ym,yM)
     #act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
     #vcs2vtk.fitToViewport(act,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2])
