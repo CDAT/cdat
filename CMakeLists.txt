@@ -230,6 +230,7 @@ set(PIP_CERTIFICATE "" CACHE STRING "Certificate to use for PIP (LLNL issue real
 option(CDAT_BUILD_GUI "Builds GUI-based dependencies (Vistrails, ParaView, VisIt, R, etc...) " ON)
 option(CDAT_BUILD_GRAPHICS "Build graphics-based dependencies (vcs, pyqt, Vistrails, ParaView, VisIt, R, etc...) " ON)
 option(CDAT_BUILD_ESGF "Builds a customized version for ESGF (Tkinter, less packages etc..)" OFF)
+option(CDAT_BUILD_UVCMETRICSPKG "Builds uvcmetrics package " OFF)
 
 # Flipping the option, Aashish add_cdat_external_dependent seems to need a negative of that
 if (CDAT_BUILD_ESGF)
@@ -428,6 +429,11 @@ endif()
 include(tiff_pkg)
 include(udunits2_pkg)
 include(uuid_pkg)
+# IF we build the UVCDAT Metrics package
+if (CDAT_BUILD_UVCMETRICSPKG)
+  set(UVCMETRICS_TEST_DATA_DIRECTORY $ENV{HOME}/uvcmetrics_test_data CACHE PATH "DIR FOR UVCMETRICS TEST DATA" )
+  include(uvcmetrics_pkg)
+endif()
 include(visit_pkg)
 include(vistrails_pkg)
 include(wget_pkg)

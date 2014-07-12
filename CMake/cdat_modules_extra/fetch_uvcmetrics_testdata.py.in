@@ -1,0 +1,48 @@
+import os
+import urllib
+LLNL_URL = "@LLNL_URL@"
+DATA_DIR = "@UVCMETRICS_TEST_DATA_DIRECTORY@"
+filein = "@cdat_CMAKE_SOURCE_DIR@/cdat_modules_extra/uvcmetrics_test_data_md5s.txt"
+
+import hashlib
+def hashfile(afile, hasher, blocksize=65536):
+  buf = afile.read(blocksize)
+  while len(buf) > 0:
+      hasher.update(buf)
+      buf = afile.read(blocksize)
+  return hasher.hexdigest()
+
+if not os.path.exists(DATA_DIR):
+  os.makedirs(DATA_DIR)
+
+fin=open(filein)
+
+for f in fin.xreadlines():
+  if f.strip()[0]=="#":
+    continue
+  md5,fnm = f.split()
+  fnm_local = os.path.join(DATA_DIR,fnm)
+  if not os.path.exists(os.path.dirname(fnm_local)):
+    os.makedirs(os.path.dirname(fnm_local))
+  if os.path.exists(fnm_local):
+    ## ok file is here
+    fd = open(fnm_local,'rb')
+    fmd5 = hashfile(fd,hashlib.md5())
+    if not fmd5 == md5:
+      print "Redownloading: %s md5 was %s expected %s" % (fnm,fmd5,md5)
+    else:
+      print "File %s is already here with correct md5, skipping" % fnm_local
+      continue
+  u = urllib.urlopen(LLNL_URL+"/../sample_data/uvcmetrics/"+fnm)
+  fo=open(fnm_local,'w')
+  fo.write(u.read())
+  fo.close()
+  fo=open(fnm_local,"rb")
+  umd5 = hashfile(fo,hashlib.md5())
+  if not umd5 == md5:
+    print "Could not download %s. uvcmetrics test will likely fail, md5 was %s expected %s" % (fnm,umd5,md5)
+  else:
+    print "Successfully downloaded %s" % fnm_local
+
+
+
