@@ -1,6 +1,511 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 import numpy
 import cdtime
+import warnings
+import vcs
+import boxfill
+import isofill
+import isoline
+import taylor
+import projection
+import fillarea
+import template
+import texttable
+import textorientation
+import line
+import unified1D
+import vector
+import marker
+import colormap
+import json
+import os
+import tempfile
+
+def dumpToDict(obj,skipped,must):
+  dic = {}
+  for a in obj.__slots__:
+    if (not a in skipped) and (a[0]!="_" or a in must):
+      try:
+        val = getattr(obj,a)
+      except:
+        continue
+      if not isinstance(val,(str,tuple,list,int,long,float,dict)) and val is not None:
+        val = dumpToDict(val,skipped,must)
+      dic[a] = val
+  return dic
+
+def dumpToJson(obj,fileout,skipped = ["info","member"], must = []):
+  dic = dumpToDict(obj,skipped,must)
+  if fileout is not None:
+    if isinstance(fileout,str):
+      f=open(fileout,"a+")
+    else:
+      f = fileout
+      fileout = f.name
+    try:
+      D = json.load(f)
+    except Exception,err:
+      print "Error reading json:",fileout,err
+      D = {}
+    f.close()
+    f=open(fileout,"w")
+    for N in ["g_name","s_name","p_name"]:
+      if dic.has_key(N):
+        nm = dic[N]
+        del(dic[N])
+        break
+    d = D.get(nm,{})
+    nm2 = dic["name"]
+    del(dic["name"])
+    d[nm2]=dic
+    D[nm]=d
+    json.dump(D,f,sort_keys=True)
+    if isinstance(fileout,str):
+      f.close()
+  else:
+    return json.dumps(dic,sort_keys=True)
+
+def getfontname(number):
+  if not number in vcs.elements["fontNumber"]:
+    raise Exception,"Error font number not existing %i" % number
+  return vcs.elements["fontNumber"][number]
+
+def getfontnumber(name):
+  for i in vcs.elements["fontNumber"]:
+    if vcs.elements["fontNumber"][i]==name:
+      return i
+  raise Exception,"Font name not existing! %s" % name
+
+def process_src_element(code):
+  i = code.find("_")
+  typ = code[:i]
+  code=code[i+1:]
+  i = code.find("(")
+  nm=code[:i]
+  code=code[i+1:-1]
+  #try:
+  if 1:
+    if typ == "Gfb":
+      boxfill.process_src(nm,code)
+    elif typ == "Gfi":
+      isofill.process_src(nm,code)
+    elif typ == "Gi":
+      isoline.process_src(nm,code)
+    elif typ == "L":
+      dic = {}
+      sp = code.split(",")
+      for i in range(0,len(sp),2):
+        dic[eval(sp[i])]=eval(sp[i+1])
+      vcs.elements["list"][nm]=dic
+    elif typ == "Gtd":
+      taylor.process_src(nm,code)
+    elif typ=="Proj":
+      projection.process_src(nm,code)
+    elif typ=="Tf":
+      fillarea.process_src(nm,code)
+    elif typ=="P":
+      template.process_src(nm,code)
+    elif typ=="Tt":
+      texttable.process_src(nm,code)
+    elif typ=="To":
+      textorientation.process_src(nm,code)
+    elif typ=="Tl":
+      line.process_src(nm,code)
+    elif typ in ["GXy","GYx","GXY","GSp"]:
+      unified1D.process_src(nm,code,typ)
+    elif typ=="Gv":
+      vector.process_src(nm,code)
+    elif typ=="Tm":
+      marker.process_src(nm,code)
+    elif typ=="C":
+      colormap.process_src(nm,code)
+
+  #except Exception,err:
+  #  print "Processing error for %s,%s: %s" % (nm,typ,err)
+
+def listelements(typ):
+  if not typ in vcs.elements.keys():
+    raise Exception,"Error: '%s' is not a valid vcs element\nValid vcs elements are: %s" % (typ,vcs.elements.keys())
+  return vcs.elements[typ].keys()
+
+def _scriptrun(script,canvas=None):
+  # Now does the python Graphic methods
+  f=open(script,'r')
+  # browse through the file to look for taylordiagram/python graphics methods
+  processing=False # found a taylor graphic method
+  for l in f.xreadlines():
+    if l[:6]=="color(" and canvas is not None:
+      canvas.setcolormap(l.strip()[6:-1])
+    elif l[:2] in ["P_","L_","C_"] or l[:3] in ["Tm_","Gv_","Gi_","Tl_","To_","Tt_","Tf_",] or l[:4] in ['GXy_','GYx_','GXY_','GSp_','Gtd_','Gfb_',"Gfm_","Gfi_"] or l[:5] in ["Proj_",] :
+      #We found a graphic method
+      processing = True
+      opened = 0
+      closed = 0
+      s=""
+    if processing:
+      s+=l.strip()
+      opened+=l.count("(")
+      closed+=l.count(")")
+      if closed == opened:
+        # ok we read the whole Graphic method
+        vcs.process_src_element(s)
+        processing = False
+  f.close()
+  ## Ok now we need to double check the isolines
+  gd = vcs.elements["isoline"]["default"]
+  for g in vcs.elements["isoline"].values():
+    if g.name == "default":
+      continue
+    for att in ["line","textcolors","text"]:
+      try:
+        setattr(g,att,getattr(g,att))
+      except Exception,err:
+        lst = []
+        if att == "line":
+          for e in g.line:
+            if e in vcs.elements["line"]:
+              lst.append(vcs.elements["line"][e])
+            else:
+              lst.append(e)
+        elif att == "text":
+          for e in g.line:
+            if e in vcs.elements["textorientation"]:
+              lst.append(vcs.elements["line"][e])
+            elif e in vcs.elements["text"]:
+              lst.append(vcs.elements["line"][e])
+            else:
+              lst.append(e)
+        elif att == "textcolors":
+          for e in g.line:
+            if e in vcs.elements["texttable"]:
+              lst.append(vcs.elements["line"][e])
+            elif e in vcs.elements["text"]:
+              lst.append(vcs.elements["line"][e])
+            else:
+              lst.append(e)
+        try:
+          setattr(g,att,lst)
+        except Exception,err:
+          setattr(g,att,getattr(gd,att))
+                          
+#############################################################################
+#                                                                           #
+# Import old VCS file script commands into CDAT.                            #
+#                                                                           #
+#############################################################################
+def scriptrun_scr(*args):
+    import __main__
+    ## Following comented by C. Doutriaux seems to be useless
+    ## from cdms2.selectors import Selector
+
+    # Open VCS script file for reading and read all lines into a Python list
+    fin = open(args[0], 'r')
+    l=fin.readlines()
+    line_ct = len(l)
+    i = 0
+
+    # Check to see if it is a VCS generated Python script file. If it is, then simply
+    # call the execfile function to execute the script and close the file.
+    if ( (l[0][0:37] == "#####################################") and
+         (l[1][0:35] == "#                                 #") and
+         (l[2][0:33] == "# Import and Initialize VCS     #") and
+         (l[3][0:31] == "#                             #") and
+         (l[4][0:29] == "#############################") ):
+        fin.close()
+        execfile( args[0], __main__.__dict__ )
+        return
+
+    while i < line_ct:                          
+       # Loop through all lines and determine when a VCS command line
+       # begins and ends. That is, get only one VCS command at a time
+       scr_str = l[i]
+       lt_paren_ct = l[i].count('(')
+       rt_paren_ct = l[i].count(')')
+       while lt_paren_ct > rt_paren_ct:
+          i += 1
+          scr_str += l[i]
+          lt_paren_ct += l[i].count('(')
+          rt_paren_ct += l[i].count(')')
+       i += 1
+       scr_str = scr_str.strip()
+    
+       # Get the VCS command
+       vcs_cmd = scr_str.split('(')[0].split('_')[0]
+    
+       function = source = name = units = title = lon_name = lat_name = ''
+       comment1 = comment2 = comment3 = comment4 = ''
+       if vcs_cmd == 'A':
+          # Get the data via CDMS. That is, retrieve that data as a
+          # _TransientVariable. But first, get the source, name, title,
+          # etc. of the file.
+          slab_name = scr_str.split('(')[0][2:]
+          a=scr_str.split('",')
+          for j in range(len(a)):
+             b=string.split(a[j],'="')
+             if b[0][-4:].lower() == 'file':
+                fcdms=cdms2.open(b[1])                       # Open CDMS file
+             elif b[0][-8:].lower() == 'function':
+                function =b[1]                              # Get function
+             elif b[0].lower() == 'source':
+                source = b[1]
+             elif ( (b[0][-4:].lower() == 'name') and
+                    (b[0][-5:].lower() != 'xname') and
+                    (b[0][-5:].lower() != 'yname') ):
+                name = b[1].split('")')[0]
+             elif b[0].lower() == 'units':
+                units = b[1].split('")')[0]
+             elif b[0][-5:].lower() == 'title':
+                title = b[1].split('")')[0]
+             elif b[0][-5:].lower() == 'xname':
+                lon_name = b[1].split('")')[0].strip()
+             elif b[0][-5:].lower() == 'yname':
+                lat_name = b[1].split('")')[0].strip()
+             elif b[0][-9:].lower() == 'comment#1':
+                comment1 = b[1]
+             elif b[0][-9:].lower() == 'comment#2':
+                comment2 = b[1]
+             elif b[0][-9:].lower() == 'comment#3':
+                comment3 = b[1]
+             elif b[0][-9:].lower() == 'comment#4':
+                comment4 = b[1]
+## Comented out by C. Doutriaux, shouldn't print anything
+##               print 'function = ', function
+##               print 'source = ', source
+##               print 'name = ', name
+##               print 'units = ', units
+##               print 'title = ', title
+##               print 'lon_name = ', lon_name
+##               print 'lat_name = ', lat_name
+##               print 'comment1 = ', comment1
+##               print 'comment2 = ', comment2
+##               print 'comment3 = ', comment3
+##               print 'comment4 = ', comment4
+
+          if function != '':
+             b=function.split('(')
+             ftype=b[0]
+             V=b[1].split(',')[0]
+## Comented out by C. Doutriaux, shouldn't print anything
+##                  print 'ftype = ', ftype
+##                  print 'V = ', V
+##                  print 'slab_name = ', slab_name
+             __main__.__dict__[ slab_name ] = __main__.__dict__[ V ] * 1000.
+#                 __main__.__dict__[ slab_name ] = cdutil.averager(
+#                    __main__.__dict__[ V ], axis='( %s )' % 'zeros_ones_dim_1',
+#                       weight='equal')
+             continue
+
+
+          a=scr_str.split(',')
+          
+          # Now get the coordinate values
+          x1 = x2 = y1 = y2 = None
+          for j in range(len(a)):
+             c=a[j].split(',')[0]
+             b=c.split('=')
+             if b[0].lower() == 'xfirst':
+                x1 = float( b[1].split(')')[0] )
+             elif b[0].lower() == 'xlast':
+                x2 = float( b[1].split(')')[0] )
+             elif b[0][-6:].lower() == 'yfirst':
+                y1 = float( b[1].split(')')[0] )
+             elif b[0].lower() == 'ylast':
+                y2 = float( b[1].split(')')[0] )
+
+          # Get the variable from the CDMS opened file
+          V=fcdms.variables[name]
+
+          # Check for the order of the variable and re-order dimensions
+          # if necessary
+          Order = '(%s)(%s)' % (lat_name,lon_name)
+          Order = Order.strip().replace('()', '' )
+          if Order == '': Order = None
+          axis_ids = V.getAxisIds()
+          re_order_dimension = 'no'
+          try:                 # only re-order on two or more dimensions
+             if (axis_ids[-1] != lon_name) and (axis_ids[-2] != lat_name):
+                re_order_dimension = 'yes'
+          except:
+             pass
+
+          # Must have the remaining dimension names in the Order list
+          if Order is not None:
+             O_ct = Order.count('(')
+             V_ct = len( V.getAxisIds() )
+             for j in range(O_ct, V_ct):
+                Order = ('(%s)' % axis_ids[V_ct-j-1]) + Order
+
+          # Set the data dictionary up to retrieve the dat from CDMS
+          if re_order_dimension == 'no':
+             if ( (x1 is not None) and (x2 is not None) and
+                (y1 is not None) and (y2 is not None) ):
+                data_dict = {lon_name:(x1,x2) ,lat_name:(y1,y2), 'order':Order}
+             elif ( (x1 is not None) and (x2 is not None) and
+                (y1 is None) and (y2 is None) ):
+                data_dict = {lon_name:(x1,x2), 'order':Order}
+             elif ( (x1 is None) and (x2 is None) and
+                (y1 is not None) and (y2 is not None) ):
+                data_dict = {lat_name:(y1,y2), 'order':Order}
+             elif ( (x1 is None) and (x2 is None) and
+                (y1 is None) and (y2 is None) ):
+                data_dict = {}
+          else:
+             if ( (x1 is not None) and (x2 is not None) and
+                (y1 is not None) and (y2 is not None) ):
+                data_dict = {lat_name:(x1,x2) ,lon_name:(y1,y2), 'order':Order}
+             elif ( (x1 is not None) and (x2 is not None) and
+                (y1 is None) and (y2 is None) ):
+                data_dict = {lon_name:(x1,x2), 'order':Order}
+             elif ( (x1 is None) and (x2 is None) and
+                (y1 is not None) and (y2 is not None) ):
+                data_dict = {lat_name:(y1,y2), 'order':Order}
+             elif ( (x1 is None) and (x2 is None) and
+                (y1 is None) and (y2 is None) ):
+                data_dict = {}
+
+          # Now store the _TransientVariable in the main dictionary for use later
+          __main__.__dict__[ slab_name ] = apply(V, (), data_dict)
+
+          fcdms.close()                                     # Close CDMS file
+       elif vcs_cmd == 'D':
+          # plot the data with the appropriate graphics method and template
+          a=scr_str.split(',')
+          a_name = b_name = None
+          for j in range(len(a)):
+             b=a[j].split('=')
+             if b[0][-3:].lower() == 'off':
+                off = int( b[1] )
+             elif b[0].lower() == 'priority':
+                priority = int( b[1] )
+             elif b[0].lower() == 'type':
+                graphics_type = b[1]
+             elif b[0].lower() == 'template':
+                template = b[1]
+             elif b[0].lower() == 'graph':
+                graphics_name = b[1]
+             elif b[0].lower() == 'a':
+                a_name = b[1].split(')')[0]
+             elif b[0].lower() == 'b':
+                b_name = b[1].split(')')[0]
+
+          arglist=[]
+        
+          if a_name is not None:
+             arglist.append(__main__.__dict__[ a_name ])
+          else:
+             arglist.append( None )
+          if b_name is not None:
+             arglist.append(__main__.__dict__[ b_name ])
+          else:
+             arglist.append( None )
+          arglist.append(template)
+          arglist.append(graphics_type)
+          arglist.append(graphics_name)
+
+          if (a_name is not None) and (graphics_type != 'continents'):
+             dn = CANVAS.__plot(arglist, {'bg':0})
+
+       elif vcs_cmd.lower() == 'canvas':
+         warnings.warn("Please implement vcs 'canvas' function")
+       elif vcs_cmd.lower() == 'page':
+          orientation = scr_str.split('(')[1][:-1].lower()
+          warnings.warn("Please implement vcs 'page' function")
+       else: # Send command to VCS interpreter
+          if (len(scr_str) > 1) and (scr_str[0] != '#'):
+             # Save command to a temporary file first, then read script command
+             # This is the best solution. Aviods rewriting C code that I know works!
+             temporary_file_name = tempfile.mktemp('.scr')
+             fout = open(temporary_file_name, 'w')
+             fout.writelines( scr_str )
+             fout.close()
+             _scriptrun(temporary_file_name)
+             os.remove(temporary_file_name)
+    fin.close()
+
+def saveinitialattributes():
+    _dotdir,_dotdirenv = vcs.getdotdirectory()
+    fnm = os.path.join(os.environ['HOME'], _dotdir, 'initial.attributes')
+    if os.path.exists(fnm):
+      os.remove(fnm)
+    for k,e in vcs.elements.iteritems():
+      if k in ["font","fontNumber","list"]:
+        continue
+      for nm,g in e.iteritems():
+        if nm!="default":
+          g.script(fnm)
+    
+#############################################################################
+#                                                                           #
+# Import old VCS file script commands into CDAT.                            
+#                                                                           #
+#############################################################################
+def scriptrun(script):
+  if script.split(".")[-1] == "scr":
+    scriptrun_scr(script) 
+  elif script.split(".")[-1] == "py":
+    execfile(script)
+  elif os.path.split(script)[-1] == "initial.attributes":
+    print "FOR NOW STILL READING IN OLD WAY"
+    _scriptrun(script)
+  else:
+    loader = { "P":'template',
+        "Gfb":'boxfill',
+        "Gfi":'isofill',
+        "Gi":'isoline',
+        "Gvp":'vector',
+        "Gfm":'meshfill',
+        "G1d":'oneD',
+        "Tf":'fillarea',
+        "Tt":"texttable",
+        "To":"textorientation",
+        "Tm":"marker",
+        "Tl":"line",
+        "Gfdv3d":"dvd3d",
+        "Proj":"projection",
+        "Gtd":"taylordiagram",
+        }
+    f=open(script)
+    jsn = json.load(f)
+    for typ in jsn.keys():
+      for nm,v in jsn[typ].iteritems():
+        if typ=="P":
+          loadTemplate(nm,v)
+        else:
+          #print "Reading in a:",typ,"named",nm
+          loadVCSItem(loader[typ],nm,v)
+  return
+
+def loadTemplate(nm,vals):
+  try:
+    t = vcs.gettemplate(nm)
+  except:
+    t = vcs.createtemplate(nm)
+  for k,v in vals.iteritems():
+    A = getattr(t,k)
+    for a,v in v.iteritems():
+      setattr(A,a,v)
+
+def loadVCSItem(typ,nm,json_dict = {}):
+  if typ=="oneD":
+    tp = "oned"
+  else:
+    tp = typ
+  if vcs.elements[tp].has_key(nm):
+    gm = vcs.elements[tp][nm]
+  else:
+    cmd = "gm = vcs.create%s('%s')" % (typ,nm)
+    exec(cmd)
+  for a,v in json_dict.iteritems():
+    #print "Setting:",a,"to",v
+    setattr(gm,a,v)
+  return gm
+
+def return_display_names():
+  warnings.warn("PLEASE IMPLEMENT return_display_names!!!! (in utils.py)")
+  return [""],[""]
+
+def getdotdirectory():
+  return ".uvcdat","UVCDAT_DIR"
 
 class VCSUtilsError (Exception):
     def __init__ (self, args=None):
@@ -417,7 +922,7 @@ def getcolors(levs,colors=range(16,240),split=1,white=240):
 
 
 def generate_time_labels(d1,d2,units,calendar=cdtime.DefaultCalendar):
-    """ generate_time_labels(self,d1,d2,units,calendar=cdtime.DefaultCalendar)
+    """ generate_time_labels(d1,d2,units,calendar=cdtime.DefaultCalendar)
     returns a dictionary of time labels for an interval of time, in a user defined units system
     d1 and d2 must be cdtime object, if not they will be assumed to be in "units"
 
@@ -525,3 +1030,190 @@ def generate_time_labels(d1,d2,units,calendar=cdtime.DefaultCalendar):
             tr=t.torel(units,calendar)
             dic[tr.value]=str(t).split('-')[0]
     return dic
+
+def prettifyAxisLabels(ticks,axis):
+    for k in ticks.keys():
+        if len(ticks[k])==0:
+            continue
+        if axis=="longitude":
+            K = k % 360
+            if K>180:
+                if int(K)==float(K):
+                  ticks[k]="%iW" % (360-K)
+                else:
+                  ticks[k]="%.2fW" % (360-K)
+            elif K<180:
+                if numpy.allclose(K,0.):
+                  ticks[k]="0"
+                elif int(K)==float(K):
+                  ticks[k]="%iE" % (K)
+                else:
+                  ticks[k]="%.2fE" % (K)
+            else:
+              if k==-180.:
+                ticks[k]="180W"
+              else:
+                ticks[k]="180E"
+        elif axis=="latitude":
+            if k<0:
+                if len(ticks[k])>4:
+                  ticks[k]="%.1f" % eval(ticks[k][1:])+"S"
+                else:
+                  ticks[k]=ticks[k][1:]+"S"
+            elif k>0:
+              if len(ticks[k])>4:
+                ticks[k]="%.1f" % eval(ticks[k])+"N"
+              else:
+                ticks[k]=ticks[k]+"N"
+            else:
+                ticks[0]="Eq"
+    return ticks
+
+def setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
+    """ Sets the labels and ticks for a graphics method made in python
+    Usage setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None)
+    datawc are world coordinates
+    
+    """
+    if isinstance(gm,vcs.taylor.Gtd):
+        return
+    # Now the template stuff
+    # first create the dictionary to remember which ones are changed
+    dic={}
+    for i in ('xticlabels1','xmtics1','xticlabels2','xmtics2','yticlabels1','ymtics1','yticlabels2','ymtics2'):
+        dic[i]=False
+    #xticklabels1
+    if gm.xticlabels1 is None or gm.xticlabels1=='*':
+        if x=="longitude" and abs(datawc_x2-datawc_x1)>30:
+          ticks="lon30"
+        else:
+          ticks=vcs.mkscale(datawc_x1,datawc_x2)
+          ticks=prettifyAxisLabels(vcs.mklabels(ticks),x)
+        ## for k in ticks.keys() : # make sure you're in the range
+        ##     if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
+        ##         del(ticks[k])
+        setattr(gm,'xticlabels1',ticks)
+        dic['xticlabels1']=True
+    #xmtics1
+    if gm.xmtics1 is None or gm.xmtics1=='*':
+        ticks=vcs.mkscale(datawc_x1,datawc_x2)
+        tick2=[]
+        for i in range(len(ticks)-1):
+            tick2.append((ticks[i]+ticks[i+1])/2.)
+        ticks=prettifyAxisLabels(vcs.mklabels(tick2),x)
+        ## for k in ticks.keys() : # make sure you're in the range
+        ##     if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
+        ##         del(ticks[k])
+        setattr(gm,'xmtics1',ticks)
+        dic['xmtics1']=True
+    #xticklabels2
+    if  hasattr(gm,"xticlabels2") and (gm.xticlabels2 is None or gm.xticlabels2=='*'):
+        ticks=vcs.mkscale(datawc_x1,datawc_x2)
+        ticks=prettifyAxisLabels(vcs.mklabels(ticks),x)
+        ## for k in ticks.keys():
+        ##     ticks[k]=''
+        ##     if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
+        ##         del(ticks[k])
+        setattr(gm,'xticlabels2',ticks)
+        dic['xticlabels2']=True
+    #xmtics2
+    if hasattr(gm,"xmtics2") and (gm.xmtics2 is None or gm.xmtics2=='*'):
+        ticks=vcs.mkscale(datawc_x1,datawc_x2)
+        tick2=[]
+        for i in range(len(ticks)-1):
+            tick2.append((ticks[i]+ticks[i+1])/2.)
+        ticks=prettifyAxisLabels(vcs.mklabels(tick2),x)
+        ## for k in ticks.keys() : # make sure you're in the range
+        ##     if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
+        ##         del(ticks[k])
+        setattr(gm,'xmtics2',ticks)
+        dic['xmtics2']=True
+    #yticklabels1
+    if gm.yticlabels1 is None or gm.yticlabels1=='*':
+        if y=="latitude" and abs(datawc_y2-datawc_y1)>20:
+          ticks="lat20"
+        else:
+          ticks=vcs.mkscale(datawc_y1,datawc_y2)
+          ticks=prettifyAxisLabels(vcs.mklabels(ticks),y)
+        ## for k in ticks.keys() : # make sure you're in the range
+        ##     if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
+        ##         del(ticks[k])
+        setattr(gm,'yticlabels1',ticks)
+        dic['yticlabels1']=True
+    #ymtics1
+    if gm.ymtics1 is None or gm.ymtics1=='*':
+        ticks=vcs.mkscale(datawc_y1,datawc_y2)
+        tick2=[]
+        for i in range(len(ticks)-1):
+            tick2.append((ticks[i]+ticks[i+1])/2.)
+        ticks=prettifyAxisLabels(vcs.mklabels(tick2),y)
+        ## for k in ticks.keys() : # make sure you're in the range
+        ##     if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
+        ##         del(ticks[k])
+        setattr(gm,'ymtics1',ticks)
+        dic['ymtics1']=True
+    #yticklabels2
+    if hasattr(gm,"yticlabels2") and (gm.yticlabels2 is None or gm.yticlabels2=='*'):
+        ticks=vcs.mkscale(datawc_y1,datawc_y2)
+        ticks=prettifyAxisLabels(vcs.mklabels(ticks),y)
+        ## for k in ticks.keys():
+        ##     ticks[k]=''
+        ##     if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
+        ##         del(ticks[k])
+        setattr(gm,'yticlabels2',ticks)
+        dic['yticlabels2']=True
+    #ymtics2
+    if hasattr(gm,"ymtics2") and (gm.ymtics2 is None or gm.ymtics2=='*'):
+        ticks=vcs.mkscale(datawc_y1,datawc_y2)
+        tick2=[]
+        for i in range(len(ticks)-1):
+            tick2.append((ticks[i]+ticks[i+1])/2.)
+        ticks=prettifyAxisLabels(vcs.mklabels(tick2),y)
+        ## for k in ticks.keys() : # make sure you're in the range
+        ##     if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
+        ##         del(ticks[k])
+        setattr(gm,'ymtics2',ticks)
+        dic['ymtics2']=True
+    return dic
+
+def match_color(color,colormap=None):
+    """
+Function: cmatch_color                          # Returns the color in the colormap that is closet from the required color
+Description of Function:
+       Given a color (defined as rgb values -0/100 range- or a string name) and optionally a colormap name,
+       returns the color number that is closet from the requested color
+       (using rms difference between rgb values)
+       if colormap is not map use the currently used colormap
+Example of use:
+       a=vcs.init()
+       print vcs.match_color('salmon')
+       print vcs.match_color('red')
+       print vcs.match_color([0,0,100],'defaullt') # closest color from blue
+
+"""
+    # First gets the rgb values 
+    if type(color)==type(''):
+        vals=genutil.colors.str2rgb(color)
+        vals[0]/=2.55
+        vals[1]/=2.55
+        vals[2]/=2.55
+    else:
+        vals=color
+
+    # Now gets the colormap to look in
+    if colormap is None: colormap=vcs.getcolormapname()
+    cmap=vcs.getcolormap(colormap)
+
+    # Now tries determines the min rms diff
+    rmsmin=2.E40
+    match=None
+    for i in cmap.index.keys():
+        col=cmap.index[i]
+        rms=numpy.sqrt((vals[0]-col[0])**2+\
+                         (vals[1]-col[1])**2+\
+                         (vals[2]-col[2])**2 \
+                         )
+        if rms<rmsmin:
+            rmsmin=rms
+            match=i
+    return match

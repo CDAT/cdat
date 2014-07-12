@@ -617,7 +617,7 @@ def transpose(a, axes=None):
     ta = _makeMaskedArg(a)
     tma = numpy.ma.masked_array(ta)
     if axes is None:
-        axes = numpy.arange(rank(tma))[::-1]
+        axes = numpy.arange(tma.ndim)[::-1]
     maresult = numpy.ma.transpose(tma, axes=axes)
     oldaxes, attributes, id, grid = _extractMetadata(ta)
     newaxes = None

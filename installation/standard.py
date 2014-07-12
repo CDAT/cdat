@@ -14,9 +14,6 @@
 #This file is executed as Python input so you can compute values depending on
 #platform, etc. Modules os, sys will be imported already.
 
-import subprocess
-import re
-
 current_dir = os.path.dirname(__file__)
 src_dir = os.path.join(current_dir, '..')
 libcdms_dir = os.path.join(src_dir, 'libcdms')
@@ -33,8 +30,8 @@ for i in range(len(sys.argv)):
 
 
 # This is where we build netcdf, if you let us
-netcdf_directory = os.popen('%s --prefix' % os.environ.get("LOCNCCONFIG","nc-config")).readlines()[0]
-netcdf_include_directory = os.popen('%s --includedir' % os.environ.get("LOCNCCONFIG","nc-config")).readlines()[0]
+#netcdf_directory = os.popen('%s --prefix' % os.environ.get("LOCNCCONFIG","nc-config")).readlines()[0]
+#netcdf_include_directory = os.popen('%s --includedir' % os.environ.get("LOCNCCONFIG","nc-config")).readlines()[0]
 #netcdf_include_directory= os.path.join(os.environ.get("EXTERNALS",os.path.join(sys.prefix,'Externals')),'include')
 
 #  Control of the CDMS build
@@ -62,12 +59,13 @@ if sys.platform in ['win32', 'mac', 'beos5']:
 
 # Build actions
 action = {}
-if os.path.exists(os.path.join(target_prefix, 'bin', 'pyfort')):
-    action['*.pfp'] = os.path.join(target_prefix, 'bin', 'pyfort') + " -i %(file)s ; "
-elif os.path.exists(os.path.join(sys.exec_prefix, 'bin', 'pyfort')):
-    action['*.pfp'] = os.path.join(sys.exec_prefix, 'bin', 'pyfort') + " -i %(file)s ; "
-else:
-    action['*.pfp'] = "pyfort  -i %(file)s ; "
+## Commenting out pyfort not used anylonger (it's been years)
+#if os.path.exists(os.path.join(target_prefix, 'bin', 'pyfort')):
+#    action['*.pfp'] = os.path.join(target_prefix, 'bin', 'pyfort') + " -i %(file)s ; "
+#elif os.path.exists(os.path.join(sys.exec_prefix, 'bin', 'pyfort')):
+#    action['*.pfp'] = os.path.join(sys.exec_prefix, 'bin', 'pyfort') + " -i %(file)s ; "
+#else:
+#    action['*.pfp'] = "pyfort  -i %(file)s ; "
     
 # matplotlib depends on pkg-config
 action['setup.py'] = 'PATH=%s/bin:$PATH  %s setup.py install --prefix=%s ; ' \

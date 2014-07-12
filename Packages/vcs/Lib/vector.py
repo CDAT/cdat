@@ -21,83 +21,97 @@
 #
 #
 #
-###############################################################################
-#                                                                             #
-# Import: VCS C extension module.                                             #
-#                                                                             #
-###############################################################################
-import _vcs, queries, vcs, VCS_validation_functions, cdtime
+import queries, vcs, VCS_validation_functions, cdtime
 import Canvas
-from types import *
-###############################################################################
-#                                                                             #
-# Function:	setGvmember                                                   #
-#                                                                             #
-# Description of Function:                                                    #
-# 	Private function to update the VCS canvas plot. If the canvas mode is #
-#       set to 0, then this function does nothing.              	      #
-#                                                                             #
-#                                                                             #
-# Example of Use:                                                             #
-#      setGvmember(self,name,value)					      #
-#              where: self is the class (e.g., Gv)                            #
-#                     name is the name of the member that is being changed    #
-#                     value is the new value of the member (or attribute)     #
-#                                                                             #
-###############################################################################
-def setGvmember(self,member,value):
-     # If the VCS Canvas is displayed, then bring the canvas to the front before 
-     # redisplaying the updated contents.
-     if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()):
-        Canvas.finish_queued_X_server_requests( self.parent )
-        self.parent.canvas.BLOCK_X_SERVER()
-        self.parent.canvasraised()
 
-     _vcs.setGvmember(self, member, value, self.parent.mode)
+def load(nm,json_dict = {}):
+  return
 
-     # If the VCS Canvas is displayed, then update the backing store
-     if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()):
-        self.parent.flush()
-        self.parent.backing_store()
-        self.parent.canvas.UNBLOCK_X_SERVER()
-setmember=setGvmember
-###############################################################################
-#                                                                             #
-# Function:     getGvmember                                                   #
-#                                                                             #
-# Description of Function:                                                    #
-#       Private function that retrieves the vector members from the C         #
-#       structure and passes it back to Python.                               #
-#                                                                             #
-#                                                                             #
-# Example of Use:                                                             #
-#      return_value =							      #
-#      getGvmember(self,name)                                                 #
-#              where: self is the class (e.g., Gv)                            #
-#                     name is the name of the member that is being found      #
-#                                                                             #
-###############################################################################
-def getGvmember(self,member):
-     return _vcs.getGvmember(self,member)
-getmember=getGvmember
+def process_src(nm,code):
+  """Takes VCS script code (string) as input and generates vector gm from it"""
+  try:
+    gm = Gv(nm)
+  except Exception,err:
+    gm = vcs.elements["vector"][nm]
+  ## process attributes with = as assignement
+  for att in ["projection",
+      "xticlabels#1","xticlabels#2",
+      "xmtics#1","xmtics#2",
+      "yticlabels#1","yticlabels#2",
+      "ymtics#1","ymtics#2",
+      "xaxisconvert","yaxisconvert",
+      "datawc_tunits",
+      "datawc_tunits",
+      "datawc_calendar",
+      "Tl","vector_scale",
+      "vector_align","vector_type","ref_vector",
+      ]:
+    i = code.find(att)
+    if i==-1:
+      continue
+    j = code[i:].find(",")+i
+    if j-i==-1: # last one no comma
+      j=None
+    scode = code[i:j]
+    sp = scode.split("=")
+    nm = sp[0].strip()
+    nm=nm.replace("#","")
+    if nm=="Tl":
+      nm="line"
+    elif nm=="vector_scale":
+      nm="scale"
+    elif nm == "vector_align":
+      nm="alignement"
+      if sp[1]=="c":
+        sp[1]="center"
+      elif sp[1]=="h":
+        sp[1]="head"
+      elif sp[1]=="t":
+        sp[1]="tail"
+    elif nm=="ref_vector":
+      nm="reference"
+    elif nm=="vector_type":
+      nm="type"
+    elif nm=="datawc_tunits":
+      nm = "datawc_timeunits"
+    try:
+      #int will be converted
+      setattr(gm,nm,int(sp[1]))
+    except Exception,err:
+      try:
+        #int and floats will be converted
+        setattr(gm,nm,eval(sp[1]))
+      except Exception,err:
+        # strings
+        try:
+          setattr(gm,nm,sp[1])
+        except:
+          pass # oh well we stick to default value
+    #Datawc
+    idwc = code.find(" datawc(")
+    if idwc>-1:
+      jdwc = code[idwc:].find(")")+idwc
+      cd = code[idwc+8:jdwc]
+      vals = cd.split(",")
+      gm.datawc_x1 = float(vals[0])
+      gm.datawc_y1 = float(vals[1])
+      gm.datawc_x2 = float(vals[2])
+      gm.datawc_y2 = float(vals[3])
+    #idatawc
+    idwc = code.find("idatawc(")
+    if idwc>-1:
+      jdwc = code[idwc:].find(")")+idwc
+      cd = code[idwc+8:jdwc]
+      vals = cd.split(",")
+      if int(vals[0])==1:
+        gm.datawc_x1 = cdtime.reltime(gm.datawc_x1,gm.datawc_timeunits).tocomp(gm.datawc_calendar)
+      if int(vals[1])==1:
+        gm.datawc_y1 = cdtime.reltime(gm.datawc_x2,gm.datawc_timeunits).tocomp(gm.datawc_calendar)
+      if int(vals[2])==1:
+        gm.datawc_x2 = cdtime.reltime(gm.datawc_y1,gm.datawc_timeunits).tocomp(gm.datawc_calendar)
+      if int(vals[3])==1:
+        gm.datawc_y2 = cdtime.reltime(gm.datawc_y2,gm.datawc_timeunits).tocomp(gm.datawc_calendar)
 
-###############################################################################
-#                                                                             #
-# Function:     renameGv                                                      #
-#                                                                             #
-# Description of Function:                                                    #
-#       Private function that renames the name of an existing vector          #
-#       graphics method.                                                      #
-#                                                                             #
-#                                                                             #
-# Example of Use:                                                             #
-#      renameGv(old_name, new_name)                                           #
-#              where: old_name is the current name of vector graphics method  #
-#                     new_name is the new name for the vector graphics method #
-#                                                                             #
-###############################################################################
-def renameGv(self, old_name, new_name):
-     return _vcs.renameGv(old_name, new_name)
 
 class Gv(object):
     """
@@ -186,10 +200,7 @@ class Gv(object):
     Specify the vector reference:
       vc.reference=4    		# Can be an integer or float
 """
-    rename=renameGv # Alias for VCS_Validation_Functions
     __slots__=[
-         'setmember',
-         'parent',
          'name',
          'g_name',
          'xaxisconvert',
@@ -250,14 +261,12 @@ class Gv(object):
          value=VCS_validation_functions.checkname(self,'name',value)
          if value is not None:
               self._name=value
-              setmember(self,'name',value)
     name=property(_getname,_setname)
 
     def _getcalendar(self):
          return self._datawc_calendar
     def _setcalendar(self,value):
          value=VCS_validation_functions.checkCalendar(self,'datawc_calendar',value)
-         setmember(self,'datawc_calendar',value)
          self._datawc_calendar=value
     datawc_calendar=property(_getcalendar,_setcalendar)
 
@@ -265,7 +274,6 @@ class Gv(object):
          return self._datawc_timeunits
     def _settimeunits(self,value):
          value=VCS_validation_functions.checkTimeUnits(self,'datawc_timeunits',value)
-         setmember(self,'datawc_timeunits',value)
          self._datawc_timeunits=value
     datawc_timeunits=property(_gettimeunits,_settimeunits)
 
@@ -274,7 +282,6 @@ class Gv(object):
     def _setxaxisconvert(self,value):
          value=VCS_validation_functions.checkAxisConvert(self,'xaxisconvert',value)
          self._xaxisconvert=value
-         setmember(self,'xaxisconvert',value)
     xaxisconvert=property(_getxaxisconvert,_setxaxisconvert)
 
     def _getyaxisconvert(self):
@@ -282,24 +289,13 @@ class Gv(object):
     def _setyaxisconvert(self,value):
          value=VCS_validation_functions.checkAxisConvert(self,'yaxisconvert',value)
          self._yaxisconvert=value
-         setmember(self,'yaxisconvert',value)
     yaxisconvert=property(_getyaxisconvert,_setyaxisconvert)
-
-    def _getlevels(self):
-         return self._level
-    def _setlevels(self,value):
-         value=VCS_validation_functions.checkIsolineLevels(self,'levels',value)
-         self._level=value
-         setmember(self,'level',value)
-    level=property(_getlevels,_setlevels)
-    levels=property(_getlevels,_setlevels)
 
     def _getprojection(self):
          return self._projection
     def _setprojection(self,value):
          value=VCS_validation_functions.checkProjection(self,'projection',value)
          self._projection=value
-         setmember(self,'projection',value)
     projection=property(_getprojection,_setprojection)
 
     def _getxticlabels1(self):
@@ -307,7 +303,6 @@ class Gv(object):
     def _setxticlabels1(self,value):
          value=VCS_validation_functions.checkStringDictionary(self,'xticlabels1',value)
          self._xticlabels1=value
-         setmember(self,'xticlabels1',value)
     xticlabels1=property(_getxticlabels1,_setxticlabels1)
 
     def _getxticlabels2(self):
@@ -315,7 +310,6 @@ class Gv(object):
     def _setxticlabels2(self,value):
          value=VCS_validation_functions.checkStringDictionary(self,'xticlabels2',value)
          self._xticlabels2=value
-         setmember(self,'xticlabels2',value)
     xticlabels2=property(_getxticlabels2,_setxticlabels2)
 
     def _getyticlabels1(self):
@@ -323,7 +317,6 @@ class Gv(object):
     def _setyticlabels1(self,value):
          value=VCS_validation_functions.checkStringDictionary(self,'yticlabels1',value)
          self._yticlabels1=value
-         setmember(self,'yticlabels1',value)
     yticlabels1=property(_getyticlabels1,_setyticlabels1)
 
     def _getyticlabels2(self):
@@ -331,7 +324,6 @@ class Gv(object):
     def _setyticlabels2(self,value):
          value=VCS_validation_functions.checkStringDictionary(self,'yticlabels2',value)
          self._yticlabels2=value
-         setmember(self,'yticlabels2',value)
     yticlabels2=property(_getyticlabels2,_setyticlabels2)
 
     def _getxmtics1(self):
@@ -339,7 +331,6 @@ class Gv(object):
     def _setxmtics1(self,value):
          value=VCS_validation_functions.checkStringDictionary(self,'xmtics1',value)
          self._xmtics1=value
-         setmember(self,'xmtics1',value)
     xmtics1=property(_getxmtics1,_setxmtics1)
 
     def _getxmtics2(self):
@@ -347,7 +338,6 @@ class Gv(object):
     def _setxmtics2(self,value):
          value=VCS_validation_functions.checkStringDictionary(self,'xmtics2',value)
          self._xmtics2=value
-         setmember(self,'xmtics2',value)
     xmtics2=property(_getxmtics2,_setxmtics2)
 
     def _getymtics1(self):
@@ -355,7 +345,6 @@ class Gv(object):
     def _setymtics1(self,value):
          value=VCS_validation_functions.checkStringDictionary(self,'ymtics1',value)
          self._ymtics1=value
-         setmember(self,'ymtics1',value)
     ymtics1=property(_getymtics1,_setymtics1)
 
     def _getymtics2(self):
@@ -363,55 +352,34 @@ class Gv(object):
     def _setymtics2(self,value):
          value=VCS_validation_functions.checkStringDictionary(self,'ymtics2',value)
          self._ymtics2=value
-         setmember(self,'ymtics2',value)
     ymtics2=property(_getymtics2,_setymtics2)
 
     def _getdatawc_x1(self):
-         if getmember(self,'_tdatawc_x1') :
-              return cdtime.reltime(self._datawc_x1,self.datawc_timeunits).tocomp(self.datawc_calendar)
-         else:
               return self._datawc_x1
     def _setdatawc_x1(self,value):
-         value=VCS_validation_functions.checkDatawc(self,'datawc_x1',value)
-         self._datawc_x1=value[0]
-         setmember(self,'datawc_x1',value[0])
-         setmember(self,'_tdatawc_x1',value[1])
+         value2=VCS_validation_functions.checkDatawc(self,'datawc_x1',value)
+         self._datawc_x1=value
     datawc_x1=property(_getdatawc_x1,_setdatawc_x1)
 
     def _getdatawc_x2(self):
-         if getmember(self,'_tdatawc_x2') :
-              return cdtime.reltime(self._datawc_x2,self.datawc_timeunits).tocomp(self.datawc_calendar)
-         else:
               return self._datawc_x2
     def _setdatawc_x2(self,value):
-         value=VCS_validation_functions.checkDatawc(self,'datawc_x2',value)
-         self._datawc_x2=value[0]
-         setmember(self,'datawc_x2',value[0])
-         setmember(self,'_tdatawc_x2',value[1])
+         value2=VCS_validation_functions.checkDatawc(self,'datawc_x2',value)
+         self._datawc_x2=value
     datawc_x2=property(_getdatawc_x2,_setdatawc_x2)
     
     def _getdatawc_y1(self):
-         if getmember(self,'_tdatawc_y1') :
-              return cdtime.reltime(self._datawc_y1,self.datawc_timeunits).tocomp(self.datawc_calendar)
-         else:
               return self._datawc_y1
     def _setdatawc_y1(self,value):
-         value=VCS_validation_functions.checkDatawc(self,'datawc_y1',value)
-         self._datawc_y1=value[0]
-         setmember(self,'datawc_y1',value[0])
-         setmember(self,'_tdatawc_y1',value[1])
+         value2=VCS_validation_functions.checkDatawc(self,'datawc_y1',value)
+         self._datawc_y1=value
     datawc_y1=property(_getdatawc_y1,_setdatawc_y1)
 
     def _getdatawc_y2(self):
-         if getmember(self,'_tdatawc_y2') :
-              return cdtime.reltime(self._datawc_y2,self.datawc_timeunits).tocomp(self.datawc_calendar)
-         else:
               return self._datawc_y2
     def _setdatawc_y2(self,value):
-         value=VCS_validation_functions.checkDatawc(self,'datawc_y2',value)
-         self._datawc_y2=value[0]
-         setmember(self,'datawc_y2',value[0])
-         setmember(self,'_tdatawc_y2',value[1])
+         value2=VCS_validation_functions.checkDatawc(self,'datawc_y2',value)
+         self._datawc_y2=value
     datawc_y2=property(_getdatawc_y2,_setdatawc_y2)
     
     def _getreference(self):
@@ -419,7 +387,6 @@ class Gv(object):
     def _setreference(self,value):
          value = VCS_validation_functions.checkNumber(self,'reference',value)
          self._reference=value
-         setmember(self,'reference',value)
     reference=property(_getreference,_setreference)
     
     def _getscale(self):
@@ -427,7 +394,6 @@ class Gv(object):
     def _setscale(self,value):
          value = VCS_validation_functions.checkNumber(self,'scale',value)
          self._scale=value
-         setmember(self,'scale',float(value))
     scale=property(_getscale,_setscale)
     
     def _getlinewidth(self):
@@ -436,7 +402,6 @@ class Gv(object):
          if not value is None:
               value = VCS_validation_functions.checkNumber(self,'linewidth',value,0,300)
          self._linewidth=value
-         setmember(self,'linewidth',value)
     linewidth=property(_getlinewidth,_setlinewidth)
     
     def _getlinecolor(self):
@@ -445,7 +410,6 @@ class Gv(object):
          if not value is None:
               value = VCS_validation_functions.checkColor(self,'linecolor',value)
          self._linecolor=value
-         setmember(self,'linecolor',value)
     linecolor=property(_getlinecolor,_setlinecolor)
     
     def _getline(self):
@@ -455,7 +419,6 @@ class Gv(object):
          if not value is None:
               value = VCS_validation_functions.checkLineType(self,'line',value)
          self._line=value
-         setmember(self,'line',self.line)
     line=property(_getline,_setline)
     
     def _gettype(self):
@@ -463,7 +426,6 @@ class Gv(object):
     def _settype(self,value):
          value = VCS_validation_functions.checkVectorType(self,'type',value)
          self._type=value
-         setmember(self,'type',self.type)
     type=property(_gettype,_settype)
     
     def _getalignment(self):
@@ -471,11 +433,10 @@ class Gv(object):
     def _setalignment(self,value):
          value = VCS_validation_functions.checkVectorAlignment(self,'alignment',value)
          self._alignment=value
-         setmember(self,'alignment',self.alignment)
     alignment=property(_getalignment,_setalignment)
     
 
-    def __init__(self, parent, Gv_name=None, Gv_name_src='default', createGv=0):
+    def __init__(self, Gv_name, Gv_name_src='default'):
 	#                                                         #
         ###########################################################
 	# Initialize the vector class and its members             #
@@ -485,247 +446,45 @@ class Gv(object):
 	# appropriate Python Object.                              #
         ###########################################################
 	#                                                         #
-        if (createGv == 0):
-           if (Gv_name == None):
-              raise ValueError, 'Must provide a vector name.'
-           else:
-              _vcs.copyGv(Gv_name_src, Gv_name)
-              self._name = Gv_name
-        else:
-              self._name =Gv_name_src
-        self._projection=getmember(self, 'projection')
-        self._xticlabels1=getmember(self, 'xticlabels1')
-        self._xticlabels2=getmember(self, 'xticlabels2')
-        self._xmtics1=getmember(self, 'xmtics1')
-        self._xmtics2=getmember(self, 'xmtics2')
-        self._yticlabels1=getmember(self, 'yticlabels1')
-        self._yticlabels2=getmember(self, 'yticlabels2')
-        self._ymtics1=getmember(self, 'ymtics1')
-        self._ymtics2=getmember(self, 'ymtics2')
-        self._datawc_y1=getmember(self, 'datawc_y1')
-        self._datawc_y2=getmember(self, 'datawc_y2')
-        self._datawc_x1=getmember(self, 'datawc_x1')
-        self._datawc_x2=getmember(self, 'datawc_x2')
+        if Gv_name in vcs.elements["vector"]:
+          raise ValueError,"The vector method '%s' already exists" % Gv_name
         self.g_name='Gv'
-        self._xaxisconvert=getmember(self, 'xaxisconvert')
-        self._yaxisconvert=getmember(self, 'yaxisconvert')
-        self._line=None
-        self._linecolor=None
-        self._linewidth=None
-        self._scale=getmember(self, 'scale')
-        self._alignment=getmember(self, 'alignment')
-        self._type=getmember(self, 'type')
-        self._reference=getmember(self, 'reference')
-        self._datawc_timeunits=getmember(self, 'datawc_timeunits')
-        self._datawc_calendar=getmember(self, 'datawc_calendar')
-        #                                                         #
-        ###########################################################
-        # Find and set the vector structure in VCS C pointer      #
-        # list. If the vector name does not exist, then use       #
-        # default vector.                                         #
-        ###########################################################
-        #                                                         #
-        self.parent=parent
-
-##     def __setattr__(self, name, value):
-##         if (self.name == '__removed_from_VCS__'):
-##            raise ValueError, 'This instance has been removed from VCS.'
-##         if (self.name == 'default'):
-##            raise ValueError, 'You cannot modify the default vector.'
-##         if (name == 'name'):
-##            if (type(value) == StringType):
-##               renameGv(self,self.name, value)
-##               self.__dict__['name']=value
-##            else:
-##               raise ValueError, 'The name attribute must be a string.'
-##         elif (name == 'line'):
-##            if (value == None):
-##               self.__dict__['line']=None
-##               setGvmember(self,'line',self.line) # update the plot
-##            elif ((value in ('solid', 'dash', 'dot', 'dash-dot', 'long-dash', 0, 1, 2, 3, 4)) or (queries.isline(value)==1)):
-##               if value in ('solid', 0):
-##                  value='solid'
-##               elif value in ('dash', 1):
-##                  value='dash'
-##               elif value in ('dot', 2):
-##                  value='dot'
-##               elif value in ('dash-dot', 3):
-##                  value='dash-dot'
-##               elif value in ('long-dash', 4):
-##                  value='long-dash'
-##               elif (queries.isline(value)==1):
-##                  value=value.name
-##               self.__dict__['line']=value
-##               setGvmember(self,'line',self.line) # update the plot
-##            else:
-##               raise ValueError, 'The line value can either be ("solid", "dash", "dot", "dash-dot", "long-dash"), or (0, 1, 2, 3, 4), or a line object.'
-##         elif (name == 'linecolor'):
-##            if (value == None):
-##               self.__dict__['linecolor']=None
-##               setGvmember(self,'linecolor',self.linecolor) # update the plot
-##            elif (type(value) in (IntType, IntType)):
-##               if value not in range(0,256): # must be an integer
-##                  raise ValueError, 'The line color values must be in the range 0 to 255.'
-##               else:
-##                  self.__dict__['linecolor']=value
-##                  setGvmember(self,'linecolor',self.linecolor) # update the plot
-##            else:
-##               raise ValueError, 'The line color attribute value must be an integer in the range 0 to 255.'
-##         elif (name == 'linewidth'):
-##            if (value == None):
-##               self.__dict__['linewidth']=None
-##               setGvmember(self,'linewidth',self.linewidth) # update the plot
-##            elif (type(value) in (IntType, IntType)):
-##               if value not in range(1,101): # must be an integer
-##                  raise ValueError, 'The line width values must be in the range 1 to 100.'
-##               else:
-##                  self.__dict__['linewidth']=value
-##                  setGvmember(self,'linewidth',self.linewidth) # update the plot
-##            else:
-##               raise ValueError, 'The line width attribute value must be an integer in the range 1 to 100.'
-##         elif (name == 'scale'):
-##            if (type(value) in (IntType, FloatType)):
-##               self.__dict__['scale']=value
-##               setGvmember(self,'scale',self.scale) # update the plot
-##            else:
-##               raise ValueError, 'The vector scale attribute value must be a float.'
-##         elif (name == 'alignment'):
-##            if (value in ('head', 'center', 'tail', 0, 1, 2)):
-##               if value in ('head', 0):
-##                  value='head'
-##               elif value in ('center', 1):
-##                  value='center'
-##               elif value in ('tail', 2):
-##                  value='tail'
-##               self.__dict__['alignment']=value
-##               setGvmember(self,'alignment',self.alignment) # update the plot
-##            else:
-##               raise ValueError, 'The vector alignment attribute value must be ("head", "center", "tail") or (0, 1, 2).'
-##         elif (name == 'type'):
-##            if (value in ('arrows', 'barbs', 'solidarrows', 0, 1, 2)):
-##               if value in ('arrows', 0):
-##                  value='arrows'
-##               elif value in ('barbs', 1):
-##                  value='barbs'
-##               elif value in ('solidarrows', 2):
-##                  value='solidarrows'
-##               self.__dict__['type']=value
-##               setGvmember(self,'type',self.type) # update the plot
-##            else:
-##               raise ValueError, 'The vector type attribute value must be ("arrows", "barbs", "solidarrows") or (0, 1, 2).'
-##         elif (name == 'reference'):
-##            if (type(value) in (FloatType, IntType)):
-##               self.__dict__['reference']=value
-##               setGvmember(self,'reference',self.reference) # update the plot
-##            else:
-##               raise ValueError, 'The vector reference attribute value must be a float.'
-##         elif (name == 'projection'):
-##            if isinstance(value,vcs.projection.Proj): value=value.name
-##            if (_vcs.checkProj(value)):
-##               setGvmember(self,name,value)
-##               self.__dict__['projection']=value
-##            else:
-##               raise ValueError, 'The projection '+value+' does not exist'
-## ##            if (value == 'linear'):
-## ##               setGvmember(self,name,value)
-## ##               self.__dict__['projection']=value
-## ##            else:
-## ##               raise ValueError, 'The projection attribute must be linear.'
-##         elif (name == 'xticlabels1'):
-##            if (type(value) in (StringType, DictType)):
-##               setGvmember(self,name,value)
-##               self.__dict__['xticlabels1']=value
-##            else:
-##               raise ValueError, 'The xticlabels1 attribute must be either a string or a dictionary.'
-##         elif (name == 'xticlabels2'):
-##            if (type(value) in (StringType, DictType)):
-##               setGvmember(self,name,value)
-##               self.__dict__['xticlabels2']=value
-##            else:
-##               raise ValueError, 'The xticlabels2 attribute must be either a string or a dictionary.'
-##         elif (name == 'xmtics1'):
-##            if (type(value) in (StringType, DictType)):
-##               setGvmember(self,name,value)
-##               self.__dict__['xmtics1']=value
-##            else:
-##               raise ValueError, 'The xmtics1 attribute must be either a string or a dictionary.'
-##         elif (name == 'xmtics2'):
-##            if (type(value) in (StringType, DictType)):
-##               setGvmember(self,name,value)
-##               self.__dict__['xmtics2']=value
-##            else:
-##               raise ValueError, 'The xmtics2 attribute must be either a string or a dictionary.'
-##         elif (name == 'yticlabels1'):
-##            if (type(value) in (StringType, DictType)):
-##               setGvmember(self,name,value)
-##               self.__dict__['yticlabels1']=value
-##            else:
-##               raise ValueError, 'The yticlabels1 attribute must be either a string or a dictionary.'
-##         elif (name == 'yticlabels2'):
-##            if (type(value) in (StringType, DictType)):
-##               setGvmember(self,name,value)
-##               self.__dict__['yticlabels2']=value
-##            else:
-##               raise ValueError, 'The yticlabels2 attribute must be either a string or a dictionary.'
-##         elif (name == 'ymtics1'):
-##            if (type(value) in (StringType, DictType)):
-##               setGvmember(self,name,value)
-##               self.__dict__['ymtics1']=value
-##            else:
-##               raise ValueError, 'The ymtics1 attribute must be either a string or a dictionary.'
-##         elif (name == 'ymtics2'):
-##            if (type(value) in (StringType, DictType)):
-##               setGvmember(self,name,value)
-##               self.__dict__['ymtics2']=value
-##            else:
-##               raise ValueError, 'The ymtics2 attribute must be either a string or a dictionary.'
-##         elif (name == 'datawc_x1'):
-##            if (type(value) in (IntType, FloatType)):
-##               value = float(value)
-##               setGvmember(self,name,value)
-##               self.__dict__['datawc_x1']=value
-##            else:
-##               raise ValueError, 'The datawc_x1 attribute must be either an integer or a float value.'
-##         elif (name == 'datawc_x2'):
-##            if (type(value) in (IntType, FloatType)):
-##               value = float(value)
-##               setGvmember(self,name,value)
-##               self.__dict__['datawc_x2']=value
-##            else:
-##               raise ValueError, 'The datawc_x2 attribute must be either an interger or a  float value.'
-##         elif (name == 'datawc_y1'):
-##            if (type(value) in (IntType, FloatType)):
-##               value = float(value)
-##               setGvmember(self,name,value)
-##               self.__dict__['datawc_y1']=value
-##            else:
-##               raise ValueError, 'The datawc_y1 attribute must be either an interger or a  float value.'
-##         elif (name == 'datawc_y2'):
-##            if (type(value) in (IntType, FloatType)):
-##               value = float(value)
-##               setGvmember(self,name,value)
-##               self.__dict__['datawc_y2']=value
-##            else:
-##               raise ValueError, 'The datawc_y2 attribute must be either an interger or a  float value.'
-##         elif (name == 'xaxisconvert'):
-##            if (value in ('linear', 'log10', 'ln','exp','area_wt')):
-##               setGvmember(self,name,value)
-##               self.__dict__['xaxisconvert']=value
-##            else:
-##               raise ValueError, 'The xaxisconvert attribute must be either: linear, log10, ln, exp, or area_wt'
-##         elif (name == 'yaxisconvert'):
-##            if (value in ('linear', 'log10', 'ln', 'exp', 'area_wt')):
-##               setGvmember(self,name,value)
-##               self.__dict__['yaxisconvert']=value
-##            else:
-##               raise ValueError, 'The yaxisconvert attribute must be either: linear, log10, ln, exp, or area_wt'
-##         else:
-##            raise ValueError, 'The member was not found.'
-
-# 
-# Doesn't make sense to inherit. This would mean more coding in C.
-# I put this code back.                                 
-#
+        self._name = Gv_name
+        if Gv_name == 'default':
+          self._projection="linear"
+          self._xticlabels1="*"
+          self._xticlabels2="*"
+          self._xmtics1=""
+          self._xmtics2=""
+          self._yticlabels1="*"
+          self._yticlabels2="*"
+          self._ymtics1=""
+          self._ymtics2=""
+          self._datawc_y1=1.e20
+          self._datawc_y2=1.e20
+          self._datawc_x1=1.e20
+          self._datawc_x2=1.e20
+          self._xaxisconvert="linear"
+          self._yaxisconvert="linear"
+          self._line=None
+          self._linecolor=None
+          self._linewidth=None
+          self._scale=1.
+          self._alignment="center"
+          self._type="arrows"
+          self._reference=1.e20
+          self._datawc_timeunits="days since 2000"
+          self._datawc_calendar=135441
+        else:
+          if isinstance(Gv_name_src,Gv):
+            Gv_name_src=Gv_name_src.name
+          if not Gv_name_src in vcs.elements['vector']:
+            raise ValueError, "The vector method '%s' does not exists" % Gv_name_src
+          src = vcs.elements["vector"][Gv_name_src]
+          for att in ['projection' ,'xticlabels1' ,'xticlabels2' ,'xmtics1' ,'xmtics2' ,'yticlabels1' ,'yticlabels2' ,'ymtics1' ,'ymtics2' ,'datawc_y1' ,'datawc_y2' ,'datawc_x1' ,'datawc_x2' ,'xaxisconvert' ,'yaxisconvert' ,'line' ,'linecolor' ,'linewidth' ,'datawc_timeunits' ,'datawc_calendar' ,'scale','alignment','type','reference' ]:
+           setattr(self,att,getattr(src,att)) 
+        #Ok now we need to stick in the elements
+        vcs.elements["vector"][Gv_name]=self
     def xticlabels(self, xtl1='', xtl2=''):
         mode=self.parent.mode
         self.parent.mode=0
@@ -771,10 +530,7 @@ class Gv(object):
         self.yaxisconvert= yat
 
     def list(self):
-        if (self.name == '__removed_from_VCS__'):
-           raise ValueError, 'This instance has been removed from VCS.'
         print "","----------Vector (Gv) member (attribute) listings ----------"
-        print 'Canvas Mode =',self.parent.mode
         print "graphics method =", self.g_name
         print "name =", self.name
         print "projection =", self.projection

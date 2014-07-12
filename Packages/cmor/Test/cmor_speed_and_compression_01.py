@@ -56,7 +56,7 @@ print 'Tables ids:',tables
 
 
 ## read in data, just one slice
-f=cdms2.open(sys.prefix+'/sample_data/tas_dnm-95a_1984.01-1984.12.nc')
+f=cdms2.open(sys.prefix+'/sample_data/tas_ccsr-95a.xml')
 s=f("tas",time=slice(0,12),squeeze=1)
 
 ntimes = 12

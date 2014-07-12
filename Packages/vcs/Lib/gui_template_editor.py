@@ -1088,7 +1088,7 @@ class Template_Editor:
         self.savedialog.geometry( "+%d+%d" % (d1, d2) )
 
     def remove_temp_templates( self ):
-        template_list = self.canvas.listelements('template')
+        template_list = vcs.listelements('template')
         for x in template_list:
             if (x[:5] == '_temp'):
                self.canvas.removeP( x )
@@ -1125,7 +1125,7 @@ class Template_Editor:
         if template_name is not None:
             # Redisplay the template list
             if (self.no_gui_parent == 0):
-               t_list = self.canvas.listelements( 'template' )
+               t_list = vcs.listelements( 'template' )
 
                self.parent.panelDV.template_listbox.setlist( t_list )
                name_index = t_list.index( template_name )
@@ -1449,7 +1449,7 @@ class Template_Editor:
 ##                         label_text = 'Font',
                         entry_background = 'white',
                         selectioncommand = gui_control.Command(self.set_value,attribute),
-                        scrolledlist_items = self.canvas.listelements('texttable'),
+                        scrolledlist_items = vcs.listelements('texttable'),
                         dropdown = 1)
             b=Tkinter.Button(f,
                              font = ('helvetica',10),
@@ -1483,7 +1483,7 @@ class Template_Editor:
 ##                         label_text = 'Orientation',
                         entry_background = 'white',
                         selectioncommand = gui_control.Command(self.set_value,attribute),
-                        scrolledlist_items = self.canvas.listelements('textorientation'),
+                        scrolledlist_items = vcs.listelements('textorientation'),
                         dropdown = 1)
             self.properties_orientation.selectitem(a.textorientation)
             self.properties_orientation.pack(expand = 1, fill = 'x', pady = 2, padx = 5) 
@@ -1500,7 +1500,7 @@ class Template_Editor:
                         labelpos = 'w',
                         label_text = 'Format',
                         entry_background = 'white',
-                        scrolledlist_items = self.canvas.listelements('format'),
+                        scrolledlist_items = vcs.listelements('format'),
                         dropdown = 1)
             self.properties_format.selectitem(a.format)
             self.properties_format.pack(expand = 1, fill = 'x', pady = 2, padx = 5) 
@@ -1524,7 +1524,7 @@ class Template_Editor:
 ##                         label_text = 'Line',
                         entry_background = 'white',
                         selectioncommand = gui_control.Command(self.set_value,attribute),
-                        scrolledlist_items = self.canvas.listelements('line'),
+                        scrolledlist_items = vcs.listelements('line'),
                         dropdown = 1)
             self.properties_line.selectitem(a.line)
             self.properties_line.pack(expand = 1, fill = 'x', pady = 2, padx = 5) 
@@ -1788,7 +1788,7 @@ class Template_Editor:
     def _saveas(self,result,evt = None):
         if result == 'OK':
             newname = self.newname.get()
-            templates = self.canvas.listelements('template')
+            templates = vcs.listelements('template')
             if newname in templates:
                 gui_message.error('Error - Template name already exists.\nPlease choose a new name.')    
                 return
@@ -1805,7 +1805,7 @@ class Template_Editor:
                     self.dialog.title( "Template Editor: %s" % newname)
                     # Redisplay the template list
                     if (self.no_gui_parent == 0):
-                       t_list = self.canvas.listelements( 'template' )
+                       t_list = vcs.listelements( 'template' )
                        self.parent.panelDV.template_listbox.setlist( t_list )
                        name_index = t_list.index( newname )
                        self.parent.panelDV.template_listbox.select_set( name_index )
@@ -1838,7 +1838,7 @@ class Template_Editor:
     def evt_create_new(self,result):
         if result == 'OK':
             new_name = self.create_new_dialog.component('entry').get()
-            if new_name in self.canvas.listelements( 'template' ):
+            if new_name in vcs.listelements( 'template' ):
                gui_message.error( 'Error occurred while trying to create a new template %s from %s. Make sure the new template name does not already exist.' % (self.template_name, new_name) )
                return
             try:
@@ -1849,7 +1849,7 @@ class Template_Editor:
 
             # Redisplay the template list
             if (self.no_gui_parent == 0):
-               t_list = self.canvas.listelements( 'template' )
+               t_list = vcs.listelements( 'template' )
                self.parent.panelDV.template_listbox.setlist( t_list )
                name_index = t_list.index( new_name )
                self.parent.panelDV.template_listbox.select_set( name_index )
@@ -1869,8 +1869,8 @@ class Template_Editor:
                         labelpos = 'w',
                         label_text = 'Template:',
                         entry_background = 'white',
-                        scrolledlist_items = self.canvas.listelements('template'))
-        self.templates.selectitem(self.canvas.listelements('template')[0])
+                        scrolledlist_items = vcs.listelements('template'))
+        self.templates.selectitem(vcs.listelements('template')[0])
         self.templates.pack(side = 'left', fill = 'x', expand = 1, padx = 10, pady = 10)
                 
         # Position dialog popup
@@ -1883,7 +1883,7 @@ class Template_Editor:
     def _open_new(self,result):
         if result == 'OK':
             template_name = self.templates.get()
-            if template_name not in self.canvas.listelements('template'):
+            if template_name not in vcs.listelements('template'):
                 showerror('Error','%s template does not exist'%template_name)
                 return
             else:

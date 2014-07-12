@@ -538,10 +538,10 @@ static PyObject *
   for(i=0;i<n;i++) {
     tmp  =PyList_GetItem(param_nm_obj,i);
     strcpy(nms[i],PyString_AsString(tmp));
-    Py_DECREF(tmp);
+    //Py_DECREF(tmp); //Not needed get_item does not increase ref
     tmp  =PyList_GetItem(param_un_obj,i);
     strcpy(units[i],PyString_AsString(tmp));
-    Py_DECREF(tmp);
+    //Py_DECREF(tmp); // Not need get_item does not incref
   }
   
   ierr = cmor_set_grid_mapping(gid,name,n,(char **)nms,CMOR_MAX_STRING,param_val,(char **)units,CMOR_MAX_STRING);

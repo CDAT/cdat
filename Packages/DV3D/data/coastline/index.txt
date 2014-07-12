@@ -1,0 +1,3 @@
+high=high/ne_10m_coastline.shp
+medium=medium/ne_50m_coastline.shp
+low=low/ne_110m_coastline.shp

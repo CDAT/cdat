@@ -14,6 +14,20 @@ endif()
 # Initialize
 set(ParaView_tpl_args)
 
+# VCS needs projections from GeoVis
+list(APPEND ParaView_tpl_args
+  -DModule_vtkViewsGeovis:BOOL=ON
+)
+list(APPEND ParaView_tpl_args
+  -DModule_vtklibproj4:BOOL=ON
+)
+
+# We would like to see CGM as well
+list(APPEND ParaView_tpl_args
+  -DModule_vtkIOCGM:BOOL=ON
+  )
+
+
 if (CDAT_BUILD_PARALLEL)
   list(APPEND ParaView_tpl_args
     -DPARAVIEW_USE_MPI:BOOL=ON)
@@ -126,9 +140,9 @@ include(GetGitRevisionDescription)
 set(paraview_branch ${PARAVIEW_MD5})
 
 get_git_head_revision(refspec sha)
-if("${refspec}" STREQUAL "refs/heads/devel-master")
-  set(paraview_branch uvcdat-next)
-endif()
+#if("${refspec}" STREQUAL "refs/heads/devel-master")
+#  set(paraview_branch uvcdat-next)
+#endif()
 
 if (NOT OFFLINE_BUILD)
     set(GIT_CMD_STR GIT_REPOSITORY "${PARAVIEW_SOURCE}")

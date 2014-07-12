@@ -7,7 +7,7 @@ except:
     
 import cmor,numpy
 
-f=cdms2.open(os.path.join(cmor.__path__[0],'..','..','..','..','sample_data/clt.nc'))
+f=cdms2.open(os.path.join(sys.prefix,'sample_data/clt.nc'))
 
 pth = os.path.split(os.path.realpath(os.curdir))
 if pth[-1]=='Test':

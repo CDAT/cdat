@@ -18,7 +18,7 @@ if(APPLE)
 endif()
 
 execute_process(
-    COMMAND  @PYTHON_EXECUTABLE@ @cdat_CMAKE_SOURCE_DIR@/install.py @qt_flags@ --enable-pp @SAMPLE_DATA@ @PYTHON_EXTRA_PREFIX@ @CDMS_ONLY@
+    COMMAND  @PYTHON_EXECUTABLE@ @cdat_CMAKE_SOURCE_DIR@/install.py @cdat_xtra_flags@ --enable-pp @SAMPLE_DATA@ @PYTHON_EXTRA_PREFIX@ @CDMS_ONLY@
   WORKING_DIRECTORY "@WORKING_DIR@"
   RESULT_VARIABLE res)
 

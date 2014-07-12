@@ -296,7 +296,12 @@ int cmor_check_values_inside_bounds(double *values,double *bounds, int length, c
   cmor_pop_traceback();
   return 0;
 }
-
+int cmor_isLongitude(cmor_axis_def_t *refaxis) {
+    if ((refaxis->axis=='X')&& (strncmp(refaxis->units,"degree",6)==0) && (strcmp(refaxis->units,"degrees")!=0))
+        return 1;
+    else 
+        return 0;
+}
 int cmor_check_monotonic(double *values,int length, char *name,int isbounds, int axis_id) {
   int i,treatlon=0,j=0;
   char msg[CMOR_MAX_STRING];
@@ -305,18 +310,16 @@ int cmor_check_monotonic(double *values,int length, char *name,int isbounds, int
   int mono;
   int nloop;
   double *values2,tmp;
-  /*for (i=0;i<length;i++) printf("in monotonic: %i, %lf, %i\n",i,values[i],isbounds);*/
+  //for (i=0;i<length;i++) printf("in monotonic: %i, %lf, %i\n",i,values[i],isbounds);
   cmor_add_traceback("cmor_check_monotonic");
 
   refaxis = &cmor_tables[cmor_axes[axis_id].ref_table_id].axes[cmor_axes[axis_id].ref_axis_id];
-  if ((refaxis->axis=='X')&& (strncmp(refaxis->units,"degrees",7)==0)) {
-    treatlon=1;
-  }
+  treatlon=cmor_isLongitude(refaxis);
   /* ok ensure that values are monotonic */
   if (isbounds==1) {
     for (i=0;i<length/2-2;i++) {
       if (((values[2*i]-values[2*i+2])/(values[2*i+2]-values[2*i+4]))<0.) { 
-	if ((refaxis->axis=='X') && (strncmp(refaxis->units,"degrees",7)==0)) {
+	if (cmor_isLongitude(refaxis)==1) {
 	  treatlon=1;
 	}
 	else {
@@ -326,7 +329,7 @@ int cmor_check_monotonic(double *values,int length, char *name,int isbounds, int
       }
     }
     /* printf("In is isbounds treatlon is: %i\n",treatlon); */
-    if (treatlon) {/* ok we are dealing with a longitude need to figure out the offset.... */
+    if ((refaxis->valid_max!=1.e20) && (treatlon)) {/* ok we are dealing with a longitude need to figure out the offset.... */
       /* for (i=0;i<length;i++) printf("in monotonic: %i, %lf\n",i,values[i]); */
      /* The VERY first thing is to make sure we are modulo 360 */
       values2 = (double *) malloc(sizeof(double)*length);
@@ -465,7 +468,7 @@ int cmor_check_monotonic(double *values,int length, char *name,int isbounds, int
   else {
     for (i=0;i<length-2;i++) {
       if (((values[i]-values[i+1])/(values[i+1]-values[i+2]))<0.) {
-	if (refaxis->axis == 'X') { 
+	if (cmor_isLongitude(refaxis)==1) {
 	  treatlon = 1;
 	  break;
 	}
@@ -476,7 +479,7 @@ int cmor_check_monotonic(double *values,int length, char *name,int isbounds, int
       }
     }
 
-    if (treatlon) {/* ok we are dealing with a longitude need to figure out the offset.... */
+    if ((refaxis->valid_max!=1.e20) && (treatlon)) {/* ok we are dealing with a longitude need to figure out the offset.... */
 
       /* The VERY first thing is to make sure we are modulo 360 */
       values2 = (double *) malloc(sizeof(double)*length);
@@ -560,27 +563,6 @@ int cmor_check_monotonic(double *values,int length, char *name,int isbounds, int
       }
     }
   }
-  /* here we check if interval is about right */
-  if ( (refaxis->axis=='T')) {
-    /* do not do the following in case of climatological stuff.... */
-    if (refaxis->climatology==0) {
-      /* just keep the begining of units out no need to know the since part */
-      j=0;
-      while (refaxis->units[j]==' ') j++;
-      i=0;
-      while ((refaxis->units[i+j]!=' ') && (refaxis->units[i+j]!='\0')) {
-	msg2[i]=refaxis->units[i+j];
-	i++;
-      }
-      msg2[i]='\0';
-      snprintf(msg,CMOR_MAX_STRING,"%lf %s",cmor_tables[cmor_axes[axis_id].ref_table_id].interval,msg2);
-      /* printf("calling chck interv: %i\n",length); */
-      /* for(i=0;i<length;i++) printf("i:%i ,val: %lf\n",i,values[i]); */
-      /* ok skip this for non standard cal */
-      
-      i = cmor_check_interval(axis_id,msg,&values[0],length,isbounds);
-    }
-  }
   cmor_pop_traceback();
   return treatlon;
 }
@@ -604,7 +586,6 @@ int cmor_treat_axis_values(int axis_id, double *values, int length, int n_reques
 
   cmor_add_traceback("cmor_treat_axis_values");
   cmor_is_setup();
-
   axis = &cmor_axes[axis_id];
   refaxis = &cmor_tables[axis->ref_table_id].axes[axis->ref_axis_id];
 
@@ -791,6 +772,7 @@ int cmor_treat_axis_values(int axis_id, double *values, int length, int n_reques
   }
 
   /* is there any offsetting to be done ? */
+  /*
   if ((axis->offset!=0) && (isbounds==1)) {
     tmplon = malloc(2*axis->offset*sizeof(double));
     for (i=0;i<2*axis->offset;i++) {
@@ -804,14 +786,21 @@ int cmor_treat_axis_values(int axis_id, double *values, int length, int n_reques
     }
     free(tmplon);
   }
- 
-  i = cmor_check_monotonic(&values[0],length,name,isbounds,axis_id);
+ */
+  //for (i=0;i<length;i++) printf("VAL1: %i : %f\n",i,values[i]);
 
+  //i = cmor_check_monotonic(&values[0],length,name,isbounds,axis_id);
 
-  /* now check for valid_min/max things */
-  if (isbounds==0) {
+  //for (i=0;i<length;i++) printf("VAL2: %i : %f\n",i,values[i]);
+
+  /* now check for valid_min/max things except for longitude bounds */
+  /* The following changed we ALWAYS check but do the wrapping only for coords,
+   * bounds are applied exactly the same number of wrap as the coords, and not
+   * checked for min max */
+  /*if (((isbounds==1) && (refaxis->axis=='X'))==0) {*/
+  {
     if (refaxis->valid_min!=1.e20) for (i=0;i<length;i++) if (values[i]<refaxis->valid_min) { 
-      if (refaxis->axis=='X') {
+      if (cmor_isLongitude(refaxis)==1) {
 	treatlon = 1;
       }
       else {
@@ -822,20 +811,24 @@ int cmor_treat_axis_values(int axis_id, double *values, int length, int n_reques
       }
     }
     if (treatlon==1) {
-      for (i=0;i<length;i++) { /* ok lets add 360. until it's all good */
-	while (values[i]<refaxis->valid_min) values[i]+=360.;
+      if (isbounds==0) { /* Dealing with coords */
+          for (i=0;i<length;i++)  /* ok lets add 360. until it's all good */
+            while (values[i]<refaxis->valid_min) {
+                values[i]+=360.;
+                cmor_axes[axis_id].wrapping[i]+=1;
+            }
+              /* ok now need to determine the offset */
+              for (i=0;i<length-1;i++) {
+                if (values[i]>values[i+1]) {
+                  axis->offset = i+1; 
+                  break;
+                }
+              }
+          }
       }
-      /* ok now need to determine the offset */
-      for (i=0;i<length-1;i++) {
-	if (values[i]>values[i+1]) {
-	  axis->offset = i+1; 
-	  break;
-	}
-      }
-    }
     treatlon=0;
     if (refaxis->valid_max!=1.e20) for (i=0;i<length;i++) if (values[i]>refaxis->valid_max) {
-      if (refaxis->axis=='X') {
+      if (cmor_isLongitude(refaxis)==1) {
     	treatlon = 1;
       }
       else {
@@ -845,9 +838,12 @@ int cmor_treat_axis_values(int axis_id, double *values, int length, int n_reques
     	return 1;
       }
     }
-    if (treatlon==1) {
+    if ((treatlon==1)&&(isbounds==0)) {
       for (i=0;i<length;i++) { /* ok lets add 360. until it's all good */
-    	while (values[i]>refaxis->valid_max) values[i]-=360.;
+    	while (values[i]>refaxis->valid_max){
+            values[i]-=360.;
+            cmor_axes[axis_id].wrapping[i]-=1;
+        }
       }
       /* ok now need to determine the offset */
       for (i=0;i<length-1;i++) {
@@ -857,11 +853,16 @@ int cmor_treat_axis_values(int axis_id, double *values, int length, int n_reques
     	}
       }
     }
+    if ((isbounds==1) && (cmor_isLongitude(refaxis)==1)) {
+        for(i=0;i<length/2;i++) {
+            values[2*i ]+=360.*cmor_axes[axis_id].wrapping[i];
+            values[2*i+1]+=360.*cmor_axes[axis_id].wrapping[i];
+        }
+    }
     /* ok now need to move the offset thing */
     if (axis->offset!=0) {
       if (isbounds==0) {
-/* 	printf("ok unoffseted values are (axes): (offset is: %i) \n",axis->offset); */
-/* 	for (i=0;i<length;i++) printf("%i : %f\n",i,values[i]); */
+ 	/*for (i=0;i<length;i++) printf("%i : %f\n",i,values[i]); */
 	tmplon = malloc(axis->offset*sizeof(double));
 	for (i=0;i<axis->offset;i++) {
 	  tmplon[i]=values[i];
@@ -916,6 +917,7 @@ int cmor_check_interval(int axis_id, char *interval, double *values, int nvalues
   cmor_add_traceback("cmor_check_interval"); 
   axis = &cmor_axes[axis_id];
   refaxis = &cmor_tables[axis->ref_table_id].axes[axis->ref_axis_id];
+
 
   if (isbounds==0) {
     nval = nvalues;
@@ -1205,6 +1207,11 @@ int cmor_axis(int *axis_id, char *name,char *units, int length,void *coord_vals,
   if (coord_vals!=NULL) { /* user passed coords need to convert this guys */
     if (type!='c') {
       cmor_axes[cmor_naxes].values=malloc(length*sizeof(double));
+      if (refaxis.axis=='X') {
+          /* mallocing space for wrapp issues on longitude */
+          cmor_axes[cmor_naxes].wrapping=malloc(length*sizeof(int));
+          for (i==0;i<length;i++) cmor_axes[cmor_naxes].wrapping[i]=0;
+      }
       if ( cmor_axes[cmor_naxes].values == NULL ) {
 	snprintf(msg,CMOR_MAX_STRING,"cannot allocate memory for %i double elts for axis %s (table: %s)",length,cmor_axes[cmor_naxes].id,cmor_tables[CMOR_TABLE].table_id);
 	cmor_handle_error(msg,CMOR_CRITICAL);
@@ -1299,6 +1306,22 @@ int cmor_axis(int *axis_id, char *name,char *units, int length,void *coord_vals,
       if ((refaxis.axis=='T')&&(refaxis.climatology==0)) {
 	/* ok now we need to overwrite the time values with mid point */
 	for (i=0;i<length;i++) cmor_axes[cmor_naxes].values[i]=(cmor_axes[cmor_naxes].bounds[2*i]+cmor_axes[cmor_naxes].bounds[2*i+1])/2.;
+      /* here we check if interval is about right */
+      /* just keep the begining of units out no need to know the since part */
+      j=0;
+      while (refaxis.units[j]==' ') j++;
+      i=0;
+      while ((refaxis.units[i+j]!=' ') && (refaxis.units[i+j]!='\0')) {
+	ctmp[i]=refaxis.units[i+j];
+	i++;
+      }
+      ctmp[i]='\0';
+      snprintf(msg,CMOR_MAX_STRING,"%lf %s",cmor_tables[cmor_axes[cmor_naxes].ref_table_id].interval,ctmp);
+      /* printf("calling chck interv: %i\n",length); */
+      /* for(i=0;i<length;i++) printf("i:%i ,val: %lf\n",i,values[i]); */
+      /* ok skip this for non standard cal */
+      
+      i = cmor_check_interval(cmor_naxes,msg,&cmor_axes[cmor_naxes].values[0],length,0);
       }
     }
   }
@@ -1317,6 +1340,7 @@ int cmor_axis(int *axis_id, char *name,char *units, int length,void *coord_vals,
   *axis_id=cmor_naxes;
 
   cmor_pop_traceback();
+  free(cmor_axes[cmor_naxes].wrapping);
   return 0;
 };
 

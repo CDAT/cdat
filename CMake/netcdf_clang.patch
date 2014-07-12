@@ -1,0 +1,12 @@
+diff --git a/ncgen3/load.c b/git/uvcdat/exsrc/ncgen3_load.c
+index 3da4712..147f4e7 100644
+--- a/ncgen3/load.c
++++ b/git/uvcdat/exsrc/ncgen3_load.c
+@@ -5,6 +5,7 @@
+  *********************************************************************/
+ 
+ #include <stdio.h>
++#include <config.h>
+ #include <stdlib.h>
+ #include <string.h>
+ #include <ctype.h>

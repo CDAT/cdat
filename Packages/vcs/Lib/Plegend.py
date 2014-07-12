@@ -22,58 +22,15 @@
 #
 #
 #
-#################################################################################
-#                                                                               #
-# Import: VCS C extension module.                                               #
-#                                                                               #
-#################################################################################
-import _vcs, queries
-from types import *
-#################################################################################
-#                                                                               #
-# Function:	setPlsmember                                                    #
-#                                                                               #
-# Description of Function:                                                      #
-# 	Private function to update the VCS canvas plot. If the canvas mode is   #
-#       set to 0, then this function does nothing.              		#
-#                                                                               #
-#                                                                               #
-# Example of Use:                                                               #
-#      setPlsmember(self,name,value)						#
-#              where: self is the class (e.g., Pls)                             #
-#                     name is the name of the member that is being changed      #
-#                     value is the new value of the member (or attribute)       #
-#                                                                               #
-#################################################################################
-def setPlsmember(self,member,attribute,value):
-     _vcs.setPlsmember(self.parent, member, attribute, value, self.template_parent.mode)
-#     _vcs.setPlsmember(self, member, value, self.parent.mode)
-
-#################################################################################
-#                                                                               #
-# Function:     getPlsmember                                                    #
-#                                                                               #
-# Description of Function:                                                      #
-#       Private function that retrieves the line members from the C             #
-#       structure and passes it back to Python.                                 #
-#                                                                               #
-#                                                                               #
-# Example of Use:                                                               #
-#      return_value =								#
-#      getPlsmember(self,name)                                                  #
-#              where: self is the class (e.g., Pls)                             #
-#                     name is the name of the member that is being found        #
-#                                                                               #
-#################################################################################
-def getPlsmember(self,member,attribute):
-     return _vcs.getPlsmember(self,member,attribute)
+import queries
+import VCS_validation_functions
 
 #############################################################################
 #                                                                           #
 # Template text (Pls) Class.                                                #
 #                                                                           #
 #############################################################################
-class Pls:
+class Pls(object):
     '''
  Class:	Pls				# Template text
 
@@ -117,7 +74,8 @@ class Pls:
     # Initialize the line attributes.                                           #
     #                                                                           #
     #############################################################################
-    def __init__(self, template, template_parent, member=None):
+    __slots__ = ["priority","x1","x2","y1","y2","line","member","_priority","_x1","_x2","_y1","_y2","_line","_texttable","_textorientation","texttable","textorientation"]
+    def __init__(self, member):
 #    def __init__(self, template, member=None):
 	#                                                         #
         ###########################################################
@@ -128,89 +86,30 @@ class Pls:
 	# appropriate Python Object.                              #
         ###########################################################
 	#                                                         #
-        self.__dict__['member']=member
-        self.__dict__['priority']=getPlsmember(template,member,'priority')
-        self.__dict__['x1']=getPlsmember(template,member,'x1')
-        self.__dict__['y1']=getPlsmember(template,member,'y1')
-        self.__dict__['x2']=getPlsmember(template,member,'x2')
-        self.__dict__['y2']=getPlsmember(template,member,'y2')
-        self.__dict__['line']=getPlsmember(template,member,'line')
-        self.__dict__['texttable']=getPlsmember(template,member,'texttable')
-        self.__dict__['textorientation']=getPlsmember(template,member,'textorientation')
-        #                                                         #
-        ###########################################################
-        # Keep track of the parent and grandparent.               #
-        ###########################################################
-        #                                                         #
-        self.__dict__['parent']=template
-        self.__dict__['template_parent']=template_parent
 
+        self.member = member
+        self.priority= 1 
+        self.line="default"
+        self.texttable="default"
+        self.textorientation="defcenter"
+        self.x1=0.0500000007451
+        self.y1=0.129999995232
+        self.x2=0.949999988079
+        self.y2=0.159999996424
 
     #############################################################################
     #                                                                           #
     # Set template text  attributes.                                            #
     #                                                                           #
     #############################################################################
-    def __setattr__(self, name, value):
-        if (self.parent.name == '__removed_from_VCS__'):
-           raise ValueError, 'This instance has been removed from VCS.'
-        if (name == 'priority'):
-           if (isinstance(value, IntType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The priority value must be an integer.'
-        if (name == 'x1'):
-           if (type(value) in (IntType, FloatType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The x value must be an integer or float.'
-        if (name == 'y1'):
-           if (type(value) in (IntType, FloatType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The y value must be an integer or float.'
-        if (name == 'x2'):
-           if (type(value) in (IntType, FloatType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The x value must be an integer or float.'
-        if (name == 'y2'):
-           if (type(value) in (IntType, FloatType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The y value must be an integer or float.'
-        elif (name == 'line'):
-           if (queries.isline(value)==1):
-              self.__dict__[name]=value.name
-              value = value.name
-           elif (type(value) == StringType):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The texttable value must be a texttable.'
-        elif (name == 'texttable'):
-           if (queries.istexttable(value)==1):
-              self.__dict__[name]=value.name
-              value = value.name
-           elif (queries.istextcombined(value)==1):
-              self.__dict__[name]=value.Tt_name
-              value = value.name
-           elif (type(value) == StringType):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The texttable value must be a texttable.'
-        elif (name == 'textorientation'):
-           if (queries.istextorientation(value)==1):
-              self.__dict__[name]=value.name
-              value = value.name
-           elif (queries.istextcombined(value)==1):
-              self.__dict__[name]=value.To_name
-              value = value.name
-           elif (type(value) == StringType):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The texttable value must be a textorientation.'
-        setPlsmember(self,self.member,name,value) # update the plot
-
+    priority = VCS_validation_functions.priority
+    x1 = VCS_validation_functions.x1
+    x2 = VCS_validation_functions.x2
+    y1 = VCS_validation_functions.y1
+    y2 = VCS_validation_functions.y2
+    line = VCS_validation_functions.line
+    texttable = VCS_validation_functions.texttable
+    textorientation = VCS_validation_functions.textorientation
 
     #############################################################################
     #                                                                           #
@@ -218,8 +117,6 @@ class Pls:
     #                                                                           #
     #############################################################################
     def list(self):
-        if (self.parent.name == '__removed_from_VCS__'):
-           raise ValueError, 'This instance has been removed from VCS.'
         print "member = ", self.member
         print "     priority =", self.priority
         print "     x1 =", self.x1
