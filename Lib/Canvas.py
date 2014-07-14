@@ -2639,6 +2639,7 @@ Options:::
 
         # By defalut do the ratio thing for lat/lon and linear projection
         # but it can be overwritten by keyword
+        Doratio = keyargs.get("ratio",None)
         doratio=str(keyargs.get('ratio',self.ratio)).strip().lower()
         if doratio[-1]=='t' and doratio[0]=='0' :
             if float(doratio[:-1])==0.: doratio='0'
@@ -3589,6 +3590,8 @@ Options:::
         
             if dn is not None:
               dn._template_origin = template_origin
+              dn.ratio=Doratio
+
             if self.mode!=0 : self.update()
             #if not bg: pause(self.pause_time)
 
@@ -4086,7 +4089,7 @@ Options:::
     a.flush()
 
 """
-        return apply(self.canvas.flush, args)
+        return apply(self.backend.flush, args)
 
     #############################################################################
     #                                                                           #
@@ -4141,7 +4144,7 @@ Options:::
         if (args[0] <= 0) or (args[1] <= 0):
            raise ValueError, 'Error -  The width and height values must be an integer greater than 0.'
 
-        a=apply(self.canvas.geometry, args)
+        a=apply(self.backend.geometry, args)
         self.flush() # update the canvas by processing all the X events
 
         return a

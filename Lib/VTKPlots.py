@@ -128,6 +128,7 @@ class VTKVCSBackend(object):
       return
     self._lastSize = sz
     plots_args = []
+    key_args =[]
     for dnm in self.canvas.display_names:
       d=vcs.elements["display"][dnm]
       parg = []
@@ -138,9 +139,13 @@ class VTKVCSBackend(object):
       parg.append(d.g_type)
       parg.append(d.g_name)
       plots_args.append(parg)
+      if d.ratio is not None:
+          key_args.append({"ratio":d.ratio})
+      else:
+          key_args.append({})
     self.canvas.clear()
-    for pargs in plots_args:
-      self.canvas.plot(*pargs)
+    for i, pargs in enumerate(plots_args):
+      self.canvas.plot(*pargs,**key_args[i])
 
   def clear(self):
     renderers = self.renWin.GetRenderers()
@@ -238,6 +243,13 @@ class VTKVCSBackend(object):
       return
     self.renWin.Finalize()
 
+  def geometry(self,x,y,*args):
+      #screenSize = self.renWin.GetScreenSize()
+      self.renWin.SetSize(x,y)
+
+  def flush(self):
+      self.renWin.Render()
+
   def plot(self,data1,data2,template,gtype,gname,bg,*args,**kargs):
     self.numberOfPlotCalls+=1
     created = self.createRenWin(**kargs)
@@ -264,7 +276,6 @@ class VTKVCSBackend(object):
     if gtype in ["boxfill","meshfill","isoline","isofill","vector"]:
       data1 = self.trimData2D(data1) # Ok get only the last 2 dims
       data2 = self.trimData2D(data2)
-      print data1.shape,type(data1)
     #elif vcs.isgraphicsmethod(vcs.elements[gtype][gname]):
       ## oneD
     #  data1 = self.trimData1D(data1)

@@ -1634,19 +1634,22 @@ class P(object):
                         if x.isportrait():
                              Rout=1./Rout
          elif Rout is None:
-              Rout=11./8.5
+           try:
+             info = x.canvasinfo()
+             Rout=float(info['width'])/float(info['height'])
+           except Exception,err:
+              Rout=1./.758800507
+              if x.isportrait():
+                   Rout=1./Rout
 
          t=x.createtemplate(source=self.name)
 
-         # Output ratio
-         if x.isportrait():
-              Rout=1/Rout
          # Computes the template ratio
          Rt=(self.data.y2-self.data.y1)/(self.data.x2-self.data.x1)
 
          # Actual ratio template and output format combined
          Ra=Rt/Rout
-        
+         #Ra=(self.data.y2-self.data.y1)/(self.data.x2-self.data.x1)
          if Rwished>Ra:
               t.scale(Ra/Rwished,axis='x')
          else:
