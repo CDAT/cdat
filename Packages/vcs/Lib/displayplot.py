@@ -83,6 +83,7 @@ class Dp(object):
                   "_g_name",
                   "_array",
                   "_continents",
+                  "ratio",
     ]
 
 
@@ -187,6 +188,7 @@ class Dp(object):
           self._g_name = "default"
           self._array=[]
           self._continents = -1
+          self.ratio = None
         else:
           src=vcs.elements["display"][Dp_name_src]
           self.off = src.off
@@ -197,6 +199,7 @@ class Dp(object):
           self.g_name=src.g_name
           self.continents=src.continents
           self.priority=src.priority
+          self.ratio = src.ratio
 
         vcs.elements["display"][self._name]=self
     #############################################################################
@@ -219,6 +222,7 @@ class Dp(object):
         print "array =", self.array
         print "continents =", self.continents
         print "extradisplays =", self.extradisplays
+        print "ratio =", self.ratio
 
     #############################################################################
     #                                                                           #
