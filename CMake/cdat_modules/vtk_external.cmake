@@ -28,7 +28,7 @@ ExternalProject_Add(VTK
     -DPYTHON_MINOR_VERSION:STRING=${PYTHON_MINOR}
   CMAKE_ARGS
     -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
-  DEPENDS ${vtk_deps}
+  DEPENDS ${VTK_deps}
   ${ep_log_options}
 )
 
