@@ -14,6 +14,20 @@ endif()
 # Initialize
 set(ParaView_tpl_args)
 
+# VCS needs projections from GeoVis
+list(APPEND ParaView_tpl_args
+  -DModule_vtkViewsGeovis:BOOL=ON
+)
+list(APPEND ParaView_tpl_args
+  -DModule_vtklibproj4:BOOL=ON
+)
+
+# We would like to see CGM as well
+list(APPEND ParaView_tpl_args
+  -DModule_vtkIOCGM:BOOL=ON
+  )
+
+
 if (CDAT_BUILD_PARALLEL)
   list(APPEND ParaView_tpl_args
     -DPARAVIEW_USE_MPI:BOOL=ON)
@@ -105,15 +119,18 @@ else()
     -DPARAVIEW_BUILD_QT_GUI:BOOL=OFF)
 endif()
 
-list(APPEND ParaView_tpl_args
-  -DPARAVIEW_USE_GNU_R:BOOL=ON
-  -DR_COMMAND:PATH=${R_install}/bin/R
-  -DR_DIR:PATH=${R_install}/lib/R
-  -DR_INCLUDE_DIR:PATH=${R_install}/lib/R/include
-  -DR_LIBRARY_BASE:PATH=${R_install}/lib/R/lib/libR${_LINK_LIBRARY_SUFFIX}
-  -DR_LIBRARY_BLAS:PATH=${R_install}/lib/R/lib/libRblas${_LINK_LIBRARY_SUFFIX}
-  -DR_LIBRARY_LAPACK:PATH=${R_install}/lib/R/lib/libRlapack${_LINK_LIBRARY_SUFFIX}
-  -DR_LIBRARY_READLINE:PATH=)
+# Check if using R then only enable R support
+if (CDAT_BUILD_R OR CDAT_USE_SYSTEM_R)
+  list(APPEND ParaView_tpl_args
+    -DPARAVIEW_USE_GNU_R:BOOL=ON
+    -DR_COMMAND:PATH=${R_install}/bin/R
+    -DR_DIR:PATH=${R_install}/lib/R
+    -DR_INCLUDE_DIR:PATH=${R_install}/lib/R/include
+    -DR_LIBRARY_BASE:PATH=${R_install}/lib/R/lib/libR${_LINK_LIBRARY_SUFFIX}
+    -DR_LIBRARY_BLAS:PATH=${R_install}/lib/R/lib/libRblas${_LINK_LIBRARY_SUFFIX}
+    -DR_LIBRARY_LAPACK:PATH=${R_install}/lib/R/lib/libRlapack${_LINK_LIBRARY_SUFFIX}
+    -DR_LIBRARY_READLINE:PATH=)
+endif()
 
 if(UVCDAT_TESTDATA_LOCATION)
   list(APPEND ParaView_tpl_args
@@ -124,9 +141,9 @@ include(GetGitRevisionDescription)
 set(paraview_branch ${PARAVIEW_MD5})
 
 get_git_head_revision(refspec sha)
-if("${refspec}" STREQUAL "refs/heads/devel-master")
-  set(paraview_branch uvcdat-next)
-endif()
+#if("${refspec}" STREQUAL "refs/heads/devel-master")
+#  set(paraview_branch uvcdat-next)
+#endif()
 
 if (NOT OFFLINE_BUILD)
     set(GIT_CMD_STR GIT_REPOSITORY "${PARAVIEW_SOURCE}")

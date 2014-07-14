@@ -7,7 +7,7 @@
 #############################################################################
 def _files():
    import sys, os, shutil,vcs
-   dotdir, dotdirenv = vcs.slabapi.getdotdirectory()
+   dotdir, dotdirenv = vcs.getdotdirectory()
    #
    # Create .uvcdat directory if it does not exist
    try:
@@ -101,7 +101,7 @@ def _XGKSFontDir( ):
 #############################################################################
 def list_printers( ):
    import os,vcs
-   dotdir = vcs.slabapi.getdotdirectory()[0]
+   dotdir = vcs.getdotdirectory()[0]
    plist = []
    try:
       fn = '%s/%s/HARD_COPY' % (os.environ['HOME'],dotdir)
@@ -133,7 +133,7 @@ def list_printers( ):
 def add_printer( printer_name ):
    import os
    plist = []
-   dotdir = vcs.slabapi.getdotdirectory()[0]
+   dotdir = vcs.getdotdirectory()[0]
    try:
       fn = '%s/%s/HARD_COPY' % (os.environ['HOME'],dotdir)
    except:
@@ -157,7 +157,7 @@ def add_printer( printer_name ):
 def remove_printer( printer_name ):
    import os, string,vcs
    plist = []
-   dotdir = vcs.slabapi.getdotdirectory()[0]
+   dotdir = vcs.getdotdirectory()[0]
    try:
       fn = '%s/%s/HARD_COPY' % (os.environ['HOME'],dotdir)
    except:
@@ -183,7 +183,7 @@ def remove_printer( printer_name ):
 #############################################################################
 def add_gplot_commands( ):
    import sys, os, string, vcs
-   dotdir = vcs.slabapi.getdotdirectory()[0]
+   dotdir = vcs.getdotdirectory()[0]
    try:
       fn = os.path.join(os.environ['HOME'], dotdir, 'HARD_COPY')
       fn2 = os.path.join(os.environ['HOME'], dotdir, 'HARD_COPY.tmp')

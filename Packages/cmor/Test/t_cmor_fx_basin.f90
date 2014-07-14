@@ -15,7 +15,7 @@ program t_cmor_fx_basin
   double precision, dimension(nlat_o+1) :: lat_o_bnds
   double precision, dimension(nlon_o)   :: lon_o
   double precision, dimension(nlon_o+1) :: lon_o_bnds
-
+  double precision, dimension(nlon_o,nlat_o) :: crap
   !--- Misc
   character(256)  :: outpath = 'TestMe'
   character(1024) :: source = 'CanESM2 2010 atmosphere: CanAM4 (AGCM15i, T63L35)'
@@ -25,7 +25,7 @@ program t_cmor_fx_basin
   character(256)  :: institution = &
     'CCCma (Canadian Centre for Climate Modelling and Analysis, Victoria, BC, Canada)'
   character(64)   :: institute_id = 'CCCma'
-  character(64)   :: experiment_id = 'piCOntrol'
+  character(64)   :: experiment_id = 'piControl'
   character(64)   :: contact = 'cccma_info@ec.gc.ca'
   character(64)   :: time_units = 'days since 1850-1-1'
   character(64)   :: calendar = '365_day'
@@ -61,6 +61,7 @@ program t_cmor_fx_basin
        source=trim(source),                                    &
        calendar=trim(calendar),                                &
        realization=1,                                &
+       institute_id = trim("hi"), &
        initialization_method=1,            &
        physics_version=1,                        &
        contact=trim(contact),                                  &
@@ -109,6 +110,9 @@ program t_cmor_fx_basin
       original_name="BASIN",             &
       history=trim(var_history),         &
       comment=trim(var_comment) )
+
+
+  error_flag = cmor_write(curr_vid,crap)
 
   error_flag = cmor_close()
 

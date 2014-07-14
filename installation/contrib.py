@@ -35,9 +35,10 @@ Clist = [
     ['contrib/EzTemplate','Package to generate VCS templates easily','GNU'],
     ['contrib/ZonalMeans','Package to compute zonal means on any grid (requires f90 compiler)','GNU'],
     ['contrib/HDF5Tools','Package to read HDF5 files into CDAT (requires h5dump binary utility)','GNU'],
-    ['contrib/eof2','',''],
-    ['contrib/eofs','',''],
-    ['contrib/windspharm','','GNU'],
+# following is now built via externals
+#    ['contrib/eof2','',''],
+#    ['contrib/eofs','',''],
+#    ['contrib/windspharm','','GNU'],
 ]
 
 # natgrid has illegal C comments but gcc lets them through...

@@ -1,11 +1,21 @@
 #This test verifiy we can plot hurricane markers
-add_test(vcs_verify_hurricane_marker
+add_test(vcs_verify_import
   ${CMAKE_INSTALL_PREFIX}/bin/python
-  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_hurricane_marker.py
-  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_hurricane_marker.png
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_import.py
 )
-add_test(vcs_test_anim_basic
-    ${CMAKE_INSTALL_PREFIX}/bin/python
-    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_anim_basic.py
-    ${cdat_SOURCE_DIR}/testing/vcs/test_anim_basic_out_%i.png
-    )
+add_test(vcs_verify_init
+  ${CMAKE_INSTALL_PREFIX}/bin/python
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_init.py
+)
+add_test(vcs_verify_boxfill_basics
+  ${CMAKE_INSTALL_PREFIX}/bin/python
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_basics_no_plot.py
+)
+add_test(vcs_verify_proj_basics
+  ${CMAKE_INSTALL_PREFIX}/bin/python
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_projection_basics_no_plot.py
+)
+add_test(vcs_verify_fillarea_basics
+  ${CMAKE_INSTALL_PREFIX}/bin/python
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_fillarea_basics_no_plot.py
+)

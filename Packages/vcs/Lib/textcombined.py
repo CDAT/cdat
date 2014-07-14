@@ -1,3 +1,5 @@
+import vcs
+
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 """
 # Text Combined (Tc) module
@@ -33,7 +35,6 @@ import texttable
 import textorientation
 from types import *
 import VCS_validation_functions
-import _vcs
 
 #############################################################################
 #                                                                           #
@@ -144,7 +145,6 @@ class Tc(object):
         'path',
         'halign',
         'valign',
-        'parent',
         ]
     
     def _getTtname(self):
@@ -265,32 +265,32 @@ class Tc(object):
     # Initialize the text combine attributes.                                   #
     #                                                                           #
     #############################################################################
-    def __init__(self, parent, Tt_name=None, Tt_name_src='default', To_name=None, To_name_src='default', createTc=0):
+    def __init__(self, Tt_name=None, Tt_name_src='default', To_name=None, To_name_src='default'):
         import vcs
-        if (createTc == 0):
-           if (Tt_name == None):
-              raise ValueError, 'Must provide a text table name.'
-           if (To_name == None):
-##               raise ValueError, 'Must provide a text orientation name.'
-               To_name = Tt_name # Uses the same name than Tt
-        else:
-              Tt_name = Tt_name_src
-              To_name = To_name_src
+        if (Tt_name == None):
+           raise ValueError, 'Must provide a text table name.'
+        if (To_name == None):
+            To_name = Tt_name # Uses the same name than Tt
+
+        if Tt_name in vcs.elements["texttable"]:
+          raise Exception,"Error texttable object: '%s' already exists" % Tt_name
+        if To_name in vcs.elements["textorientation"]:
+          raise Exception,"Error textorientation object: '%s' already exists" % To_name
         #                                                                 #
         ###################################################################
         # Inherits texttable and textorientation secondary sub-classes.   #
         ###################################################################
         #                                                                 #
-        self.Tt = texttable.Tt(parent, Tt_name, Tt_name_src, createTc)
-        self.To = textorientation.To(parent, To_name, To_name_src, createTc)
-        self.name = ''
+        self.Tt = texttable.Tt(Tt_name, Tt_name_src)
+        self.To = textorientation.To(To_name, To_name_src)
+        self.name = "%s:::%s" % (Tt_name,To_name)
         self.s_name = 'Tc'
+        vcs.elements["textcombined"][self.name] = self
         #                                                         #
         ###########################################################
         # Save the parent class.                                  #
         ###########################################################
         #                                                         #
-        self.parent = parent
 
 ##     #############################################################################
 ##     #                                                                           #
@@ -539,7 +539,6 @@ class Tc(object):
             (self.To_name == '__removed_from_VCS__')):
            raise ValueError, 'This instance has been removed from VCS.'
         print "","----------Text combined (Tc) member (attribute) listings ----------"
-        print 'Canvas Mode =',self.parent.mode
         print "secondary method =", self.s_name
         print "","----------Text Table (Tt) member (attribute) listings ----------"
         print "Tt_name =",self.Tt_name
@@ -562,6 +561,7 @@ class Tc(object):
         print "path =", self.path
         print "halign =", self.halign
         print "valign =", self.valign
+        print "colormap =", self.colormap
 
     #############################################################################
     #                                                                           #
@@ -592,8 +592,6 @@ class Tc(object):
     tc.script('filename.scr')	     # Append to a VCS file "filename.scr"
     tc.script('filename','w')	     # Create or overwrite to a Python file "filename.py"
 '''
-        import _vcs
- 
         if (script_filename == None):
           raise ValueError, 'Error - Must provide an output script file name.'
 
@@ -602,12 +600,17 @@ class Tc(object):
         elif (mode not in ('w', 'a')):
           raise ValueError, 'Error - Mode can only be "w" for replace or "a" for append.'
 
-        # By default, save file in python script mode
-        scr_type = script_filename[len(script_filename)-4:len(script_filename)]
-        if (scr_type == '.scr'):
-           _vcs.scriptTt(self.Tt_name,script_filename,mode)
-           print _vcs.scriptTo(self.To_name,script_filename,"a")
+        # By default, save file in json
+        scr_type = script_filename.split(".")
+        if len(scr_type)==1 or len(scr_type[-1])>5:
+          scr_type= "json"
+          if script_filename!="initial.attributes":
+            script_filename+=".json"
         else:
+          scr_type = scr_type[-1]
+        if scr_type == '.scr':
+           raise DeprecationWarning("scr script are no longer generated")
+        elif scr_type == "py":
            mode = mode + '+'
            py_type = script_filename[len(script_filename)-3:len(script_filename)]
            if (py_type != '.py'):
@@ -655,7 +658,17 @@ class Tc(object):
            fp.write("%s.path = '%s'\n" % (unique_name, self.path))
            fp.write("%s.halign = '%s'\n" % (unique_name, self.halign))
            fp.write("%s.valign = '%s'\n\n" % (unique_name, self.valign))
+           fp.write("%s.colormap = '%s'\n\n" % (unique_name, repr(self.colormap)))
            fp.close()
+        else:
+          #Json type
+          mode+="+"
+          f = open(script_filename,mode)
+          vcs.utils.dumpToJson(self.To,f)
+          f.close()
+          f = open(script_filename,'a+')
+          vcs.utils.dumpToJson(self.Tt,f)
+          f.close()
 
 #################################################################################
 #        END OF FILE                                                            #

@@ -1,6 +1,18 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
 import MV2,numpy,cdms2,genutil
 
+def get_parenthesis_content(code):
+  opened = 0
+  closed = 0
+  for i,s in enumerate(code):
+    if s=="(":
+      opened+=1
+    elif s==")":
+      closed+=1
+    if opened!=0 and closed==opened:
+      return code[code.find("(")+1:i]
+  return ""
+
 def make_var(lap,id=None,shape=None):
     lap=MV2.array(lap)
     if shape is not None:

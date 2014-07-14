@@ -23,52 +23,9 @@
 #
 #
 #
-#################################################################################
-#                                                                               #
-# Import: VCS C extension module.                                               #
-#                                                                               #
-#################################################################################
-import _vcs, queries
+import queries
+import VCS_validation_functions
 from types import *
-
-#################################################################################
-#                                                                               #
-# Function:	setPblmember                                                    #
-#                                                                               #
-# Description of Function:                                                      #
-# 	Private function to update the VCS canvas plot. If the canvas mode is   #
-#       set to 0, then this function does nothing.              		#
-#                                                                               #
-#                                                                               #
-# Example of Use:                                                               #
-#      setPblmember(self,name,value)						#
-#              where: self is the class (e.g., Pbl)                             #
-#                     name is the name of the member that is being changed      #
-#                     value is the new value of the member (or attribute)       #
-#                                                                               #
-#################################################################################
-def setPblmember(self,member,attribute,value):
-     _vcs.setPblmember(self.parent, member, attribute, value, self.template_parent.mode)
-#     _vcs.setPblmember(self, member, value, self.parent.mode)
-
-#################################################################################
-#                                                                               #
-# Function:     getPblmember                                                    #
-#                                                                               #
-# Description of Function:                                                      #
-#       Private function that retrieves the line members from the C             #
-#       structure and passes it back to Python.                                 #
-#                                                                               #
-#                                                                               #
-# Example of Use:                                                               #
-#      return_value =								#
-#      getPblmember(self,name)                                                  #
-#              where: self is the class (e.g., Pbl)                             #
-#                     name is the name of the member that is being found        #
-#                                                                               #
-#################################################################################
-def getPblmember(self,member,attribute):
-     return _vcs.getPblmember(self,member,attribute)
 
 #############################################################################
 #                                                                           #
@@ -119,7 +76,8 @@ class Pbl:
     # Initialize the line attributes.                                           #
     #                                                                           #
     #############################################################################
-    def __init__(self, template, template_parent, member=None):
+    __slots__ = ["priority","x1","x2","y1","y2","line","member","_priority","_x1","_x2","_y1","_y2","_line"]
+    def __init__(self, member):
 #    def __init__(self, template, member=None):
 	#                                                         #
         ###########################################################
@@ -130,63 +88,62 @@ class Pbl:
 	# appropriate Python Object.                              #
         ###########################################################
 	#                                                         #
-        self.__dict__['member']=member
-        self.__dict__['priority']=getPblmember(template,member,'priority')
-        self.__dict__['x1']=getPblmember(template,member,'x1')
-        self.__dict__['y1']=getPblmember(template,member,'y1')
-        self.__dict__['x2']=getPblmember(template,member,'x2')
-        self.__dict__['y2']=getPblmember(template,member,'y2')
-        self.__dict__['line']=getPblmember(template,member,'line')
-        #                                                         #
-        ###########################################################
-        # Keep track of the parent and grandparent.               #
-        ###########################################################
-        #                                                         #
-        self.__dict__['parent']=template
-        self.__dict__['template_parent']=template_parent
+        self.member=member
+        self.priority= 0 
+        self.line="default"
+        if member == "box1":
+          self.priority= 1
+          self.x1= 0.0500000007451
+          self.y1=0.259999990463
+          self.x2=0.949999988079
+          self.y2=0.860000014305
+        elif member == "box2":
+          self.x1= 0.
+          self.y1= 0.300000011921
+          self.x2= 0.920000016689
+          self.y2=0.879999995232
+        elif member == "box3":
+          self.x1= 0.
+          self.y1=0.319999992847
+          self.x2=0.910000026226
+          self.y2=0.860000014305
+        elif member == "box4":
+          self.x1= 0.
+          self.y1= 0.
+          self.x2= 0.
+          self.y2= 0.
+        elif member == "line1":
+          self.x1= 0.0500000007451
+          self.y1=0.560000002384
+          self.x2=0.949999988079
+          self.y2=0.560000002384
+        elif member == "line2":
+          self.x1= .5
+          self.y1= 0.259999990463
+          self.x2= .5
+          self.y2=0.860000014305
+        elif member == "line3":
+          self.x1=0.
+          self.y1=0.52999997139
+          self.x2=0.899999976158
+          self.y2=0.52999997139
+        elif member == "line4":
+          self.x1= 0.
+          self.y1= 0.990000009537
+          self.x2=0.899999976158
+          self.y2=0.990000009537
 
     #############################################################################
     #                                                                           #
     # Set template text  attributes.                                            #
     #                                                                           #
     #############################################################################
-    def __setattr__(self, name, value):
-        if (self.parent.name == '__removed_from_VCS__'):
-           raise ValueError, 'This instance has been removed from VCS.'
-        if (name == 'priority'):
-           if (isinstance(value, IntType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The priority value must be an integer.'
-        if (name == 'x1'):
-           if (type(value) in (IntType, FloatType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The x value must be an integer or float.'
-        if (name == 'y1'):
-           if (type(value) in (IntType, FloatType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The y value must be an integer or float.'
-        if (name == 'x2'):
-           if (type(value) in (IntType, FloatType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The x value must be an integer or float.'
-        if (name == 'y2'):
-           if (type(value) in (IntType, FloatType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The y value must be an integer or float.'
-        elif (name == 'line'):
-           if (queries.isline(value)==1):
-              self.__dict__[name]=value.name
-              value = value.name
-           elif (type(value) == StringType):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The line value must be a line object.'
-        setPblmember(self,self.member,name,value) # update the plot
+    priority = VCS_validation_functions.priority
+    x1 = VCS_validation_functions.x1
+    x2 = VCS_validation_functions.x2
+    y1 = VCS_validation_functions.y1
+    y2 = VCS_validation_functions.y2
+    line = VCS_validation_functions.line
 
     #############################################################################
     #                                                                           #
@@ -194,8 +151,6 @@ class Pbl:
     #                                                                           #
     #############################################################################
     def list(self):
-        if (self.parent.name == '__removed_from_VCS__'):
-           raise ValueError, 'This instance has been removed from VCS.'
         print "member = ", self.member
         print "     priority =", self.priority
         print "     x1 =", self.x1

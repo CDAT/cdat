@@ -16,4 +16,6 @@ from Filler import Filler,StringConstructor
 from averager import averager, AveragerError, area_weights, getAxisWeight, getAxisWeightByName,__check_weightoptions
 #from Statusbar_Pmw import Statusbar
 import cdat_info
+from ASCII import get_parenthesis_content
 cdat_info.pingPCMDIdb("cdat","genutil")
+

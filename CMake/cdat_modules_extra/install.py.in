@@ -530,6 +530,7 @@ def main(arglist):
                         "disable-spanlib"
                         "disable-tkbuild",
                         "enable-qt",
+                        "enable-vcs-legacy",
                         "enable-qt-framework",
                         "with-qt=",
                         "with-qt-lib=",
@@ -561,6 +562,8 @@ def main(arglist):
     
     for i in range(len(optlist)):
         letter=optlist[i][0]
+        if letter == "--enable-vcs-legacy":
+            qt=True
         if letter == "--enable-qt":
             qt=True
         if letter == "--enable-qt-framework":

@@ -23,76 +23,9 @@
 #
 #
 #
-###############################################################################
-#                                                                             #
-# Import: VCS C extension module.                                             #
-#                                                                             #
-###############################################################################
-import _vcs
 import VCS_validation_functions
+import vcs
 
-###############################################################################
-#                                                                             #
-# Function:	setDpmember                                                   #
-#                                                                             #
-# Description of Function:                                                    #
-# 	Private function to update the VCS canvas plot. If the canvas mode is #
-#       set to 0, then this function does nothing.                            #
-#                                                                             #
-#                                                                             #
-# Example of Use:                                                             #
-#      setDpmember(self,name,value)				              #
-#              where: self is the class (e.g., Dp)                            #
-#                     name is the name of the member that is being changed    #
-#                     value is the new value of the member (or attribute)     #
-#                                                                             #
-###############################################################################
-def setDpmember(self,member,value):
-     out = _vcs.setDpmember(self, member, value, self.parent.mode)
-     self.parent.backing_store()
-     return out
-setmember = setDpmember
-###############################################################################
-#                                                                             #
-# Function:     getDpmember                                                   #
-#                                                                             #
-# Description of Function:                                                    #
-#       Private function that retrieves the display plot members from the C   #
-#       structure and passes it back to Python.                               #
-#                                                                             #
-#                                                                             #
-# Example of Use:                                                             #
-#      return_value =						              #
-#      getDpmember(self,name)                                                 #
-#              where: self is the class (e.g., Dp)                            #
-#                     name is the name of the member that is being found      #
-#                                                                             #
-###############################################################################
-def getDpmember(self,member):
-     return _vcs.getDpmember(self,member)
-getmember = getDpmember
-###############################################################################
-#                                                                             #
-# Function:     renameDp                                                      #
-#                                                                             #
-# Description of Function:                                                    #
-#       Private function that renames the name of an existing display plot    #
-#       object.                                                               #
-#                                                                             #
-#                                                                             #
-# Example of Use:                                                             #
-#      renameDp(old_name, new_name)                                           #
-#              where: old_name is the current name of display plot object     #
-#                     new_name is the new name for the display plot object    #
-#                                                                             #
-###############################################################################
-def renameDp(self, old_name, new_name):
-     return _vcs.renameDp(old_name, new_name)
-#############################################################################
-#                                                                           #
-# Display Plot (Dp) Class.                                                  #
-#                                                                           #
-#############################################################################
 class Dp(object):
     """
  Class:	Dp				# Display Plot
@@ -129,7 +62,6 @@ class Dp(object):
     p1.g_name='quick'			# Graphics method name
     p1.array=['a1']			# List of all the array names
     """
-    rename = renameDp
     __slots__ = [ "name",
                   "_name",
                   "s_name",
@@ -143,6 +75,14 @@ class Dp(object):
                   "continents",
                   "extradisplays",
                   "parent",
+                  "_off",
+                  "_priority",
+                  "_template",
+                  "__template_origin",
+                  "_g_type",
+                  "_g_name",
+                  "_array",
+                  "_continents",
     ]
 
 
@@ -165,65 +105,59 @@ class Dp(object):
     name=property(_getname,_setname)
 
     def _getcontinents(self):
-         return getmember(self,'continents')
+         return self._continents
     def _setcontinents(self,value):
-         value = VCS_validation_functions.checkInt(self,'continents',value,minvalue=-1)
-         setmember(self,'continents',value)
+         self._continents = VCS_validation_functions.checkInt(self,'continents',value,minvalue=-1)
     continents = property(_getcontinents,_setcontinents)
 
     def _getpriority(self):
-         return getmember(self,'priority')
+         return self._priority
     def _setpriority(self,value):
-         value = VCS_validation_functions.checkInt(self,'priority',value,minvalue=0)
-         setmember(self,'priority',value)
+         self._priority = VCS_validation_functions.checkInt(self,'priority',value,minvalue=0)
     priority = property(_getpriority,_setpriority)
 
     def _getoff(self):
-         return getmember(self,'off')
+         return self._off
     def _setoff(self,value):
-         value = VCS_validation_functions.checkInt(self,'off',value,minvalue=0,maxvalue=1)
-         setmember(self,'off',value)
+         self._off = VCS_validation_functions.checkInt(self,'off',value,minvalue=0,maxvalue=1)
          for d in self.extradisplays:
-              d.off=value
+              d.off=self._off
     off = property(_getoff,_setoff)
 
     def _getg_name(self):
-         return getmember(self,'g_name')
+         return self._g_name
     def _setg_name(self,value):
-         value = VCS_validation_functions.checkString(self,'g_name',value)
-         setmember(self,'g_name',value)
+         self._g_name = VCS_validation_functions.checkString(self,'g_name',value)
     g_name = property(_getg_name,_setg_name)
 
     def _getarray(self):
-         return getmember(self,'array')
+         return self._array
     def _setarray(self,value):
          if not isinstance(value,list):
               raise ValueError, 'The array must be contained in a list object.'             
-         setmember(self,'array',value)
+         self._array=value
     array = property(_getarray,_setarray)
 
     def _gettemplate(self):
-         return getmember(self,'template')
+         return self._template
     def _settemplate(self,value):
-         value = VCS_validation_functions.checkString(self,'template',value)
-         setmember(self,'template',value)
+         self._template = VCS_validation_functions.checkString(self,'template',value)
     template = property(_gettemplate,_settemplate)
 
     def _gettemplate_origin(self):
-         return getmember(self,'_template_origin')
+         return self.__template_origin
     def _settemplate_origin(self,value):
-         value = VCS_validation_functions.checkString(self,'_template_origin',value)
-         setmember(self,'_template_origin',value)
+         self.__template_origin = VCS_validation_functions.checkString(self,'_template_origin',value)
     _template_origin = property(_gettemplate_origin,_settemplate_origin)
 
     def _getg_type(self):
-         return getmember(self,'g_type')
+         return self._g_type
     def _setg_type(self,value):
          value = VCS_validation_functions.checkString(self,'g_type',value)
          value=value.lower()
-         if not value in ('boxfill', 'isofill', 'isoline', 'outfill', 'outline', 'continents', 'scatter', 'vector', 'xvsy', 'xyvsy', 'yxvsx','taylordiagram','meshfill'):
-              raise ValueError,"g_type must be one of: ('boxfill', 'isofill', 'isoline', 'outfill', 'outline', 'continents', 'scatter', 'vector', 'xvsy', 'xyvsy', 'yxvsx','taylordiagram','meshfill')"
-         setmember(self,'g_type',value)
+         if not value in vcs.elements and value!="text":
+           raise ValueError,"invalid g_type '%s' must be one of: %s " % (value,vcs.elements.keys())
+         self._g_type=value
     g_type = property(_getg_type,_setg_type)
 
     #############################################################################
@@ -231,7 +165,7 @@ class Dp(object):
     # Initialize the display plot attributes.                                   #
     #                                                                           #
     #############################################################################
-    def __init__(self, parent, Dp_name=None, Dp_name_src='default', createDp=0):
+    def __init__(self, Dp_name, Dp_name_src='default'):
 	#                                                                           #
         #############################################################################
 	# Initialize the display plot's class and its members                       #
@@ -242,95 +176,29 @@ class Dp(object):
         #############################################################################
 	#                                                                           #
         self.extradisplays=[]
-        if (createDp == 0):
-           if (Dp_name == None):
-              raise ValueError, 'Must provide a display plot name.'
-           else:
-              _vcs.copyD(Dp_name_src, Dp_name)
-              self.name = Dp_name
-        else:
-              self._name=Dp_name_src
+        self._name = Dp_name
         self.s_name='Dp'
-##         self.off=getDpmember(self, 'off')
-##         self.__dict__['priority']=getDpmember(self, 'priority')
-##         self.__dict__['template']=getDpmember(self, 'template')
-##         self._template_origin=self.template
-##         self.__dict__['g_type']=getDpmember(self, 'g_type')
-##         self.__dict__['g_name']=getDpmember(self, 'g_name')
-##         self.__dict__['array']=getDpmember(self, 'array')
-        #                                                                   #
-        #####################################################################
-        # Find and set the display plot's structure in VCS C pointer        #
-        # list. If the display plot name does not exist, then use           #
-        # None and the display plot object.                                 #
-        #####################################################################
-        #                                                                   #
-        self.parent=parent
- # DEAN 8/13/07 --- comment the below line out so that the original template name is show
- #               This is now done in Canvas.py: getplot
-        self._template_origin=self.template
+        if self._name == "default":
+          self._off = 0
+          self._priority=0
+          self._template="default"
+          self.__template_origin="default"
+          self._g_type = "boxfill"
+          self._g_name = "default"
+          self._array=[]
+          self._continents = -1
+        else:
+          src=vcs.elements["display"][Dp_name_src]
+          self.off = src.off
+          self.array = src.array
+          self.template=src.template
+          self._template_origin = src._template_origin
+          self.g_type=src.g_type
+          self.g_name=src.g_name
+          self.continents=src.continents
+          self.priority=src.priority
 
-    #############################################################################
-    #                                                                           #
-    # Set display plot attributes.                                              #
-    #                                                                           #
-    #############################################################################
-##     def __setattr__(self, name, value):
-##         if (self.name == '__removed_from_VCS__'):
-##            raise ValueError, 'This instance has been removed from VCS.'
-##         if (self.name == 'default'):
-##            raise ValueError, 'You cannot modify the default display.'
-##         if (name == 'name'):
-##            if (type(value) == StringType):
-##               renameDp(self,self.name, value)
-##               self.__dict__['name']=value
-##            else:
-##               raise ValueError, 'The name attribute must be a string.'
-##         elif (name == 'off'):
-##            if (value in (0,1)):
-##               self.__dict__[name]=int(value)
-##               setDpmember(self,name,self.off) # update the off status
-##            else:
-##               raise ValueError, 'The off status can either be 0 for plot or 1 no plot.'
-##         elif (name == 'priority'):
-##            if (isinstance(value, IntType)):
-##               self.__dict__[name]=int(value)
-##               setDpmember(self,name,self.priority) # update the priority
-##            else:
-##               raise ValueError, 'The priority value must be an integer.'
-##         elif (name == 'template'):
-##            if (type(value) == StringType):
-##               self.__dict__[name]=value
-##               setDpmember(self,name,self.template) # update the template
-##            else:
-##               raise ValueError, 'The template must be a string.'
-##         elif (name == '_template_origin'):
-##            if (type(value) == StringType):
-##               self.__dict__[name]=value
-##            else:
-##               raise ValueError, 'The template must be a string.'
-##         elif (name == 'g_type'):
-##            if (string.lower(value) in ('boxfill', 'isofill', 'isoline', 'outfill', 'outline', 'continents', 'scatter', 'vector', 'xvsy', 'xyvsy', 'yxvsx','taylordiagram','meshfill')):
-##               self.__dict__[name]=string.lower(value)
-##               setDpmember(self,name,self.g_type) # update the template
-##            else:
-##               raise ValueError, 'Cannot find the graphics method.'
-##         elif (name == 'g_name'):
-##            if (type(value) == StringType):
-##               self.__dict__[name]=value
-##               setDpmember(self,name,self.g_name) # update the graphics method name
-##            else: 
-##               raise ValueError, 'The graphics method name must be a string.'
-##         elif (name == 'array'):
-##            if (type(value) == ListType):
-##               self.__dict__[name]=value
-##               self.__dict__[name]=setDpmember(self,name,self.array) # update the array
-##            else: 
-##               raise ValueError, 'The array must be contained in a list object.'
-##         else:
-##            raise ValueError, 'The member was not found.'
-
-
+        vcs.elements["display"][self._name]=self
     #############################################################################
     #                                                                           #
     # List out display plot members (attributes).                               #
@@ -340,7 +208,6 @@ class Dp(object):
         if (self.name == '__removed_from_VCS__'):
            raise ValueError, 'This instance has been removed from VCS.'
         print "","----------Display Plot (Dp) member (attribute) listings ----------"
-        print 'Canvas Mode =',self.parent.mode
         print "Display plot method =", self.s_name
         print "name =", self.name
         print "off =", self.off

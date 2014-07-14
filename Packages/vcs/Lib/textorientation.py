@@ -22,86 +22,24 @@
 #
 #
 #
-#################################################################################
-#                                                                               #
-# Import: VCS C extension module.                                               #
-#                                                                               #
-#################################################################################
-import _vcs
 import Canvas
-from types import *
 import VCS_validation_functions
+import vcs
 
-#################################################################################
-#                                                                               #
-# Function:	setTomember                                                     #
-#                                                                               #
-# Description of Function:                                                      #
-# 	Private function to update the VCS canvas plot. If the canvas mode is   #
-#       set to 0, then this function does nothing.              		#
-#                                                                               #
-#                                                                               #
-# Example of Use:                                                               #
-#      setTomember(self,name,value)						#
-#              where: self is the class (e.g., To)                              #
-#                     name is the name of the member that is being changed      #
-#                     value is the new value of the member (or attribute)       #
-#                                                                               #
-#################################################################################
-def setTomember(self,member,value):
-     # If the VCS Canvas is displayed, then bring the canvas to the front before 
-     # redisplaying the updated contents.
-     if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()):
-        Canvas.finish_queued_X_server_requests( self.parent )
-        self.parent.canvas.BLOCK_X_SERVER()
-        self.parent.canvasraised()
+def process_src(nm,code):
+  """Takes VCS script code (string) as input and generates boxfill gm from it"""
+  try:
+    to = To(nm)
+  except:
+    to = vcs.elements["textorientation"][nm]
+  ## process attributes with = as assignement
+  sp = code.split(",")
+  to.height = int(float(sp[0])*1000)
+  to.angle = int(sp[1])
+  to.path=["r","l","u","d"].index(sp[2])
+  to.halign=["l","c","r"].index(sp[3])
+  to.valign=["t","c","h","b","s"].index(sp[4])
 
-     _vcs.setTomember(self, member, value, self.parent.mode)
-
-     # If the VCS Canvas is displayed, then update the backing store
-     if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()):
-        self.parent.flush()
-        self.parent.backing_store()
-        self.parent.canvas.UNBLOCK_X_SERVER()
-setmember = setTomember
-
-#################################################################################
-#                                                                               #
-# Function:     getTomember                                                     #
-#                                                                               #
-# Description of Function:                                                      #
-#       Private function that retrieves the text orientation members from the C # 
-#       structure and passes it back to Python.                                 #
-#                                                                               #
-#                                                                               #
-# Example of Use:                                                               #
-#      return_value =								#
-#      getTomember(self,name)                                                   #
-#              where: self is the class (e.g., To)                              #
-#                     name is the name of the member that is being found        #
-#                                                                               #
-#################################################################################
-def getTomember(self,member):
-     return _vcs.getTomember(self,member)
-getmember = getTomember
-
-#################################################################################
-#                                                                               #
-# Function:     renameTo                                                        #
-#                                                                               #
-# Description of Function:                                                      #
-#       Private function that renames the name of an existing text orientation  #
-#       graphics method.                                                        #
-#                                                                               #
-#                                                                               #
-# Example of Use:                                                               #
-#     renameTo(old_name, new_name)                                              #
-#      where: old_name is the current name of text orientation graphics method  #
-#             new_name is the new name for the text orientation graphics method #
-#                                                                               #
-#################################################################################
-def renameTo(self, old_name, new_name):
-     return _vcs.renameTo(old_name, new_name)
 
 #############################################################################
 #                                                                           #
@@ -164,62 +102,58 @@ class To(object):
      to.valign='bottom'			# Same as tovalign=4
      """
     __slots__ = [
-         'setmember',
-         'parent',
-         'name',
          's_name',
+         'name',
          'height',
          'angle',
          'path',
          'halign',
          'valign',
          '_name',
+         '_height',
+         '_angle',
+         '_path',
+         '_halign',
+         '_valign',
          ]
     def _getname(self):
          return self._name
     def _setname(self,value):
          value=VCS_validation_functions.checkname(self,'name',value)
-         if value is not None:
-              self._name=value
-              setTomember(self,'name',value)
+         self._name=value
     name=property(_getname,_setname)
 
     def _getheight(self):
-         return getmember(self,'height')
+         return self._height
     def _setheight(self,value):
-         value = VCS_validation_functions.checkNumber(self,'height',value)
-         setTomember(self,'height',value)
+         self._height = VCS_validation_functions.checkNumber(self,'height',value)
     height=property(_getheight,_setheight)
 
     def _getangle(self):
-         return getmember(self,'angle')
+         return self._angle
     def _setangle(self,value):
-         value = VCS_validation_functions.checkInt(self,'angle',value,minvalue=-360,maxvalue=360)
-         setTomember(self,'angle',value)
+         self._angle = VCS_validation_functions.checkInt(self,'angle',value,minvalue=-360,maxvalue=360)
     angle=property(_getangle,_setangle)
 
     def _getpath(self):
-         return getmember(self,'path')
+         return self._path
     def _setpath(self,value):
          vals = ["right","left","up","down"]
-         value = VCS_validation_functions.checkInStringsListInt(self,'path',value,vals)
-         setTomember(self,'path',vals[value])
+         self._path = VCS_validation_functions.checkInStringsListInt(self,'path',value,vals)
     path = property(_getpath,_setpath)
     
     def _gethalign(self):
-         return getmember(self,'halign')
+         return self._halign
     def _sethalign(self,value):
          vals = ["left","center","right"]
-         value = VCS_validation_functions.checkInStringsListInt(self,'halign',value,vals)
-         setTomember(self,'halign',vals[value])
+         self._halign = VCS_validation_functions.checkInStringsListInt(self,'halign',value,vals)
     halign = property(_gethalign,_sethalign)
     
     def _getvalign(self):
-         return getmember(self,'valign')
+         return self._valign
     def _setvalign(self,value):
          vals = ["top","cap","half","base","bottom"]
-         value = VCS_validation_functions.checkInStringsListInt(self,'valign',value,vals)
-         setTomember(self,'valign',vals[value])
+         self._valign = VCS_validation_functions.checkInStringsListInt(self,'valign',value,vals)
     valign = property(_getvalign,_setvalign)
     
     #############################################################################
@@ -227,7 +161,7 @@ class To(object):
     # Initialize the text orientation attributes.                               #
     #                                                                           #
     #############################################################################
-    def __init__(self, parent, To_name=None, To_name_src='default', createTo=0):
+    def __init__(self, To_name, To_name_src='default'):
 	#                                                           #
         #############################################################
 	# Initialize the text orientation class and its members     #
@@ -237,113 +171,28 @@ class To(object):
         # back the appropriate Python Object.                       #
         #############################################################
 	#                                                           #
-        if (createTo == 0):
-           if (To_name == None):
-              raise ValueError, 'Must provide a text orientation name.'
-           else:
-              _vcs.copyTo(To_name_src, To_name)
-              self._name = To_name
-        else:
-              self._name = To_name_src
+        if To_name in vcs.elements["textorientation"].keys():
+          raise ValueError,"textorientation object '%' already exists" % To_name
+        self._name = To_name
+        if isinstance(To_name_src ,To):
+              To_name_src = To_name_src.name
         self.s_name = 'To'
-##         self.__dict__['height']=getTomember(self, 'height')
-##         self.__dict__['angle']=getTomember(self, 'angle')
-##         self.__dict__['path']=getTomember(self, 'path')
-##         self.__dict__['halign']=getTomember(self, 'halign')
-##         self.__dict__['valign']=getTomember(self, 'valign')
-        #                                                         #
-        ###########################################################
-        # Find and set the text orientation structure in VCS C    #
-        # pointer list. If the text orientation name does not     #
-        # exist, then use default text orientation.               #
-        ###########################################################
-        #                                                         #
-        self.parent = parent
-
-##     #############################################################################
-##     #                                                                           #
-##     # Set text orientation attributes.                                          #
-##     #                                                                           #
-##     #############################################################################
-##     def __setattr__(self, name, value):
-##         if (self.name == '__removed_from_VCS__'):
-##            raise ValueError, 'This instance has been removed from VCS.'
-##         if (self.name == 'default'):
-##            raise ValueError, 'You cannot modify the default text orientation.'
-##         if (name == 'name'):
-##            if (type(value) == StringType):
-##               renameTo(self,self.name, value)
-##               self.__dict__['name']=value
-##            else:
-##               raise ValueError, 'The name attribute must be a string.'
-##         elif (name == 'height'):
-##            if (value == None):
-##               self.__dict__['height']=None
-##               setTomember(self,'height',self.height) # update the plot
-##            elif (type(value) in [IntType, FloatType]):
-## #              if value not in range(1,1001): # must be an integer
-## #                 raise ValueError, 'The height value must be in the range 1 to 1000.'
-## #              else:
-##                  value = float ( value )
-##                  self.__dict__['height']=value
-##                  setTomember(self,'height',self.height) # update the plot
-##            else:
-##               raise ValueError, 'The height attribute value must be an integer or float.'
-##         elif (name == 'angle'):
-##            if (value == None):
-##               self.__dict__['angle']=None
-##               setTomember(self,'angle',self.angle) # update the plot
-##            elif (type(value) in (IntType,FloatType)):
-##               value = int(value)
-##               if value not in range(-360,361): # must be an integer
-##                  raise ValueError, 'The angle value must be in the range -360 to 360.'
-##               else:
-##                  self.__dict__['angle']=value
-##                  setTomember(self,'angle',self.angle) # update the plot
-##            else:
-##               raise ValueError, 'The angle attribute value must be an integer.'
-##         elif (name == 'path'):
-##            if (value in ('right', 'left', 'up', 'down', 0, 1, 2, 3)):
-##               if value in ('right', 0):
-##                  value='right'
-##               elif value in ('left', 1):
-##                  value='left'
-##               elif value in ('up', 2):
-##                  value='up'
-##               elif value in ('down', 3):
-##                  value='down'
-##               self.__dict__['path']=value
-##               setTomember(self,'path',self.path) # update the plot
-##            else:
-##               raise ValueError, 'The path attribute must be either ("right","left","up","down") or (0,1,2,3).'
-##         elif (name == 'halign'):
-##            if (value in ( 'left', 'center', 'right', 0, 1, 2)):
-##               if value in ('left', 0):
-##                  value='left'
-##               elif value in ('center', 1):
-##                  value='center'
-##               elif value in ('right', 2):
-##                  value='right'
-##               self.__dict__['halign']=value
-##               setTomember(self,'halign',self.halign) # update the plot
-##            else:
-##               raise ValueError, 'The halign attribute must be either ("left","center","right") or (0,1,2).'
-##         elif (name == 'valign'):
-##            if (value in ('top', 'cap', 'half', 'base', 'bottom', 0, 1, 2, 3, 4)):
-##               if value in ('top', 0):
-##                  value='top'
-##               elif value in ('cap', 1):
-##                  value='cap'
-##               elif value in ('half', 2):
-##                  value='half'
-##               elif value in ('base', 3):
-##                  value='base'
-##               elif value in ('bottom', 4):
-##                  value='bottom'
-##               self.__dict__['valign']=value
-##               setTomember(self,'valign',self.valign) # update the plot
-##            else:
-##               raise ValueError, 'The valign attribute must be either ("top","cap","half","base","bottom") or (0,1,2,3,4).'
+        if To_name == "default":
+          self._height = 14
+          self._angle = 0
+          self._path="right"
+          self._halign = "left"
+          self._valign = "half"
+        else:
+          if not To_name_src in vcs.elements["textorientation"].keys():
+            raise valueError,"source textorientation '%s' does not exists" % To_name_src
+          src = vcs.elements["textorientation"][To_name_src]
+          self.height = src.height
+          self.angle = src.angle
+          self.path= src.path
+          self.halign = src.halign
+          self.valign = src.valign
+        vcs.elements["textorientation"][To_name]=self
 
     #############################################################################
     #                                                                           #
@@ -354,7 +203,6 @@ class To(object):
         if (self.name == '__removed_from_VCS__'):
            raise ValueError, 'This instance has been removed from VCS.'
         print "","----------Text Orientation (To) member (attribute) listings ----------"
-        print 'Canvas Mode =',self.parent.mode
         print "secondary method =", self.s_name
         print "name =", self.name
         print "height =", self.height
@@ -400,11 +248,17 @@ class To(object):
         elif (mode not in ('w', 'a')):
           raise ValueError, 'Error - Mode can only be "w" for replace or "a" for append.'
 
-        # By default, save file in python script mode
-        scr_type = script_filename[len(script_filename)-4:len(script_filename)]
-        if (scr_type == '.scr'):
-           print _vcs.scriptTo(self.name,script_filename,mode)
+        # By default, save file in json
+        scr_type = script_filename.split(".")
+        if len(scr_type)==1 or len(scr_type[-1])>5:
+          scr_type= "json"
+          if script_filename!="initial.attributes":
+            script_filename+=".json"
         else:
+          scr_type = scr_type[-1]
+        if scr_type == '.scr':
+           raise DeprecationWarning("scr script are no longer generated")
+        elif scr_type == "py":
            mode = mode + '+'
            py_type = script_filename[len(script_filename)-3:len(script_filename)]
            if (py_type != '.py'):
@@ -434,6 +288,12 @@ class To(object):
            fp.write("%s.halign = '%s'\n" % (unique_name, self.halign))
            fp.write("%s.valign = '%s'\n\n" % (unique_name, self.valign))
            fp.close()
+        else:
+          #Json type
+          mode+="+"
+          f = open(script_filename,mode)
+          vcs.utils.dumpToJson(self,f)
+          f.close()
 
 
 #################################################################################

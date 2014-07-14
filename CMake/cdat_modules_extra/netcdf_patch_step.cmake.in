@@ -1,0 +1,6 @@
+  execute_process(
+    WORKING_DIRECTORY @netcdf_source@
+    COMMAND patch -p1
+    INPUT_FILE @cdat_CMAKE_SOURCE_DIR@/netcdf_clang.patch
+  )
+

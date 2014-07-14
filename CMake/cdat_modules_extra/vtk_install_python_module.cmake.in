@@ -6,8 +6,8 @@ set(ENV${CPP} "@CMAKE_CXX_COMPILER@")
 set(ENV{@LIBRARY_PATH@} "@cdat_EXTERNALS@/lib:$ENV{@LIBRARY_PATH@}")
 set(ENV{LDFLAGS} "-L@cdat_EXTERNALS@/lib")
 set(ENV{CFLAGS} "@cdat_osx_flags@ -I@cdat_EXTERNALS@/include -I@cdat_EXTERNALS@/include/freetype2 @ADDITIONAL_CFLAGS@")
-set(ENV{CPPFLAGS} "@cdat_osx_flags@ -I@cdat_EXTERNALS@/include -I@cdat_EXTERNALS@/include/freetype2 @ADDITIONAL_CPPFLAGS@")
-set(ENV{CXXFLAGS} "@cdat_osx_flags@ -I@cdat_EXTERNALS@/include -I@cdat_EXTERNALS@/include/freetype2 @ADDITIONAL_CXXFLAGS@")
+set(ENV{CPPFLAGS} "@cdat_osx_cppflags@ -I@cdat_EXTERNALS@/include -I@cdat_EXTERNALS@/include/freetype2 @ADDITIONAL_CPPFLAGS@")
+set(ENV{CXXFLAGS} "@cdat_osx_cxxflags@ -I@cdat_EXTERNALS@/include -I@cdat_EXTERNALS@/include/freetype2 @ADDITIONAL_CXXFLAGS@")
 
 set(ENV{EXTERNALS} "@cdat_EXTERNALS@")
 

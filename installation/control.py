@@ -58,6 +58,7 @@ packages = [
     "Packages/cdms2", 
     "Packages/esg", 
     "Packages/ncml",
+    "Packages/DV3D",
     "Packages/vcs", 
     "Packages/vcsaddons",
     "Packages/cdutil",
@@ -69,3 +70,7 @@ packages = [
     "Packages/gui_support",
     "Packages/distarray",
     ]
+
+if "--enable-vcs-legacy" in sys.argv:
+  packages.append("Packages/vcs_legacy")
+
