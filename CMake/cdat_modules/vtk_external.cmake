@@ -4,6 +4,13 @@ set(vtk_install "${cdat_EXTERNALS}")
 
 set(GIT_CMD_STR GIT_REPOSITORY "${VTK_SOURCE}")
 
+set(_vtk_modules "vtkRenderingImage;vtkRenderingVolume;vtkRenderingLabel;vtkRenderingFreeType;vtkRenderingFreeTypeOpenGL;vtkRenderingVolumeOpenGL;vtkRenderingCore;vtkRenderingOpenGL;vtkGeovisCore;vtkViewsCore;vtkViewsGeovis;vtkInteractionImage;vtkInteractionStyle;vtkInteractionWidgets;vtkCommonTransforms;vtkCommonCore;vtkCommonComputationalGeometry;vtkCommonExecutionModel;vtkCommonSystem;vtkCommonMisc;vtkFiltersFlowPaths;vtkFiltersStatistics;vtkFiltersAMR;vtkFiltersGeneric;vtkFiltersSources;vtkFiltersModeling;vtkFiltersExtraction;vtkFiltersSelection;vtkFiltersSMP;vtkFiltersCore;vtkFiltersHybrid;vtkFiltersTexture;vtkFiltersGeneral;vtkFiltersImaging;vtkFiltersGeometry;vtkIOImage;vtkIOCore;vtkIOExport;vtkIOImport;vtkIOGeometry;vtkImagingColor;vtkImagingSources;vtkImagingCore;vtkImagingGeneral;vtkImagingMath")
+
+set(_vtk_module_options)
+foreach(_module ${_vtk_modules})
+  list(APPEND _vtk_module_options "-DModule_${_module}:BOOL=ON")
+endforeach()
+
 ExternalProject_Add(VTK
   DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${vtk_source}
@@ -26,6 +33,9 @@ ExternalProject_Add(VTK
     -DPYTHON_LIBRARY:FILEPATH=${PYTHON_LIBRARY}
     -DPYTHON_MAJOR_VERSION:STRING=${PYTHON_MAJOR}
     -DPYTHON_MINOR_VERSION:STRING=${PYTHON_MINOR}
+    -DVTK_Group_Rendering:BOOL=OFF
+    -DVTK_Group_StandAlone:BOOL=OFF
+    ${_vtk_module_options}
   CMAKE_ARGS
     -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
   DEPENDS ${VTK_deps}
