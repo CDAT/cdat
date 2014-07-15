@@ -11,4 +11,4 @@ string(TOUPPER ${nm} uc_nm)
 set(${uc_nm}_VERSION ${${nm}_MAJOR_SRC}.${${nm}_MINOR_SRC}.${${nm}_PATCH_SRC})
 set(HDF5_SOURCE ${HDF5_URL}/${HDF5_GZ})
 
-add_cdat_package(HDF5 "" "" OFF)
+add_cdat_package(HDF5 "" "" ON)
