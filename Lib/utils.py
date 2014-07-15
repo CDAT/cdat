@@ -1176,6 +1176,71 @@ def setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
         dic['ymtics2']=True
     return dic
 
+def getcolormap(Cp_name_src='default'):
+    """
+Function: getcolormap                      # Construct a new colormap secondary method
+
+Description of Function:
+VCS contains a list of secondary methods. This function will create a
+colormap class object from an existing VCS colormap secondary method. If
+no colormap name is given, then colormap 'default' will be used.
+
+Note, VCS does not allow the modification of `default' attribute sets.
+However, a `default' attribute set that has been copied under a
+different name can be modified. (See the createcolormap function.)
+
+Example of Use:
+a=vcs.init()
+a.show('colormap')                      # Show all the existing colormap secondary methods
+cp=a.getcolormap()                      # cp instance of 'default' colormap secondary
+                                        #       method
+cp2=a.getcolormap('quick')              # cp2 instance of existing 'quick' colormap
+                                        #       secondary method
+"""
+    # Check to make sure the argument passed in is a STRING
+    if not isinstance(Cp_name_src,str):
+       raise ValueError, 'Error -  The argument must be a string.'
+
+    return vcs.elements["colormap"][Cp_name_src]
+
+def getcolorcell(cell,obj=None):
+  if obj is None:
+    cmap = vcs.getcolormap()
+  else:
+    cmap = vcs.getcolormap(obj.colormap)
+  return cmap.index[cell]
+
+def setcolorcell(obj, num, r,g,b):
+    """
+Function: setcolorcell
+
+Description of Function:
+Set a individual color cell in the active colormap. If default is
+the active colormap, then return an error string.
+
+If the the visul display is 16-bit, 24-bit, or 32-bit TrueColor, then a redrawing
+of the VCS Canvas is made evertime the color cell is changed.
+
+Note, the user can only change color cells 0 through 239 and R,G,B
+value must range from 0 to 100. Where 0 represents no color intensity
+and 100 is the greatest color intensity.
+
+Example of Use:
+vcs.setcolorcell("AMIP",11,0,0,0)
+vcs.setcolorcell("AMIP",21,100,0,0)
+vcs.setcolorcell("AMIP",31,0,100,0)
+vcs.setcolorcell("AMIP",41,0,0,100)
+vcs.setcolorcell("AMIP",51,100,100,100)
+vcs.setcolorcell("AMIP",61,70,70,70)
+"""
+
+    if isinstance(obj,str):
+      cmap = getcolormap(obj)
+    else:
+      cmap = getcolormap(obj.colormap)
+    cmap.index[num]=(r,g,b)
+
+    return 
 def match_color(color,colormap=None):
     """
 Function: cmatch_color                          # Returns the color in the colormap that is closet from the required color
