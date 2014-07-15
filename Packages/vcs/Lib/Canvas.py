@@ -5254,14 +5254,14 @@ Options:::
     # Touch all segements displayed on the VCS Canvas.                          #
     #                                                                           #
     #############################################################################
-    def updateVCSsegments(self, *args):
-        finish_queued_X_server_requests( self )
-        self.canvas.BLOCK_X_SERVER()
-
-        a = apply(self.canvas.updateVCSsegments, args)
-
-        self.canvas.UNBLOCK_X_SERVER()
-        return a
+    #def updateVCSsegments(self, *args):
+    #    finish_queued_X_server_requests( self )
+    #    self.canvas.BLOCK_X_SERVER()
+#
+#        a = apply(self.canvas.updateVCSsegments, args)
+#
+#        self.canvas.UNBLOCK_X_SERVER()
+#        return a
 
     #############################################################################
     #                                                                           #
@@ -5328,9 +5328,7 @@ Options:::
 
 """
 
-        a=apply(self.canvas.setcolorcell, args)
-        self.canvas.updateVCSsegments(self.mode) # pass down self and mode to _vcs module
-        self.flush() # update the canvas by processing all the X events
+        a=vcs.setcolorcell(self.colormap, *args)
         return a
 
     #############################################################################
@@ -5842,6 +5840,7 @@ Options:::
 
         return vcs.elements["colormap"][Cp_name_src]
 
+
     #############################################################################
     #                                                                           #
     # Font functions.                       #
@@ -6000,8 +5999,7 @@ Options:::
     a.getcolorcell(61,70,70,70)
 
 """
-        a=apply(self.canvas.getcolorcell, args)
-        return a
+        return vcs.getcolorcell(args[0],self)
 
     #############################################################################
     #                                                                           #
