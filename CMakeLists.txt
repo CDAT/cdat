@@ -231,20 +231,13 @@ set_property(CACHE EGG_INSTALLER PROPERTY STRINGS "PIP" "EASY_INSTALL")
 set(PIP_CERTIFICATE "" CACHE STRING "Certificate to use for PIP (LLNL issue really)")
 
 # Options for various types of builds
-option(CDAT_BUILD_GUI "Builds GUI-based dependencies (Vistrails, ParaView, VisIt, R, etc...) " ON)
-option(CDAT_BUILD_GRAPHICS "Build graphics-based dependencies (vcs, pyqt, Vistrails, ParaView, VisIt, R, etc...) " ON)
-option(CDAT_BUILD_ESGF "Builds a customized version for ESGF (Tkinter, less packages etc..)" OFF)
+option(CDAT_BUILD_GUI "Builds GUI-based dependencies (Vistrails, ParaView, VisIt, R, etc.) " ON)
+option(CDAT_BUILD_GRAPHICS "Build graphics-based dependencies (vcs, pyqt, Vistrails, ParaView, VisIt, R, etc.) " ON)
+option(CDAT_BUILD_LEAN "Builds a customized version for ESGF (Packages that are required for computing moslty)" OFF)
 option(CDAT_BUILD_UVCMETRICSPKG "Builds uvcmetrics package " ON)
 
-# Flipping the option, Aashish add_cdat_external_dependent seems to need a negative of that
-if (CDAT_BUILD_ESGF)
-    set(CDAT_BUILD_WO_ESGF OFF)
-else()
-    set(CDAT_BUILD_WO_ESGF ON)
-endif()
-
 # First of all if ESGF then turn OFF GRAPHICS
-if (NOT CDAT_BUILD_WO_ESGF)
+if (CDAT_BUILD_LEAN)
     set(CDAT_BUILD_GRAPHICS OFF)
     set(CDAT_BUILD_PARALLEL OFF)
     set(CDMS_ONLY --enable-cdms-only)

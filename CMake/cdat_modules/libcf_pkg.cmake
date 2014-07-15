@@ -7,4 +7,4 @@ set(LIBCF_GZ libcf-${LIBCF_VERSION}.tar.gz)
 set(LIBCF_MD5 aba4896eab79d36c7283fc7b75fb16ee)
 set(LIBCF_SOURCE ${LIBCF_URL}/${LIBCF_GZ})
 
-add_cdat_package_dependent(libcf "" "" ON "CDAT_BUILD_LEAN" OFF)
+add_cdat_package_dependent(libcf "" "" OFF "CDAT_BUILD_LEAN" ON)
