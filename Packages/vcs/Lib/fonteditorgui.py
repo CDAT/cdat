@@ -55,9 +55,9 @@ class FontGUI:
 
         self.text=self.canvas.gettext(t_name,o_name)
         if self.text is None:
-            if not t_name in self.canvas.listelements('texttable'):
+            if not t_name in vcs.listelements('texttable'):
                 raise 'Error '+t_name+' is not a valid texttable name'
-            elif not o_name in self.canvas.listelements('textorientation'):
+            elif not o_name in vcs.listelements('textorientation'):
                 raise 'Error '+o_name+' is not a valid textorientation name'
             else:
                 raise 'Weird unkwnown error but no text object returned....'
@@ -162,7 +162,7 @@ class FontGUI:
         self.tprop.pack(expand='yes',fill='both')
         self.tproperties=self.tprop.interior()
         self.tproperties.configure(bg=Tt_color)
-        tables=self.canvas.listelements('texttable')
+        tables=vcs.listelements('texttable')
         tables.sort()
 
         labels=[]
@@ -182,7 +182,7 @@ class FontGUI:
         self.table.pack()
         labels.append(self.table)
         
-        fonts=self.canvas.listelements("font")
+        fonts=vcs.listelements("font")
         self.font=Pmw.OptionMenu(self.tproperties,
                                  items=fonts,
                                  labelpos='w',
@@ -274,7 +274,7 @@ class FontGUI:
         self.oproperties=self.oprop.interior()
         self.oproperties.configure(bg=To_color)
         
-        orientations=self.canvas.listelements('textorientation')
+        orientations=vcs.listelements('textorientation')
         orientations.sort()
         self.orientation=Pmw.OptionMenu(self.oproperties,
                                         items=orientations,
@@ -434,7 +434,7 @@ class FontGUI:
         self.path.invoke(self.text.path)
         self.halign.invoke(self.text.halign)
         self.valign.invoke(self.text.valign)
-        tables=self.canvas.listelements('texttable')
+        tables=vcs.listelements('texttable')
         tables.sort()
         self.table.setitems(tables)
         if self.text.Tt_name=='default':
@@ -459,7 +459,7 @@ class FontGUI:
         except:
 ##             self.parent.dialog.invoke('Apply')
             pass
-        orientations=self.canvas.listelements('textorientation')
+        orientations=vcs.listelements('textorientation')
 ##         self.parent.properties_orientation.configure(scrolledlist_items=tables)
         self.parent.properties_orientation.component('scrolledlist').setlist(orientations)
         self.parent.properties_orientation.selectitem(self.text.To_name)

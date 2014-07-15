@@ -187,7 +187,10 @@ class AbstractGrid (CdmsObj):
         return 0
 
     def getAxisList(self):
-        raise CDMSError, MethodNotImplemented
+      axes =[]
+      for i in range(len(self._order_)):
+        axes.append(self.getAxis(i))
+      return axes
 
     def isClose(self, g):
         """Return 1 if g is 'close enough' to self to be considered equal, 0 if not."""

@@ -26,7 +26,6 @@
 # Import: VCS C extension module.                                             #
 #                                                                             #
 ###############################################################################
-import _vcs
 import vcs
 import Canvas
 import isofill
@@ -37,77 +36,108 @@ import AutoAPI
 import xmldocs
 #### from gm_core import * No need to import
 
-###############################################################################
-#                                                                             #
-# Function:	setGfbmember                                                  #
-#                                                                             #
-# Description of Function:                                                    #
-# 	Private function to update the VCS canvas plot. If the canvas mode is #
-#       set to 0, then this function does nothing.              	      #
-#                                                                             #
-#                                                                             #
-# Example of Use:                                                             #
-#      setGfbmember(self,name,value)					      #
-#              where: self is the class (e.g., Gfb)                           #
-#                     name is the name of the member that is being changed    #
-#                     value is the new value of the member (or attribute)     #
-#                                                                             #
-###############################################################################
-def setGfbmember(self,member,value):
-     # If the VCS Canvas is displayed, then bring the canvas to the front before 
-     # redisplaying the updated contents.
-     if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()): 
-        Canvas.finish_queued_X_server_requests( self.parent )
-        self.parent.canvas.BLOCK_X_SERVER()
-        self.parent.canvasraised()
-
-     _vcs.setGfbmember(self, member, value, self.parent.mode)
-
-     # If the VCS Canvas is displayed, then update the backing store
-     if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()): 
-        self.parent.flush()
-        self.parent.backing_store()
-        self.parent.canvas.UNBLOCK_X_SERVER()
-
-setmember=setGfbmember
-
-###############################################################################
-#                                                                             #
-# Function:     getGfbmember                                                  #
-#                                                                             #
-# Description of Function:                                                    #
-#       Private function that retrieves the boxfill members from the C        #
-#       structure and passes it back to Python.                               #
-#                                                                             #
-#                                                                             #
-# Example of Use:                                                             #
-#      return_value =							      #
-#      getGfbmember(self,name)                                                #
-#              where: self is the class (e.g., Gfb)                           #
-#                     name is the name of the member that is being found      #
-#                                                                             #
-###############################################################################
-def getGfbmember(self,member):
-     return _vcs.getGfbmember(self,member)
-
-###############################################################################
-#                                                                             #
-# Function:     renameGfb                                                     #
-#                                                                             #
-# Description of Function:                                                    #
-#       Private function that renames the name of an existing boxfill         #
-#       graphics method.                                                      #
-#                                                                             #
-#                                                                             #
-# Example of Use:                                                             #
-#      renameGfb(old_name, new_name)                                          #
-#              where: old_name is the current name of boxfill graphics method #
-#                     new_name is the new name for the boxfill graphics method#
-#                                                                             #
-###############################################################################
-def renameGfb(self, old_name, new_name):
-     return _vcs.renameGfb(old_name, new_name)
-
+def process_src(nm,code):
+  """Takes VCS script code (string) as input and generates boxfill gm from it"""
+  try:
+    gm = Gfb(nm)
+  except:
+    gm = vcs.elements["boxfill"][nm]
+  ## process attributes with = as assignement
+  for att in ["projection",
+      "xticlabels#1","xticlabels#2",
+      "xmtics#1","xmtics#2",
+      "yticlabels#1","yticlabels#2",
+      "ymtics#1","ymtics#2",
+      "xaxisconvert","yaxisconvert",
+      "datawc_tunits",
+      "boxfill_type",
+      "level_1","level_2",
+      "color_1","color_2",
+      "legend",
+      "ext_1","ext_2",
+      "missing",
+      "datawc_tunits",
+      "datawc_calendar"]:
+    i = code.find(att)
+    if i==-1:
+      continue
+    j = code[i:].find(",")+i
+    if j-i==-1: # last one no comma
+      j=None
+    scode = code[i:j]
+    sp = scode.split("=")
+    nm = sp[0].strip()
+    nm=nm.replace("#","")
+    if nm=="datawc_tunits":
+      nm = "datawc_timeunits"
+    try:
+      #int will be converted
+      setattr(gm,nm,int(sp[1]))
+    except Exception,err:
+      try:
+        #int and floats will be converted
+        setattr(gm,nm,eval(sp[1]))
+      except Exception,err:
+        # strings
+        try:
+          setattr(gm,nm,sp[1])
+        except:
+          pass # oh well we stick to default value
+    #Datawc
+    idwc = code.find("datawc(")
+    if idwc>-1:
+      jdwc = code[idwc:].find(")")+idwc
+      cd = code[idwc+7:jdwc]
+      vals = cd.split(",")
+      gm.datawc_x1 = float(vals[0])
+      gm.datawc_y1 = float(vals[1])
+      gm.datawc_x2 = float(vals[2])
+      gm.datawc_y2 = float(vals[3])
+    #idatawc
+    idwc = code.find("idatawc(")
+    if idwc>-1:
+      jdwc = code[idwc:].find(")")+idwc
+      cd = code[idwc+8:jdwc]
+      vals = cd.split(",")
+      if int(vals[0])==1:
+        gm.datawc_x1 = cdtime.reltime(gm.datawc_x1,gm.datawc_timeunits).tocomp(gm.datawc_calendar)
+      if int(vals[1])==1:
+        gm.datawc_y1 = cdtime.reltime(gm.datawc_x2,gm.datawc_timeunits).tocomp(gm.datawc_calendar)
+      if int(vals[2])==1:
+        gm.datawc_x2 = cdtime.reltime(gm.datawc_y1,gm.datawc_timeunits).tocomp(gm.datawc_calendar)
+      if int(vals[3])==1:
+        gm.datawc_y2 = cdtime.reltime(gm.datawc_y2,gm.datawc_timeunits).tocomp(gm.datawc_calendar)
+    irg=code.find("range")
+    if irg>-1:
+      lines=code[irg:].split("\n")
+      i=0
+      levs=[]
+      fac=[]
+      fai=[]
+      fas=[]
+      badfa = True
+      for l in lines:
+       if l.find("(id=")>-1:
+        sp=lines[i].split(",")
+        levs.append([float(sp[1][7:]),float(sp[2][7:])])
+        fa = sp[-1][3:]
+        fa=fa[:fa.find(")")]
+        if not fa in vcs.elements["fillarea"].keys():
+          badfa=True
+          fai.append(fa)
+        else:
+          fa = vcs.elements["fillarea"][fa]
+          fac.append(fa.color[0])
+          fai.append(fa.index[0])
+          fas.append(fa.style[0])
+        i+=1
+      gm.levels = levs
+      if badfa:
+        gm._fillareaindices = fai
+      else:
+        gm.fillareacolor = fac
+        gm.fillareaindices = fai
+        gm.fillareastyle = fas[0]
 #############################################################################
 #                                                                           #
 # Boxfill (Gfb) graphics method Class.                                      #
@@ -237,10 +267,23 @@ class Gfb(object,AutoAPI.AutoAPI):
                 fill.color=241                           # change color
                 fill.index=3                             # change style index
 """
-    rename=renameGfb # Alias for VCS_Validation_Functions
+    def rename(self,newname):
+      if newname == "default":
+        raise Exception,"You cannot overwrite the default boxfill graphic method"
+      if newname in vcs.elements["boxfill"].keys():
+        raise Exception,"Sorry %s boxfill graphic method already exists" % newname
+      vcs.elements["boxfill"][newname]=vcs.elements["boxfill"][self.name]
+      if self.name=="default":
+        warnings.warn("You were trying to rename the 'deafult' boxfill method, it was merely copied not renamed")
+      else:
+        del(vcs.elements["boxfill"][self.name])
+      self = vcs.elements["boxfill"][newname]
+      return
+
     __slots__=[
+         'colormap',
+         '_colormap',
          '__doc__',
-         'parent',
          'name',
          'g_name',
          'xaxisconvert',
@@ -307,7 +350,7 @@ class Gfb(object,AutoAPI.AutoAPI):
          '_datawc_calendar',
          'info',
          ]
-
+    colormap = VCS_validation_functions.colormap
 ### Removed from doc string
 ##     box.levels(10, 90)  		# Will set them both		
 
@@ -316,76 +359,88 @@ class Gfb(object,AutoAPI.AutoAPI):
     # Initialize the boxfill attributes.                                      #
     #                                                                         #
     ###########################################################################
-    def __init__(self, parent, Gfb_name=None, Gfb_name_src='default', createGfb=0):
+    def __init__(self, Gfb_name=None, Gfb_name_src='default'):
 	#                                                         #
-        ###########################################################
-	# Initialize the boxfill class and its members            #
-        #							  #
-	# The getGfbmember function retrieves the values of the   #
-        # boxfill members in the C structure and passes back the  #
-	# appropriate Python Object.                              #
-        ###########################################################
-	#                                                         #
-        if (createGfb == 0):
-           if (Gfb_name == None):
-              raise ValueError, 'Must provide a boxfill name.'
-           else:
-              _vcs.copyGfb(Gfb_name_src, Gfb_name)
-              self._name = Gfb_name
-        else:
-              self._name=Gfb_name_src
-	#                                                         #
-        ###########################################################
-        # Inherits core graphics method attributes.		  #
-        ###########################################################
-	#                                                         #
-        self._projection=getGfbmember(self, 'projection')
-        self._xticlabels1=getGfbmember(self, 'xticlabels1')
-        self._xticlabels2=getGfbmember(self, 'xticlabels2')
-        self._xmtics1=getGfbmember(self, 'xmtics1')
-        self._xmtics2=getGfbmember(self, 'xmtics2')
-        self._yticlabels1=getGfbmember(self, 'yticlabels1')
-        self._yticlabels2=getGfbmember(self, 'yticlabels2')
-        self._ymtics1=getGfbmember(self, 'ymtics1')
-        self._ymtics2=getGfbmember(self, 'ymtics2')
-        self._datawc_y1=getGfbmember(self, 'datawc_y1')
-        self._datawc_y2=getGfbmember(self, 'datawc_y2')
-        self._datawc_x1=getGfbmember(self, 'datawc_x1')
-        self._datawc_x2=getGfbmember(self, 'datawc_x2')
-	# End Core Graphics Method attributes
+        if isinstance(Gfb_name_src,Gfb):
+          Gfb_name_src=Gfb_name_src.name
+        if Gfb_name=="default" and Gfb_name_src!="default":
+          raise "You can not alter the 'default' boxfill method"
+        if Gfb_name in vcs.elements["boxfill"].keys():
+          raise Exception,"Error boxfill method '%s' already exists" % Gfb_name
+        self._name = Gfb_name
         self.g_name='Gfb'
-        self._xaxisconvert=getGfbmember(self, 'xaxisconvert')
-        self._yaxisconvert=getGfbmember(self, 'yaxisconvert')
-        self._ext_1='n'
-        self._ext_2='n'
-        self._missing=getGfbmember(self, 'missing')
-        self._fillareastyle='solid'
-        self._fillareaindices=None
-        self._fillareacolors=None
-        self._levels=getGfbmember(self, 'levels')
-        self._level_1=getGfbmember(self, 'level_1')
-        self._level_2=getGfbmember(self, 'level_2')
-        self._color_1=getGfbmember(self, 'color_1')
-        self._color_2=getGfbmember(self, 'color_2')
-        self._boxfill_type=getGfbmember(self, 'boxfill_type')
-        self._datawc_timeunits=None
-        self._datawc_calendar=cdtime.DefaultCalendar
-        self._legend=getGfbmember(self, 'legend')
-        self._datawc_timeunits=getGfbmember(self, 'datawc_timeunits')
-        self._datawc_calendar=getGfbmember(self, 'datawc_calendar')
-        #                                                         #
-        ###########################################################
-        # Find and set the boxfill structure in VCS C pointer     #
-        # list. If the boxfill name does not exist, then use      #
-        # default boxfill.                                        #
-        ###########################################################
-        #                                                         #
-        self.parent=parent
+
+        if Gfb_name=="default":
+          self._projection="linear"
+          self._xticlabels1="*"
+          self._xticlabels2="*"
+          self._xmtics1=""
+          self._xmtics2=""
+          self._yticlabels1="*"
+          self._yticlabels2="*"
+          self._ymtics1=""
+          self._ymtics2=""
+          self._datawc_y1=1.e20
+          self._datawc_y2=1.e20
+          self._datawc_x1=1.e20
+          self._datawc_x2=1.e20
+      # End Core Graphics Method attributes
+          self._xaxisconvert="linear"
+          self._yaxisconvert="linear"
+          self._ext_1=False
+          self._ext_2=False
+          self._missing=1
+          self._fillareastyle='solid'
+          self._fillareaindices=None
+          self._fillareacolors=None
+          self._levels=([1.e20,1.e20])
+          self._level_1=1.e20
+          self._level_2=1.e20
+          self._color_1=16
+          self._color_2=239
+          self._boxfill_type="linear"
+          self._datawc_timeunits='days since 2000'
+          self._datawc_calendar=cdtime.DefaultCalendar
+          self._legend=None
+          self._colormap = None
+        else:
+          src = vcs.elements["boxfill"][Gfb_name_src]
+          self._projection=src.projection
+          self._xticlabels1=src.xticlabels1
+          self._xticlabels2=src.xticlabels2
+          self._xmtics1=src.xmtics1
+          self._xmtics2=src.xmtics2
+          self._yticlabels1=src.yticlabels1
+          self._yticlabels2=src.yticlabels2
+          self._ymtics1=src.ymtics1
+          self._ymtics2=src.ymtics2
+          self._datawc_y1=src.datawc_y1
+          self._datawc_y2=src.datawc_y2
+          self._datawc_x1=src.datawc_x1
+          self._datawc_x2=src.datawc_x2
+      # End Core Graphics Method attributes
+          self._xaxisconvert=src.xaxisconvert
+          self._yaxisconvert=src.yaxisconvert
+          self._ext_1=src.ext_1
+          self._ext_2=src.ext_2
+          self._missing=src.missing
+          self._fillareastyle=src.fillareastyle
+          self._fillareaindices=src.fillareaindices
+          self._fillareacolors=src.fillareacolors
+          self._levels=src.levels
+          self._level_1=src.level_1
+          self._level_2=src.level_2
+          self._color_1=src.color_1
+          self._color_2=src.color_2
+          self._boxfill_type=src.boxfill_type
+          self._datawc_timeunits=src.datawc_timeunits
+          self._datawc_calendar=src.datawc_calendar
+          self._legend=src.legend
+          self._colormap = src.colormap
         self.info=AutoAPI.Info(self)
         self.info.expose=['ALL']
-        self.info.hide+=["fillareastyle","fillareaindices"]
         self.__doc__ = self.__doc__ % xmldocs.graphics_method_core
-
+        vcs.elements["boxfill"][Gfb_name]=self
 
     ###########################################################################
     #                                                                         #
@@ -397,7 +452,6 @@ class Gfb(object,AutoAPI.AutoAPI):
          return self._datawc_calendar
     def _setcalendar(self,value):
          value=VCS_validation_functions.checkCalendar(self,'datawc_calendar',value)
-         setGfbmember(self,'datawc_calendar',value)
          self._datawc_calendar=value
     datawc_calendar=property(_getcalendar,_setcalendar)
 
@@ -405,7 +459,6 @@ class Gfb(object,AutoAPI.AutoAPI):
          return self._datawc_timeunits
     def _settimeunits(self,value):
          value=VCS_validation_functions.checkTimeUnits(self,'datawc_timeunits',value)
-         setGfbmember(self,'datawc_timeunits',value)
          self._datawc_timeunits=value
     datawc_timeunits=property(_gettimeunits,_settimeunits)
     
@@ -413,7 +466,6 @@ class Gfb(object,AutoAPI.AutoAPI):
          return self._boxfill_type
     def _setboxfilltype(self,value):
          value=VCS_validation_functions.checkBoxfillType(self,'boxfill_type',value)
-         setGfbmember(self,'boxfill_type',value)
          self._boxfill_type=value
     boxfill_type=property(_getboxfilltype,_setboxfilltype)
          
@@ -421,7 +473,6 @@ class Gfb(object,AutoAPI.AutoAPI):
          return self._level_1
     def _setlevel_1(self,value):
          value=VCS_validation_functions.checkIntFloat(self,'level_1',value)
-         setGfbmember(self,'level_1',value)
          self._level_1=value
     level_1=property(_getlevel_1,_setlevel_1)
     
@@ -429,7 +480,6 @@ class Gfb(object,AutoAPI.AutoAPI):
          return self._level_2
     def _setlevel_2(self,value):
          value=VCS_validation_functions.checkIntFloat(self,'level_2',value)
-         setGfbmember(self,'level_2',value)
          self._level_2=value
     level_2=property(_getlevel_2,_setlevel_2)
     
@@ -437,7 +487,6 @@ class Gfb(object,AutoAPI.AutoAPI):
          return self._color_1
     def _setcolor_1(self,value):
          value=VCS_validation_functions.checkColor(self,'color_1',value)
-         setGfbmember(self,'color_1',value)
          self._color_1=value
     color_1=property(_getcolor_1,_setcolor_1)
     
@@ -445,26 +494,10 @@ class Gfb(object,AutoAPI.AutoAPI):
          return self._color_2
     def _setcolor_2(self,value):
          value=VCS_validation_functions.checkColor(self,'color_2',value)
-         setGfbmember(self,'color_2',value)
          self._color_2=value
     color_2=property(_getcolor_2,_setcolor_2)
     
-    def _getlevels(self):
-         return self._levels
-    def _setlevels(self,value):
-         value=list(VCS_validation_functions.checkListTuple(self,'levels',value))
-         if (value[0]<-9.9E19):
-             self._ext_1='y'
-         else:
-             self._ext_1='n'
-
-         if (value[-1]>9.9E19):
-            self._ext_2='y'
-         else:
-            self._ext_2='n'
-         self._levels=tuple(value)
-         setmember(self,'levels',self._levels)
-    levels=property(_getlevels,_setlevels)
+    levels = VCS_validation_functions.levels
 
     def _getfillareacolors(self):
          return self._fillareacolors
@@ -472,7 +505,6 @@ class Gfb(object,AutoAPI.AutoAPI):
          if not value is None:
               value = VCS_validation_functions.checkColorList(self,'fillareacolors',value)
          self._fillareacolors=value
-         setmember(self,'levels',self.levels)
     fillareacolors=property(_getfillareacolors,_setfillareacolors)
 
     def _getfillareaindices(self):
@@ -481,7 +513,6 @@ class Gfb(object,AutoAPI.AutoAPI):
          if value is not None:
               value = VCS_validation_functions.checkIndicesList(self,'fillareaindices',value)
          self._fillareaindices=value
-         setmember(self,'levels',self.levels)
     fillareaindices=property(_getfillareaindices,_setfillareaindices)
 
     def _getfillareastyle(self):
@@ -489,46 +520,18 @@ class Gfb(object,AutoAPI.AutoAPI):
     def _setfillareastyle(self,value):
          value=VCS_validation_functions.checkFillAreaStyle(self,'fillareastyle',value)
          self._fillareastyle=value
-         setmember(self,'levels',self.levels)
     fillareastyle=property(_getfillareastyle,_setfillareastyle)
     
     def _getext_1(self):
          return self._ext_1
     def _setext_1(self,value):
-         do = VCS_validation_functions.checkExt(self,'ext_1',value)
-         if do:
-              if self.levels!=(1.0000000200408773e+20, 1.0000000200408773e+20) or self.boxfill_type=='custom':
-                   if (self.levels[0] in [-1e20, 1e20]):
-                      levs=isofill.add_level_ext_1(self, 'n')
-                   else:
-                      levs=isofill.add_level_ext_1(self, 'y')
-                   self.levels=levs
-              self._ext_1=value
-         if value=='n':
-              setmember(self,'ext_1',110)
-         else:
-              setmember(self,'ext_1',121)
-              
-    
+         self._ext_1 = VCS_validation_functions.checkExt(self,'ext_1',value)
     ext_1=property(_getext_1,_setext_1)
 
     def _getext_2(self):
          return self._ext_2
     def _setext_2(self,value):
-         do = VCS_validation_functions.checkExt(self,'ext_2',value)
-         if do:
-              if self.levels!=(1.0000000200408773e+20, 1.0000000200408773e+20) or self.boxfill_type=='custom':
-                   if (self.levels[-1] in [-1e20, 1e20]):
-                      levs=isofill.add_level_ext_2(self, 'n')
-                   else:
-                      levs=isofill.add_level_ext_2(self, 'y')
-                   self.levels=levs
-              self._ext_2=value
-         if value=='n':
-              setmember(self,'ext_2',110)
-         else:
-              setmember(self,'ext_2',121)
-              
+         self._ext_2 = VCS_validation_functions.checkExt(self,'ext_1',value)
     ext_2=property(_getext_2,_setext_2)
 
     def _getmissing(self):
@@ -536,7 +539,6 @@ class Gfb(object,AutoAPI.AutoAPI):
     def _setmissing(self,value):
          value=VCS_validation_functions.checkColor(self,'missing',value)
          self._missing=value
-         setmember(self,'missing',value)
     missing=property(_getmissing,_setmissing)
     
     def _getlegend(self):
@@ -544,7 +546,6 @@ class Gfb(object,AutoAPI.AutoAPI):
     def _setlegend(self,value):
          value=VCS_validation_functions.checkLegend(self,'legend',value)
          self._legend=value
-         setmember(self,'legend',value)
     legend=property(_getlegend,_setlegend)
     
     def _getname(self):
@@ -552,7 +553,6 @@ class Gfb(object,AutoAPI.AutoAPI):
     def _setname(self,value):
          value=VCS_validation_functions.checkname(self,'name',value)
          if value is not None:
-              setmember(self,'name',value)
               self._name=value
     name=property(_getname,_setname)
 
@@ -561,7 +561,6 @@ class Gfb(object,AutoAPI.AutoAPI):
     def _setxaxisconvert(self,value):
          value=VCS_validation_functions.checkAxisConvert(self,'xaxisconvert',value)
          self._xaxisconvert=value
-         setmember(self,'xaxisconvert',value)
     xaxisconvert=property(_getxaxisconvert,_setxaxisconvert)
 
     def _getyaxisconvert(self):
@@ -569,7 +568,6 @@ class Gfb(object,AutoAPI.AutoAPI):
     def _setyaxisconvert(self,value):
          value=VCS_validation_functions.checkAxisConvert(self,'yaxisconvert',value)
          self._yaxisconvert=value
-         setmember(self,'yaxisconvert',value)
     yaxisconvert=property(_getyaxisconvert,_setyaxisconvert)
     
     def _getprojection(self):
@@ -577,187 +575,134 @@ class Gfb(object,AutoAPI.AutoAPI):
     def _setprojection(self,value):
          value=VCS_validation_functions.checkProjection(self,'projection',value)
          self._projection=value
-         setmember(self,'projection',value)
     projection=property(_getprojection,_setprojection)
 
     def _getxticlabels1(self):
          return self._xticlabels1
     def _setxticlabels1(self,value):
-         value=VCS_validation_functions.checkStringDictionary(self,'xticlabels1',value)
+         value=VCS_validation_functions.checkTicks(self,'xticlabels1',value)
          self._xticlabels1=value
-         setmember(self,'xticlabels1',value)
     xticlabels1=property(_getxticlabels1,_setxticlabels1)
 
     def _getxticlabels2(self):
          return self._xticlabels2
     def _setxticlabels2(self,value):
-         value=VCS_validation_functions.checkStringDictionary(self,'xticlabels2',value)
+         value=VCS_validation_functions.checkTicks(self,'xticlabels2',value)
          self._xticlabels2=value
-         setmember(self,'xticlabels2',value)
     xticlabels2=property(_getxticlabels2,_setxticlabels2)
 
     def _getyticlabels1(self):
          return self._yticlabels1
     def _setyticlabels1(self,value):
-         value=VCS_validation_functions.checkStringDictionary(self,'yticlabels1',value)
+         value=VCS_validation_functions.checkTicks(self,'yticlabels1',value)
          self._yticlabels1=value
-         setmember(self,'yticlabels1',value)
     yticlabels1=property(_getyticlabels1,_setyticlabels1,None,"haha")
 
     def _getyticlabels2(self):
          return self._yticlabels2
     def _setyticlabels2(self,value):
-         value=VCS_validation_functions.checkStringDictionary(self,'yticlabels2',value)
+         value=VCS_validation_functions.checkTicks(self,'yticlabels2',value)
          self._yticlabels2=value
-         setmember(self,'yticlabels2',value)
     yticlabels2=property(_getyticlabels2,_setyticlabels2)
 
     def _getxmtics1(self):
          return self._xmtics1
     def _setxmtics1(self,value):
-         value=VCS_validation_functions.checkStringDictionary(self,'xmtics1',value)
+         value=VCS_validation_functions.checkTicks(self,'xmtics1',value)
          self._xmtics1=value
-         setmember(self,'xmtics1',value)
     xmtics1=property(_getxmtics1,_setxmtics1)
 
     def _getxmtics2(self):
          return self._xmtics2
     def _setxmtics2(self,value):
-         value=VCS_validation_functions.checkStringDictionary(self,'xmtics2',value)
+         value=VCS_validation_functions.checkTicks(self,'xmtics2',value)
          self._xmtics2=value
-         setmember(self,'xmtics2',value)
     xmtics2=property(_getxmtics2,_setxmtics2)
 
     def _getymtics1(self):
          return self._ymtics1
     def _setymtics1(self,value):
-         value=VCS_validation_functions.checkStringDictionary(self,'ymtics1',value)
+         value=VCS_validation_functions.checkTicks(self,'ymtics1',value)
          self._ymtics1=value
-         setmember(self,'ymtics1',value)
     ymtics1=property(_getymtics1,_setymtics1)
 
     def _getymtics2(self):
          return self._ymtics2
     def _setymtics2(self,value):
-         value=VCS_validation_functions.checkStringDictionary(self,'ymtics2',value)
+         value=VCS_validation_functions.checkTicks(self,'ymtics2',value)
          self._ymtics2=value
-         setmember(self,'ymtics2',value)
     ymtics2=property(_getymtics2,_setymtics2)
 
     def _getdatawc_x1(self):
-         if getGfbmember(self,'_tdatawc_x1') :
-              return cdtime.reltime(self._datawc_x1,self.datawc_timeunits).tocomp(self.datawc_calendar)
-         else:
-              return self._datawc_x1
+          return self._datawc_x1
     def _setdatawc_x1(self,value):
-         value=VCS_validation_functions.checkDatawc(self,'datawc_x1',value)
-         self._datawc_x1=value[0]
-         setmember(self,'datawc_x1',value[0])
-         setmember(self,'_tdatawc_x1',value[1])
+         value2=VCS_validation_functions.checkDatawc(self,'datawc_x1',value)
+         self._datawc_x1=value
     datawc_x1=property(_getdatawc_x1,_setdatawc_x1)
 
     def _getdatawc_x2(self):
-         if getGfbmember(self,'_tdatawc_x2') :
-              return cdtime.reltime(self._datawc_x2,self.datawc_timeunits).tocomp(self.datawc_calendar)
-         else:
-              return self._datawc_x2
+          return self._datawc_x2
     def _setdatawc_x2(self,value):
-         value=VCS_validation_functions.checkDatawc(self,'datawc_x2',value)
-         self._datawc_x2=value[0]
-         setmember(self,'datawc_x2',value[0])
-         setmember(self,'_tdatawc_x2',value[1])
+         value2=VCS_validation_functions.checkDatawc(self,'datawc_x2',value)
+         self._datawc_x2=value
     datawc_x2=property(_getdatawc_x2,_setdatawc_x2)
     
     def _getdatawc_y1(self):
-         if getGfbmember(self,'_tdatawc_y1') :
-              return cdtime.reltime(self._datawc_y1,self.datawc_timeunits).tocomp(self.datawc_calendar)
-         else:
-              return self._datawc_y1
+          return self._datawc_y1
     def _setdatawc_y1(self,value):
-         value=VCS_validation_functions.checkDatawc(self,'datawc_y1',value)
-         self._datawc_y1=value[0]
-         setmember(self,'datawc_y1',value[0])
-         setmember(self,'_tdatawc_y1',value[1])
+         value2=VCS_validation_functions.checkDatawc(self,'datawc_y1',value)
+         self._datawc_y1=value
     datawc_y1=property(_getdatawc_y1,_setdatawc_y1)
 
     def _getdatawc_y2(self):
-         if getGfbmember(self,'_tdatawc_y2') :
-              return cdtime.reltime(self._datawc_y2,self.datawc_timeunits).tocomp(self.datawc_calendar)
-         else:
-              return self._datawc_y2
+          return self._datawc_y2
     def _setdatawc_y2(self,value):
-         value=VCS_validation_functions.checkDatawc(self,'datawc_y2',value)
-         self._datawc_y2=value[0]
-         setmember(self,'datawc_y2',value[0])
-         setmember(self,'_tdatawc_y2',value[1])
+         value2=VCS_validation_functions.checkDatawc(self,'datawc_y2',value)
+         self._datawc_y2=value
     datawc_y2=property(_getdatawc_y2,_setdatawc_y2)
     
     def colors(self, color1=16, color2=239):
-        mode=self.parent.mode
-        self.parent.mode=0
         self.color_1= color1
         self.color_2=color2
-        self.parent.mode=mode
     colors.__doc__ = xmldocs.colorsdoc
     
     def exts(self, ext1='n', ext2='y'):
-        mode=self.parent.mode
-        self.parent.mode=0
         self.ext_1=ext1
         self.ext_2=ext2
-        self.parent.mode=mode
     exts.__doc__ = xmldocs.extsdoc
 # 
 # Doesn't make sense to inherit. This would mean more coding in C.
 # I put this code back.                                 
 #
     def xticlabels(self, xtl1='', xtl2=''):
-        mode=self.parent.mode
-        self.parent.mode=0
         self.xticlabels1 = xtl1
-        self.parent.mode=mode
         self.xticlabels2 = xtl2
     xticlabels.__doc__ = xmldocs.xticlabelsdoc
     
     def xmtics(self,xmt1='', xmt2=''):
-        mode=self.parent.mode
-        self.parent.mode=0
         self.xmtics1 = xmt1
-        self.parent.mode=mode
 	self.xmtics2 = xmt2
     xmtics.__doc__ = xmldocs.xmticsdoc
     
     def yticlabels(self, ytl1='', ytl2=''):
-        mode=self.parent.mode
-        self.parent.mode=0
         self.yticlabels1 = ytl1
-        self.parent.mode=mode
         self.yticlabels2 = ytl2
     yticlabels.__doc__ = xmldocs.yticlabelsdoc
 
     def ymtics(self, ymt1='', ymt2=''):
-        mode=self.parent.mode
-        self.parent.mode=0
         self.ymtics1 = ymt1
-        self.parent.mode=mode
         self.ymtics2 = ymt2
     ymtics.__doc__ = xmldocs.ymticsdoc
 
     def datawc(self, dsp1=1e20, dsp2=1e20, dsp3=1e20, dsp4=1e20):
-        mode=self.parent.mode
-        self.parent.mode=0
         self.datawc_y1 = dsp1
         self.datawc_y2 = dsp2
         self.datawc_x1 = dsp3
-        self.parent.mode=mode
         self.datawc_x2 = dsp4
     datawc.__doc__ = xmldocs.datawcdoc
 
     def xyscale(self, xat='linear', yat='linear'):
-        mode=self.parent.mode
-        self.parent.mode=0
         self.xaxisconvert = xat
-        self.parent.mode=mode
         self.yaxisconvert = yat
     xyscale.__doc__= xmldocs.xyscaledoc
     
@@ -771,7 +716,6 @@ class Gfb(object,AutoAPI.AutoAPI):
         if (self.name == '__removed_from_VCS__'):
            raise ValueError, 'This instance has been removed from VCS.'
         print "","----------Boxfill (Gfb) member (attribute) listings ----------"
-        print 'Canvas Mode =',self.parent.mode
         print "graphics method =", self.g_name
         print "name =", self.name
         print "projection =", self.projection
@@ -843,11 +787,17 @@ class Gfb(object,AutoAPI.AutoAPI):
         elif (mode not in ('w', 'a')):
           raise ValueError, 'Error - Mode can only be "w" for replace or "a" for append.'
 
-        # By default, save file in python script mode
-        scr_type = script_filename[len(script_filename)-4:len(script_filename)]
-        if (scr_type == '.scr'):
-           print _vcs.scriptGfb(self.name,script_filename,mode)
+        # By default, save file in json
+        scr_type = script_filename.split(".")
+        if len(scr_type)==1 or len(scr_type[-1])>5:
+          scr_type= "json"
+          if script_filename!="initial.attributes":
+            script_filename+=".json"
         else:
+          scr_type = scr_type[-1]
+        if scr_type == '.scr':
+           raise DeprecationWarning("scr script are no longer generated")
+        elif scr_type == "py":
            mode = mode + '+'
            py_type = script_filename[len(script_filename)-3:len(script_filename)]
            if (py_type != '.py'):
@@ -907,14 +857,21 @@ class Gfb(object,AutoAPI.AutoAPI):
            fp.write("%s.color_1 = %g\n" % (unique_name, self.color_1))
            fp.write("%s.color_2 = %g\n" % (unique_name, self.color_2))
            fp.write("%s.fillareacolors = %s\n" % (unique_name, self.fillareacolors))
+           fp.write("%s.fillareastyle = '%s'\n" % (unique_name, self.fillareastyle))
+           fp.write("%s.fillareaindices = %s\n" % (unique_name, self.fillareaindices))
            fp.write("%s.legend = %s\n" % (unique_name, self.legend))
            fp.write("%s.ext_1 = '%s'\n" % (unique_name, self.ext_1))
            fp.write("%s.ext_2 = '%s'\n" % (unique_name, self.ext_2))
            fp.write("%s.missing = %g\n" % (unique_name, self.missing))
            fp.write("%s.datawc_calendar = %g\n" % (unique_name, self.datawc_calendar))
            fp.write("%s.datawc_timeunits = '%s'\n\n" % (unique_name, self.datawc_timeunits))
-#           fp.write("%s.fillareastyle = '%s'\n" % (unique_name, self.fillareastyle))
-#           fp.write("%s.fillareaindices = %s\n" % (unique_name, self.fillareaindices))
+           fp.write("%s.colormap = '%s'\n\n" % (unique_name, repr(self.colormap)))
+        else:
+          #Json type
+          mode+="+"
+          f = open(script_filename,mode)
+          vcs.utils.dumpToJson(self,f)
+          f.close()
     script.__doc__ = script.__doc__ % xmldocs.scriptdoc
 ###############################################################################
 #        END OF FILE							      #

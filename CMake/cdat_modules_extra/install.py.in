@@ -293,7 +293,7 @@ def runCheck():
 def askAnonymous(val):
         import cdat_info,os
         while cdat_info.ping_checked is False and not val in [True, False]: # couldn't get a valid value from env or file
-            val2 = raw_input("Allow anonymous logging usage to help improve UV-CDAT? [yes/no]")
+            val2 = raw_input("Allow anonymous logging usage to help improve UV-CDAT? (you can also set the environment variable UVCDAT_ANONYMOUS_LOG to yes or     no) [yes/no]")
             if val2.lower() in ['y','yes','ok']:
                 val = True
             elif val2.lower() in ['n','no','not']:
@@ -322,6 +322,13 @@ def pingPCMDIdb(*args,**kargs):
     while cdat_info.check_in_progress:
        reload(cdat_info)
     val = cdat_info.runCheck()
+    if val is False:
+      return
+    try:
+      if not cdat_info.ping:
+        return
+    except:
+      pass
     cdat_info.askAnonymous(val)
     import threading
     kargs['target']=pingPCMDIdbThread
@@ -425,7 +432,7 @@ externals = %s
       sys.argv[1:]=['-q', 'install', '--prefix=%s' % target_prefix]
       setup (name="cdat_info",
        version="0.0",
-       py_modules=[cdat_info_path]
+       package_dir = { 'cdat_info' : os.path.dirname(cdat_info_path)},
       )
       os.system('/bin/rm -fr build')
     
@@ -523,6 +530,7 @@ def main(arglist):
                         "disable-spanlib"
                         "disable-tkbuild",
                         "enable-qt",
+                        "enable-vcs-legacy",
                         "enable-qt-framework",
                         "with-qt=",
                         "with-qt-lib=",
@@ -554,6 +562,8 @@ def main(arglist):
     
     for i in range(len(optlist)):
         letter=optlist[i][0]
+        if letter == "--enable-vcs-legacy":
+            qt=True
         if letter == "--enable-qt":
             qt=True
         if letter == "--enable-qt-framework":
@@ -725,9 +735,10 @@ def main(arglist):
         dat_dir = os.path.join(src_dir, 'Packages/dat')
         os.chdir(dat_dir)
         target = os.path.join(target_prefix, 'sample_data')
-        command = 'grep wget %s/checked_get.sh' % os.path.join(os.environ['BUILD_DIR'], "..")
-        command = command + ' | tr -s " " | cut -d " " -f 2'
-        wget = os.popen(command).readlines()[0].strip()
+        #command = 'grep wget %s/checked_get.sh' % os.path.join(os.environ['BUILD_DIR'], "..")
+        #command = command + ' | tr -s " " | cut -d " " -f 2'
+        #wget = os.popen(command).readlines()[0].strip()
+        wget = "@WGET_EXECUTABLE@"
         data_source_url = "http://uv-cdat.llnl.gov/cdat/sample_data"
         dfiles=open("files.txt")
         data_files=dfiles.readlines()

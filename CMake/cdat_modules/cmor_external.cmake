@@ -2,7 +2,7 @@ set(cmor_source_dir "${cdat_SOURCE_DIR}/Packages/cmor")
 set(cmor_binary_dir  "${CMAKE_CURRENT_BINARY_DIR}/build/CMOR-build")
 set(cmor_install_dir "${cdat_EXTERNALS}")
 
-set(cmor_configure_args --with-netcdf=${netcdf_install} --with-udunits2=${udunits_install} --with-uuid=${uuid_install} --with-zlib=${zlib_install} --enable-fortran=no)
+set(cmor_configure_args --with-netcdf=${netcdf_install} --with-udunits2=${udunits_install} --with-uuid=${uuid_install}  --enable-fortran=no)
 
 # it appears currently we only configure cmor but not build it.
 ExternalProject_Add(CMOR

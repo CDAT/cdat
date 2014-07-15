@@ -1,18 +1,19 @@
 include(CMakeDependentOption)
 
 set(ESMF_MAJOR 6)
-set(ESMF_MINOR 1)
-set(ESMF_PATCH 0)
+set(ESMF_MINOR 3)
+set(ESMF_PATCH 0rp1_beta_snapshot_10)
 set(ESMP_MAJOR 01)
 set(ESMF_VERSION ${ESMF_MAJOR}_${ESMF_MINOR}_${ESMF_PATCH})
 set(ESMF_URL ${LLNL_URL})
 set(ESMF_GZ esmp.ESMF_${ESMF_VERSION}_ESMP_${ESMP_MAJOR}.tar.bz2)
-set(ESMF_MD5 46be9e7331ab7d952da218d30c21238e)
+set(ESMF_MD5 f6d0184e0cdae2b704eb39fc0d4291cd)
 set(ESMF_SOURCE ${ESMF_URL}/${ESMF_GZ})
 
-option(CDAT_BUILD_ESMF_ESMP "Build python version Earth System Modeling Framework" ON)
 if (NOT CDAT_BUILD_WO_ESGF)
-    set(CDAT_BUILD_ESMF_ESMP OFF)
+    option(CDAT_BUILD_ESMF_ESMP "Build python version Earth System Modeling Framework" OFF)
+else ()
+    option(CDAT_BUILD_ESMF_ESMP "Build python version Earth System Modeling Framework" ON)
 endif()
 
 cmake_dependent_option(CDAT_BUILD_ESMF_PARALLEL

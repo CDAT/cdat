@@ -19,6 +19,10 @@ if(CDAT_BUILD_WGET)
     set(WGET_EXECUTABLE ${cdat_EXTERNALS}/bin/wget)
   endif()
 endif()
+if (${WGET_EXECUTABLE} STREQUAL "WGET_EXECUTABLE-NOTFOUND")
+    set(WGET_EXECUTABLE ${cdat_EXTERNALS}/bin/wget)
+endif()
+message("[INFO] WGET_EXECUTABLE is set to ${WGET_EXECUTABLE}")
 
 set(HASWGET ${WGET_EXECUTABLE})
 

@@ -22,13 +22,7 @@
 #
 #
 #
-###############################################################################
-#                                                                             #
-# Import: VCS C extension module and VCS template class objects written in    #
-#         Python.							      #
-#                                                                             #
-###############################################################################
-import _vcs, copy, vcs, numpy
+import copy, vcs, numpy
 from Ptext import *
 from Pformat import *
 from Pxtickmarks import *
@@ -41,61 +35,71 @@ from Pdata import *
 from types import *
 import inspect
 
-###############################################################################
-#                                                                             #
-# Function:     setPmember                                                    #
-#                                                                             #
-# Description of Function:                                                    #
-#       Private function to update the VCS canvas plot. If the canvas mode is #
-#       set to 0, then this function does nothing.                            #
-#                                                                             #
-#                                                                             #
-# Example of Use:                                                             #
-#      setPmember(self,name,value)                                            #
-#              where: self is the class (e.g., P)                             #
-#                     name is the name of the member that is being changed    #
-#                     value is the new value of the member (or attribute)     #
-#                                                                             #
-###############################################################################
-def setPmember(self,member,value):
-     _vcs.setPmember(self, member, value, self.parent.mode)
+## Following for class properties
+def _getgen(self,name):
+    return getattr(self,"_%s" % name)
+def _setgen(self,name,cls,value):
+    if self.name == "default":
+      raise ValueError, "You cannot modify the default template"
+    if not isinstance(value,cls):
+      raise ValueError, "template attribute '%s' must be of type %s" % (name,cls)
+    setattr(self,"_%s" % name, value)
 
-###############################################################################
-#                                                                             #
-# Function:     getPmember                                                    #
-#                                                                             #
-# Description of Function:                                                    #
-#       Private function that retrieves the template members from the C       #
-#       structure and passes it back to Python.                               #
-#                                                                             #
-#                                                                             #
-# Example of Use:                                                             #
-#      return_value =                                                         #
-#      getPmember(self,name)                                                  #
-#              where: self is the class (e.g., P)                             #
-#                     name is the name of the member that is being found      #
-#                                                                             #
-###############################################################################
-def getPmember(self,member):
-     return _vcs.getPmember(self,member)
 
-###############################################################################
-#                                                                             #
-# Function:     renameP                                                       #
-#                                                                             #
-# Description of Function:                                                    #
-#       Private function that renames the name of an existing template        #
-#       graphics method.                                                      #
-#                                                                             #
-#                                                                             #
-# Example of Use:                                                             #
-#      renameP(old_name, new_name)                                            #
-#              where: old_name is the current name of template graphics method#
-#                     new_name is the new name for the template graphics method
-#                                                                             #
-###############################################################################
-def renameP(self, old_name, new_name):
-     return _vcs.renameP(old_name, new_name)
+## read .scr file
+def process_src(nm,code):
+  """Takes VCS script code (string) as input and generates boxfill gm from it"""
+  try:
+    t = P(nm)
+  except Exception,err:
+    t = vcs.elements["template"][nm]
+  for sub in ["File","Function","LogicalMask","Transform","name","title","units","crdate","crtime","comment#1",
+      "comment#2","comment#3","comment#4","xname","yname","zname","tname","xvalue","yvalue","zvalue","tvalue","xunits",
+      "yunits","zunits","tunits","mean","min","max","xtic#1","xtic#2","xmintic#a","xmintic#b",
+      "ytic#1","ytic#2","ymintic#a","ymintic#b","xlabel#1","xlabel#2","ylabel#1","ylabel#2",
+      "box#1","box#2","box#3","box#4","line#1","line#2","line#3","line#4","legend","data"]:
+    #isolate that segment
+    i = code.find("%s(" % sub)
+    if i==-1:
+      #not set in this case
+      continue
+    sc=code[i+len(sub)+1:]
+    j = sc.find(")")
+    sc=sc[:j]
+    #name on template object
+    tnm=sub.lower().replace("#","")
+    if tnm == "name":
+      tnm="dataname"
+    elif tnm [-4:]=="tica":
+      tnm=tnm[:-4]+"tic1"
+    elif tnm [-4:]=="ticb":
+      tnm=tnm[:-4]+"tic2"
+    elif tnm == "transform":
+      tnm = "transformation"
+    for S in sc.split(","): # all attributes are comman separated
+      nm,val = S.split("=") # nm=val
+      if nm=="p":
+        nm="priority"
+      elif nm=="Tl":
+        nm="line"
+      elif nm=="Tt":
+        nm="texttable"
+      elif nm=="To":
+        nm = "textorientation"
+      elif nm == "Th":
+        nm = "format"
+      tatt = getattr(t,tnm)
+      try:
+        setattr(tatt,nm,eval(val)) # int float should be ok here
+      except:
+        try:
+          setattr(tatt,nm,val) # strings here
+        except:
+          #print "COULD NOT SET %s.%s.%s to %s" % (t.name,tnm,nm,val)
+          pass
+  i = code.find("Orientation(")
+  t.orientation = int(code[i+12])
+
 
 #############################################################################
 #                                                                           #
@@ -138,12 +142,40 @@ class P(object):
     To Modify an existing template use:
      tpl=a.gettemplate('AMIP')
 """
+    __slots__ = ["name","_name","_p_name","p_name","_orientation","_orientation","_file","file",
+        "_function","function","_logicalmask","logicalmask","_transformation","transformation",
+        "source","_source","dataname","_dataname","title","_title","units","_units","_crdate","crdate",
+        "crtime","_crtime","_comment1","comment1","comment2","_comment2","_comment3","comment3",
+        "_comment4","comment4",
+        "xname","yname","zname","tname","xunits","yunits","zunits","tunits",
+        "xvalue","zvalue","yvalue","tvalue","mean","min","max","xtic1","xtic2","xmintic1","xmintic2",
+        "ytic1","ytic2","ymintic1","ymintic2","xlabel1","xlabel2","box1","box2","box3","box4",
+        "ylabel1","ylabel2","line1","line2","line3","line4","legend","data",
+        "_xname","_yname","_zname","_tname","_xunits","_yunits","_zunits","_tunits",
+        "_xvalue","_zvalue","_yvalue","_tvalue","_mean","_min","_max","_xtic1","_xtic2","_xmintic1","_xmintic2",
+        "_ytic1","_ytic2","_ymintic1","_ymintic2","_xlabel1","_xlabel2","_box1","_box2","_box3","_box4",
+        "_ylabel1","_ylabel2","_line1","_line2","_line3","_line4","_legend","_data"]
+
+    def _getName(self):
+      return self._name
+    name = property(_getName)
+    def _getOrientation(self):
+      return self._orientation
+    def _setOrientation(self,value):
+      if self.name == "default":
+        raise ValueError, "You cannot change the default template"
+      value = VCS_validation_functions.checkInt(self,"orientation",value)
+      if not value in [0,1]:
+        raise ValueError,"The orientation attribute must be an integer (i.e., 0 = landscape, 1 = portrait)."
+      self._orientation = value
+    orientation = property(_getOrientation,_setOrientation,"The orientation attribute must be an integer (i.e., 0 = landscape, 1 = portrait).")
+
     ###########################################################################
     #                                                                         #
     # Initialize the template attributes.                                     #
     #                                                                         #
     ###########################################################################
-    def __init__(self, parent, Pic_name=None, Pic_name_src='default', createP=0):
+    def __init__(self, Pic_name=None, Pic_name_src='default'):
         #                                                         #
         ###########################################################
         # Initialize the template class and its members           #
@@ -153,136 +185,285 @@ class P(object):
         # appropriate Python Object.                              #
         ###########################################################
         #                                                         #
-        if (createP == 0):
-           if (Pic_name == None):
+        if (Pic_name == None):
               raise ValueError, 'Must provide a template name.'
-           else:
-              if len(Pic_name)>16:
-                   raise ValueError, 'Template name must be 16 characters maximum in length'
-              _vcs.copyP(Pic_name_src, Pic_name)
-              self.__dict__['name'] = Pic_name
-              ####################################################
-	      # Set the template normalization flag to 1,        #
-              # only if the copy templates flag is 0             #
-              ####################################################
-              if _vcs._return_normalized_flag( Pic_name_src ) == 1:
-                 _vcs._set_normalized_flag( Pic_name )
+        if Pic_name_src!="default" and Pic_name_src not in vcs.elements["template"]:
+          raise "Invalid source template: %s" % Pic_name_src
+        if isinstance(Pic_name_src,P):
+          Pic_name_src = Pic_name_src.name
+        if Pic_name in vcs.elements["template"].keys():
+          raise ValueError, "Template %s already exists" % Pic_name
+
+        self._name=Pic_name
+        self.p_name='P'
+        ## properties
+        self.__class__.file=property(lambda x: _getgen(x,"file"),
+                                  lambda x,v: _setgen(x,"file",Pt,v))
+        self.__class__.function=property(lambda x: _getgen(x,"function"),
+                                  lambda x,v: _setgen(x,"function",Pt,v))
+        self.__class__.logicalmask=property(lambda x: _getgen(x,"logicalmask"),
+                                  lambda x,v: _setgen(x,"logicalmask",Pt,v))
+        self.__class__.transformation=property(lambda x: _getgen(x,"transformation"),
+                                  lambda x,v: _setgen(x,"transformation",Pt,v))
+        self.__class__.source=property(lambda x: _getgen(x,"source"),
+                                  lambda x,v: _setgen(x,"source",Pt,v))
+        self.__class__.dataname=property(lambda x: _getgen(x,"dataname"),
+                                  lambda x,v: _setgen(x,"dataname",Pt,v))
+        self.__class__.title=property(lambda x: _getgen(x,"title"),
+                                  lambda x,v: _setgen(x,"title",Pt,v))
+        self.__class__.units=property(lambda x: _getgen(x,"units"),
+                                  lambda x,v: _setgen(x,"units",Pt,v))
+        self.__class__.crdate=property(lambda x: _getgen(x,"crdate"),
+                                  lambda x,v: _setgen(x,"crdate",Pt,v))
+        self.__class__.crtime=property(lambda x: _getgen(x,"crtime"),
+                                  lambda x,v: _setgen(x,"crtime",Pt,v))
+        self.__class__.comment1=property(lambda x: _getgen(x,"comment1"),
+                                  lambda x,v: _setgen(x,"comment1",Pt,v))
+        self.__class__.comment2=property(lambda x: _getgen(x,"comment2"),
+                                  lambda x,v: _setgen(x,"comment2",Pt,v))
+        self.__class__.comment3=property(lambda x: _getgen(x,"comment3"),
+                                  lambda x,v: _setgen(x,"comment3",Pt,v))
+        self.__class__.comment4=property(lambda x: _getgen(x,"comment4"),
+                                  lambda x,v: _setgen(x,"comment4",Pt,v))
+        self.__class__.xname=property(lambda x: _getgen(x,"xname"),
+                                  lambda x,v: _setgen(x,"xname",Pt,v))
+        self.__class__.yname=property(lambda x: _getgen(x,"yname"),
+                                  lambda x,v: _setgen(x,"yname",Pt,v))
+        self.__class__.zname=property(lambda x: _getgen(x,"zname"),
+                                  lambda x,v: _setgen(x,"zname",Pt,v))
+        self.__class__.tname=property(lambda x: _getgen(x,"tname"),
+                                  lambda x,v: _setgen(x,"tname",Pt,v))
+        self.__class__.xunits=property(lambda x: _getgen(x,"xunits"),
+                                  lambda x,v: _setgen(x,"xunits",Pt,v))
+        self.__class__.yunits=property(lambda x: _getgen(x,"yunits"),
+                                  lambda x,v: _setgen(x,"yunits",Pt,v))
+        self.__class__.zunits=property(lambda x: _getgen(x,"zunits"),
+                                  lambda x,v: _setgen(x,"zunits",Pt,v))
+        self.__class__.tunits=property(lambda x: _getgen(x,"tunits"),
+                                  lambda x,v: _setgen(x,"tunits",Pt,v))
+        self.__class__.xvalue=property(lambda x: _getgen(x,"xvalue"),
+                                  lambda x,v: _setgen(x,"xvalue",Pf,v))
+        self.__class__.yvalue=property(lambda x: _getgen(x,"yvalue"),
+                                  lambda x,v: _setgen(x,"yvalue",Pf,v))
+        self.__class__.zvalue=property(lambda x: _getgen(x,"zvalue"),
+                                  lambda x,v: _setgen(x,"zvalue",Pf,v))
+        self.__class__.tvalue=property(lambda x: _getgen(x,"tvalue"),
+                                  lambda x,v: _setgen(x,"tvalue",Pf,v))
+        self.__class__.mean=property(lambda x: _getgen(x,"mean"),
+                                  lambda x,v: _setgen(x,"mean",Pf,v))
+        self.__class__.min=property(lambda x: _getgen(x,"min"),
+                                  lambda x,v: _setgen(x,"min",Pf,v))
+        self.__class__.max=property(lambda x: _getgen(x,"max"),
+                                  lambda x,v: _setgen(x,"max",Pf,v))
+        self.__class__.xtic1=property(lambda x: _getgen(x,"xtic1"),
+                                  lambda x,v: _setgen(x,"xtic1",Pxt,v))
+        self.__class__.xtic2=property(lambda x: _getgen(x,"xtic2"),
+                                  lambda x,v: _setgen(x,"xtic2",Pxt,v))
+        self.__class__.xmintic1=property(lambda x: _getgen(x,"xmintic1"),
+                                  lambda x,v: _setgen(x,"xmintic1",Pxt,v))
+        self.__class__.xmintic2=property(lambda x: _getgen(x,"xmintic2"),
+                                  lambda x,v: _setgen(x,"xmintic2",Pxt,v))
+        self.__class__.ytic1=property(lambda x: _getgen(x,"ytic1"),
+                                  lambda x,v: _setgen(x,"ytic1",Pyt,v))
+        self.__class__.ytic2=property(lambda x: _getgen(x,"ytic2"),
+                                  lambda x,v: _setgen(x,"ytic2",Pyt,v))
+        self.__class__.ymintic1=property(lambda x: _getgen(x,"ymintic1"),
+                                  lambda x,v: _setgen(x,"ymintic1",Pyt,v))
+        self.__class__.ymintic2=property(lambda x: _getgen(x,"ymintic2"),
+                                  lambda x,v: _setgen(x,"ymintic2",Pyt,v))
+        self.__class__.xlabel1=property(lambda x: _getgen(x,"xlabel1"),
+                                  lambda x,v: _setgen(x,"xlabel1",Pxl,v))
+        self.__class__.xlabel2=property(lambda x: _getgen(x,"xlabel2"),
+                                  lambda x,v: _setgen(x,"xlabel2",Pxl,v))
+        self.__class__.ylabel1=property(lambda x: _getgen(x,"ylabel1"),
+                                  lambda x,v: _setgen(x,"ylabel1",Pyl,v))
+        self.__class__.ylabel2=property(lambda x: _getgen(x,"ylabel2"),
+                                  lambda x,v: _setgen(x,"ylabel2",Pyl,v))
+        self.__class__.box1=property(lambda x: _getgen(x,"box1"),
+                                  lambda x,v: _setgen(x,"box1",Pbl,v))
+        self.__class__.box2=property(lambda x: _getgen(x,"box2"),
+                                  lambda x,v: _setgen(x,"box2",Pbl,v))
+        self.__class__.box3=property(lambda x: _getgen(x,"box3"),
+                                  lambda x,v: _setgen(x,"box3",Pbl,v))
+        self.__class__.box4=property(lambda x: _getgen(x,"box4"),
+                                  lambda x,v: _setgen(x,"box4",Pbl,v))
+        self.__class__.line1=property(lambda x: _getgen(x,"line1"),
+                                  lambda x,v: _setgen(x,"line1",Pbl,v))
+        self.__class__.line2=property(lambda x: _getgen(x,"line2"),
+                                  lambda x,v: _setgen(x,"line2",Pbl,v))
+        self.__class__.line3=property(lambda x: _getgen(x,"line3"),
+                                  lambda x,v: _setgen(x,"line3",Pbl,v))
+        self.__class__.line4=property(lambda x: _getgen(x,"line4"),
+                                  lambda x,v: _setgen(x,"line4",Pbl,v))
+        self.__class__.legend=property(lambda x: _getgen(x,"legend"),
+                                  lambda x,v: _setgen(x,"legend",Pls,v))
+        self.__class__.data=property(lambda x: _getgen(x,"data"),
+                                  lambda x,v: _setgen(x,"data",Pds,v))
+        #################################################
+        # The following initializes the template's TEXT #
+        #################################################
+        if Pic_name == "default":
+          self._orientation=0
+          self._file=Pt('file')
+          self._function=Pt('function')
+          self._logicalmask=Pt('logicalmask')
+          self._transformation=Pt('transformation')
+          self._source=Pt('source')
+          self._dataname=Pt('dataname')
+          self._title=Pt('title')
+          self._units=Pt('units')
+          self._crdate=Pt('crdate')
+          self._crtime=Pt('crtime')
+          self._comment1=Pt('comment1')
+          self._comment2=Pt('comment2')
+          self._comment3=Pt('comment3')
+          self._comment4=Pt('comment4')
+          self._xname=Pt('xname')
+          self._yname=Pt('yname')
+          self._zname=Pt('zname')
+          self._tname=Pt('tname')
+          self._xunits=Pt('xunits')
+          self._yunits=Pt('yunits')
+          self._zunits=Pt('zunits')
+          self._tunits=Pt('tunits')
+          ####################################################
+      # The following initializes the template's FORMATS #
+          ####################################################
+          self._xvalue=Pf('xvalue')
+          self._yvalue=Pf('yvalue')
+          self._zvalue=Pf('zvalue')
+          self._tvalue=Pf('tvalue')
+          self._mean=Pf('mean')
+          self._min=Pf('min')
+          self._max=Pf('max')
+          #########################################################
+      # The following initializes the template's X-TICK MARKS #
+          #########################################################
+          self._xtic1=Pxt('xtic1')
+          self._xtic2=Pxt('xtic2')
+          self._xmintic1=Pxt('xmintic1')
+          self._xmintic2=Pxt('xmintic2')
+          #########################################################
+      # The following initializes the template's Y-TICK MARKS #
+          #########################################################
+          self._ytic1=Pyt('ytic1')
+          self._ytic2=Pyt('ytic2')
+          self._ymintic1=Pyt('ymintic1')
+          self._ymintic2=Pyt('ymintic2')
+          #####################################################
+      # The following initializes the template's X-LABELS #
+          #####################################################
+          self._xlabel1=Pxl('xlabel1')
+          self._xlabel2=Pxl('xlabel2')
+          #####################################################
+      # The following initializes the template's Y-LABELS #
+          #####################################################
+          self._ylabel1=Pyl('ylabel1')
+          self._ylabel2=Pyl('ylabel2')
+          ############################################################
+      # The following initializes the template's BOXES and LINES #
+          ############################################################
+          self._box1=Pbl('box1')
+          self._box2=Pbl('box2')
+          self._box3=Pbl('box3')
+          self._box4=Pbl('box4')
+          self._line1=Pbl('line1')
+          self._line2=Pbl('line2')
+          self._line3=Pbl('line3')
+          self._line4=Pbl('line4')
+          #########################################################
+      # The following initializes the template's LEGEND SPACE #
+          #########################################################
+          self._legend=Pls('legend')
+          #######################################################
+      # The following initializes the template's DATA SPACE #
+          #######################################################
+          self._data=Pds('data')
         else:
-             if Pic_name is not None and len(Pic_name)>16:
-                  raise ValueError, 'Template name must be 16 characters maximum in length'
-             self.__dict__['name']=Pic_name_src
-        self.__dict__['p_name']='P'
-        #                                                         #
-        ###########################################################
-        # Keep track of the template's parent.                    #
-        ###########################################################
-        #                                                         #
-        self.__dict__['parent']=parent
-        #################################################
-	# The following initializes the template's TEXT #
-        #################################################
-        self.__dict__['orientation']=_vcs.getPomember(self)
-        self.__dict__['file']=Pt(self, self.parent, 'file')
-        self.__dict__['function']=Pt(self, self.parent, 'function')
-        self.__dict__['logicalmask']=Pt(self, self.parent, 'logicalmask')
-        self.__dict__['transformation']=Pt(self, self.parent, 'transformation')
-        self.__dict__['source']=Pt(self, self.parent, 'source')
-        self.__dict__['dataname']=Pt(self, self.parent, 'dataname')
-        self.__dict__['title']=Pt(self, self.parent, 'title')
-        self.__dict__['units']=Pt(self, self.parent, 'units')
-        self.__dict__['crdate']=Pt(self, self.parent, 'crdate')
-        self.__dict__['crtime']=Pt(self, self.parent, 'crtime')
-        self.__dict__['comment1']=Pt(self, self.parent, 'comment1')
-        self.__dict__['comment2']=Pt(self, self.parent, 'comment2')
-        self.__dict__['comment3']=Pt(self, self.parent, 'comment3')
-        self.__dict__['comment4']=Pt(self, self.parent, 'comment4')
-        self.__dict__['xname']=Pt(self, self.parent, 'xname')
-        self.__dict__['yname']=Pt(self, self.parent, 'yname')
-        self.__dict__['zname']=Pt(self, self.parent, 'zname')
-        self.__dict__['tname']=Pt(self, self.parent, 'tname')
-        self.__dict__['xunits']=Pt(self, self.parent, 'xunits')
-        self.__dict__['yunits']=Pt(self, self.parent, 'yunits')
-        self.__dict__['zunits']=Pt(self, self.parent, 'zunits')
-        self.__dict__['tunits']=Pt(self, self.parent, 'tunits')
-        ####################################################
-	# The following initializes the template's FORMATS #
-        ####################################################
-        self.__dict__['xvalue']=Pf(self, self.parent, 'xvalue')
-        self.__dict__['yvalue']=Pf(self, self.parent, 'yvalue')
-        self.__dict__['zvalue']=Pf(self, self.parent, 'zvalue')
-        self.__dict__['tvalue']=Pf(self, self.parent, 'tvalue')
-        self.__dict__['mean']=Pf(self, self.parent, 'mean')
-        self.__dict__['min']=Pf(self, self.parent, 'min')
-        self.__dict__['max']=Pf(self, self.parent, 'max')
-        #########################################################
-	# The following initializes the template's X-TICK MARKS #
-        #########################################################
-        self.__dict__['xtic1']=Pxt(self, self.parent, 'xtic1')
-        self.__dict__['xtic2']=Pxt(self, self.parent, 'xtic2')
-        self.__dict__['xmintic1']=Pxt(self, self.parent, 'xmintic1')
-        self.__dict__['xmintic2']=Pxt(self, self.parent, 'xmintic2')
-        #########################################################
-	# The following initializes the template's Y-TICK MARKS #
-        #########################################################
-        self.__dict__['ytic1']=Pyt(self, self.parent, 'ytic1')
-        self.__dict__['ytic2']=Pyt(self, self.parent, 'ytic2')
-        self.__dict__['ymintic1']=Pyt(self, self.parent, 'ymintic1')
-        self.__dict__['ymintic2']=Pyt(self, self.parent, 'ymintic2')
-        #####################################################
-	# The following initializes the template's X-LABELS #
-        #####################################################
-        self.__dict__['xlabel1']=Pxl(self, self.parent, 'xlabel1')
-        self.__dict__['xlabel2']=Pxl(self, self.parent, 'xlabel2')
-        #####################################################
-	# The following initializes the template's Y-LABELS #
-        #####################################################
-        self.__dict__['ylabel1']=Pyl(self, self.parent, 'ylabel1')
-        self.__dict__['ylabel2']=Pyl(self, self.parent, 'ylabel2')
-        ############################################################
-	# The following initializes the template's BOXES and LINES #
-        ############################################################
-        self.__dict__['box1']=Pbl(self, self.parent, 'box1')
-        self.__dict__['box2']=Pbl(self, self.parent, 'box2')
-        self.__dict__['box3']=Pbl(self, self.parent, 'box3')
-        self.__dict__['box4']=Pbl(self, self.parent, 'box4')
-        self.__dict__['line1']=Pbl(self, self.parent, 'line1')
-        self.__dict__['line2']=Pbl(self, self.parent, 'line2')
-        self.__dict__['line3']=Pbl(self, self.parent, 'line3')
-        self.__dict__['line4']=Pbl(self, self.parent, 'line4')
-        #########################################################
-	# The following initializes the template's LEGEND SPACE #
-        #########################################################
-        self.__dict__['legend']=Pls(self, self.parent, 'legend')
-        #######################################################
-	# The following initializes the template's DATA SPACE #
-        #######################################################
-        self.__dict__['data']=Pds(self, self.parent, 'data')
-        #######################################################
-	# Set the template normalization flag to 1            #
-        #######################################################
-        _vcs._set_normalized_flag(self.__dict__['name'])
+          if isinstance(Pic_name_src,P):
+            Pic_name_src = P.name
+          if not Pic_name_src in vcs.elements["template"].keys():
+            raise ValueError, "The source template '%s' does not seem to exists" % Pic_name_src
+          src = vcs.elements["template"][Pic_name_src]
+          self.orientation=src.orientation
+          self.file=copy.copy(src.file)
+          self.function=copy.copy(src.function)
+          self.logicalmask=copy.copy(src.logicalmask)
+          self.transformation=copy.copy(src.transformation)
+          self.source=copy.copy(src.source)
+          self.dataname=copy.copy(src.dataname)
+          self.title=copy.copy(src.title)
+          self.units=copy.copy(src.units)
+          self.crdate=copy.copy(src.crdate)
+          self.crtime=copy.copy(src.crtime)
+          self.comment1=copy.copy(src.comment1)
+          self.comment2=copy.copy(src.comment2)
+          self.comment3=copy.copy(src.comment3)
+          self.comment4=copy.copy(src.comment4)
+          self.xname=copy.copy(src.xname)
+          self.yname=copy.copy(src.yname)
+          self.zname=copy.copy(src.zname)
+          self.tname=copy.copy(src.tname)
+          self.xunits=copy.copy(src.xunits)
+          self.yunits=copy.copy(src.yunits)
+          self.zunits=copy.copy(src.zunits)
+          self.tunits=copy.copy(src.tunits)
+          ###################################################
+      # The following initializes the template's FORMATS #
+          ####################################################
+          self.xvalue=copy.copy(src.xvalue)
+          self.yvalue=copy.copy(src.yvalue)
+          self.zvalue=copy.copy(src.zvalue)
+          self.tvalue=copy.copy(src.tvalue)
+          self.mean=copy.copy(src.mean)
+          self.min=copy.copy(src.min)
+          self.max=copy.copy(src.max)
+          ########################################################
+      # The folowing initializes the template's X-TICK MARKS #
+          ########################################################
+          self.xtic1=copy.copy(src.xtic1)
+          self.xtic2=copy.copy(src.xtic2)
+          self.xmintic1=copy.copy(src.xmintic1)
+          self.xmintic2=copy.copy(src.xmintic2)
+          ########################################################
+      # The folowing initializes the template's Y-TICK MARKS #
+          ########################################################
+          self.ytic1=copy.copy(src.ytic1)
+          self.ytic2=copy.copy(src.ytic2)
+          self.ymintic1=copy.copy(src.ymintic1)
+          self.ymintic2=copy.copy(src.ymintic2)
+          ####################################################
+      # The folowing initializes the template's X-LABELS #
+          ####################################################
+          self.xlabel1=copy.copy(src.xlabel1)
+          self.xlabel2=copy.copy(src.xlabel2)
+          ####################################################
+      # The folowing initializes the template's Y-LABELS #
+          ####################################################
+          self.ylabel1=copy.copy(src.ylabel1)
+          self.ylabel2=copy.copy(src.ylabel2)
+          ###########################################################
+      # The folowing initializes the template's BOXES and LINES #
+          ###########################################################
+          self.box1=copy.copy(src.box1)
+          self.box2=copy.copy(src.box2)
+          self.box3=copy.copy(src.box3)
+          self.box4=copy.copy(src.box4)
+          self.line1=copy.copy(src.line1)
+          self.line2=copy.copy(src.line2)
+          self.line3=copy.copy(src.line3)
+          self.line4=copy.copy(src.line4)
+          ########################################################
+      # The folowing initializes the template's LEGEND SPACE #
+          ########################################################
+          self.legend=copy.copy(src.legend)
+          ######################################################
+      # The folowing initializes the template's DATA SPACE #
+          #######################################################
+          self.data=copy.copy(src.data)
 
-    def __setattr__(self, name, value):
-        if (self.name == '__removed_from_VCS__'):
-           raise ValueError, 'This instance has been removed from VCS.'
-        if (self.name == 'default'):
-           raise ValueError, 'You cannot modify the default template.'
-        if (name == 'name'):
-           if (type(value) == StringType):
-              renameP(self,self.name, value)
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The name attribute must be a string.'
-        if (name == 'orientation'):
-           if (isinstance(value, IntType)):
-              if value in [0,1]:
-                 _vcs.setPomember(self,value)
-                 self.__dict__[name]=value
-              else:
-                 raise ValueError, 'The orientation attribute must be an integer (i.e., 0 = landscape, 1 = portrait).'
-           else:
-              raise ValueError, 'The orientation attribute must be an integer (i.e., 0 = landscape, 1 = portrait).'
 
+        vcs.elements["template"][Pic_name]=self
 
     ###########################################################################
     #                                                                         #
@@ -295,7 +476,7 @@ class P(object):
 
         if (single == None):
            print "","----------Template (P) member (attribute) listings ----------"
-           print 'Canvas Mode =',self.parent.mode
+           #print 'Canvas Mode =',self.mode
            print "method =", self.p_name
            print "name =", self.name
            print "orientation =", self.orientation
@@ -550,11 +731,17 @@ class P(object):
         elif (mode not in ('w', 'a')):
           raise ValueError, 'Error - Mode can only be "w" for replace or "a" for append.'
 
-        # By default, save file in python script mode
-        scr_type = script_filename[len(script_filename)-4:len(script_filename)]
-        if (scr_type == '.scr'):
-           print _vcs.scriptP(self.name,script_filename,mode)
+        # By default, save file in json
+        scr_type = script_filename.split(".")
+        if len(scr_type)==1 or len(scr_type[-1])>5:
+          scr_type= "json"
+          if script_filename!="initial.attributes":
+            script_filename+=".json"
         else:
+          scr_type = scr_type[-1]
+        if scr_type == '.scr':
+           raise DeprecationWarning("scr script are no longer generated")
+        elif scr_type == "py":
            mode = mode + '+'
            py_type = script_filename[len(script_filename)-3:len(script_filename)]
            if (py_type != '.py'):
@@ -679,24 +866,43 @@ class P(object):
            fp.write("%s.data.y1 = %g\n" % (unique_name,self.data.y1))
            fp.write("%s.data.x2 = %g\n" % (unique_name,self.data.x2))
            fp.write("%s.data.y2 = %g\n\n" % (unique_name,self.data.y2))
+        else:
+          #Json type
+          mode+="+"
+          f = open(script_filename,mode)
+          vcs.utils.dumpToJson(self,f)
+          f.close()
            
     ## Adding the drawing functionnality to plot all these attributes on the Canvas
 
-    def drawTicks(self,slab,gm,x,axis,number,vp,wc,bg=0):
+    def drawTicks(self,slab,gm,x,axis,number,vp,wc,bg=0,X=None,Y=None,**kargs):
         """Draws the ticks for the axis x number number
         using the label passed by the graphic  method
         vp and wc are from the actual canvas, they have been reset when they get here...
         """
+        kargs["donotstoredisplay"]=True
+        if X is None:
+          X=slab.getAxis(-1)
+        if Y is None:
+          Y=slab.getAxis(-2)
         displays = []
         # compute the spanning in x and y, and adjust for the viewport
         if gm.datawc_x1 > 9.E19 :
-             wc[0]=slab.getAxis(-1)[0]
+          wc[0]=X[:].min()
+        else:
+          wc[0] = gm.datawc_x1
         if gm.datawc_x2 > 9.E19 :
-             wc[1]=slab.getAxis(-1)[-1]
+          wc[1]=X[:].max()
+        else:
+          wc[1] = gm.datawc_x2
         if gm.datawc_y1 > 9.E19 :
-             wc[2]=slab.getAxis(-2)[0]
+          wc[2]=Y[:].min()
+        else:
+          wc[2] = gm.datawc_y1
         if gm.datawc_y2 > 9.E19 :
-             wc[3]=slab.getAxis(-2)[-1]
+          wc[3]=Y[:].max()
+        else:
+          wc[3] = gm.datawc_y2
 
         vp=[self.data.x1,self.data.x2,self.data.y1,self.data.y2]
         dx=wc[1]-wc[0]
@@ -709,16 +915,18 @@ class P(object):
         if (loc is None or loc=='*'):
             # well i guess we have to do it !
             if axis=='x':
-                 ax=slab.getAxis(-1)
+                 x1 = wc[0]
+                 x2 = wc[1]
             else:
-                 ax=slab.getAxis(-2)                 
-            x2=ax[-1]
-            x1=ax[0]
-            loc=vcs.mkscale(ax[0],ax[-1])
+                 x1 = wc[2]
+                 x2 = wc[3]
+            loc=vcs.mkscale(x1,x2)
             loc=vcs.mklabels(loc)
             if number == '2':
                 for t in loc.keys():
                     loc[t]=''
+        if isinstance(loc,str):
+          loc = vcs.elements["list"].get(loc,{})
         # Make sure the label passed are not outside the world coordinates
         dw1=1.E20
         dw2=1.E20
@@ -764,6 +972,8 @@ class P(object):
         loc=getattr(gm,axis+'ticlabels'+number)
         if loc == '*' or loc is None:
              loc=loc2
+        if isinstance(loc,str):
+          loc = vcs.elements["list"].get(loc,{})
         # set the x/y/text values
         for l in loc.keys():
           if axis=='x':
@@ -781,6 +991,7 @@ class P(object):
                     xs.append([obj.x1,obj.x2])
                     tys.append((l-wc[2])/dy+vp[2])
                     txs.append(objlabl.x)
+                    tstring.append(loc[l])
         # now does the mini ticks
         if getattr(gm,axis+'mtics'+number)!='':
             obj=getattr(self,axis+'mintic'+number)
@@ -803,11 +1014,11 @@ class P(object):
              tt.string=tstring
              tt.x=txs
              tt.y=tys
-             displays.append(x.text(tt,bg=bg))
+             displays.append(x.text(tt,bg=bg,**kargs))
         if xs!=[]:
              ticks.x=xs
              ticks.y=ys
-             displays.append(x.line(ticks,bg=bg))
+             displays.append(x.line(ticks,bg=bg,**kargs))
         return displays
    
 
@@ -824,9 +1035,12 @@ class P(object):
               t.reset('x',x1,x2,t.data.x1,t.data.x2)
               #where t is a vcs template object
          """
-         savedmode=self.parent.mode
-         self.parent.mode=0
-         attr=vars(self).keys()
+         #attr=vars(self).keys()
+         Attr = dir(self)
+         attr = []
+         for a in Attr:
+           if a[0]!="_":
+             attr.append(a)
          n=len(sub_name)
          # computes the ratio
          if ov1 is not None:
@@ -864,7 +1078,6 @@ class P(object):
               except Exception,err:
                    #print err
                    pass
-         self.parent.mode=savedmode
 
     def move(self,p,axis):
          """ move a template by p% along the axis 'x' or 'y'
@@ -877,8 +1090,6 @@ class P(object):
          t.move(.2,'x') # move everything right by 20%
          t.move(.2,'y') # move everything down by 20%
          """
-         saved_mode=self.parent.mode
-         self.parent.mode=0
          if not axis in ['x','y']:
               raise 'Error you can move the template only the x or y axis'
          #p/=100.
@@ -887,8 +1098,6 @@ class P(object):
          v1=ov1+p
          v2=ov2+p
          self.reset(axis,v1,v2,ov1,ov2)
-         self.parent.update()
-         self.parent.mode=saved_mode
          
     def moveto(self,x,y):
          """ move a template along the axis 'x' or 'y' to p
@@ -898,8 +1107,6 @@ class P(object):
          example:
          t.moveto(.2,.2) # move everything so that data.x1=.2and data.y1=.2
          """
-         saved_mode=self.parent.mode
-         self.parent.mode=0
          #p/=100.
          ov1=getattr(self.data,'x1')
          ov2=getattr(self.data,'x2')
@@ -911,8 +1118,6 @@ class P(object):
          v1=y
          v2=(ov2-ov1)+y
          self.reset('y',v1,v2,ov1,ov2)
-         self.parent.update()
-         self.parent.mode=saved_mode
          
     def scale(self,scale,axis='xy',font=-1):
          """ scale a template along the axis 'x' or 'y' by scale
@@ -937,8 +1142,6 @@ class P(object):
          reference is t.data.x1/y1
  
          """
-         saved_mode=self.parent.mode
-         self.parent.mode=0
          if not axis in ['x','y','xy']:
               raise 'Error you can move the template only the x or y axis'
          #p/=100.
@@ -954,8 +1157,6 @@ class P(object):
               self.reset(ax,v1,v2,ov1,ov2)
          if font==1 or (font==-1 and axis==['x','y']):
               self.scalefont(scale)
-         self.parent.update()
-         self.parent.mode=saved_mode
               
     def scalefont(self,scale):
          """
@@ -968,45 +1169,37 @@ class P(object):
          t=x.createtemplate('a_template')
          t.scalefont(.5) # reduces the fonts size by 2
          """
-         savedmode=self.parent.mode
-         self.parent.mode=0
          attr=vars(self).keys()
          for a in attr:
               v=getattr(self,a)
               try:
                    to=getattr(v,'textorientation')
-                   to=self.parent.createtextorientation(source=to)
+                   tmp = vcs.init()
+                   to=tmp.createtextorientation(source=to)
                    to.height=to.height*scale
                    setattr(v,'textorientation',to)
               except:
                    pass        
-         self.parent.mode=savedmode
-         self.parent.update()
          
-    def plot(self,slab,gm,bg=0,min=None,max=None):
+    def plot(self,x,slab,gm,bg=0,min=None,max=None,X=None,Y=None,**kargs):
         """ This plots the template stuff on the Canvas, it needs a slab and a graphic method
         returns a list containing all the displays used"""
         displays = []
-        # first makes sure there is a Canvas
-        x=self.parent
+        kargs["donotstoredisplay"]=True
         # now remembers the viewport and worldcoordinates in order to reset them later
         vp=x.viewport
         wc=x.worldcoordinate
-        m=x.mode
+        #m=x.mode
         # and resets everything to [0,1]
         x.viewport=[0,1,0,1]
         x.worldcoordinate=[0,1,0,1]
-        x.mode=0 # this should disable the replot but it doesn't work....
+        #x.mode=0 # this should disable the replot but it doesn't work....
         # figures out the min and max and set them as atributes...
+        smn,smx=vcs.minmax(slab)
         if min is None or max is None:
-             mn,mx=vcs.minmax(slab)
+             mn,mx = smn,smx
         else:
              mn,mx=min,max
-        try:
-            setattr(slab,'min',mn)
-            setattr(slab,'max',mx)
-        except:
-             pass
 
         attributes=['file','function','logicalmask','transformation',
                     'source','id','title','units','crdate','crtime',
@@ -1023,11 +1216,12 @@ class P(object):
                 else:
                     sub=getattr(self,s)
                 tt=x.createtext(None,sub.texttable,None,sub.textorientation)
+
                 # Now for the min/max/mean add the name in front
                 if s=='min':
-                    tt.string='Min '+str(getattr(slab,s))
+                  tt.string='Min %g' % (smn)
                 elif s=='max':
-                    tt.string='Max '+str(getattr(slab,s))
+                  tt.string='Max %g' % smx
                 elif s=='mean':
                     if not inspect.ismethod(getattr(slab,'mean')):
                          tt.string='Mean '+str(getattr(slab,s))
@@ -1038,15 +1232,15 @@ class P(object):
                 tt.x=[sub.x]
                 tt.y=[sub.y]
                 tt.priority=sub.priority
-                displays.append(x.text(tt,bg=bg))
+                displays.append(x.text(tt,bg=bg,**kargs))
 
 
         # Do the tickmarks/labels
         if gm!='taylordiagram':
-             displays+=self.drawTicks(slab,gm,x,axis='x',number='1',vp=vp,wc=wc,bg=bg)
-             displays+=self.drawTicks(slab,gm,x,axis='x',number='2',vp=vp,wc=wc,bg=bg)
-             displays+=self.drawTicks(slab,gm,x,axis='y',number='1',vp=vp,wc=wc,bg=bg)
-             displays+=self.drawTicks(slab,gm,x,axis='y',number='2',vp=vp,wc=wc,bg=bg)
+             displays+=self.drawTicks(slab,gm,x,axis='x',number='1',vp=vp,wc=wc,bg=bg,X=X,Y=Y,**kargs)
+             displays+=self.drawTicks(slab,gm,x,axis='x',number='2',vp=vp,wc=wc,bg=bg,X=X,Y=Y,**kargs)
+             displays+=self.drawTicks(slab,gm,x,axis='y',number='1',vp=vp,wc=wc,bg=bg,X=X,Y=Y,**kargs)
+             displays+=self.drawTicks(slab,gm,x,axis='y',number='2',vp=vp,wc=wc,bg=bg,X=X,Y=Y,**kargs)
 
         # Do the boxes and lines
         b=self.box1
@@ -1055,7 +1249,7 @@ class P(object):
              l.x=[b.x1,b.x2,b.x2,b.x1,b.x1]
              l.y=[b.y1,b.y1,b.y2,b.y2,b.y1]
              l.priority=b.priority
-             displays.append(x.line(l,bg=bg))
+             displays.append(x.line(l,bg=bg,**kargs))
 
         b=self.box2
         if b.priority!=0:
@@ -1063,7 +1257,7 @@ class P(object):
              l.x=[b.x1,b.x2,b.x2,b.x1,b.x1]
              l.y=[b.y1,b.y1,b.y2,b.y2,b.y1]
              l.priority=b.priority
-             displays.append(x.line(l,bg=bg))
+             displays.append(x.line(l,bg=bg,**kargs))
 
         b=self.box3
         if b.priority!=0:
@@ -1071,7 +1265,7 @@ class P(object):
              l.x=[b.x1,b.x2,b.x2,b.x1,b.x1]
              l.y=[b.y1,b.y1,b.y2,b.y2,b.y1]
              l.priority=b.priority
-             displays.append(x.line(l,bg=bg))
+             displays.append(x.line(l,bg=bg,**kargs))
 
         b=self.box4
         if b.priority!=0:
@@ -1079,7 +1273,7 @@ class P(object):
              l.x=[b.x1,b.x2,b.x2,b.x1,b.x1]
              l.y=[b.y1,b.y1,b.y2,b.y2,b.y1]
              l.priority=b.priority
-             displays.append(x.line(l,bg=bg))
+             displays.append(x.line(l,bg=bg,**kargs))
 
         b=self.line1
         if b.priority!=0:
@@ -1087,7 +1281,7 @@ class P(object):
              l.x=[b.x1,b.x2]
              l.y=[b.y1,b.y2]
              l.priority=b.priority
-             displays.append(x.line(l,bg=bg))
+             displays.append(x.line(l,bg=bg,**kargs))
 
         b=self.line2
         if b.priority!=0:
@@ -1095,7 +1289,7 @@ class P(object):
              l.x=[b.x1,b.x2]
              l.y=[b.y1,b.y2]
              l.priority=b.priority
-             displays.append(x.line(l,bg=bg))
+             displays.append(x.line(l,bg=bg,**kargs))
 
         b=self.line3
         if b.priority!=0:
@@ -1103,7 +1297,7 @@ class P(object):
              l.x=[b.x1,b.x2]
              l.y=[b.y1,b.y2]
              l.priority=b.priority
-             displays.append(x.line(l,bg=bg))
+             displays.append(x.line(l,bg=bg,**kargs))
 
         b=self.line4
         if b.priority!=0:
@@ -1111,8 +1305,8 @@ class P(object):
              l.x=[b.x1,b.x2]
              l.y=[b.y1,b.y2]
              l.priority=b.priority
-             displays.append(x.line(l,bg=bg))
-        x.mode=m
+             displays.append(x.line(l,bg=bg,**kargs))
+        #x.mode=m
         # I think i have to use dict here because it's a valid value
         # (obviously since i got it from the object itself and didn't touch it
         # but Dean doesn't allow to set it back to some of these values (None)!
@@ -1120,7 +1314,7 @@ class P(object):
         x.worldcoordinate=wc
         return displays
 
-    def drawColorBar(self,colors,levels,legend=None,ext_1='n',ext_2='n',x=None,bg=0,priority=None):
+    def drawColorBar(self,colors,levels,legend=None,ext_1='n',ext_2='n',x=None,bg=0,priority=None,cmap=None,**kargs):
          """
          This function, draws the colorbar, it needs:
          colors : The colors to be plotted
@@ -1131,13 +1325,26 @@ class P(object):
          bg: background mode ?
          returns a list of displays used
          """
+         kargs["donotstoredisplay"]=True
          displays=[]
          #
          # Create legend
          #
-         # First make sure we have an vcs canvas
-         if x is None:
-              x=self.parent
+
+         ## Are levs contiguous?
+         if isinstance(levels[0],(list,tuple)):
+           levs2=[]
+           cont = True
+           for i in range(len(levels)-1):
+             if levels[i][1] == levels[i+1][0]:
+               levs2.append(levels[i][0])
+             else: # Ok not contiguous
+               cont = False
+               break
+           if cont:
+             levs2.append(levels[-1][0])
+             levs2.append(levels[-1][1])
+             levels = levs2
 
          # Now sets the priority value
          if priority is None:
@@ -1150,8 +1357,19 @@ class P(object):
          # Ok first determine the orientation of the legend (bottom to top  or left to right)
          dX=self.legend.x2-self.legend.x1
          dY=self.legend.y2-self.legend.y1
-        # Now figure out the typical length of a box
          nbox=len(colors)
+         if isinstance(levels[0],list):
+           l0 = levels[0][0]
+           l1 = levels[-1][1]
+         else:
+           l0 = levels[0]
+           l1 = levels[-1]
+         if l0<-1.e19:
+           ext_1='y'
+         if l1>1.e19:
+           ext_2='y'
+         levels=list(levels)
+         # Now figure out the typical length of a box
          if abs(dX)>=abs(dY):
               isH=1
               dLong=dX
@@ -1207,14 +1425,12 @@ class P(object):
                    L.append([startlong+dlong*i, startlong+dlong*(i+1), startlong+dlong*(i+1), startlong+dlong*i])
                    S.append([startshrt        , startshrt            , startshrt+dshrt      , startshrt+dshrt])
                     
-         try:
-              fa=x.createfillarea('__leg')
-         except:
-              pass
-         fa=x.getfillarea('__leg')
+         fa=x.createfillarea()
          fa.color=colors
          fa.style='solid'
          fa.priority=priority
+         if cmap is not None:
+           fa.colormap = cmap
          if isH:
               fa.x=L
               fa.y=S
@@ -1222,7 +1438,7 @@ class P(object):
               fa.x=S
               fa.y=L
 ##          fa.list()
-         displays.append(x.fillarea(fa,bg=bg))
+         displays.append(x.fillarea(fa,bg=bg,**kargs))
          # Now draws the legend
          # Fisrt of all make sure we draw the arrows
          Sl=[]
@@ -1258,39 +1474,64 @@ class P(object):
          Sl.append([startshrt      , startshrt         , startshrt+dshrt   , startshrt+dshrt, startshrt])
          Ll.append([startlong      , startlong+dD      , startlong+dD      , startlong      , startlong])
          # Now make sure we have a legend
-         if legend is None:
-              legend=vcs.mklabels(levels)
-         if levels[0]<levels[1]:
-              ecompfunc=numpy.less_equal
-              compfunc=numpy.less             
+         if isinstance(levels[0],list):
+           ## Ok these are nono contiguous levels, we will use legend only if it's a perfect match
+           for i,l in enumerate(levels):
+             lt = l[0]
+             lb = l[1]
+             loc = i*dlong + startlong
+             Ll.append([loc,loc])
+             Sl.append([startshrt,startshrt+dshrt])
+             if legend is not None:
+               lt=legend.get(lt,None)
+               lb=legend.get(lb,None)
+             if lt is not None:
+               loct = startlong + (i+.5)*dlong
+               Tt.append(str(lt)) 
+               Lt.append(loct)
+               St.append(startshrt+dshrt*1.4)
+             if lb is not None:
+               loct = startlong + (i+.5)*dlong
+               Tt.append(str(lb)) 
+               Lt.append(loct)
+               St.append(startshrt-dshrt*.6)
+
          else:
-              ecompfunc=numpy.greater_equal
-              compfunc=numpy.greater
-##          legend[levels[0]]=vcs.mklabels([levels[0]],output='list')[0]
-##          legend[levels[-1]]=vcs.mklabels([levels[-1]],output='list')[0]
-##          legend=vcs.mklabels(legend.keys())
-         for l in legend.keys():
-              if not compfunc(l,levels[0]) and not compfunc(levels[-1],l):
-                   for i in range(len(levels)-1):
-                        if ecompfunc(levels[i],l) and ecompfunc(l,levels[i+1]):
-                             # Ok we're between 2 levels, let's add the legend
-                             # first let's figure out where to put it
-                             loc=i*dlong # position at beginnig of level
-                             loc+=(l-levels[i])/(levels[i+1]-levels[i])*dlong # Adds the distance from beginnig of level box
-                             loc+=startlong ## Figures out the begining
-##                              loc=((l-levels[0])/(levels[-1]-levels[0]))*dD+startlong
-                             Ll.append([loc,loc])
-                             Sl.append([startshrt,startshrt+dshrt])
-                             Lt.append(loc)
-                             St.append(startshrt+dshrt*1.4)
-                             Tt.append(legend[l])
-                             break
+           if legend is None:
+                legend=vcs.mklabels(levels)
+           if levels[0]<levels[1]:
+                ecompfunc=numpy.less_equal
+                compfunc=numpy.less             
+           else:
+                ecompfunc=numpy.greater_equal
+                compfunc=numpy.greater
+           for l in legend.keys():
+                if not compfunc(l,levels[0]) and not compfunc(levels[-1],l):
+                     for i in range(len(levels)-1):
+                          if ecompfunc(levels[i],l) and ecompfunc(l,levels[i+1]):
+                               # Ok we're between 2 levels, let's add the legend
+                               # first let's figure out where to put it
+                               loc=i*dlong # position at beginnig of level
+                               loc+=(l-levels[i])/(levels[i+1]-levels[i])*dlong # Adds the distance from beginnig of level box
+                               loc+=startlong ## Figures out the begining
+  ##                              loc=((l-levels[0])/(levels[-1]-levels[0]))*dD+startlong
+                               Ll.append([loc,loc])
+                               Sl.append([startshrt,startshrt+dshrt])
+                               Lt.append(loc)
+                               St.append(startshrt+dshrt*1.4)
+                               Tt.append(legend[l])
+                               break
          # ok now creates the line object and text object
          ln=x.createline(source=self.legend.line)
          txt=x.createtext(To_source=self.legend.textorientation,Tt_source=self.legend.texttable)
          ln.priority=priority+1
          txt.priority=priority+1
          txt.string=Tt
+         if isinstance(legend,list):
+           if isH:
+             txt.halign = "center"
+           else:
+             txt.valign = "half"
          if isH:
               ln.x=Ll
               ln.y=Sl
@@ -1303,13 +1544,13 @@ class P(object):
               txt.y=Lt
          
          # Now reset the viewport and worldcoordiantes
-         displays.append(x.line(ln,bg=bg))
-         displays.append(x.text(txt,bg=bg))
+         displays.append(x.line(ln,bg=bg,**kargs))
+         displays.append(x.text(txt,bg=bg,**kargs))
          x.viewport=vp
          x.worldcoordinate=wc
          return displays
 
-    def ratio_linear_projection(self,lon1,lon2,lat1,lat2,Rwished=None,Rout=None,box_and_ticks=0):
+    def ratio_linear_projection(self,lon1,lon2,lat1,lat2,Rwished=None,Rout=None,box_and_ticks=0,x=None):
          '''
          Computes ratio to shrink the data area of a template in order that the overall area
          has the least possible deformation in linear projection
@@ -1320,6 +1561,7 @@ class P(object):
          Necessary arguments:
            lon1, lon2: in degrees_east  : Longitude spanned by plot
            lat1, lat2: in degrees_north : Latitude  spanned by plot
+
          Optional arguments:
            Rwished: Ratio y/x wished, None=automagic
            Rout: Ratio of output (default is US Letter=11./8.5)
@@ -1346,11 +1588,11 @@ class P(object):
          
          if Rwished is None:
              Rwished=float(2*(numpy.sin(Lat2)-numpy.sin(Lat1))/(Lon2-Lon1)/(1.+(numpy.sin(2*Lat2)-numpy.sin(2*Lat1))/2./(Lat2-Lat1)))
-         self.ratio(Rwished,Rout,box_and_ticks)
+         self.ratio(Rwished,Rout,box_and_ticks,x)
          return
 
     
-    def ratio(self,Rwished,Rout=None,box_and_ticks=0):
+    def ratio(self,Rwished,Rout=None,box_and_ticks=0,x=None):
          '''
          Computes ratio to shrink the data area of a template to have an y/x ratio of Rwished
          has the least possible deformation in linear projection
@@ -1370,8 +1612,8 @@ class P(object):
            ## y is twice x
            t.ratio(2)
          '''
-
-         x=self.parent
+         if x is None:
+           x=vcs.init()
          if isinstance(Rout,str):
               if Rout.lower()=='a4':
                    Rout=29.7/21.

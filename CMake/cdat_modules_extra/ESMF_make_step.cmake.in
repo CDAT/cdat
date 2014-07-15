@@ -8,6 +8,7 @@ set(ENV{ESMF_OS} @ESMF_os@)
 set(ENV{ESMF_COMPILER} @ESMF_compiler@)
 set(ENV{ESMF_COMM} @ESMF_comm@)
 set(ENV{ESMF_ABI} @ESMF_abi@)
+set(ENV{ESMF_OPENMP} @ESMF_openmp@)
 
 # make should be detected by CMAKE at some point
 execute_process(

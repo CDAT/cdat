@@ -1,7 +1,5 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
-"""
 # Marker (Tm) module
-"""
 ###############################################################################
 #                                                                             #
 # Module:       marker (Tm) module                                            #
@@ -14,7 +12,8 @@
 #               Lawrence Livermore NationalLaboratory:                        #
 #               support@pcmdi.llnl.gov                                        #
 #                                                                             #
-# Description:  Python command wrapper for VCS's marker secondary object.     #
+# Description:  Python command/1d
+# wrapper for VCS's marker secondary object.     #
 #                                                                             #
 # Version:      4.0                                                           #
 #                                                                             #
@@ -22,86 +21,83 @@
 #
 #
 #
-###############################################################################
-#                                                                             #
-# Import: VCS C extension module.                                             #
-#                                                                             #
-###############################################################################
-import _vcs
 import Canvas
 import VCS_validation_functions
-from types import *
+import vcs
+import genutil
 
-###############################################################################
-#                                                                             #
-# Function:	setTmmember                                                   #
-#                                                                             #
-# Description of Function:                                                    #
-# 	Private function to update the VCS canvas plot. If the canvas mode is #
-#       set to 0, then this function does nothing.                            #
-#                                                                             #
-#                                                                             #
-# Example of Use:                                                             #
-#      setTmmember(self,name,value)					      #
-#              where: self is the class (e.g., Tm)                            #
-#                     name is the name of the member that is being changed    #
-#                     value is the new value of the member (or attribute)     #
-#                                                                             #
-###############################################################################
-def setTmmember(self,member,value):
-     # If the VCS Canvas is displayed, then bring the canvas to the front before 
-     # redisplaying the updated contents.
-     if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()):
-        Canvas.finish_queued_X_server_requests( self.parent )
-        self.parent.canvas.BLOCK_X_SERVER()
-        self.parent.canvasraised()
+def process_src(nm,code):
+  """Takes VCS script code (string) as input and generates oneD gm from it"""
+  try:
+    gm = Tm(nm)
+  except:
+    gm = vcs.elements["marker"][nm]
+  ## process attributes with = as assignement
+  for att in ["projection",]:
+    i = code.find(att)
+    if i==-1:
+      continue
+    j = code[i:].find(",")+i
+    if j-i==-1: # last one no comma
+      j=None
+    scode = code[i:j]
+    sp = scode.split("=")
+    nm = sp[0].strip()
+    nm=nm.replace("#","")
+    try:
+      #int will be converted
+      setattr(gm,nm,int(sp[1]))
+    except Exception,err:
+      try:
+        #int and floats will be converted
+        setattr(gm,nm,eval(sp[1]))
+      except Exception,err:
+        # strings
+        try:
+          setattr(gm,nm,sp[1])
+        except:
+          pass # oh well we stick to default value
+    #Datawc
+    for att in ["mtyp","msize","mci","vp","wc"]:
+      i = code.find(" %s(" % att)
+      if i>-1:
+        j = code[i:].find(")")+i
+        cd = code[i+len(att)+2:j]
+        vals = cd.split(",")
+        values = [] 
+        #print "ATT:",att,vals
+        for v in vals:
+          try: # int first
+            values.append(int(v))
+          except:
+            try:
+              values.append(float(v))
+            except:
+              values.append(v)
+        try:
+          if att == "mtyp":
+            gm.type = values
+          elif att == "msize":
+            gm.size=values
+          elif att=="mci":
+            gm.color = values
+          elif att == "vp":
+            gmviewport = values
+          elif att == "wc":
+            gm.worldcoordinate=values
+          else:
+            raise Exception,"Unkwnow marker attribute: %s" % att
+        except:
+          pass
+    for att in ["x","y"]:
+      i = code.find(" %s("%att)
+      if i==-1:
+        i = code.find(",%s(" % att)
+      if i>-1:
+        v=genutil.get_parenthesis_content(code[i:])
+        setattr(gm,att,eval(v))
 
-     _vcs.setTmmember(self, member, value, self.parent.mode)
 
-     # If the VCS Canvas is displayed, then update the backing store
-     if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()):
-        self.parent.flush()
-        self.parent.backing_store()
-        self.parent.canvas.UNBLOCK_X_SERVER()
-setmember = setTmmember
-
-###############################################################################
-#                                                                             #
-# Function:     getTmmember                                                   #
-#                                                                             #
-# Description of Function:                                                    #
-#       Private function that retrieves the marker members from the C         #
-#       structure and passes it back to Python.                               #
-#                                                                             #
-#                                                                             #
-# Example of Use:                                                             #
-#      return_value =							      #
-#      getTmmember(self,name)                                                 #
-#              where: self is the class (e.g., Tm)                            #
-#                     name is the name of the member that is being found      #
-#                                                                             #
-###############################################################################
-def getTmmember(self,member):
-     return _vcs.getTmmember(self,member)
-getmember = getTmmember
-
-###############################################################################
-#                                                                             #
-# Function:     renameTm                                                      #
-#                                                                             #
-# Description of Function:                                                    #
-#       Private function that renames the name of an existing marker          #
-#       graphics method.                                                      #
-#                                                                             #
-#                                                                             #
-# Example of Use:                                                             #
-#      renameTm(old_name, new_name)                                           #
-#              where: old_name is the current name of marker graphics method  #
-#                     new_name is the new name for the marker graphics method #
-#                                                                             #
-###############################################################################
-def renameTm(self, old_name, new_name):
-     return _vcs.renameTm(old_name, new_name)
 
 #############################################################################
 #                                                                           #
@@ -167,10 +163,8 @@ class Tm(object):
      mk.y=[[.5,.4,.3], [.2,.1,0]]       # List of FloatTypes
 """
     __slots__ = [
-         'setmember',
-         'parent',
-         'name',
          's_name',
+         'name',
          'color',
          'priority',
          'type',
@@ -179,81 +173,94 @@ class Tm(object):
          'worldcoordinate',
          'x',
          'y',
-         'projection',
+         'colormap',
          '_name',
+         '_color',
+         '_priority',
+         '_type',
+         '_size',
+         '_viewport',
+         '_worldcoordinate',
+         '_x',
+         '_y',
+         '_projection',
+         '_colormap',
          ]
+    colormap = VCS_validation_functions.colormap
     def _getname(self):
          return self._name
     def _setname(self,value):
          value=VCS_validation_functions.checkname(self,'name',value)
          if value is not None:
               self._name=value
-              setmember(self,'name',value)
     name=property(_getname,_setname)
 
     def _getfillareacolors(self):
-         return getmember(self,'color')
+         return self._color
     def _setfillareacolors(self,value):
          if isinstance(value,int):
               value=[value,]
          if not value is None:
               value = VCS_validation_functions.checkColorList(self,'color',value)
-         setmember(self,'color',value)
+         self._color = value
     color=property(_getfillareacolors,_setfillareacolors)
 
     def _gettype(self):
-         return getmember(self,'type')
+         return self._type
     def _settype(self,value):
          if not isinstance(value,(list,tuple)) and value is not None:
               value=[value,]
          if value is not None:
               value = VCS_validation_functions.checkMarkersList(self,'type',value)
-         setmember(self,'type',value)
+         self._type = value
     type = property(_gettype,_settype)
 
     def _getsize(self):
-         return getmember(self,'size')
+         return self._size
     def _setsize(self,value):
          if isinstance(value,int):
               value=[value,]
          if value is not None:
               value = VCS_validation_functions.checkListOfNumbers(self,'size',value,minvalue=1,maxvalue=300)
-         setmember(self,'size',value)
+         self._size = value
     size=property(_getsize,_setsize)
     
     def _getpriority(self):
-         return getmember(self,'priority')
+         return self._priority
     def _setpriority(self,value):
          value = VCS_validation_functions.checkInt(self,'priority',value,minvalue=0)
-         setmember(self,'priority',value)
+         self._priority=value
     priority = property(_getpriority,_setpriority)
 
     def _getprojection(self):
-         return getmember(self,'projection')
+         return self._projection
     def _setprojection(self,value):
          value=VCS_validation_functions.checkProjection(self,'projection',value)
-         setmember(self,'projection',value)
+         self._projection=value
     projection=property(_getprojection,_setprojection)
     
     def _getwc(self):
-         return getmember(self,'worldcoordinate')
+         return self._worldcoordinate
     def _setwc(self,value):
          value = VCS_validation_functions.checkListOfNumbers(self,'worldcoordinate',value,maxelements=4)
-         setmember(self,'worldcoordinate',value)
+         self._worldcoordinate=value
     worldcoordinate=property(_getwc,_setwc)
     
     def _getvp(self):
-         return getmember(self,'viewport')
+         return self._viewport
     def _setvp(self,value):
          value = VCS_validation_functions.checkListOfNumbers(self,'viewport',value,maxelements=4,minvalue=0.,maxvalue=1.)
-         setmember(self,'viewport',value)
+         self._viewport=value
     viewport=property(_getvp,_setvp)
 
     def _getx(self):
-         return getmember(self,'x')
+         return self._x
     def _setx(self,value):
+         if value is None:
+           self._x = None
+           return
          if not isinstance(value,(list,tuple)):
-              raise ValueError, '%s must be a tuple or list of values.'
+           raise ValueError, 'x must be a tuple or list of values. You sent: %s' % value
          try:
               # first we'll see if it is simply a list of values
               value = VCS_validation_functions.checkListOfNumbers(self,'x',value)
@@ -265,14 +272,17 @@ class Tm(object):
                    val.append(tmp)
               value=val
          # ok it worked
-         setmember(self,'x',value)
+         self._x=value
     x = property(_getx,_setx)
     
     def _gety(self):
-         return getmember(self,'y')
+         return self._y
     def _sety(self,value):
+         if value is None:
+           self._y = None
+           return
          if not isinstance(value,(list,tuple)):
-              raise ValueError, '%s must be a tuple or list of values.'
+           raise ValueError, 'y must be a tuple or list of values. You sent: %s'% value
          try:
               # first we'll see if it is simply a list of values
               value = VCS_validation_functions.checkListOfNumbers(self,'y',value)
@@ -284,7 +294,7 @@ class Tm(object):
                    val.append(tmp)
               value=val
          # ok it worked
-         setmember(self,'y',value)
+         self._y=value
     y = property(_gety,_sety)
     
 
@@ -293,7 +303,7 @@ class Tm(object):
     # Initialize the marker attributes.                                         #
     #                                                                           #
     #############################################################################
-    def __init__(self, parent, Tm_name=None, Tm_name_src='default', createTm=0):
+    def __init__(self, Tm_name, Tm_name_src='default'):
 	#                                                         #
         ###########################################################
 	# Initialize the marker class and its members             #
@@ -303,256 +313,31 @@ class Tm(object):
 	# appropriate Python Object.                              #
         ###########################################################
 	#                                                         #
-        if (createTm == 0):
-           if (Tm_name == None):
-              raise ValueError, 'Must provide a marker name.'
-           else:
-              _vcs.copyTm(Tm_name_src, Tm_name)
-              self._name = Tm_name
-        else:
-              self._name = Tm_name_src
-        self.s_name = 'Tm'
-##         self.__dict__['type']=getTmmember(self, 'type')
-##         self.__dict__['size']=getTmmember(self, 'size')
-##         self.__dict__['color']=getTmmember(self, 'color')
-##         self.__dict__['priority']=getTmmember(self, 'priority')
-##         self.__dict__['viewport']=getTmmember(self, 'viewport')
-##         self.__dict__['worldcoordinate']=getTmmember(self, 'worldcoordinate')
-##         self.__dict__['x']=getTmmember(self, 'x')
-##         self.__dict__['y']=getTmmember(self, 'y')
-##         self.__dict__['projection']=getTmmember(self, 'projection')
-        #                                                         #
-        ###########################################################
-        # Find and set the marker structure in VCS C pointer      #
-        # list. If the marker name does not exist, then use       #
-        # default marker.                                         #
-        ###########################################################
-        #                                                         #
-        self.parent = parent
-
-##     #############################################################################
-##     #                                                                           #
-##     # Set marker attributes.                                                    #
-##     #                                                                           #
-##     #############################################################################
-##     def __setattr__(self, name, value):
-##         if (self.name == '__removed_from_VCS__'):
-##            raise ValueError, 'This instance has been removed from VCS.'
-##         if (self.name == 'default'):
-##            raise ValueError, 'You cannot modify the default marker.'
-##         if (name == 'name'):
-##            if (type(value) == StringType):
-##               renameTm(self,self.name, value)
-##               self.__dict__['name']=value
-##            else:
-##               raise ValueError, 'The name attribute must be a string.'
-##         elif (name == 'type'):
-##            if (value == None):
-##               self.__dict__['type']=None
-##               setTmmember(self,'type',self.type) # update the plot
-##            elif (value in (None, 'dot', 'plus', 'star', 'circle', 'cross', 'diamond', 'triangle_up', 'triangle_down', 'triangle_left', 'triangle_right', 'square', 'diamond_fill', 'triangle_up_fill', 'triangle_down_fill', 'triangle_left_fill', 'triangle_right_fill', 'square_fill', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 ,15, 16, 17)):
-##               if value in (None, 0):
-##                  value=None
-##               elif value in ('dot', 1):
-##                  value='dot'
-##               elif value in ('plus', 2):
-##                  value='plus'
-##               elif value in ('star', 3):
-##                  value='star'
-##               elif value in ('circlet', 4):
-##                  value='circle'
-##               elif value in ('cross', 5):
-##                  value='cross'
-##               elif value in ('diamond', 6):
-##                  value='diamond'
-##               elif value in ('triangle_up', 7):
-##                  value='triangle_up'
-##               elif value in ('triangle_down', 8):
-##                  value='triangle_down'
-##               elif value in ('triangle_left', 9):
-##                  value='triangle_left'
-##               elif value in ('triangle_right', 10):
-##                  value='triangle_right'
-##               elif value in ('square', 11):
-##                  value='square'
-##               elif value in ('diamond_fill', 12):
-##                  value='diamond_fill'
-##               elif value in ('triangle_up_fill', 13):
-##                  value='triangle_up_fill'
-##               elif value in ('triangle_down_fill', 14):
-##                  value='triangle_down_fill'
-##               elif value in ('triangle_left_fill', 15):
-##                  value='triangle_left_fill'
-##               elif value in ('triangle_right_fill', 16):
-##                  value='triangle_right_fill'
-##               elif value in ('square_fill', 17):
-##                  value='square_fill'
-##               l=[] 
-##               l.append(value)
-##               self.__dict__['type']=l
-##               setTmmember(self,'type',self.type) # update the plot
-##            elif (type(value) in (ListType, TupleType)):
-##               if (type(value) == TupleType): value = list(value)  # must have a list
-##               nvalue = []
-##               for x in value:
-##                  if ((x not in (None, 'dot', 'plus', 'star', 'circle', 'cross', 'diamond', 'triangle_up', 'triangle_down', 'triangle_left', 'triangle_right', 'square', 'diamond_fill', 'triangle_up_fill', 'triangle_down_fill', 'triangle_left_fill', 'triangle_right_fill', 'square_fill', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14 ,15, 16, 17))):
-##                     raise ValueError, 'The line value can either be (None, "dot", "plus", "star", "circle", "cross", "diamond", "triangle_up", "triangle_down", "triangle_left", "triangle_right", "square", "diamond_fill", "triangle_up_fill", "triangle_down_fill", "triangle_left_fill", "triangle_right_fill", "square_fill") or (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17)'
-##                  else:
-##                     if x in (None, 0):
-##                        nvalue.append(None)
-##                     elif x in ('dot', 1):
-##                        nvalue.append('dot')
-##                     elif x in ('plus', 2):
-##                        nvalue.append('plus')
-##                     elif x in ('star', 3):
-##                        nvalue.append('star')
-##                     elif x in ('circlet', 4):
-##                        nvalue.append('circle')
-##                     elif x in ('cross', 5):
-##                        nvalue.append('cross')
-##                     elif x in ('diamond', 6):
-##                        nvalue.append('diamond')
-##                     elif x in ('triangle_up', 7):
-##                        nvalue.append('triangle_up')
-##                     elif x in ('triangle_down', 8):
-##                        nvalue.append('triangle_down')
-##                     elif x in ('triangle_left', 9):
-##                        nvalue.append('triangle_left')
-##                     elif x in ('triangle_right', 10):
-##                        nvalue.append('triangle_right')
-##                     elif x in ('square', 11):
-##                        nvalue.append('square')
-##                     elif x in ('diamond_fill', 12):
-##                        nvalue.append('diamond_fill')
-##                     elif x in ('triangle_up_fill', 13):
-##                        nvalue.append('triangle_up_fill')
-##                     elif x in ('triangle_down_fill', 14):
-##                        nvalue.append('triangle_down_fill')
-##                     elif x in ('triangle_left_fill', 15):
-##                        nvalue.append('triangle_left_fill')
-##                     elif x in ('triangle_right_fill', 16):
-##                        nvalue.append('triangle_right_fill')
-##                     elif x in ('square_fill', 17):
-##                        nvalue.append('square_fill')
-##               self.__dict__['type']=nvalue
-##               setTmmember(self,'type',nvalue) # update the plot
-##            else:
-##               raise ValueError, 'The line value can either be (None, "dot", "plus", "star", "circle", "cross", "diamond", "triangle_up", "triangle_down", "triangle_left", "triangle_right", "square", "diamond_fill", "triangle_up_fill", "triangle_down_fill", "triangle_left_fill", "triangle_right_fill", "square_fill") or (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17)'
-##         elif (name == 'size'):
-##            if (value == None):
-##               self.__dict__['size']=None
-##               setTmmember(self,'size',self.size) # update the plot
-##            elif (type(value) in (IntType,FloatType)):
-##               if (value < 1) or (value > 300): # must be an integer or float
-##                  raise ValueError, 'The size value must be in the range 1 to 300.'
-##               else:
-##                  l = []
-##                  l.append( value )
-##                  self.__dict__[name]=l
-##                  setTmmember(self,'size',self.size) # update the plot
-##            elif (type(value) in (ListType, TupleType)):
-##               if (type(value) == TupleType): value = list(value)  # must have a list
-##               for x in value:
-##                  if ((type(x) not in (IntType, FloatType)) or (x < 1) or (x > 300)): # must be an integer or float
-##                     raise ValueError, 'The size value must be in the range 1 to 300.'
-##               self.__dict__[name]=value
-##               setTmmember(self,name,value) # update the plot
-##            else:
-##               raise ValueError, 'The indices attribute values must be integer and stored in either a list or a tuple.'
-##         elif (name == 'color'):
-##            if (value == None):
-##               self.__dict__['color']=None
-##               setTmmember(self,'color',self.color) # update the plot
-##            elif (isinstance(value, IntType)):
-##               if value not in range(0,256): # must be an integer
-##                  raise ValueError, 'The marker color value must be in the range 0 to 255.'
-##               else:
-##                  l=[] 
-##                  l.append(value)
-##                  self.__dict__['color']=l
-##                  setTmmember(self,'color',self.color) # update the plot
-##            elif (type(value) in (ListType, TupleType)):
-##               if (type(value) == TupleType): value = list(value)  # must have a list
-##               for x in value:
-##                  if ((type(x) != IntType) or (x not in range(0,256))):#must be an integer
-##                     raise ValueError, 'The marker color value must be in the range 0 to 255. '
-##               self.__dict__[name]=value
-##               setTmmember(self,name,value) # update the plot
-##            else:
-##               raise ValueError, 'The color attribute value must be an integer in the range 0 to 255.'
-##         elif (name == 'priority'):
-##            if (value == None):
-##               self.__dict__['priority']=None
-##               setTmmember(self,'priority',self.priority) # update the plot
-##            elif (isinstance(value, IntType)):
-##               self.__dict__['priority']=value
-##               setTmmember(self,'priority',self.priority) # update the plot
-##            else:
-##               raise ValueError, 'The priority attribute value must be an integer.'
-##         elif (name == 'viewport'):
-##            if (value == None):
-##              self.__dict__[name]= [0.0, 1.0, 0.0, 1.0]
-##              setTmmember(self,name,[0.0, 1.0, 0.0, 1.0]) # update the plot
-##            else:
-##              if (type(value) in (ListType, TupleType)):
-##               value = list(value)  # make sure that values list is a list
-##               if len(value) != 4:
-##                  self.__dict__[name]= [0.0, 1.0, 0.0, 1.0]
-##                  raise ValueError, 'Viewport must contain 4 integer or float values.'
-##               else:
-##                  self.__dict__[name]=value
-##                  setTmmember(self,name,value) # update the plot
-##              else:
-##               raise ValueError, 'The viewport attribute must be a tuple or list of values.'
-##         elif (name == 'worldcoordinate'):
-##            if (value == None):
-##              self.__dict__[name]= [0.0, 1.0, 0.0, 1.0]
-##              setTmmember(self,name,[0.0, 1.0, 0.0, 1.0]) # update the plot
-##            else:
-##              if (type(value) in (ListType, TupleType)):
-##               value = list(value)  # make sure that values list is a list
-##               if len(value) != 4:
-##                  self.__dict__[name]= [0.0, 1.0, 0.0, 1.0]
-##                  raise ValueError, 'World coordinates must contain 4 integer or float values.'
-##               else:
-##                  self.__dict__[name]=value
-##                  setTmmember(self,name,value) # update the plot
-##              else:
-##               raise ValueError, 'The world coordinates attribute must be a tuple or list of values.'
-##         elif (name == 'x'):
-##            if (value == None):
-##              self.__dict__[name] = None
-##              setTmmember(self,name,value) # update the plot
-##            else:
-##              if isinstance(value, numpy.ndarray): value = value.tolist()
-##              if (type(value) in (ListType, TupleType)):
-##                 value = list(value)  # make sure that values list is a list
-##                 for i in range(len(value)):
-##                     if isinstance(value[i], numpy.ndarray): value[i]=value[i].tolist()
-##                     elif type(value[i]) is TupleType: value[i] = list( value[i] )
-##                 self.__dict__[name]=value
-##                 setTmmember(self,name,value) # update the plot
-##              else:
-##               raise ValueError, 'The x attribute must be a tuple or list of values.'
-##         elif (name == 'y'):
-##            if (value == None):
-##              self.__dict__[name] = None
-##              setTmmember(self,name,value) # update the plot
-##            else:
-##              if isinstance(value, numpy.ndarray): value = value.tolist()
-##              if (type(value) in (ListType, TupleType)):
-##                 value = list(value)  # make sure that values list is a list
-##                 for i in range(len(value)):
-##                     if isinstance(value[i], numpy.ndarray): value[i]=value[i].tolist()
-##                     elif type(value[i]) is TupleType: value[i] = list( value[i] )
-##                 self.__dict__[name]=value
-##                 setTmmember(self,name,value) # update the plot
-##              else:
-##               raise ValueError, 'The y attribute must be a tuple or list of values.'
-##         elif (name == 'projection'):
-##              value=VCS_validation_functions.checkProjection(self,'projection',value)
-##              self.__dict__[name]=value
-##              setTmmember(self,name,value) # update the plot
+         if (Tm_name == None):
+           raise ValueError, 'Must provide a marker name.'
+         self._name = Tm_name
+         self.s_name = 'Tm'
+         if Tm_name=="default":
+           self._type=["dot",]
+           self._size=[1.0,]
+           self._color=[1,]
+           self._priority=1
+           self._viewport=[0.,1.,0.,1.]
+           self._worldcoordinate=[0.,1.,0.,1.]
+           self._x = None
+           self._y = None
+           self._projection="default"
+           self._colormap=None
+         else:
+          if isinstance(Tm_name_src,Tm):
+            Tm_name_src=Tm_name_src.name
+          if not Tm_name_src in vcs.elements['marker']:
+            raise ValueError, "The marker object '%s' does not exists" % Tm_name_src
+          src = vcs.elements["marker"][Tm_name_src]
+          for att in ['colormap','projection' ,'color' ,'size' ,'type' ,'viewport','worldcoordinate','priority','x','y' ]:
+           setattr(self,att,getattr(src,att)) 
+         #Ok now we need to stick in the elements
+         vcs.elements["marker"][Tm_name]=self
 
     #############################################################################
     #                                                                           #
@@ -563,7 +348,6 @@ class Tm(object):
         if (self.name == '__removed_from_VCS__'):
            raise ValueError, 'This instance has been removed from VCS.'
         print "","----------Marker (Tm) member (attribute) listings ----------"
-        print 'Canvas Mode =',self.parent.mode
         print "secondary method =", self.s_name
         print "name =", self.name
         print "type =", self.type
@@ -575,6 +359,7 @@ class Tm(object):
         print "x =", self.x
         print "y =", self.y
         print "projection =", self.projection
+        print "colormap =",self.colormap
 
     #############################################################################
     #                                                                           #
@@ -613,11 +398,17 @@ class Tm(object):
         elif (mode not in ('w', 'a')):
           raise ValueError, 'Error - Mode can only be "w" for replace or "a" for append.'
 
-        # By default, save file in python script mode
-        scr_type = script_filename[len(script_filename)-4:len(script_filename)]
-        if (scr_type == '.scr'):
-           print _vcs.scriptTm(self.name,script_filename,mode)
+        # By default, save file in json
+        scr_type = script_filename.split(".")
+        if len(scr_type)==1 or len(scr_type[-1])>5:
+          scr_type= "json"
+          if script_filename!="initial.attributes":
+            script_filename+=".json"
         else:
+          scr_type = scr_type[-1]
+        if scr_type == '.scr':
+           raise DeprecationWarning("scr script are no longer generated")
+        elif scr_type == "py":
            mode = mode + '+'
            py_type = script_filename[len(script_filename)-3:len(script_filename)]
            if (py_type != '.py'):
@@ -650,6 +441,13 @@ class Tm(object):
            fp.write("%s.x = %s\n" % (unique_name, self.x))
            fp.write("%s.y = %s\n" % (unique_name, self.y))
            fp.write("%s.projection = %s\n" % (unique_name, self.projection))
+           fp.write("%s.colormap = '%s'\n\n" % (unique_name, repr(self.colormap)))
+        else:
+          #Json type
+          mode+="+"
+          f = open(script_filename,mode)
+          vcs.utils.dumpToJson(self,f)
+          f.close()
 
 
 #################################################################################

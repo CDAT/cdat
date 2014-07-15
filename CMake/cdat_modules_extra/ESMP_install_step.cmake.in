@@ -2,7 +2,9 @@
 include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
 
 file(GLOB_RECURSE ESMP_esmfmkfile "@cdat_EXTERNALS@/lib/libO/*.mk")
-set(ENV{ESMFMKFILE} ${ESMP_esmfmkfile})
+file(RELATIVE_PATH _rel_path @PYTHON_SITE_PACKAGES@/ESMP/src ${ESMP_esmfmkfile})
+
+set(ENV{ESMFMKFILE} ${_rel_path})
 foreach( item ${ESMP_esmfmkfile})
   message("item " ${item})
 endforeach( item ${ESMP_esmfmkfile})
@@ -23,9 +25,9 @@ if(NOT EXISTS @ESMP_source@/src/ESMP_Config.py)
   message(FATAL_ERROR "ESMP_Config.py not created")
 endif()
 
-file(INSTALL @ESMP_source@ DESTINATION @PYTHONPATH@)
+file(INSTALL @ESMP_source@ DESTINATION @PYTHON_SITE_PACKAGES@)
 
-if(NOT EXISTS @PYTHONPATH@/ESMP/src/ESMP_Config.py)
+if(NOT EXISTS @PYTHON_SITE_PACKAGES@/ESMP/src/ESMP_Config.py)
   message(FATAL_ERROR "Install process failed")
 endif()
 

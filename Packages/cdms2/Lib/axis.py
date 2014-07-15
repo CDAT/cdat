@@ -655,8 +655,11 @@ class AbstractAxis(CdmsObj):
 
     # Return true iff the axis is a latitude axis
     def isLatitude(self):
-        id = string.lower(self.id)
+        id = self.id.strip().lower()
         if (hasattr(self,'axis') and self.axis=='Y'): return 1
+        units = getattr(self,"units","").strip().lower()
+        if units in ["degrees_north","degree_north","degree_n","degrees_n","degreen","degreesn"]:
+          return 1
         return (id[0:3] == 'lat') or (id in latitude_aliases)
 
     # Designate axis as a vertical level axis
@@ -670,8 +673,19 @@ class AbstractAxis(CdmsObj):
 
     # Return true iff the axis is a level axis
     def isLevel(self):
-        id = string.lower(self.id)
+        id = self.id.strip().lower()
         if (hasattr(self,'axis') and self.axis=='Z'): return 1
+        if getattr(self,"positive","").strip().lower() in ["up","down"]:
+          return 1
+        try:
+          #Ok let's see if this thing as pressure units
+          import genutil
+          p=genutil.udunits(1,"Pa")
+          units=getattr(self,'units',"").strip()
+          p2=p.to(units)
+          return 1
+        except Exception,err:
+          pass
         return ((id[0:3] == 'lev') or (id[0:5] == 'depth') or (id in level_aliases))
 
     # Designate axis as a longitude axis
@@ -699,8 +713,11 @@ class AbstractAxis(CdmsObj):
 
     # Return true iff the axis is a longitude axis
     def isLongitude(self):
-        id = string.lower(self.id)
+        id = self.id.strip().lower()
         if (hasattr(self,'axis') and self.axis=='X'): return 1
+        units = getattr(self,"units","").strip().lower()
+        if units in ["degrees_east","degree_east","degree_e","degrees_e","degreee","degreese"]:
+          return 1
         return (id[0:3] == 'lon') or (id in longitude_aliases)
 
     # Designate axis as a time axis, and optionally set the calendar
@@ -720,13 +737,29 @@ class AbstractAxis(CdmsObj):
 
     # Return true iff the axis is a time axis
     def isTime(self):
-        id = string.lower(self.id)
+        id = self.id.strip().lower()
         if (hasattr(self,'axis') and self.axis=='T'): return 1
+        ## Try to figure it out from units
+        try:
+          import genutil
+          units=getattr(self,"units","").lower()
+          sp = units.split("since")
+          if len(sp)>1:
+            t=genutil.udunits(1,"day")
+            s = sp[0].strip()
+            if s in t.available_units() and t.know_units()[s]=="TIME":
+              return 1
+            #try the plural version since udunits only as singular (day noy days)
+            s=s+"s"
+            if s in t.available_units() and t.know_units()[s]=="TIME":
+              return 1
+        except:
+          pass
         return (id[0:4] == 'time') or (id in time_aliases)
 
     # Return true iff the axis is a forecast axis
     def isForecast(self):
-        id = string.lower(self.id)
+        id = self.id.strip().lower()
         if (hasattr(self,'axis') and self.axis=='F'): return 1
         return (id[0:6] == 'fctau0') or (id in forecast_aliases)
     def isForecastTime(self):
@@ -1972,8 +2005,8 @@ class FileAxis(AbstractAxis):
 
     def isUnlimited(self):
         "Return true iff the axis is 'Unlimited' (extensible)"
-        if self.parent is not None and self.parent.dimensions.has_key(self.id):
-            return (self.parent.dimensions[self.id] is None)
+        if self.parent is not None and self.parent._file_.dimensions.has_key(self.id):
+            return (self.parent._file_.dimensions[self.id] is None)
         else:
             return False
 ## PropertiedClasses.set_property (FileAxis, 'units', 

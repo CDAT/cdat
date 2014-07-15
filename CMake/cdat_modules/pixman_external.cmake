@@ -1,8 +1,10 @@
 
 set(pixman_source "${CMAKE_CURRENT_BINARY_DIR}/build/pixman")
 set(pixman_install "${cdat_EXTERNALS}")
+#set(pixman_configure_args "--disable-gtk")
 
 ExternalProject_Add(pixman
+  LIST_SEPARATOR ^^
   DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${pixman_source}
   INSTALL_DIR ${pixman_install}

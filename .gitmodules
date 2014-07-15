@@ -1,15 +1,3 @@
-[submodule "contrib/eof2"]
-	path = contrib/eof2
-	url = git://github.com/ajdawson/eof2.git
-[submodule "contrib/windfield"]
-	path = contrib/windfield
-	url = http://uv-cdat.llnl.gov/git/windfield.git
 [submodule "contrib/sciMake"]
 	path = contrib/sciMake
 	url = git://github.com/UV-CDAT/scimake.git
-[submodule "contrib/windspharm"]
-	path = contrib/windspharm
-	url = git://github.com/ajdawson/windspharm.git
-[submodule "contrib/eofs"]
-	path = contrib/eofs
-	url = git://github.com/ajdawson/eofs.git

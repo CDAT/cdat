@@ -22,58 +22,15 @@
 #
 #
 #
-#################################################################################
-#                                                                               #
-# Import: VCS C extension module.                                               #
-#                                                                               #
-#################################################################################
-import _vcs, queries
+import queries
+import VCS_validation_functions
 from types import *
-#################################################################################
-#                                                                               #
-# Function:	setPytmember                                                    #
-#                                                                               #
-# Description of Function:                                                      #
-# 	Private function to update the VCS canvas plot. If the canvas mode is   #
-#       set to 0, then this function does nothing.              		#
-#                                                                               #
-#                                                                               #
-# Example of Use:                                                               #
-#      setPytmember(self,name,value)						#
-#              where: self is the class (e.g., Pyt)                             #
-#                     name is the name of the member that is being changed      #
-#                     value is the new value of the member (or attribute)       #
-#                                                                               #
-#################################################################################
-def setPytmember(self,member,attribute,value):
-     _vcs.setPytmember(self.parent, member, attribute, value, self.template_parent.mode)
-#     _vcs.setPytmember(self, member, value, self.parent.mode)
-
-#################################################################################
-#                                                                               #
-# Function:     getPytmember                                                    #
-#                                                                               #
-# Description of Function:                                                      #
-#       Private function that retrieves the line members from the C             #
-#       structure and passes it back to Python.                                 #
-#                                                                               #
-#                                                                               #
-# Example of Use:                                                               #
-#      return_value =								#
-#      getPytmember(self,name)                                                  #
-#              where: self is the class (e.g., Pyt)                             #
-#                     name is the name of the member that is being found        #
-#                                                                               #
-#################################################################################
-def getPytmember(self,member,attribute):
-     return _vcs.getPytmember(self,member,attribute)
-
 #############################################################################
 #                                                                           #
 # Template text (Pyt) Class.                                                #
 #                                                                           #
 #############################################################################
-class Pyt:
+class Pyt(object):
     '''
  Class:	Pyt				# Template text
 
@@ -117,7 +74,8 @@ class Pyt:
     # Initialize the line attributes.                                           #
     #                                                                           #
     #############################################################################
-    def __init__(self, template, template_parent, member=None):
+    __slots__ = ["line","priority","x1","x2","member","_line","_priority","_x1","_x2"]
+    def __init__(self, member):
 #    def __init__(self, template, member=None):
 	#                                                         #
         ###########################################################
@@ -128,53 +86,29 @@ class Pyt:
 	# appropriate Python Object.                              #
         ###########################################################
 	#                                                         #
-        self.__dict__['member']=member
-        self.__dict__['priority']=getPytmember(template,member,'priority')
-        self.__dict__['x1']=getPytmember(template,member,'x1')
-        self.__dict__['x2']=getPytmember(template,member,'x2')
-        self.__dict__['line']=getPytmember(template,member,'line')
-        #                                                         #
-        ###########################################################
-        # Keep track of the parent and grandparent.               #
-        ###########################################################
-        #                                                         #
-        self.__dict__['parent']=template
-        self.__dict__['template_parent']=template_parent
+        self.member=member
+        self.line = "default"
+        self.priority = 1
+        if member == "ytic1":
+          self.x1 = 0.0500000007451
+          self.x2 = 0.0399999991059
+        elif member == "ytic2":
+          self.x1 = 0.949999988079
+          self.x2 = 0.959999978542
+        elif member == "ymintic1":
+          self.priority = 0
+          self.x1 = 0.0500000007451
+          self.x2 = 0.0450000017881
+        elif member == "ymintic2":
+          self.priority = 0
+          self.x1 = 0.949999988079
+          self.x2 = 0.954999983311
+        self.line = "default"
 
-
-    #############################################################################
-    #                                                                           #
-    # Set template text  attributes.                                            #
-    #                                                                           #
-    #############################################################################
-    def __setattr__(self, name, value):
-        if (self.parent.name == '__removed_from_VCS__'):
-           raise ValueError, 'This instance has been removed from VCS.'
-        if (name == 'priority'):
-           if (isinstance(value, IntType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The priority value must be an integer.'
-        if (name == 'x1'):
-           if (type(value) in (IntType, FloatType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The x value must be an integer or float.'
-        if (name == 'x2'):
-           if (type(value) in (IntType, FloatType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The x value must be an integer or float.'
-        elif (name == 'line'):
-           if (queries.isline(value)==1):
-              self.__dict__[name]=value.name
-              value = value.name
-           elif (type(value) == StringType):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The line value must be a line object.'
-        setPytmember(self,self.member,name,value) # update the plot
-
+    priority = VCS_validation_functions.priority
+    x1 = VCS_validation_functions.x1
+    x2 = VCS_validation_functions.x2
+    line = VCS_validation_functions.line
 
     #############################################################################
     #                                                                           #
@@ -182,8 +116,6 @@ class Pyt:
     #                                                                           #
     #############################################################################
     def list(self):
-        if (self.parent.name == '__removed_from_VCS__'):
-           raise ValueError, 'This instance has been removed from VCS.'
         print "member = ", self.member
         print "     priority =", self.priority
         print "     x1 =", self.x1

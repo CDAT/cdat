@@ -22,85 +22,54 @@
 #
 #
 #
-#################################################################################
-#                                                                               #
-# Import: VCS C extension module.                                               #
-#                                                                               #
-#################################################################################
-import _vcs
-import Canvas
 import VCS_validation_functions
+import vcs
+import genutil
 
-#################################################################################
-#                                                                               #
-# Function:	setTfmember                                                     #
-#                                                                               #
-# Description of Function:                                                      #
-# 	Private function to update the VCS canvas plot. If the canvas mode is   #
-#       set to 0, then this function does nothing.              		#
-#                                                                               #
-#                                                                               #
-# Example of Use:                                                               #
-#      setTfmember(self,name,value)						#
-#              where: self is the class (e.g., Tf)                              #
-#                     name is the name of the member that is being changed      #
-#                     value is the new value of the member (or attribute)       #
-#                                                                               #
-#################################################################################
-def setTfmember(self,member,value):
-     # If the VCS Canvas is displayed, then bring the canvas to the front before 
-     # redisplaying the updated contents.
-     if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()):
-        Canvas.finish_queued_X_server_requests( self.parent )
-        self.parent.canvas.BLOCK_X_SERVER()
-        self.parent.canvasraised()
+def getmember(self,name):
+  return getattr(self,"_%s" % name)
 
-     _vcs.setTfmember(self, member, value, self.parent.mode)
-
-     # If the VCS Canvas is displayed, then update the backing store
-     if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()):
-        self.parent.flush()
-        self.parent.backing_store()
-        self.parent.canvas.UNBLOCK_X_SERVER()
-
-setmember = setTfmember # for validation functions...
-#################################################################################
-#                                                                               #
-# Function:     getTfmember                                                     #
-#                                                                               #
-# Description of Function:                                                      #
-#       Private function that retrieves the fillarea members from the C         #
-#       structure and passes it back to Python.                                 #
-#                                                                               #
-#                                                                               #
-# Example of Use:                                                               #
-#      return_value =								#
-#      getTfmember(self,name)                                                   #
-#              where: self is the class (e.g., Tf)                              #
-#                     name is the name of the member that is being found        #
-#                                                                               #
-#################################################################################
-def getTfmember(self,member):
-     return _vcs.getTfmember(self,member)
-getmember=getTfmember
-
-#################################################################################
-#                                                                               #
-# Function:     renameTf                                                        #
-#                                                                               #
-# Description of Function:                                                      #
-#       Private function that renames the name of an existing fillarea          #
-#       graphics method.                                                        #
-#                                                                               #
-#                                                                               #
-# Example of Use:                                                               #
-#      renameTf(old_name, new_name)                                             #
-#              where: old_name is the current name of fillarea graphics method  #
-#                     new_name is the new name for the fillarea graphics method #
-#                                                                               #
-#################################################################################
-def renameTf(self, old_name, new_name):
-     return _vcs.renameTf(old_name, new_name)
+def process_src(nm,code):
+  try:
+    f = Tf(nm)
+  except Exception,err:
+    #print "No good:",err
+    f=vcs.elements["fillarea"][nm]
+  atts={}
+  for a in ["faci","fasi","fais","vp","wc","x","y"]:
+    i = code.find(a+"(")
+    v=genutil.get_parenthesis_content(code[i:])
+    #print nm,a,v
+    if v!="":
+      vals = []
+      for V in v.split(","):
+        try:
+          vals.append(int(V))
+        except:
+          vals.append(float(V))
+      atts[a]=vals
+    f.style=atts.get("fais",f.style)
+    I = atts.get("fasi",f.index)
+    for i,v in enumerate(I):
+      if v==0:
+        I[i]=1
+    f.index = I
+    f.color = atts.get("faci",f.color)
+    f.viewport = atts.get("vp",f.viewport)
+    f.worldcoordinate = atts.get("wc",f.worldcoordinate)
+    f.x = atts.get('x',f.x)
+    f.y = atts.get('y',f.y)
+    i = code.find("projection=")
+    if i>-1:
+      j=code[i:].find(",")+i
+      f.projection = code[i+11:j]
+    for b in vcs.elements["boxfill"].values()+vcs.elements["isofill"].values()+vcs.elements["meshfill"].values():
+      if b.fillareaindices is not None:
+       for i,v in enumerate(b.fillareaindices):
+        if isinstance(v,str) and v==nm:
+          b._fillareaindices[i]=self.index
+          b._fillareacolor[i]=self.color
+          b._fillareastyle = self.style
 
 #############################################################################
 #                                                                           #
@@ -175,8 +144,6 @@ class Tf(object):
      fa.y=[[.5,.4,.3], [.2,.1,0]]        # List of FloatTypes
 """
     __slots__ = [
-         'setmember',
-         'parent',
          'name',
          's_name',
          'color',
@@ -188,26 +155,41 @@ class Tf(object):
          'x',
          'y',
          'projection',
+         'colormap',
          '_name',
+         '_color',
+         '_priority',
+         '_style',
+         '_index',
+         '_viewport',
+         '_worldcoordinate',
+         '_x',
+         '_y',
+         '_projection',
+         '_colormap',
          ]
 
+    colormap = VCS_validation_functions.colormap
     def _getname(self):
          return self._name
     def _setname(self,value):
          value=VCS_validation_functions.checkname(self,'name',value)
          if value is not None:
               self._name=value
-              setmember(self,'name',value)
     name=property(_getname,_setname)
 
     def _getfillareacolors(self):
          return getmember(self,'color')
     def _setfillareacolors(self,value):
-         if isinstance(value,int):
+         if isinstance(value,Tf):
+           value = value.color
+         if isinstance(value,(str,int)):
               value=[value,]
          if not value is None:
               value = VCS_validation_functions.checkColorList(self,'color',value)
-         setmember(self,'color',value)
+         else:
+           value = [241]
+         self._color=value
     color=property(_getfillareacolors,_setfillareacolors)
 
     def _getfillareaindices(self):
@@ -217,56 +199,63 @@ class Tf(object):
               value=[value,]
          if value is not None:
               value = VCS_validation_functions.checkIndicesList(self,'index',value)
-         setmember(self,'index',value)
+         if value in [ (), []]:
+           raise ValueError, "You cannot set fillarea index to an empty list"
+         self._index = value
     index=property(_getfillareaindices,_setfillareaindices)
 
     def _getfillareastyle(self):
          return getmember(self,'style')
     
     def _setfillareastyle(self,value):
-         if isinstance(value,(str,int)):
+         if isinstance(value,(str,int,Tf)):
               value=[value,]
          vals=[]
          for v in value:
               v=VCS_validation_functions.checkFillAreaStyle(self,'style',v)
               vals.append(v)
+         if vals == []:
+            raise ValueError, "fillareastyle cannot be empty list"
          value=vals
-         setmember(self,'style',value)
+         self._style= value
     style=property(_getfillareastyle,_setfillareastyle)
 
     def _getpriority(self):
          return getmember(self,'priority')
     def _setpriority(self,value):
          value = VCS_validation_functions.checkInt(self,'priority',value,minvalue=0)
-         setmember(self,'priority',value)
+         self._priority = value
     priority = property(_getpriority,_setpriority)
 
     def _getprojection(self):
          return getmember(self,'projection')
     def _setprojection(self,value):
          value=VCS_validation_functions.checkProjection(self,'projection',value)
-         setmember(self,'projection',value)
+         self._projection = value
     projection=property(_getprojection,_setprojection)
     
     def _getwc(self):
          return getmember(self,'worldcoordinate')
     def _setwc(self,value):
          value = VCS_validation_functions.checkListOfNumbers(self,'worldcoordinate',value,maxelements=4)
-         setmember(self,'worldcoordinate',value)
+         self._worldcoordinate = value
     worldcoordinate=property(_getwc,_setwc)
     
     def _getvp(self):
          return getmember(self,'viewport')
     def _setvp(self,value):
          value = VCS_validation_functions.checkListOfNumbers(self,'viewport',value,maxelements=4,minvalue=0.,maxvalue=1.)
-         setmember(self,'viewport',value)
+         self._viewport = value
     viewport=property(_getvp,_setvp)
 
     def _getx(self):
          return getmember(self,'x')
     def _setx(self,value):
+         if value is None:
+           self._x = value
+           return
          if not isinstance(value,(list,tuple)):
-              raise ValueError, '%s must be a tuple or list of values.'
+              raise ValueError, 'x must be a tuple or list of values.'
          try:
               # first we'll see if it is simply a list of values
               value = VCS_validation_functions.checkListOfNumbers(self,'x',value)
@@ -277,15 +266,17 @@ class Tf(object):
                    tmp = VCS_validation_functions.checkListOfNumbers(self,'x',v)
                    val.append(tmp)
               value=val
-         # ok it worked
-         setmember(self,'x',value)
+         self._x=value
     x = property(_getx,_setx)
     
     def _gety(self):
          return getmember(self,'y')
     def _sety(self,value):
+         if value is None:
+           self._y = None
+           return
          if not isinstance(value,(list,tuple)):
-              raise ValueError, '%s must be a tuple or list of values.'
+              raise ValueError, 'y must be a tuple or list of values.'
          try:
               # first we'll see if it is simply a list of values
               value = VCS_validation_functions.checkListOfNumbers(self,'y',value)
@@ -296,8 +287,7 @@ class Tf(object):
                    tmp = VCS_validation_functions.checkListOfNumbers(self,'y',v)
                    val.append(tmp)
               value=val
-         # ok it worked
-         setmember(self,'y',value)
+         self._y=value
     y = property(_gety,_sety)
     
     #############################################################################
@@ -305,7 +295,7 @@ class Tf(object):
     # Initialize the fillarea attributes.                                       #
     #                                                                           #
     #############################################################################
-    def __init__(self, parent, Tf_name=None, Tf_name_src='default', createTf=0):
+    def __init__(self, Tf_name=None, Tf_name_src='default'):
 	#                                                         #
         ###########################################################
 	# Initialize the fillarea class and its members           #
@@ -315,179 +305,44 @@ class Tf(object):
 	# appropriate Python Object.                              #
         ###########################################################
 	#                                                         #
-        if (createTf == 0):
-           if (Tf_name == None):
-              raise ValueError, 'Must provide a fillarea name.'
-           else:
-              _vcs.copyTf(Tf_name_src, Tf_name)
-              self._name = Tf_name
+        if isinstance(Tf_name_src,Tf):
+          Tf_name_src=Proj_name_src.name
+        if Tf_name_src!="default" and not Tf_name_src in vcs.elements["fillarea"].keys():
+          raise ValueError, "Fillarea '%s' does not exists" % Proj_name_src
+        if (Tf_name == None):
+          raise ValueError, 'Must provide a fillarea name.'
         else:
-              self._name = Tf_name_src
+          if Tf_name in vcs.elements["fillarea"].keys():
+            raise ValueError, "The fillarea '%s' already exists, use getfillarea instead" % Tf_name
+        self._name = Tf_name
         self.s_name='Tf'
-##         self._style=getTfmember(self, 'style')
-##         self._index=getTfmember(self, 'index')
-##         self._color=getTfmember(self, 'color')
-##         self._priority=getTfmember(self, 'priority')
-##         self._viewport=getTfmember(self, 'viewport')
-##         self._worldcoordinate=getTfmember(self, 'worldcoordinate')
-##         self._x=getTfmember(self, 'x')
-##         self._y=getTfmember(self, 'y')
-##         self._projection=getTfmember(self, 'projection')
-        #                                                         #
-        ###########################################################
-        # Find and set the fillarea structure in VCS C pointer    #
-        # list. If the fillarea name does not exist, then use     #
-        # default fillarea.                                       #
-        ###########################################################
-        #                                                         #
-        self.parent = parent
 
-    #############################################################################
-    #                                                                           #
-    # Set fillarea attributes.                                                  #
-    #                                                                           #
-    #############################################################################
-##     def __setattr__(self, name, value):
-##         if (self.name == '__removed_from_VCS__'):
-##            raise ValueError, 'This instance has been removed from VCS.'
-##         if (self.name == 'default'):
-##            raise ValueError, 'You cannot modify the default fillarea.'
-##         if (name == 'name'):
-##            if isinstance(value,str):
-##               renameTf(self,self.name, value)
-##               self.__dict__['name']=value
-##            else:
-##               raise ValueError, 'The name attribute must be a string.'
-##         elif (name == 'style'):
-##            if (value in ('solid', 'hatch', 'pattern')):
-##               l=[]
-##               l.append(value)
-##               self.__dict__['style']=l
-##               setTfmember(self,'style',self.style) # update the plot
-##            elif VCS_validation_functions.isListorTuple(value):
-##               if isinstance(value,tuple): value = list(value)  # must have a list
-##               for x in value:
-##                  if x not in ('solid', 'hatch', 'pattern'):
-##                     raise ValueError, 'Style attribute must be either solid, hatch, or pattern.'
-##               self.__dict__[name]=value
-##               setTfmember(self,name,value) # update the plot
-##            else:
-##               raise ValueError, 'The style attribute must be either solid, hatch, or pattern.'
-##         elif (name == 'index'):
-##            if (value == None):
-##               self.__dict__['index']=None
-##               setTfmember(self,'index',self.index) # update the plot
-##            elif isinstance(value,int):
-##               if value not in range(1,21): # must be an integer
-##                  raise ValueError, 'The index value must be in the range 1 to 20.'
-##               else:
-##                  l=[]
-##                  l.append(value)
-##                  self.__dict__['index']=l
-##                  setTfmember(self,'index',self.index) # update the plot
-##            elif VCS_validation_functions.isListorTuple(value):
-##               if isinstance(value,tuple): value = list(value)  # must have a list
-##               for x in value:
-##                  if ((not isinstance(x,int)) or (x not in range(0,21))):
-##                     raise ValueError, 'Index values must be in the range 0 to 20.'
-##               self.__dict__[name]=value
-##               setTfmember(self,name,value) # update the plot
-##            else:
-##               raise ValueError, 'The index attribute must be an integer, list, or tuple with values ranging from 0 to 20.'
-##         elif (name == 'color'):
-##            if (value == None):
-##               self.__dict__['color']=None
-##               setTfmember(self,'color',self.color) # update the plot
-##            elif isinstance(value,int):
-##               if value not in range(0,256): # must be an integer
-##                  raise ValueError, 'The fillarea color value must be in the range 0 to 255.'
-##               else:
-##                  l=[]
-##                  l.append(value)
-##                  self.__dict__['color']=l
-##                  setTfmember(self,'color',self.color) # update the plot
-##            elif VCS_validation_functions.isListorTuple(value):
-##               if isinstance(value,tuple): value = list(value)  # must have a list
-##               for x in value:
-##                  if ((not isinstance(x,int)) or (x not in range(0,256))):
-##                     raise ValueError, 'Color values must be in the range 0 to 255.'
-##               self.__dict__[name]=value
-##               setTfmember(self,name,value) # update the plot
-##            else:
-##               raise ValueError, 'The color attribute must be an integer, list, or tuple with values ranging from 0 to 255.'
-##         elif (name == 'priority'):
-##            if (value == None):
-##               self.__dict__['priority']=None
-##               setTfmember(self,'priority',self.priority) # update the plot
-##            elif isinstance(value,int):
-##               self.__dict__['priority']=value
-##               setTfmember(self,'priority',self.priority) # update the plot
-##            else:
-##               raise ValueError, 'The priority attribute value must be an integer.'
-##         elif (name == 'viewport'):
-##            if (value == None):
-##              self.__dict__[name]= [0.0, 1.0, 0.0, 1.0]
-##              setTfmember(self,name,[0.0, 1.0, 0.0, 1.0]) # update the plot
-##            else:
-##              if VCS_validation_functions.isListorTuple(value):
-##               if isinstance(value,tuple): value = list(value)  # must have a list
-##               if len(value) != 4:
-##                  self.__dict__[name]= [0.0, 1.0, 0.0, 1.0]
-##                  raise ValueError, 'Viewport must contain 4 integer or float values.'
-##               else:
-##                  self.__dict__[name]=value
-##                  setTfmember(self,name,value) # update the plot
-##              else:
-##               raise ValueError, 'The viewport attribute must be a tuple or list of values.'
-##         elif (name == 'worldcoordinate'):
-##            if (value == None):
-##              self.__dict__[name]= [0.0, 1.0, 0.0, 1.0]
-##              setTfmember(self,name,[0.0, 1.0, 0.0, 1.0]) # update the plot
-##            else:
-##              if VCS_validation_functions.isListorTuple(value):
-##               if isinstance(value,tuple): value = list(value)  # must have a list
-##               if len(value) != 4:
-##                  self.__dict__[name]= [0.0, 1.0, 0.0, 1.0]
-##                  raise ValueError, 'World coordinates must contain 4 integer or float values.'
-##               else:
-##                  self.__dict__[name]=value
-##                  setTfmember(self,name,value) # update the plot
-##              else:
-##               raise ValueError, 'The world coordinates attribute must be a tuple or list of values.'
-##         elif (name == 'x'):
-##            if (value == None):
-##              self.__dict__[name] = None
-##              setTfmember(self,name,value) # update the plot
-##            else:
-##              if isinstance(value,numpy.ndarray): value = value.tolist()
-##              if VCS_validation_functions.isListorTuple(value):
-##                 if isinstance(value,tuple): value = list(value)  # must have a list
-##                 for i in range(len(value)):
-##                     if isinstance(value[i],numpy.ndarray): value[i]=value[i].tolist()
-##                     elif isinstance(value[i],tuple): value[i] = list( value[i] )
-##                 self.__dict__[name]=value
-##                 setTfmember(self,name,value) # update the plot
-##              else:
-##               raise ValueError, 'The x attribute must be a tuple or list of values.'
-##         elif (name == 'y'):
-##            if (value == None):
-##              self.__dict__[name] = None
-##              setTfmember(self,name,value) # update the plot
-##            else:
-##              if isinstance(value,numpy.ndarray): value = value.tolist()
-##              if VCS_validation_functions.isListorTuple(value):
-##                 if isinstance(value,tuple): value = list(value)  # must have a list
-##                 for i in range(len(value)):
-##                     if isinstance(value[i],numpy.ndarray): value[i]=value[i].tolist()
-##                     elif isinstance(value[i],tuple): value[i] = list( value[i] )
-##                 self.__dict__[name]=value
-##                 setTfmember(self,name,value) # update the plot
-##              else:
-##               raise ValueError, 'The y attribute must be a tuple or list of values.'
-##         elif (name == 'projection'):
-##              value=VCS_validation_functions.checkProjection(self,'projection',value)
-##              self.__dict__[name]=value
-##              setTfmember(self,name,value) # update the plot
+        if Tf_name=="default":
+          self._style=['solid',]
+          self._index=[1,]
+          self._color = [1,]
+          self._priority=1
+          self._viewport = [0.,1.,0.,1.]
+          self._worldcoordinate = [0.,1.,0.,1.]
+          self._x=None
+          self._y=None
+          self._projection="default"
+          self._colormap = None
+        else:
+          src = vcs.elements["fillarea"][Tf_name_src]
+          self.style=src.style
+          self.index=src.index
+          self.color = src.color
+          self.priority= src.priority
+          self.viewport =src.viewport
+          self.worldcoordinate = src.worldcoordinate
+          self.x=src.x
+          self.y=src.y
+          self.projection=src.projection
+          self.colormap = src.colormap
+
+        vcs.elements["fillarea"][Tf_name] = self
+
 
     #############################################################################
     #                                                                           #
@@ -498,7 +353,6 @@ class Tf(object):
         if (self.name == '__removed_from_VCS__'):
            raise ValueError, 'This instance has been removed from VCS.'
         print "","----------Fillarea (Tf) member (attribute) listings ----------"
-        print 'Canvas Mode =',self.parent.mode
         print "secondary method =", self.s_name
         print "name =", self.name
         print "style =", self.style
@@ -510,6 +364,7 @@ class Tf(object):
         print "x =", self.x
         print "y =", self.y
         print "projection =", self.projection
+        print "colormap =",self.colormap
 
     #############################################################################
     #                                                                           #
@@ -548,11 +403,17 @@ class Tf(object):
         elif (mode not in ('w', 'a')):
           raise ValueError, 'Error - Mode can only be "w" for replace or "a" for append.'
 
-        # By default, save file in python script mode
-        scr_type = script_filename[len(script_filename)-4:len(script_filename)]
-        if (scr_type == '.scr'):
-           print _vcs.scriptTf(self.name,script_filename,mode)
+        # By default, save file in json
+        scr_type = script_filename.split(".")
+        if len(scr_type)==1 or len(scr_type[-1])>5:
+          scr_type= "json"
+          if script_filename!="initial.attributes":
+            script_filename+=".json"
         else:
+          scr_type = scr_type[-1]
+        if scr_type == '.scr':
+           raise DeprecationWarning("scr script are no longer generated")
+        elif scr_type == "py":
            mode = mode + '+'
            py_type = script_filename[len(script_filename)-3:len(script_filename)]
            if (py_type != '.py'):
@@ -585,6 +446,13 @@ class Tf(object):
            fp.write("%s.x = %s\n" % (unique_name, self.x))
            fp.write("%s.y = %s\n\n" % (unique_name, self.y))
            fp.write("%s.projection = %s\n\n" % (unique_name, self.projection))
+           fp.write("%s.colormap = %s\n\n" % (unique_name, repr(self.colormap)))
+        else:
+          #Json type
+          mode+="+"
+          f = open(script_filename,mode)
+          vcs.utils.dumpToJson(self,f)
+          f.close()
 
 
 #################################################################################

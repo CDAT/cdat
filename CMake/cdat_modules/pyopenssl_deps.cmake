@@ -1,1 +1,1 @@
-set(pyopenssl_deps  ${python_pkg} ${pip_pkg} )
+set(PYOPENSSL_deps ${python_pkg} ${pip_pkg})

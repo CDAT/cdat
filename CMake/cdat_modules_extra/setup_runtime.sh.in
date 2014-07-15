@@ -1,0 +1,56 @@
+#!/bin/bash
+
+# Find the location of this script and store it for further use
+SB_EXTERNALS_DIR="@SB_EXTERNALS_DIR@"
+SB_LIB_DIR="@SB_LIB_DIR@"
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+INSTALL_PREFIX=`dirname ${DIR}`
+
+_os=$("uname")
+
+if [[ "$SB_LIB_DIR" != /* ]]; then
+  SB_LIB_DIR="${INSTALL_PREFIX}/${SB_LIB_DIR}"
+fi
+
+if [[ "$SB_EXTERNALS_DIR" != /* ]]; then
+  SB_EXTERNALS_DIR="${INSTALL_PREFIX}/${SB_EXTERNALS_DIR}"
+fi
+
+if [ ${_os} == "Darwin" ]; then 
+    PATH=${INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/@PYVER@/bin:${PATH}
+fi
+
+export PYTHON_SITEPACKAGES_DIR=${SB_LIB_DIR}/python@PYVER@/site-packages:${SB_EXTERNALS_DIR}/lib/python/site-packages
+
+PATH=${DIR}:${PATH}
+PATH="${SB_EXTERNALS_DIR}/bin":${PATH}
+#PATH=${INSTALL_PREFIX}:${PYTHON_SITEPACKAGES_DIR}:${PATH}
+
+if [ ${_os} == "Darwin" ]; then
+ PATH=${SB_EXTERNALS_DIR}/paraview.app/Contents/bin:${PATH}
+ PYTHONPATH=${SB_EXTERNALS_DIR}/paraview.app/Contents/Python:${PYTHONPATH}
+fi
+
+export PATH
+
+export PYTHONPATH=${PYTHON_SITEPACKAGES_DIR}:${SB_EXTERNALS_DIR}/lib:${SB_LIB_DIR}/VisIt-@VISIT_VERSION@/site-packages/:${PYTHONPATH}
+export PYTHONPATH=${PYTHON_SITEPACKAGES_DIR}/vcs:${SB_EXTERNALS_DIR}/lib/paraview-@PARAVIEW_MAJOR@.@PARAVIEW_MINOR@/site-packages:${PYTHONPATH}
+export PYTHONPATH=${SB_EXTERNALS_DIR}/lib/paraview-@PARAVIEW_MAJOR@.@PARAVIEW_MINOR@/site-packages/vtk:${PYTHONPATH}
+
+export SB_LD_LIBRARY_PATH=${SB_EXTERNALS_DIR}/lib/paraview-@PARAVIEW_MAJOR@.@PARAVIEW_MINOR@/site-packages/vtk:${SB_LD_LIBRARY_PATH}
+export SB_LD_LIBRARY_PATH=${SB_EXTERNALS_DIR}/lib/paraview-@PARAVIEW_MAJOR@.@PARAVIEW_MINOR@:${SB_EXTERNALS_DIR}/lib:${SB_EXTERNALS_DIR}/lib/R/lib
+export SB_LD_LIBRARY_PATH=${SB_LD_LIBRARY_PATH}:{SB_LIB_DIR}:${SB_LIB_DIR}/VisIt-@VISIT_VERSION@:@QT_LIB_DIR@
+export LD_LIBRARY_PATH=${SB_LD_LIBRARY_PATH}:${LD_LIBRARY_PATH}
+if [ ${_os} == "Darwin" ]; then 
+    export SB_LD_LIBRARY_PATH=${SB_LD_LIBRARY_PATH}:${INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/@PYVER@/lib/python@PYVER@/site-packages/vcs
+    export DYLD_FALLBACK_LIBRARY_PATH=${SB_LD_LIBRARY_PATH}:${SB_LIB_DIR}/python@PYVER@/site-packages:${SB_LIB_DIR}/python@PYVER@/site-packages/vcs:${DYLD_FALLBACK_LIBRARY_PATH}
+fi
+
+export VISITPLUGINDIR=${SB_LIB_DIR}/VisIt-@VISIT_VERSION@-plugins
+export R_HOME=${SB_EXTERNALS_DIR}/lib/R
+export OPAL_PREFIX=${SB_EXTERNALS_DIR}
+export LIBOVERLAY_SCROLLBAR=0
+
+## On some system with X Forward or w/o modern graphic cards the following might be useful
+## export LIBGL_ALWAYS_INDIRECT=1
+

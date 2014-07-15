@@ -1,7 +1,7 @@
 # Adapted for numpy/ma/cdms2 by convertcdms.py
-import _vcs
 import vcs,cdtime,queries
 import numpy
+import warnings
 
 class PPE(Exception):
      def __init__ (self, parameter,type):
@@ -18,10 +18,13 @@ class PPE(Exception):
 
 
 def color2vcs(col):
+   if isinstance(col,unicode):
+     col = str(value)
    if isinstance(col,str):
        r,g,b=vcs.colors.str2rgb(col)
        if r is None :
-            r,g,b=[0,0,0] # black by default
+         raise ValueError,"Invalid color: %s" % col
+            #r,g,b=[0,0,0] # black by default
 
             # Now calls the function that matches the closest color in the the colormap
        color=matchVcsColor(r/2.55,g/2.55,b/2.55)
@@ -29,11 +32,12 @@ def color2vcs(col):
         color = col
    return color
 
-def matchVcsColor(r,g,b):
+def matchVcsColor(r,g,b,colormap="default"):
    rmsmin=100000000.
    color=None
+   cmap = vcs.elements["colormap"][colormap]
    for i in range(256):
-       r2,g2,b2=_vcs.getcolorcell(i)
+       r2,g2,b2 = cmap.index[i]
        rms=numpy.sqrt((r2-r)**2+(g2-g)**2+(b2-b)**2)
        if rms<rmsmin :
            rmsmin=rms
@@ -56,13 +60,17 @@ def checkContType(self,name,value):
      return value
 def checkLine(self,name,value):
      checkName(self,name,value)
+     if isinstance(value,unicode):
+          value = str(value)
      if not isinstance(value,(str,vcs.line.Tl)):
           raise ValueError, name+' must be an line primitive or the name of an exiting one.'
      if isinstance(value,str):
-          if not value in _vcs.listelements('line'):
+          if not value in vcs.listelements('line'):
                raise ValueError, name+' is not an existing line primitive'
-          value=self.x.getline(value)
-     return value
+          return value
+     else:
+       return value.name
+
 
 ## def checkIsoline(self,name,value):
 ##      checkName(self,name,value)
@@ -144,11 +152,11 @@ def checkFont(self,name,value):
      elif isNumber(value,min=1):
           value=int(value)
           # try to see if font exists
-          nm = _vcs.getfontname(value)
+          nm = vcs.getfontname(value)
      elif isinstance(value,str):
-          value = _vcs.getfontnumber(value)
+          value = vcs.getfontnumber(value)
      else:
-          nms = _vcs.listelements("font")
+          nms = vcs.listelements("font")
           raise ValueError, 'Error for attribute %s: The font attribute values must be a valid font number or a valid font name. valid names are: %s' % (name,', '.join(nms))
      return value
 
@@ -260,6 +268,8 @@ def checkString(self,name,value):
      checkName(self,name,value)
      if isinstance(value,str):
           return value
+     elif isinstance(value,unicode):
+          return str(value)
      else:
           raise ValueError, 'The '+name+' attribute must be a string.'
      
@@ -297,6 +307,8 @@ def checkFillAreaStyle(self,name,value):
      
 def checkAxisConvert(self,name,value):
      checkName(self,name,value)
+     if isinstance(value,unicode):
+       value = str(value)
      if isinstance(value,str) and (value.lower() in ('linear', 'log10', 'ln','exp','area_wt')):
           return value.lower()
      else:
@@ -304,8 +316,12 @@ def checkAxisConvert(self,name,value):
      
 def checkBoxfillType(self,name,value):
      checkName(self,name,value)
+     if isinstance(value,unicode):
+       value = str(value)
      if isinstance(value,str) and (value.lower() in ('linear', 'log10', 'custom')):
           return value.lower()
+     elif value in [0,1,2]:
+       return ["linear","log10","custom"][value]
      else:
           raise ValueError, 'The '+name+' attribute must be either: linear, log10 or custom'
      
@@ -326,8 +342,17 @@ def checkIntFloat(self,name,value):
 ##      else:
 ##           raise ValueError, 'The '+name+' attribute must be either an integer or a float value.'
      
+def checkTrueFalse(self,name,value):
+  checkName(self,name,value)
+  if value in [True,False,1,0]:
+    return value==True
+  else:
+    raise ValueError, "The '%s' attribute must be True or False" % name
+
 def checkOnOff(self,name,value,return_string=0):
      checkName(self,name,value)
+     if isinstance(value,unicode):
+       value = str(value)
      if value is None:
           value = 0
      elif isinstance(value,str):
@@ -359,6 +384,8 @@ def checkOnOff(self,name,value,return_string=0):
      
 def checkYesNo(self,name,value):
      checkName(self,name,value)
+     if isinstance(value,unicode):
+       value = str(value)
      if value is None:
           value = 'n'
      elif isinstance(value,str):
@@ -397,6 +424,8 @@ def checkListTuple(self,name,value):
      
 def checkColor(self,name,value):
      checkName(self,name,value)
+     if isinstance(value,unicode):
+       value = str(value)
      if isinstance(value,str):
           value = color2vcs(value)
      if isinstance(value,int) and value in range(0,256):
@@ -500,8 +529,10 @@ def checkLinesList(self,name,value):
 
 def checkTextTable(self,name,value):
      checkName(self,name,value)
+     if isinstance(value,unicode):
+       value = str(value)
      if isinstance(value,str):
-          if not value in self.parent.parent.listelements("texttable"):
+          if not value in vcs.listelements("texttable"):
                raise ValueError,"Error : not a valid texttable"
      elif not isinstance(value,vcs.texttable.Tt):
           raise ValueError,"Error you must pass a texttable objector a texttable name"
@@ -510,8 +541,10 @@ def checkTextTable(self,name,value):
      return value
 def checkTextOrientation(self,name,value):
      checkName(self,name,value)
+     if isinstance(value,unicode):
+       value = str(value)
      if isinstance(value,str):
-          if not value in self.parent.parent.listelements("textorientation"):
+          if not value in vcs.listelements("textorientation"):
                raise ValueError,"Error : not a valid textorientation"
      elif not isinstance(value,vcs.textorientation.To):
           raise ValueError,"Error you must pass a textorientation objector a textorientation name"
@@ -582,31 +615,49 @@ def checkLegend(self,name,value):
   
 def checkExt(self,name,value):
      checkName(self,name,value)
+     if isinstance(value,unicode):
+       value = str(value)
      if isinstance(value,str):
-          if (value in ('n', 'y')):
-               if ( ((value == 'n') and (getattr(self,'_'+name) == 'n')) or
-                    ((value == 'y') and (getattr(self,'_'+name) == 'y')) ): # do nothing
-                    return
-               else:
-                    return 1
+          if value.strip().lower() in ('y', "yes",):
+              return True
+          elif value.strip().lower() in ('n', "no",):
+              return False
           else:
-               raise ValueError, 'The ext_1 attribute must be either n or y.'
+               raise ValueError, "The '%s' attribute must be either n or y." % name
+     elif value is None:
+       return False
+     elif value in [True,False]:
+       return value
+     elif value==0:
+       return False
+     elif value==1:
+       return True
      else:
-          raise ValueError, 'The '+name+' attribute must be a string'
+          raise ValueError, 'The '+name+' attribute must be a "yes"/"no" string or one of 0,1,True,False'
      
 def checkProjection(self,name,value):
      checkName(self,name,value)
      if isinstance(value,vcs.projection.Proj):
           value=value.name
      if isinstance(value,str):
-          if (_vcs.checkProj(value)):
-               return value
-          else:
-               raise ValueError, 'The '+value+' projection does not exist'
+        if not value in vcs.elements["projection"].keys():
+           raise ValueError, 'The '+value+' projection does not exist'
+        return value
 
+def checkTicks(self,name,value):
+  value = checkStringDictionary(self,name,value)
+  if isinstance(value,str):
+    if value.strip() in ["","*"]:
+      return value.strip()
+    if not value in vcs.elements["list"]:
+      raise ValueError, "You are trying to use the vcs list: '%s' which does not exist" % value
+  else:
+    return value
 def checkStringDictionary(self,name,value):
      checkName(self,name,value)
-     if isinstance(value,str) or isinstance(value,dict):
+     if isinstance(value,unicode):
+       return str(value)
+     elif isinstance(value,str) or isinstance(value,dict):
           return value
      else:
           raise ValueError, 'The '+name+' attribute must be either a string or a dictionary'
@@ -671,6 +722,8 @@ def checkCalendar(self,name,value):
 
 def checkTimeUnits(self,name,value):
      checkName(self,name,value)
+     if isinstance(value,unicode):
+       value = str(value)
      if not isinstance(value,str):
           raise ValueError, 'time units must be a string'
      a=cdtime.reltime(1,'days since 1900')
@@ -722,6 +775,8 @@ def checkInStringsListInt(self,name,value,values):
                     str1=str1+"'"+v+"', "
                i=i+1
      err=str1[:-2]+')'+str2[:-2]+')'
+     if isinstance(value,unicode):
+       value = str(value)
      if isinstance(value,str):
           value=value.lower()
           if not value in val:
@@ -746,8 +801,12 @@ def checkInStringsListInt(self,name,value,values):
 def checkProjType(self,name,value):
     """set the projection type """
     checkName(self,name,value)
+    if vcs.queries.isprojection(value):
+      value = value.type
+    if isinstance(value,unicode):
+      value = str(value)
     if isinstance(value,str):
-         value=value.lower()
+         value=value.strip().lower()
          if value in ['utm','state plane']:
               raise ValueError, "Projection Type: "+value+" not supported yet"
     if -3<=value<0:
@@ -945,7 +1004,7 @@ def getProjType(self):
          9:"transverse mercator",
          10:"stereographic",
          11:"lambert azimuthal",
-         12:"azimutal",
+         12:"azimuthal",
          13:"gnomonic",
          14:"orthographic",
          15:"gen. vert. near per",
@@ -975,44 +1034,45 @@ def getProjType(self):
     elif value==-3:
          return "polar (non gctp)"
                           
+proj_ok_parameters={
+    'smajor':[[3,4,5,6,7,8,9,20,22,23],0,[]],
+    'sminor':[[3,4,5,6,7,8,9,20,22,23],1,[]],
+    'sphere':[[10,11,12,13,14,15,16,17,18,19,21,24,25,26,27,28,29,30],0,[]],
+    'centralmeridian':[[3,4,5,7,8,9,16,17,18,19,21,25,27,28,29],4,[]],
+    'centerlongitude':[[6,10,11,12,13,14,15,30],4,[]],
+    'standardparallel1':[[3,4,8],2,[]],
+    'standardparallel2':[[3,4,8],3,[]],
+    'originlatitude':[[3,4,7,8,9,19,20],5,[]],
+    'falseeasting':[[3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,25,27,28,29,30],6,[]],
+    'falsenorthing':[[3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,25,27,28,29,30],7,[]],          
+    'truescale':[[5,6,17,],5,[]],
+    'standardparallel':[[8,],2,[]],
+    'factor':[[9,20,],2,[]],
+    'centerlatitude':[[10,11,12,13,14,15,30],5,[]],
+    'height':[[15,],2,[]],
+    'azimuthalangle':[[20,],3,[]],
+    'azimuthallongitude':[[20,],4,[]],
+    'orbitinclination':[[22,],3,[]],
+    'orbitlongitude':[[22,],4,[]],
+    'satelliterevolutionperiod':[[22,],8,[]],
+    'landsatcompensationratio':[[22,],9,[]],
+    'pathflag':[[22,],10,[]],
+    'path':[[22,],3,[]],
+    'satellite':[[22,],2,[]],
+    'shapem':[[30,],2,[]],
+    'shapen':[[30,],3,[]],
+    'subtype':[[8,20,22,],12,[]],
+    'longitude1':[[20,],8,[]],
+    'latitude1':[[20,],9,[]],
+    'longitude2':[[20,],10,[]],
+    'latitude2':[[20,],11,[]],
+    'angle':[[30,],8,[]],
+    }
 def setProjParameter(self,name,value):
      """ Set an individual paramater for a projection """
      checkName(self,name,value)
      param=self.parameters
-     ok={
-          'smajor':[[3,4,5,6,7,8,9,20,22,23],0,[]],
-          'sminor':[[3,4,5,6,7,8,9,20,22,23],1,[]],
-          'sphere':[[10,11,12,13,14,15,16,17,18,19,21,24,25,26,27,28,29,30],0,[]],
-          'centralmeridian':[[3,4,5,7,8,9,16,17,18,19,21,25,27,28,29],4,[]],
-          'centerlongitude':[[6,10,11,12,13,14,15,30],4,[]],
-          'standardparallel1':[[3,4,8],2,[]],
-          'standardparallel2':[[3,4,8],3,[]],
-          'originlatitude':[[3,4,7,8,9,19,20],5,[]],
-          'falseeasting':[[3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,25,27,28,29,30],6,[]],
-          'falsenorthing':[[3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,25,27,28,29,30],7,[]],          
-          'truescale':[[5,6,17,],5,[]],
-          'standardparallel':[[8,],2,[]],
-          'factor':[[9,20,],2,[]],
-          'centerlatitude':[[10,11,12,13,14,15,30],5,[]],
-          'height':[[15,],2,[]],
-          'azimuthalangle':[[20,],3,[]],
-          'azimuthallongitude':[[20,],4,[]],
-          'orbitinclination':[[22,],3,[]],
-          'orbitlongitude':[[22,],4,[]],
-          'satelliterevolutionperiod':[[22,],8,[]],
-          'landsatcompensationratio':[[22,],9,[]],
-          'pathflag':[[22,],10,[]],
-          'path':[[22,],3,[]],
-          'satellite':[[22,],2,[]],
-          'shapem':[[30,],2,[]],
-          'shapen':[[30,],3,[]],
-          'subtype':[[8,20,22,],12,[]],
-          'longitude1':[[20,],8,[]],
-          'latitude1':[[20,],9,[]],
-          'longitude2':[[20,],10,[]],
-          'latitude2':[[20,],11,[]],
-          'angle':[[30,],8,[]],
-          }
+     ok = proj_ok_parameters
      for nm in ok.keys():
           vals=ok[nm]
           oktypes=vals[0]
@@ -1041,3 +1101,94 @@ def setProjParameter(self,name,value):
                self.parameters=param
                return value
      raise PPE(name,'Unknow error...')
+
+def _getpriority(self):
+  return self._priority
+def _setpriority(self,value):
+  self._priority = checkInt(self,"priority",value)
+priority = property(_getpriority,_setpriority)
+def _getX1(self):
+  return self._x1
+def _setX1(self,value):
+  self._x1 = checkNumber(self,"x1",value,0.,1.)
+x1 = property(_getX1,_setX1,"x1 position in % of page")
+def _getX2(self):
+  return self._x2
+def _setX2(self,value):
+  self._x2 = checkNumber(self,"x2",value,0.,1.)
+x2 = property(_getX2,_setX2,"x position in % of page")
+def _getX(self):
+  return self._x
+def _setX(self,value):
+  self._x = checkNumber(self,"x",value,0.,1.)
+x = property(_getX,_setX,"x position in % of page")
+def _getY1(self):
+  return self._y1
+def _setY1(self,value):
+  self._y1 = checkNumber(self,"y1",value,0.,1.)
+y1 = property(_getY1,_setY1,"y1 position in % of page")
+def _getY2(self):
+  return self._y2
+def _setY2(self,value):
+  self._y2 = checkNumber(self,"y2",value,0.,1.)
+y2 = property(_getY2,_setY2,"y2 position in % of page")
+def _getY(self):
+  return self._y
+def _setY(self,value):
+  self._y = checkNumber(self,"y",value,0.,1.)
+y = property(_getY,_setY,"y position in % of page")
+def _gettexttable(self):
+  return self._texttable
+def _settextable(self,value):
+  self._texttable = checkTextTable(self,"textable",value)
+texttable = property(_gettexttable,_settextable,"texttable")
+def _gettextorientation(self):
+  return self._textorientation
+def _settexorientation(self,value):
+  self._textorientation = checkTextOrientation(self,"texorientation",value)
+textorientation = property(_gettextorientation,_settexorientation,"textorientation")
+def _getLine(self):
+  return self._line
+def _setLine(self,value):
+  self._line = checkLine(self,"line",value)
+line = property(_getLine,_setLine,"line properties")
+
+def _getcolormap(self):
+  return self._colormap
+def _setcolormap(self,value):
+  if value is None:
+    self._colormap = None
+    return
+  if isinstance(value,vcs.colormap.Cp):
+    value = value.name
+  if isinstance(value,unicode):
+    value = str(value)
+  if not isinstance(value,str):
+    raise "colormap attribute must be a colormap object or a string"
+  if not value in vcs.elements["colormap"]:
+    raise "The colormap '%s' does not exists" % value
+  self._colormap = value
+colormap = property(_getcolormap,_setcolormap)
+
+def _getlevels(self):
+     return self._levels
+def _setlevels(self,value):
+     if value ==  ([1.0000000200408773e+20, 1.0000000200408773e+20],):
+      self._levels = value
+      return
+
+     value=list(checkListTuple(self,'levels',value))
+     if len(value)==1 and isinstance(value[0],(list,tuple)) and len(value[0])>2:
+       value = list(value[0])
+
+     if (value[0]<-9.9E19):
+         self._ext_1='y'
+     else:
+         self._ext_1='n'
+
+     if (value[-1]>9.9E19):
+        self._ext_2='y'
+     else:
+        self._ext_2='n'
+     self._levels=tuple(value)
+levels=property(_getlevels,_setlevels)

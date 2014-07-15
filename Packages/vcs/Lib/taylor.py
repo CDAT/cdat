@@ -2,6 +2,27 @@
 import vcs,numpy.ma,sys,string,colors,numpy,cdms2,types,VCS_validation_functions
 import MV2
 
+def process_src(name,code):
+  # Now break the string
+  # now gets the name and prepare the graphics method
+  if name!='default' : # we cannot change default
+      try:
+          td=Gtd()
+          td._name = name
+      except Exception,err:
+          print "Err:",err
+          td=vcs.elements["taylordiagram"][name]
+      sp=code.split(';') # breaks the thing into different attributes
+      imark=0
+      for a in sp : # the last one is ')'
+          sp2=a.split('=')
+          if sp2[0].strip()=='Marker' : imark=1
+          if len(sp2)==2:
+              if imark:
+                  setattr(td.Marker,sp2[0].strip(),eval(sp2[1]))
+              else:
+                  setattr(td,sp2[0].strip(),eval(sp2[1]))
+
 def createnewvcsobj(canvas,type,basenm,src='default',src2='default'):
     ii=0
     nm=basenm+str(ii)

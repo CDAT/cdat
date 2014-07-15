@@ -26,8 +26,7 @@
 Normally, created by vcs.init()
 Contains the method plot.
 """
-import _vcs, string, types, signal, warnings
-import tempfile
+import warnings
 #import Tkinter
 from pauser import pause
 import thread
@@ -35,11 +34,16 @@ import numpy.ma, MV2
 import numpy, cdutil
 from queries import *
 import boxfill, isofill, isoline, outfill, outline, taylor, meshfill, projection
-import xyvsy, yxvsx, xvsy, vector, scatter, continents, line, marker, fillarea
+import vector, continents, line, marker, fillarea
 import texttable, textorientation, textcombined, template, colormap
+import unified1D
 #import colormapgui as _colormapgui
 #import canvasgui as _canvasgui
 import displayplot
+import vtk
+from VTKPlots import VTKVCSBackend
+import time
+
 #import animationgui as _animationgui
 #import graphicsmethodgui as _graphicsmethodgui
 #import templateeditorgui as _templateeditorgui
@@ -56,7 +60,6 @@ import random
 import genutil
 from cdms2.grid import AbstractRectGrid
 import shutil
-from types import *
 import VCS_validation_functions
 import AutoAPI
 from xmldocs import plot_keywords_doc,graphics_method_core,axesconvert,xaxisconvert,yaxisconvert, plot_1D_input, plot_2D_input, plot_output, plot_2_1D_input, create_GM_input, get_GM_input, boxfill_output, isofill_output, isoline_output, yxvsx_output, xyvsy_output, xvsy_output, scatter_output, outfill_output, outline_output, plot_2_1D_options
@@ -66,20 +69,8 @@ gui_canvas_closed = 0
 canvas_closed = 0
 #import Pmw
 import vcsaddons
+import vcs.manageElements
 
-from PyQt4 import QtGui,QtCore
-## class QAnimThread(QtCore.QThread):
-##     def __init__(self,parent,func,*args):
-##         QtCore.QThread.__init__(self,parent)
-##         self.func=func
-##         self.args=args
-##     def run(self):
-##         self.func(*self.args)
-        
-def showerror(msg):
-    d=QtGui.QErrorMessage()
-    d.showMessage(msg)
-    d.exec_()
 
 def dictionarytovcslist(dictionary,name):
     for k in dictionary.keys():
@@ -91,7 +82,6 @@ def dictionarytovcslist(dictionary,name):
 def _determine_arg_list(g_name, actual_args):
     "Determine what is in the argument list for plotting graphics methods" 
 
-##     print 'IN Determine arglist:',actual_args
     itemplate_name = 2
     igraphics_method = 3
     igraphics_option = 4
@@ -109,13 +99,14 @@ def _determine_arg_list(g_name, actual_args):
     args = actual_args
     found_slabs = 0
     for i in range(len(args)):
-       if (type(args[i]) == types.StringType):
+      if isinstance(args[i],str):
           argstring.append(args[i])
-       else:
+      else:
           try:
              possible_slab = cdms2.asVariable (args[i], 0)
-             if not possible_slab.iscontiguous():
-                 possible_slab = possible_slab.ascontiguousarray()
+             if hasattr( possible_slab, 'iscontiguous' ):
+                 if not possible_slab.iscontiguous():
+                     possible_slab = possible_slab.ascontiguousarray()
              arglist[found_slabs] = possible_slab
              if found_slabs == 2:
                  raise vcsError, "Too many slab arguments."
@@ -213,7 +204,7 @@ def _determine_arg_list(g_name, actual_args):
         if found_slabs!=arglist[igraphics_method].g_nslabs:
             raise vcsError, "%s requires %i slab(s)" % (arglist[igraphics_method].g_name,arglist[igraphics_method].g_nslabs)
     else:
-        if (string.lower(arglist[igraphics_method]) in ('scatter','vector','xvsy')):
+        if arglist[igraphics_method].lower() in ('scatter','vector','xvsy'):
             if found_slabs != 2:
                 raise vcsError, "Graphics method requires 2 slabs."
         elif arglist[igraphics_method].lower() == 'meshfill':
@@ -230,7 +221,7 @@ def _determine_arg_list(g_name, actual_args):
               (arglist[igraphics_method] == 'text')):
             if found_slabs != 0:
                 raise vcsError, "Continents or low-level primative methods requires 0 slabs."
-        elif string.lower(arglist[igraphics_method])=='default':
+        elif arglist[igraphics_method].lower()=='default':
             pass                            # Check later
         else:
             if found_slabs != 1:
@@ -424,50 +415,13 @@ class Canvas(object,AutoAPI.AutoAPI):
     def _getanimate_info(self):
         return self._animate_info
     animate_info =property(_getanimate_info,_setanimate_info)
-    
+
+    def start(self,*args,**kargs): 
+        self.interact(*args,**kargs)   
         
-##     def __setattr__(self, name, value):
-##         if (name == 'mode'):
-##            try:
-##               if (isinstance(value, types.IntType)) and (value in range(2)):
-##                  self.__dict__['mode']=value
-##               else:
-##                  raise vcsError, "canvas setting mode failed, value = " + str(value)
-##            except:
-##               raise vcsError,  "canvas, " + name + ' must be 0 or 1.'
-##               raise
-##         elif (name == 'pause_time'):
-##            if (not isinstance(value, types.IntType)):
-##                raise vcsError, "Canvas' pause time must be integer."
-##            self.__dict__['pause_time'] = value
-##         elif (name == 'viewport'):
-##            try:
-##               if ((type(value) == types.ListType) and (len(value) == 4)):
-##                  self.__dict__['viewport'] = value
-##               else:
-##                  raise vcsError,  "viewport must be of type list and have four values ranging between [0,1]."
-##            except:
-##               raise vcsError,  "viewport must be of type list and have four values ranging between [0,1]."
-##               raise
-##         elif (name == 'worldcoordinate'):
-##            try:
-##               if ((type(value) == types.ListType) and (len(value) == 4)):
-##                  self.__dict__['worldcoordinate'] = value
-##               else:
-##                  raise vcsError,  "worldcoordinate must be of type list and have four ranging values."
-##            except:
-##               raise vcsError,  "worldcoordinate must be of type list and have four ranging values."
-##               raise
-##         elif (name == 'animate_info'):
-##            self.__dict__['animate_info'] = value
-##         elif (name == 'canvas_template_editor'):
-##            self.__dict__['canvas_template_editor'] = value
-##         elif (name == 'isplottinggridded'):
-##            self.__dict__['isplottinggridded'] = value
-##         elif (name == 'ratio'):
-##            self.__dict__['ratio'] = value
-##         else:
-##            raise vcsError, 'Invalid member for setattr in VCS canvas.'
+    def interact(self,*args,**kargs):
+      self.backend.interact(*args,**kargs)
+
     def _datawc_tv(self, tv, arglist):
         """The graphics method's data world coordinates (i.e., datawc_x1, datawc_x2,
         datawc_y1, and datawc_y2) will override the incoming variable's coordinates.
@@ -532,6 +486,9 @@ class Canvas(object,AutoAPI.AutoAPI):
            pass
 
         return tv
+
+    def savecontinentstype(self,value):
+      self._savedcontinentstype = value
 
     def _reconstruct_tv(self, arglist, keyargs):
         """Reconstruct a transient variable from the keyword arguments.
@@ -745,11 +702,11 @@ class Canvas(object,AutoAPI.AutoAPI):
             else:
                 contout = 0
         if (isinstance(arglist[GRAPHICS_METHOD],str) and (arglist[GRAPHICS_METHOD]) == 'meshfill') or ((xdim>=0 and ydim>=0 and (contout>=1) and (contout<12))):
-            self.canvas.setcontinentstype(contout)
-            self.canvas.savecontinentstype(contout)
+            self.setcontinentstype(contout)
+            self.savecontinentstype(contout)
         else:
-            self.canvas.setcontinentstype(0)
-            self.canvas.savecontinentstype(0)
+            self.setcontinentstype(0)
+            self.savecontinentstype(0)
 
         # Reverse axis direction if necessary
         xrev = keyargs.get('xrev',0)
@@ -782,7 +739,7 @@ class Canvas(object,AutoAPI.AutoAPI):
 #     an eye opened for the errors concerning datawc in the VCS module.
 #        tv = self._datawc_tv( tv, arglist )
         return tv
-
+        
     #############################################################################
     #                                                                           #
     # Print out the object's doc string.                                        #
@@ -811,7 +768,7 @@ class Canvas(object,AutoAPI.AutoAPI):
     # using the "update" function.                                              #
     #                                                                           #
     #############################################################################
-    def __init__(self, gui = 0, mode = 1, pause_time=0, call_from_gui=0, size=None):
+    def __init__(self, gui = 0, mode = 1, pause_time=0, call_from_gui=0, size=None, backend = "vtk"):
         #############################################################################
         #                                                                           #
         # The two Tkinter calls were needed for earlier versions of CDAT using      #
@@ -848,6 +805,15 @@ class Canvas(object,AutoAPI.AutoAPI):
         #                                                                           #
         #############################################################################
 
+        self._canvas_id = vcs.next_canvas_id
+        vcs.next_canvas_id+=1
+        self.colormap = "default"
+        self.backgroundcolor = 255,255,255
+        ## default size for bg
+        self.bgX = 814
+        self.bgY = 606
+        ## displays plotted
+        self.display_names = []
         self.info = AutoAPI.Info(self)
         self.info.expose=["plot", "boxfill", "isofill", "isoline", "outfill", "outline", "scatter", "xvsy", "xyvsy", "yxvsx", "createboxfill", "getboxfill", "createisofill", "getisofill", "createisoline", "getisoline", "createyxvsx", "getyxvsx", "createxyvsy", "getxyvsy", "createxvsy", "getxvsy", "createscatter", "getscatter", "createoutfill", "getoutfill", "createoutline", "getoutline"]
         ospath = os.environ["PATH"]
@@ -865,7 +831,7 @@ class Canvas(object,AutoAPI.AutoAPI):
         import time
 ##         from tkMessageBox import showerror
 
-        is_canvas = len(_vcs.return_display_names()[0])
+        is_canvas = len(vcs.return_display_names()[0])
 
         if gui_canvas_closed == 1:
            showerror( "Error Message to User", "There can only be one VCS Canvas GUI opened at any given time and the VCS Canvas GUI cannot operate with other VCS Canvases.")
@@ -905,16 +871,24 @@ class Canvas(object,AutoAPI.AutoAPI):
         else:
             raise Exception, 'Unknown size: %s' % size
 
-        self.size = size
+        self.size = psize
 
         self.mode = mode
+        self._animate_info=[]
         self.pause_time = pause_time
-        self._canvas =_vcs.init( self.winfo_id,psize ) # connect the canvas to the GUI
+        self._canvas = vcs
         self.viewport =[0,1,0,1]
         self.worldcoordinate = [0,1,0,1]
-        self._animate = animate_obj( self )
+        self._dotdir,self._dotdirenv = vcs.getdotdirectory()
         if ( (is_canvas == 0) and (gui == 1) and (gui_canvas_closed == 0) ): gui_canvas_closed = 1
-
+        if backend == "vtk":
+          self.backend = VTKVCSBackend(self)
+        elif isinstance(backend,vtk.vtkRenderWindow):
+          self.backend = VTKVCSBackend(self, renWin = backend)
+        else:
+          warnings.warn("Unknown backend type: '%s'\nAssiging 'as is' to backend, no warranty about anything working from this point on" % backend)
+          self.backend=backend
+        self._animate = self.backend.Animate( self )
 ## Initial.attributes is being called in main.c, so it is not needed here!
 ## Actually it is for taylordiagram graphic methods....
 ###########################################################################################
@@ -928,13 +902,12 @@ class Canvas(object,AutoAPI.AutoAPI):
            pth=pth[:-4] # Maybe need to make sure on none framework config
            pth=['/']+pth+['bin', 'initial.attributes']
            try:
-               self._scriptrun( os.path.join(*pth))
+               vcs.scriptrun( os.path.join(*pth))
            except:
                pass
-           self._dotdir,self._dotdirenv = self._canvas.getdotdirectory()
-           self._scriptrun( os.path.join(os.environ['HOME'], self._dotdir, 'initial.attributes'))
+           self._dotdir,self._dotdirenv = vcs.getdotdirectory()
+           vcs.scriptrun( os.path.join(os.environ['HOME'], self._dotdir, 'initial.attributes'))
 	called_initial_attributes_flg = 1
-        self.animate_info=[]
         self.canvas_template_editor=None
         self.ratio=0
         self._user_actions_names=['Clear Canvas','Close Canvas','Show arguments passsed to user action']
@@ -945,7 +918,7 @@ class Canvas(object,AutoAPI.AutoAPI):
     # Update wrapper function for VCS.                                          #
     #                                                                           #
     #############################################################################
-    def update(self, *args):
+    def update(self, *args, **kargs):
         """
  Function: update                   # Update the VCS Canvas.
 
@@ -970,16 +943,8 @@ class Canvas(object,AutoAPI.AutoAPI):
     a.update()                             # Update the changes manually
 """
 
-        finish_queued_X_server_requests( self )
-        self.canvas.BLOCK_X_SERVER()
-
-        a = apply(self.canvas.updatecanvas, args)
-        self.flush() # update the canvas by processing all the X events
-        self.backing_store()
-        pause (self.pause_time)
-
-        self.canvas.UNBLOCK_X_SERVER()
-        return a
+        
+        return self.backend.update(*args,**kargs)
 
     #############################################################################
     #                                                                           #
@@ -1252,33 +1217,8 @@ class Canvas(object,AutoAPI.AutoAPI):
                         
         return
     
-    def check_name_source(self,name,source,type):
-        elts = self.listelements(type)
-        if name is None:
-            rnd = random.randint(0,100000)
-            name = '__%s_%i' % (type[:4],rnd)
-            while name in elts:
-                rnd = random.randint(0,100000)
-                name = '__%s_%i' % (type[:4],rnd)
-        if not isinstance(name,str):
-            raise vcsError, '%s object name must be a string or %s name' % (type,type)
-        elif len(name)>16:
-                raise vcsError,'%s object name must be at most 16 character long' % (type)
-
-        if not isinstance(source,str):
-            exec("ok = vcs.is%s(source)" % (type,))
-        else:
-            ok=0
-        if (not isinstance(source,str)) and ok==0:
-            raise vcsError,'Error %s object source must be a string or a %s object' % (type,type)
-        elif ok:
-            source=source.name
-
-        if name in elts:
-            raise vcsError, "Error %s object named %s already exists" % (type,name)
-        if not source in elts:
-            raise vcsError, "Error source %s object (%s) does not exist!" % (type,name)
-        return name,source
+    def check_name_source(self,name,source,typ):
+        return vcs.check_name_source(name,source,typ)
     
     #############################################################################
     #                                                                           #
@@ -1286,55 +1226,12 @@ class Canvas(object,AutoAPI.AutoAPI):
     #                                                                           #
     #############################################################################
     def createtemplate(self, name=None, source='default'):
-        """
- Function: createtemplate                  # Construct a new template
-
- Description of Function:
-    Create a new template given the the name and the existing template to copy
-    the attributes from. If no existing template name is given, then the default
-    template will be used as the template to which the attributes will be copied
-    from.
-
-    If the name provided already exists, then a error will be returned. Template
-    names must be unique.
-
- Example of Use:
-    a=vcs.init()
-    a.show('template')                       # Show all the existing templates
-    con=a.createtemplate('example1') # create 'example1' template from 'default' template 
-    a.show('template')                       # Show all the existing templates
-    con=a.createtemplate('example2','quick') # create 'example2' from 'quick' template
-    a.listelements('template')               # Show all the templates as a Python list
-"""
-        name,source = self.check_name_source(name,source,'template')
-
-        return template.P(self, name, source, 0)
+        return vcs.createtemplate(name,source)
+    createtemplate.__doc__ = vcs.manageElements.createtemplate.__doc__
 
     def gettemplate(self, Pt_name_src='default'):
-        """
- Function: gettemplate                       # Construct a new template
-
- Description of Function:
-    VCS contains a list of predefined templates. This function will create a
-    template class object from an existing VCS template. If no template name
-    is given, then template 'default' will be used.
-
-    Note, VCS does not allow the modification of `default' attribute
-    sets. However, a `default' attribute set that has been copied under a
-    different name can be modified. (See the createtemplate function.)
-
- Example of Use:
-    a=vcs.init()
-    a.show('template')                  # Show all the existing templates
-    templt=a.gettemplate()              # templt instance of 'default' template
-    templt2=a.gettemplate('quick')      # templt2 contains 'quick' template
-"""
-        # Check to make sure the argument passed in is a STRING
-        if (type(Pt_name_src) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
-
-        Pt_name = None
-        return template.P(self, Pt_name, Pt_name_src, 1)
+      return vcs.gettemplate(Pt_name_src)
+    gettemplate.__doc__ = vcs.manageElements.gettemplate.__doc__
 
     #############################################################################
     #                                                                           #
@@ -1342,61 +1239,13 @@ class Canvas(object,AutoAPI.AutoAPI):
     #                                                                           #
     #############################################################################
     def createprojection(self,name=None, source='default'):
-        """
- Function: createprojection                # Construct a new projection method
-
- Description of Function:
-    Create a new projection method given the the name and the existing
-    projection method to copy the attributes from. If no existing
-    projection method name is given, then the default projection
-    method will be used as the projection method to which the attributes will
-    be copied from.
-
-    If the name provided already exists, then a error will be returned. Projection
-    method names must be unique.
-
- Example of Use:
-    a=vcs.init()
-    a.show('projection')
-    p=a.createprojection('example1',)
-    a.show('projection')
-    box=a.createprojection('example2','quick')
-    a.show('projection')
-"""
-
-        name,source = self.check_name_source(name,source,'projection')
-        return projection.Proj(self, name, source, 0)
+        return vcs.createprojection(name, source)
+    createprojection.__doc__ = vcs.manageElements.createprojection.__doc__
 
     def getprojection(self,Proj_name_src='default'):
-        """
- Function: getprojection                    # Construct a new projection method
+        return vcs.getprojection(Proj_name_src)
+    getprojection.__doc__ = vcs.manageElements.getprojection.__doc__
 
- Description of Function:
-    VCS contains a list of graphics methods. This function will create a
-    projection class object from an existing VCS projection method. If
-    no projection name is given, then projection 'default' will be used.
-
-    Note, VCS does not allow the modification of `default' attribute
-    sets. However, a `default' attribute set that has been copied under a 
-    different name can be modified. (See the createprojection function.)
-
- Example of Use:
-    a=vcs.init()
-    a.show('projection')                   # Show all the existing projection methods
-    box=a.getprojection()                  # box instance of 'default' projection
-                                        # method
-    box2=a.getprojection('quick')          # box2 instance of existing 'quick' projection
-                                        #         graphics method
-"""
-
-        # Check to make sure the argument passed in is a STRING
-        if (type(Proj_name_src) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
-
-        Proj_name = None
-        p=projection.Proj(self, Proj_name, Proj_name_src, 1)
-        if Proj_name_src!='default' : p.type=p.type
-        return p
 
     #############################################################################
     #                                                                           #
@@ -1404,97 +1253,12 @@ class Canvas(object,AutoAPI.AutoAPI):
     #                                                                           #
     #############################################################################
     def createboxfill(self,name=None, source='default'):
-        """
-Options:::
-%s
-%s
-%s
-:::
- Input:::
-%s
-    :::
- Output:::
-%s
-    :::
-
- Function: createboxfill                # Construct a new boxfill graphics method
-
- Description of Function:
-    Create a new boxfill graphics method given the the name and the existing
-    boxfill graphics method to copy the attributes from. If no existing
-    boxfill graphics method name is given, then the default boxfill graphics
-    method will be used as the graphics method to which the attributes will
-    be copied from.
-
-    If the name provided already exists, then a error will be returned. Graphics
-    method names must be unique.
-
- Example of Use:
-    a=vcs.init()
-    a.show('boxfill')
-    box=a.createboxfill('example1',)
-    a.show('boxfill')
-    box=a.createboxfill('example2','quick')
-    a.show('boxfill')
-
-#########################################################################################################################
-###########################################                               ###############################################
-########################################## End createboxfill Description ################################################
-#########################################                               #################################################
-#########################################################################################################################
-
-"""
-
-        name,source = self.check_name_source(name,source,'boxfill')
-        return boxfill.Gfb(self, name, source, 0)
-    createboxfill.__doc__ = createboxfill.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert, create_GM_input, boxfill_output) 
+        return vcs.createboxfill(name, source)
+    createboxfill.__doc__ = vcs.manageElements.createboxfill.__doc__
 
     def getboxfill(self,Gfb_name_src='default'):
-        """
-Options:::
-%s
-%s
-%s
-:::
- Input:::
-%s
-    :::
- Output:::
-%s
-    :::
- Function: getboxfill                        # Construct a new boxfill graphics method
-
- Description of Function:
-    VCS contains a list of graphics methods. This function will create a
-    boxfill class object from an existing VCS boxfill graphics method. If
-    no boxfill name is given, then boxfill 'default' will be used.
-
-    Note, VCS does not allow the modification of `default' attribute
-    sets. However, a `default' attribute set that has been copied under a 
-    different name can be modified. (See the createboxfill function.)
-
- Example of Use:
-    a=vcs.init()
-    a.show('boxfill')                   # Show all the existing boxfill graphics methods
-    box=a.getboxfill()                  # box instance of 'default' boxfill graphics
-                                        # method
-    box2=a.getboxfill('quick')          # box2 instance of existing 'quick' boxfill
-                                        #         graphics method
-######################################################################################################################
-###########################################                            ###############################################
-########################################## End getboxfill Description ################################################
-#########################################                            #################################################
-######################################################################################################################
-
-"""
-
-        # Check to make sure the argument passed in is a STRING
-        if (type(Gfb_name_src) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
-
-        Gfb_name = None
-        return boxfill.Gfb(self, Gfb_name, Gfb_name_src, 1)
-    getboxfill.__doc__ = getboxfill.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert, get_GM_input, boxfill_output) 
+        return vcs.getboxfill(Gfb_name_src)
+    getboxfill.__doc__ = vcs.manageElements.getboxfill
    
 
     def boxfill(self, *args, **parms):
@@ -1552,100 +1316,12 @@ Options:::
     #                                                                           #
     #############################################################################
     def createtaylordiagram(self,name=None, source='default'):
-        """
- Function: createtaylordiagram  # Construct a new taylordiagram graphics method
-
- Description of Function:
-    Create a new taylordiagram graphics method given the the name and the existing
-    taylordiagram graphics method to copy the attributes from. If no existing
-    taylordiagram graphics method name is given, then the default taylordiagram graphics
-    method will be used as the graphics method to which the attributes will
-    be copied from.
-
-    If the name provided already exists, then a error will be returned. Graphics
-    method names must be unique.
-
- Example of Use:
-    a=vcs.init()
-    a.show('taylordiagram')
-    td=a.createtaylordiagram('example1',)
-    a.show('taylordiagram')
-    td=a.createtaylordiagram('example2','quick')
-    a.show('taylordiagram')
-"""
-        
-        name,source = self.check_name_source(name,source,'taylordiagram')
-        srcfound=0
-        for m in vcs.taylordiagrams:
-            if m.name==name :
-                raise vcsError, 'Error creating taylordiagram graphic method: '+Gtd_name+' already exist'
-            if m.name==source:
-                srcfound=1
-        if not srcfound:
-            raise vcsError, 'Error creating taylordiagram graphic method '+Gtd_name_src+' does not exist'
-        n=vcs.taylor.Gtd()
-        n._name=name
-        for m in vcs.taylordiagrams:
-            if m.name==source :
-                n.max=m.max
-                n.quadrans=m.quadrans
-                n.skillValues=m.skillValues
-                n.skillColor=m.skillColor
-                n.skillDrawLabels=m.skillDrawLabels
-                n.skillCoefficient=m.skillCoefficient
-                n.detail=m.detail
-                n.referencevalue=m.referencevalue
-                n.Marker=copy.deepcopy(m.Marker)
-                n.arrowlength=m.arrowlength
-                n.arrowangle=m.arrowangle
-                n.arrowbase=m.arrowbase
-                n.xticlabels1=m.xticlabels1
-                n.xmtics1=m.xmtics1
-                n.yticlabels1=m.yticlabels1
-                n.ymtics1=m.xmtics1
-                n.cticlabels1=m.cticlabels1
-                n.cmtics1=m.xmtics1
-                
-                break
-        vcs.taylordiagrams.append(n)
-        n.Marker.equalize()
-        return n
+        return vcs.createtaylordiagram(name,source)
+    createtaylordiagram.__doc__ = vcs.manageElements.createtaylordiagram.__doc__
 
     def gettaylordiagram(self,Gtd_name_src='default'):
-        """
- Function: gettaylordiagram                     # Construct a new taylordiagram graphics method
-
- Description of Function:
-    VCS contains a list of graphics methods. This function will create a
-    taylordiagram class object from an existing VCS taylordiagram graphics method. If
-    no taylordiagram name is given, then taylordiagram 'default' will be used.
-
-    Note, VCS does not allow the modification of `default' attribute
-    sets. However, a `default' attribute set that has been copied under a 
-    different name can be modified. (See the createboxfill function.)
-
- Example of Use:
-    a=vcs.init()
-    a.show('taylordiagram')                    # Show all the existing taylordiagram graphics methods
-    td=a.gettaylordiagram()                    # td instance of 'default' taylordiagram graphics
-                                               # method
-    td2=a.gettaylordiagram('default')          # td2 instance of existing 'default' taylordiagram
-                                               #         graphics method
-                                        """
-        
-        
-        # Check to make sure the argument passed in is a STRING
-        if (type(Gtd_name_src) != types.StringType):
-            raise vcsError, 'The argument must be a string.'
-        
-        for m in vcs.taylordiagrams:
-            if m.name==Gtd_name_src:
-##                 n=copy.copy(m)
-                n=m
-                #vcs.taylordiagrams.append(n)
-                n.Marker.equalize()
-                return n
-        raise vcsError,'Error, taylordiagram \"'+Gtd_name_src+'\" does not exist'
+        return vcs.gettaylordiagram(Gtd_name_src)
+    gettaylordiagram.__doc__ = vcs.manageElements.gettaylordiagram.__doc__
     
     def taylordiagram(self, *args, **parms):
         """
@@ -1677,181 +1353,13 @@ Options:::
     #############################################################################
     
     def createmeshfill(self,name=None, source='default'):
-        """
- Function: createmeshfill                # Construct a new meshfill graphics method
-
- Description of Function:
-    Create a new meshfill graphics method given the the name and the existing
-    meshfill graphics method to copy the attributes from. If no existing
-    meshfill graphics method name is given, then the default meshfill graphics
-    method will be used as the graphics method to which the attributes will
-    be copied from.
-
-    If the name provided already exists, then a error will be returned. Graphics
-    method names must be unique.
-
- Example of Use:
-    a=vcs.init()
-    a.show('meshfill')
-    mesh=a.createmeshfill('example1',)
-    a.show('meshfill')
-    mesh=a.createmeshfill('example2','quick')
-    a.show('meshfill')
-"""
-
-        name,source = self.check_name_source(name,source,'meshfill')
-        return meshfill.Gfm(self, name, source, 0)
+        return vcs.createmeshfill(name, source)
+    createmeshfill.__doc__ = vcs.manageElements.createmeshfill.__doc__
 
     def getmeshfill(self,Gfm_name_src='default'):
-        """
- Function: getmeshfill                        # Construct a new meshfill graphics method
+        return vcs.getmeshfill(Gfm_name_src)
+    getmeshfill.__doc__ = vcs.manageElements.getmeshfill.__doc__
 
- Description of Function:
-    VCS contains a list of graphics methods. This function will create a
-    meshfill class object from an existing VCS meshfill graphics method. If
-    no meshfill name is given, then meshfill 'default' will be used.
-
-    Note, VCS does not allow the modification of `default' attribute
-    sets. However, a `default' attribute set that has been copied under a 
-    different name can be modified. (See the createmeshfill function.)
-
- Example of Use:
-    a=vcs.init()
-    a.show('meshfill')                   # Show all the existing meshfill graphics methods
-    mesh=a.getmeshfill()                  # mesh instance of 'default' meshfill graphics
-                                        # method
-    mesh2=a.getmeshfill('quick')          # mesh2 instance of existing 'quick' meshfill
-                                        #         graphics method
-"""
-
-        # Check to make sure the argument passed in is a STRING
-        if (type(Gfm_name_src) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
-
-        Gfm_name = None
-        return meshfill.Gfm(self, Gfm_name, Gfm_name_src, 1)
-
-   
-
-    def prettifyAxisLabels(self,ticks,axis):
-        for k in ticks.keys():
-            if len(ticks[k])==0:
-                continue
-            if axis=="longitude":
-                if k<0:
-                    ticks[k]=ticks[k][1:]+"W"
-                elif k>0:
-                    ticks[k]=ticks[k]+"E"
-            elif axis=="latitude":
-                if k<0:
-                    ticks[k]=ticks[k][1:]+"S"
-                elif k>0:
-                    ticks[k]=ticks[k]+"N"
-                else:
-                    ticks[0]="Eq"
-        return ticks
-    
-    def setTicksandLabels(self,gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
-        """ Sets the labels and ticks for a graphics method made in python
-        Usage setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None)
-        datawc are world coordinates
-        
-        """
-        if isinstance(gm,vcs.taylor.Gtd):
-            return
-        # Now the template stuff
-        # first create the dictionary to remember which ones are changed
-        dic={}
-        for i in ('xticlabels1','xmtics1','xticlabels2','xmtics2','yticlabels1','ymtics1','yticlabels2','ymtics2'):
-            dic[i]=False
-        #xticklabels1
-        if gm.xticlabels1 is None or gm.xticlabels1=='*':
-            ticks=vcs.mkscale(datawc_x1,datawc_x2)
-            ticks=self.prettifyAxisLabels(vcs.mklabels(ticks),x)
-            ## for k in ticks.keys() : # make sure you're in the range
-            ##     if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
-            ##         del(ticks[k])
-            setattr(gm,'xticlabels1',ticks)
-            dic['xticlabels1']=True
-        #xmtics1
-        if gm.xmtics1 is None or gm.xmtics1=='*':
-            ticks=vcs.mkscale(datawc_x1,datawc_x2)
-            tick2=[]
-            for i in range(len(ticks)-1):
-                tick2.append((ticks[i]+ticks[i+1])/2.)
-            ticks=self.prettifyAxisLabels(vcs.mklabels(tick2),x)
-            ## for k in ticks.keys() : # make sure you're in the range
-            ##     if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
-            ##         del(ticks[k])
-            setattr(gm,'xmtics1',ticks)
-            dic['xmtics1']=True
-        #xticklabels2
-        if  hasattr(gm,"xticlabels2") and (gm.xticlabels2 is None or gm.xticlabels2=='*'):
-            ticks=vcs.mkscale(datawc_x1,datawc_x2)
-            ticks=self.prettifyAxisLabels(vcs.mklabels(ticks),x)
-            ## for k in ticks.keys():
-            ##     ticks[k]=''
-            ##     if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
-            ##         del(ticks[k])
-            setattr(gm,'xticlabels2',ticks)
-            dic['xticlabels2']=True
-        #xmtics2
-        if hasattr(gm,"xmtics2") and (gm.xmtics2 is None or gm.xmtics2=='*'):
-            ticks=vcs.mkscale(datawc_x1,datawc_x2)
-            tick2=[]
-            for i in range(len(ticks)-1):
-                tick2.append((ticks[i]+ticks[i+1])/2.)
-            ticks=self.prettifyAxisLabels(vcs.mklabels(tick2),x)
-            ## for k in ticks.keys() : # make sure you're in the range
-            ##     if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
-            ##         del(ticks[k])
-            setattr(gm,'xmtics2',ticks)
-            dic['xmtics2']=True
-        #yticklabels1
-        if gm.yticlabels1 is None or gm.yticlabels1=='*':
-            ticks=vcs.mkscale(datawc_y1,datawc_y2)
-            ticks=self.prettifyAxisLabels(vcs.mklabels(ticks),y)
-            ## for k in ticks.keys() : # make sure you're in the range
-            ##     if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
-            ##         del(ticks[k])
-            setattr(gm,'yticlabels1',ticks)
-            dic['yticlabels1']=True
-        #ymtics1
-        if gm.ymtics1 is None or gm.ymtics1=='*':
-            ticks=vcs.mkscale(datawc_y1,datawc_y2)
-            tick2=[]
-            for i in range(len(ticks)-1):
-                tick2.append((ticks[i]+ticks[i+1])/2.)
-            ticks=self.prettifyAxisLabels(vcs.mklabels(tick2),y)
-            ## for k in ticks.keys() : # make sure you're in the range
-            ##     if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
-            ##         del(ticks[k])
-            setattr(gm,'ymtics1',ticks)
-            dic['ymtics1']=True
-        #yticklabels2
-        if hasattr(gm,"yticlabels2") and (gm.yticlabels2 is None or gm.yticlabels2=='*'):
-            ticks=vcs.mkscale(datawc_y1,datawc_y2)
-            ticks=self.prettifyAxisLabels(vcs.mklabels(ticks),y)
-            ## for k in ticks.keys():
-            ##     ticks[k]=''
-            ##     if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
-            ##         del(ticks[k])
-            setattr(gm,'yticlabels2',ticks)
-            dic['yticlabels2']=True
-        #ymtics2
-        if hasattr(gm,"ymtics2") and (gm.ymtics2 is None or gm.ymtics2=='*'):
-            ticks=vcs.mkscale(datawc_y1,datawc_y2)
-            tick2=[]
-            for i in range(len(ticks)-1):
-                tick2.append((ticks[i]+ticks[i+1])/2.)
-            ticks=self.prettifyAxisLabels(vcs.mklabels(tick2),y)
-            ## for k in ticks.keys() : # make sure you're in the range
-            ##     if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
-            ##         del(ticks[k])
-            setattr(gm,'ymtics2',ticks)
-            dic['ymtics2']=True
-        return dic
-        
 
     def meshfill(self,*args, **parms):
         """
@@ -1886,103 +1394,27 @@ Options:::
 
     #############################################################################
     #                                                                           #
+    # DV3D functions for VCS.                                                #
+    #                                                                           #
+    #############################################################################
+    def createdv3d(self,name=None,source='default'):
+      return vcs.createdv3d(name,source)
+    createdv3d.__doc__ = vcs.manageElements.createdv3d.__doc__
+    def getdv3d(self,Gfdv3d_name_src='default'):
+      return vcs.getdv3d(Gfdv3d_name_src)
+    getdv3d.__doc__ = vcs.manageElements.getdv3d.__doc__
+    #############################################################################
+    #                                                                           #
     # Isofill functions for VCS.                                                #
     #                                                                           #
     #############################################################################
     def createisofill(self,name=None, source='default'):
-        """
-Options:::
-%s
-%s
-%s
-:::
- Input:::
-%s
-    :::
- Output:::
-%s
-    :::
-
- Function: createisofill  # Construct a new isofill graphics method
-
- Description of Function:
-    Create a new isofill graphics method given the the name and the existing
-    isofill graphics method to copy the attributes from. If no existing
-    isofill graphics method name is given, then the default isofill graphics
-    method will be used as the graphics method to which the attributes will
-    be copied from.
-
-    If the name provided already exists, then a error will be returned. Graphics
-    method names must be unique.
-
- Example of Use:
-    a=vcs.init()
-    a.show('isofill')
-    iso=a.createisofill('example1',)
-    a.show('isofill')
-    iso=a.createisofill('example2','quick')
-    a.show('isofill')
-
-#########################################################################################################################
-###########################################                               ###############################################
-########################################## End createisofill Description ################################################
-#########################################                               #################################################
-#########################################################################################################################
-
-"""
-
-        name,source = self.check_name_source(name,source,'isofill')
-
-        return isofill.Gfi(self, name, source, 0)
-    createisofill.__doc__ = createisofill.__doc__ % (plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, isofill_output)
+        return vcs.createisofill(name, source)
+    createisofill.__doc__ = vcs.manageElements.createisofill.__doc__
 
     def getisofill(self,Gfi_name_src='default'):
-        """
-Options:::
-%s
-%s
-%s
-:::
- Input:::
-%s
-    :::
- Output:::
-%s
-    :::
-
- Function: getisofill          Construct a new isofill graphics method
-
- Description of Function:
-    VCS contains a list of graphics methods. This function will create a
-    isofill class object from an existing VCS isofill graphics method. If
-    no isofill name is given, then isofill 'default' will be used.
-
-    Note, VCS does not allow the modification of `default' attribute
-    sets. However, a `default' attribute set that has been copied under a
-    different name can be modified. (See the createisofill function.)
-
- Example of Use:
-    a=vcs.init()
-    a.show('isofill')                   # Show all the existing isofill graphics methods
-    iso=a.getisofill()                  # iso instance of 'default' isofill graphics
-                                        #       method
-    iso2=a.getisofill('quick')          # iso2 instance of existing 'quick' isofill
-                                        #       graphics method
-######################################################################################################################
-###########################################                            ###############################################
-########################################## End getisofill Description ################################################
-#########################################                            #################################################
-######################################################################################################################
-
-"""
-
-        # Check to make sure the argument passed in is a STRING
-        if (type(Gfi_name_src) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
-
-        Gfi_name = None
-        return isofill.Gfi(self, Gfi_name, Gfi_name_src, 1)
-    getisofill.__doc__ = getisofill.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert, get_GM_input, isofill_output)
+        return vcs.getisofill(Gfi_name_src)
+    getisofill.__doc__ = vcs.manageElements.getisofill.__doc__
 
     def isofill(self, *args, **parms):
         """
@@ -2033,98 +1465,12 @@ Options:::
     #                                                                           #
     #############################################################################
     def createisoline(self, name=None, source='default'):
-        """
-Options:::
-%s
-%s
-%s
-:::
- Input:::
-%s
-    :::
- Output:::
-%s
-    :::
-
- Function: createisoline                # Construct a new isoline graphics method
-
- Description of Function:
-    Create a new isoline graphics method given the the name and the existing
-    isoline graphics method to copy the attributes from. If no existing
-    isoline graphics method name is given, then the default isoline graphics
-    method will be used as the graphics method to which the attributes will
-    be copied from.
-
-    If the name provided already exists, then a error will be returned. Graphics
-    method names must be unique.
-
- Example of Use:
-
-    a=vcs.init()
-    a.show('isoline')
-    iso=a.createisoline('example1',)
-    a.show('isoline')
-    iso=a.createisoline('example2','quick')
-    a.show('isoline')
-
-#########################################################################################################################
-###########################################                               ###############################################
-########################################## End createisoline Description ################################################
-#########################################                               #################################################
-#########################################################################################################################
-
-"""
-
-        name,source = self.check_name_source(name,source,'isoline')
-        return isoline.Gi(self, name, source, 0)
-    createisoline.__doc__ = createisoline.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert, create_GM_input, isoline_output)
+        return vcs.createisoline(name, source)
+    createisoline.__doc__ = vcs.manageElements.createisoline.__doc__
 
     def getisoline(self,Gi_name_src='default'):
-        """
-Options:::
-%s
-%s
-%s
-:::
- Input:::
-%s
-    :::
- Output:::
-%s
-    :::
-
- Function: getisoline                        # Construct a new isoline graphics method
-
- Description of Function:
-    VCS contains a list of graphics methods. This function will create a
-    isoline class object from an existing VCS isoline graphics method. If
-    no isoline name is given, then isoline 'default' will be used.
-
-    Note, VCS does not allow the modification of `default' attribute
-    sets. However, a `default' attribute set that has been copied under a
-    different name can be modified. (See the createisoline function.)
-
- Example of Use:
-    a=vcs.init()
-    a.show('isoline')                   # Show all the existing isoline graphics methods
-    iso=a.getisoline()                  # iso instance of 'default' isoline graphics
-                                        #       method
-    iso2=a.getisoline('quick')          # iso2 instance of existing 'quick' isoline
-                                        #       graphics method
-######################################################################################################################
-###########################################                            ###############################################
-########################################## End getisoline Description ################################################
-#########################################                            #################################################
-######################################################################################################################
-"""
-
-        # Check to make sure the argument passed in is a STRING
-        if (type(Gi_name_src) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
-
-        Gi_name = None
-        return isoline.Gi(self, Gi_name, Gi_name_src, 1)
-    getisoline.__doc__ = getisoline.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert, get_GM_input, isoline_output)
+        return vcs.getisoline(Gi_name_src)
+    getisoline.__doc__ = vcs.manageElements.getisoline.__doc__
 
     def isoline(self, *args, **parms):
         """
@@ -2168,393 +1514,27 @@ Options:::
         return self.__plot(arglist, parms)
     isoline.__doc__ = isoline.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert,plot_2D_input, plot_output)
 
-    #############################################################################
-    #                                                                           #
-    # Outline functions for VCS.                                                #
-    #                                                                           #
-    #############################################################################
-    def createoutline(self, name=None, source='default'):
-        """
-Options:::
-%s
-%s
-%s
-:::
- Input:::
-%s
-    :::
- Output:::
-%s
-    :::
+    def createoneD(self,name=None,source='default'):
+        return vcs.getoneD(name,source)
+    createoneD.__doc__ = vcs.manageElements.createoneD.__doc__
 
- Function: createoutline                # Construct a new outline graphics method
+    def getoneD(self,name):
+        return vcs.getoned(name)
+    createoneD.__doc__ = vcs.manageElements.createoneD.__doc__
 
- Description of Function:
-    Create a new outline graphics method given the the name and the existing
-    outline graphics method to copy the attributes from. If no existing
-    outline graphics method name is given, then the default outline graphics
-    method will be used as the graphics method to which the attributes will
-    be copied from.
-
-    If the name provided already exists, then a error will be returned. Graphics
-    method names must be unique.
-
- Example of Use:
-
-    a=vcs.init()
-    a.show('outline')
-    out=a.createoutline('example1',)
-    a.show('outline')
-    out=a.createoutline('example2','quick')
-    a.show('outline')
-
-#########################################################################################################################
-###########################################                               ###############################################
-########################################## End createoutline Description ################################################
-#########################################                               #################################################
-#########################################################################################################################
-
-"""
-
-        name,source = self.check_name_source(name,source,'outline')
-
-        return outline.Go(self, name, source, 0)
-    createoutline.__doc__ = createoutline.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert, create_GM_input, outline_output)
-
-    def getoutline(self,Go_name_src='default'):
-        """
-Options:::
-%s
-%s
-%s
-:::
- Input:::
-%s
-    :::
- Output:::
-%s
-    :::
-
- Function: getoutline                        # Construct a new outline graphics method
-
- Description of Function:
-    VCS contains a list of graphics methods. This function will create a
-    outline class object from an existing VCS outline graphics method. If
-    no outline name is given, then outline 'default' will be used.
-
-    Note, VCS does not allow the modification of `default' attribute
-    sets. However, a `default' attribute set that has been copied under a
-    different name can be modified. (See the createoutline function.)
-
- Example of Use:
-    a=vcs.init()
-    a.show('outline')                   # Show all the existing outline graphics methods
-    out=a.getoutline()                  # out instance of 'default' outline graphics
-                                        #       method
-    out2=a.getoutline('quick')          # out2 instance of existing 'quick' outline
-                                        #       graphics method
-
-######################################################################################################################
-###########################################                            ###############################################
-########################################## End getoutline Description ################################################
-#########################################                            #################################################
-######################################################################################################################
-"""
-
-        # Check to make sure the argument passed in is a STRING
-        if (type(Go_name_src) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
-
-        Go_name = None
-        return outline.Go(self, Go_name, Go_name_src, 1)
-    getoutline.__doc__ = getoutline.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert, get_GM_input, outline_output)
-
-    def outline(self, *args, **parms):
-        """
-Options:::
-%s
-%s
-%s
-:::
- Input:::
-%s
-    :::
- Output:::
-%s
-    :::
-
- Function: outline                        # Generate an outline plot
-
- Description of Function:
-    Generate a outline plot given the data, outline graphics method, and
-    template. If no outline class object is given, then the 'default' outline
-    graphics method is used. Simerly, if no template class object is given,
-    then the 'default' template is used.
-
- Example of Use:
-    a=vcs.init()
-    a.show('outline')                   # Show all the existing outline graphics methods
-    out=a.getoutline('quick')           # Create instance of 'quick'
-    a.outline(array,out)                # Plot array using specified out and default 
-                                        #       template
-    a.clear()                           # Clear VCS canvas
-    a.outline(array,out,template)       # Plot array using specified out and template
-
-###################################################################################################################
-###########################################                         ###############################################
-########################################## End outline Description ################################################
-#########################################                         #################################################
-###################################################################################################################
-
-"""
-        arglist=_determine_arg_list('outline',args)
-        return self.__plot(arglist, parms)
-    outline.__doc__ = outline.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert,plot_2D_input, plot_output)
-
-    #############################################################################
-    #                                                                           #
-    # Outfill functions for VCS.                                                #
-    #                                                                           #
-    #############################################################################
-    def createoutfill(self, name=None, source='default'):
-        """
-Options:::
-%s
-%s
-%s
-:::
- Input:::
-%s
-    :::
- Output:::
-%s
-    :::
-
- Function: createoutfill                # Construct a new outfill graphics method
-
- Description of Function:
-    Create a new outfill graphics method given the the name and the existing
-    outfill graphics method to copy the attributes from. If no existing
-    outfill graphics method name is given, then the default outfill graphics
-    method will be used as the graphics method to which the attributes will
-    be copied from.
-
-    If the name provided already exists, then a error will be returned. Graphics
-    method names must be unique.
-
- Example of Use:
-
-    a=vcs.init()
-    a.show('outfill')
-    out=a.createoutfill('example1',)
-    a.show('outfill')
-    out=a.createoutfill('example2','quick')
-    a.show('outfill')
-
-#########################################################################################################################
-###########################################                               ###############################################
-########################################## End createoutfill Description ################################################
-#########################################                               #################################################
-#########################################################################################################################
-
-"""
-
-        name,source = self.check_name_source(name,source,'outfill')
-
-        return outfill.Gfo(self, name, source, 0)
-    createoutfill.__doc__ = createoutfill.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert, create_GM_input, outfill_output)
-
-    def getoutfill(self,Gfo_name_src='default'):
-        """
-Options:::
-%s
-%s
-%s
-:::
- Input:::
-%s
-    :::
- Output:::
-%s
-    :::
-
- Function: getoutfill                        # Construct a new outfill graphics method
-
- Description of Function:
-    VCS contains a list of graphics methods. This function will create a
-    outfill class object from an existing VCS outfill graphics method. If
-    no outfill name is given, then outfill 'default' will be used.
-
-    Note, VCS does not allow the modification of `default' attribute
-    sets. However, a `default' attribute set that has been copied under a
-    different name can be modified. (See the createoutfill function.)
-
- Example of Use:
-    a=vcs.init()
-    a.show('outfill')                   # Show all the existing outfill graphics methods
-    out=a.getoutfill()                  # out instance of 'default' outfill graphics
-                                        #       method
-    out2=a.getoutfill('quick')          # out2 instance of existing 'quick' outfill
-                                        #       graphics method
-
-######################################################################################################################
-###########################################                            ###############################################
-########################################## End getoutfill Description ################################################
-#########################################                            #################################################
-######################################################################################################################
-
-"""
-
-        # Check to make sure the argument passed in is a STRING
-        if (type(Gfo_name_src) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
-
-        Gfo_name = None
-        return outfill.Gfo(self, Gfo_name, Gfo_name_src, 1)
-    getoutfill.__doc__ = getoutfill.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert, get_GM_input, outfill_output)
-
-    def outfill(self, *args, **parms):
-        """
-Options:::
-%s
-%s
-%s
-:::
- Input:::
-%s
-    :::
- Output:::
-%s
-    :::
-
- Function: outfill                        # Generate an outfill plot
-
- Description of Function:
-    Generate a outfill plot given the data, outfill graphics method, and
-    template. If no outfill class object is given, then the 'default' outfill
-    graphics method is used. Simerly, if no template class object is given,
-    then the 'default' template is used.
-
- Example of Use:
-    a=vcs.init()
-    a.show('outfill')                   # Show all the existing outfill graphics methods
-    out=a.getoutfill('quick')           # Create instance of 'quick'
-    a.outfill(array,out)                # Plot array using specified out and default 
-                                        #       template
-    a.clear()                           # Clear VCS canvas
-    a.outfill(array,out,template)       # Plot array using specified out and template
-
-###################################################################################################################
-###########################################                         ###############################################
-########################################## End outfill Description ################################################
-#########################################                         #################################################
-###################################################################################################################
-
-"""
-        arglist=_determine_arg_list('outfill',args)
-        return self.__plot(arglist, parms)
-    outfill.__doc__ = outfill.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert,plot_2D_input, plot_output)
-
+    
     #############################################################################
     #                                                                           #
     # Xyvsy functions for VCS.                                                  #
     #                                                                           #
     #############################################################################
     def createxyvsy(self,name=None, source='default'):
-        """
-Options:::
-%s
-%s
-%s
-:::
- Input:::
-%s
-    :::
- Output:::
-%s
-    :::
-
- Function: createxyvsy                  # Construct a new Xyvsy graphics method
-
- Description of Function:
-    Create a new Xyvsy graphics method given the the name and the existing
-    Xyvsy graphics method to copy the attributes from. If no existing
-    Xyvsy graphics method name is given, then the default Xyvsy graphics
-    method will be used as the graphics method to which the attributes will
-    be copied from.
-
-    If the name provided already exists, then a error will be returned. Graphics
-    method names must be unique.
-
- Example of Use:
-
-    a=vcs.init()
-    a.show('xyvsy')
-    xyy=a.createxyvsy('example1',)
-    a.show('xyvsy')
-    xyy=a.createxyvsy('example2','quick')
-    a.show('xyvsy')
-
-#######################################################################################################################
-###########################################                             ###############################################
-########################################## End createxyvsy Description ################################################
-#########################################                             #################################################
-#######################################################################################################################
-
-"""
-
-        name,source = self.check_name_source(name,source,'xyvsy')
-
-        return xyvsy.GXy(self, name, source, 0)
-    createxyvsy.__doc__ = createxyvsy.__doc__ % (plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, xyvsy_output) 
+        return vcs.createxyvsy(name,source)
+    createxyvsy.__doc__ = vcs.manageElements.createxyvsy.__doc__
 
     def getxyvsy(self,GXy_name_src='default'):
-        """
-Options:::
-%s
-%s
-%s
-:::
- Input:::
-%s
-    :::
- Output:::
-%s
-    :::
-
- Function: getxyvsy        # Construct a new Xyvsy graphics method
-
- Description of Function:
-    VCS contains a list of graphics methods. This function will create a
-    Xyvsy class object from an existing VCS Xyvsy graphics method. If
-    no Xyvsy name is given, then Xyvsy 'default' will be used.
-
-    Note, VCS does not allow the modification of `default' attribute
-    sets. However, a `default' attribute set that has been copied under a
-    different name can be modified. (See the createxyvsy function.)
-
- Example of Use:
-    a=vcs.init()
-    a.show('xyvsy')                     # Show all the existing Xyvsy graphics methods
-    xyy=a.getxyvsy()                    # xyy instance of 'default' Xyvsy graphics
-                                        #       method
-    xyy2=a.getxyvsy('quick')            # xyy2 instance of existing 'quick' Xyvsy
-                                        #       graphics method
-####################################################################################################################
-###########################################                          ###############################################
-########################################## End getxyvsy Description ################################################
-#########################################                          #################################################
-####################################################################################################################
-
-"""
-
-        # Check to make sure the argument passed in is a STRING
-        if (type(GXy_name_src) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
-
-        GXy_name = None
-        return xyvsy.GXy(self, GXy_name, GXy_name_src, 1)
-    getxyvsy.__doc__ = getxyvsy.__doc__ % (plot_keywords_doc, graphics_method_core, axesconvert, get_GM_input, xyvsy_output) 
+        return vcs.getxyvsy(GXy_name_src)
+    getxyvsy.__doc__ = vcs.manageElements.getxyvsy.__doc__
 
     def xyvsy(self, *args, **parms):
         """
@@ -2604,100 +1584,12 @@ Options:::
     #                                                                           #
     #############################################################################
     def createyxvsx(self, name=None, source='default'):
-        """
-Options:::
-%s
-%s
-%s
-:::
- Input:::
-%s
-    :::
- Output:::
-%s
-    :::
-
- Function: createyxvsx                  # Construct a new Yxvsx graphics method
-
- Description of Function:
-    Create a new Yxvsx graphics method given the the name and the existing
-    Yxvsx graphics method to copy the attributes from. If no existing
-    Yxvsx graphics method name is given, then the default Yxvsx graphics
-    method will be used as the graphics method to which the attributes will
-    be copied from.
-
-    If the name provided already exists, then a error will be returned. Graphics
-    method names must be unique.
-
- Example of Use:
-
-    a=vcs.init()
-    a.show('yxvsx')
-    yxx=a.createyxvsx('example1',)
-    a.show('yxvsx')
-    yxx=a.createyxvsx('example2','quick')
-    a.show('yxvsx')
-
-#######################################################################################################################
-###########################################                             ###############################################
-########################################## End createyxvsx Description ################################################
-#########################################                             #################################################
-#######################################################################################################################
-
-"""
-
-        name,source = self.check_name_source(name,source,'yxvsx')
-
-        return yxvsx.GYx(self, name, source, 0)
-    createyxvsx.__doc__ = createyxvsx.__doc__ % (plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, yxvsx_output) 
+        return vcs.createyxvsx(name,source)
+    createyxvsx.__doc__ = vcs.manageElements.createyxvsx.__doc__ 
 
     def getyxvsx(self,GYx_name_src='default'):
-        """
-Options:::
-%s
-%s
-%s
-:::
- Input:::
-%s
-    :::
- Output:::
-%s
-    :::
-
- Function: getyxvsx                     # Construct a new Yxvsx graphics method
-
- Description of Function:
-    VCS contains a list of graphics methods. This function will create a
-    Yxvsx class object from an existing VCS Yxvsx graphics method. If
-    no Yxvsx name is given, then Yxvsx 'default' will be used.
-
-    Note, VCS does not allow the modification of `default' attribute
-    sets. However, a `default' attribute set that has been copied under a
-    different name can be modified. (See the createyxvsx function.)
-
- Example of Use:
-    a=vcs.init()
-    a.show('yxvsx')                     # Show all the existing Yxvsx graphics methods
-    yxx=a.getyxvsx()                    # yxx instance of 'default' Yxvsx graphics
-                                        #       method
-    yxx2=a.getyxvsx('quick')            # yxx2 instance of existing 'quick' Yxvsx
-                                        #       graphics method
-####################################################################################################################
-###########################################                          ###############################################
-########################################## End getyxvsx Description ################################################
-#########################################                          #################################################
-####################################################################################################################
-
-"""
-
-        # Check to make sure the argument passed in is a STRING
-        if (type(GYx_name_src) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
-
-        GYx_name = None
-        return yxvsx.GYx(self, GYx_name, GYx_name_src, 1)
-    getyxvsx.__doc__ = getyxvsx.__doc__ % (plot_keywords_doc, graphics_method_core, axesconvert, get_GM_input, yxvsx_output) 
+        return vcs.getyxvsx(GYx_name_src)
+    getyxvsx.__doc__ = vcs.manageElements.getyxvsx.__doc__ 
 
     def yxvsx(self, *args, **parms):
         """
@@ -2747,100 +1639,12 @@ Options:::
     #                                                                           #
     #############################################################################
     def createxvsy(self, name=None, source='default'):
-        """
-Options:::
-%s
-%s
-%s
-:::
- Input:::
-%s
-    :::
- Output:::
-%s
-    :::
-
- Function: createxvsy                      # Construct a new XvsY graphics method
-
- Description of Function:
-    Create a new XvsY graphics method given the the name and the existing
-    XvsY graphics method to copy the attributes from. If no existing
-    XvsY graphics method name is given, then the default XvsY graphics
-    method will be used as the graphics method to which the attributes will
-    be copied from.
-
-    If the name provided already exists, then a error will be returned. Graphics
-    method names must be unique.
-
- Example of Use:
-    a=vcs.init()
-    a.show('xvsy')
-    xy=a.createxvsy('example1',)
-    a.show('xvsy')
-    xy=a.createxvsy('example2','quick')
-    a.show('xvsy')
-
-######################################################################################################################
-###########################################                            ###############################################
-########################################## End createxvsy Description ################################################
-#########################################                            #################################################
-######################################################################################################################
-
-"""
-
-        name,source = self.check_name_source(name,source,'xvsy')
-
-        return xvsy.GXY(self, name, source, 0)
-    createxvsy.__doc__ = createxvsy.__doc__ % (plot_keywords_doc, graphics_method_core, axesconvert, create_GM_input, xvsy_output) 
+        return vcs.createxvsy(name,source)
+    createxvsy.__doc__ = vcs.manageElements.createxvsy.__doc__ 
 
     def getxvsy(self,GXY_name_src='default'):
-        """
-Options:::
-%s
-%s
-%s
-:::
- Input:::
-%s
-    :::
- Output:::
-%s
-    :::
-
- Function: getxvsy                   # Construct a new XvsY graphics method
-
- Description of Function:
-    VCS contains a list of graphics methods. This function will create a
-    XvsY class object from an existing VCS XvsY graphics method. If
-    no XvsY name is given, then XvsY 'default' will be used.
-
-    Note, VCS does not allow the modification of `default' attribute
-    sets. However, a `default' attribute set that has been copied under a
-    different name can be modified. (See the createxvsy function.)
-
- Example of Use:
-    a=vcs.init()
-    a.show('xvsy')                      # Show all the existing XvsY graphics methods
-    xy=a.getxvsy()                      # xy instance of 'default' XvsY graphics
-                                        #       method
-    xy2=a.getxvsy('quick')              # xy2 instance of existing 'quick' XvsY
-                                        #       graphics method
-
-###################################################################################################################
-###########################################                         ###############################################
-########################################## End getxvsy Description ################################################
-#########################################                         #################################################
-###################################################################################################################
-
-"""
-
-        # Check to make sure the argument passed in is a STRING
-        if (type(GXY_name_src) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
-
-        GXY_name = None
-        return xvsy.GXY(self, GXY_name, GXY_name_src, 1)
-    getxvsy.__doc__ = getxvsy.__doc__ % (plot_keywords_doc, graphics_method_core, axesconvert, get_GM_input, xvsy_output) 
+        return vcs.getxvsy(GXY_name_src)
+    getxvsy.__doc__ = vcs.manageElements.getxvsy.__doc__ 
 
     def xvsy(self, *args, **parms):
         """
@@ -2888,60 +1692,12 @@ Options:::
     #                                                                           #
     #############################################################################
     def createvector(self, name=None, source='default'):
-        """
- Function: createvector                # Construct a new vector graphics method
-
- Description of Function:
-    Create a new vector graphics method given the the name and the existing
-    vector graphics method to copy the attributes from. If no existing
-    vector graphics method name is given, then the default vector graphics
-    method will be used as the graphics method to which the attributes will
-    be copied from.
-
-    If the name provided already exists, then a error will be returned. Graphics
-    method names must be unique.
-
- Example of Use:
-    a=vcs.init()
-    a.show('vector')
-    vec=a.createvector('example1',)
-    a.show('vector')
-    vec=a.createvector('example2','quick')
-    a.show('vector')
-"""
-
-        name,source = self.check_name_source(name,source,'vector')
-
-        return vector.Gv(self, name, source, 0)
+        return vcs.createvector(name, source)
+    createvector.__doc__=vcs.manageElements.createvector.__doc__
 
     def getvector(self,Gv_name_src='default'):
-        """
- Function: getvector                   # Construct a new vector graphics method
-
- Description of Function:
-    VCS contains a list of graphics methods. This function will create a
-    vector class object from an existing VCS vector graphics method. If
-    no vector name is given, then vector 'default' will be used.
-
-    Note, VCS does not allow the modification of `default' attribute
-    sets. However, a `default' attribute set that has been copied under a
-    different name can be modified. (See the createvector function.)
-
- Example of Use:
-    a=vcs.init()
-    a.show('vector')                   # Show all the existing vector graphics methods
-    vec=a.getvector()                  # vec instance of 'default' vector graphics
-                                        #       method
-    vec2=a.getvector('quick')          # vec2 instance of existing 'quick' vector
-                                        #       graphics method
-"""
-
-        # Check to make sure the argument passed in is a STRING
-        if (type(Gv_name_src) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
-
-        Gv_name = None
-        return vector.Gv(self, Gv_name, Gv_name_src, 1)
+        return vcs.getvector(Gv_name_src)
+    getvector.__doc__=vcs.manageElements.getvector.__doc__
  
     def vector(self, *args, **parms):
         """
@@ -2971,100 +1727,12 @@ Options:::
     #                                                                           #
     #############################################################################
     def createscatter(self, name=None, source='default'):
-        """
-Options:::
-%s
-%s
-%s
-:::
- Input:::
-%s
-    :::
- Output:::
-%s
-    :::
-
- Function: createscatter                # Construct a new scatter graphics method
-
- Description of Function:
-    Create a new scatter graphics method given the the name and the existing
-    scatter graphics method to copy the attributes from. If no existing
-    scatter graphics method name is given, then the default scatter graphics
-    method will be used as the graphics method to which the attributes will
-    be copied from.
-
-    If the name provided already exists, then a error will be returned. Graphics
-    method names must be unique.
-
- Example of Use:
-    a=vcs.init()
-    a.show('scatter')
-    sct=a.createscatter('example1',)
-    a.show('scatter')
-    sct=a.createscatter('example2','quick')
-    a.show('scatter')
-
-#########################################################################################################################
-###########################################                               ###############################################
-########################################## End createscatter Description ################################################
-#########################################                               #################################################
-#########################################################################################################################
-
-"""
-
-        name,source = self.check_name_source(name,source,'scatter')
-
-        return scatter.GSp(self, name, source, 0)
-    createscatter.__doc__ = createscatter.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert, create_GM_input, scatter_output)
+        return vcs.createscatter(name,source)
+    createscatter.__doc__ = vcs.manageElements.createscatter.__doc__
 
     def getscatter(self,GSp_name_src='default'):
-        """
-Options:::
-%s
-%s
-%s
-:::
- Input:::
-%s
-    :::
- Output:::
-%s
-    :::
-
- Function: getscatter                   # Construct a new scatter graphics method
-
- Description of Function:
-    VCS contains a list of graphics methods. This function will create a
-    scatter class object from an existing VCS scatter graphics method. If
-    no scatter name is given, then scatter 'default' will be used.
-
-    Note, VCS does not allow the modification of `default' attribute
-    sets. However, a `default' attribute set that has been copied under a
-    different name can be modified. (See the createscatter function.)
-
- Example of Use:
-    a=vcs.init()
-    a.show('scatter')                   # Show all the existing scatter graphics methods
-    sct=a.getscatter()                  # sct instance of 'default' scatter graphics
-                                        #       method
-    sct2=a.getscatter('quick')          # sct2 instance of existing 'quick' scatter
-                                        #       graphics method
-
-######################################################################################################################
-###########################################                            ###############################################
-########################################## End getscatter Description ################################################
-#########################################                            #################################################
-######################################################################################################################
-
-"""
-
-        # Check to make sure the argument passed in is a STRING
-        if (type(GSp_name_src) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
-
-        GSp_name = None
-        return scatter.GSp(self, GSp_name, GSp_name_src, 1)
-    getscatter.__doc__ = getscatter.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert, get_GM_input, scatter_output)
+        return vcs.getscatter(GSp_name_src)
+    getscatter.__doc__ = vcs.manageElements.getscatter.__doc__
 
     def scatter(self, *args, **parms):
         """
@@ -3164,7 +1832,7 @@ Options:::
 """
 
         # Check to make sure the argument passed in is a STRING
-        if (type(Gcon_name_src) != types.StringType):
+        if not isinstance(Gcon_name_src,str):
            raise vcsError, 'The argument must be a string.'
 
         Gcon_name = None
@@ -3202,147 +1870,15 @@ Options:::
                  width=None, color=None, priority=1,
                  viewport=None, worldcoordinate=None,
                  x=None, y=None, projection='default'):
-        """
- Function: createline                       # Construct a new line secondary method
-
- Description of Function:
-    Create a new line secondary method given the the name and the existing
-    line secondary method to copy the attributes from. If no existing line
-    secondary method name is given, then the default line secondary method
-    will be used as the secondary method to which the attributes will be
-    copied from.
-
-    If the name provided already exists, then a error will be returned. 
-    Secondary method names must be unique.
-
- Example of Use:
-    a=vcs.init()
-    a.show('line')
-    ln=a.createline('example1',)
-    a.show('line')
-    ln=a.createline('example2','black')
-    a.show('line')
-    ln2=a.createline(name='new', name_src='red',ltype='dash', width=2,
-                  color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
-                  worldcoordinate=[0,100, 0,50]
-                  x=[0,20,40,60,80,100],
-                  y=[0,10,20,30,40,50] )      # Create instance of line object 'red'
-    a.line(ln2)                      # Plot using specified line object
-"""
-
-        name,source = self.check_name_source(name,source,'line')
-
-        ln = line.Tl(self, name, source, 0)
-        if (ltype is not None):
-            ln.type = ltype
-        if (width is not None):
-            ln.width = width
-        if (color is not None):
-            ln.color = color
-        if (priority is not None):
-            ln.priority = priority
-        if (viewport is not None):
-            ln.viewport = viewport
-        elif source=='default':
-            ln.viewport = self.viewport
-        if (worldcoordinate is not None):
-            ln.worldcoordinate = worldcoordinate
-        elif source=='default':
-            ln.worldcoordinate = self.worldcoordinate
-        if (x is not None):
-            ln.x = x
-        if (y is not None):
-            ln.y = y
-        ln.projection=projection
-        return ln
+        return vcs.createline(name,source,ltype,width,color,priority,viewport,worldcoordinate,x,y,projection)
+    createline.__doc__ = vcs.manageElements.createline.__doc__
 
     def getline(self,name='default', ltype=None, width=None, color=None,
                  priority=None, viewport=None,
                  worldcoordinate=None,
                  x=None, y=None):
-        """
- Function: getline        # Construct a new line secondary method
-
- Description of Function:
-    VCS contains a list of secondary methods. This function will create a
-    line class object from an existing VCS line secondary method. If
-    no line name is given, then line 'default' will be used.
-
-    Note, VCS does not allow the modification of `default' attribute sets.
-    However, a `default' attribute set that has been copied under a
-    different name can be modified. (See the createline function.)
-
- Example of Use:
-    a=vcs.init()
-    a.show('line')                   # Show all the existing line secondary methods
-    ln=a.getline()                   # ln instance of 'default' line secondary
-                                     #       method
-    ln2=a.getline('quick')           # ln2 instance of existing 'quick' line
-                                     #       secondary method
-    ln3=a.getline(name='red', ltype='dash', width=2,
-                  color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
-                  worldcoordinate=[0,100, 0,50]
-                  x=[0,20,40,60,80,100],
-                  y=[0,10,20,30,40,50] )      # Create instance of line object 'red'
-    a.line(ln3)                      # Plot using specified line object
-"""
-
-        # Check to make sure the argument passed in is a STRING
-        if (type(name) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
-
-        Tl_name = None
-        ln = line.Tl(self, Tl_name, name, 1)
-        if ltype is not None and ln.name!='default':
-            ln.type=ltype
-        if width is not None and ln.name!='default':
-            ln.width = width
-        if color is not None and ln.name!='default':
-            ln.color=color
-        if priority is not None and ln.name!='default':
-            ln.priority=priority
-        if viewport is not None and ln.name!='default':
-            ln.viewport=viewport
-        if worldcoordinate is not None and ln.name!='default':
-            ln.worldcooridnate = worldcoordinate
-        if viewport is not None and ln.name!='default':
-            ln.viewport = viewport
-        if x is not None and ln.name!='default':
-            ln.x = x
-        if y is not None and ln.name!='default':
-            ln.y = y
-        return ln
-    
-
-## Following comented out by C.Doutriaux on 8/16/04 because getline('default') returns None
-##         try:
-##            ln = line.Tl(self, Tl_name, name, 1)
-##            if (ltype is not None) and (ln.name != "default"):
-##               ln.type = ltype
-##            if (width is not None) and (ln.name != "default"):
-##               ln.width = width
-##            if (color is not None) and (ln.name != "default"):
-##               ln.color = color
-##            if (priority is not None) and (ln.name != "default"):
-##               ln.priority = priority
-##            if (self.viewport is None):
-##               if (viewport is not None) and (ln.name != "default"):
-##                  ln.viewport = viewport
-##            else:
-##               ln.viewport = self.viewport
-##            if (self.worldcoordinate is None):
-##               if (worldcoordinate is not None) and (ln.name != "default"):
-##                  ln.worldcoordinate = worldcoordinate
-##            else:
-##               ln.worldcoordinate = self.worldcoordinate
-##            if (x is not None) and (ln.name != "default"):
-##               ln.x = x
-##            if (y is not None) and (ln.name != "default"):
-##               ln.y = y
-##            return ln
-##         except:
-##            pass
-
+        return  vcs.getline(name,ltype,width,color,priority,viewport,worldcoordinate,x,y)
+    getline.__doc__ = vcs.manageElements.getline.__doc__
 
     def line(self, *args, **parms):
         """
@@ -3386,7 +1922,7 @@ Options:::
                   y=[0,10,20,30,40,50] )      # Create instance of line object 'red'
     a.line(ln)                          # Plot using specified line object
 """
-        if (name is None) or (type(name) != types.StringType):
+        if (name is None) or (not isinstance(name,str)):
             raise vcsError, 'Must provide string name for the line.'
         else:
             lo = self.listelements('line')
@@ -3417,115 +1953,16 @@ Options:::
                  size=None, color=None,priority=1,
                  viewport=None, worldcoordinate=None,
                  x=None, y=None,projection=None):
-        """
- Function: createmarker                   # Construct a new marker secondary method
-
- Description of Function:
-    Create a new marker secondary method given the the name and the existing
-    marker secondary method to copy the attributes from. If no existing marker
-    secondary method name is given, then the default marker secondary method
-    will be used as the secondary method to which the attributes will be
-    copied from.
-
-    If the name provided already exists, then a error will be returned.
-    Secondary method names must be unique.
-
- Example of Use:
-    a=vcs.init()
-    a.show('marker')
-    mrk=a.createmarker('example1',)
-    a.show('marker')
-    mrk=a.createmarker('example2','black')
-    a.show('boxfill')
-    mrk2=a.createmarker(name='new', name_src='red',mtype='dash', size=2,
-                  color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
-                  worldcoordinate=[0,100, 0,50]
-                  x=[0,20,40,60,80,100],
-                  y=[0,10,20,30,40,50] )      # Create instance of marker object 'red'
-    a.marker(mrk2)                      # Plot using specified marker object
-"""
-
-        name,source = self.check_name_source(name,source,'marker')
-
-        mrk = marker.Tm(self, name, source, 0)
-        if (mtype is not None):
-            mrk.type = mtype
-        if (size is not None):
-            mrk.size = size 
-        if (color is not None):
-            mrk.color = color
-        if (priority is not None):
-            mrk.priority = priority
-        if (viewport is not None):
-            mrk.viewport = viewport
-        elif source=='default':
-            mrk.viewport = self.viewport
-        if (worldcoordinate is not None):
-            mrk.worldcoordinate = worldcoordinate
-        elif source == 'default':
-            mrk.worldcoordinate = self.worldcoordinate
-        if (x is not None):
-            mrk.x = x
-        if (y is not None):
-            mrk.y = y
-        if (projection is not None):
-            mrk.projection=projection
-        return mrk
+        return vcs.createmarker(name,source,mtype,size,color,priority,
+                                viewport,worldcoordinate,x,y,projection)
+    createmarker.__doc__ = vcs.manageElements.createmarker.__doc__
 
     def getmarker(self,name='default', mtype=None, size=None, color=None,
                  priority=None, viewport=None,
                  worldcoordinate=None,
                  x=None, y=None):
-        """
- Function: getmarker                      # Construct a new marker secondary method
-
- Description of Function:
-    VCS contains a list of secondary methods. This function will create a
-    marker class object from an existing VCS marker secondary method. If
-    no marker name is given, then marker 'default' will be used.
-
-    Note, VCS does not allow the modification of `default' attribute sets.
-    However, a `default' attribute set that has been copied under a
-    different name can be modified. (See the createmarker function.)
-
- Example of Use:
-    a=vcs.init()
-    a.show('marker')                    # Show all the existing marker secondary methods
-    mrk=a.getmarker()                   # mrk instance of 'default' marker secondary
-                                        #       method
-    mrk2=a.getmarker('quick')           # mrk2 instance of existing 'quick' marker
-                                        #       secondary method
-    mrk3=a.getmarker(name='red', mtype='dash', size=2,
-                  color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
-                  worldcoordinate=[0,100, 0,50]
-                  x=[0,20,40,60,80,100],
-                  y=[0,10,20,30,40,50] )      # Create instance of marker object 'red'
-    a.marker(mrk3)                      # Plot using specified marker object
-"""
-
-        # Check to make sure the argument passed in is a STRING
-        if (type(name) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
-
-        Tm_name = None
-        mrk = marker.Tm(self, Tm_name, name, 1)
-        if (mtype is not None) and (mrk.name != "default"):
-            mrk.type = mtype
-        if (size is not None) and (mrk.name != "default"):
-            mrk.size = size
-        if (color is not None) and (mrk.name != "default"):
-            mrk.color = color
-        if (priority is not None) and (mrk.name != "default"):
-            mrk.priority = priority
-        if (viewport is not None) and (mrk.name != "default"):
-            mrk.viewport = viewport
-        if (worldcoordinate is not None) and (mrk.name != "default"):
-            mrk.worldcoordinate = worldcoordinate
-        if (x is not None) and (mrk.name != "default"):
-            mrk.x = x
-        if (y is not None) and (mrk.name != "default"):
-            mrk.y = y
-        return mrk
+        return vcs.getmarker(name,mtype,size,color,priority,viewport,worldcoordinate,x,y)
+    getmarker.__doc__ = vcs.manageElements.getmarker.__doc__
 
     def marker(self, *args, **parms):
         """
@@ -3569,7 +2006,7 @@ Options:::
                   y=[0,10,20,30,40,50] )      # Create instance of marker object 'red'
     a.marker(mrk)                          # Plot using specified marker object
 """
-        if (name is None) or (type(name) != types.StringType):
+        if (name is None) or (not isinstance(name,str)):
             raise vcsError, 'Must provide string name for the marker.'
         else:
             lo = self.listelements('marker')
@@ -3599,58 +2036,8 @@ Options:::
                  index=None, color=None, priority=1,
                  viewport=None, worldcoordinate=None,
                  x=None, y=None):
-        """
- Function: createfillarea     # Construct a new fillarea secondary method
-
- Description of Function:
-    Create a new fillarea secondary method given the the name and the existing
-    fillarea secondary method to copy the attributes from. If no existing fillarea
-    secondary method name is given, then the default fillarea secondary method
-    will be used as the secondary method to which the attributes will be
-    copied from.
-
-    If the name provided already exists, then a error will be returned.
-    Secondary method names must be unique.
-
- Example of Use:
-    a=vcs.init()
-    a.show('fillarea')
-    fa=a.createfillarea('example1',)
-    a.show('fillarea')
-    fa=a.createfillarea('example2','black')
-    a.show('fillarea')
-    fa2=a.createmarker(name='new', name_src='red',style=1, index=1,
-                  color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
-                  worldcoordinate=[0,100, 0,50]
-                  x=[0,20,40,60,80,100],
-                  y=[0,10,20,30,40,50] )      # Create instance of fill area object 'red'
-    a.fillarea(fa2)                      # Plot using specified fill area object
-"""
-
-        name,source = self.check_name_source(name,source,'fillarea')
-
-        fa = fillarea.Tf(self, name, source, 0)
-        if (style is not None):
-            fa.style = style
-        if (index is not None):
-            fa.index = index
-        if (color is not None):
-            fa.color = color
-        if (priority is not None):
-            fa.priority = priority
-        if (viewport is not None):
-            fa.viewport = viewport
-        elif source == 'default':
-            fa.viewport = self.viewport
-        if (worldcoordinate is not None):
-            fa.worldcoordinate = worldcoordinate
-        elif source=='default':
-            fa.worldcoordinate = self.worldcoordinate
-        if (x is not None):
-            fa.x = x
-        if (y is not None):
-            fa.y = y
-        return fa
+        return vcs.createfillarea(name,source,style,index,color,priority,viewport,worldcoordinate,x,y)
+    createfillarea.__doc__ = vcs.manageElements.createfillarea.__doc__
 
 
     def getfillarea(self,name='default', style=None,
@@ -3658,56 +2045,8 @@ Options:::
                  priority=None, viewport=None,
                  worldcoordinate=None,
                  x=None, y=None):
-        """
- Function: getfillarea              # Construct a new fillarea secondary method
-
- Description of Function:
-    VCS contains a list of secondary methods. This function will create a
-    fillarea class object from an existing VCS fillarea secondary method. If
-    no fillarea name is given, then fillarea 'default' will be used.
-
-    Note, VCS does not allow the modification of `default' attribute sets.
-    However, a `default' attribute set that has been copied under a
-    different name can be modified. (See the createfillarea function.)
-
- Example of Use:
-    a=vcs.init()
-    a.show('fillarea')                 # Show all the existing fillarea secondary methods
-    fa=a.getfillarea()                 # fa instance of 'default' fillarea secondary
-                                       #       method
-    fa2=a.getfillarea('quick')         # fa2 instance of existing 'quick' fillarea
-                                        #       secondary method
-    fa3=a.createmarker(name='new', name='red',style=1, index=1,
-                  color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
-                  worldcoordinate=[0,100, 0,50]
-                  x=[0,20,40,60,80,100],
-                  y=[0,10,20,30,40,50] )      # Create instance of fill area object 'red'
-    a.fillarea(fa3)                      # Plot using specified fill area object
-"""
-
-        # Check to make sure the argument passed in is a STRING
-        if (type(name) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
-
-        Tf_name = None
-        fa = fillarea.Tf(self, Tf_name, name, 1)
-        if (style is not None) and (fa.name != "default"):
-            fa.style = style
-        if (index is not None) and (fa.name != "default"):
-            fa.index = index
-        if (color is not None) and (fa.name != "default"):
-            fa.color = color
-        if (priority is not None) and (fa.name != "default"):
-            fa.priority = priority
-        if (viewport is not None) and (fa.name != "default"):
-            fa.viewport = viewport
-        if (worldcoordinate is not None) and (fa.name != "default"):
-            fa.worldcoordinate = worldcoordinate
-        if (x is not None) and (fa.name != "default"):
-            fa.x = x
-        if (y is not None) and (fa.name != "default"):
-            fa.y = y
-        return fa
+        return vcs.getfillarea(name,style,index,color,priority,viewport,worldcoordinate,x,y)
+    getfillarea.__doc__ = vcs.manageElements.getfillarea.__doc__
 
     def fillarea(self, *args, **parms):
         """
@@ -3752,7 +2091,7 @@ Options:::
                   y=[0,10,20,30,40,50] )      # Create instance of fillarea object 'red'
     a.fillarea(fa)                          # Plot using specified fillarea object
 """
-        if (name is None) or (type(name) != types.StringType):
+        if (name is None) or (not isinstance(name,str)):
             raise vcsError, 'Must provide string name for the fillarea.'
         else:
             lo = self.listelements('fillarea')
@@ -3782,195 +2121,31 @@ Options:::
                  spacing=None, expansion=None, color=None, priority=1,
                  viewport=None, worldcoordinate=None,
                  x=None, y=None):
-        """
- Function: createtexttable            # Construct a new texttable secondary method
-
- Description of Function:
-    Create a new texttable secondary method given the the name and the existing
-    texttable secondary method to copy the attributes from. If no existing texttable
-    secondary method name is given, then the default texttable secondary method
-    will be used as the secondary method to which the attributes will be
-    copied from.
-
-    If the name provided already exists, then a error will be returned.
-    Secondary method names must be unique.
-
- Example of Use:
-    a=vcs.init()
-    a.show('texttable')
-    tt=a.createtexttable('example1',)
-    a.show('texttable')
-    tt=a.createtexttable('example2','black')
-    a.show('texttable')
-    tt=a.createtexttable(name='new',name_src='red',font=1,spacing=1,expansion=1,
-                  color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
-                  worldcoordinate=[0,100, 0,50]
-                  x=[0,20,40,60,80,100],
-                  y=[0,10,20,30,40,50] )      # Create instance of texttable object 'new'
-    a.texttable(tt)                      # Plot using specified texttable object
-"""
-
-        name,source = self.check_name_source(name,source,'texttable')
-
-        tt = texttable.Tt(self, name, source, 0)
-        try:
-           if (font is not None):
-              tt.font = font
-           if (spacing is not None):
-              tt.spacing = spacing
-           if (expansion is not None):
-              tt.expansion = expansion
-           if (color is not None):
-              tt.color = color
-           if (priority is not None):
-              tt.priority = priority
-           if (self.viewport is None):
-              if (viewport is not None):
-                 tt.viewport = viewport
-           else:
-              tt.viewport = self.viewport
-           if (self.worldcoordinate is None):
-              if (worldcoordinate is not None):
-                 tt.worldcoordinate = worldcoordinate
-           else:
-              tt.worldcoordinate = self.worldcoordinate
-           if (x is not None):
-              tt.x = x
-           if (y is not None):
-              tt.y = y
-           return tt
-        except:
-           pass
+      return vcs.createtexttable(name,source,font,spacing,expansion,color,priority,
+                                 viewport,worldcoordinate,x,y)
+    createtexttable.__doc__=vcs.manageElements.createtexttable.__doc__
 
     def gettexttable(self,name='default', font=None,
                  spacing=None, expansion=None, color=None,
                  priority=None, viewport=None,
                  worldcoordinate=None,
                  x=None, y=None):
-        """
- Function: gettexttable           # Construct a new texttable secondary method
-
- Description of Function:
-    VCS contains a list of secondary methods. This function will create a
-    texttable class object from an existing VCS texttable secondary method. If
-    no texttable name is given, then texttable 'default' will be used.
-
-    Note, VCS does not allow the modification of `default' attribute sets.
-    However, a `default' attribute set that has been copied under a
-    different name can be modified. (See the createtexttable function.)
-
- Example of Use:
-    a=vcs.init()
-    a.show('texttable')              # Show all the existing texttable secondary methods
-    tt=a.gettexttable()              # tt instance of 'default' texttable secondary
-                                     #       method
-    tt2=a.gettexttable('quick')      # tt2 instance of existing 'quick' texttable
-                                     #       secondary method
-    tt3=a.gettexttable(name='red', font=1, spacing=1,expansion=1,
-                  color=242, priority=1, viewport=[0, 2.0, 0, 2.0],
-                  worldcoordinate=[0,100, 0,50]
-                  x=[0,20,40,60,80,100],
-                  y=[0,10,20,30,40,50] )      # Create instance of texttable object 'red'
-    a.texttable(tt3)                      # Plot using specified texttable object
-"""
-
-        # Check to make sure the argument passed in is a STRING
-        if (type(name) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
-
-        Tt_name = None
-        return texttable.Tt(self, Tt_name, name, 1 )
-##         try:
-##            tt = texttable.Tt(self, Tt_name, name, 1)
-##            if (font is not None) and (tt.name != "default"):
-##               tt.font = font
-##            if (spacing is not None) and (tt.name != "default"):
-##               tt.spacing = spacing
-##            if (expansion is not None) and (tt.name != "default"):
-##               tt.expansion = expansion
-##            if (color is not None) and (tt.name != "default"):
-##               tt.color = color
-##            if (priority is not None) and (tt.name != "default"):
-##               tt.priority = priority
-##            if (self.viewport is None):
-##               if (viewport is not None) and (tt.name != "default"):
-##                  tt.viewport = viewport
-##            else:
-##               tt.viewport = self.viewport
-##            if (self.worldcoordinate is None):
-##               if (worldcoordinate is not None) and (tt.name != "default"):
-##                  tt.worldcoordinate = worldcoordinate
-##            else:
-##               tt.worldcoordinate = self.worldcoordinate
-##            if (x is not None) and (tt.name != "default"):
-##               tt.x = x
-##            if (y is not None) and (tt.name != "default"):
-##               tt.y = y
-##            return tt
-##         except:
-##            pass
-
+      return vcs.gettexttable(name,font,spacing,expansion,color,priority,
+                                 viewport,worldcoordinate,x,y)
+    gettexttable.__doc__=vcs.manageElements.gettexttable.__doc__
+    
     #############################################################################
     #                                                                           #
     # Text Orientation  functions for VCS.                                      #
     #                                                                           #
     #############################################################################
     def createtextorientation(self,name=None, source='default'):
-        """
- Function: createtextorientation   # Construct a new textorientation secondary method
-
- Description of Function:
-    Create a new textorientation secondary method given the the name and 
-    the existing textorientation secondary method to copy the attributes
-    from. If no existing textorientation secondary method name is given,
-    then the default textorientation secondary method will be used as the
-    secondary method to which the attributes will be copied from.
-
-    If the name provided already exists, then a error will be returned.
-    Secondary method names must be unique.
-    
- Example of Use:
-    a=vcs.init()
-    a.show('textorientation')
-    to=a.createtextorientation('example1',)
-    a.show('textorientation')
-    to=a.createtextorientation('example2','black')
-    a.show('textorientation')
-"""
-
-        name,source = self.check_name_source(name,source,'textorientation')
-
-        return textorientation.To(self, name, source, 0)
+        return vcs.createtextorientation(name, source)
+    createtextorientation.__doc__=vcs.manageElements.createtextorientation.__doc__
 
     def gettextorientation(self,To_name_src='default'):
-        """
- Function: gettextorientation       # Construct a new textorientation secondary method
-
- Description of Function:
-    VCS contains a list of secondary methods. This function will create
-    a textorientation class object from an existing VCS textorientation
-    secondary method. If no textorientation name is given, then 
-    textorientation 'default' will be used.
-
-    Note, VCS does not allow the modification of `default' attribute sets.
-    However, a `default' attribute set that has been copied under a
-    different name can be modified. (See the createtextorientation function.)
-
- Example of Use:
-    a=vcs.init()
-    a.show('textorientation')    # Show all the existing textorientation secondary methods
-    to=a.gettextorientation()    # to instance of 'default' textorientation secondary
-                                 #       method
-    to2=a.gettextorientation('quick')  # to2 instance of existing 'quick' textorientation
-                                       #       secondary method
-"""
-
-        # Check to make sure the argument passed in is a STRING
-        if (type(To_name_src) != types.StringType):
-           raise vcsError, 'The argument must be a string.'
-
-        To_name = None
-        return textorientation.To(self, To_name, To_name_src, 1)
+        return vcs.gettextorientation(To_name_src)
+    gettextorientation.__doc__=vcs.manageElements.gettextorientation.__doc__
 
     #############################################################################
     #                                                                           #
@@ -3978,145 +2153,19 @@ Options:::
     #                                                                           #
     #############################################################################
     def createtextcombined(self,Tt_name=None, Tt_source='default', To_name=None, To_source='default', font=None, spacing=None, expansion=None, color=None, priority=1, viewport=None, worldcoordinate=None, x=None, y=None, height=None, angle=None, path=None, halign=None, valign=None, projection=None):
-        """
- Function: createtext or createtextcombined  # Construct a new text combined secondary method
-
- Description of Function:
-    Create a new textcombined secondary method given the the names and 
-    the existing texttable and textorientation secondary methods to copy
-    the attributes from. If no existing texttable and textorientation
-    secondary method names are given, then the default texttable and
-    textorientation secondary methods will be used as the secondary method
-    to which the attributes will be copied from.
-
-    If the name provided already exists, then a error will be returned.
-    Secondary method names must be unique.
-    
- Example of Use:
-    a=vcs.init()
-    a.show('texttable')
-    a.show('textorientation')
-    tc=a.createtextcombined('example1','std','example1','7left')
-    a.show('texttable')
-    a.show('textorientation')
-"""
-
-        ## Check if to is defined
-        if To_name is None:
-            To_name=Tt_name
-        Tt_name,Tt_source = self.check_name_source(Tt_name,Tt_source,'texttable')
-        To_name,To_source = self.check_name_source(To_name,To_source,'textorientation')
-
-        tc = textcombined.Tc(self, Tt_name, Tt_source, To_name, To_source, 0)
-        if (font is not None):
-            tc.font = font
-        if (spacing is not None):
-            tc.spacing = spacing
-        if (expansion is not None):
-            tc.expansion = expansion
-        if (color is not None):
-            tc.color = color
-        if (priority is not None):
-            tc.priority = priority
-        if (viewport is not None):
-            tc.viewport = viewport
-##         elif Tt_source=='default' and To_source=='default':
-##             tc.viewport = self.viewport
-        else:
-            tc.viewport = self.viewport
-        if (worldcoordinate is not None):
-            tc.worldcoordinate = worldcoordinate
-        elif Tt_source=='default' and To_source=='default':
-            tc.worldcoordinate = self.worldcoordinate
-        if (x is not None):
-            tc.x = x
-        if (y is not None):
-            tc.y = y
-        if (height is not None):
-            tc.height = height
-        if (angle is not None):
-            tc.angle = angle
-        if (path is not None):
-            tc.path = path
-        if (halign is not None):
-            tc.halign = halign
-        if (valign is not None):
-            tc.valign = valign
-        if (projection is not None):
-            tc.projection = projection
-        return tc
-
+        return vcs.createtextcombined(Tt_name, Tt_source, To_name, To_source,
+            font, spacing, expansion, color, priority, viewport, worldcoordinate,
+            x, y, height, angle, path, halign, valign, projection)
+    createtextcombined.__doc__ = vcs.manageElements.createtextcombined.__doc__
     #
     # Set alias for the secondary createtextcombined.
     createtext = createtextcombined
 
     def gettextcombined(self,Tt_name_src='default', To_name_src='default', string=None, font=None, spacing=None, expansion=None, color=None, priority=None, viewport=None, worldcoordinate=None , x=None, y=None, height=None, angle=None, path=None, halign=None, valign=None):
-        """
- Function: gettext or gettextcombined   # Construct a new textcombined secondary method
-
- Description of Function:
-    VCS contains a list of secondary methods. This function will create
-    a textcombined class object from an existing VCS texttable secondary
-    method and an existing VCS textorientation secondary method. If no 
-    texttable or textorientation names are given, then the 'default' names
-    will be used in both cases.
-
-    Note, VCS does not allow the modification of `default' attribute sets.
-    However, a `default' attribute set that has been copied under a
-    different name can be modified. (See the createtextcombined function.)
-
-Example of Use:
-    a=vcs.init()
-    a.show('texttable')                  # Show all the existing texttable secondary methods
-    a.show('textorientation')            # Show all the existing textorientation secondary methods
-    tc=a.gettextcombined()               # Use 'default' for texttable and textorientation
-    tc2=a.gettextcombined('std','7left') # Use 'std' texttable and '7left' textorientation
-    if istextcombined(tc):               # Check to see if tc is a textcombined
-       tc.list()                         # Print out all its attriubtes
-"""
-
-
-        # Check to make sure the arguments passed in are a STRINGS
-        if (type(Tt_name_src) != types.StringType):
-            raise vcsError, 'The first argument must be a string.'
-        if (type(To_name_src) != types.StringType):
-            raise vcsError, 'The second argument must be a string.'
-        
-        Tt_name = None
-        To_name = None
-        tc = textcombined.Tc(self,Tt_name,Tt_name_src,To_name,To_name_src,1)
-        if (string is not None) and (tc.Tt_name != "default"):
-            tc.string = string
-        if (font is not None) and (tc.Tt_name != "default"):
-            tc.font = font
-        if (spacing is not None) and (tc.Tt_name != "default"):
-            tc.spacing = spacing
-        if (expansion is not None) and (tc.Tt_name != "default"):
-            tc.expansion = expansion
-        if (color is not None) and (tc.Tt_name != "default"):
-            tc.color = color
-        if (priority is not None) and (tc.Tt_name != "default"):
-            tc.priority = priority
-        if (viewport is not None) and (tc.Tt_name != "default"):
-            tc.viewport = viewport
-        if (worldcoordinate is not None) and (tc.Tt_name != "default"):
-            tc.worldcoordinate = worldcoordinate
-        if (x is not None) and (tc.To_name != "default"):
-            tc.x = x
-        if (y is not None) and (tc.To_name != "default"):
-            tc.y = y
-        if (height is not None) and (tc.To_name != "default"):
-            tc.height = height
-        if (angle is not None) and (tc.To_name != "default"):
-            tc.angle = angle
-        if (path is not None) and (tc.To_name != "default"):
-            tc.path = path
-        if (halign is not None) and (tc.To_name != "default"):
-            tc.halign = halign
-        if (valign is not None) and (tc.To_name != "default"):
-            tc.valign = valign
-        return tc
-
+        return vcs.gettextcombined(Tt_name_src, To_name_src, string,
+            font, spacing, expansion, color, priority, viewport, worldcoordinate,
+            x, y, height, angle, path, halign, valign)
+    gettextcombined.__doc__ = vcs.manageElements.gettextcombined.__doc__
     #
     # Set alias for the secondary gettextcombined.
     gettext = gettextcombined
@@ -4192,50 +2241,10 @@ Example of Use:
             raise vcsError,'You must pass a text object'
         To = textobject.To_name
         Tt = textobject.Tt_name
-        return apply(self.canvas.gettextextent,(Tt,To))
-
+        return self.backend.gettextextent(To,Tt)
 
     def match_color(self,color,colormap=None):
-        """
-Function: cmatch_color                          # Returns the color in the colormap that is closet from the required color
-Description of Function:
-           Given a color (defined as rgb values -0/100 range- or a string name) and optionally a colormap name,
-           returns the color number that is closet from the requested color
-           (using rms difference between rgb values)
-           if colormap is not map use the currently used colormap
-Example of use:
-           a=vcs.init()
-           print a.match_color('salmon')
-           print a.match_color('red')
-           print a.match_color([0,0,100],'defaullt') # closest color from blue
-
-"""
-        # First gets the rgb values 
-        if type(color)==type(''):
-            vals=genutil.colors.str2rgb(color)
-            vals[0]/=2.55
-            vals[1]/=2.55
-            vals[2]/=2.55
-        else:
-            vals=color
-
-        # Now gets the colormap to look in
-        if colormap is None: colormap=self.getcolormapname()
-        cmap=self.getcolormap(colormap)
-
-        # Now tries determines the min rms diff
-        rmsmin=2.E40
-        match=None
-        for i in cmap.index.keys():
-            col=cmap.index[i]
-            rms=numpy.sqrt((vals[0]-col[0])**2+\
-                             (vals[1]-col[1])**2+\
-                             (vals[2]-col[2])**2 \
-                             )
-            if rms<rmsmin:
-                rmsmin=rms
-                match=i
-        return match
+        return vcs.match_color(color,colormap)
         
     def drawtextcombined(self, Tt_name=None, To_name=None, string=None,
                  font=1, spacing=2, expansion=100, color=241,
@@ -4260,7 +2269,7 @@ Example of use:
                   y=[0,10,20,30,40,50] )      # Create instance of texttable object 'red'
     a.texttable(tt)                          # Plot using specified texttable object
 """
-        if (Tt_name is None) or (type(Tt_name) != types.StringType):
+        if (Tt_name is None) or (not isinstance(Tt_name,str)):
             raise vcsError, 'Must provide string name for the texttable.'
         else:
             lot = self.listelements('texttable')
@@ -4305,8 +2314,15 @@ Example of use:
                        'xbounds','ybounds','xname','yname','xunits','yunits','xweights','yweights',
                        'comment1','comment2','comment3','comment4','hms','long_name','zaxis',
                        'zarray','zname','zunits','taxis','tarray','tname','tunits','waxis','warray',
-                       'wname','wunits','bg','ratio']
+                       'wname','wunits','bg','ratio','donotstoredisplay']
 
+
+
+    #def replot(self):
+    #    """ Clears and plots with last used plot arguments
+    #    """
+    #    self.clear()
+    #    self.plot(*self.__last_plot_actual_args, **self.__last_plot_keyargs)
 
     ###########################################################################
     #                                                                         #
@@ -4431,12 +2447,13 @@ Options:::
 ###############################################################################################################
 
 """
-        finish_queued_X_server_requests( self )
+        self.__last_plot_actual_args = actual_args
+        self.__last_plot_keyargs = keyargs
+
         passed_var = keyargs.get("variable",None)
         arglist = _determine_arg_list ( None, actual_args )
         if passed_var is not None:
             arglist[0] = cdms2.asVariable(passed_var)
-        self.canvas.BLOCK_X_SERVER()
 
         # Prevent the varglist from duplicating its contents if the GUI Canvas is in use  
         try:  
@@ -4445,35 +2462,34 @@ Options:::
         except:
             sal = 1
 
-        try:
-            if (self.canvas_gui.top_parent.menu.vcs_canvas_gui_settings_flg == 1): # Must be from VCDAT
-               self.canvas_gui.dialog.dialog.configure( title = ("Visualization and Control System (VCS) GUI"))
-        except: 
-            # Connect the VCS Canvas to the GUI
-            if (self.canvas_gui is not None) and (sal == 1):
-               #####################################################################################################
-               # Charles and Dean - This command will only allow one plot on a page for the VCS Canvas GUI.        #
-               # It is committed out so that there can be two or more plots on a page. Must keep a watch to see    #
-               # what other problems occur without this command. See vcsmodule.c: PyVCS_connect_gui_and_canvas.    #
-               #                                                                                                   #
-               # self._connect_gui_and_canvas( self.winfo_id )                                                     #
-               #####################################################################################################
-               self.canvas_gui.dialog.dialog.configure( title = ("%i. Visualization and Control System (VCS)" % self.canvasid()))
+    #    try:
+    #        if (self.canvas_gui.top_parent.menu.vcs_canvas_gui_settings_flg == 1): # Must be from VCDAT
+    #           self.canvas_gui.dialog.dialog.configure( title = ("Visualization and Control System (VCS) GUI"))
+    #    except: 
+    #        # Connect the VCS Canvas to the GUI
+    #        if (self.canvas_gui is not None) and (sal == 1):
+    #           #####################################################################################################
+    #           # Charles and Dean - This command will only allow one plot on a page for the VCS Canvas GUI.        #
+    #           # It is committed out so that there can be two or more plots on a page. Must keep a watch to see    #
+    #           # what other problems occur without this command. See vcsmodule.c: PyVCS_connect_gui_and_canvas.    #
+    #           #                                                                                                   #
+    #           # self._connect_gui_and_canvas( self.winfo_id )                                                     #
+    #           #####################################################################################################
+    #           self.canvas_gui.dialog.dialog.configure( title = ("%i. Visualization and Control System (VCS)" % self.canvasid()))
 
         # Plot the data
         a = self.__plot( arglist, keyargs )
 
         # Continuation to remove arglist from duplicating its contents
-        if (sal == 0): arglist = []
+        #if (sal == 0): arglist = []
 
-        for x in arglist: self.varglist.append( x ) # save the plot argument list
-        self.canvas.UNBLOCK_X_SERVER()
+        #for x in arglist: self.varglist.append( x ) # save the plot argument list
 
-        if self.canvas_gui is not None:
-            self.canvas_gui.dialog.dialog.deiconify()
+#        if self.canvas_gui is not None:
+#            self.canvas_gui.dialog.dialog.deiconify()
             # This command makes sure that the VCS Canvas Gui is in front of the VCDAT window.
 #            self.canvas_gui.dialog.dialog.transient( self.canvas_gui.top_parent )
-            self.canvas_gui.show_data_plot_info( self.canvas_gui.parent, self )
+#            self.canvas_gui.show_data_plot_info( self.canvas_gui.parent, self )
         return a
     plot.__doc__ = plot.__doc__ % (plot_2_1D_options, plot_keywords_doc,graphics_method_core,axesconvert,plot_2_1D_input, plot_output)
 
@@ -4600,9 +2616,12 @@ Options:::
                 keyargs[k]=xtrakw[k]
         assert arglist[0] is None or cdms2.isVariable (arglist[0])
         assert arglist[1] is None or cdms2.isVariable (arglist[1])
-        assert type(arglist[2]) == types.StringType
-        if not isinstance(arglist[3],vcsaddons.core.VCSaddon): assert type(arglist[3]) == types.StringType
-        assert type(arglist[4]) == types.StringType
+        assert isinstance(arglist[2],str)
+        if not isinstance(arglist[3],vcsaddons.core.VCSaddon): assert isinstance(arglist[3],str)
+        assert isinstance(arglist[4],str)
+
+        ##reset animation
+        self.animate.create_flg = 0
 
         # Store the origin template. The template used to plot may be changed below by the 
         # _create_random_template function, which copies templates for modifications.
@@ -5294,7 +3313,19 @@ Options:::
                 datawc_x2=MV2.maximum(arglist[0])
                 x=None
             else:            
+              try:
+                if arglist[0].getAxis(-1).isCircularAxis():
+                  datawc_x1=arglist[0].getAxis(-1)[0]
+                else:
+                  datawc_x1=arglist[0].getAxis(-1).getBounds()[0][0]
+              except:
                 datawc_x1=arglist[0].getAxis(-1)[0]
+              try:
+                if arglist[0].getAxis(-1).isCircularAxis():
+                  datawc_x2=arglist[0].getAxis(-1)[-1]
+                else:
+                  datawc_x2=arglist[0].getAxis(-1).getBounds()[-1][1]
+              except:
                 datawc_x2=arglist[0].getAxis(-1)[-1]
             if arglist[0].getAxis(-2).isLongitude():
                 y="longitude"
@@ -5310,12 +3341,18 @@ Options:::
                 datawc_y2=MV2.maximum(arglist[1])
                 y=None
             else:
-                datawc_y1=arglist[0].getAxis(-2)[0]
-                datawc_y2=arglist[0].getAxis(-2)[-1]
+                try:
+                  datawc_y1=arglist[0].getAxis(-2).getBounds()[0][0]
+                except:
+                  datawc_y1=arglist[0].getAxis(-2)[0]
+                try:
+                  datawc_y2=arglist[0].getAxis(-2).getBounds()[-1][1]
+                except:
+                  datawc_y2=arglist[0].getAxis(-2)[-1]
         except:
             pass
         try:
-            dic = self.setTicksandLabels(copy_mthd,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=x,y=y)
+            dic = vcs.setTicksandLabels(copy_mthd,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=x,y=y)
         except:
             pass
 
@@ -5328,7 +3365,8 @@ Options:::
         bg = keyargs.get('bg', 0)
 
         # line added by Charles Doutriaux to plugin the taylordiagram and bypass the C code for graphic methods
-        hold_cont_type = self.canvas.getcontinentstype()
+        warnings.warn("Do something about hold_continent type circa line 5386 in Canvas.py")
+        #hold_cont_type = self.canvas.getcontinentstype()
         if isinstance(arglist[3],str) and arglist[3].lower()=='taylordiagram':
             for p in slab_changed_attributes.keys():
                 if hasattr(arglist[0],p):
@@ -5365,10 +3403,11 @@ Options:::
             raise vcsError, 'Error taylordiagram method: '+arglist[4]+' not found'
         else:
             for keyarg in keyargs.keys():
-                if not keyarg in self.__class__._plot_keywords_:
-                     raise vcsError, 'Invalid keyword: %s'%keyarg
+                if not keyarg in self.__class__._plot_keywords_+self.backend._plot_keywords:
+                     warnings.warn('Unrecognized vcs plot keyword: %s, assuming backend (%s) keyword'%(keyarg,self.backend.type))
 
-            if (arglist[0] is not None or keyargs.has_key('variable')):
+            isFileVar = (arglist[0] is not None) and isinstance( arglist[0], cdms2.fvariable.FileVariable )
+            if ( not isFileVar ) and (arglist[0] is not None or keyargs.has_key('variable')):
                 arglist[0] = self._reconstruct_tv(arglist, keyargs)
                 # Check data's dimension size (VCS cannot take variables with
                 # with dimensions larger than 4D, below makes sure the variable
@@ -5495,7 +3534,7 @@ Options:::
                             lat2=gm.datawc_y2
                         else:
                             lat2=max(arglist[0].getAxis(-2))
-                        copy_tmpl.ratio_linear_projection(lon1,lon2,lat1,lat2,None,box_and_ticks=box_and_ticks)
+                        copy_tmpl.ratio_linear_projection(lon1,lon2,lat1,lat2,None,box_and_ticks=box_and_ticks,x=self)
                         arglist[2]=copy_tmpl.name
             elif not (doratio in ['0','off','none','auto','autot']) or  (arglist[3] in ['boxfill','isofill','isoline','outfill','outline','vector','meshfill'] and str(doratio).lower() in ['auto','autot']) and arglist[2]!='ASD' :
                 box_and_ticks=0
@@ -5510,31 +3549,46 @@ Options:::
                 if copy_tmpl is None:
                     copy_tmpl=self._create_random_template(arglist[2])
                     arglist[2]=copy_tmpl.name
-                copy_tmpl.ratio(Ratio,box_and_ticks=box_and_ticks)
+                copy_tmpl.ratio(Ratio,box_and_ticks=box_and_ticks,x=self)
                             
                             
             if hasattr(self,'_isplottinggridded') : del(self._isplottinggridded)
             # Get the continents for animation generation
-            self.animate.continents_value = self.canvas.getcontinentstype()
+            warnings.warn("aninamte setcontinettype disabled")
+            #self.animate.continents_value = self.canvas.getcontinentstype()
 
             # Get the option for doing graphics in the background.
             if bg:
-                arglist.append('bg')
+                arglist.append(True)
             else:
-                arglist.append('fg')
+                arglist.append(False)
             if arglist[3]=='scatter':
                 if not (numpy.equal(arglist[0].getAxis(-1)[:],arglist[1].getAxis(-1)[:]).all()):
                     raise vcsError, 'Error - ScatterPlot requires X and Y defined in the same place'
             if arglist[3]=='vector':
                 if not (numpy.equal(arglist[0].getAxis(-1)[:],arglist[1].getAxis(-1)[:]).all()) or not(numpy.equal(arglist[0].getAxis(-2)[:],arglist[1].getAxis(-2)[:]).all()):
                     raise vcsError, 'Error - VECTOR components must be on the same grid.'
+            if keyargs.has_key("bg"):
+              del(keyargs["bg"])
             if isinstance(arglist[3],vcsaddons.core.VCSaddon):
                 if arglist[1] is None:
-                    dn = arglist[3].plot(arglist[0],template=arglist[2],bg=bg,x=self)
+                    dn = arglist[3].plot(arglist[0],template=arglist[2],bg=bg,x=self,**keyargs)
                 else:
-                    dn = arglist[3].plot(arglist[0],arglist[1],template=arglist[2],bg=bg,x=self)
+                    dn = arglist[3].plot(arglist[0],arglist[1],template=arglist[2],bg=bg,x=self,**keyargs)
             else:
-                dn = apply(self.canvas.plot, tuple(arglist))
+                self.backend.plot(*arglist,**keyargs)
+                if not keyargs.get("donotstoredisplay",False):
+                  nm,src = self.check_name_source(None,"default","display")
+                  dn = displayplot.Dp(nm)
+                  dn.template = arglist[2]
+                  dn.g_type = arglist[3]
+                  dn.g_name = arglist[4]
+                  dn.array = arglist[:2]
+                else:
+                  dn = None
+        
+            if dn is not None:
+              dn._template_origin = template_origin
             if self.mode!=0 : self.update()
             #if not bg: pause(self.pause_time)
 
@@ -5543,22 +3597,23 @@ Options:::
 ##             self.plot_filledcontinents(arglist[0],arglist[2],arglist[3],arglist[4],bg,doratio)
 
 
+        result = dn
         if isinstance(arglist[3],str):
-            result = self.getplot(dn, template_origin)
+            warnings.warn("please restore getplot functionality in Canvas.py circa 5640")
+#            result = self.getplot(dn, template_origin)
             #self.canvas.setcontinentstype(hold_cont_type)
             # Pointer to the plotted slab of data and the VCS Canas display infomation. 
             # This is needed to find the animation min and max values and the number of 
             # displays on the VCS Canvas.
-            self.animate_info.append( (result, arglist[:2]) )
-            self.animate.update_animate_display_list( )
-        else:
-            result = dn
+            if dn is not None:
+              self.animate_info.append( (result, arglist[:2]) )
+#            self.animate.update_animate_display_list( )
             
 
         # Make sure xmainloop is started. This is needed to check for X events
         # (such as, Canvas Exposer, button or key press and release, etc.)
-        if ( (self.canvas.THREADED() == 0) and (bg == 0) ):
-            thread.start_new_thread( self.canvas.startxmainloop, ( ) )
+        #if ( (self.canvas.THREADED() == 0) and (bg == 0) ):
+        #    thread.start_new_thread( self.canvas.startxmainloop, ( ) )
 
         # Now executes output commands
         for cc in cmds.keys():
@@ -5587,6 +3642,10 @@ Options:::
                 delattr(arglist[0],p)
             else:
                 setattr(arglist[0],p,tmp)
+        if dn is not None:
+          self.display_names.append(result.name)
+        if not bg:
+            warnings.warn("VCS Behaviour changed, in order to interact with window, start the interaction mode with:\n x.interact()")
         return result
 
     #############################################################################
@@ -5603,7 +3662,7 @@ Options:::
     #                                                                           #
     #############################################################################
     def return_display_names(self, *args):
-        return apply(self.canvas.return_display_names, args)
+        return self.display_names
 
     #############################################################################
     #                                                                           #
@@ -5643,7 +3702,9 @@ Options:::
     a.cgm('example',mode='r')  # 'r' will instruct cgm to overwrite an existing file
 
 """
-        return apply(self.canvas.cgm, (file,mode))
+        if mode!='r':
+          warnings.warn("cgm only supports 'r' mode ignoring your mode ('%s')" % mode)
+        return self.backend.cgm(file)
 
     #############################################################################
     #                                                                           #
@@ -5664,7 +3725,14 @@ Options:::
     a.clear()
 
 """
-        return apply(self.canvas.clear, args)
+        self.animate.close()
+        self.animate_info=[]
+        self.animate.update_animate_display_list( )
+        self.backend.clear(*args,**kargs)
+        for nm in self.display_names:
+          del(vcs.elements["display"][nm])
+        self.display_names=[]
+        return 
 
     #############################################################################
     #                                                                           #
@@ -5685,22 +3753,22 @@ Options:::
     a.close()
 
 """
-        global gui_canvas_closed
+        #global gui_canvas_closed
 
-        finish_queued_X_server_requests( self )
-        self.canvas.BLOCK_X_SERVER()
+        #finish_queued_X_server_requests( self )
+        #self.canvas.BLOCK_X_SERVER()
 
         #   Hide the GUI
-        if (self.canvas_gui is not None):
-           self.canvas_gui.dialog.dialog.withdraw() # just withdraw the GUI for later
-           gui_canvas_closed = 0
+        #if (self.canvas_gui is not None):
+        #   self.canvas_gui.dialog.dialog.withdraw() # just withdraw the GUI for later
+        #   gui_canvas_closed = 0
 
         # Close the VCS Canvas
-        a = apply( self.canvas.close, args )
+        a = self.backend.close(*args,**kargs)
 
         # Stop the (thread) execution of the X main loop (if it is running).
-        self.canvas.stopxmainloop( )
-        self.canvas.UNBLOCK_X_SERVER()
+        #self.canvas.stopxmainloop( )
+        #self.canvas.UNBLOCK_X_SERVER()
 
         return a
 
@@ -5763,7 +3831,6 @@ Options:::
     a.colormapgui(max_intensity = 255)
 '''
         
-        import warnings
         warnings.warn("The colormap gui has been removed from CDAT, you can access it via the UV-CDAT GUI.", Warning)
         return
 ##         _colormapgui.create(self, gui_parent=gui_parent, transient=transient, max_intensity=max_intensity)
@@ -5787,7 +3854,6 @@ Options:::
     a=vcs.init()
     a.projectiongui()
 '''
-        import warnings
         warnings.warn("The projection gui has been removed from CDAT, you can access it via the UV-CDAT GUI.", Warning)
         return
         ## _projectiongui.create(gui_parent=gui_parent,canvas=self,projection=projection)
@@ -5840,7 +3906,6 @@ Options:::
     a=vcs.init()
     a.graphicsmethodgui('boxfill', 'quick')
 '''
-        import warnings
         warnings.warn("The graphics method gui has been removed from CDAT, you can access it via the UV-CDAT GUI.", Warning)
         return
     ## _graphicsmethodgui.create( self, gm_type=gm_type, gm_name=gm_name,
@@ -6086,7 +4151,7 @@ Options:::
     # VCS Canvas Information wrapper.                                           #
     #                                                                           #
     #############################################################################
-    def canvasinfo(self, *args):
+    def canvasinfo(self, *args,**kargs):
         """
  Function: canvasinfo
 
@@ -6099,7 +4164,7 @@ Options:::
     a.canvasinfo()
 
 """
-        return apply(self.canvas.canvasinfo, args)
+        return self.backend.canvasinfo(*args,**kargs)
 
     #############################################################################
     #                                                                           #
@@ -6169,78 +4234,6 @@ Options:::
         f.close()
         return
  
-#    def gif(self, gif_name):
-#        """
-# Function: gif
-#
-# Description of Function:
-#    In some cases, the user may want to save the plot out as a gif image. This
-#    routine allows the user to save the VCS canvas output as a SUN gif file.
-#    This file can be converted to other gif formats with the aid of xv and other
-#    such imaging tools found freely on the web.
-#
-#    If no path/file name is given and no previously created gif file has been
-#    designated, then file
-#
-#        /$HOME/PCMDI_GRAPHICS/default.gif
-#
-#    will be used for storing gif images. However, if a previously created gif 
-#    file is designated, that file will be used for gif output.
-#
-# Example of Use:
-#    a=vcs.init()
-#    a.plot(array)
-#    a.gif('example')           # overwrite existing gif file
-#    a.gif(s,a,t,'example')     # overwrite existing gif file
-#""" 
-#       import os,sys,tempfile
-#
-#       # get name filename
-#       extension = gif_name[-4:]
-#       if (extension == '.gif'):
-#          name = gif_name[:-4]
-#       else:
-#          name = gif_name
-#
-#       # Generate the VCS postscript file
-#        ps_name = name + '.ps'
-#       self.postscript(ps_name, 'r')
-#
-#       # Use temporary files for: ppm_name, ppm_cropname, ppm_cropname, & ppm_rotatename
-#       # Convert the VCS postscript file to a ppm file using GhostScript (gs)
-#       ppm_name= tempfile.mktemp()
-#        pid = os.fork()
-#        if pid == 0:   # must be the child!
-#            try:
-#                # This whole thing is within a try block to make sure
-#                # the child can't escape.
-#                out_name = "-sOutputFile=" + ppm_name
-#                arglist=[ "-q", "-dNOPAUSE", "-dNO_PAUSE", "-dSAFER", "-sDEVICE=ppmraw", "-dBATCH", out_name, ps_name]
-#                os.execvp("gs", arglist) # execute the gs command
-#            except:
-#                sys.stderr.write('Unexpected exception in child!\n')
-#                os._exit(2) # exit child but not parent
-# 
-#        # Stop the parent until the child is finished! Alway wait on children.
-#        os.wait()
-#
-## Crop ppm file using pnmcrop
-#        ppm_cropname= tempfile.mktemp()
-#        os_command = 'pnmcrop %s > %s' % (ppm_name,ppm_cropname)
-#        os.system(os_command)
-#        os.remove(ppm_name)
-#
-#        # Rotate ppm file using pnmrotate
-#        ppm_rotatename= tempfile.mktemp()
-#        os_command = 'pnmrotate -noantialias -90 %s > %s' % (ppm_cropname,ppm_rotatename)
-#        os.system(os_command)
-#        os.remove(ppm_cropname)
-#
-#        # Fiinally, generate GIF file using ppmtogif
-##        os_command = 'ppmtogif %s > %s.gif' % (ppm_rotatename,name)
-#        os.system(os_command)
-#        os.remove(ppm_rotatename)
-
     #############################################################################
     #                                                                           #
     # Grid wrapper for VCS.                                                     #
@@ -6352,12 +4345,13 @@ Options:::
     a=vcs.init()
     a.listelements()
 """
-        if args != () and string.lower( args[0] ) =='taylordiagram':
+        if args != () and args[0].lower() =='taylordiagram':
             L = []
             for t in vcs.taylordiagrams:
                 L.append(t.name)
         else:
-            L = apply(self.canvas.listelements, args)
+            f = vcs.listelements
+            L = apply(f, args)
 
         L.sort()
 
@@ -6387,7 +4381,7 @@ Options:::
     # Open VCS Canvas wrapper for VCS.                                          #
     #                                                                           #
     #############################################################################
-    def open(self, *args):
+    def open(self, *args, **kargs):
         """
  Function: open
 
@@ -6399,12 +4393,13 @@ Options:::
     a=vcs.init()
     a.open()    
 """
-        a = apply(self.canvas.open, args)
+
+        a = self.backend.open(*args,**kargs)
 
         # Make sure xmainloop is started. This is needed to check for X events
         # (such as, Canvas Exposer, button or key press and release, etc.)
-        if ( self.canvas.THREADED() == 0 ):
-          thread.start_new_thread( self.canvas.startxmainloop, ( ) )
+        #if ( self.canvas.THREADED() == 0 ):
+        #  thread.start_new_thread( self.canvas.startxmainloop, ( ) )
 
         return a
 
@@ -6426,7 +4421,7 @@ Options:::
     a.open()
     id = a.canvasid()
 '''
-        return apply(self.canvas.canvasid, args)
+        return self._canvas_id
 
     #############################################################################
     #                                                                           #
@@ -6558,19 +4553,29 @@ Options:::
     ALWAYS overwrite output file
 """
         cmd = 'ffmpeg -y '
+
         if rate is not None:
             cmd+=' -r %s ' % rate
         if isinstance(files,(list,tuple)):
-            cmd+='-i '+' -i '.join(files)
+            rnd = "%s/.uvcdat/__uvcdat_%i" % (os.environ["HOME"],numpy.random.randint(600000000))
+            Files = []
+            for i,f in enumerate(files):
+                fnm = "%s_%i.png" % (rnd,i)
+                shutil.copy(f,fnm)
+                Files.append(fnm)
+            cmd+='-i %s_%%d.png' % (rnd)
         elif isinstance(files,str):
             cmd+='-i '+files
         if rate is not None:
             cmd+=' -r %s ' % rate
         if bitrate is not None:
-            cmd+=' -b %sk' % bitrate
+            cmd+=' -b:v %sk' % bitrate
         cmd+=' '+options
         cmd+=' '+movie
         o = os.popen(cmd).read()
+        if isinstance(files,(list,tuple)):
+            for f in Files:
+                os.remove(f)
         return o
     ##########################################################################
     #                                                                        #
@@ -6610,14 +4615,20 @@ Options:::
             tmp = W
             W= H
             H = tmp
-            
-        return apply(self.canvas.setbgoutputdimensions,(W,H))
+        #in pixels?
+        self.bgX = W
+        self.bgY = H
+        return 
+    # display ping
+    def put_png_on_canvas(self,filename,zoom=1,xOffset=0,yOffset=0,*args,**kargs):
+      self.backend.put_png_on_canvas(filename,zoom,xOffset,yOffset,*args,**kargs)
+
     ##########################################################################
     #                                                                        #
     # png wrapper for VCS.                                                   #
     #                                                                        #
     ##########################################################################
-    def png(self, file, width=None,height=None,units=None):
+    def png(self, file, width=None,height=None,units=None,draw_white_background = 0):
         """
  Function: png
 
@@ -6629,18 +4640,8 @@ Options:::
     a.plot(array)
     a.png('example')       # Overwrite a png file
 """
-        if units is not None or width is not None or height is not None:
-            if self.iscanvasdisplayed():
-                warnings.warn("Dimensions cannot be set once canvas is opened, window dims will be used, use bg=1 when plotting to control output dimesnsions")
-            else:
-                warnings.warn("Dimensions must be set apriori (before plotting in bg mode) via setbgoutputdimensions function")
-        if self.iscanvasdisplayed():
-            info=self.canvasinfo()
-            self.setbgoutputdimensions(info["width"],info["height"],"pixels")
-            
-        if not file.split('.')[-1].lower() in ['png']:
-            file+='.png'
-        return apply(self.canvas.png,(file,))
+        return self.backend.png(file,width,height,units,draw_white_background)
+
     #############################################################################
     #                                                                           #
     # pdf wrapper for VCS.                                               #
@@ -6943,7 +4944,7 @@ Options:::
         if mode=='r':
             return apply(self.canvas.postscript,(file,W,H,R,L,T,B))
         else:
-            n=random.randint(0,100000)
+            n=random.randint(0,10000000000000)
             psnm='/tmp/'+'__VCS__tmp__'+str(n)+'.ps'
             apply(self.canvas.postscript,(psnm,W,H,R,L,T,B))
             if os.path.exists(file):
@@ -7023,7 +5024,7 @@ Options:::
     a.pdf(file='example',options='-dCompressPages=false')  # Creates a pdf file w/o compressing page, can be any option understood by ps2pdf
 """ % (self._dotdir)
 
-        n=random.randint(0,100000)
+        n=random.randint(0,100000000000)
         if file[-3:].lower()!='pdf':
             file+='.pdf'
         psnm='/tmp/'+'__VCS__tmp__'+str(n)+'.ps'
@@ -7221,325 +5222,10 @@ Options:::
     #                                                                           #
     #############################################################################
     def _scriptrun(self, *args):
-        """
- Function: _scriptrun
+      return vcs._scriptrun(*args)
 
- Description of Function:
-    Run VCS script file.
-   
- Example of Use:
-    x._scriptrun('script_filename.scr')
-"""
-        # First reads the C stuff
-        apply(self.canvas.scriptrun, args)
-        # Now does the python Graphic methods
-        f=open(args[0],'r')
-        ln=f.readlines()
-        f.close()
-        # browse through the file to look for taylordiagram/python graphics methods
-        ifound=0 # found a taylor graphic method
-        for l in ln:
-            if ifound==0 : s=''
-            if l[:4]=='Gtd_':
-                ifound=1
-##             if l[:4]=='Gmf_':
-##                 ifound=2
-            if ifound == 1:
-                i=string.find(l,')')
-                if i==-1:  # not found the end,i.e ')'
-                    s=s+l[:-1] # we dont want the trail carriage return
-                else:
-                    ifound=0
-                    s=s+l[:i+1]
-                    # Now break the string
-                    # now gets the name and prepare the graphics method
-                    sp=string.split(s,'(')
-                    name=string.join(string.split(sp[0],'_')[1:],'_')
-                    if name!='default' : # we cannot change default
-                        try:
-                            td=self.createtaylordiagram(name)
-                        except Exception,err:
-                            td=self.gettaylordiagram(name)
-                        sp=string.split(sp[1],';') # breaks the thing into different attributes
-                        imark=0
-                        for a in sp : # the last one is ')'
-                            sp2=string.split(a,'=')
-                            if string.strip(sp2[0])=='Marker' : imark=1
-                            if len(sp2)==2:
-                                if imark:
-                                    setattr(td.Marker,string.strip(sp2[0]),eval(sp2[1]))
-                                else:
-                                    setattr(td,string.strip(sp2[0]),eval(sp2[1]))
-##             elif ifound == 2:
-##                 i=string.find(l,')')
-##                 if i==-1:  # not found the end,i.e ')'
-##                     s=s+l[:-1] # we dont want the trail carriage return
-##                 else:
-##                     ifound=0
-##                     s=s+l[:i+1]
-##                     # Now break the string
-##                     # now gets the name and prepare the graphics method
-##                     sp=string.split(s,'(')
-##                     name=string.join(string.split(sp[0],'_')[1:],'_')
-##                     if name!='default' : # we cannot change default
-##                         try:
-##                             mesh=self.createmeshfill(name)
-##                         except:
-##                             mesh=self.getmeshfill(name)
-##                         sp=string.split(sp[1],';') # breaks the thing into different attributes
-##                         for a in sp : # the last one is ')'
-##                             sp2=string.split(a,'=')
-##                             if len(sp2)==2:
-##                                 setattr(mesh,string.strip(sp2[0]),eval(sp2[1]))
-                                
-    #############################################################################
-    #                                                                           #
-    # Import old VCS file script commands into CDAT.                            #
-    #                                                                           #
-    #############################################################################
-    def scriptrun(self, *args):
-        import __main__
-        ## Following comented by C. Doutriaux seems to be useless
-        ## from cdms2.selectors import Selector
-
-        # Open VCS script file for reading and read all lines into a Python list
-        fin = open(args[0], 'r')
-        l=fin.readlines()
-        line_ct = len(l)
-        i = 0
-
-        # Check to see if it is a VCS generated Python script file. If it is, then simply
-        # call the execfile function to execute the script and close the file.
-        if ( (l[0][0:37] == "#####################################") and
-             (l[1][0:35] == "#                                 #") and
-             (l[2][0:33] == "# Import and Initialize VCS     #") and
-             (l[3][0:31] == "#                             #") and
-             (l[4][0:29] == "#############################") ):
-            fin.close()
-            execfile( args[0], __main__.__dict__ )
-            return
-
-        while i < line_ct:                          
-           # Loop through all lines and determine when a VCS command line
-           # begins and ends. That is, get only one VCS command at a time
-           scr_str = l[i]
-           lt_paren_ct = string.count(l[i], '(')
-           rt_paren_ct = string.count(l[i], ')')
-           while lt_paren_ct > rt_paren_ct:
-              i += 1
-              scr_str += l[i]
-              lt_paren_ct += string.count(l[i], '(')
-              rt_paren_ct += string.count(l[i], ')')
-           i += 1
-           scr_str = string.strip( scr_str )
-        
-           # Get the VCS command
-           vcs_cmd = string.split(string.split(scr_str, '(')[0], '_')[0]
-        
-           function = source = name = units = title = lon_name = lat_name = ''
-           comment1 = comment2 = comment3 = comment4 = ''
-           if vcs_cmd == 'A':
-              # Get the data via CDMS. That is, retrieve that data as a
-              # _TransientVariable. But first, get the source, name, title,
-              # etc. of the file.
-              slab_name = string.split(scr_str, '(')[0][2:]
-              a=string.split(scr_str,'",')
-              for j in range(len(a)):
-                 b=string.split(a[j],'="')
-                 if string.lower(b[0][-4:]) == 'file':
-                    fcdms=cdms2.open(b[1])                       # Open CDMS file
-                 elif string.lower(b[0][-8:]) == 'function':
-                    function =b[1]                              # Get function
-                 elif string.lower(b[0]) == 'source':
-                    source = b[1]
-                 elif ( (string.lower(b[0][-4:]) == 'name') and
-                        (string.lower(b[0][-5:]) != 'xname') and
-                        (string.lower(b[0][-5:]) != 'yname') ):
-                    name = string.split( b[1], '")')[0]
-                 elif string.lower(b[0]) == 'units':
-                    units = string.split( b[1], '")')[0]
-                 elif string.lower(b[0][-5:]) == 'title':
-                    title = string.split( b[1], '")')[0]
-                 elif string.lower(b[0][-5:]) == 'xname':
-                    lon_name = string.strip(string.split( b[1], '")')[0])
-                 elif string.lower(b[0][-5:]) == 'yname':
-                    lat_name = string.strip(string.split( b[1], '")')[0])
-                 elif string.lower(b[0][-9:]) == 'comment#1':
-                    comment1 = b[1]
-                 elif string.lower(b[0][-9:]) == 'comment#2':
-                    comment2 = b[1]
-                 elif string.lower(b[0][-9:]) == 'comment#3':
-                    comment3 = b[1]
-                 elif string.lower(b[0][-9:]) == 'comment#4':
-                    comment4 = b[1]
-## Comented out by C. Doutriaux, shouldn't print anything
-##               print 'function = ', function
-##               print 'source = ', source
-##               print 'name = ', name
-##               print 'units = ', units
-##               print 'title = ', title
-##               print 'lon_name = ', lon_name
-##               print 'lat_name = ', lat_name
-##               print 'comment1 = ', comment1
-##               print 'comment2 = ', comment2
-##               print 'comment3 = ', comment3
-##               print 'comment4 = ', comment4
-
-              if function != '':
-                 b=string.split(function, '(')
-                 ftype=b[0]
-                 V=string.split(b[1],',')[0]
-## Comented out by C. Doutriaux, shouldn't print anything
-##                  print 'ftype = ', ftype
-##                  print 'V = ', V
-##                  print 'slab_name = ', slab_name
-                 __main__.__dict__[ slab_name ] = __main__.__dict__[ V ] * 1000.
-#                 __main__.__dict__[ slab_name ] = cdutil.averager(
-#                    __main__.__dict__[ V ], axis='( %s )' % 'zeros_ones_dim_1',
-#                       weight='equal')
-                 continue
-
-
-              a=string.split(scr_str,',')
-              
-              # Now get the coordinate values
-              x1 = x2 = y1 = y2 = None
-              for j in range(len(a)):
-                 c=string.split(a[j], ',')[0]
-                 b=string.split(c, '=')
-                 if string.lower(b[0]) == 'xfirst':
-                    x1 = string.atof( string.split(b[1], ')')[0] )
-                 elif string.lower(b[0]) == 'xlast':
-                    x2 = string.atof( string.split(b[1], ')')[0] )
-                 elif string.lower(b[0][-6:]) == 'yfirst':
-                    y1 = string.atof( string.split(b[1], ')')[0] )
-                 elif string.lower(b[0]) == 'ylast':
-                    y2 = string.atof( string.split(b[1], ')')[0] )
-
-              # Get the variable from the CDMS opened file
-              V=fcdms.variables[name]
-
-              # Check for the order of the variable and re-order dimensions
-              # if necessary
-              Order = '(%s)(%s)' % (lat_name,lon_name)
-              Order = string.strip( string.replace( Order, '()', '' ) )
-              if Order == '': Order = None
-              axis_ids = V.getAxisIds()
-              re_order_dimension = 'no'
-              try:                 # only re-order on two or more dimensions
-                 if (axis_ids[-1] != lon_name) and (axis_ids[-2] != lat_name):
-                    re_order_dimension = 'yes'
-              except:
-                 pass
-
-              # Must have the remaining dimension names in the Order list
-              if Order is not None:
-                 O_ct = string.count(Order,'(')
-                 V_ct = len( V.getAxisIds() )
-                 for j in range(O_ct, V_ct):
-                    Order = ('(%s)' % axis_ids[V_ct-j-1]) + Order
-
-              # Set the data dictionary up to retrieve the dat from CDMS
-              if re_order_dimension == 'no':
-                 if ( (x1 is not None) and (x2 is not None) and
-                    (y1 is not None) and (y2 is not None) ):
-                    data_dict = {lon_name:(x1,x2) ,lat_name:(y1,y2), 'order':Order}
-                 elif ( (x1 is not None) and (x2 is not None) and
-                    (y1 is None) and (y2 is None) ):
-                    data_dict = {lon_name:(x1,x2), 'order':Order}
-                 elif ( (x1 is None) and (x2 is None) and
-                    (y1 is not None) and (y2 is not None) ):
-                    data_dict = {lat_name:(y1,y2), 'order':Order}
-                 elif ( (x1 is None) and (x2 is None) and
-                    (y1 is None) and (y2 is None) ):
-                    data_dict = {}
-              else:
-                 if ( (x1 is not None) and (x2 is not None) and
-                    (y1 is not None) and (y2 is not None) ):
-                    data_dict = {lat_name:(x1,x2) ,lon_name:(y1,y2), 'order':Order}
-                 elif ( (x1 is not None) and (x2 is not None) and
-                    (y1 is None) and (y2 is None) ):
-                    data_dict = {lon_name:(x1,x2), 'order':Order}
-                 elif ( (x1 is None) and (x2 is None) and
-                    (y1 is not None) and (y2 is not None) ):
-                    data_dict = {lat_name:(y1,y2), 'order':Order}
-                 elif ( (x1 is None) and (x2 is None) and
-                    (y1 is None) and (y2 is None) ):
-                    data_dict = {}
-
-              # Now store the _TransientVariable in the main dictionary for use later
-              __main__.__dict__[ slab_name ] = apply(V, (), data_dict)
-
-              fcdms.close()                                     # Close CDMS file
-           elif vcs_cmd == 'D':
-              # plot the data with the appropriate graphics method and template
-              a=string.split(scr_str,',')
-              a_name = b_name = None
-              for j in range(len(a)):
-                 b=string.split(a[j],'=')
-                 if string.lower(b[0][-3:]) == 'off':
-                    off = string.atoi( b[1] )
-                 elif string.lower(b[0]) == 'priority':
-                    priority = string.atoi( b[1] )
-                 elif string.lower(b[0]) == 'type':
-                    graphics_type = b[1]
-                 elif string.lower(b[0]) == 'template':
-                    template = b[1]
-                 elif string.lower(b[0]) == 'graph':
-                    graphics_name = b[1]
-                 elif string.lower(b[0]) == 'a':
-                    a_name = string.split(b[1],')')[0]
-                 elif string.lower(b[0]) == 'b':
-                    b_name = string.split(b[1],')')[0]
-
-              arglist=[]
-            
-              if a_name is not None:
-                 arglist.append(__main__.__dict__[ a_name ])
-              else:
-                 arglist.append( None )
-              if b_name is not None:
-                 arglist.append(__main__.__dict__[ b_name ])
-              else:
-                 arglist.append( None )
-              arglist.append(template)
-              arglist.append(graphics_type)
-              arglist.append(graphics_name)
-
-              # flush and block the X main loop
-              finish_queued_X_server_requests( self )
-              self.canvas.BLOCK_X_SERVER()
-
-              if (a_name is not None) and (graphics_type != 'continents'):
-                 dn = self.__plot(arglist, {'bg':0})
-
-              # Unblock the (thread) execution of the X main loop (if it is running).
-              self.canvas.UNBLOCK_X_SERVER()
-
-           elif string.lower( vcs_cmd ) == 'canvas':
-              apply(self.canvas.open, args)
-              if ( self.canvas.THREADED() == 0 ):
-                 thread.start_new_thread( self.canvas.startxmainloop, ( ) )
-           elif string.lower( vcs_cmd ) == 'page':
-              orientation = string.lower( string.split(scr_str,'(')[1][:-1] )
-              finish_queued_X_server_requests( self )
-              self.canvas.BLOCK_X_SERVER()
-              if orientation == 'portrait':
-                 apply(self.canvas.portrait, args)
-              else:
-                 apply(self.canvas.landscape, args)
-              self.canvas.UNBLOCK_X_SERVER()
-           else: # Send command to VCS interpreter
-              if (len(scr_str) > 1) and (scr_str[0] != '#'):
-                 # Save command to a temporary file first, then read script command
-                 # This is the best solution. Aviods rewriting C code that I know works!
-                 temporary_file_name = tempfile.mktemp('.scr')
-                 fout = open(temporary_file_name, 'w')
-                 fout.writelines( scr_str )
-                 fout.close()
-                 self._scriptrun(temporary_file_name)
-                 os.remove(temporary_file_name)
-        fin.close()
+    def scriptrun(self, aFile, *args, **kargs):
+      vcs.scriptrun(aFile,*args,**kargs)
 
     #############################################################################
     #                                                                           #
@@ -7582,7 +5268,7 @@ Options:::
     # Set VCS color map wrapper for VCS.                                        #
     #                                                                           #
     #############################################################################
-    def setcolormap(self, *args):
+    def setcolormap(self, name):
         """
  Function: setcolormap
 
@@ -7601,15 +5287,13 @@ Options:::
         # Don't update the VCS segment if there is no Canvas. This condition
         # happens in the initalize function for VCDAT only. This will cause a
         # core dump is not checked.
-        try:
-           updateVCSsegments_flag = args[1]
-        except:
-           updateVCSsegments_flag = 1
-        a=apply(self.canvas.setcolormap, args)
-        if updateVCSsegments_flag == 1:
-           self.canvas.updateVCSsegments(self.mode) # pass down self and mode to _vcs module
-        self.flush() # update the canvas by processing all the X events
-        return a
+        #try:
+        #   updateVCSsegments_flag = args[1]
+        #except:
+        #   updateVCSsegments_flag = 1
+        self.colormap = name
+        warnings.warn("need to implemeent code to redraw vcs after colormap change")
+        return
 
     #############################################################################
     #                                                                           #
@@ -7654,8 +5338,8 @@ Options:::
     # Set continents type wrapper for VCS.                           		#
     #                                                                           #
     #############################################################################
-    def setcontinentstype(self, *args):
-        """
+    def setcontinentstype(self, value):
+      """
  Function: setcontinentstype
 
  Description of Function:
@@ -7675,12 +5359,33 @@ Options:::
     Values 6 through 11 signify the line type defined by the files
     data_continent_other7 through data_continent_other12. 
 
+    You can also pass a file
+
  Example of Use:
     a=vcs.init()
     a.setcontinentstype(3)
+    #a.setcontinentstype(os.environ["HOME"]+"/.uvcdat/data_continents_states")
     a.plot(array,'default','isofill','quick')
 """
-        return apply(self.canvas.setcontinentstype, args)
+      nms = ["fine","coarse","states","political","river","other6","other7","other8","other9","other10","other11","other12"]
+      if isinstance(value,int):
+        if value == 0:
+          self._continents = None
+        elif 0<value<12:
+          self._continents = os.path.join(os.environ.get("HOME",""),os.environ.get(vcs.getdotdirectory()[1],vcs.getdotdirectory()[0]),"data_continent_%s" % nms[value-1])
+          if not os.path.exists(self._continents):
+            #fallback on installed with system one
+            self._continents = os.path.join(sys.prefix,"share","vcs","data_continent_%s" % nms[value-1])
+        else:
+          raise Exception("Error continents value must be file or int < 12")
+      elif isinstance(value,str):
+        self._continents = value
+      if self._continents is not None and not os.path.exists(self._continents):
+        warnings.warn("Continents file not found: %s, substituing with coarse continents" % self._continents)
+        self._continents = os.path.join(os.environ.get("HOME",""),os.environ.get(vcs.getdotdirectory()[1],vcs.getdotdirectory()[0]),"data_continent_coarse")
+        if not  os.path.exists(self._continent):
+          self._continents = os.path.join(sys.prefix,"share","vcs","data_continent_coarse")
+        return
 
     #############################################################################
     #                                                                           #
@@ -7727,8 +5432,8 @@ Options:::
         if orientation is None:
             orientation=self.orientation()[0]
         g = string.split(geometry,'x')
-        f1 = f1=string.atof(g[0]) / 1100.0 * 100.0
-        f2 = f2=string.atof(g[1]) / 849.85 * 100.0
+        f1 = f1=float(g[0]) / 1100.0 * 100.0
+        f2 = f2=float(g[1]) / 849.85 * 100.0
         geometry = "%4.1fx%4.1f" % (f2,f1)
         nargs = ('gif', filename, merge, orientation, geometry)
         return apply(self.canvas.gif_or_eps, nargs)
@@ -7776,8 +5481,8 @@ Options:::
         if orientation is None:
             orientation=self.orientation()[0]
         r = string.split(resolution,'x')
-        f1 = f1=string.atof(r[0]) / 1100.0 * 100.0
-        f2 = f2=string.atof(r[1]) / 849.85 * 100.0
+        f1 = f1=float(r[0]) / 1100.0 * 100.0
+        f2 = f2=float(r[1]) / 849.85 * 100.0
         resolution = "%4.1fx%4.1f" % (f2,f1)
         nargs = (filename, device, orientation, resolution)
         return apply(self.canvas.gs, nargs)
@@ -7813,7 +5518,7 @@ Options:::
         ext = file.split(".")[-1]
         if ext.lower()!='eps':
             file=file+'.eps'
-        num = numpy.random.randint(10000000)
+        num = numpy.random.randint(100000000000)
         tmpfile = "/tmp/vcs_tmp_eps_file_%i.ps" % num
         if mode=='a' and os.path.exists(file):
             os.rename(file,tmpfile)
@@ -7841,7 +5546,7 @@ Options:::
     a.show('marker')
     a.show('text')
 """
-        if args != () and string.lower(args[0]) == 'taylordiagram':
+        if args != () and args[0].lower() == 'taylordiagram':
             ln=[]
             ln.append('*******************Taylor Diagrams Names List**********************')
             nms=[]
@@ -7870,7 +5575,7 @@ Options:::
     #############################################################################
     def isinfile(self,GM,file=None):
         """ Checks if a graphic method is stored in a file
-        if no file name is passed then looks into the initial.attribute file"""
+        if no file name is passed then looks into the initial.attributes file"""
         nm=GM.name
         gm=GM.g_name
         key=gm+'_'+nm+'('
@@ -7878,7 +5583,7 @@ Options:::
             file=os.path.join(os.environ['HOME'],self._dotdir,'initial.attributes') 
         f=open(file,'r')
         for ln in f.xreadlines():
-            if string.find(ln,key)>-1:
+            if ln.find(key)>-1:
                 f.close()
                 return 1
         return 0
@@ -7917,15 +5622,7 @@ Options:::
  # graphic method is now preserved
 """ % (self._dotdir)
         self.clean_auto_generated_objects()
-        msg = _vcs.saveinitialfile()
-        # Now adds the taylordiagram stuff
-        fnm=os.path.join(os.environ['HOME'],self._dotdir,'initial.attributes')
-        for td in vcs.taylordiagrams:
-            if self.isinfile(td)==0 : td.script(fnm)
-##         # Now adds the meshfill stuff
-##         for mesh in vcs.meshfills:
-##             if self.isinfile(mesh)==0 : mesh.script(fnm)
-        return msg
+        return vcs.saveinitialfile()
         
 
     #############################################################################
@@ -8109,12 +5806,14 @@ Options:::
 
 """
         # Check to make sure the arguments passed in are STRINGS
-        if (type(Cp_name) != StringType):
+        if not isinstance(Cp_name,str):
            raise ValueError, 'Error -  The first argument must be a string.'
-        if (type(Cp_name_src) != StringType):
+        if not isinstance(Cp_name_src,str):
            raise ValueError, 'Error -  The second argument must be a string.'
 
-        return colormap.Cp(self, Cp_name, Cp_name_src, 0)
+        if Cp_name in vcs.elements["colormap"]:
+          raise Exception,"The colrmap '%s' already exists" % Cp_name
+        return colormap.Cp(Cp_name, Cp_name_src)
 
     def getcolormap(self,Cp_name_src='default'):
         """
@@ -8138,11 +5837,10 @@ Options:::
                                             #       secondary method
 """
         # Check to make sure the argument passed in is a STRING
-        if (type(Cp_name_src) != StringType):
+        if not isinstance(Cp_name_src,str):
            raise ValueError, 'Error -  The argument must be a string.'
 
-        Cp_name = None
-        return colormap.Cp(self, Cp_name, Cp_name_src, 1)
+        return vcs.elements["colormap"][Cp_name_src]
 
     #############################################################################
     #                                                                           #
@@ -8175,7 +5873,9 @@ Options:::
         nms = []
         for f in files:
             fnm,name = f
-            nms.append(apply(self.canvas.addfont,(fnm,name)))
+            i = max(vcs.elements["fontNumber"].keys())+1
+            vcs.elements["font"][name]=fnm
+            vcs.elements["fontNumber"][i]=name
         if len(nms)==0:
             raise vcsError,'No font Loaded'
         elif len(nms)>1:
@@ -8188,19 +5888,13 @@ Options:::
         """
         get the font number associated with a font name
         """
-        nb = apply(self.canvas.getfontnumber,(name,))
-        if nb==-1:
-            raise vcsError,"Font name not existing! %s" % name
-        return nb
+        return vcs.getfontnumber(name)
     
     def getfontname(self, number):
         """
         get the font name associated with a font number
         """
-        nm = apply(self.canvas.getfontname,(number,))
-        if nm=="":
-            raise vcsError,"Error font number not existing %i" % number
-        return nm
+        return vcs.getfontname(number)
     
     def getfont(self, font):
         """
@@ -8261,7 +5955,7 @@ Options:::
     # Orientation VCS Canvas orientation wrapper for VCS.                       #
     #                                                                           #
     #############################################################################
-    def orientation(self, *args):
+    def orientation(self, *args, **kargs):
         """
  Function: orientation
 
@@ -8272,7 +5966,7 @@ Options:::
     a=vcs.init()
     a.orientation()      # Return either "landscape" or "portrait"
 """ 
-        return apply(self.canvas.orientation, args)
+        return self.backend.orientation(*args,**kargs)
 
     #############################################################################
     #                                                                           #
@@ -8327,11 +6021,9 @@ Options:::
     a.plot(array,'default','isofill','quick')
     a.getcolormapname()
 """
-        a=apply(self.canvas.getcolormapname, args)
-        return a
+        return self.colormap
     
     def dummy_user_action(self,*args,**kargs):
-##         print 'In dummy baby!'
         print 'Arguments:',args
         print 'Keywords:',kargs
         return None
@@ -8351,743 +6043,3 @@ def change_date_time(tv, number):
             tv.time = '%s:%s:%s\0'%(cobj.hour, cobj.minute, cobj.second)
         except:
             pass
-
-#############################################################################
-#                                                                           #
-# Animate wrapper for VCS.                                                  #
-#                                                                           #
-#############################################################################
-class animate_obj_old:
-   """
- Function: animate
-
- Description of Function:
-    Animate the contents of the VCS Canvas. The animation can also be controlled from
-    the animation GUI. (See VCDAT for more details.)
- 
-    See the animation GUI documenation located at URL:
-        http://www-pcmdi.llnl.gov/software/vcs
-
- Example of Use:
-    a=vcs.init()
-    a.plot(array,'default','isofill','quick')
-    a.animate()
-
-"""
-    
-   ##############################################################################
-   # Initialize the animation flags						#
-   ##############################################################################
-   def __init__(self, vcs_self):
-      self.vcs_self = vcs_self
-      self.gui_popup = 0
-      self.create_flg = 0
-      self.run_flg = 0
-      self.continents_value = 0
-      self.continents_hold_value = 1
-      
-   ##############################################################################
-   # Create the animation images. If min or max is None, then			#
-   # the animator will find the min and max values from the dataset.		#
-   # If min and max are set to 1e20, then no min and max animation		#
-   # value is used (i.e., each animation frame will have different		#
-   # min and max values. If min and max are set by the user, then		#
-   # these values are used for the animation min and max.			#
-   #										#
-   # If you are running animation from a program, set thread_it to 0.		#
-   # This will cause the Python program to wait for the create function		#
-   # to finish before moving onto the next command line.			#
-   ##############################################################################
-   def create( self, parent=None, min=None, max=None, save_file=None, thread_it = 1, rate=5., bitrate=None, ffmpegoptions='' ):
-      from vcs import minmax
-      from numpy.ma import maximum,minimum
-      ##from tkMessageBox import showerror
-
-      # Cannot "Run" or "Create" an animation while already creating an animation
-      print "Ok minmax:",min,max
-      if self.run_flg == 1: return
-      if self.vcs_self.canvas.creating_animation() == 1: return
-
-      if self.vcs_self.animate_info == []:
-         str = "No data found!"
-         showerror( "Error Message to User", str )
-         return
-      finish_queued_X_server_requests( self.vcs_self )
-      self.vcs_self.canvas.BLOCK_X_SERVER()
-
-      # Stop the (thread) execution of the X main loop (if it is running).
-      self.vcs_self.canvas.stopxmainloop( )
-
-      # Force VCS to update its orientation, needed when the user changes the
-      # VCS Canvas size.
-      self.vcs_self.canvas.updateorientation()
-
-      # Make sure the animate information is up-to-date for creating images
-      if ((self.gui_popup == 1) and (self.create_flg == 0)):
-         self.update_animate_display_list( )
-
-      # Save the min and max values for the graphics methods.
-      # Will need to restore values back when animation is done.
-      self.save_original_min_max()
-
-      # Set up the animation min and max values by changing the graphics method
-      # Note: cannot set the min and max values if the default graphics method is set.
-      do_min_max = 'yes'
-      try:
-         if (parent is not None) and (parent.iso_spacing == 'Log'):
-            do_min_max = 'no'
-      except:
-         pass
-
-      # Draw specified continental outlines if needed.
-      self.continents_hold_value = self.vcs_self.canvas.getcontinentstype( )
-      self.vcs_self.canvas.setcontinentstype( self.continents_value )
-
-      print "do min max:",do_min_max
-      if ( do_min_max == 'yes' ):
-         minv = []
-         maxv=[]
-         if (min is None) or (max is None):
-            for i in range(len(self.vcs_self.animate_info)):
-               minv.append( 1.0e77 )
-               maxv.append( -1.0e77 )
-            for i in range(len(self.vcs_self.animate_info)):
-               dpy, slab = self.vcs_self.animate_info[i]
-               mins, maxs = minmax(slab)
-               minv[i] = float(minimum(float(minv[i]), float(mins)))
-               maxv[i] = float(maximum(float(maxv[i]), float(maxs)))
-         if ((type(min) == types.ListType) or (type(max) == types.ListType)):
-            for i in range(len(self.vcs_self.animate_info)):
-               try:
-                  minv.append( min[i] )
-               except:
-                  minv.append( min[-1] )
-               try:
-                  maxv.append( max[i] )
-               except:
-                  maxv.append( max[-1] )
-         else:
-            for i in range(len(self.vcs_self.animate_info)):
-                minv.append( min )
-                maxv.append( max )
-
-         # Set the min an max for each plot in the page. If the same graphics method is used
-         # to display the plots, then the last min and max setting of the data set will be used.
-         for i in range(len(self.vcs_self.animate_info)):
-            try:
-               self.set_animation_min_max( minv[i], maxv[i], i )
-            except:
-               pass # if it is default, then you cannot set the min and max, so pass.
-
-      if save_file is None or save_file.split('.')[-1].lower()=='ras':
-          if thread_it == 1:
-              thread.start_new_thread( self.vcs_self.canvas.animate_init, (save_file,) )
-              ## from cdatguiwrap import VCSQtManager
-              ## w = VCSQtManager.window(0)
-              #self.mythread=QAnimThread(None,self.vcs_self.canvas.animate_init,save_file)
-              #self.mythread.start()
-          else:
-              self.vcs_self.canvas.animate_init( save_file )
-      else: # ffmpeg stuff
-          save_info = self.vcs_self.animate_info
-          animation_info = self.vcs_self.canvas.animate_info()
-          slabs=[]
-          templates=[]
-          dpys=[]
-          for i in range(len(self.vcs_self.animate_info)):
-              dpy, slab = self.vcs_self.animate_info[i]
-              slabs.append(slab)
-              dpys.append(dpy)
-              templates.append(dpy.template)
-          sh =slabs[0].shape
-          if dpy.g_type in ['boxfill', 'isofill', 'isoline', 'meshfill', 'outfill', 'outline', 'taylordiagram', 'vector', ]:
-              r=len(sh)-2
-          else:
-              r=len(sh)-1
-          # now create the list of all previous indices to plot
-          indices=[]
-          for i in range(r):
-              this = list(range(sh[i]))
-              tmp=[]
-              if indices == []:
-                  for k in this:
-                      indices.append([k,])
-              else:
-                  for j in range(len(indices)):
-                      for k in this:
-                          tmp2=copy.copy(indices[j])
-                          tmp2.append(k)
-                          tmp.append(tmp2)
-                  indices=tmp
-          count=1
-          white_square=self.vcs_self.createfillarea()
-          white_square.color=240
-          white_square.x=[0,1,1,0]
-          white_square.y=[0,0,1,1]
-          new_vcs=vcs.init()
-          if self.vcs_self.orientation()=='portrait':
-              new_vcs.portrait()
-          #self.vcs_self.close()
-
-          d = Pmw.Dialog(title="Creating Frames")
-          d.geometry("200x150+0+0")
-          S=genutil.Statusbar(d.interior(),ycounter=50)
-          S.pack(expand=1,fill='both')
-          n=float(len(indices))/100.
-          for index in indices:
-              S.show(count/n)
-              new_vcs.clear()
-              new_vcs.plot(white_square,bg=1)
-              for i in range(len(save_info)):
-                  slab=slabs[i]
-                  template=templates[i]
-                  gtype = string.lower(animation_info["gtype"][i])
-                  gname = animation_info["gname"][i]
-                  exec("gm = new_vcs.get%s('%s')" % (gtype,gname))
-                  for j in index:
-                      slab=slab[j]
-                  new_vcs.plot(slab,gm,new_vcs.gettemplate(template),bg=1)
-              new_vcs.png("tmp_anim_%i" % count)
-              count+=1
-          new_vcs.ffmpeg(save_file,"tmp_anim_%d.png",bitrate=bitrate,rate=rate,options=ffmpegoptions)
-          for i in range(count-1):
-              os.remove("tmp_anim_%i.png" % (i+1))
-          d.destroy()
-          del(new_vcs)
-      self.create_flg = 1
-
-      self.vcs_self.canvas.UNBLOCK_X_SERVER()
-
-       
-   ##############################################################################
-   # Save original min and max values    					#
-   ##############################################################################
-   def save_original_min_max( self ):
-      animation_info = self.vcs_self.canvas.animate_info()
-      self.save_min = {}
-      self.save_max = {}
-      self.save_legend = {}
-      self.save_levels = {}
-      self.save_mean_veloc = {}
-      for i in range(len(self.vcs_self.animate_info)):
-         gtype = string.lower(animation_info["gtype"][i])
-         if gtype == "boxfill":
-            gm=self.vcs_self.getboxfill(animation_info['gname'][i])
-            self.save_min[i] = gm.level_1
-            self.save_max[i] = gm.level_2
-#            self.save_legend[i] = gm.legend
-         elif ( gtype == "meshfill" ):
-            gm=self.vcs_self.getmeshfill(animation_info['gname'][i])
-            self.save_levels[i] = gm.levels
-         elif ( gtype == "isofill" ):
-            gm=self.vcs_self.getisofill(animation_info['gname'][i])
-            self.save_levels[i] = gm.levels
-         elif ( gtype == "isoline" ):
-            gm=self.vcs_self.getisoline(animation_info['gname'][i])
-            self.save_levels[i] = gm.levels
-         elif ( gtype == "yxvsx" ):
-            gm=self.vcs_self.getyxvsx(animation_info['gname'][i])
-            self.save_min[i] = gm.datawc_y1
-            self.save_max[i] = gm.datawc_y2
-         elif ( gtype == "xyvsy" ):
-            gm=self.vcs_self.getxyvsy(animation_info['gname'][i])
-            self.save_min[i] = gm.datawc_x1
-            self.save_max[i] = gm.datawc_x2
-         elif ( gtype == "vector" ):
-            gm=self.vcs_self.getvector(animation_info['gname'][i])
-            self.save_mean_veloc[i] = gm.reference
-
-   ##############################################################################
-   # Restore min and max values                                                 #
-   ##############################################################################
-   def restore_min_max( self ):
-      animation_info = self.vcs_self.canvas.animate_info()
-      for i in range(len(self.vcs_self.animate_info)):
-         gtype = string.lower(animation_info["gtype"][i])
-         if gtype == "boxfill":
-            gm=self.vcs_self.getboxfill(animation_info['gname'][i])
-            gm.level_1 = self.save_min[i]
-            gm.level_2 = self.save_max[i]
-#            gm.legend = self.save_legend[i]
-         elif ( gtype == "meshfill" ):
-            gm=self.vcs_self.getmeshfill(animation_info['gname'][i])
-            gm.levels = self.save_levels[i]
-         elif ( gtype == "isofill" ):
-            gm=self.vcs_self.getisofill(animation_info['gname'][i])
-            gm.levels = self.save_levels[i]
-         elif ( gtype == "isoline" ):
-            gm=self.vcs_self.getisoline(animation_info['gname'][i])
-            gm.levels = self.save_levels[i]
-         elif ( gtype == "yxvsx" ):
-            gm=self.vcs_self.getyxvsx(animation_info['gname'][i])
-            gm.datawc_y1 = self.save_min[i]
-            gm.datawc_y2 = self.save_max[i]
-         elif ( gtype == "xyvsy" ):
-            gm=self.vcs_self.getxyvsy(animation_info['gname'][i])
-            gm.datawc_x1 = self.save_min[i]
-            gm.datawc_x2 = self.save_max[i]
-         elif ( gtype == "vector" ):
-            gm=self.vcs_self.getvector(animation_info['gname'][i])
-            gm.reference = self.save_mean_veloc[i]
-
-   
-   ##############################################################################
-   # Set the animation min and max values    					#
-   ##############################################################################
-   def set_animation_min_max( self, min, max, i ):
-      from vcs import mkscale, mklabels
-      animation_info = self.vcs_self.canvas.animate_info()
-      gtype = string.lower(animation_info["gtype"][i])
-      if gtype == "boxfill":
-         gm=self.vcs_self.getboxfill(animation_info['gname'][i])
-         gm.level_1=min
-         gm.level_2=max
-         gm.legend=None
-      elif ( gtype == "meshfill" ):
-         gm=self.vcs_self.getmeshfill(animation_info['gname'][i])
-         if (min == 1e20) and (max ==1e20):
-            gm.levels=(1e20,1e20)
-         else:
-            l=[]
-            interations = 10.0
-            levels = min
-            delta = (max - min)/ interations
-            for a in range(int(interations)):
-               l.append(levels)
-               levels=levels+delta
-            l.append(levels)
-            gm.levels = l
-            gm.fillareacolors = [16,38,80,103,112,127,158,183,192,207]
-      elif ( gtype == "isofill" ):
-         gm=self.vcs_self.getisofill(animation_info['gname'][i])
-         if (min == 1e20) and (max ==1e20):
-            gm.levels=(1e20,1e20)
-         else:
-            l=[]
-            interations = 10.0
-            levels = min
-            delta = (max - min)/ interations
-            for a in range(int(interations)):
-               l.append(levels)
-               levels=levels+delta
-            l.append(levels)
-            gm.levels = l
-            gm.fillareacolors = [16,38,80,103,112,127,158,183,192,207]
-      elif ( gtype == "isoline" ):
-         gm=self.vcs_self.getisoline(animation_info['gname'][i])
-         if (min == 1e20) and (max ==1e20):
-            gm.levels=(1e20,1e20)
-         else:
-            l=[]
-            interations = 10.0
-            levels = min
-            delta = (max - min)/ interations
-            for a in range(int(interations)):
-               l.append(levels)
-               levels=levels+delta
-            l.append(levels)
-            gm.levels = l
-      elif ( gtype == "yxvsx" ):
-         gm=self.vcs_self.getyxvsx(animation_info['gname'][i])
-         if (min != 1e20) and (max !=1e20):
-            levs=vcs.mkscale(min, max)
-            dic=vcs.mklabels(levs)
-            gm.yticlabels1=dic
-            gm.yticlabels2=dic
-            min = levs[0]
-            max = levs[-1]
-         gm.datawc_y1 = min
-         gm.datawc_y2 = max
-      elif ( gtype == "xyvsy" ):
-         gm=self.vcs_self.getxyvsy(animation_info['gname'][i])
-         if (min != 1e20) and (max !=1e20):
-            levs=vcs.mkscale(min, max)
-            dic=vcs.mklabels(levs)
-            gm.xticlabels1=dic
-            gm.xticlabels2=dic
-            min = levs[0]
-            max = levs[-1]
-         gm.datawc_x1 = min
-         gm.datawc_x2 = max
-      elif ( gtype == "vector" ):
-         gm=self.vcs_self.getvector(animation_info['gname'][i])
-         mean_veloc = 1e20
-         if (min != 1e20) and (max !=1e20):
-            mean_veloc = float( int( numpy.sqrt( (min**2)+(max**2) ) ) )
-         gm.reference = mean_veloc
-      animation_info['gname'][i] = gm.name
-
-   ##############################################################################
-   # Return the animation min and max values                                    #
-   ##############################################################################
-   def return_animation_min_max( self ):
-      from vcs import mkscale, mklabels
-      dpy, slab = self.vcs_self.animate_info[0]
-      return vcs.minmax(slab)
-
-   ##############################################################################
-   # Load animation from a stored Raster file.   				#
-   ##############################################################################
-   def load_from_file( self, parent=None, load_file=None, thread_it = 1 ):
-      ##from tkMessageBox import showerror
-      if os.access(load_file, os.R_OK) == 0:
-         showerror( "Error Message to the User", "The specfied file does not have read permission or does not exist. Please check the availability of the file.")
-         return
-
-      finish_queued_X_server_requests( self.vcs_self )
-      self.vcs_self.canvas.BLOCK_X_SERVER()
-
-      # Stop the (thread) execution of the X main loop (if it is running).
-      self.vcs_self.canvas.stopxmainloop( )
-
-      if thread_it == 1:
-          thread.start_new_thread( self.vcs_self.canvas.animate_load, (load_file,) )
-      else:
-          self.vcs_self.canvas.animate_init( load_file )
-      self.create_flg = 1
-
-      self.vcs_self.canvas.UNBLOCK_X_SERVER()
-
-   ##############################################################################
-   # Creating animation flag                 					#
-   ##############################################################################
-   def creating_animation_flg( self ):
-      return self.vcs_self.canvas.creating_animation()
-
-   ##############################################################################
-   # Run animation flag                 					#
-   ##############################################################################
-   def run_animation_flg( self ):
-      return self.run_flg
-
-   ##############################################################################
-   # Run or start the animation              					#
-   ##############################################################################
-   def run( self ):
-      # Cannot "Create" an animation while running an animation.
-      if self.vcs_self.canvas.creating_animation() == 1: return
-
-      if ((self.create_flg == 1) and (self.run_flg == 0)):
-         self.run_flg = 1
-         #thread.start_new_thread( self.vcs_self.canvas.animate_run,( ) )
-         self.vcs_self.canvas.animate_run()
-
-   ##############################################################################
-   # Stop the animation creation                                                #
-   ##############################################################################
-   def stop_create( self ):
-      if (self.create_flg == 1):
-         self.vcs_self.canvas.animate_stop_create()
-
-   ##############################################################################
-   # Stop the animation                                 			#
-   ##############################################################################
-   def stop( self ):
-      if (self.create_flg == 1) and (self.run_flg == 1):
-         self.run_flg = 0
-         self.vcs_self.canvas.animate_stop()
-      elif (self.create_flg == 1):
-         self.vcs_self.canvas.animate_stop_create()
-	
-   ##############################################################################
-   # View the specified animation frame                          		#
-   ##############################################################################
-   def frame( self, value=1 ):
-      if (self.create_flg == 1) and (self.run_flg == 0):
-         self.vcs_self.canvas.animate_frame( value )
-
-   ##############################################################################
-   # Return the number of animate frames                                    	#
-   ##############################################################################
-   def number_of_frames( self ):
-      if self.create_flg == 1:
-         return self.vcs_self.canvas.animate_number_of_frames( )
-
-   ##############################################################################
-   # Pause the animation loop                                               	#
-   # Value ranges from 0 to 100                                                 #
-   ##############################################################################
-   def pause( self, value=1 ):
-      if (((not isinstance(value, types.IntType))) or (value not in range(0, 101))):
-         raise vcsError, "Pause value must be between an integer between 0 and 100."
-
-      if (self.create_flg == 1) and (self.run_flg == 1):
-         self.vcs_self.canvas.animate_pause( value )
-
-   ##############################################################################
-   # Zoom in on the animation                                               	#
-   # Value ranges from 0 to 20                                                  #
-   ##############################################################################
-   def zoom( self, value=1 ):
-      if (((not isinstance(value, types.IntType))) or (value not in range(1, 21))):
-         raise vcsError, "Zoom value must be between an integer between 1 and 20."
-
-      if self.vcs_self.canvas.creating_animation() == 1: return
-
-      if self.create_flg == 1:
-         self.vcs_self.canvas.animate_zoom( value )
-
-   ##############################################################################
-   # Pan the zoomed animation or frame in the x (or horizontal) direction   	#
-   # Value ranges from -100 to 100						#
-   ##############################################################################
-   def horizontal( self, value=0 ):
-      if (((not isinstance(value, types.IntType))) or (value not in range(-100, 101))):
-         raise vcsError, "Horizontal pan value must be between an integer between -100 and 100."
-
-      if self.vcs_self.canvas.creating_animation() == 1: return
-
-      if self.create_flg == 1:
-         self.vcs_self.canvas.animate_horizontal( value )
-
-   ##############################################################################
-   # Pan the zoomed animation or frame in the y (or vertical) direction   	#
-   # Value ranges from -100 to 100						#
-   ##############################################################################
-   def vertical( self, value=0 ):
-      if (((not isinstance(value, types.IntType))) or (value not in range(-100, 101))):
-         raise vcsError, "Vertical pan value must be between an integer between -100 and 100."
-
-      if self.vcs_self.canvas.creating_animation() == 1: return
-
-      if self.create_flg == 1:
-         self.vcs_self.canvas.animate_vertical( value )
-
-   ##############################################################################
-   # Set the direction of the animation:                                        #
-   # Value 1 -> forward, 2 -> backward       	                                #
-   ##############################################################################
-   def direction( self, value=1 ):
-      if (((not isinstance(value, types.IntType))) or (value not in range(1, 3))):
-         raise vcsError, "Direction value must be between either 1='forward' or 2='backward'."
-
-      if self.vcs_self.canvas.creating_animation() == 1: return
-
-      if self.create_flg == 1:
-         self.vcs_self.canvas.animate_direction( value )
-
-   ##############################################################################
-   # Mode sets the cycle, forth and back, or animate once                   	#
-   # Value: 1 -> cycle, 2 -> animate once, and 3 -> forth and back              #
-   ##############################################################################
-   def mode( self, value=1 ):
-      if (((not isinstance(value, types.IntType))) or (value not in [1, 3])):
-         raise vcsError, "Mode value must be between either 1 or 3."
-
-      if value == 2:
-         self.run_flg = 0
-
-      if self.vcs_self.canvas.creating_animation() == 1: return
-
-      if self.create_flg == 1:
-         self.vcs_self.canvas.animate_mode( value )
-
-   ##############################################################################
-   # Update the animation display list                                      	#
-   ##############################################################################
-   def update_animate_display_list( self ):
-        current_display_list = self.vcs_self.return_display_names()
-         
-        temp_list = []
-        for i in range(len(self.vcs_self.animate_info)):
-           if self.vcs_self.animate_info[i][0].name in current_display_list:
-              temp_list.append( (self.vcs_self.animate_info[i][0],
-                                self.vcs_self.animate_info[i][1]) )
-        self.vcs_self.animate_info = temp_list
-
-   ##############################################################################
-   # Close the animate session                                              	#
-   ##############################################################################
-   def close( self ):
-      if self.create_flg == 1:
-         self.vcs_self.canvas.animate_close()
-         self.gui_popup = 0
-         self.create_flg = 0
-         self.run_flg = 0
-         self.vcs_self.canvas.getcontinentstype( self.continents_hold_value )
-         self.continents_value = 0
-         self.continents_hold_value = 1
-      self.vcs_self.animate_info = []
-
-      # Now that the animation is completed, restore the graphics methods min and max values.
-      self.restore_min_max()
-
-   ##############################################################################
-   # Pop up the animation GUI                                              	#
-   ##############################################################################
-   def gui( self, gui_parent=None, transient=0):
-      if self.gui_popup == 0:
-         self.gui_popup = 1
-         a = _animationgui.create(self, gui_parent, transient)
-         return a
-
-class animate_obj(animate_obj_old):
-    def __init__(self, vcs_self):
-        animate_obj_old.__init__(self,vcs_self)
-        self.pause_value = .1
-        self.zoom_factor = 1.
-        self.vertical_factor = 0
-        self.horizontal_factor = 0
-
-    def create( self, parent=None, min=None, max=None, save_file=None, thread_it = 1, rate=5., bitrate=None, ffmpegoptions='', axis=0):
-        if thread_it:
-            class crp(QtCore.QObject):
-                pass
-            C=crp()
-            thread.start_new_thread(self._actualCreate,(parent,min,max,save_file,rate,bitrate,ffmpegoptions,axis,C))
-        else:
-            C=None
-            self._actualCreate(parent,min,max,save_file,rate,bitrate,ffmpegoptions,axis)
-        return C
-
-    def _actualCreate( self, parent=None, min=None, max=None, save_file=None, rate=5., bitrate=None, ffmpegoptions='', axis=0, sender=None):
-        alen = None
-        y=vcs.init()
-        dims = self.vcs_self.canvasinfo()
-        if dims['height']<500:
-            factor = 2
-        else:
-            factor=1
-        if dims["width"]<dims["height"]:
-            y.portrait(width=dims["width"],height=dims["height"])
-        y.setbgoutputdimensions(width = dims['width']*factor,height=dims['height']*factor,units='pixel')
-        truncated = False
-        for I in self.vcs_self.animate_info:
-            if alen is None:
-                alen = I[1][0].shape[axis]
-            else:
-                l = I[1][0].shape[axis]
-                if l!=alen:
-                    alen = numpy.minimum(alen,l)
-                    truncated = True
-        if truncated:
-            warnings.warn("Because of inconsistent shapes over axis: %i, the animation length will be truncated to: %i\n" % (axis,alen))
-        self.animation_files = []
-        # Save the min and max values for the graphics methods.
-        # Will need to restore values back when animation is done.
-        self.save_original_min_max()
-        # Note: cannot set the min and max values if the default graphics method is set.
-        do_min_max = 'yes'
-        try:
-           if (parent is not None) and (parent.iso_spacing == 'Log'):
-              do_min_max = 'no'
-        except:
-           pass
-        if ( do_min_max == 'yes' ):
-             minv = []
-             maxv=[]
-             if (min is None) or (max is None):
-                for i in range(len(self.vcs_self.animate_info)):
-                   minv.append( 1.0e77 )
-                   maxv.append( -1.0e77 )
-                for i in range(len(self.vcs_self.animate_info)):
-                   dpy, slab = self.vcs_self.animate_info[i]
-                   mins, maxs = vcs.minmax(slab)
-                   minv[i] = float(numpy.minimum(float(minv[i]), float(mins)))
-                   maxv[i] = float(numpy.maximum(float(maxv[i]), float(maxs)))
-             if ((type(min) == types.ListType) or (type(max) == types.ListType)):
-                for i in range(len(self.vcs_self.animate_info)):
-                   try:
-                      minv.append( min[i] )
-                   except:
-                      minv.append( min[-1] )
-                   try:
-                      maxv.append( max[i] )
-                   except:
-                      maxv.append( max[-1] )
-             else:
-                for i in range(len(self.vcs_self.animate_info)):
-                    minv.append( min )
-                    maxv.append( max )
-             # Set the min an max for each plot in the page. If the same graphics method is used
-             # to display the plots, then the last min and max setting of the data set will be used.
-             print "Minmaxs:",minv,maxv
-             for i in range(len(self.vcs_self.animate_info)):
-                try:
-                   self.set_animation_min_max( minv[i], maxv[i], i )
-                except:
-                   pass # if it is default, then you cannot set the min and max, so pass.
-
-        for i in range(alen):
-            y.clear()
-            for I in self.vcs_self.animate_info:
-                d=I[0]
-                kw={}
-                n = len(I[1][0].shape)
-                for j,id in enumerate(I[1][0].getAxisIds()):
-                    if j!=axis and j<n-2:
-                        kw[id]=slice(0,1)
-                    elif j==axis:
-                        kw[id]=slice(i,i+1)
-                    else:
-                        break
-                args = [I[1][0](**kw),]
-                if I[1][1] is not None:
-                    kw={}
-                    n = len(I[1][1].shape)
-                    for j,id in enumerate(I[1][1].getAxisIds()):
-                        if j!=axis and j<n-2:
-                            kw[id]=slice(0,1)
-                        elif j==axis:
-                            kw[id]=slice(i,i+1)
-                        else:
-                            break
-                    args.append(I[1][1](**kw))
-                args += [d.template,d.g_type,d.g_name]
-                b=y.getboxfill(d.g_name)
-                y.plot(*args,bg=1)    
-
-            fn = tempfile.mkstemp(suffix=".png")[1]
-            self.animation_files.append(fn)
-            y.png(fn)
-            y.png("sample")
-        self.restore_min_max()
-        if sender is not None:
-            sender.emit(QtCore.SIGNAL("AnimationCreated"),"Hello there")
-        
-        
-    def runner(self):
-        self.runit = True
-        while self.runit:
-            for fn in self.animation_files:
-                if not self.runit:
-                    break
-                self.vcs_self.canvas.put_png_on_canvas(fn,self.zoom_factor,self.vertical_factor,self.horizontal_factor)
-                import time
-                time.sleep(self.pause_value)
-    def run(self,*args):
-        #self.runner()
-        self.runthread = thread.start_new_thread(self.runner,())
-
-    def draw(self, frame):
-        print "Clearing!!!!!!"
-        self.vcs_self.clear()
-        self.vcs_self.canvas.put_png_on_canvas(self.animation_files[frame],
-                                               self.zoom_factor,self.vertical_factor,self.horizontal_factor)
-        
-    def frame(self, frame):
-        self.draw(frame)
-
-    def save(self,movie,bitrate=1024, rate=None, options=''):
-        self.vcs_self.ffmpeg(movie, self.animation_files, bitrate, rate, options)
-
-    def number_of_frames(self):
-        return len(self.animation_files)
-
-    def stop(self):
-        self.runit = False
-    def pause(self,value):
-        self.pause_value = value
-
-    def zoom(self,value):
-        self.zoom_factor = value
-    def horizontal(self,value):
-        self.horizontal_factor = value
-
-    def vertical(self,value):
-        self.vertical_factor = value
-
-    
-############################################################################
-#        END OF FILE                                                       #
-############################################################################

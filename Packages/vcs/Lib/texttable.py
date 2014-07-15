@@ -22,86 +22,49 @@
 #
 #
 #
-###############################################################################
-#                                                                             #
-# Import: VCS C extension module.                                             #
-#                                                                             #
-###############################################################################
-import _vcs
 import Canvas
-from types import *
 import VCS_validation_functions
+import vcs
+import genutil
 
-###############################################################################
-#                                                                             #
-# Function:	setTtmember                                                   #
-#                                                                             #
-# Description of Function:                                                    #
-# 	Private function to update the VCS canvas plot. If the canvas mode is #
-#       set to 0, then this function does nothing.              	      #
-#                                                                             #
-#                                                                             #
-# Example of Use:                                                             #
-#      setTtmember(self,name,value)					      #
-#              where: self is the class (e.g., Tt)                            #
-#                     name is the name of the member that is being changed    #
-#                     value is the new value of the member (or attribute)     #
-#                                                                             #
-###############################################################################
-def setTtmember(self,member,value):
-     # If the VCS Canvas is displayed, then bring the canvas to the front before 
-     # redisplaying the updated contents.
-     if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()):
-        Canvas.finish_queued_X_server_requests( self.parent )
-        self.parent.canvas.BLOCK_X_SERVER()
-        self.parent.canvasraised()
-
-     _vcs.setTtmember(self, member, value, self.parent.mode)
-
-     # If the VCS Canvas is displayed, then update the backing store
-     if (self.parent.mode == 1) and (self.parent.iscanvasdisplayed()):
-        self.parent.flush()
-        self.parent.backing_store()
-        self.parent.canvas.UNBLOCK_X_SERVER()
-setmember = setTtmember
-
-###############################################################################
-#                                                                             #
-# Function:     getTtmember                                                   #
-#                                                                             #
-# Description of Function:                                                    #
-#       Private function that retrieves the text table members from the C     # 
-#       structure and passes it back to Python.                               #
-#                                                                             #
-#                                                                             #
-# Example of Use:                                                             #
-#      return_value =							      #
-#      getTtmember(self,name)                                                 #
-#              where: self is the class (e.g., Tt)                            #
-#                     name is the name of the member that is being found      #
-#                                                                             #
-###############################################################################
-def getTtmember(self,member):
-     return _vcs.getTtmember(self,member)
-getmember = getTtmember
-
-###############################################################################
-#                                                                             #
-# Function:     renameTt                                                      #
-#                                                                             #
-# Description of Function:                                                    #
-#       Private function that renames the name of an existing text table      #
-#       graphics method.                                                      #
-#                                                                             #
-#                                                                             #
-# Example of Use:                                                             #
-#      renameTt(old_name, new_name)                                           #
-#            where: old_name is the current name of text table graphics method#
-#                   new_name is the new name for the text table graphics method#
-#                                                                             #
-###############################################################################
-def renameTt(self, old_name, new_name):
-     return _vcs.renameTt(old_name, new_name)
+def process_src(nm,code):
+  """Takes VCS script code (string) as input and generates boxfill gm from it"""
+  try:
+    tt = Tt(nm)
+  except Exception,err:
+    tt = vcs.elements["texttable"][nm]
+  ## process attributes with = as assignement
+  atts={}
+  for a in ["string","vp","wc","x","y"]:
+    i = code.find(a+"(")
+    v=genutil.get_parenthesis_content(code[i:])
+    #print nm,a,v
+    if v!="":
+      vals = []
+      for V in v.split(","):
+        try:
+          vals.append(int(V))
+        except:
+          vals.append(float(V))
+      atts[a]=vals
+    tt.viewport = atts.get("vp",tt.viewport)
+    tt.worldcoordinate = atts.get("wc",tt.worldcoordinate)
+    tt.string = atts.get("string",tt.string)
+    tt.x = atts.get("x",tt.x)
+    tt.y = atts.get("y",tt.y)
+    i = code.find("projection=")
+    if i>-1:
+      j=code[i:].find(",")+i
+      tt.projection = code[i+11:j]
+    #rest of attributes
+    sp = code.split(",")
+    tt.font = int(sp[0])
+    tt.expansion = int(float(sp[2])*100.)
+    tt.spacing = int(float(sp[3])*10.)
+    tt.color = int(sp[4])
+    tt.priority = int(sp[5])
+    if len(sp)!=14:
+      tt.fillincolor = int(sp[6])
 
 #############################################################################
 #                                                                           #
@@ -160,10 +123,8 @@ class Tt(object):
 
 """
     __slots__ = [
-         'setmember',
-         'parent',
-         'name',
          's_name',
+         'name',
          'color',
          'fillincolor',
          'priority',
@@ -176,56 +137,67 @@ class Tt(object):
          'x',
          'y',
          'projection',
+         'colormap',
          '_name',
+         '_color',
+         '_fillincolor',
+         '_priority',
+         '_font',
+         '_string',
+         '_spacing',
+         '_expansion',
+         '_viewport',
+         '_worldcoordinate',
+         '_x',
+         '_y',
+         '_projection',
+         '_colormap',
          ]
+    colormap = VCS_validation_functions.colormap
     def _getname(self):
          return self._name
     def _setname(self,value):
          value=VCS_validation_functions.checkname(self,'name',value)
          if value is not None:
               self._name=value
-              setTtmember(self,'name',value)
     name=property(_getname,_setname)
     
     def _getcolor(self):
-         return getmember(self,'color')
+         return self._color
     def _setcolor(self,value):
          if not value is None:
               value = VCS_validation_functions.checkColor(self,'color',value)
-         setTtmember(self,'color',value)
+         self._color = value
     color=property(_getcolor,_setcolor)
 
     def _getfillincolor(self):
-         return getmember(self,'fillincolor')
+         return self._fillincolor
     def _setfillincolor(self,value):
          if not value is None:
               value = VCS_validation_functions.checkColor(self,'fillincolor',value)
-         setTtmember(self,'fillincolor',value)
+         self._fillincolor=value
     fillincolor=property(_getfillincolor,_setfillincolor)
 
     def _getspacing(self):
-         return getmember(self,'spacing')
+         return self._spacing
     def _setspacing(self,value):
-         value = VCS_validation_functions.checkInt(self,'spacing',value,minvalue=-50,maxvalue=50)
-         setTtmember(self,'spacing',value)
+         self._spacing = VCS_validation_functions.checkInt(self,'spacing',value,minvalue=-50,maxvalue=50)
     spacing=property(_getspacing,_setspacing)
 
     def _getexpansion(self):
-         return getmember(self,'expansion')
+         return self._expansion
     def _setexpansion(self,value):
-         value = VCS_validation_functions.checkInt(self,'expansion',value,minvalue=50,maxvalue=150)
-         setTtmember(self,'expansion',value)
+         self._expansion = VCS_validation_functions.checkInt(self,'expansion',value,minvalue=50,maxvalue=150)
     expansion=property(_getexpansion,_setexpansion)
 
     def _getfont(self):
-         return getmember(self,'font')
+         return self._font
     def _setfont(self,value):
-         value = VCS_validation_functions.checkFont(self,'font',value)
-         setTtmember(self,'font',value)
+         self._font = VCS_validation_functions.checkFont(self,'font',value)
     font=property(_getfont,_setfont)
 
     def _getstring(self):
-         return getmember(self,'string')
+         return self._string
     def _setstring(self,value):
          if isinstance(value,str):
               value = [value,]
@@ -236,40 +208,39 @@ class Tt(object):
               value = vals
          else:
               raise ValueError, 'Must be a string or a list of strings.'
-         setTtmember(self,'string',value)
+         self._string = value
     string = property(_getstring,_setstring)
     
     def _getpriority(self):
-         return getmember(self,'priority')
+         return self._priority
     def _setpriority(self,value):
-         value = VCS_validation_functions.checkInt(self,'priority',value,minvalue=0)
-         setTtmember(self,'priority',value)
+         self._priority = VCS_validation_functions.checkInt(self,'priority',value,minvalue=0)
     priority = property(_getpriority,_setpriority)
 
     def _getprojection(self):
-         return getmember(self,'projection')
+         return self._projection
     def _setprojection(self,value):
-         value=VCS_validation_functions.checkProjection(self,'projection',value)
-         setTtmember(self,'projection',value)
+         self._projection=VCS_validation_functions.checkProjection(self,'projection',value)
     projection=property(_getprojection,_setprojection)
     
     def _getwc(self):
-         return getmember(self,'worldcoordinate')
+         return self._worldcoordinate
     def _setwc(self,value):
-         value = VCS_validation_functions.checkListOfNumbers(self,'worldcoordinate',value,maxelements=4)
-         setTtmember(self,'worldcoordinate',value)
+         self._worldcoordinate = VCS_validation_functions.checkListOfNumbers(self,'worldcoordinate',value,maxelements=4)
     worldcoordinate=property(_getwc,_setwc)
     
     def _getvp(self):
-         return getmember(self,'viewport')
+         return self._viewport
     def _setvp(self,value):
-         value = VCS_validation_functions.checkListOfNumbers(self,'viewport',value,maxelements=4,minvalue=0.,maxvalue=1.)
-         setTtmember(self,'viewport',value)
+         self._viewport = VCS_validation_functions.checkListOfNumbers(self,'viewport',value,maxelements=4,minvalue=0.,maxvalue=1.)
     viewport=property(_getvp,_setvp)
 
     def _getx(self):
-         return getmember(self,'x')
+         return self._x
     def _setx(self,value):
+         if value is None:
+           self._x = None
+           return
          if isinstance(value,(int,float)):
               value=[value,]
          if not isinstance(value,(list,tuple)):
@@ -284,12 +255,15 @@ class Tt(object):
                    tmp = VCS_validation_functions.checkListOfNumbers(self,'x',v)
                    val.append(tmp)
               value=val
-         setTtmember(self,'x',value)
+         self._x = value
     x = property(_getx,_setx)
     
     def _gety(self):
-         return getmember(self,'y')
+         return self._y
     def _sety(self,value):
+         if value is None:
+           self._y = None
+           return
          if isinstance(value,(int,float)):
               value=[value,]
          if not isinstance(value,(list,tuple)):
@@ -304,7 +278,7 @@ class Tt(object):
                    tmp = VCS_validation_functions.checkListOfNumbers(self,'x',v)
                    val.append(tmp)
               value=val
-         setTtmember(self,'y',value)
+         self._y=value
     y = property(_gety,_sety)
     
     #############################################################################
@@ -312,7 +286,7 @@ class Tt(object):
     # Initialize the text table attributes.                                     #
     #                                                                           #
     #############################################################################
-    def __init__(self, parent, Tt_name=None, Tt_name_src='default', createTt=0):
+    def __init__(self, Tt_name=None, Tt_name_src='default'):
 	#                                                           #
         #############################################################
 	# Initialize the text table class and its members           #
@@ -322,188 +296,46 @@ class Tt(object):
 	# appropriate Python Object.                                #
         #############################################################
 	#                                                           #
-        if (createTt == 0):
-           if (Tt_name == None):
-              raise ValueError, 'Must provide a text table name.'
-           else:
-              _vcs.copyTt(Tt_name_src, Tt_name)
-              self._name = Tt_name
-        else:
-              self._name = Tt_name_src
+        if (Tt_name == None):
+          raise ValueError, 'Must provide a text table name.'
+        if Tt_name in vcs.elements["texttable"].keys():
+          raise ValueError, "texttable '%s' already exists" % Tt_name
+        self._name = Tt_name
         self.s_name = 'Tt'
-##         self.__dict__['string']=getTtmember(self, 'string')
-##         self.__dict__['font']=getTtmember(self, 'font')
-##         self.__dict__['spacing']=getTtmember(self, 'spacing')
-##         self.__dict__['expansion']=getTtmember(self, 'expansion')
-##         self.__dict__['color']=getTtmember(self, 'color')
-##         self.__dict__['priority']=getTtmember(self, 'priority')
-##         self.__dict__['viewport']=getTtmember(self, 'viewport')
-##         self.__dict__['worldcoordinate']=getTtmember(self, 'worldcoordinate')
-##         self.__dict__['x']=getTtmember(self, 'x')
-##         self.__dict__['y']=getTtmember(self, 'y')
-##         self.__dict__['projection']=getTtmember(self, 'projection')
-        #                                                         #
-        ###########################################################
-        # Find and set the text table structure in VCS C pointer  #
-        # list. If the text table name does not exist, then use   #
-        # default text table.                                     #
-        ###########################################################
-        #                                                         #
-        self.parent = parent
-
-##     #############################################################################
-##     #                                                                           #
-##     # Set text table attributes.                                                #
-##     #                                                                           #
-##     #############################################################################
-##     def __setattr__(self, name, value):
-##         if (self.name == '__removed_from_VCS__'):
-##            raise ValueError, 'This instance has been removed from VCS.'
-##         if (self.name == 'default'):
-##            raise ValueError, 'You cannot modify the default text table.'
-##         if (name == 'name'):
-##            if (type(value) == StringType):
-##               renameTt(self,self.name, value)
-##               self.__dict__['name']=value
-##            else:
-##               raise ValueError, 'The name attribute must be a string.'
-##         elif (name == 'string'): # Set the string
-##            if (type(value) == StringType):
-##               l = []
-##               l.append( value )
-##               self.__dict__[name]=l
-##               setTtmember(self,name,l) # update the plot
-##            elif ( (type(value) in (ListType, TupleType)) and (value not in [ [], () ]) ):
-##               value=list(value)
-##               for x in value:
-##                  if type(x) != StringType:
-##                    raise ValueError, 'List must contain strings only.'
-##                    break
-##               self.__dict__[name]=value
-##               setTtmember(self,name,value) # update the plot
-##            elif value is None:
-##               self.__dict__[name]=value
-##               setTtmember(self,name,value) # update the plot
-##            else:
-##               raise ValueError, 'Must be a string or a list of strings.'
-##            return
-##         elif (name == 'font'):
-##              value = VCS_validation_functions.checkFont('',name,value)
-##              self.__dict__['font']=value
-##              setTtmember(self,'font',self.font) # update the plot               
-##         elif (name == 'spacing'):
-##            if (value == None):
-##               self.__dict__['spacing']=None
-##               setTtmember(self,'spacing',self.spacing) # update the plot
-##            elif (isinstance(value, IntType)):
-##               if value not in range(-50,51): # must be an integer
-##                  raise ValueError, 'The spacing value must be in the range -50 to 50.'
-##               else:
-##                  self.__dict__['spacing']=value
-##                  setTtmember(self,'spacing',self.spacing) # update the plot
-##            else:
-##               raise ValueError, 'The spacing attribute values must be an integer.'
-##         elif (name == 'expansion'):
-##            if (value == None):
-##               self.__dict__['expansion']=None
-##               setTtmember(self,'expansion',self.expansion) # update the plot
-##            elif (isinstance(value, IntType)):
-##               if value not in range(50,151): # must be an integer
-##                  raise ValueError, 'The expansion value must be in the range 50 to 150.'
-##               else:
-##                  self.__dict__['expansion']=value
-##                  setTtmember(self,'expansion',self.expansion) # update the plot
-##            else:
-##               raise ValueError, 'The expansion attribute value must be an integer.'
-##         elif (name == 'color'):
-##            if (value == None):
-##               self.__dict__['color']=None
-##               setTtmember(self,'color',self.color) # update the plot
-##            elif (isinstance(value, IntType)):
-##               if value not in range(0,256): # must be an integer
-##                  raise ValueError, 'The text table color value must be in the range 0 to 255.'
-##               else:
-##                  self.__dict__['color']=value
-##                  setTtmember(self,'color',self.color) # update the plot
-##            else:
-##               raise ValueError, 'The color attribute value must be an integer in the range 0 to 255.'
-##         elif (name == 'priority'):
-##            if (value == None):
-##               self.__dict__['priority']=None
-##               setTtmember(self,'priority',self.priority) # update the plot
-##            elif (isinstance(value, IntType)):
-##               self.__dict__['priority']=value
-##               setTtmember(self,'priority',self.priority) # update the plot
-##            else:
-##               raise ValueError, 'The priority attribute value must be an integer.'
-##         elif (name == 'viewport'):
-##            if (value == None):
-##              self.__dict__[name]= [0.0, 1.0, 0.0, 1.0]
-##              setTtmember(self,name,[0.0, 1.0, 0.0, 1.0]) # update the plot
-##            else:
-##              if (type(value) in (ListType, TupleType)):
-##               value = list(value)  # make sure that values list is a list
-##               if len(value) != 4:
-##                  self.__dict__[name]= [0.0, 1.0, 0.0, 1.0]
-##                  raise ValueError, 'Viewport must contain 4 integer or float values.'
-##               else:
-##                  self.__dict__[name]=value
-##                  setTtmember(self,name,value) # update the plot
-##              else:
-##               raise ValueError, 'The viewport attribute must be a tuple or list of values.'
-##         elif (name == 'worldcoordinate'):
-##            if (value == None):
-##              self.__dict__[name]= [0.0, 1.0, 0.0, 1.0]
-##              setTtmember(self,name,[0.0, 1.0, 0.0, 1.0]) # update the plot
-##            else:
-##              if (type(value) in (ListType, TupleType)):
-##               value = list(value)  # make sure that values list is a list
-##               if len(value) != 4:
-##                  self.__dict__[name]= [0.0, 1.0, 0.0, 1.0]
-##                  raise ValueError, 'World coordinates must contain 4 integer or float values.'
-##               else:
-##                  self.__dict__[name]=value
-##                  setTtmember(self,name,value) # update the plot
-##              else:
-##               raise ValueError, 'The world coordinates attribute must be a tuple or list of values.'
-##         elif (name == 'x'):
-##            if (value == None):
-##              self.__dict__[name] = None
-##              setTtmember(self,name,value) # update the plot
-##            else:
-##              if isinstance(value, numpy.ArrayType): value = value.tolist()
-##              if (type(value) in (ListType, TupleType)):
-##                 value = list(value)  # make sure that values list is a list
-##                 for i in range(len(value)):
-##                     if isinstance(value[i], numpy.ArrayType): value[i]=value[i].tolist()
-##                     elif type(value[i]) is TupleType: value[i] = list( value[i] )
-##                 self.__dict__[name]=value
-##                 setTtmember(self,name,value) # update the plot
-##              else:
-##               raise ValueError, 'The x attribute must be a tuple or list of values.'
-##         elif (name == 'y'):
-##            if (value == None):
-##              self.__dict__[name] = None
-##              setTtmember(self,name,value) # update the plot
-##            else:
-##              if isinstance(value, numpy.ArrayType): value = value.tolist()
-##              if (type(value) in (ListType, TupleType)):
-##                 value = list(value)  # make sure that values list is a list
-##                 for i in range(len(value)):
-##                     if isinstance(value[i], numpy.ArrayType): value[i]=value[i].tolist()
-##                     elif type(value[i]) is TupleType: value[i] = list( value[i] )
-##                 self.__dict__[name]=value
-##                 setTtmember(self,name,value) # update the plot
-##              else:
-##               raise ValueError, 'The y attribute must be a tuple or list of values.'
-##         elif (name == 'y'):
-##            if (value == None):
-##              self.__dict__[name] = 'default'
-##              setTtmember(self,name,'default') # update the plot
-##            else:
-##                 value=VCS_validation_functions.checkProjection(self,'projection',value)
-##                 self.__dict__[name]=value
-##                 setTtmember(self,name,value) # update the plot
+        if Tt_name=="default":
+          self._string= ""
+          self._font= 1
+          self._spacing= 2
+          self._expansion= 100
+          self._color=1
+          self._fillincolor=0
+          self._priority=1
+          self._viewport=[0.0, 1.0, 0.0, 1.0]
+          self._worldcoordinate=[0.0, 1.0, 0.0, 1.0]
+          self._x=None
+          self._y=None
+          self._projection="default"
+          self._colormap = None
+        else:
+          if isinstance(Tt_name_src,Tt):
+            Tt_name_src = Tt_name_src.name
+          if not Tt_name_src in vcs.elements["texttable"].keys():
+            raise ValueError, "Source texttable: '%s' does not exists" % Tt_name_src
+          src = vcs.elements["texttable"][Tt_name_src]
+          self.string= src.string
+          self.font=src.font
+          self.spacing=src.spacing
+          self.expansion=src.expansion
+          self.color=src.color
+          self.fillincolor=src.fillincolor
+          self.priority=src.priority
+          self.viewport=src.viewport
+          self.worldcoordinate=src.worldcoordinate
+          self.x=src.x
+          self.y=src.y
+          self.projection=src.projection
+          self.colormap = src.colormap
+        vcs.elements["texttable"][Tt_name]=self
 
     #############################################################################
     #                                                                           #
@@ -514,20 +346,20 @@ class Tt(object):
         if (self.name == '__removed_from_VCS__'):
            raise ValueError, 'This instance has been removed from VCS.'
         print "","----------Text Table (Tt) member (attribute) listings ----------"
-        print 'Canvas Mode =',self.parent.mode
         print "secondary method =", self.s_name
         print "name =", self.name
-#        print "string =", self.string
+        print "string =", self.string
         print "font =", self.font
         print "spacing =", self.spacing
         print "expansion =", self.expansion
         print "color =", self.color
         print "fillincolor =", self.fillincolor
-#        print "priority =", self.priority
-#        print "viewport =", self.viewport
-#        print "worldcoordinate =", self.worldcoordinate
-#        print "x =", self.x
-#        print "y =", self.y
+        print "priority =", self.priority
+        print "viewport =", self.viewport
+        print "worldcoordinate =", self.worldcoordinate
+        print "x =", self.x
+        print "y =", self.y
+        print 'colormap =',self.colormap
 
     #############################################################################
     #                                                                           #
@@ -566,11 +398,17 @@ class Tt(object):
         elif (mode not in ('w', 'a')):
           raise ValueError, 'Error - Mode can only be "w" for replace or "a" for append.'
 
-        # By default, save file in python script mode
-        scr_type = script_filename[len(script_filename)-4:len(script_filename)]
-        if (scr_type == '.scr'):
-           print _vcs.scriptTt(self.name,script_filename,mode)
+        # By default, save file in json
+        scr_type = script_filename.split(".")
+        if len(scr_type)==1 or len(scr_type[-1])>5:
+          scr_type= "json"
+          if script_filename!="initial.attributes":
+            script_filename+=".json"
         else:
+          scr_type = scr_type[-1]
+        if scr_type == '.scr':
+           raise DeprecationWarning("scr script are no longer generated")
+        elif scr_type == "py":
            mode = mode + '+'
            py_type = script_filename[len(script_filename)-3:len(script_filename)]
            if (py_type != '.py'):
@@ -605,6 +443,13 @@ class Tt(object):
            fp.write("%s.x = %s\n" % (unique_name, self.x))
            fp.write("%s.y = %s\n\n" % (unique_name, self.y))
            fp.write("%s.projection = %s\n\n" % (unique_name, self.projection))
+           fp.write("%s.colormap = '%s'\n\n" % (unique_name, repr(self.colormap)))
+        else:
+          #Json type
+          mode+="+"
+          f = open(script_filename,mode)
+          vcs.utils.dumpToJson(self,f)
+          f.close()
 
 
 #################################################################################

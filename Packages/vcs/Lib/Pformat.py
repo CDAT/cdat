@@ -22,58 +22,15 @@
 #
 #
 #
-#################################################################################
-#                                                                               #
-# Import: VCS C extension module.                                               #
-#                                                                               #
-#################################################################################
-import _vcs, queries
+import queries
+import VCS_validation_functions
 from types import *
-#################################################################################
-#                                                                               #
-# Function:	setPfmember                                                     #
-#                                                                               #
-# Description of Function:                                                      #
-# 	Private function to update the VCS canvas plot. If the canvas mode is   #
-#       set to 0, then this function does nothing.              		#
-#                                                                               #
-#                                                                               #
-# Example of Use:                                                               #
-#      setPfmember(self,name,value)						#
-#              where: self is the class (e.g., Pf)                              #
-#                     name is the name of the member that is being changed      #
-#                     value is the new value of the member (or attribute)       #
-#                                                                               #
-#################################################################################
-def setPfmember(self,member,attribute,value):
-     _vcs.setPfmember(self.parent, member, attribute, value, self.template_parent.mode)
-#     _vcs.setPfmember(self, member, value, self.parent.mode)
-
-#################################################################################
-#                                                                               #
-# Function:     getPfmember                                                     #
-#                                                                               #
-# Description of Function:                                                      #
-#       Private function that retrieves the line members from the C             #
-#       structure and passes it back to Python.                                 #
-#                                                                               #
-#                                                                               #
-# Example of Use:                                                               #
-#      return_value =								#
-#      getPfmember(self,name)                                                   #
-#              where: self is the class (e.g., Pf)                              #
-#                     name is the name of the member that is being found        #
-#                                                                               #
-#################################################################################
-def getPfmember(self,member,attribute):
-     return _vcs.getPfmember(self,member,attribute)
-
 #############################################################################
 #                                                                           #
 # Template text (Pf) Class.                                                 #
 #                                                                           #
 #############################################################################
-class Pf:
+class Pf(object):
     """
  Class:	Pf				# Template text
 
@@ -112,12 +69,13 @@ class Pf:
      ln.type='dash-dot'          	# Same as ln.type=3
      ln.type='long-dash'          	# Same as ln.type=4
 """
+    __slots__ = ["format","priority","x","y","texttable","textorientation","member","_format","_priority","_x","_y","_texttable","_textorientation"]
     #############################################################################
     #                                                                           #
     # Initialize the line attributes.                                           #
     #                                                                           #
     #############################################################################
-    def __init__(self, template, template_parent, member=None):
+    def __init__(self, member):
 #    def __init__(self, template, member=None):
 	#                                                         #
         ###########################################################
@@ -128,69 +86,49 @@ class Pf:
 	# appropriate Python Object.                              #
         ###########################################################
 	#                                                         #
-        self.__dict__['member']=member
-        self.__dict__['priority']=getPfmember(template,member,'priority')
-        self.__dict__['x']=getPfmember(template,member,'x')
-        self.__dict__['y']=getPfmember(template,member,'y')
-        self.__dict__['format']=getPfmember(template,member,'format')
-        self.__dict__['texttable']=getPfmember(template,member,'texttable')
-        self.__dict__['textorientation']=getPfmember(template,member,'textorientation')
-        #                                                         #
-        ###########################################################
-        # Keep track of the parent and grandparent.               #
-        ###########################################################
-        #                                                         #
-        self.__dict__['parent']=template
-        self.__dict__['template_parent']=template_parent
 
+        self.priority=1
+        self.format = "default"
+        self.texttable="default"
+        self.textorientation="default"
+        if member=="xvalue":
+          self.x = 0.800000011921
+          self.y = 0.941999971867
+        elif member=="yvalue":
+          self.x = 0.800000011921
+          self.y = 0.922999978065
+        elif member=="zvalue":
+          self.x = 0.800000011921
+          self.y = 0.902999997139
+        elif member=="tvalue":
+          self.x = 0.800000011921
+          self.y = 0.883000016212
+        elif member=="mean":
+          self.x = 0.0500000007451
+          self.y = 0.899999976158
+        elif member=="min":
+          self.x = 0.449999988079
+          self.y = 0.899999976158
+        elif member=="max":
+          self.x = 0.25
+          self.y = 0.899999976158
+        self.member = member
 
     #############################################################################
     #                                                                           #
     # Set template text  attributes.                                            #
     #                                                                           #
     #############################################################################
-    def __setattr__(self, name, value):
-        if (self.parent.name == '__removed_from_VCS__'):
-           raise ValueError, 'This instance has been removed from VCS.'
-        if (name == 'priority'):
-           if (isinstance(value, IntType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The priority value must be an integer.'
-        if (name == 'x'):
-           if (type(value) in (IntType, FloatType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The x value must be an integer or float.'
-        if (name == 'y'):
-           if (type(value) in (IntType, FloatType)):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The y value must be an integer or float.'
-        elif (name == 'texttable'):
-           if (queries.istexttable(value)==1):
-              self.__dict__[name]=value.name
-              value = value.name
-           elif (queries.istextcombined(value)==1):
-              self.__dict__[name]=value.Tt_name
-              value = value.name
-           elif (type(value) == StringType):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The texttable value must be a texttable.'
-        elif (name == 'textorientation'):
-           if (queries.istextorientation(value)==1):
-              self.__dict__[name]=value.name
-              value = value.name
-           elif (queries.istextcombined(value)==1):
-              self.__dict__[name]=value.To_name
-              value = value.name
-           elif (type(value) == StringType):
-              self.__dict__[name]=value
-           else:
-              raise ValueError, 'The texttable value must be a textorientation.'
-        setPfmember(self,self.member,name,value) # update the plot
-
+    priority = VCS_validation_functions.priority
+    x = VCS_validation_functions.x
+    y = VCS_validation_functions.y
+    texttable = VCS_validation_functions.texttable
+    textorientation = VCS_validation_functions.textorientation
+    def _getformat(self):
+      return self._format
+    def _setformat(self,value):
+      self._format = VCS_validation_functions.checkString(self,"format",value)
+    format = property(_getformat,_setformat)
 
     #############################################################################
     #                                                                           #
@@ -198,8 +136,6 @@ class Pf:
     #                                                                           #
     #############################################################################
     def list(self):
-        if (self.parent.name == '__removed_from_VCS__'):
-           raise ValueError, 'This instance has been removed from VCS.'
         print "member = ", self.member
         print "     priority =", self.priority
         print "     x =", self.x

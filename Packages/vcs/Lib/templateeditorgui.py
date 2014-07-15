@@ -188,7 +188,7 @@ Session Save sets (1), (2), and (4) to (1)
         self.asksavetb = None
 
     def update_template_selector_list(self):
-        choices = self.canvas.listelements('template')
+        choices = vcs.listelements('template')
         choices = map(lambda x: x.strip(), choices)
         choices.sort()
         slb = self.template_selector.component('scrolledlist')
@@ -468,7 +468,7 @@ Session Save sets (1), (2), and (4) to (1)
         s = askstring('Template Name', "Save as?")
         if s is None: 
             return
-        if s in self.canvas.listelements('template'):
+        if s in vcs.listelements('template'):
             showerror('Error Message', 'There already is a template named '+s)
             return
         self.canvas.createtemplate(s, self.template_name)

@@ -91,7 +91,7 @@ myvars[0] = cmor.variable( table_entry = 'hfls',
                            )
 for i in range(ntimes):
     data2d = read_2d_input_files(i, varin2d[0], lat,lon)
-    print 'writing time: ',i,data2d.shape,data2d
+    print 'writing time: ',i,Time[i],data2d.shape,data2d
     print Time[i],bnds_time[2*i:2*i+2]    
     cmor.write(myvars[0],data2d,1,time_vals=Time[i],time_bnds=bnds_time[2*i:2*i+2])
 cmor.close()
