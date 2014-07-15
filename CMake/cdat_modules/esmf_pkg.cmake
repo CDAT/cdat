@@ -10,7 +10,7 @@ set(ESMF_GZ esmp.ESMF_${ESMF_VERSION}_ESMP_${ESMP_MAJOR}.tar.bz2)
 set(ESMF_MD5 f6d0184e0cdae2b704eb39fc0d4291cd)
 set(ESMF_SOURCE ${ESMF_URL}/${ESMF_GZ})
 
-if (NOT CDAT_BUILD_LEAN)
+if (CDAT_BUILD_LEAN)
     option(CDAT_BUILD_ESMF_ESMP "Build python version Earth System Modeling Framework" OFF)
 else ()
     option(CDAT_BUILD_ESMF_ESMP "Build python version Earth System Modeling Framework" ON)

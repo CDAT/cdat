@@ -6,4 +6,4 @@ set(eof2_GZ eof2-${eof2_VERSION}.zip)
 set(eof2_MD5 39e21a8633f272dc8dc748adb4c7f0e8)
 set(eof2_SOURCE ${eof2_URL}/${eof2_GZ})
 
-add_cdat_package_dependent(eof2 "" "" ON "CDAT_BUILD_LEAN" OFF)
+add_cdat_package_dependent(eof2 "" "" OFF "CDAT_BUILD_LEAN" ON)
