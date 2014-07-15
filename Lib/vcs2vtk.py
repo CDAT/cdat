@@ -243,6 +243,8 @@ def dump2VTK(obj,fnm=None):
 
 #Wrapping around
 def doWrap(Act,wc,wrap=[0.,360]):
+  if wrap is None:
+    return Act
   Mapper = Act.GetMapper()
   data = Mapper.GetInput()
   xmn=min(wc[0],wc[1])
