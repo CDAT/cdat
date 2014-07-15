@@ -264,7 +264,6 @@ class VTKVCSBackend(object):
     if gtype in ["boxfill","meshfill","isoline","isofill","vector"]:
       data1 = self.trimData2D(data1) # Ok get only the last 2 dims
       data2 = self.trimData2D(data2)
-      print data1.shape,type(data1)
     #elif vcs.isgraphicsmethod(vcs.elements[gtype][gname]):
       ## oneD
     #  data1 = self.trimData1D(data1)
@@ -770,10 +769,10 @@ class VTKVCSBackend(object):
       daxes=list(data.getAxisList())
       if daxes[len(daxes)-len(gaxes):] == gaxes:
         # Ok it is gridded and the grid axes are last
-        return data(*(slice(0,1),)*(len(daxes)-len(gaxes)))
+        return data(*(slice(0,1),)*(len(daxes)-len(gaxes)),squeeze=1)
       else:
         # Ok just return the last two dims
-        return data(*(slice(0,1),)*(len(daxes)-2))
+        return data(*(slice(0,1),)*(len(daxes)-2),squeeze=1)
     except Exception,err: # ok no grid info
       print "Got exception",err
       daxes=list(data.getAxisList())
