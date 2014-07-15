@@ -143,6 +143,8 @@ class VTKVCSBackend(object):
       self.canvas.plot(*pargs)
 
   def clear(self):
+    if self.renWin is None: #Nothing to clear
+          return
     renderers = self.renWin.GetRenderers()
     renderers.InitTraversal()
     ren = renderers.GetNextItem()
