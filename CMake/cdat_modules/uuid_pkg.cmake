@@ -10,6 +10,6 @@ set (nm UUID)
 string(TOUPPER ${nm} uc_nm)
 set(${uc_nm}_VERSION ${${nm}_MAJOR_SRC}.${${nm}_MINOR_SRC}.${${nm}_PATCH_SRC})
 #apparently libcf needs it
-#add_cdat_package_dependent(uuid "" "" ON "CDAT_BUILD_WO_ESGF" OFF)
-add_cdat_package(uuid "" "" OFF)
+add_cdat_package_dependent(uuid "" "" ON "CDAT_BUILD_LEAN" OFF)
+#add_cdat_package(uuid "" "" OFF)
 
