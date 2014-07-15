@@ -7,7 +7,7 @@ set(WGET_GZ wget-${WGET_MAJOR}.${WGET_MINOR}.tar.gz)
 set(WGET_MD5 141461b9c04e454dc8933c9d1f2abf83)
 set(WGET_SOURCE ${WGET_URL}/${WGET_GZ})
 
-add_cdat_package(Wget "" "Build Wget" OFF)
+add_cdat_package(Wget "" "Build Wget" SYSTEM)
 
 set (nm WGET)
 string(TOUPPER ${nm} uc_nm)
