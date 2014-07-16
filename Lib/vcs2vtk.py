@@ -41,12 +41,11 @@ def putMaskOnVTKGrid(data,grid,actorColor=None):
           lut.SetNumberOfTableValues(2)
           lut.SetTableValue(0,r/100.,g/100.,b/100.)
           lut.SetTableValue(1,r/100.,g/100.,b/100.)
-          print "RANGE:",grid2.GetPointData().GetScalars().GetRange()
           mapper.SetLookupTable(lut)
           mapper.SetScalarRange(1,1)
       if grid.IsA("vtkStructuredGrid"):
-          #grid.SetPointVisibilityArray(msk)
-          grid.SetCellVisibilityArray(msk)
+          grid.SetPointVisibilityArray(msk)
+          #grid.SetCellVisibilityArray(msk)
   return mapper
 
 def genUnstructuredGrid(data1,data2,gm):
