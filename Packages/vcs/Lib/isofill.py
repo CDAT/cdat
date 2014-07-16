@@ -179,20 +179,20 @@ def add_level_ext_1(self, ext_value):
 ###############################################################################
 def add_level_ext_2(self, ext_value):
     if ((ext_value == 'n') and (self.ext_2 == 'y')): # remove extension
-       if (type(self.levels[0]) == ListType): # remove from tuple of lists
+       if isinstance(self.levels[0],list): # remove from tuple of lists
           last=len(self.levels) - 1
           last2=len(self.levels[last]) - 1
           self.levels[last].remove(self.levels[last][last2])
           return self.levels
-       if (type(self.levels) == TupleType):       # remove from list
+       if isinstance(self.levels, tuple):       # remove from list
           ret_tup = []		      	
           for i in range(len(self.levels)-1):
              ret_tup.insert(i+1,self.levels[i])
           return ret_tup
 
-    if (type(self.levels) == TupleType):
+    if isinstance(self.levels, tuple):
        last=len(self.levels) - 1
-       if (type(self.levels[last]) == ListType): # add to tuple of lists
+       if isinstance(self.levels[last], list): # add to tuple of lists
           self.levels[last].append(1e20)
           return self.levels
        else:                                  # must be a mutable tuple
@@ -201,7 +201,7 @@ def add_level_ext_2(self, ext_value):
              ret_tup.insert(i,self.levels[i])
           ret_tup.insert(i+1,1e20)
           return ret_tup
-    if (type(self.levels) == ListType):       # add extension to list
+    if isinstance(self.levels, list):       # add extension to list
           if (((self.levels[(len(self.levels)-1)] - self.levels[0])) > 0):
              self.levels.insert(len(self.levels),1e20)
           else:
@@ -451,11 +451,11 @@ Class: Gfi				# Isofill
               if value=='y' and (-9.9E19<self.levels[0]<9.9E19):
                  returned_levels = add_level_ext_1(self, value)
                  self._ext_1=value
-                 self._setlevels(returned_levels)
+                 #self._setlevels(returned_levels)
               elif value=='n':
                  returned_levels = add_level_ext_1(self, value)
                  self._ext_1=value
-                 self._setlevels(returned_levels)
+                 #self._setlevels(returned_levels)
               else:
                  self._ext_1=value
          else:
@@ -470,11 +470,11 @@ Class: Gfi				# Isofill
               if value=='y' and (-9.9E19<self.levels[-1]<9.9E19):
                  returned_levels = add_level_ext_2(self, value)
                  self._ext_2=value
-                 self._setlevels(returned_levels)
+                 #self._setlevels(returned_levels)
               elif value=='n':
                  returned_levels = add_level_ext_2(self, value)
                  self._ext_2=value
-                 self._setlevels(returned_levels)
+                 #self._setlevels(returned_levels)
               else:
                  self._ext_2=value
          else:
