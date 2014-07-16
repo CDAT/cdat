@@ -19,6 +19,7 @@ txt.y=[0.05,.9,.9,0.05]
 txt.string = ["SAMPLE TEXT A","SAMPLE TEXT B","SAMPLE TEXT C","SAMPLE TEXT D"]
 txt.halign = "center"
 txt.valign="base"
+txt.angle=45
 x.plot(txt)
 if interact:
   i.Start()

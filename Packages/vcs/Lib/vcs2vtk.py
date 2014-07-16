@@ -8,6 +8,7 @@ import os
 import meshfill
 from vtk.util import numpy_support as VN
 import cdms2
+import warnings
 
 f = open(os.path.join(sys.prefix,"share","vcs","wmo_symbols.json"))
 wmo = json.load(f)
@@ -351,7 +352,7 @@ def doClip1(data,value,normal,axis=0):
     clp.Update()
     return clp.GetOutput()
 
-def prepTextProperty(p,to="default",tt="default",cmap=None):
+def prepTextProperty(p,winSize,to="default",tt="default",cmap=None):
   if isinstance(to,str):
     to = vcs.elements["textorientation"][to]
   if isinstance(tt,str):
@@ -388,6 +389,8 @@ def prepTextProperty(p,to="default",tt="default",cmap=None):
   p.SetOrientation(-to.angle)
   p.SetFontFamily(vtk.VTK_FONT_FILE)
   p.SetFontFile(vcs.elements["font"][vcs.elements["fontNumber"][tt.font]])
+  p.SetFontSize(int(to.height*winSize[1]/800.))
+  
 
 def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cmap=None):
   if isinstance(to,str):
@@ -410,13 +413,18 @@ def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cm
     while len(a)<n:
       a.append(a[-1])
 
+  sz = renderer.GetRenderWindow().GetSize()
   for i in range(n):
     t = vtk.vtkTextActor()
     p=t.GetTextProperty()
-    prepTextProperty(p,to,tt,cmap)
+    prepTextProperty(p,sz,to,tt,cmap)
     t.SetInput(string[i])
     X,Y = world2Renderer(renderer,x[i],y[i],tt.viewport,tt.worldcoordinate)
     t.SetPosition(X,Y)
+    #T=vtk.vtkTransform()
+    #T.Scale(1.,sz[1]/606.,1.)
+    #T.RotateY(to.angle)
+    #t.SetUserTransform(T)
     renderer.AddActor(t)
   return 
 
