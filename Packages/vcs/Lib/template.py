@@ -1052,6 +1052,9 @@ class P(object):
               v=getattr(self,a)
               try:
                    subattr=vars(v).keys()
+              except:
+                try:
+                   subattr=v.__slots__
                    delta=0.
                    if sub_name+'1' in subattr:
                         ov=getattr(v,sub_name+'1')
@@ -1075,9 +1078,8 @@ class P(object):
                              if ov2 is not None:
                                   delta=(ov-ov2)*ratio
                              setattr(v,sub_name,v2+delta)
-              except Exception,err:
-                   #print err
-                   pass
+                except Exception,err:
+                  pass
 
     def move(self,p,axis):
          """ move a template by p% along the axis 'x' or 'y'
@@ -1632,20 +1634,22 @@ class P(object):
                         if x.isportrait():
                              Rout=1./Rout
          elif Rout is None:
-              Rout=11./8.5
+           try:
+             info = x.canvasinfo()
+             Rout=float(info['width'])/float(info['height'])
+           except Exception,err:
+              Rout=1./.758800507
+              if x.isportrait():
+                   Rout=1./Rout
 
-         
          t=x.createtemplate(source=self.name)
 
-         # Output ratio
-         if x.isportrait():
-              Rout=1/Rout
          # Computes the template ratio
          Rt=(self.data.y2-self.data.y1)/(self.data.x2-self.data.x1)
 
          # Actual ratio template and output format combined
          Ra=Rt/Rout
-
+         #Ra=(self.data.y2-self.data.y1)/(self.data.x2-self.data.x1)
          if Rwished>Ra:
               t.scale(Ra/Rwished,axis='x')
          else:
@@ -1719,7 +1723,6 @@ class P(object):
               self.data._ratio = Rwished
               
               
-
          return
 
          
