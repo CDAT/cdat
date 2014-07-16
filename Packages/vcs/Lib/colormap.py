@@ -100,7 +100,7 @@ class RGB_Table(UserDict):
            raise ValueError, 'You cannot modify the default colormap.'
        if (key not in range(0,240)):
            raise ValueError, 'Cell index must be in the range 0 to 239.'
-       if (type(value) in (ListType, TupleType)):
+       if isinstance(value,(list,tuple)):
            value = list(value)
            if len(value) != 3:
               raise ValueError, 'Must be a tuple or list of size 3.'
@@ -200,6 +200,7 @@ class Cp:
             raise Exception,"Error source colormap '%s' does not exists" % Cp_name_src
           src = vcs.elements["colormap"][Cp_name_src]
           self._index = copy.deepcopy(src.index)
+          self._index.name = Cp_name
         vcs.elements["colormap"][Cp_name]=self
 
 
