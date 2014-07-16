@@ -783,10 +783,10 @@ class VTKVCSBackend(object):
       daxes=list(data.getAxisList())
       if daxes[len(daxes)-len(gaxes):] == gaxes:
         # Ok it is gridded and the grid axes are last
-        return data(*(slice(0,1),)*(len(daxes)-len(gaxes)))
+        return data(*(slice(0,1),)*(len(daxes)-len(gaxes)),squeeze=1)
       else:
         # Ok just return the last two dims
-        return data(*(slice(0,1),)*(len(daxes)-2))
+        return data(*(slice(0,1),)*(len(daxes)-2),squeeze=1)
     except Exception,err: # ok no grid info
       print "Got exception",err
       daxes=list(data.getAxisList())
