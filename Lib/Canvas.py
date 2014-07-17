@@ -204,7 +204,7 @@ def _determine_arg_list(g_name, actual_args):
         if found_slabs!=arglist[igraphics_method].g_nslabs:
             raise vcsError, "%s requires %i slab(s)" % (arglist[igraphics_method].g_name,arglist[igraphics_method].g_nslabs)
     else:
-        if arglist[igraphics_method].lower() in ('scatter','vector','xvsy'):
+        if arglist[igraphics_method].lower() in ( 'scatter', 'vector', 'xvsy', 'stream', 'glyph' ):
             if found_slabs != 2:
                 raise vcsError, "Graphics method requires 2 slabs."
         elif arglist[igraphics_method].lower() == 'meshfill':
@@ -1397,12 +1397,22 @@ Options:::
     # DV3D functions for VCS.                                                #
     #                                                                           #
     #############################################################################
-    def createdv3d(self,name=None,source='default'):
-      return vcs.createdv3d(name,source)
-    createdv3d.__doc__ = vcs.manageElements.createdv3d.__doc__
-    def getdv3d(self,Gfdv3d_name_src='default'):
-      return vcs.getdv3d(Gfdv3d_name_src)
-    getdv3d.__doc__ = vcs.manageElements.getdv3d.__doc__
+    def create3Dscalar(self,name=None,source='default'):
+      return vcs.create3Dscalar(name,source)
+  
+    create3Dscalar.__doc__ = vcs.manageElements.create3Dscalar.__doc__
+    def get3Dscalar(self,Gfdv3d_name_src='default'):
+      return vcs.get3Dscalar(Gfdv3d_name_src)
+    get3Dscalar.__doc__ = vcs.manageElements.get3Dscalar.__doc__
+    
+    def create3Dvector(self,name=None,source='default'):
+      return vcs.create3Dvector(name,source)
+  
+    create3Dvector.__doc__ = vcs.manageElements.create3Dvector.__doc__
+    def get3Dvector(self,Gfdv3d_name_src='default'):
+      return vcs.get3Dvector(Gfdv3d_name_src)
+    get3Dvector.__doc__ = vcs.manageElements.get3Dvector.__doc__
+
     #############################################################################
     #                                                                           #
     # Isofill functions for VCS.                                                #
