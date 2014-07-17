@@ -514,7 +514,7 @@ class Canvas(object,AutoAPI.AutoAPI):
         axislist = list(map(lambda x: x[0].clone(), tvdomain))
 
         # Map keywords to dimension indices
-        rank = numpy.ma.rank(origv)
+        rank = origv.ndim
         dimmap = {}
         dimmap['x'] = xdim = rank-1
         dimmap['y'] = ydim = rank-2
