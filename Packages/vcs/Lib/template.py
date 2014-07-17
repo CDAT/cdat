@@ -1171,13 +1171,15 @@ class P(object):
          t=x.createtemplate('a_template')
          t.scalefont(.5) # reduces the fonts size by 2
          """
-         attr=vars(self).keys()
+         try:
+           attr=vars(self).keys()
+         except:
+           attr=self.__slots__
          for a in attr:
-              v=getattr(self,a)
               try:
+                   v=getattr(self,a)
                    to=getattr(v,'textorientation')
-                   tmp = vcs.init()
-                   to=tmp.createtextorientation(source=to)
+                   to=vcs.createtextorientation(source=to)
                    to.height=to.height*scale
                    setattr(v,'textorientation',to)
               except:
