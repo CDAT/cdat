@@ -51,7 +51,7 @@ macro (add_cdat_package package_name version_string msg default)
 
     # If system package is found and can cdat build package option is OFF
     # then cdat use system package should be ON
-    if(cdat_${package_name}_FOUND AND NOT CDAT_BUILD_${uc_package})
+    if(cdat_${package_name}_FOUND AND "${option_default}" STREQUAL "SYSTEM")
       set(CDAT_USE_SYSTEM_${uc_package} ON CACHE BOOL "${use_system_message}" FORCE)
     endif()
 
@@ -70,7 +70,7 @@ macro (add_cdat_package package_name version_string msg default)
   # Check if package is found, if not found or found but user prefers to use cdat package
   # then use cdat package or else use system package
   if(NOT CDAT_USE_SYSTEM_${uc_package})
-
+      message("Appending ${package_name}")
       list(APPEND external_packages "${package_name}")
       set(${lc_package}_pkg "${package_name}")
 
@@ -104,10 +104,14 @@ macro(enable_cdat_package_deps package_name)
   string(TOLOWER ${package_name} lc_package)
 
   if (CDAT_BUILD_${uc_package})
+    #message("package....${uc_package}")
     foreach(dep ${${package_name}_deps})
       string(TOUPPER ${dep} uc_dep)
+      #message("testing ----- ${dep}")
       if(NOT CDAT_USE_SYSTEM_${uc_dep} AND NOT CDAT_BUILD_${uc_dep})
         set(CDAT_BUILD_${uc_dep} ON CACHE BOOL "" FORCE)
+        # Now make sure that deps of dep is enabled
+        enable_cdat_package_deps(${dep})
         message("[INFO] Setting build package -- ${dep} ON -- as required by ${package_name}")
       endif()
       if(NOT DEFINED CDAT_USE_SYSTEM_${uc_dep})
@@ -135,6 +139,7 @@ include(CMakeDependentOption)
 macro(add_cdat_package_dependent package_name version build_message value dependencies default)
   string(TOUPPER ${package_name} uc_package)
   string(TOLOWER ${package_name} lc_package)
+  set(${lc_package}_pkg "${package_name}")
 
   cmake_dependent_option(CDAT_BUILD_${uc_package} "${message}" ${value} "${dependencies}" ${default})
 
@@ -144,13 +149,13 @@ macro(add_cdat_package_dependent package_name version build_message value depend
   cmake_dependent_option(cdat_build_internal_${uc_package} "${message}" ${value} "${dependencies}" ${default})
   set(CACHE cdat_build_internal_${uc_package} PROPERTY TYPE INTERNAL)
 
-  if (cdat_build_internal_${uc_package})
+#  if (cdat_build_internal_${uc_package})
     add_cdat_package("${package_name}" "${version}" "${build_message}" ${CDAT_BUILD_${uc_package}})
-  else()
+#  else()
     if (DEFINED CDAT_USE_SYSTEM_${uc_package})
       set_property(CACHE CDAT_USE_SYSTEM_${uc_package} PROPERTY TYPE INTERNAL)
       set_property(CACHE CDAT_USE_SYSTEM_${uc_package} PROPERTY VALUE OFF)
     endif()
-  endif()
+#  endif()
 
 endmacro()

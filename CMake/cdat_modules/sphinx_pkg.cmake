@@ -10,5 +10,5 @@ set(SPHINX_GZ Sphinx-${SPHINX_VERSION}.tar.gz)
 set(SPHINX_SOURCE ${SPHINX_URL}/${SPHINX_GZ})
 set(SPHINX_MD5 3dc73ccaa8d0bfb2d62fb671b1f7e8a4)
 
-add_cdat_package_dependent(Sphinx "" "" ON "CDAT_BUILD_GUI" OFF)
+add_cdat_package_dependent(Sphinx "" "" OFF "CDAT_BUILD_GUI" OFF)
 

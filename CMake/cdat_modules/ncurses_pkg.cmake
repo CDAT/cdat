@@ -13,5 +13,5 @@ string(TOUPPER ${nm} uc_nm)
 set(${uc_nm}_VERSION ${${nm}_MAJOR_SRC}.${${nm}_MINOR_SRC})
 set(NCURSES_VERSION ${NCURSES_VERSION})
 
-add_cdat_package(ncurses "" "" "")
+add_cdat_package(ncurses "" "" OFF)
 

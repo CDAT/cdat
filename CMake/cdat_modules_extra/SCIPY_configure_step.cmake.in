@@ -18,15 +18,33 @@ if(WIN32)
   set(f2c_libname "libf2c")
 endif()
 
+set(_blas_dirs)
+set(_lapack_dirs)
+
+if (CDAT_USE_SYSTEM_LAPACK)
+  foreach(_path ${BLAS_LIBRARIES})
+    get_filename_component(_dir ${_path} PATH)
+    list(APPEND _blas_dirs ${_dir})
+  endforeach()
+
+  foreach(_path ${LAPACK_LIBRARIES})
+    get_filename_component(_dir ${_path} PATH)
+    list(APPEND _lapack_dirs ${_dir})
+  endforeach()
+else()
+  set(_blas_dirs @cdat_EXTERNALS@/lib)
+  set(_lapack_dirs @cdat_EXTERNALS@/lib)
+endif()
+
 # setup the site.cfg file
 file(WRITE "@SCIPY_binary@/site.cfg"
 "
 [blas]
-library_dirs = @cdat_EXTERNALS@/lib${path_sep}@cdat_EXTERNALS@/lib
+library_dirs = ${_blas_dirs}
 libraries = blas,${f2c_libname}
 
 [lapack]
-library_dirs = @cdat_EXTERNALS@/lib
+library_dirs = ${_lapack_dirs}
 lapack_libs = lapack
 ")
 

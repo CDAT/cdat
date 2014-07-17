@@ -9,4 +9,4 @@ set(DOCUTILS_GZ docutils-${DOCUTILS_VERSION}.tar.gz)
 set(DOCUTILS_SOURCE ${LLNL_URL}/${DOCUTILS_GZ})
 set(DOCUTILS_MD5 d8d4660c08302c791b2d71a155a2f4bc )
 
-add_cdat_package_dependent(docutils "" "" ON "CDAT_BUILD_GUI" OFF)
+add_cdat_package_dependent(docutils "" "" OFF "CDAT_BUILD_GUI" OFF)

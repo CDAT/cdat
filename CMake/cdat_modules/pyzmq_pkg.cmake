@@ -4,4 +4,4 @@ set(PYZMQ_GZ pyzmq-${PYZMQ_VERSION}.tar.gz)
 set(PYZMQ_MD5 7196b4a6fbf98022f17ffa924be3d68d)
 set(PYZMQ_SOURCE ${PYZMQ_URL}/${PYZMQ_GZ})
 
-add_cdat_package(pyzmq "" "" "")
+add_cdat_package(pyzmq "" "" OFF)

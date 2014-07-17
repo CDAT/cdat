@@ -9,4 +9,4 @@ set(LEPL_GZ LEPL-${LEPL_VERSION}.tar.gz)
 set(LEPL_SOURCE ${LLNL_URL}/${LEPL_GZ})
 set(LEPL_MD5 5f653984c57ad8efad828c5153660743 )
 
-add_cdat_package_dependent(lepl "" "" ON "CDAT_BUILD_GUI" OFF)
+add_cdat_package_dependent(lepl "" "" OFF "CDAT_BUILD_GUI" OFF)

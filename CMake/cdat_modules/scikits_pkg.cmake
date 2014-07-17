@@ -7,4 +7,4 @@ set(SCIKITS_VERSION ${SCIKITS_MAJOR_SRC}.${SCIKITS_MINOR_SRC})
 set(SCIKITS_SOURCE ${SCIKITS_URL}/${SCIKITS_GZ})
 
 
-add_cdat_package_dependent(scikits "" "" ON "CDAT_BUILD_WO_ESGF" OFF)
+add_cdat_package_dependent(scikits "" "" OFF "CDAT_BUILD_LEAN" OFF)

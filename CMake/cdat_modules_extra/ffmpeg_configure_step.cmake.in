@@ -6,9 +6,13 @@ endif()
 
 set(ENV{PATH} $ENV{PATH}:@cdat_EXTERNALS@/bin)
 
+if (CDAT_BUILD_YASM)
+  set(_yasmexe  --yasmexe=@cdat_EXTERNALS@/bin/yasm)
+endif()
+
 EXECUTE_PROCESS(
   #    COMMAND sh configure --disable-static --disable-network --disable-zlib --disable-ffserver --disable-ffplay --disable-decoders --enable-shared --enable-swscale --prefix=@ffmpeg_install@
-  COMMAND sh configure --prefix=@ffmpeg_install@
+  COMMAND sh configure --prefix=@ffmpeg_install@ ${_yasmexe}
   WORKING_DIRECTORY "@ffmpeg_source@"
   RESULT_VARIABLE rv
   )

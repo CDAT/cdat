@@ -7,4 +7,4 @@ set(PYOPENSSL_GZ pyOpenSSL-${PYOPENSSL_VERSION}.tar.gz)
 set(PYOPENSSL_SOURCE ${LLNL_URL}/${PYOPENSSL_GZ})
 set(PYOPENSSL_MD5 767bca18a71178ca353dff9e10941929 )
 
-add_cdat_package_dependent(PYOPENSSL "" "" ON "CDAT_BUILD_WO_ESGF" OFF)
+add_cdat_package_dependent(PYOPENSSL "" "" OFF "CDAT_BUILD_LEAN" OFF)

@@ -7,4 +7,4 @@ set(CFFI_GZ cffi-${CFFI_VERSION}.tar.gz)
 set(CFFI_SOURCE ${LLNL_URL}/${CFFI_GZ})
 set(CFFI_MD5 37fc88c62f40d04e8a18192433f951ec)
 
-add_cdat_package_dependent(CFFI "" "" ON "CDAT_BUILD_WO_ESGF" OFF)
+add_cdat_package_dependent(CFFI "" "" OFF "CDAT_BUILD_LEAN" ON)

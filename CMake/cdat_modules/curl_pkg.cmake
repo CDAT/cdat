@@ -10,4 +10,4 @@ set(CURL_MD5 c8a4eaac7ce7b0d1bf458d62ccd4ef93 )
 set(CURL_VERSION ${CURL_MAJOR_SRC}.${CURL_MINOR_SRC}.${CURL_PATCH_SRC})
 set(CURL_SOURCE ${CURL_URL}/${CURL_GZ})
 
-add_cdat_package(CURL "" "" "")
+add_cdat_package(CURL "" "" OFF)
