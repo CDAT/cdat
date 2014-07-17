@@ -29,6 +29,7 @@
 import vcs, VCS_validation_functions, cdtime
 import AutoAPI
 import xmldocs
+import numpy
 
 def load(nm,json_dict = {}):
   return
@@ -37,7 +38,7 @@ def process_src(nm,code):
   """Takes VCS script code (string) as input and generates isofill gm from it"""
   try:
     g = Gfi(nm)
-  except:
+  except Exception,err:
     g = vcs.elements["isofill"][nm]
   ## process attributes with = as assignement
   for att in ["projection",
@@ -64,6 +65,10 @@ def process_src(nm,code):
     nm=nm.replace("#","")
     if nm=="datawc_tunits":
       nm = "datawc_timeunits"
+    if nm=="legend":
+      if sp[1]!="()":
+        g.legend = sp[1][1:-1]
+      continue
     try:
       #int will be converted
       setattr(g,nm,int(sp[1]))
@@ -75,56 +80,57 @@ def process_src(nm,code):
         # strings
         try:
           setattr(g,nm,sp[1])
-        except:
+        except Exception,err:
           pass # oh well we stick to default value
-    #Datawc
-    idwc = code.find(" datawc(")
-    if idwc>-1:
-      jdwc = code[idwc:].find(")")+idwc
-      cd = code[idwc+8:jdwc]
-      vals = cd.split(",")
-      g.datawc_x1 = float(vals[0])
-      g.datawc_y1 = float(vals[1])
-      g.datawc_x2 = float(vals[2])
-      g.datawc_y2 = float(vals[3])
-    #idatawc
-    idwc = code.find("idatawc(")
-    if idwc>-1:
-      jdwc = code[idwc:].find(")")+idwc
-      cd = code[idwc+8:jdwc]
-      vals = cd.split(",")
-      if int(vals[0])==1:
-        g.datawc_x1 = cdtime.reltime(gm.datawc_x1,g.datawc_timeunits).tocomp(g.datawc_calendar)
-      if int(vals[1])==1:
-        g.datawc_y1 = cdtime.reltime(gm.datawc_x2,g.datawc_timeunits).tocomp(g.datawc_calendar)
-      if int(vals[2])==1:
-        g.datawc_x2 = cdtime.reltime(gm.datawc_y1,g.datawc_timeunits).tocomp(g.datawc_calendar)
-      if int(vals[3])==1:
-        g.datawc_y2 = cdtime.reltime(gm.datawc_y2,g.datawc_timeunits).tocomp(g.datawc_calendar)
-    irg=code.find("range")
-    if irg>-1:
-      lines=code[irg:].split("\n")
-      i=0
-      levs=[]
-      fac=[]
-      fai=[]
-      fas=[]
-      badfa = True
-      for l in lines:
-       if l.find("(id=")>-1:
-        sp=lines[i].split(",")
-        levs.append([float(sp[1][7:]),float(sp[2][7:])])
-        fa = sp[-1][3:]
-        fa=fa[:fa.find(")")]
-        if not fa in vcs.elements["fillarea"].keys():
-          badfa=True
-          fai.append(fa)
-        else:
-          fa = vcs.elements["fillarea"][fa]
-          fac.append(fa.color[0])
-          fai.append(fa.index[0])
-          fas.append(fa.style[0])
-        i+=1
+  #Datawc
+  idwc = code.find(" datawc(")
+  if idwc>-1:
+    jdwc = code[idwc:].find(")")+idwc
+    cd = code[idwc+8:jdwc]
+    vals = cd.split(",")
+    g.datawc_x1 = float(vals[0])
+    g.datawc_y1 = float(vals[1])
+    g.datawc_x2 = float(vals[2])
+    g.datawc_y2 = float(vals[3])
+  #idatawc
+  idwc = code.find("idatawc(")
+  if idwc>-1:
+    jdwc = code[idwc:].find(")")+idwc
+    cd = code[idwc+8:jdwc]
+    vals = cd.split(",")
+    if int(vals[0])==1:
+      g.datawc_x1 = cdtime.reltime(gm.datawc_x1,g.datawc_timeunits).tocomp(g.datawc_calendar)
+    if int(vals[1])==1:
+      g.datawc_y1 = cdtime.reltime(gm.datawc_x2,g.datawc_timeunits).tocomp(g.datawc_calendar)
+    if int(vals[2])==1:
+      g.datawc_x2 = cdtime.reltime(gm.datawc_y1,g.datawc_timeunits).tocomp(g.datawc_calendar)
+    if int(vals[3])==1:
+      g.datawc_y2 = cdtime.reltime(gm.datawc_y2,g.datawc_timeunits).tocomp(g.datawc_calendar)
+  irg=code.find("range")
+  if irg>-1:
+    lines=code[irg:].split("\n")
+    i=0
+    levs=[]
+    fac=[]
+    fai=[]
+    fas=[]
+    badfa = True
+    for l in lines:
+     if l.find("(id=")>-1:
+      sp=lines[i].split(",")
+      levs.append([float(sp[1][7:]),float(sp[2][7:])])
+      fa = sp[-1][3:]
+      fa=fa[:fa.find(")")]
+      if not fa in vcs.elements["fillarea"].keys():
+        badfa=True
+        fai.append(fa)
+      else:
+        fa = vcs.elements["fillarea"][fa]
+        fac.append(fa.color[0])
+        fai.append(fa.index[0])
+        fas.append(fa.style[0])
+      i+=1
+    if not numpy.allclose(levs,1.e20):
       g.levels = levs
       if badfa:
         g._fillareaindices = fai
@@ -488,12 +494,7 @@ Class: Gfi				# Isofill
          self._missing=value
     missing=property(_getmissing,_setmissing)
 
-    def _getlegend(self):
-         return self._legend
-    def _setlegend(self,value):
-         value=VCS_validation_functions.checkLegend(self,'legend',value)
-         self._legend=value
-    legend=property(_getlegend,_setlegend)
+    legend = VCS_validation_functions.legend
 
     def _getprojection(self):
          return self._projection

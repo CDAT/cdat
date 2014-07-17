@@ -63,6 +63,10 @@ def process_src(nm,code):
     nm=nm.replace("#","")
     if nm=="datawc_tunits":
       nm = "datawc_timeunits"
+    if nm=="legend":
+      if sp[1]!="()":
+        g.legend = sp[1][1:-1]
+      continue
     try:
       #int will be converted
       setattr(g,nm,int(sp[1]))
@@ -486,12 +490,7 @@ Class:	Gfm                       	# Meshfill
          self._mesh=value
     mesh=property(_getmesh,_setmesh)
 
-    def _getlegend(self):
-         return self._legend
-    def _setlegend(self,value):
-         value=VCS_validation_functions.checkLegend(self,'legend',value)
-         self._legend=value
-    legend=property(_getlegend,_setlegend)
+    legend=VCS_validation_functions.legend
 
     def _getprojection(self):
          return self._projection
