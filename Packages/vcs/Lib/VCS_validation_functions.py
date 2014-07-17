@@ -590,6 +590,8 @@ def checkLegend(self,name,value):
           return ret
      elif value is None:
           return None
+     elif isinstance(value,str): # ok maybe a vcs list
+          return value
      else:
           raise ValueError, 'The '+name+' attribute should be a dictionary !'
      
@@ -1192,3 +1194,12 @@ def _setlevels(self,value):
         self._ext_2='n'
      self._levels=tuple(value)
 levels=property(_getlevels,_setlevels)
+def _getlegend(self):
+     if isinstance(self._legend,str):
+       return vcs.elements["list"].get(self._legend,None)
+     else:
+       return self._legend
+def _setlegend(self,value):
+     value=checkLegend(self,'legend',value)
+     self._legend=value
+legend=property(_getlegend,_setlegend)

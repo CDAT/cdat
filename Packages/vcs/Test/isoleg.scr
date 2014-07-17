@@ -1,0 +1,14 @@
+Gfi_isoleg(
+   projection=linear,xticlabels#1=*,xticlabels#2=*,yticlabels#1=*,
+   yticlabels#2=*,
+   datawc(1e+20,1e+20,1e+20,1e+20),
+   idatawc(0,0,0,0),
+   xaxisconvert=linear,
+   yaxisconvert=linear,
+   datawc_tunits=days since 2000,
+   missing=1e+20,
+   datawc_calendar=135441,
+   legend=(legend),
+   range
+   (id=0,level1=1e+20,level2=1e+20,Tf=default)  )
+L_legend(4,"$",5,"&*")
