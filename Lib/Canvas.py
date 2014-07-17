@@ -1397,21 +1397,21 @@ Options:::
     # DV3D functions for VCS.                                                #
     #                                                                           #
     #############################################################################
-    def create3Dscalar(self,name=None,source='default'):
-      return vcs.create3Dscalar(name,source)
+    def create3d_scalar(self,name=None,source='default'):
+      return vcs.create3d_scalar(name,source)
   
-    create3Dscalar.__doc__ = vcs.manageElements.create3Dscalar.__doc__
-    def get3Dscalar(self,Gfdv3d_name_src='default'):
-      return vcs.get3Dscalar(Gfdv3d_name_src)
-    get3Dscalar.__doc__ = vcs.manageElements.get3Dscalar.__doc__
+    create3d_scalar.__doc__ = vcs.manageElements.create3d_scalar.__doc__
+    def get3d_scalar(self,Gfdv3d_name_src='default'):
+      return vcs.get3d_scalar(Gfdv3d_name_src)
+    get3d_scalar.__doc__ = vcs.manageElements.get3d_scalar.__doc__
     
-    def create3Dvector(self,name=None,source='default'):
-      return vcs.create3Dvector(name,source)
+    def create3d_vector(self,name=None,source='default'):
+      return vcs.create3d_vector(name,source)
   
-    create3Dvector.__doc__ = vcs.manageElements.create3Dvector.__doc__
-    def get3Dvector(self,Gfdv3d_name_src='default'):
-      return vcs.get3Dvector(Gfdv3d_name_src)
-    get3Dvector.__doc__ = vcs.manageElements.get3Dvector.__doc__
+    create3d_vector.__doc__ = vcs.manageElements.create3d_vector.__doc__
+    def get3d_vector(self,Gfdv3d_name_src='default'):
+      return vcs.get3d_vector(Gfdv3d_name_src)
+    get3d_vector.__doc__ = vcs.manageElements.get3d_vector.__doc__
 
     #############################################################################
     #                                                                           #
