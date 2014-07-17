@@ -534,8 +534,6 @@ class VTKVCSBackend(object):
         color = cmap.index[color]
     missingMapper = vcs2vtk.putMaskOnVTKGrid(data1,ug,color)
     lut = vtk.vtkLookupTable()
-    #lut.SetTableRange(0,Nlevs)
-    ## Following assumes contiguous levels for now
     mn,mx=vcs.minmax(data1)
     #Ok now we have grid and data let's use the mapper
     mapper = vtk.vtkPolyDataMapper()
@@ -621,21 +619,55 @@ class VTKVCSBackend(object):
         mappers = []
       else:
         mappers = []
+        LEVS = []
+        INDX = []
+        COLS = []
+        indices = gm.fillareaindices
+        if indices is None:
+            indices=[1,]
+        while len(indices)<len(cols):
+            indices.append(indices[-1])
         for i,l in enumerate(levs):
+            if i==0:
+                C = [cols[i],]
+                L = levs[i]
+                I = [indices[i],]
+            else:
+                if l[0] == L[-1] and I[-1]==indices[i]:
+                    # Ok same type lets keep going
+                    L.append(l[1])
+                    C.append(cols[i])
+                else: # ok we need new contouring
+                    LEVS.append(L)
+                    COLS.append(C)
+                    INDX.append(I)
+                    C = [cols[i],]
+                    L = levs[i]
+                    I = [indices[i],]
+        LEVS.append(L)
+        COLS.append(C)
+        INDX.append(I)
+
+        
+        for i,l in enumerate(LEVS):
+          # Ok here we are trying to group together levels can be, a join will happen if:
+          # next set of levels contnues where one left off AND pattern is identical
+           
           mapper = vtk.vtkPolyDataMapper()
           cot = vtk.vtkBandedPolyDataContourFilter()
           cot.ClippingOn()
           cot.SetInputData(sFilter.GetOutput())
-          cot.SetNumberOfContours(2)
-          cot.SetValue(0,l[0])
-          cot.SetValue(1,l[1])
+          cot.SetNumberOfContours(len(l))
+          for j,v in enumerate(l):
+              cot.SetValue(j,l[j])
           cot.Update()
           mapper.SetInputConnection(cot.GetOutputPort())
           #mapper.SetInputData(cot.GetOutput())
           lut = vtk.vtkLookupTable()
-          lut.SetNumberOfTableValues(1)
-          r,g,b = cmap.index[cols[i]]      
-          lut.SetTableValue(0,r/100.,g/100.,b/100.)
+          lut.SetNumberOfTableValues(len(COLS[i]))
+          for j,color in enumerate(COLS[i]):
+              r,g,b = cmap.index[color]      
+              lut.SetTableValue(j,r/100.,g/100.,b/100.)
           mapper.SetLookupTable(lut)
           if numpy.allclose(l[0],-1.e20):
             lmn = mn-1.
