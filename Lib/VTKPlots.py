@@ -243,6 +243,20 @@ class VTKVCSBackend(object):
     else:
       return "portrait"
 
+  def portrait(self,W,H,x,y,clear):
+      if clear:
+          self.clear()
+      if self.renWin is None:
+          if W!=-99:
+              self.canvas.bgX = W
+              self.canvas.bgY = H
+          else:
+              W = self.canvas.bgX
+              self.canvas.bgX = self.canvas.bgY
+              self.canvas.bgY = W
+      else:
+          self.renWin.SetSize(W,H)
+
   def initialSize(self):
       #screenSize = self.renWin.GetScreenSize()
       self.renWin.SetSize(self.canvas.bgX,self.canvas.bgY)
@@ -262,7 +276,8 @@ class VTKVCSBackend(object):
       self.renWin.SetSize(x,y)
 
   def flush(self):
-      self.renWin.Render()
+      if self.renWin is not None:
+          self.renWin.Render()
 
   def plot(self,data1,data2,template,gtype,gname,bg,*args,**kargs):
     self.numberOfPlotCalls+=1
@@ -581,7 +596,7 @@ class VTKVCSBackend(object):
         if ug.IsA("vtkUnstructuredGrid"):
           cot.SetInputData(sFilter.GetOutput())
         else:
-          cot.SetInputData(ug.GetOutput())
+          cot.SetInputData(ug)
 
 
       levs = gm.levels
@@ -609,6 +624,7 @@ class VTKVCSBackend(object):
           if isinstance(gm,isoline.Gi):
             levs = levs2
       Nlevs=len(levs)
+      Ncolors = Nlevs
       ## Figure out colors
       if isinstance(gm,boxfill.Gfb):
         cols = gm.fillareacolors 
@@ -841,6 +857,33 @@ class VTKVCSBackend(object):
     self.renWin.AddRenderer(ren)
     self.renWin.Render()
     return
+
+  def vectorGraphics(self, output_type, file, width=None, height=None, units=None):
+    if self.renWin is None:
+      raise Exception("Nothing on Canvas to dump to file")
+
+    gl  = vtk.vtkGL2PSExporter()
+    gl.SetInput(self.renWin)
+    gl.SetCompress(0) # Do not compress
+    gl.SetFilePrefix(output_type)
+    if output_type=="svg":
+        gl.SetFileFormatToSVG()
+    elif output_type == "ps":
+        gl.SetFileFormatToPS()
+    elif output_type=="pdf":
+        gl.SetFileFormatToPDF()
+    else:
+        raise Exception("Unknown format: %s" % output_type)
+    gl.Write()
+
+  def postscript(self, file, width=None, height=None, units=None):
+      return self.vectorGraphics("ps", file, width, height, units)
+
+  def pdf(self, file, width=None, height=None, units=None):
+      return self.vectorGraphics("pdf", file, width, height, units)
+
+  def svg(self, file, width=None, height=None, units=None):
+      return self.vectorGraphics("svg", file, width, height, units)
 
   def png(self, file, width=None,height=None,units=None,draw_white_background = 0):
         
