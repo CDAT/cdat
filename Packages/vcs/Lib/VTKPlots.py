@@ -320,7 +320,7 @@ class VTKVCSBackend(object):
     if gtype in ["boxfill","meshfill","isofill","isoline"]:
       self.renWin.AddRenderer(ren)
       self.plot2D(data1,data2,tpl,gm,ren)
-    elif gtype in ["3Dscalar", "3Dvector"]:
+    elif gtype in ["3d_scalar", "3d_vector"]:
       self.renWin.AddRenderer(ren)
       self.plot3D(data1,data2,tpl,gm,ren)
     elif gtype in ["text"]:

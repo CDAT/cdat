@@ -843,7 +843,7 @@ class RectGridPlot(StructuredGridPlot):
         interactionButtons = self.getInteractionButtons()
                 
         if self.planeWidgetZ == None:
-            if self.type == 'vector':
+            if self.type == '3d_vector':
                 vectorDisplayCF = CfgManager.getParameter( 'VectorDisplay' )
                 vectorDisplay = vectorDisplayCF.getInitValue( 'default' ).lower()
                 if vectorDisplay == 'lic':                    
@@ -872,7 +872,7 @@ class RectGridPlot(StructuredGridPlot):
         self.planeWidgetZ.SetPlaneOrientationToZAxes()
         self.planeWidgetZ.PlaceWidget( bounds )
        
-        if self.planeWidgetZ.HasThirdDimension() and ( self.type <> 'vector' ): 
+        if self.planeWidgetZ.HasThirdDimension() and ( self.type <> '3d_vector' ): 
             if (self.planeWidgetX == None): 
                 self.planeWidgetX = ScalarSliceWidget( self, picker, 0 )
 #               self.observerTargets.add( self.planeWidgetX )

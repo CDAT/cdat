@@ -118,7 +118,7 @@ class StructuredDataReader:
         self.timeAxis = None
         self.fieldData = None
         otype = args.get( 'otype', 'default' )
-        if otype == 'vector':
+        if otype == '3d_vector':
             self.outputType = CDMSDataType.Vector
         else:
             self.outputType = CDMSDataType.Hoffmuller if ( self.subSpace == 'xyt' ) else CDMSDataType.Volume 
@@ -316,7 +316,7 @@ class StructuredDataReader:
             oRecMgr = OutputRecManager() 
 #            varCombo = QComboBox()
             if self.outputType == CDMSDataType.Vector:
-                otype = 'vector'
+                otype = '3d_vector'
                 orec = OutputRec( otype, ndim=3, varList=varRecs )   
                 oRecMgr.addOutputRec( self.datasetId, orec )                 
             else:

@@ -108,8 +108,8 @@ elements = { "boxfill" : {},
              "isofill" : {},
              "isoline" : {},
              "meshfill" : {},
-             "3Dscalar" : {},
-             "3Dvector" : {},
+             "3d_scalar" : {},
+             "3d_vector" : {},
              "outfill": {},
              "outline" : {},
              "template" : {},
@@ -214,7 +214,8 @@ marker.Tm("default")
 meshfill.Gfm("default")
 colormap.Cp("default")
 displayplot.Dp("default")
-dv3d.Gfdv3d("default")
+dv3d.Gf3Dvector("default")
+dv3d.Gf3Dscalar("default")
 
 for nm in ["mercator","orthographic","lambert","polar","polyconic","robinson",
     "mollweide",]:

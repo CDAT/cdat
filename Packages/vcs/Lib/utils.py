@@ -460,7 +460,8 @@ def scriptrun(script):
         "To":"textorientation",
         "Tm":"marker",
         "Tl":"line",
-        "Gfdv3d":"dv3d",
+        "Gf3Dscalar":"3d_scalar",
+        "Gf3Dvector":"3d_vector",
         "Proj":"projection",
         "Gtd":"taylordiagram",
         }
