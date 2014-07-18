@@ -1672,9 +1672,9 @@ if istextcombined(tc):               # Check to see if tc is a textcombined
 # Set alias for the secondary gettextcombined.
 gettext = gettextcombined
 
-def get3Dscalar(Gfdv3d_name_src='default'):
+def get3d_scalar(Gfdv3d_name_src='default'):
     """
-Function: get3Dscalar                        # Construct a new 3Dscalar graphics method
+Function: get3d_scalar                        # Construct a new 3Dscalar graphics method
 
 Description of Function:
 VCS contains a list of graphics methods. This function will create a
@@ -1687,7 +1687,7 @@ different name can be modified. (See the create3Dscalar function.)
 
 Example of Use:
 a.show('3d_scalar')                      # Show all the existing 3Dscalar graphics methods
-plot=vcs.get3Dscalar()                  # plot instance of 'default' dv3d graphics
+plot=vcs.get3d_scalar()                  # plot instance of 'default' dv3d graphics
                                         # method
 """
 
@@ -1701,9 +1701,9 @@ plot=vcs.get3Dscalar()                  # plot instance of 'default' dv3d graphi
     return vcs.elements["3d_scalar"][Gfdv3d_name_src]
 
 
-def create3Dscalar(name=None, source='default'):
+def create3d_scalar(name=None, source='default'):
     """
-Function: createdv3d                # Construct a new dv3d graphics method
+Function: create3d_scalar                # Construct a new dv3d graphics method
 
 Description of Function:
 Create a new dv3d graphics method given the the name and the existing
@@ -1718,15 +1718,15 @@ method names must be unique.
 Example of Use:
 a=vcs.init()
 a.show('3d_scalar')
-plot=a.create3Dscalar()
+plot=a.create3d_scalar()
 """
     name,source = check_name_source(name,source,'3d_scalar')
     return dv3d.Gf3Dscalar(name, source)
 
 
-def get3Dvector(Gfdv3d_name_src='default'):
+def get3d_vector(Gfdv3d_name_src='default'):
     """
-Function: get3Dvector                        # Construct a new 3Dvector graphics method
+Function: get3d_vector                        # Construct a new 3Dvector graphics method
 
 Description of Function:
 VCS contains a list of graphics methods. This function will create a
@@ -1739,7 +1739,7 @@ different name can be modified. (See the create3Dvector function.)
 
 Example of Use:
 a.show('3d_vector')                      # Show all the existing 3Dvector graphics methods
-plot=vcs.get3Dvector()                  # plot instance of 'default' dv3d graphics
+plot=vcs.get3d_vector()                  # plot instance of 'default' dv3d graphics
                                         # method
 """
 
@@ -1753,7 +1753,7 @@ plot=vcs.get3Dvector()                  # plot instance of 'default' dv3d graphi
     return vcs.elements["3d_vector"][Gfdv3d_name_src]
 
 
-def create3Dvector(name=None, source='default'):
+def create3d_vector(name=None, source='default'):
     """
 Function: createdv3d                # Construct a new dv3d graphics method
 
@@ -1770,7 +1770,7 @@ method names must be unique.
 Example of Use:
 a=vcs.init()
 a.show('3Dvector')
-plot=a.create3Dvector()
+plot=a.create3d_vector()
 """
     name,source = check_name_source(name,source,'3d_vector')
     return dv3d.Gf3Dvector(name, source)
