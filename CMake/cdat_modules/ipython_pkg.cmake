@@ -9,4 +9,4 @@ set(IPYTHON_MD5 785c7b6364c6a0dd34aa4ea970cf83b9)
 set(IPYTHON_SOURCE ${IPYTHON_URL}/${IPYTHON_GZ})
 
 
-add_cdat_package(IPYTHON "" "" OFF)
+add_cdat_package(IPYTHON "" "" ON)

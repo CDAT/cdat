@@ -234,10 +234,17 @@ set(PIP_CERTIFICATE "" CACHE STRING "Certificate to use for PIP (LLNL issue real
 option(CDAT_BUILD_GUI "Builds GUI-based dependencies (Vistrails, ParaView, VisIt, R, etc.) " ON)
 option(CDAT_BUILD_GRAPHICS "Build graphics-based dependencies (vcs, pyqt, Vistrails, ParaView, VisIt, R, etc.) " ON)
 option(CDAT_BUILD_LEAN "Builds a customized version for ESGF (Packages that are required for computing moslty)" OFF)
+option(CDAT_BUILD_ESGF "Alias for CDAT_BUILD_LEAN" OFF)
 option(CDAT_BUILD_UVCMETRICSPKG "Builds uvcmetrics package " ON)
+option(CDAT_BUILD_FULL "Builds EVERYTHING possible" OFF)
+
+if (CDAT_BUILD_ESGF)
+  set(CDAT_BUILD_LEAN ON)
+endif()
 
 # First of all if ESGF then turn OFF GRAPHICS
 if (CDAT_BUILD_LEAN)
+    set(CDAT_BUILD_FULL OFF)
     set(CDAT_BUILD_GRAPHICS OFF)
     set(CDAT_BUILD_PARALLEL OFF)
     set(CDMS_ONLY --enable-cdms-only)
@@ -247,8 +254,17 @@ endif()
 
 # If no graphics then no gui as well
 if (NOT CDAT_BUILD_GRAPHICS)
+   set(CDAT_BUILD_FULL OFF)
   set(CDAT_BUILD_GUI OFF)
 endif()
+
+if (CDAT_BUILD_FULL)
+  set(CDAT_BUILD_GUI ON)
+  set(CDAT_BUILD_GRAPHICS ON)
+  set(CDAT_BUILD_PARALLEL ON)
+  set(CDMS_ONLY "")
+endif()
+
 set(ep_prefix ${cdat_BINARY_DIR}/build/prefix)
 set_property(DIRECTORY PROPERTY ep_log_dir ${cdat_BINARY_DIR}/logs)
 set(ep_log_options

@@ -13,4 +13,4 @@ set(PYQT_MD5_UNIX e5973c4ec0b0469f329bc00209d2ad9c )
 set(PYQT_SOURCE ${PYQT_URL}/${PYQT_GZ_${CMAKE_PLATFORM}})
 set(PYQT_MD5 ${PYQT_MD5_${CMAKE_PLATFORM}})
 
-add_cdat_package_dependent(PyQt "" "" ON "CDAT_BUILD_GRAPHICS" OFF)
+add_cdat_package_dependent(PyQt "" "" ON "CDAT_BUILD_GUI" OFF)
