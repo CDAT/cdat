@@ -13,5 +13,5 @@ set(SIP_MD5 d6493b9f0a7911566545f694327314c4 )
 set(SIP_SOURCE ${SIP_URL}/${SIP_GZ})
 
 
-add_cdat_package_dependent(SIP "" "" OFF "CDAT_BUILD_GRAPHICS" OFF)
+add_cdat_package_dependent(SIP "" "" OFF "CDAT_BUILD_GUI" OFF)
 message("name: ${sip_pkg}")
