@@ -1,4 +1,4 @@
-if (CDAT_BUILD_FULL)
+if (CDAT_BUILD_ALL)
   set(IPYTHON_deps ${pip_pkg} ${tornado_pkg} ${numpy_pkg} ${numexpr_pkg})
 else ()
   set(IPYTHON_deps ${pip_pkg} ${numpy_pkg})
