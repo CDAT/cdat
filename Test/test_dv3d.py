@@ -6,7 +6,7 @@ Created on Jun 18, 2014
 import vcs
 import cdms2
 import sys
-import os
+import os, time
 import subprocess, signal    
 
 class DataType:
@@ -35,11 +35,12 @@ else:
     f = cdms2.open( os.path.join( sys.prefix, "sample_data", "geos5-sample.nc") )
     u = f["uwnd"] 
 
-dv3d = vcs.create3Dscalar()
+dv3d = vcs.create3d_scalar()
 dv3d.restoreState()
 
 x = vcs.init()
 x.plot( u, dv3d )
 x.interact()
+
 
 

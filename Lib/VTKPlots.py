@@ -6,7 +6,7 @@ import vcs2vtk
 import numpy
 from vtk.util import numpy_support as VN
 import meshfill,boxfill,isofill,isoline
-import os
+import os, traceback
 import cdms2
 import DV3D
 
@@ -446,8 +446,9 @@ class VTKVCSBackend(object):
   def plot3D(self,data1,data2,tmpl,gm,ren):
       from DV3D.Application import DV3DApp
       requiresFileVariable = True
-      if ( data1 is None ) or ( requiresFileVariable and not isinstance(data1, cdms2.fvariable.FileVariable ) ):
-          raise Exception, "Error, must pass a FileVariable as the first input to the dv3d gm"
+      if ( data1 is None ) or ( requiresFileVariable and not ( isinstance(data1, cdms2.fvariable.FileVariable ) or isinstance(data1, cdms2.tvariable.TransientVariable ) ) ):
+          traceback.print_stack()
+          raise Exception, "Error, must pass a cdms2 variable object as the first input to the dv3d gm ( found '%s')" % ( data1.__class__.__name__ )
       g = DV3DApp() 
       n_overview_points = 500000
       grid_coords = ( None, None, None, None )
@@ -455,8 +456,6 @@ class VTKVCSBackend(object):
       interface = None
       roi = None # ( 0, 0, 50, 50 )
       g.gminit( data1, data2, roi=roi, axes=gm.axes, n_overview_points=n_overview_points, renwin=ren.GetRenderWindow()  ) #, plot_type = PlotType.List  ) 
-
-      
 
   def plotVector(self,data1,data2,tmpl,gm,ren):
     self.setLayer(ren,tmpl.data.priority)
