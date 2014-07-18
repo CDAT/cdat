@@ -9,6 +9,7 @@ import meshfill
 from vtk.util import numpy_support as VN
 import cdms2
 import warnings
+import cdtime
 
 f = open(os.path.join(sys.prefix,"share","vcs","wmo_symbols.json"))
 wmo = json.load(f)
@@ -135,19 +136,25 @@ def genUnstructuredGrid(data1,data2,gm):
   geopts = project(pts,projection)
   ## Sets the vertics into the grid
   vg.SetPoints(geopts)
-
-
-
   return vg,xm,xM,ym,yM,continents,wrap
 
 def getRange(gm,xm,xM,ym,yM):
     # Also need to make sure it fills the whole space
-    if not numpy.allclose([gm.datawc_x1,gm.datawc_x2],1.e20):
-      x1,x2 = gm.datawc_x1,gm.datawc_x2
+    rtype= type(cdtime.reltime(0,"days since 2000"))
+    X1,X2 = gm.datawc_x1,gm.datawc_x2
+    if isinstance(X1,rtype) or isinstance(X2,rtype):
+      X1=X1.value
+      X2=X2.value
+    if not numpy.allclose([X1,X2],1.e20):
+      x1,x2 = X1,X2
     else:
       x1,x2 = xm,xM
-    if not numpy.allclose([gm.datawc_y1,gm.datawc_y2],1.e20):
-      y1,y2 = gm.datawc_y1,gm.datawc_y2
+    Y1,Y2 = gm.datawc_y1,gm.datawc_y2
+    if isinstance(Y1,rtype) or isinstance(Y2,rtype):
+      Y1=Y1.value
+      Y2=Y2.value
+    if not numpy.allclose([Y1,Y2],1.e20):
+      y1,y2 = Y1,Y2
     else:
       y1,y2 = ym,yM
     return x1,x2,y1,y2
