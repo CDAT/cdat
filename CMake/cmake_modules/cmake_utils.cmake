@@ -70,7 +70,6 @@ macro (add_cdat_package package_name version_string msg default)
   # Check if package is found, if not found or found but user prefers to use cdat package
   # then use cdat package or else use system package
   if(NOT CDAT_USE_SYSTEM_${uc_package})
-      message("Appending ${package_name}")
       list(APPEND external_packages "${package_name}")
       set(${lc_package}_pkg "${package_name}")
 
@@ -104,10 +103,8 @@ macro(enable_cdat_package_deps package_name)
   string(TOLOWER ${package_name} lc_package)
 
   if (CDAT_BUILD_${uc_package})
-    #message("package....${uc_package}")
     foreach(dep ${${package_name}_deps})
       string(TOUPPER ${dep} uc_dep)
-      #message("testing ----- ${dep}")
       if(NOT CDAT_USE_SYSTEM_${uc_dep} AND NOT CDAT_BUILD_${uc_dep})
         set(CDAT_BUILD_${uc_dep} ON CACHE BOOL "" FORCE)
         # Now make sure that deps of dep is enabled
