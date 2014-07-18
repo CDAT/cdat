@@ -231,38 +231,57 @@ set_property(CACHE EGG_INSTALLER PROPERTY STRINGS "PIP" "EASY_INSTALL")
 set(PIP_CERTIFICATE "" CACHE STRING "Certificate to use for PIP (LLNL issue really)")
 
 # Options for various types of builds
+
+# Default state
+set(CDAT_BUILD_LEAN OFF)
+set(CDAT_BUILD_ALL OFF)
+
+# Options
 option(CDAT_BUILD_GUI "Builds GUI-based dependencies (Vistrails, ParaView, VisIt, R, etc.) " ON)
 option(CDAT_BUILD_GRAPHICS "Build graphics-based dependencies (vcs, pyqt, Vistrails, ParaView, VisIt, R, etc.) " ON)
-option(CDAT_BUILD_LEAN "Builds a customized version for ESGF (Packages that are required for computing moslty)" OFF)
 option(CDAT_BUILD_ESGF "Alias for CDAT_BUILD_LEAN" OFF)
 option(CDAT_BUILD_UVCMETRICSPKG "Builds uvcmetrics package " ON)
-option(CDAT_BUILD_ALL "Builds EVERYTHING possible" OFF)
+set(CDAT_BUILD_MODE "DEFAULT" CACHE STRING "Build mode for CDAT <ALL, LEAN, DEFAULT>")
+set_property(CACHE CDAT_BUILD_MODE PROPERTY STRINGS "DEFAULT" "ALL" "LEAN") 
 
+# If ESGF option is on then our build mode is LEAN. 
 if (CDAT_BUILD_ESGF)
-  set(CDAT_BUILD_LEAN ON)
+  set(CDAT_BUILD_MODE "LEAN" CACHE STRING "Build mode for CDAT <ALL, LEAN, DEFAULT>" FORCE)
 endif()
 
-# First of all if ESGF then turn OFF GRAPHICS
-if (CDAT_BUILD_LEAN)
-    set(CDAT_BUILD_ALL OFF)
-    set(CDAT_BUILD_GRAPHICS OFF)
-    set(CDAT_BUILD_PARALLEL OFF)
-    set(CDMS_ONLY --enable-cdms-only)
+# Set the state of LEAN all based on the MODE
+if (CDAT_BUILD_MODE STREQUAL "LEAN")
+  set(CDAT_BUILD_LEAN ON)
+  set(CDAT_BUILD_ALL OFF)
+elseif (CDAT_BUILD_MODE STREQUAL "ALL")
+  set(CDAT_BUILD_LEAN OFF) 
+  set(CDAT_BUILD_ALL ON)
 else()
-    set(CDMS_ONLY "")
+  set(CDAT_BUILD_LEAN OFF) 
+  set(CDAT_BUILD_ALL OFF)
+endif()
+
+# First of all if LEAN then turn OFF GRAPHICS and PARALLEL
+if (CDAT_BUILD_LEAN)
+  set_property(CACHE CDAT_BUILD_GRAPHICS PROPERTY VALUE OFF)
+  set_property(CACHE CDAT_BUILD_PARALLEL PROPERTY VALUE OFF)
+  set(CDMS_ONLY --enable-cdms-only)
+else()
+  set(CDMS_ONLY "")
+endif()
+
+# If ALL is enabled then turn ON GUI, GRAPHICS, and PARALLEL
+if (CDAT_BUILD_ALL)
+  set_property(CACHE CDAT_BUILD_GUI PROPERTY VALUE ON)
+  set_property(CACHE CDAT_BUILD_GRAPHICS PROPERTY VALUE ON)
+  set_property(CACHE CDAT_BUILD_PARALLEL PROPERTY VALUE ON)
+  set_property(CACHE CDAT_BUILD_ESGF PROPERTY VALUE OFF)
+  set(CDMS_ONLY "")
 endif()
 
 # If no graphics then no gui as well
 if (NOT CDAT_BUILD_GRAPHICS)
-   set(CDAT_BUILD_ALL OFF)
-  set(CDAT_BUILD_GUI OFF)
-endif()
-
-if (CDAT_BUILD_ALL)
-  set(CDAT_BUILD_GUI ON)
-  set(CDAT_BUILD_GRAPHICS ON)
-  set(CDAT_BUILD_PARALLEL ON)
-  set(CDMS_ONLY "")
+  set_property(CACHE CDAT_BUILD_GUI PROPERTY VALUE OFF)
 endif()
 
 set(ep_prefix ${cdat_BINARY_DIR}/build/prefix)
