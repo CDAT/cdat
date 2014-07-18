@@ -1720,6 +1720,7 @@ a=vcs.init()
 a.show('3d_scalar')
 plot=a.create3d_scalar()
 """
+    print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ create3d_scalar ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
     name,source = check_name_source(name,source,'3d_scalar')
     return dv3d.Gf3Dscalar(name, source)
 

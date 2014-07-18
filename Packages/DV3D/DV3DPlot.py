@@ -223,7 +223,7 @@ class DV3DPlot():
         if self.processKeyPressHandler( key, eventArgs ): 
             return 1
         else: 
-            return self.onKeyEvent( ) 
+            return self.onKeyEvent( eventArgs ) 
      
 #         
 #         if self.onKeyEvent( [ key, keysym, ctrl ] ):
