@@ -7,4 +7,4 @@ set(PYSPHARM_GZ pyspharm-${PYSPHARM_VERSION}.tar.gz)
 set(PYSPHARM_MD5 e19897ec64d9e861ef6b93bf649a433c)
 set(PYSPHARM_SOURCE ${PYSPHARM_URL}/${PYSPHARM_GZ})
 
-add_cdat_package_dependent(pyspharm "" "" ON "CDAT_BUILD_WO_ESGF" OFF)
+add_cdat_package_dependent(pyspharm "" "" OFF "CDAT_BUILD_LEAN" OFF)

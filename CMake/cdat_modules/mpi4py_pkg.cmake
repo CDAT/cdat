@@ -7,4 +7,4 @@ set(MPI4PY_MD5 978472a1a71f3142c866c9463dec7103)
 set(MPI4PY_SOURCE ${MPI4PY_URL}/${MPI4PY_GZ})
 
 
-add_cdat_package_dependent(Mpi4py "" "Bulid Mpi4py" ON "CDAT_BUILD_PARALLEL" OFF)
+add_cdat_package_dependent(Mpi4py "" "Bulid Mpi4py" OFF "CDAT_BUILD_PARALLEL" OFF)

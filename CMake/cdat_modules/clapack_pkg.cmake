@@ -9,7 +9,7 @@ set(CLAPACK_SOURCE ${CLAPACK_URL}/${CLAPACK_GZ})
 
 if(NOT APPLE)
   if(NOT CMAKE_Fortran_COMPILER)
-    add_cdat_package(CLAPACK "" "" "")
+    add_cdat_package(CLAPACK "" "" OFF)
   endif()
 endif()
 

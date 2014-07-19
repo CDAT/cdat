@@ -8,4 +8,4 @@ set(READLINE_MD5 67948acb2ca081f23359d0256e9a271c)
 set(READLINE_VERSION ${RL_MAJOR_SRC}.${RL_MINOR_SRC})
 set(READLINE_SOURCE ${READLINE_URL}/${READLINE_GZ})
 
-add_cdat_package(readline "" "" "")
+add_cdat_package(readline "" "" OFF)

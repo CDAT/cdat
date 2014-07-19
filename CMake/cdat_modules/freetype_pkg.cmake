@@ -15,4 +15,4 @@ set(FREETYPE_VERSION ${FT_VERSION})
 set(FREETYPE_SOURCE ${FT_URL}/${FT_GZ})
 
 
-add_cdat_package_dependent(freetype "" "" ON "CDAT_BUILD_GRAPHICS" OFF)
+add_cdat_package_dependent(freetype "" "" OFF "CDAT_BUILD_GRAPHICS" OFF)
