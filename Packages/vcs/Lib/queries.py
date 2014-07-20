@@ -520,7 +520,7 @@ if queries.isscatter(scr):
    scr.list()
 
 """
-    if (isinstance(obj,unified1D.G1d)) and obj.name.split("_")[-1]=="scatter" and "_".join(obj.name.split("_")[:-1]) in vcs.elements["scatter"]:
+    if (isinstance(obj,unified1D.G1d)) and obj.name[-8:]=="scatter_" and "_".join(obj.name.split("_")[:-2]) in vcs.elements["scatter"]:
         return 1
     else:
        return 0
@@ -546,7 +546,7 @@ if queries.isxyvsy(xyy):
    xyy.list()
 
 """
-    if (isinstance(obj,unified1D.G1d)) and obj.name.split("_")[-1]=="xyvsy" and "_".join(obj.name.split("_")[:-1]) in vcs.elements["xyvsy"]:
+    if (isinstance(obj,unified1D.G1d)) and obj.name[-6:]=="xyvsy_" and "_".join(obj.name.split("_")[:-2]) in vcs.elements["xyvsy"]:
         return 1
     else:
        return 0
@@ -572,7 +572,7 @@ if queries.isyxvsx(yxx):
    yxx.list()
 
 """
-    if (isinstance(obj,unified1D.G1d)) and obj.name.split("_")[-1]=="yxvsx" and "_".join(obj.name.split("_")[:-1]) in vcs.elements["yxvsx"]:
+    if (isinstance(obj,unified1D.G1d)) and obj.name[-6:]=="yxvsx_" and "_".join(obj.name.split("_")[:-2]) in vcs.elements["yxvsx"]:
         return 1
     else:
        return 0
@@ -598,7 +598,7 @@ if queries.isxvsy(xy):
    xy.list()
 
 """
-    if (isinstance(obj,unified1D.G1d)) and obj.name.split("_")[-1]=="xvsy" and "_".join(obj.name.split("_")[:-1]) in vcs.elements["xvsy"]:
+    if (isinstance(obj,unified1D.G1d)) and obj.name[-5:]=="xvsy_" and "_".join(obj.name.split("_")[:-2]) in vcs.elements["xvsy"]:
         return 1
     else:
        return 0
