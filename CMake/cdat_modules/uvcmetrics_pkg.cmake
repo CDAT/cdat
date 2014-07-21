@@ -1,4 +1,4 @@
-set(UVCMETRICS_TAG f955c7bcfbb8da83b6ee237019fc3582b985c069) 
+set(UVCMETRICS_TAG ac63fec3c0926d2538c236ac07bcc2ce33287f36) 
 
 set (nm UVCMETRICS)
 string(TOUPPER ${nm} uc_nm)
