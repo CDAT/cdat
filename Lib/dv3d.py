@@ -75,7 +75,10 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
         
     def restoreState(self):
         CfgManager.restoreState()
-        
+
+    def initDefaultState(self):
+        CfgManager.initDefaultState()
+                
     def list(self):
         print ' ---------- DV3D (Gfdv3d) member (attribute) listings ---------'
         print 'name =',self.name

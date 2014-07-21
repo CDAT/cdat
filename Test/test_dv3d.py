@@ -36,7 +36,6 @@ else:
     u = f["uwnd"] 
 
 dv3d = vcs.create3d_scalar()
-dv3d.restoreState()
 
 x = vcs.init()
 x.plot( u, dv3d )

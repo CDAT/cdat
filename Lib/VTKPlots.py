@@ -36,6 +36,7 @@ class VTKVCSBackend(object):
     self.debug = debug
     self.bg = bg
     self.type = "vtk"
+    self.plotApps = {}
     self._plot_keywords = ['renderer',]
     self.numberOfPlotCalls = 0 
     if renWin is not None:
@@ -294,9 +295,12 @@ class VTKVCSBackend(object):
         self.renWin.SetSize(self.canvas.bgX,self.canvas.bgY)
     #self.renWin.Render()
     if kargs.get("renderer",None) is None:
-        ren = vtk.vtkRenderer()
-        r,g,b = self.canvas.backgroundcolor
-        ren.SetBackground(r/255.,g/255.,b/255.)
+        if created:
+            ren = vtk.vtkRenderer()
+            r,g,b = self.canvas.backgroundcolor
+            ren.SetBackground(r/255.,g/255.,b/255.)
+        else:
+            ren = self.renWin.GetRenderers().GetFirstRenderer() 
         #ren.SetPreserveDepthBuffer(True)
     else:
       ren = kargs["renderer"]
@@ -449,14 +453,19 @@ class VTKVCSBackend(object):
       if ( data1 is None ) or ( requiresFileVariable and not ( isinstance(data1, cdms2.fvariable.FileVariable ) or isinstance(data1, cdms2.tvariable.TransientVariable ) ) ):
           traceback.print_stack()
           raise Exception, "Error, must pass a cdms2 variable object as the first input to the dv3d gm ( found '%s')" % ( data1.__class__.__name__ )
-      g = DV3DApp() 
-      n_overview_points = 500000
-      grid_coords = ( None, None, None, None )
-      var_proc_op = None
-      interface = None
-      roi = None # ( 0, 0, 50, 50 )
-      g.gminit( data1, data2, roi=roi, axes=gm.axes, n_overview_points=n_overview_points, renwin=ren.GetRenderWindow()  ) #, plot_type = PlotType.List  ) 
-
+      g = self.plotApps.get( gm, None )
+      if g == None:
+          g = DV3DApp() 
+          n_overview_points = 500000
+          grid_coords = ( None, None, None, None )
+          var_proc_op = None
+          interface = None
+          roi = None # ( 0, 0, 50, 50 )
+          g.gminit( data1, data2, roi=roi, axes=gm.axes, n_overview_points=n_overview_points, renwin=ren.GetRenderWindow()  ) #, plot_type = PlotType.List  ) 
+          self.plotApps[ gm ] = g
+      else:
+          g.update( tmpl )
+            
   def plotVector(self,data1,data2,tmpl,gm,ren):
     self.setLayer(ren,tmpl.data.priority)
     ug,xm,xM,ym,yM,continents,wrap = vcs2vtk.genUnstructuredGrid(data1,data2,gm)
