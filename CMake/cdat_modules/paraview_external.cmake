@@ -145,10 +145,22 @@ get_git_head_revision(refspec sha)
 #  set(paraview_branch uvcdat-next)
 #endif()
 
+string(REPLACE "//" "" GIT_PROTOCOL_PREFIX ${GIT_PROTOCOL})
+
+if (${GIT_PROTOCOL} STREQUAL "git://")
+  set(REPLACE_GIT_PROTOCOL_PREFIX "http:")
+else()
+  set(REPLACE_GIT_PROTOCOL_PREFIX "git:")
+endif()
+
+configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/paraview_download.sh.in
+  ${cdat_CMAKE_BINARY_DIR}/paraview_download.sh @ONLY
+  )
+
 if (NOT OFFLINE_BUILD)
-    set(GIT_CMD_STR GIT_REPOSITORY "${PARAVIEW_SOURCE}")
+    set(DOWNLOAD_CMD_STR  DOWNLOAD_COMMAND ${cdat_CMAKE_BINARY_DIR}/paraview_download.sh)
 else ()
-    set(GIT_CMD_STR )
+    set(DOWNLOAD_CMD_STR)
 endif()
 
 ExternalProject_Add(ParaView
@@ -156,7 +168,7 @@ ExternalProject_Add(ParaView
   SOURCE_DIR ${ParaView_source}
   BINARY_DIR ${ParaView_binary}
   INSTALL_DIR ${ParaView_install}
-  ${GIT_CMD_STR} 
+  ${DOWNLOAD_CMD_STR}
   GIT_TAG ${paraview_branch}
   UPDATE_COMMAND ""
   PATCH_COMMAND ""
