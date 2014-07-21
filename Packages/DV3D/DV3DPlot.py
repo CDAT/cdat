@@ -153,10 +153,11 @@ class DV3DPlot():
 
     def initializePlots(self):
 #         bbar = ButtonBarWidget.getButtonBar( 'Plot' )
-#         button = bbar.getButton( 'XSlider' ) 
-#         button.setButtonState( 1 ) 
-#         bbar.initializeSliderPosition(0)  
         bbar = ButtonBarWidget.getButtonBar( 'Plot' )
+        if not CfgManager.initialized:
+            button = bbar.getButton( 'XSlider' ) 
+            button.setButtonState( 1 ) 
+            bbar.initializeSliderPosition(0)  
         bbar.initializeState()
         self.render()
         
@@ -649,6 +650,7 @@ class DV3DPlot():
         self.cameraOrientation[ self.topo ] = ( c.GetPosition(), c.GetFocalPoint(), c.GetViewUp() )
 
     def resetCamera( self, pts = None, **args ):
+        print " --------------------------- resetCamera  --------------------------- "
         cdata = self.cameraOrientation.get( self.topo, None )
         if cdata:
             self.renderer.GetActiveCamera().SetPosition( *cdata[0] )
@@ -659,13 +661,16 @@ class DV3DPlot():
         else:
             self.renderer.ResetCamera( self.getBounds() )
             
-    def initCamera(self, d = 400.0 ):
-        self.renderer.GetActiveCamera().SetPosition( self.xcenter, self.ycenter, d )
-        self.renderer.GetActiveCamera().SetFocalPoint( self.xcenter, self.ycenter, 0.0 )
+    def initCamera(self, d ):
+        print " -------------------------- >>>>> --------------------------- >>>>  initCamera:  ", str( ( self.xcenter, self.ycenter, d ) )
+        self.renderer.GetActiveCamera().SetPosition( 0.0, 0.0, d )
+        self.renderer.GetActiveCamera().SetFocalPoint( 0.0, 0.0, 0.0 )
         self.renderer.GetActiveCamera().SetViewUp( 0, 1, 0 )  
         self.renderer.ResetCameraClippingRange() 
+        self.printCameraPos( 'initCamera' )
         
     def adjustCamera( self, center, distance ): 
+        print " --------------------------- adjustCamera  --------------------------- "
         self.xcenter = center[0]
         self.ycenter = center[1]
         self.initCamera( distance )

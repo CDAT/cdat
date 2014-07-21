@@ -70,9 +70,9 @@ class Button:
     def setState(self, value):
         self._state = value
         self.PrivateStateChangedSignal( value )
-
-
-#        print " Setting state[%s] = %s " % ( self.id, str(value) )
+#        print "----------------->>> Button [%s] Setting state = %s " % ( self.id, str(value) )
+        if value == 1:
+            print "."
         
     def getFunctionMapKey (self, key, ctrl ):
         return "c-%c" % key if ctrl else "%c" % key
@@ -236,6 +236,7 @@ class ButtonBarWidget:
                     
     def initializeState(self):
         for ib in self.buttons:
+            print "Initialize Button '%s': %s " % ( ib.id, str(ib.getState()) )
             if ib.getState() > 0:
                 ib.refreshButtonState()
                 self.processStateChangeEvent( ib.id, ib.key, ib.getState(), True )
@@ -310,6 +311,7 @@ class ButtonBarWidget:
         
     def updateWindowSize(self):
         self.windowSize = self.interactor.GetRenderWindow().GetSize()
+        print " >>>>>> UpdateWindowSize: ", str( self.windowSize )
         
     def render( self ):
         self.interactor.GetRenderWindow().Render()
@@ -320,8 +322,8 @@ class ButtonBarWidget:
             self.current_location = self.placeButton( button, self.current_location )
             
     def reposition( self, **args ):
-#        print "Reposition: %d " % self.windowSize[0]
         self.updateWindowSize()
+        print "Reposition: %d " % self.windowSize[0]
         self.build( **args )
              
     def placeButton( self, button, position, **args ):
@@ -329,7 +331,7 @@ class ButtonBarWidget:
         window_size = min( self.windowSize[0], self.windowSize[1] ) 
         scale = float(window_size)/ self.fullButtonWindowSize
         if scale > 1.0:   scale = 1.0
-        if scale < 0.2:   scale = 0.2
+        if scale < 0.5:   scale = 0.5
 #        print "Resize: %d %s " % ( window_size, scale )
         size = [ max_size[0]*scale, max_size[1]*scale ]
         bounds = self.computeBounds( position, size )
@@ -432,12 +434,11 @@ class ButtonBarWidget:
 
     def addSliderButton( self, **args ):
         button = self.addButton( **args )
-        if button.id == 'YSlider':
-            print "."
         cf = self.addConfigurableSliderFunction( button.id, **args)
         button.PrivateStateChangedSignal.connect( cf.setState )
         cf_state = cf.getState()
-        if cf_state <> None: button.setState( cf_state )
+        if cf_state <> None: 
+            button.setState( cf_state )
         return button
         
     def addConfigButton( self, **args ):
@@ -445,7 +446,8 @@ class ButtonBarWidget:
         cf = self.addConfigurableFunction( button.id, **args)
         button.PrivateStateChangedSignal.connect( cf.setState )
         cf_state = cf.getState()
-        if cf_state <> None: button.setState( cf_state )
+        if cf_state <> None: 
+            button.setState( cf_state )
         return button
 
     def getButton(self, name ): 
@@ -559,7 +561,7 @@ class ButtonBarWidget:
                         
     def commandeerSlider(self, index, label, bounds, tvals ): 
         value = get_scalar_value( tvals )
-        print " CommandeerSlider[%d]: ('%s') %s: %s in %s " % ( index, label, self.InteractionState, str(value), str(bounds) )
+#        print " CommandeerSlider[%d]: ('%s') %s: %s in %s " % ( index, label, self.InteractionState, str(value), str(bounds) )
         widget_item = self.currentSliders.get( index, None )
         if widget_item == None: 
             swidget = self.createSliderWidget(index) 
@@ -792,7 +794,7 @@ class ButtonBarWidget:
                         return True
                 else:                       
                     child_button.deactivate()
-                    print "Dectivate child: ", child_button.id
+#                    print "Dectivate child: ", child_button.id
         return False
                 
     

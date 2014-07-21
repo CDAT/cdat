@@ -120,6 +120,8 @@ class RectGridPlot(StructuredGridPlot):
         self.probeFilter = None
         self.cursorActor     = vtk.vtkActor()
         
+        self.pipelineDebug = False
+        
         self.levelSetActor = None
         self.surfacePicker = None
 
@@ -164,7 +166,10 @@ class RectGridPlot(StructuredGridPlot):
 #        self.addUVCDATConfigGuiFunction( 'renderType', VolumeRenderCfgDialog, 'v', label='Choose Volume Renderer', setValue=self.setVolRenderCfg, getValue=self.getVolRenderCfg, layerDependent=True, group=ConfigGroup.Rendering )
 
 
-            
+    def debug_log(self, msg ): 
+        if self.pipelineDebug:
+            print " ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ %s ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ " %  msg   
+             
     def processOpacityScalingCommand( self, args, config_function = None ):
         opacityRange = config_function.value
         if args and args[0] == "StartConfig":
@@ -646,7 +651,7 @@ class RectGridPlot(StructuredGridPlot):
         """ execute() -> None
         Dispatch the vtkRenderer to the actual rendering widget
         """ 
-        
+        self.debug_log( 'buildIsosurfacePipeline' )
         texture_ispec = self.getInputSpec( 1 )                
         xMin, xMax, yMin, yMax, zMin, zMax = self.input().GetExtent()       
         self.sliceCenter = [ (xMax-xMin)/2, (yMax-yMin)/2, (zMax-zMin)/2  ]       
@@ -738,6 +743,7 @@ class RectGridPlot(StructuredGridPlot):
         """ execute() -> None
         Dispatch the vtkRenderer to the actual rendering widget
         """  
+        self.debug_log( 'buildVolumePipeline' )
         extent = self.input().GetExtent() 
         rangeBounds = self.getRangeBounds() 
         self.sliceCenter = [ (extent[2*i+1]-extent[2*i])/2 for i in range(3) ]       
@@ -809,6 +815,7 @@ class RectGridPlot(StructuredGridPlot):
 
     def buildPipeline(self):
 
+        self.debug_log( 'buildPipeline' )
         contour_ispec = self.getInputSpec(  1 )       
 
         contourInput = contour_ispec.input() if contour_ispec <> None else None
@@ -1426,6 +1433,7 @@ class RectGridPlot(StructuredGridPlot):
             self.render()
                         
     def updateModule(self, **args ):
+        self.debug_log( 'updateModule' )
         primaryInput = self.input()
         contour_ispec = self.getInputSpec(  1 )       
         contourInput = contour_ispec.input() if contour_ispec <> None else None

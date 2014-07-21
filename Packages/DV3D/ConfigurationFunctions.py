@@ -213,6 +213,7 @@ class ConfigManager:
         self.metadata = args
         self.configurableFunctions = {}
         self.parameters = {}
+        self.initialized = False
 
     def getParameter( self, param_name, **args ):
         cparm = self.parameters.get( param_name, None )
@@ -262,6 +263,7 @@ class ConfigManager:
             print>>sys.stderr, "Can't open config file: %s" % self.cfgFile
 
     def addParameter( self, config_name, **args ):
+#        print '  <<---------------------------------------------------->> Add Parameter: ', config_name, " = ", str( args )
         cparm = self.getParameter( config_name, **args )
         categoryName = args.get('category', None )
         varname = args.get('varname', None )
@@ -315,13 +317,23 @@ class ConfigManager:
                 line = state_file.readline()
                 if line == "": break
                 serializedState = line.split('=')
+                print '  <<---------------------------------------------------->> Restore State: ', serializedState[0], " = ", str( serializedState[1] )
                 cp = self.getParameter( serializedState[0] )
                 cp.restoreState( serializedState[1].strip() )
    
             state_file.close()
+            self.initialized = True
 
         except Exception, err:
             print>>sys.stderr, "Can't read state data: ", str(err)
+            
+    def initDefaultState(self):
+        cp = self.getParameter( 'XSlider' )
+        cp.restoreState( { 'state': 1 } )
+        cp = self.getParameter( 'YSlider' )
+        cp.restoreState( { 'state': 1 } )
+        cp = self.getParameter( 'ZSlider' )
+        cp.restoreState( { 'state': 1 } )
                   
     def getParameterMetadata( self ):
         try:
@@ -400,7 +412,13 @@ class ConfigParameter:
         return str( state_parms ) 
 
     def restoreState( self, stateData ) :
-        state = eval( stateData )
+        if type( stateData ) == str:
+            state = eval( stateData )
+        elif type( stateData ) == dict:
+            state = stateData
+        else:
+            print>>sys.stderr, "Unrecognized stateData type: ", str( type( stateData ) )
+            return
         self.values.update( state )
         self.values[ 'init' ] = self.getValues()
         print " --> Restore state [%s] : %s " % ( self.name, stateData )

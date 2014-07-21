@@ -572,10 +572,10 @@ class StructuredGridPlot(DV3DPlot):
         self.variable_reader = StructuredDataReader( init_specs=init_args, **args )
         self.variable_reader.execute( )       
         self.createRenderer( **args )
-        self.initCamera()
         interface = init_args[2]
         self.execute( )
         self.initializePlots()
+        self.initCamera( 700.0 )
         self.start()
 
     def gminit( self, var1, var2, **args ): 
@@ -584,9 +584,9 @@ class StructuredGridPlot(DV3DPlot):
         self.variable_reader = StructuredDataReader( vars=var_list, otype=self.type, **args )
         self.variable_reader.execute( )       
         self.createRenderer( **args )
-        self.initCamera()
         self.execute( )
         self.initializePlots()
+        self.initCamera( 700.0 )
         self.start()
 
     def onResizeEvent(self):
