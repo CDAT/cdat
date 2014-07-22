@@ -1,4 +1,6 @@
 # File generated with: md5sum `ls -a */*nc ` > md5s.txt
+6d86e5edd0a92931226ac99d13167980  acme_lores_atm_climo/F1850.g37_bench_ANN_climo.nc
+f3c5c5a4d91d6e3e0cc4d2df362b0503  acme_lores_atm_climo/F1850.g37_bench_DJF_climo.nc
 06e0cc5f50cd7f2c1e2f30c4c4278b47  acme_lores_cam_climo/F1850.g37_bench_ANN_climo.nc
 712d887975121e81168ab03a535cadba  acme_lores_cam_climo/F1850.g37_bench_APR_climo.nc
 e2e5505205c326eea69574226d881359  acme_lores_cam_climo/F1850.g37_bench_DJF_climo.nc
