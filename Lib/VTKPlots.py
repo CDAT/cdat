@@ -464,6 +464,7 @@ class VTKVCSBackend(object):
           g.gminit( data1, data2, roi=roi, axes=gm.axes, n_overview_points=n_overview_points, renwin=ren.GetRenderWindow()  ) #, plot_type = PlotType.List  ) 
           self.plotApps[ gm ] = g
       else:
+          print " %%%%%% Plot 3D: rw=%d, r=%d" % ( id(ren.GetRenderWindow()), id(ren) )
           g.update( tmpl )
             
   def plotVector(self,data1,data2,tmpl,gm,ren):
