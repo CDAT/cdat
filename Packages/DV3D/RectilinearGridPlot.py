@@ -1442,6 +1442,8 @@ class RectGridPlot(StructuredGridPlot):
         if self.planeWidgetZ <> None: self.planeWidgetZ.SetInput( primaryInput, contourInput ) 
         if self.baseMapActor: self.baseMapActor.SetVisibility( int( self.enableBasemap ) )
         self.render()
+        print " %%%%%% Update Module: rw=%d, r=%d, rwi=%d" % ( id(self.renderWindow), id(self.renderer), id(self.renderWindowInteractor) )
+
 #        self.set3DOutput()
            
     def TestObserver( self, caller=None, event = None ):

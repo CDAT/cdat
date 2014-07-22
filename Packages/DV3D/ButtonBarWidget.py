@@ -224,8 +224,8 @@ class ButtonBarWidget:
 
     def setSliderVisibility( self, islider, isVisible ):
         self._slidersVisible[ islider ] = isVisible
-        if islider == 2: 
-            print " setSliderVisibility[%d] = %s " % ( islider, str(isVisible))
+#        if islider == 2: 
+#            print " setSliderVisibility[%d] = %s " % ( islider, str(isVisible))
         
     def clear( self, **args ):
         current_button_id = args.get( 'current', None )
@@ -236,7 +236,7 @@ class ButtonBarWidget:
                     
     def initializeState(self):
         for ib in self.buttons:
-            print "Initialize Button '%s': %s " % ( ib.id, str(ib.getState()) )
+#            print "Initialize Button '%s': %s " % ( ib.id, str(ib.getState()) )
             if ib.getState() > 0:
                 ib.refreshButtonState()
                 self.processStateChangeEvent( ib.id, ib.key, ib.getState(), True )

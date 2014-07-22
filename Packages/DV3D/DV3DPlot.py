@@ -539,6 +539,7 @@ class DV3DPlot():
             
         self.renderer.SetBackground(1.0, 1.0, 1.0)
         self.renderWindow = renWin
+        print " %%%%%% CreateRenderWindow: rw=%d, r=%d, rwi=%d" % ( id(self.renderWindow), id(self.renderer), id(self.renderWindowInteractor) )
     
     def closeConfigDialog(self):
         pass
