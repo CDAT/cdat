@@ -1,0 +1,20 @@
+language: c++
+
+before_install:
+    - sudo apt-get update -qq
+    - sudo add-apt-repository ppa:kubuntu-ppa/beta -y 
+    - sudo apt-get update
+    - sudo apt-get install -y cmake
+    - sudo apt-get install -y gfortran
+
+script:
+    - git submodule init
+    - git submodule update
+    - cd ..
+    - mkdir _build
+    - cd _build
+    - cmake ../uvcdat-devel
+    - cmake .
+    - make -j4
+#   - ctest -VV -S ../cmake/travis_build.cmake
+#   - ctest -VV -S ../cmake/travis_submit.cmake
