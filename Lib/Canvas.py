@@ -204,9 +204,9 @@ def _determine_arg_list(g_name, actual_args):
         if found_slabs!=arglist[igraphics_method].g_nslabs:
             raise vcsError, "%s requires %i slab(s)" % (arglist[igraphics_method].g_name,arglist[igraphics_method].g_nslabs)
     else:
-        if arglist[igraphics_method].lower() in ( 'scatter', 'vector', 'xvsy', 'stream', 'glyph' ):
+        if arglist[igraphics_method].lower() in ( 'scatter', 'vector', 'xvsy', 'stream', 'glyph', '3d_vector' ):
             if found_slabs != 2:
-                raise vcsError, "Graphics method requires 2 slabs."
+                raise vcsError, "Graphics method %s requires 2 slabs." % arglist[igraphics_method]
         elif arglist[igraphics_method].lower() == 'meshfill':
             if found_slabs == 0:
                 raise vcsError, "Graphics method requires at least 1 slab."
@@ -225,7 +225,7 @@ def _determine_arg_list(g_name, actual_args):
             pass                            # Check later
         else:
             if found_slabs != 1:
-                raise vcsError, "Graphics method requires 1 slab."
+                raise vcsError, "Graphics method %s requires 1 slab." % arglist[igraphics_method]
     if isinstance(arglist[3],str): arglist[3]=arglist[3].lower()
     return arglist
 

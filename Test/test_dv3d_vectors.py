@@ -37,7 +37,7 @@ else:
     u = f["uwnd"] 
     v = f["vwnd"] 
 
-dv3d = vcs.create3Dvector("stream")
+dv3d = vcs.create3d_vector("stream")
 
 x = vcs.init()
 x.plot( u, v, dv3d )
