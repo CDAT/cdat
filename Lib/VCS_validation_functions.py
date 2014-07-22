@@ -416,6 +416,9 @@ def checkWrap(self,name,value):
           raise ValueError, 'The '+name+' attribute must be either None or a list.'
           
 def checkListTuple(self,name,value):
+
+  ## Now make sure the items are either number or listofnumbers
+  for v in value:
      checkName(self,name,value)
      if isinstance(value,list) or isinstance(value,tuple):
           return list(value)
@@ -586,6 +589,8 @@ def checkLegend(self,name,value):
      elif isinstance(value,(list,tuple)):
           ret={}
           for v in value:
+               if not isNumber(v):
+                 raise ValueError("The legend attribute should be a list of numbers, '%s' is not one" % v)
                ret[v]=repr(v)
           return ret
      elif value is None:
@@ -593,7 +598,7 @@ def checkLegend(self,name,value):
      elif isinstance(value,str): # ok maybe a vcs list
           return value
      else:
-          raise ValueError, 'The '+name+' attribute should be a dictionary !'
+          raise ValueError, 'The '+name+' attribute should be a dictionary, a list of number or the name of a vcs list'
      
 ## def checkListTupleDictionaryNone(self,name,value):
 ##      checkName(self,name,value)
@@ -1180,6 +1185,19 @@ def _setlevels(self,value):
       return
 
      value=list(checkListTuple(self,'levels',value))
+
+     ## Now make sure the items are either number or listofnumbers
+     for v in value:
+       if isNumber(v):
+         continue
+       elif isinstance(v,(list,tuple)):
+         if not len(v)==2:
+           raise ValueError, "levels attribute list subelements must be numbers of 2 number list/tuples"
+         elif not isNumber(v[0]) or not isNumber(v[1]):
+           raise ValueError("levels attribute list subelements must be numbers of 2 number list/tuples")
+       else:
+           raise ValueError("levels attribute list subelements must be numbers of 2 number list/tuples")
+
      if len(value)==1 and isinstance(value[0],(list,tuple)) and len(value[0])>2:
        value = list(value[0])
 
@@ -1192,7 +1210,7 @@ def _setlevels(self,value):
         self._ext_2='y'
      else:
         self._ext_2='n'
-     self._levels=tuple(value)
+     self._levels=list(value)
 levels=property(_getlevels,_setlevels)
 def _getlegend(self):
      if isinstance(self._legend,str):
