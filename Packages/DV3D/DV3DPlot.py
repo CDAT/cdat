@@ -155,9 +155,10 @@ class DV3DPlot():
 #         bbar = ButtonBarWidget.getButtonBar( 'Plot' )
         bbar = ButtonBarWidget.getButtonBar( 'Plot' )
         if not CfgManager.initialized:
-            button = bbar.getButton( 'XSlider' ) 
-            button.setButtonState( 1 ) 
-            bbar.initializeSliderPosition(0)  
+            button = bbar.getButton( 'ZSlider' ) 
+            if button <> None:
+                button.setButtonState( 1 ) 
+                bbar.initializeSliderPosition(0)  
         bbar.initializeState()
         self.render()
         
@@ -539,7 +540,6 @@ class DV3DPlot():
             
         self.renderer.SetBackground(1.0, 1.0, 1.0)
         self.renderWindow = renWin
-        print " %%%%%% CreateRenderWindow: rw=%d, r=%d, rwi=%d" % ( id(self.renderWindow), id(self.renderer), id(self.renderWindowInteractor) )
     
     def closeConfigDialog(self):
         pass
@@ -651,7 +651,6 @@ class DV3DPlot():
         self.cameraOrientation[ self.topo ] = ( c.GetPosition(), c.GetFocalPoint(), c.GetViewUp() )
 
     def resetCamera( self, pts = None, **args ):
-        print " --------------------------- resetCamera  --------------------------- "
         cdata = self.cameraOrientation.get( self.topo, None )
         if cdata:
             self.renderer.GetActiveCamera().SetPosition( *cdata[0] )
@@ -663,7 +662,7 @@ class DV3DPlot():
             self.renderer.ResetCamera( self.getBounds() )
             
     def initCamera(self, d ):
-        print " -------------------------- >>>>> --------------------------- >>>>  initCamera:  ", str( ( self.xcenter, self.ycenter, d ) )
+#        print " -------------------------- >>>>> --------------------------- >>>>  initCamera:  ", str( ( self.xcenter, self.ycenter, d ) )
         self.renderer.GetActiveCamera().SetPosition( 0.0, 0.0, d )
         self.renderer.GetActiveCamera().SetFocalPoint( 0.0, 0.0, 0.0 )
         self.renderer.GetActiveCamera().SetViewUp( 0, 1, 0 )  
@@ -671,7 +670,6 @@ class DV3DPlot():
         self.printCameraPos( 'initCamera' )
         
     def adjustCamera( self, center, distance ): 
-        print " --------------------------- adjustCamera  --------------------------- "
         self.xcenter = center[0]
         self.ycenter = center[1]
         self.initCamera( distance )

@@ -522,13 +522,15 @@ class CDMSDataset:
         
     def getTimeValues( self, asComp = True ):
         if self.timeRange == None: return None
-        start_rel_time = cdtime.reltime( float( self.timeRange[2] ), self.referenceTimeUnits )
         time_values = []
-        for iTime in range( self.timeRange[0], self.timeRange[1]+1 ):
-            rval = start_rel_time.value + iTime * self.timeRange[3]
-            tval = cdtime.reltime( float( rval ), self.referenceTimeUnits )
-            if asComp:   time_values.append( tval.tocomp() )
-            else:        time_values.append( tval )
+        try:
+            start_rel_time = cdtime.reltime( float( self.timeRange[2] ), self.referenceTimeUnits )
+            for iTime in range( self.timeRange[0], self.timeRange[1]+1 ):
+                rval = start_rel_time.value + iTime * self.timeRange[3]
+                tval = cdtime.reltime( float( rval ), self.referenceTimeUnits )
+                if asComp:   time_values.append( tval.tocomp() )
+                else:        time_values.append( tval )
+        except: pass
         return time_values
     
     def getGrid( self, gridData ):

@@ -71,8 +71,8 @@ class Button:
         self._state = value
         self.PrivateStateChangedSignal( value )
 #        print "----------------->>> Button [%s] Setting state = %s " % ( self.id, str(value) )
-        if value == 1:
-            print "."
+#         if value == 1:
+#             print "."
         
     def getFunctionMapKey (self, key, ctrl ):
         return "c-%c" % key if ctrl else "%c" % key
@@ -169,23 +169,17 @@ class Button:
     
     def On(self):
         if self.active: 
-            print "Button %s ON" % self.id
             self.buttonWidget.On()
 
     def Off(self):
-        print "Button %s OFF" % self.id
         self.buttonWidget.Off()
         
     def activate(self):
         self.active = True
-        if self.id == "ScaleTransferFunction":
-            print "Button %s Activated-ON" % self.id
         self.buttonWidget.On()
 
     def deactivate(self):
         self.active = False
-        if self.id == "ScaleTransferFunction":
-            print "Button %s Deactivated-OFF" % self.id
         self.buttonWidget.Off()
 
 class ButtonBarWidget:
@@ -311,7 +305,7 @@ class ButtonBarWidget:
         
     def updateWindowSize(self):
         self.windowSize = self.interactor.GetRenderWindow().GetSize()
-        print " >>>>>> UpdateWindowSize: ", str( self.windowSize )
+#        print " >>>>>> UpdateWindowSize: ", str( self.windowSize )
         
     def render( self ):
         self.interactor.GetRenderWindow().Render()
@@ -370,8 +364,6 @@ class ButtonBarWidget:
         for ib in ibbar.buttons:
             is_child = ib.id in current_button.children
             state = new_state if is_child else 0
-            if ib.id == "ScaleTransferFunction":
-                print " Set button state %s: %d" % ( ib.id, state )
 #           ibbar.processStateChangeEvent( ib.id, ib.key, state )
             ib.setButtonState(state)           
             if is_child:
@@ -381,7 +373,7 @@ class ButtonBarWidget:
     def processStateChangeEvent( self, button_id, key, state, force = False ):
         b = self.getButton( button_id )
         if (b.getState() <> state) or (not b.toggle) or force:
-            print " processStateChangeEvent: ", str( [ button_id, key, state ] )
+#            print " processStateChangeEvent: ", str( [ button_id, key, state ] )
             self.StateChangedSignal( button_id, key, state )
             b.setState(state)
             if state > 0: 
@@ -741,7 +733,7 @@ class ButtonBarWidget:
                         else:
                             self.releaseSlider( slider_index )
                 ButtonBarWidget.current_configuration_mode = configFunct.label
-                print " ButtonBarWidget.current_configuration_mode = ", configFunct.label
+#                print " ButtonBarWidget.current_configuration_mode = ", configFunct.label
                 configFunct.processInteractionEvent( [ "ProcessSliderInit" ] )
 #                for child_button in child_activations: 
 #                    child_button.setButtonState(1)

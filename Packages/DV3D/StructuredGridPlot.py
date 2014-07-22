@@ -173,11 +173,14 @@ class StructuredGridPlot(DV3DPlot):
             self.metadata['var_units'] = attributes[ 'units']
 
     def intiTime(self, ispec, **args):
-        t = cdtime.reltime( 0, self.variable_reader.referenceTimeUnits )
-        if t.cmp( cdtime.reltime( 0, ispec.referenceTimeUnits ) ) == 1:
-            self.variable_reader.referenceTimeUnits = ispec.referenceTimeUnits 
-        tval = args.get( 'timeValue', None )
-        if tval: self.timeValue = cdtime.reltime( float( args[ 'timeValue' ] ), ispec.referenceTimeUnits )
+        try:
+            t = cdtime.reltime( 0, self.variable_reader.referenceTimeUnits )
+            if t.cmp( cdtime.reltime( 0, ispec.referenceTimeUnits ) ) == 1:
+                self.variable_reader.referenceTimeUnits = ispec.referenceTimeUnits 
+            tval = args.get( 'timeValue', None )
+            if tval: self.timeValue = cdtime.reltime( float( args[ 'timeValue' ] ), ispec.referenceTimeUnits )
+        except:
+            self.timeValue = 0.0
 
     def execute(self, **args ):
         if not self.isBuilt(): 
