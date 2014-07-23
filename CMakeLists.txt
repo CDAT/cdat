@@ -250,9 +250,9 @@ option(CDAT_BUILD_GRAPHICS "Build graphics-based dependencies (vcs, pyqt, Vistra
 option(CDAT_BUILD_ESGF "Alias for CDAT_BUILD_LEAN" OFF)
 option(CDAT_BUILD_UVCMETRICSPKG "Builds uvcmetrics package " ON)
 set(CDAT_BUILD_MODE "DEFAULT" CACHE STRING "Build mode for CDAT <ALL, LEAN, DEFAULT>")
-set_property(CACHE CDAT_BUILD_MODE PROPERTY STRINGS "DEFAULT" "ALL" "LEAN") 
+set_property(CACHE CDAT_BUILD_MODE PROPERTY STRINGS "DEFAULT" "ALL" "LEAN")
 
-# If ESGF option is on then our build mode is LEAN. 
+# If ESGF option is on then our build mode is LEAN.
 if (CDAT_BUILD_ESGF)
   set(CDAT_BUILD_MODE "LEAN" CACHE STRING "Build mode for CDAT <ALL, LEAN, DEFAULT>" FORCE)
 endif()
@@ -262,10 +262,10 @@ if (CDAT_BUILD_MODE STREQUAL "LEAN")
   set(CDAT_BUILD_LEAN ON)
   set(CDAT_BUILD_ALL OFF)
 elseif (CDAT_BUILD_MODE STREQUAL "ALL")
-  set(CDAT_BUILD_LEAN OFF) 
+  set(CDAT_BUILD_LEAN OFF)
   set(CDAT_BUILD_ALL ON)
 else()
-  set(CDAT_BUILD_LEAN OFF) 
+  set(CDAT_BUILD_LEAN OFF)
   set(CDAT_BUILD_ALL OFF)
 endif()
 
@@ -294,6 +294,19 @@ endif()
 
 set(ep_prefix ${cdat_BINARY_DIR}/build/prefix)
 set_property(DIRECTORY PROPERTY ep_log_dir ${cdat_BINARY_DIR}/logs)
+
+option(CDAT_DISPLAY_LOG "Show logging information on the console" OFF)
+
+if (CDAT_DISPLAY_LOG)
+    set(ep_log_options
+      LOG_DOWNLOAD 1
+      LOG_UPDATE 0
+      LOG_CONFIGURE 1
+      LOG_BUILD 0
+      LOG_TEST 1
+      LOG_INSTALL 1
+    )
+else()
 set(ep_log_options
   LOG_DOWNLOAD 0
   LOG_UPDATE 1
@@ -302,6 +315,7 @@ set(ep_log_options
   LOG_TEST 1
   LOG_INSTALL 1
 )
+endif()
 
 set(cdat_compiler_args
   -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
@@ -783,7 +797,7 @@ install(CODE "
     )
     if(NOT \${res} EQUAL 0)
       message(\"Output: \${out}; Result: \${res}; Error: \${err}\")
-    endif()  
+    endif()
   endif()"
 
   COMPONENT superbuild

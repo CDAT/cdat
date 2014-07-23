@@ -36,3 +36,8 @@ if(NOT HEAD_HASH)
 	file(READ "@GIT_DATA@/head-ref" HEAD_HASH LIMIT 1024)
 	string(STRIP "${HEAD_HASH}" HEAD_HASH)
 endif()
+
+if ("${HEAD_REF}" STREQUAL "")
+  set(HEAD_REF "refs/head/uvcdat-master")
+  set(HEAD_HEAD ${HEAD_REF})
+endif()
