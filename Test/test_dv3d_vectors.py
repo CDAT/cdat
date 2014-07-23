@@ -6,7 +6,7 @@ Created on Jun 18, 2014
 import vcs
 import cdms2
 import sys
-import os, time
+import os
 import subprocess, signal    
 
 class DataType:
@@ -29,17 +29,18 @@ if data_type == DataType.UNSTRUCTURED:
     testDataFile = os.path.join( testDataDir, 'WRF', 'wrfout_d03_2013-07-02_02-00-00.nc' )
     f = cdms2.open( testDataFile )
     u = f["U"] 
+    v = f["V"] 
     
 else:
     
     f = cdms2.open( os.path.join( sys.prefix, "sample_data", "geos5-sample.nc") )
     u = f["uwnd"] 
+    v = f["vwnd"] 
 
-dv3d = vcs.create3d_scalar()
+dv3d = vcs.create3d_vector("stream")
 
 x = vcs.init()
-x.plot( u, dv3d )
+x.plot( u, v, dv3d )
 x.interact()
-
 
 

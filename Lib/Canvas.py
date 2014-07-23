@@ -204,9 +204,9 @@ def _determine_arg_list(g_name, actual_args):
         if found_slabs!=arglist[igraphics_method].g_nslabs:
             raise vcsError, "%s requires %i slab(s)" % (arglist[igraphics_method].g_name,arglist[igraphics_method].g_nslabs)
     else:
-        if arglist[igraphics_method].lower() in ('scatter','vector','xvsy'):
+        if arglist[igraphics_method].lower() in ( 'scatter', 'vector', 'xvsy', 'stream', 'glyph', '3d_vector' ):
             if found_slabs != 2:
-                raise vcsError, "Graphics method requires 2 slabs."
+                raise vcsError, "Graphics method %s requires 2 slabs." % arglist[igraphics_method]
         elif arglist[igraphics_method].lower() == 'meshfill':
             if found_slabs == 0:
                 raise vcsError, "Graphics method requires at least 1 slab."
@@ -225,7 +225,7 @@ def _determine_arg_list(g_name, actual_args):
             pass                            # Check later
         else:
             if found_slabs != 1:
-                raise vcsError, "Graphics method requires 1 slab."
+                raise vcsError, "Graphics method %s requires 1 slab." % arglist[igraphics_method]
     if isinstance(arglist[3],str): arglist[3]=arglist[3].lower()
     return arglist
 
@@ -1397,12 +1397,23 @@ Options:::
     # DV3D functions for VCS.                                                #
     #                                                                           #
     #############################################################################
-    def createdv3d(self,name=None,source='default'):
-      return vcs.createdv3d(name,source)
-    createdv3d.__doc__ = vcs.manageElements.createdv3d.__doc__
-    def getdv3d(self,Gfdv3d_name_src='default'):
-      return vcs.getdv3d(Gfdv3d_name_src)
-    getdv3d.__doc__ = vcs.manageElements.getdv3d.__doc__
+
+    def create3d_scalar(self,name=None,source='default'):
+      return vcs.create3d_scalar(name,source)
+  
+    create3d_scalar.__doc__ = vcs.manageElements.create3d_scalar.__doc__
+    def get3d_scalar(self,Gfdv3d_name_src='default'):
+      return vcs.get3d_scalar(Gfdv3d_name_src)
+    get3d_scalar.__doc__ = vcs.manageElements.get3d_scalar.__doc__
+    
+    def create3d_vector(self,name=None,source='default'):
+      return vcs.create3d_vector(name,source)
+  
+    create3d_vector.__doc__ = vcs.manageElements.create3d_vector.__doc__
+    def get3d_vector(self,Gfdv3d_name_src='default'):
+      return vcs.get3d_vector(Gfdv3d_name_src)
+    get3d_vector.__doc__ = vcs.manageElements.get3d_vector.__doc__
+
     #############################################################################
     #                                                                           #
     # Isofill functions for VCS.                                                #
@@ -2330,6 +2341,7 @@ Options:::
     #                                                                         #
     ###########################################################################
     def plot(self, *actual_args, **keyargs):
+
         """
 Options:::
 %s
@@ -2447,6 +2459,7 @@ Options:::
 ###############################################################################################################
 
 """
+
         self.__last_plot_actual_args = actual_args
         self.__last_plot_keyargs = keyargs
 

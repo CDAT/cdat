@@ -1672,9 +1672,9 @@ if istextcombined(tc):               # Check to see if tc is a textcombined
 # Set alias for the secondary gettextcombined.
 gettext = gettextcombined
 
-def getdv3d(Gfdv3d_name_src='default'):
+def get3d_scalar(Gfdv3d_name_src='default'):
     """
-Function: getdv3d                        # Construct a new dv3d graphics method
+Function: get3d_scalar                        # Construct a new 3Dscalar graphics method
 
 Description of Function:
 VCS contains a list of graphics methods. This function will create a
@@ -1683,27 +1683,78 @@ no dv3d name is given, then dv3d 'default' will be used.
 
 Note, VCS does not allow the modification of `default' attribute
 sets. However, a `default' attribute set that has been copied under a 
-different name can be modified. (See the createdv3d function.)
+different name can be modified. (See the create3Dscalar function.)
 
 Example of Use:
-a.show('dv3d')                   # Show all the existing dv3d graphics methods
-plot=vcs.getdv3d()                  # plot instance of 'default' dv3d graphics
-                                    # method
-plot2=vcs.getdv3d('quick')          # plot2 instance of existing 'quick' dv3d
-                                    #         graphics method
+a.show('3d_scalar')                      # Show all the existing 3Dscalar graphics methods
+plot=vcs.get3d_scalar()                  # plot instance of 'default' dv3d graphics
+                                        # method
 """
 
     # Check to make sure the argument passed in is a STRING
     if not isinstance(Gfdv3d_name_src,str):
         raise vcsError, 'The argument must be a string.'
 
-    if not Gfdv3d_name_src in vcs.elements["dv3d"]:
+    if not Gfdv3d_name_src in vcs.elements["3d_scalar"]:
         raise ValueError,"dv3d '%s' does not exists" % Gfdv3d_name_src
 
-    return vcs.elements["dv3d"][Gfdv3d_name_src]
+    return vcs.elements["3d_scalar"][Gfdv3d_name_src]
 
 
-def createdv3d(name=None, source='default'):
+def create3d_scalar(name=None, source='default'):
+    """
+Function: create3d_scalar                # Construct a new dv3d graphics method
+
+Description of Function:
+Create a new dv3d graphics method given the the name and the existing
+dv3d graphics method to copy the attributes from. If no existing
+dv3d graphics method name is given, then the default dv3d graphics
+method will be used as the graphics method to which the attributes will
+be copied from.
+
+If the name provided already exists, then a error will be returned. Graphics
+method names must be unique.
+
+Example of Use:
+a=vcs.init()
+a.show('3d_scalar')
+plot=a.create3d_scalar()
+"""
+    print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ create3d_scalar ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    name,source = check_name_source(name,source,'3d_scalar')
+    return dv3d.Gf3Dscalar(name, source)
+
+
+def get3d_vector(Gfdv3d_name_src='default'):
+    """
+Function: get3d_vector                        # Construct a new 3Dvector graphics method
+
+Description of Function:
+VCS contains a list of graphics methods. This function will create a
+dv3d class object from an existing VCS dv3d graphics method. If
+no dv3d name is given, then dv3d 'default' will be used.
+
+Note, VCS does not allow the modification of `default' attribute
+sets. However, a `default' attribute set that has been copied under a 
+different name can be modified. (See the create3Dvector function.)
+
+Example of Use:
+a.show('3d_vector')                      # Show all the existing 3Dvector graphics methods
+plot=vcs.get3d_vector()                  # plot instance of 'default' dv3d graphics
+                                        # method
+"""
+
+    # Check to make sure the argument passed in is a STRING
+    if not isinstance(Gfdv3d_name_src,str):
+        raise vcsError, 'The argument must be a string.'
+
+    if not Gfdv3d_name_src in vcs.elements["3d_vector"]:
+        raise ValueError,"dv3d '%s' does not exists" % Gfdv3d_name_src
+
+    return vcs.elements["3d_vector"][Gfdv3d_name_src]
+
+
+def create3d_vector(name=None, source='default'):
     """
 Function: createdv3d                # Construct a new dv3d graphics method
 
@@ -1719,8 +1770,9 @@ method names must be unique.
 
 Example of Use:
 a=vcs.init()
-a.show('dv3d')
-plot=a.createdv3d()
+a.show('3Dvector')
+plot=a.create3d_vector()
 """
-    name,source = check_name_source(name,source,'dv3d')
-    return dv3d.Gfdv3d(name, source)
+    name,source = check_name_source(name,source,'3d_vector')
+    return dv3d.Gf3Dvector(name, source)
+
