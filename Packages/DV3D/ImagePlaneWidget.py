@@ -1,10 +1,19 @@
 
 import vtk, sys, gc
+from ConfigurationFunctions import CfgManager
 
 VTK_NEAREST_RESLICE = 0
 VTK_LINEAR_RESLICE  = 1
 VTK_CUBIC_RESLICE   = 2
 
+class DisplayMode:
+    Scalar= 0
+    VectorLIC = 1
+    VectorGlyph = 2
+
+def getUnscaledWorldExtent( extent, spacing, origin ):
+    return [ ( ( extent[ i ] * spacing[ i/2 ] ) + origin[i/2]  ) for i in range(6) ]
+  
 class ImagePlaneWidget:  
     
     InteractionStartEvent = 0
@@ -49,7 +58,9 @@ class ImagePlaneWidget:
         self.ResliceAxes2   = vtk.vtkMatrix4x4()   
         self.ContourInputDims = 0;     
         self.InputDims = 0
-        self.CurrentPosition = 0.0    
+        self.CurrentPosition = 0.0   
+        self.plane = vtk.vtkPlane()  
+        self.Texture = None
                         
         # Represent the plane's outline
         #
@@ -66,8 +77,7 @@ class ImagePlaneWidget:
         self.Reslice = vtk.vtkImageReslice()
         self.Reslice.TransformInputSamplingOff()
         self.Reslice2 = None        
-        self.Texture = vtk.vtkTexture()
-        self.TexturePlaneActor   = vtk.vtkActor()
+
         self.Transform     = vtk.vtkTransform()
         self.ImageData    = 0
         self.ImageData2   = 0
@@ -87,15 +97,12 @@ class ImagePlaneWidget:
             
         # Initial creation of the widget, serves to initialize it
         #
-        self.PlaceWidget(bounds)
-            
-        self.GenerateTexturePlane()
+        self.PlaceWidget(bounds)            
         self.GenerateCursor()
             
         # Manage the picking stuff
         #
         self.PlanePicker = None
-        self.SetPicker(picker)
             
         # Set up the initial properties
         #
@@ -104,13 +111,17 @@ class ImagePlaneWidget:
         self.TexturePlaneProperty  = 0
         self.CursorProperty  = 0
         self.CreateDefaultProperties()                                              
-        self.TextureVisibility = 1
 
     def __del__(self):
         print " **************************************** Deleting ImagePlaneWidget module, id = %d  **************************************** " % id(self)
         sys.stdout.flush()
+        
+    def endSlicing(self):
+        pass
 
-#----------------------------------------------------------------------------
+    def beginSlicing(self):
+        pass
+
     def LookupTableObserver( self, caller=None, event = None ):
         table_range = self.LookupTable.GetTableRange()
         print " Image Plane Widget LookupTable Observer: event = %s, caller=%x, range=%s, LookupTable=%x, self=%s" % ( event, id(caller), str( table_range ), id(self.LookupTable), id(self) )        
@@ -228,16 +239,7 @@ class ImagePlaneWidget:
          
 #----------------------------------------------------------------------------
 
-    def SetTextureVisibility( self, vis ):
-        if (self.TextureVisibility == vis): return
-        self.TextureVisibility = vis
-         
-        if ( self.Enabled ): 
-            if (self.TextureVisibility):
-                self.CurrentRenderer.AddViewProp(self.TexturePlaneActor)
-        else:
-            self.CurrentRenderer.RemoveViewProp(self.TexturePlaneActor)
-        self.Modified()
+
 
 #----------------------------------------------------------------------------
     def SetEnabled( self ):
@@ -254,37 +256,24 @@ class ImagePlaneWidget:
         self.CurrentRenderer.AddViewProp(self.PlaneOutlineActor)
         self.PlaneOutlineActor.SetProperty(self.PlaneProperty)
         self.ActivateEvent()
-    
-        #add the TexturePlaneActor
-        if (self.TextureVisibility):  
-            self.CurrentRenderer.AddViewProp(self.TexturePlaneActor)
-    
-        self.TexturePlaneActor.SetProperty(self.TexturePlaneProperty)
         
         # Add the cross-hair cursor
         self.CurrentRenderer.AddViewProp(self.CursorActor)
         self.CursorActor.SetProperty(self.CursorProperty)
-        
-        self.TexturePlaneActor.PickableOn()
-
         self.Interactor.Render()
         
     def VisibilityOff(self):
-        self.TexturePlaneActor.VisibilityOff ()
-        self.TexturePlaneActor.PickableOff()
         self.CursorActor.VisibilityOff ()
         self.PlaneOutlineActor.VisibilityOff ()
         self.VisualizationInteractionEnabled = False 
 
     def VisibilityOn(self):
-        self.TexturePlaneActor.VisibilityOn ()
-        self.TexturePlaneActor.PickableOn()
         self.CursorActor.VisibilityOn ()
         self.PlaneOutlineActor.VisibilityOn()
         self.VisualizationInteractionEnabled = True 
         
     def IsVisible(self):
-        return self.TexturePlaneActor.GetVisibility ()
+        return self.CursorActor.GetVisibility ()
        
         
         # draw the outline map only in the XY plane
@@ -320,10 +309,10 @@ class ImagePlaneWidget:
 
         
     def EnablePicking( self ):
-        self.TexturePlaneActor.PickableOn()  
-
+        pass
+            
     def DisablePicking( self ):
-        self.TexturePlaneActor.PickableOff()  
+        pass
 
     def EnableInteraction( self ):
         self.VisualizationInteractionEnabled = True 
@@ -331,9 +320,6 @@ class ImagePlaneWidget:
     def DisableInteraction( self ):
         self.VisualizationInteractionEnabled = False
         
-    def GetOrigin(self):
-        return self.PlaneSource.GetOrigin()
-
 #----------------------------------------------------------------------------
 
     def BuildRepresentation(self):    
@@ -591,31 +577,8 @@ class ImagePlaneWidget:
 
 #----------------------------------------------------------------------------
 
-    def DoPick1( self, X, Y ):  
-        self.PlanePicker.Pick( X, Y, 0.0, self.CurrentRenderer )
-        path = self.PlanePicker.GetPath()        
-        if path:
-            path.InitTraversal()
-            nitems =  path.GetNumberOfItems()
-            for _ in range( nitems ):
-                node = path.GetNextNode()
-                if node: 
-                    found = ( node.GetViewProp() == self.TexturePlaneActor ) 
-                    return found                   
-        return 0
-
-    def DoPick( self, X, Y ):  
-        self.PlanePicker.Pick( X, Y, 0.0, self.CurrentRenderer )
-        path = self.PlanePicker.GetPath()        
-        found = 0;
-        if path:
-            path.InitTraversal()
-            for _ in range( path.GetNumberOfItems() ):
-                node = path.GetNextNode()
-                if node and (node.GetViewProp() == self.TexturePlaneActor):
-                    found = 1
-                    break
-        return found
+    def DoPick( self, X, Y ): 
+        pass 
     
 #----------------------------------------------------------------------------
 
@@ -789,6 +752,14 @@ class ImagePlaneWidget:
     
         self.ImageData = inputData
         self.ImageData2 = inputData2
+        self.initialOrigin = self.ImageData.GetOrigin()
+        self.initialExtent = self.ImageData.GetExtent()
+        self.initialSpacing = self.ImageData.GetSpacing()
+        self.dataBounds = getUnscaledWorldExtent( self.initialExtent, self.initialSpacing, self.initialOrigin ) 
+        self.dataExtents = ( (self.dataBounds[1]-self.dataBounds[0])/2.0, (self.dataBounds[3]-self.dataBounds[2])/2.0, (self.dataBounds[5]-self.dataBounds[4])/2.0 )
+        self.centroid = ( (self.dataBounds[0]+self.dataBounds[1])/2.0, (self.dataBounds[2]+self.dataBounds[3])/2.0, (self.dataBounds[4]+self.dataBounds[5])/2.0  )
+        self.pos = [ self.initialSpacing[i]*self.initialExtent[2*i] for i in range(3) ]
+        if ( (self.initialOrigin[0] + self.pos[0]) < 0.0): self.pos[0] = self.pos[0] + 360.0
         
         if not self.UpdateInputs(): return
                   
@@ -804,13 +775,10 @@ class ImagePlaneWidget:
         interpolate = self.ResliceInterpolate
         self.ResliceInterpolate = -1 # Force change
         self.SetResliceInterpolate(interpolate)
-
-        self.Texture.SetInterpolate(self.TextureInterpolate)
-        
-        self.TexturePlaneActor.GetMapper().Update()  
         
         if self.Reslice2:           
             self.Reslice2.Update() 
+
             
     def UpdateInputs(self):
         
@@ -821,37 +789,43 @@ class ImagePlaneWidget:
         
         if vtk.VTK_MAJOR_VERSION <= 5:  self.Reslice.SetInput(self.ImageData)
         else:                           self.Reslice.SetInputData(self.ImageData) 
-                                
+                                      
         self.Reslice.Modified()        
-        self.Reslice.Update()
-        
-        if self.ColorMap == None:
-            self.ColorMap = vtk.vtkImageMapToColors()
-            self.ColorMap.SetOutputFormatToRGBA()
-            self.ColorMap.PassAlphaToOutputOn()
-                         
-        if vtk.VTK_MAJOR_VERSION <= 5:  self.ColorMap.SetInput(self.Reslice.GetOutput())
-        else:                           self.ColorMap.SetInputData(self.Reslice.GetOutput()) 
-        self.ColorMap.SetLookupTable(self.LookupTable)    
-        self.ColorMap.Update()  
-              
-        if vtk.VTK_MAJOR_VERSION <= 5:  self.Texture.SetInput(self.ColorMap.GetOutput())
-        else:                           self.Texture.SetInputData(self.ColorMap.GetOutput())  
-        
+        self.Reslice.Update()       
         return True            
+        
+    def updateTextDisplay( self, text ):
+        print>>sys.stderr, " Update Text Display: ", text
 
-    def UpdateSlice(self):
-        self.UpdateInputs()
-#        self.Texture.Update() 
-        self.TexturePlaneActor.GetMapper().Update()  
-        
-        if self.Reslice2:           
-            self.Reslice2.Update()     
-        
-#        self.SetPlaneOrientation(self.PlaneOrientation)
-        
+    def getPlaneHeightCoord( self ):
+        z = 0.0
+        units = ""
+#         try:
+#             cpos = self.plane.GetOrigin() 
+#             ispec = self.inputSpecs[ 0 ] 
+#             gridSpacing = ispec.input().GetSpacing()
+#             lev = ispec.metadata[ 'lev' ]       
+#             z = lev[ int( round( cpos[2] / gridSpacing[2] ) ) ] 
+#             units = lev.units 
+#         except Exception, err:
+#            print " Error in getPlaneHeightCoord: %s " % str( err )
+        return z, units
+            
+    def setZScale( self, zscale_data, **args ):
+        if self.setInputZScale( zscale_data ):
+            if self.planeWidget <> None:
+                self.dataBounds = list( self.input().GetBounds() )
+                dataExtents = ( (self.dataBounds[1]-self.dataBounds[0])/2.0, (self.dataBounds[3]-self.dataBounds[2])/2.0, (self.dataBounds[5]-self.dataBounds[4])/2.0 )
+                self.planeWidget.PlaceWidget( self.dataBounds[0]-dataExtents[0], self.dataBounds[1]+dataExtents[0], self.dataBounds[2]-dataExtents[1], self.dataBounds[3]+dataExtents[1], self.dataBounds[4]-dataExtents[2], self.dataBounds[5]+dataExtents[2] )
+                centroid = ( (self.dataBounds[0]+self.dataBounds[1])/2.0, (self.dataBounds[2]+self.dataBounds[3])/2.0, (self.dataBounds[4]+self.dataBounds[5])/2.0  )
+                self.planeWidget.SetOrigin( centroid[0], centroid[1], centroid[2]  )
+                self.planeWidget.SetNormal( ( 0.0, 0.0, 1.0 ) )
+#                print "PlaceWidget: Data bounds = %s, data extents = %s " % ( str( self.dataBounds ), str( dataExtents ) )  
+                                                
+
+            
 #----------------------------------------------------------------------------
-
+            
     def UpdatePlane(self):
         
         self.ImageData  =self.Reslice.GetInput()
@@ -960,10 +934,11 @@ class ImagePlaneWidget:
             self.Reslice2.SetOutputSpacing(outputSpacingX, outputSpacingY, 1)
             self.Reslice2.SetOutputOrigin(0.5*outputSpacingX, 0.5*outputSpacingY, 0)
             self.Reslice2.SetOutputExtent(0, extentX-1, 0, extentY-1, 0, 0)
-             
-        self.UpdateSlice()
-
-              
+            self.Reslice2.Update()     
+         
+        self.plane.SetOrigin( *self.PlaneSource.GetOrigin() )    
+        self.UpdateInputs()
+                   
 #----------------------------------------------------------------------------
 
     def GetResliceOutput(self):
@@ -990,24 +965,6 @@ class ImagePlaneWidget:
             self.Reslice.SetInterpolationModeToLinear()          
         else:                               
             self.Reslice.SetInterpolationModeToCubic()
-          
-        self.Texture.SetInterpolate(self.TextureInterpolate)
-
-#----------------------------------------------------------------------------
-
-    def SetPicker( self, picker):
-        
-# we have to have a picker for slice motion, window level and cursor to work
-        if (self.PlanePicker <> picker):
-        
-            self.PlanePicker = picker            
-                
-            if (self.PlanePicker == None):           
-                self.PlanePicker  = vtk.vtkCellPicker()
-                self.PlanePicker.SetTolerance(0.005)
-            
-            self.PlanePicker.AddPickList(self.TexturePlaneActor)
-            self.PlanePicker.PickFromListOn()
 
 #----------------------------------------------------------------------------
 
@@ -1030,9 +987,7 @@ class ImagePlaneWidget:
             if (self.LookupTable == None): self.LookupTable = self.CreateDefaultLookupTable()
 #            self.LookupTable.AddObserver( 'AnyEvent', self.LookupTableObserver )
 #            print " Image Plane Widget %x: SetLookupTable: %x " % ( id(self), id( self.LookupTable ) )
-               
-        self.Texture.SetLookupTable(self.LookupTable)
-        
+                      
         if( self.ImageData and  not self.UserControlledLookupTable):       
             scalar_range = self.ImageData.GetScalarRange()            
             self.LookupTable.SetTableRange(scalar_range[0],scalar_range[1])
@@ -1334,10 +1289,7 @@ class ImagePlaneWidget:
         self.UpdatePlane()
         self.BuildRepresentation()
 
-#----------------------------------------------------------------------------
-    def GetTexture(self):
-        self.Texture.Update()
-        return self.Texture
+
 
 #----------------------------------------------------------------------------
 
@@ -1354,11 +1306,6 @@ class ImagePlaneWidget:
         o =  self.PlaneSource.GetOrigin()
         v2 = [  p2[0] - o[0], p2[1] - o[1], p2[2] - o[2] ]
         return v2
-
-#----------------------------------------------------------------------------
-    
-    def GetResliceOutputPort(self):       
-        return self.Reslice.GetOutputPort()
     
 #----------------------------------------------------------------------------
 
@@ -1396,31 +1343,7 @@ class ImagePlaneWidget:
         planeOutlineMapper.SetResolveCoincidentTopologyToPolygonOffset()
         self.PlaneOutlineActor.SetMapper(planeOutlineMapper)
         self.PlaneOutlineActor.PickableOff()    
-
-#----------------------------------------------------------------------------
-
-    def GenerateTexturePlane(self):
-
-        self.SetResliceInterpolate(self.ResliceInterpolate)       
-        self.LookupTable = self.CreateDefaultLookupTable()
         
-        self.UpdateInputs()
-                
-        texturePlaneMapper  = vtk.vtkPolyDataMapper()
-        if vtk.VTK_MAJOR_VERSION <= 5:  texturePlaneMapper.SetInput( self.PlaneSource.GetOutput() )
-        else:                           texturePlaneMapper.SetInputData( self.PlaneSource.GetOutput() ) 
-        
-        self.Texture.SetQualityTo32Bit()
-        self.Texture.MapColorScalarsThroughLookupTableOff()
-        self.Texture.SetInterpolate(self.TextureInterpolate)
-        self.Texture.RepeatOff()
-        self.Texture.SetLookupTable(self.LookupTable)
-        
-        texturePlaneMapper.Update()
-        self.TexturePlaneActor.SetMapper(texturePlaneMapper)
-        self.TexturePlaneActor.SetTexture(self.Texture)
-        self.TexturePlaneActor.PickableOn()
-
 #----------------------------------------------------------------------------
 
     def GenerateCursor(self):
@@ -1451,6 +1374,651 @@ class ImagePlaneWidget:
         self.CursorActor.SetMapper(cursorMapper)
         self.CursorActor.PickableOff()
         self.CursorActor.VisibilityOff()
+
+    def GenerateTexturePlane(self):
+        if  self.Texture == None:
+            self.Texture = vtk.vtkTexture()
+            self.TexturePlaneActor   = vtk.vtkActor()
+    
+            self.SetResliceInterpolate(self.ResliceInterpolate)       
+            self.LookupTable = self.CreateDefaultLookupTable()
+            
+            self.UpdateInputs()
+                    
+            texturePlaneMapper  = vtk.vtkPolyDataMapper()
+            if vtk.VTK_MAJOR_VERSION <= 5:  texturePlaneMapper.SetInput( self.PlaneSource.GetOutput() )
+            else:                           texturePlaneMapper.SetInputData( self.PlaneSource.GetOutput() ) 
+            
+            self.Texture.SetQualityTo32Bit()
+            self.Texture.MapColorScalarsThroughLookupTableOff()
+            self.Texture.SetInterpolate(self.TextureInterpolate)
+            self.Texture.RepeatOff()
+            self.Texture.SetLookupTable(self.LookupTable)
+            
+            texturePlaneMapper.Update()
+            self.TexturePlaneActor.SetMapper(texturePlaneMapper)
+            self.TexturePlaneActor.SetTexture(self.Texture)
+            self.TexturePlaneActor.PickableOn()
+            self.TextureVisibility = 1
+
+class ScalarSliceWidget(ImagePlaneWidget): 
+
+    def __init__( self, actionHandler, picker, planeIndex, **args ): 
+        ImagePlaneWidget.__init__( self, actionHandler, picker, planeIndex, **args ) 
+        self.GenerateTexturePlane()
+        self.SetPicker(picker)
+
+    def SetEnabled( self ):
+        ImagePlaneWidget.SetEnabled( self )
+        if (self.TextureVisibility):  
+            self.CurrentRenderer.AddViewProp(self.TexturePlaneActor)    
+        self.TexturePlaneActor.SetProperty(self.TexturePlaneProperty)
+        self.TexturePlaneActor.PickableOn()
+
+#     def DoPick1( self, X, Y ):  
+#         self.PlanePicker.Pick( X, Y, 0.0, self.CurrentRenderer )
+#         path = self.PlanePicker.GetPath()        
+#         if path:
+#             path.InitTraversal()
+#             nitems =  path.GetNumberOfItems()
+#             for _ in range( nitems ):
+#                 node = path.GetNextNode()
+#                 if node: 
+#                     found = ( node.GetViewProp() == self.TexturePlaneActor ) 
+#                     return found                   
+#         return 0
+
+    def DoPick( self, X, Y ):  
+        self.PlanePicker.Pick( X, Y, 0.0, self.CurrentRenderer )
+        path = self.PlanePicker.GetPath()        
+        found = 0;
+        if path:
+            path.InitTraversal()
+            for _ in range( path.GetNumberOfItems() ):
+                node = path.GetNextNode()
+                if node and (node.GetViewProp() == self.TexturePlaneActor):
+                    found = 1
+                    break
+        return found
+
+    def VisibilityOff(self):
+        ImagePlaneWidget.VisibilityOff(self)
+        self.TexturePlaneActor.VisibilityOff ()
+        self.TexturePlaneActor.PickableOff()
+ 
+    def VisibilityOn(self):
+        ImagePlaneWidget.VisibilityOn(self)
+        self.TexturePlaneActor.VisibilityOn ()
+        self.TexturePlaneActor.PickableOn()
         
-if __name__ == '__main__': 
-    ipw =   ImagePlaneWidget()     
+    def EnablePicking( self ):
+        self.TexturePlaneActor.PickableOn()  
+
+    def DisablePicking( self ):
+        self.TexturePlaneActor.PickableOff()  
+
+    def SetTextureVisibility( self, vis ):
+        if (self.TextureVisibility == vis): return
+        self.TextureVisibility = vis         
+        if ( self.Enabled ): 
+            if (self.TextureVisibility):
+                self.CurrentRenderer.AddViewProp(self.TexturePlaneActor)
+        else:
+            self.CurrentRenderer.RemoveViewProp(self.TexturePlaneActor)
+        self.Modified()
+        
+    def SetLookupTable( self, table ):
+        ImagePlaneWidget.SetLookupTable( self, table )               
+        self.Texture.SetLookupTable(self.LookupTable)
+
+    def SetResliceInterpolate( self, i ):
+        ImagePlaneWidget.SetResliceInterpolate( self, i )         
+        self.Texture.SetInterpolate(self.TextureInterpolate)
+        
+    def UpdateInputs(self):
+        if not ImagePlaneWidget.UpdateInputs(self):
+            return False
+        self.initTexturePlane()           
+        return True 
+
+    def GetTexture(self):
+        self.Texture.Update()
+        return self.Texture
+        
+    def initTexturePlane(self):
+        self.TexturePlaneActor.GetMapper().Update()  
+
+        if self.ColorMap == None:
+            self.ColorMap = vtk.vtkImageMapToColors()
+            self.ColorMap.SetOutputFormatToRGBA()
+            self.ColorMap.PassAlphaToOutputOn()
+                         
+        if vtk.VTK_MAJOR_VERSION <= 5:  self.ColorMap.SetInput(self.Reslice.GetOutput())
+        else:                           self.ColorMap.SetInputData(self.Reslice.GetOutput()) 
+        self.ColorMap.SetLookupTable(self.LookupTable)    
+        self.ColorMap.Update()  
+              
+        if vtk.VTK_MAJOR_VERSION <= 5:  self.Texture.SetInput(self.ColorMap.GetOutput())
+        else:                           self.Texture.SetInputData(self.ColorMap.GetOutput())  
+
+    def SetPicker( self, picker):
+        if (self.PlanePicker <> picker):        
+            self.PlanePicker = picker                            
+            if (self.PlanePicker == None):           
+                self.PlanePicker  = vtk.vtkCellPicker()
+                self.PlanePicker.SetTolerance(0.005)            
+            self.PlanePicker.AddPickList(self.TexturePlaneActor)
+            self.PlanePicker.PickFromListOn()
+
+class StreamlineSliceWidget(ImagePlaneWidget): 
+
+    def __init__( self, actionHandler, picker, planeIndex, **args ): 
+        self.streamer = None
+        ImagePlaneWidget.__init__( self, actionHandler, picker, planeIndex, **args ) 
+        self.streamlineScaleBounds = [ 1.0, 10.0 ]
+        self.streamerScale = 5.0 
+        self.streamerStepLenth = 0.05
+        self.currentLevel = 0
+        self.streamerSeedGridBaseSpacing = [ 2.0, 3.0 ] 
+        self.streamerSpaceScaleBounds = [ 1.0, 5.0 ]
+        self.streamerSpaceScale = 2.0 
+        self.lowResStreamerSpaceScale = 5.0 
+        self.lowResStreamerScale = 4.0 
+        self.hiResStreamerScale = self.streamerScale
+        self.hiResStreamerSpaceScale = self.streamerSpaceScale
+        
+    def UpdateInputs(self):
+        if not ImagePlaneWidget.UpdateInputs(self):
+            return False
+        self.updateStreamlines()           
+        return True            
+
+    def endSlicing(self):
+        self.streamerScale = self.hiResStreamerScale
+        self.streamerSpaceScale = self.hiResStreamerSpaceScale
+        self.updateScaling()
+        self.UpdateCut()
+
+    def beginSlicing(self):
+        self.hiResStreamerScale = self.streamerScale
+        self.streamerScale = self.lowResStreamerScale
+        self.hiResStreamerSpaceScale = self.streamerSpaceScale
+        self.streamerSpaceScale = self.lowResStreamerSpaceScale
+
+    def processStreamScaleCommand( self, args, config_function = None ):
+        streamlineScale = config_function.value
+        if args and args[0] == "StartConfig":
+            pass
+        elif args and args[0] == "Init":
+            config_function.setRangeBounds( self.streamlineScaleBounds )
+            if config_function.initial_value == None:      
+                config_function.initial_value = self.streamerScale  
+            streamlineScale.setValue( 0, config_function.initial_value )
+            self.updateScaling()
+        elif args and args[0] == "EndConfig":
+            pass
+        elif args and args[0] == "InitConfig":
+            pass
+        elif args and args[0] == "Open":
+            pass
+        elif args and args[0] == "Close":
+            pass
+        elif args and args[0] == "UpdateConfig":
+            value = args[2].GetValue() 
+            streamlineScale.setValue( 0, value )
+            self.streamerScale = abs( value )
+            self.updateScaling()
+
+    def processStreamDensityCommand( self, args, config_function = None ):
+        streamSpaceScale = config_function.value
+        if args and args[0] == "StartConfig":
+            pass
+        elif args and args[0] == "Init":
+            config_function.setRangeBounds( self.streamerSpaceScaleBounds )
+            if config_function.initial_value == None:      
+                config_function.initial_value = self.streamerSpaceScale   
+            streamSpaceScale.setValue( 0, config_function.initial_value )
+            self.streamerSpaceScale = config_function.initial_value
+            self.UpdateCut()
+        elif args and args[0] == "EndConfig":
+            pass
+        elif args and args[0] == "InitConfig":
+            pass
+        elif args and args[0] == "Open":
+            pass
+        elif args and args[0] == "Close":
+            pass
+        elif args and args[0] == "UpdateConfig":
+            value = args[2].GetValue() 
+            streamSpaceScale.setValue( 0, value )
+            self.streamerSpaceScale = value
+            self.UpdateCut()
+
+    def updateStreamlines(self):
+        if self.streamer == None: 
+            self.LookupTable.SetVectorModeToMagnitude()
+            self.streamer = vtk.vtkStreamLine()
+    #        self.streamer.SetInputConnection( sliceOutputPort )
+            if vtk.VTK_MAJOR_VERSION <= 5:  self.streamer.SetInput(self.ImageData)
+            else:                           self.streamer.SetInputData(self.ImageData) 
+            
+            self.streamer.SetIntegrationDirectionToForward ()
+            self.streamer.SetEpsilon(1.0e-10)   # Increase this value if integrations go unstable (app hangs)  
+            self.streamer.SpeedScalarsOff()
+            self.streamer.SetIntegrationStepLength( 0.1 )
+            self.streamer.OrientationScalarsOff()
+            self.streamer.VorticityOff()
+            
+            self.streamActor = vtk.vtkActor()         
+            self.streamMapper = vtk.vtkPolyDataMapper()
+            self.streamMapper.SetInputConnection( self.streamer.GetOutputPort() )
+            self.streamMapper.SetLookupTable( self.LookupTable )
+            self.streamMapper.SetColorModeToMapScalars()     
+            self.streamMapper.SetUseLookupTableScalarRange(1)
+            self.streamActor.SetMapper( self.streamMapper )
+            
+            self.CurrentRenderer.AddActor( self.streamActor )            
+            self.updateScaling()
+            
+        self.UpdateCut()
+
+        
+    def updateScaling( self ):
+        if self.streamer <> None: 
+            print "UpdateScaling: ", str( ( self.streamerStepLenth, self.streamerScale ) )
+            self.streamer.SetStepLength( self.streamerStepLenth )
+            self.streamer.SetMaximumPropagationTime( self.streamerScale ) 
+        
+    def UpdateStreamerSeedGrid( self ):
+        sampleRate = self.streamerSeedGridSpacing
+        currentLevel = self.GetSliceIndex()
+        sample_source = vtk.vtkImageData()        
+        gridSpacing = self.ImageData.GetSpacing()
+        gridOrigin = self.ImageData.GetOrigin()
+        gridExtent = self.ImageData.GetExtent()
+        sourceSpacing = ( gridSpacing[0]*sampleRate[0], gridSpacing[1]*sampleRate[1], gridSpacing[2] )
+        sourceExtent = ( int(gridExtent[0]/sampleRate[0])+1, int(gridExtent[1]/sampleRate[0])-1, int(gridExtent[2]/sampleRate[1])+1, int(gridExtent[3]/sampleRate[1])-1, currentLevel, currentLevel )
+        sample_source.SetOrigin( gridOrigin[0], gridOrigin[1], gridOrigin[2] )
+        sample_source.SetSpacing( sourceSpacing )
+        sample_source.SetExtent( sourceExtent )
+        if vtk.VTK_MAJOR_VERSION <= 5:    self.streamer.SetSource( sample_source )
+        else:                             self.streamer.SetSourceData( sample_source )
+#        self.Render()
+        print " ---- ApplyStreamerSeedGridSpacing:  Sample rate: %s, current Level: %d, sourceSpacing: %s, sourceExtent: %s " % ( str( sampleRate ), currentLevel, str( sourceSpacing ), str(sourceExtent ) )
+        sys.stdout.flush()
+    
+    def SliceObserver(self, caller, event = None ): 
+        caller.GetPlane( self.plane )
+        self.UpdateCut()
+        
+    def UpdateCut(self):       
+        self.streamerSeedGridSpacing = [ self.streamerSeedGridBaseSpacing[i]*self.streamerSpaceScale for i in range(2) ]      
+        self.UpdateStreamerSeedGrid(  )
+                                        
+class VectorSliceWidget(ImagePlaneWidget): 
+
+    def __init__( self, actionHandler, picker, planeIndex, **args ): 
+        self.glyphMapper = None
+        ImagePlaneWidget.__init__( self, actionHandler, picker, planeIndex, **args ) 
+        self.glyphDecimationFactorBounds = [ 1.0, 20.0 ] 
+        self.glyphDecimationFactor = 3.0
+        self.lowResGlyphDecimationFactor = 10.0
+        self.hiResGlyphDecimationFactor = self.glyphDecimationFactor 
+        self.hiResGlyphScale = None
+
+    def endSlicing(self):
+        self.glyphDecimationFactor = self.hiResGlyphDecimationFactor
+        self.glyphScale = self.hiResGlyphScale
+        self.updateScaling()
+        self.ApplyGlyphDecimationFactor()
+
+    def beginSlicing(self):
+        self.hiResGlyphDecimationFactor = self.glyphDecimationFactor
+        self.glyphDecimationFactor = self.lowResGlyphDecimationFactor
+        self.hiResGlyphScale = self.glyphScale 
+        self.glyphScale = self.lowresGlyphScale
+        self.updateScaling()
+        self.ApplyGlyphDecimationFactor()
+
+    def UpdateCut(self): 
+        self.cutter.SetCutFunction ( self.plane  )
+        self.glyphMapper.Update()
+        if self.Interactor <> None:
+            z, units = self.getPlaneHeightCoord()
+            textDisplay = "Level: %.2f %s" % ( z, units )
+            self.updateTextDisplay( textDisplay ) 
+            self.Interactor.Render()
+            
+    def SetPicker( self, picker):
+        pass
+                    
+    def initGlyphMapper(self):
+        if self.glyphMapper == None: 
+            scaleGlyphsByMagnitudeCF = CfgManager.getParameter( 'ScaleGlyphsByMagnitude' )
+            self.scaleByMag = scaleGlyphsByMagnitudeCF.getInitValue( True )
+            
+            pointData = self.ImageData.GetPointData()     
+            vectorsArray = pointData.GetVectors()               
+            self.resample = vtk.vtkExtractVOI()
+            if vtk.VTK_MAJOR_VERSION <= 5:  self.resample.SetInput(self.ImageData)
+            else:                           self.resample.SetInputData(self.ImageData) 
+            self.resample.SetVOI( self.initialExtent )
+            
+            self.plane.SetOrigin( *self.PlaneSource.GetOrigin() )
+            self.LookupTable.SetVectorModeToMagnitude()
+            
+            self.cutter = vtk.vtkCutter()
+            self.cutter.SetInputConnection( self.resample.GetOutputPort()  )        
+            self.cutter.SetGenerateCutScalars(0)
+            self.glyphMapper = vtk.vtkGlyph3DMapper() 
+#            
+            if self.scaleByMag: 
+                self.glyphMapper.SetScaleModeToScaleByMagnitude()
+                self.glyphScaleBounds = [ 0.1, 1.0 ] 
+                self.glyphScale = 0.3 
+                self.lowresGlyphScale = 0.5 
+            else:               
+                self.glyphMapper.SetScaleModeToNoDataScaling() 
+                self.glyphScaleBounds = [ 1.0, 10.0 ] 
+                self.glyphScale = 3.0 
+                self.lowresGlyphScale = 5.0 
+            self.glyphMapper.ScalingOn()     
+            self.glyphMapper.SetUseLookupTableScalarRange(1)
+            self.glyphMapper.OrientOn () 
+#            self.glyphMapper.ClampingOn()
+            self.glyphMapper.SourceIndexingOff()
+            self.glyphMapper.NestedDisplayListsOff()
+            self.glyphMapper.UseSelectionIdsOff()
+            self.glyphMapper.SetInputConnection( self.cutter.GetOutputPort() )
+            self.glyphMapper.SetLookupTable( self.LookupTable )
+            self.glyphMapper.ScalarVisibilityOn()            
+            self.glyphMapper.SetScalarModeToUsePointFieldData()
+            self.glyphMapper.SelectColorArray( vectorsArray.GetName() )
+
+            self.createArrowSources()            
+            self.updateScaling()
+    
+            self.glyphActor = vtk.vtkActor()         
+            self.glyphActor.SetMapper( self.glyphMapper )
+    
+            self.CurrentRenderer.AddActor( self.glyphActor )
+            self.ApplyGlyphDecimationFactor()
+
+#             self.LICFilter = vtk.vtkImageDataLIC2D()
+#             
+#             if vtk.VTK_MAJOR_VERSION <= 5:  self.LICFilter.SetInput(self.Reslice.GetOutput())
+#             else:                           self.LICFilter.SetInputData(self.Reslice.GetOutput()) 
+# 
+#             self.LICFilter.SetSteps( 1 ) 
+#             self.LICFilter.SetStepSize( 1.0 )            
+#             self.LICFilter.Update() 
+#             
+#             if vtk.VTK_MAJOR_VERSION <= 5:  self.Texture.SetInput(self.LICFilter.GetOutput())
+#             else:                           self.Texture.SetInputData(self.LICFilter.GetOutput()) 
+
+    def createArrowSources( self, scaleRange=[ 1.0, 10.0 ], n_sources=10 ):
+        trans = vtk.vtkTransform()
+        arrowSource = vtk.vtkArrowSource()
+        arrowSource.SetTipResolution(3)
+        arrowSource.SetShaftResolution(3)
+        arrowSource.Update()
+        arrow = arrowSource.GetOutput()
+        sourcePts = arrow.GetPoints()    
+        dScale = ( scaleRange[1] - scaleRange[0] ) / ( n_sources - 1 )
+        for iScale in range( n_sources ):
+            scale = scaleRange[0] + iScale * dScale
+            trans.Identity()
+            trans.Scale( scale, 1.0, 1.0 )  
+            newPts = vtk.vtkPoints() 
+            trans.TransformPoints( sourcePts, newPts )
+            scaledArrow = vtk.vtkPolyData()
+            scaledArrow.CopyStructure(arrow)
+            scaledArrow.SetPoints( newPts )
+            if vtk.VTK_MAJOR_VERSION <= 5:  self.glyphMapper.SetSource( iScale, scaledArrow )
+            else:                           self.glyphMapper.SetSourceData( iScale, scaledArrow )                         
+            
+    def UpdateInputs(self):
+        if not ImagePlaneWidget.UpdateInputs(self):
+            return False
+        self.initGlyphMapper()           
+        return True            
+
+    def ApplyGlyphDecimationFactor(self):
+        sampleRate =  int( round( abs( self.glyphDecimationFactor ) )  )
+#        print "Sample rate: %s " % str( sampleRate )
+        self.resample.SetSampleRate( sampleRate, sampleRate, 1 )
+        
+#        spacing = [ self.initialSpacing[i]*self.glyphDecimationFactor for i in range(3) ]
+#        extent = [ int( (self.dataBounds[i] - self.initialOrigin[i/2]) / spacing[i/2] ) for i in range( 6 )  ]
+#        self.resample.SetOutputExtent( extent )
+#        self.resample.SetOutputSpacing( spacing )
+#        resampleOutput = self.resample.GetOutput()
+#        resampleOutput.Update()
+#        ptData = resampleOutput.GetPointData()
+#        ptScalars = ptData.GetScalars()
+#        np = resampleOutput.GetNumberOfPoints()
+#        print " decimated ImageData: npoints= %d, vectors: ncomp=%d, ntup=%d " % ( np, ptScalars.GetNumberOfComponents(), ptScalars.GetNumberOfTuples() )
+        
+#        ncells = resampleOutput.GetNumberOfCells()
+        self.UpdateCut()  
+
+    def processGlyphScaleCommand( self, args, config_function = None ):
+        glyphScale = config_function.value
+        if args and args[0] == "StartConfig":
+            pass
+        elif args and args[0] == "Init":
+            config_function.setRangeBounds( self.glyphScaleBounds )
+            if config_function.initial_value == None:      
+                config_function.initial_value = self.glyphScale  
+            glyphScale.setValue( 0, config_function.initial_value )
+            self.updateScaling( True )
+        elif args and args[0] == "EndConfig":
+            pass
+        elif args and args[0] == "InitConfig":
+            pass
+        elif args and args[0] == "Open":
+            pass
+        elif args and args[0] == "Close":
+            pass
+        elif args and args[0] == "UpdateConfig":
+            value = args[2].GetValue() 
+            glyphScale.setValue( 0, value )
+            self.glyphScale = abs( value )
+            self.updateScaling( True )
+
+    def processGlyphDensityCommand( self, args, config_function = None ):
+        glyphDensity = config_function.value
+        if args and args[0] == "StartConfig":
+            pass
+        elif args and args[0] == "Init":
+            config_function.setRangeBounds( self.glyphDecimationFactorBounds )
+            if config_function.initial_value == None:      
+                config_function.initial_value = self.glyphDecimationFactor   
+            glyphDensity.setValue( 0, config_function.initial_value )
+            self.ApplyGlyphDecimationFactor()
+        elif args and args[0] == "EndConfig":
+            pass
+        elif args and args[0] == "InitConfig":
+            pass
+        elif args and args[0] == "Open":
+            pass
+        elif args and args[0] == "Close":
+            pass
+        elif args and args[0] == "UpdateConfig":
+            value = args[2].GetValue() 
+            glyphDensity.setValue( 0, value )
+            self.glyphDecimationFactor = value
+            self.ApplyGlyphDecimationFactor()
+        
+    def updateScaling( self, render = False ):
+        self.glyphMapper.SetScaleFactor( self.glyphScale ) 
+#        self.glyphMapper.SetRange( 0.0, self.glyphRange )
+        if render:     
+            self.glyphMapper.Update()
+            self.Interactor.Render()
+
+    def getGlyphScale( self ):
+        return [ self.glyphScale ]
+        
+    def getGlyphDensity(self):
+        return self.glyphDecimationFactorBounds
+
+    def scaleColormap( self, ctf_data, cmap_index=0, **args ):
+        colormapManager = self.getColormapManager( index=cmap_index )
+        colormapManager.setScale( ctf_data, ctf_data )
+        ispec = self.inputSpecs[ cmap_index ] 
+        ispec.addMetadata( { 'colormap' : self.getColormapSpec() } )
+        self.glyphMapper.SetLookupTable( colormapManager.lut )
+        self.Interactor.Render()
+
+
+class LICSliceWidget(ImagePlaneWidget): 
+
+    def __init__( self, actionHandler, picker, planeIndex, **args ): 
+        self.LICFilter = None
+        ImagePlaneWidget.__init__( self, actionHandler, picker, planeIndex, **args ) 
+ 
+    def UpdateCut(self): 
+        iz = self.GetSliceIndex()
+        cut_extent = list( self.initialExtent )
+        cut_extent[ 4 ] = iz
+        cut_extent[ 5 ] = iz 
+        self.resample.SetVOI( cut_extent )
+        
+#        self.resample.SetOutputDimensionality( 2 )
+#        self.resample.SetOutputExtent( cut_extent )
+#         origin = list( self.ImageData.GetOrigin() )
+#         origin[ 2 ] = z
+#         self.resample.SetResliceAxesOrigin( self.ImageData.GetOrigin() ) 
+
+#        print "  Set VOI, extent = " , str( cut_extent ) 
+        self.resample.Update()
+
+        if self.Interactor <> None:
+            z = self.GetSlicePosition()
+            units = ""
+            textDisplay = "Level: %.2f %s" % ( z, units )
+            self.updateTextDisplay( textDisplay ) 
+            self.Interactor.Render()
+            
+    def SetPicker( self, picker):
+        pass
+                    
+    def updateLICFilter(self):
+        if self.LICFilter == None: 
+            pointData = self.ImageData.GetPointData()     
+            vectorsArray = pointData.GetVectors()    
+                       
+            self.resample = vtk.vtkExtractVOI()
+
+#             self.resample = vtk.vtkImageReslice()  
+#             self.resample.InterpolateOff()  
+#             self.resample.SetResliceAxesDirectionCosines( 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0 ) 
+#             self.resample.SetResliceAxesOrigin( self.ImageData.GetOrigin() )        
+            
+            if vtk.VTK_MAJOR_VERSION <= 5:  self.resample.SetInput(self.ImageData)
+            else:                           self.resample.SetInputData(self.ImageData) 
+                        
+            self.plane.SetOrigin( *self.PlaneSource.GetOrigin() )
+            self.LookupTable.SetVectorModeToMagnitude()
+            
+            self.cutter = vtk.vtkCutter()
+            self.cutter.SetInputConnection( self.resample.GetOutputPort()  )        
+            self.cutter.SetGenerateCutScalars(0)
+
+            self.LICFilter = vtk.vtkImageDataLIC2D()            
+            self.LICFilter.SetInputConnection( self.resample.GetOutputPort() )
+             
+#            if vtk.VTK_MAJOR_VERSION <= 5:  self.LICFilter.SetInput(self.cutter.GetOutput())
+#            else:                           self.LICFilter.SetInputData(self.cutter.GetOutput()) 
+ 
+            self.LICFilter.SetSteps( 1 ) 
+            self.LICFilter.SetStepSize( 1.0 )            
+#            self.LICFilter.Update() 
+            
+            self.GenerateTexturePlane()
+
+            self.Texture.SetInputConnection(self.LICFilter.GetOutputPort())
+        
+        self.UpdateCut()
+        output = self.resample.GetOutput()
+        extent =  output.GetExtent()
+        pd = output.GetPointData()
+        na = pd.GetNumberOfArrays()
+        v = pd.GetVectors()
+        s = pd.GetScalars()
+        ncs = s.GetNumberOfComponents()
+        ncv = v.GetNumberOfComponents() if v else 0
+
+        pd1 = self.ImageData.GetPointData()
+        na1 = pd1.GetNumberOfArrays()
+        v1 = pd1.GetVectors()
+        s1 = pd1.GetScalars()
+        ncs1 = s1.GetNumberOfComponents()
+        ncv1 = v1.GetNumberOfComponents() if v1 else 0
+        
+        
+        print "  Update LIC Filter, input extent = " , str( extent ) 
+        self.Texture.Update()
+             
+#            if vtk.VTK_MAJOR_VERSION <= 5:  self.Texture.SetInput(self.LICFilter.GetOutput())
+#            else:                           self.Texture.SetInputData(self.LICFilter.GetOutput()) 
+                   
+            
+    def UpdateInputs(self):
+        if not ImagePlaneWidget.UpdateInputs(self):
+            return False
+        self.updateLICFilter()           
+        return True            
+
+    def processLICScaleCommand( self, args, config_function = None ):
+        LICScale = config_function.value
+        if args and args[0] == "StartConfig":
+            pass
+        elif args and args[0] == "Init":
+            config_function.setRangeBounds( self.glyphScaleBounds )
+            if config_function.initial_value == None:      
+                config_function.initial_value = self.glyphScale  
+            LICScale.setValue( 0, config_function.initial_value )
+            self.updateScaling( True )
+        elif args and args[0] == "EndConfig":
+            pass
+        elif args and args[0] == "InitConfig":
+            pass
+        elif args and args[0] == "Open":
+            pass
+        elif args and args[0] == "Close":
+            pass
+        elif args and args[0] == "UpdateConfig":
+            value = args[2].GetValue() 
+            LICScale.setValue( 0, value )
+            self.updateScaling( True )
+
+    def processLICDensityCommand( self, args, config_function = None ):
+        LICDensity = config_function.value
+        if args and args[0] == "StartConfig":
+            pass
+        elif args and args[0] == "Init":
+            config_function.setRangeBounds( self.glyphDecimationFactorBounds )
+            if config_function.initial_value == None:      
+                config_function.initial_value = self.glyphDecimationFactor   
+            LICDensity.setValue( 0, config_function.initial_value )
+            self.ApplyLICDecimationFactor()
+        elif args and args[0] == "EndConfig":
+            pass
+        elif args and args[0] == "InitConfig":
+            pass
+        elif args and args[0] == "Open":
+            pass
+        elif args and args[0] == "Close":
+            pass
+        elif args and args[0] == "UpdateConfig":
+            value = args[2].GetValue() 
+            LICDensity.setValue( 0, value )
+#            self.glyphDecimationFactor = value
+#            self.ApplyGlyphDecimationFactor()
+        
+    def updateScaling( self, render = False ):
+        if render:     
+            self.Interactor.Render()
+

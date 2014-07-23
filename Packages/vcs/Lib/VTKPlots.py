@@ -6,7 +6,7 @@ import vcs2vtk
 import numpy
 from vtk.util import numpy_support as VN
 import meshfill,boxfill,isofill,isoline
-import os
+import os, traceback
 import cdms2
 import DV3D
 
@@ -36,6 +36,9 @@ class VTKVCSBackend(object):
     self.debug = debug
     self.bg = bg
     self.type = "vtk"
+    self.plotApps = {}
+    self.plotRenderers = set()
+    self.renderer = None
     self._plot_keywords = ['renderer',]
     self.numberOfPlotCalls = 0 
     if renWin is not None:
@@ -163,14 +166,17 @@ class VTKVCSBackend(object):
     if self.renWin is None: #Nothing to clear
           return
     renderers = self.renWin.GetRenderers()
+#    plot_renderers = [ id(g.plot.renderer) for g in self.plotApps.values() ]
+#    print " ------------------------------------ ------------------------------------  CLEAR: %s  ------------------------------------ ------------------------------------ " % str( plot_renderers )
     renderers.InitTraversal()
     ren = renderers.GetNextItem()
     while ren is not None:
-      ren.RemoveAllViewProps()
-      #ren.Clear()
-      if not ren.GetLayer()==0:
-        self.renWin.RemoveRenderer(ren)
-      ren = renderers.GetNextItem()
+        if not ren in self.plotRenderers:
+            ren.RemoveAllViewProps()
+              #ren.Clear()
+            if not ren.GetLayer()==0:
+              self.renWin.RemoveRenderer(ren)
+        ren = renderers.GetNextItem()
     #self.renWin.Render()
     self.numberOfPlotCalls = 0 
 
@@ -191,11 +197,11 @@ class VTKVCSBackend(object):
       self.renWin = vtk.vtkRenderWindow()
       self.renWin.SetWindowName("VCS Canvas %i" % self.canvas._canvas_id)
       self.renWin.SetAlphaBitPlanes(1)
-      ren = vtk.vtkRenderer()
+      self.renderer = vtk.vtkRenderer()
       r,g,b = self.canvas.backgroundcolor
-      ren.SetBackground(r/255.,g/255.,b/255.)
-      self.createDefaultInteractor(ren)
-      self.renWin.AddRenderer(ren)
+      self.renderer.SetBackground(r/255.,g/255.,b/255.)
+      self.createDefaultInteractor(self.renderer)
+      self.renWin.AddRenderer(self.renderer)
       return True
     else:
       return False
@@ -294,9 +300,14 @@ class VTKVCSBackend(object):
         self.renWin.SetSize(self.canvas.bgX,self.canvas.bgY)
     #self.renWin.Render()
     if kargs.get("renderer",None) is None:
-        ren = vtk.vtkRenderer()
-        r,g,b = self.canvas.backgroundcolor
-        ren.SetBackground(r/255.,g/255.,b/255.)
+        if ( gtype in ["3d_scalar", "3d_vector"] ) and (self.renderer <> None):
+            ren = self.renderer
+        else:
+            ren = vtk.vtkRenderer()
+            r,g,b = self.canvas.backgroundcolor
+            ren.SetBackground(r/255.,g/255.,b/255.)
+            self.renderer = ren
+            self.renWin.AddRenderer(ren)
         #ren.SetPreserveDepthBuffer(True)
     else:
       ren = kargs["renderer"]
@@ -317,37 +328,29 @@ class VTKVCSBackend(object):
       gm = vcs.elements[gtype][gname]
     tpl = vcs.elements["template"][template]
     # ok for now let's assume it is 2D...
-    if gtype in ["boxfill","meshfill","isofill","isoline"]:
-      self.renWin.AddRenderer(ren)
+    if gtype in ["boxfill","meshfill","isofill","isoline"]:      
       self.plot2D(data1,data2,tpl,gm,ren)
-    elif gtype in ["dv3d"]:
-      self.renWin.AddRenderer(ren)
+    elif gtype in ["3d_scalar", "3d_vector"]:
       self.plot3D(data1,data2,tpl,gm,ren)
     elif gtype in ["text"]:
       if tt.priority!=0:
-        self.renWin.AddRenderer(ren)
         self.setLayer(ren,tt.priority)
         vcs2vtk.genTextActor(ren,to=to,tt=tt)
     elif gtype=="line":
       if gm.priority!=0:
-        self.renWin.AddRenderer(ren)
         self.setLayer(ren,gm.priority)
         vcs2vtk.prepLine(self.renWin,ren,gm)
     elif gtype=="marker":
       if gm.priority!=0:
-        self.renWin.AddRenderer(ren)
         self.setLayer(ren,gm.priority)
         vcs2vtk.prepMarker(self.renWin,ren,gm)
     elif gtype=="fillarea":
       if gm.priority!=0:
-        self.renWin.AddRenderer(ren)
         self.setLayer(ren,gm.priority)
         vcs2vtk.prepFillarea(self.renWin,ren,gm)
     elif gtype=="oned":
-      self.renWin.AddRenderer(ren)
       self.plot1D(data1,data2,tpl,gm,ren)
     elif gtype=="vector":
-      self.renWin.AddRenderer(ren)
       self.plotVector(data1,data2,tpl,gm,ren)
     else:
       raise Exception,"Graphic type: '%s' not re-implemented yet" % gtype
@@ -443,21 +446,28 @@ class VTKVCSBackend(object):
     renderer.SetLayer(n)
     pass
 
+  
+
   def plot3D(self,data1,data2,tmpl,gm,ren):
       from DV3D.Application import DV3DApp
       requiresFileVariable = True
-      if ( data1 is None ) or ( requiresFileVariable and not isinstance(data1, cdms2.fvariable.FileVariable ) ):
-          raise Exception, "Error, must pass a FileVariable as the first input to the dv3d gm"
-      g = DV3DApp() 
-      n_overview_points = 500000
-      grid_coords = ( None, None, None, None )
-      var_proc_op = None
-      interface = None
-      roi = None # ( 0, 0, 50, 50 )
-      g.gminit( data1, data2, roi=roi, axes=gm.axes, n_overview_points=n_overview_points, renwin=ren.GetRenderWindow()  ) #, plot_type = PlotType.List  ) 
-
-      
-
+      if ( data1 is None ) or ( requiresFileVariable and not ( isinstance(data1, cdms2.fvariable.FileVariable ) or isinstance(data1, cdms2.tvariable.TransientVariable ) ) ):
+          traceback.print_stack()
+          raise Exception, "Error, must pass a cdms2 variable object as the first input to the dv3d gm ( found '%s')" % ( data1.__class__.__name__ )
+      g = self.plotApps.get( gm, None )
+      if g == None:
+          g = DV3DApp() 
+          n_overview_points = 500000
+          grid_coords = ( None, None, None, None )
+          var_proc_op = None
+          interface = None
+          roi = None # ( 0, 0, 50, 50 )
+          g.gminit( data1, data2, roi=roi, axes=gm.axes, n_overview_points=n_overview_points, renwin=ren.GetRenderWindow(), gmname=gm.g_name  ) #, plot_type = PlotType.List  ) 
+          self.plotApps[ gm ] = g
+          self.plotRenderers.add( g.plot.renderer )
+      else:
+          g.update( tmpl )
+            
   def plotVector(self,data1,data2,tmpl,gm,ren):
     self.setLayer(ren,tmpl.data.priority)
     ug,xm,xM,ym,yM,continents,wrap = vcs2vtk.genUnstructuredGrid(data1,data2,gm)

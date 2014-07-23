@@ -103,11 +103,17 @@ class StructuredDataReader:
             self.vars =  args.get( 'vars', None )
             if self.vars <> None:
                 dfile = self.vars[0].parent
-                self.datasetId = dfile.Title if hasattr( dfile, 'Title' ) else dfile.id
-                self.fileSpecs = dfile.id
-                self.varSpecs = [ self.vars[0].name_in_file ]
                 self.subSpace = args.get( 'axes', 'xyz' )
-                self.df = cdms2.open( self.fileSpecs ) 
+                if dfile <> None:
+                    self.datasetId = dfile.Title if hasattr( dfile, 'Title' ) else dfile.id
+                    self.fileSpecs = dfile.id
+                    self.varSpecs = [ var.name_in_file for var in self.vars ]
+                    self.df = cdms2.open( self.fileSpecs ) 
+                else:
+                    self.datasetId = self.vars[0].name
+                    self.fileSpecs = self.vars[0].name
+                    self.varSpecs = [ var.name for var in self.vars ]
+                    self.df = None   
         self.referenceTimeUnits = None
         self.parameters = {}
         self.currentTime = 0
@@ -117,7 +123,11 @@ class StructuredDataReader:
         self.useTimeIndex = False
         self.timeAxis = None
         self.fieldData = None
-        self.outputType = CDMSDataType.Hoffmuller if ( self.subSpace == 'xyt' ) else CDMSDataType.Volume 
+        otype = args.get( 'otype', 'default' )
+        if otype == '3d_vector':
+            self.outputType = CDMSDataType.Vector
+        else:
+            self.outputType = CDMSDataType.Hoffmuller if ( self.subSpace == 'xyt' ) else CDMSDataType.Volume 
 # #        memoryLogger.log("Init CDMSDataReader")
 #         if self.outputType == CDMSDataType.Hoffmuller:
 #             self.addUVCDATConfigGuiFunction( 'chooseLevel', LevelConfigurationDialog, 'L', label='Choose Level' ) 
@@ -218,6 +228,7 @@ class StructuredDataReader:
         self.nTimesteps = 1
         self.timeRange = [ 0, self.nTimesteps, 0.0, 0.0 ]
         self.timeAxis = var.getTime()
+        t0 = 0.0
         if self.timeAxis:
             self.nTimesteps = len( self.timeAxis ) if self.timeAxis else 1
             try:
@@ -243,12 +254,12 @@ class StructuredDataReader:
         self.cdmsDataset.referenceTimeUnits = self.referenceTimeUnits
         self.timeLabels = self.cdmsDataset.getTimeValues()
         timeData = args.get( 'timeData', [ self.cdmsDataset.timeRange[2], 0, False ] )
-        if timeData:
+        try:
             self.timeValue = cdtime.reltime( float(timeData[0]), self.referenceTimeUnits )
             self.timeIndex = timeData[1]
             self.useTimeIndex = timeData[2]
-        else:
-            self.timeValue = cdtime.reltime( t0, self.referenceTimeUnits )
+        except:
+            self.timeValue = cdtime.reltime( t0, self.referenceTimeUnits ) if self.referenceTimeUnits else 0.0
             self.timeIndex = 0
             self.useTimeIndex = False
 #            print "Set Time [mid = %d]: %s, NTS: %d, Range: %s, Index: %d (use: %s)" % ( self.moduleID, str(self.timeValue), self.nTimesteps, str(self.timeRange), self.timeIndex, str(self.useTimeIndex) )
@@ -311,10 +322,15 @@ class StructuredDataReader:
 #            print " VolumeReader->generateOutput, varSpecs: ", str(varRecs)
             oRecMgr = OutputRecManager() 
 #            varCombo = QComboBox()
-            for var in varRecs: 
-                otype = 'volume'
-                orec = OutputRec( otype, ndim=3, varList=[var] )   
-                oRecMgr.addOutputRec( self.datasetId, orec ) 
+            if self.outputType == CDMSDataType.Vector:
+                otype = '3d_vector'
+                orec = OutputRec( otype, ndim=3, varList=varRecs )   
+                oRecMgr.addOutputRec( self.datasetId, orec )                 
+            else:
+                for var in varRecs: 
+                    otype = 'volume'
+                    orec = OutputRec( otype, ndim=3, varList=[var] )   
+                    oRecMgr.addOutputRec( self.datasetId, orec ) 
         else:
             portData = self.getPortData()
             if portData:
@@ -537,9 +553,10 @@ class StructuredDataReader:
 #                        print " ** Allocated data array for %s, size = %.2f MB " % ( varDataId, (varData.nbytes /(1024.0*1024.0) ) )                    
                         md =  varDataSpecs['md']                 
                         md['datatype'] = datatype
-                        md['timeValue']= self.timeValue.value
+                        try: md['timeValue']= self.timeValue.value
+                        except: md['timeValue']= 0.0
                         md['latLonGrid']= self.cdmsDataset.latLonGrid
-                        md['timeUnits' ] = self.referenceTimeUnits
+                        md['timeUnits' ] = self.referenceTimeUnits if self.referenceTimeUnits else ""
                         md[ 'attributes' ] = var_md
                         md[ 'plotType' ] = 'zyt' if (self.outputType == CDMSDataType.Hoffmuller) else 'xyz'
                                         
@@ -621,7 +638,7 @@ class StructuredDataReader:
         try:                           
             if (self.outputType == CDMSDataType.Vector ): 
                 vtkdata = getNewVtkDataArray( scalar_dtype )
-                vtkdata.SetNumberOfComponents( 3 )
+                vtkdata.SetNumberOfComponents( len(vars) )
                 vtkdata.SetNumberOfTuples( nTup )
                 iComp = 0
                 for varName in vars:
