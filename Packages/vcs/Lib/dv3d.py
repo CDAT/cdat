@@ -13,6 +13,7 @@ import vcs
 import DV3D
 from DV3D.ConfigurationFunctions import CfgManager
 
+
 class Gfdv3d(object,AutoAPI.AutoAPI):
 
     __slots__ = [
@@ -37,23 +38,12 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
     axes=property(_getaxes,_setaxes)
     
     def __init__(self, Gfdv3d_name, Gfdv3d_name_src='default'):
-    #                                                         #
-        ###########################################################
-    # Initialize the meshfill class and its members            #
-        #                              #
-    # The getGfmmember function retrieves the values of the   #
-        # meshfill members in the C structure and passes back the  #
-    # appropriate Python Object.                              #
-        ###########################################################
-
-
         if not isinstance(Gfdv3d_name,str):
             raise ValueError,"DV3D name must be a string"
-        if Gfdv3d_name in vcs.elements["dv3d"].keys():
+        if Gfdv3d_name in vcs.elements[self.g_name].keys():
             raise ValueError,"DV3D graphic method '%s' already exists" % Gfdv3d_name
         self._name = Gfdv3d_name
-        self.g_name='Gfdv3d'
-                        
+        
         if Gfdv3d_name=="hovmuller": 
             self._axes="xyt"
         else:
@@ -61,7 +51,7 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
             
         self.addParameters()
             
-        vcs.elements["dv3d"][Gfdv3d_name]=self
+        vcs.elements[self.g_name][Gfdv3d_name]=self
 
     def add_property(self, name ):
         fget = lambda self: self.getParameter(name)
@@ -85,10 +75,27 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
         
     def restoreState(self):
         CfgManager.restoreState()
-        
+
+    def initDefaultState(self):
+        CfgManager.initDefaultState()
+                
     def list(self):
         print ' ---------- DV3D (Gfdv3d) member (attribute) listings ---------'
         print 'name =',self.name
         print 'axes =',self.axes
         for pname in self.parameter_names:
             print ' = '.join( [ pname, self.getParameter( pname ) ] )
+
+class Gf3Dvector(Gfdv3d):
+
+    def __init__(self, Gfdv3d_name, Gfdv3d_name_src='default'):        
+        self.g_name='3d_vector'                        
+        Gfdv3d.__init__(self, Gfdv3d_name, Gfdv3d_name_src='default')
+
+class Gf3Dscalar(Gfdv3d):
+
+    def __init__(self, Gfdv3d_name, Gfdv3d_name_src='default'):        
+        self.g_name='3d_scalar'                        
+        Gfdv3d.__init__(self, Gfdv3d_name, Gfdv3d_name_src='default')
+        self.VectorDisplay = Gfdv3d_name
+

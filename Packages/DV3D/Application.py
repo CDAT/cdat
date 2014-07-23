@@ -37,16 +37,26 @@ class DV3DApp:
                 self.plot = CPCPlot(**args) 
                 self.plot.init( **args  ) 
 
+    def update( self, tmpl ):
+        if self.plot <> None:
+            self.plot.updateModule() 
+
     def gminit(self, var1, var2, **args ):
         grid_metadata = var1.getGrid()
         plot_type = args.get( 'plot_type', PlotType.getPointsLayout( grid_metadata ) )
         
         if plot_type == PlotType.Grid:
-            self.plot = RectGridPlot(**args) 
-            self.plot.gminit( var1, var2, **args ) 
+            if self.plot == None:
+                self.plot = RectGridPlot(**args) 
+                self.plot.gminit( var1, var2, **args )
+            else:
+                self.plot.updateModule() 
         else:
-            self.plot = CPCPlot(**args) 
-            self.plot.gminit( var1, var2, **args  ) 
+            if self.plot == None:
+                self.plot = CPCPlot(**args) 
+                self.plot.gminit( var1, var2, **args  ) 
+            else:
+                self.plot.updateModule() 
 
             
     def getRenderWindow(self):
