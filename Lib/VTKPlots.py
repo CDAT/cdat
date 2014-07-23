@@ -460,7 +460,7 @@ class VTKVCSBackend(object):
 
   def plotVector(self,data1,data2,tmpl,gm,ren):
     self.setLayer(ren,tmpl.data.priority)
-    ug,xm,xM,ym,yM,continents,wrap = vcs2vtk.genUnstructuredGrid(data1,data2,gm)
+    ug,xm,xM,ym,yM,continents,wrap,geo = vcs2vtk.genGrid(data1,data2,gm)
     if ug.IsA("vtkUnstructuredGrid"):
         c2p = vtk.vtkCellDataToPointData()
         c2p.SetInputData(ug)
@@ -543,7 +543,7 @@ class VTKVCSBackend(object):
 
   def plot2D(self,data1,data2,tmpl,gm,ren):
     self.setLayer(ren,tmpl.data.priority)
-    ug,xm,xM,ym,yM,continents,wrap = vcs2vtk.genUnstructuredGrid(data1,data2,gm)
+    ug,xm,xM,ym,yM,continents,wrap,geo = vcs2vtk.genGrid(data1,data2,gm)
     #Now applies the actual data on each cell
     data = VN.numpy_to_vtk(data1.filled(0.).flat,deep=True)
     if ug.IsA("vtkUnstructuredGrid"):
@@ -748,7 +748,6 @@ class VTKVCSBackend(object):
       Nlevs = len(levs)
       Ncolors = Nlevs-1
 
-
     if mappers == []: # ok didn't need to have special banded contours
       mappers=[mapper,]
       ## Colortable bit
@@ -791,7 +790,7 @@ class VTKVCSBackend(object):
           #act.SetTexture(mapper[1])
           pass
         ren.AddActor(act)
-        vcs2vtk.fitToViewport(act,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2])
+        vcs2vtk.fitToViewport(act,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],wc=[x1,x2,y1,y2],geo=geo)
 
     self.renderTemplate(ren,tmpl,data1,gm)
     if isinstance(gm,(isofill.Gfi,meshfill.Gfm,boxfill.Gfb)):
@@ -812,10 +811,10 @@ class VTKVCSBackend(object):
       contActor.SetMapper(contMapper)
       contActor.GetProperty().SetColor(0.,0.,0.)
       cpts = contData.GetPoints()
-      gcpts = vcs2vtk.project(cpts,projection)
+      geo, gcpts = vcs2vtk.project(cpts,projection)
       contData.SetPoints(gcpts)
       contActor = vcs2vtk.doWrap(contActor,[x1,x2,y1,y2],wrap)
-      vcs2vtk.fitToViewport(contActor,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2])
+      vcs2vtk.fitToViewport(contActor,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],wc=[x1,x2,y1,y2],geo=geo)
       if tmpl.data.priority!=0:
         ren.AddActor(contActor)
 

@@ -50,7 +50,7 @@ def putMaskOnVTKGrid(data,grid,actorColor=None):
           #grid.SetCellVisibilityArray(msk)
   return mapper
 
-def genUnstructuredGrid(data1,data2,gm):
+def genGrid(data1,data2,gm):
   continents = False
   wrap = None
   m3 = None
@@ -133,12 +133,12 @@ def genUnstructuredGrid(data1,data2,gm):
   pts.SetData(ppV)
 
   projection = vcs.elements["projection"][gm.projection]
-  geopts = project(pts,projection)
+  geo, geopts = project(pts,projection)
   ## Sets the vertics into the grid
   vg.SetPoints(geopts)
-  return vg,xm,xM,ym,yM,continents,wrap
+  return vg,xm,xM,ym,yM,continents,wrap,geo
 
-def getRange(gm,xm,xM,ym,yM):
+def getRange(gm,xm,xM,ym,yM,geo=None):
     # Also need to make sure it fills the whole space
     rtype= type(cdtime.reltime(0,"days since 2000"))
     X1,X2 = gm.datawc_x1,gm.datawc_x2
@@ -211,18 +211,26 @@ def prepContinents(fnm):
 
 #Geo projection
 def project(pts,projection):
+  if isinstance(projection,(str,unicode)):
+    projection = vcs.elements["projection"][projection]
   if projection.type=="linear":
-    return pts
+    return None,pts
   geo = vtk.vtkGeoTransform()
   ps = vtk.vtkGeoProjection()
+  print "VALID PROJ",ps.GetNumberOfProjections()
+  #for i in range(ps.GetNumberOfProjections()):
+  #  print i, ps.GetProjectionName(i)
   pd = vtk.vtkGeoProjection()
-  projName = projection.type
+  proj_dic = {"polar stereographic":"stere"}
+
+  pname = proj_dic.get(projection.type,projection.type)
+  projName = pname
   pd.SetName(projName)
   geo.SetSourceProjection(ps)
   geo.SetDestinationProjection(pd)
   geopts = vtk.vtkPoints()
   geo.TransformPoints(pts,geopts)
-  return geopts
+  return geo,geopts
 
 
 #Vtk dump
@@ -486,6 +494,7 @@ def prepFillarea(renWin,ren,farea,cmap=None):
     polygons.InsertNextCell(polygon)
 
     polygonPolyData = vtk.vtkPolyData()
+    geo,pts = project(pts,farea.projection)
     polygonPolyData.SetPoints(pts)
     polygonPolyData.SetPolys(polygons)
 
@@ -505,7 +514,7 @@ def prepFillarea(renWin,ren,farea,cmap=None):
     color = cmap.index[c]
     p.SetColor([C/100. for C in color])
     ren.AddActor(a)
-    fitToViewport(a,ren,farea.viewport,farea.worldcoordinate)
+    fitToViewport(a,ren,farea.viewport,wc=farea.worldcoordinate,geo=geo)
   return 
 
 def genPoly(coords,pts,filled=True):
@@ -644,6 +653,7 @@ def prepMarker(renWin,ren,marker,cmap=None):
         coords = numpy.array(zip(*l))*s/30.
         line = genPoly(coords.tolist(),pts,filled=True)
         polys.InsertNextCell(line)
+      geo,pts = project(pts,marker.projection)
       pd.SetPoints(pts)
       pd.SetPolys(polys)
       pd.SetLines(lines)
@@ -679,7 +689,7 @@ def prepMarker(renWin,ren,marker,cmap=None):
     color = cmap.index[c]
     p.SetColor([C/100. for C in color])
     ren.AddActor(a)
-    fitToViewport(a,ren,marker.viewport,marker.worldcoordinate)
+    fitToViewport(a,ren,marker.viewport,wc=marker.worldcoordinate,geo=geo)
   return 
 
 def prepLine(renWin,ren,line,cmap=None):
@@ -706,6 +716,7 @@ def prepLine(renWin,ren,line,cmap=None):
       l.GetPointIds().SetId(1,j+1)
       lines.InsertNextCell(l)
     linesPoly = vtk.vtkPolyData()
+    geo,pts=project(pts,line.projection)
     linesPoly.SetPoints(pts)
     linesPoly.SetLines(lines)
     a = vtk.vtkActor()
@@ -743,7 +754,7 @@ def prepLine(renWin,ren,line,cmap=None):
     else:
       raise Exception,"Unkonw line type: '%s'" % t
     ren.AddActor(a)
-    fitToViewport(a,ren,line.viewport,line.worldcoordinate)
+    fitToViewport(a,ren,line.viewport,wc=line.worldcoordinate,geo=geo)
   return 
 
 def getRendererCorners(Renderer,vp=[0.,1.,0.,1.]):
@@ -774,18 +785,35 @@ def vtkWorld2Renderer(ren,x,y):
   renpts = ren.GetDisplayPoint()
   return renpts
 
-def fitToViewport(Actor,Renderer,vp,wc=None):
-  return fitToViewportNew(Actor,Renderer,vp,wc)
-
-def fitToViewportNew(Actor,Renderer,vp,wc=None):
+def fitToViewport(Actor,Renderer,vp,wc=None,geo=None):
   ## Data range in World Coordinates
   if wc is None:
-    Xrg = Actor.GetXRange()
-    Yrg = Actor.GetYRange()
+    Xrg = list(Actor.GetXRange())
+    Yrg = list(Actor.GetYRange())
   else:
-    Xrg=float(wc[0]),float(wc[1])
-    Yrg=float(wc[2]),float(wc[3])
+    Xrg=[float(wc[0]),float(wc[1])]
+    Yrg=[float(wc[2]),float(wc[3])]
 
+  print "X,Y:",Xrg,Yrg
+  if geo is not None:
+   pt = vtk.vtkPoints()
+   pt.SetNumberOfPoints(1)
+   for x in numpy.arange(Xrg[0],Xrg[1],(Xrg[1]-Xrg[0])/10.):
+     for y in numpy.arange(Yrg[0],Yrg[1],(Yrg[1]-Yrg[0])/10.):
+       pt.SetPoint(0,x,y,0)
+       pts = vtk.vtkPoints()
+       geo.TransformPoints(pt,pts)
+       b = pts.GetBounds()
+       xm,xM,ym,yM=b[:4]
+       if xm!=-numpy.inf:
+         Xrg[0]=min(Xrg[0],xm)
+       if xM!=numpy.inf:
+         Xrg[1]=max(Xrg[1],xM)
+       if ym!=-numpy.inf:
+         Yrg[0]=min(Yrg[0],ym)
+       if yM!=numpy.inf:
+         Yrg[1]=max(Yrg[1],yM)
+   print "Converted X,Y:",Xrg,Yrg
   Renderer.SetViewport(vp[0],vp[2],vp[1],vp[3])
   rw = Renderer.GetRenderWindow()
   sc = rw.GetSize()
@@ -819,56 +847,4 @@ def fitToViewportNew(Actor,Renderer,vp,wc=None):
   cam.SetPosition(xc,yc,cd)
   cam.SetFocalPoint(xc,yc,0.)
 
-
-def fitToViewportSlow(Actor,Renderer,vp,wc=None):
-  ## Data range in World Coordinates
-  if wc is None:
-    Xrg = Actor.GetXRange()
-    Yrg = Actor.GetYRange()
-  else:
-    Xrg=float(wc[0]),float(wc[1])
-    Yrg=float(wc[2]),float(wc[3])
-  
-  #print "VIEWPORT:",vp
-  #print "XrgYrg:",Xrg,Yrg
-  ## Where they are in term of pixels
-  oll = vtkWorld2Renderer(Renderer,Xrg[0],Yrg[0])
-  our = vtkWorld2Renderer(Renderer,Xrg[1],Yrg[1])
-  
-  #print "oll,our:",oll,our
-  # Where they should be in term of pixel
-  ll = world2Renderer(Renderer,Xrg[0],Yrg[0],
-      vp,
-      [Xrg[0],Xrg[1],Yrg[0],Yrg[1]])
-  ur = world2Renderer(Renderer,Xrg[1],Yrg[1],
-      vp,
-      [Xrg[0],Xrg[1],Yrg[0],Yrg[1]])
-  
-  #print "ll,ur:",ll,ur
-  # How much does it needs to be scaled by?
-  xScale = (ur[0]-ll[0])/(our[0]-oll[0])
-  yScale = (ur[1]-ll[1])/(our[1]-oll[1])
-  #print xScale,yScale
-
-  #World coordinates of where they need to be
-  LL = R2World(Renderer,*ll)
-  #print "LL:",LL
-
-  # Move it to the correct bottom left corner
-  dX = LL[0]-Xrg[0]
-  dY = LL[1]-Yrg[0]
-  #print "dX,dY:",dX,dY
-
-
-  # transformation are applied in reverse order
-  T = vtk.vtkTransform()
-  ## After scaling move it back to lower left corner
-  T.Translate(LL[0]*(1.-xScale),LL[1]*(1.-yScale),0)
-  ## scale
-  T.Scale(xScale,yScale,1)
-  # Move it to the correct bottom left corner
-  T.Translate(dX,dY,0)
-
-  Actor.SetUserTransform(T)
-  return Actor
 
