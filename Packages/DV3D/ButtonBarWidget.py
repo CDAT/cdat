@@ -181,14 +181,76 @@ class Button:
     def deactivate(self):
         self.active = False
         self.buttonWidget.Off()
+        
+class ButtonBarHandler:
+    
+    def __init__( self, **args ):
+        self.current_configuration_mode = None
+        self.button_bars = {}
+        self.DefaultGroup = None
+        
+    def createButtonBar( self, name, interactor, **args  ):
+        bbar = self.getButtonBar( name )
+        if bbar == None:
+            bbar = ButtonBarWidget( self, name, interactor, **args  )
+            self.button_bars[ name ] = bbar
+        return bbar
+
+    def getButtonBar( self, name ):
+        return self.button_bars.get( name, None )
+      
+    def broadcastButtonState( self, type, name,  **args ):
+        bbar = self.getButtonBar( type )
+        button = bbar.getButton( name )    
+        button.broadcastState( **args )    
+ 
+    def getButtonBars( self ):
+        return self.button_bars.values()
+ 
+    def findButton( self, name  ):
+        for bbar in self.button_bars.values():
+            b = bbar.getButton( name )
+            if b <> None: return b
+        return None
+      
+    def repositionButtons( self ):
+        for button_bar in self.button_bars.values():
+            button_bar.reposition()                                          
+  
+    def initializeConfigurations( self, **args ) :
+        for bbar in self.button_bars.values():
+            bbar.initializeConfiguration( **args )
+        for bbar in self.button_bars.values():
+            bbar.initializeChildren( **args )
+ 
+    def restoreInteractionState(self): 
+#        print "  ----------------------------- restoreInteractionState ----------------------------- " 
+        bbar = self.getButtonBar( 'Plot' ) 
+        bbar.InteractionState = None
+        current_config_function = None
+        for configFunct in bbar.configurableFunctions.values():
+            if ( configFunct.type == 'slider' ) and ( configFunct.active ) and ( configFunct.group == self.DefaultGroup ):
+                b = bbar.getButton( configFunct.name )
+                if b.getState():
+                    if current_config_function == None:
+                        current_config_function = configFunct
+                    else:
+                        if not configFunct.sameGroup( current_config_function ):
+                            print>>sys.stderr, "Error, interaction state conflict: %s vs %s " % ( configFunct.name, bbar.InteractionState) 
+                            return
+                    bbar.InteractionState = configFunct.name 
+                    n_active_sliders = configFunct.position[1] if configFunct.position else 1
+                    position_index = configFunct.position[0] if configFunct.position else 0
+                    tvals = configFunct.value.getValues()               
+                    bbar.commandeerSlider( position_index, configFunct.sliderLabels[0], configFunct.getRangeBounds(), tvals[0]  )
+                    bbar.positionSlider( position_index, n_active_sliders )
+                    self.current_configuration_mode = configFunct.label
+#                    print " ButtonBarWidget: restore current_configuration_mode = ", configFunct.label
 
 class ButtonBarWidget:
-    
-    current_configuration_mode = None
-    button_bars = {}
-    DefaultGroup = None
-    
-    def __init__( self, name, interactor, **args ):
+        
+    def __init__( self, handler, name, interactor, **args ):
+        self.handler = handler
         self.vtk_coord = vtk.vtkCoordinate()
         self.vtk_coord.SetCoordinateSystemToNormalizedDisplay()
         self.StateChangedSignal = SIGNAL('StateChanged')
@@ -210,7 +272,6 @@ class ButtonBarWidget:
         self.buttons = []
         self.visible = False
         self.configurableFunctions = collections.OrderedDict()
-        ButtonBarWidget.button_bars[ name ] = self
         self.updateWindowSize()
         
     def isSliderVisible( self, islider ):
@@ -235,65 +296,8 @@ class ButtonBarWidget:
                 ib.refreshButtonState()
                 self.processStateChangeEvent( ib.id, ib.key, ib.getState(), True )
 
-    @classmethod   
-    def restoreInteractionState(cls): 
-#        print "  ----------------------------- restoreInteractionState ----------------------------- " 
-        bbar = cls.getButtonBar( 'Plot' ) 
-        bbar.InteractionState = None
-        current_config_function = None
-        for configFunct in bbar.configurableFunctions.values():
-            if ( configFunct.type == 'slider' ) and ( configFunct.active ) and ( configFunct.group == cls.DefaultGroup ):
-                b = bbar.getButton( configFunct.name )
-                if b.getState():
-                    if current_config_function == None:
-                        current_config_function = configFunct
-                    else:
-                        if not configFunct.sameGroup( current_config_function ):
-                            print>>sys.stderr, "Error, interaction state conflict: %s vs %s " % ( configFunct.name, bbar.InteractionState) 
-                            return
-                    bbar.InteractionState = configFunct.name 
-                    n_active_sliders = configFunct.position[1] if configFunct.position else 1
-                    position_index = configFunct.position[0] if configFunct.position else 0
-                    tvals = configFunct.value.getValues()               
-                    bbar.commandeerSlider( position_index, configFunct.sliderLabels[0], configFunct.getRangeBounds(), tvals[0]  )
-                    bbar.positionSlider( position_index, n_active_sliders )
-                    ButtonBarWidget.current_configuration_mode = configFunct.label
-#                    print " ButtonBarWidget: restore current_configuration_mode = ", configFunct.label
      
-    @classmethod   
-    def getButtonBar( cls, name ):
-        return cls.button_bars.get( name, None )
-    
-        
-    @classmethod   
-    def broadcastButtonState( cls, type, name,  **args ):
-        bbar = cls.getButtonBar( type )
-        button = bbar.getButton( name )    
-        button.broadcastState( **args )    
-
-    @classmethod   
-    def getButtonBars( cls ):
-        return cls.button_bars.values()
-
-    @classmethod   
-    def findButton( cls, name  ):
-        for bbar in cls.button_bars.values():
-            b = bbar.getButton( name )
-            if b <> None: return b
-        return None
-
-    @classmethod   
-    def repositionButtons( cls ):
-        for button_bar in cls.button_bars.values():
-            button_bar.reposition()                                          
-
-    @classmethod   
-    def initializeConfigurations( cls, **args ) :
-        for bbar in cls.button_bars.values():
-            bbar.initializeConfiguration( **args )
-        for bbar in cls.button_bars.values():
-            bbar.initializeChildren( **args )
-                    
+                   
     def sliceRoundRobin(self, args, config_function = None ):
         if args[0] == "InitConfig":
             self.activeSliceIndex = ( self.activeSliceIndex+ 1 ) % 3

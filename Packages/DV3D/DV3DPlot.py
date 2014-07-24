@@ -96,6 +96,7 @@ class DV3DPlot():
         self.xwidth = 300.0
         self.ycenter = 0.0
         self.ywidth = 180.0
+        self.buttonBarHandler = ButtonBarHandler()
         
         self.configuring = False
         self.activated = False
@@ -153,7 +154,7 @@ class DV3DPlot():
 
     def initializePlots(self):
 #         bbar = ButtonBarWidget.getButtonBar( 'Plot' )
-        bbar = ButtonBarWidget.getButtonBar( 'Plot' )
+        bbar = self.buttonBarHandler.getButtonBar( 'Plot' )
         if not CfgManager.initialized:
             button = bbar.getButton( 'ZSlider' ) 
             if button <> None:
@@ -405,18 +406,16 @@ class DV3DPlot():
             
     def showConfigurationButton(self):
         bbar_name = 'Configure'
-        bbar = ButtonBarWidget.getButtonBar( bbar_name )
-        if bbar == None:
-            bbar = ButtonBarWidget( bbar_name, self.renderWindowInteractor )
-            config_button = bbar.addConfigButton( names=['Configure'], id='Configure', key='g', toggle=True, persist=False, interactionHandler=self.processConfigurationToggle )
+        bbar = self.buttonBarHandler.createButtonBar( bbar_name, self.renderWindowInteractor )
+        config_button = bbar.addConfigButton( names=['Configure'], id='Configure', key='g', toggle=True, persist=False, interactionHandler=self.processConfigurationToggle )
 #            config_button.StateChangedSignal.connect( self.togglePlotButtons )
-            bbar.build()
+        bbar.build()
         bbar.show()
 
     def buildPlotButtons(self):
         bbar_name = 'Plot'
-        bbar = ButtonBarWidget( bbar_name, self.renderWindowInteractor, position=( 0.0, 0.96) )
-        ButtonBarWidget.DefaultGroup = 'SliceRoundRobin'
+        bbar = self.buttonBarHandler.createButtonBar( bbar_name, self.renderWindowInteractor, position=( 0.0, 0.96) )
+        self.buttonBarHandler.DefaultGroup = 'SliceRoundRobin'
         if self.type == '3d_vector':
             b = bbar.addSliderButton( names=['ZSlider'],  key='z', toggle=True, group='SliceRoundRobin', sliderLabels='Slice Position', label="Slicing", state = 1, interactionHandler=self.processSlicingCommand )            
         else:
@@ -440,13 +439,13 @@ class DV3DPlot():
             self.toggleVolumeVisibility( args, config_function )  
     
     def fetchPlotButtons( self, show = False ):
-        bbar1 = ButtonBarWidget.getButtonBar( 'Plot' )
+        bbar1 = self.buttonBarHandler.getButtonBar( 'Plot' )
         if bbar1 == None: self.buildPlotButtons()
         if show:
             bbar1.show()
             self.showInteractionButtons()
         else:
-            bbar2 = ButtonBarWidget.getButtonBar( 'Interaction' )
+            bbar2 = self.buttonBarHandler.getButtonBar( 'Interaction' )
             bbar2.build()
         return bbar1
     
@@ -457,7 +456,7 @@ class DV3DPlot():
     def toggleCongurationButtons(self, isVisible ):
         config_bbars = [ 'Plot', 'Interaction' ]
         for bbar_name in config_bbars:
-            bbar = ButtonBarWidget.getButtonBar( bbar_name )
+            bbar = self.buttonBarHandler.getButtonBar( bbar_name )
             if bbar:
                 if isVisible: bbar.show()
                 else: bbar.hide()
@@ -465,7 +464,7 @@ class DV3DPlot():
     def processConfigurationToggle( self, args, config_function = None ):
         if args[0] == "InitConfig":
             name = config_function.name
-            bbar = ButtonBarWidget.getButtonBar( name )
+            bbar = self.buttonBarHandler.getButtonBar( name )
             button = bbar.getButton( name )
             self.toggleCongurationButtons( button.getState() )
          
@@ -475,16 +474,16 @@ class DV3DPlot():
         
     def addInteractionButtons(self):
         bbar_name = 'Interaction'
-        bbar = ButtonBarWidget( bbar_name, self.renderWindowInteractor, position=( 0.0, 0.5) )
+        bbar = self.buttonBarHandler.createButtonBar( bbar_name, self.renderWindowInteractor, position=( 0.0, 0.5) )
         return bbar
     
     def getInteractionButtons(self): 
-        bbar = ButtonBarWidget.getButtonBar( 'Interaction' )
+        bbar = self.buttonBarHandler.getButtonBar( 'Interaction' )
         if bbar == None:  bbar = self.addInteractionButtons()
         return bbar
         
     def showInteractionButtons( self, **args ):
-        bbar = ButtonBarWidget.getButtonBar( 'Interaction' )
+        bbar = self.buttonBarHandler.getButtonBar( 'Interaction' )
         bbar.build( **args )
         bbar.show() 
              
@@ -498,7 +497,7 @@ class DV3DPlot():
             
     def onRenderWindowResize( self ):
         self.updateTextDisplay()
-        ButtonBarWidget.repositionButtons()
+        self.buttonBarHandler.repositionButtons()
         self.render()
 
     def clearReferrents(self):
