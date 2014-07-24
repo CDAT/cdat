@@ -37,7 +37,6 @@ class StructuredGridPlot(DV3DPlot):
     def processToggleClippingCommand( self, args, config_function ):
         if args and args[0] == "InitConfig": 
             self.toggleClipping( args[1] )
-
                 
     def processVerticalScalingCommand( self, args, config_function ):
         verticalScale = config_function.value

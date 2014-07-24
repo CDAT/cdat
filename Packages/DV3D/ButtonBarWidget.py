@@ -214,7 +214,6 @@ class ButtonBarHandler:
         bbar = self.getButtonBar( name )
         if bbar == None:
             bbar = ButtonBarWidget( self, name, interactor, **args  )
-#            print " ButtonBarHandler[%d]: createButtonBarWidget[%d] %s " % ( id(self), id(bbar), name )
             self.button_bars[ name ] = bbar
         return bbar
 
@@ -650,8 +649,7 @@ class ButtonBarWidget(ButtonBar):
             srep.SetMinimumValue( bounds[ 0 ] )
             srep.SetMaximumValue( bounds[ 1 ]  )
             srep.SetValue( value )
-            swidget.SetEnabled( 1 ) 
-        
+            swidget.SetEnabled( 1 )         
         self.currentControls[index] = ( self.process_mode, self.InteractionState, swidget )
         
     def createButtonWidget(self, index, label ):
@@ -796,8 +794,12 @@ class ButtonBarWidget(ButtonBar):
                 tvals = configFunct.value.getValues()
                 if not sameGroup: 
                     for bbar in self.handler.getButtonBars():
+<<<<<<< HEAD
+                        bbar.reset()                
+=======
                         bbar.reset()
                 
+>>>>>>> 0c0011d5f7e074285a60c18dca8e0b8c371c4153
                 if configFunct.position <> None:
                     n_active_sliders = configFunct.position[1]
                     position_index = configFunct.position[0]

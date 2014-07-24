@@ -268,7 +268,6 @@ class CPCPlot( DV3DPlot ):
        
     def setRenderMode( self, render_mode ): 
         modes = [ 'lowres', 'highres' ]
-#        print " CPCPlot: Set render mode: ", modes[render_mode]
         if (render_mode == ProcessMode.HighRes):
             if ( self.partitioned_point_cloud == None ): return 
             if not self.partitioned_point_cloud.hasActiveCollections(): return            

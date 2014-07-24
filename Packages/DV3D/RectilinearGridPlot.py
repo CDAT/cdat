@@ -1442,8 +1442,9 @@ class RectGridPlot(StructuredGridPlot):
         if self.levelSetActor <> None:
             if vtk.VTK_MAJOR_VERSION <= 5:  self.levelSetFilter.SetInput(primaryInput)
             else:                           self.levelSetFilter.SetInputData(primaryInput)        
-            self.levelSetFilter.Modified()
+            self.levelSetFilter.Modified()           
         self.render()
+
 
 #        self.set3DOutput()
            
