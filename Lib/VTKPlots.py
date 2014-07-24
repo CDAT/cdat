@@ -784,7 +784,8 @@ class VTKVCSBackend(object):
           act.SetMapper(mapper[0])
         else:
           act.SetMapper(mapper)
-        act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
+        if geo is None:
+          act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
         if isinstance(mapper,list):
           #act.GetMapper().ScalarVisibilityOff()
           #act.SetTexture(mapper[1])
@@ -813,7 +814,8 @@ class VTKVCSBackend(object):
       cpts = contData.GetPoints()
       geo, gcpts = vcs2vtk.project(cpts,projection)
       contData.SetPoints(gcpts)
-      contActor = vcs2vtk.doWrap(contActor,[x1,x2,y1,y2],wrap)
+      if geo is None:
+        contActor = vcs2vtk.doWrap(contActor,[x1,x2,y1,y2],wrap)
       vcs2vtk.fitToViewport(contActor,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],wc=[x1,x2,y1,y2],geo=geo)
       if tmpl.data.priority!=0:
         ren.AddActor(contActor)
