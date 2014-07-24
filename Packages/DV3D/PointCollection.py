@@ -350,6 +350,12 @@ class PointCollection():
             units = var.units 
             ds_mdata.append( [ id, name, units ] )  
         self.metadata['dset_metadata'] = ds_mdata
+        axis = self.var.getLongitude()
+        if axis: self.metadata['lon'] = axis.getValue()
+        axis = self.var.getLatitude()
+        if axis: self.metadata['lat'] = axis.getValue()
+        axis = self.var.getLevel()
+        if axis: self.metadata['lev'] = axis.getValue()
 
     def getMetadata( self ):
         return self.metadata

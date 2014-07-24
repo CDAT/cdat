@@ -559,6 +559,12 @@ class StructuredDataReader:
                         md['timeUnits' ] = self.referenceTimeUnits if self.referenceTimeUnits else ""
                         md[ 'attributes' ] = var_md
                         md[ 'plotType' ] = 'zyt' if (self.outputType == CDMSDataType.Hoffmuller) else 'xyz'
+                        axis = var.getLongitude()
+                        md[ 'lon' ] =  axis.getValue()
+                        axis = var.getLatitude()
+                        md[ 'lat' ] =  axis.getValue()
+                        axis = var.getLevel()
+                        md[ 'lev' ] =  axis.getValue()
                                         
                 self.setCachedData( varDataId, cell_coords, varDataSpecs )  
         

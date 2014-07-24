@@ -1461,7 +1461,7 @@ class RectGridPlot(StructuredGridPlot):
             
     def ProcessIPWAction( self, caller, event, **args ):
         action = args.get( 'action', caller.State )
-        iAxis = caller.PlaneIndex
+        iAxis = caller.PlaneOrientation
 
         if event == ImagePlaneWidget.InteractionUpdateEvent:
             
