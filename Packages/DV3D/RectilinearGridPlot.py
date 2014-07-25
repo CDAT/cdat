@@ -142,6 +142,7 @@ class RectGridPlot(StructuredGridPlot):
         self.transferFunctionConfig = None
         self.volumeMapper = None
         interactionButtons = self.getInteractionButtons()
+#        print " RectGridPlot[%x]: interactionButtons[%x].addSliderButton"
         interactionButtons.addSliderButton( names=['ScaleColormap'], key='C', toggle=True, label='Colormap Scale', interactionHandler=self.processColorScaleCommand )
         interactionButtons.addSliderButton( names=['ScaleTransferFunction'], key='T', toggle=True, parents=['ToggleVolumePlot'], label='Transfer Function Range', interactionHandler=self.processThresholdRangeCommand )
         interactionButtons.addSliderButton( names=['ScaleOpacity'], key='o', toggle=True, label='Opacity Scale', range_bounds=[ 0.0, 1.0 ], initValue=[ 1.0, 1.0 ], interactionHandler=self.processOpacityScalingCommand )
@@ -287,6 +288,7 @@ class RectGridPlot(StructuredGridPlot):
 
     def processSlicingCommand( self, args, config_function = None ):
         plane_index, plane_widget = self.getPlaneWidget( config_function.key )
+#        print " Plot[%x]: processSlicingCommand, plane_widget[%x] " % ( id( self ), id( plane_widget ) )
         slicePosition = config_function.value
 #        print " ProcessSlicingCommand: args = %s, plane = %d, cf = %s" % ( str( args ), plane_index, config_function.key )
         if args and args[0] == "StartConfig":
@@ -851,7 +853,7 @@ class RectGridPlot(StructuredGridPlot):
                 
         if self.planeWidgetZ == None:
             if self.type == '3d_vector':
-                vectorDisplayCF = CfgManager.getParameter( 'VectorDisplay' )
+                vectorDisplayCF = self.cfgManager.getParameter( 'VectorDisplay' )
                 vectorDisplay = vectorDisplayCF.getInitValue( 'default' ).lower()
                 if vectorDisplay == 'lic':                    
                     self.planeWidgetZ = LICSliceWidget( self, picker, 0 )  
@@ -1374,10 +1376,6 @@ class RectGridPlot(StructuredGridPlot):
                                                                             
 
 #        self.set3DOutput() 
-
-        # Add the times series only in regular volume slicer and not in Hovmoller Slicer
-#         if self.getInputSpec().getMetadata()['plotType']=='xyz':
-#             self.addConfigurableFunction('Show Time Series', None, 't' )
 
     def buildOutlineMap(self):
         # This function load a binary image (black and white)

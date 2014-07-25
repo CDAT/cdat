@@ -96,7 +96,7 @@ class DV3DPlot():
         self.xwidth = 300.0
         self.ycenter = 0.0
         self.ywidth = 180.0
-        self.buttonBarHandler = ButtonBarHandler()
+        self.buttonBarHandler = ButtonBarHandler( **args )
         
         self.configuring = False
         self.activated = False
@@ -131,7 +131,7 @@ class DV3DPlot():
             
     def saveState(self, **args): 
         print "Save State" 
-        CfgManager.saveState()
+        self.buttonBarHandler.cfgManager.saveState()
 
     def processKeyPressHandler( self, key, eventArgs ):
         handlers = self.keyPressHandlers.get( key, [] )
@@ -155,7 +155,7 @@ class DV3DPlot():
     def initializePlots(self):
 #         bbar = ButtonBarWidget.getButtonBar( 'Plot' )
         bbar = self.buttonBarHandler.getButtonBar( 'Plot' )
-        if not CfgManager.initialized:
+        if not self.buttonBarHandler.cfgManager.initialized:
             button = bbar.getButton( 'ZSlider' ) 
             if button <> None:
                 button.setButtonState( 1 ) 
@@ -538,6 +538,7 @@ class DV3DPlot():
             renWin.SetMultiSamples( 0 )
             
         self.renderer.SetBackground(1.0, 1.0, 1.0)
+        self.renderer.SetNearClippingPlaneTolerance( 0.0001 )    
         self.renderWindow = renWin
     
     def closeConfigDialog(self):

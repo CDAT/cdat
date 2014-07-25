@@ -326,7 +326,7 @@ class StructuredGridPlot(DV3DPlot):
     def initializeConfiguration( self, cmap_index=0, **args ):
         ispec = self.inputSpecs[ cmap_index ] 
         args['units'] = ispec.units
-        ButtonBarWidget.initializeConfigurations( **args )
+        self.buttonBarHandler.initializeConfigurations( **args )
         ispec.addMetadata( { 'colormap' : self.getColormapSpec(), 'orientation' : self.iOrientation } ) 
 #        self.updateSliceOutput()
 

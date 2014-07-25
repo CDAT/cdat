@@ -1,6 +1,5 @@
 
 import vtk, sys, gc
-from ConfigurationFunctions import CfgManager
 
 VTK_NEAREST_RESLICE = 0
 VTK_LINEAR_RESLICE  = 1
@@ -938,6 +937,7 @@ class ImagePlaneWidget:
          
         self.plane.SetOrigin( *self.PlaneSource.GetOrigin() )    
         self.UpdateInputs()
+        self.CurrentRenderer.ResetCameraClippingRange()
                    
 #----------------------------------------------------------------------------
 
@@ -1694,8 +1694,8 @@ class VectorSliceWidget(ImagePlaneWidget):
                     
     def initGlyphMapper(self):
         if self.glyphMapper == None: 
-            scaleGlyphsByMagnitudeCF = CfgManager.getParameter( 'ScaleGlyphsByMagnitude' )
-            self.scaleByMag = scaleGlyphsByMagnitudeCF.getInitValue( True )
+#            scaleGlyphsByMagnitudeCF = CfgManager.getParameter( 'ScaleGlyphsByMagnitude' )
+            self.scaleByMag = True # scaleGlyphsByMagnitudeCF.getInitValue( True )
             
             pointData = self.ImageData.GetPointData()     
             vectorsArray = pointData.GetVectors()               

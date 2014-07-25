@@ -89,17 +89,20 @@ class PointCollectionExecutionTarget:
         self.results.put( self.packVarData() )
                        
     def execute( self, args ):
-        self.point_collection.execute( args )
-        if args[0] == 'indices':
-            data_packet = self.packIndexData()
-        elif args[0] == 'points':
-            data_packet = self.packPointHeightsData()
-        elif args[0] == 'timestep':
-            data_packet = self.packVarData()
-        elif args[0] == 'ROI':
-            data_packet = self.packPointsData()
-        data_packet[ 'args' ] = args
-        self.results.put( data_packet )
+        try:
+            self.point_collection.execute( args )
+            if args[0] == 'indices':
+                data_packet = self.packIndexData()
+            elif args[0] == 'points':
+                data_packet = self.packPointHeightsData()
+            elif args[0] == 'timestep':
+                data_packet = self.packVarData()
+            elif args[0] == 'ROI':
+                data_packet = self.packPointsData()
+            data_packet[ 'args' ] = args
+            self.results.put( data_packet )
+        except Exception, err:
+            print>>sys.stderr, "Error executing PointCollectionExecutionTarget: ", str( err )
 
     def packVarData(self):
 #        print "Pack VARDATA"; sys.stdout.flush()
@@ -512,7 +515,7 @@ class vtkSubProcPointCloud( vtkPointCloud ):
         
     def generateSubset(self, **args ):
         self.current_subset_specs = args.get( 'spec', self.current_subset_specs )
-#        print " vtkSubProcPointCloud: current_subset_specs: %s (%s) " % ( self.current_subset_specs, str(args) )
+        print " vtkSubProcPointCloud: current_subset_specs: %s (%s) " % ( self.current_subset_specs, str(args) )
         process = args.get( 'process', True )
         if process:
             self.clearQueues()
@@ -520,7 +523,7 @@ class vtkSubProcPointCloud( vtkPointCloud ):
 #            self.threshold_target = first_spec[0]
             self.np_index_seq = None
 #             if self.pcIndex == 1: 
-#                 self.printLogMessage( " vtkSubProcPointCloud --->> Generate subset: %s " % str(self.current_subset_specs) )
+#            self.printLogMessage( " vtkSubProcPointCloud --->> Generate subset: %s " % str(self.current_subset_specs) )
             op_specs = self.current_subset_specs.values()
             op_specs.insert( 0, 'indices' )
             self.arg_queue.put( op_specs,  False ) 

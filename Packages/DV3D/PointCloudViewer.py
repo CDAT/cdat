@@ -20,7 +20,12 @@ VTK_CONTROL_MODIFIER    = 2
 VTK_TITLE_SIZE = 14
 VTK_INSTRUCTION_SIZE = 24
 
-    
+def getVarName( var ):
+    if hasattr( var,'name_in_file'): return var.name_in_file 
+    if hasattr( var,'name'): return var.name 
+    if hasattr( var,'id'): return var.id 
+    if hasattr( var,'outvar'): return var.outvar.name 
+        
 def dump_np_array1( a, label=None ):
     print "\n-------------------------------------------------------------------------------------------------"
     if label: print label
@@ -1234,9 +1239,9 @@ class CPCPlot( DV3DPlot ):
     def getInitArgs(self, var1, var2, **args ):
         interface = None
         dfile = var1.parent
-        data_file = dfile.id
-        varnames = [ var1.name_in_file ]
-        if not var2 is None: varnames.append( var2.name_in_file )
+        data_file = dfile.id if dfile else "Dataset"
+        varnames = [ getVarName( var1 ) ]
+        if not var2 is None: varnames.append( getVarName( var2 ) )
         subSpace = args.get( 'axes', 'xyz' )
         grd_coords = [ None ]*5
         var_proc_op = None
@@ -1278,7 +1283,7 @@ class CPCPlot( DV3DPlot ):
     def initializeConfiguration( self, cmap_index=0, **args ):
 #        ispec = self.inputSpecs[ cmap_index ] 
 #        args['units'] = ispec.units
-        ButtonBarWidget.initializeConfigurations( **args )
+        self.buttonBarHandler.initializeConfigurations( **args )
 
     
 class QPointCollectionMgrThread( threading.Thread ):

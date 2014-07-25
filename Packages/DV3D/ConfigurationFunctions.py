@@ -202,7 +202,7 @@ class SIGNAL(object):
 class ConfigManager:
     
     
-    def __init__( self,  **args ): 
+    def __init__( self, default_cm=None,  **args ): 
         self.ConfigCmd = SIGNAL("ConfigCmd")
         self.cfgFile = os.path.join( DataDir, 'parameters.txt' )
         self.stateFile = os.path.join( DataDir, 'state.txt' )
@@ -212,7 +212,7 @@ class ConfigManager:
         self.cfgDir = None
         self.metadata = args
         self.configurableFunctions = {}
-        self.parameters = {}
+        self.parameters = {} if ( default_cm == None ) else copy.deepcopy( default_cm.parameters )
         self.initialized = False
 
     def getParameter( self, param_name, **args ):
@@ -237,8 +237,8 @@ class ConfigManager:
         rv = self.configurableFunctions.get( name, None )
         if rv == None:
             type = args.get( 'type', ConfigurableFunction.Default )
-            if type == ConfigurableFunction.Default:  rv = ConfigurableFunction( name, **args )
-            elif type == ConfigurableFunction.Slider: rv = ConfigurableSliderFunction( name, **args )
+            if type == ConfigurableFunction.Default:  rv = ConfigurableFunction( self, name, **args )
+            elif type == ConfigurableFunction.Slider: rv = ConfigurableSliderFunction( self, name, **args )
             else:
                 print>>sys.stderr, "Error, Unknown Configurable Function Type: ", str(type)
                 return None
@@ -543,8 +543,6 @@ class ConfigParameter:
         
     def getRange( self ):
         return ( self.rmin, self.rmax )
-
-CfgManager = ConfigManager() 
   
 class ConfigurableFunction:
 
@@ -552,12 +550,13 @@ class ConfigurableFunction:
     Slider = 1    
     ConfigurableFunctions = {}    
     
-    def __init__( self, name, **args ):
+    def __init__( self, manager, name, **args ):
         self.name = name
         self.persist = args.get( 'persist', True )
+        self.manager = manager
 #         if name == 'XSlider':
 #             print "."
-        self.value = CfgManager.addParameter( name, **args )
+        self.value = self.manager.addParameter( name, **args )
         self.type = 'generic'
         self.kwargs = args
         self.cfg_state = None
@@ -602,9 +601,8 @@ class ConfigurableFunction:
         args = [ "InitConfig", state ]
         self.interactionHandler( args, self )
 
-    @classmethod
-    def activate( cls ):
-        CfgManager.initParameters()
+    def activate( self ):
+        self.manager.initParameters()
         
     def getValueLength(self):
         return 1
@@ -667,9 +665,9 @@ class ConfigurableFunction:
         
 class ConfigurableSliderFunction( ConfigurableFunction ):
 
-    def __init__( self, name, **args ):
+    def __init__( self, manager, name, **args ):
         self.sliderLabels = makeList( args.get( 'sliderLabels', [ 'Range Min', 'Range Max' ] ) )
-        ConfigurableFunction.__init__( self, name, **args  )
+        ConfigurableFunction.__init__( self, manager, name, **args  )
         self.StartSlidingSignal =SIGNAL('startSliding')
         self.UpdateSlidingSignal =SIGNAL('updateSliding')
         self.type = 'slider'
