@@ -588,6 +588,7 @@ class AnimationSignals(QtCore.QObject):
   created = QtCore.pyqtSignal(name="animationCreated")
   canceled = QtCore.pyqtSignal(name="animationCanceled")
   paused = QtCore.pyqtSignal(name="animationPaused")
+  stopped = QtCore.pyqtSignal(bool, name="animationStopped")
 
 # Adapted from http://stackoverflow.com/questions/323972/is-there-any-way-to-kill-a-thread-in-python
 class StoppableThread(threading.Thread):
@@ -689,6 +690,8 @@ class AnimationPlayback(StoppableThread):
 
   def run(self):
     self.controller.frame_num = 0
+    self.controller.signals.stopped.emit(False)
+    self.controller.playback_running = True
     while not self.is_stopped():
       self.wait_if_paused()
       # draw frame
@@ -700,8 +703,10 @@ class AnimationPlayback(StoppableThread):
         if self.controller.playback_params.loop:
           self.controller.frame_num = 0
         else:
-          self.stop()
+          break
       time.sleep(1./self.controller.playback_params.frames_per_second)
+    self.controller.playback_running = False
+    self.controller.signals.stopped.emit(True)
 
 class AnimationController(animate_obj_old):
   def __init__(self, vcs_self):
@@ -710,6 +715,7 @@ class AnimationController(animate_obj_old):
     self.playback_thread = None
 
     self.animation_created = False
+    self.playback_running = False
     self.animation_files = []
     self.animation_seed = None
     self.frame_num = 0
@@ -737,7 +743,7 @@ class AnimationController(animate_obj_old):
     self.create_thread.resume()
 
   def is_playing(self):
-    return self.playback_thread is not None and self.playback_thread.is_alive()
+    return self.playback_running
 
   def playback(self):
     if (self.created() and 
