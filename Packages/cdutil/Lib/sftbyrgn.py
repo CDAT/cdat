@@ -64,7 +64,7 @@ def generateSurfaceTypeByRegionMask(mask,sftbyrgn=None,sftbyrgnmask=215,regions 
         mask = cdutil.generateLandSeaMask(mask)*100.
 
     if sftbyrgn is None:
-        sftbyrgn = cdms2.open(os.path.join(sys.prefix,'sample_data','sftbyrgn.nc'))('sftbyrgn')
+        sftbyrgn = cdms2.open(os.path.join(sys.prefix,'share','cdutil','sftbyrgn.nc'))('sftbyrgn')
         
     if regions is None:
         if verbose: print 'Preparing regions'
@@ -107,7 +107,7 @@ def generateSurfaceTypeByRegionMask(mask,sftbyrgn=None,sftbyrgnmask=215,regions 
 
     g1=sftbyrgn.getGrid()
     g2=mask.getGrid()
-    r1=regrid2.Regridder(g1,g2)
+    r1=regrid2.Horizontal(g1,g2)
     w=cdutil.area_weights(sftbyrgn)
 
     if verbose: print 'First pass'

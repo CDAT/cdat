@@ -245,9 +245,9 @@ def __check_each_weight_option(x, ax, index, wtopt):
         #
         # wtopt is an numpy.ma
         #
-        if __DEBUG__: print 'I have a Masked Array of rank', numpy.ma.rank(wtopt)
+        if __DEBUG__: print 'I have a Masked Array of rank', wtopt.ndim
         #
-        if numpy.ma.rank(wtopt) > 1:
+        if wtopt.ndim > 1:
             raise AveragerError, \
                  'Error: The Masked Array of more than 1 dimension lacks sufficient information'
         # end of if numpy.ma.rank(wtopt) > 1:
@@ -419,16 +419,16 @@ def _check_MA_weight_options(weightoptions, shx, N_axisopt):
             # end of if wt in ['weighted', 'generate']:
         elif isinstance(wt, numpy.ndarray) :
             if __DEBUG__: print 'numpy Array weights'
-            if (wt.shape != shx) and (numpy.rank(wt) == 1 and len(wt) != shx[i]):
+            if (wt.shape != shx) and (wt.ndim == 1 and len(wt) != shx[i]):
                 raise AveragerError, 'The passed weight is not of the appropriate shape'
             # end of if (wt.shape != shx) or (numpy.ma.rank(wt) == 1 and len(wt) != shx[i]):
         elif numpy.ma.isMA(wt) :
             if __DEBUG__: print 'numpy.ma Array weights'
             if __DEBUG__: print 'wt.shape = ', wt.shape
-            if __DEBUG__: print 'numpy.ma.rank(wt) = ', numpy.ma.rank(wt)
+            if __DEBUG__: print 'numpy.ma.rank(wt) = ', wt.ndim
             if __DEBUG__: print 'len(wt) = ', len(wt)
             if __DEBUG__: print 'shx[i] = ', shx[i]
-            if (wt.shape != shx) and (numpy.ma.rank(wt) == 1 and len(wt) != shx[i]):
+            if (wt.shape != shx) and (wt.ndim == 1 and len(wt) != shx[i]):
                 if __DEBUG__: print 'The passed weight is not of the appropriate shape'
                 raise AveragerError, 'The passed weight is not of the appropriate shape'
             # end of if (wt.shape != shx) or (numpy.ma.rank(wt) == 1 and len(wt) != shx[i]):
@@ -903,7 +903,7 @@ Note:
         #
         # Check the axis options.
         #
-        axis = _check_MA_axisoptions(axis, numpy.ma.rank(V))
+        axis = _check_MA_axisoptions(axis, V.ndim)
         #
         # Now reorder the original MA to the order in which operations need to be done
         #

@@ -182,7 +182,7 @@ def generateLandSeaMask(target,source=None,threshold_1 = .2, threshold_2 = .3,re
         raise Exception, "Error: target grid must be rectilinear"
 
     if source is None:
-        source = cdms2.open(os.path.join(sys.prefix,'sample_data','navy_land.nc'))('sftlf')
+        source = cdms2.open(os.path.join(sys.prefix,'share','cdutil','navy_land.nc'))('sftlf')
         
     try:
         navy_frac_t = source.regrid(target,regridTool='regrid2')

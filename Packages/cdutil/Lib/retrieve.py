@@ -160,8 +160,11 @@ class WeightedGridMaker(object):
         self.latitude.type=grid_type
         if isinstance(source,cdms2.grid.AbstractGrid):
             self.grid=source
-        elif type(source) == types.StringType:
+        elif isinstance(source,(str,unicode)):
             self.file=source
+            f=cdms2.open(source)
+            V=f[var]
+            self.grid=V.getGrid()
         else:
             self.grid=None
             self.file=None
@@ -397,7 +400,7 @@ class VariableConditioner(object):
             # make sure they're on the same grid (in case one starts at 0 and one at -180 for example
 
             if not m.getGrid() is v.getGrid() :
-                m = m.regrid(v.getGrid())
+                m = m.astype("i").regrid(v.getGrid())
             
             # Mask the dataset where the fraction are 0.
             v   = MV2.masked_where(MV2.equal(m.filled(0),0.),v)
@@ -412,7 +415,7 @@ class VariableConditioner(object):
         g=self.weightedGridMaker()
         if not g is None: # we do have a target grid to go to !
             # Create the regridder object
-            rf=regrid2.Regridder(v.getGrid(),g)
+            rf=regrid2.Horizontal(v.getGrid(),g)
             # and regrid passing the weights to use to each grid cell
             # at this point it should be only 0/1
             v,frc=rf(v,mask=1.-frc,returnTuple=1)
@@ -435,7 +438,7 @@ class VariableConditioner(object):
                 # make sure they're on the same grid (in case one starts at 0 and one at -180 for example
 
                 if not m.getGrid() is v.getGrid() :
-                    m = m.regrid(v.getGrid())
+                    m = m.astype("i").regrid(v.getGrid())
 
                 v=MV2.masked_where(MV2.equal(m.filled(0.),0.),v)
                 # weights the fraction where needed
@@ -699,7 +702,7 @@ class VariablesMatcher(object):
 ##         o2=d2.getOrder(ids=1)
 
         if d1.shape!=d2.shape:
-            if d1.rank()>d2.rank():
+            if d1.ndim>d2.ndim:
                 d1,d2=genutil.grower(d1,d2,singleton=1)
                 frc1,frc2=genutil.grower(frc1,frc2,singleton=1)
             else:
@@ -746,10 +749,10 @@ class VariablesMatcher(object):
                 frced.setAxisList(ed.getAxisList())
             g=ed.getGrid()
             g1=d1.getGrid()
-            rf=regrid2.Regridder(g1,g)
+            rf=regrid2.Horizontal(g1,g)
             d1,frc1=rf(d1,mask=1.-frc1.filled(0.),returnTuple=1)
             g2=d2.getGrid()
-            rf=regrid2.Regridder(g2,g)
+            rf=regrid2.Horizontal(g2,g)
             d2,frc2=rf(d2,mask=1.-frc2.filled(0.),returnTuple=1)
             frc1=MV2.array(frc1)
             frc1.setAxisList(d1.getAxisList())
@@ -770,8 +773,8 @@ class VariablesMatcher(object):
         if not g is None:
             g1=d1.getGrid()
             g2=d2.getGrid()
-            rf1=regrid2.Regridder(g1,g)
-            rf2=regrid2.Regridder(g2,g)
+            rf1=regrid2.Horizontal(g1,g)
+            rf2=regrid2.Horizontal(g2,g)
             d1,frc1=rf1(d1,mask=1.-frc1.filled(0.),returnTuple=1)
 ##             m=1.-frc2.filled(0.)
             d2,frc2=rf2(d2,mask=1.-frc2.filled(0.),returnTuple=1)
@@ -800,7 +803,7 @@ class VariablesMatcher(object):
         elif d1.getGrid()!=d2.getGrid():
             g1=d1.getGrid()
             g2=d2.getGrid()
-            rf=regrid2.Regridder(g2,g1)
+            rf=regrid2.Horizontal(g2,g1)
             d2,frc2=rf(d2,mask=1.-frc2.filled(0.),returnTuple=1)
         frc1=MV2.array(frc1)
         frc1.setAxisList(d1.getAxisList())
