@@ -11,7 +11,7 @@ import xmldocs
 import cdtime
 import vcs
 import DV3D
-from DV3D.ConfigurationFunctions import CfgManager
+from DV3D.ConfigurationFunctions import ConfigManager
 
 
 class Gfdv3d(object,AutoAPI.AutoAPI):
@@ -48,7 +48,8 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
             self._axes="xyt"
         else:
             self._axes="xyz"
-            
+
+        self.cfgManager = ConfigManager()             
         self.addParameters()
             
         vcs.elements[self.g_name][Gfdv3d_name]=self
@@ -60,7 +61,7 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
 
                 
     def addParameters(self):
-        parameterMetadata = CfgManager.getParameterMetadata()
+        parameterMetadata = self.cfgManager.getParameterMetadata()
         self.parameter_names = []
         for mdata in parameterMetadata:
             self.add_property( mdata[0] )
@@ -68,16 +69,16 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
 #            print "  ------------->> Adding parameter: ", mdata[0]
             
     def getParameter(self, param_name, **args ):
-        return CfgManager.getParameterValue( param_name, **args )
+        return self.cfgManager.getParameterValue( param_name, **args )
 
     def setParameter(self, param_name, data, **args ):
-        CfgManager.setParameter( param_name, data, **args )
+        self.cfgManager.setParameter( param_name, data, **args )
         
     def restoreState(self):
-        CfgManager.restoreState()
+        self.cfgManager.restoreState()
 
     def initDefaultState(self):
-        CfgManager.initDefaultState()
+        self.cfgManager.initDefaultState()
                 
     def list(self):
         print ' ---------- DV3D (Gfdv3d) member (attribute) listings ---------'
