@@ -1270,7 +1270,7 @@ class CPCPlot( DV3DPlot ):
         self.defvar =  init_args[3]
         self.vertVar = None
         self.initializeConfiguration()       
-        ConfigurableFunction.activate()
+        self.buttonBarHandler.cfgManager.initParameters()
         self.initializePlots()
              
 #             pc = self.point_cloud_overview.getPointCollection()

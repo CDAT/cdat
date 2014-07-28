@@ -494,6 +494,7 @@ class StructuredDataReader:
             if ds:
                 var = ds.getVariable( varName )
                 self.setupTimeAxis( var, **args )
+            else: var = None
             portName = orec.name
             selectedLevel = orec.getSelectedLevel() if ( self.currentLevel == None ) else self.currentLevel
             ndim = 3 if ( orec.ndim == 4 ) else orec.ndim
@@ -559,12 +560,13 @@ class StructuredDataReader:
                         md['timeUnits' ] = self.referenceTimeUnits if self.referenceTimeUnits else ""
                         md[ 'attributes' ] = var_md
                         md[ 'plotType' ] = 'zyt' if (self.outputType == CDMSDataType.Hoffmuller) else 'xyz'
-                        axis = var.getLongitude()
-                        md[ 'lon' ] =  axis.getValue()
-                        axis = var.getLatitude()
-                        md[ 'lat' ] =  axis.getValue()
-                        axis = var.getLevel()
-                        md[ 'lev' ] =  axis.getValue()
+                        if not var is None:
+                            axis = var.getLongitude()
+                            md[ 'lon' ] =  axis.getValue()
+                            axis = var.getLatitude()
+                            md[ 'lat' ] =  axis.getValue()
+                            axis = var.getLevel()
+                            md[ 'lev' ] =  axis.getValue()
                                         
                 self.setCachedData( varDataId, cell_coords, varDataSpecs )  
         
