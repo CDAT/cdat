@@ -560,7 +560,7 @@ class StructuredDataReader:
                         md['timeUnits' ] = self.referenceTimeUnits if self.referenceTimeUnits else ""
                         md[ 'attributes' ] = var_md
                         md[ 'plotType' ] = 'zyt' if (self.outputType == CDMSDataType.Hoffmuller) else 'xyz'
-                        if not var is None:
+                        if var <> None:
                             axis = var.getLongitude()
                             md[ 'lon' ] =  axis.getValue()
                             axis = var.getLatitude()
