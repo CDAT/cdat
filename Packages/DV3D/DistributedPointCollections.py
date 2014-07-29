@@ -73,7 +73,7 @@ class PointCollectionExecutionTarget:
         self.printLogMessage( self.cfg_args )
 
     def printLogMessage(self, msg ):
-        print " PointCollectionExecutionTarget %d: %s" % ( self.collection_index, str(msg) )
+#        print " PointCollectionExecutionTarget %d: %s" % ( self.collection_index, str(msg) )
         sys.stdout.flush()      
 
     def __call__( self, args_queue, result_queue ):
