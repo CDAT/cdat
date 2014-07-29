@@ -476,6 +476,7 @@ class VTKVCSBackend(object):
   def plot3D(self,data1,data2,tmpl,gm,ren):
       from DV3D.Application import DV3DApp
       requiresFileVariable = True
+      print " ---> Plot3D, data1 is %s " % data1.__class__.__name__
       if ( data1 is None ) or ( requiresFileVariable and not ( isinstance(data1, cdms2.fvariable.FileVariable ) or isinstance(data1, cdms2.tvariable.TransientVariable ) ) ):
           traceback.print_stack()
           raise Exception, "Error, must pass a cdms2 variable object as the first input to the dv3d gm ( found '%s')" % ( data1.__class__.__name__ )

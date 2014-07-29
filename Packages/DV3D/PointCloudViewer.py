@@ -1350,6 +1350,10 @@ class CPCPlot( DV3DPlot ):
 #             cfgInterface.activate()
             
         self.start()
+       
+    def setCameraPos(self):
+        ( xcenter, ycenter, xwidth, ywidth ) = self.point_cloud_overview.getCenter()
+        self.initCamera( ( xwidth + ywidth ), ( xcenter, ycenter ) )
 
     def initializePlots(self):         
         DV3DPlot.initializePlots(self)

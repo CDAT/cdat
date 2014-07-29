@@ -70,6 +70,7 @@ class PointCollectionExecutionTarget:
         self.ncollections = ncollections
         self.init_args = init_args
         self.cfg_args = cfg_args
+        self.printLogMessage( self.cfg_args )
 
     def printLogMessage(self, msg ):
         print " PointCollectionExecutionTarget %d: %s" % ( self.collection_index, str(msg) )
