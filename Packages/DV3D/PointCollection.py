@@ -161,7 +161,7 @@ class PointCollection():
                     np_hgt_var_data_block = self.getDataBlock(hgt_var).flatten() 
                     if self.missing_value: np_hgt_var_data_block = numpy.ma.masked_equal( np_hgt_var_data_block, self.missing_value, False )
                     zdata = np_hgt_var_data_block.astype( numpy.float32 ) 
-    #                print " setPointHeights: zdata shape = %s " % str( zdata.shape ); sys.stdout.flush()
+                    print " setPointHeights: zdata shape = %s " % str( zdata.shape ); sys.stdout.flush()
                     self.vertical_bounds = ( zdata.min(), zdata.max() )  
                     if self.data_height == None: self.data_height = ( self.vertical_bounds[1] - self.vertical_bounds[0] )
                     self.point_data_arrays['z'] = zdata * ( stage_height / self.data_height ) 

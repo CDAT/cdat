@@ -502,7 +502,7 @@ class ConfigParameter:
         vals = []
         for index in range( 0, 100 ):
             val = self.getValue( index )
-            if val == None: break
+            if val is None: break
             vals.append( val )
         return vals
 

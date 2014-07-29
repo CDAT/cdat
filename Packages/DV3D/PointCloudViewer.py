@@ -158,6 +158,7 @@ class CPCPlot( DV3DPlot ):
         self.sliceAxisIndex = -1
         self.partitioned_point_cloud = None
         self.point_cloud_overview = None
+        self.scaling_spec = None
         self.infovisDialog = None
         self.config_mode = ConfigMode.Default
         self.topo = PlotType.Planar
@@ -169,6 +170,7 @@ class CPCPlot( DV3DPlot ):
         self.colorRange = 0 
         self.cmdSkipIndex = 0
         self.cmdSkipFactor = 3
+        self.skipIndex = 1
         self.deactivate_low_res_actor = False
 #        self.resolutionCounter = Counter()
         self._current_subset_specs = {}
@@ -263,7 +265,7 @@ class CPCPlot( DV3DPlot ):
        
     def setRenderMode( self, render_mode ): 
         modes = [ 'lowres', 'highres' ]
-        print " Set render mode: ", modes[render_mode]
+#        print " Set render mode: ", modes[render_mode]
         if (render_mode == ProcessMode.HighRes):
             if ( self.partitioned_point_cloud == None ): return 
             if not self.partitioned_point_cloud.hasActiveCollections(): return            
@@ -529,7 +531,7 @@ class CPCPlot( DV3DPlot ):
         elif args and args[0] == "UpdateConfig":
             self.sliceAxisIndex = args[1]
             value = args[2].GetValue()
-            print "Set slice value: ", float( value )
+#            print "Set slice value: ", float( value )
             sliceParam.setValue( 0, value )
             self.execCurrentSlice(spos=value)
     
@@ -645,15 +647,18 @@ class CPCPlot( DV3DPlot ):
     def getSlicePosition( self, **args ): 
         normalized = args.get( 'normalized', False )
         spos = args.get( 'spos', None )
+        interactionState = [ 'XSlider', 'YSlider', 'ZSlider' ][self.sliceAxisIndex]
+        bbar = self.fetchPlotButtons()
+        config_function = bbar.getConfigFunction( interactionState )
         if spos == None:
-            interactionState = [ 'XSlider', 'YSlider', 'ZSlider' ][self.sliceAxisIndex]
-            bbar = self.fetchPlotButtons()
-            config_function = bbar.getConfigFunction( interactionState )
             spos = config_function.value.getValue()
         if normalized: 
+            bounds = config_function.getRangeBounds()
             axis_bounds = self.point_cloud_overview.getAxisBounds()
             sindex = 2*self.sliceAxisIndex 
-            spos =  ( spos - axis_bounds[sindex]) / ( axis_bounds[sindex+1] - axis_bounds[sindex])   
+#            spos =  ( spos - axis_bounds[sindex]) / ( axis_bounds[sindex+1] - axis_bounds[sindex])   
+            spos =  ( spos - bounds[0]) / ( bounds[1] - bounds[0] )   
+#            print "            >>--------------->>> Norm Slice Position: %s in %s " % ( str(spos), str(bounds) )
         return spos
 
 #     def setSlicePosition(self, slice_pos ):  
@@ -681,10 +686,12 @@ class CPCPlot( DV3DPlot ):
         istyle = self.renderWindowInteractor.GetInteractorStyle()
 #        r = istyle.GetCurrentRenderer()
 #        GetRenderers()
-        print " ExecCurrentSlice: %s, interactor style = %s (Enabled = %s) " % ( str( subset_spec ), str( istyle.__class__.__name__ ), str( istyle.GetEnabled() ) )
+#        print " ExecCurrentSlice: %s, interactor style = %s (Enabled = %s) " % ( str( subset_spec ), str( istyle.__class__.__name__ ), str( istyle.GetEnabled() ) )
         if self.render_mode ==  ProcessMode.HighRes:
+            print " HR ExecCurrentSlice: subset_spec = %s, args = %s, sbounds = %s " % ( str(subset_spec), str(args), str(slice_bounds) )
             self.partitioned_point_cloud.generateSubset( spec=self.current_subset_specs, allow_processing=True )
         else:
+            print " LR ExecCurrentSlice: subset_spec = %s, args = %s, sbounds = %s " % ( str(subset_spec), str(args), str(slice_bounds) )
             self.point_cloud_overview.generateSubset( spec=self.current_subset_specs )
 #            if self.partitioned_point_cloud:
 #                self.partitioned_point_cloud.generateSubset( spec=self.current_subset_specs, allow_processing=False )
@@ -982,20 +989,76 @@ class CPCPlot( DV3DPlot ):
                 self.point_cloud_overview.generateSubset( spec=self.current_subset_specs )
                 self.render( mode=self.render_mode )   
         elif args and args[0] == "EndConfig":
-            scaling_spec = ( self.vertVar, vscale.getValue() )
+            self.scaling_spec = ( self.vertVar, vscale.getValue() )
             if self.partitioned_point_cloud:
-                self.partitioned_point_cloud.generateZScaling( spec=scaling_spec )
+                self.partitioned_point_cloud.generateZScaling( spec=self.scaling_spec )
             self.setRenderMode( ProcessMode.HighRes )
             self.render() 
+        elif args and args[0] == "Init":
+            ( xcenter, ycenter, xwidth, ywidth ) = self.point_cloud_overview.getCenter()
+#            val = config_function.initial_value[0]
+            vscale_val = ( xwidth + ywidth )/500.0
+            config_function.setRangeBounds( [ vscale_val/5.0, vscale_val*5.0 ] )
+            vscale.setValues( [ vscale_val ] ) 
+            self.scaling_spec = ( self.vertVar, vscale_val )
+            self.point_cloud_overview.generateZScaling( spec=self.scaling_spec )
+            if self.partitioned_point_cloud:
+                print " processVerticalScalingCommand.generateZScaling ", str( self.scaling_spec )
+                self.partitioned_point_cloud.generateZScaling( spec=self.scaling_spec )
+            self.skipIndex = 5
         elif args and args[0] == "InitConfig":
-                self.updateTextDisplay( config_function.label )                      
+            self.updateTextDisplay( config_function.label )                      
+            vscale.setValue( 'count', 1 ) 
         elif args and args[0] == "UpdateConfig":  
-            val = args[2].GetValue()         
-            vscale.setValue( 0, val ) 
-            scaling_spec = ( self.vertVar, val )
-            self.point_cloud_overview.generateZScaling( spec=scaling_spec )
-            self.render()
-                        
+            count = vscale.incrementValue( 'count' )
+            if count % self.skipIndex == 0:
+                val = args[2].GetValue()         
+                vscale.setValue( 0, val ) 
+                self.scaling_spec = ( self.vertVar, val )
+                self.point_cloud_overview.generateZScaling( spec=self.scaling_spec )
+                self.render()
+
+#     def processVerticalScalingCommand1( self, args, config_function ):
+#         vscale = config_function.value
+#         if args and args[0] == "StartConfig":
+#             if self.render_mode ==  ProcessMode.HighRes:
+#                 self.setRenderMode( ProcessMode.LowRes ) 
+#                 self.point_cloud_overview.generateSubset( spec=self.current_subset_specs )
+#                 self.render( mode=self.render_mode )   
+#         elif args and args[0] == "Init":
+#             ( xcenter, ycenter, xwidth, ywidth ) = self.point_cloud_overview.getCenter()
+# #            val = config_function.initial_value[0]
+#             val = ( xwidth + ywidth )/250.0
+#             vscale.setValues( [ val ] ) 
+#             print "^^^^^^^^^^^^^^^^^^^^^^^^^ SET ZSCALE: %s " % str( ( val, xwidth, ywidth ) )
+#             scaling_spec = ( self.vertVar, val )
+#             self.point_cloud_overview.generateZScaling( spec=scaling_spec )
+#             vscale.setValue( 'count', 1 )
+#         elif args and args[0] == "EndConfig":
+#             scaling_spec = ( self.vertVar, vscale.getValue() )
+#             if self.partitioned_point_cloud:
+#                 self.partitioned_point_cloud.generateZScaling( spec=scaling_spec )
+#             self.setRenderMode( ProcessMode.HighRes )
+#             self.render() 
+#         elif args and args[0] == "InitConfig":
+#             axis_bounds = self.point_cloud_overview.getAxisBounds()
+#             config_function.setRangeBounds( axis_bounds[4:] )
+#             print "processVerticalScalingCommand.setRangeBounds: ", str( axis_bounds[4:]  )
+#             self.updateTextDisplay( config_function.label )  
+#             self.skipIndex = 5                   
+#         elif args and args[0] == "UpdateConfig":  
+#             count = vscale.incrementValue( 'count' )
+#             if count % self.skipIndex == 0:
+#                 val = args[2].GetValue()         
+#                 vscale.setValue( 0, val ) 
+#                 scaling_spec = ( self.vertVar, val )
+#                 self.point_cloud_overview.generateZScaling( spec=scaling_spec )
+#                                
+#                 axis_bounds = self.point_cloud_overview.getAxisBounds()
+#                 print "processVerticalScalingCommand.UpdateConfig: ", str( axis_bounds[4:]  ) 
+#                 self.render()
+
+                   
     def processVerticalVariableCommand(self, args=None ):
         scaling_spec = ( self.vertVar, self.vscale.getValue() )
         if self.partitioned_point_cloud:
@@ -1169,6 +1232,10 @@ class CPCPlot( DV3DPlot ):
             args.update( self.plot_attributes )
             self.partitioned_point_cloud = vtkPartitionedPointCloud( nCollections, init_args, **args )
             self.partitioned_point_cloud.NewDataAvailable.connect( self.newDataAvailable )
+            if not self.scaling_spec is None:
+                print " initCollections.generateZScaling ", str( self.scaling_spec )
+                self.partitioned_point_cloud.generateZScaling( spec=self.scaling_spec )
+
         else:
             self.render_mode = ProcessMode.LowRes
 #        self.partitioned_point_cloud.connect( self.partitioned_point_cloud, QtCore.SIGNAL('updateScaling'), self.updateScaling )        

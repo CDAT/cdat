@@ -73,7 +73,7 @@ class PointCollectionExecutionTarget:
         self.printLogMessage( self.cfg_args )
 
     def printLogMessage(self, msg ):
-        print " PointCollectionExecutionTarget %d: %s" % ( self.collection_index, str(msg) )
+#        print " PointCollectionExecutionTarget %d: %s" % ( self.collection_index, str(msg) )
         sys.stdout.flush()      
 
     def __call__( self, args_queue, result_queue ):
@@ -518,7 +518,7 @@ class vtkSubProcPointCloud( vtkPointCloud ):
         
     def generateSubset(self, **args ):
         self.current_subset_specs = args.get( 'spec', self.current_subset_specs )
-        print " vtkSubProcPointCloud: current_subset_specs: %s (%s) " % ( self.current_subset_specs, str(args) )
+#        print " vtkSubProcPointCloud: current_subset_specs: %s (%s) " % ( self.current_subset_specs, str(args) )
         process = args.get( 'process', True )
         if process:
             self.clearQueues()
