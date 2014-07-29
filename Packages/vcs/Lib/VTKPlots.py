@@ -332,6 +332,11 @@ class VTKVCSBackend(object):
     if gtype in ["boxfill","meshfill","isofill","isoline"]:      
       self.plot2D(data1,data2,tpl,gm,ren)
     elif gtype in ["3d_scalar", "3d_vector"]:
+      cdmsvar = kargs.get( 'cdmsvar', None )
+      if not cdmsvar is None:
+          gm.addPlotAttribute( 'file', cdmsvar.file )
+          gm.addPlotAttribute( 'filename', cdmsvar.filename )
+          gm.addPlotAttribute( 'url', cdmsvar.url )
       self.plot3D(data1,data2,tpl,gm,ren)
     elif gtype in ["text"]:
       if tt.priority!=0:
@@ -465,6 +470,7 @@ class VTKVCSBackend(object):
   def plot3D(self,data1,data2,tmpl,gm,ren):
       from DV3D.Application import DV3DApp
       requiresFileVariable = True
+      print " ---> Plot3D, data1 is %s " % data1.__class__.__name__
       if ( data1 is None ) or ( requiresFileVariable and not ( isinstance(data1, cdms2.fvariable.FileVariable ) or isinstance(data1, cdms2.tvariable.TransientVariable ) ) ):
           traceback.print_stack()
           raise Exception, "Error, must pass a cdms2 variable object as the first input to the dv3d gm ( found '%s')" % ( data1.__class__.__name__ )
@@ -476,7 +482,7 @@ class VTKVCSBackend(object):
           var_proc_op = None
           interface = None
           roi = None # ( 0, 0, 50, 50 )
-          g.gminit( data1, data2, roi=roi, axes=gm.axes, n_overview_points=n_overview_points, renwin=ren.GetRenderWindow(), gmname=gm.g_name, cm=gm.cfgManager  ) #, plot_type = PlotType.List  ) 
+          g.gminit( data1, data2, roi=roi, axes=gm.axes, n_overview_points=n_overview_points, renwin=ren.GetRenderWindow(), plot_attributes=gm.getPlotAttributes(), gmname=gm.g_name, cm=gm.cfgManager  ) #, plot_type = PlotType.List  ) 
           self.plotApps[ gm ] = g
           self.plotRenderers.add( g.plot.renderer )
       else:

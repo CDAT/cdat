@@ -1166,6 +1166,7 @@ class CPCPlot( DV3DPlot ):
     def initCollections( self, nCollections, init_args, **args ):
         if nCollections > 0:
             args[ 'interactor' ] = self.renderWindowInteractor 
+            args.update( self.plot_attributes )
             self.partitioned_point_cloud = vtkPartitionedPointCloud( nCollections, init_args, **args )
             self.partitioned_point_cloud.NewDataAvailable.connect( self.newDataAvailable )
         else:
@@ -1186,7 +1187,6 @@ class CPCPlot( DV3DPlot ):
         self.mapManager = MapManager( roi = self.point_cloud_overview.getBounds() )
         self.renderer.AddActor( self.mapManager.getBaseMapActor() )
         self.renderer.AddActor( self.mapManager.getSphericalMap() )
-        self.adjustCamera( self.mapManager.mapCenter, self.mapManager.width )
         
     def reset( self, pcIndex ):
         if not self.isValid and ( self.partitioned_point_cloud <> None ):
@@ -1239,7 +1239,9 @@ class CPCPlot( DV3DPlot ):
     def getInitArgs(self, var1, var2, **args ):
         interface = None
         dfile = var1.parent
-        data_file = dfile.id if dfile else "Dataset"
+        data_file = dfile.id if dfile else None
+        if data_file == None: data_file = self.plot_attributes.get( 'filename', None )
+        if data_file == None: data_file = self.plot_attributes.get( 'url', None )
         varnames = [ getVarName( var1 ) ]
         if not var2 is None: varnames.append( getVarName( var2 ) )
         subSpace = args.get( 'axes', 'xyz' )
@@ -1265,13 +1267,14 @@ class CPCPlot( DV3DPlot ):
         if ( n_subproc_points > nInputPoints ): n_subproc_points = nInputPoints
         nPartitions = int( round( min( nInputPoints / n_subproc_points, 10  ) ) )
         nCollections = min( nPartitions, n_cores-1 )
-        print " Init PCViewer, nInputPoints = %d, n_overview_points = %d, n_subproc_points = %d, nCollections = %d, overview skip index = %s" % ( nInputPoints, n_overview_points, n_subproc_points, nCollections, self.point_cloud_overview.getSkipIndex() )
+        print " Init PCViewer, nInputPoints = %d, n_overview_points = %d, n_subproc_points = %d, nCollections = %d, overview skip index = %s, init_args = %s" % ( nInputPoints, n_overview_points, n_subproc_points, nCollections, self.point_cloud_overview.getSkipIndex(), str( init_args ) )
         self.initCollections( nCollections, init_args, lut = lut, maxStageHeight=self.maxStageHeight  )
         self.defvar =  init_args[3]
         self.vertVar = None
         self.initializeConfiguration()       
         self.buttonBarHandler.cfgManager.initParameters()
         self.initializePlots()
+        self.setCameraPos()
              
 #             pc = self.point_cloud_overview.getPointCollection()
 #             cfgInterface = ConfigurationInterface( metadata=pc.getMetadata(), defvar=pc.var.id, callback=self.processConfigCmd  )
@@ -1279,6 +1282,10 @@ class CPCPlot( DV3DPlot ):
 #             cfgInterface.activate()
             
         self.start()
+       
+    def setCameraPos(self):
+        ( xcenter, ycenter, xwidth, ywidth ) = self.point_cloud_overview.getCenter()
+        self.initCamera( ( xwidth + ywidth ), ( xcenter, ycenter ) )
 
     def initializeConfiguration( self, cmap_index=0, **args ):
 #        ispec = self.inputSpecs[ cmap_index ] 

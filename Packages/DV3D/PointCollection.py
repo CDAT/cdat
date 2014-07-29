@@ -218,7 +218,7 @@ class PointCollection():
         except:
             return axis_ids
 
-    def getLatLon( self, varname, grid_coords, **args ):
+    def getLatLon( self, grid_coords, **args ):
         data_file = self.df
         grid_file = self.gf
 #         if grid_file:
@@ -296,7 +296,7 @@ class PointCollection():
         lev_aliases =  [ "isobaric", "bottom_top", "layers", "interfaces" ]
         lev = var.getLevel()
         if lev == None:
-            for axis_spec in var.domain:
+            for axis_spec in var.getDomain():
                 axis = axis_spec[0]
                 grid_lev = None
                 if self.gf:
@@ -369,7 +369,7 @@ class PointCollection():
         self.extractMetadata()
         self.grid = self.var.getGrid()
         self.lev = self.getLevel(self.var)
-        lon, lat = self.getLatLon( varname, grid_coords )  
+        lon, lat = self.getLatLon( grid_coords )  
         if ( id(lon) <> id(None) ) and ( id(lat) <> id(None) ):                                 
             self.time = self.var.getTime()
             z_scale = 0.5

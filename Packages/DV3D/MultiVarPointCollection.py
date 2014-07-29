@@ -306,7 +306,7 @@ class MultiVarPointCollection():
         except:
             return axis_ids
 
-    def getLatLon( self, varname, grid_coords, **args ):
+    def getLatLon( self, grid_coords, **args ):
         data_file = self.df
         grid_file = self.gf
 #         if grid_file:
@@ -316,12 +316,14 @@ class MultiVarPointCollection():
 #                 return  self.processCoordinates( lat, lon )
         Var = self.var        
         axis_ids = self.getAxisIds( Var )
+        lat = None
+        lon = None
         if axis_ids:
             try:
-                if grid_file:
+                if grid_file:   
                     lon = grid_file( axis_ids[0], squeeze=1 )
                     lat = grid_file( axis_ids[1], squeeze=1 )  
-                else:
+                elif data_file:
                     lon = data_file( axis_ids[0], squeeze=1 )
                     lat = data_file( axis_ids[1], squeeze=1 )  
             except cdms2.error.CDMSError:
@@ -331,10 +333,11 @@ class MultiVarPointCollection():
                 return  self.processCoordinates( lat, lon )
         elif hasattr( Var, "stagger" ):
             stagger = Var.stagger.strip()
-            lat = data_file( "XLAT_%s" % stagger, squeeze=1 )  
-            lon = data_file( "XLONG_%s" % stagger, squeeze=1 )
-            if PlotType.validCoords( lat, lon ): 
-                return  self.processCoordinates( lat, lon )
+            if data_file <> None:
+                lat = data_file( "XLAT_%s" % stagger, squeeze=1 )  
+                lon = data_file( "XLONG_%s" % stagger, squeeze=1 )
+                if PlotType.validCoords( lat, lon ): 
+                    return  self.processCoordinates( lat, lon )
 
         lat = Var.getLatitude()  
         lon = Var.getLongitude()
@@ -346,7 +349,19 @@ class MultiVarPointCollection():
         lat_coord = grid_coords[1] 
         lat = data_file( lat_coord, squeeze=1 )  if lat_coord else None 
         if PlotType.validCoords( lat, lon ): 
-            return  self.processCoordinates( lat, lon )   
+            return  self.processCoordinates( lat, lon )  
+        
+        lon_coord_names = [ 'east_west', 'west_east']
+        lat_coord_names = [ 'north_south', 'south_north' ]
+        for axis_spec in Var.getDomain():
+            for aname in lon_coord_names:
+                if axis_spec[0].id.lower().find( aname ) <> -1:
+                    lon = axis_spec[0]
+            for aname in lat_coord_names:
+                if axis_spec[0].id.lower().find( aname ) <> -1:
+                    lat = axis_spec[0]
+        if PlotType.validCoords( lat, lon ): 
+            return  self.processCoordinates( lat.getValue(), lon.getValue() )
         
         axis_ids = []
         longitude_names = [ 'longitude', 'column longitude' ]
@@ -384,7 +399,7 @@ class MultiVarPointCollection():
         lev_aliases =  [ "isobaric", "bottom_top", "layers", "interfaces" ]
         lev = var.getLevel()
         if lev == None:
-            for axis_spec in var.domain:
+            for axis_spec in var.getDomain():
                 axis = axis_spec[0]
                 grid_lev = None
                 if self.gf:
@@ -397,6 +412,11 @@ class MultiVarPointCollection():
                 if axis.id in lev_aliases:
                     axis.designateLevel()
                     return grid_lev if ( grid_lev <> None ) else axis
+            for axis_spec in var.getDomain():
+                axis = axis_spec[0]
+                if axis.id.find('level') <> -1:
+                    axis.designateLevel()
+                    return axis
         return lev
 
     def stepTime( self, **args ):
@@ -416,11 +436,11 @@ class MultiVarPointCollection():
             self.vrange[grid_var_name] = ( var_data.min(), var_data.max() ) 
         return process
     
-    def getProcessedVariable( self, varname, var_proc_op = None ):
-        var = self.df[ varname ]
+    def getProcessedVariable( self, var_proc_op = None ):
+        var = self.df[ self.grid_vars[0] ] if ( type( self.grid_vars[0] ) == str ) else self.grid_vars[0]           
         self.point_layout = self.getPointsLayout( var )
         if isNone( var ):
-            print>>sys.stderr, "Error, can't find variable '%s' in data file." % ( varname )
+            print>>sys.stderr, "Error, can't find variable '%s' in data file." % ( self.grid_vars[0] )
             return None
         if self.roi <> None:
             if ( self.point_layout == PlotType.Grid ):
@@ -439,20 +459,21 @@ class MultiVarPointCollection():
 
     def initialize( self, args, **cfg_args ): 
         self.configure( **cfg_args )
-        ( grid_file, data_file, interface, grd_varnames, grd_coords, var_proc_op, ROI, subSpace ) = args
+        ( grid_file, data_file, interface, grd_vars, grd_coords, var_proc_op, ROI, subSpace ) = args
         self.interface = interface
         self.roi = ROI
         self.gf = cdms2.open( grid_file ) if grid_file else None
-        self.df = cdms2.open( data_file )       
-        self.grid_varname = grd_varnames[0] if ( grd_varnames <> None ) else self.df.variables[0]
+        self.df = cdms2.open( data_file ) if data_file else None         
+        self.grid_vars = grd_vars if ( grd_vars <> None ) else self.df.variables[0]
         self.grid_coords = grd_coords
         self.initPoints( var_proc_op )
         
     def initPoints( self, var_proc_op=None ):
-        self.var = self.getProcessedVariable( self.grid_varname, var_proc_op )
+        self.var = self.getProcessedVariable( var_proc_op )
+        varname = self.var.id
         self.grid = self.var.getGrid()
         self.lev = self.getLevel(self.var)
-        lon, lat = self.getLatLon( self.grid_varname, self.grid_coords )  
+        lon, lat = self.getLatLon( self.grid_coords )  
         if not ( isNone(lat) or isNone(lon) ): 
             self.vars[ 'lat' ] = lat
             self.metadata[ 'lat' ] = ( getattr( lat, 'long_name', 'Latitude' ), getattr( lat, 'units', None ), self.axis_bounds.get( 'y', None ) )  
@@ -476,19 +497,17 @@ class MultiVarPointCollection():
             if self.lev <> None: 
                 self.metadata[ 'lev' ] = ( self.lev.__dict__.get('long_name',self.lev.id), self.lev.units, self.axis_bounds.get( 'z', None ) ) 
                 self.point_data_arrays[ 'lev' ] = self.point_data_arrays['z'] 
-            for varname in self.df.variables:
-                if ( self.interface == InterfaceType.InfoVis ) or ( varname == self.grid_varname ):
-                    var = self.getProcessedVariable( varname )
-                    self.vars[ varname ] = var
-                    var_data = self.getDataBlock( var )
-                    if not isNone( var_data ):  
-                        self.point_data_arrays[ varname ] = var_data
-                        vrng = ( var_data.min(), var_data.max() )
-                        self.vrange[ varname ] = vrng 
-        #                self.var_data_cache[ self.iTimeStep ] = var_data
-                        var_long_name = getVarAttribute( var, [ 'long_name', 'name_in_file', 'id' ] )             
-                        var_units = getVarAttribute( var, [ 'units' ] ) 
-                        self.metadata[ varname ] = ( var_long_name, var_units, vrng )
+
+            self.vars[ varname ] = self.var
+            var_data = self.getDataBlock( self.var )
+            if not isNone( var_data ):  
+                self.point_data_arrays[ varname ] = var_data
+                vrng = ( var_data.min(), var_data.max() )
+                self.vrange[ varname ] = vrng 
+#                self.var_data_cache[ self.iTimeStep ] = var_data
+                var_long_name = getVarAttribute( self.var, [ 'long_name', 'name_in_file', 'id' ] )             
+                var_units = getVarAttribute( self.var, [ 'units' ] ) 
+                self.metadata[ varname ] = ( var_long_name, var_units, vrng )
         
     def getPoints(self):
         point_comps = [ self.point_data_arrays[comp].flat for comp in [ 'x', 'y', 'z'] ]

@@ -70,9 +70,10 @@ class PointCollectionExecutionTarget:
         self.ncollections = ncollections
         self.init_args = init_args
         self.cfg_args = cfg_args
+        self.printLogMessage( self.cfg_args )
 
-    def printLogMessage(self, msg_str ):
-        print " PointCollectionExecutionTarget %d: %s" % ( self.collection_index, msg_str )
+    def printLogMessage(self, msg ):
+        print " PointCollectionExecutionTarget %d: %s" % ( self.collection_index, str(msg) )
         sys.stdout.flush()      
 
     def __call__( self, args_queue, result_queue ):
@@ -608,7 +609,7 @@ class vtkSubProcPointCloud( vtkPointCloud ):
                                              
         
     def start_subprocess( self, init_args, **args ):
-        exec_target =  PointCollectionExecutionTarget( self.pcIndex, self.nPartitions, init_args ) 
+        exec_target =  PointCollectionExecutionTarget( self.pcIndex, self.nPartitions, init_args, **args ) 
         self.process = Process( target=exec_target, args=( self.arg_queue, self.result_queue ) )
         self.process.start()
         
@@ -719,7 +720,7 @@ class vtkPartitionedPointCloud:
 #        self.proc_timer = threading.Timer( 0.1, self.processProcQueue )
         for pcIndex in range( self.nPartitions ):
             pc = vtkSubProcPointCloud( pcIndex, nPartitions )
-            pc.start_subprocess( init_args )
+            pc.start_subprocess( init_args, **args )
             self.point_clouds[ pcIndex ] = pc
         for pc in self.point_clouds.values():
             pc.createPolydata( **args )

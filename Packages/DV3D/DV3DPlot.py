@@ -97,6 +97,7 @@ class DV3DPlot():
         self.ycenter = 0.0
         self.ywidth = 180.0
         self.buttonBarHandler = ButtonBarHandler( **args )
+        self.plot_attributes = args.get( 'plot_attributes', {} )
         
         self.configuring = False
         self.activated = False
@@ -661,18 +662,13 @@ class DV3DPlot():
         else:
             self.renderer.ResetCamera( self.getBounds() )
             
-    def initCamera(self, d ):
+    def initCamera(self, d, center = (0,0) ):
 #        print " -------------------------- >>>>> --------------------------- >>>>  initCamera:  ", str( ( self.xcenter, self.ycenter, d ) )
-        self.renderer.GetActiveCamera().SetPosition( 0.0, 0.0, d )
-        self.renderer.GetActiveCamera().SetFocalPoint( 0.0, 0.0, 0.0 )
+        self.renderer.GetActiveCamera().SetPosition( center[0], center[1], d )
+        self.renderer.GetActiveCamera().SetFocalPoint( center[0], center[1], 0.0 )
         self.renderer.GetActiveCamera().SetViewUp( 0, 1, 0 )  
         self.renderer.ResetCameraClippingRange() 
         self.printCameraPos( 'initCamera' )
-        
-    def adjustCamera( self, center, distance ): 
-        self.xcenter = center[0]
-        self.ycenter = center[1]
-        self.initCamera( distance )
             
     def getCamera(self):
         return self.renderer.GetActiveCamera()

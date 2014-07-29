@@ -148,6 +148,7 @@ class MapManager:
             self.mapCenter = [ self.x0 + map_cut_size[0]/2.0, self.y0 + map_cut_size[1]/2.0 ]  
             
     def getBaseMapActor(self):
+        print " <<--------------------------------------->> GetBaseMapActor <<--------------------------------------->>  <<--------------------------------------->>"
         if self.baseMapActor == None: self.build()  
         return self.baseMapActor 
     
