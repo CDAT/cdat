@@ -43,6 +43,7 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
         if Gfdv3d_name in vcs.elements[self.g_name].keys():
             raise ValueError,"DV3D graphic method '%s' already exists" % Gfdv3d_name
         self._name = Gfdv3d_name
+        self._plot_attributes = {}
         
         if Gfdv3d_name=="hovmuller": 
             self._axes="xyt"
@@ -59,6 +60,14 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
         fset = lambda self, value: self.setParameter(name, value)
         setattr(self.__class__, name, property(fget, fset))
 
+    def addPlotAttribute(self, name, value ):
+        self._plot_attributes[ name ] = value 
+
+    def getPlotAttribute(self, name ):
+        return self._plot_attributes.get( name, None )
+
+    def getPlotAttributes( self ):
+        return self._plot_attributes
                 
     def addParameters(self):
         parameterMetadata = self.cfgManager.getParameterMetadata()
