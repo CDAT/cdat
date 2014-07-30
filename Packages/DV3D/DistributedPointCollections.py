@@ -70,10 +70,9 @@ class PointCollectionExecutionTarget:
         self.ncollections = ncollections
         self.init_args = init_args
         self.cfg_args = cfg_args
-        self.printLogMessage( self.cfg_args )
 
     def printLogMessage(self, msg ):
-#        print " PointCollectionExecutionTarget %d: %s" % ( self.collection_index, str(msg) )
+        print " PointCollectionExecutionTarget %d: %s" % ( self.collection_index, str(msg) )
         sys.stdout.flush()      
 
     def __call__( self, args_queue, result_queue ):
@@ -651,7 +650,6 @@ class vtkLocalPointCloud( vtkPointCloud ):
         return self.point_collection.getMetadata()
 
     def generateZScaling(self, **args ):
-        print " generateZScaling-2: ", str( args )
         z_subset_spec = args.get('spec', None )
         op_specs = [ 'points' ] + list( z_subset_spec )
         self.point_collection.execute( op_specs ) 
@@ -878,7 +876,6 @@ class vtkPartitionedPointCloud:
         self.runProcess( PCProc.Subset, **args )
  
     def generateZScaling(self, **args ):
-        print " generateZScaling-3: ", str( args )
         self.runProcess( PCProc.ZScaling, **args )
  
     def stepTime(self, **args ):

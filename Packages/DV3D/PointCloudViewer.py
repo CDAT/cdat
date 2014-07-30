@@ -980,6 +980,7 @@ class CPCPlot( DV3DPlot ):
 #             self.processVerticalScalingCommand( [ "EndConfig" ] )
     
     def updateVerticalScaling(self): 
+        print " updateVerticalScaling: ", str( self.scaling_spec )
         self.point_cloud_overview.generateZScaling( spec=self.scaling_spec )
         if self.partitioned_point_cloud:
             self.partitioned_point_cloud.generateZScaling( spec=self.scaling_spec )
@@ -1349,15 +1350,6 @@ class CPCPlot( DV3DPlot ):
 #             cfgInterface.activate()
             
         self.start()
-
-    def initializePlots(self):            
-        DV3DPlot.initializePlots(self)
-        self.updateVerticalScaling() 
-#        self.setRenderMode( ProcessMode.HighRes )                      
-                   
-    def setCameraPos(self):
-        ( xcenter, ycenter, xwidth, ywidth ) = self.point_cloud_overview.getCenter()
-        self.initCamera( ( xwidth + ywidth ), ( xcenter, ycenter ) )
 
     def initializePlots(self):         
         DV3DPlot.initializePlots(self)
