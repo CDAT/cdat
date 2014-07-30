@@ -539,7 +539,7 @@ class vtkSubProcPointCloud( vtkPointCloud ):
         if cached_zscale_value <> zscale_value:
             self.clearQueues()
             op_specs = [ 'points' ] + list(z_subset_spec)
-            print " Generate Z Scaling [P-%d]: %s " % ( self.pcIndex, str( args ) )
+#             print " Generate Z Scaling [P-%d]: %s " % ( self.pcIndex, str( args ) )
             self.arg_queue.put( op_specs,  False )
             self.parameter_cache['zscale'] = zscale_value
 
