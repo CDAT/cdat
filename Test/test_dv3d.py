@@ -15,7 +15,7 @@ class DataType:
 
 data_type = DataType.UNSTRUCTURED
 
-if data_type == DataType.UNSTRUCTURED:
+if data_type == DataType.STRUCTURED:
     
     proc_specs = subprocess.check_output('ps').split('\n')
     for proc_spec in proc_specs:
@@ -35,9 +35,11 @@ else:
     f = cdms2.open( os.path.join( sys.prefix, "sample_data", "geos5-sample.nc") )
     u = f["uwnd"] 
 
-dv3d = vcs.create3d_scalar()
+# dv3d = vcs.create3d_scalar('hoffmuller','xyt')
+dv3d = vcs.get3d_scalar('xyt')
 
 x = vcs.init()
+print "3D_Scalar elements: ", str( x.listelements('3d_scalar') )
 x.plot( u, dv3d )
 x.interact()
 
