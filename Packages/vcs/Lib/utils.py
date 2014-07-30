@@ -502,7 +502,7 @@ def loadVCSItem(typ,nm,json_dict = {}):
   return gm
 
 def return_display_names():
-  warnings.warn("PLEASE IMPLEMENT return_display_names!!!! (in utils.py)")
+  #warnings.warn("PLEASE IMPLEMENT return_display_names!!!! (in utils.py)")
   return [""],[""]
 
 def getdotdirectory():

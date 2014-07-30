@@ -59,7 +59,6 @@ class VTKVCSBackend(object):
     for dnm in self.canvas.display_names:
       d=vcs.elements["display"][dnm]
       if d.array[0] is None:
-        print "Nope no array[0]"
         continue
       t=vcs.elements["template"][d.template]
       gm = vcs.elements[d.g_type][d.g_name]
@@ -299,19 +298,6 @@ class VTKVCSBackend(object):
         self.renWin.SetOffScreenRendering(True)
         self.renWin.SetSize(self.canvas.bgX,self.canvas.bgY)
     #self.renWin.Render()
-    if kargs.get("renderer",None) is None:
-        if ( gtype in ["3d_scalar", "3d_vector"] ) and (self.renderer <> None):
-            ren = self.renderer
-        else:
-            ren = vtk.vtkRenderer()
-            r,g,b = self.canvas.backgroundcolor
-            ren.SetBackground(r/255.,g/255.,b/255.)
-            self.renderer = ren
-            self.renWin.AddRenderer(ren)
-        #ren.SetPreserveDepthBuffer(True)
-    else:
-      ren = kargs["renderer"]
-
     #screenSize = self.renWin.GetScreenSize()
     if gtype in ["boxfill","meshfill","isoline","isofill","vector"]:
       data1 = self.trimData2D(data1) # Ok get only the last 2 dims
@@ -324,10 +310,25 @@ class VTKVCSBackend(object):
       tt,to = gname.split(":::")
       tt = vcs.elements["texttable"][tt]
       to = vcs.elements["textorientation"][to]
+      gm=tt
     else:
       gm = vcs.elements[gtype][gname]
     tpl = vcs.elements["template"][template]
-    # ok for now let's assume it is 2D...
+
+    if kargs.get("renderer",None) is None:
+        if ( gtype in ["3d_scalar", "3d_vector"] ) and (self.renderer <> None):
+            ren = self.renderer
+        else:
+            ren = vtk.vtkRenderer()
+            r,g,b = self.canvas.backgroundcolor
+            ren.SetBackground(r/255.,g/255.,b/255.)
+            if not (vcs.issecondaryobject(gm) and gm.priority==0):
+                self.renderer = ren
+                self.renWin.AddRenderer(ren)
+        #ren.SetPreserveDepthBuffer(True)
+    else:
+      ren = kargs["renderer"]
+
     if gtype in ["boxfill","meshfill","isofill","isoline"]:      
       self.plot2D(data1,data2,tpl,gm,ren)
     elif gtype in ["3d_scalar", "3d_vector"]:
@@ -535,7 +536,6 @@ class VTKVCSBackend(object):
       cmap = vcs.elements["colormap"][cmap]
     except:
       cmap = vcs.elements["colormap"][self.canvas.getcolormapname()]
-    print "LCOLOR:",lcolor
     r,g,b = cmap.index[lcolor]
     act.GetProperty().SetColor(r/100.,g/100.,b/100.)
     x1,x2,y1,y2 = vcs2vtk.getRange(gm,xm,xM,ym,yM)
@@ -794,6 +794,7 @@ class VTKVCSBackend(object):
         if isinstance(mapper,list):
           act.SetMapper(mapper[0])
         else:
+          mapper.Update()
           act.SetMapper(mapper)
         act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
         if isinstance(mapper,list):
@@ -858,7 +859,6 @@ class VTKVCSBackend(object):
         # Ok just return the last two dims
         return data(*(slice(0,1),)*(len(daxes)-2),squeeze=1)
     except Exception,err: # ok no grid info
-      print "Got exception",err
       daxes=list(data.getAxisList())
       if cdms2.isVariable(data):
         return data(*(slice(0,1),)*(len(daxes)-2))
