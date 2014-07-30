@@ -646,10 +646,13 @@ def checkProjection(self,name,value):
      checkName(self,name,value)
      if isinstance(value,vcs.projection.Proj):
           value=value.name
-     if isinstance(value,str):
+     elif isinstance(value,(str,unicode)):
+        value = str(value)
         if not value in vcs.elements["projection"].keys():
            raise ValueError, 'The '+value+' projection does not exist'
         return value
+     else:
+       raise ValueError("Could not understand value for projection attribute: %s" % value)
 
 def checkTicks(self,name,value):
   value = checkStringDictionary(self,name,value)
@@ -1221,3 +1224,9 @@ def _setlegend(self,value):
      value=checkLegend(self,'legend',value)
      self._legend=value
 legend=property(_getlegend,_setlegend)
+def _getprojection(self):
+     return self._projection
+def _setprojection(self,value):
+     value=checkProjection(self,'projection',value)
+     self._projection=value
+projection=property(_getprojection,_setprojection)
