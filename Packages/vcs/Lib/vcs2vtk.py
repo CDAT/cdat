@@ -222,21 +222,23 @@ def project(pts,projection):
   #  print i, ps.GetProjectionName(i)
   pd = vtk.vtkGeoProjection()
   proj_dic = {"polar stereographic":"stere",
-      "polar (non gctp)":"ups",
+      "polar (non gctp)":"stere",
       }
   
   pname = proj_dic.get(projection.type,projection.type)
   projName = pname
-  for i in range(0,184,2):
-    pd.SetName(pd.GetProjectionName(i))
-    print i,":",pd.GetProjectionName(i),"(",pd.GetNumberOfOptionalParameters(),") --"
-    pd.SetName(pd.GetProjectionName(i+1))
-    print i+1,":",pd.GetProjectionName(i+1),"(",pd.GetNumberOfOptionalParameters(),")"
+  #for i in range(0,184,2):
+  #  pd.SetName(pd.GetProjectionName(i))
+  #  print i,":",pd.GetProjectionName(i),"(",pd.GetNumberOfOptionalParameters(),") --"
+  #  pd.SetName(pd.GetProjectionName(i+1))
+  #  print i+1,":",pd.GetProjectionName(i+1),"(",pd.GetNumberOfOptionalParameters(),")"
     
   pd.SetName(projName)
   if projection.type == "polar (non gctp)":
-    N = pd.GetNumberOfOptionalParameters()
-    print "N:",N
+    pd.SetOptionalParameter("tlat_ts","-1.57")
+    pd.SetOptionalParameter("rlat_ts","1.57")
+    pd.SetOptionalParameter("bsouth","-1.57")
+    pd.SetCentralMeridian(20.)
   geo.SetSourceProjection(ps)
   geo.SetDestinationProjection(pd)
   geopts = vtk.vtkPoints()
