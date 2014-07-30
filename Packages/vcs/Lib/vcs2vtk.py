@@ -221,11 +221,22 @@ def project(pts,projection):
   #for i in range(ps.GetNumberOfProjections()):
   #  print i, ps.GetProjectionName(i)
   pd = vtk.vtkGeoProjection()
-  proj_dic = {"polar stereographic":"stere"}
-
+  proj_dic = {"polar stereographic":"stere",
+      "polar (non gctp)":"ups",
+      }
+  
   pname = proj_dic.get(projection.type,projection.type)
   projName = pname
+  for i in range(0,184,2):
+    pd.SetName(pd.GetProjectionName(i))
+    print i,":",pd.GetProjectionName(i),"(",pd.GetNumberOfOptionalParameters(),") --"
+    pd.SetName(pd.GetProjectionName(i+1))
+    print i+1,":",pd.GetProjectionName(i+1),"(",pd.GetNumberOfOptionalParameters(),")"
+    
   pd.SetName(projName)
+  if projection.type == "polar (non gctp)":
+    N = pd.GetNumberOfOptionalParameters()
+    print "N:",N
   geo.SetSourceProjection(ps)
   geo.SetDestinationProjection(pd)
   geopts = vtk.vtkPoints()
@@ -794,10 +805,12 @@ def fitToViewport(Actor,Renderer,vp,wc=None,geo=None):
     Xrg=[float(wc[0]),float(wc[1])]
     Yrg=[float(wc[2]),float(wc[3])]
 
-  print "X,Y:",Xrg,Yrg
   if geo is not None:
+   print "X,Y:",Xrg,Yrg
    pt = vtk.vtkPoints()
    pt.SetNumberOfPoints(1)
+   Xrg2 = [1.e20,-1.e20]
+   Yrg2 = [1.e20,-1.e20]
    for x in numpy.arange(Xrg[0],Xrg[1],(Xrg[1]-Xrg[0])/10.):
      for y in numpy.arange(Yrg[0],Yrg[1],(Yrg[1]-Yrg[0])/10.):
        pt.SetPoint(0,x,y,0)
@@ -806,14 +819,16 @@ def fitToViewport(Actor,Renderer,vp,wc=None,geo=None):
        b = pts.GetBounds()
        xm,xM,ym,yM=b[:4]
        if xm!=-numpy.inf:
-         Xrg[0]=min(Xrg[0],xm)
+         Xrg2[0]=min(Xrg2[0],xm)
        if xM!=numpy.inf:
-         Xrg[1]=max(Xrg[1],xM)
+         Xrg2[1]=max(Xrg2[1],xM)
        if ym!=-numpy.inf:
-         Yrg[0]=min(Yrg[0],ym)
+         Yrg2[0]=min(Yrg2[0],ym)
        if yM!=numpy.inf:
-         Yrg[1]=max(Yrg[1],yM)
-   print "Converted X,Y:",Xrg,Yrg
+         Yrg2[1]=max(Yrg2[1],yM)
+   print "Converted X,Y:",Xrg2,Yrg2
+   Xrg=Xrg2
+   Yrg=Yrg2
   Renderer.SetViewport(vp[0],vp[2],vp[1],vp[3])
   rw = Renderer.GetRenderWindow()
   sc = rw.GetSize()

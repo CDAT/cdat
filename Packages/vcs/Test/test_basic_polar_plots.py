@@ -5,7 +5,8 @@ x=vcs.init()
 b=vcs.createboxfill()
 
 p=vcs.createprojection()
-p.type="polar"
+#p.type="polar (non gctp)"
+p.type=-3
 
 b.projection = p
 
