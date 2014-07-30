@@ -14,13 +14,13 @@ import cdtime
 f = open(os.path.join(sys.prefix,"share","vcs","wmo_symbols.json"))
 wmo = json.load(f)
 
-def putMaskOnVTKGrid(data,grid,actorColor=None):
+def putMaskOnVTKGrid(data,grid,actorColor=None,deep=True):
   #Ok now looking 
   msk = data.mask
-  imsk =  VN.numpy_to_vtk(msk.astype(numpy.int).flat,deep=True)
+  imsk =  VN.numpy_to_vtk(msk.astype(numpy.int).flat,deep=deep)
   mapper = None
   if msk is not numpy.ma.nomask:
-      msk =  VN.numpy_to_vtk(numpy.logical_not(msk).astype(numpy.uint8).flat,deep=True)
+      msk =  VN.numpy_to_vtk(numpy.logical_not(msk).astype(numpy.uint8).flat,deep=deep)
       if actorColor is not None:
           grid2 = vtk.vtkStructuredGrid()
           grid2.CopyStructure(grid)
@@ -268,6 +268,7 @@ def doWrap(Act,wc,wrap=[0.,360]):
   ## Prepare MultiBlock and puts in oriinal data
   appendFilter =vtk.vtkAppendPolyData()
   appendFilter.AddInputData(data)
+  appendFilter.Update()
   ## X axis wrappping
   Amn,Amx = Act.GetXRange()
   if wrap[1]!=0.:
@@ -282,6 +283,7 @@ def doWrap(Act,wc,wrap=[0.,360]):
       Tpf.SetTransform(T)
       Tpf.Update()
       appendFilter.AddInputData(Tpf.GetOutput())
+      appendFilter.Update()
     i=0
     while Amx<xmx:
       i+=1
@@ -293,6 +295,7 @@ def doWrap(Act,wc,wrap=[0.,360]):
       Tpf.SetTransform(T)
       Tpf.Update()
       appendFilter.AddInputData(Tpf.GetOutput())
+      appendFilter.Update()
 
   # Y axis wrapping
   Amn,Amx = Act.GetYRange()
@@ -308,6 +311,7 @@ def doWrap(Act,wc,wrap=[0.,360]):
       Tpf.SetTransform(T)
       Tpf.Update()
       appendFilter.AddInputData(Tpf.GetOutput())
+      appendFilter.Update()
     i=0
     while Amx<ymx:
       i+=1
@@ -319,6 +323,7 @@ def doWrap(Act,wc,wrap=[0.,360]):
       Tpf.SetTransform(T)
       Tpf.Update()
       appendFilter.AddInputData(Tpf.GetOutput())
+      appendFilter.Update()
   appendFilter.Update()
   Actor = vtk.vtkActor()
   Actor.SetProperty(Act.GetProperty())
@@ -328,6 +333,7 @@ def doWrap(Act,wc,wrap=[0.,360]):
   Mapper2.SetInputData(doClip(appendFilter.GetOutput(),xmn,xmx,ymn,ymx))
   Mapper2.SetLookupTable(Mapper.GetLookupTable())
   Mapper2.SetScalarRange(Mapper.GetScalarRange())
+  Mapper2.Update()
   Actor.SetMapper(Mapper2)
   return Actor
 
