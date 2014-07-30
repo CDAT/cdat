@@ -73,7 +73,7 @@ class PointCollectionExecutionTarget:
         self.printLogMessage( self.cfg_args )
 
     def printLogMessage(self, msg ):
-#        print " PointCollectionExecutionTarget %d: %s" % ( self.collection_index, str(msg) )
+        print " PointCollectionExecutionTarget %d: %s" % ( self.collection_index, str(msg) )
         sys.stdout.flush()      
 
     def __call__( self, args_queue, result_queue ):
@@ -101,6 +101,8 @@ class PointCollectionExecutionTarget:
             elif args[0] == 'ROI':
                 data_packet = self.packPointsData()
             data_packet[ 'args' ] = args
+            
+            self.printLogMessage( 'execute: %s' % str(args) )
             self.results.put( data_packet )
         except Exception, err:
             print>>sys.stderr, "Error executing PointCollectionExecutionTarget: ", str( err )
@@ -418,9 +420,11 @@ class vtkPointCloud():
         return self.actor.GetVisibility()
     
     def hide(self):
+        print "vtkPointCloud[%d]: hide " % self.pcIndex
         self.actor.VisibilityOff()
 
     def show(self):
+        print "vtkPointCloud[%d]: show " % self.pcIndex
         if not self.actor.GetVisibility():
             self.actor.VisibilityOn()
        
@@ -519,7 +523,7 @@ class vtkSubProcPointCloud( vtkPointCloud ):
         
     def generateSubset(self, **args ):
         self.current_subset_specs = args.get( 'spec', self.current_subset_specs )
-#        print " vtkSubProcPointCloud: current_subset_specs: %s (%s) " % ( self.current_subset_specs, str(args) )
+        print " vtkSubProcPointCloud[%d]: current_subset_specs: %s (%s) " % ( self.pcIndex, self.current_subset_specs, str(args) )
         process = args.get( 'process', True )
         if process:
             self.clearQueues()
@@ -739,7 +743,6 @@ class vtkPartitionedPointCloud:
             self.interactor.SetTimerEventId(self.CheckProcQueueEventId)
             self.interactor.SetTimerEventType( self.TimerType )
             self.timerId = self.interactor.CreateRepeatingTimer( 100 )
-#            print " ** start CheckingProcQueues ** "
             
     def refresh( self, force = False ): 
         for pc in self.point_clouds.values():
@@ -760,7 +763,6 @@ class vtkPartitionedPointCloud:
             self.timerId = -1
             self.subproc_responses = 0
             self.clearQueues()
-#            print " ** stop CheckingProcQueues ** "
             
     def clearQueues(self):
         for pc_item in self.point_clouds.items():  
@@ -788,7 +790,7 @@ class vtkPartitionedPointCloud:
     def checkProcQueues(self):
         pc_item, rv = self.processProcQueue()
         if rv:
-#            print "---> CheckProcQueues: NewDataAvailable ( %s, %s )" % ( str(pc_item[0]), str(rv) )
+            print "---> CheckProcQueues: NewDataAvailable ( %s, %s )" % ( str(pc_item[0]), str(rv) )
             self.NewDataAvailable( pc_item[0], rv )
             self.subproc_responses = self.subproc_responses + 1
             if self.subproc_responses == len( self.point_clouds ): 
@@ -823,6 +825,7 @@ class vtkPartitionedPointCloud:
                 pc_item[1].hide()
                 
     def show(self): 
+        print "DistributedPointCollections- show()"
         for pc_item in self.point_clouds.items():
             if pc_item[0] < self.nActiveCollections:
                 pc_item[1].show()

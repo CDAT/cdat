@@ -226,6 +226,9 @@ class CPCPlot( DV3DPlot ):
             dvar = self.defvar[0] if ( type(self.defvar) == list ) else self.defvar
             volumeParam.setValue( 'range', vrange )
             volumeParam.setValue( dvar, vrange )
+            
+    def updateModule( self ):
+        pass
 
     def processVolumePlotCommand( self, args, config_function = None ):
         volumeParam = config_function.value
@@ -265,7 +268,7 @@ class CPCPlot( DV3DPlot ):
        
     def setRenderMode( self, render_mode ): 
         modes = [ 'lowres', 'highres' ]
-#        print " Set render mode: ", modes[render_mode]
+        print " CPCPlot: Set render mode: ", modes[render_mode]
         if (render_mode == ProcessMode.HighRes):
             if ( self.partitioned_point_cloud == None ): return 
             if not self.partitioned_point_cloud.hasActiveCollections(): return            
@@ -676,6 +679,7 @@ class CPCPlot( DV3DPlot ):
 #         return bounds[sindex] + self.getSlicePosition() * ( bounds[sindex+1] - bounds[sindex] )
     
     def execCurrentSlice( self, **args ):
+        print " CPCPlot: ExecCurrentSlice"
         args['normalized'] = True
         slice_bounds = self.getSliceBounds(**args)
         self.invalidate()
@@ -685,10 +689,10 @@ class CPCPlot( DV3DPlot ):
         self.current_subset_specs[ self.sliceAxes[self.sliceAxisIndex] ] = subset_spec
         istyle = self.renderWindowInteractor.GetInteractorStyle()
         if self.render_mode ==  ProcessMode.HighRes:
-#            print " HR ExecCurrentSlice: subset_spec = %s, args = %s, sbounds = %s " % ( str(subset_spec), str(args), str(slice_bounds) )
+            print " HR ExecCurrentSlice: subset_spec = %s, args = %s, sbounds = %s " % ( str(subset_spec), str(args), str(slice_bounds) )
             self.partitioned_point_cloud.generateSubset( spec=self.current_subset_specs, allow_processing=True )
         else:
-#            print " LR ExecCurrentSlice: subset_spec = %s, args = %s, sbounds = %s " % ( str(subset_spec), str(args), str(slice_bounds) )
+            print " LR ExecCurrentSlice: subset_spec = %s, args = %s, sbounds = %s " % ( str(subset_spec), str(args), str(slice_bounds) )
             self.point_cloud_overview.generateSubset( spec=self.current_subset_specs )
 #            if self.partitioned_point_cloud:
 #                self.partitioned_point_cloud.generateSubset( spec=self.current_subset_specs, allow_processing=False )
@@ -1285,7 +1289,7 @@ class CPCPlot( DV3DPlot ):
 #                text = ' '.join( [ "%s: (%f, %f )" % (rng_val[0], rng_val[1], rng_val[2] )  for rng_val in trngs.values() ] )
 #                text = " Thresholding Range[%d]: ( %.3f, %.3f )\n Colormap Range: %s " % ( pcIndex, trng[0], trng[1], str( self.scalarRange.getRange() ) )
 #                self.updateTextDisplay( text )
-#            print " Subproc[%d]-. new Thresholding Data Available: %s " % ( pcIndex, str( pc.getThresholdingRanges() ) ); sys.stdout.flush()
+            print " Subproc[%d]-. new Thresholding Data Available: %s " % ( pcIndex, str( pc.getThresholdingRanges() ) ); sys.stdout.flush()
     #        self.reset( ) # pcIndex )
             self.render() 
                           

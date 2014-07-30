@@ -45,7 +45,7 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
         self._name = Gfdv3d_name
         self._plot_attributes = {}
         
-        if Gfdv3d_name=="hovmuller": 
+        if Gfdv3d_name=="xyt": 
             self._axes="xyt"
         else:
             self._axes="xyz"
@@ -54,6 +54,7 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
         self.addParameters()
             
         vcs.elements[self.g_name][Gfdv3d_name]=self
+        print "Adding VCS element: %s %s " % ( self.g_name, Gfdv3d_name )
 
     def add_property(self, name ):
         fget = lambda self: self.getParameter(name)
