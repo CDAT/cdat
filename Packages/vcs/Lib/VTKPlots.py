@@ -703,12 +703,8 @@ class VTKVCSBackend(object):
            
           mapper = vtk.vtkPolyDataMapper()
           cot = vtk.vtkBandedPolyDataContourFilter()
-          #cot.ClippingOn()
-          if ug.IsA("vtkUnstructuredGrid"):
-             cot.SetInputData(sFilter.GetOutput())
-          else:
-             cot.SetInputData(ug)
-       #   cot.SetInputData(sFilter.GetOutput())
+          cot.ClippingOn()
+          cot.SetInputData(sFilter.GetOutput())
           cot.SetNumberOfContours(len(l))
           for j,v in enumerate(l):
               cot.SetValue(j,l[j])
