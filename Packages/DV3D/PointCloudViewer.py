@@ -684,9 +684,6 @@ class CPCPlot( DV3DPlot ):
         subset_spec = ( self.sliceAxes[self.sliceAxisIndex], rmin, rmax, True )
         self.current_subset_specs[ self.sliceAxes[self.sliceAxisIndex] ] = subset_spec
         istyle = self.renderWindowInteractor.GetInteractorStyle()
-#        r = istyle.GetCurrentRenderer()
-#        GetRenderers()
-#        print " ExecCurrentSlice: %s, interactor style = %s (Enabled = %s) " % ( str( subset_spec ), str( istyle.__class__.__name__ ), str( istyle.GetEnabled() ) )
         if self.render_mode ==  ProcessMode.HighRes:
             print " HR ExecCurrentSlice: subset_spec = %s, args = %s, sbounds = %s " % ( str(subset_spec), str(args), str(slice_bounds) )
             self.partitioned_point_cloud.generateSubset( spec=self.current_subset_specs, allow_processing=True )
@@ -980,7 +977,11 @@ class CPCPlot( DV3DPlot ):
         DV3DPlot.endConfiguration( self ) 
 #         if (self.InteractionState == 'zScale'):
 #             self.processVerticalScalingCommand( [ "EndConfig" ] )
-                            
+    
+    def updateVerticalScaling(self): 
+        if self.partitioned_point_cloud:
+            self.partitioned_point_cloud.generateZScaling( spec=self.scaling_spec )
+                                       
     def processVerticalScalingCommand( self, args, config_function ):
         vscale = config_function.value
         if args and args[0] == "StartConfig":
@@ -1002,9 +1003,6 @@ class CPCPlot( DV3DPlot ):
             vscale.setValues( [ vscale_val ] ) 
             self.scaling_spec = ( self.vertVar, vscale_val )
             self.point_cloud_overview.generateZScaling( spec=self.scaling_spec )
-            if self.partitioned_point_cloud:
-                print " processVerticalScalingCommand.generateZScaling ", str( self.scaling_spec )
-                self.partitioned_point_cloud.generateZScaling( spec=self.scaling_spec )
             self.skipIndex = 5
         elif args and args[0] == "InitConfig":
             self.updateTextDisplay( config_function.label )                      
@@ -1349,6 +1347,10 @@ class CPCPlot( DV3DPlot ):
 #             cfgInterface.activate()
             
         self.start()
+
+    def initializePlots(self):            
+        DV3DPlot.initializePlots(self)
+        self.updateVerticalScaling()
        
     def setCameraPos(self):
         ( xcenter, ycenter, xwidth, ywidth ) = self.point_cloud_overview.getCenter()

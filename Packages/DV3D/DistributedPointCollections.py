@@ -505,6 +505,7 @@ class vtkSubProcPointCloud( vtkPointCloud ):
         vtkPointCloud.__init__( self, pcIndex, nPartitions )
         self.arg_queue = Queue() # JoinableQueue() 
         self.result_queue = Queue() # JoinableQueue()
+        self.parameter_cache = {}
             
     def runProcess(self, procType, **args):
         if   procType == PCProc.Subset:    self.generateSubset( **args )
@@ -533,10 +534,14 @@ class vtkSubProcPointCloud( vtkPointCloud ):
 
     def generateZScaling(self, **args ):
         z_subset_spec = args.get('spec', None )
-        self.clearQueues()
-        op_specs = [ 'points' ] + list(z_subset_spec)
-#        print " generate Z Scaling: %s " % str( args )
-        self.arg_queue.put( op_specs,  False ) 
+        zscale_value = z_subset_spec[1]
+        cached_zscale_value = self.parameter_cache.get( 'zscale', None ) 
+        if cached_zscale_value <> zscale_value:
+            self.clearQueues()
+            op_specs = [ 'points' ] + list(z_subset_spec)
+            print " Generate Z Scaling [P-%d]: %s " % ( self.pcIndex, str( args ) )
+            self.arg_queue.put( op_specs,  False )
+            self.parameter_cache['zscale'] = zscale_value
 
     def stepTime( self, **args ):
         op_specs = [ 'timestep' ]
@@ -643,6 +648,7 @@ class vtkLocalPointCloud( vtkPointCloud ):
         return self.point_collection.getMetadata()
 
     def generateZScaling(self, **args ):
+        print " generateZScaling-2: ", str( args )
         z_subset_spec = args.get('spec', None )
         op_specs = [ 'points' ] + list( z_subset_spec )
         self.point_collection.execute( op_specs ) 
@@ -867,6 +873,7 @@ class vtkPartitionedPointCloud:
         self.runProcess( PCProc.Subset, **args )
  
     def generateZScaling(self, **args ):
+        print " generateZScaling-3: ", str( args )
         self.runProcess( PCProc.ZScaling, **args )
  
     def stepTime(self, **args ):

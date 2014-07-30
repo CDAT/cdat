@@ -240,7 +240,6 @@ class MultiVarPointCollection():
             z_scaling = args.get( 'z_scale', 1.0 )
             self.data_height = args.get( 'data_height', None )
             ascending = self.levelsAreAscending()
-            print "setPointHeights: z_scaling=%s, stage_height=%s" % ( str(z_scaling), str(self.maxStageHeight) )
             stage_height = ( self.maxStageHeight * z_scaling )
             
             nz = len( self.lev ) if self.lev else 1
@@ -262,6 +261,7 @@ class MultiVarPointCollection():
                     if height_varname: self.hgt_var = height_varname
                     np_points_data_list = []
                     zstep = stage_height / nz
+#                    print "  -----> SetPointHeights: z_scaling=%s, stage_height=%s" % ( str(z_scaling), str(stage_height) )
                     for iz in range( nz ):
                         zvalue = iz * zstep
                         if self.point_layout == PlotType.List:
@@ -271,7 +271,7 @@ class MultiVarPointCollection():
                         z_data.fill( zvalue )
                         if ascending: np_points_data_list.append( z_data.flat )
                         else: np_points_data_list.insert( 0, z_data.flat )
-        #            print "Sample z data value: %s" % str( np_points_data_list[0][0] )
+#                    print " **** Sample z data value: %s" % str( np_points_data_list[nz/2][10] )
                     self.point_data_arrays['z'] = numpy.concatenate( np_points_data_list ).astype( numpy.float32 ) 
         self.vertical_bounds =  ( 0.0, stage_height )  
         self.axis_bounds[ 'z' ] = self.vertical_bounds
@@ -588,7 +588,6 @@ class MultiVarPointCollection():
         op = args[0] 
         if op == 'indices': 
             threshold_mask = None
-#            print "Processing computeThresholdRange: %s " % str( args )
             for var_op in args[1:]:  
                 var_data, vmin, vmax = self.computeThresholdRange( var_op )               
                 if not isNone(var_data):
@@ -599,6 +598,7 @@ class MultiVarPointCollection():
                         threshold_mask = var_mask
                     else:
                         threshold_mask = numpy.logical_and( threshold_mask, var_mask )
+#            print "Point Collection, update indices: %s, trange = %s " % ( str( args ), str( ( vmin, vmax ) ) )
             if isNone( threshold_mask ):
                 print>>sys.stderr, "Thresholding failed for spec: ", str( args )
                 return None, None
