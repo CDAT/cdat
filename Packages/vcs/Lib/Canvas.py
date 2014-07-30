@@ -3379,8 +3379,8 @@ Options:::
         bg = keyargs.get('bg', 0)
 
         # line added by Charles Doutriaux to plugin the taylordiagram and bypass the C code for graphic methods
-        warnings.warn("Do something about hold_continent type circa line 5386 in Canvas.py")
-        #hold_cont_type = self.canvas.getcontinentstype()
+        #warnings.warn("Do something about hold_continent type circa line 5386 in Canvas.py")
+        hold_cont_type = self.getcontinentstype()
         if isinstance(arglist[3],str) and arglist[3].lower()=='taylordiagram':
             for p in slab_changed_attributes.keys():
                 if hasattr(arglist[0],p):
@@ -3568,8 +3568,7 @@ Options:::
                             
             if hasattr(self,'_isplottinggridded') : del(self._isplottinggridded)
             # Get the continents for animation generation
-            warnings.warn("aninamte setcontinettype disabled")
-            #self.animate.continents_value = self.canvas.getcontinentstype()
+            self.animate.continents_value = self.getcontinentstype()
 
             # Get the option for doing graphics in the background.
             if bg:
@@ -3615,7 +3614,7 @@ Options:::
 
         result = dn
         if isinstance(arglist[3],str):
-            warnings.warn("please restore getplot functionality in Canvas.py circa 5640")
+            #warnings.warn("please restore getplot functionality in Canvas.py circa 5640")
 #            result = self.getplot(dn, template_origin)
             #self.canvas.setcontinentstype(hold_cont_type)
             # Pointer to the plotted slab of data and the VCS Canas display infomation. 
@@ -4199,7 +4198,10 @@ Options:::
      a=vcs.init()
      cont_type = a.getcontinentstype() # Get the continents type
 """
-        return apply(self.canvas.getcontinentstype, args)
+        try:
+          return self._continents
+        except:
+          return None
 
 
     ###########################################################################
@@ -5394,6 +5396,8 @@ Options:::
           raise Exception("Error continents value must be file or int < 12")
       elif isinstance(value,str):
         self._continents = value
+      else:
+        self._continents=None
       if self._continents is not None and not os.path.exists(self._continents):
         warnings.warn("Continents file not found: %s, substituing with coarse continents" % self._continents)
         self._continents = os.path.join(os.environ.get("HOME",""),os.environ.get(vcs.getdotdirectory()[1],vcs.getdotdirectory()[0]),"data_continent_coarse")
