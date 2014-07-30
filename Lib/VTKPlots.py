@@ -631,6 +631,7 @@ class VTKVCSBackend(object):
             levs.append([levs2[i],levs2[i+1]])
           if isinstance(gm,isoline.Gi):
             levs = levs2
+      print "LEVELS ARE:",levs
       Nlevs=len(levs)
       Ncolors = Nlevs
       ## Figure out colors
@@ -668,12 +669,19 @@ class VTKVCSBackend(object):
         for i,l in enumerate(levs):
             if i==0:
                 C = [cols[i],]
-                L = levs[i]
+                if numpy.allclose(levs[0][0],-1.e20):
+                    ## ok it's an extension arrow
+                    L=[mn-1.,levs[0][1]]
+                else: 
+                    L = levs[i]
                 I = [indices[i],]
             else:
                 if l[0] == L[-1] and I[-1]==indices[i]:
                     # Ok same type lets keep going
-                    L.append(l[1])
+                    if numpy.allclose(l[1],1.e20):
+                        L.append(mx+1.)
+                    else:
+                        L.append(l[1])
                     C.append(cols[i])
                 else: # ok we need new contouring
                     LEVS.append(L)
@@ -682,19 +690,25 @@ class VTKVCSBackend(object):
                     C = [cols[i],]
                     L = levs[i]
                     I = [indices[i],]
+        print "AND L ISL:",L
         LEVS.append(L)
         COLS.append(C)
         INDX.append(I)
 
         
         for i,l in enumerate(LEVS):
+          print "OK I,l:",i,l
           # Ok here we are trying to group together levels can be, a join will happen if:
           # next set of levels contnues where one left off AND pattern is identical
            
           mapper = vtk.vtkPolyDataMapper()
           cot = vtk.vtkBandedPolyDataContourFilter()
-          cot.ClippingOn()
-          cot.SetInputData(sFilter.GetOutput())
+          #cot.ClippingOn()
+          if ug.IsA("vtkUnstructuredGrid"):
+             cot.SetInputData(sFilter.GetOutput())
+          else:
+             cot.SetInputData(ug)
+       #   cot.SetInputData(sFilter.GetOutput())
           cot.SetNumberOfContours(len(l))
           for j,v in enumerate(l):
               cot.SetValue(j,l[j])
@@ -702,9 +716,11 @@ class VTKVCSBackend(object):
           mapper.SetInputConnection(cot.GetOutputPort())
           #mapper.SetInputData(cot.GetOutput())
           lut = vtk.vtkLookupTable()
+          print "NCOLORS:",len(COLS[i])
           lut.SetNumberOfTableValues(len(COLS[i]))
           for j,color in enumerate(COLS[i]):
               r,g,b = cmap.index[color]      
+              print l[j],vcs.colors.rgb2str(r*2.55,g*2.55,b*2.55),l[j+1]
               lut.SetTableValue(j,r/100.,g/100.,b/100.)
           mapper.SetLookupTable(lut)
           if numpy.allclose(l[0],-1.e20):
@@ -715,6 +731,7 @@ class VTKVCSBackend(object):
             lmx = mx+1.
           else:
             lmx= l[-1]
+          print "Mapper range:",lmn,lmx
           mapper.SetScalarRange(lmn,lmx)
           #png = vtk.vtkPNGReader()
           #png.SetFileName("/git/uvcdat/Packages/vcs/Share/uvcdat_texture.png")
