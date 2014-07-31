@@ -102,7 +102,6 @@ class PointCollectionExecutionTarget:
                 data_packet = self.packPointsData()
             data_packet[ 'args' ] = args
             
-            self.printLogMessage( 'execute: %s' % str(args) )
             self.results.put( data_packet )
         except Exception, err:
             print>>sys.stderr, "Error executing PointCollectionExecutionTarget: ", str( err )
@@ -523,7 +522,7 @@ class vtkSubProcPointCloud( vtkPointCloud ):
         
     def generateSubset(self, **args ):
         self.current_subset_specs = args.get( 'spec', self.current_subset_specs )
-        print " vtkSubProcPointCloud[%d]: current_subset_specs: %s (%s) " % ( self.pcIndex, self.current_subset_specs, str(args) )
+#        print " vtkSubProcPointCloud[%d]: current_subset_specs: %s (%s) " % ( self.pcIndex, self.current_subset_specs, str(args) )
         process = args.get( 'process', True )
         if process:
             self.clearQueues()
@@ -652,7 +651,6 @@ class vtkLocalPointCloud( vtkPointCloud ):
         return self.point_collection.getMetadata()
 
     def generateZScaling(self, **args ):
-        print " generateZScaling-2: ", str( args )
         z_subset_spec = args.get('spec', None )
         op_specs = [ 'points' ] + list( z_subset_spec )
         self.point_collection.execute( op_specs ) 
@@ -876,7 +874,6 @@ class vtkPartitionedPointCloud:
         self.runProcess( PCProc.Subset, **args )
  
     def generateZScaling(self, **args ):
-        print " generateZScaling-3: ", str( args )
         self.runProcess( PCProc.ZScaling, **args )
  
     def stepTime(self, **args ):

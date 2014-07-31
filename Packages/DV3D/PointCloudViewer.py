@@ -268,7 +268,7 @@ class CPCPlot( DV3DPlot ):
        
     def setRenderMode( self, render_mode ): 
         modes = [ 'lowres', 'highres' ]
-        print " CPCPlot: Set render mode: ", modes[render_mode]
+#        print " CPCPlot: Set render mode: ", modes[render_mode]
         if (render_mode == ProcessMode.HighRes):
             if ( self.partitioned_point_cloud == None ): return 
             if not self.partitioned_point_cloud.hasActiveCollections(): return            
@@ -679,7 +679,6 @@ class CPCPlot( DV3DPlot ):
 #         return bounds[sindex] + self.getSlicePosition() * ( bounds[sindex+1] - bounds[sindex] )
     
     def execCurrentSlice( self, **args ):
-        print " CPCPlot: ExecCurrentSlice"
         args['normalized'] = True
         slice_bounds = self.getSliceBounds(**args)
         self.invalidate()
@@ -689,10 +688,10 @@ class CPCPlot( DV3DPlot ):
         self.current_subset_specs[ self.sliceAxes[self.sliceAxisIndex] ] = subset_spec
         istyle = self.renderWindowInteractor.GetInteractorStyle()
         if self.render_mode ==  ProcessMode.HighRes:
-            print " HR ExecCurrentSlice: subset_spec = %s, args = %s, sbounds = %s " % ( str(subset_spec), str(args), str(slice_bounds) )
+#            print " HR ExecCurrentSlice: subset_spec = %s, args = %s, sbounds = %s " % ( str(subset_spec), str(args), str(slice_bounds) )
             self.partitioned_point_cloud.generateSubset( spec=self.current_subset_specs, allow_processing=True )
         else:
-            print " LR ExecCurrentSlice: subset_spec = %s, args = %s, sbounds = %s " % ( str(subset_spec), str(args), str(slice_bounds) )
+#            print " LR ExecCurrentSlice: subset_spec = %s, args = %s, sbounds = %s " % ( str(subset_spec), str(args), str(slice_bounds) )
             self.point_cloud_overview.generateSubset( spec=self.current_subset_specs )
 #            if self.partitioned_point_cloud:
 #                self.partitioned_point_cloud.generateSubset( spec=self.current_subset_specs, allow_processing=False )
