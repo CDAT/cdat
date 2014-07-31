@@ -1288,7 +1288,7 @@ class CPCPlot( DV3DPlot ):
 #                text = ' '.join( [ "%s: (%f, %f )" % (rng_val[0], rng_val[1], rng_val[2] )  for rng_val in trngs.values() ] )
 #                text = " Thresholding Range[%d]: ( %.3f, %.3f )\n Colormap Range: %s " % ( pcIndex, trng[0], trng[1], str( self.scalarRange.getRange() ) )
 #                self.updateTextDisplay( text )
-            print " Subproc[%d]-. new Thresholding Data Available: %s " % ( pcIndex, str( pc.getThresholdingRanges() ) ); sys.stdout.flush()
+#            print " Subproc[%d]-. new Thresholding Data Available: %s " % ( pcIndex, str( pc.getThresholdingRanges() ) ); sys.stdout.flush()
     #        self.reset( ) # pcIndex )
             self.render() 
                           

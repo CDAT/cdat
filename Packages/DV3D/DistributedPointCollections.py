@@ -418,11 +418,9 @@ class vtkPointCloud():
         return self.actor.GetVisibility()
     
     def hide(self):
-        print "vtkPointCloud[%d]: hide " % self.pcIndex
         self.actor.VisibilityOff()
 
     def show(self):
-        print "vtkPointCloud[%d]: show " % self.pcIndex
         if not self.actor.GetVisibility():
             self.actor.VisibilityOn()
        
@@ -787,7 +785,7 @@ class vtkPartitionedPointCloud:
     def checkProcQueues(self):
         pc_item, rv = self.processProcQueue()
         if rv:
-            print "---> CheckProcQueues: NewDataAvailable ( %s, %s )" % ( str(pc_item[0]), str(rv) )
+#            print "---> CheckProcQueues: NewDataAvailable ( %s, %s )" % ( str(pc_item[0]), str(rv) )
             self.NewDataAvailable( pc_item[0], rv )
             self.subproc_responses = self.subproc_responses + 1
             if self.subproc_responses == len( self.point_clouds ): 
