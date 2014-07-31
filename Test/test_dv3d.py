@@ -26,22 +26,32 @@ if data_type == DataType.STRUCTURED:
                 print "Killing proc: ", proc_spec
 
     testDataDir = '/Users/tpmaxwel/Data'
-    testDataFile = os.path.join( testDataDir, 'WRF', 'wrfout_d03_2013-07-02_02-00-00.nc' )
-    f = cdms2.open( testDataFile )
-    u = f["U"] 
+    datasetPath = os.path.join( testDataDir, 'WRF', 'wrfout_d03_2013-07-02_02-00-00.nc' )
+    f = cdms2.open( datasetPath )
+    varname = "U"
+
     
 else:
+    dataDir1 = "/Developer/Data/AConaty/comp-ECMWF"
+    datasetPath = os.path.join( dataDir1, "ac-comp1-geos5.xml")
+    f = cdms2.open( datasetPath )
+    varname = "uwnd"
     
-    f = cdms2.open( os.path.join( sys.prefix, "sample_data", "geos5-sample.nc") )
-    u = f["uwnd"] 
+#    f = cdms2.open( os.path.join( sys.prefix, "sample_data", "geos5-sample.nc") )
+#    u = f["uwnd"] 
 
 # dv3d = vcs.create3d_scalar('hoffmuller','xyt')
-dv3d = vcs.get3d_scalar('xyt')
 
-x = vcs.init()
-print "3D_Scalar elements: ", str( x.listelements('3d_scalar') )
-x.plot( u, dv3d )
-x.interact()
+u = f[varname] 
+if not u is None:
+    dv3d = vcs.get3d_scalar('xyt')
+    
+    x = vcs.init()
+    print "3D_Scalar elements: ", str( x.listelements('3d_scalar') )
+    x.plot( u, dv3d )
+    x.interact()
+else:
+    print>>sys.stderr, "\n\n  Can't find variable %s in dataset %s" % ( varname, datasetPath )
 
 
 
