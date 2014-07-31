@@ -15,7 +15,7 @@ class DataType:
 
 data_type = DataType.STRUCTURED
 
-if data_type == DataType.STRUCTURED:
+if data_type == DataType.UNSTRUCTURED:
     
     proc_specs = subprocess.check_output('ps').split('\n')
     for proc_spec in proc_specs:
@@ -29,8 +29,7 @@ if data_type == DataType.STRUCTURED:
     datasetPath = os.path.join( testDataDir, 'WRF', 'wrfout_d03_2013-07-02_02-00-00.nc' )
     f = cdms2.open( datasetPath )
     varname = "U"
-
-    
+   
 else:
     dataDir1 = "/Developer/Data/AConaty/comp-ECMWF"
     datasetPath = os.path.join( dataDir1, "ac-comp1-geos5.xml")

@@ -413,7 +413,8 @@ class StructuredGridPlot(DV3DPlot):
         self.baseMapActor.SetPosition( mapCorner[0], mapCorner[1], 0.1 )
         if vtk.VTK_MAJOR_VERSION <= 5:  self.baseMapActor.SetInput(baseImage)
         else:                           self.baseMapActor.SetInputData(baseImage)        
-        self.mapCenter = [ self.x0 + map_cut_size[0]/2.0, self.y0 + map_cut_size[1]/2.0 ]        
+        self.mapCenter = [ self.x0 + map_cut_size[0]/2.0, self.y0 + map_cut_size[1]/2.0 ] 
+        self.mapSize = map_cut_size      
         self.renderer.AddActor( self.baseMapActor )
 
 
@@ -586,7 +587,7 @@ class StructuredGridPlot(DV3DPlot):
         self.createRenderer( **args )
         self.execute( )
         self.initializePlots()
-        self.initCamera( 700.0 )
+        self.initCamera( ( self.mapSize[0] + self.mapSize[1] ), ( self.mapCenter[0], self.mapCenter[1] ) )
         self.start()
 
     def onResizeEvent(self):
