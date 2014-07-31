@@ -109,7 +109,8 @@ class PointCollectionExecutionTarget:
 #        print "Pack VARDATA"; sys.stdout.flush()
         vardata = self.point_collection.getVarData() 
         data_packet = ExecutionDataPacket( ExecutionDataPacket.VARDATA, self.collection_index, vardata.data )
-        data_packet[ 'fill_value' ] = vardata.fill_value
+        try:    data_packet[ 'fill_value' ] = vardata.fill_value
+        except: data_packet[ 'fill_value' ] = None
         data_packet[ 'vrange' ] = self.point_collection.getVarDataRange() 
         data_packet[ 'grid' ] = self.point_collection.getGridType()  
         data_packet[ 'nlevels' ] = self.point_collection.getNLevels()
