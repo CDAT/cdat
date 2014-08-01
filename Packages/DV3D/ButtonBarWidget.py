@@ -244,7 +244,7 @@ class ButtonBarHandler:
                     n_active_sliders = configFunct.position[1] if configFunct.position else 1
                     position_index = configFunct.position[0] if configFunct.position else 0
                     tvals = configFunct.value.getValues()               
-                    bbar.commandeerSlider( position_index, configFunct.sliderLabels[0], configFunct.getRangeBounds(), tvals[0]  )
+                    bbar.commandeerControl( position_index, configFunct.sliderLabels[0], configFunct.getRangeBounds(), tvals[0]  )
                     bbar.positionSlider( position_index, n_active_sliders )
                     self.current_configuration_mode = configFunct.label
 #                    print " ButtonBarWidget: restore current_configuration_mode = ", configFunct.label
@@ -257,7 +257,7 @@ class ButtonBarWidget:
         self.vtk_coord.SetCoordinateSystemToNormalizedDisplay()
         self.StateChangedSignal = SIGNAL('StateChanged')
         self.process_mode = ProcessMode.Default
-        self.currentSliders = {}
+        self.currentControls = {}
         self.slider_postions = [ [ [ 0.25, 0.75 ] ], [ [0.01,0.48], [0.52, 0.99 ] ], [ [0.01,0.3], [0.35,0.7], [0.75, 0.99 ] ], [ [0.01,0.24], [0.26,0.49], [0.51,0.74], [0.76, 0.99 ] ]    ]
         self._slidersVisible = [ False, False, False, False ]
         self.interactor = interactor
@@ -493,13 +493,13 @@ class ButtonBarWidget:
             if value <> None: self.setSliderValue( index, value )
 
     def setSliderValue(self, index, value ):
-        ( process_mode, interaction_state, swidget ) = self.currentSliders.get( index, ( None, None, None ) )
+        ( process_mode, interaction_state, swidget ) = self.currentControls.get( index, ( None, None, None ) )
         if swidget:
             srep = swidget.GetRepresentation( )   
             srep.SetValue( value  )
             
     def initializeSliderPosition( self, index ):
-        ( process_mode, interaction_state, swidget ) = self.currentSliders.get( index, ( None, None, None ) )
+        ( process_mode, interaction_state, swidget ) = self.currentControls.get( index, ( None, None, None ) )
         if swidget:
             srep = swidget.GetRepresentation( ) 
             values = self.handler.cfgManager.getParameterValue( interaction_state )
@@ -550,7 +550,7 @@ class ButtonBarWidget:
             
     def positionSlider(self, position_index, n_sliders ):
         slider_pos = self.slider_postions[ n_sliders ]
-        ( process_mode, interaction_state, swidget ) = self.currentSliders[position_index]
+        ( process_mode, interaction_state, swidget ) = self.currentControls[position_index]
         sliderRep = swidget.GetRepresentation( ) 
         sliderRep.GetPoint1Coordinate().SetValue( slider_pos[position_index][0], 0.06, 0 )  
         sliderRep.GetPoint2Coordinate().SetValue( slider_pos[position_index][1], 0.06, 0 )
@@ -558,30 +558,42 @@ class ButtonBarWidget:
         swidget.Modified()    
         sliderRep.NeedToRenderOn()
                         
-    def commandeerSlider(self, index, label, bounds, tvals ): 
-        value = get_scalar_value( tvals )
+    def commandeerControl(self, index, label, bounds, tvals ): 
 #        print " CommandeerSlider[%d]: ('%s') %s: %s in %s " % ( index, label, self.InteractionState, str(value), str(bounds) )
-        widget_item = self.currentSliders.get( index, None )
+        widget_item = self.currentControls.get( index, None )
+        isButtonWidget = type(label) == list
         if widget_item == None: 
-            swidget = self.createSliderWidget(index) 
+            if isButtonWidget:
+                swidget = self.createButtonWidget( index, label ) 
+            else:
+                swidget = self.createSliderWidget(index) 
         else:
-            ( process_mode, interaction_state, swidget ) = widget_item 
-        srep = swidget.GetRepresentation( )      
-        srep.SetTitleText( label )    
-        srep.SetMinimumValue( bounds[ 0 ] )
-        srep.SetMaximumValue( bounds[ 1 ]  )
-        srep.SetValue( value )
-        swidget.SetEnabled( 1 ) 
-        self.currentSliders[index] = ( self.process_mode, self.InteractionState, swidget )
+            ( process_mode, interaction_state, swidget ) = widget_item
         
+        if isButtonWidget:
+            pass
+        else:   
+            value = get_scalar_value( tvals )
+            srep = swidget.GetRepresentation( )      
+            srep.SetTitleText( label )    
+            srep.SetMinimumValue( bounds[ 0 ] )
+            srep.SetMaximumValue( bounds[ 1 ]  )
+            srep.SetValue( value )
+            swidget.SetEnabled( 1 ) 
+        
+        self.currentControls[index] = ( self.process_mode, self.InteractionState, swidget )
+        
+    def createButtonWidget(self, index, label ):
+        pass
+    
     def releaseSlider( self, index ):      
-        ( process_mode, interaction_state, swidget ) = self.currentSliders.get( index, ( None, None, None ) )  
+        ( process_mode, interaction_state, swidget ) = self.currentControls.get( index, ( None, None, None ) )  
         if swidget: 
             swidget.SetEnabled( 0 ) 
 #            print "Releasing slider[%d]: %s " % ( index, interaction_state )
 
     def getSliderEnabled( self, index ):        
-        ( process_mode, interaction_state, swidget ) = self.currentSliders.get( index, ( None, None, None ) )  
+        ( process_mode, interaction_state, swidget ) = self.currentControls.get( index, ( None, None, None ) )  
         if swidget: return swidget.GetEnabled() 
         return False
         
@@ -591,7 +603,7 @@ class ButtonBarWidget:
             configFunct.close()   
         self.process_mode = ProcessMode.Default
         self.InteractionState = None
-        for ( process_mode, interaction_state, swidget ) in self.currentSliders.values():
+        for ( process_mode, interaction_state, swidget ) in self.currentControls.values():
             swidget.SetEnabled( 0 ) 
         self.render()
 
@@ -606,7 +618,7 @@ class ButtonBarWidget:
                                        
 #         else:
 #             if self.process_mode == ProcessMode.Slicing:
-#                 ( process_mode, interaction_state, swidget ) = self.currentSliders[1] 
+#                 ( process_mode, interaction_state, swidget ) = self.currentControls[1] 
 #                 slice_pos = swidget.GetRepresentation( ).GetValue()
 #                 self.pushSlice( slice_pos )         
 
@@ -621,7 +633,7 @@ class ButtonBarWidget:
                 print>>sys.stderr, " FAILED processStartInteractionEvent[%s]: ( %s %d )" % ( self.name, self.InteractionState, self.process_mode )
                 
     def checkInteractionState( self, obj, event ):
-        for item in self.currentSliders.items():
+        for item in self.currentControls.items():
             ( process_mode, interaction_state, swidget ) = item[1]
             if ( id( swidget ) == id( obj ) ): 
                 if self.InteractionState <> interaction_state:            
@@ -634,8 +646,8 @@ class ButtonBarWidget:
         return None
             
     def getSliderIndex(self, obj ):
-        for index in self.currentSliders:
-            ( process_mode, interaction_state, swidget ) = self.currentSliders[index]
+        for index in self.currentControls:
+            ( process_mode, interaction_state, swidget ) = self.currentControls[index]
             if ( id( swidget ) == id( obj ) ): return index
         return None
 
@@ -726,7 +738,7 @@ class ButtonBarWidget:
 #                        self.setSliderValue( position_index, slicePosition.getValue() )  
                                            
                     if self.isSliderVisible( position_index ) or force_enable:
-                        self.commandeerSlider( position_index, configFunct.sliderLabels[0], configFunct.getRangeBounds(), tvals[0]  )
+                        self.commandeerControl( position_index, configFunct.sliderLabels[0], configFunct.getRangeBounds(), tvals[0]  )
                         self.positionSlider( position_index, n_active_sliders )
                         self.setSliderVisibility( position_index, True )
                     else: self.releaseSlider( position_index )
@@ -735,7 +747,7 @@ class ButtonBarWidget:
                     for slider_index in range(4): self.setSliderVisibility( slider_index, slider_index < n_active_sliders )
                     for slider_index in range(4):
                         if self.isSliderVisible( slider_index ) and ( len(tvals) > slider_index ):
-                            self.commandeerSlider( slider_index, configFunct.sliderLabels[slider_index], configFunct.getRangeBounds(), tvals[slider_index]  )
+                            self.commandeerControl( slider_index, configFunct.sliderLabels[slider_index], configFunct.getRangeBounds(), tvals[slider_index]  )
                             self.positionSlider( slider_index, n_active_sliders )
                         else:
                             self.releaseSlider( slider_index )

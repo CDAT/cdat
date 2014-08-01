@@ -115,6 +115,7 @@ class DV3DPlot():
         interactionButtons.addConfigButton( names=['ChooseColormap'], key='m', toggle=True, interactionHandler=self.processChooseColormapCommand, initValue=[ 'jet', False, False ]  )
         interactionButtons.addConfigButton( names=['ToggleClipping'], key='X', toggle=True, parents=['ToggleVolumePlot', 'ToggleSurfacePlot'], interactionHandler=self.processToggleClippingCommand  )
         interactionButtons.addConfigButton( names=['Colorbar'], key='b', toggle=True, label='Show Colorbar', interactionHandler=self.processShowColorbarCommand )
+#        interactionButtons.addSliderButton( names=['Animation'], key='a', toggle=True, label='Time Stepping', sliderLabels=[ ['Step','Run','Stop'], 'Run Speed'  ], interactionHandler=self.processAnimationCommand )
         self.addKeyPressHandler( 'r', self.resetCamera )
         self.addKeyPressHandler( 'q',  self.quit )
         self.addKeyPressHandler( 'Q',  self.quit )
