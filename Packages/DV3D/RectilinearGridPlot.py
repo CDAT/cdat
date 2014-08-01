@@ -1248,11 +1248,6 @@ class RectGridPlot(StructuredGridPlot):
             self.contours = None    
             del self.contourLineMapperer 
             self.contourLineMapperer = None
-        ispec = self.getInputSpec( 0 ) 
-        input0 = ispec.input() 
-        print " VolumeSlicer: Input refs = %d " % input0.GetReferenceCount()
-        sys.stdout.flush()
-
         
     def scaleContourColormap(self, data, **args ):
         return self.scaleColormap( data, 1, **args )
@@ -1268,10 +1263,9 @@ class RectGridPlot(StructuredGridPlot):
     def getContourDensity( self ):
         return [ 3.0, self.NumContours, 1 ]
     
-    def setZScale( self, zscale_data, **args ):
-        self.setInputZScale( zscale_data, **args )
+    def setZScale( self, zscale_data, input_index = 0, **args ):
+        primaryInput = self.setInputZScale( zscale_data, input_index, **args )
         if self.planeWidgetX <> None:
-            primaryInput = self.input()
             bounds = list( primaryInput.GetBounds() ) 
             if not self.planeWidgetX.MatchesBounds( bounds ):
                 self.planeWidgetX.PlaceWidget( bounds )        
@@ -1282,8 +1276,8 @@ class RectGridPlot(StructuredGridPlot):
             cf.scaleRange( zscale_data[0] )
         self.render()               
 
-    def setInputZScale( self, zscale_data, **args  ):
-        StructuredGridPlot.setInputZScale( self, zscale_data, **args  )
+    def setInputZScale( self, zscale_data, input_index, **args  ):
+        input = StructuredGridPlot.setInputZScale( self, zscale_data, input_index, **args  )
         ispec = self.getInputSpec(  1 )       
         if (ispec <> None) and (ispec.input() <> None):
             contourInput = ispec.input() 
@@ -1291,6 +1285,7 @@ class RectGridPlot(StructuredGridPlot):
             sz = zscale_data[0]
             contourInput.SetSpacing( ix, iy, sz )  
             contourInput.Modified() 
+        return input
               
     def getOpacity(self):
         return self.opacity
@@ -1444,6 +1439,10 @@ class RectGridPlot(StructuredGridPlot):
             if vtk.VTK_MAJOR_VERSION <= 5:  mapper.SetInput(primaryInput)
             else:                           mapper.SetInputData(primaryInput)        
             mapper.Modified()
+        if self.levelSetActor <> None:
+            if vtk.VTK_MAJOR_VERSION <= 5:  self.levelSetFilter.SetInput(primaryInput)
+            else:                           self.levelSetFilter.SetInputData(primaryInput)        
+            self.levelSetFilter.Modified()
         self.render()
 
 #        self.set3DOutput()

@@ -132,7 +132,7 @@ class DV3DPlot():
         self.renderWindowInteractor.TerminateApp() 
 
     def stepAnimation(self, **args): 
-        print "Step Animation" 
+#        print "Step Animation" 
         self.timestep()
         
     def timestep(self):
@@ -143,7 +143,7 @@ class DV3DPlot():
         self.buttonBarHandler.cfgManager.saveState()
 
     def processKeyPressHandler( self, key, eventArgs ):
-        print " processKeyPress: ", str( key )
+#        print " processKeyPress: ", str( key )
         handlers = self.keyPressHandlers.get( key, [] )
         for handler in handlers: handler( args=eventArgs )
         return len( handlers )

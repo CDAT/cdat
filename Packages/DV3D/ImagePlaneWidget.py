@@ -533,7 +533,8 @@ class ImagePlaneWidget:
 #----------------------------------------------------------------------------
 
     def OnKeyPress(self, caller, event ):
-        print "Key event: ", caller.__class__.__name__
+        pass
+#        print "Key event: ", caller.__class__.__name__
     
 #----------------------------------------------------------------------------
     

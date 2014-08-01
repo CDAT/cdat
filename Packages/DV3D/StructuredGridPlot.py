@@ -81,8 +81,8 @@ class StructuredGridPlot(DV3DPlot):
         ispec = self.inputSpecs[ input_index ] 
         return ispec.getRangeBounds()  
 
-    def setZScale( self, zscale_data, **args ):
-        self.setInputZScale( zscale_data, **args )
+    def setZScale( self, zscale_data, input_index = 0, **args ):
+        self.setInputZScale( zscale_data, input_index, **args )
 
     def setRangeBounds( self, rbounds, input_index = 0 ):
         ispec = self.inputSpecs[ input_index ] 
@@ -109,22 +109,18 @@ class StructuredGridPlot(DV3DPlot):
 
     def getScaleBounds(self):
         return [ 0.5, 100.0 ]
-
-    def setInputZScale( self, zscale_data, input_index=0, **args  ):
-        ispec = self.inputSpecs[ input_index ] 
-        if ispec.input() <> None:
-            input = ispec.input()
-            ns = input.GetNumberOfScalarComponents()
-            spacing = input.GetSpacing()
-            ix, iy, iz = spacing
-            sz = zscale_data[0]
-            if iz <> sz:
+    
+    def setInputZScale(self, zscale_data, input_index=0, **args  ):
+        input = self.variable_reader.output( input_index )
+        spacing = input.GetSpacing()
+        ix, iy, iz = spacing
+        sz = zscale_data[0]
+        if iz <> sz:
 #                print " PVM >---------------> Change input zscale: %.4f -> %.4f" % ( iz, sz )
-                input.SetSpacing( ix, iy, sz )  
-                input.Modified() 
-                self.processScaleChange( spacing, ( ix, iy, sz ) )
-                return True
-        return False
+            input.SetSpacing( ix, iy, sz )  
+            input.Modified() 
+            self.processScaleChange( spacing, ( ix, iy, sz ) )
+        return input
     
     def getDataRangeBounds(self, inputIndex=0 ):
         ispec = self.getInputSpec( inputIndex )
@@ -145,8 +141,15 @@ class StructuredGridPlot(DV3DPlot):
     def getAxes(self):
         pass
 
-    def input( self, iIndex = 0 ):
-        return self.variable_reader.output( iIndex )
+    def input( self, input_index = 0 ):
+        plotButtons = self.getInteractionButtons()
+        cf = plotButtons.getConfigFunction('VerticalScaling')
+        if cf <> None:
+            zscale_data = cf.value.getValues()
+            input = self.setInputZScale( zscale_data, input_index  )
+        else: 
+            input = self.variable_reader.output( input_index )
+        return input
 
     def isBuilt(self):
         return self.pipelineBuilt
@@ -155,9 +158,6 @@ class StructuredGridPlot(DV3DPlot):
         nOutputs = self.variable_reader.nOutputs()
         for inputIndex in range( nOutputs ):
             ispec = self.variable_reader.outputSpec( inputIndex )
-#             fd = ispec.input().GetPointData()
-#             nc = fd.GetNumberOfComponents ()
-#             nt = fd.GetNumberOfTuples ()
             self.inputSpecs[inputIndex] = ispec 
             if self.roi == None:  
                 self.roi = ispec.metadata.get( 'bounds', None )  
