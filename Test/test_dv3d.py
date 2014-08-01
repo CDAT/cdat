@@ -32,7 +32,7 @@ if data_type == DataType.STRUCTURED:
    
 else:
     dataDir1 = "/Developer/Data/AConaty/comp-ECMWF"
-    datasetPath = os.path.join( dataDir1, "ac-comp1-geos5.xml")
+    datasetPath = os.path.join( dataDir1, "geos5.xml")
     f = cdms2.open( datasetPath )
     varname = "uwnd"
     
