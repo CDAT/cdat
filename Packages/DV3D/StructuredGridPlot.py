@@ -193,12 +193,6 @@ class StructuredGridPlot(DV3DPlot):
         self.updateModule( **args )                
         self.render()
 
-    def updateModule( self, input_index = 0, **args  ):
-        ispec = self.inputSpecs[ input_index ] 
-        mapper = self.volume.GetMapper()
-        mapper.SetInput( ispec.input() )
-        mapper.Modified()
-
     def terminate( self ):
         pass
     
@@ -589,6 +583,10 @@ class StructuredGridPlot(DV3DPlot):
         self.initializePlots()
         self.initCamera( ( self.mapSize[0] + self.mapSize[1] ), ( self.mapCenter[0], self.mapCenter[1] ) )
         self.start()
+        
+    def timestep(self):
+        self.variable_reader.timestep()
+        self.execute( )
 
     def onResizeEvent(self):
         self.updateTextDisplay( None, True )

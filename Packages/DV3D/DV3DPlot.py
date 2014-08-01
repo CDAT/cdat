@@ -119,6 +119,7 @@ class DV3DPlot():
         self.addKeyPressHandler( 'q',  self.quit )
         self.addKeyPressHandler( 'Q',  self.quit )
         self.addKeyPressHandler( 's',  self.saveState )
+        self.addKeyPressHandler( 'a',  self.stepAnimation )
         
     def addKeyPressHandler( self, key, handler ):
         handlers = self.keyPressHandlers.setdefault( key, [] )
@@ -129,12 +130,20 @@ class DV3DPlot():
         if eventArgs and ( eventArgs[1] == 'Q' ):
             self.saveState()
         self.renderWindowInteractor.TerminateApp() 
+
+    def stepAnimation(self, **args): 
+        print "Step Animation" 
+        self.timestep()
+        
+    def timestep(self):
+        print>>sys.stderr, "animation timestep unimplemented"
             
     def saveState(self, **args): 
         print "Save State" 
         self.buttonBarHandler.cfgManager.saveState()
 
     def processKeyPressHandler( self, key, eventArgs ):
+        print " processKeyPress: ", str( key )
         handlers = self.keyPressHandlers.get( key, [] )
         for handler in handlers: handler( args=eventArgs )
         return len( handlers )

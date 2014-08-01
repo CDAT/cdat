@@ -717,7 +717,7 @@ class RectGridPlot(StructuredGridPlot):
         self.levelSetFilter.SetNumberOfContours( 1 ) 
           
 #        levelSetMapper.SetColorModeToMapScalars()  
-        self.levelSetActor = vtk.vtkLODActor() 
+        self.levelSetActor = vtk.vtkActor()  # vtk.vtkLODActor() 
 #            levelSetMapper.ScalarVisibilityOff() 
 #            levelSetActor.SetProperty( self.levelSetProperty )              
         self.levelSetActor.SetMapper( self.levelSetMapper )
@@ -1439,6 +1439,11 @@ class RectGridPlot(StructuredGridPlot):
         if self.planeWidgetY <> None: self.planeWidgetY.SetInput( primaryInput, contourInput )         
         if self.planeWidgetZ <> None: self.planeWidgetZ.SetInput( primaryInput, contourInput ) 
         if self.baseMapActor: self.baseMapActor.SetVisibility( int( self.enableBasemap ) )
+        if self.volume <> None:
+            mapper = self.volume.GetMapper()
+            if vtk.VTK_MAJOR_VERSION <= 5:  mapper.SetInput(primaryInput)
+            else:                           mapper.SetInputData(primaryInput)        
+            mapper.Modified()
         self.render()
 
 #        self.set3DOutput()
