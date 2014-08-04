@@ -227,19 +227,15 @@ def project(pts,projection):
   
   pname = proj_dic.get(projection.type,projection.type)
   projName = pname
-  for i in range(0,184,2):
-    pd.SetName(pd.GetProjectionName(i))
-    print i,":",pd.GetProjectionName(i),"(",pd.GetNumberOfOptionalParameters(),") --"
-    pd.SetName(pd.GetProjectionName(i+1))
-    print i+1,":",pd.GetProjectionName(i+1),"(",pd.GetNumberOfOptionalParameters(),")"
+  #for i in range(0,184,2):
+  #  pd.SetName(pd.GetProjectionName(i))
+  #  print i,":",pd.GetProjectionName(i),"(",pd.GetNumberOfOptionalParameters(),") --"
+  #  pd.SetName(pd.GetProjectionName(i+1))
+  #  print i+1,":",pd.GetProjectionName(i+1),"(",pd.GetNumberOfOptionalParameters(),")"
     
   pd.SetName(projName)
   if projection.type == "polar (non gctp)":
-    #pd.SetOptionalParameter("lat_0","-90.")
-    #pd.SetOptionalParameter("lat_ts","-90.")
-    #pd.SetOptionalParameter("k_0","1.")
-    #pd.SetOptionalParameter("false_easting","180.")
-    #pd.SetOptionalParameter("lon_0","180.")
+    pd.SetOptionalParameter("lat_0","-90.")
     pd.SetCentralMeridian(0.)
   geo.SetSourceProjection(ps)
   geo.SetDestinationProjection(pd)

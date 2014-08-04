@@ -3457,6 +3457,8 @@ Options:::
                 t.data.y2 = p.viewport[3]
                 
                 proj = self.getprojection(p.projection)
+                if proj.type=="polar (non gctp)":
+                  doratio="1t"
 
                 if proj.type=='linear' and doratio[:4]=='auto':
                     lon1,lon2,lat2,lat2 = p.worldcoordinate
@@ -3478,25 +3480,16 @@ Options:::
                 if doratio[-1]=='t' or template_origin=='default':
                     box_and_ticks=1
 
-                if arglist[3]=='isoline':
-                    func=self.getisoline
-                elif arglist[3]=='isofill':
-                    func=self.getisofill
-                elif arglist[3]=='boxfill':
-                    func=self.getboxfill
-                elif arglist[3]=='meshfill':
-                    func=self.getmeshfill
-                elif arglist[3]=='vector':
-                    func=self.getvector
-                elif arglist[3]=='outfill':
-                    func=self.getoutfill
-                elif arglist[3]=='outline':
-                    func=self.getoutline
                 if isinstance(arglist[3],vcsaddons.core.VCSaddon):
                     gm= arglist[3]
                 else:
-                    gm=func(arglist[4])
+                    tp = arglist[3]
+                    if tp=="text":
+                      tp="textcombined"
+                    gm=vcs.elements[tp][arglist[4]]
                 p=self.getprojection(gm.projection)
+                if p.type=="polar (non gctp)":
+                  doratio="1t"
                 if p.type == 'linear':
                     if gm.g_name =='Gfm':
                         if self.isplottinggridded:
@@ -3552,6 +3545,17 @@ Options:::
                     arglist[2]=copy_tmpl.name
                 copy_tmpl.ratio(Ratio,box_and_ticks=box_and_ticks,x=self)
                             
+            if isinstance(arglist[3],vcsaddons.core.VCSaddon):
+                gm= arglist[3]
+            else:
+                tp = arglist[3]
+                if tp=="text":
+                  tp="textcombined"
+                gm=vcs.elements[tp][arglist[4]]
+            p=self.getprojection(gm.projection)
+            if p.type=="polar (non gctp)":
+              doratio="1t"
+
                             
             if hasattr(self,'_isplottinggridded') : del(self._isplottinggridded)
             # Get the continents for animation generation
