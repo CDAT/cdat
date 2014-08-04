@@ -198,10 +198,10 @@ class CPCPlot( DV3DPlot ):
 
                  
     def toggleProjection( self, args, config_function  ):
-        if len( args ) > 1: 
-            self.toggleTopo( state = args[1] ) 
-        else: 
-            self.toggleTopo() 
+#         if len( args ) > 1: 
+#             self.toggleTopo( state = args[1] ) 
+#         else: 
+        self.toggleTopo() 
         
     def processTimerEvent(self, caller, event):
 #        print " ***************** processTimerEvent, caller = ", caller.__class__.__name__
@@ -511,7 +511,7 @@ class CPCPlot( DV3DPlot ):
             positions = sliceParam.getValue( 'spos' )
             positions[self.sliceAxisIndex] = sliceParam.getValue()
 #            print "Update slice value[%d]: %f " % ( self.sliceAxisIndex, sliceParam.getValue() )
-            sliceParam.setValue( 'spos', positions )
+            sliceParam.setValue( 'spos', positions )            
             self.setRenderMode( ProcessMode.HighRes )            
             self.execCurrentSlice( )       
         elif args and args[0] == "InitConfig":
@@ -983,6 +983,7 @@ class CPCPlot( DV3DPlot ):
 #             self.processVerticalScalingCommand( [ "EndConfig" ] )
     
     def updateVerticalScaling(self): 
+        print " updateVerticalScaling: ", str( self.scaling_spec )
         self.point_cloud_overview.generateZScaling( spec=self.scaling_spec )
         if self.partitioned_point_cloud:
             self.partitioned_point_cloud.generateZScaling( spec=self.scaling_spec )
@@ -1070,7 +1071,7 @@ class CPCPlot( DV3DPlot ):
         self.render() 
 
     def processProjectionCommand( self, args, config_function  ): 
-        if args and args[0] == "InitConfig": 
+        if args and (args[0] == "InitConfig") and args[1]: 
             self.toggleProjection( args, config_function )
             self.setRenderMode( ProcessMode.HighRes )
             self.render() 
