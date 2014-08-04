@@ -16,7 +16,7 @@ b.boxfill_type="custom"
 y.plot(s,b)
 b=vcs.createboxfill()
 z=vcs.init()
-z.plot(s,b)
+#z.plot(s,b)
 
 y.interact()
 
