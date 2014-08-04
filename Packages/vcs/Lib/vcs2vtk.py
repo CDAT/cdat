@@ -335,6 +335,7 @@ def doWrap(Act,wc,wrap=[0.,360]):
   Mapper2.SetInputData(doClip(appendFilter.GetOutput(),xmn,xmx,ymn,ymx))
   Mapper2.SetLookupTable(Mapper.GetLookupTable())
   Mapper2.SetScalarRange(Mapper.GetScalarRange())
+  Mapper2.SetScalarMode(Mapper.GetScalarMode())
   Mapper2.Update()
   Actor.SetMapper(Mapper2)
   return Actor

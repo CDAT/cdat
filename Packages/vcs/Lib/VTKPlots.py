@@ -575,6 +575,17 @@ class VTKVCSBackend(object):
     #Ok now we have grid and data let's use the mapper
     mapper = vtk.vtkPolyDataMapper()
     legend = None
+    if isinstance(gm,boxfill.Gfb):
+      geoFilter = vtk.vtkGeometryFilter()
+      if ug.IsA("vtkUnstructuredGrid"):
+        geoFilter.SetInputData(ug)
+      else:
+          p2c = vtk.vtkPointDataToCellData()
+          p2c.SetInputData(ug)
+          geoFilter = vtk.vtkDataSetSurfaceFilter()
+          geoFilter.SetInputConnection(p2c.GetOutputPort())
+      geoFilter.Update()
+
     if isinstance(gm,(isofill.Gfi,isoline.Gi,meshfill.Gfm)) or \
         (isinstance(gm,boxfill.Gfb) and gm.boxfill_type=="custom"):
       
@@ -702,50 +713,48 @@ class VTKVCSBackend(object):
           # next set of levels contnues where one left off AND pattern is identical
            
           mapper = vtk.vtkPolyDataMapper()
-          cot = vtk.vtkBandedPolyDataContourFilter()
-          cot.ClippingOn()
-          cot.SetInputData(sFilter.GetOutput())
-          cot.SetNumberOfContours(len(l))
-          for j,v in enumerate(l):
-              cot.SetValue(j,l[j])
-          cot.Update()
-          mapper.SetInputConnection(cot.GetOutputPort())
-          #mapper.SetInputData(cot.GetOutput())
           lut = vtk.vtkLookupTable()
-          print "NCOLORS:",len(COLS[i])
-          lut.SetNumberOfTableValues(len(COLS[i]))
-          for j,color in enumerate(COLS[i]):
-              r,g,b = cmap.index[color]      
-              print l[j],vcs.colors.rgb2str(r*2.55,g*2.55,b*2.55),l[j+1]
-              lut.SetTableValue(j,r/100.,g/100.,b/100.)
-          mapper.SetLookupTable(lut)
-          if numpy.allclose(l[0],-1.e20):
-            lmn = mn-1.
+          if isinstance(gm,isofill.Gfi):
+              cot = vtk.vtkBandedPolyDataContourFilter()
+              cot.ClippingOn()
+              cot.SetInputData(sFilter.GetOutput())
+              cot.SetNumberOfContours(len(l))
+              for j,v in enumerate(l):
+                  cot.SetValue(j,v)
+              #cot.SetScalarModeToIndex()
+              cot.Update()
+              mapper.SetInputConnection(cot.GetOutputPort())
+              lut.SetNumberOfTableValues(len(COLS[i]))
+              for j,color in enumerate(COLS[i]):
+                  r,g,b = cmap.index[color]      
+                  lut.SetTableValue(j,r/100.,g/100.,b/100.)
+                  #print l[j],vcs.colors.rgb2str(r*2.55,g*2.55,b*2.55),l[j+1]
+              mapper.SetLookupTable(lut)
+              print "Mapper range:",0,len(l)-1
+              mapper.SetScalarRange(0,len(l)-1)
+              mapper.SetScalarModeToUseCellData()
           else:
-            lmn= l[0]
-          if numpy.allclose(l[-1],1.e20):
-            lmx = mx+1.
-          else:
-            lmx= l[-1]
-          print "Mapper range:",lmn,lmx
-          mapper.SetScalarRange(lmn,lmx)
+              for j,color in enumerate(COLS[i]):
+                  mapper.SetInputData(geoFilter.GetOutput())
+                  lut.SetNumberOfTableValues(1)
+                  r,g,b = cmap.index[color]      
+                  lut.SetTableValue(0,r/100.,g/100.,b/100.)
+                  mapper.SetLookupTable(lut)
+                  mapper.SetScalarRange(l[j],l[j+1])
+                  print "Mapper range:",mapper.GetScalarRange()
+                  mappers.append([mapper,])
+                  mapper = vtk.vtkPolyDataMapper()
+                  lut = vtk.vtkLookupTable()
+
           #png = vtk.vtkPNGReader()
           #png.SetFileName("/git/uvcdat/Packages/vcs/Share/uvcdat_texture.png")
           #T=vtk.vtkTexture()
           #T.SetInputConnection(png.GetOutputPort())
-          mappers.append([mapper,])
+          if isinstance(gm,isofill.Gfi):
+              mappers.append([mapper,])
 
     else: #Boxfill/Meshfill
       mappers=[]
-      geoFilter = vtk.vtkGeometryFilter()
-      if ug.IsA("vtkUnstructuredGrid"):
-        geoFilter.SetInputData(ug)
-      else:
-          p2c = vtk.vtkPointDataToCellData()
-          p2c.SetInputData(ug)
-          geoFilter = vtk.vtkDataSetSurfaceFilter()
-          geoFilter.SetInputConnection(p2c.GetOutputPort())
-      geoFilter.Update()
       mapper.SetInputData(geoFilter.GetOutput())
       if isinstance(gm,boxfill.Gfb):
         if numpy.allclose(gm.level_1,1.e20) or numpy.allclose(gm.level_2,1.e20):
