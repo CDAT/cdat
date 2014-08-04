@@ -738,6 +738,7 @@ class vtkPartitionedPointCloud:
         if self.timerId == -1:
             self.interactor.SetTimerEventId(self.CheckProcQueueEventId)
             self.interactor.SetTimerEventType( self.TimerType )
+#            print "   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ startCheckingProcQueues, interactor = ", self.interactor.__class__.__name__
             self.timerId = self.interactor.CreateRepeatingTimer( 100 )
             
     def refresh( self, force = False ): 

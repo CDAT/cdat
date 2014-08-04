@@ -394,6 +394,7 @@ class DV3DPlot():
  
     def activateEvent( self, caller, event ):
         if not self.activated:
+            print "Activating, renderWindowInteractor = ", self.renderWindowInteractor.__class__.__name__
 #            self.addObserver( self.renderWindowInteractor, 'InteractorEvent', self.displayEventType )                   
             self.addObserver( self.interactorStyle, 'CharEvent', self.setInteractionState )                   
             self.addObserver( self.renderWindowInteractor, 'TimerEvent', self.processTimerEvent )                   

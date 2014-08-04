@@ -323,7 +323,7 @@ class ButtonBarWidget:
             
     def reposition( self, **args ):
         self.updateWindowSize()
-        print "Reposition: %d " % self.windowSize[0]
+#        print "Reposition: %d " % self.windowSize[0]
         self.build( **args )
              
     def placeButton( self, button, position, **args ):

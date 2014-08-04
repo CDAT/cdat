@@ -204,6 +204,7 @@ class CPCPlot( DV3DPlot ):
             self.toggleTopo() 
         
     def processTimerEvent(self, caller, event):
+#        print " ***************** processTimerEvent, caller = ", caller.__class__.__name__
         DV3DPlot.processTimerEvent(self, caller, event)
         eid = caller.GetTimerEventId ()
         etype = caller.GetTimerEventType()
@@ -329,9 +330,9 @@ class CPCPlot( DV3DPlot ):
                 else:               text = "No Pick"
                 self.updateTextDisplay( text )
                 
-                if self.configDialog.plotting():
-                    tseries = self.partitioned_point_cloud.getTimeseries( actor, iPt ) 
-                    self.configDialog.pointPicked( tseries, pick_pos )       
+#                 if self.configDialog.plotting():
+#                     tseries = self.partitioned_point_cloud.getTimeseries( actor, iPt ) 
+#                     self.configDialog.pointPicked( tseries, pick_pos )       
             
     def toggleTopo( self, **args ):
         state = args.get( 'state', None )
