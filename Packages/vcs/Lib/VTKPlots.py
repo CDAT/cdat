@@ -712,9 +712,9 @@ class VTKVCSBackend(object):
           # Ok here we are trying to group together levels can be, a join will happen if:
           # next set of levels contnues where one left off AND pattern is identical
            
-          mapper = vtk.vtkPolyDataMapper()
-          lut = vtk.vtkLookupTable()
           if isinstance(gm,isofill.Gfi):
+              mapper = vtk.vtkPolyDataMapper()
+              lut = vtk.vtkLookupTable()
               cot = vtk.vtkBandedPolyDataContourFilter()
               cot.ClippingOn()
               cot.SetInputData(sFilter.GetOutput())
@@ -735,7 +735,14 @@ class VTKVCSBackend(object):
               mapper.SetScalarModeToUseCellData()
           else:
               for j,color in enumerate(COLS[i]):
-                  mapper.SetInputData(geoFilter.GetOutput())
+                  mapper = vtk.vtkPolyDataMapper()
+                  lut = vtk.vtkLookupTable()
+                  th = vtk.vtkThreshold()
+                  th.ThresholdBetween(l[j],l[j+1])
+                  th.SetInputConnection(geoFilter.GetOutputPort())
+                  geoFilter2 = vtk.vtkDataSetSurfaceFilter()
+                  geoFilter2.SetInputConnection(th.GetOutputPort())
+                  mapper.SetInputConnection(geoFilter2.GetOutputPort())
                   lut.SetNumberOfTableValues(1)
                   r,g,b = cmap.index[color]      
                   lut.SetTableValue(0,r/100.,g/100.,b/100.)
@@ -743,8 +750,6 @@ class VTKVCSBackend(object):
                   mapper.SetScalarRange(l[j],l[j+1])
                   print "Mapper range:",mapper.GetScalarRange()
                   mappers.append([mapper,])
-                  mapper = vtk.vtkPolyDataMapper()
-                  lut = vtk.vtkLookupTable()
 
           #png = vtk.vtkPNGReader()
           #png.SetFileName("/git/uvcdat/Packages/vcs/Share/uvcdat_texture.png")
@@ -812,13 +817,14 @@ class VTKVCSBackend(object):
     if tmpl.data.priority != 0:
       # And now we need actors to actually render this thing
       for mapper in mappers:
+        print "We have:",len(mappers),"mappers"
         act = vtk.vtkActor()
         if isinstance(mapper,list):
           act.SetMapper(mapper[0])
         else:
           mapper.Update()
           act.SetMapper(mapper)
-        act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
+        #act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
         if isinstance(mapper,list):
           #act.GetMapper().ScalarVisibilityOff()
           #act.SetTexture(mapper[1])
