@@ -217,7 +217,6 @@ def project(pts,projection):
     return None,pts
   geo = vtk.vtkGeoTransform()
   ps = vtk.vtkGeoProjection()
-  print "VALID PROJ",ps.GetNumberOfProjections()
   #for i in range(ps.GetNumberOfProjections()):
   #  print i, ps.GetProjectionName(i)
   pd = vtk.vtkGeoProjection()
@@ -806,13 +805,13 @@ def fitToViewport(Actor,Renderer,vp,wc=None,geo=None):
     Yrg=[float(wc[2]),float(wc[3])]
 
   if geo is not None:
-   print "X,Y:",Xrg,Yrg
    pt = vtk.vtkPoints()
    pt.SetNumberOfPoints(1)
    Xrg2 = [1.e20,-1.e20]
    Yrg2 = [1.e20,-1.e20]
-   for x in numpy.arange(Xrg[0],Xrg[1],(Xrg[1]-Xrg[0])/10.):
-     for y in numpy.arange(Yrg[0],Yrg[1],(Yrg[1]-Yrg[0])/10.):
+   Npts=50.
+   for x in numpy.arange(Xrg[0],Xrg[1],(Xrg[1]-Xrg[0])/Npts):
+     for y in numpy.arange(Yrg[0],Yrg[1],(Yrg[1]-Yrg[0])/Npts):
        pt.SetPoint(0,x,y,0)
        pts = vtk.vtkPoints()
        geo.TransformPoints(pt,pts)
@@ -826,7 +825,6 @@ def fitToViewport(Actor,Renderer,vp,wc=None,geo=None):
          Yrg2[0]=min(Yrg2[0],ym)
        if yM!=numpy.inf:
          Yrg2[1]=max(Yrg2[1],yM)
-   print "Converted X,Y:",Xrg2,Yrg2
    Xrg=Xrg2
    Yrg=Yrg2
   Renderer.SetViewport(vp[0],vp[2],vp[1],vp[3])

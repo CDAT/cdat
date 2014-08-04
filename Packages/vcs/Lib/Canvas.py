@@ -3411,8 +3411,7 @@ Options:::
                   tp="textcombined"
                 gm=vcs.elements[tp][arglist[4]]
             p=self.getprojection(gm.projection)
-            if p.type=="polar (non gctp)" and doratio==0:
-              print "RATIO IS:",doratio
+            if p.type=="polar (non gctp)" and doratio=="0":
               doratio="1t"
 
             for keyarg in keyargs.keys():
@@ -3489,7 +3488,6 @@ Options:::
                         arglist[4]=p.name
             elif (arglist[3] in ['boxfill','isofill','isoline','outfill','outline','vector','meshfill'] or isinstance(arglist[3],vcsaddons.core.VCSaddon)) and doratio in ['auto','autot'] and not (doratio=='auto' and arglist[2]=='ASD'):
                 box_and_ticks=0
-                print "OK HERRRRRRRRRRRRRRRRRRRRRRRRRRRRRRAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
                 if doratio[-1]=='t' or template_origin=='default':
                     box_and_ticks=1
 
@@ -3544,7 +3542,6 @@ Options:::
                         copy_tmpl.ratio_linear_projection(lon1,lon2,lat1,lat2,None,box_and_ticks=box_and_ticks,x=self)
                         arglist[2]=copy_tmpl.name
             elif not (doratio in ['0','off','none','auto','autot']) or  (arglist[3] in ['boxfill','isofill','isoline','outfill','outline','vector','meshfill'] and str(doratio).lower() in ['auto','autot']) and arglist[2]!='ASD' :
-                print "HEEEEREERERERRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR?"
                 box_and_ticks=0
                 if doratio[-1]=='t' or template_origin=='default':
                     box_and_ticks=1
