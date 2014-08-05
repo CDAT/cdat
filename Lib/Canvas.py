@@ -313,6 +313,10 @@ class Canvas(object,AutoAPI.AutoAPI):
         'size',
         'canvas_guianimate_info',
         ]
+    
+    def applicationFocusChanged(self, old, current ):
+        self.backend.applicationFocusChanged()
+        
     def _set_user_actions_names(self,value):
         value=VCS_validation_functions.checkListElements(self,'user_actions_names',value,VCS_validation_functions.checkString)
         self._user_actions_names = value

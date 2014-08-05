@@ -46,6 +46,10 @@ class VTKVCSBackend(object):
       if renWin.GetInteractor() is None:
         self.createDefaultInteractor()
         
+  def applicationFocusChanged(self):
+      for plotApp in self.plotApps.values():
+          if hasattr(plotApp, 'refresh'): plotApp.refresh()
+        
   def interact(self,*args,**kargs):
       warnings.warn("Press 'Q' to exit interactive mode and continue script execution")
       self.renWin.GetInteractor().Start()
