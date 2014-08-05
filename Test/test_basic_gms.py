@@ -32,14 +32,16 @@ gm.datawc_y1=-90
 gm.datawc_y2=90
 levels = range(0,110,10)
 print "LEVELS:",levels
-gm.levels = (levels,)
+gm.levels = levels
 bg = False
 #bg = True
 #levs = range(-20,135,10)
 #gm.levels = levs
 #gm.fillareacolors = vcs.getcolors(levs)
 x.plot(s,tmpl,gm,bg=bg,continents=1)
-x.png("test")#,width=2000,height=1000)
+x.pdf("test")#,width=2000,height=1000)
+x.svg("test")#,width=2000,height=1000)
+x.postscript("test")#,width=2000,height=1000)
 if interact:
   try:
     x.interact()
