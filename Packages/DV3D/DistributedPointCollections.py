@@ -419,6 +419,7 @@ class vtkPointCloud():
         return self.actor.GetVisibility()
     
     def hide(self):
+#        print "PointCloud- hide()"
         self.actor.VisibilityOff()
 
     def show(self):
@@ -801,7 +802,7 @@ class vtkPartitionedPointCloud:
         self.nActiveCollections = min( self.nActiveCollections, self.nPartitions )
         self.show()
         self.generateSubset()
-        print " --> updateNumActiveCollections: %d " % self.nActiveCollections; sys.stdout.flush()
+#        print " --> updateNumActiveCollections: %d " % self.nActiveCollections; sys.stdout.flush()
         
     def setResolution( self, res ):
         n_collections = int( round( self.nPartitions * res ) )
@@ -816,6 +817,7 @@ class vtkPartitionedPointCloud:
         return (self.nActiveCollections > 0)
             
     def clear(self, activePCIndex = -1 ):
+        print "DistributedPointCollections- clear()"
         self.stopCheckingProcQueues() 
         for pc_item in self.point_clouds.items():
             if pc_item[0] <> activePCIndex:
@@ -830,6 +832,7 @@ class vtkPartitionedPointCloud:
                 pc_item[1].hide()
 
     def hideInactives(self): 
+        print "DistributedPointCollections- hideInactives()"
         for pc_item in self.point_clouds.items():
             if pc_item[0] >= self.nActiveCollections:
                 pc_item[1].hide()

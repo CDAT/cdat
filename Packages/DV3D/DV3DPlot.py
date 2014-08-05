@@ -126,6 +126,9 @@ class DV3DPlot():
         handlers = self.keyPressHandlers.setdefault( key, [] )
         handlers.append( handler )
         
+    def refresh(self):
+        self.onWindowModified()
+        
     def quit( self, **args ):
         eventArgs = args.get( 'args', None )
         if eventArgs and ( eventArgs[1] == 'Q' ):
@@ -172,7 +175,6 @@ class DV3DPlot():
                 button.setButtonState( 1 ) 
                 bbar.initializeSliderPosition(0)  
         bbar.initializeState()
-        self.render()
         
     def processChooseColormapCommand( self, args, config_function ):
         from ListWidget import ColorbarListWidget
@@ -383,10 +385,12 @@ class DV3DPlot():
         return 0
 
     def onAnyEvent(self, caller, event):
-        print " --- %s Event --- " % event
+        print " --- %s Event --- " % str(event)
         return 0    
     
     def onRender(self, caller, event):
+#        print " --- Render Event --- "
+#        traceback.print_stack()
         return 0
     
     def updateInteractor(self): 
@@ -410,7 +414,7 @@ class DV3DPlot():
 #            self.addObserver( self.renderWindowInteractor, 'ResetCameraEvent', self.onAnyEvent )
 #            self.addObserver( self.renderWindowInteractor, 'ResetCameraClippingRangeEvent', self.onAnyEvent )
 #            self.addObserver( self.renderWindowInteractor, 'ComputeVisiblePropBoundsEvent', self.onAnyEvent )
-#            self.addObserver( self.renderWindowInteractor, 'UpdateSizeEvent', self.onAnyEvent )
+#            self.addObserver( self.renderWindowInteractor, 'AnyEvent', self.onAnyEvent )
             renWin = self.renderWindowInteractor.GetRenderWindow()   
             renWin.AddObserver( 'ModifiedEvent', self.onWindowModified )
             self.updateInteractor() 
@@ -499,8 +503,8 @@ class DV3DPlot():
         bbar.build( **args )
         bbar.show() 
              
-    def onWindowModified( self, caller, event ):
-        renwin = caller
+    def onWindowModified( self, caller=None, event=None ):
+        renwin = self.renderWindow if (caller == None) else caller 
         window_size = renwin.GetSize()
         if ( self.renderWindowSize == None ) or ( self.renderWindowSize <> window_size ):
             if self.renderWindowSize <> None: 

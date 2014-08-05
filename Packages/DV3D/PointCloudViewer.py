@@ -1353,11 +1353,13 @@ class CPCPlot( DV3DPlot ):
             
         self.start()
 
-    def initializePlots(self):            
+    def initializePlots(self):         
         DV3DPlot.initializePlots(self)
-        self.updateVerticalScaling() 
-#        self.setRenderMode( ProcessMode.HighRes )                      
-                   
+        self.setRenderMode( ProcessMode.HighRes )               
+#        self.updateThresholding()        
+#        self.updateVerticalScaling() 
+#        self.render()  
+                         
     def setCameraPos(self):
         ( xcenter, ycenter, xwidth, ywidth ) = self.point_cloud_overview.getCenter()
         self.initCamera( ( xwidth + ywidth ), ( xcenter, ycenter ) )
