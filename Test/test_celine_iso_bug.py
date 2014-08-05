@@ -2,9 +2,7 @@ import sys,cdms2,vcs
 f=cdms2.open("Test/celine.nc")
 s=f("data")
 x=vcs.init()
-print "************************************** SCTIPT *********************************************"
 x.scriptrun("Test/celine.json")
-print "************************************** SCTIPT *********************************************"
 i=x.getisofill("celine")
 x.plot(s,i)
 #x.png("bad")
