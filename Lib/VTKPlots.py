@@ -811,11 +811,17 @@ class VTKVCSBackend(object):
       contActor = vtk.vtkActor()
       contActor.SetMapper(contMapper)
       contActor.GetProperty().SetColor(0.,0.,0.)
-      cpts = contData.GetPoints()
-      geo, gcpts = vcs2vtk.project(cpts,projection)
-      contData.SetPoints(gcpts)
-      if geo is None:
-        contActor = vcs2vtk.doWrap(contActor,[x1,x2,y1,y2],wrap)
+      contActor = vcs2vtk.doWrap(contActor,[x1,x2,y1,y2],wrap)
+      if projection.type!="linear":
+          contData=contActor.GetMapper().GetInput()
+          cpts = contData.GetPoints()
+          geo, gcpts = vcs2vtk.project(cpts,projection,[x1,x2,y1,y2])
+          contData.SetPoints(gcpts)
+          contMapper = vtk.vtkPolyDataMapper()
+          contMapper.SetInputData(contData)
+          contActor = vtk.vtkActor()
+          contActor.SetMapper(contMapper)
+          contActor.GetProperty().SetColor(0.,0.,0.)
       vcs2vtk.fitToViewport(contActor,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],wc=[x1,x2,y1,y2],geo=geo)
       if tmpl.data.priority!=0:
         ren.AddActor(contActor)
