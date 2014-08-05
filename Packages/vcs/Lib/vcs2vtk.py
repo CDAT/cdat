@@ -121,10 +121,10 @@ def genGrid(data1,data2,gm):
     z = numpy.zeros(lon.shape)
     m3 = numpy.concatenate((lon,lat),axis=1)
     m3 = numpy.concatenate((m3,z),axis=1)
-    xm=lon.min()
-    xM=lon.max()
-    ym=lat.min()
-    yM=lat.max()
+    xm=lon[0]
+    xM=lon[-1]
+    ym=lat[0]
+    yM=lat[-1]
   # First create the points/vertices (in vcs terms)
   deep = True
   pts = vtk.vtkPoints()
@@ -133,7 +133,7 @@ def genGrid(data1,data2,gm):
   pts.SetData(ppV)
 
   projection = vcs.elements["projection"][gm.projection]
-  geo, geopts = project(pts,projection)
+  geo, geopts = project(pts,projection,[xm,xM,ym,yM])
   ## Sets the vertics into the grid
   vg.SetPoints(geopts)
   return vg,xm,xM,ym,yM,continents,wrap,geo
@@ -210,7 +210,8 @@ def prepContinents(fnm):
 
 
 #Geo projection
-def project(pts,projection):
+def project(pts,projection,wc):
+  xm,xM,ym,yM= wc
   if isinstance(projection,(str,unicode)):
     projection = vcs.elements["projection"][projection]
   if projection.type=="linear":
@@ -234,8 +235,12 @@ def project(pts,projection):
     
   pd.SetName(projName)
   if projection.type == "polar (non gctp)":
-    pd.SetOptionalParameter("lat_0","-90.")
-    pd.SetCentralMeridian(0.)
+    if ym<yM:
+      pd.SetOptionalParameter("lat_0","-90.")
+      pd.SetCentralMeridian(xm)
+    else:
+      pd.SetOptionalParameter("lat_0","90.")
+      pd.SetCentralMeridian(xm+180.)
   geo.SetSourceProjection(ps)
   geo.SetDestinationProjection(pd)
   geopts = vtk.vtkPoints()
@@ -504,7 +509,7 @@ def prepFillarea(renWin,ren,farea,cmap=None):
     polygons.InsertNextCell(polygon)
 
     polygonPolyData = vtk.vtkPolyData()
-    geo,pts = project(pts,farea.projection)
+    geo,pts = project(pts,farea.projection,farea.worldcoordinate)
     polygonPolyData.SetPoints(pts)
     polygonPolyData.SetPolys(polygons)
 
@@ -663,7 +668,7 @@ def prepMarker(renWin,ren,marker,cmap=None):
         coords = numpy.array(zip(*l))*s/30.
         line = genPoly(coords.tolist(),pts,filled=True)
         polys.InsertNextCell(line)
-      geo,pts = project(pts,marker.projection)
+      geo,pts = project(pts,marker.projection,marker.worldccordinate)
       pd.SetPoints(pts)
       pd.SetPolys(polys)
       pd.SetLines(lines)
@@ -726,7 +731,7 @@ def prepLine(renWin,ren,line,cmap=None):
       l.GetPointIds().SetId(1,j+1)
       lines.InsertNextCell(l)
     linesPoly = vtk.vtkPolyData()
-    geo,pts=project(pts,line.projection)
+    geo,pts=project(pts,line.projection,line.worldcoordinate)
     linesPoly.SetPoints(pts)
     linesPoly.SetLines(lines)
     a = vtk.vtkActor()
