@@ -1526,11 +1526,11 @@ Options:::
     isoline.__doc__ = isoline.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert,plot_2D_input, plot_output)
 
     def createoneD(self,name=None,source='default'):
-        return vcs.getoneD(name,source)
+        return vcs.createoneD(name,source)
     createoneD.__doc__ = vcs.manageElements.createoneD.__doc__
 
     def getoneD(self,name):
-        return vcs.getoned(name)
+        return vcs.getoneD(name)
     createoneD.__doc__ = vcs.manageElements.createoneD.__doc__
 
     

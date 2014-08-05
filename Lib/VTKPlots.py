@@ -444,10 +444,12 @@ class VTKVCSBackend(object):
     if m.priority>0:
         self.canvas.plot(m,renderer=ren,donotstoredisplay=True)
     ren2 = vtk.vtkRenderer()
+    self.renWin.AddRenderer(ren2)
     tmpl.plot(self.canvas,data1,gm,bg=self.bg,renderer=ren2,X=X,Y=Y)
     
     if tmpl.legend.priority>0:
         ren2 = vtk.vtkRenderer()
+        self.renWin.AddRenderer(ren2)
         self.setLayer(ren2,tmpl.legend.priority)
         legd = self.canvas.createline()
         legd.x = [tmpl.legend.x1, tmpl.legend.x2]
