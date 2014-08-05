@@ -555,6 +555,8 @@ class VTKVCSBackend(object):
     self.setLayer(ren,tmpl.data.priority)
     ug,xm,xM,ym,yM,continents,wrap = vcs2vtk.genUnstructuredGrid(data1,data2,gm)
     #Now applies the actual data on each cell
+    if isinstance(gm,boxfill.Gfb) and gm.boxfill_type=="log10":
+        data1=numpy.ma.log10(data1)
     data = VN.numpy_to_vtk(data1.filled(0.).flat,deep=True)
     if ug.IsA("vtkUnstructuredGrid"):
         ug.GetCellData().SetScalars(data)
@@ -642,7 +644,6 @@ class VTKVCSBackend(object):
             levs.append([levs2[i],levs2[i+1]])
           if isinstance(gm,isoline.Gi):
             levs = levs2
-      print "LEVELS ARE:",levs
       Nlevs=len(levs)
       Ncolors = Nlevs
       ## Figure out colors
@@ -701,14 +702,12 @@ class VTKVCSBackend(object):
                     C = [cols[i],]
                     L = levs[i]
                     I = [indices[i],]
-        print "AND L ISL:",L
         LEVS.append(L)
         COLS.append(C)
         INDX.append(I)
 
         
         for i,l in enumerate(LEVS):
-          print "OK I,l:",i,l
           # Ok here we are trying to group together levels can be, a join will happen if:
           # next set of levels contnues where one left off AND pattern is identical
            
@@ -730,7 +729,6 @@ class VTKVCSBackend(object):
                   lut.SetTableValue(j,r/100.,g/100.,b/100.)
                   #print l[j],vcs.colors.rgb2str(r*2.55,g*2.55,b*2.55),l[j+1]
               mapper.SetLookupTable(lut)
-              print "Mapper range:",0,len(l)-1
               mapper.SetScalarRange(0,len(l)-1)
               mapper.SetScalarModeToUseCellData()
           else:
@@ -748,7 +746,6 @@ class VTKVCSBackend(object):
                   lut.SetTableValue(0,r/100.,g/100.,b/100.)
                   mapper.SetLookupTable(lut)
                   mapper.SetScalarRange(l[j],l[j+1])
-                  print "Mapper range:",mapper.GetScalarRange()
                   mappers.append([mapper,])
 
           #png = vtk.vtkPNGReader()
@@ -768,9 +765,17 @@ class VTKVCSBackend(object):
           dx = (levs[-1]-levs[0])/(gm.color_2-gm.color_1+1)
           levs = numpy.arange(levs[0],levs[-1]+dx,dx)
         else:
-          levs = vcs.mkscale(gm.level_1,gm.level_2)
+          if gm.boxfill_type=="log10":
+              levs = vcs.mkscale(numpy.ma.log10(gm.level_1),numpy.ma.log10(gm.level_2))
+          else:
+              levs = vcs.mkscale(gm.level_1,gm.level_2)
           legend = vcs.mklabels(levs)
-          levs = numpy.arange(gm.level_1,gm.level_2,(gm.level_2-gm.level_1)/(gm.color_2-gm.color_1+1))
+          if gm.boxfill_type=="log10":
+              for k in legend.keys():
+                  legend[float(numpy.ma.log10(legend[k]))] = legend[k]
+                  del(legend[k])
+          levs = numpy.arange(levs[0],levs[1],(levs[1]-levs[0])/(gm.color_2-gm.color_1+1))
+
         cols = range(gm.color_1,gm.color_2+1)
       else:
         if numpy.allclose(gm.levels,1.e20):
@@ -817,7 +822,6 @@ class VTKVCSBackend(object):
     if tmpl.data.priority != 0:
       # And now we need actors to actually render this thing
       for mapper in mappers:
-        print "We have:",len(mappers),"mappers"
         act = vtk.vtkActor()
         if isinstance(mapper,list):
           act.SetMapper(mapper[0])

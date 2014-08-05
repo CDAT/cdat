@@ -504,7 +504,7 @@ def loadVCSItem(typ,nm,json_dict = {}):
           del(v[k])
         except:
           pass
-    print "Setting:",a,"to",v
+    #print "Setting:",a,"to",v
     setattr(gm,a,v)
   return gm
 

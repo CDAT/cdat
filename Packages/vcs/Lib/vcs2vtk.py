@@ -132,8 +132,6 @@ def genUnstructuredGrid(data1,data2,gm):
   ppV = VN.numpy_to_vtk(m3,deep=deep)
   pts.SetData(ppV)
 
-  print vcs.elements["projection"]
-  print "Proj:",gm.projection
   projection = vcs.elements["projection"][gm.projection]
   geopts = project(pts,projection)
   ## Sets the vertics into the grid
