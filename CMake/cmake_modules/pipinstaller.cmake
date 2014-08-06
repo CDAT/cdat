@@ -20,6 +20,7 @@ else()
     set(URL_STR URL ${${uc_nm}_SOURCE})
     set(URL_MD5_STR URL_MD5 ${${uc_nm}_MD5})
     set(GIT_CMD_STR )
+    set(GIT_TAG )
 endif()
 
 message([INFO] URL STRING IS: ${URL_STR})
@@ -30,6 +31,7 @@ ExternalProject_Add(${nm}
   ${URL_STR}
   ${URL_MD5_STR}
   ${GIT_CMD_STR}
+  ${GIT_TAG}
   BUILD_IN_SOURCE 1
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
