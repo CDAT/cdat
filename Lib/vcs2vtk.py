@@ -241,12 +241,167 @@ def project(pts,projection,wc):
     else:
       pd.SetOptionalParameter("lat_0","90.")
       pd.SetCentralMeridian(xm+180.)
+  else:
+    setProjectionParameters(pd,projection)
   geo.SetSourceProjection(ps)
   geo.SetDestinationProjection(pd)
   geopts = vtk.vtkPoints()
   geo.TransformPoints(pts,geopts)
   return geo,geopts
 
+def setProjectionParameters(pd,proj):
+    proj4={}
+    if proj._type in [3,4]:
+         proj4["a"]=proj.smajor
+         proj4["b"]=proj.sminor
+         proj4["lat_1"]=proj.standardparallel1
+         proj4["lat_2"]=proj.standardparallel2
+         proj4["lon_0"]=proj.centralmeridian
+         proj4["lat_0"]=proj.originlatitude
+         proj4["x_0"]=proj.falseeasting
+         proj4["y_0"]=proj.falsenorthing
+    elif proj._type==5:
+         proj4["a"]=proj.smajor
+         proj4["b"]=proj.sminor
+         proj4["lon_0"]=proj.centralmeridian
+         proj4["lat_ts"]=proj.truescale
+         proj4["x_0"]=proj.falseeasting
+         proj4["y_0"]=proj.falsenorthing
+    elif proj._type==6:
+         proj4["a"]=proj.smajor
+         proj4["b"]=proj.sminor
+         proj4["lon_wrap"]=proj.centerlongitude # MAP NAME ?????
+         proj4["lat_ts"]=proj.truescale
+         proj4["x_0"]=proj.falseeasting
+         proj4["y_0"]=proj.falsenorthing
+    elif proj._type==7:
+         proj4["a"]=proj.smajor
+         proj4["b"]=proj.sminor
+         proj4["lon_0"]=proj.centralmeridian
+         proj4["lat_0"]=proj.originlatitude
+         proj4["x_0"]=proj.falseeasting
+         proj4["y_0"]=proj.falsenorthing
+    elif proj._type==8:
+         proj4["a"]=proj.smajor
+         proj4["b"]=proj.sminor
+         proj4["lon_0"]=proj.centralmeridian
+         proj4["lat_0"]=proj.originlatitude
+         proj4["x_0"]=proj.falseeasting
+         proj4["y_0"]=proj.falsenorthing
+         if (p[8]==0 or p[8]>9.9E19):
+              proj4["subtype"]=proj.subtype=0
+              proj4["lat_1"]=proj.standardparallel # MAP NAME ?????
+              proj4["lat_2"]=proj.standardparallel # MAP NAME ?????
+              proj4["lat_ts"]=proj.standardparallel # MAP NAME ?????
+         else:
+              proj4["subtype"]=proj.subtype=1
+              proj4["lat_1"]=proj.standardparallel1
+              proj4["lat_2"]=proj.standardparallel2
+    elif proj._type==9:
+         proj4["a"]=proj.smajor
+         proj4["b"]=proj.sminor
+         proj4["k_0"]=proj.factor
+         proj4["lon_0"]=proj.centralmeridian
+         proj4["lat_0"]=proj.originlatitude
+         proj4["x_0"]=proj.falseeasting
+         proj4["y_0"]=proj.falsenorthing
+    elif proj._type in [10,11,12,13,14]:
+         proj4["a"]=proj.sphere # MAP NAME ?????
+         proj4["b"]=proj.sphere # MAP NAME ?????
+         proj4["lon_0"]=proj.centerlongitude
+         proj4["lat_0"]=proj.centerlatitude
+         proj4["x_0"]=proj.falseeasting
+         proj4["y_0"]=proj.falsenorthing
+    elif proj._type==15:
+         proj4["a"]=proj.sphere # MAP NAME ?????
+         proj4["b"]=proj.sphere # MAP NAME ?????
+         proj4["height"]=proj.height # MAP NAME ?????
+         proj4["lon_0"]=proj.centerlongitude
+         proj4["lat_0"]=proj.centerlatitude
+         proj4["x_0"]=proj.falseeasting
+         proj4["y_0"]=proj.falsenorthing
+    elif proj._type in [16,18,21,25,27,28,29]:
+         proj4["a"]=proj.sphere # MAP NAME ?????
+         proj4["b"]=proj.sphere # MAP NAME ?????
+         proj4["lon_0"]=proj.centralmeridian
+         proj4["x_0"]=proj.falseeasting
+         proj4["y_0"]=proj.falsenorthing
+    elif proj._type==17:
+         proj4["a"]=proj.sphere
+         proj4["b"]=proj.sphere
+         proj4["lon_0"]=proj.centralmeridian
+         proj4["lat_ts"]=proj.truescale
+         proj4["x_0"]=proj.falseeasting
+         proj4["y_0"]=proj.falsenorthing
+    elif proj._type==19:
+         proj4["a"]=proj.sphere # MAP NAME ?????
+         proj4["b"]=proj.sphere # MAP NAME ?????
+         proj4["lon_0"]=proj.centralmeridian
+         proj4["lat_0"]=proj.originlatitude
+         proj4["x_0"]=proj.falseeasting
+         proj4["y_0"]=proj.falsenorthing
+    elif proj._type==20:
+         proj4["a"]=proj.smajor
+         proj4["b"]=proj.sminor
+         proj4["k_0"]=proj.factor
+         proj4["lat_0"]=proj.originlatitude
+         proj4["x_0"]=proj.falseeasting
+         proj4["y_0"]=proj.falsenorthing
+         if (p[12]==0 or p[12]>9.9E19):
+              proj4["subtype"]=proj.subtype
+              proj4["lon_0"]=proj.longitude1 # MAP NAME ?????
+              proj4["lat_1"]=proj.latitude1
+              proj4["lonc"]=proj.longitude2 # MAP NAME ?????
+              proj4["lat_2"]=proj.latitude2
+         else:
+              proj4["subtype"]=proj.subtype
+              proj4["azi"]=proj.azimuthalangle # MAP NAME ?????
+              proj4["lon_0"]=proj.azimuthallongitude # MAP NAME ?????
+    elif proj._type==22:
+         proj4["a"]=proj.smajor
+         proj4["b"]=proj.sminor
+         proj4["x_0"]=proj.falseeasting
+         proj4["y_0"]=proj.falsenorthing
+         if (p[12]==0 or p[12]>9.9E19):
+              proj4["subtype"]=proj.subtype
+              proj4["???"]=proj.orbitinclination # MAP NAME ?????
+              proj4["???"]=proj.orbitlongitude # MAP NAME ?????
+              proj4["???"]=proj.satelliterevolutionperiod # MAP NAME ?????
+              proj4["???"]=proj.landsatcompensationratio # MAP NAME ?????
+              proj4["???"]=proj.pathflag # MAP NAME ?????
+         else:
+              proj4["subtype"]=proj.subtype
+              proj4["???"]=proj.satellite # MAP NAME ?????
+              proj4["???"]=proj.path # MAP NAME ?????
+    elif proj._type==23:
+         proj4["a"]=proj.smajor
+         proj4["b"]=proj.sminor
+         proj4["x_0"]=proj.falseeasting
+         proj4["y_0"]=proj.falsenorthing
+    elif proj._type in [24,26]:
+         proj4["a"]=proj.sphere # MAP NAME ?????
+         proj4["b"]=proj.sphere # MAP NAME ?????
+    elif proj._type==30:
+         proj4["a"]=proj.sphere # MAP NAME ?????
+         proj4["b"]=proj.sphere # MAP NAME ?????
+         proj4["???"]=proj.shapem # MAP NAME ?????
+         proj4["???"]=proj.shapen # MAP NAME ?????
+         proj4["lon_0"]=proj.centerlongitude
+         proj4["lat_0"]=proj.centerlatitude
+         proj4["x_0"]=proj.falseeasting
+         proj4["y_0"]=proj.falsenorthing
+
+    names = ["linear","utm","state","aea","lcc","merc","stere","poly","eqdc","tmerc","stere","lcca","azi","gnom","ortho","vertnearper","sinu","equirec","mill","vandg","omerc","robin","somerc","alsk","goode","moll","imoll","hammer","wag4","wag7","oea"]
+    if proj._type>0:
+      pd.SetName(names[proj._type])
+    if proj._type==6:
+      pd.SetOptionalParameter("lat_0",90)
+    for k in proj4:
+      if not numpy.allclose(proj4[k],1.e20):
+        if k=="lon_0":
+          pd.SetCentralMeridian(proj4[k])
+        elif k!="???":
+          pd.SetOptionalParameter(k,proj4[k])
 
 #Vtk dump
 dumps={}
