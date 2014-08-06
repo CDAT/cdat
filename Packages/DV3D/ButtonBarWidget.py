@@ -249,83 +249,19 @@ class ButtonBarHandler:
                     self.current_configuration_mode = configFunct.label
 #                    print " ButtonBarWidget: restore current_configuration_mode = ", configFunct.label
 
-class ButtonBarWidget:
-        
-    def __init__( self, handler, name, interactor, **args ):
-        self.handler = handler
-        self.vtk_coord = vtk.vtkCoordinate()
-        self.vtk_coord.SetCoordinateSystemToNormalizedDisplay()
-        self.StateChangedSignal = SIGNAL('StateChanged')
-        self.process_mode = ProcessMode.Default
-        self.currentControls = {}
-        self.slider_postions = [ [ [ 0.25, 0.75 ] ], [ [0.01,0.48], [0.52, 0.99 ] ], [ [0.01,0.3], [0.35,0.7], [0.75, 0.99 ] ], [ [0.01,0.24], [0.26,0.49], [0.51,0.74], [0.76, 0.99 ] ]    ]
-        self._slidersVisible = [ False, False, False, False ]
+class ButtonBar:
+    
+    def __init__( self, name, interactor, **args ):
+        self.name = name
         self.interactor = interactor
-        self.InteractionState = None
-        self.LastInteractionState = None
-        self.activeSliceIndex = 0  
-        self.name = name 
-        self.groups = {}
-        self.origin = args.get( 'origin', OriginPosition.Upper_Left )
-        self.orientation = args.get( 'orientation', Orientation.Vertical )
-        self.position = args.get( 'position', ( 0.0, 1.0 ) )
-        self.buffer = args.get( 'buffer', ( 3, 3 ) )
-        self.fullButtonWindowSize = 1300
         self.buttons = []
-        self.visible = False
-        self.configurableFunctions = collections.OrderedDict()
         self.updateWindowSize()
-        
-    def isSliderVisible( self, islider ):
-        return self._slidersVisible[ islider ]
+        self.visible = False
+        self.position = args.get( 'position', ( 0.0, 1.0 ) )
 
-    def setSliderVisibility( self, islider, isVisible ):
-        self._slidersVisible[ islider ] = isVisible
-#        if islider == 2: 
-#            print " setSliderVisibility[%d] = %s " % ( islider, str(isVisible))
-        
-    def clear( self, **args ):
-        current_button_id = args.get( 'current', None )
-        for b in self.buttons:
-            if ( current_button_id == None ) or ( b.id <> current_button_id ):
-                if b.getState() <> 0:
-                    b.setButtonState( 0 )
-                    
-    def initializeState(self):
-        for ib in self.buttons:
-#            print "Initialize Button '%s': %s " % ( ib.id, str(ib.getState()) )
-            if ib.getState() > 0:
-                ib.refreshButtonState()
-                self.processStateChangeEvent( ib.id, ib.key, ib.getState(), True )
-
-     
-                   
-    def sliceRoundRobin(self, args, config_function = None ):
-        if args[0] == "InitConfig":
-            self.activeSliceIndex = ( self.activeSliceIndex+ 1 ) % 3
-            toggle_list = self.groups.get( config_function.name, [] )
-            for iSlice in range( len(toggle_list) ):
-                button = toggle_list[ iSlice ]
-                state = 1 if (iSlice == self.activeSliceIndex) else 0
-                button.setButtonState( state )
-        
     def updateWindowSize(self):
         self.windowSize = self.interactor.GetRenderWindow().GetSize()
-#        print " >>>>>> UpdateWindowSize: ", str( self.windowSize )
-        
-    def render( self ):
-        self.interactor.GetRenderWindow().Render()
-       
-    def build( self, **args ):
-        self.current_location = self.getScreenPosition( self.position, **args )
-        for button in self.buttons:
-            self.current_location = self.placeButton( button, self.current_location )
-            
-    def reposition( self, **args ):
-        self.updateWindowSize()
-#        print "Reposition: %d " % self.windowSize[0]
-        self.build( **args )
-             
+
     def placeButton( self, button, position, **args ):
         max_size = button.size()
         window_size = min( self.windowSize[0], self.windowSize[1] ) 
@@ -338,6 +274,19 @@ class ButtonBarWidget:
 #        print " placeButton[%s]: bounds = %s" % ( button.id, str(bounds) )
         button.place( bounds )
         return self.getOffsetScreenPosition( size, position )
+    
+    def render( self ):
+        self.interactor.GetRenderWindow().Render()
+
+    def build( self, **args ):
+        self.current_location = self.getScreenPosition( self.position, **args )
+        for button in self.buttons:
+            self.current_location = self.placeButton( button, self.current_location )
+            
+    def reposition( self, **args ):
+        self.updateWindowSize()
+#        print "Reposition: %d " % self.windowSize[0]
+        self.build( **args )
            
     def getScreenPosition(self, normalized_display_position, buffered = True, **args ):
 #        print " GetScreenPosition [",  self.name, "], position = ", str( normalized_display_position )
@@ -364,6 +313,122 @@ class ButtonBarWidget:
         if self.orientation == Orientation.Horizontal:
             offset_location[0] = offset_location[0] - offset[0] if self.origin[0] else offset_location[0] + offset[0]
         return offset_location
+
+    def clear( self, **args ):
+        current_button_id = args.get( 'current', None )
+        for b in self.buttons:
+            if ( current_button_id == None ) or ( b.id <> current_button_id ):
+                if b.getState() <> 0:
+                    b.setButtonState( 0 )
+
+    def computeBounds( self, pos, size ):
+        bds = [0.0]*6
+        bds[0] = pos[0] - size[0] if self.origin[0] else pos[0]
+        bds[1] = pos[0] if self.origin[0] else pos[0] + size[0]
+        bds[2] = pos[1] - size[1] if self.origin[1] else pos[1]
+        bds[3] = pos[1] if self.origin[1] else pos[1] + size[1]
+        return bds
+    
+    def show( self, **args ):
+        self.visible = True
+        for button in self.buttons: button.On()
+        
+    def processKeyEvent( self, key, ctrl = 0 ):
+        processed = False
+        for button in self.buttons: 
+            if button.processKeyEvent( key, ctrl ): 
+                processed = True
+        return processed
+ 
+    def hide(self):
+        self.visible = False
+        for button in self.buttons: button.Off()
+            
+    def toggleVisibility(self):
+        if self.visible: 
+            self.hide()
+        else:
+            self.updatePositions() 
+            self.show()
+                
+class ControlBar(ButtonBar):
+
+    def __init__( self, name, interactor, **args ):
+        ButtonBar.__init__( self, name, interactor, **args )
+
+    @classmethod
+    def create( cls, name, interactor, build_args ):
+        cbar = ControlBar( name, interactor, position=( 0.5, 0.0 ) )
+        cbar.init( build_args )
+        return cbar
+        
+    def init( self, build_args ):   # ( "Step", ("Run","Stop") ), self.processAnimationControl
+        button_specs = build_args[0]
+        self.processStateChangeEvent = build_args[1]
+        for bspec in button_specs:
+            self.addButton( bspec )
+            
+    def addButton( self, bspec ):
+        if hasattr(bspec, "__iter__"):
+            bnames = bspec
+        else: bnames = [ bspec ]        
+        button = Button( self.interactor, names=bnames, toggle = True )
+        button.PublicStateChangedSignal.connect( self.processStateChangeEvent )
+        self.buttons.append( button )
+    
+class ButtonBarWidget(ButtonBar):
+        
+    def __init__( self, handler, name, interactor, **args ):
+        ButtonBar.__init__( self, name, interactor, **args )
+        self.handler = handler
+        self.vtk_coord = vtk.vtkCoordinate()
+        self.vtk_coord.SetCoordinateSystemToNormalizedDisplay()
+        self.StateChangedSignal = SIGNAL('StateChanged')
+        self.process_mode = ProcessMode.Default
+        self.currentControls = {}
+        self.slider_postions = [ [ [ 0.25, 0.75 ] ], [ [0.01,0.48], [0.52, 0.99 ] ], [ [0.01,0.3], [0.35,0.7], [0.75, 0.99 ] ], [ [0.01,0.24], [0.26,0.49], [0.51,0.74], [0.76, 0.99 ] ]    ]
+        self._slidersVisible = [ False, False, False, False ]
+        self.InteractionState = None
+        self.LastInteractionState = None
+        self.activeSliceIndex = 0  
+        self.groups = {}
+        self.origin = args.get( 'origin', OriginPosition.Upper_Left )
+        self.orientation = args.get( 'orientation', Orientation.Vertical )
+        self.buffer = args.get( 'buffer', ( 3, 3 ) )
+        self.fullButtonWindowSize = 1300
+        self.configurableFunctions = collections.OrderedDict()
+
+    def show( self, **args ):
+        self.initializeChildren( **args )
+        ButtonBar.show( self, **args )
+        
+    def isSliderVisible( self, islider ):
+        return self._slidersVisible[ islider ]
+
+    def setSliderVisibility( self, islider, isVisible ):
+        self._slidersVisible[ islider ] = isVisible
+#        if islider == 2: 
+#            print " setSliderVisibility[%d] = %s " % ( islider, str(isVisible))
+                            
+    def initializeState(self):
+        for ib in self.buttons:
+#            print "Initialize Button '%s': %s " % ( ib.id, str(ib.getState()) )
+            if ib.getState() > 0:
+                ib.refreshButtonState()
+                self.processStateChangeEvent( ib.id, ib.key, ib.getState(), True )
+
+     
+                   
+    def sliceRoundRobin(self, args, config_function = None ):
+        if args[0] == "InitConfig":
+            self.activeSliceIndex = ( self.activeSliceIndex+ 1 ) % 3
+            toggle_list = self.groups.get( config_function.name, [] )
+            for iSlice in range( len(toggle_list) ):
+                button = toggle_list[ iSlice ]
+                state = 1 if (iSlice == self.activeSliceIndex) else 0
+                button.setButtonState( state )
+                
+       
 
     def resetInteractionButtons( self, current_button, new_state ):
         ibbar = self.handler.getButtonBar( 'Interaction' )
@@ -399,36 +464,7 @@ class ButtonBarWidget:
     #        if config_function: config_function.processStateChangeEvent( state )
     #        button = self.buttons.get( button_id, None )
     
-    def computeBounds( self, pos, size ):
-        bds = [0.0]*6
-        bds[0] = pos[0] - size[0] if self.origin[0] else pos[0]
-        bds[1] = pos[0] if self.origin[0] else pos[0] + size[0]
-        bds[2] = pos[1] - size[1] if self.origin[1] else pos[1]
-        bds[3] = pos[1] if self.origin[1] else pos[1] + size[1]
-        return bds
-    
-    def show( self, **args ):
-        self.visible = True
-        self.initializeChildren( **args )
-        for button in self.buttons: button.On()
-        
-    def processKeyEvent( self, key, ctrl = 0 ):
-        processed = False
-        for button in self.buttons: 
-            if button.processKeyEvent( key, ctrl ): 
-                processed = True
-        return processed
- 
-    def hide(self):
-        self.visible = False
-        for button in self.buttons: button.Off()
-            
-    def toggleVisibility(self):
-        if self.visible: 
-            self.hide()
-        else:
-            self.updatePositions() 
-            self.show()
+
 
     def addSliderButton( self, **args ):
         button = self.addButton( **args )
@@ -670,7 +706,6 @@ class ButtonBarWidget:
 #                if (configFunct.type == 'leveling'): self.getLabelActor().VisibilityOn()
 
     def haltNavigationInteraction(self):
-        print " ----------------------BBW haltNavigationInteraction -------------------------- "
         if self.interactor: 
             istyle = self.interactor.GetInteractorStyle () 
             istyle.Off()  

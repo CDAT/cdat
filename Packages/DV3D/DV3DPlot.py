@@ -98,6 +98,7 @@ class DV3DPlot():
         self.ywidth = 180.0
         self.buttonBarHandler = ButtonBarHandler( **args )
         self.plot_attributes = args.get( 'plot_attributes', {} )
+        self.controls = {}
         
         self.configuring = False
         self.activated = False
@@ -115,12 +116,19 @@ class DV3DPlot():
         interactionButtons.addConfigButton( names=['ChooseColormap'], key='m', toggle=True, interactionHandler=self.processChooseColormapCommand, initValue=[ 'jet', False, False ]  )
         interactionButtons.addConfigButton( names=['ToggleClipping'], key='X', toggle=True, parents=['ToggleVolumePlot', 'ToggleSurfacePlot'], interactionHandler=self.processToggleClippingCommand  )
         interactionButtons.addConfigButton( names=['Colorbar'], key='b', toggle=True, label='Show Colorbar', interactionHandler=self.processShowColorbarCommand )
-#        interactionButtons.addSliderButton( names=['Animation'], key='a', toggle=True, label='Time Stepping', sliderLabels=[ ['Step','Run','Stop'], 'Run Speed'  ], interactionHandler=self.processAnimationCommand )
+        interactionButtons.addSliderButton( names=['Animation'], key='a', toggle=True, label='Animation', sliderLabels=[ 'Run Speed'  ], interactionHandler=self.processAnimationCommand )
         self.addKeyPressHandler( 'r', self.resetCamera )
         self.addKeyPressHandler( 'q',  self.quit )
         self.addKeyPressHandler( 'Q',  self.quit )
         self.addKeyPressHandler( 's',  self.saveState )
-        self.addKeyPressHandler( 'a',  self.stepAnimation )
+#        self.addKeyPressHandler( 'a',  self.stepAnimation )
+
+    def getControlBar(self, name, build_args ):
+        control_bar = self.controls.get( name, None )
+        if control_bar == None:
+            control_bar = ControlBar.create( name, self.renderWindowInteractor, build_args )
+            self.controls[ name ] = control_bar
+        return control_bar
         
     def addKeyPressHandler( self, key, handler ):
         handlers = self.keyPressHandlers.setdefault( key, [] )
@@ -210,6 +218,9 @@ class DV3DPlot():
     def displayEventType(self, caller, event):
         print " --> Event: %s " % event 
         return 0
+    
+    def processAnimationCommand( self, args, config_function = None ):
+        pass
         
     def processTimerEvent(self, caller, event):
 #        id0 = caller.GetTimerEventId ()

@@ -402,21 +402,21 @@ class CPCPlot( DV3DPlot ):
     def enablePointConfig(self):
         self.config_mode = ConfigMode.Points            
 
-    def processAnimationCommand( self, args ):
-        if args and args[0] == "ButtonClick":
-            if args[1]   == "Run":
-                pass
-            elif args[1] == "Step":
-                thresholding = (self.process_mode == ProcessMode.Thresholding)
-                if self.partitioned_point_cloud: 
-                    self.partitioned_point_cloud.stepTime( update_points=thresholding )
-                    self.point_cloud_overview.stepTime( process= not self.partitioned_point_cloud.hasActiveCollections(), update_points=thresholding )
-                else:
-                    self.point_cloud_overview.stepTime( process=True, update_points=thresholding)
-                    
-                self.render() 
-            elif args[1] == "Stop":
-                pass
+#     def processAnimationCommand( self, args ):
+#         if args and args[0] == "ButtonClick":
+#             if args[1]   == "Run":
+#                 pass
+#             elif args[1] == "Step":
+#                 thresholding = (self.process_mode == ProcessMode.Thresholding)
+#                 if self.partitioned_point_cloud: 
+#                     self.partitioned_point_cloud.stepTime( update_points=thresholding )
+#                     self.point_cloud_overview.stepTime( process= not self.partitioned_point_cloud.hasActiveCollections(), update_points=thresholding )
+#                 else:
+#                     self.point_cloud_overview.stepTime( process=True, update_points=thresholding)
+#                     
+#                 self.render() 
+#             elif args[1] == "Stop":
+#                 pass
 
     def stepTime( self, forward = True ):
 #         ntimes = len(self.time) if self.time else 1
