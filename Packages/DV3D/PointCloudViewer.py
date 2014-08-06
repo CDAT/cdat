@@ -229,7 +229,7 @@ class CPCPlot( DV3DPlot ):
             volumeParam.setValue( dvar, vrange )
             
     def updateModule( self ):
-        pass
+        self.refresh()
 
     def processVolumePlotCommand( self, args, config_function = None ):
         volumeParam = config_function.value
@@ -538,6 +538,7 @@ class CPCPlot( DV3DPlot ):
 #            print "Set slice value: ", float( value )
             sliceParam.setValue( 0, value )
             self.execCurrentSlice(spos=value)
+            self.updateTextDisplay( " Slice Position: %s " % str( value ) )
     
     def processThresholdRangeCommand( self, args, config_function = None ):
 #        print " ---->>  processThresholdRangeCommand: %s[%d] " % ( args[0], self.cmdSkipIndex )
