@@ -698,6 +698,12 @@ def DMS2deg(val):
      return deg+mn/60.+sec/3600.+r/3600.
 
 def checkProjParameters(self,name,value):
+     if self._type>200 and self._type<400:
+       try:
+         import vcs2vtk
+         return vcs2vtk.checkProjParameters(self,name,value)
+       except:
+         pass
      if not (isinstance(value,list) or isinstance(value,tuple)):
           raise ValueError, "Error Projection Parameters must be a list or tuple"
      if not(len(value))==15:
@@ -711,7 +717,7 @@ def checkProjParameters(self,name,value):
 ##                     print i,value[i]
                     value[i]=deg2DMS(value[i])
      for i in range(8,12):
-          if self.type in [20,30] and abs(value[i])<10000 :
+          if self._type in [20,30] and abs(value[i])<10000 :
 ##                print i,value[i]
                value[i]=deg2DMS(value[i])
      return value
@@ -826,7 +832,8 @@ def checkProjType(self,name,value):
          return -1
     if self._type==-2 and (value=='mollweide' or value=='mollweide (non gctp)' or value==25):
          return -2
-    checkedvalue= checkInStringsListInt(self,name,value,
+    try:
+      checkedvalue= checkInStringsListInt(self,name,value,
                           ["linear",
                            "utm",
                            "state plane",
@@ -861,6 +868,18 @@ def checkProjType(self,name,value):
                            ["oblated","oblated equal area"],
                            ]
                           )
+    except Exception,err:
+      ## ok bad "official type" dropping in to backend specific proj
+      ## need to issue warning
+      ## VTK BACKEND
+      checkedvalue = "THAT DID NOT WORK"
+      try:
+        import vcs2vtk
+        checkedvalue = vcs2vtk.checkProjType(self,name,value)
+      except :
+        pass
+      if checkedvalue == "THAT DID NOT WORK":
+        raise Exception(err)
     
     self._type=checkedvalue
     p=self.parameters
@@ -1040,6 +1059,9 @@ def getProjType(self):
          return "mollweide (non gctp)"
     elif value==-3:
          return "polar (non gctp)"
+    elif 200<value<400:
+      import vcs2vtk
+      return vcs2vtk.getProjType(value)
                           
 proj_ok_parameters={
     'smajor':[[3,4,5,6,7,8,9,20,22,23],0,[]],
