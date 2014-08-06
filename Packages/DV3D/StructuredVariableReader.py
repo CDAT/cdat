@@ -110,10 +110,20 @@ class StructuredDataReader:
                     self.varSpecs = [ var.name_in_file for var in self.vars ]
                     self.df = cdms2.open( self.fileSpecs ) 
                 else:
-                    self.datasetId = self.vars[0].name
-                    self.fileSpecs = self.vars[0].name
                     self.varSpecs = [ var.name for var in self.vars ]
-                    self.df = None   
+                    plot_attributes = args.get( 'plot_attributes', None )
+                    if plot_attributes <> None:
+                        self.datasetId = plot_attributes.get( 'filename', self.vars[0].name )
+                        self.fileSpecs = plot_attributes.get( 'url', plot_attributes.get( 'file', self.vars[0].name ) )
+                        try: self.df = cdms2.open( self.fileSpecs )  
+                        except: 
+                            print>>sys.stderr, "Error, can't open data file '%s'" % self.fileSpecs
+                            self.df = None                    
+                    else:
+                        self.datasetId = self.vars[0].name
+                        self.fileSpecs = self.vars[0].name
+                        self.df = None   
+                        
         self.referenceTimeUnits = None
         self.parameters = {}
         self.currentLevel = None
@@ -492,7 +502,14 @@ class StructuredDataReader:
             vmd['timeValue']= self.timeValue.value
             vmd['latLonGrid']= self.cdmsDataset.latLonGrid
             vmd['timeUnits' ] = self.referenceTimeUnits 
-            vmd[ 'bounds' ] = self.cdmsDataset.gridBounds          
+            vmd[ 'bounds' ] = self.cdmsDataset.gridBounds 
+            lat_axis= var.getLatitude()  
+            if not lat_axis is None: vmd[ 'lat' ] =  lat_axis.getValue()  
+            lon_axis= var.getLongitude()  
+            if not lon_axis is None: vmd[ 'lon' ] =  lon_axis.getValue()  
+            lev_axis= var.getLevel()  
+            if not lev_axis is None: vmd[ 'lev' ] =  lev_axis.getValue()  
+             
             enc_mdata = encodeToString( vmd ) 
             if enc_mdata and fieldData: 
                 fieldData.AddArray( getStringDataArray( 'metadata:%s' % varName,   [ enc_mdata ]  ) ) 
@@ -552,10 +569,13 @@ class StructuredDataReader:
                 dsid = varNameComponents[0]
                 varName = varNameComponents[1]
             ds = self.cdmsDataset[ dsid ]
-            if ds:
+            if (ds == None) and (self.df <> None):
+                ds = self.df
+            if ds <> None:
                 var = ds.getVariable( varName )
-                self.setupTimeAxis( var, **args )
-            else: var = None
+                self.setupTimeAxis( var, **args ) 
+            else:
+                var = None
             portName = orec.name
             selectedLevel = orec.getSelectedLevel() if ( self.currentLevel == None ) else self.currentLevel
             ndim = 3 if ( orec.ndim == 4 ) else orec.ndim
@@ -620,8 +640,8 @@ class StructuredDataReader:
                         md['latLonGrid']= self.cdmsDataset.latLonGrid
                         md['timeUnits' ] = self.referenceTimeUnits if self.referenceTimeUnits else ""
                         md[ 'attributes' ] = var_md
-                        md[ 'plotType' ] = 'zyt' if (self.outputType == CDMSDataType.Hoffmuller) else 'xyz'
-                        if var <> None:
+                        md[ 'plotType' ] = 'xyt' if (self.outputType == CDMSDataType.Hoffmuller) else 'xyz'
+                        if not var is None:
                             axis = var.getLongitude()
                             md[ 'lon' ] =  axis.getValue()
                             axis = var.getLatitude()
@@ -872,6 +892,8 @@ class StructuredDataReader:
         gridSpecs['gridShape'] = gridShape
         gridSpecs['gridSize'] = gridSize
         gridSpecs['md'] = md
-        if dset:  gridSpecs['attributes'] = dset.dataset.attributes
+        if dset:  
+            try:     gridSpecs['attributes'] = dset.dataset.attributes
+            except:  gridSpecs['attributes'] = dset.attributes
         return gridSpecs   
                  
