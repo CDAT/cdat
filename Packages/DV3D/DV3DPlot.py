@@ -101,7 +101,6 @@ class DV3DPlot():
         self.ywidth = 180.0
         self.buttonBarHandler = ButtonBarHandler( **args ) 
         self.plot_attributes = args.get( 'plot_attributes', {} )
-        self.controls = {}
         
         self.configuring = False
         self.animating = False
@@ -128,11 +127,9 @@ class DV3DPlot():
         self.addKeyPressHandler( 's',  self.saveState )
 #        self.addKeyPressHandler( 'a',  self.stepAnimation )
 
-    def getControlBar(self, name, build_args ):
-        control_bar = self.controls.get( name, None )
-        if control_bar == None:
-            control_bar = ControlBar.create( name, self.renderWindowInteractor, build_args )
-            self.controls[ name ] = control_bar
+    def getControlBar(self, name, build_args, **args ):
+        control_bar = self.buttonBarHandler.createControlBar( name, self.renderWindowInteractor, build_args, **args )
+        control_bar.reposition()
         return control_bar
         
     def addKeyPressHandler( self, key, handler ):
