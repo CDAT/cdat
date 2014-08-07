@@ -38,36 +38,6 @@ class StructuredGridPlot(DV3DPlot):
         if args and args[0] == "InitConfig": 
             self.toggleClipping( args[1] )
 
-    def processAnimationCommand( self, args, config_function = None ):
-        runSpeed = config_function.value
-        if args and args[0] == "StartConfig":
-            pass
-        elif args and args[0] == "Init":
-            pass
-        elif args and args[0] == "EndConfig":
-            bbar = self.getControlBar( 'Animation' )
-            bbar.hide()
-        elif args and args[0] == "InitConfig":
-            self.updateTextDisplay( config_function.label )
-            bbar = self.getControlBar( 'Animation', [ ( "Step", ("Run","Stop") ), self.processAnimationStateChange ])
-            bbar.show()
-        elif args and args[0] == "Open":
-            pass
-        elif args and args[0] == "Close":
-            pass
-        elif args and args[0] == "UpdateConfig":
-            value = args[2].GetValue()
-            runSpeed.setValue( 0, value )
-            
-                       
-    def processAnimationStateChange( self, button_id, key, state, force = False ):
-        if button_id == 'Step':
-            self.stepAnimation()
-        elif button_id == 'Run':
-            if state == 0:
-                pass
-            else:
-                pass
                 
     def processVerticalScalingCommand( self, args, config_function ):
         verticalScale = config_function.value

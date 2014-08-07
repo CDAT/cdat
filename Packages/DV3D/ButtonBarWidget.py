@@ -55,6 +55,7 @@ class Button:
         self.id = args.get( 'id', self.names[0] if self.numberOfStates else None )
         self.key = args.get( 'key', None )
         self.image_size = None
+        self.numberOfImages = 0
         self.button_files = [ ]
         self.functionKeys = { }
         self.createButtonRepresentation()
@@ -63,6 +64,7 @@ class Button:
         self.buttonWidget.SetRepresentation( self.buttonRepresentation )
         self.buttonWidget.AddObserver( 'StateChangedEvent', self.processStateChangeEvent )
         self.buttonRepresentation.Highlight( self._state )
+        self.updateWidgetState()
 
     def getState(self):
         return self._state
@@ -71,6 +73,7 @@ class Button:
         self._state = value
         self.PrivateStateChangedSignal( value )
 #        print "----------------->>> Button [%s] Setting state = %s " % ( self.id, str(value) )
+        self.updateWidgetState()
 #         if value == 1:
 #             print "."
         
@@ -89,25 +92,38 @@ class Button:
             return 1
         return 0
     
+    def updateWidgetState(self): 
+        if self.numberOfImages > 1:
+            if self.numberOfImages <> self.numberOfStates:
+                print>>sys.stderr, "Error, mismatch between numberOfImages(%d) and numberOfStates(%d) in Button %s " % ( self.numberOfImages, self.numberOfStates, self.id )
+            else:
+                self.buttonRepresentation.Modified()
+                self.buttonRepresentation.NeedToRenderOn()
+                self.buttonWidget.Render()
+                print "Button %s: widget state = %d " % ( self.id, self.buttonRepresentation.GetState() )
+    
     def executeFunction( self, function ):
         if   function == Button.FuncToggleStateOn:  self.setToggleState( 1 )
         elif function == Button.FuncToggleStateOff: self.setToggleState( 0 )
     
     def createButtonRepresentation(self, **args):
-        JPEGReader = vtk.vtkJPEGReader()
         self.buttonRepresentation = vtk.vtkTexturedButtonRepresentation2D()
         self.buttonRepresentation.SetPlaceFactor( args.get( 'scale', 1 ) )
-        num_images = len( self.names )
-        if num_images:           
-            self.buttonRepresentation.SetNumberOfStates(num_images)
-            for button_index in range( num_images ):                
+        if self.names[0] == "Run":
+            print "."
+        self.numberOfImages = len( self.names )
+        if self.numberOfImages:
+            self.buttonRepresentation.SetNumberOfStates(self.numberOfImages)
+            for button_index in range( self.numberOfImages ):                
                 buttonFilePath = os.path.join( ButtonDir,  '.'.join( [ self.names[ button_index ], 'jpeg' ] ) )
+                JPEGReader = vtk.vtkJPEGReader()
                 JPEGReader.SetFileName ( buttonFilePath )
                 JPEGReader.Update()
                 image_data = JPEGReader.GetOutput()
                 if self.image_size == None: self.image_size = image_data.GetDimensions()
                 self.buttonRepresentation.SetButtonTexture( button_index, image_data )
                 self.button_files.append( buttonFilePath )
+                print "Button %s: setting texture[%d/%d] = %s " % ( self.id, button_index, self.numberOfImages, buttonFilePath )           
             self.setToggleProps()
         
     def addObserver(self, observer, **args ):
@@ -136,20 +152,24 @@ class Button:
         return False
     
     def setToggleState( self, state ):
+#        print "Button[%s]:setToggleState(%d)" % ( self.id, state )
         self.setState(state)
         self.setToggleProps()       
 
     def processStateChangeEvent( self, obj, event, indirect = False ):
+#        print "Button[%s]:processStateChangeEvent(%d)" % ( self.id, self.getState() )
         self.invokingEvent = True 
         self.setButtonState( ( self.getState() + 1 ) % self.numberOfStates, indirect )      
         self.invokingEvent = False
         
     def refreshButtonState(self):
+#        print "Button[%s]:refreshButtonState(%d)" % ( self.id, self.getState() )
         state = self.getState()
         self.broadcastState( state )
         self.setToggleProps()
         
     def setButtonState( self, state, indirect = False ):
+#        print "Button[%s]:setButtonState(%d)" % ( self.id, state )
         if (state <> self.getState()) or not self.toggle:
             self.broadcastState( state )
             self.setState(state)
@@ -190,13 +210,23 @@ class ButtonBarHandler:
         self.DefaultGroup = None
         self.cfgManager = ConfigManager( args.get( 'cm', None ) )             
         
-    def createButtonBar( self, name, interactor, **args  ):
+    def createButtonBarWidget( self, name, interactor, **args  ):
         bbar = self.getButtonBar( name )
         if bbar == None:
             bbar = ButtonBarWidget( self, name, interactor, **args  )
-#            print " ButtonBarHandler[%d]: createButtonBar[%d] %s " % ( id(self), id(bbar), name )
+#            print " ButtonBarHandler[%d]: createButtonBarWidget[%d] %s " % ( id(self), id(bbar), name )
             self.button_bars[ name ] = bbar
         return bbar
+
+    def createControlBar( self, name, interactor, build_args, **args ):
+        cbar = self.getButtonBar( name )
+        if cbar == None:
+            if 'position' not in args:      args[ 'position' ]    = ( 0.55, 0.08 ) 
+            if 'orientation' not in args:   args[ 'orientation' ] = Orientation.Horizontal
+            cbar = ControlBar( name, interactor, **args )
+            cbar.init( build_args )
+            self.button_bars[ name ] = cbar
+        return cbar
 
     def getButtonBar( self, name ):
         return self.button_bars.get( name, None )
@@ -258,6 +288,16 @@ class ButtonBar:
         self.updateWindowSize()
         self.visible = False
         self.position = args.get( 'position', ( 0.0, 1.0 ) )
+        self.vtk_coord = vtk.vtkCoordinate()
+        self.vtk_coord.SetCoordinateSystemToNormalizedDisplay()
+        self.StateChangedSignal = SIGNAL('StateChanged')
+        self.process_mode = ProcessMode.Default
+        self.origin = args.get( 'origin', OriginPosition.Upper_Left )
+        self.orientation = args.get( 'orientation', Orientation.Vertical )
+#        print " ButtonBar[%s]: %s" % ( name, str(self.position) )
+        self.buffer = args.get( 'buffer', ( 3, 3 ) )
+        self.fullButtonWindowSize = 1300
+        self.magnification = args.get( 'mag', 1.0 )
 
     def updateWindowSize(self):
         self.windowSize = self.interactor.GetRenderWindow().GetSize()
@@ -265,10 +305,10 @@ class ButtonBar:
     def placeButton( self, button, position, **args ):
         max_size = button.size()
         window_size = min( self.windowSize[0], self.windowSize[1] ) 
-        scale = float(window_size)/ self.fullButtonWindowSize
+        scale = float(window_size) * self.magnification / self.fullButtonWindowSize
         if scale > 1.0:   scale = 1.0
         if scale < 0.5:   scale = 0.5
-#        print "Resize: %d %s " % ( window_size, scale )
+#        print " ################################# Resize Button %s: ws=%d, scale=%s " % ( button.id, window_size, str(scale) )
         size = [ max_size[0]*scale, max_size[1]*scale ]
         bounds = self.computeBounds( position, size )
 #        print " placeButton[%s]: bounds = %s" % ( button.id, str(bounds) )
@@ -350,6 +390,13 @@ class ButtonBar:
         else:
             self.updatePositions() 
             self.show()
+            
+    def reset(self):
+        pass
+
+    def getRenderer(self):
+        rw = self.interactor.GetRenderWindow()
+        return rw.GetRenderers().GetFirstRenderer ()
                 
 class ControlBar(ButtonBar):
 
@@ -372,7 +419,7 @@ class ControlBar(ButtonBar):
         if hasattr(bspec, "__iter__"):
             bnames = bspec
         else: bnames = [ bspec ]        
-        button = Button( self.interactor, names=bnames, toggle = True )
+        button = Button( self.interactor, names=bnames, toggle = False )
         button.PublicStateChangedSignal.connect( self.processStateChangeEvent )
         self.buttons.append( button )
     
@@ -381,10 +428,6 @@ class ButtonBarWidget(ButtonBar):
     def __init__( self, handler, name, interactor, **args ):
         ButtonBar.__init__( self, name, interactor, **args )
         self.handler = handler
-        self.vtk_coord = vtk.vtkCoordinate()
-        self.vtk_coord.SetCoordinateSystemToNormalizedDisplay()
-        self.StateChangedSignal = SIGNAL('StateChanged')
-        self.process_mode = ProcessMode.Default
         self.currentControls = {}
         self.slider_postions = [ [ [ 0.25, 0.75 ] ], [ [0.01,0.48], [0.52, 0.99 ] ], [ [0.01,0.3], [0.35,0.7], [0.75, 0.99 ] ], [ [0.01,0.24], [0.26,0.49], [0.51,0.74], [0.76, 0.99 ] ]    ]
         self._slidersVisible = [ False, False, False, False ]
@@ -392,10 +435,6 @@ class ButtonBarWidget(ButtonBar):
         self.LastInteractionState = None
         self.activeSliceIndex = 0  
         self.groups = {}
-        self.origin = args.get( 'origin', OriginPosition.Upper_Left )
-        self.orientation = args.get( 'orientation', Orientation.Vertical )
-        self.buffer = args.get( 'buffer', ( 3, 3 ) )
-        self.fullButtonWindowSize = 1300
         self.configurableFunctions = collections.OrderedDict()
 
     def show( self, **args ):
@@ -500,10 +539,6 @@ class ButtonBarWidget(ButtonBar):
             grpList.append( button )
         return button
             
-    def getRenderer(self):
-        rw = self.interactor.GetRenderWindow()
-        return rw.GetRenderers().GetFirstRenderer ()
-
     def addConfigurableFunction(self, name, **args):
         cf = self.handler.cfgManager.getConfigurableFunction( name, **args )
         self.configurableFunctions[name] = cf
@@ -722,6 +757,9 @@ class ButtonBarWidget(ButtonBar):
             if configFunct.matches( key ): return ( configFunct.name, configFunct.persisted, self )
         return ( None, None, None )  
     
+    def reset(self):
+        self.releaseSliders()
+    
     def updateInteractionState( self, config_state, button_state, **args ):    
 #         rcf = None
 #         if config_state == None: 
@@ -758,7 +796,7 @@ class ButtonBarWidget(ButtonBar):
                 tvals = configFunct.value.getValues()
                 if not sameGroup: 
                     for bbar in self.handler.getButtonBars():
-                        bbar.releaseSliders()
+                        bbar.reset()
                 
                 if configFunct.position <> None:
                     n_active_sliders = configFunct.position[1]
@@ -869,6 +907,8 @@ class ButtonBarWidget(ButtonBar):
             for parent_name in button.parents:
                 self.updateChildState( button, parent_name )
 
+def processTestStateChange( button_id, key, state, force = False ):
+    print " processTestStateChange: state  = %d "% state
 
 if __name__ == '__main__':
         
@@ -879,18 +919,17 @@ if __name__ == '__main__':
     iren.SetRenderWindow(renWin)
     iren.SetInteractorStyle( vtk.vtkInteractorStyleTrackballCamera()  )
     ren.SetBackground( 1.0, 1.0, 1.0 )
-    renWin.SetSize(1000,800)
+    renWin.SetSize(400,400)
     
-    buttonBarWidget = ButtonBarWidget( "Test", iren, orientation=Orientation.Vertical )
-    buttonBarWidget.addButton( names=['ScaleColormap'], id='Scale Colormap', key='S' )
-    buttonBarWidget.addButton( names=['Configure'], id='Configure', key='C' )
+    buttonBarHandler = ButtonBarHandler()
+    
+    control_bar = buttonBarHandler.createControlBar( 'Test', iren, [ ( "Step", ("Run","Stop") ), processTestStateChange ], position = ( 0.5, 0.5 ) )
 
     ren.ResetCamera()
     ren.ResetCameraClippingRange()   
     iren.Initialize()
     renWin.Render()
     
-    buttonBarWidget.build()
-    buttonBarWidget.show()
+    control_bar.show()
     
     iren.Start()
