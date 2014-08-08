@@ -13,5 +13,6 @@ setup (name = "cdutil",
        url = "http://cdat.sourceforge.net",
        packages = ['cdutil'],
        package_dir = {'cdutil': 'Lib'},
+       data_files = [ ("share/cdutil",("data/sftbyrgn.nc","data/navy_land.nc"))],
       )
     
