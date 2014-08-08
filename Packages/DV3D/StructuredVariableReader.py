@@ -115,8 +115,8 @@ class StructuredDataReader:
                     if plot_attributes <> None:
                         self.datasetId = plot_attributes.get( 'filename', self.vars[0].name )
                         for file_attribute_name in ['url', 'filename', 'file' ]:
-                            if self.fileSpecs <> None: break
                             self.fileSpecs = plot_attributes.get( file_attribute_name, None ) 
+                            if self.fileSpecs <> None: break
                         try: self.df = cdms2.open( self.fileSpecs )  
                         except: 
                             print>>sys.stderr, "Error, can't open data file '%s'" % self.fileSpecs
