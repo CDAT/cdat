@@ -150,7 +150,6 @@ class Counter():
                
 class CPCPlot( DV3DPlot ):  
     
-
     def __init__( self, **args ):
         DV3DPlot.__init__( self, **args  )
         self.ValueChanged = SIGNAL('ValueChanged')
@@ -358,9 +357,7 @@ class CPCPlot( DV3DPlot ):
     def onKeyEvent(self, eventArgs ):
         key = eventArgs[0]
         keysym =  eventArgs[1]            
-        if keysym == "t":  self.stepTime()
-        elif keysym == "A":  self.stepTime( False )
-        elif keysym == "k":  self.toggleClipping()
+        if keysym == "k":  self.toggleClipping()
         elif keysym == "m":  self.toggleRenderMode()
 #        elif keysym == "v":  self.enableThresholding()
 #        elif keysym == "i":  self.setPointIndexBounds( 5000, 7000 )
@@ -418,7 +415,7 @@ class CPCPlot( DV3DPlot ):
 #             elif args[1] == "Stop":
 #                 pass
 
-    def stepTime( self, forward = True ):
+    def stepAnimation(self, **args):
 #         ntimes = len(self.time) if self.time else 1
 #         self.iTimeStep = self.iTimeStep + 1 if forward else self.iTimeStep - 1
 #         if self.iTimeStep < 0: self.iTimeStep = ntimes - 1
@@ -1311,8 +1308,7 @@ class CPCPlot( DV3DPlot ):
         interface = None
         dfile = var1.parent
         data_file = dfile.id if dfile else None
-        if data_file == None: data_file = self.plot_attributes.get( 'filename', None )
-        if data_file == None: data_file = self.plot_attributes.get( 'url', None )
+        if data_file == None: data_file = self.plot_attributes.get( 'url', self.plot_attributes.get( 'file', None ) ) 
         varnames = [ getVarName( var1 ) ]
         if not var2 is None: varnames.append( getVarName( var2 ) )
         subSpace = args.get( 'axes', 'xyz' )

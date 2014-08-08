@@ -125,7 +125,6 @@ class DV3DPlot():
         self.addKeyPressHandler( 'q',  self.quit )
         self.addKeyPressHandler( 'Q',  self.quit )
         self.addKeyPressHandler( 's',  self.saveState )
-#        self.addKeyPressHandler( 'a',  self.stepAnimation )
 
     def getControlBar(self, name, build_args, **args ):
         control_bar = self.buttonBarHandler.createControlBar( name, self.renderWindowInteractor, build_args, **args )
@@ -249,7 +248,7 @@ class DV3DPlot():
         return 0
     
     def processAnimationCommand( self, args, config_function = None ):
-        print " processAnimationCommand, args = ", str( args )
+#        print " processAnimationCommand, args = ", str( args )
         runSpeed = config_function.value
         if args and args[0] == "StartConfig":
             pass

@@ -123,7 +123,7 @@ class Button:
                 if self.image_size == None: self.image_size = image_data.GetDimensions()
                 self.buttonRepresentation.SetButtonTexture( button_index, image_data )
                 self.button_files.append( buttonFilePath )
-                print "Button %s: setting texture[%d/%d] = %s " % ( self.id, button_index, self.numberOfImages, buttonFilePath )           
+#                print "Button %s: setting texture[%d/%d] = %s " % ( self.id, button_index, self.numberOfImages, buttonFilePath )           
             self.setToggleProps()
         
     def addObserver(self, observer, **args ):

@@ -423,7 +423,7 @@ class MultiVarPointCollection():
         process = args.get( 'process', True )
         update_points = args.get( 'update_points', True )
         self.iTimeStep = self.iTimeStep + 1
-        print " PC[%d/%d]: stepTime[%d]: %s  " % ( self.istart, self.istep, self.iTimeStep, str( process ) )
+        print " PCmv [%d/%d]: stepTime[%d/%d]: %s  " % ( self.istart, self.istep, self.iTimeStep, self.time.shape[0], str( process ) )
         if self.iTimeStep >= self.time.shape[0]:
             self.iTimeStep = 0
         grid_var_name = self.var.id
