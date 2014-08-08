@@ -497,12 +497,19 @@ def loadVCSItem(typ,nm,json_dict = {}):
     cmd = "gm = vcs.create%s('%s')" % (typ,nm)
     exec(cmd)
   for a,v in json_dict.iteritems():
+    if isinstance(v,dict):
+      for k in v.keys():
+        try:
+          v[eval(k)]=v[k]
+          del(v[k])
+        except:
+          pass
     #print "Setting:",a,"to",v
     setattr(gm,a,v)
   return gm
 
 def return_display_names():
-  warnings.warn("PLEASE IMPLEMENT return_display_names!!!! (in utils.py)")
+  #warnings.warn("PLEASE IMPLEMENT return_display_names!!!! (in utils.py)")
   return [""],[""]
 
 def getdotdirectory():
