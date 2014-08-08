@@ -82,6 +82,9 @@ class DV3DPlot():
     RIGHT_BUTTON = 1
 
     sliceAxes = [ 'x', 'y', 'z' ]       
+
+    AnimationTimerType = 9
+    AnimationEventId = 9
  
     def __init__( self,  **args ):
         self.type = args.get( 'gmname', 'default').lower()
@@ -96,13 +99,15 @@ class DV3DPlot():
         self.xwidth = 300.0
         self.ycenter = 0.0
         self.ywidth = 180.0
-        self.buttonBarHandler = ButtonBarHandler( **args )
+        self.buttonBarHandler = ButtonBarHandler( **args ) 
         self.plot_attributes = args.get( 'plot_attributes', {} )
         
         self.configuring = False
+        self.animating = False
         self.activated = False
 #        self.buttons = {}
         self.renderWindowSize = None
+        self.animationTimerId = -1 
 
         self.isAltMode = False
         self.createColormap = True
@@ -141,12 +146,39 @@ class DV3DPlot():
         self.renderWindowInteractor.TerminateApp() 
 
     def stepAnimation(self, **args): 
-#        print "Step Animation" 
-        self.timestep()
-        
-    def timestep(self):
-        print>>sys.stderr, "animation timestep unimplemented"
+        pass
+
+    def processTimerEvent(self, caller, event):
+        eid = caller.GetTimerEventId ()
+        etype = caller.GetTimerEventType()
+        if self.animating and ( etype == self.AnimationTimerType ):
+            self.runAnimation()
             
+    def runAnimation(self):
+        if self.animationTimerId <> -1: 
+            self.renderWindowInteractor.DestroyTimer( self.animationTimerId  )
+            self.animationTimerId = -1
+        plotButtons = self.getInteractionButtons()
+        cf = plotButtons.getConfigFunction('Animation')
+        event_duration = 10
+        if cf <> None:
+            animation_delay = cf.value.getValues()
+            event_duration = int( animation_delay[0]*1000 )
+        self.stepAnimation( )
+        self.renderWindowInteractor.SetTimerEventId( self.AnimationEventId )
+        self.renderWindowInteractor.SetTimerEventType( self.AnimationTimerType )
+        self.animationTimerId = self.renderWindowInteractor.CreateOneShotTimer( event_duration )
+        
+    def changeButtonActivation(self, button_name, activate ):
+        button = self.buttonBarHandler.findButton( button_name ) 
+        if button: 
+            if activate:  button.activate()
+            else:         button.deactivate()
+            
+    def changeButtonActivations(self, activation_list ):
+        for activation_spec in activation_list:
+            self.changeButtonActivation( *activation_spec )
+                        
     def saveState(self, **args): 
         print "Save State" 
         self.buttonBarHandler.cfgManager.saveState()
@@ -227,10 +259,11 @@ class DV3DPlot():
             pass
         elif args and args[0] == "InitConfig":
             state = args[1]
-            bbar = self.getControlBar( 'Animation', [ ( "Step", ("Run","Stop") ), self.processAnimationStateChange ], mag=1.4 )
+            bbar = self.getControlBar( 'Animation', [ ( "Step", "Run", "Stop" ), self.processAnimationStateChange ], mag=1.4 )
             if state == 1:
                 self.updateTextDisplay( config_function.label )
                 bbar.show()
+                self.changeButtonActivations( [ ( 'Run', True ), ( 'Stop', False ) , ( 'Step', True ) ] )  
             else:
                 bbar.hide()
         elif args and args[0] == "Open":
@@ -242,21 +275,21 @@ class DV3DPlot():
             runSpeed.setValue( 0, value )
                                    
     def processAnimationStateChange( self, button_id, key, state, force = False ):
+#        print " Process Animation State Change[%s], state = %d " % ( button_id, state )
         if button_id == 'Step':
             self.stepAnimation()
         elif button_id == 'Run':
-            if state == 0:
-                pass
-            else:
-                pass
-                    
-    def processTimerEvent(self, caller, event):
-#        id0 = caller.GetTimerEventId ()
-        return 0
-#         id1 = caller.GetTimerEventType ()
-#         id2 = caller.GetTimerEventPlatformId ()
-#        print "TimerEvent: %d %d %d " % (  id0, id1, id2 )
-        
+            if self.animationTimerId == -1: 
+                self.changeButtonActivations( [ ( 'Run', False ), ( 'Stop', True ) , ( 'Step', False ) ] )  
+                self.animating = True
+                self.runAnimation()
+        elif button_id == 'Stop':
+            self.animating = False
+            if self.animationTimerId <> -1: 
+                self.animationTimerId = -1
+                self.renderWindowInteractor.DestroyTimer( self.animationTimerId  )            
+                self.changeButtonActivations( [ ( 'Run', True ), ( 'Stop', False ) , ( 'Step', True ) ] )  
+                           
     def setInteractionState(self, caller, event):
         interactor = caller.GetInteractor()
         key = interactor.GetKeyCode() 

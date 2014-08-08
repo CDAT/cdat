@@ -299,6 +299,11 @@ class ButtonBar:
         self.fullButtonWindowSize = 1300
         self.magnification = args.get( 'mag', 1.0 )
 
+    def getButton(self, name ): 
+        for b in self.buttons:
+            if b.id == name: return b
+        return None
+
     def updateWindowSize(self):
         self.windowSize = self.interactor.GetRenderWindow().GetSize()
 
@@ -522,11 +527,6 @@ class ButtonBarWidget(ButtonBar):
         if cf_state <> None: 
             button.setState( cf_state )
         return button
-
-    def getButton(self, name ): 
-        for b in self.buttons:
-            if b.id == name: return b
-        return None
 
     def addButton( self, **args ):
         button = Button( self.interactor, **args )

@@ -310,6 +310,7 @@ class StructuredDataReader:
 #                print "Time Step Labels: %s" % str( self.timeLabels ) 
 
     def setTimestep( self, iTStep, restart = False ):
+        displayText = None
         if (self.timeRange == None) or self.timeRange[0] == self.timeRange[1]:
             self.running = False
         else:
@@ -320,6 +321,7 @@ class StructuredDataReader:
                     self.timeValue = cdtime.reltime( timeValues[self.iTimeStep], timeAxis.units )
                     displayText = str( self.timeLabels[ self.iTimeStep ] )
                     self.generateOutput()
+        return displayText
 
 
 #     def setTimestep1( self, iTimestep, restart = False ):
@@ -349,15 +351,15 @@ class StructuredDataReader:
 #                     displayText = str( r0.tocomp() )
 #                     self.updateTimestep( relTimeValueRefAdj, displayText, restart  )
 
-    def timestep( self ):
-            iTS =  int( self.iTimeStep ) + 1
-            restart = False
-            if self.timeRange:
-                if ( iTS >= self.timeRange[1] ) or  ( iTS < self.timeRange[0] ): 
-                    restart = ( iTS >= self.timeRange[1] ) 
-                    iTS = self.timeRange[0]
+    def stepAnimation(self, **args):
+        iTS =  int( self.iTimeStep ) + 1
+        restart = False
+        if self.timeRange:
+            if ( iTS >= self.timeRange[1] ) or  ( iTS < self.timeRange[0] ): 
+                restart = ( iTS >= self.timeRange[1] ) 
+                iTS = self.timeRange[0]
 #            print " ############################################ set Time index = %d ############################################" % iTS
-            self.setTimestep( iTS, restart )
+        return self.setTimestep( iTS, restart )
                             
     def getParameterId(self):
         return self.datasetId
