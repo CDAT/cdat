@@ -3416,6 +3416,17 @@ Options:::
 ##                     return self.getplot(dn, template_origin)
             raise vcsError, 'Error taylordiagram method: '+arglist[4]+' not found'
         else:
+            if isinstance(arglist[3],vcsaddons.core.VCSaddon):
+                gm= arglist[3]
+            else:
+                tp = arglist[3]
+                if tp=="text":
+                  tp="textcombined"
+                gm=vcs.elements[tp][arglist[4]]
+            p=self.getprojection(gm.projection)
+            if p.type=="polar (non gctp)" and doratio=="0":
+              doratio="1t"
+
             for keyarg in keyargs.keys():
                 if not keyarg in self.__class__._plot_keywords_+self.backend._plot_keywords:
                      warnings.warn('Unrecognized vcs plot keyword: %s, assuming backend (%s) keyword'%(keyarg,self.backend.type))
@@ -3470,6 +3481,8 @@ Options:::
                 t.data.y2 = p.viewport[3]
                 
                 proj = self.getprojection(p.projection)
+                if proj.type=="polar (non gctp)":
+                  doratio="1t"
 
                 if proj.type=='linear' and doratio[:4]=='auto':
                     lon1,lon2,lat2,lat2 = p.worldcoordinate
@@ -3491,25 +3504,16 @@ Options:::
                 if doratio[-1]=='t' or template_origin=='default':
                     box_and_ticks=1
 
-                if arglist[3]=='isoline':
-                    func=self.getisoline
-                elif arglist[3]=='isofill':
-                    func=self.getisofill
-                elif arglist[3]=='boxfill':
-                    func=self.getboxfill
-                elif arglist[3]=='meshfill':
-                    func=self.getmeshfill
-                elif arglist[3]=='vector':
-                    func=self.getvector
-                elif arglist[3]=='outfill':
-                    func=self.getoutfill
-                elif arglist[3]=='outline':
-                    func=self.getoutline
                 if isinstance(arglist[3],vcsaddons.core.VCSaddon):
                     gm= arglist[3]
                 else:
-                    gm=func(arglist[4])
+                    tp = arglist[3]
+                    if tp=="text":
+                      tp="textcombined"
+                    gm=vcs.elements[tp][arglist[4]]
                 p=self.getprojection(gm.projection)
+                if p.type=="polar (non gctp)":
+                  doratio="1t"
                 if p.type == 'linear':
                     if gm.g_name =='Gfm':
                         if self.isplottinggridded:

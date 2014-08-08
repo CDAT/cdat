@@ -569,12 +569,7 @@ class Gfb(object,AutoAPI.AutoAPI):
          self._yaxisconvert=value
     yaxisconvert=property(_getyaxisconvert,_setyaxisconvert)
     
-    def _getprojection(self):
-         return self._projection
-    def _setprojection(self,value):
-         value=VCS_validation_functions.checkProjection(self,'projection',value)
-         self._projection=value
-    projection=property(_getprojection,_setprojection)
+    projection=VCS_validation_functions.projection
 
     def _getxticlabels1(self):
          return self._xticlabels1

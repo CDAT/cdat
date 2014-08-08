@@ -471,7 +471,7 @@ class VTKVCSBackend(object):
             
   def plotVector(self,data1,data2,tmpl,gm,ren):
     self.setLayer(ren,tmpl.data.priority)
-    ug,xm,xM,ym,yM,continents,wrap = vcs2vtk.genUnstructuredGrid(data1,data2,gm)
+    ug,xm,xM,ym,yM,continents,wrap,geo = vcs2vtk.genGrid(data1,data2,gm)
     if ug.IsA("vtkUnstructuredGrid"):
         c2p = vtk.vtkCellDataToPointData()
         c2p.SetInputData(ug)
@@ -553,7 +553,7 @@ class VTKVCSBackend(object):
 
   def plot2D(self,data1,data2,tmpl,gm,ren):
     self.setLayer(ren,tmpl.data.priority)
-    ug,xm,xM,ym,yM,continents,wrap = vcs2vtk.genUnstructuredGrid(data1,data2,gm)
+    ug,xm,xM,ym,yM,continents,wrap,geo = vcs2vtk.genGrid(data1,data2,gm)
     #Now applies the actual data on each cell
     if isinstance(gm,boxfill.Gfb) and gm.boxfill_type=="log10":
         data1=numpy.ma.log10(data1)
@@ -790,7 +790,6 @@ class VTKVCSBackend(object):
       Nlevs = len(levs)
       Ncolors = Nlevs-1
 
-
     if mappers == []: # ok didn't need to have special banded contours
       mappers=[mapper,]
       ## Colortable bit
@@ -828,13 +827,14 @@ class VTKVCSBackend(object):
         else:
           mapper.Update()
           act.SetMapper(mapper)
-        #act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
+        if geo is None:
+          act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
         if isinstance(mapper,list):
           #act.GetMapper().ScalarVisibilityOff()
           #act.SetTexture(mapper[1])
           pass
         ren.AddActor(act)
-        vcs2vtk.fitToViewport(act,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2])
+        vcs2vtk.fitToViewport(act,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],wc=[x1,x2,y1,y2],geo=geo)
 
     self.renderTemplate(ren,tmpl,data1,gm)
     if isinstance(gm,(isofill.Gfi,meshfill.Gfm,boxfill.Gfb)):
@@ -854,11 +854,18 @@ class VTKVCSBackend(object):
       contActor = vtk.vtkActor()
       contActor.SetMapper(contMapper)
       contActor.GetProperty().SetColor(0.,0.,0.)
-      cpts = contData.GetPoints()
-      gcpts = vcs2vtk.project(cpts,projection)
-      contData.SetPoints(gcpts)
       contActor = vcs2vtk.doWrap(contActor,[x1,x2,y1,y2],wrap)
-      vcs2vtk.fitToViewport(contActor,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2])
+      if projection.type!="linear":
+          contData=contActor.GetMapper().GetInput()
+          cpts = contData.GetPoints()
+          geo, gcpts = vcs2vtk.project(cpts,projection,[x1,x2,y1,y2])
+          contData.SetPoints(gcpts)
+          contMapper = vtk.vtkPolyDataMapper()
+          contMapper.SetInputData(contData)
+          contActor = vtk.vtkActor()
+          contActor.SetMapper(contMapper)
+          contActor.GetProperty().SetColor(0.,0.,0.)
+      vcs2vtk.fitToViewport(contActor,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],wc=[x1,x2,y1,y2],geo=geo)
       if tmpl.data.priority!=0:
         ren.AddActor(contActor)
 
