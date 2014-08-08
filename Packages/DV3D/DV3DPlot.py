@@ -125,7 +125,6 @@ class DV3DPlot():
         self.addKeyPressHandler( 'q',  self.quit )
         self.addKeyPressHandler( 'Q',  self.quit )
         self.addKeyPressHandler( 's',  self.saveState )
-#        self.addKeyPressHandler( 'a',  self.stepAnimation )
 
     def getControlBar(self, name, build_args, **args ):
         control_bar = self.buttonBarHandler.createControlBar( name, self.renderWindowInteractor, build_args, **args )
