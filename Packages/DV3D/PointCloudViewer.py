@@ -1308,7 +1308,9 @@ class CPCPlot( DV3DPlot ):
         interface = None
         dfile = var1.parent
         data_file = dfile.id if dfile else None
-        if data_file == None: data_file = self.plot_attributes.get( 'url', self.plot_attributes.get( 'file', None ) ) 
+        for file_attribute_name in ['url', 'filename', 'file' ]:
+            if data_file <> None: break
+            data_file = self.plot_attributes.get( file_attribute_name, None ) 
         varnames = [ getVarName( var1 ) ]
         if not var2 is None: varnames.append( getVarName( var2 ) )
         subSpace = args.get( 'axes', 'xyz' )
