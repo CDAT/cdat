@@ -355,7 +355,7 @@ class VTKVCSBackend(object):
       self.plotVector(data1,data2,tpl,gm,ren)
     else:
       raise Exception,"Graphic type: '%s' not re-implemented yet" % gtype
-    if not kargs.get("donotstoredisplay",False):
+    if not kargs.get("donotstoredisplay",False): 
       self.renWin.Render()
 
   def plot1D(self,data1,data2,tmpl,gm,ren):
@@ -577,9 +577,10 @@ class VTKVCSBackend(object):
     #Ok now we have grid and data let's use the mapper
     mapper = vtk.vtkPolyDataMapper()
     legend = None
-    if isinstance(gm,boxfill.Gfb):
+    if isinstance(gm,(meshfill.Gfm,boxfill.Gfb)):
       geoFilter = vtk.vtkGeometryFilter()
       if ug.IsA("vtkUnstructuredGrid"):
+        print "YES WE DO COME IN HERE"
         geoFilter.SetInputData(ug)
       else:
           p2c = vtk.vtkPointDataToCellData()
@@ -651,7 +652,7 @@ class VTKVCSBackend(object):
         cols = gm.fillareacolors 
         if cols is None:
           cols = vcs.getcolors(levs2,split=0)
-      elif isinstance(gm,isofill.Gfi):
+      elif isinstance(gm,(isofill.Gfi,meshfill.Gfm)):
         cols = gm.fillareacolors
         if cols==[1,]:
           cols = vcs.getcolors(levs2,split=0)
@@ -843,6 +844,7 @@ class VTKVCSBackend(object):
       self.renderColorBar(ren,tmpl,levs,cols,legend,cmap)
     if self.canvas._continents is None:
       continents = False
+    print "We got continients:",continents
     if continents:
         projection = vcs.elements["projection"][gm.projection]
         self.plotContinents(x1,x2,y1,y2,projection,wrap,ren,tmpl)
@@ -865,6 +867,8 @@ class VTKVCSBackend(object):
           contActor = vtk.vtkActor()
           contActor.SetMapper(contMapper)
           contActor.GetProperty().SetColor(0.,0.,0.)
+      else:
+          geo=None
       vcs2vtk.fitToViewport(contActor,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],wc=[x1,x2,y1,y2],geo=geo)
       if tmpl.data.priority!=0:
         ren.AddActor(contActor)
@@ -990,8 +994,8 @@ class VTKVCSBackend(object):
         except:
           pass
 
-        if width is not None and height is not None:
-          self.renWin.SetSize(width,height)
+        #if width is not None and height is not None:
+        #  self.renWin.SetSize(width,height)
           #self.renWin.Render()
         imgfiltr = vtk.vtkWindowToImageFilter()
         imgfiltr.SetInput(self.renWin)

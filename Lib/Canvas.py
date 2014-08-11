@@ -638,39 +638,35 @@ class Canvas(object,AutoAPI.AutoAPI):
             # Normally this is done up front in _determine_arg_list.
             arglist[ARRAY_2] = cdms2.asVariable(mesh, 0)
             if arglist[GRAPHICS_OPTION] == 'default':
-                try:
-                    meshobj = self.getmeshfill('__d_meshobj')
-                except:
-                    meshobj = self.createmeshfill('__d_meshobj')
-                    meshobj.wrap = [0.0, 360.0] # Wraparound
-                arglist[GRAPHICS_OPTION] = '__d_meshobj'
+                meshobj = self.createmeshfill()
+                meshobj.wrap = [0.0, 360.0] # Wraparound
+                arglist[GRAPHICS_OPTION] = meshobj.name
 
         # Ravel the last two dimensions for meshfill if necessary
         ## value to know if we're plotting a grided meshfill
         self.isplottinggridded=False
-        if (arglist[GRAPHICS_METHOD]=='meshfill') and (tv.shape[-1] != arglist[ARRAY_2].shape[-3]):
-            tvshape = tv.shape
-            if isgridded:
-                ny, nx = grid.shape
-                if nx*ny==arglist[ARRAY_2].shape[-3]:
-                    ravelshape = tuple(list(tvshape)[:-2]+[ny*nx])
-                    xdim=ydim
-                    self.isplottinggridded=True
-                else:
-                    ny, nx = tvshape[-2:]
-                    ravelshape = tuple(list(tvshape)[:-2]+[ny*nx])
-            else:
-                ny, nx = tvshape[-2:]
-            ravelshape = tuple(list(tvshape)[:-2]+[ny*nx])
-            tv = MV2.reshape(tv, ravelshape)
-            xdim=ydim
-            self.isplottinggridded=True
-            if (tv.shape[-1] != arglist[ARRAY_2].shape[-3]):
-                raise vcsError, "Mesh length = %d, does not match variable shape: %s"%(arglist[ARRAY_2].shape[-3], `tvshape`)
-        else:
-            if isgridded and (arglist[GRAPHICS_METHOD]=='meshfill'):
-                if grid.shape[-1]==arglist[ARRAY_2].shape[-3]:
-                    self.isplottinggridded=True 
+        #if (arglist[GRAPHICS_METHOD]=='meshfill') and (tv.shape[-1] != arglist[ARRAY_2].shape[-3]):
+        #    tvshape = tv.shape
+        #    if isgridded:
+        #        ny, nx = grid.shape
+        #        if nx*ny==arglist[ARRAY_2].shape[-3]:
+        #            ravelshape = tuple(list(tvshape)[:-2]+[ny*nx])
+        #            xdim=ydim
+        #            self.isplottinggridded=True
+        #        else:
+        #            ny, nx = tvshape[-2:]
+        #            ravelshape = tuple(list(tvshape)[:-2]+[ny*nx])
+        #    else:
+        #        ny, nx = tvshape[-2:]
+        #    ravelshape = tuple(list(tvshape)[:-2]+[ny*nx])
+        #    tv = MV2.reshape(tv, ravelshape)
+        #    xdim=ydim
+        #    self.isplottinggridded=True
+        #    if (tv.shape[-1] != arglist[ARRAY_2].shape[-3]):
+        #        raise vcsError, "Mesh length = %d, does not match variable shape: %s"%(arglist[ARRAY_2].shape[-3], `tvshape`)
+        #else:
+        if isgridded and (arglist[GRAPHICS_METHOD]=='meshfill'):
+                self.isplottinggridded=True 
 
         # Process variable attributes
         _process_keyword(tv, 'comment1', 'comment1', keyargs)
@@ -2462,7 +2458,6 @@ Options:::
 
         self.__last_plot_actual_args = actual_args
         self.__last_plot_keyargs = keyargs
-
         passed_var = keyargs.get("variable",None)
         arglist = _determine_arg_list ( None, actual_args )
         if passed_var is not None:
