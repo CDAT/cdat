@@ -121,10 +121,10 @@ def genGrid(data1,data2,gm):
     z = numpy.zeros(lon.shape)
     m3 = numpy.concatenate((lon,lat),axis=1)
     m3 = numpy.concatenate((m3,z),axis=1)
-    xm=lon[0]
-    xM=lon[-1]
-    ym=lat[0]
-    yM=lat[-1]
+    xm=lon.min()
+    xM=lon.max()
+    ym=lat.min()
+    yM=lat.max()
   # First create the points/vertices (in vcs terms)
   deep = True
   pts = vtk.vtkPoints()
