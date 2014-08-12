@@ -735,6 +735,7 @@ def prepMarker(renWin,ren,marker,cmap=None):
       while len(a)<n:
         a.append(a[-1])
     pts = vtk.vtkPoints()
+    geo,pts = project(pts,marker.projection,marker.worldcoordinate)
     for j in range(N):
       pts.InsertNextPoint(x[j],y[j],0.)
     markers.SetPoints(pts)
@@ -836,7 +837,7 @@ def prepMarker(renWin,ren,marker,cmap=None):
         coords = numpy.array(zip(*l))*s/30.
         line = genPoly(coords.tolist(),pts,filled=True)
         polys.InsertNextCell(line)
-      geo,pts = project(pts,marker.projection,marker.worldccordinate)
+      geo,pts = project(pts,marker.projection,marker.worldcoordinate)
       pd.SetPoints(pts)
       pd.SetPolys(polys)
       pd.SetLines(lines)
