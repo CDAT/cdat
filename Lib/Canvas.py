@@ -224,7 +224,7 @@ def _determine_arg_list(g_name, actual_args):
         elif arglist[igraphics_method].lower()=='default':
             pass                            # Check later
         else:
-            if found_slabs != 1:
+            if found_slabs != 1 and not(found_slabs == 2 and arglist[igraphics_method].lower()=="oned"):
                 raise vcsError, "Graphics method %s requires 1 slab." % arglist[igraphics_method]
     if isinstance(arglist[3],str): arglist[3]=arglist[3].lower()
     return arglist

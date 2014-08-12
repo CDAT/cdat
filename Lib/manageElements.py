@@ -994,6 +994,7 @@ vcs.show('scatter')
     name,source = check_name_source(name,source,'scatter')
 
     gm = unified1D.G1d(name+"_scatter_", source+"_scatter_")
+    gm.linewidth=0
     vcs.elements["scatter"][name]=gm
     return gm
 createscatter.__doc__ = createscatter.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert, create_GM_input, scatter_output)

@@ -335,21 +335,26 @@ class VTKVCSBackend(object):
       self.plot3D(data1,data2,tpl,gm,ren)
     elif gtype in ["text"]:
       if tt.priority!=0:
+        self.renWin.AddRenderer(ren)
         self.setLayer(ren,tt.priority)
         vcs2vtk.genTextActor(ren,to=to,tt=tt)
     elif gtype=="line":
       if gm.priority!=0:
+        self.renWin.AddRenderer(ren)
         self.setLayer(ren,gm.priority)
         vcs2vtk.prepLine(self.renWin,ren,gm)
     elif gtype=="marker":
       if gm.priority!=0:
+        self.renWin.AddRenderer(ren)
         self.setLayer(ren,gm.priority)
         vcs2vtk.prepMarker(self.renWin,ren,gm)
     elif gtype=="fillarea":
       if gm.priority!=0:
+        self.renWin.AddRenderer(ren)
         self.setLayer(ren,gm.priority)
         vcs2vtk.prepFillarea(self.renWin,ren,gm)
     elif gtype=="oned":
+      self.renWin.AddRenderer(ren)
       self.plot1D(data1,data2,tpl,gm,ren)
     elif gtype=="vector":
       self.plotVector(data1,data2,tpl,gm,ren)
@@ -380,7 +385,7 @@ class VTKVCSBackend(object):
     ys = []
     prev = None
     for i,v in enumerate(Ys):
-        if v is not None: # Valid data
+        if v is not None and Xs[i] is not None: # Valid data
             if prev is None:
                 prev=[]
                 prev2 = []
@@ -397,7 +402,10 @@ class VTKVCSBackend(object):
     l.x = xs
     l.y = ys 
     l.color=gm.linecolor
-    l.width = gm.linewidth
+    if gm.linewidth>0:
+        l.width = gm.linewidth
+    else:
+        l.priority=0
     l.type = gm.line
     l.viewport = [tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2]
     # Also need to make sure it fills the whole space
@@ -413,14 +421,19 @@ class VTKVCSBackend(object):
     m=self.canvas.createmarker()
     m.type = gm.marker
     m.color = gm.markercolor
-    m.size = gm.markersize
+    if gm.markersize>0:
+        m.size = gm.markersize
+    else:
+        m.priority=0
     m.x = l.x
     m.y=l.y
     m.viewport=l.viewport
     m.worldcoordinate = l.worldcoordinate
     
-    self.canvas.plot(l,renderer=ren,donotstoredisplay=True)
-    self.canvas.plot(m,renderer=ren,donotstoredisplay=True)
+    if l.priority>0:
+        self.canvas.plot(l,renderer=ren,donotstoredisplay=True)
+    if m.priority>0:
+        self.canvas.plot(m,renderer=ren,donotstoredisplay=True)
     ren2 = vtk.vtkRenderer()
     tmpl.plot(self.canvas,data1,gm,bg=self.bg,renderer=ren2,X=X,Y=Y)
     
@@ -844,7 +857,6 @@ class VTKVCSBackend(object):
       self.renderColorBar(ren,tmpl,levs,cols,legend,cmap)
     if self.canvas._continents is None:
       continents = False
-    print "We got continients:",continents
     if continents:
         projection = vcs.elements["projection"][gm.projection]
         self.plotContinents(x1,x2,y1,y2,projection,wrap,ren,tmpl)
