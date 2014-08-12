@@ -41,6 +41,22 @@ message(${CDAT_DOWNLOAD_SAMPLE_DATA} and ${CDAT_BUILD_MATPLOTLIB})
         --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_${gm}_masked.png
         )
     ENDFOREACH(gm)
+    add_test(vcs_test_basic_isofill_masked_pol_proj
+      ${CMAKE_INSTALL_PREFIX}/bin/python
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
+      --gm_type=isofill
+      --mask
+      --projection=-3
+      --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_isofill_masked_-3_proj.png
+      )
+    add_test(vcs_test_basic_isofill_masked_aeqd_proj
+      ${CMAKE_INSTALL_PREFIX}/bin/python
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
+      --gm_type=isofill
+      --mask
+      --projection=aeqd
+      --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_isofill_masked_aeqd_proj.png
+      )
   endif()
   #endif()
 

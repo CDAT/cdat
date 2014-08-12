@@ -236,7 +236,6 @@ def project(pts,projection,wc):
   #  pd.SetName(pd.GetProjectionName(i+1))
   #  print i+1,":",pd.GetProjectionName(i+1),"(",pd.GetNumberOfOptionalParameters(),")"
     
-  print "PROJECTION NAME:",projName
   pd.SetName(projName)
   if projection.type == "polar (non gctp)":
     if ym<yM:
@@ -256,6 +255,8 @@ def project(pts,projection,wc):
 def setProjectionParameters(pd,proj):
     if proj._type>200:
       proj4 = proj.parameters
+      if numpy.allclose(proj4,1.e20):
+        proj4={}
     else:
         p=proj.parameters
         proj4={}
@@ -406,7 +407,6 @@ def setProjectionParameters(pd,proj):
         if k=="lon_0":
           pd.SetCentralMeridian(proj4[k])
         elif k!="???":
-          print "Setting param:",proj4[k]
           pd.SetOptionalParameter(k,proj4[k])
 
 #Vtk dump

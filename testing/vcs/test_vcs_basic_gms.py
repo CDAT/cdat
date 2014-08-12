@@ -6,6 +6,7 @@ p.add_argument("--source", dest="src", help="source image file")
 p.add_argument("--gm_type", dest="gm", help="gm to test")
 p.add_argument("--mask", dest="mask", action="store_true",help="mask out part of data")
 p.add_argument("--show", dest="show", action="store_true",help="show plots on screen (no bg)")
+p.add_argument("--projection-type", dest="projtype", default="default", help="use a specific projection type")
 
 args = p.parse_args(sys.argv[1:])
 
@@ -30,6 +31,17 @@ x.setcolormap("rainbow")
 if gm_type=="oned":
     gm_type="oneD"
 exec("gm=vcs.create%s()" % gm_type)
+if args.projtype != "default":
+    print "----------------------------------------------------------------------------------------------"
+    p = vcs.createprojection()
+    print "OK AFTER CRATING:",p.parameters
+    try:
+        ptype = int(args.projtype)
+    except:
+        ptype = args.projtype
+    p.type = ptype
+    print "----------------------------------------------------------------------------------------------"
+    gm.projection = p
 if gm_type=="meshfill":
     f=cdms2.open(os.path.join(sys.prefix,'sample_data','sampleCurveGrid4.nc'))
 else:
@@ -62,6 +74,8 @@ else:
 fnm = "test_vcs_basic_%s" % gm_type.lower()
 if args.mask:
     fnm+="_masked"
+if args.projtype!="default":
+    fnm+="_%s_proj" % args.projtype
 x.png(fnm)
 print "fnm:",fnm
 print "src:",src
