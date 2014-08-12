@@ -516,8 +516,6 @@ class G1d(object,AutoAPI.AutoAPI):
             raise ValueError, "The oneD method '%s' does not exists" % name_src
           src = vcs.elements["oned"][name_src]
           for att in ['projection' , 'colormap', 'xticlabels1' ,'xticlabels2' ,'xmtics1' ,'xmtics2' ,'yticlabels1' ,'yticlabels2' ,'ymtics1' ,'ymtics2' ,'datawc_y1' ,'datawc_y2' ,'datawc_x1' ,'datawc_x2' ,'xaxisconvert' ,'yaxisconvert' ,'line' ,'linecolor' ,'linewidth' ,'marker' ,'markercolor' ,'markersize' ,'datawc_timeunits' ,'datawc_calendar' ,'smooth', 'flip' ]:
-           if att == "linewidth":
-             print "Copying linewidth:",src.linewidth
            setattr(self,att,getattr(src,att)) 
         #Ok now we need to stick in the elements
         vcs.elements["oned"][name]=self

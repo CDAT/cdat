@@ -20,6 +20,7 @@
 ###############################################################################
 import VCS_validation_functions
 import vcs
+import copy
 
 def process_src(nm,code):
   try:
@@ -285,7 +286,7 @@ class Proj(object):
         if Proj_name != "default":
           src = vcs.elements["projection"][Proj_name_src]
           self.type = src.type
-          self.parameters = src.parameters
+          self.parameters = copy.copy(src.parameters)
         vcs.elements["projection"][Proj_name]=self
 
     #############################################################################

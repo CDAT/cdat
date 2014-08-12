@@ -553,6 +553,7 @@ vcs.show('isoline')                   # Show all the existing isoline graphics m
 iso=vcs.getisoline()                  # iso instance of 'default' isoline graphics
                                     #       method
 iso2=vcs.getisoline('quick')          # iso2 instance of existing 'quick' isoline
+gm.linewidth=0
                                     #       graphics method
 ######################################################################################################################
 ###########################################                            ###############################################
