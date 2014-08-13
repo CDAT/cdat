@@ -3417,6 +3417,8 @@ Options:::
                 tp = arglist[3]
                 if tp=="text":
                   tp="textcombined"
+                elif tp=="default":
+                  tp="boxfill"
                 gm=vcs.elements[tp][arglist[4]]
             p=self.getprojection(gm.projection)
             if p.type=="polar (non gctp)" and doratio=="0":
@@ -5309,7 +5311,7 @@ Options:::
         #except:
         #   updateVCSsegments_flag = 1
         self.colormap = name
-        warnings.warn("need to implemeent code to redraw vcs after colormap change")
+        warnings.warn("need to implement code to redraw vcs after colormap change")
         return
 
     #############################################################################
