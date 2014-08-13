@@ -67,6 +67,11 @@ if (CDAT_BUILD_MATPLOTLIB)
     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_1D_datawc_missing.py
     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_1D_datawc_missing.png
     )
+  add_test(vcs_test_wmo_marker
+    ${CMAKE_INSTALL_PREFIX}/bin/python
+    ${cdat_SOURCE_DIR}/testing/vcs/test_wmo_w07_marker.py
+    ${cdat_SOURCE_DIR}/testing/vcs/wmo_marker.png
+    )
 
 #  if (CDAT_DOWNLOAD_SAMPLE_DATA)
     FOREACH(gm boxfill isofill isoline vector meshfill yxvsx xvsy xyvsy oned scatter)
