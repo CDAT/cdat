@@ -11,6 +11,8 @@ p.add_argument("--lat1", dest="lat1", default=0, type=float, help="First latitud
 p.add_argument("--lat2", dest="lat2", default=0, type=float, help="Last latitude")
 p.add_argument("--lon1", dest="lon1", default=0, type=float, help="First Longitude")
 p.add_argument("--lon2", dest="lon2", default=0, type=float, help="Last Longitude")
+p.add_argument("--range_via_gm", dest="rg", action="store_true", help="Set the range via graphic method ")
+p.add_argument("--gm_flips_lat_range", dest="flip", action="store_true", help="Set the range via graphic method to flip of data")
 
 args = p.parse_args(sys.argv[1:])
 
@@ -65,14 +67,27 @@ elif gm_type=="meshfill":
 else:
     xtra = {}
     if args.lat1!=args.lat2:
+        if args.rg:
+            if args.flip:
+                gm.datawc_y1=args.lat2
+                gm.datawc_y2=args.lat1
+                nm_xtra+="_gmflip"
+            else:
+                gm.datawc_y1=args.lat1
+                gm.datawc_y2=args.lat2
         xtra["latitude"] = (args.lat1,args.lat2)
         if args.lat1<0:
-            nm_xtra="_SH"
+            nm_xtra+="_SH"
         else:
-            nm_xtra="_NH"
+            nm_xtra+="_NH"
     if args.lon1!=args.lon2:
+        if args.rg:
+            gm.datawc_x1=args.lon1
+            gm.datawc_x2=args.lon2
         xtra["longitude"] = (args.lon1,args.lon2)
         nm_xtra+="_%i_%i" % (args.lon1,args.lon2)
+    if args.rg:
+        nm_xtra+="_via_gm"
     s=f("clt",**xtra)
     if args.mask:
         s=MV2.masked_greater(s,78.)
