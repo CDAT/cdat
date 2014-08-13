@@ -215,7 +215,7 @@ def get_parameter_name( serialized_value ):
 class ConfigManager:
     
     
-    def __init__( self, **args ):   
+    def __init__( self,  **args ):    
         self.ConfigCmd = SIGNAL("ConfigCmd")
         self.cfgFile = os.path.join( DataDir, 'parameters.txt' )
         self.stateFile = os.path.join( DataDir, 'state.txt' )
@@ -225,12 +225,6 @@ class ConfigManager:
         self.metadata = args
         self.configurableFunctions = {}
         self.parameters = {} 
-        self.parent = args.get( 'cm', None )
-        self.cell_coordinates = args.get( 'cell_coordinates', (0,0) )
-        if ( self.parent <> None ):
-            for parm_address in self.parent.parameters.keys():
-                basename = get_parameter_name( parm_address )
-                self.parameters[basename] = self.getParameter( basename  )
         self.initialized = False
 
     def getParameter( self, param_name, **args ):
@@ -364,18 +358,14 @@ class ConfigManager:
         except Exception, err:
             print>>sys.stderr, "Can't save state data: ", str(err)
 
-    def getConfigurationState( self, param_name, **args ):
-        parm = self.getParameter( param_name, **args )
+    def getConfigurationState( self, param_name ):
+        parm = self.getParameter(param_name)
         return parm.getValue( 'state' )
 
-    def getConfigurationData( self, **args ):  
+    def getConfigurationData(self):
         pdata = []
-        cell_addr = str( args.get( 'cell', '' ) )
         for cpi in self.parameters.items():
-            ( key, cell ) = deserialize_address(cpi[0])
-            values = cpi[1].getValues()
-            if cell == cell_addr:
-                pdata.append( [ key, values ] ) 
+            pdata.append( [ cpi[0], cpi[1].getValues() ] )
         return pdata
 
     def getConfigurationParms( self, **args ):  
@@ -428,9 +418,7 @@ class ConfigManager:
             
         return parameter_mdata
                   
-    def getParameterList( self, **args ):
-        var = args.get( 'var', None )
-        extra_parms = args.get( 'extras', [] )
+    def getParameterList( self, var=None ):
         if var <> None: 
             from Application import getPlotFromVar
             plot = getPlotFromVar( var, cm=self )
@@ -442,11 +430,8 @@ class ConfigManager:
         parameter_list = set()
         parameter_list.add( 'Configure' )
         for cpi in self.parameters.items():
-             basename = get_parameter_name(cpi[0])
-             parameter_list.add( basename )  
-        for pname in extra_parms:
-             parameter_list.add( pname )  
-#        print "Generated parameter_list: " , str( parameter_list )            
+             parameter_list.add( cpi[0] )  
+        print "Generated parameter_list: " , str( parameter_list )            
         return parameter_list
         
     def initParameters(self):
@@ -464,7 +449,7 @@ class ConfigManager:
     def getParameterPersistenceList(self):
         plist = []
         for cfg_item in self.parameters.items():
-            key = get_parameter_name(cfg_item[0])
+            key = cfg_item[0]
             cfg_spec = cfg_item[1].pack()
             plist.append( ( key, cfg_spec[1] ) )
         return plist
@@ -478,7 +463,7 @@ class ConfigManager:
     def getPersistentParameterSpecs(self):
         plist = []
         for cfg_item in self.parameters.items():
-            key = get_parameter_name(cfg_item[0])
+            key = cfg_item[0]
             values_decl = cfg_item[1].values_decl()
             plist.append( ( key, values_decl ) )
         return plist
@@ -606,11 +591,8 @@ class ConfigParameter:
         elif ( type( value ) == tuple ):
             for val_item in value:
                 self.setInitValue( val_item, update )
-            self.setValues( value  )
         else:
             self.setValue( 'init', value, update )
-            self.setValues( [ value ]  )
-
 
     def setValue( self, key, val, update=False  ):
         self.values[ key ] = val
