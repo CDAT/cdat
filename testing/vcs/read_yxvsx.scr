@@ -1,0 +1,10 @@
+GYx_testyx(
+   projection=linear,xticlabels#1=*,xticlabels#2=*,yticlabels#1=*,
+   yticlabels#2=*,
+   datawc(-50,50,20,80),
+   idatawc(0,0,0,0),
+   xaxisconvert=log10,
+   yaxisconvert=area_wt,
+   datawc_tunits=days since 2100,
+   datawc_calendar=13541,
+   Tl=dash,Tm=circle)

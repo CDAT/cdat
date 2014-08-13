@@ -36,6 +36,12 @@ add_test(vcs_test_load_json
   ${cdat_SOURCE_DIR}/testing/vcs/test_json.json
   )
 
+add_test(vcs_test_read_yx_scr
+  ${CMAKE_INSTALL_PREFIX}/bin/python
+  ${cdat_SOURCE_DIR}/testing/vcs/test_readyx_scr.py
+  ${cdat_SOURCE_DIR}/testing/vcs/read_yxvsx.scr
+  )
+
 message(${CDAT_DOWNLOAD_SAMPLE_DATA} and ${CDAT_BUILD_MATPLOTLIB})
 
 #These test actually plot things need sample data
@@ -189,7 +195,7 @@ if (CDAT_BUILD_MATPLOTLIB)
         --gm_type=${gm}
         --mask
         --projection=aeqd
-        --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_${gm}_aeqd_proj.png
+        --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_${gm}_masked_aeqd_proj.png
         )
       add_test(vcs_test_${gm}_patterns
         ${CMAKE_INSTALL_PREFIX}/bin/python

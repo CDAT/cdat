@@ -139,12 +139,14 @@ def genGrid(data1,data2,gm):
   pts.SetData(ppV)
 
   projection = vcs.elements["projection"][gm.projection]
+  xm,xM,ym,yM = getRange(gm,xm,xM,ym,yM)
+
   geo, geopts = project(pts,projection,[xm,xM,ym,yM])
   ## Sets the vertics into the grid
   vg.SetPoints(geopts)
   return vg,xm,xM,ym,yM,continents,wrap,geo
 
-def getRange(gm,xm,xM,ym,yM,geo=None):
+def getRange(gm,xm,xM,ym,yM):
     # Also need to make sure it fills the whole space
     rtype= type(cdtime.reltime(0,"days since 2000"))
     X1,X2 = gm.datawc_x1,gm.datawc_x2

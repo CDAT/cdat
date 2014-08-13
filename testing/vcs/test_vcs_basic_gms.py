@@ -38,56 +38,53 @@ if gm_type=="oned":
     gm_type="oneD"
 exec("gm=vcs.create%s()" % gm_type)
 if args.projtype != "default":
-    print "----------------------------------------------------------------------------------------------"
     p = vcs.createprojection()
-    print "OK AFTER CRATING:",p.parameters
     try:
         ptype = int(args.projtype)
     except:
         ptype = args.projtype
     p.type = ptype
-    print "----------------------------------------------------------------------------------------------"
     gm.projection = p
 nm_xtra=""
+xtra = {}
+if args.lat1!=args.lat2:
+    if args.rg:
+        if args.flip:
+            gm.datawc_y1=args.lat2
+            gm.datawc_y2=args.lat1
+            nm_xtra+="_gmflip"
+        else:
+            gm.datawc_y1=args.lat1
+            gm.datawc_y2=args.lat2
+    xtra["latitude"] = (args.lat1,args.lat2)
+    if args.lat1<0:
+        nm_xtra+="_SH"
+    else:
+        nm_xtra+="_NH"
+if args.lon1!=args.lon2:
+    if args.rg:
+        gm.datawc_x1=args.lon1
+        gm.datawc_x2=args.lon2
+    xtra["longitude"] = (args.lon1,args.lon2)
+    nm_xtra+="_%i_%i" % (args.lon1,args.lon2)
+if args.rg:
+    nm_xtra+="_via_gm"
 if gm_type=="meshfill":
     f=cdms2.open(os.path.join(sys.prefix,'sample_data','sampleCurveGrid4.nc'))
 else:
     f=cdms2.open(os.path.join(sys.prefix,'sample_data','clt.nc'))
 if gm_type=="vector":
-    u=f("u")
-    v=f("v")
+    u=f("u",**xtra)
+    v=f("v",**xtra)
     if args.mask:
         u=MV2.masked_greater(u,58.)
 elif gm_type=="meshfill":
-    s=f("sample")
+    s=f("sample",**xtra)
     gm.mesh=True
     print "ARGS MASK:",args.mask
     if args.mask:
         s=MV2.masked_greater(s,1450.)
 else:
-    xtra = {}
-    if args.lat1!=args.lat2:
-        if args.rg:
-            if args.flip:
-                gm.datawc_y1=args.lat2
-                gm.datawc_y2=args.lat1
-                nm_xtra+="_gmflip"
-            else:
-                gm.datawc_y1=args.lat1
-                gm.datawc_y2=args.lat2
-        xtra["latitude"] = (args.lat1,args.lat2)
-        if args.lat1<0:
-            nm_xtra+="_SH"
-        else:
-            nm_xtra+="_NH"
-    if args.lon1!=args.lon2:
-        if args.rg:
-            gm.datawc_x1=args.lon1
-            gm.datawc_x2=args.lon2
-        xtra["longitude"] = (args.lon1,args.lon2)
-        nm_xtra+="_%i_%i" % (args.lon1,args.lon2)
-    if args.rg:
-        nm_xtra+="_via_gm"
     s=f("clt",**xtra)
     if args.mask:
         s=MV2.masked_greater(s,78.)
