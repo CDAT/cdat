@@ -49,8 +49,6 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
             raise ValueError,"DV3D graphic method '%s' already exists" % Gfdv3d_name
         self._name = Gfdv3d_name
         self._plot_attributes = {}
-        self.projection = 'default' 
-        self.provenanceHandler = None
                 
         if Gfdv3d_name=="xyt": 
             self._axes="xyt"
@@ -79,6 +77,12 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
     def getConfigurationState( self, pname, **args ):
         return self.cfgManager.getConfigurationState( pname, **args )
 
+    def getConfigurationData(self):
+        return self.cfgManager.getConfigurationData()
+    
+    def getConfigurationState( self, pname ):
+        return self.cfgManager.getConfigurationState( pname )
+
     def add_property(self, name ):
         fget = lambda self: self.getParameter(name)
         fset = lambda self, value: self.setParameter(name, value)
@@ -93,8 +97,7 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
     def getPlotAttributes( self ):
         return self._plot_attributes
     
-    @staticmethod
-    def getParameterList():
+    def getParameterList(self):
         cfgManager = ConfigManager()
         parameterList = cfgManager.getParameterList()
         return parameterList
