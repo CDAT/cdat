@@ -9,7 +9,7 @@ import meshfill,boxfill,isofill,isoline
 import os, traceback
 import cdms2
 import DV3D
-
+import MV2
    
 def smooth(x,beta,window_len=11):
    """ kaiser window smoothing """
@@ -892,12 +892,16 @@ class VTKVCSBackend(object):
     if tmpl.legend.priority>0:
       tmpl.drawColorBar(colors,levels,x=self.canvas,legend=legend,cmap=cmap)
 
+  def cleanupData(self,data):
+      data[:] = numpy.ma.masked_invalid(data,numpy.nan)
+      return data
+
   def trimData1D(self,data):
     if data is None:
       return None
     while len(data.shape)>1:
       data = data[0]
-    return data
+    return self.cleanupData(data)
 
   #ok now trying to figure the actual data to plot
   def trimData2D(self,data):
@@ -909,19 +913,19 @@ class VTKVCSBackend(object):
       daxes=list(data.getAxisList())
       if daxes[len(daxes)-len(gaxes):] == gaxes:
         # Ok it is gridded and the grid axes are last
-        return data(*(slice(0,1),)*(len(daxes)-len(gaxes)),squeeze=1)
+        return self.cleanupData(data(*(slice(0,1),)*(len(daxes)-len(gaxes)),squeeze=1))
       else:
         # Ok just return the last two dims
-        return data(*(slice(0,1),)*(len(daxes)-2),squeeze=1)
+        return self.cleanupData(data(*(slice(0,1),)*(len(daxes)-2),squeeze=1))
     except Exception,err: # ok no grid info
       daxes=list(data.getAxisList())
       if cdms2.isVariable(data):
-        return data(*(slice(0,1),)*(len(daxes)-2))
+        return self.cleanupData( data(*(slice(0,1),)*(len(daxes)-2)))
       else: #numpy arrays are not callable
         op = ()
         for i in range(numpy.rank(data)-2):
           op.append(slice(0,1))
-        return data[op]
+        return self.cleanupData(data[op])
 
   def put_png_on_canvas(self,filename,zoom=1,xOffset=0,yOffset=0,*args,**kargs):
       return self.put_img_on_canvas(filename,zoom,xOffset,yOffset,*args,**kargs)
