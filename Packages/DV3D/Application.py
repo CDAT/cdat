@@ -10,32 +10,31 @@ from SliceViewer import SlicePlot
 from RectilinearGridPlot import RectGridPlot
 from ConfigurationFunctions import PlotType
 
+def getPlotFromVar( var, **args ):
+    grid_metadata = var.getGrid()
+    plot_type = args.get( 'plot_type', PlotType.getPointsLayout( grid_metadata ) )
+    plot = RectGridPlot(**args) if ( plot_type == PlotType.Grid ) else CPCPlot(**args)
+    return plot
+
 class DV3DApp:
     
     def __init__( self, **args ):
         self.plot = None
     
     
-    def init(self, **args ):
-        var= None
-        init_args = args.get( 'init', None )
-        if init_args:
-            ( grid_file, data_file, interface, varnames, grd_coords, var_proc_op, ROI, subSpace ) = init_args
-            df = cdms2.open( data_file )       
-            var = df[ varnames[0] ]
-        else:
-            print>>sys.stderr, "Error, this method requires an init_args argument"
-            
-        if id(var) <> id(None):
-            grid_metadata = var.getGrid()
-            plot_type = args.get( 'plot_type', PlotType.getPointsLayout( grid_metadata ) )
-            
-            if plot_type == PlotType.Grid:
-                self.plot = RectGridPlot(**args) 
-                self.plot.init( **args ) 
-            else:
-                self.plot = CPCPlot(**args) 
-                self.plot.init( **args  ) 
+#     def init(self, **args ):
+#         var= None
+#         init_args = args.get( 'init', None )
+#         if init_args:
+#             ( grid_file, data_file, interface, varnames, grd_coords, var_proc_op, ROI, subSpace ) = init_args
+#             df = cdms2.open( data_file )       
+#             var = df[ varnames[0] ]
+#         else:
+#             print>>sys.stderr, "Error, this method requires an init_args argument"
+#             
+#         if id(var) <> id(None):
+#             self.plot = getPlotFromVar( var, **args )
+#             self.plot.init( **args  ) 
 
     def update( self, tmpl ):
         if self.plot <> None:

@@ -182,6 +182,12 @@ class DV3DPlot():
         print "Save State" 
         self.buttonBarHandler.cfgManager.saveState()
 
+    def getStateData(self, **args): 
+        return self.buttonBarHandler.cfgManager.getStateData()
+
+    def getConfigurationData(self, **args): 
+        return self.buttonBarHandler.cfgManager.getConfigurationData()
+            
     def processKeyPressHandler( self, key, eventArgs ):
 #        print " processKeyPress: ", str( key )
         handlers = self.keyPressHandlers.get( key, [] )
@@ -491,12 +497,17 @@ class DV3DPlot():
             self.updateInteractor() 
             self.activated = True 
             
-    def showConfigurationButton(self):
+    def buildConfigurationButton(self):
         bbar_name = 'Configure'
-        bbar = self.buttonBarHandler.createButtonBarWidget( bbar_name, self.renderWindowInteractor )
-        config_button = bbar.addConfigButton( names=['Configure'], id='Configure', key='g', toggle=True, persist=False, interactionHandler=self.processConfigurationToggle )
-#            config_button.StateChangedSignal.connect( self.togglePlotButtons )
-        bbar.build()
+        bbar = self.buttonBarHandler.getButtonBar( bbar_name )
+        if bbar == None:
+            bbar = self.buttonBarHandler.createButtonBarWidget( bbar_name, self.renderWindowInteractor )
+            config_button = bbar.addConfigButton( names=['Configure'], id='Configure', key='g', toggle=True, persist=False, interactionHandler=self.processConfigurationToggle )
+            bbar.build()
+        return bbar
+
+    def showConfigurationButton(self):
+        bbar = self.buildConfigurationButton( )
         bbar.show()
 
     def buildPlotButtons(self):
@@ -549,7 +560,13 @@ class DV3DPlot():
                 else: bbar.hide()
     
     def processConfigurationToggle( self, args, config_function = None ):
-        if args[0] == "InitConfig":
+        if args and args[0] == "Init":
+#             name = config_function.name
+#             bbar = self.buttonBarHandler.getButtonBar( name )
+#             button = bbar.getButton( name )
+            state = config_function.getState() 
+            if state: self.toggleCongurationButtons( state )
+        elif args[0] == "InitConfig":
             name = config_function.name
             bbar = self.buttonBarHandler.getButtonBar( name )
             button = bbar.getButton( name )

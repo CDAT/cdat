@@ -44,7 +44,7 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
             raise ValueError,"DV3D graphic method '%s' already exists" % Gfdv3d_name
         self._name = Gfdv3d_name
         self._plot_attributes = {}
-        
+                
         if Gfdv3d_name=="xyt": 
             self._axes="xyt"
         else:
@@ -55,6 +55,12 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
             
         vcs.elements[self.g_name][Gfdv3d_name]=self
         print "Adding VCS element: %s %s " % ( self.g_name, Gfdv3d_name )
+
+    def getConfigurationData(self):
+        return self.cfgManager.getConfigurationData()
+    
+    def getConfigurationState( self, pname ):
+        return self.cfgManager.getConfigurationState( pname )
 
     def add_property(self, name ):
         fget = lambda self: self.getParameter(name)
@@ -69,14 +75,18 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
 
     def getPlotAttributes( self ):
         return self._plot_attributes
+    
+    def getParameterList(self):
+        cfgManager = ConfigManager()
+        parameterList = cfgManager.getParameterList()
+        return parameterList
                 
-    def addParameters(self):
-        parameterMetadata = self.cfgManager.getParameterMetadata()
+    def addParameters( self ):
         self.parameter_names = []
-        for mdata in parameterMetadata:
-            self.add_property( mdata[0] )
-            self.parameter_names.append( mdata[0] )
-#            print "  ------------->> Adding parameter: ", mdata[0]
+        for pname in self.getParameterList():
+            self.add_property( pname )
+            self.parameter_names.append( pname )
+#            print "  ------------->> Adding parameter: ", pname
             
     def getParameter(self, param_name, **args ):
         return self.cfgManager.getParameterValue( param_name, **args )

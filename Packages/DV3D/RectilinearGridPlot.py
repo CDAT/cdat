@@ -208,7 +208,7 @@ class RectGridPlot(StructuredGridPlot):
                 config_function.initial_value = init_range  
             self.scaleColormap( config_function.initial_value )
             self.generateCTF( config_function.initial_value )
-            colorScaleRange.setValues( init_range )
+            colorScaleRange.setValues( config_function.initial_value )
         elif args and args[0] == "EndConfig":
             pass
         elif args and args[0] == "InitConfig":
@@ -230,7 +230,7 @@ class RectGridPlot(StructuredGridPlot):
         if self.levelSetActor <> None:
             self.levelSetFilter.SetValue ( 0, value ) 
             self.levelSetFilter.Modified()
-                 
+                             
     def processIsosurfaceValueCommand( self, args, config_function = None ):
         isosurfaceValue = config_function.value
         if args and args[0] == "StartConfig":
@@ -346,7 +346,7 @@ class RectGridPlot(StructuredGridPlot):
                 self.cropRegion[ib] = ( origin[int(ib/2)] + new_spacing[int(ib/2)]*extent[ib-4] ) 
             if (self.volumeMapper <> None) and self.volumeMapper.GetCropping():
                 self.cropVolume( False )                 
-        if self.planeWidgetZ.IsVisible():      
+        if ( self.planeWidgetZ <> None ) and self.planeWidgetZ.IsVisible():      
             self.planeWidgetZ.UpdateInputs()
          
     def activateEvent( self, caller, event ):
@@ -740,6 +740,13 @@ class RectGridPlot(StructuredGridPlot):
         self.renderer.AddViewProp(self.cursorActor)
         self.cursorActor.SetProperty(self.cursorProperty)
         self.levelSetActor.VisibilityOff()
+
+        interactionButtons = self.getInteractionButtons()
+        cf = interactionButtons.getConfigFunction('IsosurfaceValue')
+        initVals = cf.value.getInitValue()
+        if initVals:
+            self.levelSetFilter.SetValue ( 0, initVals[0] ) 
+            self.levelSetFilter.Modified()
                               
     def buildVolumePipeline(self):
         """ execute() -> None
@@ -813,7 +820,7 @@ class RectGridPlot(StructuredGridPlot):
 
         self.renderer.AddVolume( self.volume )
         self.renderer.SetBackground( VTK_BACKGROUND_COLOR[0], VTK_BACKGROUND_COLOR[1], VTK_BACKGROUND_COLOR[2] )
-        self.setColormap( [ 'jet', 1, 0, 0 ] )
+#        self.setColormap( [ 'jet', 1, 0, 0 ] )
 
     def buildPipeline(self):
 
