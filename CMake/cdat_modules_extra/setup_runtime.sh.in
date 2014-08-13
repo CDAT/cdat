@@ -3,7 +3,7 @@
 # Find the location of this script and store it for further use
 SB_EXTERNALS_DIR="@SB_EXTERNALS_DIR@"
 SB_LIB_DIR="@SB_LIB_DIR@"
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" > /dev/null && pwd )"
 INSTALL_PREFIX=`dirname ${DIR}`
 
 _os=$("uname")
