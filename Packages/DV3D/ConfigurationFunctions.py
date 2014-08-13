@@ -202,17 +202,16 @@ class SIGNAL(object):
 class ConfigManager:
     
     
-    def __init__( self, default_cm=None,  **args ): 
+    def __init__( self,  **args ):    
         self.ConfigCmd = SIGNAL("ConfigCmd")
         self.cfgFile = os.path.join( DataDir, 'parameters.txt' )
         self.stateFile = os.path.join( DataDir, 'state.txt' )
-        self.config_params = {}
         self.iCatIndex = 0
         self.cats = {}
         self.cfgDir = None
         self.metadata = args
         self.configurableFunctions = {}
-        self.parameters = {} if ( default_cm == None ) else copy.deepcopy( default_cm.parameters )
+        self.parameters = {} 
         self.initialized = False
 
     def getParameter( self, param_name, **args ):
@@ -249,13 +248,13 @@ class ConfigManager:
         return self.metadata.get( key, None ) if key else self.metadata
 
     def addParam(self, key ,cparm ):
-        self.config_params[ key ] = cparm
+        self.parameters[ key ] = cparm
 #        print "Add param[%s]" % key
                      
     def saveConfig( self ):
         try:
             f = open( self.cfgFile, 'w' )
-            for config_item in self.config_params.items():
+            for config_item in self.parameters.items():
                 cfg_str = " %s = %s " % ( config_item[0], config_item[1].serialize() )
                 f.write( cfg_str )
             f.close()
@@ -281,7 +280,7 @@ class ConfigManager:
                 config_str = f.readline()
                 if not config_str: break
                 cfg_tok = config_str.split('=')
-                parm = self.config_params.get( cfg_tok[0].strip(), None )
+                parm = self.parameters.get( cfg_tok[0].strip(), None )
                 if parm: parm.initialize( cfg_tok[1] )
         except IOError:
             print>>sys.stderr, "Can't open config file: %s" % self.cfgFile                       
@@ -310,6 +309,16 @@ class ConfigManager:
         except Exception, err:
             print>>sys.stderr, "Can't save state data: ", str(err)
 
+    def getConfigurationState( self, param_name ):
+        parm = self.getParameter(param_name)
+        return parm.getValue( 'state' )
+
+    def getConfigurationData(self):
+        pdata = []
+        for cpi in self.parameters.items():
+            pdata.append( [ cpi[0], cpi[1].getValues() ] )
+        return pdata
+
     def restoreState( self ):
         try:
             state_file = open( self.stateFile, "r")
@@ -334,8 +343,8 @@ class ConfigManager:
         cp.restoreState( { 'state': 1 } )
         cp = self.getParameter( 'ZSlider' )
         cp.restoreState( { 'state': 1 } )
-                  
-    def getParameterMetadata( self ):
+
+    def getParameterMetadataFromFile( self ):
         try:
             parameter_mdata = [ ]
             parameter_file = open( self.cfgFile, "r")
@@ -350,6 +359,22 @@ class ConfigManager:
             print>>sys.stderr, "Can't read parameter metadata: ", str(err)
             
         return parameter_mdata
+                  
+    def getParameterList( self, var=None ):
+        if var <> None: 
+            from Application import getPlotFromVar
+            plot = getPlotFromVar( var, cm=self )
+        else:
+            from RectilinearGridPlot import RectGridPlot
+            from PointCloudViewer import CPCPlot
+            p1 = RectGridPlot(cm=self) 
+            p2 =  CPCPlot(cm=self)
+        parameter_list = set()
+        parameter_list.add( 'Configure' )
+        for cpi in self.parameters.items():
+             parameter_list.add( cpi[0] )  
+        print "Generated parameter_list: " , str( parameter_list )            
+        return parameter_list
         
     def initParameters(self):
         if not self.cfgDir:
@@ -360,12 +385,12 @@ class ConfigManager:
             self.cfgFile = os.path.join( self.cfgDir, "cpcConfig.txt" )
         else:
             self.readConfig()            
-        for config_item in self.config_params.items():
+        for config_item in self.parameters.items():
             self.ConfigCmd( ( "InitParm",  config_item[0], config_item[1] ) )
 
     def getParameterPersistenceList(self):
         plist = []
-        for cfg_item in self.config_params.items():
+        for cfg_item in self.parameters.items():
             key = cfg_item[0]
             cfg_spec = cfg_item[1].pack()
             plist.append( ( key, cfg_spec[1] ) )
@@ -374,12 +399,12 @@ class ConfigManager:
     def initialize( self, parm_name, parm_values ):
         if not ( isinstance(parm_values,list) or isinstance(parm_values,tuple) ):
             parm_values = [ parm_values ]
-        cfg_parm = self.config_params.get( parm_name, None )
+        cfg_parm = self.parameters.get( parm_name, None )
         if cfg_parm: cfg_parm.unpack( parm_values )
 
     def getPersistentParameterSpecs(self):
         plist = []
-        for cfg_item in self.config_params.items():
+        for cfg_item in self.parameters.items():
             key = cfg_item[0]
             values_decl = cfg_item[1].values_decl()
             plist.append( ( key, values_decl ) )
@@ -485,7 +510,14 @@ class ConfigParameter:
         return self.values.get( 'init', default_value )
 
     def setInitValue( self, value, update = False ):
-        self.setValue( 'init', value, update )
+        if type( value ) == dict:
+            for val_item in value.items():
+                self.setValue( val_item[0], val_item[1], update )
+        elif ( type( value ) == tuple ):
+            for val_item in value:
+                self.setInitValue( val_item, update )
+        else:
+            self.setValue( 'init', value, update )
 
     def setValue( self, key, val, update=False  ):
         self.values[ key ] = val
