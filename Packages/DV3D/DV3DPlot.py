@@ -198,8 +198,11 @@ class DV3DPlot():
     def getStateData(self, **args): 
         return self.cfgManager.getStateData()
 
+    def getStateData(self, **args): 
+        return self.buttonBarHandler.cfgManager.getStateData()
+
     def getConfigurationData(self, **args): 
-        return self.cfgManager.getConfigurationData( **args )
+        return self.buttonBarHandler.cfgManager.getConfigurationData()
             
     def processKeyPressHandler( self, key, eventArgs ):
 #        print " processKeyPress: ", str( key )
