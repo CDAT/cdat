@@ -1,10 +1,11 @@
+
 import vcs,numpy,cdms2,MV2,os,sys
 src=sys.argv[1]
 pth = os.path.join(os.path.dirname(src),"..")
 sys.path.append(pth)
 import checkimage
-
 x=vcs.init()
+
 x.setbgoutputdimensions(1200,1091,units="pixels")
 yx =x.createyxvsx()
 
@@ -24,19 +25,15 @@ data = """-11.14902417  -9.17390922  -7.29515002
                                      4.55749531   6.04921304   7.20744489   7.65294958""".split()
 data = numpy.array(data,dtype=numpy.float)
 data = MV2.array(data)
-
-data=MV2.masked_where(MV2.logical_and(data>-4,data<-2),data)
-
-#yx.datawc_x1 = 0
-#yx.datawc_x2 = 80
-##yx.datawc_y1 =-12 
-#yx.datawc_y2 = 12 
+yx.datawc_x1 = 0
+yx.datawc_x2 = 80
+yx.datawc_y1 =-12 
+yx.datawc_y2 = 12 
 
 
 x.plot(data,yx,bg=1)
-fnm = "test_vcs_1d_missing.png"
+fnm = "test_vcs_1D_datawc.png"
 x.png(fnm)
-
 print "fnm:",fnm
 print "src:",src
 ret = checkimage.check_result_image(fnm,src,0.05)

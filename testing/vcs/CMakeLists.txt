@@ -30,6 +30,12 @@ add_test(vcs_test_colorcells
   ${cdat_SOURCE_DIR}/testing/vcs/test_colorcells.py
   )
 
+add_test(vcs_test_load_json
+  ${CMAKE_INSTALL_PREFIX}/bin/python
+  ${cdat_SOURCE_DIR}/testing/vcs/test_load_json.py
+  ${cdat_SOURCE_DIR}/testing/vcs/test_json.json
+  )
+
 message(${CDAT_DOWNLOAD_SAMPLE_DATA} and ${CDAT_BUILD_MATPLOTLIB})
 
 #These test actually plot things need sample data
@@ -44,6 +50,16 @@ if (CDAT_BUILD_MATPLOTLIB)
     ${CMAKE_INSTALL_PREFIX}/bin/python
     ${cdat_SOURCE_DIR}/testing/vcs/test_infinity.py
     ${cdat_SOURCE_DIR}/testing/vcs/infinity.png
+    )
+  add_test(test_vcs_1D_datawc
+    ${CMAKE_INSTALL_PREFIX}/bin/python
+    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_1D_datawc.py
+    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_1D_datawc.png
+    )
+  add_test(test_vcs_1D_datawc_missing
+    ${CMAKE_INSTALL_PREFIX}/bin/python
+    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_1D_datawc_missing.py
+    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_1D_datawc_missing.png
     )
 
 #  if (CDAT_DOWNLOAD_SAMPLE_DATA)
@@ -70,6 +86,46 @@ if (CDAT_BUILD_MATPLOTLIB)
       --projection=-3
       --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_isofill_masked_-3_proj.png
       )
+    add_test(vcs_test_basic_isofill_masked_pol_proj_SH
+      ${CMAKE_INSTALL_PREFIX}/bin/python
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
+      --gm_type=isofill
+      --projection=-3
+      --lat1=-90
+      --lat2=0
+      --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_isofill_masked_-3_proj_SH.png
+      )
+    add_test(vcs_test_basic_isofill_masked_pol_proj_SH_-180_180
+      ${CMAKE_INSTALL_PREFIX}/bin/python
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
+      --gm_type=isofill
+      --projection=-3
+      --lat1=-90
+      --lat2=0
+      --lon1=-180
+      --lon2=180
+      --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_isofill_masked_-3_proj_SH_-180_180.png
+      )
+    add_test(vcs_test_basic_isofill_masked_pol_proj_SH_0_360
+      ${CMAKE_INSTALL_PREFIX}/bin/python
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
+      --gm_type=isofill
+      --projection=-3
+      --lat1=-90
+      --lat2=0
+      --lon1=0
+      --lon2=360
+      --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_isofill_masked_-3_proj_SH_0_360.png
+      )
+    add_test(vcs_test_basic_isofill_masked_pol_proj_NH
+      ${CMAKE_INSTALL_PREFIX}/bin/python
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
+      --gm_type=isofill
+      --projection=-3
+      --lat1=90
+      --lat2=0
+      --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_isofill_masked_-3_proj_NH.png
+      )
     add_test(vcs_test_basic_isofill_masked_aeqd_proj
       ${CMAKE_INSTALL_PREFIX}/bin/python
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
@@ -77,6 +133,11 @@ if (CDAT_BUILD_MATPLOTLIB)
       --mask
       --projection=aeqd
       --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_isofill_masked_aeqd_proj.png
+      )
+    add_test(vcs_test_isofill_patterns
+      ${CMAKE_INSTALL_PREFIX}/bin/python
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_patterns.py
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_patterns.png
       )
   #endif()
 endif()
