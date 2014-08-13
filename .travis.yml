@@ -13,6 +13,6 @@ script:
     - cd ..
     - mkdir _build
     - cd _build
-    - cmake ../uvcdat
+    - cmake ../uvcdat-devel
     - cmake -DCDAT_DISPLAY_LOG:BOOL=ON -DCDAT_BUILD_LEAN:BOOL=ON .
     - make -j4
