@@ -102,7 +102,7 @@ if (CDAT_BUILD_MATPLOTLIB)
     ${cdat_SOURCE_DIR}/testing/vcs/test_markers.png
     )
 
-#  if (CDAT_DOWNLOAD_SAMPLE_DATA)
+  if (CDAT_DOWNLOAD_SAMPLE_DATA)
     FOREACH(gm boxfill isofill isoline vector meshfill yxvsx xvsy xyvsy oned scatter)
       add_test(vcs_test_basic_${gm}
         ${CMAKE_INSTALL_PREFIX}/bin/python
@@ -248,6 +248,6 @@ if (CDAT_BUILD_MATPLOTLIB)
       ${cdat_SOURCE_DIR}/testing/vcs/test_aspect_ratio.py
       ${cdat_SOURCE_DIR}/testing/vcs/test_aspect_ratio.py
       )
-  #endif()
+  endif()
 endif()
 
