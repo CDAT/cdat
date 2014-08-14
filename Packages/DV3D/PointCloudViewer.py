@@ -507,12 +507,12 @@ class CPCPlot( DV3DPlot ):
             sliceParam.setValue( 'spos', [ axis_bounds[0], axis_bounds[2], axis_bounds[4] ] )
             sliceParam.setValue( 0, axis_bounds[0] )
             state = config_function.getState()
-            if state: self.cfgManager.initialized = True
+            if state: self.buttonBarHandler.cfgManager.initialized = True
         elif args and args[0] == "EndConfig":
             positions = sliceParam.getValue( 'spos' )
             positions[self.sliceAxisIndex] = sliceParam.getValue()
 #            print "Update slice value[%d]: %f " % ( self.sliceAxisIndex, sliceParam.getValue() )
-            sliceParam.setValue( 'spos', positions, True )            
+            sliceParam.setValue( 'spos', positions )            
             if self.setRenderMode( ProcessMode.HighRes ):            
                 self.execCurrentSlice( )       
         elif args and args[0] == "InitConfig":
@@ -562,8 +562,7 @@ class CPCPlot( DV3DPlot ):
             volumeThresholdRange.setValue( dvar, ivalue )
         elif args and args[0] == "EndConfig":
             if self.setRenderMode( ProcessMode.HighRes ):               
-                self.updateThresholding()
-            self.processConfigParameterChange( volumeThresholdRange )        
+                self.updateThresholding()        
         elif args and args[0] == "InitConfig":
             self.updateTextDisplay( config_function.label )
             dvar = self.defvar[0] if ( type(self.defvar) == list ) else self.defvar
@@ -634,7 +633,6 @@ class CPCPlot( DV3DPlot ):
                     pc =  self.getPointCloud()             
                     pc.setScalarRange( scalarRange.getValues() )  
                     pc.refresh(True) 
-                self.processConfigParameterChange( scalarRange )
         elif args and args[0] == "UpdateConfig": 
             value = args[2].GetValue()
             scalarRange.setValue( args[1], value )
@@ -806,7 +804,6 @@ class CPCPlot( DV3DPlot ):
                 pc =  self.getPointCloud()             
     #            pc.setScalarRange( scalarRange.getValues() )  
                 pc.refresh(True) 
-                self.processConfigParameterChange( pointSize )
                 self.render() 
         elif arg and arg[0] == "UpdateConfig": 
             value = arg[2].GetValue()
@@ -847,7 +844,6 @@ class CPCPlot( DV3DPlot ):
                 pc =  self.getPointCloud()             
                 pc.refresh(True) 
                 self.render() 
-            self.processConfigParameterChange( sliceProp )
         elif arg and arg[0] == "UpdateConfig": 
             resolution = arg[1]
             new_slice_width = arg[2].GetValue()
@@ -975,7 +971,6 @@ class CPCPlot( DV3DPlot ):
                 self.setRenderMode( ProcessMode.HighRes ) 
                 self.partitioned_point_cloud.generateSubset( spec=self.current_subset_specs, allow_processing=True )
                 self.render()  
-            self.processConfigParameterChange( oscale )
             
     def processOpacityGraphCommand(self, args=None ):
         colormapManager = self.getColormapManager()
@@ -1016,7 +1011,6 @@ class CPCPlot( DV3DPlot ):
                 self.partitioned_point_cloud.generateZScaling( spec=self.scaling_spec )
                 self.setRenderMode( ProcessMode.HighRes )
                 self.render() 
-            self.processConfigParameterChange( vscale )
         elif args and args[0] == "Init":
             ( xcenter, ycenter, xwidth, ywidth ) = self.point_cloud_overview.getCenter()
 #            val = config_function.initial_value[0]
