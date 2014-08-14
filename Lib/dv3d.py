@@ -8,7 +8,7 @@ import Canvas
 import VCS_validation_functions
 import AutoAPI
 import xmldocs
-import cdtime
+import cdtime, multiprocessing
 import vcs
 import DV3D
 from DV3D.ConfigurationFunctions import ConfigManager
@@ -36,6 +36,12 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
         value=VCS_validation_functions.checkOnOff(self,'axes',value)
         self._axes=value
     axes=property(_getaxes,_setaxes)
+
+    def _getNumCores(self):
+        return self.ncores
+    def _setNumCores(self, nc ):
+        self.ncores = nc
+    NumCores=property(_getNumCores,_setNumCores)
     
     def __init__(self, Gfdv3d_name, Gfdv3d_name_src='default'):
         if not isinstance(Gfdv3d_name,str):
@@ -50,11 +56,15 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
         else:
             self._axes="xyz"
 
-        self.cfgManager = ConfigManager()             
+        self.cfgManager = ConfigManager()  
+        self.ncores = multiprocessing.cpu_count()           
         self.addParameters()
             
         vcs.elements[self.g_name][Gfdv3d_name]=self
         print "Adding VCS element: %s %s " % ( self.g_name, Gfdv3d_name )
+                
+    def getStateData(self):
+        return self.cfgManager.getStateData()
 
     def getConfigurationData(self):
         return self.cfgManager.getConfigurationData()
