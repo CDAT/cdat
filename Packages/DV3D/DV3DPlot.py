@@ -577,10 +577,7 @@ class DV3DPlot():
     def processSurfacePlotCommand( self, args, config_function = None ):
         if args and args[0] == "Init":
             state = config_function.getState()
-            if state: self.cfgManager.initialized = True 
-            if config_function.initial_value <> None:
-                config_function.setState( config_function.initial_value[0] ) 
-                self.toggleIsosurfaceVisibility( args, config_function )  
+            if state: self.buttonBarHandler.cfgManager.initialized = True 
         elif args and args[0] == "InitConfig": 
             self.toggleIsosurfaceVisibility( args, config_function ) 
             self.processConfigStateChange( config_function.value )
@@ -588,10 +585,7 @@ class DV3DPlot():
     def processVolumePlotCommand( self, args, config_function = None ):
         if args and args[0] == "Init":
             state = config_function.getState()
-            if state: self.cfgManager.initialized = True 
-            if config_function.initial_value <> None:
-                config_function.setState( config_function.initial_value[0] ) 
-                self.toggleVolumeVisibility( args, config_function )  
+            if state: self.buttonBarHandler.cfgManager.initialized = True 
         elif args and args[0] == "InitConfig": 
             self.toggleVolumeVisibility( args, config_function )  
             self.processConfigStateChange( config_function.value )

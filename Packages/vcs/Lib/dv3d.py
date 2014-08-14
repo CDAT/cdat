@@ -61,21 +61,9 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
             
         vcs.elements[self.g_name][Gfdv3d_name]=self
         print "Adding VCS element: %s %s " % ( self.g_name, Gfdv3d_name )
-        
-    def setProvenanceHandler(self, provenanceHandler ):
-        self.provenanceHandler = provenanceHandler
                 
     def getStateData(self):
         return self.cfgManager.getStateData()
-
-    def getConfigurationData( self, **args ):
-        return self.cfgManager.getConfigurationData( **args )
-
-    def getConfigurationParms(self, **args): 
-        return self.cfgManager.getConfigurationParms( **args )
-    
-    def getConfigurationState( self, pname, **args ):
-        return self.cfgManager.getConfigurationState( pname, **args )
 
     def getConfigurationData(self):
         return self.cfgManager.getConfigurationData()
