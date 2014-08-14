@@ -253,8 +253,8 @@ class CPCPlot( DV3DPlot ):
         
     def toggleRenderMode( self ):     
         new_render_mode = ( self.render_mode + 1 ) % 2 
-        self.setRenderMode( new_render_mode )
-        self.render()
+        if self.setRenderMode( new_render_mode ):
+            self.render()
         
     def getPointCloud( self, ires = -1 ):
         if ires == -1: ires = self.render_mode
@@ -269,8 +269,8 @@ class CPCPlot( DV3DPlot ):
     def setRenderMode( self, render_mode ): 
         modes = [ 'lowres', 'highres' ]
         if (render_mode == ProcessMode.HighRes):
-            if ( self.partitioned_point_cloud == None ): return 
-            if not self.partitioned_point_cloud.hasActiveCollections(): return            
+            if ( self.partitioned_point_cloud == None ): return False 
+            if not self.partitioned_point_cloud.hasActiveCollections(): return False           
         self.render_mode = render_mode    
         if render_mode ==  ProcessMode.HighRes:
             self.deactivate_low_res_actor = True
@@ -280,6 +280,7 @@ class CPCPlot( DV3DPlot ):
 #            self.refreshPointSize()
             self.deactivate_low_res_actor = False
             self.low_res_actor.VisibilityOn()  
+        return True
             
     def getSphere(self):
         if self.sphere_source == None:
@@ -503,13 +504,15 @@ class CPCPlot( DV3DPlot ):
             sliceParam.setValue( 'bounds', [ [ axis_bounds[0], axis_bounds[1] ], [ axis_bounds[2], axis_bounds[3] ], [ axis_bounds[4], axis_bounds[5] ] ] )
             sliceParam.setValue( 'spos', [ axis_bounds[0], axis_bounds[2], axis_bounds[4] ] )
             sliceParam.setValue( 0, axis_bounds[0] )
+            state = config_function.getState()
+            if state: self.buttonBarHandler.cfgManager.initialized = True
         elif args and args[0] == "EndConfig":
             positions = sliceParam.getValue( 'spos' )
             positions[self.sliceAxisIndex] = sliceParam.getValue()
 #            print "Update slice value[%d]: %f " % ( self.sliceAxisIndex, sliceParam.getValue() )
             sliceParam.setValue( 'spos', positions )            
-            self.setRenderMode( ProcessMode.HighRes )            
-            self.execCurrentSlice( )       
+            if self.setRenderMode( ProcessMode.HighRes ):            
+                self.execCurrentSlice( )       
         elif args and args[0] == "InitConfig":
             if (len(args) > 1) and args[1]:
                 self.clearSubsetting()
@@ -548,14 +551,16 @@ class CPCPlot( DV3DPlot ):
                 self.enableThresholding(volumeThresholdRange)        
         elif args and args[0] == "Init":
             init_range = self.point_cloud_overview.getValueRange()
+            init_value = volumeThresholdRange.getInitValue()
             config_function.setRangeBounds(  init_range   )
-            config_function.initial_value = init_range  
-            volumeThresholdRange.setValues( init_range )
             dvar = self.defvar[0] if ( type(self.defvar) == list ) else self.defvar
-            volumeThresholdRange.setValue( dvar, init_range )
+            ivalue = init_range if init_value is None else init_value
+            config_function.initial_value = ivalue  
+            volumeThresholdRange.setValues( ivalue )
+            volumeThresholdRange.setValue( dvar, ivalue )
         elif args and args[0] == "EndConfig":
-            self.setRenderMode( ProcessMode.HighRes )                
-            self.updateThresholding()        
+            if self.setRenderMode( ProcessMode.HighRes ):               
+                self.updateThresholding()        
         elif args and args[0] == "InitConfig":
             self.updateTextDisplay( config_function.label )
             dvar = self.defvar[0] if ( type(self.defvar) == list ) else self.defvar
@@ -569,10 +574,10 @@ class CPCPlot( DV3DPlot ):
         elif args and args[0] == "Close":
             isOK = args[1] if ( len( args ) > 1 ) else True
             if self.render_mode == ProcessMode.LowRes:
-                self.setRenderMode( ProcessMode.HighRes )
-                dvar = self.defvar[0] if ( type(self.defvar) == list ) else self.defvar
-                if isOK: self.updateThresholding( dvar, volumeThresholdRange.getValue( dvar) )                
-                self.render()
+                if self.setRenderMode( ProcessMode.HighRes ):
+                    dvar = self.defvar[0] if ( type(self.defvar) == list ) else self.defvar
+                    if isOK: self.updateThresholding( dvar, volumeThresholdRange.getValue( dvar) )                
+                    self.render()
         elif args and args[0] == "UpdateConfig":
             if ( self.cmdSkipIndex % self.cmdSkipFactor ) == 0:
                 value = args[2].GetValue()
@@ -603,11 +608,13 @@ class CPCPlot( DV3DPlot ):
         scalarRange = config_function.value
         if args and args[0] == "Init":
             init_range = self.point_cloud_overview.getValueRange()
-            config_function.initial_value = init_range
+            init_value = scalarRange.getInitValue()
             config_function.setRangeBounds(  init_range )
-            self.point_cloud_overview.setScalarRange( init_range ) 
-            self.setColorbarRange( init_range ) 
-            scalarRange.setValues( init_range )            
+            ivalue = init_range if init_value is None else init_value
+            config_function.initial_value = ivalue
+            self.point_cloud_overview.setScalarRange( ivalue ) 
+            self.setColorbarRange( ivalue ) 
+            scalarRange.setValues( ivalue )            
         elif  args and args[0] == "InitConfig":
             self.updateTextDisplay( config_function.label )
         elif args and args[0] == "StartConfig":
@@ -620,10 +627,10 @@ class CPCPlot( DV3DPlot ):
         elif args and args[0] == "EndConfig":
             if self.render_mode ==  ProcessMode.LowRes:
                 print " Color Scale End Config "      
-                self.setRenderMode( ProcessMode.HighRes ) 
-                pc =  self.getPointCloud()             
-                pc.setScalarRange( scalarRange.getValues() )  
-                pc.refresh(True) 
+                if self.setRenderMode( ProcessMode.HighRes ):
+                    pc =  self.getPointCloud()             
+                    pc.setScalarRange( scalarRange.getValues() )  
+                    pc.refresh(True) 
         elif args and args[0] == "UpdateConfig": 
             value = args[2].GetValue()
             scalarRange.setValue( args[1], value )
@@ -780,22 +787,22 @@ class CPCPlot( DV3DPlot ):
                 self.updateTextDisplay( config_function.label )
         elif arg[0] == 'StartConfig':
             render_mode = arg[1]
-            self.setRenderMode( render_mode )
-            if render_mode == ProcessMode.HighRes: 
-                if self.partitioned_point_cloud:
-                    self.partitioned_point_cloud.refresh(True)
-            else:
-#                self.point_cloud_overview.setScalarRange( scalarRange.getValues() ) 
-                if self.partitioned_point_cloud:
-                    self.update_subset_specs(  self.partitioned_point_cloud.getSubsetSpecs()  )          
-                    self.point_cloud_overview.generateSubset( spec=self.current_subset_specs )
+            if self.setRenderMode( render_mode ):
+                if render_mode == ProcessMode.HighRes: 
+                    if self.partitioned_point_cloud:
+                        self.partitioned_point_cloud.refresh(True)
+                else:
+    #                self.point_cloud_overview.setScalarRange( scalarRange.getValues() ) 
+                    if self.partitioned_point_cloud:
+                        self.update_subset_specs(  self.partitioned_point_cloud.getSubsetSpecs()  )          
+                        self.point_cloud_overview.generateSubset( spec=self.current_subset_specs )
             self.render()
         elif arg[0] == 'EndConfig':
-            self.setRenderMode( ProcessMode.HighRes )
-            pc =  self.getPointCloud()             
-#            pc.setScalarRange( scalarRange.getValues() )  
-            pc.refresh(True) 
-            self.render() 
+            if self.setRenderMode( ProcessMode.HighRes ):
+                pc =  self.getPointCloud()             
+    #            pc.setScalarRange( scalarRange.getValues() )  
+                pc.refresh(True) 
+                self.render() 
         elif arg and arg[0] == "UpdateConfig": 
             value = arg[2].GetValue()
             resolution = arg[1]
@@ -831,11 +838,10 @@ class CPCPlot( DV3DPlot ):
                     self.point_cloud_overview.generateSubset( spec=self.current_subset_specs )
             self.render()
         elif arg[0] == 'EndConfig':
-            self.setRenderMode( ProcessMode.HighRes )
-            pc =  self.getPointCloud()             
-#            pc.setScalarRange( scalarRange.getValues() )  
-            pc.refresh(True) 
-            self.render() 
+            if self.setRenderMode( ProcessMode.HighRes ):
+                pc =  self.getPointCloud()             
+                pc.refresh(True) 
+                self.render() 
         elif arg and arg[0] == "UpdateConfig": 
             resolution = arg[1]
             new_slice_width = arg[2].GetValue()
@@ -933,9 +939,13 @@ class CPCPlot( DV3DPlot ):
         oscale = config_function.value
         oval = list( oscale.getValues() )
         if args[0] == "Init":
-            ival = config_function.initial_value
+            default_val = config_function.initial_value
+            init_value = oscale.getInitValue()
+            ivalue = default_val if init_value is None else init_value           
             colormapManager = self.getColormapManager()
-            colormapManager.setAlphaRange( ival )
+            colormapManager.setAlphaRange( ivalue )
+                 
+
 #            print "Set alpha init: ", str( ival )
         if args[0] == "InitConfig":
             self.updateTextDisplay( config_function.label )
@@ -954,10 +964,11 @@ class CPCPlot( DV3DPlot ):
             self.setRenderMode( ProcessMode.LowRes ) 
             self.point_cloud_overview.generateSubset( spec=self.current_subset_specs )
             self.cmdSkipIndex = 0  
-        elif args[0] == "EndConfig":            
-            self.setRenderMode( ProcessMode.HighRes ) 
-            self.partitioned_point_cloud.generateSubset( spec=self.current_subset_specs, allow_processing=True )
-            self.render()  
+        elif args[0] == "EndConfig":
+            if not self.partitioned_point_cloud is None:            
+                self.setRenderMode( ProcessMode.HighRes ) 
+                self.partitioned_point_cloud.generateSubset( spec=self.current_subset_specs, allow_processing=True )
+                self.render()  
             
     def processOpacityGraphCommand(self, args=None ):
         colormapManager = self.getColormapManager()
@@ -996,15 +1007,17 @@ class CPCPlot( DV3DPlot ):
             self.scaling_spec = ( self.vertVar, vscale.getValue() )
             if self.partitioned_point_cloud:
                 self.partitioned_point_cloud.generateZScaling( spec=self.scaling_spec )
-            self.setRenderMode( ProcessMode.HighRes )
-            self.render() 
+                self.setRenderMode( ProcessMode.HighRes )
+                self.render() 
         elif args and args[0] == "Init":
             ( xcenter, ycenter, xwidth, ywidth ) = self.point_cloud_overview.getCenter()
 #            val = config_function.initial_value[0]
             vscale_val = ( xwidth + ywidth )/500.0
             config_function.setRangeBounds( [ vscale_val/5.0, vscale_val*5.0 ] )
-            vscale.setValues( [ vscale_val ] ) 
-            self.scaling_spec = ( self.vertVar, vscale_val )
+            init_value = vscale.getInitValue()
+            vscale_ival = vscale_val if  ( init_value is None ) else init_value
+            vscale.setValues( [ vscale_ival ] ) 
+            self.scaling_spec = ( self.vertVar, vscale_ival )
             self.skipIndex = 5
         elif args and args[0] == "InitConfig":
             self.updateTextDisplay( config_function.label )                      

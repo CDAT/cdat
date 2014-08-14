@@ -340,11 +340,14 @@ class VTKVCSBackend(object):
     if gtype in ["boxfill","meshfill","isofill","isoline"]:      
       self.plot2D(data1,data2,tpl,gm,ren)
     elif gtype in ["3d_scalar", "3d_vector"]:
-      cdmsvar = kargs.get( 'cdmsvar', None )
-      if not cdmsvar is None:
-          gm.addPlotAttribute( 'file', cdmsvar.file )
-          gm.addPlotAttribute( 'filename', cdmsvar.filename )
-          gm.addPlotAttribute( 'url', cdmsvar.url )
+      cdms_file = kargs.get( 'cdmsfile', None )
+      cdms_var = kargs.get( 'cdmsvar', None )
+      if not cdms_var is None:
+          raise Exception()
+      if not cdms_file is None:
+          gm.addPlotAttribute( 'file', cdms_file )
+          gm.addPlotAttribute( 'filename', cdms_file )
+          gm.addPlotAttribute( 'url', cdms_file )
       self.plot3D(data1,data2,tpl,gm,ren)
     elif gtype in ["text"]:
       if tt.priority!=0:
@@ -492,7 +495,7 @@ class VTKVCSBackend(object):
           var_proc_op = None
           interface = None
           roi = None # ( 0, 0, 50, 50 )
-          g.gminit( data1, data2, roi=roi, axes=gm.axes, n_overview_points=n_overview_points, renwin=ren.GetRenderWindow(), gmname=gm.g_name, cm=gm.cfgManager  ) #, plot_type = PlotType.List  ) 
+          g.gminit( data1, data2, roi=roi, axes=gm.axes, n_overview_points=n_overview_points, n_cores=gm.NumCores, renwin=ren.GetRenderWindow(), plot_attributes=gm.getPlotAttributes(), gmname=gm.g_name, cm=gm.cfgManager  ) #, plot_type = PlotType.List  ) 
           self.plotApps[ gm ] = g
           self.plotRenderers.add( g.plot.renderer )
       else:
