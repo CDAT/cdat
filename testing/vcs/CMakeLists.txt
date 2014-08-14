@@ -41,6 +41,15 @@ add_test(vcs_test_read_yx_scr
   ${cdat_SOURCE_DIR}/testing/vcs/test_readyx_scr.py
   ${cdat_SOURCE_DIR}/testing/vcs/read_yxvsx.scr
   )
+add_test(vcs_test_queries
+  ${CMAKE_INSTALL_PREFIX}/bin/python
+  ${cdat_SOURCE_DIR}/testing/vcs/test_queries.py
+  )
+add_test(vcs_test_dump_json
+  ${CMAKE_INSTALL_PREFIX}/bin/python
+  ${cdat_SOURCE_DIR}/testing/vcs/test_dump_json.py
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_dump_json.json
+  )
 
 message(${CDAT_DOWNLOAD_SAMPLE_DATA} and ${CDAT_BUILD_MATPLOTLIB})
 
@@ -71,6 +80,26 @@ if (CDAT_BUILD_MATPLOTLIB)
     ${CMAKE_INSTALL_PREFIX}/bin/python
     ${cdat_SOURCE_DIR}/testing/vcs/test_wmo_w07_marker.py
     ${cdat_SOURCE_DIR}/testing/vcs/wmo_marker.png
+    )
+  add_test(vcs_test_wmo_markers
+    ${CMAKE_INSTALL_PREFIX}/bin/python
+    ${cdat_SOURCE_DIR}/testing/vcs/test_wmo_markers.py
+    ${cdat_SOURCE_DIR}/testing/vcs/wmo_markers.png
+    )
+  add_test(vcs_test_iso_celine_part1
+    ${CMAKE_INSTALL_PREFIX}/bin/python
+    ${cdat_SOURCE_DIR}/testing/vcs/test_celine_iso_bug.py
+    ${cdat_SOURCE_DIR}/testing/vcs/test_celine_iso.png
+    )
+  add_test(vcs_test_iso_celine_part2
+    ${CMAKE_INSTALL_PREFIX}/bin/python
+    ${cdat_SOURCE_DIR}/testing/vcs/test_celine_iso_bug_part2.py
+    ${cdat_SOURCE_DIR}/testing/vcs/test_celine_iso_2.png
+    )
+  add_test(vcs_test_markers
+    ${CMAKE_INSTALL_PREFIX}/bin/python
+    ${cdat_SOURCE_DIR}/testing/vcs/test_markers.py
+    ${cdat_SOURCE_DIR}/testing/vcs/test_markers.png
     )
 
 #  if (CDAT_DOWNLOAD_SAMPLE_DATA)
@@ -209,6 +238,16 @@ if (CDAT_BUILD_MATPLOTLIB)
         )
      ENDFOREACH(ptype)
     ENDFOREACH(gm)
+    add_test(vcs_test_first_png_blank
+      ${CMAKE_INSTALL_PREFIX}/bin/python
+      ${cdat_SOURCE_DIR}/testing/vcs/test_first_png_blank.py
+      ${cdat_SOURCE_DIR}/testing/vcs/first_png_blank.png
+      )
+    add_test(vcs_test_aspect_ratio
+      ${CMAKE_INSTALL_PREFIX}/bin/python
+      ${cdat_SOURCE_DIR}/testing/vcs/test_aspect_ratio.py
+      ${cdat_SOURCE_DIR}/testing/vcs/test_aspect_ratio.py
+      )
   #endif()
 endif()
 

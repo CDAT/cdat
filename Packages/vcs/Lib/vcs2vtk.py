@@ -246,7 +246,6 @@ def project(pts,projection,wc):
     
   pd.SetName(projName)
   if projection.type == "polar (non gctp)":
-    print "OK RANGE:",ym,yM
     if ym<yM:
       pd.SetOptionalParameter("lat_0","-90.")
       pd.SetCentralMeridian(xm)
@@ -783,7 +782,7 @@ def prepMarker(renWin,ren,marker,cmap=None):
       elif t[9]=="u":
         gs.SetRotationAngle(0)
     elif t == "hurricane":
-      s =s/100.
+      s =s/10.
       ds = vtk.vtkDiskSource()
       ds.SetInnerRadius(.55*s)
       ds.SetOuterRadius(1.01*s)

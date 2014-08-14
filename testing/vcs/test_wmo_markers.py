@@ -1,4 +1,8 @@
-import vcs
+import vcs,numpy,cdms2,MV2,os,sys
+src=sys.argv[1]
+pth = os.path.join(os.path.dirname(src),"..")
+sys.path.append(pth)
+import checkimage
 
 wmo = ['w00', 'w01', 'w02', 'w03', 'w04', 'w05', 'w06', 'w07', 'w08', 'w09',
        'w10', 'w11', 'w12', 'w13', 'w14', 'w15', 'w16', 'w17', 'w18', 'w19',
@@ -11,8 +15,6 @@ wmo = ['w00', 'w01', 'w02', 'w03', 'w04', 'w05', 'w06', 'w07', 'w08', 'w09',
        'w80', 'w81', 'w82', 'w83', 'w84', 'w85', 'w86', 'w87', 'w88', 'w89',
        'w90', 'w91', 'w92', 'w93', 'w94', 'w95', 'w96', 'w97', 'w98', 'w99',
        'w100', 'w101', 'w102']
-
-print len(wmo)
 
 x=vcs.init()
 
@@ -31,8 +33,13 @@ for Y in range(7):
 m.x = xs
 m.y = ys
 m.list()
-x.plot(m)
-x.png('wmo_marker')
+x.plot(m,bg=1)
+fnm = "wmo_markers.png"
+x.png(fnm)
 
-raw_input()
+
+print "fnm:",fnm
+print "src:",src
+ret = checkimage.check_result_image(fnm,src,0.05)
+sys.exit(ret)
 
