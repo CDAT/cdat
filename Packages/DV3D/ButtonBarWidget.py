@@ -65,6 +65,8 @@ class Button:
         self.buttonWidget.AddObserver( 'StateChangedEvent', self.processStateChangeEvent )
         self.buttonRepresentation.Highlight( self._state )
         self.updateWidgetState()
+#         if self.id == 'ToggleVolumePlot':
+#             print "."
 
     def getState(self):
         return self._state
@@ -74,6 +76,9 @@ class Button:
         self.PrivateStateChangedSignal( value )
 #        print "----------------->>> Button [%s] Setting state = %s " % ( self.id, str(value) )
         self.updateWidgetState()
+        
+#         if self.id == 'ToggleVolumePlot':
+#             print "."
 #         if value == 1:
 #             print "."
         
@@ -187,7 +192,7 @@ class Button:
         return self.image_size
     
     def On(self):
-        if self.active: 
+        if self.active:
             self.buttonWidget.On()
 
     def Off(self):

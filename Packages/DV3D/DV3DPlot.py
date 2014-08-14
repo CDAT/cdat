@@ -529,11 +529,17 @@ class DV3DPlot():
         bbar.build()
  
     def processSurfacePlotCommand( self, args, config_function = None ):
-        if args and args[0] == "InitConfig": 
+        if args and args[0] == "Init":
+            state = config_function.getState()
+            if state: self.buttonBarHandler.cfgManager.initialized = True 
+        elif args and args[0] == "InitConfig": 
             self.toggleIsosurfaceVisibility( args, config_function ) 
 
     def processVolumePlotCommand( self, args, config_function = None ):
-        if args and args[0] == "InitConfig": 
+        if args and args[0] == "Init":
+            state = config_function.getState()
+            if state: self.buttonBarHandler.cfgManager.initialized = True 
+        elif args and args[0] == "InitConfig": 
             self.toggleVolumeVisibility( args, config_function )  
     
     def fetchPlotButtons( self, show = False ):
