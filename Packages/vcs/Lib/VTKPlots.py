@@ -571,10 +571,11 @@ class VTKVCSBackend(object):
     if isinstance(gm,boxfill.Gfb) and gm.boxfill_type=="log10":
         data1=numpy.ma.log10(data1)
     data = VN.numpy_to_vtk(data1.filled(0.).flat,deep=True)
-    if ug.IsA("vtkUnstructuredGrid"):
-        ug.GetCellData().SetScalars(data)
-    else:
-        ug.GetPointData().SetScalars(data)
+    ug.GetCellData().SetScalars(data)
+    #if ug.IsA("vtkUnstructuredGrid"):
+    #    ug.GetCellData().SetScalars(data)
+    #else:
+    #    ug.GetPointData().SetScalars(data)
     
     try:
       cmap = vcs.elements["colormap"][cmap]
@@ -592,14 +593,16 @@ class VTKVCSBackend(object):
     legend = None
     if isinstance(gm,(meshfill.Gfm,boxfill.Gfb)):
       geoFilter = vtk.vtkGeometryFilter()
-      if ug.IsA("vtkUnstructuredGrid"):
-        print "YES WE DO COME IN HERE"
-        geoFilter.SetInputData(ug)
-      else:
-          p2c = vtk.vtkPointDataToCellData()
-          p2c.SetInputData(ug)
-          geoFilter = vtk.vtkDataSetSurfaceFilter()
-          geoFilter.SetInputConnection(p2c.GetOutputPort())
+      geoFilter.SetInputData(ug)
+      #if ug.IsA("vtkUnstructuredGrid"):
+      #  geoFilter.SetInputData(ug)
+      #else:
+      #    vcs2vtk.dump2VTK(ug,"aashish_ug")
+      #    p2c = vtk.vtkPointDataToCellData()
+      #    p2c.SetInputData(ug)
+      #    vcs2vtk.dump2VTK(p2c,"aashish_p2c")
+      #    geoFilter = vtk.vtkDataSetSurfaceFilter()
+      #    geoFilter.SetInputConnection(p2c.GetOutputPort())
       geoFilter.Update()
 
     if isinstance(gm,(isofill.Gfi,isoline.Gi,meshfill.Gfm)) or \

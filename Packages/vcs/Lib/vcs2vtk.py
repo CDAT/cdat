@@ -94,6 +94,7 @@ def genGrid(data1,data2,gm):
       ## ??? TODO ??? when 3D use CUBE?
       vg.InsertNextCell(vtk.VTK_QUAD,lst)
   else:
+    print "DO WE COME HERE",g,g is None,type(g)
     #Ok a simple structured grid is enough
     vg = vtk.vtkStructuredGrid()
     if g is not None:
@@ -103,14 +104,41 @@ def genGrid(data1,data2,gm):
       continents = True
       wrap = [0.,360.]
       if not isinstance(g,cdms2.hgrid.AbstractCurveGrid):
-        lat = lat[:,numpy.newaxis]*numpy.ones(lon.shape)[numpy.newaxis,:]
-        lon = lon[numpy.newaxis,:]*numpy.ones(lat.shape)[:,numpy.newaxis]
+        blat = lat.getBounds()
+        blon = lon.GetBounds()
+        lat2 = numpy.zeros(len(lat)+1)
+        lat2[:len(lat)]=blat[:][0]
+        lat2[len(lat2)]=blat[-1][1]
+        lon2 = numpy.zeros(len(lon)+1)
+        lon2[:len(lat)]=blat[:][0]
+        lon2[len(lat2)]=blat[-1][1]
+        lat = lat2[:,numpy.newaxis]*numpy.ones(lon2.shape)[numpy.newaxis,:]
+        lon = lon2[numpy.newaxis,:]*numpy.ones(lat2.shape)[:,numpy.newaxis]
+        print "LON SHAPE:",lon.shape
     else:
+      print "yes i come here"
       data1=cdms2.asVariable(data1)
       lon=data1.getAxis(-1)[:]
       lat=data1.getAxis(-2)[:]
-      lat = lat[:,numpy.newaxis]*numpy.ones(lon.shape)[numpy.newaxis,:]
-      lon = lon[numpy.newaxis,:]*numpy.ones(lat.shape)[:,numpy.newaxis]
+      lat2 = numpy.zeros(len(lat)+1)
+      lon2 = numpy.zeros(len(lon)+1)
+      try:
+        blat = lat.getBounds()
+        blon = lon.GetBounds()
+        lat2[:len(lat)]=blat[:][0]
+        lat2[len(lat2)]=blat[-1][1]
+        lon2[:len(lat)]=blat[:][0]
+        lon2[len(lat2)]=blat[-1][1]
+      except:
+        lat2[1:-1]=(lat[:-1]+lat[1:])/2.
+        lat2[0]=lat[0]-(lat[1]-lat[0])/2.
+        lat2[-1]=lat[-1]+(lat[-1]-lat[-2])/2.
+        lon2[1:-1]=(lon[:-1]+lon[1:])/2.
+        lon2[0]=lon[0]-(lon[1]-lon[0])/2.
+        lon2[-1]=lat[-1]+(lat[-1]-lat[-2])/2.
+      lat = lat2[:,numpy.newaxis]*numpy.ones(lon2.shape)[numpy.newaxis,:]
+      lon = lon2[numpy.newaxis,:]*numpy.ones(lat2.shape)[:,numpy.newaxis]
+      print "LON SHAPE:",lon.shape
     vg.SetDimensions(lat.shape[1],lat.shape[0],1)
     lon = numpy.ma.ravel(lon)
     lat = numpy.ma.ravel(lat)
