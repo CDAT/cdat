@@ -46,7 +46,7 @@ class StructuredGridPlot(DV3DPlot):
             self.setZScale( config_function.initial_value )
             verticalScale.setValue( 'count', 1 )
         elif args and args[0] == "EndConfig":
-            pass
+            self.processConfigParameterChange( verticalScale )
         elif args and args[0] == "InitConfig":
             self.updateTextDisplay( config_function.label )
             bbar = self.getInteractionButtons()

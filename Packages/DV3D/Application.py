@@ -18,8 +18,9 @@ def getPlotFromVar( var, **args ):
 
 class DV3DApp:
     
-    def __init__( self, **args ):
+    def __init__( self, canvas, **args ):
         self.plot = None
+        self.canvas = canvas
     
     
 #     def init(self, **args ):
@@ -48,12 +49,14 @@ class DV3DApp:
             if self.plot == None:
                 self.plot = RectGridPlot(**args) 
                 self.plot.gminit( var1, var2, **args )
+                self.plot.ParameterValueChanged.connect(self.canvas.processParameterChange)
             else:
                 self.plot.updateModule() 
         else:
             if self.plot == None:
                 self.plot = CPCPlot(**args) 
                 self.plot.gminit( var1, var2, **args  ) 
+                self.plot.ParameterValueChanged.connect(self.canvas.processParameterChange)
             else:
                 self.plot.updateModule() 
 

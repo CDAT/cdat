@@ -42,6 +42,7 @@ import unified1D
 import displayplot
 import vtk
 from VTKPlots import VTKVCSBackend
+from weakref import WeakSet, WeakKeyDictionary
 import time
 
 #import animationgui as _animationgui
@@ -59,7 +60,7 @@ import sys
 import random
 import genutil
 from cdms2.grid import AbstractRectGrid
-import shutil
+import shutil, inspect
 import VCS_validation_functions
 import AutoAPI
 from xmldocs import plot_keywords_doc,graphics_method_core,axesconvert,xaxisconvert,yaxisconvert, plot_1D_input, plot_2D_input, plot_output, plot_2_1D_input, create_GM_input, get_GM_input, boxfill_output, isofill_output, isoline_output, yxvsx_output, xyvsy_output, xvsy_output, scatter_output, outfill_output, outline_output, plot_2_1D_options
@@ -71,6 +72,44 @@ canvas_closed = 0
 import vcsaddons
 import vcs.manageElements
 
+class SIGNAL(object):
+    
+    def __init__( self, name = None ):
+        self._functions = WeakSet()
+        self._methods = WeakKeyDictionary()
+        self._name = name
+
+    def __call__(self, *args, **kargs):
+        # Call handler functions
+        for func in self._functions:
+            func(*args, **kargs)
+
+        # Call handler methods
+        for obj, funcs in self._methods.items():
+            for func in funcs:
+                func(obj, *args, **kargs)
+
+    def connect(self, slot):
+        if inspect.ismethod(slot):
+            if slot.__self__ not in self._methods:
+                self._methods[slot.__self__] = set()
+
+            self._methods[slot.__self__].add(slot.__func__)
+
+        else:
+            self._functions.add(slot)
+
+    def disconnect(self, slot):
+        if inspect.ismethod(slot):
+            if slot.__self__ in self._methods:
+                self._methods[slot.__self__].remove(slot.__func__)
+        else:
+            if slot in self._functions:
+                self._functions.remove(slot)
+
+    def clear(self):
+        self._functions.clear()
+        self._methods.clear()
 
 def dictionarytovcslist(dictionary,name):
     for k in dictionary.keys():
@@ -313,7 +352,7 @@ class Canvas(object,AutoAPI.AutoAPI):
         'size',
         'canvas_guianimate_info',
         ]
-    
+        
 #     def applicationFocusChanged(self, old, current ):
 #         self.backend.applicationFocusChanged()
         
@@ -806,6 +845,7 @@ class Canvas(object,AutoAPI.AutoAPI):
         #############################################################################
 
         self._canvas_id = vcs.next_canvas_id
+        self.ParameterChanged = SIGNAL( 'ParameterChanged' )
         vcs.next_canvas_id+=1
         self.colormap = "default"
         self.backgroundcolor = 255,255,255
@@ -913,11 +953,15 @@ class Canvas(object,AutoAPI.AutoAPI):
         self._user_actions_names=['Clear Canvas','Close Canvas','Show arguments passsed to user action']
         self._user_actions = [self.clear, self.close, self.dummy_user_action]
 
+    def processParameterChange( self, args ):
+        self.ParameterChanged( args )
+
     #############################################################################
     #                                                                           #
     # Update wrapper function for VCS.                                          #
     #                                                                           #
     #############################################################################
+                   
     def update(self, *args, **kargs):
         """
  Function: update                   # Update the VCS Canvas.

@@ -525,6 +525,10 @@ class ConfigParameter:
         if update: 
             args1 = [  self.ptype, key, val, self.name]
             self.ValueChanged( args1 )
+            
+    def signalUpdate( self ):
+        args = [  self.ptype, self.getValues(), self.name]
+        self.ValueChanged( args )
 
     def setValues( self, values, update=False  ):
         for key,value in enumerate( values ):

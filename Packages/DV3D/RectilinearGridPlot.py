@@ -181,7 +181,7 @@ class RectGridPlot(StructuredGridPlot):
             self.setOpacity( config_function.initial_value )
             self.adjustOpacity( config_function.initial_value )
         elif args and args[0] == "EndConfig":
-            pass
+            self.processConfigParameterChange( opacityRange )
         elif args and args[0] == "InitConfig":
             self.updateTextDisplay( config_function.label )
             bbar = self.getInteractionButtons()
@@ -210,7 +210,7 @@ class RectGridPlot(StructuredGridPlot):
             self.generateCTF( config_function.initial_value )
             colorScaleRange.setValues( config_function.initial_value )
         elif args and args[0] == "EndConfig":
-            pass
+            self.processConfigParameterChange( colorScaleRange )
         elif args and args[0] == "InitConfig":
             self.updateTextDisplay( config_function.label )
             bbar = self.getInteractionButtons()
@@ -244,7 +244,7 @@ class RectGridPlot(StructuredGridPlot):
             self.setIsosurfaceLevel( config_function.initial_value ) 
             isosurfaceValue.setValues( [ config_function.initial_value ] )
         elif args and args[0] == "EndConfig":
-            pass
+            self.processConfigParameterChange( isosurfaceValue )
         elif args and args[0] == "InitConfig":
             self.updateTextDisplay( config_function.label )
             bbar = self.getInteractionButtons()
@@ -270,7 +270,7 @@ class RectGridPlot(StructuredGridPlot):
             self.generateOTF( config_function.initial_value )
             volumeThresholdRange.setValues( config_function.initial_value )
         elif args and args[0] == "EndConfig":
-            pass
+            self.processConfigParameterChange( volumeThresholdRange )
         elif args and args[0] == "InitConfig":
             self.updateTextDisplay( config_function.label )
             bbar = self.getInteractionButtons()
@@ -307,6 +307,7 @@ class RectGridPlot(StructuredGridPlot):
                 self.ProcessIPWAction( plane_widget, ImagePlaneWidget.InteractionUpdateEvent, action = ImagePlaneWidget.Pushing )
         elif args and args[0] == "EndConfig":
             plane_widget.endSlicing()
+            self.processConfigParameterChange( slicePosition )
         elif args and args[0] == "InitConfig":
             self.skipIndex = 4
             if (len(args) > 2) and args[2]: 
