@@ -600,8 +600,6 @@ class ConfigParameter:
         if update: 
             args1 = [  self.ptype, key, val, self.name]
             self.ValueChanged( args1 )
-        if self.parent <> None:
-            self.parent.childUpdate( self, key, val,  )
             
     def signalUpdate( self ):
         args = [  self.ptype, self.getValues(), self.name]

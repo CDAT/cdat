@@ -115,7 +115,7 @@ class DV3DPlot():
         self.xwidth = 300.0
         self.ycenter = 0.0
         self.ywidth = 180.0
-        self.cfgManager = ConfigManager( **args )           
+        self.cfgManager = args.get( 'cm', ConfigManager() )          
         self.buttonBarHandler = ButtonBarHandler( self.cfgManager, **args ) 
         self.plot_attributes = args.get( 'plot_attributes', {} )
         
@@ -156,11 +156,6 @@ class DV3DPlot():
     def processConfigParameterChange( self, parameter ):
         argList = [ parameter.name, parameter.ptype, str(parameter.getValues()) ] 
 #        print " ..........>>>>>> Process Config Parameter Change: %s " % str(argList)  
-        self.ParameterValueChanged( argList )
-
-    def processConfigStateChange( self, parameter ):
-        argList = [ parameter.name, parameter.ptype, str( parameter.getValue('state') ) ] 
-#        print " ..........>>>>>> Process Config  State Change: %s " % str(argList)  
         self.ParameterValueChanged( argList )
         
     def addKeyPressHandler( self, key, handler ):
@@ -218,11 +213,8 @@ class DV3DPlot():
     def getStateData(self, **args): 
         return self.cfgManager.getStateData()
 
-    def getStateData(self, **args): 
-        return self.buttonBarHandler.cfgManager.getStateData()
-
     def getConfigurationData(self, **args): 
-        return self.buttonBarHandler.cfgManager.getConfigurationData()
+        return self.cfgManager.getConfigurationData()
             
     def processKeyPressHandler( self, key, eventArgs ):
 #        print " processKeyPress: ", str( key )
@@ -577,7 +569,7 @@ class DV3DPlot():
     def processSurfacePlotCommand( self, args, config_function = None ):
         if args and args[0] == "Init":
             state = config_function.getState()
-            if state: self.buttonBarHandler.cfgManager.initialized = True 
+            if state: self.cfgManager.initialized = True 
         elif args and args[0] == "InitConfig": 
             self.toggleIsosurfaceVisibility( args, config_function ) 
             self.processConfigStateChange( config_function.value )
@@ -585,7 +577,7 @@ class DV3DPlot():
     def processVolumePlotCommand( self, args, config_function = None ):
         if args and args[0] == "Init":
             state = config_function.getState()
-            if state: self.buttonBarHandler.cfgManager.initialized = True 
+            if state: self.cfgManager.initialized = True 
         elif args and args[0] == "InitConfig": 
             self.toggleVolumeVisibility( args, config_function )  
             self.processConfigStateChange( config_function.value )
