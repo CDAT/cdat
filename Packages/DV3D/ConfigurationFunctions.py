@@ -160,6 +160,7 @@ def matchesAxisType( axis, axis_attr, axis_aliases ):
                 matches = True
                 break
     return matches
+
 class SIGNAL(object):
     
     def __init__( self, name = None ):
