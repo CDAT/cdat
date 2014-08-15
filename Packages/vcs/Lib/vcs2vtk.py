@@ -94,7 +94,6 @@ def genGrid(data1,data2,gm):
       ## ??? TODO ??? when 3D use CUBE?
       vg.InsertNextCell(vtk.VTK_QUAD,lst)
   else:
-    print "DO WE COME HERE",g,g is None,type(g)
     #Ok a simple structured grid is enough
     vg = vtk.vtkStructuredGrid()
     if g is not None:
@@ -116,7 +115,6 @@ def genGrid(data1,data2,gm):
         lon = lon2[numpy.newaxis,:]*numpy.ones(lat2.shape)[:,numpy.newaxis]
         print "LON SHAPE:",lon.shape
     else:
-      print "yes i come here"
       data1=cdms2.asVariable(data1)
       lon=data1.getAxis(-1)[:]
       lat=data1.getAxis(-2)[:]
@@ -136,6 +134,8 @@ def genGrid(data1,data2,gm):
         lon2[1:-1]=(lon[:-1]+lon[1:])/2.
         lon2[0]=lon[0]-(lon[1]-lon[0])/2.
         lon2[-1]=lat[-1]+(lat[-1]-lat[-2])/2.
+        print "lat2:",lat2
+        print "lon2:",lon2
       lat = lat2[:,numpy.newaxis]*numpy.ones(lon2.shape)[numpy.newaxis,:]
       lon = lon2[numpy.newaxis,:]*numpy.ones(lat2.shape)[:,numpy.newaxis]
       print "LON SHAPE:",lon.shape
