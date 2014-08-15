@@ -291,12 +291,6 @@ endif()
 if (NOT CDAT_BUILD_GRAPHICS)
   set_property(CACHE CDAT_BUILD_GUI PROPERTY VALUE OFF)
 endif()
-if (CDAT_BUILD_GUI)
-  include(qt4_pkg)
-  include(sip_pkg)
-  include(pyqt_pkg)
-  include(spyder_pkg)
-endif()
 
 set(ep_prefix ${cdat_BINARY_DIR}/build/prefix)
 set_property(DIRECTORY PROPERTY ep_log_dir ${cdat_BINARY_DIR}/logs)
@@ -511,6 +505,12 @@ if (CDAT_BUILD_ESGF)
     include(lxml_pkg)
 endif()
 
+if (CDAT_BUILD_GUI)
+  include(qt4_pkg)
+  include(sip_pkg)
+  include(pyqt_pkg)
+  include(spyder_pkg)
+endif()
 
 # Configure custom configure/build/install step files
 #-----------------------------------------------------------------------------
