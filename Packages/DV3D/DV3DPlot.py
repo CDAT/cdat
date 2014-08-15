@@ -87,6 +87,7 @@ class DV3DPlot():
     AnimationEventId = 9
  
     def __init__( self,  **args ):
+        self.ParameterValueChanged = SIGNAL( 'ParameterValueChanged' )
         self.type = args.get( 'gmname', 'default').lower()
         self.useDepthPeeling = False
         self.labelBuff = ""
@@ -99,7 +100,8 @@ class DV3DPlot():
         self.xwidth = 300.0
         self.ycenter = 0.0
         self.ywidth = 180.0
-        self.buttonBarHandler = ButtonBarHandler( **args ) 
+        self.cfgManager = args.get( 'cm', ConfigManager() )          
+        self.buttonBarHandler = ButtonBarHandler( self.cfgManager, **args ) 
         self.plot_attributes = args.get( 'plot_attributes', {} )
         
         self.configuring = False
@@ -130,6 +132,11 @@ class DV3DPlot():
         control_bar = self.buttonBarHandler.createControlBar( name, self.renderWindowInteractor, build_args, **args )
         control_bar.reposition()
         return control_bar
+    
+    def processConfigParameterChange( self, parameter ):
+        argList = [ parameter.name, parameter.ptype, str(parameter.getValues()) ] 
+#        print " ..........>>>>>> Process Config Parameter Change: %s " % str(argList)  
+        self.ParameterValueChanged( argList )
         
     def addKeyPressHandler( self, key, handler ):
         handlers = self.keyPressHandlers.setdefault( key, [] )
@@ -180,13 +187,13 @@ class DV3DPlot():
                         
     def saveState(self, **args): 
         print "Save State" 
-        self.buttonBarHandler.cfgManager.saveState()
+        self.cfgManager.saveState()
 
     def getStateData(self, **args): 
-        return self.buttonBarHandler.cfgManager.getStateData()
+        return self.cfgManager.getStateData()
 
     def getConfigurationData(self, **args): 
-        return self.buttonBarHandler.cfgManager.getConfigurationData()
+        return self.cfgManager.getConfigurationData()
             
     def processKeyPressHandler( self, key, eventArgs ):
 #        print " processKeyPress: ", str( key )
@@ -211,7 +218,7 @@ class DV3DPlot():
     def initializePlots(self):
 #         bbar = ButtonBarWidget.getButtonBar( 'Plot' )
         bbar = self.buttonBarHandler.getButtonBar( 'Plot' )
-        if not self.buttonBarHandler.cfgManager.initialized:
+        if not self.cfgManager.initialized:
             button = bbar.getButton( 'ZSlider' ) 
             if button <> None:
                 button.setButtonState( 1 ) 
@@ -226,7 +233,7 @@ class DV3DPlot():
         elif args and args[0] == "Init":
             self.setColormap( config_function.initial_value )
         elif args and args[0] == "EndConfig":
-            pass
+            self.processConfigParameterChange( colormapParam )
         elif args and args[0] == "InitConfig":
             if ( self.colormapWidget == None ): #  or self.colormapWidget.checkWindowSizeChange():
                 self.colormapWidget = ColorbarListWidget( self.renderWindowInteractor ) 
@@ -531,14 +538,14 @@ class DV3DPlot():
     def processSurfacePlotCommand( self, args, config_function = None ):
         if args and args[0] == "Init":
             state = config_function.getState()
-            if state: self.buttonBarHandler.cfgManager.initialized = True 
+            if state: self.cfgManager.initialized = True 
         elif args and args[0] == "InitConfig": 
             self.toggleIsosurfaceVisibility( args, config_function ) 
 
     def processVolumePlotCommand( self, args, config_function = None ):
         if args and args[0] == "Init":
             state = config_function.getState()
-            if state: self.buttonBarHandler.cfgManager.initialized = True 
+            if state: self.cfgManager.initialized = True 
         elif args and args[0] == "InitConfig": 
             self.toggleVolumeVisibility( args, config_function )  
     

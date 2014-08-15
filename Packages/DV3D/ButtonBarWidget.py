@@ -208,11 +208,11 @@ class Button:
         
 class ButtonBarHandler:
     
-    def __init__( self, **args ):
+    def __init__( self, cfgMgr, **args ):
         self.current_configuration_mode = None
         self.button_bars = {}
         self.DefaultGroup = None
-        self.cfgManager = ConfigManager( args.get( 'cm', None ) )             
+        self.cfgManager = cfgMgr             
         
     def createButtonBarWidget( self, name, interactor, **args  ):
         bbar = self.getButtonBar( name )
