@@ -13,7 +13,6 @@ import vcs
 import DV3D
 from DV3D.ConfigurationFunctions import ConfigManager
 
-
 class Gfdv3d(object,AutoAPI.AutoAPI):
 
     __slots__ = [
@@ -50,6 +49,7 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
             raise ValueError,"DV3D graphic method '%s' already exists" % Gfdv3d_name
         self._name = Gfdv3d_name
         self._plot_attributes = {}
+        self.provinenceHandler = None
                 
         if Gfdv3d_name=="xyt": 
             self._axes="xyt"
@@ -62,6 +62,9 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
             
         vcs.elements[self.g_name][Gfdv3d_name]=self
         print "Adding VCS element: %s %s " % ( self.g_name, Gfdv3d_name )
+        
+    def setProvinenceHandler(self, provinenceHandler ):
+        self.provinenceHandler = provinenceHandler
                 
     def getStateData(self):
         return self.cfgManager.getStateData()
@@ -86,7 +89,8 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
     def getPlotAttributes( self ):
         return self._plot_attributes
     
-    def getParameterList(self):
+    @staticmethod
+    def getParameterList():
         cfgManager = ConfigManager()
         parameterList = cfgManager.getParameterList()
         return parameterList
