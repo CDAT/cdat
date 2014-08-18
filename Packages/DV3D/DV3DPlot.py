@@ -87,6 +87,7 @@ class DV3DPlot():
     AnimationEventId = 9
  
     def __init__( self,  **args ):
+        raise Exception()
         self.ParameterValueChanged = SIGNAL( 'ParameterValueChanged' )
         self.type = args.get( 'gmname', 'default').lower()
         self.useDepthPeeling = False
