@@ -117,6 +117,7 @@ def process_src(nm,code,typ):
     gm.flip = True
     vcs.elements["xyvsy"][onm]=gm
   elif typ == "GSp":
+    gm.linewidth=0
     vcs.elements["scatter"][onm]=gm
 
 class G1d(object,AutoAPI.AutoAPI):

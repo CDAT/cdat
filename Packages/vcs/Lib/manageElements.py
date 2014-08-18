@@ -553,6 +553,7 @@ vcs.show('isoline')                   # Show all the existing isoline graphics m
 iso=vcs.getisoline()                  # iso instance of 'default' isoline graphics
                                     #       method
 iso2=vcs.getisoline('quick')          # iso2 instance of existing 'quick' isoline
+gm.linewidth=0
                                     #       graphics method
 ######################################################################################################################
 ###########################################                            ###############################################
@@ -994,6 +995,7 @@ vcs.show('scatter')
     name,source = check_name_source(name,source,'scatter')
 
     gm = unified1D.G1d(name+"_scatter_", source+"_scatter_")
+    gm.linewidth=0
     vcs.elements["scatter"][name]=gm
     return gm
 createscatter.__doc__ = createscatter.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert, create_GM_input, scatter_output)

@@ -224,7 +224,7 @@ def _determine_arg_list(g_name, actual_args):
         elif arglist[igraphics_method].lower()=='default':
             pass                            # Check later
         else:
-            if found_slabs != 1:
+            if found_slabs != 1 and not(found_slabs == 2 and arglist[igraphics_method].lower()=="oned"):
                 raise vcsError, "Graphics method %s requires 1 slab." % arglist[igraphics_method]
     if isinstance(arglist[3],str): arglist[3]=arglist[3].lower()
     return arglist
@@ -638,39 +638,35 @@ class Canvas(object,AutoAPI.AutoAPI):
             # Normally this is done up front in _determine_arg_list.
             arglist[ARRAY_2] = cdms2.asVariable(mesh, 0)
             if arglist[GRAPHICS_OPTION] == 'default':
-                try:
-                    meshobj = self.getmeshfill('__d_meshobj')
-                except:
-                    meshobj = self.createmeshfill('__d_meshobj')
-                    meshobj.wrap = [0.0, 360.0] # Wraparound
-                arglist[GRAPHICS_OPTION] = '__d_meshobj'
+                meshobj = self.createmeshfill()
+                meshobj.wrap = [0.0, 360.0] # Wraparound
+                arglist[GRAPHICS_OPTION] = meshobj.name
 
         # Ravel the last two dimensions for meshfill if necessary
         ## value to know if we're plotting a grided meshfill
         self.isplottinggridded=False
-        if (arglist[GRAPHICS_METHOD]=='meshfill') and (tv.shape[-1] != arglist[ARRAY_2].shape[-3]):
-            tvshape = tv.shape
-            if isgridded:
-                ny, nx = grid.shape
-                if nx*ny==arglist[ARRAY_2].shape[-3]:
-                    ravelshape = tuple(list(tvshape)[:-2]+[ny*nx])
-                    xdim=ydim
-                    self.isplottinggridded=True
-                else:
-                    ny, nx = tvshape[-2:]
-                    ravelshape = tuple(list(tvshape)[:-2]+[ny*nx])
-            else:
-                ny, nx = tvshape[-2:]
-            ravelshape = tuple(list(tvshape)[:-2]+[ny*nx])
-            tv = MV2.reshape(tv, ravelshape)
-            xdim=ydim
-            self.isplottinggridded=True
-            if (tv.shape[-1] != arglist[ARRAY_2].shape[-3]):
-                raise vcsError, "Mesh length = %d, does not match variable shape: %s"%(arglist[ARRAY_2].shape[-3], `tvshape`)
-        else:
-            if isgridded and (arglist[GRAPHICS_METHOD]=='meshfill'):
-                if grid.shape[-1]==arglist[ARRAY_2].shape[-3]:
-                    self.isplottinggridded=True 
+        #if (arglist[GRAPHICS_METHOD]=='meshfill') and (tv.shape[-1] != arglist[ARRAY_2].shape[-3]):
+        #    tvshape = tv.shape
+        #    if isgridded:
+        #        ny, nx = grid.shape
+        #        if nx*ny==arglist[ARRAY_2].shape[-3]:
+        #            ravelshape = tuple(list(tvshape)[:-2]+[ny*nx])
+        #            xdim=ydim
+        #            self.isplottinggridded=True
+        #        else:
+        #            ny, nx = tvshape[-2:]
+        #            ravelshape = tuple(list(tvshape)[:-2]+[ny*nx])
+        #    else:
+        #        ny, nx = tvshape[-2:]
+        #    ravelshape = tuple(list(tvshape)[:-2]+[ny*nx])
+        #    tv = MV2.reshape(tv, ravelshape)
+        #    xdim=ydim
+        #    self.isplottinggridded=True
+        #    if (tv.shape[-1] != arglist[ARRAY_2].shape[-3]):
+        #        raise vcsError, "Mesh length = %d, does not match variable shape: %s"%(arglist[ARRAY_2].shape[-3], `tvshape`)
+        #else:
+        if isgridded and (arglist[GRAPHICS_METHOD]=='meshfill'):
+                self.isplottinggridded=True 
 
         # Process variable attributes
         _process_keyword(tv, 'comment1', 'comment1', keyargs)
@@ -2462,7 +2458,6 @@ Options:::
 
         self.__last_plot_actual_args = actual_args
         self.__last_plot_keyargs = keyargs
-
         passed_var = keyargs.get("variable",None)
         arglist = _determine_arg_list ( None, actual_args )
         if passed_var is not None:
@@ -3416,6 +3411,19 @@ Options:::
 ##                     return self.getplot(dn, template_origin)
             raise vcsError, 'Error taylordiagram method: '+arglist[4]+' not found'
         else:
+            if isinstance(arglist[3],vcsaddons.core.VCSaddon):
+                gm= arglist[3]
+            else:
+                tp = arglist[3]
+                if tp=="text":
+                  tp="textcombined"
+                elif tp=="default":
+                  tp="boxfill"
+                gm=vcs.elements[tp][arglist[4]]
+            p=self.getprojection(gm.projection)
+            if p.type=="polar (non gctp)" and doratio=="0":
+              doratio="1t"
+
             for keyarg in keyargs.keys():
                 if not keyarg in self.__class__._plot_keywords_+self.backend._plot_keywords:
                      warnings.warn('Unrecognized vcs plot keyword: %s, assuming backend (%s) keyword'%(keyarg,self.backend.type))
@@ -3470,6 +3478,8 @@ Options:::
                 t.data.y2 = p.viewport[3]
                 
                 proj = self.getprojection(p.projection)
+                if proj.type=="polar (non gctp)":
+                  doratio="1t"
 
                 if proj.type=='linear' and doratio[:4]=='auto':
                     lon1,lon2,lat2,lat2 = p.worldcoordinate
@@ -3491,25 +3501,16 @@ Options:::
                 if doratio[-1]=='t' or template_origin=='default':
                     box_and_ticks=1
 
-                if arglist[3]=='isoline':
-                    func=self.getisoline
-                elif arglist[3]=='isofill':
-                    func=self.getisofill
-                elif arglist[3]=='boxfill':
-                    func=self.getboxfill
-                elif arglist[3]=='meshfill':
-                    func=self.getmeshfill
-                elif arglist[3]=='vector':
-                    func=self.getvector
-                elif arglist[3]=='outfill':
-                    func=self.getoutfill
-                elif arglist[3]=='outline':
-                    func=self.getoutline
                 if isinstance(arglist[3],vcsaddons.core.VCSaddon):
                     gm= arglist[3]
                 else:
-                    gm=func(arglist[4])
+                    tp = arglist[3]
+                    if tp=="text":
+                      tp="textcombined"
+                    gm=vcs.elements[tp][arglist[4]]
                 p=self.getprojection(gm.projection)
+                if p.type=="polar (non gctp)":
+                  doratio="1t"
                 if p.type == 'linear':
                     if gm.g_name =='Gfm':
                         if self.isplottinggridded:
@@ -5310,7 +5311,7 @@ Options:::
         #except:
         #   updateVCSsegments_flag = 1
         self.colormap = name
-        warnings.warn("need to implemeent code to redraw vcs after colormap change")
+        warnings.warn("need to implement code to redraw vcs after colormap change")
         return
 
     #############################################################################

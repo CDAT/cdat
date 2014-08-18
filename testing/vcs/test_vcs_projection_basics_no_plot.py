@@ -10,10 +10,9 @@ p=x.createprojection()
 assert(p.type == "linear")
 assert(vcs.queries.isprojection(p))
 
-test_values_setting(p, "type", [-1,-2,-3,'linear', 'albers equal area', 'lambert', 'mercator', 'polar', 'polyconic', 'equid conic a', 'transverse mercator', 'stereographic', 'lambert azimuthal', 'azimuthal', 'gnomonic', 'orthographic', 'gen. vert. near per', 'sinusoidal', 'equirectangular', 'miller', 'van der grinten', 'hotin', 'robinson', 'space oblique', 'alaska', 'interrupted goode', 'mollweide', 'interrupted mollweide', 'hammer', 'wagner iv', 'wagner vii', 'oblated', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30,p,"POLAR","  POlyConic  "],["utm","state plane","foo",-4,31,256,[],{},])
+test_values_setting(p, "type", [-1,-2,-3,'linear', 'albers equal area', 'lambert', 'mercator', 'polar', 'polyconic', 'equid conic a', 'transverse mercator', 'stereographic', 'lambert azimuthal', 'azimuthal', 'gnomonic', 'orthographic', 'gen. vert. near per', 'sinusoidal', 'equirectangular', 'miller', 'van der grinten', 'hotin', 'robinson', 'space oblique', 'alaska', 'interrupted goode', 'mollweide', 'interrupted mollweide', 'hammer', 'wagner iv', 'wagner vii', 'oblated', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30,p,"POLAR","leac","  POlyConic  ",],["utm","state plane","foo",-4,31,256,[],{},])
 b = x.createprojection("test_b_ok",p.name)
 assert(b.name == "test_b_ok")
-print b.type
 assert(b.type == "polyconic")
 ## From vcs validation
 for t in range(31):

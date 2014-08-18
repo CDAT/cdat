@@ -50,7 +50,7 @@ def putMaskOnVTKGrid(data,grid,actorColor=None,deep=True):
           #grid.SetCellVisibilityArray(msk)
   return mapper
 
-def genUnstructuredGrid(data1,data2,gm):
+def genGrid(data1,data2,gm):
   continents = False
   wrap = None
   m3 = None
@@ -121,10 +121,16 @@ def genUnstructuredGrid(data1,data2,gm):
     z = numpy.zeros(lon.shape)
     m3 = numpy.concatenate((lon,lat),axis=1)
     m3 = numpy.concatenate((m3,z),axis=1)
-    xm=lon.min()
-    xM=lon.max()
-    ym=lat.min()
-    yM=lat.max()
+    try:
+      xm = lon[0]
+      xM = lon[-1]
+      ym = lat[0]
+      yM = lat[-1]
+    except:
+      xm=lon.min()
+      xM=lon.max()
+      ym=lat.min()
+      yM=lat.max()
   # First create the points/vertices (in vcs terms)
   deep = True
   pts = vtk.vtkPoints()
@@ -133,10 +139,12 @@ def genUnstructuredGrid(data1,data2,gm):
   pts.SetData(ppV)
 
   projection = vcs.elements["projection"][gm.projection]
-  geopts = project(pts,projection)
+  xm,xM,ym,yM = getRange(gm,xm,xM,ym,yM)
+
+  geo, geopts = project(pts,projection,[xm,xM,ym,yM])
   ## Sets the vertics into the grid
   vg.SetPoints(geopts)
-  return vg,xm,xM,ym,yM,continents,wrap
+  return vg,xm,xM,ym,yM,continents,wrap,geo
 
 def getRange(gm,xm,xM,ym,yM):
     # Also need to make sure it fills the whole space
@@ -210,20 +218,204 @@ def prepContinents(fnm):
 
 
 #Geo projection
-def project(pts,projection):
+def project(pts,projection,wc):
+  xm,xM,ym,yM= wc
+  if isinstance(projection,(str,unicode)):
+    projection = vcs.elements["projection"][projection]
   if projection.type=="linear":
-    return pts
+    return None,pts
   geo = vtk.vtkGeoTransform()
   ps = vtk.vtkGeoProjection()
+  #for i in range(ps.GetNumberOfProjections()):
+  #  print i, ps.GetProjectionName(i)
   pd = vtk.vtkGeoProjection()
-  projName = projection.type
+  names = ["linear","utm","state","aea","lcc","merc","stere","poly","eqdc","tmerc","stere","lcca","azi","gnom","ortho","vertnearper","sinu","eqc","mill","vandg","omerc","robin","somerc","alsk","goode","moll","imoll","hammer","wag4","wag7","oea"]
+  proj_dic = {"polar stereographic":"stere",
+      -3:"aeqd",
+      }
+  for i in range(len(names)):
+    proj_dic[i]=names[i]
+
+  pname = proj_dic.get(projection._type,projection.type)
+  projName = pname
+  #for i in range(0,184,2):
+  #  pd.SetName(pd.GetProjectionName(i))
+  #  print i,":",pd.GetProjectionName(i),"(",pd.GetNumberOfOptionalParameters(),") --"
+  #  pd.SetName(pd.GetProjectionName(i+1))
+  #  print i+1,":",pd.GetProjectionName(i+1),"(",pd.GetNumberOfOptionalParameters(),")"
+    
   pd.SetName(projName)
+  if projection.type == "polar (non gctp)":
+    if ym<yM:
+      pd.SetOptionalParameter("lat_0","-90.")
+      pd.SetCentralMeridian(xm)
+    else:
+      pd.SetOptionalParameter("lat_0","90.")
+      pd.SetCentralMeridian(xm+180.)
+  else:
+    setProjectionParameters(pd,projection)
   geo.SetSourceProjection(ps)
   geo.SetDestinationProjection(pd)
   geopts = vtk.vtkPoints()
   geo.TransformPoints(pts,geopts)
-  return geopts
+  return geo,geopts
 
+def setProjectionParameters(pd,proj):
+    if proj._type>200:
+      proj4 = proj.parameters
+      if numpy.allclose(proj4,1.e20):
+        proj4={}
+    else:
+        p=proj.parameters
+        proj4={}
+        if proj._type in [3,4]:
+             proj4["a"]=proj.smajor
+             proj4["b"]=proj.sminor
+             proj4["lat_1"]=proj.standardparallel1
+             proj4["lat_2"]=proj.standardparallel2
+             proj4["lon_0"]=proj.centralmeridian
+             proj4["lat_0"]=proj.originlatitude
+             proj4["x_0"]=proj.falseeasting
+             proj4["y_0"]=proj.falsenorthing
+        elif proj._type==5:
+             proj4["a"]=proj.smajor
+             proj4["b"]=proj.sminor
+             proj4["lon_0"]=proj.centralmeridian
+             proj4["lat_ts"]=proj.truescale
+             proj4["x_0"]=proj.falseeasting
+             proj4["y_0"]=proj.falsenorthing
+        elif proj._type==6:
+             proj4["a"]=proj.smajor
+             proj4["b"]=proj.sminor
+             proj4["lon_wrap"]=proj.centerlongitude # MAP NAME ?????
+             proj4["lat_ts"]=proj.truescale
+             proj4["x_0"]=proj.falseeasting
+             proj4["y_0"]=proj.falsenorthing
+        elif proj._type==7:
+             proj4["a"]=proj.smajor
+             proj4["b"]=proj.sminor
+             proj4["lon_0"]=proj.centralmeridian
+             proj4["lat_0"]=proj.originlatitude
+             proj4["x_0"]=proj.falseeasting
+             proj4["y_0"]=proj.falsenorthing
+        elif proj._type==8:
+             proj4["a"]=proj.smajor
+             proj4["b"]=proj.sminor
+             proj4["lon_0"]=proj.centralmeridian
+             proj4["lat_0"]=proj.originlatitude
+             proj4["x_0"]=proj.falseeasting
+             proj4["y_0"]=proj.falsenorthing
+             if (p[8]==0 or p[8]>9.9E19):
+                  proj4["subtype"]=proj.subtype=0
+                  proj4["lat_1"]=proj.standardparallel # MAP NAME ?????
+                  proj4["lat_2"]=proj.standardparallel # MAP NAME ?????
+                  proj4["lat_ts"]=proj.standardparallel # MAP NAME ?????
+             else:
+                  proj4["subtype"]=proj.subtype=1
+                  proj4["lat_1"]=proj.standardparallel1
+                  proj4["lat_2"]=proj.standardparallel2
+        elif proj._type==9:
+             proj4["a"]=proj.smajor
+             proj4["b"]=proj.sminor
+             proj4["k_0"]=proj.factor
+             proj4["lon_0"]=proj.centralmeridian
+             proj4["lat_0"]=proj.originlatitude
+             proj4["x_0"]=proj.falseeasting
+             proj4["y_0"]=proj.falsenorthing
+        elif proj._type in [10,11,12,13,14]:
+             proj4["a"]=proj.sphere # MAP NAME ?????
+             proj4["b"]=proj.sphere # MAP NAME ?????
+             proj4["lon_0"]=proj.centerlongitude
+             proj4["lat_0"]=proj.centerlatitude
+             proj4["x_0"]=proj.falseeasting
+             proj4["y_0"]=proj.falsenorthing
+        elif proj._type==15:
+             proj4["a"]=proj.sphere # MAP NAME ?????
+             proj4["b"]=proj.sphere # MAP NAME ?????
+             proj4["height"]=proj.height # MAP NAME ?????
+             proj4["lon_0"]=proj.centerlongitude
+             proj4["lat_0"]=proj.centerlatitude
+             proj4["x_0"]=proj.falseeasting
+             proj4["y_0"]=proj.falsenorthing
+        elif proj._type in [16,18,21,25,27,28,29]:
+             proj4["a"]=proj.sphere # MAP NAME ?????
+             proj4["b"]=proj.sphere # MAP NAME ?????
+             proj4["lon_0"]=proj.centralmeridian
+             proj4["x_0"]=proj.falseeasting
+             proj4["y_0"]=proj.falsenorthing
+        elif proj._type==17:
+             proj4["a"]=proj.sphere
+             proj4["b"]=proj.sphere
+             proj4["lon_0"]=proj.centralmeridian
+             proj4["lat_ts"]=proj.truescale
+             proj4["x_0"]=proj.falseeasting
+             proj4["y_0"]=proj.falsenorthing
+        elif proj._type==19:
+             proj4["a"]=proj.sphere # MAP NAME ?????
+             proj4["b"]=proj.sphere # MAP NAME ?????
+             proj4["lon_0"]=proj.centralmeridian
+             proj4["lat_0"]=proj.originlatitude
+             proj4["x_0"]=proj.falseeasting
+             proj4["y_0"]=proj.falsenorthing
+        elif proj._type==20:
+             proj4["a"]=proj.smajor
+             proj4["b"]=proj.sminor
+             proj4["k_0"]=proj.factor
+             proj4["lat_0"]=proj.originlatitude
+             proj4["x_0"]=proj.falseeasting
+             proj4["y_0"]=proj.falsenorthing
+             if (p[12]==0 or p[12]>9.9E19):
+                  proj4["subtype"]=proj.subtype
+                  proj4["lon_0"]=proj.longitude1 # MAP NAME ?????
+                  proj4["lat_1"]=proj.latitude1
+                  proj4["lonc"]=proj.longitude2 # MAP NAME ?????
+                  proj4["lat_2"]=proj.latitude2
+             else:
+                  proj4["subtype"]=proj.subtype
+                  proj4["azi"]=proj.azimuthalangle # MAP NAME ?????
+                  proj4["lon_0"]=proj.azimuthallongitude # MAP NAME ?????
+        elif proj._type==22:
+             proj4["a"]=proj.smajor
+             proj4["b"]=proj.sminor
+             proj4["x_0"]=proj.falseeasting
+             proj4["y_0"]=proj.falsenorthing
+             if (p[12]==0 or p[12]>9.9E19):
+                  proj4["subtype"]=proj.subtype
+                  proj4["???"]=proj.orbitinclination # MAP NAME ?????
+                  proj4["???"]=proj.orbitlongitude # MAP NAME ?????
+                  proj4["???"]=proj.satelliterevolutionperiod # MAP NAME ?????
+                  proj4["???"]=proj.landsatcompensationratio # MAP NAME ?????
+                  proj4["???"]=proj.pathflag # MAP NAME ?????
+             else:
+                  proj4["subtype"]=proj.subtype
+                  proj4["???"]=proj.satellite # MAP NAME ?????
+                  proj4["???"]=proj.path # MAP NAME ?????
+        elif proj._type==23:
+             proj4["a"]=proj.smajor
+             proj4["b"]=proj.sminor
+             proj4["x_0"]=proj.falseeasting
+             proj4["y_0"]=proj.falsenorthing
+        elif proj._type in [24,26]:
+             proj4["a"]=proj.sphere # MAP NAME ?????
+             proj4["b"]=proj.sphere # MAP NAME ?????
+        elif proj._type==30:
+             proj4["a"]=proj.sphere # MAP NAME ?????
+             proj4["b"]=proj.sphere # MAP NAME ?????
+             proj4["???"]=proj.shapem # MAP NAME ?????
+             proj4["???"]=proj.shapen # MAP NAME ?????
+             proj4["lon_0"]=proj.centerlongitude
+             proj4["lat_0"]=proj.centerlatitude
+             proj4["x_0"]=proj.falseeasting
+             proj4["y_0"]=proj.falsenorthing
+
+    if proj._type==6:
+      pd.SetOptionalParameter("lat_0",90)
+    for k in proj4:
+      if not numpy.allclose(proj4[k],1.e20):
+        if k=="lon_0":
+          pd.SetCentralMeridian(proj4[k])
+        elif k!="???":
+          pd.SetOptionalParameter(k,proj4[k])
 
 #Vtk dump
 dumps={}
@@ -493,6 +685,7 @@ def prepFillarea(renWin,ren,farea,cmap=None):
     polygons.InsertNextCell(polygon)
 
     polygonPolyData = vtk.vtkPolyData()
+    geo,pts = project(pts,farea.projection,farea.worldcoordinate)
     polygonPolyData.SetPoints(pts)
     polygonPolyData.SetPolys(polygons)
 
@@ -512,7 +705,7 @@ def prepFillarea(renWin,ren,farea,cmap=None):
     color = cmap.index[c]
     p.SetColor([C/100. for C in color])
     ren.AddActor(a)
-    fitToViewport(a,ren,farea.viewport,farea.worldcoordinate)
+    fitToViewport(a,ren,farea.viewport,wc=farea.worldcoordinate,geo=geo)
   return 
 
 def genPoly(coords,pts,filled=True):
@@ -550,6 +743,7 @@ def prepMarker(renWin,ren,marker,cmap=None):
       while len(a)<n:
         a.append(a[-1])
     pts = vtk.vtkPoints()
+    geo,pts = project(pts,marker.projection,marker.worldcoordinate)
     for j in range(N):
       pts.InsertNextPoint(x[j],y[j],0.)
     markers.SetPoints(pts)
@@ -588,7 +782,7 @@ def prepMarker(renWin,ren,marker,cmap=None):
       elif t[9]=="u":
         gs.SetRotationAngle(0)
     elif t == "hurricane":
-      s =s/100.
+      s =s/10.
       ds = vtk.vtkDiskSource()
       ds.SetInnerRadius(.55*s)
       ds.SetOuterRadius(1.01*s)
@@ -651,6 +845,7 @@ def prepMarker(renWin,ren,marker,cmap=None):
         coords = numpy.array(zip(*l))*s/30.
         line = genPoly(coords.tolist(),pts,filled=True)
         polys.InsertNextCell(line)
+      geo,pts = project(pts,marker.projection,marker.worldcoordinate)
       pd.SetPoints(pts)
       pd.SetPolys(polys)
       pd.SetLines(lines)
@@ -686,7 +881,7 @@ def prepMarker(renWin,ren,marker,cmap=None):
     color = cmap.index[c]
     p.SetColor([C/100. for C in color])
     ren.AddActor(a)
-    fitToViewport(a,ren,marker.viewport,marker.worldcoordinate)
+    fitToViewport(a,ren,marker.viewport,wc=marker.worldcoordinate,geo=geo)
   return 
 
 def prepLine(renWin,ren,line,cmap=None):
@@ -713,6 +908,7 @@ def prepLine(renWin,ren,line,cmap=None):
       l.GetPointIds().SetId(1,j+1)
       lines.InsertNextCell(l)
     linesPoly = vtk.vtkPolyData()
+    geo,pts=project(pts,line.projection,line.worldcoordinate)
     linesPoly.SetPoints(pts)
     linesPoly.SetLines(lines)
     a = vtk.vtkActor()
@@ -750,7 +946,7 @@ def prepLine(renWin,ren,line,cmap=None):
     else:
       raise Exception,"Unkonw line type: '%s'" % t
     ren.AddActor(a)
-    fitToViewport(a,ren,line.viewport,line.worldcoordinate)
+    fitToViewport(a,ren,line.viewport,wc=line.worldcoordinate,geo=geo)
   return 
 
 def getRendererCorners(Renderer,vp=[0.,1.,0.,1.]):
@@ -781,18 +977,38 @@ def vtkWorld2Renderer(ren,x,y):
   renpts = ren.GetDisplayPoint()
   return renpts
 
-def fitToViewport(Actor,Renderer,vp,wc=None):
-  return fitToViewportNew(Actor,Renderer,vp,wc)
-
-def fitToViewportNew(Actor,Renderer,vp,wc=None):
+def fitToViewport(Actor,Renderer,vp,wc=None,geo=None):
   ## Data range in World Coordinates
   if wc is None:
-    Xrg = Actor.GetXRange()
-    Yrg = Actor.GetYRange()
+    Xrg = list(Actor.GetXRange())
+    Yrg = list(Actor.GetYRange())
   else:
-    Xrg=float(wc[0]),float(wc[1])
-    Yrg=float(wc[2]),float(wc[3])
+    Xrg=[float(wc[0]),float(wc[1])]
+    Yrg=[float(wc[2]),float(wc[3])]
 
+  if geo is not None:
+   pt = vtk.vtkPoints()
+   pt.SetNumberOfPoints(1)
+   Xrg2 = [1.e20,-1.e20]
+   Yrg2 = [1.e20,-1.e20]
+   Npts=50.
+   for x in numpy.arange(Xrg[0],Xrg[1],(Xrg[1]-Xrg[0])/Npts):
+     for y in numpy.arange(Yrg[0],Yrg[1],(Yrg[1]-Yrg[0])/Npts):
+       pt.SetPoint(0,x,y,0)
+       pts = vtk.vtkPoints()
+       geo.TransformPoints(pt,pts)
+       b = pts.GetBounds()
+       xm,xM,ym,yM=b[:4]
+       if xm!=-numpy.inf:
+         Xrg2[0]=min(Xrg2[0],xm)
+       if xM!=numpy.inf:
+         Xrg2[1]=max(Xrg2[1],xM)
+       if ym!=-numpy.inf:
+         Yrg2[0]=min(Yrg2[0],ym)
+       if yM!=numpy.inf:
+         Yrg2[1]=max(Yrg2[1],yM)
+   Xrg=Xrg2
+   Yrg=Yrg2
   Renderer.SetViewport(vp[0],vp[2],vp[1],vp[3])
   rw = Renderer.GetRenderWindow()
   sc = rw.GetSize()
@@ -826,56 +1042,16 @@ def fitToViewportNew(Actor,Renderer,vp,wc=None):
   cam.SetPosition(xc,yc,cd)
   cam.SetFocalPoint(xc,yc,0.)
 
-
-def fitToViewportSlow(Actor,Renderer,vp,wc=None):
-  ## Data range in World Coordinates
-  if wc is None:
-    Xrg = Actor.GetXRange()
-    Yrg = Actor.GetYRange()
-  else:
-    Xrg=float(wc[0]),float(wc[1])
-    Yrg=float(wc[2]),float(wc[3])
-  
-  #print "VIEWPORT:",vp
-  #print "XrgYrg:",Xrg,Yrg
-  ## Where they are in term of pixels
-  oll = vtkWorld2Renderer(Renderer,Xrg[0],Yrg[0])
-  our = vtkWorld2Renderer(Renderer,Xrg[1],Yrg[1])
-  
-  #print "oll,our:",oll,our
-  # Where they should be in term of pixel
-  ll = world2Renderer(Renderer,Xrg[0],Yrg[0],
-      vp,
-      [Xrg[0],Xrg[1],Yrg[0],Yrg[1]])
-  ur = world2Renderer(Renderer,Xrg[1],Yrg[1],
-      vp,
-      [Xrg[0],Xrg[1],Yrg[0],Yrg[1]])
-  
-  #print "ll,ur:",ll,ur
-  # How much does it needs to be scaled by?
-  xScale = (ur[0]-ll[0])/(our[0]-oll[0])
-  yScale = (ur[1]-ll[1])/(our[1]-oll[1])
-  #print xScale,yScale
-
-  #World coordinates of where they need to be
-  LL = R2World(Renderer,*ll)
-  #print "LL:",LL
-
-  # Move it to the correct bottom left corner
-  dX = LL[0]-Xrg[0]
-  dY = LL[1]-Yrg[0]
-  #print "dX,dY:",dX,dY
-
-
-  # transformation are applied in reverse order
-  T = vtk.vtkTransform()
-  ## After scaling move it back to lower left corner
-  T.Translate(LL[0]*(1.-xScale),LL[1]*(1.-yScale),0)
-  ## scale
-  T.Scale(xScale,yScale,1)
-  # Move it to the correct bottom left corner
-  T.Translate(dX,dY,0)
-
-  Actor.SetUserTransform(T)
-  return Actor
-
+p=vtk.vtkGeoProjection()
+vtkProjections = [ p.GetProjectionName(i) for i in range(p.GetNumberOfProjections()) ]
+def checkProjType(self,name,value):
+  if value in vtkProjections:
+    warnings.warn("%s is a VTK backend specific projection, it might not work if you are not using the VTK backend" % value)
+    return 200+vtkProjections.index(value)
+  raise Exception("%s is not a known VTK projection" % value)
+def checkProjParameters(self,name,value):
+  if not isinstance(value,dict):
+    raise ValueError("VTK specific projections parameters attribute needs to be a dictionary")
+  return value
+def getProjType(value):
+  return vtkProjections[value-200]

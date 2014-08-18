@@ -9,7 +9,7 @@ import meshfill,boxfill,isofill,isoline
 import os, traceback
 import cdms2
 import DV3D
-
+import MV2
    
 def smooth(x,beta,window_len=11):
    """ kaiser window smoothing """
@@ -335,27 +335,32 @@ class VTKVCSBackend(object):
       self.plot3D(data1,data2,tpl,gm,ren)
     elif gtype in ["text"]:
       if tt.priority!=0:
+        self.renWin.AddRenderer(ren)
         self.setLayer(ren,tt.priority)
         vcs2vtk.genTextActor(ren,to=to,tt=tt)
     elif gtype=="line":
       if gm.priority!=0:
+        self.renWin.AddRenderer(ren)
         self.setLayer(ren,gm.priority)
         vcs2vtk.prepLine(self.renWin,ren,gm)
     elif gtype=="marker":
       if gm.priority!=0:
+        self.renWin.AddRenderer(ren)
         self.setLayer(ren,gm.priority)
         vcs2vtk.prepMarker(self.renWin,ren,gm)
     elif gtype=="fillarea":
       if gm.priority!=0:
+        self.renWin.AddRenderer(ren)
         self.setLayer(ren,gm.priority)
         vcs2vtk.prepFillarea(self.renWin,ren,gm)
     elif gtype=="oned":
+      self.renWin.AddRenderer(ren)
       self.plot1D(data1,data2,tpl,gm,ren)
     elif gtype=="vector":
       self.plotVector(data1,data2,tpl,gm,ren)
     else:
       raise Exception,"Graphic type: '%s' not re-implemented yet" % gtype
-    if not kargs.get("donotstoredisplay",False):
+    if not kargs.get("donotstoredisplay",False): 
       self.renWin.Render()
 
   def plot1D(self,data1,data2,tmpl,gm,ren):
@@ -380,7 +385,7 @@ class VTKVCSBackend(object):
     ys = []
     prev = None
     for i,v in enumerate(Ys):
-        if v is not None: # Valid data
+        if v is not None and Xs[i] is not None: # Valid data
             if prev is None:
                 prev=[]
                 prev2 = []
@@ -397,7 +402,10 @@ class VTKVCSBackend(object):
     l.x = xs
     l.y = ys 
     l.color=gm.linecolor
-    l.width = gm.linewidth
+    if gm.linewidth>0:
+        l.width = gm.linewidth
+    else:
+        l.priority=0
     l.type = gm.line
     l.viewport = [tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2]
     # Also need to make sure it fills the whole space
@@ -413,14 +421,19 @@ class VTKVCSBackend(object):
     m=self.canvas.createmarker()
     m.type = gm.marker
     m.color = gm.markercolor
-    m.size = gm.markersize
+    if gm.markersize>0:
+        m.size = gm.markersize
+    else:
+        m.priority=0
     m.x = l.x
     m.y=l.y
     m.viewport=l.viewport
     m.worldcoordinate = l.worldcoordinate
     
-    self.canvas.plot(l,renderer=ren,donotstoredisplay=True)
-    self.canvas.plot(m,renderer=ren,donotstoredisplay=True)
+    if l.priority>0:
+        self.canvas.plot(l,renderer=ren,donotstoredisplay=True)
+    if m.priority>0:
+        self.canvas.plot(m,renderer=ren,donotstoredisplay=True)
     ren2 = vtk.vtkRenderer()
     tmpl.plot(self.canvas,data1,gm,bg=self.bg,renderer=ren2,X=X,Y=Y)
     
@@ -471,7 +484,7 @@ class VTKVCSBackend(object):
             
   def plotVector(self,data1,data2,tmpl,gm,ren):
     self.setLayer(ren,tmpl.data.priority)
-    ug,xm,xM,ym,yM,continents,wrap = vcs2vtk.genUnstructuredGrid(data1,data2,gm)
+    ug,xm,xM,ym,yM,continents,wrap,geo = vcs2vtk.genGrid(data1,data2,gm)
     if ug.IsA("vtkUnstructuredGrid"):
         c2p = vtk.vtkCellDataToPointData()
         c2p.SetInputData(ug)
@@ -553,7 +566,7 @@ class VTKVCSBackend(object):
 
   def plot2D(self,data1,data2,tmpl,gm,ren):
     self.setLayer(ren,tmpl.data.priority)
-    ug,xm,xM,ym,yM,continents,wrap = vcs2vtk.genUnstructuredGrid(data1,data2,gm)
+    ug,xm,xM,ym,yM,continents,wrap,geo = vcs2vtk.genGrid(data1,data2,gm)
     #Now applies the actual data on each cell
     if isinstance(gm,boxfill.Gfb) and gm.boxfill_type=="log10":
         data1=numpy.ma.log10(data1)
@@ -577,9 +590,10 @@ class VTKVCSBackend(object):
     #Ok now we have grid and data let's use the mapper
     mapper = vtk.vtkPolyDataMapper()
     legend = None
-    if isinstance(gm,boxfill.Gfb):
+    if isinstance(gm,(meshfill.Gfm,boxfill.Gfb)):
       geoFilter = vtk.vtkGeometryFilter()
       if ug.IsA("vtkUnstructuredGrid"):
+        print "YES WE DO COME IN HERE"
         geoFilter.SetInputData(ug)
       else:
           p2c = vtk.vtkPointDataToCellData()
@@ -651,7 +665,7 @@ class VTKVCSBackend(object):
         cols = gm.fillareacolors 
         if cols is None:
           cols = vcs.getcolors(levs2,split=0)
-      elif isinstance(gm,isofill.Gfi):
+      elif isinstance(gm,(isofill.Gfi,meshfill.Gfm)):
         cols = gm.fillareacolors
         if cols==[1,]:
           cols = vcs.getcolors(levs2,split=0)
@@ -790,7 +804,6 @@ class VTKVCSBackend(object):
       Nlevs = len(levs)
       Ncolors = Nlevs-1
 
-
     if mappers == []: # ok didn't need to have special banded contours
       mappers=[mapper,]
       ## Colortable bit
@@ -828,13 +841,14 @@ class VTKVCSBackend(object):
         else:
           mapper.Update()
           act.SetMapper(mapper)
-        #act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
+        if geo is None:
+          act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
         if isinstance(mapper,list):
           #act.GetMapper().ScalarVisibilityOff()
           #act.SetTexture(mapper[1])
           pass
         ren.AddActor(act)
-        vcs2vtk.fitToViewport(act,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2])
+        vcs2vtk.fitToViewport(act,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],wc=[x1,x2,y1,y2],geo=geo)
 
     self.renderTemplate(ren,tmpl,data1,gm)
     if isinstance(gm,(isofill.Gfi,meshfill.Gfm,boxfill.Gfb)):
@@ -854,11 +868,20 @@ class VTKVCSBackend(object):
       contActor = vtk.vtkActor()
       contActor.SetMapper(contMapper)
       contActor.GetProperty().SetColor(0.,0.,0.)
-      cpts = contData.GetPoints()
-      gcpts = vcs2vtk.project(cpts,projection)
-      contData.SetPoints(gcpts)
       contActor = vcs2vtk.doWrap(contActor,[x1,x2,y1,y2],wrap)
-      vcs2vtk.fitToViewport(contActor,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2])
+      if projection.type!="linear":
+          contData=contActor.GetMapper().GetInput()
+          cpts = contData.GetPoints()
+          geo, gcpts = vcs2vtk.project(cpts,projection,[x1,x2,y1,y2])
+          contData.SetPoints(gcpts)
+          contMapper = vtk.vtkPolyDataMapper()
+          contMapper.SetInputData(contData)
+          contActor = vtk.vtkActor()
+          contActor.SetMapper(contMapper)
+          contActor.GetProperty().SetColor(0.,0.,0.)
+      else:
+          geo=None
+      vcs2vtk.fitToViewport(contActor,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],wc=[x1,x2,y1,y2],geo=geo)
       if tmpl.data.priority!=0:
         ren.AddActor(contActor)
 
@@ -869,12 +892,16 @@ class VTKVCSBackend(object):
     if tmpl.legend.priority>0:
       tmpl.drawColorBar(colors,levels,x=self.canvas,legend=legend,cmap=cmap)
 
+  def cleanupData(self,data):
+      data[:] = numpy.ma.masked_invalid(data,numpy.nan)
+      return data
+
   def trimData1D(self,data):
     if data is None:
       return None
     while len(data.shape)>1:
       data = data[0]
-    return data
+    return self.cleanupData(data)
 
   #ok now trying to figure the actual data to plot
   def trimData2D(self,data):
@@ -886,19 +913,19 @@ class VTKVCSBackend(object):
       daxes=list(data.getAxisList())
       if daxes[len(daxes)-len(gaxes):] == gaxes:
         # Ok it is gridded and the grid axes are last
-        return data(*(slice(0,1),)*(len(daxes)-len(gaxes)),squeeze=1)
+        return self.cleanupData(data(*(slice(0,1),)*(len(daxes)-len(gaxes)),squeeze=1))
       else:
         # Ok just return the last two dims
-        return data(*(slice(0,1),)*(len(daxes)-2),squeeze=1)
+        return self.cleanupData(data(*(slice(0,1),)*(len(daxes)-2),squeeze=1))
     except Exception,err: # ok no grid info
       daxes=list(data.getAxisList())
       if cdms2.isVariable(data):
-        return data(*(slice(0,1),)*(len(daxes)-2))
+        return self.cleanupData( data(*(slice(0,1),)*(len(daxes)-2)))
       else: #numpy arrays are not callable
         op = ()
         for i in range(numpy.rank(data)-2):
           op.append(slice(0,1))
-        return data[op]
+        return self.cleanupData(data[op])
 
   def put_png_on_canvas(self,filename,zoom=1,xOffset=0,yOffset=0,*args,**kargs):
       return self.put_img_on_canvas(filename,zoom,xOffset,yOffset,*args,**kargs)
@@ -983,8 +1010,8 @@ class VTKVCSBackend(object):
         except:
           pass
 
-        if width is not None and height is not None:
-          self.renWin.SetSize(width,height)
+        #if width is not None and height is not None:
+        #  self.renWin.SetSize(width,height)
           #self.renWin.Render()
         imgfiltr = vtk.vtkWindowToImageFilter()
         imgfiltr.SetInput(self.renWin)
