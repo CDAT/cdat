@@ -101,6 +101,16 @@ if (CDAT_BUILD_MATPLOTLIB)
     ${cdat_SOURCE_DIR}/testing/vcs/test_markers.py
     ${cdat_SOURCE_DIR}/testing/vcs/test_markers.png
     )
+  add_test(vcs_test_boxfill_10x10_numpy
+    ${CMAKE_INSTALL_PREFIX}/bin/python
+    ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_10x10_numpy.py
+    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_10x10_numpy.png
+    )
+  add_test(vcs_test_boxfill_10x10_masked_numpy
+    ${CMAKE_INSTALL_PREFIX}/bin/python
+    ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_10x10_masked_numpy.py
+    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_10x10_masked_numpy.png
+    )
 
   if (CDAT_DOWNLOAD_SAMPLE_DATA)
     FOREACH(gm boxfill isofill isoline vector meshfill yxvsx xvsy xyvsy oned scatter)
@@ -119,8 +129,8 @@ if (CDAT_BUILD_MATPLOTLIB)
         )
     ENDFOREACH(gm)
     FOREACH(gm boxfill isofill isoline vector meshfill )
-     FOREACH(ptype ${ptype} 0)
-      add_test(vcs_test_basic_${gm}_masked_pol_proj
+     FOREACH(ptype 0 -3 aeqd)
+      add_test(vcs_test_basic_${gm}_masked_${ptype}_proj
         ${CMAKE_INSTALL_PREFIX}/bin/python
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
         --gm_type=${gm}
@@ -128,7 +138,7 @@ if (CDAT_BUILD_MATPLOTLIB)
         --projection=${ptype}
         --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_${gm}_masked_${ptype}_proj.png
         )
-      add_test(vcs_test_basic_${gm}_pol_proj_SH
+      add_test(vcs_test_basic_${gm}_${ptype}_proj_SH
         ${CMAKE_INSTALL_PREFIX}/bin/python
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
         --gm_type=${gm}
@@ -137,7 +147,7 @@ if (CDAT_BUILD_MATPLOTLIB)
         --lat2=0
         --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_${gm}_${ptype}_proj_SH.png
         )
-      add_test(vcs_test_basic_${gm}_pol_proj_SH_-180_180
+      add_test(vcs_test_basic_${gm}_${ptype}_proj_SH_-180_180
         ${CMAKE_INSTALL_PREFIX}/bin/python
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
         --gm_type=${gm}
@@ -148,7 +158,7 @@ if (CDAT_BUILD_MATPLOTLIB)
         --lon2=180
         --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_${gm}_${ptype}_proj_SH_-180_180.png
         )
-      add_test(vcs_test_basic_${gm}_pol_proj_SH_0_360
+      add_test(vcs_test_basic_${gm}_${ptype}_proj_SH_0_360
         ${CMAKE_INSTALL_PREFIX}/bin/python
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
         --gm_type=${gm}
@@ -159,7 +169,7 @@ if (CDAT_BUILD_MATPLOTLIB)
         --lon2=360
         --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_${gm}_${ptype}_proj_SH_0_360.png
         )
-      add_test(vcs_test_basic_${gm}_pol_proj_NH
+      add_test(vcs_test_basic_${gm}_${ptype}_proj_NH
         ${CMAKE_INSTALL_PREFIX}/bin/python
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
         --gm_type=${gm}
@@ -168,7 +178,7 @@ if (CDAT_BUILD_MATPLOTLIB)
         --lat2=0
         --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_${gm}_${ptype}_proj_NH.png
         )
-      add_test(vcs_test_basic_${gm}_pol_proj_SH_gm
+      add_test(vcs_test_basic_${gm}_${ptype}_proj_SH_gm
         ${CMAKE_INSTALL_PREFIX}/bin/python
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
         --gm_type=${gm}
@@ -178,7 +188,7 @@ if (CDAT_BUILD_MATPLOTLIB)
         --range_via_gm
         --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_${gm}_${ptype}_proj_SH_via_gm.png
         )
-      add_test(vcs_test_basic_${gm}_pol_proj_SH_-180_180_gm
+      add_test(vcs_test_basic_${gm}_${ptype}_proj_SH_-180_180_gm
         ${CMAKE_INSTALL_PREFIX}/bin/python
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
         --gm_type=${gm}
@@ -190,7 +200,7 @@ if (CDAT_BUILD_MATPLOTLIB)
         --range_via_gm
         --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_${gm}_${ptype}_proj_SH_-180_180_via_gm.png
         )
-      add_test(vcs_test_basic_${gm}_pol_proj_SH_0_360_gm
+      add_test(vcs_test_basic_${gm}_${ptype}_proj_SH_0_360_gm
         ${CMAKE_INSTALL_PREFIX}/bin/python
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
         --gm_type=${gm}
@@ -202,7 +212,7 @@ if (CDAT_BUILD_MATPLOTLIB)
         --range_via_gm
         --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_${gm}_${ptype}_proj_SH_0_360_via_gm.png
         )
-      add_test(vcs_test_basic_${gm}_pol_proj_NH_gm
+      add_test(vcs_test_basic_${gm}_${ptype}_proj_NH_gm
         ${CMAKE_INSTALL_PREFIX}/bin/python
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
         --gm_type=${gm}
@@ -212,7 +222,7 @@ if (CDAT_BUILD_MATPLOTLIB)
         --range_via_gm
         --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_${gm}_${ptype}_proj_NH_via_gm.png
         )
-      add_test(vcs_test_basic_${gm}_pol_proj_NH_gm_flip
+      add_test(vcs_test_basic_${gm}_${ptype}_proj_NH_gm_flip
         ${CMAKE_INSTALL_PREFIX}/bin/python
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
         --gm_type=${gm}
@@ -223,21 +233,13 @@ if (CDAT_BUILD_MATPLOTLIB)
         --gm_flips_lat_range
         --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_${gm}_${ptype}_proj_gmflip_NH_via_gm.png
         )
-      add_test(vcs_test_basic_${gm}_aeqd_proj
-        ${CMAKE_INSTALL_PREFIX}/bin/python
-        ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
-        --gm_type=${gm}
-        --mask
-        --projection=aeqd
-        --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_${gm}_masked_aeqd_proj.png
-        )
-      add_test(vcs_test_${gm}_patterns
-        ${CMAKE_INSTALL_PREFIX}/bin/python
-        ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_patterns.py
-        ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_patterns.png
-        )
      ENDFOREACH(ptype)
     ENDFOREACH(gm)
+    add_test(vcs_test_${gm}_patterns
+      ${CMAKE_INSTALL_PREFIX}/bin/python
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_patterns.py
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_patterns.png
+      )
     add_test(vcs_test_first_png_blank
       ${CMAKE_INSTALL_PREFIX}/bin/python
       ${cdat_SOURCE_DIR}/testing/vcs/test_first_png_blank.py
