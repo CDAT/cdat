@@ -1,0 +1,15 @@
+set(ENV{PKG_CONFIG_PATH} "@cdat_EXTERNALS@/lib/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig:$ENV{PKG_CONFIG_PATH}")
+set(ENV{PKG_CONFIG} @cdat_PKG_CONFIG_EXECUTABLE@)
+
+include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
+
+execute_process(
+    COMMAND env LD_LIBRARY_PATH=$ENV{@LIBRARY_PATH@} DYLD_FALLBACK_LIBRARY_PATH=$ENV{@LIBRARY_PATH@} @LIBRARY_PATH@=$ENV{@LIBRARY_PATH@} PKG_CONFIG=$ENV{PKG_CONFIG} PKG_CONFIG_PATH=$ENV{PKG_CONFIG_PATH} sh configure --prefix=${INSTALL_DIR} --disable-xvmc --disable-glx --disable-dri --enable-texture-float --disable-shared-glapi --enable-gallium-osmesa --enable-gallium-llvm=yes
+  WORKING_DIRECTORY "${WORKING_DIR}"
+  RESULT_VARIABLE res)
+
+if(NOT ${res} EQUAL 0)
+  message("Config Errors detected: \n${CDAT_OUT}\n${CDAT_ERR}")
+  message(FATAL_ERROR "Error in config")
+endif()
+message("Config succeeded.")

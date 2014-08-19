@@ -11,6 +11,17 @@ foreach(_module ${_vtk_modules})
   list(APPEND _vtk_module_options "-DModule_${_module}:BOOL=ON")
 endforeach()
 
+set(_osmesa_options)
+
+if (CDAT_BUILD_OFFSCREEN)
+  list(APPEND _osmesa_options "-DOPENGL_INCLUDE_DIR:PATH=${cdat_EXTERNALS}/include")
+  list(APPEND _osmesa_options "-DVTK_OPENGL_HAS_OSMESA:BOOL=ON")
+  list(APPEND _osmesa_options "-DOSMESA_INCLUDE_DIR:PATH=${cdat_EXTERNALS}/include")
+  # Hard code library location for moment need to patch VTK to allow path to search for
+  # lib in future.
+  list(APPEND _osmesa_options "-DOSMESA_LIBRARY:PATH=${cdat_EXTERNALS}/lib/libOSMesa.so")
+endif()
+
 ExternalProject_Add(VTK
   DOWNLOAD_DIR ${CDAT_PACKAGE_CACHE_DIR}
   SOURCE_DIR ${vtk_source}
@@ -36,6 +47,7 @@ ExternalProject_Add(VTK
     -DVTK_Group_Rendering:BOOL=OFF
     -DVTK_Group_StandAlone:BOOL=OFF
     ${_vtk_module_options}
+    ${_osmesa_options}
   CMAKE_ARGS
     -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
   DEPENDS ${VTK_deps}
