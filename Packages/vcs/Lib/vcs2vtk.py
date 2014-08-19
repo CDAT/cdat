@@ -59,6 +59,7 @@ def genGrid(data1,data2,gm):
   cellData = True
   try: #First try to see if we can get a mesh out of this
     g=data1.getGrid()
+    print "Grid returns:",g
     if isinstance(g,cdms2.gengrid.AbstractGenericGrid): # Ok need unstrctured grid
       m=g.getMesh()
       xm = m[:,1].min()
@@ -74,11 +75,15 @@ def genGrid(data1,data2,gm):
       m3=numpy.concatenate((m2,numpy.zeros((m2.shape[0],1))),axis=1)
       continents = True
       wrap = [0.,360.]
-  except Exception,err: # Ok no mesh on file, will do with lat/lon
     ## Could still be meshfill with mesh data
     if isinstance(gm,meshfill.Gfm) and data2 is not None:
+      xm = data2[:,1].min()
+      xM = data2[:,1].max()
+      ym = data2[:,0].min()
+      yM = data2[:,0].max()
       N = data2.shape[0]
       m2 = numpy.ascontiguousarray(numpy.transpose(data2,(0,2,1)))
+      nVertices = m2.shape[-2]
       m2.resize((m2.shape[0]*m2.shape[1],m2.shape[2]))
       m2=m2[...,::-1]
       # here we add dummy levels, might want to reconsider converting "trimData" to "reOrderData" and use actual levels?
@@ -86,15 +91,18 @@ def genGrid(data1,data2,gm):
       if gm.wrap[1]==360.:
         continents = True
       wrap = gm.wrap
+  except Exception,err: # Ok no mesh on file, will do with lat/lon
+    print "WHAT?"
+
   if m3 is not None:
     #Create unstructured grid points
     vg = vtk.vtkUnstructuredGrid()
     for i in range(N):
       lst = vtk.vtkIdList()
-      for j in range(4):
-        lst.InsertNextId(i*4+j)
+      for j in range(nVertices):
+        lst.InsertNextId(i*nVertices+j)
       ## ??? TODO ??? when 3D use CUBE?
-      vg.InsertNextCell(vtk.VTK_QUAD,lst)
+      vg.InsertNextCell(vtk.VTK_POLYGON,lst)
   else:
     #Ok a simple structured grid is enough
     vg = vtk.vtkStructuredGrid()
@@ -185,7 +193,6 @@ def genGrid(data1,data2,gm):
 
   projection = vcs.elements["projection"][gm.projection]
   xm,xM,ym,yM = getRange(gm,xm,xM,ym,yM)
-
   geo, geopts = project(pts,projection,[xm,xM,ym,yM])
   ## Sets the vertics into the grid
   vg.SetPoints(geopts)
