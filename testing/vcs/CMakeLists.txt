@@ -56,6 +56,11 @@ message(${CDAT_DOWNLOAD_SAMPLE_DATA} and ${CDAT_BUILD_MATPLOTLIB})
 #These test actually plot things need sample data
   ## We need matplotlib to compare images
 if (CDAT_BUILD_MATPLOTLIB)
+  add_test(vcs_test_gen_meshfill
+    ${CMAKE_INSTALL_PREFIX}/bin/python
+    ${cdat_SOURCE_DIR}/testing/vcs/test_gen_meshfill.py
+    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_gen_meshfill.png
+    )
   add_test(vcs_test_1d_missing
     ${CMAKE_INSTALL_PREFIX}/bin/python
     ${cdat_SOURCE_DIR}/testing/vcs/test_1D_missing.py
