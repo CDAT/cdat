@@ -798,12 +798,7 @@ class ButtonBarWidget(ButtonBar):
                 tvals = configFunct.value.getValues()
                 if not sameGroup: 
                     for bbar in self.handler.getButtonBars():
-<<<<<<< HEAD
                         bbar.reset()                
-=======
-                        bbar.reset()
-                
->>>>>>> 0c0011d5f7e074285a60c18dca8e0b8c371c4153
                 if configFunct.position <> None:
                     n_active_sliders = configFunct.position[1]
                     position_index = configFunct.position[0]
