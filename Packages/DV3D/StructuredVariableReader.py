@@ -633,9 +633,9 @@ class StructuredDataReader:
                         if npts == -1:  npts = array_size
                         else: assert( npts == array_size )
                             
-                        var_md[ 'range' ] = ( range_min, range_max )
+                        var_md[ 'range' ] = ( range_min, range_max )  
                         var_md[ 'scale' ] = ( shift, scale )   
-                        varDataSpecs['newDataArray'] = varData 
+                        varDataSpecs['newDataArray'] = varData    
 #                        print " ** Allocated data array for %s, size = %.2f MB " % ( varDataId, (varData.nbytes /(1024.0*1024.0) ) )                    
                         md =  varDataSpecs['md']                 
                         md['datatype'] = datatype
