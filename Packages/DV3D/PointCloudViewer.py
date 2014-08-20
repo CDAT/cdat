@@ -228,6 +228,7 @@ class CPCPlot( DV3DPlot ):
             volumeParam.setValue( dvar, vrange )
             
     def updateModule( self ):
+        self.updateInteractionStyle()
         self.refresh()
 
     def processVolumePlotCommand( self, args, config_function = None ):

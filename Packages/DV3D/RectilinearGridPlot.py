@@ -1435,6 +1435,7 @@ class RectGridPlot(StructuredGridPlot):
                         
     def updateModule(self, **args ):
         self.debug_log( 'updateModule' )
+        self.updateInteractionStyle()
         primaryInput = self.input()
         contour_ispec = self.getInputSpec(  1 )       
         contourInput = contour_ispec.input() if contour_ispec <> None else None

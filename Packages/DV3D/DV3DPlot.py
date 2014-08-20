@@ -657,7 +657,10 @@ class DV3DPlot():
         self.renderer.SetBackground(1.0, 1.0, 1.0)
         self.renderer.SetNearClippingPlaneTolerance( 0.0001 )    
         self.renderWindow = renWin
-    
+ 
+    def updateInteractionStyle(self):
+        self.renderWindowInteractor.SetInteractorStyle( self.interactorStyle )
+   
     def closeConfigDialog(self):
         pass
     
