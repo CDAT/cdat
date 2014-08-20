@@ -477,7 +477,6 @@ class StructuredGridPlot(DV3DPlot):
         return ( ( lon - self.map_cut ) % 360 ) + self.map_cut
 
     def getBoundedMap( self, baseImage, dataLocation, map_cut_size, map_border_size ):
-        baseImage.Update()
         baseExtent = baseImage.GetExtent()
         baseSpacing = baseImage.GetSpacing()
         x0 = baseExtent[0]
