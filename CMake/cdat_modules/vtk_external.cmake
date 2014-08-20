@@ -16,10 +16,9 @@ set(_osmesa_options)
 if (CDAT_BUILD_OFFSCREEN)
   list(APPEND _osmesa_options "-DOPENGL_INCLUDE_DIR:PATH=${cdat_EXTERNALS}/include")
   list(APPEND _osmesa_options "-DVTK_OPENGL_HAS_OSMESA:BOOL=ON")
+  list(APPEND _osmesa_options "-DVTK_USE_X:BOOL=OFF")
   list(APPEND _osmesa_options "-DOSMESA_INCLUDE_DIR:PATH=${cdat_EXTERNALS}/include")
-  # Hard code library location for moment need to patch VTK to allow path to search for
-  # lib in future.
-  list(APPEND _osmesa_options "-DOSMESA_LIBRARY:PATH=${cdat_EXTERNALS}/lib/libOSMesa.so")
+  list(APPEND _osmesa_options "-DOSMESA_ROOT:PATH=${cdat_EXTERNALS}")
 endif()
 
 ExternalProject_Add(VTK
@@ -28,7 +27,7 @@ ExternalProject_Add(VTK
   BINARY_DIR ${vtk_binary}
   INSTALL_DIR ${vtk_install}
   ${GIT_CMD_STR}
-  GIT_TAG uvcdat-master
+  GIT_TAG find-osmesa-improvements
   UPDATE_COMMAND ""
   PATCH_COMMAND ""
   CMAKE_CACHE_ARGS
