@@ -216,7 +216,7 @@ colormap.Cp("default")
 displayplot.Dp("default")
 dv3d.Gf3Dvector("default")
 dv3d.Gf3Dscalar("default")
-on = {'state' : 1 }
+dv3d.Gf3Dscalar("xyt")
 
 for nm in ["mercator","orthographic","lambert","polar","polyconic","robinson",
     "mollweide",]:
