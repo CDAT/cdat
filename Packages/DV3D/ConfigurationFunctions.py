@@ -418,7 +418,9 @@ class ConfigManager:
             
         return parameter_mdata
                   
-    def getParameterList( self, var=None ):
+    def getParameterList( self, **args ):
+        var = args.get( 'var', None )
+        extra_parms = args.get( 'extras', [] )
         if var <> None: 
             from Application import getPlotFromVar
             plot = getPlotFromVar( var, cm=self )
@@ -431,6 +433,8 @@ class ConfigManager:
         parameter_list.add( 'Configure' )
         for cpi in self.parameters.items():
              parameter_list.add( cpi[0] )  
+        for pname in extra_parms:
+             parameter_list.add( pname )  
         print "Generated parameter_list: " , str( parameter_list )            
         return parameter_list
         
