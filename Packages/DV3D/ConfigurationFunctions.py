@@ -598,6 +598,7 @@ class ConfigurableFunction:
 #         if name == 'XSlider':
 #             print "."
         self.value = self.manager.addParameter( name, **args )
+        self.initial_value = []
         self.type = 'generic'
         self.kwargs = args
         self.cfg_state = None
@@ -606,9 +607,9 @@ class ConfigurableFunction:
         self.persist = bool( args.get( 'persist', True ) )
         self.key = args.get( 'key', None )
         ival = self.value.getValue( 'init' )
-        if ival <> None:
+        if (ival <> None):
             self.initial_value = ival if hasattr( ival, '__iter__' ) else [ ival ]
-        else:    
+        if len( self.initial_value ) == 0:    
             self.initial_value = makeList( args.get( 'initValue', None ), self.getValueLength() )
 #        self.group = args.get( 'group', ConfigGroup.Display )  
         self.active = args.get( 'active', True )
