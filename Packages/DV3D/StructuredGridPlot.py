@@ -558,9 +558,9 @@ class StructuredGridPlot(DV3DPlot):
         imageInfo.SetOutputOrigin( 0.0, 0.0, 0.0 )
         imageInfo.SetOutputExtentStart( 0, 0, 0 )
         imageInfo.SetOutputSpacing( baseSpacing[0], baseSpacing[1], baseSpacing[2] )
-        
+        imageInfo.Update() 
+               
         result = imageInfo.GetOutput() 
-        result.Update()
         return result, bounded_dims
 
     def init(self, **args ):
