@@ -510,7 +510,6 @@ class VTKVCSBackend(object):
           g.gminit( data1, data2, roi=roi, axes=gm.axes, n_overview_points=n_overview_points, n_cores=gm.NumCores, renwin=ren.GetRenderWindow(), plot_attributes=gm.getPlotAttributes(), gmname=gm.g_name, cm=gm.cfgManager, **kargs  ) #, plot_type = PlotType.List  ) 
           self.plotApps[ gm ] = g
           self.plotRenderers.add( g.plot.renderer )
-          g.updateInteractionStyle()
       else:
           g.update( tmpl )
            
