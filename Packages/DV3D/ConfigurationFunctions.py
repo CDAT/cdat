@@ -682,7 +682,7 @@ class ConfigurableFunction:
         self.units = args.get( 'units', '' ).strip().lower()
         self.persist = bool( args.get( 'persist', True ) )
         self.key = args.get( 'key', None )
-        ival = self.value.getInitValue()
+        ival = self.value.getValue( 'init' )
         if (ival <> None):
             self.initial_value = ival if hasattr( ival, '__iter__' ) else [ ival ]
         if len( self.initial_value ) == 0:    
