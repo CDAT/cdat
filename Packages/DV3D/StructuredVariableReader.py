@@ -646,18 +646,13 @@ class StructuredDataReader:
                         md['timeUnits' ] = self.referenceTimeUnits if self.referenceTimeUnits else ""
                         md[ 'attributes' ] = var_md
                         md[ 'plotType' ] = 'xyt' if (self.outputType == CDMSDataType.Hoffmuller) else 'xyz'
-                        if self.timeLabels <> None:
-                            md[ 'base_time' ] = [ str(ct) for ct in self.timeLabels ]
-                        tvar  = var if not var is None else self.vars[0]
-                        axis = tvar.getLongitude()
-                        if not axis is None: md[ 'lon' ] =  axis.getValue()
-                        axis = tvar.getLatitude()
-                        if not axis is None: md[ 'lat' ] =  axis.getValue()
-                        axis = tvar.getLevel()
-                        if not axis is None: md[ 'lev' ] =  axis.getValue()
-                        axis = tvar.getTime()
-                        if not axis is None: md[ 'time' ] =  [ str(tc) for tc in axis.asComponentTime() ]
-                        else: md[ 'time' ] =  md[ 'base_time' ] 
+                        if not var is None:
+                            axis = var.getLongitude()
+                            if not axis is None: md[ 'lon' ] =  axis.getValue()
+                            axis = var.getLatitude()
+                            if not axis is None: md[ 'lat' ] =  axis.getValue()
+                            axis = var.getLevel()
+                            if not axis is None: md[ 'lev' ] =  axis.getValue()
                                         
                 self.setCachedData( varDataId, cell_coords, varDataSpecs )  
         
