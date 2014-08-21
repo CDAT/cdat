@@ -1153,7 +1153,7 @@ class shapeFileReader:
 #            roi[1] = roi[1] - 0.5 
         if directory == None: return None
         
-        print "Retreiving polylines from %s, resolution=%s" % ( mrsDefFilePath, resFile )
+#        print "Retreiving polylines from %s, resolution=%s" % ( mrsDefFilePath, resFile )
         #rel_coastFilePath=self._reader.read(resFile, mrsDefFilePath)
         root_path=os.path.abspath( os.path.dirname( mrsDefFilePath ) )
         #combines two directories together 
