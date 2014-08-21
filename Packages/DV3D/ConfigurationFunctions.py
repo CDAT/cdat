@@ -843,7 +843,8 @@ class InputSpecs:
         
     def clipInput( self, extent ):
         self.clipper = vtk.vtkImageClip()
-        self.clipper.AddInput( self._input )
+        if vtk.VTK_MAJOR_VERSION <= 5:  self.clipper.AddInput( self._input )
+        else:                           self.clipper.AddInputData( self._input )
         self.clipper.SetOutputWholeExtent( extent )
 
     def getWorldCoords( self, image_coords ):

@@ -527,8 +527,12 @@ class StructuredGridPlot(DV3DPlot):
         
             append = vtk.vtkImageAppend()
             append.SetAppendAxis( 0 )
-            append.AddInput( clip1.GetOutput() )          
-            append.AddInput( clip0.GetOutput() )
+            if vtk.VTK_MAJOR_VERSION <= 5:  
+                append.AddInput( clip1.GetOutput() )          
+                append.AddInput( clip0.GetOutput() )
+            else:
+                append.AddInputData( clip1.GetOutput() )          
+                append.AddInputData( clip0.GetOutput() )
             bounded_dims = ( size0 + size1, vertExtent[1] - vertExtent[0] + 1 )
             
             imageInfo.SetInputConnection( append.GetOutputPort() ) 
