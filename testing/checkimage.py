@@ -7,7 +7,6 @@ the known good baseline given in the third. Alternate known good images
 import math
 import numpy
 import vtk
-#import matplotlib.image as mpimg
 import os
 import os.path
 import sys
@@ -21,30 +20,19 @@ def compare_imgs(adata, bdata):
         return -1
     return rms
 
-def image_from_file_vtk(fname):
+def image_from_file(fname):
     try:
       rd = vtk.vtkPNGReader()
       rd.SetFileName(fname)
       rd.Update()
       exp = vtkImageExportToArray()
       exp.SetInputConnection(rd.GetOutputPort())
-      areader = exp.GetArray()[0,:,:,:3]
+      areader = exp.GetArray()[0]/255.
     except Exception,err:
       print "Problem opening file",err
       return None
     adata = areader.flatten().astype("f")
     return adata
-
-#def image_from_file_mpl(fname):
-#    try:
-#      areader = mpimg.imread(fname)
-#    except:
-#      print "Problem opening file"
-#      return None
-#    adata = areader.flatten()
-#    return adata
-
-image_from_file = image_from_file_vtk
 
 def find_alternates(fname):
     dirname = os.path.dirname(fname)
@@ -62,12 +50,6 @@ def check_result_image(fname, baselinefname, threshold, baseline = False):
         print "no result image, failed test"
         return -1
 
-    baselineimg = image_from_file(baselinefname)
-    if baselineimg is None:
-        print "no baseline image yet"
-        print "Check in " + fname + " as a new baseline"
-        return -1
-
     if baseline:
         baselinefnames = find_alternates(baselinefname)
     else:
@@ -83,7 +65,6 @@ def check_result_image(fname, baselinefname, threshold, baseline = False):
         if nextbimage is None:
             continue
         res = compare_imgs(resultimg, nextbimage)
-        print "result " + str(res)
         if res >= 0:
             if bestresult is None or res < bestresult:
                 print "new best"
