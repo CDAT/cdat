@@ -647,11 +647,11 @@ class StructuredDataReader:
                         md[ 'plotType' ] = 'xyt' if (self.outputType == CDMSDataType.Hoffmuller) else 'xyz'
                         if not var is None:
                             axis = var.getLongitude()
-                            md[ 'lon' ] =  axis.getValue()
+                            if not axis is None: md[ 'lon' ] =  axis.getValue()
                             axis = var.getLatitude()
-                            md[ 'lat' ] =  axis.getValue()
+                            if not axis is None: md[ 'lat' ] =  axis.getValue()
                             axis = var.getLevel()
-                            md[ 'lev' ] =  axis.getValue()
+                            if not axis is None: md[ 'lev' ] =  axis.getValue()
                                         
                 self.setCachedData( varDataId, cell_coords, varDataSpecs )  
         
