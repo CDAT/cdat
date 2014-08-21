@@ -242,19 +242,7 @@ class ConfigManager:
             self.parameters[ param_name ] = cparm
         return cparm
             
-#     def getParameter( self, param_name, **args ):
-#         cparm = self.parameters.get( param_name, None )
-#         if cparm == None:
-#             if self.parent is None:
-#                 print '  <<---------------------------------------------------->> Get Parameter: ', param_name
-#                 cparm = ConfigParameter( param_name, **args )
-#             else:
-#                 print "Getting config param from parent: ", param_name, ", group = ", str(self.cell_coordinates) 
-#                 cparm_parent = self.parent.getParameter( param_name, group=self.cell_coordinates )
-#                 cparm = ConfigParameter( param_name, parent=cparm_parent, **args )
-#             self.parameters[ param_name ] = cparm
-#         return cparm
-     
+      
     def setParameter( self, param_name, data, **args ):
         if isinstance( data, str ): 
             try: data = ast.literal_eval( data )
@@ -435,7 +423,7 @@ class ConfigManager:
              parameter_list.add( cpi[0] )  
         for pname in extra_parms:
              parameter_list.add( pname )  
-        print "Generated parameter_list: " , str( parameter_list )            
+#        print "Generated parameter_list: " , str( parameter_list )            
         return parameter_list
         
     def initParameters(self):
