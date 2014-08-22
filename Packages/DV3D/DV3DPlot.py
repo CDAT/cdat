@@ -134,7 +134,6 @@ class DV3DPlot():
         self.colormapWindowSize = None
         self.keyPressHandlers = {}
         interactionButtons = self.getInteractionButtons()
-        interactionButtons.addSliderButton( names=['BasemapOpacity'], key='B', toggle=True, label='Basemap Opacity', sliderLabels='Basemap Opacity', interactionHandler=self.processBasemapOpacityCommand, range_bounds=[ 0.0, 1.0 ], initValue= 0.5 )
         interactionButtons.addSliderButton( names=['VerticalScaling'], key='Z', toggle=True, label='Vertical Scaling', sliderLabels='Vertical Scale', interactionHandler=self.processVerticalScalingCommand, range_bounds=[ 0.02, 20.0 ], initValue= 1.0 )
         interactionButtons.addConfigButton( names=['ChooseColormap'], key='m', toggle=True, interactionHandler=self.processChooseColormapCommand, initValue=[ 'jet', False, False ]  )
         interactionButtons.addConfigButton( names=['ToggleClipping'], key='X', toggle=True, parents=['ToggleVolumePlot', 'ToggleSurfacePlot'], interactionHandler=self.processToggleClippingCommand  )
