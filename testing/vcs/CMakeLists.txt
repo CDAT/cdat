@@ -53,9 +53,6 @@ add_test(vcs_test_dump_json
 
 message(${CDAT_DOWNLOAD_SAMPLE_DATA} and ${CDAT_BUILD_MATPLOTLIB})
 
-#These test actually plot things need sample data
-  ## We need matplotlib to compare images
-if (CDAT_BUILD_MATPLOTLIB)
   add_test(vcs_test_1d_missing
     ${CMAKE_INSTALL_PREFIX}/bin/python
     ${cdat_SOURCE_DIR}/testing/vcs/test_1D_missing.py
@@ -102,6 +99,7 @@ if (CDAT_BUILD_MATPLOTLIB)
     ${cdat_SOURCE_DIR}/testing/vcs/test_markers.png
     )
 
+  #These test actually plot things need sample data
   if (CDAT_DOWNLOAD_SAMPLE_DATA)
     FOREACH(gm boxfill isofill isoline vector meshfill yxvsx xvsy xyvsy oned scatter)
       add_test(vcs_test_basic_${gm}
@@ -249,5 +247,4 @@ if (CDAT_BUILD_MATPLOTLIB)
       ${cdat_SOURCE_DIR}/testing/vcs/test_aspect_ratio.py
       )
   endif()
-endif()
 

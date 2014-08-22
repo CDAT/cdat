@@ -6,10 +6,11 @@ the known good baseline given in the third. Alternate known good images
 
 import math
 import numpy
-import matplotlib.image as mpimg
+import vtk
 import os
 import os.path
 import sys
+from vtk.util.vtkImageExportToArray import vtkImageExportToArray
 
 def compare_imgs(adata, bdata):
     try:
@@ -21,11 +22,16 @@ def compare_imgs(adata, bdata):
 
 def image_from_file(fname):
     try:
-      areader = mpimg.imread(fname)
-    except:
-      print "Problem opening file"
+      rd = vtk.vtkPNGReader()
+      rd.SetFileName(fname)
+      rd.Update()
+      exp = vtkImageExportToArray()
+      exp.SetInputConnection(rd.GetOutputPort())
+      areader = exp.GetArray()[0]/255.
+    except Exception,err:
+      print "Problem opening file",err
       return None
-    adata = areader.flatten()
+    adata = areader.flatten().astype("f")
     return adata
 
 def find_alternates(fname):
@@ -38,19 +44,16 @@ def find_alternates(fname):
             results.append(os.path.join(dirname, i))
     return results
 
-def check_result_image(fname, baselinefname, threshold):
+def check_result_image(fname, baselinefname, threshold, baseline = False):
     resultimg = image_from_file(fname)
-    if resultimg == None:
+    if resultimg is None:
         print "no result image, failed test"
         return -1
 
-    baselineimg = image_from_file(baselinefname)
-    if baselineimg == None:
-        print "no baseline image yet"
-        print "Check in " + fname + " as a new baseline"
-        return -1
-
-    baselinefnames = find_alternates(baselinefname)
+    if baseline:
+        baselinefnames = find_alternates(baselinefname)
+    else:
+        baselinefnames = [baselinefname,]
     print "baselines:"
     print baselinefnames
 
@@ -59,12 +62,11 @@ def check_result_image(fname, baselinefname, threshold):
     for x in baselinefnames:
         print "comparing " + fname + " against " + x
         nextbimage = image_from_file(x)
-        if nextbimage == None:
+        if nextbimage is None:
             continue
         res = compare_imgs(resultimg, nextbimage)
-        print "result " + str(res)
         if res >= 0:
-            if bestresult == None or res < bestresult:
+            if bestresult is None or res < bestresult:
                 print "new best"
                 besresult = res
                 bestfile = x
@@ -75,7 +77,7 @@ def check_result_image(fname, baselinefname, threshold):
                 return 0
 
     print "no baseline images matched"
-    if bestfile != None:
+    if bestfile is not None:
         print bestfile + " is closest"
         #TODO: save difference image for verification, something like
         #bestbimage = image_from_file(bestfile)
@@ -91,7 +93,7 @@ def main():
         print "Call with " + sys.argv[0] + " test_directory/test_filename.png  baseline_directory/baseline_filename.png threshold"
         sys.exit(-1)
 
-    ret = check_result_image(sys.argv[1], sys.argv[2], sys.argv[3])
+    ret = check_result_image(sys.argv[1], sys.argv[2], float(sys.argv[3]))
     sys.exit(ret)
 
 if __name__ == "__main__":
