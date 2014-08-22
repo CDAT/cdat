@@ -215,7 +215,7 @@ def get_parameter_name( serialized_value ):
 class ConfigManager:
     
     
-    def __init__( self,  **args ):    
+    def __init__( self, parent=None, **args ):   
         self.ConfigCmd = SIGNAL("ConfigCmd")
         self.cfgFile = os.path.join( DataDir, 'parameters.txt' )
         self.stateFile = os.path.join( DataDir, 'state.txt' )
@@ -225,6 +225,7 @@ class ConfigManager:
         self.metadata = args
         self.configurableFunctions = {}
         self.parameters = {} 
+        if ( parent <> None ): self.parameters.update( parent.parameters )
         self.initialized = False
 
     def getParameter( self, param_name, **args ):
