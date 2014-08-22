@@ -100,7 +100,7 @@ class DV3DPlot():
         self.xwidth = 300.0
         self.ycenter = 0.0
         self.ywidth = 180.0
-        self.cfgManager = args.get( 'cm', ConfigManager() )          
+        self.cfgManager = ConfigManager( args.get( 'cm', None ) )           
         self.buttonBarHandler = ButtonBarHandler( self.cfgManager, **args ) 
         self.plot_attributes = args.get( 'plot_attributes', {} )
         
