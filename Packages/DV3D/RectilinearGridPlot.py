@@ -22,7 +22,7 @@ AbsValueTransferFunction = 4
 PositiveValues = 0
 NegativeValues = 1
 AllValues = 2
-    
+  
 class TransferFunction:
     
     def __init__(self, tf_type, **args ):
@@ -1347,8 +1347,7 @@ class RectGridPlot(StructuredGridPlot):
         if plane == 'y': return 1, self.planeWidgetY
         if plane == 'z': return 2, self.planeWidgetZ
         return None 
-
-#TODO:    
+  
     def modifySlicePlaneVisibility( self, slider_index, plane, make_visible=None ):
         plane_index, plane_widget = self.getPlaneWidget( plane )
         if plane_widget <> None:
@@ -1470,7 +1469,7 @@ class RectGridPlot(StructuredGridPlot):
         if type == 'lakes':
             return ( 0, 0, 0.6 )
         return ( 0, 0, 0 )
-            
+           
     def ProcessIPWAction( self, caller, event, **args ):
         action = args.get( 'action', caller.State )
         iAxis = caller.PlaneOrientation
@@ -1511,8 +1510,19 @@ class RectGridPlot(StructuredGridPlot):
                 if not self.isSlicing:
                     self.isSlicing = True 
                 sliceIndex = caller.GetSliceIndex() 
-                axisName, spos = ispec.getWorldCoord( sliceIndex, iAxis, True )
-                textDisplay = " %s = %s ." % ( axisName, spos )
+                plotType = ispec.getMetadata( 'plotType')
+                if plotType == 'xyt':
+                    ctime = ispec.getMetadata( 'timeValue' )
+                    if ctime == None:
+                        ctime = float( sliceIndex )
+                        ct_units = ' '
+                    else:
+                        ct_units = ispec.getMetadata( 'timeUnits', ' ' )
+                    textDisplay = " time = %f %s." % ( ctime, ct_units )
+                else:
+                    axisName, spos = ispec.getWorldCoord( sliceIndex, iAxis, True )
+                    textDisplay = " %s = %s ." % ( axisName, spos )
+                    
                 if iAxis == 0:
                     p1 = caller.GetPoint1()
 #                    print " >++++++++++++++++++> Slicing: Set Slice[%d], index=%d, pos=%.2f, " % ( iAxis, sliceIndex, p1[0] ), textDisplay

@@ -248,8 +248,8 @@ class ConfigManager:
             self.configurableFunctions[name] = rv
         return rv
         
-    def getMetadata(self, key=None ):
-        return self.metadata.get( key, None ) if key else self.metadata
+    def getMetadata(self, key=None, default=None ):
+        return self.metadata.get( key, default ) if key else self.metadata
 
     def addParam(self, key ,cparm ):
         self.parameters[ key ] = cparm
@@ -988,8 +988,8 @@ class InputSpecs:
         imageScaledValue =  sval * ( self.rangeBounds[1] - self.rangeBounds[0] ) 
         return imageScaledValue
 
-    def getMetadata( self, key = None ):
-        return self.metadata.get( key, None ) if ( key and self.metadata )  else self.metadata
+    def getMetadata( self, key = None, default=None ):
+        return self.metadata.get( key, default ) if ( key and self.metadata )  else self.metadata
   
     def getFieldData( self ):
         if self.fieldData == None:
