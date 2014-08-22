@@ -513,7 +513,7 @@ class StructuredDataReader:
             if not lon_axis is None: vmd[ 'lon' ] =  lon_axis.getValue()  
             lev_axis= var.getLevel()  
             if not lev_axis is None: vmd[ 'lev' ] =  lev_axis.getValue()  
-            vmd[ 'time' ] = [ str(ct) for ct in self.timeLabels ]
+            vmd[ 'time' ] = self.timeLabels
              
             enc_mdata = encodeToString( vmd ) 
             if enc_mdata and fieldData: 
@@ -653,6 +653,7 @@ class StructuredDataReader:
                             if not axis is None: md[ 'lat' ] =  axis.getValue()
                             axis = var.getLevel()
                             if not axis is None: md[ 'lev' ] =  axis.getValue()
+                            md[ 'time' ] = [ str(ct) for ct in self.timeLabels ]
                                         
                 self.setCachedData( varDataId, cell_coords, varDataSpecs )  
         
