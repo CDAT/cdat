@@ -1511,14 +1511,10 @@ class RectGridPlot(StructuredGridPlot):
                     self.isSlicing = True 
                 sliceIndex = caller.GetSliceIndex() 
                 plotType = ispec.getMetadata( 'plotType')
-                if plotType == 'xyt':
-                    ctime = ispec.getMetadata( 'timeValue' )
-                    if ctime == None:
-                        ctime = float( sliceIndex )
-                        ct_units = ' '
-                    else:
-                        ct_units = ispec.getMetadata( 'timeUnits', ' ' )
-                    textDisplay = " time = %f %s." % ( ctime, ct_units )
+                if plotType == 'xyt' and (iAxis == 2):
+                    ctime_vals = ispec.getMetadata( 'time' )
+                    ctime = str( sliceIndex ) if ( ctime_vals == None ) else ctime_vals[ sliceIndex ]
+                    textDisplay = " time = %s." % ( ctime )
                 else:
                     axisName, spos = ispec.getWorldCoord( sliceIndex, iAxis, True )
                     textDisplay = " %s = %s ." % ( axisName, spos )
