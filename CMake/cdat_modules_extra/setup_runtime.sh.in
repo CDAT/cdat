@@ -68,11 +68,11 @@ for d in "${executable_paths[@]}" ; do
   fi
 done
 
-if [ -d "${install_prefix}/External/lib/R" ] ; then
-  export R_HOME="${install_prefix}/External/lib/R"
+if [ -d "${install_prefix}/Externals/lib/R" ] ; then
+  export R_HOME="${install_prefix}/Externals/lib/R"
 fi
 
-export OPAL_PREFIX="${install_prefix}/External"
+export OPAL_PREFIX="${install_prefix}/Externals"
 export LIBOVERLAY_SCROLLBAR=0
 
 export PATH
