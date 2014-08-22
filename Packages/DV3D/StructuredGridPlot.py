@@ -70,14 +70,14 @@ class StructuredGridPlot(DV3DPlot):
         elif args and args[0] == "Init":
             ispec = self.inputSpecs[ 0 ] 
             zsval = config_function.initial_value
-            plotType = ispec.getMetadata('plotType')
-            if plotType == 'xyt':
-                tval = ispec.getMetadata('time')
-                if tval: zsval = 10.0 / len( tval )
-            else: 
-                lval = ispec.getMetadata('lev')
-                if tval: zsval = 10.0 / len( lval )
-            verticalScale.setValues( [ zsval ] )
+#             plotType = ispec.getMetadata('plotType')
+#             if plotType == 'xyt':
+#                 tval = ispec.getMetadata('time')
+#                 if tval: zsval = 10.0 / len( tval )
+#             else: 
+#                 lval = ispec.getMetadata('lev')
+#                 if tval: zsval = 10.0 / len( lval )
+#             verticalScale.setValues( [ zsval ] )
             self.setZScale( zsval  )
             verticalScale.setValue( 'count', 1 )
         elif args and args[0] == "EndConfig":
