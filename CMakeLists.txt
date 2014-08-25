@@ -586,6 +586,32 @@ message("[INFO] WGET EXEC: ${WGET_EXECUTABLE}")
 
 # Configure remaining files
 #-----------------------------------------------------------------------------
+
+# set candidate paths for setup_runtime scripts
+# will be added to environment variables in reverse order
+message("PARAVIEW VALS:${PARAVIEW_MAJOR}")
+set(SETUP_LIBRARY_PATHS
+  "Externals/lib/paraview-${PARAVIEW_MAJOR}.${PARAVIEW_MINOR} "
+  "Externals/lib/R/lib "
+  "Externals/lib "
+  "lib "
+)
+string(REPLACE ";" " " SETUP_LIBRARY_PATHS ${SETUP_LIBRARY_PATHS})
+set(SETUP_EXECUTABLE_PATHS
+  "Externals/paraview.app/Contents/bin "
+  "Library/Frameworks/Python.framework/Versions/${PYVER}/bin "
+  "Externals/bin "
+  "bin "
+)
+string(REPLACE ";" " " SETUP_EXECUTABLE_PATHS ${SETUP_EXECUTABLE_PATHS})
+set(SETUP_PYTHON_PATHS
+  "Externals/paraview.app/Contents/Python "
+  "Externals/lib/python${PYVER}/site-packages "
+  "Externals/lib/paraview-${PARAVIEW_MAJOR}.${PARAVIEW_MINOR}/site-packages "
+  "lib/python${PYVER}/site-packages "
+)
+string(REPLACE ";" " " SETUP_PYTHON_PATHS ${SETUP_PYTHON_PATHS})
+
 configure_file(${cdat_CMAKE_SOURCE_DIR}/cdat_modules_extra/install.py.in
     ${cdat_SOURCE_DIR}/installation/install.py
   @ONLY

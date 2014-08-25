@@ -1,56 +1,84 @@
 #!/bin/bash
 
-# Find the location of this script and store it for further use
-SB_EXTERNALS_DIR="@SB_EXTERNALS_DIR@"
-SB_LIB_DIR="@SB_LIB_DIR@"
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" > /dev/null && pwd )"
-INSTALL_PREFIX=`dirname ${DIR}`
+# Main install prefix set by user or post install script:
+# UVCDAT_INSTALL_PREFIX
 
-_os=$("uname")
+# If unset, use the value configured by cmake by default.
+# Everything beyond this point will be determined relatively
+# from this path.
+install_prefix="${UVCDAT_INSTALL_PREFIX:-@CMAKE_INSTALL_PREFIX@}"
 
-if [[ "$SB_LIB_DIR" != /* ]]; then
-  SB_LIB_DIR="${INSTALL_PREFIX}/${SB_LIB_DIR}"
+function cleanup {
+  unset cleanup install_prefix library_paths python_paths executable_paths
+}
+
+# Try to prevent the user from sourcing twice,
+# which can lead to errors.
+if [ -n "${UVCDAT_SETUP_PATH}" ] ; then
+  if [ "${UVCDAT_SETUP_PATH}" = "${install_prefix}" ] ; then
+    echo "UVCDAT setup already sourced for this install location." 1>&2
+    cleanup
+    return 1
+  else
+    echo "ERROR: UVCDAT setup was previously sourced at \"${UVCDAT_SETUP_PATH}\"" 1>&2
+    echo "Open a new shell in order to use a different install location." 1>&2
+    cleanup
+    return 1
+  fi
 fi
 
-if [[ "$SB_EXTERNALS_DIR" != /* ]]; then
-  SB_EXTERNALS_DIR="${INSTALL_PREFIX}/${SB_EXTERNALS_DIR}"
+# Check that the install prefix exists, otherwise stop.
+if [ ! -d "${install_prefix}" ] ; then
+  echo "ERROR: \"${install_prefix}\" is not a directory." 1>&2
+  cleanup
+  return 1
 fi
 
-if [ ${_os} == "Darwin" ]; then 
-    PATH=${INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/@PYVER@/bin:${PATH}
+# cmake set variables
+library_paths=( @SETUP_LIBRARY_PATHS@ )
+python_paths=( @SETUP_PYTHON_PATHS@ )
+executable_paths=( @SETUP_EXECUTABLE_PATHS@ )
+
+if [ -d '@QT_LIB_DIR@' ] ; then
+  LD_LIBRARY_PATH='@QT_LIB_DIR@:'"${LD_LIBRARY_PATH}"
 fi
 
-export PYTHON_SITEPACKAGES_DIR=${SB_LIB_DIR}/python@PYVER@/site-packages:${SB_EXTERNALS_DIR}/lib/python@PYVER@/site-packages
+for d in "${library_paths[@]}" ; do
+  f="${install_prefix}/${d}"
+  if [ -d "${f}" ] ; then
+    LD_LIBRARY_PATH="${f}:${LD_LIBRARY_PATH}"
+  fi
+done
 
-PATH=${DIR}:${PATH}
-PATH="${SB_EXTERNALS_DIR}/bin":${PATH}
-#PATH=${INSTALL_PREFIX}:${PYTHON_SITEPACKAGES_DIR}:${PATH}
-
-if [ ${_os} == "Darwin" ]; then
- PATH=${SB_EXTERNALS_DIR}/paraview.app/Contents/bin:${PATH}
- PYTHONPATH=${SB_EXTERNALS_DIR}/paraview.app/Contents/Python:${PYTHONPATH}
+if [ `uname` = 'Darwin' ] ; then
+  export DYLD_FALLBACK_LIBRARY_PATH="${LD_LIBRARY_PATH}"
 fi
 
-export PATH
+for d in "${python_paths[@]}" ; do
+  f="${install_prefix}/${d}"
+  if [ -d "${f}" ] ; then
+    PYTHONPATH="${f}:${PYTHONPATH}"
+  fi
+done
 
-export PYTHONPATH=${PYTHON_SITEPACKAGES_DIR}:${SB_EXTERNALS_DIR}/lib:${SB_LIB_DIR}/VisIt-@VISIT_VERSION@/site-packages/:${PYTHONPATH}
-export PYTHONPATH=${PYTHON_SITEPACKAGES_DIR}/vcs:${SB_EXTERNALS_DIR}/lib/paraview-@PARAVIEW_MAJOR@.@PARAVIEW_MINOR@/site-packages:${PYTHONPATH}
-export PYTHONPATH=${SB_EXTERNALS_DIR}/lib/paraview-@PARAVIEW_MAJOR@.@PARAVIEW_MINOR@/site-packages/vtk:${PYTHONPATH}
+for d in "${executable_paths[@]}" ; do
+  f="${install_prefix}/${d}"
+  if [ -d "${f}" ] ; then
+    PATH="${f}:${PATH}"
+  fi
+done
 
-export SB_LD_LIBRARY_PATH=${SB_EXTERNALS_DIR}/lib/paraview-@PARAVIEW_MAJOR@.@PARAVIEW_MINOR@/site-packages/vtk:${SB_LD_LIBRARY_PATH}
-export SB_LD_LIBRARY_PATH=${SB_EXTERNALS_DIR}/lib/paraview-@PARAVIEW_MAJOR@.@PARAVIEW_MINOR@:${SB_EXTERNALS_DIR}/lib:${SB_EXTERNALS_DIR}/lib/R/lib
-export SB_LD_LIBRARY_PATH=${SB_LD_LIBRARY_PATH}:{SB_LIB_DIR}:${SB_LIB_DIR}/VisIt-@VISIT_VERSION@:@QT_LIB_DIR@
-export LD_LIBRARY_PATH=${SB_LD_LIBRARY_PATH}:${LD_LIBRARY_PATH}
-if [ ${_os} == "Darwin" ]; then 
-    export SB_LD_LIBRARY_PATH=${SB_LD_LIBRARY_PATH}:${INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/@PYVER@/lib/python@PYVER@/site-packages/vcs
-    export DYLD_FALLBACK_LIBRARY_PATH=${SB_LD_LIBRARY_PATH}:${SB_LIB_DIR}/python@PYVER@/site-packages:${SB_LIB_DIR}/python@PYVER@/site-packages/vcs:${DYLD_FALLBACK_LIBRARY_PATH}
+if [ -d "${install_prefix}/Externals/lib/R" ] ; then
+  export R_HOME="${install_prefix}/Externals/lib/R"
 fi
 
-export VISITPLUGINDIR=${SB_LIB_DIR}/VisIt-@VISIT_VERSION@-plugins
-export R_HOME=${SB_EXTERNALS_DIR}/lib/R
-export OPAL_PREFIX=${SB_EXTERNALS_DIR}
+export OPAL_PREFIX="${install_prefix}/Externals"
 export LIBOVERLAY_SCROLLBAR=0
 
-## On some system with X Forward or w/o modern graphic cards the following might be useful
-## export LIBGL_ALWAYS_INDIRECT=1
+export PATH
+export LD_LIBRARY_PATH
+export PYTHONPATH
 
+export UVCDAT_SETUP_PATH="${install_prefix}"
+cleanup
+return 0
