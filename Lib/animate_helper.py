@@ -3,6 +3,9 @@ import numpy
 import os
 import time
 import thread
+import threading
+
+from PyQt4 import QtCore
 
 def showerror(msg):
   raise Exception,msg
@@ -578,296 +581,352 @@ class RT:
   def stop(self):
     self.running = False
 
-class animate_obj(animate_obj_old):
+class AnimationSignals(QtCore.QObject):
+  """Inner class to hold signals since main object is not a QObject
+  """
+  drawn = QtCore.pyqtSignal(int, name="animationDrawn")
+  created = QtCore.pyqtSignal(name="animationCreated")
+  canceled = QtCore.pyqtSignal(name="animationCanceled")
+  paused = QtCore.pyqtSignal(name="animationPaused")
+  stopped = QtCore.pyqtSignal(bool, name="animationStopped")
 
-    def __init__(self, vcs_self):
-        animate_obj_old.__init__(self,vcs_self)
-        self.zoom_factor = 1.
-        self.vertical_factor = 0
-        self.horizontal_factor = 0
-        self.allArgs = []
-        self.canvas = None
-        self.animation_seed = None
-        self.animation_files = []
-        self.frames_per_second = 100.
-        self.creating_animation = False
-        self.fps(100) #sets runTimer interval
-        self.runTimer = RT(self.next,self)
-        self.current_frame = 0
-        self.loop = True
+# Adapted from http://stackoverflow.com/questions/323972/is-there-any-way-to-kill-a-thread-in-python
+class StoppableThread(threading.Thread):
+  def __init__(self):
+    threading.Thread.__init__(self)
+    self._stop = threading.Event()
+    self._running = threading.Event()
+    self._running.set()
 
+  def stop(self):
+    self._stop.set()
+    
+  def is_stopped(self):
+    return self._stop.isSet()
 
-    def create( self, parent=None, min=None, max=None, save_file=None, thread_it = 1, rate=5., bitrate=None, ffmpegoptions='', axis=0):
-        if self.canvas is None:
-          #self.canvas = vcs.init()
-          self.canvas = self.vcs_self
-        self.current_frame = 0
-        self.creating_animation = True
-        if thread_it:
-          self.thread = thread.start_new_thread(self._actualCreate,
-                (parent,min,max,save_file,rate,bitrate,ffmpegoptions,axis)
-                )
+  def pause(self):
+    self._running.clear()
+
+  def resume(self):
+    self._running.set()
+
+  def wait_if_paused(self):
+    self._running.wait()
+
+class AnimationCreateParams(object):
+  def __init__(self, a_min=None, a_max=None, axis=0):
+    self.a_min = a_min
+    self.a_max = a_max
+    self.axis = axis
+
+class AnimationCreate(StoppableThread):
+  def __init__(self, controller):
+    StoppableThread.__init__(self)
+    self.controller = controller
+    
+  def run(self):
+    self.controller.initialize_create_canvas()
+    self.controller.set_anim_min_max()
+    all_args = self.controller.get_all_frame_args()
+    self.controller.reset_file_paths()
+
+    for i, args in enumerate(all_args):
+      if self.is_stopped():
+        break
+      self.wait_if_paused()
+      # print "RENDERING FRAME", i, "OF", len(all_args)
+      self.controller.render_frame(args, i)
+      time.sleep(0.1)
+    self.controller.restore_min_max()
+
+    self.controller.animation_created = True
+    self.controller.signals.created.emit()
+
+class AnimationPlaybackParams(object):
+  def __init__(self):
+    self.zoom_factor = 1.0
+    self.vertical_factor = 0
+    self.horizontal_factor = 0
+    self.frames_per_second = 10.0
+    self.loop = True
+
+  def fps(self, value=None):
+    """Animation desired number of frame per seconds (might not be
+    achievable depending on your system)
+
+    """
+    if value is not None:
+      value = max(value, 0.0001)
+      self.frames_per_second = value
+      return self
+    return self.frames_per_second
+
+  def zoom(self,value):
+    """Zoom factor for the animation"""
+    self.zoom_factor = value
+
+  def horizontal(self,value):
+    """ Pan the window horizontaly (when zoomed). 100% means move so you can see the furthest right part of the picture"
+    """
+    if value>100.:
+      raise Exception("Horizontal Factor cannot be greater than 100%")
+    if value<-100.:
+      raise Exception("Horizontal Factor cannot be less than 100%")
+    self.horizontal_factor = value
+
+  def vertical(self,value):
+    """ Pan the window verticaly (when zoomed). 100% means move so you can see the top part of the picture"
+    """
+    if value>100.:
+      raise Exception("Vertical Factor cannot be greater than 100%")
+    if value<-100.:
+      raise Exception("Vertical Factor cannot be less than 100%")
+    self.vertical_factor = value
+
+class AnimationPlayback(StoppableThread):
+  def __init__(self, controller):
+    StoppableThread.__init__(self)
+    self.controller = controller
+
+  def run(self):
+    self.controller.frame_num = 0
+    self.controller.signals.stopped.emit(False)
+    self.controller.playback_running = True
+    while not self.is_stopped():
+      self.wait_if_paused()
+      # draw frame
+      # print "DRAWING FRAME:", self.controller.frame_num, self.controller.animation_files[self.frame_num]
+      self.controller.draw_frame()
+
+      self.controller.frame_num += 1
+      if self.controller.frame_num >= self.controller.number_of_frames():
+        if self.controller.playback_params.loop:
+          self.controller.frame_num = 0
         else:
-          self.thread = None
-          self._actualCreate(parent,min,max,save_file,rate,bitrate,ffmpegoptions,axis)
-        return 
+          break
+      time.sleep(1./self.controller.playback_params.frames_per_second)
+    self.controller.playback_running = False
+    self.controller.signals.stopped.emit(True)
 
-    def _actualCreate( self, parent=None, min=None, max=None, save_file=None, rate=5., bitrate=None, ffmpegoptions='', axis=0, sender=None):
-        alen = None
-        dims = self.vcs_self.canvasinfo()
-        if dims['height']<500:
-            factor = 2
+class AnimationController(animate_obj_old):
+  def __init__(self, vcs_self):
+    animate_obj_old.__init__(self, vcs_self)
+    self.create_thread = None
+    self.playback_thread = None
+
+    self.animation_created = False
+    self.playback_running = False
+    self.animation_files = []
+    self.animation_seed = None
+    self.frame_num = 0
+    self.create_params = AnimationCreateParams()
+    self.playback_params = AnimationPlaybackParams()
+    self.signals = AnimationSignals()
+
+  def created(self):
+    return self.animation_created
+
+  def create(self):
+    if self.create_thread is None or not self.create_thread.is_alive():
+      self.canvas_info = self.vcs_self.canvasinfo()
+      self.animate_info = self.vcs_self.animate_info
+      self.create_thread = AnimationCreate(self)
+      self.create_thread.start()
+
+  def create_stop(self):
+    self.create_thread.stop()
+
+  def create_pause(self):
+    self.create_thread.pause()
+
+  def create_resume(self):
+    self.create_thread.resume()
+
+  def is_playing(self):
+    return self.playback_running
+
+  def playback(self):
+    if (self.created() and 
+          self.playback_thread is None or not self.playback_thread.is_alive()):
+        self.playback_thread = AnimationPlayback(self)
+        self.playback_thread.start()
+    
+  def playback_stop(self):
+    if self.is_playing():
+      self.playback_thread.stop()
+
+  def playback_pause(self):
+    if self.is_playing():
+      self.playback_thread.pause()
+
+  def playback_resume(self):
+    if self.playback_thread is not None:
+      self.playback_thread.resume()
+
+  def number_of_frames(self):
+    return len(self.animation_files)
+
+  def initialize_create_canvas(self):
+    import Canvas
+    # create a new canvas for each frame
+    self.create_canvas = Canvas.Canvas()
+
+    alen = None
+    # dims = self.vcs_self.canvasinfo()
+    dims = self.canvas_info
+    if dims['height']<500:
+        factor = 2
+    else:
+        factor=1
+    if dims["width"]<dims["height"]:
+      self.create_canvas.portrait(width=dims["width"],
+                                  height=dims["height"])
+    self.create_canvas.setbgoutputdimensions(width=dims['width']*factor,
+                                             height=dims['height']*factor,
+                                             units='pixel')
+    
+  def set_anim_min_max(self):
+    # Save the min and max values for the graphics methods.
+    # Will need to restore values back when animation is done.
+    self.save_original_min_max()
+    # Note: cannot set the min and max values if the default graphics
+    # method is set.
+    do_min_max = 'yes'
+    try:
+       if (parent is not None) and (parent.iso_spacing == 'Log'):
+          do_min_max = 'no'
+    except:
+       pass
+    if ( do_min_max == 'yes' ):
+         minv = []
+         maxv=[]
+         if (self.create_params.a_min is None or 
+             self.create_params.a_max is None):
+            for i in xrange(len(self.animate_info)):
+               minv.append( 1.0e77 )
+               maxv.append( -1.0e77 )
+            for i in xrange(len(self.animate_info)):
+               dpy, slab = self.animate_info[i]
+               mins, maxs = vcs.minmax(slab)
+               minv[i] = float(numpy.minimum(float(minv[i]), float(mins)))
+               maxv[i] = float(numpy.maximum(float(maxv[i]), float(maxs)))
+         elif (isinstance(self.create_params.a_min,list) or 
+               isinstance(self.create_params.a_max,list)):
+            for i in xrange(len(self.animate_info)):
+               try:
+                  minv.append( self.create_params.a_min[i] )
+               except:
+                  minv.append( self.create_params.a_min[-1] )
+               try:
+                  maxv.append( self.create_params.a_max[i] )
+               except:
+                  maxv.append( self.create_params.a_max[-1] )
+         else:
+            for i in xrange(len(self.animate_info)):
+                minv.append( self.create_params.a_min )
+                maxv.append( self.create_params.a_max )
+         # Set the min an max for each plot in the page. If the same graphics method is used
+         # to display the plots, then the last min and max setting of the data set will be used.
+         for i in xrange(len(self.animate_info)):
+            try:
+               self.set_animation_min_max( minv[i], maxv[i], i )
+            except Exception,err:
+               pass # if it is default, then you cannot set the min and max, so pass.
+
+  def get_all_frame_args(self):
+    alen = None
+    truncated = False
+    vcs_ai = list(self.animate_info)
+    for I in vcs_ai:
+        if alen is None:
+            alen = I[1][0].shape[self.create_params.axis]
         else:
-            factor=1
-        if dims["width"]<dims["height"]:
-            self.canvas.portrait(width=dims["width"],height=dims["height"])
-        self.canvas.setbgoutputdimensions(width = dims['width']*factor,height=dims['height']*factor,units='pixel')
-        truncated = False
-        vcs_ai = list(self.vcs_self.animate_info)
-        self.vcs_self.clear()
+            l = I[1][0].shape[self.create_params.axis]
+            if l!=alen:
+                alen = numpy.minimum(alen,l)
+                truncated = True
+    if truncated:
+        warnings.warn("Because of inconsistent shapes over axis: %i, the "
+                      "animation length will be truncated to: %i\n" % 
+                      (self.create_params.axis,alen))
+
+    all_args = []
+    for i in range(alen):
+        #y.clear()
+        frameArgs = []
         for I in vcs_ai:
-            if alen is None:
-                alen = I[1][0].shape[axis]
-            else:
-                l = I[1][0].shape[axis]
-                if l!=alen:
-                    alen = numpy.minimum(alen,l)
-                    truncated = True
-        if truncated:
-            warnings.warn("Because of inconsistent shapes over axis: %i, the animation length will be truncated to: %i\n" % (axis,alen))
-        if self.animation_seed is not None:
-            if self.animation_files != []:
-                for fnm in self.animation_files:
-                    os.remove(fnm)
-        self.animation_seed = None
-        self.animation_files = []
-        # Save the min and max values for the graphics methods.
-        # Will need to restore values back when animation is done.
-        self.save_original_min_max()
-        # Note: cannot set the min and max values if the default graphics method is set.
-        do_min_max = 'yes'
-        try:
-           if (parent is not None) and (parent.iso_spacing == 'Log'):
-              do_min_max = 'no'
-        except:
-           pass
-        if ( do_min_max == 'yes' ):
-             minv = []
-             maxv=[]
-             if (min is None) or (max is None):
-                for i in range(len(self.vcs_self.animate_info)):
-                   minv.append( 1.0e77 )
-                   maxv.append( -1.0e77 )
-                for i in range(len(self.vcs_self.animate_info)):
-                   dpy, slab = self.vcs_self.animate_info[i]
-                   mins, maxs = vcs.minmax(slab)
-                   minv[i] = float(numpy.minimum(float(minv[i]), float(mins)))
-                   maxv[i] = float(numpy.maximum(float(maxv[i]), float(maxs)))
-             elif isinstance(min,list) or isinstance(max,list):
-                for i in range(len(self.vcs_self.animate_info)):
-                   try:
-                      minv.append( min[i] )
-                   except:
-                      minv.append( min[-1] )
-                   try:
-                      maxv.append( max[i] )
-                   except:
-                      maxv.append( max[-1] )
-             else:
-                for i in range(len(self.vcs_self.animate_info)):
-                    minv.append( min )
-                    maxv.append( max )
-             # Set the min an max for each plot in the page. If the same graphics method is used
-             # to display the plots, then the last min and max setting of the data set will be used.
-             for i in range(len(self.vcs_self.animate_info)):
-                try:
-                   self.set_animation_min_max( minv[i], maxv[i], i )
-                except Exception,err:
-                   pass # if it is default, then you cannot set the min and max, so pass.
-
-        self.allArgs = []
-        for i in range(alen):
-            #y.clear()
-            frameArgs = []
-            for I in vcs_ai:
-                d=I[0]
+            d=I[0]
+            kw={}
+            n = len(I[1][0].shape)
+            for j,id in enumerate(I[1][0].getAxisIds()):
+                if j!=self.create_params.axis and j<n-2:
+                    kw[id]=slice(0,1)
+                elif j==self.create_params.axis:
+                    kw[id]=slice(i,i+1)
+                else:
+                    break
+            args = [I[1][0](**kw),]
+            if I[1][1] is not None:
                 kw={}
-                n = len(I[1][0].shape)
-                for j,id in enumerate(I[1][0].getAxisIds()):
-                    if j!=axis and j<n-2:
+                n = len(I[1][1].shape)
+                for j,id in enumerate(I[1][1].getAxisIds()):
+                    if j!=self.create_params.axis and j<n-2:
                         kw[id]=slice(0,1)
-                    elif j==axis:
+                    elif j==self.create_params.axis:
                         kw[id]=slice(i,i+1)
                     else:
                         break
-                args = [I[1][0](**kw),]
-                if I[1][1] is not None:
-                    kw={}
-                    n = len(I[1][1].shape)
-                    for j,id in enumerate(I[1][1].getAxisIds()):
-                        if j!=axis and j<n-2:
-                            kw[id]=slice(0,1)
-                        elif j==axis:
-                            kw[id]=slice(i,i+1)
-                        else:
-                            break
-                    args.append(I[1][1](**kw))
-                args += [d.template,d.g_type,d.g_name]
-                #b=y.getboxfill(d.g_name)
-                #y.plot(*args,bg=1)
-                frameArgs.append(args)
-            self.allArgs.append(frameArgs)
+                args.append(I[1][1](**kw))
+            args += [d.template,d.g_type,d.g_name]
+            #b=y.getboxfill(d.g_name)
+            #y.plot(*args,bg=1)
+            frameArgs.append(args)
+        all_args.append(frameArgs)
+    return all_args
 
-        if sender is None:
-            for i in xrange(len(self.allArgs)):
-                self.renderFrame(i)
-            self.restore_min_max()
-            self.animationCreated()
-        else:
-            sender.animationTimer.start(0, sender)
-            sender.dialog.setRange(0, len(self.allArgs))
-            sender.dialog.show()
-        self.creating_animation = False
+  def reset_file_paths(self):
+    if self.animation_seed is not None:
+        if self.animation_files != []:
+            for fnm in self.animation_files:
+                os.remove(fnm)
+            self.animation_files = []
+        self.animation_seed = None
 
-    def animationCreated(self):
-        self.create_flg = 1
-        self.restore_min_max()
+  def render_frame(self, frame_args, frame_num):
+    if self.animation_seed is None:
+        self.animation_seed = numpy.random.randint(10000000000)
+    fn = os.path.join(os.environ["HOME"],".uvcdat",
+                      "__uvcdat_%i_%i.png" % (self.animation_seed,frame_num))
+    self.animation_files.append(fn)
 
-    def animationCanceled(self):
-        self.create_flg = 0
-        self.restore_min_max()
+    #BB: this clearing and replotting somehow fixes vcs internal state
+    # and prevents segfaults when running multiple animations
+    #self.vcs_self.replot()
 
-    def renderFrame(self, i):
-        if self.animation_seed is None:
-            self.animation_seed = numpy.random.randint(10000000000)
-        frameArgs = self.allArgs[i]
-        fn = os.path.join(os.environ["HOME"],".uvcdat","__uvcdat_%i_%i.png" % (self.animation_seed,i))
-        self.animation_files.append(fn)
+    self.create_canvas.clear()
+    for args in frame_args:
+        self.create_canvas.plot(*args, bg=1)
+    self.create_canvas.png(fn,draw_white_background=1)
 
-        #BB: this clearing and replotting somehow fixes vcs internal state
-        # and prevents segfaults when running multiple animations
-        #self.vcs_self.replot()
+  def draw_frame(self, frame_num=None):
+    if frame_num is not None:
+      self.frame_num = frame_num
+    self.vcs_self.backend.clear()
+    self.vcs_self.put_png_on_canvas(
+      self.animation_files[self.frame_num],
+      self.playback_params.zoom_factor,
+      self.playback_params.vertical_factor,
+      self.playback_params.horizontal_factor)
+    self.signals.drawn.emit(self.frame_num)
 
-
-
-        #self.canvas.clear()
-        #self.vcs_self.plot(*frameArgs[0],bg=1)
-        self.canvas.clear()
-        for args in frameArgs:
-            self.canvas.plot(*args, bg=0)
-        self.canvas.png(fn,draw_white_background=1)
-        #self.canvas.png("sample")
-        
-    # def runner(self):
-    #     self.runit = True
-    #     while self.runit:
-    #         for fn in self.animation_files:
-    #             if not self.runit:
-    #                 self.run_flg = 0
-    #                 break
-    #             self.vcs_self.canvas.put_png_on_canvas(fn,self.zoom_factor,self.vertical_factor,self.horizontal_factor)
-    #             import time
-    #             time.sleep(self.pause_value)
-
-    def next(self):
-        """Draws next frame of animation
-        """
-        if self.create_flg == 1:
-            if self.current_frame < len(self.animation_files)-1:
-                self.current_frame += 1
-            elif self.loop or self.first_run:
-                self.current_frame = 0
-            else:
-                self.pause_run()
-            self.draw(self.current_frame)
-        else:
-            self.pause_run()
-        if self.first_run:
-            self.first_run = False
-
-    def run(self,*args,**kargs):
-      """Runs the animation"""
-      thread.start_new_thread(self._run,args,kargs)
-      
-    def _run(self,*args):
-      """Runs the animation"""
-      self.vcs_self.open()
-      while self.create_flg == 0:
-        pass
-      if self.create_flg == 1 and self.run_flg == 0:
-          self.first_run = True
-          self.run_flg = 1
-          self.runTimer.start()
-
-    def pause_run(self):
-      """ Pauses the animation """
-      self.run_flg = 0
-      self.runTimer.stop()
-
-    def draw(self, frame):
-      """Render a specific Frame"""
-      if self.create_flg == 1:
-          self.current_frame = frame
-          self.vcs_self.backend.clear()
-          self.vcs_self.put_png_on_canvas(self.animation_files[frame],
-                  self.zoom_factor, self.vertical_factor, self.horizontal_factor)
-        
-    def frame(self, frame):
-      """Render a specific Frame"""
-      self.draw(frame)
-
-    def save(self,movie,bitrate=1024, rate=None, options=''):
-      """Save animation to a file"""
-      if self.create_flg == 1:
-          fnms = os.path.join(os.environ["HOME"],".uvcdat","__uvcdat_%i_%%d.png" %      (self.animation_seed))
-          if rate is None:
-              rate = self.fps()
-          self.vcs_self.ffmpeg(movie, fnms, bitrate, rate, options)
-
-    def number_of_frames(self):
-      """Returns the number of frames"""
-      return len(self.animation_files)
-
-    def stop(self):
-      """Stop animation when runnning"""
-      self.pause_run()
-      self.current_frame = 0
-
-    def pause(self, value):
-      """Time between frames when animating"""
-      value = max(value, 0.0001)
-      self.fps(1/value)
-
-    def zoom(self,value):
-      """Zoom factor for the animation"""
-      self.zoom_factor = value
-
-    def horizontal(self,value):
-      """ Pan the window horizontaly (when zoomed). 100% means move so you can see the furthest right part of the picture"
-      """
-      if value>100.:
-        raise Exception("Horizontal Factor cannot be greater than 100%")
-      if value<-100.:
-        raise Exception("Horizontal Factor cannot be less than 100%")
-      self.horizontal_factor = value
-
-    def vertical(self,value):
-      """ Pan the window verticaly (when zoomed). 100% means move so you can see the top part of the picture"
-      """
-      if value>100.:
-        raise Exception("Vertical Factor cannot be greater than 100%")
-      if value<-100.:
-        raise Exception("Vertical Factor cannot be less than 100%")
-      self.vertical_factor = value
-
-    def fps(self, value=None):
-      """ Animation desired number of frame per seconds (might not be achievable depending on your system)"""
-      if value is not None:
-          value = max(value, 0.0001)
-          self.frames_per_second = value
-          return self
-      return self.frames_per_second
-
+  def save(self,movie,bitrate=1024, rate=None, options=''):
+    """Save animation to a file"""
+    if self.created():
+        fnms = os.path.join(os.environ["HOME"],".uvcdat",
+                            "__uvcdat_%i_%%d.png" % (self.animation_seed))
+        if rate is None:
+            rate = self.playback_params.fps()
+        self.vcs_self.ffmpeg(movie, fnms, bitrate, rate, options)
       
 ############################################################################
 #        END OF FILE                                                       #
