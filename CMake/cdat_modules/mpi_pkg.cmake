@@ -7,5 +7,8 @@ set(MPI_MD5 70aa9b6271d904c6b337ca326e6613d1 )
 set(MPI_SOURCE ${MPI_URL}/${MPI_GZ})
 set(MPI_VERSION ${MPI_MAJOR}.${MPI_MINOR}.${MPI_PATCH})
 
-add_cdat_package_dependent(MPI "" "Build MPI" OFF "CDAT_BUILD_PARALLEL" OFF)
+add_cdat_package(MPI "" "Bulid MPI" OFF)
 
+if (CDAT_BUILD_PARALLEL)
+    set_property(CACHE CDAT_BUILD_MPI PROPERTY VALUE ON)
+endif()
