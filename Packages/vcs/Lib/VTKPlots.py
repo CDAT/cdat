@@ -1054,21 +1054,24 @@ class VTKVCSBackend(object):
   def gettextextent(self,textorientation,texttable):
       warnings.warn("Please implement gettextextent for VTK Backend")
 
-class VTKAnimate(animate_helper.animate_obj):
-  def __init__(self,*args,**kargs):
-    animate_helper.animate_obj.__init__(self,*args,**kargs)
-    self._initial_blink_done = False
-  def draw2(self,frame):
-    if self.create_flg == 1:
-        self.current_frame = frame
-        kargs = {}
-        if self._initial_blink_done:
-          kargs["noblink"]=True
-        else:
-          self._initial_blink_done = True
-        self.vcs_self.backend.clear()
-        self.vcs_self.put_png_on_canvas(self.animation_files[frame],
-                self.zoom_factor, self.vertical_factor, self.horizontal_factor,**kargs)
-        if animate_helper.hasPyQt:
-          self.signals.drew.emit()
+class VTKAnimate(animate_helper.AnimationController):
+   pass
+
+# class VTKAnimate(animate_helper.animate_obj):
+#   def __init__(self,*args,**kargs):
+#     animate_helper.animate_obj.__init__(self,*args,**kargs)
+#     self._initial_blink_done = False
+#   def draw2(self,frame):
+#     if self.create_flg == 1:
+#         self.current_frame = frame
+#         kargs = {}
+#         if self._initial_blink_done:
+#           kargs["noblink"]=True
+#         else:
+#           self._initial_blink_done = True
+#         self.vcs_self.backend.clear()
+#         self.vcs_self.put_png_on_canvas(self.animation_files[frame],
+#                 self.zoom_factor, self.vertical_factor, self.horizontal_factor,**kargs)
+#         if animate_helper.hasPyQt:
+#           self.signals.drew.emit()
 
