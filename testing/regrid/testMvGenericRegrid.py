@@ -8,8 +8,10 @@ import numpy
 import unittest
 import regrid2
 import ESMP
-import matplotlib.pylab as pl
 import sys
+PLOT =  False
+if PLOT:
+    import matplotlib.pylab as pl
 
 HAS_MPI = False
 try:
@@ -95,7 +97,7 @@ class TestMvGenericRegrid(unittest.TestCase):
             self.assertLess(avgDiffInterp, self.tol)
             self.assertLess(avgDiffInterpInterp, self.tol)
     
-            if False:
+            if PLOT:
                 pl.figure(1)
                 pl.subplot(3,2,1)
                 pl.pcolor(self.cltGrid[1], self.cltGrid[0], self.clt)
@@ -156,7 +158,7 @@ class TestMvGenericRegrid(unittest.TestCase):
             else:
                 self.assertLess(avgDiffInterpInterp, self.tol)
 
-            if False:
+            if PLOT:
                 pl.figure(2)
                 pl.subplot(3,2,1)
                 pl.pcolor(grid[1], grid[0], self.clt)
@@ -211,7 +213,7 @@ class TestMvGenericRegrid(unittest.TestCase):
             # we're expecting some ver large values because of the masking
             #self.assertLess(avgDiffInterp, 50)
 
-            if False:
+            if PLOT:
                 pl.figure(3)
                 pl.subplot(1, 3, 1)
                 pl.pcolor(grid[1], grid[0], self.clt)
@@ -258,7 +260,7 @@ class TestMvGenericRegrid(unittest.TestCase):
             avgDiffInterpInterp = abs(self.clt - self.cltInterpInterp).sum()/float(nCell)
             #self.assertLess(avgDiffInterp, 50)
 
-            if True:
+            if PLOT:
                 pl.figure(4)
                 pl.subplot(3,2,1)
                 pl.pcolor(grid[1], grid[0], self.clt)
@@ -324,7 +326,7 @@ class TestMvGenericRegrid(unittest.TestCase):
         print 'min/max of v: %f %f' % (v.min(), v.max())
         print 'min/max of vInterp: %f %f' % (vInterp.min(), vInterp.max())
 
-        if False:
+        if PLOT:
             pl.figure()
             pl.subplot(1,2,1)
             pl.pcolor(srcGrd[1], srcGrd[0], v[0, 0,...], vmin=-20, vmax=20)
@@ -366,7 +368,7 @@ class TestMvGenericRegrid(unittest.TestCase):
         print 'min/max of v: %f %f' % (v.min(), v.max())
         print 'min/max of vInterp: %f %f' % (vInterp.min(), vInterp.max())
 
-        if False:
+        if PLOT:
             nTimes = v.shape[0]
             nLevels = v.shape[1]
             for el in range(nTimes):
@@ -389,6 +391,6 @@ if __name__ == '__main__':
     ESMP.ESMP_Initialize()
     suite = unittest.TestLoader().loadTestsFromTestCase(TestMvGenericRegrid)
     unittest.TextTestRunner(verbosity = 1).run(suite)
-    pl.show()
+    if PLOT: pl.show()
 
 
