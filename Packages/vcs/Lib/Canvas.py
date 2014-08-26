@@ -4599,6 +4599,14 @@ Options:::
             for f in Files:
                 os.remove(f)
         return o
+
+    def getantialiasing(self):
+        return self.backend.getantialiasing()
+
+    def setantialiasing(self,antialiasing):
+        """ Turn ON/OFF antialiasing"""
+        self.backend.setantialiasing(antialiasing)
+
     ##########################################################################
     #                                                                        #
     # bg dims wrapper for VCS.                                               #
