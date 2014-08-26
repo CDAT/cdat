@@ -491,7 +491,7 @@ class VTKVCSBackend(object):
           raise Exception, "Error, must pass a cdms2 variable object as the first input to the dv3d gm ( found '%s')" % ( data1.__class__.__name__ )
       g = self.plotApps.get( gm, None )
       if g == None:
-          g = DV3DApp( self.canvas ) 
+          g = DV3DApp( self.canvas, self.cell_coordinates ) 
           n_overview_points = 500000
           grid_coords = ( None, None, None, None )
           var_proc_op = None
