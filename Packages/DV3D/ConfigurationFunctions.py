@@ -228,13 +228,13 @@ class ConfigManager:
         self.parent = args.get( 'cm', None )
         self.cell_coordinates = args.get( 'cell_coordinates', (0,0) )
         if ( self.parent <> None ):
-            for pname in self.parent.parameters.keys():
-                basename = pname.split('(')[0]
+            for parm_address in self.parent.parameters.keys():
+                basename = get_parameter_name( parm_address )
                 self.parameters[basename] = self.getParameter( basename  )
         self.initialized = False
 
     def getParameter( self, param_name, **args ):
-        cell = args.get( 'cell', '' )
+        cell = str( args.get( 'cell', '' ) )
 #        print '  <<---------------------------------------------------->> Get Parameter: ', param_name, ' cell = ', cell
         if cell: param_name = serialize_address( cell, param_name )
         cparm = self.parameters.get( param_name, None )
@@ -242,14 +242,25 @@ class ConfigManager:
             if self.parent is None:
                 cparm = ConfigParameter( param_name, **args )
             else:
-                parent_config_name = param_name + str(self.cell_coordinates)
-                print "Getting config param from parent: ", parent_config_name 
-                cparm_parent = self.parent.getParameter( parent_config_name )
+#                print "Getting config param from parent: ", param_name 
+                cparm_parent = self.parent.getParameter( param_name, cell=self.cell_coordinates )
                 cparm = ConfigParameter( param_name, parent=cparm_parent, **args )
             self.parameters[ param_name ] = cparm
         return cparm
             
-      
+#     def getParameter( self, param_name, **args ):
+#         cparm = self.parameters.get( param_name, None )
+#         if cparm == None:
+#             if self.parent is None:
+#                 print '  <<---------------------------------------------------->> Get Parameter: ', param_name
+#                 cparm = ConfigParameter( param_name, **args )
+#             else:
+#                 print "Getting config param from parent: ", param_name, ", group = ", str(self.cell_coordinates) 
+#                 cparm_parent = self.parent.getParameter( param_name, group=self.cell_coordinates )
+#                 cparm = ConfigParameter( param_name, parent=cparm_parent, **args )
+#             self.parameters[ param_name ] = cparm
+#         return cparm
+     
     def setParameter( self, param_name, data, **args ):
         if isinstance( data, str ): 
             try: data = ast.literal_eval( data )
@@ -353,21 +364,18 @@ class ConfigManager:
         except Exception, err:
             print>>sys.stderr, "Can't save state data: ", str(err)
 
-    def getConfigurationState( self, param_name ):
-        parm = self.getParameter(param_name)
+    def getConfigurationState( self, param_name, **args ):
+        parm = self.getParameter( param_name, **args )
         return parm.getValue( 'state' )
 
     def getConfigurationData( self, **args ):  
         pdata = []
-        filter_str = args.get( 'filter', None )
+        cell_addr = str( args.get( 'cell', '' ) )
         for cpi in self.parameters.items():
-            key = cpi[0]
+            ( key, cell ) = deserialize_address(cpi[0])
             values = cpi[1].getValues()
-            if not filter_str:
-                pdata.append( [ key, values ] )
-            elif key.endswith( filter_str ):
-                fkey = key.replace(filter_str,'')
-                pdata.append( [ fkey, values ] )
+            if cell == cell_addr:
+                pdata.append( [ key, values ] ) 
         return pdata
 
     def getConfigurationParms( self, **args ):  
@@ -434,7 +442,7 @@ class ConfigManager:
         parameter_list = set()
         parameter_list.add( 'Configure' )
         for cpi in self.parameters.items():
-             basename = cpi[0].split('(')[0]
+             basename = get_parameter_name(cpi[0])
              parameter_list.add( basename )  
         for pname in extra_parms:
              parameter_list.add( pname )  
@@ -456,7 +464,7 @@ class ConfigManager:
     def getParameterPersistenceList(self):
         plist = []
         for cfg_item in self.parameters.items():
-            key = cfg_item[0]
+            key = get_parameter_name(cfg_item[0])
             cfg_spec = cfg_item[1].pack()
             plist.append( ( key, cfg_spec[1] ) )
         return plist
@@ -470,7 +478,7 @@ class ConfigManager:
     def getPersistentParameterSpecs(self):
         plist = []
         for cfg_item in self.parameters.items():
-            key = cfg_item[0]
+            key = get_parameter_name(cfg_item[0])
             values_decl = cfg_item[1].values_decl()
             plist.append( ( key, values_decl ) )
         return plist
@@ -553,8 +561,8 @@ class ConfigParameter:
         self.addValueKey( key )
         
     def childUpdate( self, source, key, val ): 
-        self.setValue( key, val )      
-
+        self.setValue( key, val ) 
+        
     def __call__(self, **args ):
         self.values.update( args )
         args1 = [ self.ptype ]
@@ -605,8 +613,8 @@ class ConfigParameter:
         if update: 
             args1 = [  self.ptype, key, val, self.name]
             self.ValueChanged( args1 )
-            if self.parent <> None:
-                self.parent.childUpdate( self, key, val,  )
+        if self.parent <> None:
+            self.parent.childUpdate( self, key, val,  )
             
     def signalUpdate( self ):
         args = [  self.ptype, self.getValues(), self.name]
@@ -685,7 +693,7 @@ class ConfigurableFunction:
         self.units = args.get( 'units', '' ).strip().lower()
         self.persist = bool( args.get( 'persist', True ) )
         self.key = args.get( 'key', None )
-        ival = self.value.getValue( 'init' )
+        ival = self.value.getInitValue()
         if (ival <> None):
             self.initial_value = ival if hasattr( ival, '__iter__' ) else [ ival ]
         if len( self.initial_value ) == 0:    
