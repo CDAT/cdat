@@ -1,7 +1,7 @@
 import vcs,os
 x=vcs.init()
 x.open()
-x.scriptrun("Test/jeff.json")
+x.scriptrun("Test/none_no_resize.json")
 
 print x.listelements("oned")
 
