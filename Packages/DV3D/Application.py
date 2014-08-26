@@ -18,9 +18,10 @@ def getPlotFromVar( var, **args ):
 
 class DV3DApp:
     
-    def __init__( self, canvas, **args ):
+    def __init__( self, canvas, cell_coordinates=None, **args ):
         self.plot = None
         self.canvas = canvas
+        self.cell_coordinates = cell_coordinates
     
     
 #     def init(self, **args ):
@@ -44,6 +45,7 @@ class DV3DApp:
     def gminit(self, var1, var2, **args ):
         grid_metadata = var1.getGrid()
         plot_type = args.get( 'plot_type', PlotType.getPointsLayout( grid_metadata ) )
+        args[ 'cell_coordinates' ] = self.cell_coordinates
         
         if plot_type == PlotType.Grid:
             if self.plot == None:
