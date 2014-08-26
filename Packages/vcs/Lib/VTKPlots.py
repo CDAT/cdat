@@ -200,6 +200,9 @@ class VTKVCSBackend(object):
       self.renWin = vtk.vtkRenderWindow()
       self.renWin.SetWindowName("VCS Canvas %i" % self.canvas._canvas_id)
       self.renWin.SetAlphaBitPlanes(1)
+      ## turning off antialiasing by default
+      ## mostly so that pngs are same accross platforms
+      self.renWin.SetMultiSamples(0)
       self.renderer = vtk.vtkRenderer()
       r,g,b = self.canvas.backgroundcolor
       self.renderer.SetBackground(r/255.,g/255.,b/255.)
@@ -1070,6 +1073,18 @@ class VTKVCSBackend(object):
 
   def gettextextent(self,textorientation,texttable):
       warnings.warn("Please implement gettextextent for VTK Backend")
+  
+  def getantialiasing(self):
+    if self.renWin is None:
+      return 0
+    else:
+      return self.renWin.GetMultiSamples()
+
+  def setantialiasing(self,antialiasing):
+    if self.renWin is None:
+      warnings.warn("no RenderWindow ready, skipping setantialiasing call, please reissue at a later time")
+    else:
+      self.renWin.SetMultiSamples(antialiasing)
 
 class VTKAnimate(animate_helper.AnimationController):
    pass
