@@ -313,6 +313,10 @@ class Canvas(object,AutoAPI.AutoAPI):
         'size',
         'canvas_guianimate_info',
         ]
+    
+#     def applicationFocusChanged(self, old, current ):
+#         self.backend.applicationFocusChanged()
+        
     def _set_user_actions_names(self,value):
         value=VCS_validation_functions.checkListElements(self,'user_actions_names',value,VCS_validation_functions.checkString)
         self._user_actions_names = value
@@ -514,7 +518,7 @@ class Canvas(object,AutoAPI.AutoAPI):
         axislist = list(map(lambda x: x[0].clone(), tvdomain))
 
         # Map keywords to dimension indices
-        rank = origv.ndim
+        rank = origv.rank()
         dimmap = {}
         dimmap['x'] = xdim = rank-1
         dimmap['y'] = ydim = rank-2
@@ -1522,11 +1526,11 @@ Options:::
     isoline.__doc__ = isoline.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert,plot_2D_input, plot_output)
 
     def createoneD(self,name=None,source='default'):
-        return vcs.getoneD(name,source)
+        return vcs.createoneD(name,source)
     createoneD.__doc__ = vcs.manageElements.createoneD.__doc__
 
     def getoneD(self,name):
-        return vcs.getoned(name)
+        return vcs.getoneD(name)
     createoneD.__doc__ = vcs.manageElements.createoneD.__doc__
 
     
@@ -2455,7 +2459,6 @@ Options:::
 ###############################################################################################################
 
 """
-
         self.__last_plot_actual_args = actual_args
         self.__last_plot_keyargs = keyargs
         passed_var = keyargs.get("variable",None)
