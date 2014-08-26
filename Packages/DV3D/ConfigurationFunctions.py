@@ -215,7 +215,7 @@ def get_parameter_name( serialized_value ):
 class ConfigManager:
     
     
-    def __init__( self, parent=None, **args ):   
+    def __init__( self, **args ):   
         self.ConfigCmd = SIGNAL("ConfigCmd")
         self.cfgFile = os.path.join( DataDir, 'parameters.txt' )
         self.stateFile = os.path.join( DataDir, 'state.txt' )
@@ -225,7 +225,12 @@ class ConfigManager:
         self.metadata = args
         self.configurableFunctions = {}
         self.parameters = {} 
-        if ( parent <> None ): self.parameters.update( parent.parameters )
+        self.parent = args.get( 'cm', None )
+        self.cell_coordinates = args.get( 'cell_coordinates', (0,0) )
+        if ( self.parent <> None ):
+            for pname in self.parent.parameters.keys():
+                basename = pname.split('(')[0]
+                self.parameters[basename] = self.getParameter( basename  )
         self.initialized = False
 
     def getParameter( self, param_name, **args ):
@@ -237,8 +242,9 @@ class ConfigManager:
             if self.parent is None:
                 cparm = ConfigParameter( param_name, **args )
             else:
-#                print "Getting config param from parent: ", param_name 
-                cparm_parent = self.parent.getParameter( param_name, cell=self.cell_coordinates )
+                parent_config_name = param_name + str(self.cell_coordinates)
+                print "Getting config param from parent: ", parent_config_name 
+                cparm_parent = self.parent.getParameter( parent_config_name )
                 cparm = ConfigParameter( param_name, parent=cparm_parent, **args )
             self.parameters[ param_name ] = cparm
         return cparm
@@ -351,10 +357,17 @@ class ConfigManager:
         parm = self.getParameter(param_name)
         return parm.getValue( 'state' )
 
-    def getConfigurationData(self):
+    def getConfigurationData( self, **args ):  
         pdata = []
+        filter_str = args.get( 'filter', None )
         for cpi in self.parameters.items():
-            pdata.append( [ cpi[0], cpi[1].getValues() ] )
+            key = cpi[0]
+            values = cpi[1].getValues()
+            if not filter_str:
+                pdata.append( [ key, values ] )
+            elif key.endswith( filter_str ):
+                fkey = key.replace(filter_str,'')
+                pdata.append( [ fkey, values ] )
         return pdata
 
     def getConfigurationParms( self, **args ):  
@@ -421,7 +434,8 @@ class ConfigManager:
         parameter_list = set()
         parameter_list.add( 'Configure' )
         for cpi in self.parameters.items():
-             parameter_list.add( cpi[0] )  
+             basename = cpi[0].split('(')[0]
+             parameter_list.add( basename )  
         for pname in extra_parms:
              parameter_list.add( pname )  
 #        print "Generated parameter_list: " , str( parameter_list )            
@@ -476,14 +490,12 @@ class ConfigParameter:
         self.varname = args.get( 'varname', name ) 
         self.ptype = args.get( 'ptype', name ) 
         self.parent = args.get( 'parent', None ) 
+        self.values = args
+        self.valueKeyList = list( args.keys() )
+        self.stateKeyList = []
+        self.children = set()
         if self.parent<> None: 
             self.parent.addChild( self )
-            self.values.update( self.parent.values )
-            self.valueKeyList = list( self.parent.values.keys() )
-        else:
-            self.values.update( args )
-            self.valueKeyList = list( args.keys() )
-        self.stateKeyList = []
 #        self.scaling_bounds = None
       
     def addChild(self, child ): 
@@ -541,8 +553,8 @@ class ConfigParameter:
         self.addValueKey( key )
         
     def childUpdate( self, source, key, val ): 
-        self.setValue( key, val ) 
-        
+        self.setValue( key, val )      
+
     def __call__(self, **args ):
         self.values.update( args )
         args1 = [ self.ptype ]
@@ -593,6 +605,8 @@ class ConfigParameter:
         if update: 
             args1 = [  self.ptype, key, val, self.name]
             self.ValueChanged( args1 )
+            if self.parent <> None:
+                self.parent.childUpdate( self, key, val,  )
             
     def signalUpdate( self ):
         args = [  self.ptype, self.getValues(), self.name]
