@@ -115,7 +115,7 @@ class DV3DPlot():
         self.xwidth = 300.0
         self.ycenter = 0.0
         self.ywidth = 180.0
-        self.cfgManager = ConfigManager( args.get( 'cm', None ) )           
+        self.cfgManager = ConfigManager( **args )           
         self.buttonBarHandler = ButtonBarHandler( self.cfgManager, **args ) 
         self.plot_attributes = args.get( 'plot_attributes', {} )
         
@@ -218,7 +218,7 @@ class DV3DPlot():
         return self.cfgManager.getStateData()
 
     def getConfigurationData(self, **args): 
-        return self.cfgManager.getConfigurationData()
+        return self.cfgManager.getConfigurationData( **args )
             
     def processKeyPressHandler( self, key, eventArgs ):
 #        print " processKeyPress: ", str( key )
