@@ -73,8 +73,8 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
     def getConfigurationData( self, **args ):
         return self.cfgManager.getConfigurationData( **args )
     
-    def getConfigurationState( self, pname ):
-        return self.cfgManager.getConfigurationState( pname )
+    def getConfigurationState( self, pname, **args ):
+        return self.cfgManager.getConfigurationState( pname, **args )
 
     def add_property(self, name ):
         fget = lambda self: self.getParameter(name)
