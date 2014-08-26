@@ -25,7 +25,7 @@ m=x.createmeshfill()
 x.plot(data,mesh,m,bg=1)
 
 
-fnm = "test_vcs_gen_meshfill"
+fnm = "test_vcs_gen_meshfill.png"
 x.png(fnm)
 
 print "fnm:",fnm
