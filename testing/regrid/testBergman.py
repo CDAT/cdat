@@ -3,7 +3,6 @@ import cdms2 as cdms
 import cdutil, string, os
 from genutil import statistics
 import numpy
-from matplotlib import pylab
 import ESMP
 import sys
 

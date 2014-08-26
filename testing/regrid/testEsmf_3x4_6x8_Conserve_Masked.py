@@ -10,7 +10,9 @@ from cdms2.mvCdmsRegrid import CdmsRegrid
 from openCreateData import dataMaskedNoPeri
 import unittest
 import ESMP
-import matplotlib.pylab as pylab
+PLOT = False
+if PLOT:
+    import matplotlib.pylab as pylab
 
 
 class TestESMPRegridderMasked(unittest.TestCase):
@@ -69,7 +71,7 @@ class TestESMPRegridderMasked(unittest.TestCase):
         dstMass = (ESMP5x7 * diag['dstAreas']).sum()
         srcMass = (self.data3x4 * diag['srcAreas'] \
                                 * diag['srcAreaFractions']).sum()
-        if False:
+        if PLOT:
             pylab.figure(1)
             pylab.pcolor(self.data3x4)
             pylab.colorbar()
@@ -147,5 +149,5 @@ if __name__ == '__main__':
     ESMP.ESMP_Initialize()
     suite = unittest.TestLoader().loadTestsFromTestCase(TestESMPRegridderMasked)
     unittest.TextTestRunner(verbosity = 1).run(suite)
-    pylab.show()
+    if PLOT: pylab.show()
 

@@ -13,7 +13,6 @@ import regrid2
 import unittest
 import ESMP
 from regrid2 import esmf
-from matplotlib import pylab
 import scipy.io.netcdf
 from regrid2 import ESMFRegrid
 import sys
@@ -413,6 +412,5 @@ if __name__ == '__main__':
     ESMP.ESMP_LogSet(True)
     suite = unittest.TestLoader().loadTestsFromTestCase(Test)
     unittest.TextTestRunner(verbosity = 1).run(suite)
-    pylab.show()
 
 

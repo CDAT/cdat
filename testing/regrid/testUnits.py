@@ -6,11 +6,7 @@ import cdms2
 import cdutil
 import ESMP
 import numpy
-import pylab
 import sys
-
-PLOT = True
-
 
 class Test(unittest.TestCase):
 

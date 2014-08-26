@@ -12,7 +12,6 @@ import unittest
 import openCreateData
 import ESMP
 import numpy
-from matplotlib import pylab
 import sys
 
 class TestESMPRegridding(unittest.TestCase):
