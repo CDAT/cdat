@@ -11,7 +11,7 @@ import xmldocs
 import cdtime
 import vcs
 import DV3D
-from DV3D.ConfigurationFunctions import CfgManager
+from DV3D.ConfigurationFunctions import ConfigManager
 
 
 class Gfdv3d(object,AutoAPI.AutoAPI):
@@ -43,24 +43,35 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
         if Gfdv3d_name in vcs.elements[self.g_name].keys():
             raise ValueError,"DV3D graphic method '%s' already exists" % Gfdv3d_name
         self._name = Gfdv3d_name
+        self._plot_attributes = {}
         
-        if Gfdv3d_name=="hovmuller": 
+        if Gfdv3d_name=="xyt": 
             self._axes="xyt"
         else:
             self._axes="xyz"
-            
+
+        self.cfgManager = ConfigManager()             
         self.addParameters()
             
         vcs.elements[self.g_name][Gfdv3d_name]=self
+        print "Adding VCS element: %s %s " % ( self.g_name, Gfdv3d_name )
 
     def add_property(self, name ):
         fget = lambda self: self.getParameter(name)
         fset = lambda self, value: self.setParameter(name, value)
         setattr(self.__class__, name, property(fget, fset))
 
+    def addPlotAttribute(self, name, value ):
+        self._plot_attributes[ name ] = value 
+
+    def getPlotAttribute(self, name ):
+        return self._plot_attributes.get( name, None )
+
+    def getPlotAttributes( self ):
+        return self._plot_attributes
                 
     def addParameters(self):
-        parameterMetadata = CfgManager.getParameterMetadata()
+        parameterMetadata = self.cfgManager.getParameterMetadata()
         self.parameter_names = []
         for mdata in parameterMetadata:
             self.add_property( mdata[0] )
@@ -68,16 +79,16 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
 #            print "  ------------->> Adding parameter: ", mdata[0]
             
     def getParameter(self, param_name, **args ):
-        return CfgManager.getParameterValue( param_name, **args )
+        return self.cfgManager.getParameterValue( param_name, **args )
 
     def setParameter(self, param_name, data, **args ):
-        CfgManager.setParameter( param_name, data, **args )
+        self.cfgManager.setParameter( param_name, data, **args )
         
     def restoreState(self):
-        CfgManager.restoreState()
+        self.cfgManager.restoreState()
 
     def initDefaultState(self):
-        CfgManager.initDefaultState()
+        self.cfgManager.initDefaultState()
                 
     def list(self):
         print ' ---------- DV3D (Gfdv3d) member (attribute) listings ---------'

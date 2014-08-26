@@ -46,6 +46,10 @@ class VTKVCSBackend(object):
       if renWin.GetInteractor() is None:
         self.createDefaultInteractor()
         
+#   def applicationFocusChanged(self):
+#       for plotApp in self.plotApps.values():
+#           if hasattr(plotApp, 'refresh'): plotApp.refresh()
+        
   def interact(self,*args,**kargs):
       warnings.warn("Press 'Q' to exit interactive mode and continue script execution")
       self.renWin.GetInteractor().Start()
@@ -332,6 +336,11 @@ class VTKVCSBackend(object):
     if gtype in ["boxfill","meshfill","isofill","isoline"]:      
       self.plot2D(data1,data2,tpl,gm,ren)
     elif gtype in ["3d_scalar", "3d_vector"]:
+      cdmsvar = kargs.get( 'cdmsvar', None )
+      if not cdmsvar is None:
+          gm.addPlotAttribute( 'file', cdmsvar.file )
+          gm.addPlotAttribute( 'filename', cdmsvar.filename )
+          gm.addPlotAttribute( 'url', cdmsvar.url )
       self.plot3D(data1,data2,tpl,gm,ren)
     elif gtype in ["text"]:
       if tt.priority!=0:
@@ -435,10 +444,12 @@ class VTKVCSBackend(object):
     if m.priority>0:
         self.canvas.plot(m,renderer=ren,donotstoredisplay=True)
     ren2 = vtk.vtkRenderer()
+    self.renWin.AddRenderer(ren2)
     tmpl.plot(self.canvas,data1,gm,bg=self.bg,renderer=ren2,X=X,Y=Y)
     
     if tmpl.legend.priority>0:
         ren2 = vtk.vtkRenderer()
+        self.renWin.AddRenderer(ren2)
         self.setLayer(ren2,tmpl.legend.priority)
         legd = self.canvas.createline()
         legd.x = [tmpl.legend.x1, tmpl.legend.x2]
@@ -470,13 +481,13 @@ class VTKVCSBackend(object):
           raise Exception, "Error, must pass a cdms2 variable object as the first input to the dv3d gm ( found '%s')" % ( data1.__class__.__name__ )
       g = self.plotApps.get( gm, None )
       if g == None:
-          g = DV3DApp() 
+          g = DV3DApp( ) 
           n_overview_points = 500000
           grid_coords = ( None, None, None, None )
           var_proc_op = None
           interface = None
           roi = None # ( 0, 0, 50, 50 )
-          g.gminit( data1, data2, roi=roi, axes=gm.axes, n_overview_points=n_overview_points, renwin=ren.GetRenderWindow(), gmname=gm.g_name  ) #, plot_type = PlotType.List  ) 
+          g.gminit( data1, data2, roi=roi, axes=gm.axes, n_overview_points=n_overview_points, renwin=ren.GetRenderWindow(), gmname=gm.g_name, cm=gm.cfgManager  ) #, plot_type = PlotType.List  ) 
           self.plotApps[ gm ] = g
           self.plotRenderers.add( g.plot.renderer )
       else:

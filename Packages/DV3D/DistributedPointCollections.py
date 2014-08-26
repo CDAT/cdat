@@ -71,8 +71,8 @@ class PointCollectionExecutionTarget:
         self.init_args = init_args
         self.cfg_args = cfg_args
 
-    def printLogMessage(self, msg_str ):
-        print " PointCollectionExecutionTarget %d: %s" % ( self.collection_index, msg_str )
+    def printLogMessage(self, msg ):
+        print " PointCollectionExecutionTarget %d: %s" % ( self.collection_index, str(msg) )
         sys.stdout.flush()      
 
     def __call__( self, args_queue, result_queue ):
@@ -89,21 +89,28 @@ class PointCollectionExecutionTarget:
         self.results.put( self.packVarData() )
                        
     def execute( self, args ):
-        self.point_collection.execute( args )
-        if args[0] == 'indices':
-            data_packet = self.packIndexData()
-        elif args[0] == 'points':
-            data_packet = self.packPointHeightsData()
-        elif args[0] == 'timestep':
-            data_packet = self.packVarData()
-        elif args[0] == 'ROI':
-            data_packet = self.packPointsData()
-        data_packet[ 'args' ] = args
-        self.results.put( data_packet )
+        try:
+            self.point_collection.execute( args )
+            if args[0] == 'indices':
+                data_packet = self.packIndexData()
+            elif args[0] == 'points':
+                data_packet = self.packPointHeightsData()
+            elif args[0] == 'timestep':
+                data_packet = self.packVarData()
+            elif args[0] == 'ROI':
+                data_packet = self.packPointsData()
+            data_packet[ 'args' ] = args
+            
+            self.results.put( data_packet )
+        except Exception, err:
+            print>>sys.stderr, "Error executing PointCollectionExecutionTarget: ", str( err )
 
     def packVarData(self):
 #        print "Pack VARDATA"; sys.stdout.flush()
-        data_packet = ExecutionDataPacket( ExecutionDataPacket.VARDATA, self.collection_index, self.point_collection.getVarData() )
+        vardata = self.point_collection.getVarData() 
+        data_packet = ExecutionDataPacket( ExecutionDataPacket.VARDATA, self.collection_index, vardata.data )
+        try:    data_packet[ 'fill_value' ] = vardata.fill_value
+        except: data_packet[ 'fill_value' ] = None
         data_packet[ 'vrange' ] = self.point_collection.getVarDataRange() 
         data_packet[ 'grid' ] = self.point_collection.getGridType()  
         data_packet[ 'nlevels' ] = self.point_collection.getNLevels()
@@ -412,6 +419,7 @@ class vtkPointCloud():
         return self.actor.GetVisibility()
     
     def hide(self):
+#        print "PointCloud- hide()"
         self.actor.VisibilityOff()
 
     def show(self):
@@ -499,6 +507,7 @@ class vtkSubProcPointCloud( vtkPointCloud ):
         vtkPointCloud.__init__( self, pcIndex, nPartitions )
         self.arg_queue = Queue() # JoinableQueue() 
         self.result_queue = Queue() # JoinableQueue()
+        self.parameter_cache = {}
             
     def runProcess(self, procType, **args):
         if   procType == PCProc.Subset:    self.generateSubset( **args )
@@ -512,7 +521,7 @@ class vtkSubProcPointCloud( vtkPointCloud ):
         
     def generateSubset(self, **args ):
         self.current_subset_specs = args.get( 'spec', self.current_subset_specs )
-#        print " vtkSubProcPointCloud: current_subset_specs: %s (%s) " % ( self.current_subset_specs, str(args) )
+#        print " vtkSubProcPointCloud[%d]: current_subset_specs: %s (%s) " % ( self.pcIndex, self.current_subset_specs, str(args) )
         process = args.get( 'process', True )
         if process:
             self.clearQueues()
@@ -520,17 +529,21 @@ class vtkSubProcPointCloud( vtkPointCloud ):
 #            self.threshold_target = first_spec[0]
             self.np_index_seq = None
 #             if self.pcIndex == 1: 
-#                 self.printLogMessage( " vtkSubProcPointCloud --->> Generate subset: %s " % str(self.current_subset_specs) )
+#            self.printLogMessage( " vtkSubProcPointCloud --->> Generate subset: %s " % str(self.current_subset_specs) )
             op_specs = self.current_subset_specs.values()
             op_specs.insert( 0, 'indices' )
             self.arg_queue.put( op_specs,  False ) 
 
     def generateZScaling(self, **args ):
         z_subset_spec = args.get('spec', None )
-        self.clearQueues()
-        op_specs = [ 'points' ] + list(z_subset_spec)
-#        print " generate Z Scaling: %s " % str( args )
-        self.arg_queue.put( op_specs,  False ) 
+        zscale_value = z_subset_spec[1]
+        cached_zscale_value = self.parameter_cache.get( 'zscale', None ) 
+        if cached_zscale_value <> zscale_value:
+            self.clearQueues()
+            op_specs = [ 'points' ] + list(z_subset_spec)
+#             print " Generate Z Scaling [P-%d]: %s " % ( self.pcIndex, str( args ) )
+            self.arg_queue.put( op_specs,  False )
+            self.parameter_cache['zscale'] = zscale_value
 
     def stepTime( self, **args ):
         op_specs = [ 'timestep' ]
@@ -603,7 +616,7 @@ class vtkSubProcPointCloud( vtkPointCloud ):
                                              
         
     def start_subprocess( self, init_args, **args ):
-        exec_target =  PointCollectionExecutionTarget( self.pcIndex, self.nPartitions, init_args ) 
+        exec_target =  PointCollectionExecutionTarget( self.pcIndex, self.nPartitions, init_args, **args ) 
         self.process = Process( target=exec_target, args=( self.arg_queue, self.result_queue ) )
         self.process.start()
         
@@ -714,7 +727,7 @@ class vtkPartitionedPointCloud:
 #        self.proc_timer = threading.Timer( 0.1, self.processProcQueue )
         for pcIndex in range( self.nPartitions ):
             pc = vtkSubProcPointCloud( pcIndex, nPartitions )
-            pc.start_subprocess( init_args )
+            pc.start_subprocess( init_args, **args )
             self.point_clouds[ pcIndex ] = pc
         for pc in self.point_clouds.values():
             pc.createPolydata( **args )
@@ -726,8 +739,8 @@ class vtkPartitionedPointCloud:
         if self.timerId == -1:
             self.interactor.SetTimerEventId(self.CheckProcQueueEventId)
             self.interactor.SetTimerEventType( self.TimerType )
+#            print "   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ startCheckingProcQueues, interactor = ", self.interactor.__class__.__name__
             self.timerId = self.interactor.CreateRepeatingTimer( 100 )
-#            print " ** start CheckingProcQueues ** "
             
     def refresh( self, force = False ): 
         for pc in self.point_clouds.values():
@@ -748,7 +761,6 @@ class vtkPartitionedPointCloud:
             self.timerId = -1
             self.subproc_responses = 0
             self.clearQueues()
-#            print " ** stop CheckingProcQueues ** "
             
     def clearQueues(self):
         for pc_item in self.point_clouds.items():  
@@ -790,13 +802,13 @@ class vtkPartitionedPointCloud:
         self.nActiveCollections = min( self.nActiveCollections, self.nPartitions )
         self.show()
         self.generateSubset()
-        print " --> updateNumActiveCollections: %d " % self.nActiveCollections; sys.stdout.flush()
+#        print " --> updateNumActiveCollections: %d " % self.nActiveCollections; sys.stdout.flush()
         
     def setResolution( self, res ):
         n_collections = int( round( self.nPartitions * res ) )
         if n_collections <> self.nActiveCollections:
             pc_base_index = self.nActiveCollections
-            print " --> updateNumActiveCollections(%.2f): %d, pc_base_index: %d " % ( res, n_collections, pc_base_index ); sys.stdout.flush()
+#            print " --> updateNumActiveCollections(%.2f): %d, pc_base_index: %d " % ( res, n_collections, pc_base_index ); sys.stdout.flush()
             self.nActiveCollections = n_collections
             self.generateSubset( pc_base_index = pc_base_index )
             self.hideInactives()
@@ -805,12 +817,14 @@ class vtkPartitionedPointCloud:
         return (self.nActiveCollections > 0)
             
     def clear(self, activePCIndex = -1 ):
+#        print "DistributedPointCollections- clear()"
         self.stopCheckingProcQueues() 
         for pc_item in self.point_clouds.items():
             if pc_item[0] <> activePCIndex:
                 pc_item[1].hide()
                 
     def show(self): 
+#        print "DistributedPointCollections- show()"
         for pc_item in self.point_clouds.items():
             if pc_item[0] < self.nActiveCollections:
                 pc_item[1].show()
@@ -818,6 +832,7 @@ class vtkPartitionedPointCloud:
                 pc_item[1].hide()
 
     def hideInactives(self): 
+#        print "DistributedPointCollections- hideInactives()"
         for pc_item in self.point_clouds.items():
             if pc_item[0] >= self.nActiveCollections:
                 pc_item[1].hide()
