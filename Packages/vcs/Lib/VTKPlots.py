@@ -43,7 +43,7 @@ class VTKVCSBackend(object):
     self.numberOfPlotCalls = 0 
     if renWin is not None:
       self.renWin = renWin
-      if renWin.GetInteractor() is None:
+      if renWin.GetInteractor() is None and self.bg is False:
         self.createDefaultInteractor()
         
   def interact(self,*args,**kargs):
@@ -199,7 +199,6 @@ class VTKVCSBackend(object):
       self.renderer = vtk.vtkRenderer()
       r,g,b = self.canvas.backgroundcolor
       self.renderer.SetBackground(r/255.,g/255.,b/255.)
-      self.createDefaultInteractor(self.renderer)
       self.renWin.AddRenderer(self.renderer)
       return True
     else:
@@ -294,9 +293,11 @@ class VTKVCSBackend(object):
         self.bg= False
         if created:
           self.initialSize()
-    if bg:
+    if self.bg:
         self.renWin.SetOffScreenRendering(True)
         self.renWin.SetSize(self.canvas.bgX,self.canvas.bgY)
+    else:
+      self.createDefaultInteractor(self.renderer)
     #self.renWin.Render()
     #screenSize = self.renWin.GetScreenSize()
     if gtype in ["boxfill","meshfill","isoline","isofill","vector"]:
