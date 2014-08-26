@@ -313,6 +313,10 @@ class Canvas(object,AutoAPI.AutoAPI):
         'size',
         'canvas_guianimate_info',
         ]
+    
+#     def applicationFocusChanged(self, old, current ):
+#         self.backend.applicationFocusChanged()
+        
     def _set_user_actions_names(self,value):
         value=VCS_validation_functions.checkListElements(self,'user_actions_names',value,VCS_validation_functions.checkString)
         self._user_actions_names = value
@@ -584,7 +588,7 @@ class Canvas(object,AutoAPI.AutoAPI):
                 nomesh=1
                 
             if grid is None:
-                if tv.rank()==1:
+                if tv.ndim==1:
                     arglist[GRAPHICS_METHOD] = 'yxvsx1'
                 else:
                     arglist[GRAPHICS_METHOD] = 'boxfill'
@@ -1522,11 +1526,11 @@ Options:::
     isoline.__doc__ = isoline.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert,plot_2D_input, plot_output)
 
     def createoneD(self,name=None,source='default'):
-        return vcs.getoneD(name,source)
+        return vcs.createoneD(name,source)
     createoneD.__doc__ = vcs.manageElements.createoneD.__doc__
 
     def getoneD(self,name):
-        return vcs.getoned(name)
+        return vcs.getoneD(name)
     createoneD.__doc__ = vcs.manageElements.createoneD.__doc__
 
     
@@ -2455,7 +2459,6 @@ Options:::
 ###############################################################################################################
 
 """
-
         self.__last_plot_actual_args = actual_args
         self.__last_plot_keyargs = keyargs
         passed_var = keyargs.get("variable",None)
@@ -2703,7 +2706,7 @@ Options:::
                                     'ext_2',
                                     'missing']:
                             setattr(copy_mthd,att,getattr(m,att))
-        elif arglist[0] is not None and arglist[0].rank()<2 and arglist[3] in ['boxfill','default'] and not isinstance(arglist[0].getGrid(),cdms2.gengrid.AbstractGenericGrid):
+        elif arglist[0] is not None and arglist[0].ndim<2 and arglist[3] in ['boxfill','default'] and not isinstance(arglist[0].getGrid(),cdms2.gengrid.AbstractGenericGrid):
             arglist[3]='yxvsx'
             try:
                 tmp=self.getyxvsx(arglist[4])
@@ -3082,7 +3085,7 @@ Options:::
                and copy_mthd.xticlabels2=='*' \
                and copy_mthd.xmtics1 in ['*',''] \
                and copy_mthd.xmtics2 in ['*',''] \
-               and not (copy_mthd.g_name in ['GXy','GXY'] and arglist[0].rank()==1) :
+               and not (copy_mthd.g_name in ['GXy','GXY'] and arglist[0].ndim==1) :
             ax=arglist[0].getAxis(-1).clone()
             ids=arglist[0].getAxisIds()
             for i in range(len(ids)):
@@ -3147,7 +3150,7 @@ Options:::
                and copy_mthd.yticlabels2=='*' \
                and copy_mthd.ymtics1 in ['*',''] \
                and copy_mthd.ymtics2 in ['*',''] \
-               and arglist[0].getAxis(-2).isTime() and (arglist[0].rank()>1 or copy_mthd.g_name in ['GXy',]) \
+               and arglist[0].getAxis(-2).isTime() and (arglist[0].ndim>1 or copy_mthd.g_name in ['GXy',]) \
                and not (copy_mthd.g_name=='Gfm' and isinstance(arglist[0].getGrid(), (cdms2.gengrid.AbstractGenericGrid,cdms2.hgrid.AbstractCurveGrid))):
             ax=arglist[0].getAxis(-2).clone()
             if copy_mthd.g_name in ["GSp",]:
@@ -3203,7 +3206,7 @@ Options:::
                 if copy_mthd.yticlabels2=='*' : copy_mthd.yticlabels2=vcs.generate_time_labels(copy_mthd.datawc_y1,copy_mthd.datawc_y2,copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
         elif not (getattr(copy_mthd,'g_name','')=='Gfm' and isinstance(arglist[0].getGrid(), (cdms2.gengrid.AbstractGenericGrid,cdms2.hgrid.AbstractCurveGrid))):
             try:
-                if arglist[0].getAxis(-2).isTime() and arglist[0].rank()>1 and copy_mthd.g_name not in ['GYx','GXy','GXY','GSp']:
+                if arglist[0].getAxis(-2).isTime() and arglist[0].ndim>1 and copy_mthd.g_name not in ['GYx','GXy','GXY','GSp']:
                     if copy_mthd.yticlabels1=='*' and copy_mthd.yticlabels2=='*':
                         if wasnone:
                             wasnone=0

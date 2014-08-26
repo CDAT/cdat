@@ -142,6 +142,7 @@ class RectGridPlot(StructuredGridPlot):
         self.transferFunctionConfig = None
         self.volumeMapper = None
         interactionButtons = self.getInteractionButtons()
+#        print " RectGridPlot[%x]: interactionButtons[%x].addSliderButton"
         interactionButtons.addSliderButton( names=['ScaleColormap'], key='C', toggle=True, label='Colormap Scale', interactionHandler=self.processColorScaleCommand )
         interactionButtons.addSliderButton( names=['ScaleTransferFunction'], key='T', toggle=True, parents=['ToggleVolumePlot'], label='Transfer Function Range', interactionHandler=self.processThresholdRangeCommand )
         interactionButtons.addSliderButton( names=['ScaleOpacity'], key='o', toggle=True, label='Opacity Scale', range_bounds=[ 0.0, 1.0 ], initValue=[ 1.0, 1.0 ], interactionHandler=self.processOpacityScalingCommand )
@@ -287,6 +288,7 @@ class RectGridPlot(StructuredGridPlot):
 
     def processSlicingCommand( self, args, config_function = None ):
         plane_index, plane_widget = self.getPlaneWidget( config_function.key )
+#        print " Plot[%x]: processSlicingCommand, plane_widget[%x] " % ( id( self ), id( plane_widget ) )
         slicePosition = config_function.value
 #        print " ProcessSlicingCommand: args = %s, plane = %d, cf = %s" % ( str( args ), plane_index, config_function.key )
         if args and args[0] == "StartConfig":
@@ -715,7 +717,7 @@ class RectGridPlot(StructuredGridPlot):
         self.levelSetFilter.SetNumberOfContours( 1 ) 
           
 #        levelSetMapper.SetColorModeToMapScalars()  
-        self.levelSetActor = vtk.vtkLODActor() 
+        self.levelSetActor = vtk.vtkActor()  # vtk.vtkLODActor() 
 #            levelSetMapper.ScalarVisibilityOff() 
 #            levelSetActor.SetProperty( self.levelSetProperty )              
         self.levelSetActor.SetMapper( self.levelSetMapper )
@@ -851,7 +853,7 @@ class RectGridPlot(StructuredGridPlot):
                 
         if self.planeWidgetZ == None:
             if self.type == '3d_vector':
-                vectorDisplayCF = CfgManager.getParameter( 'VectorDisplay' )
+                vectorDisplayCF = self.cfgManager.getParameter( 'VectorDisplay' )
                 vectorDisplay = vectorDisplayCF.getInitValue( 'default' ).lower()
                 if vectorDisplay == 'lic':                    
                     self.planeWidgetZ = LICSliceWidget( self, picker, 0 )  
@@ -1246,11 +1248,6 @@ class RectGridPlot(StructuredGridPlot):
             self.contours = None    
             del self.contourLineMapperer 
             self.contourLineMapperer = None
-        ispec = self.getInputSpec( 0 ) 
-        input0 = ispec.input() 
-        print " VolumeSlicer: Input refs = %d " % input0.GetReferenceCount()
-        sys.stdout.flush()
-
         
     def scaleContourColormap(self, data, **args ):
         return self.scaleColormap( data, 1, **args )
@@ -1266,10 +1263,9 @@ class RectGridPlot(StructuredGridPlot):
     def getContourDensity( self ):
         return [ 3.0, self.NumContours, 1 ]
     
-    def setZScale( self, zscale_data, **args ):
-        self.setInputZScale( zscale_data, **args )
+    def setZScale( self, zscale_data, input_index = 0, **args ):
+        primaryInput = self.setInputZScale( zscale_data, input_index, **args )
         if self.planeWidgetX <> None:
-            primaryInput = self.input()
             bounds = list( primaryInput.GetBounds() ) 
             if not self.planeWidgetX.MatchesBounds( bounds ):
                 self.planeWidgetX.PlaceWidget( bounds )        
@@ -1280,8 +1276,8 @@ class RectGridPlot(StructuredGridPlot):
             cf.scaleRange( zscale_data[0] )
         self.render()               
 
-    def setInputZScale( self, zscale_data, **args  ):
-        StructuredGridPlot.setInputZScale( self, zscale_data, **args  )
+    def setInputZScale( self, zscale_data, input_index, **args  ):
+        input = StructuredGridPlot.setInputZScale( self, zscale_data, input_index, **args  )
         ispec = self.getInputSpec(  1 )       
         if (ispec <> None) and (ispec.input() <> None):
             contourInput = ispec.input() 
@@ -1289,6 +1285,7 @@ class RectGridPlot(StructuredGridPlot):
             sz = zscale_data[0]
             contourInput.SetSpacing( ix, iy, sz )  
             contourInput.Modified() 
+        return input
               
     def getOpacity(self):
         return self.opacity
@@ -1375,10 +1372,6 @@ class RectGridPlot(StructuredGridPlot):
 
 #        self.set3DOutput() 
 
-        # Add the times series only in regular volume slicer and not in Hovmoller Slicer
-#         if self.getInputSpec().getMetadata()['plotType']=='xyz':
-#             self.addConfigurableFunction('Show Time Series', None, 't' )
-
     def buildOutlineMap(self):
         # This function load a binary image (black and white)
         # and create a default grid for it. Then it uses re-gridding algorithms 
@@ -1441,7 +1434,17 @@ class RectGridPlot(StructuredGridPlot):
         if self.planeWidgetY <> None: self.planeWidgetY.SetInput( primaryInput, contourInput )         
         if self.planeWidgetZ <> None: self.planeWidgetZ.SetInput( primaryInput, contourInput ) 
         if self.baseMapActor: self.baseMapActor.SetVisibility( int( self.enableBasemap ) )
+        if self.volume <> None:
+            mapper = self.volume.GetMapper()
+            if vtk.VTK_MAJOR_VERSION <= 5:  mapper.SetInput(primaryInput)
+            else:                           mapper.SetInputData(primaryInput)        
+            mapper.Modified()
+        if self.levelSetActor <> None:
+            if vtk.VTK_MAJOR_VERSION <= 5:  self.levelSetFilter.SetInput(primaryInput)
+            else:                           self.levelSetFilter.SetInputData(primaryInput)        
+            self.levelSetFilter.Modified()           
         self.render()
+
 
 #        self.set3DOutput()
            
@@ -1461,7 +1464,7 @@ class RectGridPlot(StructuredGridPlot):
             
     def ProcessIPWAction( self, caller, event, **args ):
         action = args.get( 'action', caller.State )
-        iAxis = caller.PlaneIndex
+        iAxis = caller.PlaneOrientation
 
         if event == ImagePlaneWidget.InteractionUpdateEvent:
             
