@@ -18,9 +18,10 @@ def getPlotFromVar( var, **args ):
 
 class DV3DApp:
     
-    def __init__( self, canvas, **args ):
+    def __init__( self, canvas, cell_coordinates=None, **args ):
         self.plot = None
         self.canvas = canvas
+        self.cell_coordinates = cell_coordinates
     
     
 #     def init(self, **args ):
