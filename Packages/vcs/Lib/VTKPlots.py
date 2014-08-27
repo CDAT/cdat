@@ -572,9 +572,7 @@ class VTKVCSBackend(object):
       cmap = vcs.elements["colormap"][self.canvas.getcolormapname()]
     r,g,b = cmap.index[lcolor]
     act.GetProperty().SetColor(r/100.,g/100.,b/100.)
-    print "xm:",gm,xm,xM,ym,yM
     x1,x2,y1,y2 = vcs2vtk.getRange(gm,xm,xM,ym,yM)
-    print "x1:",x1,x2,y1,y2
     act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
     vcs2vtk.fitToViewport(act,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2])
     if tmpl.data.priority!=0:
