@@ -105,19 +105,19 @@ def genGrid(data1,data2,gm):
       continents = True
       wrap = [0.,360.]
       if not isinstance(g,cdms2.hgrid.AbstractCurveGrid):
-          lon=data1.getAxis(-1)[:]
-          lat=data1.getAxis(-2)[:]
+          lon=data1.getAxis(-1)
+          lat=data1.getAxis(-2)
           lat2 = numpy.zeros(len(lat)+1)
           lon2 = numpy.zeros(len(lon)+1)
           # Ok let's try to get the bounds
           try:
             blat = lat.getBounds()
-            blon = lon.GetBounds()
-            lat2[:len(lat)]=blat[:][0]
-            lat2[len(lat2)]=blat[-1][1]
-            lon2[:len(lat)]=blat[:][0]
-            lon2[len(lat2)]=blat[-1][1]
-          except:
+            blon = lon.getBounds()
+            lat2[:len(lat)]=blat[:,0]
+            lat2[len(lat)]=blat[-1,1]
+            lon2[:len(lon)]=blon[:,0]
+            lon2[len(lon)]=blon[-1,1]
+          except Exception,err:
             ## No luck we have to generate bounds ourselves
             lat2[1:-1]=(lat[:-1]+lat[1:])/2.
             lat2[0]=lat[0]-(lat[1]-lat[0])/2.
