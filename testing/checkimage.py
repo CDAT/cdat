@@ -11,14 +11,33 @@ import os
 import os.path
 import sys
 from vtk.util.vtkImageExportToArray import vtkImageExportToArray
+from vtk.util.vtkImageImportFromArray import vtkImageImportFromArray
 
 def compare_imgs(adata, bdata):
+    adata = adata[0]/255.
+    bdata = bdata[0]/255.
+    adata=adata.flatten().astype("f")
+    bdata=bdata.flatten().astype("f")
     try:
         rms = math.sqrt(numpy.sum((adata-bdata)**2)/adata.size)
     except:
         print "images are not compatible"
         return -1
     return rms
+
+def dump_image_to_file(fname,img):
+  print "Writing to:",fname
+  wr = vtk.vtkPNGWriter()
+  wr.SetFileName(fname)
+  imp = vtkImageImportFromArray()
+  imp.SetArray((img+255/510))
+  wr.SetInputConnection(imp.GetOutputPort())
+  wr.Update()
+  wr.Write()
+
+def gen_diff_array(a,b):
+  diff = abs(a-b)
+  return diff
 
 def image_from_file(fname):
     try:
@@ -27,12 +46,12 @@ def image_from_file(fname):
       rd.Update()
       exp = vtkImageExportToArray()
       exp.SetInputConnection(rd.GetOutputPort())
-      areader = exp.GetArray()[0]/255.
+      areader = exp.GetArray()
     except Exception,err:
       print "Problem opening file",err
       return None
-    adata = areader.flatten().astype("f")
-    return adata
+    #adata = areader.flatten().astype("f")
+    return areader
 
 def find_alternates(fname):
     dirname = os.path.dirname(fname)
@@ -44,7 +63,7 @@ def find_alternates(fname):
             results.append(os.path.join(dirname, i))
     return results
 
-def check_result_image(fname, baselinefname, threshold, baseline = False):
+def check_result_image(fname, baselinefname, threshold, baseline = False, cleanup=True):
     resultimg = image_from_file(fname)
     if resultimg is None:
         print "no result image, failed test"
@@ -70,20 +89,21 @@ def check_result_image(fname, baselinefname, threshold, baseline = False):
                 print "new best"
                 besresult = res
                 bestfile = x
+                bestimg = nextbimage
             if res > threshold:
                 print "image fails comparison threshold " + str(res) + ">" + str(threshold)
             else:
                 print "images are close enough " + str(res)
+                if cleanup:
+                  os.remove(fname)
                 return 0
 
     print "no baseline images matched"
-    if bestfile is not None:
-        print bestfile + " is closest"
-        #TODO: save difference image for verification, something like
-        #bestbimage = image_from_file(bestfile)
-        #diffimg = (resultimg-bestbimg)**2
-        #mpimg.imsave("filename.png", diffimg) #should work but it doesn't
-
+    ## Ok now we are saving the diff
+    diff = gen_diff_array(resultimg,bestimg)
+    sp = fname.split(".")
+    fnmdiff = ".".join(sp[:-1])+"_diff."+sp[-1]
+    dump_image_to_file(fnmdiff,diff)
     return -1
 
 def main():
