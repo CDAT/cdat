@@ -1104,7 +1104,10 @@ def setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
         dic['xticlabels1']=True
     #xmtics1
     if gm.xmtics1 is None or gm.xmtics1=='*':
-        ticks=vcs.mkscale(datawc_x1,datawc_x2)
+        if x=="longitude" and abs(datawc_x2-datawc_x1)>30:
+          ticks=gm.xticlabels1.keys()
+        else:
+          ticks=vcs.mkscale(datawc_x1,datawc_x2)
         tick2=[]
         for i in range(len(ticks)-1):
             tick2.append((ticks[i]+ticks[i+1])/2.)
@@ -1116,8 +1119,11 @@ def setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
         dic['xmtics1']=True
     #xticklabels2
     if  hasattr(gm,"xticlabels2") and (gm.xticlabels2 is None or gm.xticlabels2=='*'):
-        ticks=vcs.mkscale(datawc_x1,datawc_x2)
-        ticks=prettifyAxisLabels(vcs.mklabels(ticks),x)
+        if x=="longitude" and abs(datawc_x2-datawc_x1)>30:
+          ticks="lon30"
+        else:
+          ticks=vcs.mkscale(datawc_x1,datawc_x2)
+          ticks=prettifyAxisLabels(vcs.mklabels(ticks),x)
         ## for k in ticks.keys():
         ##     ticks[k]=''
         ##     if k<numpy.minimum(datawc_x1,datawc_x2) or k>numpy.maximum(datawc_x2,datawc_x1):
@@ -1126,7 +1132,10 @@ def setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
         dic['xticlabels2']=True
     #xmtics2
     if hasattr(gm,"xmtics2") and (gm.xmtics2 is None or gm.xmtics2=='*'):
-        ticks=vcs.mkscale(datawc_x1,datawc_x2)
+        if x=="longitude" and abs(datawc_x2-datawc_x1)>30:
+          ticks=gm.xticlabels2.keys()
+        else:
+          ticks=vcs.mkscale(datawc_x1,datawc_x2)
         tick2=[]
         for i in range(len(ticks)-1):
             tick2.append((ticks[i]+ticks[i+1])/2.)
@@ -1150,7 +1159,10 @@ def setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
         dic['yticlabels1']=True
     #ymtics1
     if gm.ymtics1 is None or gm.ymtics1=='*':
-        ticks=vcs.mkscale(datawc_y1,datawc_y2)
+        if y=="latitude" and abs(datawc_y2-datawc_y1)>20:
+          ticks=gm.yticlabels1.keys()
+        else:
+          ticks=vcs.mkscale(datawc_y1,datawc_y2)
         tick2=[]
         for i in range(len(ticks)-1):
             tick2.append((ticks[i]+ticks[i+1])/2.)
@@ -1162,8 +1174,11 @@ def setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
         dic['ymtics1']=True
     #yticklabels2
     if hasattr(gm,"yticlabels2") and (gm.yticlabels2 is None or gm.yticlabels2=='*'):
-        ticks=vcs.mkscale(datawc_y1,datawc_y2)
-        ticks=prettifyAxisLabels(vcs.mklabels(ticks),y)
+        if y=="latitude" and abs(datawc_y2-datawc_y1)>20:
+          ticks="lat20"
+        else:
+          ticks=vcs.mkscale(datawc_y1,datawc_y2)
+          ticks=prettifyAxisLabels(vcs.mklabels(ticks),y)
         ## for k in ticks.keys():
         ##     ticks[k]=''
         ##     if k<numpy.minimum(datawc_y1,datawc_y2) or k>numpy.maximum(datawc_y2,datawc_y1):
@@ -1172,7 +1187,10 @@ def setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
         dic['yticlabels2']=True
     #ymtics2
     if hasattr(gm,"ymtics2") and (gm.ymtics2 is None or gm.ymtics2=='*'):
-        ticks=vcs.mkscale(datawc_y1,datawc_y2)
+        if y=="latitude" and abs(datawc_y2-datawc_y1)>20:
+          ticks=gm.yticlabels2.keys()
+        else:
+          ticks=vcs.mkscale(datawc_y1,datawc_y2)
         tick2=[]
         for i in range(len(ticks)-1):
             tick2.append((ticks[i]+ticks[i+1])/2.)
