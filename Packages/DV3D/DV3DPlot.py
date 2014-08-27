@@ -98,6 +98,7 @@ class DV3DPlot():
     AnimationEventId = 9
  
     def __init__( self,  **args ):
+        raise Exception()
         self.ParameterValueChanged = SIGNAL( 'ParameterValueChanged' )
         self.type = args.get( 'gmname', 'default').lower()
         self.activate_display=args.get('display',True)
@@ -574,6 +575,9 @@ class DV3DPlot():
         if args and args[0] == "Init":
             state = config_function.getState()
             if state: self.cfgManager.initialized = True 
+            if config_function.initial_value <> None:
+                config_function.setState( config_function.initial_value[0] ) 
+                self.toggleIsosurfaceVisibility( args, config_function )  
         elif args and args[0] == "InitConfig": 
             self.toggleIsosurfaceVisibility( args, config_function ) 
             self.processConfigStateChange( config_function.value )
