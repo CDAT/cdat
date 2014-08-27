@@ -234,7 +234,7 @@ class ConfigManager:
         self.initialized = False
 
     def getParameter( self, param_name, **args ):
-        cell = str( args.get( 'cell', '' ) )
+        cell = args.get( 'cell', '' )
 #        print '  <<---------------------------------------------------->> Get Parameter: ', param_name, ' cell = ', cell
         if cell: param_name = serialize_address( cell, param_name )
         cparm = self.parameters.get( param_name, None )
@@ -498,12 +498,14 @@ class ConfigParameter:
         self.varname = args.get( 'varname', name ) 
         self.ptype = args.get( 'ptype', name ) 
         self.parent = args.get( 'parent', None ) 
-        self.values = args
-        self.valueKeyList = list( args.keys() )
-        self.stateKeyList = []
-        self.children = set()
         if self.parent<> None: 
             self.parent.addChild( self )
+            self.values.update( self.parent.values )
+            self.valueKeyList = list( self.parent.values.keys() )
+        else:
+            self.values.update( args )
+            self.valueKeyList = list( args.keys() )
+        self.stateKeyList = []
 #        self.scaling_bounds = None
       
     def addChild(self, child ): 
@@ -604,8 +606,11 @@ class ConfigParameter:
         elif ( type( value ) == tuple ):
             for val_item in value:
                 self.setInitValue( val_item, update )
+            self.setValues( value  )
         else:
             self.setValue( 'init', value, update )
+            self.setValues( [ value ]  )
+
 
     def setValue( self, key, val, update=False  ):
         self.values[ key ] = val
