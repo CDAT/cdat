@@ -348,7 +348,8 @@ class CPCPlot( DV3DPlot ):
             self.renderer.ResetCameraClippingRange()   
         if ( self.topo == PlotType.Spherical ): self.setFocalPoint( [0,0,0] )
 #        self.enableSlicing() 
-        self.mapManager.setMapVisibility( self.topo )
+        if self.topo == PlotType.Spherical:  self.mapManager.setSphereVisibility( )
+        else:                                self.mapManager.setMapVisibility( )
         self.render()
         
 

@@ -87,7 +87,6 @@ class DV3DPlot():
     AnimationEventId = 9
  
     def __init__( self,  **args ):
-        raise Exception()
         self.ParameterValueChanged = SIGNAL( 'ParameterValueChanged' )
         self.type = args.get( 'gmname', 'default').lower()
         self.useDepthPeeling = False
@@ -797,8 +796,13 @@ class DV3DPlot():
         else:
             self.renderer.ResetCamera( self.getBounds() )
             
-    def initCamera(self, d, center = (0,0) ):
+    def initCamera(self, d=None, center = None ):
 #        print " -------------------------- >>>>> --------------------------- >>>>  initCamera:  ", str( ( self.xcenter, self.ycenter, d ) )
+        if d == None:
+            mapSize = self.mapManager.map_cut_size
+            d = ( mapSize[0] + mapSize[1] )
+        if center == None: 
+            center = self.mapManager.mapCenter
         self.renderer.GetActiveCamera().SetPosition( center[0], center[1], d )
         self.renderer.GetActiveCamera().SetFocalPoint( center[0], center[1], 0.0 )
         self.renderer.GetActiveCamera().SetViewUp( 0, 1, 0 )  
