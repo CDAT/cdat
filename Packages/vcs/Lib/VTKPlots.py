@@ -440,10 +440,11 @@ class VTKVCSBackend(object):
     m.viewport=l.viewport
     m.worldcoordinate = l.worldcoordinate
     
-    if l.priority>0:
-        self.canvas.plot(l,renderer=ren,donotstoredisplay=True)
-    if m.priority>0:
-        self.canvas.plot(m,renderer=ren,donotstoredisplay=True)
+    if not (Y.min()>max(y1,y2) or Y.max()<min(y1,y2) or X.min()>max(x1,x2) or X.max()<min(x1,x2)):
+    	if l.priority>0:
+        	self.canvas.plot(l,renderer=ren,donotstoredisplay=True)
+    	if m.priority>0:
+        	self.canvas.plot(m,renderer=ren,donotstoredisplay=True)
     ren2 = vtk.vtkRenderer()
     self.renWin.AddRenderer(ren2)
     tmpl.plot(self.canvas,data1,gm,bg=self.bg,renderer=ren2,X=X,Y=Y)
