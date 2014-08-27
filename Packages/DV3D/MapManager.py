@@ -9,7 +9,6 @@ import os.path
 import vtk, time
 import numpy as np
 import os, vtk
-from PointCollection import PlotType
 
 packagePath = os.path.dirname( __file__ )  
 defaultMapDir = os.path.join( packagePath, 'data' )
@@ -31,7 +30,12 @@ class MapManager:
         self.world_cut = args.get( "world_cut", -1 ) 
         self.enableBasemap = args.get( "enable_basemap", True )
         self.y0 = -90.0 
-        print " @@@ MapManager: create "
+        self.roi_size = [ self.roi[1] - self.roi[0], self.roi[3] - self.roi[2] ] 
+        map_scale = (self.roi[1] - self.roi[0])/300.0
+        self.border_size = self.map_border_size * map_scale
+        self.map_cut_size = [ self.roi_size[0] + 2*self.border_size, self.roi_size[1] + 2*self.border_size ]
+        if self.map_cut_size[0] > 360.0: self.map_cut_size[0] = 360.0
+        if self.map_cut_size[1] > 180.0: self.map_cut_size[1] = 180.0
 
     def getMapOpacity(self):
         return self.map_opacity
@@ -97,17 +101,11 @@ class MapManager:
                 self.map_file = world_map[0].name
                 self.map_cut = world_map[1]
             
-            roi_size = [ self.roi[1] - self.roi[0], self.roi[3] - self.roi[2] ] 
-            scale = (self.roi[1] - self.roi[0])/300.0
-            border_size = self.map_border_size * scale
-            map_cut_size = [ roi_size[0] + 2*border_size, roi_size[1] + 2*border_size ]
-            if map_cut_size[0] > 360.0: map_cut_size[0] = 360.0
-            if map_cut_size[1] > 180.0: map_cut_size[1] = 180.0
 #            data_origin = self.input().GetOrigin() if self.input() else [ 0, 0, 0 ]
                       
             if self.world_cut == -1: 
                 if  (self.roi <> None): 
-                    if roi_size[0] > 180:             
+                    if self.roi_size[0] > 180:             
                         self.ComputeCornerPosition()
                         self.world_cut = self.NormalizeMapLon( self.x0 )
                     else:
@@ -128,9 +126,9 @@ class MapManager:
                 scale = [ 360.0/new_dims[0], 180.0/new_dims[1], 1 ]
                 self.width = 360.0
             else:                       
-                self.baseImage, new_dims = self.getBoundedMap( world_image, dataPosition, map_cut_size, border_size ) 
-                scale = [ map_cut_size[0]/new_dims[0], map_cut_size[1]/new_dims[1], 1 ]
-                self.width = map_cut_size[0]          
+                self.baseImage, new_dims = self.getBoundedMap( world_image, dataPosition ) 
+                scale = [ self.map_cut_size[0]/new_dims[0], self.map_cut_size[1]/new_dims[1], 1 ]
+                self.width = self.map_cut_size[0]          
                               
             self.baseMapActor = vtk.vtkImageActor()
             self.baseMapActor.SetOrigin( 0.0, 0.0, 0.0 )
@@ -142,27 +140,27 @@ class MapManager:
             extent = self.baseImage.GetExtent()
             print " @@@ baseImage.GetExtent: ", str( extent )
             print " @@@ baseImage.Position: ", str( self.x0 )
-            print " @@@ baseImage.Size: ", str( map_cut_size )
+            print " @@@ baseImage.Size: ", str( self.map_cut_size )
             if vtk.VTK_MAJOR_VERSION <= 5:  self.baseMapActor.SetInput(self.baseImage)
             else:                           self.baseMapActor.SetInputData(self.baseImage)        
-            self.mapCenter = [ self.x0 + map_cut_size[0]/2.0, self.y0 + map_cut_size[1]/2.0 ]  
+            self.mapCenter = [ self.x0 + self.map_cut_size[0]/2.0, self.y0 + self.map_cut_size[1]/2.0 ]  
             
     def getBaseMapActor(self):
 #        print " <<--------------------------------------->> GetBaseMapActor <<--------------------------------------->>  <<--------------------------------------->>"
         if self.baseMapActor == None: self.build()  
         return self.baseMapActor 
     
-    def setMapVisibility( self, topo  ):
-        if topo == PlotType.Planar:
-            mapCorner = [ self.x0, self.y0 ]
-            self.baseMapActor.SetOrigin( 0.0, 0.0, 0.0 )
-            self.baseMapActor.SetPosition( mapCorner[0], mapCorner[1], 0.1 )
-            self.baseMapActor.SetVisibility( True )  
-            self.sphereActor.SetVisibility( False )  
-            print "Positioning map at location %s" % ( str( ( self.x0, self.y0) )  ) 
-        elif topo == PlotType.Spherical:
-            self.baseMapActor.SetVisibility( False )  
-            self.sphereActor.SetVisibility( True )  
+    def setMapVisibility( self  ):
+        mapCorner = [ self.x0, self.y0 ]
+        self.baseMapActor.SetOrigin( 0.0, 0.0, 0.0 )
+        self.baseMapActor.SetPosition( mapCorner[0], mapCorner[1], 0.1 )
+        self.baseMapActor.SetVisibility( True )  
+        self.sphereActor.SetVisibility( False )  
+        print "Positioning map at location %s" % ( str( ( self.x0, self.y0) )  ) 
+
+    def setSphereVisibility( self ):
+        self.baseMapActor.SetVisibility( False )  
+        self.sphereActor.SetVisibility( True )  
             
     def ComputeCornerPosition( self ):
         if (self.roi[0] >= -180) and (self.roi[1] <= 180) and (self.roi[1] > self.roi[0]):
@@ -226,7 +224,7 @@ class MapManager:
         while ( lon < ( self.map_cut - 0.01 ) ): lon = lon + 360
         return ( ( lon - self.map_cut ) % 360 ) + self.map_cut
 
-    def getBoundedMap( self, baseImage, dataLocation, map_cut_size, map_border_size ):
+    def getBoundedMap( self, baseImage, dataLocation ):
         print " @@@ MapManager: getBoundedMap "
         baseExtent = baseImage.GetExtent()
         baseSpacing = baseImage.GetSpacing()
@@ -235,7 +233,7 @@ class MapManager:
         y0 = baseExtent[2]
         y1 = baseExtent[3]
         imageLen = [ x1 - x0 + 1, y1 - y0 + 1 ]
-        selectionDim = [ map_cut_size[0]/2, map_cut_size[1]/2 ]
+        selectionDim = [ self.map_cut_size[0]/2, self.map_cut_size[1]/2 ]
         dataXLoc = dataLocation[0]
         imageInfo = vtk.vtkImageChangeInformation()
         dataYbounds = [ dataLocation[1]-selectionDim[1], dataLocation[1]+selectionDim[1] ]
