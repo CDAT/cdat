@@ -87,7 +87,6 @@ class MapManager:
             self.baseMapActor.SetOpacity( self.map_opacity )
 #         if self.sphereActor:
 #             self.sphereActor.GetProperty().SetOpacity( self.map_opacity )
-        self.render()
         
     def build( self, **args ):
         if self.enableBasemap:              
