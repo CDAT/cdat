@@ -38,6 +38,30 @@ class StructuredGridPlot(DV3DPlot):
     def processToggleClippingCommand( self, args, config_function ):
         if args and args[0] == "InitConfig": 
             self.toggleClipping( args[1] )
+
+    def processBasemapOpacityCommand( self, args, config_function ):
+        opacity = config_function.value
+        if args and args[0] == "StartConfig":
+            pass
+        elif args and args[0] == "Init":
+            oval = config_function.initial_value
+            self.mapManager.setMapOpacity( oval )
+            self.render()
+        elif args and args[0] == "EndConfig":
+            self.processConfigParameterChange( opacity )
+        elif args and args[0] == "InitConfig":
+            pass
+        elif args and args[0] == "Open":
+            pass
+        elif args and args[0] == "Close":
+            pass
+        elif args and args[0] == "UpdateConfig":
+            value = args[2].GetValue()
+            oscale = opacity.getValues()
+            oscale[ args[1] ] = value
+            self.mapManager.setMapOpacity(  oscale )
+            opacity.setValues( oscale )
+            self.render()
                 
     def processVerticalScalingCommand( self, args, config_function ):
         verticalScale = config_function.value
