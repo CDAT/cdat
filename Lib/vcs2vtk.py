@@ -22,7 +22,10 @@ def putMaskOnVTKGrid(data,grid,actorColor=None,cellData=True,deep=True):
   if msk is not numpy.ma.nomask and not numpy.allclose(msk,False):
       msk =  VN.numpy_to_vtk(numpy.logical_not(msk).astype(numpy.uint8).flat,deep=deep)
       if actorColor is not None:
-          grid2 = vtk.vtkStructuredGrid()
+          if grid.IsA("vtkStructuredGrid"):
+            grid2 = vtk.vtkStructuredGrid()
+          else:
+            grid2 = vtk.vtkUnstructuredGrid()
           grid2.CopyStructure(grid)
           geoFilter = vtk.vtkDataSetSurfaceFilter()
           if not cellData:
@@ -45,9 +48,10 @@ def putMaskOnVTKGrid(data,grid,actorColor=None,cellData=True,deep=True):
           lut.SetTableValue(1,r/100.,g/100.,b/100.)
           mapper.SetLookupTable(lut)
           mapper.SetScalarRange(1,1)
-      if not cellData:
+      if grid.IsA("vtkStructuredGrid"):
+        if not cellData:
           grid.SetPointVisibilityArray(msk)
-      else:
+        else:
           grid.SetCellVisibilityArray(msk)
   return mapper
 
@@ -59,7 +63,6 @@ def genGrid(data1,data2,gm):
   cellData = True
   try: #First try to see if we can get a mesh out of this
     g=data1.getGrid()
-    print "Grid returns:",g
     if isinstance(g,cdms2.gengrid.AbstractGenericGrid): # Ok need unstrctured grid
       m=g.getMesh()
       xm = m[:,1].min()
@@ -76,6 +79,7 @@ def genGrid(data1,data2,gm):
       continents = True
       wrap = [0.,360.]
     ## Could still be meshfill with mesh data
+    ## Ok probably should do a test for hgrid before sending data2
     if isinstance(gm,meshfill.Gfm) and data2 is not None:
       xm = data2[:,1].min()
       xM = data2[:,1].max()
