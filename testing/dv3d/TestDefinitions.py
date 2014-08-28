@@ -8,42 +8,14 @@ import vcs, sys, os
 
 testManager = TestManager()   
      
-test1 =  vcsTest( 'dv3d_volume_test', roi=( -105.0, -15.0, 7.0, 50.0 ), file="geos5-sample.nc", vars = [ 'uwnd' ], 
+test1 =  vcsTest( 'dv3d_initial_test', roi=( -105.0, -15.0, 7.0, 50.0 ), 
                      parameters={'VerticalScaling': 3.0, 
-                                 'ToggleVolumePlot': vcs.on,
-                                 'ToggleSurfacePlot': vcs.off, 
-                                 'ScaleOpacity': [0.0, 0.8],
-                                 'ScaleColormap': [-15.0, 10.0, 1], 
-                                 'ScaleTransferFunction':  [6.0, 12.0, 1], 
-                                 'BasemapOpacity': [0.5],
-                                 'XSlider': ( vcs.off ),
-                                 'ZSlider': ( vcs.off ),
-                                 'YSlider': ( vcs.off ), 
-                                 }  )       
-
-test2 =  vcsTest( 'dv3d_slider_test', roi=( -105.0, -15.0, 5.0, 50.0 ), file="geos5-sample.nc", vars = [ 'uwnd' ], 
-                     parameters={'VerticalScaling': 3.0,
-                                 'ToggleVolumePlot': vcs.off, 
-                                 'ScaleOpacity': [1.0, 1.0], 
-                                 'ToggleSurfacePlot': vcs.off, 
-                                 'ScaleColormap': [-10.0, 10.0, 1], 
-                                 'BasemapOpacity': [0.5],
-                                 'XSlider': ( -50.0, vcs.on ),
-                                 'ZSlider': ( 10.0,  vcs.on ),
-                                 'YSlider': ( 20.0,  vcs.on ), 
-                                 }  )       
-
-test3 =  vcsTest( 'dv3d_surface_test', roi=( -105.0, -15.0, 5.0, 50.0 ), file="geos5-sample.nc", vars = [ 'uwnd' ], 
-                     parameters={'VerticalScaling': 3.0,
-                                 'ToggleVolumePlot': vcs.off,  
-                                 'ToggleSurfacePlot': vcs.on,
-                                 'ScaleOpacity': [1.0, 1.0], 
-                                 'IsosurfaceValue': [ 30.0 ],
-                                 'ScaleColormap': [ 20.0, 40.0, 1], 
-                                 'BasemapOpacity': [0.5],
-                                 'XSlider': ( vcs.off ),
-                                 'ZSlider': ( vcs.off ),
-                                 'YSlider': ( vcs.off ), 
+                                 'ToggleVolumePlot': vcs.on, 
+                                 'ScaleColormap': [-15.383988656109274, 10.447561660497996, 1], 
+                                 'ScaleTransferFunction':  [6.016036405845739, 12.382244144298838, 1], 
+                                 'XSlider': -105.0, 
+                                 'ZSlider': ( 0.0, vcs.on ),
+                                 'YSlider': ( 7.0, vcs.on ), 
                                  }  )       
     
 if __name__ == '__main__':
