@@ -337,6 +337,19 @@ class ConfigManager:
 
         except Exception, err:
             print>>sys.stderr, "Can't save parameter metadata: ", str(err)
+
+    def getStateData(self):
+        state_data = [ ]
+        for cf in self.configurableFunctions.values():
+            state_data_elem = cf.serializeState()
+            if state_data_elem: state_data.append( state_data_elem )
+        return state_data
+
+    def serializeState(self, asList=False ):
+        state_value = self.value.serializeState() 
+        state_data = None if ( (state_value == None) or not self.persist ) else  [ self.name, state_value ] 
+        if state_data and not asList: state_data = "=".join( state_data )
+        return state_data
             
     def saveState(self):
         try:
