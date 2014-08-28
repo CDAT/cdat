@@ -13,14 +13,13 @@ DefaultSampleVar = "uwnd"
 
 class TestManager:
     
-    DefinedTests = {}
+    DefinedTests = []
     
     def __init__( self ):
         pass
     
     def reviewTests(self):
-        for (testName, test) in TestManager.DefinedTests.items():
-            print "Running test: ", testName
+        for test in TestManager.DefinedTests:
             test.show()
             line = sys.stdin.readline()
             if line[0] == 'q': break
@@ -30,39 +29,27 @@ class TestManager:
         if line[0] == 'y': self.writeCMakeLists()
         
     def writeCMakeLists(self):
-        f = open( 'CMakeLists.txt', 'w' )
-        for (testName, test) in TestManager.DefinedTests.items():
+        f = open( 'CMakeLists', 'w' )
+        for test in TestManager.DefinedTests:
             test.writeCMakeDef( f )
         f.close()
-        
-    def runTest(self, testName ):
-        test = TestManager.DefinedTests.get( testName, None )
-        if test == None:
-            print>>sys.stderr, "Can't find test named %s" % testName
-            return -1
-        test.test()
                  
 class vcsTest:
         
     def __init__( self, name, **args ):
         self.name = name
-        self.test_dir = os.path.dirname(__file__)
-        parent_dir = os.path.join(self.test_dir,"..")
-        sys.path.append( parent_dir )
-        self.image_name = os.path.join( self.test_dir, 'images', '.'.join( [ self.name, 'png' ] )  )
-        filename = args.get( 'file', DefaultSampleFile )
+        self.image_name = '.'.join( [ self.name, 'png' ] )
+        self.filename = args.get( 'file', DefaultSampleFile )
         self.varnames = args.get( 'vars', [ DefaultSampleVar ] )
-        self.file_path = os.path.join( sys.prefix, "sample_data", filename )
-        self.file = cdms2.open( self.file_path )
+        self.file = cdms2.open( os.path.join( sys.prefix, "sample_data", self.filename ) )
         self.roi =  args.get( 'roi', None )
         self.ptype = args.get( 'type', 'scalar' )
         self.template = args.get( 'template', 'default' )
         self.parameters = args.get( 'parameters', {} )
-        self.actions = args.get( 'actions', [ 'test' ] )
-        TestManager.DefinedTests[ name ] = self
+        self.interactions = args.get( 'interactions', None )
+        TestManager.DefinedTests.append( self )
         
     def build(self):
-        print "Processing vars %s from file %s" % ( str(self.varnames), self.file_path )
         plot_args = []
         for varname in self.varnames:
             var = self.file[varname] 
@@ -75,14 +62,10 @@ class vcsTest:
             self.gm.setParameter( pitem[0], pitem[1] )
         plot_args.append( self.gm )
             
-        plot_kwargs = { 'cdmsfile': self.file.id, 'window_size': (900,600) }
+        plot_kwargs = { 'cdmsfile': self.file.id }
         self.canvas.plot( *plot_args, **plot_kwargs )
         self.plot = self.canvas.backend.plotApps[ self.gm ]
-        self.applyActions()
-        
-    def applyActions(self):
-        for action in self.actions:
-            self.plot.applyAction( action )
+        if self.interactions: self.interactions(self)
         
     def show(self):
         self.build()
@@ -90,10 +73,10 @@ class vcsTest:
         
     def test( self, interactive=False ):        
         import checkimage
-        self.build()
-        test_image = os.path.join( self.test_dir, 'images', '.'.join( [ self.name, 'png' ] ) )
+        test_image = '.'.join( [ self.name, 'test', 'png' ] )
         self.canvas.png( test_image )
         ret = checkimage.check_result_image( self.image_name, test_image, 0.05 )
+        print " Image Test returned:  %d " % ret
         if not interactive: sys.exit(ret)
         
     def update_image(self):
@@ -104,12 +87,11 @@ class vcsTest:
         f.write( "add_test(%s\n" % self.name )
         f.write( "  ${CMAKE_INSTALL_PREFIX}/bin/python\n"  )
         f.write( "  ${cdat_SOURCE_DIR}/testing/dv3d/%s.py\n" % self.name )
-#        f.write( "  ${cdat_SOURCE_DIR}/testing/dv3d/images/%s.png\n" % self.name )
-        f.write( ")\n\n\n")
-        source_file = os.path.join( self.test_dir, "%s.py" % self.name )
+        currdir = os.path.dirname(__file__)
+        source_file = os.path.join( currdir, "%s.py" % self.name )
         f1 = open( source_file, 'w' )
-        f1.write( "from TestDefinitions import testManager\n"  )
-        f1.write( "testManager.runTest('%s')\n" % self.name )
+        f1.write( "from TestManager import %s\n" % self.__class__.__name__ )
+        f1.write( "%s.test()\n" % self.__class__.__name__ )
         f1.close()
         
         
