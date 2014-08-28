@@ -2,8 +2,11 @@ import cdms2
 import numpy
 import unittest
 import ESMP
-from matplotlib import pylab
 import sys
+
+PLOT = False
+if PLOT:
+    from matplotlib import pylab
 
 class TestTasRegrid(unittest.TestCase):
     """
@@ -24,7 +27,7 @@ class TestTasRegrid(unittest.TestCase):
         print cltInterp.sum()
         n = reduce(lambda x,y: x*y, cltInterp.shape)
         self.assertLess(abs(cltInterp.sum() - 696921.0)/n, 0.3)
-        if False:
+        if PLOT:
             pylab.pcolor(ta.getLongitude()[:], ta.getLatitude()[:], cltInterp)
             pylab.colorbar()
             pylab.title('cltInterp')
@@ -46,5 +49,6 @@ if __name__ == '__main__':
     ESMP.ESMP_Initialize()
     suite = unittest.TestLoader().loadTestsFromTestCase(TestTasRegrid)
     unittest.TextTestRunner(verbosity = 1).run(suite)
-    pylab.show()
+    if PLOT:
+        pylab.show()
 

@@ -37,7 +37,7 @@ class StructuredGridPlot(DV3DPlot):
     def processToggleClippingCommand( self, args, config_function ):
         if args and args[0] == "InitConfig": 
             self.toggleClipping( args[1] )
-
+                
     def processVerticalScalingCommand( self, args, config_function ):
         verticalScale = config_function.value
         if args and args[0] == "StartConfig":
@@ -81,8 +81,8 @@ class StructuredGridPlot(DV3DPlot):
         ispec = self.inputSpecs[ input_index ] 
         return ispec.getRangeBounds()  
 
-    def setZScale( self, zscale_data, **args ):
-        self.setInputZScale( zscale_data, **args )
+    def setZScale( self, zscale_data, input_index = 0, **args ):
+        self.setInputZScale( zscale_data, input_index, **args )
 
     def setRangeBounds( self, rbounds, input_index = 0 ):
         ispec = self.inputSpecs[ input_index ] 
@@ -109,22 +109,18 @@ class StructuredGridPlot(DV3DPlot):
 
     def getScaleBounds(self):
         return [ 0.5, 100.0 ]
-
-    def setInputZScale( self, zscale_data, input_index=0, **args  ):
-        ispec = self.inputSpecs[ input_index ] 
-        if ispec.input() <> None:
-            input = ispec.input()
-            ns = input.GetNumberOfScalarComponents()
-            spacing = input.GetSpacing()
-            ix, iy, iz = spacing
-            sz = zscale_data[0]
-            if iz <> sz:
+    
+    def setInputZScale(self, zscale_data, input_index=0, **args  ):
+        input = self.variable_reader.output( input_index )
+        spacing = input.GetSpacing()
+        ix, iy, iz = spacing
+        sz = zscale_data[0]
+        if iz <> sz:
 #                print " PVM >---------------> Change input zscale: %.4f -> %.4f" % ( iz, sz )
-                input.SetSpacing( ix, iy, sz )  
-                input.Modified() 
-                self.processScaleChange( spacing, ( ix, iy, sz ) )
-                return True
-        return False
+            input.SetSpacing( ix, iy, sz )  
+            input.Modified() 
+            self.processScaleChange( spacing, ( ix, iy, sz ) )
+        return input
     
     def getDataRangeBounds(self, inputIndex=0 ):
         ispec = self.getInputSpec( inputIndex )
@@ -145,8 +141,15 @@ class StructuredGridPlot(DV3DPlot):
     def getAxes(self):
         pass
 
-    def input( self, iIndex = 0 ):
-        return self.variable_reader.output( iIndex )
+    def input( self, input_index = 0 ):
+        plotButtons = self.getInteractionButtons()
+        cf = plotButtons.getConfigFunction('VerticalScaling')
+        if cf <> None:
+            zscale_data = cf.value.getValues()
+            input = self.setInputZScale( zscale_data, input_index  )
+        else: 
+            input = self.variable_reader.output( input_index )
+        return input
 
     def isBuilt(self):
         return self.pipelineBuilt
@@ -155,9 +158,6 @@ class StructuredGridPlot(DV3DPlot):
         nOutputs = self.variable_reader.nOutputs()
         for inputIndex in range( nOutputs ):
             ispec = self.variable_reader.outputSpec( inputIndex )
-#             fd = ispec.input().GetPointData()
-#             nc = fd.GetNumberOfComponents ()
-#             nt = fd.GetNumberOfTuples ()
             self.inputSpecs[inputIndex] = ispec 
             if self.roi == None:  
                 self.roi = ispec.metadata.get( 'bounds', None )  
@@ -192,12 +192,6 @@ class StructuredGridPlot(DV3DPlot):
                            
         self.updateModule( **args )                
         self.render()
-
-    def updateModule( self, input_index = 0, **args  ):
-        ispec = self.inputSpecs[ input_index ] 
-        mapper = self.volume.GetMapper()
-        mapper.SetInput( ispec.input() )
-        mapper.Modified()
 
     def terminate( self ):
         pass
@@ -326,7 +320,7 @@ class StructuredGridPlot(DV3DPlot):
     def initializeConfiguration( self, cmap_index=0, **args ):
         ispec = self.inputSpecs[ cmap_index ] 
         args['units'] = ispec.units
-        ButtonBarWidget.initializeConfigurations( **args )
+        self.buttonBarHandler.initializeConfigurations( **args )
         ispec.addMetadata( { 'colormap' : self.getColormapSpec(), 'orientation' : self.iOrientation } ) 
 #        self.updateSliceOutput()
 
@@ -409,14 +403,12 @@ class StructuredGridPlot(DV3DPlot):
         self.baseMapActor.SetOrientation( 0.0, 0.0, 0.0 )
         self.baseMapActor.SetOpacity( self.map_opacity[0] )
         mapCorner = [ self.x0, self.y0 ]
-#         self.xcenter = self.x0 
-#         self.ycenter = self.y0
-#        self.adjustCamera( baseImage )
                 
         self.baseMapActor.SetPosition( mapCorner[0], mapCorner[1], 0.1 )
         if vtk.VTK_MAJOR_VERSION <= 5:  self.baseMapActor.SetInput(baseImage)
         else:                           self.baseMapActor.SetInputData(baseImage)        
-        self.mapCenter = [ self.x0 + map_cut_size[0]/2.0, self.y0 + map_cut_size[1]/2.0 ]        
+        self.mapCenter = [ self.x0 + map_cut_size[0]/2.0, self.y0 + map_cut_size[1]/2.0 ] 
+        self.mapSize = map_cut_size      
         self.renderer.AddActor( self.baseMapActor )
 
 
@@ -589,8 +581,14 @@ class StructuredGridPlot(DV3DPlot):
         self.createRenderer( **args )
         self.execute( )
         self.initializePlots()
-        self.initCamera( 700.0 )
+        self.initCamera( ( self.mapSize[0] + self.mapSize[1] ), ( self.mapCenter[0], self.mapCenter[1] ) )
         self.start()
+        
+    def stepAnimation(self, **args):
+        timestamp = self.variable_reader.stepAnimation()
+        self.execute( )
+        if timestamp:   self.updateTextDisplay( "Timestep: %s" % str( timestamp ) )
+        else:           self.updateTextDisplay( "" )
 
     def onResizeEvent(self):
         self.updateTextDisplay( None, True )

@@ -14,18 +14,18 @@ import cdtime
 f = open(os.path.join(sys.prefix,"share","vcs","wmo_symbols.json"))
 wmo = json.load(f)
 
-def putMaskOnVTKGrid(data,grid,actorColor=None,deep=True):
+def putMaskOnVTKGrid(data,grid,actorColor=None,cellData=True,deep=True):
   #Ok now looking 
   msk = data.mask
   imsk =  VN.numpy_to_vtk(msk.astype(numpy.int).flat,deep=deep)
   mapper = None
-  if msk is not numpy.ma.nomask:
+  if msk is not numpy.ma.nomask and not numpy.allclose(msk,False):
       msk =  VN.numpy_to_vtk(numpy.logical_not(msk).astype(numpy.uint8).flat,deep=deep)
       if actorColor is not None:
           grid2 = vtk.vtkStructuredGrid()
           grid2.CopyStructure(grid)
           geoFilter = vtk.vtkDataSetSurfaceFilter()
-          if grid.IsA("vtkStructuredGrid"):
+          if not cellData:
               grid2.GetPointData().SetScalars(imsk)
               #grid2.SetCellVisibilityArray(imsk)
               p2c = vtk.vtkPointDataToCellData()
@@ -45,9 +45,10 @@ def putMaskOnVTKGrid(data,grid,actorColor=None,deep=True):
           lut.SetTableValue(1,r/100.,g/100.,b/100.)
           mapper.SetLookupTable(lut)
           mapper.SetScalarRange(1,1)
-      if grid.IsA("vtkStructuredGrid"):
+      if not cellData:
           grid.SetPointVisibilityArray(msk)
-          #grid.SetCellVisibilityArray(msk)
+      else:
+          grid.SetCellVisibilityArray(msk)
   return mapper
 
 def genGrid(data1,data2,gm):
@@ -55,6 +56,7 @@ def genGrid(data1,data2,gm):
   wrap = None
   m3 = None
   g = None
+  cellData = True
   try: #First try to see if we can get a mesh out of this
     g=data1.getGrid()
     if isinstance(g,cdms2.gengrid.AbstractGenericGrid): # Ok need unstrctured grid
@@ -103,14 +105,57 @@ def genGrid(data1,data2,gm):
       continents = True
       wrap = [0.,360.]
       if not isinstance(g,cdms2.hgrid.AbstractCurveGrid):
-        lat = lat[:,numpy.newaxis]*numpy.ones(lon.shape)[numpy.newaxis,:]
-        lon = lon[numpy.newaxis,:]*numpy.ones(lat.shape)[:,numpy.newaxis]
+          lon=data1.getAxis(-1)
+          lat=data1.getAxis(-2)
+          lat2 = numpy.zeros(len(lat)+1)
+          lon2 = numpy.zeros(len(lon)+1)
+          # Ok let's try to get the bounds
+          try:
+            blat = lat.getBounds()
+            blon = lon.getBounds()
+            lat2[:len(lat)]=blat[:,0]
+            lat2[len(lat)]=blat[-1,1]
+            lon2[:len(lon)]=blon[:,0]
+            lon2[len(lon)]=blon[-1,1]
+          except Exception,err:
+            ## No luck we have to generate bounds ourselves
+            lat2[1:-1]=(lat[:-1]+lat[1:])/2.
+            lat2[0]=lat[0]-(lat[1]-lat[0])/2.
+            lat2[-1]=lat[-1]+(lat[-1]-lat[-2])/2.
+            lon2[1:-1]=(lon[:-1]+lon[1:])/2.
+            lon2[0]=lon[0]-(lon[1]-lon[0])/2.
+            lon2[-1]=lat[-1]+(lat[-1]-lat[-2])/2.
+          lat = lat2[:,numpy.newaxis]*numpy.ones(lon2.shape)[numpy.newaxis,:]
+          lon = lon2[numpy.newaxis,:]*numpy.ones(lat2.shape)[:,numpy.newaxis]
+      else:
+        #Ok in this case it is a structured grid we have no bounds, using ponitData
+        ## ??? We should probably revist and see if we can use the "bounds" attribute
+        ## to generate cell instead of points
+        cellData = False
     else:
       data1=cdms2.asVariable(data1)
       lon=data1.getAxis(-1)[:]
       lat=data1.getAxis(-2)[:]
-      lat = lat[:,numpy.newaxis]*numpy.ones(lon.shape)[numpy.newaxis,:]
-      lon = lon[numpy.newaxis,:]*numpy.ones(lat.shape)[:,numpy.newaxis]
+      lat2 = numpy.zeros(len(lat)+1)
+      lon2 = numpy.zeros(len(lon)+1)
+      # Ok let's try to get the bounds
+      try:
+        blat = lat.getBounds()
+        blon = lon.GetBounds()
+        lat2[:len(lat)]=blat[:][0]
+        lat2[len(lat2)]=blat[-1][1]
+        lon2[:len(lat)]=blat[:][0]
+        lon2[len(lat2)]=blat[-1][1]
+      except:
+        ## No luck we have to generate bounds ourselves
+        lat2[1:-1]=(lat[:-1]+lat[1:])/2.
+        lat2[0]=lat[0]-(lat[1]-lat[0])/2.
+        lat2[-1]=lat[-1]+(lat[-1]-lat[-2])/2.
+        lon2[1:-1]=(lon[:-1]+lon[1:])/2.
+        lon2[0]=lon[0]-(lon[1]-lon[0])/2.
+        lon2[-1]=lat[-1]+(lat[-1]-lat[-2])/2.
+      lat = lat2[:,numpy.newaxis]*numpy.ones(lon2.shape)[numpy.newaxis,:]
+      lon = lon2[numpy.newaxis,:]*numpy.ones(lat2.shape)[:,numpy.newaxis]
     vg.SetDimensions(lat.shape[1],lat.shape[0],1)
     lon = numpy.ma.ravel(lon)
     lat = numpy.ma.ravel(lat)
@@ -144,7 +189,7 @@ def genGrid(data1,data2,gm):
   geo, geopts = project(pts,projection,[xm,xM,ym,yM])
   ## Sets the vertics into the grid
   vg.SetPoints(geopts)
-  return vg,xm,xM,ym,yM,continents,wrap,geo
+  return vg,xm,xM,ym,yM,continents,wrap,geo,cellData
 
 def getRange(gm,xm,xM,ym,yM):
     # Also need to make sure it fills the whole space

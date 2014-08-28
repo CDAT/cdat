@@ -12,11 +12,13 @@ import regrid2
 import unittest
 import ESMP
 from regrid2 import esmf
-from matplotlib import pylab
 import types
 from math import pi
 import sys
 
+PLOT = False
+if PLOT:
+    from matplotlib import pylab
 
 class Test(unittest.TestCase):
 
@@ -37,7 +39,7 @@ class Test(unittest.TestCase):
             # diag =  {'numDstPoints': 3312, 'numValid': 2933}
             self.assertEqual(diag['numDstPoints'], 3312)
             self.assertEqual(diag['numValid'], 2933)
-        if False:
+        if PLOT:
             pylab.subplot(1, 2, 1)
             pylab.pcolor(so, vmin = 20, vmax = 40)
             pylab.colorbar()
@@ -72,7 +74,7 @@ class Test(unittest.TestCase):
             print soMass, inMass
             diff = abs(soMass - inMass)/soMass
             self.assertLess(diff, 7.e-7)
-        if False:
+        if PLOT:
             pylab.subplot(1, 2, 1)
             pylab.pcolor(so, vmin = 20, vmax = 40)
             pylab.colorbar()
@@ -178,6 +180,7 @@ if __name__ == '__main__':
     ESMP.ESMP_Initialize()
     suite = unittest.TestLoader().loadTestsFromTestCase(Test)
     unittest.TextTestRunner(verbosity = 1).run(suite)
-    pylab.show()
+    if PLOT:
+        pylab.show()
 
 

@@ -12,7 +12,6 @@ import regrid2
 import unittest
 import ESMP
 from regrid2 import esmf
-from matplotlib import pylab
 import types
 import sys
 
@@ -40,6 +39,5 @@ if __name__ == '__main__':
     ESMP.ESMP_Initialize()
     suite = unittest.TestLoader().loadTestsFromTestCase(Test)
     unittest.TextTestRunner(verbosity = 1).run(suite)
-    pylab.show()
 
 

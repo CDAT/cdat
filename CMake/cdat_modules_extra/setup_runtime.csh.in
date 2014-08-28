@@ -1,63 +1,84 @@
 #!/bin/csh
 
-# Find the location of this script and store it for further use
-set sourced=($_)
-set SB_EXTERNALS_DIR="@SB_EXTERNALS_DIR@"
-set SB_LIB_DIR="@SB_LIB_DIR@"
-set DIR=`dirname $sourced[2]`
-set DIR=`cd $DIR > /dev/null && pwd`
-set INSTALL_PREFIX=`dirname ${DIR}`
-set _os=`uname`
+# Main install prefix set by user or post install script:
+# UVCDAT_INSTALL_PREFIX
 
-if (! -d $SB_LIB_DIR) then
-  set SB_LIB_DIR "${INSTALL_PREFIX}/${SB_LIB_DIR}"
-endif
-
-if (! -d $SB_EXTERNALS_DIR) then
-  set SB_EXTERNALS_DIR "${INSTALL_PREFIX}/${SB_EXTERNALS_DIR}"
-endif
-
-if (! ($?PYTHONPATH) ) then
-    setenv PYTHONPATH ""
-endif
-
-if ( "$_os" == "Darwin" ) then
-   setenv PATH ${INSTALL_PREFIX}/Library/Frameworks/Python.framework/Versions/@PYVER@/bin:${PATH}
-   setenv PATH ${SB_EXTERNALS_DIR}/paraview.app/Contents/bin:${PATH}
-   setenv PYTHONPATH ${SB_EXTERNALS_DIR}/paraview.app/Contents/Python:${PYTHONPATH}
-endif
-
-setenv PATH ${DIR}:${PATH}
-setenv PATH "${SB_EXTERNALS_DIR}/bin":${PATH}
-
-# Set PYTHONPATH
-set SB_PYTHONPATH=${SB_LIB_DIR}/python@PYVER@/site-packages:${SB_EXTERNALS_DIR}/lib:${SB_LIB_DIR}/VisIt-@VISIT_VERSION@/site-packages/
-setenv PYTHONPATH ${SB_PYTHONPATH}:${PYTHONPATH}
-
-# Set LD_LIBRARY_PATH
-set SB_LD_LIBRARY_PATH=${SB_LIB_DIR}/paraview-@PARAVIEW_MAJOR@.@PARAVIEW_MINOR@:${SB_EXTERNALS_DIR}/lib:${SB_EXTERNALS_DIR}/lib/R/lib:${SB_LIB_DIR}:${SB_LIB_DIR}/VisIt-@VISIT_VERSION@:@QT_LIB_DIR@
-if ($?LD_LIBRARY_PATH) then
-  setenv LD_LIBRARY_PATH ${SB_LD_LIBRARY_PATH}:${LD_LIBRARY_PATH}
+# If unset, use the value configured by cmake by default.
+# Everything beyond this point will be determined relatively
+# from this path.
+if ( $?UVCDAT_INSTALL_PREFIX ) then
+  set install_prefix="${UVCDAT_INSTALL_PREFIX}"
 else
-  setenv LD_LIBRARY_PATH ${SB_LD_LIBRARY_PATH}
+  set install_prefix="@CMAKE_INSTALL_PREFIX@"
 endif
 
-
-if ( "$_os" == "Darwin" ) then
-    # Set DYLD_FALLBACK_LIBRARY_PATH
-    set SB_DYLD_FALLBACK_LIBRARY_PATH=${SB_LD_LIBRARY_PATH}:${SB_LIB_DIR}/python@PYVER@/site-packages/vcs
-    if ($?DYLD_FALLBACK_LIBRARY_PATH) then
-      setenv DYLD_FALLBACK_LIBRARY_PATH ${SB_DYLD_FALLBACK_LIBRARY_PATH}:${DYLD_FALLBACK_LIBRARY_PATH}
-    else
-      setenv DYLD_FALLBACK_LIBRARY_PATH ${SB_DYLD_FALLBACK_LIBRARY_PATH}
-    endif
+# Try to prevent the user from sourcing twice,
+# which can lead to errors.
+if ( $?UVCDAT_SETUP_PATH ) then
+  if ( "${UVCDAT_SETUP_PATH}" == "${install_prefix}" ) then
+    echo "UVCDAT setup already sourced for this install location."
+    exit 1
+  else
+    echo "ERROR: UVCDAT setup was previously sourced at \"${UVCDAT_SETUP_PATH}\""
+    echo "Open a new shell in order to use a different install location."
+    exit 1
+  endif
 endif
 
-setenv VISITPLUGINDIR ${SB_LIB_DIR}/VisIt-@VISIT_VERSION@-plugins
-setenv R_HOME ${SB_EXTERNALS_DIR}/lib/R
-setenv OPAL_PREFIX ${SB_EXTERNALS_DIR}
+# Check that the install prefix exists, otherwise stop.
+if ( ! -d "${install_prefix}" ) then
+  echo "ERROR: \"${install_prefix}\" is not a directory."
+  exit 1
+endif
+
+if ( ! $?LD_LIBRARY_PATH ) then
+  setenv LD_LIBRARY_PATH ""
+endif
+
+if ( ! $?PYTHONPATH ) then
+  setenv PYTHONPATH ""
+endif
+
+if ( ! $?PATH ) then
+  setenv PATH ""
+endif
+
+if ( -d "@QT_LIB_DIR@" ) then
+  setenv LD_LIBRARY_PATH "@QT_LIB_DIR@:${LD_LIBRARY_PATH}"
+endif
+
+foreach d ( @SETUP_LIBRARY_PATHS@ )
+  set f="${install_prefix}/${d}"
+  if ( -d "${f}" ) then
+    setenv LD_LIBRARY_PATH "${f}:${LD_LIBRARY_PATH}"
+  endif
+end
+
+if ( `uname` == 'Darwin' ) then
+  setenv DYLD_FALLBACK_LIBRARY_PATH "${LD_LIBRARY_PATH}"
+endif
+
+foreach d ( @SETUP_PYTHON_PATHS@ )
+  set f="${install_prefix}/${d}"
+  if ( -d "${f}" ) then
+    setenv PYTHONPATH "${f}:${PYTHONPATH}"
+  endif
+end
+
+foreach d ( @SETUP_EXECUTABLE_PATHS@ )
+  set f="${install_prefix}/${d}"
+  if ( -d "${f}" ) then
+    setenv PATH "${f}:${PATH}"
+  endif
+end
+
+if ( -d "${install_prefix}/Externals/lib/R" ) then
+  setenv R_HOME "${install_prefix}/Externals/lib/R"
+endif
+
+setenv OPAL_PREFIX "${install_prefix}/Externals"
 setenv LIBOVERLAY_SCROLLBAR 0
 
+setenv UVCDAT_SETUP_PATH "${install_prefix}"
 
-## On some system with X Forward or w/o modern graphic cards the following might be useful
-## setenv LIBGL_ALWAYS_INDIRECT 1
+unset install_prefix

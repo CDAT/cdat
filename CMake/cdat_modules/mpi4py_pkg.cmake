@@ -6,5 +6,8 @@ set(MPI4PY_GZ mpi4py-${MPI4PY_VERSION}.tar.gz)
 set(MPI4PY_MD5 978472a1a71f3142c866c9463dec7103)
 set(MPI4PY_SOURCE ${MPI4PY_URL}/${MPI4PY_GZ})
 
+add_cdat_package(Mpi4py "" "Bulid Mpi4py" OFF)
+if (CDAT_BUILD_PARALLEL)
+    set_property(CACHE CDAT_BUILD_MPI4PY PROPERTY VALUE ON)
+endif()
 
-add_cdat_package_dependent(Mpi4py "" "Bulid Mpi4py" OFF "CDAT_BUILD_PARALLEL" OFF)

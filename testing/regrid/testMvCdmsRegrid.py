@@ -7,7 +7,9 @@ import cdms2
 import numpy
 import unittest
 import ESMP
-import matplotlib.pylab as pl
+PLOT = False
+if PLOT:
+    import matplotlib.pylab as pl
 from cdms2 import CdmsRegrid
 import sys
 
@@ -47,7 +49,7 @@ class Test(unittest.TestCase):
         print 'min/max of v: %f %f' % (v.min(), v.max())
         print 'min/max of vInterp: %f %f' % (vInterp.min(), vInterp.max())
 
-        if False:
+        if PLOT:
             pl.figure()
             pl.pcolor(vInterp, vmin=-20, vmax=20)
             pl.title('testSingleTimeSingleElev: vInterp')
@@ -80,7 +82,7 @@ class Test(unittest.TestCase):
             self.assertLess(abs(vMin - vInterpMin), 0.4)
             self.assertLess(abs(vMax - vInterpMax), 0.2)
 
-        if False and self.rank == 0:
+        if PLOT and self.rank == 0:
             nTimes = v.shape[0]
             nLevels = v.shape[1]
             for el in range(nTimes):
@@ -120,7 +122,7 @@ class Test(unittest.TestCase):
         self.assertEqual(soInterp.shape[2], dstGrid.shape[0])
         self.assertEqual(soInterp.shape[3], dstGrid.shape[1])
 
-        if False:
+        if PLOT:
             nTimes = self.so.shape[0]
             nLevels = 3
             for time in range(nTimes):
@@ -144,6 +146,6 @@ if __name__ == '__main__':
     ESMP.ESMP_Initialize()
     suite = unittest.TestLoader().loadTestsFromTestCase(Test)
     unittest.TextTestRunner(verbosity = 1).run(suite)
-    pl.show()
+    if PLOT: pl.show()
 
 

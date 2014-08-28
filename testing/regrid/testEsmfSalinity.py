@@ -13,8 +13,10 @@ import regrid2
 import unittest
 import ESMP
 from regrid2 import esmf
-from matplotlib import pylab
 import sys
+PLOT = False
+if PLOT:
+    from matplotlib import pylab
 
 HAS_MPI = False
 try:
@@ -521,7 +523,7 @@ class Test(unittest.TestCase):
             print 'Number of zero valued cells', zeroValCnt
             print 'min/max value of dstData: %f %f' % (dstDataMin, dstDataMax)                   
             self.assertLess(dstDataMax, so.max())
-            if False:
+            if PLOT:
                 pylab.figure(1)
                 pylab.pcolor(so, vmin=20, vmax=40)
                 pylab.colorbar()
@@ -536,6 +538,6 @@ if __name__ == '__main__':
 
     suite = unittest.TestLoader().loadTestsFromTestCase(Test)
     unittest.TextTestRunner(verbosity = 1).run(suite)
-    pylab.show()
+    if PLOT: pylab.show()
 
 
