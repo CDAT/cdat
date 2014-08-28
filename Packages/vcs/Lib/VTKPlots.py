@@ -206,8 +206,7 @@ class VTKVCSBackend(object):
       self.renderer = vtk.vtkRenderer()
       r,g,b = self.canvas.backgroundcolor
       self.renderer.SetBackground(r/255.,g/255.,b/255.)
-      if self.bg is False:
-          self.createDefaultInteractor(self.renderer) 
+      self.createDefaultInteractor(self.renderer) 
       self.renWin.AddRenderer(self.renderer)
       return True
     else:
