@@ -308,7 +308,8 @@ class ButtonBar:
         return None
 
     def updateWindowSize(self):
-        self.windowSize = self.interactor.GetRenderWindow().GetSize() if ( self.interactor <> None ) else [ 100, 100 ]
+        if self.interactor <> None:
+            self.windowSize = self.interactor.GetRenderWindow().GetSize()
 
     def placeButton( self, button, position, **args ):
         max_size = button.size()

@@ -20,7 +20,6 @@ import colormap
 import json
 import os
 import tempfile
-import colormap
 
 def dumpToDict(obj,skipped,must):
   dic = {}
@@ -35,7 +34,7 @@ def dumpToDict(obj,skipped,must):
       dic[a] = val
   return dic
 
-def dumpToJson(obj,fileout,skipped = ["info","member"], must = [],indent=None,sort_keys=True):
+def dumpToJson(obj,fileout,skipped = ["info","member"], must = []):
   dic = dumpToDict(obj,skipped,must)
   if fileout is not None:
     if isinstance(fileout,str):
@@ -44,8 +43,6 @@ def dumpToJson(obj,fileout,skipped = ["info","member"], must = [],indent=None,so
       f = fileout
       fileout = f.name
     try:
-      # Mac needs to rewind, seems ok on other platforms
-      f.seek(0)
       D = json.load(f)
     except Exception,err:
       print "Error reading json:",fileout,err
@@ -62,11 +59,11 @@ def dumpToJson(obj,fileout,skipped = ["info","member"], must = [],indent=None,so
     del(dic["name"])
     d[nm2]=dic
     D[nm]=d
-    json.dump(D,f,sort_keys=sort_keys,indent=indent)
+    json.dump(D,f,sort_keys=True)
     if isinstance(fileout,str):
       f.close()
   else:
-    return json.dumps(dic,sort_keys=sort_keys,indent=indent)
+    return json.dumps(dic,sort_keys=True)
 
 def getfontname(number):
   if not number in vcs.elements["fontNumber"]:
@@ -126,65 +123,10 @@ def process_src_element(code):
   #except Exception,err:
   #  print "Processing error for %s,%s: %s" % (nm,typ,err)
 
-def listelements(typ=None):
-  if typ is None:
-    return sorted(vcs.elements.keys())
+def listelements(typ):
   if not typ in vcs.elements.keys():
     raise Exception,"Error: '%s' is not a valid vcs element\nValid vcs elements are: %s" % (typ,vcs.elements.keys())
-  return sorted(vcs.elements[typ].keys())
-
-
-#############################################################################
-#                                                                           #
-# Show VCS primary and secondary elements wrapper for VCS.                  #
-#                                                                           #
-#############################################################################
-def show(*args):
-    """
-Function: show
-
-Description of Function:
-Show the list of VCS primary and secondary class objects.
-
-Example of Use:
-a=vcs.init()
-a.show('boxfill')
-a.show('isofill')
-a.show('line')
-a.show('marker')
-a.show('text')
-"""
-    if args != () and args[0].lower() == 'taylordiagram':
-        ln=[]
-        ln.append('*******************Taylor Diagrams Names List**********************')
-        nms=[]
-        i=0
-        ln.append('')
-        for t in vcs.taylordiagrams:
-            if i%3==0 :
-               ln[-1]=ln[-1]+'(%4s):' % str(i+1)
-            ln[-1]=ln[-1]+'%20s' % t.name
-            i=i+1
-            if i%3==0 : ln.append('')
-        if ln[-1]=='' : ln.pop(-1)
-        ln.append('*****************End Taylor Diagrams Names List********************')
-        for l in ln:
-            print l
-        return None
-    elif args == ():
-       return vcs.listelements()
-    else:
-      elts = vcs.listelements(args[0])
-      m = max([len(e) for e in elts])+1
-      print "*******************%s Names List**********************" % args[0].capitalize()
-      for i,e in enumerate(elts):
-        print e.ljust(m),
-        if (i+1)%3==0:
-          print
-      if (i+1)%3!=0:
-        print
-      print "*******************End %s Names List**********************" % args[0].capitalize()
-      return 
+  return vcs.elements[typ].keys()
 
 def _scriptrun(script,canvas=None):
   # Now does the python Graphic methods
@@ -480,34 +422,17 @@ def scriptrun_scr(*args):
              os.remove(temporary_file_name)
     fin.close()
 
-def saveinitialfile():
+def saveinitialattributes():
     _dotdir,_dotdirenv = vcs.getdotdirectory()
     fnm = os.path.join(os.environ['HOME'], _dotdir, 'initial.attributes')
     if os.path.exists(fnm):
       os.remove(fnm)
-    items = vcs.elements.keys()
-    for k in ["projection","marker","texttable","textorientation","line","list"]:
-      items.remove(k)
-      items.insert(0,k)
-    for k in items:
-      if k in ["font","fontNumber"]:
+    for k,e in vcs.elements.iteritems():
+      if k in ["font","fontNumber","list"]:
         continue
-      elif k=="list":
-        D={}
-        D["L"]=vcs.elements["list"]
-        f=open(fnm+".json","w")
-        json.dump(D,f)
-        f.close()
-        continue
-      e=vcs.elements[k]
       for nm,g in e.iteritems():
         if nm!="default":
-          try:
-            g.script(fnm)
-          except Exception,err:
-            warnings.warn("Could not save graphic method %s named %si: %s" % (k,nm,err))
-    # extension .json has been auto-added, removing it in this specific case
-    os.rename(fnm+".json",fnm)
+          g.script(fnm)
     
 #############################################################################
 #                                                                           #
@@ -519,9 +444,10 @@ def scriptrun(script):
     scriptrun_scr(script) 
   elif script.split(".")[-1] == "py":
     execfile(script)
+  elif os.path.split(script)[-1] == "initial.attributes":
+    print "FOR NOW STILL READING IN OLD WAY"
+    _scriptrun(script)
   else:
-    if os.path.split(script)[-1] == "initial.attributes":
-      vcs._doValidation = False
     loader = { "P":'template',
         "Gfb":'boxfill',
         "Gfi":'isofill',
@@ -538,42 +464,26 @@ def scriptrun(script):
         "Gf3Dvector":"3d_vector",
         "Proj":"projection",
         "Gtd":"taylordiagram",
-        "Cp":"colormap",
-        "L":"L",
         }
-    try:
-      f=open(script)
-      jsn = json.load(f)
-      for typ in jsn.keys():
-        for nm,v in jsn[typ].iteritems():
-          if typ=="P":
-            try:
-              loadTemplate(str(nm),v)
-            except Exception,err:
-              print "could not load tmpl:",nm,err
-          else:
-            try:
-              loadVCSItem(loader[typ],nm,v)
-            except Exception,err:
-              print "failed",typ,nm,err
-    except Exception,err: #ok could not read json file maybe it is an old initial.attributes
-      if os.path.split(script)[-1] == "initial.attributes":
-        _scriptrun(script)
-      else:
-        warnings.warn("unable to source file: %si %s" % (script,err))
-  vcs._doValidation = True
+    f=open(script)
+    jsn = json.load(f)
+    for typ in jsn.keys():
+      for nm,v in jsn[typ].iteritems():
+        if typ=="P":
+          loadTemplate(nm,v)
+        else:
+          #print "Reading in a:",typ,"named",nm
+          loadVCSItem(loader[typ],nm,v)
   return
 
 def loadTemplate(nm,vals):
   try:
     t = vcs.gettemplate(nm)
-  except Exception,err:
+  except:
     t = vcs.createtemplate(nm)
   for k,v in vals.iteritems():
     A = getattr(t,k)
     for a,v in v.iteritems():
-      if isinstance(v,unicode):
-        v=str(v)
       setattr(A,a,v)
 
 def loadVCSItem(typ,nm,json_dict = {}):
@@ -581,16 +491,6 @@ def loadVCSItem(typ,nm,json_dict = {}):
     tp = "oned"
   else:
     tp = typ
-  if typ=="L":
-    d={}
-    for k,v in json_dict.iteritems():
-      try:
-        d[eval(k)]=eval(v)
-      except:
-        d[eval(k)]=v
-    vcs.elements["list"][nm]=d
-    return
-
   if vcs.elements[tp].has_key(nm):
     gm = vcs.elements[tp][nm]
   else:
@@ -604,8 +504,7 @@ def loadVCSItem(typ,nm,json_dict = {}):
           del(v[k])
         except:
           pass
-    elif isinstance(v,unicode):
-      v=str(v)
+    #print "Setting:",a,"to",v
     setattr(gm,a,v)
   return gm
 

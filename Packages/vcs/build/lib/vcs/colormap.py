@@ -39,7 +39,6 @@ def process_src(nm,code):
 
 
 class RGB_Table(UserDict):
-    __slots__=["data",]
     def __init__(self, name, dict=None):
       self.data = {0: [100, 100, 100], 1: [0, 0, 0], 2: [85, 85, 85], 3: [32, 32, 32], 4: [100, 100, 100], 
           5: [100, 100, 0], 6: [0, 3, 100], 7: [0, 6, 100], 8: [0, 9, 100], 9: [0, 12, 100], 
@@ -122,7 +121,7 @@ class RGB_Table(UserDict):
 # Colormap (Cp) Class.                                                      #
 #                                                                           #
 #############################################################################
-class Cp(object):
+class Cp:
     """
  Class: Cp                              # Colormap
 
@@ -173,15 +172,7 @@ class Cp(object):
     def getindex(self):
       return self._index
     def setindex(self,value):
-      ## usually we cannot set index, but there is an exception for lading from json files
-      if not(isinstance(value,dict) and value.keys()==[u'data',]):
-        raise Exception,"invalid"
-      else:
-        d2={}
-        d=value[u'data']
-        for k in d.keys():
-          d2[int(k)]=d[k]
-        self.index.data.update(d2)
+      raise Exception,"invalid"
     index = property(getindex,setindex)
     #############################################################################
     #                                                                           #
@@ -265,17 +256,11 @@ class Cp(object):
         elif (mode not in ('w', 'a')):
           raise ValueError, 'Error - Mode can only be "w" for replace or "a" for append.'
 
-        # By default, save file in json
-        scr_type = script_filename.split(".")
-        if len(scr_type)==1 or len(scr_type[-1])>5:
-          scr_type= "json"
-          if script_filename!="initial.attributes":
-            script_filename+=".json"
+        # By default, save file in python script mode
+        scr_type = script_filename[len(script_filename)-4:len(script_filename)]
+        if (scr_type == '.scr'):
+           print _vcs.scriptCp(self.name,script_filename,mode)
         else:
-          scr_type = scr_type[-1]
-        if scr_type == '.scr':
-           raise DeprecationWarning("scr script are no longer generated")
-        elif scr_type==".py":
            mode = mode + '+'
            py_type = script_filename[len(script_filename)-3:len(script_filename)]
            if (py_type != '.py'):
@@ -300,12 +285,6 @@ class Cp(object):
            fp.write("else:\n")
            fp.write("   %s = v.createcolormap('%s')\n" % (unique_name, self.name))
            fp.write("%s.index = '%s'\n" % (unique_name, self.index))
-        else:
-          #Json type
-          mode+="+"
-          f = open(script_filename,mode)
-          vcs.utils.dumpToJson(self,f)
-          f.close()
 
 
 #################################################################################

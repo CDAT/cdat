@@ -45,9 +45,6 @@ class DV3DApp:
     def applyAction( self, action ):
         if self.plot <> None:
             self.plot.applyAction( action )
-            
-    def setAnimationStepper( self, stepper ):
-        self.plot.setAnimationStepper( stepper )
 
     def gminit(self, var1, var2, **args ):
         grid_metadata = var1.getGrid()
