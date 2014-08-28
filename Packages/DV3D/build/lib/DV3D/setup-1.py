@@ -1,0 +1,31 @@
+from distutils.core import setup
+import os, sys
+
+setup (name = "dv3d",
+       version=1.0,
+       description = "Climate Data Interactive Visualization System",
+       url = "http://portal.nccs.nasa.gov/DV3D/",
+       packages = ['dv3d', ],
+       package_dir = {'dv3d': '', },
+       data_files = [ ('data',('data/earth2k.jpg',)), 
+                     ('data/buttons',('data/buttons/ChooseColormap.jpeg', 
+                                      'data/buttons/IsosurfaceValue.jpeg', 
+                                      'data/buttons/ScaleOpacity.jpeg', 
+                                      'data/buttons/SliceThickness.jpeg', 
+                                      'data/buttons/ToggleSphericalProj.jpeg', 
+                                      'data/buttons/VerticalScaling.jpeg', 
+                                      'data/buttons/ZSlider.jpeg',
+                                      'data/buttons/Colorbar.jpeg', 
+                                      'data/buttons/PointSize.jpeg', 
+                                      'data/buttons/ScaleTransferFunction.jpeg',   
+                                      'data/buttons/ToggleClipping.jpeg', 
+                                      'data/buttons/ToggleSurfacePlot.jpeg', 
+                                      'data/buttons/XSlider.jpeg',
+                                      'data/buttons/Configure.jpeg', 
+                                      'data/buttons/ScaleColormap.jpeg', 
+                                      'data/buttons/SliceRoundRobin.jpeg', 
+                                      'data/buttons/ToggleSlicePlot.jpeg', 
+                                      'data/buttons/ToggleVolumePlot.jpeg', 
+                                      'data/buttons/YSlider.jpeg' )),],
+       )
+
