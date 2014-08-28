@@ -5,7 +5,6 @@
 ## b=x.createboxfill()
 import vcs
 import boxfill,meshfill,isofill,isoline,unified1D,template,projection
-import colormap
 import fillarea,marker,line,texttable,textorientation,textcombined,vector
 from xmldocs import plot_keywords_doc,graphics_method_core,axesconvert,\
     xaxisconvert,yaxisconvert, plot_1D_input, plot_2D_input, plot_output,\
@@ -1778,68 +1777,4 @@ plot=a.create3d_vector()
 """
     name,source = check_name_source(name,source,'3d_vector')
     return dv3d.Gf3Dvector(name, source)
-
-#############################################################################
-#                                                                           #
-# Colormap functions for VCS.                                               #
-#                                                                           #
-#############################################################################
-def createcolormap(Cp_name=None, Cp_name_src='default'):
-    """
-Function: createcolormap               # Construct a new colormap secondary method
-
-Description of Function:
-Create a new colormap secondary method given the the name and the existing
-colormap secondary method to copy the attributes from. If no existing colormap
-secondary method name is given, then the default colormap secondary method
-will be used as the secondary method to which the attributes will be
-copied from.
-
-If the name provided already exists, then a error will be returned.
-Secondary method names must be unique.
-
-Example of Use:
-a=vcs.init()
-cp=a.createcolormap('example1',)
-a.show('colormap')
-cp=a.createcolormap('example2','AMIP')
-a.show('colormap')
-
-"""
-    # Check to make sure the arguments passed in are STRINGS
-    if not isinstance(Cp_name,str):
-       raise ValueError, 'Error -  The first argument must be a string.'
-    if not isinstance(Cp_name_src,str):
-       raise ValueError, 'Error -  The second argument must be a string.'
-
-    if Cp_name in vcs.elements["colormap"]:
-      raise Exception,"The colrmap '%s' already exists" % Cp_name
-    return colormap.Cp(Cp_name, Cp_name_src)
-
-def getcolormap(Cp_name_src='default'):
-    """
-Function: getcolormap                      # Construct a new colormap secondary method
-
-Description of Function:
-VCS contains a list of secondary methods. This function will create a
-colormap class object from an existing VCS colormap secondary method. If
-no colormap name is given, then colormap 'default' will be used.
-
-Note, VCS does not allow the modification of `default' attribute sets.
-However, a `default' attribute set that has been copied under a
-different name can be modified. (See the createcolormap function.)
-
-Example of Use:
-a=vcs.init()
-a.show('colormap')                      # Show all the existing colormap secondary methods
-cp=a.getcolormap()                      # cp instance of 'default' colormap secondary
-                                        #       method
-cp2=a.getcolormap('quick')              # cp2 instance of existing 'quick' colormap
-                                        #       secondary method
-"""
-    # Check to make sure the argument passed in is a STRING
-    if not isinstance(Cp_name_src,str):
-       raise ValueError, 'Error -  The argument must be a string.'
-
-    return vcs.elements["colormap"][Cp_name_src]
 

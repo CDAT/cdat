@@ -465,13 +465,13 @@ def setProjectionParameters(pd,proj):
              proj4["y_0"]=proj.falsenorthing
 
     if proj._type==6:
-      pd.SetOptionalParameter("lat_0","90")
+      pd.SetOptionalParameter("lat_0",90)
     for k in proj4:
       if not numpy.allclose(proj4[k],1.e20):
         if k=="lon_0":
           pd.SetCentralMeridian(proj4[k])
         elif k!="???":
-          pd.SetOptionalParameter(k,str(proj4[k]))
+          pd.SetOptionalParameter(k,proj4[k])
 
 #Vtk dump
 dumps={}

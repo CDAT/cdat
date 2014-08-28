@@ -22,7 +22,6 @@
 #                                                                               #
 #################################################################################
 """
-_doValidation = True
 next_canvas_id = 1
 import cdat_info
 cdat_info.pingPCMDIdb("cdat","vcs")
@@ -224,10 +223,7 @@ off = { 'state' : 0 }
 for nm in ["mercator","orthographic","lambert","polar","polyconic","robinson",
     "mollweide",]:
   p = projection.Proj(nm)
-  if nm=="polar":
-    p.type=-3
-  else:
-    p.type=nm
+  p.type=nm
 
 fillarea.Tf("default")
 template.P("default")

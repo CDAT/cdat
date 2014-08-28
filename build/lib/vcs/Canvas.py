@@ -557,7 +557,7 @@ class Canvas(object,AutoAPI.AutoAPI):
         axislist = list(map(lambda x: x[0].clone(), tvdomain))
 
         # Map keywords to dimension indices
-        rank = origv.rank()
+        rank = origv.ndim
         dimmap = {}
         dimmap['x'] = xdim = rank-1
         dimmap['y'] = ydim = rank-2
@@ -921,7 +921,6 @@ class Canvas(object,AutoAPI.AutoAPI):
         self.worldcoordinate = [0,1,0,1]
         self._dotdir,self._dotdirenv = vcs.getdotdirectory()
         if ( (is_canvas == 0) and (gui == 1) and (gui_canvas_closed == 0) ): gui_canvas_closed = 1
-        self.drawLogo = True
         if backend == "vtk":
           self.backend = VTKVCSBackend(self)
         elif isinstance(backend,vtk.vtkRenderWindow):
@@ -941,7 +940,7 @@ class Canvas(object,AutoAPI.AutoAPI):
         if called_initial_attributes_flg == 0:
            pth = vcs.__path__[0].split(os.path.sep)
            pth=pth[:-4] # Maybe need to make sure on none framework config
-           pth=['/']+pth+['share','vcs', 'initial.attributes']
+           pth=['/']+pth+['bin', 'initial.attributes']
            try:
                vcs.scriptrun( os.path.join(*pth))
            except:
@@ -956,19 +955,6 @@ class Canvas(object,AutoAPI.AutoAPI):
 
     def processParameterChange( self, args ):
         self.ParameterChanged( args )
-
-    ## Functions to set/querie drawing of UV-CDAT logo
-    def drawlogoon(self):
-      """Turn on drawing of logo on pix"""
-      self.drawLogo = True
-
-    def drawlogooff(self):
-      """Turn off drawing of logo on pix"""
-      self.drawLogo = False
-    
-    def getdrawlogo(self):
-      """Return value of draw logo"""
-      return self.drawLogo
 
     #############################################################################
     #                                                                           #
@@ -1244,7 +1230,6 @@ class Canvas(object,AutoAPI.AutoAPI):
         
         if type is None:
             type = self.listelements()
-            type.remove("fontNumber")
         elif isinstance(type,str):
             type=[type,]
         elif not isinstance(type,(list,tuple)):
@@ -2532,13 +2517,6 @@ Options:::
         except:
             sal = 1
 
-        try:
-            actual_var = actual_args[0]
-            file_name = actual_var.parent.uri
-            keyargs['cdmsfile'] = file_name
-        except:
-            pass
-        
     #    try:
     #        if (self.canvas_gui.top_parent.menu.vcs_canvas_gui_settings_flg == 1): # Must be from VCDAT
     #           self.canvas_gui.dialog.dialog.configure( title = ("Visualization and Control System (VCS) GUI"))
@@ -2772,7 +2750,7 @@ Options:::
                                     'ext_2',
                                     'missing']:
                             setattr(copy_mthd,att,getattr(m,att))
-        elif arglist[0] is not None and arglist[0].rank()<2 and arglist[3] in ['boxfill','default'] and not isinstance(arglist[0].getGrid(),cdms2.gengrid.AbstractGenericGrid):
+        elif arglist[0] is not None and arglist[0].ndim<2 and arglist[3] in ['boxfill','default'] and not isinstance(arglist[0].getGrid(),cdms2.gengrid.AbstractGenericGrid):
             arglist[3]='yxvsx'
             try:
                 tmp=self.getyxvsx(arglist[4])
@@ -3493,7 +3471,7 @@ Options:::
                   tp="boxfill"
                 gm=vcs.elements[tp][arglist[4]]
             p=self.getprojection(gm.projection)
-            if p.type in ["polar (non gctp)","polar stereographic"] and (doratio=="0" or doratio[:4]=="auto"):
+            if p.type=="polar (non gctp)" and doratio=="0":
               doratio="1t"
 
             for keyarg in keyargs.keys():
@@ -3550,7 +3528,7 @@ Options:::
                 t.data.y2 = p.viewport[3]
                 
                 proj = self.getprojection(p.projection)
-                if proj.type in ["polar (non gctp)","polar stereographic"]:
+                if proj.type=="polar (non gctp)":
                   doratio="1t"
 
                 if proj.type=='linear' and doratio[:4]=='auto':
@@ -3581,7 +3559,7 @@ Options:::
                       tp="textcombined"
                     gm=vcs.elements[tp][arglist[4]]
                 p=self.getprojection(gm.projection)
-                if p.type in ["polar (non gctp)","polar stereographic"]:
+                if p.type=="polar (non gctp)":
                   doratio="1t"
                 if p.type == 'linear':
                     if gm.g_name =='Gfm':
@@ -3736,9 +3714,6 @@ Options:::
             warnings.warn("VCS Behaviour changed, in order to interact with window, start the interaction mode with:\n x.interact()")
         return result
 
-    def setAnimationStepper( self, stepper ):
-        self.backend.setAnimationStepper( stepper )
-
     #############################################################################
     #                                                                           #
     # VCS utility wrapper to return the number of displays that are "ON".       #
@@ -3746,7 +3721,7 @@ Options:::
     #############################################################################
     def return_display_ON_num(self, *args):
         return apply(self.canvas.return_display_ON_num, args)
-    
+
     #############################################################################
     #                                                                           #
     # VCS utility wrapper to return the current display names.                  #
@@ -5394,7 +5369,7 @@ Options:::
         #except:
         #   updateVCSsegments_flag = 1
         self.colormap = name
-        # Should we implement a redraw?
+        warnings.warn("need to implement code to redraw vcs after colormap change")
         return
 
     #############################################################################
@@ -5634,8 +5609,41 @@ Options:::
     #                                                                           #
     #############################################################################
     def show(self, *args):
-      return vcs.show(*args)
-    show.__doc__=vcs.__doc__
+        """
+ Function: show
+
+ Description of Function:
+    Show the list of VCS primary and secondary class objects.
+
+ Example of Use:
+    a=vcs.init()
+    a.show('boxfill')
+    a.show('isofill')
+    a.show('line')
+    a.show('marker')
+    a.show('text')
+"""
+        if args != () and args[0].lower() == 'taylordiagram':
+            ln=[]
+            ln.append('*******************Taylor Diagrams Names List**********************')
+            nms=[]
+            i=0
+            ln.append('')
+            for t in vcs.taylordiagrams:
+                if i%3==0 :
+                   ln[-1]=ln[-1]+'(%4s):' % str(i+1)
+                ln[-1]=ln[-1]+'%20s' % t.name
+                i=i+1
+                if i%3==0 : ln.append('')
+            if ln[-1]=='' : ln.pop(-1)
+            ln.append('*****************End Taylor Diagrams Names List********************')
+            for l in ln:
+                print l
+            return None
+        elif args == ():
+           return self.listelements()
+        else:
+            return apply(self.canvas.show, args)
 
     #############################################################################
     #                                                                           #
@@ -5853,12 +5861,63 @@ Options:::
     #                                                                           #
     #############################################################################
     def createcolormap(self,Cp_name=None, Cp_name_src='default'):
-        return vcs.createcolormap(Cp_name,Cp_name_src)
-    createcolormap.__doc__ = vcs.manageElements.createcolormap.__doc__
+        """
+ Function: createcolormap               # Construct a new colormap secondary method
+
+ Description of Function:
+    Create a new colormap secondary method given the the name and the existing
+    colormap secondary method to copy the attributes from. If no existing colormap
+    secondary method name is given, then the default colormap secondary method
+    will be used as the secondary method to which the attributes will be
+    copied from.
+
+    If the name provided already exists, then a error will be returned.
+    Secondary method names must be unique.
+
+ Example of Use:
+    a=vcs.init()
+    cp=a.createcolormap('example1',)
+    a.show('colormap')
+    cp=a.createcolormap('example2','AMIP')
+    a.show('colormap')
+
+"""
+        # Check to make sure the arguments passed in are STRINGS
+        if not isinstance(Cp_name,str):
+           raise ValueError, 'Error -  The first argument must be a string.'
+        if not isinstance(Cp_name_src,str):
+           raise ValueError, 'Error -  The second argument must be a string.'
+
+        if Cp_name in vcs.elements["colormap"]:
+          raise Exception,"The colrmap '%s' already exists" % Cp_name
+        return colormap.Cp(Cp_name, Cp_name_src)
 
     def getcolormap(self,Cp_name_src='default'):
-        return vcs.getcolormap(Cp_name_src)
-    getcolormap.__doc__ = vcs.manageElements.getcolormap.__doc__
+        """
+ Function: getcolormap                      # Construct a new colormap secondary method
+
+ Description of Function:
+    VCS contains a list of secondary methods. This function will create a
+    colormap class object from an existing VCS colormap secondary method. If
+    no colormap name is given, then colormap 'default' will be used.
+
+    Note, VCS does not allow the modification of `default' attribute sets.
+    However, a `default' attribute set that has been copied under a
+    different name can be modified. (See the createcolormap function.)
+
+ Example of Use:
+    a=vcs.init()
+    a.show('colormap')                      # Show all the existing colormap secondary methods
+    cp=a.getcolormap()                      # cp instance of 'default' colormap secondary
+                                            #       method
+    cp2=a.getcolormap('quick')              # cp2 instance of existing 'quick' colormap
+                                            #       secondary method
+"""
+        # Check to make sure the argument passed in is a STRING
+        if not isinstance(Cp_name_src,str):
+           raise ValueError, 'Error -  The argument must be a string.'
+
+        return vcs.elements["colormap"][Cp_name_src]
 
 
     #############################################################################
