@@ -308,7 +308,8 @@ class VTKVCSBackend(object):
     #screenSize = self.renWin.GetScreenSize()
     if gtype in ["boxfill","meshfill","isoline","isofill","vector"]:
       data1 = self.trimData2D(data1) # Ok get only the last 2 dims
-      data2 = self.trimData2D(data2)
+      if gtype!="meshfill":
+        data2 = self.trimData2D(data2)
     #elif vcs.isgraphicsmethod(vcs.elements[gtype][gname]):
       ## oneD
     #  data1 = self.trimData1D(data1)
@@ -872,7 +873,10 @@ class VTKVCSBackend(object):
         ren.AddActor(act)
         vcs2vtk.fitToViewport(act,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],wc=[x1,x2,y1,y2],geo=geo)
 
-    self.renderTemplate(ren,tmpl,data1,gm)
+    if isinstance(gm,meshfill.Gfm):
+      tmpl.plot(self.canvas,data1,gm,bg=self.bg,X=numpy.arange(xm,xM*1.1,(xM-xm)/10.),Y=numpy.arange(ym,yM*1.1,(yM-ym)/10.))
+    else:
+      self.renderTemplate(ren,tmpl,data1,gm)
     if isinstance(gm,(isofill.Gfi,meshfill.Gfm,boxfill.Gfb)):
       if getattr(gm,"legend",None) is not None:
         legend = gm.legend

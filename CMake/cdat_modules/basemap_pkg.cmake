@@ -7,5 +7,5 @@ set(basemap_MD5 089260ea2b3eebb9d63e1783d0b15298 )
 set(BASEMAP_VERSION ${basemap_MAJOR}.${basemap_MINOR}.${basemap_PATCH})
 set(BASEMAP_SOURCE ${basemap_URL}/${basemap_GZ})
 
-add_cdat_package_dependent(basemap "" "" OFF "CDAT_BUILD_GRAPHICS" OFF)
+add_cdat_package_dependent(basemap "" "" ${CDAT_BUILD_ALL} "CDAT_BUILD_GRAPHICS" OFF)
 
