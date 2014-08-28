@@ -1,1 +1,1 @@
-set(SIX_deps ${python_pkg} ${pip_pkg})
+set(PYPARSING_deps ${python_pkg} ${pip_pkg})
