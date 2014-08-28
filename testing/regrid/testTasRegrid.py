@@ -1,11 +1,12 @@
 import cdms2
 import numpy
 import unittest
-from matplotlib import pylab as pl
-from mpl_toolkits.basemap import Basemap as bm
 import sys
 
 PLOT = False
+if PLOT:
+    from matplotlib import pylab as pl
+    from mpl_toolkits.basemap import Basemap as bm
 
 class TestTasRegrid(unittest.TestCase):
     """

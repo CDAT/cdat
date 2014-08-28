@@ -110,19 +110,31 @@ class StructuredDataReader:
                     self.varSpecs = [ var.name_in_file for var in self.vars ]
                     self.df = cdms2.open( self.fileSpecs ) 
                 else:
-                    self.datasetId = self.vars[0].name
-                    self.fileSpecs = self.vars[0].name
                     self.varSpecs = [ var.name for var in self.vars ]
-                    self.df = None   
+                    plot_attributes = args.get( 'plot_attributes', None )
+                    if plot_attributes <> None:
+                        self.datasetId = plot_attributes.get( 'filename', self.vars[0].name )
+                        for file_attribute_name in ['url', 'filename', 'file' ]:
+                            self.fileSpecs = plot_attributes.get( file_attribute_name, None ) 
+                            if self.fileSpecs <> None: break
+                        try: self.df = cdms2.open( self.fileSpecs )  
+                        except: 
+                            print>>sys.stderr, "Error, can't open data file '%s'" % self.fileSpecs
+                            self.df = None                    
+                    else:
+                        self.datasetId = self.vars[0].name
+                        self.fileSpecs = self.vars[0].name
+                        self.df = None   
+                        
         self.referenceTimeUnits = None
         self.parameters = {}
-        self.currentTime = 0
         self.currentLevel = None
-        self.timeIndex = 0
         self.timeValue = None
         self.useTimeIndex = False
         self.timeAxis = None
-        self.fieldData = None
+        self.fieldData = None        
+        self.iTimeStep = 0
+        
         otype = args.get( 'otype', 'default' )
         if otype == '3d_vector':
             self.outputType = CDMSDataType.Vector
@@ -253,15 +265,16 @@ class StructuredDataReader:
         self.cdmsDataset.timeRange = self.timeRange
         self.cdmsDataset.referenceTimeUnits = self.referenceTimeUnits
         self.timeLabels = self.cdmsDataset.getTimeValues()
-        timeData = args.get( 'timeData', [ self.cdmsDataset.timeRange[2], 0, False ] )
-        try:
-            self.timeValue = cdtime.reltime( float(timeData[0]), self.referenceTimeUnits )
-            self.timeIndex = timeData[1]
-            self.useTimeIndex = timeData[2]
-        except:
-            self.timeValue = cdtime.reltime( t0, self.referenceTimeUnits ) if self.referenceTimeUnits else 0.0
-            self.timeIndex = 0
-            self.useTimeIndex = False
+        
+#         timeData = args.get( 'timeData', [ self.cdmsDataset.timeRange[2], 0, False ] )
+#         try:
+#             self.timeValue = cdtime.reltime( float(timeData[0]), self.referenceTimeUnits )
+#             self.timeIndex = timeData[1]
+#             self.useTimeIndex = timeData[2]
+#         except:
+#             self.timeValue = cdtime.reltime( t0, self.referenceTimeUnits ) if self.referenceTimeUnits else 0.0
+#             self.timeIndex = 0
+#             self.useTimeIndex = False
 #            print "Set Time [mid = %d]: %s, NTS: %d, Range: %s, Index: %d (use: %s)" % ( self.moduleID, str(self.timeValue), self.nTimesteps, str(self.timeRange), self.timeIndex, str(self.useTimeIndex) )
 #            print "Time Step Labels: %s" % str( self.timeLabels )
            
@@ -286,7 +299,70 @@ class StructuredDataReader:
         if hasattr(cdms_var,'url'): self.generateOutput( roi=intersectedRoi, url=cdms_var.url )
         else:                       self.generateOutput( roi=intersectedRoi )
  
-            
+
+#     def updateTimestep(self, timeData, restart ):
+#         self.timeRange = self.cdmsDataset.timeRange
+#         if timeData:
+#             self.timeValue = cdtime.reltime( float(timeData[0]), self.referenceTimeUnits )
+#             self.timeIndex = timeData[1]
+#             self.useTimeIndex = timeData[2]
+#             self.timeLabels = self.cdmsDataset.getTimeValues()
+#             self.nTimesteps = self.timeRange[1]
+#                print "Set Time: %s, NTS: %d, Range: %s, Index: %d (use: %s)" % ( str(self.timeValue), self.nTimesteps, str(self.timeRange), self.timeIndex, str(self.useTimeIndex) )
+#                print "Time Step Labels: %s" % str( self.timeLabels ) 
+
+    def setTimestep( self, iTStep, restart = False ):
+        displayText = None
+        if (self.timeRange == None) or self.timeRange[0] == self.timeRange[1]:
+            self.running = False
+        else:
+                self.iTimeStep = iTStep
+                timeAxis =  self.getTimeAxis()     
+                if timeAxis:
+                    timeValues = np.array( object=timeAxis.getValue() )
+                    self.timeValue = cdtime.reltime( timeValues[self.iTimeStep], timeAxis.units )
+                    displayText = str( self.timeLabels[ self.iTimeStep ] )
+                    self.generateOutput()
+        return displayText
+
+
+#     def setTimestep1( self, iTimestep, restart = False ):
+#         if (self.timeRange == None) or self.timeRange[0] == self.timeRange[1]:
+#             self.running = False
+#         else:
+#                 self.setTimeIndex( iTimestep )
+#                 relTimeValueRef = self.relTimeStart + self.iTimeStep * self.relTimeStep
+#                 timeAxis =  self.getTimeAxis()     
+#                 if timeAxis:
+#                     timeValues = np.array( object=timeAxis.getValue() )
+#                     relTimeRef = cdtime.reltime( relTimeValueRef, self.referenceTimeUnits )
+#                     relTime0 = relTimeRef.torel( timeAxis.units )
+#                     timeIndex = timeValues.searchsorted( relTime0.value ) 
+#                     if ( timeIndex >= len( timeValues ) ): timeIndex = len( timeValues ) - 1
+#                     relTimeValue1 =  timeValues[ timeIndex ]
+#                     if timeIndex > 0:
+#                         timeIndex0 =  timeIndex-1
+#                         relTimeValue0 =  timeValues[ timeIndex0 ]
+#                         if abs( relTime0.value - relTimeValue0 ) < abs( relTimeValue1 - relTime0.value ):
+#                             relTimeValue1 = relTimeValue0 
+#                             timeIndex = timeIndex0
+#                     r0 = cdtime.reltime( relTimeValue1, timeAxis.units )
+#                     relTimeRef = r0.torel( self.referenceTimeUnits )
+#                     relTimeValueRefAdj = relTimeRef.value
+# #                        print " ** Update Animation, timestep = %d, index = %d, timeValue = %.3f, useIndex = %d, timeRange = %s " % ( self.iTimeStep, timeIndex, relTimeValueRefAdj, self.uniformTimeRange, str( self.timeRange ) )
+#                     displayText = str( r0.tocomp() )
+#                     self.updateTimestep( relTimeValueRefAdj, displayText, restart  )
+
+    def stepAnimation(self, **args):
+        iTS =  int( self.iTimeStep ) + 1
+        restart = False
+        if self.timeRange:
+            if ( iTS >= self.timeRange[1] ) or  ( iTS < self.timeRange[0] ): 
+                restart = ( iTS >= self.timeRange[1] ) 
+                iTS = self.timeRange[0]
+#            print " ############################################ set Time index = %d ############################################" % iTS
+        return self.setTimestep( iTS, restart )
+                            
     def getParameterId(self):
         return self.datasetId
             
@@ -352,7 +428,6 @@ class StructuredDataReader:
 #                 ispec = InputSpecs()
 #                 ispec.initializeInput( self.getCachedImageData( image_data_spec ), self.getFieldData() )
 #                 self.outputSpecs.append( ispec )
-        self.currentTime = self.getTimestep()
 
     def output( self, iIndex=0 ):
         cachedImageDataName = self.output_names[ iIndex ]
@@ -365,9 +440,9 @@ class StructuredDataReader:
     def nOutputs(self):
         return len( self.outputSpecs )
      
-    def getTimestep( self ):
-        dt = self.timeRange[3]
-        return 0 if dt <= 0.0 else int( round( ( self.timeValue.value - self.timeRange[2] ) / dt ) )
+#     def getTimestep( self ):
+#         dt = self.timeRange[3]
+#         return 0 if dt <= 0.0 else int( round( ( self.timeValue.value - self.timeRange[2] ) / dt ) )
 
     def setCurrentLevel(self, level ): 
         self.currentLevel = level
@@ -416,8 +491,8 @@ class StructuredDataReader:
                 else:
                     varDataIdIndex = selectedLevel  
                                       
-            iTimestep = self.timeIndex if ( varName <> '__zeros__' ) else 0
-            varDataIdIndex = iTimestep  
+            iTS = self.iTimeStep if ( varName <> '__zeros__' ) else 0
+            varDataIdIndex = iTS  
             roiStr = ":".join( [ ( "%.1f" % self.cdmsDataset.gridBounds[i] ) for i in range(4) ] ) if self.cdmsDataset.gridBounds else ""
             varDataId = '%s;%s;%d;%s;%s' % ( dsid, varName, self.outputType, str(varDataIdIndex), roiStr )
             vmd = {}         
@@ -427,11 +502,18 @@ class StructuredDataReader:
             vmd[ 'outputType' ] = self.outputType                 
             vmd[ 'varDataIdIndex' ] = varDataIdIndex
             vmd['datatype'] = datatype
-            vmd['timeIndex']= iTimestep
+            vmd['timeIndex']= iTS
             vmd['timeValue']= self.timeValue.value
             vmd['latLonGrid']= self.cdmsDataset.latLonGrid
             vmd['timeUnits' ] = self.referenceTimeUnits 
-            vmd[ 'bounds' ] = self.cdmsDataset.gridBounds          
+            vmd[ 'bounds' ] = self.cdmsDataset.gridBounds 
+            lat_axis= var.getLatitude()  
+            if not lat_axis is None: vmd[ 'lat' ] =  lat_axis.getValue()  
+            lon_axis= var.getLongitude()  
+            if not lon_axis is None: vmd[ 'lon' ] =  lon_axis.getValue()  
+            lev_axis= var.getLevel()  
+            if not lev_axis is None: vmd[ 'lev' ] =  lev_axis.getValue()  
+             
             enc_mdata = encodeToString( vmd ) 
             if enc_mdata and fieldData: 
                 fieldData.AddArray( getStringDataArray( 'metadata:%s' % varName,   [ enc_mdata ]  ) ) 
@@ -491,9 +573,13 @@ class StructuredDataReader:
                 dsid = varNameComponents[0]
                 varName = varNameComponents[1]
             ds = self.cdmsDataset[ dsid ]
-            if ds:
+            if (ds == None) and (self.df <> None):
+                ds = self.df
+            if ds <> None:
                 var = ds.getVariable( varName )
-                self.setupTimeAxis( var, **args )
+                self.setupTimeAxis( var, **args ) 
+            else:
+                var = None
             portName = orec.name
             selectedLevel = orec.getSelectedLevel() if ( self.currentLevel == None ) else self.currentLevel
             ndim = 3 if ( orec.ndim == 4 ) else orec.ndim
@@ -508,7 +594,7 @@ class StructuredDataReader:
                 else:
                     varDataIdIndex = selectedLevel  
                                       
-            iTimestep = self.timeIndex if ( varName <> '__zeros__' ) else 0
+            iTimestep = self.iTimeStep if ( varName <> '__zeros__' ) else 0
             varDataIdIndex = iTimestep  
             cell_coords = (0,0)
             roiStr = ":".join( [ ( "%.1f" % self.cdmsDataset.gridBounds[i] ) for i in range(4) ] ) if self.cdmsDataset.gridBounds else ""
@@ -558,7 +644,14 @@ class StructuredDataReader:
                         md['latLonGrid']= self.cdmsDataset.latLonGrid
                         md['timeUnits' ] = self.referenceTimeUnits if self.referenceTimeUnits else ""
                         md[ 'attributes' ] = var_md
-                        md[ 'plotType' ] = 'zyt' if (self.outputType == CDMSDataType.Hoffmuller) else 'xyz'
+                        md[ 'plotType' ] = 'xyt' if (self.outputType == CDMSDataType.Hoffmuller) else 'xyz'
+                        if not var is None:
+                            axis = var.getLongitude()
+                            md[ 'lon' ] =  axis.getValue()
+                            axis = var.getLatitude()
+                            md[ 'lat' ] =  axis.getValue()
+                            axis = var.getLevel()
+                            md[ 'lev' ] =  axis.getValue()
                                         
                 self.setCachedData( varDataId, cell_coords, varDataSpecs )  
         
@@ -803,6 +896,8 @@ class StructuredDataReader:
         gridSpecs['gridShape'] = gridShape
         gridSpecs['gridSize'] = gridSize
         gridSpecs['md'] = md
-        if dset:  gridSpecs['attributes'] = dset.dataset.attributes
+        if dset:  
+            try:     gridSpecs['attributes'] = dset.dataset.attributes
+            except:  gridSpecs['attributes'] = dset.attributes
         return gridSpecs   
                  

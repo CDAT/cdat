@@ -10,11 +10,12 @@ import regrid2
 import unittest
 import ESMP
 from regrid2 import esmf
-from matplotlib import pylab as pl
 import types
 import sys
 
 Plot = False
+if Plot:
+    from matplotlib import pylab as pl
 
 class Test(unittest.TestCase):
 
@@ -96,6 +97,7 @@ if __name__ == '__main__':
 
     suite = unittest.TestLoader().loadTestsFromTestCase(Test)
     unittest.TextTestRunner(verbosity = 1).run(suite)
-    pl.show()
+    if Plot:
+        pl.show()
 
 

@@ -161,7 +161,7 @@ class PointCollection():
                     np_hgt_var_data_block = self.getDataBlock(hgt_var).flatten() 
                     if self.missing_value: np_hgt_var_data_block = numpy.ma.masked_equal( np_hgt_var_data_block, self.missing_value, False )
                     zdata = np_hgt_var_data_block.astype( numpy.float32 ) 
-    #                print " setPointHeights: zdata shape = %s " % str( zdata.shape ); sys.stdout.flush()
+                    print " setPointHeights: zdata shape = %s " % str( zdata.shape ); sys.stdout.flush()
                     self.vertical_bounds = ( zdata.min(), zdata.max() )  
                     if self.data_height == None: self.data_height = ( self.vertical_bounds[1] - self.vertical_bounds[0] )
                     self.point_data_arrays['z'] = zdata * ( stage_height / self.data_height ) 
@@ -218,7 +218,7 @@ class PointCollection():
         except:
             return axis_ids
 
-    def getLatLon( self, varname, grid_coords, **args ):
+    def getLatLon( self, grid_coords, **args ):
         data_file = self.df
         grid_file = self.gf
 #         if grid_file:
@@ -296,7 +296,7 @@ class PointCollection():
         lev_aliases =  [ "isobaric", "bottom_top", "layers", "interfaces" ]
         lev = var.getLevel()
         if lev == None:
-            for axis_spec in var.domain:
+            for axis_spec in var.getDomain():
                 axis = axis_spec[0]
                 grid_lev = None
                 if self.gf:
@@ -315,7 +315,7 @@ class PointCollection():
         process = args.get( 'process', True )
         update_points = args.get( 'update_points', True )
         self.iTimeStep = self.iTimeStep + 1
-        print " PC[%d/%d]: stepTime[%d]: %s  " % ( self.istart, self.istep, self.iTimeStep, str( process ) )
+        print " PC_[%d/%d]: stepTime[%d/%d]: %s  " % ( self.istart, self.istep, self.iTimeStep, self.time.shape[0], str( process ) )
         if self.iTimeStep >= self.time.shape[0]:
             self.iTimeStep = 0
         if process:
@@ -350,6 +350,12 @@ class PointCollection():
             units = var.units 
             ds_mdata.append( [ id, name, units ] )  
         self.metadata['dset_metadata'] = ds_mdata
+        axis = self.var.getLongitude()
+        if axis: self.metadata['lon'] = axis.getValue()
+        axis = self.var.getLatitude()
+        if axis: self.metadata['lat'] = axis.getValue()
+        axis = self.var.getLevel()
+        if axis: self.metadata['lev'] = axis.getValue()
 
     def getMetadata( self ):
         return self.metadata
@@ -363,7 +369,7 @@ class PointCollection():
         self.extractMetadata()
         self.grid = self.var.getGrid()
         self.lev = self.getLevel(self.var)
-        lon, lat = self.getLatLon( varname, grid_coords )  
+        lon, lat = self.getLatLon( grid_coords )  
         if ( id(lon) <> id(None) ) and ( id(lat) <> id(None) ):                                 
             self.time = self.var.getTime()
             z_scale = 0.5

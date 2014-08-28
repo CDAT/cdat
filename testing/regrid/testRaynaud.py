@@ -6,13 +6,14 @@ import cdms2
 import ESMP
 from cdms2.mvCdmsRegrid import CdmsRegrid
 import numpy
-import pylab
 from genutil import minmax
 from time import time
 import operator
 import sys
 
-PLOT = True
+PLOT = False
+if PLOT:
+    import pylab
 
 def bounds1d(xx):
     """Compute bounds on a linear sequence or axis. 

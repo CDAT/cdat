@@ -14,10 +14,11 @@ import unittest
 import time
 import ESMP
 import copy
-from matplotlib import pylab
 import sys
 
 PLOT = False
+if PLOT: 
+    from matplotlib import pylab
 
 class Test(unittest.TestCase):
     def setUp(self):
@@ -282,6 +283,6 @@ if __name__ == '__main__':
     ESMP.ESMP_Initialize()
     suite = unittest.TestLoader().loadTestsFromTestCase(Test)
     unittest.TextTestRunner(verbosity = 1).run(suite)
-    pylab.show()
+    if PLOT: pylab.show()
 
 

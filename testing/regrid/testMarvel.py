@@ -6,13 +6,15 @@ import cdms2
 import ESMP
 from cdms2.mvCdmsRegrid import CdmsRegrid
 import numpy
-import pylab
 from genutil import minmax
 from time import time
 import operator
 import sys
 
 PLOT = False
+if PLOT:
+    import pylab
+
 
 
 class Test(unittest.TestCase):
@@ -74,7 +76,7 @@ class Test(unittest.TestCase):
         self.assertNotEqual(test_uni.mask.sum(), test_uni.size) 
         self.assertNotEqual(test_gen.mask.sum(), test_gen.size)
         
-        if False:
+        if PLOT:
             pylab.subplot(2, 1, 1)
             pylab.pcolor(data[...])
             pylab.title('data')
@@ -129,7 +131,7 @@ class Test(unittest.TestCase):
         # check that the mask does not extend everywhere...
         self.assertNotEqual(test_data.mask.sum(), test_data.size)
         
-        if True:
+        if PLOT:
             pylab.subplot(2, 1, 1)
             pylab.pcolor(data[...])
             pylab.title('data')
@@ -164,7 +166,7 @@ class Test(unittest.TestCase):
         # check that the mask does not extend everywhere...
         self.assertNotEqual(test_data.mask.sum(), test_data.size)
         
-        if False:
+        if PLOT:
             pylab.subplot(2, 1, 1)
             pylab.pcolor(data[...])
             pylab.title('data')
@@ -201,7 +203,7 @@ class Test(unittest.TestCase):
         # check that the mask does not extend everywhere...
         self.assertNotEqual(test_data.mask.sum(), test_data.size)
         
-        if False:
+        if PLOT:
             pylab.subplot(2, 1, 1)
             pylab.pcolor(data[...])
             pylab.title('data')
@@ -262,6 +264,7 @@ if __name__ == '__main__':
     ESMP.ESMP_LogSet(True)
     suite = unittest.TestLoader().loadTestsFromTestCase(Test)
     unittest.TextTestRunner(verbosity = 1).run(suite)
-    pylab.show()
+    if PLOT:
+        pylab.show()
 
 

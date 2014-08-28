@@ -14,7 +14,6 @@ import unittest
 import time
 import ESMP
 import copy
-from matplotlib import pylab
 import sys
 
 HAS_MPI = False
@@ -25,6 +24,8 @@ except:
     pass
 
 PLOT = False
+if PLOT:
+    from matplotlib import pylab
 
 class Test(unittest.TestCase):
 
@@ -233,6 +234,6 @@ if __name__ == '__main__':
     print ""
     suite = unittest.TestLoader().loadTestsFromTestCase(Test)
     unittest.TextTestRunner(verbosity = 1).run(suite)
-    pylab.show()
+    if PLOT: pylab.show()
 
 

@@ -7,11 +7,13 @@ Unit tests for regrid2.gsRegrid
 
 import cdms2
 import regrid2
-import matplotlib as mpl
 import numpy as np
 import unittest
 import openCreateData
-from matplotlib import pylab
+PLOT = False
+if PLOT:
+    import matplotlib as mpl
+    from matplotlib import pylab
 
 class TestTimeRegridding(unittest.TestCase):
 
@@ -62,7 +64,7 @@ class TestTimeRegridding(unittest.TestCase):
                                   mask = np.zeros(fShape))
         ftas.missing_value = self.gtas.missing_value
         r2.apply(self.gtas, ftas)
-        if False:
+        if PLOT:
             vmin = self.gtas.min()
             vmax = self.gtas.max()
             pylab.subplot(1,4,1)
@@ -138,6 +140,6 @@ if __name__ == '__main__':
     print ""
     suite = unittest.TestLoader().loadTestsFromTestCase(TestTimeRegridding)
     unittest.TextTestRunner(verbosity = 1).run(suite)
-    pylab.show()
+    if PLOT: pylab.show()
 
 

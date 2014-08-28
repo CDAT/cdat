@@ -1,7 +1,7 @@
 
 include(@cdat_CMAKE_BINARY_DIR@/cdat_common_environment.cmake)
 
-set(ENV{ESMF_DIR} @ESMF_source@)
+set(ENV{ESMF_DIR} @ESMF_source@/esmf)
 set(ENV{ESMF_INSTALL_PREFIX} @ESMF_install@)
 set(ENV{ESMF_PTHREADS} @ESMF_pthreads@)
 set(ENV{ESMF_OS} @ESMF_os@)
@@ -18,7 +18,7 @@ set(ENV{FFLAGS} ${cdat_osx_flags_fortran})
 
 execute_process(
   COMMAND make install
-  WORKING_DIRECTORY @ESMF_source@
+  WORKING_DIRECTORY @ESMF_source@/esmf
   OUTPUT_VARIABLE CDAT_OUT
   ERROR_VARIABLE CDAT_ERR
   RESULT_VARIABLE res)
@@ -27,18 +27,6 @@ set(ESMF_source @ESMF_source@)
 set(ESMF_install @ESMF_install@)
 set(ESMF_COMM @mpiuni@)
 set(ESMF_pthreads @ESMF_pthreads@)
-
-## Store the configuration used to build ESMF
-set(outfile @ESMF_source@/set_esmf_env_ser.sh)
-file(WRITE ${outfile} "# ESMF compiled with these environment variables\n\n")
-file(APPEND ${outfile} "export ESMF_DIR=@ESMF_source@\n")
-file(APPEND ${outfile} "export ESMF_INSTALL_PREFIX=@ESMF_install@\n")
-file(APPEND ${outfile} "export ESMF_THREADS=@ESMF_pthreads@\n")
-file(APPEND ${outfile} "export ESMF_COMM=@ESMF_COMM@\n")
-file(APPEND ${outfile} "\n")
-file(APPEND ${outfile} "# Full information regarding the install is found in:\n")
-file(GLOB_RECURSE ESMF_mkfile "@ESMF_install@/lib/libO/e*.mk")
-file(APPEND ${outfile} "# "${ESMF_mkfile}"\n")
 
 if(NOT ${res} EQUAL 0)
   message("Install Errors detected: \n${CDAT_OUT}\n${CDAT_ERR}")
