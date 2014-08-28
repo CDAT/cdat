@@ -218,6 +218,7 @@ displayplot.Dp("default")
 dv3d.Gf3Dvector("default")
 dv3d.Gf3Dscalar("default")
 dv3d.Gf3Dscalar("xyt")
+on = { 'state' : 1 }
 
 for nm in ["mercator","orthographic","lambert","polar","polyconic","robinson",
     "mollweide",]:
