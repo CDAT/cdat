@@ -903,7 +903,6 @@ class P(object):
           wc[3]=Y[:].max()
         else:
           wc[3] = gm.datawc_y2
-
         vp=[self.data.x1,self.data.x2,self.data.y1,self.data.y2]
         dx=wc[1]-wc[0]
         dy=wc[3]-wc[2]

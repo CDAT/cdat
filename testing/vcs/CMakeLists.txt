@@ -3,6 +3,10 @@ add_test(vcs_verify_import
   ${CMAKE_INSTALL_PREFIX}/bin/python
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_import.py
 )
+add_test(vcs_test_antialiasing
+  ${CMAKE_INSTALL_PREFIX}/bin/python
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_antialiasing.py
+)
 add_test(vcs_verify_init
   ${CMAKE_INSTALL_PREFIX}/bin/python
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_init.py
@@ -53,6 +57,12 @@ add_test(vcs_test_dump_json
 
 message(${CDAT_DOWNLOAD_SAMPLE_DATA} and ${CDAT_BUILD_MATPLOTLIB})
 
+#These test actually plot things need sample data
+  add_test(vcs_test_gen_meshfill
+    ${CMAKE_INSTALL_PREFIX}/bin/python
+    ${cdat_SOURCE_DIR}/testing/vcs/test_gen_meshfill.py
+    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_gen_meshfill.png
+    )
   add_test(vcs_test_1d_missing
     ${CMAKE_INSTALL_PREFIX}/bin/python
     ${cdat_SOURCE_DIR}/testing/vcs/test_1D_missing.py

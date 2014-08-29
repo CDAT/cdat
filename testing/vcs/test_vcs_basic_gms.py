@@ -83,7 +83,7 @@ elif gm_type=="meshfill":
     gm.mesh=True
     print "ARGS MASK:",args.mask
     if args.mask:
-        s=MV2.masked_greater(s,1450.)
+        s=MV2.masked_less(s,1150.)
 else:
     s=f("clt",**xtra)
     if args.mask:

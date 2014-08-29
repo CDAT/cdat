@@ -22,7 +22,10 @@ def putMaskOnVTKGrid(data,grid,actorColor=None,cellData=True,deep=True):
   if msk is not numpy.ma.nomask and not numpy.allclose(msk,False):
       msk =  VN.numpy_to_vtk(numpy.logical_not(msk).astype(numpy.uint8).flat,deep=deep)
       if actorColor is not None:
-          grid2 = vtk.vtkStructuredGrid()
+          if grid.IsA("vtkStructuredGrid"):
+            grid2 = vtk.vtkStructuredGrid()
+          else:
+            grid2 = vtk.vtkUnstructuredGrid()
           grid2.CopyStructure(grid)
           geoFilter = vtk.vtkDataSetSurfaceFilter()
           if not cellData:
@@ -45,9 +48,10 @@ def putMaskOnVTKGrid(data,grid,actorColor=None,cellData=True,deep=True):
           lut.SetTableValue(1,r/100.,g/100.,b/100.)
           mapper.SetLookupTable(lut)
           mapper.SetScalarRange(1,1)
-      if not cellData:
+      if grid.IsA("vtkStructuredGrid"):
+        if not cellData:
           grid.SetPointVisibilityArray(msk)
-      else:
+        else:
           grid.SetCellVisibilityArray(msk)
   return mapper
 
@@ -74,11 +78,16 @@ def genGrid(data1,data2,gm):
       m3=numpy.concatenate((m2,numpy.zeros((m2.shape[0],1))),axis=1)
       continents = True
       wrap = [0.,360.]
-  except Exception,err: # Ok no mesh on file, will do with lat/lon
     ## Could still be meshfill with mesh data
+    ## Ok probably should do a test for hgrid before sending data2
     if isinstance(gm,meshfill.Gfm) and data2 is not None:
+      xm = data2[:,1].min()
+      xM = data2[:,1].max()
+      ym = data2[:,0].min()
+      yM = data2[:,0].max()
       N = data2.shape[0]
       m2 = numpy.ascontiguousarray(numpy.transpose(data2,(0,2,1)))
+      nVertices = m2.shape[-2]
       m2.resize((m2.shape[0]*m2.shape[1],m2.shape[2]))
       m2=m2[...,::-1]
       # here we add dummy levels, might want to reconsider converting "trimData" to "reOrderData" and use actual levels?
@@ -86,15 +95,18 @@ def genGrid(data1,data2,gm):
       if gm.wrap[1]==360.:
         continents = True
       wrap = gm.wrap
+  except Exception,err: # Ok no mesh on file, will do with lat/lon
+    print "WHAT?"
+
   if m3 is not None:
     #Create unstructured grid points
     vg = vtk.vtkUnstructuredGrid()
     for i in range(N):
       lst = vtk.vtkIdList()
-      for j in range(4):
-        lst.InsertNextId(i*4+j)
+      for j in range(nVertices):
+        lst.InsertNextId(i*nVertices+j)
       ## ??? TODO ??? when 3D use CUBE?
-      vg.InsertNextCell(vtk.VTK_QUAD,lst)
+      vg.InsertNextCell(vtk.VTK_POLYGON,lst)
   else:
     #Ok a simple structured grid is enough
     vg = vtk.vtkStructuredGrid()
@@ -185,7 +197,6 @@ def genGrid(data1,data2,gm):
 
   projection = vcs.elements["projection"][gm.projection]
   xm,xM,ym,yM = getRange(gm,xm,xM,ym,yM)
-
   geo, geopts = project(pts,projection,[xm,xM,ym,yM])
   ## Sets the vertics into the grid
   vg.SetPoints(geopts)

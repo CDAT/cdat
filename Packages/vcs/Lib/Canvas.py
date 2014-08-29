@@ -3361,6 +3361,9 @@ Options:::
                   datawc_y2=arglist[0].getAxis(-2).getBounds()[-1][1]
                 except:
                   datawc_y2=arglist[0].getAxis(-2)[-1]
+            if isinstance(arglist[0].getGrid(), (cdms2.gengrid.AbstractGenericGrid,cdms2.hgrid.AbstractCurveGrid)):
+              x="longitude"
+              y="latitude"
         except:
             pass
         try:
@@ -4599,6 +4602,14 @@ Options:::
             for f in Files:
                 os.remove(f)
         return o
+
+    def getantialiasing(self):
+        return self.backend.getantialiasing()
+
+    def setantialiasing(self,antialiasing):
+        """ Turn ON/OFF antialiasing"""
+        self.backend.setantialiasing(antialiasing)
+
     ##########################################################################
     #                                                                        #
     # bg dims wrapper for VCS.                                               #
