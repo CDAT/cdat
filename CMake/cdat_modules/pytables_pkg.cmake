@@ -7,4 +7,4 @@ set(PYTABLES_GZ tables-${PYTABLES_VERSION}.tar.gz)
 set(PYTABLES_MD5 38d917f0c6dfb0bc28ce9ea0c3492524)
 set(PYTABLES_SOURCE ${PYTABLES_URL}/${PYTABLES_GZ})
 
-add_cdat_package_dependent(PyTables "" "" OFF "CDAT_BUILD_LEAN" OFF)
+add_cdat_package_dependent(PyTables "" "" OFF "NOT CDAT_BUILD_LEAN" ${CDAT_BUILD_ALL})
