@@ -128,6 +128,9 @@ class DV3DPlot():
         self.addKeyPressHandler( 'q',  self.quit )
         self.addKeyPressHandler( 'Q',  self.quit )
         self.addKeyPressHandler( 's',  self.saveState )
+        
+    def applyAction( self, action ):
+        print "Applying action: ", str(action)
 
     def getControlBar(self, name, build_args, **args ):
         control_bar = self.buttonBarHandler.createControlBar( name, self.renderWindowInteractor, build_args, **args )
@@ -430,7 +433,9 @@ class DV3DPlot():
     def createRenderer(self, **args ):
         background_color = args.get( 'background_color', VTK_BACKGROUND_COLOR )
         self.renderer.SetBackground(*background_color)   
-        self.textDisplayMgr = TextDisplayMgr( self.renderer )             
+        self.textDisplayMgr = TextDisplayMgr( self.renderer ) 
+        window_size = args.get( 'window_size', None )
+        if window_size <> None: self.renderWindow.SetSize( window_size )                            
         self.pointPicker = vtk.vtkPointPicker()
         self.pointPicker.PickFromListOn()   
         try:        self.pointPicker.SetUseCells(True)  
