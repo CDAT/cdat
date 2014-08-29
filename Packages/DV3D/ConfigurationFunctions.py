@@ -268,7 +268,7 @@ class ConfigManager:
         param = self.getParameter( param_name, **args )
 #        pdata = data if hasattr( data, '__iter__' ) else [ data ]
         param.setInitValue( data )
-        print '  <<---------------------------------------------------->> Set Parameter: ', param_name, " = ", str( data )
+#        print '  <<---------------------------------------------------->> Set Parameter: ', param_name, " = ", str( data )
 
     def getParameterValue(self, param_name, **args ):
         param = self.getParameter( param_name, **args )
