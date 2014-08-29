@@ -48,9 +48,10 @@ class vcsTest:
         self.name = name
         self.test_dir = os.path.dirname(__file__)
         self.image_name = os.path.join( [ self.test_dir, 'images', '.'.join( [ self.name, 'png' ] ) ] )
-        self.filename = args.get( 'file', DefaultSampleFile )
+        filename = args.get( 'file', DefaultSampleFile )
         self.varnames = args.get( 'vars', [ DefaultSampleVar ] )
-        self.file = cdms2.open( os.path.join( sys.prefix, "sample_data", self.filename ) )
+        self.file_path = os.path.join( sys.prefix, "sample_data", filename )
+        self.file = cdms2.open( self.file_path )
         self.roi =  args.get( 'roi', None )
         self.ptype = args.get( 'type', 'scalar' )
         self.template = args.get( 'template', 'default' )
@@ -59,6 +60,7 @@ class vcsTest:
         TestManager.DefinedTests[ name ] = self 
         
     def build(self):
+        print "Processing vars %s from file %s" % ( str(self.varnames), self.file_path )
         plot_args = []
         for varname in self.varnames:
             var = self.file[varname] 
