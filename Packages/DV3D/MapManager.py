@@ -45,7 +45,7 @@ class MapManager:
         self.updateMapOpacity() 
         
     def getSphericalMap( self, **args ):
-        print " @@@ MapManager: getSphericalMap "
+#        print " @@@ MapManager: getSphericalMap "
         thetaResolution = args.get( "thetaRes", 32 )
         phiResolution = args.get( "phiRes", 32 )
         radius = args.get( "radius", 100 )
@@ -90,7 +90,7 @@ class MapManager:
         
     def build( self, **args ):
         if self.enableBasemap:              
-            print " @@@ MapManager: build "
+#            print " @@@ MapManager: build "
             world_map =  None                 
             dataPosition = None
             if world_map == None:
@@ -137,9 +137,9 @@ class MapManager:
             mapCorner = [ self.x0, self.y0 ]
             self.baseMapActor.SetPosition( mapCorner[0], mapCorner[1], 0.1 )
             extent = self.baseImage.GetExtent()
-            print " @@@ baseImage.GetExtent: ", str( extent )
-            print " @@@ baseImage.Position: ", str( self.x0 )
-            print " @@@ baseImage.Size: ", str( self.map_cut_size )
+#             print " @@@ baseImage.GetExtent: ", str( extent )
+#             print " @@@ baseImage.Position: ", str( self.x0 )
+#             print " @@@ baseImage.Size: ", str( self.map_cut_size )
             if vtk.VTK_MAJOR_VERSION <= 5:  self.baseMapActor.SetInput(self.baseImage)
             else:                           self.baseMapActor.SetInputData(self.baseImage)        
             self.mapCenter = [ self.x0 + self.map_cut_size[0]/2.0, self.y0 + self.map_cut_size[1]/2.0 ]  
@@ -224,7 +224,7 @@ class MapManager:
         return ( ( lon - self.map_cut ) % 360 ) + self.map_cut
 
     def getBoundedMap( self, baseImage, dataLocation ):
-        print " @@@ MapManager: getBoundedMap "
+#        print " @@@ MapManager: getBoundedMap "
         baseExtent = baseImage.GetExtent()
         baseSpacing = baseImage.GetSpacing()
         x0 = baseExtent[0]
