@@ -47,7 +47,7 @@ class vcsTest:
     def __init__( self, name, **args ):
         self.name = name
         self.test_dir = os.path.dirname(__file__)
-        self.image_name = os.path.join( [ self.test_dir, 'images', '.'.join( [ self.name, 'png' ] ) ] )
+        self.image_name = os.path.join( self.test_dir, 'images', '.'.join( [ self.name, 'png' ] )  )
         filename = args.get( 'file', DefaultSampleFile )
         self.varnames = args.get( 'vars', [ DefaultSampleVar ] )
         self.file_path = os.path.join( sys.prefix, "sample_data", filename )
@@ -85,10 +85,9 @@ class vcsTest:
     def test( self, interactive=False ):        
         import checkimage
         self.build()
-        test_image = os.path.join( [ self.test_dir, 'images', '.'.join( [ self.name, 'test', 'png' ] ) ] )
+        test_image = os.path.join( self.test_dir, 'images', '.'.join( [ self.name, 'test', 'png' ] ) )
         self.canvas.png( test_image )
         ret = checkimage.check_result_image( self.image_name, test_image, 0.05 )
-        print " Image Test returned:  %d " % ret
         if not interactive: sys.exit(ret)
         
     def update_image(self):
