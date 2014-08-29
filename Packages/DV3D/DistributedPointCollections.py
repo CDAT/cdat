@@ -942,7 +942,7 @@ def kill_all_zombies():
     import subprocess, signal    
     proc_specs = subprocess.check_output('ps').split('\n')
     for proc_spec in proc_specs:
-        if 'UVIS_DV3D' in proc_spec or 'uvcdat' in proc_spec:
+        if 'uvcdat' in proc_spec:
             pid = int( proc_spec.split()[0] )
             if pid <> os.getpid():
                 os.kill( pid, signal.SIGKILL )

@@ -87,6 +87,7 @@ class DV3DPlot():
     AnimationEventId = 9
  
     def __init__( self,  **args ):
+        self.ParameterValueChanged = SIGNAL( 'ParameterValueChanged' )
         self.type = args.get( 'gmname', 'default').lower()
         self.useDepthPeeling = False
         self.labelBuff = ""
@@ -99,7 +100,8 @@ class DV3DPlot():
         self.xwidth = 300.0
         self.ycenter = 0.0
         self.ywidth = 180.0
-        self.buttonBarHandler = ButtonBarHandler( **args ) 
+        self.cfgManager = ConfigManager( **args )           
+        self.buttonBarHandler = ButtonBarHandler( self.cfgManager, **args ) 
         self.plot_attributes = args.get( 'plot_attributes', {} )
         
         self.configuring = False
@@ -116,7 +118,8 @@ class DV3DPlot():
         self.colormapWindowSize = None
         self.keyPressHandlers = {}
         interactionButtons = self.getInteractionButtons()
-        interactionButtons.addSliderButton( names=['VerticalScaling'], key='Z', toggle=True, label='Vertical Scaling', sliderLabels='Vertical Scale', interactionHandler=self.processVerticalScalingCommand, range_bounds=[ 0.1, 10.0 ], initValue= 1.0 )
+        interactionButtons.addSliderButton( names=['BasemapOpacity'], key='B', toggle=True, label='Basemap Opacity', sliderLabels='Basemap Opacity', interactionHandler=self.processBasemapOpacityCommand, range_bounds=[ 0.0, 1.0 ], initValue= 0.5 )
+        interactionButtons.addSliderButton( names=['VerticalScaling'], key='Z', toggle=True, label='Vertical Scaling', sliderLabels='Vertical Scale', interactionHandler=self.processVerticalScalingCommand, range_bounds=[ 0.02, 20.0 ], initValue= 1.0 )
         interactionButtons.addConfigButton( names=['ChooseColormap'], key='m', toggle=True, interactionHandler=self.processChooseColormapCommand, initValue=[ 'jet', False, False ]  )
         interactionButtons.addConfigButton( names=['ToggleClipping'], key='X', toggle=True, parents=['ToggleVolumePlot', 'ToggleSurfacePlot'], interactionHandler=self.processToggleClippingCommand  )
         interactionButtons.addConfigButton( names=['Colorbar'], key='b', toggle=True, label='Show Colorbar', interactionHandler=self.processShowColorbarCommand )
@@ -130,6 +133,16 @@ class DV3DPlot():
         control_bar = self.buttonBarHandler.createControlBar( name, self.renderWindowInteractor, build_args, **args )
         control_bar.reposition()
         return control_bar
+    
+    def processConfigParameterChange( self, parameter ):
+        argList = [ parameter.name, parameter.ptype, str(parameter.getValues()) ] 
+#        print " ..........>>>>>> Process Config Parameter Change: %s " % str(argList)  
+        self.ParameterValueChanged( argList )
+
+    def processConfigStateChange( self, parameter ):
+        argList = [ parameter.name, parameter.ptype, str( parameter.getValue('state') ) ] 
+#        print " ..........>>>>>> Process Config  State Change: %s " % str(argList)  
+        self.ParameterValueChanged( argList )
         
     def addKeyPressHandler( self, key, handler ):
         handlers = self.keyPressHandlers.setdefault( key, [] )
@@ -180,13 +193,22 @@ class DV3DPlot():
                         
     def saveState(self, **args): 
         print "Save State" 
-        self.buttonBarHandler.cfgManager.saveState()
+        self.cfgManager.saveState()
 
+    def getStateData(self, **args): 
+        return self.cfgManager.getStateData()
+
+    def getConfigurationData(self, **args): 
+        return self.cfgManager.getConfigurationData( **args )
+            
     def processKeyPressHandler( self, key, eventArgs ):
 #        print " processKeyPress: ", str( key )
         handlers = self.keyPressHandlers.get( key, [] )
         for handler in handlers: handler( args=eventArgs )
         return len( handlers )
+
+    def processBasemapOpacityCommand( self, args, config_function ):
+        pass 
             
     def processVerticalScalingCommand( self, args, config_function ):
         pass 
@@ -201,11 +223,12 @@ class DV3DPlot():
         if args and args[0] == "InitConfig":
             self.toggleColorbarVisibility(state=args[1])                       
             self.render() 
+            self.processConfigStateChange( config_function.value )
 
     def initializePlots(self):
 #         bbar = ButtonBarWidget.getButtonBar( 'Plot' )
         bbar = self.buttonBarHandler.getButtonBar( 'Plot' )
-        if not self.buttonBarHandler.cfgManager.initialized:
+        if not self.cfgManager.initialized:
             button = bbar.getButton( 'ZSlider' ) 
             if button <> None:
                 button.setButtonState( 1 ) 
@@ -220,7 +243,7 @@ class DV3DPlot():
         elif args and args[0] == "Init":
             self.setColormap( config_function.initial_value )
         elif args and args[0] == "EndConfig":
-            pass
+            self.processConfigParameterChange( colormapParam )
         elif args and args[0] == "InitConfig":
             if ( self.colormapWidget == None ): #  or self.colormapWidget.checkWindowSizeChange():
                 self.colormapWidget = ColorbarListWidget( self.renderWindowInteractor ) 
@@ -469,7 +492,7 @@ class DV3DPlot():
  
     def activateEvent( self, caller, event ):
         if not self.activated:
-            print "Activating, renderWindowInteractor = ", self.renderWindowInteractor.__class__.__name__
+#            print "Activating, renderWindowInteractor = ", self.renderWindowInteractor.__class__.__name__
 #            self.addObserver( self.renderWindowInteractor, 'InteractorEvent', self.displayEventType )                   
             self.addObserver( self.interactorStyle, 'CharEvent', self.setInteractionState )                   
             self.addObserver( self.renderWindowInteractor, 'TimerEvent', self.processTimerEvent )                   
@@ -491,12 +514,17 @@ class DV3DPlot():
             self.updateInteractor() 
             self.activated = True 
             
-    def showConfigurationButton(self):
+    def buildConfigurationButton(self):
         bbar_name = 'Configure'
-        bbar = self.buttonBarHandler.createButtonBarWidget( bbar_name, self.renderWindowInteractor )
-        config_button = bbar.addConfigButton( names=['Configure'], id='Configure', key='g', toggle=True, persist=False, interactionHandler=self.processConfigurationToggle )
-#            config_button.StateChangedSignal.connect( self.togglePlotButtons )
-        bbar.build()
+        bbar = self.buttonBarHandler.getButtonBar( bbar_name )
+        if bbar == None:
+            bbar = self.buttonBarHandler.createButtonBarWidget( bbar_name, self.renderWindowInteractor )
+            config_button = bbar.addConfigButton( names=['Configure'], id='Configure', key='g', toggle=True, persist=False, interactionHandler=self.processConfigurationToggle )
+            bbar.build()
+        return bbar
+
+    def showConfigurationButton(self):
+        bbar = self.buildConfigurationButton( )
         bbar.show()
 
     def buildPlotButtons(self):
@@ -518,12 +546,27 @@ class DV3DPlot():
         bbar.build()
  
     def processSurfacePlotCommand( self, args, config_function = None ):
-        if args and args[0] == "InitConfig": 
+        if args and args[0] == "Init":
+            state = config_function.getState()
+            if state: self.cfgManager.initialized = True 
+            if config_function.initial_value <> None:
+                config_function.setState( config_function.initial_value[0] ) 
+                self.toggleIsosurfaceVisibility( args, config_function )  
+        elif args and args[0] == "InitConfig": 
             self.toggleIsosurfaceVisibility( args, config_function ) 
+            self.processConfigStateChange( config_function.value )
 
     def processVolumePlotCommand( self, args, config_function = None ):
-        if args and args[0] == "InitConfig": 
+        if args and args[0] == "Init":
+            state = config_function.getState()
+            if state: self.cfgManager.initialized = True 
+            if config_function.initial_value <> None:
+                config_function.setState( config_function.initial_value[0] ) 
+                self.toggleVolumeVisibility( args, config_function )  
+        elif args and args[0] == "InitConfig": 
             self.toggleVolumeVisibility( args, config_function )  
+            self.processConfigStateChange( config_function.value )
+
     
     def fetchPlotButtons( self, show = False ):
         bbar1 = self.buttonBarHandler.getButtonBar( 'Plot' )
@@ -549,7 +592,13 @@ class DV3DPlot():
                 else: bbar.hide()
     
     def processConfigurationToggle( self, args, config_function = None ):
-        if args[0] == "InitConfig":
+        if args and args[0] == "Init":
+#             name = config_function.name
+#             bbar = self.buttonBarHandler.getButtonBar( name )
+#             button = bbar.getButton( name )
+            state = config_function.getState() 
+            if state: self.toggleCongurationButtons( state )
+        elif args[0] == "InitConfig":
             name = config_function.name
             bbar = self.buttonBarHandler.getButtonBar( name )
             button = bbar.getButton( name )
@@ -627,7 +676,10 @@ class DV3DPlot():
         self.renderer.SetBackground(1.0, 1.0, 1.0)
         self.renderer.SetNearClippingPlaneTolerance( 0.0001 )    
         self.renderWindow = renWin
-    
+ 
+    def updateInteractionStyle(self):
+        self.renderWindowInteractor.SetInteractorStyle( self.interactorStyle )
+   
     def closeConfigDialog(self):
         pass
     
@@ -748,8 +800,13 @@ class DV3DPlot():
         else:
             self.renderer.ResetCamera( self.getBounds() )
             
-    def initCamera(self, d, center = (0,0) ):
+    def initCamera(self, d=None, center = None ):
 #        print " -------------------------- >>>>> --------------------------- >>>>  initCamera:  ", str( ( self.xcenter, self.ycenter, d ) )
+        if d == None:
+            mapSize = self.mapManager.map_cut_size
+            d = ( mapSize[0] + mapSize[1] )
+        if center == None: 
+            center = self.mapManager.mapCenter
         self.renderer.GetActiveCamera().SetPosition( center[0], center[1], d )
         self.renderer.GetActiveCamera().SetFocalPoint( center[0], center[1], 0.0 )
         self.renderer.GetActiveCamera().SetViewUp( 0, 1, 0 )  

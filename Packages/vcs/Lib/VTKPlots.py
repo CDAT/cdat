@@ -303,8 +303,7 @@ class VTKVCSBackend(object):
     if self.bg:
         self.renWin.SetOffScreenRendering(True)
         self.renWin.SetSize(self.canvas.bgX,self.canvas.bgY)
-    else:
-      self.createDefaultInteractor(self.renderer)
+    self.cell_coordinates=kargs.get( 'cell_coordinates', None )
     #self.renWin.Render()
     #screenSize = self.renWin.GetScreenSize()
     if gtype in ["boxfill","meshfill","isoline","isofill","vector"]:
@@ -341,11 +340,14 @@ class VTKVCSBackend(object):
     if gtype in ["boxfill","meshfill","isofill","isoline"]:      
       self.plot2D(data1,data2,tpl,gm,ren)
     elif gtype in ["3d_scalar", "3d_vector"]:
-      cdmsvar = kargs.get( 'cdmsvar', None )
-      if not cdmsvar is None:
-          gm.addPlotAttribute( 'file', cdmsvar.file )
-          gm.addPlotAttribute( 'filename', cdmsvar.filename )
-          gm.addPlotAttribute( 'url', cdmsvar.url )
+      cdms_file = kargs.get( 'cdmsfile', None )
+      cdms_var = kargs.get( 'cdmsvar', None )
+      if not cdms_var is None:
+          raise Exception()
+      if not cdms_file is None:
+          gm.addPlotAttribute( 'file', cdms_file )
+          gm.addPlotAttribute( 'filename', cdms_file )
+          gm.addPlotAttribute( 'url', cdms_file )
       self.plot3D(data1,data2,tpl,gm,ren)
     elif gtype in ["text"]:
       if tt.priority!=0:
@@ -487,18 +489,18 @@ class VTKVCSBackend(object):
           raise Exception, "Error, must pass a cdms2 variable object as the first input to the dv3d gm ( found '%s')" % ( data1.__class__.__name__ )
       g = self.plotApps.get( gm, None )
       if g == None:
-          g = DV3DApp( ) 
+          g = DV3DApp( self.canvas, self.cell_coordinates ) 
           n_overview_points = 500000
           grid_coords = ( None, None, None, None )
           var_proc_op = None
           interface = None
           roi = None # ( 0, 0, 50, 50 )
-          g.gminit( data1, data2, roi=roi, axes=gm.axes, n_overview_points=n_overview_points, renwin=ren.GetRenderWindow(), gmname=gm.g_name, cm=gm.cfgManager  ) #, plot_type = PlotType.List  ) 
+          g.gminit( data1, data2, roi=roi, axes=gm.axes, n_overview_points=n_overview_points, n_cores=gm.NumCores, renwin=ren.GetRenderWindow(), plot_attributes=gm.getPlotAttributes(), gmname=gm.g_name, cm=gm.cfgManager  ) #, plot_type = PlotType.List  ) 
           self.plotApps[ gm ] = g
           self.plotRenderers.add( g.plot.renderer )
       else:
           g.update( tmpl )
-            
+           
   def plotVector(self,data1,data2,tmpl,gm,ren):
     self.setLayer(ren,tmpl.data.priority)
     ug,xm,xM,ym,yM,continents,wrap,geo,cellData = vcs2vtk.genGrid(data1,data2,gm)

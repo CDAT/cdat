@@ -6,7 +6,7 @@ Created on May 9, 2014
 import sys, vtk, cdms2, traceback, os, cdtime, cPickle, copy 
 from StringIO import StringIO
 import numpy as np
-import inspect
+import inspect, ast
 from weakref import WeakSet, WeakKeyDictionary
 
 SLICE_WIDTH_LR_COMP = [ 'xlrwidth', 'ylrwidth', 'zlrwidth' ]
@@ -160,6 +160,7 @@ def matchesAxisType( axis, axis_attr, axis_aliases ):
                 matches = True
                 break
     return matches
+
 class SIGNAL(object):
     
     def __init__( self, name = None ):
@@ -199,35 +200,75 @@ class SIGNAL(object):
         self._functions.clear()
         self._methods.clear()
 
+def serialize_address( cell, name ):
+    return '#'.join( [  name, str(cell) ] )
+
+def deserialize_address( serialized_value ):
+    namelist = serialized_value.split('#')
+    if len(namelist) == 1: namelist.append('')
+    return namelist
+
+def get_parameter_name( serialized_value ):
+    namelist = deserialize_address( serialized_value )
+    return namelist[0]
+
 class ConfigManager:
     
     
-    def __init__( self, default_cm=None,  **args ): 
+    def __init__( self, **args ):   
         self.ConfigCmd = SIGNAL("ConfigCmd")
         self.cfgFile = os.path.join( DataDir, 'parameters.txt' )
         self.stateFile = os.path.join( DataDir, 'state.txt' )
-        self.config_params = {}
         self.iCatIndex = 0
         self.cats = {}
         self.cfgDir = None
         self.metadata = args
         self.configurableFunctions = {}
-        self.parameters = {} if ( default_cm == None ) else copy.deepcopy( default_cm.parameters )
+        self.parameters = {} 
+        self.parent = args.get( 'cm', None )
+        self.cell_coordinates = args.get( 'cell_coordinates', (0,0) )
+        if ( self.parent <> None ):
+            for parm_address in self.parent.parameters.keys():
+                basename = get_parameter_name( parm_address )
+                self.parameters[basename] = self.getParameter( basename  )
         self.initialized = False
 
     def getParameter( self, param_name, **args ):
+        cell = args.get( 'cell', '' )
+#        print '  <<---------------------------------------------------->> Get Parameter: ', param_name, ' cell = ', cell
+        if cell: param_name = serialize_address( cell, param_name )
         cparm = self.parameters.get( param_name, None )
         if cparm == None:
-            cparm = ConfigParameter( param_name, **args )
+            if self.parent is None:
+                cparm = ConfigParameter( param_name, **args )
+            else:
+#                print "Getting config param from parent: ", param_name 
+                cparm_parent = self.parent.getParameter( param_name, cell=self.cell_coordinates )
+                cparm = ConfigParameter( param_name, parent=cparm_parent, **args )
             self.parameters[ param_name ] = cparm
         return cparm
             
-      
-    def setParameter(self, param_name, data, **args ):
+#     def getParameter( self, param_name, **args ):
+#         cparm = self.parameters.get( param_name, None )
+#         if cparm == None:
+#             if self.parent is None:
+#                 print '  <<---------------------------------------------------->> Get Parameter: ', param_name
+#                 cparm = ConfigParameter( param_name, **args )
+#             else:
+#                 print "Getting config param from parent: ", param_name, ", group = ", str(self.cell_coordinates) 
+#                 cparm_parent = self.parent.getParameter( param_name, group=self.cell_coordinates )
+#                 cparm = ConfigParameter( param_name, parent=cparm_parent, **args )
+#             self.parameters[ param_name ] = cparm
+#         return cparm
+     
+    def setParameter( self, param_name, data, **args ):
+        if isinstance( data, str ): 
+            try: data = ast.literal_eval( data )
+            except ValueError: pass
         param = self.getParameter( param_name, **args )
 #        pdata = data if hasattr( data, '__iter__' ) else [ data ]
         param.setInitValue( data )
-#        print '  <<---------------------------------------------------->> Set Parameter: ', param_name, " = ", str( data )
+        print '  <<---------------------------------------------------->> Set Parameter: ', param_name, " = ", str( data )
 
     def getParameterValue(self, param_name, **args ):
         param = self.getParameter( param_name, **args )
@@ -245,17 +286,17 @@ class ConfigManager:
             self.configurableFunctions[name] = rv
         return rv
         
-    def getMetadata(self, key=None ):
-        return self.metadata.get( key, None ) if key else self.metadata
+    def getMetadata(self, key=None, default=None ):
+        return self.metadata.get( key, default ) if key else self.metadata
 
     def addParam(self, key ,cparm ):
-        self.config_params[ key ] = cparm
+        self.parameters[ key ] = cparm
 #        print "Add param[%s]" % key
                      
     def saveConfig( self ):
         try:
             f = open( self.cfgFile, 'w' )
-            for config_item in self.config_params.items():
+            for config_item in self.parameters.items():
                 cfg_str = " %s = %s " % ( config_item[0], config_item[1].serialize() )
                 f.write( cfg_str )
             f.close()
@@ -281,7 +322,7 @@ class ConfigManager:
                 config_str = f.readline()
                 if not config_str: break
                 cfg_tok = config_str.split('=')
-                parm = self.config_params.get( cfg_tok[0].strip(), None )
+                parm = self.parameters.get( cfg_tok[0].strip(), None )
                 if parm: parm.initialize( cfg_tok[1] )
         except IOError:
             print>>sys.stderr, "Can't open config file: %s" % self.cfgFile                       
@@ -310,6 +351,20 @@ class ConfigManager:
         except Exception, err:
             print>>sys.stderr, "Can't save state data: ", str(err)
 
+    def getConfigurationState( self, param_name, **args ):
+        parm = self.getParameter( param_name, **args )
+        return parm.getValue( 'state' )
+
+    def getConfigurationData( self, **args ):  
+        pdata = []
+        cell_addr = str( args.get( 'cell', '' ) )
+        for cpi in self.parameters.items():
+            ( key, cell ) = deserialize_address(cpi[0])
+            values = cpi[1].getValues()
+            if cell == cell_addr:
+                pdata.append( [ key, values ] ) 
+        return pdata
+
     def restoreState( self ):
         try:
             state_file = open( self.stateFile, "r")
@@ -334,8 +389,8 @@ class ConfigManager:
         cp.restoreState( { 'state': 1 } )
         cp = self.getParameter( 'ZSlider' )
         cp.restoreState( { 'state': 1 } )
-                  
-    def getParameterMetadata( self ):
+
+    def getParameterMetadataFromFile( self ):
         try:
             parameter_mdata = [ ]
             parameter_file = open( self.cfgFile, "r")
@@ -350,6 +405,27 @@ class ConfigManager:
             print>>sys.stderr, "Can't read parameter metadata: ", str(err)
             
         return parameter_mdata
+                  
+    def getParameterList( self, **args ):
+        var = args.get( 'var', None )
+        extra_parms = args.get( 'extras', [] )
+        if var <> None: 
+            from Application import getPlotFromVar
+            plot = getPlotFromVar( var, cm=self )
+        else:
+            from RectilinearGridPlot import RectGridPlot
+            from PointCloudViewer import CPCPlot
+            p1 = RectGridPlot(cm=self) 
+            p2 =  CPCPlot(cm=self)
+        parameter_list = set()
+        parameter_list.add( 'Configure' )
+        for cpi in self.parameters.items():
+             basename = get_parameter_name(cpi[0])
+             parameter_list.add( basename )  
+        for pname in extra_parms:
+             parameter_list.add( pname )  
+#        print "Generated parameter_list: " , str( parameter_list )            
+        return parameter_list
         
     def initParameters(self):
         if not self.cfgDir:
@@ -360,13 +436,13 @@ class ConfigManager:
             self.cfgFile = os.path.join( self.cfgDir, "cpcConfig.txt" )
         else:
             self.readConfig()            
-        for config_item in self.config_params.items():
+        for config_item in self.parameters.items():
             self.ConfigCmd( ( "InitParm",  config_item[0], config_item[1] ) )
 
     def getParameterPersistenceList(self):
         plist = []
-        for cfg_item in self.config_params.items():
-            key = cfg_item[0]
+        for cfg_item in self.parameters.items():
+            key = get_parameter_name(cfg_item[0])
             cfg_spec = cfg_item[1].pack()
             plist.append( ( key, cfg_spec[1] ) )
         return plist
@@ -374,13 +450,13 @@ class ConfigManager:
     def initialize( self, parm_name, parm_values ):
         if not ( isinstance(parm_values,list) or isinstance(parm_values,tuple) ):
             parm_values = [ parm_values ]
-        cfg_parm = self.config_params.get( parm_name, None )
+        cfg_parm = self.parameters.get( parm_name, None )
         if cfg_parm: cfg_parm.unpack( parm_values )
 
     def getPersistentParameterSpecs(self):
         plist = []
-        for cfg_item in self.config_params.items():
-            key = cfg_item[0]
+        for cfg_item in self.parameters.items():
+            key = get_parameter_name(cfg_item[0])
             values_decl = cfg_item[1].values_decl()
             plist.append( ( key, values_decl ) )
         return plist
@@ -394,14 +470,25 @@ class ConfigParameter:
     
     def __init__(self, name, **args ):
         self.name = name 
+        self.values = {}
+        self.children = set()
         self.ValueChanged = SIGNAL( 'ValueChanged' )
         self.varname = args.get( 'varname', name ) 
         self.ptype = args.get( 'ptype', name ) 
-        self.values = args
-        self.valueKeyList = list( args.keys() )
+        self.parent = args.get( 'parent', None ) 
+        if self.parent<> None: 
+            self.parent.addChild( self )
+            self.values.update( self.parent.values )
+            self.valueKeyList = list( self.parent.values.keys() )
+        else:
+            self.values.update( args )
+            self.valueKeyList = list( args.keys() )
         self.stateKeyList = []
 #        self.scaling_bounds = None
-            
+      
+    def addChild(self, child ): 
+        self.children.add( child )  
+          
     def serializeState( self, **args ):
         if len( self.stateKeyList ) == 0:
             return None
@@ -452,7 +539,10 @@ class ConfigParameter:
     def __setitem__(self, key, value ):
         self.values[key] = value 
         self.addValueKey( key )
-
+        
+    def childUpdate( self, source, key, val ): 
+        self.setValue( key, val ) 
+        
     def __call__(self, **args ):
         self.values.update( args )
         args1 = [ self.ptype ]
@@ -482,10 +572,23 @@ class ConfigParameter:
         return self.values.get( key, default_value )
 
     def getInitValue( self, default_value=None ):
-        return self.values.get( 'init', default_value )
+        ival = self.getValue( 'init' ) 
+        if ( ival == None ) and ( self.parent <> None ): 
+            ival = self.parent.getInitValue() 
+        return default_value if ( ival == None ) else ival
 
     def setInitValue( self, value, update = False ):
-        self.setValue( 'init', value, update )
+        if type( value ) == dict:
+            for val_item in value.items():
+                self.setValue( val_item[0], val_item[1], update )
+        elif ( type( value ) == tuple ):
+            for val_item in value:
+                self.setInitValue( val_item, update )
+            self.setValues( value  )
+        else:
+            self.setValue( 'init', value, update )
+            self.setValues( [ value ]  )
+
 
     def setValue( self, key, val, update=False  ):
         self.values[ key ] = val
@@ -493,10 +596,18 @@ class ConfigParameter:
         if update: 
             args1 = [  self.ptype, key, val, self.name]
             self.ValueChanged( args1 )
+        if self.parent <> None:
+            self.parent.childUpdate( self, key, val,  )
+            
+    def signalUpdate( self ):
+        args = [  self.ptype, self.getValues(), self.name]
+        self.ValueChanged( args )
 
     def setValues( self, values, update=False  ):
         for key,value in enumerate( values ):
             self.setValue( key, value )
+            if not self.parent is None:
+                self.parent.setValue( key, value )
 
     def getValues( self ):
         vals = []
@@ -557,6 +668,7 @@ class ConfigurableFunction:
 #         if name == 'XSlider':
 #             print "."
         self.value = self.manager.addParameter( name, **args )
+        self.initial_value = []
         self.type = 'generic'
         self.kwargs = args
         self.cfg_state = None
@@ -564,16 +676,24 @@ class ConfigurableFunction:
         self.units = args.get( 'units', '' ).strip().lower()
         self.persist = bool( args.get( 'persist', True ) )
         self.key = args.get( 'key', None )
-        ival = self.value.getValue( 'init' )
-        if ival <> None:
+        ival = self.value.getInitValue()
+        if (ival <> None):
             self.initial_value = ival if hasattr( ival, '__iter__' ) else [ ival ]
-        else:    
+        if len( self.initial_value ) == 0:    
             self.initial_value = makeList( args.get( 'initValue', None ), self.getValueLength() )
 #        self.group = args.get( 'group', ConfigGroup.Display )  
         self.active = args.get( 'active', True )
         self.group = args.get( 'group', None )
         self._persisted = True
         self.interactionHandler = args.get( 'interactionHandler', None )
+        
+    def updateInitialization( self, default_init_val=None ):
+        ival = self.value.getInitValue()
+        if ival <> None:
+            self.initial_value = ival
+        elif (self.initial_value == None):
+            self.initial_value = default_init_val          
+        return self.initial_value
         
     def getState(self):
         return self.value.getValue('state')
@@ -798,7 +918,8 @@ class InputSpecs:
         
     def clipInput( self, extent ):
         self.clipper = vtk.vtkImageClip()
-        self.clipper.AddInput( self._input )
+        if vtk.VTK_MAJOR_VERSION <= 5:  self.clipper.AddInput( self._input )
+        else:                           self.clipper.AddInputData( self._input )
         self.clipper.SetOutputWholeExtent( extent )
 
     def getWorldCoords( self, image_coords ):
@@ -942,8 +1063,8 @@ class InputSpecs:
         imageScaledValue =  sval * ( self.rangeBounds[1] - self.rangeBounds[0] ) 
         return imageScaledValue
 
-    def getMetadata( self, key = None ):
-        return self.metadata.get( key, None ) if ( key and self.metadata )  else self.metadata
+    def getMetadata( self, key = None, default=None ):
+        return self.metadata.get( key, default ) if ( key and self.metadata )  else self.metadata
   
     def getFieldData( self ):
         if self.fieldData == None:

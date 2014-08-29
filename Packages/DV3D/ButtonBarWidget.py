@@ -65,6 +65,8 @@ class Button:
         self.buttonWidget.AddObserver( 'StateChangedEvent', self.processStateChangeEvent )
         self.buttonRepresentation.Highlight( self._state )
         self.updateWidgetState()
+#         if self.id == 'ToggleVolumePlot':
+#             print "."
 
     def getState(self):
         return self._state
@@ -74,6 +76,9 @@ class Button:
         self.PrivateStateChangedSignal( value )
 #        print "----------------->>> Button [%s] Setting state = %s " % ( self.id, str(value) )
         self.updateWidgetState()
+        
+#         if self.id == 'ToggleVolumePlot':
+#             print "."
 #         if value == 1:
 #             print "."
         
@@ -187,7 +192,7 @@ class Button:
         return self.image_size
     
     def On(self):
-        if self.active: 
+        if self.active:
             self.buttonWidget.On()
 
     def Off(self):
@@ -203,11 +208,11 @@ class Button:
         
 class ButtonBarHandler:
     
-    def __init__( self, **args ):
+    def __init__( self, cfgMgr, **args ):
         self.current_configuration_mode = None
         self.button_bars = {}
         self.DefaultGroup = None
-        self.cfgManager = ConfigManager( args.get( 'cm', None ) )             
+        self.cfgManager = cfgMgr             
         
     def createButtonBarWidget( self, name, interactor, **args  ):
         bbar = self.getButtonBar( name )
@@ -793,12 +798,7 @@ class ButtonBarWidget(ButtonBar):
                 tvals = configFunct.value.getValues()
                 if not sameGroup: 
                     for bbar in self.handler.getButtonBars():
-<<<<<<< HEAD
                         bbar.reset()                
-=======
-                        bbar.reset()
-                
->>>>>>> 0c0011d5f7e074285a60c18dca8e0b8c371c4153
                 if configFunct.position <> None:
                     n_active_sliders = configFunct.position[1]
                     position_index = configFunct.position[0]
@@ -898,7 +898,9 @@ class ButtonBarWidget(ButtonBar):
            
     def initializeConfiguration( self, **args ):
         for configFunct in self.configurableFunctions.values():
-            configFunct.init( **args )
+            try: configFunct.init( **args )
+            except Exception, err:
+                print>>sys.stderr, "Error initializing configurableFunction %s: %s" % ( configFunct.name, str(err)  )
         for button in self.buttons:
             if button.toggle:
                 button.broadcastState( button.getState() )

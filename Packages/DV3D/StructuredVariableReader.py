@@ -513,13 +513,14 @@ class StructuredDataReader:
             if not lon_axis is None: vmd[ 'lon' ] =  lon_axis.getValue()  
             lev_axis= var.getLevel()  
             if not lev_axis is None: vmd[ 'lev' ] =  lev_axis.getValue()  
+            vmd[ 'time' ] = [ str(ct) for ct in self.timeLabels ]
              
             enc_mdata = encodeToString( vmd ) 
             if enc_mdata and fieldData: 
                 fieldData.AddArray( getStringDataArray( 'metadata:%s' % varName,   [ enc_mdata ]  ) ) 
                 vars.append( varName )                   
-        fieldData.AddArray( getStringDataArray( 'varlist',  vars  ) )                       
-
+        fieldData.AddArray( getStringDataArray( 'varlist',  vars  ) ) 
+        
     def getFieldData( self ):
         if self.fieldData == None:
             self.initializeMetadata()
@@ -577,7 +578,7 @@ class StructuredDataReader:
                 ds = self.df
             if ds <> None:
                 var = ds.getVariable( varName )
-                self.setupTimeAxis( var, **args ) 
+                if not var is None: self.setupTimeAxis( var, **args ) 
             else:
                 var = None
             portName = orec.name
@@ -633,9 +634,9 @@ class StructuredDataReader:
                         if npts == -1:  npts = array_size
                         else: assert( npts == array_size )
                             
-                        var_md[ 'range' ] = ( range_min, range_max )
+                        var_md[ 'range' ] = ( range_min, range_max )  
                         var_md[ 'scale' ] = ( shift, scale )   
-                        varDataSpecs['newDataArray'] = varData 
+                        varDataSpecs['newDataArray'] = varData    
 #                        print " ** Allocated data array for %s, size = %.2f MB " % ( varDataId, (varData.nbytes /(1024.0*1024.0) ) )                    
                         md =  varDataSpecs['md']                 
                         md['datatype'] = datatype
@@ -645,13 +646,18 @@ class StructuredDataReader:
                         md['timeUnits' ] = self.referenceTimeUnits if self.referenceTimeUnits else ""
                         md[ 'attributes' ] = var_md
                         md[ 'plotType' ] = 'xyt' if (self.outputType == CDMSDataType.Hoffmuller) else 'xyz'
-                        if not var is None:
-                            axis = var.getLongitude()
-                            md[ 'lon' ] =  axis.getValue()
-                            axis = var.getLatitude()
-                            md[ 'lat' ] =  axis.getValue()
-                            axis = var.getLevel()
-                            md[ 'lev' ] =  axis.getValue()
+                        if self.timeLabels <> None:
+                            md[ 'base_time' ] = [ str(ct) for ct in self.timeLabels ]
+                        tvar  = var if not var is None else self.vars[0]
+                        axis = tvar.getLongitude()
+                        if not axis is None: md[ 'lon' ] =  axis.getValue()
+                        axis = tvar.getLatitude()
+                        if not axis is None: md[ 'lat' ] =  axis.getValue()
+                        axis = tvar.getLevel()
+                        if not axis is None: md[ 'lev' ] =  axis.getValue()
+                        axis = tvar.getTime()
+                        if not axis is None: md[ 'time' ] =  [ str(tc) for tc in axis.asComponentTime() ]
+                        else: md[ 'time' ] =  md[ 'base_time' ] 
                                         
                 self.setCachedData( varDataId, cell_coords, varDataSpecs )  
         

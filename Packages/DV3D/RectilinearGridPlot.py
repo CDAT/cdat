@@ -22,7 +22,7 @@ AbsValueTransferFunction = 4
 PositiveValues = 0
 NegativeValues = 1
 AllValues = 2
-    
+  
 class TransferFunction:
     
     def __init__(self, tf_type, **args ):
@@ -181,7 +181,7 @@ class RectGridPlot(StructuredGridPlot):
             self.setOpacity( config_function.initial_value )
             self.adjustOpacity( config_function.initial_value )
         elif args and args[0] == "EndConfig":
-            pass
+            self.processConfigParameterChange( opacityRange )
         elif args and args[0] == "InitConfig":
             self.updateTextDisplay( config_function.label )
             bbar = self.getInteractionButtons()
@@ -208,9 +208,9 @@ class RectGridPlot(StructuredGridPlot):
                 config_function.initial_value = init_range  
             self.scaleColormap( config_function.initial_value )
             self.generateCTF( config_function.initial_value )
-            colorScaleRange.setValues( init_range )
+            colorScaleRange.setValues( config_function.initial_value )
         elif args and args[0] == "EndConfig":
-            pass
+            self.processConfigParameterChange( colorScaleRange )
         elif args and args[0] == "InitConfig":
             self.updateTextDisplay( config_function.label )
             bbar = self.getInteractionButtons()
@@ -230,7 +230,7 @@ class RectGridPlot(StructuredGridPlot):
         if self.levelSetActor <> None:
             self.levelSetFilter.SetValue ( 0, value ) 
             self.levelSetFilter.Modified()
-                 
+                             
     def processIsosurfaceValueCommand( self, args, config_function = None ):
         isosurfaceValue = config_function.value
         if args and args[0] == "StartConfig":
@@ -244,7 +244,7 @@ class RectGridPlot(StructuredGridPlot):
             self.setIsosurfaceLevel( config_function.initial_value ) 
             isosurfaceValue.setValues( [ config_function.initial_value ] )
         elif args and args[0] == "EndConfig":
-            pass
+            self.processConfigParameterChange( isosurfaceValue )
         elif args and args[0] == "InitConfig":
             self.updateTextDisplay( config_function.label )
             bbar = self.getInteractionButtons()
@@ -270,7 +270,7 @@ class RectGridPlot(StructuredGridPlot):
             self.generateOTF( config_function.initial_value )
             volumeThresholdRange.setValues( config_function.initial_value )
         elif args and args[0] == "EndConfig":
-            pass
+            self.processConfigParameterChange( volumeThresholdRange )
         elif args and args[0] == "InitConfig":
             self.updateTextDisplay( config_function.label )
             bbar = self.getInteractionButtons()
@@ -307,6 +307,7 @@ class RectGridPlot(StructuredGridPlot):
                 self.ProcessIPWAction( plane_widget, ImagePlaneWidget.InteractionUpdateEvent, action = ImagePlaneWidget.Pushing )
         elif args and args[0] == "EndConfig":
             plane_widget.endSlicing()
+            self.processConfigParameterChange( slicePosition )
         elif args and args[0] == "InitConfig":
             self.skipIndex = 4
             if (len(args) > 2) and args[2]: 
@@ -346,7 +347,7 @@ class RectGridPlot(StructuredGridPlot):
                 self.cropRegion[ib] = ( origin[int(ib/2)] + new_spacing[int(ib/2)]*extent[ib-4] ) 
             if (self.volumeMapper <> None) and self.volumeMapper.GetCropping():
                 self.cropVolume( False )                 
-        if self.planeWidgetZ.IsVisible():      
+        if ( self.planeWidgetZ <> None ) and self.planeWidgetZ.IsVisible():      
             self.planeWidgetZ.UpdateInputs()
          
     def activateEvent( self, caller, event ):
@@ -740,6 +741,13 @@ class RectGridPlot(StructuredGridPlot):
         self.renderer.AddViewProp(self.cursorActor)
         self.cursorActor.SetProperty(self.cursorProperty)
         self.levelSetActor.VisibilityOff()
+
+        interactionButtons = self.getInteractionButtons()
+        cf = interactionButtons.getConfigFunction('IsosurfaceValue')
+        initVals = cf.value.getInitValue()
+        if initVals:
+            self.levelSetFilter.SetValue ( 0, initVals[0] ) 
+            self.levelSetFilter.Modified()
                               
     def buildVolumePipeline(self):
         """ execute() -> None
@@ -813,7 +821,7 @@ class RectGridPlot(StructuredGridPlot):
 
         self.renderer.AddVolume( self.volume )
         self.renderer.SetBackground( VTK_BACKGROUND_COLOR[0], VTK_BACKGROUND_COLOR[1], VTK_BACKGROUND_COLOR[2] )
-        self.setColormap( [ 'jet', 1, 0, 0 ] )
+#        self.setColormap( [ 'jet', 1, 0, 0 ] )
 
     def buildPipeline(self):
 
@@ -1339,8 +1347,7 @@ class RectGridPlot(StructuredGridPlot):
         if plane == 'y': return 1, self.planeWidgetY
         if plane == 'z': return 2, self.planeWidgetZ
         return None 
-
-#TODO:    
+  
     def modifySlicePlaneVisibility( self, slider_index, plane, make_visible=None ):
         plane_index, plane_widget = self.getPlaneWidget( plane )
         if plane_widget <> None:
@@ -1427,6 +1434,7 @@ class RectGridPlot(StructuredGridPlot):
                         
     def updateModule(self, **args ):
         self.debug_log( 'updateModule' )
+        self.updateInteractionStyle()
         primaryInput = self.input()
         contour_ispec = self.getInputSpec(  1 )       
         contourInput = contour_ispec.input() if contour_ispec <> None else None
@@ -1461,7 +1469,7 @@ class RectGridPlot(StructuredGridPlot):
         if type == 'lakes':
             return ( 0, 0, 0.6 )
         return ( 0, 0, 0 )
-            
+           
     def ProcessIPWAction( self, caller, event, **args ):
         action = args.get( 'action', caller.State )
         iAxis = caller.PlaneOrientation
@@ -1502,8 +1510,15 @@ class RectGridPlot(StructuredGridPlot):
                 if not self.isSlicing:
                     self.isSlicing = True 
                 sliceIndex = caller.GetSliceIndex() 
-                axisName, spos = ispec.getWorldCoord( sliceIndex, iAxis, True )
-                textDisplay = " %s = %s ." % ( axisName, spos )
+                plotType = ispec.getMetadata( 'plotType')
+                if plotType == 'xyt' and (iAxis == 2):
+                    ctime_vals = ispec.getMetadata( 'time' )
+                    ctime = str( sliceIndex ) if ( ctime_vals == None ) else ctime_vals[ sliceIndex ]
+                    textDisplay = " time = %s." % ( ctime )
+                else:
+                    axisName, spos = ispec.getWorldCoord( sliceIndex, iAxis, True )
+                    textDisplay = " %s = %s ." % ( axisName, spos )
+                    
                 if iAxis == 0:
                     p1 = caller.GetPoint1()
 #                    print " >++++++++++++++++++> Slicing: Set Slice[%d], index=%d, pos=%.2f, " % ( iAxis, sliceIndex, p1[0] ), textDisplay

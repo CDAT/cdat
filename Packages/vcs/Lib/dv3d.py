@@ -8,11 +8,10 @@ import Canvas
 import VCS_validation_functions
 import AutoAPI
 import xmldocs
-import cdtime
+import cdtime, multiprocessing
 import vcs
 import DV3D
 from DV3D.ConfigurationFunctions import ConfigManager
-
 
 class Gfdv3d(object,AutoAPI.AutoAPI):
 
@@ -36,6 +35,12 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
         value=VCS_validation_functions.checkOnOff(self,'axes',value)
         self._axes=value
     axes=property(_getaxes,_setaxes)
+
+    def _getNumCores(self):
+        return self.ncores
+    def _setNumCores(self, nc ):
+        self.ncores = nc
+    NumCores=property(_getNumCores,_setNumCores)
     
     def __init__(self, Gfdv3d_name, Gfdv3d_name_src='default'):
         if not isinstance(Gfdv3d_name,str):
@@ -44,17 +49,32 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
             raise ValueError,"DV3D graphic method '%s' already exists" % Gfdv3d_name
         self._name = Gfdv3d_name
         self._plot_attributes = {}
-        
+        self.projection = 'default' 
+        self.provenanceHandler = None
+                
         if Gfdv3d_name=="xyt": 
             self._axes="xyt"
         else:
             self._axes="xyz"
 
-        self.cfgManager = ConfigManager()             
+        self.cfgManager = ConfigManager()  
+        self.ncores = multiprocessing.cpu_count()           
         self.addParameters()
             
         vcs.elements[self.g_name][Gfdv3d_name]=self
         print "Adding VCS element: %s %s " % ( self.g_name, Gfdv3d_name )
+        
+    def setProvenanceHandler(self, provenanceHandler ):
+        self.provenanceHandler = provenanceHandler
+                
+    def getStateData(self):
+        return self.cfgManager.getStateData()
+
+    def getConfigurationData( self, **args ):
+        return self.cfgManager.getConfigurationData( **args )
+    
+    def getConfigurationState( self, pname, **args ):
+        return self.cfgManager.getConfigurationState( pname, **args )
 
     def add_property(self, name ):
         fget = lambda self: self.getParameter(name)
@@ -69,14 +89,19 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
 
     def getPlotAttributes( self ):
         return self._plot_attributes
+    
+    @staticmethod
+    def getParameterList():
+        cfgManager = ConfigManager()
+        parameterList = cfgManager.getParameterList()
+        return parameterList
                 
-    def addParameters(self):
-        parameterMetadata = self.cfgManager.getParameterMetadata()
+    def addParameters( self ):
         self.parameter_names = []
-        for mdata in parameterMetadata:
-            self.add_property( mdata[0] )
-            self.parameter_names.append( mdata[0] )
-#            print "  ------------->> Adding parameter: ", mdata[0]
+        for pname in self.getParameterList():
+            self.add_property( pname )
+            self.parameter_names.append( pname )
+#            print "  ------------->> Adding parameter: ", pname
             
     def getParameter(self, param_name, **args ):
         return self.cfgManager.getParameterValue( param_name, **args )
