@@ -8,4 +8,4 @@ set(DATEUTILS_GZ python-dateutil-${DATEUTILS_VERSION}.tar.gz)
 set(DATEUTILS_SOURCE ${LLNL_URL}/${DATEUTILS_GZ})
 set(DATEUTILS_MD5 c1f654d0ff7e33999380a8ba9783fd5c)
 
-add_cdat_package_dependent(DATEUTILS "" "" ON "CDAT_BUILD_LEAN" OFF)
+add_cdat_package_dependent(DATEUTILS "" "" OFF "NOT CDAT_BUILD_LEAN" OFF)
