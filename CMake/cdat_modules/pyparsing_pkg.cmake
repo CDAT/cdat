@@ -7,4 +7,4 @@ set(PYPARSING_GZ pyparsing-${PYPARSING_VERSION}.tar.gz)
 set(PYPARSING_SOURCE ${LLNL_URL}/${PYPARSING_GZ})
 set(PYPARSING_MD5 b170c5d153d190df1a536988d88e95c1)
 
-add_cdat_package_dependent(PYPARSING "" "" ON "CDAT_BUILD_LEAN" OFF)
+add_cdat_package_dependent(PYPARSING "" "" OFF "NOT CDAT_BUILD_LEAN" OFF)
