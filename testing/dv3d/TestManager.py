@@ -56,7 +56,7 @@ class vcsTest:
         self.ptype = args.get( 'type', 'scalar' )
         self.template = args.get( 'template', 'default' )
         self.parameters = args.get( 'parameters', {} )
-        self.interactions = args.get( 'interactions', None )
+        self.actions = args.get( 'actions', [ 'test' ] )
         TestManager.DefinedTests[ name ] = self 
         
     def build(self):
@@ -73,10 +73,14 @@ class vcsTest:
             self.gm.setParameter( pitem[0], pitem[1] )
         plot_args.append( self.gm )
             
-        plot_kwargs = { 'cdmsfile': self.file.id }
+        plot_kwargs = { 'cdmsfile': self.file.id, 'window_size': (400,400) }
         self.canvas.plot( *plot_args, **plot_kwargs )
         self.plot = self.canvas.backend.plotApps[ self.gm ]
-        if self.interactions: self.interactions(self)
+        self.applyActions()
+        
+    def applyActions(self):
+        for action in self.actions:
+            self.plot.applyAction( action )
         
     def show(self):
         self.build()
