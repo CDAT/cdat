@@ -30,7 +30,7 @@ class VCSInteractorStyle(vtk.vtkInteractorStyleUser):
       self.AddObserver( "ConfigureEvent", parent.configureEvent )
       
 class VTKVCSBackend(object):
-  def __init__(self,canvas,renWin=None, debug=False,bg=None):
+  def __init__(self,canvas,renWin=None, debug=False,bg=False):
     self._lastSize = None
     self.canvas = canvas
     self.renWin = renWin
@@ -200,7 +200,7 @@ class VTKVCSBackend(object):
     defaultInteractor.SetRenderWindow(self.renWin)
     self.vcsInteractorStyle.On()
 
-  def createRenWin(self,*args,**kargs):
+  def createRenWin(self,*args,**kargs):   
     if self.renWin is None:
       # Create the usual rendering stuff.
       self.renWin = vtk.vtkRenderWindow()
@@ -212,7 +212,8 @@ class VTKVCSBackend(object):
       self.renderer = vtk.vtkRenderer()
       r,g,b = self.canvas.backgroundcolor
       self.renderer.SetBackground(r/255.,g/255.,b/255.)
-      self.createDefaultInteractor(self.renderer) 
+      if self.bg is False:
+          self.createDefaultInteractor(self.renderer) 
       self.renWin.AddRenderer(self.renderer)
       self.createDefaultInteractor()
       return True

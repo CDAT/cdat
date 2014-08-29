@@ -770,14 +770,14 @@ class RectGridPlot(StructuredGridPlot):
             io2 = int(i/2)
             bounds[i] = origin[io2] + spacing[io2]*extent[i] 
             
-        print " @@@VolumeRenderer@@@   Data Type = %s, range = (%f,%f), max_scalar = %s" % ( dataType, rangeBounds[0], rangeBounds[1], self._max_scalar_value )
-        print "Extent: %s " % str( self.input().GetExtent() )
-        print "Spacing: %s " % str( spacing )
-        print "Origin: %s " % str( origin )
-        print "Dimensions: %s " % str( self.input().GetDimensions() )
-        print "Bounds: %s " % str( bounds )
-        print "Input Bounds: %s " % str( self.input().GetBounds() )
-        print "VolumePosition: %s " % str( self.pos )
+#         print " @@@VolumeRenderer@@@   Data Type = %s, range = (%f,%f), max_scalar = %s" % ( dataType, rangeBounds[0], rangeBounds[1], self._max_scalar_value )
+#         print "Extent: %s " % str( self.input().GetExtent() )
+#         print "Spacing: %s " % str( spacing )
+#         print "Origin: %s " % str( origin )
+#         print "Dimensions: %s " % str( self.input().GetDimensions() )
+#         print "Bounds: %s " % str( bounds )
+#         print "Input Bounds: %s " % str( self.input().GetBounds() )
+#         print "VolumePosition: %s " % str( self.pos )
         
 #        self.inputInfo = self.inputPort.GetInformation() 
 #        translation = inputInfo.Get( ResampleTranslationKey  )                                     
