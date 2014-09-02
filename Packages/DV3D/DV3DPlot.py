@@ -535,7 +535,7 @@ class DV3DPlot():
 #            self.addObserver( self.renderWindowInteractor, 'ComputeVisiblePropBoundsEvent', self.onAnyEvent )
 #            self.addObserver( self.renderWindowInteractor, 'AnyEvent', self.onAnyEvent )
             RenderWindow = self.renderWindowInteractor.GetRenderWindow()   
-#            RenderWindow.AddObserver( 'ModifiedEvent', self.onWindowModified )
+#            RenderWindow.AddObserver( 'AnyEvent', self.onAnyWindowEvent )
             RenderWindow.AddObserver( 'RenderEvent', self.onWindowRenderEvent )
             self.updateInteractor() 
             self.activated = True 
@@ -656,7 +656,10 @@ class DV3DPlot():
             self.onRenderWindowResize()
             self.renderWindowSize = window_size
              
-                                        
+    def onAnyWindowEvent( self, caller=None, event=None ):
+         print "Window Event: ", event
+
+                                       
 #     def onWindowModified( self, caller=None, event=None ):
 #         print "Window Modified Event "
 #         renwin = self.renderWindow if (caller == None) else caller 
@@ -677,9 +680,12 @@ class DV3DPlot():
             
     def onRenderWindowResize( self ):
         if not self.resizingWindow:
+#            print " onRenderWindowResize, size = ", str( self.renderWindowSize )
             self.resizingWindow = True
             self.updateTextDisplay()
             self.buttonBarHandler.repositionButtons()
+            self.renderWindow.Modified()
+            self.renderWindow.MakeCurrent()
             self.render()
             self.resizingWindow = False
 
