@@ -455,7 +455,8 @@ class DV3DPlot():
         self.renderer.SetBackground(*background_color)   
         self.textDisplayMgr = TextDisplayMgr( self.renderer ) 
         self.renderWindowInitSize = args.get( 'window_size', None ) 
-        self.renderWindow.SetSize( self.renderWindowInitSize )                             
+        if self.renderWindowInitSize <> None:
+            self.renderWindow.SetSize( self.renderWindowInitSize )                             
         self.pointPicker = vtk.vtkPointPicker()
         self.pointPicker.PickFromListOn()   
         try:        self.pointPicker.SetUseCells(True)  
