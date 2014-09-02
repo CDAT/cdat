@@ -75,7 +75,7 @@ class vcsTest:
             self.gm.setParameter( pitem[0], pitem[1] )
         plot_args.append( self.gm )
             
-        plot_kwargs = { 'cdmsfile': self.file.id, 'window_size': (400,400) }
+        plot_kwargs = { 'cdmsfile': self.file.id, 'window_size': (900,600) }
         self.canvas.plot( *plot_args, **plot_kwargs )
         self.plot = self.canvas.backend.plotApps[ self.gm ]
         self.applyActions()
@@ -91,7 +91,7 @@ class vcsTest:
     def test( self, interactive=False ):        
         import checkimage
         self.build()
-        test_image = os.path.join( self.test_dir, 'images', '.'.join( [ self.name, 'test', 'png' ] ) )
+        test_image = os.path.join( self.test_dir, 'images', '.'.join( [ self.name, 'png' ] ) )
         self.canvas.png( test_image )
         ret = checkimage.check_result_image( self.image_name, test_image, 0.05 )
         if not interactive: sys.exit(ret)
