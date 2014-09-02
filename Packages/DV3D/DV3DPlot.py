@@ -436,7 +436,8 @@ class DV3DPlot():
         background_color = args.get( 'background_color', VTK_BACKGROUND_COLOR )
         self.renderer.SetBackground(*background_color)   
         self.textDisplayMgr = TextDisplayMgr( self.renderer ) 
-        self.renderWindowSize = args.get( 'window_size', None )                          
+        self.renderWindowInitSize = args.get( 'window_size', None ) 
+        self.renderWindow.SetSize( self.renderWindowInitSize )                             
         self.pointPicker = vtk.vtkPointPicker()
         self.pointPicker.PickFromListOn()   
         try:        self.pointPicker.SetUseCells(True)  
@@ -629,34 +630,22 @@ class DV3DPlot():
         bbar = self.buttonBarHandler.getButtonBar( 'Interaction' )
         bbar.build( **args )
         bbar.show() 
-        
-    def onWindowRenderEvent( self, caller=None, event=None ):
-        renwin = self.renderWindow if (caller == None) else caller  
-        window_size = renwin.GetSize()  
-        if ( window_size <> self.renderWindowSize ):
-            self.onRenderWindowResize()
-            self.renderWindowSize = window_size
              
-    def onAnyWindowEvent( self, caller=None, event=None ):
-         print "Window Event: ", event
-
-                                       
-#     def onWindowModified( self, caller=None, event=None ):
-#         print "Window Modified Event "
-#         renwin = self.renderWindow if (caller == None) else caller 
-#         window_size = renwin.GetSize()
-#         if window_size <> (0,0):
-#             if self.renderWindowSize == None:
-#                 if self.renderWindowInitSize <> None:
-#                     self.renderWindowSize = self.renderWindowInitSize
-#                     self.renderWindow.SetSize( self.renderWindowInitSize ) 
-#                     self.onRenderWindowResize()
-#                 else:
-#                     self.renderWindowSize = window_size 
-#                     self.onRenderWindowResize()               
-#             elif ( self.renderWindowSize <> window_size ):
-#                 self.renderWindowSize = window_size
-#                 self.onRenderWindowResize()
+    def onWindowModified( self, caller=None, event=None ):
+        renwin = self.renderWindow if (caller == None) else caller 
+        window_size = renwin.GetSize()
+        if window_size <> (0,0):
+            if self.renderWindowSize == None:
+                if self.renderWindowInitSize <> None:
+                    self.renderWindowSize = self.renderWindowInitSize
+                    self.renderWindow.SetSize( self.renderWindowInitSize ) 
+                    self.onRenderWindowResize()
+                else:
+                    self.renderWindowSize = window_size 
+                    self.onRenderWindowResize()               
+            elif ( self.renderWindowSize <> window_size ):
+                self.renderWindowSize = window_size
+                self.onRenderWindowResize()
 
             
     def onRenderWindowResize( self ):
