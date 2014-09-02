@@ -47,6 +47,8 @@ class vcsTest:
     def __init__( self, name, **args ):
         self.name = name
         self.test_dir = os.path.dirname(__file__)
+        parent_dir = os.path.join(self.test_dir,"..")
+        sys.path.append( parent_dir )
         self.image_name = os.path.join( self.test_dir, 'images', '.'.join( [ self.name, 'png' ] )  )
         filename = args.get( 'file', DefaultSampleFile )
         self.varnames = args.get( 'vars', [ DefaultSampleVar ] )
@@ -57,7 +59,7 @@ class vcsTest:
         self.template = args.get( 'template', 'default' )
         self.parameters = args.get( 'parameters', {} )
         self.actions = args.get( 'actions', [ 'test' ] )
-        TestManager.DefinedTests[ name ] = self 
+        TestManager.DefinedTests[ name ] = self
         
     def build(self):
         print "Processing vars %s from file %s" % ( str(self.varnames), self.file_path )
