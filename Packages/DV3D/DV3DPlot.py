@@ -454,8 +454,7 @@ class DV3DPlot():
         background_color = args.get( 'background_color', VTK_BACKGROUND_COLOR )
         self.renderer.SetBackground(*background_color)   
         self.textDisplayMgr = TextDisplayMgr( self.renderer ) 
-        window_size = args.get( 'window_size', None )
-        if window_size <> None: self.renderWindow.SetSize( window_size )                            
+        self.renderWindowSize = args.get( 'window_size', None )                          
         self.pointPicker = vtk.vtkPointPicker()
         self.pointPicker.PickFromListOn()   
         try:        self.pointPicker.SetUseCells(True)  
@@ -682,12 +681,9 @@ class DV3DPlot():
             
     def onRenderWindowResize( self ):
         if not self.resizingWindow:
-#            print " onRenderWindowResize, size = ", str( self.renderWindowSize )
             self.resizingWindow = True
             self.updateTextDisplay()
             self.buttonBarHandler.repositionButtons()
-            self.renderWindow.Modified()
-            self.renderWindow.MakeCurrent()
             self.render()
             self.resizingWindow = False
 
