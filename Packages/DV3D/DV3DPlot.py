@@ -91,6 +91,7 @@ class DV3DPlot():
         self.type = args.get( 'gmname', 'default').lower()
         self.useDepthPeeling = False
         self.labelBuff = ""
+        self.resizingWindow = False
         self.textDisplayMgr = None
         self.createRenderWindow( **args ) 
         self.cameraOrientation = {}
@@ -434,8 +435,7 @@ class DV3DPlot():
         background_color = args.get( 'background_color', VTK_BACKGROUND_COLOR )
         self.renderer.SetBackground(*background_color)   
         self.textDisplayMgr = TextDisplayMgr( self.renderer ) 
-        window_size = args.get( 'window_size', None )
-        if window_size <> None: self.renderWindow.SetSize( window_size )                            
+        self.renderWindowSize = args.get( 'window_size', None )                          
         self.pointPicker = vtk.vtkPointPicker()
         self.pointPicker.PickFromListOn()   
         try:        self.pointPicker.SetUseCells(True)  
@@ -455,7 +455,7 @@ class DV3DPlot():
         self.clipper.AddObserver( 'EndInteractionEvent', self.endClip )
         self.clipper.AddObserver( 'InteractionEvent', self.executeClip )           
         self.clipOff() 
-
+    
     def clipOn(self):
         pass
 
@@ -637,9 +637,12 @@ class DV3DPlot():
             self.renderWindowSize = window_size
             
     def onRenderWindowResize( self ):
-        self.updateTextDisplay()
-        self.buttonBarHandler.repositionButtons()
-        self.render()
+        if not self.resizingWindow:
+            self.resizingWindow = True
+            self.updateTextDisplay()
+            self.buttonBarHandler.repositionButtons()
+            self.render()
+            self.resizingWindow = False
 
     def clearReferrents(self):
         self.removeObservers()
@@ -807,6 +810,8 @@ class DV3DPlot():
             
     def initCamera(self, d=None, center = None ):
 #        print " -------------------------- >>>>> --------------------------- >>>>  initCamera:  ", str( ( self.xcenter, self.ycenter, d ) )
+        if self.renderWindowSize <> None: 
+            self.renderWindow.SetSize( self.renderWindowSize )  
         if d == None:
             mapSize = self.mapManager.map_cut_size
             d = ( mapSize[0] + mapSize[1] )
