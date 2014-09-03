@@ -205,6 +205,9 @@ class DV3DPlot():
 
     def getConfigurationData(self, **args): 
         return self.cfgManager.getConfigurationData( **args )
+
+    def getConfigurationParms(self, **args): 
+        return self.cfgManager.getConfigurationParms( **args )
             
     def processKeyPressHandler( self, key, eventArgs ):
 #        print " processKeyPress: ", str( key )
