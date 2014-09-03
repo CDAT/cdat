@@ -52,7 +52,7 @@ class TextDisplayMgr:
     def createTextActor( self, aid, **args ):
         textActor = vtk.vtkTextActor()  
         textActor.SetTextScaleMode( vtk.vtkTextActor.TEXT_SCALE_MODE_PROP )  
-        textActor.SetMaximumLineHeight( 0.05 )       
+        textActor.SetMaximumLineHeight( 0.007 )       
         textprop = textActor.GetTextProperty()
         textprop.SetColor( *args.get( 'color', ( VTK_FOREGROUND_COLOR[0], VTK_FOREGROUND_COLOR[1], VTK_FOREGROUND_COLOR[2] ) ) )
         textprop.SetOpacity ( args.get( 'opacity', 1.0 ) )
