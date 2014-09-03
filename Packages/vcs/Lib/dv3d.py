@@ -72,6 +72,9 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
 
     def getConfigurationData( self, **args ):
         return self.cfgManager.getConfigurationData( **args )
+
+    def getConfigurationParms(self, **args): 
+        return self.cfgManager.getConfigurationParms( **args )
     
     def getConfigurationState( self, pname, **args ):
         return self.cfgManager.getConfigurationState( pname, **args )
