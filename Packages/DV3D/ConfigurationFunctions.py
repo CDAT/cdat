@@ -378,6 +378,15 @@ class ConfigManager:
                 pdata.append( [ key, values ] ) 
         return pdata
 
+    def getConfigurationParms( self, **args ):  
+        pdata = {}
+        cell_addr = str( args.get( 'cell', '' ) )
+        for cpi in self.parameters.items():
+            ( key, cell ) = deserialize_address(cpi[0])
+            if cell == cell_addr:
+                pdata[key] = cpi[1]
+        return pdata
+    
     def restoreState( self ):
         try:
             state_file = open( self.stateFile, "r")
