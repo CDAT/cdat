@@ -5,8 +5,6 @@ import time
 import thread
 import threading
 
-from PyQt4 import QtCore
-
 def showerror(msg):
   raise Exception,msg
 
@@ -581,15 +579,6 @@ class RT:
   def stop(self):
     self.running = False
 
-class AnimationSignals(QtCore.QObject):
-  """Inner class to hold signals since main object is not a QObject
-  """
-  drawn = QtCore.pyqtSignal(int, name="animationDrawn")
-  created = QtCore.pyqtSignal(name="animationCreated")
-  canceled = QtCore.pyqtSignal(name="animationCanceled")
-  paused = QtCore.pyqtSignal(name="animationPaused")
-  stopped = QtCore.pyqtSignal(bool, name="animationStopped")
-
 # Adapted from http://stackoverflow.com/questions/323972/is-there-any-way-to-kill-a-thread-in-python
 class StoppableThread(threading.Thread):
   def __init__(self):
@@ -640,7 +629,8 @@ class AnimationCreate(StoppableThread):
     self.controller.restore_min_max()
 
     self.controller.animation_created = True
-    self.controller.signals.created.emit()
+    if self.controller.signals is not None:
+      self.controller.signals.created.emit()
 
 class AnimationPlaybackParams(object):
   def __init__(self):
@@ -690,7 +680,8 @@ class AnimationPlayback(StoppableThread):
 
   def run(self):
     self.controller.frame_num = 0
-    self.controller.signals.stopped.emit(False)
+    if self.controller.signals is not None:
+      self.controller.signals.stopped.emit(False)
     self.controller.playback_running = True
     while not self.is_stopped():
       self.wait_if_paused()
@@ -706,7 +697,8 @@ class AnimationPlayback(StoppableThread):
           break
       time.sleep(1./self.controller.playback_params.frames_per_second)
     self.controller.playback_running = False
-    self.controller.signals.stopped.emit(True)
+    if self.controller.signals is not None:
+      self.controller.signals.stopped.emit(True)
 
 class AnimationController(animate_obj_old):
   def __init__(self, vcs_self):
@@ -721,12 +713,16 @@ class AnimationController(animate_obj_old):
     self.frame_num = 0
     self.create_params = AnimationCreateParams()
     self.playback_params = AnimationPlaybackParams()
-    self.signals = AnimationSignals()
+    # GUI will set these if available
+    self.signals = None
+
+  def set_signals(self, signals):
+    self.signals = signals
 
   def created(self):
     return self.animation_created
 
-  def create(self):
+  def create(self, thread_it=True):
     if self.create_thread is None or not self.create_thread.is_alive():
       self.canvas_info = self.vcs_self.canvasinfo()
       self.animate_info = self.vcs_self.animate_info
@@ -917,7 +913,8 @@ class AnimationController(animate_obj_old):
       self.playback_params.zoom_factor,
       self.playback_params.vertical_factor,
       self.playback_params.horizontal_factor)
-    self.signals.drawn.emit(self.frame_num)
+    if self.signals is not None:
+      self.signals.drawn.emit(self.frame_num)
 
   def save(self,movie,bitrate=1024, rate=None, options=''):
     """Save animation to a file"""
