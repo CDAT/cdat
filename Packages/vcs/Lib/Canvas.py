@@ -3471,7 +3471,7 @@ Options:::
                   tp="boxfill"
                 gm=vcs.elements[tp][arglist[4]]
             p=self.getprojection(gm.projection)
-            if p.type=="polar (non gctp)" and doratio=="0":
+            if p.type in ["polar (non gctp)","polar stereographic"] and (doratio=="0" or doratio[:4]=="auto"):
               doratio="1t"
 
             for keyarg in keyargs.keys():
@@ -3528,7 +3528,7 @@ Options:::
                 t.data.y2 = p.viewport[3]
                 
                 proj = self.getprojection(p.projection)
-                if proj.type=="polar (non gctp)":
+                if proj.type in ["polar (non gctp)","polar stereographic"]:
                   doratio="1t"
 
                 if proj.type=='linear' and doratio[:4]=='auto':
@@ -3559,7 +3559,7 @@ Options:::
                       tp="textcombined"
                     gm=vcs.elements[tp][arglist[4]]
                 p=self.getprojection(gm.projection)
-                if p.type=="polar (non gctp)":
+                if p.type in ["polar (non gctp)","polar stereographic"]:
                   doratio="1t"
                 if p.type == 'linear':
                     if gm.g_name =='Gfm':
