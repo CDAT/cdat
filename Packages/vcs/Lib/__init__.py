@@ -221,7 +221,10 @@ dv3d.Gf3Dscalar("xyt")
 for nm in ["mercator","orthographic","lambert","polar","polyconic","robinson",
     "mollweide",]:
   p = projection.Proj(nm)
-  p.type=nm
+  if nm=="polar":
+    p.type=-3
+  else:
+    p.type=nm
 
 fillarea.Tf("default")
 template.P("default")
