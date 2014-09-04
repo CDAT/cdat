@@ -693,13 +693,16 @@ class DV3DPlot():
         renWin = args.get( 'renwin', None ) 
         if renWin == None:
             renWin = vtk.vtkRenderWindow()
+            
+        rendWinInteractor = renWin.GetInteractor()
+        if rendWinInteractor == None:                
             rendWinInteractor = vtk.vtkRenderWindowInteractor() if blocking else vtk.vtkGenericRenderWindowInteractor()
             renWin.SetInteractor( rendWinInteractor )
             rendWinInteractor.SetRenderWindow(renWin)  
-                        
+        
+        self.renderWindowInteractor =  rendWinInteractor              
         self.renderer = vtk.vtkRenderer()
         renWin.AddRenderer( self.renderer )
-        self.renderWindowInteractor = renWin.GetInteractor()
 
         self.interactorStyle = vtk.vtkInteractorStyleTrackballCamera( )
         self.renderWindowInteractor.SetInteractorStyle( self.interactorStyle )
