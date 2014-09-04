@@ -30,7 +30,7 @@ class VCSInteractorStyle(vtk.vtkInteractorStyleUser):
       self.AddObserver( "ConfigureEvent", parent.configureEvent )
       
 class VTKVCSBackend(object):
-  def __init__(self,canvas,renWin=None, debug=False,bg=False):
+  def __init__(self,canvas,renWin=None, debug=False,bg=None):
     self._lastSize = None
     self.canvas = canvas
     self.renWin = renWin
