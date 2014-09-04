@@ -602,8 +602,18 @@ class Regrid:
         catchError(status, sys._getframe().f_lineno)
 
         if src_data.dtype != dst_data.dtype:
-            raise RegridError, "ERROR in %s: mismatch in src and dst data types (%s vs %s)" \
-                % (__FILE__, src_data.dtype, dst_data.dtype)
+            try: # try recasting
+              src_data = src_data.astype(dst_data.dtype)
+              warnings.warn("mismatch in src and dst data types (%s vs %s) we recasted src to dst" \
+                                      % (__FILE__, src_data.dtype, dst_data.dtype))
+            except: # ok maybe the over way around will work?
+              try:
+                dst_data = dst_data.astype(src_data.dtype)
+                warnings.warn("mismatch in src and dst data types (%s vs %s) we recasted dst to src" \
+                                        % (__FILE__, src_data.dtype, dst_data.dtype))
+              except:
+                raise RegridError, "ERROR in %s: mismatch in src and dst data types (%s vs %s)" \
+                    % (__FILE__, src_data.dtype, dst_data.dtype)
 
         # only float64 and float32 data types are supported for interpolation
         if src_data.dtype == numpy.float64:
