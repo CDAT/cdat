@@ -5369,6 +5369,7 @@ Options:::
         #except:
         #   updateVCSsegments_flag = 1
         self.colormap = name
+        # Should we implement a redraw?
         return
 
     #############################################################################
