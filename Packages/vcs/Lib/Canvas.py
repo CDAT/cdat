@@ -5609,41 +5609,8 @@ Options:::
     #                                                                           #
     #############################################################################
     def show(self, *args):
-        """
- Function: show
-
- Description of Function:
-    Show the list of VCS primary and secondary class objects.
-
- Example of Use:
-    a=vcs.init()
-    a.show('boxfill')
-    a.show('isofill')
-    a.show('line')
-    a.show('marker')
-    a.show('text')
-"""
-        if args != () and args[0].lower() == 'taylordiagram':
-            ln=[]
-            ln.append('*******************Taylor Diagrams Names List**********************')
-            nms=[]
-            i=0
-            ln.append('')
-            for t in vcs.taylordiagrams:
-                if i%3==0 :
-                   ln[-1]=ln[-1]+'(%4s):' % str(i+1)
-                ln[-1]=ln[-1]+'%20s' % t.name
-                i=i+1
-                if i%3==0 : ln.append('')
-            if ln[-1]=='' : ln.pop(-1)
-            ln.append('*****************End Taylor Diagrams Names List********************')
-            for l in ln:
-                print l
-            return None
-        elif args == ():
-           return self.listelements()
-        else:
-            return apply(self.canvas.show, args)
+      return vcs.show(*args)
+    show.__doc__=vcs.__doc__
 
     #############################################################################
     #                                                                           #

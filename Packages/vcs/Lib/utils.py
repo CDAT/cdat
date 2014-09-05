@@ -128,6 +128,59 @@ def listelements(typ):
     raise Exception,"Error: '%s' is not a valid vcs element\nValid vcs elements are: %s" % (typ,vcs.elements.keys())
   return vcs.elements[typ].keys()
 
+
+#############################################################################
+#                                                                           #
+# Show VCS primary and secondary elements wrapper for VCS.                  #
+#                                                                           #
+#############################################################################
+def show(*args):
+    """
+Function: show
+
+Description of Function:
+Show the list of VCS primary and secondary class objects.
+
+Example of Use:
+a=vcs.init()
+a.show('boxfill')
+a.show('isofill')
+a.show('line')
+a.show('marker')
+a.show('text')
+"""
+    if args != () and args[0].lower() == 'taylordiagram':
+        ln=[]
+        ln.append('*******************Taylor Diagrams Names List**********************')
+        nms=[]
+        i=0
+        ln.append('')
+        for t in vcs.taylordiagrams:
+            if i%3==0 :
+               ln[-1]=ln[-1]+'(%4s):' % str(i+1)
+            ln[-1]=ln[-1]+'%20s' % t.name
+            i=i+1
+            if i%3==0 : ln.append('')
+        if ln[-1]=='' : ln.pop(-1)
+        ln.append('*****************End Taylor Diagrams Names List********************')
+        for l in ln:
+            print l
+        return None
+    elif args == ():
+       return vcs.listelements()
+    else:
+      elts = vcs.listelements(args[0])
+      m = max([len(e) for e in elts])+1
+      print "*******************%s Names List**********************" % args[0].capitalize()
+      for i,e in enumerate(elts):
+        print e.ljust(m),
+        if (i+1)%3==0:
+          print
+      if (i+1)%3!=0:
+        print
+      print "*******************End %s Names List**********************" % args[0].capitalize()
+      return 
+
 def _scriptrun(script,canvas=None):
   # Now does the python Graphic methods
   f=open(script,'r')
