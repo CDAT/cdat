@@ -43,6 +43,8 @@ def dumpToJson(obj,fileout,skipped = ["info","member"], must = []):
       f = fileout
       fileout = f.name
     try:
+      # Mac needs to rewind, seems ok on other platforms
+      f.seek(0)
       D = json.load(f)
     except Exception,err:
       print "Error reading json:",fileout,err
@@ -123,10 +125,12 @@ def process_src_element(code):
   #except Exception,err:
   #  print "Processing error for %s,%s: %s" % (nm,typ,err)
 
-def listelements(typ):
+def listelements(typ=None):
+  if typ is None:
+    return sorted(vcs.elements.keys())
   if not typ in vcs.elements.keys():
     raise Exception,"Error: '%s' is not a valid vcs element\nValid vcs elements are: %s" % (typ,vcs.elements.keys())
-  return vcs.elements[typ].keys()
+  return sorted(vcs.elements[typ].keys())
 
 def _scriptrun(script,canvas=None):
   # Now does the python Graphic methods
@@ -422,7 +426,7 @@ def scriptrun_scr(*args):
              os.remove(temporary_file_name)
     fin.close()
 
-def saveinitialattributes():
+def saveinitialfile():
     _dotdir,_dotdirenv = vcs.getdotdirectory()
     fnm = os.path.join(os.environ['HOME'], _dotdir, 'initial.attributes')
     if os.path.exists(fnm):
@@ -432,7 +436,12 @@ def saveinitialattributes():
         continue
       for nm,g in e.iteritems():
         if nm!="default":
-          g.script(fnm)
+          try:
+            g.script(fnm)
+          except:
+            warnings.warn("Could not save graphic method %s named %s" % (k,nm))
+    # extension .json has been auto-added, removing it in this specific case
+    os.rename(fnm+".json",fnm)
     
 #############################################################################
 #                                                                           #
@@ -444,9 +453,6 @@ def scriptrun(script):
     scriptrun_scr(script) 
   elif script.split(".")[-1] == "py":
     execfile(script)
-  elif os.path.split(script)[-1] == "initial.attributes":
-    print "FOR NOW STILL READING IN OLD WAY"
-    _scriptrun(script)
   else:
     loader = { "P":'template',
         "Gfb":'boxfill',
@@ -465,15 +471,21 @@ def scriptrun(script):
         "Proj":"projection",
         "Gtd":"taylordiagram",
         }
-    f=open(script)
-    jsn = json.load(f)
-    for typ in jsn.keys():
-      for nm,v in jsn[typ].iteritems():
-        if typ=="P":
-          loadTemplate(nm,v)
-        else:
-          #print "Reading in a:",typ,"named",nm
-          loadVCSItem(loader[typ],nm,v)
+    try:
+      f=open(script)
+      jsn = json.load(f)
+      for typ in jsn.keys():
+        for nm,v in jsn[typ].iteritems():
+          if typ=="P":
+            loadTemplate(nm,v)
+          else:
+            #print "Reading in a:",typ,"named",nm
+            loadVCSItem(loader[typ],nm,v)
+    except: #ok could not read json file maybe it is an old initial.attributes
+      if os.path.split(script)[-1] == "initial.attributes":
+        _scriptrun(script)
+      else:
+        warnings.warn("unable to source file: %s" % script)
   return
 
 def loadTemplate(nm,vals):
