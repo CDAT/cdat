@@ -10,6 +10,7 @@ import os, traceback
 import cdms2
 import DV3D
 import MV2
+import sys
    
 def smooth(x,beta,window_len=11):
    """ kaiser window smoothing """
@@ -45,6 +46,7 @@ class VTKVCSBackend(object):
       self.renWin = renWin
       if renWin.GetInteractor() is None and self.bg is False:
         self.createDefaultInteractor()
+    self.logo=None
         
 #   def applicationFocusChanged(self):
 #       for plotApp in self.plotApps.values():
@@ -164,6 +166,9 @@ class VTKVCSBackend(object):
     self.canvas.clear()
     for i, pargs in enumerate(plots_args):
       self.canvas.plot(*pargs,**key_args[i])
+    if self.logo is None:
+        self.createLogo()
+    self.scaleLogo()
 
   def clear(self):
     if self.renWin is None: #Nothing to clear
@@ -182,6 +187,7 @@ class VTKVCSBackend(object):
         ren = renderers.GetNextItem()
     #self.renWin.Render()
     self.numberOfPlotCalls = 0 
+    self.logo = None
 
   def createDefaultInteractor( self, ren=None ):
     defaultInteractor = self.renWin.GetInteractor()
@@ -207,6 +213,7 @@ class VTKVCSBackend(object):
       r,g,b = self.canvas.backgroundcolor
       self.renderer.SetBackground(r/255.,g/255.,b/255.)
       self.renWin.AddRenderer(self.renderer)
+      self.createDefaultInteractor()
       return True
     else:
       return False
@@ -271,6 +278,9 @@ class VTKVCSBackend(object):
   def initialSize(self):
       #screenSize = self.renWin.GetScreenSize()
       self.renWin.SetSize(self.canvas.bgX,self.canvas.bgY)
+      if self.logo is None:
+          self.createLogo()
+      self.scaleLogo()
 
   def open(self):
     if self.createRenWin():
@@ -910,6 +920,42 @@ class VTKVCSBackend(object):
       vcs2vtk.fitToViewport(contActor,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],wc=[x1,x2,y1,y2],geo=geo)
       if tmpl.data.priority!=0:
         ren.AddActor(contActor)
+
+  def createLogo(self):
+    # Pth to logo
+    logoFile = os.path.join(sys.prefix,"share","vcs","uvcdat.png")
+    # VTK reader for logo
+    logoRdr=vtk.vtkPNGReader()
+    logoRdr.SetFileName(logoFile)
+    logoRdr.Update()
+    x0,x1,y0,y1,z0,z1 = logoRdr.GetDataExtent()
+    ia = vtk.vtkImageActor()
+    ia.GetMapper().SetInputConnection(logoRdr.GetOutputPort())
+    ren = vtk.vtkRenderer()
+    r,g,b = self.canvas.backgroundcolor
+    ren.SetBackground(r/255.,g/255.,b/255.)
+    ren.SetLayer(self.renWin.GetNumberOfLayers()-1)
+    ren.AddActor(ia)
+    self.renWin.AddRenderer(ren)
+    self.logo = ren
+    self.logoExtent = [x1,y1]
+
+  def scaleLogo(self):
+    #Figuring out scale
+    #Get dimensions of input file
+    w,h=self.logoExtent
+    W,H=self.renWin.GetSize()
+    SC = .07
+    sc = SC*float(H)/float(h)
+    nw = w*sc
+    pw = (W-nw)/W
+    self.logo.SetViewport(pw,0.,1.,SC)
+    cam = self.logo.GetActiveCamera()
+    d=cam.GetDistance()
+    cam.SetParallelScale(.5*(h+1))
+    cam.SetFocalPoint(w/2.,h/2.,0.)
+    cam.SetPosition(w/2.,h/2.,H/(2-SC))
+
 
   def renderTemplate(self,renderer,tmpl,data,gm):
     tmpl.plot(self.canvas,data,gm,bg=self.bg)
