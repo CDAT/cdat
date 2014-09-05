@@ -940,7 +940,7 @@ class Canvas(object,AutoAPI.AutoAPI):
         if called_initial_attributes_flg == 0:
            pth = vcs.__path__[0].split(os.path.sep)
            pth=pth[:-4] # Maybe need to make sure on none framework config
-           pth=['/']+pth+['bin', 'initial.attributes']
+           pth=['/']+pth+['share','vcs', 'initial.attributes']
            try:
                vcs.scriptrun( os.path.join(*pth))
            except:
