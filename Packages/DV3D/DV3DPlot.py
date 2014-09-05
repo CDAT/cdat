@@ -9,6 +9,17 @@ import vtk, traceback
 MIN_LINE_LEN = 50
 VTK_NOTATION_SIZE = 10
 
+class TimerCallback(vtk.vtkCommand):
+    
+    def __init__( self ):
+        self.TimerCount = 0
+ 
+    def Execute(caller, eventId, callData ):
+        print " xxxxx "
+#        print " Timer Event %d, id = %d " % ( self.TimerCount, eventId )
+#        self.TimerCount = self.TimerCount + 1
+
+ 
 class TextDisplayMgr:
     
     def __init__( self, renderer ):
@@ -89,11 +100,14 @@ class DV3DPlot():
     def __init__( self,  **args ):
         self.ParameterValueChanged = SIGNAL( 'ParameterValueChanged' )
         self.type = args.get( 'gmname', 'default').lower()
+        self.activate_display=args.get('display',True)
         self.useDepthPeeling = False
+        self.renderWindowInteractor = None
         self.labelBuff = ""
         self.resizingWindow = False
         self.textDisplayMgr = None
-        self.createRenderWindow( **args ) 
+        if self.activate_display:
+            self.createRenderWindow( **args ) 
         self.cameraOrientation = {}
         self.maxStageHeight = 100.0
         self.observerTargets = set()
@@ -168,6 +182,7 @@ class DV3DPlot():
     def processTimerEvent(self, caller, event):
         eid = caller.GetTimerEventId ()
         etype = caller.GetTimerEventType()
+        print "processTimerEvent: %d %d " % ( eid, etype )
         if self.animating and ( etype == self.AnimationTimerType ):
             self.runAnimation()
             
@@ -180,7 +195,7 @@ class DV3DPlot():
         event_duration = 10
         if cf <> None:
             animation_delay = cf.value.getValues()
-            event_duration = int( animation_delay[0]*1000 )
+            event_duration = event_duration + int( animation_delay[0]*1000 )
         self.stepAnimation( )
         self.renderWindowInteractor.SetTimerEventId( self.AnimationEventId )
         self.renderWindowInteractor.SetTimerEventType( self.AnimationTimerType )
@@ -503,10 +518,12 @@ class DV3DPlot():
  
     def activateEvent( self, caller, event ):
         if not self.activated:
+            self.renderWindowInteractor.Initialize()
 #            print "Activating, renderWindowInteractor = ", self.renderWindowInteractor.__class__.__name__
 #            self.addObserver( self.renderWindowInteractor, 'InteractorEvent', self.displayEventType )                   
             self.addObserver( self.interactorStyle, 'CharEvent', self.setInteractionState )                   
             self.addObserver( self.renderWindowInteractor, 'TimerEvent', self.processTimerEvent )                   
+#            self.addObserver( self.renderWindowInteractor, 'CreateTimerEvent', self.processTimerEvent )                   
 #            self.addObserver( self.renderWindowInteractor, 'MouseMoveEvent', self.updateLevelingEvent )
             self.addObserver( self.interactorStyle, 'KeyReleaseEvent', self.onKeyRelease )
             self.addObserver( self.renderWindowInteractor, 'LeftButtonPressEvent', self.onLeftButtonPress )            
@@ -519,7 +536,13 @@ class DV3DPlot():
 #            self.addObserver( self.renderWindowInteractor, 'ResetCameraEvent', self.onAnyEvent )
 #            self.addObserver( self.renderWindowInteractor, 'ResetCameraClippingRangeEvent', self.onAnyEvent )
 #            self.addObserver( self.renderWindowInteractor, 'ComputeVisiblePropBoundsEvent', self.onAnyEvent )
-#            self.addObserver( self.renderWindowInteractor, 'AnyEvent', self.onAnyEvent )
+            self.addObserver( self.renderWindowInteractor, 'AnyEvent', self.onAnyEvent )
+            
+#            self.animationTestId = self.renderWindowInteractor.CreateRepeatingTimer( 100 )
+            
+#            cb = TimerCallback()
+#            self.renderWindowInteractor.AddObserver(vtk.vtkCommand.TimerEvent, cb)
+            
             RenderWindow = self.renderWindowInteractor.GetRenderWindow()   
 #            RenderWindow.AddObserver( 'AnyEvent', self.onAnyWindowEvent )
             RenderWindow.AddObserver( 'RenderEvent', self.onWindowRenderEvent )
@@ -816,10 +839,10 @@ class DV3DPlot():
         return [ colormapManager.colormapName, colormapManager.invertColormap, self.stereoEnabled ]
 
     def start( self, block = False ):
-        self.renderWindowInteractor.Initialize()
         self.showConfigurationButton()
         self.renderWindow.Render()
-        if block:  self.renderWindowInteractor.Start()
+#        if block:  self.renderWindowInteractor.Start()
+        self.renderWindowInteractor.Start()
          
     def invalidate(self):
         self.isValid = False
