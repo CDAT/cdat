@@ -924,6 +924,9 @@ class VTKVCSBackend(object):
         ren.AddActor(contActor)
 
   def createLogo(self):
+    if self.canvas.drawLogo is False:
+      ## Ok we do not want a logo here
+      return
     # Pth to logo
     logoFile = os.path.join(sys.prefix,"share","vcs","uvcdat.png")
     # VTK reader for logo
@@ -943,6 +946,8 @@ class VTKVCSBackend(object):
     self.logoExtent = [x1,y1]
 
   def scaleLogo(self):
+    if self.canvas.drawLogo is False:
+      return
     #Figuring out scale
     #Get dimensions of input file
     w,h=self.logoExtent
