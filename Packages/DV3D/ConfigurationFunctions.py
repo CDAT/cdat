@@ -437,8 +437,8 @@ class ConfigManager:
         else:
             from RectilinearGridPlot import RectGridPlot
             from PointCloudViewer import CPCPlot
-            p1 = RectGridPlot(cm=self) 
-            p2 =  CPCPlot(cm=self)
+            p1 = RectGridPlot(cm=self,display=False) 
+            p2 =  CPCPlot(cm=self,display=False)
         parameter_list = set()
         parameter_list.add( 'Configure' )
         for cpi in self.parameters.items():
