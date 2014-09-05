@@ -536,7 +536,13 @@ class DV3DPlot():
 #            self.addObserver( self.renderWindowInteractor, 'ResetCameraEvent', self.onAnyEvent )
 #            self.addObserver( self.renderWindowInteractor, 'ResetCameraClippingRangeEvent', self.onAnyEvent )
 #            self.addObserver( self.renderWindowInteractor, 'ComputeVisiblePropBoundsEvent', self.onAnyEvent )
-#            self.addObserver( self.renderWindowInteractor, 'AnyEvent', self.onAnyEvent )
+            self.addObserver( self.renderWindowInteractor, 'AnyEvent', self.onAnyEvent )
+            
+#            self.animationTestId = self.renderWindowInteractor.CreateRepeatingTimer( 100 )
+            
+#            cb = TimerCallback()
+#            self.renderWindowInteractor.AddObserver(vtk.vtkCommand.TimerEvent, cb)
+            
             RenderWindow = self.renderWindowInteractor.GetRenderWindow()   
 #            RenderWindow.AddObserver( 'AnyEvent', self.onAnyWindowEvent )
             RenderWindow.AddObserver( 'RenderEvent', self.onWindowRenderEvent )
