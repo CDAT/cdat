@@ -39,6 +39,7 @@ def process_src(nm,code):
 
 
 class RGB_Table(UserDict):
+    __slots__=["data",]
     def __init__(self, name, dict=None):
       self.data = {0: [100, 100, 100], 1: [0, 0, 0], 2: [85, 85, 85], 3: [32, 32, 32], 4: [100, 100, 100], 
           5: [100, 100, 0], 6: [0, 3, 100], 7: [0, 6, 100], 8: [0, 9, 100], 9: [0, 12, 100], 
@@ -121,7 +122,7 @@ class RGB_Table(UserDict):
 # Colormap (Cp) Class.                                                      #
 #                                                                           #
 #############################################################################
-class Cp:
+class Cp(object):
     """
  Class: Cp                              # Colormap
 
@@ -172,7 +173,15 @@ class Cp:
     def getindex(self):
       return self._index
     def setindex(self,value):
-      raise Exception,"invalid"
+      ## usually we cannot set index, but there is an exception for lading from json files
+      if not(isinstance(value,dict) and value.keys()==[u'data',]):
+        raise Exception,"invalid"
+      else:
+        d2={}
+        d=value[u'data']
+        for k in d.keys():
+          d2[int(k)]=d[k]
+        self.index.data.update(d2)
     index = property(getindex,setindex)
     #############################################################################
     #                                                                           #
