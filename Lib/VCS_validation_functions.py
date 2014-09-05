@@ -43,15 +43,23 @@ def matchVcsColor(r,g,b,colormap="default"):
            rmsmin=rms
            color=i
    return color
-
+def checkedRaise(self,value,ex,err):
+  """raise an exception if vcs_doValitdation is on"""
+  if vcs._doValidation:
+    if err is not None:
+      raise ex(err)
+    else:
+      raise ex
+  else:
+    return value
 def checkElements(self,name,value,function):
    if not isinstance(value,list):
-       raise ValueError,'Error type for %s, you must pass a list' % name
+       checkedRaise(self,value, ValueError,'Error type for %s, you must pass a list' % name)
    for i in range(len(value)):
        try:
             value[i] = function(self,name,value[i])
        except Exception,err:
-            raise ValueError, '%s failed while checking validity of element: %s\nError message was: %s' % (name, repr(value[i]),err)
+            checkedRaise(self,value,ValueError, '%s failed while checking validity of element: %s\nError message was: %s' % (name, repr(value[i]),err))
    return value
 
 def checkContType(self,name,value):
@@ -63,10 +71,10 @@ def checkLine(self,name,value):
      if isinstance(value,unicode):
           value = str(value)
      if not isinstance(value,(str,vcs.line.Tl)):
-          raise ValueError, name+' must be an line primitive or the name of an exiting one.'
+          checkedRaise(self,value, ValueError, name+' must be an line primitive or the name of an exiting one.')
      if isinstance(value,str):
           if not value in vcs.listelements('line'):
-               raise ValueError, name+' is not an existing line primitive'
+               checkedRaise(self,value, ValueError, name+' is not an existing line primitive')
           return value
      else:
        return value.name
@@ -115,29 +123,29 @@ def checkNumber(self,name,value,minvalue=None,maxvalue=None):
           pass
      n=isNumber(value,min=minvalue,max=maxvalue)
      if n is False:
-          raise ValueError, name+' must be a number'
+          checkedRaise(self,value, ValueError, name+' must be a number')
      if n==-1:
-          raise ValueError, name+' values must be at least '+str(minvalue)
+          checkedRaise(self,value, ValueError, name+' values must be at least '+str(minvalue))
      if n==-2:
-          raise ValueError, name+' values must be at most '+str(maxvalue)
+          checkedRaise(self,value, ValueError, name+' values must be at most '+str(maxvalue))
      return value
      
 def checkInt(self,name,value,minvalue=None,maxvalue=None):
      checkName(self,name,value)
      n=checkNumber(self,name,value,minvalue=minvalue,maxvalue=maxvalue)
      if not isinstance(n,int):
-          raise ValueError, name+' must be an integer'
+          checkedRaise(self,value, ValueError, name+' must be an integer')
      return n
           
 def checkListOfNumbers(self,name,value,minvalue=None,maxvalue=None,minelements=None,maxelements=None,ints=False):
      checkName(self,name,value)
      if not isinstance(value,(list,tuple)):
-          raise ValueError, name+' must be a list or tuple'
+          checkedRaise(self,value, ValueError, name+' must be a list or tuple')
      n=len(value)
      if minelements is not None and n<minelements:
-          raise ValueError, name+' must have at least '+str(minelements)+' elements'
+          checkedRaise(self,value, ValueError, name+' must have at least '+str(minelements)+' elements')
      if maxelements is not None and n>maxelements:
-          raise ValueError, name+' must have at most '+str(maxelements)+' elements'
+          checkedRaise(self,value, ValueError, name+' must have at most '+str(maxelements)+' elements')
      for v in value:
           if ints:
                checkInt(self,name,v,minvalue=minvalue,maxvalue=maxvalue)
@@ -157,7 +165,7 @@ def checkFont(self,name,value):
           value = vcs.getfontnumber(value)
      else:
           nms = vcs.listelements("font")
-          raise ValueError, 'Error for attribute %s: The font attribute values must be a valid font number or a valid font name. valid names are: %s' % (name,', '.join(nms))
+          checkedRaise(self,value, ValueError, 'Error for attribute %s: The font attribute values must be a valid font number or a valid font name. valid names are: %s' % (name,', '.join(nms)))
      return value
 
 
@@ -216,7 +224,7 @@ def checkMarker(self,name,value):
           elif (queries.ismarker(value)==1):
                value=value.name
      else:
-         raise ValueError, 'The '+name+' value must be in : %s' % (oks)
+         checkedRaise(self,value, ValueError, 'The '+name+' value must be in : %s' % (oks))
      return value
 
 def checkMarkersList(self,name,value):
@@ -232,12 +240,12 @@ def checkMarkersList(self,name,value):
 def checkListElements(self,name,value,function):
      checkName(self,name,value)
      if not isinstance(value,(list,tuple)):
-          raise ValueError, "Attribute %s must be a list" % name
+          checkedRaise(self,value, ValueError, "Attribute %s must be a list" % name)
      for v in value:
           try:
                v = function(self,name,v)
           except Exception,err:
-               raise ValueError, "element %s of attribute %s list  failed type compliance\n error was: %s" % (repr(v),name,err)
+               checkedRaise(self,value,ValueError, "element %s of attribute %s list  failed type compliance\n error was: %s" % (repr(v),name,err))
      return value
 
 def isListorTuple(value):
@@ -248,7 +256,7 @@ def isListorTuple(value):
 def checkName(self, name, value):
      if hasattr(self,'name'):
           if (self.name == '__removed_from_VCS__'):
-               raise ValueError, 'This instance has been removed from VCS.'
+               checkedRaise(self,value,ValueError, 'This instance has been removed from VCS.')
           if (self.name == 'default'):
                raise ValueError, 'You cannot modify the default'
      
@@ -271,14 +279,14 @@ def checkString(self,name,value):
      elif isinstance(value,unicode):
           return str(value)
      else:
-          raise ValueError, 'The '+name+' attribute must be a string.'
+          checkedRaise(self,value, ValueError, 'The '+name+' attribute must be a string.')
      
 def checkCallable(self,name,value):
      checkName(self,name,value)
      if callable(value):
           return value
      else:
-          raise ValueError, 'The '+name+' attribute must be callable.'
+          checkedRaise(self,value, ValueError, 'The '+name+' attribute must be callable.')
      
      ## def checkFillAreaStyle(self,name,value):
 ##      checkName(self,name,value)
@@ -302,7 +310,7 @@ def checkFillAreaStyle(self,name,value):
          elif (queries.isfillarea(value)==1):
               value=value.name
      else:
-          raise ValueError, 'The '+name+' attribute must be either solid, hatch, or pattern.'
+          checkedRaise(self,value, ValueError, 'The '+name+' attribute must be either solid, hatch, or pattern.')
      return value
      
 def checkAxisConvert(self,name,value):
@@ -312,7 +320,7 @@ def checkAxisConvert(self,name,value):
      if isinstance(value,str) and (value.lower() in ('linear', 'log10', 'ln','exp','area_wt')):
           return value.lower()
      else:
-          raise ValueError, 'The '+name+' attribute must be either: linear, log10, ln, exp, or area_wt'
+          checkedRaise(self,value, ValueError, 'The '+name+' attribute must be either: linear, log10, ln, exp, or area_wt')
      
 def checkBoxfillType(self,name,value):
      checkName(self,name,value)
@@ -323,7 +331,7 @@ def checkBoxfillType(self,name,value):
      elif value in [0,1,2]:
        return ["linear","log10","custom"][value]
      else:
-          raise ValueError, 'The '+name+' attribute must be either: linear, log10 or custom'
+          checkedRaise(self,value, ValueError, 'The '+name+' attribute must be either: linear, log10 or custom')
      
 def checkIntFloat(self,name,value):
      try:
@@ -333,7 +341,7 @@ def checkIntFloat(self,name,value):
      if isinstance(value,(int,float,numpy.floating)):
           return float(value)
      else:
-          raise ValueError, 'The '+name+' attribute must be either an integer or a float value.'
+          checkedRaise(self,value, ValueError, 'The '+name+' attribute must be either an integer or a float value.')
      
 ## def checkInt(self,name,value):
 ##      checkName(self,name,value)
@@ -347,7 +355,7 @@ def checkTrueFalse(self,name,value):
   if value in [True,False,1,0]:
     return value==True
   else:
-    raise ValueError, "The '%s' attribute must be True or False" % name
+    checkedRaise(self,value, ValueError, "The '%s' attribute must be True or False" % name)
 
 def checkOnOff(self,name,value,return_string=0):
      checkName(self,name,value)
@@ -361,14 +369,14 @@ def checkOnOff(self,name,value,return_string=0):
           elif value.lower() in ['off','0','n','no']:
                value = 0
           else:
-               raise ValueError, "The "+name+" attribute must be either 1/0, 'on'/'off', 'y'/'n' or 'yes'/'no'"
+               checkedRaise(self,value,ValueError, "The "+name+" attribute must be either 1/0, 'on'/'off', 'y'/'n' or 'yes'/'no'")
      elif isNumber(value):
           if value==0. or value==1.:
                value = int(value)
           else:
-               raise ValueError, "The "+name+" attribute must be either 1/0, 'on'/'off', 'y'/'n' or 'yes'/'no'"
+               checkedRaise(self,value,ValueError, "The "+name+" attribute must be either 1/0, 'on'/'off', 'y'/'n' or 'yes'/'no'")
      else:
-          raise ValueError, "The "+name+" attribute must be either 1/0, 'on'/'off', 'y'/'n' or 'yes'/'no'"
+          checkedRaise(self,value,ValueError, "The "+name+" attribute must be either 1/0, 'on'/'off', 'y'/'n' or 'yes'/'no'")
      if return_string:
           if value:
                return 'y'
@@ -394,16 +402,16 @@ def checkYesNo(self,name,value):
           elif value.lower() in ['off','0','n','no']:
                value = 'n'
           else:
-               raise ValueError, "The "+name+" attribute must be either 1/0, 'on'/'off', 'y'/'n' or 'yes'/'no'"
+               checkedRaise(self,value,ValueError, "The "+name+" attribute must be either 1/0, 'on'/'off', 'y'/'n' or 'yes'/'no'")
      elif isNumber(value):
           if value==0.:
                value='n'
           elif value==1.:
                value = 'y'
           else:
-               raise ValueError, "The "+name+" attribute must be either 1/0, 'on'/'off', 'y'/'n' or 'yes'/'no'"
+               checkedRaise(self,value,ValueError, "The "+name+" attribute must be either 1/0, 'on'/'off', 'y'/'n' or 'yes'/'no'")
      else:
-          raise ValueError, "The "+name+" attribute must be either 1/0, 'on'/'off', 'y'/'n' or 'yes'/'no'"
+          checkedRaise(self,value,ValueError, "The "+name+" attribute must be either 1/0, 'on'/'off', 'y'/'n' or 'yes'/'no'")
      return value
           
 def checkWrap(self,name,value):
@@ -413,17 +421,16 @@ def checkWrap(self,name,value):
       if isinstance(value,list):
           return value
       else:
-          raise ValueError, 'The '+name+' attribute must be either None or a list.'
+          checkedRaise(self,value,ValueError, 'The '+name+' attribute must be either None or a list.')
           
 def checkListTuple(self,name,value):
-
   ## Now make sure the items are either number or listofnumbers
-  for v in value:
+  #for v in value:
      checkName(self,name,value)
      if isinstance(value,list) or isinstance(value,tuple):
           return list(value)
      else:
-          raise ValueError, 'The '+name+' attribute must be either a list or a tuple.'
+          checkedRaise(self,value,ValueError, 'The '+name+' attribute must be either a list or a tuple.')
      
 def checkColor(self,name,value):
      checkName(self,name,value)
@@ -434,7 +441,7 @@ def checkColor(self,name,value):
      if isinstance(value,int) and value in range(0,256):
           return value
      else:
-          raise ValueError, 'The '+name+' attribute must be an integer value within the range 0 to 255.'
+          checkedRaise(self,value,ValueError, 'The '+name+' attribute must be an integer value within the range 0 to 255.')
      
 def checkColorList(self,name,value):
      checkName(self,name,value)
@@ -462,7 +469,7 @@ def checkIndex(self,name,value):
      checkName(self,name,value)
      if ((value not in range(1,21)) and
          (queries.isfillarea(value)==0)):
-          raise ValueError, 'The '+name+' values must be in the range 1 to 18 or provide one or more fillarea objects.'
+          checkedRaise(self,value,ValueError, 'The '+name+' values must be in the range 1 to 18 or provide one or more fillarea objects.')
      elif (queries.isfillarea(value)==1):
           value=value.name
      return value
@@ -487,7 +494,7 @@ def checkVectorType(self,name,value):
      elif value in ('solidarrows', 2):
           hvalue = 'solidarrows'
      else:
-          raise ValueError, 'The '+name+' can either be ("arrows", "barbs", "solidarrows") or (0, 1, 2).'
+          checkedRaise(self,value,ValueError, 'The '+name+' can either be ("arrows", "barbs", "solidarrows") or (0, 1, 2).')
      return hvalue
 
 def checkVectorAlignment(self,name,value):
@@ -499,12 +506,12 @@ def checkVectorAlignment(self,name,value):
      elif value in ('tail', 2):
           hvalue = 'tail'
      else:
-          raise ValueError, 'The '+name+' can either be ("head", "center", "tail") or (0, 1, 2).'
+          checkedRaise(self,value,ValueError, 'The '+name+' can either be ("head", "center", "tail") or (0, 1, 2).')
      return hvalue
 
 def checkLineType(self,name,value):
      checkName(self,name,value)
-     if value in ('solid', 0):
+     if value in ('default','solid', 0):
           hvalue = 'solid'
      elif value in ('dash', 1):
           hvalue = 'dash'
@@ -517,7 +524,7 @@ def checkLineType(self,name,value):
      elif (queries.isline(value)==1):
           hvalue = value.name
      else:
-          raise ValueError, 'The '+name+' can either be ("solid", "dash", "dot", "dash-dot", "long-dash"), (0, 1, 2, 3, 4), or a line object.'
+          checkedRaise(self,value,ValueError, 'The '+name+' can either be ("solid", "dash", "dot", "dash-dot", "long-dash"), (0, 1, 2, 3, 4), or a line object.')
      return hvalue
 
 def checkLinesList(self,name,value):
@@ -536,9 +543,9 @@ def checkTextTable(self,name,value):
        value = str(value)
      if isinstance(value,str):
           if not value in vcs.listelements("texttable"):
-               raise ValueError,"Error : not a valid texttable"
+               checkedRaise(self,value,ValueError,"Error : not a valid texttable")
      elif not isinstance(value,vcs.texttable.Tt):
-          raise ValueError,"Error you must pass a texttable objector a texttable name"
+          checkedRaise(self,value,ValueError,"Error you must pass a texttable objector a texttable name")
      else:
           return value.name
      return value
@@ -548,9 +555,9 @@ def checkTextOrientation(self,name,value):
        value = str(value)
      if isinstance(value,str):
           if not value in vcs.listelements("textorientation"):
-               raise ValueError,"Error : not a valid textorientation"
+               checkedRaise(self,value,ValueError,"Error : not a valid textorientation")
      elif not isinstance(value,vcs.textorientation.To):
-          raise ValueError,"Error you must pass a textorientation objector a textorientation name"
+          checkedRaise(self,value,ValueError,"Error you must pass a textorientation objector a textorientation name")
      else:
           return value.name
      return value
@@ -590,7 +597,7 @@ def checkLegend(self,name,value):
           ret={}
           for v in value:
                if not isNumber(v):
-                 raise ValueError("The legend attribute should be a list of numbers, '%s' is not one" % v)
+                 checkedRaise(self,value,ValueError,"The legend attribute should be a list of numbers, '%s' is not one" % v)
                ret[v]=repr(v)
           return ret
      elif value is None:
@@ -598,7 +605,7 @@ def checkLegend(self,name,value):
      elif isinstance(value,str): # ok maybe a vcs list
           return value
      else:
-          raise ValueError, 'The '+name+' attribute should be a dictionary, a list of number or the name of a vcs list'
+          checkedRaise(self,value,ValueError, 'The '+name+' attribute should be a dictionary, a list of number or the name of a vcs list')
      
 ## def checkListTupleDictionaryNone(self,name,value):
 ##      checkName(self,name,value)
@@ -618,7 +625,7 @@ def checkLegend(self,name,value):
 ##      elif value is None:
 ##           return value
 ##      else:
-##           raise ValueError, 'The '+name+' attribute must be a List, Tuple, Dictionary, or None'
+##           checkedRaise(self,value,ValueError, 'The '+name+' attribute must be a List, Tuple, Dictionary, or None'
   
 def checkExt(self,name,value):
      checkName(self,name,value)
@@ -630,7 +637,7 @@ def checkExt(self,name,value):
           elif value.strip().lower() in ('n', "no",):
               return False
           else:
-               raise ValueError, "The '%s' attribute must be either n or y." % name
+               checkedRaise(self,value,ValueError, "The '%s' attribute must be either n or y." % name)
      elif value is None:
        return False
      elif value in [True,False]:
@@ -640,7 +647,7 @@ def checkExt(self,name,value):
      elif value==1:
        return True
      else:
-          raise ValueError, 'The '+name+' attribute must be a "yes"/"no" string or one of 0,1,True,False'
+          checkedRaise(self,value,ValueError, 'The '+name+' attribute must be a "yes"/"no" string or one of 0,1,True,False')
      
 def checkProjection(self,name,value):
      checkName(self,name,value)
@@ -649,18 +656,20 @@ def checkProjection(self,name,value):
      elif isinstance(value,(str,unicode)):
         value = str(value)
         if not value in vcs.elements["projection"].keys():
-           raise ValueError, 'The '+value+' projection does not exist'
+           checkedRaise(self,value,ValueError, 'The '+value+' projection does not exist')
         return value
      else:
-       raise ValueError("Could not understand value for projection attribute: %s" % value)
+       checkedRaise(self,value,ValueError,"Could not understand value for projection attribute: %s" % value)
 
 def checkTicks(self,name,value):
+  if value is None:
+    value=""
   value = checkStringDictionary(self,name,value)
   if isinstance(value,str):
     if value.strip() in ["","*"]:
       return value.strip()
     if not value in vcs.elements["list"]:
-      raise ValueError, "You are trying to use the vcs list: '%s' which does not exist" % value
+      checkedRaise(self,value,ValueError, "You are trying to use the vcs list: '%s' which does not exist" % value)
   else:
     return value
 def checkStringDictionary(self,name,value):
@@ -670,7 +679,7 @@ def checkStringDictionary(self,name,value):
      elif isinstance(value,str) or isinstance(value,dict):
           return value
      else:
-          raise ValueError, 'The '+name+' attribute must be either a string or a dictionary'
+          checkedRaise(self,value,ValueError, 'The '+name+' attribute must be either a string or a dictionary')
 
 def deg2DMS(val):
      """ converts degrees to DDDMMMSSS.ss format"""
@@ -708,9 +717,9 @@ def checkProjParameters(self,name,value):
        except:
          pass
      if not (isinstance(value,list) or isinstance(value,tuple)):
-          raise ValueError, "Error Projection Parameters must be a list or tuple"
+          checkedRaise(self,value,ValueError, "Error Projection Parameters must be a list or tuple")
      if not(len(value))==15:
-          raise ValueError, "Error Projection Parameters must be of length 15 (see doc)"
+          checkedRaise(self,value,ValueError, "Error Projection Parameters must be of length 15 (see doc)")
      for i in range(2,6):
           if abs(value[i])<10000:
                if (not(i==3 and (self.type in [9,15,20,22,30]))
@@ -728,11 +737,11 @@ def checkProjParameters(self,name,value):
 def checkCalendar(self,name,value):
      checkName(self,name,value)
      if not isinstance(value,(int,long)):
-          raise ValueError,'cdtime calendar value must be an integer'
+          checkedRaise(self,value,ValueError,'cdtime calendar value must be an integer')
      if not value in [cdtime.Calendar360,cdtime.ClimCalendar,cdtime.ClimLeapCalendar,cdtime.DefaultCalendar,
                       cdtime.GregorianCalendar,cdtime.JulianCalendar,cdtime.MixedCalendar,cdtime.NoLeapCalendar,
                       cdtime.StandardCalendar]:
-          raise ValueError,str(value)+' is not a valid cdtime calendar value'
+          checkedRaise(self,value,ValueError,str(value)+' is not a valid cdtime calendar value')
 
      return value
 
@@ -741,16 +750,16 @@ def checkTimeUnits(self,name,value):
      if isinstance(value,unicode):
        value = str(value)
      if not isinstance(value,str):
-          raise ValueError, 'time units must be a string'
+          checkedRaise(self,value,ValueError, 'time units must be a string')
      a=cdtime.reltime(1,'days since 1900')
      try:
           a.torel(value)
      except:
-          raise ValueError, value+' is invalid time units'
+          checkedRaise(self,value,ValueError, value+' is invalid time units')
      sp=value.split('since')[1]
      b=cdtime.s2c(sp)
      if b==cdtime.comptime(0,1):
-          raise ValueError, sp+' is invalid date'
+          checkedRaise(self,value,ValueError, sp+' is invalid date')
      return value
 
      
@@ -765,11 +774,11 @@ def checkDatawc(self,name,value):
                t=t.torel(self.datawc_timeunits,self.datawc_calendar)
                value = float(t.value), 1
           else:
-               raise ValueError, 'The '+name+' attribute must be either an integer or a float value or a date/time.' 
+               checkedRaise(self,value,ValueError, 'The '+name+' attribute must be either an integer or a float value or a date/time.' )
      elif type(value) in [type(cdtime.comptime(1900)),type(cdtime.reltime(0,'days since 1900'))]:
           value = value.torel(self.datawc_timeunits,self.datawc_calendar).value, 1
      else:
-              raise ValueError, 'The '+name+' attribute must be either an integer or a float value or a date/time.'
+              checkedRaise(self,value,ValueError, 'The '+name+' attribute must be either an integer or a float value or a date/time.')
      return value
      
 def checkInStringsListInt(self,name,value,values):
@@ -796,7 +805,7 @@ def checkInStringsListInt(self,name,value,values):
      if isinstance(value,str):
           value=value.lower()
           if not value in val:
-               raise ValueError, err
+               checkedRaise(self,value,ValueError, err)
           i=0
           for v in values:
                if isinstance(v,list) or isinstance(v,tuple):
@@ -807,11 +816,11 @@ def checkInStringsListInt(self,name,value,values):
                i=i+1
      elif isNumber(value) and int(value)==value:
           if not int(value) in range(len(values)):
-               raise ValueError, err
+               checkedRaise(self,value,ValueError, err)
           else:
                return int(value)
      else:
-          raise ValueError, err
+          checkedRaise(self,value,ValueError, err)
 
 
 def checkProjType(self,name,value):
@@ -824,7 +833,7 @@ def checkProjType(self,name,value):
     if isinstance(value,str):
          value=value.strip().lower()
          if value in ['utm','state plane']:
-              raise ValueError, "Projection Type: "+value+" not supported yet"
+              checkedRaise(self,value,ValueError, "Projection Type: "+value+" not supported yet")
     if -3<=value<0:
          return value
 
@@ -882,7 +891,7 @@ def checkProjType(self,name,value):
       except :
         pass
       if checkedvalue == "THAT DID NOT WORK":
-        raise Exception(err)
+        checkedRaise(self,value,Exception,err)
     
     self._type=checkedvalue
     p=self.parameters
@@ -1113,26 +1122,26 @@ def setProjParameter(self,name,value):
           nms.insert(0,nm)
           if name in nms:
                if not self._type in oktypes:
-                    raise PPE(name,self._type)
+                    checkedRaise(self,value,PPE(name,self._type),None)
                param[position]=value
                ## Subtype is parameter 8 not 12 for projection type 8
                if nm=='subtype' and self._type==8:
                     param[position]=1.e20
                     param[8]=value
-               ## Now raise error when wrong subtype
+               ## Now checkedRaise(self,value,error when wrong subtype
                if nm in ['longitude1','longitude2','latitude1','latitude2',
                          'satelliterevolutionperiod','landsatcompensationratio',
                          'pathflag','orbitinclination'] and self.parameters[12]==1:
-                    raise PPE(name,str(self.type)+' subtype 1')
+                    checkedRaise(self,value,PPE(name,str(self.type)+' subtype 1'),None)
                if nm in ['azimuthalangle','azimuthallongitude','satellite','path',] and (self.parameters[12]==0. or self.parameters[12]==1.e20):
-                     raise PPE(name,str(self.type)+' subtype 0')
+                     checkedRaise(self,value,PPE(name,str(self.type)+' subtype 0'),None)
                if nm=='standardparallel' and self.parameters[8]==1:
-                    raise PPE(name,str(self.type)+' subtype 1')
+                    checkedRaise(self,value,PPE(name,str(self.type)+' subtype 1'),None)
                if nm in ['standardparallel1','standardparallel2'] and (self.parameters[8]==0 or self.parameters[8]==1.e20) and self.type==8:
-                    raise PPE(name,str(self.type)+' subtype 0')
+                    checkedRaise(self,value,PPE(name,str(self.type)+' subtype 0'),None)
                self.parameters=param
                return value
-     raise PPE(name,'Unknow error...')
+     checkedRaise(self,value,PPE(name,'Unknow error...'),None)
 
 def _getpriority(self):
   return self._priority
@@ -1196,9 +1205,9 @@ def _setcolormap(self,value):
   if isinstance(value,unicode):
     value = str(value)
   if not isinstance(value,str):
-    raise "colormap attribute must be a colormap object or a string"
+    checkedRaise(self,value,"colormap attribute must be a colormap object or a string")
   if not value in vcs.elements["colormap"]:
-    raise "The colormap '%s' does not exists" % value
+    checkedRaise(self,value,"The colormap '%s' does not exists" % value)
   self._colormap = value
 colormap = property(_getcolormap,_setcolormap)
 
@@ -1217,11 +1226,11 @@ def _setlevels(self,value):
          continue
        elif isinstance(v,(list,tuple)):
          if not len(v)==2:
-           raise ValueError, "levels attribute list subelements must be numbers of 2 number list/tuples"
+           checkedRaise(self,value,ValueError, "levels attribute list subelements must be numbers of 2 number list/tuples")
          elif not isNumber(v[0]) or not isNumber(v[1]):
-           raise ValueError("levels attribute list subelements must be numbers of 2 number list/tuples")
+           checkedRaise(self,value,ValueError,"levels attribute list subelements must be numbers of 2 number list/tuples")
        else:
-           raise ValueError("levels attribute list subelements must be numbers of 2 number list/tuples")
+           checkedRaise(self,value,ValueError,"levels attribute list subelements must be numbers of 2 number list/tuples")
 
      if len(value)==1 and isinstance(value[0],(list,tuple)) and len(value[0])>2:
        value = list(value[0])

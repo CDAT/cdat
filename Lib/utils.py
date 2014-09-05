@@ -20,6 +20,7 @@ import colormap
 import json
 import os
 import tempfile
+import colormap
 
 def dumpToDict(obj,skipped,must):
   dic = {}
@@ -34,7 +35,7 @@ def dumpToDict(obj,skipped,must):
       dic[a] = val
   return dic
 
-def dumpToJson(obj,fileout,skipped = ["info","member"], must = []):
+def dumpToJson(obj,fileout,skipped = ["info","member"], must = [],indent=None,sort_keys=False):
   dic = dumpToDict(obj,skipped,must)
   if fileout is not None:
     if isinstance(fileout,str):
@@ -61,11 +62,11 @@ def dumpToJson(obj,fileout,skipped = ["info","member"], must = []):
     del(dic["name"])
     d[nm2]=dic
     D[nm]=d
-    json.dump(D,f,sort_keys=True)
+    json.dump(D,f,sort_keys=sort_keys,indent=indent)
     if isinstance(fileout,str):
       f.close()
   else:
-    return json.dumps(dic,sort_keys=True)
+    return json.dumps(dic,sort_keys=sort_keys,indent=indent)
 
 def getfontname(number):
   if not number in vcs.elements["fontNumber"]:
@@ -431,9 +432,14 @@ def saveinitialfile():
     fnm = os.path.join(os.environ['HOME'], _dotdir, 'initial.attributes')
     if os.path.exists(fnm):
       os.remove(fnm)
-    for k,e in vcs.elements.iteritems():
+    items = vcs.elements.keys()
+    for k in ["projection","marker","texttable","textorientation","line","list"]:
+      items.remove(k)
+      items.insert(0,k)
+    for k in items:
       if k in ["font","fontNumber","list"]:
         continue
+      e=vcs.elements[k]
       for nm,g in e.iteritems():
         if nm!="default":
           try:
@@ -454,6 +460,9 @@ def scriptrun(script):
   elif script.split(".")[-1] == "py":
     execfile(script)
   else:
+    print "SCRIPT FILE:",script
+    if os.path.split(script)[-1] == "initial.attributes":
+      vcs._doValidation = False
     loader = { "P":'template',
         "Gfb":'boxfill',
         "Gfi":'isofill',
@@ -470,6 +479,7 @@ def scriptrun(script):
         "Gf3Dvector":"3d_vector",
         "Proj":"projection",
         "Gtd":"taylordiagram",
+        "Cp":"colormap",
         }
     try:
       f=open(script)
@@ -477,21 +487,27 @@ def scriptrun(script):
       for typ in jsn.keys():
         for nm,v in jsn[typ].iteritems():
           if typ=="P":
-            loadTemplate(nm,v)
+            try:
+              loadTemplate(str(nm),v)
+            except Exception,err:
+              print "could not load tmpl:",nm,err
           else:
-            #print "Reading in a:",typ,"named",nm
-            loadVCSItem(loader[typ],nm,v)
-    except: #ok could not read json file maybe it is an old initial.attributes
+            try:
+              loadVCSItem(loader[typ],nm,v)
+            except Exception,err:
+              print "failed",typ,nm,err
+    except Exception,err: #ok could not read json file maybe it is an old initial.attributes
       if os.path.split(script)[-1] == "initial.attributes":
         _scriptrun(script)
       else:
-        warnings.warn("unable to source file: %s" % script)
+        warnings.warn("unable to source file: %si %s" % (script,err))
+  vcs._doValidation = True
   return
 
 def loadTemplate(nm,vals):
   try:
     t = vcs.gettemplate(nm)
-  except:
+  except Exception,err:
     t = vcs.createtemplate(nm)
   for k,v in vals.iteritems():
     A = getattr(t,k)
@@ -516,7 +532,6 @@ def loadVCSItem(typ,nm,json_dict = {}):
           del(v[k])
         except:
           pass
-    #print "Setting:",a,"to",v
     setattr(gm,a,v)
   return gm
 
