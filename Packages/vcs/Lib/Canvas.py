@@ -1230,6 +1230,7 @@ class Canvas(object,AutoAPI.AutoAPI):
         
         if type is None:
             type = self.listelements()
+            type.remove("fontNumber")
         elif isinstance(type,str):
             type=[type,]
         elif not isinstance(type,(list,tuple)):
