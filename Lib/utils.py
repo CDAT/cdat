@@ -35,7 +35,7 @@ def dumpToDict(obj,skipped,must):
       dic[a] = val
   return dic
 
-def dumpToJson(obj,fileout,skipped = ["info","member"], must = [],indent=None,sort_keys=False):
+def dumpToJson(obj,fileout,skipped = ["info","member"], must = [],indent=None,sort_keys=True):
   dic = dumpToDict(obj,skipped,must)
   if fileout is not None:
     if isinstance(fileout,str):
