@@ -47,7 +47,7 @@ try:
   raise Exception, "Should have been able to set boxfill projection to a projection that does not exists"
 except:
   pass
-test_values_setting(b, ["xticlabels1","xticlabels2","xmtics1","xmtics2", "yticlabels1","yticlabels2","ymtics1","ymtics2",],["*","","lon20",{23.:"Hi",}],["bla",10,10.,[],(),None])
+test_values_setting(b, ["xticlabels1","xticlabels2","xmtics1","xmtics2", "yticlabels1","yticlabels2","ymtics1","ymtics2",],["*","",None,"lon20",{23.:"Hi",}],["bla",10,10.,[],()])
 test_values_setting(b,["datawc_x1","datawc_x2","datawc_y1","datawc_y2"],[56,56.7,],["bla",[4,5,6],None,{}])
 test_values_setting(b,"datawc_timeunits",["months since 1800","years since 234",],[1,"bla",2.,{},[],(),None])
 test_values_setting(b,"datawc_calendar",[cdtime.GregorianCalendar,cdtime.JulianCalendar,cdtime.MixedCalendar,cdtime.NoLeapCalendar,cdtime.StandardCalendar],[4,"bla",{},[],(),None])
