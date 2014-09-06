@@ -13,6 +13,8 @@ script:
     - cd ..
     - mkdir _build
     - cd _build
-    - cmake ../uvcdat-devel
+    - cmake ../uvcdat
     - cmake -DCDAT_DISPLAY_LOG:BOOL=ON -DCDAT_BUILD_LEAN:BOOL=ON .
     - make -j4
+    - ctest -VV -S ../uvcdat/CMake/travis_build.cmake
+    - ctest -VV -S ../uvcdat/CMake/travis_submit.cmake
