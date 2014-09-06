@@ -444,8 +444,8 @@ def saveinitialfile():
         if nm!="default":
           try:
             g.script(fnm)
-          except:
-            warnings.warn("Could not save graphic method %s named %s" % (k,nm))
+          except Exception,err:
+            warnings.warn("Could not save graphic method %s named %si: %s" % (k,nm,err))
     # extension .json has been auto-added, removing it in this specific case
     os.rename(fnm+".json",fnm)
     
@@ -512,6 +512,8 @@ def loadTemplate(nm,vals):
   for k,v in vals.iteritems():
     A = getattr(t,k)
     for a,v in v.iteritems():
+      if isinstance(v,unicode):
+        v=str(v)
       setattr(A,a,v)
 
 def loadVCSItem(typ,nm,json_dict = {}):
@@ -532,6 +534,8 @@ def loadVCSItem(typ,nm,json_dict = {}):
           del(v[k])
         except:
           pass
+    elif isinstance(v,unicode):
+      v=str(v)
     setattr(gm,a,v)
   return gm
 
