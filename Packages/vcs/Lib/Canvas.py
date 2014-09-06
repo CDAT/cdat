@@ -5369,7 +5369,7 @@ Options:::
         #except:
         #   updateVCSsegments_flag = 1
         self.colormap = name
-        warnings.warn("need to implement code to redraw vcs after colormap change")
+        # Should we implement a redraw?
         return
 
     #############################################################################
