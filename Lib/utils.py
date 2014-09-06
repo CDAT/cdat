@@ -437,7 +437,14 @@ def saveinitialfile():
       items.remove(k)
       items.insert(0,k)
     for k in items:
-      if k in ["font","fontNumber","list"]:
+      if k in ["font","fontNumber"]:
+        continue
+      elif k=="list":
+        D={}
+        D["L"]=vcs.elements["list"]
+        f=open(fnm+".json","w")
+        json.dump(D,f)
+        f.close()
         continue
       e=vcs.elements[k]
       for nm,g in e.iteritems():
@@ -460,7 +467,6 @@ def scriptrun(script):
   elif script.split(".")[-1] == "py":
     execfile(script)
   else:
-    print "SCRIPT FILE:",script
     if os.path.split(script)[-1] == "initial.attributes":
       vcs._doValidation = False
     loader = { "P":'template',
@@ -480,6 +486,7 @@ def scriptrun(script):
         "Proj":"projection",
         "Gtd":"taylordiagram",
         "Cp":"colormap",
+        "L":"L",
         }
     try:
       f=open(script)
@@ -521,6 +528,16 @@ def loadVCSItem(typ,nm,json_dict = {}):
     tp = "oned"
   else:
     tp = typ
+  if typ=="L":
+    d={}
+    for k,v in json_dict.iteritems():
+      try:
+        d[eval(k)]=eval(v)
+      except:
+        d[eval(k)]=v
+    vcs.elements["list"][nm]=d
+    return
+
   if vcs.elements[tp].has_key(nm):
     gm = vcs.elements[tp][nm]
   else:
