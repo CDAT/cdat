@@ -13,6 +13,6 @@ script:
     - cd ..
     - mkdir _build
     - cd _build
-    - cmake ../uvcdat
+    - cmake -DGIT_PROTOCOL=git:// -DCDAT_BUILD_MODE=LEAN -DCDAT_BUILD_GRAPHICS=ON -DCDAT_BUILD_SCIPY=OFF ../uvcdat
     - ctest -VV -S ../uvcdat/CMake/travis_build.cmake
     - ctest -VV -S ../uvcdat/CMake/travis_submit.cmake
