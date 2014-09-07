@@ -258,5 +258,10 @@ message(${CDAT_DOWNLOAD_SAMPLE_DATA} and ${CDAT_BUILD_MATPLOTLIB})
       ${cdat_SOURCE_DIR}/testing/vcs/test_aspect_ratio.py
       ${cdat_SOURCE_DIR}/testing/vcs/test_aspect_ratio.py
       )
+    add_test(vcs_test_polar_set_opt_param_polar
+      ${CMAKE_INSTALL_PREFIX}/bin/python
+      ${cdat_SOURCE_DIR}/testing/vcs/test_polar_set_opt_param_polar.py
+      ${cdat_SOURCE_DIR}/testing/vcs/test_polar_set_opt_param_polar.png
+      )
   endif()
 
