@@ -7,7 +7,8 @@ import vcs
 import cdms2
 import sys
 import os, time
-import subprocess, signal    
+import subprocess, signal 
+from DV3D.TestManager import vcsTest  
 
 class DataType:
    STRUCTURED = 0
@@ -43,18 +44,20 @@ print "Reading variable %s in dataset %s " % ( varname, datasetPath )
 
 # dv3d = vcs.create3d_scalar('hoffmuller','xyt')
 
-u = f[varname] 
-if not u is None:
-#    dv3d = vcs.get3d_scalar('xyt')
-    dv3d = vcs.get3d_scalar()
-    
-    x = vcs.init()
-    print "3D_Scalar elements: ", str( x.listelements('3d_scalar') )
-    x.plot( u, dv3d, blocking=True )
-    x.interact()
+test1 =  vcsTest( 'dv3d_volume_test', roi=( -105.0, -15.0, 7.0, 50.0 ), file=datasetPath, vars = [ varname ], 
+                     parameters={'VerticalScaling': 3.0, 
+                                 'ToggleVolumePlot': vcs.on,
+                                 'ToggleSurfacePlot': vcs.off, 
+                                 'ScaleOpacity': [0.0, 0.8],
+                                 'ScaleColormap': [-15.0, 10.0, 1], 
+                                 'ScaleTransferFunction':  [6.0, 12.0, 1], 
+                                 'BasemapOpacity': [0.5],
+                                 'XSlider': ( vcs.off ),
+                                 'ZSlider': ( vcs.off ),
+                                 'YSlider': ( vcs.off ), 
+                                 }  )  
 
-else:
-    print>>sys.stderr, "\n\n  Can't find variable %s in dataset %s" % ( varname, datasetPath )
+test1.interact()     
 
 
 

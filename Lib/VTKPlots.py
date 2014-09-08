@@ -51,10 +51,16 @@ class VTKVCSBackend(object):
 #   def applicationFocusChanged(self):
 #       for plotApp in self.plotApps.values():
 #           if hasattr(plotApp, 'refresh'): plotApp.refresh()
+
+  def setAnimationStepper( self, stepper ):
+      for plot in self.plotApps.values():
+        plot.setAnimationStepper( stepper )
         
   def interact(self,*args,**kargs):
       warnings.warn("Press 'Q' to exit interactive mode and continue script execution")
-      self.renWin.GetInteractor().Start()
+      interactor = self.renWin.GetInteractor()
+      istyle = interactor.GetInteractorStyle()     
+      interactor.Start()
 
   def leftButtonPressEvent(self,obj,event):
     xy = self.renWin.GetInteractor().GetEventPosition()
