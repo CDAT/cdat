@@ -946,7 +946,12 @@ class Canvas(object,AutoAPI.AutoAPI):
            except:
                pass
            self._dotdir,self._dotdirenv = vcs.getdotdirectory()
-           vcs.scriptrun( os.path.join(os.environ['HOME'], self._dotdir, 'initial.attributes'))
+           user_init = os.path.join(os.environ['HOME'], self._dotdir, 'initial.attributes')
+           if os.path.exists(user_init):
+              vcs.scriptrun(user_init)
+           else:
+              shutil.copy2(os.path.join(*pth),user_init)
+
 	called_initial_attributes_flg = 1
         self.canvas_template_editor=None
         self.ratio=0
