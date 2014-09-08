@@ -5,11 +5,16 @@ include(${CTEST_SOURCE_DIRECTORY}/CTestConfig.cmake)
 set(CTEST_SITE "Travis")
 set(CTEST_BUILD_NAME "Linux-$ENV{TRAVIS_BRANCH}")
 set(CTEST_CMAKE_GENERATOR "Unix Makefiles")
+set(ENV{PATH} "${CTEST_BINARY_DIRECTORY}/install/bin:${CTEST_BINARY_DIRECTORY}/install/Externals/bin")
+set(ENV{LD_LIBRARY_PATH} "${CTEST_BINARY_DIRECTORY}/install/lib:${CTEST_BINARY_DIRECTORY}/install/Externals/lib")
+set(ENV{DYLD_LIBRARY_PATH} "${CTEST_BINARY_DIRECTORY}/install/lib:${CTEST_BINARY_DIRECTORY}/install/Externals/lib")
+set(ENV{PYTHONPATH} "${CTEST_BINARY_DIRECTORY}/install/lib/python2.7/site-packages:${CTEST_BINARY_DIRECTORY}/install/Externals/lib/python2.7/site-packages")
+
 set(CTEST_ENVIRONMENT
-   "PATH=$ENV{TRAVIS_BUILD_DIR}/../_build/install/bin:$ENV{TRAVIS_BUILD_DIR}/../_build/install/Externals/bin"
-   "LD_LIBRARY_PATH=$ENV{TRAVIS_BUILD_DIR}/../_build/install/lib:$ENV{TRAVIS_BUILD_DIR}/../_build/install/Externals/lib"
-   "DYLD_LIBRARY_PATH=$ENV{TRAVIS_BUILD_DIR}/../_build/install/lib:$ENV{TRAVIS_BUILD_DIR}/../_build/install/Externals/lib"
-   "PYTHONPATH=$ENV{TRAVIS_BUILD_DIR}/../_build/install/lib/python2.7/site-packages:$ENV{TRAVIS_BUILD_DIR}/../_build/install/Externals/lib/python2.7/site-packages")
+   "PATH=$ENV{PATH}"
+   "LD_LIBRARY_PATH=$ENV{LD_LIBRARY_PATH}"
+   "DYLD_LIBRARY_PATH=$ENV{DYLD_LIBRARY_PATH}"
+   "PYTHONPATH=$ENV{PYTHONPATH}")
 set(CTEST_COMMAND "${CTEST_EXECUTABLE_NAME} -j4")
 message("CTEST_ENVIRONMENT ${CTEST_ENVIRONMENT}")
 
