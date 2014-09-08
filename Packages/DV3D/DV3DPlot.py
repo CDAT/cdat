@@ -9,16 +9,16 @@ import vtk, traceback
 MIN_LINE_LEN = 50
 VTK_NOTATION_SIZE = 10
 
-class TimerCallback(vtk.vtkCommand):
+class AnimationStepper:
     
-    def __init__( self ):
-        self.TimerCount = 0
- 
-    def Execute(caller, eventId, callData ):
-        print " xxxxx "
-#        print " Timer Event %d, id = %d " % ( self.TimerCount, eventId )
-#        self.TimerCount = self.TimerCount + 1
+    def __init__( self, target ):
+        self.target = target
+    
+    def startAnimation(self):
+        self.target.startAnimation()
 
+    def stopAnimation(self):
+        self.target.stopAnimation()
  
 class TextDisplayMgr:
     
@@ -96,6 +96,7 @@ class DV3DPlot():
 
     AnimationTimerType = 9
     AnimationEventId = 9
+    AnimationExternalEventId = 10 
  
     def __init__( self,  **args ):
         self.ParameterValueChanged = SIGNAL( 'ParameterValueChanged' )
@@ -103,6 +104,7 @@ class DV3DPlot():
         self.activate_display=args.get('display',True)
         self.useDepthPeeling = False
         self.renderWindowInteractor = None
+        self.animationStepper = self.setAnimationStepper( AnimationStepper )
         self.labelBuff = ""
         self.resizingWindow = False
         self.textDisplayMgr = None
@@ -145,6 +147,9 @@ class DV3DPlot():
         self.addKeyPressHandler( 'Q',  self.quit )
         self.addKeyPressHandler( 's',  self.saveState )
         
+    def setAnimationStepper( self, stepper_class ):
+        self.animationStepper = stepper_class(self)
+        
     def applyAction( self, action ):
         print "Applying action: ", str(action)
 
@@ -178,25 +183,38 @@ class DV3DPlot():
 
     def stepAnimation(self, **args): 
         pass
+    
+    def stepAnimationSignal(self):
+        self.renderWindowInteractor.SetTimerEventId( self.AnimationExternalEventId )
+        self.renderWindowInteractor.SetTimerEventType( self.AnimationTimerType )
+        self.renderWindowInteractor.InvokeEvent('TimerEvent')
 
     def processTimerEvent(self, caller, event):
         eid = caller.GetTimerEventId ()
         etype = caller.GetTimerEventType()
         print "processTimerEvent: %d %d " % ( eid, etype )
         if self.animating and ( etype == self.AnimationTimerType ):
-            self.runAnimation()
+            self.runAnimation( use_timer=(eid== self.AnimationEventId) )
+        return 1
             
-    def runAnimation(self):
-        if self.animationTimerId <> -1: 
-            self.renderWindowInteractor.DestroyTimer( self.animationTimerId  )
-            self.animationTimerId = -1
+    def runAnimation(self, **args ):
         plotButtons = self.getInteractionButtons()
         cf = plotButtons.getConfigFunction('Animation')
         event_duration = 10
         if cf <> None:
             animation_delay = cf.value.getValues()
             event_duration = event_duration + int( animation_delay[0]*1000 )
+        
         self.stepAnimation( )
+        use_timer = args.get( 'use_timer', False )
+        if use_timer:
+            self.updateTimer( event_duration )
+        return event_duration
+
+    def updateTimer( self, event_duration ):
+        if self.animationTimerId <> -1: 
+            self.renderWindowInteractor.DestroyTimer( self.animationTimerId  )
+            self.animationTimerId = -1
         self.renderWindowInteractor.SetTimerEventId( self.AnimationEventId )
         self.renderWindowInteractor.SetTimerEventType( self.AnimationTimerType )
         self.animationTimerId = self.renderWindowInteractor.CreateOneShotTimer( event_duration )
@@ -326,14 +344,20 @@ class DV3DPlot():
         elif button_id == 'Run':
             if self.animationTimerId == -1: 
                 self.changeButtonActivations( [ ( 'Run', False ), ( 'Stop', True ) , ( 'Step', False ) ] )  
-                self.animating = True
-                self.runAnimation()
+                self.animationStepper.startAnimation()
         elif button_id == 'Stop':
-            self.animating = False
-            if self.animationTimerId <> -1: 
-                self.animationTimerId = -1
-                self.renderWindowInteractor.DestroyTimer( self.animationTimerId  )            
-                self.changeButtonActivations( [ ( 'Run', True ), ( 'Stop', False ) , ( 'Step', True ) ] )  
+            self.animationStepper.stopAnimation()
+            
+    def startAnimation(self):   
+        self.animating = True
+        self.runAnimation(use_timer=True)
+                     
+    def stopAnimation(self):
+        self.animating = False
+        if self.animationTimerId <> -1: 
+            self.animationTimerId = -1
+            self.renderWindowInteractor.DestroyTimer( self.animationTimerId  )            
+        self.changeButtonActivations( [ ( 'Run', True ), ( 'Stop', False ) , ( 'Step', True ) ] )  
                            
     def setInteractionState(self, caller, event):
         interactor = caller.GetInteractor()
@@ -536,7 +560,7 @@ class DV3DPlot():
 #            self.addObserver( self.renderWindowInteractor, 'ResetCameraEvent', self.onAnyEvent )
 #            self.addObserver( self.renderWindowInteractor, 'ResetCameraClippingRangeEvent', self.onAnyEvent )
 #            self.addObserver( self.renderWindowInteractor, 'ComputeVisiblePropBoundsEvent', self.onAnyEvent )
-            self.addObserver( self.renderWindowInteractor, 'AnyEvent', self.onAnyEvent )
+#            self.addObserver( self.renderWindowInteractor, 'AnyEvent', self.onAnyEvent )
             
 #            self.animationTestId = self.renderWindowInteractor.CreateRepeatingTimer( 100 )
             
@@ -841,8 +865,7 @@ class DV3DPlot():
     def start( self, block = False ):
         self.showConfigurationButton()
         self.renderWindow.Render()
-#        if block:  self.renderWindowInteractor.Start()
-        self.renderWindowInteractor.Start()
+        if block:  self.renderWindowInteractor.Start()
          
     def invalidate(self):
         self.isValid = False
