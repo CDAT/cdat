@@ -722,12 +722,18 @@ class AnimationController(animate_obj_old):
   def created(self):
     return self.animation_created
 
-  def create(self, thread_it=True):
+  def create(self, thread_it=True, min=None, max=None):
+    if thread_it == 0:
+      thread_it = False
     if self.create_thread is None or not self.create_thread.is_alive():
       self.canvas_info = self.vcs_self.canvasinfo()
       self.animate_info = self.vcs_self.animate_info
+      self.create_params.a_min = min
+      self.create_params.a_max = max
       self.create_thread = AnimationCreate(self)
       self.create_thread.start()
+    if not thread_it:
+      self.create_thread.join()
 
   def create_stop(self):
     self.create_thread.stop()
@@ -743,13 +749,22 @@ class AnimationController(animate_obj_old):
 
   def playback(self):
     if (self.created() and 
-          self.playback_thread is None or not self.playback_thread.is_alive()):
-        self.playback_thread = AnimationPlayback(self)
-        self.playback_thread.start()
+        (self.playback_thread is None or not self.playback_thread.is_alive())):
+      self.playback_thread = AnimationPlayback(self)
+      self.playback_thread.start()
+
+  # alias run to playback for command-line compatibility
+  run = playback
     
   def playback_stop(self):
     if self.is_playing():
       self.playback_thread.stop()
+
+  def stop(self):
+    if self.is_playing():
+      self.playback_thread.stop()
+    else:
+      self.create_thread.stop()
 
   def playback_pause(self):
     if self.is_playing():
@@ -758,6 +773,11 @@ class AnimationController(animate_obj_old):
   def playback_resume(self):
     if self.playback_thread is not None:
       self.playback_thread.resume()
+
+  def pause(self, value=1):
+    self.playback_pause()
+    time.sleep(value)
+    self.playback_resume()
 
   def number_of_frames(self):
     return len(self.animation_files)
@@ -924,7 +944,28 @@ class AnimationController(animate_obj_old):
         if rate is None:
             rate = self.playback_params.fps()
         self.vcs_self.ffmpeg(movie, fnms, bitrate, rate, options)
-      
+
+  def fps(self, value=None):
+    """Animation desired number of frame per seconds (might not be
+    achievable depending on your system)
+
+    """
+    return self.playback_params.fps(value)
+
+  def zoom(self,value):
+    """Zoom factor for the animation"""
+    self.playback_params.zoom(value)
+
+  def horizontal(self,value):
+    """ Pan the window horizontaly (when zoomed). 100% means move so you can see the furthest right part of the picture"
+    """
+    self.playback_params.horizontal(value)
+
+  def vertical(self,value):
+    """ Pan the window verticaly (when zoomed). 100% means move so you can see the top part of the picture"
+    """
+    self.playback_params.vertical(value)
+
 ############################################################################
 #        END OF FILE                                                       #
 ############################################################################
