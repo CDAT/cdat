@@ -1,4 +1,8 @@
-cd DV3D
+#!/bin/bash
+
+cd vcs
 python setup.py install
-cd ../vcs
+cd ../DV3D
+python setup.py install
+cd ../vcsaddons
 python setup.py install

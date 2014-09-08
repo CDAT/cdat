@@ -3,7 +3,7 @@ Created on Aug 28, 2014
 
 @author: tpmaxwel
 '''
-from TestManager import TestManager, vcsTest
+from DV3D.TestManager import TestManager, vcsTest
 import vcs, sys, os
 
 testManager = TestManager()   

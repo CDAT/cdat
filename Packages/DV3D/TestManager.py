@@ -87,6 +87,10 @@ class vcsTest:
     def show(self):
         self.build()
 #        self.canvas.interact()
+
+    def interact(self):
+        self.build()
+        self.canvas.interact()
         
     def test( self, interactive=False ):        
         import checkimage
