@@ -22,6 +22,7 @@
 #                                                                               #
 #################################################################################
 """
+_doValidation = True
 next_canvas_id = 1
 import cdat_info
 cdat_info.pingPCMDIdb("cdat","vcs")
