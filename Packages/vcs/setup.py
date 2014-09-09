@@ -33,6 +33,7 @@ setup (name = "vcs",
                                    'Share/data_continent_states',
                                    'Share/data_continent_other7',
                                    'Share/data_continent_fine',
+                                   'Share/initial.attributes',
                                    'Share/uvcdat.png',
                                    )),],
        )
