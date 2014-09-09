@@ -22,6 +22,8 @@ import os
 import tempfile
 import colormap
 
+indent = 1
+sort_keys = True
 def dumpToDict(obj,skipped,must):
   dic = {}
   for a in obj.__slots__:
@@ -35,7 +37,7 @@ def dumpToDict(obj,skipped,must):
       dic[a] = val
   return dic
 
-def dumpToJson(obj,fileout,skipped = ["info","member"], must = [],indent=None,sort_keys=True):
+def dumpToJson(obj,fileout,skipped = ["info","member"], must = [],indent=indent,sort_keys=sort_keys):
   dic = dumpToDict(obj,skipped,must)
   if fileout is not None:
     if isinstance(fileout,str):
