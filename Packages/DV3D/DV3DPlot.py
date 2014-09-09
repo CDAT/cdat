@@ -197,7 +197,7 @@ class DV3DPlot():
             self.runAnimation()
         return 1
     
-    def getAnimationTimestep(self):
+    def getAnimationDelay(self):
         plotButtons = self.getInteractionButtons()
         cf = plotButtons.getConfigFunction('Animation')
         event_duration = 0
@@ -211,7 +211,7 @@ class DV3DPlot():
         self.updateTimer()
 
     def updateTimer( self ):
-        event_duration = self.getAnimationTimestep()
+        event_duration = self.getAnimationDelay()
         if self.animationTimerId <> -1: 
             self.renderWindowInteractor.DestroyTimer( self.animationTimerId  )
             self.animationTimerId = -1
