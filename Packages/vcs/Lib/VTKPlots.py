@@ -829,16 +829,16 @@ class VTKVCSBackend(object):
       mapper = vtk.vtkPolyDataMapper()
       thr = vtk.vtkThreshold()
       thr.SetInputConnection(geoFilter.GetOutputPort())
-      if not gm.ext_1 and not gm.ext_2:
+      if not gm.ext_1 in ["y",1,True]  and not gm.ext_2 in ["y",1,True] :
           thr.ThresholdBetween(levs[0],levs[-1])
-      elif gm.ext_1 and not gm.ext_2:
+      elif gm.ext_1 in ["y",1,True]  and not gm.ext_2 in ["y",1,True] :
           thr.ThresholdByLower(levs[-1])
-      elif not gm.ext_1 and gm.ext_2:
+      elif not gm.ext_1 in ["y",1,True]  and gm.ext_2 in ["y",1,True] :
           thr.ThresholdByUpper(levs[0])
       thr.Update()
       geoFilter2 = vtk.vtkDataSetSurfaceFilter()
       geoFilter2.SetInputConnection(thr.GetOutputPort())
-      if gm.ext_1 and gm.ext_2:
+      if gm.ext_1 in ["y",1,True]  and gm.ext_2 in ["y",1,True] :
           mapper.SetInputConnection(geoFilter.GetOutputPort())
       else:
           mapper.SetInputConnection(geoFilter2.GetOutputPort())
@@ -896,11 +896,13 @@ class VTKVCSBackend(object):
     if isinstance(gm,(isofill.Gfi,meshfill.Gfm,boxfill.Gfb)):
       if getattr(gm,"legend",None) is not None:
         legend = gm.legend
-      if gm.ext_1 and not numpy.allclose(levs[0],1.e20):
+      print "********************************************"
+      gm.list()
+      if gm.ext_1 in ["y",1,True] and not numpy.allclose(levs[0],1.e20):
           if isinstance(levs,numpy.ndarray):
               levs=levs.tolist()
           levs.insert(0,-1.e20)
-      if gm.ext_2 and not numpy.allclose(levs[0],1.e20):
+      if gm.ext_2 in ["y",1,True] and not numpy.allclose(levs[0],1.e20):
           if isinstance(levs,numpy.ndarray):
               levs=levs.tolist()
           levs.append(1.e20)
