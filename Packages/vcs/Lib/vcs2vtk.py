@@ -101,12 +101,24 @@ def genGrid(data1,data2,gm):
   if m3 is not None:
     #Create unstructured grid points
     vg = vtk.vtkUnstructuredGrid()
+    lst = vtk.vtkIdTypeArray()
+    cells = vtk.vtkCellArray()
+    numberOfCells = N
+    lst.SetNumberOfComponents(nVertices + 1)
+    lst.SetNumberOfTuples(numberOfCells)
+      
+    print 'Number of cells ', numberOfCells
+    print 'Number of vertices', nVertices
+   
     for i in range(N):
-      lst = vtk.vtkIdList()
+      tuple = [None] * (nVertices + 1)
+      tuple[0] = nVertices
       for j in range(nVertices):
-        lst.InsertNextId(i*nVertices+j)
+        tuple[j + 1] = i * nVertices + j
+      lst.SetTuple(i, tuple)
       ## ??? TODO ??? when 3D use CUBE?
-      vg.InsertNextCell(vtk.VTK_POLYGON,lst)
+    cells.SetCells(numberOfCells, lst)
+    vg.SetCells(vtk.VTK_POLYGON, cells)
   else:
     #Ok a simple structured grid is enough
     vg = vtk.vtkStructuredGrid()
