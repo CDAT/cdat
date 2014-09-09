@@ -1,16 +1,17 @@
-import vcs,numpy,os,sys
+import cdms2,sys,vcs,sys,os
 src=sys.argv[1]
 pth = os.path.join(os.path.dirname(src),"..")
 sys.path.append(pth)
 import checkimage
-
-s= numpy.sin(numpy.arange(100))
-s=numpy.reshape(s,(10,10))
-s=numpy.ma.masked_greater(s,.5)
 x=vcs.init()
-x.setbgoutputdimensions(1200,1091,units="pixels")
-x.plot(s,bg=1)
-fnm= "test_vcs_boxfill_10x10_masked_numpy.png"
+f=cdms2.open(sys.prefix+"/sample_data/clt.nc")
+s=f("clt",slice(0,1),squeeze=1)
+b=x.createboxfill()
+b.level_1=20
+b.level_2=80
+x.plot(s,b,bg=1)
+
+fnm= "test_boxfill_lev1_lev2.png"
 
 x.png(fnm)
 
@@ -18,3 +19,4 @@ print "fnm:",fnm
 print "src:",src
 ret = checkimage.check_result_image(fnm,src,checkimage.defaultThreshold)
 sys.exit(ret)
+

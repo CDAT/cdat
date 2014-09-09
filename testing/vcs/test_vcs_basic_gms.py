@@ -107,7 +107,7 @@ fnm+=nm_xtra
 x.png(fnm)
 print "fnm:",fnm
 print "src:",src
-ret = checkimage.check_result_image(fnm+".png",src,0.05)
+ret = checkimage.check_result_image(fnm+'.png',src,checkimage.defaultThreshold)
 if args.show:
     raw_input("Press Enter")
 sys.exit(ret)
