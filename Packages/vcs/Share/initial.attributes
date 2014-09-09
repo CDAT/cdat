@@ -36331,6 +36331,1470 @@
     "y": 0.68
    }
   }, 
+  "UVWG": {
+   "box1": {
+    "line": "default", 
+    "priority": 1, 
+    "x1": 0.0500000007451, 
+    "x2": 0.949999988079, 
+    "y1": 0.259999990463, 
+    "y2": 0.860000014305
+   }, 
+   "box2": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0.0, 
+    "x2": 0.920000016689, 
+    "y1": 0.300000011921, 
+    "y2": 0.879999995232
+   }, 
+   "box3": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0.0, 
+    "x2": 0.910000026226, 
+    "y1": 0.319999992847, 
+    "y2": 0.860000014305
+   }, 
+   "box4": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0.0, 
+    "x2": 0.0, 
+    "y1": 0.0, 
+    "y2": 0.0
+   }, 
+   "comment1": {
+    "priority": 1, 
+    "textorientation": "texss", 
+    "texttable": "default", 
+    "x": 0.835, 
+    "y": 0.96
+   }, 
+   "comment2": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.10000000149, 
+    "y": 0.975000023842
+   }, 
+   "comment3": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.10000000149, 
+    "y": 0.995000004768
+   }, 
+   "comment4": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.10000000149, 
+    "y": 0.999000012875
+   }, 
+   "crdate": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.75, 
+    "y": 0.922999978065
+   }, 
+   "crtime": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.850000023842, 
+    "y": 0.922999978065
+   }, 
+   "data": {
+    "priority": 1, 
+    "ratio": -999, 
+    "x1": 0.0500000007451, 
+    "x2": 0.949999988079, 
+    "y1": 0.259999990463, 
+    "y2": 0.860000014305
+   }, 
+   "dataname": {
+    "priority": 1, 
+    "textorientation": "texd", 
+    "texttable": "default", 
+    "x": 0.045, 
+    "y": 0.96
+   }, 
+   "file": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.0500000007451, 
+    "y": 0.0130000002682
+   }, 
+   "function": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.0500000007451, 
+    "y": 0.0130000002682
+   }, 
+   "legend": {
+    "line": "default", 
+    "priority": 1, 
+    "textorientation": "defcenter", 
+    "texttable": "default", 
+    "x1": 0.0500000007451, 
+    "x2": 0.949999988079, 
+    "y1": 0.129999995232, 
+    "y2": 0.159999996424
+   }, 
+   "line1": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0.0500000007451, 
+    "x2": 0.949999988079, 
+    "y1": 0.560000002384, 
+    "y2": 0.560000002384
+   }, 
+   "line2": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0.5, 
+    "x2": 0.5, 
+    "y1": 0.259999990463, 
+    "y2": 0.860000014305
+   }, 
+   "line3": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0.0, 
+    "x2": 0.899999976158, 
+    "y1": 0.52999997139, 
+    "y2": 0.52999997139
+   }, 
+   "line4": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0.0, 
+    "x2": 0.899999976158, 
+    "y1": 0.990000009537, 
+    "y2": 0.990000009537
+   }, 
+   "logicalmask": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.0500000007451, 
+    "y": 0.0329999998212
+   }, 
+   "max": {
+    "format": "default", 
+    "priority": 1, 
+    "textorientation": "texo", 
+    "texttable": "default", 
+    "x": 0.9, 
+    "y": 0.92
+   }, 
+   "mean": {
+    "format": "default", 
+    "priority": 1, 
+    "textorientation": "texs", 
+    "texttable": "default", 
+    "x": 0.4, 
+    "y": 0.885
+   }, 
+   "min": {
+    "format": "default", 
+    "priority": 1, 
+    "textorientation": "texo", 
+    "texttable": "default", 
+    "x": 0.8, 
+    "y": 0.92
+   }, 
+   "source": {
+    "priority": 1, 
+    "textorientation": "texs", 
+    "texttable": "default", 
+    "x": 0.065, 
+    "y": 0.885
+   }, 
+   "title": {
+    "priority": 1, 
+    "textorientation": "texot", 
+    "texttable": "default", 
+    "x": 0.5, 
+    "y": 0.96
+   }, 
+   "tname": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.0, 
+    "y": 0.995000004768
+   }, 
+   "transformation": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.0500000007451, 
+    "y": 0.0529999993742
+   }, 
+   "tunits": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.0, 
+    "y": 0.995000004768
+   }, 
+   "tvalue": {
+    "format": "default", 
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.800000011921, 
+    "y": 0.883000016212
+   }, 
+   "units": {
+    "priority": 0, 
+    "textorientation": "texs", 
+    "texttable": "default", 
+    "x": 0.78, 
+    "y": 0.885
+   }, 
+   "xlabel1": {
+    "priority": 0, 
+    "textorientation": "defcenter", 
+    "texttable": "default", 
+    "y": 0.234999999404
+   }, 
+   "xlabel2": {
+    "priority": 0, 
+    "textorientation": "defcenter", 
+    "texttable": "default", 
+    "y": 0.870000004768
+   }, 
+   "xmintic1": {
+    "line": "default", 
+    "priority": 0, 
+    "y1": 0.259999990463, 
+    "y2": 0.256999999285
+   }, 
+   "xmintic2": {
+    "line": "default", 
+    "priority": 0, 
+    "y1": 0.860000014305, 
+    "y2": 0.860000014305
+   }, 
+   "xname": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.5, 
+    "y": 0.277000010014
+   }, 
+   "xtic1": {
+    "line": "default", 
+    "priority": 0, 
+    "y1": 0.259999990463, 
+    "y2": 0.24699999392
+   }, 
+   "xtic2": {
+    "line": "default", 
+    "priority": 0, 
+    "y1": 0.860000014305, 
+    "y2": 0.871999979019
+   }, 
+   "xunits": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.600000023842, 
+    "y": 0.277000010014
+   }, 
+   "xvalue": {
+    "format": "default", 
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.800000011921, 
+    "y": 0.941999971867
+   }, 
+   "ylabel1": {
+    "priority": 0, 
+    "textorientation": "defright", 
+    "texttable": "default", 
+    "x": 0.0399999991059
+   }, 
+   "ylabel2": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.959999978542
+   }, 
+   "ymintic1": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0.0500000007451, 
+    "x2": 0.0450000017881
+   }, 
+   "ymintic2": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0.949999988079, 
+    "x2": 0.954999983311
+   }, 
+   "yname": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.0168999992311, 
+    "y": 0.420033991337
+   }, 
+   "ytic1": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0.0500000007451, 
+    "x2": 0.0399999991059
+   }, 
+   "ytic2": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0.949999988079, 
+    "x2": 0.959999978542
+   }, 
+   "yunits": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.019999999553, 
+    "y": 0.658999979496
+   }, 
+   "yvalue": {
+    "format": "default", 
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.800000011921, 
+    "y": 0.922999978065
+   }, 
+   "zname": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.0, 
+    "y": 0.995000004768
+   }, 
+   "zunits": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.0, 
+    "y": 0.995000004768
+   }, 
+   "zvalue": {
+    "format": "default", 
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.800000011921, 
+    "y": 0.902999997139
+   }
+  }, 
+  "UVWG_1of3": {
+   "box1": {
+    "line": "default", 
+    "priority": 2, 
+    "x1": 0.06, 
+    "x2": 0.8, 
+    "y1": 0.68, 
+    "y2": 0.95
+   }, 
+   "box2": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0, 
+    "x2": 0, 
+    "y1": 0, 
+    "y2": 0
+   }, 
+   "box3": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0, 
+    "x2": 0, 
+    "y1": 0, 
+    "y2": 0
+   }, 
+   "box4": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0, 
+    "x2": 0, 
+    "y1": 0, 
+    "y2": 0
+   }, 
+   "comment1": {
+    "priority": 1, 
+    "textorientation": "texssu", 
+    "texttable": "default", 
+    "x": 0.835, 
+    "y": 0.97
+   }, 
+   "comment2": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "comment3": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "comment4": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "crdate": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "crtime": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "data": {
+    "priority": 1, 
+    "ratio": -999, 
+    "x1": 0.06, 
+    "x2": 0.8, 
+    "y1": 0.68, 
+    "y2": 0.95
+   }, 
+   "dataname": {
+    "priority": 0, 
+    "textorientation": "botcenter", 
+    "texttable": "std", 
+    "x": 0.1, 
+    "y": 0.969
+   }, 
+   "file": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "function": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "legend": {
+    "line": "default", 
+    "priority": 1, 
+    "textorientation": "7center", 
+    "texttable": "std", 
+    "x1": 0.86, 
+    "x2": 0.9, 
+    "y1": 0.68, 
+    "y2": 0.9
+   }, 
+   "line1": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0, 
+    "x2": 0, 
+    "y1": 0, 
+    "y2": 0
+   }, 
+   "line2": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0, 
+    "x2": 0, 
+    "y1": 0, 
+    "y2": 0
+   }, 
+   "line3": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0, 
+    "x2": 0, 
+    "y1": 0, 
+    "y2": 0
+   }, 
+   "line4": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0, 
+    "x2": 0, 
+    "y1": 0, 
+    "y2": 0
+   }, 
+   "logicalmask": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "max": {
+    "format": "AMIP", 
+    "priority": 1, 
+    "textorientation": "texou", 
+    "texttable": "default", 
+    "x": 0.93, 
+    "y": 0.92
+   }, 
+   "mean": {
+    "format": "AMIP", 
+    "priority": 1, 
+    "textorientation": "texsu", 
+    "texttable": "default", 
+    "x": 0.4, 
+    "y": 0.965
+   }, 
+   "min": {
+    "format": "AMIP", 
+    "priority": 1, 
+    "textorientation": "texou", 
+    "texttable": "default", 
+    "x": 0.845, 
+    "y": 0.92
+   }, 
+   "source": {
+    "priority": 1, 
+    "textorientation": "texsu", 
+    "texttable": "default", 
+    "x": 0.065, 
+    "y": 0.965
+   }, 
+   "title": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.4, 
+    "y": 0.99
+   }, 
+   "tname": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "transformation": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "tunits": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "tvalue": {
+    "format": "AMIP", 
+    "priority": 0, 
+    "textorientation": "botleft", 
+    "texttable": "std", 
+    "x": 0.27, 
+    "y": 0.959
+   }, 
+   "units": {
+    "priority": 0, 
+    "textorientation": "texsu", 
+    "texttable": "default", 
+    "x": 0.78, 
+    "y": 0.965
+   }, 
+   "xlabel1": {
+    "priority": 0, 
+    "textorientation": "7rcc", 
+    "texttable": "std", 
+    "y": 0.684
+   }, 
+   "xlabel2": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "y": 0
+   }, 
+   "xmintic1": {
+    "line": "std", 
+    "priority": 0, 
+    "y1": 0.689, 
+    "y2": 0.692
+   }, 
+   "xmintic2": {
+    "line": "std", 
+    "priority": 0, 
+    "y1": 0.942, 
+    "y2": 0.945
+   }, 
+   "xname": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "xtic1": {
+    "line": "std", 
+    "priority": 0, 
+    "y1": 0.684, 
+    "y2": 0.692
+   }, 
+   "xtic2": {
+    "line": "std", 
+    "priority": 0, 
+    "y1": 0.942, 
+    "y2": 0.949
+   }, 
+   "xunits": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "xvalue": {
+    "format": "AMIP", 
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "ylabel1": {
+    "priority": 0, 
+    "textorientation": "7right", 
+    "texttable": "std", 
+    "x": 0.143
+   }, 
+   "ylabel2": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0
+   }, 
+   "ymintic1": {
+    "line": "std", 
+    "priority": 0, 
+    "x1": 0.147, 
+    "x2": 0.15
+   }, 
+   "ymintic2": {
+    "line": "std", 
+    "priority": 0, 
+    "x1": 0.65, 
+    "x2": 0.653
+   }, 
+   "yname": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "ytic1": {
+    "line": "std", 
+    "priority": 0, 
+    "x1": 0.143, 
+    "x2": 0.15
+   }, 
+   "ytic2": {
+    "line": "std", 
+    "priority": 0, 
+    "x1": 0.65, 
+    "x2": 0.657
+   }, 
+   "yunits": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "yvalue": {
+    "format": "AMIP", 
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "zname": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "zunits": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "zvalue": {
+    "format": "AMIP", 
+    "priority": 0, 
+    "textorientation": "botleft", 
+    "texttable": "std", 
+    "x": 0.15, 
+    "y": 0.959
+   }
+  }, 
+  "UVWG_2of3": {
+   "box1": {
+    "line": "default", 
+    "priority": 2, 
+    "x1": 0.06, 
+    "x2": 0.8, 
+    "y1": 0.35, 
+    "y2": 0.62
+   }, 
+   "box2": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0, 
+    "x2": 0, 
+    "y1": 0, 
+    "y2": 0
+   }, 
+   "box3": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0, 
+    "x2": 0, 
+    "y1": 0, 
+    "y2": 0
+   }, 
+   "box4": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0, 
+    "x2": 0, 
+    "y1": 0, 
+    "y2": 0
+   }, 
+   "comment1": {
+    "priority": 1, 
+    "textorientation": "texssu", 
+    "texttable": "default", 
+    "x": 0.835, 
+    "y": 0.97
+   }, 
+   "comment2": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "comment3": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "comment4": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "crdate": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "crtime": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "data": {
+    "priority": 1, 
+    "ratio": -999, 
+    "x1": 0.06, 
+    "x2": 0.8, 
+    "y1": 0.35, 
+    "y2": 0.62
+   }, 
+   "dataname": {
+    "priority": 0, 
+    "textorientation": "botcenter", 
+    "texttable": "std", 
+    "x": 0.1, 
+    "y": 0.969
+   }, 
+   "file": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "function": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "legend": {
+    "line": "default", 
+    "priority": 1, 
+    "textorientation": "7center", 
+    "texttable": "std", 
+    "x1": 0.86, 
+    "x2": 0.9, 
+    "y1": 0.35, 
+    "y2": 0.57
+   }, 
+   "line1": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0, 
+    "x2": 0, 
+    "y1": 0, 
+    "y2": 0
+   }, 
+   "line2": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0, 
+    "x2": 0, 
+    "y1": 0, 
+    "y2": 0
+   }, 
+   "line3": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0, 
+    "x2": 0, 
+    "y1": 0, 
+    "y2": 0
+   }, 
+   "line4": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0, 
+    "x2": 0, 
+    "y1": 0, 
+    "y2": 0
+   }, 
+   "logicalmask": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "max": {
+    "format": "AMIP", 
+    "priority": 1, 
+    "textorientation": "texou", 
+    "texttable": "default", 
+    "x": 0.93, 
+    "y": 0.59
+   }, 
+   "mean": {
+    "format": "AMIP", 
+    "priority": 1, 
+    "textorientation": "texsu", 
+    "texttable": "default", 
+    "x": 0.4, 
+    "y": 0.635
+   }, 
+   "min": {
+    "format": "AMIP", 
+    "priority": 1, 
+    "textorientation": "texou", 
+    "texttable": "default", 
+    "x": 0.845, 
+    "y": 0.59
+   }, 
+   "source": {
+    "priority": 1, 
+    "textorientation": "texsu", 
+    "texttable": "default", 
+    "x": 0.065, 
+    "y": 0.635
+   }, 
+   "title": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.4, 
+    "y": 0.66
+   }, 
+   "tname": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "transformation": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "tunits": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "tvalue": {
+    "format": "AMIP", 
+    "priority": 0, 
+    "textorientation": "botleft", 
+    "texttable": "std", 
+    "x": 0.27, 
+    "y": 0.959
+   }, 
+   "units": {
+    "priority": 0, 
+    "textorientation": "texsu", 
+    "texttable": "default", 
+    "x": 0.78, 
+    "y": 0.635
+   }, 
+   "xlabel1": {
+    "priority": 0, 
+    "textorientation": "7rcc", 
+    "texttable": "std", 
+    "y": 0.684
+   }, 
+   "xlabel2": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "y": 0
+   }, 
+   "xmintic1": {
+    "line": "std", 
+    "priority": 0, 
+    "y1": 0.689, 
+    "y2": 0.692
+   }, 
+   "xmintic2": {
+    "line": "std", 
+    "priority": 0, 
+    "y1": 0.942, 
+    "y2": 0.945
+   }, 
+   "xname": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "xtic1": {
+    "line": "std", 
+    "priority": 0, 
+    "y1": 0.684, 
+    "y2": 0.692
+   }, 
+   "xtic2": {
+    "line": "std", 
+    "priority": 0, 
+    "y1": 0.942, 
+    "y2": 0.949
+   }, 
+   "xunits": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "xvalue": {
+    "format": "AMIP", 
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "ylabel1": {
+    "priority": 0, 
+    "textorientation": "7right", 
+    "texttable": "std", 
+    "x": 0.143
+   }, 
+   "ylabel2": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0
+   }, 
+   "ymintic1": {
+    "line": "std", 
+    "priority": 0, 
+    "x1": 0.147, 
+    "x2": 0.15
+   }, 
+   "ymintic2": {
+    "line": "std", 
+    "priority": 0, 
+    "x1": 0.65, 
+    "x2": 0.653
+   }, 
+   "yname": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "ytic1": {
+    "line": "std", 
+    "priority": 0, 
+    "x1": 0.143, 
+    "x2": 0.15
+   }, 
+   "ytic2": {
+    "line": "std", 
+    "priority": 0, 
+    "x1": 0.65, 
+    "x2": 0.657
+   }, 
+   "yunits": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "yvalue": {
+    "format": "AMIP", 
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "zname": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "zunits": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "zvalue": {
+    "format": "AMIP", 
+    "priority": 0, 
+    "textorientation": "botleft", 
+    "texttable": "std", 
+    "x": 0.15, 
+    "y": 0.959
+   }
+  }, 
+  "UVWG_3of3": {
+   "box1": {
+    "line": "default", 
+    "priority": 2, 
+    "x1": 0.06, 
+    "x2": 0.8, 
+    "y1": 0.02, 
+    "y2": 0.29
+   }, 
+   "box2": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0, 
+    "x2": 0, 
+    "y1": 0, 
+    "y2": 0
+   }, 
+   "box3": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0, 
+    "x2": 0, 
+    "y1": 0, 
+    "y2": 0
+   }, 
+   "box4": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0, 
+    "x2": 0, 
+    "y1": 0, 
+    "y2": 0
+   }, 
+   "comment1": {
+    "priority": 1, 
+    "textorientation": "texssu", 
+    "texttable": "default", 
+    "x": 0.835, 
+    "y": 0.97
+   }, 
+   "comment2": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "comment3": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "comment4": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "crdate": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "crtime": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "data": {
+    "priority": 1, 
+    "ratio": -999, 
+    "x1": 0.06, 
+    "x2": 0.8, 
+    "y1": 0.02, 
+    "y2": 0.29
+   }, 
+   "dataname": {
+    "priority": 0, 
+    "textorientation": "botcenter", 
+    "texttable": "std", 
+    "x": 0.1, 
+    "y": 0.969
+   }, 
+   "file": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "function": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "legend": {
+    "line": "default", 
+    "priority": 1, 
+    "textorientation": "7center", 
+    "texttable": "std", 
+    "x1": 0.86, 
+    "x2": 0.9, 
+    "y1": 0.02, 
+    "y2": 0.24
+   }, 
+   "line1": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0, 
+    "x2": 0, 
+    "y1": 0, 
+    "y2": 0
+   }, 
+   "line2": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0, 
+    "x2": 0, 
+    "y1": 0, 
+    "y2": 0
+   }, 
+   "line3": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0, 
+    "x2": 0, 
+    "y1": 0, 
+    "y2": 0
+   }, 
+   "line4": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0, 
+    "x2": 0, 
+    "y1": 0, 
+    "y2": 0
+   }, 
+   "logicalmask": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "max": {
+    "format": "AMIP", 
+    "priority": 1, 
+    "textorientation": "texou", 
+    "texttable": "default", 
+    "x": 0.93, 
+    "y": 0.26
+   }, 
+   "mean": {
+    "format": "AMIP", 
+    "priority": 1, 
+    "textorientation": "texsu", 
+    "texttable": "default", 
+    "x": 0.4, 
+    "y": 0.305
+   }, 
+   "min": {
+    "format": "AMIP", 
+    "priority": 1, 
+    "textorientation": "texou", 
+    "texttable": "default", 
+    "x": 0.845, 
+    "y": 0.26
+   }, 
+   "source": {
+    "priority": 1, 
+    "textorientation": "texsu", 
+    "texttable": "default", 
+    "x": 0.065, 
+    "y": 0.305
+   }, 
+   "title": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.4, 
+    "y": 0.33
+   }, 
+   "tname": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "transformation": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "tunits": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "tvalue": {
+    "format": "AMIP", 
+    "priority": 0, 
+    "textorientation": "botleft", 
+    "texttable": "std", 
+    "x": 0.27, 
+    "y": 0.959
+   }, 
+   "units": {
+    "priority": 0, 
+    "textorientation": "texsu", 
+    "texttable": "default", 
+    "x": 0.78, 
+    "y": 0.305
+   }, 
+   "xlabel1": {
+    "priority": 0, 
+    "textorientation": "7rcc", 
+    "texttable": "std", 
+    "y": 0.684
+   }, 
+   "xlabel2": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "y": 0
+   }, 
+   "xmintic1": {
+    "line": "std", 
+    "priority": 0, 
+    "y1": 0.689, 
+    "y2": 0.692
+   }, 
+   "xmintic2": {
+    "line": "std", 
+    "priority": 0, 
+    "y1": 0.942, 
+    "y2": 0.945
+   }, 
+   "xname": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "xtic1": {
+    "line": "std", 
+    "priority": 0, 
+    "y1": 0.684, 
+    "y2": 0.692
+   }, 
+   "xtic2": {
+    "line": "std", 
+    "priority": 0, 
+    "y1": 0.942, 
+    "y2": 0.949
+   }, 
+   "xunits": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "xvalue": {
+    "format": "AMIP", 
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "ylabel1": {
+    "priority": 0, 
+    "textorientation": "7right", 
+    "texttable": "std", 
+    "x": 0.143
+   }, 
+   "ylabel2": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0
+   }, 
+   "ymintic1": {
+    "line": "std", 
+    "priority": 0, 
+    "x1": 0.147, 
+    "x2": 0.15
+   }, 
+   "ymintic2": {
+    "line": "std", 
+    "priority": 0, 
+    "x1": 0.65, 
+    "x2": 0.653
+   }, 
+   "yname": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "ytic1": {
+    "line": "std", 
+    "priority": 0, 
+    "x1": 0.143, 
+    "x2": 0.15
+   }, 
+   "ytic2": {
+    "line": "std", 
+    "priority": 0, 
+    "x1": 0.65, 
+    "x2": 0.657
+   }, 
+   "yunits": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "yvalue": {
+    "format": "AMIP", 
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "zname": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "zunits": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0, 
+    "y": 0
+   }, 
+   "zvalue": {
+    "format": "AMIP", 
+    "priority": 0, 
+    "textorientation": "botleft", 
+    "texttable": "std", 
+    "x": 0.15, 
+    "y": 0.959
+   }
+  }, 
   "bold_bot_of3": {
    "box1": {
     "line": "std", 
@@ -44764,6 +46228,62 @@
    "angle": 0, 
    "halign": 1, 
    "height": 15, 
+   "path": 0, 
+   "valign": 2
+  }, 
+  "texd": {
+   "angle": 0, 
+   "halign": 0, 
+   "height": 25, 
+   "path": 0, 
+   "valign": 2
+  }, 
+  "texo": {
+   "angle": 0, 
+   "halign": 1, 
+   "height": 16, 
+   "path": 0, 
+   "valign": 2
+  }, 
+  "texot": {
+   "angle": 0, 
+   "halign": 1, 
+   "height": 25, 
+   "path": 0, 
+   "valign": 2
+  }, 
+  "texou": {
+   "angle": 0, 
+   "halign": 1, 
+   "height": 10, 
+   "path": 0, 
+   "valign": 2
+  }, 
+  "texs": {
+   "angle": 0, 
+   "halign": 0, 
+   "height": 15, 
+   "path": 0, 
+   "valign": 2
+  }, 
+  "texss": {
+   "angle": 0, 
+   "halign": 0, 
+   "height": 25, 
+   "path": 0, 
+   "valign": 2
+  }, 
+  "texssu": {
+   "angle": 0, 
+   "halign": 0, 
+   "height": 25, 
+   "path": 0, 
+   "valign": 2
+  }, 
+  "texsu": {
+   "angle": 0, 
+   "halign": 0, 
+   "height": 12.5, 
    "path": 0, 
    "valign": 2
   }, 
