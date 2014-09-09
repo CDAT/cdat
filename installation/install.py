@@ -738,7 +738,7 @@ def main(arglist):
         #command = 'grep wget %s/checked_get.sh' % os.path.join(os.environ['BUILD_DIR'], "..")
         #command = command + ' | tr -s " " | cut -d " " -f 2'
         #wget = os.popen(command).readlines()[0].strip()
-        wget = "/opt/local/bin/wget"
+        wget = "/usr/local/bin/wget"
         data_source_url = "http://uv-cdat.llnl.gov/cdat/sample_data"
         dfiles=open("files.txt")
         data_files=dfiles.readlines()
