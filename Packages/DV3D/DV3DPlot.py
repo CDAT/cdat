@@ -104,7 +104,7 @@ class DV3DPlot():
         self.activate_display=args.get('display',True)
         self.useDepthPeeling = False
         self.renderWindowInteractor = None
-        self.animationStepper = self.setAnimationStepper( AnimationStepper )
+        self.setAnimationStepper( AnimationStepper )
         self.labelBuff = ""
         self.resizingWindow = False
         self.textDisplayMgr = None
@@ -192,26 +192,26 @@ class DV3DPlot():
     def processTimerEvent(self, caller, event):
         eid = caller.GetTimerEventId ()
         etype = caller.GetTimerEventType()
-        print "processTimerEvent: %d %d " % ( eid, etype )
+#        print "processTimerEvent: %d %d " % ( eid, etype )
         if self.animating and ( etype == self.AnimationTimerType ):
-            self.runAnimation( use_timer=(eid== self.AnimationEventId) )
+            self.runAnimation()
         return 1
-            
-    def runAnimation(self, **args ):
+    
+    def getAnimationTimestep(self):
         plotButtons = self.getInteractionButtons()
         cf = plotButtons.getConfigFunction('Animation')
-        event_duration = 10
+        event_duration = 0
         if cf <> None:
             animation_delay = cf.value.getValues()
             event_duration = event_duration + int( animation_delay[0]*1000 )
-        
-        self.stepAnimation( )
-        use_timer = args.get( 'use_timer', False )
-        if use_timer:
-            self.updateTimer( event_duration )
         return event_duration
+            
+    def runAnimation( self ):        
+        self.stepAnimation( )
+        self.updateTimer()
 
-    def updateTimer( self, event_duration ):
+    def updateTimer( self ):
+        event_duration = self.getAnimationTimestep()
         if self.animationTimerId <> -1: 
             self.renderWindowInteractor.DestroyTimer( self.animationTimerId  )
             self.animationTimerId = -1
@@ -349,15 +349,22 @@ class DV3DPlot():
             self.animationStepper.stopAnimation()
             
     def startAnimation(self):   
+        self.notifyStartAnimation()
         self.animating = True
-        self.runAnimation(use_timer=True)
+        self.runAnimation()
                      
     def stopAnimation(self):
         self.animating = False
         if self.animationTimerId <> -1: 
             self.animationTimerId = -1
-            self.renderWindowInteractor.DestroyTimer( self.animationTimerId  )            
-        self.changeButtonActivations( [ ( 'Run', True ), ( 'Stop', False ) , ( 'Step', True ) ] )  
+            self.renderWindowInteractor.DestroyTimer( self.animationTimerId  ) 
+        self.notifyStopAnimation()           
+        
+    def notifyStartAnimation(self): 
+        pass
+    
+    def notifyStopAnimation(self): 
+        self.changeButtonActivations( [ ( 'Run', True ), ( 'Stop', False ) , ( 'Step', True ) ] ) 
                            
     def setInteractionState(self, caller, event):
         interactor = caller.GetInteractor()
