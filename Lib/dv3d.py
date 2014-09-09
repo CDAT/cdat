@@ -10,6 +10,7 @@ import AutoAPI
 import xmldocs
 import cdtime, multiprocessing
 import vcs
+import time
 import DV3D
 from DV3D.ConfigurationFunctions import ConfigManager
 
@@ -69,6 +70,7 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
 
            # Write to file
            fp = open(script_filename,mode)
+                      
            if (fp.tell() == 0): # Must be a new file, so include below
               fp.write("#####################################\n")
               fp.write("#                                 #\n")
@@ -77,15 +79,13 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
               fp.write("#############################\n")
               fp.write("import vcs\n")
               fp.write("v=vcs.init()\n\n")
-
-           unique_name = '__Cp__' + self.name
-           fp.write("#----------Colormap (Cp) member (attribute) listings ----------\n")
-           fp.write("tl_list=v.listelements('colormap')\n")
-           fp.write("if ('%s' in tl_list):\n" % self.name)
-           fp.write("   %s = v.getcolormap('%s')\n" % (unique_name, self.name))
-           fp.write("else:\n")
-           fp.write("   %s = v.createcolormap('%s')\n" % (unique_name, self.name))
-           fp.write("%s.index = '%s'\n" % (unique_name, self.index))
+              
+           gtype = 'xyt' if (self._axes=="xyt") else 'default' 
+           unique_name = 'gm3d_%s' % str( time.time() % 1 )[2:]
+           if self.g_name=='3d_scalar': fp.write( '%s = vcs.get3d_scalar( %s )\n' % ( unique_name, gtype ) )
+           if self.g_name=='3d_vector': ffp.write( '%s = vcs.get3d_vector( %s )\n' % ( unique_name, gtype ))       
+           for param_name in self.parameter_names:
+               fp.write( '%s.%s = %s\n' % ( unique_name, param_name, self.cfgManager.getParameterValue( param_name ) ) )
         else:
           #Json type
           mode+="+"
