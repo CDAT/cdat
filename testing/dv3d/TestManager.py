@@ -47,7 +47,7 @@ class vcsTest:
     def __init__( self, name, **args ):
         self.name = name
         self.test_dir = os.path.dirname(__file__)
-        parent_dir = os.path.join(self.test_dir,"..")
+        parent_dir = os.path.join( self.test_dir, "..", "..", "testing" )
         sys.path.append( parent_dir )
         self.image_name = os.path.join( self.test_dir, 'images', '.'.join( [ self.name, 'png' ] )  )
         filename = args.get( 'file', DefaultSampleFile )
