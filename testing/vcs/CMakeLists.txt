@@ -263,5 +263,25 @@ message(${CDAT_DOWNLOAD_SAMPLE_DATA} and ${CDAT_BUILD_MATPLOTLIB})
       ${cdat_SOURCE_DIR}/testing/vcs/test_polar_set_opt_param_polar.py
       ${cdat_SOURCE_DIR}/testing/vcs/test_polar_set_opt_param_polar.png
       )
+    add_test(vcs_test_boxfill_lev1_lev2
+      ${CMAKE_INSTALL_PREFIX}/bin/python
+      ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2.py
+      ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2.png
+      )
+    add_test(vcs_test_boxfill_lev1_lev2_ext1
+      ${CMAKE_INSTALL_PREFIX}/bin/python
+      ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2_ext1.py
+      ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2_ext1.png
+      )
+    add_test(vcs_test_boxfill_lev1_lev2_ext2
+      ${CMAKE_INSTALL_PREFIX}/bin/python
+      ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2_ext2.py
+      ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2_ext2.png
+      )
+    add_test(vcs_test_boxfill_lev1_lev2_ext1_ext2
+      ${CMAKE_INSTALL_PREFIX}/bin/python
+      ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2_ext1_ext2.py
+      ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2_ext1_ext2.png
+      )
   endif()
 
