@@ -967,6 +967,8 @@ class VTKVCSBackend(object):
     spc = imageData.GetSpacing()
     ext = imageData.GetExtent()
     ren = vtk.vtkRenderer()
+    r,g,b = self.canvas.backgroundcolor
+    ren.SetBackground(r/255.0, g/255.0, b/255.0)
     cam = ren.GetActiveCamera()
     cam.ParallelProjectionOn()
     width = (ext[1]-ext[0])*spc[0]
