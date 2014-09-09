@@ -104,6 +104,9 @@ class DV3DPlot():
         self.activate_display=args.get('display',True)
         self.useDepthPeeling = False
         self.renderWindowInteractor = None
+        self.logoActor = None
+        self.logoVisible = True
+        self.logoRepresentation = None 
         self.setAnimationStepper( AnimationStepper )
         self.labelBuff = ""
         self.resizingWindow = False
@@ -120,6 +123,7 @@ class DV3DPlot():
         self.cfgManager = ConfigManager( **args )           
         self.buttonBarHandler = ButtonBarHandler( self.cfgManager, **args ) 
         self.plot_attributes = args.get( 'plot_attributes', {} )
+
         
         self.configuring = False
         self.animating = False
@@ -741,6 +745,35 @@ class DV3DPlot():
 
     def printInteractionStyle(self, msg ):
         print "%s: InteractionStyle = %s " % ( msg,  self.renderWindowInteractor.GetInteractorStyle().__class__.__name__ ) 
+
+    def toggleLogoVisibility( self ):
+        if self.logoRepresentation:
+            self.logoVisible = not self.logoVisible
+            if self.logoVisible: self.logoWidget.On()
+            else: self.logoWidget.Off()
+            self.renderWindow.Render() 
+
+    def addLogo(self):
+        if self.logoRepresentation == None:
+            defaultLogoFile = os.path.join(sys.prefix,"share","vcs","uvcdat.png")
+            reader = vtk.vtkJPEGReader()
+            reader.SetFileName( defaultLogoFile )
+            reader.Update()
+            logo_input = reader.GetOutput()
+            self.logoRepresentation = vtk.vtkLogoRepresentation()
+            self.logoRepresentation.SetImage(logo_input)
+            self.logoRepresentation.ProportionalResizeOn ()
+#            self.logoRepresentation.SetPosition( 0.82, 0.0 )
+#            self.logoRepresentation.SetPosition2( 0.18, 0.08 )
+            self.logoRepresentation.SetPosition( 0.82, 1.0 )
+            self.logoRepresentation.SetPosition2( 0.08, 0.18 )
+            self.logoRepresentation.GetImageProperty().SetOpacity( 0.9 )
+            self.logoRepresentation.GetImageProperty().SetDisplayLocationToBackground() 
+            self.logoWidget = vtk.vtkLogoWidget()
+            self.logoWidget.SetInteractor( self.renderWindowInteractor )
+            self.logoWidget.SetRepresentation(self.logoRepresentation)
+            self.logoWidget.On()
+            self.render() 
 
     def createRenderWindow( self, **args ):
         blocking = args.get( 'blocking', False )

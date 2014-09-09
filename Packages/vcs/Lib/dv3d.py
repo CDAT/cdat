@@ -19,7 +19,10 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
     __slots__ = [
          '__doc__',
          'name',
-         'axes'
+         'axes',
+         'g_name',
+         'ncores',
+         'plot_attributes'
          ]
     
     def _getname(self):
@@ -100,7 +103,7 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
         if Gfdv3d_name in vcs.elements[self.g_name].keys():
             raise ValueError,"DV3D graphic method '%s' already exists" % Gfdv3d_name
         self._name = Gfdv3d_name
-        self._plot_attributes = {}
+        self.plot_attributes = {}
         self.projection = 'default' 
         self.provenanceHandler = None
                 
@@ -135,15 +138,17 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
         fget = lambda self: self.getParameter(name)
         fset = lambda self, value: self.setParameter(name, value)
         setattr(self.__class__, name, property(fget, fset))
+        if not name in Gfdv3d.__slots__:
+            Gfdv3d.__slots__.append( name )
 
     def addPlotAttribute(self, name, value ):
-        self._plot_attributes[ name ] = value 
+        self.plot_attributes[ name ] = value 
 
     def getPlotAttribute(self, name ):
-        return self._plot_attributes.get( name, None )
+        return self.plot_attributes.get( name, None )
 
     def getPlotAttributes( self ):
-        return self._plot_attributes
+        return self.plot_attributes
     
     @staticmethod
     def getParameterList():
@@ -190,3 +195,9 @@ class Gf3Dscalar(Gfdv3d):
         Gfdv3d.__init__(self, Gfdv3d_name, Gfdv3d_name_src='default')
         self.VectorDisplay = Gfdv3d_name
 
+if __name__ == '__main__':
+    dv3d = vcs.get3d_scalar()
+    dv3d.script( '/tmp/test.json' )
+    
+    
+    
