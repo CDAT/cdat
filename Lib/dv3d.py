@@ -42,6 +42,58 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
         self.ncores = nc
     NumCores=property(_getNumCores,_setNumCores)
     
+    def script(self, script_filename=None, mode=None):
+        if (script_filename == None):
+          raise ValueError, 'Error - Must provide an output script file name.'
+
+        if (mode == None):
+           mode = 'a'
+        elif (mode not in ('w', 'a')):
+          raise ValueError, 'Error - Mode can only be "w" for replace or "a" for append.'
+
+        # By default, save file in json
+        scr_type = script_filename.split(".")
+        if len(scr_type)==1 or len(scr_type[-1])>5:
+          scr_type= "json"
+          if script_filename!="initial.attributes":
+            script_filename+=".json"
+        else:
+          scr_type = scr_type[-1]
+        if scr_type == '.scr':
+           raise DeprecationWarning("scr script are no longer generated")
+        elif scr_type==".py":
+           mode = mode + '+'
+           py_type = script_filename[len(script_filename)-3:len(script_filename)]
+           if (py_type != '.py'):
+              script_filename = script_filename + '.py'
+
+           # Write to file
+           fp = open(script_filename,mode)
+           if (fp.tell() == 0): # Must be a new file, so include below
+              fp.write("#####################################\n")
+              fp.write("#                                 #\n")
+              fp.write("# Import and Initialize VCS     #\n")
+              fp.write("#                             #\n")
+              fp.write("#############################\n")
+              fp.write("import vcs\n")
+              fp.write("v=vcs.init()\n\n")
+
+           unique_name = '__Cp__' + self.name
+           fp.write("#----------Colormap (Cp) member (attribute) listings ----------\n")
+           fp.write("tl_list=v.listelements('colormap')\n")
+           fp.write("if ('%s' in tl_list):\n" % self.name)
+           fp.write("   %s = v.getcolormap('%s')\n" % (unique_name, self.name))
+           fp.write("else:\n")
+           fp.write("   %s = v.createcolormap('%s')\n" % (unique_name, self.name))
+           fp.write("%s.index = '%s'\n" % (unique_name, self.index))
+        else:
+          #Json type
+          mode+="+"
+          f = open(script_filename,mode)
+          vcs.utils.dumpToJson(self,f)
+          f.close()
+
+    
     def __init__(self, Gfdv3d_name, Gfdv3d_name_src='default'):
         if not isinstance(Gfdv3d_name,str):
             raise ValueError,"DV3D name must be a string"
