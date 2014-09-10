@@ -43,14 +43,21 @@ def dumpToJson(obj,fileout,skipped = ["info","member"], must = [],indent=None,so
     else:
       f = fileout
       fileout = f.name
-    try:
-      # Mac needs to rewind, seems ok on other platforms
-      f.seek(0)
-      D = json.load(f)
-    except Exception,err:
-      print "Error reading json:",fileout,err
-      D = {}
-    f.close()
+    if os.path.exists(fileout):
+      st = os.stat(fileout)
+      if st.st_size !=0:
+        try:
+          # Mac needs to rewind, seems ok on other platforms
+          f.seek(0)
+          D = json.load(f)
+        except Exception,err:
+          print "Error reading json file, will be overwritten",fileout
+          D = {}
+      else:
+        D={}
+      f.close()
+    else:
+      D={}
     f=open(fileout,"w")
     for N in ["g_name","s_name","p_name"]:
       if dic.has_key(N):
