@@ -268,7 +268,7 @@ class ConfigManager:
         param = self.getParameter( param_name, **args )
 #        pdata = data if hasattr( data, '__iter__' ) else [ data ]
         param.setInitValue( data )
-        print '  <<---------------------------------------------------->> Set Parameter: ', param_name, " = ", str( data )
+#        print '  <<---------------------------------------------------->> Set Parameter: ', param_name, " = ", str( data )
 
     def getParameterValue(self, param_name, **args ):
         param = self.getParameter( param_name, **args )
@@ -337,6 +337,19 @@ class ConfigManager:
 
         except Exception, err:
             print>>sys.stderr, "Can't save parameter metadata: ", str(err)
+
+    def getStateData(self):
+        state_data = [ ]
+        for cf in self.configurableFunctions.values():
+            state_data_elem = cf.serializeState()
+            if state_data_elem: state_data.append( state_data_elem )
+        return state_data
+
+    def serializeState(self, asList=False ):
+        state_value = self.value.serializeState() 
+        state_data = None if ( (state_value == None) or not self.persist ) else  [ self.name, state_value ] 
+        if state_data and not asList: state_data = "=".join( state_data )
+        return state_data
             
     def saveState(self):
         try:
@@ -365,6 +378,15 @@ class ConfigManager:
                 pdata.append( [ key, values ] ) 
         return pdata
 
+    def getConfigurationParms( self, **args ):  
+        pdata = {}
+        cell_addr = str( args.get( 'cell', '' ) )
+        for cpi in self.parameters.items():
+            ( key, cell ) = deserialize_address(cpi[0])
+            if cell == cell_addr:
+                pdata[key] = cpi[1]
+        return pdata
+    
     def restoreState( self ):
         try:
             state_file = open( self.stateFile, "r")
@@ -415,8 +437,8 @@ class ConfigManager:
         else:
             from RectilinearGridPlot import RectGridPlot
             from PointCloudViewer import CPCPlot
-            p1 = RectGridPlot(cm=self) 
-            p2 =  CPCPlot(cm=self)
+            p1 = RectGridPlot(cm=self,display=False) 
+            p2 =  CPCPlot(cm=self,display=False)
         parameter_list = set()
         parameter_list.add( 'Configure' )
         for cpi in self.parameters.items():
