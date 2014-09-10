@@ -921,7 +921,6 @@ class Canvas(object,AutoAPI.AutoAPI):
         self.worldcoordinate = [0,1,0,1]
         self._dotdir,self._dotdirenv = vcs.getdotdirectory()
         if ( (is_canvas == 0) and (gui == 1) and (gui_canvas_closed == 0) ): gui_canvas_closed = 1
-        self.drawLogo = True
         if backend == "vtk":
           self.backend = VTKVCSBackend(self)
         elif isinstance(backend,vtk.vtkRenderWindow):
@@ -956,19 +955,6 @@ class Canvas(object,AutoAPI.AutoAPI):
 
     def processParameterChange( self, args ):
         self.ParameterChanged( args )
-
-    ## Functions to set/querie drawing of UV-CDAT logo
-    def drawlogoon(self):
-      """Turn on drawing of logo on pix"""
-      self.drawLogo = True
-
-    def drawlogooff(self):
-      """Turn off drawing of logo on pix"""
-      self.drawLogo = False
-    
-    def getdrawlogo(self):
-      """Return value of draw logo"""
-      return self.drawLogo
 
     #############################################################################
     #                                                                           #
