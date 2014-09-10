@@ -557,7 +557,7 @@ class Canvas(object,AutoAPI.AutoAPI):
         axislist = list(map(lambda x: x[0].clone(), tvdomain))
 
         # Map keywords to dimension indices
-        rank = origv.ndim
+        rank = origv.rank()
         dimmap = {}
         dimmap['x'] = xdim = rank-1
         dimmap['y'] = ydim = rank-2
@@ -2523,6 +2523,13 @@ Options:::
         except:
             sal = 1
 
+        try:
+            actual_var = actual_args[0]
+            file_name = actual_var.parent.uri
+            keyargs['cdmsfile'] = file_name
+        except:
+            pass
+        
     #    try:
     #        if (self.canvas_gui.top_parent.menu.vcs_canvas_gui_settings_flg == 1): # Must be from VCDAT
     #           self.canvas_gui.dialog.dialog.configure( title = ("Visualization and Control System (VCS) GUI"))
@@ -2756,7 +2763,7 @@ Options:::
                                     'ext_2',
                                     'missing']:
                             setattr(copy_mthd,att,getattr(m,att))
-        elif arglist[0] is not None and arglist[0].ndim<2 and arglist[3] in ['boxfill','default'] and not isinstance(arglist[0].getGrid(),cdms2.gengrid.AbstractGenericGrid):
+        elif arglist[0] is not None and arglist[0].rank()<2 and arglist[3] in ['boxfill','default'] and not isinstance(arglist[0].getGrid(),cdms2.gengrid.AbstractGenericGrid):
             arglist[3]='yxvsx'
             try:
                 tmp=self.getyxvsx(arglist[4])
@@ -3720,6 +3727,9 @@ Options:::
             warnings.warn("VCS Behaviour changed, in order to interact with window, start the interaction mode with:\n x.interact()")
         return result
 
+    def setAnimationStepper( self, stepper ):
+        self.backend.setAnimationStepper( stepper )
+
     #############################################################################
     #                                                                           #
     # VCS utility wrapper to return the number of displays that are "ON".       #
@@ -3727,7 +3737,7 @@ Options:::
     #############################################################################
     def return_display_ON_num(self, *args):
         return apply(self.canvas.return_display_ON_num, args)
-
+    
     #############################################################################
     #                                                                           #
     # VCS utility wrapper to return the current display names.                  #

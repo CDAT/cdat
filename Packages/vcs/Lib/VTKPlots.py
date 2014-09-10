@@ -49,10 +49,16 @@ class VTKVCSBackend(object):
 #   def applicationFocusChanged(self):
 #       for plotApp in self.plotApps.values():
 #           if hasattr(plotApp, 'refresh'): plotApp.refresh()
+
+  def setAnimationStepper( self, stepper ):
+      for plot in self.plotApps.values():
+        plot.setAnimationStepper( stepper )
         
   def interact(self,*args,**kargs):
       warnings.warn("Press 'Q' to exit interactive mode and continue script execution")
-      self.renWin.GetInteractor().Start()
+      interactor = self.renWin.GetInteractor()
+      istyle = interactor.GetInteractorStyle()     
+      interactor.Start()
 
   def leftButtonPressEvent(self,obj,event):
     xy = self.renWin.GetInteractor().GetEventPosition()
@@ -194,7 +200,7 @@ class VTKVCSBackend(object):
     defaultInteractor.SetRenderWindow(self.renWin)
     self.vcsInteractorStyle.On()
 
-  def createRenWin(self,*args,**kargs):
+  def createRenWin(self,*args,**kargs):   
     if self.renWin is None:
       # Create the usual rendering stuff.
       self.renWin = vtk.vtkRenderWindow()
@@ -206,6 +212,8 @@ class VTKVCSBackend(object):
       self.renderer = vtk.vtkRenderer()
       r,g,b = self.canvas.backgroundcolor
       self.renderer.SetBackground(r/255.,g/255.,b/255.)
+      if self.bg is False:
+          self.createDefaultInteractor(self.renderer) 
       self.renWin.AddRenderer(self.renderer)
       return True
     else:
@@ -348,7 +356,7 @@ class VTKVCSBackend(object):
           gm.addPlotAttribute( 'file', cdms_file )
           gm.addPlotAttribute( 'filename', cdms_file )
           gm.addPlotAttribute( 'url', cdms_file )
-      self.plot3D(data1,data2,tpl,gm,ren)
+      self.plot3D(data1,data2,tpl,gm,ren,**kargs)
     elif gtype in ["text"]:
       if tt.priority!=0:
         self.renWin.AddRenderer(ren)
@@ -481,7 +489,7 @@ class VTKVCSBackend(object):
 
   
 
-  def plot3D(self,data1,data2,tmpl,gm,ren):
+  def plot3D(self,data1,data2,tmpl,gm,ren,**kargs):
       from DV3D.Application import DV3DApp
       requiresFileVariable = True
       if ( data1 is None ) or ( requiresFileVariable and not ( isinstance(data1, cdms2.fvariable.FileVariable ) or isinstance(data1, cdms2.tvariable.TransientVariable ) ) ):
@@ -495,7 +503,7 @@ class VTKVCSBackend(object):
           var_proc_op = None
           interface = None
           roi = None # ( 0, 0, 50, 50 )
-          g.gminit( data1, data2, roi=roi, axes=gm.axes, n_overview_points=n_overview_points, n_cores=gm.NumCores, renwin=ren.GetRenderWindow(), plot_attributes=gm.getPlotAttributes(), gmname=gm.g_name, cm=gm.cfgManager  ) #, plot_type = PlotType.List  ) 
+          g.gminit( data1, data2, roi=roi, axes=gm.axes, n_overview_points=n_overview_points, n_cores=gm.NumCores, renwin=ren.GetRenderWindow(), plot_attributes=gm.getPlotAttributes(), gmname=gm.g_name, cm=gm.cfgManager, **kargs  ) #, plot_type = PlotType.List  ) 
           self.plotApps[ gm ] = g
           self.plotRenderers.add( g.plot.renderer )
       else:
