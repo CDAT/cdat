@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # simple diagnostics test - compute a single diagnostic and just check for exceptions
-# First argument: data location - with subdirectories acme_lores_atm_climo and obs
+# First argument: data location - with subdirectories cam_output and obs_atmos.
 # Second argument: 'keep' to keep (don't delete) output files in /tmp/diag*
 
 print 'Test 1: Sample Diagnostic ... ',
@@ -26,8 +26,8 @@ import tempfile
 #clearError()
 
 datadir = sys.argv[1]
-path1 = os.path.join( datadir, 'acme_lores_atm_climo' )
-path2 = os.path.join( datadir, 'obs' )
+path1 = os.path.join( datadir, 'cam_output' )
+path2 = os.path.join( datadir, 'obs_atmos' )
 tmppth = tempfile.mkdtemp()
 outpath = tempfile.mkdtemp()
 
