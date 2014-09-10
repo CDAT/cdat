@@ -817,7 +817,8 @@ class VTKVCSBackend(object):
               for k in legend.keys():
                   legend[float(numpy.ma.log10(legend[k]))] = legend[k]
                   del(legend[k])
-          levs = numpy.arange(levs[0],levs[-1],(levs[-1]-levs[0])/(gm.color_2-gm.color_1+1))
+          dx = (levs[-1]-levs[0])/(gm.color_2-gm.color_1+1)
+          levs = numpy.arange(levs[0],levs[-1]+dx,dx)
 
         cols = range(gm.color_1,gm.color_2+1)
       else:
