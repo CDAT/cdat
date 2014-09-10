@@ -204,7 +204,7 @@ class Tt(object):
          elif isinstance(value,(list,tuple)):
               vals = []
               for v in value:
-                   vals.append(VCS_validation_functions.checkString(self,'string',v))
+                   vals.append(str(v))
               value = vals
          else:
               raise ValueError, 'Must be a string or a list of strings.'
