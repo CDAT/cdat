@@ -36,5 +36,5 @@ fnm = "test_vcs_1D_datawc.png"
 x.png(fnm)
 print "fnm:",fnm
 print "src:",src
-ret = checkimage.check_result_image(fnm,src,0.05)
+ret = checkimage.check_result_image(fnm,src,checkimage.defaultThreshold)
 sys.exit(ret)

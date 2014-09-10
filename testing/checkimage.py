@@ -13,6 +13,8 @@ import sys
 from vtk.util.vtkImageExportToArray import vtkImageExportToArray
 from vtk.util.vtkImageImportFromArray import vtkImageImportFromArray
 
+defaultThreshold=0.05
+
 def compare_imgs(adata, bdata):
     adata = adata[0]/255.
     bdata = bdata[0]/255.

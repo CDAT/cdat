@@ -792,9 +792,7 @@ class VTKVCSBackend(object):
           if isinstance(gm,isofill.Gfi):
               mappers.append([mapper,])
 
-    else: #Boxfill/Meshfill
-      mappers=[]
-      mapper.SetInputData(geoFilter.GetOutput())
+    else: #Boxfill (non custom)/Meshfill
       if isinstance(gm,boxfill.Gfb):
         if numpy.allclose(gm.level_1,1.e20) or numpy.allclose(gm.level_2,1.e20):
           levs = vcs.mkscale(mn,mx)
@@ -811,7 +809,7 @@ class VTKVCSBackend(object):
               for k in legend.keys():
                   legend[float(numpy.ma.log10(legend[k]))] = legend[k]
                   del(legend[k])
-          levs = numpy.arange(levs[0],levs[1],(levs[1]-levs[0])/(gm.color_2-gm.color_1+1))
+          levs = numpy.arange(levs[0],levs[-1],(levs[-1]-levs[0])/(gm.color_2-gm.color_1+1))
 
         cols = range(gm.color_1,gm.color_2+1)
       else:
@@ -826,6 +824,24 @@ class VTKVCSBackend(object):
           cols = vcs.getcolors(levs)
       Nlevs = len(levs)
       Ncolors = Nlevs-1
+      #Prep mapper
+      mappers=[]
+      mapper = vtk.vtkPolyDataMapper()
+      thr = vtk.vtkThreshold()
+      thr.SetInputConnection(geoFilter.GetOutputPort())
+      if not gm.ext_1 in ["y",1,True]  and not gm.ext_2 in ["y",1,True] :
+          thr.ThresholdBetween(levs[0],levs[-1])
+      elif gm.ext_1 in ["y",1,True]  and not gm.ext_2 in ["y",1,True] :
+          thr.ThresholdByLower(levs[-1])
+      elif not gm.ext_1 in ["y",1,True]  and gm.ext_2 in ["y",1,True] :
+          thr.ThresholdByUpper(levs[0])
+      thr.Update()
+      geoFilter2 = vtk.vtkDataSetSurfaceFilter()
+      geoFilter2.SetInputConnection(thr.GetOutputPort())
+      if gm.ext_1 in ["y",1,True]  and gm.ext_2 in ["y",1,True] :
+          mapper.SetInputConnection(geoFilter.GetOutputPort())
+      else:
+          mapper.SetInputConnection(geoFilter2.GetOutputPort())
 
     if mappers == []: # ok didn't need to have special banded contours
       mappers=[mapper,]
@@ -880,6 +896,17 @@ class VTKVCSBackend(object):
     if isinstance(gm,(isofill.Gfi,meshfill.Gfm,boxfill.Gfb)):
       if getattr(gm,"legend",None) is not None:
         legend = gm.legend
+      print "********************************************"
+      gm.list()
+      if gm.ext_1 in ["y",1,True] and not numpy.allclose(levs[0],1.e20):
+          if isinstance(levs,numpy.ndarray):
+              levs=levs.tolist()
+          levs.insert(0,-1.e20)
+      if gm.ext_2 in ["y",1,True] and not numpy.allclose(levs[0],1.e20):
+          if isinstance(levs,numpy.ndarray):
+              levs=levs.tolist()
+          levs.append(1.e20)
+
       self.renderColorBar(ren,tmpl,levs,cols,legend,cmap)
     if self.canvas._continents is None:
       continents = False
