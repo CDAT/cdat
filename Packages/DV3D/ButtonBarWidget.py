@@ -339,7 +339,8 @@ class ButtonBar:
     def getScreenPosition(self, normalized_display_position, buffered = True, **args ):
 #        print " GetScreenPosition [",  self.name, "], position = ", str( normalized_display_position )
         self.vtk_coord.SetValue(  normalized_display_position[0], normalized_display_position[1] )
-        screen_pos = self.vtk_coord.GetComputedDisplayValue( self.getRenderer() )
+        ren = self.getRenderer()
+        screen_pos = self.vtk_coord.GetComputedDisplayValue( ren ) if ( ren <> None ) else [ 100, 100 ]
         position_offset = args.get( 'offset', [ 0, 0 ] )
         if   self.orientation == Orientation.Vertical: position_offset[ 0 ] = 0
         elif self.orientation == Orientation.Horizontal: position_offset[ 1 ] = 0
