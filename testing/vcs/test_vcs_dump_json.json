@@ -1,1 +1,724 @@
-{"G1d": {"Charles.Doutriaux": {"colormap": null, "datawc_calendar": 135441, "datawc_timeunits": "days since 2000", "datawc_x1": 1e+20, "datawc_x2": 1e+20, "datawc_y1": 1e+20, "datawc_y2": 1e+20, "flip": false, "line": "solid", "linecolor": 241, "linewidth": 1, "marker": "dot", "markercolor": 241, "markersize": 1, "projection": "linear", "smooth": null, "xaxisconvert": "linear", "xmtics1": "", "xmtics2": "", "xticlabels1": "*", "xticlabels2": "*", "yaxisconvert": "linear", "ymtics1": "", "ymtics2": "", "yticlabels1": "*", "yticlabels2": "*"}}, "Gfb": {"Charles.Doutriaux": {"boxfill_type": "linear", "color_1": 16, "color_2": 239, "colormap": null, "datawc_calendar": 135441, "datawc_timeunits": "days since 2000", "datawc_x1": 1e+20, "datawc_x2": 1e+20, "datawc_y1": 1e+20, "datawc_y2": 1e+20, "ext_1": false, "ext_2": false, "fillareacolors": null, "fillareaindices": null, "fillareastyle": "solid", "legend": null, "level_1": 1e+20, "level_2": 1e+20, "levels": [1e+20, 1e+20], "missing": 1, "projection": "linear", "xaxisconvert": "linear", "xmtics1": "", "xmtics2": "", "xticlabels1": "*", "xticlabels2": "*", "yaxisconvert": "linear", "ymtics1": "", "ymtics2": "", "yticlabels1": "*", "yticlabels2": "*"}}, "Gfi": {"Charles.Doutriaux": {"colormap": null, "datawc_calendar": 135441, "datawc_timeunits": "days since 2000", "datawc_x1": 1e+20, "datawc_x2": 1e+20, "datawc_y1": 1e+20, "datawc_y2": 1e+20, "ext_1": "n", "ext_2": "n", "fillareacolors": [1], "fillareaindices": null, "fillareastyle": "solid", "legend": null, "levels": [[1.0000000200408773e+20, 1.0000000200408773e+20]], "missing": 241, "projection": "linear", "xaxisconvert": "linear", "xmtics1": "", "xmtics2": "", "xticlabels1": "*", "xticlabels2": "*", "yaxisconvert": "linear", "ymtics1": "", "ymtics2": "", "yticlabels1": "*", "yticlabels2": "*"}}, "Gfm": {"Charles.Doutriaux": {"colormap": null, "datawc_calendar": 135441, "datawc_timeunits": "days since 2000", "datawc_x1": 1e+20, "datawc_x2": 1e+20, "datawc_y1": 1e+20, "datawc_y2": 1e+20, "ext_1": "n", "ext_2": "n", "fillareacolors": [1], "fillareaindices": null, "fillareastyle": "solid", "legend": null, "levels": [[1.0000000200408773e+20, 1.0000000200408773e+20]], "mesh": 0, "missing": 241, "projection": "linear", "wrap": [0.0, 0.0], "xaxisconvert": "linear", "xmtics1": "", "xmtics2": "", "xticlabels1": "*", "xticlabels2": "*", "yaxisconvert": "linear", "ymtics1": "", "ymtics2": "", "yticlabels1": "*", "yticlabels2": "*"}}, "Gi": {"Charles.Doutriaux": {"angle": [35.0], "clockwise": [0], "colormap": null, "datawc_calendar": 135441, "datawc_timeunits": "days since 2000", "datawc_x1": 1e+20, "datawc_x2": 1e+20, "datawc_y1": 1e+20, "datawc_y2": 1e+20, "label": "n", "level": [[0.0, 1.0000000200408773e+20]], "levels": [[0.0, 1.0000000200408773e+20]], "line": ["solid"], "linecolors": [1], "linewidths": [1.0], "projection": "linear", "scale": [1.0], "spacing": [1.0], "text": null, "textcolors": null, "xaxisconvert": "linear", "xmtics1": "", "xmtics2": "", "xticlabels1": "*", "xticlabels2": "*", "yaxisconvert": "linear", "ymtics1": "", "ymtics2": "", "yticlabels1": "*", "yticlabels2": "*"}}, "P": {"Charles.Doutriaux": {"box1": {"line": "default", "priority": 1, "x1": 0.0500000007451, "x2": 0.949999988079, "y1": 0.259999990463, "y2": 0.860000014305}, "box2": {"line": "default", "priority": 0, "x1": 0.0, "x2": 0.920000016689, "y1": 0.300000011921, "y2": 0.879999995232}, "box3": {"line": "default", "priority": 0, "x1": 0.0, "x2": 0.910000026226, "y1": 0.319999992847, "y2": 0.860000014305}, "box4": {"line": "default", "priority": 0, "x1": 0.0, "x2": 0.0, "y1": 0.0, "y2": 0.0}, "comment1": {"priority": 1, "textorientation": "default", "texttable": "default", "x": 0.10000000149, "y": 0.954999983311}, "comment2": {"priority": 1, "textorientation": "default", "texttable": "default", "x": 0.10000000149, "y": 0.975000023842}, "comment3": {"priority": 1, "textorientation": "default", "texttable": "default", "x": 0.10000000149, "y": 0.995000004768}, "comment4": {"priority": 1, "textorientation": "default", "texttable": "default", "x": 0.10000000149, "y": 0.999000012875}, "crdate": {"priority": 1, "textorientation": "default", "texttable": "default", "x": 0.75, "y": 0.922999978065}, "crtime": {"priority": 1, "textorientation": "default", "texttable": "default", "x": 0.850000023842, "y": 0.922999978065}, "data": {"priority": 1, "ratio": -999, "x1": 0.0500000007451, "x2": 0.949999988079, "y1": 0.259999990463, "y2": 0.860000014305}, "dataname": {"priority": 1, "textorientation": "default", "texttable": "default", "x": 0.0500000007451, "y": 0.922999978065}, "file": {"priority": 1, "textorientation": "default", "texttable": "default", "x": 0.0500000007451, "y": 0.0130000002682}, "function": {"priority": 1, "textorientation": "default", "texttable": "default", "x": 0.0500000007451, "y": 0.0130000002682}, "legend": {"line": "default", "priority": 1, "textorientation": "defcenter", "texttable": "default", "x1": 0.0500000007451, "x2": 0.949999988079, "y1": 0.129999995232, "y2": 0.159999996424}, "line1": {"line": "default", "priority": 0, "x1": 0.0500000007451, "x2": 0.949999988079, "y1": 0.560000002384, "y2": 0.560000002384}, "line2": {"line": "default", "priority": 0, "x1": 0.5, "x2": 0.5, "y1": 0.259999990463, "y2": 0.860000014305}, "line3": {"line": "default", "priority": 0, "x1": 0.0, "x2": 0.899999976158, "y1": 0.52999997139, "y2": 0.52999997139}, "line4": {"line": "default", "priority": 0, "x1": 0.0, "x2": 0.899999976158, "y1": 0.990000009537, "y2": 0.990000009537}, "logicalmask": {"priority": 1, "textorientation": "default", "texttable": "default", "x": 0.0500000007451, "y": 0.0329999998212}, "max": {"format": "default", "priority": 1, "textorientation": "default", "texttable": "default", "x": 0.25, "y": 0.899999976158}, "mean": {"format": "default", "priority": 1, "textorientation": "default", "texttable": "default", "x": 0.0500000007451, "y": 0.899999976158}, "min": {"format": "default", "priority": 1, "textorientation": "default", "texttable": "default", "x": 0.449999988079, "y": 0.899999976158}, "source": {"priority": 1, "textorientation": "default", "texttable": "default", "x": 0.0500000007451, "y": 0.941999971867}, "title": {"priority": 1, "textorientation": "default", "texttable": "default", "x": 0.15000000596, "y": 0.922999978065}, "tname": {"priority": 1, "textorientation": "default", "texttable": "default", "x": 0.0, "y": 0.995000004768}, "transformation": {"priority": 1, "textorientation": "default", "texttable": "default", "x": 0.0500000007451, "y": 0.0529999993742}, "tunits": {"priority": 1, "textorientation": "default", "texttable": "default", "x": 0.0, "y": 0.995000004768}, "tvalue": {"format": "default", "priority": 1, "textorientation": "default", "texttable": "default", "x": 0.800000011921, "y": 0.883000016212}, "units": {"priority": 1, "textorientation": "default", "texttable": "default", "x": 0.670000016689, "y": 0.922999978065}, "xlabel1": {"priority": 1, "textorientation": "defcenter", "texttable": "default", "y": 0.234999999404}, "xlabel2": {"priority": 0, "textorientation": "defcenter", "texttable": "default", "y": 0.870000004768}, "xmintic1": {"line": "default", "priority": 0, "y1": 0.259999990463, "y2": 0.256999999285}, "xmintic2": {"line": "default", "priority": 0, "y1": 0.860000014305, "y2": 0.860000014305}, "xname": {"priority": 1, "textorientation": "default", "texttable": "default", "x": 0.5, "y": 0.277000010014}, "xtic1": {"line": "default", "priority": 1, "y1": 0.259999990463, "y2": 0.24699999392}, "xtic2": {"line": "default", "priority": 1, "y1": 0.860000014305, "y2": 0.871999979019}, "xunits": {"priority": 1, "textorientation": "default", "texttable": "default", "x": 0.600000023842, "y": 0.277000010014}, "xvalue": {"format": "default", "priority": 1, "textorientation": "default", "texttable": "default", "x": 0.800000011921, "y": 0.941999971867}, "ylabel1": {"priority": 1, "textorientation": "defright", "texttable": "default", "x": 0.0399999991059}, "ylabel2": {"priority": 0, "textorientation": "default", "texttable": "default", "x": 0.959999978542}, "ymintic1": {"line": "default", "priority": 0, "x1": 0.0500000007451, "x2": 0.0450000017881}, "ymintic2": {"line": "default", "priority": 0, "x1": 0.949999988079, "x2": 0.954999983311}, "yname": {"priority": 1, "textorientation": "default", "texttable": "default", "x": 0.0168999992311, "y": 0.420033991337}, "ytic1": {"line": "default", "priority": 1, "x1": 0.0500000007451, "x2": 0.0399999991059}, "ytic2": {"line": "default", "priority": 1, "x1": 0.949999988079, "x2": 0.959999978542}, "yunits": {"priority": 1, "textorientation": "default", "texttable": "default", "x": 0.019999999553, "y": 0.658999979496}, "yvalue": {"format": "default", "priority": 1, "textorientation": "default", "texttable": "default", "x": 0.800000011921, "y": 0.922999978065}, "zname": {"priority": 1, "textorientation": "default", "texttable": "default", "x": 0.0, "y": 0.995000004768}, "zunits": {"priority": 1, "textorientation": "default", "texttable": "default", "x": 0.0, "y": 0.995000004768}, "zvalue": {"format": "default", "priority": 1, "textorientation": "default", "texttable": "default", "x": 0.800000011921, "y": 0.902999997139}}}, "Proj": {"Charles.Doutriaux": {"parameters": [1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20, 1e+20], "type": "linear"}}, "Tf": {"Charles.Doutriaux": {"color": [1], "colormap": null, "index": [1], "priority": 1, "projection": "default", "style": ["solid"], "viewport": [0.0, 1.0, 0.0, 1.0], "worldcoordinate": [0.0, 1.0, 0.0, 1.0], "x": null, "y": null}}, "Tl": {"Charles.Doutriaux": {"color": [1], "colormap": null, "priority": 1, "projection": "default", "type": ["solid"], "viewport": [0.0, 1.0, 0.0, 1.0], "width": [1.0], "worldcoordinate": [0.0, 1.0, 0.0, 1.0], "x": null, "y": null}}, "Tm": {"Charles.Doutriaux": {"color": [1], "colormap": null, "priority": 1, "size": [1.0], "type": ["dot"], "viewport": [0.0, 1.0, 0.0, 1.0], "worldcoordinate": [0.0, 1.0, 0.0, 1.0], "x": null, "y": null}}, "To": {"Charles.Doutriaux": {"angle": 0, "halign": 0, "height": 14, "path": 0, "valign": 2}}, "Tt": {"Charles.Doutriaux": {"color": 1, "colormap": null, "expansion": 100, "fillincolor": 0, "font": 1, "priority": 1, "projection": "default", "spacing": 2, "string": [""], "viewport": [0.0, 1.0, 0.0, 1.0], "worldcoordinate": [0.0, 1.0, 0.0, 1.0], "x": null, "y": null}}}
+{
+ "G1d": {
+  "Charles.Doutriaux": {
+   "colormap": null, 
+   "datawc_calendar": 135441, 
+   "datawc_timeunits": "days since 2000", 
+   "datawc_x1": 1e+20, 
+   "datawc_x2": 1e+20, 
+   "datawc_y1": 1e+20, 
+   "datawc_y2": 1e+20, 
+   "flip": false, 
+   "line": "solid", 
+   "linecolor": 241, 
+   "linewidth": 1, 
+   "marker": "dot", 
+   "markercolor": 241, 
+   "markersize": 1, 
+   "projection": "linear", 
+   "smooth": null, 
+   "xaxisconvert": "linear", 
+   "xmtics1": "", 
+   "xmtics2": "", 
+   "xticlabels1": "*", 
+   "xticlabels2": "*", 
+   "yaxisconvert": "linear", 
+   "ymtics1": "", 
+   "ymtics2": "", 
+   "yticlabels1": "*", 
+   "yticlabels2": "*"
+  }
+ }, 
+ "Gfb": {
+  "Charles.Doutriaux": {
+   "boxfill_type": "linear", 
+   "color_1": 16, 
+   "color_2": 239, 
+   "colormap": null, 
+   "datawc_calendar": 135441, 
+   "datawc_timeunits": "days since 2000", 
+   "datawc_x1": 1e+20, 
+   "datawc_x2": 1e+20, 
+   "datawc_y1": 1e+20, 
+   "datawc_y2": 1e+20, 
+   "ext_1": false, 
+   "ext_2": false, 
+   "fillareacolors": null, 
+   "fillareaindices": null, 
+   "fillareastyle": "solid", 
+   "legend": null, 
+   "level_1": 1e+20, 
+   "level_2": 1e+20, 
+   "levels": [
+    1e+20, 
+    1e+20
+   ], 
+   "missing": 1, 
+   "projection": "linear", 
+   "xaxisconvert": "linear", 
+   "xmtics1": "", 
+   "xmtics2": "", 
+   "xticlabels1": "*", 
+   "xticlabels2": "*", 
+   "yaxisconvert": "linear", 
+   "ymtics1": "", 
+   "ymtics2": "", 
+   "yticlabels1": "*", 
+   "yticlabels2": "*"
+  }
+ }, 
+ "Gfi": {
+  "Charles.Doutriaux": {
+   "colormap": null, 
+   "datawc_calendar": 135441, 
+   "datawc_timeunits": "days since 2000", 
+   "datawc_x1": 1e+20, 
+   "datawc_x2": 1e+20, 
+   "datawc_y1": 1e+20, 
+   "datawc_y2": 1e+20, 
+   "ext_1": "n", 
+   "ext_2": "n", 
+   "fillareacolors": [
+    1
+   ], 
+   "fillareaindices": null, 
+   "fillareastyle": "solid", 
+   "legend": null, 
+   "levels": [
+    [
+     1.0000000200408773e+20, 
+     1.0000000200408773e+20
+    ]
+   ], 
+   "missing": 241, 
+   "projection": "linear", 
+   "xaxisconvert": "linear", 
+   "xmtics1": "", 
+   "xmtics2": "", 
+   "xticlabels1": "*", 
+   "xticlabels2": "*", 
+   "yaxisconvert": "linear", 
+   "ymtics1": "", 
+   "ymtics2": "", 
+   "yticlabels1": "*", 
+   "yticlabels2": "*"
+  }
+ }, 
+ "Gfm": {
+  "Charles.Doutriaux": {
+   "colormap": null, 
+   "datawc_calendar": 135441, 
+   "datawc_timeunits": "days since 2000", 
+   "datawc_x1": 1e+20, 
+   "datawc_x2": 1e+20, 
+   "datawc_y1": 1e+20, 
+   "datawc_y2": 1e+20, 
+   "ext_1": "n", 
+   "ext_2": "n", 
+   "fillareacolors": [
+    1
+   ], 
+   "fillareaindices": null, 
+   "fillareastyle": "solid", 
+   "legend": null, 
+   "levels": [
+    [
+     1.0000000200408773e+20, 
+     1.0000000200408773e+20
+    ]
+   ], 
+   "mesh": 0, 
+   "missing": 241, 
+   "projection": "linear", 
+   "wrap": [
+    0.0, 
+    0.0
+   ], 
+   "xaxisconvert": "linear", 
+   "xmtics1": "", 
+   "xmtics2": "", 
+   "xticlabels1": "*", 
+   "xticlabels2": "*", 
+   "yaxisconvert": "linear", 
+   "ymtics1": "", 
+   "ymtics2": "", 
+   "yticlabels1": "*", 
+   "yticlabels2": "*"
+  }
+ }, 
+ "Gi": {
+  "Charles.Doutriaux": {
+   "angle": [
+    35.0
+   ], 
+   "clockwise": [
+    0
+   ], 
+   "colormap": null, 
+   "datawc_calendar": 135441, 
+   "datawc_timeunits": "days since 2000", 
+   "datawc_x1": 1e+20, 
+   "datawc_x2": 1e+20, 
+   "datawc_y1": 1e+20, 
+   "datawc_y2": 1e+20, 
+   "label": "n", 
+   "level": [
+    [
+     0.0, 
+     1.0000000200408773e+20
+    ]
+   ], 
+   "levels": [
+    [
+     0.0, 
+     1.0000000200408773e+20
+    ]
+   ], 
+   "line": [
+    "solid"
+   ], 
+   "linecolors": [
+    1
+   ], 
+   "linewidths": [
+    1.0
+   ], 
+   "projection": "linear", 
+   "scale": [
+    1.0
+   ], 
+   "spacing": [
+    1.0
+   ], 
+   "text": null, 
+   "textcolors": null, 
+   "xaxisconvert": "linear", 
+   "xmtics1": "", 
+   "xmtics2": "", 
+   "xticlabels1": "*", 
+   "xticlabels2": "*", 
+   "yaxisconvert": "linear", 
+   "ymtics1": "", 
+   "ymtics2": "", 
+   "yticlabels1": "*", 
+   "yticlabels2": "*"
+  }
+ }, 
+ "P": {
+  "Charles.Doutriaux": {
+   "box1": {
+    "line": "default", 
+    "priority": 1, 
+    "x1": 0.0500000007451, 
+    "x2": 0.949999988079, 
+    "y1": 0.259999990463, 
+    "y2": 0.860000014305
+   }, 
+   "box2": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0.0, 
+    "x2": 0.920000016689, 
+    "y1": 0.300000011921, 
+    "y2": 0.879999995232
+   }, 
+   "box3": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0.0, 
+    "x2": 0.910000026226, 
+    "y1": 0.319999992847, 
+    "y2": 0.860000014305
+   }, 
+   "box4": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0.0, 
+    "x2": 0.0, 
+    "y1": 0.0, 
+    "y2": 0.0
+   }, 
+   "comment1": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.10000000149, 
+    "y": 0.954999983311
+   }, 
+   "comment2": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.10000000149, 
+    "y": 0.975000023842
+   }, 
+   "comment3": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.10000000149, 
+    "y": 0.995000004768
+   }, 
+   "comment4": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.10000000149, 
+    "y": 0.999000012875
+   }, 
+   "crdate": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.75, 
+    "y": 0.922999978065
+   }, 
+   "crtime": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.850000023842, 
+    "y": 0.922999978065
+   }, 
+   "data": {
+    "priority": 1, 
+    "ratio": -999, 
+    "x1": 0.0500000007451, 
+    "x2": 0.949999988079, 
+    "y1": 0.259999990463, 
+    "y2": 0.860000014305
+   }, 
+   "dataname": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.0500000007451, 
+    "y": 0.922999978065
+   }, 
+   "file": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.0500000007451, 
+    "y": 0.0130000002682
+   }, 
+   "function": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.0500000007451, 
+    "y": 0.0130000002682
+   }, 
+   "legend": {
+    "line": "default", 
+    "priority": 1, 
+    "textorientation": "defcenter", 
+    "texttable": "default", 
+    "x1": 0.0500000007451, 
+    "x2": 0.949999988079, 
+    "y1": 0.129999995232, 
+    "y2": 0.159999996424
+   }, 
+   "line1": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0.0500000007451, 
+    "x2": 0.949999988079, 
+    "y1": 0.560000002384, 
+    "y2": 0.560000002384
+   }, 
+   "line2": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0.5, 
+    "x2": 0.5, 
+    "y1": 0.259999990463, 
+    "y2": 0.860000014305
+   }, 
+   "line3": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0.0, 
+    "x2": 0.899999976158, 
+    "y1": 0.52999997139, 
+    "y2": 0.52999997139
+   }, 
+   "line4": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0.0, 
+    "x2": 0.899999976158, 
+    "y1": 0.990000009537, 
+    "y2": 0.990000009537
+   }, 
+   "logicalmask": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.0500000007451, 
+    "y": 0.0329999998212
+   }, 
+   "max": {
+    "format": "default", 
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.25, 
+    "y": 0.899999976158
+   }, 
+   "mean": {
+    "format": "default", 
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.0500000007451, 
+    "y": 0.899999976158
+   }, 
+   "min": {
+    "format": "default", 
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.449999988079, 
+    "y": 0.899999976158
+   }, 
+   "source": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.0500000007451, 
+    "y": 0.941999971867
+   }, 
+   "title": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.15000000596, 
+    "y": 0.922999978065
+   }, 
+   "tname": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.0, 
+    "y": 0.995000004768
+   }, 
+   "transformation": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.0500000007451, 
+    "y": 0.0529999993742
+   }, 
+   "tunits": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.0, 
+    "y": 0.995000004768
+   }, 
+   "tvalue": {
+    "format": "default", 
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.800000011921, 
+    "y": 0.883000016212
+   }, 
+   "units": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.670000016689, 
+    "y": 0.922999978065
+   }, 
+   "xlabel1": {
+    "priority": 1, 
+    "textorientation": "defcenter", 
+    "texttable": "default", 
+    "y": 0.234999999404
+   }, 
+   "xlabel2": {
+    "priority": 0, 
+    "textorientation": "defcenter", 
+    "texttable": "default", 
+    "y": 0.870000004768
+   }, 
+   "xmintic1": {
+    "line": "default", 
+    "priority": 0, 
+    "y1": 0.259999990463, 
+    "y2": 0.256999999285
+   }, 
+   "xmintic2": {
+    "line": "default", 
+    "priority": 0, 
+    "y1": 0.860000014305, 
+    "y2": 0.860000014305
+   }, 
+   "xname": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.5, 
+    "y": 0.277000010014
+   }, 
+   "xtic1": {
+    "line": "default", 
+    "priority": 1, 
+    "y1": 0.259999990463, 
+    "y2": 0.24699999392
+   }, 
+   "xtic2": {
+    "line": "default", 
+    "priority": 1, 
+    "y1": 0.860000014305, 
+    "y2": 0.871999979019
+   }, 
+   "xunits": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.600000023842, 
+    "y": 0.277000010014
+   }, 
+   "xvalue": {
+    "format": "default", 
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.800000011921, 
+    "y": 0.941999971867
+   }, 
+   "ylabel1": {
+    "priority": 1, 
+    "textorientation": "defright", 
+    "texttable": "default", 
+    "x": 0.0399999991059
+   }, 
+   "ylabel2": {
+    "priority": 0, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.959999978542
+   }, 
+   "ymintic1": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0.0500000007451, 
+    "x2": 0.0450000017881
+   }, 
+   "ymintic2": {
+    "line": "default", 
+    "priority": 0, 
+    "x1": 0.949999988079, 
+    "x2": 0.954999983311
+   }, 
+   "yname": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.0168999992311, 
+    "y": 0.420033991337
+   }, 
+   "ytic1": {
+    "line": "default", 
+    "priority": 1, 
+    "x1": 0.0500000007451, 
+    "x2": 0.0399999991059
+   }, 
+   "ytic2": {
+    "line": "default", 
+    "priority": 1, 
+    "x1": 0.949999988079, 
+    "x2": 0.959999978542
+   }, 
+   "yunits": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.019999999553, 
+    "y": 0.658999979496
+   }, 
+   "yvalue": {
+    "format": "default", 
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.800000011921, 
+    "y": 0.922999978065
+   }, 
+   "zname": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.0, 
+    "y": 0.995000004768
+   }, 
+   "zunits": {
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.0, 
+    "y": 0.995000004768
+   }, 
+   "zvalue": {
+    "format": "default", 
+    "priority": 1, 
+    "textorientation": "default", 
+    "texttable": "default", 
+    "x": 0.800000011921, 
+    "y": 0.902999997139
+   }
+  }
+ }, 
+ "Proj": {
+  "Charles.Doutriaux": {
+   "parameters": [
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20, 
+    1e+20
+   ], 
+   "type": "linear"
+  }
+ }, 
+ "Tf": {
+  "Charles.Doutriaux": {
+   "color": [
+    1
+   ], 
+   "colormap": null, 
+   "index": [
+    1
+   ], 
+   "priority": 1, 
+   "projection": "default", 
+   "style": [
+    "solid"
+   ], 
+   "viewport": [
+    0.0, 
+    1.0, 
+    0.0, 
+    1.0
+   ], 
+   "worldcoordinate": [
+    0.0, 
+    1.0, 
+    0.0, 
+    1.0
+   ], 
+   "x": null, 
+   "y": null
+  }
+ }, 
+ "Tl": {
+  "Charles.Doutriaux": {
+   "color": [
+    1
+   ], 
+   "colormap": null, 
+   "priority": 1, 
+   "projection": "default", 
+   "type": [
+    "solid"
+   ], 
+   "viewport": [
+    0.0, 
+    1.0, 
+    0.0, 
+    1.0
+   ], 
+   "width": [
+    1.0
+   ], 
+   "worldcoordinate": [
+    0.0, 
+    1.0, 
+    0.0, 
+    1.0
+   ], 
+   "x": null, 
+   "y": null
+  }
+ }, 
+ "Tm": {
+  "Charles.Doutriaux": {
+   "color": [
+    1
+   ], 
+   "colormap": null, 
+   "priority": 1, 
+   "size": [
+    1.0
+   ], 
+   "type": [
+    "dot"
+   ], 
+   "viewport": [
+    0.0, 
+    1.0, 
+    0.0, 
+    1.0
+   ], 
+   "worldcoordinate": [
+    0.0, 
+    1.0, 
+    0.0, 
+    1.0
+   ], 
+   "x": null, 
+   "y": null
+  }
+ }, 
+ "To": {
+  "Charles.Doutriaux": {
+   "angle": 0, 
+   "halign": 0, 
+   "height": 14, 
+   "path": 0, 
+   "valign": 2
+  }
+ }, 
+ "Tt": {
+  "Charles.Doutriaux": {
+   "color": 1, 
+   "colormap": null, 
+   "expansion": 100, 
+   "fillincolor": 0, 
+   "font": 1, 
+   "priority": 1, 
+   "projection": "default", 
+   "spacing": 2, 
+   "string": [
+    ""
+   ], 
+   "viewport": [
+    0.0, 
+    1.0, 
+    0.0, 
+    1.0
+   ], 
+   "worldcoordinate": [
+    0.0, 
+    1.0, 
+    0.0, 
+    1.0
+   ], 
+   "x": null, 
+   "y": null
+  }
+ }
+}
