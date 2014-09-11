@@ -603,9 +603,6 @@ def setClipPlanes(mapper, xmin, xmax, ymin, ymax):
     clipPlaneCollection = vtk.vtkPlaneCollection()
 
     if xmin != xmax:
-      print 'xmin ', xmin
-      print 'xmax ', xmax
-
       clipPlaneXMin = vtk.vtkPlane()
       clipPlaneXMin.SetOrigin(xmin, 0.0, 0.0)
       clipPlaneXMin.SetNormal(1.0, 0.0, 0.0)
