@@ -905,8 +905,6 @@ class VTKVCSBackend(object):
     if isinstance(gm,(isofill.Gfi,meshfill.Gfm,boxfill.Gfb)):
       if getattr(gm,"legend",None) is not None:
         legend = gm.legend
-      print "********************************************"
-      gm.list()
       if gm.ext_1 in ["y",1,True] and not numpy.allclose(levs[0],1.e20):
           if isinstance(levs,numpy.ndarray):
               levs=levs.tolist()
@@ -1027,7 +1025,6 @@ class VTKVCSBackend(object):
     if self.renWin is None:
       raise Exception("Nothing on Canvas to dump to file")
 
-    print "you asked to write ",output_type,"in file:",file
     gl  = vtk.vtkGL2PSExporter()
     gl.SetInput(self.renWin)
     gl.SetCompress(0) # Do not compress
@@ -1055,7 +1052,6 @@ class VTKVCSBackend(object):
       return self.vectorGraphics("ps", file, width, height, units)
 
   def pdf(self, file, width=None, height=None, units=None):
-      print "in pdf the file anme si:",file
       return self.vectorGraphics("pdf", file, width, height, units)
 
   def svg(self, file, width=None, height=None, units=None):
