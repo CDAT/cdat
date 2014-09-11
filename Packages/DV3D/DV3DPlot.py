@@ -25,7 +25,7 @@ class TextDisplayMgr:
     def __init__( self, renderer ):
         self.renderer = renderer
     
-    def setTextPosition(self, textActor, pos, size=[400,30] ):
+    def setTextPosition(self, textActor, pos, size=[400,25] ):
 #        vpos = [ 2, 2 ] 
         vp = self.renderer.GetSize()
         vpos = [ pos[i]*vp[i] for i in [0,1] ]
@@ -63,11 +63,12 @@ class TextDisplayMgr:
     def createTextActor( self, aid, **args ):
         textActor = vtk.vtkTextActor()  
         textActor.SetTextScaleMode( vtk.vtkTextActor.TEXT_SCALE_MODE_PROP )  
-        textActor.SetMaximumLineHeight( 0.007 )       
+#        textActor.SetMaximumLineHeight( 0.005 )  
+        textActor.ScaledTextOn()     
         textprop = textActor.GetTextProperty()
         textprop.SetColor( *args.get( 'color', ( VTK_FOREGROUND_COLOR[0], VTK_FOREGROUND_COLOR[1], VTK_FOREGROUND_COLOR[2] ) ) )
         textprop.SetOpacity ( args.get( 'opacity', 1.0 ) )
-        textprop.SetFontSize( 8 )
+#        textprop.SetFontSize( 8 )
         if args.get( 'bold', False ): textprop.BoldOn()
         else: textprop.BoldOff()
         textprop.ItalicOff()
@@ -102,6 +103,7 @@ class DV3DPlot():
         self.ParameterValueChanged = SIGNAL( 'ParameterValueChanged' )
         self.type = args.get( 'gmname', 'default').lower()
         self.activate_display=args.get('display',True)
+        self.renderer = None
         self.useDepthPeeling = False
         self.renderWindowInteractor = None
         self.logoActor = None
@@ -262,6 +264,7 @@ class DV3DPlot():
         pass 
      
     def getRenderer(self):
+        if self.renderer <> None: return self.renderer
         return self.renderWindow.GetRenderers().GetFirstRenderer ()
 
     def processShowColorbarCommand( self, args, config_function = None ):
@@ -458,7 +461,9 @@ class DV3DPlot():
         if text <> None:
             self.labelBuff = "%s" % str(text) 
         label_actor = self.getLabelActor()
-        if label_actor: label_actor.VisibilityOn() 
+        if label_actor:
+            label_actor.ComputeScaledFont( self.renderer )     
+            label_actor.VisibilityOn() 
         if render: self.render() 
         
     def getDisplayText(self): 

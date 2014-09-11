@@ -389,11 +389,10 @@ class ButtonBar:
                 processed = True
         return processed
  
-    def hide(self, active_state=None):
+    def hide(self):
         self.visible = False
         for button in self.buttons:
-            if ( active_state == None ) or ( button.name <> active_state ):
-                button.Off()
+            button.Off()
             
     def toggleVisibility(self):
         if self.visible: 
@@ -436,7 +435,8 @@ class ControlBar(ButtonBar):
         self.buttons.append( button )
 
     def reset( self, active_state=None  ):
-        self.hide( active_state )
+        if ( active_state == None ) or ( self.name <> active_state ):
+            self.hide()
     
 class ButtonBarWidget(ButtonBar):
         
