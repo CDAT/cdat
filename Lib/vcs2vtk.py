@@ -96,7 +96,7 @@ def genGrid(data1,data2,gm):
         continents = True
       wrap = gm.wrap
   except Exception,err: # Ok no mesh on file, will do with lat/lon
-    print "WHAT?"
+    print "No mesh data found"
 
   if m3 is not None:
     #Create unstructured grid points
@@ -106,9 +106,6 @@ def genGrid(data1,data2,gm):
     numberOfCells = N
     lst.SetNumberOfComponents(nVertices + 1)
     lst.SetNumberOfTuples(numberOfCells)
-      
-    print 'Number of cells ', numberOfCells
-    print 'Number of vertices', nVertices
    
     for i in range(N):
       tuple = [None] * (nVertices + 1)
