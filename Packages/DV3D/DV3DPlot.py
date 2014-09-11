@@ -6,7 +6,7 @@ Created on Apr 30, 2014
 from ColorMapManager import *
 from ButtonBarWidget import *
 import vtk, traceback
-MIN_LINE_LEN = 50
+MIN_LINE_LEN = 100
 VTK_NOTATION_SIZE = 10
 
 class AnimationStepper:
@@ -25,20 +25,27 @@ class TextDisplayMgr:
     def __init__( self, renderer ):
         self.renderer = renderer
     
-    def setTextPosition(self, textActor, pos, size=[400,25] ):
-#        vpos = [ 2, 2 ] 
-        vp = self.renderer.GetSize()
-        vpos = [ pos[i]*vp[i] for i in [0,1] ]
-        textActor.GetPositionCoordinate().SetValue( vpos[0], vpos[1] )      
-        textActor.GetPosition2Coordinate().SetValue( vpos[0] + size[0], vpos[1] + size[1] )      
+#     def setTextPosition(self, textActor, pos, size=[400,20] ):
+#  #       vp = self.renderer.GetSize()
+# #        vpos = [ pos[i]*vp[i] for i in [0,1] ]
+# #        textActor.GetPositionCoordinate().SetValue( vpos[0], vpos[1] ) 
+#         textActor.SetPosition( 0.2, 0.5 )
+#         textActor.SetWidth( 0.6 ) 
+#         textActor.SetHeight( 0.08 )     
+# #        textActor.GetPosition2Coordinate().SetValue( vpos[0] + size[0], vpos[1] + size[1] )      
   
-    def getTextActor( self, aid, text, pos, **args ):
+    def getTextActor( self, aid, text, **args ):
         if text == None: return
         textActor = self.getProp( 'vtkTextActor', aid  )
         if textActor == None:
             textActor = self.createTextActor( aid, **args  )
             self.renderer.AddViewProp( textActor )
-        self.setTextPosition( textActor, pos )
+        textActor.GetPositionCoordinate().SetCoordinateSystemToNormalizedViewport ()
+        textActor.GetPosition2Coordinate().SetCoordinateSystemToNormalizedViewport ()
+        textActor.GetPositionCoordinate().SetValue( .3, .9, 0 )
+        textActor.GetPosition2Coordinate().SetValue( .98, .98, 0 )
+#        textActor.SetWidth( 0.6 ) 
+#        textActor.SetHeight( 0.08 )     
         text_lines = text.split('\n')
         linelen = len(text_lines[-1])
         if linelen < MIN_LINE_LEN: text += (' '*(MIN_LINE_LEN-linelen)) 
@@ -62,21 +69,22 @@ class TextDisplayMgr:
   
     def createTextActor( self, aid, **args ):
         textActor = vtk.vtkTextActor()  
-        textActor.SetTextScaleMode( vtk.vtkTextActor.TEXT_SCALE_MODE_PROP )  
-#        textActor.SetMaximumLineHeight( 0.005 )  
-        textActor.ScaledTextOn()     
+#        textActor.SetTextScaleModeToViewport()
+#        textActor.SetTextScaleMode( vtk.vtkTextActor.TEXT_SCALE_MODE_PROP )  
+#        textActor.SetMaximumLineHeight( 0.005 ) 
+#        print dir( textActor ) 
+#        textActor.ScaledTextOn()  
+        textActor.SetTextScaleModeToProp()   
         textprop = textActor.GetTextProperty()
         textprop.SetColor( *args.get( 'color', ( VTK_FOREGROUND_COLOR[0], VTK_FOREGROUND_COLOR[1], VTK_FOREGROUND_COLOR[2] ) ) )
         textprop.SetOpacity ( args.get( 'opacity', 1.0 ) )
-#        textprop.SetFontSize( 8 )
+        textprop.SetFontSize( 8 )
         if args.get( 'bold', False ): textprop.BoldOn()
         else: textprop.BoldOff()
         textprop.ItalicOff()
         textprop.ShadowOff()
         textprop.SetJustificationToLeft()
         textprop.SetVerticalJustificationToBottom()        
-        textActor.GetPositionCoordinate().SetCoordinateSystemToDisplay()
-        textActor.GetPosition2Coordinate().SetCoordinateSystemToDisplay() 
         textActor.VisibilityOff()
         textActor.id = aid
         return textActor 
@@ -470,7 +478,7 @@ class DV3DPlot():
         return self.labelBuff   
 
     def getLabelActor(self):
-        return self.textDisplayMgr.getTextActor( 'label', self.labelBuff, (.18, .95), bold = False  ) if self.textDisplayMgr else None
+        return self.textDisplayMgr.getTextActor( 'label', self.labelBuff, bold = False  ) if self.textDisplayMgr else None
     
     def UpdateCamera(self):
         pass
