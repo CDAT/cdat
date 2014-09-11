@@ -117,7 +117,7 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
         self.addParameters()
             
         vcs.elements[self.g_name][Gfdv3d_name]=self
-        print "Adding VCS element: %s %s " % ( self.g_name, Gfdv3d_name )
+#        print "Adding VCS element: %s %s " % ( self.g_name, Gfdv3d_name )
         
     def setProvenanceHandler(self, provenanceHandler ):
         self.provenanceHandler = provenanceHandler
