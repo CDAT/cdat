@@ -6,14 +6,14 @@ Created on Aug 28, 2014
 
 
 import cdms2, cdutil, genutil
-import vcs, os, sys, shutil
+import vcs, os, sys, shutil, collections
 
 DefaultSampleFile = "geos5-sample.nc"
 DefaultSampleVar = "uwnd"
 
 class TestManager:
     
-    DefinedTests = {}
+    DefinedTests = collections.OrderedDict()
     
     def __init__( self ):
         pass
@@ -28,6 +28,13 @@ class TestManager:
         print " Finished reviewing tests, update CMakeLists? (y/n)" 
         line = sys.stdin.readline() 
         if line[0] == 'y': self.writeCMakeLists()
+
+    def reviewTest(self, testName ):
+        test = TestManager.DefinedTests[ testName ]
+        print "Running test: ", testName
+        test.show()
+        line = sys.stdin.readline()
+        if line[0] <> 'n': test.update_image() 
         
     def writeCMakeLists(self):
         f = open( 'CMakeLists.txt', 'w' )
@@ -41,6 +48,14 @@ class TestManager:
             print>>sys.stderr, "Can't find test named %s" % testName
             return -1
         test.test( interactive )
+
+    def showTest(self, testName ):
+        test = TestManager.DefinedTests.get( testName, None )
+        if test == None:
+            print>>sys.stderr, "Can't find test named %s" % testName
+            return -1
+        test.show()
+        line = sys.stdin.readline()
 
     def runTests( self ):  
         for test in TestManager.DefinedTests.keys():
@@ -96,14 +111,14 @@ class vcsTest:
         self.build()
         self.canvas.interact()
         
-    def test( self, interactive=False ): 
-        print "Running %s test !"  % self.name      
+    def test( self, interactive=False ):      
         import checkimage
         self.build()
 #        test_image = os.path.join( self.test_dir, 'images', '.'.join( [ self.name, 'png' ] ) )
         test_image = '.'.join( [ self.name, 'test', 'png' ] )
         ref_image  = '.'.join( [ self.name, 'png' ] )
         self.canvas.png( test_image )
+        print "Copying ref image %s to %s in %s " % ( self.image_name, ref_image, os.path.abspath('.') )
         shutil.copy( self.image_name, ref_image )
         ret = checkimage.check_result_image( ref_image, test_image, 0.05 )
         if  interactive: 
@@ -130,7 +145,9 @@ class vcsTest:
         
 if __name__ == '__main__':
     from TestDefinitions import testManager    
-    testManager.runTests()
+#    testManager.runTests()
+#    testManager.runTest( 'dv3d_slider_test', True )
+    testManager.showTest( 'dv3d_slider_test' )
     
 
 
