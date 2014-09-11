@@ -300,14 +300,14 @@ class VTKVCSBackend(object):
 
   def plot(self,data1,data2,template,gtype,gname,bg,*args,**kargs):
     self.numberOfPlotCalls+=1
-    created = self.createRenWin(**kargs)
     if self.bg is None:
       if bg:
         self.bg= True
       else:
         self.bg= False
-        if created:
-          self.initialSize()
+    created = self.createRenWin(**kargs)
+    if created:
+        self.initialSize()
     if self.bg:
         self.renWin.SetOffScreenRendering(True)
         self.renWin.SetSize(self.canvas.bgX,self.canvas.bgY)
@@ -386,6 +386,7 @@ class VTKVCSBackend(object):
       raise Exception,"Graphic type: '%s' not re-implemented yet" % gtype
     if not kargs.get("donotstoredisplay",False): 
       self.renWin.Render()
+
 
   def plot1D(self,data1,data2,tmpl,gm,ren):
     self.setLayer(ren,tmpl.data.priority)

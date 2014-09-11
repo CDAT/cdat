@@ -6,7 +6,7 @@ Created on Apr 30, 2014
 from ColorMapManager import *
 from ButtonBarWidget import *
 import vtk, traceback
-MIN_LINE_LEN = 100
+MIN_LINE_LEN = 150
 VTK_NOTATION_SIZE = 10
 
 class AnimationStepper:
@@ -47,7 +47,7 @@ class TextDisplayMgr:
 #        textActor.SetWidth( 0.6 ) 
 #        textActor.SetHeight( 0.08 )     
         text_lines = text.split('\n')
-        linelen = len(text_lines[-1])
+        linelen = len(text_lines[0])
         if linelen < MIN_LINE_LEN: text += (' '*(MIN_LINE_LEN-linelen)) 
         text += '.' 
         textActor.SetInput( text )
