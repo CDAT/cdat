@@ -15,7 +15,7 @@ f = open(os.path.join(sys.prefix,"share","vcs","wmo_symbols.json"))
 wmo = json.load(f)
 
 def putMaskOnVTKGrid(data,grid,actorColor=None,cellData=True,deep=True):
-  #Ok now looking 
+  #Ok now looking
   msk = data.mask
   imsk =  VN.numpy_to_vtk(msk.astype(numpy.int).flat,deep=deep)
   mapper = None
@@ -106,7 +106,6 @@ def genGrid(data1,data2,gm):
     numberOfCells = N
     lst.SetNumberOfComponents(nVertices + 1)
     lst.SetNumberOfTuples(numberOfCells)
-   
     for i in range(N):
       tuple = [None] * (nVertices + 1)
       tuple[0] = nVertices
@@ -266,7 +265,7 @@ def prepContinents(fnm):
             didIt = True
           except:
             didIt = False
-        if didIt is False: 
+        if didIt is False:
           while len(ln)>2:
             l,L=float(ln[:8]),float(ln[8:16])
             pts.InsertNextPoint(L,l,0.0001)
@@ -308,7 +307,7 @@ def project(pts,projection,wc):
   #  print i,":",pd.GetProjectionName(i),"(",pd.GetNumberOfOptionalParameters(),") --"
   #  pd.SetName(pd.GetProjectionName(i+1))
   #  print i+1,":",pd.GetProjectionName(i+1),"(",pd.GetNumberOfOptionalParameters(),")"
-    
+
   pd.SetName(projName)
   if projection.type == "polar (non gctp)":
     if ym<yM:
@@ -521,7 +520,7 @@ def doWrap(Act,wc,wrap=[0.,360]):
   if numpy.allclose(ymn,1.e20) or numpy.allclose(ymx,1.e20):
     ymx = abs(wrap[0])
     ymn = -wrap[0]
-  
+
   ## Prepare MultiBlock and puts in oriinal data
   appendFilter =vtk.vtkAppendPolyData()
   appendFilter.AddInputData(data)
@@ -587,48 +586,81 @@ def doWrap(Act,wc,wrap=[0.,360]):
   #Mapper2 = vtk.vtkDataSetMapper()
   #Mapper2 = vtk.vtkCompositePolyDataMapper()
   Mapper2 = vtk.vtkPolyDataMapper()
-  Mapper2.SetInputData(doClip(appendFilter.GetOutput(),xmn,xmx,ymn,ymx))
+  Mapper2.SetInputData(appendFilter.GetOutput())
   Mapper2.SetLookupTable(Mapper.GetLookupTable())
   Mapper2.SetScalarRange(Mapper.GetScalarRange())
   Mapper2.SetScalarMode(Mapper.GetScalarMode())
+  setClipPlanes(Mapper2, xmn, xmx, ymn, ymx)
   Mapper2.Update()
   Actor.SetMapper(Mapper2)
   return Actor
 
-def doClip(data,xmin,xmax,ymin,ymax):
-  if xmin!=xmax:
-    xminClip = doClip1(data,xmin,1,0)
-    xfullClip = doClip1(xminClip,xmax,-1,0)
-  else:
-    xfullClip = data
-  if ymin!=ymax:
-    yminClip  = doClip1(xfullClip,ymin,1,1)
-    xyClip  = doClip1(yminClip,ymax,-1,1)
-  else:
-    xyClip = xfullClip
-  return xyClip
+def setClipPlanes(mapper, xmin, xmax, ymin, ymax):
+    clipPlaneCollection = vtk.vtkPlaneCollection()
 
-def doClip1(data,value,normal,axis=0):
-    # We have the actor, do clipping
-    clpf = vtk.vtkPlane()
-    if axis == 0:
-      clpf.SetOrigin(value,0,0)
-      clpf.SetNormal(normal,0,0)
-    else:
-      clpf.SetOrigin(0,value,0)
-      clpf.SetNormal(0,normal,0)
-    clp = vtk.vtkClipPolyData()
-    clp.SetClipFunction(clpf)
-    clp.SetInputData(data)
-    clp.Update()
-    return clp.GetOutput()
+    if xmin != xmax:
+      clipPlaneXMin = vtk.vtkPlane()
+      clipPlaneXMin.SetOrigin(xmin, 0.0, 0.0)
+      clipPlaneXMin.SetNormal(1.0, 0.0, 0.0)
+
+      clipPlaneXMax = vtk.vtkPlane()
+      clipPlaneXMax.SetOrigin(xmax, 0.0, 0.0)
+      clipPlaneXMax.SetNormal(-1.0, 0.0, 0.0)
+
+      clipPlaneCollection.AddItem(clipPlaneXMin)
+      clipPlaneCollection.AddItem(clipPlaneXMax)
+
+    if ymin != ymax:
+      clipPlaneYMin = vtk.vtkPlane()
+      clipPlaneYMin.SetOrigin(0.0, ymin, 0.0)
+      clipPlaneYMin.SetNormal(0.0, 1.0, 0.0)
+
+      clipPlaneYMax = vtk.vtkPlane()
+      clipPlaneYMax.SetOrigin(0.0, ymax, 0.0)
+      clipPlaneYMax.SetNormal(0.0, -1.0, 0.0)
+
+      clipPlaneCollection.AddItem(clipPlaneYMin)
+      clipPlaneCollection.AddItem(clipPlaneYMax)
+
+    if clipPlaneCollection.GetNumberOfItems() > 0:
+        mapper.SetClippingPlanes(clipPlaneCollection)
+
+# The code is replaced by the setClipPlanes above
+# def doClip(data, xmin,xmax,ymin,ymax):
+#   if xmin!=xmax:
+#     xminClip = doClip1(data,xmin,1,0)
+#     xfullClip = doClip1(xminClip,xmax,-1,0)
+#   else:
+#     xfullClip = data
+#   if ymin!=ymax:
+#     yminClip  = doClip1(xfullClip,ymin,1,1)
+#     xyClip  = doClip1(yminClip,ymax,-1,1)
+#   else:
+#     xyClip = xfullClip
+#   return xyClip
+
+# def doClip1(data,value,normal,axis=0):
+#     return data
+#     # We have the actor, do clipping
+#     clpf = vtk.vtkPlane()
+#     if axis == 0:
+#       clpf.SetOrigin(value,0,0)
+#       clpf.SetNormal(normal,0,0)
+#     else:
+#       clpf.SetOrigin(0,value,0)
+#       clpf.SetNormal(0,normal,0)
+#     clp = vtk.vtkClipPolyData()
+#     clp.SetClipFunction(clpf)
+#     clp.SetInputData(data)
+#     clp.Update()
+#     return clp.GetOutput()
 
 def prepTextProperty(p,winSize,to="default",tt="default",cmap=None):
   if isinstance(to,str):
     to = vcs.elements["textorientation"][to]
   if isinstance(tt,str):
     tt = vcs.elements["texttable"][tt]
-  
+
   if cmap is None:
     if tt.colormap is not None:
       cmap = tt.colormap
@@ -661,7 +693,7 @@ def prepTextProperty(p,winSize,to="default",tt="default",cmap=None):
   p.SetFontFamily(vtk.VTK_FONT_FILE)
   p.SetFontFile(vcs.elements["font"][vcs.elements["fontNumber"][tt.font]])
   p.SetFontSize(int(to.height*winSize[1]/800.))
-  
+
 
 def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cmap=None):
   if isinstance(to,str):
@@ -678,7 +710,7 @@ def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cm
     y = tt.y
   if x is None or y is None or string in [['',],[]]:
     return
-  
+
   n = max(len(x),len(y),len(string))
   for a in [x,y,string]:
     while len(a)<n:
@@ -697,7 +729,7 @@ def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cm
     #T.RotateY(to.angle)
     #t.SetUserTransform(T)
     renderer.AddActor(t)
-  return 
+  return
 
 def prepPrimitive(prim):
   if prim.x is None or prim.y is None:
@@ -759,7 +791,7 @@ def prepFillarea(renWin,ren,farea,cmap=None):
     m.SetInputData(polygonPolyData)
     a.SetMapper(m)
     p = a.GetProperty()
-   
+
     if cmap is None:
       if farea.colormap is not None:
         cmap = farea.colormap
@@ -771,7 +803,7 @@ def prepFillarea(renWin,ren,farea,cmap=None):
     p.SetColor([C/100. for C in color])
     ren.AddActor(a)
     fitToViewport(a,ren,farea.viewport,wc=farea.worldcoordinate,geo=geo)
-  return 
+  return
 
 def genPoly(coords,pts,filled=True):
   N = pts.GetNumberOfPoints()
@@ -947,7 +979,7 @@ def prepMarker(renWin,ren,marker,cmap=None):
     p.SetColor([C/100. for C in color])
     ren.AddActor(a)
     fitToViewport(a,ren,marker.viewport,wc=marker.worldcoordinate,geo=geo)
-  return 
+  return
 
 def prepLine(renWin,ren,line,cmap=None):
   n = prepPrimitive(line)
@@ -982,7 +1014,7 @@ def prepLine(renWin,ren,line,cmap=None):
     a.SetMapper(m)
     p = a.GetProperty()
     p.SetLineWidth(w)
-   
+
     if cmap is None:
       if line.colormap is not None:
         cmap = line.colormap
@@ -1012,7 +1044,7 @@ def prepLine(renWin,ren,line,cmap=None):
       raise Exception,"Unkonw line type: '%s'" % t
     ren.AddActor(a)
     fitToViewport(a,ren,line.viewport,wc=line.worldcoordinate,geo=geo)
-  return 
+  return
 
 def getRendererCorners(Renderer,vp=[0.,1.,0.,1.]):
   sz = Renderer.GetSize()
@@ -1095,6 +1127,44 @@ def fitToViewport(Actor,Renderer,vp,wc=None,geo=None):
 
   Actor.SetUserTransform(T)
 
+  mapper = Actor.GetMapper()
+  planeCollection = mapper.GetClippingPlanes()
+
+  # We have to transform the hardware clip planes as well
+  if (planeCollection is not None):
+      planeCollection.InitTraversal()
+      plane = planeCollection.GetNextItem()
+      while (plane):
+          origin = plane.GetOrigin()
+          inOrigin = [origin[0], origin[1], origin[2], 1.0]
+          outOrigin = [origin[0], origin[1], origin[2], 1.0]
+
+          normal = plane.GetNormal()
+          inNormal = [normal[0], normal[1], normal[2], 0.0]
+          outNormal = [normal[0], normal[1], normal[2], 0.0]
+
+          T.MultiplyPoint(inOrigin, outOrigin)
+          if (outOrigin[3] != 0.0):
+              outOrigin[0] /= outOrigin[3]
+              outOrigin[1] /= outOrigin[3]
+              outOrigin[2] /= outOrigin[3]
+          plane.SetOrigin(outOrigin[0], outOrigin[1], outOrigin[2])
+
+          # For normal matrix, compute the transpose of inverse
+          normalTransform = vtk.vtkTransform()
+          normalTransform.DeepCopy(T)
+          mat = vtk.vtkMatrix4x4()
+          normalTransform.GetTranspose(mat)
+          normalTransform.GetInverse(mat)
+          normalTransform.SetMatrix(mat)
+          normalTransform.MultiplyPoint(inNormal, outNormal)
+          if (outNormal[3] != 0.0):
+              outNormal[0] /= outNormal[3]
+              outNormal[1] /= outNormal[3]
+              outNormal[2] /= outNormal[3]
+          plane.SetNormal(outNormal[0], outNormal[1], outNormal[2])
+
+          plane = planeCollection.GetNextItem()
 
   xc = xScale*float(Xrg[1]+Xrg[0])/2.
   yc = yScale*float(Yrg[1]+Yrg[0])/2.
