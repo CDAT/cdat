@@ -1,0 +1,16 @@
+######################################################################
+#
+# Makefile.show: A PETSc Makefile to get PETSc variables
+#
+# $Id: Makefile.show 1151 2011-12-17 13:51:42Z cary $
+#
+# Copyright 2010-2011 Tech-X Corporation.
+# Arbitrary redistribution allowed provided this copyright remains.
+#
+######################################################################
+# Makefile to grab PETSc make variables
+# PETSC_DIR is passed though CMake
+include ${PETSC_DIR}/conf/rules
+include ${PETSC_DIR}/conf/variables
+showvar:
+	-@echo -n  ${${PKG_VARIABLE}}
