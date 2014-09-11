@@ -6,7 +6,7 @@ Created on Aug 28, 2014
 
 
 import cdms2, cdutil, genutil
-import vcs, os, sys
+import vcs, os, sys, shutil
 
 DefaultSampleFile = "geos5-sample.nc"
 DefaultSampleVar = "uwnd"
@@ -35,19 +35,23 @@ class TestManager:
             test.writeCMakeDef( f )
         f.close()
         
-    def runTest(self, testName ):
+    def runTest(self, testName, interactive=False ):
         test = TestManager.DefinedTests.get( testName, None )
         if test == None:
             print>>sys.stderr, "Can't find test named %s" % testName
             return -1
-        test.test()
-                 
+        test.test( interactive )
+
+    def runTests( self ):  
+        for test in TestManager.DefinedTests.keys():
+            self.runTest( test, True )      
+                   
 class vcsTest:
         
     def __init__( self, name, **args ):
         self.name = name
         self.test_dir = os.path.dirname(__file__)
-        parent_dir = os.path.join( self.test_dir, "..", "..", "testing" )
+        parent_dir = os.path.join( self.test_dir, ".."  )
         sys.path.append( parent_dir )
         self.image_name = os.path.join( self.test_dir, 'images', '.'.join( [ self.name, 'png' ] )  )
         filename = args.get( 'file', DefaultSampleFile )
@@ -92,13 +96,20 @@ class vcsTest:
         self.build()
         self.canvas.interact()
         
-    def test( self, interactive=False ):        
+    def test( self, interactive=False ): 
+        print "Running %s test !"  % self.name      
         import checkimage
         self.build()
-        test_image = os.path.join( self.test_dir, 'images', '.'.join( [ self.name, 'png' ] ) )
+#        test_image = os.path.join( self.test_dir, 'images', '.'.join( [ self.name, 'png' ] ) )
+        test_image = '.'.join( [ self.name, 'test', 'png' ] )
+        ref_image  = '.'.join( [ self.name, 'png' ] )
         self.canvas.png( test_image )
-        ret = checkimage.check_result_image( self.image_name, test_image, 0.05 )
-        if not interactive: sys.exit(ret)
+        shutil.copy( self.image_name, ref_image )
+        ret = checkimage.check_result_image( ref_image, test_image, 0.05 )
+        if  interactive: 
+            print "Type <Enter> to continue." 
+            line = sys.stdin.readline()
+        else: sys.exit(ret)
         
     def update_image(self):
         print "Saving reference image to %s " % self.image_name       
@@ -117,6 +128,10 @@ class vcsTest:
         f1.close()
         
         
+if __name__ == '__main__':
+    from TestDefinitions import testManager    
+    testManager.runTests()
+    
 
 
 
