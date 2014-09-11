@@ -712,7 +712,7 @@ class StructuredDataReader:
                 md = varDataSpecs[ 'md' ] 
                 varName = varDataId.split(';')[1]
                 var_md = md[ 'attributes' ]            
-                if newDataArray <> None:
+                if not newDataArray is None:
                     vars.append( varName ) 
                     md[ 'valueRange'] = var_md[ 'range' ] 
                     vtkdata = getNewVtkDataArray( scalar_dtype )
