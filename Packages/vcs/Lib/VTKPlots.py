@@ -599,6 +599,7 @@ class VTKVCSBackend(object):
   def plot2D(self,data1,data2,tmpl,gm,ren):
     self.setLayer(ren,tmpl.data.priority)
     ug,xm,xM,ym,yM,continents,wrap,geo,cellData = vcs2vtk.genGrid(data1,data2,gm)
+    print "Grid gen gives us:",xm,xM,ym,yM
     #Now applies the actual data on each cell
     if isinstance(gm,boxfill.Gfb) and gm.boxfill_type=="log10":
         data1=numpy.ma.log10(data1)
@@ -608,6 +609,7 @@ class VTKVCSBackend(object):
     else:
         ug.GetPointData().SetScalars(data)
     
+    vcs2vtk.dump2VTK(ug,"VTK")
     try:
       cmap = vcs.elements["colormap"][cmap]
     except:
@@ -880,6 +882,7 @@ class VTKVCSBackend(object):
         mappers.insert(0,missingMapper)
 
     x1,x2,y1,y2 = vcs2vtk.getRange(gm,xm,xM,ym,yM)
+    print "x1,x2,y1,y2:",x1,x2,y1,y2
 
     if tmpl.data.priority != 0:
       # And now we need actors to actually render this thing
