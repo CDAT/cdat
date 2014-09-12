@@ -35,6 +35,7 @@ ExternalProject_Add(VTK
     -DPYTHON_MINOR_VERSION:STRING=${PYTHON_MINOR}
     -DVTK_Group_Rendering:BOOL=OFF
     -DVTK_Group_StandAlone:BOOL=OFF
+    -DVTK_LEGACY_SILENT:BOOL=ON
     ${_vtk_module_options}
   CMAKE_ARGS
     -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>
