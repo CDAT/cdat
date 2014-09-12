@@ -1075,6 +1075,8 @@ def vtkWorld2Renderer(ren,x,y):
   return renpts
 
 def fitToViewport(Actor,Renderer,vp,wc=None,geo=None):
+  print "FIT WC IS:",wc
+  T = vtk.vtkTransform()
   ## Data range in World Coordinates
   if wc is None:
     Xrg = list(Actor.GetXRange())
@@ -1082,6 +1084,10 @@ def fitToViewport(Actor,Renderer,vp,wc=None,geo=None):
   else:
     Xrg=[float(wc[0]),float(wc[1])]
     Yrg=[float(wc[2]),float(wc[3])]
+  if Yrg[0]>Yrg[1]:
+    #Yrg=[Yrg[1],Yrg[0]]
+    T.RotateY(180)
+    Yrg=[Yrg[1],Yrg[0]]
 
   if geo is not None:
    pt = vtk.vtkPoints()
@@ -1122,7 +1128,6 @@ def fitToViewport(Actor,Renderer,vp,wc=None,geo=None):
       yScale = dRatio/(vRatio*wRatio)
 
 
-  T = vtk.vtkTransform()
   T.Scale(xScale,yScale,1.)
 
   Actor.SetUserTransform(T)
