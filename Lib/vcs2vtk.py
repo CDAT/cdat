@@ -154,8 +154,8 @@ def genGrid(data1,data2,gm):
         cellData = False
     else:
       data1=cdms2.asVariable(data1)
-      lon=data1.getAxis(-1)[:]
-      lat=data1.getAxis(-2)[:]
+      lon=data1.getAxis(-1)
+      lat=data1.getAxis(-2)
       lat2 = numpy.zeros(len(lat)+1)
       lon2 = numpy.zeros(len(lon)+1)
       # Ok let's try to get the bounds
@@ -164,8 +164,8 @@ def genGrid(data1,data2,gm):
         blon = lon.GetBounds()
         lat2[:len(lat)]=blat[:][0]
         lat2[len(lat2)]=blat[-1][1]
-        lon2[:len(lat)]=blat[:][0]
-        lon2[len(lat2)]=blat[-1][1]
+        lon2[:len(lon)]=blon[:][0]
+        lon2[len(lon2)]=blon[-1][1]
       except:
         ## No luck we have to generate bounds ourselves
         lat2[1:-1]=(lat[:-1]+lat[1:])/2.
@@ -173,7 +173,7 @@ def genGrid(data1,data2,gm):
         lat2[-1]=lat[-1]+(lat[-1]-lat[-2])/2.
         lon2[1:-1]=(lon[:-1]+lon[1:])/2.
         lon2[0]=lon[0]-(lon[1]-lon[0])/2.
-        lon2[-1]=lat[-1]+(lat[-1]-lat[-2])/2.
+        lon2[-1]=lon[-1]+(lon[-1]-lon[-2])/2.
       lat = lat2[:,numpy.newaxis]*numpy.ones(lon2.shape)[numpy.newaxis,:]
       lon = lon2[numpy.newaxis,:]*numpy.ones(lat2.shape)[:,numpy.newaxis]
     vg.SetDimensions(lat.shape[1],lat.shape[0],1)
@@ -1064,8 +1064,6 @@ def R2World(ren,x,y):
   #print "ok X and Y:",x,y
   ren.SetDisplayPoint(x,y,0)
   ren.DisplayToWorld()
-  ren.ViewToWorld()
-  wp = ren.GetWorldPoint()
   return wp
 
 def vtkWorld2Renderer(ren,x,y):
@@ -1075,9 +1073,9 @@ def vtkWorld2Renderer(ren,x,y):
   return renpts
 
 def fitToViewport(Actor,Renderer,vp,wc=None,geo=None):
-  print "FIT WC IS:",wc
   T = vtk.vtkTransform()
   ## Data range in World Coordinates
+  #print "Wc:",wc
   if wc is None:
     Xrg = list(Actor.GetXRange())
     Yrg = list(Actor.GetYRange())
@@ -1086,8 +1084,16 @@ def fitToViewport(Actor,Renderer,vp,wc=None,geo=None):
     Yrg=[float(wc[2]),float(wc[3])]
   if Yrg[0]>Yrg[1]:
     #Yrg=[Yrg[1],Yrg[0]]
-    T.RotateY(180)
+    #T.RotateY(180)
     Yrg=[Yrg[1],Yrg[0]]
+    flipY = True
+  else:
+    flipY = False
+  if Xrg[0]>Xrg[1]:
+    Xrg=[Xrg[1],Xrg[0]]
+    flipX=True
+  else:
+    flipX=False
 
   if geo is not None:
    pt = vtk.vtkPoints()
@@ -1181,6 +1187,13 @@ def fitToViewport(Actor,Renderer,vp,wc=None,geo=None):
   cd = cam.GetDistance()
   cam.SetPosition(xc,yc,cd)
   cam.SetFocalPoint(xc,yc,0.)
+  if flipY:
+    #cam.Azimuth(180.)
+    cam.Roll(90.)
+    cam.Elevation(180.)
+    pass
+  if flipX:
+    cam.Azimuth(180.)
 
 p=vtk.vtkGeoProjection()
 vtkProjections = [ p.GetProjectionName(i) for i in range(p.GetNumberOfProjections()) ]
