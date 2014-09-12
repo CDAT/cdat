@@ -1,3 +1,0 @@
-[submodule "contrib/sciMake"]
-	path = contrib/sciMake
-	url = git://github.com/UV-CDAT/scimake.git

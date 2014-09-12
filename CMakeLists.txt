@@ -176,21 +176,22 @@ endif()
 
 # Initialize submodules
 #-----------------------------------------------------------------------------
-if(GIT_FOUND)
-  message("[INFO] Updating git submodules")
-  execute_process(
-    COMMAND ${GIT_EXECUTABLE} submodule init
-    OUTPUT_VARIABLE subinit_out
-    ERROR_VARIABLE subinit_err
-    WORKING_DIRECTORY ${cdat_SOURCE_DIR}
-  )
-  execute_process(
-    COMMAND ${GIT_EXECUTABLE} submodule update
-    OUTPUT_VARIABLE subup_out
-    ERROR_VARIABLE subup_err
-    WORKING_DIRECTORY ${cdat_SOURCE_DIR}
-  )
-endif()
+# C. Doutriaux commented this out no submodules left at this time
+#if(GIT_FOUND)
+#  message("[INFO] Updating git submodules")
+#  execute_process(
+#    COMMAND ${GIT_EXECUTABLE} submodule init
+#    OUTPUT_VARIABLE subinit_out
+#    ERROR_VARIABLE subinit_err
+#    WORKING_DIRECTORY ${cdat_SOURCE_DIR}
+#  )
+#  execute_process(
+#    COMMAND ${GIT_EXECUTABLE} submodule update
+#    OUTPUT_VARIABLE subup_out
+#    ERROR_VARIABLE subup_err
+#    WORKING_DIRECTORY ${cdat_SOURCE_DIR}
+#  )
+#endif()
 
 # Check if system has fortran compiler and act accordingly
 #-----------------------------------------------------------------------------
