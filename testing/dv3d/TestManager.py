@@ -20,21 +20,15 @@ class TestManager:
     
     def reviewTests(self):
         for (testName, test) in TestManager.DefinedTests.items():
-            print "Running test: ", testName
-            test.show()
-            line = sys.stdin.readline()
-            if line[0] == 'q': break
-            if line[0] <> 'n': test.update_image() 
+            self.reviewTest(testName)
         print " Finished reviewing tests, update CMakeLists? (y/n)" 
         line = sys.stdin.readline() 
         if line[0] == 'y': self.writeCMakeLists()
 
+
     def reviewTest(self, testName ):
-        test = TestManager.DefinedTests[ testName ]
         print "Running test: ", testName
-        test.show()
-        line = sys.stdin.readline()
-        if line[0] <> 'n': test.update_image() 
+        os.system("python %s.py -i" % testName ) 
         
     def writeCMakeLists(self):
         f = open( 'CMakeLists.txt', 'w' )
@@ -97,7 +91,7 @@ class vcsTest:
         plot_kwargs = { 'cdmsfile': self.file.id, 'window_size': (900,600) }
         self.canvas.plot( *plot_args, **plot_kwargs )
         self.plot = self.canvas.backend.plotApps[ self.gm ]
-        self.applyActions()
+#        self.applyActions()
         
     def applyActions(self):
         for action in self.actions:
@@ -122,9 +116,11 @@ class vcsTest:
         shutil.copy( self.image_name, ref_image )
         ret = checkimage.check_result_image( ref_image, test_image, 0.05 )
         if  interactive: 
-            print "Type <Enter> to continue." 
+            print "Type <Enter> to continue and update ref image ( type 'n' to skip update )." 
+            sys.stdout.flush()
             line = sys.stdin.readline()
-        else: sys.exit(ret)
+            if line[0] <> 'n':  self.update_image() 
+        sys.exit(ret)
         
     def update_image(self):
         print "Saving reference image to %s " % self.image_name       
@@ -138,8 +134,10 @@ class vcsTest:
         f.write( ")\n\n\n")
         source_file = os.path.join( self.test_dir, "%s.py" % self.name )
         f1 = open( source_file, 'w' )
+        f1.write( "import sys\n")
         f1.write( "from TestDefinitions import testManager\n"  )
-        f1.write( "testManager.runTest('%s')\n" % self.name )
+        f1.write( "interactive = ( len(sys.argv) > 1 ) and ( sys.argv[1] == '-i' )\n")
+        f1.write( "testManager.runTest( '%s', interactive )\n" % self.name )
         f1.close()
         
         
@@ -147,7 +145,7 @@ if __name__ == '__main__':
     from TestDefinitions import testManager    
 #    testManager.runTests()
 #    testManager.runTest( 'dv3d_slider_test', True )
-    testManager.showTest( 'dv3d_slider_test' )
+#    testManager.showTest( 'dv3d_slider_test' )
     
 
 

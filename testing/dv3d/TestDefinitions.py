@@ -50,5 +50,4 @@ test3 =  vcsTest( 'dv3d_surface_test', roi=( -105.0, -15.0, 5.0, 50.0 ), file="g
 if __name__ == '__main__':
     
     testManager.reviewTests()
-#    testManager.reviewTest( 'dv3d_slider_test' )
     
