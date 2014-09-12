@@ -888,19 +888,31 @@ class P(object):
         displays = []
         # compute the spanning in x and y, and adjust for the viewport
         if gm.datawc_x1 > 9.E19 :
-          wc[0]=X[:].min()
+          try:
+            wc[0]=X[:][0]
+          except:
+            wc[0]=X[:].min()
         else:
           wc[0] = gm.datawc_x1
         if gm.datawc_x2 > 9.E19 :
-          wc[1]=X[:].max()
+          try:
+            wc[1]=X[:][-1]
+          except:
+            wc[1]=X[:].max()
         else:
           wc[1] = gm.datawc_x2
         if gm.datawc_y1 > 9.E19 :
-          wc[2]=Y[:].min()
+          try:
+            wc[2]=Y[:][0]
+          except:
+            wc[2]=Y[:].min()
         else:
           wc[2] = gm.datawc_y1
         if gm.datawc_y2 > 9.E19 :
-          wc[3]=Y[:].max()
+          try:
+            wc[3]=Y[:][-1]
+          except:
+            wc[3]=Y[:].max()
         else:
           wc[3] = gm.datawc_y2
         vp=[self.data.x1,self.data.x2,self.data.y1,self.data.y2]
