@@ -327,7 +327,7 @@ class DV3DPlot():
         return 0
     
     def processAnimationCommand( self, args, config_function = None ):
-#        print " processAnimationCommand, args = ", str( args )
+#        print " processAnimationCommand, args = ", str( args ), ", animating = ", str(self.animating)
         runSpeed = config_function.value
         if args and args[0] == "StartConfig":
             pass
@@ -341,7 +341,10 @@ class DV3DPlot():
             if state == 1:
                 self.updateTextDisplay( config_function.label )
                 bbar.show()
-                self.changeButtonActivations( [ ( 'Run', True ), ( 'Stop', False ) , ( 'Step', True ) ] )  
+                if self.animating:
+                    self.changeButtonActivations( [ ( 'Run', False ), ( 'Stop', True ) , ( 'Step', False ) ] )  
+                else:
+                    self.changeButtonActivations( [ ( 'Run', True ), ( 'Stop', False ) , ( 'Step', True ) ] )  
             else:
                 bbar.hide()
         elif args and args[0] == "Open":
@@ -360,8 +363,10 @@ class DV3DPlot():
             if self.animationTimerId == -1: 
                 self.changeButtonActivations( [ ( 'Run', False ), ( 'Stop', True ) , ( 'Step', False ) ] )  
                 self.animationStepper.startAnimation()
+                self.animating = True
         elif button_id == 'Stop':
             self.animationStepper.stopAnimation()
+            self.animating = False
             
     def startAnimation(self):   
         self.notifyStartAnimation()
