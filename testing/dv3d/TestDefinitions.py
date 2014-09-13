@@ -7,8 +7,20 @@ from TestManager import TestManager, vcsTest
 import vcs, sys, os
 
 testManager = TestManager()   
+
+test1 =  vcsTest( 'dv3d_slider_test', roi=( -105.0, -15.0, 5.0, 50.0 ), file="geos5-sample.nc", vars = [ 'uwnd' ], 
+                     parameters={'VerticalScaling': 3.0,
+                                 'ToggleVolumePlot': vcs.off, 
+                                 'ScaleOpacity': [1.0, 1.0], 
+                                 'ToggleSurfacePlot': vcs.off, 
+                                 'ScaleColormap': [-10.0, 10.0, 1], 
+                                 'BasemapOpacity': [0.5],
+                                 'XSlider': ( -50.0, vcs.on ),
+                                 'ZSlider': ( 10.0,  vcs.on ),
+                                 'YSlider': ( 20.0,  vcs.on ), 
+                                 }  )       
      
-test1 =  vcsTest( 'dv3d_volume_test', roi=( -105.0, -15.0, 7.0, 50.0 ), file="geos5-sample.nc", vars = [ 'uwnd' ], 
+test2 =  vcsTest( 'dv3d_volume_test', roi=( -105.0, -15.0, 7.0, 50.0 ), file="geos5-sample.nc", vars = [ 'uwnd' ], 
                      parameters={'VerticalScaling': 3.0, 
                                  'ToggleVolumePlot': vcs.on,
                                  'ToggleSurfacePlot': vcs.off, 
@@ -21,17 +33,6 @@ test1 =  vcsTest( 'dv3d_volume_test', roi=( -105.0, -15.0, 7.0, 50.0 ), file="ge
                                  'YSlider': ( vcs.off ), 
                                  }  )       
 
-test2 =  vcsTest( 'dv3d_slider_test', roi=( -105.0, -15.0, 5.0, 50.0 ), file="geos5-sample.nc", vars = [ 'uwnd' ], 
-                     parameters={'VerticalScaling': 3.0,
-                                 'ToggleVolumePlot': vcs.off, 
-                                 'ScaleOpacity': [1.0, 1.0], 
-                                 'ToggleSurfacePlot': vcs.off, 
-                                 'ScaleColormap': [-10.0, 10.0, 1], 
-                                 'BasemapOpacity': [0.5],
-                                 'XSlider': ( -50.0, vcs.on ),
-                                 'ZSlider': ( 10.0,  vcs.on ),
-                                 'YSlider': ( 20.0,  vcs.on ), 
-                                 }  )       
 
 test3 =  vcsTest( 'dv3d_surface_test', roi=( -105.0, -15.0, 5.0, 50.0 ), file="geos5-sample.nc", vars = [ 'uwnd' ], 
                      parameters={'VerticalScaling': 3.0,

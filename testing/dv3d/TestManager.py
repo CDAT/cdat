@@ -6,28 +6,29 @@ Created on Aug 28, 2014
 
 
 import cdms2, cdutil, genutil
-import vcs, os, sys
+import vcs, os, sys, shutil, collections
 
 DefaultSampleFile = "geos5-sample.nc"
 DefaultSampleVar = "uwnd"
 
 class TestManager:
     
-    DefinedTests = {}
+    DefinedTests = collections.OrderedDict()
     
     def __init__( self ):
         pass
     
     def reviewTests(self):
         for (testName, test) in TestManager.DefinedTests.items():
-            print "Running test: ", testName
-            test.show()
-            line = sys.stdin.readline()
-            if line[0] == 'q': break
-            if line[0] <> 'n': test.update_image() 
+            self.reviewTest(testName)
         print " Finished reviewing tests, update CMakeLists? (y/n)" 
         line = sys.stdin.readline() 
         if line[0] == 'y': self.writeCMakeLists()
+
+
+    def reviewTest(self, testName ):
+        print "Running test: ", testName
+        os.system("python %s.py -i" % testName ) 
         
     def writeCMakeLists(self):
         f = open( 'CMakeLists.txt', 'w' )
@@ -35,19 +36,31 @@ class TestManager:
             test.writeCMakeDef( f )
         f.close()
         
-    def runTest(self, testName ):
+    def runTest(self, testName, interactive=False ):
         test = TestManager.DefinedTests.get( testName, None )
         if test == None:
             print>>sys.stderr, "Can't find test named %s" % testName
             return -1
-        test.test()
-                 
+        test.test( interactive )
+
+    def showTest(self, testName ):
+        test = TestManager.DefinedTests.get( testName, None )
+        if test == None:
+            print>>sys.stderr, "Can't find test named %s" % testName
+            return -1
+        test.show()
+        line = sys.stdin.readline()
+
+    def runTests( self ):  
+        for test in TestManager.DefinedTests.keys():
+            self.runTest( test, True )      
+                   
 class vcsTest:
         
     def __init__( self, name, **args ):
         self.name = name
         self.test_dir = os.path.dirname(__file__)
-        parent_dir = os.path.join( self.test_dir, "..", "..", "testing" )
+        parent_dir = os.path.join( self.test_dir, ".."  )
         sys.path.append( parent_dir )
         self.image_name = os.path.join( self.test_dir, 'images', '.'.join( [ self.name, 'png' ] )  )
         filename = args.get( 'file', DefaultSampleFile )
@@ -78,7 +91,7 @@ class vcsTest:
         plot_kwargs = { 'cdmsfile': self.file.id, 'window_size': (900,600) }
         self.canvas.plot( *plot_args, **plot_kwargs )
         self.plot = self.canvas.backend.plotApps[ self.gm ]
-        self.applyActions()
+#        self.applyActions()
         
     def applyActions(self):
         for action in self.actions:
@@ -92,13 +105,22 @@ class vcsTest:
         self.build()
         self.canvas.interact()
         
-    def test( self, interactive=False ):        
+    def test( self, interactive=False ):      
         import checkimage
         self.build()
-        test_image = os.path.join( self.test_dir, 'images', '.'.join( [ self.name, 'png' ] ) )
+#        test_image = os.path.join( self.test_dir, 'images', '.'.join( [ self.name, 'png' ] ) )
+        test_image = '.'.join( [ self.name, 'test', 'png' ] )
+        ref_image  = '.'.join( [ self.name, 'png' ] )
         self.canvas.png( test_image )
-        ret = checkimage.check_result_image( self.image_name, test_image, 0.05 )
-        if not interactive: sys.exit(ret)
+        print "Copying ref image %s to %s in %s " % ( self.image_name, ref_image, os.path.abspath('.') )
+        shutil.copy( self.image_name, ref_image )
+        ret = checkimage.check_result_image( ref_image, test_image, 0.05 )
+        if  interactive: 
+            print "Type <Enter> to continue and update ref image ( type 'n' to skip update )." 
+            sys.stdout.flush()
+            line = sys.stdin.readline()
+            if line[0] <> 'n':  self.update_image() 
+        sys.exit(ret)
         
     def update_image(self):
         print "Saving reference image to %s " % self.image_name       
@@ -112,11 +134,19 @@ class vcsTest:
         f.write( ")\n\n\n")
         source_file = os.path.join( self.test_dir, "%s.py" % self.name )
         f1 = open( source_file, 'w' )
+        f1.write( "import sys\n")
         f1.write( "from TestDefinitions import testManager\n"  )
-        f1.write( "testManager.runTest('%s')\n" % self.name )
+        f1.write( "interactive = ( len(sys.argv) > 1 ) and ( sys.argv[1] == '-i' )\n")
+        f1.write( "testManager.runTest( '%s', interactive )\n" % self.name )
         f1.close()
         
         
+if __name__ == '__main__':
+    from TestDefinitions import testManager    
+#    testManager.runTests()
+#    testManager.runTest( 'dv3d_slider_test', True )
+#    testManager.showTest( 'dv3d_slider_test' )
+    
 
 
 

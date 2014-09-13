@@ -6,7 +6,7 @@ Created on Apr 30, 2014
 from ColorMapManager import *
 from ButtonBarWidget import *
 import vtk, traceback
-MIN_LINE_LEN = 50
+MIN_LINE_LEN = 150
 VTK_NOTATION_SIZE = 10
 
 class AnimationStepper:
@@ -25,22 +25,29 @@ class TextDisplayMgr:
     def __init__( self, renderer ):
         self.renderer = renderer
     
-    def setTextPosition(self, textActor, pos, size=[400,30] ):
-#        vpos = [ 2, 2 ] 
-        vp = self.renderer.GetSize()
-        vpos = [ pos[i]*vp[i] for i in [0,1] ]
-        textActor.GetPositionCoordinate().SetValue( vpos[0], vpos[1] )      
-        textActor.GetPosition2Coordinate().SetValue( vpos[0] + size[0], vpos[1] + size[1] )      
+#     def setTextPosition(self, textActor, pos, size=[400,20] ):
+#  #       vp = self.renderer.GetSize()
+# #        vpos = [ pos[i]*vp[i] for i in [0,1] ]
+# #        textActor.GetPositionCoordinate().SetValue( vpos[0], vpos[1] ) 
+#         textActor.SetPosition( 0.2, 0.5 )
+#         textActor.SetWidth( 0.6 ) 
+#         textActor.SetHeight( 0.08 )     
+# #        textActor.GetPosition2Coordinate().SetValue( vpos[0] + size[0], vpos[1] + size[1] )      
   
-    def getTextActor( self, aid, text, pos, **args ):
+    def getTextActor( self, aid, text, **args ):
         if text == None: return
         textActor = self.getProp( 'vtkTextActor', aid  )
         if textActor == None:
             textActor = self.createTextActor( aid, **args  )
             self.renderer.AddViewProp( textActor )
-        self.setTextPosition( textActor, pos )
+        textActor.GetPositionCoordinate().SetCoordinateSystemToNormalizedViewport ()
+        textActor.GetPosition2Coordinate().SetCoordinateSystemToNormalizedViewport ()
+        textActor.GetPositionCoordinate().SetValue( .3, .9, 0 )
+        textActor.GetPosition2Coordinate().SetValue( .98, .98, 0 )
+#        textActor.SetWidth( 0.6 ) 
+#        textActor.SetHeight( 0.08 )     
         text_lines = text.split('\n')
-        linelen = len(text_lines[-1])
+        linelen = len(text_lines[0])
         if linelen < MIN_LINE_LEN: text += (' '*(MIN_LINE_LEN-linelen)) 
         text += '.' 
         textActor.SetInput( text )
@@ -62,8 +69,12 @@ class TextDisplayMgr:
   
     def createTextActor( self, aid, **args ):
         textActor = vtk.vtkTextActor()  
-        textActor.SetTextScaleMode( vtk.vtkTextActor.TEXT_SCALE_MODE_PROP )  
-        textActor.SetMaximumLineHeight( 0.007 )       
+#        textActor.SetTextScaleModeToViewport()
+#        textActor.SetTextScaleMode( vtk.vtkTextActor.TEXT_SCALE_MODE_PROP )  
+#        textActor.SetMaximumLineHeight( 0.005 ) 
+#        print dir( textActor ) 
+#        textActor.ScaledTextOn()  
+        textActor.SetTextScaleModeToProp()   
         textprop = textActor.GetTextProperty()
         textprop.SetColor( *args.get( 'color', ( VTK_FOREGROUND_COLOR[0], VTK_FOREGROUND_COLOR[1], VTK_FOREGROUND_COLOR[2] ) ) )
         textprop.SetOpacity ( args.get( 'opacity', 1.0 ) )
@@ -74,8 +85,6 @@ class TextDisplayMgr:
         textprop.ShadowOff()
         textprop.SetJustificationToLeft()
         textprop.SetVerticalJustificationToBottom()        
-        textActor.GetPositionCoordinate().SetCoordinateSystemToDisplay()
-        textActor.GetPosition2Coordinate().SetCoordinateSystemToDisplay() 
         textActor.VisibilityOff()
         textActor.id = aid
         return textActor 
@@ -102,6 +111,7 @@ class DV3DPlot():
         self.ParameterValueChanged = SIGNAL( 'ParameterValueChanged' )
         self.type = args.get( 'gmname', 'default').lower()
         self.activate_display=args.get('display',True)
+        self.renderer = None
         self.useDepthPeeling = False
         self.renderWindowInteractor = None
         self.logoActor = None
@@ -262,6 +272,7 @@ class DV3DPlot():
         pass 
      
     def getRenderer(self):
+        if self.renderer <> None: return self.renderer
         return self.renderWindow.GetRenderers().GetFirstRenderer ()
 
     def processShowColorbarCommand( self, args, config_function = None ):
@@ -316,7 +327,7 @@ class DV3DPlot():
         return 0
     
     def processAnimationCommand( self, args, config_function = None ):
-#        print " processAnimationCommand, args = ", str( args )
+#        print " processAnimationCommand, args = ", str( args ), ", animating = ", str(self.animating)
         runSpeed = config_function.value
         if args and args[0] == "StartConfig":
             pass
@@ -330,7 +341,10 @@ class DV3DPlot():
             if state == 1:
                 self.updateTextDisplay( config_function.label )
                 bbar.show()
-                self.changeButtonActivations( [ ( 'Run', True ), ( 'Stop', False ) , ( 'Step', True ) ] )  
+                if self.animating:
+                    self.changeButtonActivations( [ ( 'Run', False ), ( 'Stop', True ) , ( 'Step', False ) ] )  
+                else:
+                    self.changeButtonActivations( [ ( 'Run', True ), ( 'Stop', False ) , ( 'Step', True ) ] )  
             else:
                 bbar.hide()
         elif args and args[0] == "Open":
@@ -349,8 +363,10 @@ class DV3DPlot():
             if self.animationTimerId == -1: 
                 self.changeButtonActivations( [ ( 'Run', False ), ( 'Stop', True ) , ( 'Step', False ) ] )  
                 self.animationStepper.startAnimation()
+                self.animating = True
         elif button_id == 'Stop':
             self.animationStepper.stopAnimation()
+            self.animating = False
             
     def startAnimation(self):   
         self.notifyStartAnimation()
@@ -458,14 +474,16 @@ class DV3DPlot():
         if text <> None:
             self.labelBuff = "%s" % str(text) 
         label_actor = self.getLabelActor()
-        if label_actor: label_actor.VisibilityOn() 
+        if label_actor:
+            label_actor.ComputeScaledFont( self.renderer )     
+            label_actor.VisibilityOn() 
         if render: self.render() 
         
     def getDisplayText(self): 
         return self.labelBuff   
 
     def getLabelActor(self):
-        return self.textDisplayMgr.getTextActor( 'label', self.labelBuff, (.18, .95), bold = False  ) if self.textDisplayMgr else None
+        return self.textDisplayMgr.getTextActor( 'label', self.labelBuff, bold = False  ) if self.textDisplayMgr else None
     
     def UpdateCamera(self):
         pass

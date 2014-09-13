@@ -203,7 +203,7 @@ class StructuredGridPlot(DV3DPlot):
     def initMetadata(self):
         spec = self.inputSpecs[0]
         attributes = spec.metadata.get( 'attributes' , None )
-        print " Init Metadata, attributes = ", str( attributes )
+#        print " Init Metadata, attributes = ", str( attributes )
         if attributes:
             self.metadata['var_name'] = attributes.get(  'long_name',  attributes.get(  'name', None ) )
             self.metadata['var_units'] = attributes.get('units', '' )

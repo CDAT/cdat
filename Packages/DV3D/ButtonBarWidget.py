@@ -391,7 +391,8 @@ class ButtonBar:
  
     def hide(self):
         self.visible = False
-        for button in self.buttons: button.Off()
+        for button in self.buttons:
+            button.Off()
             
     def toggleVisibility(self):
         if self.visible: 
@@ -400,7 +401,7 @@ class ButtonBar:
             self.updatePositions() 
             self.show()
             
-    def reset(self):
+    def reset(self, active_state=None ):
         pass
 
     def getRenderer(self):
@@ -432,6 +433,10 @@ class ControlBar(ButtonBar):
         button = Button( self.interactor, names=bnames, toggle = False )
         button.PublicStateChangedSignal.connect( self.processStateChangeEvent )
         self.buttons.append( button )
+
+    def reset( self, active_state=None  ):
+        if ( active_state == None ) or ( self.name <> active_state ):
+            self.hide()
     
 class ButtonBarWidget(ButtonBar):
         
@@ -761,7 +766,7 @@ class ButtonBarWidget(ButtonBar):
             if configFunct.matches( key ): return ( configFunct.name, configFunct.persisted, self )
         return ( None, None, None )  
     
-    def reset(self):
+    def reset(self, active_state=None ):
         self.releaseSliders()
     
     def updateInteractionState( self, config_state, button_state, **args ):    
@@ -800,7 +805,7 @@ class ButtonBarWidget(ButtonBar):
                 tvals = configFunct.value.getValues()
                 if not sameGroup: 
                     for bbar in self.handler.getButtonBars():
-                        bbar.reset()                
+                        bbar.reset( config_state )                
                 if configFunct.position <> None:
                     n_active_sliders = configFunct.position[1]
                     position_index = configFunct.position[0]

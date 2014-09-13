@@ -36,7 +36,7 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
     def _getaxes(self):
         return self._axes
     def _setaxes(self,value):
-        value=VCS_validation_functions.checkOnOff(self,'axes',value)
+#        value=VCS_validation_functions.checkOnOff(self,'axes',value)
         self._axes=value
     axes=property(_getaxes,_setaxes)
 
@@ -117,7 +117,7 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
         self.addParameters()
             
         vcs.elements[self.g_name][Gfdv3d_name]=self
-        print "Adding VCS element: %s %s " % ( self.g_name, Gfdv3d_name )
+#        print "Adding VCS element: %s %s " % ( self.g_name, Gfdv3d_name )
         
     def setProvenanceHandler(self, provenanceHandler ):
         self.provenanceHandler = provenanceHandler
