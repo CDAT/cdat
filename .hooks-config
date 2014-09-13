@@ -1,0 +1,5 @@
+[hooks "chain"]
+	commit-msg = scripts/git_hooks/commit-msg
+	pre-commit = scripts/git_hooks/pre-commit
+	pre-push = scripts/git_hooks/pre-push
+	prepare-commit-msg = scripts/git_hooks/prepare-commit-msg
