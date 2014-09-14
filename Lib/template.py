@@ -889,32 +889,62 @@ class P(object):
         # compute the spanning in x and y, and adjust for the viewport
         if gm.datawc_x1 > 9.E19 :
           try:
-            wc[0]=X[:][0]
+            i=0
+            try:
+              while X[:][i].count()==0:
+                i+=1
+            except:
+              pass
+            wc[0]=X[:][i]
           except:
             wc[0]=X[:].min()
         else:
           wc[0] = gm.datawc_x1
         if gm.datawc_x2 > 9.E19 :
           try:
-            wc[1]=X[:][-1]
+            i=-1
+            try:
+              while X[:][i].count()==0:
+                i-=1
+            except:
+              pass
+            wc[1]=X[:][i]
           except:
             wc[1]=X[:].max()
         else:
           wc[1] = gm.datawc_x2
+        if not vcs.utils.monotonic(X[:]) or (hasattr(gm,"projection") and vcs.elements["projection"][gm.projection].type!="linear"):
+          wc[0]=X[:].min()
+          wc[1]=X[:].max()
         if gm.datawc_y1 > 9.E19 :
           try:
-            wc[2]=Y[:][0]
+            i=0
+            try:
+              while Y[:][i].count()==0:
+                i+=1
+            except Exception,err:
+              pass
+            wc[2]=Y[:][i]
           except:
             wc[2]=Y[:].min()
         else:
           wc[2] = gm.datawc_y1
         if gm.datawc_y2 > 9.E19 :
           try:
-            wc[3]=Y[:][-1]
+            i=-1
+            try:
+              while Y[:][i].count()==0:
+                i-=1
+            except:
+              pass
+            wc[3]=Y[:][i]
           except:
             wc[3]=Y[:].max()
         else:
           wc[3] = gm.datawc_y2
+        if not vcs.utils.monotonic(Y[:]) or (hasattr(gm,"projection") and vcs.elements["projection"][gm.projection].type!="linear"):
+          wc[2]=Y[:].min()
+          wc[3]=Y[:].max()
         vp=[self.data.x1,self.data.x2,self.data.y1,self.data.y2]
         dx=wc[1]-wc[0]
         dy=wc[3]-wc[2]

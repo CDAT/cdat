@@ -1418,3 +1418,8 @@ Example of use:
             rmsmin=rms
             match=i
     return match
+
+def monotonic(x):
+    dx = numpy.diff(x)
+    return numpy.all(dx <= 0) or numpy.all(dx >= 0)
+

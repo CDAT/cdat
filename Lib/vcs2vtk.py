@@ -61,6 +61,7 @@ def genGrid(data1,data2,gm):
   m3 = None
   g = None
   cellData = True
+  xm,xM,ym,yM = None, None, None, None
   try: #First try to see if we can get a mesh out of this
     g=data1.getGrid()
     if isinstance(g,cdms2.gengrid.AbstractGenericGrid): # Ok need unstrctured grid
@@ -97,7 +98,6 @@ def genGrid(data1,data2,gm):
       wrap = gm.wrap
   except Exception,err: # Ok no mesh on file, will do with lat/lon
     print "No mesh data found"
-
   if m3 is not None:
     #Create unstructured grid points
     vg = vtk.vtkUnstructuredGrid()
@@ -127,6 +127,10 @@ def genGrid(data1,data2,gm):
       if not isinstance(g,cdms2.hgrid.AbstractCurveGrid):
           lon=data1.getAxis(-1)
           lat=data1.getAxis(-2)
+          xm=lon[0]
+          xM=lon[-1]
+          ym=lat[0]
+          yM=lat[-1]
           lat2 = numpy.zeros(len(lat)+1)
           lon2 = numpy.zeros(len(lon)+1)
           # Ok let's try to get the bounds
@@ -137,6 +141,10 @@ def genGrid(data1,data2,gm):
             lat2[len(lat)]=blat[-1,1]
             lon2[:len(lon)]=blon[:,0]
             lon2[len(lon)]=blon[-1,1]
+            xm=blon[0][0]
+            xM=blon[-1][1]
+            ym=blat[0][0]
+            yM=blat[-1][1]
           except Exception,err:
             ## No luck we have to generate bounds ourselves
             lat2[1:-1]=(lat[:-1]+lat[1:])/2.
@@ -156,6 +164,10 @@ def genGrid(data1,data2,gm):
       data1=cdms2.asVariable(data1)
       lon=data1.getAxis(-1)
       lat=data1.getAxis(-2)
+      xm=lon[0]
+      xM=lon[-1]
+      ym=lat[0]
+      yM=lat[-1]
       lat2 = numpy.zeros(len(lat)+1)
       lon2 = numpy.zeros(len(lon)+1)
       # Ok let's try to get the bounds
@@ -166,6 +178,10 @@ def genGrid(data1,data2,gm):
         lat2[len(lat2)]=blat[-1][1]
         lon2[:len(lon)]=blon[:][0]
         lon2[len(lon2)]=blon[-1][1]
+        xm=blon[0][0]
+        xM=blon[-1][1]
+        ym=blat[0][0]
+        yM=blat[-1][1]
       except:
         ## No luck we have to generate bounds ourselves
         lat2[1:-1]=(lat[:-1]+lat[1:])/2.
@@ -186,17 +202,18 @@ def genGrid(data1,data2,gm):
     z = numpy.zeros(lon.shape)
     m3 = numpy.concatenate((lon,lat),axis=1)
     m3 = numpy.concatenate((m3,z),axis=1)
-    try:
-      xm = lon[0]
-      xM = lon[-1]
-      ym = lat[0]
-      yM = lat[-1]
-    except:
-      xm=lon.min()
-      xM=lon.max()
-      ym=lat.min()
-      yM=lat.max()
-  # First create the points/vertices (in vcs terms)
+    if xm is None:
+      try:
+        xm = lon[0]
+        xM = lon[-1]
+        ym = lat[0]
+        yM = lat[-1]
+      except:
+        xm=lon.min()
+        xM=lon.max()
+        ym=lat.min()
+        yM=lat.max()
+    # First create the points/vertices (in vcs terms)
   deep = True
   pts = vtk.vtkPoints()
   ## Convert nupmy array to vtk ones
@@ -590,6 +607,7 @@ def doWrap(Act,wc,wrap=[0.,360]):
   Mapper2.SetLookupTable(Mapper.GetLookupTable())
   Mapper2.SetScalarRange(Mapper.GetScalarRange())
   Mapper2.SetScalarMode(Mapper.GetScalarMode())
+  print "ClipPlanes at:",xmn, xmx, ymn, ymx
   setClipPlanes(Mapper2, xmn, xmx, ymn, ymx)
   Mapper2.Update()
   Actor.SetMapper(Mapper2)
@@ -1075,7 +1093,6 @@ def vtkWorld2Renderer(ren,x,y):
 def fitToViewport(Actor,Renderer,vp,wc=None,geo=None):
   T = vtk.vtkTransform()
   ## Data range in World Coordinates
-  #print "Wc:",wc
   if wc is None:
     Xrg = list(Actor.GetXRange())
     Yrg = list(Actor.GetYRange())
@@ -1187,13 +1204,13 @@ def fitToViewport(Actor,Renderer,vp,wc=None,geo=None):
   cd = cam.GetDistance()
   cam.SetPosition(xc,yc,cd)
   cam.SetFocalPoint(xc,yc,0.)
-  if flipY:
-    #cam.Azimuth(180.)
-    cam.Roll(90.)
-    cam.Elevation(180.)
-    pass
-  if flipX:
-    cam.Azimuth(180.)
+  if geo is None:
+    if flipY:
+      cam.Roll(180.)
+      cam.Elevation(180.)
+      pass
+    if flipX:
+      cam.Azimuth(180.)
 
 p=vtk.vtkGeoProjection()
 vtkProjections = [ p.GetProjectionName(i) for i in range(p.GetNumberOfProjections()) ]
