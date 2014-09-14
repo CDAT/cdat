@@ -32,7 +32,8 @@ import MV2
 bg = not args.show
 
 x=vcs.init()
-x.setbgoutputdimensions(1200,1091,units="pixels")
+if bg:
+  x.setbgoutputdimensions(1200,1091,units="pixels")
 x.setcolormap("rainbow")
 if gm_type=="oned":
     gm_type="oneD"
@@ -91,10 +92,10 @@ else:
     if gm_type in ["oneD","yxvsx","xyvsy","xvsy","scatter"]:
         s = s(latitude=(20,20,"cob"),longitude=(112,112,"cob"),squeeze=1)
         s2=MV2.sin(s)
+gm.list()
 if gm_type=="vector":
     x.plot(u,v,gm,bg=bg)
 elif gm_type in ["scatter","xvsy"]:
-    gm.list()
     x.plot(s,s2,gm,bg=bg)
 else:
     x.plot(s,gm,bg=bg)
