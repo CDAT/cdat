@@ -114,7 +114,7 @@ class vcsTest:
         self.canvas.png( test_image )
         print "Copying ref image %s to %s in %s " % ( self.image_name, ref_image, os.path.abspath('.') )
         shutil.copy( self.image_name, ref_image )
-        ret = checkimage.check_result_image( ref_image, test_image, 0.05 )
+        ret = checkimage.check_result_image( ref_image, test_image, checkimage.defaultThreshold )
         if  interactive: 
             print "Type <Enter> to continue and update ref image ( type 'n' to skip update )." 
             sys.stdout.flush()
