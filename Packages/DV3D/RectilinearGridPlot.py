@@ -340,6 +340,7 @@ class RectGridPlot(StructuredGridPlot):
 
     def processScaleChange( self, old_spacing, new_spacing ):
         if self.cropRegion:
+#            print " Crop Volume "
             if self.clipping_enabled: self.toggleClipping()
             extent = self.cropZextent if self.cropZextent else self.input().GetExtent()[4:6] 
             origin = self.input().GetOrigin() 
@@ -348,6 +349,7 @@ class RectGridPlot(StructuredGridPlot):
             if (self.volumeMapper <> None) and self.volumeMapper.GetCropping():
                 self.cropVolume( False )                 
         if ( self.planeWidgetZ <> None ) and self.planeWidgetZ.IsVisible():      
+#            print " Update planeWidgetZ "
             self.planeWidgetZ.UpdateInputs()
          
     def activateEvent( self, caller, event ):
