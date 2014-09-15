@@ -64,9 +64,13 @@ class StructuredGridPlot(DV3DPlot):
             self.render()
                 
     def processVerticalScalingCommand( self, args, config_function ):
+#        print "processVerticalScalingCommand: ", str(args)
         verticalScale = config_function.value
         if args and args[0] == "StartConfig":
-            pass
+            ispec = self.inputSpecs[ 0 ] 
+            wbounds = ispec.getDataBounds()
+            self.zscaleBoxWidget.On()
+            self.zscaleBoxWidget.PlaceWidget(wbounds)
         elif args and args[0] == "Init":
             ispec = self.inputSpecs[ 0 ] 
             zsval = config_function.initial_value
@@ -80,25 +84,36 @@ class StructuredGridPlot(DV3DPlot):
 #             verticalScale.setValues( [ zsval ] )
             self.setZScale( zsval  )
             verticalScale.setValue( 'count', 1 )
+            self.zscaleBoxWidget = vtk.vtkBoxWidget()
+            self.zscaleBoxWidget.SetInteractor( self.renderWindowInteractor )
+            self.zscaleBoxWidget.SetPlaceFactor(1.0)
+            self.zscaleBoxWidget.HandlesOff()
+            oprop = self.zscaleBoxWidget.GetOutlineProperty() 
+            oprop.SetColor( 0.0, 0.0, 0.0 )
+            oprop.SetLineWidth( 2.0 )
+            self.zscaleBoxWidget.SetEnabled(1) 
+            self.zscaleBoxWidget.Off() 
         elif args and args[0] == "EndConfig":
+            vscale = verticalScale.getValues()
+            self.setZScale( vscale )
+            self.zscaleBoxWidget.Off() 
             self.processConfigParameterChange( verticalScale )
         elif args and args[0] == "InitConfig":
             self.updateTextDisplay( config_function.label )
             bbar = self.getInteractionButtons()
-            self.skipIndex = 5
+            self.skipIndex = 2
             for islider in range(4): bbar.setSliderVisibility(  islider, islider < len(config_function.sliderLabels)  )
         elif args and args[0] == "Open":
             pass
         elif args and args[0] == "Close":
             pass
         elif args and args[0] == "UpdateConfig":
-            count = verticalScale.incrementValue( 'count' )
-            if count % self.skipIndex == 0:
-                value = args[2].GetValue()
-                vscale = verticalScale.getValues()
-                vscale[ args[1] ] = value
-                self.setZScale( vscale )
-                verticalScale.setValues( vscale )
+            ispec = self.inputSpecs[ 0 ] 
+            vscale = args[2].GetValue()
+            verticalScale.setValues( [ vscale ] )
+            wbounds = ispec.getDataBounds( zscale=vscale )
+            self.zscaleBoxWidget.PlaceWidget( wbounds )
+
 
 #     def onKeyEvent(self, eventArgs ):
 #         key = eventArgs[0]
@@ -151,7 +166,7 @@ class StructuredGridPlot(DV3DPlot):
         ix, iy, iz = spacing
         sz = zscale_data[0]
         if iz <> sz:
-#                print " PVM >---------------> Change input zscale: %.4f -> %.4f" % ( iz, sz )
+#            print " PVM >---------------> Change input zscale: %.4f -> %.4f" % ( iz, sz )
             input.SetSpacing( ix, iy, sz )  
             input.Modified() 
             self.processScaleChange( spacing, ( ix, iy, sz ) )
