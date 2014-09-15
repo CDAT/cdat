@@ -1025,6 +1025,15 @@ class InputSpecs:
             else:                               srange.append( 0 )
         else: srange = [ 0, 0, 0 ]
         return srange
+    
+    def getDataBounds(self,**args):
+        zscale = args.get( 'zscale', None )
+        image_data = self.input()
+        origin = image_data.GetOrigin()
+        spacing = list( image_data.GetSpacing() )
+        if zscale <> None: spacing[2] = zscale
+        extent = image_data.GetExtent()
+        return [ origin[i/2] + extent[i]*spacing[i/2] for i in range(0,6) ]
         
     def raiseModuleError( self, msg ):
         print>>sys.stderr, msg
