@@ -597,7 +597,6 @@ class VTKVCSBackend(object):
         projection = vcs.elements["projection"][gm.projection]
         self.plotContinents(x1,x2,y1,y2,projection,wrap,tmpl)
 
-
   def plot2D(self,data1,data2,tmpl,gm):
     ug,xm,xM,ym,yM,continents,wrap,geo,cellData = vcs2vtk.genGrid(data1,data2,gm)
     #Now applies the actual data on each cell
