@@ -290,5 +290,10 @@ message(${CDAT_DOWNLOAD_SAMPLE_DATA} and ${CDAT_BUILD_MATPLOTLIB})
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_flip${flip}.png
         )
     ENDFOREACH(flip)
+    add_test(vcs_test_boxfill_lev1_lev2_ta_missing
+      ${CMAKE_INSTALL_PREFIX}/bin/python
+      ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2_ta_missing.py
+      ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2_ta_missing.png
+      )
   endif()
 
