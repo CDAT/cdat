@@ -593,12 +593,16 @@ class VTKVCSBackend(object):
       continents = False
     if continents:
         projection = vcs.elements["projection"][gm.projection]
-        self.plotContinents(x1,x2,y1,y2,projection,wrap,ren,tmpl)
+        ren2 = vtk.vtkRenderer()
+        self.setLayer(ren2,tmpl.data.priority)
+        self.renWin.AddRenderer(ren2)
+        self.plotContinents(x1,x2,y1,y2,projection,wrap,ren2,tmpl)
 
 
   def plot2D(self,data1,data2,tmpl,gm,ren):
     self.setLayer(ren,tmpl.data.priority)
     ug,xm,xM,ym,yM,continents,wrap,geo,cellData = vcs2vtk.genGrid(data1,data2,gm)
+    print "Grid gen gives us:",xm,xM,ym,yM
     #Now applies the actual data on each cell
     if isinstance(gm,boxfill.Gfb) and gm.boxfill_type=="log10":
         data1=numpy.ma.log10(data1)
@@ -880,6 +884,7 @@ class VTKVCSBackend(object):
         mappers.insert(0,missingMapper)
 
     x1,x2,y1,y2 = vcs2vtk.getRange(gm,xm,xM,ym,yM)
+    print "x1,x2,y1,y2:",x1,x2,y1,y2
 
     if tmpl.data.priority != 0:
       # And now we need actors to actually render this thing
@@ -897,7 +902,9 @@ class VTKVCSBackend(object):
           #act.SetTexture(mapper[1])
           pass
         ren.AddActor(act)
+        print "Fitting actual data"
         vcs2vtk.fitToViewport(act,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],wc=[x1,x2,y1,y2],geo=geo)
+        print "Done Fitting actual data"
 
     if isinstance(gm,meshfill.Gfm):
       tmpl.plot(self.canvas,data1,gm,bg=self.bg,X=numpy.arange(xm,xM*1.1,(xM-xm)/10.),Y=numpy.arange(ym,yM*1.1,(yM-ym)/10.))
@@ -920,7 +927,10 @@ class VTKVCSBackend(object):
       continents = False
     if continents:
         projection = vcs.elements["projection"][gm.projection]
-        self.plotContinents(x1,x2,y1,y2,projection,wrap,ren,tmpl)
+        ren2 = vtk.vtkRenderer()
+        self.setLayer(ren2,tmpl.data.priority)
+        self.renWin.AddRenderer(ren2)
+        self.plotContinents(x1,x2,y1,y2,projection,wrap,ren2,tmpl)
 
   def plotContinents(self,x1,x2,y1,y2,projection,wrap,ren,tmpl):
       contData = vcs2vtk.prepContinents(self.canvas._continents)
