@@ -15,7 +15,7 @@ import logging
 from vtk.util.vtkImageExportToArray import vtkImageExportToArray
 from vtk.util.vtkImageImportFromArray import vtkImageImportFromArray
 
-defaultThreshold=0.05
+defaultThreshold=0.09
 
 def compare_imgs(adata, bdata):
     adata = adata[0]/255.

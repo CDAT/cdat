@@ -39,7 +39,7 @@ if __name__ == '__main__':
     
     if image_check:
         import checkimage
-        ret = checkimage.check_result_image( test_image, reference_image, 0.05 )
+        ret = checkimage.check_result_image( test_image, reference_image, checkimage.defaultThreshold )
         print " Image Test returned:  %d " % ret
         sys.exit(ret)
         
