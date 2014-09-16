@@ -597,7 +597,7 @@ class VTKVCSBackend(object):
   def plot2D(self,data1,data2,tmpl,gm,ren):
     #Preserve time and z axis for plotting these inof in rendertemplate
     t = data1.getTime()
-    if data1.ndim>3:
+    if data1.ndim>2:
         z = data1.getAxis(-3)
     else:
         z = None
@@ -983,13 +983,17 @@ class VTKVCSBackend(object):
             to = vcs.elements["textorientation"][to]
             vcs2vtk.genTextActor(ren,to=to,tt=tt)
     if zaxis is not None:
+        print "zAXIS:",zaxis
         # ok we have a zaxis to draw
         zname = vcs2vtk.applyAttributesFromVCStmpl(tmpl,"zname")
         zname.string=zaxis.id
         zunits = vcs2vtk.applyAttributesFromVCStmpl(tmpl,"zunits")
         zunits.string=zaxis.units
         zvalue = vcs2vtk.applyAttributesFromVCStmpl(tmpl,"zvalue")
-        zvalue.string=zaxis[0]
+        if not zaxis.isTime():
+            zvalue.string = str(zaxis.asComponentTime()[0])
+        else:
+            zvalue.string= "%g" % zaxis[0]
         ren = vtk.vtkRenderer()
         self.setLayer(ren,1)
         self.renWin.AddRenderer(ren)
