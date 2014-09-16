@@ -346,7 +346,7 @@ class VTKVCSBackend(object):
       ren = kargs["renderer"]
 
     if gtype in ["boxfill","meshfill","isofill","isoline"]:      
-      self.plot2D(data1,data2,tpl,gm,ren)
+      self.plot2D(data1,data2,tpl,gm)
     elif gtype in ["3d_scalar", "3d_vector"]:
       cdms_file = kargs.get( 'cdmsfile', None )
       cdms_var = kargs.get( 'cdmsvar', None )
@@ -381,7 +381,7 @@ class VTKVCSBackend(object):
       self.renWin.AddRenderer(ren)
       self.plot1D(data1,data2,tpl,gm,ren)
     elif gtype=="vector":
-      self.plotVector(data1,data2,tpl,gm,ren)
+      self.plotVector(data1,data2,tpl,gm)
     else:
       raise Exception,"Graphic type: '%s' not re-implemented yet" % gtype
     if not kargs.get("donotstoredisplay",False): 
@@ -510,8 +510,7 @@ class VTKVCSBackend(object):
       else:
           g.update( tmpl )
            
-  def plotVector(self,data1,data2,tmpl,gm,ren):
-    self.setLayer(ren,tmpl.data.priority)
+  def plotVector(self,data1,data2,tmpl,gm):
     ug,xm,xM,ym,yM,continents,wrap,geo,cellData = vcs2vtk.genGrid(data1,data2,gm)
     if cellData:
         c2p = vtk.vtkCellDataToPointData()
@@ -585,24 +584,22 @@ class VTKVCSBackend(object):
     act.GetProperty().SetColor(r/100.,g/100.,b/100.)
     x1,x2,y1,y2 = vcs2vtk.getRange(gm,xm,xM,ym,yM)
     act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
+    ren=vtk.vtkRenderer()
+    self.renWin.AddRenderer(ren)
+    self.setLayer(ren,tmpl.data.priority)
     vcs2vtk.fitToViewport(act,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2])
     if tmpl.data.priority!=0:
         ren.AddActor(act)
-    self.renderTemplate(ren,tmpl,data1,gm)
+    self.renderTemplate(tmpl,data1,gm)
     if self.canvas._continents is None:
       continents = False
     if continents:
         projection = vcs.elements["projection"][gm.projection]
-        ren2 = vtk.vtkRenderer()
-        self.setLayer(ren2,tmpl.data.priority)
-        self.renWin.AddRenderer(ren2)
-        self.plotContinents(x1,x2,y1,y2,projection,wrap,ren2,tmpl)
+        self.plotContinents(x1,x2,y1,y2,projection,wrap,tmpl)
 
 
-  def plot2D(self,data1,data2,tmpl,gm,ren):
-    self.setLayer(ren,tmpl.data.priority)
+  def plot2D(self,data1,data2,tmpl,gm):
     ug,xm,xM,ym,yM,continents,wrap,geo,cellData = vcs2vtk.genGrid(data1,data2,gm)
-    print "Grid gen gives us:",xm,xM,ym,yM
     #Now applies the actual data on each cell
     if isinstance(gm,boxfill.Gfb) and gm.boxfill_type=="log10":
         data1=numpy.ma.log10(data1)
@@ -885,6 +882,7 @@ class VTKVCSBackend(object):
 
     x1,x2,y1,y2 = vcs2vtk.getRange(gm,xm,xM,ym,yM)
     print "x1,x2,y1,y2:",x1,x2,y1,y2
+    print "Mappers:",mappers
 
     if tmpl.data.priority != 0:
       # And now we need actors to actually render this thing
@@ -901,6 +899,10 @@ class VTKVCSBackend(object):
           #act.GetMapper().ScalarVisibilityOff()
           #act.SetTexture(mapper[1])
           pass
+        # create a new renderer for this mapper (we need one for each mapper because of cmaera flips)
+        ren = vtk.vtkRenderer()
+        self.renWin.AddRenderer(ren)
+        self.setLayer(ren,tmpl.data.priority)
         ren.AddActor(act)
         print "Fitting actual data"
         vcs2vtk.fitToViewport(act,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],wc=[x1,x2,y1,y2],geo=geo)
@@ -909,7 +911,7 @@ class VTKVCSBackend(object):
     if isinstance(gm,meshfill.Gfm):
       tmpl.plot(self.canvas,data1,gm,bg=self.bg,X=numpy.arange(xm,xM*1.1,(xM-xm)/10.),Y=numpy.arange(ym,yM*1.1,(yM-ym)/10.))
     else:
-      self.renderTemplate(ren,tmpl,data1,gm)
+      self.renderTemplate(tmpl,data1,gm)
     if isinstance(gm,(isofill.Gfi,meshfill.Gfm,boxfill.Gfb)):
       if getattr(gm,"legend",None) is not None:
         legend = gm.legend
@@ -922,17 +924,14 @@ class VTKVCSBackend(object):
               levs=levs.tolist()
           levs.append(1.e20)
 
-      self.renderColorBar(ren,tmpl,levs,cols,legend,cmap)
+      self.renderColorBar(tmpl,levs,cols,legend,cmap)
     if self.canvas._continents is None:
       continents = False
     if continents:
         projection = vcs.elements["projection"][gm.projection]
-        ren2 = vtk.vtkRenderer()
-        self.setLayer(ren2,tmpl.data.priority)
-        self.renWin.AddRenderer(ren2)
-        self.plotContinents(x1,x2,y1,y2,projection,wrap,ren2,tmpl)
+        self.plotContinents(x1,x2,y1,y2,projection,wrap,tmpl)
 
-  def plotContinents(self,x1,x2,y1,y2,projection,wrap,ren,tmpl):
+  def plotContinents(self,x1,x2,y1,y2,projection,wrap,tmpl):
       contData = vcs2vtk.prepContinents(self.canvas._continents)
       contMapper = vtk.vtkPolyDataMapper()
       contMapper.SetInputData(contData)
@@ -952,14 +951,17 @@ class VTKVCSBackend(object):
           contActor.GetProperty().SetColor(0.,0.,0.)
       else:
           geo=None
+      ren = vtk.vtkRenderer()
+      self.renWin.AddRenderer(ren)
+      self.setLayer(ren,tmpl.data.priority)
       vcs2vtk.fitToViewport(contActor,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],wc=[x1,x2,y1,y2],geo=geo)
       if tmpl.data.priority!=0:
         ren.AddActor(contActor)
 
-  def renderTemplate(self,renderer,tmpl,data,gm):
+  def renderTemplate(self,tmpl,data,gm):
     tmpl.plot(self.canvas,data,gm,bg=self.bg)
 
-  def renderColorBar(self,renderer,tmpl,levels,colors,legend,cmap):
+  def renderColorBar(self,tmpl,levels,colors,legend,cmap):
     if tmpl.legend.priority>0:
       tmpl.drawColorBar(colors,levels,x=self.canvas,legend=legend,cmap=cmap)
 
