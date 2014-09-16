@@ -244,7 +244,7 @@ class Tt(object):
          if isinstance(value,(int,float)):
               value=[value,]
          if not isinstance(value,(list,tuple)):
-              raise ValueError, 'x must be a tuple or list of values. %s' % (value)
+              raise ValueError, '%s must be a tuple or list of values.'
          try:
               # first we'll see if it is simply a list of values
               value = VCS_validation_functions.checkListOfNumbers(self,'x',value)
