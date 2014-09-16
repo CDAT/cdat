@@ -127,12 +127,10 @@ def genGrid(data1,data2,gm):
       if not isinstance(g,cdms2.hgrid.AbstractCurveGrid):
           lon=data1.getAxis(-1)
           lat=data1.getAxis(-2)
-          print "we are using:",lon[:],lat[:]
           xm=lon[0]
           xM=lon[-1]
           ym=lat[0]
           yM=lat[-1]
-          print "xm,xM,ym,yM:",xm,xM,ym,yM
           lat2 = numpy.zeros(len(lat)+1)
           lon2 = numpy.zeros(len(lon)+1)
           # Ok let's try to get the bounds
@@ -609,7 +607,6 @@ def doWrap(Act,wc,wrap=[0.,360]):
   Mapper2.SetLookupTable(Mapper.GetLookupTable())
   Mapper2.SetScalarRange(Mapper.GetScalarRange())
   Mapper2.SetScalarMode(Mapper.GetScalarMode())
-  print "ClipPlanes at:",xmn, xmx, ymn, ymx
   setClipPlanes(Mapper2, xmn, xmx, ymn, ymx)
   Mapper2.Update()
   Actor.SetMapper(Mapper2)
@@ -1109,7 +1106,6 @@ def fitToViewport(Actor,Renderer,vp,wc=None,geo=None):
   else:
     flipY = False
   if Xrg[0]>Xrg[1]:
-    print "Xrg:",Xrg
     Xrg=[Xrg[1],Xrg[0]]
     flipX=True
   else:
@@ -1209,12 +1205,10 @@ def fitToViewport(Actor,Renderer,vp,wc=None,geo=None):
   cam.SetFocalPoint(xc,yc,0.)
   if geo is None:
     if flipY:
-      print "FLIPY:",flipX,flipY
       cam.Elevation(180.)
       cam.Roll(180.)
       pass
     if flipX:
-      print "FLIPX:",flipX,flipY
       cam.Azimuth(180.)
 
 p=vtk.vtkGeoProjection()
