@@ -234,18 +234,23 @@ class RectGridPlot(StructuredGridPlot):
     def processIsosurfaceValueCommand( self, args, config_function = None ):
         isosurfaceValue = config_function.value
         if args and args[0] == "StartConfig":
-            pass
+            self.setConfiguringIsosurface( True )
         elif args and args[0] == "Init":
             init_range = self.getSgnRangeBounds()
             config_function.setRangeBounds( init_range )
+            isosurfaceValue.setValue( 'count', 1 )
             if config_function.initial_value == None:
                 init_value = (init_range[0]+init_range[1])/2.0          
                 config_function.initial_value = init_value             
             self.setIsosurfaceLevel( config_function.initial_value ) 
             isosurfaceValue.setValues( [ config_function.initial_value ] )
         elif args and args[0] == "EndConfig":
+            self.setConfiguringIsosurface( False )
             self.processConfigParameterChange( isosurfaceValue )
+            isoval = isosurfaceValue.getValue( 0 )
+            self.setIsosurfaceLevel( isoval ) 
         elif args and args[0] == "InitConfig":
+            self.skipIndex = 5
             self.updateTextDisplay( config_function.label )
             bbar = self.getInteractionButtons()
             for islider in range(4): bbar.setSliderVisibility(  islider, islider < len(config_function.sliderLabels) )
@@ -256,7 +261,9 @@ class RectGridPlot(StructuredGridPlot):
         elif args and args[0] == "UpdateConfig":
             value = args[2].GetValue()
             isosurfaceValue.setValue( 0, value )
-            self.setIsosurfaceLevel( value ) 
+            count = isosurfaceValue.incrementValue( 'count' )
+            if count % self.skipIndex == 0:
+                self.setIsosurfaceLevel( value ) 
  
     def processThresholdRangeCommand( self, args, config_function = None ):
         volumeThresholdRange = config_function.value
@@ -650,6 +657,17 @@ class RectGridPlot(StructuredGridPlot):
                 self.probeFilter.SetInputConnection( mapperInputPort )
                 self.levelSetMapper.SetInputConnection( self.probeFilter.GetOutputPort() ) 
                 self.levelSetMapper.SetScalarRange( textureRange )
+        
+        
+    def setConfiguringIsosurface(self, config_on ):
+        if config_on:
+            self.levelSetFilter.ComputeNormalsOff()
+            self.levelSetFilter.ComputeGradientsOff()
+            self.levelSetFilter.ComputeScalarsOff ()
+        else:
+            self.levelSetFilter.ComputeNormalsOn()
+            self.levelSetFilter.ComputeGradientsOn()
+            self.levelSetFilter.ComputeScalarsOn ()
 
 
     def buildIsosurfacePipeline(self):
@@ -717,7 +735,8 @@ class RectGridPlot(StructuredGridPlot):
         self.levelSetMapper.SetLookupTable( colormapManager.lut ) 
         self.levelSetMapper.UseLookupTableScalarRangeOn()
        
-        self.levelSetFilter.SetNumberOfContours( 1 ) 
+        self.levelSetFilter.SetNumberOfContours( 1 )
+        self.levelSetFilter.SetOutputPointsPrecision( vtk.vtkAlgorithm.SINGLE_PRECISION  ) 
           
 #        levelSetMapper.SetColorModeToMapScalars()  
         self.levelSetActor = vtk.vtkActor()  # vtk.vtkLODActor() 
