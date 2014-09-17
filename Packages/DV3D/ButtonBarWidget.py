@@ -105,7 +105,7 @@ class Button:
                 self.buttonRepresentation.Modified()
                 self.buttonRepresentation.NeedToRenderOn()
                 self.buttonWidget.Render()
-                print "Button %s: widget state = %d " % ( self.id, self.buttonRepresentation.GetState() )
+#                print "Button %s: widget state = %d " % ( self.id, self.buttonRepresentation.GetState() )
     
     def executeFunction( self, function ):
         if   function == Button.FuncToggleStateOn:  self.setToggleState( 1 )
@@ -114,8 +114,6 @@ class Button:
     def createButtonRepresentation(self, **args):
         self.buttonRepresentation = vtk.vtkTexturedButtonRepresentation2D()
         self.buttonRepresentation.SetPlaceFactor( args.get( 'scale', 1 ) )
-        if self.names[0] == "Run":
-            print "."
         self.numberOfImages = len( self.names )
         if self.numberOfImages:
             self.buttonRepresentation.SetNumberOfStates(self.numberOfImages)
@@ -156,12 +154,12 @@ class Button:
         return False
     
     def setToggleState( self, state ):
-        print "Button[%s]:setToggleState(%d)" % ( self.id, state )
+#        print "Button[%s]:setToggleState(%d)" % ( self.id, state )
         self.setState(state)
         self.setToggleProps()       
 
     def processStateChangeEvent( self, obj, event, indirect = False ):
-        print "Button[%s]:processStateChangeEvent(%d)" % ( self.id, self.getState() )
+#        print "Button[%s]:processStateChangeEvent(%d)" % ( self.id, self.getState() )
         self.invokingEvent = True 
         self.setButtonState( ( self.getState() + 1 ) % self.numberOfStates, indirect )      
         self.invokingEvent = False
@@ -173,7 +171,7 @@ class Button:
         self.setToggleProps()
         
     def setButtonState( self, state, indirect = False ):
-        print "Button[%s]:setButtonState(%d)" % ( self.id, state )
+#        print "Button[%s]:setButtonState(%d)" % ( self.id, state )
         if (state <> self.getState()) or not self.toggle:
             self.broadcastState( state )
             self.setState(state)
@@ -267,6 +265,7 @@ class ButtonBarHandler:
             if ( configFunct.type == 'slider' ) and ( configFunct.active ) and ( configFunct.group == self.DefaultGroup ):
                 b = bbar.getButton( configFunct.name )
                 if b.getState():
+#                    print "Activating Slider ", configFunct.name
                     if current_config_function == None:
                         current_config_function = configFunct
                     else:
@@ -461,8 +460,8 @@ class ButtonBarWidget(ButtonBar):
 
     def setSliderVisibility( self, islider, isVisible ):
         self._slidersVisible[ islider ] = isVisible
-#        if islider == 2: 
-#            print " setSliderVisibility[%d] = %s " % ( islider, str(isVisible))
+#         if islider == 2: 
+#             print " setSliderVisibility[%d] = %s " % ( islider, str(isVisible))
                             
     def initializeState(self):
         for ib in self.buttons:
@@ -486,7 +485,7 @@ class ButtonBarWidget(ButtonBar):
 
     def resetInteractionButtons( self, current_button, new_state ):
         ibbar = self.handler.getButtonBar( 'Interaction' )
-        print " resetInteractionButtons: ", str( [ current_button, new_state ] )
+#        print " resetInteractionButtons: ", str( [ current_button, new_state ] )
         for ib in ibbar.buttons:
             is_child = ib.id in current_button.children
             state = new_state if is_child else 0
@@ -499,7 +498,7 @@ class ButtonBarWidget(ButtonBar):
     def processStateChangeEvent( self, button_id, key, state, force = False ):
         b = self.getButton( button_id )
         if (b.getState() <> state) or (not b.toggle) or force:
-            print " processStateChangeEvent: ", str( [ button_id, key, state ] )
+#            print " processStateChangeEvent: ", str( [ button_id, key, state ] )
             self.StateChangedSignal( button_id, key, state )
             b.setState(state)
             if state > 0: 
@@ -770,7 +769,7 @@ class ButtonBarWidget(ButtonBar):
     def reset(self, active_state=None ):
         self.releaseSliders()
     
-    def updateInteractionState( self, config_state, button_state, **args ):    
+    def updateInteractionState( self, config_state, button_state, **args ): 
 #         rcf = None
 #         if config_state == None: 
 #             self.finalizeLeveling()
@@ -882,7 +881,7 @@ class ButtonBarWidget(ButtonBar):
                 if (parent_button <> None) and parent_button.getState(): 
                     if self.visible: 
                         child_button.activate() 
-                        print "Activate child: ", child_button.id
+#                        print "Activate child: ", child_button.id
                     if child_button.id in parent_button.children:
                         return True
                 else:                       
