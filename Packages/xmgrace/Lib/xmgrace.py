@@ -2159,6 +2159,7 @@ class init(object):
         self.background_color=0
         self.R=[]
         self.nr=0
+        self._all_string=[]
         class Timestamp(object):
             def __init__(self,parent):
                 self.parent=parent
@@ -2495,6 +2496,8 @@ class init(object):
         # Adds the strings
 	for i in range(self.nstring):
 	    s=self.String[i]
+            # skip adding string to avoid multiple time plot strings
+            if s.text in self._all_string: continue
 	    ln.append(' with string\n')
 	    ln.append('  string '+s.status+'\n')
 	    ln.append('  string loctype '+s.loctype+'\n')
@@ -2516,6 +2519,8 @@ class init(object):
 	    ln.append('  string just '+str(s.just)+'\n')
 	    ln.append('  string char size '+str(s.char_size)+'\n')
 	    ln.append('  string def "'+s.text+'"\n')
+            # append string to global object list
+            self._all_string.append(s.text)
             
         # Adds the lines
 	for i in range(self.nline):
@@ -3320,7 +3325,7 @@ class init(object):
                'timestamp','pipe','version',
                '_title','_stitle','_link_page','_linewidth','_linestyle','_color',
                '_pattern','_font','_char_size','_symbol_size','_sformat',
-               '_background_color','_version','_pyversion','_nset','pipe_file','new_pipe','fd_r',
+               '_background_color','_version','_pyversion','_nset','pipe_file','new_pipe','fd_r','_all_string',
                ]
 
     def _getversion(self):
