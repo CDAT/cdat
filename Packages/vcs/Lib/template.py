@@ -942,7 +942,7 @@ class P(object):
             wc[3]=Y[:].max()
         else:
           wc[3] = gm.datawc_y2
-        if not vcs.utils.monotonic(Y[:]) or (hasattr(gm,"projection") and vcs.elements["projection"][gm.projection].type!="linear"):
+        if (not vcs.utils.monotonic(Y[:]) and not isinstance(gm,vcs.unified1D.G1d)) or (hasattr(gm,"projection") and vcs.elements["projection"][gm.projection].type!="linear"):
           wc[2]=Y[:].min()
           wc[3]=Y[:].max()
         vp=[self.data.x1,self.data.x2,self.data.y1,self.data.y2]
@@ -1251,6 +1251,7 @@ class P(object):
                     'comment1','comment2','comment3','comment4','xname','yname',
                     'zname','tname','zunits','tunits','xvalue','yvalue','zvalue',
                     'tvalue','mean','min','max']
+
         if gm=='taylordiagram':
              attributes=attributes[:-3]
 
