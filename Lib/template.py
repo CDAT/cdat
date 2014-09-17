@@ -913,7 +913,7 @@ class P(object):
             wc[1]=X[:].max()
         else:
           wc[1] = gm.datawc_x2
-        if (not vcs.utils.monotonic(X[:]) and not isinstance(gm,vcs.unified1D.G1d)) or (hasattr(gm,"projection") and vcs.elements["projection"][gm.projection].type!="linear"):
+        if (not vcs.utils.monotonic(X[:]) and numpy.allclose([gm.datawc_x1,gm.datawc_x2],1.e20)) or (hasattr(gm,"projection") and vcs.elements["projection"][gm.projection].type!="linear"):
           wc[0]=X[:].min()
           wc[1]=X[:].max()
         if gm.datawc_y1 > 9.E19 :
@@ -942,7 +942,7 @@ class P(object):
             wc[3]=Y[:].max()
         else:
           wc[3] = gm.datawc_y2
-        if (not vcs.utils.monotonic(Y[:]) and not isinstance(gm,vcs.unified1D.G1d)) or (hasattr(gm,"projection") and vcs.elements["projection"][gm.projection].type!="linear"):
+        if (not vcs.utils.monotonic(Y[:]) and numpy.allclose([gm.datawc_y1,gm.datawc_y2],1.e20)) or (hasattr(gm,"projection") and vcs.elements["projection"][gm.projection].type!="linear"):
           wc[2]=Y[:].min()
           wc[3]=Y[:].max()
         vp=[self.data.x1,self.data.x2,self.data.y1,self.data.y2]
