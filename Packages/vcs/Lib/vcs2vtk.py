@@ -850,7 +850,7 @@ def prepMarker(renWin,ren,marker,cmap=None):
     x = marker.x[i]
     y=marker.y[i]
     c=marker.color[i]
-    s=marker.size[i]/float(max(marker.worldcoordinate))*.5
+    s=marker.size[i]*.5
     t=marker.type[i]
     N = max(len(x),len(y))
     for a in [x,y]:
@@ -896,7 +896,7 @@ def prepMarker(renWin,ren,marker,cmap=None):
       elif t[9]=="u":
         gs.SetRotationAngle(0)
     elif t == "hurricane":
-      s =s/10.
+      s =s/5.
       ds = vtk.vtkDiskSource()
       ds.SetInnerRadius(.55*s)
       ds.SetOuterRadius(1.01*s)
@@ -950,7 +950,7 @@ def prepMarker(renWin,ren,marker,cmap=None):
       pd = vtk.vtkPolyData()
       polys = vtk.vtkCellArray()
       lines = vtk.vtkCellArray()
-      s*=20
+      s*=3
       #Lines first
       for l in params["line"]:
         coords = numpy.array(zip(*l))*s/30.
@@ -971,9 +971,11 @@ def prepMarker(renWin,ren,marker,cmap=None):
       gs.FilledOn()
     if t[-5:]=="_fill":
       gs.FilledOn()
+      
+    if pd is None:
+      s/=float(max(marker.worldcoordinate))
     gs.SetScale(s)
     gs.Update()
-
 
     if pd is None:
       g.SetSourceConnection(gs.GetOutputPort())
@@ -999,7 +1001,8 @@ def prepMarker(renWin,ren,marker,cmap=None):
     fitToViewport(a,ren,marker.viewport,wc=marker.worldcoordinate,geo=geo)
 
     # Add a transform to correct the glyph's aspect ratio:
-    if a.GetUserTransform():
+
+    if pd is None and a.GetUserTransform():
       # Invert the scale of the actor's transform.
       glyphTransform = vtk.vtkTransform()
       scale = a.GetUserTransform().GetScale()
