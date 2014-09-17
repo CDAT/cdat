@@ -593,6 +593,9 @@ class ConfigParameter:
     def getValue( self, key=0, default_value=None ):
         return self.values.get( key, default_value )
 
+    def getState( self ):
+        return self.values.get( 'state', None )
+
     def getInitValue( self, default_value=None ):
         ival = self.getValue( 'init' ) 
         if ( ival == None ) and ( self.parent <> None ): 
