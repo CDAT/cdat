@@ -2496,8 +2496,10 @@ class init(object):
         # Adds the strings
 	for i in range(self.nstring):
 	    s=self.String[i]
+            # get all string properties to take avoid duplication plot
+            _sproperties = (s.text,s.x,s.y,s.color,s.rot,s.font,s.just,s.char_size,s.status,s.loctype)
             # skip adding string to avoid multiple time plot strings
-            if s.text in self._all_string: continue
+            if _sproperties in self._all_string: continue
 	    ln.append(' with string\n')
 	    ln.append('  string '+s.status+'\n')
 	    ln.append('  string loctype '+s.loctype+'\n')
@@ -2520,7 +2522,7 @@ class init(object):
 	    ln.append('  string char size '+str(s.char_size)+'\n')
 	    ln.append('  string def "'+s.text+'"\n')
             # append string to global object list
-            self._all_string.append(s.text)
+            self._all_string.append(_sproperties) 
             
         # Adds the lines
 	for i in range(self.nline):
