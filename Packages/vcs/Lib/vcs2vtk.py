@@ -996,6 +996,27 @@ def prepMarker(renWin,ren,marker,cmap=None):
     p.SetColor([C/100. for C in color])
     ren.AddActor(a)
     fitToViewport(a,ren,marker.viewport,wc=marker.worldcoordinate,geo=geo)
+
+    # Add a transform to correct the glyph's aspect ratio:
+    if a.GetUserTransform():
+      # Invert the scale of the actor's transform.
+      glyphTransform = vtk.vtkTransform()
+      scale = a.GetUserTransform().GetScale()
+      xComp = scale[0]
+      scale = [xComp / float(val) for val in scale]
+      glyphTransform.Scale(scale)
+
+      glyphFixer = vtk.vtkTransformPolyDataFilter()
+      glyphFixer.SetTransform(glyphTransform)
+
+      if pd is None:
+        glyphFixer.SetInputConnection(gs.GetOutputPort())
+      else:
+        glyphFixer.SetInputData(pd)
+        g.SetSourceData(NULL)
+
+      g.SetSourceConnection(glyphFixer.GetOutputPort())
+
   return
 
 def prepLine(renWin,ren,line,cmap=None):
