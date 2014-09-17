@@ -154,12 +154,12 @@ class Button:
         return False
     
     def setToggleState( self, state ):
-#        print "Button[%s]:setToggleState(%d)" % ( self.id, state )
+        print "Button[%s]:setToggleState(%d)" % ( self.id, state )
         self.setState(state)
         self.setToggleProps()       
 
-    def processStateChangeEvent( self, obj, event ):
-#        print "Button[%s]:processStateChangeEvent(%d)" % ( self.id, self.getState() )
+    def processStateChangeEvent( self, obj, event, indirect = False ):
+        print "Button[%s]:processStateChangeEvent(%d)" % ( self.id, self.getState() )
         self.invokingEvent = True 
         self.setButtonState( ( self.getState() + 1 ) % self.numberOfStates )      
         self.invokingEvent = False
@@ -170,8 +170,8 @@ class Button:
         self.broadcastState( state )
         self.setToggleProps()
         
-    def setButtonState( self, state, broadcast = True ):
-#        print "Button[%s]:setButtonState(%d)" % ( self.id, state )
+    def setButtonState( self, state, indirect = False ):
+        print "Button[%s]:setButtonState(%d)" % ( self.id, state )
         if (state <> self.getState()) or not self.toggle:
             if broadcast:
                 self.broadcastState( state )
@@ -491,7 +491,7 @@ class ButtonBarWidget(ButtonBar):
 
     def resetInteractionButtons( self, current_button, new_state ):
         ibbar = self.handler.getButtonBar( 'Interaction' )
-#        print " resetInteractionButtons: ", str( [ current_button, new_state ] )
+        print " resetInteractionButtons: ", str( [ current_button, new_state ] )
         for ib in ibbar.buttons:
             is_child = ib.id in current_button.children
             state = new_state if is_child else 0
@@ -505,7 +505,7 @@ class ButtonBarWidget(ButtonBar):
     def processStateChangeEvent( self, button_id, key, state, force = False ):
         b = self.getButton( button_id )
         if (b.getState() <> state) or (not b.toggle) or force:
-#            print " processStateChangeEvent: ", str( [ button_id, key, state ] )
+            print " processStateChangeEvent: ", str( [ button_id, key, state ] )
             self.StateChangedSignal( button_id, key, state )
             b.setState(state)
             if state > 0: 
