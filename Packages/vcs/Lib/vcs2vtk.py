@@ -850,7 +850,7 @@ def prepMarker(renWin,ren,marker,cmap=None):
     x = marker.x[i]
     y=marker.y[i]
     c=marker.color[i]
-    s=marker.size[i]/float(max(marker.worldcoordinate))*10.
+    s=marker.size[i]/float(max(marker.worldcoordinate))*.5
     t=marker.type[i]
     N = max(len(x),len(y))
     for a in [x,y]:
@@ -950,6 +950,7 @@ def prepMarker(renWin,ren,marker,cmap=None):
       pd = vtk.vtkPolyData()
       polys = vtk.vtkCellArray()
       lines = vtk.vtkCellArray()
+      s*=20
       #Lines first
       for l in params["line"]:
         coords = numpy.array(zip(*l))*s/30.
@@ -1013,7 +1014,7 @@ def prepMarker(renWin,ren,marker,cmap=None):
         glyphFixer.SetInputConnection(gs.GetOutputPort())
       else:
         glyphFixer.SetInputData(pd)
-        g.SetSourceData(NULL)
+        g.SetSourceData(None)
 
       g.SetSourceConnection(glyphFixer.GetOutputPort())
 
