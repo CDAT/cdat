@@ -13,6 +13,7 @@ p.add_argument("--lon1", dest="lon1", default=0, type=float, help="First Longitu
 p.add_argument("--lon2", dest="lon2", default=0, type=float, help="Last Longitude")
 p.add_argument("--range_via_gm", dest="rg", action="store_true", help="Set the range via graphic method ")
 p.add_argument("--gm_flips_lat_range", dest="flip", action="store_true", help="Set the range via graphic method to flip of data")
+p.add_argument("--zero", dest="zero", action="store_true", help="Set the data to zero everywhere")
 
 args = p.parse_args(sys.argv[1:])
 
@@ -79,12 +80,16 @@ if gm_type=="vector":
     v=f("v",**xtra)
     if args.mask:
         u=MV2.masked_greater(u,58.)
+    if args.zero:
+      u-=u
+      v-=v
 elif gm_type=="meshfill":
     s=f("sample",**xtra)
     gm.mesh=True
-    print "ARGS MASK:",args.mask
     if args.mask:
         s=MV2.masked_less(s,1150.)
+    if args.zero:
+       s-=s
 else:
     s=f("clt",**xtra)
     if args.mask:
@@ -92,7 +97,10 @@ else:
     if gm_type in ["oneD","yxvsx","xyvsy","xvsy","scatter"]:
         s = s(latitude=(20,20,"cob"),longitude=(112,112,"cob"),squeeze=1)
         s2=MV2.sin(s)
-gm.list()
+        if args.zero:
+           s2-=s2
+    if args.zero:
+       s-=s
 if gm_type=="vector":
     x.plot(u,v,gm,bg=bg)
 elif gm_type in ["scatter","xvsy"]:
@@ -104,6 +112,8 @@ if args.mask:
     fnm+="_masked"
 if args.projtype!="default":
     fnm+="_%s_proj" % args.projtype
+if args.zero:
+   fnm+="_zero"
 fnm+=nm_xtra
 x.png(fnm)
 print "fnm:",fnm
