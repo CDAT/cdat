@@ -607,7 +607,6 @@ def doWrap(Act,wc,wrap=[0.,360]):
   Mapper2.SetLookupTable(Mapper.GetLookupTable())
   Mapper2.SetScalarRange(Mapper.GetScalarRange())
   Mapper2.SetScalarMode(Mapper.GetScalarMode())
-  print "ClipPlanes at:",xmn, xmx, ymn, ymx
   setClipPlanes(Mapper2, xmn, xmx, ymn, ymx)
   Mapper2.Update()
   Actor.SetMapper(Mapper2)
@@ -1206,8 +1205,8 @@ def fitToViewport(Actor,Renderer,vp,wc=None,geo=None):
   cam.SetFocalPoint(xc,yc,0.)
   if geo is None:
     if flipY:
-      cam.Roll(180.)
       cam.Elevation(180.)
+      cam.Roll(180.)
       pass
     if flipX:
       cam.Azimuth(180.)
