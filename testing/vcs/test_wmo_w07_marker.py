@@ -7,7 +7,6 @@ import checkimage
 x=vcs.init()
 x.setbgoutputdimensions(1200,1091,units="pixels")
 
-x=vcs.init()
 m = x.createmarker()
 M=1
 m.worldcoordinate=[0,M,0,M]

@@ -17,6 +17,7 @@ wmo = ['w00', 'w01', 'w02', 'w03', 'w04', 'w05', 'w06', 'w07', 'w08', 'w09',
        'w100', 'w101', 'w102']
 
 x=vcs.init()
+x.setbgoutputdimensions(1200,1091,units="pixels")
 
 m = x.createmarker()
 M=7

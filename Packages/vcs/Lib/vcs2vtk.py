@@ -850,7 +850,7 @@ def prepMarker(renWin,ren,marker,cmap=None):
     x = marker.x[i]
     y=marker.y[i]
     c=marker.color[i]
-    s=marker.size[i]/float(max(marker.worldcoordinate))*10.
+    s=marker.size[i]/float(max(marker.worldcoordinate))*.5
     t=marker.type[i]
     N = max(len(x),len(y))
     for a in [x,y]:
@@ -950,6 +950,7 @@ def prepMarker(renWin,ren,marker,cmap=None):
       pd = vtk.vtkPolyData()
       polys = vtk.vtkCellArray()
       lines = vtk.vtkCellArray()
+      s*=20
       #Lines first
       for l in params["line"]:
         coords = numpy.array(zip(*l))*s/30.
@@ -996,6 +997,27 @@ def prepMarker(renWin,ren,marker,cmap=None):
     p.SetColor([C/100. for C in color])
     ren.AddActor(a)
     fitToViewport(a,ren,marker.viewport,wc=marker.worldcoordinate,geo=geo)
+
+    # Add a transform to correct the glyph's aspect ratio:
+    if a.GetUserTransform():
+      # Invert the scale of the actor's transform.
+      glyphTransform = vtk.vtkTransform()
+      scale = a.GetUserTransform().GetScale()
+      xComp = scale[0]
+      scale = [xComp / float(val) for val in scale]
+      glyphTransform.Scale(scale)
+
+      glyphFixer = vtk.vtkTransformPolyDataFilter()
+      glyphFixer.SetTransform(glyphTransform)
+
+      if pd is None:
+        glyphFixer.SetInputConnection(gs.GetOutputPort())
+      else:
+        glyphFixer.SetInputData(pd)
+        g.SetSourceData(None)
+
+      g.SetSourceConnection(glyphFixer.GetOutputPort())
+
   return
 
 def prepLine(renWin,ren,line,cmap=None):
