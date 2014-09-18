@@ -266,7 +266,7 @@ class RectGridPlot(StructuredGridPlot):
                 bbar = self.getInteractionButtons()
                 bbar.setSliderValues( new_values )  
                 interaction_param.loadConstituent( constituent )  
-                                   
+
     def setIsosurfaceLevel( self, value ):
         if self.levelSetActor <> None:
             if isinstance( value, (list,tuple) ): value = value[0]
