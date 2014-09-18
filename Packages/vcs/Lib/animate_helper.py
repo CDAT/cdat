@@ -625,7 +625,7 @@ class AnimationCreate(StoppableThread):
       self.wait_if_paused()
       # print "RENDERING FRAME", i, "OF", len(all_args)
       self.controller.render_frame(args, i)
-      time.sleep(0.1)
+      #time.sleep(0.1)
     self.controller.restore_min_max()
 
     self.controller.animation_created = True
@@ -783,20 +783,17 @@ class AnimationController(animate_obj_old):
     return len(self.animation_files)
 
   def initialize_create_canvas(self):
-    import Canvas
     # create a new canvas for each frame
-    self.create_canvas = Canvas.Canvas()
+    self.create_canvas = vcs.init()
+    self.create_canvas.setcolormap(self.vcs_self.getcolormapname())
 
     alen = None
     # dims = self.vcs_self.canvasinfo()
-    dims = self.canvas_info
+    dims = self.vcs_self.canvasinfo()
     if dims['height']<500:
         factor = 2
     else:
         factor=1
-    if dims["width"]<dims["height"]:
-      self.create_canvas.portrait(width=dims["width"],
-                                  height=dims["height"])
     self.create_canvas.setbgoutputdimensions(width=dims['width']*factor,
                                              height=dims['height']*factor,
                                              units='pixel')
