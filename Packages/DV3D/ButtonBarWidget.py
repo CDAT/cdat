@@ -338,7 +338,7 @@ class ButtonBar:
 #        print " ################################# Resize Button %s: ws=%d, scale=%s, pos=%s " % ( button.id, window_size, str(scale), str(position) )
         size = [ max_size[0]*scale, max_size[1]*scale ]
         bounds = self.computeBounds( position, size )
-#        print " placeButton[%s]: bounds = %s" % ( button.id, str(bounds) )
+        print " placeButton[%s]: bounds = %s" % ( button.id, str(bounds) )
         button.place( bounds )
         return self.getOffsetScreenPosition( size, position )
     
