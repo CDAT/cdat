@@ -786,8 +786,7 @@ class DV3DPlot():
             b = bbar.addConfigButton( names=['ToggleSurfacePlot'],  key='S', children=['IsosurfaceValue'], toggle=True, interactionHandler=self.processSurfacePlotCommand )
             b = bbar.addConfigButton( names=['ToggleVolumePlot'], key='v', children=['ScaleTransferFunction'], toggle=True, interactionHandler=self.processVolumePlotCommand )
         bbar.build()
-        return bbar
- 
+
     def processSurfacePlotCommand( self, args, config_function = None ):
         if args and args[0] == "Init":
             state = config_function.getState()
