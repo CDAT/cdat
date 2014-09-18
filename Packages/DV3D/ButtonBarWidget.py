@@ -73,6 +73,8 @@ class Button:
 
     def setState(self, value):
         self._state = value
+        self.buttonRepresentation.Highlight( self._state )
+        self.setToggleProps()
         self.PrivateStateChangedSignal( value )
 #        print "----------------->>> Button [%s] Setting state = %s " % ( self.id, str(value) )
         self.updateWidgetState()
@@ -185,6 +187,7 @@ class Button:
         self.PublicStateChangedSignal( self.id, self.key, state )
         
     def place( self, bounds ):
+ #       print " Place Button %s: %s " % ( self.id, str( bounds ) )
         self.buttonRepresentation.PlaceWidget( bounds )
         
     def size(self):
@@ -193,18 +196,22 @@ class Button:
     def On(self):
         if self.active:
             self.buttonWidget.On()
+#            print " Button %s on " % self.id
 
     def Off(self):
         self.buttonWidget.Off()
+#         if self.id == "Step":
+#             print " Button %s off " % self.id
         
     def activate(self):
         self.active = True
         self.buttonWidget.On()
+#        print " Button %s on " % self.id
 
     def deactivate(self):
         self.active = False
-        self.buttonWidget.Off()
-        
+        self.Off()
+                    
 class ButtonBarHandler:
     
     def __init__( self, cfgMgr, **args ):
@@ -226,7 +233,7 @@ class ButtonBarHandler:
             if 'position' not in args:      args[ 'position' ]    = ( 0.55, 0.08 ) 
             if 'orientation' not in args:   args[ 'orientation' ] = Orientation.Horizontal
             cbar = ControlBar( name, interactor, **args )
-            cbar.init( build_args )
+            cbar.init( build_args, **args )
             self.button_bars[ name ] = cbar
         return cbar
 
@@ -322,7 +329,7 @@ class ButtonBar:
 #        print " ################################# Resize Button %s: ws=%d, scale=%s, pos=%s " % ( button.id, window_size, str(scale), str(position) )
         size = [ max_size[0]*scale, max_size[1]*scale ]
         bounds = self.computeBounds( position, size )
-        print " placeButton[%s]: bounds = %s" % ( button.id, str(bounds) )
+#        print " placeButton[%s]: bounds = %s" % ( button.id, str(bounds) )
         button.place( bounds )
         return self.getOffsetScreenPosition( size, position )
     
@@ -347,7 +354,7 @@ class ButtonBar:
         if   self.orientation == Orientation.Vertical: position_offset[ 0 ] = 0
         elif self.orientation == Orientation.Horizontal: position_offset[ 1 ] = 0
         if buffered: screen_pos = self.getBufferedPos( screen_pos, position_offset  )
-        print " GetScreenPosition [",  self.name, "], position = ", str( normalized_display_position ), "], screen position = ", str( screen_pos )
+#        print " GetScreenPosition [",  self.name, "], position = ", str( normalized_display_position ), "], screen position = ", str( screen_pos )
         return screen_pos
   
     def getBufferedPos( self, screen_pos, position_offset = [ 0, 0 ] ): 
@@ -423,19 +430,18 @@ class ControlBar(ButtonBar):
         cbar.init( build_args )
         return cbar
         
-    def init( self, build_args ):   # ( "Step", ("Run","Stop") ), self.processAnimationControl
+    def init( self, build_args, **args ):   # ( "Step", ("Run","Stop") ), self.processAnimationControl
         button_specs = build_args[0]
         self.processStateChangeEvent = build_args[1]
         for bspec in button_specs:
-            self.addButton( bspec )
+            self.addButton( bspec, **args )
             
-    def addButton( self, bspec ):
-        toggle_button = False
+    def addButton( self, bspec, **args ):
         if hasattr(bspec, "__iter__"):
-            bnames = [ bspec[0] ]
-            toggle_button = bspec[1] if len( bspec ) > 1 else True
-        else: bnames = [ bspec ]        
-        button = Button( self.interactor, names=bnames, toggle = toggle_button )
+            bnames = bspec
+        else: bnames = [ bspec ] 
+        toggle = args.get( 'toggle', False )       
+        button = Button( self.interactor, names=bnames, toggle = toggle )
         button.PublicStateChangedSignal.connect( self.processStateChangeEvent )
         self.buttons.append( button )
 
