@@ -322,10 +322,10 @@ class RectGridPlot(StructuredGridPlot):
                 self.updateTextDisplay( config_function.label ) 
             self.modifySlicePlaneVisibility( plane_index, config_function.key, args[1] )
             self.render() 
-        elif args and args[0] == "ProcessSliderInit":
-            for plane_index in range(3):
-                self.modifySlicePlaneVisibility( plane_index, 'xyz'[plane_index]  ) 
-            self.render()              
+#         elif args and args[0] == "ProcessSliderInit":
+#             for plane_index in range(3):
+#                 self.modifySlicePlaneVisibility( plane_index, 'xyz'[plane_index]  ) 
+#             self.render()              
         elif args and args[0] == "Open":
             pass
         elif args and args[0] == "Close":
