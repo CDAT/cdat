@@ -411,7 +411,7 @@
     "y": 0.0529999993742
    }, 
    "tunits": {
-    "priority": 1, 
+    "priority": 0, 
     "textorientation": "default", 
     "texttable": "default", 
     "x": 0.0, 
@@ -549,14 +549,14 @@
     "y": 0.922999978065
    }, 
    "zname": {
-    "priority": 1, 
+    "priority": 0, 
     "textorientation": "default", 
     "texttable": "default", 
     "x": 0.0, 
     "y": 0.995000004768
    }, 
    "zunits": {
-    "priority": 1, 
+    "priority": 0, 
     "textorientation": "default", 
     "texttable": "default", 
     "x": 0.0, 
