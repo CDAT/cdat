@@ -250,21 +250,16 @@ class DV3DPlot():
     def applyAction( self, action ):
         print "Applying action: ", str(action)
 
-    def getControlBar(self, config_function, build_args, **args ):
-        control_bar = self.buttonBarHandler.createControlBar( config_function.cfg_state, self.renderWindowInteractor, build_args, position = ( 0.55, 0.08 ), **args )
+    def getControlBar(self, name, build_args, **args ):
+        control_bar = self.buttonBarHandler.createControlBar( name, self.renderWindowInteractor, build_args, position = ( 0.55, 0.08 ), **args )
         control_bar.reposition()
         return control_bar
 
-    def getConstituentSelectionBar(self, config_function, build_args, **args ): 
-        args[ 'toggle' ] = True
-        control_bar = self.buttonBarHandler.createControlBar( config_function.cfg_state, self.renderWindowInteractor, build_args, position = ( 0.7, 0.07 ), **args )
+    def getConstituentSelectionBar(self, bar_name, build_args, **args ): 
+        print " Get ConstituentSelectionBar %s: %s " % ( bar_name, str(build_args) )
+        control_bar = self.buttonBarHandler.createControlBar( bar_name, self.renderWindowInteractor, build_args, position = ( 0.55, 0.8 ), **args )
         control_bar.reposition()
-        self.changeButtonActivations( [ ( cname, True, 1 if self.isConstituentConfigEnabled(cname) else 0 ) for cname in build_args[0] ] ) 
-        return control_bar
-
-    def getConstituentSelectionButton(self, config_function, build_args, position, **args ): 
-        control_bar = self.buttonBarHandler.createControlBar( config_function.cfg_state, self.renderWindowInteractor, build_args, position = position, **args )
-        control_bar.reposition()
+        self.changeButtonActivations( [ ( cname, True ) for cname in build_args[0] ] ) 
         return control_bar
 
     def getConstituentSelectionBar(self, config_function, build_args, **args ): 
@@ -386,10 +381,12 @@ class DV3DPlot():
         button = self.buttonBarHandler.findButton( button_name ) 
         print " changeButtonActivation[%s], activate = %s, state = %s" % ( button_name, str(activate), str(state) )
         if button: 
-            if activate: button.activate()
-            else: button.deactivate()
-        if state <> None:
-            button.setToggleState( state )
+            if activate:  
+                button.activate()
+                print " Activate button %s " % button_name
+            else:         
+                button.deactivate()
+                print " Deactivate button %s " % button_name
             
     def changeButtonActivations(self, activation_list ):
         for activation_spec in activation_list:

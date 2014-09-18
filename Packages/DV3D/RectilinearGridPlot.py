@@ -222,15 +222,13 @@ class RectGridPlot(StructuredGridPlot):
             self.processConfigParameterChange( colorScaleRange )  
         elif args and args[0] == "InitConfig":         
             state = args[1]
-            self.cs_bbar = self.getConstituentSelectionBar( config_function, [ self.plotConstituents.keys(), self.processConstituentSelection ] )
-            print "ColorScale InitConfig, state = %d" % state
-            if state: 
-                self.cs_bbar.show()
-                print "Show ConstituentSelectionBar: ", config_function.cfg_state
-            else:     
-                self.cs_bbar.hide()
-                self.cs_bbar = None
-                print "Hide ConstituentSelectionBar: ", config_function.cfg_state
+            cs_bbar = self.getConstituentSelectionBar( 'ColorScale-CS', [ ( "Slice", "Volume", "SurfaceTexture" ), self.processConstituentSelection ] )
+            if state:
+                print " Show ConstituentSelectionBar " 
+                cs_bbar.show()
+            else: 
+                print " Hide ConstituentSelectionBar " 
+                cs_bbar.hide()
             self.updateTextDisplay( config_function.label )
             bbar = self.getInteractionButtons()
             for islider in range(4): bbar.setSliderVisibility(  islider, islider < len(config_function.sliderLabels) )  
