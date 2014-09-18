@@ -244,16 +244,16 @@ class DV3DPlot():
     def applyAction( self, action ):
         print "Applying action: ", str(action)
 
-    def getControlBar(self, name, build_args, **args ):
-        control_bar = self.buttonBarHandler.createControlBar( name, self.renderWindowInteractor, build_args, position = ( 0.55, 0.08 ), **args )
+    def getControlBar(self, config_function, build_args, **args ):
+        control_bar = self.buttonBarHandler.createControlBar( config_function.cfg_state, self.renderWindowInteractor, build_args, position = ( 0.55, 0.08 ), **args )
         control_bar.reposition()
         return control_bar
 
-    def getConstituentSelectionBar(self, bar_name, build_args, **args ): 
-        print " Get ConstituentSelectionBar %s: %s " % ( bar_name, str(build_args) )
-        control_bar = self.buttonBarHandler.createControlBar( bar_name, self.renderWindowInteractor, build_args, position = ( 0.55, 0.8 ), **args )
+    def getConstituentSelectionBar(self, config_function, build_args, **args ): 
+        args[ 'toggle' ] = True
+        control_bar = self.buttonBarHandler.createControlBar( config_function.cfg_state, self.renderWindowInteractor, build_args, position = ( 0.7, 0.01 ), **args )
         control_bar.reposition()
-        self.changeButtonActivations( [ ( cname, True ) for cname in build_args[0] ] ) 
+        self.changeButtonActivations( [ ( cname, True, 1 ) for cname in build_args[0] ] ) 
         return control_bar
     
     def processConfigParameterChange( self, parameter ):
@@ -341,30 +341,13 @@ class DV3DPlot():
         self.renderWindowInteractor.SetTimerEventType( self.AnimationTimerType )
         self.animationTimerId = self.renderWindowInteractor.CreateOneShotTimer( event_duration )
         
-    def captureFrame( self, **args ):   
-        frameCaptureFilter = vtk.vtkWindowToImageFilter()
-        frameCaptureFilter.SetInput( self.renderWindow )
-        ignore_alpha = args.get( 'ignore_alpha', True )
-        if ignore_alpha:    frameCaptureFilter.SetInputBufferTypeToRGB()
-        else:               frameCaptureFilter.SetInputBufferTypeToRGBA()
-        frameCaptureFilter.Update()
-        output = frameCaptureFilter.GetOutput()
-        self.animation_frames.append( output )
-                
-    def saveAnimation(self):
-        saveAnimationThread = SaveAnimation( self.animation_frames )
-        self.animation_frames =[]
-        saveAnimationThread.run()
-         
-    def changeButtonActivation(self, button_name, activate ):
+    def changeButtonActivation(self, button_name, activate, state = None ):
         button = self.buttonBarHandler.findButton( button_name ) 
         if button: 
-            if activate:  
-                button.activate()
-                print " Activate button %s " % button_name
-            else:         
-                button.deactivate()
-                print " Deactivate button %s " % button_name
+            if activate: button.activate()
+            else: button.deactivate()
+        if state <> None:
+            button.setState( state )
             
     def changeButtonActivations(self, activation_list ):
         for activation_spec in activation_list:
@@ -468,6 +451,19 @@ class DV3DPlot():
         print " --> Event: %s " % event 
         return 0
     
+    def updateAnimationControlBar(self, state, config_function ):
+        bbar = self.getControlBar( config_function, [ ( "Step", "Run", "Stop" ), self.processAnimationStateChange ], mag=1.4 )
+        if state == 1:
+            print " ** Displaying AnimationControlBar ** "
+            self.updateTextDisplay( config_function.label )
+            bbar.show()
+            if self.animating:
+                self.changeButtonActivations( [ ( 'Run', False ), ( 'Stop', True ) , ( 'Step', False ) ] )  
+            else:
+                self.changeButtonActivations( [ ( 'Run', True ), ( 'Stop', False ) , ( 'Step', True ) ] )  
+        else:
+            bbar.hide()
+    
     def processAnimationCommand( self, args, config_function = None ):
 #        print " processAnimationCommand, args = ", str( args ), ", animating = ", str(self.animating)
         runSpeed = config_function.value
@@ -478,17 +474,7 @@ class DV3DPlot():
         elif args and args[0] == "EndConfig":
             pass
         elif args and args[0] == "InitConfig":
-            state = args[1]
-            bbar = self.getControlBar( 'Animation', [ ( "Step", "Run", "Stop", ( "Record", True ) ), self.processAnimationStateChange ], mag=1.4 )
-            if state == 1:
-                self.updateTextDisplay( config_function.label )
-                bbar.show()
-                if self.animating:
-                    self.changeButtonActivations( [ ( 'Run', False ), ( 'Stop', True ) , ( 'Step', False ) ] )  
-                else:
-                    self.changeButtonActivations( [ ( 'Run', True ), ( 'Stop', False ) , ( 'Step', True ) ] )  
-            else:
-                bbar.hide()
+            self.updateAnimationControlBar( args[1], config_function )
         elif args and args[0] == "Open":
             pass
         elif args and args[0] == "Close":
