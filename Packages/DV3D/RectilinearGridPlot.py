@@ -230,12 +230,16 @@ class RectGridPlot(StructuredGridPlot):
             
     def processConstituentSelection( self, *args, **kwargs ):
         state = args[2]
+        param = None
         if args[0] == 'Slice':
-            pass
+            param = self.cfgManager.getParameter( 'SliceRoundRobin' ) 
         elif args[0] == 'Volume':
-            pass
+            param = self.cfgManager.getParameter( 'ToggleVolumePlot' ) 
         elif args[0] == 'Surface':
-            pass
+            param = self.cfgManager.getParameter( 'ToggleSurfacePlot' )
+        if param <> None:
+           param.setValue( 'ConfigEnabled', state ) 
+           print " Process Constituent Selection [ %s ]: ConfigEnabled = %d " % ( args[0], state )
             
     def setIsosurfaceLevel( self, value ):
         if self.levelSetActor <> None:
