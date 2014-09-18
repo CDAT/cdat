@@ -267,11 +267,11 @@ class DV3DPlot():
         control_bar.reposition()
         return control_bar
 
-    def getConstituentSelectionBar(self, bar_name, build_args, **args ): 
-        print " Get ConstituentSelectionBar %s: %s " % ( bar_name, str(build_args) )
-        control_bar = self.buttonBarHandler.createControlBar( bar_name, self.renderWindowInteractor, build_args, position = ( 0.55, 0.8 ), **args )
+    def getConstituentSelectionBar(self, config_function, build_args, **args ): 
+        args[ 'toggle' ] = True
+        control_bar = self.buttonBarHandler.createControlBar( config_function.cfg_state, self.renderWindowInteractor, build_args, position = ( 0.7, 0.01 ), **args )
         control_bar.reposition()
-        self.changeButtonActivations( [ ( cname, True ) for cname in build_args[0] ] ) 
+        self.changeButtonActivations( [ ( cname, True, 1 ) for cname in build_args[0] ] ) 
         return control_bar
     
     def processConfigParameterChange( self, parameter ):
