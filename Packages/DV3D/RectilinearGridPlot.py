@@ -220,18 +220,15 @@ class RectGridPlot(StructuredGridPlot):
             colorScaleRange.setValues( config_function.initial_value )
         elif args and args[0] == "EndConfig":
             self.processConfigParameterChange( colorScaleRange )
-#            print "ColorScale EndConfig" 
-        elif args and args[0] == "InitConfig":         
+        elif args and args[0] == "InitConfig":
             state = args[1]
-            self.cs_bbar = self.getConstituentSelectionBar( config_function, [ self.plotConstituents.keys(), self.processConstituentSelection ] )
-            print "ColorScale InitConfig, state = %d" % state
-            if state: 
-                self.cs_bbar.show()
-                print "Show ConstituentSelectionBar: ", config_function.cfg_state
-            else:     
-                self.cs_bbar.hide()
-                self.cs_bbar = None
-                print "Hide ConstituentSelectionBar: ", config_function.cfg_state
+            cs_bbar = self.getConstituentSelectionBar( 'ColorScale-CS', [ ( "Slice", "Volume", "SurfaceTexture" ), self.processConstituentSelection ] )
+            if state:
+                print " Show ConstituentSelectionBar " 
+                cs_bbar.show()
+            else: 
+                print " Hide ConstituentSelectionBar " 
+                cs_bbar.hide()
             self.updateTextDisplay( config_function.label )
             bbar = self.getInteractionButtons()
             for islider in range(4): bbar.setSliderVisibility(  islider, islider < len(config_function.sliderLabels) )
@@ -246,34 +243,12 @@ class RectGridPlot(StructuredGridPlot):
             value = args[2].GetValue() 
             colorScaleRange.setValue( args[1], value )
             cscale = colorScaleRange.getValues()
-            if self.isConstituentConfigEnabled('Volume'):
-                self.generateCTF( cscale )
-#            if self.isConstituentConfigEnabled('Slice') or self.isConstituentConfigEnabled('Surface'):
-            self.scaleEnabledColormaps( cscale )
-            for plotItem in self.plotConstituents.items():
-                if self.isConstituentConfigEnabled(plotItem[0]):
-                    colorScaleRange.setValue( plotItem[0], colorScaleRange.getValues() )
-                         
-    def processConstituentSelection( self, *args, **kwargs ):
-        state = args[2]
-        param = None
-        constituent = args[0]
-        for plotItem in self.plotConstituents.items():
-            if constituent == plotItem[0]: param = self.cfgManager.getParameter( plotItem[1] ) 
-        if param <> None:
-            prevState = param.getValue( 'ConfigEnabled', 1 ) 
-            param.setValue( 'ConfigEnabled', state ) 
-            print " Process Constituent Selection [ %s ]: ConfigEnabled = %d " % ( constituent, state )
-            if ( prevState == 0 ) and state:
-                interactionButtons = self.getInteractionButtons()
-                b = interactionButtons.getActiveButton()
-                interaction_param = self.cfgManager.getParameter( b.id ) 
-                new_values = interaction_param.getValue( constituent, interaction_param.getValues() )
-                print " Reset sliders: ", str( new_values )
-                bbar = self.getInteractionButtons()
-                bbar.setSliderValues( new_values )  
-                interaction_param.loadConstituent( constituent )
-                                   
+            self.scaleColormap( cscale )
+            self.generateCTF( cscale )
+            
+    def processConstituentSelection(self, *args, **kwargs ):
+        print " Process Constituent Selection: ", str( args )
+            
     def setIsosurfaceLevel( self, value ):
         if self.levelSetActor <> None:
             if isinstance( value, (list,tuple) ): value = value[0]
