@@ -245,8 +245,15 @@ class DV3DPlot():
         print "Applying action: ", str(action)
 
     def getControlBar(self, name, build_args, **args ):
-        control_bar = self.buttonBarHandler.createControlBar( name, self.renderWindowInteractor, build_args, **args )
+        control_bar = self.buttonBarHandler.createControlBar( name, self.renderWindowInteractor, build_args, position = ( 0.55, 0.08 ), **args )
         control_bar.reposition()
+        return control_bar
+
+    def getConstituentSelectionBar(self, bar_name, build_args, **args ): 
+        print " Get ConstituentSelectionBar %s: %s " % ( bar_name, str(build_args) )
+        control_bar = self.buttonBarHandler.createControlBar( bar_name, self.renderWindowInteractor, build_args, position = ( 0.55, 0.8 ), **args )
+        control_bar.reposition()
+        self.changeButtonActivations( [ ( cname, True ) for cname in build_args[0] ] ) 
         return control_bar
     
     def processConfigParameterChange( self, parameter ):
@@ -352,8 +359,12 @@ class DV3DPlot():
     def changeButtonActivation(self, button_name, activate ):
         button = self.buttonBarHandler.findButton( button_name ) 
         if button: 
-            if activate:  button.activate()
-            else:         button.deactivate()
+            if activate:  
+                button.activate()
+                print " Activate button %s " % button_name
+            else:         
+                button.deactivate()
+                print " Deactivate button %s " % button_name
             
     def changeButtonActivations(self, activation_list ):
         for activation_spec in activation_list:
