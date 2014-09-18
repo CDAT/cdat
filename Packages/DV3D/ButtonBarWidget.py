@@ -339,7 +339,7 @@ class ButtonBar:
 #        print " ################################# Resize Button %s: ws=%d, scale=%s, pos=%s " % ( button.id, window_size, str(scale), str(position) )
         size = [ max_size[0]*scale, max_size[1]*scale ]
         bounds = self.computeBounds( position, size )
-        print " placeButton[%s]: bounds = %s" % ( button.id, str(bounds) )
+#        print " placeButton[%s]: bounds = %s" % ( button.id, str(bounds) )
         button.place( bounds )
         return self.getOffsetScreenPosition( size, position )
     
@@ -364,7 +364,7 @@ class ButtonBar:
         if   self.orientation == Orientation.Vertical: position_offset[ 0 ] = 0
         elif self.orientation == Orientation.Horizontal: position_offset[ 1 ] = 0
         if buffered: screen_pos = self.getBufferedPos( screen_pos, position_offset  )
-        print " GetScreenPosition [",  self.name, "], position = ", str( normalized_display_position ), "], screen position = ", str( screen_pos )
+#        print " GetScreenPosition [",  self.name, "], position = ", str( normalized_display_position ), "], screen position = ", str( screen_pos )
         return screen_pos
   
     def getBufferedPos( self, screen_pos, position_offset = [ 0, 0 ] ): 

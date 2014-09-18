@@ -220,15 +220,11 @@ class RectGridPlot(StructuredGridPlot):
             colorScaleRange.setValues( config_function.initial_value )
         elif args and args[0] == "EndConfig":
             self.processConfigParameterChange( colorScaleRange )
-        elif args and args[0] == "InitConfig":
+        elif args and args[0] == "InitConfig":         
             state = args[1]
-            cs_bbar = self.getConstituentSelectionBar( 'ColorScale-CS', [ ( "Slice", "Volume", "SurfaceTexture" ), self.processConstituentSelection ] )
-            if state:
-                print " Show ConstituentSelectionBar " 
-                cs_bbar.show()
-            else: 
-                print " Hide ConstituentSelectionBar " 
-                cs_bbar.hide()
+            cs_bbar = self.getConstituentSelectionBar( config_function, [ ( "Slice", "Volume", "Surface" ), self.processConstituentSelection ] )
+            if state: cs_bbar.show()
+            else:     cs_bbar.hide()
             self.updateTextDisplay( config_function.label )
             bbar = self.getInteractionButtons()
             for islider in range(4): bbar.setSliderVisibility(  islider, islider < len(config_function.sliderLabels) )
@@ -246,8 +242,14 @@ class RectGridPlot(StructuredGridPlot):
             self.scaleColormap( cscale )
             self.generateCTF( cscale )
             
-    def processConstituentSelection(self, *args, **kwargs ):
-        print " Process Constituent Selection: ", str( args )
+    def processConstituentSelection( self, *args, **kwargs ):
+        state = args[2]
+        if args[0] == 'Slice':
+            pass
+        elif args[0] == 'Volume':
+            pass
+        elif args[0] == 'Surface':
+            pass
             
     def setIsosurfaceLevel( self, value ):
         if self.levelSetActor <> None:
