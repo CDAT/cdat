@@ -1387,7 +1387,6 @@ class RectGridPlot(StructuredGridPlot):
             contourInput.Modified() 
         return input
               
-    
     def setConstituentOpacities(self, param, range, **args ): 
         for plotItem in self.plotConstituents.items():
             if self.isConstituentConfigEnabled( plotItem[0] ): 
