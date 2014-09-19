@@ -1,4 +1,4 @@
-import animate_hel
+import animate_helper
 import warnings
 import vtk
 import vcs
@@ -6,7 +6,7 @@ import vcs2vtk
 import numpy
 from vtk.util import numpy_support as VN
 import meshfill,boxfill,isofill,isoline
-import os, traceback
+import os, traceback, sys
 import cdms2
 import DV3D
 import MV2
@@ -174,7 +174,8 @@ class VTKVCSBackend(object):
       self.canvas.plot(*pargs,**key_args[i])
     if self.logo is None:
       self.createLogo()
-    self.scaleLogo()
+    if self.renWin.GetSize()!=(0,0):
+      self.scaleLogo()
 
   def clear(self):
     if self.renWin is None: #Nothing to clear
@@ -1039,7 +1040,6 @@ class VTKVCSBackend(object):
 
   def renderColorBar(self,tmpl,levels,colors,legend,cmap):
     if tmpl.legend.priority>0:
-      print "Colorbar:",levels,legend
       tmpl.drawColorBar(colors,levels,x=self.canvas,legend=legend,cmap=cmap)
 
   def cleanupData(self,data):
@@ -1219,41 +1219,42 @@ class VTKVCSBackend(object):
     if self.canvas.drawLogo is False:
         ## Ok we do not want a logo here
         return
-      # Pth to logo
-      logoFile = os.path.join(sys.prefix,"share","vcs","uvcdat.png")
-      # VTK reader for logo
-      logoRdr=vtk.vtkPNGReader()
-      logoRdr.SetFileName(logoFile)
-      logoRdr.Update()
-      x0,x1,y0,y1,z0,z1 = logoRdr.GetDataExtent()
-      ia = vtk.vtkImageActor()
-      ia.GetMapper().SetInputConnection(logoRdr.GetOutputPort())
-      ren = vtk.vtkRenderer()
-      r,g,b = self.canvas.backgroundcolor
-      ren.SetBackground(r/255.,g/255.,b/255.)
-      ren.SetLayer(self.renWin.GetNumberOfLayers()-1)
-      ren.AddActor(ia)
-      self.renWin.AddRenderer(ren)
-      self.logo = ren
-      self.logoExtent = [x1,y1]
+    # Pth to logo
+    logoFile = os.path.join(sys.prefix,"share","vcs","uvcdat.png")
+    # VTK reader for logo
+    logoRdr=vtk.vtkPNGReader()
+    logoRdr.SetFileName(logoFile)
+    logoRdr.Update()
+    x0,x1,y0,y1,z0,z1 = logoRdr.GetDataExtent()
+    ia = vtk.vtkImageActor()
+    ia.GetMapper().SetInputConnection(logoRdr.GetOutputPort())
+    ren = vtk.vtkRenderer()
+    r,g,b = self.canvas.backgroundcolor
+    ren.SetBackground(r/255.,g/255.,b/255.)
+    ren.SetLayer(self.renWin.GetNumberOfLayers()-1)
+    ren.AddActor(ia)
+    self.renWin.AddRenderer(ren)
+    self.logo = ren
+    self.logoExtent = [x1,y1]
     
   def scaleLogo(self):
     if self.canvas.drawLogo is False:
         return
-      #Figuring out scale
-      #Get dimensions of input file
-      w,h=self.logoExtent
-      W,H=self.renWin.GetSize()
-      SC = .07
-      sc = SC*float(H)/float(h)
-      nw = w*sc
-      pw = (W-nw)/W
-      self.logo.SetViewport(pw,0.,1.,SC)
-      cam = self.logo.GetActiveCamera()
-      d=cam.GetDistance()
-      cam.SetParallelScale(.5*(h+1))
-      cam.SetFocalPoint(w/2.,h/2.,0.)
-      cam.SetPosition(w/2.,h/2.,H/(2-SC))
+    #Figuring out scale
+    #Get dimensions of input file
+    w,h=self.logoExtent
+    W,H=self.renWin.GetSize()
+    print "WIN:",W,H
+    SC = .07
+    sc = SC*float(H)/float(h)
+    nw = w*sc
+    pw = (W-nw)/W
+    self.logo.SetViewport(pw,0.,1.,SC)
+    cam = self.logo.GetActiveCamera()
+    d=cam.GetDistance()
+    cam.SetParallelScale(.5*(h+1))
+    cam.SetFocalPoint(w/2.,h/2.,0.)
+    cam.SetPosition(w/2.,h/2.,H/(2-SC))
 
 
 class VTKAnimate(animate_helper.AnimationController):
