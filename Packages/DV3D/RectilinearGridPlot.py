@@ -176,7 +176,7 @@ class RectGridPlot(StructuredGridPlot):
         elif args and args[0] == "Init":
             if config_function.initial_value == None:       
                 config_function.initial_value = [ 1.0, 1.0 ]  
-            self.setConstituentOpacities( opacityRange, config_function.initial_value )
+            self.setOpacities( config_function.initial_value )
         elif args and args[0] == "EndConfig":
             self.processConfigParameterChange( opacityRange )
         elif args and args[0] == "InitConfig":
@@ -204,7 +204,7 @@ class RectGridPlot(StructuredGridPlot):
             val = args[2].GetValue()     
             opacityRange.setValue( args[1], val )
             orange = opacityRange.getValues()
-            self.setConstituentOpacities( opacityRange, orange )
+            self.setOpacities( orange )
 
     def processColorScaleCommand( self, args, config_function = None ):
         colorScaleRange = config_function.value
@@ -222,7 +222,7 @@ class RectGridPlot(StructuredGridPlot):
             self.processConfigParameterChange( colorScaleRange )  
         elif args and args[0] == "InitConfig":         
             state = args[1]
-            cs_bbar = self.getConstituentSelectionBar( config_function, [ ( "Slice", "Volume", "Surface" ), self.processConstituentSelection ] )
+            cs_bbar = self.getConstituentSelectionBar( config_function, [ self.plotConstituents.keys(), self.processConstituentSelection ] )
             if state: cs_bbar.show()
             else:     cs_bbar.hide()
             self.updateTextDisplay( config_function.label )
@@ -1004,9 +1004,9 @@ class RectGridPlot(StructuredGridPlot):
         self.setColormap( 'Slice', [ 'jet', 1, 0, 0 ] )
         
         if (contour_ispec <> None) and (contour_ispec.input() <> None) and (self.contours == None):
-            rangeBounds = self.getRangeBounds( contour_input_index )
-            colormapManager = self.getColormapManager( 'Slice', index=contour_input_index )
-            self.scaleColormap( 'Slice', rangeBounds, contour_input_index )
+            rangeBounds = self.getRangeBounds(1)
+            colormapManager = self.getColormapManager( 'Slice', index=1 )
+            self.scaleColormap( 'Slice', rangeBounds, 1 )
 #            colormapManager = self.getColormapManager()
             self.generateContours = True   
             self.contours = vtk.vtkContourFilter()
@@ -1383,8 +1383,8 @@ class RectGridPlot(StructuredGridPlot):
     def setConstituentOpacities(self, param, range, **args ): 
         for plotItem in self.plotConstituents.items():
             if self.isConstituentConfigEnabled( plotItem[0] ): 
-                self.updateOpacity( plotItem[0], range, **args  )
-                param.setValue( plotItem[0], range ) 
+                self.updateOpacity( plotItem[0], range, **args  ) 
+                if plotItem[0] == 'Volume': self.updateOTF()
     
     def updateOpacity(self, constituent, opacity, cmap_index=0 ):
         colormapManager = self.getColormapManager( constituent, index=cmap_index )
@@ -1707,8 +1707,6 @@ class RectGridPlot(StructuredGridPlot):
     def scaleEnabledColormaps( self, ctf_data, cmap_index=0, **args ):
         for plotItem in self.plotConstituents.items():
             if self.isConstituentConfigEnabled(plotItem[0]):
-                if ( plotItem[0] == 'Surface' ) and ( 1 in self.inputSpecs ):
-                   cmap_index = 1 
                 self.scaleColormap( plotItem[0], ctf_data, cmap_index, **args)
 
     def scaleColormap( self, constituent, ctf_data, cmap_index=0, **args ):
@@ -1721,8 +1719,7 @@ class RectGridPlot(StructuredGridPlot):
                 colormapManager.setScale( imageRange, ctf_data )
                 if self.contourLineMapperer: 
                     self.contourLineMapperer.Modified()
-                if constituent == 'Slice':
-                    self.updatingColormap( cmap_index, colormapManager )
+                self.updatingColormap( cmap_index, colormapManager )
                 ispec.addMetadata( { '-'.join( [ 'colormap', constituent ] ) : self.getColormapSpec(constituent), 'orientation' : self.iOrientation } )
 
 
