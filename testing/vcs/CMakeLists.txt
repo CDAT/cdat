@@ -122,6 +122,13 @@ message(${CDAT_DOWNLOAD_SAMPLE_DATA} and ${CDAT_BUILD_MATPLOTLIB})
   #These test actually plot things need sample data
   if (CDAT_DOWNLOAD_SAMPLE_DATA)
     FOREACH(gm boxfill isofill isoline vector meshfill yxvsx xvsy xyvsy oned scatter)
+      add_test(vcs_test_basic_${gm}_zero
+        ${CMAKE_INSTALL_PREFIX}/bin/python
+        ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py
+        --gm_type=${gm}
+        --zero
+        --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_${gm}_zero.png
+        )
       add_test(vcs_test_basic_${gm}
         ${CMAKE_INSTALL_PREFIX}/bin/python
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py

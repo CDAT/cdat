@@ -945,6 +945,12 @@ class P(object):
         if (not vcs.utils.monotonic(Y[:]) and numpy.allclose([gm.datawc_y1,gm.datawc_y2],1.e20)) or (hasattr(gm,"projection") and vcs.elements["projection"][gm.projection].type!="linear"):
           wc[2]=Y[:].min()
           wc[3]=Y[:].max()
+        if wc[3]==wc[2]:
+          wc[2]-=.0001
+          wc[3]+=.0001
+        if numpy.allclose(wc[0],wc[1]):
+          wc[0]-=.0001
+          wc[1]+=.0001
         vp=[self.data.x1,self.data.x2,self.data.y1,self.data.y2]
         dx=wc[1]-wc[0]
         dy=wc[3]-wc[2]

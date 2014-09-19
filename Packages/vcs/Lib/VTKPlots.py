@@ -435,6 +435,12 @@ class VTKVCSBackend(object):
       y1,y2 = gm.datawc_y1,gm.datawc_y2
     else:
       y1,y2 = Y.min(),Y.max()
+    if numpy.allclose(y1,y2):
+        y1-=.0001
+        y2+=.0001
+    if numpy.allclose(x1,x2):
+        x1-=.0001
+        x2+=.0001
     l.worldcoordinate = [x1,x2,y1,y2]
     m=self.canvas.createmarker()
     m.type = gm.marker
@@ -444,7 +450,7 @@ class VTKVCSBackend(object):
     else:
         m.priority=0
     m.x = l.x
-    m.y=l.y
+    m.y = l.y
     m.viewport=l.viewport
     m.worldcoordinate = l.worldcoordinate
     
@@ -679,9 +685,13 @@ class VTKVCSBackend(object):
       levs = gm.levels
       if (isinstance(gm,isoline.Gi) and numpy.allclose( levs[0],[0.,1.e20])) or numpy.allclose(levs,1.e20):
         levs = vcs.mkscale(mn,mx)
+        if len(levs)==1: # constant value ?
+          levs = [levs[0],levs[0]+.00001]
         Ncolors = len(levs)
         if isinstance(gm,(isofill.Gfi,meshfill.Gfm)):
           levs2 = vcs.mkscale(mn,mx)
+          if len(levs2)==1: # constant value ?
+            levs2 = [levs2[0],levs2[0]+.00001]
           levs=[]
           for i in range(len(levs2)-1):
             levs.append([levs2[i],levs2[i+1]])
@@ -711,6 +721,8 @@ class VTKVCSBackend(object):
         cols = gm.fillareacolors
         if cols==[1,]:
           cols = vcs.getcolors(levs2,split=0)
+          if isinstance(cols,(int,float)):
+              cols=[cols,]
       elif isinstance(gm,isoline.Gi):
         cols = gm.linecolors
 
@@ -815,6 +827,8 @@ class VTKVCSBackend(object):
       if isinstance(gm,boxfill.Gfb):
         if numpy.allclose(gm.level_1,1.e20) or numpy.allclose(gm.level_2,1.e20):
           levs = vcs.mkscale(mn,mx)
+          if len(levs)==1: # constant value ?
+              levs = [levs[0],levs[0]+.00001]
           legend = vcs.mklabels(levs)
           dx = (levs[-1]-levs[0])/(gm.color_2-gm.color_1+1)
           levs = numpy.arange(levs[0],levs[-1]+dx,dx)
