@@ -60,6 +60,7 @@ class VTKVCSBackend(object):
       warnings.warn("Press 'Q' to exit interactive mode and continue script execution")
       interactor = self.renWin.GetInteractor()
       istyle = interactor.GetInteractorStyle()     
+      print "STYLE:",istyle
       interactor.Start()
 
   def leftButtonPressEvent(self,obj,event):
@@ -201,7 +202,8 @@ class VTKVCSBackend(object):
       #defaultInteractor = vtk.vtkGenericRenderWindowInteractor()
       defaultInteractor = vtk.vtkRenderWindowInteractor()
     self.vcsInteractorStyle = VCSInteractorStyle(self)
-    if ren: self.vcsInteractorStyle.SetCurrentRenderer( ren )
+    if ren: 
+      self.vcsInteractorStyle.SetCurrentRenderer( ren )
     defaultInteractor.SetInteractorStyle( self.vcsInteractorStyle )
     defaultInteractor.SetRenderWindow(self.renWin)
     self.vcsInteractorStyle.On()
@@ -382,6 +384,10 @@ class VTKVCSBackend(object):
       self.plotVector(data1,data2,tpl,gm)
     else:
       raise Exception,"Graphic type: '%s' not re-implemented yet" % gtype
+    if self.logo is None:
+      self.createLogo()
+    if self.renWin.GetSize()!=(0,0):
+      self.scaleLogo()
     if not kargs.get("donotstoredisplay",False): 
       self.renWin.Render()
 
@@ -1229,11 +1235,11 @@ class VTKVCSBackend(object):
     ia = vtk.vtkImageActor()
     ia.GetMapper().SetInputConnection(logoRdr.GetOutputPort())
     ren = vtk.vtkRenderer()
+    self.renWin.AddRenderer(ren)
     r,g,b = self.canvas.backgroundcolor
     ren.SetBackground(r/255.,g/255.,b/255.)
-    ren.SetLayer(self.renWin.GetNumberOfLayers()-1)
+    #ren.SetLayer(self.renWin.GetNumberOfLayers()-1)
     ren.AddActor(ia)
-    self.renWin.AddRenderer(ren)
     self.logo = ren
     self.logoExtent = [x1,y1]
     
@@ -1244,12 +1250,12 @@ class VTKVCSBackend(object):
     #Get dimensions of input file
     w,h=self.logoExtent
     W,H=self.renWin.GetSize()
-    print "WIN:",W,H
     SC = .07
     sc = SC*float(H)/float(h)
     nw = w*sc
     pw = (W-nw)/W
     self.logo.SetViewport(pw,0.,1.,SC)
+    self.logo.SetLayer(self.renWin.GetNumberOfLayers()-1)
     cam = self.logo.GetActiveCamera()
     d=cam.GetDistance()
     cam.SetParallelScale(.5*(h+1))
