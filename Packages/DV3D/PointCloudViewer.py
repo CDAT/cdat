@@ -620,7 +620,7 @@ class CPCPlot( DV3DPlot ):
             ivalue = init_range if init_value is None else init_value
             config_function.initial_value = ivalue
             self.point_cloud_overview.setScalarRange( ivalue ) 
-            self.setColorbarRange( ivalue ) 
+            self.setColorbarRange( 'Slice', ivalue ) 
             scalarRange.setValues( ivalue )            
         elif  args and args[0] == "InitConfig":
             self.updateTextDisplay( config_function.label )
@@ -644,7 +644,7 @@ class CPCPlot( DV3DPlot ):
             scalarRange.setValue( args[1], value )
             srange = scalarRange.getValues()        
             self.point_cloud_overview.setScalarRange( srange ) 
-            self.setColorbarRange( srange ) 
+            self.setColorbarRange( 'Slice', srange ) 
         self.render()
 
                      
@@ -863,8 +863,8 @@ class CPCPlot( DV3DPlot ):
                 self.execCurrentSlice()
                 self.render( mode=resolution )
                                         
-    def setColorbarRange( self, cbar_range, cmap_index=0 ):
-        colormapManager = self.getColormapManager( index=cmap_index )
+    def setColorbarRange( self, constituent, cbar_range, cmap_index=0 ):
+        colormapManager = self.getColormapManager( constituent, index=cmap_index )
         colormapManager.setDisplayRange( cbar_range )   
 
     def processsInitParameter( self, parameter_key, config_param ):
