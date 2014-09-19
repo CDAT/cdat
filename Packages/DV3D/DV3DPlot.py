@@ -207,10 +207,8 @@ class DV3DPlot():
         self.buttonBarHandler = ButtonBarHandler( self.cfgManager, **args ) 
         self.plot_attributes = args.get( 'plot_attributes', {} )
         self.plotConstituents = { 'Slice' : 'SliceRoundRobin', 'Volume' : 'ToggleVolumePlot', 'Surface' : 'ToggleSurfacePlot' }  
-        self.topo = PlotType.Planar
-        self.record_animation = 0
-        self.animation_frames = []
-       
+
+        
         self.configuring = False
         self.animating = False
         self.activated = False
@@ -251,9 +249,14 @@ class DV3DPlot():
 
     def getConstituentSelectionBar(self, config_function, build_args, **args ): 
         args[ 'toggle' ] = True
-        control_bar = self.buttonBarHandler.createControlBar( config_function.cfg_state, self.renderWindowInteractor, build_args, position = ( 0.7, 0.01 ), **args )
+        control_bar = self.buttonBarHandler.createControlBar( config_function.cfg_state, self.renderWindowInteractor, build_args, position = ( 0.7, 0.07 ), **args )
         control_bar.reposition()
         self.changeButtonActivations( [ ( cname, True, 1 ) for cname in build_args[0] ] ) 
+        return control_bar
+
+    def getConstituentSelectionButton(self, config_function, build_args, position, **args ): 
+        control_bar = self.buttonBarHandler.createControlBar( config_function.cfg_state, self.renderWindowInteractor, build_args, position = position, **args )
+        control_bar.reposition()
         return control_bar
     
     def processConfigParameterChange( self, parameter ):
@@ -399,9 +402,22 @@ class DV3DPlot():
 
     def processShowColorbarCommand( self, args, config_function = None ):
         if args and args[0] == "InitConfig":
-            self.toggleColorbarVisibility(state=args[1])                       
-            self.render() 
+            constituent = 'Slice'
+            state = args[1]
+            cs_button = self.getConstituentSelectionButton( config_function, [ ( self.plotConstituents.keys(), ),  self.processColorbarConstituentSelection ], ( 0.9, 0.2) )
+            if state: cs_button.show()
+            else:     cs_button.hide()
+            colorbarParameter = self.cfgManager.getParameter( 'Colorbar' )
+            constituent = colorbarParameter.getValue( 'ConstituentSelected', self.plotConstituents.keys()[0] )
+            self.toggleColorbarVisibility( constituent, state )                       
             self.processConfigStateChange( config_function.value )
+            
+    def processColorbarConstituentSelection( self, *args, **kwargs ):
+        print " Process Colorbar Constituent Selection: %s  " % str( args )
+        constituent = self.plotConstituents.keys()[ args[2] ]
+        colorbarParameter = self.cfgManager.getParameter( 'Colorbar' )
+        colorbarParameter.setValue( 'ConstituentSelected', constituent )
+        self.toggleColorbarVisibility( constituent, 1 )                       
 
     def initializePlots(self):
         bbar = self.getPlotButtonbar()
@@ -418,7 +434,8 @@ class DV3DPlot():
         if args and args[0] == "StartConfig":
             pass
         elif args and args[0] == "Init":
-            self.setColormap( config_function.initial_value )
+            for plotItem in self.plotConstituents.items():
+                self.setColormap( plotItem[0], config_function.initial_value )
         elif args and args[0] == "EndConfig":
             self.processConfigParameterChange( colormapParam )
         elif args and args[0] == "InitConfig":
@@ -438,7 +455,9 @@ class DV3DPlot():
                 self.colormapWidget.hide()
         elif args and args[0] == "UpdateConfig":
             cmap_data = args[3]
-            self.setColormap( cmap_data )
+            for plotItem in self.plotConstituents.items():
+                if self.isConstituentConfigEnabled(plotItem[0]):
+                    self.setColormap( plotItem[0], cmap_data )
             colormapParam.setValues( cmap_data  )
 
     def getInteractionState( self, key ):
@@ -631,8 +650,8 @@ class DV3DPlot():
         pass
 
     
-    def getLut( self, cmap_index=0  ):
-        colormapManager = self.getColormapManager( index=cmap_index )
+    def getLut( self, constituent, cmap_index=0  ):
+        colormapManager = self.getColormapManager( constituent, index=cmap_index )
         return colormapManager.lut
         
     def updatingColormap( self, cmap_index, colormapManager ):
@@ -1023,31 +1042,37 @@ class DV3DPlot():
     def enableDualInputs(self):
         pass
 
-    def getLUT( self, cmap_index=0  ):
-        colormapManager = self.getColormapManager( index=cmap_index )
+    def getLUT( self, constituent, cmap_index=0  ):
+        colormapManager = self.getColormapManager( constituent, index=cmap_index )
         return colormapManager.lut
 
-    def toggleColorbarVisibility(self,**args):
-        for colormapManager in self.colormapManagers.values():
-            colormapManager.toggleColorbarVisibility(**args)
+    def toggleColorbarVisibility(self, constituent, state ):
+        for colormapManagerItem in self.colormapManagers.items():
+            item_constituent = colormapManagerItem[0].split('-')[0]
+            if state == 0 :
+                colormapManagerItem[1].toggleColorbarVisibility( state=0 )
+            else:
+                const_state = 1 if (item_constituent == constituent) else 0
+                colormapManagerItem[1].toggleColorbarVisibility( state=const_state )
         self.render()
     
-    def getColormapManager( self, **args ):
+    def getColormapManager( self, constituent, **args ):
         cmap_index = args.get('index',0)
         name = args.get('name',None)
         invert = args.get('invert',None)
         smooth = args.get('smooth',None)
-        cmap_mgr = self.colormapManagers.get( cmap_index, None )
+        cmap_name = '-'.join( [ constituent, str(cmap_index) ] )
+        cmap_mgr = self.colormapManagers.get( cmap_name, None )
         if cmap_mgr == None:
             lut = vtk.vtkLookupTable()
             cmap_mgr = ColorMapManager( lut ) 
-            self.colormapManagers[cmap_index] = cmap_mgr
+            self.colormapManagers[ cmap_name ] = cmap_mgr
         if (invert <> None): cmap_mgr.invertColormap = invert
         if (smooth <> None): cmap_mgr.smoothColormap = smooth
-        if name:   cmap_mgr.load_lut( name )
+        if name:             cmap_mgr.load_lut( name )
         return cmap_mgr
         
-    def setColormap( self, data, **args ):
+    def setColormap( self, constituent, data, **args ):
         try:
             colormapName = str(data[0])
             invertColormap = getBool( data[1] ) 
@@ -1056,7 +1081,7 @@ class DV3DPlot():
             var_name = metadata.get( 'var_name', '')
             var_units = metadata.get( 'var_units', '')
     #        self.updateStereo( enableStereo )
-            colormapManager = self.getColormapManager( name=colormapName, invert=invertColormap, index=cmap_index, units=var_units )
+            colormapManager = self.getColormapManager( constituent, name=colormapName, invert=invertColormap, index=cmap_index, units=var_units )
             if( colormapManager.colorBarActor == None ): 
                 cm_title = str.replace( "%s (%s)" % ( var_name, var_units ), " ", "\n" )
                 cmap_pos = [ 0.9, 0.2 ] if (cmap_index==0) else [ 0.02, 0.2 ]
@@ -1085,8 +1110,8 @@ class DV3DPlot():
             self.stereoEnabled = 0
 
             
-    def getColormap(self, cmap_index = 0 ):
-        colormapManager = self.getColormapManager( index=cmap_index )
+    def getColormap(self, constituent, cmap_index = 0 ):
+        colormapManager = self.getColormapManager( constituent, index=cmap_index )
         return [ colormapManager.colormapName, colormapManager.invertColormap, self.stereoEnabled ]
 
     def start( self, block = False ):
@@ -1161,8 +1186,8 @@ class DV3DPlot():
     def update(self):
         pass
 
-    def getColormapSpec(self, cmap_index=0): 
-        colormapManager = self.getColormapManager( index=cmap_index )
+    def getColormapSpec(self, constituent, cmap_index=0): 
+        colormapManager = self.getColormapManager( constituent, index=cmap_index )
         spec = []
         spec.append( colormapManager.colormapName )
         spec.append( str( colormapManager.invertColormap ) )
