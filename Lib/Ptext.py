@@ -139,6 +139,7 @@ class Pt(object):
         elif member == "zname":
           self.x = 0.
           self.y = 0.995000004768
+          self.priority=0
         elif member == "tname":
           self.x = 0.
           self.y = 0.995000004768
@@ -151,9 +152,11 @@ class Pt(object):
         elif member == "zunits":
           self.x = 0.
           self.y = 0.995000004768
+          self.priority=0
         elif member == "tunits":
           self.x = 0.
           self.y = 0.995000004768
+          self.priority=0
         self.member = member
 
     #############################################################################
