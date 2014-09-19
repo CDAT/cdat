@@ -1250,7 +1250,7 @@ class VTKVCSBackend(object):
     #Get dimensions of input file
     w,h=self.logoExtent
     W,H=self.renWin.GetSize()
-    SC = .07
+    SC = .05
     sc = SC*float(H)/float(h)
     nw = w*sc
     pw = (W-nw)/W
