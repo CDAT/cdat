@@ -371,7 +371,9 @@ class StructuredGridPlot(DV3DPlot):
         args['units'] = ispec.units
         self.buildConfigurationButton()
         self.buttonBarHandler.initializeConfigurations( **args )
-        ispec.addMetadata( { 'colormap' : self.getColormapSpec(), 'orientation' : self.iOrientation } ) 
+        for plotItem in self.plotConstituents.items():
+            if self.isConstituentConfigEnabled(plotItem[0]):
+                ispec.addMetadata( { '-'.join( [ 'colormap', plotItem[0] ] ) : self.getColormapSpec(plotItem[0]), 'orientation' : self.iOrientation } ) 
 #        self.updateSliceOutput()
 
 
@@ -622,7 +624,7 @@ class StructuredGridPlot(DV3DPlot):
     def init(self, **args ):
         init_args = args[ 'init' ]      
         n_cores = args.get( 'n_cores', 32 )    
-        lut = self.getLUT()
+#        lut = self.getLUT()
         self.variable_reader = StructuredDataReader( init_specs=init_args, **args )
         self.variable_reader.execute( )       
         self.createRenderer( **args )
