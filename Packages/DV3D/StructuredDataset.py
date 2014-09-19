@@ -407,7 +407,7 @@ class CDMSDatasetRecord():
             
             end_t = time.time() 
 #            self.cachedFileVariables[ varName ] = ( timeValue, rv )
-            print  "Reading variable %s, shape = %s, base shape = %s, args = %s" % ( varName, str(rv.shape), str(varData.shape), str(args1) ) 
+#            print  "Reading variable %s, shape = %s, base shape = %s, args = %s" % ( varName, str(rv.shape), str(varData.shape), str(args1) ) 
 #        except Exception, err:
 #            print>>sys.stderr, ' Exception getting var slice: %s ' % str( err )
         return rv
@@ -766,7 +766,7 @@ class CDMSDataset:
         except: 
             pass         
  #       self.cachedTransVariables[ varName ] = ( timeValue, rvm )
-        print  "Reading variable %s, shape = %s, base shape = %s, args = %s" % ( varName, str(rv.shape), str(transVar.shape), str(args1) ) 
+#        print  "Reading variable %s, shape = %s, base shape = %s, args = %s" % ( varName, str(rv.shape), str(transVar.shape), str(args1) ) 
         return rv
     
     def ensure3D( self, cdms_variable ):

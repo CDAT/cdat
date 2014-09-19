@@ -10,10 +10,12 @@ import vtk
 import os
 import os.path
 import sys
+import logging
+
 from vtk.util.vtkImageExportToArray import vtkImageExportToArray
 from vtk.util.vtkImageImportFromArray import vtkImageImportFromArray
 
-defaultThreshold=0.05
+defaultThreshold=0.09
 
 def compare_imgs(adata, bdata):
     adata = adata[0]/255.
@@ -23,7 +25,7 @@ def compare_imgs(adata, bdata):
     try:
         rms = math.sqrt(numpy.sum((adata-bdata)**2)/adata.size)
     except:
-        print "images are not compatible"
+	logging.exception('')
         return -1
     return rms
 
@@ -80,6 +82,7 @@ def check_result_image(fname, baselinefname, threshold, baseline = False, cleanu
 
     bestfile = None
     bestresult = None
+    bestimg = None	 
     for x in baselinefnames:
         print "comparing " + fname + " against " + x
         nextbimage = image_from_file(x)
@@ -100,6 +103,9 @@ def check_result_image(fname, baselinefname, threshold, baseline = False, cleanu
                   os.remove(fname)
                 return 0
 
+    if bestimg == None:
+	print "no baseline image found"
+	return -1
     print "no baseline images matched"
     ## Ok now we are saving the diff
     diff = gen_diff_array(resultimg,bestimg)

@@ -308,7 +308,7 @@ class ButtonBar:
         return None
 
     def updateWindowSize(self):
-        self.windowSize = self.interactor.GetRenderWindow().GetSize()
+        self.windowSize = self.interactor.GetRenderWindow().GetSize() if ( self.interactor <> None ) else [ 100, 100 ]
 
     def placeButton( self, button, position, **args ):
         max_size = button.size()
@@ -339,7 +339,8 @@ class ButtonBar:
     def getScreenPosition(self, normalized_display_position, buffered = True, **args ):
 #        print " GetScreenPosition [",  self.name, "], position = ", str( normalized_display_position )
         self.vtk_coord.SetValue(  normalized_display_position[0], normalized_display_position[1] )
-        screen_pos = self.vtk_coord.GetComputedDisplayValue( self.getRenderer() )
+        ren = self.getRenderer()
+        screen_pos = self.vtk_coord.GetComputedDisplayValue( ren ) if ( ren <> None ) else [ 100, 100 ]
         position_offset = args.get( 'offset', [ 0, 0 ] )
         if   self.orientation == Orientation.Vertical: position_offset[ 0 ] = 0
         elif self.orientation == Orientation.Horizontal: position_offset[ 1 ] = 0
@@ -390,7 +391,8 @@ class ButtonBar:
  
     def hide(self):
         self.visible = False
-        for button in self.buttons: button.Off()
+        for button in self.buttons:
+            button.Off()
             
     def toggleVisibility(self):
         if self.visible: 
@@ -399,10 +401,11 @@ class ButtonBar:
             self.updatePositions() 
             self.show()
             
-    def reset(self):
+    def reset(self, active_state=None ):
         pass
 
     def getRenderer(self):
+        if self.interactor == None: return None
         rw = self.interactor.GetRenderWindow()
         return rw.GetRenderers().GetFirstRenderer ()
                 
@@ -430,6 +433,10 @@ class ControlBar(ButtonBar):
         button = Button( self.interactor, names=bnames, toggle = False )
         button.PublicStateChangedSignal.connect( self.processStateChangeEvent )
         self.buttons.append( button )
+
+    def reset( self, active_state=None  ):
+        if ( active_state == None ) or ( self.name <> active_state ):
+            self.hide()
     
 class ButtonBarWidget(ButtonBar):
         
@@ -759,7 +766,7 @@ class ButtonBarWidget(ButtonBar):
             if configFunct.matches( key ): return ( configFunct.name, configFunct.persisted, self )
         return ( None, None, None )  
     
-    def reset(self):
+    def reset(self, active_state=None ):
         self.releaseSliders()
     
     def updateInteractionState( self, config_state, button_state, **args ):    
@@ -798,7 +805,7 @@ class ButtonBarWidget(ButtonBar):
                 tvals = configFunct.value.getValues()
                 if not sameGroup: 
                     for bbar in self.handler.getButtonBars():
-                        bbar.reset()                
+                        bbar.reset( config_state )                
                 if configFunct.position <> None:
                     n_active_sliders = configFunct.position[1]
                     position_index = configFunct.position[0]

@@ -49,10 +49,16 @@ class VTKVCSBackend(object):
 #   def applicationFocusChanged(self):
 #       for plotApp in self.plotApps.values():
 #           if hasattr(plotApp, 'refresh'): plotApp.refresh()
+
+  def setAnimationStepper( self, stepper ):
+      for plot in self.plotApps.values():
+        plot.setAnimationStepper( stepper )
         
   def interact(self,*args,**kargs):
       warnings.warn("Press 'Q' to exit interactive mode and continue script execution")
-      self.renWin.GetInteractor().Start()
+      interactor = self.renWin.GetInteractor()
+      istyle = interactor.GetInteractorStyle()     
+      interactor.Start()
 
   def leftButtonPressEvent(self,obj,event):
     xy = self.renWin.GetInteractor().GetEventPosition()
@@ -194,7 +200,7 @@ class VTKVCSBackend(object):
     defaultInteractor.SetRenderWindow(self.renWin)
     self.vcsInteractorStyle.On()
 
-  def createRenWin(self,*args,**kargs):
+  def createRenWin(self,*args,**kargs):   
     if self.renWin is None:
       # Create the usual rendering stuff.
       self.renWin = vtk.vtkRenderWindow()
@@ -206,6 +212,8 @@ class VTKVCSBackend(object):
       self.renderer = vtk.vtkRenderer()
       r,g,b = self.canvas.backgroundcolor
       self.renderer.SetBackground(r/255.,g/255.,b/255.)
+      if self.bg is False:
+          self.createDefaultInteractor(self.renderer) 
       self.renWin.AddRenderer(self.renderer)
       return True
     else:
@@ -292,14 +300,14 @@ class VTKVCSBackend(object):
 
   def plot(self,data1,data2,template,gtype,gname,bg,*args,**kargs):
     self.numberOfPlotCalls+=1
-    created = self.createRenWin(**kargs)
     if self.bg is None:
       if bg:
         self.bg= True
       else:
         self.bg= False
-        if created:
-          self.initialSize()
+    created = self.createRenWin(**kargs)
+    if created:
+        self.initialSize()
     if self.bg:
         self.renWin.SetOffScreenRendering(True)
         self.renWin.SetSize(self.canvas.bgX,self.canvas.bgY)
@@ -338,7 +346,7 @@ class VTKVCSBackend(object):
       ren = kargs["renderer"]
 
     if gtype in ["boxfill","meshfill","isofill","isoline"]:      
-      self.plot2D(data1,data2,tpl,gm,ren)
+      self.plot2D(data1,data2,tpl,gm)
     elif gtype in ["3d_scalar", "3d_vector"]:
       cdms_file = kargs.get( 'cdmsfile', None )
       cdms_var = kargs.get( 'cdmsvar', None )
@@ -348,7 +356,7 @@ class VTKVCSBackend(object):
           gm.addPlotAttribute( 'file', cdms_file )
           gm.addPlotAttribute( 'filename', cdms_file )
           gm.addPlotAttribute( 'url', cdms_file )
-      self.plot3D(data1,data2,tpl,gm,ren)
+      self.plot3D(data1,data2,tpl,gm,ren,**kargs)
     elif gtype in ["text"]:
       if tt.priority!=0:
         self.renWin.AddRenderer(ren)
@@ -373,11 +381,12 @@ class VTKVCSBackend(object):
       self.renWin.AddRenderer(ren)
       self.plot1D(data1,data2,tpl,gm,ren)
     elif gtype=="vector":
-      self.plotVector(data1,data2,tpl,gm,ren)
+      self.plotVector(data1,data2,tpl,gm)
     else:
       raise Exception,"Graphic type: '%s' not re-implemented yet" % gtype
     if not kargs.get("donotstoredisplay",False): 
       self.renWin.Render()
+
 
   def plot1D(self,data1,data2,tmpl,gm,ren):
     self.setLayer(ren,tmpl.data.priority)
@@ -481,7 +490,7 @@ class VTKVCSBackend(object):
 
   
 
-  def plot3D(self,data1,data2,tmpl,gm,ren):
+  def plot3D(self,data1,data2,tmpl,gm,ren,**kargs):
       from DV3D.Application import DV3DApp
       requiresFileVariable = True
       if ( data1 is None ) or ( requiresFileVariable and not ( isinstance(data1, cdms2.fvariable.FileVariable ) or isinstance(data1, cdms2.tvariable.TransientVariable ) ) ):
@@ -495,14 +504,13 @@ class VTKVCSBackend(object):
           var_proc_op = None
           interface = None
           roi = None # ( 0, 0, 50, 50 )
-          g.gminit( data1, data2, roi=roi, axes=gm.axes, n_overview_points=n_overview_points, n_cores=gm.NumCores, renwin=ren.GetRenderWindow(), plot_attributes=gm.getPlotAttributes(), gmname=gm.g_name, cm=gm.cfgManager  ) #, plot_type = PlotType.List  ) 
+          g.gminit( data1, data2, roi=roi, axes=gm.axes, n_overview_points=n_overview_points, n_cores=gm.NumCores, renwin=ren.GetRenderWindow(), plot_attributes=gm.getPlotAttributes(), gmname=gm.g_name, cm=gm.cfgManager, **kargs  ) #, plot_type = PlotType.List  ) 
           self.plotApps[ gm ] = g
           self.plotRenderers.add( g.plot.renderer )
       else:
           g.update( tmpl )
            
-  def plotVector(self,data1,data2,tmpl,gm,ren):
-    self.setLayer(ren,tmpl.data.priority)
+  def plotVector(self,data1,data2,tmpl,gm):
     ug,xm,xM,ym,yM,continents,wrap,geo,cellData = vcs2vtk.genGrid(data1,data2,gm)
     if cellData:
         c2p = vtk.vtkCellDataToPointData()
@@ -576,19 +584,20 @@ class VTKVCSBackend(object):
     act.GetProperty().SetColor(r/100.,g/100.,b/100.)
     x1,x2,y1,y2 = vcs2vtk.getRange(gm,xm,xM,ym,yM)
     act = vcs2vtk.doWrap(act,[x1,x2,y1,y2],wrap)
+    ren=vtk.vtkRenderer()
+    self.renWin.AddRenderer(ren)
+    self.setLayer(ren,tmpl.data.priority)
     vcs2vtk.fitToViewport(act,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2])
     if tmpl.data.priority!=0:
         ren.AddActor(act)
-    self.renderTemplate(ren,tmpl,data1,gm)
+    self.renderTemplate(tmpl,data1,gm)
     if self.canvas._continents is None:
       continents = False
     if continents:
         projection = vcs.elements["projection"][gm.projection]
-        self.plotContinents(x1,x2,y1,y2,projection,wrap,ren,tmpl)
+        self.plotContinents(x1,x2,y1,y2,projection,wrap,tmpl)
 
-
-  def plot2D(self,data1,data2,tmpl,gm,ren):
-    self.setLayer(ren,tmpl.data.priority)
+  def plot2D(self,data1,data2,tmpl,gm):
     ug,xm,xM,ym,yM,continents,wrap,geo,cellData = vcs2vtk.genGrid(data1,data2,gm)
     #Now applies the actual data on each cell
     if isinstance(gm,boxfill.Gfb) and gm.boxfill_type=="log10":
@@ -809,7 +818,8 @@ class VTKVCSBackend(object):
               for k in legend.keys():
                   legend[float(numpy.ma.log10(legend[k]))] = legend[k]
                   del(legend[k])
-          levs = numpy.arange(levs[0],levs[-1],(levs[-1]-levs[0])/(gm.color_2-gm.color_1+1))
+          dx = (levs[-1]-levs[0])/(gm.color_2-gm.color_1+1)
+          levs = numpy.arange(levs[0],levs[-1]+dx,dx)
 
         cols = range(gm.color_1,gm.color_2+1)
       else:
@@ -886,18 +896,20 @@ class VTKVCSBackend(object):
           #act.GetMapper().ScalarVisibilityOff()
           #act.SetTexture(mapper[1])
           pass
+        # create a new renderer for this mapper (we need one for each mapper because of cmaera flips)
+        ren = vtk.vtkRenderer()
+        self.renWin.AddRenderer(ren)
+        self.setLayer(ren,tmpl.data.priority)
         ren.AddActor(act)
         vcs2vtk.fitToViewport(act,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],wc=[x1,x2,y1,y2],geo=geo)
 
     if isinstance(gm,meshfill.Gfm):
       tmpl.plot(self.canvas,data1,gm,bg=self.bg,X=numpy.arange(xm,xM*1.1,(xM-xm)/10.),Y=numpy.arange(ym,yM*1.1,(yM-ym)/10.))
     else:
-      self.renderTemplate(ren,tmpl,data1,gm)
+      self.renderTemplate(tmpl,data1,gm)
     if isinstance(gm,(isofill.Gfi,meshfill.Gfm,boxfill.Gfb)):
       if getattr(gm,"legend",None) is not None:
         legend = gm.legend
-      print "********************************************"
-      gm.list()
       if gm.ext_1 in ["y",1,True] and not numpy.allclose(levs[0],1.e20):
           if isinstance(levs,numpy.ndarray):
               levs=levs.tolist()
@@ -907,14 +919,14 @@ class VTKVCSBackend(object):
               levs=levs.tolist()
           levs.append(1.e20)
 
-      self.renderColorBar(ren,tmpl,levs,cols,legend,cmap)
+      self.renderColorBar(tmpl,levs,cols,legend,cmap)
     if self.canvas._continents is None:
       continents = False
     if continents:
         projection = vcs.elements["projection"][gm.projection]
-        self.plotContinents(x1,x2,y1,y2,projection,wrap,ren,tmpl)
+        self.plotContinents(x1,x2,y1,y2,projection,wrap,tmpl)
 
-  def plotContinents(self,x1,x2,y1,y2,projection,wrap,ren,tmpl):
+  def plotContinents(self,x1,x2,y1,y2,projection,wrap,tmpl):
       contData = vcs2vtk.prepContinents(self.canvas._continents)
       contMapper = vtk.vtkPolyDataMapper()
       contMapper.SetInputData(contData)
@@ -934,14 +946,17 @@ class VTKVCSBackend(object):
           contActor.GetProperty().SetColor(0.,0.,0.)
       else:
           geo=None
+      ren = vtk.vtkRenderer()
+      self.renWin.AddRenderer(ren)
+      self.setLayer(ren,tmpl.data.priority)
       vcs2vtk.fitToViewport(contActor,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],wc=[x1,x2,y1,y2],geo=geo)
       if tmpl.data.priority!=0:
         ren.AddActor(contActor)
 
-  def renderTemplate(self,renderer,tmpl,data,gm):
+  def renderTemplate(self,tmpl,data,gm):
     tmpl.plot(self.canvas,data,gm,bg=self.bg)
 
-  def renderColorBar(self,renderer,tmpl,levels,colors,legend,cmap):
+  def renderColorBar(self,tmpl,levels,colors,legend,cmap):
     if tmpl.legend.priority>0:
       tmpl.drawColorBar(colors,levels,x=self.canvas,legend=legend,cmap=cmap)
 
@@ -1018,7 +1033,6 @@ class VTKVCSBackend(object):
     if self.renWin is None:
       raise Exception("Nothing on Canvas to dump to file")
 
-    print "you asked to write ",output_type,"in file:",file
     gl  = vtk.vtkGL2PSExporter()
     gl.SetInput(self.renWin)
     gl.SetCompress(0) # Do not compress
@@ -1046,7 +1060,6 @@ class VTKVCSBackend(object):
       return self.vectorGraphics("ps", file, width, height, units)
 
   def pdf(self, file, width=None, height=None, units=None):
-      print "in pdf the file anme si:",file
       return self.vectorGraphics("pdf", file, width, height, units)
 
   def svg(self, file, width=None, height=None, units=None):

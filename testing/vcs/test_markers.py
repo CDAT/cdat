@@ -14,7 +14,7 @@ m.worldcoordinate=[-5,20,-5,20]
 #m.worldcoordinate=[-10,10,0,10]
 m.type=['plus','diamond','square_fill',"hurricane"]
 m.color=[242,243,244,242]
-m.size=[5.,]
+m.size=[20,20,20,5]
 x.plot(m,bg=1)
 fnm= "test_markers.png"
 

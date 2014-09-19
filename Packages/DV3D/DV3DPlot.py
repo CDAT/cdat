@@ -6,30 +6,48 @@ Created on Apr 30, 2014
 from ColorMapManager import *
 from ButtonBarWidget import *
 import vtk, traceback
-MIN_LINE_LEN = 50
+MIN_LINE_LEN = 150
 VTK_NOTATION_SIZE = 10
 
+class AnimationStepper:
+    
+    def __init__( self, target ):
+        self.target = target
+    
+    def startAnimation(self):
+        self.target.startAnimation()
+
+    def stopAnimation(self):
+        self.target.stopAnimation()
+ 
 class TextDisplayMgr:
     
     def __init__( self, renderer ):
         self.renderer = renderer
     
-    def setTextPosition(self, textActor, pos, size=[400,30] ):
-#        vpos = [ 2, 2 ] 
-        vp = self.renderer.GetSize()
-        vpos = [ pos[i]*vp[i] for i in [0,1] ]
-        textActor.GetPositionCoordinate().SetValue( vpos[0], vpos[1] )      
-        textActor.GetPosition2Coordinate().SetValue( vpos[0] + size[0], vpos[1] + size[1] )      
+#     def setTextPosition(self, textActor, pos, size=[400,20] ):
+#  #       vp = self.renderer.GetSize()
+# #        vpos = [ pos[i]*vp[i] for i in [0,1] ]
+# #        textActor.GetPositionCoordinate().SetValue( vpos[0], vpos[1] ) 
+#         textActor.SetPosition( 0.2, 0.5 )
+#         textActor.SetWidth( 0.6 ) 
+#         textActor.SetHeight( 0.08 )     
+# #        textActor.GetPosition2Coordinate().SetValue( vpos[0] + size[0], vpos[1] + size[1] )      
   
-    def getTextActor( self, aid, text, pos, **args ):
+    def getTextActor( self, aid, text, **args ):
         if text == None: return
         textActor = self.getProp( 'vtkTextActor', aid  )
         if textActor == None:
             textActor = self.createTextActor( aid, **args  )
             self.renderer.AddViewProp( textActor )
-        self.setTextPosition( textActor, pos )
+        textActor.GetPositionCoordinate().SetCoordinateSystemToNormalizedViewport ()
+        textActor.GetPosition2Coordinate().SetCoordinateSystemToNormalizedViewport ()
+        textActor.GetPositionCoordinate().SetValue( .3, .9, 0 )
+        textActor.GetPosition2Coordinate().SetValue( .98, .98, 0 )
+#        textActor.SetWidth( 0.6 ) 
+#        textActor.SetHeight( 0.08 )     
         text_lines = text.split('\n')
-        linelen = len(text_lines[-1])
+        linelen = len(text_lines[0])
         if linelen < MIN_LINE_LEN: text += (' '*(MIN_LINE_LEN-linelen)) 
         text += '.' 
         textActor.SetInput( text )
@@ -51,8 +69,12 @@ class TextDisplayMgr:
   
     def createTextActor( self, aid, **args ):
         textActor = vtk.vtkTextActor()  
-        textActor.SetTextScaleMode( vtk.vtkTextActor.TEXT_SCALE_MODE_PROP )  
-        textActor.SetMaximumLineHeight( 0.05 )       
+#        textActor.SetTextScaleModeToViewport()
+#        textActor.SetTextScaleMode( vtk.vtkTextActor.TEXT_SCALE_MODE_PROP )  
+#        textActor.SetMaximumLineHeight( 0.005 ) 
+#        print dir( textActor ) 
+#        textActor.ScaledTextOn()  
+        textActor.SetTextScaleModeToProp()   
         textprop = textActor.GetTextProperty()
         textprop.SetColor( *args.get( 'color', ( VTK_FOREGROUND_COLOR[0], VTK_FOREGROUND_COLOR[1], VTK_FOREGROUND_COLOR[2] ) ) )
         textprop.SetOpacity ( args.get( 'opacity', 1.0 ) )
@@ -63,8 +85,6 @@ class TextDisplayMgr:
         textprop.ShadowOff()
         textprop.SetJustificationToLeft()
         textprop.SetVerticalJustificationToBottom()        
-        textActor.GetPositionCoordinate().SetCoordinateSystemToDisplay()
-        textActor.GetPosition2Coordinate().SetCoordinateSystemToDisplay() 
         textActor.VisibilityOff()
         textActor.id = aid
         return textActor 
@@ -85,14 +105,24 @@ class DV3DPlot():
 
     AnimationTimerType = 9
     AnimationEventId = 9
+    AnimationExternalEventId = 10 
  
     def __init__( self,  **args ):
         self.ParameterValueChanged = SIGNAL( 'ParameterValueChanged' )
         self.type = args.get( 'gmname', 'default').lower()
+        self.activate_display=args.get('display',True)
+        self.renderer = None
         self.useDepthPeeling = False
+        self.renderWindowInteractor = None
+        self.logoActor = None
+        self.logoVisible = True
+        self.logoRepresentation = None 
+        self.setAnimationStepper( AnimationStepper )
         self.labelBuff = ""
+        self.resizingWindow = False
         self.textDisplayMgr = None
-        self.createRenderWindow( **args ) 
+        if self.activate_display:
+            self.createRenderWindow( **args ) 
         self.cameraOrientation = {}
         self.maxStageHeight = 100.0
         self.observerTargets = set()
@@ -103,12 +133,14 @@ class DV3DPlot():
         self.cfgManager = ConfigManager( **args )           
         self.buttonBarHandler = ButtonBarHandler( self.cfgManager, **args ) 
         self.plot_attributes = args.get( 'plot_attributes', {} )
+
         
         self.configuring = False
         self.animating = False
         self.activated = False
 #        self.buttons = {}
         self.renderWindowSize = None
+        self.renderWindowInitSize = None
         self.animationTimerId = -1 
 
         self.isAltMode = False
@@ -128,6 +160,12 @@ class DV3DPlot():
         self.addKeyPressHandler( 'q',  self.quit )
         self.addKeyPressHandler( 'Q',  self.quit )
         self.addKeyPressHandler( 's',  self.saveState )
+        
+    def setAnimationStepper( self, stepper_class ):
+        self.animationStepper = stepper_class(self)
+        
+    def applyAction( self, action ):
+        print "Applying action: ", str(action)
 
     def getControlBar(self, name, build_args, **args ):
         control_bar = self.buttonBarHandler.createControlBar( name, self.renderWindowInteractor, build_args, **args )
@@ -159,24 +197,38 @@ class DV3DPlot():
 
     def stepAnimation(self, **args): 
         pass
+    
+    def stepAnimationSignal(self):
+        self.renderWindowInteractor.SetTimerEventId( self.AnimationExternalEventId )
+        self.renderWindowInteractor.SetTimerEventType( self.AnimationTimerType )
+        self.renderWindowInteractor.InvokeEvent('TimerEvent')
 
     def processTimerEvent(self, caller, event):
         eid = caller.GetTimerEventId ()
         etype = caller.GetTimerEventType()
+#        print "processTimerEvent: %d %d " % ( eid, etype )
         if self.animating and ( etype == self.AnimationTimerType ):
             self.runAnimation()
+        return 1
+    
+    def getAnimationDelay(self):
+        plotButtons = self.getInteractionButtons()
+        cf = plotButtons.getConfigFunction('Animation')
+        event_duration = 0
+        if cf <> None:
+            animation_delay = cf.value.getValues()
+            event_duration = event_duration + int( animation_delay[0]*1000 )
+        return event_duration
             
-    def runAnimation(self):
+    def runAnimation( self ):        
+        self.stepAnimation( )
+        self.updateTimer()
+
+    def updateTimer( self ):
+        event_duration = self.getAnimationDelay()
         if self.animationTimerId <> -1: 
             self.renderWindowInteractor.DestroyTimer( self.animationTimerId  )
             self.animationTimerId = -1
-        plotButtons = self.getInteractionButtons()
-        cf = plotButtons.getConfigFunction('Animation')
-        event_duration = 10
-        if cf <> None:
-            animation_delay = cf.value.getValues()
-            event_duration = int( animation_delay[0]*1000 )
-        self.stepAnimation( )
         self.renderWindowInteractor.SetTimerEventId( self.AnimationEventId )
         self.renderWindowInteractor.SetTimerEventType( self.AnimationTimerType )
         self.animationTimerId = self.renderWindowInteractor.CreateOneShotTimer( event_duration )
@@ -200,6 +252,9 @@ class DV3DPlot():
 
     def getConfigurationData(self, **args): 
         return self.cfgManager.getConfigurationData( **args )
+
+    def getConfigurationParms(self, **args): 
+        return self.cfgManager.getConfigurationParms( **args )
             
     def processKeyPressHandler( self, key, eventArgs ):
 #        print " processKeyPress: ", str( key )
@@ -217,6 +272,7 @@ class DV3DPlot():
         pass 
      
     def getRenderer(self):
+        if self.renderer <> None: return self.renderer
         return self.renderWindow.GetRenderers().GetFirstRenderer ()
 
     def processShowColorbarCommand( self, args, config_function = None ):
@@ -271,7 +327,7 @@ class DV3DPlot():
         return 0
     
     def processAnimationCommand( self, args, config_function = None ):
-#        print " processAnimationCommand, args = ", str( args )
+#        print " processAnimationCommand, args = ", str( args ), ", animating = ", str(self.animating)
         runSpeed = config_function.value
         if args and args[0] == "StartConfig":
             pass
@@ -285,7 +341,10 @@ class DV3DPlot():
             if state == 1:
                 self.updateTextDisplay( config_function.label )
                 bbar.show()
-                self.changeButtonActivations( [ ( 'Run', True ), ( 'Stop', False ) , ( 'Step', True ) ] )  
+                if self.animating:
+                    self.changeButtonActivations( [ ( 'Run', False ), ( 'Stop', True ) , ( 'Step', False ) ] )  
+                else:
+                    self.changeButtonActivations( [ ( 'Run', True ), ( 'Stop', False ) , ( 'Step', True ) ] )  
             else:
                 bbar.hide()
         elif args and args[0] == "Open":
@@ -303,14 +362,29 @@ class DV3DPlot():
         elif button_id == 'Run':
             if self.animationTimerId == -1: 
                 self.changeButtonActivations( [ ( 'Run', False ), ( 'Stop', True ) , ( 'Step', False ) ] )  
+                self.animationStepper.startAnimation()
                 self.animating = True
-                self.runAnimation()
         elif button_id == 'Stop':
+            self.animationStepper.stopAnimation()
             self.animating = False
-            if self.animationTimerId <> -1: 
-                self.animationTimerId = -1
-                self.renderWindowInteractor.DestroyTimer( self.animationTimerId  )            
-                self.changeButtonActivations( [ ( 'Run', True ), ( 'Stop', False ) , ( 'Step', True ) ] )  
+            
+    def startAnimation(self):   
+        self.notifyStartAnimation()
+        self.animating = True
+        self.runAnimation()
+                     
+    def stopAnimation(self):
+        self.animating = False
+        if self.animationTimerId <> -1: 
+            self.animationTimerId = -1
+            self.renderWindowInteractor.DestroyTimer( self.animationTimerId  ) 
+        self.notifyStopAnimation()           
+        
+    def notifyStartAnimation(self): 
+        pass
+    
+    def notifyStopAnimation(self): 
+        self.changeButtonActivations( [ ( 'Run', True ), ( 'Stop', False ) , ( 'Step', True ) ] ) 
                            
     def setInteractionState(self, caller, event):
         interactor = caller.GetInteractor()
@@ -400,14 +474,16 @@ class DV3DPlot():
         if text <> None:
             self.labelBuff = "%s" % str(text) 
         label_actor = self.getLabelActor()
-        if label_actor: label_actor.VisibilityOn() 
+        if label_actor:
+            label_actor.ComputeScaledFont( self.renderer )     
+            label_actor.VisibilityOn() 
         if render: self.render() 
         
     def getDisplayText(self): 
         return self.labelBuff   
 
     def getLabelActor(self):
-        return self.textDisplayMgr.getTextActor( 'label', self.labelBuff, (.18, .95), bold = False  ) if self.textDisplayMgr else None
+        return self.textDisplayMgr.getTextActor( 'label', self.labelBuff, bold = False  ) if self.textDisplayMgr else None
     
     def UpdateCamera(self):
         pass
@@ -430,7 +506,10 @@ class DV3DPlot():
     def createRenderer(self, **args ):
         background_color = args.get( 'background_color', VTK_BACKGROUND_COLOR )
         self.renderer.SetBackground(*background_color)   
-        self.textDisplayMgr = TextDisplayMgr( self.renderer )             
+        self.textDisplayMgr = TextDisplayMgr( self.renderer ) 
+        self.renderWindowInitSize = args.get( 'window_size', None ) 
+        if self.renderWindowInitSize <> None:
+            self.renderWindow.SetSize( self.renderWindowInitSize )                             
         self.pointPicker = vtk.vtkPointPicker()
         self.pointPicker.PickFromListOn()   
         try:        self.pointPicker.SetUseCells(True)  
@@ -450,7 +529,7 @@ class DV3DPlot():
         self.clipper.AddObserver( 'EndInteractionEvent', self.endClip )
         self.clipper.AddObserver( 'InteractionEvent', self.executeClip )           
         self.clipOff() 
-
+    
     def clipOn(self):
         pass
 
@@ -492,10 +571,12 @@ class DV3DPlot():
  
     def activateEvent( self, caller, event ):
         if not self.activated:
+            self.renderWindowInteractor.Initialize()
 #            print "Activating, renderWindowInteractor = ", self.renderWindowInteractor.__class__.__name__
 #            self.addObserver( self.renderWindowInteractor, 'InteractorEvent', self.displayEventType )                   
             self.addObserver( self.interactorStyle, 'CharEvent', self.setInteractionState )                   
             self.addObserver( self.renderWindowInteractor, 'TimerEvent', self.processTimerEvent )                   
+#            self.addObserver( self.renderWindowInteractor, 'CreateTimerEvent', self.processTimerEvent )                   
 #            self.addObserver( self.renderWindowInteractor, 'MouseMoveEvent', self.updateLevelingEvent )
             self.addObserver( self.interactorStyle, 'KeyReleaseEvent', self.onKeyRelease )
             self.addObserver( self.renderWindowInteractor, 'LeftButtonPressEvent', self.onLeftButtonPress )            
@@ -509,8 +590,15 @@ class DV3DPlot():
 #            self.addObserver( self.renderWindowInteractor, 'ResetCameraClippingRangeEvent', self.onAnyEvent )
 #            self.addObserver( self.renderWindowInteractor, 'ComputeVisiblePropBoundsEvent', self.onAnyEvent )
 #            self.addObserver( self.renderWindowInteractor, 'AnyEvent', self.onAnyEvent )
-            renWin = self.renderWindowInteractor.GetRenderWindow()   
-            renWin.AddObserver( 'ModifiedEvent', self.onWindowModified )
+            
+#            self.animationTestId = self.renderWindowInteractor.CreateRepeatingTimer( 100 )
+            
+#            cb = TimerCallback()
+#            self.renderWindowInteractor.AddObserver(vtk.vtkCommand.TimerEvent, cb)
+            
+            RenderWindow = self.renderWindowInteractor.GetRenderWindow()   
+#            RenderWindow.AddObserver( 'AnyEvent', self.onAnyWindowEvent )
+            RenderWindow.AddObserver( 'RenderEvent', self.onWindowRenderEvent )
             self.updateInteractor() 
             self.activated = True 
             
@@ -622,19 +710,46 @@ class DV3DPlot():
         bbar = self.buttonBarHandler.getButtonBar( 'Interaction' )
         bbar.build( **args )
         bbar.show() 
-             
-    def onWindowModified( self, caller=None, event=None ):
-        renwin = self.renderWindow if (caller == None) else caller 
-        window_size = renwin.GetSize()
-        if ( self.renderWindowSize == None ) or ( self.renderWindowSize <> window_size ):
-            if self.renderWindowSize <> None: 
-                self.onRenderWindowResize()
+        
+    def onWindowRenderEvent( self, caller=None, event=None ):
+        renwin = self.renderWindow if (caller == None) else caller  
+        window_size = renwin.GetSize()  
+        if ( window_size <> self.renderWindowSize ):
+            self.onRenderWindowResize()
             self.renderWindowSize = window_size
+             
+    def onAnyWindowEvent( self, caller=None, event=None ):
+         print "Window Event: ", event
+
+                                       
+#     def onWindowModified( self, caller=None, event=None ):
+#         print "Window Modified Event "
+#         renwin = self.renderWindow if (caller == None) else caller 
+#         window_size = renwin.GetSize()
+#         if window_size <> (0,0):
+#             if self.renderWindowSize == None:
+#                 if self.renderWindowInitSize <> None:
+#                     self.renderWindowSize = self.renderWindowInitSize
+#                     self.renderWindow.SetSize( self.renderWindowInitSize ) 
+#                     self.onRenderWindowResize()
+#                 else:
+#                     self.renderWindowSize = window_size 
+#                     self.onRenderWindowResize()               
+#             elif ( self.renderWindowSize <> window_size ):
+#                 self.renderWindowSize = window_size
+#                 self.onRenderWindowResize()
+
             
     def onRenderWindowResize( self ):
-        self.updateTextDisplay()
-        self.buttonBarHandler.repositionButtons()
-        self.render()
+        if not self.resizingWindow:
+#            print " onRenderWindowResize, size = ", str( self.renderWindowSize )
+            self.resizingWindow = True
+            self.updateTextDisplay()
+            self.buttonBarHandler.repositionButtons()
+            self.renderWindow.Modified()
+            self.renderWindow.MakeCurrent()
+            self.render()
+            self.resizingWindow = False
 
     def clearReferrents(self):
         self.removeObservers()
@@ -649,18 +764,50 @@ class DV3DPlot():
     def printInteractionStyle(self, msg ):
         print "%s: InteractionStyle = %s " % ( msg,  self.renderWindowInteractor.GetInteractorStyle().__class__.__name__ ) 
 
+    def toggleLogoVisibility( self ):
+        if self.logoRepresentation:
+            self.logoVisible = not self.logoVisible
+            if self.logoVisible: self.logoWidget.On()
+            else: self.logoWidget.Off()
+            self.renderWindow.Render() 
+
+    def addLogo(self):
+        if self.logoRepresentation == None:
+            defaultLogoFile = os.path.join(sys.prefix,"share","vcs","uvcdat.png")
+            reader = vtk.vtkJPEGReader()
+            reader.SetFileName( defaultLogoFile )
+            reader.Update()
+            logo_input = reader.GetOutput()
+            self.logoRepresentation = vtk.vtkLogoRepresentation()
+            self.logoRepresentation.SetImage(logo_input)
+            self.logoRepresentation.ProportionalResizeOn ()
+#            self.logoRepresentation.SetPosition( 0.82, 0.0 )
+#            self.logoRepresentation.SetPosition2( 0.18, 0.08 )
+            self.logoRepresentation.SetPosition( 0.82, 1.0 )
+            self.logoRepresentation.SetPosition2( 0.08, 0.18 )
+            self.logoRepresentation.GetImageProperty().SetOpacity( 0.9 )
+            self.logoRepresentation.GetImageProperty().SetDisplayLocationToBackground() 
+            self.logoWidget = vtk.vtkLogoWidget()
+            self.logoWidget.SetInteractor( self.renderWindowInteractor )
+            self.logoWidget.SetRepresentation(self.logoRepresentation)
+            self.logoWidget.On()
+            self.render() 
+
     def createRenderWindow( self, **args ):
         blocking = args.get( 'blocking', False )
         renWin = args.get( 'renwin', None ) 
         if renWin == None:
             renWin = vtk.vtkRenderWindow()
+            
+        rendWinInteractor = renWin.GetInteractor()
+        if rendWinInteractor == None:                
             rendWinInteractor = vtk.vtkRenderWindowInteractor() if blocking else vtk.vtkGenericRenderWindowInteractor()
             renWin.SetInteractor( rendWinInteractor )
             rendWinInteractor.SetRenderWindow(renWin)  
-                        
+        
+        self.renderWindowInteractor =  rendWinInteractor              
         self.renderer = vtk.vtkRenderer()
         renWin.AddRenderer( self.renderer )
-        self.renderWindowInteractor = renWin.GetInteractor()
 
         self.interactorStyle = vtk.vtkInteractorStyleTrackballCamera( )
         self.renderWindowInteractor.SetInteractorStyle( self.interactorStyle )
@@ -774,7 +921,6 @@ class DV3DPlot():
         return [ colormapManager.colormapName, colormapManager.invertColormap, self.stereoEnabled ]
 
     def start( self, block = False ):
-        self.renderWindowInteractor.Initialize()
         self.showConfigurationButton()
         self.renderWindow.Render()
         if block:  self.renderWindowInteractor.Start()
@@ -802,6 +948,8 @@ class DV3DPlot():
             
     def initCamera(self, d=None, center = None ):
 #        print " -------------------------- >>>>> --------------------------- >>>>  initCamera:  ", str( ( self.xcenter, self.ycenter, d ) )
+        if self.renderWindowSize <> None: 
+            self.renderWindow.SetSize( self.renderWindowSize )  
         if d == None:
             mapSize = self.mapManager.map_cut_size
             d = ( mapSize[0] + mapSize[1] )

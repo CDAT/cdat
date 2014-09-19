@@ -36,6 +36,8 @@ else:
     f = cdms2.open( datasetPath )
     varname = "uwnd"
     
+# print "Reading variable %s in dataset %s " % ( varname, datasetPath )
+    
 #    f = cdms2.open( os.path.join( sys.prefix, "sample_data", "geos5-sample.nc") )
 #    u = f["uwnd"] 
 
@@ -47,9 +49,9 @@ if not u is None:
     dv3d = vcs.get3d_scalar()
     
     x = vcs.init()
-    print "3D_Scalar elements: ", str( x.listelements('3d_scalar') )
-    x.plot( u, dv3d )
+    x.plot( u, dv3d, blocking=True )
     x.interact()
+
 else:
     print>>sys.stderr, "\n\n  Can't find variable %s in dataset %s" % ( varname, datasetPath )
 
