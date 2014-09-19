@@ -646,7 +646,7 @@ class AnimationPlaybackParams(object):
 
     """
     if value is not None:
-      value = max(value, 0.0001)
+      value = max(value, 0.5)
       self.frames_per_second = value
       return self
     return self.frames_per_second

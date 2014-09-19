@@ -16,5 +16,6 @@ if (NOT ${res} EQUAL 0)
 endif()
 
 set(GIT_CMD_STR GIT_REPOSITORY "${UVCMETRICS_SOURCE}")
+set(GIT_TAG GIT_TAG "${UVCMETRICS_BRANCH}")
 set(nm UVCMETRICS)
 include(pipinstaller)

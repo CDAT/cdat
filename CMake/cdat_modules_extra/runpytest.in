@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # glue script to playback a recorded uvcdat vistrail and compare the result
 # with a known good baseline image.

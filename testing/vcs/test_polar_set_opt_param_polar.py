@@ -15,7 +15,7 @@ i=x.createisofill()
 p=x.getprojection("polar")
 i.projection=p
 x.open()
-x.plot(s,i)
+x.plot(s,i,bg=1)
 fnm= "test_polar_set_opt_param_polar.png"
 x.png(fnm)
 

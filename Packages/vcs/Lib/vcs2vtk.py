@@ -15,7 +15,7 @@ f = open(os.path.join(sys.prefix,"share","vcs","wmo_symbols.json"))
 wmo = json.load(f)
 
 def putMaskOnVTKGrid(data,grid,actorColor=None,cellData=True,deep=True):
-  #Ok now looking 
+  #Ok now looking
   msk = data.mask
   imsk =  VN.numpy_to_vtk(msk.astype(numpy.int).flat,deep=deep)
   mapper = None
@@ -61,6 +61,7 @@ def genGrid(data1,data2,gm):
   m3 = None
   g = None
   cellData = True
+  xm,xM,ym,yM = None, None, None, None
   try: #First try to see if we can get a mesh out of this
     g=data1.getGrid()
     if isinstance(g,cdms2.gengrid.AbstractGenericGrid): # Ok need unstrctured grid
@@ -96,8 +97,7 @@ def genGrid(data1,data2,gm):
         continents = True
       wrap = gm.wrap
   except Exception,err: # Ok no mesh on file, will do with lat/lon
-    print "WHAT?"
-
+    print "No mesh data found"
   if m3 is not None:
     #Create unstructured grid points
     vg = vtk.vtkUnstructuredGrid()
@@ -106,10 +106,6 @@ def genGrid(data1,data2,gm):
     numberOfCells = N
     lst.SetNumberOfComponents(nVertices + 1)
     lst.SetNumberOfTuples(numberOfCells)
-      
-    print 'Number of cells ', numberOfCells
-    print 'Number of vertices', nVertices
-   
     for i in range(N):
       tuple = [None] * (nVertices + 1)
       tuple[0] = nVertices
@@ -131,6 +127,10 @@ def genGrid(data1,data2,gm):
       if not isinstance(g,cdms2.hgrid.AbstractCurveGrid):
           lon=data1.getAxis(-1)
           lat=data1.getAxis(-2)
+          xm=lon[0]
+          xM=lon[-1]
+          ym=lat[0]
+          yM=lat[-1]
           lat2 = numpy.zeros(len(lat)+1)
           lon2 = numpy.zeros(len(lon)+1)
           # Ok let's try to get the bounds
@@ -141,6 +141,10 @@ def genGrid(data1,data2,gm):
             lat2[len(lat)]=blat[-1,1]
             lon2[:len(lon)]=blon[:,0]
             lon2[len(lon)]=blon[-1,1]
+            xm=blon[0][0]
+            xM=blon[-1][1]
+            ym=blat[0][0]
+            yM=blat[-1][1]
           except Exception,err:
             ## No luck we have to generate bounds ourselves
             lat2[1:-1]=(lat[:-1]+lat[1:])/2.
@@ -158,8 +162,12 @@ def genGrid(data1,data2,gm):
         cellData = False
     else:
       data1=cdms2.asVariable(data1)
-      lon=data1.getAxis(-1)[:]
-      lat=data1.getAxis(-2)[:]
+      lon=data1.getAxis(-1)
+      lat=data1.getAxis(-2)
+      xm=lon[0]
+      xM=lon[-1]
+      ym=lat[0]
+      yM=lat[-1]
       lat2 = numpy.zeros(len(lat)+1)
       lon2 = numpy.zeros(len(lon)+1)
       # Ok let's try to get the bounds
@@ -168,8 +176,12 @@ def genGrid(data1,data2,gm):
         blon = lon.GetBounds()
         lat2[:len(lat)]=blat[:][0]
         lat2[len(lat2)]=blat[-1][1]
-        lon2[:len(lat)]=blat[:][0]
-        lon2[len(lat2)]=blat[-1][1]
+        lon2[:len(lon)]=blon[:][0]
+        lon2[len(lon2)]=blon[-1][1]
+        xm=blon[0][0]
+        xM=blon[-1][1]
+        ym=blat[0][0]
+        yM=blat[-1][1]
       except:
         ## No luck we have to generate bounds ourselves
         lat2[1:-1]=(lat[:-1]+lat[1:])/2.
@@ -177,7 +189,7 @@ def genGrid(data1,data2,gm):
         lat2[-1]=lat[-1]+(lat[-1]-lat[-2])/2.
         lon2[1:-1]=(lon[:-1]+lon[1:])/2.
         lon2[0]=lon[0]-(lon[1]-lon[0])/2.
-        lon2[-1]=lat[-1]+(lat[-1]-lat[-2])/2.
+        lon2[-1]=lon[-1]+(lon[-1]-lon[-2])/2.
       lat = lat2[:,numpy.newaxis]*numpy.ones(lon2.shape)[numpy.newaxis,:]
       lon = lon2[numpy.newaxis,:]*numpy.ones(lat2.shape)[:,numpy.newaxis]
     vg.SetDimensions(lat.shape[1],lat.shape[0],1)
@@ -190,17 +202,18 @@ def genGrid(data1,data2,gm):
     z = numpy.zeros(lon.shape)
     m3 = numpy.concatenate((lon,lat),axis=1)
     m3 = numpy.concatenate((m3,z),axis=1)
-    try:
-      xm = lon[0]
-      xM = lon[-1]
-      ym = lat[0]
-      yM = lat[-1]
-    except:
-      xm=lon.min()
-      xM=lon.max()
-      ym=lat.min()
-      yM=lat.max()
-  # First create the points/vertices (in vcs terms)
+    if xm is None:
+      try:
+        xm = lon[0]
+        xM = lon[-1]
+        ym = lat[0]
+        yM = lat[-1]
+      except:
+        xm=lon.min()
+        xM=lon.max()
+        ym=lat.min()
+        yM=lat.max()
+    # First create the points/vertices (in vcs terms)
   deep = True
   pts = vtk.vtkPoints()
   ## Convert nupmy array to vtk ones
@@ -269,7 +282,7 @@ def prepContinents(fnm):
             didIt = True
           except:
             didIt = False
-        if didIt is False: 
+        if didIt is False:
           while len(ln)>2:
             l,L=float(ln[:8]),float(ln[8:16])
             pts.InsertNextPoint(L,l,0.0001)
@@ -311,7 +324,7 @@ def project(pts,projection,wc):
   #  print i,":",pd.GetProjectionName(i),"(",pd.GetNumberOfOptionalParameters(),") --"
   #  pd.SetName(pd.GetProjectionName(i+1))
   #  print i+1,":",pd.GetProjectionName(i+1),"(",pd.GetNumberOfOptionalParameters(),")"
-    
+
   pd.SetName(projName)
   if projection.type == "polar (non gctp)":
     if ym<yM:
@@ -524,7 +537,7 @@ def doWrap(Act,wc,wrap=[0.,360]):
   if numpy.allclose(ymn,1.e20) or numpy.allclose(ymx,1.e20):
     ymx = abs(wrap[0])
     ymn = -wrap[0]
-  
+
   ## Prepare MultiBlock and puts in oriinal data
   appendFilter =vtk.vtkAppendPolyData()
   appendFilter.AddInputData(data)
@@ -590,48 +603,81 @@ def doWrap(Act,wc,wrap=[0.,360]):
   #Mapper2 = vtk.vtkDataSetMapper()
   #Mapper2 = vtk.vtkCompositePolyDataMapper()
   Mapper2 = vtk.vtkPolyDataMapper()
-  Mapper2.SetInputData(doClip(appendFilter.GetOutput(),xmn,xmx,ymn,ymx))
+  Mapper2.SetInputData(appendFilter.GetOutput())
   Mapper2.SetLookupTable(Mapper.GetLookupTable())
   Mapper2.SetScalarRange(Mapper.GetScalarRange())
   Mapper2.SetScalarMode(Mapper.GetScalarMode())
+  setClipPlanes(Mapper2, xmn, xmx, ymn, ymx)
   Mapper2.Update()
   Actor.SetMapper(Mapper2)
   return Actor
 
-def doClip(data,xmin,xmax,ymin,ymax):
-  if xmin!=xmax:
-    xminClip = doClip1(data,xmin,1,0)
-    xfullClip = doClip1(xminClip,xmax,-1,0)
-  else:
-    xfullClip = data
-  if ymin!=ymax:
-    yminClip  = doClip1(xfullClip,ymin,1,1)
-    xyClip  = doClip1(yminClip,ymax,-1,1)
-  else:
-    xyClip = xfullClip
-  return xyClip
+def setClipPlanes(mapper, xmin, xmax, ymin, ymax):
+    clipPlaneCollection = vtk.vtkPlaneCollection()
 
-def doClip1(data,value,normal,axis=0):
-    # We have the actor, do clipping
-    clpf = vtk.vtkPlane()
-    if axis == 0:
-      clpf.SetOrigin(value,0,0)
-      clpf.SetNormal(normal,0,0)
-    else:
-      clpf.SetOrigin(0,value,0)
-      clpf.SetNormal(0,normal,0)
-    clp = vtk.vtkClipPolyData()
-    clp.SetClipFunction(clpf)
-    clp.SetInputData(data)
-    clp.Update()
-    return clp.GetOutput()
+    if xmin != xmax:
+      clipPlaneXMin = vtk.vtkPlane()
+      clipPlaneXMin.SetOrigin(xmin, 0.0, 0.0)
+      clipPlaneXMin.SetNormal(1.0, 0.0, 0.0)
+
+      clipPlaneXMax = vtk.vtkPlane()
+      clipPlaneXMax.SetOrigin(xmax, 0.0, 0.0)
+      clipPlaneXMax.SetNormal(-1.0, 0.0, 0.0)
+
+      clipPlaneCollection.AddItem(clipPlaneXMin)
+      clipPlaneCollection.AddItem(clipPlaneXMax)
+
+    if ymin != ymax:
+      clipPlaneYMin = vtk.vtkPlane()
+      clipPlaneYMin.SetOrigin(0.0, ymin, 0.0)
+      clipPlaneYMin.SetNormal(0.0, 1.0, 0.0)
+
+      clipPlaneYMax = vtk.vtkPlane()
+      clipPlaneYMax.SetOrigin(0.0, ymax, 0.0)
+      clipPlaneYMax.SetNormal(0.0, -1.0, 0.0)
+
+      clipPlaneCollection.AddItem(clipPlaneYMin)
+      clipPlaneCollection.AddItem(clipPlaneYMax)
+
+    if clipPlaneCollection.GetNumberOfItems() > 0:
+        mapper.SetClippingPlanes(clipPlaneCollection)
+
+# The code is replaced by the setClipPlanes above
+# def doClip(data, xmin,xmax,ymin,ymax):
+#   if xmin!=xmax:
+#     xminClip = doClip1(data,xmin,1,0)
+#     xfullClip = doClip1(xminClip,xmax,-1,0)
+#   else:
+#     xfullClip = data
+#   if ymin!=ymax:
+#     yminClip  = doClip1(xfullClip,ymin,1,1)
+#     xyClip  = doClip1(yminClip,ymax,-1,1)
+#   else:
+#     xyClip = xfullClip
+#   return xyClip
+
+# def doClip1(data,value,normal,axis=0):
+#     return data
+#     # We have the actor, do clipping
+#     clpf = vtk.vtkPlane()
+#     if axis == 0:
+#       clpf.SetOrigin(value,0,0)
+#       clpf.SetNormal(normal,0,0)
+#     else:
+#       clpf.SetOrigin(0,value,0)
+#       clpf.SetNormal(0,normal,0)
+#     clp = vtk.vtkClipPolyData()
+#     clp.SetClipFunction(clpf)
+#     clp.SetInputData(data)
+#     clp.Update()
+#     return clp.GetOutput()
 
 def prepTextProperty(p,winSize,to="default",tt="default",cmap=None):
   if isinstance(to,str):
     to = vcs.elements["textorientation"][to]
   if isinstance(tt,str):
     tt = vcs.elements["texttable"][tt]
-  
+
   if cmap is None:
     if tt.colormap is not None:
       cmap = tt.colormap
@@ -664,7 +710,7 @@ def prepTextProperty(p,winSize,to="default",tt="default",cmap=None):
   p.SetFontFamily(vtk.VTK_FONT_FILE)
   p.SetFontFile(vcs.elements["font"][vcs.elements["fontNumber"][tt.font]])
   p.SetFontSize(int(to.height*winSize[1]/800.))
-  
+
 
 def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cmap=None):
   if isinstance(to,str):
@@ -681,7 +727,7 @@ def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cm
     y = tt.y
   if x is None or y is None or string in [['',],[]]:
     return
-  
+
   n = max(len(x),len(y),len(string))
   for a in [x,y,string]:
     while len(a)<n:
@@ -700,7 +746,7 @@ def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cm
     #T.RotateY(to.angle)
     #t.SetUserTransform(T)
     renderer.AddActor(t)
-  return 
+  return
 
 def prepPrimitive(prim):
   if prim.x is None or prim.y is None:
@@ -762,7 +808,7 @@ def prepFillarea(renWin,ren,farea,cmap=None):
     m.SetInputData(polygonPolyData)
     a.SetMapper(m)
     p = a.GetProperty()
-   
+
     if cmap is None:
       if farea.colormap is not None:
         cmap = farea.colormap
@@ -774,7 +820,7 @@ def prepFillarea(renWin,ren,farea,cmap=None):
     p.SetColor([C/100. for C in color])
     ren.AddActor(a)
     fitToViewport(a,ren,farea.viewport,wc=farea.worldcoordinate,geo=geo)
-  return 
+  return
 
 def genPoly(coords,pts,filled=True):
   N = pts.GetNumberOfPoints()
@@ -804,7 +850,7 @@ def prepMarker(renWin,ren,marker,cmap=None):
     x = marker.x[i]
     y=marker.y[i]
     c=marker.color[i]
-    s=marker.size[i]/float(max(marker.worldcoordinate))*10.
+    s=marker.size[i]*.5
     t=marker.type[i]
     N = max(len(x),len(y))
     for a in [x,y]:
@@ -850,7 +896,7 @@ def prepMarker(renWin,ren,marker,cmap=None):
       elif t[9]=="u":
         gs.SetRotationAngle(0)
     elif t == "hurricane":
-      s =s/10.
+      s =s/5.
       ds = vtk.vtkDiskSource()
       ds.SetInnerRadius(.55*s)
       ds.SetOuterRadius(1.01*s)
@@ -904,6 +950,7 @@ def prepMarker(renWin,ren,marker,cmap=None):
       pd = vtk.vtkPolyData()
       polys = vtk.vtkCellArray()
       lines = vtk.vtkCellArray()
+      s*=3
       #Lines first
       for l in params["line"]:
         coords = numpy.array(zip(*l))*s/30.
@@ -924,9 +971,11 @@ def prepMarker(renWin,ren,marker,cmap=None):
       gs.FilledOn()
     if t[-5:]=="_fill":
       gs.FilledOn()
+      
+    if pd is None:
+      s/=float(max(marker.worldcoordinate))
     gs.SetScale(s)
     gs.Update()
-
 
     if pd is None:
       g.SetSourceConnection(gs.GetOutputPort())
@@ -950,7 +999,29 @@ def prepMarker(renWin,ren,marker,cmap=None):
     p.SetColor([C/100. for C in color])
     ren.AddActor(a)
     fitToViewport(a,ren,marker.viewport,wc=marker.worldcoordinate,geo=geo)
-  return 
+
+    # Add a transform to correct the glyph's aspect ratio:
+
+    if pd is None and a.GetUserTransform():
+      # Invert the scale of the actor's transform.
+      glyphTransform = vtk.vtkTransform()
+      scale = a.GetUserTransform().GetScale()
+      xComp = scale[0]
+      scale = [xComp / float(val) for val in scale]
+      glyphTransform.Scale(scale)
+
+      glyphFixer = vtk.vtkTransformPolyDataFilter()
+      glyphFixer.SetTransform(glyphTransform)
+
+      if pd is None:
+        glyphFixer.SetInputConnection(gs.GetOutputPort())
+      else:
+        glyphFixer.SetInputData(pd)
+        g.SetSourceData(None)
+
+      g.SetSourceConnection(glyphFixer.GetOutputPort())
+
+  return
 
 def prepLine(renWin,ren,line,cmap=None):
   n = prepPrimitive(line)
@@ -985,7 +1056,7 @@ def prepLine(renWin,ren,line,cmap=None):
     a.SetMapper(m)
     p = a.GetProperty()
     p.SetLineWidth(w)
-   
+
     if cmap is None:
       if line.colormap is not None:
         cmap = line.colormap
@@ -1015,7 +1086,7 @@ def prepLine(renWin,ren,line,cmap=None):
       raise Exception,"Unkonw line type: '%s'" % t
     ren.AddActor(a)
     fitToViewport(a,ren,line.viewport,wc=line.worldcoordinate,geo=geo)
-  return 
+  return
 
 def getRendererCorners(Renderer,vp=[0.,1.,0.,1.]):
   sz = Renderer.GetSize()
@@ -1035,8 +1106,6 @@ def R2World(ren,x,y):
   #print "ok X and Y:",x,y
   ren.SetDisplayPoint(x,y,0)
   ren.DisplayToWorld()
-  ren.ViewToWorld()
-  wp = ren.GetWorldPoint()
   return wp
 
 def vtkWorld2Renderer(ren,x,y):
@@ -1046,6 +1115,7 @@ def vtkWorld2Renderer(ren,x,y):
   return renpts
 
 def fitToViewport(Actor,Renderer,vp,wc=None,geo=None):
+  T = vtk.vtkTransform()
   ## Data range in World Coordinates
   if wc is None:
     Xrg = list(Actor.GetXRange())
@@ -1053,6 +1123,18 @@ def fitToViewport(Actor,Renderer,vp,wc=None,geo=None):
   else:
     Xrg=[float(wc[0]),float(wc[1])]
     Yrg=[float(wc[2]),float(wc[3])]
+  if Yrg[0]>Yrg[1]:
+    #Yrg=[Yrg[1],Yrg[0]]
+    #T.RotateY(180)
+    Yrg=[Yrg[1],Yrg[0]]
+    flipY = True
+  else:
+    flipY = False
+  if Xrg[0]>Xrg[1]:
+    Xrg=[Xrg[1],Xrg[0]]
+    flipX=True
+  else:
+    flipX=False
 
   if geo is not None:
    pt = vtk.vtkPoints()
@@ -1093,11 +1175,48 @@ def fitToViewport(Actor,Renderer,vp,wc=None,geo=None):
       yScale = dRatio/(vRatio*wRatio)
 
 
-  T = vtk.vtkTransform()
   T.Scale(xScale,yScale,1.)
 
   Actor.SetUserTransform(T)
 
+  mapper = Actor.GetMapper()
+  planeCollection = mapper.GetClippingPlanes()
+
+  # We have to transform the hardware clip planes as well
+  if (planeCollection is not None):
+      planeCollection.InitTraversal()
+      plane = planeCollection.GetNextItem()
+      while (plane):
+          origin = plane.GetOrigin()
+          inOrigin = [origin[0], origin[1], origin[2], 1.0]
+          outOrigin = [origin[0], origin[1], origin[2], 1.0]
+
+          normal = plane.GetNormal()
+          inNormal = [normal[0], normal[1], normal[2], 0.0]
+          outNormal = [normal[0], normal[1], normal[2], 0.0]
+
+          T.MultiplyPoint(inOrigin, outOrigin)
+          if (outOrigin[3] != 0.0):
+              outOrigin[0] /= outOrigin[3]
+              outOrigin[1] /= outOrigin[3]
+              outOrigin[2] /= outOrigin[3]
+          plane.SetOrigin(outOrigin[0], outOrigin[1], outOrigin[2])
+
+          # For normal matrix, compute the transpose of inverse
+          normalTransform = vtk.vtkTransform()
+          normalTransform.DeepCopy(T)
+          mat = vtk.vtkMatrix4x4()
+          normalTransform.GetTranspose(mat)
+          normalTransform.GetInverse(mat)
+          normalTransform.SetMatrix(mat)
+          normalTransform.MultiplyPoint(inNormal, outNormal)
+          if (outNormal[3] != 0.0):
+              outNormal[0] /= outNormal[3]
+              outNormal[1] /= outNormal[3]
+              outNormal[2] /= outNormal[3]
+          plane.SetNormal(outNormal[0], outNormal[1], outNormal[2])
+
+          plane = planeCollection.GetNextItem()
 
   xc = xScale*float(Xrg[1]+Xrg[0])/2.
   yc = yScale*float(Yrg[1]+Yrg[0])/2.
@@ -1109,6 +1228,13 @@ def fitToViewport(Actor,Renderer,vp,wc=None,geo=None):
   cd = cam.GetDistance()
   cam.SetPosition(xc,yc,cd)
   cam.SetFocalPoint(xc,yc,0.)
+  if geo is None:
+    if flipY:
+      cam.Elevation(180.)
+      cam.Roll(180.)
+      pass
+    if flipX:
+      cam.Azimuth(180.)
 
 p=vtk.vtkGeoProjection()
 vtkProjections = [ p.GetProjectionName(i) for i in range(p.GetNumberOfProjections()) ]

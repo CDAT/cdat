@@ -1,0 +1,80 @@
+#
+# Include for common Windows flags and settings.
+#
+# $Id: sciWinFlags.cmake 1151 2011-12-17 13:51:42Z cary $
+#
+######################################################################
+
+if (WIN32)
+# ICL needs to be defined here(Intel compiler and Visual Studio) for
+# trilinos: ml_utils.h
+  # add_definitions(-DWIN32 -DICL)
+# Windows does not mean ICL!
+  add_definitions(-DWIN32)
+  set(_USE_MATH_DEFINES 1
+    CACHE STRING "Define whether to use math defines(for Windows)")
+  if (DEBUG_CMAKE)
+    message("CMAKE_C_COMPILER = ${CMAKE_C_COMPILER}.")
+  endif ()
+  string(REGEX MATCH "^.*icl\\.*" USING_ICL "${CMAKE_C_COMPILER}")
+  # MESSAGE("USING_ICL = ${USING_ICL}.")
+  string(REGEX MATCH "^.*cl\\.*" USING_CL "${CMAKE_C_COMPILER}")
+# Below needs to be fixed to use output of $CC -v
+  string(REGEX MATCH "^.*mingw.*" USING_MINGW "${CMAKE_C_COMPILER}")
+  # MESSAGE("USING_CL = ${USING_CL}.")
+  if (USING_ICL)
+    add_definitions(-DICL)
+    set(_TIMEVAL_DEFINED 1
+        CACHE STRING "Define whether system has timeval(for Windows)")
+    # MESSAGE("USING_ICL is true.")
+    if (NOT BUILD_SHARED_LIBS AND NOT BUILD_WITH_SHARED_RUNTIME)
+      set(CMAKE_CXX_FLAGS_DEBUG "/MTd /Z7 /Od")
+      set(CMAKE_CXX_FLAGS_RELEASE "/MT /O2")
+      set(CMAKE_CXX_FLAGS_MINSIZEREL "/MT /O2")
+      set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/MTd /Z7 /Od")
+      set(CMAKE_C_FLAGS_DEBUG "/MTd /Z7 /Od")
+      set(CMAKE_C_FLAGS_RELEASE "/MT /O2")
+      set(CMAKE_C_FLAGS_MINSIZEREL "/MT /O2")
+      set(CMAKE_C_FLAGS_RELWITHDEBINFO "/MTd /Z7 /Od")
+      foreach (i DEBUG RELEASE MINSIZERELEASE REWITHDEBINFO)
+        set(CMAKE_C_FLAGS_${i} "${CMAKE_C_FLAGS_${i}} /Qstd:c99")
+      endforeach ()
+    else ()
+      set(CMAKE_CXX_FLAGS_DEBUG "/MDd /Z7 /Od")
+      set(CMAKE_CXX_FLAGS_RELEASE "/MD /O2")
+      set(CMAKE_CXX_FLAGS_MINSIZEREL "/MD /O2")
+      set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/MDd /Z7 /Od")
+      set(CMAKE_C_FLAGS_DEBUG "/MDd /Z7 /Od")
+      set(CMAKE_C_FLAGS_RELEASE "/MD /O2")
+      set(CMAKE_C_FLAGS_MINSIZEREL "/MD /O2")
+      set(CMAKE_C_FLAGS_RELWITHDEBINFO "/MDd /Z7 /Od")
+      foreach (i DEBUG RELEASE MINSIZERELEASE REWITHDEBINFO)
+        set(CMAKE_C_FLAGS_${i} "${CMAKE_C_FLAGS_${i}} /Qstd:c99")
+      endforeach ()
+    endif ()
+  elseif (USING_CL)
+    add_definitions(-DCL)
+    set(_TIMEVAL_DEFINED 1
+        CACHE STRING "Define whether system has timeval(for Windows)")
+    if (NOT BUILD_SHARED_LIBS AND NOT BUILD_WITH_SHARED_RUNTIME)
+      set(CMAKE_C_FLAGS_DEBUG "/MT /Zi /Ob0 /Od")
+      set(CMAKE_C_FLAGS_MINSIZEREL "/MT /O1 /Ob1 /D NDEBUG")
+      set(CMAKE_C_FLAGS_RELEASE "/MT /O2 /Ob2 /D NDEBUG")
+      set(CMAKE_C_FLAGS_RELWITHDEBINFO "/MT /Zi /O2 /Ob1 /D NDEBUG")
+      set(CMAKE_CXX_FLAGS_DEBUG "/MT /Zi /Ob0 /Od")
+      set(CMAKE_CXX_FLAGS_MINSIZEREL "/MT /O1 /Ob1 /D NDEBUG")
+      set(CMAKE_CXX_FLAGS_RELEASE "/MT /O2 /Ob2 /D NDEBUG")
+      set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/MT /Zi /O2 /Ob1 /D NDEBUG")
+    else ()
+      set(CMAKE_C_FLAGS_DEBUG "/D_DEBUG /MDd /Zi /Ob0 /Od /RTC1")
+      set(CMAKE_C_FLAGS_MINSIZEREL "/MD /O1 /Ob1 /D NDEBUG")
+      set(CMAKE_C_FLAGS_RELEASE "/MD /O2 /Ob2 /D NDEBUG")
+      set(CMAKE_C_FLAGS_RELWITHDEBINFO "/MD /Zi /O2 /Ob1 /D NDEBUG")
+      set(CMAKE_CXX_FLAGS_DEBUG "/D_DEBUG /MDd /Zi /Ob0 /Od /RTC1")
+      set(CMAKE_CXX_FLAGS_MINSIZEREL "/MD /O1 /Ob1 /D NDEBUG")
+      set(CMAKE_CXX_FLAGS_RELEASE "/MD /O2 /Ob2 /D NDEBUG")
+      set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "/MD /Zi /O2 /Ob1 /D NDEBUG")
+    endif ()
+  endif ()
+endif ()
+
