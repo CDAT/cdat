@@ -923,9 +923,10 @@ class ButtonBarWidget(ButtonBar):
            
     def initializeConfiguration( self, **args ):
         for configFunct in self.configurableFunctions.values():
-            try: configFunct.init( **args )
-            except Exception, err:
-                print>>sys.stderr, "Error initializing configurableFunction %s: %s" % ( configFunct.name, str(err)  )
+            configFunct.init( **args )
+#             try: configFunct.init( **args )
+#             except Exception, err:
+#                 print>>sys.stderr, "Error initializing configurableFunction %s: %s" % ( configFunct.name, str(err)  )
         for button in self.buttons:
             if button.toggle:
                 button.broadcastState( button.getState() )
