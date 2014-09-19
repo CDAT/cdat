@@ -14,6 +14,14 @@ import cdtime
 f = open(os.path.join(sys.prefix,"share","vcs","wmo_symbols.json"))
 wmo = json.load(f)
 
+def applyAttributesFromVCStmpl(tmpl,tmplattribute,txtobj=None):
+    tatt = getattr(tmpl,tmplattribute)
+    if txtobj is None:
+      txtobj=vcs.createtext(None,tatt.textorientation,None,tatt.texttable)
+    for att in ["x","y","priority"]:
+      setattr(txtobj,att,getattr(tatt,att))
+    return txtobj
+
 def putMaskOnVTKGrid(data,grid,actorColor=None,cellData=True,deep=True):
   #Ok now looking
   msk = data.mask

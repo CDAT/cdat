@@ -10,7 +10,8 @@ import os, traceback
 import cdms2
 import DV3D
 import MV2
-   
+import cdtime
+
 def smooth(x,beta,window_len=11):
    """ kaiser window smoothing """
    # extending the data at beginning and at the end
@@ -314,14 +315,6 @@ class VTKVCSBackend(object):
     self.cell_coordinates=kargs.get( 'cell_coordinates', None )
     #self.renWin.Render()
     #screenSize = self.renWin.GetScreenSize()
-    if gtype in ["boxfill","meshfill","isoline","isofill","vector"]:
-      data1 = self.trimData2D(data1) # Ok get only the last 2 dims
-      if gtype!="meshfill":
-        data2 = self.trimData2D(data2)
-    #elif vcs.isgraphicsmethod(vcs.elements[gtype][gname]):
-      ## oneD
-    #  data1 = self.trimData1D(data1)
-    #  data2 = self.trimData1D(data2)
     if gtype == "text":
       tt,to = gname.split(":::")
       tt = vcs.elements["texttable"][tt]
@@ -511,6 +504,14 @@ class VTKVCSBackend(object):
           g.update( tmpl )
            
   def plotVector(self,data1,data2,tmpl,gm):
+    #Preserve time and z axis for plotting these inof in rendertemplate
+    taxis = data1.getTime()
+    if data1.ndim>2:
+        zaxis = data1.getAxis(-3)
+    else:
+        zaxis = None
+    data1 = self.trimData2D(data1) # Ok get3 only the last 2 dims
+    data2 = self.trimData2D(data2)
     ug,xm,xM,ym,yM,continents,wrap,geo,cellData = vcs2vtk.genGrid(data1,data2,gm)
     if cellData:
         c2p = vtk.vtkCellDataToPointData()
@@ -590,7 +591,7 @@ class VTKVCSBackend(object):
     vcs2vtk.fitToViewport(act,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2])
     if tmpl.data.priority!=0:
         ren.AddActor(act)
-    self.renderTemplate(tmpl,data1,gm)
+    self.renderTemplate(tmpl,data1,gm,taxis,zaxis)
     if self.canvas._continents is None:
       continents = False
     if continents:
@@ -598,6 +599,15 @@ class VTKVCSBackend(object):
         self.plotContinents(x1,x2,y1,y2,projection,wrap,tmpl)
 
   def plot2D(self,data1,data2,tmpl,gm):
+    #Preserve time and z axis for plotting these inof in rendertemplate
+    t = data1.getTime()
+    if data1.ndim>2:
+        z = data1.getAxis(-3)
+    else:
+        z = None
+    data1 = self.trimData2D(data1) # Ok get3 only the last 2 dims
+    if gm.g_name!="Gfm":
+      data2 = self.trimData2D(data2)
     ug,xm,xM,ym,yM,continents,wrap,geo,cellData = vcs2vtk.genGrid(data1,data2,gm)
     #Now applies the actual data on each cell
     if isinstance(gm,boxfill.Gfb) and gm.boxfill_type=="log10":
@@ -906,18 +916,21 @@ class VTKVCSBackend(object):
     if isinstance(gm,meshfill.Gfm):
       tmpl.plot(self.canvas,data1,gm,bg=self.bg,X=numpy.arange(xm,xM*1.1,(xM-xm)/10.),Y=numpy.arange(ym,yM*1.1,(yM-ym)/10.))
     else:
-      self.renderTemplate(tmpl,data1,gm)
+      self.renderTemplate(tmpl,data1,gm,t,z)
     if isinstance(gm,(isofill.Gfi,meshfill.Gfm,boxfill.Gfb)):
       if getattr(gm,"legend",None) is not None:
         legend = gm.legend
-      if gm.ext_1 in ["y",1,True] and not numpy.allclose(levs[0],1.e20):
+      if gm.ext_1 in ["y",1,True] and not numpy.allclose(levs[0],-1.e20):
           if isinstance(levs,numpy.ndarray):
               levs=levs.tolist()
-          levs.insert(0,-1.e20)
-      if gm.ext_2 in ["y",1,True] and not numpy.allclose(levs[0],1.e20):
+          if not (isinstance(levs[0],list) and numpy.allclose(levs[0][0],-1.e20)):
+            print "Inserting:",levs[0]
+            levs.insert(0,-1.e20)
+      if gm.ext_2 in ["y",1,True] and not numpy.allclose(levs[-1],1.e20):
           if isinstance(levs,numpy.ndarray):
               levs=levs.tolist()
-          levs.append(1.e20)
+          if not (isinstance(levs[-1],list) and numpy.allclose(levs[-1][-1],1.e20)):
+            levs.append(1.e20)
 
       self.renderColorBar(tmpl,levs,cols,legend,cmap)
     if self.canvas._continents is None:
@@ -953,11 +966,62 @@ class VTKVCSBackend(object):
       if tmpl.data.priority!=0:
         ren.AddActor(contActor)
 
-  def renderTemplate(self,tmpl,data,gm):
+  def renderTemplate(self,tmpl,data,gm,taxis,zaxis):
     tmpl.plot(self.canvas,data,gm,bg=self.bg)
+    if taxis is not None:
+        tstr = str(cdtime.reltime(taxis[0],taxis.units).tocomp(taxis.getCalendar()))
+        #ok we have a time axis let's display the time
+        crdate = vcs2vtk.applyAttributesFromVCStmpl(tmpl,"crdate")
+        crdate.string = tstr.split()[0].replace("-","/")
+        crtime = vcs2vtk.applyAttributesFromVCStmpl(tmpl,"crtime")
+        crtime.string = tstr.split()[1]
+        ren = vtk.vtkRenderer()
+        self.renWin.AddRenderer(ren)
+        self.setLayer(ren,1)
+        if crdate.priority>0:
+            tt,to = crdate.name.split(":::")
+            tt = vcs.elements["texttable"][tt]
+            to = vcs.elements["textorientation"][to]
+            vcs2vtk.genTextActor(ren,to=to,tt=tt)
+        if crtime.priority>0:
+            tt,to = crtime.name.split(":::")
+            tt = vcs.elements["texttable"][tt]
+            to = vcs.elements["textorientation"][to]
+            vcs2vtk.genTextActor(ren,to=to,tt=tt)
+    if zaxis is not None:
+        # ok we have a zaxis to draw
+        zname = vcs2vtk.applyAttributesFromVCStmpl(tmpl,"zname")
+        zname.string=zaxis.id
+        zunits = vcs2vtk.applyAttributesFromVCStmpl(tmpl,"zunits")
+        zunits.string=zaxis.units
+        zvalue = vcs2vtk.applyAttributesFromVCStmpl(tmpl,"zvalue")
+        if zaxis.isTime():
+            zvalue.string = str(zaxis.asComponentTime()[0])
+        else:
+            zvalue.string= "%g" % zaxis[0]
+        ren = vtk.vtkRenderer()
+        self.setLayer(ren,1)
+        self.renWin.AddRenderer(ren)
+        if zname.priority>0:
+            tt,to = zname.name.split(":::")
+            tt = vcs.elements["texttable"][tt]
+            to = vcs.elements["textorientation"][to]
+            vcs2vtk.genTextActor(ren,to=to,tt=tt)
+        if zunits.priority>0:
+            tt,to = zunits.name.split(":::")
+            tt = vcs.elements["texttable"][tt]
+            to = vcs.elements["textorientation"][to]
+            vcs2vtk.genTextActor(ren,to=to,tt=tt)
+        if zvalue.priority>0:
+            tt,to = zvalue.name.split(":::")
+            tt = vcs.elements["texttable"][tt]
+            to = vcs.elements["textorientation"][to]
+            vcs2vtk.genTextActor(ren,to=to,tt=tt)
+        
 
   def renderColorBar(self,tmpl,levels,colors,legend,cmap):
     if tmpl.legend.priority>0:
+      print "Colorbar:",levels,legend
       tmpl.drawColorBar(colors,levels,x=self.canvas,legend=legend,cmap=cmap)
 
   def cleanupData(self,data):
