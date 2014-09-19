@@ -176,7 +176,7 @@ class RectGridPlot(StructuredGridPlot):
         elif args and args[0] == "Init":
             if config_function.initial_value == None:       
                 config_function.initial_value = [ 1.0, 1.0 ]  
-            self.setConstituentOpacities( opacityRange, config_function.initial_value )
+            self.setOpacities( config_function.initial_value )
         elif args and args[0] == "EndConfig":
             self.processConfigParameterChange( opacityRange )
         elif args and args[0] == "InitConfig":
@@ -204,7 +204,7 @@ class RectGridPlot(StructuredGridPlot):
             val = args[2].GetValue()     
             opacityRange.setValue( args[1], val )
             orange = opacityRange.getValues()
-            self.setConstituentOpacities( opacityRange, orange )
+            self.setOpacities( orange )
 
     def processColorScaleCommand( self, args, config_function = None ):
         colorScaleRange = config_function.value
@@ -222,7 +222,7 @@ class RectGridPlot(StructuredGridPlot):
             self.processConfigParameterChange( colorScaleRange )
         elif args and args[0] == "InitConfig":         
             state = args[1]
-            cs_bbar = self.getConstituentSelectionBar( config_function, [ ( "Slice", "Volume", "Surface" ), self.processConstituentSelection ] )
+            cs_bbar = self.getConstituentSelectionBar( config_function, [ self.plotConstituents.keys(), self.processConstituentSelection ] )
             if state: cs_bbar.show()
             else:     cs_bbar.hide()
             self.updateTextDisplay( config_function.label )
@@ -239,22 +239,34 @@ class RectGridPlot(StructuredGridPlot):
             value = args[2].GetValue() 
             colorScaleRange.setValue( args[1], value )
             cscale = colorScaleRange.getValues()
-            self.scaleColormap( cscale )
-            self.generateCTF( cscale )
-            
+            self.scaleEnabledColormaps( cscale )
+            if self.isConstituentConfigEnabled('Volume'):
+                self.generateCTF( cscale )
+            for plotItem in self.plotConstituents.items():
+                if self.isConstituentConfigEnabled(plotItem[0]):
+                    colorScaleRange.setValue( plotItem[0], value )
+                         
     def processConstituentSelection( self, *args, **kwargs ):
         state = args[2]
         param = None
-        if args[0] == 'Slice':
-            param = self.cfgManager.getParameter( 'SliceRoundRobin' ) 
-        elif args[0] == 'Volume':
-            param = self.cfgManager.getParameter( 'ToggleVolumePlot' ) 
-        elif args[0] == 'Surface':
-            param = self.cfgManager.getParameter( 'ToggleSurfacePlot' )
+        constituent = args[0]
+        for plotItem in self.plotConstituents.items():
+            if constituent == plotItem[0]: param = self.cfgManager.getParameter( plotItem[1] ) 
         if param <> None:
+           prevState = param.getValue( 'ConfigEnabled', 1 ) 
            param.setValue( 'ConfigEnabled', state ) 
-           print " Process Constituent Selection [ %s ]: ConfigEnabled = %d " % ( args[0], state )
-            
+           print " Process Constituent Selection [ %s ]: ConfigEnabled = %d " % ( constituent, state )
+           if ( prevState == 0 ) and state:
+               colorScale = self.cfgManager.getParameter( 'ScaleColormap' ) 
+               new_values = colorScale.getValue( constituent, None )
+               print " Reset sliders"
+           
+    def isConstituentConfigEnabled(self, constituent ):
+        param = None
+        for plotItem in self.plotConstituents.items():
+            if constituent == plotItem[0]: param = self.cfgManager.getParameter( plotItem[1] ) 
+        return param.getValue( 'ConfigEnabled', True ) if ( param <> None ) else True
+                        
     def setIsosurfaceLevel( self, value ):
         if self.levelSetActor <> None:
             if isinstance( value, (list,tuple) ): value = value[0]
@@ -992,9 +1004,9 @@ class RectGridPlot(StructuredGridPlot):
         self.setColormap( 'Slice', [ 'jet', 1, 0, 0 ] )
         
         if (contour_ispec <> None) and (contour_ispec.input() <> None) and (self.contours == None):
-            rangeBounds = self.getRangeBounds( contour_input_index )
-            colormapManager = self.getColormapManager( 'Slice', index=contour_input_index )
-            self.scaleColormap( 'Slice', rangeBounds, contour_input_index )
+            rangeBounds = self.getRangeBounds(1)
+            colormapManager = self.getColormapManager( 'Slice', index=1 )
+            self.scaleColormap( 'Slice', rangeBounds, 1 )
 #            colormapManager = self.getColormapManager()
             self.generateContours = True   
             self.contours = vtk.vtkContourFilter()
@@ -1369,23 +1381,16 @@ class RectGridPlot(StructuredGridPlot):
         return input
               
     
-    def setConstituentOpacities(self, param, range, **args ): 
+    def setOpacities(self, range, **args ): 
         for plotItem in self.plotConstituents.items():
             if self.isConstituentConfigEnabled( plotItem[0] ): 
-                self.updateOpacity( plotItem[0], range, **args  )
-                param.setValue( plotItem[0], range ) 
+                self.updateOpacity( plotItem[0], range, **args  ) 
+                if plotItem[0] == 'Volume': self.updateOTF()
     
     def updateOpacity(self, constituent, opacity, cmap_index=0 ):
         colormapManager = self.getColormapManager( constituent, index=cmap_index )
         colormapManager.setAlphaRange( [ bound( opacity[i], [ 0.0, 1.0 ] ) for i in (0,1) ] )
-        if (self.opacityUpdateCount % 5) == 0: 
-            print " updateOpacity[%s]: %s " % ( constituent, str(opacity) )
-            if constituent == 'Volume': 
-                maxop = abs( opacity[1] ) 
-                self.max_opacity = maxop if maxop < 1.0 else 1.0
-                self.updateOTF()
-            if constituent == 'Slice': 
-                self.updatingColormap( cmap_index, colormapManager )
+        if (self.opacityUpdateCount % 5) == 0: self.render()
         self.opacityUpdateCount = self.opacityUpdateCount + 1  
 #        self.lut.SetAlpha( self.opacity[1] )
 #        self.lut.SetAlphaRange ( self.opacity[0], self.opacity[1] )
@@ -1699,8 +1704,6 @@ class RectGridPlot(StructuredGridPlot):
     def scaleEnabledColormaps( self, ctf_data, cmap_index=0, **args ):
         for plotItem in self.plotConstituents.items():
             if self.isConstituentConfigEnabled(plotItem[0]):
-                if ( plotItem[0] == 'Surface' ) and ( 1 in self.inputSpecs ):
-                   cmap_index = 1 
                 self.scaleColormap( plotItem[0], ctf_data, cmap_index, **args)
 
     def scaleColormap( self, constituent, ctf_data, cmap_index=0, **args ):
@@ -1709,13 +1712,11 @@ class RectGridPlot(StructuredGridPlot):
             if ispec and ispec.input(): 
                 colormapManager = self.getColormapManager( constituent, index=cmap_index )
     #            if not colormapManager.matchDisplayRange( ctf_data ):
-                imageRange = self.getImageValues( ctf_data[0:2], cmap_index )
-#                print " scaleColormap[%s] %s %s " % ( constituent, str(imageRange), str(ctf_data) )
+                imageRange = self.getImageValues( ctf_data[0:2], cmap_index ) 
                 colormapManager.setScale( imageRange, ctf_data )
                 if self.contourLineMapperer: 
                     self.contourLineMapperer.Modified()
-                if constituent == 'Slice':
-                    self.updatingColormap( cmap_index, colormapManager )
+                self.updatingColormap( cmap_index, colormapManager )
                 ispec.addMetadata( { '-'.join( [ 'colormap', constituent ] ) : self.getColormapSpec(constituent), 'orientation' : self.iOrientation } )
 
 

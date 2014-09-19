@@ -214,7 +214,7 @@ class DV3DPlot():
         self.buttonBarHandler = ButtonBarHandler( self.cfgManager, **args ) 
         self.plot_attributes = args.get( 'plot_attributes', {} )
         self.plotConstituents = { 'Slice' : 'SliceRoundRobin', 'Volume' : 'ToggleVolumePlot', 'Surface' : 'ToggleSurfacePlot' }  
-        self.topo = PlotType.Planar
+
         
         self.configuring = False
         self.animating = False
@@ -257,9 +257,14 @@ class DV3DPlot():
 
     def getConstituentSelectionBar(self, config_function, build_args, **args ): 
         args[ 'toggle' ] = True
-        control_bar = self.buttonBarHandler.createControlBar( config_function.cfg_state, self.renderWindowInteractor, build_args, position = ( 0.7, 0.01 ), **args )
+        control_bar = self.buttonBarHandler.createControlBar( config_function.cfg_state, self.renderWindowInteractor, build_args, position = ( 0.7, 0.07 ), **args )
         control_bar.reposition()
         self.changeButtonActivations( [ ( cname, True, 1 ) for cname in build_args[0] ] ) 
+        return control_bar
+
+    def getConstituentSelectionButton(self, config_function, build_args, position, **args ): 
+        control_bar = self.buttonBarHandler.createControlBar( config_function.cfg_state, self.renderWindowInteractor, build_args, position = position, **args )
+        control_bar.reposition()
         return control_bar
     
     def processConfigParameterChange( self, parameter ):
