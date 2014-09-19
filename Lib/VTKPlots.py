@@ -1,4 +1,4 @@
-import animate_helper
+import animate_hel
 import warnings
 import vtk
 import vcs
@@ -46,6 +46,7 @@ class VTKVCSBackend(object):
       self.renWin = renWin
       if renWin.GetInteractor() is None and self.bg is False:
         self.createDefaultInteractor()
+    self.logo = None
         
 #   def applicationFocusChanged(self):
 #       for plotApp in self.plotApps.values():
@@ -171,6 +172,9 @@ class VTKVCSBackend(object):
     self.canvas.clear()
     for i, pargs in enumerate(plots_args):
       self.canvas.plot(*pargs,**key_args[i])
+    if self.logo is None:
+      self.createLogo()
+    self.scaleLogo()
 
   def clear(self):
     if self.renWin is None: #Nothing to clear
@@ -1211,6 +1215,46 @@ class VTKVCSBackend(object):
       warnings.warn("no RenderWindow ready, skipping setantialiasing call, please reissue at a later time")
     else:
       self.renWin.SetMultiSamples(antialiasing)
+  def createLogo(self):
+    if self.canvas.drawLogo is False:
+        ## Ok we do not want a logo here
+        return
+      # Pth to logo
+      logoFile = os.path.join(sys.prefix,"share","vcs","uvcdat.png")
+      # VTK reader for logo
+      logoRdr=vtk.vtkPNGReader()
+      logoRdr.SetFileName(logoFile)
+      logoRdr.Update()
+      x0,x1,y0,y1,z0,z1 = logoRdr.GetDataExtent()
+      ia = vtk.vtkImageActor()
+      ia.GetMapper().SetInputConnection(logoRdr.GetOutputPort())
+      ren = vtk.vtkRenderer()
+      r,g,b = self.canvas.backgroundcolor
+      ren.SetBackground(r/255.,g/255.,b/255.)
+      ren.SetLayer(self.renWin.GetNumberOfLayers()-1)
+      ren.AddActor(ia)
+      self.renWin.AddRenderer(ren)
+      self.logo = ren
+      self.logoExtent = [x1,y1]
+    
+  def scaleLogo(self):
+    if self.canvas.drawLogo is False:
+        return
+      #Figuring out scale
+      #Get dimensions of input file
+      w,h=self.logoExtent
+      W,H=self.renWin.GetSize()
+      SC = .07
+      sc = SC*float(H)/float(h)
+      nw = w*sc
+      pw = (W-nw)/W
+      self.logo.SetViewport(pw,0.,1.,SC)
+      cam = self.logo.GetActiveCamera()
+      d=cam.GetDistance()
+      cam.SetParallelScale(.5*(h+1))
+      cam.SetFocalPoint(w/2.,h/2.,0.)
+      cam.SetPosition(w/2.,h/2.,H/(2-SC))
+
 
 class VTKAnimate(animate_helper.AnimationController):
    pass
