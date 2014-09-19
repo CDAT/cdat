@@ -1873,10 +1873,10 @@ class VectorSliceWidget(ImagePlaneWidget):
         return self.glyphDecimationFactorBounds
 
     def scaleColormap( self, ctf_data, cmap_index=0, **args ):
-        colormapManager = self.getColormapManager( index=cmap_index )
+        colormapManager = self.getColormapManager( 'Slice', index=cmap_index )
         colormapManager.setScale( ctf_data, ctf_data )
         ispec = self.inputSpecs[ cmap_index ] 
-        ispec.addMetadata( { 'colormap' : self.getColormapSpec() } )
+        ispec.addMetadata( { '-'.join( [ 'colormap', 'Slice' ] ) : self.getColormapSpec('Slice') } )
         self.glyphMapper.SetLookupTable( colormapManager.lut )
         self.Interactor.Render()
 
