@@ -1,0 +1,17 @@
+set(CURSES_MAJOR_SRC 5)
+set(CURSES_MINOR_SRC 9)
+set(CURSES_PATCH_SRC 0)
+set(CURSES_URL ${LLNL_URL})
+#set(CURSES_GZ ncurses-${CURSES_MAJOR_SRC}.${CURSES_MINOR_SRC}.${CURSES_PATCH_SRC}.tar.gz)
+set(CURSES_GZ ncurses-${CURSES_MAJOR_SRC}.${CURSES_MINOR_SRC}.tar.gz)
+set(CURSES_MD5 8cb9c412e5f2d96bc6f459aa8c6282a1)
+set(CURSES_SOURCE ${CURSES_URL}/${CURSES_GZ})
+set(CURSES_MD5 ${CURSES_MD5})
+
+set (nm CURSES)
+string(TOUPPER ${nm} uc_nm)
+set(${uc_nm}_VERSION ${${nm}_MAJOR_SRC}.${${nm}_MINOR_SRC})
+set(CURSES_VERSION ${CURSES_VERSION})
+
+add_cdat_package(Curses "" "" OFF)
+
