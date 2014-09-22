@@ -274,7 +274,7 @@ class DV3DPlot():
         self.changeButtonActivations( [ ( cname, True, 1 ) for cname in build_args[0] ] ) 
         return control_bar
 
-    def getConstituentSelectionButton(self, config_function, build_args, position, **args ): 
+    def getConstituentSelectionButton(self, config_function, build_args, position, **args ):    
         control_bar = self.buttonBarHandler.createControlBar( config_function.cfg_state, self.renderWindowInteractor, build_args, position = position, **args )
         control_bar.reposition()
         return control_bar
