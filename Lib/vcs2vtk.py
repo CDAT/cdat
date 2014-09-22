@@ -868,7 +868,7 @@ def prepMarker(renWin,ren,marker,cmap=None):
     x = marker.x[i]
     y=marker.y[i]
     c=marker.color[i]
-    s=marker.size[i]*.01
+    s=marker.size[i]*.5
     t=marker.type[i]
     N = max(len(x),len(y))
     for a in [x,y]:
@@ -994,7 +994,7 @@ def prepMarker(renWin,ren,marker,cmap=None):
       # Use the difference in x to scale the point, as later we'll use the
       # x range to correct the aspect ratio:
       dx = marker.worldcoordinate[1] - marker.worldcoordinate[0]
-      s *= float(dx)
+      s *= float(dx)/500.
     gs.SetScale(s)
     gs.Update()
 
