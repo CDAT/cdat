@@ -444,7 +444,7 @@ class ControlBar(ButtonBar):
     def reset( self, active_state=None  ):
         if ( active_state == None ) or ( self.name <> active_state ):
             self.hide()
-    
+  
 class ButtonBarWidget(ButtonBar):
         
     def __init__( self, handler, name, interactor, **args ):
@@ -646,6 +646,17 @@ class ButtonBarWidget(ButtonBar):
         sliderRep.Modified()
         swidget.Modified()    
         sliderRep.NeedToRenderOn()
+
+    def setSliderValues( self, values ):
+        for index, value in enumerate(values):
+            widget_item = self.currentControls.get( index, None )
+            if widget_item == None: 
+                swidget = self.createSliderWidget(index)
+                self.currentControls[index] = ( self.process_mode, self.InteractionState, swidget ) 
+            else:
+                ( process_mode, interaction_state, swidget ) = widget_item
+            srep = swidget.GetRepresentation( ) 
+            srep.SetValue( value )  
                         
     def commandeerControl(self, index, label, bounds, tvals ): 
 #        print " CommandeerSlider[%d]: ('%s') %s: %s in %s " % ( index, label, self.InteractionState, str(value), str(bounds) )
@@ -670,6 +681,7 @@ class ButtonBarWidget(ButtonBar):
             srep.SetValue( value )
             swidget.SetEnabled( 1 )         
         self.currentControls[index] = ( self.process_mode, self.InteractionState, swidget )
+        
         
     def createButtonWidget(self, index, label ):
         pass

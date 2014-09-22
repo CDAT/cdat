@@ -88,8 +88,6 @@ class TextDisplayMgr:
         textActor.VisibilityOff()
         textActor.id = aid
         return textActor 
-
-
         
 class DV3DPlot():  
     
