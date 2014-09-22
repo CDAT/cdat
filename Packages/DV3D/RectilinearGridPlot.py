@@ -179,6 +179,10 @@ class RectGridPlot(StructuredGridPlot):
         elif args and args[0] == "EndConfig":
             self.processConfigParameterChange( opacityRange )
         elif args and args[0] == "InitConfig":
+            state = args[1]
+            cs_bbar = self.getConstituentSelectionBar( config_function, [ self.plotConstituents.keys(), self.processConstituentSelection ] )
+            if state: cs_bbar.show()
+            else:     cs_bbar.hide()
             self.updateTextDisplay( config_function.label )
             bbar = self.getInteractionButtons()
             for islider in range(4): bbar.setSliderVisibility( islider, islider < len(config_function.sliderLabels) )
@@ -1364,6 +1368,9 @@ class RectGridPlot(StructuredGridPlot):
     def updateOpacity(self, constituent, opacity, cmap_index=0 ):
         colormapManager = self.getColormapManager( constituent, index=cmap_index )
         colormapManager.setAlphaRange( [ bound( opacity[i], [ 0.0, 1.0 ] ) for i in (0,1) ] )
+        for widget in ( self.planeWidgetX, self.planeWidgetY, self.planeWidgetZ ):
+            widget.SetLookupTable( colormapManager.lut )
+            widget.UpdatePlacement()
         if (self.opacityUpdateCount % 5) == 0: self.render()
         self.opacityUpdateCount = self.opacityUpdateCount + 1  
 #        self.lut.SetAlpha( self.opacity[1] )
