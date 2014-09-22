@@ -28,7 +28,9 @@ class VCSInteractorStyle(vtk.vtkInteractorStyleUser):
       self.AddObserver("LeftButtonReleaseEvent", parent.leftButtonReleaseEvent )
       self.AddObserver( "ModifiedEvent", parent.configureEvent )
       self.AddObserver( "ConfigureEvent", parent.configureEvent )
-
+      self.AddObserver( "RenderEvent", parent.renderEvent )
+      #self.AddObserver( "AnyEvent",parent.stdEvent)
+      
 class VTKVCSBackend(object):
   def __init__(self,canvas,renWin=None, debug=False,bg=None):
     self._lastSize = None
@@ -42,6 +44,8 @@ class VTKVCSBackend(object):
     self.renderer = None
     self._plot_keywords = ['renderer',]
     self.numberOfPlotCalls = 0
+    self.numberOfPlotCalls = 0 
+    self.renderWindowSize=None
     if renWin is not None:
       self.renWin = renWin
       if renWin.GetInteractor() is None and self.bg is False:
@@ -59,9 +63,15 @@ class VTKVCSBackend(object):
   def interact(self,*args,**kargs):
       warnings.warn("Press 'Q' to exit interactive mode and continue script execution")
       interactor = self.renWin.GetInteractor()
-      istyle = interactor.GetInteractorStyle()
-#      print "STYLE:",istyle
+      self.renWin.AddObserver( "RenderEvent", self.renderEvent )
       interactor.Start()
+
+  def renderEvent(self,caller,evt):
+    renwin = self.renWin if (caller == None) else caller
+    window_size = renwin.GetSize() 
+    if ( window_size <> self.renderWindowSize ): 
+      self.configureEvent(caller,evt)
+      self.renderWindowSize = window_size
 
   def leftButtonPressEvent(self,obj,event):
     xy = self.renWin.GetInteractor().GetEventPosition()

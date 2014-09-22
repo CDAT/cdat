@@ -26,6 +26,7 @@
 Normally, created by vcs.init()
 Contains the method plot.
 """
+import __main__
 import warnings
 #import Tkinter
 from pauser import pause
@@ -3750,8 +3751,9 @@ Options:::
                 setattr(arglist[0],p,tmp)
         if dn is not None:
           self.display_names.append(result.name)
-        if not bg:
-            warnings.warn("VCS Behaviour changed, in order to interact with window, start the interaction mode with:\n x.interact()")
+        if not hasattr(__main__,"__file__") and not bg:
+             warnings.warn("VCS Behaviour changed, in order to interact with window, start the interaction mode with:\n x.interact()")
+            
         return result
 
     def setAnimationStepper( self, stepper ):
