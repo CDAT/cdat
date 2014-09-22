@@ -274,6 +274,12 @@ class RectGridPlot(StructuredGridPlot):
                 bbar.setSliderValues( new_values )  
                 interaction_param.loadConstituent( constituent )
                                    
+#                 colorScale = self.cfgManager.getParameter( 'ScaleColormap' ) 
+#                 new_values = colorScale.getValue( constituent, colorScale.getValues() )
+#                 print " Reset sliders: ", str( new_values )
+#                 bbar = self.getInteractionButtons()
+#                 bbar.setSliderValues( new_values )  
+                                   
     def setIsosurfaceLevel( self, value ):
         if self.levelSetActor <> None:
             if isinstance( value, (list,tuple) ): value = value[0]
