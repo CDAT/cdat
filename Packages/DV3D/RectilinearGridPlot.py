@@ -1403,7 +1403,7 @@ class RectGridPlot(StructuredGridPlot):
                 self.max_opacity = maxop if maxop < 1.0 else 1.0
                 self.updateOTF()
             if constituent == 'Slice': 
-                self.updatingColormap( cmap_index, colormapManager )   
+                self.updatingColormap( cmap_index, colormapManager )     
         self.opacityUpdateCount = self.opacityUpdateCount + 1  
 #        self.lut.SetAlpha( self.opacity[1] )
 #        self.lut.SetAlphaRange ( self.opacity[0], self.opacity[1] )
