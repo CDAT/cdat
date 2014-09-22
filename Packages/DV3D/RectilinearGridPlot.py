@@ -1378,7 +1378,6 @@ class RectGridPlot(StructuredGridPlot):
         for plotItem in self.plotConstituents.items():
             if self.isConstituentConfigEnabled( plotItem[0] ): 
                 self.updateOpacity( plotItem[0], range, **args  ) 
-                if plotItem[0] == 'Volume': self.updateOTF()
     
     def updateOpacity(self, constituent, opacity, cmap_index=0 ):
         colormapManager = self.getColormapManager( constituent, index=cmap_index )
@@ -1422,9 +1421,8 @@ class RectGridPlot(StructuredGridPlot):
     def updatingColormap( self, cmap_index, colormapManager ):
         if cmap_index == 0:
             for widget in ( self.planeWidgetX, self.planeWidgetY, self.planeWidgetZ ):
-                if widget <> None:
-                    widget.SetLookupTable( colormapManager.lut )
-                    widget.SetTextureInterpolate( colormapManager.smoothColormap )
+                widget.SetLookupTable( colormapManager.lut )
+                widget.SetTextureInterpolate( colormapManager.smoothColormap )
             self.updateModule()
             
     def getPlaneWidget( self, plane ):       
