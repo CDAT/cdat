@@ -265,7 +265,7 @@ class RectGridPlot(StructuredGridPlot):
                 print " Reset sliders: ", str( new_values )
                 bbar = self.getInteractionButtons()
                 bbar.setSliderValues( new_values )  
-                interaction_param.loadConstituent( constituent )  
+                interaction_param.loadConstituent( constituent )    
 
     def setIsosurfaceLevel( self, value ):
         if self.levelSetActor <> None:
