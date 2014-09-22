@@ -1355,15 +1355,15 @@ class RectGridPlot(StructuredGridPlot):
         for plotItem in self.plotConstituents.items():
             if self.isConstituentConfigEnabled( plotItem[0] ): 
                 self.updateOpacity( plotItem[0], range, **args  ) 
-                if plotItem[0] == 'Volume': self.updateOTF()
     
     def updateOpacity(self, constituent, opacity, cmap_index=0 ):
         colormapManager = self.getColormapManager( constituent, index=cmap_index )
         colormapManager.setAlphaRange( [ bound( opacity[i], [ 0.0, 1.0 ] ) for i in (0,1) ] )
-        for widget in ( self.planeWidgetX, self.planeWidgetY, self.planeWidgetZ ):
-            widget.SetLookupTable( colormapManager.lut )
-            widget.UpdatePlacement()
-        if (self.opacityUpdateCount % 5) == 0: self.render()
+        if (self.opacityUpdateCount % 5) == 0: 
+            print " updateOpacity[%s]: %s " % ( constituent, str(opacity) )
+            if constituent == 'Volume': 
+                self.updateOTF()
+            self.updatingColormap( cmap_index, colormapManager )
         self.opacityUpdateCount = self.opacityUpdateCount + 1  
 #        self.lut.SetAlpha( self.opacity[1] )
 #        self.lut.SetAlphaRange ( self.opacity[0], self.opacity[1] )
@@ -1394,9 +1394,9 @@ class RectGridPlot(StructuredGridPlot):
 
     def updatingColormap( self, cmap_index, colormapManager ):
         if cmap_index == 0:
-            if self.planeWidgetX <> None: self.planeWidgetX.SetTextureInterpolate( colormapManager.smoothColormap )
-            if self.planeWidgetY <> None: self.planeWidgetY.SetTextureInterpolate( colormapManager.smoothColormap )
-            if self.planeWidgetZ <> None: self.planeWidgetZ.SetTextureInterpolate( colormapManager.smoothColormap )
+            for widget in ( self.planeWidgetX, self.planeWidgetY, self.planeWidgetZ ):
+                widget.SetLookupTable( colormapManager.lut )
+                widget.SetTextureInterpolate( colormapManager.smoothColormap )
             self.updateModule()
             
     def getPlaneWidget( self, plane ):       
