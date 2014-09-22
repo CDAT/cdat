@@ -1,3 +1,14 @@
 #!/usr/bin/env bash
 
-# placeholder for custom pre-push hooks
+# Reject pushes directly to 'master' to encourage use of topic branches.
+if test -z "$HOOKS_ALLOW_PUSH_MASTER"; then
+  while IFS=' ' read local_ref local_sha1 remote_ref remote_sha1; do
+    if test "x$remote_ref" = "xrefs/heads/master"; then
+      echo 'Please do not push directly to "master".  Push to a topic instead:
+
+  git push '"$1"' '"$local_ref"':my-topic
+'
+      exit 1
+    fi
+  done
+fi
