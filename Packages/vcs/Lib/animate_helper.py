@@ -625,7 +625,9 @@ class AnimationCreate(StoppableThread):
       self.wait_if_paused()
       # print "RENDERING FRAME", i, "OF", len(all_args)
       self.controller.render_frame(args, i)
-      #time.sleep(0.1)
+      # this is how you allow the GUI to process events during
+      # animation creation
+      time.sleep(0.001)
     self.controller.restore_min_max()
 
     self.controller.animation_created = True
@@ -788,8 +790,9 @@ class AnimationController(animate_obj_old):
     self.create_canvas.setcolormap(self.vcs_self.getcolormapname())
 
     alen = None
+    # !!! Using self.vcs_self.canvasinfo() segfaults on Mac OS X !!!
     # dims = self.vcs_self.canvasinfo()
-    dims = self.vcs_self.canvasinfo()
+    dims = self.canvas_info
     if dims['height']<500:
         factor = 2
     else:
