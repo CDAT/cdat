@@ -244,7 +244,7 @@ class RectGridPlot(StructuredGridPlot):
                 self.generateCTF( cscale )
             for plotItem in self.plotConstituents.items():
                 if self.isConstituentConfigEnabled(plotItem[0]):
-                    colorScaleRange.setValue( plotItem[0], value )
+                    colorScaleRange.setValue( plotItem[0], colorScaleRange.getValues() )
                          
     def processConstituentSelection( self, *args, **kwargs ):
         state = args[2]
@@ -253,13 +253,15 @@ class RectGridPlot(StructuredGridPlot):
         for plotItem in self.plotConstituents.items():
             if constituent == plotItem[0]: param = self.cfgManager.getParameter( plotItem[1] ) 
         if param <> None:
-           prevState = param.getValue( 'ConfigEnabled', 1 ) 
-           param.setValue( 'ConfigEnabled', state ) 
-           print " Process Constituent Selection [ %s ]: ConfigEnabled = %d " % ( constituent, state )
-           if ( prevState == 0 ) and state:
-               colorScale = self.cfgManager.getParameter( 'ScaleColormap' ) 
-               new_values = colorScale.getValue( constituent, None )
-               print " Reset sliders"
+            prevState = param.getValue( 'ConfigEnabled', 1 ) 
+            param.setValue( 'ConfigEnabled', state ) 
+            print " Process Constituent Selection [ %s ]: ConfigEnabled = %d " % ( constituent, state )
+            if ( prevState == 0 ) and state:
+                colorScale = self.cfgManager.getParameter( 'ScaleColormap' ) 
+                new_values = colorScale.getValue( constituent, colorScale.getValues() )
+                print " Reset sliders: ", str( new_values )
+                bbar = self.getInteractionButtons()
+                bbar.setSliderValues( new_values )  
            
     def isConstituentConfigEnabled(self, constituent ):
         param = None
@@ -1712,7 +1714,8 @@ class RectGridPlot(StructuredGridPlot):
             if ispec and ispec.input(): 
                 colormapManager = self.getColormapManager( constituent, index=cmap_index )
     #            if not colormapManager.matchDisplayRange( ctf_data ):
-                imageRange = self.getImageValues( ctf_data[0:2], cmap_index ) 
+                imageRange = self.getImageValues( ctf_data[0:2], cmap_index )
+                print " scaleColormap[%s] %s %s " % ( constituent, str(imageRange), str(ctf_data) )
                 colormapManager.setScale( imageRange, ctf_data )
                 if self.contourLineMapperer: 
                     self.contourLineMapperer.Modified()
