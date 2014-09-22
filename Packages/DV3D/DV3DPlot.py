@@ -249,7 +249,7 @@ class DV3DPlot():
         args[ 'toggle' ] = True
         control_bar = self.buttonBarHandler.createControlBar( config_function.cfg_state, self.renderWindowInteractor, build_args, position = ( 0.7, 0.07 ), **args )
         control_bar.reposition()
-        self.changeButtonActivations( [ ( cname, True, 1 ) for cname in build_args[0] ] ) 
+        self.changeButtonActivations( [ ( cname, True, 1 if self.isConstituentConfigEnabled(cname) else 0 ) for cname in build_args[0] ] ) 
         return control_bar
 
     def getConstituentSelectionButton(self, config_function, build_args, position, **args ): 
@@ -457,6 +457,12 @@ class DV3DPlot():
                 if self.isConstituentConfigEnabled(plotItem[0]):
                     self.setColormap( plotItem[0], cmap_data )
             colormapParam.setValues( cmap_data  )
+
+    def isConstituentConfigEnabled(self, constituent ):
+        param = None
+        for plotItem in self.plotConstituents.items():
+            if constituent == plotItem[0]: param = self.cfgManager.getParameter( plotItem[1] ) 
+        return param.getValue( 'ConfigEnabled', True ) if ( param <> None ) else True
 
     def getInteractionState( self, key ):
         for bbar in ButtonBarWidget.getButtonBars():

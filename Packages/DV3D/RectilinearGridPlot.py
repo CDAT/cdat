@@ -249,13 +249,7 @@ class RectGridPlot(StructuredGridPlot):
                 print " Reset sliders: ", str( new_values )
                 bbar = self.getInteractionButtons()
                 bbar.setSliderValues( new_values )  
-           
-    def isConstituentConfigEnabled(self, constituent ):
-        param = None
-        for plotItem in self.plotConstituents.items():
-            if constituent == plotItem[0]: param = self.cfgManager.getParameter( plotItem[1] ) 
-        return param.getValue( 'ConfigEnabled', True ) if ( param <> None ) else True
-                        
+                                   
     def setIsosurfaceLevel( self, value ):
         if self.levelSetActor <> None:
             self.levelSetFilter.SetValue ( 0, value ) 
@@ -1370,8 +1364,11 @@ class RectGridPlot(StructuredGridPlot):
         if (self.opacityUpdateCount % 5) == 0: 
             print " updateOpacity[%s]: %s " % ( constituent, str(opacity) )
             if constituent == 'Volume': 
+                maxop = abs( opacity[1] ) 
+                self.max_opacity = maxop if maxop < 1.0 else 1.0
                 self.updateOTF()
-            self.updatingColormap( cmap_index, colormapManager )
+            if constituent == 'Slice': 
+                self.updatingColormap( cmap_index, colormapManager )
         self.opacityUpdateCount = self.opacityUpdateCount + 1  
 #        self.lut.SetAlpha( self.opacity[1] )
 #        self.lut.SetAlphaRange ( self.opacity[0], self.opacity[1] )
