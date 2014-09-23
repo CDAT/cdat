@@ -214,7 +214,7 @@ class DV3DPlot():
         self.buttonBarHandler = ButtonBarHandler( self.cfgManager, **args ) 
         self.plot_attributes = args.get( 'plot_attributes', {} )
         self.plotConstituents = { 'Slice' : 'SliceRoundRobin', 'Volume' : 'ToggleVolumePlot', 'Surface' : 'ToggleSurfacePlot' }  
-
+        self.topo = PlotType.Planar
         
         self.configuring = False
         self.animating = False
