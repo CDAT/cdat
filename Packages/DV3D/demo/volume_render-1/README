@@ -1,0 +1,11 @@
+This script runs two demos- visualizations of variables from the GEOS-5 GCM (Pressure Coordinates).  
+To execute:
+
+Demo 0 (specific humidity):
+
+>> python dv3d_demo.py 0
+
+
+Demo 1 (Zonal wind velocity):
+
+>> python dv3d_demo.py 1

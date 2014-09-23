@@ -28,11 +28,11 @@ def getVarAttribute( var, attribute_name_list ):
 class PointCollection():
 
     def __init__( self ):
+        self.topo = PlotType.Planar
         self.iTimeStep = 0
         self.point_data = None
         self.vtk_planar_points = None                                  
         self.cameraOrientation = {}
-        self.topo = PlotType.Planar
         self.lon_data = None
         self.lat_data = None 
         self.z_scaling = None
