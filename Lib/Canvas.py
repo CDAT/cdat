@@ -2764,7 +2764,7 @@ Options:::
                                     'missing']:
                             setattr(copy_mthd,att,getattr(m,att))
         elif arglist[0] is not None and arglist[0].rank()<2 and arglist[3] in ['boxfill','default'] and not isinstance(arglist[0].getGrid(),cdms2.gengrid.AbstractGenericGrid):
-            arglist[3]='yxvsx'
+            arglist[3]='oned'
             try:
                 tmp=self.getyxvsx(arglist[4])
                 #tmp.list()
