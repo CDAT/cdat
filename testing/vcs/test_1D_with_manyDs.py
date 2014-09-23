@@ -13,7 +13,7 @@ d=numpy.reshape(d,(10,10))
 
 one = x.createoneD()
 
-x.plot(d,one)
+x.plot(d,one,bg=1)
 
 
 fnm = "test_1D_with_manyDs.png"
