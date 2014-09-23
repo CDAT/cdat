@@ -205,7 +205,7 @@ class DV3DPlot():
         self.buttonBarHandler = ButtonBarHandler( self.cfgManager, **args ) 
         self.plot_attributes = args.get( 'plot_attributes', {} )
         self.plotConstituents = { 'Slice' : 'SliceRoundRobin', 'Volume' : 'ToggleVolumePlot', 'Surface' : 'ToggleSurfacePlot' }  
-
+        self.topo = PlotType.Planar
         
         self.configuring = False
         self.animating = False
@@ -301,7 +301,7 @@ class DV3DPlot():
         if eventArgs and ( eventArgs[1] == 'Q' ):
             self.recordCamera()
             self.saveState()
-        self.onClosing()
+        self.renderWindowInteractor.TerminateApp() 
         sys.exit( 0 )
 
     def stepAnimation(self, **args): 
