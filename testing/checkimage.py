@@ -12,50 +12,33 @@ import os.path
 import sys
 import logging
 
-from vtk.util.vtkImageExportToArray import vtkImageExportToArray
-from vtk.util.vtkImageImportFromArray import vtkImageImportFromArray
+defaultThreshold=2.0
 
-defaultThreshold=0.09
-
-def compare_imgs(adata, bdata):
-    adata = adata[0]/255.
-    bdata = bdata[0]/255.
-    adata=adata.flatten().astype("f")
-    bdata=bdata.flatten().astype("f")
-    try:
-        rms = math.sqrt(numpy.sum((adata-bdata)**2)/adata.size)
-    except:
-	logging.exception('')
-        return -1
-    return rms
+def image_compare(testImage, baselineImage):
+    imageDiff = vtk.vtkImageDifference()
+    imageDiff.SetInputData(testImage)
+    imageDiff.SetImageData(baselineImage)
+    imageDiff.Update()
+    return (imageDiff.GetThresholdedError(), imageDiff.GetOutput())
 
 def dump_image_to_file(fname,img):
-  print "Writing to:",fname
-  wr = vtk.vtkPNGWriter()
-  wr.SetFileName(fname)
-  imp = vtkImageImportFromArray()
-  imp.SetArray((img+255/510))
-  wr.SetInputConnection(imp.GetOutputPort())
-  wr.Update()
-  wr.Write()
-
-def gen_diff_array(a,b):
-  diff = abs(a-b)
-  return diff
+    wr = vtk.vtkPNGWriter()
+    wr.SetFileName(fname)
+    wr.SetInputData(img)
+    wr.Write()
 
 def image_from_file(fname):
     try:
-      rd = vtk.vtkPNGReader()
-      rd.SetFileName(fname)
-      rd.Update()
-      exp = vtkImageExportToArray()
-      exp.SetInputConnection(rd.GetOutputPort())
-      areader = exp.GetArray()
+        rd = vtk.vtkPNGReader()
+        rd.SetFileName(fname)
+        removeAlpha = vtk.vtkImageExtractComponents()
+        removeAlpha.SetComponents(0, 1, 2)
+        removeAlpha.SetInputConnection(rd.GetOutputPort())
+        removeAlpha.Update()
+        return removeAlpha.GetOutput();
     except Exception,err:
-      print "Problem opening file",err
-      return None
-    #adata = areader.flatten().astype("f")
-    return areader
+        print "Problem opening file '%s': %s"%(fname,err)
+        return None
 
 def find_alternates(fname):
     dirname = os.path.dirname(fname)
@@ -68,50 +51,68 @@ def find_alternates(fname):
     return results
 
 def check_result_image(fname, baselinefname, threshold, baseline = False, cleanup=True):
-    resultimg = image_from_file(fname)
-    if resultimg is None:
-        print "no result image, failed test"
+    testImage = image_from_file(fname)
+    if testImage is None:
+        print "Testing image missing, test failed."
         return -1
 
     if baseline:
         baselinefnames = find_alternates(baselinefname)
     else:
         baselinefnames = [baselinefname,]
-    print "baselines:"
-    print baselinefnames
 
-    bestfile = None
-    bestresult = None
-    bestimg = None	 
-    for x in baselinefnames:
-        print "comparing " + fname + " against " + x
-        nextbimage = image_from_file(x)
-        if nextbimage is None:
+    print "Found Baselines:"
+    for baselinefname in baselinefnames:
+        print "- %s"%baselinefname
+
+    bestImage = None
+    bestFilename = None
+    bestDiff = None
+    bestDiffImage = None
+    for baselineFilename in baselinefnames:
+        sys.stdout.write("Comparing '%s' to '%s'..."%(fname, baselineFilename))
+        baselineImage = image_from_file(baselineFilename)
+        if baselineImage is None:
             continue
-        res = compare_imgs(resultimg, nextbimage)
-        if res >= 0:
-            if bestresult is None or res < bestresult:
-                print "new best"
-                besresult = res
-                bestfile = x
-                bestimg = nextbimage
-            if res > threshold:
-                print "image fails comparison threshold " + str(res) + ">" + str(threshold)
-            else:
-                print "images are close enough " + str(res)
-                if cleanup:
-                  os.remove(fname)
-                return 0
 
-    if bestimg is None:
-	print "no baseline image found"
-	return -1
-    print "no baseline images matched"
-    ## Ok now we are saving the diff
-    diff = gen_diff_array(resultimg,bestimg)
+        diff, diffImage = image_compare(testImage, baselineImage)
+
+        sys.stdout.write("diff=%f"%diff)
+
+        if bestDiff is None or diff < bestDiff:
+            sys.stdout.write(", New best!")
+            bestDiff = diff
+            bestFilename = baselineFilename
+            bestImage = baselineImage
+            bestDiffImage = diffImage
+        sys.stdout.write("\n")
+
+    if bestImage is None:
+      print "No baseline images found. Test failed."
+      return -1
+
+    if bestDiff < defaultThreshold:
+        print "Baseline '%s' is the best match with a difference of %f."%(bestFilename, bestDiff)
+        if cleanup:
+            print "Deleting test image '%s'..."%(fname)
+            os.remove(fname)
+        return 0
+
+    print "All baselines failed! Lowest error (%f) exceeds threshold (%f)."%(bestDiff, defaultThreshold)
+
     sp = fname.split(".")
-    fnmdiff = ".".join(sp[:-1])+"_diff."+sp[-1]
-    dump_image_to_file(fnmdiff,diff)
+    diffFilename = ".".join(sp[:-1])+"_diff."+sp[-1]
+    print "Saving image diff at '%s'."%diffFilename
+    dump_image_to_file(diffFilename, bestDiffImage)
+
+    # Print metadata for CDash image upload:
+    def printDart(name, type, value, suff=""):
+      print '<DartMeasurement%s name="%s" type="%s">%s</DartMeasurement%s>'%(
+        suff, name, type, value, suff)
+    printDart("ImageError", "numeric/double", "%f"%bestDiff)
+    printDart("TestImage", "image/png", os.path.abspath(fname), "File")
+    printDart("DifferenceImage", "image/png", os.path.abspath(diffFilename), "File")
+    printDart("ValidImage", "image/png", os.path.abspath(bestFilename), "File")
     return -1
 
 def main():
