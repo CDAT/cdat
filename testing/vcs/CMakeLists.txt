@@ -55,7 +55,6 @@ add_test(vcs_test_dump_json
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_dump_json.json
   )
 
-message(${CDAT_DOWNLOAD_SAMPLE_DATA} and ${CDAT_BUILD_MATPLOTLIB})
 
 #These test actually plot things need sample data
   add_test(vcs_test_gen_meshfill
@@ -117,6 +116,11 @@ message(${CDAT_DOWNLOAD_SAMPLE_DATA} and ${CDAT_BUILD_MATPLOTLIB})
     ${CMAKE_INSTALL_PREFIX}/bin/python
     ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_10x10_masked_numpy.py
     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_boxfill_10x10_masked_numpy.png
+    )
+  add_test(vcs_test_1D_with_manyDs
+    ${CMAKE_INSTALL_PREFIX}/bin/python
+    ${cdat_SOURCE_DIR}/testing/vcs/test_1D_with_manyDs.py
+    ${cdat_SOURCE_DIR}/testing/vcs/test_1D_with_manyDs.png
     )
 
   #These test actually plot things need sample data

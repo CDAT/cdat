@@ -394,11 +394,11 @@ class VTKVCSBackend(object):
 
   def plot1D(self,data1,data2,tmpl,gm,ren):
     self.setLayer(ren,tmpl.data.priority)
-    Y = data1
+    Y = self.trimData1D(data1)
     if data2 is None:
       X=Y.getAxis(0)[:]
     else:
-      X=data2
+      X=self.trimData1D(data2)
 
     if gm.flip:
       tmp = Y
