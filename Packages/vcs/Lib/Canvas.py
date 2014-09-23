@@ -3682,7 +3682,9 @@ Options:::
               dn._template_origin = template_origin
               dn.ratio=Doratio
 
-            if self.mode!=0 : self.update()
+            if self.mode!=0 : 
+              #self.update()
+              pass
             #if not bg: pause(self.pause_time)
 
             # Restore the continents type
@@ -5399,7 +5401,7 @@ Options:::
         #except:
         #   updateVCSsegments_flag = 1
         self.colormap = name
-        # Should we implement a redraw?
+        self.update()
         return
 
     #############################################################################
