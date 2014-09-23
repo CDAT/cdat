@@ -1,1 +1,1 @@
-set(readline_deps ${pkgconfig_pkg} ${ncurses_pkg})
+set(readline_deps ${pkgconfig_pkg} ${curses_pkg})

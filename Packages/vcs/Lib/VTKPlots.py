@@ -6,11 +6,12 @@ import vcs2vtk
 import numpy
 from vtk.util import numpy_support as VN
 import meshfill,boxfill,isofill,isoline
-import os, traceback
+import os, traceback, sys
 import cdms2
 import DV3D
 import MV2
-   
+import cdtime
+
 def smooth(x,beta,window_len=11):
    """ kaiser window smoothing """
    # extending the data at beginning and at the end
@@ -45,6 +46,7 @@ class VTKVCSBackend(object):
       self.renWin = renWin
       if renWin.GetInteractor() is None and self.bg is False:
         self.createDefaultInteractor()
+    self.logo = None
         
 #   def applicationFocusChanged(self):
 #       for plotApp in self.plotApps.values():
@@ -58,6 +60,7 @@ class VTKVCSBackend(object):
       warnings.warn("Press 'Q' to exit interactive mode and continue script execution")
       interactor = self.renWin.GetInteractor()
       istyle = interactor.GetInteractorStyle()     
+      print "STYLE:",istyle
       interactor.Start()
 
   def leftButtonPressEvent(self,obj,event):
@@ -170,6 +173,10 @@ class VTKVCSBackend(object):
     self.canvas.clear()
     for i, pargs in enumerate(plots_args):
       self.canvas.plot(*pargs,**key_args[i])
+    if self.logo is None:
+      self.createLogo()
+    if self.renWin.GetSize()!=(0,0):
+      self.scaleLogo()
 
   def clear(self):
     if self.renWin is None: #Nothing to clear
@@ -195,7 +202,8 @@ class VTKVCSBackend(object):
       #defaultInteractor = vtk.vtkGenericRenderWindowInteractor()
       defaultInteractor = vtk.vtkRenderWindowInteractor()
     self.vcsInteractorStyle = VCSInteractorStyle(self)
-    if ren: self.vcsInteractorStyle.SetCurrentRenderer( ren )
+    if ren: 
+      self.vcsInteractorStyle.SetCurrentRenderer( ren )
     defaultInteractor.SetInteractorStyle( self.vcsInteractorStyle )
     defaultInteractor.SetRenderWindow(self.renWin)
     self.vcsInteractorStyle.On()
@@ -314,14 +322,6 @@ class VTKVCSBackend(object):
     self.cell_coordinates=kargs.get( 'cell_coordinates', None )
     #self.renWin.Render()
     #screenSize = self.renWin.GetScreenSize()
-    if gtype in ["boxfill","meshfill","isoline","isofill","vector"]:
-      data1 = self.trimData2D(data1) # Ok get only the last 2 dims
-      if gtype!="meshfill":
-        data2 = self.trimData2D(data2)
-    #elif vcs.isgraphicsmethod(vcs.elements[gtype][gname]):
-      ## oneD
-    #  data1 = self.trimData1D(data1)
-    #  data2 = self.trimData1D(data2)
     if gtype == "text":
       tt,to = gname.split(":::")
       tt = vcs.elements["texttable"][tt]
@@ -384,17 +384,21 @@ class VTKVCSBackend(object):
       self.plotVector(data1,data2,tpl,gm)
     else:
       raise Exception,"Graphic type: '%s' not re-implemented yet" % gtype
+    if self.logo is None:
+      self.createLogo()
+    if self.renWin.GetSize()!=(0,0):
+      self.scaleLogo()
     if not kargs.get("donotstoredisplay",False): 
       self.renWin.Render()
 
 
   def plot1D(self,data1,data2,tmpl,gm,ren):
     self.setLayer(ren,tmpl.data.priority)
-    Y = data1
+    Y = self.trimData1D(data1)
     if data2 is None:
       X=Y.getAxis(0)[:]
     else:
-      X=data2
+      X=self.trimData1D(data2)
 
     if gm.flip:
       tmp = Y
@@ -442,6 +446,12 @@ class VTKVCSBackend(object):
       y1,y2 = gm.datawc_y1,gm.datawc_y2
     else:
       y1,y2 = Y.min(),Y.max()
+    if numpy.allclose(y1,y2):
+        y1-=.0001
+        y2+=.0001
+    if numpy.allclose(x1,x2):
+        x1-=.0001
+        x2+=.0001
     l.worldcoordinate = [x1,x2,y1,y2]
     m=self.canvas.createmarker()
     m.type = gm.marker
@@ -451,7 +461,7 @@ class VTKVCSBackend(object):
     else:
         m.priority=0
     m.x = l.x
-    m.y=l.y
+    m.y = l.y
     m.viewport=l.viewport
     m.worldcoordinate = l.worldcoordinate
     
@@ -511,6 +521,14 @@ class VTKVCSBackend(object):
           g.update( tmpl )
            
   def plotVector(self,data1,data2,tmpl,gm):
+    #Preserve time and z axis for plotting these inof in rendertemplate
+    taxis = data1.getTime()
+    if data1.ndim>2:
+        zaxis = data1.getAxis(-3)
+    else:
+        zaxis = None
+    data1 = self.trimData2D(data1) # Ok get3 only the last 2 dims
+    data2 = self.trimData2D(data2)
     ug,xm,xM,ym,yM,continents,wrap,geo,cellData = vcs2vtk.genGrid(data1,data2,gm)
     if cellData:
         c2p = vtk.vtkCellDataToPointData()
@@ -590,7 +608,7 @@ class VTKVCSBackend(object):
     vcs2vtk.fitToViewport(act,ren,[tmpl.data.x1,tmpl.data.x2,tmpl.data.y1,tmpl.data.y2],[x1,x2,y1,y2])
     if tmpl.data.priority!=0:
         ren.AddActor(act)
-    self.renderTemplate(tmpl,data1,gm)
+    self.renderTemplate(tmpl,data1,gm,taxis,zaxis)
     if self.canvas._continents is None:
       continents = False
     if continents:
@@ -598,6 +616,15 @@ class VTKVCSBackend(object):
         self.plotContinents(x1,x2,y1,y2,projection,wrap,tmpl)
 
   def plot2D(self,data1,data2,tmpl,gm):
+    #Preserve time and z axis for plotting these inof in rendertemplate
+    t = data1.getTime()
+    if data1.ndim>2:
+        z = data1.getAxis(-3)
+    else:
+        z = None
+    data1 = self.trimData2D(data1) # Ok get3 only the last 2 dims
+    if gm.g_name!="Gfm":
+      data2 = self.trimData2D(data2)
     ug,xm,xM,ym,yM,continents,wrap,geo,cellData = vcs2vtk.genGrid(data1,data2,gm)
     #Now applies the actual data on each cell
     if isinstance(gm,boxfill.Gfb) and gm.boxfill_type=="log10":
@@ -669,9 +696,13 @@ class VTKVCSBackend(object):
       levs = gm.levels
       if (isinstance(gm,isoline.Gi) and numpy.allclose( levs[0],[0.,1.e20])) or numpy.allclose(levs,1.e20):
         levs = vcs.mkscale(mn,mx)
+        if len(levs)==1: # constant value ?
+          levs = [levs[0],levs[0]+.00001]
         Ncolors = len(levs)
         if isinstance(gm,(isofill.Gfi,meshfill.Gfm)):
           levs2 = vcs.mkscale(mn,mx)
+          if len(levs2)==1: # constant value ?
+            levs2 = [levs2[0],levs2[0]+.00001]
           levs=[]
           for i in range(len(levs2)-1):
             levs.append([levs2[i],levs2[i+1]])
@@ -701,6 +732,8 @@ class VTKVCSBackend(object):
         cols = gm.fillareacolors
         if cols==[1,]:
           cols = vcs.getcolors(levs2,split=0)
+          if isinstance(cols,(int,float)):
+              cols=[cols,]
       elif isinstance(gm,isoline.Gi):
         cols = gm.linecolors
 
@@ -805,6 +838,8 @@ class VTKVCSBackend(object):
       if isinstance(gm,boxfill.Gfb):
         if numpy.allclose(gm.level_1,1.e20) or numpy.allclose(gm.level_2,1.e20):
           levs = vcs.mkscale(mn,mx)
+          if len(levs)==1: # constant value ?
+              levs = [levs[0],levs[0]+.00001]
           legend = vcs.mklabels(levs)
           dx = (levs[-1]-levs[0])/(gm.color_2-gm.color_1+1)
           levs = numpy.arange(levs[0],levs[-1]+dx,dx)
@@ -906,18 +941,21 @@ class VTKVCSBackend(object):
     if isinstance(gm,meshfill.Gfm):
       tmpl.plot(self.canvas,data1,gm,bg=self.bg,X=numpy.arange(xm,xM*1.1,(xM-xm)/10.),Y=numpy.arange(ym,yM*1.1,(yM-ym)/10.))
     else:
-      self.renderTemplate(tmpl,data1,gm)
+      self.renderTemplate(tmpl,data1,gm,t,z)
     if isinstance(gm,(isofill.Gfi,meshfill.Gfm,boxfill.Gfb)):
       if getattr(gm,"legend",None) is not None:
         legend = gm.legend
-      if gm.ext_1 in ["y",1,True] and not numpy.allclose(levs[0],1.e20):
+      if gm.ext_1 in ["y",1,True] and not numpy.allclose(levs[0],-1.e20):
           if isinstance(levs,numpy.ndarray):
               levs=levs.tolist()
-          levs.insert(0,-1.e20)
-      if gm.ext_2 in ["y",1,True] and not numpy.allclose(levs[0],1.e20):
+          if not (isinstance(levs[0],list) and numpy.allclose(levs[0][0],-1.e20)):
+            print "Inserting:",levs[0]
+            levs.insert(0,-1.e20)
+      if gm.ext_2 in ["y",1,True] and not numpy.allclose(levs[-1],1.e20):
           if isinstance(levs,numpy.ndarray):
               levs=levs.tolist()
-          levs.append(1.e20)
+          if not (isinstance(levs[-1],list) and numpy.allclose(levs[-1][-1],1.e20)):
+            levs.append(1.e20)
 
       self.renderColorBar(tmpl,levs,cols,legend,cmap)
     if self.canvas._continents is None:
@@ -953,8 +991,58 @@ class VTKVCSBackend(object):
       if tmpl.data.priority!=0:
         ren.AddActor(contActor)
 
-  def renderTemplate(self,tmpl,data,gm):
+  def renderTemplate(self,tmpl,data,gm,taxis,zaxis):
     tmpl.plot(self.canvas,data,gm,bg=self.bg)
+    if taxis is not None:
+        tstr = str(cdtime.reltime(taxis[0],taxis.units).tocomp(taxis.getCalendar()))
+        #ok we have a time axis let's display the time
+        crdate = vcs2vtk.applyAttributesFromVCStmpl(tmpl,"crdate")
+        crdate.string = tstr.split()[0].replace("-","/")
+        crtime = vcs2vtk.applyAttributesFromVCStmpl(tmpl,"crtime")
+        crtime.string = tstr.split()[1]
+        ren = vtk.vtkRenderer()
+        self.renWin.AddRenderer(ren)
+        self.setLayer(ren,1)
+        if crdate.priority>0:
+            tt,to = crdate.name.split(":::")
+            tt = vcs.elements["texttable"][tt]
+            to = vcs.elements["textorientation"][to]
+            vcs2vtk.genTextActor(ren,to=to,tt=tt)
+        if crtime.priority>0:
+            tt,to = crtime.name.split(":::")
+            tt = vcs.elements["texttable"][tt]
+            to = vcs.elements["textorientation"][to]
+            vcs2vtk.genTextActor(ren,to=to,tt=tt)
+    if zaxis is not None:
+        # ok we have a zaxis to draw
+        zname = vcs2vtk.applyAttributesFromVCStmpl(tmpl,"zname")
+        zname.string=zaxis.id
+        zunits = vcs2vtk.applyAttributesFromVCStmpl(tmpl,"zunits")
+        zunits.string=zaxis.units
+        zvalue = vcs2vtk.applyAttributesFromVCStmpl(tmpl,"zvalue")
+        if zaxis.isTime():
+            zvalue.string = str(zaxis.asComponentTime()[0])
+        else:
+            zvalue.string= "%g" % zaxis[0]
+        ren = vtk.vtkRenderer()
+        self.setLayer(ren,1)
+        self.renWin.AddRenderer(ren)
+        if zname.priority>0:
+            tt,to = zname.name.split(":::")
+            tt = vcs.elements["texttable"][tt]
+            to = vcs.elements["textorientation"][to]
+            vcs2vtk.genTextActor(ren,to=to,tt=tt)
+        if zunits.priority>0:
+            tt,to = zunits.name.split(":::")
+            tt = vcs.elements["texttable"][tt]
+            to = vcs.elements["textorientation"][to]
+            vcs2vtk.genTextActor(ren,to=to,tt=tt)
+        if zvalue.priority>0:
+            tt,to = zvalue.name.split(":::")
+            tt = vcs.elements["texttable"][tt]
+            to = vcs.elements["textorientation"][to]
+            vcs2vtk.genTextActor(ren,to=to,tt=tt)
+        
 
   def renderColorBar(self,tmpl,levels,colors,legend,cmap):
     if tmpl.legend.priority>0:
@@ -1133,6 +1221,47 @@ class VTKVCSBackend(object):
       warnings.warn("no RenderWindow ready, skipping setantialiasing call, please reissue at a later time")
     else:
       self.renWin.SetMultiSamples(antialiasing)
+  def createLogo(self):
+    if self.canvas.drawLogo is False:
+        ## Ok we do not want a logo here
+        return
+    # Pth to logo
+    logoFile = os.path.join(sys.prefix,"share","vcs","uvcdat.png")
+    # VTK reader for logo
+    logoRdr=vtk.vtkPNGReader()
+    logoRdr.SetFileName(logoFile)
+    logoRdr.Update()
+    x0,x1,y0,y1,z0,z1 = logoRdr.GetDataExtent()
+    ia = vtk.vtkImageActor()
+    ia.GetMapper().SetInputConnection(logoRdr.GetOutputPort())
+    ren = vtk.vtkRenderer()
+    self.renWin.AddRenderer(ren)
+    r,g,b = self.canvas.backgroundcolor
+    ren.SetBackground(r/255.,g/255.,b/255.)
+    #ren.SetLayer(self.renWin.GetNumberOfLayers()-1)
+    ren.AddActor(ia)
+    self.logo = ren
+    self.logoExtent = [x1,y1]
+    
+  def scaleLogo(self):
+    if self.canvas.drawLogo is False:
+        return
+    #Figuring out scale
+    #Get dimensions of input file
+    w,h=self.logoExtent
+    W,H=self.renWin.GetSize()
+    SC = .05
+    sc = SC*float(H)/float(h)
+    nw = w*sc
+    pw = (W-nw)/W
+    self.logo.SetViewport(pw,0.,1.,SC)
+    self.logo.SetLayer(self.renWin.GetNumberOfLayers()-1)
+    cam = self.logo.GetActiveCamera()
+    d=cam.GetDistance()
+    cam.SetParallelScale(.5*(h+1))
+    cam.SetFocalPoint(w/2.,h/2.,0.)
+    cam.SetPosition(w/2.,h/2.,H/(2-SC))
+
 
 class VTKAnimate(animate_helper.AnimationController):
    pass

@@ -103,7 +103,7 @@ def check_result_image(fname, baselinefname, threshold, baseline = False, cleanu
                   os.remove(fname)
                 return 0
 
-    if bestimg == None:
+    if bestimg is None:
 	print "no baseline image found"
 	return -1
     print "no baseline images matched"

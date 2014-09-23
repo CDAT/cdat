@@ -14,6 +14,14 @@ import cdtime
 f = open(os.path.join(sys.prefix,"share","vcs","wmo_symbols.json"))
 wmo = json.load(f)
 
+def applyAttributesFromVCStmpl(tmpl,tmplattribute,txtobj=None):
+    tatt = getattr(tmpl,tmplattribute)
+    if txtobj is None:
+      txtobj=vcs.createtext(None,tatt.textorientation,None,tatt.texttable)
+    for att in ["x","y","priority"]:
+      setattr(txtobj,att,getattr(tatt,att))
+    return txtobj
+
 def putMaskOnVTKGrid(data,grid,actorColor=None,cellData=True,deep=True):
   #Ok now looking
   msk = data.mask
@@ -597,17 +605,27 @@ def doWrap(Act,wc,wrap=[0.,360]):
       Tpf.Update()
       appendFilter.AddInputData(Tpf.GetOutput())
       appendFilter.Update()
-  appendFilter.Update()
+
+  # Clip the data to the final window:
+  clipBox = vtk.vtkBox()
+  clipBox.SetXMin(xmn, ymn, -1.0)
+  clipBox.SetXMax(xmx, ymx,  1.0)
+  clipper = vtk.vtkExtractPolyDataGeometry()
+  clipper.SetInputConnection(appendFilter.GetOutputPort())
+  clipper.SetImplicitFunction(clipBox)
+  clipper.ExtractInsideOn()
+  clipper.PassPointsOff()
+  clipper.Update()
+
   Actor = vtk.vtkActor()
   Actor.SetProperty(Act.GetProperty())
   #Mapper2 = vtk.vtkDataSetMapper()
   #Mapper2 = vtk.vtkCompositePolyDataMapper()
   Mapper2 = vtk.vtkPolyDataMapper()
-  Mapper2.SetInputData(appendFilter.GetOutput())
+  Mapper2.SetInputData(clipper.GetOutput())
   Mapper2.SetLookupTable(Mapper.GetLookupTable())
   Mapper2.SetScalarRange(Mapper.GetScalarRange())
   Mapper2.SetScalarMode(Mapper.GetScalarMode())
-  setClipPlanes(Mapper2, xmn, xmx, ymn, ymx)
   Mapper2.Update()
   Actor.SetMapper(Mapper2)
   return Actor
@@ -973,7 +991,10 @@ def prepMarker(renWin,ren,marker,cmap=None):
       gs.FilledOn()
       
     if pd is None:
-      s/=float(max(marker.worldcoordinate))
+      # Use the difference in x to scale the point, as later we'll use the
+      # x range to correct the aspect ratio:
+      dx = marker.worldcoordinate[1] - marker.worldcoordinate[0]
+      s *= float(dx)/500.
     gs.SetScale(s)
     gs.Update()
 
