@@ -133,7 +133,8 @@ class DV3DPlot():
         self.cfgManager = ConfigManager( **args )           
         self.buttonBarHandler = ButtonBarHandler( self.cfgManager, **args ) 
         self.plot_attributes = args.get( 'plot_attributes', {} )
-
+        self.plotConstituents = { 'Slice' : 'SliceRoundRobin', 'Volume' : 'ToggleVolumePlot', 'Surface' : 'ToggleSurfacePlot' }  
+        self.topo = PlotType.Planar
         
         self.configuring = False
         self.animating = False
@@ -156,11 +157,12 @@ class DV3DPlot():
         interactionButtons.addConfigButton( names=['ToggleClipping'], key='X', toggle=True, parents=['ToggleVolumePlot', 'ToggleSurfacePlot'], interactionHandler=self.processToggleClippingCommand  )
         interactionButtons.addConfigButton( names=['Colorbar'], key='b', toggle=True, label='Show Colorbar', interactionHandler=self.processShowColorbarCommand )
         interactionButtons.addSliderButton( names=['Animation'], key='a', toggle=True, label='Animation', sliderLabels='Speed (Step Delay)', interactionHandler=self.processAnimationCommand, range_bounds=[ 0.0, 2.0 ], initValue=0.0  )
+        cameraFunction = self.cfgManager.getConfigurableFunction( 'Camera', interactionHandler=self.processCameraCommand )
         self.addKeyPressHandler( 'r', self.resetCamera )
         self.addKeyPressHandler( 'q',  self.quit )
         self.addKeyPressHandler( 'Q',  self.quit )
         self.addKeyPressHandler( 's',  self.saveState )
-        
+
     def setAnimationStepper( self, stepper_class ):
         self.animationStepper = stepper_class(self)
         
@@ -174,12 +176,12 @@ class DV3DPlot():
     
     def processConfigParameterChange( self, parameter ):
         argList = [ parameter.name, parameter.ptype, str(parameter.getValues()) ] 
-#        print " ..........>>>>>> Process Config Parameter Change: %s " % str(argList)  
+        print " ..........>>>>>> Process Config Parameter Change: %s " % str(argList)  
         self.ParameterValueChanged( argList )
 
     def processConfigStateChange( self, parameter ):
         argList = [ parameter.name, parameter.ptype, str( parameter.getValue('state') ) ] 
-#        print " ..........>>>>>> Process Config  State Change: %s " % str(argList)  
+        print " ..........>>>>>> Process Config  State Change: %s " % str(argList)  
         self.ParameterValueChanged( argList )
         
     def addKeyPressHandler( self, key, handler ):
@@ -192,8 +194,10 @@ class DV3DPlot():
     def quit( self, **args ):
         eventArgs = args.get( 'args', None )
         if eventArgs and ( eventArgs[1] == 'Q' ):
+            self.recordCamera()
             self.saveState()
         self.renderWindowInteractor.TerminateApp() 
+        sys.exit( 0 )
 
     def stepAnimation(self, **args): 
         pass
@@ -267,6 +271,12 @@ class DV3DPlot():
             
     def processVerticalScalingCommand( self, args, config_function ):
         pass 
+
+    def processCameraCommand( self, args, config_function ):
+        if args and args[0] == "Init":
+#            cameraSpecs = config_function.value
+            self.initCamera()
+#            print " processCameraCommand: "
     
     def processToggleClippingCommand( self, args, config_function ):
         pass 
@@ -448,10 +458,15 @@ class DV3DPlot():
         return 0
 
     def onLeftButtonRelease( self, caller, event ):
-        self.currentButton = None 
+        print " onLeftButtonRelease "
+        self.currentButton = None
+        self.recordCamera()
+ 
     
     def onRightButtonRelease( self, caller, event ):
+        print " onRightButtonRelease "
         self.currentButton = None 
+        self.recordCamera()
 
 
 #     def updateLevelingEvent( self, caller, event ):
@@ -560,6 +575,10 @@ class DV3DPlot():
     def onAnyEvent(self, caller, event):
         print " --- %s Event --- " % str(event)
         return 0    
+
+    def onCameraEvent(self, caller, event):
+        print " --- %s Event --- " % str(event)
+        return 0    
     
     def onRender(self, caller, event):
 #        print " --- Render Event --- "
@@ -586,7 +605,8 @@ class DV3DPlot():
             self.addObserver( self.renderWindowInteractor, 'RightButtonReleaseEvent', self.onRightButtonRelease )
             self.addObserver( self.renderWindowInteractor, 'RightButtonPressEvent', self.onRightButtonPress )
 #            self.addObserver( self.renderWindowInteractor, 'RenderWindowMessageEvent', self.onAnyEvent )
-#            self.addObserver( self.renderWindowInteractor, 'ResetCameraEvent', self.onAnyEvent )
+#            self.addObserver( self.renderWindowInteractor, 'ResetCameraEvent', self.onCameraEvent )
+#            self.addObserver( self.renderWindowInteractor, 'CameraEvent', self.onCameraEvent )
 #            self.addObserver( self.renderWindowInteractor, 'ResetCameraClippingRangeEvent', self.onAnyEvent )
 #            self.addObserver( self.renderWindowInteractor, 'ComputeVisiblePropBoundsEvent', self.onAnyEvent )
 #            self.addObserver( self.renderWindowInteractor, 'AnyEvent', self.onAnyEvent )
@@ -934,6 +954,12 @@ class DV3DPlot():
     def recordCamera( self ):
         c = self.renderer.GetActiveCamera()
         self.cameraOrientation[ self.topo ] = ( c.GetPosition(), c.GetFocalPoint(), c.GetViewUp() )
+        cameraSpecs = self.cameraOrientation[ self.topo ] 
+        cameraParameter = self.cfgManager.getParameter( 'Camera' )
+        cameraParameter.setValue( 'Position', cameraSpecs[0] )
+        cameraParameter.setValue( 'FocalPoint', cameraSpecs[1] )
+        cameraParameter.setValue( 'ViewUp', cameraSpecs[2] )
+        self.processConfigParameterChange( cameraParameter )
 
     def resetCamera( self, pts = None, **args ):
         cdata = self.cameraOrientation.get( self.topo, None )
@@ -947,17 +973,25 @@ class DV3DPlot():
             self.renderer.ResetCamera( self.getBounds() )
             
     def initCamera(self, d=None, center = None ):
-#        print " -------------------------- >>>>> --------------------------- >>>>  initCamera:  ", str( ( self.xcenter, self.ycenter, d ) )
-        if self.renderWindowSize <> None: 
-            self.renderWindow.SetSize( self.renderWindowSize )  
-        if d == None:
-            mapSize = self.mapManager.map_cut_size
-            d = ( mapSize[0] + mapSize[1] )
-        if center == None: 
-            center = self.mapManager.mapCenter
-        self.renderer.GetActiveCamera().SetPosition( center[0], center[1], d )
-        self.renderer.GetActiveCamera().SetFocalPoint( center[0], center[1], 0.0 )
-        self.renderer.GetActiveCamera().SetViewUp( 0, 1, 0 )  
+#        print " -------------------------- >>>>> --------------------------- >>>>  initCamera:  ", str( ( self.xcenter, self.ycenter, d ) )            
+        cameraParameter = self.cfgManager.getParameter( 'Camera' )
+        cPosition = cameraParameter.getValue( 'Position', None )
+        if cPosition == None:
+            if self.renderWindowSize <> None: 
+                self.renderWindow.SetSize( self.renderWindowSize )  
+            if d == None:
+                mapSize = self.mapManager.map_cut_size
+                d = ( mapSize[0] + mapSize[1] )
+            if center == None:  center = self.mapManager.mapCenter
+            self.renderer.GetActiveCamera().SetPosition( center[0], center[1], d )
+            self.renderer.GetActiveCamera().SetFocalPoint( center[0], center[1], 0.0 )
+            self.renderer.GetActiveCamera().SetViewUp( 0, 1, 0 )  
+        else:
+            cFocalPoint  = cameraParameter.getValue( 'FocalPoint', None )
+            cViewUp      = cameraParameter.getValue( 'ViewUp', None )
+            self.renderer.GetActiveCamera().SetPosition( *cPosition )
+            self.renderer.GetActiveCamera().SetFocalPoint( *cFocalPoint )
+            self.renderer.GetActiveCamera().SetViewUp( *cViewUp )  
         self.renderer.ResetCameraClippingRange() 
         self.printCameraPos( 'initCamera' )
             
