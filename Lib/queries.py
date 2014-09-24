@@ -419,7 +419,7 @@ if queries.is3d_scalar(plot):
    ...
 
 """
-    if (isinstance(dv3d.Gf3Dscalar)):
+    if (isinstance(obj,dv3d.Gf3Dscalar)):
         return 1
     else:
        return 0
@@ -446,7 +446,7 @@ if queries.is3d_vector(plot):
    ...
 
 """
-    if (isinstance(dv3d.Gf3Dvector)):
+    if (isinstance(obj,dv3d.Gf3Dvector)):
         return 1
     else:
        return 0
