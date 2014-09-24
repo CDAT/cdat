@@ -1,4 +1,4 @@
-set (package curses)
+set (package Curses)
 string(TOUPPER ${package} package_uc)
 
 set(${package_uc}_MAJOR_SRC 5)
