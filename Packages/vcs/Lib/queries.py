@@ -97,7 +97,7 @@ ill,
     a=vcs.init()
     gm_list=a.graphicsmethodlist()  # Return graphics method list
 """
-        return [ 'boxfill',  'isofill',  'isoline',  'meshfill', 'outfill', 'outline', 'continents', 'scatter', 'vector', 'xvsy', 'xyvsy', 'yxvsx', 'taylordiagram', 'oneD' ]
+        return [ 'boxfill',  'isofill',  'isoline',  'meshfill', 'outfill', 'outline', 'continents', 'scatter', 'vector', 'xvsy', 'xyvsy', 'yxvsx', 'taylordiagram', 'oneD', '3d_scalar', '3d_vector' ]
 
 def graphicsmethodtype(gobj):
         """
@@ -398,7 +398,59 @@ if queries.isboxfill(box):
     else:
        return 0
 
+#############################################################################
+#                                                                           #
+# Is this a primary 3d_scalar graphics method in VCS?                         #
+#                                                                           #
+#############################################################################
+def is3d_scalar(obj):
+    """
+ Function: is3d_scalar
 
+ Description of Function:
+Check to see if this object is a VCS primary 3d_scalar graphics method.
+
+ Example of Use:
+a=vcs.init()
+plot=a.get3d_scalar()  # To Modify an existing 3d_scalar object
+...
+
+if queries.is3d_scalar(plot):
+   ...
+
+"""
+    if (isinstance(dv3d.Gf3Dscalar)):
+        return 1
+    else:
+       return 0
+   
+#############################################################################
+#                                                                           #
+# Is this a primary 3d_vector graphics method in VCS?                         #
+#                                                                           #
+#############################################################################
+
+def is3d_vector(obj):
+    """
+ Function: is3d_vector
+
+ Description of Function:
+Check to see if this object is a VCS primary 3d_vector graphics method.
+
+ Example of Use:
+a=vcs.init()
+plot=a.get3d_vector()  # To Modify an existing 3d_vector object
+...
+
+if queries.is3d_vector(plot):
+   ...
+
+"""
+    if (isinstance(dv3d.Gf3Dvector)):
+        return 1
+    else:
+       return 0
+            
 #############################################################################
 #                                                                           #
 # Is this a primary isofill graphics method in VCS?                         #

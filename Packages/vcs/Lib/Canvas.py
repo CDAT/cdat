@@ -1469,6 +1469,10 @@ Options:::
     def get3d_scalar(self,Gfdv3d_name_src='default'):
       return vcs.get3d_scalar(Gfdv3d_name_src)
     get3d_scalar.__doc__ = vcs.manageElements.get3d_scalar.__doc__
+
+    def scalar3d(self, *args, **parms):
+        arglist=_determine_arg_list('3d_scalar',args)            
+        return self.__plot(arglist, parms)
     
     def create3d_vector(self,name=None,source='default'):
       return vcs.create3d_vector(name,source)
@@ -1477,6 +1481,10 @@ Options:::
     def get3d_vector(self,Gfdv3d_name_src='default'):
       return vcs.get3d_vector(Gfdv3d_name_src)
     get3d_vector.__doc__ = vcs.manageElements.get3d_vector.__doc__
+
+    def vector3d(self, *args, **parms):
+        arglist=_determine_arg_list('3d_vector',args)            
+        return self.__plot(arglist, parms)
 
     #############################################################################
     #                                                                           #
