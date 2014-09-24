@@ -10,13 +10,18 @@ import os, time
 import subprocess, signal 
 
 demo_index = '1'
+background_render = 1
+bgX=2048
+bgY=1024
 
 if len(sys.argv) > 1:
     demo_index = sys.argv[1]
    
 x = vcs.init()
 f = cdms2.open( "geos5.bkg.prs.20110501_0000z.nc4" )
-
+if background_render:
+    x.setbgoutputdimensions(width=bgX, height=bgY, units='pixels')   
+    
 dv3d = vcs.get3d_scalar()    
 dv3d.ToggleVolumePlot = vcs.on
 dv3d.ToggleSurfacePlot = vcs.off 
@@ -72,8 +77,18 @@ elif demo_index == '3':
 else:
     print>>sys.stderr, "Unknown demo index: ", demo_index
     
-x.plot( v, dv3d )
-x.interact()
+x.plot( v, dv3d, bg=background_render )
+
+if background_render: 
+#     renderers = x.backend.renWin.GetRenderers()
+#     renderers.InitTraversal()
+#     ren = renderers.GetNextItem()
+#     while ren is not None:
+#         print " --- Background Color: %s " % str( ren.GetBackground() )
+#         ren = renderers.GetNextItem()
+    x.png( 'demo_plot-w', ignore_alpha=1 )
+else:                   
+    x.interact()
 
 
 
