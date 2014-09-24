@@ -4735,7 +4735,7 @@ Options:::
     # png wrapper for VCS.                                                   #
     #                                                                        #
     ##########################################################################
-    def png(self, file, width=None,height=None,units=None,draw_white_background = 0):
+    def png(self, file, width=None,height=None,units=None,draw_white_background = 0, **args ):
         """
  Function: png
 
@@ -4747,7 +4747,7 @@ Options:::
     a.plot(array)
     a.png('example')       # Overwrite a png file
 """
-        return self.backend.png(file,width,height,units,draw_white_background)
+        return self.backend.png(file,width,height,units,draw_white_background, **args )
 
     #############################################################################
     #                                                                           #
