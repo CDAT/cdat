@@ -1153,7 +1153,7 @@ class VTKVCSBackend(object):
   def svg(self, file, width=None, height=None, units=None):
       return self.vectorGraphics("svg", file, width, height, units)
 
-  def png(self, file, width=None,height=None,units=None,draw_white_background = 0):
+  def png(self, file, width=None,height=None,units=None,draw_white_background = 0, **args ):
         
         if self.renWin is None:
           raise Exception,"Nothing to dump aborting"
@@ -1172,7 +1172,9 @@ class VTKVCSBackend(object):
         imgfiltr = vtk.vtkWindowToImageFilter()
         imgfiltr.SetInput(self.renWin)
 #        imgfiltr.SetMagnification(3)
-        imgfiltr.SetInputBufferTypeToRGBA()
+        ignore_alpha = args.get( 'ignore_alpha', False )
+        if ignore_alpha:    imgfiltr.SetInputBufferTypeToRGB()
+        else:               imgfiltr.SetInputBufferTypeToRGBA()
         imgfiltr.Update()
         writer = vtk.vtkPNGWriter()
         writer.SetInputConnection(imgfiltr.GetOutputPort())
