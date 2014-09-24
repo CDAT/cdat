@@ -866,7 +866,7 @@ class RectGridPlot(StructuredGridPlot):
         self.volume.VisibilityOff()
 
         self.renderer.AddVolume( self.volume )
-        self.renderer.SetBackground( VTK_BACKGROUND_COLOR[0], VTK_BACKGROUND_COLOR[1], VTK_BACKGROUND_COLOR[2] )
+#        self.renderer.SetBackground( VTK_BACKGROUND_COLOR[0], VTK_BACKGROUND_COLOR[1], VTK_BACKGROUND_COLOR[2] )
 #        self.setColormap( [ 'jet', 1, 0, 0 ] )
 
     def buildPipeline(self):
@@ -963,7 +963,7 @@ class RectGridPlot(StructuredGridPlot):
             self.planeWidgetY.SetPlaneOrientationToYAxes()       
             self.planeWidgetY.PlaceWidget(  bounds  )     
 
-        self.renderer.SetBackground( VTK_BACKGROUND_COLOR[0], VTK_BACKGROUND_COLOR[1], VTK_BACKGROUND_COLOR[2] )
+#        self.renderer.SetBackground( VTK_BACKGROUND_COLOR[0], VTK_BACKGROUND_COLOR[1], VTK_BACKGROUND_COLOR[2] )
         self.updateOpacity() 
         self.setColormap( [ 'jet', 1, 0, 0 ] )
         
