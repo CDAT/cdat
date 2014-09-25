@@ -571,11 +571,8 @@ class VTKVCSBackend(object):
     if gm.linecolor is not None:
         lcolor = gm.linecolor
 
-    arrow = vtk.vtkArrowSource()
-    arrow.SetTipRadius(.2*lwidth)
-    arrow.SetShaftRadius(.045*lwidth)
-    arrow.SetTipLength(0.4*lwidth)
-    arrow.Update()
+    arrow = vtk.vtkGlyphSource2D()
+    arrow.SetGlyphTypeToArrow()
 
     glyphFilter = vtk.vtkGlyph2D()
     glyphFilter.SetSourceConnection(arrow.GetOutputPort())
