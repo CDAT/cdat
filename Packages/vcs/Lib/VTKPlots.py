@@ -579,10 +579,24 @@ class VTKVCSBackend(object):
 
     glyphFilter = vtk.vtkGlyph2D()
     glyphFilter.SetSourceConnection(arrow.GetOutputPort())
-    glyphFilter.OrientOn()
     glyphFilter.SetVectorModeToUseVector()
+
+    # Rotate arrows to match vector data:
+    glyphFilter.OrientOn()
+
+    # Scale to vector magnitude:
+    glyphFilter.SetScaleModeToScaleByVector()
+
+    # These are some unfortunately named methods. It does *not* clamp the scale
+    # range to [min, max], but rather remaps the range [min, max]-->[0,1]. Bump
+    # up min so that near-zero vectors will not be rendered, as these tend to
+    # come out randomly oriented.
+    glyphFilter.ClampingOn()
+    glyphFilter.SetRange(0.01, 1.0)
+
     glyphFilter.SetInputArrayToProcess(1,0,0,0,"vectors")
     glyphFilter.SetScaleFactor(2.*gm.scale)
+
     if cellData:
         if ug.IsA("vtkUnstructuredGrid"):
             glyphFilter.SetInputConnection(cln.GetOutputPort())
