@@ -519,6 +519,11 @@ class VTKVCSBackend(object):
           self.plotRenderers.add( g.plot.renderer )
       else:
           g.update( tmpl )
+
+  def onClosing(self):
+      for plot in self.plotApps.values():
+          if hasattr( plot, 'onClosing' ):
+              plot.onClosing()
            
   def plotVector(self,data1,data2,tmpl,gm):
     #Preserve time and z axis for plotting these inof in rendertemplate

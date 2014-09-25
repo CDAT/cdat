@@ -533,6 +533,9 @@ class Canvas(object,AutoAPI.AutoAPI):
     def savecontinentstype(self,value):
       self._savedcontinentstype = value
 
+    def onClosing( self ):
+        self.backend.onClosing()
+
     def _reconstruct_tv(self, arglist, keyargs):
         """Reconstruct a transient variable from the keyword arguments.
         Also select the default graphics method, depending on the grid type

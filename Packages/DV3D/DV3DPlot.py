@@ -191,12 +191,17 @@ class DV3DPlot():
     def refresh(self):
         self.onWindowModified()
         
+    def onClosing(self):
+        self.stopAnimation()
+        self.terminate()
+        self.renderWindowInteractor.TerminateApp()
+
     def quit( self, **args ):
         eventArgs = args.get( 'args', None )
         if eventArgs and ( eventArgs[1] == 'Q' ):
             self.recordCamera()
             self.saveState()
-        self.renderWindowInteractor.TerminateApp() 
+        self.onClosing()
         sys.exit( 0 )
 
     def stepAnimation(self, **args): 
@@ -762,7 +767,7 @@ class DV3DPlot():
             
     def onRenderWindowResize( self ):
         if not self.resizingWindow:
-#            print " onRenderWindowResize, size = ", str( self.renderWindowSize )
+            print " onRenderWindowResize, size = ", str( self.renderWindowSize )
             self.resizingWindow = True
             self.updateTextDisplay()
             self.buttonBarHandler.repositionButtons()
@@ -848,6 +853,7 @@ class DV3DPlot():
         self.renderWindowInteractor.SetInteractorStyle( self.interactorStyle )
    
     def closeConfigDialog(self):
+        print "x"
         pass
     
     def enableRender(self, **args ):
