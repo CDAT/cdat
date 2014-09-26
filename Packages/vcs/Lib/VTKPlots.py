@@ -589,6 +589,7 @@ class VTKVCSBackend(object):
 
     arrow = vtk.vtkGlyphSource2D()
     arrow.SetGlyphTypeToArrow()
+    arrow.FilledOff()
 
     glyphFilter = vtk.vtkGlyph2D()
     glyphFilter.SetSourceConnection(arrow.GetOutputPort())
