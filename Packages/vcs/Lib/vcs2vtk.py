@@ -614,6 +614,7 @@ def doWrap(Act,wc,wrap=[0.,360]):
   clipper.SetInputConnection(appendFilter.GetOutputPort())
   clipper.SetImplicitFunction(clipBox)
   clipper.ExtractInsideOn()
+  clipper.ExtractBoundaryCellsOn()
   clipper.PassPointsOff()
   clipper.Update()
 
