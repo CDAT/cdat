@@ -9,16 +9,17 @@ import sys
 import os, time
 import subprocess, signal 
 
-demo_index = '1'
-background_render = 1
+demo_index = '4'
+background_render = 0
 bgX=2048
 bgY=1024
+is_vector = False
 
 if len(sys.argv) > 1:
     demo_index = sys.argv[1]
    
 x = vcs.init()
-f = cdms2.open( "geos5.bkg.prs.20110501_0000z.nc4" )
+f = cdms2.open( "geos5-sample.nc" )
 if background_render:
     x.setbgoutputdimensions(width=bgX, height=bgY, units='pixels')   
     
@@ -31,6 +32,9 @@ dv3d.XSlider = ( vcs.off )
 dv3d.ZSlider = ( vcs.off )
 dv3d.YSlider = ( vcs.off )
 dv3d.Camera={'Position': (-161, -171, 279), 'ViewUp': (.29, 0.67, 0.68), 'FocalPoint': (146.7, 8.5, -28.6)}
+
+dv3d_v = vcs.get3d_vector()    
+dv3d_v.Camera={'Position': (-161, -171, 279), 'ViewUp': (.29, 0.67, 0.68), 'FocalPoint': (146.7, 8.5, -28.6)}
 
 if demo_index == '0':    
     varname = "sphu"
@@ -64,20 +68,20 @@ elif demo_index == '3':
     dv3d.ScaleColormap = [-17.0, 14.7, 1] 
     dv3d.ScaleTransferFunction =  [ 3.64, 24, 1]
 
-
-#     shp = list( va.shape )
-#     shp.append( 1 )
-#     va.data.reshape( shp )
-#     va.shape = shp
-#    
-    dv3d.VerticalScaling = 4.0 
-#    dv3d.ScaleColormap = [-46.0, 46.0, 1] 
-#    dv3d.ScaleTransferFunction =  [10.0, 77.0, 1]
+elif demo_index == '4': 
+    v0 =  f["uwnd"]
+    v1 =  f["vwnd"]  
+    is_vector = True
+    dv3d_v.VerticalScaling = 4.0 
+    dv3d_v.BasemapOpacity = 0.0 
     
 else:
     print>>sys.stderr, "Unknown demo index: ", demo_index
-    
-x.plot( v, dv3d, bg=background_render )
+
+if is_vector:
+    x.plot( v0, v1, dv3d_v, bg=background_render )
+else:   
+    x.plot( v, dv3d, bg=background_render )
 
 if background_render: 
 #     renderers = x.backend.renWin.GetRenderers()
@@ -86,7 +90,7 @@ if background_render:
 #     while ren is not None:
 #         print " --- Background Color: %s " % str( ren.GetBackground() )
 #         ren = renderers.GetNextItem()
-    x.png( 'demo_plot-w', ignore_alpha=1 )
+    x.png( 'demo_plot', ignore_alpha=1 )
 else:                   
     x.interact()
 

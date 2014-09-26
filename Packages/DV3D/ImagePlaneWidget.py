@@ -1666,6 +1666,8 @@ class VectorSliceWidget(ImagePlaneWidget):
         self.lowResGlyphDecimationFactor = 10.0
         self.hiResGlyphDecimationFactor = self.glyphDecimationFactor 
         self.hiResGlyphScale = None
+        self.nSkipCount = 4
+        self.updateCount = 0
 
     def endSlicing(self):
         self.glyphDecimationFactor = self.hiResGlyphDecimationFactor
@@ -1825,7 +1827,8 @@ class VectorSliceWidget(ImagePlaneWidget):
             value = args[2].GetValue() 
             glyphScale.setValue( 0, value )
             self.glyphScale = abs( value )
-            self.updateScaling( True )
+            if self.isActiveUpdate():
+                self.updateScaling( True )
 
     def processGlyphDensityCommand( self, args, config_function = None ):
         glyphDensity = config_function.value
@@ -1849,7 +1852,12 @@ class VectorSliceWidget(ImagePlaneWidget):
             value = args[2].GetValue() 
             glyphDensity.setValue( 0, value )
             self.glyphDecimationFactor = value
-            self.ApplyGlyphDecimationFactor()
+            if self.isActiveUpdate():
+                self.ApplyGlyphDecimationFactor()
+                
+    def isActiveUpdate(self):
+        self.updateCount = self.updateCount + 1
+        return ( (self.updateCount % self.nSkipCount) == 0 )
         
     def updateScaling( self, render = False ):
         self.glyphMapper.SetScaleFactor( self.glyphScale ) 
