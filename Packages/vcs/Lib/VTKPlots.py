@@ -550,6 +550,22 @@ class VTKVCSBackend(object):
     z = numpy.zeros(u.shape)
     w = numpy.concatenate((u,v),axis=1)
     w = numpy.concatenate((w,z),axis=1)
+
+    # HACK The grid returned by vtk2vcs.genGrid is not the same size as the
+    # data array. I'm not sure where the issue is...for now let's just zero-pad
+    # data array so that we can at least test rendering until Charles gets
+    # back from vacation:
+    wLen = len(w)
+    numPts = ug.GetNumberOfPoints()
+    if wLen != numPts:
+        print "!!! Warning during vector plotting: Number of points does not "\
+              "match the number of vectors to be glyphed (%s points vs %s "\
+              "vectors). The vectors will be padded/truncated to match for "\
+              "rendering purposes, but the resulting image should not be "\
+              "trusted."%(numPts, wLen)
+        newShape = (numPts,) + w.shape[1:]
+        w = numpy.ma.resize(w, newShape)
+
     w = VN.numpy_to_vtk(w,deep=True)
     w.SetName("vectors")
     ug.GetPointData().AddArray(w)
