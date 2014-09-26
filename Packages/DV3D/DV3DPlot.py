@@ -194,8 +194,23 @@ class DV3DPlot():
     def onClosing(self):
         self.stopAnimation()
         self.terminate()
+        
+#         pipeline = DV3DPipelineHelper.getPipeline( cell_address, sheetName )
+#         if pipeline == None: pipeline = self.getCurrentPipeline()
+#         if pipeline: UVCDATGuiConfigFunction.clearModules( pipeline )
+            
+#        IVModuleConfigurationDialog.reset()
+#        StandardGrid.clear_cache()
+#        self.cellWidget = None 
+#        self.builtCellWidget = False    
+ 
+        self.renderer.RemoveAllViewProps()
+        self.clearReferrents()
         self.renderWindowInteractor.TerminateApp()
 
+    def terminate( self ):
+        pass
+    
     def quit( self, **args ):
         eventArgs = args.get( 'args', None )
         if eventArgs and ( eventArgs[1] == 'Q' ):

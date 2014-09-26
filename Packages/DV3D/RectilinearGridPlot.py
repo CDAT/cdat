@@ -1286,8 +1286,6 @@ class RectGridPlot(StructuredGridPlot):
 #        print "Update OTF: Lighting coefs = %s" % str( [ self.volumeProperty.GetShade(), self.volumeProperty.GetAmbient(), self.volumeProperty.GetDiffuse(), self.volumeProperty.GetSpecular(), self.volumeProperty.GetSpecularPower() ] )
               
     def clearReferrents(self):
-        print " **************************************** VolumeSlicer:clearReferrents, id = %d  **************************************** " % self.moduleID
-        sys.stdout.flush()
         del self.planeWidgetX
         del self.planeWidgetY
         del self.planeWidgetZ
