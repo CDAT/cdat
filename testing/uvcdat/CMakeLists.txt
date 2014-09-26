@@ -1,3 +1,8 @@
+#this copies test workflows out of the source tree
+file(COPY ${cdat_SOURCE_DIR}/testing
+     DESTINATION ${CMAKE_BINARY_DIR}/tmp
+     FILES_MATCHING PATTERN "*.vt")
+
 #this test verifies that uvcdat starts up and exits cleanly
 add_test(run_uvcdat ${CMAKE_INSTALL_PREFIX}/bin/uvcdat -P -N -T 2 -S ${CMAKE_BINARY_DIR}/tmp)
 
@@ -5,14 +10,14 @@ add_test(run_uvcdat ${CMAKE_INSTALL_PREFIX}/bin/uvcdat -P -N -T 2 -S ${CMAKE_BIN
 add_test(cdms_test
   ${CMAKE_INSTALL_PREFIX}/bin/uvcdat
   -S ${CMAKE_BINARY_DIR}/tmp
-  -b ${cdat_SOURCE_DIR}/testing/uvcdat/cdms_test.vt:test
+  -b ${CMAKE_BINARY_DIR}/tmp/testing/uvcdat/cdms_test.vt:test
   -a "datafile=${cdat_SOURCE_DIR}/libcdms/src/cdunif/test/testnc.nc")
 
 #the same as cdms_test but verify result image is correct
 add_test(cdms_verify
   ${CMAKE_INSTALL_PREFIX}/bin/runpytest
   ${CMAKE_BINARY_DIR}/tmp
-  ${cdat_SOURCE_DIR}/testing/uvcdat/cdms_test.vt:test
+  ${CMAKE_BINARY_DIR}/tmp/testing/uvcdat/cdms_test.vt:test
   "datafile=${cdat_SOURCE_DIR}/libcdms/src/cdunif/test/testnc.nc"
   cdms_test_4.png
   uvcdat
@@ -23,7 +28,7 @@ add_test(cdms_verify
 add_test(cdms_load_and_plot_axis_variable
   ${CMAKE_INSTALL_PREFIX}/bin/runpytest
   ${CMAKE_BINARY_DIR}/tmp
-  ${cdat_SOURCE_DIR}/testing/uvcdat/cdms_test_axis_var.vt:test_plot_axis_var
+  ${CMAKE_BINARY_DIR}/tmp/testing/uvcdat/cdms_test_axis_var.vt:test_plot_axis_var
   "datafile=${cdat_SOURCE_DIR}/libcdms/src/cdunif/test/testnc.nc"
   cdms_test_axis_var_4.png
   uvcdat
@@ -34,6 +39,6 @@ add_test(cdms_load_and_plot_axis_variable
 add_test(run_uvcdat_gui_tests
   ${CMAKE_INSTALL_PREFIX}/bin/uvcdat 
   -P -N -C 
-  -A "${cdat_SOURCE_DIR}" 
+  -A "${CMAKE_BINARY_DIR}/tmp/testing" 
   -S ${CMAKE_BINARY_DIR}/tmp
 )
