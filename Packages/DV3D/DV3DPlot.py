@@ -405,7 +405,6 @@ class DV3DPlot():
                      
     def stopAnimation(self):
         self.animating = False
-        self.animationStepper.stopAnimation()
         if self.animationTimerId <> -1: 
             self.animationTimerId = -1
             self.renderWindowInteractor.DestroyTimer( self.animationTimerId  ) 
