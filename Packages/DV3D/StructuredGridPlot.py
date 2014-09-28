@@ -242,10 +242,7 @@ class StructuredGridPlot(DV3DPlot):
             self.pipelineBuilt = True
                            
         self.updateModule( **args )                
-        self.render()
-
-    def terminate( self ):
-        pass
+        self.render()                            
     
     def getScalarRange( self, input_index = 0 ):
         ispec = self.inputSpecs[ input_index ] 

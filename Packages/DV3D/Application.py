@@ -42,6 +42,10 @@ class DV3DApp:
         if self.plot <> None:
             self.plot.updateModule() 
             
+    def onClosing(self):
+        if self.plot <> None:
+            self.plot.onClosing() 
+            
     def applyAction( self, action ):
         if self.plot <> None:
             self.plot.applyAction( action )

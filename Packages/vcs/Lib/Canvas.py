@@ -533,6 +533,9 @@ class Canvas(object,AutoAPI.AutoAPI):
     def savecontinentstype(self,value):
       self._savedcontinentstype = value
 
+    def onClosing( self ):
+        self.backend.onClosing()
+
     def _reconstruct_tv(self, arglist, keyargs):
         """Reconstruct a transient variable from the keyword arguments.
         Also select the default graphics method, depending on the grid type
@@ -1469,6 +1472,10 @@ Options:::
     def get3d_scalar(self,Gfdv3d_name_src='default'):
       return vcs.get3d_scalar(Gfdv3d_name_src)
     get3d_scalar.__doc__ = vcs.manageElements.get3d_scalar.__doc__
+
+    def scalar3d(self, *args, **parms):
+        arglist=_determine_arg_list('3d_scalar',args)            
+        return self.__plot(arglist, parms)
     
     def create3d_vector(self,name=None,source='default'):
       return vcs.create3d_vector(name,source)
@@ -1477,6 +1484,10 @@ Options:::
     def get3d_vector(self,Gfdv3d_name_src='default'):
       return vcs.get3d_vector(Gfdv3d_name_src)
     get3d_vector.__doc__ = vcs.manageElements.get3d_vector.__doc__
+
+    def vector3d(self, *args, **parms):
+        arglist=_determine_arg_list('3d_vector',args)            
+        return self.__plot(arglist, parms)
 
     #############################################################################
     #                                                                           #
@@ -4735,7 +4746,7 @@ Options:::
     # png wrapper for VCS.                                                   #
     #                                                                        #
     ##########################################################################
-    def png(self, file, width=None,height=None,units=None,draw_white_background = 0):
+    def png(self, file, width=None,height=None,units=None,draw_white_background = 0, **args ):
         """
  Function: png
 
@@ -4747,7 +4758,7 @@ Options:::
     a.plot(array)
     a.png('example')       # Overwrite a png file
 """
-        return self.backend.png(file,width,height,units,draw_white_background)
+        return self.backend.png(file,width,height,units,draw_white_background, **args )
 
     #############################################################################
     #                                                                           #
