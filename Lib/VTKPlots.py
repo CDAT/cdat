@@ -555,11 +555,26 @@ class VTKVCSBackend(object):
     z = numpy.zeros(u.shape)
     w = numpy.concatenate((u,v),axis=1)
     w = numpy.concatenate((w,z),axis=1)
+
+    # HACK The grid returned by vtk2vcs.genGrid is not the same size as the
+    # data array. I'm not sure where the issue is...for now let's just zero-pad
+    # data array so that we can at least test rendering until Charles gets
+    # back from vacation:
+    wLen = len(w)
+    numPts = ug.GetNumberOfPoints()
+    if wLen != numPts:
+        print "!!! Warning during vector plotting: Number of points does not "\
+              "match the number of vectors to be glyphed (%s points vs %s "\
+              "vectors). The vectors will be padded/truncated to match for "\
+              "rendering purposes, but the resulting image should not be "\
+              "trusted."%(numPts, wLen)
+        newShape = (numPts,) + w.shape[1:]
+        w = numpy.ma.resize(w, newShape)
+
     w = VN.numpy_to_vtk(w,deep=True)
     w.SetName("vectors")
     ug.GetPointData().AddArray(w)
     ## Vector attempt
-    arrow = vtk.vtkArrowSource()
     l = gm.line
     if l is None:
         l = "default"
@@ -577,16 +592,30 @@ class VTKVCSBackend(object):
     if gm.linecolor is not None:
         lcolor = gm.linecolor
 
+    arrow = vtk.vtkGlyphSource2D()
+    arrow.SetGlyphTypeToArrow()
+    arrow.FilledOff()
 
-    arrow.SetTipRadius(.1*lwidth)
-    arrow.SetShaftRadius(.03*lwidth)
-    arrow.Update()
     glyphFilter = vtk.vtkGlyph2D()
     glyphFilter.SetSourceConnection(arrow.GetOutputPort())
-    glyphFilter.OrientOn()
     glyphFilter.SetVectorModeToUseVector()
+
+    # Rotate arrows to match vector data:
+    glyphFilter.OrientOn()
+
+    # Scale to vector magnitude:
+    glyphFilter.SetScaleModeToScaleByVector()
+
+    # These are some unfortunately named methods. It does *not* clamp the scale
+    # range to [min, max], but rather remaps the range [min, max]-->[0,1]. Bump
+    # up min so that near-zero vectors will not be rendered, as these tend to
+    # come out randomly oriented.
+    glyphFilter.ClampingOn()
+    glyphFilter.SetRange(0.01, 1.0)
+
     glyphFilter.SetInputArrayToProcess(1,0,0,0,"vectors")
     glyphFilter.SetScaleFactor(2.*gm.scale)
+
     if cellData:
         if ug.IsA("vtkUnstructuredGrid"):
             glyphFilter.SetInputConnection(cln.GetOutputPort())
