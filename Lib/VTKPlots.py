@@ -303,6 +303,7 @@ class VTKVCSBackend(object):
     if self.renWin is None:
       return
     self.renWin.Finalize()
+    self.renWin = None
 
   def geometry(self,x,y,*args):
       #screenSize = self.renWin.GetScreenSize()
