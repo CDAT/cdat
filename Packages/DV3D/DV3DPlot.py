@@ -271,6 +271,17 @@ class DV3DPlot():
         output = self.frameCaptureFilter.GetOutput()
         self.animation_frames.append( output )
         
+    def saveAnimation(self):
+        if len( self.animation_frames ) > 0:
+            writer = vtk.vtkPNGWriter()
+            saveDir = "~/animation-%d" % int( time.time() ) % 100000
+            print " Saving animation to '%s'" % saveDir
+            for index, frame in enumerate( self.animation_frames ):        
+                writer.SetInput(frame)
+                writer.SetFileName( "frame-%d" % index )
+                writer.Write()
+            self.animation_frames = []
+        
     def changeButtonActivation(self, button_name, activate ):
         button = self.buttonBarHandler.findButton( button_name ) 
         if button: 
@@ -425,7 +436,8 @@ class DV3DPlot():
         if self.animationTimerId <> -1: 
             self.animationTimerId = -1
             self.renderWindowInteractor.DestroyTimer( self.animationTimerId  ) 
-        self.notifyStopAnimation()           
+            self.saveAnimation()
+            self.notifyStopAnimation()           
         
     def notifyStartAnimation(self): 
         pass
