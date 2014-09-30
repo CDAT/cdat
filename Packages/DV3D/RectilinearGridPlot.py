@@ -1382,9 +1382,10 @@ class RectGridPlot(StructuredGridPlot):
 
     def updatingColormap( self, cmap_index, colormapManager ):
         if cmap_index == 0:
-            if self.planeWidgetX <> None: self.planeWidgetX.SetTextureInterpolate( colormapManager.smoothColormap )
-            if self.planeWidgetY <> None: self.planeWidgetY.SetTextureInterpolate( colormapManager.smoothColormap )
-            if self.planeWidgetZ <> None: self.planeWidgetZ.SetTextureInterpolate( colormapManager.smoothColormap )
+            for widget in ( self.planeWidgetX, self.planeWidgetY, self.planeWidgetZ ):
+                if widget <> None:
+                    widget.SetLookupTable( colormapManager.lut )
+                    widget.SetTextureInterpolate( colormapManager.smoothColormap )
             self.updateModule()
             
     def getPlaneWidget( self, plane ):       
