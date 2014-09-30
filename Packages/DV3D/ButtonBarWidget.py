@@ -426,10 +426,12 @@ class ControlBar(ButtonBar):
             self.addButton( bspec )
             
     def addButton( self, bspec ):
+        toggle_button = False
         if hasattr(bspec, "__iter__"):
-            bnames = bspec
+            bnames = [ bspec[0] ]
+            toggle_button = bspec[1] if len( bspec ) > 1 else True
         else: bnames = [ bspec ]        
-        button = Button( self.interactor, names=bnames, toggle = False )
+        button = Button( self.interactor, names=bnames, toggle = toggle_button )
         button.PublicStateChangedSignal.connect( self.processStateChangeEvent )
         self.buttons.append( button )
 
@@ -919,27 +921,3 @@ class ButtonBarWidget(ButtonBar):
 
 def processTestStateChange( button_id, key, state, force = False ):
     print " processTestStateChange: state  = %d "% state
-
-if __name__ == '__main__':
-        
-    ren = vtk.vtkRenderer()
-    renWin = vtk.vtkRenderWindow()
-    renWin.AddRenderer(ren)
-    iren = vtk.vtkRenderWindowInteractor()
-    iren.SetRenderWindow(renWin)
-    iren.SetInteractorStyle( vtk.vtkInteractorStyleTrackballCamera()  )
-    ren.SetBackground( 1.0, 1.0, 1.0 )
-    renWin.SetSize(400,400)
-    
-    buttonBarHandler = ButtonBarHandler()
-    
-    control_bar = buttonBarHandler.createControlBar( 'Test', iren, [ ( "Step", ("Run","Stop") ), processTestStateChange ], position = ( 0.5, 0.5 ) )
-
-    ren.ResetCamera()
-    ren.ResetCameraClippingRange()   
-    iren.Initialize()
-    renWin.Render()
-    
-    control_bar.show()
-    
-    iren.Start()

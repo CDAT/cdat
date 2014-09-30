@@ -135,6 +135,9 @@ class DV3DPlot():
         self.plot_attributes = args.get( 'plot_attributes', {} )
         self.plotConstituents = { 'Slice' : 'SliceRoundRobin', 'Volume' : 'ToggleVolumePlot', 'Surface' : 'ToggleSurfacePlot' }  
         self.topo = PlotType.Planar
+        self.record_animation = 0
+        self.animation_frames = []
+        self.frameCaptureFilter = None
         
         self.configuring = False
         self.animating = False
@@ -257,6 +260,17 @@ class DV3DPlot():
         self.renderWindowInteractor.SetTimerEventType( self.AnimationTimerType )
         self.animationTimerId = self.renderWindowInteractor.CreateOneShotTimer( event_duration )
         
+    def captureFrame( self, **args ): 
+        if self.frameCaptureFilter is None:    
+            self.frameCaptureFilter = vtk.vtkWindowToImageFilter()
+            self.frameCaptureFilter.SetInput( self.renderWindow )
+            ignore_alpha = args.get( 'ignore_alpha', True )
+            if ignore_alpha:    self.frameCaptureFilter.SetInputBufferTypeToRGB()
+            else:               self.frameCaptureFilter.SetInputBufferTypeToRGBA()
+        self.frameCaptureFilter.Update()
+        output = self.frameCaptureFilter.GetOutput()
+        self.animation_frames.append( output )
+        
     def changeButtonActivation(self, button_name, activate ):
         button = self.buttonBarHandler.findButton( button_name ) 
         if button: 
@@ -367,7 +381,7 @@ class DV3DPlot():
             pass
         elif args and args[0] == "InitConfig":
             state = args[1]
-            bbar = self.getControlBar( 'Animation', [ ( "Step", "Run", "Stop" ), self.processAnimationStateChange ], mag=1.4 )
+            bbar = self.getControlBar( 'Animation', [ ( "Step", "Run", "Stop", ( "Record", True ) ), self.processAnimationStateChange ], mag=1.4 )
             if state == 1:
                 self.updateTextDisplay( config_function.label )
                 bbar.show()
@@ -397,7 +411,10 @@ class DV3DPlot():
         elif button_id == 'Stop':
             self.animationStepper.stopAnimation()
             self.animating = False
-            
+        elif button_id == 'Record':
+            self.record_animation = state
+            print " Set record_animation: " , str( self.record_animation )
+          
     def startAnimation(self):   
         self.notifyStartAnimation()
         self.animating = True
