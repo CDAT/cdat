@@ -344,6 +344,7 @@ class VTKVCSBackend(object):
         else:
             ren = self.createRenderer()
             if not (vcs.issecondaryobject(gm) and gm.priority==0):
+                self.setLayer(ren,tpl.data.priority)
                 self.renderer = ren
                 self.renWin.AddRenderer(ren)
         #ren.SetPreserveDepthBuffer(True)
