@@ -10,7 +10,7 @@ import os, time
 import subprocess, signal 
 
 demo_index = '4'
-background_render = 0
+background_render = 1
 bgX=2048
 bgY=1024
 is_vector = False
