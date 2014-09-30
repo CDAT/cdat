@@ -5,7 +5,7 @@ Created on Apr 30, 2014
 '''
 from ColorMapManager import *
 from ButtonBarWidget import *
-import vtk, traceback, os, threading, time
+import vtk, traceback, time
 MIN_LINE_LEN = 150
 VTK_NOTATION_SIZE = 10
 
@@ -197,6 +197,7 @@ class DV3DPlot():
         self.cameraOrientation = {}
         self.maxStageHeight = 100.0
         self.observerTargets = set()
+        self.currTime = None
         self.xcenter = 100.0
         self.xwidth = 300.0
         self.ycenter = 0.0
@@ -340,7 +341,10 @@ class DV3DPlot():
             self.animationTimerId = -1
         self.renderWindowInteractor.SetTimerEventId( self.AnimationEventId )
         self.renderWindowInteractor.SetTimerEventType( self.AnimationTimerType )
-        self.animationTimerId = self.renderWindowInteractor.CreateOneShotTimer( event_duration )
+        self.animationTimerId = self.renderWindowInteractor.CreateOneShotTimer( event_duration )        
+        t1 = time.clock()
+        if self.currTime <> None: print " Animation step, DT = %.3f" % ( t1 - self.currTime )
+        self.currTime = t1
         
     def changeButtonActivation(self, button_name, activate, state = None ):
         button = self.buttonBarHandler.findButton( button_name ) 
