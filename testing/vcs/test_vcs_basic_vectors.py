@@ -7,6 +7,7 @@ p.add_argument("--mask", dest="mask", action="store_true",help="mask out part of
 p.add_argument("--show", dest="show", action="store_true",help="show plots on screen (no bg)")
 p.add_argument("--projection-type", dest="projtype", default="default", help="use a specific projection type")
 p.add_argument("--keep", dest="keep", action="store_true",help="Save image, even if baseline matches.")
+p.add_argument("--amplitude", dest="amplitude", action="store_true",help="makes amplitude of data change")
 p.add_argument("--scale", dest="scale", type=float, help="scale arrows", default=1.)
 p.add_argument("--angle", dest="angle", type=int, help="vectors angle",default=45)
 
@@ -34,14 +35,7 @@ if bg:
   x.setbgoutputdimensions(1200,1091,units="pixels")
 x.setcolormap("rainbow")
 gm=vcs.createvector()
-if args.projtype != "default":
-    p = vcs.createprojection()
-    try:
-        ptype = int(args.projtype)
-    except:
-        ptype = args.projtype
-    p.type = ptype
-    gm.projection = p
+gm.scale = args.scale
 nm_xtra=""
 xtra = {}
 #Creates 4x5 grid
@@ -63,6 +57,22 @@ elif args.angle in [-45,-90,-135]:
     v=-MV2.ones((45,72))
 else:
     v=MV2.zeros((45,72))
+if args.amplitude:
+  nm_xtra="_amplitude"
+  U=numpy.cos(lons[:])
+  V=numpy.sin(lats[:])
+  A=MV2.array(V[:,numpy.newaxis]*U[numpy.newaxis,:])
+  A.setAxis(0,lats)
+  A.setAxis(1,lons)
+  u*=A
+  v*=A
+  #Now plots the amplitude underneath the data
+  b=x.createboxfill()
+  print vcs.elements["list"]["lon30"]
+  print vcs.elements["list"]["lat20"]
+  b.xticlabels1=vcs.elements["list"]["lon30"]
+  b.yticlabels1=vcs.elements["list"]["lat20"]
+  x.plot(A,b,bg=bg)
 u.setAxis(0,lats)
 u.setAxis(1,lons)
 v.setAxis(0,lats)
