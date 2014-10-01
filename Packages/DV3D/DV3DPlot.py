@@ -5,7 +5,7 @@ Created on Apr 30, 2014
 '''
 from ColorMapManager import *
 from ButtonBarWidget import *
-import vtk, traceback
+import vtk, traceback, os, threading
 MIN_LINE_LEN = 150
 VTK_NOTATION_SIZE = 10
 
@@ -19,7 +19,32 @@ class AnimationStepper:
 
     def stopAnimation(self):
         self.target.stopAnimation()
- 
+
+
+class SaveAnimationThread( threading.Thread ):
+    
+    def __init__( self, frames, **args ):
+        threading.Thread.__init__( self ) 
+        self.animation_frames = frames
+        self.writer = vtk.vtkPNGWriter()
+        self.rootDirName = args.get( 'root_name', "/tmp/animation"  )
+        
+    def getUnusedDirName ():
+        for index in range( 100000 ):
+            dir_name = os.path.expanduser( '-'.join( [ self.rootDirName, str(index) ]) )
+            if not os.path.exists(dir_name):
+                return dir_name
+         
+    def run(self):                
+        if len( self.animation_frames ) > 0:           
+            saveDir = self.getUnusedDirName()
+            print " Saving animation to '%s'" % saveDir
+            for index, frame in enumerate( self.animation_frames ):        
+                self.writer.SetInput(frame)
+                self.writer.SetFileName( os.path.join( saveDir, "frame-%d" % index ) )
+                self.writer.Write()
+            self.animation_frames = []
+                    
 class TextDisplayMgr:
     
     def __init__( self, renderer ):
@@ -270,18 +295,12 @@ class DV3DPlot():
         self.frameCaptureFilter.Update()
         output = self.frameCaptureFilter.GetOutput()
         self.animation_frames.append( output )
-        
+                
     def saveAnimation(self):
-        if len( self.animation_frames ) > 0:
-            writer = vtk.vtkPNGWriter()
-            saveDir = "~/animation-%d" % int( time.time() ) % 100000
-            print " Saving animation to '%s'" % saveDir
-            for index, frame in enumerate( self.animation_frames ):        
-                writer.SetInput(frame)
-                writer.SetFileName( "frame-%d" % index )
-                writer.Write()
-            self.animation_frames = []
-        
+        saveAnimationThread = SaveAnimationThread( self.animation_frames )
+        self.animation_frames =[]
+        saveAnimationThread.start()
+         
     def changeButtonActivation(self, button_name, activate ):
         button = self.buttonBarHandler.findButton( button_name ) 
         if button: 
