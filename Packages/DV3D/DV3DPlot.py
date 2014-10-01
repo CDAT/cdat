@@ -20,31 +20,60 @@ class AnimationStepper:
     def stopAnimation(self):
         self.target.stopAnimation()
 
+def ffmpeg( movie, rootFileName ):
+    cmd = 'ffmpeg -y '
+#    bitrate = 1024
+#    rate = 10
+#    options=''
+    cmd += '-i %s%%d.png' % ( rootFileName )
+#    cmd += ' -r %s ' % rate
+ #   cmd += ' -b:v %sk' % bitrate
+ #   cmd += ' ' + options
+    cmd += ' ' + movie
+    o = os.popen(cmd).read()
+    return o
 
-class SaveAnimationThread( threading.Thread ):
+def saveAnimation( animation_frames, saveDir ):
+    rootFileName = os.path.join( saveDir, "frame-" )
+    files = []
+    writer = vtk.vtkPNGWriter()
+    print " Saving animation (%d frames) to '%s'" % ( len( animation_frames ) , saveDir ); sys.stdout.flush()
+    for index, frame in enumerate( animation_frames ):        
+        writer.SetInputData(frame)
+        fname = "%s%d.png" % ( rootFileName, index )
+        writer.SetFileName( fname )
+        writer.Update()
+        writer.Write()
+        files.append( fname )
+    ffmpeg( os.path.join( saveDir, "movie.mpg" ), rootFileName )
+    for f in files: os.remove(f)
+    print "Done saving animation"; sys.stdout.flush()
+
+class SaveAnimation():
     
     def __init__( self, frames, **args ):
-        threading.Thread.__init__( self ) 
-        self.animation_frames = frames
-        self.writer = vtk.vtkPNGWriter()
-        self.rootDirName = args.get( 'root_name', "/tmp/animation"  )
+        self.animation_frames = list( frames )
+        self.rootDirName = args.get( 'root_name', "~/.uvcdat/animation"  )
+        print "Init SaveAnimationThread, nframes = %d" % len( self.animation_frames )    
         
-    def getUnusedDirName ():
+    def getUnusedDirName( self ):
         for index in range( 100000 ):
             dir_name = os.path.expanduser( '-'.join( [ self.rootDirName, str(index) ]) )
             if not os.path.exists(dir_name):
+                os.mkdir( dir_name, 0755  )
                 return dir_name
          
-    def run(self):                
-        if len( self.animation_frames ) > 0:           
+    def run(self): 
+        nframes =  len( self.animation_frames )              
+        if nframes > 0:           
             saveDir = self.getUnusedDirName()
-            print " Saving animation to '%s'" % saveDir
-            for index, frame in enumerate( self.animation_frames ):        
-                self.writer.SetInput(frame)
-                self.writer.SetFileName( os.path.join( saveDir, "frame-%d" % index ) )
-                self.writer.Write()
+            t = threading.Thread(target=saveAnimation, args = ( self.animation_frames, saveDir ))
+            t.daemon = True
+            t.start() 
             self.animation_frames = []
-                    
+               
+
+                        
 class TextDisplayMgr:
     
     def __init__( self, renderer ):
@@ -163,7 +192,7 @@ class DV3DPlot():
         self.record_animation = 0
         self.animation_frames = []
         self.frameCaptureFilter = None
-        
+       
         self.configuring = False
         self.animating = False
         self.activated = False
@@ -220,6 +249,7 @@ class DV3DPlot():
         self.onWindowModified()
         
     def onClosing(self):
+        print "Closing!"
         self.stopAnimation()
         self.terminate()
         
@@ -284,6 +314,7 @@ class DV3DPlot():
         self.renderWindowInteractor.SetTimerEventId( self.AnimationEventId )
         self.renderWindowInteractor.SetTimerEventType( self.AnimationTimerType )
         self.animationTimerId = self.renderWindowInteractor.CreateOneShotTimer( event_duration )
+        if self.record_animation: self.captureFrame()
         
     def captureFrame( self, **args ): 
         if self.frameCaptureFilter is None:    
@@ -297,9 +328,9 @@ class DV3DPlot():
         self.animation_frames.append( output )
                 
     def saveAnimation(self):
-        saveAnimationThread = SaveAnimationThread( self.animation_frames )
+        saveAnimationThread = SaveAnimation( self.animation_frames )
         self.animation_frames =[]
-        saveAnimationThread.start()
+        saveAnimationThread.run()
          
     def changeButtonActivation(self, button_name, activate ):
         button = self.buttonBarHandler.findButton( button_name ) 
@@ -384,7 +415,8 @@ class DV3DPlot():
         elif args and args[0] == "Open":
             pass
         elif args and args[0] == "Close":
-            self.colormapWidget.hide()
+            if self.colormapWidget <> None:
+                self.colormapWidget.hide()
         elif args and args[0] == "UpdateConfig":
             cmap_data = args[3]
             self.setColormap( cmap_data )
@@ -444,6 +476,8 @@ class DV3DPlot():
         elif button_id == 'Record':
             self.record_animation = state
             print " Set record_animation: " , str( self.record_animation )
+            if self.record_animation == 0:
+                self.saveAnimation()
           
     def startAnimation(self):   
         self.notifyStartAnimation()
@@ -832,6 +866,13 @@ class DV3DPlot():
         if not self.resizingWindow:
             print " onRenderWindowResize, size = ", str( self.renderWindowSize )
             self.resizingWindow = True
+            self.animation_frames = []
+            if self.colormapWidget <> None:
+                self.colormapWidget.hide()
+                self.colormapWidget = None
+                bbar = self.buttonBarHandler.getButtonBar( 'Interaction' )
+                button = bbar.getButton( 'ChooseColormap' )
+                button.setToggleState( 0 )
             self.updateTextDisplay()
             self.buttonBarHandler.repositionButtons()
             self.renderWindow.Modified()

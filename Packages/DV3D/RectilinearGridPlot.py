@@ -223,7 +223,8 @@ class RectGridPlot(StructuredGridPlot):
             value = args[2].GetValue() 
             colorScaleRange.setValue( args[1], value )
             cscale = colorScaleRange.getValues()
-            self.scaleEnabledColormaps( cscale )
+            self.scaleColormap( cscale )
+#             self.scaleEnabledColormaps( cscale )
             if self.isConstituentConfigEnabled('Volume'):
                 self.generateCTF( cscale )
             for plotItem in self.plotConstituents.items():
