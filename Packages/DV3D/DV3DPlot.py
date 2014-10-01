@@ -406,12 +406,15 @@ class DV3DPlot():
         elif args and args[0] == "EndConfig":
             self.processConfigParameterChange( colormapParam )
         elif args and args[0] == "InitConfig":
+            state = args[1]
             if ( self.colormapWidget == None ): #  or self.colormapWidget.checkWindowSizeChange():
                 self.colormapWidget = ColorbarListWidget( self.renderWindowInteractor ) 
                 bbar = args[3]
                 self.colormapWidget.StateChangedSignal.connect( bbar.processInteractionEvent )
             if len( args ) == 1:    self.colormapWidget.toggleVisibility()
             else:                   self.colormapWidget.toggleVisibility( state = args[1] )
+            if state: self.logoWidget.Off()
+            else: self.logoWidget.On()
         elif args and args[0] == "Open":
             pass
         elif args and args[0] == "Close":
@@ -721,7 +724,8 @@ class DV3DPlot():
             RenderWindow = self.renderWindowInteractor.GetRenderWindow()   
 #            RenderWindow.AddObserver( 'AnyEvent', self.onAnyWindowEvent )
             RenderWindow.AddObserver( 'RenderEvent', self.onWindowRenderEvent )
-            self.updateInteractor() 
+            self.updateInteractor()
+            self.addLogo()
             self.activated = True 
             
     def buildConfigurationButton(self):
@@ -903,17 +907,15 @@ class DV3DPlot():
     def addLogo(self):
         if self.logoRepresentation == None:
             defaultLogoFile = os.path.join(sys.prefix,"share","vcs","uvcdat.png")
-            reader = vtk.vtkJPEGReader()
+            reader = vtk.vtkPNGReader()
             reader.SetFileName( defaultLogoFile )
             reader.Update()
             logo_input = reader.GetOutput()
             self.logoRepresentation = vtk.vtkLogoRepresentation()
             self.logoRepresentation.SetImage(logo_input)
             self.logoRepresentation.ProportionalResizeOn ()
-#            self.logoRepresentation.SetPosition( 0.82, 0.0 )
-#            self.logoRepresentation.SetPosition2( 0.18, 0.08 )
-            self.logoRepresentation.SetPosition( 0.82, 1.0 )
-            self.logoRepresentation.SetPosition2( 0.08, 0.18 )
+            self.logoRepresentation.SetPosition( 0.82, 0.0 )
+            self.logoRepresentation.SetPosition2( 0.18, 0.08 )
             self.logoRepresentation.GetImageProperty().SetOpacity( 0.9 )
             self.logoRepresentation.GetImageProperty().SetDisplayLocationToBackground() 
             self.logoWidget = vtk.vtkLogoWidget()
