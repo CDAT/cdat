@@ -234,10 +234,8 @@ class VTKVCSBackend(object):
       return ren
 
   def update(self, *args, **kargs):
-      self._lastSize = -1
-      self.configureEvent(None,None)
-      self.configureEvent(None,None)
-      pass
+      if self.renWin:
+          self.configureEvent(None,None)
 
   def canvasinfo(self):
     if self.renWin is None:
