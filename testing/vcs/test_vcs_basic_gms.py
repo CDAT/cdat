@@ -14,6 +14,7 @@ p.add_argument("--lon2", dest="lon2", default=0, type=float, help="Last Longitud
 p.add_argument("--range_via_gm", dest="rg", action="store_true", help="Set the range via graphic method ")
 p.add_argument("--gm_flips_lat_range", dest="flip", action="store_true", help="Set the range via graphic method to flip of data")
 p.add_argument("--zero", dest="zero", action="store_true", help="Set the data to zero everywhere")
+p.add_argument("--keep", dest="keep", action="store_true",help="Save image, even if baseline matches.")
 
 args = p.parse_args(sys.argv[1:])
 
@@ -118,7 +119,7 @@ fnm+=nm_xtra
 x.png(fnm)
 print "fnm:",fnm
 print "src:",src
-ret = checkimage.check_result_image(fnm+'.png',src,checkimage.defaultThreshold)
+ret = checkimage.check_result_image(fnm+'.png',src,checkimage.defaultThreshold, cleanup=not args.keep)
 if args.show:
     raw_input("Press Enter")
 sys.exit(ret)

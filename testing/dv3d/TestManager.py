@@ -7,6 +7,9 @@ Created on Aug 28, 2014
 
 import cdms2, cdutil, genutil
 import vcs, os, sys, shutil, collections
+pth = os.path.join(os.path.dirname(__file__),"..")
+sys.path.append(pth)
+import checkimage
 
 DefaultSampleFile = "geos5-sample.nc"
 DefaultSampleVar = "uwnd"
@@ -106,7 +109,6 @@ class vcsTest:
         self.canvas.interact()
         
     def test( self, interactive=False ):      
-        import checkimage
         self.build()
 #        test_image = os.path.join( self.test_dir, 'images', '.'.join( [ self.name, 'png' ] ) )
         test_image = '.'.join( [ self.name, 'test', 'png' ] )

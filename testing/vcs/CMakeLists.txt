@@ -128,7 +128,7 @@ add_test(vcs_test_dump_json
     ${cdat_SOURCE_DIR}/testing/vcs/test_1D_with_manyDs.png
     )
 
-  #These test actually plot things need sample data
+  # These test actually plot things need sample data
   if (CDAT_DOWNLOAD_SAMPLE_DATA)
     FOREACH(gm boxfill isofill isoline vector meshfill yxvsx xvsy xyvsy oned scatter)
       add_test(vcs_test_basic_${gm}_zero
@@ -152,6 +152,7 @@ add_test(vcs_test_dump_json
         --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_${gm}_masked.png
         )
     ENDFOREACH(gm)
+
     FOREACH(gm boxfill isofill isoline vector meshfill )
      FOREACH(ptype 0 -3 aeqd)
       add_test(vcs_test_basic_${gm}_masked_${ptype}_proj
@@ -259,6 +260,7 @@ add_test(vcs_test_dump_json
         )
      ENDFOREACH(ptype)
     ENDFOREACH(gm)
+
     add_test(vcs_test_${gm}_patterns
       ${CMAKE_INSTALL_PREFIX}/bin/python
       ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_patterns.py
@@ -299,6 +301,7 @@ add_test(vcs_test_dump_json
       ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2_ext1_ext2.py
       ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2_ext1_ext2.png
       )
+
     FOREACH(flip None X XY Y)
       add_test(vcs_test_flip${flip}
         ${CMAKE_INSTALL_PREFIX}/bin/python
@@ -306,10 +309,17 @@ add_test(vcs_test_dump_json
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_flip${flip}.png
         )
     ENDFOREACH(flip)
+
     add_test(vcs_test_boxfill_lev1_lev2_ta_missing
       ${CMAKE_INSTALL_PREFIX}/bin/python
       ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2_ta_missing.py
       ${cdat_SOURCE_DIR}/testing/vcs/test_boxfill_lev1_lev2_ta_missing.png
+      )
+
+    add_test(vcs_test_close
+      ${CMAKE_INSTALL_PREFIX}/bin/python
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_close.py
+      ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_close.png
       )
   endif()
 
