@@ -21,7 +21,7 @@ class AnimationStepper:
         self.target.stopAnimation()
 
 def ffmpeg( movie, rootFileName ):
-    cmd = 'ffmpeg -y -b:v 512k '
+    cmd = 'ffmpeg -y -b:v 1024k '
 #    bitrate = 1024
 #    rate = 10
 #    options=''
@@ -849,6 +849,7 @@ class DV3DPlot():
         if ( window_size <> self.renderWindowSize ):
             self.onRenderWindowResize()
             self.renderWindowSize = window_size
+        time.sleep(0.0)
              
     def onAnyWindowEvent( self, caller=None, event=None ):
          print "Window Event: ", event
