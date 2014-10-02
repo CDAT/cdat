@@ -234,9 +234,8 @@ class VTKVCSBackend(object):
       return ren
 
   def update(self, *args, **kargs):
-    if self.renWin is not None:
-      #self.renWin.Render()
-      pass
+      if self.renWin:
+          self.configureEvent(None,None)
 
   def canvasinfo(self):
     if self.renWin is None:
