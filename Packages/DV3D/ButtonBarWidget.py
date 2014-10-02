@@ -259,27 +259,29 @@ class ButtonBarHandler:
     def restoreInteractionState(self): 
 #        print "  ----------------------------- restoreInteractionState ----------------------------- " 
         bbar = self.getButtonBar( 'Plot' ) 
-        bbar.InteractionState = None
-        current_config_function = None
-        for configFunct in bbar.configurableFunctions.values():
-            if ( configFunct.type == 'slider' ) and ( configFunct.active ) and ( configFunct.group == self.DefaultGroup ):
-                b = bbar.getButton( configFunct.name )
-                if b.getState():
-#                    print "Activating Slider ", configFunct.name
-                    if current_config_function == None:
-                        current_config_function = configFunct
-                    else:
-                        if not configFunct.sameGroup( current_config_function ):
-                            print>>sys.stderr, "Error, interaction state conflict: %s vs %s " % ( configFunct.name, bbar.InteractionState) 
-                            return
-                    bbar.InteractionState = configFunct.name 
-                    n_active_sliders = configFunct.position[1] if configFunct.position else 1
-                    position_index = configFunct.position[0] if configFunct.position else 0
-                    tvals = configFunct.value.getValues()               
-                    bbar.commandeerControl( position_index, configFunct.sliderLabels[0], configFunct.getRangeBounds(), tvals[0]  )
-                    bbar.positionSlider( position_index, n_active_sliders )
-                    self.current_configuration_mode = configFunct.label
-#                    print " ButtonBarWidget: restore current_configuration_mode = ", configFunct.label
+        if bbar is not None:
+            bbar.InteractionState = None
+            current_config_function = None
+            for configFunct in bbar.configurableFunctions.values():
+                if ( configFunct.type == 'slider' ) and ( configFunct.active ) and ( configFunct.group == self.DefaultGroup ):
+                    b = bbar.getButton( configFunct.name )
+                    if b.getState():
+    #                    print "Activating Slider ", configFunct.name
+                        if current_config_function == None:
+                            current_config_function = configFunct
+                        else:
+                            if not configFunct.sameGroup( current_config_function ):
+                                print>>sys.stderr, "Error, interaction state conflict: %s vs %s " % ( configFunct.name, bbar.InteractionState) 
+                                return
+                        bbar.InteractionState = configFunct.name 
+                        n_active_sliders = configFunct.position[1] if configFunct.position else 1
+                        position_index = configFunct.position[0] if configFunct.position else 0
+                        tvals = configFunct.value.getValues() 
+                        tval =  tvals[0] if ( len( tvals ) > 0 ) else 0.0             
+                        bbar.commandeerControl( position_index, configFunct.sliderLabels[0], configFunct.getRangeBounds(), tval  )
+                        bbar.positionSlider( position_index, n_active_sliders )
+                        self.current_configuration_mode = configFunct.label
+    #                    print " ButtonBarWidget: restore current_configuration_mode = ", configFunct.label
 
 class ButtonBar:
     
@@ -633,15 +635,17 @@ class ButtonBarWidget(ButtonBar):
             
     def positionSlider(self, position_index, n_sliders ):
         slider_pos = self.slider_postions[ n_sliders ]
-        ( process_mode, interaction_state, swidget ) = self.currentControls[position_index]
-        sliderRep = swidget.GetRepresentation( ) 
-        sliderRep.GetPoint1Coordinate().SetValue( slider_pos[position_index][0], 0.06, 0 )  
-        sliderRep.GetPoint2Coordinate().SetValue( slider_pos[position_index][1], 0.06, 0 )
-        sliderRep.Modified()
-        swidget.Modified()    
-        sliderRep.NeedToRenderOn()
+        ( process_mode, interaction_state, swidget ) = self.currentControls.get( position_index, ( None, None, None ) )
+        if swidget is not None:
+            sliderRep = swidget.GetRepresentation( ) 
+            sliderRep.GetPoint1Coordinate().SetValue( slider_pos[position_index][0], 0.06, 0 )  
+            sliderRep.GetPoint2Coordinate().SetValue( slider_pos[position_index][1], 0.06, 0 )
+            sliderRep.Modified()
+            swidget.Modified()    
+            sliderRep.NeedToRenderOn()
                         
     def commandeerControl(self, index, label, bounds, tvals ): 
+        if bounds == None: return
 #        print " CommandeerSlider[%d]: ('%s') %s: %s in %s " % ( index, label, self.InteractionState, str(value), str(bounds) )
         widget_item = self.currentControls.get( index, None )
         isButtonWidget = type(label) == list
@@ -821,7 +825,8 @@ class ButtonBarWidget(ButtonBar):
 #                        self.setSliderValue( position_index, slicePosition.getValue() )  
                                            
                     if self.isSliderVisible( position_index ) or force_enable:
-                        self.commandeerControl( position_index, configFunct.sliderLabels[0], configFunct.getRangeBounds(), tvals[0]  )
+                        tval = tvals[0]  if len( tvals ) > 0 else 0.0
+                        self.commandeerControl( position_index, configFunct.sliderLabels[0], configFunct.getRangeBounds(), tval  )
                         self.positionSlider( position_index, n_active_sliders )
                         self.setSliderVisibility( position_index, True )
                     else: self.releaseSlider( position_index )

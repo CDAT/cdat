@@ -147,7 +147,6 @@ class RectGridPlot(StructuredGridPlot):
         interactionButtons.addSliderButton( names=['ScaleTransferFunction'], key='T', toggle=True, parents=['ToggleVolumePlot'], label='Transfer Function Range', interactionHandler=self.processThresholdRangeCommand )
         interactionButtons.addSliderButton( names=['ScaleOpacity'], key='o', toggle=True, label='Opacity Scale', range_bounds=[ 0.0, 1.0 ], initValue=[ 1.0, 1.0 ], interactionHandler=self.processOpacityScalingCommand )
         interactionButtons.addSliderButton( names=['IsosurfaceValue'], key='L', toggle=True, parents=['ToggleSurfacePlot'], sliderLabels='Isosurface Value', label='Positioning Isosurface', interactionHandler=self.processIsosurfaceValueCommand )
-        self.fetchPlotButtons()
         
 #         self.addConfigurableLevelingFunction( 'colorScale', 'C', label='Colormap Scale', units='data', setLevel=self.scaleColormap, getLevel=self.getDataRangeBounds, layerDependent=True, adjustRangeInput=0, group=ConfigGroup.Color )
 #         self.addConfigurableLevelingFunction( 'opacity', 'O', label='Slice Plane Opacity', rangeBounds=[ 0.0, 1.0 ],  setLevel=self.setOpacity, activeBound='min',  getLevel=self.getOpacity, isDataValue=False, layerDependent=True, bound = False, group=ConfigGroup.Rendering )
@@ -1324,11 +1323,12 @@ class RectGridPlot(StructuredGridPlot):
             if not self.planeWidgetX.MatchesBounds( bounds ):
                 self.planeWidgetX.PlaceWidget( bounds )        
                 self.planeWidgetY.PlaceWidget( bounds ) 
-        plotButtons = self.fetchPlotButtons()
-        cf = plotButtons.getConfigFunction('ZSlider')
-        if cf: 
-            cf.scaleRange( zscale_data[0] )
-        self.render()               
+        plotButtons = self.getPlotButtonbar()
+        if plotButtons <> None:
+            cf = plotButtons.getConfigFunction('ZSlider')
+            if cf: 
+                cf.scaleRange( zscale_data[0] )
+            self.render()               
 
     def setInputZScale( self, zscale_data, input_index, **args  ):
         input = StructuredGridPlot.setInputZScale( self, zscale_data, input_index, **args  )

@@ -184,7 +184,6 @@ class CPCPlot( DV3DPlot ):
         interactionButtons.addSliderButton( names=['PointSize'], key='P', toggle=True, label='Point Size', sliderLabels=['Low Resolution', 'High Resolution' ], interactionHandler=self.processPointSizeCommand, range_bounds=[ 1, 12 ], initValue=[ 5, 1 ] )
         interactionButtons.addSliderButton( names=['SliceThickness'], key='w', toggle=True, label='Slice Thickness', sliderLabels=['Low Resolution', 'High Resolution' ], interactionHandler=self.processSlicePropertiesCommand, range_bounds=[  0.001, 0.01], initValue=[ 0.0025, 0.005 ] )
         interactionButtons.addConfigButton( names=['ToggleSphericalProj'], key='s', toggle=True, interactionHandler=self.processProjectionCommand )
-        plotButtons = self.fetchPlotButtons()
   
 #        self.addConfigurableSliderFunction( 'colorScale', 'C', label='Colormap Scale', interactionHandler=self.processColorScaleCommand )
 #        self.addConfigurableSliderFunction( 'thresholding', 'T', label='Thresholding Range', interactionHandler=self.processThresholdRangeCommand )
@@ -660,17 +659,18 @@ class CPCPlot( DV3DPlot ):
         normalized = args.get( 'normalized', False )
         spos = args.get( 'spos', None )
         interactionState = [ 'XSlider', 'YSlider', 'ZSlider' ][self.sliceAxisIndex]
-        bbar = self.fetchPlotButtons()
-        config_function = bbar.getConfigFunction( interactionState )
-        if spos == None:
-            spos = config_function.value.getValue()
-        if normalized: 
-            bounds = config_function.getRangeBounds()
-            axis_bounds = self.point_cloud_overview.getAxisBounds()
-            sindex = 2*self.sliceAxisIndex 
-#            spos =  ( spos - axis_bounds[sindex]) / ( axis_bounds[sindex+1] - axis_bounds[sindex])   
-            spos =  ( spos - bounds[0]) / ( bounds[1] - bounds[0] )   
-#            print "            >>--------------->>> Norm Slice Position: %s in %s " % ( str(spos), str(bounds) )
+        bbar = self.getPlotButtonbar()
+        if bbar <> None:
+            config_function = bbar.getConfigFunction( interactionState )
+            if spos == None:
+                spos = config_function.value.getValue()
+            if normalized: 
+                bounds = config_function.getRangeBounds()
+                axis_bounds = self.point_cloud_overview.getAxisBounds()
+                sindex = 2*self.sliceAxisIndex 
+    #            spos =  ( spos - axis_bounds[sindex]) / ( axis_bounds[sindex+1] - axis_bounds[sindex])   
+                spos =  ( spos - bounds[0]) / ( bounds[1] - bounds[0] )   
+    #            print "            >>--------------->>> Norm Slice Position: %s in %s " % ( str(spos), str(bounds) )
         return spos
 
 #     def setSlicePosition(self, slice_pos ):  
