@@ -168,6 +168,7 @@ class DV3DPlot():
         self.renderer = None
         self.useDepthPeeling = False
         self.renderWindowInteractor = None
+        self.inputSpecs = {}
         self.logoActor = None
         self.logoVisible = True
         self.logoRepresentation = None 
@@ -388,7 +389,13 @@ class DV3DPlot():
 
     def initializePlots(self):
 #         bbar = ButtonBarWidget.getButtonBar( 'Plot' )
-        bbar = self.buttonBarHandler.getButtonBar( 'Plot' )
+        enable_3d_plots = True
+        ispec = self.inputSpecs.get(  0 , None )
+        if ispec is not None:
+            md = ispec.metadata 
+            lev = md.get( 'lev', None )
+            if lev is None: enable_3d_plots = False
+        bbar = self.fetchPlotButtons( enable_3d_plots )
         if not self.cfgManager.initialized:
             button = bbar.getButton( 'ZSlider' ) 
             if button <> None:
@@ -741,11 +748,12 @@ class DV3DPlot():
         bbar = self.buildConfigurationButton( )
         bbar.show()
 
-    def buildPlotButtons(self):
+    def buildPlotButtons( self, **args ):
         bbar_name = 'Plot'
+        enable_3D = args.get( 'is3D', True )
         bbar = self.buttonBarHandler.createButtonBarWidget( bbar_name, self.renderWindowInteractor, position=( 0.0, 0.96) )
         self.buttonBarHandler.DefaultGroup = 'SliceRoundRobin'
-        if self.type == '3d_vector':
+        if (self.type == '3d_vector') or not enable_3D:
             b = bbar.addSliderButton( names=['ZSlider'],  key='z', toggle=True, group='SliceRoundRobin', sliderLabels='Slice Position', label="Slicing", state = 1, interactionHandler=self.processSlicingCommand )            
         else:
             b = bbar.addConfigButton( names=['SliceRoundRobin'],  key='p', interactionHandler=bbar.sliceRoundRobin )
@@ -758,6 +766,7 @@ class DV3DPlot():
             b = bbar.addConfigButton( names=['ToggleSurfacePlot'],  key='S', children=['IsosurfaceValue'], toggle=True, interactionHandler=self.processSurfacePlotCommand )
             b = bbar.addConfigButton( names=['ToggleVolumePlot'], key='v', children=['ScaleTransferFunction'], toggle=True, interactionHandler=self.processVolumePlotCommand )
         bbar.build()
+        return bbar
  
     def processSurfacePlotCommand( self, args, config_function = None ):
         if args and args[0] == "Init":
@@ -782,9 +791,9 @@ class DV3DPlot():
             self.processConfigStateChange( config_function.value )
 
     
-    def fetchPlotButtons( self, show = False ):
+    def fetchPlotButtons( self, enable_3D = True, show = False ):
         bbar1 = self.buttonBarHandler.getButtonBar( 'Plot' )
-        if bbar1 == None: self.buildPlotButtons()
+        if bbar1 == None: bbar1 = self.buildPlotButtons( is3D=enable_3D )
         if show:
             bbar1.show()
             self.showInteractionButtons()
@@ -793,9 +802,12 @@ class DV3DPlot():
             bbar2.build()
         return bbar1
     
+    def getPlotButtonbar(self):
+        return self.buttonBarHandler.getButtonBar( 'Plot' )
+    
     def getPlotButtons( self, names ):
-        bbar = self.fetchPlotButtons()
-        return [ bbar.getButton( name ) for name in names ]
+        bbar = self.buttonBarHandler.getButtonBar( bbar_name )
+        return [ bbar.getButton( name ) for name in names ] if bbar is not None else []
     
     def toggleCongurationButtons(self, isVisible ):
         config_bbars = [ 'Plot', 'Interaction' ]
@@ -877,6 +889,7 @@ class DV3DPlot():
                 bbar = self.buttonBarHandler.getButtonBar( 'Interaction' )
                 button = bbar.getButton( 'ChooseColormap' )
                 button.setToggleState( 0 )
+                self.logoWidget.On()
             self.updateTextDisplay()
             self.buttonBarHandler.repositionButtons()
             self.renderWindow.Modified()
