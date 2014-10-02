@@ -5,7 +5,7 @@ Created on Apr 30, 2014
 '''
 from ColorMapManager import *
 from ButtonBarWidget import *
-import vtk, traceback, os, threading
+import vtk, traceback, os, threading, time
 MIN_LINE_LEN = 150
 VTK_NOTATION_SIZE = 10
 
@@ -21,7 +21,7 @@ class AnimationStepper:
         self.target.stopAnimation()
 
 def ffmpeg( movie, rootFileName ):
-    cmd = 'ffmpeg -y '
+    cmd = 'ffmpeg -y -b:v 512k '
 #    bitrate = 1024
 #    rate = 10
 #    options=''
@@ -30,21 +30,23 @@ def ffmpeg( movie, rootFileName ):
  #   cmd += ' -b:v %sk' % bitrate
  #   cmd += ' ' + options
     cmd += ' ' + movie
+    print "Exec: ", cmd
     o = os.popen(cmd).read()
     return o
 
 def saveAnimation( animation_frames, saveDir ):
     rootFileName = os.path.join( saveDir, "frame-" )
     files = []
-    writer = vtk.vtkPNGWriter()
     print " Saving animation (%d frames) to '%s'" % ( len( animation_frames ) , saveDir ); sys.stdout.flush()
     for index, frame in enumerate( animation_frames ):        
+        writer = vtk.vtkPNGWriter()
         writer.SetInputData(frame)
         fname = "%s%d.png" % ( rootFileName, index )
         writer.SetFileName( fname )
         writer.Update()
         writer.Write()
         files.append( fname )
+        time.sleep( 0.01 )
     ffmpeg( os.path.join( saveDir, "movie.mpg" ), rootFileName )
     for f in files: os.remove(f)
     print "Done saving animation"; sys.stdout.flush()
@@ -192,7 +194,6 @@ class DV3DPlot():
         self.topo = PlotType.Planar
         self.record_animation = 0
         self.animation_frames = []
-        self.frameCaptureFilter = None
        
         self.configuring = False
         self.animating = False
@@ -317,15 +318,14 @@ class DV3DPlot():
         self.animationTimerId = self.renderWindowInteractor.CreateOneShotTimer( event_duration )
         if self.record_animation: self.captureFrame()
         
-    def captureFrame( self, **args ): 
-        if self.frameCaptureFilter is None:    
-            self.frameCaptureFilter = vtk.vtkWindowToImageFilter()
-            self.frameCaptureFilter.SetInput( self.renderWindow )
-            ignore_alpha = args.get( 'ignore_alpha', True )
-            if ignore_alpha:    self.frameCaptureFilter.SetInputBufferTypeToRGB()
-            else:               self.frameCaptureFilter.SetInputBufferTypeToRGBA()
-        self.frameCaptureFilter.Update()
-        output = self.frameCaptureFilter.GetOutput()
+    def captureFrame( self, **args ):   
+        frameCaptureFilter = vtk.vtkWindowToImageFilter()
+        frameCaptureFilter.SetInput( self.renderWindow )
+        ignore_alpha = args.get( 'ignore_alpha', True )
+        if ignore_alpha:    frameCaptureFilter.SetInputBufferTypeToRGB()
+        else:               frameCaptureFilter.SetInputBufferTypeToRGBA()
+        frameCaptureFilter.Update()
+        output = frameCaptureFilter.GetOutput()
         self.animation_frames.append( output )
                 
     def saveAnimation(self):
