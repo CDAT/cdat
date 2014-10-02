@@ -37170,7 +37170,7 @@
    "legend": {
     "line": "default",
     "priority": 1,
-    "textorientation": "7center",
+    "textorientation": "texcent",
     "texttable": "std",
     "x1": 0.86,
     "x2": 0.9,
@@ -37221,7 +37221,7 @@
     "priority": 1,
     "textorientation": "texou",
     "texttable": "default",
-    "x": 0.93,
+    "x": 0.88,
     "y": 0.92
    },
    "mean": {
@@ -37237,8 +37237,8 @@
     "priority": 1,
     "textorientation": "texou",
     "texttable": "default",
-    "x": 0.845,
-    "y": 0.92
+    "x": 0.88,
+    "y": 0.94
    },
    "source": {
     "priority": 1,
@@ -37902,7 +37902,7 @@
    "legend": {
     "line": "default",
     "priority": 1,
-    "textorientation": "7center",
+    "textorientation": "texcent",
     "texttable": "std",
     "x1": 0.86,
     "x2": 0.9,
@@ -37953,7 +37953,7 @@
     "priority": 1,
     "textorientation": "texou",
     "texttable": "default",
-    "x": 0.93,
+    "x": 0.88,
     "y": 0.59
    },
    "mean": {
@@ -37969,8 +37969,8 @@
     "priority": 1,
     "textorientation": "texou",
     "texttable": "default",
-    "x": 0.845,
-    "y": 0.59
+    "x": 0.88,
+    "y": 0.61
    },
    "source": {
     "priority": 1,
@@ -38634,7 +38634,7 @@
    "legend": {
     "line": "default",
     "priority": 1,
-    "textorientation": "7center",
+    "textorientation": "texcent",
     "texttable": "std",
     "x1": 0.86,
     "x2": 0.9,
@@ -38685,7 +38685,7 @@
     "priority": 1,
     "textorientation": "texou",
     "texttable": "default",
-    "x": 0.93,
+    "x": 0.88,
     "y": 0.26
    },
    "mean": {
@@ -38701,8 +38701,8 @@
     "priority": 1,
     "textorientation": "texou",
     "texttable": "default",
-    "x": 0.845,
-    "y": 0.26
+    "x": 0.88,
+    "y": 0.28
    },
    "source": {
     "priority": 1,
@@ -49916,6 +49916,13 @@
    "angle": 0,
    "halign": 1,
    "height": 25,
+   "path": 0,
+   "valign": 2
+  },
+  "texcent": {
+   "angle": 0,
+   "halign": 1,
+   "height": 9,
    "path": 0,
    "valign": 2
   },
