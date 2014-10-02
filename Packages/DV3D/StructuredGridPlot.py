@@ -238,6 +238,7 @@ class StructuredGridPlot(DV3DPlot):
             self.initializeInputs()        
             self.buildPipeline()
             self.buildBaseMap()
+            self.fetchPlotButtons()
             self.initializeConfiguration() 
             self.pipelineBuilt = True
                            

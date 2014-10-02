@@ -388,14 +388,7 @@ class DV3DPlot():
             self.processConfigStateChange( config_function.value )
 
     def initializePlots(self):
-#         bbar = ButtonBarWidget.getButtonBar( 'Plot' )
-        enable_3d_plots = True
-        ispec = self.inputSpecs.get(  0 , None )
-        if ispec is not None:
-            md = ispec.metadata 
-            lev = md.get( 'lev', None )
-            if lev is None: enable_3d_plots = False
-        bbar = self.fetchPlotButtons( enable_3d_plots )
+        bbar = self.getPlotButtonbar()
         if not self.cfgManager.initialized:
             button = bbar.getButton( 'ZSlider' ) 
             if button <> None:
@@ -750,10 +743,15 @@ class DV3DPlot():
 
     def buildPlotButtons( self, **args ):
         bbar_name = 'Plot'
-        enable_3D = args.get( 'is3D', True )
+        enable_3d_plots = True
+        ispec = self.inputSpecs.get(  0 , None )
+        if ispec is not None:
+            md = ispec.metadata 
+            lev = md.get( 'lev', None )
+            if lev is None: enable_3d_plots = False
         bbar = self.buttonBarHandler.createButtonBarWidget( bbar_name, self.renderWindowInteractor, position=( 0.0, 0.96) )
         self.buttonBarHandler.DefaultGroup = 'SliceRoundRobin'
-        if (self.type == '3d_vector') or not enable_3D:
+        if (self.type == '3d_vector') or not enable_3d_plots:
             b = bbar.addSliderButton( names=['ZSlider'],  key='z', toggle=True, group='SliceRoundRobin', sliderLabels='Slice Position', label="Slicing", state = 1, interactionHandler=self.processSlicingCommand )            
         else:
             b = bbar.addConfigButton( names=['SliceRoundRobin'],  key='p', interactionHandler=bbar.sliceRoundRobin )
@@ -791,15 +789,11 @@ class DV3DPlot():
             self.processConfigStateChange( config_function.value )
 
     
-    def fetchPlotButtons( self, enable_3D = True, show = False ):
+    def fetchPlotButtons( self ):
         bbar1 = self.buttonBarHandler.getButtonBar( 'Plot' )
-        if bbar1 == None: bbar1 = self.buildPlotButtons( is3D=enable_3D )
-        if show:
-            bbar1.show()
-            self.showInteractionButtons()
-        else:
-            bbar2 = self.buttonBarHandler.getButtonBar( 'Interaction' )
-            bbar2.build()
+        if bbar1 == None: bbar1 = self.buildPlotButtons()
+        bbar2 = self.buttonBarHandler.getButtonBar( 'Interaction' )
+        bbar2.build()
         return bbar1
     
     def getPlotButtonbar(self):

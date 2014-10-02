@@ -1360,6 +1360,7 @@ class CPCPlot( DV3DPlot ):
         self.initCollections( nCollections, init_args, lut = lut, maxStageHeight=self.maxStageHeight  )
         self.defvar =  init_args[3]
         self.vertVar = None
+        self.fetchPlotButtons()
         self.initializeConfiguration()       
         self.cfgManager.initParameters()
         self.initializePlots()
