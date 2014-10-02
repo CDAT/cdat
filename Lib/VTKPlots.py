@@ -539,7 +539,7 @@ class VTKVCSBackend(object):
         zaxis = None
     data1 = self.trimData2D(data1) # Ok get3 only the last 2 dims
     data2 = self.trimData2D(data2)
-    ug,xm,xM,ym,yM,continents,wrap,geo,cellData = vcs2vtk.genGrid(data1,data2,gm)
+    ug,xm,xM,ym,yM,continents,wrap,geo,cellData = vcs2vtk.genGrid(data1,data2,gm,deep=False)
     if cellData:
         c2p = vtk.vtkCellDataToPointData()
         c2p.SetInputData(ug)
@@ -549,7 +549,7 @@ class VTKVCSBackend(object):
             cln = vtk.vtkCleanUnstructuredGrid()
             cln.SetInputConnection(c2p.GetOutputPort())
 
-    missingMapper = vcs2vtk.putMaskOnVTKGrid(data1,ug,None,cellData)
+    missingMapper = vcs2vtk.putMaskOnVTKGrid(data1,ug,None,cellData,deep=False)
 
     u=numpy.ma.ravel(data1)
     v=numpy.ma.ravel(data2)
@@ -576,7 +576,7 @@ class VTKVCSBackend(object):
         newShape = (numPts,) + w.shape[1:]
         w = numpy.ma.resize(w, newShape)
 
-    w = VN.numpy_to_vtk(w,deep=True)
+    w = vcs2vtk.numpy_to_vtk_wrapper(w,deep=False)
     w.SetName("vectors")
     ug.GetPointData().AddArray(w)
     ## Vector attempt
@@ -664,11 +664,11 @@ class VTKVCSBackend(object):
     data1 = self.trimData2D(data1) # Ok get3 only the last 2 dims
     if gm.g_name!="Gfm":
       data2 = self.trimData2D(data2)
-    ug,xm,xM,ym,yM,continents,wrap,geo,cellData = vcs2vtk.genGrid(data1,data2,gm)
+    ug,xm,xM,ym,yM,continents,wrap,geo,cellData = vcs2vtk.genGrid(data1,data2,gm,deep=False)
     #Now applies the actual data on each cell
     if isinstance(gm,boxfill.Gfb) and gm.boxfill_type=="log10":
         data1=numpy.ma.log10(data1)
-    data = VN.numpy_to_vtk(data1.filled(0.).flat,deep=True)
+    data = vcs2vtk.numpy_to_vtk_wrapper(data1.filled(0.).flat, deep=False)
     if cellData:
         ug.GetCellData().SetScalars(data)
     else:
@@ -682,7 +682,7 @@ class VTKVCSBackend(object):
     color = getattr(gm,"missing",None)
     if color is not None:
         color = cmap.index[color]
-    missingMapper = vcs2vtk.putMaskOnVTKGrid(data1,ug,color,cellData)
+    missingMapper = vcs2vtk.putMaskOnVTKGrid(data1,ug,color,cellData,deep=False)
     lut = vtk.vtkLookupTable()
     mn,mx=vcs.minmax(data1)
     #Ok now we have grid and data let's use the mapper
