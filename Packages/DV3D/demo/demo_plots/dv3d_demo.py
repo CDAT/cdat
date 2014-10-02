@@ -9,7 +9,7 @@ import sys
 import os, time
 import subprocess, signal 
 
-demo_index = '1'
+demo_index = '4'
 background_render = 0
 bgX=2048
 bgY=1024
@@ -34,7 +34,7 @@ dv3d.YSlider = ( vcs.off )
 dv3d.Camera={'Position': (-161, -171, 279), 'ViewUp': (.29, 0.67, 0.68), 'FocalPoint': (146.7, 8.5, -28.6)}
 
 dv3d_v = vcs.get3d_vector()    
-dv3d_v.Camera={'Position': (-161, -171, 279), 'ViewUp': (.29, 0.67, 0.68), 'FocalPoint': (146.7, 8.5, -28.6)}
+#dv3d_v.Camera={'Position': (-161, -171, 279), 'ViewUp': (.29, 0.67, 0.68), 'FocalPoint': (146.7, 8.5, -28.6)}
 
 if demo_index == '0':    
     varname = "sphu"

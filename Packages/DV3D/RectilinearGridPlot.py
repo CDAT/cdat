@@ -334,8 +334,10 @@ class RectGridPlot(StructuredGridPlot):
             config_function.setRangeBounds( init_range ) 
             if config_function.initial_value == None:
                 config_function.initial_value = init_range
-            slicePosition.setValues( [ config_function.initial_value[0] ] ) 
-            plane_widget.SetSlicePosition( config_function.initial_value[0] )
+            ival = config_function.initial_value[0]
+            if ival < 0.01: ival = 0.01
+            slicePosition.setValues( [ ival ] ) 
+            plane_widget.SetSlicePosition( ival )
             if config_function.key == 'z':
                 self.ProcessIPWAction( plane_widget, ImagePlaneWidget.InteractionUpdateEvent, action = ImagePlaneWidget.Pushing )
         elif args and args[0] == "EndConfig":
@@ -360,6 +362,8 @@ class RectGridPlot(StructuredGridPlot):
             count = slicePosition.incrementValue( 'count' )
             if count % self.skipIndex == 0:
                 value = args[2].GetValue()
+                if value < 0.01: value = 0.01
+#                print " Set slice position: ", str( value )
                 plane_widget.SetSlicePosition( value )
                 slicePosition.setValues( [ value ] )
                 self.ProcessIPWAction( plane_widget, ImagePlaneWidget.InteractionUpdateEvent, action = ImagePlaneWidget.Pushing )

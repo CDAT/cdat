@@ -135,7 +135,7 @@ class MapManager:
             self.baseMapActor.SetOrientation( 0.0, 0.0, 0.0 )
             self.baseMapActor.SetOpacity( self.map_opacity )
             mapCorner = [ self.x0, self.y0 ]
-            self.baseMapActor.SetPosition( mapCorner[0], mapCorner[1], 0.1 )
+            self.baseMapActor.SetPosition( mapCorner[0], mapCorner[1], -0.1 )
             extent = self.baseImage.GetExtent()
 #             print " @@@ baseImage.GetExtent: ", str( extent )
 #             print " @@@ baseImage.Position: ", str( self.x0 )
@@ -152,7 +152,7 @@ class MapManager:
     def setMapVisibility( self  ):
         mapCorner = [ self.x0, self.y0 ]
         self.baseMapActor.SetOrigin( 0.0, 0.0, 0.0 )
-        self.baseMapActor.SetPosition( mapCorner[0], mapCorner[1], 0.1 )
+        self.baseMapActor.SetPosition( mapCorner[0], mapCorner[1], -0.1 )
         self.baseMapActor.SetVisibility( True )  
         self.sphereActor.SetVisibility( False )  
         print "Positioning map at location %s" % ( str( ( self.x0, self.y0) )  ) 
