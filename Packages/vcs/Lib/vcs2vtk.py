@@ -17,9 +17,9 @@ wmo = json.load(f)
 def applyAttributesFromVCStmpl(tmpl,tmplattribute,txtobj=None):
     tatt = getattr(tmpl,tmplattribute)
     if txtobj is None:
-      txtobj=vcs.createtext(None,tatt.textorientation,None,tatt.texttable)
+        txtobj = vcs.createtext(To_source=tatt.textorientation,Tt_source=tatt.texttable)
     for att in ["x","y","priority"]:
-      setattr(txtobj,att,getattr(tatt,att))
+        setattr(txtobj,att,getattr(tatt,att))
     return txtobj
 
 def putMaskOnVTKGrid(data,grid,actorColor=None,cellData=True,deep=True):
@@ -990,7 +990,7 @@ def prepMarker(renWin,ren,marker,cmap=None):
       gs.FilledOn()
     if t[-5:]=="_fill":
       gs.FilledOn()
-      
+
     if pd is None:
       # Use the difference in x to scale the point, as later we'll use the
       # x range to correct the aspect ratio:
