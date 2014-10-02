@@ -4,6 +4,6 @@ if (NOT CDAT_BUILD_GUI)
   list(APPEND VTK_deps ${qt_pkg})
 endif()
 
-if (CDAT_BUILD_FFMPEG OR CDAT_USE_SYSTEM_FFMPEG)
+if(NOT CDAT_BUILD_LEAN)
   list(APPEND VTK_deps ${ffmpeg_pkg})
 endif()
