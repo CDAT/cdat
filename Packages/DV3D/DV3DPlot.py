@@ -34,7 +34,23 @@ def ffmpeg( movie, rootFileName ):
     o = os.popen(cmd).read()
     return o
 
-def saveAnimation( animation_frames, saveDir ):
+def saveAnimation( saveDir, animation_frames ):
+    writer = vtk.vtkFFMPEGWriter()
+    movie = os.path.join( saveDir, "movie.avi" )
+    writer.SetFileName( movie )
+    writer.SetBitRate(1024*1024*30)
+    writer.SetBitRateTolerance(1024*1024*3)
+    writer.SetInputData( animation_frames[0] )
+    writer.Start()
+    for index, frame in enumerate( animation_frames ):
+        writer.SetInputData(frame)
+        writer.Write()
+        time.sleep(0.0)          
+    writer.End() 
+    print "Saving data to %s" % movie
+        
+
+def saveAnimationFFMpeg( animation_frames, saveDir ):
     rootFileName = os.path.join( saveDir, "frame-" )
     files = []
     print " Saving animation (%d frames) to '%s'" % ( len( animation_frames ) , saveDir ); sys.stdout.flush()
@@ -46,8 +62,8 @@ def saveAnimation( animation_frames, saveDir ):
         writer.Update()
         writer.Write()
         files.append( fname )
-        time.sleep( 0.01 )
-    ffmpeg( os.path.join( saveDir, "movie.mpg" ), rootFileName )
+        time.sleep( 0.0 )
+    ffmpeg( os.path.join( saveDir, "movie.avi" ), rootFileName )
     for f in files: os.remove(f)
     print "Done saving animation"; sys.stdout.flush()
 
@@ -69,12 +85,10 @@ class SaveAnimation():
         nframes =  len( self.animation_frames )              
         if nframes > 0:           
             saveDir = self.getUnusedDirName()
-            t = threading.Thread(target=saveAnimation, args = ( self.animation_frames, saveDir ))
+            t = threading.Thread(target=saveAnimation, args = ( saveDir, self.animation_frames ))
             t.daemon = True
             t.start() 
             self.animation_frames = []
-               
-
                         
 class TextDisplayMgr:
     
