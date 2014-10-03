@@ -98,7 +98,6 @@ def genGridOnPoints(data1,data2,gm):
   deep = True
   pts = vtk.vtkPoints()
   ## Convert nupmy array to vtk ones
-  print "M3 SHAPE:",m3.shape
   ppV = VN.numpy_to_vtk(m3,deep=deep)
   pts.SetData(ppV)
   projection = vcs.elements["projection"][gm.projection]
