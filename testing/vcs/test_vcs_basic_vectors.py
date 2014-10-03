@@ -10,6 +10,8 @@ p.add_argument("--keep", dest="keep", action="store_true",help="Save image, even
 p.add_argument("--amplitude", dest="amplitude", action="store_true",help="makes amplitude of data change")
 p.add_argument("--scale", dest="scale", type=float, help="scale arrows", default=1.)
 p.add_argument("--angle", dest="angle", type=int, help="vectors angle",default=45)
+p.add_argument("--nlat", dest="nlat", type=int, help="number of latitudes",default=45)
+p.add_argument("--nlon", dest="nlon", type=int, help="number of longitudes",default=72)
 
 args = p.parse_args(sys.argv[1:])
 
@@ -39,24 +41,26 @@ gm.scale = args.scale
 nm_xtra=""
 xtra = {}
 #Creates 4x5 grid
-lats = cdms2.createAxis(numpy.arange(-88,89,4))
+dlat = 180./args.nlat
+lats = cdms2.createAxis(numpy.arange(-90+dlat/2.,90,dlat))
 lats.id="latitude"
 lats.units="degrees_north"
-lons = cdms2.createAxis(numpy.arange(0,360,5))
+lons = cdms2.createAxis(numpy.arange(0,360,360./args.nlon))
 lons.id="longitude"
 lons.units="degrees_east"
+print len(lats),len(lons)
 if args.angle in [-45,0,45]:
-    u=MV2.ones((45,72))
+    u=MV2.ones((args.nlat,args.nlon))
 elif args.angle in [-135,-180,135]:
-    u=-MV2.ones((45,72))
+    u=-MV2.ones((args.nlat,args.nlon))
 else:
-    u=MV2.zeros((45,72))
+    u=MV2.zeros((args.nlat,args.nlon))
 if args.angle in [45,90,135]:
-    v=MV2.ones((45,72))
+    v=MV2.ones((args.nlat,args.nlon))
 elif args.angle in [-45,-90,-135]:
-    v=-MV2.ones((45,72))
+    v=-MV2.ones((args.nlat,args.nlon))
 else:
-    v=MV2.zeros((45,72))
+    v=MV2.zeros((args.nlat,args.nlon))
 if args.amplitude:
   nm_xtra="_amplitude"
   U=numpy.cos(lons[:])
