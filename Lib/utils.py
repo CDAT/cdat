@@ -537,7 +537,7 @@ def scriptrun(script):
         "Gi":'isoline',
         "Gvp":'vector',
         "Gfm":'meshfill',
-        "G1d":'oneD',
+        "G1d":'1d',
         "Tf":'fillarea',
         "Tt":"texttable",
         "To":"textorientation",
@@ -586,10 +586,11 @@ def loadTemplate(nm,vals):
       setattr(A,a,v)
 
 def loadVCSItem(typ,nm,json_dict = {}):
-  if typ=="oneD":
-    tp = "oned"
-  else:
-    tp = typ
+  #if typ=="oneD":
+  #  tp = "oned"
+  #else:
+  #  tp = typ
+  tp=typ
   if typ=="L":
     d={}
     for k,v in json_dict.iteritems():

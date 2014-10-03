@@ -97,7 +97,7 @@ ill,
     a=vcs.init()
     gm_list=a.graphicsmethodlist()  # Return graphics method list
 """
-        return [ 'boxfill',  'isofill',  'isoline',  'meshfill', 'outfill', 'outline', 'continents', 'scatter', 'vector', 'xvsy', 'xyvsy', 'yxvsx', 'taylordiagram', 'oneD', '3d_scalar', '3d_vector' ]
+        return [ 'boxfill',  'isofill',  'isoline',  'meshfill', 'outfill', 'outline', 'continents', 'scatter', 'vector', 'xvsy', 'xyvsy', 'yxvsx', 'taylordiagram', '1d', '3d_scalar', '3d_vector' ]
 
 def graphicsmethodtype(gobj):
         """
@@ -152,7 +152,7 @@ def graphicsmethodtype(gobj):
             elif nm in vcs.elements["yxvsx"]: 
                 return 'yxvsx'
           else:
-            return "oneD"
+            return "1d"
         elif (isinstance(gobj,taylor.Gtd)):
             return 'taylordiagram'
         elif (isinstance(gobj,meshfill.Gfm)):
@@ -664,7 +664,7 @@ if queries.isxvsy(xy):
 # Is this a primary oneD graphics method in VCS?                            #
 #                                                                           #
 #############################################################################
-def isoneD(obj):
+def is1d(obj):
     """
  Function: isxvsy
 

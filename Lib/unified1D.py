@@ -43,7 +43,7 @@ def process_src(nm,code,typ):
   try:
     gm = G1d(nm)
   except:
-    gm = vcs.elements["oned"][nm]
+    gm = vcs.elements["1d"][nm]
   ## process attributes with = as assignement
   for att in ["projection",
       "xticlabels#1","xticlabels#2",
@@ -478,7 +478,7 @@ class G1d(object,AutoAPI.AutoAPI):
         self.info=AutoAPI.Info(self)
         self.info.expose=['ALL']
         self.__doc__ = self.__doc__ % (xmldocs.graphics_method_core,xmldocs.xaxisconvert,xmldocs.linedoc,xmldocs.markerdoc)
-        if name in vcs.elements["oned"]:
+        if name in vcs.elements["1d"]:
           raise ValueError,"The 1D method '%s' already exists"
         self.g_name='G1d'
         self._name = name
@@ -512,13 +512,13 @@ class G1d(object,AutoAPI.AutoAPI):
         else:
           if isinstance(name_src,G1d):
             name_src=name_src.name
-          if not name_src in vcs.elements['oned']:
+          if not name_src in vcs.elements['1d']:
             raise ValueError, "The oneD method '%s' does not exists" % name_src
-          src = vcs.elements["oned"][name_src]
+          src = vcs.elements["1d"][name_src]
           for att in ['projection' , 'colormap', 'xticlabels1' ,'xticlabels2' ,'xmtics1' ,'xmtics2' ,'yticlabels1' ,'yticlabels2' ,'ymtics1' ,'ymtics2' ,'datawc_y1' ,'datawc_y2' ,'datawc_x1' ,'datawc_x2' ,'xaxisconvert' ,'yaxisconvert' ,'line' ,'linecolor' ,'linewidth' ,'marker' ,'markercolor' ,'markersize' ,'datawc_timeunits' ,'datawc_calendar' ,'smooth', 'flip' ]:
            setattr(self,att,getattr(src,att)) 
         #Ok now we need to stick in the elements
-        vcs.elements["oned"][name]=self
+        vcs.elements["1d"][name]=self
         #                                                         #
         ###########################################################
         # Find and set the Yxvsx structure in VCS C pointer       #
@@ -658,11 +658,11 @@ class G1d(object,AutoAPI.AutoAPI):
 
            unique_name = '__OneD__' + self.name
            fp.write("#----------OneD (GOneD) member (attribute) listings ----------\n")
-           fp.write("oned_list=v.listelements('oned')\n")
+           fp.write("oned_list=v.listelements('1d')\n")
            fp.write("if ('%s' in oned_list):\n" % self.name)
-           fp.write("   %s = v.getoned('%s')\n" % (unique_name, self.name))
+           fp.write("   %s = v.get1d('%s')\n" % (unique_name, self.name))
            fp.write("else:\n")
-           fp.write("   %s = v.createoneD('%s')\n" % (unique_name, self.name))
+           fp.write("   %s = v.create1d('%s')\n" % (unique_name, self.name))
            # Common core graphics method attributes
            fp.write("%s.projection = '%s'\n" % (unique_name, self.projection))
            fp.write("%s.xticlabels1 = '%s'\n" % (unique_name, self.xticlabels1))
