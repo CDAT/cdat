@@ -65,6 +65,7 @@ def putMaskOnVTKGrid(data,grid,actorColor=None,cellData=True,deep=True):
           mapper.SetScalarRange(1,1)
       if grid.IsA("vtkStructuredGrid"):
         if not cellData:
+          print "Ok doing point visibility"
           grid.SetPointVisibilityArray(msk)
         else:
           grid.SetCellVisibilityArray(msk)
@@ -73,12 +74,15 @@ def putMaskOnVTKGrid(data,grid,actorColor=None,cellData=True,deep=True):
 def genGridOnPoints(data1,data2,gm,deep=True):
   continents = False
   xm,xM,ym,yM = None, None, None, None
+  useStructuredGrid = True
   try:
     g=data1.getGrid()
     x = g.getLongitude()[:]
     y = g.getLatitude()[:]
     continents=True
     wrap=[0,360]
+    if isinstance(g,cdms2.gengrid.AbstractGenericGrid): # Ok need unstrctured grid
+      useStructuredGrid = False
   except:
     #hum no grid that's much easier
     x=data1.getAxis(-1)[:]
@@ -111,8 +115,11 @@ def genGridOnPoints(data1,data2,gm,deep=True):
   xm,xM,ym,yM = getRange(gm,xm,xM,ym,yM)
   geo, geopts = project(pts,projection,[xm,xM,ym,yM])
   ## Sets the vertics into the grid
-  vg = vtk.vtkStructuredGrid()
-  vg.SetDimensions(y.shape[1],y.shape[0],1)
+  if useStructuredGrid:
+    vg = vtk.vtkStructuredGrid()
+    vg.SetDimensions(y.shape[1],y.shape[0],1)
+  else:
+    vg = vtk.vtkUnstructuredGrid()
   vg.SetPoints(geopts)
   return vg,xm,xM,ym,yM,continents,wrap,geo
   
