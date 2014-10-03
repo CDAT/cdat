@@ -63,6 +63,52 @@ def putMaskOnVTKGrid(data,grid,actorColor=None,cellData=True,deep=True):
           grid.SetCellVisibilityArray(msk)
   return mapper
 
+def genGridOnPoints(data1,data2,gm):
+  continents = False
+  xm,xM,ym,yM = None, None, None, None
+  try:
+    g=data1.getGrid()
+    x = g.getLongitude()[:]
+    y = g.getLatitude()[:]
+    continents=True
+    wrap=[0,360]
+  except:
+    #hum no grid that's much easier
+    x=data1.getAxis(-1)[:]
+    y=data1.getAxis(-2)[:]
+    wrap=None
+
+  if x.ndim==1:
+    y = y[:,numpy.newaxis]*numpy.ones(x.shape)[numpy.newaxis,:]
+    x = x[numpy.newaxis,:]*numpy.ones(y.shape)
+  x=x.flatten()
+  y=y.flatten()
+  sh =list(x.shape)
+  sh.append(1)
+  x=numpy.reshape(x,sh)
+  y=numpy.reshape(y,sh)
+  #Ok we have our points in 2D let's create unstructured points grid
+  xm=x.min()
+  xM=x.max()
+  ym=y.min()
+  yM=y.max()
+  z = numpy.zeros(x.shape)
+  m3 = numpy.concatenate((x,y),axis=1)
+  m3 = numpy.concatenate((m3,z),axis=1)
+  deep = True
+  pts = vtk.vtkPoints()
+  ## Convert nupmy array to vtk ones
+  print "M3 SHAPE:",m3.shape
+  ppV = VN.numpy_to_vtk(m3,deep=deep)
+  pts.SetData(ppV)
+  projection = vcs.elements["projection"][gm.projection]
+  xm,xM,ym,yM = getRange(gm,xm,xM,ym,yM)
+  geo, geopts = project(pts,projection,[xm,xM,ym,yM])
+  ## Sets the vertics into the grid
+  vg = vtk.vtkUnstructuredGrid()
+  vg.SetPoints(geopts)
+  return vg,xm,xM,ym,yM,continents,wrap,geo
+  
 def genGrid(data1,data2,gm):
   continents = False
   wrap = None
