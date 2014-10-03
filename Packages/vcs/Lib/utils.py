@@ -510,7 +510,8 @@ def saveinitialfile():
         continue
       e=vcs.elements[k]
       for nm,g in e.iteritems():
-        if nm!="default":
+        if nm!="default" and not nm[:2]=="__" \
+            and not nm in ["default_scatter_","default_xvsy_","default_xyvsy_","default_yxvsx_"]: # skip defaults and temp ones
           try:
             g.script(fnm)
           except Exception,err:
@@ -602,7 +603,8 @@ def loadVCSItem(typ,nm,json_dict = {}):
     return
 
   if vcs.elements[tp].has_key(nm):
-    gm = vcs.elements[tp][nm]
+    if not nm in ["default_scatter_","default_xvsy_","default_xyvsy_","default_yxvsx_"]: # skip defaults and temp ones
+      gm = vcs.elements[tp][nm]
   else:
     cmd = "gm = vcs.create%s('%s')" % (typ,nm)
     exec(cmd)
