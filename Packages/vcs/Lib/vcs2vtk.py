@@ -65,7 +65,6 @@ def putMaskOnVTKGrid(data,grid,actorColor=None,cellData=True,deep=True):
           mapper.SetScalarRange(1,1)
       if grid.IsA("vtkStructuredGrid"):
         if not cellData:
-          print "Ok doing point visibility"
           grid.SetPointVisibilityArray(msk)
         else:
           grid.SetCellVisibilityArray(msk)
