@@ -382,7 +382,7 @@ class VTKVCSBackend(object):
         self.renWin.AddRenderer(ren)
         self.setLayer(ren,gm.priority)
         vcs2vtk.prepFillarea(self.renWin,ren,gm)
-    elif gtype=="oned":
+    elif gtype=="1d":
       self.renWin.AddRenderer(ren)
       self.plot1D(data1,data2,tpl,gm,ren)
     elif gtype=="vector":

@@ -263,7 +263,7 @@ def _determine_arg_list(g_name, actual_args):
         elif arglist[igraphics_method].lower()=='default':
             pass                            # Check later
         else:
-            if found_slabs != 1 and not(found_slabs == 2 and arglist[igraphics_method].lower()=="oned"):
+            if found_slabs != 1 and not(found_slabs == 2 and arglist[igraphics_method].lower()=="1d"):
                 raise vcsError, "Graphics method %s requires 1 slab." % arglist[igraphics_method]
     if isinstance(arglist[3],str): arglist[3]=arglist[3].lower()
     return arglist
@@ -1600,13 +1600,13 @@ Options:::
         return self.__plot(arglist, parms)
     isoline.__doc__ = isoline.__doc__ % (plot_keywords_doc,graphics_method_core,axesconvert,plot_2D_input, plot_output)
 
-    def createoneD(self,name=None,source='default'):
-        return vcs.createoneD(name,source)
-    createoneD.__doc__ = vcs.manageElements.createoneD.__doc__
+    def create1d(self,name=None,source='default'):
+        return vcs.create1d(name,source)
+    create1d.__doc__ = vcs.manageElements.create1d.__doc__
 
-    def getoneD(self,name):
-        return vcs.getoneD(name)
-    createoneD.__doc__ = vcs.manageElements.createoneD.__doc__
+    def get1d(self,name):
+        return vcs.get1d(name)
+    create1d.__doc__ = vcs.manageElements.create1d.__doc__
 
     
     #############################################################################
@@ -2789,7 +2789,7 @@ Options:::
                                     'missing']:
                             setattr(copy_mthd,att,getattr(m,att))
         elif arglist[0] is not None and arglist[0].rank()<2 and arglist[3] in ['boxfill','default'] and not isinstance(arglist[0].getGrid(),cdms2.gengrid.AbstractGenericGrid):
-            arglist[3]='oned'
+            arglist[3]='1d'
             try:
                 tmp=self.getyxvsx(arglist[4])
                 #tmp.list()

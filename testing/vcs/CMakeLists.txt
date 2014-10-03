@@ -135,7 +135,7 @@ add_test(vcs_test_dump_json
 
   # These test actually plot things need sample data
   if (CDAT_DOWNLOAD_SAMPLE_DATA)
-    FOREACH(gm boxfill isofill isoline vector meshfill yxvsx xvsy xyvsy oned scatter)
+    FOREACH(gm boxfill isofill isoline vector meshfill yxvsx xvsy xyvsy 1d scatter)
       add_test(vcs_test_basic_${gm}_zero
         ${CMAKE_INSTALL_PREFIX}/bin/python
         ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_gms.py

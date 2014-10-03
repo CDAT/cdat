@@ -11,7 +11,7 @@ d = numpy.sin(numpy.arange(100))
 d=numpy.reshape(d,(10,10))
 
 
-one = x.createoneD()
+one = x.create1d()
 
 x.plot(d,one,bg=1)
 
