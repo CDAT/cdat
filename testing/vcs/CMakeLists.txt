@@ -55,6 +55,32 @@ add_test(vcs_test_dump_json
   ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_dump_json.json
   )
 
+# Some vector plot testing
+FOREACH(angle -180 -135 -90 -45 0 45 135 90 135 )
+  add_test(vcs_test_vectors_angle_${angle}
+    ${CMAKE_INSTALL_PREFIX}/bin/python
+    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_vectors.py
+    --angle=${angle}
+    --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_vectors_${angle}.png
+    )
+ENDFOREACH(angle)
+FOREACH(scale .5 2)
+  add_test(vcs_test_vectors_scaling_${scale}
+    ${CMAKE_INSTALL_PREFIX}/bin/python
+    ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_vectors.py
+    --scale=${scale}
+    --angle=45
+    --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_vectors_45_${scale}.png
+    )
+ENDFOREACH(scale)
+add_test(vcs_test_vectors_amplitude
+  ${CMAKE_INSTALL_PREFIX}/bin/python
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_vectors.py
+  --scale=2
+  --angle=45
+  --amplitude
+  --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_vectors_45_2_amplitude.png
+  )
 
 #These test actually plot things need sample data
   add_test(vcs_test_gen_meshfill

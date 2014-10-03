@@ -60,7 +60,6 @@ class VTKVCSBackend(object):
       warnings.warn("Press 'Q' to exit interactive mode and continue script execution")
       interactor = self.renWin.GetInteractor()
       istyle = interactor.GetInteractorStyle()
-      print "STYLE:",istyle
       interactor.Start()
 
   def leftButtonPressEvent(self,obj,event):
@@ -539,17 +538,8 @@ class VTKVCSBackend(object):
         zaxis = None
     data1 = self.trimData2D(data1) # Ok get3 only the last 2 dims
     data2 = self.trimData2D(data2)
-    ug,xm,xM,ym,yM,continents,wrap,geo,cellData = vcs2vtk.genGrid(data1,data2,gm,deep=False)
-    if cellData:
-        c2p = vtk.vtkCellDataToPointData()
-        c2p.SetInputData(ug)
-        c2p.Update()
-        #For contouring duplicate points seem to confuse it
-        if ug.IsA("vtkUnstructuredGrid"):
-            cln = vtk.vtkCleanUnstructuredGrid()
-            cln.SetInputConnection(c2p.GetOutputPort())
-
-    missingMapper = vcs2vtk.putMaskOnVTKGrid(data1,ug,None,cellData,deep=False)
+    ug,xm,xM,ym,yM,continents,wrap,geo = vcs2vtk.genGridOnPoints(data1,data2,gm,deep=False)
+    missingMapper = vcs2vtk.putMaskOnVTKGrid(data1,ug,None,False,deep=False)
 
     u=numpy.ma.ravel(data1)
     v=numpy.ma.ravel(data2)
@@ -568,17 +558,18 @@ class VTKVCSBackend(object):
     wLen = len(w)
     numPts = ug.GetNumberOfPoints()
     if wLen != numPts:
-        print "!!! Warning during vector plotting: Number of points does not "\
+        warnings.warn("!!! Warning during vector plotting: Number of points does not "\
               "match the number of vectors to be glyphed (%s points vs %s "\
               "vectors). The vectors will be padded/truncated to match for "\
               "rendering purposes, but the resulting image should not be "\
-              "trusted."%(numPts, wLen)
+              "trusted."%(numPts, wLen))
         newShape = (numPts,) + w.shape[1:]
         w = numpy.ma.resize(w, newShape)
 
     w = vcs2vtk.numpy_to_vtk_wrapper(w,deep=False)
     w.SetName("vectors")
     ug.GetPointData().AddArray(w)
+
     ## Vector attempt
     l = gm.line
     if l is None:
@@ -621,13 +612,14 @@ class VTKVCSBackend(object):
     glyphFilter.SetInputArrayToProcess(1,0,0,0,"vectors")
     glyphFilter.SetScaleFactor(2.*gm.scale)
 
-    if cellData:
-        if ug.IsA("vtkUnstructuredGrid"):
-            glyphFilter.SetInputConnection(cln.GetOutputPort())
-        else:
-            glyphFilter.SetInputConnection(c2p.GetOutputPort())
-    else:
-        glyphFilter.SetInputData(ug)
+    #if cellData:
+    #    if ug.IsA("vtkUnstructuredGrid"):
+    #        glyphFilter.SetInputConnection(cln.GetOutputPort())
+    #    else:
+    #        glyphFilter.SetInputConnection(c2p.GetOutputPort())
+    #else:
+    #    glyphFilter.SetInputData(ug)
+    glyphFilter.SetInputData(ug)
 
     mapper = vtk.vtkPolyDataMapper()
     mapper.SetInputConnection(glyphFilter.GetOutputPort())
