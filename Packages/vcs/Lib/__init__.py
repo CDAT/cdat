@@ -207,6 +207,7 @@ xy = unified1D.G1d("default_xyvsy_")
 xy.flip = True
 vcs.elements["xyvsy"]["default"]=xy
 sc = unified1D.G1d("default_scatter_")
+sc._linewidth=0
 vcs.elements["scatter"]["default"]=sc
 xvy = unified1D.G1d("default_xvsy_")
 vcs.elements["xvsy"]["default"]=xvy
