@@ -510,7 +510,8 @@ def saveinitialfile():
         continue
       e=vcs.elements[k]
       for nm,g in e.iteritems():
-        if nm!="default":
+        if nm!="default" and not nm[:2]=="__" \
+            and not nm in ["default_scatter_","default_xvsy_","default_xyvsy_","default_yxvsx_"]: # skip defaults and temp ones
           try:
             g.script(fnm)
           except Exception,err:
@@ -537,7 +538,7 @@ def scriptrun(script):
         "Gi":'isoline',
         "Gvp":'vector',
         "Gfm":'meshfill',
-        "G1d":'oneD',
+        "G1d":'1d',
         "Tf":'fillarea',
         "Tt":"texttable",
         "To":"textorientation",
@@ -586,10 +587,11 @@ def loadTemplate(nm,vals):
       setattr(A,a,v)
 
 def loadVCSItem(typ,nm,json_dict = {}):
-  if typ=="oneD":
-    tp = "oned"
-  else:
-    tp = typ
+  #if typ=="oneD":
+  #  tp = "oned"
+  #else:
+  #  tp = typ
+  tp=typ
   if typ=="L":
     d={}
     for k,v in json_dict.iteritems():
@@ -601,7 +603,8 @@ def loadVCSItem(typ,nm,json_dict = {}):
     return
 
   if vcs.elements[tp].has_key(nm):
-    gm = vcs.elements[tp][nm]
+    if not nm in ["default_scatter_","default_xvsy_","default_xyvsy_","default_yxvsx_"]: # skip defaults and temp ones
+      gm = vcs.elements[tp][nm]
   else:
     cmd = "gm = vcs.create%s('%s')" % (typ,nm)
     exec(cmd)
