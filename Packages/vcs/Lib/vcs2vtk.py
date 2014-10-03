@@ -17,18 +17,25 @@ wmo = json.load(f)
 def applyAttributesFromVCStmpl(tmpl,tmplattribute,txtobj=None):
     tatt = getattr(tmpl,tmplattribute)
     if txtobj is None:
-      txtobj=vcs.createtext(None,tatt.textorientation,None,tatt.texttable)
+        txtobj = vcs.createtext(To_source=tatt.textorientation,Tt_source=tatt.texttable)
     for att in ["x","y","priority"]:
-      setattr(txtobj,att,getattr(tatt,att))
+        setattr(txtobj,att,getattr(tatt,att))
     return txtobj
+
+def numpy_to_vtk_wrapper(numpyArray, deep=False, array_type=None):
+    result = VN.numpy_to_vtk(numpyArray, deep, array_type)
+    # Prevent garbage collection on shallow copied data:
+    if not deep:
+        result.numpyArray = numpyArray
+    return result
 
 def putMaskOnVTKGrid(data,grid,actorColor=None,cellData=True,deep=True):
   #Ok now looking
   msk = data.mask
-  imsk =  VN.numpy_to_vtk(msk.astype(numpy.int).flat,deep=deep)
+  imsk =  numpy_to_vtk_wrapper(msk.astype(numpy.int).flat,deep=deep)
   mapper = None
   if msk is not numpy.ma.nomask and not numpy.allclose(msk,False):
-      msk =  VN.numpy_to_vtk(numpy.logical_not(msk).astype(numpy.uint8).flat,deep=deep)
+      msk =  numpy_to_vtk_wrapper(numpy.logical_not(msk).astype(numpy.uint8).flat,deep=deep)
       if actorColor is not None:
           if grid.IsA("vtkStructuredGrid"):
             grid2 = vtk.vtkStructuredGrid()
@@ -63,7 +70,7 @@ def putMaskOnVTKGrid(data,grid,actorColor=None,cellData=True,deep=True):
           grid.SetCellVisibilityArray(msk)
   return mapper
 
-def genGridOnPoints(data1,data2,gm):
+def genGridOnPoints(data1,data2,gm,deep=True):
   continents = False
   xm,xM,ym,yM = None, None, None, None
   try:
@@ -98,17 +105,18 @@ def genGridOnPoints(data1,data2,gm):
   deep = True
   pts = vtk.vtkPoints()
   ## Convert nupmy array to vtk ones
-  ppV = VN.numpy_to_vtk(m3,deep=deep)
+  ppV = numpy_to_vtk_wrapper(m3,deep=deep)
   pts.SetData(ppV)
   projection = vcs.elements["projection"][gm.projection]
   xm,xM,ym,yM = getRange(gm,xm,xM,ym,yM)
   geo, geopts = project(pts,projection,[xm,xM,ym,yM])
   ## Sets the vertics into the grid
-  vg = vtk.vtkUnstructuredGrid()
+  vg = vtk.vtkStructuredGrid()
+  vg.SetDimensions(y.shape[1],y.shape[0],1)
   vg.SetPoints(geopts)
   return vg,xm,xM,ym,yM,continents,wrap,geo
   
-def genGrid(data1,data2,gm):
+def genGrid(data1,data2,gm,deep=True):
   continents = False
   wrap = None
   m3 = None
@@ -267,10 +275,9 @@ def genGrid(data1,data2,gm):
         ym=lat.min()
         yM=lat.max()
     # First create the points/vertices (in vcs terms)
-  deep = True
   pts = vtk.vtkPoints()
   ## Convert nupmy array to vtk ones
-  ppV = VN.numpy_to_vtk(m3,deep=deep)
+  ppV = numpy_to_vtk_wrapper(m3,deep=deep)
   pts.SetData(ppV)
 
   projection = vcs.elements["projection"][gm.projection]
@@ -1035,7 +1042,7 @@ def prepMarker(renWin,ren,marker,cmap=None):
       gs.FilledOn()
     if t[-5:]=="_fill":
       gs.FilledOn()
-      
+
     if pd is None:
       # Use the difference in x to scale the point, as later we'll use the
       # x range to correct the aspect ratio:

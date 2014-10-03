@@ -88,6 +88,11 @@ add_test(vcs_test_vectors_amplitude
     ${cdat_SOURCE_DIR}/testing/vcs/test_gen_meshfill.py
     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_gen_meshfill.png
     )
+  add_test(vcs_setcolormap
+    "${CMAKE_INSTALL_PREFIX}/bin/python"
+    "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_setcolormap.py"
+    "${cdat_SOURCE_DIR}/testing/vcs/test_vcs_setcolormap.png"
+    )
   add_test(vcs_test_1d_in_boxfill
     ${CMAKE_INSTALL_PREFIX}/bin/python
     ${cdat_SOURCE_DIR}/testing/vcs/test_1d_in_boxfill.py
