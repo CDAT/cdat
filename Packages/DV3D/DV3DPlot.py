@@ -761,8 +761,9 @@ class DV3DPlot():
         ispec = self.inputSpecs.get(  0 , None )
         if ispec is not None:
             md = ispec.metadata 
+            plotType  = md.get( 'plotType', 'xyz' )
             lev = md.get( 'lev', None )
-            if lev is None: enable_3d_plots = False
+            if (lev is None) and (plotType == 'xyz'): enable_3d_plots = False
         bbar = self.buttonBarHandler.createButtonBarWidget( bbar_name, self.renderWindowInteractor, position=( 0.0, 0.96) )
         self.buttonBarHandler.DefaultGroup = 'SliceRoundRobin'
         if (self.type == '3d_vector') or not enable_3d_plots:
@@ -889,7 +890,7 @@ class DV3DPlot():
             
     def onRenderWindowResize( self ):
         if not self.resizingWindow:
-            print " onRenderWindowResize, size = ", str( self.renderWindowSize )
+#            print " onRenderWindowResize, size = ", str( self.renderWindowSize )
             self.resizingWindow = True
             self.animation_frames = []
             if self.colormapWidget <> None:
