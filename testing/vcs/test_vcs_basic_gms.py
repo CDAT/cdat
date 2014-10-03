@@ -37,8 +37,6 @@ x=vcs.init()
 if bg:
   x.setbgoutputdimensions(1200,1091,units="pixels")
 x.setcolormap("rainbow")
-if gm_type=="oned":
-    gm_type="oneD"
 exec("gm=vcs.create%s()" % gm_type)
 if args.projtype != "default":
     p = vcs.createprojection()
@@ -95,7 +93,7 @@ else:
     s=f("clt",**xtra)
     if args.mask:
         s=MV2.masked_greater(s,78.)
-    if gm_type in ["oneD","yxvsx","xyvsy","xvsy","scatter"]:
+    if gm_type in ["1d","yxvsx","xyvsy","xvsy","scatter"]:
         s = s(latitude=(20,20,"cob"),longitude=(112,112,"cob"),squeeze=1)
         s2=MV2.sin(s)
         if args.zero:
