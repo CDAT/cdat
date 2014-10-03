@@ -39,7 +39,7 @@ import os
 f=cdms2.open(os.path.join(sys.prefix,"sample_data","clt.nc"))
 u=f("u")
 v=f("v")
-u=MV2.masked_greater(u,58.)
+u=MV2.masked_greater(u,35.)
 v=MV2.masked_greater(v,888.)
 print u.max(),v.max(),u.min(),v.min()
 #x.plot(U)

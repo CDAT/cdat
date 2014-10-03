@@ -64,7 +64,7 @@ FOREACH(angle -180 -135 -90 -45 0 45 135 90 135 )
     --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_vectors_${angle}.png
     )
 ENDFOREACH(angle)
-FOREACH(scale .5 2)
+FOREACH(scale 0.5 2)
   add_test(vcs_test_vectors_scaling_${scale}
     ${CMAKE_INSTALL_PREFIX}/bin/python
     ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_vectors.py
@@ -80,6 +80,11 @@ add_test(vcs_test_vectors_amplitude
   --angle=45
   --amplitude
   --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_basic_vectors_45_2_amplitude.png
+  )
+add_test(vcs_test_vectors_missing
+  ${CMAKE_INSTALL_PREFIX}/bin/python
+  ${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_missing.py
+  --source=${cdat_SOURCE_DIR}/testing/vcs/test_vcs_vectors_missing.png
   )
 
 #These test actually plot things need sample data
