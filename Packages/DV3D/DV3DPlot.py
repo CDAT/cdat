@@ -9,6 +9,8 @@ import vtk, traceback, os, threading, time
 MIN_LINE_LEN = 150
 VTK_NOTATION_SIZE = 10
 
+PlotButtonNames = [ 'XSlider', 'YSlider', 'ZSlider', 'ToggleSurfacePlot', 'ToggleVolumePlot' ]
+
 class AnimationStepper:
     
     def __init__( self, target ):
@@ -754,7 +756,7 @@ class DV3DPlot():
     def showConfigurationButton(self):
         bbar = self.buildConfigurationButton( )
         bbar.show()
-
+        
     def buildPlotButtons( self, **args ):
         bbar_name = 'Plot'
         enable_3d_plots = True
