@@ -588,6 +588,33 @@ class VTKVCSBackend(object):
     if gm.linecolor is not None:
         lcolor = gm.linecolor
 
+    # Strip out masked points.
+    if ug.IsA("vtkStructuredGrid"):
+        if ug.GetCellBlanking():
+            visArray = ug.GetCellVisibilityArray()
+            visArray.SetName("BlankingArray")
+            ug.GetCellData().AddArray(visArray)
+            thresh = vtk.vtkThreshold()
+            thresh.SetInputData(ug)
+            thresh.ThresholdByUpper(0.5)
+            thresh.SetInputArrayToProcess(0, 0, 0,
+                                          "vtkDataObject::FIELD_ASSOCIATION_CELLS",
+                                          "BlankingArray")
+            thresh.Update()
+            ug = thresh.GetOutput()
+        elif ug.GetPointBlanking():
+            visArray = ug.GetPointVisibilityArray()
+            visArray.SetName("BlankingArray")
+            ug.GetPointData().AddArray(visArray)
+            thresh = vtk.vtkThreshold()
+            thresh.SetInputData(ug)
+            thresh.SetUpperThreshold(0.5)
+            thresh.SetInputArrayToProcess(0, 0, 0,
+                                          "vtkDataObject::FIELD_ASSOCIATION_POINTS",
+                                          "BlankingArray")
+            thresh.Update()
+            ug = thresh.GetOutput()
+
     arrow = vtk.vtkGlyphSource2D()
     arrow.SetGlyphTypeToArrow()
     arrow.FilledOff()
