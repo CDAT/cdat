@@ -151,16 +151,17 @@ class Gfdv3d(object,AutoAPI.AutoAPI):
         return self.plot_attributes
     
     @staticmethod
-    def getParameterSet():
+    def getParameterList():
         from DV3D.DV3DPlot import PlotButtonNames
         cfgManager = ConfigManager()
         parameterList = cfgManager.getParameterList()
-        parameterSet = set( parameterList + PlotButtonNames )
-        return parameterSet
+        for plotName in PlotButtonNames:
+            parameterList.add( plotName )
+        return parameterList
                 
     def addParameters( self ):
         self.parameter_names = []
-        for pname in self.getParameterSet():
+        for pname in self.getParameterList():
             self.add_property( pname )
             self.parameter_names.append( pname )
 #            print "  ------------->> Adding parameter: ", pname
