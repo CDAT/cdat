@@ -147,7 +147,6 @@ class RectGridPlot(StructuredGridPlot):
         interactionButtons.addSliderButton( names=['ScaleTransferFunction'], key='T', toggle=True, parents=['ToggleVolumePlot'], label='Transfer Function Range', interactionHandler=self.processThresholdRangeCommand )
         interactionButtons.addSliderButton( names=['ScaleOpacity'], key='o', toggle=True, label='Opacity Scale', range_bounds=[ 0.0, 1.0 ], initValue=[ 1.0, 1.0 ], interactionHandler=self.processOpacityScalingCommand )
         interactionButtons.addSliderButton( names=['IsosurfaceValue'], key='L', toggle=True, parents=['ToggleSurfacePlot'], sliderLabels='Isosurface Value', label='Positioning Isosurface', interactionHandler=self.processIsosurfaceValueCommand )
-        self.fetchPlotButtons()
         
 #         self.addConfigurableLevelingFunction( 'colorScale', 'C', label='Colormap Scale', units='data', setLevel=self.scaleColormap, getLevel=self.getDataRangeBounds, layerDependent=True, adjustRangeInput=0, group=ConfigGroup.Color )
 #         self.addConfigurableLevelingFunction( 'opacity', 'O', label='Slice Plane Opacity', rangeBounds=[ 0.0, 1.0 ],  setLevel=self.setOpacity, activeBound='min',  getLevel=self.getOpacity, isDataValue=False, layerDependent=True, bound = False, group=ConfigGroup.Rendering )
@@ -223,7 +222,8 @@ class RectGridPlot(StructuredGridPlot):
             value = args[2].GetValue() 
             colorScaleRange.setValue( args[1], value )
             cscale = colorScaleRange.getValues()
-            self.scaleEnabledColormaps( cscale )
+            self.scaleColormap( cscale )
+#             self.scaleEnabledColormaps( cscale )
             if self.isConstituentConfigEnabled('Volume'):
                 self.generateCTF( cscale )
             for plotItem in self.plotConstituents.items():
@@ -320,6 +320,7 @@ class RectGridPlot(StructuredGridPlot):
 
     def processSlicingCommand( self, args, config_function = None ):
         plane_index, plane_widget = self.getPlaneWidget( config_function.key )
+        if plane_widget == None: return
 #        print " Plot[%x]: processSlicingCommand, plane_widget[%x] " % ( id( self ), id( plane_widget ) )
         slicePosition = config_function.value
 #        print " ProcessSlicingCommand: args = %s, plane = %d, cf = %s" % ( str( args ), plane_index, config_function.key )
@@ -333,8 +334,10 @@ class RectGridPlot(StructuredGridPlot):
             config_function.setRangeBounds( init_range ) 
             if config_function.initial_value == None:
                 config_function.initial_value = init_range
-            slicePosition.setValues( [ config_function.initial_value[0] ] ) 
-            plane_widget.SetSlicePosition( config_function.initial_value[0] )
+            ival = config_function.initial_value[0]
+            if ival < 0.01: ival = 0.01
+            slicePosition.setValues( [ ival ] ) 
+            plane_widget.SetSlicePosition( ival )
             if config_function.key == 'z':
                 self.ProcessIPWAction( plane_widget, ImagePlaneWidget.InteractionUpdateEvent, action = ImagePlaneWidget.Pushing )
         elif args and args[0] == "EndConfig":
@@ -359,6 +362,8 @@ class RectGridPlot(StructuredGridPlot):
             count = slicePosition.incrementValue( 'count' )
             if count % self.skipIndex == 0:
                 value = args[2].GetValue()
+                if value < 0.01: value = 0.01
+#                print " Set slice position: ", str( value )
                 plane_widget.SetSlicePosition( value )
                 slicePosition.setValues( [ value ] )
                 self.ProcessIPWAction( plane_widget, ImagePlaneWidget.InteractionUpdateEvent, action = ImagePlaneWidget.Pushing )
@@ -1322,11 +1327,12 @@ class RectGridPlot(StructuredGridPlot):
             if not self.planeWidgetX.MatchesBounds( bounds ):
                 self.planeWidgetX.PlaceWidget( bounds )        
                 self.planeWidgetY.PlaceWidget( bounds ) 
-        plotButtons = self.fetchPlotButtons()
-        cf = plotButtons.getConfigFunction('ZSlider')
-        if cf: 
-            cf.scaleRange( zscale_data[0] )
-        self.render()               
+        plotButtons = self.getPlotButtonbar()
+        if plotButtons <> None:
+            cf = plotButtons.getConfigFunction('ZSlider')
+            if cf: 
+                cf.scaleRange( zscale_data[0] )
+            self.render()               
 
     def setInputZScale( self, zscale_data, input_index, **args  ):
         input = StructuredGridPlot.setInputZScale( self, zscale_data, input_index, **args  )
@@ -1381,9 +1387,10 @@ class RectGridPlot(StructuredGridPlot):
 
     def updatingColormap( self, cmap_index, colormapManager ):
         if cmap_index == 0:
-            if self.planeWidgetX <> None: self.planeWidgetX.SetTextureInterpolate( colormapManager.smoothColormap )
-            if self.planeWidgetY <> None: self.planeWidgetY.SetTextureInterpolate( colormapManager.smoothColormap )
-            if self.planeWidgetZ <> None: self.planeWidgetZ.SetTextureInterpolate( colormapManager.smoothColormap )
+            for widget in ( self.planeWidgetX, self.planeWidgetY, self.planeWidgetZ ):
+                if widget <> None:
+                    widget.SetLookupTable( colormapManager.lut )
+                    widget.SetTextureInterpolate( colormapManager.smoothColormap )
             self.updateModule()
             
     def getPlaneWidget( self, plane ):       

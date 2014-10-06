@@ -4681,7 +4681,7 @@ Options:::
         if rate is not None:
             cmd+=' -r %s ' % rate
         if bitrate is not None:
-            cmd+=' -b:v %sk' % bitrate
+            cmd+=' -b:v %sk' % bitrate  
         cmd+=' '+options
         cmd+=' '+movie
         o = os.popen(cmd).read()
