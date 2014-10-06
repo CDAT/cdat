@@ -296,8 +296,8 @@ class DV3DPlot():
         sys.exit( 0 )
 
     def stepAnimation(self, **args): 
-        pass
-    
+        if self.record_animation: self.captureFrame()
+   
     def stepAnimationSignal(self):
         self.renderWindowInteractor.SetTimerEventId( self.AnimationExternalEventId )
         self.renderWindowInteractor.SetTimerEventType( self.AnimationTimerType )
@@ -332,7 +332,6 @@ class DV3DPlot():
         self.renderWindowInteractor.SetTimerEventId( self.AnimationEventId )
         self.renderWindowInteractor.SetTimerEventType( self.AnimationTimerType )
         self.animationTimerId = self.renderWindowInteractor.CreateOneShotTimer( event_duration )
-        if self.record_animation: self.captureFrame()
         
     def captureFrame( self, **args ):   
         frameCaptureFilter = vtk.vtkWindowToImageFilter()

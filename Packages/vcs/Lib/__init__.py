@@ -195,6 +195,9 @@ texttable.Tt("default")
 textorientation.To("default")
 to = textorientation.To("defcenter")
 to.halign = "center"
+to = textorientation.To("defup")
+to.angle = -90
+to.valign="half"
 to = textorientation.To("defright")
 to.halign = "right"
 boxfill.Gfb("default")
