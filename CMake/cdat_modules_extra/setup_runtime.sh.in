@@ -1,12 +1,8 @@
 #!/bin/bash
 
-# Main install prefix set by user or post install script:
-# UVCDAT_INSTALL_PREFIX
-
-# If unset, use the value configured by cmake by default.
 # Everything beyond this point will be determined relatively
 # from this path.
-install_prefix="${UVCDAT_INSTALL_PREFIX:-@CMAKE_INSTALL_PREFIX@}"
+install_prefix="@CMAKE_INSTALL_PREFIX@"
 
 function cleanup {
   unset cleanup install_prefix library_paths python_paths executable_paths
@@ -16,12 +12,14 @@ function cleanup {
 # which can lead to errors.
 if [ -n "${UVCDAT_SETUP_PATH}" ] ; then
   if [ "${UVCDAT_SETUP_PATH}" = "${install_prefix}" ] ; then
-    echo "UVCDAT setup already sourced for this install location." 1>&2
+    echo "WARNING: UVCDAT setup already sourced for this install location." 1>&2
+    echo "WARNING: You shouldn't source setup_runtime anymore." 1>&2
     cleanup
-    return 1
+    return 0
   else
     echo "ERROR: UVCDAT setup was previously sourced at \"${UVCDAT_SETUP_PATH}\"" 1>&2
-    echo "Open a new shell in order to use a different install location." 1>&2
+    echo "ERROR: There is no need to run setup_runtime manually anymore." 1>&2
+    echo "ERROR: Open a new shell in order to use a different install location." 1>&2
     cleanup
     return 1
   fi
@@ -59,6 +57,7 @@ for d in "${python_paths[@]}" ; do
   if [ -d "${f}" ] ; then
     PYTHONPATH="${f}:${PYTHONPATH}"
   fi
+  unset f
 done
 
 for d in "${executable_paths[@]}" ; do
@@ -66,6 +65,7 @@ for d in "${executable_paths[@]}" ; do
   if [ -d "${f}" ] ; then
     PATH="${f}:${PATH}"
   fi
+  unset f
 done
 
 if [ -d "${install_prefix}/Externals/lib/R" ] ; then
