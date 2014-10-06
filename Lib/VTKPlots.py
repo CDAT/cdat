@@ -234,7 +234,6 @@ class VTKVCSBackend(object):
       return ren
 
   def update(self, *args, **kargs):
-      self._lastSize = -1
       if self.renWin:
           self.configureEvent(None,None)
 
