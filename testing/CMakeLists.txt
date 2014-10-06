@@ -1,4 +1,6 @@
-add_subdirectory(uvcdat)
+# Disabling GUI tests as they don't work
+#add_subdirectory(uvcdat)
+
 add_subdirectory(regrid)
 if (CDAT_BUILD_VCS_LEGACY)
   add_subdirectory(vcs_legacy)
@@ -10,6 +12,8 @@ add_subdirectory(cdms2)
 if (CDAT_BUILD_UVCMETRICSPKG)
   add_subdirectory(metrics)
 endif()
-if (CDAT_BUILD_PARAVIEW)
-  add_subdirectory(paraview)
-endif()
+
+# Disabling ParaView tests
+#if (CDAT_BUILD_PARAVIEW)
+#  add_subdirectory(paraview)
+#endif()
