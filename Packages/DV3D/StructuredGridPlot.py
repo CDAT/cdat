@@ -648,6 +648,7 @@ class StructuredGridPlot(DV3DPlot):
         self.execute( )
         if timestamp:   self.updateTextDisplay( "Timestep: %s" % str( timestamp ) )
         else:           self.updateTextDisplay( "" )
+        DV3DPlot.stepAnimation(self, **args)
 
     def onResizeEvent(self):
         self.updateTextDisplay( None, True )
