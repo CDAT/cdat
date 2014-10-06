@@ -60,6 +60,7 @@ class VTKVCSBackend(object):
       warnings.warn("Press 'Q' to exit interactive mode and continue script execution")
       interactor = self.renWin.GetInteractor()
       istyle = interactor.GetInteractorStyle()
+#      print "STYLE:",istyle
       interactor.Start()
 
   def leftButtonPressEvent(self,obj,event):
