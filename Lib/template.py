@@ -1286,6 +1286,18 @@ class P(object):
                 tt.priority=sub.priority
                 displays.append(x.text(tt,bg=bg,**kargs))
 
+        nms = ["x","y","z","t"]
+        for i,ax in enumerate(slab.getAxisList()[::-1]):
+           nm=nms[i]+"name"
+           sub = getattr(self,nm)
+           tt=x.createtext(None,sub.texttable,None,sub.textorientation)
+           tt.string=[ax.id]
+           tt.x=[sub.x,]
+           tt.y=[sub.y,]
+           tt.priority=sub.priority
+           displays.append(x.text(tt,bg=bg,**kargs))
+
+
 
         # Do the tickmarks/labels
         if gm!='taylordiagram':
