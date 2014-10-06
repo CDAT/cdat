@@ -442,6 +442,7 @@ class CPCPlot( DV3DPlot ):
         self.setRenderMode( ProcessMode.LowRes )   
         self.point_cloud_overview.stepTime( process=True, update_points=thresholding)
         self.low_res_actor.VisibilityOn()                                    
+        DV3DPlot.stepAnimation(self, **args)
         self.render() 
 
     def update_subset_specs(self, new_specs ):
