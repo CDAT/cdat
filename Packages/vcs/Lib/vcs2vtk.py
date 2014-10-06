@@ -588,7 +588,7 @@ def dump2VTK(obj,fnm=None):
 
 
 #Wrapping around
-def doWrap(Act,wc,wrap=[0.,360]):
+def doWrap(Act,wc,wrap=[0.,360], fastClip=True):
   if wrap is None:
     return Act
   Mapper = Act.GetMapper()
@@ -668,12 +668,17 @@ def doWrap(Act,wc,wrap=[0.,360]):
   clipBox = vtk.vtkBox()
   clipBox.SetXMin(xmn, ymn, -1.0)
   clipBox.SetXMax(xmx, ymx,  1.0)
-  clipper = vtk.vtkExtractPolyDataGeometry()
+  if fastClip:
+      clipper = vtk.vtkExtractPolyDataGeometry()
+      clipper.ExtractInsideOn()
+      clipper.SetImplicitFunction(clipBox)
+      clipper.ExtractBoundaryCellsOn()
+      clipper.PassPointsOff()
+  else:
+      clipper = vtk.vtkClipPolyData()
+      clipper.InsideOutOn()
+      clipper.SetClipFunction(clipBox)
   clipper.SetInputConnection(appendFilter.GetOutputPort())
-  clipper.SetImplicitFunction(clipBox)
-  clipper.ExtractInsideOn()
-  clipper.ExtractBoundaryCellsOn()
-  clipper.PassPointsOff()
   clipper.Update()
 
   Actor = vtk.vtkActor()
