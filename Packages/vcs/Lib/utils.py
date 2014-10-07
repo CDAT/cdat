@@ -1197,6 +1197,13 @@ def setTicksandLabels(gm,copy_gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,
     datawc are world coordinates
     
     """
+    ## Ok all this is nice but if user specified datawc we need to use it!
+    print "B4 gm check:",datawc_x1,datawc_x2,datawc_y1,datawc_y2
+    for a in ["x1","x2","y1","y2"]:
+      nm = "datawc_%s" % a
+      if not numpy.allclose(getattr(gm,nm),1.e20):
+        exec("%s = gm.%s" % (nm,nm))
+    print "After gm check:",datawc_x1,datawc_x2,datawc_y1,datawc_y2
     if isinstance(gm,vcs.taylor.Gtd):
         return
     # Now the template stuff
