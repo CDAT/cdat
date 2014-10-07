@@ -40,6 +40,7 @@ def saveAnimation( saveDir, animation_frames ):
     writer = vtk.vtkFFMPEGWriter()
     movie = os.path.join( saveDir, "movie.avi" )
     writer.SetFileName( movie )
+    print "Saving recorded animation to %s" % movie; sys.stdout.flush()
     writer.SetBitRate(1024*1024*30)
     writer.SetBitRateTolerance(1024*1024*3)
     writer.SetInputData( animation_frames[0] )
@@ -49,7 +50,6 @@ def saveAnimation( saveDir, animation_frames ):
         writer.Write()
         time.sleep(0.0)          
     writer.End() 
-    print "Saving data to %s" % movie
         
 
 def saveAnimationFFMpeg( animation_frames, saveDir ):
