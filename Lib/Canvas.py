@@ -3395,11 +3395,11 @@ Options:::
             if isinstance(arglist[0].getGrid(), (cdms2.gengrid.AbstractGenericGrid,cdms2.hgrid.AbstractCurveGrid)):
               x="longitude"
               y="latitude"
-        except:
+        except Exception,err:
             pass
         try:
-            vcs.setTicksandLabels(check_mthd,copy_mthd,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=x,y=y)
-        except:
+            copy_mthd = vcs.setTicksandLabels(check_mthd,copy_mthd,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=x,y=y)
+        except Exception,err:
             pass
 
         if not copy_mthd is None: arglist[4]=copy_mthd.name
