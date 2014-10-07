@@ -402,7 +402,9 @@ class VTKVCSBackend(object):
     if data2 is None:
       X=Y.getAxis(0)[:]
     else:
-      X=self.trimData1D(data2)
+      X=Y
+      data1._yname = data2.id
+      Y=self.trimData1D(data2)
 
     if gm.flip:
       tmp = Y
@@ -477,6 +479,8 @@ class VTKVCSBackend(object):
     ren2 = self.createRenderer()
     self.renWin.AddRenderer(ren2)
     tmpl.plot(self.canvas,data1,gm,bg=self.bg,renderer=ren2,X=X,Y=Y)
+    if hasattr(data1,"_yname"):
+      del(data1._yname)
     del(vcs.elements["line"][l.name])
     del(vcs.elements["marker"][m.name])
 

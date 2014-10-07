@@ -1303,7 +1303,18 @@ class P(object):
            nm=nms[i]+"name"
            sub = getattr(self,nm)
            tt=x.createtext(None,sub.texttable,None,sub.textorientation)
-           tt.string=[ax.id]
+           if i==0 and gm.g_name=="G1d":
+             if gm.flip or hasattr(slab,"_yname"):
+               tt.string=[slab.id]
+             else:
+               tt.string=[ax.id]
+           elif i==1 and gm.g_name=="G1d":
+             if hasattr(slab,"_yname"):
+               tt.string=[slab._yname]
+             else:
+               tt.string=[ax.id]
+           else:
+               tt.string=[ax.id]
            tt.x=[sub.x,]
            tt.y=[sub.y,]
            tt.priority=sub.priority
