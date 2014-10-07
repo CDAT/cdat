@@ -3042,7 +3042,7 @@ Options:::
                                 if not axes_changed2.has_key(i):
                                     axes_changed2[i]=ax
                 if copy_tmpl is None:
-                    check_tmpl = copy_tmpl=self._create_random_template(arglist[2])
+                    check_tmpl = copy_tmpl=vcs.createtemplate(source=arglist[2])
                 k=keyargs[p]
                 if getattr(getattr(copy_tmpl,p),'priority')==0:
                     setattr(getattr(copy_tmpl,p),'priority',1)
@@ -3577,12 +3577,12 @@ Options:::
                             if gm.datawc_y2<9.99E19:
                                 lat2=gm.datawc_y2
                             if copy_tmpl is None:
-                                copy_tmpl=self._create_random_template(arglist[2])
+                                copy_tmpl=vcs.createtemplate(source=arglist[2])
                                 arglist[2]=copy_tmpl.name
                             copy_tmpl.ratio_linear_projection(lon1,lon2,lat1,lat2,None,box_and_ticks=box_and_ticks)
                     elif arglist[0].getAxis(-1).isLongitude() and arglist[0].getAxis(-2).isLatitude():
                         if copy_tmpl is None:
-                            copy_tmpl=self._create_random_template(arglist[2])
+                            copy_tmpl=vcs.createtemplate(arglist[2])
                         if gm.datawc_x1<9.99E19:
                             lon1=gm.datawc_x1
                         else:
@@ -3612,7 +3612,7 @@ Options:::
                 except:
                     Ratio=doratio
                 if copy_tmpl is None:
-                    copy_tmpl=self._create_random_template(arglist[2])
+                    copy_tmpl=vcs.createtemplate(source=arglist[2])
                     arglist[2]=copy_tmpl.name
                 copy_tmpl.ratio(Ratio,box_and_ticks=box_and_ticks,x=self)
                             
