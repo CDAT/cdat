@@ -1338,7 +1338,7 @@ def setTicksandLabels(gm,copy_gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,
         ##         del(ticks[k])
         setattr(gm,'ymtics2',ticks)
         dic['ymtics2']=True
-    return dic
+    return copy_gm
 
 def getcolormap(Cp_name_src='default'):
     """
