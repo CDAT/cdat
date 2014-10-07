@@ -1044,7 +1044,7 @@ class VTKVCSBackend(object):
       contActor = vtk.vtkActor()
       contActor.SetMapper(contMapper)
       contActor.GetProperty().SetColor(0.,0.,0.)
-      contActor = vcs2vtk.doWrap(contActor,[x1,x2,y1,y2],wrap)
+      contActor = vcs2vtk.doWrap(contActor,[x1,x2,y1,y2],wrap,fastClip=False)
       if projection.type!="linear":
           contData=contActor.GetMapper().GetInput()
           cpts = contData.GetPoints()
