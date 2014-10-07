@@ -3582,7 +3582,7 @@ Options:::
                             copy_tmpl.ratio_linear_projection(lon1,lon2,lat1,lat2,None,box_and_ticks=box_and_ticks)
                     elif arglist[0].getAxis(-1).isLongitude() and arglist[0].getAxis(-2).isLatitude():
                         if copy_tmpl is None:
-                            copy_tmpl=vcs.createtemplate(arglist[2])
+                            copy_tmpl=vcs.createtemplate(source=arglist[2])
                         if gm.datawc_x1<9.99E19:
                             lon1=gm.datawc_x1
                         else:
