@@ -193,7 +193,7 @@ class VTKVCSBackend(object):
             if not ren.GetLayer()==0:
               self.renWin.RemoveRenderer(ren)
         ren = renderers.GetNextItem()
-    if hasValidRenderer:
+    if hasValidRenderer and self._lastSize is not None and self._lastSize > 0:
         self.renWin.Render()
     self.numberOfPlotCalls = 0
 
