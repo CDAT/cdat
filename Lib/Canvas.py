@@ -2836,7 +2836,7 @@ Options:::
                 # Now the "special" keywords
                 'worldcoordinate',
                 ]:
-                if copy_mthd is None: raise vcsError, 'Error, at-plotting-time option: '+p+' is not available for graphic method type:'+arglist[3]
+                #if copy_mthd is None: raise vcsError, 'Error, at-plotting-time option: '+p+' is not available for graphic method type:'+arglist[3]
                 if not p in ['worldcoordinate',]: # not a special keywords
                     if copy_mthd is None: 
                       copy_mthd=vcs.creategraphicsmethod(arglist[3],arglist[4])
@@ -3135,7 +3135,7 @@ Options:::
                         break
                 if convert_datawc:
                     oax = arglist[0].getAxis(cax).clone()
-                    t=type(copy_mthd.datawc_x1)
+                    t=type(check_mthd.datawc_x1)
                     if not t in [type(cdtime.reltime(0,'months since 1900')),type(cdtime.comptime(1900))]:
                         if copy_mthd is None:
                           copy_mthd=vcs.creategraphicsmethod(arglist[3],arglist[4])
