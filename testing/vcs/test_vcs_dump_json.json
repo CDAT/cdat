@@ -458,10 +458,10 @@
    }, 
    "xname": {
     "priority": 1, 
-    "textorientation": "default", 
+    "textorientation": "defcenter", 
     "texttable": "default", 
     "x": 0.5, 
-    "y": 0.277000010014
+    "y": 0.21
    }, 
    "xtic1": {
     "line": "default", 
@@ -516,10 +516,10 @@
    }, 
    "yname": {
     "priority": 1, 
-    "textorientation": "default", 
+    "textorientation": "defup", 
     "texttable": "default", 
-    "x": 0.0168999992311, 
-    "y": 0.420033991337
+    "x": 0.006, 
+    "y": 0.56
    }, 
    "ytic1": {
     "line": "default", 
