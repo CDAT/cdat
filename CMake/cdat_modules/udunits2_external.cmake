@@ -9,7 +9,7 @@ ExternalProject_Add(udunits2
   URL ${UDUNITS2_URL}/${UDUNITS2_GZ}
   URL_MD5 ${UDUNITS2_MD5}
   BUILD_IN_SOURCE 1
-  PATCH_COMMAND "sed -i 's/for ac_prog in flex lex/for ac_prog in lex/' configure" # Flex is being difficult on mac...
+  PATCH_COMMAND "sed -i '4432,4440d' '${udunits_source}/configure'" # Flex is being difficult on mac...
   CONFIGURE_COMMAND ${CMAKE_COMMAND} -DINSTALL_DIR=<INSTALL_DIR> -DWORKING_DIR=<SOURCE_DIR> -P ${cdat_CMAKE_BINARY_DIR}/cdat_configure_step.cmake
   DEPENDS ${udunits2_deps}
   ${ep_log_options}
