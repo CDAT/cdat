@@ -3399,7 +3399,6 @@ Options:::
         except Exception,err:
             pass
         try:
-          print "COPYMTHD:",datawc_x1,datawc_x2,datawc_y1,datawc_y2
           copy_mthd = vcs.setTicksandLabels(check_mthd,copy_mthd,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=x,y=y)
         except Exception,err:
             pass

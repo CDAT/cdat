@@ -397,7 +397,6 @@ class VTKVCSBackend(object):
 
 
   def plot1D(self,data1,data2,tmpl,gm,ren):
-    print "LIST:",gm.list()
     self.setLayer(ren,tmpl.data.priority)
     Y = self.trimData1D(data1)
     if data2 is None:
