@@ -235,7 +235,6 @@ for nm in ["mercator","orthographic","lambert","polar","polyconic","robinson",
 
 fillarea.Tf("default")
 template.P("default")
-
   
 taylordiagrams=[taylor.Gtd()]
 

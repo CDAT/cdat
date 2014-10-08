@@ -21,6 +21,7 @@ import json
 import os
 import tempfile
 import colormap
+import vcsaddons
 
 indent = 1
 sort_keys = True
@@ -1190,12 +1191,17 @@ def prettifyAxisLabels(ticks,axis):
                 ticks[0]="Eq"
     return ticks
 
-def setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
+def setTicksandLabels(gm,copy_gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
     """ Sets the labels and ticks for a graphics method made in python
     Usage setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None)
     datawc are world coordinates
     
     """
+    ## Ok all this is nice but if user specified datawc we need to use it!
+    for a in ["x1","x2","y1","y2"]:
+      nm = "datawc_%s" % a
+      if not numpy.allclose(getattr(gm,nm),1.e20):
+        exec("%s = gm.%s" % (nm,nm))
     if isinstance(gm,vcs.taylor.Gtd):
         return
     # Now the template stuff
@@ -1205,6 +1211,9 @@ def setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
         dic[i]=False
     #xticklabels1
     if gm.xticlabels1 is None or gm.xticlabels1=='*':
+        if copy_gm is None:
+          copy_gm = creategraphicsmethod(gm.g_name,gm.name)
+          gm=copy_gm
         if x=="longitude" and abs(datawc_x2-datawc_x1)>30:
           ticks="lon30"
         else:
@@ -1217,6 +1226,9 @@ def setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
         dic['xticlabels1']=True
     #xmtics1
     if gm.xmtics1 is None or gm.xmtics1=='*':
+        if copy_gm is None:
+          copy_gm = creategraphicsmethod(gm.g_name,gm.name)
+          gm=copy_gm
         if x=="longitude" and abs(datawc_x2-datawc_x1)>30:
           ticks=gm.xticlabels1.keys()
         else:
@@ -1232,6 +1244,9 @@ def setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
         dic['xmtics1']=True
     #xticklabels2
     if  hasattr(gm,"xticlabels2") and (gm.xticlabels2 is None or gm.xticlabels2=='*'):
+        if copy_gm is None:
+          copy_gm = creategraphicsmethod(gm.g_name,gm.name)
+          gm=copy_gm
         if x=="longitude" and abs(datawc_x2-datawc_x1)>30:
           ticks="lon30"
         else:
@@ -1245,6 +1260,9 @@ def setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
         dic['xticlabels2']=True
     #xmtics2
     if hasattr(gm,"xmtics2") and (gm.xmtics2 is None or gm.xmtics2=='*'):
+        if copy_gm is None:
+          copy_gm = creategraphicsmethod(gm.g_name,gm.name)
+          gm=copy_gm
         if x=="longitude" and abs(datawc_x2-datawc_x1)>30:
           ticks=gm.xticlabels2.keys()
         else:
@@ -1260,6 +1278,9 @@ def setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
         dic['xmtics2']=True
     #yticklabels1
     if gm.yticlabels1 is None or gm.yticlabels1=='*':
+        if copy_gm is None:
+          copy_gm = creategraphicsmethod(gm.g_name,gm.name)
+          gm=copy_gm
         if y=="latitude" and abs(datawc_y2-datawc_y1)>20:
           ticks="lat20"
         else:
@@ -1272,6 +1293,9 @@ def setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
         dic['yticlabels1']=True
     #ymtics1
     if gm.ymtics1 is None or gm.ymtics1=='*':
+        if copy_gm is None:
+          copy_gm = creategraphicsmethod(gm.g_name,gm.name)
+          gm=copy_gm
         if y=="latitude" and abs(datawc_y2-datawc_y1)>20:
           ticks=gm.yticlabels1.keys()
         else:
@@ -1287,6 +1311,9 @@ def setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
         dic['ymtics1']=True
     #yticklabels2
     if hasattr(gm,"yticlabels2") and (gm.yticlabels2 is None or gm.yticlabels2=='*'):
+        if copy_gm is None:
+          copy_gm = creategraphicsmethod(gm.g_name,gm.name)
+          gm=copy_gm
         if y=="latitude" and abs(datawc_y2-datawc_y1)>20:
           ticks="lat20"
         else:
@@ -1300,6 +1327,9 @@ def setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
         dic['yticlabels2']=True
     #ymtics2
     if hasattr(gm,"ymtics2") and (gm.ymtics2 is None or gm.ymtics2=='*'):
+        if copy_gm is None:
+          copy_gm = creategraphicsmethod(gm.g_name,gm.name)
+          gm=copy_gm
         if y=="latitude" and abs(datawc_y2-datawc_y1)>20:
           ticks=gm.yticlabels2.keys()
         else:
@@ -1313,7 +1343,7 @@ def setTicksandLabels(gm,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=None,y=None):
         ##         del(ticks[k])
         setattr(gm,'ymtics2',ticks)
         dic['ymtics2']=True
-    return dic
+    return copy_gm
 
 def getcolormap(Cp_name_src='default'):
     """
@@ -1426,3 +1456,43 @@ def monotonic(x):
     dx = numpy.diff(x)
     return numpy.all(dx <= 0) or numpy.all(dx >= 0)
 
+def getgraphicsmethod(type,name):
+    if isinstance(type,vcsaddons.core.VCSaddon):
+        func = type.getgm
+        copy_mthd=func(source = name)
+    else:
+      try:
+        copy_mthd = vcs.elements[type][name]
+      except:
+        copy_mthd = None
+    return copy_mthd
+
+def creategraphicsmethod(gtype,name):
+    if gtype in ['isoline','Gi']:
+        func=vcs.createisoline
+    elif gtype in ['isofill','Gfi']:
+        func=vcs.createisofill
+    elif gtype in ['boxfill','default']:
+        func=vcs.createboxfill
+    elif gtype in ['meshfill','Gfm']:
+        func=vcs.createmeshfill
+    elif gtype in ['scatter',]:
+        func=vcs.createscatter
+    elif gtype in ['xvsy',]:
+        func=vcs.createxvsy
+    elif gtype in ['xyvsy',]:
+        func=vcs.createxyvsy
+    elif gtype in ['yxvsx',]:
+        func=vcs.createyxvsx
+    elif gtype in ['1d','G1d']:
+        func=vcs.create1d
+    elif gtype in ['vector','Gv']:
+        func=vcs.createvector
+    elif gtype in ['taylordiagram','Gtd']:
+        func=vcs.createtaylordiagram
+    elif isinstance(type,vcsaddons.core.VCSaddon):
+        func = type.creategm
+    else:
+        return None
+    copy_mthd=func(source = name)
+    return copy_mthd
