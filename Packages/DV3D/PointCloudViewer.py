@@ -216,6 +216,9 @@ class CPCPlot( DV3DPlot ):
 #         if etype == 11:
 #             self.printInteractionStyle('processTimerEvent')
 
+    def onWindowModified(self):
+        pass
+    
     def processSurfacePlotCommand( self, args, config_function = None ):
         DV3DPlot.processSurfacePlotCommand( self, args, config_function  )
         volumeParam = config_function.value
