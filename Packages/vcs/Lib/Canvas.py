@@ -3185,7 +3185,7 @@ Options:::
                and arglist[0].getAxis(-2).isTime() and (arglist[0].ndim>1 or (check_mthd.g_name == 'G1d' and check_mthd.flip)) \
                and not (check_mthd.g_name=='Gfm' and isinstance(arglist[0].getGrid(), (cdms2.gengrid.AbstractGenericGrid,cdms2.hgrid.AbstractCurveGrid))): #GXy
             ax=arglist[0].getAxis(-2).clone()
-            if check_mthd.g_name == "G1d" and check_mthd.linesize==0: # used to be  Sp
+            if check_mthd.g_name == "G1d" and check_mthd.linewidth==0: # used to be  Sp
                 ax = arglist[1].getAxis(-2).clone()
                 axes_changed2={}
             ids=arglist[0].getAxisIds()
@@ -3214,7 +3214,7 @@ Options:::
             if (check_mthd.yticlabels1=='*' or check_mthd.yticlabels2=='*') and convertedok:
                 convert_datawc = False
                 A=axes_changed
-                if check_mthd.g_name in ["G1d",]: #GSp
+                if check_mthd.g_name=="G1d" and check_mthd.linewidth==0:  #GSp
                     A=axes_changed2
                 for cax in A.keys():
                     if A[cax] is ax:
