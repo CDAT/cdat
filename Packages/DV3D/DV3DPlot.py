@@ -282,7 +282,8 @@ class DV3DPlot():
  
         self.renderer.RemoveAllViewProps()
         self.clearReferrents()
-        self.renderWindowInteractor.TerminateApp()
+        if self.renderWindowInteractor <> None:
+            self.renderWindowInteractor.TerminateApp()
 
     def terminate( self ):
         pass

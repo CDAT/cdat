@@ -148,7 +148,7 @@ class Button:
             return True        
         if key == self.key and not self.invokingEvent:
             self.buttonRepresentation.Highlight( self.buttonRepresentation.HighlightSelecting )
-            self.processStateChangeEvent( self, "KeyEvent", True )
+            self.processStateChangeEvent( self, "KeyEvent" )
             self.buttonRepresentation.Highlight( self.buttonRepresentation.HighlightNormal )
             return True
         return False
@@ -158,10 +158,10 @@ class Button:
         self.setState(state)
         self.setToggleProps()       
 
-    def processStateChangeEvent( self, obj, event, indirect = False ):
+    def processStateChangeEvent( self, obj, event ):
 #        print "Button[%s]:processStateChangeEvent(%d)" % ( self.id, self.getState() )
         self.invokingEvent = True 
-        self.setButtonState( ( self.getState() + 1 ) % self.numberOfStates, indirect )      
+        self.setButtonState( ( self.getState() + 1 ) % self.numberOfStates )      
         self.invokingEvent = False
         
     def refreshButtonState(self):
@@ -170,10 +170,11 @@ class Button:
         self.broadcastState( state )
         self.setToggleProps()
         
-    def setButtonState( self, state, indirect = False ):
+    def setButtonState( self, state, broadcast = True ):
 #        print "Button[%s]:setButtonState(%d)" % ( self.id, state )
         if (state <> self.getState()) or not self.toggle:
-            self.broadcastState( state )
+            if broadcast:
+                self.broadcastState( state )
             self.setState(state)
     #         if (self.key <> None) and not indirect:
     #             self.renderWindowInteractor.SetKeyEventInformation( 0, 0, self.key, 1, self.key )
@@ -494,10 +495,11 @@ class ButtonBarWidget(ButtonBar):
             is_child = ib.id in current_button.children
             state = new_state if is_child else 0
 #           ibbar.processStateChangeEvent( ib.id, ib.key, state )
-            ib.setButtonState(state)           
-            if is_child:
-                if ( new_state == 0 ): ib.deactivate()
-                else: ib.activate()
+            if state <> ib.getState():
+                ib.setButtonState(state)           
+                if is_child:
+                    if ( new_state == 0 ): ib.deactivate()
+                    else: ib.activate()
                     
     def processStateChangeEvent( self, button_id, key, state, force = False ):
         b = self.getButton( button_id )
@@ -646,8 +648,8 @@ class ButtonBarWidget(ButtonBar):
                         
     def commandeerControl(self, index, label, bounds, tvals ): 
         if bounds == None: return
-#        print " CommandeerSlider[%d]: ('%s') %s: %s in %s " % ( index, label, self.InteractionState, str(value), str(bounds) )
-        widget_item = self.currentControls.get( index, None )
+#1        print " CommandeerSlider[%d]: ('%s') %s: %s in %s " % ( index, label, self.InteractionState, str(tvals), str(bounds) )
+        widget_item = self.currentControls.get( index, None ) 
         isButtonWidget = type(label) == list
         if widget_item == None: 
             if isButtonWidget:
@@ -727,7 +729,7 @@ class ButtonBarWidget(ButtonBar):
                     if self.InteractionState <> None: self.endInteraction()
                     self.InteractionState = interaction_state
                     self.process_mode = process_mode
-#                    print "Change Interaction State: %s %d " % ( self.InteractionState, self.process_mode )
+                    print " --> Change Interaction State: %s %d " % ( self.InteractionState, self.process_mode )
                 return item[0]
         return None
             
@@ -786,14 +788,15 @@ class ButtonBarWidget(ButtonBar):
             prevConfigFunct = self.configurableFunctions[ self.InteractionState ]
             sameGroup = prevConfigFunct.sameGroup( configFunct )
             if not sameGroup: prevConfigFunct.close()  
-        else: sameGroup = False               
-#        print " UpdateInteractionState, config_state = %s, cf = %s " % ( config_state, configFunct.key )
+        else: sameGroup = False
+        
         if configFunct:
 #            child_activations = []
 #                if configFunct.type <> 'slider': 
 #                    self.releaseSliders() 
             configFunct.open( config_state )
-            self.InteractionState = config_state                   
+            self.InteractionState = config_state  
+#1            print " ---> UpdateInteractionState: %s " % str(self.InteractionState)                  
             if button_state: 
                 self.LastInteractionState = self.InteractionState
 #            self.disableVisualizationInteraction()
@@ -803,7 +806,7 @@ class ButtonBarWidget(ButtonBar):
                 bbar = self.handler.getButtonBar( 'Interaction' )
                 active_button = configFunct.name if ( self.name == bbar.name ) else None
                 child_activations = bbar.initConfigState( active_button=active_button )
-                if self.name == "Plot": self.resetInteractionButtons( self.getButton( config_state ), 1 )
+                if self.name == "Plot": self.resetInteractionButtons( self.getButton( config_state ), 1 )    
             
             if (configFunct.type == 'slider'):
                 force_enable = args.get( 'enable', False )
