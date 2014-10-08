@@ -362,7 +362,7 @@ class RectGridPlot(StructuredGridPlot):
             count = slicePosition.incrementValue( 'count' )
             if count % self.skipIndex == 0:
                 value = args[2].GetValue()
-                if value < 0.01: value = 0.01
+                if (plane_index == 2) and (value < 0.01): value = 0.01
 #                print " Set slice position: ", str( value )
                 plane_widget.SetSlicePosition( value )
                 slicePosition.setValues( [ value ] )
