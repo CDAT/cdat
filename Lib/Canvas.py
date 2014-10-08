@@ -2859,7 +2859,7 @@ Options:::
                 'viewport',
                 ]:
                 if copy_tmpl is None:
-                    copy_tmpl=vcs.createmplate(source=arglist[2])
+                    copy_tmpl=vcs.createtemplate(source=arglist[2])
                     check_tmpl=copy_tmpl
                 copy_tmpl.reset('x',keyargs[p][0],keyargs[p][1],copy_tmpl.data.x1,copy_tmpl.data.x2)
                 copy_tmpl.reset('y',keyargs[p][2],keyargs[p][3],copy_tmpl.data.y1,copy_tmpl.data.y2)
@@ -2870,7 +2870,7 @@ Options:::
                 'label2',
                 ]:
                 if copy_tmpl is None:
-                    copy_tmpl=vcs.createmplate(source=arglist[2])
+                    copy_tmpl=vcs.createtemplate(source=arglist[2])
                     check_tmpl=copy_tmpl
                 k=keyargs[p]
                 if type(k)!=type([]):# not a list means only priority set
@@ -2897,7 +2897,7 @@ Options:::
                 'tic2',
                 ]:
                 if copy_tmpl is None:
-                    copy_tmpl=vcs.createmplate(source=arglist[2])
+                    copy_tmpl=vcs.createtemplate(source=arglist[2])
                     check_tmpl=copy_tmpl
 
                 k=keyargs[p]
@@ -2926,7 +2926,7 @@ Options:::
                 'data','legend',
                 ]:
                 if copy_tmpl is None:
-                    copy_tmpl=vcs.createmplate(source=arglist[2])
+                    copy_tmpl=vcs.createtemplate(source=arglist[2])
                     check_tmpl=copy_tmpl
                 k=keyargs[p]
                 if type(k)!=type([]):# not a list means only priority set
@@ -2965,7 +2965,7 @@ Options:::
                ]:
                 k=keyargs[p]
                 if copy_tmpl is None:
-                    copy_tmpl=vcs.createmplate(source=arglist[2])
+                    copy_tmpl=vcs.createtemplate(source=arglist[2])
                     check_tmpl=copy_tmpl
                 if getattr(getattr(check_tmpl,p),'priority')==0:
                     setattr(getattr(copy_tmpl,p),'priority',1)
