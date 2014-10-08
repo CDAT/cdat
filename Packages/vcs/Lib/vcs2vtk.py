@@ -788,7 +788,6 @@ def prepTextProperty(p,winSize,to="default",tt="default",cmap=None):
   elif to.valign in [3,'base']:
     warnings.warn("VTK does not support 'base' align, using 'bottom'")
     p.SetVerticalJustificationToBottom()
-  p.SetOrientation(-to.angle)
   p.SetFontFamily(vtk.VTK_FONT_FILE)
   p.SetFontFile(vcs.elements["font"][vcs.elements["fontNumber"][tt.font]])
   p.SetFontSize(int(to.height*winSize[1]/800.))
@@ -818,6 +817,7 @@ def genTextActor(renderer,string=None,x=None,y=None,to='default',tt='default',cm
   sz = renderer.GetRenderWindow().GetSize()
   for i in range(n):
     t = vtk.vtkTextActor()
+    t.SetOrientation(-to.angle)
     p=t.GetTextProperty()
     prepTextProperty(p,sz,to,tt,cmap)
     t.SetInput(string[i])
