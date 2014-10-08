@@ -146,7 +146,10 @@ def _determine_arg_list(g_name, actual_args):
              possible_slab = cdms2.asVariable (args[i], 0)
              if hasattr( possible_slab, 'iscontiguous' ):
                  if not possible_slab.iscontiguous():
+                     #this seems to loose the id...
+                     saved_id = possible_slab.id
                      possible_slab = possible_slab.ascontiguousarray()
+                     possible_slab.id = saved_id
              arglist[found_slabs] = possible_slab
              if found_slabs == 2:
                  raise vcsError, "Too many slab arguments."
@@ -2587,20 +2590,6 @@ Options:::
         return a
     plot.__doc__ = plot.__doc__ % (plot_2_1D_options, plot_keywords_doc,graphics_method_core,axesconvert,plot_2_1D_input, plot_output)
 
-    def _create_random_template(self,name):
-##         icont=1
-##         while icont:
-##             try:
-##                 n=random.randint(0,100000)                                                    
-##                 tmpl=self.createtemplate('__'+str(n),name)
-##                 icont=0
-##             except:
-##                 if not name in self.listelements('template'):
-##                     print "'Template' is currently set to P_default."
-##                     name='default'
-        tmpl = self.createtemplate(None,name)
-        return tmpl
-    
     def plot_filledcontinents(self,slab,template_name,g_type,g_name,bg,ratio):
         cf=cdutil.continent_fill.Gcf()
         if g_type.lower()=='boxfill':
@@ -2631,70 +2620,6 @@ Options:::
             cf.plot(x=self,template=template_name,ratio=ratio)
         except Exception,err:
             print err
-
-    def get_gm(self,type,name):
-        if type=='isoline':
-            func=self.getisoline
-        elif type=='isofill':
-            func=self.getisofill
-        elif type=='boxfill':
-            func=self.getboxfill
-        elif type=='meshfill':
-            func=self.getmeshfill
-        elif type=='scatter':
-            func=self.getscatter
-        elif type=='xvsy':
-            func=self.getxvsy
-        elif type=='xyvsy':
-            func=self.getxyvsy
-        elif type=='yxvsx':
-            func=self.getyxvsx
-        elif type=='vector':
-            func=self.getvector
-        elif type=='outfill':
-            func=self.getoutfill
-        elif type=='outline':
-            func=self.getoutline
-        elif type=='taylordiagram':
-            func=self.gettaylordiagram
-        elif isinstance(type,vcsaddons.core.VCSaddon):
-            func = type.getgm
-        else:
-            return None
-        gm=func(name)
-        return gm
-                
-    def generate_gm(self,type,name):
-        if type=='isoline':
-            func=self.createisoline
-        elif type=='isofill':
-            func=self.createisofill
-        elif type in ['boxfill','default']:
-            func=self.createboxfill
-        elif type=='meshfill':
-            func=self.createmeshfill
-        elif type=='scatter':
-            func=self.createscatter
-        elif type=='xvsy':
-            func=self.createxvsy
-        elif type=='xyvsy':
-            func=self.createxyvsy
-        elif type=='yxvsx':
-            func=self.createyxvsx
-        elif type=='vector':
-            func=self.createvector
-        elif type=='outfill':
-            func=self.createoutfill
-        elif type=='outline':
-            func=self.createoutline
-        elif type=='taylordiagram':
-            func=self.createtaylordiagram
-        elif isinstance(type,vcsaddons.core.VCSaddon):
-            func = type.creategm
-        else:
-            return None
-        copy_mthd=func(source = name)
-        return copy_mthd
 
     def __plot (self, arglist, keyargs):
         # This routine has five arguments in arglist from _determine_arg_list
@@ -2727,9 +2652,12 @@ Options:::
         copy_tmpl=None
         if arglist[2] in ['default','default_dud']:
             if arglist[3]=='taylordiagram':
-                copy_tmpl=self.createtemplate(source='deftaylor')
-            else:
-                copy_tmpl=self.createtemplate(source=arglist[2])
+              arglist[2]="deftaylor"
+                #copy_tmpl=self.createtemplate(source='deftaylor')
+            #else:
+            #    copy_tmpl=self.createtemplate(source=arglist[2])
+        check_mthd = vcs.getgraphicsmethod(arglist[3],arglist[4])
+        check_tmpl = vcs.gettemplate(arglist[2])
 
         # By defalut do the ratio thing for lat/lon and linear projection
         # but it can be overwritten by keyword
@@ -2762,7 +2690,8 @@ Options:::
                             keyargs['wrap']=[360.,0.]
                     else:
                         arglist[3]='boxfill'
-                        copy_mthd=self.generate_gm('boxfill','default')
+                        copy_mthd=vcs.creategraphicsmethod('boxfill','default')
+                        check_mthd = copy_mthd
                         m=self.getmeshfill(arglist[4])
                         md=self.getmeshfill()
                         if md.levels!=m.levels:
@@ -2830,9 +2759,10 @@ Options:::
             # ok it is for the boxfill let's do it        
             if isboxfilllegend:
                 if copy_mthd is None:
-                    copy_mthd=self.generate_gm(arglist[3],arglist[4])
+                    copy_mthd=vcs.creategraphicsmethod(arglist[3],arglist[4])
                 copy_mthd.legend=k
                 del(keyargs['legend'])
+                check_mthd = copy_mthd
             
 
         # There is no way of knowing if the template has been called prior to this plot command. 
@@ -2909,11 +2839,16 @@ Options:::
                 # Now the "special" keywords
                 'worldcoordinate',
                 ]:
-                if copy_mthd is None: copy_mthd=self.generate_gm(arglist[3],arglist[4])
-                if copy_mthd is None: raise vcsError, 'Error, at-plotting-time option: '+p+' is not available for graphic method type:'+arglist[3]
+                #if copy_mthd is None: raise vcsError, 'Error, at-plotting-time option: '+p+' is not available for graphic method type:'+arglist[3]
                 if not p in ['worldcoordinate',]: # not a special keywords
+                    if copy_mthd is None: 
+                      copy_mthd=vcs.creategraphicsmethod(arglist[3],arglist[4])
+                      check_mthd = copy_mthd
                     setattr(copy_mthd,p,keyargs[p])
                 elif p=='worldcoordinate':
+                    if copy_mthd is None: 
+                      copy_mthd=vcs.creategraphicsmethod(arglist[3],arglist[4])
+                      check_mthd = copy_mthd
                     setattr(copy_mthd,'datawc_x1',keyargs[p][0])
                     setattr(copy_mthd,'datawc_x2',keyargs[p][1])
                     setattr(copy_mthd,'datawc_y1',keyargs[p][2])
@@ -2924,7 +2859,8 @@ Options:::
                 'viewport',
                 ]:
                 if copy_tmpl is None:
-                    copy_tmpl=self._create_random_template(arglist[2])
+                    copy_tmpl=vcs.createtemplate(source=arglist[2])
+                    check_tmpl=copy_tmpl
                 copy_tmpl.reset('x',keyargs[p][0],keyargs[p][1],copy_tmpl.data.x1,copy_tmpl.data.x2)
                 copy_tmpl.reset('y',keyargs[p][2],keyargs[p][3],copy_tmpl.data.y1,copy_tmpl.data.y2)
                 del(keyargs[p])
@@ -2934,7 +2870,8 @@ Options:::
                 'label2',
                 ]:
                 if copy_tmpl is None:
-                    copy_tmpl=self._create_random_template(arglist[2])
+                    copy_tmpl=vcs.createtemplate(source=arglist[2])
+                    check_tmpl=copy_tmpl
                 k=keyargs[p]
                 if type(k)!=type([]):# not a list means only priority set
                     if not type(k)==type({}):
@@ -2960,7 +2897,8 @@ Options:::
                 'tic2',
                 ]:
                 if copy_tmpl is None:
-                    copy_tmpl=self._create_random_template(arglist[2])
+                    copy_tmpl=vcs.createtemplate(source=arglist[2])
+                    check_tmpl=copy_tmpl
 
                 k=keyargs[p]
                 if type(k)!=type([]):# not a list means only priority set
@@ -2988,7 +2926,8 @@ Options:::
                 'data','legend',
                 ]:
                 if copy_tmpl is None:
-                    copy_tmpl=self._create_random_template(arglist[2])
+                    copy_tmpl=vcs.createtemplate(source=arglist[2])
+                    check_tmpl=copy_tmpl
                 k=keyargs[p]
                 if type(k)!=type([]):# not a list means only priority set
                     if not type(k)==type({}):
@@ -3024,10 +2963,11 @@ Options:::
                 'units',
                 'id',
                ]:
-                if copy_tmpl is None:
-                    copy_tmpl=self._create_random_template(arglist[2])
                 k=keyargs[p]
-                if getattr(getattr(copy_tmpl,p),'priority')==0:
+                if copy_tmpl is None:
+                    copy_tmpl=vcs.createtemplate(source=arglist[2])
+                    check_tmpl=copy_tmpl
+                if getattr(getattr(check_tmpl,p),'priority')==0:
                     setattr(getattr(copy_tmpl,p),'priority',1)
                 if not isinstance(k,list):# not a list means only priority set
                     if isinstance(k,dict):
@@ -3105,7 +3045,7 @@ Options:::
                                 if not axes_changed2.has_key(i):
                                     axes_changed2[i]=ax
                 if copy_tmpl is None:
-                    copy_tmpl=self._create_random_template(arglist[2])
+                    check_tmpl = copy_tmpl=vcs.createtemplate(source=arglist[2])
                 k=keyargs[p]
                 if getattr(getattr(copy_tmpl,p),'priority')==0:
                     setattr(getattr(copy_tmpl,p),'priority',1)
@@ -3151,24 +3091,25 @@ Options:::
 
 
         ## Check if datawc has time setting in it
-        wasnone=0
-        if copy_mthd is None:
-            if arglist[3]!='default':
-                copy_mthd=self.generate_gm(arglist[3],arglist[4])
-            else:
-                copy_mthd=self.generate_gm('boxfill',arglist[4])
-            wasnone=1
+        #if copy_mthd is None:
+       #     if arglist[3]!='default':
+       #         copy_mthd=vcs.creategraphicsmethod(arglist[3],arglist[4])
+       #         print "5555555"
+       #     else:
+       #         copy_mthd=vcs.creategraphicsmethod('boxfill',arglist[4])
+       #         print "5555555bbbbbbbb"
+       #     wasnone=1
 ##                and (type(copy_mthd.datawc_x1) in [type(cdtime.comptime(1900)),type(cdtime.reltime(0,'days since 1900'))] or \
 ##                type(copy_mthd.datawc_x2) in [type(cdtime.comptime(1900)),type(cdtime.reltime(0,'days since 1900'))]) \
 
 
-        if (hasattr(copy_mthd,'datawc_x1') and hasattr(copy_mthd,'datawc_x2')) \
+        if (hasattr(check_mthd,'datawc_x1') and hasattr(check_mthd,'datawc_x2')) \
                and arglist[0].getAxis(-1).isTime() \
-               and copy_mthd.xticlabels1=='*' \
-               and copy_mthd.xticlabels2=='*' \
-               and copy_mthd.xmtics1 in ['*',''] \
-               and copy_mthd.xmtics2 in ['*',''] \
-               and not (copy_mthd.g_name in ['GXy','GXY'] and arglist[0].ndim==1) :
+               and check_mthd.xticlabels1=='*' \
+               and check_mthd.xticlabels2=='*' \
+               and check_mthd.xmtics1 in ['*',''] \
+               and check_mthd.xmtics2 in ['*',''] \
+               and not (check_mthd.g_name in ['G1d'] and (check_mthd.flip== True or arglist[1] is not None) and arglist[0].ndim==1) : #used to be GXy GX
             ax=arglist[0].getAxis(-1).clone()
             ids=arglist[0].getAxisIds()
             for i in range(len(ids)):
@@ -3184,14 +3125,11 @@ Options:::
                         if not axes_changed2.has_key(i):
                             axes_changed2[i]=ax
             try:
-                ax.toRelativeTime(copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
+                ax.toRelativeTime(check_mthd.datawc_timeunits,check_mthd.datawc_calendar)
                 convertedok = True
             except:
                 convertedok = False
-            if (copy_mthd.xticlabels1=='*' or copy_mthd.xticlabels2=='*') and convertedok and copy_mthd.g_name not in ["GSp",]:
-                if wasnone:
-                    wasnone=0
-                    copy_mthd=self.generate_gm(arglist[3],arglist[4])
+            if (check_mthd.xticlabels1=='*' or check_mthd.xticlabels2=='*') and convertedok :#and check_mthd.g_name not in ["G1d",]: #used to be Gsp
                 convert_datawc = False
                 for cax in axes_changed.keys():
                     if axes_changed[cax] == ax:
@@ -3199,9 +3137,12 @@ Options:::
                         break
                 if convert_datawc:
                     oax = arglist[0].getAxis(cax).clone()
-                    t=type(copy_mthd.datawc_x1)
+                    t=type(check_mthd.datawc_x1)
                     if not t in [type(cdtime.reltime(0,'months since 1900')),type(cdtime.comptime(1900))]:
-                        if copy_mthd.datawc_x1>9.E19:
+                        if copy_mthd is None:
+                          copy_mthd=vcs.creategraphicsmethod(arglist[3],arglist[4])
+                          check_mthd = copy_mthd
+                        if check_mthd.datawc_x1>9.E19:
                             copy_mthd.datawc_x1 = cdtime.reltime(oax[0],oax.units).tocomp(oax.getCalendar()).torel(copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
                         else:
                             copy_mthd.datawc_x1 = cdtime.reltime(copy_mthd.datawc_x1,oax.units).tocomp(oax.getCalendar()).torel(copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
@@ -3209,16 +3150,24 @@ Options:::
                             copy_mthd.datawc_x2 = cdtime.reltime(oax[-1],oax.units).tocomp(oax.getCalendar()).torel(copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
                         else:
                             copy_mthd.datawc_x2 = cdtime.reltime(copy_mthd.datawc_x2,oax.units).tocomp(oax.getCalendar()).torel(copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
-                if copy_mthd.xticlabels1=='*' : copy_mthd.xticlabels1=vcs.generate_time_labels(copy_mthd.datawc_x1,copy_mthd.datawc_x2,copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
-                if copy_mthd.xticlabels2=='*' : copy_mthd.xticlabels2=vcs.generate_time_labels(copy_mthd.datawc_x1,copy_mthd.datawc_x2,copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
-        elif not (getattr(copy_mthd,'g_name','')=='Gfm' and isinstance(arglist[0].getGrid(), (cdms2.gengrid.AbstractGenericGrid,cdms2.hgrid.AbstractCurveGrid))):
+                if copy_mthd.xticlabels1=='*' : 
+                  if copy_mthd is None:
+                    copy_mthd=vcs.creategraphicsmethod(arglist[3],arglist[4])
+                    check_mthd = copy_mthd
+                  copy_mthd.xticlabels1=vcs.generate_time_labels(copy_mthd.datawc_x1,copy_mthd.datawc_x2,copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
+                if copy_mthd.xticlabels2=='*' : 
+                  if copy_mthd is None:
+                    copy_mthd=vcs.creategraphicsmethod(arglist[3],arglist[4])
+                    check_mthd = copy_mthd
+                  copy_mthd.xticlabels2=vcs.generate_time_labels(copy_mthd.datawc_x1,copy_mthd.datawc_x2,copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
+        elif not (getattr(check_mthd,'g_name','')=='Gfm' and isinstance(arglist[0].getGrid(), (cdms2.gengrid.AbstractGenericGrid,cdms2.hgrid.AbstractCurveGrid))):
             try:
-                if arglist[0].getAxis(-1).isTime():
-                    if (copy_mthd.xticlabels1=='*' and copy_mthd.xticlabels2=='*' and copy_mthd.g_name != 'GXy') \
-                       and copy_mthd.g_name not in ['GSp']:
-                        if wasnone:
-                            wasnone=0
-                            copy_mthd=self.generate_gm(arglist[3],arglist[4])
+                if arglist[0].getAxis(-1).isTime():#used to GXy
+                    if (check_mthd.xticlabels1=='*' and check_mthd.xticlabels2=='*' and not (check_mthd.g_name == 'G1d' and check_mthd.flip) ) \
+                       and check_mthd.g_name not in ['G1d']: # used to be GSp
+                        if copy_mthd is None:
+                            copy_mthd=vcs.creategraphicsmethod(arglist[3],arglist[4])
+                            check_mthd=copy_mthd
                         t=arglist[0].getAxis(-1).clone()
                         timeunits=t.units
                         calendar=t.getCalendar()
@@ -3228,15 +3177,15 @@ Options:::
             except:
                 pass
 
-        if (hasattr(copy_mthd,'datawc_y1') and hasattr(copy_mthd,'datawc_y2'))\
-               and copy_mthd.yticlabels1=='*' \
-               and copy_mthd.yticlabels2=='*' \
-               and copy_mthd.ymtics1 in ['*',''] \
-               and copy_mthd.ymtics2 in ['*',''] \
-               and arglist[0].getAxis(-2).isTime() and (arglist[0].ndim>1 or copy_mthd.g_name in ['GXy',]) \
-               and not (copy_mthd.g_name=='Gfm' and isinstance(arglist[0].getGrid(), (cdms2.gengrid.AbstractGenericGrid,cdms2.hgrid.AbstractCurveGrid))):
+        if (hasattr(check_mthd,'datawc_y1') and hasattr(check_mthd,'datawc_y2'))\
+               and check_mthd.yticlabels1=='*' \
+               and check_mthd.yticlabels2=='*' \
+               and check_mthd.ymtics1 in ['*',''] \
+               and check_mthd.ymtics2 in ['*',''] \
+               and arglist[0].getAxis(-2).isTime() and (arglist[0].ndim>1 or (check_mthd.g_name == 'G1d' and check_mthd.flip)) \
+               and not (check_mthd.g_name=='Gfm' and isinstance(arglist[0].getGrid(), (cdms2.gengrid.AbstractGenericGrid,cdms2.hgrid.AbstractCurveGrid))): #GXy
             ax=arglist[0].getAxis(-2).clone()
-            if copy_mthd.g_name in ["GSp",]:
+            if check_mthd.g_name == "G1d" and check_mthd.linewidth==0: # used to be  Sp
                 ax = arglist[1].getAxis(-2).clone()
                 axes_changed2={}
             ids=arglist[0].getAxisIds()
@@ -3258,17 +3207,14 @@ Options:::
 ##                             ax=axes_changed2[i]
                         break
             try:
-                ax.toRelativeTime(copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
+                ax.toRelativeTime(check_mthd.datawc_timeunits,check_mthd.datawc_calendar)
                 convertedok = True
             except:
                 convertedok = False
-            if (copy_mthd.yticlabels1=='*' or copy_mthd.yticlabels2=='*') and convertedok:
-                if wasnone:
-                    wasnone=0
-                    copy_mthd=self.generate_gm(arglist[3],arglist[4])
+            if (check_mthd.yticlabels1=='*' or check_mthd.yticlabels2=='*') and convertedok:
                 convert_datawc = False
                 A=axes_changed
-                if copy_mthd.g_name in ["GSp",]:
+                if check_mthd.g_name=="G1d" and check_mthd.linewidth==0:  #GSp
                     A=axes_changed2
                 for cax in A.keys():
                     if A[cax] is ax:
@@ -3276,6 +3222,9 @@ Options:::
                         break
                 if convert_datawc:
                     oax = arglist[0].getAxis(cax).clone()
+                    if copy_mthd is None:
+                        copy_mthd=vcs.creategraphicsmethod(arglist[3],arglist[4])
+                        check_mthd = copy_mthd
                     if copy_mthd.datawc_y1>9.E19:
                         copy_mthd.datawc_y1 = cdtime.reltime(oax[0],oax.units).tocomp(oax.getCalendar()).torel(copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
                     else:
@@ -3284,16 +3233,23 @@ Options:::
                         copy_mthd.datawc_y2 = cdtime.reltime(oax[-1],oax.units).tocomp(oax.getCalendar()).torel(copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
                     else:
                         copy_mthd.datawc_y2 = cdtime.reltime(copy_mthd.datawc_y2,oax.units).tocomp(oax.getCalendar()).torel(copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
-                if copy_mthd.yticlabels1=='*' :
+                if check_mthd.yticlabels1=='*' :
+                    if copy_mthd is None:
+                        copy_mthd=vcs.creategraphicsmethod(arglist[3],arglist[4])
+                        check_mthd = copy_mthd
                     copy_mthd.yticlabels1=vcs.generate_time_labels(copy_mthd.datawc_y1,copy_mthd.datawc_y2,copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
-                if copy_mthd.yticlabels2=='*' : copy_mthd.yticlabels2=vcs.generate_time_labels(copy_mthd.datawc_y1,copy_mthd.datawc_y2,copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
-        elif not (getattr(copy_mthd,'g_name','')=='Gfm' and isinstance(arglist[0].getGrid(), (cdms2.gengrid.AbstractGenericGrid,cdms2.hgrid.AbstractCurveGrid))):
+                if check_mthd.yticlabels2=='*' :
+                    if copy_mthd is None:
+                        copy_mthd=vcs.creategraphicsmethod(arglist[3],arglist[4])
+                        check_mthd = copy_mthd
+                    copy_mthd.yticlabels2=vcs.generate_time_labels(copy_mthd.datawc_y1,copy_mthd.datawc_y2,copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar)
+        elif not (getattr(check_mthd,'g_name','')=='Gfm' and isinstance(arglist[0].getGrid(), (cdms2.gengrid.AbstractGenericGrid,cdms2.hgrid.AbstractCurveGrid))):
             try:
-                if arglist[0].getAxis(-2).isTime() and arglist[0].ndim>1 and copy_mthd.g_name not in ['GYx','GXy','GXY','GSp']:
-                    if copy_mthd.yticlabels1=='*' and copy_mthd.yticlabels2=='*':
-                        if wasnone:
-                            wasnone=0
-                            copy_mthd=self.generate_gm(arglist[3],arglist[4])
+              if arglist[0].getAxis(-2).isTime() and arglist[0].ndim>1 and copy_mthd.g_name not in ["G1d",]: #['GYx','GXy','GXY','GSp']:
+                    if check_mthd.yticlabels1=='*' and check_mthd.yticlabels2=='*':
+                        if copy_mthd is None:
+                            copy_mthd=vcs.creategraphicsmethod(arglist[3],arglist[4])
+                            check_mthd = copy_mthd
 ##                         print copy_mthd.datawc_y1,copy_mthd.datawc_y2,copy_mthd.datawc_timeunits,copy_mthd.datawc_calendar
                         t=arglist[0].getAxis(-2).clone()
                         timeunits=t.units
@@ -3383,19 +3339,12 @@ Options:::
                     pass
             return did_something
 
-        if copy_mthd is None:
-            copy_mthd=self.get_gm(arglist[3],arglist[4])
-            if set_convert_labels(copy_mthd,test=1):
-                copy_mthd=self.generate_gm(arglist[3],arglist[4])
-                set_convert_labels(copy_mthd)
-            else:
-                copy_mthd=None
-                
-        else:
-            set_convert_labels(copy_mthd)
+        if set_convert_labels(check_mthd,test=1):
+            if copy_mthd is None:
+              copy_mthd=vcs.creategraphicsmethod(arglist[3],arglist[4])
+              check_mthd = copy_mthd
+              set_convert_labels(copy_mthd)
 
-        if copy_mthd is None:
-            copy_mthd=self.generate_gm(arglist[3],arglist[4])
         x=None
         y=None
         try:
@@ -3403,7 +3352,7 @@ Options:::
                 x="longitude"
             elif arglist[0].getAxis(-1).isLatitude():
                 x="latitude"
-            if copy_mthd.g_name in ["GXy","GXY"]:
+            if check_mthd.g_name=="G1d" and (check_mthd.flip or arglist[1] is not None):# in ["GXy","GXY"]:
                 datawc_x1=MV2.minimum(arglist[0])
                 datawc_x2=MV2.maximum(arglist[0])
                 x=None
@@ -3427,11 +3376,11 @@ Options:::
             elif arglist[0].getAxis(-2).isLatitude():
                 y="latitude"
             
-            if copy_mthd.g_name in ["GYx",]:
+            if check_mthd.g_name=="G1d" and not check_mthd.flip and arglist[1] is None: # in ["GYx",]:
                 datawc_y1=MV2.minimum(arglist[0])
                 datawc_y2=MV2.maximum(arglist[0])
                 y=None
-            elif copy_mthd.g_name in ["GYX",]:
+            elif check_mthd.g_name=="G1d" and arglist[1] is not None: # in ["GYX",]:
                 datawc_y1=MV2.minimum(arglist[1])
                 datawc_y2=MV2.maximum(arglist[1])
                 y=None
@@ -3447,11 +3396,11 @@ Options:::
             if isinstance(arglist[0].getGrid(), (cdms2.gengrid.AbstractGenericGrid,cdms2.hgrid.AbstractCurveGrid)):
               x="longitude"
               y="latitude"
-        except:
+        except Exception,err:
             pass
         try:
-            dic = vcs.setTicksandLabels(copy_mthd,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=x,y=y)
-        except:
+          copy_mthd = vcs.setTicksandLabels(check_mthd,copy_mthd,datawc_x1,datawc_x2,datawc_y1,datawc_y2,x=x,y=y)
+        except Exception,err:
             pass
 
         if not copy_mthd is None: arglist[4]=copy_mthd.name
@@ -3499,7 +3448,7 @@ Options:::
                     return result
 ##                     return self.getplot(dn, template_origin)
             raise vcsError, 'Error taylordiagram method: '+arglist[4]+' not found'
-        else:
+        else: #not taylor diagram
             if isinstance(arglist[3],vcsaddons.core.VCSaddon):
                 gm= arglist[3]
             else:
@@ -3560,7 +3509,6 @@ Options:::
                     p = self.createline(source=arglist[4])
                 elif arglist[3]=='fillarea':
                     p = self.createfillarea(source=arglist[4])
-
                 t.data.x1 = p.viewport[0]
                 t.data.x2 = p.viewport[1]
                 t.data.y1 = p.viewport[2]
@@ -3585,6 +3533,20 @@ Options:::
                         arglist[4] = p.Tt_name+':::'+p.To_name
                     else:
                         arglist[4]=p.name
+                else:
+                  if arglist[3]=='text':
+                      sp = p.name.split(":::")
+                      del(vcs.elements["texttable"][sp[0]])
+                      del(vcs.elements["textorientation"][sp[1]])
+                      del(vcs.elements["textcombined"][p.name])
+                  elif arglist[3]=='marker':
+                      del(vcs.elements["marker"][p.name])
+                  elif arglist[3]=='line':
+                      del(vcs.elements["line"][p.name])
+                  elif arglist[3]=='fillarea':
+                      del(vcs.elements["fillarea"][p.name])
+                # cleanup temp template
+                del(vcs.elements["template"][t.name])
             elif (arglist[3] in ['boxfill','isofill','isoline','outfill','outline','vector','meshfill'] or isinstance(arglist[3],vcsaddons.core.VCSaddon)) and doratio in ['auto','autot'] and not (doratio=='auto' and arglist[2]=='ASD'):
                 box_and_ticks=0
                 if doratio[-1]=='t' or template_origin=='default':
@@ -3616,12 +3578,12 @@ Options:::
                             if gm.datawc_y2<9.99E19:
                                 lat2=gm.datawc_y2
                             if copy_tmpl is None:
-                                copy_tmpl=self._create_random_template(arglist[2])
+                                copy_tmpl=vcs.createtemplate(source=arglist[2])
                                 arglist[2]=copy_tmpl.name
                             copy_tmpl.ratio_linear_projection(lon1,lon2,lat1,lat2,None,box_and_ticks=box_and_ticks)
                     elif arglist[0].getAxis(-1).isLongitude() and arglist[0].getAxis(-2).isLatitude():
                         if copy_tmpl is None:
-                            copy_tmpl=self._create_random_template(arglist[2])
+                            copy_tmpl=vcs.createtemplate(source=arglist[2])
                         if gm.datawc_x1<9.99E19:
                             lon1=gm.datawc_x1
                         else:
@@ -3651,7 +3613,7 @@ Options:::
                 except:
                     Ratio=doratio
                 if copy_tmpl is None:
-                    copy_tmpl=self._create_random_template(arglist[2])
+                    copy_tmpl=vcs.createtemplate(source=arglist[2])
                     arglist[2]=copy_tmpl.name
                 copy_tmpl.ratio(Ratio,box_and_ticks=box_and_ticks,x=self)
                             

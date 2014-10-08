@@ -59,8 +59,6 @@ class VTKVCSBackend(object):
   def interact(self,*args,**kargs):
       warnings.warn("Press 'Q' to exit interactive mode and continue script execution")
       interactor = self.renWin.GetInteractor()
-      istyle = interactor.GetInteractorStyle()
-#      print "STYLE:",istyle
       interactor.Start()
 
   def leftButtonPressEvent(self,obj,event):
@@ -404,7 +402,9 @@ class VTKVCSBackend(object):
     if data2 is None:
       X=Y.getAxis(0)[:]
     else:
-      X=self.trimData1D(data2)
+      X=Y
+      data1._yname = data2.id
+      Y=self.trimData1D(data2)
 
     if gm.flip:
       tmp = Y
@@ -479,6 +479,10 @@ class VTKVCSBackend(object):
     ren2 = self.createRenderer()
     self.renWin.AddRenderer(ren2)
     tmpl.plot(self.canvas,data1,gm,bg=self.bg,renderer=ren2,X=X,Y=Y)
+    if hasattr(data1,"_yname"):
+      del(data1._yname)
+    del(vcs.elements["line"][l.name])
+    del(vcs.elements["marker"][m.name])
 
     if tmpl.legend.priority>0:
         ren2 = self.createRenderer()
@@ -495,7 +499,12 @@ class VTKVCSBackend(object):
         t.y=tmpl.legend.y2
         t.string=data1.id
         self.canvas.plot(t,renderer=ren2,donotstoredisplay=True)
+        sp = t.name.split(":::")
+        del(vcs.elements["texttable"][sp[0]])
+        del(vcs.elements["textorientation"][sp[1]])
+        del(vcs.elements["textcombined"][t.name])
         self.canvas.plot(legd,renderer=ren2,donotstoredisplay=True)
+        del(vcs.elements["line"][legd.name])
 
   def setLayer(self,renderer,priority):
     n = self.numberOfPlotCalls + (priority-1)*10000
@@ -1013,7 +1022,6 @@ class VTKVCSBackend(object):
           if isinstance(levs,numpy.ndarray):
               levs=levs.tolist()
           if not (isinstance(levs[0],list) and numpy.allclose(levs[0][0],-1.e20)):
-            print "Inserting:",levs[0]
             levs.insert(0,-1.e20)
       if gm.ext_2 in ["y",1,True] and not numpy.allclose(levs[-1],1.e20):
           if isinstance(levs,numpy.ndarray):
@@ -1067,16 +1075,22 @@ class VTKVCSBackend(object):
         ren = self.createRenderer()
         self.renWin.AddRenderer(ren)
         self.setLayer(ren,1)
+        tt,to = crdate.name.split(":::")
+        tt = vcs.elements["texttable"][tt]
+        to = vcs.elements["textorientation"][to]
         if crdate.priority>0:
-            tt,to = crdate.name.split(":::")
-            tt = vcs.elements["texttable"][tt]
-            to = vcs.elements["textorientation"][to]
             vcs2vtk.genTextActor(ren,to=to,tt=tt)
+        del(vcs.elements["texttable"][tt.name])
+        del(vcs.elements["textorientation"][to.name])
+        del(vcs.elements["textcombined"][crdate.name])
+        tt,to = crtime.name.split(":::")
+        tt = vcs.elements["texttable"][tt]
+        to = vcs.elements["textorientation"][to]
         if crtime.priority>0:
-            tt,to = crtime.name.split(":::")
-            tt = vcs.elements["texttable"][tt]
-            to = vcs.elements["textorientation"][to]
             vcs2vtk.genTextActor(ren,to=to,tt=tt)
+        del(vcs.elements["texttable"][tt.name])
+        del(vcs.elements["textorientation"][to.name])
+        del(vcs.elements["textcombined"][crtime.name])
     if zaxis is not None:
         # ok we have a zaxis to draw
         zname = vcs2vtk.applyAttributesFromVCStmpl(tmpl,"zname")
@@ -1091,21 +1105,30 @@ class VTKVCSBackend(object):
         ren = self.createRenderer()
         self.setLayer(ren,1)
         self.renWin.AddRenderer(ren)
+        tt,to = zname.name.split(":::")
+        tt = vcs.elements["texttable"][tt]
+        to = vcs.elements["textorientation"][to]
         if zname.priority>0:
-            tt,to = zname.name.split(":::")
-            tt = vcs.elements["texttable"][tt]
-            to = vcs.elements["textorientation"][to]
             vcs2vtk.genTextActor(ren,to=to,tt=tt)
+        del(vcs.elements["texttable"][tt.name])
+        del(vcs.elements["textorientation"][to.name])
+        del(vcs.elements["textcombined"][zname.name])
+        tt,to = zunits.name.split(":::")
+        tt = vcs.elements["texttable"][tt]
+        to = vcs.elements["textorientation"][to]
         if zunits.priority>0:
-            tt,to = zunits.name.split(":::")
-            tt = vcs.elements["texttable"][tt]
-            to = vcs.elements["textorientation"][to]
             vcs2vtk.genTextActor(ren,to=to,tt=tt)
+        del(vcs.elements["texttable"][tt.name])
+        del(vcs.elements["textorientation"][to.name])
+        del(vcs.elements["textcombined"][zunits.name])
+        tt,to = zvalue.name.split(":::")
+        tt = vcs.elements["texttable"][tt]
+        to = vcs.elements["textorientation"][to]
         if zvalue.priority>0:
-            tt,to = zvalue.name.split(":::")
-            tt = vcs.elements["texttable"][tt]
-            to = vcs.elements["textorientation"][to]
             vcs2vtk.genTextActor(ren,to=to,tt=tt)
+        del(vcs.elements["texttable"][tt.name])
+        del(vcs.elements["textorientation"][to.name])
+        del(vcs.elements["textcombined"][zvalue.name])
 
 
   def renderColorBar(self,tmpl,levels,colors,legend,cmap):
