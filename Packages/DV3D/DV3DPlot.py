@@ -870,11 +870,12 @@ class DV3DPlot():
         time.sleep(0.0)
  
     def onWindowExit( self, caller=None, event=None ):
-         print "Window Event: ", event
-         self.onClosing()
+        #print "Window Event: ", event
+        self.onClosing()
              
     def onAnyWindowEvent( self, caller=None, event=None ):
-         print "Window Event: ", event
+        pass
+        #print "Window Event: ", event
 
                                        
 #     def onWindowModified( self, caller=None, event=None ):
